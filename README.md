@@ -301,7 +301,7 @@ into the SDCard slot on the K64F PCB.
 ### <a name="run-the-example-binary-on-the-k64f"></a> Run the Example Binary on the K64F 
 
 Once the binary is built, copy the binary from `/d/demo_area/sd_ex1/BUILD/K64F/GCC_ARM/example1.bin` to the K64F. 
-After connecting a serial console to the and resetting the target, the following trace should be seen:
+After connecting a serial console and resetting the target, the following trace should be seen:
 
 	Welcome to the filesystem example.
 	Opening a new file, numbers.txt. done.
@@ -830,3 +830,441 @@ The following are related mbed storage projects and useful resources:
   the mbed-os Continuous Integration test shield, together with standard tests.
 - [POSIX File Interface ISO/IEC 9899:TC2 Documentation](http://www.eng.utah.edu/~cs5785/slides-f10/n1124.pdf).
 - [FATFS: Generic FAT File System Module used in mbed OS](http://elm-chan.org/fsw/ff/00index_e.html)
+
+
+# Appendix 1: Getting Started with SPIFlash-Driver Example 
+
+## Overview
+
+This example describes how to build and run the spiflash-driver SPIFBlockDevice examples to 
+read and write data to a SPI NOR flash part connected to a K64F.
+ 
+
+Hardware required:
+
+- K64F.
+- CI test shield.
+- SPI NOR Flash Device wired to Arduino header pins e.g. the Macronix MX25R2035F. The datasheet is available 
+  from the [Macronix website](http://www.macronix.com/).
+- Micro USB cable.
+
+Software required:
+
+- mbed CLI (with all other dependencies installed).
+- ARMCC / GCC_ARM / IAR compiler.
+- mbed greentea.
+- git account.
+
+Github repos to use:
+
+- The [mbed OS repository](https://github.com/armmbed/mbed-os) 
+- The [SPI Flash Driver repository](https://github.com/armmbed/spiflash-driver) 
+
+## Simple SPIFBlockDevice Example
+
+This section describes how to create an application project combining the 
+mbed-os and spiflash-driver repositories into a single project. 
+In summary the following steps will be covered in this section:
+
+- A top level application project directory is created. The directory name is ex_app2.
+- In the ex_app2 directory, the mbed-os repository is cloned.
+- In the ex_app2 directory at the same level as the mbed-os directory, the spiflash-driver repository is cloned.
+
+First create the top level application directory ex_app2 and move into it:
+
+    simhug01@E107851:/d/demo_area$ mkdir ex_app2
+    simhug01@E107851:/d/demo_area$ pushd ex_app2
+
+Next, get a clone of public mbed OS repository in the following way:
+
+    simhug01@E107851:/d/demo_area/ex_app2$ git clone git@github.com:/armmbed/mbed-os
+    <trace removed>
+    simhug01@E107851:/d/demo_area/ex_app2$
+
+Next, get a clone of the spiflash-driver repository:
+
+    simhug01@E107851:/d/demo_area/ex_app2$ git clone git@github.com:/armmbed/spiflash-driver
+    <trace removed>
+    simhug01@E107851:/d/demo_area/ex_app2$
+
+In the top level directory create the example2.cpp:     
+
+    simhug01@E107851:/d/demo_area/ex_app2$ touch example2.cpp
+
+Copy the [spiflash-driver example code](https://github.com/armmbed/spiflash-driver) 
+and paste into example2.cpp (reproduced here for convenience and corrected to build for 
+GCC_ARM):
+
+	// Here's an example using the MX25R SPI flash device on the K82F
+	#include "mbed.h"
+	#include "SPIFBlockDevice.h"
+
+	/* This is the original configuration of the SPI Flash Driver
+	 * pins for Freescale K82F development board. We're not using
+	 * this as we're using the CI Test Shield
+	 */
+	// Create flash device on SPI bus with PTE5 as chip select
+	//SPIFBlockDevice spif(PTE2, PTE4, PTE1, PTE5);
+	
+	/* This configuration of the SPI Flash Driver pins is for
+	 * the Freescale K64F connecting the SPI pins on the
+	 * Arduino header to the SPI NOR part.
+	 */
+	SPIFBlockDevice spif(D11, D12, D13, D10);
+	
+	
+	int main() {
+	    printf("spif test\n");
+	
+	    // Initialize the SPI flash device and print the memory layout
+	    spif.init();
+	    printf("spif size: %llu\n",         spif.size());
+	    printf("spif read size: %llu\n",    spif.get_read_size());
+	    printf("spif program size: %llu\n", spif.get_program_size());
+	    printf("spif erase size: %llu\n",   spif.get_erase_size());
+	
+	    // Write "Hello World!" to the first block
+	    char *buffer = (char*) malloc(spif.get_erase_size());
+	    sprintf(buffer, "Hello World!\n");
+	    spif.erase(0, spif.get_erase_size());
+	    spif.program(buffer, 0, spif.get_erase_size());
+	
+	    // Read back what was stored
+	    spif.read(buffer, 0, spif.get_erase_size());
+	    printf("%s", buffer);
+	
+	    // Deinitialize the device
+	    spif.deinit();
+	}
+
+Note the following modifications to the original code sample:
+
+- The SPI Flash Driver instance `spif` is given the pin configuration
+  for the SPI bus from the Arduino header pins D11, D12, D13 and D10, 
+  as noted in the comments.
+- The buffer type has been modified to char* to (see line with malloc() above). 
+
+The application can be built with the following command:
+
+	simhug01@E107851:/d/demo_area/ex_app2$ mbed compile -m K64F -t GCC_ARM 2>&1 | tee build_app_ex_app2_log.txt
+	
+Once the binary is built, copy the binary from `/d/demo_area/ex_app2/BUILD/K64F/GCC_ARM/example2.bin` to the K64F. 
+After connecting a serial console and resetting the target, the following trace should be seen:
+
+	spif test
+	spif size: 2097152
+	spif read size: 1
+	spif program size: 1
+	spif erase size: 4096
+	Hello World!
+
+	
+## Build the mbed OS Test Cases
+
+If you have completed the previous section "Simple SPIFBlockDevice Example" then first prepare the environment by removing the BUILD
+directory and hiding or removing the example2.cpp:
+
+    simhug01@E107851:/d/demo_area/ex_app2$ rm -fR BUILD
+    simhug01@E107851:/d/demo_area/ex_app2$ cp example2.cpp example2_cpp
+    
+Build the test cases for the K64F target using the following command:
+
+    simhug01@E107851:/d/demo_area/ex_app2$ mbed -v test --compile -t GCC_ARM -m K64F 2>&1 | tee build_tests_gcc_20170322_1007.txt
+    <trace removed>
+    simhug01@E107851:/d/demo_area/ex_app2$
+
+The build trace is quite extensive but on a successful build you should see the following output at the end of the log:
+
+  	Build successes:
+	  * K64F::GCC_ARM::MBED-BUILD
+	  * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-CONNECTIVITY
+	  <trace removed>
+	  * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-FAT_FILE_SYSTEM
+	  * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-HEAP_BLOCK_DEVICE
+	  * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-UTIL_BLOCK_DEVICE
+	  <trace removed>
+	  * K64F::GCC_ARM::MBED-OS-TESTS-STORAGE_ABSTRACTION-BASICAPI
+	  * K64F::GCC_ARM::SPIFLASH-DRIVER-TESTS-BLOCK_DEVICE-SPIF
+	
+	
+	Build skips:
+	  * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-TCP_PACKET_PRESSURE
+	  <trace removed>
+ 
+Notice the following test in the spiflash-driver tree listed above:     
+
+- `K64F::GCC_ARM::SPIFLASH-DRIVER-TESTS-BLOCK_DEVICE-SPIF`
+
+
+The SPIFBlockDevice test case is at following locations in the source code tree:
+
+    /d/demo_area/ex_app2/spiflash-driver/TESTS/block_device/spif/main.cpp
+
+This provides an example of reading and writing data blocks to the block device interface for the SPI NOR part.
+
+Run the test using the following command:
+
+    simhug01@E107851:/d/demo_area/ex_app2$ mbedgt -VS --test-by-names=spiflash-driver-tests-block_device-spif 2>&1 | tee run_test_gcc_20170322_1007.txt
+
+The test output should look similar to the following trace:
+
+	(mx_env1) simhug01@E107851:/d/datastore/public/jobs/yr2017/2278/sdh_dev_mx1/ex_app5$ mbedgt -VS --test-by-names=spiflash-driver-tests-block_device-sp
+	if 2>&1 | tee 2278_run_test_ex_app5_br_master_time_20170322_1207_spif.txt
+	mbedgt: greentea test automation tool ver. 1.2.5
+	mbedgt: using multiple test specifications from current directory!
+	        using 'BUILD\tests\K64F\GCC_ARM\test_spec.json'
+	mbedgt: detecting connected mbed-enabled devices...
+	mbedgt: detected 1 device
+	        +---------------+----------------------+-------------+-------------+--------------------------------------------------+
+	        | platform_name | platform_name_unique | serial_port | mount_point | target_id                                        |
+	        +---------------+----------------------+-------------+-------------+--------------------------------------------------+
+	        | K64F          | K64F[0]              | COM46       | E:          | 0240000029304e450023500878a3001df131000097969900 |
+	        +---------------+----------------------+-------------+-------------+--------------------------------------------------+
+	mbedgt: processing target 'K64F' toolchain 'GCC_ARM' compatible platforms... (note: switch set to --parallel 1)
+	        +---------------+----------------------+-------------+-------------+--------------------------------------------------+
+	        | platform_name | platform_name_unique | serial_port | mount_point | target_id                                        |
+	        +---------------+----------------------+-------------+-------------+--------------------------------------------------+
+	        | K64F          | K64F[0]              | COM46:9600  | E:          | 0240000029304e450023500878a3001df131000097969900 |
+	        +---------------+----------------------+-------------+-------------+--------------------------------------------------+
+	mbedgt: test case filter (specified with -n option)
+	        test filtered in 'spiflash-driver-tests-block_device-spif'
+	mbedgt: running 1 test for platform 'K64F' and toolchain 'GCC_ARM'
+	        use 1 instance of execution threads for testing
+	mbedgt: checking for 'host_tests' directory above image directory structure
+	        'host_tests' directory not found: two directory levels above image path checked
+	mbedgt: selecting test case observer...
+	        calling mbedhtrun: mbedhtrun -m K64F -p COM46:9600 -f "BUILD/tests/K64F/GCC_ARM/spiflash-driver/TESTS/block_device/spif/spif.bin" -d E: -C 4 -
+	c shell -t 0240000029304e450023500878a3001df131000097969900
+	mbedgt: mbed-host-test-runner: started
+	[1490184626.50][HTST][INF] host test executor ver. 1.1.6
+	[1490184626.50][HTST][INF] copy image onto target...
+	[1490184626.50][COPY][INF] Waiting up to 60 sec for '0240000029304e450023500878a3001df131000097969900' mount point (current is 'E:')...
+	        1 file(s) copied.
+	[1490184635.79][HTST][INF] starting host test process...
+	[1490184636.10][CONN][INF] starting connection process...
+	[1490184636.10][CONN][INF] notify event queue about extra 60 sec timeout for serial port pooling
+	[1490184636.10][CONN][INF] initializing serial port listener...
+	[1490184636.10][PLGN][INF] Waiting up to 60 sec for '0240000029304e450023500878a3001df131000097969900' serial port (current is 'COM46')...
+	[1490184636.12][HTST][INF] setting timeout to: 60 sec
+	[1490184636.24][SERI][INF] serial(port=COM46, baudrate=9600, timeout=0.01)
+	<lines deleted to save space>
+	[1490184649.90][CONN][INF] found KV pair in stream: {{__testcase_name;Testing read write random blocks}}, queued...
+	[1490184649.97][CONN][RXD] >>> Running case #1: 'Testing read write random blocks'...
+	[1490184650.02][CONN][INF] found KV pair in stream: {{__testcase_start;Testing read write random blocks}}, queued...
+	[1490184650.05][CONN][RXD] read size: 1bytes (1bytes)
+	[1490184650.08][CONN][RXD] program size: 1bytes (1bytes)
+	[1490184650.12][CONN][RXD] erase size: 4kbytes (4096bytes)
+	[1490184650.13][CONN][RXD] total size: 2Mbytes (2097152bytes)
+	[1490184650.17][CONN][RXD] test  002d000:4096...
+	[1490184650.36][CONN][RXD] write 002d000:4096 aad8573abd84e79e5e3684fa5519aabb...
+	[1490184650.50][CONN][RXD] read  002d000:4096 aad8573abd84e79e5e3684fa5519aabb...
+	[1490184650.56][CONN][RXD] error 002d000:4096 00000000000000000000000000000000
+	[1490184650.58][CONN][RXD] test  0036000:4096...
+	[1490184650.77][CONN][RXD] write 0036000:4096 92fc08f5b4113047225a8d3b855e5460...
+	[1490184650.91][CONN][RXD] read  0036000:4096 92fc08f5b4113047225a8d3b855e5460...
+	[1490184650.97][CONN][RXD] error 0036000:4096 00000000000000000000000000000000
+	[1490184650.99][CONN][RXD] test  00c6000:4096...
+	[1490184651.16][CONN][RXD] write 00c6000:4096 89a030a34b17ca3545c7b007001ef74f...
+	[1490184651.32][CONN][RXD] read  00c6000:4096 89a030a34b17ca3545c7b007001ef74f...
+	[1490184651.38][CONN][RXD] error 00c6000:4096 00000000000000000000000000000000
+	[1490184651.40][CONN][RXD] test  00da000:4096...
+	[1490184651.60][CONN][RXD] write 00da000:4096 446fd0232a3d053af820b69c614b3662...
+	[1490184651.73][CONN][RXD] read  00da000:4096 446fd0232a3d053af820b69c614b3662...
+	[1490184651.79][CONN][RXD] error 00da000:4096 00000000000000000000000000000000
+	[1490184651.81][CONN][RXD] test  0188000:4096...
+	[1490184652.00][CONN][RXD] write 0188000:4096 9a36d3c6d4034958cade542a9f1e22c2...
+	[1490184652.14][CONN][RXD] read  0188000:4096 9a36d3c6d4034958cade542a9f1e22c2...
+	[1490184652.20][CONN][RXD] error 0188000:4096 00000000000000000000000000000000
+	[1490184652.21][CONN][RXD] test  015f000:4096...
+	[1490184652.42][CONN][RXD] write 015f000:4096 70f83b9cc6713736c60089a0fa55f12d...
+	[1490184652.55][CONN][RXD] read  015f000:4096 70f83b9cc6713736c60089a0fa55f12d...
+	[1490184652.61][CONN][RXD] error 015f000:4096 00000000000000000000000000000000
+	[1490184652.63][CONN][RXD] test  005c000:4096...
+	[1490184652.82][CONN][RXD] write 005c000:4096 47a0f043fda26135877bb11c7b7016dc...
+	[1490184652.96][CONN][RXD] read  005c000:4096 47a0f043fda26135877bb11c7b7016dc...
+	[1490184653.02][CONN][RXD] error 005c000:4096 00000000000000000000000000000000
+	[1490184653.04][CONN][RXD] test  0177000:4096...
+	[1490184653.24][CONN][RXD] write 0177000:4096 174f13941b6385d4a829f2d066a1e375...
+	[1490184653.37][CONN][RXD] read  0177000:4096 174f13941b6385d4a829f2d066a1e375...
+	[1490184653.42][CONN][RXD] error 0177000:4096 00000000000000000000000000000000
+	[1490184653.45][CONN][RXD] test  0173000:4096...
+	[1490184653.65][CONN][RXD] write 0173000:4096 383f0ca8cc86e3225362805329e0d659...
+	[1490184653.78][CONN][RXD] read  0173000:4096 383f0ca8cc86e3225362805329e0d659...
+	[1490184653.84][CONN][RXD] error 0173000:4096 00000000000000000000000000000000
+	[1490184653.86][CONN][RXD] test  01d9000:4096...
+	[1490184654.05][CONN][RXD] write 01d9000:4096 73f32decf08112f271131f9837b76f28...
+	[1490184654.19][CONN][RXD] read  01d9000:4096 73f32decf08112f271131f9837b76f28...
+	[1490184654.24][CONN][RXD] error 01d9000:4096 00000000000000000000000000000000
+	[1490184654.31][CONN][INF] found KV pair in stream: {{__testcase_finish;Testing read write random blocks;1;0}}, queued...
+	[1490184654.38][CONN][RXD] >>> 'Testing read write random blocks': 1 passed, 0 failed
+	[1490184654.38][CONN][RXD]
+	[1490184654.41][CONN][RXD] >>> Test cases: 1 passed, 0 failed
+	[1490184654.44][CONN][INF] found KV pair in stream: {{__testcase_summary;1;0}}, queued...
+	[1490184654.47][CONN][INF] found KV pair in stream: {{max_heap_usage;0}}, queued...
+	[1490184654.48][CONN][INF] found KV pair in stream: {{end;success}}, queued...
+	[1490184654.48][HTST][ERR] orphan event in main phase: {{max_heap_usage;0}}, timestamp=1490184654.467000
+	[1490184654.48][HTST][INF] __notify_complete(True)
+	[1490184654.50][CONN][INF] found KV pair in stream: {{__exit;0}}, queued...
+	[1490184654.51][HTST][INF] __exit(0)
+	[1490184654.52][HTST][INF] __exit_event_queue received
+	[1490184654.52][HTST][INF] test suite run finished after 4.75 sec...
+	[1490184654.53][CONN][INF] received special even '__host_test_finished' value='True', finishing
+	[1490184654.53][HTST][INF] CONN exited with code: 0
+	[1490184654.53][HTST][INF] No events in queue
+	[1490184654.53][HTST][INF] stopped consuming events
+	[1490184654.53][HTST][INF] host test result() call skipped, received: True
+	[1490184654.53][HTST][INF] calling blocking teardown()
+	[1490184654.53][HTST][INF] teardown() finished
+	[1490184654.53][HTST][INF] {{result;success}}
+	mbedgt: checking for GCOV data...
+	mbedgt: mbed-host-test-runner: stopped and returned 'OK'
+	mbedgt: test on hardware with target id: 0240000029304e450023500878a3001df131000097969900
+	mbedgt: test suite 'spiflash-driver-tests-block_device-spif' ......................................... OK in 28.42 sec
+	        test case: 'Testing read write random blocks' ................................................ OK in 4.29 sec
+	mbedgt: test case summary: 1 pass, 0 failures
+	mbedgt: all tests finished!
+	mbedgt: shuffle seed: 0.0217829158
+	mbedgt: test suite report:
+	+--------------+---------------+-----------------------------------------+--------+--------------------+-------------+
+	| target       | platform_name | test suite                              | result | elapsed_time (sec) | copy_method |
+	+--------------+---------------+-----------------------------------------+--------+--------------------+-------------+
+	| K64F-GCC_ARM | K64F          | spiflash-driver-tests-block_device-spif | OK     | 28.42              | shell       |
+	+--------------+---------------+-----------------------------------------+--------+--------------------+-------------+
+	mbedgt: test suite results: 1 OK
+	mbedgt: test case report:
+	+--------------+---------------+-----------------------------------------+----------------------------------+--------+--------+--------+--------------------+
+	| target       | platform_name | test suite                              | test case                        | passed | failed | result | elapsed_time (sec) |
+	+--------------+---------------+-----------------------------------------+----------------------------------+--------+--------+--------+--------------------+
+	| K64F-GCC_ARM | K64F          | spiflash-driver-tests-block_device-spif | Testing read write random blocks | 1      | 0      | OK     | 4.29               |
+	+--------------+---------------+-----------------------------------------+----------------------------------+--------+--------+--------+--------------------+
+	mbedgt: test case results: 1 OK
+	mbedgt: completed in 35.04 sec
+	(mx_env1) simhug01@E107851:/d/datastore/public/jobs/yr2017/2278/sdh_dev_mx1/ex_app5$
+
+
+
+# Appendix 2: Getting Started With The I2C EEPROM Driver
+
+Hardware required:
+
+- K64F.
+- CI test shield.
+- Micro USB cable.
+
+Software required:
+
+- mbed CLI (with all other dependencies installed).
+- ARMCC / GCC / IAR compiler.
+- mbed greentea.
+- git account.
+
+Github repos to use:
+
+- The [mbed OS repository](https://github.com/armmbed/mbed-os) 
+- The [I2C EEPROM driver repository](https://github.com/ARMmbed/i2ceeprom-driver.git) 
+- The [CI test shield repository](https://github.com/ARMmbed/ci-test-shield.git) for `mbed_app.json` application configuration file. 
+
+Steps to follow:
+
+- Create an empty example project in a suitable directory. Move into it.
+- Download mbed OS into the example directory via `mbed new .`
+- Add the I2C EEPROM driver via `mbed add i2ceeprom-driver`
+- Clone the CI test shield’s repo to another suitable directory. Copy the mbed_app.json 
+  from the CI test shield directory to the top level of the newly created example directory.
+- Make sure the I2C pins are SDA on D14 and SCL on D15 and the I2C EEPROM slave address is 
+  0xA0 in the mbed_app.json that you just copied.
+- Connect the target to the host machine. Run `mbed detect` to make sure the target is detected.
+- Now we are ready to run the greentea tests on this target with 
+  `mbed test -t ARM -m K64F -n i2ceeprom-driver-tests-block_device-i2cee  -v`
+- Note that the greentea test above makes use of the main.cpp supplied in the 
+  `TESTS\block_device\i2cee` directory. You can customize this if required or use your own test 
+  application via main.cpp. Be sure to have only 1 main(). If using a custom main() then you 
+  can either have this in the TESTS directory or at the top level example directory.
+- The tests should pass. If not, time to debug!!
+- For other targets, please change the target’s ID string in the test command above to the 
+  appropriate one. You can check the supported targets from mbed CLI using “mbed target --supported”.
+
+The output should be like this:
+
+
+	Building library mbed-build (K64F, ARM)
+	Scan: i2c_ex1
+	Scan: FEATURE_BLE
+	Scan: FEATURE_COMMON_PAL
+	Scan: FEATURE_LWIP
+	Scan: FEATURE_UVISOR
+	Scan: FEATURE_ETHERNET_HOST
+	Scan: FEATURE_LOWPAN_BORDER_ROUTER
+	Scan: FEATURE_LOWPAN_HOST
+	Scan: FEATURE_LOWPAN_ROUTER
+	Scan: FEATURE_NANOSTACK
+	Scan: FEATURE_NANOSTACK_FULL
+	Scan: FEATURE_THREAD_BORDER_ROUTER
+	Scan: FEATURE_THREAD_END_DEVICE
+	Scan: FEATURE_THREAD_ROUTER
+	Scan: FEATURE_STORAGE
+	Scan: ARM
+	Scan: FEATURE_LWIP
+	Scan: FEATURE_STORAGE
+	Building project i2cee (K64F, ARM)
+	Scan: ARM
+	Scan: FEATURE_LWIP
+	Scan: FEATURE_STORAGE
+	Scan: i2cee
+	+-----------+-------+-------+-------+
+	| Module    | .text | .data |  .bss |
+	+-----------+-------+-------+-------+
+	| Misc      | 49473 |   420 | 11628 |
+	| Subtotals | 49473 |   420 | 11628 |
+	+-----------+-------+-------+-------+
+	Allocated Heap: unknown
+	Allocated Stack: unknown
+	Total Static RAM memory (data + bss): 12048 bytes
+	Total RAM memory (data + bss + heap + stack): 12048 bytes
+	Total Flash memory (text + data + misc): 49893 bytes
+	Image: BUILD/tests/K64F/ARM/i2ceeprom-driver/TESTS/block_device/i2cee/i2cee.bin
+	
+	
+	Memory map breakdown for built projects (values in Bytes):
+	+-------+--------+-----------+------------+-------+------+-----------+-------------+
+	| name  | target | toolchain | static_ram | stack | heap | total_ram | total_flash |
+	+-------+--------+-----------+------------+-------+------+-----------+-------------+
+	| i2cee | K64F   | ARM       |      12048 |     0 |    0 |     12048 |       49893 |
+	+-------+--------+-----------+------------+-------+------+-----------+-------------+
+	
+	
+	Build successes:
+	  * K64F::ARM::I2CEEPROM-DRIVER-TESTS-BLOCK_DEVICE-I2CEE
+	  * K64F::ARM::MBED-BUILD
+	mbedgt: greentea test automation tool ver. 1.2.5
+	mbedgt: test specification file 'C:\Ashok\SiPWorkshop\Filesystem\i2c_ex1\BUILD\tests\K64F\ARM\test_spec.json' (specified with --test-spec option)
+	mbedgt: using 'C:\Ashok\SiPWorkshop\Filesystem\i2c_ex1\BUILD\tests\K64F\ARM\test_spec.json' from current directory!
+	mbedgt: detecting connected mbed-enabled devices...
+	mbedgt: detected 1 device
+	mbedgt: processing target 'K64F' toolchain 'ARM' compatible platforms... (note: switch set to --parallel 1)
+	mbedgt: test case filter (specified with -n option)
+		test filtered in 'i2ceeprom-driver-tests-block_device-i2cee'
+	mbedgt: running 1 test for platform 'K64F' and toolchain 'ARM'
+	mbedgt: mbed-host-test-runner: started
+	mbedgt: checking for GCOV data...
+	mbedgt: test on hardware with target id: 0240000034544e45002600048e3800285a91000097969900
+	mbedgt: test suite 'i2ceeprom-driver-tests-block_device-i2cee' ....................................... OK in 11.79 sec
+		test case: 'Testing read write random blocks' ................................................ OK in 1.23 sec
+	mbedgt: test case summary: 1 pass, 0 failures
+	mbedgt: all tests finished!
+	mbedgt: shuffle seed: 0.1529521449
+	mbedgt: test suite report:
+	+----------+---------------+-------------------------------------------+--------+--------------------+-------------+
+	| target   | platform_name | test suite                                | result | elapsed_time (sec) | copy_method |
+	+----------+---------------+-------------------------------------------+--------+--------------------+-------------+
+	| K64F-ARM | K64F          | i2ceeprom-driver-tests-block_device-i2cee | OK     | 11.79              | shell       |
+	+----------+---------------+-------------------------------------------+--------+--------------------+-------------+
+	mbedgt: test suite results: 1 OK
+	mbedgt: test case report:
+	+----------+---------------+-------------------------------------------+----------------------------------+--------+--------+--------+--------------------+
+	| target   | platform_name | test suite                                | test case                        | passed | failed | result | elapsed_time (sec) |
+	+----------+---------------+-------------------------------------------+----------------------------------+--------+--------+--------+--------------------+
+	| K64F-ARM | K64F          | i2ceeprom-driver-tests-block_device-i2cee | Testing read write random blocks | 1      | 0      | OK     | 1.23               |
+	+----------+---------------+-------------------------------------------+----------------------------------+--------+--------+--------+--------------------+
+	mbedgt: test case results: 1 OK
+	mbedgt: completed in 13.30 sec
