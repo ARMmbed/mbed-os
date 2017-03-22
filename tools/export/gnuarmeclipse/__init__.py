@@ -207,7 +207,7 @@ class GNUARMEclipse(Exporter):
             src_paths = ['']
             target_name = self.toolchain.target.name
             toolchain = prepare_toolchain(
-                src_paths, target_name, self.TOOLCHAIN, build_profile=profile_toolchain)
+                src_paths, "", target_name, self.TOOLCHAIN, build_profile=profile_toolchain)
 
             # Hack to fill in build_dir
             toolchain.build_dir = self.toolchain.build_dir
