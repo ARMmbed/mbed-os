@@ -69,7 +69,7 @@
     PA0 = 0x00;
     PA1 = 0x00;   
 
-    CAN_Open((CAN_T *)obj->can, 500000, CAN_NORMAL_MODE);
+    CAN_Open((CAN_T *)NU_MODBASE(obj->can), 500000, CAN_NORMAL_MODE);
     
     can_filter(obj, 0, 0, CANStandard, 0);
  }
@@ -91,9 +91,9 @@ void can_free(can_t *obj)
 
 int can_frequency(can_t *obj, int hz)
 {
-    CAN_SetBaudRate((CAN_T *)obj->can, hz);
+    CAN_SetBaudRate((CAN_T *)NU_MODBASE(obj->can), hz);
     
-    return CAN_GetCANBitRate((CAN_T *)obj->can);
+    return CAN_GetCANBitRate((CAN_T *)NU_MODBASE(obj->can));
 }
 
 static void can_irq(CANName name, int id) 
@@ -154,7 +154,7 @@ void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
 
 void can_irq_free(can_t *obj)
 {
-    CAN_DisableInt((CAN_T *)obj->can, (CAN_CON_IE_Msk|CAN_CON_SIE_Msk|CAN_CON_EIE_Msk));
+    CAN_DisableInt((CAN_T *)NU_MODBASE(obj->can), (CAN_CON_IE_Msk|CAN_CON_SIE_Msk|CAN_CON_EIE_Msk));
     
     can_irq_ids[obj->index] = 0;
     
@@ -163,8 +163,9 @@ void can_irq_free(can_t *obj)
 
 void can_irq_set(can_t *obj, CanIrqType irq, uint32_t enable)
 {
+    CAN_T *can_base = (CAN_T *) NU_MODBASE(obj->can);
     
-    CAN_EnterInitMode((CAN_T*)obj->can, ((enable != 0 )? CAN_CON_IE_Msk :0) );
+    CAN_EnterInitMode(can_base, ((enable != 0 )? CAN_CON_IE_Msk :0) );
     
     
     switch (irq)
@@ -172,15 +173,15 @@ void can_irq_set(can_t *obj, CanIrqType irq, uint32_t enable)
         case IRQ_ERROR:
         case IRQ_BUS:
         case IRQ_PASSIVE:
-            ((CAN_T *)(obj->can))->CON = (((CAN_T *)(obj->can))->CON) |CAN_CON_EIE_Msk;
-            ((CAN_T *)(obj->can))->CON = (((CAN_T *)(obj->can))->CON) |CAN_CON_SIE_Msk;
+            can_base->CON = can_base->CON |CAN_CON_EIE_Msk;
+            can_base->CON = can_base->CON |CAN_CON_SIE_Msk;
             break;
         
         case IRQ_RX:
         case IRQ_TX:
         case IRQ_OVERRUN:
         case IRQ_WAKEUP:
-            ((CAN_T *)(obj->can))->CON = (((CAN_T *)(obj->can))->CON) |CAN_CON_SIE_Msk;
+            can_base->CON = can_base->CON |CAN_CON_SIE_Msk;
             break;
         
         default:
@@ -188,7 +189,7 @@ void can_irq_set(can_t *obj, CanIrqType irq, uint32_t enable)
     
     }
 
-    CAN_LeaveInitMode((CAN_T*)obj->can);
+    CAN_LeaveInitMode(can_base);
     
     NVIC_SetVector(CAN0_IRQn, (uint32_t)&CAN0_IRQHandler);
     NVIC_EnableIRQ(CAN0_IRQn);
@@ -205,14 +206,14 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
     CMsg.DLC = msg.len;
     memcpy((void *)&CMsg.Data[0],(const void *)&msg.data[0], (unsigned int)8);
 
-    return CAN_Transmit((CAN_T *)(obj->can), cc, &CMsg);
+    return CAN_Transmit((CAN_T *)NU_MODBASE(obj->can), cc, &CMsg);
 }
 
 int can_read(can_t *obj, CAN_Message *msg, int handle)
 {
     STR_CANMSG_T CMsg;
 
-    if(!CAN_Receive((CAN_T *)(obj->can), handle, &CMsg))
+    if(!CAN_Receive((CAN_T *)NU_MODBASE(obj->can), handle, &CMsg))
     return 0;
         
     msg->format = (CANFormat)CMsg.IdType;
@@ -226,32 +227,34 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
 
 int can_mode(can_t *obj, CanMode mode)
 {
+    CAN_T *can_base = (CAN_T *) NU_MODBASE(obj->can);
+    
     int success = 0;
     switch (mode)
     {
         case MODE_RESET:
-            CAN_LeaveTestMode((CAN_T*)obj->can);
+            CAN_LeaveTestMode(can_base);
             success = 1;
             break;
         
         case MODE_NORMAL:
-            CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_BASIC_Msk);
+            CAN_EnterTestMode(can_base, CAN_TEST_BASIC_Msk);
             success = 1;
             break;
         
         case MODE_SILENT:
-            CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_SILENT_Msk);
+            CAN_EnterTestMode(can_base, CAN_TEST_SILENT_Msk);
             success = 1;
             break;
         
         case MODE_TEST_LOCAL:
         case MODE_TEST_GLOBAL:
-            CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_LBACK_Msk);
+            CAN_EnterTestMode(can_base, CAN_TEST_LBACK_Msk);
             success = 1;
             break;
         
         case MODE_TEST_SILENT:
-            CAN_EnterTestMode((CAN_T*)(obj->can), CAN_TEST_SILENT_Msk | CAN_TEST_LBACK_Msk);
+            CAN_EnterTestMode(can_base, CAN_TEST_SILENT_Msk | CAN_TEST_LBACK_Msk);
             success = 1;
             break;
         
@@ -267,7 +270,7 @@ int can_mode(can_t *obj, CanMode mode)
 
 int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t handle)
 {
-    return CAN_SetRxMsg((CAN_T *)(obj->can), handle , (uint32_t)format, id);
+    return CAN_SetRxMsg((CAN_T *)NU_MODBASE(obj->can), handle , (uint32_t)format, id);
 }
 
 
@@ -285,19 +288,19 @@ void can_reset(can_t *obj)
 
 unsigned char can_rderror(can_t *obj)
 {
-    CAN_T *can = (CAN_T *)(obj->can); 
+    CAN_T *can = (CAN_T *)NU_MODBASE(obj->can); 
     return ((can->ERR>>8)&0xFF);
 }
 
 unsigned char can_tderror(can_t *obj)
 {
-    CAN_T *can = (CAN_T *)(obj->can);
+    CAN_T *can = (CAN_T *)NU_MODBASE(obj->can);
     return ((can->ERR)&0xFF);
 }
 
 void can_monitor(can_t *obj, int silent)
 {
-    CAN_EnterTestMode((CAN_T *)(obj->can), CAN_TEST_SILENT_Msk);
+    CAN_EnterTestMode((CAN_T *)NU_MODBASE(obj->can), CAN_TEST_SILENT_Msk);
 }
  
 #endif // DEVICE_CAN

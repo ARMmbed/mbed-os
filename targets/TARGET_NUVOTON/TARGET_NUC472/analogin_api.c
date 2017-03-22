@@ -70,25 +70,27 @@ void analogin_init(analogin_t *obj, PinName pin)
         EADC_Open(eadc_base, 0);
     }
     
-    uint32_t chn =  NU_MODSUBINDEX(obj->adc);
+    uint32_t smp_chn =  NU_MODSUBINDEX(obj->adc);
+    uint32_t smp_mod =  NU_MODINDEX(obj->adc) * 8 + smp_chn;
     
     // Wire pinout
     pinmap_pinout(pin, PinMap_ADC);
     
     // Configure the sample module Nmod for analog input channel Nch and software trigger source
-    EADC_ConfigSampleModule(eadc_base, chn, EADC_SOFTWARE_TRIGGER, chn % 8);
+    EADC_ConfigSampleModule(eadc_base, smp_mod, EADC_SOFTWARE_TRIGGER, smp_chn);
     
-    eadc_modinit_mask |= 1 << chn;
+    eadc_modinit_mask |= 1 << smp_mod;
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
 {
     EADC_T *eadc_base = (EADC_T *) NU_MODBASE(obj->adc);
-    uint32_t chn =  NU_MODSUBINDEX(obj->adc);
+    uint32_t smp_chn =  NU_MODSUBINDEX(obj->adc);
+    uint32_t smp_mod =  NU_MODINDEX(obj->adc) * 8 + smp_chn;
     
-    EADC_START_CONV(eadc_base, 1 << chn);
-    while (EADC_GET_DATA_VALID_FLAG(eadc_base, 1 << chn) != (1 << chn));
-    uint16_t conv_res_12 = EADC_GET_CONV_DATA(eadc_base, chn);
+    EADC_START_CONV(eadc_base, 1 << smp_mod);
+    while (EADC_GET_DATA_VALID_FLAG(eadc_base, 1 << smp_mod) != (1 << smp_mod));
+    uint16_t conv_res_12 = EADC_GET_CONV_DATA(eadc_base, smp_mod);
     // Just 12 bits are effective. Convert to 16 bits.
     // conv_res_12: 0000 b11b10b9b8 b7b6b5b4 b3b2b1b0
     // conv_res_16: b11b10b9b8 b7b6b5b4 b3b2b1b0 b11b10b9b8
