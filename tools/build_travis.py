@@ -61,7 +61,7 @@ build_list = (
     { "target": "NUCLEO_L031K6",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "NUCLEO_L073RZ",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "NUCLEO_F429ZI",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
-    { "target": "NUCLEO_F446RE",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+    { "target": "NUCLEO_F446RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
     { "target": "NUCLEO_F446ZE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
     { "target": "NUCLEO_F746ZG",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
     { "target": "NUCLEO_F767ZI",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
@@ -159,6 +159,13 @@ linking_list = [
                }
      },
     {"target": "KL43Z",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     },
+    {"target": "NUCLEO_F446RE",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],

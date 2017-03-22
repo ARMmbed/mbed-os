@@ -918,7 +918,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "detect_code": ["0777"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USB_STM_HAL", "USBHOST_OTHER"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446RE"
