@@ -302,6 +302,21 @@
 #define OS_CLOCK                168000000
 #endif
 
+#elif defined(TARGET_UBLOX_C030)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20030000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          512
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                168000000
+#endif
+
 #elif defined(TARGET_STM32F469NI)
 
 #ifndef INITIAL_SP
