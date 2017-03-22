@@ -46,6 +46,8 @@ from tools.options import get_default_options_parser
 from tools.options import extract_profile
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
+from tools.build_api import mcu_toolchain_list
+from tools.build_api import mcu_target_list
 from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
@@ -90,9 +92,11 @@ if __name__ == '__main__':
                       help="Add a macro definition")
 
     group.add_argument("-S", "--supported-toolchains",
-                      action="store_true",
                       dest="supported_toolchains",
                       default=False,
+                      const="matrix",
+                      choices=["matrix", "toolchains", "targets"],
+                      nargs="?",
                       help="Displays supported matrix of MCUs and toolchains")
 
     parser.add_argument('-f', '--filter',
@@ -182,7 +186,12 @@ if __name__ == '__main__':
 
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
-        print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
+        if options.supported_toolchains == "matrix":
+            print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
+        elif options.supported_toolchains == "toolchains":
+            print mcu_toolchain_list()
+        elif options.supported_toolchains == "targets":
+            print mcu_target_list()
         exit(0)
 
     # Print available tests in order and exit
