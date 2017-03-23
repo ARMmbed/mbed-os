@@ -60,9 +60,12 @@ extern int inic_stop(void);
 /******************************************************
  *               Variables Declarations
  ******************************************************/
+#if DEVICE_EMAC
+extern struct netif *xnetif[];
 
+#else
 extern struct netif xnetif[NET_IF_NUM];
-
+#endif
 /******************************************************
  *               Variables Definitions
  ******************************************************/
@@ -969,10 +972,13 @@ int wifi_on(rtw_mode_t mode)
 	}
 
 	#if CONFIG_LWIP_LAYER
+	#if DEVICE_EMAC
+	#else
 	netif_set_up(&xnetif[0]);
 	if(mode == RTW_MODE_STA_AP) {
 		netif_set_up(&xnetif[1]);		
 	}
+	#endif
 	#endif
 	
 #if CONFIG_INIC_EN
@@ -999,8 +1005,13 @@ int wifi_off(void)
 #else
 	LwIP_DHCP(0, DHCP_STOP);
 #endif
+#if DEVICE_EMAC
+	netif_set_down(xnetif[0]);
+	netif_set_down(xnetif[1]);
+#else
 	netif_set_down(&xnetif[0]);
 	netif_set_down(&xnetif[1]);
+#endif
 #endif
 #if defined(CONFIG_ENABLE_WPS_AP) && CONFIG_ENABLE_WPS_AP
 	if((wifi_mode ==  RTW_MODE_AP) || (wifi_mode == RTW_MODE_STA_AP))
@@ -1670,7 +1681,11 @@ int wifi_restart_ap(
 	ip_addr_t ipaddr;
 	ip_addr_t netmask;
 	ip_addr_t gw;
+#if DEVICE_EMAC
+        struct netif * pnetif = xnetif[0];
+#else
 	struct netif * pnetif = &xnetif[0];
+#endif
 #ifdef  CONFIG_CONCURRENT_MODE
 	rtw_wifi_setting_t setting;
 	int sta_linked = 0;
@@ -1736,9 +1751,13 @@ int wifi_restart_ap(
 #if (INCLUDE_uxTaskGetStackHighWaterMark == 1)
 	printf("\r\nWebServer Thread: High Water Mark is %ld\n", uxTaskGetStackHighWaterMark(NULL));
 #endif
+#if DEVICE_EMAC
+	// start dhcp server
+	dhcps_init(xnetif[idx]);
+#else
 	// start dhcp server
 	dhcps_init(&xnetif[idx]);
-
+#endif
 	return 0;
 }
 
