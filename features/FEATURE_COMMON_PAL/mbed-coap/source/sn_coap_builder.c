@@ -174,21 +174,16 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size_2(sn_coap_hdr_s *src_coap_
             returned_byte_count += src_coap_msg_ptr->token_len;
         }
         /* URI PATH - Repeatable option. Length of one option is 0-255 */
-        /* Do not add uri-path for notification message.
-         * Uri-path is needed for cancelling observation with RESET message */
-        if (!src_coap_msg_ptr->options_list_ptr ||
-                (src_coap_msg_ptr->options_list_ptr &&
-                 COAP_OBSERVE_NONE == src_coap_msg_ptr->options_list_ptr->observe)) {
-            if (src_coap_msg_ptr->uri_path_ptr != NULL) {
-                repeatable_option_size = sn_coap_builder_options_calc_option_size(src_coap_msg_ptr->uri_path_len,
-                                         src_coap_msg_ptr->uri_path_ptr, COAP_OPTION_URI_PATH);
-                if (repeatable_option_size) {
-                    returned_byte_count += repeatable_option_size;
-                } else {
-                    return 0;
-                }
+        if (src_coap_msg_ptr->uri_path_ptr != NULL) {
+            repeatable_option_size = sn_coap_builder_options_calc_option_size(src_coap_msg_ptr->uri_path_len,
+                                     src_coap_msg_ptr->uri_path_ptr, COAP_OPTION_URI_PATH);
+            if (repeatable_option_size) {
+                returned_byte_count += repeatable_option_size;
+            } else {
+                return 0;
             }
         }
+
         uint16_t tempInt = 0;
         /* CONTENT FORMAT - An integer option, up to 2 bytes */
         if (src_coap_msg_ptr->content_format != COAP_CT_NONE) {
@@ -574,13 +569,8 @@ static int8_t sn_coap_builder_options_build(uint8_t **dst_packet_data_pptr, sn_c
                      &src_coap_msg_ptr->options_list_ptr->location_path_len, COAP_OPTION_LOCATION_PATH, &previous_option_number);
     }
     /* * * * Build Uri-Path option * * * */
-    /* Do not add uri-path for notification message.
-     * Uri-path is needed for cancelling observation with RESET message */
-    if (!src_coap_msg_ptr->options_list_ptr ||
-            (src_coap_msg_ptr->options_list_ptr &&
-             COAP_OBSERVE_NONE == src_coap_msg_ptr->options_list_ptr->observe))
-        sn_coap_builder_options_build_add_multiple_option(dst_packet_data_pptr, &src_coap_msg_ptr->uri_path_ptr,
-                 &src_coap_msg_ptr->uri_path_len, COAP_OPTION_URI_PATH, &previous_option_number);
+    sn_coap_builder_options_build_add_multiple_option(dst_packet_data_pptr, &src_coap_msg_ptr->uri_path_ptr,
+             &src_coap_msg_ptr->uri_path_len, COAP_OPTION_URI_PATH, &previous_option_number);
 
     /* * * * Build Content-Type option * * * */
     if (src_coap_msg_ptr->content_format != COAP_CT_NONE) {
