@@ -40,7 +40,7 @@ LR_IROM1 MBED_APP_START {
   ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x60000000 + 0x100000 - AlignExpr(ImageLimit(ER_XRAM1), 16)) {
   }
 }
-ScatterAssert(LoadLimit(LR_IROM1) <= MBED_APP_SIZE)    ; 512 KB APROM
+ScatterAssert(LoadLimit(LR_IROM1) <= (MBED_APP_START + MBED_APP_SIZE))    ; 512 KB APROM
 ScatterAssert(ImageLimit(RW_IRAM1) <= 0x20010000)   ; 64 KB SRAM (internal)
 ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x60100000)   ; 1 MB SRAM (external)
 
