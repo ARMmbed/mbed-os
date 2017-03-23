@@ -25,8 +25,8 @@ define symbol __ICFEDIT_region_SDRAM_RAM_start__            = 0x30000000;
 define symbol __ICFEDIT_region_SDRAM_RAM_end__              = 0x301FFFFF;
 
 /*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__   = 0x2000; // 8K
-define symbol __ICFEDIT_size_heap__     = 0x8000; // 60K
+define symbol __ICFEDIT_size_cstack__   = 0x1000; 
+define symbol __ICFEDIT_size_heap__     = 0x10000; 
 /**** End of ICF editor section. ###ICF###*/
 
 

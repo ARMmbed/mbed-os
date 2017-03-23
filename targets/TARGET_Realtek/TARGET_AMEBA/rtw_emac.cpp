@@ -36,10 +36,12 @@ static emac_link_state_change_fn link_state_cb;
 static void *link_input_data;
 static void *link_state_data;
 
+#if 0
 struct netif *xnetif[2];
 extern struct netif lwip_netif;
 static struct netif lwap_netif;
 extern uint8_t *netif_get_hwaddr(int idx);
+#endif
 
 static uint32_t wlan_get_mtu_size(emac_interface_t *emac)
 {
@@ -59,6 +61,7 @@ static uint8_t wlan_get_hwaddr_size(emac_interface_t *emac)
 
 static void wlan_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
 {
+#if 0
     uint8_t *hwaddr;
 
     hwaddr = netif_get_hwaddr(0);
@@ -67,6 +70,16 @@ static void wlan_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
     }
 
     memcpy(addr, hwaddr, ETHARP_HWADDR_LEN);
+#else
+    char mac[20];	
+    if(RTW_SUCCESS == wifi_get_mac_address(mac))
+    {
+        if (sscanf(mac, "%x:%x:%x:%x:%x:%x", &addr[0], &addr[1], &addr[2], &addr[3], &addr[4], &addr[5]) != 6)
+            printf("Get HW address failed\r\n");
+    }else{
+            printf("Get HW address failed\r\n");
+    }
+#endif
 }
 
 static void wlan_set_hwaddr(emac_interface_t *emac, uint8_t *addr)
@@ -196,9 +209,21 @@ void mbed_default_mac_address(char *mac) {
 
 void mbed_mac_address(char *mac)
 {
+#if 0
     //wlan_get_hwaddr((emac_interface_t *)NULL, (uint8_t *)mac);
 
     mbed_default_mac_address(mac);
+#else
+    char hwaddr[20];	
+
+    if(RTW_SUCCESS == wifi_get_mac_address(hwaddr))
+    {
+        if (sscanf(hwaddr, "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]) != 6)
+            printf("Get HW address failed\r\n");
+    }else{
+            printf("Get HW address failed\r\n");
+    }
+#endif
 }
 
 void wlan_emac_link_down(uint8_t i)
@@ -207,7 +232,7 @@ void wlan_emac_link_down(uint8_t i)
         return;
     }
  
-    xnetif[i]->flags &= ~NETIF_FLAG_LINK_UP;
+    //xnetif[i]->flags &= ~NETIF_FLAG_LINK_UP;
     if (link_state_cb) {
         link_state_cb(link_state_data, false);
     }
@@ -219,7 +244,7 @@ void wlan_emac_link_up(uint8_t i)
         return;
     }
  
-    xnetif[i]->flags |= NETIF_FLAG_LINK_UP;
+    //xnetif[i]->flags |= NETIF_FLAG_LINK_UP;
     if (link_state_cb) {
         link_state_cb(link_state_data, true);
     }
@@ -231,9 +256,10 @@ void wlan_emac_init_mem(void)
 
 emac_interface_t *wlan_emac_init_interface()
 {
+#if 0
     xnetif[0] = &lwip_netif;
     xnetif[1] = &lwap_netif;
-
+#endif
     if (_emac == NULL) {
         _emac = new emac_interface_t();
         _emac->hw = NULL;
