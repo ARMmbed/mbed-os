@@ -18,6 +18,7 @@
 #define DIR_H
 
 #include "filesystem/FileSystem.h"
+#include "platform/DirHandle.h"
 
 namespace mbed {
 /** \addtogroup filesystem */
@@ -26,7 +27,7 @@ namespace mbed {
 
 /** Dir class
  */
-class Dir {
+class Dir : public DirHandle {
 public:
     /** Create an uninitialized directory
      *

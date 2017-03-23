@@ -2557,6 +2557,52 @@
         },
         "device_name": "nRF52832_xxAA"
     },
+    "MCU_NRF52840": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "macros": ["TARGET_NRF52840", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S140", "NRF_SD_BLE_API_VERSION=5", "NRF52840_XXAA", "NRF_DFU_SETTINGS_VERSION=1", "NRF_SD_BLE_API_VERSION=5"],
+        "extra_labels": ["NORDIC", "MCU_NRF52840", "NRF5_SDK13"],
+        "OUTPUT_EXT": "hex",
+        "is_disk_virtual": true,
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "public": false,
+        "detect_code": ["1101"],
+        "program_cycle_s": 6,
+        "MERGE_SOFT_DEVICE": true,
+        "EXPECTED_SOFTDEVICES_WITH_OFFSETS": [
+            {
+                "boot": "",
+                "name": "s140_nrf52840_5.0.0-1.alpha_softdevice.hex",
+                "offset": 135168
+            }
+        ],
+        "bootloader_select_index": 0,
+        "post_binary_hook": {
+            "function": "MCU_NRF51Code.binary_hook",
+            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
+        },
+        "MERGE_BOOTLOADER": false,
+        "features": ["BLE"],
+        "config": {
+            "lf_clock_src": {
+                "value": "NRF_LF_SRC_XTAL",
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC"
+            },
+            "uart_hwfc": {
+                "help": "Value: 1 for enable, 0 for disable",
+                "value": 1,
+                "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
+            }
+        }
+    },
+    "NRF52840_DK": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF52840"],
+        "macros_add": ["BOARD_PCA10056", "CONFIG_GPIO_AS_PINRESET", "SWI_DISABLE0", "NRF52_ERRATA_20"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "release_versions": ["2", "5"],
+        "device_name": "nRF52840_xxAA"
+    },
     "BLUEPILL_F103C8": {
         "core": "Cortex-M3",
         "default_toolchain": "GCC_ARM",
