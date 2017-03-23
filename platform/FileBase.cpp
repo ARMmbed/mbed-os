@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/FileBase.h"
-#include "drivers/FileLike.h"
+#include "platform/FileBase.h"
+#include "platform/FileLike.h"
+#include "platform/FileHandle.h"
 
 namespace mbed {
 
@@ -52,8 +53,8 @@ FileBase::~FileBase() {
     _mutex->unlock();
 
     if (getPathType() == FilePathType) {
-        extern void remove_filehandle(FileLike *file);
-        remove_filehandle(static_cast<FileLike*>(this));
+        extern void remove_filehandle(FileHandle *file);
+        remove_filehandle(static_cast<FileHandle*>(static_cast<FileLike*>(this)));
     }
 }
 

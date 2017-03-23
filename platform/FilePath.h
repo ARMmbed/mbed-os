@@ -18,8 +18,8 @@
 
 #include "platform/platform.h"
 
-#include "drivers/FileSystemLike.h"
-#include "drivers/FileLike.h"
+#include "platform/FileSystemLike.h"
+#include "platform/FileLike.h"
 
 namespace mbed {
 /** \addtogroup drivers */

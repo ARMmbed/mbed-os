@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/FileSystemLike.h"
+#include "platform/FileSystemLike.h"
 
 namespace mbed {
 
@@ -27,48 +27,47 @@ public:
       give unusual results from readdir.
     */
     off_t n;
-    struct dirent cur_entry;
 
-    BaseDirHandle() : DirHandle(0), n(0), cur_entry() {
+    BaseDirHandle() : DirHandle(), n(0) {
     }
 
-    virtual int closedir() {
+    virtual int close() {
         // No lock can be used in destructor
         delete this;
         return 0;
     }
 
-    virtual struct dirent *readdir() {
+    virtual int read(struct dirent *ent) {
         lock();
         FileBase *ptr = FileBase::get(n);
         if (ptr == NULL) {
             unlock();
-            return NULL;
+            return -1;
         }
 
         /* Increment n, so next readdir gets the next item */
         n++;
 
         /* Setup cur entry and return a pointer to it */
-        std::strncpy(cur_entry.d_name, ptr->getName(), NAME_MAX);
+        std::strncpy(ent->d_name, ptr->getName(), NAME_MAX);
         unlock();
-        return &cur_entry;
+        return 0;
     }
 
-    virtual off_t telldir() {
+    virtual off_t tell() {
         lock();
         off_t offset = n;
         unlock();
         return offset;
     }
 
-    virtual void seekdir(off_t offset) {
+    virtual void seek(off_t offset) {
         lock();
         n = offset;
         unlock();
     }
 
-    virtual void rewinddir() {
+    virtual void rewind() {
         lock();
         n = 0;
         unlock();

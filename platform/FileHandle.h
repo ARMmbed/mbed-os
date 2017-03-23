@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_FILELIKE_H
-#define MBED_FILELIKE_H
+#ifndef MBED_FILEHANDLE_H
+#define MBED_FILEHANDLE_H
 
-#include "platform/mbed_toolchain.h"
-#include "drivers/FileBase.h"
+typedef int FILEHANDLE;
+
+#include <stdio.h>
+#include "platform/platform.h"
 
 namespace mbed {
 /** \addtogroup drivers */
 /** @{*/
 
 
-/* Class FileLike
- *  A file-like object is one that can be opened with fopen by
- *  fopen("/name", mode).
+/** Class FileHandle
  *
- *  @Note Synchronization level: Set by subclass
+ *  An abstract interface that represents operations on a file-like
+ *  object. The core functions are read, write, and seek, but only
+ *  a subset of these operations can be provided.
+ *
+ *  @note to create a file, @see File
+ *  @note Synchronization level: Set by subclass
  */
-class FileLike : public FileBase {
+class FileHandle {
 public:
-    /** Constructor FileLike
-     *
-     *  @param name     The name to use to open the file.
-     */
-    FileLike(const char *name = NULL) : FileBase(name, FilePathType) {}
-    virtual ~FileLike() {}
+    virtual ~FileHandle() {}
 
     /** Read the contents of a file into a buffer
      *
@@ -45,7 +45,7 @@ public:
      *  @param size     The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
-    virtual ssize_t read(void *buffer, size_t len) = 0;
+    virtual ssize_t read(void *buffer, size_t size) = 0;
 
     /** Write the contents of a buffer to a file
      *
@@ -53,25 +53,7 @@ public:
      *  @param size     The number of bytes to write 
      *  @return         The number of bytes written, negative error on failure
      */
-    virtual ssize_t write(const void *buffer, size_t len) = 0;
-
-    /** Close a file
-     *
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int close() = 0;
-
-    /** Flush any buffers associated with the file
-     *
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int sync() = 0;
-
-    /** Check if the file in an interactive terminal device
-     *
-     *  @return         True if the file is a terminal
-     */
-    virtual int isatty() = 0;
+    virtual ssize_t write(const void *buffer, size_t size) = 0;
 
     /** Move the file position to a given offset from from a given location
      *
@@ -84,23 +66,61 @@ public:
      */
     virtual off_t seek(off_t offset, int whence = SEEK_SET) = 0;
 
+    /** Close a file
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int close() = 0;
+
+    /** Flush any buffers associated with the file
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int sync()
+    {
+        return 0;
+    }
+
+    /** Check if the file in an interactive terminal device
+     *
+     *  @return         True if the file is a terminal
+     */
+    virtual int isatty()
+    {
+        return false;
+    }
+
     /** Get the file position of the file
+     *
+     *  @note This is equivalent to seek(0, SEEK_CUR)
      *
      *  @return         The current offset in the file
      */
-    virtual off_t tell() = 0;
+    virtual off_t tell()
+    {
+        return seek(0, SEEK_CUR);
+    }
 
     /** Rewind the file position to the beginning of the file
      *
-     *  @note This is equivalent to file_seek(file, 0, FS_SEEK_SET)
+     *  @note This is equivalent to seek(0, SEEK_SET)
      */
-    virtual void rewind() = 0;
+    virtual void rewind()
+    {
+        seek(0, SEEK_SET);
+    }
 
     /** Get the size of the file
      *
      *  @return         Size of the file in bytes
      */
-    virtual size_t size() = 0;
+    virtual size_t size()
+    {
+        off_t off = tell();
+        size_t size = seek(0, SEEK_END);
+        seek(off, SEEK_SET);
+        return size;
+    }
 
     /** Move the file position to a given offset from a given location.
      *
@@ -112,7 +132,7 @@ public:
      *    new file position on success,
      *    -1 on failure or unsupported
      */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileLike::seek")
+    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::seek")
     virtual off_t lseek(off_t offset, int whence) { return seek(offset, whence); }
 
     /** Flush any buffers associated with the FileHandle, ensuring it
@@ -122,7 +142,7 @@ public:
      *    0 on success or un-needed,
      *   -1 on error
      */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileLike::sync")
+    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::sync")
     virtual int fsync() { return sync(); }
 
     /** Find the length of the file
@@ -130,21 +150,8 @@ public:
      *  @returns
      *   Length of the file
      */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileLike::size")
+    MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by FileHandle::size")
     virtual off_t flen() { return size(); }
-
-protected:
-    /** Acquire exclusive access to this object.
-     */
-    virtual void lock() {
-        // Stub
-    }
-
-    /** Release exclusive access to this object.
-     */
-    virtual void unlock() {
-        // Stub
-    }
 };
 
 

@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#include "drivers/FileBase.h"
+#include "platform/FileBase.h"
 #include "BlockDevice.h"
 
 namespace mbed {
@@ -118,7 +118,7 @@ protected:
      *  @param size     The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
-    virtual ssize_t file_read(fs_file_t file, void *buffer, size_t len) = 0;
+    virtual ssize_t file_read(fs_file_t file, void *buffer, size_t size) = 0;
 
     /** Write the contents of a buffer to a file
      *
@@ -127,7 +127,7 @@ protected:
      *  @param size     The number of bytes to write 
      *  @return         The number of bytes written, negative error on failure
      */
-    virtual ssize_t file_write(fs_file_t file, const void *buffer, size_t len) = 0;
+    virtual ssize_t file_write(fs_file_t file, const void *buffer, size_t size) = 0;
 
     /** Flush any buffers associated with the file
      *

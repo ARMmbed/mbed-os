@@ -25,7 +25,7 @@ File::File()
 }
 
 File::File(FileSystem *fs, const char *path, int flags)
-    : FileLike(path), _fs(0), _file(0)
+    : _fs(0), _file(0)
 {
     open(fs, path, flags);
 }

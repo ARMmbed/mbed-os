@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "drivers/LocalFileSystem.h"
+#include "platform/LocalFileSystem.h"
 
 #if DEVICE_LOCALFILESYSTEM
 
@@ -142,7 +142,7 @@ int LocalFileHandle::isatty() {
     return ret;
 }
 
-off_t LocalFileHandle::lseek(off_t position, int whence) {
+off_t LocalFileHandle::seek(off_t position, int whence) {
     lock();
     if (whence == SEEK_CUR) {
         position += pos;
@@ -157,14 +157,14 @@ off_t LocalFileHandle::lseek(off_t position, int whence) {
     return position;
 }
 
-int LocalFileHandle::fsync() {
+int LocalFileHandle::sync() {
     lock();
     int ret = semihost_ensure(_fh);
     unlock();
     return ret;
 }
 
-off_t LocalFileHandle::flen() {
+size_t LocalFileHandle::size() {
     lock();
     off_t off = semihost_flen(_fh);
     unlock();
@@ -182,43 +182,42 @@ void LocalFileHandle::unlock() {
 class LocalDirHandle : public DirHandle {
 
 public:
-    struct dirent cur_entry;
     XFINFO info;
 
-    LocalDirHandle() : cur_entry(), info() {
+    LocalDirHandle() : info() {
     }
 
-    virtual int closedir() {
+    virtual int close() {
         // No lock can be used in destructor
         delete this;
         return 0;
     }
 
-    virtual struct dirent *readdir() {
+    virtual int read(struct dirent *ent) {
         lock();
         if (xffind("*", &info)!=0) {
             unlock();
-            return NULL;
+            return 0;
         }
-        memcpy(cur_entry.d_name, info.name, sizeof(info.name));
+        memcpy(ent->d_name, info.name, sizeof(info.name));
         unlock();
-        return &cur_entry;
+        return 1;
     }
 
-    virtual void rewinddir() {
+    virtual void rewind() {
         lock();
         info.fileID = 0;
         unlock();
     }
 
-    virtual off_t telldir() {
+    virtual off_t tell() {
         lock();
         int fileId = info.fileID;
         unlock();
         return fileId;
     }
 
-    virtual void seekdir(off_t offset) {
+    virtual void seek(off_t offset) {
         lock();
         info.fileID = offset;
         unlock();

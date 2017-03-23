@@ -17,8 +17,8 @@
 #define MBED_STREAM_H
 
 #include "platform/platform.h"
-#include "drivers/FileLike.h"
-#include "drivers/FileHandle.h"
+#include "platform/FileLike.h"
+#include "platform/FileHandle.h"
 #include <cstdarg>
 
 namespace mbed {
@@ -65,6 +65,18 @@ protected:
     virtual int _getc() = 0;
 
     std::FILE *_file;
+
+    /** Acquire exclusive access to this object.
+     */
+    virtual void lock() {
+        // Stub
+    }
+
+    /** Release exclusive access to this object.
+     */
+    virtual void unlock() {
+        // Stub
+    }
 
     /* disallow copy constructor and assignment operators */
 private:
