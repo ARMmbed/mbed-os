@@ -21,7 +21,6 @@
 // This is a flash algo binary blob. It is PIC (position independent code) that should be stored in RAM
 // NOTE: On ARMv7-M/ARMv8-M, instruction fetches are always little-endian.
 static uint32_t FLASH_ALGO[] = {
-    // FIXME
     0x4603b530, 0x2164460c, 0x4dec2059, 0x20166028, 0xf8c5070d, 0x20880100, 0x0100f8c5, 0xf8d006c0, 
     0xf0000100, 0xb9080001, 0xbd302001, 0x680048e4, 0x0004f040, 0x4580f04f, 0x0200f8c5, 0xf8d04628, 
     0xf0400204, 0xf8c50004, 0xbf000204, 0xf1a11e08, 0xd1fb0101, 0x680048db, 0x0021f040, 0x60284dd9, 
@@ -56,7 +55,6 @@ static uint32_t FLASH_ALGO[] = {
 };
 
 static const flash_algo_t flash_algo_config = {
-    // FIXME
     .init = 0x00000001,
     .uninit = 0x0000009d,
     .erase_sector = 0x000000cb,
@@ -70,7 +68,6 @@ static const sector_info_t sectors_info[] = {
 };
 
 static const flash_target_config_t flash_target_config = {
-    // FIXME
     .page_size  = 0x800,    // 2 KB
     .flash_start = 0x0,
     .flash_size = 0x80000,  // 512 KB
