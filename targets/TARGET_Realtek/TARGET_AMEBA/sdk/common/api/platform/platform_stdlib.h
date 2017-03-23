@@ -44,6 +44,13 @@
 	#include "diag.h"
 
 	#define strsep(str, delim)      	_strsep(str, delim)
+#elif defined (__CC_ARM)
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <string.h>
+	#include <stdint.h>
+	#include "diag.h"
+	#define strsep(str, delim)      	_strsep(str, delim)
 #else
 	#include <stdio.h>
 	#include <stdlib.h>
