@@ -100,7 +100,7 @@ u8* _rtx_malloc(u32 sz)
 {
 _func_enter_;
 	void *p = NULL;
-	p = malloc(sz);
+	p = (void *)malloc(sz);
 	if(p != NULL){
 #if USE_HEAP_INFO
 		osFreeBytesRemaining-=sz;

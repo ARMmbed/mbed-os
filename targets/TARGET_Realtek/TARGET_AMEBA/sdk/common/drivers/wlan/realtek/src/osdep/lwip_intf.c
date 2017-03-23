@@ -55,7 +55,8 @@ void rltk_wlan_set_netif_info(int idx_wlan, void * dev, unsigned char * dev_addr
 {
 #if (CONFIG_LWIP_LAYER == 1)
 #if DEVICE_EMAC
-	rtw_memcpy(xnetif[idx_wlan]->hwaddr, dev_addr, 6);
+	//rtw_memcpy(xnetif[idx_wlan]->hwaddr, dev_addr, 6);
+	//set netif hwaddr later
 #else
 	rtw_memcpy(xnetif[idx_wlan].hwaddr, dev_addr, 6);
 	xnetif[idx_wlan].state = dev;
@@ -158,6 +159,7 @@ int netif_is_valid_IP(int idx, unsigned char *ip_dest)
 #if CONFIG_LWIP_LAYER == 1
 #if DEVICE_EMAC
 	struct netif *pnetif = xnetif[idx];
+	return 1;
 #else
 	struct netif *pnetif = &xnetif[idx];
 #endif

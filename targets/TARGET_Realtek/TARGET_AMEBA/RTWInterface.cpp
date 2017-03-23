@@ -27,6 +27,10 @@
 
 #include "osdep_service.h"
 
+struct netif *xnetif[2];
+static struct netif lwap_netif;
+extern struct netif *netif_default;
+
 RTWInterface::RTWInterface()
     : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
@@ -38,9 +42,9 @@ RTWInterface::RTWInterface()
 }
 
 static void *scan_sema;
-
+static const signed int maxApNum = 4;
 static signed int ApNum;
-static WiFiAccessPoint *SCANED_AP[15]; /*maximum store 15 APs*/
+static WiFiAccessPoint *SCANED_AP[maxApNum]; /*maximum store 15 APs*/
 
 nsapi_error_t RTWInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
@@ -67,13 +71,13 @@ nsapi_error_t RTWInterface::init()
     if (!emac) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
-
+    emac->ops.power_up(emac);
     //printf("Initializing lwip ...\r\n");
     ret = mbed_lwip_init(emac);
     if (ret != 0) {
         return ret;
     }
-
+    xnetif[0] = netif_default;
     return NSAPI_ERROR_OK;
 }
 
@@ -134,7 +138,7 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
 	if (malloced_scan_result->scan_complete != RTW_TRUE) {
 		rtw_scan_result_t* record = &malloced_scan_result->ap_details;
 		record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */
-		if(ApNum>15)
+		if(ApNum>maxApNum)
 			return RTW_SUCCESS; 
 		nsapi_wifi_ap_t ap;
 		
@@ -167,20 +171,24 @@ nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
 	// blocked
 	if(count == 0){
 		ApNum = 0;
-
+		
 		rtw_init_sema(&scan_sema, 0);
 		if(wifi_scan_networks(scan_result_handler, NULL) != RTW_SUCCESS){
 			printf("wifi scan failed\n\r");
-			return NSAPI_ERROR_DEVICE_ERROR;
+			//return NSAPI_ERROR_DEVICE_ERROR;
+			goto error;
 		}
 		
 		if(rtw_down_timeout_sema( &scan_sema, 15000 ) == RTW_FALSE) {
 			printf("wifi scan timeout\r\n");
-			return NSAPI_ERROR_DEVICE_ERROR;
+			//return NSAPI_ERROR_DEVICE_ERROR;
+			goto error;
 		} 
+		rtw_free_sema(&scan_sema);
 		return ApNum;
-	}else if(count > 0 && res != NULL){
-		count = count < 15 ? count : 15;
+
+	}else if(count > 0 && res != NULL){
+		count = count < maxApNum ? count : maxApNum;
 		for(int i = 0; i < count; i++){
 			memcpy(&res[i], SCANED_AP[i], sizeof(WiFiAccessPoint));
 			delete[] SCANED_AP[i];
@@ -188,6 +196,9 @@ nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
 		return (signed int)count;
 	}
     return NSAPI_ERROR_OK;
+error:
+	rtw_free_sema(&scan_sema);
+	return NSAPI_ERROR_DEVICE_ERROR;
 }
 
 nsapi_error_t RTWInterface::set_channel(uint8_t channel)
