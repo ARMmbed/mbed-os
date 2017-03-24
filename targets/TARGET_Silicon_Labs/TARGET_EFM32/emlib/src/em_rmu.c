@@ -2,7 +2,7 @@
  * @file em_rmu.c
  * @brief Reset Management Unit (RMU) peripheral module peripheral API
  *
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -111,7 +111,7 @@
 #define RMU_RSTCAUSE_BUMODERST_XMASK     0x00000001UL /** 0000000000000001  < Backup mode reset */
 #define NUM_RSTCAUSES                              16
 
-/* EFM32XG1X */
+/* EFM32xG1, EFM32xG12, EFM32xG13 */
 #elif ((_RMU_RSTCAUSE_MASK & 0x0FFFFFFF) == 0x00010F1DUL)
 #define RMU_RSTCAUSE_PORST_XMASK         0x00000000UL /** 0000000000000000  < Power On Reset */
 #define RMU_RSTCAUSE_BODAVDD_XMASK       0x00000001UL /** 0000000000000001  < AVDD BOD Reset */
@@ -128,8 +128,8 @@
 #error "RMU_RSTCAUSE XMASKs are not defined for this family."
 #endif
 
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
 /* Fix for errata EMU_E208 - Occasional Full Reset After Exiting EM4H */
-#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
 #define ERRATA_FIX_EMU_E208_EN
 #endif
 
@@ -303,7 +303,7 @@ uint32_t RMU_ResetCauseGet(void)
   for (i = 0; i < NUM_RSTCAUSES; i++)
   {
     zeroXMask = resetCauseMasks[i].resetCauseZeroXMask;
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
     /* Handle soft/hard pin reset */
     if (!(LB_CLW0 & LB_CLW0_PINRESETSOFT))
     {

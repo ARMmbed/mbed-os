@@ -2,10 +2,10 @@
  * @file efr32mg1p133f256gm48.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFR32MG1P133F256GM48
- * @version 5.0.0
+ * @version 5.1.2
  ******************************************************************************
  * @section License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -109,16 +109,22 @@ typedef enum IRQn
 ******************************************************************************/
 
 /** Part family */
-#define _EFR32_MIGHTY_FAMILY                   1 /**< MIGHTY Gecko RF SoC Family  */
-#define _EFR_DEVICE                              /**< Silicon Labs EFR-type RF SoC */
-#define _SILICON_LABS_32B_SERIES_1               /**< Silicon Labs series number */
-#define _SILICON_LABS_32B_SERIES               1 /**< Silicon Labs series number */
-#define _SILICON_LABS_32B_SERIES_1_CONFIG_1      /**< Series 1, Configuration 1 */
-#define _SILICON_LABS_32B_SERIES_1_CONFIG      1 /**< Series 1, Configuration 1 */
-#define _SILICON_LABS_32B_PLATFORM_2             /**< Silicon Labs platform name */
-#define _SILICON_LABS_32B_PLATFORM             2 /**< Silicon Labs platform name */
-#define _SILICON_LABS_32B_PLATFORM_2_GEN_1       /**< Platform 2, generation 1 */
-#define _SILICON_LABS_32B_PLATFORM_2_GEN       1 /**< Platform 2, generation 1 */
+#define _EFR32_MIGHTY_FAMILY                    1  /**< MIGHTY Gecko RF SoC Family  */
+#define _EFR_DEVICE                                /**< Silicon Labs EFR-type RF SoC */
+#define _SILICON_LABS_32B_SERIES_1                 /**< Silicon Labs series number */
+#define _SILICON_LABS_32B_SERIES                1  /**< Silicon Labs series number */
+#define _SILICON_LABS_32B_SERIES_1_CONFIG_1        /**< Series 1, Configuration 1 */
+#define _SILICON_LABS_32B_SERIES_1_CONFIG       1  /**< Series 1, Configuration 1 */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID       80 /** Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID_80       /** Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_EFR32_RADIO_SUBGHZ        1
+#define _SILICON_LABS_EFR32_RADIO_2G4HZ         2
+#define _SILICON_LABS_EFR32_RADIO_DUALBAND      3
+#define _SILICON_LABS_EFR32_RADIO_TYPE          _SILICON_LABS_EFR32_RADIO_DUALBAND
+#define _SILICON_LABS_32B_PLATFORM_2              /**< @deprecated Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM              2 /**< @deprecated Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM_2_GEN_1        /**< @deprecated Platform 2, generation 1 */
+#define _SILICON_LABS_32B_PLATFORM_2_GEN        1 /**< @deprecated Platform 2, generation 1 */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFR32MG1P133F256GM48)
@@ -132,39 +138,39 @@ typedef enum IRQn
 #define FLASH_MEM_BASE            ((uint32_t) 0x00000000UL) /**< FLASH base address  */
 #define FLASH_MEM_SIZE            ((uint32_t) 0x10000000UL) /**< FLASH available address space  */
 #define FLASH_MEM_END             ((uint32_t) 0x0FFFFFFFUL) /**< FLASH end address  */
-#define FLASH_MEM_BITS            ((uint32_t) 0x28UL)       /**< FLASH used bits  */
+#define FLASH_MEM_BITS            ((uint32_t) 0x0000001CUL) /**< FLASH used bits  */
 #define RAM_CODE_MEM_BASE         ((uint32_t) 0x10000000UL) /**< RAM_CODE base address  */
 #define RAM_CODE_MEM_SIZE         ((uint32_t) 0x7C00UL)     /**< RAM_CODE available address space  */
 #define RAM_CODE_MEM_END          ((uint32_t) 0x10007BFFUL) /**< RAM_CODE end address  */
-#define RAM_CODE_MEM_BITS         ((uint32_t) 0x15UL)       /**< RAM_CODE used bits  */
+#define RAM_CODE_MEM_BITS         ((uint32_t) 0x0000000FUL) /**< RAM_CODE used bits  */
 #define PER_BITCLR_MEM_BASE       ((uint32_t) 0x44000000UL) /**< PER_BITCLR base address  */
 #define PER_BITCLR_MEM_SIZE       ((uint32_t) 0xE8000UL)    /**< PER_BITCLR available address space  */
 #define PER_BITCLR_MEM_END        ((uint32_t) 0x440E7FFFUL) /**< PER_BITCLR end address  */
-#define PER_BITCLR_MEM_BITS       ((uint32_t) 0x20UL)       /**< PER_BITCLR used bits  */
+#define PER_BITCLR_MEM_BITS       ((uint32_t) 0x00000014UL) /**< PER_BITCLR used bits  */
 #define CRYPTO_BITSET_MEM_BASE    ((uint32_t) 0x460F0000UL) /**< CRYPTO_BITSET base address  */
 #define CRYPTO_BITSET_MEM_SIZE    ((uint32_t) 0x400UL)      /**< CRYPTO_BITSET available address space  */
 #define CRYPTO_BITSET_MEM_END     ((uint32_t) 0x460F03FFUL) /**< CRYPTO_BITSET end address  */
-#define CRYPTO_BITSET_MEM_BITS    ((uint32_t) 0x10UL)       /**< CRYPTO_BITSET used bits  */
+#define CRYPTO_BITSET_MEM_BITS    ((uint32_t) 0x0000000AUL) /**< CRYPTO_BITSET used bits  */
 #define CRYPTO_MEM_BASE           ((uint32_t) 0x400F0000UL) /**< CRYPTO base address  */
 #define CRYPTO_MEM_SIZE           ((uint32_t) 0x400UL)      /**< CRYPTO available address space  */
 #define CRYPTO_MEM_END            ((uint32_t) 0x400F03FFUL) /**< CRYPTO end address  */
-#define CRYPTO_MEM_BITS           ((uint32_t) 0x10UL)       /**< CRYPTO used bits  */
+#define CRYPTO_MEM_BITS           ((uint32_t) 0x0000000AUL) /**< CRYPTO used bits  */
 #define CRYPTO_BITCLR_MEM_BASE    ((uint32_t) 0x440F0000UL) /**< CRYPTO_BITCLR base address  */
 #define CRYPTO_BITCLR_MEM_SIZE    ((uint32_t) 0x400UL)      /**< CRYPTO_BITCLR available address space  */
 #define CRYPTO_BITCLR_MEM_END     ((uint32_t) 0x440F03FFUL) /**< CRYPTO_BITCLR end address  */
-#define CRYPTO_BITCLR_MEM_BITS    ((uint32_t) 0x10UL)       /**< CRYPTO_BITCLR used bits  */
+#define CRYPTO_BITCLR_MEM_BITS    ((uint32_t) 0x0000000AUL) /**< CRYPTO_BITCLR used bits  */
 #define PER_BITSET_MEM_BASE       ((uint32_t) 0x46000000UL) /**< PER_BITSET base address  */
 #define PER_BITSET_MEM_SIZE       ((uint32_t) 0xE8000UL)    /**< PER_BITSET available address space  */
 #define PER_BITSET_MEM_END        ((uint32_t) 0x460E7FFFUL) /**< PER_BITSET end address  */
-#define PER_BITSET_MEM_BITS       ((uint32_t) 0x20UL)       /**< PER_BITSET used bits  */
+#define PER_BITSET_MEM_BITS       ((uint32_t) 0x00000014UL) /**< PER_BITSET used bits  */
 #define PER_MEM_BASE              ((uint32_t) 0x40000000UL) /**< PER base address  */
 #define PER_MEM_SIZE              ((uint32_t) 0xE8000UL)    /**< PER available address space  */
 #define PER_MEM_END               ((uint32_t) 0x400E7FFFUL) /**< PER end address  */
-#define PER_MEM_BITS              ((uint32_t) 0x20UL)       /**< PER used bits  */
+#define PER_MEM_BITS              ((uint32_t) 0x00000014UL) /**< PER used bits  */
 #define RAM_MEM_BASE              ((uint32_t) 0x20000000UL) /**< RAM base address  */
 #define RAM_MEM_SIZE              ((uint32_t) 0x7C00UL)     /**< RAM available address space  */
 #define RAM_MEM_END               ((uint32_t) 0x20007BFFUL) /**< RAM end address  */
-#define RAM_MEM_BITS              ((uint32_t) 0x15UL)       /**< RAM used bits  */
+#define RAM_MEM_BITS              ((uint32_t) 0x0000000FUL) /**< RAM used bits  */
 
 /** Bit banding area */
 #define BITBAND_PER_BASE          ((uint32_t) 0x42000000UL) /**< Peripheral Address Space bit-band area */

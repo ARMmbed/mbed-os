@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_emu.c
  * @brief Energy Management Unit (EMU) Peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -70,9 +70,10 @@
 #error Conflict in LFXOENS and LFXOEN bitpositions
 #endif
 
-
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
-/* Fix for errata EMU_E107 - non-WIC interrupt masks. */
+#if defined( _SILICON_LABS_32B_SERIES_0 )
+/* Fix for errata EMU_E107 - non-WIC interrupt masks.
+ * Zero Gecko and future families are not affected by errata EMU_E107 */
 #if defined( _EFM32_GECKO_FAMILY )
 #define ERRATA_FIX_EMU_E107_EN
 #define NON_WIC_INT_MASK_0    (~(0x0dfc0323U))
@@ -93,41 +94,65 @@
 #define NON_WIC_INT_MASK_0    (~(0xff020e63U))
 #define NON_WIC_INT_MASK_1    (~(0x00000046U))
 
-#else
-/* Zero Gecko and future families are not affected by errata EMU_E107 */
+#endif
 #endif
 
 /* Fix for errata EMU_E108 - High Current Consumption on EM4 Entry. */
-#if defined( _EFM32_HAPPY_FAMILY )
+#if defined(_SILICON_LABS_32B_SERIES_0) && defined( _EFM32_HAPPY_FAMILY )
 #define ERRATA_FIX_EMU_E108_EN
 #endif
 
 /* Fix for errata EMU_E208 - Occasional Full Reset After Exiting EM4H */
-#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
 #define ERRATA_FIX_EMU_E208_EN
 #endif
 
 /* Enable FETCNT tuning errata fix */
-#if defined( _EMU_DCDCCTRL_MASK ) && defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
 #define ERRATA_FIX_DCDC_FETCNT_SET_EN
 #endif
 
 /* Enable LN handshake errata fix */
-#if defined( _EMU_DCDCCTRL_MASK ) && ( _SILICON_LABS_32B_PLATFORM_2_GEN < 3 )
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
 #define ERRATA_FIX_DCDC_LNHS_BLOCK_EN
+typedef enum
+{
+  errataFixDcdcHsInit,
+  errataFixDcdcHsTrimSet,
+  errataFixDcdcHsBypassLn,
+  errataFixDcdcHsLnWaitDone
+} errataFixDcdcHs_TypeDef;
+static errataFixDcdcHs_TypeDef errataFixDcdcHsState = errataFixDcdcHsInit;
 #endif
 
-/* Enable bypass current limiter enable timing fix */
-#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_2 )
-#define ERRATA_FIX_BYPLIMEN_TIMING_EN
+/* Used to figure out if a memory address is inside or outside of a RAM block.
+ * A memory address is inside a RAM block if the address is greater than the
+ * RAM block address. */
+#define ADDRESS_NOT_IN_BLOCK(addr, block)  ((addr) <= (block))
+
+/* RAM Block layout for various device families. Note that some devices
+ * have special layout in RAM0. */
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_84)
+#define RAM1_BLOCKS            2
+#define RAM1_BLOCK_SIZE  0x10000  // 64 kB blocks
+#elif defined(_SILICON_LABS_GECKO_INTERNAL_SDID_89)
+#define RAM0_BLOCKS            2
+#define RAM0_BLOCK_SIZE   0x4000
+#define RAM1_BLOCKS            2
+#define RAM1_BLOCK_SIZE   0x4000  // 16 kB blocks
+#elif defined(_SILICON_LABS_32B_SERIES_0) && defined(_EFM32_GIANT_FAMILY)
+#define RAM0_BLOCKS            4
+#define RAM0_BLOCK_SIZE   0x8000  // 32 kB blocks
+#elif defined(_SILICON_LABS_32B_SERIES_0) && defined(_EFM32_GECKO_FAMILY)
+#define RAM0_BLOCKS            4
+#define RAM0_BLOCK_SIZE   0x1000  //  4 kB blocks
 #endif
 
-#define EMU_DCDCCLIMCTRL                        (uint32_t *)(EMU_BASE + 0x054)
-#if !defined(_EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT)
-#define _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT        13
-#endif
-#if !defined(_EMU_PWRCTRL_DVDDBODDIS_SHIFT)
-#define EMU_PWRCTRL_DVDDBODDIS                  (1 << 12)
+#if defined(_SILICON_LABS_32B_SERIES_0)
+/* RAM_MEM_END on Gecko devices have a value larger than the SRAM_SIZE */
+#define RAM0_END    (SRAM_BASE + SRAM_SIZE - 1)
+#else
+#define RAM0_END    RAM_MEM_END
 #endif
 
 /** @endcond */
@@ -141,41 +166,23 @@
 #if !defined(PWRCFG_DCDCTODVDD_VMAX)
 #define PWRCFG_DCDCTODVDD_VMAX          3000
 #endif
-
-typedef enum
-{
-  errataFixDcdcHsInit,
-  errataFixDcdcHsTrimSet,
-  errataFixDcdcHsBypassLn,
-  errataFixDcdcHsLnWaitDone
-} errataFixDcdcHs_TypeDef;
-errataFixDcdcHs_TypeDef errataFixDcdcHsState = errataFixDcdcHsInit;
 #endif
 
 /*******************************************************************************
- **************************   LOCAL VARIABLES   ********************************
+ ***************************  LOCAL VARIABLES   ********************************
  ******************************************************************************/
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
-/**
- * CMU configured oscillator selection and oscillator enable status. When a
- * user configures oscillators, this varaiable shall shadow the configuration.
- * It is used by the EMU module in order to be able to restore the oscillator
- * config after having been in certain energy modes (since HW may automatically
- * alter config when going into an energy mode). It is the responsibility of
- * the CMU module to keep it up-to-date (or a user if not using the CMU API
- * for oscillator control).
- */
-static uint32_t cmuStatus;
-#if defined( _CMU_HFCLKSTATUS_RESETVALUE )
-static uint16_t cmuHfclkStatus;
-#endif
+
+/* Static user configuration */
 #if defined( _EMU_DCDCCTRL_MASK )
 static uint16_t dcdcMaxCurrent_mA;
 static uint16_t dcdcEm01LoadCurrent_mA;
 static EMU_DcdcLnReverseCurrentControl_TypeDef dcdcReverseCurrentControl;
 #endif
-
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+static EMU_EM01Init_TypeDef vScaleEM01Config = {false};
+#endif
 /** @endcond */
 
 
@@ -185,147 +192,105 @@ static EMU_DcdcLnReverseCurrentControl_TypeDef dcdcReverseCurrentControl;
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+/* Convert from level to EM0 and 1 command bit */
+__STATIC_INLINE uint32_t vScaleEM01Cmd(EMU_VScaleEM01_TypeDef level)
+{
+  return EMU_CMD_EM01VSCALE0 << (_EMU_STATUS_VSCALE_VSCALE0 - (uint32_t)level);
+}
+#endif
+
 /***************************************************************************//**
  * @brief
- *   Restore oscillators and core clock after having been in EM2 or EM3.
+ *   Save/restore/update oscillator, core clock and voltage scaling configuration on
+ *   EM2 or EM3 entry/exit.
+ *
+ * @details
+ *   Hardware may automatically change oscillator and voltage scaling configuration
+ *   when going into or out of an energy mode. Static data in this function keeps track of
+ *   such configuration bits and is used to restore state if needed.
+ *
  ******************************************************************************/
-static void emuRestore(void)
+typedef enum
+{
+  emState_Save,         /* Save EMU and CMU state */
+  emState_Restore,      /* Restore and unlock     */
+} emState_TypeDef;
+
+static void emState(emState_TypeDef action)
 {
   uint32_t oscEnCmd;
   uint32_t cmuLocked;
+  static uint32_t cmuStatus;
+  static CMU_Select_TypeDef hfClock;
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+  static uint8_t vScaleStatus;
+#endif
 
-  /* Although we could use the CMU API for most of the below handling, we */
-  /* would like this function to be as efficient as possible. */
 
-  /* CMU registers may be locked */
-  cmuLocked = CMU->LOCK & CMU_LOCK_LOCKKEY_LOCKED;
-  CMU_Unlock();
+  /* Save or update state */
+  if (action == emState_Save)
+  {
+    /* Save configuration. */
+    cmuStatus = CMU->STATUS;
+    hfClock = CMU_ClockSelectGet(cmuClock_HF);
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+    /* Save vscale */
+    EMU_VScaleWait();
+    vScaleStatus   = (uint8_t)((EMU->STATUS & _EMU_STATUS_VSCALE_MASK)
+                               >> _EMU_STATUS_VSCALE_SHIFT);
+#endif
+  }
+  else if (action == emState_Restore) /* Restore state */
+  {
+    /* Apply saved configuration. */
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+    /* Restore EM0 and 1 voltage scaling level. EMU_VScaleWait() is called later,
+       just before HF clock select is set. */
+    EMU->CMD = vScaleEM01Cmd((EMU_VScaleEM01_TypeDef)vScaleStatus);
+#endif
 
-  /* AUXHFRCO are automatically disabled (except if using debugger). */
-  /* HFRCO, USHFRCO and HFXO are automatically disabled. */
-  /* LFRCO/LFXO may be disabled by SW in EM3. */
-  /* Restore according to status prior to entering energy mode. */
-  oscEnCmd = 0;
-  oscEnCmd |= ((cmuStatus & CMU_STATUS_HFRCOENS)    ? CMU_OSCENCMD_HFRCOEN : 0);
-  oscEnCmd |= ((cmuStatus & CMU_STATUS_AUXHFRCOENS) ? CMU_OSCENCMD_AUXHFRCOEN : 0);
-  oscEnCmd |= ((cmuStatus & CMU_STATUS_LFRCOENS)    ? CMU_OSCENCMD_LFRCOEN : 0);
-  oscEnCmd |= ((cmuStatus & CMU_STATUS_HFXOENS)     ? CMU_OSCENCMD_HFXOEN : 0);
-  oscEnCmd |= ((cmuStatus & CMU_STATUS_LFXOENS)     ? CMU_OSCENCMD_LFXOEN : 0);
+    /* CMU registers may be locked */
+    cmuLocked = CMU->LOCK & CMU_LOCK_LOCKKEY_LOCKED;
+    CMU_Unlock();
+
+    /* AUXHFRCO are automatically disabled (except if using debugger). */
+    /* HFRCO, USHFRCO and HFXO are automatically disabled. */
+    /* LFRCO/LFXO may be disabled by SW in EM3. */
+    /* Restore according to status prior to entering energy mode. */
+    oscEnCmd = 0;
+    oscEnCmd |= ((cmuStatus & CMU_STATUS_HFRCOENS)    ? CMU_OSCENCMD_HFRCOEN : 0);
+    oscEnCmd |= ((cmuStatus & CMU_STATUS_AUXHFRCOENS) ? CMU_OSCENCMD_AUXHFRCOEN : 0);
+    oscEnCmd |= ((cmuStatus & CMU_STATUS_LFRCOENS)    ? CMU_OSCENCMD_LFRCOEN : 0);
+    oscEnCmd |= ((cmuStatus & CMU_STATUS_HFXOENS)     ? CMU_OSCENCMD_HFXOEN : 0);
+    oscEnCmd |= ((cmuStatus & CMU_STATUS_LFXOENS)     ? CMU_OSCENCMD_LFXOEN : 0);
 #if defined( _CMU_STATUS_USHFRCOENS_MASK )
-  oscEnCmd |= ((cmuStatus & CMU_STATUS_USHFRCOENS)  ? CMU_OSCENCMD_USHFRCOEN : 0);
+    oscEnCmd |= ((cmuStatus & CMU_STATUS_USHFRCOENS)  ? CMU_OSCENCMD_USHFRCOEN : 0);
 #endif
-  CMU->OSCENCMD = oscEnCmd;
+    CMU->OSCENCMD = oscEnCmd;
 
-
-#if defined( _CMU_HFCLKSTATUS_RESETVALUE )
-  /* Restore oscillator used for clocking core */
-  switch (cmuHfclkStatus & _CMU_HFCLKSTATUS_SELECTED_MASK)
-  {
-    case CMU_HFCLKSTATUS_SELECTED_LFRCO:
-      /* HFRCO could only be selected if the autostart HFXO feature is not
-       * enabled, otherwise the HFXO would be started and selected automatically.
-       * Note: this error hook helps catching erroneous oscillator configurations,
-       * when the AUTOSTARTSELEM0EM1 is set in CMU_HFXOCTRL. */
-      if (!(CMU->HFXOCTRL & CMU_HFXOCTRL_AUTOSTARTSELEM0EM1))
-      {
-        /* Wait for LFRCO to stabilize */
-        while (!(CMU->STATUS & CMU_STATUS_LFRCORDY))
-          ;
-        CMU->HFCLKSEL = CMU_HFCLKSEL_HF_LFRCO;
-      }
-      else
-      {
-        EFM_ASSERT(0);
-      }
-      break;
-
-    case CMU_HFCLKSTATUS_SELECTED_LFXO:
-      /* Wait for LFXO to stabilize */
-      while (!(CMU->STATUS & CMU_STATUS_LFXORDY))
-        ;
-      CMU->HFCLKSEL = CMU_HFCLKSEL_HF_LFXO;
-      break;
-
-    case CMU_HFCLKSTATUS_SELECTED_HFXO:
-      /* Wait for HFXO to stabilize */
-      while (!(CMU->STATUS & CMU_STATUS_HFXORDY))
-        ;
-#if defined( _CMU_HFXOCTRL_PEAKDETSHUNTOPTMODE_MASK )
-      if (BUS_RegMaskedRead(&CMU->HFXOCTRL,
-                            _CMU_HFXOCTRL_PEAKDETSHUNTOPTMODE_MASK)
-          == CMU_HFXOCTRL_PEAKDETSHUNTOPTMODE_AUTOCMD)
-      {
-        while (BUS_RegMaskedRead(&CMU->STATUS,
-                                _CMU_STATUS_HFXOSHUNTOPTRDY_MASK
-                                | _CMU_STATUS_HFXOPEAKDETRDY_MASK)
-               != (CMU_STATUS_HFXOSHUNTOPTRDY | CMU_STATUS_HFXOPEAKDETRDY))
-          ;
-      }
-#endif
-      CMU->HFCLKSEL = CMU_HFCLKSEL_HF_HFXO;
-      break;
-
-    default: /* CMU_HFCLKSTATUS_SELECTED_HFRCO */
-      /* If core clock was HFRCO core clock, it is automatically restored to */
-      /* state prior to entering energy mode. No need for further action. */
-      break;
-  }
-#else
-  switch (cmuStatus & (CMU_STATUS_HFRCOSEL
-                      | CMU_STATUS_HFXOSEL
-                      | CMU_STATUS_LFRCOSEL
-#if defined( CMU_STATUS_USHFRCODIV2SEL )
-                      | CMU_STATUS_USHFRCODIV2SEL
-#endif
-                      | CMU_STATUS_LFXOSEL))
-  {
-    case CMU_STATUS_LFRCOSEL:
-      /* Wait for LFRCO to stabilize */
-      while (!(CMU->STATUS & CMU_STATUS_LFRCORDY))
-        ;
-      CMU->CMD = CMU_CMD_HFCLKSEL_LFRCO;
-      break;
-
-    case CMU_STATUS_LFXOSEL:
-      /* Wait for LFXO to stabilize */
-      while (!(CMU->STATUS & CMU_STATUS_LFXORDY))
-        ;
-      CMU->CMD = CMU_CMD_HFCLKSEL_LFXO;
-      break;
-
-    case CMU_STATUS_HFXOSEL:
-      /* Wait for HFXO to stabilize */
-      while (!(CMU->STATUS & CMU_STATUS_HFXORDY))
-        ;
-      CMU->CMD = CMU_CMD_HFCLKSEL_HFXO;
-      break;
-
-#if defined( CMU_STATUS_USHFRCODIV2SEL )
-    case CMU_STATUS_USHFRCODIV2SEL:
-      /* Wait for USHFRCO to stabilize */
-      while (!(CMU->STATUS & CMU_STATUS_USHFRCORDY))
-        ;
-      CMU->CMD = _CMU_CMD_HFCLKSEL_USHFRCODIV2;
-      break;
+#if defined( _EMU_STATUS_VSCALE_MASK )
+    /* Wait for upscale to complete and then restore selected clock */
+    EMU_VScaleWait();
 #endif
 
-    default: /* CMU_STATUS_HFRCOSEL */
-      /* If core clock was HFRCO core clock, it is automatically restored to */
-      /* state prior to entering energy mode. No need for further action. */
-      break;
-  }
+    if (hfClock != cmuSelect_HFRCO)
+    {
+      CMU_ClockSelectSet(cmuClock_HF, hfClock);
+    }
 
-  /* If HFRCO was disabled before entering Energy Mode, turn it off again */
-  /* as it is automatically enabled by wake up */
-  if ( ! (cmuStatus & CMU_STATUS_HFRCOENS) )
-  {
-    CMU->OSCENCMD = CMU_OSCENCMD_HFRCODIS;
-  }
-#endif
-  /* Restore CMU register locking */
-  if (cmuLocked)
-  {
-    CMU_Lock();
+    /* If HFRCO was disabled before entering Energy Mode, turn it off again */
+    /* as it is automatically enabled by wake up */
+    if ( ! (cmuStatus & CMU_STATUS_HFRCOENS) )
+    {
+      CMU->OSCENCMD = CMU_OSCENCMD_HFRCODIS;
+    }
+
+    /* Restore CMU register locking */
+    if (cmuLocked)
+    {
+      CMU_Lock();
+    }
   }
 }
 
@@ -412,7 +377,49 @@ static void dcdcHsFixLnBlock(void)
 #endif
 
 
+#if defined( _EMU_CTRL_EM23VSCALE_MASK )
+/* Configure EMU and CMU for EM2 and 3 voltage downscale */
+static void vScaleDownEM23Setup(void)
+{
+  uint32_t hfSrcClockFrequency;
 
+  EMU_VScaleEM23_TypeDef scaleEM23Voltage =
+          (EMU_VScaleEM23_TypeDef)((EMU->CTRL & _EMU_CTRL_EM23VSCALE_MASK)
+                                   >> _EMU_CTRL_EM23VSCALE_SHIFT);
+
+  EMU_VScaleEM01_TypeDef currentEM01Voltage =
+          (EMU_VScaleEM01_TypeDef)((EMU->STATUS & _EMU_STATUS_VSCALE_MASK)
+                                   >> _EMU_STATUS_VSCALE_SHIFT);
+
+  /* Wait until previous scaling is done. */
+  EMU_VScaleWait();
+
+  /* Inverse coding. */
+  if ((uint32_t)scaleEM23Voltage > (uint32_t)currentEM01Voltage)
+  {
+    /* Set safe clock and wait-states. */
+    if (scaleEM23Voltage == emuVScaleEM23_LowPower)
+    {
+      hfSrcClockFrequency = CMU_ClockDivGet(cmuClock_HF) * CMU_ClockFreqGet(cmuClock_HF);
+      /* Set default low power voltage HFRCO band as HF clock. */
+      if (hfSrcClockFrequency > CMU_VSCALEEM01_LOWPOWER_VOLTAGE_CLOCK_MAX)
+      {
+        CMU_HFRCOBandSet(cmuHFRCOFreq_19M0Hz);
+      }
+      CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFRCO);
+    }
+    else
+    {
+      /* Other voltage scaling levels are not currently supported. */
+      EFM_ASSERT(false);
+    }
+  }
+  else
+  {
+    /* Same voltage or hardware will scale to min(EMU_CTRL_EM23VSCALE, EMU_STATUS_VSCALE)  */
+  }
+}
+#endif
 /** @endcond */
 
 
@@ -458,9 +465,13 @@ static void dcdcHsFixLnBlock(void)
  *   the starting and selecting of the core clocks will be identical to the user
  *   independently of the value of the @p restore parameter when waking up on
  *   the wakeup sources corresponding to the autostart and select setting.
+ * @par
+ *   If voltage scaling is supported, the restore parameter is true and the EM0 
+ *   voltage scaling level is set higher than the EM2 level, then the EM0 level is 
+ *   also restored.
  *
  * @param[in] restore
- *   @li true - restore oscillators and clocks, see function details.
+ *   @li true - restore oscillators, clocks and voltage scaling, see function details.
  *   @li false - do not restore oscillators and clocks, see function details.
  * @par
  *   The @p restore option should only be used if all clock control is done
@@ -473,11 +484,11 @@ void EMU_EnterEM2(bool restore)
   uint32_t nonWicIntEn[2];
 #endif
 
-  /* Auto-update CMU status just in case before entering energy mode. */
-  /* This variable is normally kept up-to-date by the CMU API. */
-  cmuStatus = CMU->STATUS;
-#if defined( _CMU_HFCLKSTATUS_RESETVALUE )
-  cmuHfclkStatus = (uint16_t)(CMU->HFCLKSTATUS);
+  /* Save EMU and CMU state requiring restore on EM2 exit. */
+  emState(emState_Save);
+
+#if defined( _EMU_CTRL_EM23VSCALE_MASK )
+  vScaleDownEM23Setup();
 #endif
 
   /* Enter Cortex deep sleep mode */
@@ -504,9 +515,6 @@ void EMU_EnterEM2(bool restore)
 #if defined( ERRATA_FIX_DCDC_LNHS_BLOCK_EN )
   dcdcHsFixLnBlock();
 #endif
-#if defined( ERRATA_FIX_BYPLIMEN_TIMING_EN )
-  BUS_RegBitWrite(EMU_DCDCCLIMCTRL, _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT, 0);
-#endif
 
   __WFI();
 
@@ -525,21 +533,16 @@ void EMU_EnterEM2(bool restore)
   }
 #endif
 
-  /* Restore oscillators/clocks if specified */
+  /* Restore oscillators/clocks and voltage scaling if supported. */
   if (restore)
   {
-    emuRestore();
+    emState(emState_Restore);
   }
-  /* If not restoring, and original clock was not HFRCO, we have to */
-  /* update CMSIS core clock variable since core clock has changed */
-  /* to using HFRCO. */
-#if defined( _CMU_HFCLKSTATUS_RESETVALUE )
-  else if ((cmuHfclkStatus & _CMU_HFCLKSTATUS_SELECTED_MASK)
-           != CMU_HFCLKSTATUS_SELECTED_HFRCO)
-#else
-  else if (!(cmuStatus & CMU_STATUS_HFRCOSEL))
-#endif
+  else
   {
+    /* If not restoring, and original clock was not HFRCO, we have to */
+    /* update CMSIS core clock variable since HF clock has changed */
+    /* to HFRCO. */
     SystemCoreClockUpdate();
   }
 }
@@ -579,9 +582,13 @@ void EMU_EnterEM2(bool restore)
  *   If a debugger is attached, the AUXHFRCO will not be disabled if enabled
  *   upon entering EM3. It will thus remain enabled when returning to EM0
  *   regardless of the @p restore parameter.
+ * @par
+ *   If voltage scaling is supported, the restore parameter is true and the EM0 
+ *   voltage scaling level is set higher than the EM3 level, then the EM0 level is 
+ *   also restored.
  *
  * @param[in] restore
- *   @li true - restore oscillators and clocks, see function details.
+ *   @li true - restore oscillators, clocks and voltage scaling, see function details.
  *   @li false - do not restore oscillators and clocks, see function details.
  * @par
  *   The @p restore option should only be used if all clock control is done
@@ -596,11 +603,11 @@ void EMU_EnterEM3(bool restore)
   uint32_t nonWicIntEn[2];
 #endif
 
-  /* Auto-update CMU status just in case before entering energy mode. */
-  /* This variable is normally kept up-to-date by the CMU API. */
-  cmuStatus = CMU->STATUS;
-#if defined( _CMU_HFCLKSTATUS_RESETVALUE )
-  cmuHfclkStatus = (uint16_t)(CMU->HFCLKSTATUS);
+  /* Save EMU and CMU state requiring restore on EM2 exit. */
+  emState(emState_Save);
+
+#if defined( _EMU_CTRL_EM23VSCALE_MASK )
+  vScaleDownEM23Setup();
 #endif
 
   /* CMU registers may be locked */
@@ -640,9 +647,6 @@ void EMU_EnterEM3(bool restore)
 #if defined( ERRATA_FIX_DCDC_LNHS_BLOCK_EN )
   dcdcHsFixLnBlock();
 #endif
-#if defined( ERRATA_FIX_BYPLIMEN_TIMING_EN )
-  BUS_RegBitWrite(EMU_DCDCCLIMCTRL, _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT, 0);
-#endif
 
   __WFI();
 
@@ -661,23 +665,33 @@ void EMU_EnterEM3(bool restore)
   }
 #endif
 
-  /* Restore oscillators/clocks if specified */
+  /* Restore oscillators/clocks and voltage scaling if supported. */
   if (restore)
   {
-    emuRestore();
+    emState(emState_Restore);
   }
-  /* If not restoring, and original clock was not HFRCO, we have to */
-  /* update CMSIS core clock variable since core clock has changed */
-  /* to using HFRCO. */
-#if defined( _CMU_HFCLKSTATUS_RESETVALUE )
-  else if ((cmuHfclkStatus & _CMU_HFCLKSTATUS_SELECTED_MASK)
-           != CMU_HFCLKSTATUS_SELECTED_HFRCO)
-#else
-  else if (!(cmuStatus & CMU_STATUS_HFRCOSEL))
-#endif
+  else
   {
+    /* If not restoring, and original clock was not HFRCO, we have to */
+    /* update CMSIS core clock variable since HF clock has changed */
+    /* to HFRCO. */
     SystemCoreClockUpdate();
   }
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Restore CMU HF clock select state, oscillator enable and voltage scaling 
+ *   (if available) after @ref EMU_EnterEM2() or @ref EMU_EnterEM3() are called 
+ *   with the restore parameter set to false. Calling this function is
+ *   equivalent to calling @ref EMU_EnterEM2() or @ref EMU_EnterEM3() with the 
+ *   restore parameter set to true, but it allows the application to evaluate the
+ *   wakeup reason before restoring state.
+ ******************************************************************************/
+void EMU_Restore(void)
+{
+  emState(emState_Restore);
 }
 
 
@@ -745,9 +759,6 @@ void EMU_EnterEM4(void)
 #if defined( ERRATA_FIX_DCDC_LNHS_BLOCK_EN )
   dcdcHsFixLnBlock();
 #endif
-#if defined( ERRATA_FIX_BYPLIMEN_TIMING_EN )
-  BUS_RegBitWrite(EMU_DCDCCLIMCTRL, _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT, 0);
-#endif
 
   for (i = 0; i < 4; i++)
   {
@@ -805,67 +816,256 @@ void EMU_EnterEM4S(void)
  *   memory blocks for a device.
  *
  * @note
- *   Only a reset can make the specified memory block(s) available for use
- *   after having been powered down. Function will be void for devices not
- *   supporting this feature.
+ *   Only a POR reset can power up the specified memory block(s) after powerdown.
+ *
+ * @deprecated
+ *   This function is deprecated, use @ref EMU_RamPowerDown() instead which
+ *   maps a user provided memory range into RAM blocks to power down.
  ******************************************************************************/
 void EMU_MemPwrDown(uint32_t blocks)
 {
-#if defined( _EMU_MEMCTRL_POWERDOWN_MASK )
-  EFM_ASSERT(blocks <= (_EMU_MEMCTRL_POWERDOWN_MASK
-                        >> _EMU_MEMCTRL_POWERDOWN_SHIFT));
-  EMU->MEMCTRL = blocks;
-
-#elif defined( _EMU_MEMCTRL_RAMPOWERDOWN_MASK )       \
-      && defined( _EMU_MEMCTRL_RAMHPOWERDOWN_MASK )   \
-      && defined( _EMU_MEMCTRL_SEQRAMPOWERDOWN_MASK )
-  EFM_ASSERT((blocks & (_EMU_MEMCTRL_RAMPOWERDOWN_MASK
-                        | _EMU_MEMCTRL_RAMHPOWERDOWN_MASK
-                        | _EMU_MEMCTRL_SEQRAMPOWERDOWN_MASK))
-             == blocks);
-  EMU->MEMCTRL = blocks;
-
-#elif defined( _EMU_MEMCTRL_RAMPOWERDOWN_MASK )
-  EFM_ASSERT((blocks & _EMU_MEMCTRL_RAMPOWERDOWN_MASK) == blocks);
-  EMU->MEMCTRL = blocks;
-
-#elif defined( _EMU_RAM0CTRL_RAMPOWERDOWN_MASK )
-  EFM_ASSERT((blocks & _EMU_RAM0CTRL_RAMPOWERDOWN_MASK) == blocks);
-  EMU->RAM0CTRL = blocks;
-
+#if defined( _EMU_MEMCTRL_MASK )
+  EMU->MEMCTRL = blocks & _EMU_MEMCTRL_MASK;
+#elif defined( _EMU_RAM0CTRL_MASK )
+  EMU->RAM0CTRL = blocks & _EMU_RAM0CTRL_MASK;
 #else
   (void)blocks;
 #endif
 }
+
+/***************************************************************************//**
+ * @brief
+ *   Power down RAM memory blocks.
+ *
+ * @details
+ *   This function will power down all the RAM blocks that are within a given
+ *   range. The RAM block layout is different between device families, so this
+ *   function can be used in a generic way to power down a RAM memory region
+ *   which is known to be unused.
+ *
+ *   This function will only power down blocks which are completely enclosed
+ *   by the memory range given by [start, end).
+ *
+ *   Here is an example of how to power down all RAM blocks except the first
+ *   one. The first RAM block is special in that it cannot be powered down
+ *   by the hardware. The size of this first RAM block is device specific
+ *   see the reference manual to find the RAM block sizes.
+ *
+ * @code
+ *   EMU_RamPowerDown(SRAM_BASE, SRAM_BASE + SRAM_SIZE);
+ * @endcode
+ *
+ * @note
+ *   Only a POR reset can power up the specified memory block(s) after powerdown.
+ *
+ * @param[in] start
+ *   The start address of the RAM region to power down. This address is
+ *   inclusive.
+ *
+ * @param[in] end
+ *   The end address of the RAM region to power down. This address is
+ *   exclusive. If this parameter is 0, then all RAM blocks contained in the
+ *   region from start to the upper RAM address will be powered down.
+ ******************************************************************************/
+void EMU_RamPowerDown(uint32_t start, uint32_t end)
+{
+  uint32_t mask = 0;
+
+  if (end == 0)
+  {
+    end = SRAM_BASE + SRAM_SIZE;
+  }
+
+  // Check to see if something in RAM0 can be powered down
+  if (end > RAM0_END)
+  {
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_84) // EFM32xG12 and EFR32xG12
+    // Block 0 is 16 kB and cannot be powered off
+    mask |= ADDRESS_NOT_IN_BLOCK(start, 0x20004000) << 0; // Block 1, 16 kB
+    mask |= ADDRESS_NOT_IN_BLOCK(start, 0x20008000) << 1; // Block 2, 16 kB
+    mask |= ADDRESS_NOT_IN_BLOCK(start, 0x2000C000) << 2; // Block 3, 16 kB
+    mask |= ADDRESS_NOT_IN_BLOCK(start, 0x20010000) << 3; // Block 4, 64 kB
+#elif defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80) // EFM32xG1 and EFR32xG1
+    // Block 0 is 4 kB and cannot be powered off
+    mask |= ADDRESS_NOT_IN_BLOCK(start, 0x20001000) << 0; // Block 1, 4 kB
+    mask |= ADDRESS_NOT_IN_BLOCK(start, 0x20002000) << 1; // Block 2, 8 kB
+    mask |= ADDRESS_NOT_IN_BLOCK(start, 0x20004000) << 2; // Block 3, 8 kB
+    mask |= ADDRESS_NOT_IN_BLOCK(start, 0x20006000) << 3; // Block 4, 7 kB
+#elif defined(RAM0_BLOCKS)
+    // These platforms have equally sized RAM blocks
+    for (int i = 1; i < RAM0_BLOCKS; i++)
+    {
+      mask |= ADDRESS_NOT_IN_BLOCK(start, RAM_MEM_BASE + (i * RAM0_BLOCK_SIZE)) << (i - 1);
+    }
+#endif
+  }
+
+  // Power down the selected blocks
+#if defined( _EMU_MEMCTRL_MASK )
+  EMU->MEMCTRL = EMU->MEMCTRL   | mask;
+#elif defined( _EMU_RAM0CTRL_MASK )
+  EMU->RAM0CTRL = EMU->RAM0CTRL | mask;
+#else
+  // These devices are unable to power down RAM blocks
+  (void) mask;
+  (void) start;
+#endif
+
+#if defined(RAM1_MEM_END)
+  mask = 0;
+  if (end > RAM1_MEM_END)
+  {
+    for (int i = 0; i < RAM1_BLOCKS; i++)
+    {
+      mask |= ADDRESS_NOT_IN_BLOCK(start, RAM1_MEM_BASE + (i * RAM1_BLOCK_SIZE)) << i;
+    }
+  }
+  EMU->RAM1CTRL |= mask;
+#endif
+}
+
+#if defined(_EMU_EM23PERNORETAINCTRL_MASK)
+/***************************************************************************//**
+ * @brief
+ *   Set EM2 3 peripheral retention control.
+ *
+ * @param[in] periMask
+ *  Peripheral select mask. Use | operator to select multiple peripheral, for example
+ *  @ref emuPeripheralRetention_LEUART0 | @ref emuPeripheralRetention_VDAC0.
+ * @param[in] enable
+ *  Peripheral retention enable (true) or disable (false).
+ *
+ *
+ * @note
+ *   Only peripheral retention disable is currently supported. Peripherals are
+ *   enabled by default, and can only be disabled.
+ ******************************************************************************/
+void EMU_PeripheralRetention(EMU_PeripheralRetention_TypeDef periMask, bool enable)
+{
+  EFM_ASSERT(!enable);
+  EMU->EM23PERNORETAINCTRL = periMask & emuPeripheralRetention_ALL;
+}
+#endif
 
 
 /***************************************************************************//**
  * @brief
  *   Update EMU module with CMU oscillator selection/enable status.
  *
- * @details
- *   When entering EM2 and EM3, the HW may change the core clock oscillator
- *   used, as well as disabling some oscillators. The user may optionally select
- *   to restore the oscillators after waking up from EM2 and EM3 through the
- *   SW API.
- *
- *   However, in order to support this in a safe way, the EMU module must
- *   be kept up-to-date on the actual selected configuration. The CMU
- *   module must keep the EMU module up-to-date.
- *
- *   This function is mainly intended for internal use by the CMU module,
- *   but if the applications changes oscillator configurations without
- *   using the CMU API, this function can be used to keep the EMU module
- *   up-to-date.
+ * @deprecated
+ *   Oscillator status is saved in @ref EMU_EnterEM2() and @ref EMU_EnterEM3().
  ******************************************************************************/
 void EMU_UpdateOscConfig(void)
 {
-  /* Fetch current configuration */
-  cmuStatus = CMU->STATUS;
-#if defined( _CMU_HFCLKSTATUS_RESETVALUE )
-  cmuHfclkStatus = (uint16_t)(CMU->HFCLKSTATUS);
-#endif
+  emState(emState_Save);
 }
+
+
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+/***************************************************************************//**
+ * @brief
+ *   Voltage scale in EM0 and 1 by clock frequency.
+ *
+ * @param[in] clockFrequency
+ *   Use CMSIS HF clock if 0, or override to custom clock. Providing a
+ *   custom clock frequency is required if using a non-standard HFXO
+ *   frequency.
+ * @param[in] wait
+ *   Wait for scaling to complate.
+ *
+ * @note
+ *   This function is primarely needed by the @ref CMU module.
+ ******************************************************************************/
+void EMU_VScaleEM01ByClock(uint32_t clockFrequency, bool wait)
+{
+  uint32_t hfSrcClockFrequency;
+  uint32_t hfPresc = 1U + ((CMU->HFPRESC & _CMU_HFPRESC_PRESC_MASK)
+                           >> _CMU_HFPRESC_PRESC_SHIFT);
+
+  /* VSCALE frequency is HFSRCCLK */
+  if (clockFrequency == 0)
+  {
+    hfSrcClockFrequency = SystemHFClockGet() * hfPresc;
+  }
+  else
+  {
+    hfSrcClockFrequency = clockFrequency;
+  }
+
+  /* Apply EM0 and 1 voltage scaling command. */
+  if (vScaleEM01Config.vScaleEM01LowPowerVoltageEnable
+      && (hfSrcClockFrequency < CMU_VSCALEEM01_LOWPOWER_VOLTAGE_CLOCK_MAX))
+  {
+    EMU->CMD = vScaleEM01Cmd(emuVScaleEM01_LowPower);
+  }
+  else
+  {
+    EMU->CMD = vScaleEM01Cmd(emuVScaleEM01_HighPerformance);
+  }
+
+  if (wait)
+  {
+    EMU_VScaleWait();
+  }
+}
+#endif
+
+
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+/***************************************************************************//**
+ * @brief
+ *   Force voltage scaling in EM0 and 1 to a specific voltage level.
+ *
+ * @param[in] voltage
+ *   Target VSCALE voltage level.
+ * @param[in] wait
+ *   Wait for scaling to complate.
+ *
+ * @note
+ *   This function is useful for upscaling before programming Flash from @ref MSC,
+ *   and downscaling after programming is done. Flash programming is only supported
+ *   at @ref emuVScaleEM01_HighPerformance.
+ *
+ * @note
+ *  This function ignores @ref vScaleEM01LowPowerVoltageEnable set from @ref
+ *  EMU_EM01Init().
+ ******************************************************************************/
+void EMU_VScaleEM01(EMU_VScaleEM01_TypeDef voltage, bool wait)
+{
+  uint32_t hfSrcClockFrequency;
+  uint32_t hfPresc = 1U + ((CMU->HFPRESC & _CMU_HFPRESC_PRESC_MASK)
+                           >> _CMU_HFPRESC_PRESC_SHIFT);
+  hfSrcClockFrequency = SystemHFClockGet() * hfPresc;
+
+  if (voltage == emuVScaleEM01_LowPower)
+  {
+    EFM_ASSERT(hfSrcClockFrequency <= CMU_VSCALEEM01_LOWPOWER_VOLTAGE_CLOCK_MAX);
+  }
+
+  EMU->CMD = vScaleEM01Cmd(voltage);
+  if (wait)
+  {
+    EMU_VScaleWait();
+  }
+}
+#endif
+
+
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+/***************************************************************************//**
+ * @brief
+ *   Update EMU module with Energy Mode 0 and 1 configuration
+ *
+ * @param[in] em01Init
+ *    Energy Mode 0 and 1 configuration structure
+ ******************************************************************************/
+void EMU_EM01Init(const EMU_EM01Init_TypeDef *em01Init)
+{
+  vScaleEM01Config.vScaleEM01LowPowerVoltageEnable =
+    em01Init->vScaleEM01LowPowerVoltageEnable;
+  EMU_VScaleEM01ByClock(0, true);
+}
+#endif
 
 
 /***************************************************************************//**
@@ -875,7 +1075,7 @@ void EMU_UpdateOscConfig(void)
  * @param[in] em23Init
  *    Energy Mode 2 and 3 configuration structure
  ******************************************************************************/
-void EMU_EM23Init(EMU_EM23Init_TypeDef *em23Init)
+void EMU_EM23Init(const EMU_EM23Init_TypeDef *em23Init)
 {
 #if defined( _EMU_CTRL_EMVREG_MASK )
   EMU->CTRL = em23Init->em23VregFullEn ? (EMU->CTRL | EMU_CTRL_EMVREG)
@@ -885,6 +1085,11 @@ void EMU_EM23Init(EMU_EM23Init_TypeDef *em23Init)
                                          : (EMU->CTRL & ~EMU_CTRL_EM23VREG);
 #else
   (void)em23Init;
+#endif
+
+#if defined( _EMU_CTRL_EM23VSCALE_MASK )
+  EMU->CTRL = (EMU->CTRL & ~_EMU_CTRL_EM23VSCALE_MASK)
+              | (em23Init->vScaleEM23Voltage << _EMU_CTRL_EM23VSCALE_SHIFT);
 #endif
 }
 
@@ -897,7 +1102,7 @@ void EMU_EM23Init(EMU_EM23Init_TypeDef *em23Init)
  * @param[in] em4Init
  *    Energy Mode 4 configuration structure
  ******************************************************************************/
-void EMU_EM4Init(EMU_EM4Init_TypeDef *em4Init)
+void EMU_EM4Init(const EMU_EM4Init_TypeDef *em4Init)
 {
 #if defined( _EMU_EM4CONF_MASK )
   /* Init for platforms with EMU->EM4CONF register */
@@ -937,6 +1142,11 @@ void EMU_EM4Init(EMU_EM4Init_TypeDef *em4Init)
 
   EMU->EM4CTRL = em4ctrl;
 #endif
+
+#if defined( _EMU_CTRL_EM4HVSCALE_MASK )
+  EMU->CTRL = (EMU->CTRL & ~_EMU_CTRL_EM4HVSCALE_MASK)
+              | (em4Init->vScaleEM4HVoltage << _EMU_CTRL_EM4HVSCALE_SHIFT);
+#endif
 }
 #endif
 
@@ -949,7 +1159,7 @@ void EMU_EM4Init(EMU_EM4Init_TypeDef *em4Init)
  * @param[in] bupdInit
  *   Backup power domain initialization structure
  ******************************************************************************/
-void EMU_BUPDInit(EMU_BUPDInit_TypeDef *bupdInit)
+void EMU_BUPDInit(const EMU_BUPDInit_TypeDef *bupdInit)
 {
   uint32_t reg;
 
@@ -1055,8 +1265,8 @@ void EMU_BUThresRangeSet(EMU_BODMode_TypeDef mode, uint32_t value)
 #endif
 
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 #if defined( _EMU_DCDCCTRL_MASK )
-
 /* Translate fields with different names across platform generations to common names. */
 #if defined( _EMU_DCDCMISCCTRL_LPCMPBIAS_MASK )
 #define _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_MASK      _EMU_DCDCMISCCTRL_LPCMPBIAS_MASK
@@ -1073,7 +1283,15 @@ void EMU_BUThresRangeSet(EMU_BODMode_TypeDef mode, uint32_t value)
 #define _GENERIC_DCDCLPCTRL_LPCMPHYSSELEM234H_SHIFT     _EMU_DCDCLPCTRL_LPCMPHYSSELEM234H_SHIFT
 #endif
 
-/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+/* Internal DCDC trim modes. */
+typedef enum
+{
+  dcdcTrimMode_EM234H_LP = 0,
+#if defined( _EMU_DCDCLPEM01CFG_LPCMPBIASEM01_MASK )
+  dcdcTrimMode_EM01_LP,
+#endif
+  dcdcTrimMode_LN,
+} dcdcTrimMode_TypeDef;
 
 /***************************************************************************//**
  * @brief
@@ -1083,9 +1301,9 @@ void EMU_BUThresRangeSet(EMU_BODMode_TypeDef mode, uint32_t value)
  * @return
  *   False if calibration registers are locked
  ******************************************************************************/
-static bool ConstCalibrationLoad(void)
+static bool dcdcConstCalibrationLoad(void)
 {
-#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
   uint32_t val;
   volatile uint32_t *reg;
 
@@ -1129,10 +1347,7 @@ static bool ConstCalibrationLoad(void)
   /* Return when assertions are disabled */
   return false;
 
-#elif defined( _SILICON_LABS_32B_PLATFORM_2_GEN_2 )
-  return true;
 #else
-#error "Undefined platform 2 generation."
   return true;
 #endif
 }
@@ -1143,7 +1358,7 @@ static bool ConstCalibrationLoad(void)
  *   Set recommended and validated current optimization and timing settings
  *
  ******************************************************************************/
-static void ValidatedConfigSet(void)
+static void dcdcValidatedConfigSet(void)
 {
 /* Disable LP mode hysterysis in the state machine control */
 #define EMU_DCDCMISCCTRL_LPCMPHYSDIS (0x1UL << 1)
@@ -1151,13 +1366,12 @@ static void ValidatedConfigSet(void)
 #define EMU_DCDCMISCCTRL_LPCMPHYSHI  (0x1UL << 2)
 #define EMU_DCDCSMCTRL  (* (volatile uint32_t *)(EMU_BASE + 0x44))
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
+  uint32_t lnForceCcm;
+
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
   uint32_t dcdcTiming;
-  SYSTEM_PartFamily_TypeDef family;
   SYSTEM_ChipRevision_TypeDef rev;
 #endif
-
-  uint32_t lnForceCcm = BUS_RegBitRead(&EMU->DCDCMISCCTRL, _EMU_DCDCMISCCTRL_LNFORCECCM_SHIFT);
 
   /* Enable duty cycling of the bias */
   EMU->DCDCLPCTRL |= EMU_DCDCLPCTRL_LPVREFDUTYEN;
@@ -1166,6 +1380,7 @@ static void ValidatedConfigSet(void)
    * LNFORCECCM is default 1 for EFR32
    * LNFORCECCM is default 0 for EFM32
    */
+  lnForceCcm = BUS_RegBitRead(&EMU->DCDCMISCCTRL, _EMU_DCDCMISCCTRL_LNFORCECCM_SHIFT);
   if (lnForceCcm)
   {
     /* 7MHz is recommended for LNFORCECCM = 1 */
@@ -1177,18 +1392,14 @@ static void ValidatedConfigSet(void)
     EMU_DCDCLnRcoBandSet(emuDcdcLnRcoBand_3MHz);
   }
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
   EMU->DCDCTIMING &= ~_EMU_DCDCTIMING_DUTYSCALE_MASK;
   EMU->DCDCMISCCTRL |= EMU_DCDCMISCCTRL_LPCMPHYSDIS
                        | EMU_DCDCMISCCTRL_LPCMPHYSHI;
 
-  family = SYSTEM_GetFamily();
   SYSTEM_ChipRevisionGet(&rev);
-  if ((((family >= systemPartFamilyMighty1P)
-         && (family <= systemPartFamilyFlex1V))
-       || (family == systemPartFamilyEfm32Pearl1B)
-       || (family == systemPartFamilyEfm32Jade1B))
-      && ((rev.major == 1) && (rev.minor < 3))
+  if ((rev.major == 1)
+      && (rev.minor < 3)
       && (errataFixDcdcHsState == errataFixDcdcHsInit))
   {
     /* LPCMPWAITDIS = 1 */
@@ -1315,16 +1526,14 @@ static void userCurrentLimitsSet(uint32_t maxCurrent_mA,
  ******************************************************************************/
 static void compCtrlSet(EMU_DcdcLnCompCtrl_TypeDef comp)
 {
-#define EMU_DCDCLNCOMPCTRL      (*(volatile uint32_t *) (EMU_BASE + 0x58UL))
-
   switch (comp)
   {
     case emuDcdcLnCompCtrl_1u0F:
-      EMU_DCDCLNCOMPCTRL = 0x57204077UL;
+      EMU->DCDCLNCOMPCTRL = 0x57204077UL;
       break;
 
     case emuDcdcLnCompCtrl_4u7F:
-      EMU_DCDCLNCOMPCTRL = 0xB7102137UL;
+      EMU->DCDCLNCOMPCTRL = 0xB7102137UL;
       break;
 
     default:
@@ -1338,21 +1547,29 @@ static void compCtrlSet(EMU_DcdcLnCompCtrl_TypeDef comp)
  *   Load EMU_DCDCLPCTRL_LPCMPHYSSEL depending on LP bias, LP feedback
  *   attenuation and DEVINFOREV.
  *
- * @param[in] attSet
+ * @param[in] lpAttenuation
  *   LP feedback attenuation.
  * @param[in] lpCmpBias
- *   lpCmpBias selection (unshifted)
+ *   lpCmpBias selection.
+ * @param[in] trimMode
+ *   DCDC trim mode.
  ******************************************************************************/
-static bool LpCmpHystCalibrationLoad(bool lpAttenuation, uint32_t lpCmpBias)
+static bool lpCmpHystCalibrationLoad(bool lpAttenuation,
+                                     uint8_t lpCmpBias,
+                                     dcdcTrimMode_TypeDef trimMode)
 {
-  uint8_t devinfoRev;
   uint32_t lpcmpHystSel;
 
   /* Get calib data revision */
-  devinfoRev = SYSTEM_GetDevinfoRev();
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80)
+  uint8_t devinfoRev = SYSTEM_GetDevinfoRev();
 
   /* Load LPATT indexed calibration data */
   if (devinfoRev < 4)
+#else
+  /* Format change not present of newer families. */
+  if (false)
+#endif
   {
     lpcmpHystSel = DEVINFO->DCDCLPCMPHYSSEL0;
 
@@ -1378,17 +1595,17 @@ static bool LpCmpHystCalibrationLoad(bool lpAttenuation, uint32_t lpCmpBias)
                         >> _DEVINFO_DCDCLPCMPHYSSEL1_LPCMPHYSSELLPCMPBIAS0_SHIFT;
         break;
 
-      case 1 << _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_SHIFT:
+      case 1:
         lpcmpHystSel = (lpcmpHystSel & _DEVINFO_DCDCLPCMPHYSSEL1_LPCMPHYSSELLPCMPBIAS1_MASK)
                         >> _DEVINFO_DCDCLPCMPHYSSEL1_LPCMPHYSSELLPCMPBIAS1_SHIFT;
         break;
 
-      case 2 << _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_SHIFT:
+      case 2:
         lpcmpHystSel = (lpcmpHystSel & _DEVINFO_DCDCLPCMPHYSSEL1_LPCMPHYSSELLPCMPBIAS2_MASK)
                         >> _DEVINFO_DCDCLPCMPHYSSEL1_LPCMPHYSSELLPCMPBIAS2_SHIFT;
         break;
 
-      case 3 << _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_SHIFT:
+      case 3:
         lpcmpHystSel = (lpcmpHystSel & _DEVINFO_DCDCLPCMPHYSSEL1_LPCMPHYSSELLPCMPBIAS3_MASK)
                         >> _DEVINFO_DCDCLPCMPHYSSEL1_LPCMPHYSSELLPCMPBIAS3_SHIFT;
         break;
@@ -1399,17 +1616,136 @@ static bool LpCmpHystCalibrationLoad(bool lpAttenuation, uint32_t lpCmpBias)
         return false;
     }
   }
-  /* Make sure the sel value is within the field range. */
-  lpcmpHystSel <<= _GENERIC_DCDCLPCTRL_LPCMPHYSSELEM234H_SHIFT;
-  if (lpcmpHystSel & ~_GENERIC_DCDCLPCTRL_LPCMPHYSSELEM234H_MASK)
+
+  /* Set trims */
+  if (trimMode == dcdcTrimMode_EM234H_LP)
   {
-    EFM_ASSERT(false);
-    /* Return when assertions are disabled */
-    return false;
+    /* Make sure the sel value is within the field range. */
+    lpcmpHystSel <<= _GENERIC_DCDCLPCTRL_LPCMPHYSSELEM234H_SHIFT;
+    if (lpcmpHystSel & ~_GENERIC_DCDCLPCTRL_LPCMPHYSSELEM234H_MASK)
+    {
+      EFM_ASSERT(false);
+      /* Return when assertions are disabled */
+      return false;
+    }
+    EMU->DCDCLPCTRL = (EMU->DCDCLPCTRL & ~_GENERIC_DCDCLPCTRL_LPCMPHYSSELEM234H_MASK) | lpcmpHystSel;
   }
-  EMU->DCDCLPCTRL = (EMU->DCDCLPCTRL & ~_GENERIC_DCDCLPCTRL_LPCMPHYSSELEM234H_MASK) | lpcmpHystSel;
+
+#if defined( _EMU_DCDCLPEM01CFG_LPCMPHYSSELEM01_MASK )
+  if (trimMode == dcdcTrimMode_EM01_LP)
+  {
+    /* Make sure the sel value is within the field range. */
+    lpcmpHystSel <<= _EMU_DCDCLPEM01CFG_LPCMPHYSSELEM01_SHIFT;
+    if (lpcmpHystSel & ~_EMU_DCDCLPEM01CFG_LPCMPHYSSELEM01_MASK)
+    {
+      EFM_ASSERT(false);
+      /* Return when assertions are disabled */
+      return false;
+    }
+    EMU->DCDCLPEM01CFG = (EMU->DCDCLPEM01CFG & ~_EMU_DCDCLPEM01CFG_LPCMPHYSSELEM01_MASK) | lpcmpHystSel;
+  }
+#endif
 
   return true;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Load LPVREF low and high from DEVINFO.
+ *
+ * @param[out] vrefL
+ *   LPVREF low from DEVINFO.
+ * @param[out] vrefH
+ *   LPVREF high from DEVINFO.
+ * @param[in] lpAttenuation
+ *   LP feedback attenuation.
+ * @param[in] lpcmpBias
+ *   lpcmpBias to lookup in DEVINFO.
+ ******************************************************************************/
+static void lpGetDevinfoVrefLowHigh(uint32_t *vrefL,
+                                    uint32_t *vrefH,
+                                    bool lpAttenuation,
+                                    uint8_t lpcmpBias)
+{
+  uint32_t vrefLow = 0;
+  uint32_t vrefHigh = 0;
+
+  /* Find VREF high and low in DEVINFO indexed by LPCMPBIAS (lpcmpBias)
+     and LPATT (lpAttenuation) */
+  uint32_t switchVal = (lpcmpBias << 8) | (lpAttenuation ? 1 : 0);
+  switch (switchVal)
+  {
+    case ((0 << 8) | 1):
+      vrefLow  = DEVINFO->DCDCLPVCTRL2;
+      vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL2_3V0LPATT1LPCMPBIAS0_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL2_3V0LPATT1LPCMPBIAS0_SHIFT;
+      vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL2_1V8LPATT1LPCMPBIAS0_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL2_1V8LPATT1LPCMPBIAS0_SHIFT;
+      break;
+
+    case ((1 << 8) | 1):
+      vrefLow  = DEVINFO->DCDCLPVCTRL2;
+      vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL2_3V0LPATT1LPCMPBIAS1_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL2_3V0LPATT1LPCMPBIAS1_SHIFT;
+      vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL2_1V8LPATT1LPCMPBIAS1_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL2_1V8LPATT1LPCMPBIAS1_SHIFT;
+      break;
+
+    case ((2 << 8) | 1):
+      vrefLow  = DEVINFO->DCDCLPVCTRL3;
+      vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL3_3V0LPATT1LPCMPBIAS2_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL3_3V0LPATT1LPCMPBIAS2_SHIFT;
+      vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL3_1V8LPATT1LPCMPBIAS2_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL3_1V8LPATT1LPCMPBIAS2_SHIFT;
+      break;
+
+    case ((3 << 8) | 1):
+      vrefLow  = DEVINFO->DCDCLPVCTRL3;
+      vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL3_3V0LPATT1LPCMPBIAS3_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL3_3V0LPATT1LPCMPBIAS3_SHIFT;
+      vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL3_1V8LPATT1LPCMPBIAS3_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL3_1V8LPATT1LPCMPBIAS3_SHIFT;
+      break;
+
+    case ((0 << 8) | 0):
+      vrefLow  = DEVINFO->DCDCLPVCTRL0;
+      vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL0_1V8LPATT0LPCMPBIAS0_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL0_1V8LPATT0LPCMPBIAS0_SHIFT;
+      vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL0_1V2LPATT0LPCMPBIAS0_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL0_1V2LPATT0LPCMPBIAS0_SHIFT;
+      break;
+
+    case ((1 << 8) | 0):
+      vrefLow  = DEVINFO->DCDCLPVCTRL0;
+      vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL0_1V8LPATT0LPCMPBIAS1_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL0_1V8LPATT0LPCMPBIAS1_SHIFT;
+      vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL0_1V2LPATT0LPCMPBIAS1_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL0_1V2LPATT0LPCMPBIAS1_SHIFT;
+      break;
+
+    case ((2 << 8) | 0):
+      vrefLow  = DEVINFO->DCDCLPVCTRL1;
+      vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL1_1V8LPATT0LPCMPBIAS2_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL1_1V8LPATT0LPCMPBIAS2_SHIFT;
+      vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL1_1V2LPATT0LPCMPBIAS2_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL1_1V2LPATT0LPCMPBIAS2_SHIFT;
+      break;
+
+    case ((3 << 8) | 0):
+      vrefLow  = DEVINFO->DCDCLPVCTRL1;
+      vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL1_1V8LPATT0LPCMPBIAS3_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL1_1V8LPATT0LPCMPBIAS3_SHIFT;
+      vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL1_1V2LPATT0LPCMPBIAS3_MASK)
+                 >> _DEVINFO_DCDCLPVCTRL1_1V2LPATT0LPCMPBIAS3_SHIFT;
+      break;
+
+    default:
+      EFM_ASSERT(false);
+      break;
+  }
+  *vrefL = vrefLow;
+  *vrefH = vrefHigh;
 }
 
 /** @endcond */
@@ -1431,11 +1767,11 @@ void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode)
     return;
   }
 
-#if defined(_SILICON_LABS_32B_PLATFORM_2_GEN_1)
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80)
 
   while(EMU->DCDCSYNC & EMU_DCDCSYNC_DCDCCTRLBUSY);
   /* Configure bypass current limiter */
-  BUS_RegBitWrite(EMU_DCDCCLIMCTRL, _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT, dcdcMode == emuDcdcMode_Bypass ? 0 : 1);
+  BUS_RegBitWrite(&EMU->DCDCCLIMCTRL, _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT, dcdcMode == emuDcdcMode_Bypass ? 0 : 1);
 
   /* Fix for errata DCDC_E203 */
   if (((EMU_DcdcMode_TypeDef)currentDcdcMode == emuDcdcMode_Bypass)
@@ -1444,8 +1780,9 @@ void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode)
     errataFixDcdcHsState = errataFixDcdcHsBypassLn;
   }
 
-#elif defined(_SILICON_LABS_32B_PLATFORM_2_GEN_2)
+#else
 
+  /* Fix for errata DCDC_E204 */
   if (((currentDcdcMode == EMU_DCDCCTRL_DCDCMODE_OFF) || (currentDcdcMode == EMU_DCDCCTRL_DCDCMODE_BYPASS))
        && ((dcdcMode == emuDcdcMode_LowPower) || (dcdcMode == emuDcdcMode_LowNoise)))
   {
@@ -1455,18 +1792,62 @@ void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode)
     EMU->DCDCCTRL = (EMU->DCDCCTRL & ~_EMU_DCDCCTRL_DCDCMODE_MASK) | EMU_DCDCCTRL_DCDCMODE_LOWNOISE;
     while(!(EMU_IntGet() & EMU_IF_DCDCLNRUNNING));
   }
-  else if (dcdcMode == emuDcdcMode_Bypass)
-  {
-    /* Enable limiter to remove current peak. Disable again in EMU_EnterEM2/3/4 */
-    while(EMU->DCDCSYNC & EMU_DCDCSYNC_DCDCCTRLBUSY);
-    BUS_RegBitWrite(EMU_DCDCCLIMCTRL, _EMU_DCDCCLIMCTRL_BYPLIMEN_SHIFT, 1);
-  }
-#else
-#error "DCDC mode handling is undefined for this family."
 #endif
 
   /* Set user requested mode. */
+  while(EMU->DCDCSYNC & EMU_DCDCSYNC_DCDCCTRLBUSY);
   EMU->DCDCCTRL = (EMU->DCDCCTRL & ~_EMU_DCDCCTRL_DCDCMODE_MASK) | dcdcMode;
+}
+
+
+/***************************************************************************//**
+ * @brief
+ *   Set DCDC LN regulator conduction mode
+ *
+ * @param[in] conductionMode
+ *   DCDC LN conduction mode.
+ * @param[in] rcoDefaultSet
+ *   The default DCDC RCO band for the conductionMode will be used if true.
+ *   Otherwise the current RCO configuration is used.
+ ******************************************************************************/
+void EMU_DCDCConductionModeSet(EMU_DcdcConductionMode_TypeDef conductionMode, bool rcoDefaultSet)
+{
+  EMU_DcdcMode_TypeDef currentDcdcMode
+    = (EMU_DcdcMode_TypeDef)(EMU->DCDCCTRL & _EMU_DCDCCTRL_DCDCMODE_MASK);
+  EMU_DcdcLnRcoBand_TypeDef rcoBand
+    = (EMU_DcdcLnRcoBand_TypeDef)((EMU->DCDCLNFREQCTRL & _EMU_DCDCLNFREQCTRL_RCOBAND_MASK)
+                                  >> _EMU_DCDCLNFREQCTRL_RCOBAND_SHIFT);
+
+  /* Set bypass mode and wait for bypass mode to settle before
+     EMU_DCDCMISCCTRL_LNFORCECCM is set. Restore current DCDC mode. */
+  EMU_IntClear(EMU_IFC_DCDCINBYPASS);
+  EMU_DCDCModeSet(emuDcdcMode_Bypass);
+  while(EMU->DCDCSYNC & EMU_DCDCSYNC_DCDCCTRLBUSY);
+  while(!(EMU_IntGet() & EMU_IF_DCDCINBYPASS));
+  if (conductionMode == emuDcdcConductionMode_DiscontinuousLN)
+  {
+    EMU->DCDCMISCCTRL &= ~ EMU_DCDCMISCCTRL_LNFORCECCM;
+    if (rcoDefaultSet)
+    {
+      EMU_DCDCLnRcoBandSet(emuDcdcLnRcoBand_3MHz);
+    }
+    else
+    {
+      /* emuDcdcConductionMode_DiscontinuousLN supports up to 4MHz LN RCO. */
+      EFM_ASSERT(rcoBand <= emuDcdcLnRcoBand_4MHz);
+    }
+  }
+  else
+  {
+    EMU->DCDCMISCCTRL |= EMU_DCDCMISCCTRL_LNFORCECCM;
+    if (rcoDefaultSet)
+    {
+      EMU_DCDCLnRcoBandSet(emuDcdcLnRcoBand_7MHz);
+    }
+  }
+  EMU_DCDCModeSet(currentDcdcMode);
+  /* Update slice configuration as it depends on conduction mode and RCO band. */
+  EMU_DCDCOptimizeSlice(dcdcEm01LoadCurrent_mA);
 }
 
 
@@ -1485,20 +1866,18 @@ void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode)
  * @return
  *   True if initialization parameters are valid
  ******************************************************************************/
-bool EMU_DCDCInit(EMU_DCDCInit_TypeDef *dcdcInit)
+bool EMU_DCDCInit(const EMU_DCDCInit_TypeDef *dcdcInit)
 {
-#if defined(_EMU_DCDCLPEM01CFG_LPCMPBIASEM01_MASK)
-  uint32_t lpCmpBiasSelEM01;
-#endif
   uint32_t lpCmpBiasSelEM234H;
 
+#if defined(_EMU_PWRCFG_MASK)
   /* Set external power configuration. This enables writing to the other
      DCDC registers. */
-  EMU->PWRCFG = dcdcInit->powerConfig;
+  EMU->PWRCFG = EMU_PWRCFG_PWRCFG_DCDCTODVDD;
 
   /* EMU->PWRCFG is write-once and POR reset only. Check that
      we could set the desired power configuration. */
-  if ((EMU->PWRCFG & _EMU_PWRCFG_PWRCFG_MASK) != dcdcInit->powerConfig)
+  if ((EMU->PWRCFG & _EMU_PWRCFG_PWRCFG_MASK) != EMU_PWRCFG_PWRCFG_DCDCTODVDD)
   {
     /* If this assert triggers unexpectedly, please power cycle the
        kit to reset the power configuration. */
@@ -1506,45 +1885,31 @@ bool EMU_DCDCInit(EMU_DCDCInit_TypeDef *dcdcInit)
     /* Return when assertions are disabled */
     return false;
   }
+#endif
 
   /* Load DCDC calibration data from the DI page */
-  ConstCalibrationLoad();
+  dcdcConstCalibrationLoad();
 
   /* Check current parameters */
   EFM_ASSERT(dcdcInit->maxCurrent_mA <= 200);
   EFM_ASSERT(dcdcInit->em01LoadCurrent_mA <= dcdcInit->maxCurrent_mA);
   EFM_ASSERT(dcdcInit->reverseCurrentControl <= 200);
 
-  /* DCDC low-noise supports max 200mA */
   if (dcdcInit->dcdcMode == emuDcdcMode_LowNoise)
   {
+    /* DCDC low-noise supports max 200mA */
     EFM_ASSERT(dcdcInit->em01LoadCurrent_mA <= 200);
   }
-#if (_SILICON_LABS_32B_PLATFORM_2_GEN > 1)
+#if (_SILICON_LABS_GECKO_INTERNAL_SDID != 80)
   else if (dcdcInit->dcdcMode == emuDcdcMode_LowPower)
   {
+    /* Up to 10mA is supported for EM01-LP mode. */
     EFM_ASSERT(dcdcInit->em01LoadCurrent_mA <= 10);
   }
 #endif
 
   /* EM2/3/4 current above 10mA is not supported */
   EFM_ASSERT(dcdcInit->em234LoadCurrent_uA <= 10000);
-
-  /* Decode LP comparator bias for EM0/1 and EM2/3 */
-#if defined(_EMU_DCDCLPEM01CFG_LPCMPBIASEM01_MASK)
-  lpCmpBiasSelEM01 = EMU_DCDCLPEM01CFG_LPCMPBIASEM01_BIAS3;
-  if (dcdcInit->dcdcMode == emuDcdcMode_LowPower)
-  {
-    if (dcdcInit->em01LoadCurrent_mA <= 1)
-    {
-      lpCmpBiasSelEM01 = EMU_DCDCLPEM01CFG_LPCMPBIASEM01_BIAS1;
-    }
-    else if (dcdcInit->em01LoadCurrent_mA <= 3)
-    {
-      lpCmpBiasSelEM01 = EMU_DCDCLPEM01CFG_LPCMPBIASEM01_BIAS2;
-    }
-  }
-#endif
 
   if (dcdcInit->em234LoadCurrent_uA < 75)
   {
@@ -1575,14 +1940,15 @@ bool EMU_DCDCInit(EMU_DCDCInit_TypeDef *dcdcInit)
                           | (dcdcInit->reverseCurrentControl >= 0 ?
                              EMU_DCDCMISCCTRL_LNFORCECCM : 0));
 #if defined(_EMU_DCDCLPEM01CFG_LPCMPBIASEM01_MASK)
+  /* Only 10mA EM01-LP current is supported */
   EMU->DCDCLPEM01CFG = (EMU->DCDCLPEM01CFG & ~_EMU_DCDCLPEM01CFG_LPCMPBIASEM01_MASK)
-                       | lpCmpBiasSelEM01;
+                       | EMU_DCDCLPEM01CFG_LPCMPBIASEM01_BIAS3;
 #endif
 
   /* 2. Set recommended and validated current optimization settings
         <= Depends on LNFORCECCM
         => Updates DCDCLNFREQCTRL_RCOBAND */
-  ValidatedConfigSet();
+  dcdcValidatedConfigSet();
 
   /* 3. Updated static currents and limits user data.
         Limiters are updated in EMU_DCDCOptimizeSlice() */
@@ -1611,12 +1977,18 @@ bool EMU_DCDCInit(EMU_DCDCInit_TypeDef *dcdcInit)
     return false;
   }
 
-#if ( _SILICON_LABS_32B_PLATFORM_2_GEN == 1 )
+#if ( _SILICON_LABS_GECKO_INTERNAL_SDID == 80 )
   /* Select analog peripheral power supply. This must be done before
-     DCDC mode is set for GEN_1. */
+     DCDC mode is set for all EFM32xG1 and EFR32xG1 devices. */
   BUS_RegBitWrite(&EMU->PWRCTRL,
                   _EMU_PWRCTRL_ANASW_SHIFT,
                   dcdcInit->anaPeripheralPower ? 1 : 0);
+#endif
+
+#if defined(_EMU_PWRCTRL_REGPWRSEL_MASK)
+  /* Select DVDD as input to the digital regulator. The switch to DVDD will take
+     effect once the DCDC output is stable. */
+  EMU->PWRCTRL |= EMU_PWRCTRL_REGPWRSEL_DVDD;
 #endif
 
   /* Set EM0 DCDC operating mode. Output voltage set in
@@ -1624,14 +1996,9 @@ bool EMU_DCDCInit(EMU_DCDCInit_TypeDef *dcdcInit)
      is changed from bypass/off mode. */
   EMU_DCDCModeSet(dcdcInit->dcdcMode);
 
-  /* Select DVDD as input to the digital regulator */
-#if defined(_EMU_PWRCTRL_REGPWRSEL_MASK)
-  EMU->PWRCTRL |= EMU_PWRCTRL_REGPWRSEL_DVDD;
-#endif
-
-#if ( _SILICON_LABS_32B_PLATFORM_2_GEN > 1 )
+#if ( _SILICON_LABS_GECKO_INTERNAL_SDID != 80 )
   /* Select analog peripheral power supply. This must be done after
-     DCDC mode is set for GEN > 1. */
+     DCDC mode is set for all devices other than EFM32xG1 and EFR32xG1. */
   BUS_RegBitWrite(&EMU->PWRCTRL,
                   _EMU_PWRCTRL_ANASW_SHIFT,
                   dcdcInit->anaPeripheralPower ? 1 : 0);
@@ -1639,7 +2006,6 @@ bool EMU_DCDCInit(EMU_DCDCInit_TypeDef *dcdcInit)
 
   return true;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -1657,27 +2023,21 @@ bool EMU_DCDCOutputVoltageSet(uint32_t mV,
 {
 #if defined( _DEVINFO_DCDCLNVCTRL0_3V0LNATT1_MASK )
 
+#define DCDC_TRIM_MODES ((uint8_t)dcdcTrimMode_LN + 1)
   bool validOutVoltage;
-  uint8_t lnMode;
-  bool attSet;
-  uint32_t attMask;
-  uint32_t vrefLow = 0;
-  uint32_t vrefHigh = 0;
-  uint32_t vrefVal = 0;
+  bool attenuationSet;
   uint32_t mVlow = 0;
   uint32_t mVhigh = 0;
-  uint32_t vrefShift;
-  uint32_t lpcmpBias;
-  volatile uint32_t* ctrlReg;
+  uint32_t mVdiff;
+  uint32_t vrefVal[DCDC_TRIM_MODES] = {0};
+  uint32_t vrefLow[DCDC_TRIM_MODES] = {0};
+  uint32_t vrefHigh[DCDC_TRIM_MODES] = {0};
+  uint8_t lpcmpBias[DCDC_TRIM_MODES] = {0};
 
   /* Check that the set voltage is within valid range.
      Voltages are obtained from the datasheet. */
-  validOutVoltage = false;
-  if ((EMU->PWRCFG & _EMU_PWRCFG_PWRCFG_MASK) == EMU_PWRCFG_PWRCFG_DCDCTODVDD)
-  {
-    validOutVoltage = ((mV >= PWRCFG_DCDCTODVDD_VMIN)
-                       && (mV <= PWRCFG_DCDCTODVDD_VMAX));
-  }
+  validOutVoltage = ((mV >= PWRCFG_DCDCTODVDD_VMIN)
+                     && (mV <= PWRCFG_DCDCTODVDD_VMAX));
 
   if (!validOutVoltage)
   {
@@ -1686,167 +2046,127 @@ bool EMU_DCDCOutputVoltageSet(uint32_t mV,
     return false;
   }
 
-  /* Populate both LP and LN registers, set control reg pointer and VREF shift. */
-  for (lnMode = 0; lnMode <= 1; lnMode++)
+  /* Set attenuation to use and low/high range. */
+  attenuationSet = (mV > 1800);
+  if (attenuationSet)
   {
-    if (((lnMode == 0) && !setLpVoltage)
-        || ((lnMode == 1) && !setLnVoltage))
-    {
-      continue;
-    }
+    mVlow = 1800;
+    mVhigh = 3000;
+    mVdiff = mVhigh - mVlow;
+  }
+  else
+  {
+    mVlow = 1200;
+    mVhigh = 1800;
+    mVdiff = mVhigh - mVlow;
+  }
 
-    ctrlReg   = (lnMode ? &EMU->DCDCLNVCTRL : &EMU->DCDCLPVCTRL);
-    vrefShift = (lnMode ? _EMU_DCDCLNVCTRL_LNVREF_SHIFT
-                        : _EMU_DCDCLPVCTRL_LPVREF_SHIFT);
+    /* Get 2-point calib data from DEVINFO */
 
-    /* Set attenuation to use */
-    attSet = (mV > 1800);
-    /* Always set mVlow different from mVhigh to avoid division by zero   */
-    /* further down.                                                      */
-    if (attSet)
+    /* LN mode */
+    if (attenuationSet)
     {
-      mVlow = 1800;
-      mVhigh = 3000;
-      attMask = (lnMode ? EMU_DCDCLNVCTRL_LNATT : EMU_DCDCLPVCTRL_LPATT);
-    }
-    else
-    {
-      mVlow = 1200;
-      mVhigh = 1800;
-      attMask = 0;
-    }
-
-    /* Get 2-point calib data from DEVINFO, calculate trimming and set voltege */
-    if (lnMode)
-    {
-      /* Set low-noise DCDC output voltage tuning */
-      if (attSet)
-      {
-        vrefLow  = DEVINFO->DCDCLNVCTRL0;
-        vrefHigh = (vrefLow & _DEVINFO_DCDCLNVCTRL0_3V0LNATT1_MASK)
-                   >> _DEVINFO_DCDCLNVCTRL0_3V0LNATT1_SHIFT;
-        vrefLow  = (vrefLow & _DEVINFO_DCDCLNVCTRL0_1V8LNATT1_MASK)
-                   >> _DEVINFO_DCDCLNVCTRL0_1V8LNATT1_SHIFT;
-      }
-      else
-      {
-        vrefLow  = DEVINFO->DCDCLNVCTRL0;
-        vrefHigh = (vrefLow & _DEVINFO_DCDCLNVCTRL0_1V8LNATT0_MASK)
-                   >> _DEVINFO_DCDCLNVCTRL0_1V8LNATT0_SHIFT;
-        vrefLow  = (vrefLow & _DEVINFO_DCDCLNVCTRL0_1V2LNATT0_MASK)
-                   >> _DEVINFO_DCDCLNVCTRL0_1V2LNATT0_SHIFT;
-      }
+      vrefLow[dcdcTrimMode_LN]  = DEVINFO->DCDCLNVCTRL0;
+      vrefHigh[dcdcTrimMode_LN] = (vrefLow[dcdcTrimMode_LN] & _DEVINFO_DCDCLNVCTRL0_3V0LNATT1_MASK)
+                                   >> _DEVINFO_DCDCLNVCTRL0_3V0LNATT1_SHIFT;
+      vrefLow[dcdcTrimMode_LN]  = (vrefLow[dcdcTrimMode_LN] & _DEVINFO_DCDCLNVCTRL0_1V8LNATT1_MASK)
+                                   >> _DEVINFO_DCDCLNVCTRL0_1V8LNATT1_SHIFT;
     }
     else
     {
-      /* Set low-power DCDC output voltage tuning */
-
-      /* Get LPCMPBIAS and make sure masks are not overlayed */
-      lpcmpBias = EMU->DCDCMISCCTRL & _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_MASK;
-      EFM_ASSERT(!(_GENERIC_DCDCLPCTRL_LPCMPHYSSELEM234H_MASK & attMask));
-      switch (attMask | lpcmpBias)
-      {
-        case EMU_DCDCLPVCTRL_LPATT:
-          vrefLow  = DEVINFO->DCDCLPVCTRL2;
-          vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL2_3V0LPATT1LPCMPBIAS0_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL2_3V0LPATT1LPCMPBIAS0_SHIFT;
-          vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL2_1V8LPATT1LPCMPBIAS0_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL2_1V8LPATT1LPCMPBIAS0_SHIFT;
-          break;
-
-        case EMU_DCDCLPVCTRL_LPATT | 1 << _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_SHIFT:
-          vrefLow  = DEVINFO->DCDCLPVCTRL2;
-          vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL2_3V0LPATT1LPCMPBIAS1_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL2_3V0LPATT1LPCMPBIAS1_SHIFT;
-          vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL2_1V8LPATT1LPCMPBIAS1_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL2_1V8LPATT1LPCMPBIAS1_SHIFT;
-          break;
-
-        case EMU_DCDCLPVCTRL_LPATT | 2 << _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_SHIFT:
-          vrefLow  = DEVINFO->DCDCLPVCTRL3;
-          vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL3_3V0LPATT1LPCMPBIAS2_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL3_3V0LPATT1LPCMPBIAS2_SHIFT;
-          vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL3_1V8LPATT1LPCMPBIAS2_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL3_1V8LPATT1LPCMPBIAS2_SHIFT;
-          break;
-
-        case EMU_DCDCLPVCTRL_LPATT | 3 << _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_SHIFT:
-          vrefLow  = DEVINFO->DCDCLPVCTRL3;
-          vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL3_3V0LPATT1LPCMPBIAS3_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL3_3V0LPATT1LPCMPBIAS3_SHIFT;
-          vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL3_1V8LPATT1LPCMPBIAS3_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL3_1V8LPATT1LPCMPBIAS3_SHIFT;
-          break;
-
-        case 0:
-          vrefLow  = DEVINFO->DCDCLPVCTRL0;
-          vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL0_1V8LPATT0LPCMPBIAS0_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL0_1V8LPATT0LPCMPBIAS0_SHIFT;
-          vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL0_1V2LPATT0LPCMPBIAS0_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL0_1V2LPATT0LPCMPBIAS0_SHIFT;
-          break;
-
-        case 1 << _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_SHIFT:
-          vrefLow  = DEVINFO->DCDCLPVCTRL0;
-          vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL0_1V8LPATT0LPCMPBIAS1_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL0_1V8LPATT0LPCMPBIAS1_SHIFT;
-          vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL0_1V2LPATT0LPCMPBIAS1_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL0_1V2LPATT0LPCMPBIAS1_SHIFT;
-          break;
-
-        case 2 << _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_SHIFT:
-          vrefLow  = DEVINFO->DCDCLPVCTRL1;
-          vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL1_1V8LPATT0LPCMPBIAS2_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL1_1V8LPATT0LPCMPBIAS2_SHIFT;
-          vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL1_1V2LPATT0LPCMPBIAS2_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL1_1V2LPATT0LPCMPBIAS2_SHIFT;
-          break;
-
-        case 3 << _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_SHIFT:
-          vrefLow  = DEVINFO->DCDCLPVCTRL1;
-          vrefHigh = (vrefLow & _DEVINFO_DCDCLPVCTRL1_1V8LPATT0LPCMPBIAS3_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL1_1V8LPATT0LPCMPBIAS3_SHIFT;
-          vrefLow  = (vrefLow & _DEVINFO_DCDCLPVCTRL1_1V2LPATT0LPCMPBIAS3_MASK)
-                     >> _DEVINFO_DCDCLPVCTRL1_1V2LPATT0LPCMPBIAS3_SHIFT;
-          break;
-
-        default:
-          EFM_ASSERT(false);
-          break;
-      }
-
-      /* Load LP comparator hysteresis calibration */
-      if(!(LpCmpHystCalibrationLoad(attSet, lpcmpBias)))
-      {
-        EFM_ASSERT(false);
-        /* Return when assertions are disabled */
-        return false;
-      }
-    } /* Low-nise / low-power mode */
+      vrefLow[dcdcTrimMode_LN]  = DEVINFO->DCDCLNVCTRL0;
+      vrefHigh[dcdcTrimMode_LN] = (vrefLow[dcdcTrimMode_LN] & _DEVINFO_DCDCLNVCTRL0_1V8LNATT0_MASK)
+                                   >> _DEVINFO_DCDCLNVCTRL0_1V8LNATT0_SHIFT;
+      vrefLow[dcdcTrimMode_LN]  = (vrefLow[dcdcTrimMode_LN] & _DEVINFO_DCDCLNVCTRL0_1V2LNATT0_MASK)
+                                   >> _DEVINFO_DCDCLNVCTRL0_1V2LNATT0_SHIFT;
+    }
 
 
-    /* Check for valid 2-point trim values */
-    if (mVlow >= mVhigh)
+    /* LP EM234H mode */
+    lpcmpBias[dcdcTrimMode_EM234H_LP] = (EMU->DCDCMISCCTRL & _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_MASK)
+                                         >> _GENERIC_DCDCMISCCTRL_LPCMPBIASEM234H_SHIFT;
+    lpGetDevinfoVrefLowHigh(&vrefLow[dcdcTrimMode_EM234H_LP],
+                            &vrefHigh[dcdcTrimMode_EM234H_LP],
+                            attenuationSet,
+                            lpcmpBias[dcdcTrimMode_EM234H_LP]);
+
+#if defined( _EMU_DCDCLPEM01CFG_LPCMPBIASEM01_MASK )
+    /* LP EM01 mode */
+    lpcmpBias[dcdcTrimMode_EM01_LP] = (EMU->DCDCLPEM01CFG & _EMU_DCDCLPEM01CFG_LPCMPBIASEM01_MASK)
+                                       >> _EMU_DCDCLPEM01CFG_LPCMPBIASEM01_SHIFT;
+    lpGetDevinfoVrefLowHigh(&vrefLow[dcdcTrimMode_EM01_LP],
+                            &vrefHigh[dcdcTrimMode_EM01_LP],
+                            attenuationSet,
+                            lpcmpBias[dcdcTrimMode_EM01_LP]);
+#endif
+
+
+    /* Calculate output voltage trims */
+    vrefVal[dcdcTrimMode_LN]         = ((mV - mVlow) * (vrefHigh[dcdcTrimMode_LN] - vrefLow[dcdcTrimMode_LN]))
+                                       / mVdiff;
+    vrefVal[dcdcTrimMode_LN]        += vrefLow[dcdcTrimMode_LN];
+
+    vrefVal[dcdcTrimMode_EM234H_LP]  = ((mV - mVlow) * (vrefHigh[dcdcTrimMode_EM234H_LP] - vrefLow[dcdcTrimMode_EM234H_LP]))
+                                       / mVdiff;
+    vrefVal[dcdcTrimMode_EM234H_LP] += vrefLow[dcdcTrimMode_EM234H_LP];
+
+#if defined( _EMU_DCDCLPEM01CFG_LPCMPBIASEM01_MASK )
+    vrefVal[dcdcTrimMode_EM01_LP]    = ((mV - mVlow) * (vrefHigh[dcdcTrimMode_EM01_LP] - vrefLow[dcdcTrimMode_EM01_LP]))
+                                       / mVdiff;
+    vrefVal[dcdcTrimMode_EM01_LP]   += vrefLow[dcdcTrimMode_EM01_LP];
+#endif
+
+  /* Range checks */
+  if ((vrefVal[dcdcTrimMode_LN] > vrefHigh[dcdcTrimMode_LN])
+      || (vrefVal[dcdcTrimMode_LN] < vrefLow[dcdcTrimMode_LN])
+#if defined( _EMU_DCDCLPEM01CFG_LPCMPBIASEM01_MASK )
+      || (vrefVal[dcdcTrimMode_EM01_LP] > vrefHigh[dcdcTrimMode_EM01_LP])
+      || (vrefVal[dcdcTrimMode_EM01_LP] < vrefLow[dcdcTrimMode_EM01_LP])
+#endif
+      || (vrefVal[dcdcTrimMode_EM234H_LP] > vrefHigh[dcdcTrimMode_EM234H_LP])
+      || (vrefVal[dcdcTrimMode_EM234H_LP] < vrefLow[dcdcTrimMode_EM234H_LP]))
+  {
+    EFM_ASSERT(false);
+    /* Return when assertions are disabled */
+    return false;
+  }
+
+  /* Update output voltage tuning for LN and LP modes. */
+  if (setLnVoltage)
+  {
+    EMU->DCDCLNVCTRL = (EMU->DCDCLNVCTRL & ~(_EMU_DCDCLNVCTRL_LNVREF_MASK | _EMU_DCDCLNVCTRL_LNATT_MASK))
+                        | (vrefVal[dcdcTrimMode_LN] << _EMU_DCDCLNVCTRL_LNVREF_SHIFT)
+                        | (attenuationSet ? EMU_DCDCLNVCTRL_LNATT : 0);
+  }
+
+  if (setLpVoltage)
+  {
+    /* Load LP EM234H comparator hysteresis calibration */
+    if(!(lpCmpHystCalibrationLoad(attenuationSet, lpcmpBias[dcdcTrimMode_EM234H_LP], dcdcTrimMode_EM234H_LP)))
     {
       EFM_ASSERT(false);
       /* Return when assertions are disabled */
       return false;
     }
 
-    /* Calculate and set voltage trim */
-    vrefVal = ((mV - mVlow) * (vrefHigh - vrefLow))  / (mVhigh - mVlow);
-    vrefVal += vrefLow;
-
-    /* Range check */
-    if ((vrefVal > vrefHigh) || (vrefVal < vrefLow))
+#if defined( _EMU_DCDCLPEM01CFG_LPCMPBIASEM01_MASK )
+    /* Load LP EM234H comparator hysteresis calibration */
+    if(!(lpCmpHystCalibrationLoad(attenuationSet, lpcmpBias[dcdcTrimMode_EM01_LP], dcdcTrimMode_EM01_LP)))
     {
       EFM_ASSERT(false);
       /* Return when assertions are disabled */
       return false;
     }
 
-    /* Update DCDCLNVCTRL/DCDCLPVCTRL */
-    *ctrlReg = (vrefVal << vrefShift) | attMask;
+    /* LP VREF is that max of trims for EM01 and EM234H. */
+    vrefVal[dcdcTrimMode_EM234H_LP] = SL_MAX(vrefVal[dcdcTrimMode_EM234H_LP], vrefVal[dcdcTrimMode_EM01_LP]);
+#endif
+
+    /* Don't exceed max available code as specified in the reference manual for EMU_DCDCLPVCTRL. */
+    vrefVal[dcdcTrimMode_EM234H_LP] = SL_MIN(vrefVal[dcdcTrimMode_EM234H_LP], 0xE7U);
+    EMU->DCDCLPVCTRL = (EMU->DCDCLPVCTRL & ~(_EMU_DCDCLPVCTRL_LPVREF_MASK | _EMU_DCDCLPVCTRL_LPATT_MASK))
+                        | (vrefVal[dcdcTrimMode_EM234H_LP] << _EMU_DCDCLPVCTRL_LPVREF_SHIFT)
+                        | (attenuationSet ? EMU_DCDCLPVCTRL_LPATT : 0);
   }
 #endif
   return true;
@@ -1969,11 +2289,15 @@ bool EMU_DCDCPowerOff(void)
 {
   bool dcdcModeSet;
 
+#if defined(_EMU_PWRCFG_MASK)
   /* Set DCDCTODVDD only to enable write access to EMU->DCDCCTRL */
   EMU->PWRCFG = EMU_PWRCFG_PWRCFG_DCDCTODVDD;
+#endif
 
   /* Select DVDD as input to the digital regulator */
-#if defined(_EMU_PWRCTRL_REGPWRSEL_MASK)
+#if defined(EMU_PWRCTRL_IMMEDIATEPWRSWITCH)
+  EMU->PWRCTRL |= EMU_PWRCTRL_REGPWRSEL_DVDD | EMU_PWRCTRL_IMMEDIATEPWRSWITCH;
+#elif defined(EMU_PWRCTRL_REGPWRSEL_DVDD)
   EMU->PWRCTRL |= EMU_PWRCTRL_REGPWRSEL_DVDD;
 #endif
 
@@ -2015,7 +2339,7 @@ __STATIC_INLINE uint32_t vmonMilliVoltToFineThreshold(int mV, uint32_t coarseThr
  * @param[in] vmonInit
  *   VMON initialization struct
  ******************************************************************************/
-void EMU_VmonInit(EMU_VmonInit_TypeDef *vmonInit)
+void EMU_VmonInit(const EMU_VmonInit_TypeDef *vmonInit)
 {
   uint32_t thresholdCoarse, thresholdFine;
   EFM_ASSERT((vmonInit->threshold >= 1200) && (vmonInit->threshold <= 3980));
@@ -2073,7 +2397,7 @@ void EMU_VmonInit(EMU_VmonInit_TypeDef *vmonInit)
  * @param[in] vmonInit
  *   VMON Hysteresis initialization struct
  ******************************************************************************/
-void EMU_VmonHystInit(EMU_VmonHystInit_TypeDef *vmonInit)
+void EMU_VmonHystInit(const EMU_VmonHystInit_TypeDef *vmonInit)
 {
   uint32_t riseThresholdCoarse, riseThresholdFine, fallThresholdCoarse, fallThresholdFine;
   /* VMON supports voltages between 1200 mV and 3980 mV (inclusive) in 20 mV increments */
@@ -2181,20 +2505,20 @@ bool EMU_VmonChannelStatusGet(EMU_VmonChannel_TypeDef channel)
 }
 #endif /* EMU_STATUS_VMONRDY */
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
-/**
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
+/***************************************************************************//**
  * @brief
  *   Adjust the bias refresh rate
  *
  * @details
  *   This function is only meant to be used under high-temperature operation on
- *   the first generation EFR32, Pearl and Jade. Adjusting the bias mode will
+ *   EFR32xG1 and EFM32xG1 devices. Adjusting the bias mode will
  *   increase the typical current consumption. See application note 1027
  *   and errata documents for further details.
  *
  * @param [in] mode
  *   The new bias refresh rate
- */
+ ******************************************************************************/
 void EMU_SetBiasMode(EMU_BiasMode_TypeDef mode)
 {
 #define EMU_TESTLOCK         (*(volatile uint32_t *) (EMU_BASE + 0x190))
@@ -2202,37 +2526,37 @@ void EMU_SetBiasMode(EMU_BiasMode_TypeDef mode)
 #define EMU_BIASTESTCTRL     (*(volatile uint32_t *) (EMU_BASE + 0x19C))
 #define CMU_ULFRCOCTRL       (*(volatile uint32_t *) (CMU_BASE + 0x03C))
 
-  uint32_t freq = 0x2;
+  uint32_t freq = 0x2u;
   bool emuTestLocked = false;
 
   if (mode == emuBiasMode_1KHz)
   {
-    freq = 0x0;
+    freq = 0x0u;
   }
 
-  if (EMU_TESTLOCK == 0x1)
+  if (EMU_TESTLOCK == 0x1u)
   {
     emuTestLocked = true;
-    EMU_TESTLOCK = 0xADE8;
+    EMU_TESTLOCK = 0xADE8u;
   }
 
   if (mode == emuBiasMode_Continuous)
   {
-    EMU_BIASCONF &= ~0x74;
+    EMU_BIASCONF &= ~0x74u;
   }
   else
   {
-    EMU_BIASCONF |= 0x74;
+    EMU_BIASCONF |= 0x74u;
   }
 
-  EMU_BIASTESTCTRL |= 0x8;
-  CMU_ULFRCOCTRL    = (CMU_ULFRCOCTRL & ~0xC00)
-                      | ((freq & 0x3) << 10);
-  EMU_BIASTESTCTRL &= ~0x8;
+  EMU_BIASTESTCTRL |= 0x8u;
+  CMU_ULFRCOCTRL    = (CMU_ULFRCOCTRL & ~0xC00u)
+                      | ((freq & 0x3u) << 10u);
+  EMU_BIASTESTCTRL &= ~0x8u;
 
   if (emuTestLocked)
   {
-    EMU_TESTLOCK = 0;
+    EMU_TESTLOCK = 0u;
   }
 }
 #endif

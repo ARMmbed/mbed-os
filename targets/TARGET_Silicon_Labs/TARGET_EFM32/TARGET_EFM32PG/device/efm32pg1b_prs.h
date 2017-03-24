@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_prs.h
  * @brief EFM32PG1B_PRS register and bit field definitions
- * @version 5.0.0
+ * @version 5.1.2
  ******************************************************************************
  * @section License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -756,6 +756,7 @@ typedef struct
 #define _PRS_CH_CTRL_SIGSEL_PCNT0TCC           0x00000000UL                               /**< Mode PCNT0TCC for PRS_CH_CTRL */
 #define _PRS_CH_CTRL_SIGSEL_CRYOTIMERPERIOD    0x00000000UL                               /**< Mode CRYOTIMERPERIOD for PRS_CH_CTRL */
 #define _PRS_CH_CTRL_SIGSEL_CMUCLKOUT0         0x00000000UL                               /**< Mode CMUCLKOUT0 for PRS_CH_CTRL */
+#define _PRS_CH_CTRL_SIGSEL_CM4TXEV            0x00000000UL                               /**< Mode CM4TXEV for PRS_CH_CTRL */
 #define _PRS_CH_CTRL_SIGSEL_PRSCH1             0x00000001UL                               /**< Mode PRSCH1 for PRS_CH_CTRL */
 #define _PRS_CH_CTRL_SIGSEL_PRSCH9             0x00000001UL                               /**< Mode PRSCH9 for PRS_CH_CTRL */
 #define _PRS_CH_CTRL_SIGSEL_ADC0SCAN           0x00000001UL                               /**< Mode ADC0SCAN for PRS_CH_CTRL */
@@ -821,6 +822,7 @@ typedef struct
 #define PRS_CH_CTRL_SIGSEL_PCNT0TCC            (_PRS_CH_CTRL_SIGSEL_PCNT0TCC << 0)        /**< Shifted mode PCNT0TCC for PRS_CH_CTRL */
 #define PRS_CH_CTRL_SIGSEL_CRYOTIMERPERIOD     (_PRS_CH_CTRL_SIGSEL_CRYOTIMERPERIOD << 0) /**< Shifted mode CRYOTIMERPERIOD for PRS_CH_CTRL */
 #define PRS_CH_CTRL_SIGSEL_CMUCLKOUT0          (_PRS_CH_CTRL_SIGSEL_CMUCLKOUT0 << 0)      /**< Shifted mode CMUCLKOUT0 for PRS_CH_CTRL */
+#define PRS_CH_CTRL_SIGSEL_CM4TXEV             (_PRS_CH_CTRL_SIGSEL_CM4TXEV << 0)         /**< Shifted mode CM4TXEV for PRS_CH_CTRL */
 #define PRS_CH_CTRL_SIGSEL_PRSCH1              (_PRS_CH_CTRL_SIGSEL_PRSCH1 << 0)          /**< Shifted mode PRSCH1 for PRS_CH_CTRL */
 #define PRS_CH_CTRL_SIGSEL_PRSCH9              (_PRS_CH_CTRL_SIGSEL_PRSCH9 << 0)          /**< Shifted mode PRSCH9 for PRS_CH_CTRL */
 #define PRS_CH_CTRL_SIGSEL_ADC0SCAN            (_PRS_CH_CTRL_SIGSEL_ADC0SCAN << 0)        /**< Shifted mode ADC0SCAN for PRS_CH_CTRL */
@@ -891,6 +893,7 @@ typedef struct
 #define _PRS_CH_CTRL_SOURCESEL_PCNT0           0x00000036UL                               /**< Mode PCNT0 for PRS_CH_CTRL */
 #define _PRS_CH_CTRL_SOURCESEL_CRYOTIMER       0x0000003CUL                               /**< Mode CRYOTIMER for PRS_CH_CTRL */
 #define _PRS_CH_CTRL_SOURCESEL_CMU             0x0000003DUL                               /**< Mode CMU for PRS_CH_CTRL */
+#define _PRS_CH_CTRL_SOURCESEL_CM4             0x00000043UL                               /**< Mode CM4 for PRS_CH_CTRL */
 #define PRS_CH_CTRL_SOURCESEL_NONE             (_PRS_CH_CTRL_SOURCESEL_NONE << 8)         /**< Shifted mode NONE for PRS_CH_CTRL */
 #define PRS_CH_CTRL_SOURCESEL_PRSL             (_PRS_CH_CTRL_SOURCESEL_PRSL << 8)         /**< Shifted mode PRSL for PRS_CH_CTRL */
 #define PRS_CH_CTRL_SOURCESEL_PRSH             (_PRS_CH_CTRL_SOURCESEL_PRSH << 8)         /**< Shifted mode PRSH for PRS_CH_CTRL */
@@ -908,6 +911,7 @@ typedef struct
 #define PRS_CH_CTRL_SOURCESEL_PCNT0            (_PRS_CH_CTRL_SOURCESEL_PCNT0 << 8)        /**< Shifted mode PCNT0 for PRS_CH_CTRL */
 #define PRS_CH_CTRL_SOURCESEL_CRYOTIMER        (_PRS_CH_CTRL_SOURCESEL_CRYOTIMER << 8)    /**< Shifted mode CRYOTIMER for PRS_CH_CTRL */
 #define PRS_CH_CTRL_SOURCESEL_CMU              (_PRS_CH_CTRL_SOURCESEL_CMU << 8)          /**< Shifted mode CMU for PRS_CH_CTRL */
+#define PRS_CH_CTRL_SOURCESEL_CM4              (_PRS_CH_CTRL_SOURCESEL_CM4 << 8)          /**< Shifted mode CM4 for PRS_CH_CTRL */
 #define _PRS_CH_CTRL_EDSEL_SHIFT               20                                         /**< Shift value for PRS_EDSEL */
 #define _PRS_CH_CTRL_EDSEL_MASK                0x300000UL                                 /**< Bit mask for PRS_EDSEL */
 #define _PRS_CH_CTRL_EDSEL_DEFAULT             0x00000000UL                               /**< Mode DEFAULT for PRS_CH_CTRL */
