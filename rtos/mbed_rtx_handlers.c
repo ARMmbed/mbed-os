@@ -32,4 +32,7 @@ __NO_RETURN uint32_t osRtxErrorNotify (uint32_t code, void *object_id)
 {
     osThreadId_t tid = osThreadGetId();
     error("CMSIS-RTOS error status: 0x%X, task ID: 0x%X\n\r", code, tid);
+
+    /* That shouldn't be reached */
+    for (;;) {}
 }
