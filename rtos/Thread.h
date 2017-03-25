@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
+#include "cmsis_os2_storage.h"
 #include "mbed_rtx_conf.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
