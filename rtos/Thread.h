@@ -284,7 +284,7 @@ public:
     const char *get_name();
 
     /** Wait for one or more flags to become signaled for the current RUNNING thread.
-      @param   flags     wait until all specified flags set or 0 for any single flag.
+      @param   flags     wait until all specified flags are set or 0 for any flag.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
       @return  event flag information or error code.
       @note not callable from interrupt
