@@ -28,6 +28,7 @@ using namespace utest::v1;
 #include MBEDTLS_CONFIG_FILE
 #endif
 
+#include "mbedtls/sha1.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/sha512.h"
 #include "mbedtls/entropy.h"

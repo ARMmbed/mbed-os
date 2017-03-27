@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016 ARM Limited
+ * Copyright (c) 2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,6 @@ using namespace utest::v1;
 #else
 #include <stdio.h>
 #include <stdlib.h>
-#define mbedtls_printf     printf
-#define mbedtls_snprintf   snprintf
-#define mbedtls_exit       exit
-#define MBEDTLS_EXIT_SUCCESS EXIT_SUCCESS
-#define MBEDTLS_EXIT_FAILURE EXIT_FAILURE
 #endif
 
 #ifndef PUT_UINT32_BE
@@ -86,7 +81,6 @@ typedef struct
  */
 static int rnd_std_rand( void *rng_state, unsigned char *output, size_t len )
 {
-#if !defined(__OpenBSD__)
     size_t i;
 
     if( rng_state != NULL )
@@ -94,12 +88,6 @@ static int rnd_std_rand( void *rng_state, unsigned char *output, size_t len )
 
     for( i = 0; i < len; ++i )
         output[i] = rand();
-#else
-    if( rng_state != NULL )
-        rng_state = NULL;
-
-    arc4random_buf( output, len );
-#endif /* !OpenBSD */
 
     return( 0 );
 }
@@ -144,7 +132,7 @@ static int rnd_pseudo_rand( void *rng_state, unsigned char *output, size_t len )
 
     return( 0 );
 }
-/* BEGIN_CASE */
+
 void ecp_test_vect( mbedtls_ecp_group_id id, const char *dA_str, const char *xA_str, const char *yA_str,
                     const char *dB_str, const char *xB_str, const char *yB_str, const char *xZ_str,
                     const char *yZ_str )
@@ -202,7 +190,6 @@ exit:
     TEST_ASSERT(_assert == -1);
 }
 
-/* END_CASE */
 #define UTEST_FOR_ECP_TEST_VECTOR(id, dA_str, xA_str, yA_str, dB_str, xB_str, yB_str, xZ_str, yZ_str) \
 void utest_ ## id () {           \
     ecp_test_vect(id, dA_str, xA_str, yA_str, dB_str, xB_str, yB_str, xZ_str, yZ_str); \
@@ -211,8 +198,7 @@ Case case_ ## id (#id, utest_ ## id) \
 
 
 #if defined MBEDTLS_ECP_DP_SECP192R1_ENABLED
-UTEST_FOR_ECP_TEST_VECTOR(ecp_test_vect, 
-        MBEDTLS_ECP_DP_SECP192R1,
+UTEST_FOR_ECP_TEST_VECTOR( MBEDTLS_ECP_DP_SECP192R1,
         "323FA3169D8E9C6593F59476BC142000AB5BE0E249C43426",
         "CD46489ECFD6C105E7B3D32566E2B122E249ABAADD870612",
         "68887B4877DF51DD4DC3D6FD11F0A26F8FD3844317916E9A",
