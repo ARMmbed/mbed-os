@@ -39,14 +39,22 @@ int osdep_print = 0;
 void save_and_cli()
 {
 _func_enter_;
+#if defined(__CC_ARM)
+	rtw_enter_critical(NULL, NULL);
+#else
 	__disable_irq();
+#endif
 _func_exit_;
 }
 
 void restore_flags()
 {
 _func_enter_;
+#if defined(__CC_ARM)
+	rtw_exit_critical(NULL, NULL);
+#else
 	__enable_irq();
+#endif
 _func_exit_;
 }
 
@@ -966,13 +974,15 @@ u32  _rtx_timerStop( _timerHandle xTimer,
 {
 _func_enter_;
 	rtx_tmr_t *tmr = (rtx_tmr_t *) xTimer;
-	osStatus status = osTimerStop(tmr->id);
+	if(_rtx_timerIsTimerActive(xTimer) == _TRUE){
+		osStatus status = osTimerStop(tmr->id);
 _func_exit_;
-	if(status == osOK)
-		return _SUCCESS;
-
-	DBG_ERR("error %d\n", status);
-	return _FAIL;
+		if(status != osOK){
+			DBG_ERR("error %d\n", status);
+			return _FAIL;
+		}
+	}
+	return _SUCCESS;
 }
 
 u32  _rtx_timerChangePeriod( _timerHandle xTimer, 
