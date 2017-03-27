@@ -237,7 +237,12 @@ const char *Thread::get_name() {
 }
 
 int32_t Thread::signal_wait(int32_t flags, uint32_t millisec) {
-    return osThreadFlagsWait(flags, 0, millisec);
+    uint32_t options = osFlagsWaitAll;
+    if (flags == 0) {
+        options = osFlagsWaitAny;
+        flags = 0x7FFFFFFF;
+    }
+    return osThreadFlagsWait(flags, options, millisec);
 }
 
 osStatus_t Thread::wait(uint32_t millisec) {
