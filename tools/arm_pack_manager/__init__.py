@@ -453,7 +453,7 @@ class Cache () :
         :param filename: The pack file to add to the index
         """
         _ = self.index # Force the cache to be loaded
-        zipfile = ZipFile(open(filename))
+        zipfile = ZipFile(open(filename, "rb"))
         for zipinfo in zipfile.infolist():
             if (zipinfo.filename.endswith(".pdsc") or
                 zipinfo.filename.endswith(".PDSC")):
