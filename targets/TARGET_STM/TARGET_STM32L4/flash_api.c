@@ -74,7 +74,7 @@ static uint32_t GetPage(uint32_t Addr)
 static uint32_t GetBank(uint32_t Addr)
 {
     uint32_t bank = 0;
-
+#if defined(SYSCFG_MEMRMP_FB_MODE)
     if (READ_BIT(SYSCFG->MEMRMP, SYSCFG_MEMRMP_FB_MODE) == 0) {
         /* No Bank swap */
         if (Addr < (FLASH_BASE + FLASH_BANK_SIZE)) {
@@ -90,6 +90,10 @@ static uint32_t GetBank(uint32_t Addr)
             bank = FLASH_BANK_1;
         }
     }
+#else
+    /* Device like L432KC */
+    bank = FLASH_BANK_1;
+#endif
 
     return bank;
 }
