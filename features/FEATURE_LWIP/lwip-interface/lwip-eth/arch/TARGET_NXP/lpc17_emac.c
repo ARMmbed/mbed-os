@@ -861,11 +861,7 @@ static err_t low_level_init(struct netif *netif)
 		return ERR_BUF;
 
 	/* Enable packet reception */
-#if IP_SOF_BROADCAST_RECV
 	LPC_EMAC->RxFilterCtrl = EMAC_RFC_PERFECT_EN | EMAC_RFC_BCAST_EN | EMAC_RFC_MCAST_EN;
-#else
-	LPC_EMAC->RxFilterCtrl = EMAC_RFC_PERFECT_EN;
-#endif
 
 	/* Clear and enable rx/tx interrupts */
 	LPC_EMAC->IntClear = 0xFFFF;
