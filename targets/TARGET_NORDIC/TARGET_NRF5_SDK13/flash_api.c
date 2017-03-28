@@ -78,7 +78,6 @@ uint32_t flash_get_size(const flash_t *obj)
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     (void)(obj);
-    (void)(address);
     /* Test if passed address is in flash space. */
     if (address < flash_get_size(obj))
     {
