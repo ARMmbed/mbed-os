@@ -20,6 +20,8 @@
 
 // This file is automagically generated
 
+#if DEVICE_FLASH
+
 // This is a flash algo binary blob. It is PIC (position independent code) that should be stored in RAM
 static uint32_t FLASH_ALGO[] = {
     0xf3c04601, 0x28203007, 0x2204bf24, 0x1050eb02, 0x2810d205, 0x2203bf26, 0x1010eb02, 0xf4110880,
@@ -72,3 +74,5 @@ void flash_set_target_config(flash_t *obj)
     obj->flash_algo = &flash_algo_config;
     obj->target_config = &flash_target_config;
 }
+
+#endif
