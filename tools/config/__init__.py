@@ -497,7 +497,15 @@ class Config(object):
         """Generate a list of regions from the config"""
         if not self.target.bootloader_supported:
             raise ConfigException("Bootloader not supported on this target.")
-        cmsis_part = Cache(False, False).index[self.target.device_name]
+        if not hasattr(self.target, "device_name"):
+            raise ConfigException("Bootloader not supported on this target: "
+                                  "targets.json `device_name` not specified.")
+        cache = Cache(False, False)
+        if self.target.device_name not in cache.index:
+            raise ConfigException("Bootloader not supported on this target: "
+                                  "targets.json `device_name` not found in "
+                                  "arm_pack_manager index.")
+        cmsis_part = cache.index[self.target.device_name]
         target_overrides = self.app_config_data['target_overrides'].get(
             self.target.name, {})
         if  (('target.bootloader_img' in target_overrides or
