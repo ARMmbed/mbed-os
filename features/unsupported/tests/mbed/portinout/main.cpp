@@ -1,5 +1,9 @@
 #include "test_env.h"
 
+#if !DEVICE_PORTINOUT
+  #error [NOT_SUPPORTED] PortInOut is not supported
+#endif
+
 #if defined(TARGET_K64F)
 #define P1_1    (1 << 16)
 #define P1_2    (1 << 17)
@@ -103,14 +107,28 @@
       defined(TARGET_NUCLEO_F411RE) || \
       defined(TARGET_NUCLEO_L053R8) || \
       defined(TARGET_NUCLEO_L073RZ) || \
+      defined(TARGET_NUCLEO_L476RG) || \
+      defined(TARGET_NUCLEO_F446RE) || \
       defined(TARGET_NUCLEO_L152RE)
-#define P1_1    (1 << 6)  // PC_6
-#define P1_2    (1 << 5)  // PC_5
-#define PORT_1  PortC
+#define P1_1    (1 << 3)  // PB_3  (D3)
+#define P1_2    (1 << 10)  // PB_10 (D6)
+#define PORT_1  PortB
 
-#define P2_1    (1 << 8)  // PB_8
-#define P2_2    (1 << 9)  // PB_9
-#define PORT_2  PortB
+#define P2_1    (1 << 10)  // PA_10 (D2)
+#define P2_2    (1 << 8)  // PA_8  (D7)
+#define PORT_2  PortA
+
+#elif defined(TARGET_NUCLEO_F767ZI) || \
+      defined(TARGET_NUCLEO_F303ZE) || \
+      defined(TARGET_NUCLEO_F207ZG) || \
+      defined(TARGET_NUCLEO_F746ZG)
+#define P1_1    (1 << 13)  // PE_13 (D3)
+#define P1_2    (1 << 11)  // PE_11 (D5)
+#define PORT_1  PortE
+
+#define P2_1    (1 << 15)  // PF_15 (D2)
+#define P2_2    (1 << 14)  // PF_14 (D4)
+#define PORT_2  PortF
 
 #elif defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32GG_STK3700) || defined(TARGET_EFM32WG_STK3800)
 #define P1_1    (1 << 0)  // PD0
@@ -193,6 +211,8 @@
 #define P2_2    (1 << 1)  /*P5_1*/
 #define PORT_2  Port5
 
+#else
+#error [NOT_SUPPORTED] This test is not defined on this target
 #endif
 
 #define MASK_1   (P1_1 | P1_2)

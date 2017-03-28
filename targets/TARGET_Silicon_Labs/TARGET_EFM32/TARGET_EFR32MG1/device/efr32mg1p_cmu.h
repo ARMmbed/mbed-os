@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efr32mg1p_cmu.h
  * @brief EFR32MG1P_CMU register and bit field definitions
- * @version 5.0.0
+ * @version 5.1.2
  ******************************************************************************
  * @section License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -56,8 +56,9 @@ typedef struct
   __IOM uint32_t HFXOSTEADYSTATECTRL; /**< HFXO Steady State control  */
   __IOM uint32_t HFXOTIMEOUTCTRL;     /**< HFXO Timeout Control  */
   __IOM uint32_t LFXOCTRL;            /**< LFXO Control Register  */
+  __IOM uint32_t ULFRCOCTRL;          /**< ULFRCO Control Register  */
 
-  uint32_t       RESERVED3[5];        /**< Reserved for future use **/
+  uint32_t       RESERVED3[4];        /**< Reserved for future use **/
   __IOM uint32_t CALCTRL;             /**< Calibration Control Register  */
   __IOM uint32_t CALCNT;              /**< Calibration Counter Register  */
   uint32_t       RESERVED4[2];        /**< Reserved for future use **/
@@ -637,6 +638,30 @@ typedef struct
 #define CMU_LFXOCTRL_TIMEOUT_DEFAULT                      (_CMU_LFXOCTRL_TIMEOUT_DEFAULT << 24)   /**< Shifted mode DEFAULT for CMU_LFXOCTRL */
 #define CMU_LFXOCTRL_TIMEOUT_32KCYCLES                    (_CMU_LFXOCTRL_TIMEOUT_32KCYCLES << 24) /**< Shifted mode 32KCYCLES for CMU_LFXOCTRL */
 
+/* Bit fields for CMU ULFRCOCTRL */
+#define _CMU_ULFRCOCTRL_RESETVALUE                        0x00020020UL                            /**< Default value for CMU_ULFRCOCTRL */
+#define _CMU_ULFRCOCTRL_MASK                              0x00030C3FUL                            /**< Mask for CMU_ULFRCOCTRL */
+#define _CMU_ULFRCOCTRL_TUNING_SHIFT                      0                                       /**< Shift value for CMU_TUNING */
+#define _CMU_ULFRCOCTRL_TUNING_MASK                       0x3FUL                                  /**< Bit mask for CMU_TUNING */
+#define _CMU_ULFRCOCTRL_TUNING_DEFAULT                    0x00000020UL                            /**< Mode DEFAULT for CMU_ULFRCOCTRL */
+#define CMU_ULFRCOCTRL_TUNING_DEFAULT                     (_CMU_ULFRCOCTRL_TUNING_DEFAULT << 0)   /**< Shifted mode DEFAULT for CMU_ULFRCOCTRL */
+#define _CMU_ULFRCOCTRL_MODE_SHIFT                        10                                      /**< Shift value for CMU_MODE */
+#define _CMU_ULFRCOCTRL_MODE_MASK                         0xC00UL                                 /**< Bit mask for CMU_MODE */
+#define _CMU_ULFRCOCTRL_MODE_DEFAULT                      0x00000000UL                            /**< Mode DEFAULT for CMU_ULFRCOCTRL */
+#define _CMU_ULFRCOCTRL_MODE_1KHZ                         0x00000000UL                            /**< Mode 1KHZ for CMU_ULFRCOCTRL */
+#define _CMU_ULFRCOCTRL_MODE_2KHZ                         0x00000001UL                            /**< Mode 2KHZ for CMU_ULFRCOCTRL */
+#define _CMU_ULFRCOCTRL_MODE_4KHZ                         0x00000002UL                            /**< Mode 4KHZ for CMU_ULFRCOCTRL */
+#define _CMU_ULFRCOCTRL_MODE_32KHZ                        0x00000003UL                            /**< Mode 32KHZ for CMU_ULFRCOCTRL */
+#define CMU_ULFRCOCTRL_MODE_DEFAULT                       (_CMU_ULFRCOCTRL_MODE_DEFAULT << 10)    /**< Shifted mode DEFAULT for CMU_ULFRCOCTRL */
+#define CMU_ULFRCOCTRL_MODE_1KHZ                          (_CMU_ULFRCOCTRL_MODE_1KHZ << 10)       /**< Shifted mode 1KHZ for CMU_ULFRCOCTRL */
+#define CMU_ULFRCOCTRL_MODE_2KHZ                          (_CMU_ULFRCOCTRL_MODE_2KHZ << 10)       /**< Shifted mode 2KHZ for CMU_ULFRCOCTRL */
+#define CMU_ULFRCOCTRL_MODE_4KHZ                          (_CMU_ULFRCOCTRL_MODE_4KHZ << 10)       /**< Shifted mode 4KHZ for CMU_ULFRCOCTRL */
+#define CMU_ULFRCOCTRL_MODE_32KHZ                         (_CMU_ULFRCOCTRL_MODE_32KHZ << 10)      /**< Shifted mode 32KHZ for CMU_ULFRCOCTRL */
+#define _CMU_ULFRCOCTRL_RESTRIM_SHIFT                     16                                      /**< Shift value for CMU_RESTRIM */
+#define _CMU_ULFRCOCTRL_RESTRIM_MASK                      0x30000UL                               /**< Bit mask for CMU_RESTRIM */
+#define _CMU_ULFRCOCTRL_RESTRIM_DEFAULT                   0x00000002UL                            /**< Mode DEFAULT for CMU_ULFRCOCTRL */
+#define CMU_ULFRCOCTRL_RESTRIM_DEFAULT                    (_CMU_ULFRCOCTRL_RESTRIM_DEFAULT << 16) /**< Shifted mode DEFAULT for CMU_ULFRCOCTRL */
+
 /* Bit fields for CMU CALCTRL */
 #define _CMU_CALCTRL_RESETVALUE                           0x00000000UL                            /**< Default value for CMU_CALCTRL */
 #define _CMU_CALCTRL_MASK                                 0x0F0F0177UL                            /**< Mask for CMU_CALCTRL */
@@ -902,7 +927,7 @@ typedef struct
 
 /* Bit fields for CMU STATUS */
 #define _CMU_STATUS_RESETVALUE                            0x00010003UL                                /**< Default value for CMU_STATUS */
-#define _CMU_STATUS_MASK                                  0x07C103FFUL                                /**< Mask for CMU_STATUS */
+#define _CMU_STATUS_MASK                                  0x07E103FFUL                                /**< Mask for CMU_STATUS */
 #define CMU_STATUS_HFRCOENS                               (0x1UL << 0)                                /**< HFRCO Enable Status */
 #define _CMU_STATUS_HFRCOENS_SHIFT                        0                                           /**< Shift value for CMU_HFRCOENS */
 #define _CMU_STATUS_HFRCOENS_MASK                         0x1UL                                       /**< Bit mask for CMU_HFRCOENS */
@@ -958,6 +983,11 @@ typedef struct
 #define _CMU_STATUS_CALRDY_MASK                           0x10000UL                                   /**< Bit mask for CMU_CALRDY */
 #define _CMU_STATUS_CALRDY_DEFAULT                        0x00000001UL                                /**< Mode DEFAULT for CMU_STATUS */
 #define CMU_STATUS_CALRDY_DEFAULT                         (_CMU_STATUS_CALRDY_DEFAULT << 16)          /**< Shifted mode DEFAULT for CMU_STATUS */
+#define CMU_STATUS_HFXOREQ                                (0x1UL << 21)                               /**< HFXO is Required by Hardware (e.g. RAC) */
+#define _CMU_STATUS_HFXOREQ_SHIFT                         21                                          /**< Shift value for CMU_HFXOREQ */
+#define _CMU_STATUS_HFXOREQ_MASK                          0x200000UL                                  /**< Bit mask for CMU_HFXOREQ */
+#define _CMU_STATUS_HFXOREQ_DEFAULT                       0x00000000UL                                /**< Mode DEFAULT for CMU_STATUS */
+#define CMU_STATUS_HFXOREQ_DEFAULT                        (_CMU_STATUS_HFXOREQ_DEFAULT << 21)         /**< Shifted mode DEFAULT for CMU_STATUS */
 #define CMU_STATUS_HFXOPEAKDETRDY                         (0x1UL << 22)                               /**< HFXO Peak Detection Ready */
 #define _CMU_STATUS_HFXOPEAKDETRDY_SHIFT                  22                                          /**< Shift value for CMU_HFXOPEAKDETRDY */
 #define _CMU_STATUS_HFXOPEAKDETRDY_MASK                   0x400000UL                                  /**< Bit mask for CMU_HFXOPEAKDETRDY */

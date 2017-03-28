@@ -94,7 +94,7 @@
 #include "drivers/LowPowerTimeout.h"
 #include "drivers/LowPowerTicker.h"
 #include "drivers/LowPowerTimer.h"
-#include "drivers/LocalFileSystem.h"
+#include "platform/LocalFileSystem.h"
 #include "drivers/InterruptIn.h"
 #include "platform/mbed_wait_api.h"
 #include "hal/sleep_api.h"

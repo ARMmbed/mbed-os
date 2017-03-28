@@ -1,0 +1,13 @@
+LR_IROM1 0x21000 0x00DF000  {
+  ER_IROM1 0x21000 0x00DF000  {
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+  RW_IRAM0 0x20003288 UNINIT 0x000000F8  { ;no init section
+        *(noinit)
+  }
+  RW_IRAM1 0x20003380 0x0003cc80  {
+   .ANY (+RW +ZI)
+  }
+}

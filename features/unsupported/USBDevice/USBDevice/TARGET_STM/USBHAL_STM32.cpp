@@ -15,9 +15,16 @@
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#if (defined (USB_STM_HAL) && defined(TARGET_STM32F4)) \
-|| defined(TARGET_STM32F2) || defined (TARGET_STM32F7) || defined (TARGET_STM32F3) || defined (TARGET_STM32L4)
+/* TARGET NOT STM does not support this HAL */
+#ifndef TARGET_STM
+#define USBSTM_HAL_UNSUPPORTED
+#endif
+/* F4 famlily wihtout USB_STM_HAL use another HAL*/
+#if defined(TARGET_STM) && defined(TARGET_STM32F4) && !defined(USB_STM_HAL)
+#define USBSTM_HAL_UNSUPPORTED
+#endif
 
+#ifndef USBSTM_HAL_UNSUPPORTED
 #include "USBHAL.h"
 #include "pinmap.h"
 /* mbed endpoint definition to hal definition   */

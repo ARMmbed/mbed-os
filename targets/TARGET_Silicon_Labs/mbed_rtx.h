@@ -115,6 +115,19 @@ extern uint32_t STACK$$Base;
 #define OS_MAINSTKSIZE          256
 #endif
 
+#elif defined(TARGET_EFR32MG12) || defined(TARGET_EFM32PG12)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20040000UL)
+#endif
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+
 #endif
 
 #endif  // MBED_MBED_RTX_H
