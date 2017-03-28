@@ -151,6 +151,12 @@ struct flash_s {
 };
 #endif
 
+#if DEVICE_TRNG
+struct trng_s {
+    TRNG_TypeDef *instance;
+};
+#endif
+
 #ifdef __cplusplus
 }
 #endif
