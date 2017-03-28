@@ -29,27 +29,27 @@ static bool is_trng_enabled = false;
 
 void trng_init(trng_t *obj)
 {
-  /* Use TRNG0 for all HW entropy collection */
-  obj->instance = TRNG0;
-  
-  if(!is_trng_enabled) {
-    sl_trng_init(obj->instance);
-    is_trng_enabled = true;
-  }
+    /* Use TRNG0 for all HW entropy collection */
+    obj->instance = TRNG0;
+    
+    if(!is_trng_enabled) {
+        sl_trng_init(obj->instance);
+        is_trng_enabled = true;
+    }
 }
 
 void trng_free(trng_t *obj)
 {
-  /* Don't turn off the TRNG to avoid clearing its FIFO */
-  (void) obj;
+    /* Don't turn off the TRNG to avoid clearing its FIFO */
+    (void) obj;
 }
 
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
-  int ret = sl_trng_poll(obj->instance,
-                         output,
-                         length,
-                         output_length);
-  return (ret == 0) ? 0 : -1;
+    int ret = sl_trng_poll(obj->instance,
+                           output,
+                           length,
+                           output_length);
+    return (ret == 0) ? 0 : -1;
 }
 #endif /* DEVICE_TRNG */
