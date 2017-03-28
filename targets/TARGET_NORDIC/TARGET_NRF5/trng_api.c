@@ -60,12 +60,12 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
         return -1;
     }
     else
-    {
-        *output_length = length;
-    }
 #else
     nrf_drv_rng_block_rand(output, length);
 #endif
+    {
+        *output_length = length;
+    }
     return 0;
 }
 
