@@ -11,7 +11,8 @@
         "cxx": ["-std=gnu++98", "-fno-rtti", "-Wvla"],
         "ld": ["-Wl,--gc-sections", "-Wl,--wrap,main", "-Wl,--wrap,_malloc_r",
                "-Wl,--wrap,_free_r", "-Wl,--wrap,_realloc_r",
-               "-Wl,--wrap,_calloc_r", "-Wl,--wrap,exit", "-Wl,--wrap,atexit"]
+               "-Wl,--wrap,_calloc_r", "-Wl,--wrap,exit", "-Wl,--wrap,atexit",
+               "-Wl,-n"]
     },
     "ARM": {
         "common": ["-c", "--gnu", "-Ospace", "--split_sections",
