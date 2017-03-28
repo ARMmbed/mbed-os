@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Nordic Semiconductor ASA
+ * Copyright (c) 2017 Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,63 +36,37 @@
  *
  */
 
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
+#if defined(DEVICE_TRNG)
+#include "trng_api.h"
+#include "nrf_drv_rng.h"
 
-#include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-struct serial_s {
-    uint32_t placeholder; // struct is unused by nRF5x API implementation
-};                        // but it must be not empty (required by strict compiler - IAR)
-
-struct spi_s {
-    uint8_t spi_idx;
-};
-
-struct port_s {
-    PortName port;
-    uint32_t mask;
-};
-
-struct pwmout_s {
-    PWMName pwm_name;
-    PinName pin;
-    uint8_t pwm_channel;
-    void *  pwm_struct;
-};
-
-struct i2c_s {
-    uint8_t twi_idx;
-};
-
-struct analogin_s {
-    ADCName adc;
-    uint8_t adc_pin;
-};
-
-struct gpio_irq_s {
-    uint32_t ch;
-};
-
-struct flash_s {
-    uint32_t placeholder;
-};
-
-struct trng_s {
-    uint32_t placeholder;
-};
-
-#include "gpio_object.h"
-
-#ifdef __cplusplus
+void trng_init(trng_t *obj)
+{
+    (void)nrf_drv_rng_init(NULL);
 }
+
+void trng_free(trng_t *obj)
+{
+    nrf_drv_rng_uninit();
+}
+
+int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
+{
+#ifdef NRF_RNG_NON_BLOCKING
+    uint8_t bytes_available;
+    nrf_drv_rng_bytes_available(&bytes_available);
+    if ((bytes_available < length) || (nrf_drv_rng_rand(output, length) == NRF_ERROR_NOT_FOUND))
+    {
+        return -1;
+    }
+    else
+    {
+        *output_length = length;
+    }
+#else
+    nrf_drv_rng_block_rand(output, length);
 #endif
+    return 0;
+}
 
 #endif
