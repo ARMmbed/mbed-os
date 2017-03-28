@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "platform/platform.h"
-#include "drivers/FilePath.h"
+#include "platform/FilePath.h"
 #include "hal/serial_api.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_semihost_api.h"
@@ -83,11 +83,11 @@ extern uint32_t mbed_heap_size;
  * put it in a filehandles array and return the index into that array
  * (or rather index+3, as filehandles 0-2 are stdin/out/err).
  */
-static FileLike *filehandles[OPEN_MAX];
+static FileHandle *filehandles[OPEN_MAX];
 static SingletonPtr<PlatformMutex> filehandle_mutex;
 
 namespace mbed {
-void remove_filehandle(FileLike *file) {
+void remove_filehandle(FileHandle *file) {
     filehandle_mutex->lock();
     /* Remove all open filehandles for this */
     for (unsigned int fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
@@ -222,16 +222,16 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
         filehandle_mutex->unlock();
         return -1;
     }
-    filehandles[fh_i] = (FileLike*)FILE_HANDLE_RESERVED;
+    filehandles[fh_i] = (FileHandle*)FILE_HANDLE_RESERVED;
     filehandle_mutex->unlock();
 
-    FileLike *res = NULL;
+    FileHandle *res = NULL;
 
-    /* FILENAME: ":0x12345678" describes a FileLike* */
+    /* FILENAME: ":0x12345678" describes a FileHandle* */
     if (name[0] == ':') {
         void *p;
         sscanf(name, ":%p", &p);
-        res = (FileLike*)p;
+        res = (FileHandle*)p;
 
     /* FILENAME: "/file_system/file_name" */
     } else {
@@ -284,7 +284,7 @@ extern "C" int PREFIX(_close)(FILEHANDLE fh) {
     if (fh < 3) return 0;
 
     errno = EBADF;
-    FileLike* fhc = filehandles[fh-3];
+    FileHandle* fhc = filehandles[fh-3];
     filehandles[fh-3] = NULL;
     if (fhc == NULL) return -1;
 
@@ -324,7 +324,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
         n = length;
     } else {
-        FileLike* fhc = filehandles[fh-3];
+        FileHandle* fhc = filehandles[fh-3];
         if (fhc == NULL) return -1;
 
         n = fhc->write(buffer, length);
@@ -376,7 +376,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
         n = 1;
     } else {
-        FileLike* fhc = filehandles[fh-3];
+        FileHandle* fhc = filehandles[fh-3];
         if (fhc == NULL) return -1;
 
         n = fhc->read(buffer, length);
@@ -401,7 +401,7 @@ extern "C" int _isatty(FILEHANDLE fh)
     /* stdin, stdout and stderr should be tty */
     if (fh < 3) return 1;
 
-    FileLike* fhc = filehandles[fh-3];
+    FileHandle* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
     int err = fhc->isatty();
@@ -425,7 +425,7 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
     errno = EBADF;
     if (fh < 3) return 0;
 
-    FileLike* fhc = filehandles[fh-3];
+    FileHandle* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
 #if defined(__ARMCC_VERSION)
@@ -440,7 +440,7 @@ extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
     errno = EBADF;
     if (fh < 3) return 0;
 
-    FileLike* fhc = filehandles[fh-3];
+    FileHandle* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
     int err = fhc->sync();
@@ -456,7 +456,7 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
     errno = EBADF;
     if (fh < 3) return 0;
 
-    FileLike* fhc = filehandles[fh-3];
+    FileHandle* fhc = filehandles[fh-3];
     if (fhc == NULL) return -1;
 
     return fhc->size();
