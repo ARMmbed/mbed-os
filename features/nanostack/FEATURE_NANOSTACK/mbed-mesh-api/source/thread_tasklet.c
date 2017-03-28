@@ -23,7 +23,6 @@
 #include "thread_management_if.h"
 #include "net_polling_api.h"
 #include "include/thread_tasklet.h"
-#include "include/static_config.h"
 #include "include/mesh_system.h"
 #include <mbed_assert.h>
 #include "ns_event_loop.h"
@@ -207,26 +206,26 @@ void thread_tasklet_parse_network_event(arm_event_s *event)
 
 void read_link_configuration() {
 
-    thread_tasklet_data_ptr->link_config.panId = MBED_MESH_API_THREAD_CONFIG_PANID;
+    thread_tasklet_data_ptr->link_config.panId = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_PANID;
     TRACE_DETAIL("PANID %x", thread_tasklet_data_ptr->link_config.panId);
 
-    thread_tasklet_data_ptr->link_config.rfChannel = MBED_MESH_API_THREAD_CONFIG_CHANNEL;
+    thread_tasklet_data_ptr->link_config.rfChannel = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_CHANNEL;
     TRACE_DETAIL("channel: %d", thread_tasklet_data_ptr->link_config.rfChannel);
     
     // Mesh prefix
-    const uint8_t mesh_local_prefix[] = MBED_MESH_API_THREAD_CONFIG_ML_PREFIX;
+    const uint8_t mesh_local_prefix[] = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_ML_PREFIX;
     MBED_ASSERT(sizeof(mesh_local_prefix) == 8);
     
     memcpy(thread_tasklet_data_ptr->link_config.mesh_local_ula_prefix, mesh_local_prefix, 8);
     TRACE_DETAIL("Mesh prefix: %s", trace_array(mesh_local_prefix, 8));
 
     // Master Key
-    const uint8_t master_key[] = MBED_MESH_API_THREAD_MASTER_KEY;
+    const uint8_t master_key[] = MBED_CONF_MBED_MESH_API_THREAD_MASTER_KEY;
     MBED_ASSERT(sizeof(master_key) == 16);
     memcpy(thread_tasklet_data_ptr->link_config.master_key, master_key, 16);
 
     // PSKc
-    const uint8_t PSKc[] = MBED_MESH_API_THREAD_CONFIG_PSKC;
+    const uint8_t PSKc[] = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_PSKC;
     MBED_ASSERT(sizeof(PSKc) == 16);
     memcpy(thread_tasklet_data_ptr->link_config.PSKc, PSKc, 16);
 
@@ -234,13 +233,13 @@ void read_link_configuration() {
     thread_tasklet_data_ptr->link_config.key_sequence = 0;
 
     // network name
-    MBED_ASSERT(strlen(MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) > 0 && strlen(MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) < 17);
-    memcpy(thread_tasklet_data_ptr->link_config.name, MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME, strlen(MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME));
+    MBED_ASSERT(strlen(MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) > 0 && strlen(MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) < 17);
+    memcpy(thread_tasklet_data_ptr->link_config.name, MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME, strlen(MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME));
     
-    thread_tasklet_data_ptr->link_config.timestamp = MBED_MESH_API_THREAD_CONFIG_COMMISSIONING_DATASET_TIMESTAMP;
+    thread_tasklet_data_ptr->link_config.timestamp = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_COMMISSIONING_DATASET_TIMESTAMP;
     
     // extended pan-id
-    const uint8_t extented_panid[] = MBED_MESH_API_THREAD_CONFIG_EXTENDED_PANID;
+    const uint8_t extented_panid[] = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_EXTENDED_PANID;
     MBED_ASSERT(sizeof(extented_panid) == 8);
     memcpy(thread_tasklet_data_ptr->link_config.extented_pan_id, extented_panid, sizeof(extented_panid));
 }
@@ -254,7 +253,7 @@ void thread_tasklet_configure_and_connect_to_network(void)
     int8_t status;
     link_configuration_s* temp_link_config=NULL;
 
-    if (MBED_MESH_API_THREAD_DEVICE_TYPE == MESH_DEVICE_TYPE_THREAD_SLEEPY_END_DEVICE) {
+    if (MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE == MESH_DEVICE_TYPE_THREAD_SLEEPY_END_DEVICE) {
         thread_tasklet_data_ptr->operating_mode = NET_6LOWPAN_SLEEPY_HOST;
     } else {
         thread_tasklet_data_ptr->operating_mode = NET_6LOWPAN_ROUTER;
@@ -265,14 +264,14 @@ void thread_tasklet_configure_and_connect_to_network(void)
         thread_tasklet_data_ptr->operating_mode,
         NET_6LOWPAN_THREAD);
         
-    thread_tasklet_data_ptr->channel_list.channel_page = (channel_page_e)MBED_MESH_API_THREAD_CONFIG_CHANNEL_PAGE;
-    thread_tasklet_data_ptr->channel_list.channel_mask[0] = MBED_MESH_API_THREAD_CONFIG_CHANNEL_MASK;
+    thread_tasklet_data_ptr->channel_list.channel_page = (channel_page_e)MBED_CONF_MBED_MESH_API_THREAD_CONFIG_CHANNEL_PAGE;
+    thread_tasklet_data_ptr->channel_list.channel_mask[0] = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_CHANNEL_MASK;
     
     TRACE_DETAIL("channel page: %d", thread_tasklet_data_ptr->channel_list.channel_page);
     TRACE_DETAIL("channel mask: %d", (int)thread_tasklet_data_ptr->channel_list.channel_mask[0]);
           
     // PSKd
-    const char PSKd[] = MBED_MESH_API_THREAD_PSKD;
+    const char PSKd[] = MBED_CONF_MBED_MESH_API_THREAD_PSKD;
     MBED_ASSERT(sizeof(PSKd) > 5 && sizeof(PSKd) < 33);
 
     char *dyn_buf = ns_dyn_mem_alloc(sizeof(PSKd));
@@ -281,7 +280,7 @@ void thread_tasklet_configure_and_connect_to_network(void)
     device_configuration.PSKd_ptr = (uint8_t*)dyn_buf;
     device_configuration.PSKd_len = sizeof(PSKd) - 1;  
     
-    if (true == MBED_MESH_API_THREAD_USE_STATIC_LINK_CONFIG) {
+    if (true == MBED_CONF_MBED_MESH_API_THREAD_USE_STATIC_LINK_CONFIG) {
         read_link_configuration();
         temp_link_config = &thread_tasklet_data_ptr->link_config;
     }
