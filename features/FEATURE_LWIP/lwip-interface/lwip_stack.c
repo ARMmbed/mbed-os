@@ -34,6 +34,7 @@
 #include "lwip/udp.h"
 
 #include "emac_api.h"
+#include "lwip_tcp_isn.h"
 
 #if DEVICE_EMAC
     #define MBED_NETIF_INIT_FN emac_lwip_if_init
@@ -333,6 +334,14 @@ static void mbed_lwip_set_mac_address(void)
     snprintf(lwip_mac_address, NSAPI_MAC_SIZE, "%02x:%02x:%02x:%02x:%02x:%02x",
             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 #endif
+
+    /* Use mac address as additional seed to random number generator */
+    uint64_t seed = mac[0];
+    for (uint8_t i = 1; i < 8; i++) {
+        seed <<= 8;
+        seed |= mac[i % 6];
+    }
+    lwip_add_random_seed(seed);
 }
 
 /* LWIP interface implementation */
@@ -390,9 +399,20 @@ char *mbed_lwip_get_gateway(char *buf, nsapi_size_t buflen)
 
 nsapi_error_t mbed_lwip_init(emac_interface_t *emac)
 {
+
     // Check if we've already brought up lwip
     if (!mbed_lwip_get_mac_address()) {
+        // Seed lwip random
+        lwip_seed_random();
+
         // Set up network
+        // Initialise TCP sequence number
+        uint32_t tcp_isn_secret[4];
+        for (int i = 0; i < 4; i++) {
+            tcp_isn_secret[i] = LWIP_RAND();
+        }
+        lwip_init_tcp_isn(0, (u8_t *) &tcp_isn_secret);
+
         sys_sem_new(&lwip_tcpip_inited, 0);
         sys_sem_new(&lwip_netif_linked, 0);
         sys_sem_new(&lwip_netif_has_addr, 0);
