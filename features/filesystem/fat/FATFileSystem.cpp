@@ -508,11 +508,11 @@ off_t FATFileSystem::file_tell(fs_file_t file) {
     return res;
 }
 
-size_t FATFileSystem::file_size(fs_file_t file) {
+off_t FATFileSystem::file_size(fs_file_t file) {
     FIL *fh = static_cast<FIL*>(file);
 
     lock();
-    size_t res = fh->fsize;
+    off_t res = fh->fsize;
     unlock();
 
     return res;

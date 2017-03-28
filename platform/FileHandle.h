@@ -114,10 +114,10 @@ public:
      *
      *  @return         Size of the file in bytes
      */
-    virtual size_t size()
+    virtual off_t size()
     {
         off_t off = tell();
-        size_t size = seek(0, SEEK_END);
+        off_t size = seek(0, SEEK_END);
         seek(off, SEEK_SET);
         return size;
     }

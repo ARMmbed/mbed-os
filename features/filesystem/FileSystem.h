@@ -175,7 +175,7 @@ protected:
      *  @param file     File handle
      *  @return         Size of the file in bytes
      */
-    virtual size_t file_size(fs_file_t file);
+    virtual off_t file_size(fs_file_t file);
 
     /** Open a directory on the filesystem
      *

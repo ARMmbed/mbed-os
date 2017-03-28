@@ -61,7 +61,7 @@ protected:
     virtual void rewind();
     virtual int isatty();
     virtual int sync();
-    virtual size_t size();
+    virtual off_t size();
 
     virtual int _putc(int c) = 0;
     virtual int _getc() = 0;

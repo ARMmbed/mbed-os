@@ -119,7 +119,7 @@ int Stream::sync() {
     return 0;
 }
 
-size_t Stream::size() {
+off_t Stream::size() {
     return 0;
 }
 

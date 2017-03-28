@@ -45,10 +45,10 @@ void FileSystem::file_rewind(fs_file_t file)
     file_seek(file, 0, SEEK_SET);
 }
 
-size_t FileSystem::file_size(fs_file_t file)
+off_t FileSystem::file_size(fs_file_t file)
 {
     off_t off = file_tell(file);
-    size_t size = file_seek(file, 0, SEEK_END);
+    off_t size = file_seek(file, 0, SEEK_END);
     file_seek(file, off, SEEK_SET);
     return size;
 }
