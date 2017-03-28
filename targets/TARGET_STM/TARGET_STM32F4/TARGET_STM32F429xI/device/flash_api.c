@@ -165,7 +165,7 @@ static uint32_t GetSector(uint32_t address)
     } else {
         sector += 4 + (tmp >>17);
     }
-  return sector;
+    return sector;
 }
 
 /**
@@ -180,7 +180,7 @@ static uint32_t GetSectorSize(uint32_t Sector)
        (Sector == FLASH_SECTOR_3) || (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) ||\
        (Sector == FLASH_SECTOR_14) || (Sector == FLASH_SECTOR_15)) {
         sectorsize = 16 * 1024;
-    } else if((Sector == FLASH_SECTOR_4) || (Sector == FLASH_SECTOR_16)){
+    } else if((Sector == FLASH_SECTOR_4) || (Sector == FLASH_SECTOR_16)) {
         sectorsize = 64 * 1024;
     } else {
         sectorsize = 128 * 1024;
