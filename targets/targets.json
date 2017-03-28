@@ -1077,7 +1077,8 @@
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2","USBHOST_OTHER"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32L476RG"
+        "device_name": "STM32L476RG",
+        "bootloader_supported": true
     },
     "NUCLEO_L486RG": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
