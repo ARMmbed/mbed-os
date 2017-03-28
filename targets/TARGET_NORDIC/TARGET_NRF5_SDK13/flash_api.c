@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Nordic Semiconductor ASA
+ * Copyright (c) 2017 Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -36,60 +36,69 @@
  *
  */
 
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
+#include "flash_api.h"
+#include "nrf_nvmc.h"
 
-#include "cmsis.h"
-#include "PortNames.h"
-#include "PeripheralNames.h"
-#include "PinNames.h"
+#if DEVICE_FLASH
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-struct serial_s {
-    uint32_t placeholder; // struct is unused by nRF5x API implementation
-};                        // but it must be not empty (required by strict compiler - IAR)
-
-struct spi_s {
-    uint8_t spi_idx;
-};
-
-struct port_s {
-    PortName port;
-    uint32_t mask;
-};
-
-struct pwmout_s {
-    PWMName pwm_name;
-    PinName pin;
-    uint8_t pwm_channel;
-    void *  pwm_struct;
-};
-
-struct i2c_s {
-    uint8_t twi_idx;
-};
-
-struct analogin_s {
-    ADCName adc;
-    uint8_t adc_pin;
-};
-
-struct gpio_irq_s {
-    uint32_t ch;
-};
-
-struct flash_s
+int32_t flash_init(flash_t *obj)
 {
-    uint32_t placeholder;
-};
-
-#include "gpio_object.h"
-
-#ifdef __cplusplus
+    (void)(obj);
+    return 0;
 }
-#endif
+
+int32_t flash_free(flash_t *obj)
+{
+    (void)(obj);
+    return 0;
+}
+
+int32_t flash_erase_sector(flash_t *obj, uint32_t address)
+{
+    (void)(obj);
+    nrf_nvmc_page_erase(address);
+    return 0;
+}
+
+int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
+{
+    /* We will use *_words function to speed up flashing code. Word means 32bit -> 4B
+     * or sizeof(uint32_t). */
+    nrf_nvmc_write_words(address, data, (size / sizeof(uint32_t)));
+    return 0;
+}
+
+uint32_t flash_get_size(const flash_t *obj)
+{
+    (void)(obj);
+    /* Just count flash size. */
+    return NRF_FICR->CODESIZE * NRF_FICR->CODEPAGESIZE;
+}
+
+uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
+{
+    (void)(obj);
+    (void)(address);
+    /* Test if passed address is in flash space. */
+    if (address < flash_get_size(obj))
+    {
+        return NRF_FICR->CODEPAGESIZE;
+    }
+    /* Something goes wrong, return invalid size error code. */
+    return MBED_FLASH_INVALID_SIZE;
+}
+
+uint32_t flash_get_page_size(const flash_t *obj)
+{
+    (void)(obj);
+    return NRF_FICR->CODEPAGESIZE;
+}
+
+uint32_t flash_get_start_address(const flash_t *obj)
+{
+    return 0;
+}
 
 #endif
+
+/** @}*/
