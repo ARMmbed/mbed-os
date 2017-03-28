@@ -44,14 +44,6 @@
  * Proportion Test (64-sample window)" and "Adaptive Proportion Test
  * (4096-sample window)". The last startup test is the AIS31 startup test. By
  * default when using this driver all the startup tests are enabled.
-
- * The TRNG module implements an entropy source plugin module for mbed TLS that can 
- * be used in applications needing random numbers or indirectly using mbed TLS 
- * modules that depend on the random number generation interfaces of mbed TLS. 
- * The define @ref MBEDTLS_TRNG_C will compile the TRNG module. The TRNG is enabled as 
- * an mbed TLS entropy source by defining @ref MBEDTLS_ENTROPY_ALT, 
- * @ref MBEDTLS_ENTROPY_INIT_ALT and @ref MBEDTLS_ENTROPY_FREE_ALT. 
- * The TRNG functions are declared in the 'mbedtls/sl_crypto/include/trng.h' file.
  *
  * \{
  ******************************************************************************/
