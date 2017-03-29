@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#if DEVICE_EMAC
-
 #include "emac_stack_mem.h"
 #include "pbuf.h"
 
@@ -94,5 +92,3 @@ void emac_stack_mem_ref(emac_stack_mem_t *mem)
 {
     pbuf_ref((struct pbuf*)mem);
 }
-
-#endif /* DEVICE_EMAC */

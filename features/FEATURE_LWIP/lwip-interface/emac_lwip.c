@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#if DEVICE_EMAC
-
 #include "emac_api.h"
 #include "emac_stack_mem.h"
 #include "lwip/tcpip.h"
@@ -179,5 +177,3 @@ err_t emac_lwip_if_init(struct netif *netif)
 
     return err;
 }
-
-#endif /* DEVICE_EMAC */

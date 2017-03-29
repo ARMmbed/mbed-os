@@ -17,8 +17,6 @@
 #ifndef MBED_EMAC_API_H
 #define MBED_EMAC_API_H
 
-#if DEVICE_EMAC
-
 #include <stdbool.h>
 #include "emac_stack_mem.h"
 #include "arch/sys_arch.h"
@@ -176,9 +174,4 @@ typedef struct emac_interface {
     struct netif netif;
 } emac_interface_t;
 
-#else
-
-typedef void *emac_interface_t;
-
-#endif /* DEVICE_EMAC */
 #endif  /* MBED_EMAC_API_H */
