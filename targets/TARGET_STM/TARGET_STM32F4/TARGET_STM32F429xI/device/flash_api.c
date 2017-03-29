@@ -159,14 +159,12 @@ static uint32_t GetSector(uint32_t address)
         tmp = address - ADDR_FLASH_SECTOR_12;
     }
     if (address < ADDR_FLASH_SECTOR_4) { // 16k sectorsize
-        //printf("tmp for sectors less than 4: 0X%4x")
         sector += tmp >>14;
     } else if (address < ADDR_FLASH_SECTOR_5) { //64k sector size
         sector += FLASH_SECTOR_4; 
     } else {
         sector += 4 + (tmp >>17);
     }
-    printf("address:0X%04x%04x, secteur: %d\n", (address>>16)&0XFFFF, (address&0XFFFF), sector);
   return sector;
 }
 
