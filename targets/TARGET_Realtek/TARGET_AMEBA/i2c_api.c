@@ -247,6 +247,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     u32 InStartCount    = 0;
     pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
     pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
+    address = (address & 0xFE ) >>1;
     
     if (i2c_target_addr[pSalI2CHND->DevNum] != address) {
         pSalI2CHND->pInitDat->I2CAckAddr = address;
@@ -316,6 +317,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     
     pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
     pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
+    address = (address & 0xFE ) >>1;
     
     if (i2c_target_addr[pSalI2CHND->DevNum] != address) {
         pSalI2CHND->pInitDat->I2CAckAddr = address;
@@ -559,6 +561,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     PSAL_I2C_HND            pSalI2CHND          = NULL;
     pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
     pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
+    address = (address & 0xFE ) >>1;
     
     uint16_t i2c_default_addr   = (uint16_t) pSalI2CHND->I2CAckAddr;
     uint16_t i2c_user_addr      = (uint16_t) address;

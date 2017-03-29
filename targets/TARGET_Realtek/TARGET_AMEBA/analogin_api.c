@@ -38,10 +38,10 @@ void analogin_init (analogin_t *obj, PinName pin){
 
     HAL_ADC_INIT_DAT        HalADCInitDataTmp;
     PHAL_ADC_INIT_DAT       pHalADCInitDataTmp = &HalADCInitDataTmp;
-    
 	/* To backup user config first */
-    _memcpy(pHalADCInitDataTmp, &(obj->HalADCInitData), sizeof(HAL_ADC_INIT_DAT));
 	
+    _memset(&(obj->HalADCInitData), 0, sizeof(HAL_ADC_INIT_DAT));
+    _memcpy(pHalADCInitDataTmp, &(obj->HalADCInitData), sizeof(HAL_ADC_INIT_DAT));
 	_memset(obj, 0x00, sizeof(analogin_t));
 	
     ConfigDebugErr &= (~(_DBG_ADC_|_DBG_GDMA_));
@@ -135,7 +135,7 @@ float analogin_read(analogin_t *obj){
     uint32_t AnaloginDatMsk      = 0xFFFF;
     uint8_t  AnaloginIdx         = 0;
     uint32_t AnalogDat           = 0;
-    uint32_t Offset = 0x2C00;
+    uint32_t Offset = 0x2980;//0x2C00;
     uint32_t AnalogDatFull = 0xAA00;
 
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;

@@ -81,6 +81,7 @@ void analogout_init(dac_t *obj, PinName pin) {
     
     pHalDacInitData->DACEn  = DAC_ENABLE;
     HalDACEnableRtl8195a(pHalDacInitData);
+    osDelay(10);
 }
 
 /** \brief analogout_free:\n
