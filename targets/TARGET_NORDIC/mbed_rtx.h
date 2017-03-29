@@ -55,6 +55,21 @@
 #define OS_CLOCK                64000000
 #endif
 
+#elif defined(TARGET_MCU_NRF52840)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20040000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              24
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          2048
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                64000000
 #endif
 
-#endif
+#endif // defined(TARGET_MCU_NRF51822)...
+
+#endif // #ifndef MBED_MBED_RTX_H
