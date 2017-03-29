@@ -900,7 +900,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "STM32F439xI", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "STM32F439xI"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "nucleo-f439zi"},
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "MBEDTLS_CONFIG_HW_SUPPORT", "USB_STM_HAL", "USBHOST_OTHER"],
