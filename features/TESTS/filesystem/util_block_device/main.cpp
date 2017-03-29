@@ -25,23 +25,15 @@
 
 using namespace utest::v1;
 
-/* It is not possible to build a KL25Z image with IAR including the file system if
- * stack tracking statistics are enabled. If this is the case, build dummy
- * tests.
- */
-#if ! defined(TOOLCHAIN_IAR) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED)
-
 #define BLOCK_COUNT 16
 #define BLOCK_SIZE 512
-#define UTIL_BLOCK_DEVICE_TEST_01         test_slicing
-#define UTIL_BLOCK_DEVICE_TEST_02         test_chaining
-uint8_t write_block[BLOCK_SIZE];
-uint8_t read_block[BLOCK_SIZE];
 
 
 // Simple test which read/writes blocks on a sliced block device
 void test_slicing() {
     HeapBlockDevice bd(BLOCK_COUNT*BLOCK_SIZE, BLOCK_SIZE);
+    uint8_t *write_block = new uint8_t[BLOCK_SIZE];
+    uint8_t *read_block = new uint8_t[BLOCK_SIZE];
 
     // Test with first slice of block device
     SlicingBlockDevice slice1(&bd, 0, (BLOCK_COUNT/2)*BLOCK_SIZE);
@@ -123,6 +115,8 @@ void test_slicing() {
         TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
     }
 
+    delete[] write_block;
+    delete[] read_block;
     err = slice2.deinit();
     TEST_ASSERT_EQUAL(0, err);
 }
@@ -131,6 +125,8 @@ void test_slicing() {
 void test_chaining() {
     HeapBlockDevice bd1((BLOCK_COUNT/2)*BLOCK_SIZE, BLOCK_SIZE);
     HeapBlockDevice bd2((BLOCK_COUNT/2)*BLOCK_SIZE, BLOCK_SIZE);
+    uint8_t *write_block = new uint8_t[BLOCK_SIZE];
+    uint8_t *read_block = new uint8_t[BLOCK_SIZE];
 
     // Test with chain of block device
     BlockDevice *bds[] = {&bd1, &bd2};
@@ -174,26 +170,12 @@ void test_chaining() {
         TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
     }
 
+    delete[] write_block;
+    delete[] read_block;
     err = chain.deinit();
     TEST_ASSERT_EQUAL(0, err);
 }
 
-#else   /* ! defined(TOOLCHAIN_IAR) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED) */
-
-#define UTIL_BLOCK_DEVICE_TEST_01      util_block_device_test_dummy
-#define UTIL_BLOCK_DEVICE_TEST_02      util_block_device_test_dummy
-
-/** @brief  util_block_device_test_dummy    Dummy test case for testing when KL25Z being built with stack statistics enabled.
- *
- * @return success always
- */
-static control_t util_block_device_test_dummy()
-{
-    printf("Null test\n");
-    return CaseNext;
-}
-
-#endif  /* ! defined(TOOLCHAIN_IAR) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED) */
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
@@ -202,8 +184,8 @@ utest::v1::status_t test_setup(const size_t number_of_cases) {
 }
 
 Case cases[] = {
-    Case("Testing slicing of a block device", UTIL_BLOCK_DEVICE_TEST_01),
-    Case("Testing chaining of block devices", UTIL_BLOCK_DEVICE_TEST_02),
+    Case("Testing slicing of a block device", test_slicing),
+    Case("Testing chaining of block devices", test_chaining),
 };
 
 Specification specification(test_setup, cases);

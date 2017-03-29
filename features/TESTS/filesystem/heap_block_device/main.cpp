@@ -23,71 +23,124 @@
 
 using namespace utest::v1;
 
-/* It is not possible to build a KL25Z image with IAR including the file system if
- * stack tracking statistics are enabled. If this is the case, build dummy
- * tests.
- */
-#if ! defined(__ICCARM__) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED)
+#define TEST_BLOCK_SIZE 512
+#define TEST_BLOCK_DEVICE_SIZE 16*TEST_BLOCK_SIZE
+#define TEST_BLOCK_COUNT 10
+#define TEST_ERROR_MASK 16
 
-#define BLOCK_SIZE 512
-#define HEAP_BLOCK_DEVICE_TEST_01         test_read_write
-uint8_t write_block[BLOCK_SIZE];
-uint8_t read_block[BLOCK_SIZE];
+const struct {
+    const char *name;
+    bd_size_t (BlockDevice::*method)() const;
+} ATTRS[] = {
+    {"read size",    &BlockDevice::get_read_size},
+    {"program size", &BlockDevice::get_program_size},
+    {"erase size",   &BlockDevice::get_erase_size},
+    {"total size",   &BlockDevice::size},
+};
 
-// Simple test which reads and writes a block
+
+// Simple test that read/writes random set of blocks
 void test_read_write() {
-    HeapBlockDevice bd(16*BLOCK_SIZE, BLOCK_SIZE);
+    HeapBlockDevice bd(TEST_BLOCK_DEVICE_SIZE, TEST_BLOCK_SIZE);
 
     int err = bd.init();
     TEST_ASSERT_EQUAL(0, err);
 
-    // Fill with random sequence
-    srand(1);
-    for (int i = 0; i < BLOCK_SIZE; i++) {
-        write_block[i] = 0xff & rand();
+    for (unsigned a = 0; a < sizeof(ATTRS)/sizeof(ATTRS[0]); a++) {
+        static const char *prefixes[] = {"", "k", "M", "G"};
+        for (int i = 3; i >= 0; i--) {
+            bd_size_t size = (bd.*ATTRS[a].method)();
+            if (size >= (1ULL << 10*i)) {
+                printf("%s: %llu%sbytes (%llubytes)\n",
+                    ATTRS[a].name, size >> 10*i, prefixes[i], size);
+                break;
+            }
+        }
     }
 
-    // Write, sync, and read the block
-    err = bd.program(write_block, 0, BLOCK_SIZE);
-    TEST_ASSERT_EQUAL(0, err);
+    bd_size_t block_size = bd.get_erase_size();
+    uint8_t *write_block = new uint8_t[block_size];
+    uint8_t *read_block = new uint8_t[block_size];
+    uint8_t *error_mask = new uint8_t[TEST_ERROR_MASK];
+    unsigned addrwidth = ceil(log(float(bd.size()-1)) / log(float(16)))+1;
 
-    err = bd.read(read_block, 0, BLOCK_SIZE);
-    TEST_ASSERT_EQUAL(0, err);
+    for (int b = 0; b < TEST_BLOCK_COUNT; b++) {
+        // Find a random block
+        bd_addr_t block = (rand()*block_size) % bd.size();
 
-    // Check that the data was unmodified
-    srand(1);
-    for (int i = 0; i < BLOCK_SIZE; i++) {
-        TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
+        // Use next random number as temporary seed to keep
+        // the address progressing in the pseudorandom sequence
+        unsigned seed = rand();
+
+        // Fill with random sequence
+        srand(seed);
+        for (bd_size_t i = 0; i < block_size; i++) {
+            write_block[i] = 0xff & rand();
+        }
+
+        // erase, program, and read the block
+        printf("test  %0*llx:%llu...\n", addrwidth, block, block_size);
+
+        err = bd.erase(block, block_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        err = bd.program(write_block, block, block_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        printf("write %0*llx:%llu ", addrwidth, block, block_size);
+        for (int i = 0; i < 16; i++) {
+            printf("%02x", write_block[i]);
+        }
+        printf("...\n");
+
+        err = bd.read(read_block, block, block_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        printf("read  %0*llx:%llu ", addrwidth, block, block_size);
+        for (int i = 0; i < 16; i++) {
+            printf("%02x", read_block[i]);
+        }
+        printf("...\n");
+
+        // Find error mask for debugging
+        memset(error_mask, 0, TEST_ERROR_MASK);
+        bd_size_t error_scale = block_size / (TEST_ERROR_MASK*8);
+
+        srand(seed);
+        for (bd_size_t i = 0; i < TEST_ERROR_MASK*8; i++) {
+            for (bd_size_t j = 0; j < error_scale; j++) {
+                if ((0xff & rand()) != read_block[i*error_scale + j]) {
+                    error_mask[i/8] |= 1 << (i%8);
+                }
+            }
+        }
+
+        printf("error %0*llx:%llu ", addrwidth, block, block_size);
+        for (int i = 0; i < 16; i++) {
+            printf("%02x", error_mask[i]);
+        }
+        printf("\n");
+
+        // Check that the data was unmodified
+        srand(seed);
+        for (bd_size_t i = 0; i < block_size; i++) {
+            TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
+        }
     }
-
+    
     err = bd.deinit();
     TEST_ASSERT_EQUAL(0, err);
 }
 
-#else   /* ! defined(__ICCARM__) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED) */
-
-#define HEAP_BLOCK_DEVICE_TEST_01      heap_block_device_test_dummy
-
-/** @brief  heap_block_device_test_dummy    Dummy test case for testing when KL25Z being built with stack statistics enabled.
- *
- * @return success always
- */
-static control_t heap_block_device_test_dummy()
-{
-    printf("Null test\n");
-    return CaseNext;
-}
-
-#endif  /* ! defined(__ICCARM__) && ! defined(TARGET_KL25Z) && ! defined(MBED_STACK_STATS_ENABLED) */
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(10, "default_auto");
+    GREENTEA_SETUP(30, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
 Case cases[] = {
-    Case("Testing read write of a block", HEAP_BLOCK_DEVICE_TEST_01),
+    Case("Testing read write random blocks", test_read_write),
 };
 
 Specification specification(test_setup, cases);

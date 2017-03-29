@@ -22,13 +22,32 @@
 extern "C" {
 #endif
 
-#define NU_PORT_SHIFT  12
-#define NU_PINNAME_TO_PORT(name)            ((unsigned int)(name) >> NU_PORT_SHIFT)
-#define NU_PINNAME_TO_PIN(name)             ((unsigned int)(name) & ~(0xFFFFFFFF << NU_PORT_SHIFT))
-#define NU_PORT_N_PIN_TO_PINNAME(port, pin) ((((unsigned int) (port)) << (NU_PORT_SHIFT)) | ((unsigned int) (pin)))
-#define NU_PORT_BASE(port)                  ((GPIO_T *)(((uint32_t) GPIOA_BASE) + 0x40 * port))
-#define NU_MFP_POS(pin)                     ((pin % 8) * 4)
-#define NU_MFP_MSK(pin)                     (0xful << NU_MFP_POS(pin))
+#define NU_PININDEX_Pos                             0
+#define NU_PININDEX_Msk                             (0xFFul << NU_PININDEX_Pos)
+#define NU_PINPORT_Pos                              8
+#define NU_PINPORT_Msk                              (0xFul << NU_PINPORT_Pos)
+#define NU_PIN_MODINDEX_Pos                         12
+#define NU_PIN_MODINDEX_Msk                         (0xFul << NU_PIN_MODINDEX_Pos)
+#define NU_PIN_BIND_Pos                             16
+#define NU_PIN_BIND_Msk                             (0x1ul << NU_PIN_BIND_Pos)
+
+#define NU_PININDEX(PINNAME)                        (((unsigned int)(PINNAME) & NU_PININDEX_Msk) >> NU_PININDEX_Pos)
+#define NU_PINPORT(PINNAME)                         (((unsigned int)(PINNAME) & NU_PINPORT_Msk) >> NU_PINPORT_Pos)
+#define NU_PIN_BIND(PINNAME)                        (((unsigned int)(PINNAME) & NU_PIN_BIND_Msk) >> NU_PIN_BIND_Pos)
+#define NU_PIN_MODINDEX(PINNAME)                    (((unsigned int)(PINNAME) & NU_PIN_MODINDEX_Msk) >> NU_PIN_MODINDEX_Pos)
+#define NU_PINNAME(PORT, PIN)                       ((((unsigned int) (PORT)) << (NU_PINPORT_Pos)) | (((unsigned int) (PIN)) << NU_PININDEX_Pos))
+#define NU_PINNAME_BIND(PINNAME, modname)           NU_PINNAME_BIND_(NU_PINPORT(PINNAME), NU_PININDEX(PINNAME), modname)
+#define NU_PINNAME_BIND_(PORT, PIN, modname)        ((((unsigned int)(PORT)) << NU_PINPORT_Pos) | (((unsigned int)(PIN)) << NU_PININDEX_Pos) | (NU_MODINDEX(modname) << NU_PIN_MODINDEX_Pos) | NU_PIN_BIND_Msk)
+
+#define NU_PORT_BASE(port)                          ((GPIO_T *)(((uint32_t) GPIOA_BASE) + 0x40 * port))
+#define NU_MFP_POS(pin)                             ((pin % 8) * 4)
+#define NU_MFP_MSK(pin)                             (0xful << NU_MFP_POS(pin))
+
+// LEGACY
+#define NU_PINNAME_TO_PIN(PINNAME)                  NU_PININDEX(PINNAME)
+#define NU_PINNAME_TO_PORT(PINNAME)                 NU_PINPORT(PINNAME)
+#define NU_PINNAME_TO_MODSUBINDEX(PINNAME)          NU_PIN_MODINDEX(PINNAME)
+#define NU_PORT_N_PIN_TO_PINNAME(PORT, PIN)         NU_PINNAME((PORT), (PIN))
 
 typedef enum {
     PIN_INPUT,

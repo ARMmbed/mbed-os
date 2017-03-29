@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efr32mg1p_prs_signals.h
  * @brief EFR32MG1P_PRS_SIGNALS register and bit field definitions
- * @version 5.0.0
+ * @version 5.1.2
  ******************************************************************************
  * @section License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -103,6 +103,7 @@
 #define PRS_CRYOTIMER_PERIOD    ((60 << 8) + 0) /**< PRS CRYOTIMER Output */
 #define PRS_CMU_CLKOUT0         ((61 << 8) + 0) /**< PRS Clock Output 0 */
 #define PRS_CMU_CLKOUT1         ((61 << 8) + 1) /**< PRS Clock Output 1 */
+#define PRS_CM4_TXEV            ((67 << 8) + 0) /**< PRS  */
 
 /** @} End of group EFR32MG1P_PRS */
 /** @} End of group Parts */

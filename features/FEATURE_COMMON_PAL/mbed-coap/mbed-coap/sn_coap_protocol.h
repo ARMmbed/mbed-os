@@ -83,7 +83,8 @@ extern int8_t sn_coap_protocol_destroy(struct coap_s *handle);
  *         In failure cases:\n
  *          -1 = Failure in CoAP header structure\n
  *          -2 = Failure in given pointer (= NULL)\n
- *          -3 = Failure in Reset message\ŋ
+ *          -3 = Failure in Reset message\n
+ *          -4 = Failure in Resending message store\n
  *         If there is not enough memory (or User given limit exceeded) for storing
  *         resending messages, situation is ignored.
  */

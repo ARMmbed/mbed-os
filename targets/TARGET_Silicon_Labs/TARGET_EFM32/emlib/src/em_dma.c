@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_dma.c
  * @brief Direct memory access (DMA) module peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -173,7 +173,7 @@ static void DMA_Prepare(unsigned int channel,
                         bool primary,
                         bool useBurst,
                         void *dst,
-                        void *src,
+                        const void *src,
                         unsigned int nMinus1)
 {
   DMA_DESCRIPTOR_TypeDef *descr;
@@ -209,7 +209,7 @@ static void DMA_Prepare(unsigned int channel,
     inc = (descr->CTRL & _DMA_CTRL_SRC_INC_MASK) >> _DMA_CTRL_SRC_INC_SHIFT;
     if (inc == _DMA_CTRL_SRC_INC_NONE)
     {
-      descr->SRCEND = src;
+      descr->SRCEND = (volatile void*)src;
     }
     else
     {
@@ -386,7 +386,7 @@ void DMA_IRQHandler(void)
 void DMA_ActivateAuto(unsigned int channel,
                       bool primary,
                       void *dst,
-                      void *src,
+                      const void *src,
                       unsigned int nMinus1)
 {
   uint32_t chBit;
@@ -450,7 +450,7 @@ void DMA_ActivateBasic(unsigned int channel,
                        bool primary,
                        bool useBurst,
                        void *dst,
-                       void *src,
+                       const void *src,
                        unsigned int nMinus1)
 {
   EFM_ASSERT(channel < DMA_CHAN_COUNT);
@@ -521,10 +521,10 @@ void DMA_ActivateBasic(unsigned int channel,
 void DMA_ActivatePingPong(unsigned int channel,
                           bool useBurst,
                           void *primDst,
-                          void *primSrc,
+                          const void *primSrc,
                           unsigned int primNMinus1,
                           void *altDst,
-                          void *altSrc,
+                          const void *altSrc,
                           unsigned int altNMinus1)
 {
   EFM_ASSERT(channel < DMA_CHAN_COUNT);
@@ -1136,7 +1136,7 @@ void DMA_RefreshPingPong(unsigned int channel,
                          bool primary,
                          bool useBurst,
                          void *dst,
-                         void *src,
+                         const void *src,
                          unsigned int nMinus1,
                          bool stop)
 {
@@ -1174,7 +1174,7 @@ void DMA_RefreshPingPong(unsigned int channel,
     inc = (descr->CTRL & _DMA_CTRL_SRC_INC_MASK) >> _DMA_CTRL_SRC_INC_SHIFT;
     if (inc == _DMA_CTRL_SRC_INC_NONE)
     {
-      descr->SRCEND = src;
+      descr->SRCEND = (volatile void*)src;
     }
     else
     {

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_acmp.h
  * @brief Analog Comparator (ACMP) peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -283,7 +283,7 @@ typedef enum
 } ACMP_VLPInput_Typedef;
 #endif
 
-#if defined(_SILICON_LABS_32B_PLATFORM_2)
+#if defined(_ACMP_INPUTSEL_POSSEL_APORT0XCH0)
 /** ACMP Input Selection */
 typedef enum
 {
@@ -447,8 +447,12 @@ typedef enum
   acmpInputAPORT4YCH14 = _ACMP_INPUTSEL_POSSEL_APORT4YCH14,
   acmpInputAPORT4XCH15 = _ACMP_INPUTSEL_POSSEL_APORT4XCH15,
   acmpInputAPORT4XCH31 = _ACMP_INPUTSEL_POSSEL_APORT4XCH31,
+#if defined(_ACMP_INPUTSEL_POSSEL_DACOUT0)
   acmpInputDACOUT0   = _ACMP_INPUTSEL_POSSEL_DACOUT0,
+#endif
+#if defined(_ACMP_INPUTSEL_POSSEL_DACOUT1)
   acmpInputDACOUT1   = _ACMP_INPUTSEL_POSSEL_DACOUT1,
+#endif
   acmpInputVLP       = _ACMP_INPUTSEL_POSSEL_VLP,
   acmpInputVBDIV     = _ACMP_INPUTSEL_POSSEL_VBDIV,
   acmpInputVADIV     = _ACMP_INPUTSEL_POSSEL_VADIV,
@@ -498,6 +502,31 @@ typedef enum
   acmpChannelCapSense = _ACMP_INPUTSEL_NEGSEL_CAPSENSE,
 #endif
 } ACMP_Channel_TypeDef;
+#endif
+
+#if defined(_ACMP_EXTIFCTRL_MASK)
+/**
+ * ACMP External input select. This type is used to select which APORT that is
+ * used by an external module like LESENSE when it's taking control over
+ * the ACMP input.
+ */
+typedef enum
+{
+  acmpExternalInputAPORT0X  = _ACMP_EXTIFCTRL_APORTSEL_APORT0X,
+  acmpExternalInputAPORT0Y  = _ACMP_EXTIFCTRL_APORTSEL_APORT0Y,
+  acmpExternalInputAPORT1X  = _ACMP_EXTIFCTRL_APORTSEL_APORT1X,
+  acmpExternalInputAPORT1Y  = _ACMP_EXTIFCTRL_APORTSEL_APORT1Y,
+  acmpExternalInputAPORT1XY = _ACMP_EXTIFCTRL_APORTSEL_APORT1XY,
+  acmpExternalInputAPORT2X  = _ACMP_EXTIFCTRL_APORTSEL_APORT2X,
+  acmpExternalInputAPORT2Y  = _ACMP_EXTIFCTRL_APORTSEL_APORT2Y,
+  acmpExternalInputAPORT2YX = _ACMP_EXTIFCTRL_APORTSEL_APORT2YX,
+  acmpExternalInputAPORT3X  = _ACMP_EXTIFCTRL_APORTSEL_APORT3X,
+  acmpExternalInputAPORT3Y  = _ACMP_EXTIFCTRL_APORTSEL_APORT3Y,
+  acmpExternalInputAPORT3XY = _ACMP_EXTIFCTRL_APORTSEL_APORT3XY,
+  acmpExternalInputAPORT4X  = _ACMP_EXTIFCTRL_APORTSEL_APORT4X,
+  acmpExternalInputAPORT4Y  = _ACMP_EXTIFCTRL_APORTSEL_APORT4Y,
+  acmpExternalInputAPORT4YX = _ACMP_EXTIFCTRL_APORTSEL_APORT4YX,
+} ACMP_ExternalInput_Typedef;
 #endif
 
 /*******************************************************************************
@@ -824,6 +853,9 @@ void ACMP_CapsenseChannelSet(ACMP_TypeDef *acmp, ACMP_Channel_TypeDef channel);
 void ACMP_ChannelSet(ACMP_TypeDef *acmp, ACMP_Channel_TypeDef negSel, ACMP_Channel_TypeDef posSel);
 void ACMP_Disable(ACMP_TypeDef *acmp);
 void ACMP_Enable(ACMP_TypeDef *acmp);
+#if defined(_ACMP_EXTIFCTRL_MASK)
+void ACMP_ExternalInputSelect(ACMP_TypeDef *acmp, ACMP_ExternalInput_Typedef aport);
+#endif
 void ACMP_GPIOSetup(ACMP_TypeDef *acmp, uint32_t location, bool enable, bool invert);
 void ACMP_Init(ACMP_TypeDef *acmp, const ACMP_Init_TypeDef *init);
 void ACMP_Reset(ACMP_TypeDef *acmp);
