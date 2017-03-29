@@ -1,17 +1,31 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ *******************************************************************************
+ * Copyright (c) 2017, STMicroelectronics
+ * All rights reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. Neither the name of STMicroelectronics nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *******************************************************************************
  */
 
 #include "flash_api.h"
@@ -138,6 +152,7 @@ uint32_t flash_get_size(const flash_t *obj)
   */
 static uint32_t GetSector(uint32_t address)
 {
+<<<<<<< HEAD
     uint32_t sector = 0; 
     uint32_t tmp = address - ADDR_FLASH_SECTOR_0;
     if (address & 0x100000) { // handle 2nd bank
@@ -153,6 +168,107 @@ static uint32_t GetSector(uint32_t address)
         sector += 4 + (tmp >>17);
     }
     printf("address:0X%04x%04x, secteur: %d\n", (address>>16)&0XFFFF, (address&0XFFFF), sector);
+=======
+  uint32_t sector = 0;
+  
+  if((address < ADDR_FLASH_SECTOR_1) && (address >= ADDR_FLASH_SECTOR_0))
+  {
+    sector = FLASH_SECTOR_0;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_2) && (address >= ADDR_FLASH_SECTOR_1))
+  {
+    sector = FLASH_SECTOR_1;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_3) && (address >= ADDR_FLASH_SECTOR_2))
+  {
+    sector = FLASH_SECTOR_2;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_4) && (address >= ADDR_FLASH_SECTOR_3))
+  {
+    sector = FLASH_SECTOR_3;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_5) && (address >= ADDR_FLASH_SECTOR_4))
+  {
+    sector = FLASH_SECTOR_4;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_6) && (address >= ADDR_FLASH_SECTOR_5))
+  {
+    sector = FLASH_SECTOR_5;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_7) && (address >= ADDR_FLASH_SECTOR_6))
+  {
+    sector = FLASH_SECTOR_6;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_8) && (address >= ADDR_FLASH_SECTOR_7))
+  {
+    sector = FLASH_SECTOR_7;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_9) && (address >= ADDR_FLASH_SECTOR_8))
+  {
+    sector = FLASH_SECTOR_8;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_10) && (address >= ADDR_FLASH_SECTOR_9))
+  {
+    sector = FLASH_SECTOR_9;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_11) && (address >= ADDR_FLASH_SECTOR_10))
+  {
+    sector = FLASH_SECTOR_10;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_12) && (address >= ADDR_FLASH_SECTOR_11))
+  {
+    sector = FLASH_SECTOR_11;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_13) && (address >= ADDR_FLASH_SECTOR_12))
+  {
+    sector = FLASH_SECTOR_12;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_14) && (address >= ADDR_FLASH_SECTOR_13))
+  {
+    sector = FLASH_SECTOR_13;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_15) && (address >= ADDR_FLASH_SECTOR_14))
+  {
+    sector = FLASH_SECTOR_14;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_16) && (address >= ADDR_FLASH_SECTOR_15))
+  {
+    sector = FLASH_SECTOR_15;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_17) && (address >= ADDR_FLASH_SECTOR_16))
+  {
+    sector = FLASH_SECTOR_16;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_18) && (address >= ADDR_FLASH_SECTOR_17))
+  {
+    sector = FLASH_SECTOR_17;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_19) && (address >= ADDR_FLASH_SECTOR_18))
+  {
+    sector = FLASH_SECTOR_18;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_20) && (address >= ADDR_FLASH_SECTOR_19))
+  {
+    sector = FLASH_SECTOR_19;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_21) && (address >= ADDR_FLASH_SECTOR_20))
+  {
+    sector = FLASH_SECTOR_20;  
+  } 
+  else if((address < ADDR_FLASH_SECTOR_22) && (address >= ADDR_FLASH_SECTOR_21))
+  {
+    sector = FLASH_SECTOR_21;  
+  }
+  else if((address < ADDR_FLASH_SECTOR_23) && (address >= ADDR_FLASH_SECTOR_22))
+  {
+    sector = FLASH_SECTOR_22;  
+  }
+  else/*(address < FLASH_END_ADDR) && (address >= ADDR_FLASH_SECTOR_23))*/
+  {
+    sector = FLASH_SECTOR_23;  
+  }
+
+>>>>>>> 634df4142... fix STM32F439 flash HAL
   return sector;
 }
 
@@ -163,6 +279,7 @@ static uint32_t GetSector(uint32_t address)
   */
 static uint32_t GetSectorSize(uint32_t Sector)
 {
+<<<<<<< HEAD
     uint32_t sectorsize = 0x00;
     if((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || (Sector == FLASH_SECTOR_2) ||\
        (Sector == FLASH_SECTOR_3) || (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) ||\
@@ -174,6 +291,24 @@ static uint32_t GetSectorSize(uint32_t Sector)
         sectorsize = 128 * 1024;
     }  
     return sectorsize;
+=======
+  uint32_t sectorsize = 0x00;
+  if((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || (Sector == FLASH_SECTOR_2) ||\
+     (Sector == FLASH_SECTOR_3) || (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) ||\
+     (Sector == FLASH_SECTOR_14) || (Sector == FLASH_SECTOR_15))
+  {
+    sectorsize = 16 * 1024;
+  }
+  else if((Sector == FLASH_SECTOR_4) || (Sector == FLASH_SECTOR_16))
+  {
+    sectorsize = 64 * 1024;
+  }
+  else
+  {
+    sectorsize = 128 * 1024;
+  }  
+  return sectorsize;
+>>>>>>> 634df4142... fix STM32F439 flash HAL
 }
 
 #endif
