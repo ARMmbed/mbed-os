@@ -45,6 +45,7 @@ void gpio_irq_free(gpio_irq_t *obj)
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable) 
 {
+    HAL_GPIO_MaskIrq(&obj->hal_pin);
     switch((uint32_t)event) {
         case IRQ_RISE:
             obj->hal_pin.pin_mode = INT_RISING;
@@ -73,6 +74,12 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     HAL_GPIO_Init_8195a(&obj->hal_pin);
 
     HAL_GPIO_IntCtrl(&obj->hal_pin, enable);
+    if(enable){
+        HAL_GPIO_UnMaskIrq(&obj->hal_pin);
+    }
+    else{
+        HAL_GPIO_MaskIrq(&obj->hal_pin);
+	}
 }
 
 void gpio_irq_enable(gpio_irq_t *obj) 
