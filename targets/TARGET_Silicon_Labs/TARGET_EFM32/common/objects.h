@@ -145,6 +145,11 @@ typedef enum {
 } sleepstate_enum;
 #endif
 
+#if DEVICE_FLASH
+struct flash_s {
+    MSC_TypeDef *msc;
+};
+#endif
 
 #ifdef __cplusplus
 }
