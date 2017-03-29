@@ -54,18 +54,18 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 {
 #ifdef NRF_RNG_NON_BLOCKING
     uint8_t bytes_available;
+    
     nrf_drv_rng_bytes_available(&bytes_available);
-    if ((bytes_available < length) || (nrf_drv_rng_rand(output, length) == NRF_ERROR_NOT_FOUND))
-    {
+    
+    if ((bytes_available < length) || (nrf_drv_rng_rand(output, length) == NRF_ERROR_NOT_FOUND)) {
+        *output_length = 0;
         return -1;
     }
-    else
-#else
-    nrf_drv_rng_block_rand(output, length);
 #endif
-    {
-        *output_length = length;
-    }
+    nrf_drv_rng_block_rand(output, length);
+
+    *output_length = length;
+
     return 0;
 }
 
