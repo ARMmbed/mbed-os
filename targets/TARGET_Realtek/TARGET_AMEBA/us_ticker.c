@@ -27,6 +27,7 @@ static int us_ticker_inited = 0;
 static TIMER_ADAPTER TimerAdapter;
 
 extern HAL_TIMER_OP HalTimerOp;
+extern HAL_TIMER_OP_EXT HalTimerOpExt;
 
 VOID _us_ticker_irq_handler(IN  VOID *Data)
 {
@@ -126,8 +127,8 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         time_def = TIMER_TICK_US;       // at least 1 tick
     }
 	HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
-	HalTimerOp.HalTimerReLoad((u32)TimerAdapter.TimerId, time_def);
-	HalTimerOp.HalTimerIrqEn((u32)TimerAdapter.TimerId);
+	HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, time_def);
+	HalTimerOpExt.HalTimerIrqEn((u32)TimerAdapter.TimerId);
 	HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
 	//printf("us_ticker_set_interrupt %d\r\n",timestamp);
 
