@@ -12,7 +12,7 @@ from os.path import normpath, realpath
 
 from tools.paths import EXPORT_DIR, MBED_HAL, MBED_LIBRARIES, MBED_TARGETS_PATH
 from tools.settings import BUILD_DIR
-from tools.export import EXPORTERS, mcu_ide_matrix
+from tools.export import EXPORTERS, mcu_ide_matrix, export_project, get_exporter_toolchain
 from tools.tests import TESTS, TEST_MAP
 from tools.tests import test_known, test_name_known, Test
 from tools.targets import TARGET_NAMES
@@ -20,7 +20,6 @@ from tools.utils import argparse_filestring_type, argparse_profile_filestring_ty
 from tools.utils import argparse_force_lowercase_type
 from tools.utils import argparse_force_uppercase_type
 from tools.utils import print_large_string
-from tools.project_api import export_project, get_exporter_toolchain
 from tools.options import extract_profile, list_profiles
 
 def setup_project(ide, target, program=None, source_dir=None, build=None, export_path=None):
