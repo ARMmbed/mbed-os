@@ -111,6 +111,11 @@ struct i2c_s {
 #endif
 };
 
+struct flash_s {
+    /*  nothing to be stored for now */
+    uint32_t dummy;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
