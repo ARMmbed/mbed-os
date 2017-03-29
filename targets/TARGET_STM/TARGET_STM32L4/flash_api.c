@@ -21,28 +21,6 @@
 #include "mbed_assert.h"
 #include "cmsis.h"
 
-/* Private constants --------------------------------------------------------*/
-/** @defgroup FLASH_Private_Constants FLASH Private Constants
-  * @{
-  */
-#define FLASH_SIZE_DATA_REGISTER           ((uint32_t)0x1FFF75E0)
-
-#if defined (STM32L451xx) || defined (STM32L452xx) || defined (STM32L462xx)
-#define FLASH_SIZE                         ((((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0xFFFF)) ? (0x200 << 10) : \
-                                            (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) & (0x0FFF)) << 10))
-#else
-#define FLASH_SIZE                         ((((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) == 0xFFFF)) ? (0x400 << 10) : \
-                                            (((*((uint16_t *)FLASH_SIZE_DATA_REGISTER)) & (0x0FFF)) << 10))
-#endif
-
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
-#define FLASH_BANK_SIZE                    (FLASH_SIZE >> 1)
-#else
-#define FLASH_BANK_SIZE                    (FLASH_SIZE)
-#endif
-
-#define FLASH_PAGE_SIZE                    ((uint32_t)0x800)
-
 /**
   * @brief  Gets the page of a given address
   * @param  Addr: Address of the FLASH Memory
