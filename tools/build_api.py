@@ -283,6 +283,8 @@ def add_regions_to_profile(profile, config, toolchain_class):
     config - the configuration object that owns the region
     toolchain_class - the class of the toolchain being used
     """
+    if not profile:
+        return
     regions = list(config.regions)
     for region in regions:
         for define in [(region.name.upper() + "_ADDR", region.start),
