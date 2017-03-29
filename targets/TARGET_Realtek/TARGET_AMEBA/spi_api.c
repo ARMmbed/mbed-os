@@ -145,6 +145,7 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
     pHalSsiAdaptor->HaveRxChannel = 0;
 #endif
 #endif
+	osDelay(1);
 }
 
 void spi_free (spi_t *obj)

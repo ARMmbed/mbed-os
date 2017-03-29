@@ -44,17 +44,24 @@ typedef struct _HAL_TIMER_OP_ {
     u32  (*HalGetTimerId)(u32 *TimerId);
     BOOL (*HalTimerInit)(VOID *Data);
     u32  (*HalTimerReadCount)(u32 TimerId);
-	VOID (*HalTimerIrqEn)(u32 TimerId);
+	//VOID (*HalTimerIrqEn)(u32 TimerId);
     VOID (*HalTimerIrqClear)(u32 TimerId);
     VOID (*HalTimerDis)(u32 TimerId);
     VOID (*HalTimerEn)(u32 TimerId);
     VOID (*HalTimerDumpReg)(u32 TimerId);
-	VOID (*HalTimerReLoad)(u32 TimerId, u32 LoadUs);
+	//VOID (*HalTimerReLoad)(u32 TimerId, u32 LoadUs);
 }HAL_TIMER_OP, *PHAL_TIMER_OP;
+
+typedef struct _HAL_TIMER_OP_EXT_ {
+	PHAL_TIMER_OP phal_timer_op_rom;
+	VOID (*HalTimerIrqEn)(u32 TimerId);
+	VOID (*HalTimerReLoad)(u32 TimerId, u32 LoadUs);
+}HAL_TIMER_OP_EXT, *PHAL_TIMER_OP_EXT;
 
 #ifdef CONFIG_TIMER_MODULE
 // This variable declared in ROM code
 extern HAL_TIMER_OP HalTimerOp;
+extern HAL_TIMER_OP_EXT HalTimerOpExt;
 #endif
 
 VOID HalTimerOpInit_Patch(
