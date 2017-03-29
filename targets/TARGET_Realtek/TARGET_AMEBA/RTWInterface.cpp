@@ -186,7 +186,7 @@ nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
 		} 
 		rtw_free_sema(&scan_sema);
 		return ApNum;
-	}else if(count > 0 && res != NULL){
+	}else if(count > 0 && res != NULL){
 		count = count < maxApNum ? count : maxApNum;
 		for(int i = 0; i < count; i++){
 			memcpy(&res[i], SCANED_AP[i], sizeof(WiFiAccessPoint));
