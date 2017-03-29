@@ -54,7 +54,7 @@ int32_t flash_init(flash_t *obj)
 }
 int32_t flash_free(flash_t *obj)
 {
-    /* Disable the Flash option control register access (recommended to protect 
+    /* Disable the Flash option control register access (recommended to protect
     the option Bytes against possible unwanted operations) */
     if (HAL_FLASH_Lock()) {
         return -1;
@@ -68,12 +68,12 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     static FLASH_EraseInitTypeDef EraseInitStruct;
     uint32_t FirstSector;
     uint32_t SectorError = 0;
- 
+
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
 
         return -1;
     }
-   
+
     /* Get the 1st sector to erase */
     FirstSector = GetSector(address);
 
@@ -123,7 +123,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
-    
+
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return MBED_FLASH_INVALID_SIZE;
     }
@@ -142,7 +142,7 @@ uint32_t flash_get_start_address(const flash_t *obj)
 }
 uint32_t flash_get_size(const flash_t *obj)
 {
-    return FLASH_SIZE;    
+    return FLASH_SIZE;
 }
 
 /**
@@ -152,21 +152,19 @@ uint32_t flash_get_size(const flash_t *obj)
   */
 static uint32_t GetSector(uint32_t address)
 {
-    uint32_t sector = 0; 
+    uint32_t sector = 0;
     uint32_t tmp = address - ADDR_FLASH_SECTOR_0;
     if (address & 0x100000) { // handle 2nd bank
         sector = FLASH_SECTOR_12;
         tmp = address - ADDR_FLASH_SECTOR_12;
     }
     if (address < ADDR_FLASH_SECTOR_4) { // 16k sectorsize
-        //printf("tmp for sectors less than 4: 0X%4x")
         sector += tmp >>14;
     } else if (address < ADDR_FLASH_SECTOR_5) { //64k sector size
-        sector += FLASH_SECTOR_4; 
+        sector += FLASH_SECTOR_4;
     } else {
         sector += 4 + (tmp >>17);
     }
-    printf("address:0X%04x%04x, secteur: %d\n", (address>>16)&0XFFFF, (address&0XFFFF), sector);
   return sector;
 }
 
@@ -186,7 +184,7 @@ static uint32_t GetSectorSize(uint32_t Sector)
         sectorsize = 64 * 1024;
     } else {
         sectorsize = 128 * 1024;
-    }  
+    }
     return sectorsize;
 }
 
