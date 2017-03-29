@@ -100,6 +100,8 @@ class GCC(mbedToolchain):
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
 
+        self.hook.post_target_hook(self)
+
     def parse_dependencies(self, dep_path):
         dependencies = []
         buff = open(dep_path).readlines()
@@ -183,7 +185,7 @@ class GCC(mbedToolchain):
         cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-o", object, source]
 
         # Call cmdline hook
-        cmd = self.hook.get_cmdline_assembler(cmd)
+        cmd = self.hook.get_cmdline_assemble(cmd)
 
         # Return command array, don't execute
         return [cmd]
@@ -198,7 +200,7 @@ class GCC(mbedToolchain):
         cmd.extend(["-o", object, source])
 
         # Call cmdline hook
-        cmd = self.hook.get_cmdline_compiler(cmd)
+        cmd = self.hook.get_cmdline_compile(cmd)
 
         return [cmd]
 
@@ -236,7 +238,7 @@ class GCC(mbedToolchain):
         cmd.extend(libs)
 
         # Call cmdline hook
-        cmd = self.hook.get_cmdline_linker(cmd)
+        cmd = self.hook.get_cmdline_link(cmd)
 
         if self.RESPONSE_FILES:
             # Split link command to linker executable + response file
