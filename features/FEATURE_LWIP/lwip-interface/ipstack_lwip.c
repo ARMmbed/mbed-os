@@ -21,7 +21,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "eth_arch.h"
+#include "emac_lwip.h"
 #include "lwip/opt.h"
 #include "lwip/api.h"
 #include "lwip/inet.h"

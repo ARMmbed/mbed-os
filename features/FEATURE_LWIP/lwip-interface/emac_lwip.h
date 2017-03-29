@@ -1,4 +1,4 @@
-/* EthernetInterface.h */
+/* emac_lwip.h */
 /* Copyright (C) 2012 mbed.org, MIT License
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
@@ -17,11 +17,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// Architecture specific Ethernet interface
-// Must be implemented by each target
-
-#ifndef ETHARCH_H_
-#define ETHARCH_H_
+#ifndef EMAC_LWIP_H_
+#define EMAC_LWIP_H_
 
 #include "lwip/netif.h"
 
@@ -35,4 +32,4 @@ err_t emac_lwip_if_init(struct netif *netif);
 }
 #endif
 
-#endif // #ifndef ETHARCHINTERFACE_H_
+#endif // #ifndef EMAC_LWIP_H_

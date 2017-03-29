@@ -29,7 +29,7 @@ class NetworkStack;
 /** EthernetInterface class
  *  Implementation of the NetworkStack for mbed OS IP stack and EMAC APIs
  */
-class EthernetInterface : public EthInterface
+class EthernetInterface : public NetworkInterface
 {
 public:
     /** EthernetInterface lifetime
