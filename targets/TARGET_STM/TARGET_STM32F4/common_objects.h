@@ -111,7 +111,7 @@ struct i2c_s {
 };
 #if DEVICE_FLASH
 struct flash_s {
-    uint32_t toto;
+    uint32_t dummy;
 };
 #endif
 #define GPIO_IP_WITHOUT_BRR
