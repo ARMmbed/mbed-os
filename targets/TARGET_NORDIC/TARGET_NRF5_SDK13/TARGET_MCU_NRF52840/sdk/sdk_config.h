@@ -1566,7 +1566,7 @@
 // <e> RTC_ENABLED - nrf_drv_rtc - RTC peripheral driver
 //==========================================================
 #ifndef RTC_ENABLED
-#define RTC_ENABLED 0
+#define RTC_ENABLED 1
 #endif
 #if  RTC_ENABLED
 // <o> RTC_DEFAULT_CONFIG_FREQUENCY - Frequency  <16-32768> 
