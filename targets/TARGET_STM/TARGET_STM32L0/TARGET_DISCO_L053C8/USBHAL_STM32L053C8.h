@@ -53,12 +53,14 @@ uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
         return 1024;
 }
 
-void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state){
+void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
+{
     USBHAL_Private_t *priv=((USBHAL_Private_t *)(hpcd->pData));
     gpio_write(&(priv->usb_switch),state);
 }
 
-void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd) {
+void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
+{
     USBHAL_Private_t *priv=((USBHAL_Private_t *)(hpcd->pData));
     USBHAL *obj= priv->inst;
     uint32_t sofnum = (hpcd->Instance->FNR) & USB_FNR_FN;
@@ -68,7 +70,8 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd) {
 
 USBHAL * USBHAL::instance;
 
-USBHAL::USBHAL(void) {
+USBHAL::USBHAL(void)
+{
     /*  init parameter  */
     USBHAL_Private_t *HALPriv = new(USBHAL_Private_t);
     hpcd.Instance = USB;
