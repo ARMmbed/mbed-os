@@ -20,8 +20,6 @@
 #include "utest.h"
 #include "rtos.h"
 
-using namespace utest::v1;
-
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -48,6 +46,8 @@ using namespace utest::v1;
 #define MBEDTLS_EXIT_SUCCESS EXIT_SUCCESS
 #define MBEDTLS_EXIT_FAILURE EXIT_FAILURE
 #endif
+
+using namespace utest::v1;
 
 #define MBEDTLS_SELF_TEST_TEST_CASE(self_test_function) \
     void self_test_function ## _test_case() {           \
