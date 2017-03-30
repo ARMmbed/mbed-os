@@ -21,7 +21,7 @@
 
 
 FileSystem::FileSystem(const char *name)
-    : FileBase(name, FileSystemPathType)
+    : FileSystemLike(name)
 {
 }
 
@@ -109,3 +109,37 @@ size_t FileSystem::dir_size(fs_dir_t dir)
     return size;
 }
 
+template <typename F>
+class Managed : public F {
+public:
+    virtual int close() {
+        int err = F::close();
+        delete this;
+        return err;
+    }
+};
+
+int FileSystem::open(FileHandle **file, const char *path, int flags)
+{
+    File *f = new Managed<File>;
+    int err = f->open(this, path, flags);
+    if (err) {
+        delete f;
+        return err;
+    }
+
+    *file = f;
+    return 0;
+}
+
+int FileSystem::open(DirHandle **dir, const char *path) {
+    Dir *d = new Managed<Dir>;
+    int err = d->open(this, path);
+    if (err) {
+        delete d;
+        return err;
+    }
+
+    *dir = d;
+    return 0;
+}

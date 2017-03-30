@@ -13,41 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_FILEPATH_H
-#define MBED_FILEPATH_H
 
-#include "platform/platform.h"
+#include "mbed.h"
+#include "FileSystemHandle.h"
+#include <errno.h>
 
-#include "platform/FileSystemLike.h"
-#include "platform/FileLike.h"
+int FileSystemHandle::open(DirHandle **dir, const char *path)
+{
+    return -ENOSYS;
+}
 
-namespace mbed {
-/** \addtogroup platform */
+int FileSystemHandle::remove(const char *path)
+{
+    return -ENOSYS;
+}
 
-/**
- * @class FileSystem
- * @ingroup platform
- */
-class FileSystem;
+int FileSystemHandle::rename(const char *path, const char *newpath)
+{
+    return -ENOSYS;
+}
 
-class FilePath {
-public:
-    FilePath(const char* file_path);
+int FileSystemHandle::stat(const char *path, struct stat *st)
+{
+    return -ENOSYS;
+}
 
-    const char* fileName(void);
-
-    bool          isFileSystem(void);
-    FileSystemLike* fileSystem(void);
-
-    bool    isFile(void);
-    FileLike* file(void);
-    bool    exists(void);
-
-private:
-    const char* file_name;
-    FileBase* fb;
-};
-
-} // namespace mbed
-
-#endif
+int FileSystemHandle::mkdir(const char *path, mode_t mode)
+{
+    return -ENOSYS;
+}

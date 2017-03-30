@@ -24,11 +24,6 @@
 #include "platform/mbed_error.h"
 #include "platform/mbed_stats.h"
 #include "platform/mbed_critical.h"
-#if MBED_CONF_FILESYSTEM_PRESENT
-#include "filesystem/FileSystem.h"
-#include "filesystem/File.h"
-#include "filesystem/Dir.h"
-#endif
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -134,7 +129,6 @@ static int handle_open_errors(int error, unsigned filehandle_idx) {
     return -1;
 }
 
-#if MBED_CONF_FILESYSTEM_PRESENT
 static inline int openmode_to_posix(int openmode) {
     int posix = openmode;
 #ifdef __ARMCC_VERSION
@@ -169,28 +163,25 @@ static inline int openmode_to_posix(int openmode) {
 #endif
     return posix;
 }
-#endif
 
-#if MBED_CONF_FILESYSTEM_PRESENT
 // Internally used file objects with managed memory on close
-class ManagedFile : public File {
+class ManagedFile : public FileHandle {
 public:
     virtual int close() {
-        int err = File::close();
+        int err = FileHandle::close();
         delete this;
         return err;
     }
 };
 
-class ManagedDir : public Dir {
+class ManagedDir : public DirHandle {
 public:
      virtual int close() {
-        int err = Dir::close();
+        int err = DirHandle::close();
         delete this;
         return err;
     }
 };
-#endif
 
 /* @brief 	standard c library fopen() retargeting function.
  *
@@ -261,21 +252,16 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
 
         if (path.isFile()) {
             res = path.file();
-#if MBED_CONF_FILESYSTEM_PRESENT
         } else {
-            FileSystem *fs = path.fileSystem();
+            FileSystemHandle *fs = path.fileSystem();
             if (fs == NULL) {
                 return handle_open_errors(-ENOENT, fh_i);
             }
             int posix_mode = openmode_to_posix(openmode);
-            File *file = new ManagedFile;
-            int err = file->open(fs, path.fileName(), posix_mode);
-            if (err < 0) {
-                delete file;
+            int err = fs->open(&res, path.fileName(), posix_mode);
+            if (err) {
                 return handle_open_errors(err, fh_i);
             }
-            res = file;
-#endif
         }
     }
 
@@ -532,9 +518,8 @@ extern "C" int _fstat(int fd, struct stat *st) {
 
 namespace std {
 extern "C" int remove(const char *path) {
-#if MBED_CONF_FILESYSTEM_PRESENT
     FilePath fp(path);
-    FileSystem *fs = fp.fileSystem();
+    FileSystemHandle *fs = fp.fileSystem();
     if (fs == NULL) {
         errno = ENOENT;
         return -1;
@@ -547,18 +532,13 @@ extern "C" int remove(const char *path) {
     } else {
         return 0;
     }
-#else
-    errno = ENOSYS;
-    return -1;
-#endif
 }
 
 extern "C" int rename(const char *oldname, const char *newname) {
-#if MBED_CONF_FILESYSTEM_PRESENT
     FilePath fpOld(oldname);
     FilePath fpNew(newname);
-    FileSystem *fsOld = fpOld.fileSystem();
-    FileSystem *fsNew = fpNew.fileSystem();
+    FileSystemHandle *fsOld = fpOld.fileSystem();
+    FileSystemHandle *fsNew = fpNew.fileSystem();
 
     if (fsOld == NULL) {
         errno = ENOENT;
@@ -578,10 +558,6 @@ extern "C" int rename(const char *oldname, const char *newname) {
     } else {
         return 0;
     }
-#else
-    errno = ENOSYS;
-    return -1;
-#endif
 }
 
 extern "C" char *tmpnam(char *s) {
@@ -602,31 +578,24 @@ extern "C" char *_sys_command_string(char *cmd, int len) {
 #endif
 
 extern "C" DIR *opendir(const char *path) {
-#if MBED_CONF_FILESYSTEM_PRESENT
     FilePath fp(path);
-    FileSystem* fs = fp.fileSystem();
+    FileSystemHandle* fs = fp.fileSystem();
     if (fs == NULL) {
         errno = ENOENT;
         return NULL;
     }
 
-    Dir *dir = new ManagedDir;
-    int err = dir->open(fs, fp.fileName());
+    DirHandle *dir;
+    int err = fs->open(&dir, fp.fileName());
     if (err < 0) {
         errno = -err;
-        delete dir;
-        dir = NULL;
+        return NULL;
     }
 
     return dir;
-#else
-    errno = ENOSYS;
-    return 0;
-#endif
 }
 
 extern "C" struct dirent *readdir(DIR *dir) {
-#if MBED_CONF_FILESYSTEM_PRESENT
     static struct dirent ent;
     int err = dir->read(&ent);
     if (err < 1) {
@@ -637,14 +606,9 @@ extern "C" struct dirent *readdir(DIR *dir) {
     }
 
     return &ent;
-#else
-    errno = ENOSYS;
-    return 0;
-#endif
 }
 
 extern "C" int closedir(DIR *dir) {
-#if MBED_CONF_FILESYSTEM_PRESENT
     int err = dir->close();
     if (err < 0) {
         errno = -err;
@@ -652,41 +616,23 @@ extern "C" int closedir(DIR *dir) {
     } else {
         return 0;
     }
-#else
-    errno = ENOSYS;
-    return -1;
-#endif
 }
 
 extern "C" void rewinddir(DIR *dir) {
-#if MBED_CONF_FILESYSTEM_PRESENT
     dir->rewind();
-#else
-    errno = ENOSYS;
-#endif
 }
 
 extern "C" off_t telldir(DIR *dir) {
-#if MBED_CONF_FILESYSTEM_PRESENT
     return dir->tell();
-#else
-    errno = ENOSYS;
-    return 0;
-#endif
 }
 
 extern "C" void seekdir(DIR *dir, off_t off) {
-#if MBED_CONF_FILESYSTEM_PRESENT
     dir->seek(off);
-#else
-    errno = ENOSYS;
-#endif
 }
 
 extern "C" int mkdir(const char *path, mode_t mode) {
-#if MBED_CONF_FILESYSTEM_PRESENT
     FilePath fp(path);
-    FileSystem *fs = fp.fileSystem();
+    FileSystemHandle *fs = fp.fileSystem();
     if (fs == NULL) return -1;
 
     int err = fs->mkdir(fp.fileName(), mode);
@@ -696,16 +642,11 @@ extern "C" int mkdir(const char *path, mode_t mode) {
     } else {
         return 0;
     }
-#else
-    errno = ENOSYS;
-    return -1;
-#endif
 }
 
 extern "C" int stat(const char *path, struct stat *st) {
-#if MBED_CONF_FILESYSTEM_PRESENT
     FilePath fp(path);
-    FileSystem *fs = fp.fileSystem();
+    FileSystemHandle *fs = fp.fileSystem();
     if (fs == NULL) return -1;
 
     int err = fs->stat(fp.fileName(), st);
@@ -715,10 +656,6 @@ extern "C" int stat(const char *path, struct stat *st) {
     } else {
         return 0;
     }
-#else
-    errno = ENOSYS;
-    return -1;
-#endif
 }
 
 #if defined(TOOLCHAIN_GCC)

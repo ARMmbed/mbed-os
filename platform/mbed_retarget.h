@@ -52,11 +52,11 @@ typedef int mode_t;     ///< Mode for opening files
 /* DIR declarations must also be here */
 #if __cplusplus
 namespace mbed {
-class Dir;
 class FileHandle;
+class DirHandle;
 std::FILE *mbed_fdopen(FileHandle *fh, const char *mode);
 }
-typedef mbed::Dir DIR;
+typedef mbed::DirHandle DIR;
 #else
 typedef struct Dir DIR;
 #endif
