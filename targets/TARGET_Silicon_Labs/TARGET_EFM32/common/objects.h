@@ -117,7 +117,8 @@ struct serial_s {
 #if DEVICE_SPI
 struct spi_s {
     USART_TypeDef *spi;
-    int location;
+    uint32_t location;
+    uint32_t route;
     uint8_t bits;
     uint8_t master;
 #if DEVICE_SPI_ASYNCH
