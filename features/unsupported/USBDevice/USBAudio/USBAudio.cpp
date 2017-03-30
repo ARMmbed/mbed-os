@@ -113,9 +113,13 @@ bool USBAudio::write(uint8_t * buf) {
     return true;
 }
 
-void USBAudio::writeSync(uint8_t *buf)
+void USBAudio::writeSync(uint8_t *buf, AudioSampleCorrectType jitter_nb)
 {
-    USBDevice::writeNB(EPISO_IN, buf, PACKET_SIZE_ISO_OUT, PACKET_SIZE_ISO_OUT);
+    if ((jitter_nb != RemoveOneSample) && (jitter_nb != AddOneSample)) {
+        jitter_nb = NoCorrection;
+    }
+    /* each sample is 2 bytes */
+    USBDevice::writeNB(EPISO_IN, buf, PACKET_SIZE_ISO_OUT + jitter_nb *(this->channel_nb_out*2), PACKET_SIZE_ISO_OUT+this->channel_nb_out*2);
 }
 
 uint32_t USBAudio::readSync(uint8_t *buf)
@@ -195,7 +199,7 @@ bool USBAudio::USBCallback_setConfiguration(uint8_t configuration) {
 
     // Configure isochronous endpoint
     realiseEndpoint(EPISO_OUT, PACKET_SIZE_ISO_IN, ISOCHRONOUS);
-    realiseEndpoint(EPISO_IN, PACKET_SIZE_ISO_OUT, ISOCHRONOUS);
+    realiseEndpoint(EPISO_IN, PACKET_SIZE_ISO_OUT+this->channel_nb_out*2, ISOCHRONOUS);
 
     // activate readings on this endpoint
     readStart(EPISO_OUT, PACKET_SIZE_ISO_IN);
@@ -597,8 +601,8 @@ uint8_t * USBAudio::configurationDesc() {
         ENDPOINT_DESCRIPTOR,                    // bDescriptorType
         PHY_TO_DESC(EPISO_IN),                  // bEndpointAddress
         E_ISOCHRONOUS,                          // bmAttributes
-        (uint8_t)(LSB(PACKET_SIZE_ISO_OUT)),                   // wMaxPacketSize
-        (uint8_t)(MSB(PACKET_SIZE_ISO_OUT)),                   // wMaxPacketSize
+        (uint8_t)(LSB(PACKET_SIZE_ISO_OUT+channel_nb_out*2)),                   // wMaxPacketSize
+        (uint8_t)(MSB(PACKET_SIZE_ISO_OUT+channel_nb_out*2)),                   // wMaxPacketSize
         0x01,                                   // bInterval
         0x00,                                   // bRefresh
         0x00,                                   // bSynchAddress

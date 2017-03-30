@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_i2c.h
  * @brief Inter-intergrated circuit (I2C) peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -68,12 +68,17 @@ extern "C" {
  * @note
  *   Due to chip characteristics, the max value is somewhat reduced.
  */
-#if defined(_EFM32_GECKO_FAMILY) || defined(_EFM32_TINY_FAMILY) \
-    || defined(_EFM32_ZERO_FAMILY) || defined(_EFM32_HAPPY_FAMILY)
+#if defined(_SILICON_LABS_32B_SERIES_0)     \
+    && (defined(_EFM32_GECKO_FAMILY)        \
+        || defined(_EFM32_TINY_FAMILY)      \
+        || defined(_EFM32_ZERO_FAMILY)      \
+        || defined(_EFM32_HAPPY_FAMILY))
 #define I2C_FREQ_STANDARD_MAX    93000
-#elif defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY)
+#elif defined(_SILICON_LABS_32B_SERIES_0)   \
+      && (defined(_EFM32_GIANT_FAMILY)      \
+          || defined(_EFM32_WONDER_FAMILY))
 #define I2C_FREQ_STANDARD_MAX    92000
-#elif defined(_SILICON_LABS_32B_PLATFORM_2)
+#elif defined(_SILICON_LABS_32B_SERIES_1)
 // None of the chips on this platform has been characterized on this parameter.
 // Use same value as on Wonder until further notice.
 #define I2C_FREQ_STANDARD_MAX    92000

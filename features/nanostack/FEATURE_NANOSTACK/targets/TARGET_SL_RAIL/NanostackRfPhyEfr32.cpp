@@ -67,6 +67,8 @@ static const RAIL_CsmaConfig_t csma_config = RAIL_CSMA_CONFIG_802_15_4_2003_2p4_
 #if defined(TARGET_EFR32MG1)
 #include "ieee802154_subg_efr32xg1_configurator_out.h"
 #include "ieee802154_efr32xg1_configurator_out.h"
+#elif defined(TARGET_EFR32MG12)
+#include "ieee802154_efr32xg12_configurator_out.h"
 #else
 #error "Not a valid target."
 #endif
@@ -78,7 +80,7 @@ static const RAIL_ChannelConfigEntry_t entry[] = {
 };
 
 #if MBED_CONF_SL_RAIL_BAND == 868
-#ifndef DEVICE_RF_SUBGHZ
+#ifndef MBED_CONF_SL_RAIL_HAS_SUBGIG
 #error "Sub-Gigahertz band is not supported on this target."
 #endif
 static const RAIL_ChannelConfig_t channels = {
@@ -86,7 +88,7 @@ static const RAIL_ChannelConfig_t channels = {
   1
 };
 #elif MBED_CONF_SL_RAIL_BAND == 915
-#ifndef DEVICE_RF_SUBGHZ
+#ifndef MBED_CONF_SL_RAIL_HAS_SUBGIG
 #error "Sub-Gigahertz band is not supported on this target."
 #endif
 static const RAIL_ChannelConfig_t channels = {
@@ -94,7 +96,7 @@ static const RAIL_ChannelConfig_t channels = {
   1
 };
 #elif MBED_CONF_SL_RAIL_BAND == 2400
-#ifndef DEVICE_RF_2P4GHZ
+#ifndef MBED_CONF_SL_RAIL_HAS_2P4
 #error "2.4GHz band is not supported on this target."
 #endif
 static const RAIL_ChannelConfig_t channels = {
@@ -111,7 +113,7 @@ static const RAIL_IEEE802154_Config_t config = { false, false,
 
 static const RAIL_Init_t railInitParams = { 140, 38400000, RAIL_CAL_ALL_PENDING };
 
-#if defined (DEVICE_RF_2P4GHZ)
+#if defined (MBED_CONF_SL_RAIL_HAS_2P4)
     // Set up the PA for 2.4 GHz operation
 static const RADIO_PAInit_t paInit2p4 = {
         PA_SEL_2P4_HP,    /* Power Amplifier mode */
@@ -122,7 +124,7 @@ static const RADIO_PAInit_t paInit2p4 = {
     };
 #endif
 
-#if defined (DEVICE_RF_SUBGHZ)
+#if defined (MBED_CONF_SL_RAIL_HAS_SUBGIG)
     // Set up the PA for sub-GHz operation
 static const RADIO_PAInit_t paInitSubGhz = {
         PA_SEL_SUBGIG,    /* Power Amplifier mode */
@@ -173,21 +175,19 @@ static int8_t rf_device_register(void)
 #endif
 
     // Set up PTI since it makes life so much easier
-#if defined(DEVICE_SL_PTI)
+#if defined(MBED_CONF_SL_RAIL_PTI) && (MBED_CONF_SL_RAIL_PTI == 1)
     RADIO_PTIInit_t ptiInit = {
-        RADIO_PTI_MODE_UART,    
-        1600000,                
-        6,       
-        // TODO: Configure PTI pinout using config system.
-        // Not very urgent, since all boards use the same pins now.               
-        gpioPortB,              
-        12,                     
-        6,                      
-        gpioPortB,              
-        11,                     
-        6,                      
-        gpioPortB,              
-        13,                     
+        MBED_CONF_SL_RAIL_PTI_MODE,
+        MBED_CONF_SL_RAIL_PTI_BAUDRATE,
+        MBED_CONF_SL_RAIL_PTI_DOUT_LOCATION,
+        MBED_CONF_SL_RAIL_PTI_DOUT_PORT,
+        MBED_CONF_SL_RAIL_PTI_DOUT_PIN,
+        MBED_CONF_SL_RAIL_PTI_DCLK_LOCATION,
+        MBED_CONF_SL_RAIL_PTI_DCLK_PORT,
+        MBED_CONF_SL_RAIL_PTI_DCLK_PIN,
+        MBED_CONF_SL_RAIL_PTI_DFRAME_LOCATION,
+        MBED_CONF_SL_RAIL_PTI_DFRAME_PORT,
+        MBED_CONF_SL_RAIL_PTI_DFRAME_PIN
     };
 
     RADIO_PTI_Init(&ptiInit);
@@ -196,13 +196,13 @@ static int8_t rf_device_register(void)
     // Set up RAIL
     RAIL_RfInit(&railInitParams);
     RAIL_ChannelConfig(&channels);
-#if MBED_CONF_SL_RAIL_BAND == 2400
+#if (MBED_CONF_SL_RAIL_BAND == 2400)
     RAIL_RadioConfig((void*) ieee802154_config_base);
     channel = 11;
 #elif (MBED_CONF_SL_RAIL_BAND == 915)
     RAIL_RadioConfig((void*) ieee802154_config_915);
     channel = 1;
-#elif MBED_CONF_SL_RAIL_BAND == 868
+#elif (MBED_CONF_SL_RAIL_BAND == 868)
     RAIL_RadioConfig((void*) ieee802154_config_863);
     channel = 0;
 #endif
@@ -286,8 +286,6 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
         data_length + 3
     };
 
-    tr_debug("Called TX, len %d, chan %d\n", data_length, channel);
-
     switch(radio_state) {
     case RADIO_UNINIT:
         tr_debug("Radio uninit\n");
@@ -326,6 +324,8 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
         } else {
             txOpt.waitForAck = false;
         }
+
+        //tr_debug("Called TX, len %d, chan %d, ack %d\n", data_length, channel, waiting_for_ack ? 1 : 0);
 
         if(RAIL_TxStartWithOptions(channel, &txOpt, &RAIL_CcaCsma, (RAIL_CsmaConfig_t*) &csma_config) == 0) {
           //Save packet number and sequence
@@ -612,7 +612,6 @@ void RAILCb_RfReady(void) {
  * @param[in] status A bit field that defines what event caused the callback
  */
 void RAILCb_TxRadioStatus(uint8_t status) {
-  tr_debug("Packet TX error %d\n", status);
    if(device_driver.phy_tx_done_cb != NULL) {
     if(status == RAIL_TX_CONFIG_BUFFER_UNDERFLOW ||
        status == RAIL_TX_CONFIG_CHANNEL_BUSY ||
@@ -624,6 +623,8 @@ void RAILCb_TxRadioStatus(uint8_t status) {
                                       PHY_LINK_CCA_FAIL,
                                       8,
                                       1);
+    } else {
+        tr_debug("Packet TX error %d\n", status);
     }
   }
   radio_state = RADIO_RX;
@@ -643,7 +644,13 @@ void RAILCb_TxRadioStatus(uint8_t status) {
  * @param[in] status The event that triggered this callback
  */
 void RAILCb_RxRadioStatus(uint8_t status) {
-  tr_debug("RXE %d\n", status);
+    switch(status) {
+        case RAIL_RX_CONFIG_ADDRESS_FILTERED:
+            break;
+        default:
+            tr_debug("RXE %d\n", status);
+            break;
+    }
 }
 
 /**
@@ -724,10 +731,10 @@ void RAILCb_RxPacketReceived(void *rxPacketHandle) {
             /* Save the pending bit */
             last_ack_pending_bit = (rxPacketInfo->dataPtr[1] & (1 << 4)) != 0;
             /* Tell the stack we got an ACK */
-            tr_debug("rACK\n");
+            //tr_debug("rACK\n");
             device_driver.phy_tx_done_cb( rf_radio_driver_id,
                                           current_tx_handle,
-                                          PHY_LINK_TX_DONE,
+                                          last_ack_pending_bit ? PHY_LINK_TX_DONE_PENDING : PHY_LINK_TX_DONE,
                                           1,
                                           1);
         } else {
@@ -745,7 +752,7 @@ void RAILCb_RxPacketReceived(void *rxPacketHandle) {
                 RAIL_AutoAckCancelAck();
             }
 
-            tr_debug("rPKT %d\n", rxPacketInfo->dataLength);
+            //tr_debug("rPKT %d\n", rxPacketInfo->dataLength);
             /* Feed the received packet into the stack */
             device_driver.phy_rx_cb(rxPacketInfo->dataPtr + 1, 
                                     rxPacketInfo->dataLength - 1, 
@@ -785,6 +792,7 @@ void RAILCb_IEEE802154_DataRequestCommand(RAIL_IEEE802154_Address_t *address) {
  */
 void RAILCb_RxAckTimeout(void) {
     if(waiting_for_ack) {
+        tr_debug("nACK\n");
         waiting_for_ack = false;
         device_driver.phy_tx_done_cb( rf_radio_driver_id,
                                       current_tx_handle,
@@ -824,4 +832,59 @@ static bool rail_checkAndSwitchChannel(uint8_t newChannel) {
     } else {
         return false;
     }
+}
+
+/**
+ * Callback that fires when the receive fifo exceeds the configured threshold
+ * value
+ *
+ * @param[in] bytesAvailable Number of bytes available in the receive fifo at
+ * the time of the callback dispatch
+ *
+ * @return void
+ * @warning You must implement a stub for this in your RAIL application.
+ *
+ * Callback that fires when the receive fifo exceeds the configured threshold
+ * value.  Provides the number of bytes available in the receive fifo at the
+ * time of the callback dispatch.
+ */
+void RAILCb_RxFifoAlmostFull(uint16_t bytesAvailable) {
+    tr_debug("RX near full (%d)\n", bytesAvailable);
+}
+
+/**
+ * Callback that fires when the transmit fifo falls under the configured
+ * threshold value
+ *
+ * @param[in] spaceAvailable Number of bytes open in the transmit fifo at the
+ * time of the callback dispatch
+ *
+ * @return void
+ * @warning You must implement a stub for this in your RAIL application.
+ *
+ * Callback that fires when the transmit fifo falls under the configured
+ * threshold value. It only fires if a rising edge occurs across this
+ * threshold. This callback will not fire on initailization nor after resetting
+ * the transmit fifo with RAIL_ResetFifo().
+ *
+ * Provides the number of bytes open in the transmit fifo at the time of the
+ * callback dispatch.
+ */
+void RAILCb_TxFifoAlmostEmpty(uint16_t spaceAvailable) {
+    tr_debug("TX near empty (%d)\n", spaceAvailable);
+}
+
+/**
+ * Callback for when AGC averaged RSSI is done
+ *
+ * @param avgRssi Contains the the RSSI in quarter dBm (dbm*4) on success and
+ * returns \ref RAIL_RSSI_INVALID if there was a problem computing the result.
+ *
+ * Called in response to RAIL_StartAverageRSSI() to indicate that the hardware
+ * has completed averaging. If you would like you can instead use the
+ * RAIL_AverageRSSIReady() to wait for completion and RAIL_GetAverageRSSI() to
+ * get the result.
+ */
+void RAILCb_RssiAverageDone(int16_t avgRssi) {
+    tr_debug("RSSI done (%d)\n", avgRssi);
 }

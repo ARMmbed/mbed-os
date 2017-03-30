@@ -16,6 +16,7 @@
 #include "gpio_api.h"
 #include "mbed_wait_api.h"
 #include "C027_api.h"
+#include "us_ticker_api.h"
 
 static gpio_t mdmEn, mdmLvlOe, mdmILvlOe, mdmUsbDet;
 static gpio_t gpsEn;
@@ -36,7 +37,10 @@ void c027_init(void) {
     // led should be off
     gpio_init_out_ex(&led,       LED,       0);
     
-    wait_ms(50); // when USB cable is inserted the interface chip issues 
+    // Can't use wait_ms() as RTOS isn't initialised yet
+    // so this is the correct way to wait for 50 ms
+    uint32_t start = us_ticker_read();
+    while ((us_ticker_read() - start) < 50000);
 }
 
 void c027_mdm_powerOn(int usb) {

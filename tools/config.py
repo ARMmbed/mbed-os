@@ -332,6 +332,12 @@ def _process_macros(mlist, macros, unit_name, unit_kind):
         macros[macro.macro_name] = macro
 
 
+def check_dict_types(dict, type_dict, dict_loc):
+    for key, value in dict.iteritems():
+        if not isinstance(value, type_dict[key]):
+            raise ConfigException("The value of %s.%s is not of type %s" %
+                                  (dict_loc, key, type_dict[key].__name__))
+
 Region = namedtuple("Region", "name start size active filename")
 
 class Config(object):
@@ -342,14 +348,14 @@ class Config(object):
     __mbed_app_config_name = "mbed_app.json"
     __mbed_lib_config_name = "mbed_lib.json"
 
-    # Allowed keys in configuration dictionaries
+    # Allowed keys in configuration dictionaries, and their types
     # (targets can have any kind of keys, so this validation is not applicable
     # to them)
     __allowed_keys = {
-        "library": set(["name", "config", "target_overrides", "macros",
-                        "__config_path"]),
-        "application": set(["config", "target_overrides",
-                            "macros", "__config_path"])
+        "library": {"name": str, "config": dict, "target_overrides": dict,
+                    "macros": list, "__config_path": str},
+        "application": {"config": dict, "target_overrides": dict,
+                        "macros": list, "__config_path": str}
     }
 
     __unused_overrides = set(["target.bootloader_img", "target.restrict_size"])
@@ -398,11 +404,13 @@ class Config(object):
 
         # Check the keys in the application configuration data
         unknown_keys = set(self.app_config_data.keys()) - \
-                       self.__allowed_keys["application"]
+                       set(self.__allowed_keys["application"].keys())
         if unknown_keys:
             raise ConfigException("Unknown key(s) '%s' in %s" %
                                   (",".join(unknown_keys),
                                    self.__mbed_app_config_name))
+        check_dict_types(self.app_config_data, self.__allowed_keys["application"],
+                         "app-config")
         # Update the list of targets with the ones defined in the application
         # config, if applicable
         self.lib_config_data = {}
@@ -542,19 +550,34 @@ class Config(object):
                 # Parse out cumulative overrides
                 for attr, cumulatives in self.cumulative_overrides.iteritems():
                     if 'target.'+attr in overrides:
-                        cumulatives.strict_cumulative_overrides(
-                            overrides['target.'+attr])
-                        del overrides['target.'+attr]
+                        key = 'target.' + attr
+                        if not isinstance(overrides[key], list):
+                            raise ConfigException(
+                                "The value of %s.%s is not of type %s" %
+                                (unit_name, "target_overrides." + key,
+                                 "list"))
+                        cumulatives.strict_cumulative_overrides(overrides[key])
+                        del overrides[key]
 
                     if 'target.'+attr+'_add' in overrides:
-                        cumulatives.add_cumulative_overrides(
-                            overrides['target.'+attr+'_add'])
-                        del overrides['target.'+attr+'_add']
+                        key = 'target.' + attr + "_add"
+                        if not isinstance(overrides[key], list):
+                            raise ConfigException(
+                                "The value of %s.%s is not of type %s" %
+                                (unit_name, "target_overrides." + key,
+                                 "list"))
+                        cumulatives.add_cumulative_overrides(overrides[key])
+                        del overrides[key]
 
                     if 'target.'+attr+'_remove' in overrides:
-                        cumulatives.remove_cumulative_overrides(
-                            overrides['target.'+attr+'_remove'])
-                        del overrides['target.'+attr+'_remove']
+                        key = 'target.' + attr + "_remove"
+                        if not isinstance(overrides[key], list):
+                            raise ConfigException(
+                                "The value of %s.%s is not of type %s" %
+                                (unit_name, "target_overrides." + key,
+                                 "list"))
+                        cumulatives.remove_cumulative_overrides(overrides[key])
+                        del overrides[key]
 
                 # Consider the others as overrides
                 for name, val in overrides.items():
@@ -639,10 +662,12 @@ class Config(object):
         """
         all_params, macros = {}, {}
         for lib_name, lib_data in self.lib_config_data.items():
-            unknown_keys = set(lib_data.keys()) - self.__allowed_keys["library"]
+            unknown_keys = (set(lib_data.keys()) -
+                            set(self.__allowed_keys["library"].keys()))
             if unknown_keys:
                 raise ConfigException("Unknown key(s) '%s' in %s" %
                                       (",".join(unknown_keys), lib_name))
+            check_dict_types(lib_data, self.__allowed_keys["library"], lib_name)
             all_params.update(self._process_config_and_overrides(lib_data, {},
                                                                  lib_name,
                                                                  "library"))

@@ -199,12 +199,13 @@ void UART_IRQ_HANDLER(void)
 
     #if DEVICE_SERIAL_ASYNCH
         if (UART_CB.tx_active) {
-            if (++UART_CB.tx_pos <= UART_CB.tx_length) {
+            if (UART_CB.tx_pos < UART_CB.tx_length) {
                 // When there is still something to send, clear the TXDRDY event
                 // and put next byte to transmitter.
                 nrf_uart_event_clear(UART_INSTANCE, NRF_UART_EVENT_TXDRDY);
                 nrf_uart_txd_set(UART_INSTANCE,
                     UART_CB.tx_buffer[UART_CB.tx_pos]);
+                UART_CB.tx_pos++;
             }
             else {
                 // When the TXDRDY event is set after the last byte to be sent
