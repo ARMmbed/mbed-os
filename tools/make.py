@@ -189,7 +189,11 @@ if __name__ == '__main__':
         if options.supported_toolchains == "matrix":
             print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
         elif options.supported_toolchains == "toolchains":
-            print mcu_toolchain_list()
+            toolchain_list = mcu_toolchain_list()
+            # Only print the lines that matter
+            for line in toolchain_list.split("\n"):
+                if not "mbed" in line:
+                    print line
         elif options.supported_toolchains == "targets":
             print mcu_target_list()
         exit(0)
