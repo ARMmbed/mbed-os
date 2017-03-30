@@ -1,4 +1,3 @@
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -23,6 +22,26 @@
 FileSystem::FileSystem(const char *name)
     : FileSystemLike(name)
 {
+}
+
+int FileSystem::remove(const char *path)
+{
+    return -ENOSYS;
+}
+
+int FileSystem::rename(const char *path, const char *newpath)
+{
+    return -ENOSYS;
+}
+
+int FileSystem::stat(const char *path, struct stat *st)
+{
+    return -ENOSYS;
+}
+
+int FileSystem::mkdir(const char *path, mode_t mode)
+{
+    return -ENOSYS;
 }
 
 int FileSystem::file_sync(fs_file_t file)
@@ -51,11 +70,6 @@ off_t FileSystem::file_size(fs_file_t file)
     off_t size = file_seek(file, 0, SEEK_END);
     file_seek(file, off, SEEK_SET);
     return size;
-}
-
-int FileSystem::mkdir(const char *path, mode_t mode)
-{
-    return -ENOSYS;
 }
 
 int FileSystem::dir_open(fs_dir_t *dir, const char *path)

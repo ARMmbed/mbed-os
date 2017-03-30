@@ -71,7 +71,7 @@ public:
      *  @param path     The name of the file to remove.
      *  @return         0 on success, negative error code on failure
      */
-    virtual int remove(const char *path) = 0;
+    virtual int remove(const char *path);
 
     /** Rename a file in the filesystem.
      *
@@ -79,7 +79,7 @@ public:
      *  @param newpath  The name to rename it to
      *  @return         0 on success, negative error code on failure
      */
-    virtual int rename(const char *path, const char *newpath) = 0;
+    virtual int rename(const char *path, const char *newpath);
 
     /** Store information about the file in a stat structure
      *
@@ -87,7 +87,7 @@ public:
      *  @param st       The stat buffer to write to
      *  @return         0 on success, negative error code on failure
      */
-    virtual int stat(const char *path, struct stat *st) = 0;
+    virtual int stat(const char *path, struct stat *st);
 
     /** Create a directory in the filesystem.
      *
