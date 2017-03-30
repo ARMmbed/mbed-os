@@ -121,11 +121,13 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     int loc = pinmap_merge(loc_sda, loc_scl);
     MBED_ASSERT(loc != NC);
     /* Set location */
+    obj->i2c.location = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (loc << _I2C_ROUTE_LOCATION_SHIFT);
     obj->i2c.i2c->ROUTE = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (loc << _I2C_ROUTE_LOCATION_SHIFT);
 #else
     obj->i2c.i2c->ROUTEPEN  = I2C_ROUTEPEN_SDAPEN | I2C_ROUTEPEN_SCLPEN;
-    obj->i2c.i2c->ROUTELOC0 = (pin_location(sda, PinMap_I2C_SDA) << _I2C_ROUTELOC0_SDALOC_SHIFT) |
-                              (pin_location(scl, PinMap_I2C_SCL) << _I2C_ROUTELOC0_SCLLOC_SHIFT);
+    obj->i2c.location = (pin_location(sda, PinMap_I2C_SDA) << _I2C_ROUTELOC0_SDALOC_SHIFT) |
+                        (pin_location(scl, PinMap_I2C_SCL) << _I2C_ROUTELOC0_SCLLOC_SHIFT);
+    obj->i2c.i2c->ROUTELOC0 = obj->i2c.location;
 #endif
 
     /* Set up the pins for I2C use */
@@ -214,6 +216,13 @@ void i2c_frequency(i2c_t *obj, int hz)
 int i2c_start(i2c_t *obj)
 {
     I2C_TypeDef *i2c = obj->i2c.i2c;
+
+    /* Restore pin configuration in case we changed I2C object */
+#ifdef I2C_ROUTE_SDAPEN
+    obj->i2c.i2c->ROUTE = obj->i2c.location;
+#else
+    obj->i2c.i2c->ROUTELOC0 = obj->i2c.location;
+#endif
 
     /* Ensure buffers are empty */
     i2c->CMD = I2C_CMD_CLEARPC | I2C_CMD_CLEARTX;
@@ -410,7 +419,6 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
         data[count] = i2c_byte_read(obj, 0);
     }
 
-
     return count;
 
 }
@@ -458,6 +466,12 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     if(i2c_active(obj)) return;
     if((tx_length == 0) && (rx_length == 0)) return;
     // For now, we are assuming a solely interrupt-driven implementation.
+
+#ifdef I2C_ROUTE_SDAPEN
+    obj->i2c.i2c->ROUTE = obj->i2c.location;
+#else
+    obj->i2c.i2c->ROUTELOC0 = obj->i2c.location;
+#endif
 
     // Store transfer config
     obj->i2c.xfer.addr = address;
