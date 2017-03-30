@@ -38,9 +38,9 @@ void CRYPTO_IRQHandler()
     if (PRNG_GET_INT_FLAG()) {
         g_PRNG_done = 1;
         PRNG_CLR_INT_FLAG();
-    }  else	if (AES_GET_INT_FLAG()) {
+    }  else if (AES_GET_INT_FLAG()) {
         g_AES_done = 1;
-       	AES_CLR_INT_FLAG();
+        AES_CLR_INT_FLAG();
     }
 } 
 
