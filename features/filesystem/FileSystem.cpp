@@ -123,6 +123,7 @@ size_t FileSystem::dir_size(fs_dir_t dir)
     return size;
 }
 
+// Internally used file wrapper that manages memory on close
 template <typename F>
 class Managed : public F {
 public:

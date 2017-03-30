@@ -106,9 +106,9 @@ public:
 
     }
 
-    virtual FileHandle *open(const char* name, int flags);
+    virtual int open(FileHandle **file, const char *path, int flags);
+    virtual int open(DirHandle **dir, const char *name);
     virtual int remove(const char *filename);
-    virtual DirHandle *opendir(const char *name);
 };
 
 } // namespace mbed

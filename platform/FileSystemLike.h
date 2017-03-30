@@ -21,7 +21,6 @@
 #include "platform/FileSystemHandle.h"
 #include "platform/FileHandle.h"
 #include "platform/DirHandle.h"
-#include <errno.h>
 
 namespace mbed {
 /** \addtogroup platform */
@@ -43,26 +42,9 @@ public:
     FileSystemLike(const char *name = NULL) : FileBase(name, FileSystemPathType) {}
     virtual ~FileSystemLike() {}
 
-    /** Open a file on the filesystem
-     *
-     *  @param file     Destination for the handle to a newly created file
-     *  @param path     The name of the file to open
-     *  @param flags    The flags to open the file in, one of O_RDONLY, O_WRONLY, O_RDWR,
-     *                  bitwise or'd with one of O_CREAT, O_TRUNC, O_APPEND
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int open(FileHandle **file, const char *filename, int flags) = 0;
-
-    /** Open a directory on the filesystem
-     *
-     *  @param dir      Destination for the handle to the directory
-     *  @param path     Name of the directory to open
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int open(DirHandle **dir, const char *path)
-    {
-        return -ENOSYS;
-    }
+    // Inherited functions with name conflicts
+    using FileSystemHandle::open;
+    using FileSystemHandle::open;
 
     /** Open a file on the filesystem
      *
@@ -74,7 +56,7 @@ public:
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.5",
         "Replaced by `int open(FileHandle **, ...)` for propagating error codes")
-    virtual FileHandle *open(const char *path, int flags)
+    FileHandle *open(const char *path, int flags)
     {
         FileHandle *file;
         int err = open(&file, path, flags);
@@ -89,7 +71,7 @@ public:
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.5",
         "Replaced by `int open(DirHandle **, ...)` for propagating error codes")
-    virtual DirHandle *opendir(const char *path)
+    DirHandle *opendir(const char *path)
     {
         DirHandle *dir;
         int err = open(&dir, path);

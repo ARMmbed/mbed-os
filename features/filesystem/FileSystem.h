@@ -237,8 +237,6 @@ protected:
 
 protected:
     // Hooks for FileSystemHandle
-    virtual int open(File *file, const char *path, int flags);
-    virtual int open(Dir *dir, const char *path);
     virtual int open(FileHandle **file, const char *path, int flags);
     virtual int open(DirHandle **dir, const char *path);
 };
