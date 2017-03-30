@@ -948,7 +948,8 @@
         "detect_code": ["0797"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F439ZI"
+        "device_name" : "STM32F439ZI",
+        "bootloader_supported": true
     },
     "NUCLEO_F446RE": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
