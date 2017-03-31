@@ -28,7 +28,7 @@ extern "C" {
 /** Send the microcontroller to sleep
  *
  * @note This function can be a noop if not implemented by the platform.
- * @note This function will only put device to sleep in release mode (small profile or when NDEBUG is defined).
+ * @note This function will be a noop in debug mode (debug build profile when MBED_DEBUG is defined)
  *
  * The processor is setup ready for sleep, and sent to sleep using __WFI(). In this mode, the
  * system clock to the core is stopped until a reset or an interrupt occurs. This eliminates
@@ -44,17 +44,17 @@ extern "C" {
  */
 __INLINE static void sleep(void)
 {
-#ifdef NDEBUG
+#ifndef MBED_DEBUG
 #if DEVICE_SLEEP
     hal_sleep();
 #endif /* DEVICE_SLEEP */
-#endif /* NDEBUG */
+#endif /* MBED_DEBUG */
 }
 
 /** Send the microcontroller to deep sleep
  *
  * @note This function can be a noop if not implemented by the platform.
- * @note This function will only put device to sleep in release mode (small profile or when NDEBUG is defined).
+ * @note This function will be a noop in debug mode (debug build profile when MBED_DEBUG is defined)
  *
  * This processor is setup ready for deep sleep, and sent to sleep using __WFI(). This mode
  * has the same sleep features as sleep plus it powers down peripherals and clocks. All state
@@ -69,11 +69,11 @@ __INLINE static void sleep(void)
  */
 __INLINE static void deepsleep(void)
 {
-#ifdef NDEBUG
+#ifndef MBED_DEBUG
 #if DEVICE_SLEEP
     hal_deepsleep();
 #endif /* DEVICE_SLEEP */
-#endif /* NDEBUG */
+#endif /* MBED_DEBUG */
 }
 
 #ifdef __cplusplus
