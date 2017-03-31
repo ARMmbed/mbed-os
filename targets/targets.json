@@ -622,7 +622,7 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name" : "MK66FN2M0xxx18"
+        "device_name": "MK66FN2M0xxx18"
     },
     "K82F": {
         "supported_form_factors": ["ARDUINO"],
@@ -635,7 +635,7 @@
         "detect_code": ["0217"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
-        "device_name" : "MK82FN256xxx15"
+        "device_name": "MK82FN256xxx15"
     },
     "NUCLEO_F030R8": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -743,7 +743,7 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name" : "STM32F207ZG"
+        "device_name": "STM32F207ZG"
     },
     "NUCLEO_F302R8": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -892,7 +892,7 @@
         "detect_code": ["0796"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name" : "STM32F429ZI",
+        "device_name": "STM32F429ZI",
         "bootloader_supported": true
     },
     "NUCLEO_F439ZI": {
@@ -908,7 +908,7 @@
         "detect_code": ["0797"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name" : "STM32F439ZI"
+        "device_name": "STM32F439ZI"
     },
     "NUCLEO_F446RE": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -931,10 +931,10 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "detect_code": ["0778"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2",  "USB_STM_HAL", "USBHOST_OTHER"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USB_STM_HAL", "USBHOST_OTHER"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
-        "device_name" : "STM32F446ZE"
+        "device_name": "STM32F446ZE"
     },
     "B96B_F446VE": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -988,7 +988,7 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name" : "STM32F767ZI"
+        "device_name": "STM32F767ZI"
     },
     "NUCLEO_L011K4": {
         "inherits": ["Target"],
@@ -1064,7 +1064,7 @@
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "CAN", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
-        "device_name" : "STM32L432KC"
+        "device_name": "STM32L432KC"
     },
     "NUCLEO_L476RG": {
         "supported_form_factors": ["ARDUINO", "MORPHO"],
@@ -1111,7 +1111,6 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "program_cycle_s": 2,
         "extra_labels": ["STM", "STM32F4", "STM32F407", "STM32F407xG", "STM32F407VG"],
-        "macros": ["LSI_VALUE=32000"],
         "inherits": ["Target"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
@@ -2498,7 +2497,7 @@
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "release_versions": ["2"],
-        "device_name" : "ATSAMD21J18A"
+        "device_name": "ATSAMD21J18A"
     },
     "SAMD21G18A": {
         "inherits": ["Target"],
