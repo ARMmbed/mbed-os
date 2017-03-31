@@ -204,77 +204,77 @@ prvDiagSPrintf(
 
 #define DBG_BOOT_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_BOOT_)) \
-        _DbgDump("\r"BOOT_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" BOOT_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_GDMA_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_GDMA_)) \
-        _DbgDump("\r"GDMA_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" GDMA_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_GPIO_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_GPIO_)) \
-        _DbgDump("\r"GPIO_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" GPIO_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_TIMER_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_TIMER_)) \
-        _DbgDump("\r"TIMER_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" TIMER_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_I2C_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_I2C_)) \
-        _DbgDump("\r"I2C_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" I2C_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_I2S_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_I2S_)) \
-        _DbgDump("\r"I2S_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" I2S_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_MII_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_MII_)) \
-        _DbgDump("\r"MII_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" MII_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_NFC_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_NFC_)) \
-        _DbgDump("\r"NFC_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" NFC_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_PCM_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_PCM_)) \
-        _DbgDump("\r"PCM_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" PCM_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_PWM_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_PWM_)) \
-        _DbgDump("\r"PWM_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" PWM_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SSI_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_SSI_)) \
-        _DbgDump("\r"SSI_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SSI_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SDIO_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_SDIO_)) \
-        _DbgDump("\r"SDIO_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SDIO_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SPIF_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_SPI_FLASH_)) \
-        _DbgDump("\r"SPIF_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SPIF_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SDR_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_SDR_)) \
-        _DbgDump("\r"SDR_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SDR_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_UART_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_UART_)) \
-        _DbgDump("\r"UART_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" UART_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_USBOTG_ERR(...)     do {\
@@ -284,64 +284,64 @@ prvDiagSPrintf(
 
 #define DBG_USBCOR_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_USB_CORE_)) \
-        _DbgDump("\r"USB_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" USB_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_CRYPTO_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_CRYPTO_)) \
-        _DbgDump("\r"IPSEC_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" IPSEC_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_ADC_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_ADC_)) \
-        _DbgDump("\r"ADC_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" ADC_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_DAC_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_DAC_)) \
-        _DbgDump("\r"DAC_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" DAC_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define MSG_MBOX_ERR(...)     do {\
     if (likely(CfgSysDebugErr & _SYSDBG_MAILBOX_)) \
-        _DbgDump("\r"MBOX_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" MBOX_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define MSG_TIMER_ERR(...)     do {\
     if (likely(CfgSysDebugErr & _SYSDBG_TIMER_)) \
-        _DbgDump("\r"TIMER_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" TIMER_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_8195A_OTG(...)  do{\
                 if (unlikely(ConfigDebugInfo & _DBG_USB_OTG_)) \
-                    _DbgDump("\r"OTG_PREFIX __VA_ARGS__);\
+                    _DbgDump("\r" OTG_PREFIX __VA_ARGS__);\
             }while(0)
 
 #define DBG_8195A_OTG_INFO(...)  do{\
                 if (unlikely(ConfigDebugInfo & _DBG_USB_OTG_)) \
-                    _DbgDump("\r"OTG_PREFIX __VA_ARGS__);\
+                    _DbgDump("\r" OTG_PREFIX __VA_ARGS__);\
             }while(0)
 
 #define DBG_8195A_OTG_WARN(...)  do{\
                 if (unlikely(ConfigDebugWarn & _DBG_USB_OTG_)) \
-                    _DbgDump("\r"OTG_PREFIX __VA_ARGS__);\
+                    _DbgDump("\r" OTG_PREFIX __VA_ARGS__);\
             }while(0)
 
 #define DBG_8195A_OTG_ERR(...)  do{\
                 if (unlikely(ConfigDebugErr & _DBG_USB_OTG_)) \
-                    _DbgDump("\r"OTG_PREFIX __VA_ARGS__);\
+                    _DbgDump("\r" OTG_PREFIX __VA_ARGS__);\
             }while(0)
             
 #define DBG_8195A_OTG_LVL(LVL,...)  do{\
     if (unlikely(ConfigDebugInfo & _DBG_USB_OTG_)){ \
-        _DbgDump("\r"OTG_PREFIX_LVL,LVL);\
+        _DbgDump("\r" OTG_PREFIX_LVL,LVL);\
         _DbgDump(__VA_ARGS__);\
     }\
 }while(0)
 
 #define DBG_MISC_ERR(...)     do {\
     if (likely(ConfigDebugErr & _DBG_MISC_)) \
-        _DbgDump("\r"MISC_ERR_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" MISC_ERR_PREFIX __VA_ARGS__);\
 }while(0)
 
 #else   // else of "#if CONFIG_DEBUG_ERROR"
@@ -384,77 +384,77 @@ prvDiagSPrintf(
 
 #define DBG_BOOT_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn& _DBG_BOOT_)) \
-        _DbgDump("\r"BOOT_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" BOOT_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_GDMA_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_GDMA_)) \
-        _DbgDump("\r"GDMA_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" GDMA_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_GPIO_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_GPIO_)) \
-        _DbgDump("\r"GPIO_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" GPIO_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_TIMER_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_TIMER_)) \
-        _DbgDump("\r"TIMER_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" TIMER_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_I2C_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_I2C_)) \
-        _DbgDump("\r"I2C_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" I2C_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_I2S_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_I2S_)) \
-        _DbgDump("\r"I2S_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" I2S_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_MII_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_MII_)) \
-        _DbgDump("\r"MII_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" MII_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_NFC_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_NFC_)) \
-        _DbgDump("\r"NFC_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" NFC_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_PCM_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_PCM_)) \
-        _DbgDump("\r"PCM_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" PCM_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_PWM_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_PWM_)) \
-        _DbgDump("\r"PWM_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" PWM_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SSI_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_SSI_)) \
-        _DbgDump("\r"SSI_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SSI_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SDIO_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_SDIO_)) \
-        _DbgDump("\r"SDIO_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SDIO_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SPIF_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_SPI_FLASH_)) \
-        _DbgDump("\r"SPIF_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SPIF_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SDR_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_SDR_)) \
-        _DbgDump("\r"SDR_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SDR_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_UART_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_UART_)) \
-        _DbgDump("\r"UART_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" UART_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_USBOTG_WARN(...)     do {\
@@ -464,37 +464,37 @@ prvDiagSPrintf(
 
 #define DBG_USBCOR_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_USB_CORE_)) \
-        _DbgDump("\r"USB_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" USB_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_CRYPTO_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_CRYPTO_)) \
-        _DbgDump("\r"IPSEC_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" IPSEC_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_ADC_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_ADC_)) \
-        _DbgDump("\r"ADC_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" ADC_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_DAC_WARN(...)     do {\
     if (unlikely(ConfigDebugWarn & _DBG_DAC_)) \
-        _DbgDump("\r"DAC_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" DAC_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define MSG_MBOX_WARN(...)     do {\
     if (unlikely(CfgSysDebugWarn& _SYSDBG_MAILBOX_)) \
-        _DbgDump("\r"MBOX_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" MBOX_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define MSG_TIMER_WARN(...)     do {\
     if (unlikely(CfgSysDebugWarn & _SYSDBG_TIMER_)) \
-        _DbgDump("\r"TIMER_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" TIMER_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_MISC_WARN(...)     do {\
     if (likely(ConfigDebugWarn & _DBG_MISC_)) \
-        _DbgDump("\r"MISC_WARN_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" MISC_WARN_PREFIX __VA_ARGS__);\
 }while(0)
 
 #else   // else of "#if CONFIG_DEBUG_WARN"
@@ -532,77 +532,77 @@ prvDiagSPrintf(
 
 #define DBG_BOOT_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_BOOT_)) \
-        _DbgDump("\r"BOOT_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" BOOT_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_GDMA_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_GDMA_)) \
-        _DbgDump("\r"GDMA_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" GDMA_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_GPIO_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_GPIO_)) \
-        _DbgDump("\r"GPIO_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" GPIO_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_TIMER_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_TIMER_)) \
-        _DbgDump("\r"TIMER_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" TIMER_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_I2C_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_I2C_)) \
-        _DbgDump("\r"I2C_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" I2C_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_I2S_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_I2S_)) \
-        _DbgDump("\r"I2S_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" I2S_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_MII_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_MII_)) \
-        _DbgDump("\r"MII_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" MII_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_NFC_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_NFC_)) \
-        _DbgDump("\r"NFC_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" NFC_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_PCM_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_PCM_)) \
-        _DbgDump("\r"PCM_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" PCM_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_PWM_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_PWM_)) \
-        _DbgDump("\r"PWM_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" PWM_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SSI_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_SSI_)) \
-        _DbgDump("\r"SSI_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SSI_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SDIO_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_SDIO_)) \
-        _DbgDump("\r"SDIO_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SDIO_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SPIF_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_SPI_FLASH_)) \
-        _DbgDump("\r"SPIF_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SPIF_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_SDR_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_SDR_)) \
-        _DbgDump("\r"SDR_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SDR_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_UART_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_UART_)) \
-        _DbgDump("\r"UART_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" UART_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_USBOTG_INFO(...)     do {\
@@ -612,37 +612,37 @@ prvDiagSPrintf(
 
 #define DBG_USBCOR_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_USB_CORE_)) \
-        _DbgDump("\r"USB_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" USB_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_CRYPTO_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_CRYPTO_)) \
-        _DbgDump("\r"IPSEC_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" IPSEC_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_ADC_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_ADC_)) \
-        _DbgDump("\r"ADC_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" ADC_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_DAC_INFO(...)     do {\
     if (unlikely(ConfigDebugInfo & _DBG_DAC_)) \
-        _DbgDump("\r"DAC_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" DAC_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define MSG_MBOX_INFO(...)     do {\
     if (unlikely(CfgSysDebugInfo & _SYSDBG_MAILBOX_)) \
-        _DbgDump("\r"MBOX_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" MBOX_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define MSG_TIMER_INFO(...)     do {\
     if (unlikely(CfgSysDebugInfo & _SYSDBG_TIMER_)) \
-        _DbgDump("\r"TIMER_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" TIMER_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_MISC_INFO(...)     do {\
     if (likely(ConfigDebugInfo & _DBG_MISC_)) \
-        _DbgDump("\r"MISC_INFO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" MISC_INFO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #else   // else of "#if CONFIG_DEBUG_INFO"
@@ -676,22 +676,22 @@ prvDiagSPrintf(
 
 #define DBG_8195A_DRIVER(...)     do {\
     if (unlikely(ConfigDebugErr & (_DBG_I2S_|_DBG_PCM_|_DBG_TIMER_))) \
-        _DbgDump("\r"DRIVER_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" DRIVER_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_8195A_HAL(...)     do {\
     if (unlikely(ConfigDebugErr & (_DBG_SDR_|_DBG_MISC_))) \
-        _DbgDump("\r"HAL_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" HAL_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_8195A_DMA(...)     do {\
     if (unlikely(ConfigDebugErr & _DBG_GDMA_)) \
-        _DbgDump("\r"DMA_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" DMA_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_8195A_SDIO(...)     do {\
     if (unlikely(ConfigDebugErr & _DBG_SDIO_)) \
-        _DbgDump("\r"SDIO_PREFIX __VA_ARGS__);\
+        _DbgDump("\r" SDIO_PREFIX __VA_ARGS__);\
 }while(0)
 
 #define DBG_8195A(...)     do {\
