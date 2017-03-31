@@ -502,7 +502,7 @@ class RTL8195ACode:
     """RTL8195A Hooks"""
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
-        from tools.build_hooks.REALTEK_RTL8195AM import rtl8195a_elf2bin
+        from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
         rtl8195a_elf2bin(t_self.name, elf, binf)
 ################################################################################
 
