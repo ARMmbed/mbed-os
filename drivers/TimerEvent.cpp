@@ -44,6 +44,10 @@ void TimerEvent::insert(timestamp_t timestamp) {
     ticker_insert_event(_ticker_data, &event, timestamp, (uint32_t)this);
 }
 
+void TimerEvent::insert_absolute(us_timestamp_t timestamp) {
+    ticker_insert_event(_ticker_data, &event, timestamp, (uint32_t)this);
+}
+
 void TimerEvent::remove() {
     ticker_remove_event(_ticker_data, &event);
 }
