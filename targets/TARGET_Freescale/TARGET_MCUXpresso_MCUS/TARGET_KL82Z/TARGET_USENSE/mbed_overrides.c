@@ -19,31 +19,22 @@
 #include "fsl_pmc.h"
 #include "fsl_clock_config.h"
 
-rcm_reset_source_t wakeupSource;
+//!< this contains the wakeup source
+rcm_reset_source_t kinetisResetSource;
 
 // called before main
 void mbed_sdk_init() {
-    // check the power mode source
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
-    wakeupSource = (rcm_reset_source_t) (kRCM_SourceWakeup & RCM_GetPreviousResetSources(RCM));
-    if (wakeupSource == kRCM_SourceWakeup) /* Wakeup from VLLS. */
-    {
+
+    // check the power mode source
+    kinetisResetSource = (rcm_reset_source_t) (RCM_GetPreviousResetSources(RCM));
+    // if waking up from VLLS, do some cleanup
+    if (kinetisResetSource & kRCM_SourceWakeup) {
         PMC_ClearPeriphIOIsolationFlag(PMC);
         NVIC_ClearPendingIRQ(LLWU_IRQn);
-
-        /* Wait for PLL lock. */
-        while (!(kMCG_Pll0LockFlag & CLOCK_GetStatusFlags())) {}
-        CLOCK_SetPeeMode();
     }
 
     BOARD_BootClockRUN();
-}
-
-// Enable the RTC oscillator if available on the board
-void rtc_setup_oscillator(RTC_Type *base)
-{
-    /* Enable the RTC oscillator */
-    RTC->CR |= RTC_CR_OSCE_MASK;
 }
 
 // Change the NMI pin to an input. This allows NMI pin to
@@ -55,3 +46,11 @@ void NMI_Handler(void)
     gpio_init_in(&gpio, PTA4);
 }
 
+#ifdef DEVICE_RTC
+// Enable the RTC oscillator if available on the board
+void rtc_setup_oscillator(RTC_Type *base)
+{
+    /* Enable the RTC oscillator */
+    RTC->CR |= RTC_CR_OSCE_MASK;
+}
+#endif

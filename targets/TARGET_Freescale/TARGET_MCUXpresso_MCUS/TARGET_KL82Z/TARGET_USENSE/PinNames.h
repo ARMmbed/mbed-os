@@ -104,8 +104,7 @@ typedef enum {
     PTE10 = (4 << GPIO_PORT_SHIFT | 10),
     PTE11 = (4 << GPIO_PORT_SHIFT | 11),
 
-    LED_RED = PTD4,
-    LED_RGB = PTA14,
+    LED_RED = PTE1,
 
     // mbed original LED naming
     LED1 = LED_RED,
@@ -114,16 +113,15 @@ typedef enum {
     LED4 = LED_RED,
 
     //Push buttons
-    SW0 = PTD0,
+    SW0 = PTE2,
 
-    UART_TX = PTA1,
-    UART_RX = PTC1,
-
-    UART1_RTS = PTC1,
-    UART1_CTS = PTC2,
-    UART1_RX  = PTC3,
-    UART1_TX  = PTC4,
-
+    USBTX = PTA1,
+    USBRX = PTA2,
+    
+    UART_RTS = PTC1,
+    UART_CTS = PTC2,
+    UART_RX  = PTC3,
+    UART_TX  = PTC4,
 
     I2C_SCL = PTC10,
     I2C_SDA = PTC11,
