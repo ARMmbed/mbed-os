@@ -129,8 +129,15 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     @cached
     def get_json_target_data():
         """Load the description of JSON target data"""
-        return json_file_to_dict(Target.__targets_json_location or
-                                 Target.__targets_json_location_default)
+        targets = json_file_to_dict(Target.__targets_json_location or
+                                     Target.__targets_json_location_default)
+
+        # If extra_targets.json exists in working directory load it over the top
+        extra = os.path.join('.', 'extra_targets.json')
+        if os.path.exists(extra):
+            targets.update(json_file_to_dict(extra))
+
+        return targets
 
     @staticmethod
     def set_targets_json_location(location=None):
