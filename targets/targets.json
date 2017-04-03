@@ -1324,7 +1324,7 @@
     "DISCO_L475VG_IOT01A": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "extra_labels": ["STM", "STM32L4", "STM32L475VG"],
+        "extra_labels": ["STM", "STM32L4", "STM32L475xG", "STM32L475VG"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "default_toolchain": "ARM",
         "supported_form_factors": ["ARDUINO"],
