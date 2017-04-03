@@ -1,5 +1,5 @@
 /*
- *  mbedtls_device.h 
+ *  mbedtls_device.h
  *******************************************************************************
  * Copyright (c) 2017, STMicroelectronics
  *  SPDX-License-Identifier: Apache-2.0
@@ -26,8 +26,5 @@
 
 #define MBEDTLS_SHA256_ALT
 #define MBEDTLS_MD5_ALT
-
-#define MBEDTLS_MD5_C
-
 
 #endif /* MBEDTLS_DEVICE_H */

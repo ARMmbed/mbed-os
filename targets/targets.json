@@ -1192,6 +1192,7 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7F",
         "extra_labels_add": ["STM32F7", "STM32F756", "STM32F756xG", "STM32F756ZG"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "MBEDTLS_MD5_C"],
         "config": {
             "d11_configuration": {
                 "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
