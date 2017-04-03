@@ -1,5 +1,5 @@
 /*
- *  Hardware entropy collector for the K64F, using Freescale's RNGA
+ *  Hardware entropy collector for the KW41Z, using Freescale's TRNG
  *
  *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
@@ -19,7 +19,7 @@
  */
 
 /*
- * Reference: "K64 Sub-Family Reference Manual, Rev. 2", chapter 34
+ * Reference: "MKW41Z/31Z/21Z Reference Manual", chapter 43
  */
 
 #if defined(DEVICE_TRNG)
