@@ -42,6 +42,7 @@
 #include "nrf_drv_common.h"
 #include "nrf_drv_config.h"
 #include "lp_ticker_api.h"
+#include "mbed_critical.h"
 
 
 //------------------------------------------------------------------------------
@@ -52,6 +53,16 @@
 bool              m_common_rtc_enabled = false;
 uint32_t volatile m_common_rtc_overflows = 0;
 
+__STATIC_INLINE void rtc_ovf_event_check(void)
+{
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW)) {
+        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW);
+        // Don't disable this event. It shall occur periodically.
+
+        ++m_common_rtc_overflows;
+    }
+}
+
 #if defined(TARGET_MCU_NRF51822)
 void common_rtc_irq_handler(void)
 #else
@@ -59,12 +70,7 @@ void COMMON_RTC_IRQ_HANDLER(void)
 #endif
 {
 
-    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW)) {
-        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW);
-        // Don't disable this event. It shall occur periodically.
-
-        ++m_common_rtc_overflows;
-    }
+    rtc_ovf_event_check();
 
     if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, US_TICKER_EVENT)) {
         us_ticker_irq_handler();
@@ -144,13 +150,37 @@ void common_rtc_init(void)
     m_common_rtc_enabled = true;
 }
 
+__STATIC_INLINE void rtc_ovf_event_safe_check(void)
+{
+    core_util_critical_section_enter();
+
+    rtc_ovf_event_check();
+
+    core_util_critical_section_exit();
+}
+
+
 uint32_t common_rtc_32bit_ticks_get(void)
 {
-    uint32_t ticks = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
-    // The counter used for time measurements is less than 32 bit wide,
-    // so its value is complemented with the number of registered overflows
-    // of the counter.
-    ticks += (m_common_rtc_overflows << RTC_COUNTER_BITS);
+    uint32_t ticks;
+    uint32_t prev_overflows;
+
+    do {
+        prev_overflows = m_common_rtc_overflows;
+
+        ticks = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
+        // The counter used for time measurements is less than 32 bit wide,
+        // so its value is complemented with the number of registered overflows
+        // of the counter.
+        ticks += (m_common_rtc_overflows << RTC_COUNTER_BITS);
+
+        // Check in case that OVF occurred during execution of a RTC handler (apply if call was from RTC handler)
+        // m_common_rtc_overflows might been updated in this call.
+        rtc_ovf_event_safe_check();
+
+        // If call was made from a low priority level m_common_rtc_overflows might have been updated in RTC handler.
+    } while (m_common_rtc_overflows != prev_overflows);
+
     return ticks;
 }
 
@@ -161,7 +191,7 @@ uint64_t common_rtc_64bit_us_get(void)
     return ROUNDED_DIV(((uint64_t)ticks) * 1000000, RTC_INPUT_FREQ);
 }
 
-__STATIC_INLINE void internal_common_rtc_set_interrupt(uint32_t us_timestamp, uint32_t cc_channel,
+void common_rtc_set_interrupt(uint32_t us_timestamp, uint32_t cc_channel,
                               uint32_t int_mask)
 {
     // The internal counter is clocked with a frequency that cannot be easily
@@ -187,6 +217,8 @@ __STATIC_INLINE void internal_common_rtc_set_interrupt(uint32_t us_timestamp, ui
     uint32_t compare_value =
         (uint32_t)CEIL_DIV((timestamp64) * RTC_INPUT_FREQ, 1000000);
 
+
+    core_util_critical_section_enter();
     // The COMPARE event occurs when the value in compare register is N and
     // the counter value changes from N-1 to N. Therefore, the minimal safe
     // difference between the compare value to be set and the current counter
@@ -199,35 +231,8 @@ __STATIC_INLINE void internal_common_rtc_set_interrupt(uint32_t us_timestamp, ui
 
     nrf_rtc_cc_set(COMMON_RTC_INSTANCE, cc_channel, RTC_WRAP(compare_value));
     nrf_rtc_event_enable(COMMON_RTC_INSTANCE, int_mask);
-}
 
-void common_rtc_set_interrupt(uint32_t us_timestamp, uint32_t cc_channel,
-                              uint32_t int_mask)
-{
-    uint32_t prev_overflows;
-
-    while (1)
-    {
-        prev_overflows = m_common_rtc_overflows;
-
-        internal_common_rtc_set_interrupt(us_timestamp, cc_channel, int_mask);
-
-        // check in case of preemption by RTC OVF event (apply if call was from a low priority level)
-        if (prev_overflows != m_common_rtc_overflows)
-        {
-            continue;
-        }    // check in case that OVF occurred during execution of a RTC handler (apply if call was from RTC handler)
-        else if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW))
-        {
-            nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW);
-            // Don't disable this event. It shall occur periodically.
-
-            ++m_common_rtc_overflows;
-            continue;
-        }
-
-        break;
-    }
+    core_util_critical_section_exit();
 }
 //------------------------------------------------------------------------------
 
