@@ -18,11 +18,8 @@
 
 #include "emac_api.h"
 
+extern void wlan_emac_link_change(bool up);
 extern emac_interface_t *wlan_emac_init_interface();
-extern void wlan_emac_init_mem();
-extern void wlan_emac_init_netif();
-extern void wlan_emac_link_up(uint8_t i);
-extern void wlan_emac_link_down(uint8_t i);
 extern void wlan_emac_recv(struct netif *netif, uint32_t len);
 
 #endif

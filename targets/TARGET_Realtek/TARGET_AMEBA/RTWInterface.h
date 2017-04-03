@@ -35,9 +35,7 @@ public:
     /** RTWWlanInterface lifetime
      */
     RTWInterface();
-
-    virtual nsapi_error_t init();
-    virtual nsapi_error_t deinit();
+    ~RTWInterface();
 
     /** Set a static IP address
      *
@@ -108,7 +106,7 @@ public:
      *  @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
      *  see @a nsapi_error
      */
-     virtual nsapi_error_t scan(WiFiAccessPoint *res, unsigned count);
+     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, unsigned count);
 
      virtual nsapi_error_t set_channel(uint8_t channel);
      virtual int8_t get_rssi();
@@ -156,6 +154,7 @@ protected:
     char _ssid[256];
     char _pass[256];
     nsapi_security_t _security;
+    uint8_t _channel;
     char _ip_address[IPADDR_STRLEN_MAX];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];

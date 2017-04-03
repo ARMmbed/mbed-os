@@ -30,28 +30,23 @@
 #include "wifi_constants.h"
 #include "wifi_conf.h"
 
+#define RTW_EMAC_MTU_SIZE  (1500U)
+
 static emac_interface_t *_emac;
 static emac_link_input_fn link_input_cb;
 static emac_link_state_change_fn link_state_cb;
 static void *link_input_data;
 static void *link_state_data;
 
-#if 0
-struct netif *xnetif[2];
-extern struct netif lwip_netif;
-static struct netif lwap_netif;
-extern uint8_t *netif_get_hwaddr(int idx);
-#endif
-
 static uint32_t wlan_get_mtu_size(emac_interface_t *emac)
 {
-    return 1500U;
+    return RTW_EMAC_MTU_SIZE;
 }
 
 static void wlan_get_ifname(emac_interface_t *emac, char *name, uint8_t size)
 {
     MBED_ASSERT(name != NULL);
-    memcpy((void*)name, "r0", 2);
+    strncpy(name, "r0", size);
 }
 
 static uint8_t wlan_get_hwaddr_size(emac_interface_t *emac)
@@ -61,16 +56,6 @@ static uint8_t wlan_get_hwaddr_size(emac_interface_t *emac)
 
 static void wlan_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
 {
-#if 0
-    uint8_t *hwaddr;
-
-    hwaddr = netif_get_hwaddr(0);
-    if (hwaddr == NULL) {
-        return;
-    }
-
-    memcpy(addr, hwaddr, ETHARP_HWADDR_LEN);
-#else
     char mac[20];	
     if(RTW_SUCCESS == wifi_get_mac_address(mac))
     {
@@ -79,7 +64,6 @@ static void wlan_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
     }else{
             printf("Get HW address failed\r\n");
     }
-#endif
 }
 
 static void wlan_set_hwaddr(emac_interface_t *emac, uint8_t *addr)
@@ -122,7 +106,7 @@ static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
 
 static bool wlan_power_up(emac_interface_t *emac)
 {
-    printf("Powering up WiFi ...\r\n");
+    //printf("Powering up WiFi ...\r\n");
     wifi_on(RTW_MODE_STA);
     wait_ms(1000);
     return true;
@@ -130,7 +114,7 @@ static bool wlan_power_up(emac_interface_t *emac)
 
 static void wlan_power_down(emac_interface_t *emac)
 {
-    printf("Powering down WiFi ...\r\n");
+    //printf("Powering down WiFi ...\r\n");
     wifi_off();
 }
 
@@ -170,7 +154,7 @@ void wlan_emac_recv(struct netif *netif, int len)
     for (; p != NULL && sg_len < MAX_ETH_DRV_SG; p = p->next) {
         sg_list[sg_len].buf = (uint32_t) p->payload;
         sg_list[sg_len].len = p->len;
-	sg_len++;
+        sg_len++;
     }
     rltk_wlan_recv(0, sg_list, sg_len);
 
@@ -206,60 +190,29 @@ void mbed_default_mac_address(char *mac) {
     return;
 }
 
-
 void mbed_mac_address(char *mac)
 {
-#if 0
-    //wlan_get_hwaddr((emac_interface_t *)NULL, (uint8_t *)mac);
-
-    mbed_default_mac_address(mac);
-#else
     char hwaddr[20];	
-
     if(RTW_SUCCESS == wifi_get_mac_address(hwaddr))
     {
         if (sscanf(hwaddr, "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]) != 6)
             printf("Get HW address failed\r\n");
     }else{
-            printf("Get HW address failed\r\n");
+        printf("Get HW address failed\r\n");
+        mbed_default_mac_address(mac);
     }
-#endif
 }
 
-void wlan_emac_link_down(uint8_t i)
+void wlan_emac_link_change(bool up)
 {
-    if (i > 1) {
-        return;
-    }
- 
-    //xnetif[i]->flags &= ~NETIF_FLAG_LINK_UP;
     if (link_state_cb) {
-        link_state_cb(link_state_data, false);
+        link_state_cb(link_state_data, up);
     }
-}
-
-void wlan_emac_link_up(uint8_t i)
-{
-    if (i > 1) {
-        return;
-    }
- 
-    //xnetif[i]->flags |= NETIF_FLAG_LINK_UP;
-    if (link_state_cb) {
-        link_state_cb(link_state_data, true);
-    }
-}
-
-void wlan_emac_init_mem(void)
-{
 }
 
 emac_interface_t *wlan_emac_init_interface()
 {
-#if 0
-    xnetif[0] = &lwip_netif;
-    xnetif[1] = &lwap_netif;
-#endif
+
     if (_emac == NULL) {
         _emac = new emac_interface_t();
         _emac->hw = NULL;
