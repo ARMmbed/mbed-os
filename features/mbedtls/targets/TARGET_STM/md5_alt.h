@@ -103,22 +103,6 @@ void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[64]
 extern "C" {
 #endif
 
-/**
- * \brief          Output = MD5( input buffer )
- *
- * \param input    buffer holding the  data
- * \param ilen     length of the input data
- * \param output   MD5 checksum result
- */
-void mbedtls_md5( const unsigned char *input, size_t ilen, unsigned char output[16] );
-
-/**
- * \brief          Checkup routine
- *
- * \return         0 if successful, or 1 if the test failed
- */
-int mbedtls_md5_self_test( int verbose );
-
 #ifdef __cplusplus
 }
 #endif
