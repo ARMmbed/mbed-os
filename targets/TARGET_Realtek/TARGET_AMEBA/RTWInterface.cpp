@@ -27,24 +27,86 @@
 
 #include "osdep_service.h"
 
-struct netif *xnetif[2];
-static struct netif lwap_netif;
-extern struct netif *netif_default;
+typedef struct _wifi_scan_hdl {
+    int scan_num;
+    WiFiAccessPoint *ap_details;
+} wifi_scan_hdl;
+
+#define MAX_SCAN_TIMEOUT (15000)
+static void *scan_sema = NULL;
+static signed int ApNum = 0;
+
+static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_scan_result )
+{
+    if (malloced_scan_result->scan_complete != RTW_TRUE) {
+        wifi_scan_hdl *scan_handler = (wifi_scan_hdl *)malloced_scan_result->user_data;
+        if(scan_handler->ap_details && scan_handler->scan_num > ApNum){
+            nsapi_wifi_ap_t ap;	
+            rtw_scan_result_t* record = &malloced_scan_result->ap_details;
+            record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */	
+            memset((void*)&ap, 0x00, sizeof(nsapi_wifi_ap_t));
+            memcpy(ap.ssid, record->SSID.val, record->SSID.len);
+            memcpy(ap.bssid, record->BSSID.octet, 6);
+            switch (record->security){
+                case RTW_SECURITY_OPEN:
+                    ap.security = NSAPI_SECURITY_NONE;
+                    break;
+                case RTW_SECURITY_WEP_PSK:
+                case RTW_SECURITY_WEP_SHARED:
+                    ap.security = NSAPI_SECURITY_WEP;
+                    break;
+                case RTW_SECURITY_WPA_TKIP_PSK:
+                case RTW_SECURITY_WPA_AES_PSK:
+                    ap.security = NSAPI_SECURITY_WPA;
+                    break;
+                case RTW_SECURITY_WPA2_AES_PSK:
+                case RTW_SECURITY_WPA2_TKIP_PSK:
+                case RTW_SECURITY_WPA2_MIXED_PSK:
+                    ap.security = NSAPI_SECURITY_WPA2;
+                    break;
+                case RTW_SECURITY_WPA_WPA2_MIXED:
+                    ap.security = NSAPI_SECURITY_WPA_WPA2;
+                    break;
+                default:
+                    ap.security = NSAPI_SECURITY_UNKNOWN;
+                    break;
+            }
+            ap.rssi = record->signal_strength;
+            ap.channel = record->channel;
+            WiFiAccessPoint *accesspoint = new WiFiAccessPoint(ap);
+            memcpy(&scan_handler->ap_details[ApNum], accesspoint, sizeof(WiFiAccessPoint));
+            delete[] accesspoint;
+        }
+        ApNum++;
+    } else{
+        // scan done
+        rtw_up_sema(&scan_sema);
+    }
+    return RTW_SUCCESS;
+}
 
 RTWInterface::RTWInterface()
     : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
-	nsapi_error_t ret;
-	ret = init();
-	if (ret != NSAPI_ERROR_OK){
-		printf("Error init RTWInterface!(%d)\r\n", ret);
-	}
+    emac_interface_t *emac;
+    int ret;
+
+    emac = wlan_emac_init_interface();
+    if (!emac) {
+       printf("Error init RTWInterface!\r\n");
+    }
+    emac->ops.power_up(emac);
+    ret = mbed_lwip_init(emac);
+    if (ret != 0) {
+        printf("Error init RTWInterface!(%d)\r\n", ret);
+    }
 }
 
-static void *scan_sema;
-static const signed int maxApNum = 4;
-static signed int ApNum;
-static WiFiAccessPoint *SCANED_AP[maxApNum]; /*maximum store 15 APs*/
+RTWInterface::~RTWInterface()
+{
+    wlan_emac_link_change(false);
+    mbed_lwip_bringdown();
+}
 
 nsapi_error_t RTWInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
@@ -59,31 +121,6 @@ nsapi_error_t RTWInterface::set_dhcp(bool dhcp)
 {
     _dhcp = dhcp;
     return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t RTWInterface::init()
-{
-    emac_interface_t *emac;
-    int ret;
-
-    //printf("\r\nInitializing emac ...\r\n");
-    emac = wlan_emac_init_interface();
-    if (!emac) {
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
-    emac->ops.power_up(emac);
-    //printf("Initializing lwip ...\r\n");
-    ret = mbed_lwip_init(emac);
-    if (ret != 0) {
-        return ret;
-    }
-    xnetif[0] = netif_default;
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t RTWInterface::deinit()
-{
-    return mbed_lwip_bringdown();
 }
 
 /*
@@ -109,16 +146,27 @@ nsapi_error_t RTWInterface::connect()
     }
 
     switch (_security) {
-	    case NSAPI_SECURITY_WPA2:
-	        sec = RTW_SECURITY_WPA2_MIXED_PSK;
-	        break;
-	    case NSAPI_SECURITY_NONE:
-	    default:
-	        sec = RTW_SECURITY_OPEN;
-	        break;
+        case NSAPI_SECURITY_WPA:
+        case NSAPI_SECURITY_WPA2:
+        case NSAPI_SECURITY_WPA_WPA2:
+            sec = RTW_SECURITY_WPA_WPA2_MIXED;
+            break;
+        case NSAPI_SECURITY_WEP:
+            sec = RTW_SECURITY_WEP_PSK;
+            break;
+        case NSAPI_SECURITY_NONE:
+            sec = RTW_SECURITY_OPEN;
+            break;			
+        default:
+            return NSAPI_ERROR_PARAMETER;
     }
 
-    printf("Connecting to: %s ... \r\n", _ssid);
+    if(_channel > 0 && _channel < 14){
+        uint8_t pscan_config = PSCAN_ENABLE;
+        wifi_set_pscan_chan(&_channel, &pscan_config, 1);
+    }
+    
+    //printf("Connecting to: %s ... \r\n", _ssid);
     ret = wifi_connect(_ssid, sec, _pass, strlen(_ssid), strlen(_pass), 0, (void *)NULL);
     if (ret != RTW_SUCCESS) {
         printf("failed: %d\r\n", ret);
@@ -126,117 +174,74 @@ nsapi_error_t RTWInterface::connect()
     }
     //printf("connected\r\n");
 
-    wlan_emac_link_up(0);
+    wlan_emac_link_change(true);
     return mbed_lwip_bringup(_dhcp,
                              _ip_address[0] ? _ip_address : 0,
                              _netmask[0] ? _netmask : 0,
                              _gateway[0] ? _gateway : 0);
 }
 
-static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_scan_result )
-{
-	if (malloced_scan_result->scan_complete != RTW_TRUE) {
-		rtw_scan_result_t* record = &malloced_scan_result->ap_details;
-		record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */
-		if(ApNum>maxApNum)
-			return RTW_SUCCESS; 
-		nsapi_wifi_ap_t ap;
-		
-		memset((void*)&ap, 0x00, sizeof(nsapi_wifi_ap_t));
-		memcpy(ap.ssid, record->SSID.val, record->SSID.len);
-		memcpy(ap.bssid, record->BSSID.octet, 6);
-		ap.security = (record->security == RTW_SECURITY_OPEN)?NSAPI_SECURITY_NONE :
-						  (record->security == RTW_SECURITY_WEP_PSK)?NSAPI_SECURITY_WEP:
-						  (record->security == RTW_SECURITY_WPA_TKIP_PSK || record->security == RTW_SECURITY_WPA_AES_PSK)? NSAPI_SECURITY_WPA:
-						  (record->security == RTW_SECURITY_WPA2_AES_PSK || \
-						   record->security == RTW_SECURITY_WPA2_TKIP_PSK || \
-						   record->security == RTW_SECURITY_WPA2_MIXED_PSK)?NSAPI_SECURITY_WPA2:
-						  (record->security == RTW_SECURITY_WPA_WPA2_MIXED)?NSAPI_SECURITY_WPA_WPA2:NSAPI_SECURITY_UNKNOWN;
-		ap.rssi = record->signal_strength;
-		ap.channel = record->channel;
-
-
-		SCANED_AP[ApNum++] = new WiFiAccessPoint(ap);
-		
-	} else{
-		// scan done
-
-		rtw_up_sema(&scan_sema);
-	}
-	return RTW_SUCCESS;
-}
-
 nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
 {
-	// blocked
-	if(count == 0){
-		ApNum = 0;
-		
-		rtw_init_sema(&scan_sema, 0);
-		if(wifi_scan_networks(scan_result_handler, NULL) != RTW_SUCCESS){
-			printf("wifi scan failed\n\r");
-			//return NSAPI_ERROR_DEVICE_ERROR;
-			goto error;
-		}
-		
-		if(rtw_down_timeout_sema( &scan_sema, 15000 ) == RTW_FALSE) {
-			printf("wifi scan timeout\r\n");
-			//return NSAPI_ERROR_DEVICE_ERROR;
-			goto error;
-		} 
-		rtw_free_sema(&scan_sema);
-		return ApNum;
-	}else if(count > 0 && res != NULL){
-		count = count < maxApNum ? count : maxApNum;
-		for(int i = 0; i < count; i++){
-			memcpy(&res[i], SCANED_AP[i], sizeof(WiFiAccessPoint));
-			delete[] SCANED_AP[i];
- 		}
-		return (signed int)count;
-	}
-    return NSAPI_ERROR_OK;
-error:
-	rtw_free_sema(&scan_sema);
-	return NSAPI_ERROR_DEVICE_ERROR;
+    static wifi_scan_hdl scan_handler;
+    ApNum = 0;
+    if(!scan_sema)
+        rtw_init_sema(&scan_sema, 0);
+    scan_handler.scan_num = count;
+    scan_handler.ap_details = res;
+    if(wifi_scan_networks(scan_result_handler, (void *)&scan_handler) != RTW_SUCCESS){
+        printf("wifi scan failed\n\r");
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    if(rtw_down_timeout_sema( &scan_sema, MAX_SCAN_TIMEOUT ) == RTW_FALSE) {
+        printf("wifi scan timeout\r\n");
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    if(count <= 0 || count > ApNum)
+        count = ApNum;
+
+    return count;
 }
 
 nsapi_error_t RTWInterface::set_channel(uint8_t channel)
 {
-	if(wifi_set_channel(channel) == 0)
-		return NSAPI_ERROR_OK;
-    return NSAPI_ERROR_DEVICE_ERROR;
+    _channel = channel;
+    return NSAPI_ERROR_OK;
 }
 
 int8_t RTWInterface::get_rssi()
 {
-    return NSAPI_ERROR_UNSUPPORTED;
+    int rssi = 0;
+    if(wifi_get_rssi(&rssi) == 0)
+        return (int8_t)rssi;
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t RTWInterface::connect(const char *ssid, const char *pass,
                            nsapi_security_t security, uint8_t channel)
 {
     set_credentials(ssid, pass, security);
+    set_channel(channel);
     return connect();
 }
 
 nsapi_error_t RTWInterface::disconnect()
 {
-	char essid[33];
+    char essid[33];
 
+    wlan_emac_link_change(false);
     if(wifi_is_connected_to_ap() != RTW_SUCCESS)
-		return NSAPI_ERROR_NO_CONNECTION;
-	printf("Deassociating AP ...\r\n");
-	if(wifi_disconnect()<0){		
-		return NSAPI_ERROR_DEVICE_ERROR;
-	}
-
-	while(1){
-		if(wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) < 0) {
-			printf("WIFI disconnected\n\r");
-			break;
-		}
-	}
-	
+        return NSAPI_ERROR_NO_CONNECTION;
+    //printf("Deassociating AP ...\r\n");
+    if(wifi_disconnect()<0){		
+        return NSAPI_ERROR_DEVICE_ERROR;
+    }
+    while(1){
+        if(wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) < 0) {
+            //printf("WIFI disconnected\n\r");
+            break;
+        }
+    }
     return NSAPI_ERROR_OK;
 }
 
