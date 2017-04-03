@@ -23,8 +23,6 @@
 #define MBEDTLS_MD5_ALT_H
 
 #if defined(MBEDTLS_MD5_ALT)
-#include "mbedtls/platform.h"
-#include "mbedtls/config.h"
 
 #include "cmsis.h"
 #include <string.h>
