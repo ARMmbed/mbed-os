@@ -61,8 +61,7 @@ extern int inic_stop(void);
  *               Variables Declarations
  ******************************************************/
 #if DEVICE_EMAC
-extern struct netif *xnetif[];
-
+//extern struct netif *xnetif[];
 #else
 extern struct netif xnetif[NET_IF_NUM];
 #endif
@@ -1004,11 +1003,6 @@ int wifi_off(void)
 // TODO:
 #else
 	LwIP_DHCP(0, DHCP_STOP);
-#endif
-#if DEVICE_EMAC
-	netif_set_down(xnetif[0]);
-	netif_set_down(xnetif[1]);
-#else
 	netif_set_down(&xnetif[0]);
 	netif_set_down(&xnetif[1]);
 #endif
@@ -1682,7 +1676,7 @@ int wifi_restart_ap(
 	ip_addr_t netmask;
 	ip_addr_t gw;
 #if DEVICE_EMAC
-        struct netif * pnetif = xnetif[0];
+        //struct netif * pnetif = xnetif[0];
 #else
 	struct netif * pnetif = &xnetif[0];
 #endif
@@ -1708,10 +1702,13 @@ int wifi_restart_ap(
 	else
 #endif
 	{
+#if DEVICE_EMAC
+#else
 		IP4_ADDR(&ipaddr, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
 		IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
 		IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
 		netif_set_addr(pnetif, &ipaddr, &netmask,&gw);
+#endif
 		wifi_off();
 		rtw_msleep_os(20);
 		wifi_on(RTW_MODE_AP);			
@@ -1753,7 +1750,7 @@ int wifi_restart_ap(
 #endif
 #if DEVICE_EMAC
 	// start dhcp server
-	dhcps_init(xnetif[idx]);
+	//dhcps_init(xnetif[idx]);
 #else
 	// start dhcp server
 	dhcps_init(&xnetif[idx]);

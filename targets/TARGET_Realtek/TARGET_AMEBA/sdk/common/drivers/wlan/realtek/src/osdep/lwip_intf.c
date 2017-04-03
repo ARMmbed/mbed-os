@@ -158,11 +158,9 @@ int netif_is_valid_IP(int idx, unsigned char *ip_dest)
 {
 #if CONFIG_LWIP_LAYER == 1
 #if DEVICE_EMAC
-	struct netif *pnetif = xnetif[idx];
-	return 1;
+    return 1;
 #else
-	struct netif *pnetif = &xnetif[idx];
-#endif
+    struct netif *pnetif = &xnetif[idx];
 
     ip_addr_t addr = { 0 };
 
@@ -196,49 +194,45 @@ int netif_is_valid_IP(int idx, unsigned char *ip_dest)
 	else
 #endif
     return 0;
+#endif
 }
 
+#if DEVICE_EMAC
+
+#else
 int netif_get_idx(struct netif *pnetif)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
-    if (pnetif == xnetif[0])
-        return 0;
-#else
-		int idx = pnetif - xnetif;
-	
-		switch(idx) {
-			case 0:
-				return 0;
-			case 1:
-				return 1;
-			default:
-				return -1;
-		}
-#endif
+	int idx = pnetif - xnetif;
+
+	switch(idx) {
+		case 0:
+			return 0;
+		case 1:
+			return 1;
+		default:
+			return -1;
+	}
 #else	
-		return -1;
+	return -1;
 #endif
 }
 
 unsigned char *netif_get_hwaddr(int idx_wlan)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
-    return xnetif[idx_wlan]->hwaddr;
-#else
 	return xnetif[idx_wlan].hwaddr;
-#endif
 #else
 	return NULL;
 #endif
 }
+#endif
 
 void netif_rx(int idx, unsigned int len)
 {
 #if (CONFIG_LWIP_LAYER == 1)
 #if DEVICE_EMAC
-    wlan_emac_recv(xnetif[idx], len);
+    wlan_emac_recv(NULL, len);
 #else
     ethernetif_recv(&xnetif[idx], len);
 #endif
