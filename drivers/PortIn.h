@@ -29,7 +29,7 @@ namespace mbed {
 
 /** A multiple pin digital input
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  *  Example:
  * @code

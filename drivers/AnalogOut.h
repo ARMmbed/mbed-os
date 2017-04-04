@@ -29,7 +29,7 @@ namespace mbed {
 
 /** An analog output, used for setting the voltage on a pin
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
  * Example:
  * @code
@@ -55,7 +55,7 @@ public:
 
     /** Create an AnalogOut connected to the specified pin
      *
-     *  @param AnalogOut pin to connect to (18)
+     * @param pin AnalogOut pin to connect to
      */
     AnalogOut(PinName pin) {
         analogout_init(&_dac, pin);

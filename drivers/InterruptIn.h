@@ -32,7 +32,7 @@ namespace mbed {
 
 /** A digital interrupt input, used to call a function on a rising or falling edge
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -63,7 +63,6 @@ public:
     /** Create an InterruptIn connected to the specified pin
      *
      *  @param pin InterruptIn pin to connect to
-     *  @param name (optional) A string to identify the object
      */
     InterruptIn(PinName pin);
     virtual ~InterruptIn();
@@ -131,7 +130,7 @@ public:
 
     /** Set the input pin mode
      *
-     *  @param mode PullUp, PullDown, PullNone
+     *  @param pull PullUp, PullDown, PullNone
      */
     void mode(PinMode pull);
 

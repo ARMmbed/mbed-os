@@ -34,7 +34,7 @@ namespace mbed {
  * Can be used for Full Duplex communication, or Simplex by specifying
  * one pin as NC (Not Connected)
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  *
  * Example:
  * @code

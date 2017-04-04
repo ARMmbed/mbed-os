@@ -28,7 +28,7 @@ namespace mbed {
 
 /** A pulse-width modulation digital output
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example
  * @code
@@ -47,13 +47,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- *
- * @note
- *  On the LPC1768 and LPC2368, the PWMs all share the same
- *  period - if you change the period for one, you change it for all.
- *  Although routines that change the period maintain the duty cycle
- *  for its PWM, all other PWMs will require their duty cycle to be
- *  refreshed.
  */
 class PwmOut {
 
@@ -90,7 +83,7 @@ public:
      *    0.0f (representing on 0%) and 1.0f (representing on 100%).
      *
      *  @note
-     *  This value may not match exactly the value set by a previous <write>.
+     *  This value may not match exactly the value set by a previous write().
      */
     float read() {
         core_util_critical_section_enter();
@@ -101,6 +94,7 @@ public:
 
     /** Set the PWM period, specified in seconds (float), keeping the duty cycle the same.
      *
+     *  @param seconds Change the period of a PWM signal in seconds (float) without modifying the duty cycle
      *  @note
      *   The resolution is currently in microseconds; periods smaller than this
      *   will be set to zero.
@@ -112,6 +106,7 @@ public:
     }
 
     /** Set the PWM period, specified in milli-seconds (int), keeping the duty cycle the same.
+     *  @param ms Change the period of a PWM signal in milli-seconds without modifying the duty cycle
      */
     void period_ms(int ms) {
         core_util_critical_section_enter();
@@ -120,6 +115,7 @@ public:
     }
 
     /** Set the PWM period, specified in micro-seconds (int), keeping the duty cycle the same.
+     *  @param us Change the period of a PWM signal in micro-seconds without modifying the duty cycle
      */
     void period_us(int us) {
         core_util_critical_section_enter();
@@ -128,6 +124,7 @@ public:
     }
 
     /** Set the PWM pulsewidth, specified in seconds (float), keeping the period the same.
+     *  @param seconds Change the pulse width of a PWM signal specified in seconds (float)
      */
     void pulsewidth(float seconds) {
         core_util_critical_section_enter();
@@ -136,6 +133,7 @@ public:
     }
 
     /** Set the PWM pulsewidth, specified in milli-seconds (int), keeping the period the same.
+     *  @param ms Change the pulse width of a PWM signal specified in milli-seconds
      */
     void pulsewidth_ms(int ms) {
         core_util_critical_section_enter();
@@ -144,6 +142,7 @@ public:
     }
 
     /** Set the PWM pulsewidth, specified in micro-seconds (int), keeping the period the same.
+     *  @param us Change the pulse width of a PWM signal specified in micro-seconds  
      */
     void pulsewidth_us(int us) {
         core_util_critical_section_enter();
@@ -159,6 +158,8 @@ public:
         return *this;
     }
 
+    /** A operator shorthand for write()
+     */    
     PwmOut& operator= (PwmOut& rhs) {
         // Underlying call is thread safe
         write(rhs.read());

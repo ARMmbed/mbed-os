@@ -30,7 +30,7 @@ namespace mbed {
 
 /** An analog input, used for reading the voltage on a pin
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
  * Example:
  * @code
@@ -56,7 +56,6 @@ public:
     /** Create an AnalogIn, connected to the specified pin
      *
      * @param pin AnalogIn pin to connect to
-     * @param name (optional) A string to identify the object
      */
     AnalogIn(PinName pin) {
         lock();

@@ -29,7 +29,7 @@ namespace mbed {
 
 /** Low Power Timout
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  */
 class LowPowerTimeout : public LowPowerTicker {
 
