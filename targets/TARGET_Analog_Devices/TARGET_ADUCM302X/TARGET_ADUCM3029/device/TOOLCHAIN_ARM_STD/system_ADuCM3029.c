@@ -34,7 +34,6 @@
 
    Portions Copyright (c) 2016 - 2017 Analog Devices, Inc.
    ---------------------------------------------------------------------------*/
-
 #include <stdint.h>
 #include <ADuCM3029.h>
 #include <adi_int.h>
@@ -96,11 +95,6 @@ const ADI_ADUCM302X_SECURITY_OPTIONS adi_aducm302x_security_options
   (61 + 15 + 1)*4 = 308 bytes, which rounds up to a 512 (0x200)
   address boundary (which address 0x20000000 satisfies).
 
-  Also note use of the "__no_init" attribute to force the
-  relocated IVT into the ".noinit" section.  This prevents
-  the CRTL startup sequence from initializing the relocated
-  IVT after we have activated it during the reset vector.
-  so that the CRTL does not clear it.
 */
 
 #define RELOCATION_ADDRESS    (0x20000000)

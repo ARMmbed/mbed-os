@@ -30,28 +30,32 @@
 ;  POSSIBILITY OF SUCH DAMAGE.
 ;******************************************************************************
 
-LR_IROM1 0x00000000 {
-    ADUCM_IROM1 0x00000000 0x00040000 {  ; load address = execution address
+LR_IROM1 0x00000000 0x00040000 {
+    ADUCM_IROM1 0x00000000 0x00040000 {  ; romflash start address
         *(.vectors, +First)
         *(InRoot$$Sections)
         .ANY (+RO)
     }
 
-    RW_IRAM1 0x20000200 {
+    RW_IRAM1 0x20000200 { ; data section
         .ANY (+RW)
     }
 
-    ADUCM_STACK AlignExpr(ImageLimit(RW_IRAM1), 16) EMPTY 
-	    (0x20004000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
+    ADUCM_HEAP AlignExpr(+0, 16) EMPTY
+        (0x20003000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) { ; heap
     }
-		
-    ADUCM_IRAM2 0x20004000 {
+
+    ADUCM_STACK AlignExpr(+0, 16) EMPTY 0x1000 { ; stack
+    }
+
+    ADUCM_IRAM2 0x20004000 0x4000 { ; bss section
         .ANY (+RW +ZI)
     }
 
-	ADUCM_HEAP AlignExpr(ImageLimit(ADUCM_IRAM2), 16) EMPTY
-	    (0x20008000 - AlignExpr(ImageLimit(ADUCM_IRAM2), 16)) {
+    ADUCM_IRAM3 0x20040000 0x8000 { ; non-retainable memory region
+         .ANY (+RW +ZI)
     }
-	
-	ADUCM_IRAM3 0x20040000 0x8000 { .ANY  } ; non-retainable memory region 
 }
+
+ScatterAssert(ImageLimit(RW_IRAM1)    <= 0x20002000)
+
