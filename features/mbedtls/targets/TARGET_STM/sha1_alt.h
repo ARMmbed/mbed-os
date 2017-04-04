@@ -22,8 +22,6 @@
 
 #if defined MBEDTLS_SHA1_ALT
 
-#include "mbedtls/platform.h"
-#include "mbedtls/config.h"
 
 #include "cmsis.h"
 #include <string.h>
@@ -106,22 +104,6 @@ void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[6
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/**
- * \brief          Output = SHA-1( input buffer )
- *
- * \param input    buffer holding the  data
- * \param ilen     length of the input data
- * \param output   SHA-1 checksum result
- */
-void mbedtls_sha1( const unsigned char *input, size_t ilen, unsigned char output[20] );
-
-/**
- * \brief          Checkup routine
- *
- * \return         0 if successful, or 1 if the test failed
- */
-int mbedtls_sha1_self_test( int verbose );
 
 #ifdef __cplusplus
 }

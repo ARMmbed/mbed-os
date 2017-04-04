@@ -18,8 +18,8 @@
  *
  */
 #include "mbedtls/sha1.h"
-
 #if defined(MBEDTLS_SHA1_ALT)
+#include "mbedtls/platform.h"
 
 /* Implementation that should never be optimized out by the compiler */
 static void mbedtls_zeroize( void *v, size_t n ) {
@@ -40,7 +40,7 @@ void mbedtls_sha1_free( mbedtls_sha1_context *ctx )
 {
     if( ctx == NULL )
         return;
-	
+
 	/* Force the HASH Periheral Clock Reset */
     __HAL_RCC_HASH_FORCE_RESET();
 
@@ -66,7 +66,7 @@ void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
         // error found to be returned
         return;
     }
-    
+
     /* HASH Configuration */
     ctx->hhash_sha1.Init.DataType = HASH_DATATYPE_8B;
     if (HAL_HASH_Init(&ctx->hhash_sha1) == HAL_ERROR) {
@@ -126,7 +126,7 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input,
                 ctx->flag=0;
             }
         }
-    }    
+    }
 }
 
 /*
@@ -140,7 +140,7 @@ void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] )
     }
 
     __HAL_HASH_START_DIGEST();
-        
+
     if (HAL_HASH_SHA1_Finish(&ctx->hhash_sha1, output, 10)){
         // error code to be returned
     }
