@@ -30,7 +30,7 @@ namespace mbed {
 
 /** CANMessage class
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  */
 class CANMessage : public CAN_Message {
 
@@ -213,7 +213,7 @@ public:
      *  generated.
      *
      *  @param func A pointer to a void function, or 0 to set as none
-     *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
+     *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
      */
     void attach(Callback<void()> func, IrqType type=RxIrq);
 
@@ -222,7 +222,7 @@ public:
     *
     *  @param obj pointer to the object to call the member function on
     *  @param method pointer to the member function to be called
-    *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+    *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
     */
     template<typename T>
     void attach(T* obj, void (T::*method)(), IrqType type=RxIrq) {
@@ -235,7 +235,7 @@ public:
     *
     *  @param obj pointer to the object to call the member function on
     *  @param method pointer to the member function to be called
-    *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+    *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
     */
     template<typename T>
     void attach(T* obj, void (*method)(T*), IrqType type=RxIrq) {

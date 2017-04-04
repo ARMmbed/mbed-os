@@ -28,7 +28,7 @@ namespace mbed {
 /** @{*/
 /** A multiple pin digital out
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example:
  * @code

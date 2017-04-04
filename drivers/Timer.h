@@ -25,7 +25,7 @@ namespace mbed {
 
 /** A general purpose timer
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example:
  * @code

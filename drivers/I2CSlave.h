@@ -28,7 +28,7 @@ namespace mbed {
 
 /** An I2C Slave, used for communicating with an I2C Master device
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  *
  * Example:
  * @code
@@ -127,7 +127,7 @@ public:
 
     /** Write a single byte to an I2C master.
      *
-     *  @data the byte to write
+     *  @param data the byte to write
      *
      *  @returns
      *    '1' if an ACK was received,

@@ -41,9 +41,9 @@ namespace mbed {
  * The default format is set to 8-bits, mode 0, and a clock frequency of 1MHz
  *
  * Most SPI devices will also require Chip Select and Reset signals. These
- * can be controlled using <DigitalOut> pins
+ * can be controlled using DigitalOut pins
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
  * Example:
  * @code

@@ -30,7 +30,7 @@ namespace mbed {
  *
  * The default format is set to 8-bits, mode 0, and a clock frequency of 1MHz
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  *
  * Example:
  * @code

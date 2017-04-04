@@ -29,7 +29,7 @@ namespace mbed {
 
 /** Low Power Ticker
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  */
 class LowPowerTicker : public Ticker {
 
