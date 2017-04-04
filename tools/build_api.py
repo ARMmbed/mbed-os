@@ -17,6 +17,7 @@ limitations under the License.
 
 import re
 import tempfile
+import datetime
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
@@ -102,6 +103,7 @@ def add_result_to_report(report, result):
     report - the report to append to
     result - the result to append
     """
+    result["date"] = str(datetime.datetime.now())
     target = result["target_name"]
     toolchain = result["toolchain_name"]
     id_name = result['id']
@@ -550,6 +552,9 @@ def build_project(src_paths, build_path, target, toolchain_name,
             cur_result["output"] = toolchain.get_output() + memap_table
             cur_result["result"] = "OK"
             cur_result["memory_usage"] = toolchain.map_outputs
+            cur_result["bin"] = res
+            cur_result["elf"] = splitext(res)[0] + ".elf"
+            cur_result.update(toolchain.report)
 
             add_result_to_report(report, cur_result)
 

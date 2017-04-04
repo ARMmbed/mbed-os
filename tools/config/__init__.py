@@ -20,7 +20,7 @@ import os
 from os.path import dirname, abspath
 import sys
 from collections import namedtuple
-from os.path import splitext
+from os.path import splitext, relpath
 from intelhex import IntelHex
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
@@ -389,25 +389,25 @@ class Config(object):
         search for a configuration file).
         """
         config_errors = []
-        app_config_location = app_config
-        if app_config_location is None:
+        self.app_config_location = app_config
+        if self.app_config_location is None:
             for directory in top_level_dirs or []:
                 full_path = os.path.join(directory, self.__mbed_app_config_name)
                 if os.path.isfile(full_path):
-                    if app_config_location is not None:
+                    if self.app_config_location is not None:
                         raise ConfigException("Duplicate '%s' file in '%s' and '%s'"
                                               % (self.__mbed_app_config_name,
-                                                 app_config_location, full_path))
+                                                 self.app_config_location, full_path))
                     else:
-                        app_config_location = full_path
+                        self.app_config_location = full_path
         try:
-            self.app_config_data = json_file_to_dict(app_config_location) \
-                                   if app_config_location else {}
+            self.app_config_data = json_file_to_dict(self.app_config_location) \
+                                   if self.app_config_location else {}
         except ValueError as exc:
             self.app_config_data = {}
             config_errors.append(
                 ConfigException("Could not parse mbed app configuration from %s"
-                                % app_config_location))
+                                % self.app_config_location))
 
         # Check the keys in the application configuration data
         unknown_keys = set(self.app_config_data.keys()) - \
@@ -526,6 +526,11 @@ class Config(object):
         if start > rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
+
+    @property
+    def report(self):
+        return {'app_config': self.app_config_location,
+                'library_configs': map(relpath, self.processed_configs.keys())}
 
     def _process_config_and_overrides(self, data, params, unit_name, unit_kind):
         """Process "config_parameters" and "target_config_overrides" into a
