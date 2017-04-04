@@ -25,11 +25,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** Low Power Ticker
  *
  * @note Synchronization level: Interrupt safe
+ * @ingroup drivers
  */
 class LowPowerTicker : public Ticker {
 
@@ -46,5 +46,3 @@ public:
 #endif
 
 #endif
-
-/** @}*/

@@ -25,11 +25,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** Low power timer
  *
  * @note Synchronization level: Interrupt safe
+ * @ingroup drivers
  */
 class LowPowerTimer : public Timer {
 
@@ -44,5 +44,3 @@ public:
 #endif
 
 #endif
-
-/** @}*/

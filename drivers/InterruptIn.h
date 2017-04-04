@@ -28,7 +28,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A digital interrupt input, used to call a function on a rising or falling edge
  *
@@ -55,6 +54,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class InterruptIn {
 
@@ -159,5 +159,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

@@ -31,11 +31,11 @@
 namespace mbed {
 
 /** \addtogroup drivers */
-/** @{*/
 
 /** Flash IAP driver. It invokes flash HAL functions.
  *
  * @note Synchronization level: Thread safe
+ * @ingroup drivers
  */
 class FlashIAP {
 public:
@@ -134,5 +134,3 @@ private:
 #endif  /* DEVICE_FLASH */
 
 #endif  /* MBED_FLASHIAP_H */
-
-/** @}*/

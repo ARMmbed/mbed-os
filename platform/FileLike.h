@@ -21,8 +21,7 @@
 #include "platform/FileHandle.h"
 
 namespace mbed {
-/** \addtogroup drivers */
-/** @{*/
+/** \addtogroup platform */
 
 
 /* Class FileLike
@@ -30,6 +29,7 @@ namespace mbed {
  *  fopen("/name", mode).
  *
  *  @Note Synchronization level: Set by subclass
+ *  @ingroup platform
  */
 class FileLike : public FileHandle, public FileBase {
 public:
@@ -42,7 +42,6 @@ public:
 };
 
 
-/** @}*/
 } // namespace mbed
 
 #endif

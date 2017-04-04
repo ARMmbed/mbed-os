@@ -26,11 +26,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** CANMessage class
  *
  * @note Synchronization level: Thread safe
+ * @ingroup drivers
  */
 class CANMessage : public CAN_Message {
 
@@ -67,6 +67,7 @@ public:
 };
 
 /** A can bus client, used for communicating with can devices
+ * @ingroup drivers
  */
 class CAN {
 
@@ -259,4 +260,3 @@ protected:
 
 #endif    // MBED_CAN_H
 
-/** @}*/

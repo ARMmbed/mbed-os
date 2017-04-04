@@ -25,11 +25,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** Low Power Timout
  *
  * @note Synchronization level: Interrupt safe
+ * @ingroup drivers
  */
 class LowPowerTimeout : public LowPowerTicker {
 
@@ -44,5 +44,3 @@ private:
 #endif
 
 #endif
-
-/** @}*/

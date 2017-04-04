@@ -23,7 +23,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A digital input, used for reading the state of a pin
  *
@@ -47,6 +46,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class DigitalIn {
 
@@ -115,5 +115,3 @@ protected:
 } // namespace mbed
 
 #endif
-
-/** @}*/

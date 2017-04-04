@@ -25,7 +25,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A multiple pin digital input
  *
@@ -51,6 +50,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class PortIn {
 public:
@@ -100,5 +100,3 @@ private:
 #endif
 
 #endif
-
-/** @}*/

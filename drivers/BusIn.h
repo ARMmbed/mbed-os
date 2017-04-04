@@ -22,11 +22,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A digital input bus, used for reading the state of a collection of pins
  *
  * @note Synchronization level: Thread safe
+ * @ingroup drivers
  */
 class BusIn {
 
@@ -125,4 +125,3 @@ private:
 
 #endif
 
-/** @}*/

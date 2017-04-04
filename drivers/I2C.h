@@ -32,7 +32,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** An I2C Master, used for communicating with I2C slave devices
  *
@@ -52,6 +51,7 @@ namespace mbed {
  *     i2c.read(address, data, 2);
  * }
  * @endcode
+ * @ingroup drivers
  */
 class I2C {
 
@@ -194,5 +194,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/
