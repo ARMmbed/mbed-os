@@ -355,7 +355,8 @@ class Config(object):
         "library": {"name": str, "config": dict, "target_overrides": dict,
                     "macros": list, "__config_path": str},
         "application": {"config": dict, "target_overrides": dict,
-                        "macros": list, "__config_path": str}
+                        "macros": list, "__config_path": str,
+                        "artifact_name": str}
     }
 
     __unused_overrides = set(["target.bootloader_img", "target.restrict_size"])
@@ -799,6 +800,13 @@ class Config(object):
             raise self.config_errors[0]
         return True
 
+
+    @property
+    def name(self):
+        if "artifact_name" in self.app_config_data:
+            return self.app_config_data["artifact_name"]
+        else:
+            return None
 
     def load_resources(self, resources):
         """ Load configuration data from a Resources instance and expand it
