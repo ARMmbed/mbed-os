@@ -22,7 +22,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A Ticker is used to call a function at a recurring interval
  *
@@ -58,6 +57,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class Ticker : public TimerEvent {
 
@@ -142,5 +142,3 @@ protected:
 } // namespace mbed
 
 #endif
-
-/** @}*/

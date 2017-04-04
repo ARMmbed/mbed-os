@@ -27,7 +27,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A serial port (UART) for communication with other serial devices
  *
@@ -48,6 +47,7 @@ namespace mbed {
  *     pc.printf("Hello World\n");
  * }
  * @endcode
+ * @ingroup drivers
  */
 class Serial : public SerialBase, public Stream {
 
@@ -95,5 +95,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

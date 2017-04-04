@@ -25,7 +25,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 /** A multiple pin digital out
  *
  * @note Synchronization level: Interrupt safe
@@ -50,6 +49,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class PortOut {
 public:
@@ -109,5 +109,3 @@ private:
 #endif
 
 #endif
-
-/** @}*/

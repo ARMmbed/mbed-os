@@ -26,7 +26,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** An analog input, used for reading the voltage on a pin
  *
@@ -48,6 +47,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class AnalogIn {
 
@@ -128,4 +128,3 @@ protected:
 
 #endif
 
-/** @}*/

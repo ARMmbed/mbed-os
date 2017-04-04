@@ -22,7 +22,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** An ethernet interface, to use with the ethernet pins.
  *
@@ -53,6 +52,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class Ethernet {
 
@@ -172,5 +172,3 @@ public:
 #endif
 
 #endif
-
-/** @}*/

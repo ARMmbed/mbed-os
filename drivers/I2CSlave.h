@@ -24,7 +24,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** An I2C Slave, used for communicating with an I2C Master device
  *
@@ -61,6 +60,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class I2CSlave {
 
@@ -156,5 +156,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

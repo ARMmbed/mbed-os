@@ -21,11 +21,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A digital input output bus, used for setting the state of a collection of pins
  *
  * @note Synchronization level: Thread safe
+ * @ingroup drivers
  */
 class BusInOut {
 
@@ -142,5 +142,3 @@ private:
 } // namespace mbed
 
 #endif
-
-/** @}*/

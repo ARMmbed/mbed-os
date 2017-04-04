@@ -23,8 +23,7 @@
 #include "platform/DirHandle.h"
 
 namespace mbed {
-/** \addtogroup drivers */
-/** @{*/
+/** \addtogroup platform */
 
 /** A filesystem-like object is one that can be used to open files
  *  though it by fopen("/name/filename", mode)
@@ -33,6 +32,7 @@ namespace mbed {
  *  of the rest of the functions just return error values).
  *
  * @Note Synchronization level: Set by subclass
+ * @ingroup platform
  */
 class FileSystemLike : public FileBase {
 
@@ -120,5 +120,3 @@ public:
 } // namespace mbed
 
 #endif
-
-/** @}*/

@@ -25,7 +25,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** An analog output, used for setting the voltage on a pin
  *
@@ -48,6 +47,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class AnalogOut {
 
@@ -146,5 +146,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

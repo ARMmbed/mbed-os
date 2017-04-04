@@ -21,11 +21,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** Base abstraction for timer interrupts
  *
  * @note Synchronization level: Interrupt safe
+ * @ingroup drivers
  */
 class TimerEvent {
 public:
@@ -58,5 +58,3 @@ protected:
 } // namespace mbed
 
 #endif
-
-/** @}*/

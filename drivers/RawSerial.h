@@ -25,7 +25,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A serial port (UART) for communication with other serial devices
  * This is a variation of the Serial class that doesn't use streams,
@@ -48,6 +47,7 @@ namespace mbed {
  *     pc.putc('A');
  * }
  * @endcode
+ * @ingroup drivers
  */
 class RawSerial: public SerialBase {
 
@@ -103,5 +103,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

@@ -32,12 +32,12 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A base class for serial port implementations
  * Can't be instantiated directly (use Serial or RawSerial)
  *
  * @note Synchronization level: Set by subclass
+ * @ingroup drivers
  */
 class SerialBase {
 
@@ -258,5 +258,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

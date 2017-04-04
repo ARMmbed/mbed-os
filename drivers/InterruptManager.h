@@ -23,7 +23,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** Use this singleton if you need to chain interrupt handlers.
  *
@@ -52,6 +51,7 @@ namespace mbed {
  *     InterruptManager::get()->add_handler(handler, TIMER3_IRQn);
  * }
  * @endcode
+ * @ingroup drivers
  */
 class InterruptManager {
 public:
@@ -170,6 +170,3 @@ private:
 } // namespace mbed
 
 #endif
-
-
-/** @}*/

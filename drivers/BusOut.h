@@ -21,9 +21,9 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A digital output bus, used for setting the state of a collection of pins
+ * @ingroup drivers
  */
 class BusOut {
 
@@ -126,5 +126,3 @@ private:
 } // namespace mbed
 
 #endif
-
-/** @}*/

@@ -24,7 +24,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A pulse-width modulation digital output
  *
@@ -47,6 +46,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class PwmOut {
 
@@ -182,5 +182,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/
