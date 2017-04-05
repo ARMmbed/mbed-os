@@ -55,17 +55,17 @@ from utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from tools.settings import CLI_COLOR_MAP
 
-def merge_metadata(filename, toolchain_report):
+def merge_build_data(filename, toolchain_report):
     try:
-        metadata = load(open(filename))
+        build_data = load(open(filename))
     except (IOError, ValueError):
-        metadata = {'builds': []}
+        build_data = {'builds': []}
     for tgt in toolchain_report.values():
         for tc in tgt.values():
             for project in tc.values():
                 for build in project:
-                    metadata['builds'].append(build[0])
-    dump(metadata, open(filename, "wb"), indent=4, separators=(',', ': '))
+                    build_data['builds'].append(build[0])
+    dump(build_data, open(filename, "wb"), indent=4, separators=(',', ': '))
 
 if __name__ == '__main__':
     # Parse Options
@@ -190,10 +190,10 @@ if __name__ == '__main__':
                       default=False,
                       help="Link with mbed test library")
 
-    parser.add_argument("--metadata",
-                        dest="metadata",
+    parser.add_argument("--build-data",
+                        dest="build_data",
                         default=None,
-                        help="Dump metadata to this file")
+                        help="Dump build_data to this file")
 
     # Specify a different linker script
     parser.add_argument("-l", "--linker", dest="linker_script",
@@ -267,7 +267,7 @@ if __name__ == '__main__':
                            %(toolchain,search_path))
 
     # Test
-    metadata_blob = {} if options.metadata else None
+    build_data_blob = {} if options.build_data else None
     for test_no in p:
         test = Test(test_no)
         if options.automated is not None:    test.automated = options.automated
@@ -306,7 +306,7 @@ if __name__ == '__main__':
                                      clean=options.clean,
                                      verbose=options.verbose,
                                      notify=notify,
-                                     report=metadata_blob,
+                                     report=build_data_blob,
                                      silent=options.silent,
                                      macros=options.macros,
                                      jobs=options.jobs,
@@ -362,5 +362,5 @@ if __name__ == '__main__':
                 print "[ERROR] %s" % str(e)
             
             sys.exit(1)
-    if options.metadata:
-        merge_metadata(options.metadata, metadata_blob)
+    if options.build_data:
+        merge_build_data(options.build_data, build_data_blob)
