@@ -149,7 +149,7 @@ private:
     unsigned _block_size;
     bool _is_initialized;
     bool _dbg;
-    Mutex _lock;
+    mutable Mutex _lock;
 };
 
 
