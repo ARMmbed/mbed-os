@@ -32,6 +32,7 @@ from tools.export import lpcxpresso, ds5_5, iar, makefile
 from tools.export import embitz, coide, kds, simplicity, atmelstudio
 from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt
 from tools.export import gnuarmeclipse
+from tools.export import qtcreator
 from tools.targets import TARGET_NAMES
 
 EXPORTERS = {
@@ -55,6 +56,7 @@ EXPORTERS = {
     'eclipse_iar'      : cdt.EclipseIAR,
     'eclipse_armc5'    : cdt.EclipseArmc5,
     'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
+    'qtcreator': qtcreator.QtCreator,
     'zip' : zip.ZIP,
     'cmsis'    : cmsis.CMSIS
 }
