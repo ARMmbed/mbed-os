@@ -42,29 +42,47 @@
 
 void trng_init(trng_t *obj)
 {
+    (void) obj;
+
     (void)nrf_drv_rng_init(NULL);
 }
 
 void trng_free(trng_t *obj)
 {
+    (void) obj;
+
     nrf_drv_rng_uninit();
 }
 
+/* Get random data from NRF5x TRNG peripheral.
+ *
+ * This implementation returns num of random bytes in range <1, length>.
+ * For parameters description see trng_api.h file.
+ */
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
-#ifdef NRF_RNG_NON_BLOCKING
     uint8_t bytes_available;
-    
-    nrf_drv_rng_bytes_available(&bytes_available);
-    
-    if ((bytes_available < length) || (nrf_drv_rng_rand(output, length) == NRF_ERROR_NOT_FOUND)) {
-        *output_length = 0;
-        return -1;
-    }
-#endif
-    nrf_drv_rng_block_rand(output, length);
 
-    *output_length = length;
+    (void) obj;
+
+    nrf_drv_rng_bytes_available(&bytes_available);
+
+    if (bytes_available == 0) {
+        nrf_drv_rng_block_rand(output, 1);
+        *output_length = 1;
+    } else {
+
+        if (bytes_available > length) {
+            bytes_available = length;
+        }
+
+        if (nrf_drv_rng_rand(output, bytes_available) != NRF_SUCCESS) {
+            *output_length = 0;
+            return -1;
+        } else {
+            *output_length = bytes_available;
+        }
+    }
 
     return 0;
 }
