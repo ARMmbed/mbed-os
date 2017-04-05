@@ -106,7 +106,6 @@ static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
 
 static bool wlan_power_up(emac_interface_t *emac)
 {
-    //printf("Powering up WiFi ...\r\n");
     wifi_on(RTW_MODE_STA);
     wait_ms(1000);
     return true;
@@ -114,7 +113,6 @@ static bool wlan_power_up(emac_interface_t *emac)
 
 static void wlan_power_down(emac_interface_t *emac)
 {
-    //printf("Powering down WiFi ...\r\n");
     wifi_off();
 }
 
