@@ -132,6 +132,7 @@ private:
     int _cmdx(int cmd, int arg);
     int _cmd8();
     int _cmd58();
+    int _go_idle_state();
     int _initialise_card();
     int _initialise_card_v1();
     int _initialise_card_v2();
