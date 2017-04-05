@@ -198,9 +198,14 @@ struct dac_s {
 };
 #endif
 
+#ifdef CONFIG_ADC_EN //True random number generator uses ADC
+
 struct trng_s{
 	uint32_t pin;
+	struct analogin_s tradcng;
+	uint8_t inited;
 };
+#endif
 
 #ifdef __cplusplus
 }

@@ -196,13 +196,10 @@ void serial_baud(serial_t *obj, int baudrate) {
 	}
 #endif
     PHAL_RUART_ADAPTER pHalRuartAdapter;
-    //PHAL_RUART_OP      pHalRuartOp;
 
     pHalRuartAdapter = &(obj->hal_uart_adp);
-    //pHalRuartOp = &(obj->hal_uart_op);
 
     pHalRuartAdapter->BaudRate = baudrate;
-//  HalRuartInit(pHalRuartAdapter);
     HalRuartSetBaudRate((VOID*)pHalRuartAdapter);
 }
 

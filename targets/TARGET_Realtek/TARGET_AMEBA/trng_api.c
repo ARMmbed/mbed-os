@@ -18,25 +18,26 @@
 #include "analogin_ext.h"
 
 #ifdef DEVICE_TRNG
-static analogin_t tradcng;
-static uint8_t trng_inited;
+
 
 void trng_init(trng_t *obj)
 {
-    if (trng_inited != 0) {
-        return;
-    }
-    analogin_init(&tradcng, ADC0);
-    trng_inited = 1;
+	_memset((void *)obj, 0, sizeof(trng_t));
+    analogin_init(&obj->tradcng, ADC0);
+    obj->inited = 1;
 }
 
 void trng_free(trng_t *obj)
 {
-    trng_inited = 0;
-    analogin_deinit(&tradcng);
+    if (!obj->inited) {
+        return;
+    }
+	
+    obj->inited = 0;
+    analogin_deinit(&obj->tradcng);
 }
 
-static void trng_get_byte(unsigned char *byte)
+static void trng_get_byte(trng_t *obj, unsigned char *byte)
 {
     size_t bit;
     uint32_t adc[2];
@@ -44,11 +45,11 @@ static void trng_get_byte(unsigned char *byte)
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_HND            pSalADCHND          = NULL;
 
-    pSalADCMngtAdpt         = &(tradcng.SalADCMngtAdpt);
+    pSalADCMngtAdpt         = &(obj->tradcng.SalADCMngtAdpt);
     pSalADCHND              = &(pSalADCMngtAdpt->pSalHndPriv->SalADCHndPriv);
 
     *byte = 0;
-    for (bit=0; bit<8; bit++) {
+    for (bit = 0; bit < 8; bit++) {
 		RtkADCRxManualRotate(pSalADCHND, adc);
         *byte |= (adc[0] & 0x01) << bit;
     }
@@ -57,9 +58,13 @@ static void trng_get_byte(unsigned char *byte)
 int trng_get_bytes(trng_t *obj, uint8_t *buf, size_t len, size_t *output_len)
 {
     size_t i;
+	
+    if (!obj->inited) {
+        return -1;
+    }
 
     for (i = 0; i < len; i++) {
-        trng_get_byte(buf + i);
+        trng_get_byte(obj, buf + i);
     }
 
     *output_len = len;
