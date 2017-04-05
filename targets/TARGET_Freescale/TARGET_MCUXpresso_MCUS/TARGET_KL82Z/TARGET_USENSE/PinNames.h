@@ -115,9 +115,9 @@ typedef enum {
     //Push buttons
     SW0 = PTE2,
 
-    USBTX = PTA1,
-    USBRX = PTA2,
-    
+    USBRX = PTA1,
+    USBTX = PTA2,
+
     UART_RTS = PTC1,
     UART_CTS = PTC2,
     UART_RX  = PTC3,

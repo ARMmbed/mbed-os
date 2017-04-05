@@ -1,34 +1,4 @@
 /*
- * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
- *
- * o Redistributions of source code must retain the above copyright notice, this list
- *   of conditions and the following disclaimer.
- *
- * o Redistributions in binary form must reproduce the above copyright notice, this
- *   list of conditions and the following disclaimer in the documentation and/or
- *   other materials provided with the distribution.
- *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-/*
  * How to setup clock using clock driver functions:
  *
  * 1. CLOCK_SetSimSafeDivs, to make sure core clock, bus clock, flexbus clock
@@ -56,14 +26,14 @@
  * 4. Call CLOCK_SetSimConfig to set the clock configuration in SIM.
  */
 
-/* TEXT BELOW IS USED AS SETTING FOR THE CLOCKS TOOL *****************************
-!!ClocksProfile
-product: Clocks v1.0
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+!!GlobalInfo
+product: Clocks v3.0
 processor: MKL82Z128xxx7
 package_id: MKL82Z128VLL7
 mcu_data: ksdk2_0
-processor_version: 1.1.0
- * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR THE CLOCKS TOOL **/
+processor_version: 2.0.0
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 
 #include "fsl_clock_config.h"
 
@@ -100,43 +70,52 @@ static void CLOCK_CONFIG_SetFllExtRefDiv(uint8_t frdiv)
 }
 
 /*******************************************************************************
+ ************************ BOARD_InitBootClocks function ************************
+ ******************************************************************************/
+void BOARD_InitBootClocks(void)
+{
+    BOARD_BootClockRUN();
+}
+
+/*******************************************************************************
  ********************** Configuration BOARD_BootClockRUN ***********************
  ******************************************************************************/
-/* TEXT BELOW IS USED AS SETTING FOR THE CLOCKS TOOL *****************************
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
 !!Configuration
 name: BOARD_BootClockRUN
+called_from_default_init: true
 outputs:
-- {id: Bus_clock.outFreq, value: 24 MHz}
-- {id: Core_clock.outFreq, value: 48 MHz, locked: true, accuracy: '0.001'}
+- {id: Bus_clock.outFreq, value: 16 MHz}
+- {id: Core_clock.outFreq, value: 48 MHz}
 - {id: Fast_bus_clock.outFreq, value: 48 MHz}
-- {id: Flash_clock.outFreq, value: 24 MHz}
+- {id: Flash_clock.outFreq, value: 16 MHz}
 - {id: IRC48MCLK.outFreq, value: 48 MHz}
 - {id: LPO_clock.outFreq, value: 1 kHz}
-- {id: LPUARTCLK.outFreq, value: 28.8 MHz}
-- {id: MCGPLLCLK.outFreq, value: 144 MHz}
-- {id: MCGPLLCLK2X.outFreq, value: 288 MHz}
-- {id: PLLFLLCLK.outFreq, value: 144 MHz}
+- {id: LPUARTCLK.outFreq, value: 48 MHz}
+- {id: MCGPLLCLK.outFreq, value: 96 MHz}
+- {id: MCGPLLCLK2X.outFreq, value: 192 MHz}
+- {id: PLLFLLCLK.outFreq, value: 96 MHz}
 - {id: System_clock.outFreq, value: 48 MHz}
 settings:
 - {id: MCGMode, value: PEE}
 - {id: LPUARTClkConfig, value: 'yes'}
-- {id: MCG.FLL_mul.scale, value: '640', locked: true}
 - {id: MCG.IREFS.sel, value: MCG.FRDIV}
 - {id: MCG.OSCSEL.sel, value: SIM.IRC48MCLK}
 - {id: MCG.OSCSEL_PLL.sel, value: SIM.IRC48MCLK}
 - {id: MCG.PLLS.sel, value: MCG.PLL_DIV2}
-- {id: MCG.PRDIV.scale, value: '3'}
-- {id: MCG.VDIV.scale, value: '18'}
+- {id: MCG.PRDIV.scale, value: '4'}
+- {id: RTC_CR_OSCE_CFG, value: Enabled}
+- {id: SIM.FLEXIOSRCSEL.sel, value: SIM.PLLFLLDIV}
 - {id: SIM.LPUARTSRCSEL.sel, value: SIM.PLLFLLDIV}
-- {id: SIM.OUTDIV1.scale, value: '3'}
+- {id: SIM.OUTDIV1.scale, value: '2'}
 - {id: SIM.OUTDIV2.scale, value: '6'}
 - {id: SIM.OUTDIV4.scale, value: '6'}
-- {id: SIM.OUTDIV5.scale, value: '3'}
-- {id: SIM.PLLFLLDIV.scale, value: '5'}
+- {id: SIM.OUTDIV5.scale, value: '2'}
+- {id: SIM.PLLFLLDIV.scale, value: '2'}
 - {id: SIM.PLLFLLSEL.sel, value: MCG.MCGPLLCLK}
 sources:
 - {id: IRC48M.IRC48M.outFreq, value: 48 MHz}
- * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR THE CLOCKS TOOL **/
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 
 /*******************************************************************************
  * Variables for BOARD_BootClockRUN configuration
@@ -154,17 +133,17 @@ const mcg_config_t mcgConfig_BOARD_BootClockRUN =
         .pll0Config =
             {
                 .enableMode = MCG_PLL_DISABLE,    /* MCGPLLCLK disabled */
-                .prdiv = 0x2U,                    /* PLL Reference divider: divided by 3 */
-                .vdiv = 0x2U,                     /* VCO divider: multiplied by 18 */
+                .prdiv = 0x3U,                    /* PLL Reference divider: divided by 4 */
+                .vdiv = 0x0U,                     /* VCO divider: multiplied by 16 */
             },
     };
 const sim_clock_config_t simConfig_BOARD_BootClockRUN =
     {
         .pllFllSel = SIM_PLLFLLSEL_MCGPLLCLK_CLK, /* PLLFLL select: MCGPLLCLK clock */
-        .pllFllDiv = 4,                           /* PLLFLLSEL clock divider divisor: divided by 5 */
+        .pllFllDiv = 1,                           /* PLLFLLSEL clock divider divisor: divided by 2 */
         .pllFllFrac = 0,                          /* PLLFLLSEL clock divider fraction: multiplied by 1 */
         .er32kSrc = SIM_OSC32KSEL_OSC32KCLK_CLK,  /* OSC32KSEL select: OSC32KCLK clock */
-        .clkdiv1 = 0x25052000U,                   /* SIM_CLKDIV1 - OUTDIV1: /3, OUTDIV2: /6, OUTDIV4: /6, OUTDIV5: /3 */
+        .clkdiv1 = 0x15051000U,                   /* SIM_CLKDIV1 - OUTDIV1: /2, OUTDIV2: /6, OUTDIV4: /6, OUTDIV5: /2 */
     };
 const osc_config_t oscConfig_BOARD_BootClockRUN =
     {
