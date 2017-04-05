@@ -166,13 +166,11 @@ nsapi_error_t RTWInterface::connect()
         wifi_set_pscan_chan(&_channel, &pscan_config, 1);
     }
     
-    //printf("Connecting to: %s ... \r\n", _ssid);
     ret = wifi_connect(_ssid, sec, _pass, strlen(_ssid), strlen(_pass), 0, (void *)NULL);
     if (ret != RTW_SUCCESS) {
         printf("failed: %d\r\n", ret);
         return NSAPI_ERROR_NO_CONNECTION;
     }
-    //printf("connected\r\n");
 
     wlan_emac_link_change(true);
     return mbed_lwip_bringup(_dhcp,
@@ -232,13 +230,11 @@ nsapi_error_t RTWInterface::disconnect()
     wlan_emac_link_change(false);
     if(wifi_is_connected_to_ap() != RTW_SUCCESS)
         return NSAPI_ERROR_NO_CONNECTION;
-    //printf("Deassociating AP ...\r\n");
     if(wifi_disconnect()<0){		
         return NSAPI_ERROR_DEVICE_ERROR;
     }
     while(1){
         if(wext_get_ssid(WLAN0_NAME, (unsigned char *) essid) < 0) {
-            //printf("WIFI disconnected\n\r");
             break;
         }
     }

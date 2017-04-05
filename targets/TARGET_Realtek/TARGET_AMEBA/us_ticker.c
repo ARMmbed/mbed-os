@@ -31,7 +31,6 @@ extern HAL_TIMER_OP_EXT HalTimerOpExt;
 
 VOID _us_ticker_irq_handler(IN  VOID *Data)
 {
-	//printf("_us_ticker_irq_handler\r\n");
     us_ticker_irq_handler();
 }
 
@@ -41,7 +40,6 @@ void us_ticker_init(void)
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
 	
-	//printf("us_ticker_init\r\n");
 
     // Initial a G-Timer
     TimerAdapter.IrqDis = 0;    // Enable Irq @ initial
@@ -59,7 +57,6 @@ void us_ticker_init(void)
     DBG_TIMER_INFO("%s: Timer_Id=%d\n", __FUNCTION__, APP_TIM_ID);
 }
 
-#if (!TICK_READ_FROM_CPU) || !defined(PLATFORM_FREERTOS)
 uint32_t us_ticker_read() 
 {
     uint32_t tick_cnt;
@@ -76,38 +73,6 @@ uint32_t us_ticker_read()
 
     return ((uint32_t)us_tick);
 }
-#else
-// if the system tick didn't be initialed, call delay function may got system hang
-#define OS_CLOCK        (200000000UL/6*5)       // CPU clock = 166.66 MHz
-#define OS_TICK         1000                    // OS ticks 1000/sec
-#define OS_TRV          ((uint32_t)(((double)OS_CLOCK*(double)OS_TICK)/1E6)-1)
-#define NVIC_ST_CTRL    (*((volatile uint32_t *)0xE000E010))
-#define NVIC_ST_RELOAD  (*((volatile uint32_t *)0xE000E014))
-#define NVIC_ST_CURRENT (*((volatile uint32_t *)0xE000E018))
-
-extern uint32_t xTaskGetTickCount( void );
-
-uint32_t us_ticker_read() 
-{
-    uint32_t tick_cnt;
-    uint32_t us_tick, ms;
-    static uint32_t last_us_tick=0;
-    
-    ms = xTaskGetTickCount();
-    us_tick = (uint32_t)(ms*1000);
-
-    tick_cnt = OS_TRV - NVIC_ST_CURRENT;
-    us_tick += (uint32_t)((tick_cnt*1000)/(OS_TRV+1) );
-        
-    if ( (last_us_tick > us_tick) && (last_us_tick < 0xFFFFFC00) ) {
-        us_tick += 1000;
-    }
-    last_us_tick = us_tick;
-    return us_tick;
-        
-}
-
-#endif
 
 void us_ticker_set_interrupt(timestamp_t timestamp) 
 {
@@ -130,7 +95,6 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 	HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, time_def);
 	HalTimerOpExt.HalTimerIrqEn((u32)TimerAdapter.TimerId);
 	HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
-	//printf("us_ticker_set_interrupt %d\r\n",timestamp);
 
 }
 
