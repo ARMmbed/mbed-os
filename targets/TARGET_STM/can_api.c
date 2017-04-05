@@ -69,7 +69,7 @@ void can_init(can_t *obj, PinName rd, PinName td)
     CanHandle.Init.AWUM = DISABLE;
     CanHandle.Init.NART = DISABLE;
     CanHandle.Init.RFLM = DISABLE;
-    CanHandle.Init.TXFP = DISABLE;
+    CanHandle.Init.TXFP = ENABLE;
     CanHandle.Init.Mode = CAN_MODE_NORMAL;
     CanHandle.Init.SJW = CAN_SJW_1TQ;
     CanHandle.Init.BS1 = CAN_BS1_6TQ;
