@@ -36,7 +36,6 @@ void spi_bus_tx_done_callback(VOID *obj);
 HAL_GDMA_OP SpiGdmaOp;
 #endif
 
-uint8_t SPI0_IS_AS_SLAVE = 0;
 
 //TODO: Load default Setting: It should be loaded from external setting file.
 extern const DW_SSI_DEFAULT_SETTING SpiDefaultSetting;
@@ -221,7 +220,6 @@ void spi_format (spi_t *obj, int bits, int mode, int slave)
         if (pHalSsiAdaptor->Index == 0) {
             pHalSsiAdaptor->Role = SSI_SLAVE;
             pHalSsiAdaptor->SlaveOutputEnable = SLV_TXD_ENABLE;  // <-- Slave only
-            SPI0_IS_AS_SLAVE = 1;
             DBG_SSI_INFO("SPI0 is as slave\n");
         }
         else {
