@@ -44,6 +44,11 @@ class AttClientToGattClientAdapter : public GattClient {
         _client.when_server_message_received(
             mbed::callback(this, &AttClientToGattClientAdapter::on_server_event)
         );
+        _client.when_transaction_timeout(
+            mbed::callback(
+                this, &AttClientToGattClientAdapter::on_transaction_timeout
+            )
+        );
     }
 
     /**

@@ -597,6 +597,23 @@ struct AttClient {
         _server_message_cb = cb;
     }
 
+    /**
+     * Register a callback handling transaction timeout.
+     *
+     * @param cb The callback handling timeout of a transaction. It accepts as
+     * a parameter the connection handle involved in the timeout.
+     *
+     * @note No more attribute protocol requests, commands, indication or
+     * notification shall be sent over a connection implied in a transaction
+     * timeout. To send a new ATT message, the conenction should be
+     * reestablished.
+     */
+     void when_transaction_timeout(
+         mbed::Callback<void(connection_handle_t)> cb
+     ) {
+         _transaction_timeout_cb = cb;
+     }
+
 protected:
     AttClient() { }
 
@@ -618,11 +635,32 @@ protected:
         }
     }
 
+    /**
+     * Upon transaction timeout an implementation shall call this function.
+     *
+     * @param connection_handle The handle of the connection of the transaction
+     * which has times out.
+     *
+     * @note see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part F Section 3.3.3
+     */
+    void on_transaction_timeout(
+        connection_handle_t connection_handle
+    ) {
+        if (_transaction_timeout_cb) {
+            _transaction_timeout_cb(connection_handle);
+        }
+    }
+
 private:
     /**
      * Callback called when the client receive a message from the server.
      */
     mbed::Callback<void(connection_handle_t, const AttServerMessage&)> _server_message_cb;
+
+    /**
+     * Callback called when a transaction times out.
+     */
+    mbed::Callback<void(connection_handle_t)> _transaction_timeout_cb;
 
     // Disallow copy construction and copy assignment.
     AttClient(const AttClient&);
