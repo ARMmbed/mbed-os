@@ -132,6 +132,19 @@ private:
     int _cmdx(int cmd, int arg);
     int _cmd8();
     int _cmd58();
+
+    /*  Move the SDCard into the SPI Mode idle state
+     *
+     *  The card is transitioned from SDCard mode to SPI mode by sending the
+     *  CMD0 (GO_IDLE_STATE) command with CS asserted. See the notes in the
+     *  "SPI Startup" section of the comments at the head of the
+     *  implementation file for further details and specification references.
+     *
+     *  @return         -1 if an error occurred e.g. a valid response was not
+     *                  received. Otherwise R1_IDLE_STATE (0x1), the successful
+     *                  response from CMD0.
+     */
+    int _go_idle_state();
     int _initialise_card();
     int _initialise_card_v1();
     int _initialise_card_v2();

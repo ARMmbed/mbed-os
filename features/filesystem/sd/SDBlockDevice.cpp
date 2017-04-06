@@ -31,9 +31,37 @@
  *
  * SPI Startup
  * -----------
- * The SD card powers up in SD mode. The SPI interface mode is selected by
- * asserting CS low and sending the reset command (CMD0). The card will
- * respond with a (R1) response.
+ * The SD card powers up in SD mode. The start-up procedure is complicated
+ * by the requirement to support older SDCards in a backwards compatible
+ * way with the new higher capacity variants SDHC and SDHC.
+ *
+ * The following figures from the specification with associated text describe
+ * the SPI mode initialisation process:
+ *  - Figure 7-1: SD Memory Card State Diagram (SPI mode)
+ *  - Figure 7-2: SPI Mode Initialization Flow
+ *
+ * Firstly, a low initial clock should be selected (in the range of 100-
+ * 400kHZ). After initialisation has been completed, the switch to a
+ * higher clock speed can be made (e.g. 1MHz). Newer cards will support
+ * higher speeds than the default _transfer_sck defined here.
+ *
+ * Next, note the following from the SDCard specification (note to
+ * Figure 7-1):
+ *
+ *  In any of the cases CMD1 is not recommended because it may be difficult for the host
+ *  to distinguish between MultiMediaCard and SD Memory Card
+ *
+ * Hence CMD1 is not used for the initialisation sequence.
+ *
+ * The SPI interface mode is selected by asserting CS low and sending the
+ * reset command (CMD0). The card will respond with a (R1) response.
+ * In practice many cards initially respond with 0xff or invalid data
+ * which is ignored. Data is read until a valid response is received
+ * or the number of re-reads has exceeded a maximim count. If a valid
+ * response is not received then the CMD0 can be retried. This
+ * has been found to successfully initialise cards where the SPI master
+ * (on MCU) has been reset but the SDCard has not, so the first
+ * CMD0 may be lost.
  *
  * CMD8 is optionally sent to determine the voltage range supported, and
  * indirectly determine whether it is a version 1.x SD/non-SD card or
@@ -119,9 +147,11 @@
 #include "SDBlockDevice.h"
 #include "mbed_debug.h"
 
-#define SD_COMMAND_TIMEOUT 5000
-
-#define SD_DBG             0
+#define SD_COMMAND_TIMEOUT                       5000    /*!< Number of times to query card for correct result */
+#define SD_CMD0_GO_IDLE_STATE_RETRIES            3       /*!< Number of retries for sending CMDO*/
+#define SD_CMD0_GO_IDLE_STATE                    0x00    /*!< CMD0 code value */
+#define SD_CMD0_INVALID_RESPONSE_TIMEOUT         -1      /*!< CMD0 received invalid responses and timed out */
+#define SD_DBG                                   0
 
 #define SD_BLOCK_DEVICE_ERROR_WOULD_BLOCK        -5001	/*!< operation would block */
 #define SD_BLOCK_DEVICE_ERROR_UNSUPPORTED        -5002	/*!< unsupported operation */
@@ -129,6 +159,7 @@
 #define SD_BLOCK_DEVICE_ERROR_NO_INIT            -5004	/*!< uninitialized */
 #define SD_BLOCK_DEVICE_ERROR_NO_DEVICE          -5005	/*!< device is missing or not connected */
 #define SD_BLOCK_DEVICE_ERROR_WRITE_PROTECTED    -5006	/*!< write protected */
+
 
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs)
     : _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
@@ -177,13 +208,13 @@ int SDBlockDevice::_initialise_card()
     }
     _spi.unlock();
 
-    // send CMD0, should return with all zeros except IDLE STATE set (bit 0)
-    if (_cmd(0, 0) != R1_IDLE_STATE) {
+    /* Transition from SD Card mode to SPI mode by sending CMD0 GO_IDLE_STATE command */
+    if (_go_idle_state() != R1_IDLE_STATE) {
         debug_if(_dbg, "No disk, or could not put SD card in to SPI idle state\n");
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;
     }
 
-    // send CMD8 to determine whther it is ver 2.x
+    // send CMD8 to determine whether it is ver 2.x
     int r = _cmd8();
     if (r == R1_IDLE_STATE) {
         return _initialise_card_v2();
@@ -344,9 +375,11 @@ bd_size_t SDBlockDevice::get_erase_size() const
 bd_size_t SDBlockDevice::size() const
 {
     bd_size_t sectors = 0;
+    _lock.lock();
     if(_is_initialized) {
     	sectors = _sectors;
     }
+    _lock.unlock();
     return 512*sectors;
 }
 
@@ -369,7 +402,7 @@ int SDBlockDevice::_cmd(int cmd, int arg) {
     _spi.write(arg >> 0);
     _spi.write(0x95);
 
-    // wait for the repsonse (response[7] == 0)
+    // wait for the response (response[7] == 0)
     for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
         int response = _spi.write(0xFF);
         if (!(response & 0x80)) {
@@ -396,7 +429,7 @@ int SDBlockDevice::_cmdx(int cmd, int arg) {
     _spi.write(arg >> 0);
     _spi.write(0x95);
 
-    // wait for the repsonse (response[7] == 0)
+    // wait for the response (response[7] == 0)
     for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
         int response = _spi.write(0xFF);
         if (!(response & 0x80)) {
@@ -425,7 +458,7 @@ int SDBlockDevice::_cmd58() {
     _spi.write(arg >> 0);
     _spi.write(0x95);
 
-    // wait for the repsonse (response[7] == 0)
+    // wait for the response (response[7] == 0)
     for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
         int response = _spi.write(0xFF);
         if (!(response & 0x80)) {
@@ -457,7 +490,7 @@ int SDBlockDevice::_cmd8() {
     _spi.write(0xAA);     // check pattern
     _spi.write(0x87);     // crc
 
-    // wait for the repsonse (response[7] == 0)
+    // wait for the response (response[7] == 0)
     for (int i = 0; i < SD_COMMAND_TIMEOUT * 1000; i++) {
         char response[5];
         response[0] = _spi.write(0xFF);
@@ -475,6 +508,44 @@ int SDBlockDevice::_cmd8() {
     _spi.write(0xFF);
     _spi.unlock();
     return -1; // timeout
+}
+
+int SDBlockDevice::_go_idle_state() {
+    _spi.lock();
+    _cs = 0;
+    int cmd_arg = 0;    /* CMD0 argument is just "stuff bits" */
+    int ret = SD_CMD0_INVALID_RESPONSE_TIMEOUT;
+
+    /* Reseting the MCU SPI master may not reset the on-board SDCard, in which
+     * case when MCU power-on occurs the SDCard will resume operations as
+     * though there was no reset. In this scenario the first CMD0 will
+     * not be interpreted as a command and get lost. For some cards retrying
+     * the command overcomes this situation. */
+    for (int num_retries = 0; ret != R1_IDLE_STATE && (num_retries < SD_CMD0_GO_IDLE_STATE_RETRIES); num_retries++) {
+        /* send a CMD0 */
+        _spi.write(0x40 | SD_CMD0_GO_IDLE_STATE);
+        _spi.write(cmd_arg >> 24);
+        _spi.write(cmd_arg >> 16);
+        _spi.write(cmd_arg >> 8);
+        _spi.write(cmd_arg >> 0);
+        _spi.write(0x95);
+
+        /* wait for the R1_IDLE_STATE response */
+        for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
+            int response = _spi.write(0xFF);
+            /* Explicitly check for the R1_IDLE_STATE response rather that most significant bit
+             * being 0 because invalid data can be returned. */
+            if ((response == R1_IDLE_STATE)) {
+                ret = response;
+                break;
+            }
+            wait_ms(1);
+        }
+    }
+    _cs = 1;
+    _spi.write(0xFF);
+    _spi.unlock();
+    return ret;
 }
 
 int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
