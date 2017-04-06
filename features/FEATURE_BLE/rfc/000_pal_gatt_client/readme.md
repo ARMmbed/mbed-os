@@ -161,7 +161,7 @@ entities.
 
 `pal::AttClient` can be adapted into a `pal::GattClient` by using the adapter 
 `pal::AttClientToGattClientAdapter` available in 
-[source/ble/pal/AttClientToGattClientAdapter.h](source/pal/AttClientToGattClientAdapter.h).
+[source/ble/pal/AttClientToGattClientAdapter.h](source/ble/pal/AttClientToGattClientAdapter.h).
 
 
 ### pal::AttClient
