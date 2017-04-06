@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "uvisor-lib/uvisor-lib.h"
 
 #include <stdint.h>
@@ -44,7 +44,7 @@ static int is_kernel_initialized()
     if (kernel_running) {
         return 1;
     }
-    if (osKernelRunning()) {
+    if (osKernelGetState() == osKernelRunning) {
         kernel_running = 1;
         return 1;
     }
@@ -64,10 +64,13 @@ static int init_allocator()
     }
 
     if ((__uvisor_ps->mutex_id == NULL) && is_kernel_initialized()) {
-        /* Point the mutex pointer to the data. */
-        __uvisor_ps->mutex.mutex = &(__uvisor_ps->mutex_data);
+        /* Point the mutex attr to the data. */
+        __uvisor_ps->mutex_attr.attr_bits = 0; /* Non-recursive */
+        __uvisor_ps->mutex_attr.cb_mem = &__uvisor_ps->mutex_data;
+        __uvisor_ps->mutex_attr.cb_size = sizeof(__uvisor_ps->mutex_data);
+
         /* Create mutex if not already done. */
-        __uvisor_ps->mutex_id = osMutexCreate(&(__uvisor_ps->mutex));
+        __uvisor_ps->mutex_id = osMutexNew(&__uvisor_ps->mutex_attr);
         /* Mutex failed to be created. */
         if (__uvisor_ps->mutex_id == NULL) {
             return -1;
@@ -80,7 +83,7 @@ static int init_allocator()
             /* Lock the mutex during initialization. */
             int kernel_initialized = is_kernel_initialized();
             if (kernel_initialized) {
-                osMutexWait(__uvisor_ps->mutex_id, osWaitForever);
+                osMutexAcquire(__uvisor_ps->mutex_id, osWaitForever);
             }
             /* Initialize the process heap. */
             SecureAllocator allocator = secure_allocator_create_with_pool(
@@ -123,7 +126,7 @@ static void * memory(void * ptr, size_t size, int heap, int operation)
      * the `rt_alloc_mem` and `rt_free_mem` functions in `uvisor_allocator.c`.
      * However, it is simpler to do it here for now. */
     if (mutexed) {
-        osMutexWait(__uvisor_ps->mutex_id, osWaitForever);
+        osMutexAcquire(__uvisor_ps->mutex_id, osWaitForever);
     }
     /* Perform the required operation. */
     switch(operation)
