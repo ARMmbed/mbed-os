@@ -290,7 +290,8 @@ private:
             &event_handler<ExecuteWriteResponseConverter>,
             &event_handler<HandleValueIndicationConverter>,
             &event_handler<HandleValueNotificationConverter>,
-            &event_handler<ErrorResponseConverter>
+            &event_handler<ErrorResponseConverter>,
+            &timeout_event_handler
         };
 
         // dispatch the event sequentially to all event handlers.
@@ -315,6 +316,18 @@ private:
     static bool event_handler(const evt_blue_aci* event) {
         if (event->ecode == T::event_id) {
             generated_handler(event, T::converter);
+            return true;
+        }
+        return false;
+    }
+
+    static bool timeout_event_handler(const evt_blue_aci* event) {
+        if (event->ecode == EVT_BLUE_GATT_PROCEDURE_TIMEOUT) {
+            _client.on_transaction_timeout(
+                reinterpret_cast<const evt_gatt_procedure_timeout*>(
+                    event->data
+                )->conn_handle
+            );
             return true;
         }
         return false;
