@@ -17,7 +17,8 @@
 #ifndef __RTX_BOX_INDEX_H__
 #define __RTX_BOX_INDEX_H__
 
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
+#include "rtx_os.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,12 +29,14 @@ typedef struct
     /* The uvisor box index must be placed at the beginning */
     UvisorBoxIndex index;
 
-    /* Id of the mutex */
-    osMutexId mutex_id;
-    /* Pointer to the data of the mutex */
-    osMutexDef_t mutex;
+    /* ID of the mutex */
+    osMutexId_t mutex_id;
+
+    /* Attribute of the mutex */
+    osMutexAttr_t mutex_attr;
+
     /* Internal data of the mutex */
-    int32_t mutex_data[4];
+    osRtxMutex_t mutex_data;
 } RtxBoxIndex;
 
 #ifdef __cplusplus

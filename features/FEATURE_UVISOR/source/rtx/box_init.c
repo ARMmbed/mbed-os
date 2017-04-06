@@ -18,8 +18,9 @@
 #include "api/inc/pool_queue_exports.h"
 #include "api/inc/rpc_exports.h"
 #include "api/inc/uvisor_semaphore.h"
+#include "api/inc/box_config.h"
 #include "mbed_interface.h"
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -27,9 +28,9 @@
 extern void SVC_Handler(void);
 extern void PendSV_Handler(void);
 extern void SysTick_Handler(void);
-extern uint32_t rt_suspend(void);
+extern uint32_t svcRtxKernelLock(void);
 
-UVISOR_SET_PRIV_SYS_HOOKS(SVC_Handler, PendSV_Handler, SysTick_Handler, rt_suspend, __uvisor_semaphore_post);
+UVISOR_SET_PRIV_SYS_HOOKS(SVC_Handler, PendSV_Handler, SysTick_Handler, svcRtxKernelLock, __uvisor_semaphore_post);
 
 extern RtxBoxIndex * const __uvisor_ps;
 
@@ -56,15 +57,7 @@ void __uvisor_initialize_rpc_queues(void)
     /* Initialize all the result semaphores. */
     for (i = 0; i < UVISOR_RPC_OUTGOING_MESSAGE_SLOTS; i++) {
         UvisorSemaphore * semaphore = &rpc_outgoing_msg_queue->messages[i].semaphore;
-        if (__uvisor_semaphore_init(semaphore, 1)) {
-            uvisor_error(USER_NOT_ALLOWED);
-        }
-
-        /* Semaphores are created with their value initialized to count. We
-         * want the semaphore to start at zero. Decrement the semaphore, so it
-         * starts with a value of zero. This will allow the first pend to
-         * block. */
-        if (__uvisor_semaphore_pend(semaphore, 0)) {
+        if (__uvisor_semaphore_init(semaphore, 1, 0)) {
             uvisor_error(USER_NOT_ALLOWED);
         }
     }
@@ -102,15 +95,7 @@ void __uvisor_initialize_rpc_queues(void)
     /* Initialize all the function group semaphores. */
     for (i = 0; i < UVISOR_RPC_FN_GROUP_SLOTS; i++) {
         UvisorSemaphore * semaphore = &rpc_fn_group_queue->fn_groups[i].semaphore;
-        if (__uvisor_semaphore_init(semaphore, 1)) {
-            uvisor_error(USER_NOT_ALLOWED);
-        }
-
-        /* Semaphores are created with their value initialized to count. We
-         * want the semaphore to start at zero. Decrement the semaphore, so it
-         * starts with a value of zero. This will allow the first pend to
-         * block. */
-        if (__uvisor_semaphore_pend(semaphore, 0)) {
+        if (__uvisor_semaphore_init(semaphore, 1, 0)) {
             uvisor_error(USER_NOT_ALLOWED);
         }
     }
@@ -120,16 +105,14 @@ void __uvisor_initialize_rpc_queues(void)
  * create box main threads for the box. */
 void __uvisor_lib_box_init(void * lib_config)
 {
-    osThreadId thread_id;
-    osThreadDef_t * flash_thread_def = lib_config;
-    osThreadDef_t thread_def;
+    osThreadId_t thread_id;
+    uvisor_box_main_t * box_main = lib_config;
+    osThreadAttr_t thread_attr = { 0 };
 
     __uvisor_initialize_rpc_queues();
 
-    /* Copy thread definition from flash to RAM. The thread definition is most
-     * likely in flash, so we need to copy it to box-local RAM before we can
-     * modify it. */
-    memcpy(&thread_def, flash_thread_def, sizeof(thread_def));
+    thread_attr.priority = box_main->priority;
+    thread_attr.stack_size = box_main->stack_size;
 
     /* Note that the box main thread stack is separate from the box stack. This
      * is because the thread must be created to use a different stack than the
@@ -138,17 +121,26 @@ void __uvisor_lib_box_init(void * lib_config)
     /* Allocate memory for the main thread from the process heap (which is
      * private to the process). This memory is never freed, even if the box's
      * main thread exits. */
-    thread_def.stack_pointer = malloc_p(thread_def.stacksize);
-
-    if (thread_def.stack_pointer == NULL) {
-        /* No process heap memory available */
-        mbed_die();
+    thread_attr.stack_mem = malloc_p(thread_attr.stack_size);
+    if (thread_attr.stack_mem == NULL) {
+        /* No process heap memory available for thread stack */
+        uvisor_error(USER_NOT_ALLOWED);
     }
 
-    thread_id = osThreadCreate(&thread_def, NULL);
+    /* Allocate memory for the main thread control block from the process heap
+     * (which is private to the process). This memory is never freed, even if
+     * the box's main thread exits. */
+    thread_attr.cb_size = sizeof(osRtxThread_t);
+    thread_attr.cb_mem = malloc_p(thread_attr.cb_size);
+    if (thread_attr.cb_mem == NULL) {
+        /* No process heap memory available for thread control block. */
+        uvisor_error(USER_NOT_ALLOWED);
+    }
+
+    thread_id = osThreadNew(box_main->function, NULL, &thread_attr);
 
     if (thread_id == NULL) {
         /* Failed to create thread */
-        mbed_die();
+        uvisor_error(USER_NOT_ALLOWED);
     }
 }
