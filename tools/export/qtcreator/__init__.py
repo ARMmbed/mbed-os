@@ -30,32 +30,36 @@ class QtCreator(Exporter):
     def generate(self):
         self.resources.win_to_unix()
 
-        with open("%s.creator" % self.project_name, "w") as fd:
-            fd.write("[General]\n")
+        defines         = [] # list of tuples ('D'/'U', [key, value]) (value is optional)
+        forced_includes = [] # list of strings
+        sources         = [] # list of strings
+        include_paths   = [] # list of strings
 
         next_is_include = False
-        includes = []
-        with open("%s.config" % self.project_name, "w") as fd:
-            for f in self.flags['c_flags'] + self.flags['cxx_flags']:
-                f=f.strip()
-                if next_is_include:
-                    includes.append(f)
-                    next_is_include = False
-                    continue
-                if f.startswith('-D'):
-                    fd.write("#define %s\n" % (f[2:].replace('=', ' ')))
-                elif f.startswith('-U'):
-                    fd.write("#undef %s\n" % f[2:])
-                elif f == "-include":
-                    next_is_include = True
-            for i in includes:
-                fd.write("#include \"%s\"\n" % i)
+        for f in self.flags['c_flags'] + self.flags['cxx_flags']:
+            f=f.strip()
+            if next_is_include:
+                forced_includes.append(f)
+                next_is_include = False
+                continue
+            if f.startswith('-D'):
+                defines.append(('D', f[2:].split('=', 1)))
+            elif f.startswith('-U'):
+                defines.append(('U', [f[2:]]))
+            elif f == "-include":
+                next_is_include = True
 
-        with open("%s.files" % self.project_name, "w") as fd:
-            for r_type in ['headers', 'c_sources', 's_sources', 'cpp_sources']:
-                for f in getattr(self.resources, r_type):
-                    fd.write(f + "\n")
+        for r_type in ['headers', 'c_sources', 's_sources', 'cpp_sources']:
+            sources.extend(getattr(self.resources, r_type))
 
-        with open("%s.includes" % self.project_name, "w") as fd:
-            for i in self.resources.inc_dirs:
-                fd.write(i + "\n")
+        include_paths = self.resources.inc_dirs
+
+        ctx = {
+            'defines': defines,
+            'forced_includes': forced_includes,
+            'sources': sources,
+            'include_paths': self.resources.inc_dirs
+            }
+
+        for ext in ['creator', 'files', 'includes', 'config']:
+            self.gen_file('qtcreator/%s.tmpl' % ext, ctx, "%s.%s" % (self.project_name, ext))
