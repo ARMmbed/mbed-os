@@ -81,10 +81,12 @@ server:
   - Commands: The client sends a command to the server for which it won't 
     receive any acknowledgement from the server.
 * Server initiated: 
-  - Indication: The server notify the client of something. The server won't 
-    receive any acknowledgement from the client. 
-  - Notification: The server indicates something to the client and the client 
-    confim the server that the notification has been received.    
+  - Indication: The server indicates a characteristic value to the GATT 
+    client and expects an acknowledgment (a confirmation) that the indication 
+    was successfully received.
+  - Notification: The server notifies a characteristic value to the GATT client 
+    without expecting any acknowledgment that the notification was successfully
+    received.
 
 The design of the abstraction layer for a GATT client reflect this organization,
 a client interface is in charge of sending client request and commands to the 
