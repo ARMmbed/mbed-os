@@ -19,7 +19,9 @@
 
 #include "api/inc/uvisor_semaphore_exports.h"
 
-UVISOR_EXTERN int __uvisor_semaphore_init(UvisorSemaphore * semaphore, int32_t count);
+/* Initialize a semaphore with the specified initial count. This function is
+ * not safe to call from interrupt context. */
+UVISOR_EXTERN int __uvisor_semaphore_init(UvisorSemaphore * semaphore, uint32_t initial_count, uint32_t max_count);
 
 /* This function is not safe to call from interrupt context, even if the
  * timeout is zero. */
