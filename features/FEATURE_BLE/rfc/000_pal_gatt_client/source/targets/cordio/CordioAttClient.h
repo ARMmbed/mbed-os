@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef WICENTRIC_WICENTRICATTCLIENT_H_
-#define WICENTRIC_WICENTRICATTCLIENT_H_
+#ifndef CORDIO_CORDIOATTCLIENT_H_
+#define CORDIO_CORDIOATTCLIENT_H_
 
 #include "ble/pal/AttClient.h"
 #include "ble/pal/SimpleAttServerMessage.h"
@@ -24,15 +24,15 @@
 
 namespace ble {
 namespace pal {
-namespace wicentric {
+namespace cordio {
 
 /**
- * Implementation of ble::pal::AttClient for the Wicentric stack.
+ * Implementation of ble::pal::AttClient for the ARM Cordio stack.
  */
-class WicentricAttClient: public AttClient {
+class CordioAttClient: public AttClient {
 public:
-    WicentricAttClient() { }
-    virtual ~WicentricAttClient() { }
+    CordioAttClient() { }
+    virtual ~CordioAttClient() { }
 
     /**
      * @see ble::pal::AttClient::exchange_mtu_request
@@ -275,8 +275,8 @@ public:
     }
 private:
 
-    // singleton of the Wicentric client
-    static WicentricAttClient _client;
+    // singleton of the ARM Cordio client
+    static CordioAttClient _client;
 
     // convert an array of byte to an uint16_t
     static uint16_t to_uint16_t(const uint8_t* array) {
@@ -583,8 +583,8 @@ private:
     };
 };
 
-} /* namespace wicentric */
+} /* namespace cordio */
 } /* namespace pal */
 } /* namespace ble */
 
-#endif /* WICENTRIC_WICENTRICATTCLIENT_H_ */
+#endif /* CORDIO_CORDIOATTCLIENT_H_ */

@@ -316,5 +316,5 @@ A default implementation for stacks complying with ATT is exposed in the file
 Sample implementations for various stacks are defined in this RFC: 
 * Nordic: [NRFGattClient.h](source/targets/nordic/NRFGattClient.h)
 * ST BlueNRG: [BlueNRGAttClient.h](source/targets/st/BlueNRGAttClient.h)
-* Wicentric: [WicentricAttClient.h](source/targets/wicentric.WicentricAttClient.h)
+* ARM Cordio: [CordioAttClient.h](source/targets/cordio/CordioAttClient.h)
 * NXP: [NXPAttClient.h](source/targets/nxp/NXPAttClient.h)
