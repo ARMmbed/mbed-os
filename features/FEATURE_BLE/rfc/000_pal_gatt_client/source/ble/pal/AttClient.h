@@ -90,9 +90,20 @@ struct AttClient {
     virtual ble_error_t exchange_mtu_request(connection_handle_t connection) = 0;
 
     /**
-     * Return the maximum Rx mtu supported by this client.
+     * Acquire the size of the mtu for a given connection.
+     *
+     * @param connection The handle of the connection for which the the MTU size
+     * should be acquired.
+     *
+     * @param mtu_size Output parameter which will contain the MTU size.
+     *
+     * @return BLE_ERROR_NONE if the MTU size has been acquired or the
+     * appropriate error otherwise.
      */
-    virtual uint16_t get_max_rx_mtu_supported() = 0;
+    virtual ble_error_t get_mtu_size(
+        connection_handle_t connection_handle,
+        uint16_t& mtu_size
+    ) = 0;
 
     /**
      * Send a find information request to a server in order to obtain the 

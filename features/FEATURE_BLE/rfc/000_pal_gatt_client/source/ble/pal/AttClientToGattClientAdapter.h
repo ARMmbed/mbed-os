@@ -59,10 +59,13 @@ class AttClientToGattClientAdapter : public GattClient {
     }
 
     /**
-     * @see ble::pal::GattClient::get_max_rx_mtu_supported
+     * @see ble::pal::GattClient::get_mtu_size
      */
-    virtual uint16_t get_max_rx_mtu_supported() {
-        return _client.get_max_rx_mtu_supported();
+    virtual ble_error_t get_mtu_size(
+        connection_handle_t connection_handle,
+        uint16_t& mtu_size
+    ) {
+        return _client.get_mtu_size(connection_handle, mtu_size);
     }
 
     /**
