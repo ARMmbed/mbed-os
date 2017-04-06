@@ -23,7 +23,7 @@ import inspect
 import sys
 from copy import copy
 from collections import namedtuple
-from tools.patch import patch
+from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict
 
@@ -121,7 +121,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
 
     # Default location of the 'targets.json' file
     __targets_json_location_default = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', 'targets', 'targets.json')
+        os.path.dirname(os.path.abspath(__file__)), '..', '..', 'targets', 'targets.json')
 
     # Current/new location of the 'targets.json' file
     __targets_json_location = None
@@ -494,7 +494,7 @@ class MCU_NRF51Code(object):
 class NCS36510TargetCode:
     @staticmethod
     def ncs36510_addfib(t_self, resources, elf, binf):
-        from tools.add_fib import add_fib_at_start
+        from tools.targets.NCS import add_fib_at_start
         print("binf ", binf)
         add_fib_at_start(binf[:-4])
 ################################################################################

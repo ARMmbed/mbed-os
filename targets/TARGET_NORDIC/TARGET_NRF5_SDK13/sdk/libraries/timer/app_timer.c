@@ -35,7 +35,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-#ifndef __MBED_CMSIS_RTOS_CM
+#ifndef MBED_CONF_RTOS_PRESENT
  
 #include "sdk_common.h"
 #if NRF_MODULE_ENABLED(APP_TIMER)
@@ -1076,4 +1076,4 @@ uint8_t app_timer_op_queue_utilization_get(void)
 }
 #endif
 #endif //NRF_MODULE_ENABLED(APP_TIMER)
-#endif // __MBED_CMSIS_RTOS_CM
+#endif // MBED_CONF_RTOS_PRESENT

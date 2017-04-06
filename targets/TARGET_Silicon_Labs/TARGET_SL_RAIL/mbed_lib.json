@@ -21,10 +21,10 @@
         "pti-dframe-pin": 13
     },
     "target_overrides": {
-        "THUNDERBOARD_SENSE": {
+        "TB_SENSE_1": {
             "sl-rail.has-2p4": true
         },
-        "THUNDERBOARD_SENSE_12": {
+        "TB_SENSE_12": {
             "sl-rail.has-2p4": true
         },
         "EFR32MG1_BRD4150": {
