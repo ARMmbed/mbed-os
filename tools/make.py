@@ -49,23 +49,12 @@ from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import mcu_toolchain_list
 from tools.build_api import mcu_target_list
+from tools.build_api import merge_build_data
 from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 from tools.settings import CLI_COLOR_MAP
-
-def merge_build_data(filename, toolchain_report):
-    try:
-        build_data = load(open(filename))
-    except (IOError, ValueError):
-        build_data = {'builds': []}
-    for tgt in toolchain_report.values():
-        for tc in tgt.values():
-            for project in tc.values():
-                for build in project:
-                    build_data['builds'].append(build[0])
-    dump(build_data, open(filename, "wb"), indent=4, separators=(',', ': '))
 
 if __name__ == '__main__':
     # Parse Options

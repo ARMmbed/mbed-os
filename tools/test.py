@@ -31,6 +31,7 @@ from tools.test_api import test_path_to_name, find_tests, print_tests, build_tes
 from tools.options import get_default_options_parser, extract_profile
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
+from tools.build_api import merge_build_data
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir, ToolException, NotSupportedException, args_error
 from tools.test_exporters import ReportExporter, ResultExporterType
@@ -88,6 +89,10 @@ if __name__ == '__main__':
         
         parser.add_argument("--build-report-junit", dest="build_report_junit",
                           default=None, help="Destination path for a build report in the JUnit xml format")
+        parser.add_argument("--build-data",
+                            dest="build_data",
+                            default=None,
+                            help="Dump build_data to this file")
         
         parser.add_argument("-v", "--verbose",
                           action="store_true",
@@ -175,17 +180,13 @@ if __name__ == '__main__':
             profile = extract_profile(parser, options, toolchain)
             try:
                 # Build sources
-                build_library(base_source_paths, options.build_dir, mcu, toolchain,
-                                                jobs=options.jobs,
-                                                clean=options.clean,
-                                                report=build_report,
-                                                properties=build_properties,
-                                                name="mbed-build",
-                                                macros=options.macros,
-                                                verbose=options.verbose,
-                                                notify=notify,
-                                                archive=False,
-                                                app_config=options.app_config,
+                build_library(base_source_paths, options.build_dir, mcu,
+                              toolchain, jobs=options.jobs,
+                              clean=options.clean, report=build_report,
+                              properties=build_properties, name="mbed-build",
+                              macros=options.macros, verbose=options.verbose,
+                              notify=notify, archive=False,
+                              app_config=options.app_config,
                               build_profile=profile)
 
                 library_build_success = True
@@ -245,6 +246,8 @@ if __name__ == '__main__':
 
             print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
             status = print_report_exporter.report(build_report)
+            if options.build_data:
+                merge_build_data(options.build_data, build_report)
 
             if status:
                 sys.exit(0)
