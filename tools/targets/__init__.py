@@ -127,34 +127,34 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
 
     @staticmethod
     def _merge_dict(dct, merge_dct):
-    """ Recursive dict merge. Inspired by `dict.update()` however instead of
-    updating only top-level keys, dict_merge recurses down into dicts nested
-    to an arbitrary depth, updating keys. 
-    The provided  ``merge_dct`` is merged into ``dct`` in place.
-    :param dct: dict onto which the merge is executed
-    :param merge_dct: dct merged into dct
-    :return: None
-    """
-    for k, v in merge_dct.iteritems():
-        if (k in dct and isinstance(dct[k], dict)
-                and isinstance(merge_dct[k], Mapping)):
-            Target._merge_dict(dct[k], merge_dct[k])
-        else:
-            dct[k] = merge_dct[k]
+        """ Recursive dict merge. Inspired by `dict.update()` however instead of
+        updating only top-level keys, dict_merge recurses down into dicts nested
+        to an arbitrary depth, updating keys. 
+        The provided  ``merge_dct`` is merged into ``dct`` in place.
+        :param dct: dict onto which the merge is executed
+        :param merge_dct: dct merged into dct
+        :return: None
+        """
+        for k, v in merge_dct.iteritems():
+            if (k in dct and isinstance(dct[k], dict)
+                    and isinstance(merge_dct[k], Mapping)):
+                Target._merge_dict(dct[k], merge_dct[k])
+            else:
+                dct[k] = merge_dct[k]
 
     @staticmethod
     @cached
     def get_json_target_data():
         """Load the description of JSON target data"""
         targets = json_file_to_dict(Target.__targets_json_location or
-                                     Target.__targets_json_location_default)
+                                    Target.__targets_json_location_default)
+        return targets
 
-        # If extra_targets.json exists in working directory load it over the top
-        extra = os.path.join('.', 'extra_targets.json')
+    @staticmethod
+    @cached
+    def add_extra_targets(extra):
         if os.path.exists(extra):
             Target._merge_dict(targets, json_file_to_dict(extra))
-
-        return targets
 
     @staticmethod
     def set_targets_json_location(location=None):
@@ -561,6 +561,9 @@ def set_targets_json_location(location=None):
     # re-initialization does not create new variables, it keeps the old ones
     # instead. This ensures compatibility with code that does
     # "from tools.targets import TARGET_NAMES"
+    update_target_data()
+
+def update_target_data():
     TARGETS[:] = [Target.get_target(tgt) for tgt, obj
                   in Target.get_json_target_data().items()
                   if obj.get("public", True)]
