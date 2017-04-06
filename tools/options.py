@@ -17,9 +17,9 @@ limitations under the License.
 from json import load
 from os.path import join, dirname
 from os import listdir
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentTypeError
 from tools.toolchains import TOOLCHAINS
-from tools.targets import TARGET_NAMES
+from tools.targets import TARGET_NAMES, Target, update_target_data
 from tools.utils import argparse_force_uppercase_type, \
     argparse_lowercase_hyphen_type, argparse_many, \
     argparse_filestring_type, args_error, argparse_profile_filestring_type,\
@@ -47,10 +47,7 @@ def get_default_options_parser(add_clean=True, add_options=True,
     parser.add_argument("-m", "--mcu",
                         help=("build for the given MCU (%s)" %
                               ', '.join(targetnames)),
-                        metavar="MCU",
-                        type=argparse_many(
-                            argparse_force_uppercase_type(
-                                targetnames, "MCU")))
+                        metavar="MCU")
 
     parser.add_argument("-t", "--tool",
                         help=("build using the given TOOLCHAIN (%s)" %
@@ -130,3 +127,19 @@ def mcu_is_enabled(parser, mcu):
              "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
              "for more information") % (mcu, mcu))
     return True
+    
+def extract_mcus(parser, options):
+    try:
+        extra_targets = [join(src, "custom_targets.json") for src in options.source_dir]
+        for filename in extra_targets:
+            Target.add_extra_targets(filename)
+        update_target_data()
+    except KeyError:
+        pass
+    targetnames = TARGET_NAMES
+    targetnames.sort()
+    try:
+        return argparse_many(argparse_force_uppercase_type(targetnames, "MCU"))(options.mcu)
+    except ArgumentTypeError as exc:
+        args_error(parser, "argument -m/--mcu: {}".format(str(exc)))
+
