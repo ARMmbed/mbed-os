@@ -295,6 +295,7 @@ private:
     static void att_client_handler(const attEvt_t* event) {
         // all handlers are stored in a static array
         static const event_handler_t handlers[] = {
+            &timeout_event_handler,
             &event_handler<ErrorResponseConverter>,
 //        	&event_handler<ExchangeMtuResponseConverter>,  // FIXME impossible to implement, the event remain internal to the stack
             &event_handler<FindInformationResponseConverter>,
@@ -344,6 +345,14 @@ private:
             return true;
         }
         return false;
+    }
+
+    static bool timeout_event_handler(const attEvt_t* event) {
+        if(event->hdr.status != ATT_ERR_TIMEOUT) {
+            return false;
+        }
+        _client.on_transaction_timeout(event->hdr.param);
+        return true;
     }
 
     template<typename ResultType>
