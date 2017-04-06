@@ -17,9 +17,9 @@ limitations under the License.
 from os.path import splitext, basename
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, filter_supported
+from tools.export.makefile import GccArm
 
-
-class QtCreator(Exporter):
+class QtCreator(GccArm):
     NAME = 'QtCreator'
     TOOLCHAIN = 'GCC_ARM'
 
@@ -63,3 +63,6 @@ class QtCreator(Exporter):
 
         for ext in ['creator', 'files', 'includes', 'config']:
             self.gen_file('qtcreator/%s.tmpl' % ext, ctx, "%s.%s" % (self.project_name, ext))
+
+        # finally, generate the Makefile
+        super(QtCreator, self).generate()
