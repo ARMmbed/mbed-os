@@ -670,7 +670,7 @@ static err_t lpc_low_level_output(struct netif *netif, struct pbuf *p)
  *  This function handles the transmit, receive, and error interrupt of
  *  the LPC177x_8x. This is meant to be used when NO_SYS=0.
  */
-void ENET_IRQHandler(void)
+void LPC17xxEthernetHandler(void)
 {
 #if NO_SYS == 1
 	/* Interrupts are not used without an RTOS */
@@ -1046,6 +1046,7 @@ err_t eth_arch_enetif_init(struct netif *netif)
 }
 
 void eth_arch_enable_interrupts(void) {
+    NVIC_SetVector(ENET_IRQn, (uint32_t)LPC17xxEthernetHandler);
     NVIC_SetPriority(ENET_IRQn, ((0x01 << 3) | 0x01));
     NVIC_EnableIRQ(ENET_IRQn);
 }
