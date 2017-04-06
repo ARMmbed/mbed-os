@@ -43,10 +43,14 @@ public:
     }
 
     /**
-     * @see ble::pal::AttClient::get_max_rx_mtu_supported
+     * @see ble::pal::GattClient::get_mtu_size
      */
-    virtual uint16_t get_max_rx_mtu_supported() {
-        return ATT_DEFAULT_MTU;
+    virtual ble_error_t get_mtu_size(
+        connection_handle_t connection_handle,
+        uint16_t& mtu_size
+    ) {
+        mtu_size = AttGetMtu(connection_handle);
+        return BLE_ERROR_NONE;
     }
 
     /**
