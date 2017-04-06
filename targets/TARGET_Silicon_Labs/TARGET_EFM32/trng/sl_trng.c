@@ -218,11 +218,11 @@ int sl_trng_poll( TRNG_TypeDef *device,
                   size_t *olen )
 {
     size_t output_len = 0;
-    size_t count = 0;
+    size_t chunk_len = 0;
     size_t available;
     int ret = 0;
 
-    while (len > 0)
+    while (output_len < len)
     {
         available = device->FIFOLEVEL * 4;
         if (available == 0)
@@ -241,7 +241,17 @@ int sl_trng_poll( TRNG_TypeDef *device,
              (ret == SL_TRNG_ERR_NOISE_ALARM) )
         {
             ret = 0;
-            break;
+            continue;
+        }
+#else
+        /* Noise alarms trigger a FIFO clearing, and we need to throw
+         * away the collected entropy. */
+        if ( (ret == SL_TRNG_ERR_PRELIMINARY_NOISE_ALARM) ||
+             (ret == SL_TRNG_ERR_NOISE_ALARM) )
+        {
+            ret = 0;
+            output_len = 0;
+            continue;
         }
 #endif
         /* Alarm has been signaled so we throw the generated data away. */
@@ -252,11 +262,9 @@ int sl_trng_poll( TRNG_TypeDef *device,
         }
 #endif
 
-        count = SL_MIN(len, available);
-        sl_trng_read_chunk(device, output, count);
-        output += count;
-        output_len += count;
-        len -= count;
+        chunk_len = SL_MIN(len - output_len, available);
+        sl_trng_read_chunk(device, output + output_len, chunk_len);
+        output_len += chunk_len;
     }
 
     *olen = output_len;
