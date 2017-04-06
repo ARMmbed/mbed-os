@@ -26,6 +26,12 @@
 UVISOR_EXTERN const uint32_t __uvisor_mode;
 UVISOR_EXTERN void const * const public_box_cfg_ptr;
 
+typedef struct {
+    void (*function)(void *);
+    size_t priority;
+    size_t stack_size;
+} uvisor_box_main_t;
+
 #define UVISOR_DISABLED   0
 #define UVISOR_PERMISSIVE 1
 #define UVISOR_ENABLED    2
@@ -145,8 +151,12 @@ UVISOR_EXTERN void const * const public_box_cfg_ptr;
  * thread of your box will use for its body. If you don't want a main thread,
  * too bad: you have to have one. */
 #define UVISOR_BOX_MAIN(function, priority, stack_size) \
-    static osThreadDef(function, priority, stack_size); \
-    static const void * const __uvisor_box_lib_config = osThread(function);
+    static const uvisor_box_main_t __uvisor_box_main = { \
+        function, \
+        priority, \
+        stack_size, \
+    }; \
+    static const void * const __uvisor_box_lib_config = &__uvisor_box_main;
 
 #define UVISOR_BOX_HEAPSIZE(heap_size) \
     static const uint32_t __uvisor_box_heapsize = heap_size;
