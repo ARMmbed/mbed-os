@@ -38,9 +38,8 @@ public:
      * @see ble::pal::AttClient::exchange_mtu_request
      */
     virtual ble_error_t exchange_mtu_request(connection_handle_t connection) {
-        // implementation is difficult with wicentric stack, it requires the
-        // mtu: AttcMtuReq(connection, ATT_DEFAULT_MTU);
-        return BLE_ERROR_NOT_IMPLEMENTED;
+        AttcMtuReq(connection, pAttCfg->mtu);
+        return BLE_ERROR_NONE;
     }
 
     /**
@@ -297,7 +296,7 @@ private:
         static const event_handler_t handlers[] = {
             &timeout_event_handler,
             &event_handler<ErrorResponseConverter>,
-//        	&event_handler<ExchangeMtuResponseConverter>,  // FIXME impossible to implement, the event remain internal to the stack
+            &event_handler<ExchangeMtuResponseConverter>,
             &event_handler<FindInformationResponseConverter>,
             &event_handler<FindByTypeValueResponseConverter>,
             &event_handler<ReadByTypeResponseConverter>,
@@ -396,16 +395,21 @@ private:
         }
     };
 
-#if 0
-    // to add when the stack will propagate the event
-    struct ExchangeMtuResponseConverter : ResponseConverter<ATT_METHOD_MTU> {
-        static AttExchangeMTUResponse converter(const attEvt_t* event) {
-            uint16_t mtu;
-            memcpy(&mtu, event->pValue, sizeof(mtu));
-            return AttExchangeMTUResponse(mtu);
+    /**
+     * Converter for an AttExchangeMTUResponse.
+     */
+    struct ExchangeMtuResponseConverter  {
+        static bool can_convert(const attEvt_t* event) {
+            if(event->hdr.status == ATT_SUCCESS && event->hdr.event == ATT_MTU_UPDATE_IND) {
+                return true;
+            }
+            return false;
+        }
+
+        static AttExchangeMTUResponse convert(const attEvt_t* event) {
+            return AttExchangeMTUResponse(event->mtu);
         }
     };
-#endif
 
     /**
      * Converter for a SimpleAttFindInformationResponse.
