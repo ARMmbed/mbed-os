@@ -275,9 +275,9 @@ Messages from the server will be forwarded as is.
 
 ## Server Messages 
 
-Messages received (response, notification or indication) from the server has to 
-be converted to an appropriate object before being forwarded to the member 
-function `on_server_event` present in `pal::AttClient` and `pal::GattClient`. 
+ATT PDUs (response, notification or indication) sent by a server to the client
+has to be converted to an appropriate object accepted by the member function
+`on_server_event` present in `pal::AttClient` and `pal::GattClient`.
 All messages declaration can be found in the file 
 [pal/AttServerMessage.h](source/ble/pal/AttServerMessage.h).
 
