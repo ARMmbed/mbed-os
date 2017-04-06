@@ -153,27 +153,6 @@ void sl_trng_free( TRNG_TypeDef *ctx );
 int sl_trng_set_key( TRNG_TypeDef *ctx, const unsigned char *key );
 
 /**
- * \brief          Check the TRNG conditioning function
- *
- * \param ctx      TRNG device
- *  
- * \return
- *   0 if success. \ref SL_TRNG_ERR_CONDITIONING_TEST_FAILED on failure.
- */
-int sl_trng_check_conditioning( TRNG_TypeDef *ctx );
-
-/**
- * \brief          Check the TRNG entropy source is producing random data
- *
- * \param ctx      TRNG device
- *  
- * \return
- *   0 if success. Error code if failure. Note that this function can return
- *                 a \ref SL_TRNG_ERR_PRELIMINARY_NOISE_ALARM on some occasions.
- */
-int sl_trng_check_entropy( TRNG_TypeDef *ctx );
-
-/**
  * \brief           Poll for entropy data
  *
  * \details         This function will read available random data from the TRNG

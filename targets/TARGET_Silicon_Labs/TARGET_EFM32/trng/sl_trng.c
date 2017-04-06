@@ -115,14 +115,6 @@ void sl_trng_soft_reset( TRNG_TypeDef *device )
     device->CONTROL = ctrl;
 }
 
-static inline
-void sl_trng_write_test_data( TRNG_TypeDef *device, uint32_t data )
-{
-    /* Wait for TESTDATA register to become ready for next word. */
-    while (device->STATUS & TRNG_STATUS_TESTDATABUSY);
-    device->TESTDATA = data;
-}
-
 static void sl_trng_clear_fifo( TRNG_TypeDef *device )
 {
   volatile uint32_t val32;
@@ -148,54 +140,6 @@ int sl_trng_set_key( TRNG_TypeDef *device, const unsigned char *key )
     device->KEY3 = *_key++;
 
     return 0;
-}
-
-int sl_trng_check_conditioning( TRNG_TypeDef *device )
-{
-    uint32_t val32;
-    int i, ret=0;
-    uint32_t ctrl = device->CONTROL;
-
-    /* Setup control register */
-    device->CONTROL = TRNG_CONTROL_ENABLE | TRNG_CONTROL_TESTEN |
-                      TRNG_CONTROL_BYPNIST | TRNG_CONTROL_BYPAIS31;
-
-    /* Apply software reset */
-    sl_trng_soft_reset(device);
-
-    /* Write test vector to the key register. */
-    sl_trng_set_key(device,
-                    (const unsigned char*)test_vector_conditioning_key);
-
-    /* Write test vector to the TESTDATA register */
-    for (i=0; i<TEST_VECTOR_CONDITIONING_INPUT_SIZE; i++)
-    {
-      sl_trng_write_test_data(device,
-                              test_vector_conditioning_input[i]);
-    }
-
-    for (i=0; i<TEST_VECTOR_CONDITIONING_OUTPUT_SIZE; i++)
-    {
-        /* Wait for data to become available in the FIFO. */
-        while ( 0 == device->FIFOLEVEL );
-        /* Read output from the conditioning function */
-        val32 = device->FIFO;
-        /* Compare with expected test vector. */
-        if (val32 != test_vector_conditioning_output[i])
-        {
-            /*
-            mbedtls_printf("Conditioning test failed. "
-                           "Test output word %d 0x%lx. Expected 0x%lx\n",
-                           i, val32, test_vector_conditioning_output[i]);
-            */
-            ret = SL_TRNG_ERR_CONDITIONING_TEST_FAILED;
-        }
-    }
-
-    /* Restore initial value of control register */
-    device->CONTROL = ctrl;
-
-    return ret;
 }
 
 static int sl_trng_check_status( TRNG_TypeDef *device )
@@ -244,57 +188,6 @@ static int sl_trng_check_status( TRNG_TypeDef *device )
     }
 
     return 0;
-}
-
-int sl_trng_check_entropy( TRNG_TypeDef *device )
-{
-    volatile uint32_t val32;
-    int i, ret = 0;
-    uint32_t ctrl = device->CONTROL;
-
-    /* Setup control register */
-    device->CONTROL =
-        TRNG_CONTROL_ENABLE |
-        TRNG_CONTROL_REPCOUNTIEN |
-        TRNG_CONTROL_APT64IEN |
-        TRNG_CONTROL_APT4096IEN |
-        TRNG_CONTROL_PREIEN |
-        TRNG_CONTROL_ALMIEN;
-
-    /* Apply software reset */
-    sl_trng_soft_reset(device);
-
-    /* Check FIFO level is non-zero . */
-    for (i=0; i<FIFO_LEVEL_RETRY; i++)
-    {
-        if ( device->FIFOLEVEL )
-        {
-            break;
-        }
-    }
-    /* Check for no data within timeout (max retry count) */
-    if (i>=FIFO_LEVEL_RETRY)
-    {
-        ret = SL_TRNG_ERR_NO_DATA;
-    }
-    else
-    {
-        /* Read at least 4097x2 bits (~257 x 32 bits) in order for the longest
-           test to complete (adaptive proportion test of 4096 samples). */
-        for (i=0; i<TEST_WORDS_MIN; i++)
-        {
-            val32 = device->FIFO;
-            (void)val32;
-        }
-
-        /* Check in status register for errors. */
-        ret = sl_trng_check_status( device );
-    }
-
-    /* Restore initial value of control register */
-    device->CONTROL = ctrl;
-
-    return ret;
 }
 
 static void sl_trng_read_chunk( TRNG_TypeDef *device,
