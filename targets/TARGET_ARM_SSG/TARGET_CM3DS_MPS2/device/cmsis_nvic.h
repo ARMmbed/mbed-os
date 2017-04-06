@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016-2017 ARM Limited
+ * Copyright (c) 2015-2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,17 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * CMSIS-style functionality to support dynamic vectors
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
 
-#if defined(TARGET_BEETLE) || defined(TARGET_CM3DS_MPS2)
+#define NVIC_NUM_VECTORS        (16 + 48)
+#define NVIC_RAM_VECTOR_ADDRESS 0x20000000   /* Location of vectors in RAM */
 
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-
-#endif
-
-#endif  // MBED_MBED_RTX_H
+#endif /* MBED_CMSIS_NVIC_H */

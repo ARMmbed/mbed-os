@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016-2017 ARM Limited
+ * Copyright (c) 2006-2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "mbed_assert.h"
+#include "pinmap.h"
+#include "mbed_error.h"
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
 
-#if defined(TARGET_BEETLE) || defined(TARGET_CM3DS_MPS2)
+void pin_function(PinName pin, int function)
+{
+    MBED_ASSERT(pin != (PinName)NC);
 
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
+    /* TODO */
+}
 
-#endif
+void pin_mode(PinName pin, PinMode mode)
+{
+    MBED_ASSERT(pin != (PinName)NC);
 
-#endif  // MBED_MBED_RTX_H
+    /* Pin modes configuration is not supported */
+}
