@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "rtc_api.h"
- 
+
 #if DEVICE_RTC
 
 #include "adi_rtc.h"
@@ -27,20 +27,20 @@ static ADI_RTC_HANDLE hDevice0 = NULL;
 
 
 void rtc_init(void)
-{ 
-    /* Setup the RTC 32KHz oscillator */  
+{
+    /* Setup the RTC 32KHz oscillator */
     adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFXTAL);
-    adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFXTAL,true);    
-    
+    adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFXTAL,true);
+
     /* initialize driver */
-    adi_rtc_Open(RTC_DEVICE_NUM,aRtcDevMem0,ADI_RTC_MEMORY_SIZE,&hDevice0);        
+    adi_rtc_Open(RTC_DEVICE_NUM,aRtcDevMem0,ADI_RTC_MEMORY_SIZE,&hDevice0);
 
     adi_rtc_Enable(hDevice0, true);
 }
 
 void rtc_free(void)
-{   
-    adi_rtc_Close(hDevice0);         
+{
+    adi_rtc_Close(hDevice0);
 }
 
 /*
@@ -50,18 +50,18 @@ void rtc_free(void)
 int rtc_isenabled(void)
 {
     uint32_t ControlReg;
-    
+
     adi_rtc_GetControl (hDevice0, ADI_RTC_CONTROL_REGISTER_0 ,&ControlReg);
-    
+
     return((int) (ControlReg & BITM_RTC_CR0_CNTEN));
 }
 
 time_t rtc_read(void)
 {
     time_t currentCount;
-    
-    adi_rtc_GetCount(hDevice0, &currentCount);
-    
+
+    adi_rtc_GetCount(hDevice0, (uint32_t *)(&currentCount));
+
     return(currentCount);
 }
 

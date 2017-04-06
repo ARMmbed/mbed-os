@@ -23,8 +23,6 @@
 
 #ifdef DEVICE_LOWPOWERTIMER
 
-#include "hal/ticker_api.h"
-
 // define base LF clock frequncy in Hz
 #define LFCLK_FREQUENCY_HZ		32768
 // RTC prescaler for the LF clock
@@ -32,6 +30,9 @@
 
 /* time for each tick of the LF clock in us */
 #define TIME_US_PER_TICK 	((float)1000000/(float)(LFCLK_FREQUENCY_HZ>>RTC_PRESCALER))
+
+// The number of clock ticks it takes to set & enable the alarm
+#define TICKS_TO_ENABLE_ALARM 50
 
 static unsigned char rtc1_memory[ADI_RTC_MEMORY_SIZE];
 static ADI_RTC_HANDLE hRTC1_Device;
@@ -126,15 +127,33 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 	uint32_t rtcCount, set_time;
 	uint32_t cnt0, cnt1;
 
-	// get current count
-	adi_rtc_GetCount(hRTC1_Device, &rtcCount);
-
 	// compute the tick value based on the given alarm time
 	set_time = (uint32_t)((float)(timestamp) / TIME_US_PER_TICK);
 
+	// get current count
+	adi_rtc_GetCount(hRTC1_Device, &rtcCount);
+
 	// alarm value needs to be greater than the current time
+	// if already expired, call user ISR immediately
 	if (set_time <= rtcCount)
+	{
+		rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
 		return;
+	}
+	else
+	if (set_time <= rtcCount + TICKS_TO_ENABLE_ALARM)
+	{
+		// otherwise if the alarm time is less than the current RTC count + the time
+		// it takes to enable the alarm, just wait until the desired number of counts
+		// has expired rather than using the interrupt, then call the user ISR directly.
+		do
+		{
+			adi_rtc_GetCount(hRTC1_Device, &rtcCount);
+		} while (rtcCount < set_time);
+
+		rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
+		return;
+	}
 
 	adi_rtc_GetCount(hRTC1_Device, &cnt0);
 

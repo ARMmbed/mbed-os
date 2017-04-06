@@ -27,6 +27,36 @@ const PinMap PinMap_UART_RX[] = {
 	{P2_00, UART_1, 2},
     {NC  ,  NC    , 0}
 };
+
+/************SPI***************/
+const PinMap PinMap_SPI_SCLK[] = {
+    {P0_00, SPI_0, 1},
+    {P1_06, SPI_1, 1},
+    {P1_02, SPI_2, 1},
+    {NC   , NC   , 0}
+};
+
+const PinMap PinMap_SPI_MOSI[] = {
+    {P0_01, SPI_0, 1},
+    {P1_07, SPI_1, 1},
+    {P1_03, SPI_2, 1},
+    {NC   , NC   , 0}
+};
+
+const PinMap PinMap_SPI_MISO[] = {
+    {P0_02, SPI_0, 1},
+    {P1_08, SPI_1, 1},
+    {P1_04, SPI_2, 1},
+    {NC   , NC   , 0}
+};
+
+const PinMap PinMap_SPI_SSEL[] = {
+    {P0_03, SPI_0, 1},
+    {P1_09, SPI_1, 1},
+    {P2_10, SPI_2, 1},
+    {NC   , NC   , 0}
+};
+
 #if NOT_YET
 /************RTC***************/
 const PinMap PinMap_RTC[] = {

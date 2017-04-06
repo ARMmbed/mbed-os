@@ -60,7 +60,7 @@ time_t rtc_read(void)
 {
     time_t currentCount;
 
-    adi_rtc_GetCount(hDevice0, &currentCount);
+    adi_rtc_GetCount(hDevice0, (uint32_t *)(&currentCount));
 
     return(currentCount);
 }

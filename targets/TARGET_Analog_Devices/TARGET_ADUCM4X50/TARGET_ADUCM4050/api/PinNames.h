@@ -16,6 +16,12 @@
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
+/*
+	to build for ADUCM4050_WLCSP remove define 
+	for ADUCM4050_LFCSP
+*/
+#define ADUCM4050_LFCSP
+
 #include "cmsis.h"
 
 #include "adi_gpio.h"
@@ -77,12 +83,20 @@ typedef enum {
     P2_07  = (2 << GPIO_PORT_SHIFT | 7 ),
     P2_08  = (2 << GPIO_PORT_SHIFT | 8 ),
     P2_09  = (2 << GPIO_PORT_SHIFT | 9 ),
+#if defined(ADUCM4050_LFCSP)
     P2_10 = (2 << GPIO_PORT_SHIFT | 10),
+    P2_11 = (2 << GPIO_PORT_SHIFT | 11),
+#else
     P2_11 = (2 << GPIO_PORT_SHIFT | 11),
     P2_12 = (2 << GPIO_PORT_SHIFT | 12),
     P2_13 = (2 << GPIO_PORT_SHIFT | 13),
     P2_14 = (2 << GPIO_PORT_SHIFT | 14),
     P2_15 = (2 << GPIO_PORT_SHIFT | 15),
+    P3_00  = (3 << GPIO_PORT_SHIFT | 0 ),
+    P3_01  = (3 << GPIO_PORT_SHIFT | 1 ),
+    P3_02  = (3 << GPIO_PORT_SHIFT | 2 ),
+    P3_03  = (3 << GPIO_PORT_SHIFT | 3 ),    
+#endif    
 
     // mbed original LED naming
     LED1 = P0_13,
@@ -126,6 +140,35 @@ typedef enum {
 
     I2C_SCL = D15,
     I2C_SDA = D14,
+
+    // SPI Pins
+    SPI0_SCLK = P0_00,
+    SPI0_MOSI = P0_01,
+    SPI0_MISO = P0_02,
+    SPI0_CS0 = P0_03,
+    SPI0_CS1 = P1_10,
+    SPI0_CS2 = P2_08,
+    SPI0_CS3 = P2_09,
+
+    SPI1_SCLK = P1_06,
+    SPI1_MOSI = P1_07,
+    SPI1_MISO = P1_08,
+    SPI1_CS0 = P1_09,
+    SPI1_CS1 = P2_11,
+    SPI1_CS2 = P2_02,
+    SPI1_CS3 = P1_10,
+
+    SPI2_SCLK = P1_02,
+    SPI2_MOSI = P1_03,
+    SPI2_MISO = P1_04,
+    SPI2_CS0 = P1_05,
+    SPI2_CS1 = P0_09,
+#if defined(ADUCM4050_LFCSP)
+    SPI2_CS2 = P2_10,
+#else
+	SPI2_CS2 = P2_15,
+#endif    
+    SPI2_CS3 = P2_07,
 
 //    A0 = ADC0,
 //    A1 = ADC1,

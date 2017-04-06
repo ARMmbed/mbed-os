@@ -22,25 +22,37 @@
 //#include "target_config.h"
 #include "gpio_object.h"
 
+#include "adi_spi.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 struct gpio_irq_s {
-	unsigned int id;
-	PinName pinname;
+    unsigned int id;
+    PinName pinname;
 };
 
 struct sleep_s {
-	int temp;
+    int temp;
 };
 
 struct serial_s {
-	int index;
+    int index;
 };
 
 struct trng_s {
     uint8_t dummy;
+};
+
+struct spi_s {
+    //SPI_Type *spi;
+    // MT_DEBUG  uint8_t dummy;
+    // MT_DEBUG  ADI_SPI_TypeDef *spi;
+    uint32_t instance;
+    ADI_SPI_HANDLE      hSPIDevice;
+    ADI_SPI_HANDLE      *phSPIDevice;
+    uint8_t             SPIMem[ADI_SPI_MEMORY_SIZE];    /* Memory required for SPI driver */    
 };
 
 #include "gpio_object.h"
