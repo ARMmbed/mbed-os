@@ -145,6 +145,8 @@ def get_config(src_paths, target, toolchain_name):
 
         prev_features = features
     toolchain.config.validate_config()
+    if toolchain.config.has_regions:
+        _ = list(toolchain.config.regions)
 
     cfg, macros = toolchain.config.get_config_data()
     features = toolchain.config.get_features()
