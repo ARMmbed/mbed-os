@@ -105,7 +105,7 @@ def add_result_to_report(report, result):
     report - the report to append to
     result - the result to append
     """
-    result["date"] = str(datetime.datetime.now())
+    result["date"] = datetime.datetime.utcnow().isoformat()
     target = result["target_name"]
     toolchain = result["toolchain_name"]
     id_name = result['id']
