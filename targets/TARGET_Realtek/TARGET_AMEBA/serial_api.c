@@ -102,10 +102,10 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         return;
     }
 #ifdef CONFIG_MBED_ENABLED 
-	else if(uart_idx == UART_3){
-		obj->index = UART_3;
-		goto init_stdio;
-	}
+    else if(uart_idx == UART_3){
+        obj->index = UART_3;
+        goto init_stdio;
+    }
 #endif
 
     pHalRuartOp = &(obj->hal_uart_op);
@@ -148,9 +148,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 init_stdio:
     // For stdio management
     if (uart_idx == STDIO_UART) {
-		// default setting to 38400
-		if (stdio_uart_inited) return;
-		log_uart_init(&stdio_uart_log, 38400, 8, ParityNone, 1);
+        // default setting to 38400
+        if (stdio_uart_inited) return;
+        log_uart_init(&stdio_uart_log, 38400, 8, ParityNone, 1);
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
@@ -165,10 +165,10 @@ void serial_free(serial_t *obj)
     PUART_DMA_CONFIG   pHalRuartDmaCfg;
 #endif
 #ifdef CONFIG_MBED_ENABLED
-	if(obj->index == UART_3){
-		log_uart_free(&stdio_uart_log);
-		return;
-	}
+    if(obj->index == UART_3){
+        log_uart_free(&stdio_uart_log);
+        return;
+    }
 #endif 
     pHalRuartAdapter = &(obj->hal_uart_adp);
 
@@ -191,9 +191,9 @@ void serial_free(serial_t *obj)
 
 void serial_baud(serial_t *obj, int baudrate) {
 #ifdef CONFIG_MBED_ENABLED
-	if(obj->index == UART_3){
-		return;
-	}
+    if(obj->index == UART_3){
+        return;
+    }
 #endif
     PHAL_RUART_ADAPTER pHalRuartAdapter;
 
@@ -206,10 +206,10 @@ void serial_baud(serial_t *obj, int baudrate) {
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) 
 {
 #ifdef CONFIG_MBED_ENABLED
-	if(obj->index == UART_3){
-		log_uart_format(&stdio_uart_log, data_bits, parity, stop_bits);
-		return;
-	}
+    if(obj->index == UART_3){
+        log_uart_format(&stdio_uart_log, data_bits, parity, stop_bits);
+        return;
+    }
 #endif
     PHAL_RUART_ADAPTER pHalRuartAdapter;
     pHalRuartAdapter = &(obj->hal_uart_adp);
@@ -337,9 +337,9 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 int serial_getc(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-	if(obj->index == UART_3){
-		return log_uart_getc(&stdio_uart_log);
-	}
+    if(obj->index == UART_3){
+        return log_uart_getc(&stdio_uart_log);
+    }
 #endif
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
     u8  uart_idx = pHalRuartAdapter->UartIndex;
@@ -351,10 +351,10 @@ int serial_getc(serial_t *obj)
 void serial_putc(serial_t *obj, int c) 
 {
 #ifdef CONFIG_MBED_ENABLED
-	if(obj->index == UART_3){
-		log_uart_putc(&stdio_uart_log, (char)c);
-		return;
-	}
+    if(obj->index == UART_3){
+        log_uart_putc(&stdio_uart_log, (char)c);
+        return;
+    }
 #endif
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
     u8  uart_idx = pHalRuartAdapter->UartIndex;
@@ -372,9 +372,9 @@ void serial_putc(serial_t *obj, int c)
 int serial_readable(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-	if(obj->index == UART_3){
-		return log_uart_readable(&stdio_uart_log);
-	}
+    if(obj->index == UART_3){
+        return log_uart_readable(&stdio_uart_log);
+    }
 #endif
 
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
@@ -391,9 +391,9 @@ int serial_readable(serial_t *obj)
 int serial_writable(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-	if(obj->index == UART_3){
-		return log_uart_writable(&stdio_uart_log);
-	}
+    if(obj->index == UART_3){
+        return log_uart_writable(&stdio_uart_log);
+    }
 #endif
 
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
@@ -411,10 +411,10 @@ int serial_writable(serial_t *obj)
 void serial_clear(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-	if(obj->index == UART_3){
-		log_uart_clear(&stdio_uart_log);
-		return;
-	}
+    if(obj->index == UART_3){
+        log_uart_clear(&stdio_uart_log);
+        return;
+    }
 #endif
 
     PHAL_RUART_ADAPTER pHalRuartAdapter;
@@ -444,10 +444,10 @@ void serial_clear_rx(serial_t *obj)
 void serial_break_set(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-	if(obj->index == UART_3){
-		log_uart_break_set(&stdio_uart_log);
-		return;
-	}
+    if(obj->index == UART_3){
+        log_uart_break_set(&stdio_uart_log);
+        return;
+    }
 #endif
 
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
@@ -462,10 +462,10 @@ void serial_break_set(serial_t *obj)
 void serial_break_clear(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
-	if(obj->index == UART_3){
-		log_uart_break_clear(&stdio_uart_log);
-		return;
-	}
+    if(obj->index == UART_3){
+        log_uart_break_clear(&stdio_uart_log);
+        return;
+    }
 #endif
 
     PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);

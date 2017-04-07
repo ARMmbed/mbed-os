@@ -84,7 +84,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     // Determine the I2C to use
     uint32_t i2c_sda = (uint32_t)pinmap_peripheral(sda, PinMap_I2C_SDA);
     uint32_t i2c_scl = (uint32_t)pinmap_peripheral(scl, PinMap_I2C_SCL);
-	ConfigDebugErr &= (~(_DBG_I2C_|_DBG_GDMA_));
+    ConfigDebugErr &= (~(_DBG_I2C_|_DBG_GDMA_));
     ConfigDebugInfo&= (~(_DBG_I2C_|_DBG_GDMA_));
     i2c_sel = (uint32_t)pinmap_merge(i2c_sda, i2c_scl);
     i2c_idx = RTL_GET_PERI_IDX(i2c_sel);
@@ -177,7 +177,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     pSalI2CHND->I2CAckAddr    = 0;    
     pSalI2CHND->TimeOut       = 300;
     pSalI2CHND->AddRtyTimeOut = 3000;
-    pSalI2CHND->I2CExd     	|= (I2C_EXD_MTR_ADDR_RTY);
+    pSalI2CHND->I2CExd         |= (I2C_EXD_MTR_ADDR_RTY);
 
     pSalI2CMngtAdpt->InnerTimeOut   = pSalI2CHND->TimeOut;
 
@@ -203,14 +203,11 @@ void i2c_frequency(i2c_t *obj, int hz) {
         i2c_reset(obj);
         if (i2c_user_clk <= 100) {
             pSalI2CHND->I2CSpdMod = I2C_SS_MODE;
-        }
-        else if ((i2c_user_clk > 100) && (i2c_user_clk <= 400)) {
+        } else if ((i2c_user_clk > 100) && (i2c_user_clk <= 400)) {
             pSalI2CHND->I2CSpdMod = I2C_FS_MODE;
-        }
-        else if (i2c_user_clk > 400) {
+        } else if (i2c_user_clk > 400) {
             pSalI2CHND->I2CSpdMod = I2C_HS_MODE;
-        }
-        else {
+        } else {
             pSalI2CHND->I2CSpdMod = I2C_SS_MODE;
         }
         
@@ -270,8 +267,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     if (RtkI2CReceive(pSalI2CHND) != HAL_OK) {
         length = length - pSalI2CHND->pRXBuf->DataLen;
         return ((int)length);
-    }
-    else {
+    } else {
         //DBG_8195A(">\n");
         /* Calculate user time out parameters */
         I2CInTOTcnt = 300;
@@ -290,8 +286,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
                     
                     return ((int)(length));
                 }
-            }
-            else {
+            } else {
                 if (I2CInTOTcnt == 0) {
                     pSalI2CHND->DevSts  = I2C_STS_TIMEOUT;
                     pSalI2CHND->ErrType = I2C_ERR_RX_ADD_TO;
@@ -300,10 +295,11 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
                 }
             }  
         }
-        if (pSalI2CHND->DevSts != I2C_STS_TIMEOUT) 
+        if (pSalI2CHND->DevSts != I2C_STS_TIMEOUT) {
             return ((int)(length - pSalI2CHND->pRXBuf->DataLen));
-        else
+        } else {
             return ((int)(length));
+        }
     }
 }
 
@@ -340,8 +336,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     if (RtkI2CSend(pSalI2CHND) != HAL_OK) {
         length = length - pSalI2CHND->pTXBuf->DataLen;
         return ((int)length);
-    }
-    else {
+    } else {
         //DBG_8195A("(\n");
         /* Calculate user time out parameters */
         I2CInTOTcnt = 300;
@@ -359,8 +354,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
                     pSalI2CHND->ErrType = I2C_ERR_TX_ADD_TO;
                     return ((int)(length));
                 }
-            }
-            else {
+            } else {
                 if (I2CInTOTcnt == 0) {
                     pSalI2CHND->DevSts  = I2C_STS_TIMEOUT;
                     pSalI2CHND->ErrType = I2C_ERR_TX_ADD_TO;
@@ -369,10 +363,11 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
             }         
         }
 
-        if (pSalI2CHND->DevSts != I2C_STS_TIMEOUT)
+        if (pSalI2CHND->DevSts != I2C_STS_TIMEOUT) {
             return ((int)(length - pSalI2CHND->pTXBuf->DataLen));
-        else
+        } else {
             return ((int)(length));
+        }
     }
 }
 
@@ -431,129 +426,7 @@ void i2c_reset(i2c_t *obj) {
     /* Deinit I2C directly */
     RtkI2CDeInitForPS(pSalI2CHND);
 }
-#ifndef CONFIG_MBED_ENABLED
-void i2c_restart_enable(i2c_t *obj) {
-    PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
-    PSAL_I2C_HND            pSalI2CHND          = NULL;
-    uint32_t                i2clocaltmp;
-    uint8_t                 i2cen;
-    pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
-    pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
 
-    i2cen = pSalI2CHND->pInitDat->I2CEn;
-
-    if (i2cen == I2C_ENABLE) {
-        pSalI2CHND->pInitDat->I2CEn     = I2C_DISABLE;
-        pSalI2CMngtAdpt->pHalOp->HalI2CEnable(pSalI2CHND->pInitDat);
-    }
-    
-    i2clocaltmp = HalI2CRead32(pSalI2CHND->DevNum, REG_DW_I2C_IC_CON);
-    i2clocaltmp |= BIT_IC_CON_IC_RESTART_EN;
-    HalI2CWrite32(pSalI2CHND->DevNum, REG_DW_I2C_IC_CON, i2clocaltmp);
-
-    if (i2cen == I2C_ENABLE) {
-        pSalI2CHND->pInitDat->I2CEn     = I2C_ENABLE;
-        pSalI2CMngtAdpt->pHalOp->HalI2CEnable(pSalI2CHND->pInitDat);
-    }
-    
-    pSalI2CHND->pInitDat->I2CReSTR  = I2C_ENABLE;
-    
-}
-
-void i2c_restart_disable(i2c_t *obj) {
-    PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
-    PSAL_I2C_HND            pSalI2CHND          = NULL;
-    uint32_t                i2clocaltmp;
-    uint8_t                 i2cen;
-    pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
-    pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
-
-    i2cen = pSalI2CHND->pInitDat->I2CEn;
-
-    if (i2cen == I2C_ENABLE) {
-        pSalI2CHND->pInitDat->I2CEn     = I2C_DISABLE;
-        pSalI2CMngtAdpt->pHalOp->HalI2CEnable(pSalI2CHND->pInitDat);
-    }
-
-    i2clocaltmp = HalI2CRead32(pSalI2CHND->DevNum, REG_DW_I2C_IC_CON);
-    i2clocaltmp &= (~BIT_IC_CON_IC_RESTART_EN);
-    HalI2CWrite32(pSalI2CHND->DevNum, REG_DW_I2C_IC_CON, i2clocaltmp);
-
-    if (i2cen == I2C_ENABLE) {
-        pSalI2CHND->pInitDat->I2CEn     = I2C_ENABLE;
-        pSalI2CMngtAdpt->pHalOp->HalI2CEnable(pSalI2CHND->pInitDat);
-    }
-
-    pSalI2CHND->pInitDat->I2CReSTR  = I2C_DISABLE;
-    
-}
-
-void i2c_set_user_callback(i2c_t *obj, I2CCallback i2ccb, void(*i2c_callback)(void *)) {
-
-    PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
-    PSAL_I2C_HND            pSalI2CHND          = NULL;
-    pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
-    pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
-    
-    if ((i2ccb >= I2C_TX_COMPLETE) && (i2ccb <= I2C_ERR_OCCURRED)) {
-        switch (i2ccb) {
-            case I2C_TX_COMPLETE:
-                pSalI2CHND->pUserCB->pTXCCB->USERCB = i2c_callback;
-                break;
-            case I2C_RX_COMPLETE:
-                pSalI2CHND->pUserCB->pRXCCB->USERCB = i2c_callback;
-                break;
-            case I2C_RD_REQ_COMMAND:
-                pSalI2CHND->pUserCB->pRDREQCB->USERCB = i2c_callback;
-                break;
-            case I2C_ERR_OCCURRED:
-                pSalI2CHND->pUserCB->pERRCB->USERCB = i2c_callback;
-                break;
-            default:
-                break;
-        }
-    }
-}
-
-
-void i2c_clear_user_callback(i2c_t *obj, I2CCallback i2ccb) {
-
-    PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
-    PSAL_I2C_HND            pSalI2CHND          = NULL;
-    pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
-    pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
-    
-    if ((i2ccb >= I2C_TX_COMPLETE) && (i2ccb <= I2C_ERR_OCCURRED)) {
-        switch (i2ccb) {
-            case I2C_TX_COMPLETE:
-                pSalI2CHND->pUserCB->pTXCCB = NULL;
-                break;
-            case I2C_RX_COMPLETE:
-                pSalI2CHND->pUserCB->pRXCCB = NULL;
-                break;
-            case I2C_ERR_OCCURRED:
-                pSalI2CHND->pUserCB->pERRCB = NULL;
-                break;
-            default:
-                break;
-        }
-    }
-}
-
-int i2c_enable_control(i2c_t *obj, int enable) {
-    PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
-    PSAL_I2C_HND            pSalI2CHND          = NULL;
-    pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
-    pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
-
-    pSalI2CHND->pInitDat->I2CEn = enable;
-
-    if(pSalI2CMngtAdpt->pHalOp->HalI2CEnable(pSalI2CHND->pInitDat) != HAL_OK)
-		return 0; // error
-	else
-		return 1;
-}
-#endif
 #if DEVICE_I2CSLAVE
 
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
@@ -630,8 +503,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
 
     if (RtkI2CReceive(pSalI2CHND) != HAL_OK) {
         return 0;   //error
-    }
-    else {
+    } else {
         /* Calculate user time out parameters */
         I2CInTOTcnt = 300;
         if ((I2CInTOTcnt != 0) && (I2CInTOTcnt != I2C_TIMEOOUT_ENDLESS)) {
@@ -648,8 +520,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
                     pSalI2CHND->ErrType = I2C_ERR_RX_ADD_TO;
                     return ((int)(length));
                 }
-            }
-            else {
+            } else {
                 if (I2CInTOTcnt == 0) {
                     pSalI2CHND->DevSts  = I2C_STS_TIMEOUT;
                     pSalI2CHND->ErrType = I2C_ERR_RX_ADD_TO;
@@ -658,10 +529,11 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
             }         
         }
 
-        if (pSalI2CHND->DevSts != I2C_STS_TIMEOUT)
+        if (pSalI2CHND->DevSts != I2C_STS_TIMEOUT) {
             return ((int)(length - pSalI2CHND->pTXBuf->DataLen));
-        else
+        } else {
             return ((int)(length));
+        }
     }
 }
 
@@ -693,62 +565,6 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
  *                        read command is sent to it.
  *   \return result
  */
-#ifndef CONFIG_MBED_ENABLED
-int i2c_slave_set_for_rd_req(i2c_t *obj, int set) {
-    PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
-    PSAL_I2C_HND            pSalI2CHND          = NULL;
-    PHAL_I2C_INIT_DAT   pHalI2CInitDat      = NULL;
-    PHAL_I2C_OP         pHalI2COP           = NULL; 
-    u32 I2CLocalTemp;
-    
-    pSalI2CMngtAdpt = &(obj->SalI2CMngtAdpt);
-    pSalI2CHND      = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
-    pHalI2CInitDat  = pSalI2CMngtAdpt->pHalInitDat;
-    pHalI2COP       = pSalI2CMngtAdpt->pHalOp;
-    
-    I2CLocalTemp = pHalI2COP->HalI2CReadReg(pHalI2CInitDat, REG_DW_I2C_IC_INTR_MASK);
-
-    if (set) {
-        I2CLocalTemp |= BIT_IC_INTR_MASK_M_RD_REQ;
-    } else {
-        I2CLocalTemp &= (~BIT_IC_INTR_MASK_M_RD_REQ);
-    }
-    
-    pHalI2CInitDat->I2CIntrMSK = I2CLocalTemp;
-    pHalI2COP->HalI2CIntrCtrl(pHalI2CInitDat);
-
-    return 1;
-}
-
-/** \brief Description of i2c_slave_set_for_data_nak
- *  
- *    i2c_slave_set_for_data_nak is used to set/clear i2c slave NAK or ACK data part in transfer.
- *    
- *   \param i2c_t *obj  : i2c object
- *   \param int set     : set or clear for data NAK.
- *   \return result
- */
-int i2c_slave_set_for_data_nak(i2c_t *obj, int set_nak) {
-    PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
-    PSAL_I2C_HND            pSalI2CHND          = NULL;
-    PHAL_I2C_INIT_DAT   pHalI2CInitDat      = NULL;
-    PHAL_I2C_OP         pHalI2COP           = NULL; 
-    u32 I2CLocalTemp;
-
-    pSalI2CMngtAdpt = &(obj->SalI2CMngtAdpt);
-    pSalI2CHND      = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
-    pHalI2CInitDat  = pSalI2CMngtAdpt->pHalInitDat;
-    pHalI2COP       = pSalI2CMngtAdpt->pHalOp;
-    I2CLocalTemp = pHalI2COP->HalI2CReadReg(pHalI2CInitDat, REG_DW_I2C_IC_STATUS);
-    
-    while (BIT_IC_STATUS_SLV_ACTIVITY & I2CLocalTemp) {
-        I2CLocalTemp = pHalI2COP->HalI2CReadReg(pHalI2CInitDat, REG_DW_I2C_IC_STATUS);
-    }
-    
-    HAL_I2C_WRITE32(pSalI2CHND->DevNum, REG_DW_I2C_IC_SLV_DATA_NACK_ONLY, set_nak);
-	return 1;
-}
-#endif
 #endif // CONFIG_I2C_SLAVE_EN
 
 #endif // CONFIG_I2C_EN

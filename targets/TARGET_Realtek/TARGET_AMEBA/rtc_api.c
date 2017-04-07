@@ -27,21 +27,21 @@ static struct tm rtc_timeinfo;
 static int sw_rtc_en=0;
 
 static const u8 dim[14] = { 
-	31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28 };
+    31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28 };
 
 static inline bool is_leap_year(unsigned int year)
 {
-	return (!(year % 4) && (year % 100)) || !(year % 400);
+    return (!(year % 4) && (year % 100)) || !(year % 400);
 }
 
-	
+    
 static u8 days_in_month (u8 month, u8 year)
 {
-	u8 ret = dim [ month - 1 ];
-	if (ret == 0)
-		ret = is_leap_year (year) ? 29 : 28;
-	return ret;
-}	
+    u8 ret = dim [ month - 1 ];
+    if (ret == 0)
+        ret = is_leap_year (year) ? 29 : 28;
+    return ret;
+}    
 
 void sw_rtc_tick_handler(uint32_t id)
 {
