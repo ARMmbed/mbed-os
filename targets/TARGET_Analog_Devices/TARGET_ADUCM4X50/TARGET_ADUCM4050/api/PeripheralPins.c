@@ -13,7 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
+/*
+	The ADuCM4050 is made in two package variants.
+	
+	64 lead LFCSP & 72 ball WLCSP
+	
+	There are some differences for Port 2 between the two variants
+	WLCSP also has Port 3.
+	
+	The #define ADUCM4050_LFCSP is used to determine which variant the code
+	is built for.
+	
+	For LFCSP leave the #define in, to build for ADUCM4050_WLCSP remove.
+*/
+#define ADUCM4050_LFCSP
+
+
 #include "PeripheralPins.h"
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
@@ -50,12 +66,21 @@ const PinMap PinMap_SPI_MISO[] = {
     {NC   , NC   , 0}
 };
 
+#if defined(ADUCM4050_LFCSP)
 const PinMap PinMap_SPI_SSEL[] = {
     {P0_03, SPI_0, 1},
     {P1_09, SPI_1, 1},
     {P2_10, SPI_2, 1},
     {NC   , NC   , 0}
 };
+#else
+const PinMap PinMap_SPI_SSEL[] = {
+    {P0_03, SPI_0, 1},
+    {P1_09, SPI_1, 1},
+    {P2_15, SPI_2, 1},
+    {NC   , NC   , 0}
+};
+#endif
 
 #if NOT_YET
 /************RTC***************/

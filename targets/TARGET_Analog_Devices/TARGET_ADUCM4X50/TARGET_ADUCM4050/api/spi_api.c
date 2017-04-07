@@ -120,7 +120,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     SystemCoreClockUpdate();
     adi_spi_Open(nDeviceNum, SPIMem, ADI_SPI_MEMORY_SIZE, phSPIDevice);
-    adi_spi_SetIrqmode(hSPIDevice, 0u);
 
     if (ssel != NC)
     {

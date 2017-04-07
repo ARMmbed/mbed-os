@@ -17,8 +17,17 @@
 #define MBED_PINNAMES_H
 
 /*
-	to build for ADUCM4050_WLCSP remove define 
-	for ADUCM4050_LFCSP
+	The ADuCM4050 is made in two package variants.
+	
+	64 lead LFCSP & 72 ball WLCSP
+	
+	There are some differences for Port 2 between the two variants
+	WLCSP also has Port 3.
+	
+	The #define ADUCM4050_LFCSP is used to determine which variant the code
+	is built for.
+	
+	For LFCSP leave the #define in, to build for ADUCM4050_WLCSP remove.
 */
 #define ADUCM4050_LFCSP
 
