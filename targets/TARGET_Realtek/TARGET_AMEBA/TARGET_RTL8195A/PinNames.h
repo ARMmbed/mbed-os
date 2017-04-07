@@ -109,6 +109,7 @@ typedef enum {
     PF_3  = (PORT_F<<4|3),
     PF_4  = (PORT_F<<4|4),
     PF_5  = (PORT_F<<4|5),
+    /* unavailable pins */
 //    PF_6  = (PORT_F<<4|6),
 //    PF_7  = (PORT_F<<4|7),
 
@@ -146,6 +147,7 @@ typedef enum {
     PJ_4  = (PORT_J<<4|4),
     PJ_5  = (PORT_J<<4|5),
     PJ_6  = (PORT_J<<4|6),
+    /* unavailable pins */
 //    PJ_7  = (PORT_J<<4|7),
 
     PK_0  = (PORT_K<<4|0),
@@ -155,6 +157,7 @@ typedef enum {
     PK_4  = (PORT_K<<4|4),
     PK_5  = (PORT_K<<4|5),
     PK_6  = (PORT_K<<4|6),
+    /* unavailable pins */
 //    PK_7  = (PORT_K<<4|7),
 
     AD_1  = (PORT_V<<4|1),
@@ -193,15 +196,15 @@ typedef enum {
 
 
     // Generic signals namings
-    
+    /* LED1~4 are defined as alias of GPIO pins, they are not the LEDs on board*/
     LED1        = PB_4,
     LED2        = PB_5,
     LED3        = PB_6,
     LED4        = PB_7,
     SERIAL_TX   = PA_7,
     SERIAL_RX   = PA_6,
-    USBTX       = PB_0, //PA_7
-    USBRX       = PB_1, //PA_6
+    USBTX       = PB_0,
+    USBRX       = PB_1,
     I2C_SCL     = PC_5,
     I2C_SDA     = PC_4,
     SPI_MOSI    = PC_2,
