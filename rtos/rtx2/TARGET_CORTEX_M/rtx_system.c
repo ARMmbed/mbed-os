@@ -124,7 +124,9 @@ void osRtxTick_Handler (void) {
   osRtxInfo.kernel.tick++;
 
   // Process Timers
-  osRtxTimerTick();
+  if (osRtxInfo.timer.tick != NULL) {
+    osRtxInfo.timer.tick();
+  }
 
   // Process Thread Delays
   osRtxThreadDelayTick();

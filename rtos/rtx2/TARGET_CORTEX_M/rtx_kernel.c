@@ -30,11 +30,6 @@
 osRtxInfo_t osRtxInfo __attribute__((section(".data.os"))) =
 { .os_id = osRtxKernelId, .version = osRtxVersionKernel, .kernel.state = osRtxKernelInactive };
 
-//  Library reference to irq module
-extern       uint8_t  irqRtxLib;
-extern const uint8_t *irqRtxLibRef __attribute__((weak));
-       const uint8_t* irqRtxLibRef = &irqRtxLib;
-
 
 //  ==== Helper functions ====
 
@@ -265,6 +260,17 @@ osStatus_t svcRtxKernelStart (void) {
     }
   }
 
+  // Create Timer Thread
+  if (osRtxConfig.timer_mq_mcnt != 0U) {
+    if (osRtxInfo.timer.thread == NULL) {
+      osRtxInfo.timer.thread = svcRtxThreadNew(osRtxTimerThread, NULL, osRtxConfig.timer_thread_attr);
+      if (osRtxInfo.timer.thread == NULL) {
+        EvrRtxKernelError(osError);
+        return osError;
+      }
+    }
+  }
+
   // Switch to Ready Thread with highest Priority
   thread = osRtxThreadListGet(&osRtxInfo.thread.ready);
   if (thread == NULL) {
@@ -286,6 +292,7 @@ osStatus_t svcRtxKernelStart (void) {
   // Setup and Enable System Timer
   osRtxInfo.tick_irqn = osRtxSysTimerSetup();
   if (osRtxInfo.tick_irqn >= 0) {
+    ExtTick_SetupIRQ (osRtxInfo.tick_irqn);
     ExtTick_EnableIRQ(osRtxInfo.tick_irqn);
   }
   osRtxSysTimerEnable();
@@ -437,7 +444,7 @@ void svcRtxKernelResume (uint32_t sleep_ticks) {
         sleep_ticks -= timer->tick;
       timer->tick = 1U;
       do {
-        osRtxTimerTick();
+        osRtxInfo.timer.tick();
         if (sleep_ticks == 0U) {
           break;
         }

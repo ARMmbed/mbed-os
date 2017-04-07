@@ -195,14 +195,13 @@ void osRtxMessageQueuePostProcess (os_message_t *msg) {
     }
   } else {
     // New Message
-    ptr = (void *)((uint8_t *)msg + sizeof(os_message_t) - sizeof(os_message_queue_t *));
-    mq = *ptr;
+    mq = (void *)msg->next;
     if (mq->state == osRtxObjectInactive) {
       return;
     }
     // Check if Thread is waiting to receive a Message
     if ((mq->thread_list != NULL) && (mq->thread_list->state == osRtxThreadWaitingMessageGet)) {
-      EvrRtxMessageQueueInserted(mq, (uint8_t *)msg + sizeof(os_message_t));
+      EvrRtxMessageQueueInserted(mq, (void *)msg->prev);
       // Wakeup waiting Thread with highest Priority
       thread = osRtxThreadListGet((os_object_t*)mq);
       osRtxThreadWaitExit(thread, (uint32_t)osOK, false);
@@ -217,8 +216,8 @@ void osRtxMessageQueuePostProcess (os_message_t *msg) {
       msg->state = osRtxObjectInactive;
       osRtxMemoryPoolFree(&mq->mp_info, msg);
     } else {
+      EvrRtxMessageQueueInserted(mq, (void *)msg->prev);
       MessageQueuePut(mq, msg);
-      EvrRtxMessageQueueInserted(mq, (uint8_t *)msg + sizeof(os_message_t));
     }
   }
 }
@@ -726,7 +725,7 @@ __STATIC_INLINE
 osStatus_t isrRtxMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout) {
   os_message_queue_t *mq = (os_message_queue_t *)mq_id;
   os_message_t       *msg;
-  void              **ptr;
+  const void        **ptr;
 
   // Check parameters
   if ((mq == NULL) || (mq->id != osRtxIdMessageQueue) || (msg_ptr == NULL) || (timeout != 0U)) {
@@ -750,7 +749,9 @@ osStatus_t isrRtxMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr,
     msg->flags    = 0U;
     msg->priority = msg_prio;
     // Register post ISR processing
-     ptr = (void *)((uint8_t *)msg + sizeof(os_message_t) - sizeof(os_message_queue_t *));
+     ptr = (void *)&msg->prev;
+    *ptr = msg_ptr;
+     ptr = (void *)&msg->next;
     *ptr = mq;
     osRtxPostProcess((os_object_t *)msg);
   } else {

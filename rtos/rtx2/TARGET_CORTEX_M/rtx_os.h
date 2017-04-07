@@ -1,5 +1,3 @@
-/** \addtogroup rtos */
-/** @{*/
 /*
  * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
@@ -310,6 +308,7 @@ typedef struct {
     osRtxTimer_t                *list;  ///< Active Timer List
     osRtxThread_t             *thread;  ///< Timer Thread
     osRtxMessageQueue_t           *mq;  ///< Timer Message Queue
+    void                (*tick)(void);  ///< Timer Tick Function
   } timer;
   struct {                              ///< ISR Post Processing Queue
     uint16_t                      max;  ///< Maximum Items
@@ -341,6 +340,7 @@ typedef struct {
     osRtxMpInfo_t        *memory_pool;  ///< Memory Pool Control Blocks
     osRtxMpInfo_t      *message_queue;  ///< Message Queue Control Blocks
   } mpi;
+  uint32_t                    padding;
 } osRtxInfo_t;
  
 extern osRtxInfo_t osRtxInfo;           ///< OS Runtime Information
@@ -476,4 +476,3 @@ extern const osRtxConfig_t osRtxConfig;         ///< OS Configuration
 #endif
  
 #endif  // RTX_OS_H_
-/** @}*/

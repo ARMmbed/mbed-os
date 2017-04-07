@@ -110,11 +110,16 @@ void osRtxTimerTick (void) {
 }
 
 /// Timer Thread
-__NO_RETURN void osRtxTimerThread (void *argument) {
+__WEAK void osRtxTimerThread (void *argument) {
   os_timer_finfo_t finfo;
   osStatus_t       status;
   (void)           argument;
 
+  osRtxInfo.timer.mq = osMessageQueueNew(osRtxConfig.timer_mq_mcnt, sizeof(os_timer_finfo_t), osRtxConfig.timer_mq_attr);
+  if (osRtxInfo.timer.mq == NULL) {
+    return;
+  }
+  osRtxInfo.timer.tick = osRtxTimerTick;
   for (;;) {
     status = osMessageQueueGet(osRtxInfo.timer.mq, &finfo, NULL, osWaitForever);
     if (status == osOK) {
@@ -140,24 +145,6 @@ osTimerId_t svcRtxTimerNew (osTimerFunc_t func, osTimerType_t type, void *argume
   os_timer_t *timer;
   uint8_t     flags;
   const char *name;
-
-  // Create common timer message queue if not yet active
-  if (osRtxInfo.timer.mq == NULL) {
-    osRtxInfo.timer.mq = svcRtxMessageQueueNew(osRtxConfig.timer_mq_mcnt, sizeof(os_timer_finfo_t), osRtxConfig.timer_mq_attr);
-    if (osRtxInfo.timer.mq == NULL) {
-      EvrRtxTimerError(NULL, osErrorResource);
-      return NULL;
-    }
-  }
-
-  // Create common timer thread if not yet active
-  if (osRtxInfo.timer.thread == NULL) {
-    osRtxInfo.timer.thread = svcRtxThreadNew(osRtxTimerThread, NULL, osRtxConfig.timer_thread_attr);
-    if (osRtxInfo.timer.thread == NULL) {
-      EvrRtxTimerError(NULL, osErrorResource);
-      return NULL;
-    }
-  }
 
   // Check parameters
   if ((func == NULL) || ((type != osTimerOnce) && (type != osTimerPeriodic))) {
@@ -255,6 +242,10 @@ osStatus_t svcRtxTimerStart (osTimerId_t timer_id, uint32_t ticks) {
   // Check object state
   switch (timer->state) {
     case osRtxTimerStopped:
+      if (osRtxInfo.timer.tick == NULL) {
+        EvrRtxTimerError(timer, osErrorResource);
+        return osErrorResource;
+      }
       timer->state = osRtxTimerRunning;
       timer->load  = ticks;
       break;
