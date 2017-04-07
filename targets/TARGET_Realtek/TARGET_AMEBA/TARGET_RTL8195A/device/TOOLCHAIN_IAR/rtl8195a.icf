@@ -25,7 +25,7 @@ define symbol __ICFEDIT_region_SDRAM_RAM_start__            = 0x30000000;
 define symbol __ICFEDIT_region_SDRAM_RAM_end__              = 0x301FFFFF;
 
 /*-Sizes-*/
-/*define symbol __ICFEDIT_size_cstack__   = 0x400;*/
+define symbol __ICFEDIT_size_cstack__   = 0x1000;
 define symbol __ICFEDIT_size_heap__     = 0x19000;
 /**** End of ICF editor section. ###ICF###*/
 
@@ -38,7 +38,7 @@ define region ROM_USED_RAM_region   = mem:[from __ICFEDIT_region_ROM_USED_RAM_st
 define region BD_RAM_region   		= mem:[from __ICFEDIT_region_BD_RAM_start__   		to __ICFEDIT_region_BD_RAM_end__];
 define region SDRAM_RAM_region   	= mem:[from __ICFEDIT_region_SDRAM_RAM_start__   	to __ICFEDIT_region_SDRAM_RAM_end__];
 
-/*define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };*/
+define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
 define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
 
 //initialize by copy { readwrite };
@@ -217,6 +217,7 @@ define overlay TCM_overlay {
 /* dummy code placement */
 define overlay TCM_overlay { block IMAGE1_DBG };
 place at start of TCM_region { 	overlay TCM_overlay }; 
+place at end of TCM_region  { 	block CSTACK}; 
 
 define exported symbol __rom_bss_start__ = 0x10000300; 	// use in rom
 define exported symbol __rom_bss_end__ = 0x10000bc8;	// use in rom
