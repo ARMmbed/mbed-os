@@ -18,6 +18,7 @@ limitations under the License.
 import re
 import tempfile
 import datetime
+import uuid
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
@@ -106,6 +107,7 @@ def add_result_to_report(report, result):
     result - the result to append
     """
     result["date"] = datetime.datetime.utcnow().isoformat()
+    result["uuid"] = str(uuid.uuid1())
     target = result["target_name"]
     toolchain = result["toolchain_name"]
     id_name = result['id']
