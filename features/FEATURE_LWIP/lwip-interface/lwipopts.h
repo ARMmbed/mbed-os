@@ -80,10 +80,12 @@
 #define DEFAULT_RAW_RECVMBOX_SIZE   8
 #define DEFAULT_ACCEPTMBOX_SIZE     8
 
+#ifndef TCPIP_THREAD_STACKSIZE
 #ifdef LWIP_DEBUG
 #define TCPIP_THREAD_STACKSIZE      1200*2
 #else
-#define TCPIP_THREAD_STACKSIZE      1600
+#define TCPIP_THREAD_STACKSIZE      1200
+#endif
 #endif
 
 #define TCPIP_THREAD_PRIO           (osPriorityNormal)

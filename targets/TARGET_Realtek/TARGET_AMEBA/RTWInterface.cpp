@@ -28,19 +28,19 @@
 #include "osdep_service.h"
 
 typedef struct _wifi_scan_hdl {
-    int scan_num;
+    void *scan_sema;
+    nsapi_size_t ap_num;
+    nsapi_size_t scan_num;
     WiFiAccessPoint *ap_details;
 } wifi_scan_hdl;
 
 #define MAX_SCAN_TIMEOUT (15000)
-static void *scan_sema = NULL;
-static signed int ApNum = 0;
 
 static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_scan_result )
 {
+    wifi_scan_hdl *scan_handler = (wifi_scan_hdl *)malloced_scan_result->user_data;
     if (malloced_scan_result->scan_complete != RTW_TRUE) {
-        wifi_scan_hdl *scan_handler = (wifi_scan_hdl *)malloced_scan_result->user_data;
-        if(scan_handler->ap_details && scan_handler->scan_num > ApNum){
+        if(scan_handler->ap_details && scan_handler->scan_num > scan_handler->ap_num){
             nsapi_wifi_ap_t ap;	
             rtw_scan_result_t* record = &malloced_scan_result->ap_details;
             record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */	
@@ -74,13 +74,13 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
             ap.rssi = record->signal_strength;
             ap.channel = record->channel;
             WiFiAccessPoint *accesspoint = new WiFiAccessPoint(ap);
-            memcpy(&scan_handler->ap_details[ApNum], accesspoint, sizeof(WiFiAccessPoint));
+            memcpy(&scan_handler->ap_details[scan_handler->ap_num], accesspoint, sizeof(WiFiAccessPoint));
             delete[] accesspoint;
         }
-        ApNum++;
+        scan_handler->ap_num++;
     } else{
         // scan done
-        rtw_up_sema(&scan_sema);
+        rtw_up_sema(&scan_handler->scan_sema);
     }
     return RTW_SUCCESS;
 }
@@ -182,21 +182,21 @@ nsapi_error_t RTWInterface::connect()
 nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
 {
     static wifi_scan_hdl scan_handler;
-    ApNum = 0;
-    if(!scan_sema)
-        rtw_init_sema(&scan_sema, 0);
+    scan_handler.ap_num = 0;
+    if(!scan_handler.scan_sema)
+        rtw_init_sema(&scan_handler.scan_sema, 0);
     scan_handler.scan_num = count;
     scan_handler.ap_details = res;
     if(wifi_scan_networks(scan_result_handler, (void *)&scan_handler) != RTW_SUCCESS){
         printf("wifi scan failed\n\r");
         return NSAPI_ERROR_DEVICE_ERROR;
     }
-    if(rtw_down_timeout_sema( &scan_sema, MAX_SCAN_TIMEOUT ) == RTW_FALSE) {
+    if(rtw_down_timeout_sema( &scan_handler.scan_sema, MAX_SCAN_TIMEOUT ) == RTW_FALSE) {
         printf("wifi scan timeout\r\n");
         return NSAPI_ERROR_DEVICE_ERROR;
     }
-    if(count <= 0 || count > ApNum)
-        count = ApNum;
+    if(count <= 0 || count > scan_handler.ap_num)
+        count = scan_handler.ap_num;
 
     return count;
 }

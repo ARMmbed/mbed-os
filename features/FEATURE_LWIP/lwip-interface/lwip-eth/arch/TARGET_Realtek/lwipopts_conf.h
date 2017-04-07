@@ -32,7 +32,7 @@
 #define TCP_SND_BUF                     (10 * TCP_MSS)
 #define TCP_WND                         (6 * TCP_MSS)
 #define PBUF_POOL_SIZE                  10
-
+#define TCPIP_THREAD_STACKSIZE 1600
 #endif
 
 
