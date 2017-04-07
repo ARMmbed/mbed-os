@@ -130,9 +130,10 @@ def mcu_is_enabled(parser, mcu):
     
 def extract_mcus(parser, options):
     try:
-        for source_dir in options.source_dir:
-            Target.add_extra_targets(source_dir)
-        update_target_data()
+        if options.source_dir:
+            for source_dir in options.source_dir:
+                Target.add_extra_targets(source_dir)
+            update_target_data()
     except KeyError:
         pass
     targetnames = TARGET_NAMES
