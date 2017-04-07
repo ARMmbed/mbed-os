@@ -125,6 +125,9 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     # Current/new location of the 'targets.json' file
     __targets_json_location = None
 
+    # Extra custom targets files
+    __extra_target_json_files = []
+
     @staticmethod
     def _merge_dict(dct, merge_dct):
         """ Recursive dict merge. Inspired by `dict.update()` however instead of
@@ -148,13 +151,18 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         """Load the description of JSON target data"""
         targets = json_file_to_dict(Target.__targets_json_location or
                                     Target.__targets_json_location_default)
+
+        for extra_target in Target.__extra_target_json_files:
+            Target._merge_dict(targets, json_file_to_dict(extra_target))
+
         return targets
 
     @staticmethod
-    @cached
-    def add_extra_targets(extra):
-        if os.path.exists(extra):
-            Target._merge_dict(targets, json_file_to_dict(extra))
+    def add_extra_targets(source_dir):
+        extra_targets_file = os.path.join(source_dir, "custom_targets.json")
+        if os.path.exists(extra_targets_file):
+            Target.__extra_target_json_files.append(extra_targets_file)
+            CACHES.clear()
 
     @staticmethod
     def set_targets_json_location(location=None):
@@ -531,14 +539,20 @@ class RTL8195ACode:
 ################################################################################
 
 # Instantiate all public targets
-TARGETS = [Target.get_target(name) for name, value
-           in Target.get_json_target_data().items()
-           if value.get("public", True)]
+def update_target_data():
+    TARGETS[:] = [Target.get_target(tgt) for tgt, obj
+                  in Target.get_json_target_data().items()
+                  if obj.get("public", True)]
+    # Map each target name to its unique instance
+    TARGET_MAP.clear()
+    TARGET_MAP.update(dict([(tgt.name, tgt) for tgt in TARGETS]))
+    TARGET_NAMES[:] = TARGET_MAP.keys()
 
-# Map each target name to its unique instance
-TARGET_MAP = dict([(t.name, t) for t in TARGETS])
+TARGETS = []
+TARGET_MAP = dict()
+TARGET_NAMES = []
 
-TARGET_NAMES = TARGET_MAP.keys()
+update_target_data()
 
 # Some targets with different name have the same exporters
 EXPORT_MAP = {}
@@ -563,10 +577,3 @@ def set_targets_json_location(location=None):
     # "from tools.targets import TARGET_NAMES"
     update_target_data()
 
-def update_target_data():
-    TARGETS[:] = [Target.get_target(tgt) for tgt, obj
-                  in Target.get_json_target_data().items()
-                  if obj.get("public", True)]
-    TARGET_MAP.clear()
-    TARGET_MAP.update(dict([(tgt.name, tgt) for tgt in TARGETS]))
-    TARGET_NAMES[:] = TARGET_MAP.keys()

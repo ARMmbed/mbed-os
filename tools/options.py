@@ -130,9 +130,8 @@ def mcu_is_enabled(parser, mcu):
     
 def extract_mcus(parser, options):
     try:
-        extra_targets = [join(src, "custom_targets.json") for src in options.source_dir]
-        for filename in extra_targets:
-            Target.add_extra_targets(filename)
+        for source_dir in options.source_dir:
+            Target.add_extra_targets(source_dir)
         update_target_data()
     except KeyError:
         pass
