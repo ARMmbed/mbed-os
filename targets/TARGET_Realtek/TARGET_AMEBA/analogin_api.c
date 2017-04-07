@@ -38,12 +38,12 @@ void analogin_init (analogin_t *obj, PinName pin){
 
     HAL_ADC_INIT_DAT        HalADCInitDataTmp;
     PHAL_ADC_INIT_DAT       pHalADCInitDataTmp = &HalADCInitDataTmp;
-	/* To backup user config first */
-	
+    /* To backup user config first */
+    
     _memset(&(obj->HalADCInitData), 0, sizeof(HAL_ADC_INIT_DAT));
     _memcpy(pHalADCInitDataTmp, &(obj->HalADCInitData), sizeof(HAL_ADC_INIT_DAT));
-	_memset(obj, 0x00, sizeof(analogin_t));
-	
+    _memset(obj, 0x00, sizeof(analogin_t));
+    
     ConfigDebugErr &= (~(_DBG_ADC_|_DBG_GDMA_));
     ConfigDebugInfo&= (~(_DBG_ADC_|_DBG_GDMA_));
 
@@ -114,12 +114,12 @@ void analogin_init (analogin_t *obj, PinName pin){
 
     /* Load user setting */
     if ((pHalADCInitDataTmp->ADCEndian == ADC_DATA_ENDIAN_LITTLE) || (pHalADCInitDataTmp->ADCEndian == ADC_DATA_ENDIAN_BIG)) {
-		DBG_8195A("K\n");
+        DBG_8195A("K\n");
         pSalADCHND->pInitDat->ADCEndian = pHalADCInitDataTmp->ADCEndian;
     }
     
     if ((pHalADCInitDataTmp->ADCAudioEn != ADC_FEATURE_DISABLED) && (pHalADCInitDataTmp->ADCAudioEn < 2)) {
-		DBG_8195A("O\n");
+        DBG_8195A("O\n");
         pSalADCHND->pInitDat->ADCAudioEn = pHalADCInitDataTmp->ADCAudioEn;
     }
     

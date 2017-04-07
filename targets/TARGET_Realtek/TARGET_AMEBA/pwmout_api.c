@@ -88,8 +88,7 @@ void pwmout_write(pwmout_t* obj, float value)
 {
     if (value < (float)0.0) {
         value = 0.0;
-    } 
-    else if (value > (float)1.0) {
+    } else if (value > (float)1.0) {
         value = 1.0;
     }
 

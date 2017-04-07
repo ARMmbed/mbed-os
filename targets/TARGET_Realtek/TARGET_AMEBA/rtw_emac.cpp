@@ -56,7 +56,7 @@ static uint8_t wlan_get_hwaddr_size(emac_interface_t *emac)
 
 static void wlan_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
 {
-    char mac[20];	
+    char mac[20];    
     if(RTW_SUCCESS == wifi_get_mac_address(mac))
     {
         if (sscanf(mac, "%x:%x:%x:%x:%x:%x", &addr[0], &addr[1], &addr[2], &addr[3], &addr[4], &addr[5]) != 6)
@@ -68,7 +68,7 @@ static void wlan_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
 
 static void wlan_set_hwaddr(emac_interface_t *emac, uint8_t *addr)
 {
-	
+    
 }
 
 
@@ -91,7 +91,7 @@ static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
     for (; p != NULL && sg_len < MAX_ETH_DRV_SG; p = p->next) {
         sg_list[sg_len].buf = (uint32_t) p->payload;
         sg_list[sg_len].len = p->len;
-	sg_len++;
+    sg_len++;
     }
 
     if (sg_len) {
@@ -190,7 +190,7 @@ void mbed_default_mac_address(char *mac) {
 
 void mbed_mac_address(char *mac)
 {
-    char hwaddr[20];	
+    char hwaddr[20];    
     if(RTW_SUCCESS == wifi_get_mac_address(hwaddr))
     {
         if (sscanf(hwaddr, "%x:%x:%x:%x:%x:%x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]) != 6)

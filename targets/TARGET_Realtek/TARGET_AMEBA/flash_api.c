@@ -42,7 +42,7 @@ static void flash_turnon();
 /**
   * global data structure
   */   
-//flash_t	        flash;
+//flash_t            flash;
 
 /**
   * @brief  Control the flash chip write protect enable/disable
@@ -66,20 +66,19 @@ void flash_write_protect(flash_t *obj, uint32_t protect)
   */
 void flash_init(flash_t *obj)
 {
-	//SPIC_INIT_PARA spic_init_para;
+    //SPIC_INIT_PARA spic_init_para;
 
-	// Init SPI Flash Controller
-//	DBG_8195A("Initial Spi Flash Controller\n");
-	//SPI_FLASH_PIN_FCTRL(ON);
+    // Init SPI Flash Controller
+//    DBG_8195A("Initial Spi Flash Controller\n");
+    //SPI_FLASH_PIN_FCTRL(ON);
 
-	if (!SpicFlashInitRtl8195A(SpicOneBitMode)){
+    if (!SpicFlashInitRtl8195A(SpicOneBitMode)){
 
-		DBG_8195A("SPI Init Fail!!!!!!\n");
-		HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_DSTBY_INFO3, HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_DSTBY_INFO3)|0xf);
-	}
-	else {
-		isinit = 1;
-	}
+        DBG_8195A("SPI Init Fail!!!!!!\n");
+        HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_DSTBY_INFO3, HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_DSTBY_INFO3)|0xf);
+    } else {
+        isinit = 1;
+    }
     flashobj.SpicInitPara.flashtype = SpicInitParaAllClk[0][0].flashtype;
     
     //DBG_8195A("Flash ID is = %x %x %x \n",SpicInitParaAllClk[0][0].id[0],SpicInitParaAllClk[0][0].id[1],SpicInitParaAllClk[0][0].id[2]);
@@ -128,17 +127,17 @@ void flash_erase_block(flash_t *obj, uint32_t address)
   */
 int  flash_read_word(flash_t *obj, uint32_t address, uint32_t * data)
 {
-	
+    
     flash_turnon();
     if(isinit == 0)
         flash_init(&flashobj);
-	// Wait flash busy done (wip=0)
-	SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
+    // Wait flash busy done (wip=0)
+    SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
 
-	* data = HAL_READ32(SPI_FLASH_BASE, address);
+    * data = HAL_READ32(SPI_FLASH_BASE, address);
     SpicDisableRtl8195A();
 
-	return 1;
+    return 1;
 }
 
 /**
@@ -159,17 +158,16 @@ int  flash_write_word(flash_t *obj, uint32_t address, uint32_t data)
 
     flashtype = flashobj.SpicInitPara.flashtype;
 
-	//Write word
-	HAL_WRITE32(SPI_FLASH_BASE, address, data);
+    //Write word
+    HAL_WRITE32(SPI_FLASH_BASE, address, data);
 
-	// Wait spic busy done
-	SpicWaitBusyDoneRtl8195A();
-	
-	// Wait flash busy done (wip=0)
+    // Wait spic busy done
+    SpicWaitBusyDoneRtl8195A();
+    
+    // Wait flash busy done (wip=0)
     if(flashtype == FLASH_MICRON){
         SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
-    }
-    else
+    } else
         SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
     
     SpicDisableRtl8195A();
@@ -199,7 +197,7 @@ int  flash_stream_read(flash_t *obj, uint32_t address, uint32_t len, uint8_t * d
         flash_init(&flashobj);
 
 
-	// Wait flash busy done (wip=0)
+    // Wait flash busy done (wip=0)
     SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
 
     offset_to_align = address & 0x03;
@@ -232,8 +230,7 @@ int  flash_stream_read(flash_t *obj, uint32_t address, uint32_t len, uint8_t * d
             address += 4;
             len -= 4;
         }
-    }
-    else {
+    } else {
         while (len >= 4) {
             *((u32 *)pbuf) = HAL_READ32(SPI_FLASH_BASE, address);
             pbuf += 4;
@@ -301,8 +298,7 @@ int  flash_stream_write(flash_t *obj, uint32_t address, uint32_t len, uint8_t * 
         // Wait flash busy done (wip=0)
         if(flashtype == FLASH_MICRON){
             SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
-        }
-        else
+        } else
             SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
         
 
@@ -320,16 +316,14 @@ int  flash_stream_write(flash_t *obj, uint32_t address, uint32_t len, uint8_t * 
             // Wait flash busy done (wip=0)
             if(flashtype == FLASH_MICRON){
                 SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
-            }
-            else
+            } else
                 SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
 
             pbuf += 4;
             address += 4;
             len -= 4;
         }
-    }
-    else {
+    } else {
         while (len >= 4) {
             //Write word
             HAL_WRITE32(SPI_FLASH_BASE, address, (u32)*((u32 *)pbuf));
@@ -338,8 +332,7 @@ int  flash_stream_write(flash_t *obj, uint32_t address, uint32_t len, uint8_t * 
             // Wait flash busy done (wip=0)
             if(flashtype == FLASH_MICRON){
                 SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
-            }
-            else
+            } else
                 SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
 
             pbuf += 4;
@@ -362,8 +355,7 @@ int  flash_stream_write(flash_t *obj, uint32_t address, uint32_t len, uint8_t * 
         // Wait flash busy done (wip=0)
         if(flashtype == FLASH_MICRON){
             SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
-        }
-        else
+        } else
             SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
 
     }
@@ -406,10 +398,11 @@ int flash_burst_write(flash_t *obj, uint32_t address ,uint32_t Length, uint8_t *
     flashtype = flashobj.SpicInitPara.flashtype;
     
     OccuSize = address & 0xFF;
-    if((Length >= PageSize) ||((Length + OccuSize) >= PageSize))
+    if((Length >= PageSize) ||((Length + OccuSize) >= PageSize)){
         ProgramSize = PageSize - OccuSize;
-    else
+    } else {
         ProgramSize = Length;
+    }
 
     flashobj.Length = Length;
     while(Length > 0){
@@ -420,16 +413,14 @@ int flash_burst_write(flash_t *obj, uint32_t address ,uint32_t Length, uint8_t *
             // Wait flash busy done (wip=0)
             if(flashtype == FLASH_MICRON){
                 SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
-            }
-            else
+            } else
                 SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
 
             address += ProgramSize;
             data+= ProgramSize;   
             Length -= ProgramSize;
             OccuSize = 0;
-        }
-        else{
+        } else{
             while((flashobj.Length) >= PageSize){
                 SpicUserProgramRtl8195A(data, flashobj.SpicInitPara, address, &(flashobj.Length));
                     // Wait spic busy done
@@ -437,8 +428,7 @@ int flash_burst_write(flash_t *obj, uint32_t address ,uint32_t Length, uint8_t *
                 // Wait flash busy done (wip=0)
                 if(flashtype == FLASH_MICRON){
                     SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
-                }
-                else
+                } else
                     SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
 
                 address += PageSize;
@@ -453,8 +443,7 @@ int flash_burst_write(flash_t *obj, uint32_t address ,uint32_t Length, uint8_t *
                 // Wait flash busy done (wip=0)
                 if(flashtype == FLASH_MICRON){
                     SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
-                }
-                else
+                } else
                     SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
 
                 break;

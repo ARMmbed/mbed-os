@@ -28,7 +28,7 @@
 
 
 /** \brief analogout_init:\n
- *		  to initialize DAC
+ *          to initialize DAC
  *  
  *   This function is mainly to initialize a DAC channel.
  *   \para dac_t *: obj
@@ -85,7 +85,7 @@ void analogout_init(dac_t *obj, PinName pin) {
 }
 
 /** \brief analogout_free:\n
- *		  to free DAC
+ *          to free DAC
  *  
  *   This function is mainly to free a DAC channel.
  *   \para dac_t *: obj
@@ -100,7 +100,7 @@ void analogout_free(dac_t *obj) {
 }
 
 /** \brief analogout_write:\n
- *		  to execute analogout_write
+ *          to execute analogout_write
  *  
  *   This function is mainly to execute analog output and the value is a ratio.
  *   The upper/lower bound of DAC register input value is defined by 
@@ -139,7 +139,7 @@ void analogout_write(dac_t *obj, float value) {
 }
 
 /** \brief analogout_write_u16:\n
- *		  to execute analogout_write_u16
+ *          to execute analogout_write_u16
  *
  *   The register value of DAC input is a format of 2's complement.
  *   The most maximum value of positive value drives DAC to output a voltage about 3.3V.
@@ -159,7 +159,7 @@ void analogout_write_u16(dac_t *obj, uint16_t value) {
 }
 
 /** \brief analogout_read_u16:\n
- *		  to read back analog output value in float format
+ *          to read back analog output value in float format
  *  
  *   This function is NOT available in rtl8195a hardware design.
  *   It always returns a fixed value of 0.0;
@@ -170,7 +170,7 @@ float analogout_read(dac_t *obj) {
 }
 
 /** \brief analogout_read_u16:\n
- *		  to read back analog output register value
+ *          to read back analog output register value
  *  
  *   This function is NOT available in rtl8195a hardware design.
  *   It always returns a fixed value of 0xFFFF;
