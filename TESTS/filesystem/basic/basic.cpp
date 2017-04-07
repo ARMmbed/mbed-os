@@ -435,15 +435,15 @@ static control_t fsfat_basic_test_04()
 #ifndef __ARMCC_VERSION
     int ret = -1;
     ret = fsfat_basic_fileno_check("stdin", stdin, STDIN_FILENO);
-    FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stdin does not have expected file number (expected=%d, fileno=%d.\n", __func__, stdin, fileno(stdin));
+    FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stdin does not have expected file number (expected=%d, fileno=%d.\n", __func__, (int) stdin, fileno(stdin));
     TEST_ASSERT_MESSAGE(ret == true, fsfat_basic_msg_g);
 
     ret = fsfat_basic_fileno_check("stdout", stdout, STDOUT_FILENO);
-    FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stdout does not have expected file number (expected=%d, fileno=%d.\n", __func__, stdout, fileno(stdout));
+    FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stdout does not have expected file number (expected=%d, fileno=%d.\n", __func__, (int) stdout, fileno(stdout));
     TEST_ASSERT_MESSAGE(ret == true, fsfat_basic_msg_g);
 
     ret = fsfat_basic_fileno_check("stderr", stderr, STDERR_FILENO);
-    FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stderr does not have expected file number (expected=%d, fileno=%d.\n", __func__, stderr, fileno(stderr));
+    FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: stderr does not have expected file number (expected=%d, fileno=%d.\n", __func__, (int) stderr, fileno(stderr));
     TEST_ASSERT_MESSAGE(ret == true, fsfat_basic_msg_g);
 #endif  /* __ARMCC_VERSION */
     return CaseNext;
@@ -459,9 +459,7 @@ static control_t fsfat_basic_test_04()
 static control_t fsfat_basic_test_05()
 {
     FILE *f;
-    char *str = FSFAT_BASIC_TEST_05_TEST_STRING;
-    char *buffer = (char *)malloc(sizeof(unsigned char) * strlen(FSFAT_BASIC_TEST_05_TEST_STRING));
-    int str_len = strlen(FSFAT_BASIC_TEST_05_TEST_STRING);
+    const char *str = FSFAT_BASIC_TEST_05_TEST_STRING;
     int ret = 0;
 
     FSFAT_DBGLOG("%s:Write files\n", __func__);
@@ -475,7 +473,7 @@ static control_t fsfat_basic_test_05()
 
         ret = fprintf(f, str);
         FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: writing file.\n", __func__);
-        TEST_ASSERT_MESSAGE(ret == strlen(str), fsfat_basic_msg_g);
+        TEST_ASSERT_MESSAGE(ret == (int) strlen(str), fsfat_basic_msg_g);
 
         ret = fclose(f);
         FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: fclose() failed.\n", __func__);
@@ -510,8 +508,7 @@ static control_t fsfat_basic_test_06()
     FSFAT_DBGLOG("mac address: %02x,%02x,%02x,%02x,%02x,%02x\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     FILE *f;
-    char *str = FSFAT_BASIC_TEST_05_TEST_STRING;
-    char *buffer = (char *)malloc(sizeof(unsigned char) * strlen(FSFAT_BASIC_TEST_05_TEST_STRING));
+    const char *str = FSFAT_BASIC_TEST_05_TEST_STRING;
     int str_len = strlen(FSFAT_BASIC_TEST_05_TEST_STRING);
 
     f = fopen(sd_file_path, "w");
@@ -520,7 +517,7 @@ static control_t fsfat_basic_test_06()
 
     ret = fprintf(f, str);
     FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: writing file.\n", __func__);
-    TEST_ASSERT_MESSAGE(ret == strlen(str), fsfat_basic_msg_g);
+    TEST_ASSERT_MESSAGE(ret == (int) strlen(str), fsfat_basic_msg_g);
 
     ret = fclose(f);
     FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: fclose() failed.\n", __func__);
@@ -615,9 +612,11 @@ static bool fsfat_basic_test_file_write_fhandle(const char *filename, const int 
     }
     fsfat_basic_timer.stop();
     file.close();
+#ifdef FSFAT_DEBUG
     double test_time_sec = fsfat_basic_timer.read_us() / 1000000.0;
     double speed = kib_rw / test_time_sec;
     FSFAT_DBGLOG("%d KiB write in %.3f sec with speed of %.4f KiB/s\n", byte_write, test_time_sec, speed);
+#endif
     fsfat_basic_timer.reset();
     return true;
 }
@@ -639,9 +638,11 @@ static bool fsfat_basic_test_file_read_fhandle(const char *filename, const int k
     }
     fsfat_basic_timer.stop();
     file.close();
+#ifdef FSFAT_DEBUG
     double test_time_sec = fsfat_basic_timer.read_us() / 1000000.0;
     double speed = kib_rw / test_time_sec;
     FSFAT_DBGLOG("%d KiB read in %.3f sec with speed of %.4f KiB/s\n", byte_read, test_time_sec, speed);
+#endif
     fsfat_basic_timer.reset();
     return true;
 }
@@ -686,6 +687,7 @@ static control_t fsfat_basic_test_08()
         }
         break;
     }
+    TEST_ASSERT_MESSAGE(result == true, "something went wrong");
     return CaseNext;
 }
 
@@ -708,9 +710,11 @@ bool fsfat_basic_test_sf_file_write_stdio(const char *filename, const int kib_rw
     }
     fsfat_basic_timer.stop();
     fclose(file);
+#ifdef FSFAT_DEBUG
     double test_time_sec = fsfat_basic_timer.read_us() / 1000000.0;
     double speed = kib_rw / test_time_sec;
     FSFAT_DBGLOG("%d KiB write in %.3f sec with speed of %.4f KiB/s\n", byte_write, test_time_sec, speed);
+#endif
     fsfat_basic_timer.reset();
     return true;
 }
@@ -718,7 +722,6 @@ bool fsfat_basic_test_sf_file_write_stdio(const char *filename, const int kib_rw
 
 bool fsfat_basic_test_sf_file_read_stdio(const char *filename, const int kib_rw)
 {
-    bool result = true;
     FILE* file = fopen(filename, "r");
 
     FSFAT_BASIC_MSG(fsfat_basic_msg_g, FSFAT_BASIC_MSG_BUF_SIZE, "%s: Error: failed to open file.\n", __func__);
@@ -730,10 +733,11 @@ bool fsfat_basic_test_sf_file_read_stdio(const char *filename, const int kib_rw)
     }
     fsfat_basic_timer.stop();
     fclose(file);
+#ifdef FSFAT_DEBUG
     double test_time_sec = fsfat_basic_timer.read_us() / 1000000.0;
     double speed = kib_rw / test_time_sec;
     FSFAT_DBGLOG("%d KiB read in %.3f sec with speed of %.4f KiB/s\n", byte_read, test_time_sec, speed);
-
+#endif
     fsfat_basic_timer.reset();
     return true;
 }
@@ -772,6 +776,7 @@ static control_t fsfat_basic_test_09()
         }
         break;
     }
+    TEST_ASSERT_MESSAGE(result == true, "Expected true result not found");
     return CaseNext;
 }
 
@@ -795,9 +800,11 @@ bool fsfat_basic_test_file_write_fatfs(const char *filename, const int kib_rw)
     }
     fsfat_basic_timer.stop();
     f_close(&file);
+#ifdef FSFAT_DEBUG
     double test_time_sec = fsfat_basic_timer.read_us() / 1000000.0;
     double speed = kib_rw / test_time_sec;
     FSFAT_DBGLOG("%d KiB write in %.3f sec with speed of %.4f KiB/s\n", byte_write, test_time_sec, speed);
+#endif
     fsfat_basic_timer.reset();
     return true;
 }
@@ -819,9 +826,11 @@ bool fsfat_basic_test_file_read_fatfs(const char *filename, const int kib_rw)
     } while (res == FR_OK && bytes == sizeof(fsfat_basic_buffer));
     fsfat_basic_timer.stop();
     f_close(&file);
+#ifdef FSFAT_DEBUG
     double test_time_sec = fsfat_basic_timer.read_us() / 1000000.0;
     double speed = kib_rw / test_time_sec;
     FSFAT_DBGLOG("%d KiB read in %.3f sec with speed of %.4f KiB/s\n", byte_read, test_time_sec, speed);
+#endif
     fsfat_basic_timer.reset();
     return true;
 }
@@ -859,6 +868,7 @@ static control_t fsfat_basic_test_10()
         }
         break;
     }
+    TEST_ASSERT_MESSAGE(result == true, "Expected true result not found");
     return CaseNext;
 }
 
