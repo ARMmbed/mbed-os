@@ -169,6 +169,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         """Set the location of the targets.json file"""
         Target.__targets_json_location = (location or
                                           Target.__targets_json_location_default)
+        Target.__extra_target_json_files = []
         # Invalidate caches, since the location of the JSON file changed
         CACHES.clear()
 
