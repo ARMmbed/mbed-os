@@ -55,16 +55,6 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
             obj->hal_pin.pin_mode = INT_FALLING;
             break;
 
-#ifndef CONFIG_MBED_ENABLED
-        case IRQ_LOW:
-            obj->hal_pin.pin_mode = INT_LOW;
-            break;
-
-        case IRQ_HIGH:
-            obj->hal_pin.pin_mode = INT_HIGH;
-            break;
-#endif
-
         case IRQ_NONE:
             break;
             
@@ -76,10 +66,9 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     HAL_GPIO_IntCtrl(&obj->hal_pin, enable);
     if(enable){
         HAL_GPIO_UnMaskIrq(&obj->hal_pin);
-    }
-    else{
+    } else{
         HAL_GPIO_MaskIrq(&obj->hal_pin);
-	}
+    }
 }
 
 void gpio_irq_enable(gpio_irq_t *obj) 
@@ -91,63 +80,5 @@ void gpio_irq_disable(gpio_irq_t *obj)
 {
     HAL_GPIO_MaskIrq(&obj->hal_pin);
 }
-#ifndef CONFIG_MBED_ENABLED
-void gpio_irq_deinit(gpio_irq_t *obj) 
-{
-    HAL_GPIO_DeInit(&obj->hal_pin);
-}
-
-void gpio_irq_pull_ctrl(gpio_irq_t *obj, PinMode pull_type)
-{
-    HAL_GPIO_PullCtrl((u32) obj->pin, (u32)pull_type);
-}
-
-void gpio_irq_set_event(gpio_irq_t *obj, gpio_irq_event event)
-{
-    uint32_t reg_value;
-    uint32_t level_edge;
-    uint32_t polarity;
-    uint8_t pin_num;
-
-    pin_num = obj->hal_pin_num & 0x1f;  // Max 31
-    
-    switch (event) {
-        case IRQ_LOW:
-            level_edge = 0; // level trigger
-            polarity = 0;   // active low
-            break;
-            
-        case IRQ_HIGH:
-            level_edge = 0; // level trigger
-            polarity = 1;   // active high
-            break;
-            
-        case IRQ_FALL:
-            level_edge = 1; // edge trigger
-            polarity = 0;   // active low
-            break;
-            
-        case IRQ_RISE:
-            level_edge = 1; // edge trigger
-            polarity = 1;   // active high
-            break;
-            
-        default:
-            DBG_GPIO_ERR("Unknow Interrupt Trigger Type(%d)\n", event);
-            return;
-    }
-
-    // Config Level or Edge trigger
-    reg_value =  HAL_READ32(GPIO_REG_BASE, GPIO_INT_TYPE);
-    reg_value &= ~(1 << pin_num);    
-    reg_value |= (level_edge << pin_num);
-    HAL_WRITE32(GPIO_REG_BASE, GPIO_INT_TYPE, reg_value);
-
-    // Config Low active or Gigh active
-    reg_value =  HAL_READ32(GPIO_REG_BASE, GPIO_INT_POLARITY);
-    reg_value &= ~(1 << pin_num);    
-    reg_value |= (polarity << pin_num);
-    HAL_WRITE32(GPIO_REG_BASE, GPIO_INT_POLARITY, reg_value);
-}
 #endif
-#endif
+

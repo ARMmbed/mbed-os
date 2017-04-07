@@ -52,23 +52,23 @@ void gtimer_init (gtimer_t *obj, uint32_t tid)
     PTIMER_ADAPTER pTimerAdapter = &(obj->hal_gtimer_adp);
 
     if ((tid == 1) || (tid == 6) || (tid == 7)) {
-		DBG_TIMER_ERR("gtimer_init: This timer is reserved for HAL driver\r\n", tid);
+        DBG_TIMER_ERR("gtimer_init: This timer is reserved for HAL driver\r\n", tid);
         return;
     }
 
     if (tid > GTIMER_MAX) {
-		DBG_TIMER_ERR("gtimer_init: Invalid TimerId=%d\r\n", tid);
+        DBG_TIMER_ERR("gtimer_init: Invalid TimerId=%d\r\n", tid);
         return;
     }
     
     pTimerAdapter->IrqDis = 0;    // Enable Irq @ initial
     pTimerAdapter->IrqHandle.IrqFun = (IRQ_FUN) gtimer_timeout_handler;
-	if(tid == 0) {
+    if(tid == 0) {
         pTimerAdapter->IrqHandle.IrqNum = TIMER0_IRQ;
     } else if(tid == 1) {
-    	pTimerAdapter->IrqHandle.IrqNum = TIMER1_IRQ;
+        pTimerAdapter->IrqHandle.IrqNum = TIMER1_IRQ;
     } else {
-		pTimerAdapter->IrqHandle.IrqNum = TIMER2_7_IRQ;
+        pTimerAdapter->IrqHandle.IrqNum = TIMER2_7_IRQ;
     }
     pTimerAdapter->IrqHandle.Priority = 0;
     pTimerAdapter->IrqHandle.Data = (u32)obj;

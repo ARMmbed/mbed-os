@@ -41,9 +41,9 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
     wifi_scan_hdl *scan_handler = (wifi_scan_hdl *)malloced_scan_result->user_data;
     if (malloced_scan_result->scan_complete != RTW_TRUE) {
         if(scan_handler->ap_details && scan_handler->scan_num > scan_handler->ap_num){
-            nsapi_wifi_ap_t ap;	
+            nsapi_wifi_ap_t ap;    
             rtw_scan_result_t* record = &malloced_scan_result->ap_details;
-            record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */	
+            record->SSID.val[record->SSID.len] = 0; /* Ensure the SSID is null terminated */    
             memset((void*)&ap, 0x00, sizeof(nsapi_wifi_ap_t));
             memcpy(ap.ssid, record->SSID.val, record->SSID.len);
             memcpy(ap.bssid, record->BSSID.octet, 6);
@@ -156,7 +156,7 @@ nsapi_error_t RTWInterface::connect()
             break;
         case NSAPI_SECURITY_NONE:
             sec = RTW_SECURITY_OPEN;
-            break;			
+            break;            
         default:
             return NSAPI_ERROR_PARAMETER;
     }
@@ -230,7 +230,7 @@ nsapi_error_t RTWInterface::disconnect()
     wlan_emac_link_change(false);
     if(wifi_is_connected_to_ap() != RTW_SUCCESS)
         return NSAPI_ERROR_NO_CONNECTION;
-    if(wifi_disconnect()<0){		
+    if(wifi_disconnect()<0){        
         return NSAPI_ERROR_DEVICE_ERROR;
     }
     while(1){

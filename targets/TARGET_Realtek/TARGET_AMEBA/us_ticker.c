@@ -39,7 +39,7 @@ void us_ticker_init(void)
     
     if (us_ticker_inited) return;
     us_ticker_inited = 1;
-	
+    
 
     // Initial a G-Timer
     TimerAdapter.IrqDis = 0;    // Enable Irq @ initial
@@ -83,18 +83,17 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     cur_time_us = us_ticker_read();
     if ((uint32_t)timestamp >= cur_time_us) {
         time_def = (uint32_t)timestamp - cur_time_us;
-    }
-    else {
+    } else {
         time_def = 0xffffffff - cur_time_us + (uint32_t)timestamp;
     }    
 
     if (time_def < TIMER_TICK_US) {
         time_def = TIMER_TICK_US;       // at least 1 tick
     }
-	HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
-	HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, time_def);
-	HalTimerOpExt.HalTimerIrqEn((u32)TimerAdapter.TimerId);
-	HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
+    HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
+    HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, time_def);
+    HalTimerOpExt.HalTimerIrqEn((u32)TimerAdapter.TimerId);
+    HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
 
 }
 
