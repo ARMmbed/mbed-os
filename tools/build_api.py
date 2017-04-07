@@ -658,6 +658,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         prep_report(report, toolchain.target.name, toolchain_name, id_name)
         cur_result = create_result(toolchain.target.name, toolchain_name,
                                    id_name, description)
+        cur_result['type'] = 'library'
         if properties != None:
             prep_properties(properties, toolchain.target.name, toolchain_name,
                             vendor_label)
@@ -1369,7 +1370,7 @@ def write_build_report(build_report, template_filename, filename):
             passing_builds=build_report_passing))
 
 
-def merge_build_data(filename, toolchain_report):
+def merge_build_data(filename, toolchain_report, app_type):
     path_to_file = dirname(abspath(filename))
     try:
         build_data = load(open(filename))
@@ -1384,5 +1385,7 @@ def merge_build_data(filename, toolchain_report):
                         build[0]['bin'] = relpath(build[0]['bin'], path_to_file)
                     except KeyError:
                         pass
+                    if 'type' not in build[0]:
+                        build[0]['type'] = app_type
                     build_data['builds'].append(build[0])
     dump(build_data, open(filename, "wb"), indent=4, separators=(',', ': '))

@@ -352,4 +352,4 @@ if __name__ == '__main__':
             
             sys.exit(1)
     if options.build_data:
-        merge_build_data(options.build_data, build_data_blob)
+        merge_build_data(options.build_data, build_data_blob, "application")

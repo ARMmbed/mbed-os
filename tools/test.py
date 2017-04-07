@@ -247,7 +247,7 @@ if __name__ == '__main__':
             print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
             status = print_report_exporter.report(build_report)
             if options.build_data:
-                merge_build_data(options.build_data, build_report)
+                merge_build_data(options.build_data, build_report, "test")
 
             if status:
                 sys.exit(0)
