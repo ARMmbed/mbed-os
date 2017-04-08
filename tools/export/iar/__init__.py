@@ -78,6 +78,9 @@ class IAR(Exporter):
             "FPU2": 0,
             "NrRegs": 0,
             "NEON": '',
+            "CExtraOptionsCheck": 0,
+            "CExtraOptions": "",
+            "CMSISDAPJtagSpeedList": 0,
         }
 
         iar_defaults.update(device_info)
