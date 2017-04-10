@@ -904,7 +904,10 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c){
 
 #if DEVICE_I2CSLAVE
     /*  restore slave address */
-    i2c_slave_address(obj, 0, address, 0);
+    if (address != 0) {
+        obj_s->slave = 1;
+        i2c_slave_address(obj, 0, address, 0);
+    }
 #endif
 
     /* Keep Set event flag */

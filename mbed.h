@@ -16,13 +16,13 @@
 #ifndef MBED_H
 #define MBED_H
 
-#define MBED_LIBRARY_VERSION 139
+#define MBED_LIBRARY_VERSION 140
 
 #if MBED_CONF_RTOS_PRESENT
 // RTOS present, this is valid only for mbed OS 5
 #define MBED_MAJOR_VERSION 5
 #define MBED_MINOR_VERSION 4
-#define MBED_PATCH_VERSION 2
+#define MBED_PATCH_VERSION 3
 
 #else
 // mbed 2
