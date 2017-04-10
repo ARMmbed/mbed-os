@@ -547,7 +547,7 @@ class Config(object):
             app_start = ((app_start // VECTOR_TABLE_SIZE) + 1) * VECTOR_TABLE_SIZE
 
         # find application size
-        app_size = rom_size - app_start
+        app_size = rom_start + rom_size - app_start
         if 'target.restrict_size' in target_overrides:
             restrict_size = int(target_overrides['target.restrict_size'], 0)
             app_size = restrict_size if restrict_size < app_size else app_size
