@@ -88,7 +88,7 @@ void mbed_error_vfprintf(const char * format, va_list arg) {
             serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
         }
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
-        for (unsigned int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             if (buffer[i] == '\n' && stdio_out_prev != '\r') {
                  serial_putc(&stdio_uart, '\r');
             }
@@ -96,7 +96,7 @@ void mbed_error_vfprintf(const char * format, va_list arg) {
             stdio_out_prev = buffer[i];
         }
 #else
-        for (unsigned int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             serial_putc(&stdio_uart, buffer[i]);
         }
 #endif
