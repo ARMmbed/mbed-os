@@ -120,6 +120,7 @@ static void init_serial() {
 #endif
 }
 
+#if MBED_CONF_FILESYSTEM_PRESENT
 static inline int openmode_to_posix(int openmode) {
     int posix = openmode;
 #ifdef __ARMCC_VERSION
@@ -154,6 +155,7 @@ static inline int openmode_to_posix(int openmode) {
 #endif
     return posix;
 }
+#endif
 
 extern "C" WEAK void mbed_sdk_init(void);
 extern "C" WEAK void mbed_sdk_init(void) {
