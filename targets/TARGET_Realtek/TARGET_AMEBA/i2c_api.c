@@ -554,17 +554,6 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
     return 1;
 }
 
-/** \brief Description of i2c_slave_set_for_rd_req
- *  
- *    i2c_slave_set_for_rd_req is used to set/clear i2c slave RD_REQ interrupt mask.
- *    If RD_REQ interrupt is set, slave could invoke read request callback when it gets 
- *    a read command from other i2c master.
- *    
- *   \param i2c_t *obj  : i2c object
- *   \param int set     : set or clear for read request. Once it's set, i2c would invoke read request callback when a
- *                        read command is sent to it.
- *   \return result
- */
 #endif // CONFIG_I2C_SLAVE_EN
 
 #endif // CONFIG_I2C_EN

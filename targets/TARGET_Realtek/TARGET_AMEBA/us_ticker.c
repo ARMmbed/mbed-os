@@ -66,12 +66,12 @@ uint32_t us_ticker_read()
 
     tick_cnt = HalTimerOp.HalTimerReadCount(SYS_TIM_ID);
     tick_cnt = 0xffffffff - tick_cnt;   // it's a down counter
-    ticks_125ms = tick_cnt/(GTIMER_CLK_HZ/8);
-    ticks_remain = tick_cnt - (ticks_125ms*(GTIMER_CLK_HZ/8));
-    us_tick = ticks_125ms * 125000;
-    us_tick += (ticks_remain * 1000000)/GTIMER_CLK_HZ;
+    ticks_125ms = tick_cnt/(GTIMER_CLK_HZ/8);  //use 125ms as a intermediate unit; 
+    ticks_remain = tick_cnt - (ticks_125ms*(GTIMER_CLK_HZ/8));  //calculate the remainder
+    us_tick = ticks_125ms * 125000;  //change unit to us, 125ms is 125000 us
+    us_tick += (ticks_remain * 1000000)/GTIMER_CLK_HZ;  //also use us as unit
 
-    return ((uint32_t)us_tick);
+    return ((uint32_t)us_tick);  //return ticker value in micro-seconds (us)
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) 
