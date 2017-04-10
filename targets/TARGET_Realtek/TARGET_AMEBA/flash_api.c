@@ -81,8 +81,6 @@ void flash_init(flash_t *obj)
     }
     flashobj.SpicInitPara.flashtype = SpicInitParaAllClk[0][0].flashtype;
     
-    //DBG_8195A("Flash ID is = %x %x %x \n",SpicInitParaAllClk[0][0].id[0],SpicInitParaAllClk[0][0].id[1],SpicInitParaAllClk[0][0].id[2]);
-
 }
 void flash_turnon()
 {
@@ -474,7 +472,7 @@ int  flash_burst_read(flash_t *obj, uint32_t address, uint32_t Length, uint8_t *
 
     // Wait flash busy done (wip=0)
     SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
-    SpicUserReadRtl8195A(Length, address, data,SpicOneBitMode);
+    SpicUserReadRtl8195A(Length, address, data, SpicOneBitMode);
     SpicDisableRtl8195A();
     return 1;
 }
