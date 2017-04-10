@@ -54,11 +54,6 @@ const PinMap PinMap_ADC[] = {
     {NC,   NC,    0}
 };
 
-const PinMap PinMap_ADC_Internal[] = {
-    {NC,   NC,    0}
-};
-
-
 //*** I2C ***
 
 const PinMap PinMap_I2C_SDA[] = {
