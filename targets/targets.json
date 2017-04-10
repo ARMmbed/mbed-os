@@ -585,7 +585,7 @@
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
         "bootloader_supported": true,
-        "vector_table_size": 256,
+        "vector_table_size": 1024,
         "flash_erase_size": 4096
     },
     "MTS_GAMBIT": {
@@ -895,7 +895,9 @@
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name" : "STM32F429ZI",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "vector_table_size": 1024,
+        "flash_erase_size": 131072
     },
     "NUCLEO_F439ZI": {
         "supported_form_factors": ["ARDUINO"],
@@ -1334,7 +1336,9 @@
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "STM32F439ZI",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "vector_table_size": 1024,
+        "flash_erase_size": 131072
     },
     "NZ32_SC151": {
         "inherits": ["Target"],
