@@ -138,7 +138,7 @@ def rewrite_basepath(file_name, resources, export_path, loc):
     export_path - the final destination of the file after export
     """
     new_f = join(loc, relpath(file_name, resources.file_basepath[file_name]))
-    resources.file_basepath[join(export_path, new_f)] = export_path
+    resources.file_basepath[new_f] = export_path
     return new_f
 
 
@@ -309,10 +309,10 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     resources.file_basepath[config_header] = dirname(config_header)
 
     if zip_proj:
-        subtract_basepath(resources, export_path)
+        subtract_basepath(resources, ".")
         for loc, res in resource_dict.iteritems():
             temp = copy.deepcopy(res)
-            subtract_basepath(temp, export_path, loc)
+            subtract_basepath(temp, ".", loc)
             resources.add(temp)
     else:
         for _, res in resource_dict.iteritems():
