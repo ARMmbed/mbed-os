@@ -483,8 +483,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
         build_profile=build_profile)
 
     # The first path will give the name to the library
-    if name is None:
-        name = basename(normpath(abspath(src_paths[0])))
+    name = (name or toolchain.config.name or
+            basename(normpath(abspath(src_paths[0]))))
     toolchain.info("Building project %s (%s, %s)" %
                    (name, toolchain.target.name, toolchain_name))
 
