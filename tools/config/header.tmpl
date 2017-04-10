@@ -1,0 +1,26 @@
+// Automatically generated configuration file.
+// DO NOT EDIT, content will be overwritten.
+
+#ifndef __MBED_CONFIG_DATA__
+#define __MBED_CONFIG_DATA__
+
+{% if cfg_params -%}
+// Configuration parameters
+{% for name, value, set_by in cfg_params -%}
+{% if value is not none -%}
+#define {{name.ljust(name_len)}} {{value.ljust(val_len)}} // set by {{set_by}}
+{%- endif %}
+{% endfor %}
+{%- endif -%}
+
+{%- if macros -%}
+// Macros
+{% for name, value, set_by in macros -%}
+{% if value is not none -%}
+#define {{name.ljust(name_len)}} {{value.ljust(val_len)}} // defined by {{set_by}}
+{%- else -%}
+#define {{name.ljust(name_len + val_len + 1)}} // defined by {{set_by}}
+{%- endif %}
+{% endfor %}
+{%- endif %}
+#endif
