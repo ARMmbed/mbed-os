@@ -135,7 +135,9 @@ float analogin_read(analogin_t *obj){
     uint32_t AnaloginDatMsk      = 0xFFFF;
     uint8_t  AnaloginIdx         = 0;
     uint32_t AnalogDat           = 0;
-    uint32_t Offset = 0x2980;
+
+    //no auto-calibration implemented yet, uses hard coded calibrate
+    uint32_t Offset        = 0x2980;
     uint32_t AnalogDatFull = 0xAA00;
 
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
