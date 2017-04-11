@@ -181,7 +181,8 @@ osThreadAttr_t _main_thread_attr;
 /* The main stack size is hardcoded on purpose, so it's less tempting to change it per platform. As usually it's not
  * the correct solution to the problem and it makes mbed OS behave differently on different targets.
  */
-char _main_stack[4096] __ALIGNED(8);
+MBED_ALIGN(8) char _main_stack[4096];
+
 char _main_obj[sizeof(os_thread_t)];
 
 osMutexId_t   singleton_mutex_id;
@@ -319,7 +320,10 @@ void mbed_start_main(void)
     _main_thread_attr.cb_mem = _main_obj;
     _main_thread_attr.priority = osPriorityNormal;
     _main_thread_attr.name = "MAIN";
-    osThreadNew((osThreadFunc_t)pre_main, NULL, &_main_thread_attr);
+    osThreadId_t result = osThreadNew((osThreadFunc_t)pre_main, NULL, &_main_thread_attr);
+    if ((void *)result == NULL) {
+        error("Pre main thread not created");
+    }
 
     osKernelStart();
 }
