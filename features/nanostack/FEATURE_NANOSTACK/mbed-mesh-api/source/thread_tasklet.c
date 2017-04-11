@@ -232,6 +232,8 @@ void read_link_configuration() {
     thread_tasklet_data_ptr->link_config.key_rotation = 3600;
     thread_tasklet_data_ptr->link_config.key_sequence = 0;
 
+    thread_tasklet_data_ptr->link_config.securityPolicy = MBED_CONF_MBED_MESH_API_THREAD_SECURITY_POLICY;    
+    
     // network name
     MBED_ASSERT(strlen(MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) > 0 && strlen(MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) < 17);
     memcpy(thread_tasklet_data_ptr->link_config.name, MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME, strlen(MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME));
