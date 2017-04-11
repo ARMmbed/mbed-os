@@ -273,22 +273,13 @@ class GNUARMEclipse(Exporter):
             'u': u,
         }
 
-        # TODO: it would be good to have jinja stop if one of the
-        # expected context values is not defined.
         self.gen_file('gnuarmeclipse/.project.tmpl', jinja_ctx,
                       '.project', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('gnuarmeclipse/.cproject.tmpl', jinja_ctx,
                       '.cproject', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('gnuarmeclipse/makefile.targets.tmpl', jinja_ctx,
                       'makefile.targets', trim_blocks=True, lstrip_blocks=True)
-
-        if not exists('.mbedignore'):
-            print
-            print 'Create .mbedignore'
-            with open('.mbedignore', 'w') as f:
-                for bf in build_folders:
-                    print bf + '/'
-                    f.write(bf + '/\n')
+        self.gen_file('gnuarmeclipse/mbedignore.tmpl', jinja_ctx, '.mbedignore')
 
         print
         print 'Done. Import the \'{0}\' project in Eclipse.'.format(self.project_name)
