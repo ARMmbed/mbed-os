@@ -41,13 +41,18 @@ An example of the configuration file:
 | --------------- | ------------- | ----------- |
 | thread-pskd     | string [6-255 chars] | Human-scaled commissioning credentials. |
 | thread-device-type | enum from mesh_device_type_t | Set device operating mode. |
+| thread-use-static-link-config | boolean | True: Use the below link config, False: Use commissioning, ignore the below link config. |
 | thread-config-channel-mask | number [0-0x07fff800] | Channel mask, 0x07fff800 scans all channels. |
 | thread-config-channel-page | number [0, 2]| Channel page, 0 for 2,4 GHz and 2 for sub-GHz radios. |
 | thread-config-channel      | number [0-27] | RF channel to use. |
 | thread-config-panid        | number [0-0xFFFF] | Network identifier. |
+| thread-config-network-name | string [1-16] | 
+| thread-config-commissioning-dataset-timestamp | [0-0xFFFFFFFFFFFFFFFF] | Timestamp where upper 48 bits are seconds |
+|thread-config-extended-panid | byte array [8] | Extended PAN ID |
 | thread-master-key      | byte array [16]| Network master key. |
 | thread-config-ml-prefix | byte array [8] | Mesh local prefix. |
 | thread-config-pskc      | byte array [16] | Pre-Shared Key for the Commissioner. |
+| thread-security-policy | number [0-0xFF] | Security policy |
 
 ### 6LoWPAN related configuration parameters
 
