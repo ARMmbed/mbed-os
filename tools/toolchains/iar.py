@@ -224,8 +224,10 @@ class IAR(mbedToolchain):
 
     @hook_tool
     def binary(self, resources, elf, bin):
+        _, fmt = splitext(bin)
+        bin_arg = {".bin": "--bin", ".hex": "--ihex"}[fmt]
         # Build binary command
-        cmd = [self.elf2bin, "--bin", elf, bin]
+        cmd = [self.elf2bin, bin_arg, elf, bin]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_binary(cmd)

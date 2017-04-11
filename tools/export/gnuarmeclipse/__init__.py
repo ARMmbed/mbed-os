@@ -61,6 +61,7 @@ u = UID()
 POST_BINARY_WHITELIST = set([
     "TEENSY3_1Code.binary_hook",
     "MCU_NRF51Code.binary_hook",
+    "LPCTargetCode.lpc_patch"
 ])
 
 class GNUARMEclipse(Exporter):
@@ -243,7 +244,9 @@ class GNUARMEclipse(Exporter):
             opts['ld']['object_files'] = objects
             opts['ld']['user_libraries'] = libraries
             opts['ld']['system_libraries'] = self.system_libraries
-            opts['ld']['script'] = self.ld_script
+            opts['ld']['script'] = join(id.capitalize(),
+                                        "linker-script-%s.ld" % id)
+            opts['cpp_cmd'] = " ".join(toolchain.preproc)
 
             # Unique IDs used in multiple places.
             # Those used only once are implemented with {{u.id}}.
@@ -260,6 +263,7 @@ class GNUARMEclipse(Exporter):
 
         jinja_ctx = {
             'name': self.project_name,
+            'ld_script': self.ld_script,
 
             # Compiler & linker command line options
             'options': self.options,
