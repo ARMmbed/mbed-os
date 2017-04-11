@@ -612,6 +612,7 @@ class mbedToolchain:
                             break
 
             # Add root to include paths
+            root = root.rstrip("/")
             resources.inc_dirs.append(root)
             resources.file_basepath[root] = base_path
 
