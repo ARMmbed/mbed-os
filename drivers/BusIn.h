@@ -105,7 +105,7 @@ public:
 protected:
     DigitalIn* _pin[16];
 
-    /** Mask of bus's NC pins
+    /* Mask of bus's NC pins
      * If bit[n] is set to 1 - pin is connected
      * if bit[n] is cleared - pin is not connected (NC)
      */
