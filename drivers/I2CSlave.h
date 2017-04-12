@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_I2CSLAVE
+#if defined (DEVICE_I2CSLAVE) || defined(DOXYGEN_ONLY)
 
 #include "hal/i2c_api.h"
 

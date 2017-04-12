@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_INTERRUPTIN
+#if defined (DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 
 #include "hal/gpio_api.h"
 #include "hal/gpio_irq_api.h"

@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_SPISLAVE
+#if defined (DEVICE_SPISLAVE) || defined(DOXYGEN_ONLY)
 
 #include "hal/spi_api.h"
 

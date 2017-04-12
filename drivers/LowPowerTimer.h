@@ -19,7 +19,7 @@
 #include "platform/platform.h"
 #include "drivers/Timer.h"
 
-#if DEVICE_LOWPOWERTIMER
+#if defined (DEVICE_LOWPOWERTIMER) || defined(DOXYGEN_ONLY)
 
 #include "hal/lp_ticker_api.h"
 
