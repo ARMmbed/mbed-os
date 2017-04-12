@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_I2C
+#if defined (DEVICE_I2C) || defined(DOXYGEN_ONLY)
 
 #include "hal/i2c_api.h"
 #include "platform/SingletonPtr.h"

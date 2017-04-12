@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_PORTINOUT
+#if defined (DEVICE_PORTINOUT) || defined(DOXYGEN_ONLY)
 
 #include "hal/port_api.h"
 #include "platform/mbed_critical.h"

@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_PWMOUT
+#if defined (DEVICE_PWMOUT) || defined(DOXYGEN_ONLY)
 #include "hal/pwmout_api.h"
 #include "platform/mbed_critical.h"
 

@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_ETHERNET
+#if defined (DEVICE_ETHERNET) || defined(DOXYGEN_ONLY)
 
 namespace mbed {
 /** \addtogroup drivers */
