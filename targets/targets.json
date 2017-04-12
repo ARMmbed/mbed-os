@@ -1342,11 +1342,19 @@
         "extra_labels": ["STM", "STM32F4", "STM32F437", "STM32F437VG", "STM32F437xx", "STM32F437xG"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "RTC_LSI=1", "HSE_VALUE=12000000"],
         "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "RTC", "SPI", "SPISLAVE","STDIO_MESSAGES", "TRNG"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "RTC", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "features": ["LWIP"],
-        "release_versions": ["5"],
+        "public": false,
         "device_name": "STM32F437VG"
-        },
+    },
+    "UBLOX_C030_U201": {
+        "inherits": ["UBLOX_C030"],
+        "release_versions": ["5"]
+    },
+    "UBLOX_C030_N211": {
+        "inherits": ["UBLOX_C030"],
+        "release_versions": ["5"]
+    },
     "NZ32_SC151": {
         "inherits": ["Target"],
         "core": "Cortex-M3",
