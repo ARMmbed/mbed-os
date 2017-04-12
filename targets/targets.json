@@ -519,6 +519,21 @@
         "release_versions": ["2"],
         "device_name": "MKL27Z64xxx4"
     },
+    "HEADSUP_AERO": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0+",
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "KL27Z"],
+        "macros": ["CPU_MKL27Z64VLH4", "FSL_RTOS_MBED"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "supported_form_factors": ["ARDUINO"],
+        "is_disk_virtual": true,
+        "default_toolchain": "ARM",
+        "detect_code": ["0261"],
+        "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "default_lib": "std",
+        "release_versions": ["2"],
+        "device_name": "MKL27Z64xxx4"
+    },
     "KL43Z": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M0+",

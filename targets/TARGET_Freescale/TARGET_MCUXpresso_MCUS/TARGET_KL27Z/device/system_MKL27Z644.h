@@ -109,7 +109,7 @@ extern "C" {
 
 
 #ifndef DISABLE_WDOG
-  #define DISABLE_WDOG  1
+  #define DISABLE_WDOG  0
 #endif
 
 #ifndef ACK_ISOLATION

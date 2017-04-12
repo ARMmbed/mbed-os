@@ -42,7 +42,7 @@
 #include <stdint.h>
 #include "MKL25Z4.h"
 
-#define DISABLE_WDOG    1
+#define DISABLE_WDOG    0
 
 #define CLOCK_SETUP     1
 /* Predefined clock setups
