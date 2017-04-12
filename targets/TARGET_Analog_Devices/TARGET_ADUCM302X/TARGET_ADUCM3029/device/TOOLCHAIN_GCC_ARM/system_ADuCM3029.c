@@ -34,7 +34,7 @@
    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
    POSSIBILITY OF SUCH DAMAGE.
 
-   Portions Copyright (c) 2016 Analog Devices, Inc.
+   Portions Copyright (c) 2016 - 2017 Analog Devices, Inc.
    ---------------------------------------------------------------------------*/
 
 /*! \addtogroup SYS_Driver System Interfaces
@@ -237,22 +237,16 @@ void SystemInit (void)
 #endif
     uint32_t IntStatus;
 
-    /* Unlock the PWRMOD register by writing the two keys to the PWRKEY register */
-    pADI_PMG0->PWRKEY = PWRKEY_VALUE_KEY;
-    pADI_PMG0->SRAMRET &= (uint32_t)( ~( BITM_PMG_SRAMRET_BNK2EN | BITM_PMG_SRAMRET_BNK1EN ) );
-
-    /* Set the RAM0_RET bit so the entire 8K of SRAM Bank0 is hibernate-preserved */
+    /* Enable SRAM retention during the hibernation. */
     adi_system_EnableRetention( ADI_SRAM_BANK_1, true );
+    adi_system_EnableRetention( ADI_SRAM_BANK_2, true );
 
-#ifdef  ADI_DISABLE_INSTRUCTION_SRAM
     /* To disable the instruction SRAM and entire 64K of SRAM is used as DSRAM */
     adi_system_EnableISRAM( false );
-#endif
 
-#ifdef  ENABLE_CACHE
-    /* To enable the instruction cache  */
-    adi_system_EnableCache( true );
-#endif
+    /* To disable the instruction cache  */
+    adi_system_EnableCache( false );
+
 
 #ifdef RELOCATE_IVT
     /* Copy the IVT from Flash to SRAM (avoid use of memcpy here so it does not become locked into flash) */

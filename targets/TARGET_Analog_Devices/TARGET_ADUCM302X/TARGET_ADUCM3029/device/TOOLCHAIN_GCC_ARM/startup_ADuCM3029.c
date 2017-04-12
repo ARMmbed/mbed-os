@@ -5,7 +5,7 @@
  *
  */
 /* Copyright (c) 2011 - 2014 ARM LIMITED
-   Copyright (c) 2016 Analog Devices, Inc.
+   Copyright (c) 2016 - 2017 Analog Devices, Inc.
 
    All rights reserved.
    Redistribution and use in source and binary forms, with or without
@@ -271,15 +271,18 @@ const pFunc __Vectors[] __attribute__ ((section(".vectors"))) = {
   DMA_SIP7_Int_Handler,                     /* 63 */
 };
 
-
+#define __STARTUP_CLEAR_BSS_MULTIPLE
 /*----------------------------------------------------------------------------
   Reset Handler called on controller reset
  *----------------------------------------------------------------------------*/
 void Reset_Handler(void) {
   uint32_t *pSrc, *pDest;
   uint32_t *pTable __attribute__((unused));
-
-/*  Firstly it copies data from read only memory to RAM. There are two schemes
+#ifndef __NO_SYSTEM_INIT
+    SystemInit();
+#endif
+/*  After re-mapping DSRAM banks,
+ *  it copies data from read only memory to RAM. There are two schemes
  *  to copy. One can copy more than one sections. Another can only copy
  *  one section.  The former scheme needs more instructions and read-only
  *  data to implement than the latter.
@@ -364,10 +367,6 @@ void Reset_Handler(void) {
     *pDest++ = 0ul;
   }
 #endif /* __STARTUP_CLEAR_BSS_MULTIPLE || __STARTUP_CLEAR_BSS */
-
-#ifndef __NO_SYSTEM_INIT
-	SystemInit();
-#endif
 
 #ifndef __START
 #define __START _start
