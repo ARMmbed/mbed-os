@@ -571,6 +571,7 @@ void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
     if (0 == std_mutex_id_sys[index]) {
       attr.cb_mem = &std_mutex_sys[index];
       attr.cb_size = sizeof(std_mutex_sys[index]);
+      attr.attr_bits = osMutexRecursive;
       std_mutex_id_sys[index] = osMutexNew(&attr);
       *mutex = (__iar_Rmtx*)&std_mutex_id_sys[index];
       return;
@@ -605,6 +606,7 @@ void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
       if (0 == std_mutex_id_file[index]) {
         attr.cb_mem = &std_mutex_file[index];
         attr.cb_size = sizeof(std_mutex_file[index]);
+        attr.attr_bits = osMutexRecursive;
         std_mutex_id_file[index] = osMutexNew(&attr);
         *mutex = (__iar_Rmtx*)&std_mutex_id_file[index];
         return;
