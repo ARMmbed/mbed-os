@@ -47,12 +47,12 @@ An example of the configuration file:
 | thread-config-channel      | number [0-27] | RF channel to use. |
 | thread-config-panid        | number [0-0xFFFF] | Network identifier. |
 | thread-config-network-name | string [1-16] | 
-| thread-config-commissioning-dataset-timestamp | [0-0xFFFFFFFFFFFFFFFF] | Timestamp where upper 48 bits are seconds |
+| thread-config-commissioning-dataset-timestamp | [0-0xFFFFFFFFFFFFFFFF] | [48 bit timestamp seconds]-[15 bit timestamp ticks]-[U bit] |
 |thread-config-extended-panid | byte array [8] | Extended PAN ID |
 | thread-master-key      | byte array [16]| Network master key. |
 | thread-config-ml-prefix | byte array [8] | Mesh local prefix. |
 | thread-config-pskc      | byte array [16] | Pre-Shared Key for the Commissioner. |
-| thread-security-policy | number [0-0xFF] | Security policy |
+| thread-security-policy | number [0-0xFF] | Commissioning security policy bits |
 
 ### 6LoWPAN related configuration parameters
 
