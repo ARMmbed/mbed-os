@@ -89,11 +89,11 @@ public:
 
 protected:
 
-    /** Acquire exclusive access to this serial port
+    /* Acquire exclusive access to this serial port
      */
     virtual void lock(void);
 
-    /** Release exclusive access to this serial port
+    /* Release exclusive access to this serial port
      */
     virtual void unlock(void);
 };

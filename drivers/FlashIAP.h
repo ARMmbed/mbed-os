@@ -117,7 +117,7 @@ public:
 
 private:
 
-    /** Check if address and size are aligned to a sector
+    /* Check if address and size are aligned to a sector
      *
      *  @param addr Address of block to check for alignment
      *  @param size Size of block to check for alignment
