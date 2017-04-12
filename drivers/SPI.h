@@ -70,7 +70,7 @@ namespace mbed {
  *
  * }
  * @endcode
- * @ingroup dirvers
+ * @ingroup drivers
  */
 class SPI {
 
