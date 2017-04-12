@@ -224,11 +224,17 @@ public:
     *  @param obj pointer to the object to call the member function on
     *  @param method pointer to the member function to be called
     *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+    *  @deprecated
+    *      The attach function does not support cv-qualifiers. Replaced by
+    *      attach(callback(obj, method), type).
     */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The attach function does not support cv-qualifiers. Replaced by "
+        "attach(callback(obj, method), type).")
     void attach(T* obj, void (T::*method)(), IrqType type=RxIrq) {
         // Underlying call thread safe
-        attach(Callback<void()>(obj, method), type);
+        attach(callback(obj, method), type);
     }
 
    /** Attach a member function to call whenever a CAN frame received interrupt
@@ -237,11 +243,17 @@ public:
     *  @param obj pointer to the object to call the member function on
     *  @param method pointer to the member function to be called
     *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+    *  @deprecated
+    *      The attach function does not support cv-qualifiers. Replaced by
+    *      attach(callback(obj, method), type).
     */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The attach function does not support cv-qualifiers. Replaced by "
+        "attach(callback(obj, method), type).")
     void attach(T* obj, void (*method)(T*), IrqType type=RxIrq) {
         // Underlying call thread safe
-        attach(Callback<void()>(obj, method), type);
+        attach(callback(obj, method), type);
     }
 
     static void _irq_handler(uint32_t id, CanIrqType type);
