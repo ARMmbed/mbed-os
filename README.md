@@ -538,7 +538,7 @@ The following sample code illustrates how to use the sd-driver Block Device API:
     //     MISO (Master In Slave Out)
     //     SCLK (Serial Clock)
     //     CS (Chip Select)
-    SDBlockDevice sd(p5, p6, p7, p12); // mosi, miso, sclk, cs
+    SDBlockDevice sd(MBED_CONF_SD_SPI_MOSI, MBED_CONF_SD_SPI_MISO, MBED_CONF_SD_SPI_CLK, MBED_CONF_SD_SPI_CS);
     uint8_t block[512] = "Hello World!\n";
     
     int main() 

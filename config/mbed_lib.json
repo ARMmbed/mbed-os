@@ -1,4 +1,5 @@
 {
+    "name": "sd",
     "config": {
         "UART_RX": "D0",
         "UART_TX": "D1",

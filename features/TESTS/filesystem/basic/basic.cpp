@@ -120,7 +120,7 @@ static const char *fsfat_basic_bin_filename_test_10 = "0:testfile.bin";
 
 
 
-SDBlockDevice sd(MBED_CONF_APP_SPI_MOSI, MBED_CONF_APP_SPI_MISO, MBED_CONF_APP_SPI_CLK, MBED_CONF_APP_SPI_CS);
+SDBlockDevice sd(MBED_CONF_SD_SPI_MOSI, MBED_CONF_SD_SPI_MISO, MBED_CONF_SD_SPI_CLK, MBED_CONF_SD_SPI_CS);
 FATFileSystem fs(sd_mount_pt, &sd);
 
 #define FSFAT_BASIC_MSG(_buf, _max_len, _fmt, ...)   \

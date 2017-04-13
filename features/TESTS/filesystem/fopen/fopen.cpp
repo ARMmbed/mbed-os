@@ -85,7 +85,7 @@ static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 static const char *sd_badfile_path = "/sd/badfile.txt";
 static const char *sd_testfile_path = "/sd/test.txt";
 
-SDBlockDevice sd(MBED_CONF_APP_SPI_MOSI, MBED_CONF_APP_SPI_MISO, MBED_CONF_APP_SPI_CLK, MBED_CONF_APP_SPI_CS);
+SDBlockDevice sd(MBED_CONF_SD_SPI_MOSI, MBED_CONF_SD_SPI_MISO, MBED_CONF_SD_SPI_CLK, MBED_CONF_SD_SPI_CS);
 FATFileSystem fs("sd", &sd);
 
 #define FSFAT_FOPEN_TEST_01      fsfat_fopen_test_01
