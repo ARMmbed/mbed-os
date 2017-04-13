@@ -1205,6 +1205,16 @@
         "release_versions": ["2"],
         "device_name": "STM32L053C8"
     },
+    "DISCO_L072CZ": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0+",
+        "default_toolchain": "ARM",
+        "extra_labels": ["STM", "STM32L0", "STM32L072CZ"],
+        "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
+        "macros": ["RTC_LSI=1"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],        "release_versions": ["2", "5"],
+        "device_name": "STM32L072CZ"
+    },
     "DISCO_F746NG": {
         "inherits": ["Target"],
         "core": "Cortex-M7F",

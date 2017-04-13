@@ -36,6 +36,7 @@ class Sw4STM32(Exporter):
         'DISCO_F746NG':     {'name': 'STM32F746G-DISCO',      'mcuId': 'STM32F746NGHx'},
         'DISCO_F769NI':     {'name': 'DISCO-F769NI',          'mcuId': 'STM32F769NIHx'},
         'DISCO_L053C8':     {'name': 'STM32L0538DISCOVERY',   'mcuId': 'STM32L053C8Tx'},
+        'DISCO_L072CZ':     {'name': 'DISCO-L072CZ-LRWAN1',   'mcuId': 'STM32L072CZTx'},
         'DISCO_L476VG':     {'name': 'STM32L476G-DISCO',      'mcuId': 'STM32L476VGTx'},
         'NUCLEO_F030R8':    {'name': 'NUCLEO-F030R8',         'mcuId': 'STM32F030R8Tx'},
         'NUCLEO_F031K6':    {'name': 'NUCLEO-F031K6',         'mcuId': 'STM32F031K6Tx'},
