@@ -287,7 +287,7 @@ struct AttExchangeMTUResponse : public AttServerMessage {
     }
 
     /**
-     * The max 5rx mtu the server can handle.
+     * The max rx mtu the server can handle.
      */
     const uint16_t server_rx_mtu;
 };
