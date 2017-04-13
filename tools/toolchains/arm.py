@@ -162,6 +162,10 @@ class ARM(mbedToolchain):
         
         cmd.extend(self.get_dep_option(object))
             
+        # Remove '.\' from relative path names of source files. For example, '.\mbed-os\platform\retarget.cpp' will truncate to 'mbed-os\platform\retarget.cpp'.
+        if source.startswith('.\\'):
+            source = source[2:]
+
         cmd.extend(["-o", object, source])
 
         # Call cmdline hook

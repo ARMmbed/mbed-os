@@ -2625,6 +2625,18 @@
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE"
     },
+    "NUMAKER_PFM_NANO130": {
+        "core": "Cortex-M0",
+        "default_toolchain": "ARM",
+        "extra_labels": ["NUVOTON", "NANO100", "NUMAKER_PFM_NANO130"],
+        "is_disk_virtual": true,
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "inherits": ["Target"],
+        "progen": {"target": "numaker-pfm-nano130"},
+        "device_has": ["INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES"],
+        "release_versions": ["5"],
+        "device_name": "NANO130KE3BN"
+    },
     "HI2110": {
         "inherits": ["Target"],
         "core": "Cortex-M0",

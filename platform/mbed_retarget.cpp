@@ -768,7 +768,7 @@ extern "C" int errno;
 register unsigned char * stack_ptr __asm ("sp");
 
 // Dynamic memory allocation related syscall.
-#if defined(TARGET_NUMAKER_PFM_NUC472) || defined(TARGET_NUMAKER_PFM_M453)
+#if defined(TARGET_NUVOTON)
 // Overwrite _sbrk() to support two region model (heap and stack are two distinct regions).
 // __wrap__sbrk() is implemented in:
 // TARGET_NUMAKER_PFM_NUC472    hal/targets/cmsis/TARGET_NUVOTON/TARGET_NUC472/TARGET_NUMAKER_PFM_NUC472/TOOLCHAIN_GCC_ARM/retarget.c
