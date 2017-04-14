@@ -107,6 +107,7 @@ struct i2c_s {
     uint32_t    event;
     int         stop;
     uint32_t    address;
+    uint32_t    hdlr_async;
 };
 
 struct pwmout_s {

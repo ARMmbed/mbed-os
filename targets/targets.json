@@ -2633,7 +2633,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "progen": {"target": "numaker-pfm-nano130"},
-        "device_has": ["INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES"],
+        "device_has": ["INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "I2C", "I2CSLAVE", "I2C_ASYNCH"],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN"
     },
