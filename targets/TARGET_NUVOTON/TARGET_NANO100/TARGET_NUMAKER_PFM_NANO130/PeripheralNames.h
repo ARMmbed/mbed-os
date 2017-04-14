@@ -27,7 +27,7 @@ extern "C" {
 //       which encodes module base address and module index/subindex.
 #define NU_MODSUBINDEX_Pos              0
 #define NU_MODSUBINDEX_Msk              (0x1Ful << NU_MODSUBINDEX_Pos)
-#define NU_MODINDEX_Pos                 20
+#define NU_MODINDEX_Pos                 24
 #define NU_MODINDEX_Msk                 (0xFul << NU_MODINDEX_Pos)
 
 #define NU_MODNAME(MODBASE, INDEX, SUBINDEX)    ((MODBASE) | ((INDEX) << NU_MODINDEX_Pos) | ((SUBINDEX) << NU_MODSUBINDEX_Pos))
