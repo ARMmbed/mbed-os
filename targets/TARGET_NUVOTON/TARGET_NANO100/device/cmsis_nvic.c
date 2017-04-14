@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 #include "cmsis_nvic.h"
+#include "platform/mbed_error.h"
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
 {
-    //static volatile uint32_t *vectors = (uint32_t *) NVIC_RAM_VECTOR_ADDRESS;
-
-    // Put the vectors in SRAM
-    //vectors[IRQn + 16] = vector;
+    // NOTE: On NANO130, relocating vector table is not supported due to just 16KB small SRAM.
+    //       Add guard code to prevent from unsupported relocating.
+    uint32_t vector_static = NVIC_GetVector(IRQn);
+    if (vector_static != vector) {
+        error("No support for relocating vector table");
+    }
 }
 
 uint32_t NVIC_GetVector(IRQn_Type IRQn)
