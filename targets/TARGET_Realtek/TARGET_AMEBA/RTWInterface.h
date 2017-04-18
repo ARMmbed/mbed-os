@@ -158,8 +158,6 @@ protected:
     char _ip_address[IPADDR_STRLEN_MAX];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
-    void *scan_sema;
-    signed int scan_num;
 };
 
 #endif
