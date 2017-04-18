@@ -69,9 +69,16 @@ typedef enum {
 } UARTName;
 
 typedef enum {
-    SPI_0 = (int) NU_MODNAME(SPI0_BASE, 0, 0),
-    SPI_1 = (int) NU_MODNAME(SPI1_BASE, 1, 0),
-    SPI_2 = (int) NU_MODNAME(SPI2_BASE, 2, 0)
+    SPI_0_0 = (int) NU_MODNAME(SPI0_BASE, 0, 0),
+    SPI_0_1 = (int) NU_MODNAME(SPI0_BASE, 0, 1),
+    SPI_1_0 = (int) NU_MODNAME(SPI1_BASE, 1, 0),
+    SPI_1_1 = (int) NU_MODNAME(SPI1_BASE, 1, 1),
+    SPI_2_0 = (int) NU_MODNAME(SPI2_BASE, 2, 0),
+    SPI_2_1 = (int) NU_MODNAME(SPI2_BASE, 2, 1),
+    
+    SPI_0   = SPI_0_0,
+    SPI_1   = SPI_1_0,
+    SPI_2   = SPI_2_0
 } SPIName;
 
 typedef enum {
@@ -103,13 +110,17 @@ typedef enum {
 } RTCName;
 
 typedef enum {
-    DMA_0 = (int) NU_MODNAME(VDMA_BASE, 0, 0),
-    DMA_1 = (int) NU_MODNAME(PDMA1_BASE, 0, 0),
-    DMA_2 = (int) NU_MODNAME(PDMA2_BASE, 0, 0),
-    DMA_3 = (int) NU_MODNAME(PDMA3_BASE, 0, 0),
-    DMA_4 = (int) NU_MODNAME(PDMA4_BASE, 0, 0),
-    DMA_5 = (int) NU_MODNAME(PDMA5_BASE, 0, 0),
-    DMA_6 = (int) NU_MODNAME(PDMA6_BASE, 0, 0),
+    DMAGCR_0 = (int) NU_MODNAME(PDMAGCR_BASE, 0, 0)
+} DMAGCR_Name;
+
+typedef enum {
+    DMA_0_0 = (int) NU_MODNAME(VDMA_BASE, 0, 0),
+    DMA_1_0 = (int) NU_MODNAME(PDMA1_BASE, 1, 0),
+    DMA_2_0 = (int) NU_MODNAME(PDMA2_BASE, 2, 0),
+    DMA_3_0 = (int) NU_MODNAME(PDMA3_BASE, 3, 0),
+    DMA_4_0 = (int) NU_MODNAME(PDMA4_BASE, 4, 0),
+    DMA_5_0 = (int) NU_MODNAME(PDMA5_BASE, 5, 0),
+    DMA_6_0 = (int) NU_MODNAME(PDMA6_BASE, 6, 0),
 } DMAName;
 
 typedef enum {

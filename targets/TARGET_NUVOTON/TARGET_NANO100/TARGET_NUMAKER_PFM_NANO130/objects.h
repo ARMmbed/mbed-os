@@ -89,6 +89,7 @@ struct spi_s {
     uint32_t    event;
     //void        (*irq_handler_tx_async)(void);
     //void        (*irq_handler_rx_async)(void);
+    uint32_t    hdlr_async;
 };
 
 struct i2c_s {
