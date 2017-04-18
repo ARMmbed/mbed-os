@@ -38,9 +38,6 @@ extern "C" {
  */
 typedef struct
 {
-    uint32_t total[2];          /*!< number of bytes processed  */
-    uint32_t state[4];          /*!< intermediate digest state  */
-    unsigned char buffer[64];   /*!< data block being processed */
     HASH_HandleTypeDef hhash_md5;
 }
 mbedtls_md5_context;
@@ -94,14 +91,6 @@ void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] );
 
 /* Internal use */
 void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[64] );
-
-#ifdef __cplusplus
-}
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifdef __cplusplus
 }
