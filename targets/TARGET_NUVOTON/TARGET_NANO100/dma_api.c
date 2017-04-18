@@ -23,7 +23,9 @@
 #include "nu_bitutil.h"
 #include "dma.h"
 
-#define PDMA_CH_MAX    6   /* Specify Maximum Channels of PDMA */
+#define NU_PDMA_CH_MAX      6   /* Specify maximum channels of PDMA */
+#define NU_PDMA_CH_Pos      1   /* Specify first channel number of PDMA */
+#define NU_PDMA_CH_Msk      (((1 << NU_PDMA_CH_MAX) - 1) << NU_PDMA_CH_Pos)
 
 struct nu_dma_chn_s {
     void        (*handler)(uint32_t, uint32_t);
@@ -33,10 +35,14 @@ struct nu_dma_chn_s {
 
 static int dma_inited = 0;
 static uint32_t dma_chn_mask = 0;
-static struct nu_dma_chn_s dma_chn_arr[PDMA_CH_MAX];
+static struct nu_dma_chn_s dma_chn_arr[NU_PDMA_CH_MAX];
+static const DMAName dmaname_chn_arr[NU_PDMA_CH_MAX] = {
+    // NOTE: DMA_0_0 for VDMA
+    DMA_1_0, DMA_2_0, DMA_3_0, DMA_4_0, DMA_5_0, DMA_6_0
+};
 
 void PDMA_IRQHandler(void);
-static const struct nu_modinit_s dma_modinit = {DMA_0, DMA_MODULE, 0, 0, DMA_RST, PDMA_IRQn, (void *) PDMA_IRQHandler};
+static const struct nu_modinit_s dma_modinit = {DMAGCR_0, DMA_MODULE, 0, 0, DMA_RST, PDMA_IRQn, (void *) PDMA_IRQHandler};
 
 
 void dma_init(void)
@@ -46,7 +52,7 @@ void dma_init(void)
     }
     
     dma_inited = 1;
-    dma_chn_mask = 0;
+    dma_chn_mask = ~NU_PDMA_CH_Msk;
     memset(dma_chn_arr, 0x00, sizeof (dma_chn_arr));
     
     // Reset this module
@@ -67,25 +73,12 @@ int dma_channel_allocate(uint32_t capabilities)
         dma_init();
     }
     
-#if 1
     int i = nu_cto(dma_chn_mask);
     if (i != 32) {
          dma_chn_mask |= 1 << i;
-         memset(dma_chn_arr + i, 0x00, sizeof (struct nu_dma_chn_s));
+         memset(dma_chn_arr + i - NU_PDMA_CH_Pos, 0x00, sizeof (struct nu_dma_chn_s));
          return i;
     }
-#else
-    int i;
-    
-    for (i = 0; i < PDMA_CH_MAX; i ++) {
-        if ((dma_chn_mask & (1 << i)) == 0) {
-            // Channel available
-            dma_chn_mask |= 1 << i;
-            memset(dma_chn_arr + i, 0x00, sizeof (struct nu_dma_chn_s));
-            return i;
-        }
-    }
-#endif
 
     // No channel available
     return DMA_ERROR_OUT_OF_CHANNELS;
@@ -104,46 +97,81 @@ void dma_set_handler(int channelid, uint32_t handler, uint32_t id, uint32_t even
 {
     MBED_ASSERT(dma_chn_mask & (1 << channelid));
     
-    dma_chn_arr[channelid].handler = (void (*)(uint32_t, uint32_t)) handler;
-    dma_chn_arr[channelid].id = id;
-    dma_chn_arr[channelid].event = event;
+    dma_chn_arr[channelid - NU_PDMA_CH_Pos].handler = (void (*)(uint32_t, uint32_t)) handler;
+    dma_chn_arr[channelid - NU_PDMA_CH_Pos].id = id;
+    dma_chn_arr[channelid - NU_PDMA_CH_Pos].event = event;
     
     // Set interrupt vector if someone has removed it.
     NVIC_SetVector(dma_modinit.irq_n, (uint32_t) dma_modinit.var);
     NVIC_EnableIRQ(dma_modinit.irq_n);
 }
 
-PDMA_T *dma_modbase(void)
+PDMA_T *dma_modbase(int channelid)
 {
-    return (PDMA_T *) NU_MODBASE(dma_modinit.modname);
+    DMAName dma_name = dmaname_chn_arr[channelid - NU_PDMA_CH_Pos];
+    return (PDMA_T *) NU_MODBASE(dma_name);
+}
+
+void dma_enable(int channelid, int enable)
+{
+    DMA_GCR_T *dmagcr_base = (DMA_GCR_T *) NU_MODBASE(dma_modinit.modname);
+    PDMA_T *pdma_base = dma_modbase(channelid);
+    uint32_t pos = channelid - NU_PDMA_CH_Pos + DMA_GCR_GCRCSR_CLK1_EN_Pos;
+    
+    if (enable) {
+        dmagcr_base->GCRCSR |= 1 << pos;                                    // Enable channel clock
+        pdma_base->CSR |= (PDMA_CSR_PDMACEN_Msk);                           // Enable channel
+    }
+    else {
+        dmagcr_base->GCRCSR &= ~(1 << pos);                                 // Disable channel clock
+        pdma_base->CSR &= ~(PDMA_CSR_PDMACEN_Msk);                          // Disable channel
+    }
 }
 
 void PDMA_IRQHandler(void)
 {
     uint32_t intsts = PDMA_GET_INT_STATUS();
+    // Just interested in INTR1-INTR6
+    intsts &= ((NU_PDMA_CH_Msk >> NU_PDMA_CH_Pos) << DMA_GCR_GCRISR_INTR1_Pos);
     
     while (intsts) {
         int chn_id = nu_ctz(intsts);
+        uint32_t intsts_chn = PDMA_GET_CH_INT_STS(chn_id);
+        
         if (dma_chn_mask & (1 << chn_id)) {
-            struct nu_dma_chn_s *dma_chn = dma_chn_arr + chn_id;
-            uint32_t ch_intsts = PDMA_GET_CH_INT_STS(chn_id);
-            if (dma_chn->handler) {
-                // Abort
-                if ((ch_intsts & PDMA_ISR_TABORT_IS_Msk) && (dma_chn->event & DMA_EVENT_ABORT)) {
+            struct nu_dma_chn_s *dma_chn = dma_chn_arr + chn_id - NU_PDMA_CH_Pos;
+            
+            // Abort
+            if (intsts_chn & PDMA_ISR_TABORT_IS_Msk) {
+                // Clear ABORT IF of the channel
+                PDMA_CLR_CH_INT_FLAG(chn_id, PDMA_ISR_TABORT_IS_Msk);
+            
+                if (dma_chn->handler && (dma_chn->event & DMA_EVENT_ABORT)) {
                     dma_chn->handler(dma_chn->id, DMA_EVENT_ABORT);
                 }
-                // Transfer done
-                if ((ch_intsts & PDMA_ISR_TD_IS_Msk) && (dma_chn->event & DMA_EVENT_TRANSFER_DONE)) {
+            }
+    
+            // Transfer done
+            if (intsts_chn & PDMA_ISR_TD_IS_Msk) {
+                // Clear TD IF of the channel
+                PDMA_CLR_CH_INT_FLAG(chn_id, PDMA_ISR_TD_IS_Msk);
+            
+                if (dma_chn->handler && (dma_chn->event & DMA_EVENT_TRANSFER_DONE)) {
                     dma_chn->handler(dma_chn->id, DMA_EVENT_TRANSFER_DONE);
                 }
-                // Timeout
-                if ((ch_intsts & PDMA_ISR_TO_IS_Msk) && (dma_chn->event & DMA_EVENT_TIMEOUT)) {
+            }
+    
+            // Timeout
+            if (intsts_chn & PDMA_ISR_TO_IS_Msk) {
+                // Clear TIMEOUT IF of the channel
+                PDMA_CLR_CH_INT_FLAG(chn_id, PDMA_ISR_TO_IS_Msk);
+            
+                if (dma_chn->handler && (dma_chn->event & DMA_EVENT_TIMEOUT)) {
                     dma_chn->handler(dma_chn->id, DMA_EVENT_TIMEOUT);
                 }
             }
-            // Clear all interrupt flags
-            PDMA_CLR_CH_INT_FLAG(chn_id, ch_intsts);
         }
-        intsts &= ~(1 << chn_id);
+        
+        intsts &= ~(1 << (chn_id - NU_PDMA_CH_Pos + DMA_GCR_GCRISR_INTR1_Pos));
     }
 }

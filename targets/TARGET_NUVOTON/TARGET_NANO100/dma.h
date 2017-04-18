@@ -32,7 +32,8 @@ extern "C" {
 #define DMA_EVENT_MASK              DMA_EVENT_ALL
 
 void dma_set_handler(int channelid, uint32_t handler, uint32_t id, uint32_t event);
-PDMA_T *dma_modbase(void);
+PDMA_T *dma_modbase(int channelid);
+void dma_enable(int channelid, int enable);
 
 #ifdef __cplusplus
 }
