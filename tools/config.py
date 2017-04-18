@@ -503,21 +503,21 @@ class Config(object):
             raise ConfigException("Not enough information in CMSIS packs to "
                                   "build a bootloader project")
 
-        rom_current_addr = 0
+        rom_current_addr = rom_start
         FLASH_ERASE_SIZE = self.target.flash_erase_size
         VECTOR_TABLE_SIZE = self.target.vector_table_size
 
         # Bootloader and Firmware Metadata Regions
         if 'target.bootloader_img' in target_overrides:
             # find bootloader starting point
-            bootloader_start = rom_start
+            bootloader_start = rom_current_addr
 
             # find bootloader size
             bootloader_fn = target_overrides['target.bootloader_img']
-            bootloader_part = intelhex_offset(bootloader_fn, offset=rom_start)
-            if bootloader_part.minaddr() != rom_start:
+            bootloader_part = intelhex_offset(bootloader_fn, offset=bootloader_start)
+            if bootloader_part.minaddr() != bootloader_start:
                 raise ConfigException("bootloader executable does not "
-                                      "start at 0x%x" % rom_start)
+                                      "start at 0x%x" % bootloader_start)
             bootloader_size = (bootloader_part.maxaddr() - bootloader_part.minaddr()) + 1
 
             # yeild bootloader region
