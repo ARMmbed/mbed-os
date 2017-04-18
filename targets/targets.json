@@ -1205,7 +1205,7 @@
         "release_versions": ["2"],
         "device_name": "STM32L053C8"
     },
-    "DISCO_L072CZ": {
+    "DISCO_L072CZ_LRWAN1": {
         "inherits": ["Target"],
         "core": "Cortex-M0+",
         "default_toolchain": "ARM",
