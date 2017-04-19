@@ -520,6 +520,7 @@ void pre_main(void)
     if (low_level_init_needed) {
         __iar_dynamic_initialization();
     }
+    mbed_main();
     main();
 }
 
@@ -545,16 +546,6 @@ void __iar_program_start( void )
   osKernelInitialize();
 
   mbed_start_main();
-}
-
-/* IAR doesn't have the $Super/$Sub mechanism of armcc, nor something equivalent
- * to ld's --wrap. It does have a --redirect, but that doesn't help, since redirecting
- * 'main' to another symbol looses the original 'main' symbol. However, its startup
- * code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
- * Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
- */
-void __iar_argc_argv() {
-    mbed_main();
 }
 
 /* Thread safety */
