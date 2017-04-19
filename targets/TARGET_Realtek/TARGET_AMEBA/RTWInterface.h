@@ -106,7 +106,7 @@ public:
      *  @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
      *  see @a nsapi_error
      */
-     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, unsigned count);
+     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, nsapi_size_t count);
 
      virtual nsapi_error_t set_channel(uint8_t channel);
      virtual int8_t get_rssi();

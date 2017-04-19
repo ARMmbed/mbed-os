@@ -85,6 +85,28 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
     return RTW_SUCCESS;
 }
 
+static bool rtw_ipv4_is_valid(const char *addr)
+{
+    int i = 0;
+    int dot = 0;
+    
+    // Check each digit for [0-9.]
+    for (; addr[i]; i++) {
+        if (!(addr[i] >= '0' && addr[i] <= '9') && addr[i] != '.') {
+            return false;
+        }
+        if(addr[i] == '.' && addr[i+1] != '.')
+            dot++;
+    }
+
+    // Ending with '.' garuntees host
+    if ((i > 0 && addr[i-1] == '.') || dot != 3) {
+        return false;
+    }
+
+    return true;
+}
+
 RTWInterface::RTWInterface()
     : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
@@ -110,10 +132,10 @@ RTWInterface::~RTWInterface()
 
 nsapi_error_t RTWInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
-    _dhcp = false;
     strncpy(_ip_address, ip_address ? ip_address : "", sizeof(_ip_address));
     strncpy(_netmask, netmask ? netmask : "", sizeof(_netmask));
     strncpy(_gateway, gateway ? gateway : "", sizeof(_gateway));
+    _dhcp = false;
     return NSAPI_ERROR_OK;
 }
 
@@ -147,7 +169,11 @@ nsapi_error_t RTWInterface::connect()
 
     switch (_security) {
         case NSAPI_SECURITY_WPA:
+            sec = RTW_SECURITY_WPA_TKIP_PSK;
+            break;
         case NSAPI_SECURITY_WPA2:
+            sec = RTW_SECURITY_WPA2_AES_PSK;
+            break;
         case NSAPI_SECURITY_WPA_WPA2:
             sec = RTW_SECURITY_WPA_WPA2_MIXED;
             break;
@@ -161,7 +187,21 @@ nsapi_error_t RTWInterface::connect()
             return NSAPI_ERROR_PARAMETER;
     }
 
-    if(_channel > 0 && _channel < 14){
+    if(!_dhcp){
+#if LWIP_IPV4
+        if (!rtw_ipv4_is_valid(_ip_address) ||
+            !rtw_ipv4_is_valid(_netmask) ||
+            !rtw_ipv4_is_valid(_gateway)) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+#endif
+    }
+    
+    if(_channel > 13){
+        return NSAPI_ERROR_PARAMETER;
+    }
+    
+    if(_channel != 0){
         uint8_t pscan_config = PSCAN_ENABLE;
         wifi_set_pscan_chan(&_channel, &pscan_config, 1);
     }
@@ -173,13 +213,17 @@ nsapi_error_t RTWInterface::connect()
     }
 
     wlan_emac_link_change(true);
-    return mbed_lwip_bringup(_dhcp,
+    ret = mbed_lwip_bringup(_dhcp,
                              _ip_address[0] ? _ip_address : 0,
                              _netmask[0] ? _netmask : 0,
                              _gateway[0] ? _gateway : 0);
+    if(ret != NSAPI_ERROR_OK){
+        disconnect();
+    }
+    return ret;
 }
 
-nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
+nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, nsapi_size_t count)
 {
     static wifi_scan_hdl scan_handler;
     scan_handler.ap_num = 0;
@@ -195,7 +239,7 @@ nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
         printf("wifi scan timeout\r\n");
         return NSAPI_ERROR_DEVICE_ERROR;
     }
-    if(count <= 0 || count > scan_handler.ap_num)
+    if(count == 0 || count > scan_handler.ap_num)
         count = scan_handler.ap_num;
 
     return count;
@@ -226,7 +270,7 @@ nsapi_error_t RTWInterface::connect(const char *ssid, const char *pass,
 nsapi_error_t RTWInterface::disconnect()
 {
     char essid[33];
-
+    mbed_lwip_bringdown();
     wlan_emac_link_change(false);
     if(wifi_is_connected_to_ap() != RTW_SUCCESS)
         return NSAPI_ERROR_NO_CONNECTION;
