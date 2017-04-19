@@ -15,8 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from os import getenv
-from os.path import join, abspath, dirname, exists
+from os import getenv, pathsep
+from os.path import join, abspath, dirname, exists, isfile, basename, normpath
+import sys
 import logging
 
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -57,6 +58,52 @@ CLI_COLOR_MAP = {
 }
 
 ##############################################################################
+# Path Binary discovery
+##############################################################################
+
+# Binaries for which to search in the PATH
+# No need to search for GCC-based toolchains at the moment
+PATH_BINARY_SEARCH = {
+    "ARM_PATH": "bin/armcc",
+    "IAR_PATH": "bin/iccarm"
+}
+
+# Function that accepts a binary/command name (ex. "armcc") and returns its
+# location in the system's PATH variable if it exists.
+def find_bin_in_path(bin_name):        
+    executable_name = bin_name
+    
+    # Add .exe for Windows platforms
+    if sys.platform in ["win32", "cygwin"] and not executable_name.endswith('.exe'):
+        executable_name = executable_name + ".exe"
+    
+    # Check the PATH
+    for path in getenv("PATH").split(pathsep):
+        path = path.strip('"')
+        tool_bin_full_path = join(path, executable_name)
+        if exists(tool_bin_full_path) and isfile(tool_bin_full_path):
+            # If found, return the path to the binary
+            return join(path, bin_name)
+    
+    # If not found, return None
+    return None
+
+# Search for each of the toolchains that require a known path
+for toolchain_name, bin_path in PATH_BINARY_SEARCH.iteritems():
+    # Normalize the path the binary path
+    bin_path = normpath(bin_path)
+    
+    # Find the path to the binary in the system's PATH
+    bin_path_in_path = find_bin_in_path(basename(bin_path))
+    
+    if bin_path_in_path:
+        # Normalize the path and set the base path for the toolchain
+        bin_path_in_path = normpath(bin_path_in_path)
+        substr_index = bin_path_in_path.rfind(bin_path)
+        globals()[toolchain_name] = normpath(bin_path_in_path[:substr_index])
+
+
+##############################################################################
 # User Settings (file)
 ##############################################################################
 try:
@@ -74,9 +121,8 @@ _ENV_PATHS = ['ARM_PATH', 'GCC_ARM_PATH', 'GCC_CR_PATH', 'IAR_PATH']
 
 for _n in _ENV_PATHS:
     if getenv('MBED_'+_n):
-        if exists(getenv('MBED_'+_n)):
-            globals()[_n] = getenv('MBED_'+_n)
-        else:
+        globals()[_n] = getenv('MBED_'+_n)
+        if not exists(getenv('MBED_'+_n)):
             print "WARNING: MBED_%s set as environment variable but doesn't exist" % _n
 
 
