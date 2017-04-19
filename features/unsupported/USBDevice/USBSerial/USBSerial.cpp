@@ -66,3 +66,7 @@ bool USBSerial::EPBULK_OUT_callback() {
 uint8_t USBSerial::available() {
     return buf.available();
 }
+
+bool USBSerial::connected() {
+    return terminal_connected;
+}
