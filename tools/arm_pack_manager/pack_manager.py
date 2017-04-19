@@ -1,6 +1,11 @@
 import argparse
 from os.path import basename
-from tools.arm_pack_manager import Cache
+import sys
+from os.path import join, abspath, dirname
+# Be sure that the tools directory is in the search path
+ROOT = abspath(join(dirname(__file__), "..", ".."))
+sys.path.insert(0, ROOT)
+
 from os.path import basename, join, dirname, exists
 from os import makedirs
 from itertools import takewhile
@@ -188,4 +193,20 @@ def get_argparse() :
 def main() :
     args = parser.parse_args()
     args.command(args)
+
+@subcommand('add-local-pack',
+            dict(name='filename', help="pack file to add to cache"),
+            help='add a local pack file to the index')
+def command_add_local_pack(cache, filename) :
+    cache.add_local_pack_file(filename)
+
+def get_argparse() :
+    return parser
+
+def main() :
+    args = parser.parse_args()
+    args.command(args)
+
+if __name__ == "__main__":
+    main()
 

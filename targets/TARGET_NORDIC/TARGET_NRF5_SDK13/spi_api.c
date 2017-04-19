@@ -144,12 +144,14 @@ static void master_event_handler(uint8_t spi_idx,
     if (p_event->type == NRF_DRV_SPI_EVENT_DONE)
     {
         p_spi_info->flag.busy = false;
+#if DEVICE_SPI_ASYNCH
         if (p_spi_info->handler)
         {
             void (*handler)(void) = (void (*)(void))p_spi_info->handler;
             p_spi_info->handler = 0;
             handler();
         }
+#endif // if DEVICE_SPI_ASYNCH
     }
 }
 #define MASTER_EVENT_HANDLER(idx) \
