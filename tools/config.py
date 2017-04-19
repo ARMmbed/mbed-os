@@ -566,7 +566,10 @@ class Config(object):
                 metadata_start = ((metadata_start // FLASH_ERASE_SIZE) + 1) * FLASH_ERASE_SIZE
 
             # find metadata header size
-            metadata_size = FIRMWARE_HEADER_SIZE
+            post_app_start = (metadata_start + FIRMWARE_HEADER_SIZE)
+            if post_app_start%VECTOR_TABLE_SIZE: # align to vector table size
+                post_app_start = ((post_app_start // VECTOR_TABLE_SIZE) + 1) * VECTOR_TABLE_SIZE
+            metadata_size = post_app_start - metadata_start
 
             # yeild image_metadata_header region
             yield Region("firmware_metadata_header", metadata_start, metadata_size, False, None)
@@ -577,12 +580,10 @@ class Config(object):
         # Post Application Region
         if 'target.restrict_size' in target_overrides:
             # find post_application start address
-            post_app_start = rom_current_addr
-            if post_app_start%VECTOR_TABLE_SIZE: # align to vector table size
-                post_app_start = ((post_app_start // VECTOR_TABLE_SIZE) + 1) * VECTOR_TABLE_SIZE
+            post_app_start = rom_current_addr # Previously aligned to vector table size
 
-            # fine post_application region size
-            post_app_size = rom_size - post_app_start
+            # find post_application region size
+            post_app_size = rom_start + rom_size - post_app_start
 
             # yield post_application region
             yield Region("post_application", post_app_start, post_app_size, False, None)
