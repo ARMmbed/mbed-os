@@ -670,7 +670,7 @@ static err_t lpc_low_level_output(struct netif *netif, struct pbuf *p)
  *  This function handles the transmit, receive, and error interrupt of
  *  the LPC177x_8x. This is meant to be used when NO_SYS=0.
  */
-void ENET_IRQHandler(void)
+void LPC17xxEthernetHandler(void)
 {
 #if NO_SYS == 1
 	/* Interrupts are not used without an RTOS */
@@ -861,11 +861,7 @@ static err_t low_level_init(struct netif *netif)
 		return ERR_BUF;
 
 	/* Enable packet reception */
-#if IP_SOF_BROADCAST_RECV
 	LPC_EMAC->RxFilterCtrl = EMAC_RFC_PERFECT_EN | EMAC_RFC_BCAST_EN | EMAC_RFC_MCAST_EN;
-#else
-	LPC_EMAC->RxFilterCtrl = EMAC_RFC_PERFECT_EN;
-#endif
 
 	/* Clear and enable rx/tx interrupts */
 	LPC_EMAC->IntClear = 0xFFFF;
@@ -1050,6 +1046,7 @@ err_t eth_arch_enetif_init(struct netif *netif)
 }
 
 void eth_arch_enable_interrupts(void) {
+    NVIC_SetVector(ENET_IRQn, (uint32_t)LPC17xxEthernetHandler);
     NVIC_SetPriority(ENET_IRQn, ((0x01 << 3) | 0x01));
     NVIC_EnableIRQ(ENET_IRQn);
 }

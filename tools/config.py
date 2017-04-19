@@ -355,7 +355,8 @@ class Config(object):
         "library": {"name": str, "config": dict, "target_overrides": dict,
                     "macros": list, "__config_path": str},
         "application": {"config": dict, "target_overrides": dict,
-                        "macros": list, "__config_path": str}
+                        "macros": list, "__config_path": str,
+                        "artifact_name": str}
     }
 
     __unused_overrides = set(["target.bootloader_img", "target.restrict_size"])
@@ -384,6 +385,7 @@ class Config(object):
         top_level_dirs may be None (in this case, the constructor will not
         search for a configuration file).
         """
+        config_errors = []
         app_config_location = app_config
         if app_config_location is None:
             for directory in top_level_dirs or []:
@@ -399,8 +401,10 @@ class Config(object):
             self.app_config_data = json_file_to_dict(app_config_location) \
                                    if app_config_location else {}
         except ValueError as exc:
-            sys.stderr.write(str(exc) + "\n")
             self.app_config_data = {}
+            config_errors.append(
+                ConfigException("Could not parse mbed app configuration from %s"
+                                % app_config_location))
 
         # Check the keys in the application configuration data
         unknown_keys = set(self.app_config_data.keys()) - \
@@ -433,7 +437,7 @@ class Config(object):
 
         self._process_config_and_overrides(self.app_config_data, {}, "app",
                                            "application")
-        self.config_errors = None
+        self.config_errors = config_errors
 
     def add_config_files(self, flist):
         """Add configuration files
@@ -797,6 +801,13 @@ class Config(object):
         return True
 
 
+    @property
+    def name(self):
+        if "artifact_name" in self.app_config_data:
+            return self.app_config_data["artifact_name"]
+        else:
+            return None
+
     def load_resources(self, resources):
         """ Load configuration data from a Resources instance and expand it
         based on defined features.
@@ -806,6 +817,7 @@ class Config(object):
         """
         # Update configuration files until added features creates no changes
         prev_features = set()
+        self.validate_config()
         while True:
             # Add/update the configuration with any .json files found while
             # scanning

@@ -386,12 +386,9 @@ class TEENSY3_1Code(object):
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         """Hook that is run after elf is generated"""
-        from intelhex import IntelHex
-        binh = IntelHex()
-        binh.loadbin(binf, offset=0)
-
-        with open(binf.replace(".bin", ".hex"), "w") as file_desc:
-            binh.tofile(file_desc, format='hex')
+        # This function is referenced by old versions of targets.json and should
+        # be kept for backwards compatibility.
+        pass
 
 class MTSCode(object):
     """Generic MTS code"""
@@ -475,7 +472,11 @@ class MCU_NRF51Code(object):
         # Merge user code with softdevice
         from intelhex import IntelHex
         binh = IntelHex()
-        binh.loadbin(binf, offset=softdevice_and_offset_entry['offset'])
+        _, ext = os.path.splitext(binf)
+        if ext == ".hex":
+            binh.loadhex(binf)
+        elif ext == ".bin":
+            binh.loadbin(binf, softdevice_and_offset_entry['offset'])
 
         if t_self.target.MERGE_SOFT_DEVICE is True:
             t_self.debug("Merge SoftDevice file %s"

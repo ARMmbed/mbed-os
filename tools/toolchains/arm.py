@@ -216,8 +216,10 @@ class ARM(mbedToolchain):
 
     @hook_tool
     def binary(self, resources, elf, bin):
+        _, fmt = splitext(bin)
+        bin_arg = {".bin": "--bin", ".hex": "--i32"}[fmt]
         # Build binary command
-        cmd = [self.elf2bin, '--bin', '-o', bin, elf]
+        cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_binary(cmd)
