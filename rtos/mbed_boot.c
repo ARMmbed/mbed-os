@@ -105,10 +105,10 @@
  *         -> __iar_init_core
  *         -> __iar_init_core
  *         -> __iar_init_vfp
- *         -> mbed_set_stack_heap (MBED: rtos/mbed_boot.c)
  *         -> __low_level_init
  *         -> __iar_data_init3
  *         -> mbed_sdk_init (TARGET)
+ *         -> mbed_set_stack_heap (MBED: rtos/mbed_boot.c)
  *         -> osKernelInitialize (RTX)
  *         -> mbed_start_main (MBED: rtos/mbed_boot.c)
  *             -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
@@ -529,8 +529,6 @@ void __iar_program_start( void )
   __iar_init_core();
   __iar_init_vfp();
 
-  mbed_set_stack_heap();
-
   uint8_t low_level_init_needed_local;
 
   low_level_init_needed_local = __low_level_init();
@@ -538,6 +536,9 @@ void __iar_program_start( void )
     __iar_data_init3();
     mbed_sdk_init();
   }
+
+  mbed_set_stack_heap();
+
   /* Store in a global variable after RAM has been initialized */
   low_level_init_needed = low_level_init_needed_local;
 
