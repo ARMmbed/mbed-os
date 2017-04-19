@@ -1,6 +1,198 @@
 {
     "name": "rtos",
     "config": {
-        "present": 1
+        "present": 1,
+
+        "taskcnt": {
+            "help": [
+                "Number of concurrent running user threads <1-250>",
+                " Defines max. number of user threads that will run at the same time.",
+                " Default: 6"
+            ],
+            "macro_name": "OS_TASKCNT"
+        },
+
+        "idlestksize": {
+            "help": [
+                "Idle stack size [bytes] <64-4096:8><#/4>",
+                " Defines default stack size for the Idle thread."
+            ],
+            "macro_name": "OS_IDLESTKSIZE"
+        },
+
+        "stksize": {
+            "help": [
+                "Default Thread stack size [bytes] <64-4096:8><#/4>",
+                " Defines default stack size for threads with osThreadDef stacksz = 0",
+                " Default: 200"
+            ],
+            "macro_name": "OS_STKSIZE"
+        },
+
+        "mainstksize": {
+            "help": [
+                "Main Thread stack size [bytes] <64-32768:8><#/4>"
+            ],
+            "macro_name": "OS_MAINSTKSIZE"
+        },
+
+        "privcnt": {
+            "help": [
+                "Number of threads with user-provided stack size <0-250>",
+                " Defines the number of threads with user-provided stack size.",
+                " Default: 0"
+            ],
+            "macro_name": "OS_PRIVCNT"
+        },
+
+        "privstksize": {
+            "help": [
+                "Total stack size [bytes] for threads with user-provided stack size <0-1048576:8><#/4>",
+                " Defines the combined stack size for threads with user-provided stack size.",
+                " Default: 0"
+            ],
+            "macro_name": "OS_PRIVSTKSIZE"
+        },
+
+        "stkcheck": {
+            "help": [
+                "Stack overflow checking",
+                " Enable stack overflow checks at thread switch.",
+                " Enabling this option increases slightly the execution time of a thread switch."
+            ],
+            "macro_name": "OS_STKCHECK"
+        },
+
+        "stkinit": {
+            "help": [
+                "Stack usage watermark",
+                " Initialize thread stack with watermark pattern for analyzing stack usage (current/maximum) in System and Thread Viewer.",
+                " Enabling this option increases significantly the execution time of osThreadCreate."
+            ],
+            "macro_name": "OS_STKINIT"
+        },
+
+        "runpriv": {
+            "help": [
+                "Processor mode for thread execution",
+                " - Unprivileged mode",
+                " - Privileged mode",
+                " Default: Privileged mode"
+            ],
+            "macro_name": "OS_RUNPRIV"
+        },
+
+        "systick": {
+            "help": [
+                "Use Cortex-M SysTick timer as RTX Kernel Timer",
+                " Cortex-M processors provide in most cases a SysTick timer that can be used as",
+                " as time-base for RTX."
+            ],
+            "macro_name": "OS_SYSTICK"
+        },
+
+        "clock": {
+            "help": [
+                "RTOS Kernel Timer input clock frequency [Hz] <1-1000000000>",
+                " Defines the input frequency of the RTOS Kernel Timer.",
+                " When the Cortex-M SysTick timer is used, the input clock",
+                " is on most systems identical with the core clock."
+            ],
+            "macro_name": "OS_CLOCK"
+        },
+
+        "tick": {
+            "help": [
+                "RTX Timer tick interval value [us] <1-1000000>",
+                " The RTX Timer tick interval value is used to calculate timeout values.",
+                " When the Cortex-M SysTick timer is enabled, the value also configures the SysTick timer.",
+                " Default: 1000  (1ms)"
+            ],
+            "macro_name": "OS_TICK"
+        },
+
+        "robin": {
+            "help": [
+                "Enables Round-Robin Thread switching."
+            ],
+            "macro_name": "OS_ROBIN"
+        },
+
+        "robintout": {
+            "help": [
+                "Round-Robin Timeout [ticks] <1-1000>",
+                " Defines how long a thread will execute before a thread switch.",
+                " Default: 5"
+            ],
+            "macro_name": "OS_ROBINTOUT"
+        },
+
+        "timers": {
+            "help": [
+                "Enables user Timers"
+            ],
+            "macro_name": "OS_TIMERS"
+        },
+
+        "timerprio": {
+            "help": [
+                "Timer Thread Priority",
+                " - Low",
+                " - Below Normal",
+                " - Normal",
+                " - Above Normal",
+                " - High",
+                " - Realtime (highest)",
+                " Defines priority for Timer Thread",
+                " Default: High"
+            ],
+            "macro_name": "OS_TIMERPRIO"
+        },
+
+        "timerstksz": {
+            "help": [
+                "Timer Thread stack size [bytes] <64-4096:8><#/4>",
+                " Defines stack size for Timer thread.",
+                " Default: 200"
+            ],
+            "macro_name": "OS_TIMERSTKSZ"
+        },
+
+        "timercbqs": {
+            "help": [
+                "Timer Callback Queue size <1-32>",
+                " Number of concurrent active timer callback functions.",
+                " Default: 4"
+            ],
+            "macro_name": "OS_TIMERCBQS"
+        },
+
+        "fifosz": {
+            "help": [
+                "ISR FIFO Queue size",
+                " -  4 entries",
+                " -  8 entries",
+                " - 12 entries", 
+                " - 16 entries",
+                " - 24 entries", 
+                " - 32 entries",
+                " - 48 entries",  
+                " - 64 entries",
+                " - 96 entries",
+                " ISR functions store requests to this buffer,",
+                " when they are called from the interrupt handler.",
+                " Default: 16 entries"
+            ],
+            "macro_name": "OS_FIFOSZ"
+        },
+
+        "mutexcnt": {
+            "help": [
+                "Standard library system mutexes",
+                " Define max. number system mutexes that are used to protect",
+                " the arm standard runtime library. For microlib they are not used."
+            ],
+            "macro_name": "OS_MUTEXCNT"
+        }
     }
 }
