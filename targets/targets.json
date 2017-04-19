@@ -1847,29 +1847,6 @@
         "features": ["BLE"],
         "release_versions": ["2", "5"]
     },
-    "RZ_A1H": {
-        "supported_form_factors": ["ARDUINO"],
-        "core": "Cortex-A9",
-        "program_cycle_s": 2,
-        "extra_labels": ["RENESAS", "MBRZA1H"],
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
-        "features": ["LWIP"],
-        "release_versions": ["2", "5"]
-    },
-    "VK_RZ_A1H": {
-        "inherits": ["Target"],
-        "core": "Cortex-A9",
-        "extra_labels": ["RENESAS", "VKRZA1H"],
-        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "default_toolchain": "ARM",
-        "program_cycle_s": 2,
-        "device_has": ["ANALOGIN", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "features": ["LWIP"],
-        "default_lib": "std",
-        "release_versions": ["2", "5"]
-    },
     "MAXWSNENV": {
         "inherits": ["Target"],
         "core": "Cortex-M3",
