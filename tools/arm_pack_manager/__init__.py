@@ -1,7 +1,8 @@
 from urllib2 import urlopen, URLError
 from bs4 import BeautifulSoup
-from os.path import join, dirname, basename
+from os.path import join, dirname, basename, exists
 from os import makedirs
+from shutil import copyfile
 from errno import EEXIST
 from threading import Thread
 from Queue import Queue
@@ -446,3 +447,38 @@ class Cache () :
         self.cache_file(url)
         return self.pdsc_from_cache(url)
 
+    def add_local_pack_file(self, filename):
+        """Add a single pack file to the index
+
+        :param filename: The pack file to add to the index
+        """
+        _ = self.index # Force the cache to be loaded
+        zipfile = ZipFile(open(filename, "rb"))
+        for zipinfo in zipfile.infolist():
+            if (zipinfo.filename.endswith(".pdsc") or
+                zipinfo.filename.endswith(".PDSC")):
+                pdsc_filename = zipinfo.filename
+                print("Found PDSC file in archive: %s" % pdsc_filename)
+                break
+        else:
+            raise Exception("No `.pdsc` file found in pack archive.")
+        with zipfile.open(pdsc_filename) as pdsc:
+            pdsc_content = BeautifulSoup(pdsc, "html.parser")
+        new_url = pdsc_content.package.url.get_text()
+        if not new_url.endswith("/") :
+            new_url += "/"
+        pdsc_url = new_url + pdsc_filename
+        pack_url = (new_url + pdsc_content.package.vendor.get_text() + "." +
+                    pdsc_content.package.find('name').get_text() + "." +
+                    largest_version(pdsc_content) + ".pack")
+        for dev in pdsc_content("device"):
+            print("Adding device %s" % dev['dname'])
+            self._index[dev['dname']] = self._extract_dict(dev, pdsc_url, pack_url)
+        with open(LocalPackIndex, "wb+") as out:
+            self._index["version"] = "0.1.0"
+            dump(self._index, out)
+        new_path = join(self.data_path, strip_protocol(pack_url))
+        print("Copying pack file to index.")
+        if not exists(dirname(new_path)):
+            makedirs(dirname(new_path))
+        copyfile(filename, new_path)
