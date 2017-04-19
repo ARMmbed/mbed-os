@@ -183,7 +183,6 @@ SECTIONS
     {
         . = ALIGN(4);
         __bss2_start__ = .;
-        *(.bss*)
         *(COMMON)
         . = ALIGN(4);
         __bss2_end__ = .;
@@ -193,7 +192,6 @@ SECTIONS
         . = ALIGN(4);
         __bss_start__ = .;
         *(.bss*)
-        *(COMMON)
         . = ALIGN(4);
         __bss_end__ = .;
     } > DSRAM_B
