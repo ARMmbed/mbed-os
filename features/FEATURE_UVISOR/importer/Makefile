@@ -84,7 +84,7 @@ rsync:
 	cp $(UVISOR_DIR)/core/cmsis/inc/core_cmSecureAccess.h $(MBED_OS_CMSIS)/
 	#
 	# Copying the documentation...
-	cp $(UVISOR_DIR)/docs/api/QUICKSTART.md $(TARGET_PREFIX)/README.md
+	cp $(UVISOR_DIR)/docs/*/QUICKSTART.md $(TARGET_PREFIX)/README.md
 	#
 	# Copying licenses
 	cp $(UVISOR_DIR)/LICENSE* $(TARGET_SUPPORTED)

@@ -131,7 +131,9 @@ static void equeue_sema_timeout(equeue_sema_t *s) {
 bool equeue_sema_wait(equeue_sema_t *s, int ms) {
     int signal = 0;
     Timeout timeout;
-    if (ms > 0) {
+    if (ms == 0) {
+        return false;
+    } else if (ms > 0) {
         timeout.attach_us(callback(equeue_sema_timeout, s), ms*1000);
     }
 

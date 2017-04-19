@@ -121,7 +121,7 @@ class CMSIS(Exporter):
             new_srcs = []
             for f in list(files):
                 spl = f.name.split(sep)
-                if len(spl)==2:
+                if len(spl) <= 2:
                     file_element = Element('file',
                                            attrib={
                                                'category':f.type,
@@ -148,8 +148,4 @@ class CMSIS(Exporter):
             'device': DeviceCMSIS(self.target),
             'date': ''
         }
-        # TODO: find how to keep prettyxml from adding xml version to this blob
-        #dom = parseString(ctx['project_files'])
-        #ctx['project_files'] = dom.toprettyxml(indent="\t")
-
         self.gen_file('cmsis/cpdsc.tmpl', ctx, 'project.cpdsc')

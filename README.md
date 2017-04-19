@@ -1,22 +1,30 @@
 # ARM mbed OS
  
-mbed OS is an open-source embedded operating system designed specifically for the "things" in the Internet of Things (IoT). It includes all the features you need to develop a connected product based on an ARM Cortex-M microcontroller.
+mbed OS is an open-source embedded operating system designed for the "things" in the Internet of Things (IoT). mbed OS includes the features you need to develop a connected product using an ARM Cortex-M microcontroller.
  
-mbed OS accelerates the process of creating a connected product by providing a platform operating system that includes robust security foundations, standards based communication capabilities, built-in cloud management services, and drivers for sensors, I/O devices and connectivity. mbed OS is built as a modular, configurable software stack so that you can readily customize it to the device you're developing for, and reduce memory requirements by excluding unnecessary software components.
- 
-## Current release
+mbed OS provides a platform that includes:
+ - Security foundations.
+ - Cloud management services.
+ - Drivers for sensors, I/O devices and connectivity.
 
-The current release, along with a selection of previous versions are detailed here:
-[Release Notes](https://docs.mbed.com/docs/mbed-os-release-notes/en/latest/)
+mbed OS is modular, configurable software that you can customize it to your device and to reduce memory requirements by excluding unused software.
+
+ 
+## Release Notes
+
+The [Release Notes](https://docs.mbed.com/docs/mbed-os-release-notes/en/latest/) detail the current release and previous versions.
+
+## Continuous Integration Status
+
+We run continuous integration on all of our branches and pull requests to verify the stability of mbed OS. The following are the Travis CI indicators for mbed OS.
+
+ - Master branch [![Master Branch CI Badge](https://travis-ci.org/ARMmbed/mbed-os.svg?branch=master)](https://travis-ci.org/ARMmbed/mbed-os)
+ - Latest release [![Latest Tag CI Badge](https://travis-ci.org/ARMmbed/mbed-os.svg?branch=latest)](https://travis-ci.org/ARMmbed/mbed-os/branches)
 
 ## Getting Started for Developers
  
-Please note that you will require [mbed CLI](https://github.com/ARMmbed/mbed-cli) to build mbed OS. For more details, please read the getting started guide for developers using mbed OS in applications:
- 
-- [Getting Started](https://docs.mbed.com/docs/mbed-os-handbook/en/latest/)
+You need [mbed CLI](https://github.com/ARMmbed/mbed-cli) to build mbed OS. For more details, read the [mbed OS Handbook](https://docs.mbed.com/docs/mbed-os-handbook/en/latest/).
 
 ## Getting Started for Contributors
  
-We have a getting started guide for contributors working on mbed OS:
- 
-- Have a look in the docs directory
+We have a [Contributing and Publishing Guide](https://docs.mbed.com/docs/mbed-os-handbook/en/latest/cont/contributing/) in the mbed OS Handbook.
