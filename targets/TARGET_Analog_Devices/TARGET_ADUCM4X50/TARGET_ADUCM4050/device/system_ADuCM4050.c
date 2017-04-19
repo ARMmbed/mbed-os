@@ -1,15 +1,11 @@
-/*!
- *****************************************************************************
- * @file:    system_ADuCM4050.c
- * @brief:   CMSIS Cortex-M4 Device Peripheral Access Layer Source File for
- *           ADuCM4050
+/**************************************************************************//**
+ * @file     system_ADuCM4050.c
+ * @brief    CMSIS Cortex-M4 Device Peripheral Access Layer Source File for
+ *           Device ADuCM4x50
  * @version  V3.10
  * @date     23. November 2012
- *-----------------------------------------------------------------------------
  *
- * @note     Modified September 21 2016 Analog Devices 
-
-******************************************************************************/
+ ******************************************************************************/
 /* Copyright (c) 2012 ARM LIMITED
 
    All rights reserved.
@@ -39,108 +35,42 @@
    Portions Copyright (c) 2016 - 2017 Analog Devices, Inc.
    ---------------------------------------------------------------------------*/
 
-/*! \addtogroup SYS_Driver System Interfaces
- *  @{
- */
-
-#include <stdint.h>
-#include "system_ADuCM4050.h"
-#include <adi_callback.h>
-#include <adi_processor.h>
-#include <rtos_map/adi_rtos_map.h>
+#include <cmsis.h>
+#include <startup_ADuCM4050.h>
 #include <adi_pwr.h>
 
 /*----------------------------------------------------------------------------
-  DEFINES
+  Define clocks
  *----------------------------------------------------------------------------*/
 
 #ifdef ADI_DEBUG
-/*! Low frequency clock frequency, not needed unless its debug mode 
-    "lf_clk" coming out of LF mux */
-uint32_t lfClock = 0u;
+/* only needed in debug mode */
+uint32_t lfClock = 0u;    /* "lf_clk" coming out of LF mux             */
 #endif
 
-/*! "root_clk" output of HF mux */
-uint32_t hfClock = 0u;  
-
- /*! external GPIO clock */  
-uint32_t gpioClock = 0u;
-
-extern uint32_t __Vectors;
-
-/*----------------------------------------------------------------------------
-  Security options
- *----------------------------------------------------------------------------*/
-
-#if defined (__CC_ARM)
-  __attribute__ ((at(0x00000180u)))
-  __attribute__ ((weak))
-#elif defined (__GNUC__)
-  __attribute__ ((section(".security_options")))
-  __attribute__ ((weak))
-#elif defined (__ICCARM__)
-  #pragma location=".security_options"
-  __root
-  __weak
-#endif /* __ICCARM__ */
-const ADI_ADUCM4X50_SECURITY_OPTIONS adi_aducm4x50_security_options
-  = {
-        { 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu },
-        0xA79C3203u,
-#if defined (__ICCARM__)
-        0u,
-#else
-        253u,
-#endif /* __ICCARM__ */
-        0xFFFFFFFFu,
-        0xFFFFFFFFu,
-};
-
-#ifdef RELOCATE_IVT
-
-/**
-  A relocated IVT is requested.  Provision for IVT relocation
-  to RAM during startup.  This allows for dynamic interrupt
-  vector patching required by RTOS.  Places the relocated IVT
-  at the start of RAM.  Note: the IVT placement is required
-  to be next power-of-two of the vector table size.  So the
-  IVT includes 61 programmable interrupts, 15 system exception
-  vectors and the main stack pointer, therefore we need
-  (62 + 15 + 1)*4 = 352 bytes, which rounds up to a 512 (0x200)
-  address boundary (which address 0x20000000 satisfies).
-
-*/
-#define ROM_VECTOR_ADDRESS    (0x00000000)
-#define RELOCATION_ADDRESS    (0x20000000)
-#define RELOCATION_ALIGNMENT  (0x200)
-#define NUM_VECTORS           (72 + 1 + 15)
-
-__align(RELOCATION_ALIGNMENT)                /* Keil */
-/* reserve aligned IVT space at top of RAM */
-void (*__Relocated___Vectors[NUM_VECTORS])(void) __attribute__( ( at( RELOCATION_ADDRESS ) ) ) = { 0 };
-
-#endif /* RELOCATE_IVT */
+uint32_t hfClock = 0u;    /* "root_clk" output of HF mux               */
+uint32_t gpioClock = 0u;  /* external GPIO clock                       */
 
 /*----------------------------------------------------------------------------
   Clock Variable definitions
  *----------------------------------------------------------------------------*/
 
-/*! System Clock Frequency (Core Clock) */
-uint32_t SystemCoreClock = 0u;
+uint32_t SystemCoreClock = 0u;  /*!< System Clock Frequency (Core Clock)*/
 
 /*----------------------------------------------------------------------------
   Clock functions
  *----------------------------------------------------------------------------*/
 
 /*!
- * @brief   Update the clock
- * @details Updates the variable SystemCoreClock and must be called whenever
-           the core clock is changed during program execution.
+ * Update the clock.
  *
+ * @param  none
  * @return none
  *
+ * @brief  Updates the variable SystemCoreClock and must be called whenever
+ *         the core clock is changed during program execution.
  */
- void SystemCoreClockUpdate(void)
+void SystemCoreClockUpdate(void)
 {
     uint32_t val, nDivisor, nMulfactor, div2, mul2;
 
@@ -199,65 +129,45 @@ uint32_t SystemCoreClock = 0u;
     } /* end switch */
 
     SystemCoreClock = hfClock;
- }
+}
 
 /*!
- * @brief  Sets up the microcontroller system.
- *         Initializes the System and updates the relocate vector table.
+ * Initialize the system
+ *
  * @return none
  *
- * @note This function is called by the start-up code and does not need to be
- *       called directly by applications
+ * @brief  Setup the microcontroller system.
+ *         Initialize the System and update the relocate vector table.
  */
-
 void SystemInit (void)
 {
     uint32_t IntStatus;
-
 #ifdef RELOCATE_IVT
-    int i;
-    uint8_t *pSrc, *pDst;
+    uint32_t i,*psrc=(uint32_t *)0,*pdst=(uint32_t *)RELOCATION_ADDRESS;
 #endif
     /* On reset, there is no SRAM retention.  Any retention has to be explicitly
      * set here. */
-    adi_system_EnableRetention(ADI_SRAM_BANK_1 | 
+    adi_system_EnableRetention(ADI_SRAM_BANK_1 |
                                ADI_SRAM_BANK_3 |
                                ADI_SRAM_BANK_4 |
                                ADI_SRAM_BANK_5 |
-                               ADI_SRAM_BANK_6 |     
+                               ADI_SRAM_BANK_6 |
                                ADI_SRAM_BANK_7 , true);
-    
-    /* To disable the instruction SRAM and entire 128K of SRAM is used as DSRAM. */    
+    /* To disable the instruction SRAM and entire 64K of SRAM is used as DSRAM */
     adi_system_EnableISRAM(false);
-
-    /* To disable the instruction cache.  */
+    /* To disable the instruction cache  */
     adi_system_EnableCache(false);
-
 #ifdef RELOCATE_IVT
-    /* Copy the IVT from Flash to SRAM (avoid use of memcpy here so it does not become locked into flash) */
-	for( i = 0, pSrc = ROM_VECTOR_ADDRESS, pDst = RELOCATION_ADDRESS; i < ( NUM_VECTORS *4); i++ )	
+    /* Copy the IVT (avoid use of memcpy here so it does not become locked into flash). */
+    for (i = 0u; i < NUM_VECTORS; i++)
     {
-      *pDst++ = *pSrc++;
+        *pdst++ = *psrc++;
     }
-#endif 
-
-    /* Switch the Interrupt Vector Table Offset Register
-     * (VTOR) to point to the relocated IVT in SRAM.
-     */
-
-    /* Because SystemInit must not use global variables, the following
-     * interrupt disabling code should not be replaced with critical region
-     * code which uses global variables.
-     */
+#endif
     IntStatus = __get_PRIMASK();
     __disable_irq();
-
-    /* Set the vector table address  */
-#ifdef RELOCATE_IVT
-    SCB->VTOR = (uint32_t) &__Relocated___Vectors;
-#else
-    SCB->VTOR = (uint32_t) &__Vectors;
-#endif
+    /* Switch from boot ROM IVT to application's IVT. */
+    SCB->VTOR = (uint32_t) RELOCATION_ADDRESS;
     /* Set all three (USGFAULTENA, BUSFAULTENA, and MEMFAULTENA) fault enable bits
      * in the System Control Block, System Handler Control and State Register
      * otherwise these faults are handled as hard faults.
@@ -265,24 +175,10 @@ void SystemInit (void)
     SCB->SHCSR = SCB_SHCSR_USGFAULTENA_Msk |
                  SCB_SHCSR_BUSFAULTENA_Msk |
                  SCB_SHCSR_MEMFAULTENA_Msk ;
-
-#if (__FPU_PRESENT == 1u) && (__FPU_USED == 1u)
-    /* the FPU is disabled by default so enable FPU (NEON and VFP)
-     * set the System Control Block, Coprocessor Access Control Register bits:
-     * CP10 = grant CP10 coprocessor privileges and user mode access (full access)
-     * CP11 = grant CP11 coprocessor privileged and user mode access (full access)
-     * (CP10 and CP11 MUST be the same or "BEHAVIOR IS UNPREDICTABLE")
-     */
-    SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 for Full Access */
-#endif
-
-    /* Flush instruction and data pipelines to insure assertion of new settings. */
-    __ISB();
-    __DSB();
+    adi_pwr_Init();
+    adi_pwr_SetClockDivider(ADI_CLOCK_HCLK,1);
+    adi_pwr_SetClockDivider(ADI_CLOCK_PCLK,1);
     __set_PRIMASK(IntStatus);
-	adi_pwr_Init();
-	adi_pwr_SetClockDivider(ADI_CLOCK_HCLK,1);
-	adi_pwr_SetClockDivider(ADI_CLOCK_PCLK,1);
 }
 
 /*!
@@ -330,7 +226,7 @@ void adi_system_EnableISRAM(bool bEnable)
 /*!
  * @brief  This enables/disable SRAM retention during the hibernation.
  * @param eBank:   Specify which SRAM banks.  Multiple banks can be set
- /                 using a logical OR of the banks. 
+ /                 using a logical OR of the banks.
  * @param bEnable Enable/disable the  retention for specified SRAM bank.
  *               -  true : Enable retention during hibernation.
  *               -  false: Disable retention during hibernation.
@@ -338,7 +234,7 @@ void adi_system_EnableISRAM(bool bEnable)
  * @return   ADI_SYS_FAILURE Invalid bank, or banks, specified.  Any incorrect
  *                           or invalid bank options will result in failure and
  *                           no changes will have been applied.
- * @note The appropriate linker file needs to support the configuration. 
+ * @note The appropriate linker file needs to support the configuration.
  *       BANK  0 is always retained.
  *       BANKS 1 can be retained individually.
  *       BANK  2 is never retained.
@@ -349,14 +245,14 @@ void adi_system_EnableISRAM(bool bEnable)
 ADI_SYS_RESULT adi_system_EnableRetention(ADI_SRAM_BANK eBank, bool bEnable)
 {
     uint32_t retainBits = 0u;
-    
+
 #ifdef ADI_DEBUG
-    if((0u != (eBank & ADI_SRAM_BANK_0)) || 
+    if((0u != (eBank & ADI_SRAM_BANK_0)) ||
        (0u != (eBank & ADI_SRAM_BANK_2))) {
         /* Banks 0 and 2 are not selectable */
         return ADI_SYS_FAILURE;
     }
-    
+
     /* Are banks 3 or 4 selected? */
     if(0u != (eBank & (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4))) {
        /* If so, the only valid option is for both to be retained. */
@@ -385,11 +281,11 @@ ADI_SYS_RESULT adi_system_EnableRetention(ADI_SRAM_BANK eBank, bool bEnable)
     if((eBank & (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) != 0u) {
         retainBits |= BITM_PMG_SRAMRET_RET4;
     }
-       
+
     /* Unlock the SRAMRET register using the PWRKEY.
      * If there is any chance that this sequence can be interrupted then it
-     * should be protected by disabling interrupts.   A write to any other 
-     * register on the APB bus before writing to PMG_SRAMRET will return the 
+     * should be protected by disabling interrupts.   A write to any other
+     * register on the APB bus before writing to PMG_SRAMRET will return the
      * protection to the lock state. */
     pADI_PMG0->PWRKEY = PWRKEY_VALUE_KEY;
     if(bEnable) {
@@ -401,4 +297,3 @@ ADI_SYS_RESULT adi_system_EnableRetention(ADI_SRAM_BANK eBank, bool bEnable)
 
     return ADI_SYS_SUCCESS;
 }
-

@@ -31,8 +31,11 @@
 ;******************************************************************************
 
 LR_IROM1 0x00000000 0x00080000 {
-    ER_IROM1 0x00000000 0x00080000 {  ; load address = execution address
-        *(.vectors, +First)
+    FLASH0   0x00000000 0x000001A0 {
+	    *(.vectors, +First)
+	}
+
+    ER_IROM1 AlignExpr(ImageLimit(FLASH0), 16)	0x0007FE60 {  ; load address = execution address
         *(InRoot$$Sections)
         .ANY (+RO)
     }

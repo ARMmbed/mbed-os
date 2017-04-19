@@ -22,9 +22,7 @@
 
 #ifndef MBED_CMSIS_H
 #define MBED_CMSIS_H
-
+#define     __C
 #include "adi_processor.h"
-//#include "cmsis-core/cmsis_nvic.h"
 #include "cmsis_nvic.h"
-
 #endif

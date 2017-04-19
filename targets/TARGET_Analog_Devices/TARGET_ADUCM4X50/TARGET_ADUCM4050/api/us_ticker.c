@@ -52,7 +52,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdint.h>
 #include <stdio.h>
-#include <system_ADuCM4050.h>
 #include <adi_tmr.h>
 #include <adi_pwr.h>
 #include <adi_gpio.h>
@@ -358,4 +357,3 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 */
 
 /*@}*/
-
