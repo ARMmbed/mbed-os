@@ -43,7 +43,8 @@ struct nu_spi_var {
 #endif
 };
 
-// NOTE: NANO130 doesn't support relocating vector table. ISR vector passed into NVIC_SetVector() can only be weak symbol defined in startup_Nano100Series.c.
+// NOTE:
+// NANO130: No support for relocating vector table. ISR vector passed into NVIC_SetVector() can only be weak symbol defined in startup_Nano100Series.c.
 void SPI0_IRQHandler(void);
 void SPI1_IRQHandler(void);
 void SPI2_IRQHandler(void);
@@ -200,12 +201,13 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    // NOTE 1: All configurations should be ready before enabling SPI peripheral.
-    // NOTE 2: Re-configuration is allowed only as SPI peripheral is idle.
-    // NOTE 3: On NANO130, SPI_CTL.GO_BUSY always reads as 1 in slave mode. Cannot use to judge busy or not.
-    if (! (spi_base->CTL & SPI_CTL_SLAVE_Msk)) {
-        while (SPI_IS_BUSY(spi_base));
-    }
+    // NOTE: All configurations should be ready before enabling SPI peripheral.
+    // NOTE: Re-configuration is allowed only as SPI peripheral is idle.
+    // NOTE: 
+    // NANO130, SPI_CTL.GO_BUSY always reads as 1 in slave/FIFO mode. So disable FIFO first.
+    SPI_DisableFIFO(spi_base);
+    while (SPI_IS_BUSY(spi_base));
+
 
     SPI_Open(spi_base,
         slave ? SPI_SLAVE : SPI_MASTER,
@@ -214,8 +216,6 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         SPI_GetBusClock(spi_base));
     // NOTE: Hardcode to be MSB first.
     SPI_SET_MSB_FIRST(spi_base);
-    // NOTE: On NANO130, FIFO mode defaults to disabled in SPI_Open(), so place SPI_EnableFIFO() after SPI_Open().
-    SPI_EnableFIFO(spi_base, NU_SPI_FIFO_DEPTH / 2, NU_SPI_FIFO_DEPTH / 2);
 
     if (! slave) {
         // Master
@@ -246,19 +246,29 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
                 spi_base->SSR &= ~SPI_SS1_ACTIVE_HIGH;
                 break;
         }
+        // NOTE:
+        // NANO130: Configure slave select signal to edge-trigger rather than level-trigger
+        spi_base->SSR |= SPI_SSR_SS_LTRIG_Msk;
     }
+    
+    // NOTE: 
+    // NANO130: FIFO mode defaults to disabled.
+    SPI_EnableFIFO(spi_base, NU_SPI_FIFO_DEPTH / 2, NU_SPI_FIFO_DEPTH / 2);
 }
 
 void spi_frequency(spi_t *obj, int hz)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    // NOTE: On NANO130, SPI_CTL.GO_BUSY always reads as 1 in slave mode. Cannot use to judge busy or not.
-    if (! (spi_base->CTL & SPI_CTL_SLAVE_Msk)) {
-        while (SPI_IS_BUSY(spi_base));
-    }
+    // NANO130, SPI_CTL.GO_BUSY always reads as 1 in slave/FIFO mode. So disable FIFO first.
+    SPI_DisableFIFO(spi_base);
+    while (SPI_IS_BUSY(spi_base));
 
     SPI_SetBusClock((SPI_T *) NU_MODBASE(obj->spi.spi), hz);
+    
+    // NOTE: 
+    // NANO130: FIFO mode defaults to disabled.
+    SPI_EnableFIFO(spi_base, NU_SPI_FIFO_DEPTH / 2, NU_SPI_FIFO_DEPTH / 2);
 }
 
 
@@ -267,7 +277,9 @@ int spi_master_write(spi_t *obj, int value)
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
     // NOTE: Data in receive FIFO can be read out via ICE.
-    // NOTE: On NANO130, not required as FIFO mode is enabled.
+    // NOTE:
+    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
+    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
     //SPI_TRIGGER(spi_base);
     
     // Wait for tx buffer empty
@@ -286,7 +298,9 @@ int spi_master_write(spi_t *obj, int value)
 #if DEVICE_SPISLAVE
 int spi_slave_receive(spi_t *obj)
 {
-    // NOTE: On NANO130, not required as FIFO mode is enabled.
+    // NOTE:
+    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
+    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
     //SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     //SPI_TRIGGER(spi_base);
     
@@ -297,7 +311,9 @@ int spi_slave_read(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    // NOTE: On NANO130, not required as FIFO mode is enabled.
+    // NOTE:
+    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
+    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
     //SPI_TRIGGER(spi_base);
     
     // Wait for rx buffer full
@@ -311,7 +327,9 @@ void spi_slave_write(spi_t *obj, int value)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    // NOTE: On NANO130, not required as FIFO mode is enabled.
+    // NOTE:
+    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
+    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
     //SPI_TRIGGER(spi_base);
     
     // Wait for tx buffer empty
@@ -347,7 +365,9 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     spi_enable_event(obj, event, 1);
     spi_buffer_set(obj, tx, tx_length, rx, rx_length);
             
-    // NOTE: On NANO130, not required as FIFO mode is enabled.
+    // NOTE:
+    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
+    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
     //SPI_TRIGGER(spi_base);
     
     if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
@@ -594,7 +614,8 @@ static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable, uint32_t mas
 {   
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    // NOTE: On NANO130, SPI_IE_MASK/SPI_STATUS_INTSTS_Msk are for unit transfer IE/EF. Don't get confused.
+    // NOTE:
+    // NANO130: SPI_IE_MASK/SPI_STATUS_INTSTS_Msk are for unit transfer IE/EF. Don't get confused.
     if (enable) {
         //SPI_SET_SUSPEND_CYCLE(spi_base, 4);
         // Enable tx/rx FIFO threshold interrupt
