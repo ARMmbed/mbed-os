@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include "cmsis_os2.h"
 #include "rtx_lib.h"
+#include "mbed_rtos_rtx1_types.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -42,7 +43,7 @@ public:
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever)
       @return  status code that indicates the execution status of the function.
      */
-    osStatus_t lock(uint32_t millisec=osWaitForever);
+    osStatus lock(uint32_t millisec=osWaitForever);
 
     /** Try to lock the mutex, and return immediately
       @return  true if the mutex was acquired, false otherwise.
@@ -52,7 +53,7 @@ public:
     /** Unlock the mutex that has previously been locked by the same thread
       @return  status code that indicates the execution status of the function.
      */
-    osStatus_t unlock();
+    osStatus unlock();
 
     ~Mutex();
 

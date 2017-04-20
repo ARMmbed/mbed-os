@@ -36,7 +36,7 @@ Mutex::Mutex() {
     MBED_ASSERT(_id);
 }
 
-osStatus_t Mutex::lock(uint32_t millisec) {
+osStatus Mutex::lock(uint32_t millisec) {
     return osMutexAcquire(_id, millisec);
 }
 
@@ -44,7 +44,7 @@ bool Mutex::trylock() {
     return (osMutexAcquire(_id, 0) == osOK);
 }
 
-osStatus_t Mutex::unlock() {
+osStatus Mutex::unlock() {
     return osMutexRelease(_id);
 }
 
