@@ -19,35 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef MBED_RTX_CONF_H
-#define MBED_RTX_CONF_H
+#ifndef MBED_RTOS_RTX1_TYPES_H
+#define MBED_RTOS_RTX1_TYPES_H
 
-#include "mbed_rtx.h"
+#include "cmsis_os2.h"
 
-#ifndef OS_STACK_SIZE
-#ifndef MBED_SMALL_TARGET
-#define OS_STACK_SIZE               4096
-#else
-#define OS_STACK_SIZE               2048
+typedef osTimerType_t os_timer_type;
+typedef osStatus_t osStatus;
+
 #endif
-#endif
-
-#define OS_TIMER_THREAD_STACK_SIZE 768
-
-#define OS_DYNAMIC_MEM_SIZE         0
-
-#if defined(__CC_ARM)
-#define OS_MUTEX_OBJ_MEM            1
-#define OS_MUTEX_NUM                6
-#endif
-
-#if !defined(OS_STACK_WATERMARK) && (defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED)
-#define OS_STACK_WATERMARK          1
-#endif
-
-/* Run threads unprivileged when uVisor is enabled. */
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
-# define OS_PRIVILEGE_MODE           0
-#endif
-
-#endif /* MBED_RTX_CONF_H */

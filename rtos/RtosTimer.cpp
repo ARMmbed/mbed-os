@@ -19,35 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef MBED_RTX_CONF_H
-#define MBED_RTX_CONF_H
+#include "rtos/RtosTimer.h"
 
-#include "mbed_rtx.h"
+#include <string.h>
 
-#ifndef OS_STACK_SIZE
-#ifndef MBED_SMALL_TARGET
-#define OS_STACK_SIZE               4096
-#else
-#define OS_STACK_SIZE               2048
-#endif
-#endif
+#include "mbed.h"
+#include "platform/mbed_error.h"
 
-#define OS_TIMER_THREAD_STACK_SIZE 768
+namespace rtos {
 
-#define OS_DYNAMIC_MEM_SIZE         0
+void RtosTimer::constructor(mbed::Callback<void()> func, os_timer_type type) {
+    _function = func;
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    _attr.cb_mem = &_obj_mem;
+    _attr.cb_size = sizeof(_obj_mem);
+    _id = osTimerNew((void (*)(void *))Callback<void()>::thunk, type, &_function, &_attr);
+    MBED_ASSERT(_id);
+}
 
-#if defined(__CC_ARM)
-#define OS_MUTEX_OBJ_MEM            1
-#define OS_MUTEX_NUM                6
-#endif
+osStatus RtosTimer::start(uint32_t millisec) {
+    return osTimerStart(_id, millisec);
+}
 
-#if !defined(OS_STACK_WATERMARK) && (defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED)
-#define OS_STACK_WATERMARK          1
-#endif
+osStatus RtosTimer::stop(void) {
+    return osTimerStop(_id);
+}
 
-/* Run threads unprivileged when uVisor is enabled. */
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
-# define OS_PRIVILEGE_MODE           0
-#endif
+RtosTimer::~RtosTimer() {
+    osTimerDelete(_id);
+}
 
-#endif /* MBED_RTX_CONF_H */
+}
