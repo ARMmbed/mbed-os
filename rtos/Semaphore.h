@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include "cmsis_os2.h"
 #include "rtx_lib.h"
+#include "mbed_rtos_rtx1_types.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -41,14 +42,14 @@ public:
 
     /** Wait until a Semaphore resource becomes available.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
-      @return  status code that indicates the execution status of the function
+      @return  number of available tokens, or -1 in case of incorrect parameters
     */
-    osStatus_t wait(uint32_t millisec=osWaitForever);
+    int32_t wait(uint32_t millisec=osWaitForever);
 
     /** Release a Semaphore resource that was obtain with Semaphore::wait.
       @return  status code that indicates the execution status of the function.
     */
-    osStatus_t release(void);
+    osStatus release(void);
 
     ~Semaphore();
 
