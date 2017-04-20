@@ -135,7 +135,7 @@ void PDMA_IRQHandler(void)
     intsts &= ((NU_PDMA_CH_Msk >> NU_PDMA_CH_Pos) << DMA_GCR_GCRISR_INTR1_Pos);
     
     while (intsts) {
-        int chn_id = nu_ctz(intsts);
+        int chn_id = nu_ctz(intsts) - DMA_GCR_GCRISR_INTR1_Pos + NU_PDMA_CH_Pos;
         uint32_t intsts_chn = PDMA_GET_CH_INT_STS(chn_id);
         
         if (dma_chn_mask & (1 << chn_id)) {
