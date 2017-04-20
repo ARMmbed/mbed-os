@@ -17,9 +17,6 @@
 #include "rtl8195a.h"
 #include "objects.h"
 #include "serial_api.h"
-#ifndef CONFIG_MBED_ENABLED
-#include "serial_ex_api.h"
-#endif
 #if CONFIG_UART_EN
 
 #include "pinmap.h"
@@ -306,19 +303,16 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             pHalRuartAdapter->Interrupts |= RUART_IER_ERBI | RUART_IER_ELSI;
             serial_irq_en[uart_idx] |= SERIAL_RX_IRQ_EN;
             HalRuartSetIMRRtl8195a (pHalRuartAdapter);
-        }
-        else {
+         } else {
             serial_irq_en[uart_idx] |= SERIAL_TX_IRQ_EN;
         }
         pHalRuartOp->HalRuartRegIrq(pHalRuartAdapter);
         pHalRuartOp->HalRuartIntEnable(pHalRuartAdapter);
-    } 
-    else { // disable
+    } else { // disable
         if (irq == RxIrq) {
             pHalRuartAdapter->Interrupts &= ~(RUART_IER_ERBI | RUART_IER_ELSI);
             serial_irq_en[uart_idx] &= ~SERIAL_RX_IRQ_EN;
-        }
-        else {
+        } else {
             pHalRuartAdapter->Interrupts &= ~RUART_IER_ETBEI;
             serial_irq_en[uart_idx] &= ~SERIAL_TX_IRQ_EN;
         }
@@ -382,8 +376,7 @@ int serial_readable(serial_t *obj)
 
     if ((HAL_RUART_READ32(uart_idx, RUART_LINE_STATUS_REG_OFF)) & RUART_LINE_STATUS_REG_DR) {
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -402,8 +395,7 @@ int serial_writable(serial_t *obj)
     if (HAL_RUART_READ32(uart_idx, RUART_LINE_STATUS_REG_OFF) & 
                         (RUART_LINE_STATUS_REG_THRE)) {
        return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -422,24 +414,6 @@ void serial_clear(serial_t *obj)
     pHalRuartAdapter = &(obj->hal_uart_adp);
     HalRuartResetTRxFifo((VOID *)pHalRuartAdapter);
 }
-
-#ifndef CONFIG_MBED_ENABLED
-void serial_clear_tx(serial_t *obj) 
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter;
-
-    pHalRuartAdapter = &(obj->hal_uart_adp);
-    HalRuartResetTxFifo((VOID *)pHalRuartAdapter);
-}
-
-void serial_clear_rx(serial_t *obj) 
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter;
-
-    pHalRuartAdapter = &(obj->hal_uart_adp);
-    HalRuartResetRxFifo((VOID *)pHalRuartAdapter);
-}
-#endif
 
 void serial_break_set(serial_t *obj) 
 {
@@ -482,389 +456,6 @@ void serial_pinout_tx(PinName tx)
     pinmap_pinout(tx, PinMap_UART_TX);
 }
 
-
-#ifndef CONFIG_MBED_ENABLED
-void serial_send_comp_handler(serial_t *obj, void *handler, uint32_t id) 
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter;
-
-    pHalRuartAdapter = &(obj->hal_uart_adp);
-    pHalRuartAdapter->TxCompCallback = (void(*)(void*))handler;
-    pHalRuartAdapter->TxCompCbPara = (void*)id;
-}
-
-void serial_recv_comp_handler(serial_t *obj, void *handler, uint32_t id) 
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter;
-
-    pHalRuartAdapter = &(obj->hal_uart_adp);
-    pHalRuartAdapter->RxCompCallback = (void(*)(void*))handler;
-    pHalRuartAdapter->RxCompCbPara = (void*)id;
-}
-
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter;
-
-    // Our UART cannot specify the RTS/CTS pin seprately, so the ignore the rxflow, txflow pin
-    // We just use the hardware auto flow control, so cannot do flow-control single direction only
-    pHalRuartAdapter = &(obj->hal_uart_adp);
-    switch(type) {
-        case FlowControlRTSCTS:
-            pHalRuartAdapter->FlowControl = AUTOFLOW_ENABLE;
-            pHalRuartAdapter->RTSCtrl = 1;
-            break;
-            
-        case FlowControlRTS:    // to indicate peer that it's ready for RX
-            // It seems cannot only enable RTS
-            pHalRuartAdapter->FlowControl = AUTOFLOW_ENABLE;
-            pHalRuartAdapter->RTSCtrl = 1;
-            break;
-        
-        case FlowControlCTS:    // to check is the peer ready for RX: if can start TX ?
-            // need to check CTS before TX
-            pHalRuartAdapter->FlowControl = AUTOFLOW_ENABLE;
-            pHalRuartAdapter->RTSCtrl = 1;
-            break;
-
-        case FlowControlNone:
-        default:
-            pHalRuartAdapter->FlowControl = AUTOFLOW_DISABLE;
-            pHalRuartAdapter->RTSCtrl = 1;  // RTS pin allways Low, peer can send data
-            break;
-                
-    }
-
-    HalRuartFlowCtrl((VOID *)pHalRuartAdapter);
-}
-
-void serial_rts_control(serial_t *obj, BOOLEAN rts_state)
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter;
-
-    pHalRuartAdapter = &(obj->hal_uart_adp);
-    pHalRuartAdapter->RTSCtrl = !rts_state;
-    HalRuartRTSCtrlRtl8195a(pHalRuartAdapter, pHalRuartAdapter->RTSCtrl);    
-}
-
-// Blocked(busy wait) receive, return received bytes count
-int32_t serial_recv_blocked (serial_t *obj, char *prxbuf, uint32_t len, uint32_t timeout_ms)
-{
-    PHAL_RUART_OP      pHalRuartOp;
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-    int ret;
-
-    pHalRuartOp = &(obj->hal_uart_op);
-    obj->rx_len = len;
-    HalRuartEnterCritical(pHalRuartAdapter);
-    ret = pHalRuartOp->HalRuartRecv(pHalRuartAdapter, (u8*)prxbuf, len, timeout_ms);
-    HalRuartExitCritical(pHalRuartAdapter);
-    
-    return (ret);
-}
-
-// Blocked(busy wait) send, return transmitted bytes count
-int32_t serial_send_blocked (serial_t *obj, char *ptxbuf, uint32_t len, uint32_t timeout_ms)
-{
-    PHAL_RUART_OP      pHalRuartOp;
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-    int ret;
-
-    pHalRuartOp = &(obj->hal_uart_op);
-    obj->tx_len = len;
-    ret = pHalRuartOp->HalRuartSend(pHalRuartAdapter, (u8*)ptxbuf, len, timeout_ms);
-    return (ret);
-}
-
-int32_t serial_recv_stream (serial_t *obj, char *prxbuf, uint32_t len)
-{
-    PHAL_RUART_OP      pHalRuartOp;
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-    int ret;
-
-    pHalRuartOp = &(obj->hal_uart_op);
-    obj->rx_len = len;
-    ret = pHalRuartOp->HalRuartIntRecv(pHalRuartAdapter, (u8*)prxbuf, len);
-    return (ret);
-}
-
-int32_t serial_send_stream (serial_t *obj, char *ptxbuf, uint32_t len)
-{
-    PHAL_RUART_OP      pHalRuartOp;
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-    int ret;
-
-    pHalRuartOp = &(obj->hal_uart_op);
-    obj->tx_len = len;
-    HalRuartEnterCritical(pHalRuartAdapter);
-    ret = pHalRuartOp->HalRuartIntSend(pHalRuartAdapter, (u8*)ptxbuf, len);
-    HalRuartExitCritical(pHalRuartAdapter);
-    return (ret);
-}
-
-#ifdef CONFIG_GDMA_EN
-
-int32_t serial_recv_stream_dma (serial_t *obj, char *prxbuf, uint32_t len)
-{
-    PHAL_RUART_OP      pHalRuartOp;
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-    u8  uart_idx = pHalRuartAdapter->UartIndex;
-    int32_t ret;
-
-    pHalRuartOp = &(obj->hal_uart_op);
-    if ((serial_dma_en[uart_idx] & SERIAL_RX_DMA_EN)==0) {
-        PUART_DMA_CONFIG   pHalRuartDmaCfg;
-
-        pHalRuartDmaCfg = &obj->uart_gdma_cfg;
-        if (HAL_OK == HalRuartRxGdmaInit(pHalRuartAdapter, pHalRuartDmaCfg, 0)) {
-            serial_dma_en[uart_idx] |= SERIAL_RX_DMA_EN;
-        }
-        else {
-            return HAL_BUSY;
-        }
-    }
-    
-    obj->rx_len = len;
-    HalRuartEnterCritical(pHalRuartAdapter);
-    ret = HalRuartDmaRecv(pHalRuartAdapter, (u8*)prxbuf, len);
-    HalRuartExitCritical(pHalRuartAdapter);
-    return (ret);
-}
-
-int32_t serial_send_stream_dma (serial_t *obj, char *ptxbuf, uint32_t len)
-{
-    PHAL_RUART_OP      pHalRuartOp;
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-    u8  uart_idx = pHalRuartAdapter->UartIndex;
-    int32_t ret;
-
-    pHalRuartOp = &(obj->hal_uart_op);
-
-    if ((serial_dma_en[uart_idx] & SERIAL_TX_DMA_EN)==0) {
-        PUART_DMA_CONFIG   pHalRuartDmaCfg;
-        
-        pHalRuartDmaCfg = &obj->uart_gdma_cfg;
-        if (HAL_OK == HalRuartTxGdmaInit(pHalRuartAdapter, pHalRuartDmaCfg, 0)) {
-            serial_dma_en[uart_idx] |= SERIAL_TX_DMA_EN;
-        }
-        else {
-            return HAL_BUSY;
-        }
-    }    
-    obj->tx_len = len;
-    HalRuartEnterCritical(pHalRuartAdapter);
-    ret = HalRuartDmaSend(pHalRuartAdapter, (u8*)ptxbuf, len);
-    HalRuartExitCritical(pHalRuartAdapter);
-    return (ret);
-}
-
-int32_t serial_recv_stream_dma_timeout (serial_t *obj, char *prxbuf, uint32_t len, uint32_t timeout_ms, void *force_cs)
-{
-    PHAL_RUART_OP      pHalRuartOp;
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-    u8  uart_idx = pHalRuartAdapter->UartIndex;
-    uint32_t TimeoutCount=0, StartCount;
-    int ret;
-    void (*task_yield)(void);
-
-    pHalRuartOp = &(obj->hal_uart_op);
-    if ((serial_dma_en[uart_idx] & SERIAL_RX_DMA_EN)==0) {
-        PUART_DMA_CONFIG   pHalRuartDmaCfg;
-
-        pHalRuartDmaCfg = &obj->uart_gdma_cfg;
-        if (HAL_OK == HalRuartRxGdmaInit(pHalRuartAdapter, pHalRuartDmaCfg, 0)) {
-            serial_dma_en[uart_idx] |= SERIAL_RX_DMA_EN;
-        }
-        else {
-            return HAL_BUSY;
-        }
-    }
-    HalRuartEnterCritical(pHalRuartAdapter);
-    ret = HalRuartDmaRecv(pHalRuartAdapter, (u8*)prxbuf, len);
-    HalRuartExitCritical(pHalRuartAdapter);
-    
-    if ((ret == HAL_OK) && (timeout_ms > 0)) {
-        TimeoutCount = (timeout_ms*1000/TIMER_TICK_US);
-        StartCount = HalTimerOp.HalTimerReadCount(1);
-        task_yield = (void (*)(void))force_cs;
-        pHalRuartAdapter->Status = HAL_UART_STATUS_OK;
-        while (pHalRuartAdapter->State & HAL_UART_STATE_BUSY_RX) {
-            if (HAL_TIMEOUT == RuartIsTimeout(StartCount, TimeoutCount)) {
-                ret = pHalRuartOp->HalRuartStopRecv((VOID*)pHalRuartAdapter);
-                ret = pHalRuartOp->HalRuartResetRxFifo((VOID*)pHalRuartAdapter);
-                pHalRuartAdapter->Status = HAL_UART_STATUS_TIMEOUT;
-                break;
-            }
-            if (NULL != task_yield) {
-               task_yield();
-            }
-        }
-        if (pHalRuartAdapter->Status == HAL_UART_STATUS_TIMEOUT) {
-            return (len - pHalRuartAdapter->RxCount);
-        } else {
-            return len;
-        }
-    } else {
-        return (-ret);
-    }
-    return (ret);
-}
-
-
-#endif  // end of "#ifdef CONFIG_GDMA_EN"
-
-int32_t serial_send_stream_abort (serial_t *obj)
-{
-    PHAL_RUART_OP      pHalRuartOp;
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-    int ret;
-
-    pHalRuartOp = &(obj->hal_uart_op);
-    
-    HalRuartEnterCritical(pHalRuartAdapter);
-    ret = pHalRuartOp->HalRuartStopSend((VOID*)pHalRuartAdapter);
-    HalRuartExitCritical(pHalRuartAdapter);
-    if (HAL_OK != ret) {
-        return -ret;
-    }
-    HalRuartResetTxFifo((VOID*)pHalRuartAdapter);
-
-    ret = obj->tx_len - pHalRuartAdapter->TxCount;
-    
-    return (ret);
-}
-
-int32_t serial_recv_stream_abort (serial_t *obj)
-{
-    PHAL_RUART_OP      pHalRuartOp;
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-    int ret;
-
-    pHalRuartOp = &(obj->hal_uart_op);
-    
-    HalRuartEnterCritical(pHalRuartAdapter);
-    ret = pHalRuartOp->HalRuartStopRecv((VOID*)pHalRuartAdapter);
-    HalRuartExitCritical(pHalRuartAdapter);
-    if (HAL_OK != ret) {
-        return -ret;
-    }
-    ret = obj->rx_len - pHalRuartAdapter->RxCount;
-    return (ret);
-}
-
-void serial_disable (serial_t *obj)
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-
-    HalRuartDisable((VOID*)pHalRuartAdapter);
-}
-
-void serial_enable (serial_t *obj)
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-
-    HalRuartEnable((VOID*)pHalRuartAdapter);
-}
-
-// return the byte count received before timeout, or error(<0)
-int32_t serial_recv_stream_timeout (serial_t *obj, char *prxbuf, uint32_t len, uint32_t timeout_ms, void *force_cs)
-{
-    PHAL_RUART_OP      pHalRuartOp;
-    PHAL_RUART_ADAPTER pHalRuartAdapter=(PHAL_RUART_ADAPTER)&(obj->hal_uart_adp);
-    uint32_t TimeoutCount=0, StartCount;
-    int ret;
-    void (*task_yield)(void);
-
-    task_yield = NULL;
-    pHalRuartOp = &(obj->hal_uart_op);
-    HalRuartEnterCritical(pHalRuartAdapter);
-    ret = pHalRuartOp->HalRuartIntRecv(pHalRuartAdapter, (u8*)prxbuf, len);
-    HalRuartExitCritical(pHalRuartAdapter);
-    if ((ret == HAL_OK) && (timeout_ms > 0)) {
-        TimeoutCount = (timeout_ms*1000/TIMER_TICK_US);
-        StartCount = HalTimerOp.HalTimerReadCount(1);
-        task_yield = (void (*)(void))force_cs;
-        while (pHalRuartAdapter->State & HAL_UART_STATE_BUSY_RX) {
-            if (HAL_TIMEOUT == RuartIsTimeout(StartCount, TimeoutCount)) {
-                ret = pHalRuartOp->HalRuartStopRecv((VOID*)pHalRuartAdapter);
-                ret = pHalRuartOp->HalRuartResetRxFifo((VOID*)pHalRuartAdapter);
-                pHalRuartAdapter->Status = HAL_UART_STATUS_TIMEOUT;
-                break;
-            }
-            if (NULL != task_yield) {
-               task_yield();
-            }
-        }
-        return (len - pHalRuartAdapter->RxCount);
-    } else {
-        return (-ret);
-    }
-}
-
-// to hook lock/unlock function for multiple-thread application
-void serial_hook_lock(serial_t *obj, void *lock, void *unlock, uint32_t id) 
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter;
-
-    pHalRuartAdapter = &(obj->hal_uart_adp);
-    pHalRuartAdapter->EnterCritical = (void (*)(void))lock;
-    pHalRuartAdapter->ExitCritical = (void (*)(void))unlock;
-}
-
-// to read Line-Status register
-// Bit 0: RX Data Ready
-// Bit 1: Overrun Error
-// Bit 2: Parity Error
-// Bit 3: Framing Error
-// Bit 4: Break Interrupt (received data input is held in 0 state for a longer than a full word tx time)
-// Bit 5: TX FIFO empty (THR empty)
-// Bit 6: TX FIFO empty (THR & TSR both empty)
-// Bit 7: RX Error (parity error, framing error or break indication)
-uint8_t serial_raed_lsr(serial_t *obj) 
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter;
-    uint8_t RegValue;
-    
-    pHalRuartAdapter = &(obj->hal_uart_adp);
-    RegValue = HAL_RUART_READ8(pHalRuartAdapter->UartIndex, RUART_LINE_STATUS_REG_OFF);
-    return RegValue;
-}
-
-// to read Modem-Status register
-// Bit 0: DCTS, The CTS line has changed its state
-// Bit 1: DDSR, The DSR line has changed its state
-// Bit 2: TERI, RI line has changed its state from low to high state
-// Bit 3: DDCD, DCD line has changed its state
-// Bit 4: Complement of the CTS input 
-// Bit 5: Complement of the DSR input 
-// Bit 6: Complement of the RI input 
-// Bit 7: Complement of the DCD input 
-uint8_t serial_read_msr(serial_t *obj) 
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter;
-    uint8_t RegValue;
-    
-    pHalRuartAdapter = &(obj->hal_uart_adp);
-    RegValue = HAL_RUART_READ8(pHalRuartAdapter->UartIndex, RUART_MODEM_STATUS_REG_OFF);
-    return RegValue;
-}
-
-// to set the RX FIFO level to trigger RX interrupt/RTS de-assert
-// FifoLv:
-//     0: 1-Byte
-//     1: 4-Byte
-//     2: 8-Byte
-//     3: 14-Byte
-void serial_rx_fifo_level(serial_t *obj, SerialFifoLevel FifoLv) 
-{
-    PHAL_RUART_ADAPTER pHalRuartAdapter;
-    uint8_t RegValue;
-    
-    pHalRuartAdapter = &(obj->hal_uart_adp);
-    RegValue = (RUART_FIFO_CTL_REG_DMA_ENABLE | RUART_FIFO_CTL_REG_FIFO_ENABLE) | (((uint8_t)FifoLv&0x03) << 6);
-    HAL_RUART_WRITE8(pHalRuartAdapter->UartIndex, RUART_FIFO_CTL_REG_OFF, RegValue);
-}
-#endif
 
 #if DEVICE_SERIAL_ASYNCH 
 #endif
