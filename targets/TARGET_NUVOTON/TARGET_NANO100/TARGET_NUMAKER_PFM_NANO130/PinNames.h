@@ -107,8 +107,8 @@ typedef enum {
     
     // FIXME: other board-specific naming
     // UART naming
-    USBTX = PB_1,
-    USBRX = PB_0,
+    USBTX = PA_15,
+    USBRX = PA_14,
     STDIO_UART_TX   = USBTX,
     STDIO_UART_RX   = USBRX,
     // LED naming
@@ -124,8 +124,8 @@ typedef enum {
 #endif
     LED1 = PA_12,
     LED2 = PA_13,
-    LED3 = PA_14,
-    LED4 = LED3,
+    LED3 = LED1,
+    LED4 = LED2,
     LED_RED = LED1,
     LED_GREEN = LED2,
     LED_BLUE = LED3,
