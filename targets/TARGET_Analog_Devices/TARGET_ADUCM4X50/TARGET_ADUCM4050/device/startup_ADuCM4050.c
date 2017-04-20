@@ -55,8 +55,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   User Initial Stack & Heap
  *----------------------------------------------------------------------------*/
 #if defined( __GNUC__) && !defined (__CC_ARM)
+// Stack and heap arrays disabled to allow definition in the LD file.
+#if 0
 static uint8_t stack[__STACK_SIZE] __attribute__ ((aligned(8), used, section(".stack")));
 static uint8_t heap[__HEAP_SIZE]   __attribute__ ((aligned(8), used, section(".heap")));
+#endif  // #if 0
 #endif
 
 /*----------------------------------------------------------------------------
@@ -90,11 +93,15 @@ __root const uint32_t blank_checksum[] =
   A relocated IVT is requested.  Provision for IVT relocation
   to RAM during startup.  This allows for dynamic interrupt
   vector patching required by RTOS.  Places the relocated IVT
-  at the start of RAM.  We need  (72 + 15 + 1)*4 = 352 bytes, 
+  at the start of RAM.  We need  (72 + 15 + 1)*4 = 352 bytes,
   which address 0x20000000.
 *----------------------------------------------------------------------------*/
 #ifdef RELOCATE_IVT
+#ifdef __ICCARM__
+void (*__Relocated___Vectors[NUM_VECTORS])(void) @(RELOCATION_ADDRESS);
+#else
 void (*__Relocated___Vectors[NUM_VECTORS])(void) __attribute__((at(RELOCATION_ADDRESS)));
+#endif /* __ICCARM__ */
 #endif /* RELOCATE_IVT */
 
 /*----------------------------------------------------------------------------
