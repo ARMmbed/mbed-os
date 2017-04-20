@@ -41,14 +41,14 @@ int main (void) {
     bool result = true;
 
     while (true) {
-        uint32_t *msg = queue.get();
-        if (msg == NULL) {
+        osEvent evt = queue.get();
+        if (evt.status != osEventMessage) {
             printf("QUEUE_GET: FAIL\r\n");
             result = false;
             break;
         } else {
-            printf("QUEUE_GET: Value(%u) ... [OK]\r\n", (uint32_t)msg);
-            if ((uint32_t)msg == QUEUE_PUT_ISR_VALUE) {
+            printf("QUEUE_GET: Value(%u) ... [OK]\r\n", evt.value.v);
+            if (evt.value.v == QUEUE_PUT_ISR_VALUE) {
                 isr_puts_counter++;
             }
             if (isr_puts_counter >= QUEUE_SIZE) {
