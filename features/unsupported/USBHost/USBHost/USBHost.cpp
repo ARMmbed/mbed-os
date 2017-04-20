@@ -82,8 +82,26 @@ void USBHost::usb_process()
 
                     do {
                         Lock lock(this);
+                        bool hub_unplugged = true;
 
-                        for (i = 0; i < MAX_DEVICE_CONNECTED; i++) {
+                        int idx = findDevice(usb_msg->hub, usb_msg->port, (USBHostHub *)(usb_msg->hub_parent));
+                        /*  check that hub is connected to root port  */
+                        if (usb_msg->hub_parent) {
+                            /*  a hub device must be present */
+                            for (k = 0; k < MAX_HUB_NB; k++) {
+                                if ((&hubs[k] == usb_msg->hub_parent) && (hub_in_use[k])) {
+                                    hub_unplugged=false;
+                                }
+                            }
+                        } else {
+                            hub_unplugged = false;
+                        }
+
+                        if (((idx!=-1) && deviceInUse[idx] ) || ((idx == -1) && hub_unplugged)) {
+                            break;
+                        }
+
+                        for (i =0 ; i < MAX_DEVICE_CONNECTED; i++) {
                             if (!deviceInUse[i]) {
                                 USB_DBG_EVENT("new device connected: %p\r\n", &devices[i]);
                                 devices[i].init(usb_msg->hub, usb_msg->port, usb_msg->lowSpeed);
