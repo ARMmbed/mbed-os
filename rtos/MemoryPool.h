@@ -27,6 +27,7 @@
 
 #include "cmsis_os2.h"
 #include "rtx_lib.h"
+#include "mbed_rtos_rtx1_types.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -73,7 +74,7 @@ public:
       @param   address of the allocated memory block to be freed.
       @return  status code that indicates the execution status of the function.
     */
-    osStatus_t free(T *block) {
+    osStatus free(T *block) {
         return osMemoryPoolFree(_id, (void*)block);
     }
 
