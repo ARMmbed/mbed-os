@@ -64,15 +64,15 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
             ret = sent;
             break;
         } else {
-            osStatus_t stat;
+            int32_t count;
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
             _lock.unlock();
-            stat = _write_sem.wait(_timeout);
+            count = _write_sem.wait(_timeout);
             _lock.lock();
 
-            if (stat != osOK) {
+            if (count < 1) {
                 // Semaphore wait timed out so break out and return
                 ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
@@ -101,15 +101,15 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
             ret = recv;
             break;
         } else {
-            osStatus_t stat;
+            int32_t count;
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
             _lock.unlock();
-            stat = _read_sem.wait(_timeout);
+            count = _read_sem.wait(_timeout);
             _lock.lock();
 
-            if (stat != osOK) {
+            if (count < 1) {
                 // Semaphore wait timed out so break out and return
                 ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;

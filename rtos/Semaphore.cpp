@@ -34,11 +34,21 @@ Semaphore::Semaphore(int32_t count, uint16_t max_count) {
     MBED_ASSERT(_id != NULL);
 }
 
-osStatus_t Semaphore::wait(uint32_t millisec) {
-    return osSemaphoreAcquire(_id, millisec);
+int32_t Semaphore::wait(uint32_t millisec) {
+    osStatus_t stat = osSemaphoreAcquire(_id, millisec);
+    switch (stat) {
+        case osOK:
+            return osSemaphoreGetCount(_id) + 1;
+        case osErrorTimeout:
+            return 0;
+        case osErrorResource:
+        case osErrorParameter:
+        default:
+            return -1;
+    }
 }
 
-osStatus_t Semaphore::release(void) {
+osStatus Semaphore::release(void) {
     return osSemaphoreRelease(_id);
 }
 

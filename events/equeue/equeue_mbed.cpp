@@ -106,7 +106,7 @@ bool equeue_sema_wait(equeue_sema_t *s, int ms) {
         ms = osWaitForever;
     }
 
-    return (reinterpret_cast<Semaphore*>(s)->wait(ms) == osOK);
+    return (reinterpret_cast<Semaphore*>(s)->wait(ms) > 0);
 }
 
 #else
