@@ -74,7 +74,7 @@ static void wlan_set_hwaddr(emac_interface_t *emac, uint8_t *addr)
 
 static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
 {
-    struct eth_drv_sg sg_list[MAX_ETH_DRV_SG];
+    struct eth_drv_sg * sg_list=0;
     int sg_len = 0;
     int tot_len;
     struct pbuf *p;
@@ -84,6 +84,10 @@ static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
         return false;
     }
 
+    sg_list = (struct eth_drv_sg *)malloc(sizeof(struct eth_drv_sg)*MAX_ETH_DRV_SG);
+    if(sg_list == 0){//malloc fail
+        return false;
+    }
     emac_stack_mem_ref(emac, buf);
 
     p = (struct pbuf *)buf;
@@ -101,6 +105,7 @@ static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
     }
 
     emac_stack_mem_free(emac, buf);
+    free(sg_list);
     return ret;
 }
 
