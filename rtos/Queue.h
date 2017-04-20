@@ -28,6 +28,7 @@
 #include "cmsis_os2.h"
 #include "rtx_lib.h"
 #include "platform/mbed_error.h"
+#include "mbed_rtos_rtx1_types.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -59,21 +60,37 @@ public:
       @param   prio      priority value or 0 in case of default. (default: 0)
       @return  status code that indicates the execution status of the function.
     */
-    osStatus_t put(T* data, uint32_t millisec=0, uint8_t prio=0) {
+    osStatus put(T* data, uint32_t millisec=0, uint8_t prio=0) {
         return osMessageQueuePut(_id, &data, prio, millisec);
     }
 
     /** Get a message or Wait for a message from a Queue.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
-      @return  message or NULL if no messages available, timeout or error occurred.
+      @return  event information that includes the message and the status code.
     */
-    T *get(uint32_t millisec=osWaitForever) {
-        T *data;
+    osEvent get(uint32_t millisec=osWaitForever) {
+        osEvent event;
+        T *data = NULL;
         osStatus_t res = osMessageQueueGet(_id, &data, NULL, millisec);
-        if (res != osOK) {
-          data = NULL;
+
+        switch (res) {
+            case osOK:
+                event.status = (osStatus)osEventMessage;
+                event.value.p = data;
+                break;
+            case osErrorResource:
+                event.status = osOK;
+                break;
+            case osErrorTimeout:
+                event.status = (osStatus)osEventTimeout;
+                break;
+            case osErrorParameter:
+                event.status = osErrorParameter;
+                break;
         }
-        return data;
+        event.def.message_id = _id;
+
+        return event;
     }
 
 private:
