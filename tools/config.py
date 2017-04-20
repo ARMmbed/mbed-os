@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2016 ARM Limited
+Copyright (c) 2016-22017 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ from tools.utils import json_file_to_dict, intelhex_offset
 from tools.arm_pack_manager import Cache
 from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
     generate_py_target, get_resolution_order
+from tools.update import FIRMWARE_HEADER_SIZE
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
@@ -476,6 +477,17 @@ class Config(object):
             self.lib_config_data[cfg["name"]] = cfg
 
     @property
+    def building_bootloader(self):
+        """Does this config have regions defined?"""
+        if 'target_overrides' in self.app_config_data:
+            target_overrides = self.app_config_data['target_overrides'].get(
+                self.target.name, {})
+            return (('target.bootloader_img' not in target_overrides) and
+                    ('target.restrict_size'      in target_overrides))
+        else:
+            return False
+
+    @property
     def has_regions(self):
         """Does this config have regions defined?"""
         if 'target_overrides' in self.app_config_data:
@@ -489,10 +501,11 @@ class Config(object):
     @property
     def regions(self):
         """Generate a list of regions from the config"""
-        if not self.target.bootloader_supported:
+        if not (self.target.bootloader_supported and \
+                self.target.flash_erase_size and \
+                self.target.vector_table_size):
             raise ConfigException("Bootloader not supported on this target.")
         cmsis_part = Cache(False, False).index[self.target.device_name]
-        start = 0
         target_overrides = self.app_config_data['target_overrides'].get(
             self.target.name, {})
         try:
@@ -501,28 +514,91 @@ class Config(object):
         except KeyError:
             raise ConfigException("Not enough information in CMSIS packs to "
                                   "build a bootloader project")
+
+        rom_current_addr = rom_start
+        FLASH_ERASE_SIZE = self.target.flash_erase_size
+        VECTOR_TABLE_SIZE = self.target.vector_table_size
+
+        # Bootloader and Firmware Metadata Regions
         if 'target.bootloader_img' in target_overrides:
-            filename = target_overrides['target.bootloader_img']
-            part = intelhex_offset(filename, offset=rom_start)
-            if part.minaddr() != rom_start:
+            # find bootloader starting point
+            bootloader_start = rom_current_addr
+
+            # find bootloader size
+            bootloader_fn = target_overrides['target.bootloader_img']
+            bootloader_part = intelhex_offset(bootloader_fn, offset=bootloader_start)
+            if bootloader_part.minaddr() != bootloader_start:
                 raise ConfigException("bootloader executable does not "
-                                      "start at 0x%x" % rom_start)
-            part_size = (part.maxaddr() - part.minaddr()) + 1
-            yield Region("bootloader", rom_start + start, part_size, False,
-                         filename)
-            start += part_size
+                                      "start at 0x%x" % bootloader_start)
+            bootloader_size = (bootloader_part.maxaddr() - bootloader_part.minaddr()) + 1
+
+            # yeild bootloader region
+            yield Region("bootloader", bootloader_start, bootloader_size, False, bootloader_fn)
+
+            # update rom pointer
+            rom_current_addr = bootloader_start + bootloader_size
+
+            # find metadata header region start
+            metadata_start = rom_current_addr
+            if metadata_start%FLASH_ERASE_SIZE: # align to erase boundary
+                metadata_start = ((metadata_start // FLASH_ERASE_SIZE) + 1) * FLASH_ERASE_SIZE
+
+            # find metadata header size
+            metadata_size = FIRMWARE_HEADER_SIZE
+
+            # yeild image_metadata_header region
+            yield Region("firmware_metadata_header", metadata_start, metadata_size, False, None)
+
+            # update ROM pointer
+            rom_current_addr = metadata_start + metadata_size
+
+        # Application Region
+        # find application start address
+        app_start = rom_current_addr
+        if app_start%VECTOR_TABLE_SIZE: # align to vector table size
+            app_start = ((app_start // VECTOR_TABLE_SIZE) + 1) * VECTOR_TABLE_SIZE
+
+        # find application size
+        app_size = rom_start + rom_size - app_start
         if 'target.restrict_size' in target_overrides:
-            new_size = int(target_overrides['target.restrict_size'], 0)
-            yield Region("application", rom_start + start, new_size, True, None)
-            start += new_size
-            yield Region("post_application", rom_start +start, rom_size - start,
-                         False, None)
-        else:
-            yield Region("application", rom_start + start, rom_size - start,
-                         True, None)
-        if start > rom_size:
-            raise ConfigException("Not enough memory on device to fit all "
-                                  "application regions")
+            restrict_size = int(target_overrides['target.restrict_size'], 0)
+            app_size = restrict_size if restrict_size < app_size else app_size
+
+        # yield application region
+        yield Region("application", app_start, app_size, True, None)
+
+        # update ROM pointer
+        rom_current_addr = app_start + app_size
+
+        # yeild the metadata region to expose symbols to help build the bootloader
+        if self.building_bootloader:
+            # find metadata header region start
+            metadata_start = rom_current_addr
+            if metadata_start%FLASH_ERASE_SIZE: # align to erase boundary
+                metadata_start = ((metadata_start // FLASH_ERASE_SIZE) + 1) * FLASH_ERASE_SIZE
+
+            # find metadata header size
+            post_app_start = (metadata_start + FIRMWARE_HEADER_SIZE)
+            if post_app_start%VECTOR_TABLE_SIZE: # align to vector table size
+                post_app_start = ((post_app_start // VECTOR_TABLE_SIZE) + 1) * VECTOR_TABLE_SIZE
+            metadata_size = post_app_start - metadata_start
+
+            # yeild image_metadata_header region
+            yield Region("firmware_metadata_header", metadata_start, metadata_size, False, None)
+
+            # update ROM pointer
+            rom_current_addr = metadata_start + metadata_size
+
+        # Post Application Region
+        if 'target.restrict_size' in target_overrides:
+            # find post_application start address
+            post_app_start = rom_current_addr # Previously aligned to vector table size
+
+            # find post_application region size
+            post_app_size = rom_start + rom_size - post_app_start
+
+            # yield post_application region
+            yield Region("post_application", post_app_start, post_app_size, False, None)
 
     def _process_config_and_overrides(self, data, params, unit_name, unit_kind):
         """Process "config_parameters" and "target_config_overrides" into a
