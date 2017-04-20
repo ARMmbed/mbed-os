@@ -99,7 +99,8 @@ bool USBHostKeyboard::connected() {
 }
 
 
-bool USBHostKeyboard::connect() {
+bool USBHostKeyboard::connect()
+{
 
     if (dev_connected) {
         return true;
@@ -112,16 +113,23 @@ bool USBHostKeyboard::connect() {
                 break;
 
             if (keyboard_device_found) {
-                int_in = dev->getEndpoint(keyboard_intf, INTERRUPT_ENDPOINT, IN);
+                {
+                    /* As this is done in a specific thread
+                     * this lock is taken to avoid to process the device
+                     * disconnect in usb process during the device registering */
+                    USBHost::Lock  Lock(host);
 
-                if (!int_in)
-                    break;
+                    int_in = dev->getEndpoint(keyboard_intf, INTERRUPT_ENDPOINT, IN);
 
-                USB_INFO("New Keyboard device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, keyboard_intf);
-                dev->setName("Keyboard", keyboard_intf);
-                host->registerDriver(dev, keyboard_intf, this, &USBHostKeyboard::init);
+                    if (!int_in)
+                        break;
 
-                int_in->attach(this, &USBHostKeyboard::rxHandler);
+                    USB_INFO("New Keyboard device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, keyboard_intf);
+                    dev->setName("Keyboard", keyboard_intf);
+                    host->registerDriver(dev, keyboard_intf, this, &USBHostKeyboard::init);
+
+                    int_in->attach(this, &USBHostKeyboard::rxHandler);
+                }
                 host->interruptRead(dev, int_in, report, int_in->getSize(), false);
 
                 dev_connected = true;
