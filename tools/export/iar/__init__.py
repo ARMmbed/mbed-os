@@ -10,6 +10,7 @@ from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, TargetNotSupportedException
 import json
 from tools.export.cmsis import DeviceCMSIS
+from tools.utils import NotSupportedException
 from multiprocessing import cpu_count
 
 class IAR(Exporter):
@@ -100,6 +101,8 @@ class IAR(Exporter):
 
     def generate(self):
         """Generate the .eww, .ewd, and .ewp files"""
+        if not self.resources.linker_script:
+            raise NotSupportedException("No linker script found.")
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
                self.resources.objects + self.resources.libraries
