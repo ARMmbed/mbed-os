@@ -77,6 +77,7 @@ typedef void*   ADI_RTC_HANDLE;
 */
 #if defined (__ICCARM__)
 #define ADI_RTC_USE_IAR_SYSTEM_TIME_HOOKS
+#undef ADI_RTC_USE_IAR_SYSTEM_TIME_HOOKS
 #endif
 
 /*! Interrupt  bit position-1*/

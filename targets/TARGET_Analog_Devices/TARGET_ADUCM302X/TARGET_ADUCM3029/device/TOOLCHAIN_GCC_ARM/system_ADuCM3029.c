@@ -5,8 +5,6 @@
  * @version  V3.10
  * @date     23. November 2012
  *
- * @note     Modified 19. September 2016 Analog Devices
- *
  ******************************************************************************/
 /* Copyright (c) 2012 ARM LIMITED
 
@@ -36,28 +34,14 @@
 
    Portions Copyright (c) 2016 - 2017 Analog Devices, Inc.
    ---------------------------------------------------------------------------*/
-
-/*! \addtogroup SYS_Driver System Interfaces
- *  @{
- */
-
-#include <stdint.h>
-#include "ADuCM3029.h"
-
-#include <services/int/adi_int.h>
-#include <services/pwr/adi_pwr.h>
-extern uint32_t __Vectors[];
-
-/*----------------------------------------------------------------------------
-  DEFINES
- *----------------------------------------------------------------------------*/
-
+#include <cmsis.h>
+#include <adi_pwr.h>
+#include <startup_ADuCM3029.h>
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
-
 #ifdef ADI_DEBUG
-/* not needed unless its debug mode */
+/* only needed in debug mode */
 uint32_t lfClock = 0u;    /* "lf_clk" coming out of LF mux             */
 #endif
 
@@ -69,70 +53,6 @@ uint32_t gpioClock = 0u;  /* external GPIO clock                       */
  *----------------------------------------------------------------------------*/
 
 uint32_t SystemCoreClock = 0u;  /*!< System Clock Frequency (Core Clock)*/
-
-/*----------------------------------------------------------------------------
-  Security options
- *----------------------------------------------------------------------------*/
-
-#if defined (__CC_ARM)
-  __attribute__ ((at(0x00000180u)))
-#elif defined (__GNUC__)
-  __attribute__ ((section(".security_options")))
-#endif /* __GNUC__ */
-  __attribute__ ((weak))
-const ADI_ADUCM302X_SECURITY_OPTIONS adi_aducm302x_security_options
-  = {
-        { 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu, 0xFFFFFFFFu },
-        0xA79C3203u,
-        127u,
-        0xFFFFFFFFu,
-        0xFFFFFFFFu,
-};
-
-#ifdef RELOCATE_IVT
-
-/**
-  A relocated IVT is requested.  Provision for IVT relocation
-  to RAM during startup.  This allows for dynamic interrupt
-  vector patching required by RTOS.  Places the relocated IVT
-  at the start of RAM.  Note: the IVT placement is required
-  to be next power-of-two of the vector table size.  So the
-  IVT includes 61 programmable interrupts, 15 system exception
-  vectors and the main stack pointer, therefore we need
-  (61 + 15 + 1)*4 = 308 bytes, which rounds up to a 512 (0x200)
-  address boundary (which address 0x20000000 satisfies).
-
-  Also note use of the "__no_init" attribute to force the
-  relocated IVT into the ".noinit" section.  This prevents
-  the CRTL startup sequence from initializing the relocated
-  IVT after we have activated it during the reset vector.
-  so that the CRTL does not clear it.
-*/
-
-#define RELOCATION_ADDRESS    (0x20000000)  // (0x10000000)
-#define RELOCATION_ALIGNMENT  (0x200)
-#define NUM_VECTORS           (64 + 1 + 16)
-
-#if defined (TOOLCHAIN_GCC)
-/* reserve aligned IVT space at top of RAM */
-void (*__Relocated___Vectors[NUM_VECTORS])(void) __attribute__ ((aligned(RELOCATION_ALIGNMENT), section(".relocated_vec"))) = { 0 };
-
-#else
-#if defined ( __ICCARM__ )
-    #pragma data_alignment=RELOCATION_ALIGNMENT  /* IAR */
-#elif defined (__CC_ARM)
-    __align(RELOCATION_ALIGNMENT)                /* Keil */
-#else
-    #pragma message("WARNING: NO ALIGNMENT DEFINED FOR IVT RELOCATION")
-#endif
-
-/* reserve aligned IVT space at top of RAM */
-void (*__Relocated___Vectors[NUM_VECTORS])(void) __attribute__( ( at( RELOCATION_ADDRESS ) ) ) = { 0 };
-#endif
-
-#endif /* RELOCATE_IVT */
-
-ADI_CRITICAL_REGION_VAR_DEFINE
 
 /*----------------------------------------------------------------------------
   Clock functions
@@ -216,161 +136,129 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
     SystemCoreClock = hfClock;
 }
 
-/**
+/*!
  * Initialize the system
  *
- * @param  none
  * @return none
  *
  * @brief  Setup the microcontroller system.
- *         Initialize the System.
- *         Initialize the Embedded Flash Interface, the PLL and update the
- *         SystemCoreClock variable.
- *
- * @note   This function should be used only after reset.
+ *         Initialize the System and update the relocate vector table.
  */
 void SystemInit (void)
 {
-#ifdef RELOCATE_IVT
-    int i;
-    uint8_t *pSrc, *pDst;
-#endif
     uint32_t IntStatus;
-
-    /* Enable SRAM retention during the hibernation. */
-    adi_system_EnableRetention( ADI_SRAM_BANK_1, true );
-    adi_system_EnableRetention( ADI_SRAM_BANK_2, true );
-
-    /* To disable the instruction SRAM and entire 64K of SRAM is used as DSRAM */
-    adi_system_EnableISRAM( false );
-
-    /* To disable the instruction cache  */
-    adi_system_EnableCache( false );
-
-
 #ifdef RELOCATE_IVT
-    /* Copy the IVT from Flash to SRAM (avoid use of memcpy here so it does not become locked into flash) */
-    for( i = 0, pSrc = (uint8_t*) __Vectors, pDst = (uint8_t*)__Relocated___Vectors; i < ( NUM_VECTORS * 4 ); i++ )
+    uint32_t i,*psrc,*pdst;
+#endif
+    /* SRAM Bank1 and Banck2 are hibernate-preserved */
+    adi_system_EnableRetention(ADI_SRAM_BANK_1, true);
+    adi_system_EnableRetention(ADI_SRAM_BANK_2, true);
+    /* To disable the instruction SRAM and entire 64K of SRAM is used as DSRAM */
+    adi_system_EnableISRAM(false);
+    /* To disable the instruction cache  */
+    adi_system_EnableCache(false);
+#ifdef RELOCATE_IVT
+    /* Copy the IVT (avoid use of memcpy here so it does not become locked into flash). */
+    for (i = 0, psrc = 0, pdst = (uint32_t *)RELOCATION_ADDRESS;
+    i < NUM_VECTORS; i++)
     {
-      *pDst++ = *pSrc++;
+        *pdst++ = *psrc++;
     }
 #endif
-
-    /* Switch the Interrupt Vector Table Offset Register
-     * (VTOR) to point to the relocated IVT in SRAM
-     */
-
-    /* Because SystemInit must not use global variables, the following
-     * interrupt disabling code should not be replaced with critical region
-     * code which uses global variables.
-     */
     IntStatus = __get_PRIMASK();
     __disable_irq();
-
-    /* Switch from boot ROM IVT to application's IVT
-     * set the System Control Block, Vector Table Offset Register
-     */
-#ifdef RELOCATE_IVT
-    SCB->VTOR = (uint32_t) &__Relocated___Vectors;
-#else
-    SCB->VTOR = (uint32_t) &__Vectors;
-#endif
-
+    /* Switch from boot ROM IVT to application's IVT. */
+    SCB->VTOR = (uint32_t) RELOCATION_ADDRESS;
     /* Set all three (USGFAULTENA, BUSFAULTENA, and MEMFAULTENA) fault enable bits
      * in the System Control Block, System Handler Control and State Register
-     * otherwise these faults are handled as hard faults
+     * otherwise these faults are handled as hard faults.
      */
     SCB->SHCSR = SCB_SHCSR_USGFAULTENA_Msk |
                  SCB_SHCSR_BUSFAULTENA_Msk |
                  SCB_SHCSR_MEMFAULTENA_Msk ;
-
-    /* Flush instruction and data pipelines to insure assertion of new settings */
-    __ISB();  /* MUST OCCUR IMMEDIATELY AFTER UPDATING SCB->CPACR!!! */
-    __DSB();
-
+    adi_pwr_Init();
+    adi_pwr_SetClockDivider(ADI_CLOCK_HCLK,1);
+    adi_pwr_SetClockDivider(ADI_CLOCK_PCLK,1);
     __set_PRIMASK(IntStatus);
-	adi_pwr_Init();
-	adi_pwr_SetClockDivider(ADI_CLOCK_HCLK,1);
-	adi_pwr_SetClockDivider(ADI_CLOCK_PCLK,1);
 }
 
 /*!
- * @brief  Enables or disables the cache.
+ * @brief  This enables or disables  the cache.
  * \n @param  bEnable : To specify whether to enable/disable cache.
  * \n              true : To enable cache.
+ * \n
  * \n              false : To disable cache.
  * \n
  * @return none
  *
  */
-void adi_system_EnableCache (bool_t bEnable)
+void adi_system_EnableCache(bool_t bEnable)
 {
-  pADI_FLCC0_CACHE->KEY = CACHE_CONTROLLER_KEY;
-  if( bEnable == true )
-  {
-    pADI_FLCC0_CACHE->SETUP |=BITM_FLCC_CACHE_SETUP_ICEN;
-  }
-  else
-  {
-    pADI_FLCC0_CACHE->SETUP &=(uint32_t)(~(BITM_FLCC_CACHE_SETUP_ICEN));
-  }
+    pADI_FLCC0_CACHE->KEY = CACHE_CONTROLLER_KEY;
+    if(bEnable)
+    {
+        pADI_FLCC0_CACHE->SETUP |= BITM_FLCC_CACHE_SETUP_ICEN;
+    }
+    else
+    {
+        pADI_FLCC0_CACHE->SETUP &= ~BITM_FLCC_CACHE_SETUP_ICEN;
+    }
 }
 
 /*!
- * @brief  Enables or disables instruction SRAM
+ * @brief  This enables or disables instruction SRAM
  *
  * @param bEnable: To enable/disable the instruction SRAM.
  * \n              true : To enable cache.
+ * \n
  * \n              false : To disable cache.
  * \n
  * @return none
  * @note:  Please note that respective linker file need to support the configuration.
  */
-void adi_system_EnableISRAM (bool_t bEnable)
+void adi_system_EnableISRAM(bool_t bEnable)
 {
-  if( bEnable == true )
-  {
-    pADI_PMG0_TST->SRAM_CTL |=BITM_PMG_TST_SRAM_CTL_INSTREN;
-  }
-  else
-  {
-    pADI_PMG0_TST->SRAM_CTL &=(uint32_t)(~(BITM_PMG_TST_SRAM_CTL_INSTREN));
-  }
+
+    if(bEnable)
+    {
+        pADI_PMG0_TST->SRAM_CTL |= BITM_PMG_TST_SRAM_CTL_INSTREN;
+    }
+    else
+    {
+        pADI_PMG0_TST->SRAM_CTL &= ~BITM_PMG_TST_SRAM_CTL_INSTREN;
+    }
 }
 
 /*!
- * @brief  Enables/disable SRAM retention during the hibernation.
+ * @brief  This enables/disable SRAM retention during the hibernation.
  * @param eBank:   Specify which SRAM bank. Only BANK1 and BANK2 are valid.
  * @param bEnable: To enable/disable the  retention for specified  SRAM bank.
  * \n              true : To enable retention during the hibernation.
+ * \n
  * \n              false :To disable retention during the hibernation.
  * \n
  * @return : SUCCESS : Configured successfully.
  *           FAILURE :  For invalid bank.
- *
  * @note: Please note that respective linker file need to support the configuration. Only BANK-1 and
- *        BANK-2 of SRAM is valid.
+          BANK-2 of SRAM is valid.
  */
-uint32_t adi_system_EnableRetention (ADI_SRAM_BANK eBank, bool_t bEnable)
+uint32_t adi_system_EnableRetention(ADI_SRAM_BANK eBank,bool_t bEnable)
 {
 #ifdef ADI_DEBUG
-  if( ( eBank != ADI_SRAM_BANK_1 ) && ( eBank != ADI_SRAM_BANK_2 ) )
-  {
-    return( FAILURE );
-  }
+    if((eBank != ADI_SRAM_BANK_1) && (eBank != ADI_SRAM_BANK_2))
+    {
+        return FAILURE;
+    }
 #endif
+    pADI_PMG0->PWRKEY = PWRKEY_VALUE_KEY;
+    if(bEnable)
+    {
+        pADI_PMG0->SRAMRET |= (uint32_t)eBank>>1;
+    }
+    else
+    {
+        pADI_PMG0->SRAMRET &= ~((uint32_t)eBank >> 1);
+    }
 
-  pADI_PMG0->PWRKEY = PWRKEY_VALUE_KEY;
-
-  if( bEnable == true )
-  {
-    pADI_PMG0->SRAMRET |= ( eBank >> 1 );
-  }
-  else
-  {
-    pADI_PMG0->SRAMRET &= (uint32_t)( ~( ( eBank >> 1 ) ) );
-  }
-  return( SUCCESS );
+    return SUCCESS;
 }
-
-/*! @} */

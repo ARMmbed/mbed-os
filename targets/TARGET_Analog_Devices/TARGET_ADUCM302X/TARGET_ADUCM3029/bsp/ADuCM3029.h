@@ -56,10 +56,6 @@
 
 #include <core_cm3.h>                       /* Cortex-M3 processor and core peripherals           */
 
-#ifdef __ICCARM__
-#include "system.h"                         /* ADuCM302x System include file                      */
-#else
 #include "system_ADuCM3029.h"               /* ADuCM3029 System include file                      */
-#endif
 
 #endif  /* ADUCM3029_H */

@@ -9,9 +9,9 @@
 MEMORY
 {
   /* The first 0x180 bytes of Flash bank0 */
-  FLASH0 (rx) : ORIGIN = 0x00000000, LENGTH = 0x180
+  FLASH0 (rx) : ORIGIN = 0x00000000, LENGTH = 0x1A0
   /* The remaining bytes of Flash bank0 */
-  FLASH (rx) : ORIGIN = 0x00000180, LENGTH = 256k - 0x180
+  FLASH (rx) : ORIGIN = 0x000001A0, LENGTH = 256k - 0x1A0
   /* SRAM bank 0+1 */
   DSRAM_V (rwx) : ORIGIN = 0x20000000, LENGTH = 0x200
   DSRAM_A (rwx) : ORIGIN = 0x20000200, LENGTH = 16k - 0x200
@@ -22,6 +22,13 @@ MEMORY
 
 /* Library configurations */
 GROUP(libgcc.a libc.a libm.a libnosys.a)
+/* Custom stack and heap sizes */
+__stack_size__ = 0x1000;
+__heap_size__ = 0x2000;
+
+/* select custom or default sizes for stack and heap */
+STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
+HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0C00;
 
 /* Linker script to place sections and symbol values.
  * It references the following symbols, which must be defined in code:
@@ -65,13 +72,6 @@ SECTIONS
         __Vectors_Size = __Vectors_End - __Vectors;
         __end__ = .;
     } > FLASH0
-
-    .security_options :
-    {
-        . = ALIGN(4);
-        KEEP(*(.security_options))
-        . = ALIGN(4);
-    } > FLASH
 
     .text :
     {
@@ -185,7 +185,11 @@ SECTIONS
     {
         . = ALIGN(4);
         __bss_start__ = .;
+        KEEP(*(.bss.gChannelControlDataArray))
+        KEEP(*(.bss.thread_stack_main))
+        KEEP(*(.bss.UartDeviceMem))
         *(COMMON)
+        *(.bss)
         . = ALIGN(4);
         __bss_end__ = .;
     } > DSRAM_C
@@ -198,33 +202,20 @@ SECTIONS
         . = ALIGN(4);
         __bss2_end__ = .;
     } > DSRAM_B
-    
-    .vec_table (NOLOAD):
-    {
-        KEEP(*(.relocated_vec))
-    } > DSRAM_V
 
     .heap (COPY):
     {
         __HeapBase = .;
         __end__ = .;
         end = __end__;
-        KEEP(*(.heap*))
+        . += HEAP_SIZE;
         __HeapLimit = .;
-    } > DSRAM_A
-
-    /* .stack_dummy section doesn't contains any symbols. It is only
-     * used for linker to calculate size of stack sections, and assign
-     * values to stack symbols later */
-    .stack_dummy (COPY):
-    {
-        KEEP(*(.stack*))
     } > DSRAM_A
 
     /* Set stack top to end of DSRAM_A, and move stack limit down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(DSRAM_C);
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - STACK_SIZE;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds DSRAM_A limit when they are both in DSRAM_A

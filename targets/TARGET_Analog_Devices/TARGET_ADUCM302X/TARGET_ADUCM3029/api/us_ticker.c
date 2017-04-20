@@ -52,7 +52,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdint.h>
 #include <stdio.h>
-#include <system_ADuCM3029.h>
 #include <services/tmr/adi_tmr.h>
 #include <services/pwr/adi_pwr.h>
 #include <services/gpio/adi_gpio.h>
