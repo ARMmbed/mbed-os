@@ -80,6 +80,7 @@ void mbed_stats_heap_get(mbed_stats_heap_t *stats)
 
 extern "C" {
     void * __real__malloc_r(struct _reent * r, size_t size);
+    void * __real__memalign_r(struct _reent * r, size_t alignment, size_t bytes);
     void * __real__realloc_r(struct _reent * r, void * ptr, size_t size);
     void __real__free_r(struct _reent * r, void * ptr);
     void* __real__calloc_r(struct _reent * r, size_t nmemb, size_t size);
@@ -178,8 +179,6 @@ extern "C" void __wrap__free_r(struct _reent * r, void * ptr) {
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
 }
 
-#endif // if !defined(FEATURE_UVISOR)
-
 extern "C" void * __wrap__calloc_r(struct _reent * r, size_t nmemb, size_t size) {
     void *ptr = NULL;
 #ifdef MBED_HEAP_STATS_ENABLED
@@ -199,6 +198,12 @@ extern "C" void * __wrap__calloc_r(struct _reent * r, size_t nmemb, size_t size)
 #endif // #ifdef MBED_MEM_TRACING_ENABLED
     return ptr;
 }
+
+extern "C" void * __wrap__memalign_r(struct _reent * r, size_t alignment, size_t bytes) {
+    return __real__memalign_r(r, alignment, bytes);
+}
+
+#endif // if !defined(FEATURE_UVISOR)
 
 
 /******************************************************************************/
