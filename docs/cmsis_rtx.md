@@ -33,6 +33,7 @@ Due to different use cases between mbed OS and CMSIS, we had to do some modifica
 Filename | Description |
 ---------|-------------|
 cmsis_compiler.h | Added IAR architecture macros |
+arm_math.h | Rename `PI` to `_PI` to avoid name clash with a register name in mcr20a-rf-driver |
 
 ### RTX
 
