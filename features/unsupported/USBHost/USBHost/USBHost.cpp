@@ -1115,8 +1115,19 @@ USB_TYPE USBHost::generalTransfer(USBDeviceConnected * dev, USBEndpoint * ep, ui
     res = addTransfer(ep, buf, len);
 
     if ((blocking)&& (res == USB_TYPE_PROCESSING)) {
-
+#ifdef USBHOST_OTHER
+        osEvent  event = ep->ep_queue.get(TD_TIMEOUT);
+        if (event.status == osEventTimeout) {
+            /*  control endpoint is confusing for merge on b */
+            disableList(CONTROL_ENDPOINT);
+            ep->setState(USB_TYPE_ERROR);
+            ep->ep_queue.get(0);
+            ep->unqueueTransfer(ep->getProcessedTD());
+            enableList(CONTROL_ENDPOINT);
+        }
+#else
         ep->ep_queue.get();
+#endif
         res = ep->getState();
 
         USB_DBG_TRANSFER("%s TRANSFER res: %s on ep: %p\r\n", type_str, ep->getStateString(), ep);
@@ -1174,9 +1185,21 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
     control->setNextToken(TD_SETUP);
     res = addTransfer(control, (uint8_t*)setupPacket, 8);
 
-    if (res == USB_TYPE_PROCESSING) {
-        control->ep_queue.get();
+    if (res == USB_TYPE_PROCESSING)
+#ifdef USBHOST_OTHER
+    {
+        osEvent  event = control->ep_queue.get(TD_TIMEOUT_CTRL);
+        if (event.status == osEventTimeout) {
+            disableList(CONTROL_ENDPOINT);
+            control->setState(USB_TYPE_ERROR);
+            control->ep_queue.get(0);
+            control->unqueueTransfer(control->getProcessedTD());
+            enableList(CONTROL_ENDPOINT);
+        }
     }
+#else
+        control->ep_queue.get();
+#endif
     res = control->getState();
 
     USB_DBG_TRANSFER("CONTROL setup stage %s", control->getStateString());
@@ -1190,9 +1213,21 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
         control->setNextToken(token);
         res = addTransfer(control, (uint8_t *)buf, length_transfer);
 
-        if (res == USB_TYPE_PROCESSING) {
-            control->ep_queue.get();
+        if (res == USB_TYPE_PROCESSING)
+#ifdef USBHOST_OTHER
+        {
+            osEvent  event = control->ep_queue.get(TD_TIMEOUT_CTRL);
+            if (event.status == osEventTimeout) {
+                disableList(CONTROL_ENDPOINT);
+                control->setState(USB_TYPE_ERROR);
+                control->ep_queue.get(0);
+                control->unqueueTransfer(control->getProcessedTD());
+                enableList(CONTROL_ENDPOINT);
+            }
         }
+#else
+            control->ep_queue.get();
+#endif
         res = control->getState();
 
 #if DEBUG_TRANSFER
@@ -1220,10 +1255,21 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
     token = (write) ? TD_IN : TD_OUT;
     control->setNextToken(token);
     res = addTransfer(control, NULL, 0);
-
-    if (res == USB_TYPE_PROCESSING) {
-        control->ep_queue.get();
+    if (res == USB_TYPE_PROCESSING)
+#ifdef USBHOST_OTHER
+    {
+        osEvent  event = control->ep_queue.get(TD_TIMEOUT_CTRL);
+        if (event.status == osEventTimeout) {
+            disableList(CONTROL_ENDPOINT);
+            control->setState(USB_TYPE_ERROR);
+            control->ep_queue.get(0);
+            control->unqueueTransfer(control->getProcessedTD());
+            enableList(CONTROL_ENDPOINT);
+        }
     }
+#else
+        control->ep_queue.get();
+#endif
     res = control->getState();
 
     USB_DBG_TRANSFER("CONTROL ack stage %s", control->getStateString());
