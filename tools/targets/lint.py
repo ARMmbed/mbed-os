@@ -61,9 +61,21 @@ def check_inherits(dict):
     if  ("inherits" in dict and len(dict["inherits"]) > 1):
         yield "multiple inheritance is forbidden"
 
+DEVICE_HAS_ALLOWED = ["AACI", "ANALOGIN", "ANALOGOUT", "CAN", "CLCD",
+                      "ERROR_PATTERN", "ETHERNET", "EMAC", "FLASH", "I2C",
+                      "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER",
+                      "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "TRNG",
+                      "TSC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP",
+                      "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES",
+                      "STORAGE", "SEMIHOST", "LOCALFILESYSTEM"]
+def check_device_has(dict):
+    for name in dict.get("device_has", []):
+        if name not in DEVICE_HAS_ALLOWED:
+            yield "%s is not allowed in device_has" % name
+
 MCU_REQUIRED_KEYS = ["release_versions", "supported_toolchains",
                      "default_lib", "public", "inherits", "device_has"]
-MCU_ALLOWED_KEYS = ["device_has", "device_has_add", "device_has_remove", "core",
+MCU_ALLOWED_KEYS = ["device_has_add", "device_has_remove", "core",
                     "extra_labels", "features", "features_add",
                     "features_remove", "bootloader_supported", "device_name",
                     "post_binary_hook", "default_toolchain", "config",
@@ -81,6 +93,7 @@ def check_mcu(mcu_json, strict=False):
     errors.extend(check_extra_labels(mcu_json))
     errors.extend(check_release_version(mcu_json))
     errors.extend(check_inherits(mcu_json))
+    errors.extend(check_device_has(mcu_json))
     if 'public' in mcu_json and mcu_json['public']:
         errors.append("public must be false")
     return errors
