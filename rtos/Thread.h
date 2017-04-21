@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include "cmsis_os2.h"
 #include "rtx_lib.h"
+#include "mbed_rtos_rtx1_types.h"
 #include "mbed_rtx_conf.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
@@ -71,7 +72,7 @@ public:
       @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).
       @param   name           name to be used for this thread. It has to stay allocated for the lifetime of the thread (default: NULL)
     */
-    Thread(osPriority_t priority=osPriorityNormal,
+    Thread(osPriority priority=osPriorityNormal,
            uint32_t stack_size=OS_STACK_SIZE,
            unsigned char *stack_mem=NULL, const char *name=NULL) {
         constructor(priority, stack_size, stack_mem, name);
@@ -99,7 +100,7 @@ public:
         "Thread-spawning constructors hide errors. "
         "Replaced by thread.start(task).")
     Thread(mbed::Callback<void()> task,
-           osPriority_t priority=osPriorityNormal,
+           osPriority priority=osPriorityNormal,
            uint32_t stack_size=OS_STACK_SIZE,
            unsigned char *stack_mem=NULL) {
         constructor(task, priority, stack_size, stack_mem);
@@ -129,7 +130,7 @@ public:
         "Thread-spawning constructors hide errors. "
         "Replaced by thread.start(callback(task, argument)).")
     Thread(T *argument, void (T::*task)(),
-           osPriority_t priority=osPriorityNormal,
+           osPriority priority=osPriorityNormal,
            uint32_t stack_size=OS_STACK_SIZE,
            unsigned char *stack_mem=NULL) {
         constructor(mbed::callback(task, argument),
@@ -160,7 +161,7 @@ public:
         "Thread-spawning constructors hide errors. "
         "Replaced by thread.start(callback(task, argument)).")
     Thread(T *argument, void (*task)(T *),
-           osPriority_t priority=osPriorityNormal,
+           osPriority priority=osPriorityNormal,
            uint32_t stack_size=OS_STACK_SIZE,
            unsigned char *stack_mem=NULL) {
         constructor(mbed::callback(task, argument),
@@ -190,7 +191,7 @@ public:
         "Thread-spawning constructors hide errors. "
         "Replaced by thread.start(callback(task, argument)).")
     Thread(void (*task)(void const *argument), void *argument=NULL,
-           osPriority_t priority=osPriorityNormal,
+           osPriority priority=osPriorityNormal,
            uint32_t stack_size=OS_STACK_SIZE,
            unsigned char *stack_mem=NULL) {
         constructor(mbed::callback((void (*)(void *))task, argument),
@@ -202,7 +203,7 @@ public:
       @return  status code that indicates the execution status of the function.
       @note a thread can only be started once
     */
-    osStatus_t start(mbed::Callback<void()> task);
+    osStatus start(mbed::Callback<void()> task);
 
     /** Starts a thread executing the specified function.
       @param   obj            argument to task
@@ -215,7 +216,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The start function does not support cv-qualifiers. "
         "Replaced by thread.start(callback(obj, method)).")
-    osStatus_t start(T *obj, M method) {
+    osStatus start(T *obj, M method) {
         return start(mbed::callback(obj, method));
     }
 
@@ -223,40 +224,63 @@ public:
       @return  status code that indicates the execution status of the function.
       @note not callable from interrupt
     */
-    osStatus_t join();
+    osStatus join();
 
     /** Terminate execution of a thread and remove it from Active Threads
       @return  status code that indicates the execution status of the function.
     */
-    osStatus_t terminate();
+    osStatus terminate();
 
     /** Set priority of an active thread
       @param   priority  new priority value for the thread function.
       @return  status code that indicates the execution status of the function.
     */
-    osStatus_t set_priority(osPriority_t priority);
+    osStatus set_priority(osPriority priority);
 
     /** Get priority of an active thread
       @return  current priority value of the thread function.
     */
-    osPriority_t get_priority();
+    osPriority get_priority();
 
-    /** Set the specified Thread Flags of an active thread.
-      @param   flags  specifies the flags of the thread that should be set.
-      @return  previous flags of the specified thread or 0x80000000 in case of incorrect parameters.
+    /** Set the specified Signal Flags of an active thread.
+      @param   signals  specifies the signal flags of the thread that should be set.
+      @return  previous signal flags of the specified thread or osFlagsError in case of incorrect parameters.
     */
-    int32_t signal_set(int32_t flags);
+    int32_t signal_set(int32_t signals);
 
     /** Clears the specified Signal Flags of an active thread.
-      @param   flags  specifies the signal flags of the thread that should be cleared.
-      @return  resultant flags of the specified thread or 0x80000000 in case of incorrect parameters.
+      @param   signals  specifies the signal flags of the thread that should be cleared.
+      @return  resultant signal flags of the specified thread or osFlagsError in case of incorrect parameters.
     */
-    int32_t signal_clr(int32_t flags);
+    int32_t signal_clr(int32_t signals);
+
+    /** State of the Thread */
+    enum State {
+        Inactive,           /**< Not created */
+        Ready,              /**< Ready to run */
+        Running,            /**< Running */
+        WaitingDelay,       /**< Waiting for a delay to occur */
+        WaitingJoin,        /**< Waiting for thread to join */
+        WaitingThreadFlag,  /**< Waiting for a thread flag to be set */
+        WaitingEventFlag,   /**< Waiting for a event flag to be set */
+        WaitingMutex,       /**< Waiting for a mutex event to occur */
+        WaitingSemaphore,   /**< Waiting for a semaphore event to occur */
+        WaitingMemoryPool,  /**< Waiting for a memory pool */
+        WaitingMessageGet,  /**< Waiting for message to arrive */
+        WaitingMessagePut,  /**< Waiting for message to be send */
+        WaitingInterval,    /**< Waiting for an interval to occur */
+        WaitingOr,          /**< Waiting for one event in a set to occur */
+        WaitingAnd,         /**< Waiting for multiple events in a set to occur */
+        WaitingMailbox,     /**< Waiting for a mailbox event to occur */
+
+        /* Not in sync with RTX below here */
+        Deleted,            /**< The task has been deleted */
+    };
 
     /** State of this Thread
       @return  the State of this Thread
     */
-    osThreadState_t get_state();
+    State get_state();
     
     /** Get the total stack memory size for this Thread
       @return  the total stack memory size in bytes
@@ -283,31 +307,31 @@ public:
      */
     const char *get_name();
 
-    /** Wait for one or more flags to become signaled for the current RUNNING thread.
-      @param   flags     wait until all specified flags are set or 0 for any flag.
+    /** Wait for one or more Signal Flags to become signaled for the current RUNNING thread.
+      @param   signals   wait until all specified signal flags are set or 0 for any single signal flag.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
       @return  event flag information or error code.
       @note not callable from interrupt
     */
-    static int32_t signal_wait(int32_t flags, uint32_t millisec=osWaitForever);
+    static osEvent signal_wait(int32_t signals, uint32_t millisec=osWaitForever);
 
     /** Wait for a specified time period in millisec:
       @param   millisec  time delay value
       @return  status code that indicates the execution status of the function.
       @note not callable from interrupt
     */
-    static osStatus_t wait(uint32_t millisec);
+    static osStatus wait(uint32_t millisec);
 
     /** Pass control to next thread that is in state READY.
       @return  status code that indicates the execution status of the function.
       @note not callable from interrupt
     */
-    static osStatus_t yield();
+    static osStatus yield();
 
     /** Get the thread id of the current running thread.
       @return  thread ID for reference by other functions or NULL in case of error.
     */
-    static osThreadId_t gettid();
+    static osThreadId gettid();
 
     /** Attach a function to be called by the RTOS idle task
       @param   fptr  pointer to the function to be called
@@ -317,7 +341,7 @@ public:
     /** Attach a function to be called when a task is killed
       @param   fptr  pointer to the function to be called
     */
-    static void attach_terminate_hook(void (*fptr)(osThreadId_t id));
+    static void attach_terminate_hook(void (*fptr)(osThreadId id));
 
     virtual ~Thread();
 
@@ -328,12 +352,12 @@ private:
 
     // Required to share definitions without
     // delegated constructors
-    void constructor(osPriority_t priority=osPriorityNormal,
+    void constructor(osPriority priority=osPriorityNormal,
                      uint32_t stack_size=OS_STACK_SIZE,
                      unsigned char *stack_mem=NULL,
                      const char *name=NULL);
     void constructor(mbed::Callback<void()> task,
-                     osPriority_t priority=osPriorityNormal,
+                     osPriority priority=osPriorityNormal,
                      uint32_t stack_size=OS_STACK_SIZE,
                      unsigned char *stack_mem=NULL,
                      const char *name=NULL);

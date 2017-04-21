@@ -24,11 +24,16 @@
 
 #include "cmsis_os2.h"
 
+#define osEventSignal  0x08
 #define osEventMessage 0x10
 #define osEventTimeout 0x40
 
-typedef osTimerType_t os_timer_type;
+#define osErrorValue   0x86;
+
 typedef osStatus_t osStatus;
+typedef osPriority_t osPriority;
+typedef osTimerType_t os_timer_type;
+typedef osThreadId_t osThreadId;
 typedef osMessageQueueId_t osMessageQId;
 typedef void* osMailQId;
 
