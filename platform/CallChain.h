@@ -22,7 +22,6 @@
 
 namespace mbed {
 /** \addtogroup platform */
-/** @{*/
 
 /** Group one or more functions in an instance of a CallChain, then call them in
  * sequence using CallChain::call(). Used mostly by the interrupt chaining code,
@@ -60,6 +59,7 @@ namespace mbed {
  *     chain.call();
  * }
  * @endcode
+ * @ingroup platform
  */
 
 typedef Callback<void()> *pFunctionPointer_t;
@@ -189,4 +189,3 @@ private:
 
 #endif
 
-/** @}*/

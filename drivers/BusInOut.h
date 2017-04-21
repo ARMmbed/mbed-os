@@ -21,11 +21,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A digital input output bus, used for setting the state of a collection of pins
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
+ * @ingroup drivers
  */
 class BusInOut {
 
@@ -33,7 +33,22 @@ public:
 
     /** Create an BusInOut, connected to the specified pins
      *
-     *  @param p<n> DigitalInOut pin to connect to bus bit p<n> (p5-p30, NC)
+     *  @param p0 DigitalInOut pin to connect to bus bit
+     *  @param p1 DigitalInOut pin to connect to bus bit
+     *  @param p2 DigitalInOut pin to connect to bus bit
+     *  @param p3 DigitalInOut pin to connect to bus bit
+     *  @param p4 DigitalInOut pin to connect to bus bit
+     *  @param p5 DigitalInOut pin to connect to bus bit
+     *  @param p6 DigitalInOut pin to connect to bus bit
+     *  @param p7 DigitalInOut pin to connect to bus bit
+     *  @param p8 DigitalInOut pin to connect to bus bit
+     *  @param p9 DigitalInOut pin to connect to bus bit
+     *  @param p10 DigitalInOut pin to connect to bus bit
+     *  @param p11 DigitalInOut pin to connect to bus bit
+     *  @param p12 DigitalInOut pin to connect to bus bit
+     *  @param p13 DigitalInOut pin to connect to bus bit
+     *  @param p14 DigitalInOut pin to connect to bus bit
+     *  @param p15 DigitalInOut pin to connect to bus bit
      *
      *  @note
      *  It is only required to specify as many pin variables as is required
@@ -44,6 +59,10 @@ public:
              PinName p8 = NC, PinName p9 = NC, PinName p10 = NC, PinName p11 = NC,
              PinName p12 = NC, PinName p13 = NC, PinName p14 = NC, PinName p15 = NC);
 
+    /** Create an BusInOut, connected to the specified pins
+     *
+     *  @param pins An array of pins to construct a BusInOut from
+     */
     BusInOut(PinName pins[16]);
 
     virtual ~BusInOut();
@@ -73,7 +92,7 @@ public:
 
     /** Set the input pin mode
      *
-     *  @param mode PullUp, PullDown, PullNone
+     *  @param pull PullUp, PullDown, PullNone
      */
     void mode(PinMode pull);
 
@@ -106,7 +125,7 @@ protected:
     virtual void unlock();
     DigitalInOut* _pin[16];
 
-    /** Mask of bus's NC pins
+    /* Mask of bus's NC pins
      * If bit[n] is set to 1 - pin is connected
      * if bit[n] is cleared - pin is not connected (NC)
      */
@@ -123,5 +142,3 @@ private:
 } // namespace mbed
 
 #endif
-
-/** @}*/
