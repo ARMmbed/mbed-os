@@ -102,33 +102,37 @@ bool USBHostMouse::connect()
 
 void USBHostMouse::rxHandler()
 {
-    int len_listen = int_in->getSize();
+    int len_listen = int_in->getLengthTransferred();
+    if (len_listen !=0) {
 
-    if (onUpdate) {
-        (*onUpdate)(report[0] & 0x07, report[1], report[2], report[3]);
+        if (onUpdate) {
+            (*onUpdate)(report[0] & 0x07, report[1], report[2], report[3]);
+        }
+
+        if (onButtonUpdate && (buttons != (report[0] & 0x07))) {
+            (*onButtonUpdate)(report[0] & 0x07);
+        }
+
+        if (onXUpdate && (x != report[1])) {
+            (*onXUpdate)(report[1]);
+        }
+
+        if (onYUpdate && (y != report[2])) {
+            (*onYUpdate)(report[2]);
+        }
+
+        if (onZUpdate && (z != report[3])) {
+            (*onZUpdate)(report[3]);
+        }
+
+        // update mouse state
+        buttons = report[0] & 0x07;
+        x = report[1];
+        y = report[2];
+        z = report[3];
     }
-
-    if (onButtonUpdate && (buttons != (report[0] & 0x07))) {
-        (*onButtonUpdate)(report[0] & 0x07);
-    }
-
-    if (onXUpdate && (x != report[1])) {
-        (*onXUpdate)(report[1]);
-    }
-
-    if (onYUpdate && (y != report[2])) {
-        (*onYUpdate)(report[2]);
-    }
-
-    if (onZUpdate && (z != report[3])) {
-        (*onZUpdate)(report[3]);
-    }
-
-    // update mouse state
-    buttons = report[0] & 0x07;
-    x = report[1];
-    y = report[2];
-    z = report[3];
+    /*  set again the maximum value */
+    len_listen = int_in->getSize();
 
     if (len_listen > sizeof(report)) {
         len_listen = sizeof(report);

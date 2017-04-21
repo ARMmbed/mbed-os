@@ -264,6 +264,12 @@ void USBHost::usb_process()
                             if (deviceInUse[idx]) {
                                 USB_WARN("td %p processed but not in idle state: %s [ep: %p - dev: %p - %s]", usb_msg->td_addr, ep->getStateString(), ep, ep->dev, ep->dev->getName(ep->getIntfNb()));
                                 ep->setState(USB_TYPE_IDLE);
+                                /* as error, on interrupt endpoint can be
+                                 * reported, call the call back registered ,
+                                 * if  device still in use, this call back
+                                 * shall ask again an interrupt request.
+                                 */
+                                ep->call();
                             }
                         }
                     }

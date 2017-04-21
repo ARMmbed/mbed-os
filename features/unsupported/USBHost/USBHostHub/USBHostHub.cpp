@@ -188,7 +188,7 @@ void USBHostHub::rxHandler()
 {
     uint32_t status;
     if (int_in) {
-        if (int_in->getState() == USB_TYPE_IDLE) {
+        if ((int_in->getLengthTransferred())&&(int_in->getState() == USB_TYPE_IDLE)) {
             for (int port = 1; port <= nb_port; port++) {
                 status = getPortStatus(port);
                 USB_DBG("[hub handler hub: %d] status port %d [hub: %p]: 0x%X", dev->getHub(), port, dev, status);
