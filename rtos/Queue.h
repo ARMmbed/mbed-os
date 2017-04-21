@@ -85,6 +85,7 @@ public:
                 event.status = (osStatus)osEventTimeout;
                 break;
             case osErrorParameter:
+            default:
                 event.status = osErrorParameter;
                 break;
         }

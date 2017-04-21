@@ -26,6 +26,7 @@
 
 #define osEventSignal  0x08
 #define osEventMessage 0x10
+#define osEventMail    0x10
 #define osEventTimeout 0x40
 
 #define osErrorValue   0x86;
