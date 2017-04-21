@@ -37,7 +37,8 @@
 
 import os
 from os.path import dirname, abspath, basename
-import sys, logging
+import sys
+import logging
 import argparse
 import json
 import subprocess
@@ -53,17 +54,21 @@ import examples_lib as lib
 from examples_lib import SUPPORTED_TOOLCHAINS
 
 def run_cmd(command, exit_on_failure=False):
-    """ Passes a command to the system and returns a True/False result once the 
-        command has been executed, indicating success/failure. Commands are passed
-        as a list of tokens. 
-        E.g. The command 'git remote -v' would be passed in as ['git', 'remote', '-v']
+    """ Run a system command and return the result status
+    
+    Description:
+    
+    Passes a command to the system and returns a True/False result, once the 
+    command has been executed, indicating success/failure. Commands are passed
+    as a list of tokens. 
+    E.g. The command 'git remote -v' would be passed in as ['git', 'remote', '-v']
 
     Args:
     command - system command as a list of tokens
     exit_on_failure - If True exit the program on failure (default = False)
     
     Returns:
-    result - True/False indicating the success/failure of the command
+    return_code - True/False indicating the success/failure of the command
     """
     update_log.debug('[Exec] %s', ' '.join(command))
     return_code = subprocess.call(command, shell=True)
@@ -77,18 +82,22 @@ def run_cmd(command, exit_on_failure=False):
     return return_code
 
 def run_cmd_with_output(command, exit_on_failure=False):
-    """ Passes a command to the system and returns a True/False result once the 
-        command has been executed, indicating success/failure. If the command was 
-        successful then the output from the command is returned to the caller.
-        Commands are passed as a list of tokens. 
-        E.g. The command 'git remote -v' would be passed in as ['git', 'remote', '-v']
+    """ Run a system command and return the result status plus output  
+    
+    Description:
+        
+    Passes a command to the system and returns a True/False result once the 
+    command has been executed, indicating success/failure. If the command was 
+    successful then the output from the command is returned to the caller.
+    Commands are passed as a list of tokens. 
+    E.g. The command 'git remote -v' would be passed in as ['git', 'remote', '-v']
 
     Args:
     command - system command as a list of tokens
     exit_on_failure - If True exit the program on failure (default = False)
     
     Returns:
-    result - True/False indicating the success/failure of the command
+    returncode - True/False indicating the success/failure of the command
     output - The output of the command if it was successful, else empty string
     """
     update_log.debug('[Exec] %s', ' '.join(command))
@@ -117,9 +126,13 @@ def rmtree_readonly(directory):
     shutil.rmtree(directory, onerror=remove_readonly)
 
 def find_all_examples(path):
-    """ Searches the path specified for sub-example folders, ie those containing an
-        mbed-os.lib file. If found adds the path to the sub-example to a list which is 
-        then returned.
+    """ Search the path for examples
+    
+    Description:
+    
+    Searches the path specified for sub-example folders, ie those containing an
+    mbed-os.lib file. If found adds the path to the sub-example to a list which is 
+    then returned.
         
     Args:
     path - path to search.
@@ -134,9 +147,13 @@ def find_all_examples(path):
     return examples
 
 def upgrade_single_example(example, tag, directory, ref):
-    """ Updates the mbed-os.lib file in the example specified to correspond to the 
-        version specified by the GitHub tag supplied. Also deals with 
-        multiple sub-examples in the GitHub repo, updating them in the same way.
+    """ Update the mbed-os version for a single example
+    
+    Description:
+    
+    Updates the mbed-os.lib file in the example specified to correspond to the 
+    version specified by the GitHub tag supplied. Also deals with 
+    multiple sub-examples in the GitHub repo, updating them in the same way.
         
     Args:
     example - json example object containing the GitHub repo to update.
@@ -190,6 +207,12 @@ def upgrade_single_example(example, tag, directory, ref):
 
 def prepare_fork(arm_example):
     """ Synchronises a cloned fork to ensure it is up to date with the original. 
+
+    Description:
+    
+    This function sets a fork of an ARMmbed repo to be up to date with the 
+    repo it was forked from. It does this by hard resetting to the ARMmbed
+    master branch.    
         
     Args:
     arm_example - Full GitHub repo path for original example 
@@ -197,7 +220,8 @@ def prepare_fork(arm_example):
     
     """
 
-    update_log.debug("In: ", os.getcwd())
+    logstr = "In: " + os.getcwd()
+    update_log.debug(logstr)
 
     for cmd in [['git', 'remote', 'add', 'armmbed', arm_example],
                 ['git', 'fetch', 'armmbed'],
@@ -209,6 +233,19 @@ def prepare_fork(arm_example):
     return True
 
 def prepare_branch(branch):
+    """ Set up at branch ready for use in updating examples 
+        
+    Description:
+    
+    This function checks whether or not the supplied branch exists.
+    If it does not, the branch is created and pushed to the origin.
+    The branch is then switched to.
+    
+    Args:
+    arm_example - Full GitHub repo path for original example 
+    ret - True if the fork was synchronised successfully, False otherwise
+    
+    """
 
     update_log.debug("Preparing branch: %s", branch)
 
@@ -237,28 +274,34 @@ def prepare_branch(branch):
     
 def upgrade_example(github, example, tag, ref,
                     user='ARMmbed', branch='master'):
-    """ Clone a version of the example specified and upgrade all versions of 
-        mbed-os.lib found within its tree.  The version cloned and how it 
-        is upgraded depends on the user and branch specified. Only two options 
-        are valid:
-        1) ARMmbed + non master branch
-           This option will update the branch directly in the ARMmbed repo. If the 
-           branch does not exist it will be first created.
+    """ Upgrade all versions of mbed-os.lib found in the specified example repo
+    
+    Description:
+    
+    Clone a version of the example specified and upgrade all versions of 
+    mbed-os.lib found within its tree.  The version cloned and how it 
+    is upgraded depends on the user and branch specified. Only two options 
+    are valid:
+    1) ARMmbed + non master branch
+       This option will update the branch directly in the ARMmbed repo. If the 
+       branch does not exist it will be first created.
 
-        2) alternative user + master branch
+    2) alternative user + master branch
                 
-           This option assumes that a fork of the repo exists in the specified user's
-           account. The fork will first be updated so that it is up to date with the 
-           upstream  version , then the fork will be updated and a PR raised against 
-           the upstream ie ARMmbed repo.
+       This option assumes that a fork of the repo exists in the specified user's
+       account. The fork will first be updated so that it is up to date with the 
+       upstream  version , then the fork will be updated and a PR raised against 
+       the upstream ie ARMmbed repo.
         
     Args:
     github - GitHub instance to allow internal git commands to be run
     example - json example object containing the GitHub repo to update.
     tag - GitHub tag corresponding to a version of mbed-os to upgrade to.
     ref - SHA corresponding to the tag
-    user - GitHub user name
-    branch - branch to update
+    user - GitHub user name (defaults to 'ARMmbed' if not supplied)
+    branch - branch to update (defaults to 'master' if not supplied)
+    
+    returns True if the upgrade was successful, False otherwise
     """
                 
     ret = False
@@ -362,21 +405,7 @@ def create_work_directory(path):
     
     os.makedirs(path)
 
-def main(arguments):
-    """ Will update any mbed-os.lib files found in the example list specified by the config file.
-        If no config file is specified the default 'examples.json' is used. 
-        The update is done by cloning a fork of each example (the fork must be present in the 
-        github account specified by the github user parameter). The fork is searched for any
-        mbed-os.lib files and each one found is updated with the SHA corresponding to the supplied
-        github tag. A pull request is then made from the fork to the original example repo.
-        
-    Args:
-    tag - tag to update the mbed-os.lib to. E.g. mbed-os-5.3.1
-    github_token - Pre-authorised token to allow github access
-    github_user - github username whose account contains the example forks
-    config_file - optional parameter to specify a list of examples
-
-    """
+if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -391,7 +420,7 @@ def main(arguments):
     exclusive.add_argument('-U', '--github_user', help="GitHub user for forked repos, mutually exclusive to branch option")
     exclusive.add_argument('-b', '--branch', help="Branch to be updated, mutually exclusive to user option")
     
-    args = parser.parse_args(arguments)
+    args = parser.parse_args()
 
     default = getattr(logging, 'INFO')
     level = getattr(logging, args.log_level.upper(), default)
@@ -426,8 +455,8 @@ def main(arguments):
     successes = []
     results = {}
     os.chdir('examples')
-    
-    for example in config['examples']:
+
+    for example in json_data['examples']:
         # Determine if this example should be updated and if so update any found 
         # mbed-os.lib files. 
         
@@ -453,6 +482,3 @@ def main(arguments):
     if failures:
         for fail in failures:
             update_log.info(" FAILED: %s", fail)
-
-if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
