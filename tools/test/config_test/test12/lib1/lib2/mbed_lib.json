@@ -1,0 +1,7 @@
+{
+    "name": "lib2",
+    "config": {
+        "p1": "v_p1_lib2",
+        "p2": "v_p2_lib2"
+    }
+}

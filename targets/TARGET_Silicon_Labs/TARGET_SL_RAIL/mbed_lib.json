@@ -1,0 +1,35 @@
+{
+    "name": "sl-rail",
+    "config": {
+        "band": {
+          "help" : "Configure this to 2400, 915 or 868 depending on which band you want to run on (and have available on the board)",
+          "value" : 2400
+        },
+        "PTI": true,
+        "has-2p4": false,
+        "has-subgig": false,
+        "pti-mode": "RADIO_PTI_MODE_UART",
+        "pti-baudrate" : 1600000,
+        "pti-dout-location": 6,
+        "pti-dout-port": "gpioPortB",
+        "pti-dout-pin": 12,
+        "pti-dclk-location": 6,
+        "pti-dclk-port": "gpioPortB",
+        "pti-dclk-pin": 11,
+        "pti-dframe-location": 6,
+        "pti-dframe-port": "gpioPortB",
+        "pti-dframe-pin": 13
+    },
+    "target_overrides": {
+        "TB_SENSE_1": {
+            "sl-rail.has-2p4": true
+        },
+        "TB_SENSE_12": {
+            "sl-rail.has-2p4": true
+        },
+        "EFR32MG1_BRD4150": {
+            "sl-rail.has-2p4": true,
+            "sl-rail.has-subgig": true
+        }
+    }
+}

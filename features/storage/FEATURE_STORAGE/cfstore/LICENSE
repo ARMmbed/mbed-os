@@ -1,0 +1,8 @@
+Unless specifically indicated otherwise in a file, files are licensed 
+2 under the Apache 2.0 license, as can be found in: apache-2.0.txt 
+
+Source code in cfstore_fnmatch.c is licensed under the agreements in the 
+following files:
+- berkeley.txt
+- chernov.txt
+- tatmanjants.txt 

@@ -1,0 +1,22 @@
+{
+    "name": "NUC472",
+    "config": {
+        "gpio-irq-debounce-enable": {
+            "help": "Enable GPIO IRQ debounce",
+            "value": 0
+        },
+        "gpio-irq-debounce-enable-list": {
+            "help": "Comma separated pin list to enable GPIO IRQ debounce",
+            "value": "NC"
+        },
+        "gpio-irq-debounce-clock-source": {
+            "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_IRC10K",
+            "value": "GPIO_DBCTL_DBCLKSRC_IRC10K"
+        },
+
+        "gpio-irq-debounce-sample-rate": {
+            "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
+            "value": "GPIO_DBCTL_DBCLKSEL_16"
+        }
+    }
+}

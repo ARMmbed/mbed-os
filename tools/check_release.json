@@ -1,0 +1,18 @@
+{
+  "config" : {
+    "mbed_repo_path" : "C:/Users/annbri01/Work/Mercurial"
+  },
+  "test_list" : [
+    { 
+      "name" : "test_compile_mbed_lib",
+      "lib" : "mbed"
+    },
+    {
+      "name" : "test_compile_mbed_dev",
+      "lib" : "mbed-dev"
+    }
+  ],
+  "target_list" : [],
+  "ignore_list" : []
+}
+

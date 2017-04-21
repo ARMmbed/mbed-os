@@ -1,0 +1,66 @@
+@startuml
+
+package "mbed OS Socket abstraction" {
+    abstract class MeshInterface -|> NetworkInterface
+
+    interface NetworkInterface {
+        +connect();
+        +disconnect();
+        +NetworkStack *get_stack();
+    }
+
+    interface NetworkStack
+}
+
+package "Nanostack PHY driver interface" {
+    interface NanostackPhy {
+        +int8_t phy_register()
+        +void get_mac_address(uint8_t *mac)
+        +void set_mac_address(uint8_t *mac)
+    }
+    NanostackPhy <|-- abstract class NanostackRfPhy
+    NanostackPhy <|-- abstract class NanostackEthernetPhy
+}
+
+package "mesh API internals" {
+    class NanostackInterface {
+        {static} +NanostackInterface *get_stack()
+        #socket_open()
+        #socket_close()
+        #socket_bind()
+        #socket_listen()
+        #socket_connect()
+        #socket_accept()
+        #socket_send()
+        #socket_recv()
+        #socket_sendto()
+        #socket_recvfrom()
+        #socket_attach()
+        #setsockopt()
+        #getsockopt()
+    }
+    NetworkStack <|-- NanostackInterface
+
+    abstract class MeshInterfaceNanostack {
+    +initialize(NanostackPhy *phy)
+    +connect()
+    +disconnect()
+    #NetworkStack *get_stack(void)
+    }
+    MeshInterface <|-- MeshInterfaceNanostack
+    NanostackPhy --o MeshInterfaceNanostack
+    MeshInterfaceNanostack -left-> NanostackInterface : get_stack()
+}
+
+package "mbed-mesh-api" {
+    MeshInterfaceNanostack <|-- LoWPANNDInterface
+    MeshInterfaceNanostack <|-- ThreadInterface
+    MeshInterfaceNanostack <|-- NanostackEthernetInterface
+}
+
+
+hide empty members
+hide empty attributes
+hide empty fields
+
+@enduml

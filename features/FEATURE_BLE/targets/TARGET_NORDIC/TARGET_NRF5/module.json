@@ -1,0 +1,36 @@
+{
+  "name": "ble-nrf51822",
+  "version": "2.7.1",
+  "description": "Nordic stack and drivers for the mbed BLE API.",
+  "keywords": [
+    "Bluetooth",
+    "BLE",
+    "mbed",
+    "mbed-official"
+  ],
+  "author": "Rohit Grover",
+  "repository": {
+    "url": "git@github.com:ARMmbed/ble-nRF51822.git",
+    "type": "git"
+  },
+  "homepage": "https://developer.mbed.org/teams/Nordic-Semiconductor/",
+  "licenses": [
+    {
+      "url": "https://spdx.org/licenses/Apache-2.0",
+      "type": "Apache-2.0"
+    },
+    {
+      "type": "LicenseRef-softdevice_nrf51822_licence_agreement.txt"
+    }
+  ],
+  "dependencies": {
+    "ble": "^2.6.0",
+    "nrf51-sdk": "^2.4.0"
+  },
+  "extraIncludes": [
+    "source/btle",
+    "source/btle/custom",
+    "source/common"
+  ],
+  "targetDependencies": {}
+}

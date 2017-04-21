@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
- *      RL-ARM - RTX
+ *      CMSIS-RTOS  -  RTX
  *----------------------------------------------------------------------------
  *      Name:    RT_SEMAPHORE.C
  *      Purpose: Implements binary and counting semaphores
- *      Rev.:    V4.70
+ *      Rev.:    V4.79 plus changes for RTX-Ax
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2015 ARM Germany GmbH, 2012-2016 ARM Limited
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -15,19 +15,19 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used
- *    to endorse or promote products derived from this software without
+ *  - Neither the name of ARM  nor the names of its contributors may be used 
+ *    to endorse or promote products derived from this software without 
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
@@ -74,20 +74,20 @@ OS_RESULT rt_sem_delete (OS_ID semaphore) {
   while (p_SCB->p_lnk != NULL) {
     /* A task is waiting for token */
     p_TCB = rt_get_first ((P_XCB)p_SCB);
-    rt_ret_val(p_TCB, 0);
+    rt_ret_val(p_TCB, 0U);
     rt_rmv_dly(p_TCB);
     p_TCB->state = READY;
     rt_put_prio (&os_rdy, p_TCB);
   }
 
-  if (os_rdy.p_lnk && (os_rdy.p_lnk->prio > os_tsk.run->prio)) {
+  if ((os_rdy.p_lnk != NULL) && (os_rdy.p_lnk->prio > os_tsk.run->prio)) {
     /* preempt running task */
     rt_put_prio (&os_rdy, os_tsk.run);
     os_tsk.run->state = READY;
     rt_dispatch (NULL);
   }
 
-  p_SCB->cb_type = 0;
+  p_SCB->cb_type = 0U;
 
   return (OS_R_OK);
 }
@@ -106,7 +106,7 @@ OS_RESULT rt_sem_send (OS_ID semaphore) {
     /* A task is waiting for token */
     p_TCB = rt_get_first ((P_XCB)p_SCB);
 #ifdef __CMSIS_RTOS
-    rt_ret_val(p_TCB, 1);
+    rt_ret_val(p_TCB, 1U);
 #else
     rt_ret_val(p_TCB, OS_R_SEM);
 #endif
@@ -133,7 +133,7 @@ OS_RESULT rt_sem_wait (OS_ID semaphore, U16 timeout) {
     return (OS_R_OK);
   }
   /* No token available: wait for one */
-  if (timeout == 0) {
+  if (timeout == 0U) {
     return (OS_R_TMO);
   }
   if (p_SCB->p_lnk != NULL) {
@@ -155,7 +155,7 @@ void isr_sem_send (OS_ID semaphore) {
   /* Same function as "os_sem_send", but to be called by ISRs */
   P_SCB p_SCB = semaphore;
 
-  rt_psq_enq (p_SCB, 0);
+  rt_psq_enq (p_SCB, 0U);
   rt_psh_req ();
 }
 
@@ -173,7 +173,7 @@ void rt_sem_psh (P_SCB p_CB) {
     rt_rmv_dly (p_TCB);
     p_TCB->state   = READY;
 #ifdef __CMSIS_RTOS
-    rt_ret_val(p_TCB, 1);
+    rt_ret_val(p_TCB, 1U);
 #else
     rt_ret_val(p_TCB, OS_R_SEM);
 #endif
@@ -188,4 +188,3 @@ void rt_sem_psh (P_SCB p_CB) {
 /*----------------------------------------------------------------------------
  * end of file
  *---------------------------------------------------------------------------*/
-

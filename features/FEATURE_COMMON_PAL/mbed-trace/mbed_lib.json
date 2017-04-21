@@ -1,0 +1,14 @@
+{
+    "name": "mbed-trace",
+    "config": {
+        "enable": {
+            "help": "Used to globally enable traces.",
+            "value": null
+        },
+        "fea-ipv6": {
+            "help": "Used to globally disable ipv6 tracing features.",
+            "value": null
+        }
+
+    }    
+}

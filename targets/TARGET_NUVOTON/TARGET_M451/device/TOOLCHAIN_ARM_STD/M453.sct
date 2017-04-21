@@ -1,0 +1,37 @@
+#! armcc -E
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x00000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x00040000
+#endif
+
+LR_IROM1 MBED_APP_START {
+  ER_IROM1 MBED_APP_START {  ; load address = execution address
+   *(RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+  
+  ;UVISOR AlignExpr(+0, 16) {  ; 16 byte-aligned
+  ;  uvisor-lib.a (+RW +ZI)
+  ;}
+  
+  ARM_LIB_STACK 0x20000000 EMPTY 0x800 {
+  }
+  
+  ER_IRAMVEC 0x20000800 EMPTY (4*(16 + 64)) {  ; Reserve for vectors
+  }
+  
+  RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned
+   .ANY (+RW +ZI)
+  }
+  
+  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x20000000 + 0x8000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
+  }
+}
+ScatterAssert(LoadLimit(LR_IROM1) <= (MBED_APP_START + MBED_APP_SIZE))    ; 256 KB APROM
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x20008000)   ; 32 KB SRAM
+
