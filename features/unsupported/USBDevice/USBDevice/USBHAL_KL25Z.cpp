@@ -455,6 +455,9 @@ void USBHAL::usbisr(void) {
         USB0->ERREN   =  0xFF;  // enable error interrupt sources
         USB0->ADDR    =  0x00;  // set default address
 
+        // reset bus for USBDevice layer
+        busReset();
+
         return;
     }
 
