@@ -379,7 +379,7 @@ void USBHost::transferCompleted(volatile uint32_t addr)
                 usb_msg->td_state = state;
                 mail_usb_event.put(usb_msg);
             }
-            ep->setState(state);
+            ep->setState((USB_TYPE)state);
             ep->ep_queue.put((uint8_t*)1);
         }
     }
