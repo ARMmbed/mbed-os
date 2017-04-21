@@ -27,7 +27,7 @@
 #include "rtx_lib.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
-#include "mbed_rtos_rtx1_types.h"
+#include "mbed_rtos1_types.h"
 
 namespace rtos {
 /** \addtogroup rtos */

@@ -28,7 +28,7 @@
 #include "cmsis_os2.h"
 #include "rtx_lib.h"
 #include "platform/mbed_error.h"
-#include "mbed_rtos_rtx1_types.h"
+#include "mbed_rtos1_types.h"
 
 namespace rtos {
 /** \addtogroup rtos */
