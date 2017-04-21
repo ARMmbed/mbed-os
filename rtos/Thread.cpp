@@ -34,7 +34,7 @@ extern "C" void thread_terminate_hook(osThreadId_t id)
 
 namespace rtos {
 
-void Thread::constructor(osPriority_t priority,
+void Thread::constructor(osPriority priority,
         uint32_t stack_size, unsigned char *stack_mem, const char *name) {
     _tid = 0;
     _dynamic_stack = (stack_mem == NULL);
@@ -46,7 +46,7 @@ void Thread::constructor(osPriority_t priority,
 }
 
 void Thread::constructor(Callback<void()> task,
-        osPriority_t priority, uint32_t stack_size, unsigned char *stack_mem, const char *name) {
+        osPriority priority, uint32_t stack_size, unsigned char *stack_mem, const char *name) {
     constructor(priority, stack_size, stack_mem, name);
 
     switch (start(task)) {
@@ -136,7 +136,7 @@ osStatus_t Thread::join() {
     return osOK;
 }
 
-osStatus_t Thread::set_priority(osPriority_t priority) {
+osStatus_t Thread::set_priority(osPriority priority) {
     osStatus_t ret;
     _mutex.lock();
 
@@ -146,7 +146,7 @@ osStatus_t Thread::set_priority(osPriority_t priority) {
     return ret;
 }
 
-osPriority_t Thread::get_priority() {
+osPriority Thread::get_priority() {
     osPriority_t ret;
     _mutex.lock();
 
@@ -164,17 +164,63 @@ int32_t Thread::signal_clr(int32_t flags) {
     return osThreadFlagsClear(flags);
 }
 
-osThreadState_t Thread::get_state() {
-    osThreadState_t status = osThreadError;
+Thread::State Thread::get_state() {
+    uint8_t state = osThreadTerminated;
 
     _mutex.lock();
 
     if (_tid != NULL) {
-        status = osThreadGetState(_tid);
+        state = _obj_mem.state;
     }
 
     _mutex.unlock();
-    return status;
+
+    State user_state;
+
+    switch(state) {
+        case osThreadInactive:
+            user_state = Inactive;
+            break;
+        case osThreadReady:
+            user_state = Ready;
+            break;
+        case osThreadRunning:
+            user_state = Running;
+            break;
+        case osRtxThreadWaitingDelay:
+            user_state = WaitingDelay;
+            break;
+        case osRtxThreadWaitingJoin:
+            user_state = WaitingJoin;
+            break;
+        case osRtxThreadWaitingThreadFlags:
+            user_state = WaitingThreadFlag;
+            break;
+        case osRtxThreadWaitingEventFlags:
+            user_state = WaitingEventFlag;
+            break;
+        case osRtxThreadWaitingMutex:
+            user_state = WaitingMutex;
+            break;
+        case osRtxThreadWaitingSemaphore:
+            user_state = WaitingSemaphore;
+            break;
+        case osRtxThreadWaitingMemoryPool:
+            user_state = WaitingMemoryPool;
+            break;
+        case osRtxThreadWaitingMessageGet:
+            user_state = WaitingMessageGet;
+            break;
+        case osRtxThreadWaitingMessagePut:
+            user_state = WaitingMessagePut;
+            break;
+        case osThreadTerminated:
+        default:
+            user_state = Deleted;
+            break;
+    }
+
+    return user_state;
 }
 
 uint32_t Thread::stack_size() {
@@ -236,13 +282,36 @@ const char *Thread::get_name() {
     return _attr.name;
 }
 
-int32_t Thread::signal_wait(int32_t flags, uint32_t millisec) {
+osEvent Thread::signal_wait(int32_t signals, uint32_t millisec) {
+    uint32_t res;
+    osEvent evt;
     uint32_t options = osFlagsWaitAll;
-    if (flags == 0) {
+    if (signals == 0) {
         options = osFlagsWaitAny;
-        flags = 0x7FFFFFFF;
+        signals = 0x7FFFFFFF;
     }
-    return osThreadFlagsWait(flags, options, millisec);
+    res = osThreadFlagsWait(signals, options, millisec);
+    if (res & osFlagsError) {
+        switch (res) {
+            case osFlagsErrorISR:
+                evt.status = osErrorISR;
+                break;
+            case osFlagsErrorResource:
+                evt.status = osOK;
+                break;
+            case osFlagsErrorTimeout:
+                evt.status = (osStatus)osEventTimeout;
+                break;
+            case osFlagsErrorParameter:
+            default:
+                evt.status = (osStatus)osErrorValue;
+                break;
+        }
+    }
+    evt.status = (osStatus)osEventSignal;
+    evt.value.signals = res;
+
+    return evt;
 }
 
 osStatus_t Thread::wait(uint32_t millisec) {

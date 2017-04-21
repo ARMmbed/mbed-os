@@ -6,7 +6,7 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
-#define TEST_STACK_SIZE 512
+#define TEST_STACK_SIZE 768
 
 #define SIGNAL_PRINT_TICK 0x01
 
