@@ -10,11 +10,19 @@ from yaml import dump
 from tools.targets import Target, set_targets_json_location, TARGET_MAP
 
 def must_have_keys(keys, dict):
+    """Require keys in an MCU/Board
+
+    is a generator for errors
+    """
     for key in keys:
         if key not in dict:
             yield "%s not found, and is required" % key
 
 def may_have_keys(keys, dict):
+    """Disable all other keys in an MCU/Board
+
+    is a generator for errors
+    """
     for key in dict.keys():
         if key not in keys:
             yield "%s found, and is not allowed" % key
@@ -22,9 +30,15 @@ def may_have_keys(keys, dict):
 
 MCU_REQUIRED_KEYS = ["release_versions", "supported_toolchains",
                      "default_lib", "public", "inherits"]
-MCU_ALLOWED_KEYS = ["device_has", "core", "extra_labels", "features", "bootloader_supported", "device_name", "post_binary_hook", "default_toolchain"] + MCU_REQUIRED_KEYS
+MCU_ALLOWED_KEYS = ["device_has", "core", "extra_labels", "features",
+                    "bootloader_supported", "device_name", "post_binary_hook",
+                    "default_toolchain"] + MCU_REQUIRED_KEYS
 def check_mcu(mcu_json, strict=False):
-    """Generate a list of problems with an mcu"""
+    """Generate a list of problems with an MCU
+
+    :param: mcu_json the MCU's dict to check
+    :param: strict enforce required keys
+    """
     if strict:
         for err in must_have_keys(MCU_REQUIRED_KEYS, mcu_json):
             yield err
@@ -32,17 +46,24 @@ def check_mcu(mcu_json, strict=False):
         yield err
     if 'public' in mcu_json and mcu_json['public']:
         yield "public must be false"
-    if ("release_versions" in mcu_json and
-        "5" in mcu_json["release_versions"] and
-        "supported_toolchains" in mcu_json):
-        for tc in ["GCC_ARM", "ARM", "IAR"]:
-            if tc not in mcu_json["supported_toolchains"]:
+    if  ("release_versions" in mcu_json and
+         "5" in mcu_json["release_versions"] and
+         "supported_toolchains" in mcu_json):
+        for toolc in ["GCC_ARM", "ARM", "IAR"]:
+            if toolc not in mcu_json["supported_toolchains"]:
                 yield ("%s not found in supported_toolchains, and is "
-                       "required by mbed OS 5" % tc)
+                       "required by mbed OS 5" % toolc)
 
 BOARD_REQUIRED_KEYS = ["inherits"]
-BOARD_ALLOWED_KEYS = ["supported_form_factors", "is_disk_virtual", "detect_code", "device_name", "extra_labels", "public"] + BOARD_REQUIRED_KEYS
+BOARD_ALLOWED_KEYS = ["supported_form_factors", "is_disk_virtual",
+                      "detect_code", "device_name", "extra_labels",
+                      "public"] + BOARD_REQUIRED_KEYS
 def check_board(board_json, strict=False):
+    """Generate a list of problems with an board
+
+    :param: board_json the mcus dict to check
+    :param: strict enforce required keys
+    """
     if strict:
         for err in must_have_keys(BOARD_REQUIRED_KEYS, board_json):
             yield err
@@ -51,10 +72,12 @@ def check_board(board_json, strict=False):
 
 
 def add_if(dict, key, val):
+    """Add a value to a dict if it's non-empty"""
     if val:
         dict[key] = val
 
 def _split_boards(resolution_order, tgt):
+    """Split the resolution order between boards and mcus"""
     mcus = []
     boards = []
     iterable = iter(resolution_order)
@@ -128,11 +151,13 @@ def check_hierarchy(tgt):
 
 
 def main():
+    """entry point"""
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("mcu", choices=TARGET_MAP.keys(), metavar="MCU")
+    parser.add_argument("mcu", choices=TARGET_MAP.keys(), metavar="MCU", )
     options = parser.parse_args()
-    print dump(check_hierarchy(TARGET_MAP[options.mcu]), default_flow_style=False)
+    print dump(check_hierarchy(TARGET_MAP[options.mcu]),
+               default_flow_style=False)
     return 0
 
 if __name__ == "__main__":
