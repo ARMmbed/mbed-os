@@ -1,4 +1,10 @@
-"""A linting utility for targets.json"""
+"""A linting utility for targets.json
+
+This linting utility may be called as follows:
+python <path-to>/lint.py TARGET [TARGET ...]
+
+all targets will be linted
+"""
 
 from os.path import join, abspath, dirname
 if __name__ == "__main__":
@@ -6,7 +12,8 @@ if __name__ == "__main__":
     ROOT = abspath(join(dirname(__file__), "..", ".."))
     sys.path.insert(0, ROOT)
 from copy import copy
-from yaml import dump
+from yaml import dump_all
+import argparse
 from tools.targets import Target, set_targets_json_location, TARGET_MAP
 
 def must_have_keys(keys, dict):
@@ -27,49 +34,74 @@ def may_have_keys(keys, dict):
         if key not in keys:
             yield "%s found, and is not allowed" % key
 
+def check_extra_labels(dict):
+    """Check that extra_labels does not contain any Target names
+
+    is a generator for errors
+    """
+    for label in (dict.get("extra_labels", []) +
+                  dict.get("extra_labels_add", [])):
+        if label in Target.get_json_target_data():
+            yield "%s is not allowed in extra_labels" % label
+
+def check_release_version(dict):
+    """Verify that release version 5 is combined with support for all toolcahins
+
+    is a generator for errors
+    """
+    if  ("release_versions" in dict and
+         "5" in dict["release_versions"] and
+         "supported_toolchains" in dict):
+        for toolc in ["GCC_ARM", "ARM", "IAR"]:
+            if toolc not in dict["supported_toolchains"]:
+                yield ("%s not found in supported_toolchains, and is "
+                       "required by mbed OS 5" % toolc)
+
+def check_inherits(dict):
+    if  ("inherits" in dict and len(dict["inherits"]) > 1):
+        yield "multiple inheritance is forbidden"
 
 MCU_REQUIRED_KEYS = ["release_versions", "supported_toolchains",
-                     "default_lib", "public", "inherits"]
-MCU_ALLOWED_KEYS = ["device_has", "core", "extra_labels", "features",
-                    "bootloader_supported", "device_name", "post_binary_hook",
-                    "default_toolchain"] + MCU_REQUIRED_KEYS
+                     "default_lib", "public", "inherits", "device_has"]
+MCU_ALLOWED_KEYS = ["device_has", "device_has_add", "device_has_remove", "core",
+                    "extra_labels", "features", "features_add",
+                    "features_remove", "bootloader_supported", "device_name",
+                    "post_binary_hook", "default_toolchain", "config",
+                    "extra_labels_add", "extra_labels_remove",
+                    "target_overrides"] + MCU_REQUIRED_KEYS
 def check_mcu(mcu_json, strict=False):
     """Generate a list of problems with an MCU
 
     :param: mcu_json the MCU's dict to check
     :param: strict enforce required keys
     """
+    errors = list(may_have_keys(MCU_ALLOWED_KEYS, mcu_json))
     if strict:
-        for err in must_have_keys(MCU_REQUIRED_KEYS, mcu_json):
-            yield err
-    for err in may_have_keys(MCU_ALLOWED_KEYS, mcu_json):
-        yield err
+        errors.extend(must_have_keys(MCU_REQUIRED_KEYS, mcu_json))
+    errors.extend(check_extra_labels(mcu_json))
+    errors.extend(check_release_version(mcu_json))
+    errors.extend(check_inherits(mcu_json))
     if 'public' in mcu_json and mcu_json['public']:
-        yield "public must be false"
-    if  ("release_versions" in mcu_json and
-         "5" in mcu_json["release_versions"] and
-         "supported_toolchains" in mcu_json):
-        for toolc in ["GCC_ARM", "ARM", "IAR"]:
-            if toolc not in mcu_json["supported_toolchains"]:
-                yield ("%s not found in supported_toolchains, and is "
-                       "required by mbed OS 5" % toolc)
+        errors.append("public must be false")
+    return errors
 
 BOARD_REQUIRED_KEYS = ["inherits"]
 BOARD_ALLOWED_KEYS = ["supported_form_factors", "is_disk_virtual",
-                      "detect_code", "device_name", "extra_labels",
-                      "public"] + BOARD_REQUIRED_KEYS
+                      "detect_code", "extra_labels", "extra_labels_add",
+                      "extra_labels_remove", "public", "config",
+                      "forced_reset_timeout", "target_overrides"] + BOARD_REQUIRED_KEYS
 def check_board(board_json, strict=False):
     """Generate a list of problems with an board
 
     :param: board_json the mcus dict to check
     :param: strict enforce required keys
     """
+    errors = list(may_have_keys(BOARD_ALLOWED_KEYS, board_json))
     if strict:
-        for err in must_have_keys(BOARD_REQUIRED_KEYS, board_json):
-            yield err
-    for err in may_have_keys(BOARD_ALLOWED_KEYS, board_json):
-        yield err
-
+        errors.extend(must_have_keys(BOARD_REQUIRED_KEYS, board_json))
+    errors.extend(check_extra_labels(board_json))
+    errors.extend(check_inherits(board_json))
+    return errors
 
 def add_if(dict, key, val):
     """Add a value to a dict if it's non-empty"""
@@ -106,7 +138,7 @@ def _generate_hierarchy_string(mcus, boards):
         global_errors.append("No MCUS found in heirarchy")
         mcus_string = "??? ->"
     elif len(mcus) > 3:
-        global_errors.append("No name for targets: %s" % mcus[3:])
+        global_errors.append("No name for targets %s" % ", ".join(mcus[3:]))
         mcus_string = MCU_FORMAT_STRING[3] % tuple(mcus[:3])
         for name in mcus[3:]:
             mcus_string += " ??? (%s) ->" % name
@@ -117,10 +149,10 @@ def _generate_hierarchy_string(mcus, boards):
         global_errors.append("no boards found in heirarchy")
         boards_string = "???"
     elif len(boards) > 2:
-        global_errors.append("no name for targets: %s" % boards[2:])
-        boards_string = BOARD_FORMAT_STRING[3] % tuple(boards[:2])
+        global_errors.append("no name for targets %s" % ", ".join(boards[2:]))
+        boards_string = BOARD_FORMAT_STRING[2] % tuple(boards[:2])
         for name in boards[2:]:
-            boards_string += " ??? (%s)" % name
+            boards_string += " -> ??? (%s)" % name
     else:
         boards_string = BOARD_FORMAT_STRING[len(boards)] % tuple(boards)
     return mcus_string + " " + boards_string, global_errors
@@ -134,7 +166,7 @@ def check_hierarchy(tgt):
     target_errors = {}
     hierachy_string, hierachy_errors = _generate_hierarchy_string(mcus, boards)
     to_ret = {"hierarchy": hierachy_string}
-    add_if(to_ret, "hierachy errors", hierachy_errors)
+    add_if(to_ret, "hierarchy errors", hierachy_errors)
 
     for name in mcus[:-1]:
         add_if(target_errors, name, list(check_mcu(tgt.json_data[name])))
@@ -149,16 +181,68 @@ def check_hierarchy(tgt):
     add_if(to_ret, "target errors", target_errors)
     return to_ret
 
+PARSER = argparse.ArgumentParser(prog="targets/lint.py")
+SUBPARSERS = PARSER.add_subparsers(title="Commands")
+
+def subcommand(name, *args, **kwargs):
+    def __subcommand(command):
+        kwargs['description'] = command.__doc__
+        subparser = SUBPARSERS.add_parser(name, **kwargs)
+        for arg in args:
+            arg = dict(arg)
+            opt = arg['name']
+            del arg['name']
+
+            if isinstance(opt, basestring):
+                subparser.add_argument(opt, **arg)
+            else:
+                subparser.add_argument(*opt, **arg)
+
+        def _thunk(parsed_args):
+            argv = [arg['dest'] if 'dest' in arg else arg['name']
+                    for arg in args]
+            argv = [(arg if isinstance(arg, basestring)
+                     else arg[-1]).strip('-').replace('-', '_')
+                    for arg in argv]
+            argv = {arg: vars(parsed_args)[arg] for arg in argv
+                    if vars(parsed_args)[arg] is not None}
+
+            return command(**argv)
+
+        subparser.set_defaults(command=_thunk)
+        return command
+    return __subcommand
+
+@subcommand("targets",
+            dict(name="mcus", nargs="+", metavar="MCU",
+                 choices=TARGET_MAP.keys(), type=str.upper))
+def targets_cmd(mcus=[]):
+    """Find and print errors about specific targets"""
+    print dump_all([check_hierarchy(TARGET_MAP[m]) for m in mcus],
+                   default_flow_style=False)
+
+@subcommand("all-targets")
+def all_targets_cmd():
+    """Print all errors about all parts"""
+    print dump_all([check_hierarchy(m) for m in TARGET_MAP.values()],
+                   default_flow_style=False)
+
+@subcommand("orphans")
+def orphans_cmd():
+    """Find and print all orphan targets"""
+    orphans = Target.get_json_target_data().keys()
+    for tgt in TARGET_MAP.values():
+        for name in tgt.resolution_order_names:
+            if name in orphans:
+                orphans.remove(name)
+    if orphans:
+        print dump_all([orphans], default_flow_style=False)
+    return len(orphans)
 
 def main():
     """entry point"""
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("mcu", choices=TARGET_MAP.keys(), metavar="MCU", )
-    options = parser.parse_args()
-    print dump(check_hierarchy(TARGET_MAP[options.mcu]),
-               default_flow_style=False)
-    return 0
+    options = PARSER.parse_args()
+    return options.command(options)
 
 if __name__ == "__main__":
     sys.exit(main())
