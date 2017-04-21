@@ -38,6 +38,25 @@ uint32_t PWM_ConfigOutputChannel (PWM_T *pwm,
                                   uint32_t u32Frequency,
                                   uint32_t u32DutyCycle)
 {
+    return PWM_ConfigOutputChannel2(pwm, u32ChannelNum, u32Frequency, u32DutyCycle, 1);
+}
+
+/**
+ * @brief This function config PWM generator and get the nearest frequency in edge aligned auto-reload mode
+ * @param[in] pwm The base address of PWM module
+ * @param[in] u32ChannelNum PWM channel number. Valid values are between 0~5
+ * @param[in] u32Frequency Target generator frequency
+ * @param[in] u32DutyCycle Target generator duty cycle percentage. Valid range are between 0 ~ 100. 10 means 10%, 20 means 20%...
+ * @return Nearest frequency clock in nano second
+ * @note Since every two channels, (0 & 1), (2 & 3), (4 & 5), shares a prescaler. Call this API to configure PWM frequency may affect
+ *       existing frequency of other channel.
+ */
+uint32_t PWM_ConfigOutputChannel2 (PWM_T *pwm,
+                                  uint32_t u32ChannelNum,
+                                  uint32_t u32Frequency,
+                                  uint32_t u32DutyCycle,
+                                  uint32_t u32Frequency2)
+{
     uint32_t i;
     uint32_t u32ClkSrc;
     uint32_t u32PWM_Clock = SystemCoreClock;
@@ -66,7 +85,8 @@ uint32_t PWM_ConfigOutputChannel (PWM_T *pwm,
     }
 
     for(; u8Divider < 17; u8Divider <<= 1) {  // clk divider could only be 1, 2, 4, 8, 16
-        i = (u32PWM_Clock / u32Frequency) / u8Divider;
+        // Note: Support frequency < 1
+        i = (uint64_t) u32PWM_Clock * u32Frequency2 / u32Frequency / u8Divider;
         // If target value is larger than CNR * prescale, need to use a larger divider
         if(i > (0x10000 * 0x100))
             continue;

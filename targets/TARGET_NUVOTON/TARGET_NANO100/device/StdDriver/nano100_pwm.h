@@ -165,6 +165,11 @@ uint32_t PWM_ConfigOutputChannel(PWM_T *pwm,
                                  uint32_t u32ChannelNum,
                                  uint32_t u32Frequency,
                                  uint32_t u32DutyCycle);
+uint32_t PWM_ConfigOutputChannel2(PWM_T *pwm,
+                                 uint32_t u32ChannelNum,
+                                 uint32_t u32Frequency,
+                                 uint32_t u32DutyCycle,
+                                 uint32_t u32Frequency2);
 uint32_t PWM_ConfigCaptureChannel (PWM_T *pwm,
                                    uint32_t u32ChannelNum,
                                    uint32_t u32UnitTimeNsec,
