@@ -510,7 +510,7 @@ class mbedToolchain:
     def is_ignored(self, file_path):
         """Check if file path is ignored by any .mbedignore thus far"""
         for pattern in self.ignore_patterns:
-            if fnmatch.fnmatch(file_path, pattern):
+            if fnmatch.fnmatchcase(file_path, pattern):
                 return True
         return False
 
