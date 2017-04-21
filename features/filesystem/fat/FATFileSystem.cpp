@@ -160,6 +160,21 @@ void ff_memfree(void *p)
 }
 
 // Implementation of diskio functions (see ChaN/diskio.h)
+static WORD disk_get_sector_size(BYTE pdrv)
+{
+    WORD ssize = _ffs[pdrv]->get_erase_size();
+    if (ssize < 512) {
+        ssize = 512;
+    }
+
+    return ssize;
+}
+
+static DWORD disk_get_sector_count(BYTE pdrv)
+{
+    return _ffs[pdrv]->size() / disk_get_sector_size(pdrv);
+}
+
 DSTATUS disk_status(BYTE pdrv)
 {
     debug_if(FFS_DBG, "disk_status on pdrv [%d]\n", pdrv);
@@ -175,7 +190,7 @@ DSTATUS disk_initialize(BYTE pdrv)
 DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
-    bd_size_t ssize = _ffs[pdrv]->get_erase_size();
+    DWORD ssize = disk_get_sector_size(pdrv);
     int err = _ffs[pdrv]->read(buff, sector*ssize, count*ssize);
     return err ? RES_PARERR : RES_OK;
 }
@@ -183,7 +198,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
-    bd_size_t ssize = _ffs[pdrv]->get_erase_size();
+    DWORD ssize = disk_get_sector_size(pdrv);
     int err = _ffs[pdrv]->erase(sector*ssize, count*ssize);
     if (err) {
         return RES_PARERR;
@@ -211,16 +226,14 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                DWORD count = _ffs[pdrv]->size() / _ffs[pdrv]->get_erase_size();
-                *((DWORD*)buff) = count;
+                *((DWORD*)buff) = disk_get_sector_count(pdrv);
                 return RES_OK;
             }
         case GET_SECTOR_SIZE:
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                WORD size = _ffs[pdrv]->get_erase_size();
-                *((WORD*)buff) = size;
+                *((WORD*)buff) = disk_get_sector_size(pdrv);
                 return RES_OK;
             }
         case GET_BLOCK_SIZE:
