@@ -29,6 +29,7 @@
  */
 #include "mbed_assert.h"
 #include "serial_api.h"
+#include "serial_api_hal.h"
 
 #if DEVICE_SERIAL
 
@@ -41,51 +42,12 @@
 #define UART_NUM (8)
 
 static uint32_t serial_irq_ids[UART_NUM] = {0};
-static UART_HandleTypeDef uart_handlers[UART_NUM];
+UART_HandleTypeDef uart_handlers[UART_NUM];
 
 static uart_irq_handler irq_handler;
 
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
-
-#if DEVICE_SERIAL_ASYNCH
-    #define SERIAL_S(obj) (&((obj)->serial))
-#else
-    #define SERIAL_S(obj) (obj)
-#endif
-
-static void init_uart(serial_t *obj)
-{
-    struct serial_s *obj_s = SERIAL_S(obj);
-    UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-    huart->Instance = (USART_TypeDef *)(obj_s->uart);
-
-    huart->Init.BaudRate     = obj_s->baudrate;
-    huart->Init.WordLength   = obj_s->databits;
-    huart->Init.StopBits     = obj_s->stopbits;
-    huart->Init.Parity       = obj_s->parity;
-#if DEVICE_SERIAL_FC
-    huart->Init.HwFlowCtl    = obj_s->hw_flow_ctl;
-#else
-    huart->Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-#endif
-    huart->TxXferCount       = 0;
-    huart->TxXferSize        = 0;
-    huart->RxXferCount       = 0;
-    huart->RxXferSize        = 0;
-
-    if (obj_s->pin_rx == NC) {
-        huart->Init.Mode = UART_MODE_TX;
-    } else if (obj_s->pin_tx == NC) {
-        huart->Init.Mode = UART_MODE_RX;
-    } else {
-        huart->Init.Mode = UART_MODE_TX_RX;
-    }
-
-    if (HAL_UART_Init(huart) != HAL_OK) {
-        error("Cannot initialize UART\n");
-    }
-}
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
@@ -272,39 +234,6 @@ void serial_baud(serial_t *obj, int baudrate)
     struct serial_s *obj_s = SERIAL_S(obj);
 
     obj_s->baudrate = baudrate;
-    init_uart(obj);
-}
-
-void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
-{
-    struct serial_s *obj_s = SERIAL_S(obj);
-
-    if (data_bits == 9) {
-        obj_s->databits = UART_WORDLENGTH_9B;
-    } else {
-        obj_s->databits = UART_WORDLENGTH_8B;
-    }
-
-    switch (parity) {
-        case ParityOdd:
-            obj_s->parity = UART_PARITY_ODD;
-            break;
-        case ParityEven:
-            obj_s->parity = UART_PARITY_EVEN;
-            break;
-        default: // ParityNone
-        case ParityForced0: // unsupported!
-        case ParityForced1: // unsupported!
-            obj_s->parity = UART_PARITY_NONE;
-            break;
-    }
-
-    if (stop_bits == 2) {
-        obj_s->stopbits = UART_STOPBITS_2;
-    } else {
-        obj_s->stopbits = UART_STOPBITS_1;
-    }
-
     init_uart(obj);
 }
 
