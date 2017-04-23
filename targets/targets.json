@@ -571,6 +571,20 @@
         "release_versions": ["2", "5"],
         "device_name": "MKW41Z512xxx4"
     },
+    "RO359B": {
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4F",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "KPSDK_MCUS", "KPSDK_CODE", "MCU_K24F", "FLASH_CMSIS_ALGO"],
+        "is_disk_virtual": true,
+        "macros": ["CPU_MK24FN1M0VDC12", "FSL_RTOS_MBED"],
+        "inherits": ["Target"],
+        "detect_code": ["1022"],
+        "progen": {"target": "ro359b"},
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "release_versions": ["2", "5"],
+        "device_name": "MK24FN1M0xxx12"
+    },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
