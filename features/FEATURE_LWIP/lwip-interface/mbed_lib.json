@@ -32,6 +32,14 @@
         "udp-socket-max": {
             "help": "Maximum number of open UDPSocket instances allowed, including one used internally for DNS.  Each requires 84 bytes of pre-allocated RAM",
             "value": 4
+        },
+        "tcpip-thread-stacksize": {
+            "help": "Stack size for lwip TCPIP thread",
+            "value": 1200
+        },
+        "default-thread-stacksize": {
+            "help": "Stack size for lwip system threads",
+            "value": 512
         }
     }
 }

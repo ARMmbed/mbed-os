@@ -30,7 +30,7 @@ from tools.build_api import scan_resources
 from tools.toolchains import Resources
 from tools.export import lpcxpresso, ds5_5, iar, makefile
 from tools.export import embitz, coide, kds, simplicity, atmelstudio
-from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt
+from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt, vscode
 from tools.export import gnuarmeclipse
 from tools.export import qtcreator
 from tools.targets import TARGET_NAMES
@@ -58,7 +58,10 @@ EXPORTERS = {
     'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
     'qtcreator': qtcreator.QtCreator,
     'zip' : zip.ZIP,
-    'cmsis'    : cmsis.CMSIS
+    'cmsis'    : cmsis.CMSIS,
+    'vscode_gcc_arm' : vscode.VSCodeGcc,
+    'vscode_iar' : vscode.VSCodeIAR,
+    'vscode_armc5' : vscode.VSCodeArmc5
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
@@ -69,6 +72,14 @@ Please refer to <a href='/handbook/Exporting-to-offline-toolchains' target='_bla
 ERROR_MESSAGE_NOT_EXPORT_LIBS = """
 To export this project please <a href='http://mbed.org/compiler/?import=http://mbed.org/users/mbed_official/code/mbed-export/k&mode=lib' target='_blank'>import the export version of the mbed library</a>.
 """
+
+def mcu_ide_list():
+    """Shows list of exportable ides 
+
+    """
+    supported_ides = sorted(EXPORTERS.keys())
+    return "\n".join(supported_ides)
+
 
 def mcu_ide_matrix(verbose_html=False):
     """Shows target map using prettytable

@@ -20,11 +20,11 @@
 
 namespace mbed {
 /** \addtogroup platform */
-/** @{*/
 
 /** Templated Circular buffer class
  *
  *  @Note Synchronization level: Interrupt safe
+ *  @ingroup platform
  */
 template<typename T, uint32_t BufferSize, typename CounterType = uint32_t>
 class CircularBuffer {
@@ -116,4 +116,3 @@ private:
 
 #endif
 
-/** @}*/

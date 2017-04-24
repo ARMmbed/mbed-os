@@ -21,11 +21,11 @@
 
 namespace events {
 /** \addtogroup events */
-/** @{*/
 
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
+ * @ingroup events
  */
 template <typename F>
 class Event;
@@ -33,6 +33,7 @@ class Event;
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
+ * @ingroup events
  */
 template <>
 class Event<void()> {
@@ -429,6 +430,7 @@ public:
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
+ * @ingroup events
  */
 template <typename A0>
 class Event<void(A0)> {
@@ -825,6 +827,7 @@ public:
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
+ * @ingroup events
  */
 template <typename A0, typename A1>
 class Event<void(A0, A1)> {
@@ -1221,6 +1224,7 @@ public:
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
+ * @ingroup events
  */
 template <typename A0, typename A1, typename A2>
 class Event<void(A0, A1, A2)> {
@@ -1617,6 +1621,7 @@ public:
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
+ * @ingroup events
  */
 template <typename A0, typename A1, typename A2, typename A3>
 class Event<void(A0, A1, A2, A3)> {
@@ -2013,6 +2018,7 @@ public:
 /** Event
  *
  *  Representation of an event for fine-grain dispatch control
+ * @ingroup events
  */
 template <typename A0, typename A1, typename A2, typename A3, typename A4>
 class Event<void(A0, A1, A2, A3, A4)> {
@@ -2407,6 +2413,8 @@ public:
 };
 
 
+/** \addtogroup events */
+/** @{ */
 
 // Convenience functions declared here to avoid cyclic
 // dependency between Event and EventQueue

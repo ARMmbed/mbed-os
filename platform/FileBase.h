@@ -26,14 +26,19 @@ typedef int FILEHANDLE;
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \addtogroup platform */
 /** @{*/
 
 typedef enum {
     FilePathType,
     FileSystemPathType
 } PathType;
+/** @}*/
 
+/**
+ * @class FileBase
+ * @ingroup platform
+ */
 class FileBase {
 public:
     FileBase(const char *name, PathType t);
@@ -62,4 +67,3 @@ private:
 
 #endif
 
-/** @}*/

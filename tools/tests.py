@@ -1042,11 +1042,6 @@ TESTS = [
         "automated": True,
         #"host_test" : "dev_null_auto",
     },
-    {
-        "id": "EXAMPLE_2", "description": "FS + RTOS",
-        "source_dir": join(TEST_DIR, "mbed", "fs"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, TEST_MBED_LIB],
-    },
 
     # CPPUTEST Library provides Unit testing Framework
     #

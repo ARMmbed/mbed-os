@@ -21,9 +21,9 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A digital output bus, used for setting the state of a collection of pins
+ * @ingroup drivers
  */
 class BusOut {
 
@@ -31,9 +31,24 @@ public:
 
     /** Create an BusOut, connected to the specified pins
      *
-     *  @param p<n> DigitalOut pin to connect to bus bit <n> (p5-p30, NC)
+     *  @param p0 DigitalOut pin to connect to bus bit
+     *  @param p1 DigitalOut pin to connect to bus bit
+     *  @param p2 DigitalOut pin to connect to bus bit
+     *  @param p3 DigitalOut pin to connect to bus bit
+     *  @param p4 DigitalOut pin to connect to bus bit
+     *  @param p5 DigitalOut pin to connect to bus bit
+     *  @param p6 DigitalOut pin to connect to bus bit
+     *  @param p7 DigitalOut pin to connect to bus bit
+     *  @param p8 DigitalOut pin to connect to bus bit
+     *  @param p9 DigitalOut pin to connect to bus bit
+     *  @param p10 DigitalOut pin to connect to bus bit
+     *  @param p11 DigitalOut pin to connect to bus bit
+     *  @param p12 DigitalOut pin to connect to bus bit
+     *  @param p13 DigitalOut pin to connect to bus bit
+     *  @param p14 DigitalOut pin to connect to bus bit
+     *  @param p15 DigitalOut pin to connect to bus bit
      *
-     *  @Note Synchronization level: Thread safe
+     *  @note Synchronization level: Thread safe
      *
      *  @note
      *  It is only required to specify as many pin variables as is required
@@ -44,6 +59,10 @@ public:
            PinName p8 = NC, PinName p9 = NC, PinName p10 = NC, PinName p11 = NC,
            PinName p12 = NC, PinName p13 = NC, PinName p14 = NC, PinName p15 = NC);
 
+    /** Create an BusOut, connected to the specified pins
+     *
+     *  @param pins An array of pins to connect to bus the bit
+     */
     BusOut(PinName pins[16]);
 
     virtual ~BusOut();
@@ -90,7 +109,7 @@ protected:
     virtual void unlock();
     DigitalOut* _pin[16];
 
-    /** Mask of bus's NC pins
+    /* Mask of bus's NC pins
      * If bit[n] is set to 1 - pin is connected
      * if bit[n] is cleared - pin is not connected (NC)
      */
@@ -107,5 +126,3 @@ private:
 } // namespace mbed
 
 #endif
-
-/** @}*/

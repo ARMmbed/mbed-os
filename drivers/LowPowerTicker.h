@@ -19,17 +19,17 @@
 #include "platform/platform.h"
 #include "drivers/Ticker.h"
 
-#if DEVICE_LOWPOWERTIMER
+#if defined (DEVICE_LOWPOWERTIMER) || defined(DOXYGEN_ONLY)
 
 #include "hal/lp_ticker_api.h"
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** Low Power Ticker
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
+ * @ingroup drivers
  */
 class LowPowerTicker : public Ticker {
 
@@ -46,5 +46,3 @@ public:
 #endif
 
 #endif
-
-/** @}*/

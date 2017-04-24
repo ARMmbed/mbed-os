@@ -24,12 +24,12 @@
 
 namespace mbed {
 /** \addtogroup platform */
-/** @{*/
 
 
 /** Callback class based on template specialization
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
+ * @ingroup platform
  */
 template <typename F>
 class Callback;
@@ -60,7 +60,8 @@ namespace detail {
 
 /** Callback class based on template specialization
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
+ * @ingroup platform
  */
 template <typename R>
 class Callback<R()> {
@@ -655,7 +656,8 @@ private:
 
 /** Callback class based on template specialization
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
+ * @ingroup platform
  */
 template <typename R, typename A0>
 class Callback<R(A0)> {
@@ -1250,7 +1252,8 @@ private:
 
 /** Callback class based on template specialization
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
+ * @ingroup platform
  */
 template <typename R, typename A0, typename A1>
 class Callback<R(A0, A1)> {
@@ -1845,7 +1848,8 @@ private:
 
 /** Callback class based on template specialization
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
+ * @ingroup platform
  */
 template <typename R, typename A0, typename A1, typename A2>
 class Callback<R(A0, A1, A2)> {
@@ -2440,7 +2444,8 @@ private:
 
 /** Callback class based on template specialization
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
+ * @ingroup platform
  */
 template <typename R, typename A0, typename A1, typename A2, typename A3>
 class Callback<R(A0, A1, A2, A3)> {
@@ -3035,7 +3040,8 @@ private:
 
 /** Callback class based on template specialization
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
+ * @ingroup platform
  */
 template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
 class Callback<R(A0, A1, A2, A3, A4)> {
@@ -4649,6 +4655,3 @@ Callback<R(A0, A1, A2, A3, A4)> callback(const volatile U *obj, R (*func)(const 
 } // namespace mbed
 
 #endif
-
-
-/** @}*/
