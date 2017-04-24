@@ -197,7 +197,7 @@ void sys_mbox_post(sys_mbox_t *mbox, void *msg) {
 err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
     uint32_t flags = osEventFlagsWait(mbox->id, SYS_MBOX_POST_EVENT,
             osFlagsWaitAny | osFlagsNoClear, 0);
-    if (!(flags & SYS_MBOX_POST_EVENT))
+    if ((flags & osFlagsError) || !(flags & SYS_MBOX_POST_EVENT))
         return ERR_MEM;
 
     int state = osKernelLock();
@@ -242,7 +242,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
     uint32_t start = us_ticker_read();
     uint32_t flags = osEventFlagsWait(mbox->id, SYS_MBOX_FETCH_EVENT,
             osFlagsWaitAny | osFlagsNoClear, (timeout ? timeout : osWaitForever));
-    if (!(flags & SYS_MBOX_FETCH_EVENT))
+    if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT))
         return SYS_ARCH_TIMEOUT;
 
     int state = osKernelLock();
@@ -276,7 +276,7 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
     uint32_t flags = osEventFlagsWait(mbox->id, SYS_MBOX_FETCH_EVENT,
             osFlagsWaitAny | osFlagsNoClear, 0);
-    if (!(flags & SYS_MBOX_FETCH_EVENT))
+    if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT))
         return SYS_MBOX_EMPTY;
 
     int state = osKernelLock();
