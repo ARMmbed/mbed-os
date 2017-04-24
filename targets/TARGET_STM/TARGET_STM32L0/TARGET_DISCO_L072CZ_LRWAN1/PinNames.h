@@ -124,8 +124,8 @@ typedef enum {
     D15         = PB_8,
 
     // Generic signals namings
-    LED1        = PA_5, //Red
-    LED2        = PB_5, //Green
+    LED1        = PB_5, //Green
+    LED2        = PA_5, //Red
     LED3        = PB_6, //Blue
     LED4        = PB_7, //Red
     USER_BUTTON = PB_2,   
