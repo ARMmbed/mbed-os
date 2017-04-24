@@ -104,7 +104,7 @@ void semaphore_timing_test() {
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP((number_of_cases+1)*TEST_EVENTS_TIMING_TIME, "default_auto");
+    GREENTEA_SETUP((number_of_cases+1)*TEST_EVENTS_TIMING_TIME/1000, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
