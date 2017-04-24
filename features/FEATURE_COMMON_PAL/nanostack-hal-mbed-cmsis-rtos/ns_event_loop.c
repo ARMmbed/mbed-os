@@ -5,7 +5,7 @@
 #include <mbed_assert.h>
 #include "cmsis.h"
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
+#include "mbed_rtos_storage.h"
 #include "ns_trace.h"
 
 #include "eventOS_scheduler.h"
@@ -17,7 +17,7 @@
 static void event_loop_thread(void *arg);
 
 static uint64_t event_thread_stk[MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_THREAD_STACK_SIZE/8];
-static osRtxThread_t event_thread_tcb;
+static mbed_rtos_storage_thread_t event_thread_tcb;
 static const osThreadAttr_t event_thread_attr = {
     .priority = osPriorityNormal,
     .stack_mem = &event_thread_stk[0],
@@ -26,7 +26,7 @@ static const osThreadAttr_t event_thread_attr = {
     .cb_size = sizeof event_thread_tcb,
 };
 static osThreadId_t event_thread_id;
-static os_mutex_t event_mutex;
+static mbed_rtos_storage_mutex_t event_mutex;
 static const osMutexAttr_t event_mutex_attr = {
   .name = "event_mutex",
   .attr_bits = osMutexRecursive,

@@ -24,8 +24,8 @@
 
 #include <stdint.h>
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
 #include "mbed_rtos1_types.h"
+#include "mbed_rtos_storage.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -59,9 +59,9 @@ public:
     ~Semaphore();
 
 private:
-    osSemaphoreId_t   _id;
-    osSemaphoreAttr_t _attr;
-    os_semaphore_t    _obj_mem;
+    osSemaphoreId_t               _id;
+    osSemaphoreAttr_t             _attr;
+    mbed_rtos_storage_semaphore_t _obj_mem;
 };
 
 }

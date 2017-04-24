@@ -19,7 +19,7 @@
 #define __ARCH_SYS_ARCH_H__
 
 #include "lwip/opt.h"
-#include "rtx_lib.h"
+#include "mbed_rtos_storage.h"
 
 extern u8_t lwip_ram_heap[];
 
@@ -28,9 +28,9 @@ extern u8_t lwip_ram_heap[];
 
 // === SEMAPHORE ===
 typedef struct {
-    osSemaphoreId_t   id;
-    osSemaphoreAttr_t attr;
-    os_semaphore_t    data;
+    osSemaphoreId_t               id;
+    osSemaphoreAttr_t             attr;
+    mbed_rtos_storage_semaphore_t data;
 } sys_sem_t;
 
 #define sys_sem_valid(x)        (((*x).id == NULL) ? 0 : 1)
@@ -38,18 +38,18 @@ typedef struct {
 
 // === MUTEX ===
 typedef struct {
-    osMutexId_t   id;
-    osMutexAttr_t attr;
-    os_mutex_t    data;
+    osMutexId_t               id;
+    osMutexAttr_t             attr;
+    mbed_rtos_storage_mutex_t data;
 } sys_mutex_t;
 
 // === MAIL BOX ===
 #define MB_SIZE      8
 
 typedef struct {
-    osEventFlagsId_t   id;
-    osEventFlagsAttr_t attr;
-    os_event_flags_t   data;
+    osEventFlagsId_t                id;
+    osEventFlagsAttr_t              attr;
+    mbed_rtos_storage_event_flags_t data;
 
     uint8_t     post_idx;
     uint8_t     fetch_idx;
@@ -73,9 +73,9 @@ typedef struct {
 
 // === THREAD ===
 typedef struct {
-    osThreadId_t   id;
-    osThreadAttr_t attr;
-    os_thread_t    data;
+    osThreadId_t               id;
+    osThreadAttr_t             attr;
+    mbed_rtos_storage_thread_t data;
 } sys_thread_data_t;
 typedef sys_thread_data_t* sys_thread_t;
 

@@ -21,6 +21,7 @@
 #include "mbed_error.h"
 #include "mbed_interface.h"
 #include "us_ticker_api.h"
+#include "mbed_rtos_storage.h"
 
 /* lwIP includes. */
 #include "lwip/opt.h"
@@ -412,7 +413,7 @@ void sys_mutex_free(sys_mutex_t *mutex) {}
  *---------------------------------------------------------------------------*/
 osMutexId_t lwip_sys_mutex;
 osMutexAttr_t lwip_sys_mutex_attr;
-os_mutex_t lwip_sys_mutex_data;
+mbed_rtos_storage_mutex_t lwip_sys_mutex_data;
 
 void sys_init(void) {
     us_ticker_read(); // Init sys tick
