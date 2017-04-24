@@ -556,7 +556,7 @@ static void can4_bus_err_irq(void) {
     can_err_irq(CAN_4, IRQ_BUS);
 }
 
-void can_init(can_t *obj, PinName rd, PinName td) {
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
     __IO uint32_t *dmy_ctr;
 
     /* determine the CAN to use */
@@ -590,6 +590,10 @@ void can_init(can_t *obj, PinName rd, PinName td) {
     /* pin out the can pins */
     pinmap_pinout(rd, PinMap_CAN_RD);
     pinmap_pinout(td, PinMap_CAN_TD);
+}
+
+void can_init(can_t *obj, PinName rd, PinName td) {
+    can_init_freq(obj, rd, td, 0);
 }
 
 void can_free(can_t *obj) {
