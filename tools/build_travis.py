@@ -61,9 +61,9 @@ build_list = (
     { "target": "NUCLEO_L031K6",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "NUCLEO_L073RZ",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "NUCLEO_F429ZI",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
-    { "target": "NUCLEO_F446RE",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+    { "target": "NUCLEO_F446RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
     { "target": "NUCLEO_F446ZE",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
-    { "target": "NUCLEO_F746ZG",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb" ] },
+    { "target": "NUCLEO_F746ZG",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
     { "target": "NUCLEO_F767ZI",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
 
     { "target": "MOTE_L152RC",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
@@ -127,7 +127,7 @@ build_list = (
     { "target": "SAMD21G18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "SAML21J18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_L476VG",     "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
-    
+
     { "target": "NUMAKER_PFM_NUC472",   "toolchains": "GCC_ARM",    "libs": ["dsp", "rtos", "usb"] },
     { "target": "NUMAKER_PFM_M453",     "toolchains": "GCC_ARM",    "libs": ["dsp", "rtos", "usb"] },
  )
@@ -165,94 +165,101 @@ linking_list = [
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                }
      },
+    {"target": "NUCLEO_F446RE",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     },
     {"target": "NUCLEO_F446ZE",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
-             }
-    },
+               }
+     },
     {"target": "NUCLEO_F401RE",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
-               "usb"  : ["USB_1", "USB_2" ,"USB_3"], 
-             }
-    },
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     },
     {"target": "NUCLEO_F411RE",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
-             }
-    },
+               }
+     },
     {"target": "NUCLEO_F412ZG",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
-             }
-    },
+               }
+     },
     {"target": "NUCLEO_F429ZI",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
-             }
-    },
+               }
+     },
     {"target": "NUCLEO_F207ZG",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
-             }
-    },
+               }
+     },
     {"target": "NUCLEO_F746ZG",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
-             }
-    },
+               }
+     },
     {"target": "NUCLEO_F767ZI",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
-             }
-    },
+               }
+     },
     {"target": "NUCLEO_L476RG",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
-             }
-    },
+               }
+     },
     {"target": "DISCO_F429ZI",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
-             }
-    },
+               }
+     },
     {"target": "DISCO_F407VG",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
-             }
-    },
+               }
+     },
     {"target": "NUCLEO_F303ZE",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
-             }
-    },
+               }
+     },
     {"target": "DISCO_L476VG",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
-             }
-    },
+               }
+     },
     {"target": "NUMAKER_PFM_NUC472",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
@@ -260,14 +267,13 @@ linking_list = [
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                }
      },
-     {"target": "NUMAKER_PFM_M453",
+    {"target": "NUMAKER_PFM_M453",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                }
      }
-
     ]
 
 ################################################################################
