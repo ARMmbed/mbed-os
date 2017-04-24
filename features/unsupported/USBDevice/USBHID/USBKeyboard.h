@@ -22,11 +22,16 @@
 #include "USBHID.h"
 #include "Stream.h"
 
-/* Modifiers */
+/* Modifiers, left keys then right keys. */
 enum MODIFIER_KEY {
-    KEY_CTRL = 1,
-    KEY_SHIFT = 2,
-    KEY_ALT = 4,
+    KEY_CTRL = 0x01,
+    KEY_SHIFT = 0x02,
+    KEY_ALT = 0x04,
+    KEY_LOGO = 0x08,
+    KEY_RCTRL = 0x10,
+    KEY_RSHIFT = 0x20,
+    KEY_RALT = 0x40,
+    KEY_RLOGO = 0x80,
 };
 
 
