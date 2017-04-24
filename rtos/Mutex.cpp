@@ -29,6 +29,7 @@ namespace rtos {
 
 Mutex::Mutex() {
     memset(&_obj_mem, 0, sizeof(_obj_mem));
+    memset(&_attr, 0, sizeof(_attr));
     _attr.cb_mem = &_obj_mem;
     _attr.cb_size = sizeof(_obj_mem);
     _attr.attr_bits = osMutexRecursive;

@@ -46,6 +46,7 @@ public:
     /** Create and initialize a message Queue. */
     Queue() {
         memset(&_obj_mem, 0, sizeof(_obj_mem));
+        memset(&_attr, 0, sizeof(_attr));
         _attr.mq_mem = _queue_mem;
         _attr.mq_size = sizeof(_queue_mem);
         _attr.cb_mem = &_obj_mem;
