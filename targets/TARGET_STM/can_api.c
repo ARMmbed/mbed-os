@@ -31,6 +31,11 @@ static can_irq_handler irq_handler;
 
 void can_init(can_t *obj, PinName rd, PinName td)
 {
+    can_init_freq(obj, rd, td, 100000);
+}
+
+void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
+{
     CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
 
@@ -80,8 +85,8 @@ void can_init(can_t *obj, PinName rd, PinName td)
         error("Cannot initialize CAN");
     }
 
-    // Set initial CAN frequency to 100 kb/s
-    can_frequency(obj, 100000);
+    // Set initial CAN frequency to requested kb/s
+    can_frequency(obj, hz);
 
     uint32_t filter_number = (obj->can == CAN_1) ? 0 : 14;
     can_filter(obj, 0, 0, CANStandard, filter_number);
@@ -227,16 +232,16 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
     } else {
       can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | msg.type);
     }
-    
+
     /* Set up the DLC */
     can->sTxMailBox[transmitmailbox].TDTR &= (uint32_t)0xFFFFFFF0;
     can->sTxMailBox[transmitmailbox].TDTR |= (msg.len & (uint8_t)0x0000000F);
-    
+
     /* Set up the data field */
     can->sTxMailBox[transmitmailbox].TDLR = (((uint32_t)msg.data[3] << 24) |
-					     ((uint32_t)msg.data[2] << 16) |
-					     ((uint32_t)msg.data[1] << 8) |
-					     ((uint32_t)msg.data[0]));
+                                            ((uint32_t)msg.data[2] << 16) |
+                                            ((uint32_t)msg.data[1] << 8) |
+                                            ((uint32_t)msg.data[0]));
     can->sTxMailBox[transmitmailbox].TDHR = (((uint32_t)msg.data[7] << 24) |
 					     ((uint32_t)msg.data[6] << 16) |
 					     ((uint32_t)msg.data[5] << 8) |
