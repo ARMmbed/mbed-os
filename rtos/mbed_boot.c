@@ -162,7 +162,7 @@
 
 #include "cmsis.h"
 #include "mbed_rtx.h"
-#include "rtx_lib.h"
+#include "mbed_rtos_storage.h"
 #include "cmsis_os2.h"
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
@@ -182,12 +182,11 @@ osThreadAttr_t _main_thread_attr;
  * the correct solution to the problem and it makes mbed OS behave differently on different targets.
  */
 MBED_ALIGN(8) char _main_stack[4096];
+mbed_rtos_storage_thread_t _main_obj;
 
-char _main_obj[sizeof(os_thread_t)];
-
-osMutexId_t   singleton_mutex_id;
-os_mutex_t    singleton_mutex_obj;
-osMutexAttr_t singleton_mutex_attr;
+osMutexId_t               singleton_mutex_id;
+mbed_rtos_storage_mutex_t singleton_mutex_obj;
+osMutexAttr_t             singleton_mutex_attr;
 
 /*
  * Sanity check values
@@ -317,7 +316,7 @@ void mbed_start_main(void)
     _main_thread_attr.stack_mem = _main_stack;
     _main_thread_attr.stack_size = sizeof(_main_stack);
     _main_thread_attr.cb_size = sizeof(_main_obj);
-    _main_thread_attr.cb_mem = _main_obj;
+    _main_thread_attr.cb_mem = &_main_obj;
     _main_thread_attr.priority = osPriorityNormal;
     _main_thread_attr.name = "MAIN";
     osThreadId_t result = osThreadNew((osThreadFunc_t)pre_main, NULL, &_main_thread_attr);
@@ -414,13 +413,13 @@ extern int main(int argc, char* argv[]);
 extern void __libc_init_array (void);
 extern int __real_main(void);
 
-osMutexId_t   malloc_mutex_id;
-os_mutex_t    malloc_mutex_obj;
-osMutexAttr_t malloc_mutex_attr;
+osMutexId_t               malloc_mutex_id;
+mbed_rtos_storage_mutex_t malloc_mutex_obj;
+osMutexAttr_t             malloc_mutex_attr;
 
-osMutexId_t   env_mutex_id;
-os_mutex_t    env_mutex_obj;
-osMutexAttr_t env_mutex_attr;
+osMutexId_t               env_mutex_id;
+mbed_rtos_storage_mutex_t env_mutex_obj;
+osMutexAttr_t             env_mutex_attr;
 
 #ifdef  FEATURE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
@@ -549,11 +548,11 @@ void __iar_program_start( void )
 }
 
 /* Thread safety */
-static osMutexId_t std_mutex_id_sys[_MAX_LOCK] = {0};
-static os_mutex_t  std_mutex_sys[_MAX_LOCK] = {0};
+static osMutexId_t               std_mutex_id_sys[_MAX_LOCK] = {0};
+static mbed_rtos_storage_mutex_t std_mutex_sys[_MAX_LOCK] = {0};
 #define _FOPEN_MAX 10
-static osMutexId_t std_mutex_id_file[_FOPEN_MAX] = {0};
-static os_mutex_t  std_mutex_file[_FOPEN_MAX] = {0};
+static osMutexId_t               std_mutex_id_file[_FOPEN_MAX] = {0};
+static mbed_rtos_storage_mutex_t std_mutex_file[_FOPEN_MAX] = {0};
 
 void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
 {

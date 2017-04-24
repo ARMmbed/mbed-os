@@ -26,7 +26,7 @@
 #include <string.h>
 
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
+#include "mbed_rtos_storage.h"
 #include "platform/mbed_error.h"
 #include "mbed_rtos1_types.h"
 
@@ -100,10 +100,10 @@ public:
     }
 
 private:
-    osMessageQueueId_t   _id;
-    osMessageQueueAttr_t _attr;
-    char                 _queue_mem[queue_sz * (sizeof(T*) + sizeof(os_message_t))];
-    os_message_queue_t   _obj_mem;
+    osMessageQueueId_t            _id;
+    osMessageQueueAttr_t          _attr;
+    char                          _queue_mem[queue_sz * (sizeof(T*) + sizeof(mbed_rtos_storage_message_t))];
+    mbed_rtos_storage_msg_queue_t _obj_mem;
 };
 
 }

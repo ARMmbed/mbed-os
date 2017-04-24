@@ -5,12 +5,12 @@
 #include "arm_hal_interrupt.h"
 #include "arm_hal_interrupt_private.h"
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
+#include "mbed_rtos_storage.h"
 #include <mbed_assert.h>
 
 static uint8_t sys_irq_disable_counter;
 
-static os_mutex_t critical_mutex;
+static mbed_rtos_storage_mutex_t critical_mutex;
 static const osMutexAttr_t critical_mutex_attr = {
   .name = "critical_mutex",
   .attr_bits = osMutexRecursive,

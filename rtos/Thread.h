@@ -24,8 +24,8 @@
 
 #include <stdint.h>
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
 #include "mbed_rtos1_types.h"
+#include "mbed_rtos_storage.h"
 #include "mbed_rtx_conf.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
@@ -368,14 +368,14 @@ private:
                      const char *name=NULL);
     static void _thunk(void * thread_ptr);
 
-    mbed::Callback<void()> _task;
-    osThreadId_t           _tid;
-    osThreadAttr_t         _attr;
-    bool                   _dynamic_stack;
-    Semaphore              _join_sem;
-    Mutex                  _mutex;
-    os_thread_t            _obj_mem;
-    bool                   _finished;
+    mbed::Callback<void()>     _task;
+    osThreadId_t               _tid;
+    osThreadAttr_t             _attr;
+    bool                       _dynamic_stack;
+    Semaphore                  _join_sem;
+    Mutex                      _mutex;
+    mbed_rtos_storage_thread_t _obj_mem;
+    bool                       _finished;
 };
 
 }

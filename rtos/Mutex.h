@@ -24,8 +24,8 @@
 
 #include <stdint.h>
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
 #include "mbed_rtos1_types.h"
+#include "mbed_rtos_storage.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -62,9 +62,9 @@ public:
     ~Mutex();
 
 private:
-    osMutexId_t   _id;
-    osMutexAttr_t _attr;
-    os_mutex_t    _obj_mem;
+    osMutexId_t               _id;
+    osMutexAttr_t             _attr;
+    mbed_rtos_storage_mutex_t _obj_mem;
 };
 
 }

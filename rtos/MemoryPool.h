@@ -26,8 +26,8 @@
 #include <string.h>
 
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
 #include "mbed_rtos1_types.h"
+#include "mbed_rtos_storage.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -83,10 +83,10 @@ public:
     }
 
 private:
-    osMemoryPoolId_t   _id;
-    osMemoryPoolAttr_t _attr;
-    char               _pool_mem[sizeof(T) * pool_sz];
-    os_memory_pool_t   _obj_mem;
+    osMemoryPoolId_t             _id;
+    osMemoryPoolAttr_t           _attr;
+    char                         _pool_mem[sizeof(T) * pool_sz];
+    mbed_rtos_storage_mem_pool_t _obj_mem;
 };
 
 }
