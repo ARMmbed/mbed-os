@@ -78,6 +78,23 @@ int SPI::write(int value) {
     return ret;
 }
 
+int SPI::write(const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length) {
+    int total = (tx_length > rx_length) ? tx_length : rx_length;
+
+    lock();
+    aquire();
+    for (int i = 0; i < total; i++) {
+        char out = (i < tx_length) ? tx_buffer[i] : 0xff;
+        char in = spi_master_write(&_spi, out);
+        if (i < rx_length) {
+            rx_buffer[i] = in;
+        }
+    }
+    unlock();
+
+    return total;
+}
+
 void SPI::lock() {
     _mutex->lock();
 }

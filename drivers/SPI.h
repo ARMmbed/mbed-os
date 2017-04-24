@@ -115,8 +115,24 @@ public:
      *
      *  @returns
      *    Response from the SPI slave
-    */
+     */
     virtual int write(int value);
+
+    /** Write to the SPI Slave and obtain the response
+     *
+     *  The total number of bytes sent and recieved will be the maximum of
+     *  tx_length and rx_length. The bytes written will be padded with the
+     *  value 0xff.
+     *
+     *  @param tx_buffer Pointer to the byte-array of data to write to the device
+     *  @param tx_length Number of bytes to write, may be zero
+     *  @param rx_buffer Pointer to the byte-array of data to read from the device
+     *  @param rx_length Number of bytes to read, may be zero
+     *  @returns
+     *      The number of bytes written and read from the device. This is
+     *      maximum of tx_length and rx_length.
+     */
+    virtual int write(const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length);
 
     /** Acquire exclusive access to this SPI bus
      */
