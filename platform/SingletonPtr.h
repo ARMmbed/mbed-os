@@ -59,13 +59,13 @@ inline static void singleton_unlock(void)
 
 /** Utility class for creating an using a singleton
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
- * @Note: This class must only be used in a static context -
+ * @note: This class must only be used in a static context -
  * this class must never be allocated or created on the
  * stack.
  *
- * @Note: This class is lazily initialized on first use.
+ * @note: This class is lazily initialized on first use.
  * This class is a POD type so if it is not used it will
  * be garbage collected.
  * @ingroup platform

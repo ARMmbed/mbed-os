@@ -32,7 +32,7 @@ extern char* mbed_gets(char *s, int size, FILE *_file);
 
 /** File stream
  *
- * @Note Synchronization level: Set by subclass
+ * @note Synchronization level: Set by subclass
  * @ingroup platform
  */
 class Stream : public FileLike {

@@ -31,7 +31,7 @@ namespace mbed {
  *  Implementations must define at least open (the default definitions
  *  of the rest of the functions just return error values).
  *
- * @Note Synchronization level: Set by subclass
+ * @note Synchronization level: Set by subclass
  * @ingroup platform
  */
 class FileSystemLike : public FileBase {

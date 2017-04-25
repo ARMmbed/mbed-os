@@ -38,7 +38,7 @@ namespace mbed {
  *  reflect this.
  *
  *  @note to create a directory, @see Dir
- *  @Note Synchronization level: Set by subclass
+ *  @note Synchronization level: Set by subclass
  *  @ingroup platform
  */
 class DirHandle {
