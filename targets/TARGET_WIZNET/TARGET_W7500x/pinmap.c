@@ -119,15 +119,31 @@ void pin_mode(PinName pin, PinMode pupd)
 
     switch(port_num)    {
         case PortA:
+            if(pupd != 0)
+            {
+                PA_PCR->Port[pin_num] &= 0xFFFFFFFC;
+            }
             PA_PCR->Port[pin_num] |= pupd;
             break;
         case PortB:
+            if(pupd != 0)
+            {
+                PB_PCR->Port[pin_num] &= 0xFFFFFFFC;
+            }
             PB_PCR->Port[pin_num] |= pupd;
             break;
         case PortC:
+            if(pupd != 0)
+            {
+                PC_PCR->Port[pin_num] &= 0xFFFFFFFC;
+            }
             PC_PCR->Port[pin_num] |= pupd;
             break;
         case PortD:
+            if(pupd != 0)
+            {
+                PD_PCR->Port[pin_num] &= 0xFFFFFFFC;
+            }
             PD_PCR->Port[pin_num] |= pupd;
             break;
         default:

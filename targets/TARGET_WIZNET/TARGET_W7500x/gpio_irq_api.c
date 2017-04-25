@@ -43,6 +43,8 @@ static gpio_irq_handler irq_handler;
 
 static uint32_t channel_ids[4][16];
 
+uint32_t test_tmp = 0;
+
 #ifdef __cplusplus
 extern "C"{
 #endif
@@ -50,22 +52,27 @@ void port_generic_handler(GPIO_TypeDef* GPIOx, uint32_t port_num);
  
 void PORT0_Handler(void)
 {
+    NVIC_ClearPendingIRQ(PORT0_IRQn);
     port_generic_handler(GPIOA, 0);
+    test_tmp++;
 }
 
 void PORT1_Handler(void)
 {
     port_generic_handler(GPIOB, 1);
+    test_tmp++;
 }
 
 void PORT2_Handler(void)
 {
     port_generic_handler(GPIOC, 2);
+    test_tmp++;
 }
 
 void PORT3_Handler(void)
 {
     port_generic_handler(GPIOD, 3);
+    test_tmp++;
 }
 
 void port_generic_handler(GPIO_TypeDef* GPIOx, uint32_t port_num)
@@ -99,6 +106,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->pin_num = WIZ_PIN_NUM(pin);
     obj->pin_index  = WIZ_PIN_INDEX(pin);
     
+    //gpio_irq_disable(obj);
+
     if (pin == NC) return -1;
     
     if(obj->port_num == 0)
@@ -110,10 +119,11 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     else
         obj->irq_n = PORT3_IRQn;
     
-    //obj->event = EDGE_FALL;
+    obj->event = EDGE_NONE;
     obj->pin = pin;
     
     // Enable EXTI interrupt    
+    NVIC_ClearPendingIRQ(obj->irq_n);
     NVIC_EnableIRQ(obj->irq_n);
 
     channel_ids[obj->port_num][obj->pin_num] = id;
@@ -141,10 +151,14 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
             obj->rise_null = 0;
         }
         else if (event == IRQ_FALL) {
-            gpio->INTPOLSET &= ~obj->pin_index;
+            //gpio->INTPOLSET &= ~obj->pin_index;
+            gpio->INTPOLCLR |= obj->pin_index;
             obj->event = EDGE_FALL;
             obj->fall_null = 0;
         }
+
+    
+        gpio->INTENCLR |= obj->pin_index;
         gpio->INTTYPESET |= obj->pin_index;
         gpio->INTENSET |= obj->pin_index;
         
