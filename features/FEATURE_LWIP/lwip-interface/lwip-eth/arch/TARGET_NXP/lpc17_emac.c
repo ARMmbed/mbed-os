@@ -70,6 +70,7 @@
  * the same. */
 #define RX_PRIORITY   (osPriorityNormal)
 #define TX_PRIORITY   (osPriorityNormal)
+#define PHY_PRIORITY  (osPriorityNormal)
 
 /** \brief  Debug output formatter lock define
  *
@@ -944,7 +945,10 @@ err_t lpc_etharp_output_ipv6(struct netif *netif, struct pbuf *q,
 #if NO_SYS == 0
 /* periodic PHY status update */
 void phy_update(void *nif) {
-    lpc_phy_sts_sm((struct netif*)nif);
+    while (true) {
+        lpc_phy_sts_sm((struct netif*)nif);
+        osDelay(250);
+    }
 }
 
 #endif
@@ -1037,8 +1041,7 @@ err_t eth_arch_enetif_init(struct netif *netif)
 	sys_thread_new("txclean_thread", packet_tx, netif->state, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
 
 	/* periodic PHY status update */
-	osTimerId_t phy_timer = osTimerNew(phy_update, osTimerPeriodic, (void *)netif, NULL);
-	osTimerStart(phy_timer, 250);
+	sys_thread_new("phy_thread", phy_update, netif, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
 #endif
 
     return ERR_OK;
