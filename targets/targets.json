@@ -1209,10 +1209,13 @@
         "inherits": ["Target"],
         "core": "Cortex-M0+",
         "default_toolchain": "ARM",
-        "extra_labels": ["STM", "STM32L0", "STM32L072CZ"],
+        "extra_labels": ["STM", "STM32L0", "STM32L072CZ", "STM32L072xx"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
         "macros": ["RTC_LSI=1"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],        "release_versions": ["2", "5"],
+        "detect_code": ["0833"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
+        "release_versions": ["2", "5"],
         "device_name": "STM32L072CZ"
     },
     "DISCO_F746NG": {
