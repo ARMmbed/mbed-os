@@ -127,8 +127,8 @@
   */
 
 /* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
-#define USE_PLL_HSE_EXTC (1) /* Use external clock */
-#define USE_PLL_HSE_XTAL (1) /* Use external xtal */
+#define USE_PLL_HSE_EXTC (0) /* Use external clock */
+#define USE_PLL_HSE_XTAL (0) /* Use external xtal */
 
 /**
   * @}
@@ -420,12 +420,6 @@ uint8_t SetSysClock_PLL_HSI(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_OscInitTypeDef RCC_OscInitStruct;
 
-  /* The voltage scaling allows optimizing the power consumption when the device is
-     clocked below the maximum system frequency, to update the voltage scaling value
-     regarding system frequency refer to product datasheet. */
-  __PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
   /* Enable HSI and HSI48 oscillators and activate PLL with HSI as source */
   RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
   RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
@@ -434,15 +428,25 @@ uint8_t SetSysClock_PLL_HSI(void)
   !defined (STM32L011xx) && !defined (STM32L021xx)
   RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON; /* For USB and RNG clock */
 #endif
-  // PLLCLK = (16 MHz * 4)/2 = 32 MHz
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  // PLLCLK = (16 MHz * 6)/3 = 32 MHz
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLLMUL_4;
-  RCC_OscInitStruct.PLL.PLLDIV          = RCC_PLLDIV_2;
+  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLLMUL_6;
+  RCC_OscInitStruct.PLL.PLLDIV          = RCC_PLLDIV_3;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     return 0; // FAIL
   }
+
+  /* The voltage scaling allows optimizing the power consumption when the device is
+     clocked below the maximum system frequency, to update the voltage scaling value
+     regarding system frequency refer to product datasheet. */
+  __PWR_CLK_ENABLE();
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+  /* Poll VOSF bit of in PWR_CSR. Wait until it is reset to 0 */
+  while (__HAL_PWR_GET_FLAG(PWR_FLAG_VOS) != RESET) {};
 
   /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
   RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
