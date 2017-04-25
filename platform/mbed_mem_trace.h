@@ -91,7 +91,7 @@ void *mbed_mem_trace_realloc(void *res, void *ptr, size_t size, void *caller);
  * @param nmemb the 'nmemb' argument given to 'calloc'.
  * @param size the 'size' argument given to 'calloc'.
  * @param caller the caller of the memory operation.
- * @Return 'res' (the first argument).
+ * @return 'res' (the first argument).
  */
 void *mbed_mem_trace_calloc(void *res, size_t num, size_t size, void *caller);
 
