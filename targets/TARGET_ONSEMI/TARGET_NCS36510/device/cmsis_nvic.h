@@ -30,4 +30,4 @@
 */
 
 #define NVIC_NUM_VECTORS        (16 + 20)
-#define NVIC_RAM_VECTOR_ADDRESS 0x20000000    // Vectors positioned at start of RAM
+#define NVIC_RAM_VECTOR_ADDRESS 0x3FFF4000    // Vectors positioned at start of RAM
