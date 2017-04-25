@@ -42,6 +42,7 @@ void ADC_InterruptClear (void)
 void ADC_Init (void)
 {
 	// ADC_CLK on
+    ADC_PowerDownEnable(ENABLE);
 	ADC_PowerDownEnable(DISABLE);
 	//ADC_ChannelSelect(num);
 }

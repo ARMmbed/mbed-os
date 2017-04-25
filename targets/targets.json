@@ -2460,7 +2460,7 @@
         "supported_toolchains": ["uARM", "ARM"],
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"]
     },
     "WIZWIKI_W7500P": {
         "supported_form_factors": ["ARDUINO"],
@@ -2469,7 +2469,7 @@
         "supported_toolchains": ["uARM", "ARM"],
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"]
     },
     "WIZWIKI_W7500ECO": {
         "inherits": ["Target"],
@@ -2477,7 +2477,7 @@
         "extra_labels": ["WIZNET", "W7500x", "WIZwiki_W7500ECO"],
         "supported_toolchains": ["uARM", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"]
     },
     "SAMR21G18A": {
         "inherits": ["Target"],

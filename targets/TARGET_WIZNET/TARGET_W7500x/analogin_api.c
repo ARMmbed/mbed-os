@@ -58,11 +58,11 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->pin = pin;
 
     // The ADC initialization is done once
-    if (adc_inited == 0) {
+    //if (adc_inited == 0) {
         adc_inited = 1;
 
         ADC_Init();
-    }
+    //}
 }
 
 static inline uint16_t adc_read(analogin_t *obj)
