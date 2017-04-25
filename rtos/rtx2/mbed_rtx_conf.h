@@ -32,7 +32,10 @@
 #endif
 #endif
 
-#define OS_DYNAMIC_MEM_SIZE         0
+/* mbed OS uses this macro as an on/off switch for RTX dynamic memory. The value has to be either 0 to disable
+   or any other number (dividable by 8) to enable.
+ */
+#define OS_DYNAMIC_MEM_SIZE         8
 
 #if defined(__CC_ARM)
 #define OS_MUTEX_OBJ_MEM            1
