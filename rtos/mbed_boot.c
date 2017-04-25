@@ -162,7 +162,7 @@
 
 #include "cmsis.h"
 #include "mbed_rtx.h"
-#include "rtx_lib.h"
+#include "cmsis_os2_storage.h"
 #include "cmsis_os2.h"
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
