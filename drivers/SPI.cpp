@@ -79,20 +79,11 @@ int SPI::write(int value) {
 }
 
 int SPI::write(const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length) {
-    int total = (tx_length > rx_length) ? tx_length : rx_length;
-
     lock();
     aquire();
-    for (int i = 0; i < total; i++) {
-        char out = (i < tx_length) ? tx_buffer[i] : 0xff;
-        char in = spi_master_write(&_spi, out);
-        if (i < rx_length) {
-            rx_buffer[i] = in;
-        }
-    }
+    int ret = spi_master_block_write(&_spi, tx_buffer, tx_length, rx_buffer, rx_length);
     unlock();
-
-    return total;
+    return ret;
 }
 
 void SPI::lock() {
