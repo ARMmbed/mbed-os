@@ -43,17 +43,7 @@
 #ifndef _NVIC_TABLE_H
 #define _NVIC_TABLE_H
 
-/* RAM vector_table needs to be aligned with the size of the vector table */
-/* TODO: Use MXC_IRQ_COUNT to automatically set this alignment per DUI0553A 4.3.4 */
-/*       Vector Table Offset which requires the next-power-of-two alignment. This */
-/*       can be calculated by 4*pow(2,ceil(log2(MXC_IRQ_COUNT))) */
-#if defined ( __ICCARM__ )
-#pragma data_alignment = 512
-#define __isr_vector __vector_table
-#else
-__attribute__ ((aligned (512)))
-#endif
-static void (*ramVectorTable[MXC_IRQ_COUNT])(void);
+extern void (*ramVectorTable[MXC_IRQ_COUNT])(void);
 
 #define NVIC_NUM_VECTORS        (MXC_IRQ_COUNT)
 #define NVIC_RAM_VECTOR_ADDRESS (ramVectorTable)    // Vectors positioned at start of RAM
