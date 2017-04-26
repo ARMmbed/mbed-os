@@ -46,7 +46,8 @@ USBHost * USBHost::instHost = NULL;
 *       - when the usb_thread receives the event, it:
 *           - call the callback attached to the endpoint where the td is attached
 */
-void USBHost::usb_process() {
+void USBHost::usb_process()
+{
 
     bool controlListState;
     bool bulkListState;
@@ -79,110 +80,112 @@ void USBHost::usb_process() {
                     too_many_hub = false;
                     buf[4] = 0;
 
-                    do
-                    {
-                      Lock lock(this);
+                    do {
+                        Lock lock(this);
 
-                      for (i = 0; i < MAX_DEVICE_CONNECTED; i++) {
-                          if (!deviceInUse[i]) {
-                              USB_DBG_EVENT("new device connected: %p\r\n", &devices[i]);
-                              devices[i].init(usb_msg->hub, usb_msg->port, usb_msg->lowSpeed);
-                              deviceReset[i] = false;
-                              deviceInited[i] = true;
-                              break;
-                          }
-                      }
+                        for (i = 0; i < MAX_DEVICE_CONNECTED; i++) {
+                            if (!deviceInUse[i]) {
+                                USB_DBG_EVENT("new device connected: %p\r\n", &devices[i]);
+                                devices[i].init(usb_msg->hub, usb_msg->port, usb_msg->lowSpeed);
+                                deviceReset[i] = false;
+                                deviceInited[i] = true;
+                                break;
+                            }
+                        }
 
-                      if (i == MAX_DEVICE_CONNECTED) {
-                          USB_ERR("Too many device connected!!\r\n");
-                          continue;
-                      }
+                        if (i == MAX_DEVICE_CONNECTED) {
+                            USB_ERR("Too many device connected!!\r\n");
+                            continue;
+                        }
 
-                      if (!controlEndpointAllocated) {
-                          control = newEndpoint(CONTROL_ENDPOINT, OUT, 0x08, 0x00);
-                          addEndpoint(NULL, 0, (USBEndpoint*)control);
-                          controlEndpointAllocated = true;
-                      }
+                        if (!controlEndpointAllocated) {
+                            control = newEndpoint(CONTROL_ENDPOINT, OUT, 0x08, 0x00);
+                            addEndpoint(NULL, 0, (USBEndpoint*)control);
+                            controlEndpointAllocated = true;
+                        }
 
-  #if MAX_HUB_NB
-                      if (usb_msg->hub_parent)
-                          devices[i].setHubParent((USBHostHub *)(usb_msg->hub_parent));
-  #endif
+#if MAX_HUB_NB
+                        if (usb_msg->hub_parent) {
+                            devices[i].setHubParent((USBHostHub *)(usb_msg->hub_parent));
+                        }
+#endif
 
-                      for (j = 0; j < timeout_set_addr; j++) {
+                        for (j = 0; j < timeout_set_addr; j++) {
 
-                          resetDevice(&devices[i]);
+                            resetDevice(&devices[i]);
 
-                          // set size of control endpoint
-                          devices[i].setSizeControlEndpoint(8);
+                            // set size of control endpoint
+                            devices[i].setSizeControlEndpoint(8);
 
-                          devices[i].activeAddress(false);
+                            devices[i].activeAddress(false);
 
-                          // get first 8 bit of device descriptor
-                          // and check if we deal with a hub
-                          USB_DBG("usb_thread read device descriptor on dev: %p\r\n", &devices[i]);
-                          res = getDeviceDescriptor(&devices[i], buf, 8);
+                            // get first 8 bit of device descriptor
+                            // and check if we deal with a hub
+                            USB_DBG("usb_thread read device descriptor on dev: %p\r\n", &devices[i]);
+                            res = getDeviceDescriptor(&devices[i], buf, 8);
 
-                          if (res != USB_TYPE_OK) {
-                              USB_ERR("usb_thread could not read dev descr");
-                              continue;
-                          }
+                            if (res != USB_TYPE_OK) {
+                                USB_ERR("usb_thread could not read dev descr");
+                                continue;
+                            }
 
-                          // set size of control endpoint
-                          devices[i].setSizeControlEndpoint(buf[7]);
+                            // set size of control endpoint
+                            devices[i].setSizeControlEndpoint(buf[7]);
 
-                          // second step: set an address to the device
-                          res = setAddress(&devices[i], devices[i].getAddress());
+                            // second step: set an address to the device
+                            res = setAddress(&devices[i], devices[i].getAddress());
 
-                          if (res != USB_TYPE_OK) {
-                              USB_ERR("SET ADDR FAILED");
-                              continue;
-                          }
-                          devices[i].activeAddress(true);
-                          USB_DBG("Address of %p: %d", &devices[i], devices[i].getAddress());
+                            if (res != USB_TYPE_OK) {
+                                USB_ERR("SET ADDR FAILED");
+                                continue;
+                            }
+                            devices[i].activeAddress(true);
+                            USB_DBG("Address of %p: %d", &devices[i], devices[i].getAddress());
 
-                          // try to read again the device descriptor to check if the device
-                          // answers to its new address
-                          res = getDeviceDescriptor(&devices[i], buf, 8);
+                            // try to read again the device descriptor to check if the device
+                            // answers to its new address
+                            res = getDeviceDescriptor(&devices[i], buf, 8);
 
-                          if (res == USB_TYPE_OK) {
-                              break;
-                          }
+                            if (res == USB_TYPE_OK) {
+                                break;
+                            }
 
-                          Thread::wait(100);
-                      }
+                            Thread::wait(100);
+                        }
 
-                      USB_INFO("New device connected: %p [hub: %d - port: %d]", &devices[i], usb_msg->hub, usb_msg->port);
+                        USB_INFO("New device connected: %p [hub: %d - port: %d]", &devices[i], usb_msg->hub, usb_msg->port);
 
-  #if MAX_HUB_NB
-                      if (buf[4] == HUB_CLASS) {
-                          for (k = 0; k < MAX_HUB_NB; k++) {
-                              if (hub_in_use[k] == false) {
-                                  for (uint8_t j = 0; j < MAX_TRY_ENUMERATE_HUB; j++) {
-                                      if (hubs[k].connect(&devices[i])) {
-                                          devices[i].hub = &hubs[k];
-                                          hub_in_use[k] = true;
-                                          break;
-                                      }
-                                  }
-                                  if (hub_in_use[k] == true)
-                                      break;
-                              }
-                          }
+#if MAX_HUB_NB
+                        if (buf[4] == HUB_CLASS) {
+                            for (k = 0; k < MAX_HUB_NB; k++) {
+                                if (hub_in_use[k] == false) {
+                                    for (uint8_t j = 0; j < MAX_TRY_ENUMERATE_HUB; j++) {
+                                        if (hubs[k].connect(&devices[i])) {
+                                            devices[i].hub = &hubs[k];
+                                            hub_in_use[k] = true;
+                                            break;
+                                        }
+                                    }
+                                    if (hub_in_use[k] == true) {
+                                        break;
+                                    }
+                                }
+                            }
 
-                          if (k == MAX_HUB_NB) {
-                              USB_ERR("Too many hubs connected!!\r\n");
-                              too_many_hub = true;
-                          }
-                      }
+                            if (k == MAX_HUB_NB) {
+                                USB_ERR("Too many hubs connected!!\r\n");
+                                too_many_hub = true;
+                            }
+                        }
 
-                      if (usb_msg->hub_parent)
-                          ((USBHostHub *)(usb_msg->hub_parent))->deviceConnected(&devices[i]);
-  #endif
+                        if (usb_msg->hub_parent) {
+                            ((USBHostHub *)(usb_msg->hub_parent))->deviceConnected(&devices[i]);
+                        }
+#endif
 
-                      if ((i < MAX_DEVICE_CONNECTED) && !too_many_hub) {
-                          deviceInUse[i] = true;
-                      }
+                        if ((i < MAX_DEVICE_CONNECTED) && !too_many_hub) {
+                            deviceInUse[i] = true;
+                        }
 
                     } while(0);
 
@@ -191,22 +194,27 @@ void USBHost::usb_process() {
                 // a device has been disconnected
                 case DEVICE_DISCONNECTED_EVENT:
 
-                    do
-                    {
-                      Lock lock(this);
+                    do {
+                        Lock lock(this);
 
-                      controlListState = disableList(CONTROL_ENDPOINT);
-                      bulkListState = disableList(BULK_ENDPOINT);
-                      interruptListState = disableList(INTERRUPT_ENDPOINT);
+                        controlListState = disableList(CONTROL_ENDPOINT);
+                        bulkListState = disableList(BULK_ENDPOINT);
+                        interruptListState = disableList(INTERRUPT_ENDPOINT);
 
-                      idx = findDevice(usb_msg->hub, usb_msg->port, (USBHostHub *)(usb_msg->hub_parent));
-                      if (idx != -1) {
-                          freeDevice((USBDeviceConnected*)&devices[idx]);
-                      }
+                        idx = findDevice(usb_msg->hub, usb_msg->port, (USBHostHub *)(usb_msg->hub_parent));
+                        if (idx != -1) {
+                            freeDevice((USBDeviceConnected*)&devices[idx]);
+                        }
 
-                      if (controlListState) enableList(CONTROL_ENDPOINT);
-                      if (bulkListState) enableList(BULK_ENDPOINT);
-                      if (interruptListState) enableList(INTERRUPT_ENDPOINT);
+                        if (controlListState) {
+                            enableList(CONTROL_ENDPOINT);
+                        }
+                        if (bulkListState) {
+                            enableList(BULK_ENDPOINT);
+                        }
+                        if (interruptListState) {
+                            enableList(INTERRUPT_ENDPOINT);
+                        }
 
                     } while(0);
 
@@ -224,8 +232,9 @@ void USBHost::usb_process() {
                         if (ep->getDir() == IN) {
                             buf_transfer = ep->getBufStart();
                             printf("READ SUCCESS [%d bytes transferred - td: 0x%08X] on ep: [%p - addr: %02X]: ",  ep->getLengthTransferred(), usb_msg->td_addr, ep, ep->getAddress());
-                            for (int i = 0; i < ep->getLengthTransferred(); i++)
+                            for (int i = 0; i < ep->getLengthTransferred(); i++) {
                                 printf("%02X ", buf_transfer[i]);
+                            }
                             printf("\r\n\r\n");
                         }
 #endif
@@ -266,8 +275,9 @@ USBHost::USBHost() : usbThread(osPriorityNormal, USB_THREAD_STACK)
         devices[i].setAddress(i + 1);
         deviceReset[i] = false;
         deviceInited[i] = false;
-        for (uint8_t j = 0; j < MAX_INTF; j++)
+        for (uint8_t j = 0; j < MAX_INTF; j++) {
             deviceAttachedDriver[i][j] = false;
+        }
     }
 
 #if MAX_HUB_NB
@@ -282,20 +292,21 @@ USBHost::USBHost() : usbThread(osPriorityNormal, USB_THREAD_STACK)
 
 USBHost::Lock::Lock(USBHost* pHost) : m_pHost(pHost)
 {
-  m_pHost->usb_mutex.lock();
+    m_pHost->usb_mutex.lock();
 }
 
 USBHost::Lock::~Lock()
 {
-  m_pHost->usb_mutex.unlock();
+    m_pHost->usb_mutex.unlock();
 }
 
 void USBHost::transferCompleted(volatile uint32_t addr)
 {
     uint8_t state;
 
-    if(addr == 0)
+    if(addr == 0) {
         return;
+    }
 
     volatile HCTD* tdList = NULL;
 
@@ -315,20 +326,23 @@ void USBHost::transferCompleted(volatile uint32_t addr)
 
 #ifdef USBHOST_OTHER
             state =  ((HCTD *)td)->state;
-            if (state == USB_TYPE_IDLE)
+            if (state == USB_TYPE_IDLE) {
                 ep->setLengthTransferred((uint32_t)td->currBufPtr - (uint32_t)ep->getBufStart());
+            }
 
 #else
             if (((HCTD *)td)->control >> 28) {
                 state = ((HCTD *)td)->control >> 28;
             } else {
-                if (td->currBufPtr)
+                if (td->currBufPtr) {
                     ep->setLengthTransferred((uint32_t)td->currBufPtr - (uint32_t)ep->getBufStart());
+                }
                 state = 16 /*USB_TYPE_IDLE*/;
             }
 #endif
-            if (state == USB_TYPE_IDLE)
+            if (state == USB_TYPE_IDLE) {
                 ep->setLengthTransferred((uint32_t)td->currBufPtr - (uint32_t)ep->getBufStart());
+            }
 
             ep->unqueueTransfer(td);
 
@@ -365,8 +379,9 @@ USBHost * USBHost::getHostInst()
     // be sure that the new device connected is not already connected...
     int idx = findDevice(hub, port, hub_parent);
     if (idx != -1) {
-        if (deviceInited[idx])
+        if (deviceInited[idx]) {
             return;
+        }
     }
 
     message_t * usb_msg = mail_usb_event.alloc();
@@ -387,8 +402,9 @@ USBHost * USBHost::getHostInst()
     // be sure that the device disconnected is connected...
     int idx = findDevice(hub, port, hub_parent);
     if (idx != -1) {
-        if (!deviceInUse[idx])
+        if (!deviceInUse[idx]) {
             return;
+        }
     } else {
         return;
     }
@@ -422,8 +438,9 @@ void USBHost::freeDevice(USBDeviceConnected * dev)
     }
 
     // notify hub parent that this device has been disconnected
-    if (dev->getHubParent())
+    if (dev->getHubParent()) {
         dev->getHubParent()->deviceDisconnected(dev);
+    }
 
 #endif
 
@@ -667,8 +684,9 @@ int USBHost::findDevice(uint8_t hub, uint8_t port, USBHostHub * hub_parent)
     for (int i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if (devices[i].getHub() == hub && devices[i].getPort() == port) {
             if (hub_parent != NULL) {
-                if (hub_parent == devices[i].getHubParent())
+                if (hub_parent == devices[i].getHubParent()) {
                     return i;
+                }
             } else {
                 return i;
             }
@@ -695,14 +713,14 @@ void USBHost::printList(ENDPOINT_TYPE type)
     volatile HCTD * hctd = NULL;
     const char * type_str = (type == BULK_ENDPOINT) ? "BULK" :
                             ((type == INTERRUPT_ENDPOINT) ? "INTERRUPT" :
-                            ((type == CONTROL_ENDPOINT) ? "CONTROL" : "ISOCHRONOUS"));
+                             ((type == CONTROL_ENDPOINT) ? "CONTROL" : "ISOCHRONOUS"));
     printf("State of %s:\r\n", type_str);
     while (hced != NULL) {
         uint8_t dir = ((hced->control & (3 << 11)) >> 11);
         printf("hced: %p [ADDR: %d, DIR: %s, EP_NB: 0x%X]\r\n", hced,
-                                                   hced->control & 0x7f,
-                                                   (dir == 1) ? "OUT" : ((dir == 0) ? "FROM_TD":"IN"),
-                                                    (hced->control & (0xf << 7)) >> 7);
+               hced->control & 0x7f,
+               (dir == 1) ? "OUT" : ((dir == 0) ? "FROM_TD":"IN"),
+               (hced->control & (0xf << 7)) >> 7);
         hctd = (HCTD *)((uint32_t)(hced->headTD) & ~(0xf));
         while (hctd != hced->tailTD) {
             printf("\thctd: %p [DIR: %s]\r\n", hctd, ((hctd->control & (3 << 19)) >> 19) == 1 ? "OUT" : "IN");
@@ -720,7 +738,7 @@ void USBHost::printList(ENDPOINT_TYPE type)
 USB_TYPE USBHost::addTransfer(USBEndpoint * ed, uint8_t * buf, uint32_t len)
 {
     USB_TYPE ret=USB_TYPE_PROCESSING;
-	td_mutex.lock();
+    td_mutex.lock();
 
     // allocate a TD which will be freed in TDcompletion
     volatile HCTD * td = ed->getNextTD();
@@ -728,7 +746,7 @@ USB_TYPE USBHost::addTransfer(USBEndpoint * ed, uint8_t * buf, uint32_t len)
         return USB_TYPE_ERROR;
     }
 
-#ifndef USBHOST_OTHER 
+#ifndef USBHOST_OTHER
     uint32_t token = (ed->isSetup() ? TD_SETUP : ( (ed->getDir() == IN) ? TD_IN : TD_OUT ));
 
     uint32_t td_toggle;
@@ -754,10 +772,10 @@ USB_TYPE USBHost::addTransfer(USBEndpoint * ed, uint8_t * buf, uint32_t len)
     printList(type);
     enableList(type);
 #else
-	/*  call method specific for endpoint  */
-	td->currBufPtr   = buf;
-	td->size = len;
-	ret = ed->queueTransfer();
+    /*  call method specific for endpoint  */
+    td->currBufPtr   = buf;
+    td->size = len;
+    ret = ed->queueTransfer();
 #endif
 
     td_mutex.unlock();
@@ -770,12 +788,13 @@ USB_TYPE USBHost::addTransfer(USBEndpoint * ed, uint8_t * buf, uint32_t len)
 USB_TYPE USBHost::getDeviceDescriptor(USBDeviceConnected * dev, uint8_t * buf, uint16_t max_len_buf, uint16_t * len_dev_descr)
 {
     USB_TYPE t = controlRead(  dev,
-                         USB_DEVICE_TO_HOST | USB_RECIPIENT_DEVICE,
-                         GET_DESCRIPTOR,
-                         (DEVICE_DESCRIPTOR << 8) | (0),
-                         0, buf, MIN(DEVICE_DESCRIPTOR_LENGTH, max_len_buf));
-    if (len_dev_descr)
+                               USB_DEVICE_TO_HOST | USB_RECIPIENT_DEVICE,
+                               GET_DESCRIPTOR,
+                               (DEVICE_DESCRIPTOR << 8) | (0),
+                               0, buf, MIN(DEVICE_DESCRIPTOR_LENGTH, max_len_buf));
+    if (len_dev_descr) {
         *len_dev_descr = MIN(DEVICE_DESCRIPTOR_LENGTH, max_len_buf);
+    }
 
     return t;
 }
@@ -799,8 +818,9 @@ USB_TYPE USBHost::getConfigurationDescriptor(USBDeviceConnected * dev, uint8_t *
     total_conf_descr_length = buf[2] | (buf[3] << 8);
     total_conf_descr_length = MIN(max_len_buf, total_conf_descr_length);
 
-    if (len_conf_descr)
+    if (len_conf_descr) {
         *len_conf_descr = total_conf_descr_length;
+    }
 
     USB_DBG("TOTAL_LENGTH: %d \t NUM_INTERF: %d", total_conf_descr_length, buf[4]);
 
@@ -812,7 +832,8 @@ USB_TYPE USBHost::getConfigurationDescriptor(USBDeviceConnected * dev, uint8_t *
 }
 
 
-USB_TYPE USBHost::setAddress(USBDeviceConnected * dev, uint8_t address) {
+USB_TYPE USBHost::setAddress(USBDeviceConnected * dev, uint8_t address)
+{
     return controlWrite(    dev,
                             USB_HOST_TO_DEVICE | USB_RECIPIENT_DEVICE,
                             SET_ADDRESS,
@@ -830,14 +851,17 @@ USB_TYPE USBHost::setConfiguration(USBDeviceConnected * dev, uint8_t conf)
                          0, NULL, 0);
 }
 
-uint8_t USBHost::numberDriverAttached(USBDeviceConnected * dev) {
+uint8_t USBHost::numberDriverAttached(USBDeviceConnected * dev)
+{
     int index = findDevice(dev);
     uint8_t cnt = 0;
-    if (index == -1)
+    if (index == -1) {
         return 0;
+    }
     for (uint8_t i = 0; i < MAX_INTF; i++) {
-        if (deviceAttachedDriver[index][i])
+        if (deviceAttachedDriver[index][i]) {
             cnt++;
+        }
     }
     return cnt;
 }
@@ -848,76 +872,76 @@ USB_TYPE USBHost::enumerate(USBDeviceConnected * dev, IUSBEnumerator* pEnumerato
     uint16_t total_conf_descr_length = 0;
     USB_TYPE res;
 
-    do
-    {
-      Lock lock(this);
+    do {
+        Lock lock(this);
 
-      // don't enumerate a device which all interfaces are registered to a specific driver
-      int index = findDevice(dev);
+        // don't enumerate a device which all interfaces are registered to a specific driver
+        int index = findDevice(dev);
 
-      if (index == -1) {
-          return USB_TYPE_ERROR;
-      }
+        if (index == -1) {
+            return USB_TYPE_ERROR;
+        }
 
-      uint8_t nb_intf_attached = numberDriverAttached(dev);
-      USB_DBG("dev: %p nb_intf: %d", dev, dev->getNbIntf());
-      USB_DBG("dev: %p nb_intf_attached: %d", dev, nb_intf_attached);
-      if ((nb_intf_attached != 0) && (dev->getNbIntf() == nb_intf_attached)) {
-          USB_DBG("Don't enumerate dev: %p because all intf are registered with a driver", dev);
-          return USB_TYPE_OK;
-      }
+        uint8_t nb_intf_attached = numberDriverAttached(dev);
+        USB_DBG("dev: %p nb_intf: %d", dev, dev->getNbIntf());
+        USB_DBG("dev: %p nb_intf_attached: %d", dev, nb_intf_attached);
+        if ((nb_intf_attached != 0) && (dev->getNbIntf() == nb_intf_attached)) {
+            USB_DBG("Don't enumerate dev: %p because all intf are registered with a driver", dev);
+            return USB_TYPE_OK;
+        }
 
-      USB_DBG("Enumerate dev: %p", dev);
+        USB_DBG("Enumerate dev: %p", dev);
 
-      // third step: get the whole device descriptor to see vid, pid
-      res = getDeviceDescriptor(dev, data, DEVICE_DESCRIPTOR_LENGTH);
+        // third step: get the whole device descriptor to see vid, pid
+        res = getDeviceDescriptor(dev, data, DEVICE_DESCRIPTOR_LENGTH);
 
-      if (res != USB_TYPE_OK) {
-          USB_DBG("GET DEV DESCR FAILED");
-          return res;
-      }
+        if (res != USB_TYPE_OK) {
+            USB_DBG("GET DEV DESCR FAILED");
+            return res;
+        }
 
-      dev->setClass(data[4]);
-      dev->setSubClass(data[5]);
-      dev->setProtocol(data[6]);
-      dev->setVid(data[8] | (data[9] << 8));
-      dev->setPid(data[10] | (data[11] << 8));
-      USB_DBG("CLASS: %02X \t VID: %04X \t PID: %04X", data[4], data[8] | (data[9] << 8), data[10] | (data[11] << 8));
+        dev->setClass(data[4]);
+        dev->setSubClass(data[5]);
+        dev->setProtocol(data[6]);
+        dev->setVid(data[8] | (data[9] << 8));
+        dev->setPid(data[10] | (data[11] << 8));
+        USB_DBG("CLASS: %02X \t VID: %04X \t PID: %04X", data[4], data[8] | (data[9] << 8), data[10] | (data[11] << 8));
 
-      pEnumerator->setVidPid( data[8] | (data[9] << 8), data[10] | (data[11] << 8) );
+        pEnumerator->setVidPid( data[8] | (data[9] << 8), data[10] | (data[11] << 8) );
 
-      res = getConfigurationDescriptor(dev, data, sizeof(data), &total_conf_descr_length);
-      if (res != USB_TYPE_OK) {
-          return res;
-      }
+        res = getConfigurationDescriptor(dev, data, sizeof(data), &total_conf_descr_length);
+        if (res != USB_TYPE_OK) {
+            return res;
+        }
 
-  #if (DEBUG > 3)
-      USB_DBG("CONFIGURATION DESCRIPTOR:\r\n");
-      for (int i = 0; i < total_conf_descr_length; i++)
-          printf("%02X ", data[i]);
-      printf("\r\n\r\n");
-  #endif
+#if (DEBUG > 3)
+        USB_DBG("CONFIGURATION DESCRIPTOR:\r\n");
+        for (int i = 0; i < total_conf_descr_length; i++) {
+            printf("%02X ", data[i]);
+        }
+        printf("\r\n\r\n");
+#endif
 
-      // Parse the configuration descriptor
-      parseConfDescr(dev, data, total_conf_descr_length, pEnumerator);
+        // Parse the configuration descriptor
+        parseConfDescr(dev, data, total_conf_descr_length, pEnumerator);
 
-      // only set configuration if not enumerated before
-      if (!dev->isEnumerated()) {
+        // only set configuration if not enumerated before
+        if (!dev->isEnumerated()) {
 
-          USB_DBG("Set configuration 1 on dev: %p", dev);
-          // sixth step: set configuration (only 1 supported)
-          res = setConfiguration(dev, 1);
+            USB_DBG("Set configuration 1 on dev: %p", dev);
+            // sixth step: set configuration (only 1 supported)
+            res = setConfiguration(dev, 1);
 
-          if (res != USB_TYPE_OK) {
-              USB_DBG("SET CONF FAILED");
-              return res;
-          }
-      }
+            if (res != USB_TYPE_OK) {
+                USB_DBG("SET CONF FAILED");
+                return res;
+            }
+        }
 
-      dev->setEnumerated();
+        dev->setEnumerated();
 
-      // Now the device is enumerated!
-      USB_DBG("dev %p is enumerated\r\n", dev);
+        // Now the device is enumerated!
+        USB_DBG("dev %p is enumerated\r\n", dev);
 
     } while(0);
 
@@ -1016,7 +1040,8 @@ USB_TYPE USBHost::interruptRead(USBDeviceConnected * dev, USBEndpoint * ep, uint
     return generalTransfer(dev, ep, buf, len, blocking, INTERRUPT_ENDPOINT, false);
 }
 
-USB_TYPE USBHost::generalTransfer(USBDeviceConnected * dev, USBEndpoint * ep, uint8_t * buf, uint32_t len, bool blocking, ENDPOINT_TYPE type, bool write) {
+USB_TYPE USBHost::generalTransfer(USBDeviceConnected * dev, USBEndpoint * ep, uint8_t * buf, uint32_t len, bool blocking, ENDPOINT_TYPE type, bool write)
+{
 
 #if DEBUG_TRANSFER
     const char * type_str = (type == BULK_ENDPOINT) ? "BULK" : ((type == INTERRUPT_ENDPOINT) ? "INTERRUPT" : "ISOCHRONOUS");
@@ -1056,8 +1081,9 @@ USB_TYPE USBHost::generalTransfer(USBDeviceConnected * dev, USBEndpoint * ep, ui
 #if DEBUG_TRANSFER
     if (write) {
         USB_DBG_TRANSFER("%s WRITE buffer", type_str);
-        for (int i = 0; i < ep->getLengthTransferred(); i++)
+        for (int i = 0; i < ep->getLengthTransferred(); i++) {
             printf("%02X ", buf[i]);
+        }
         printf("\r\n\r\n");
     }
 #endif
@@ -1082,11 +1108,13 @@ USB_TYPE USBHost::generalTransfer(USBDeviceConnected * dev, USBEndpoint * ep, ui
 }
 
 
-USB_TYPE USBHost::controlRead(USBDeviceConnected * dev, uint8_t requestType, uint8_t request, uint32_t value, uint32_t index, uint8_t * buf, uint32_t len) {
+USB_TYPE USBHost::controlRead(USBDeviceConnected * dev, uint8_t requestType, uint8_t request, uint32_t value, uint32_t index, uint8_t * buf, uint32_t len)
+{
     return controlTransfer(dev, requestType, request, value, index, buf, len, false);
 }
 
-USB_TYPE USBHost::controlWrite(USBDeviceConnected * dev, uint8_t requestType, uint8_t request, uint32_t value, uint32_t index, uint8_t * buf, uint32_t len) {
+USB_TYPE USBHost::controlWrite(USBDeviceConnected * dev, uint8_t requestType, uint8_t request, uint32_t value, uint32_t index, uint8_t * buf, uint32_t len)
+{
     return controlTransfer(dev, requestType, request, value, index, buf, len, true);
 }
 
@@ -1112,15 +1140,18 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
 
 #if DEBUG_TRANSFER
     USB_DBG_TRANSFER("SETUP PACKET: ");
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++) {
         printf("%01X ", setupPacket[i]);
+    }
     printf("\r\n");
 #endif
 
     control->setNextToken(TD_SETUP);
     res = addTransfer(control, (uint8_t*)setupPacket, 8);
 
-    if (res == USB_TYPE_PROCESSING) control->ep_queue.get();
+    if (res == USB_TYPE_PROCESSING) {
+        control->ep_queue.get();
+    }
     res = control->getState();
 
     USB_DBG_TRANSFER("CONTROL setup stage %s", control->getStateString());
@@ -1134,20 +1165,24 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
         control->setNextToken(token);
         res = addTransfer(control, (uint8_t *)buf, length_transfer);
 
-        if (res == USB_TYPE_PROCESSING) control->ep_queue.get();
+        if (res == USB_TYPE_PROCESSING) {
+            control->ep_queue.get();
+        }
         res = control->getState();
 
 #if DEBUG_TRANSFER
         USB_DBG_TRANSFER("CONTROL %s stage %s", (write) ? "WRITE" : "READ", control->getStateString());
         if (write) {
             USB_DBG_TRANSFER("CONTROL WRITE buffer");
-            for (int i = 0; i < control->getLengthTransferred(); i++)
+            for (int i = 0; i < control->getLengthTransferred(); i++) {
                 printf("%02X ", buf[i]);
+            }
             printf("\r\n\r\n");
         } else {
             USB_DBG_TRANSFER("CONTROL READ SUCCESS [%d bytes transferred]", control->getLengthTransferred());
-            for (int i = 0; i < control->getLengthTransferred(); i++)
+            for (int i = 0; i < control->getLengthTransferred(); i++) {
                 printf("%02X ", buf[i]);
+            }
             printf("\r\n\r\n");
         }
 #endif
@@ -1161,13 +1196,16 @@ USB_TYPE USBHost::controlTransfer(USBDeviceConnected * dev, uint8_t requestType,
     control->setNextToken(token);
     res = addTransfer(control, NULL, 0);
 
-    if (res == USB_TYPE_PROCESSING) control->ep_queue.get();
+    if (res == USB_TYPE_PROCESSING) {
+        control->ep_queue.get();
+    }
     res = control->getState();
 
     USB_DBG_TRANSFER("CONTROL ack stage %s", control->getStateString());
 
-    if (res != USB_TYPE_IDLE)
+    if (res != USB_TYPE_IDLE) {
         return res;
+    }
 
     return USB_TYPE_OK;
 }
