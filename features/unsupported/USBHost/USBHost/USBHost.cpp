@@ -222,6 +222,7 @@ void USBHost::usb_process()
                         idx = findDevice(usb_msg->hub, usb_msg->port, (USBHostHub *)(usb_msg->hub_parent));
                         if (idx != -1) {
                             freeDevice((USBDeviceConnected*)&devices[idx]);
+                            deviceInited[idx]=false;
                         }
 
                         if (controlListState) {
