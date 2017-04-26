@@ -69,7 +69,7 @@ public:
     /** Remove a file from the filesystem.
      *
      *  @param filename the name of the file to remove.
-     *  @param returns 0 on success, -1 on failure.
+     *  @returns 0 on success, -1 on failure.
      */
     virtual int remove(const char *filename) { (void) filename; return -1; };
 
