@@ -35,12 +35,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
+ 
+#ifndef TARGET_MCU_NRF51822
+ 
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "pwmout_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
+#include "sdk_config.h"
 
 #if DEVICE_PWMOUT
 
@@ -369,7 +372,7 @@ static void internal_pwmout_exe(pwmout_t *obj, bool new_period, bool initializat
                     NRF_DRV_PWM_PIN_NOT_USED,            // channel 2
                     NRF_DRV_PWM_PIN_NOT_USED,            // channel 3
                 },
-                .irq_priority = PWM0_CONFIG_IRQ_PRIORITY,
+                .irq_priority = PWM_DEFAULT_CONFIG_IRQ_PRIORITY,
                 .base_clock   = pulsewidth_set.pwm_clk,
                 .count_mode   = NRF_PWM_MODE_UP,
                 .top_value    = pulsewidth_set.period_hwu,
@@ -397,3 +400,5 @@ static void internal_pwmout_exe(pwmout_t *obj, bool new_period, bool initializat
 }
 
 #endif // DEVICE_PWMOUT
+
+#endif
