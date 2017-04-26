@@ -117,7 +117,7 @@ void pin_mode(PinName pin, PinMode pupd)
     uint32_t port_num = WIZ_PORT(pin);
     uint32_t pin_num = WIZ_PIN_NUM(pin);
 
-    switch(port_num)    {
+    switch(port_num) {
         case PortA:
             if(pupd != 0)
             {
