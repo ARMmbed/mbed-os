@@ -160,7 +160,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -172,7 +172,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -184,7 +184,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -196,7 +196,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -404,7 +404,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -421,7 +421,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -438,7 +438,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -455,7 +455,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -571,6 +571,8 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
+     *  @return the value as determined by func which is of 
+     *      type and determined by the signiture of func
      */
     static R thunk(void *func) {
         return static_cast<Callback*>(func)->call();
@@ -756,7 +758,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -768,7 +770,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -780,7 +782,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -792,7 +794,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -1000,7 +1002,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1017,7 +1019,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1034,7 +1036,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1051,7 +1053,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1167,6 +1169,9 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
+     *  @param a0 An argument to be called with function func
+     *  @return the value as determined by func which is of 
+     *      type and determined by the signiture of func
      */
     static R thunk(void *func, A0 a0) {
         return static_cast<Callback*>(func)->call(a0);
@@ -1352,7 +1357,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -1364,7 +1369,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -1376,7 +1381,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -1388,7 +1393,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -1596,7 +1601,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1613,7 +1618,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1630,7 +1635,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1647,7 +1652,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1763,6 +1768,10 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
+     *  @param a0 An argument to be called with function func
+     *  @param a1 An argument to be called with function func
+     *  @return the value as determined by func which is of 
+     *      type and determined by the signiture of func
      */
     static R thunk(void *func, A0 a0, A1 a1) {
         return static_cast<Callback*>(func)->call(a0, a1);
@@ -1948,7 +1957,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -1960,7 +1969,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -1972,7 +1981,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -1984,7 +1993,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -2192,7 +2201,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2209,7 +2218,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2226,7 +2235,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2243,7 +2252,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2359,6 +2368,11 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
+     *  @param a0 An argument to be called with function func
+     *  @param a1 An argument to be called with function func
+     *  @param a2 An argument to be called with function func
+     *  @return the value as determined by func which is of 
+     *      type and determined by the signiture of func
      */
     static R thunk(void *func, A0 a0, A1 a1, A2 a2) {
         return static_cast<Callback*>(func)->call(a0, a1, a2);
@@ -2544,7 +2558,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -2556,7 +2570,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -2568,7 +2582,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -2580,7 +2594,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -2788,7 +2802,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2805,7 +2819,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2822,7 +2836,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2839,7 +2853,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2955,6 +2969,12 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
+     *  @param a0 An argument to be called with function func
+     *  @param a1 An argument to be called with function func
+     *  @param a2 An argument to be called with function func
+     *  @param a3 An argument to be called with function func
+     *  @return the value as determined by func which is of 
+     *      type and determined by the signiture of func
      */
     static R thunk(void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
         return static_cast<Callback*>(func)->call(a0, a1, a2, a3);
@@ -3140,7 +3160,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -3152,7 +3172,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -3164,7 +3184,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -3176,7 +3196,7 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
@@ -3384,7 +3404,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -3401,7 +3421,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -3418,7 +3438,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -3435,7 +3455,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param func     Function object to attach
+     *  @param f Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -3551,6 +3571,13 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
+     *  @param a0 An argument to be called with function func
+     *  @param a1 An argument to be called with function func
+     *  @param a2 An argument to be called with function func
+     *  @param a3 An argument to be called with function func
+     *  @param a4 An argument to be called with function func
+     *  @return the value as determined by func which is of 
+     *      type and determined by the signiture of func
      */
     static R thunk(void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
         return static_cast<Callback*>(func)->call(a0, a1, a2, a3, a4);
