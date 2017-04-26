@@ -20,8 +20,6 @@
 #include "utest.h"
 #include "rtos.h"
 
-using namespace utest::v1;
-
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -38,6 +36,8 @@ using namespace utest::v1;
 #include <stdio.h>
 #include <stdlib.h>
 #endif
+
+using namespace utest::v1;
 
 #ifndef PUT_UINT32_BE
 #define PUT_UINT32_BE(n,b,i)                            \
