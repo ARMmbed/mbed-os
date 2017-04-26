@@ -15,6 +15,9 @@
  */
 #include "QSPIMemSpec.h"
 
+
+#ifdef DEVICE_QSPI
+
 namespace mbed {
 
 QSPIMemSpec::QSPIMemSpec(uint8_t cmd_32bit,
@@ -79,3 +82,5 @@ QSPIMemSpec::MemSpec_QuadModeReq_t QSPIMemSpec::quad_mode_req_get() const
 }
 
 }
+
+#endif

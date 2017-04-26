@@ -18,6 +18,9 @@
 
 #include "qspi_api.h"
 
+
+#ifdef DEVICE_QSPI
+
 /** Type representing a quantity of 8-bit bytes
  */
 typedef uint64_t memspec_size_t;
@@ -136,4 +139,6 @@ protected:
 };
 
 }
+#endif
+
 #endif // QSPIMEMSPEC_H
