@@ -24,7 +24,7 @@
 
 using namespace utest::v1;
 
-#define TEST_STACK_SIZE     1024
+#define TEST_STACK_SIZE     512
 static uint32_t instance_count = 0;
 
 class TestClass {
