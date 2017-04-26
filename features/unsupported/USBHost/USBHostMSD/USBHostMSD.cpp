@@ -74,6 +74,11 @@ bool USBHostMSD::connect()
                 break;
 
             if (msd_device_found) {
+                /* As this is done in a specific thread
+                 * this lock is taken to avoid to process a disconnection in
+                 * usb process during the device registering */
+                USBHost::Lock  Lock(host);
+
                 bulk_in = dev->getEndpoint(msd_intf, BULK_ENDPOINT, IN);
                 bulk_out = dev->getEndpoint(msd_intf, BULK_ENDPOINT, OUT);
 
