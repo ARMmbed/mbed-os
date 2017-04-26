@@ -109,7 +109,11 @@ struct i2c_s {
     uint8_t available_events;
 #endif
 };
-
+#if DEVICE_FLASH
+struct flash_s {
+    uint32_t dummy;
+};
+#endif
 #define GPIO_IP_WITHOUT_BRR
 #include "gpio_object.h"
 
