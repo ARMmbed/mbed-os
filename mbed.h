@@ -83,6 +83,7 @@
 #include "drivers/PwmOut.h"
 #include "drivers/Serial.h"
 #include "drivers/SPI.h"
+#include "drivers/QSPI.h"
 #include "drivers/SPISlave.h"
 #include "drivers/I2C.h"
 #include "drivers/I2CSlave.h"
