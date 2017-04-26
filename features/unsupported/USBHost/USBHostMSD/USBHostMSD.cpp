@@ -17,7 +17,6 @@
 #include "USBHostMSD.h"
 
 #if USBHOST_MSD
-
 #include "dbg.h"
 
 #define CBW_SIGNATURE   0x43425355
@@ -29,13 +28,16 @@
 #define GET_MAX_LUN             (0xFE)
 #define BO_MASS_STORAGE_RESET   (0xFF)
 
-USBHostMSD::USBHostMSD(const char * rootdir) : FATFileSystem(rootdir)
+USBHostMSD::USBHostMSD()
 {
     host = USBHost::getHostInst();
-    init();
+    /*  register an object in FAT */
+
+    init_usb();
 }
 
-void USBHostMSD::init() {
+void USBHostMSD::init_usb()
+{
     dev_connected = false;
     dev = NULL;
     bulk_in = NULL;
@@ -80,14 +82,14 @@ bool USBHostMSD::connect()
 
                 USB_INFO("New MSD device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, msd_intf);
                 dev->setName("MSD", msd_intf);
-                host->registerDriver(dev, msd_intf, this, &USBHostMSD::init);
+                host->registerDriver(dev, msd_intf, this, &USBHostMSD::init_usb);
 
                 dev_connected = true;
                 return true;
             }
         } //if()
     } //for()
-    init();
+    init_usb();
     return false;
 }
 
@@ -99,9 +101,9 @@ bool USBHostMSD::connect()
 /*virtual*/ bool USBHostMSD::parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) //Must return true if the interface should be parsed
 {
     if ((msd_intf == -1) &&
-        (intf_class == MSD_CLASS) &&
-        (intf_subclass == 0x06) &&
-        (intf_protocol == 0x50)) {
+            (intf_class == MSD_CLASS) &&
+            (intf_subclass == 0x06) &&
+            (intf_protocol == 0x50)) {
         msd_intf = intf_nb;
         return true;
     }
@@ -122,13 +124,15 @@ bool USBHostMSD::connect()
 }
 
 
-int USBHostMSD::testUnitReady() {
+int USBHostMSD::testUnitReady()
+{
     USB_DBG("Test unit ready");
     return SCSITransfer(NULL, 6, DEVICE_TO_HOST, 0, 0);
 }
 
 
-int USBHostMSD::readCapacity() {
+int USBHostMSD::readCapacity()
+{
     USB_DBG("Read capacity");
     uint8_t cmd[10] = {0x25,0,0,0,0,0,0,0,0,0};
     uint8_t result[8];
@@ -142,7 +146,8 @@ int USBHostMSD::readCapacity() {
 }
 
 
-int USBHostMSD::SCSIRequestSense() {
+int USBHostMSD::SCSIRequestSense()
+{
     USB_DBG("Request sense");
     uint8_t cmd[6] = {0x03,0,0,0,18,0};
     uint8_t result[18];
@@ -151,7 +156,8 @@ int USBHostMSD::SCSIRequestSense() {
 }
 
 
-int USBHostMSD::inquiry(uint8_t lun, uint8_t page_code) {
+int USBHostMSD::inquiry(uint8_t lun, uint8_t page_code)
+{
     USB_DBG("Inquiry");
     uint8_t evpd = (page_code == 0) ? 0 : 1;
     uint8_t cmd[6] = {0x12, uint8_t((lun << 5) | evpd), page_code, 0, 36, 0};
@@ -174,7 +180,8 @@ int USBHostMSD::inquiry(uint8_t lun, uint8_t page_code) {
     return status;
 }
 
-int USBHostMSD::checkResult(uint8_t res, USBEndpoint * ep) {
+int USBHostMSD::checkResult(uint8_t res, USBEndpoint * ep)
+{
     // if ep stalled: send clear feature
     if (res == USB_TYPE_STALL_ERROR) {
         res = host->controlWrite(   dev,
@@ -194,7 +201,8 @@ int USBHostMSD::checkResult(uint8_t res, USBEndpoint * ep) {
 }
 
 
-int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t * data, uint32_t transfer_len) {
+int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t * data, uint32_t transfer_len)
+{
 
     int res = 0;
 
@@ -277,7 +285,8 @@ int USBHostMSD::SCSITransfer(uint8_t * cmd, uint8_t cmd_len, int flags, uint8_t 
 }
 
 
-int USBHostMSD::dataTransfer(uint8_t * buf, uint32_t block, uint8_t nbBlock, int direction) {
+int USBHostMSD::dataTransfer(uint8_t * buf, uint32_t block, uint8_t nbBlock, int direction)
+{
     uint8_t cmd[10];
     memset(cmd,0,10);
     cmd[0] = (direction == DEVICE_TO_HOST) ? 0x28 : 0x2A;
@@ -293,7 +302,8 @@ int USBHostMSD::dataTransfer(uint8_t * buf, uint32_t block, uint8_t nbBlock, int
     return SCSITransfer(cmd, 10, direction, buf, blockSize*nbBlock);
 }
 
-int USBHostMSD::getMaxLun() {
+int USBHostMSD::getMaxLun()
+{
     uint8_t buf[1], res;
     res = host->controlRead(    dev, USB_RECIPIENT_INTERFACE | USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS,
                                 0xfe, 0, msd_intf, buf, 1);
@@ -301,12 +311,11 @@ int USBHostMSD::getMaxLun() {
     return res;
 }
 
-int USBHostMSD::disk_initialize() {
+int USBHostMSD::init()
+{
     USB_DBG("FILESYSTEM: init");
-    uint16_t i, timeout = 10;
-
+    uint16_t i, timeout = 10, ret;
     getMaxLun();
-
     for (i = 0; i < timeout; i++) {
         Thread::wait(100);
         if (!testUnitReady())
@@ -323,44 +332,70 @@ int USBHostMSD::disk_initialize() {
     return readCapacity();
 }
 
-int USBHostMSD::disk_write(const uint8_t* buffer, uint32_t block_number, uint32_t count) {
-    USB_DBG("FILESYSTEM: write block: %lld, count: %d", block_number, count);
+int USBHostMSD::program(const void *buffer, bd_addr_t addr, bd_size_t size)
+{
+    uint32_t block_number, count;
+    uint8_t *buf = (uint8_t *)buffer;
     if (!disk_init) {
-        disk_initialize();
+        init();
     }
-    if (!disk_init)
+    if (!disk_init) {
         return -1;
+    }
+    block_number =  addr / blockSize;
+    count = size /blockSize;
+
     for (uint32_t b = block_number; b < block_number + count; b++) {
-        if (dataTransfer((uint8_t*)buffer, b, 1, HOST_TO_DEVICE))
+        if (dataTransfer(buf, b, 1, HOST_TO_DEVICE))
             return -1;
-        buffer += 512;
+        buf += blockSize;
     }
     return 0;
 }
 
-int USBHostMSD::disk_read(uint8_t* buffer, uint32_t block_number, uint32_t count) {
-    USB_DBG("FILESYSTEM: read block: %lld, count: %d", block_number, count);
+int USBHostMSD::read(void *buffer, bd_addr_t addr, bd_size_t size)
+{
+    uint32_t block_number, count;
+    uint8_t *buf = (uint8_t *)buffer;
     if (!disk_init) {
-        disk_initialize();
+        init();
     }
-    if (!disk_init)
+    if (!disk_init) {
         return -1;
+    }
+    block_number =  addr / blockSize;
+    count = size / blockSize;
+
     for (uint32_t b = block_number; b < block_number + count; b++) {
-        if (dataTransfer((uint8_t*)buffer, b, 1, DEVICE_TO_HOST))
+        if (dataTransfer(buf, b, 1, DEVICE_TO_HOST))
             return -1;
-        buffer += 512;
+        buf += blockSize;
     }
     return 0;
 }
 
-uint32_t USBHostMSD::disk_sectors() {
-    USB_DBG("FILESYSTEM: sectors");
-    if (!disk_init) {
-        disk_initialize();
-    }
-    if (!disk_init)
-        return 0;
-    return blockCount;
+int USBHostMSD::erase(bd_addr_t addr, bd_size_t size)
+{
+    return 0;
 }
 
+bd_size_t USBHostMSD::get_read_size() const
+{
+    return (disk_init ? (bd_size_t)blockSize : -1);
+}
+
+bd_size_t USBHostMSD::get_program_size() const
+{
+    return (disk_init ? (bd_size_t)blockSize : -1);
+}
+bd_size_t USBHostMSD::get_erase_size() const
+{
+    return (disk_init ? (bd_size_t)blockSize : -1);
+}
+
+bd_size_t USBHostMSD::size() const
+{
+    USB_DBG("FILESYSTEM: size ");
+    return (disk_init ? (bd_size_t)blockSize : 0);
+}
 #endif
