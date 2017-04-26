@@ -74,6 +74,9 @@ void USBEndpoint::setDeviceAddress(uint8_t addr)
     uint8_t hcd_speed = HCD_SPEED_FULL;
     /* fix me : small speed device with hub not supported
     if (this->speed) hcd_speed = HCD_SPEED_LOW; */
+    if (this->speed) {
+        USB_WARN("small speed device on hub not supported");
+    }
     MBED_ASSERT(HAL_HCD_HC_Init((HCD_HandleTypeDef*)hced->hhcd,hced->ch_num, address, addr, hcd_speed,  type, size)!=HAL_BUSY);
     this->device_address = addr;
 
