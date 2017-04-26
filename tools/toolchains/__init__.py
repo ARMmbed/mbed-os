@@ -215,7 +215,7 @@ class Resources:
 # standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
 # had the knowledge of a list of these directories to be ignored.
 LEGACY_IGNORE_DIRS = set([
-    'LPC11U24', 'LPC1768', 'LPC2368', 'LPC4088', 'LPC812', 'KL25Z',
+    'LPC11U24', 'LPC1768', 'LPC4088', 'LPC812', 'KL25Z',
     'ARM', 'uARM', 'IAR',
     'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'GCC_CW_EWL', 'GCC_CW_NEWLIB',
 ])
