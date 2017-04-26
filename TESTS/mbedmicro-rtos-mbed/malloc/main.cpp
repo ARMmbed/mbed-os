@@ -6,7 +6,11 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+#ifdef MBED_SMALL_TARGET
+#define NUM_THREADS         3
+#else
 #define NUM_THREADS         5
+#endif
 #if defined(__CORTEX_A9)
 #define THREAD_STACK_SIZE   DEFAULT_STACK_SIZE
 #else

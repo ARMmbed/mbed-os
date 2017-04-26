@@ -10,7 +10,7 @@
 #define SEMAPHORE_SLOTS  2
 #define SEM_CHANGES      100
 
-#define THREAD_STACK_SIZE 768
+#define THREAD_STACK_SIZE 512
 
 Semaphore two_slots(SEMAPHORE_SLOTS);
 

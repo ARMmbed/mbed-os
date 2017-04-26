@@ -33,6 +33,7 @@
 #endif
 
 #define OS_TIMER_THREAD_STACK_SIZE 768
+#define OS_IDLE_THREAD_STACK_SIZE  256
 
 #define OS_DYNAMIC_MEM_SIZE         0
 
