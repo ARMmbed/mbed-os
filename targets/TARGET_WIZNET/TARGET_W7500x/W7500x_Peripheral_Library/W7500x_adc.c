@@ -44,13 +44,13 @@ void ADC_Init (void)
     // ADC_CLK on
     ADC_PowerDownEnable(ENABLE);
     ADC_PowerDownEnable(DISABLE);
-	//ADC_ChannelSelect(num);
+    //ADC_ChannelSelect(num);
 }
 
 void ADC_DeInit (void)
 {
-	// ADC_CLK off
+    // ADC_CLK off
     ADC_PowerDownEnable(ENABLE);
-	ADC_InterruptMask(DISABLE);
+    ADC_InterruptMask(DISABLE);
 }
 

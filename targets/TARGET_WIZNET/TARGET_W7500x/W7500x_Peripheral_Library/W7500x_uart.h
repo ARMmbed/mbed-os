@@ -130,8 +130,8 @@ typedef struct
 #define UART_Mode_Rx                ((uint16_t)(UART_CR_RXE))
 #define UART_Mode_Tx                ((uint16_t)(UART_CR_TXE))
 #define IS_UART_MODE(MODE)          (((MODE) == UART_Mode_Rx) || \
-                                     ((MODE) == UART_Mode_Tx)  || \
-                                     ((MODE) == (URAT_Mode_Rx | UART_Mode_Tx)))
+                                     ((MODE) == UART_Mode_Tx) || \
+                                     ((MODE) == (UART_Mode_Rx | UART_Mode_Tx)))
 
 /**
   * @}
@@ -222,7 +222,7 @@ typedef struct
 #define UART_IT_FLAG_FEI        ((uint16_t)0x01UL <<  7) /*!< Framing error interrupt   */
 #define UART_IT_FLAG_RTI        ((uint16_t)0x01UL <<  6) /*!< Receive timeout interrupt */
 #define UART_IT_FLAG_TXI        ((uint16_t)0x01UL <<  5) /*!< Transmit interrupt        */
-#define UART_IT_FLAG_RXI        ((uint16_t)0x01UL <<  4) /*!< Receive interruptt        */
+#define UART_IT_FLAG_RXI        ((uint16_t)0x01UL <<  4) /*!< Receive interrupt         */
 #define UART_IT_FLAG_DSRMI      ((uint16_t)0x01UL <<  3) /*!< UARTDSR modem interrupt   */
 #define UART_IT_FLAG_DCDMI      ((uint16_t)0x01UL <<  2) /*!< UARTDCD modem interrupt   */
 #define UART_IT_FLAG_CTSMI      ((uint16_t)0x01UL <<  1) /*!< UARTCTS modem interrupt   */
