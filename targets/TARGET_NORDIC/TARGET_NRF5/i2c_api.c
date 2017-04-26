@@ -45,7 +45,7 @@
 #include "mbed_error.h"
 #include "nrf_twi.h"
 #include "nrf_drv_common.h"
-#include "nrf_drv_config.h"
+#include "sdk_config.h"
 #include "app_util_platform.h"
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
@@ -61,6 +61,11 @@
     #define TWI_IDX(obj)    ((obj)->twi_idx)
 #endif
 #define TWI_INFO(obj)   (&m_twi_info[TWI_IDX(obj)])
+
+#ifdef TARGET_SDK13
+    #define TWI0_INSTANCE_INDEX 0
+    #define TWI1_INSTANCE_INDEX TWI0_INSTANCE_INDEX+TWI0_ENABLED
+#endif
 
 typedef struct {
     bool                initialized;
@@ -113,7 +118,7 @@ static const peripheral_handler_desc_t twi_handlers[TWI_COUNT] =
 };
 #ifdef NRF51
     #define TWI_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOW
-#elif defined(NRF52)
+#elif defined(NRF52) || defined(NRF52840_XXAA)
     #define TWI_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOWEST
 #endif
 

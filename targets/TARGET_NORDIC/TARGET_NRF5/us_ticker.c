@@ -40,10 +40,12 @@
 #include "common_rtc.h"
 #include "app_util.h"
 #include "nrf_drv_common.h"
-#include "nrf_drv_config.h"
 #include "lp_ticker_api.h"
 #include "mbed_critical.h"
 
+#if defined(NRF52_ERRATA_20)
+    #include "softdevice_handler.h"
+#endif
 
 //------------------------------------------------------------------------------
 // Common stuff used also by lp_ticker and rtc_api (see "common_rtc.h").
@@ -82,7 +84,23 @@ void COMMON_RTC_IRQ_HANDLER(void)
         lp_ticker_irq_handler();
     }
 #endif
+}
 
+// Function for fix errata 20: RTC Register values are invalid
+__STATIC_INLINE void errata_20(void)
+{
+#if defined(NRF52_ERRATA_20)
+    if (!softdevice_handler_is_enabled())
+    {
+        NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
+        NRF_CLOCK->TASKS_LFCLKSTART    = 1;
+
+        while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0)
+        {
+        }
+    }
+    NRF_RTC1->TASKS_STOP = 0;
+#endif
 }
 
 #if (defined (__ICCARM__)) && defined(TARGET_MCU_NRF51822)//IAR
@@ -95,6 +113,8 @@ void common_rtc_init(void)
     if (m_common_rtc_enabled) {
         return;
     }
+
+    errata_20();
 
     NVIC_SetVector(RTC1_IRQn, (uint32_t)RTC1_IRQHandler);
     
@@ -140,7 +160,7 @@ void common_rtc_init(void)
     nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE),
 #ifdef NRF51
         APP_IRQ_PRIORITY_LOW
-#elif defined(NRF52)
+#elif defined(NRF52) || defined(NRF52840_XXAA)
         APP_IRQ_PRIORITY_LOWEST
 #endif
         );
@@ -516,7 +536,7 @@ static void register_next_tick() {
     // the RTC1 keeps running.
     // This code is very short 20-38 cycles in the worst case, it shouldn't
     // disturb softdevice.
-    __disable_irq();
+    core_util_critical_section_enter();
     uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
 
     // If an overflow occur, set the next tick in COUNTER + delta clock cycles
@@ -527,7 +547,7 @@ static void register_next_tick() {
     // Enable generation of the compare event for the value set above (this
     // event will trigger the interrupt).
     nrf_rtc_event_enable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
-    __enable_irq();
+    core_util_critical_section_exit();
 }
 
 /**

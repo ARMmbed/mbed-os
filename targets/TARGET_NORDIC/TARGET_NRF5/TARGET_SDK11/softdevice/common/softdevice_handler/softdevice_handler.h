@@ -232,7 +232,7 @@ uint32_t softdevice_enable(ble_enable_params_t * p_ble_enable_params);
 /**@cond NO_DOXYGEN */
 void intern_softdevice_events_execute(void);
 
-
+#define softdevice_handler_is_enabled softdevice_handler_isEnabled
 /**@endcond */
 
 #endif // SOFTDEVICE_HANDLER_H__
