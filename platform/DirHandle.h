@@ -47,7 +47,6 @@ public:
 
     /** Read the next directory entry
      *
-     *  @param path     The buffer to read the null terminated path name in to
      *  @param ent      The directory entry to fill out
      *  @return         1 on reading a filename, 0 at end of directory, negative error on failure
      */
