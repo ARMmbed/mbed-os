@@ -290,11 +290,10 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_t *p_gatt
             UUID::LongUUIDBytes_t uuid;
             
 #if (NRF_SD_BLE_API_VERSION >= 3)            
-            /* SoftDevice API since 3.0.0 (e.g. sd 140 5.0.0-1.alpha) provide sd_ble_gattc_evt_char_val_by_uuid_read_rsp_iter() helper function,
-             * but it's not reliable for c++ build.
-             * Instead of it memcpy gets proper response's value field by offset from handle-value pair: [2 B handle|16 B value=uuid_128b] */
-
-            memcpy(uuid, (&response->handle_value + 2), UUID::LENGTH_OF_LONG_UUID);
+            ble_gattc_handle_value_t iter;
+            memset(&iter, 0, sizeof(ble_gattc_handle_value_t));
+            (void) sd_ble_gattc_evt_char_val_by_uuid_read_rsp_iter(const_cast<ble_gattc_evt_t*>(p_gattc_evt), &iter);
+            memcpy(uuid, iter.p_value, UUID::LENGTH_OF_LONG_UUID);
 #else
             memcpy(uuid, &(response->handle_value[0].p_value[0]), UUID::LENGTH_OF_LONG_UUID);
 #endif
@@ -311,10 +310,10 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_t *p_gatt
             UUID::LongUUIDBytes_t uuid;
             
 #if (NRF_SD_BLE_API_VERSION >= 3)
-            /* SoftDevice API since 3.0.0 (e.g. sd 140 5.0.0-1.alpha) provide sd_ble_gattc_evt_char_val_by_uuid_read_rsp_iter() helper function,
-             * but it's not reliable for c++ build.
-             * Instead of it memcpy gets proper response's value by offset: [2 B type| 1B prop |2 B value handle| 16 B value=uuid_128b] */
-            memcpy(uuid, (&response->handle_value + 5), UUID::LENGTH_OF_LONG_UUID);
+            ble_gattc_handle_value_t iter;
+            memset(&iter, 0, sizeof(ble_gattc_handle_value_t));
+            (void) sd_ble_gattc_evt_char_val_by_uuid_read_rsp_iter(const_cast<ble_gattc_evt_t*>(p_gattc_evt), &iter);
+            memcpy(uuid, &(iter.p_value[3]), UUID::LENGTH_OF_LONG_UUID);
 #else
             memcpy(uuid, &(response->handle_value[0].p_value[3]), UUID::LENGTH_OF_LONG_UUID);
 #endif
