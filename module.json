@@ -1,0 +1,16 @@
+{
+  "name": "nanostack-libservice",
+  "version": "3.6.0",
+  "description": "Helper libraries for mbed-client and 6LoWPAN stack.",
+  "keywords": [
+    "libservice"
+  ],
+  "author": "Seppo Takalo <seppo.takalo@arm.com>",
+  "homepage": "https://github.com/ARMmbed/mbed-client-libservice",
+  "license": "Apache-2.0",
+  "extraIncludes": [
+    "mbed-client-libservice"
+  ],
+  "dependencies": {},
+  "targetDependencies": {}
+}
