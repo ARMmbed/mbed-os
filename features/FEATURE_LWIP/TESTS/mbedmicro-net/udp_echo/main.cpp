@@ -12,7 +12,7 @@
 #include "unity/unity.h"
 
 #ifndef MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE
-#define MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE 256
+#define MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE 64
 #endif
 
 #ifndef MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT
@@ -27,15 +27,25 @@ namespace {
     const int ECHO_LOOPS = 16;
 }
 
-void prep_buffer(char *tx_buffer, size_t tx_size) {
-    for (size_t i=0; i<tx_size; ++i) {
+void prep_buffer(char *uuid_buffer, size_t uuid_len, char *tx_buffer, size_t tx_size) {
+    size_t i = 0;
+
+    for (; i<uuid_len; ++i) {
+        tx_buffer[i] = uuid_buffer[i];
+    }
+
+    tx_buffer[i++] = ' ';
+
+    for (; i<tx_size; ++i) {
         tx_buffer[i] = (rand() % 10) + '0';
     }
 }
 
 int main() {
-    GREENTEA_SETUP(60, "udp_echo");
-
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(60, "udp_echo", uuid, 48);
+    printf("Got a uuid of %s\r\n", uuid);
+    size_t uuid_len = strlen(uuid);
     EthernetInterface eth;
     eth.connect();
     printf("UDP client IP Address is %s\n", eth.get_ip_address());
@@ -62,24 +72,26 @@ int main() {
     SocketAddress udp_addr(ipbuf, port);
 
     int success = 0;
-
-    for (int i=0; i < ECHO_LOOPS; ++i) {
-        prep_buffer(tx_buffer, sizeof(tx_buffer));
+    int i = 0;
+    while (success < ECHO_LOOPS) {
+        prep_buffer(uuid, uuid_len, tx_buffer, sizeof(tx_buffer));
         const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
-        printf("[%02d] sent...%d Bytes \n", i, ret);
-
+        printf("[%02d] sent %d Bytes - %.*s  \n", i, ret, MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE, tx_buffer);
         SocketAddress temp_addr;
         const int n = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
-        printf("[%02d] recv...%d Bytes \n", i, n);
+        printf("[%02d] recv %d Bytes - %.*s  \n", i, ret, MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE, rx_buffer);
 
         if ((temp_addr == udp_addr &&
              n == sizeof(tx_buffer) &&
              memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
             success += 1;
+
+            printf("[%02d] success #%d\n", i, success);
         }
+        i++;
     }
 
-    bool result = (success > 3*ECHO_LOOPS/4);
+    bool result = success == ECHO_LOOPS;
 
     sock.close();
     eth.disconnect();
