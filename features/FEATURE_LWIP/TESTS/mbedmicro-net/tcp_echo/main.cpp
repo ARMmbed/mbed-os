@@ -30,9 +30,13 @@ void prep_buffer(char *tx_buffer, size_t tx_size) {
 
 int main() {
     GREENTEA_SETUP(60, "tcp_echo");
-
     EthernetInterface eth;
-    eth.connect();
+    int err = eth.connect();
+
+    if (err) {
+        printf("MBED: failed to connect with an error of %d\r\n", err);
+        GREENTEA_TESTSUITE_RESULT(false);
+    }
 
     printf("MBED: TCPClient IP address is '%s'\n", eth.get_ip_address());
     printf("MBED: TCPClient waiting for server IP and port...\n");
@@ -64,12 +68,12 @@ int main() {
 
         prep_buffer(tx_buffer, sizeof(tx_buffer));
         sock.send(tx_buffer, sizeof(tx_buffer));
-
+        printf("MBED: Finished sending\r\n");
         // Server will respond with HTTP GET's success code
         const int ret = sock.recv(rx_buffer, sizeof(rx_buffer));
-        
+        printf("MBED: Finished receiving\r\n");
+
         result = !memcmp(tx_buffer, rx_buffer, sizeof(tx_buffer));
-        
         TEST_ASSERT_EQUAL(ret, sizeof(rx_buffer));
         TEST_ASSERT_EQUAL(true, result);
     }
