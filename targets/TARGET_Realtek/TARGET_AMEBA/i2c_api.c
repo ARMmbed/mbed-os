@@ -68,6 +68,9 @@ static const PinMap PinMap_I2C_SCL[] = {
     {NC,    NC,     0}
 };
 
+static int address_save_int;
+static int Byte_count;
+static char address_save[4];
 static uint16_t i2c_target_addr[4];
 static SAL_I2C_TRANSFER_BUF    i2ctxtranbuf[4];
 static SAL_I2C_TRANSFER_BUF    i2crxtranbuf[4];
@@ -223,6 +226,9 @@ void i2c_frequency(i2c_t *obj, int hz) {
 }
 
 inline int i2c_start(i2c_t *obj) {
+    address_save_int = 0;
+    Byte_count = 0;
+    memset(address_save, 0, sizeof(address_save));
     return 0;
 }
 
@@ -268,7 +274,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         length = length - pSalI2CHND->pRXBuf->DataLen;
         return ((int)length);
     } else {
-        //DBG_8195A(">\n");
         /* Calculate user time out parameters */
         I2CInTOTcnt = 300;
         if ((I2CInTOTcnt != 0) && (I2CInTOTcnt != I2C_TIMEOOUT_ENDLESS)) {
@@ -315,11 +320,9 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
     address = (address & 0xFE ) >>1;
     
-    if (i2c_target_addr[pSalI2CHND->DevNum] != address) {
-        pSalI2CHND->pInitDat->I2CAckAddr = address;
-        i2c_target_addr[pSalI2CHND->DevNum] = address;
-        HalI2CSetTarRtl8195a(pSalI2CHND->pInitDat);
-    }
+    pSalI2CHND->pInitDat->I2CAckAddr = address;
+    i2c_target_addr[pSalI2CHND->DevNum] = address;
+    HalI2CSetTarRtl8195a(pSalI2CHND->pInitDat);
 
     /* Check if the it's the last byte or not */
     pSalI2CHND->I2CExd &= (~I2C_EXD_MTR_HOLD_BUS);
@@ -337,7 +340,6 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
         length = length - pSalI2CHND->pTXBuf->DataLen;
         return ((int)length);
     } else {
-        //DBG_8195A("(\n");
         /* Calculate user time out parameters */
         I2CInTOTcnt = 300;
         if ((I2CInTOTcnt != 0) && (I2CInTOTcnt != I2C_TIMEOOUT_ENDLESS)) {
@@ -395,25 +397,40 @@ int i2c_byte_read(i2c_t *obj, int last) {
 }
 
 int i2c_byte_write(i2c_t *obj, int data) {
+    if(Byte_count<3){
+        address_save[Byte_count]=data;
+        Byte_count++;
+        if(Byte_count==3){
+            address_save_int = (address_save[1]<<8)+address_save[2];
+        }
+        return 1;
+    }
+    
+    int address = (address_save[0] & 0xFE ) >> 1;
+    address_save[1]= (unsigned char)(address_save_int >> 8);
+    address_save[2]= (unsigned char)(address_save_int & 0xFF);
+    address_save[3]= (unsigned char)data;
 
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
     pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
     pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
     
-    pSalI2CHND->I2CExd &= (~I2C_EXD_MTR_HOLD_BUS);
-    pSalI2CHND->I2CExd |= I2C_EXD_MTR_HOLD_BUS;
+    pSalI2CHND->pInitDat->I2CAckAddr = address;
+    i2c_target_addr[pSalI2CHND->DevNum] = address;
+    HalI2CSetTarRtl8195a(pSalI2CHND->pInitDat);
 
+    pSalI2CHND->I2CExd &= (~I2C_EXD_MTR_HOLD_BUS);
     pSalI2CHND->pTXBuf            = &i2ctxtranbuf[pSalI2CHND->DevNum];
-    pSalI2CHND->pTXBuf->DataLen   = 1;
+    pSalI2CHND->pTXBuf->DataLen   = 3;
     pSalI2CHND->pTXBuf->TargetAddr= i2c_target_addr[pSalI2CHND->DevNum];
     pSalI2CHND->pTXBuf->RegAddr   = 0;
-    pSalI2CHND->pTXBuf->pDataBuf  = (unsigned char*)&data;
+    pSalI2CHND->pTXBuf->pDataBuf  = address_save+1;
 
     if (RtkI2CSend(pSalI2CHND) != HAL_OK) {
         return 0;
     }
-
+    address_save_int++;
     return 1;
 }
 
