@@ -71,6 +71,8 @@ int main() {
 
     UDPSocket sock;
     SocketAddress udp_addr(ipbuf, port);
+    sock.set_blocking(true);
+    sock.set_timeout(1500);
 
     for (int attempt = 0; attempt < MBED_CFG_UDP_DTLS_HANDSHAKE_RETRIES; attempt++) {
         err = sock.open(&eth);
