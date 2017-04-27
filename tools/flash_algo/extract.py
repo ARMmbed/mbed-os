@@ -44,6 +44,9 @@ def main():
                         help="Name of target to generate algo for")
     parser.add_argument("--all", action="store_true",
                         help="Build all flash algos for devcies")
+    parser.add_argument("--local-pack", dest="local_pack",
+                        default=None,
+                        help="Build all flash algos for devcies")
     args = parser.parse_args()
 
     cache = Cache(True, True)
@@ -56,6 +59,9 @@ def main():
         cache.cache_descriptors()
         print("Descriptors rebuilt")
         return
+
+    if args.local_pack:
+        cache.add_local_pack_file(args.local_pack)
 
     if args.target is None:
         device_and_filenames = [(target.device_name, target.name) for target
