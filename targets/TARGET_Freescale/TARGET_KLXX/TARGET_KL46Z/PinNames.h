@@ -203,6 +203,8 @@ typedef enum {
     //Push buttons
     SW1 = PTC3,
     SW3 = PTC12,
+    BUTTON1 = SW1,
+    BUTTON2 = SW3,
 
     // USB Pins
     USBTX = PTA2,

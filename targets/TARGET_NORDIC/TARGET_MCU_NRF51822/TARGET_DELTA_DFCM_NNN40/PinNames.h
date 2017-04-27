@@ -136,6 +136,7 @@ typedef enum {
     A4  = p6,
 
     SWIO = p19,
+    BUTTON1 = SWIO,
     VERF0 = p0,
 
     // SPI for controlling internal flash, don't use it.

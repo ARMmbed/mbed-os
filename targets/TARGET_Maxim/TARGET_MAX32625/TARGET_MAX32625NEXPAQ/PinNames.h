@@ -75,6 +75,9 @@ typedef enum {
     SW1 = P4_2,
     SW2 = P4_3,
     SW3 = P4_4,
+    BUTTON1 = SW1,
+    BUTTON2 = SW2,
+    BUTTON3 = SW3,
 
     // USB bridge connected UART pins
     USBTX = P2_1,
