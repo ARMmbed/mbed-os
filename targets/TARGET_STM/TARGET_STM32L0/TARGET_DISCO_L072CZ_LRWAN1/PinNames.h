@@ -119,7 +119,7 @@ typedef enum {
     D10         = PB_6,
     D11         = PB_15,
     D12         = PB_14,
-    D13         = PA_5,
+    D13         = PB_13,
     D14         = PB_9,
     D15         = PB_8,
 
