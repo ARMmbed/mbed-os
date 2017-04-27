@@ -474,7 +474,7 @@ class mbedToolchain:
             # This is a policy decision and it should /really/ be in the config system
             # ATM it's here for backward compatibility
             if ((("-g" in self.flags['common'] or "-g3" in self.flags['common']) and
-                 "-O0") in self.flags['common'] or
+                 "-O0" in self.flags['common']) or
                 ("-r" in self.flags['common'] and
                  "-On" in self.flags['common'])):
                 self.labels['TARGET'].append("DEBUG")
@@ -612,6 +612,7 @@ class mbedToolchain:
                             break
 
             # Add root to include paths
+            root = root.rstrip("/")
             resources.inc_dirs.append(root)
             resources.file_basepath[root] = base_path
 
