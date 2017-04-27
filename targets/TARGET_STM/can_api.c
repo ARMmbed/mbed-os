@@ -85,8 +85,10 @@ void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
         error("Cannot initialize CAN");
     }
 
-    // Set initial CAN frequency to requested kb/s
-    can_frequency(obj, hz);
+    // Set initial CAN frequency to 100 kb/s
+    if (can_frequency(obj, 100000) != 1) {
+        error("Can frequency could not be set\n");
+    };
 
     uint32_t filter_number = (obj->can == CAN_1) ? 0 : 14;
     can_filter(obj, 0, 0, CANStandard, filter_number);
@@ -195,19 +197,34 @@ int can_frequency(can_t *obj, int f)
     int pclk = HAL_RCC_GetPCLK1Freq();
     int btr = can_speed(pclk, (unsigned int)f, 1);
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
+    uint32_t tickstart = 0;
+    int status = 0;
 
     if (btr > 0) {
         can->MCR |= CAN_MCR_INRQ ;
         while ((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
         }
+        /* Get tick */
+        tickstart = HAL_GetTick();
         can->BTR = btr;
         can->MCR &= ~(uint32_t)CAN_MCR_INRQ;
         while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
+            if((HAL_GetTick() - tickstart ) > 2)
+            {
+                status = HAL_CAN_STATE_TIMEOUT;
+                break;
+            }
         }
-        return 1;
+        if (status !=0) {
+            error("can ESR  0x%04x.%04x + timeout status %d", (can->ESR&0XFFFF0000)>>16, (can->ESR&0XFFFF), status);
+            status=0;
+        } else {
+            status=1; //mbed OK value
+        }
     } else {
-        return 0;
+        status=0;
     }
+    return status;
 }
 
 int can_write(can_t *obj, CAN_Message msg, int cc)
@@ -243,8 +260,8 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
                                             ((uint32_t)msg.data[1] << 8) |
                                             ((uint32_t)msg.data[0]));
     can->sTxMailBox[transmitmailbox].TDHR = (((uint32_t)msg.data[7] << 24) |
-					     ((uint32_t)msg.data[6] << 16) |
-					     ((uint32_t)msg.data[5] << 8) |
+                                            ((uint32_t)msg.data[6] << 16) |
+                                            ((uint32_t)msg.data[5] << 8) |
                                                 ((uint32_t)msg.data[4]));
     /* Request transmission */
     can->sTxMailBox[transmitmailbox].TIR |= CAN_TI0R_TXRQ;
