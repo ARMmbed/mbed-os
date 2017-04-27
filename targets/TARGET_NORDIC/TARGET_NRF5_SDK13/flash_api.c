@@ -38,12 +38,27 @@
 
 #include "flash_api.h"
 #include "nrf_nvmc.h"
+#include "nrf_soc.h"
+#include "nrf_sdm.h"
 
 #if DEVICE_FLASH
+
+/*
+    uint8_t sd_enabled;
+    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1)
+    {
+        return -1;
+    }
+*/
 
 int32_t flash_init(flash_t *obj)
 {
     (void)(obj);
+    uint8_t sd_enabled;
+    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1)
+    {
+        return -1;
+    }
     return 0;
 }
 
@@ -56,12 +71,22 @@ int32_t flash_free(flash_t *obj)
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
     (void)(obj);
+    uint8_t sd_enabled;
+    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1)
+    {
+        return -1;
+    }
     nrf_nvmc_page_erase(address);
     return 0;
 }
 
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
+    uint8_t sd_enabled;
+    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1)
+    {
+        return -1;
+    }
     /* We will use *_words function to speed up flashing code. Word means 32bit -> 4B
      * or sizeof(uint32_t). */
     nrf_nvmc_write_words(address, data, (size / sizeof(uint32_t)));
