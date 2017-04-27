@@ -115,7 +115,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         obj->irq_n = PORT3_IRQn;
     
     obj->pin = pin;
-    
+    obj->event = EDGE_NONE;
+
     // Enable EXTI interrupt    
     NVIC_ClearPendingIRQ(obj->irq_n);
     NVIC_EnableIRQ(obj->irq_n);
@@ -145,7 +146,6 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
             obj->rise_null = 0;
         }
         else if (event == IRQ_FALL) {
-            //gpio->INTPOLSET &= ~obj->pin_index;
             gpio->INTPOLCLR |= obj->pin_index;
             obj->event = EDGE_FALL;
             obj->fall_null = 0;
