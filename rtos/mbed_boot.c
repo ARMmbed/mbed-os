@@ -168,8 +168,8 @@
 #include "mbed_error.h"
 
 /* Heap limits - only used if set */
-unsigned char *mbed_heap_start = 0;
-uint32_t mbed_heap_size = 0;
+extern unsigned char *mbed_heap_start;
+extern uint32_t mbed_heap_size;
 
 unsigned char *mbed_stack_isr_start = 0;
 uint32_t mbed_stack_isr_size = 0;
