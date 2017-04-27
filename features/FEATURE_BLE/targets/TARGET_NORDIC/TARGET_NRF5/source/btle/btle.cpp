@@ -24,7 +24,6 @@
 #include "ble_conn_params.h"
 
 #include "btle_gap.h"
-#include "btle_advertising.h"
 #include "custom/custom_helper.h"
 
 #include "ble/GapEvents.h"
@@ -51,7 +50,7 @@ extern "C" {
 #include "ble_stack_handler_types.h"
 }
 
-#include "nrf_ble_hci.h"
+#include "ble_hci.h"
 #include "btle_discovery.h"
 
 #include "nRF5xGattClient.h"
@@ -165,6 +164,10 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 
+    // Peer Manger must been initialised prior any other call to its API (this file and btle_security_pm.cpp)
+    pm_init();
+
+#if  (NRF_SD_BLE_API_VERSION <= 2)
     ble_gap_addr_t addr;
     if (sd_ble_gap_address_get(&addr) != NRF_SUCCESS) {
         return ERROR_INVALID_PARAM;
@@ -172,6 +175,11 @@ error_t btle_init(void)
     if (sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_NONE, &addr) != NRF_SUCCESS) {
         return ERROR_INVALID_PARAM;
     }
+#else
+    ble_gap_privacy_params_t privacy_params = {0};
+    privacy_params.privacy_mode = BLE_GAP_PRIVACY_MODE_OFF;
+    pm_privacy_set(&privacy_params);
+#endif
 
     ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
     ASSERT_STATUS( softdevice_sys_evt_handler_set(sys_evt_dispatch));
@@ -219,12 +227,25 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             gap.setConnectionHandle(handle);
             const Gap::ConnectionParams_t *params = reinterpret_cast<Gap::ConnectionParams_t *>(&(p_ble_evt->evt.gap_evt.params.connected.conn_params));
             const ble_gap_addr_t *peer = &p_ble_evt->evt.gap_evt.params.connected.peer_addr;
+#if  (NRF_SD_BLE_API_VERSION <= 2)
             const ble_gap_addr_t *own  = &p_ble_evt->evt.gap_evt.params.connected.own_addr;
+        
             gap.processConnectionEvent(handle,
-                                                           role,
-                                                           static_cast<BLEProtocol::AddressType_t>(peer->addr_type), peer->addr,
-                                                           static_cast<BLEProtocol::AddressType_t>(own->addr_type),  own->addr,
-                                                           params);
+                                       role,
+                                       static_cast<BLEProtocol::AddressType_t>(peer->addr_type), peer->addr,
+                                       static_cast<BLEProtocol::AddressType_t>(own->addr_type),  own->addr,
+                                       params);
+#else
+            Gap::AddressType_t addr_type;
+            Gap::Address_t     own_address;
+            gap.getAddress(&addr_type, own_address);
+
+            gap.processConnectionEvent(handle,
+                                       role,
+                                       static_cast<BLEProtocol::AddressType_t>(peer->addr_type), peer->addr,
+                                       addr_type,  own_address,
+                                       params);
+#endif
             break;
         }
 
