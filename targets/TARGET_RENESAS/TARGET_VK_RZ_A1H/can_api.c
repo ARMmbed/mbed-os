@@ -590,10 +590,13 @@ void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
     /* pin out the can pins */
     pinmap_pinout(rd, PinMap_CAN_RD);
     pinmap_pinout(td, PinMap_CAN_TD);
+
+    /* set can frequency */
+    can_frequency(obj, hz);
 }
 
 void can_init(can_t *obj, PinName rd, PinName td) {
-    can_init_freq(obj, rd, td, 0);
+    can_init_freq(obj, rd, td, 100000);
 }
 
 void can_free(can_t *obj) {
