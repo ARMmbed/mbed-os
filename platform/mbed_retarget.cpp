@@ -75,8 +75,8 @@ extern const char __stdout_name[] = "/stdout";
 extern const char __stderr_name[] = "/stderr";
 #endif
 
-extern unsigned char *mbed_heap_start;
-extern uint32_t mbed_heap_size;
+unsigned char *mbed_heap_start = 0;
+uint32_t mbed_heap_size = 0;
 
 /* newlib has the filehandle field in the FILE struct as a short, so
  * we can't just return a Filehandle* from _open and instead have to
