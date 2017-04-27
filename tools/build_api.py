@@ -1040,13 +1040,14 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
 
         # A number of compiled files need to be copied as objects as opposed to
         # way the linker search for symbols in archives. These are:
-        #   - retarget.o: to make sure that the C standard lib symbols get
+        #   - mbed_retarget.o: to make sure that the C standard lib symbols get
         #                 overridden
-        #   - board.o: mbed_die is weak
+        #   - mbed_board.o: mbed_die is weak
         #   - mbed_overrides.o: this contains platform overrides of various
         #                       weak SDK functions
-        separate_names, separate_objects = ['retarget.o', 'board.o',
-                                            'mbed_overrides.o'], []
+        #   - mbed_main.o: this contains main redirection
+        separate_names, separate_objects = ['mbed_retarget.o', 'mbed_board.o',
+                                            'mbed_overrides.o', 'mbed_main.o'], []
 
         for obj in objects:
             for name in separate_names:
