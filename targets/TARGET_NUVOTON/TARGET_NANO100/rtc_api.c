@@ -24,7 +24,6 @@
 #include "nu_miscutil.h"
 
 #define YEAR0           1900
-#define LXT_DELAY       (42000000 / __LXT)
 
 static int rtc_inited = 0;
 
@@ -114,8 +113,8 @@ void rtc_write(time_t t)
     rtc_datetime.u32TimeScale   = RTC_CLOCK_24;
     
     RTC_SetDateAndTime(&rtc_datetime);
-    // wait this RTC write is active
-    nu_nop(LXT_DELAY);
+    // Wait 3 cycles of engine clock to ensure this RTC write is active
+    nu_nop(SystemCoreClock / __LXT * 3);
 }
 
 #endif

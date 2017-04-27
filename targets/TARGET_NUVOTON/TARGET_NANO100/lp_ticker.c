@@ -31,7 +31,6 @@
 #define TMR2_CLK_PER_SEC        (__LXT)
 #define TMR2_CLK_PER_TMR2_INT   ((uint32_t) ((uint64_t) US_PER_TMR2_INT * TMR2_CLK_PER_SEC / US_PER_SEC))
 #define TMR3_CLK_PER_SEC        (__LXT)
-#define LXT_DELAY               (42000000 / __LXT)
 
 void TMR2_IRQHandler(void);
 void TMR3_IRQHandler(void);
@@ -99,8 +98,8 @@ void lp_ticker_init(void)
     // NOTE: TIMER_Start() first and then lp_ticker_set_interrupt(); otherwise, we may get stuck in lp_ticker_read() because
     //       timer is not running.
 
-    // wait previous CTL action is finish
-    nu_nop(LXT_DELAY);
+    // Wait 3 cycles of engine clock to ensure previous CTL write action is finish
+    nu_nop(SystemCoreClock / __LXT * 3);
     // Start timer
     TIMER_Start((TIMER_T *) NU_MODBASE(timer2_modinit.modname));
     
@@ -220,8 +219,8 @@ static void lp_ticker_arm_cd(void)
     uint32_t ctl_timer3 = timer3_base->CTL;
     ctl_timer3 &= ~TIMER_CTL_MODE_SEL_Msk;
     ctl_timer3 |= TIMER_ONESHOT_MODE;
-    // wait previous CTL action is finish
-    nu_nop(LXT_DELAY);
+    // Wait 3 cycles of engine clock to ensure previous CTL write action is finish
+    nu_nop(SystemCoreClock / __LXT * 3);
     timer3_base->CTL = ctl_timer3;
     timer3_base->PRECNT = prescale_timer3;
     
@@ -231,8 +230,8 @@ static void lp_ticker_arm_cd(void)
     
     TIMER_EnableInt(timer3_base);
     TIMER_EnableWakeup((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
-    // wait previous CTL action is finish
-    nu_nop(LXT_DELAY);
+    // Wait 3 cycles of engine clock to ensure previous CTL write action is finish
+    nu_nop(SystemCoreClock / __LXT * 3);
     TIMER_Start(timer3_base);
 }
 #endif
