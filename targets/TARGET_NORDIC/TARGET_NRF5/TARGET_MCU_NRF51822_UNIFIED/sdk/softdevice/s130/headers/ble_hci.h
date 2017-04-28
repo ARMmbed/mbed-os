@@ -1,1 +1,1 @@
-#include ".\nrf_ble_hci.h"
+#include "nrf_ble_hci.h"

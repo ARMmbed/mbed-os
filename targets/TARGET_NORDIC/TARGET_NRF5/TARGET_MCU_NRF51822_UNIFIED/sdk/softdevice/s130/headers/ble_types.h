@@ -1,1 +1,1 @@
-#include ".\nrf_ble_types.h"
+#include "nrf_ble_types.h"

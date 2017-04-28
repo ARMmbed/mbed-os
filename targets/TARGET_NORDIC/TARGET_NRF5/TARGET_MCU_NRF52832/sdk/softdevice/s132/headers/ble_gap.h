@@ -1,1 +1,1 @@
-#include ".\nrf_ble_gap.h"
+#include "nrf_ble_gap.h"
