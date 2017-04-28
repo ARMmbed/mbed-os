@@ -107,9 +107,6 @@ static int us_ticker_inited = 0;
 
 uint32_t prev_time, current_time;
 
-extern void adi_int_EnterCriticalRegion(void);
-extern void adi_int_ExitCriticalRegion(void);
-
 /*---------------------------------------------------------------------------*/
 
 static void Tmr0_Int_Callback( void *pCBParam, uint32_t Event, void *pArg )
@@ -278,10 +275,6 @@ static int StartTimer(uint32_t expiry_time)
 
     uint32_t curr_time, major_ticks;
 
-    /* Disable Interrupt */
-    //istate = adi_int_EnterCriticalRegion();
-    adi_int_EnterCriticalRegion();
-
     // calculate the number of ticks the expiry_time requires. The time
     // is specified in micro seconds.
     latest_timer_expiry.u64_latest_timer_expiry = (unsigned long long)expiry_time / \
@@ -334,10 +327,6 @@ static int StartTimer(uint32_t expiry_time)
         /*Load TxLD Register with a value of (TIMER_MAX_VALUE - u16_latest_timer_expiry[0])*/
         adi_tmr_SetLoadValue(hTimer1, (TIMER_MAX_VALUE - latest_timer_expiry.u16_latest_timer_expiry[0]));
     }
-
-    /* Enable Interrupt */
-    //adi_int_ExitCriticalRegion(istate);
-    adi_int_ExitCriticalRegion();
 
     return 0;
 }
