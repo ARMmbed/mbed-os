@@ -1,0 +1,14 @@
+{
+	"name": "ref-cell-drv", 
+		"config": {
+			"baud-rate": 115200,
+			"apn-lookup": false,
+			"at-parser-buffer-size": 256,
+			"at-parser-timeout": 8000
+	},
+	"target_overrides": {
+		"*": {
+			"target.features_add": ["COMMON_PAL"]
+		}
+	}
+}

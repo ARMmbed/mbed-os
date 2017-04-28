@@ -248,7 +248,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
-        "extra_labels": ["NXP", "LPC176X", "FLASH_CMSIS_ALGO", "UBLOX_MODEM"],
+        "extra_labels": ["NXP", "LPC176X", "FLASH_CMSIS_ALGO", "UBLOX_MODEM_GENERIC", "GENERIC_MODEM"],
         "macros": ["TARGET_LPC1768"],
         "inherits": ["LPCTarget"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ERROR_RED", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH", "MODEM"],
@@ -1337,7 +1337,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["STM", "STM32F4", "STM32F411RE"],
+        "extra_labels": ["STM", "STM32F4", "STM32F411RE", "DRAGONFLY_MODEM", "GENERIC_MODEM"],
         "macros": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000","TRANSACTION_QUEUE_SIZE_SPI=2", "RTC_LSI=1"],
         "post_binary_hook": {
             "function": "MTSCode.combine_bins_mts_dragonfly",
