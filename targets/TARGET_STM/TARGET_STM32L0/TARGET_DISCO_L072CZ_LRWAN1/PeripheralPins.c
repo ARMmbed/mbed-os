@@ -91,61 +91,61 @@ const PinMap PinMap_I2C_SCL[] = {
 
 // TIM21 cannot be used because already used by the us_ticker
 const PinMap PinMap_PWM[] = {
-    {PA_0,  PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 1, 0)},        // TIM2_CH1
-    {PA_1,  PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 2, 0)},        // TIM2_CH2  // Pin not available on any connector
-    {PA_2,  PWM_21, STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_TIM21, 1, 0)},       // TIM21_CH1 // Pin not available on any connector
-    {PA_2,  PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 3, 0)},        // TIM2_CH3 - used by STDIO TX
-    {PA_3,  PWM_21, STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_TIM21, 2, 0)},       // TIM21_CH2 // Pin not available on any connector
-    {PA_3,  PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 4, 0)},        // TIM2_CH4 - used by STDIO RX
-    {PA_5,  PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM2, 1, 0)},        // TIM2_CH1 - used also to drive the LED LD2
-    {PA_6,  PWM_22, STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM22, 1, 0)},       // TIM22_CH1 // Pin not available on any connector
-    {PA_6,  PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 1, 0)},        // TIM3_CH1  // Pin not available on any connector
-    {PA_7,  PWM_22, STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM22, 2, 0)},       // TIM22_CH2 // Pin not available on any connector
-    {PA_7,  PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 2, 0)},        // TIM3_CH2  // Pin not available on any connector
-    {PA_15, PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM2, 1, 0)},        // TIM2_CH1
-    {PB_0,  PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 3, 0)},        // TIM3_CH3  // Pin not available on any connector
-    {PB_1,  PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 4, 0)},        // TIM3_CH4  // Pin not available on any connector
-    {PB_3,  PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 2, 0)},        // TIM2_CH2  // Pin not available on any connector
-    {PB_4,  PWM_22, STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_TIM22, 1, 0)},       // TIM22_CH1 // Pin not available on any connector
-    {PB_4,  PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 1, 0)},        // TIM3_CH1  // Pin not available on any connector
-    {PB_5,  PWM_22, STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_TIM22, 2, 0)},       // TIM22_CH2 - used also to drive the LED LD1
+    {PA_0,  PWM_2,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 1, 0)},   // TIM2_CH1
+    {PA_1,  PWM_2,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 2, 0)},   // TIM2_CH2  // Pin not available on any connector
+    {PA_2,  PWM_21,      STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_TIM21, 1, 0)},  // TIM21_CH1 // Pin not available on any connector
+    {PA_2,  PWM_2,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 3, 0)},   // TIM2_CH3 - used by STDIO TX
+    {PA_3,  PWM_21,      STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_TIM21, 2, 0)},  // TIM21_CH2 // Pin not available on any connector
+    {PA_3,  PWM_2,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 4, 0)},   // TIM2_CH4 - used by STDIO RX
+    {PA_5,  PWM_2,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM2, 1, 0)},   // TIM2_CH1 - used also to drive the LED LD2
+    {PA_6,  PWM_22,      STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM22, 1, 0)},  // TIM22_CH1 // Pin not available on any connector
+    {PA_6,  PWM_3,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 1, 0)},   // TIM3_CH1  // Pin not available on any connector
+    {PA_7,  PWM_22,      STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM22, 2, 0)},  // TIM22_CH2 // Pin not available on any connector
+    {PA_7,  PWM_3,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 2, 0)},   // TIM3_CH2  // Pin not available on any connector
+    {PA_15, PWM_2,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_TIM2, 1, 0)},   // TIM2_CH1
+    {PB_0,  PWM_3,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 3, 0)},   // TIM3_CH3  // Pin not available on any connector
+    {PB_1,  PWM_3,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 4, 0)},   // TIM3_CH4  // Pin not available on any connector
+    {PB_3,  PWM_2,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 2, 0)},   // TIM2_CH2  // Pin not available on any connector
+    {PB_4,  PWM_22,      STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_TIM22, 1, 0)},  // TIM22_CH1 // Pin not available on any connector
+    {PB_4,  PWM_3,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM3, 1, 0)},   // TIM3_CH1  // Pin not available on any connector
+    {PB_5,  PWM_22,      STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_TIM22, 2, 0)},  // TIM22_CH2 - used also to drive the LED LD1
     {PB_5_ALT0,  PWM_3,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_TIM3, 2, 0)},   // TIM3_CH2   - used also to drive the LED LD1
-    {PB_10, PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 3, 0)},        // TIM2_CH3  // Pin not available on any connector
-    {PB_11, PWM_2,  STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 4, 0)},        // TIM2_CH4  // Pin not available on any connector
-    {PB_13, PWM_21, STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_TIM21, 1, 0)},       // TIM21_CH1 // Pin not available on any connector
-    {PB_14, PWM_21, STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_TIM21, 2, 0)},       // TIM21_CH2 // Pin not available on any connector
+    {PB_10, PWM_2,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 3, 0)},   // TIM2_CH3  // Pin not available on any connector
+    {PB_11, PWM_2,       STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF2_TIM2, 4, 0)},   // TIM2_CH4  // Pin not available on any connector
+    {PB_13, PWM_21,      STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_TIM21, 1, 0)},  // TIM21_CH1 // Pin not available on any connector
+    {PB_14, PWM_21,      STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_TIM21, 2, 0)},  // TIM21_CH2 // Pin not available on any connector
     {NC,    NC,    0}
 };
 
 //*** SERIAL ***
 
 const PinMap PinMap_UART_TX[] = {
-    {PA_0,  UART_4,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART4)},
+    {PA_0,  UART_4,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART4)},
     {PA_2_ALT0,  LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // Pin not available on any connector
-    {PA_2,  UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},
-    {PA_9,  UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART1)},
-    {PA_14, UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},       // Warning: this pin is used by SWCLK
+    {PA_2,  UART_2,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},
+    {PA_9,  UART_1,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART1)},
+    {PA_14, UART_2,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},  // Warning: this pin is used by SWCLK
     {PA_14_ALT0, LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // Warning: this pin is used by SWCLK
-    {PB_3,  UART_5,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART5)},       // Pin not available on any connector
-    {PB_6,  UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_USART1)},
-    {PB_10, LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_LPUART1)},      // Pin not available on any connector
-    {PB_11, LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_LPUART1)},      // Already used by UART_RX
-    {PC_1,  LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)},      // Pin not available on any connector
+    {PB_3,  UART_5,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART5)},  // Pin not available on any connector
+    {PB_6,  UART_1,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_USART1)},
+    {PB_10, LPUART_1,      STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_LPUART1)}, // Pin not available on any connector
+    {PB_11, LPUART_1,      STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_LPUART1)}, // Already used by UART_RX
+    {PC_1,  LPUART_1,      STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // Pin not available on any connector
     {NC,    NC,    0}
 };
 
 const PinMap PinMap_UART_RX[] = {
-    {PA_1,  UART_4,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART4)},  // Pin not available on any connector
+    {PA_1,  UART_4,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART4)},  // Pin not available on any connector
     {PA_3_ALT0,  LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)},
-    {PA_3,  UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},
-    {PA_10, UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART1)},
-    {PA_13, LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // Warning: this pin is used by SWDIO
-    {PA_15, UART_2,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},
-    {PB_4,  UART_5,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART5)}, 
-    {PB_7,  UART_1,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_USART1)},  // Warning: this pin is used by LD4
-    {PB_10, LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_LPUART1)}, // Already used by UART_TX
-    {PB_11, LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_LPUART1)}, // Pin not available on any connector
-    {PC_0,  LPUART_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // Pin not available on any connector
+    {PA_3,  UART_2,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},
+    {PA_10, UART_1,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART1)},
+    {PA_13, LPUART_1,      STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // Warning: this pin is used by SWDIO
+    {PA_15, UART_2,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)},
+    {PB_4,  UART_5,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_USART5)}, 
+    {PB_7,  UART_1,        STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF0_USART1)},  // Warning: this pin is used by LD4
+    {PB_10, LPUART_1,      STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_LPUART1)}, // Already used by UART_TX
+    {PB_11, LPUART_1,      STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_LPUART1)}, // Pin not available on any connector
+    {PC_0,  LPUART_1,      STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // Pin not available on any connector
     {NC,    NC,    0}
 };
 
