@@ -98,6 +98,15 @@ int mbed_interface_uid(char *uid);
 
 #endif
 
+/** This provides a generic function to set a unique 6-byte MAC address based on the passed
+ *  parameter character array. Provides no MAC address validity checking
+ *  
+ *  mbed_mac_address() will readback this configured value
+ *
+ *  @param mac A 6-byte array containing the desired MAC address to be set
+ */
+void mbed_set_mac_address(const char *mac);
+
 /** This returns a unique 6-byte MAC address, based on the interface UID
  * If the interface is not present, it returns a default fixed MAC address (00:02:F7:F0:00:00)
  *
