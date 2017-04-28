@@ -1,1 +1,1 @@
-#include ".\nrf_ble_ranges.h"
+#include "nrf_ble_ranges.h"

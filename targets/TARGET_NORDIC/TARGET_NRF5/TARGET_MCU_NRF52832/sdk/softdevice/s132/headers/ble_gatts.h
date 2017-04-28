@@ -1,1 +1,1 @@
-#include ".\nrf_ble_gatts.h"
+#include "nrf_ble_gatts.h"
