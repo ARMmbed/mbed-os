@@ -242,7 +242,7 @@ osMutexAttr_t singleton_mutex_attr;
 
 /* Define stack sizes if they haven't been set already */
 #if !defined(ISR_STACK_SIZE)
-    #define ISR_STACK_SIZE ((uint32_t)4096)
+    #define ISR_STACK_SIZE ((uint32_t)1024)
 #endif
 
 /*
