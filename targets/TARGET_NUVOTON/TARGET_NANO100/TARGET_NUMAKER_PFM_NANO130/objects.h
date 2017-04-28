@@ -28,10 +28,6 @@ extern "C" {
 #endif
 
 struct gpio_irq_s {
-    //IRQn_Type irq_n;
-    //uint32_t irq_index;
-    //uint32_t event;
-    
     PinName     pin;
     uint32_t    irq_handler;
     uint32_t    irq_id;
@@ -45,7 +41,6 @@ struct port_s {
 
 struct analogin_s {
     ADCName adc;
-    //PinName pin;
 };
 
 struct serial_s {
@@ -82,21 +77,16 @@ struct spi_s {
     PinName pin_sclk;
     PinName pin_ssel;
     
-    //void        (*vec)(void);
-    
     // Async transfer related fields
     DMAUsage    dma_usage;
     int         dma_chn_id_tx;
     int         dma_chn_id_rx;
     uint32_t    event;
-    //void        (*irq_handler_tx_async)(void);
-    //void        (*irq_handler_rx_async)(void);
     uint32_t    hdlr_async;
 };
 
 struct i2c_s {
     I2CName     i2c;
-    //void        (*vec)(void);
     int         slaveaddr_state;
     
     uint32_t    tran_ctrl;
@@ -115,7 +105,6 @@ struct i2c_s {
 
 struct pwmout_s {
     PWMName pwm;
-    //PinName pin;
     uint32_t period_us;
     uint32_t pulsewidth_us;
 };
