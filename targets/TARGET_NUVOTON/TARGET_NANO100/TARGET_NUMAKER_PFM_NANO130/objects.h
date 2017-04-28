@@ -61,7 +61,9 @@ struct serial_s {
     void        (*vec)(void);
     uint32_t    irq_handler;
     uint32_t    irq_id;
+    uint32_t    irq_en;
     uint32_t    ier_msk;
+    uint32_t    async_en;
     
     // Async transfer related fields
     DMAUsage    dma_usage_tx;
@@ -119,9 +121,6 @@ struct pwmout_s {
 };
 
 struct sleep_s {
-    uint32_t start_us;
-    uint32_t end_us;
-    uint32_t period_us;
     int powerdown;
 };
 #ifdef __cplusplus
