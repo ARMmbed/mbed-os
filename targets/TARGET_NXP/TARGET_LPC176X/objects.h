@@ -71,6 +71,10 @@ struct spi_s {
     LPC_SSP_TypeDef *spi;
 };
 
+struct modem_s {
+    uint32_t state;
+};
+
 #ifdef __cplusplus
 }
 #endif
