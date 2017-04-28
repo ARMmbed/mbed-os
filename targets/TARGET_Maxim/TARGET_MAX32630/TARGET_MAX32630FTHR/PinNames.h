@@ -79,6 +79,7 @@ typedef enum {
     SW1 = P2_3,
     SW2 = NOT_CONNECTED,
     SW3 = NOT_CONNECTED,
+    // Standardized button names
     BUTTON1 = SW1,
     BUTTON2 = SW2,
     BUTTON3 = SW3,

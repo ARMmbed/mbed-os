@@ -204,6 +204,7 @@ typedef enum {
     //Push buttons
     SW2 = PTD11,
     SW3 = PTA10,
+    // Standardized button names
     BUTTON1 = SW2,
     BUTTON2 = SW3,
 
