@@ -103,18 +103,18 @@ void SPI1_TWI1_IRQHandler(void);
 
 static const peripheral_handler_desc_t twi_handlers[TWI_COUNT] =
 {
-    #if TWI0_ENABLED
+#if TWI0_ENABLED
     {
         SPI0_TWI0_IRQn,
         (uint32_t) SPI0_TWI0_IRQHandler
     },
-    #endif
-    #if TWI1_ENABLED
+#endif
+#if TWI1_ENABLED
     {
         SPI1_TWI1_IRQn,
         (uint32_t) SPI1_TWI1_IRQHandler
     }
-    #endif
+#endif
 };
 #ifdef NRF51
     #define TWI_IRQ_PRIORITY  APP_IRQ_PRIORITY_LOW
