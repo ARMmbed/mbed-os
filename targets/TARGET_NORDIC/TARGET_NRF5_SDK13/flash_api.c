@@ -47,8 +47,7 @@ int32_t flash_init(flash_t *obj)
 {
     (void)(obj);
     uint8_t sd_enabled;
-    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1)
-    {
+    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1) {
         return -1;
     }
     return 0;
@@ -64,8 +63,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
     (void)(obj);
     uint8_t sd_enabled;
-    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1)
-    {
+    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1) {
         return -1;
     }
     nrf_nvmc_page_erase(address);
@@ -75,12 +73,12 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
     uint8_t sd_enabled;
-    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1)
-    {
+    if ((sd_softdevice_is_enabled(&sd_enabled) == NRF_SUCCESS) && sd_enabled == 1) {
         return -1;
     }
     /* We will use *_words function to speed up flashing code. Word means 32bit -> 4B
-     * or sizeof(uint32_t). */
+     * or sizeof(uint32_t).
+     */
     nrf_nvmc_write_words(address, data, (size / sizeof(uint32_t)));
     return 0;
 }
@@ -96,8 +94,7 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     (void)(obj);
     /* Test if passed address is in flash space. */
-    if (address < flash_get_size(obj))
-    {
+    if (address < flash_get_size(obj)) {
         return NRF_FICR->CODEPAGESIZE;
     }
     /* Something goes wrong, return invalid size error code. */
