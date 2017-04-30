@@ -402,7 +402,6 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
  */
 void lpc_enetif_input(struct netif *netif)
 {
-	struct eth_hdr *ethhdr;
 	struct pbuf *p;
 
 	/* move received packet into a new pbuf */
