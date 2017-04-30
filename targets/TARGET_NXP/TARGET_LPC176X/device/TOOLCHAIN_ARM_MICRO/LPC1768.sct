@@ -6,8 +6,8 @@ LR_IROM1 0x00000000 0x80000  {    ; load region size_region
    .ANY (+RO)
   }
   ; 8_byte_aligned(49 vect * 4 bytes) =  8_byte_aligned(0xC4) = 0xC8
-  ; 32KB - 0xC8 = 0x7F38
-  RW_IRAM1 0x100000C8 0x7F38  {
+  ; 32KB (RAM size) - 0xC8 (NIVT) - 32 (topmost 32 bytes used by IAP functions) = 0x7F18
+  RW_IRAM1 0x100000C8 0x7F18  {
    .ANY (+RW +ZI)
   }
   RW_IRAM2 0x2007C000 0x4000  {  ; RW data, USB RAM
