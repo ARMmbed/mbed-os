@@ -23,15 +23,9 @@
 
 using namespace utest::v1;
 
-#ifdef MBED_SMALL_TARGET
-#    define TEST_BLOCK_SIZE 256
-#    define TEST_BLOCK_COUNT 5
-#    define TEST_BLOCK_DEVICE_SIZE 8*TEST_BLOCK_SIZE
-#else
-#    define TEST_BLOCK_SIZE 512
-#    define TEST_BLOCK_COUNT 10
-#    define TEST_BLOCK_DEVICE_SIZE 16*TEST_BLOCK_SIZE
-#endif
+#define TEST_BLOCK_SIZE 512
+#define TEST_BLOCK_COUNT 10
+#define TEST_BLOCK_DEVICE_SIZE 16*TEST_BLOCK_SIZE
 #define TEST_ERROR_MASK 16
 
 const struct {

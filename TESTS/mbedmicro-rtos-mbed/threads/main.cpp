@@ -10,14 +10,7 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
-#define THREAD_STACK_SIZE 512
-
-#ifdef MBED_SMALL_TARGET
-#    define TEST_NUM_PARALLEL_THREADS 2
-#else
-#    define TEST_NUM_PARALLEL_THREADS 3
-#endif
-
+#define THREAD_STACK_SIZE 768
 
 using namespace utest::v1;
 
@@ -81,11 +74,9 @@ template <int N, void (*F)(counter_t *)>
 void test_parallel_threads() {
     counter_t counter(0);
     Thread *threads[N];
-    /* Use main stack to allocate thread's stack, that helps with memory pressure on small platforms */
-    unsigned char stack[N*768];
 
     for (int i = 0; i < N; i++) {
-        threads[i] = new Thread(osPriorityNormal, 768, &(stack[i*768]));
+        threads[i] = new Thread(osPriorityNormal, THREAD_STACK_SIZE);
         threads[i]->start(callback(F, &counter));
     }
 
@@ -125,23 +116,23 @@ utest::v1::status_t test_setup(const size_t number_of_cases) {
 // Test cases
 Case cases[] = {
     Case("Testing single thread", test_single_thread<increment>),
-    Case("Testing parallel threads", test_parallel_threads<TEST_NUM_PARALLEL_THREADS, increment>),
+    Case("Testing parallel threads", test_parallel_threads<3, increment>),
     Case("Testing serial threads", test_serial_threads<10, increment>),
 
     Case("Testing single thread with yield", test_single_thread<increment_with_yield>),
-    Case("Testing parallel threads with yield", test_parallel_threads<TEST_NUM_PARALLEL_THREADS, increment_with_yield>),
+    Case("Testing parallel threads with yield", test_parallel_threads<3, increment_with_yield>),
     Case("Testing serial threads with yield", test_serial_threads<10, increment_with_yield>),
 
     Case("Testing single thread with wait", test_single_thread<increment_with_wait>),
-    Case("Testing parallel threads with wait", test_parallel_threads<TEST_NUM_PARALLEL_THREADS, increment_with_wait>),
+    Case("Testing parallel threads with wait", test_parallel_threads<3, increment_with_wait>),
     Case("Testing serial threads with wait", test_serial_threads<10, increment_with_wait>),
 
     Case("Testing single thread with child", test_single_thread<increment_with_child>),
-    Case("Testing parallel threads with child", test_parallel_threads<TEST_NUM_PARALLEL_THREADS, increment_with_child>),
+    Case("Testing parallel threads with child", test_parallel_threads<3, increment_with_child>),
     Case("Testing serial threads with child", test_serial_threads<10, increment_with_child>),
 
     Case("Testing single thread with murder", test_single_thread<increment_with_murder>),
-    Case("Testing parallel threads with murder", test_parallel_threads<TEST_NUM_PARALLEL_THREADS, increment_with_murder>),
+    Case("Testing parallel threads with murder", test_parallel_threads<3, increment_with_murder>),
     Case("Testing serial threads with murder", test_serial_threads<10, increment_with_murder>),
 
     Case("Testing thread self terminate", test_self_terminate),
