@@ -84,9 +84,13 @@ WEAK int mbed_uid(char *uid) {
 static uint8_t manual_mac_address_set = 0;
 static char manual_mac_address[6];
 
-void mbed_set_mac_address(const char *mac) {
+void mbed_set_mac_address(const char *mac, uint8_t coerce_mac_control_bits) {
     memcpy(manual_mac_address, mac, 6);
     manual_mac_address_set = 1;
+    if(coerce_mac_control_bits) {
+        manual_mac_address[0] |= 0x02; // force bit 1 to a "1" = "Locally Administered"
+        manual_mac_address[0] &= 0xFE; // force bit 0 to a "0" = Unicast
+    }
 }
 
 WEAK void mbed_mac_address(char *mac) {
