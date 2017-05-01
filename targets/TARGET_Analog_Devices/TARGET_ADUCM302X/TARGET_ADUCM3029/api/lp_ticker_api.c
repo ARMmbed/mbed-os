@@ -32,10 +32,11 @@
 #define TIME_US_PER_TICK 	((float)1000000/(float)(LFCLK_FREQUENCY_HZ>>RTC_PRESCALER))
 
 // The number of clock ticks it takes to set & enable the alarm
-#define TICKS_TO_ENABLE_ALARM 30
+#define TICKS_TO_ENABLE_ALARM 40
 
 static unsigned char rtc1_memory[ADI_RTC_MEMORY_SIZE];
 static ADI_RTC_HANDLE hRTC1_Device;
+static volatile unsigned int rtc1_use_interrupt;
 
 /**
  * \defgroup hal_LpTicker Low Power Ticker Functions
@@ -95,6 +96,9 @@ void lp_ticker_init()
 
 	// enable the RTC
 	adi_rtc_Enable(hRTC1_Device, true);
+
+	// interrupt is not yet used
+	rtc1_use_interrupt = 0;
 }
 
 /** Read the current counter
@@ -135,6 +139,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 	// if already expired, call user ISR immediately
 	if (set_time <= rtcCount)
 	{
+	    rtc1_use_interrupt = 0;
 		rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
 		return;
 	}
@@ -149,6 +154,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 			adi_rtc_GetCount(hRTC1_Device, &rtcCount);
 		} while (rtcCount < set_time);
 
+		rtc1_use_interrupt = 0;
 		rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
 		return;
 	}
@@ -157,6 +163,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 	adi_rtc_EnableInterrupts(hRTC1_Device, ADI_RTC_ALARM_INT, true);
 	adi_rtc_SetAlarm(hRTC1_Device, set_time);
 	adi_rtc_EnableAlarm(hRTC1_Device,true);
+	rtc1_use_interrupt = 1;
 }
 
 /** Disable low power ticker interrupt
@@ -164,9 +171,17 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
  */
 void lp_ticker_disable_interrupt()
 {
-	// disable alarm and interrupts
-	adi_rtc_EnableAlarm(hRTC1_Device,false);
-	adi_rtc_EnableInterrupts(hRTC1_Device, ADI_RTC_ALARM_INT, false);
+    // Disable alarm only if it's used in the current context
+    // This is done to get around the issue that it takes a while for the
+    // adi_rtc_EnableInterrupts() to disable the interrupts since the RTC
+    // is in a slower clock domain. For alarms in the 1ms or less range,
+    // disabling interrupt can take much longer than the alarm duration. In
+    // these cases, interrupt is not used, so the interrupt does not need to
+    // be disabled.
+    if (rtc1_use_interrupt)
+    {
+        adi_rtc_EnableInterrupts(hRTC1_Device, ADI_RTC_ALARM_INT, false);
+    }
 }
 
 /** Clear the low power ticker interrupt
