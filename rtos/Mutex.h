@@ -33,6 +33,10 @@ namespace rtos {
 
 /** The Mutex class is used to synchronize the execution of threads.
  This is for example used to protect access to a shared resource.
+
+ @note
+ Memory considerations: The mutex control structures will be created on current thread's stack, both for the mbed OS
+ and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 class Mutex {
 public:

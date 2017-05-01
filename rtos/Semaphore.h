@@ -31,7 +31,12 @@ namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
 
-/** The Semaphore class is used to manage and protect access to a set of shared resources. */
+/** The Semaphore class is used to manage and protect access to a set of shared resources.
+ *
+ * @note
+ * Memory considerations: The semaphore control structures will be created on current thread's stack, both for the mbed OS
+ * and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
+ */
 class Semaphore {
 public:
     /** Create and Initialize a Semaphore object used for managing resources.

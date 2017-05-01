@@ -39,6 +39,10 @@ namespace rtos {
  to a thread or interrupt service routine.
   @tparam  T         data type of a single message element.
   @tparam  queue_sz  maximum number of messages in queue.
+
+ @note
+ Memory considerations: The queue control structures will be created on current thread's stack, both for the mbed OS
+ and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 template<typename T, uint32_t queue_sz>
 class Queue {

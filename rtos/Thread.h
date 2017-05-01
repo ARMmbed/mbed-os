@@ -63,6 +63,11 @@ namespace rtos {
  *      thread.join();
  *  }
  *  @endcode
+ *
+ * @note
+ * Memory considerations: The thread control structures will be created on current thread's stack, both for the mbed OS
+ * and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
+ * Additionally the stack memory for this thread will be allocated on the heap, if it wasn't supplied to the constructor.
  */
 class Thread {
 public:

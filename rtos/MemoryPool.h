@@ -36,6 +36,10 @@ namespace rtos {
 /** Define and manage fixed-size memory pools of objects of a given type.
   @tparam  T         data type of a single object (element).
   @tparam  queue_sz  maximum number of objects (elements) in the memory pool.
+
+ @note
+ Memory considerations: The memory pool data store and control structures will be created on current thread's stack,
+ both for the mbed OS and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 template<typename T, uint32_t pool_sz>
 class MemoryPool {

@@ -74,6 +74,10 @@ namespace rtos {
     queue.cancel(blink_id); // stop after 5s
  }
  @endcode
+
+ @note
+ Memory considerations: The timer control structures will be created on current thread's stack, both for the mbed OS
+ and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 class RtosTimer {
 public:
