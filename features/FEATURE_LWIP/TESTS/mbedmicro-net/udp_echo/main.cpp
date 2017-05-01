@@ -83,10 +83,23 @@ int main() {
         while (success < ECHO_LOOPS) {
             prep_buffer(uuid, uuid_len, tx_buffer, sizeof(tx_buffer));
             const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
-            printf("[%02d] sent %d Bytes - %.*s  \n", i, ret, MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE, tx_buffer);
+            if (ret >= 0) {
+                printf("[%02d] sent %d Bytes - %.*s  \n", i, ret, ret, tx_buffer);
+            } else {
+                printf("[%02d] Network error %d\n", i, ret);
+                i++;
+                continue;
+            }
+
             SocketAddress temp_addr;
             const int n = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
-            printf("[%02d] recv %d Bytes - %.*s  \n", i, ret, MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE, rx_buffer);
+            if (n >= 0) {
+                printf("[%02d] receive %d Bytes - %.*s  \n", i, n, n, tx_buffer);
+            } else {
+                printf("[%02d] Network error %d\n", i, n);
+                i++;
+                continue;
+            }
 
             if ((temp_addr == udp_addr &&
                  n == sizeof(tx_buffer) &&

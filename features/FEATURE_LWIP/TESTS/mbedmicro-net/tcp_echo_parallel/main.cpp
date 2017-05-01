@@ -64,7 +64,7 @@ public:
         TEST_ASSERT_EQUAL(0, err);
 
         iomutex.lock();
-        printf("HTTP: Connected to %s:%d\r\n", 
+        printf("HTTP: Connected to %s:%d\r\n",
                 tcp_addr.get_ip_address(), tcp_addr.get_port());
         printf("tx_buffer buffer size: %u\r\n", sizeof(tx_buffer));
         printf("rx_buffer buffer size: %u\r\n", sizeof(rx_buffer));
@@ -85,7 +85,8 @@ public:
 };
 
 int main() {
-    GREENTEA_SETUP(60, "tcp_echo");
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(60, "tcp_echo", uuid, 48);
 
     Echo echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
 
