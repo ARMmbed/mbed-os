@@ -90,15 +90,31 @@ public:
         while(success < ECHO_LOOPS) {
             prep_buffer(id, uuid_buffer, uuid_len, tx_buffer, sizeof(tx_buffer));
             const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
-            iomutex.lock();
-            printf("[ID:%01d][%02d] sent %d Bytes - %.*s\n", id, i, ret, MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE, tx_buffer);
-            iomutex.unlock();
+            if (ret >= 0) {
+                iomutex.lock();
+                printf("[ID:%01d][%02d] sent %d Bytes - %.*s  \n", id, i, ret, ret, tx_buffer);
+                iomutex.unlock();
+            } else {
+                iomutex.lock();
+                printf("[ID:%01d][%02d] Network error %d\n", id, i, ret);
+                iomutex.unlock();
+                i++;
+                continue;
+            }
 
             SocketAddress temp_addr;
             const int n = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
-            iomutex.lock();
-            printf("[ID:%01d][%02d] recv %d Bytes - %.*s\n", id, i, ret, MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE, rx_buffer);
-            iomutex.unlock();
+            if (n >= 0) {
+                iomutex.lock();
+                printf("[ID:%01d][%02d] receive %d Bytes - %.*s  \n", id, i, n, n, tx_buffer);
+                iomutex.unlock();
+            } else {
+                iomutex.lock();
+                printf("[ID:%01d][%02d] Network error %d\n", id, i, n);
+                iomutex.unlock();
+                i++;
+                continue;
+            }
 
             if ((temp_addr == udp_addr &&
                  n == sizeof(tx_buffer) &&
