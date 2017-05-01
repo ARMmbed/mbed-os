@@ -88,7 +88,9 @@ Echo echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
 
 
 int main() {
-    GREENTEA_SETUP(60, "tcp_echo");
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(60, "default_auto", uuid, 48);
+    mbed_set_mac_address(uuid, /*coerce control bits*/ 1);
 
     int err = net.connect();
     TEST_ASSERT_EQUAL(0, err);

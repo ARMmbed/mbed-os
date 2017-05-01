@@ -225,7 +225,9 @@ PressureTest *pressure_tests[MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_THREADS];
 
 
 int main() {
-    GREENTEA_SETUP(2*60, "tcp_echo");
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(60, "tcp_echo", uuid, 48);
+    mbed_set_mac_address(uuid, /*coerce control bits*/ 1);
 
     uint8_t *buffer;
     size_t buffer_size;

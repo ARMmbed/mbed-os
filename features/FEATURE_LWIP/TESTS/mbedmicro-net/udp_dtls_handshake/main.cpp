@@ -28,7 +28,9 @@ int udp_dtls_handshake_pattern[] = {MBED_CFG_UDP_DTLS_HANDSHAKE_PATTERN};
 const int udp_dtls_handshake_count = sizeof(udp_dtls_handshake_pattern) / sizeof(int);
 
 int main() {
-    GREENTEA_SETUP(60, "udp_shotgun");
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(60, "udp_shotgun", uuid, 48);
+    mbed_set_mac_address(uuid, /*coerce control bits*/ 1);
 
     EthernetInterface eth;
     int err = eth.connect();

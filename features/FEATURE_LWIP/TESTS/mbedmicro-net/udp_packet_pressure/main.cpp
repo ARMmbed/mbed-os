@@ -111,7 +111,10 @@ void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
 }
 
 int main() {
-    GREENTEA_SETUP(60, "udp_echo");
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(60, "udp_echo", uuid, 48);
+    mbed_set_mac_address(uuid, /*coerce control bits*/ 1);
+
     generate_buffer(&buffer, &buffer_size,
         MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN,
         MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX);
