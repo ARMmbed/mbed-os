@@ -25,7 +25,6 @@ from shutil import copyfile
 from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath, isfile, isdir
 from inspect import getmro
 from copy import deepcopy
-from tools.config import Config
 from abc import ABCMeta, abstractmethod
 from distutils.spawn import find_executable
 
@@ -283,8 +282,6 @@ class mbedToolchain:
         # This will hold the initialized config object
         self.config = None
 
-        # This will hold the configuration data (as returned by Config.get_config_data())
-        self.config_data = None
 
         # This will hold the location of the configuration file or None if there's no configuration available
         self.config_file = None
@@ -332,7 +329,9 @@ class mbedToolchain:
         self.map_outputs = list()   # Place to store memmap scan results in JSON like data structures
 
         # uVisor spepcific rules
-        if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
+        if (hasattr(self.target, 'features') and
+            'UVISOR' in self.target.features and
+            'UVISOR_SUPPORTED' in self.target.extra_labels):
             self.target.core = re.sub(r"F$", '', self.target.core)
 
         # Stats cache is used to reduce the amount of IO requests to stat
@@ -422,7 +421,7 @@ class mbedToolchain:
                     self.asm_symbols.extend(mbedToolchain.CORTEX_SYMBOLS[self.target.core])
 
                 # Add target's symbols
-                self.asm_symbols += self.target.macros
+                self.asm_symbols += self.config.macros
                 # Add extra symbols passed via 'macros' parameter
                 self.asm_symbols += self.macros
             return list(set(self.asm_symbols))  # Return only unique symbols
@@ -443,11 +442,11 @@ class mbedToolchain:
                     self.cxx_symbols.append('MBED_USERNAME=' + MBED_ORG_USER)
 
                 # Add target's symbols
-                self.cxx_symbols += self.target.macros
+                self.cxx_symbols += self.config.macros
                 # Add target's hardware
-                self.cxx_symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
+                self.cxx_symbols += ["DEVICE_" + data + "=1" for data in self.config.device_has]
                 # Add target's features
-                self.cxx_symbols += ["FEATURE_" + data + "=1" for data in self.target.features]
+                self.cxx_symbols += ["FEATURE_" + data + "=1" for data in self.config.features]
                 # Add extra symbols passed via 'macros' parameter
                 self.cxx_symbols += self.macros
 
@@ -466,8 +465,8 @@ class mbedToolchain:
             toolchain_labels = [c.__name__ for c in getmro(self.__class__)]
             toolchain_labels.remove('mbedToolchain')
             self.labels = {
-                'TARGET': self.target.labels,
-                'FEATURE': self.target.features,
+                'TARGET': self.target.labels + self.config.extra_labels,
+                'FEATURE': self.config.features,
                 'TOOLCHAIN': toolchain_labels
             }
 
@@ -1109,10 +1108,6 @@ class mbedToolchain:
         # about sections + summary
         return memap.mem_report
 
-    # Set the configuration data
-    def set_config_data(self, config_data):
-        self.config_data = config_data
-
     # Creates the configuration header if needed:
     # - if there is no configuration data, "mbed_config.h" is not create (or deleted if it exists).
     # - if there is configuration data and "mbed_config.h" does not exist, it is created.
@@ -1135,7 +1130,7 @@ class mbedToolchain:
         else:
             prev_data = None
         # Get the current configuration data
-        crt_data = Config.config_to_header(self.config_data) if self.config_data else None
+        crt_data = self.config.get_config_data_header()
         # "changed" indicates if a configuration change was detected
         changed = False
         if prev_data is not None: # a previous mbed_config.h exists
@@ -1396,7 +1391,7 @@ class mbedToolchain:
 
     # Return the list of macros geenrated by the build system
     def get_config_macros(self):
-        return Config.config_to_macros(self.config_data) if self.config_data else []
+        return self.config.config_as_macros if self.config.config_data else []
 
     @property
     def report(self):

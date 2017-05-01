@@ -122,40 +122,18 @@ def get_config(src_paths, target, toolchain_name):
     target - the device we are building for
     toolchain_name - the string that identifies the build tools
     """
-    # Convert src_paths to a list if needed
     if type(src_paths) != ListType:
         src_paths = [src_paths]
 
-    # Pass all params to the unified prepare_resources()
     toolchain = prepare_toolchain(src_paths, None, target, toolchain_name)
 
-    # Scan src_path for config files
-    resources = toolchain.scan_resources(src_paths[0])
-    for path in src_paths[1:]:
-        resources.add(toolchain.scan_resources(path))
-
-    # Update configuration files until added features creates no changes
-    prev_features = set()
-    while True:
-        # Update the configuration with any .json files found while scanning
-        toolchain.config.add_config_files(resources.json_files)
-
-        # Add features while we find new ones
-        features = set(toolchain.config.get_features())
-        if features == prev_features:
-            break
-
-        for feature in features:
-            if feature in resources.features:
-                resources += resources.features[feature]
-
-        prev_features = features
-    toolchain.config.validate_config()
+    scan_resources(src_paths, toolchain)
     if toolchain.config.has_regions:
         _ = list(toolchain.config.regions)
 
-    cfg, macros = toolchain.config.get_config_data()
-    features = toolchain.config.get_features()
+    cfg, _ = toolchain.config.config_data
+    macros = toolchain.config.config_macros_as_macros
+    features = toolchain.config.features
     return cfg, macros, features
 
 def is_official_target(target_name, version):
@@ -426,10 +404,7 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
 
     # Load resources into the config system which might expand/modify resources
     # based on config data
-    resources = toolchain.config.load_resources(resources)
-
-    # Set the toolchain's configuration data
-    toolchain.set_config_data(toolchain.config.get_config_data())
+    toolchain.config.load_resources(resources)
 
     return resources
 
@@ -870,7 +845,6 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
         # Add other discovered configuration data to the configuration object
         for res in resources:
             config.load_resources(res)
-        toolchain.set_config_data(toolchain.config.get_config_data())
 
 
         # Copy Headers
@@ -985,7 +959,6 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         # Take into account the library configuration (MBED_CONFIG_FILE)
         config = toolchain.config
         config.add_config_files([MBED_CONFIG_FILE])
-        toolchain.set_config_data(toolchain.config.get_config_data())
 
         # CMSIS
         toolchain.info("Building library %s (%s, %s)" %

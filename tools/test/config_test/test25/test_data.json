@@ -1,0 +1,6 @@
+{
+    "K64F": {
+        "desc": "test recursive feature collisions",
+        "exception_msg": "Configuration conflict."
+    }
+}

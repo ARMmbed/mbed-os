@@ -1,0 +1,6 @@
+{
+    "K64F": {
+        "desc": "test invalid key in application config",
+        "exception_msg": "Additional properties are not allowed"
+    }
+}

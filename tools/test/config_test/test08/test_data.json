@@ -1,7 +1,4 @@
-# This build on top of test7 by adding some configuration values in targets
-# and overriding them in the application
-
-expected_results = {
+{
    "base": {
         "desc": "override values based on labels with libs and target params (no labels)",
         "app.app1": "v_app1",

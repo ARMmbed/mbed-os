@@ -1,0 +1,13 @@
+{
+    "f": {
+        "desc": "attempt to redefine parameter in target inheritance tree",
+        "exception_msg": "Parameters named 'target.base1_1' multiply defined"
+    },
+    "b2": {
+        "desc": "it should be OK to define parameters with the same name in non-related targets",
+        "target.base2_1": "v_base2_1_b2",
+        "target.base2_2": "v_base2_2_b2",
+        "target.base1_1": "v_base1_1_b2"
+    }
+}
+

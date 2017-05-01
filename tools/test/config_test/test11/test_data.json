@@ -1,0 +1,6 @@
+{
+    "K64F": {
+        "desc": "lib1 trying to override a config parameter in lib2",
+        "exception_msg": "Invalid prefix 'lib2' for parameter name 'lib2.p1' in 'library:lib1[K64F]'"
+    }
+}

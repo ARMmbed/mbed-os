@@ -76,8 +76,7 @@ if __name__ == '__main__':
         print "Macros"
         print "------"
         if macros:
-            print 'Defined with "macros":', Config.config_macros_to_macros(macros)
-        print "Generated from configuration parameters:", Config.parameters_to_macros(params)
+            print 'Defined with "macros":', macros
 
     except KeyboardInterrupt, e:
         print "\n[CTRL+c] exit"
