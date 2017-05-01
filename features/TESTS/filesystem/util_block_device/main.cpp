@@ -25,12 +25,8 @@
 
 using namespace utest::v1;
 
-#ifdef MBED_SMALL_TARGET
-#    define BLOCK_SIZE 256
-#else
-#    define BLOCK_SIZE 512
-#endif
 #define BLOCK_COUNT 16
+#define BLOCK_SIZE 512
 
 
 // Simple test which read/writes blocks on a sliced block device
