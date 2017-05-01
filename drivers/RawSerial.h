@@ -18,14 +18,13 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_SERIAL
+#if defined (DEVICE_SERIAL) || defined(DOXYGEN_ONLY)
 
 #include "drivers/SerialBase.h"
 #include "hal/serial_api.h"
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A serial port (UART) for communication with other serial devices
  * This is a variation of the Serial class that doesn't use streams,
@@ -34,7 +33,7 @@ namespace mbed {
  * Can be used for Full Duplex communication, or Simplex by specifying
  * one pin as NC (Not Connected)
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  *
  * Example:
  * @code
@@ -48,6 +47,7 @@ namespace mbed {
  *     pc.putc('A');
  * }
  * @endcode
+ * @ingroup drivers
  */
 class RawSerial: public SerialBase {
 
@@ -89,11 +89,11 @@ public:
 
 protected:
 
-    /** Acquire exclusive access to this serial port
+    /* Acquire exclusive access to this serial port
      */
     virtual void lock(void);
 
-    /** Release exclusive access to this serial port
+    /* Release exclusive access to this serial port
      */
     virtual void unlock(void);
 };
@@ -103,5 +103,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

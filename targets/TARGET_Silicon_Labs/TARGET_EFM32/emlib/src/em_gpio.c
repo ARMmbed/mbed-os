@@ -2,7 +2,7 @@
  * @file em_gpio.c
  * @brief General Purpose IO (GPIO) peripheral API
  *   devices.
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -148,10 +148,10 @@ void GPIO_DriveStrengthSet(GPIO_Port_TypeDef port,
  *   by this function.
  *
  * @note
- *   On platform 1 devices the pin number parameter is not used. The
+ *   On series 0 devices the pin number parameter is not used. The
  *   pin number used on these devices is hardwired to the interrupt with the
  *   same number. @n
- *   On platform 2 devices, pin number can be selected freely within a group.
+ *   On series 1 devices, pin number can be selected freely within a group.
  *   Interrupt numbers are divided into 4 groups (intNo / 4) and valid pin
  *   number within the interrupt groups are:
  *       0: pins 0-3
@@ -185,7 +185,7 @@ void GPIO_ExtIntConfig(GPIO_Port_TypeDef port,
                        bool fallingEdge,
                        bool enable)
 {
-  uint32_t tmp;
+  uint32_t tmp = 0;
 #if !defined(_GPIO_EXTIPINSELL_MASK)
   (void)pin;
 #endif
@@ -291,12 +291,12 @@ void GPIO_PinModeSet(GPIO_Port_TypeDef port,
    * register controls pins 0-7 and MODEH controls pins 8-15. */
   if (pin < 8)
   {
-    GPIO->P[port].MODEL = (GPIO->P[port].MODEL & ~(0xF << (pin * 4)))
+    GPIO->P[port].MODEL = (GPIO->P[port].MODEL & ~(0xFu << (pin * 4)))
                           | (mode << (pin * 4));
   }
   else
   {
-    GPIO->P[port].MODEH = (GPIO->P[port].MODEH & ~(0xF << ((pin - 8) * 4)))
+    GPIO->P[port].MODEH = (GPIO->P[port].MODEH & ~(0xFu << ((pin - 8) * 4)))
                           | (mode << ((pin - 8) * 4));
   }
 

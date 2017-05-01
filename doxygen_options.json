@@ -1,0 +1,12 @@
+{
+    "ENABLE_PREPROCESSING": "YES",
+    "MACRO_EXPANSION": "YES",
+    "EXPAND_ONLY_PREDEF": "NO",
+    "SEARCH_INCLUDES": "YES",
+    "INCLUDE_PATH": "", 
+    "INCLUDE_FILE_PATTERNS": "", 
+    "PREDEFINED": "DOXYGEN_ONLY \"MBED_DEPRECATED_SINCE(f, g)=\"",
+    "EXPAND_AS_DEFINED": "", 
+    "SKIP_FUNCTION_MACROS": "NO",
+    "EXCLUDE_PATTERNS": "*/targets/* */features/FEATURE_*/* */features/mbedtls/* */features/nanostack/* */features/storage/* */features/unsupported/* */features/frameworks/* */features/filesystem/fat/* */BUILD/* */rtos/* */events/* */platform/* */cmsis/* */hal/* */features/*"
+}

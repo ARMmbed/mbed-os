@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_msc.c
  * @brief Flash controller (MSC) Peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -57,8 +57,8 @@
 #define WORDS_PER_DATA_PHASE (1)
 #endif
 
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
 /* Fix for errata FLASH_E201 - Potential program failure after Power On */
-#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
 #define ERRATA_FIX_FLASH_E201_EN
 #endif
 
@@ -159,6 +159,13 @@ void MSC_Init(void)
 #if defined( _MSC_TIMEBASE_MASK )
   uint32_t freq, cycles;
 #endif
+
+#if defined( _EMU_STATUS_VSCALE_MASK )
+  /* VSCALE must be done and flash erase and write requires VSCALE2 */
+  EFM_ASSERT(!(EMU->STATUS & _EMU_STATUS_VSCALEBUSY_MASK));
+  EFM_ASSERT((EMU->STATUS & _EMU_STATUS_VSCALE_MASK) == EMU_STATUS_VSCALE_VSCALE2);
+#endif
+
   /* Unlock the MSC */
   MSC->LOCK = MSC_UNLOCK_CODE;
   /* Disable writing to the flash */
@@ -382,7 +389,7 @@ MSC_Status_TypeDef MSC_LoadWriteData(uint32_t* data,
 {
   uint32_t timeOut;
   uint32_t wordIndex;
-  uint32_t wordsPerDataPhase;
+  bool useWDouble = false;
   MSC_Status_TypeDef retval = mscReturnOk;
 #if !defined( _EFM32_GECKO_FAMILY )
   uint32_t irqState;
@@ -392,6 +399,7 @@ MSC_Status_TypeDef MSC_LoadWriteData(uint32_t* data,
   /* If LPWRITE (Low Power Write) is NOT enabled, set WDOUBLE (Write Double word) */
   if (!(MSC->WRITECTRL & MSC_WRITECTRL_LPWRITE))
   {
+#if defined(_SILICON_LABS_32B_SERIES_0)
     /* If the number of words to be written are odd, we need to align by writing
        a single word first, before setting the WDOUBLE bit. */
     if (numWords & 0x1)
@@ -431,14 +439,11 @@ MSC_Status_TypeDef MSC_LoadWriteData(uint32_t* data,
     }
     /* Now we can set the double word option in order to write two words per
        data phase. */
+#endif
     MSC->WRITECTRL |= MSC_WRITECTRL_WDOUBLE;
-    wordsPerDataPhase = 2;
+    useWDouble = true;
   }
-  else
 #endif /* defined( _MSC_WRITECTRL_LPWRITE_MASK ) && defined( _MSC_WRITECTRL_WDOUBLE_MASK ) */
-  {
-    wordsPerDataPhase = 1;
-  }
 
   /* Write the rest as double word write if wordsPerDataPhase == 2 */
   if (numWords > 0)
@@ -451,33 +456,33 @@ MSC_Status_TypeDef MSC_LoadWriteData(uint32_t* data,
       wordIndex = 0;
       while(wordIndex < numWords)
       {
-        MSC->WDATA = *data++;
-        wordIndex++;
-        if (wordsPerDataPhase == 1)
+        if (!useWDouble)
         {
-          MSC->WRITECMD = MSC_WRITECMD_WRITEONCE;
-        }
-        else if (wordsPerDataPhase == 2)
-        {
-          while (!(MSC->STATUS & MSC_STATUS_WDATAREADY));
           MSC->WDATA = *data++;
           wordIndex++;
-
-          /* Trigger double write. Platform 1 and 2
-             have different trigger behavior for
-             double word write as described in the
-             reference manual for MSC_WRITECMD_WRITEONCE
-             and WRITETRIG. */
-#if defined(_SILICON_LABS_32B_PLATFORM_1)
           MSC->WRITECMD = MSC_WRITECMD_WRITEONCE;
-#else
+        }
+
+        else // useWDouble == true
+        {
+          /* Trigger double write according to flash properties. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
+          MSC->WDATA = *data++;
+          while (!(MSC->STATUS & MSC_STATUS_WDATAREADY));
+          MSC->WDATA = *data++;
+          wordIndex += 2;
+          MSC->WRITECMD = MSC_WRITECMD_WRITEONCE;
+
+#elif (_SILICON_LABS_32B_SERIES_1_CONFIG >= 2)
+          while (!(MSC->STATUS & MSC_STATUS_WDATAREADY));
+          do
+          {
+            MSC->WDATA = *data++;
+            wordIndex++;
+          } while ((MSC->STATUS & MSC_STATUS_WDATAREADY)
+                   && (wordIndex < numWords));
           MSC->WRITECMD = MSC_WRITECMD_WRITETRIG;
 #endif
-        }
-        else
-        {
-          /* Not supported. */
-          EFM_ASSERT(false);
         }
 
         /* Wait for the transaction to finish. */
@@ -539,14 +544,37 @@ MSC_Status_TypeDef MSC_LoadWriteData(uint32_t* data,
             MSC->WRITECMD = MSC_WRITECMD_WRITETRIG;
           }
         }
-        MSC->WDATA = *data;
-        if ((wordsPerDataPhase == 1)
-            || ((wordsPerDataPhase == 2) && (wordIndex & 0x1)))
+
+        if (!useWDouble)
         {
+          MSC->WDATA = *data;
           MSC->WRITECMD = MSC_WRITECMD_WRITETRIG;
+          data++;
+          wordIndex++;
         }
-        data++;
-        wordIndex++;
+
+        else // useWDouble == true
+        {
+          /* Trigger double write according to flash properties. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
+          MSC->WDATA = *data;
+          if (wordIndex & 0x1)
+          {
+            MSC->WRITECMD = MSC_WRITECMD_WRITETRIG;
+          }
+          data++;
+          wordIndex++;
+
+#elif (_SILICON_LABS_32B_SERIES_1_CONFIG >= 2)
+          do
+          {
+            MSC->WDATA = *data++;
+            wordIndex++;
+          } while ((MSC->STATUS & MSC_STATUS_WDATAREADY)
+                   && (wordIndex < numWords));
+          MSC->WRITECMD = MSC_WRITECMD_WRITETRIG;
+#endif
+        }
       }
 
       if (irqState == 0)
@@ -587,8 +615,8 @@ MSC_RAMFUNC_DEFINITION_END
  *   Write address
  * @param[in] data
  *   Pointer to the first data word to load.
- * @param[in] numWords
- *   Number of data words (32-bit) to load.
+ * @param[in] numBytes
+ *   Number of data bytes to load, must be a multiple of 4 bytes.
  * @param[in] writeStrategy
  *   Write strategy to apply.
  * @return
@@ -611,6 +639,12 @@ MSC_Status_TypeDef MSC_WriteWordI(uint32_t *address,
 
   /* Check number of bytes. Must be divisable by four */
   EFM_ASSERT((numBytes & 0x3) == 0);
+
+#if defined( _EMU_STATUS_VSCALE_MASK )
+  /* VSCALE must be done and flash write requires VSCALE2 */
+  EFM_ASSERT(!(EMU->STATUS & _EMU_STATUS_VSCALEBUSY_MASK));
+  EFM_ASSERT((EMU->STATUS & _EMU_STATUS_VSCALE_MASK) == EMU_STATUS_VSCALE_VSCALE2);
+#endif
 
   /* Enable writing to the MSC */
   MSC->WRITECTRL |= MSC_WRITECTRL_WREN;
@@ -717,6 +751,11 @@ MSC_Status_TypeDef MSC_ErasePage(uint32_t *startAddress)
 
   /* Address must be aligned to pages */
   EFM_ASSERT((((uint32_t) startAddress) & (FLASH_PAGE_SIZE - 1)) == 0);
+#if defined( _EMU_STATUS_VSCALE_MASK )
+  /* VSCALE must be done and flash erase requires VSCALE2 */
+  EFM_ASSERT(!(EMU->STATUS & _EMU_STATUS_VSCALEBUSY_MASK));
+  EFM_ASSERT((EMU->STATUS & _EMU_STATUS_VSCALE_MASK) == EMU_STATUS_VSCALE_VSCALE2);
+#endif
 
   /* Enable writing to the MSC */
   MSC->WRITECTRL |= MSC_WRITECTRL_WREN;

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_msc.h
  * @brief Flash controller (MSC) peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -132,7 +132,7 @@ extern "C" {
 /** Return codes for writing/erasing the flash */
 typedef enum
 {
-  mscReturnOk          = 0,  /**< Flash write/erase successful. */
+  mscReturnOk          =  0, /**< Flash write/erase successful. */
   mscReturnInvalidAddr = -1, /**< Invalid address. Write to an address that is not flash. */
   mscReturnLocked      = -2, /**< Flash address is locked. */
   mscReturnTimeOut     = -3, /**< Timeout while writing to flash. */

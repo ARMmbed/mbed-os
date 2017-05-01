@@ -18,15 +18,14 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_ETHERNET
+#if defined (DEVICE_ETHERNET) || defined(DOXYGEN_ONLY)
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** An ethernet interface, to use with the ethernet pins.
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  *
  * Example:
  * @code
@@ -53,6 +52,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class Ethernet {
 
@@ -172,5 +172,3 @@ public:
 #endif
 
 #endif
-
-/** @}*/

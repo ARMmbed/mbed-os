@@ -18,17 +18,16 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_I2CSLAVE
+#if defined (DEVICE_I2CSLAVE) || defined(DOXYGEN_ONLY)
 
 #include "hal/i2c_api.h"
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** An I2C Slave, used for communicating with an I2C Master device
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  *
  * Example:
  * @code
@@ -61,6 +60,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class I2CSlave {
 
@@ -127,7 +127,7 @@ public:
 
     /** Write a single byte to an I2C master.
      *
-     *  @data the byte to write
+     *  @param data the byte to write
      *
      *  @returns
      *    '1' if an ACK was received,
@@ -156,5 +156,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

@@ -18,18 +18,18 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_LOWPOWERTIMER
+#if defined (DEVICE_LOWPOWERTIMER) || defined(DOXYGEN_ONLY)
 
 #include "hal/lp_ticker_api.h"
 #include "drivers/LowPowerTicker.h"
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** Low Power Timout
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
+ * @ingroup drivers
  */
 class LowPowerTimeout : public LowPowerTicker {
 
@@ -44,5 +44,3 @@ private:
 #endif
 
 #endif
-
-/** @}*/

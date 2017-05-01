@@ -59,6 +59,7 @@ struct dac_s {
 #if DEVICE_I2C
 struct i2c_s {
     I2C_TypeDef *i2c;
+    uint32_t location;
 #if DEVICE_I2C_ASYNCH
     uint32_t events;
     I2C_TransferSeq_TypeDef xfer;
@@ -116,7 +117,8 @@ struct serial_s {
 #if DEVICE_SPI
 struct spi_s {
     USART_TypeDef *spi;
-    int location;
+    uint32_t location;
+    uint32_t route;
     uint8_t bits;
     uint8_t master;
 #if DEVICE_SPI_ASYNCH
