@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "ublox_low_level_api.h"
+#ifndef UBLOX_LOW_LEVEL_H
+#define UBLOX_LOW_LEVEL_H
 
-// called before main
-void mbed_sdk_init() {
-	ublox_mdm_init();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void ublox_mdm_init(void);
+
+void ublox_mdm_powerOn(int usb);
+
+void ublox_mdm_powerOff(void);
+
+void ublox_gps_powerOn(void);
+
+void ublox_gps_powerOff(void);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif // UBLOX_LOW_LEVEL_H

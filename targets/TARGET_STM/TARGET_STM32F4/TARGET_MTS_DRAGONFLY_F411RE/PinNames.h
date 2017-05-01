@@ -38,6 +38,9 @@ extern "C" {
 #endif
 
 typedef enum {
+    // Not connected
+    NC = -1,
+
     PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
@@ -141,10 +144,20 @@ typedef enum {
     RADIO_RX    = PC_6,
     RADIO_RTS   = PB_10,
     RADIO_CTS   = PB_12,
-    RADIO_DCD   = D5,
-    RADIO_DSR   = D8,
-    RADIO_DTR   = D4,
-    RADIO_RI    = D9,
+    RADIO_DCD   = NC,
+    RADIO_DSR   = NC,
+    RADIO_DTR   = NC,
+    RADIO_RI    = NC,
+    MDMPWRON  = PC_13, // 3G_ONOFF DragonFly Design Guide, Page No. 16
+    MDMTXD = RADIO_TX, // Transmit Data
+    MDMRXD = RADIO_RX, // Receive Data
+    MDMRTS = RADIO_RTS, // Request to Send
+    MDMCTS = RADIO_CTS, // Clear to Send
+    MDMDCD = RADIO_DCD, // Data Carrier Detect
+    MDMDSR = RADIO_DSR, // Data Set Ready
+    MDMDTR = RADIO_DTR, // Data Terminal Ready
+    MDMRI  = RADIO_RI, // Ring Indicator
+
     WAKEUP      = D3,
 
     // I2C1 and I2C3 are available on Arduino pins
@@ -175,11 +188,15 @@ typedef enum {
     SPI_MISO    = SPI3_MISO,
     SPI_SCK     = SPI3_SCK,
     SPI_CS1     = PA_4,
-    SPI_CS2     = PB_14,
+    SPI_CS2     = PB_14
 
-    // Not connected
-    NC = (int)0xFFFFFFFF
 } PinName;
+
+#define ACTIVE_HIGH_POLARITY    1
+#define ACTIVE_LOW_POLARITY     0
+
+#define MDMDCD_POLARITY            ACTIVE_HIGH_POLARITY
+
 
 #ifdef __cplusplus
 }
