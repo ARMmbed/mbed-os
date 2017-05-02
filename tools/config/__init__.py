@@ -17,7 +17,7 @@ limitations under the License.
 
 from copy import deepcopy
 import os
-from os.path import dirname, abspath
+from os.path import dirname, abspath, exists
 import sys
 from collections import namedtuple
 from os.path import splitext
@@ -506,6 +506,8 @@ class Config(object):
                                   "build a bootloader project")
         if 'target.bootloader_img' in target_overrides:
             filename = target_overrides['target.bootloader_img']
+            if not exists(filename):
+                raise ConfigException("Bootloader %s not found" % filename)
             part = intelhex_offset(filename, offset=rom_start)
             if part.minaddr() != rom_start:
                 raise ConfigException("bootloader executable does not "
