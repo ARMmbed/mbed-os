@@ -147,7 +147,7 @@ static inline  void atomic_clr_u32(volatile uint32_t *ptr, uint32_t mask)
 	} while (__STREXW(newValue,(volatile unsigned long*) ptr));
 }
 
-#if  defined ( __GNUC__ )
+#if  defined ( __GNUC__ ) && !defined ( __CC_ARM )
   #ifndef __weak
     #define __weak   __attribute__((weak))
   #endif /* __weak */
