@@ -192,7 +192,7 @@ void set_clock_gating(peripheral_clk_t eClk, int enable)
  * This mode puts the processor into FLEXI mode however the peripheral clocks are not gated
  * hence they are still active.
  */
-void sleep(void)
+void hal_sleep(void)
 {
     // set to go into the FLEXI mode where the processor is asleep and all peripherals are
     // still active
@@ -217,7 +217,7 @@ void sleep(void)
  * hence they are inactive until interrupts are generated in which case the processor is awaken
  * from sleep.
  */
-void deepsleep(void)
+void hal_deepsleep(void)
 {
     // set clock gating to all the peripheral clocks
     set_clock_gating(PCLK, 1);
