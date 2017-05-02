@@ -328,9 +328,11 @@ static void wifi_set_link_state_cb(emac_interface_t *emac, emac_link_state_chang
 emac_interface_t* wifi_emac_get_interface()
 {
     if (_intf == NULL) {
-        _intf = new emac_interface_t();
-        _intf->hw = NULL;
-        memcpy((void*)&_intf->ops, &wifi_emac_interface, sizeof(wifi_emac_interface));
+        _intf = (emac_interface_t*)malloc(sizeof(emac_interface_t));
+        if (_intf) {
+            _intf->hw = NULL;
+            memcpy((void*)&_intf->ops, &wifi_emac_interface, sizeof(wifi_emac_interface));
+        }
     }
    return _intf;
 }
