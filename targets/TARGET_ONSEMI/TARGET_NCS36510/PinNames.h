@@ -133,9 +133,8 @@ typedef enum {
     SW2 = GPIO10,   /*NEW connection on NCS36510-RF Rev 1.1 */
 
     // Standardized button names
-    BUTTON1 = USER_BUTTON,
-    BUTTON2 = SW1,
-    BUTTON3 = SW2,
+    BUTTON1 = SW1,
+    BUTTON2 = SW2,
 
     SERIAL_TX   = GPIO0,
     SERIAL_RX   = GPIO1,
