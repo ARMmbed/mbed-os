@@ -17,12 +17,16 @@ limitations under the License.
 
 import re
 import tempfile
+import datetime
+import uuid
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
+from os.path import relpath
 from os import linesep, remove, makedirs
 from time import time
 from intelhex import IntelHex
+from json import load, dump
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException, intelhex_offset
@@ -102,6 +106,8 @@ def add_result_to_report(report, result):
     report - the report to append to
     result - the result to append
     """
+    result["date"] = datetime.datetime.utcnow().isoformat()
+    result["uuid"] = str(uuid.uuid1())
     target = result["target_name"]
     toolchain = result["toolchain_name"]
     id_name = result['id']
@@ -552,6 +558,9 @@ def build_project(src_paths, build_path, target, toolchain_name,
             cur_result["output"] = toolchain.get_output() + memap_table
             cur_result["result"] = "OK"
             cur_result["memory_usage"] = toolchain.map_outputs
+            cur_result["bin"] = res
+            cur_result["elf"] = splitext(res)[0] + ".elf"
+            cur_result.update(toolchain.report)
 
             add_result_to_report(report, cur_result)
 
@@ -653,6 +662,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         prep_report(report, toolchain.target.name, toolchain_name, id_name)
         cur_result = create_result(toolchain.target.name, toolchain_name,
                                    id_name, description)
+        cur_result['type'] = 'library'
         if properties != None:
             prep_properties(properties, toolchain.target.name, toolchain_name,
                             vendor_label)
@@ -1362,3 +1372,24 @@ def write_build_report(build_report, template_filename, filename):
         placeholder.write(template.render(
             failing_builds=build_report_failing,
             passing_builds=build_report_passing))
+
+
+def merge_build_data(filename, toolchain_report, app_type):
+    path_to_file = dirname(abspath(filename))
+    try:
+        build_data = load(open(filename))
+    except (IOError, ValueError):
+        build_data = {'builds': []}
+    for tgt in toolchain_report.values():
+        for tc in tgt.values():
+            for project in tc.values():
+                for build in project:
+                    try:
+                        build[0]['elf'] = relpath(build[0]['elf'], path_to_file)
+                        build[0]['bin'] = relpath(build[0]['bin'], path_to_file)
+                    except KeyError:
+                        pass
+                    if 'type' not in build[0]:
+                        build[0]['type'] = app_type
+                    build_data['builds'].append(build[0])
+    dump(build_data, open(filename, "wb"), indent=4, separators=(',', ': '))

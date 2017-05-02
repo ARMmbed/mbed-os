@@ -23,6 +23,7 @@ import json
 from time import sleep
 from shutil import copy
 from os.path import join, abspath, dirname
+from json import load, dump
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -48,6 +49,7 @@ from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import mcu_toolchain_list
 from tools.build_api import mcu_target_list
+from tools.build_api import merge_build_data
 from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
@@ -177,6 +179,11 @@ if __name__ == '__main__':
                       default=False,
                       help="Link with mbed test library")
 
+    parser.add_argument("--build-data",
+                        dest="build_data",
+                        default=None,
+                        help="Dump build_data to this file")
+
     # Specify a different linker script
     parser.add_argument("-l", "--linker", dest="linker_script",
                       type=argparse_filestring_type,
@@ -249,6 +256,7 @@ if __name__ == '__main__':
                            %(toolchain,search_path))
 
     # Test
+    build_data_blob = {} if options.build_data else None
     for test_no in p:
         test = Test(test_no)
         if options.automated is not None:    test.automated = options.automated
@@ -287,6 +295,7 @@ if __name__ == '__main__':
                                      clean=options.clean,
                                      verbose=options.verbose,
                                      notify=notify,
+                                     report=build_data_blob,
                                      silent=options.silent,
                                      macros=options.macros,
                                      jobs=options.jobs,
@@ -342,3 +351,5 @@ if __name__ == '__main__':
                 print "[ERROR] %s" % str(e)
             
             sys.exit(1)
+    if options.build_data:
+        merge_build_data(options.build_data, build_data_blob, "application")
