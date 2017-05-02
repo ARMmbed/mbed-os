@@ -128,10 +128,15 @@ typedef enum {
     LED_YELLOW  = GPIO6,
     LED_BLUE    = GPIO5,
     USER_BUTTON = GPIO7,  /*NEW connection on NCS36510-RF Rev 1.1 - Alias of SW1 */
-    // Standardized button names
-    BUTTON1 = USER_BUTTON,
+
     SW1 = GPIO7,  /*NEW connection on NCS36510-RF Rev 1.1 */
     SW2 = GPIO10,   /*NEW connection on NCS36510-RF Rev 1.1 */
+
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
+    BUTTON2 = SW1,
+    BUTTON3 = SW2,
+
     SERIAL_TX   = GPIO0,
     SERIAL_RX   = GPIO1,
     USBTX       = GPIO0,

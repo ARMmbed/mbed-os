@@ -201,6 +201,11 @@ typedef enum {
     LED3 = LED_BLUE,
     LED4 = LED_RED,
 
+    // Standardized button names
+    BUTTON1 = PTA12,
+    BUTTON2 = PTA13,
+    BUTTON3 = PTA15,
+
     // USB Pins
     USBTX = PTB17,
     USBRX = PTB16,

@@ -81,8 +81,6 @@ typedef enum {
     SW3 = NOT_CONNECTED,
     // Standardized button names
     BUTTON1 = SW1,
-    BUTTON2 = SW2,
-    BUTTON3 = SW3,
 
     // USB bridge connected UART pins
     USBTX = P2_1,
