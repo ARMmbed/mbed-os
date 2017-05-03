@@ -74,8 +74,7 @@ const ticker_data_t* get_lp_ticker_data()
 void lp_ticker_init()
 {
 	// select LF clock
-	adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFXTAL);
-	adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFXTAL,true);
+	adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFOSC);
 
 	// open the rtc device
 	adi_rtc_Open(1, rtc1_memory, ADI_RTC_MEMORY_SIZE, &hRTC1_Device);
