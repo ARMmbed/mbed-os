@@ -10,6 +10,10 @@
 #include "UDPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
+#include "utest.h"
+
+using namespace utest::v1;
+
 
 #ifndef MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE
 #define MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE 64
@@ -28,17 +32,17 @@ const int ECHO_LOOPS = 16;
 EthernetInterface net;
 SocketAddress udp_addr;
 Mutex iomutex;
+char uuid[48] = {0};
 
 // NOTE: assuming that "id" stays in the single digits
-void prep_buffer(int id, char *uuid_buffer, size_t uuid_len, char *tx_buffer, size_t tx_size) {
-    size_t i = 2;
+void prep_buffer(int id, char *uuid, char *tx_buffer, size_t tx_size) {
+    size_t i = 0;
 
-    tx_buffer[0] = '0' + id;
-    tx_buffer[1] = ' ';
+    tx_buffer[i++] = '0' + id;
+    tx_buffer[i++] = ' ';
 
-    for (; i<uuid_len + 2; ++i) {
-        tx_buffer[i] = uuid_buffer[i - 2];
-    }
+    memcpy(tx_buffer+i, uuid, strlen(uuid));
+    i += strlen(uuid);
 
     tx_buffer[i++] = ' ';
 
@@ -58,18 +62,16 @@ private:
     Thread thread;
     bool result;
     int id;
-    char *uuid_buffer;
-    size_t uuid_len;
+    char *uuid;
 
 public:
     // Limiting stack size to 1k
     Echo(): thread(osPriorityNormal, 1024), result(false) {
     }
 
-    void start(int id, char *uuid_buffer, size_t uuid_len) {
+    void start(int id, char *uuid) {
         this->id = id;
-        this->uuid_buffer = uuid_buffer;
-        this->uuid_len = uuid_len;
+        this->uuid = uuid;
         osStatus status = thread.start(callback(this, &Echo::echo));
     }
 
@@ -86,8 +88,8 @@ public:
 
         sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
 
-            prep_buffer(id, uuid_buffer, uuid_len, tx_buffer, sizeof(tx_buffer));
         for (int i = 0; success < ECHO_LOOPS; i++) {
+            prep_buffer(id, uuid, tx_buffer, sizeof(tx_buffer));
             const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
             if (ret >= 0) {
                 iomutex.lock();
@@ -148,14 +150,9 @@ public:
     }
 };
 
-int main() {
-    char uuid[48] = {0};
-    GREENTEA_SETUP_UUID(120, "udp_echo", uuid, 48);
-    printf("Got a uuid of %s\r\n", uuid);
-    size_t uuid_len = strlen(uuid);
 
+void test_udp_echo_parallel() {
     Echo echoers[MBED_CFG_UDP_CLIENT_ECHO_THREADS];
-
     int err = net.connect();
     TEST_ASSERT_EQUAL(0, err);
 
@@ -185,7 +182,7 @@ int main() {
 
         // Startup echo threads in parallel
         for (int i = 0; i < MBED_CFG_UDP_CLIENT_ECHO_THREADS; i++) {
-            echoers[i].start(i, uuid, uuid_len);
+            echoers[i].start(i, uuid);
         }
 
         bool result = true;
@@ -196,6 +193,23 @@ int main() {
         }
 
         net.disconnect();
-        GREENTEA_TESTSUITE_RESULT(result);
+        TEST_ASSERT_EQUAL(true, result);
     }
+}
+
+
+// Test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {
+    GREENTEA_SETUP_UUID(120, "udp_echo", uuid, 48);
+    return verbose_test_setup_handler(number_of_cases);
+}
+
+Case cases[] = {
+    Case("UDP echo parallel", test_udp_echo_parallel),
+};
+
+Specification specification(test_setup, cases);
+
+int main() {
+    return !Harness::run(specification);
 }

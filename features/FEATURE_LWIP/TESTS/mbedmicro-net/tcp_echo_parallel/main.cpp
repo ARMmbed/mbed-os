@@ -10,6 +10,9 @@
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
+#include "utest.h"
+
+using namespace utest::v1;
 
 
 #ifndef MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE
@@ -84,11 +87,9 @@ public:
     }
 };
 
-int main() {
-    GREENTEA_SETUP(120, "tcp_echo");
 
+void test_tcp_echo_parallel() {
     Echo echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
-
     int err = net.connect();
     TEST_ASSERT_EQUAL(0, err);
 
@@ -123,5 +124,20 @@ int main() {
     }
 
     net.disconnect();
-    GREENTEA_TESTSUITE_RESULT(true);
+}
+
+// Test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {
+    GREENTEA_SETUP(120, "tcp_echo");
+    return verbose_test_setup_handler(number_of_cases);
+}
+
+Case cases[] = {
+    Case("TCP echo parallel", test_tcp_echo_parallel),
+};
+
+Specification specification(test_setup, cases);
+
+int main() {
+    return !Harness::run(specification);
 }

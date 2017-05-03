@@ -10,6 +10,10 @@
 #include "UDPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
+#include "utest.h"
+
+using namespace utest::v1;
+
 
 #ifndef MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE
 #define MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE 64
@@ -25,14 +29,14 @@ namespace {
     char rx_buffer[MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE] = {0};
     const char ASCII_MAX = '~' - ' ';
     const int ECHO_LOOPS = 16;
+    char uuid[48] = {0};
 }
 
-void prep_buffer(char *uuid_buffer, size_t uuid_len, char *tx_buffer, size_t tx_size) {
+void prep_buffer(char *uuid, char *tx_buffer, size_t tx_size) {
     size_t i = 0;
 
-    for (; i<uuid_len; ++i) {
-        tx_buffer[i] = uuid_buffer[i];
-    }
+    memcpy(tx_buffer, uuid, strlen(uuid));
+    i += strlen(uuid);
 
     tx_buffer[i++] = ' ';
 
@@ -41,11 +45,7 @@ void prep_buffer(char *uuid_buffer, size_t uuid_len, char *tx_buffer, size_t tx_
     }
 }
 
-int main() {
-    char uuid[48] = {0};
-    GREENTEA_SETUP_UUID(120, "udp_echo", uuid, 48);
-    printf("Got a uuid of %s\r\n", uuid);
-    size_t uuid_len = strlen(uuid);
+void test_udp_echo() {
     EthernetInterface eth;
 
     int err = eth.connect();
@@ -53,8 +53,7 @@ int main() {
 
     if (err) {
         printf("MBED: failed to connect with an error of %d\r\n", err);
-        GREENTEA_TESTSUITE_RESULT(false);
-        return 0;
+        TEST_ASSERT_EQUAL(0, err);
     }
 
     printf("UDP client IP Address is %s\n", eth.get_ip_address());
@@ -81,8 +80,8 @@ int main() {
     SocketAddress udp_addr(ipbuf, port);
 
     int success = 0;
-        prep_buffer(uuid, uuid_len, tx_buffer, sizeof(tx_buffer));
     for (int i = 0; success < ECHO_LOOPS; i++) {
+        prep_buffer(uuid, tx_buffer, sizeof(tx_buffer));
         const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
         if (ret >= 0) {
             printf("[%02d] sent %d bytes - %.*s  \n", i, ret, ret, tx_buffer);
@@ -120,9 +119,24 @@ int main() {
         sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
     }
 
-    bool result = success == ECHO_LOOPS;
-
     sock.close();
     eth.disconnect();
-    GREENTEA_TESTSUITE_RESULT(result);
+    TEST_ASSERT_EQUAL(ECHO_LOOPS, success);
+}
+
+
+// Test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {
+    GREENTEA_SETUP_UUID(120, "udp_echo", uuid, 48);
+    return verbose_test_setup_handler(number_of_cases);
+}
+
+Case cases[] = {
+    Case("UDP echo", test_udp_echo),
+};
+
+Specification specification(test_setup, cases);
+
+int main() {
+    return !Harness::run(specification);
 }
