@@ -29,7 +29,7 @@ void prep_buffer(char *tx_buffer, size_t tx_size) {
 }
 
 int main() {
-    GREENTEA_SETUP(60, "tcp_echo");
+    GREENTEA_SETUP(120, "tcp_echo");
     EthernetInterface eth;
     int err = eth.connect();
 

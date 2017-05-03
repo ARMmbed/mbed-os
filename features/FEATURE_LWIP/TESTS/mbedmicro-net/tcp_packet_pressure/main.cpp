@@ -108,7 +108,7 @@ void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
 
 
 int main() {
-    GREENTEA_SETUP(60, "tcp_echo");
+    GREENTEA_SETUP(120, "tcp_echo");
     generate_buffer(&buffer, &buffer_size,
         MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN,
         MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX);
@@ -219,7 +219,7 @@ int main() {
     timer.stop();
     printf("MBED: Time taken: %fs\r\n", timer.read());
     printf("MBED: Speed: %.3fkb/s\r\n",
-            8*(2*MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX - 
+            8*(2*MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX -
             MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN) / (1000*timer.read()));
 
     eth.disconnect();

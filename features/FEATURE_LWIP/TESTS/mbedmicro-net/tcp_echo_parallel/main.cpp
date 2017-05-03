@@ -85,8 +85,7 @@ public:
 };
 
 int main() {
-    char uuid[48] = {0};
-    GREENTEA_SETUP_UUID(60, "tcp_echo", uuid, 48);
+    GREENTEA_SETUP(120, "tcp_echo");
 
     Echo echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
 
