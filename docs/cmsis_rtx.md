@@ -41,6 +41,7 @@ arm_math.h | Rename `PI` to `_PI` to avoid name clash with a register name in mc
 Filename | Description |
 ---------|-------------|
 cmsis_os2.h | Doxygen added; added per-thread uVisor context |
+cmsis_os1.h | Change `osThreadDef` to accept 3 parameters, rather than 4, as expected by mbed OS |
 core_cm.h | Doxygen added; included headers changed to match mbed OS core selection; deferred priority setting of SVCall to uVisor, when uVisor is enabled |
 RTX_Config.h | Doxygen added, mbed OS RTX config included |
 rtx_evr.c | CMSIS component definition include removed |
