@@ -22,33 +22,6 @@
 #ifndef MBED_RTOS_RTX1_TYPES_H
 #define MBED_RTOS_RTX1_TYPES_H
 
-#include "cmsis_os2.h"
-
-#define osEventSignal  0x08
-#define osEventMessage 0x10
-#define osEventMail    0x10
-#define osEventTimeout 0x40
-
-#define osErrorValue   0x86;
-
-typedef osStatus_t osStatus;
-typedef osPriority_t osPriority;
-typedef osTimerType_t os_timer_type;
-typedef osThreadId_t osThreadId;
-typedef osMessageQueueId_t osMessageQId;
-typedef void* osMailQId;
-
-typedef struct  {
-  osStatus                 status;     ///< status code: event or error information
-  union  {
-    uint32_t                    v;     ///< message as 32-bit value
-    void                       *p;     ///< message or mail as void pointer
-    int32_t               signals;     ///< signal flags
-  } value;                             ///< event value
-  union  {
-    osMailQId             mail_id;     ///< mail id obtained by \ref osMailCreate
-    osMessageQId       message_id;     ///< message id obtained by \ref osMessageCreate
-  } def;                                 ///< event definition
-} osEvent;
+#include "rtx/cmsis_os.h"
 
 #endif

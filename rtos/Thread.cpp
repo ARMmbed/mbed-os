@@ -65,7 +65,7 @@ void Thread::constructor(Callback<void()> task,
     }
 }
 
-osStatus_t Thread::start(Callback<void()> task) {
+osStatus Thread::start(Callback<void()> task) {
     _mutex.lock();
 
     if ((_tid != 0) || _finished) {
@@ -102,7 +102,7 @@ osStatus_t Thread::start(Callback<void()> task) {
     return osOK;
 }
 
-osStatus_t Thread::terminate() {
+osStatus Thread::terminate() {
     osStatus_t ret;
     _mutex.lock();
 
@@ -120,7 +120,7 @@ osStatus_t Thread::terminate() {
     return ret;
 }
 
-osStatus_t Thread::join() {
+osStatus Thread::join() {
     int32_t ret = _join_sem.wait();
     if (ret < 0) {
         return osError;
@@ -138,7 +138,7 @@ osStatus_t Thread::join() {
     return osOK;
 }
 
-osStatus_t Thread::set_priority(osPriority priority) {
+osStatus Thread::set_priority(osPriority priority) {
     osStatus_t ret;
     _mutex.lock();
 
@@ -316,15 +316,15 @@ osEvent Thread::signal_wait(int32_t signals, uint32_t millisec) {
     return evt;
 }
 
-osStatus_t Thread::wait(uint32_t millisec) {
+osStatus Thread::wait(uint32_t millisec) {
     return osDelay(millisec);
 }
 
-osStatus_t Thread::yield() {
+osStatus Thread::yield() {
     return osThreadYield();
 }
 
-osThreadId_t Thread::gettid() {
+osThreadId Thread::gettid() {
     return osThreadGetId();
 }
 
@@ -350,7 +350,7 @@ void Thread::_thunk(void * thread_ptr)
     Thread *t = (Thread*)thread_ptr;
     t->_task();
     t->_mutex.lock();
-    t->_tid = (osThreadId_t)NULL;
+    t->_tid = (osThreadId)NULL;
     t->_finished = true;
     t->_mutex.unlock();
     t->_join_sem.release();
