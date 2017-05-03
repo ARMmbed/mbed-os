@@ -87,12 +87,12 @@ public:
         sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
 
         int i = 0;
-        while(success < ECHO_LOOPS) {
+        while (success < ECHO_LOOPS) {
             prep_buffer(id, uuid_buffer, uuid_len, tx_buffer, sizeof(tx_buffer));
             const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
             if (ret >= 0) {
                 iomutex.lock();
-                printf("[ID:%01d][%02d] sent %d Bytes - %.*s  \n", id, i, ret, ret, tx_buffer);
+                printf("[ID:%01d][%02d] sent %d bytes - %.*s  \n", id, i, ret, ret, tx_buffer);
                 iomutex.unlock();
             } else {
                 iomutex.lock();
@@ -106,7 +106,7 @@ public:
             const int n = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
             if (n >= 0) {
                 iomutex.lock();
-                printf("[ID:%01d][%02d] receive %d Bytes - %.*s  \n", id, i, n, n, tx_buffer);
+                printf("[ID:%01d][%02d] recv %d bytes - %.*s  \n", id, i, n, n, tx_buffer);
                 iomutex.unlock();
             } else {
                 iomutex.lock();
@@ -123,9 +123,20 @@ public:
                 iomutex.lock();
                 printf("[ID:%01d][%02d] success #%d\n", id, i, success);
                 iomutex.unlock();
+
+                i++;
+                continue;
             }
 
-            i++;
+            // failed, clean out any remaining bad packets
+            sock.set_timeout(0);
+            while (true) {
+                err = sock.recvfrom(NULL, NULL, 0);
+                if (err == NSAPI_ERROR_WOULD_BLOCK) {
+                    break;
+                }
+            }
+            sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
         }
 
         result = success == ECHO_LOOPS;
