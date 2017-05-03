@@ -6,8 +6,8 @@ define symbol __region_ROM_end__   = 0x080FFFFF;
 /* [RAM = 128kb = 96kb + 32kb = 0x20000] */
 /* Vector table dynamic copy: Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM */
 define symbol __NVIC_start__          = 0x10000000;
-define symbol __NVIC_end__            = 0x10000187; /* Aligned on 8 bytes (392 = 49 x 8) */
-define symbol __region_SRAM2_start__  = 0x10000188;
+define symbol __NVIC_end__            = 0x10000187;
+define symbol __region_SRAM2_start__  = 0x10000188; /* This adress is 8-byte aligned */
 define symbol __region_SRAM2_end__    = 0x10007FFF;
 define symbol __region_SRAM1_start__  = 0x20000000;
 define symbol __region_SRAM1_end__    = 0x20017FFF;
