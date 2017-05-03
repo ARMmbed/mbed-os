@@ -51,12 +51,12 @@ public:
     }
 
     void start() {
-        osStatus_t status = thread.start(callback(this, &Echo::echo));
+        osStatus status = thread.start(callback(this, &Echo::echo));
         TEST_ASSERT_EQUAL(osOK, status);
     }
 
     void join() {
-        osStatus_t status = thread.join();
+        osStatus status = thread.join();
         TEST_ASSERT_EQUAL(osOK, status);
     }
 

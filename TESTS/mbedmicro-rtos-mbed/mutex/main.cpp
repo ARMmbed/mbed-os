@@ -110,7 +110,7 @@ void test_dual_thread_nolock(void)
 
 void test_dual_thread_lock_unlock_thread(Mutex *mutex)
 {
-    osStatus_t stat = mutex->lock(osWaitForever);
+    osStatus stat = mutex->lock(osWaitForever);
     TEST_ASSERT_EQUAL(stat, osOK);
 }
 
