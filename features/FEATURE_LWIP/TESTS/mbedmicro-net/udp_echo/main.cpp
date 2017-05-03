@@ -81,15 +81,13 @@ int main() {
     SocketAddress udp_addr(ipbuf, port);
 
     int success = 0;
-    int i = 0;
-    while (success < ECHO_LOOPS) {
         prep_buffer(uuid, uuid_len, tx_buffer, sizeof(tx_buffer));
+    for (int i = 0; success < ECHO_LOOPS; i++) {
         const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
         if (ret >= 0) {
             printf("[%02d] sent %d bytes - %.*s  \n", i, ret, ret, tx_buffer);
         } else {
             printf("[%02d] Network error %d\n", i, ret);
-            i++;
             continue;
         }
 
@@ -99,7 +97,6 @@ int main() {
             printf("[%02d] recv %d bytes - %.*s  \n", i, n, n, tx_buffer);
         } else {
             printf("[%02d] Network error %d\n", i, n);
-            i++;
             continue;
         }
 
@@ -109,7 +106,6 @@ int main() {
             success += 1;
 
             printf("[%02d] success #%d\n", i, success);
-            i++;
             continue;
         }
 

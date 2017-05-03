@@ -86,9 +86,8 @@ public:
 
         sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
 
-        int i = 0;
-        while (success < ECHO_LOOPS) {
             prep_buffer(id, uuid_buffer, uuid_len, tx_buffer, sizeof(tx_buffer));
+        for (int i = 0; success < ECHO_LOOPS; i++) {
             const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
             if (ret >= 0) {
                 iomutex.lock();
@@ -98,7 +97,6 @@ public:
                 iomutex.lock();
                 printf("[ID:%01d][%02d] Network error %d\n", id, i, ret);
                 iomutex.unlock();
-                i++;
                 continue;
             }
 
@@ -112,7 +110,6 @@ public:
                 iomutex.lock();
                 printf("[ID:%01d][%02d] Network error %d\n", id, i, n);
                 iomutex.unlock();
-                i++;
                 continue;
             }
 
@@ -123,8 +120,6 @@ public:
                 iomutex.lock();
                 printf("[ID:%01d][%02d] success #%d\n", id, i, success);
                 iomutex.unlock();
-
-                i++;
                 continue;
             }
 
