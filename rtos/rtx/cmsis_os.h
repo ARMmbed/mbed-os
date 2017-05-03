@@ -442,7 +442,7 @@ const osThreadDef_t os_thread_def_##name = \
 { (name), (priority), (1), (stacksz) }
 #else
 #define osThreadDef(name, priority, stacksz) \
-static uint64_t os_thread_stack##name[(stacksz)?(((stacksz+7)/8)):1] __attribute__((section(".bss.os.thread.stack"))); \
+uint64_t os_thread_stack##name[(stacksz)?(((stacksz+7)/8)):1] __attribute__((section(".bss.os.thread.stack"))); \
 static osRtxThread_t os_thread_cb_##name __attribute__((section(".bss.os.thread.cb"))); \
 const osThreadDef_t os_thread_def_##name = \
 { (name), \
