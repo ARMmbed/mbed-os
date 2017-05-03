@@ -10,6 +10,10 @@
 #include "UDPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
+#include "utest.h"
+
+using namespace utest::v1;
+
 
 #ifndef MBED_CFG_UDP_DTLS_HANDSHAKE_BUFFER_SIZE
 #define MBED_CFG_UDP_DTLS_HANDSHAKE_BUFFER_SIZE 512
@@ -31,17 +35,7 @@ uint8_t buffer[MBED_CFG_UDP_DTLS_HANDSHAKE_BUFFER_SIZE] = {0};
 int udp_dtls_handshake_pattern[] = {MBED_CFG_UDP_DTLS_HANDSHAKE_PATTERN};
 const int udp_dtls_handshake_count = sizeof(udp_dtls_handshake_pattern) / sizeof(int);
 
-int main() {
-    char uuid[48] = {0};
-    GREENTEA_SETUP_UUID(120, "udp_shotgun", uuid, 48);
-
-    // create mac address based on uuid
-    uint64_t mac = 0;
-    for (int i = 0; i < sizeof(uuid); i++) {
-        mac += uuid[i];
-    }
-    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
-
+void test_udp_dtls_handshake() {
     EthernetInterface eth;
     int err = eth.connect();
     TEST_ASSERT_EQUAL(0, err);
@@ -135,5 +129,32 @@ int main() {
     }
 
     eth.disconnect();
-    GREENTEA_TESTSUITE_RESULT(result);
+    TEST_ASSERT_EQUAL(true, result);
 }
+
+
+// Test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(120, "udp_shotgun", uuid, 48);
+
+    // create mac address based on uuid
+    uint64_t mac = 0;
+    for (int i = 0; i < sizeof(uuid); i++) {
+        mac += uuid[i];
+    }
+    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
+
+    return verbose_test_setup_handler(number_of_cases);
+}
+
+Case cases[] = {
+    Case("UDP DTLS handshake", test_udp_dtls_handshake),
+};
+
+Specification specification(test_setup, cases);
+
+int main() {
+    return !Harness::run(specification);
+}
+

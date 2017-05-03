@@ -13,6 +13,9 @@
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
+#include "utest.h"
+
+using namespace utest::v1;
 
 
 #ifndef MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN
@@ -224,17 +227,7 @@ public:
 PressureTest *pressure_tests[MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_THREADS];
 
 
-int main() {
-    char uuid[48] = {0};
-    GREENTEA_SETUP_UUID(120, "tcp_echo", uuid, 48);
-
-    // create mac address based on uuid
-    uint64_t mac = 0;
-    for (int i = 0; i < sizeof(uuid); i++) {
-        mac += uuid[i];
-    }
-    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
-
+void test_tcp_packet_pressure_parallel() {
     uint8_t *buffer;
     size_t buffer_size;
     generate_buffer(&buffer, &buffer_size,
@@ -254,8 +247,6 @@ int main() {
     printf("MBED: TCPClient waiting for server IP and port...\n");
 
     greentea_send_kv("target_ip", net.get_ip_address());
-
-    bool result = true;
 
     char recv_key[] = "host_port";
     char ipbuf[60] = {0};
@@ -294,5 +285,31 @@ int main() {
             MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN) / (1000*timer.read()));
 
     net.disconnect();
-    GREENTEA_TESTSUITE_RESULT(result);
 }
+
+
+// Test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(120, "tcp_echo", uuid, 48);
+
+    // create mac address based on uuid
+    uint64_t mac = 0;
+    for (int i = 0; i < sizeof(uuid); i++) {
+        mac += uuid[i];
+    }
+    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
+
+    return verbose_test_setup_handler(number_of_cases);
+}
+
+Case cases[] = {
+    Case("TCP packet pressure parallel", test_tcp_packet_pressure_parallel),
+};
+
+Specification specification(test_setup, cases);
+
+int main() {
+    return !Harness::run(specification);
+}
+
