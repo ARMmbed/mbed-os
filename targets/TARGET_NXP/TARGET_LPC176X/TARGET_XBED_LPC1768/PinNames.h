@@ -79,6 +79,8 @@ typedef enum {
 	//xbed lpc1768 Pin Names
     LED5 = P2_6,
     BTN1 = P2_8,
+    // Standardized button names
+    BUTTON1 = BTN1,
     SDA = P0_27,
     SCL = P0_28,
     ISP = P2_10,
