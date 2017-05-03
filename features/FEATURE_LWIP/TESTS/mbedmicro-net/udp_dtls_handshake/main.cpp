@@ -23,6 +23,10 @@
 #define MBED_CFG_UDP_DTLS_HANDSHAKE_PATTERN 112, 384, 200, 219, 25
 #endif
 
+#ifndef MBED_CFG_UDP_DTLS_HANDSHAKE_TIMEOUT
+#define MBED_CFG_UDP_DTLS_HANDSHAKE_TIMEOUT 1500
+#endif
+
 uint8_t buffer[MBED_CFG_UDP_DTLS_HANDSHAKE_BUFFER_SIZE] = {0};
 int udp_dtls_handshake_pattern[] = {MBED_CFG_UDP_DTLS_HANDSHAKE_PATTERN};
 const int udp_dtls_handshake_count = sizeof(udp_dtls_handshake_pattern) / sizeof(int);
@@ -71,8 +75,7 @@ int main() {
 
     UDPSocket sock;
     SocketAddress udp_addr(ipbuf, port);
-    sock.set_blocking(true);
-    sock.set_timeout(1500);
+    sock.set_timeout(MBED_CFG_UDP_DTLS_HANDSHAKE_TIMEOUT);
 
     for (int attempt = 0; attempt < MBED_CFG_UDP_DTLS_HANDSHAKE_RETRIES; attempt++) {
         err = sock.open(&eth);

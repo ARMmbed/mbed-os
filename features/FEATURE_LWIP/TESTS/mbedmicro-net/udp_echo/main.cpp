@@ -54,67 +54,79 @@ int main() {
     if (err) {
         printf("MBED: failed to connect with an error of %d\r\n", err);
         GREENTEA_TESTSUITE_RESULT(false);
-    } else {
-        printf("UDP client IP Address is %s\n", eth.get_ip_address());
+        return 0;
+    }
 
-        greentea_send_kv("target_ip", eth.get_ip_address());
+    printf("UDP client IP Address is %s\n", eth.get_ip_address());
 
-        char recv_key[] = "host_port";
-        char ipbuf[60] = {0};
-        char portbuf[16] = {0};
-        unsigned int port = 0;
+    greentea_send_kv("target_ip", eth.get_ip_address());
 
-        UDPSocket sock;
-        sock.open(&eth);
-        sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
+    char recv_key[] = "host_port";
+    char ipbuf[60] = {0};
+    char portbuf[16] = {0};
+    unsigned int port = 0;
 
-        greentea_send_kv("host_ip", " ");
-        greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
+    UDPSocket sock;
+    sock.open(&eth);
+    sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
 
-        greentea_send_kv("host_port", " ");
-        greentea_parse_kv(recv_key, portbuf, sizeof(recv_key), sizeof(ipbuf));
-        sscanf(portbuf, "%u", &port);
+    greentea_send_kv("host_ip", " ");
+    greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
 
-        printf("MBED: UDP Server IP address received: %s:%d \n", ipbuf, port);
-        SocketAddress udp_addr(ipbuf, port);
+    greentea_send_kv("host_port", " ");
+    greentea_parse_kv(recv_key, portbuf, sizeof(recv_key), sizeof(ipbuf));
+    sscanf(portbuf, "%u", &port);
 
-        int success = 0;
-        int i = 0;
-        while (success < ECHO_LOOPS) {
-            prep_buffer(uuid, uuid_len, tx_buffer, sizeof(tx_buffer));
-            const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
-            if (ret >= 0) {
-                printf("[%02d] sent %d Bytes - %.*s  \n", i, ret, ret, tx_buffer);
-            } else {
-                printf("[%02d] Network error %d\n", i, ret);
-                i++;
-                continue;
-            }
+    printf("MBED: UDP Server IP address received: %s:%d \n", ipbuf, port);
+    SocketAddress udp_addr(ipbuf, port);
 
-            SocketAddress temp_addr;
-            const int n = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
-            if (n >= 0) {
-                printf("[%02d] receive %d Bytes - %.*s  \n", i, n, n, tx_buffer);
-            } else {
-                printf("[%02d] Network error %d\n", i, n);
-                i++;
-                continue;
-            }
-
-            if ((temp_addr == udp_addr &&
-                 n == sizeof(tx_buffer) &&
-                 memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
-                success += 1;
-
-                printf("[%02d] success #%d\n", i, success);
-            }
+    int success = 0;
+    int i = 0;
+    while (success < ECHO_LOOPS) {
+        prep_buffer(uuid, uuid_len, tx_buffer, sizeof(tx_buffer));
+        const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
+        if (ret >= 0) {
+            printf("[%02d] sent %d bytes - %.*s  \n", i, ret, ret, tx_buffer);
+        } else {
+            printf("[%02d] Network error %d\n", i, ret);
             i++;
+            continue;
         }
 
-        bool result = success == ECHO_LOOPS;
+        SocketAddress temp_addr;
+        const int n = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
+        if (n >= 0) {
+            printf("[%02d] recv %d bytes - %.*s  \n", i, n, n, tx_buffer);
+        } else {
+            printf("[%02d] Network error %d\n", i, n);
+            i++;
+            continue;
+        }
 
-        sock.close();
-        eth.disconnect();
-        GREENTEA_TESTSUITE_RESULT(result);
+        if ((temp_addr == udp_addr &&
+             n == sizeof(tx_buffer) &&
+             memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
+            success += 1;
+
+            printf("[%02d] success #%d\n", i, success);
+            i++;
+            continue;
+        }
+
+        // failed, clean out any remaining bad packets
+        sock.set_timeout(0);
+        while (true) {
+            err = sock.recvfrom(NULL, NULL, 0);
+            if (err == NSAPI_ERROR_WOULD_BLOCK) {
+                break;
+            }
+        }
+        sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
     }
+
+    bool result = success == ECHO_LOOPS;
+
+    sock.close();
+    eth.disconnect();
+    GREENTEA_TESTSUITE_RESULT(result);
 }
