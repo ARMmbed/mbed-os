@@ -68,11 +68,6 @@ if __name__ == '__main__':
                       default=False,
                       help="Compile the rpc library")
 
-    parser.add_argument("-e", "--eth",
-                      action="store_true", dest="eth",
-                      default=False,
-                      help="Compile the ethernet library")
-
     parser.add_argument("-U", "--usb_host",
                       action="store_true",
                       dest="usb_host",
@@ -90,12 +85,6 @@ if __name__ == '__main__':
                       dest="dsp",
                       default=False,
                       help="Compile the DSP library")
-
-    parser.add_argument("-b", "--ublox",
-                      action="store_true",
-                      dest="ublox",
-                      default=False,
-                      help="Compile the u-blox library")
 
     parser.add_argument( "--cpputest",
                       action="store_true",
@@ -178,16 +167,12 @@ if __name__ == '__main__':
         libraries.extend(["rtx", "rtos"])
     if options.rpc:
         libraries.extend(["rpc"])
-    if options.eth:
-        libraries.append("eth")
     if options.usb:
         libraries.append("usb")
     if options.usb_host:
         libraries.append("usb_host")
     if options.dsp:
         libraries.extend(["dsp"])
-    if options.ublox:
-        libraries.extend(["rtx", "rtos", "usb_host", "ublox"])
     if options.cpputest_lib:
         libraries.extend(["cpputest"])
 
