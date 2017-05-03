@@ -43,7 +43,7 @@ void prep_buffer(char *uuid_buffer, size_t uuid_len, char *tx_buffer, size_t tx_
 
 int main() {
     char uuid[48] = {0};
-    GREENTEA_SETUP_UUID(60, "udp_echo", uuid, 48);
+    GREENTEA_SETUP_UUID(120, "udp_echo", uuid, 48);
     printf("Got a uuid of %s\r\n", uuid);
     size_t uuid_len = strlen(uuid);
     EthernetInterface eth;

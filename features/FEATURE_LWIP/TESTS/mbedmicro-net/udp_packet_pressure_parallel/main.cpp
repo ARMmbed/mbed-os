@@ -250,7 +250,7 @@ PressureTest *pressure_tests[MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS];
 
 
 int main() {
-    GREENTEA_SETUP(2*60, "udp_echo");
+    GREENTEA_SETUP(120, "udp_echo");
 
     uint8_t *buffer;
     size_t buffer_size;
@@ -307,7 +307,7 @@ int main() {
     printf("MBED: Time taken: %fs\r\n", timer.read());
     printf("MBED: Speed: %.3fkb/s\r\n",
             MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_THREADS*
-            8*(2*MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX - 
+            8*(2*MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX -
             MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) / (1000*timer.read()));
 
     net.disconnect();

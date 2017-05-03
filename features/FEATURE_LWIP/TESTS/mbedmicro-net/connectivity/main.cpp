@@ -51,7 +51,7 @@ void test_bring_up_down() {
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(60, "default_auto");
+    GREENTEA_SETUP(120, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
