@@ -26,7 +26,15 @@
 
 namespace rtos {
 
+Semaphore::Semaphore(int32_t count) {
+    constructor(count, 1024);
+}
+
 Semaphore::Semaphore(int32_t count, uint16_t max_count) {
+    constructor(count, max_count);
+}
+
+void Semaphore::constructor(int32_t count, uint16_t max_count) {
     memset(&_obj_mem, 0, sizeof(_obj_mem));
     memset(&_attr, 0, sizeof(_attr));
     _attr.cb_mem = &_obj_mem;
