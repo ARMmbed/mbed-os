@@ -38,11 +38,16 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
 int main() {
     char uuid[48] = {0};
     GREENTEA_SETUP_UUID(120, "default_auto", uuid, 48);
-    mbed_set_mac_address(uuid, /*coerce control bits*/ 1);
+
+    // create mac address based on uuid
+    uint64_t mac = 0;
+    for (int i = 0; i < sizeof(uuid); i++) {
+        mac += uuid[i];
+    }
+    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
 
     bool result = false;
     EthernetInterface eth;
-    //eth.init(); //Use DHCP
     eth.connect();
     printf("TCP client IP Address is %s\r\n", eth.get_ip_address());
 

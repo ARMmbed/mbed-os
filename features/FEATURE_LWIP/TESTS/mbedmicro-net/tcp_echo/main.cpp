@@ -31,7 +31,14 @@ void prep_buffer(char *tx_buffer, size_t tx_size) {
 int main() {
     char uuid[48] = {0};
     GREENTEA_SETUP_UUID(120, "tcp_echo", uuid, 48);
-    mbed_set_mac_address(uuid, /*coerce control bits TRUE */ 1); 
+
+    // create mac address based on uuid
+    uint64_t mac = 0;
+    for (int i = 0; i < sizeof(uuid); i++) {
+        mac += uuid[i];
+    }
+    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
+
     EthernetInterface eth;
     int err = eth.connect();
 
