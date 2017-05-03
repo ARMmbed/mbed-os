@@ -109,7 +109,7 @@ void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
 
 int main() {
     char uuid[48] = {0};
-    GREENTEA_SETUP_UUID(60, "tcp_echo", uuid, 48);
+    GREENTEA_SETUP_UUID(120, "tcp_echo", uuid, 48);
     mbed_set_mac_address(uuid, /*coerce control bits*/ 1);
 
     generate_buffer(&buffer, &buffer_size,

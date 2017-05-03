@@ -92,7 +92,7 @@ void test_dns_literal_pref() {
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
     char uuid[48] = {0};
-    GREENTEA_SETUP_UUID(60, "default_auto", uuid, 48);
+    GREENTEA_SETUP_UUID(120, "default_auto", uuid, 48);
     mbed_set_mac_address(uuid, /*coerce control bits*/ 1);
     net_bringup();
     return verbose_test_setup_handler(number_of_cases);

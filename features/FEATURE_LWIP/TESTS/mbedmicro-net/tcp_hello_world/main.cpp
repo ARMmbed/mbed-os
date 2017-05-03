@@ -37,7 +37,7 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
 
 int main() {
     char uuid[48] = {0};
-    GREENTEA_SETUP_UUID(60, "default_auto", uuid, 48);
+    GREENTEA_SETUP_UUID(120, "default_auto", uuid, 48);
     mbed_set_mac_address(uuid, /*coerce control bits*/ 1);
 
     bool result = false;
