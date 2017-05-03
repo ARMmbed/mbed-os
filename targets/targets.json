@@ -534,18 +534,18 @@
         "is_disk_virtual": true,
         "inherits": ["Target"],
         "detect_code": ["0218"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name": "MKL82Z128xxx7"
     },
     "USENSE": {
         "core": "Cortex-M0+",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KL82Z", "USENSE"],
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KL82Z"],
         "macros": ["CPU_MKL82Z128VLK7", "FSL_RTOS_MBED"],
         "is_disk_virtual": true,
         "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["5"],
         "device_name" : "MKL82Z128xxx7"
     },
@@ -644,7 +644,7 @@
     "UBRIDGE": {
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "K82F", "UBRIDGE"],
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "K82F"],
         "is_disk_virtual": true,
         "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
