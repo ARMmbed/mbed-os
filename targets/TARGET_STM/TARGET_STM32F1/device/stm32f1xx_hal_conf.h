@@ -2,15 +2,15 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_conf.h
   * @author  MCD Application Team
-  * @version V1.0.4
-  * @date    29-April-2016
+  * @version V1.1.0
+  * @date    14-April-2017
   * @brief   HAL configuration template file.
   *          This file should be copied to the application folder and renamed
   *          to stm32f1xx_hal_conf.h.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -83,6 +83,7 @@
 #define HAL_UART_MODULE_ENABLED
 #define HAL_USART_MODULE_ENABLED
 #define HAL_WWDG_MODULE_ENABLED
+#define HAL_MMC_MODULE_ENABLED
 
 /* ########################## Oscillator Values adaptation ####################*/
 /**
@@ -92,14 +93,14 @@
   */
 #if !defined  (HSE_VALUE) 
 #if defined(USE_STM3210C_EVAL)
-  #define HSE_VALUE    ((uint32_t)25000000) /*!< Value of the External oscillator in Hz */
+  #define HSE_VALUE    25000000U /*!< Value of the External oscillator in Hz */
 #else
-  #define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External oscillator in Hz */
+  #define HSE_VALUE    8000000U /*!< Value of the External oscillator in Hz */
 #endif
 #endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
-  #define HSE_STARTUP_TIMEOUT    ((uint32_t)100)   /*!< Time out for HSE start up, in ms */
+  #define HSE_STARTUP_TIMEOUT    100U      /*!< Time out for HSE start up, in ms */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
@@ -108,23 +109,29 @@
   *        (when HSI is used as system clock source, directly or through the PLL). 
   */
 #if !defined  (HSI_VALUE)
-  #define HSI_VALUE    ((uint32_t)8000000) /*!< Value of the Internal oscillator in Hz*/
+  #define HSI_VALUE              8000000U  /*!< Value of the Internal oscillator in Hz */
 #endif /* HSI_VALUE */
 
+/**
+  * @brief Internal Low Speed oscillator (LSI) value.
+  */
+#if !defined  (LSI_VALUE) 
+ #define LSI_VALUE               40000U    /*!< LSI Typical Value in Hz */
+#endif /* LSI_VALUE */                     /*!< Value of the Internal Low Speed oscillator in Hz
+                                                The real value may vary depending on the variations
+                                                in voltage and temperature. */
 /**
   * @brief External Low Speed oscillator (LSE) value.
   *        This value is used by the UART, RTC HAL module to compute the system frequency
   */
 #if !defined  (LSE_VALUE)
-  #define LSE_VALUE    ((uint32_t)32768) /*!< Value of the External oscillator in Hz*/
+ #define LSE_VALUE               32768U    /*!< Value of the External Low Speed oscillator in Hz */
 #endif /* LSE_VALUE */
 
-   
 #if !defined  (LSE_STARTUP_TIMEOUT)
-  #define LSE_STARTUP_TIMEOUT    ((uint32_t)5000)   /*!< Time out for LSE start up, in ms */
-#endif /* HSE_STARTUP_TIMEOUT */
+  #define LSE_STARTUP_TIMEOUT    5000U     /*!< Time out for LSE start up, in ms */
+#endif /* LSE_STARTUP_TIMEOUT */
 
-   
 /* Tip: To avoid modifying this file each time you need to use different HSE,
    ===  you can define the HSE value in your toolchain compiler preprocessor. */
 
@@ -132,53 +139,52 @@
 /**
   * @brief This is the HAL system configuration section
   */     
-#define  VDD_VALUE                    ((uint32_t)3300) /*!< Value of VDD in mv */           
-#define  TICK_INT_PRIORITY            ((uint32_t)0x000F)    /*!< tick interrupt priority */            
-#define  USE_RTOS                     0     
-#define  PREFETCH_ENABLE              1
+#define  VDD_VALUE                    3300U /*!< Value of VDD in mv */
+#define  TICK_INT_PRIORITY            0x0FU /*!< tick interrupt priority */
+#define  USE_RTOS                     0U
+#define  PREFETCH_ENABLE              1U
 
 /* ########################## Assert Selection ############################## */
 /**
   * @brief Uncomment the line below to expanse the "assert_param" macro in the 
   *        HAL drivers code
   */
-/*#define USE_FULL_ASSERT    1*/ 
-
+/* #define USE_FULL_ASSERT    1U */
 
 /* ################## Ethernet peripheral configuration ##################### */
 
 /* Section 1 : Ethernet peripheral configuration */
 
 /* MAC ADDRESS: MAC_ADDR0:MAC_ADDR1:MAC_ADDR2:MAC_ADDR3:MAC_ADDR4:MAC_ADDR5 */
-#define MAC_ADDR0   2
-#define MAC_ADDR1   0
-#define MAC_ADDR2   0
-#define MAC_ADDR3   0
-#define MAC_ADDR4   0
-#define MAC_ADDR5   0
+#define MAC_ADDR0   2U
+#define MAC_ADDR1   0U
+#define MAC_ADDR2   0U
+#define MAC_ADDR3   0U
+#define MAC_ADDR4   0U
+#define MAC_ADDR5   0U
 
 /* Definition of the Ethernet driver buffers size and count */   
 #define ETH_RX_BUF_SIZE                ETH_MAX_PACKET_SIZE /* buffer size for receive               */
 #define ETH_TX_BUF_SIZE                ETH_MAX_PACKET_SIZE /* buffer size for transmit              */
-#define ETH_RXBUFNB                    ((uint32_t)8)       /* 4 Rx buffers of size ETH_RX_BUF_SIZE  */
-#define ETH_TXBUFNB                    ((uint32_t)4)       /* 4 Tx buffers of size ETH_TX_BUF_SIZE  */
+#define ETH_RXBUFNB                    8U                  /* 8 Rx buffers of size ETH_RX_BUF_SIZE  */
+#define ETH_TXBUFNB                    4U                  /* 4 Tx buffers of size ETH_TX_BUF_SIZE  */
 
 /* Section 2: PHY configuration section */
 
 /* DP83848 PHY Address*/ 
-#define DP83848_PHY_ADDRESS             0x01
+#define DP83848_PHY_ADDRESS             0x01U
 /* PHY Reset delay these values are based on a 1 ms Systick interrupt*/ 
-#define PHY_RESET_DELAY                 ((uint32_t)0x000000FF)
+#define PHY_RESET_DELAY                 0x000000FFU
 /* PHY Configuration delay */
-#define PHY_CONFIG_DELAY                ((uint32_t)0x00000FFF)
+#define PHY_CONFIG_DELAY                0x00000FFFU
 
-#define PHY_READ_TO                     ((uint32_t)0x0000FFFF)
-#define PHY_WRITE_TO                    ((uint32_t)0x0000FFFF)
+#define PHY_READ_TO                     0x0000FFFFU
+#define PHY_WRITE_TO                    0x0000FFFFU
 
 /* Section 3: Common PHY Registers */
 
-#define PHY_BCR                         ((uint16_t)0x00)    /*!< Transceiver Basic Control Register   */
-#define PHY_BSR                         ((uint16_t)0x01)    /*!< Transceiver Basic Status Register    */
+#define PHY_BCR                         ((uint16_t)0x0000)  /*!< Transceiver Basic Control Register   */
+#define PHY_BSR                         ((uint16_t)0x0001)  /*!< Transceiver Basic Status Register    */
  
 #define PHY_RESET                       ((uint16_t)0x8000)  /*!< PHY Reset */
 #define PHY_LOOPBACK                    ((uint16_t)0x4000)  /*!< Select loop-back mode */
@@ -197,9 +203,9 @@
   
 /* Section 4: Extended PHY Registers */
 
-#define PHY_SR                          ((uint16_t)0x10)    /*!< PHY status register Offset                      */
-#define PHY_MICR                        ((uint16_t)0x11)    /*!< MII Interrupt Control Register                  */
-#define PHY_MISR                        ((uint16_t)0x12)    /*!< MII Interrupt Status and Misc. Control Register */
+#define PHY_SR                          ((uint16_t)0x0010)  /*!< PHY status register Offset                      */
+#define PHY_MICR                        ((uint16_t)0x0011)  /*!< MII Interrupt Control Register                  */
+#define PHY_MISR                        ((uint16_t)0x0012)  /*!< MII Interrupt Status and Misc. Control Register */
  
 #define PHY_LINK_STATUS                 ((uint16_t)0x0001)  /*!< PHY Link mask                                   */
 #define PHY_SPEED_STATUS                ((uint16_t)0x0002)  /*!< PHY Speed mask                                  */
@@ -211,7 +217,14 @@
 #define PHY_MISR_LINK_INT_EN            ((uint16_t)0x0020)  /*!< Enable Interrupt on change of link status       */
 #define PHY_LINK_INTERRUPT              ((uint16_t)0x2000)  /*!< PHY link status interrupt mask                  */
 
+/* ################## SPI peripheral configuration ########################## */
 
+/* CRC FEATURE: Use to activate CRC feature inside HAL SPI Driver
+* Activated: CRC code is present inside driver
+* Deactivated: CRC code cleaned from driver
+*/
+
+#define USE_SPI_CRC                     1U
 
 /* Includes ------------------------------------------------------------------*/
 /**
@@ -334,11 +347,13 @@
  #include "stm32f1xx_hal_pcd.h"
 #endif /* HAL_PCD_MODULE_ENABLED */
 
-
 #ifdef HAL_HCD_MODULE_ENABLED
  #include "stm32f1xx_hal_hcd.h"
-#endif /* HAL_HCD_MODULE_ENABLED */   
-   
+#endif /* HAL_HCD_MODULE_ENABLED */
+
+#ifdef HAL_MMC_MODULE_ENABLED
+ #include "stm32f4xx_hal_mmc.h"
+#endif /* HAL_MMC_MODULE_ENABLED */
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT
@@ -353,8 +368,9 @@
   #include "mbed_assert.h"
   #define assert_param(expr) MBED_ASSERT(expr)
 #else
-  #define assert_param(expr) ((void)0)
+  #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
+
 
 #ifdef __cplusplus
 }

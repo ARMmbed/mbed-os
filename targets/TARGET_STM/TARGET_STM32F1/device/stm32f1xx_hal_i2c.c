@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_i2c.c
   * @author  MCD Application Team
-  * @version V1.0.5
-  * @date    06-December-2016
+  * @version V1.1.0
+  * @date    14-April-2017
   * @brief   I2C HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Inter Integrated Circuit (I2C) peripheral:
@@ -669,7 +669,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Transmit(I2C_HandleTypeDef *hi2c, uint16_t DevA
       hi2c->XferCount--;
       hi2c->XferSize--;
 
-      if((__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BTF) == SET) && (Size != 0U))
+      if((__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BTF) == SET) && (hi2c->XferSize != 0U))
       {
         /* Write data to DR */
         hi2c->Instance->DR = (*hi2c->pBuffPtr++);
@@ -1065,7 +1065,7 @@ HAL_StatusTypeDef HAL_I2C_Slave_Transmit(I2C_HandleTypeDef *hi2c, uint8_t *pData
       hi2c->XferCount--;
       hi2c->XferSize--;
 
-      if((__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BTF) == SET) && (Size != 0U))
+      if((__HAL_I2C_GET_FLAG(hi2c, I2C_FLAG_BTF) == SET) && (hi2c->XferSize != 0U))
       {
         /* Write data to DR */
         hi2c->Instance->DR = (*hi2c->pBuffPtr++);
@@ -2197,6 +2197,9 @@ HAL_StatusTypeDef HAL_I2C_Master_Receive_DMA(I2C_HandleTypeDef *hi2c, uint16_t D
   */
 HAL_StatusTypeDef HAL_I2C_Master_Abort_IT(I2C_HandleTypeDef *hi2c, uint16_t DevAddress)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(DevAddress); 
+  
   /* Abort Master transfer during Receive or Transmit process    */
   if(hi2c->Mode == HAL_I2C_MODE_MASTER)
   {
@@ -2704,7 +2707,7 @@ HAL_StatusTypeDef HAL_I2C_Mem_Read(I2C_HandleTypeDef *hi2c, uint16_t DevAddress,
           hi2c->XferCount--;
         }
         /* Two bytes */
-        else if(Size == 2U)
+        else if(hi2c->XferSize == 2U)
         {
           /* Wait until BTF flag is set */
           if(I2C_WaitOnFlagUntilTimeout(hi2c, I2C_FLAG_BTF, RESET, Timeout, tickstart) != HAL_OK)
