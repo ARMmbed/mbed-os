@@ -87,9 +87,9 @@ public:
     }
 };
 
+Echo *echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
 
 void test_tcp_echo_parallel() {
-    Echo echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
     int err = net.connect();
     TEST_ASSERT_EQUAL(0, err);
 
@@ -116,11 +116,13 @@ void test_tcp_echo_parallel() {
 
     // Startup echo threads in parallel
     for (int i = 0; i < MBED_CFG_TCP_CLIENT_ECHO_THREADS; i++) {
-        echoers[i].start();
+        echoers[i] = new Echo;
+        echoers[i]->start();
     }
 
     for (int i = 0; i < MBED_CFG_TCP_CLIENT_ECHO_THREADS; i++) {
-        echoers[i].join();
+        echoers[i]->join();
+        delete echoers[i];
     }
 
     net.disconnect();
