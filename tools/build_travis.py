@@ -24,7 +24,7 @@ import sys
 
 ################################################################################
 # Configure builds here
-# "libs" can contain "dsp", "usb_host", "usb"
+# "libs" can contain "dsp", "usb"
 
 build_list = (
     { "target": "LPC1768",           "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
