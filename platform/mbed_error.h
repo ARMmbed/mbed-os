@@ -53,7 +53,7 @@
  * if(x >= 5) {
  *     error("expected x to be less than 5, but got %d", x);
  * }
- * #endcode
+ * @endcode
  */
 
 #ifdef __cplusplus

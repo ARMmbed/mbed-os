@@ -33,7 +33,7 @@ extern "C" {
 /** Determine the current interrupts enabled state
   *
   * This function can be called to determine whether or not interrupts are currently enabled.
-  * \note
+  * @note
   * NOTE:
   * This function works for both cortex-A and cortex-M, although the underlyng implementation
   * differs.
@@ -44,7 +44,7 @@ bool core_util_are_interrupts_enabled(void);
 /** Mark the start of a critical section
   *
   * This function should be called to mark the start of a critical section of code.
-  * \note
+  * @note
   * NOTES:
   * 1) The use of this style of critical section is targetted at C based implementations.
   * 2) These critical sections can be nested.
@@ -57,7 +57,7 @@ void core_util_critical_section_enter(void);
 /** Mark the end of a critical section
   *
   * This function should be called to mark the end of a critical section of code.
-  * \note
+  * @note
   * NOTES:
   * 1) The use of this style of critical section is targetted at C based implementations.
   * 2) These critical sections can be nested.
@@ -82,7 +82,7 @@ void core_util_critical_section_exit(void);
  * @param[in,out] expectedCurrentValue A pointer to some location holding the
  *                              expected current value of the data being set atomically.
  *                              The computed 'desiredValue' should be a function of this current value.
- *                              @Note: This is an in-out parameter. In the
+ *                              @note: This is an in-out parameter. In the
  *                              failure case of atomic_cas (where the
  *                              destination isn't set), the pointee of expectedCurrentValue is
  *                              updated with the current value.
@@ -105,7 +105,7 @@ void core_util_critical_section_exit(void);
  *     return true
  * }
  *
- * @Note: In the failure case (where the destination isn't set), the value
+ * @note: In the failure case (where the destination isn't set), the value
  * pointed to by expectedCurrentValue is still updated with the current value.
  * This property helps writing concise code for the following incr:
  *
@@ -135,7 +135,7 @@ bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_
  * @param[in,out] expectedCurrentValue A pointer to some location holding the
  *                              expected current value of the data being set atomically.
  *                              The computed 'desiredValue' should be a function of this current value.
- *                              @Note: This is an in-out parameter. In the
+ *                              @note: This is an in-out parameter. In the
  *                              failure case of atomic_cas (where the
  *                              destination isn't set), the pointee of expectedCurrentValue is
  *                              updated with the current value.
@@ -158,7 +158,7 @@ bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_
  *     return true
  * }
  *
- * @Note: In the failure case (where the destination isn't set), the value
+ * @note: In the failure case (where the destination isn't set), the value
  * pointed to by expectedCurrentValue is still updated with the current value.
  * This property helps writing concise code for the following incr:
  *
@@ -188,7 +188,7 @@ bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uin
  * @param[in,out] expectedCurrentValue A pointer to some location holding the
  *                              expected current value of the data being set atomically.
  *                              The computed 'desiredValue' should be a function of this current value.
- *                              @Note: This is an in-out parameter. In the
+ *                              @note: This is an in-out parameter. In the
  *                              failure case of atomic_cas (where the
  *                              destination isn't set), the pointee of expectedCurrentValue is
  *                              updated with the current value.
@@ -211,7 +211,7 @@ bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uin
  *     return true
  * }
  *
- * @Note: In the failure case (where the destination isn't set), the value
+ * @note: In the failure case (where the destination isn't set), the value
  * pointed to by expectedCurrentValue is still updated with the current value.
  * This property helps writing concise code for the following incr:
  *
@@ -241,7 +241,7 @@ bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uin
  * @param[in,out] expectedCurrentValue A pointer to some location holding the
  *                              expected current value of the data being set atomically.
  *                              The computed 'desiredValue' should be a function of this current value.
- *                              @Note: This is an in-out parameter. In the
+ *                              @note: This is an in-out parameter. In the
  *                              failure case of atomic_cas (where the
  *                              destination isn't set), the pointee of expectedCurrentValue is
  *                              updated with the current value.
@@ -264,7 +264,7 @@ bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uin
  *     return true
  * }
  *
- * @Note: In the failure case (where the destination isn't set), the value
+ * @note: In the failure case (where the destination isn't set), the value
  * pointed to by expectedCurrentValue is still updated with the current value.
  * This property helps writing concise code for the following incr:
  *

@@ -38,7 +38,7 @@ namespace mbed {
  *  reflect this.
  *
  *  @note to create a directory, @see Dir
- *  @Note Synchronization level: Set by subclass
+ *  @note Synchronization level: Set by subclass
  *  @ingroup platform
  */
 class DirHandle {
@@ -47,7 +47,6 @@ public:
 
     /** Read the next directory entry
      *
-     *  @param path     The buffer to read the null terminated path name in to
      *  @param ent      The directory entry to fill out
      *  @return         1 on reading a filename, 0 at end of directory, negative error on failure
      */
