@@ -158,19 +158,19 @@ void serial_free(serial_t *obj)
       
     // Reset UART and disable clock
     if (obj_s->uart == UART_1) {
-        __USART1_FORCE_RESET();
-        __USART1_RELEASE_RESET();
-        __USART1_CLK_DISABLE();
+        __HAL_RCC_USART1_FORCE_RESET();
+        __HAL_RCC_USART1_RELEASE_RESET();
+        __HAL_RCC_USART1_CLK_DISABLE();
     }
     if (obj_s->uart == UART_2) {
-        __USART2_FORCE_RESET();
-        __USART2_RELEASE_RESET();
-        __USART2_CLK_DISABLE();
+        __HAL_RCC_USART2_FORCE_RESET();
+        __HAL_RCC_USART2_RELEASE_RESET();
+        __HAL_RCC_USART2_CLK_DISABLE();
     }
     if (obj_s->uart == UART_3) {
-        __USART3_FORCE_RESET();
-        __USART3_RELEASE_RESET();
-        __USART3_CLK_DISABLE();
+        __HAL_RCC_USART3_FORCE_RESET();
+        __HAL_RCC_USART3_RELEASE_RESET();
+        __HAL_RCC_USART3_CLK_DISABLE();
     }
 
     // Configure GPIOs
