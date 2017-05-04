@@ -81,7 +81,11 @@ public:
       @return  event that contains mail information or error code.
     */
     osEvent get(uint32_t millisec=osWaitForever) {
-        return _queue.get(millisec);
+        osEvent evt = _queue.get(millisec);
+        if (evt.status == osEventMessage) {
+            evt.status = osEventMail;
+        }
+        return evt;
     }
 
     /** Free a memory block from a mail.
