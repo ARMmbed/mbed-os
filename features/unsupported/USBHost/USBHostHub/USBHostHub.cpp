@@ -50,12 +50,14 @@
 #define C_PORT_OVER_CURRENT (1 << 19)
 #define C_PORT_RESET        (1 << 20)
 
-USBHostHub::USBHostHub() {
+USBHostHub::USBHostHub()
+{
     host = NULL;
     init();
 }
 
-void USBHostHub::init() {
+void USBHostHub::init()
+{
     dev_connected = false;
     dev = NULL;
     int_in = NULL;
@@ -70,7 +72,8 @@ void USBHostHub::init() {
     }
 }
 
-void USBHostHub::setHost(USBHost * host_) {
+void USBHostHub::setHost(USBHost * host_)
+{
     host = host_;
 }
 
@@ -129,7 +132,8 @@ bool USBHostHub::connect(USBDeviceConnected * dev)
     return false;
 }
 
-void USBHostHub::disconnect() {
+void USBHostHub::disconnect()
+{
     init();
 }
 
@@ -141,9 +145,9 @@ void USBHostHub::disconnect() {
 /*virtual*/ bool USBHostHub::parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) //Must return true if the interface should be parsed
 {
     if ((hub_intf == -1) &&
-        (intf_class == HUB_CLASS) &&
-        (intf_subclass == 0) &&
-        (intf_protocol == 0)) {
+            (intf_class == HUB_CLASS) &&
+            (intf_subclass == 0) &&
+            (intf_protocol == 0)) {
         hub_intf = intf_nb;
         return true;
     }
@@ -161,15 +165,18 @@ void USBHostHub::disconnect() {
     return false;
 }
 
-void USBHostHub::deviceConnected(USBDeviceConnected * dev) {
+void USBHostHub::deviceConnected(USBDeviceConnected * dev)
+{
     device_children[dev->getPort() - 1] = dev;
 }
 
-void USBHostHub::deviceDisconnected(USBDeviceConnected * dev) {
+void USBHostHub::deviceDisconnected(USBDeviceConnected * dev)
+{
     device_children[dev->getPort() - 1] = NULL;
 }
 
-void USBHostHub::hubDisconnected() {
+void USBHostHub::hubDisconnected()
+{
     for (uint8_t i = 0; i < MAX_HUB_PORT; i++) {
         if (device_children[i] != NULL) {
             host->freeDevice(device_children[i]);
@@ -177,7 +184,8 @@ void USBHostHub::hubDisconnected() {
     }
 }
 
-void USBHostHub::rxHandler() {
+void USBHostHub::rxHandler()
+{
     uint32_t status;
     if (int_in) {
         if (int_in->getState() == USB_TYPE_IDLE) {
@@ -217,7 +225,8 @@ void USBHostHub::rxHandler() {
     }
 }
 
-void USBHostHub::portReset(uint8_t port) {
+void USBHostHub::portReset(uint8_t port)
+{
     // reset port
     uint32_t status;
     USB_DBG("reset port %d on hub: %p [this: %p]", port, dev, this)
@@ -228,10 +237,12 @@ void USBHostHub::portReset(uint8_t port) {
     while(1) {
         status = getPortStatus(port);
         /*  disconnection since reset request */
-        if (!(status & PORT_CONNECTION))
+        if (!(status & PORT_CONNECTION)) {
             break;
-        if (status & (PORT_ENABLE | PORT_RESET))
+        }
+        if (status & (PORT_ENABLE | PORT_RESET)) {
             break;
+        }
         if (status & PORT_OVER_CURRENT) {
             USB_ERR("OVER CURRENT DETECTED\r\n");
             clearPortFeature(PORT_OVER_CURRENT, port);
@@ -242,7 +253,8 @@ void USBHostHub::portReset(uint8_t port) {
     }
 }
 
-void USBHostHub::setPortFeature(uint32_t feature, uint8_t port) {
+void USBHostHub::setPortFeature(uint32_t feature, uint8_t port)
+{
     host->controlWrite( dev,
                         USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS | USB_RECIPIENT_INTERFACE | USB_RECIPIENT_ENDPOINT,
                         SET_FEATURE,
@@ -252,7 +264,8 @@ void USBHostHub::setPortFeature(uint32_t feature, uint8_t port) {
                         0);
 }
 
-void USBHostHub::clearPortFeature(uint32_t feature, uint8_t port) {
+void USBHostHub::clearPortFeature(uint32_t feature, uint8_t port)
+{
     host->controlWrite( dev,
                         USB_HOST_TO_DEVICE | USB_REQUEST_TYPE_CLASS | USB_RECIPIENT_INTERFACE | USB_RECIPIENT_ENDPOINT,
                         CLEAR_FEATURE,
@@ -262,7 +275,8 @@ void USBHostHub::clearPortFeature(uint32_t feature, uint8_t port) {
                         0);
 }
 
-uint32_t USBHostHub::getPortStatus(uint8_t port) {
+uint32_t USBHostHub::getPortStatus(uint8_t port)
+{
     uint32_t st;
     host->controlRead(  dev,
                         USB_DEVICE_TO_HOST | USB_REQUEST_TYPE_CLASS | USB_RECIPIENT_INTERFACE | USB_RECIPIENT_ENDPOINT,

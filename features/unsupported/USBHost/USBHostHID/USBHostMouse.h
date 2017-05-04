@@ -26,7 +26,8 @@
 /**
  * A class to communicate a USB mouse
  */
-class USBHostMouse : public IUSBEnumerator {
+class USBHostMouse : public IUSBEnumerator
+{
 public:
 
     /**
@@ -53,7 +54,8 @@ public:
      *
      * @param ptr function pointer
      */
-    inline void attachEvent(void (*ptr)(uint8_t buttons, int8_t x, int8_t y, int8_t z)) {
+    inline void attachEvent(void (*ptr)(uint8_t buttons, int8_t x, int8_t y, int8_t z))
+    {
         if (ptr != NULL) {
             onUpdate = ptr;
         }
@@ -64,7 +66,8 @@ public:
      *
      * @param ptr function pointer
      */
-    inline void attachButtonEvent(void (*ptr)(uint8_t buttons)) {
+    inline void attachButtonEvent(void (*ptr)(uint8_t buttons))
+    {
         if (ptr != NULL) {
             onButtonUpdate = ptr;
         }
@@ -75,7 +78,8 @@ public:
      *
      * @param ptr function pointer
      */
-    inline void attachXEvent(void (*ptr)(int8_t x)) {
+    inline void attachXEvent(void (*ptr)(int8_t x))
+    {
         if (ptr != NULL) {
             onXUpdate = ptr;
         }
@@ -86,7 +90,8 @@ public:
      *
      * @param ptr function pointer
      */
-    inline void attachYEvent(void (*ptr)(int8_t y)) {
+    inline void attachYEvent(void (*ptr)(int8_t y))
+    {
         if (ptr != NULL) {
             onYUpdate = ptr;
         }
@@ -97,7 +102,8 @@ public:
      *
      * @param ptr function pointer
      */
-    inline void attachZEvent(void (*ptr)(int8_t z)) {
+    inline void attachZEvent(void (*ptr)(int8_t z))
+    {
         if (ptr != NULL) {
             onZUpdate = ptr;
         }
