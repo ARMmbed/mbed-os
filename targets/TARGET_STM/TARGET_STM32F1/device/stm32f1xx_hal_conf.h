@@ -352,7 +352,7 @@
 #endif /* HAL_HCD_MODULE_ENABLED */
 
 #ifdef HAL_MMC_MODULE_ENABLED
- #include "stm32f4xx_hal_mmc.h"
+ #include "stm32f1xx_hal_mmc.h"
 #endif /* HAL_MMC_MODULE_ENABLED */
 
 /* Exported macro ------------------------------------------------------------*/
