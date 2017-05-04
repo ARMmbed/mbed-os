@@ -29,10 +29,10 @@
 #include "drivers/spi/adi_spi.h"
 
 
-#define BUILD_MI_STATIC__
+#define BUILD_SPI_MI_STATIC__
 
-#if defined(BUILD_MI_STATIC)
-#warning "BUILD_MI_STATIC is defined"
+#if defined(BUILD_SPI_MI_STATIC)
+#warning "BUILD_SPI_MI_STATIC is defined"
 ADI_SPI_HANDLE      hSPIDevice0;
 uint8_t             SPIMem0[ADI_SPI_MEMORY_SIZE];
 ADI_SPI_HANDLE      hSPIDevice1;
@@ -40,7 +40,7 @@ uint8_t             SPIMem1[ADI_SPI_MEMORY_SIZE];
 ADI_SPI_HANDLE      hSPIDevice2;
 uint8_t             SPIMem2[ADI_SPI_MEMORY_SIZE];
 #else
-#warning "BUILD_MI_STATIC is NOT defined!!"
+#warning "BUILD_SPI_MI_STATIC is NOT defined!!"
 #endif
 
 
@@ -72,7 +72,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint8_t             *SPIMem;
 
 
-#if defined(BUILD_MI_STATIC)
+#if defined(BUILD_SPI_MI_STATIC)
     if (mosi == SPI0_MOSI) {
         nDeviceNum = SPI_0;
         phSPIDevice = &hSPIDevice0;
@@ -136,7 +136,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
             spi_cs = ADI_SPI_CS3;
         }
 
-        #if defined(BUILD_MI_STATIC)
+        #if defined(BUILD_SPI_MI_STATIC)
         adi_spi_SetChipSelect(hSPIDevice, spi_cs);
         #else
         adi_spi_SetChipSelect(*phSPIDevice, spi_cs);

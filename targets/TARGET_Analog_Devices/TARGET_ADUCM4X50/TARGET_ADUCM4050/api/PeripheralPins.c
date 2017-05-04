@@ -15,17 +15,17 @@
  */
 
 /*
-	The ADuCM4050 is made in two package variants.
-	
-	64 lead LFCSP & 72 ball WLCSP
-	
-	There are some differences for Port 2 between the two variants
-	WLCSP also has Port 3.
-	
-	The #define ADUCM4050_LFCSP is used to determine which variant the code
-	is built for.
-	
-	For LFCSP leave the #define in, to build for ADUCM4050_WLCSP remove.
+    The ADuCM4050 is made in two package variants.
+    
+    64 lead LFCSP & 72 ball WLCSP
+    
+    There are some differences for Port 2 between the two variants
+    WLCSP also has Port 3.
+    
+    The #define ADUCM4050_LFCSP is used to determine which variant the code
+    is built for.
+    
+    For LFCSP leave the #define in, to build for ADUCM4050_WLCSP remove.
 */
 #define ADUCM4050_LFCSP
 
@@ -34,13 +34,13 @@
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
     {P0_10, UART_0, 1},
-	{P1_15, UART_1, 2},
+    {P1_15, UART_1, 2},
     {NC  ,  NC    , 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {P0_11, UART_0, 1},
-	{P2_00, UART_1, 2},
+    {P2_00, UART_1, 2},
     {NC  ,  NC    , 0}
 };
 
@@ -81,6 +81,18 @@ const PinMap PinMap_SPI_SSEL[] = {
     {NC   , NC   , 0}
 };
 #endif
+
+/************I2C***************/
+const PinMap PinMap_I2C_SDA[] = {
+    {P0_05, I2C_0, 1},
+    {NC   , NC   , 0}
+};
+
+const PinMap PinMap_I2C_SCL[] = {
+    {P0_04, I2C_0, 1},
+    {NC   , NC   , 0}
+};
+
 
 #if NOT_YET
 /************RTC***************/

@@ -22,6 +22,7 @@
 //#include "target_config.h"
 #include "gpio_object.h"
 
+#include "adi_i2c.h"
 #include "adi_spi.h"
 
 #ifdef __cplusplus
@@ -45,14 +46,19 @@ struct trng_s {
     uint8_t dummy;
 };
 
+struct i2c_s {
+    uint32_t        instance;
+    ADI_I2C_HANDLE  I2C_Handle;
+    ADI_I2C_HANDLE  *pI2C_Handle;
+    uint8_t         I2C_Mem[ADI_I2C_MEMORY_SIZE];
+    uint32_t        error;
+};
+
 struct spi_s {
-    //SPI_Type *spi;
-    // MT_DEBUG  uint8_t dummy;
-    // MT_DEBUG  ADI_SPI_TypeDef *spi;
     uint32_t instance;
     ADI_SPI_HANDLE      hSPIDevice;
     ADI_SPI_HANDLE      *phSPIDevice;
-    uint8_t             SPIMem[ADI_SPI_MEMORY_SIZE];    /* Memory required for SPI driver */    
+    uint8_t             SPIMem[ADI_SPI_MEMORY_SIZE];    /* Memory required for SPI driver */
 };
 
 #include "gpio_object.h"

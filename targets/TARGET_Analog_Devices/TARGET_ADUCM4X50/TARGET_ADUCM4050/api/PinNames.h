@@ -18,15 +18,15 @@
 
 /*
 	The ADuCM4050 is made in two package variants.
-	
+
 	64 lead LFCSP & 72 ball WLCSP
-	
+
 	There are some differences for Port 2 between the two variants
 	WLCSP also has Port 3.
-	
+
 	The #define ADUCM4050_LFCSP is used to determine which variant the code
 	is built for.
-	
+
 	For LFCSP leave the #define in, to build for ADUCM4050_WLCSP remove.
 */
 #define ADUCM4050_LFCSP
@@ -104,8 +104,8 @@ typedef enum {
     P3_00  = (3 << GPIO_PORT_SHIFT | 0 ),
     P3_01  = (3 << GPIO_PORT_SHIFT | 1 ),
     P3_02  = (3 << GPIO_PORT_SHIFT | 2 ),
-    P3_03  = (3 << GPIO_PORT_SHIFT | 3 ),    
-#endif    
+    P3_03  = (3 << GPIO_PORT_SHIFT | 3 ),
+#endif
 
     // mbed original LED naming
     LED1 = P0_13,
@@ -147,8 +147,8 @@ typedef enum {
     D14 = P0_05,
     D15 = P0_04,
 
-    I2C_SCL = D15,
-    I2C_SDA = D14,
+    I2C_SCL = P0_04,
+    I2C_SDA = P0_05,
 
     // SPI Pins
     SPI0_SCLK = P0_00,
@@ -176,7 +176,7 @@ typedef enum {
     SPI2_CS2 = P2_10,
 #else
 	SPI2_CS2 = P2_15,
-#endif    
+#endif
     SPI2_CS3 = P2_07,
 
 //    A0 = ADC0,
