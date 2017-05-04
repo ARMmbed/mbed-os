@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from tools.paths import MBED_RTX, RTOS, RTOS_LIBRARIES, MBED_LIBRARIES,\
+from tools.paths import MBED_LIBRARIES,\
     MBED_RPC, RPC_LIBRARY, USB, USB_LIBRARIES, USB_HOST,\
     USB_HOST_LIBRARIES, DSP_ABSTRACTION, DSP_CMSIS, DSP_LIBRARIES,\
     CPPUTEST_SRC,\
@@ -26,20 +26,6 @@ from tools.tests import TEST_MBED_LIB
 
 
 LIBRARIES = [
-    # RTOS libraries
-    {
-        "id": "rtx",
-        "source_dir": MBED_RTX,
-        "build_dir": RTOS_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES],
-    },
-    {
-        "id": "rtos",
-        "source_dir": RTOS,
-        "build_dir": RTOS_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, MBED_RTX],
-    },
-
     # RPC
     {
         "id": "rpc",
