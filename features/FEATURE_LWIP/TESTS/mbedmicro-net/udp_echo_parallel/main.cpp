@@ -150,9 +150,9 @@ public:
     }
 };
 
+Echo *echoers[MBED_CFG_UDP_CLIENT_ECHO_THREADS];
 
 void test_udp_echo_parallel() {
-    Echo echoers[MBED_CFG_UDP_CLIENT_ECHO_THREADS];
     int err = net.connect();
     TEST_ASSERT_EQUAL(0, err);
 
@@ -182,14 +182,16 @@ void test_udp_echo_parallel() {
 
         // Startup echo threads in parallel
         for (int i = 0; i < MBED_CFG_UDP_CLIENT_ECHO_THREADS; i++) {
-            echoers[i].start(i, uuid);
+            echoers[i] = new Echo;
+            echoers[i]->start(i, uuid);
         }
 
         bool result = true;
 
         for (int i = 0; i < MBED_CFG_UDP_CLIENT_ECHO_THREADS; i++) {
-            echoers[i].join();
-            result = result && echoers[i].get_result();
+            echoers[i]->join();
+            result = result && echoers[i]->get_result();
+            delete echoers[i];
         }
 
         net.disconnect();
