@@ -21,6 +21,7 @@
 #include "mbedtls/md5.h"
 
 #if defined(MBEDTLS_MD5_ALT)
+#include "mbedtls/platform.h"
 
 /* Implementation that should never be optimized out by the compiler */
 static void mbedtls_zeroize( void *v, size_t n ) {
@@ -29,10 +30,11 @@ static void mbedtls_zeroize( void *v, size_t n ) {
 
 void mbedtls_md5_init( mbedtls_md5_context *ctx )
 {
-    memset( ctx, 0, sizeof( mbedtls_md5_context ) );
+    mbedtls_zeroize( ctx, sizeof( mbedtls_md5_context ) );
 
     /* Enable HASH clock */
     __HAL_RCC_HASH_CLK_ENABLE();
+
 }
 
 void mbedtls_md5_free( mbedtls_md5_context *ctx )
@@ -62,10 +64,13 @@ void mbedtls_md5_starts( mbedtls_md5_context *ctx )
 {
     /* HASH IP initialization */
     HAL_HASH_DeInit(&ctx->hhash_md5);
-    
+
     /* HASH Configuration */
     ctx->hhash_md5.Init.DataType = HASH_DATATYPE_8B;
-    HAL_HASH_Init(&ctx->hhash_md5);
+    if (HAL_HASH_Init(&ctx->hhash_md5) == HAL_ERROR) {
+        // return error code
+        return;
+    }
 }
 
 void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[64] )
@@ -78,7 +83,28 @@ void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[64]
  */
 void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen )
 {
-    HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, (uint8_t *)input, ilen);
+    unsigned char i=0;
+    int currentlen = ilen;
+    /* store mechanism to handle 64 bytes per 64 bytes */
+    while ((currentlen+ctx->sbuf_len) >=64) {
+        if (ctx->sbuf_len ==0) { /* straight forward */
+            mbedtls_md5_process(ctx, input+(i*64));
+        } else {
+            memcpy(ctx->sbuf+ctx->sbuf_len, input+(i*64),64-ctx->sbuf_len);
+            mbedtls_md5_process(ctx, ctx->sbuf);
+            memcpy(ctx->sbuf,input+(i+1)*64-ctx->sbuf_len, ctx->sbuf_len);
+            // ctx->sbuf_len remains the same
+        }
+        currentlen -= 64;
+        i++;
+    }
+    if (currentlen <0) {
+        currentlen +=64;
+    }
+    /* Store the remaining <64 values */
+    memcpy(ctx->sbuf+ctx->sbuf_len, input+(i*64), currentlen);
+    ctx->sbuf_len += currentlen;
+
 }
 
 /*
@@ -86,9 +112,16 @@ void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, s
  */
 void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] )
 {
+    if (ctx->sbuf_len > 0) {
+        HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, ctx->sbuf, ctx->sbuf_len);
+    }
+    mbedtls_zeroize( ctx->sbuf, 64);
+    ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();
-        
-    HAL_HASH_MD5_Finish(&ctx->hhash_md5, output, 10);
+
+    if (HAL_HASH_MD5_Finish(&ctx->hhash_md5, output, 10)) {
+        // error code to be returned
+    }
 }
 
 #endif /* MBEDTLS_MD5_ALT */
