@@ -135,7 +135,7 @@ void i2c_reset(i2c_t *obj);
  *  @param last Acknoledge
  *  @return The read byte if one byte is read, the number of bytes 
  *        read if it is not one. 
- *  */
+ */
 int i2c_byte_read(i2c_t *obj, int last);
 
 /** Write one byte
