@@ -21,6 +21,7 @@
 #define NSAPI_TYPES_H
 
 #include <stdint.h>
+#include "hal/emac_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -246,8 +247,13 @@ typedef struct nsapi_stack {
      */
     void *stack;
 
-    // Internal nsapi buffer
+    /** Internal nsapi buffer
+     */
     unsigned _stack_buffer[16];
+
+    /** EMAC HAL implementation for the network interface
+     */
+    emac_interface_t *emac;
 } nsapi_stack_t;
 
 /** nsapi_stack_api structure

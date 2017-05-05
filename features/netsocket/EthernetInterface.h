@@ -19,21 +19,24 @@
 
 #include "nsapi.h"
 #include "rtos.h"
-#include "lwip/netif.h"
+#include "hal/emac_api.h"
+
 
 // Forward declaration
 class NetworkStack;
 
 
 /** EthernetInterface class
- *  Implementation of the NetworkStack for LWIP
+ *  Implementation of the NetworkStack for mbed OS IP stack and EMAC APIs
  */
-class EthernetInterface : public EthInterface
+class EthernetInterface : public NetworkInterface
 {
 public:
     /** EthernetInterface lifetime
+     *
+     * @param emac    EMAC HAL implementation for network interface to be used by this class (Default: platform default)
      */
-    EthernetInterface();
+    EthernetInterface(emac_interface_t *emac = &mbed_emac_eth_default);
 
     /** Set a static IP address
      *
@@ -73,7 +76,7 @@ public:
      *  Provided MAC address is intended for info or debug purposes and
      *  may not be provided if the underlying network interface does not
      *  provide a MAC address
-     *  
+     *
      *  @return         Null-terminated representation of the local MAC address
      *                  or null if no MAC address is available
      */
@@ -111,7 +114,7 @@ protected:
     char _ip_address[IPADDR_STRLEN_MAX];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
+    nsapi_stack_t _stack;
 };
-
 
 #endif

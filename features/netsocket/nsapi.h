@@ -31,7 +31,6 @@
 #include "netsocket/NetworkStack.h"
 
 #include "netsocket/NetworkInterface.h"
-#include "netsocket/EthInterface.h"
 #include "netsocket/WiFiInterface.h"
 #include "netsocket/CellularInterface.h"
 #include "netsocket/MeshInterface.h"
