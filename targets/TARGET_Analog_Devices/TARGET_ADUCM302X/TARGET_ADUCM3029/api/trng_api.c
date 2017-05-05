@@ -39,27 +39,27 @@ static uint8_t            RngDevMem[ADI_RNG_MEMORY_SIZE]; /* Data buffers for Ra
 void trng_init(trng_t *obj)
 {
     (void)obj;
-	adi_rng_Open(0,RngDevMem,sizeof(RngDevMem),&RNGhDevice);
+    adi_rng_Open(0,RngDevMem,sizeof(RngDevMem),&RNGhDevice);
 
     // Set sample length for the H/W RN accumulator
-	adi_rng_SetSampleLen(RNGhDevice, TRNG_PRESCALER, TRNG_CNT_VAL);
+    adi_rng_SetSampleLen(RNGhDevice, TRNG_PRESCALER, TRNG_CNT_VAL);
 
     // Enable the RNG
-	adi_rng_Enable(RNGhDevice, true);
+    adi_rng_Enable(RNGhDevice, true);
 }
 
 void trng_free(trng_t *obj)
 {
     (void)obj;
-	adi_rng_Enable(RNGhDevice, false);
-	adi_rng_Close(RNGhDevice);
+    adi_rng_Enable(RNGhDevice, false);
+    adi_rng_Close(RNGhDevice);
 }
 
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     (void)obj;
-	bool_t bRNGRdy;
-	uint32_t nRandomNum, i;
+    bool_t bRNGRdy;
+    uint32_t nRandomNum, i;
 
     for (i = 0; i < length; ) {
         adi_rng_GetRdyStatus(RNGhDevice, &bRNGRdy);

@@ -68,41 +68,41 @@ static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
     /* optimization: compute local WDT enable flag once (outside the loop) */
     ActiveWDT = ((savedWDT & BITM_WDT_CTL_EN) >> BITP_WDT_CTL_EN);
 
-	/* SAR-51938: insure WDT is fully synchronized or looping on interrupts
-	   in hibernate mode may lock out the sync bits.
+    /* SAR-51938: insure WDT is fully synchronized or looping on interrupts
+       in hibernate mode may lock out the sync bits.
 
-	   In hibernate mode (during which the WDT registers are not retained),
-	   the WDT registers will have been reset to default values after each
-	   interrupt exit and we require a WDT clock domain sync.
+       In hibernate mode (during which the WDT registers are not retained),
+       the WDT registers will have been reset to default values after each
+       interrupt exit and we require a WDT clock domain sync.
 
-	   We also need to insure a clock domain sync before (re)entering the WFI
-	   in case an interrupt did a watchdog kick.
+       We also need to insure a clock domain sync before (re)entering the WFI
+       in case an interrupt did a watchdog kick.
 
-	   Optimization: only incur WDT sync overhead (~100us) if the WDT is enabled.
-	*/
-	if (ActiveWDT > 0u) {
-		while ((pADI_WDT0->STAT & (uint32_t)(BITM_WDT_STAT_COUNTING | BITM_WDT_STAT_LOADING | BITM_WDT_STAT_CLRIRQ)) != 0u) {
-			;
-		}
-	}
+       Optimization: only incur WDT sync overhead (~100us) if the WDT is enabled.
+    */
+    if (ActiveWDT > 0u) {
+        while ((pADI_WDT0->STAT & (uint32_t)(BITM_WDT_STAT_COUNTING | BITM_WDT_STAT_LOADING | BITM_WDT_STAT_CLRIRQ)) != 0u) {
+            ;
+        }
+    }
 
-	__DSB();  /* bus sync to insure register writes from interrupt handlers are always complete before WFI */
+    __DSB();  /* bus sync to insure register writes from interrupt handlers are always complete before WFI */
 
-	/* NOTE: aggressive compiler optimizations can muck up critical timing here, so reduce if hangs are present */
+    /* NOTE: aggressive compiler optimizations can muck up critical timing here, so reduce if hangs are present */
 
-	/* The WFI loop MUST reside in a critical section because we need to insure that the interrupt
-	   that is planned to take us out of WFI (via a call to adi_pwr_ExitLowPowerMode()) is not
-	   dispatched until we get into the WFI.  If that interrupt sneaks in prior to our getting to the
-	   WFI, then we may end up waiting (potentially forever) for an interrupt that has already occurred.
-	*/
-	__WFI();
+    /* The WFI loop MUST reside in a critical section because we need to insure that the interrupt
+       that is planned to take us out of WFI (via a call to adi_pwr_ExitLowPowerMode()) is not
+       dispatched until we get into the WFI.  If that interrupt sneaks in prior to our getting to the
+       WFI, then we may end up waiting (potentially forever) for an interrupt that has already occurred.
+    */
+    __WFI();
 
-	/* Recycle the critical section so that other (non-wakeup) interrupts are dispatched.
-	   This allows *pnInterruptOccurred to be set from any interrupt context.
-	 */
-	ADI_EXIT_CRITICAL_REGION();
-	/* nop */
-	ADI_ENTER_CRITICAL_REGION();
+    /* Recycle the critical section so that other (non-wakeup) interrupts are dispatched.
+       This allows *pnInterruptOccurred to be set from any interrupt context.
+     */
+    ADI_EXIT_CRITICAL_REGION();
+    /* nop */
+    ADI_ENTER_CRITICAL_REGION();
 
     /* ...still within critical section... */
 
@@ -110,17 +110,17 @@ static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
     __set_BASEPRI(savedPriority);
 
     /* 	conditionally, restore WDT control register.
-		avoid unnecessary WDT writes which will invoke a sync problem
-		described above as SAR-51938: going into hibernation with pending,
-		unsynchronized WDT writes may lock out the sync bits.
+    	avoid unnecessary WDT writes which will invoke a sync problem
+    	described above as SAR-51938: going into hibernation with pending,
+    	unsynchronized WDT writes may lock out the sync bits.
 
-		Note: it takes over 1000us to sync WDT writes between the 26MHz and
-		32kHz clock	domains, so this write may actually impact the NEXT
-		low-power entry.
+    	Note: it takes over 1000us to sync WDT writes between the 26MHz and
+    	32kHz clock	domains, so this write may actually impact the NEXT
+    	low-power entry.
     */
     if (ActiveWDT > 0u) {
-		pADI_WDT0->CTL = savedWDT;
-	}
+        pADI_WDT0->CTL = savedWDT;
+    }
 
     /* clear sleep-on-exit bit to avoid sleeping on exception return to thread level */
     SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
@@ -139,31 +139,30 @@ void set_clock_gating(peripheral_clk_t eClk, int enable)
 {
     uint32_t flag;
 
-    switch (eClk)
-    {
-    case PCLK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_PERCLKOFF;
-        break;
-    case GPT0_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK0OFF;
-        break;
-    case GPT1_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK1OFF;
-        break;
-    case GPT2_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK2OFF;
-        break;
-    case I2C_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_UCLKI2COFF;
-        break;
-    case GPIO_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_GPIOCLKOFF;
-        break;
-    case TIMER_RGB_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_TMRRGBCLKOFF;
-        break;
-    default:
-        return;
+    switch (eClk) {
+        case PCLK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_PERCLKOFF;
+            break;
+        case GPT0_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK0OFF;
+            break;
+        case GPT1_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK1OFF;
+            break;
+        case GPT2_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK2OFF;
+            break;
+        case I2C_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_UCLKI2COFF;
+            break;
+        case GPIO_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_GPIOCLKOFF;
+            break;
+        case TIMER_RGB_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_TMRRGBCLKOFF;
+            break;
+        default:
+            return;
     }
 
     // if enable, set the bit otherwise clear the bit

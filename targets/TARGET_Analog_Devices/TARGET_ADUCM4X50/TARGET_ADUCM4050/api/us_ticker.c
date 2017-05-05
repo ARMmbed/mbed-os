@@ -75,11 +75,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 typedef uint32_t timestamp_t;
 
-typedef union
-{
-  unsigned long long u64_latest_timer_expiry;
-  uint16_t u16_latest_timer_expiry[4];
-}latest_timer_expiry_t;
+typedef union {
+    unsigned long long u64_latest_timer_expiry;
+    uint16_t u16_latest_timer_expiry[4];
+} latest_timer_expiry_t;
 
 latest_timer_expiry_t latest_timer_expiry;
 
@@ -115,35 +114,29 @@ static void Tmr0_Int_Callback( void *pCBParam, uint32_t Event, void *pArg )
     // i.e. CORE_TIME_REG_MAX * 65536 * TIMER_PRESCALER / TIMER_CLK_FREQ_MHZ = 2^32
     // based on oscillator and the value of prescaler. Core_Time_Tick is
     // incremented once every 65536 ticks.
-    if(Core_Time_Tick >= CORE_TIME_REG_MAX)
-    {
+    if(Core_Time_Tick >= CORE_TIME_REG_MAX) {
         Core_Time_Tick = 0;
     }
 
     // timer_present indicates the timer has been started and running
-    if(true == timer_present)
-    {
+    if(true == timer_present) {
         major_ticks = (latest_timer_expiry.u16_latest_timer_expiry[2] << 16) | \
-                       latest_timer_expiry.u16_latest_timer_expiry[1];
+                      latest_timer_expiry.u16_latest_timer_expiry[1];
 
         // check the number of major ticks (each made up of 65536 clock ticks).
-        if(Core_Time_Tick == major_ticks)
-        {
+        if(Core_Time_Tick == major_ticks) {
             // if the required clock ticks happens to be 0, that means we have
             // reached the required time out, so call the IRQ handler. Otherwise
             // start the remainder count up in TIMER1 by using the reload value of
             // (TIMER_MAX_VALUE - u16_latest_timer_expiry[0])
             // Capture_timer_running is set to 1 to indicate TIMER1 is running.
-            if(0 == latest_timer_expiry.u16_latest_timer_expiry[0])
-            {
+            if(0 == latest_timer_expiry.u16_latest_timer_expiry[0]) {
                 timer_present = false;
 
-				/* Invoke Callback Function */
+                /* Invoke Callback Function */
                 us_ticker_irq_handler();
-            }
-            else
-            {
-				Capture_timer_running = 1;
+            } else {
+                Capture_timer_running = 1;
 
                 /* Start Timer1 in Periodic mode */
                 adi_tmr_Enable(ADI_TMR_DEVICE_GP1, true);
@@ -156,10 +149,10 @@ static void Tmr1_Int_Callback( void *pCBParam, uint32_t Event, void *pArg )
 {
     timer_present = false;
 
-	Capture_timer_running = 0;
+    Capture_timer_running = 0;
 
-	/* Disable Timer1 */
-	adi_tmr_Enable(ADI_TMR_DEVICE_GP1, false);
+    /* Disable Timer1 */
+    adi_tmr_Enable(ADI_TMR_DEVICE_GP1, false);
 
     /* Invoke Callback Function */
     us_ticker_irq_handler();
@@ -175,8 +168,7 @@ static ADI_TMR_RESULT Init_timer(ADI_TMR_DEVICE eDevice,
 
     result = adi_tmr_Init(eDevice, pfCallback, NULL, true);
 
-    if (result == ADI_TMR_SUCCESS)
-    {
+    if (result == ADI_TMR_SUCCESS) {
         pTmr_config->bCountingUp = true;
         pTmr_config->bPeriodic = (eDevice == ADI_TMR_DEVICE_GP0) ? false : true;
 #if TIMER_PRESCALER==64
@@ -193,7 +185,7 @@ static ADI_TMR_RESULT Init_timer(ADI_TMR_DEVICE eDevice,
         pTmr_config->bSyncBypass = false;
 
         result = adi_tmr_ConfigTimer(eDevice, *pTmr_config);
-	}
+    }
 
     return result;
 }
@@ -221,7 +213,7 @@ static uint32_t get_current_time(void)
     ticks = ((unsigned long long)Core_Time_Tick << 16) + get_elapsed_time();
     current_time = (uint32_t)(ticks / TIMER_CLK_FREQ_MHZ * TIMER_PRESCALER);
 
-	return current_time;
+    return current_time;
 }
 /*---------------------------------------------------------------------------*/
 
@@ -238,8 +230,7 @@ static int StopTimer()
 {
     timer_present = false;
 
-    if(Capture_timer_running)
-    {
+    if(Capture_timer_running) {
         adi_tmr_Enable(ADI_TMR_DEVICE_GP1, false);
         Capture_timer_running = 0;
     }
@@ -254,15 +245,14 @@ static int StartTimer(uint32_t expiry_time)
     // calculate the number of ticks the expiry_time requires. The time
     // is specified in micro seconds.
     latest_timer_expiry.u64_latest_timer_expiry = (unsigned long long)expiry_time / \
-                                                  TIMER_PRESCALER * TIMER_CLK_FREQ_MHZ;
+            TIMER_PRESCALER * TIMER_CLK_FREQ_MHZ;
 
     // if the current major tick is already the same as the required time stamp,
     // need to check the lower 16 bit of the time stamp
     major_ticks = (latest_timer_expiry.u16_latest_timer_expiry[2] << 16) | \
-                   latest_timer_expiry.u16_latest_timer_expiry[1];
+                  latest_timer_expiry.u16_latest_timer_expiry[1];
 
-    if(Core_Time_Tick == major_ticks)
-    {
+    if(Core_Time_Tick == major_ticks) {
         // get the current time in the timer0
         curr_time = get_current_time() & 0x0000FFFF;
 
@@ -271,8 +261,7 @@ static int StartTimer(uint32_t expiry_time)
         // time stamp is in the past.
         // Here timer1 is set to count down from max value of 65536 instead
         // of triggering IRQ handler immediately.
-        if(curr_time >= latest_timer_expiry.u16_latest_timer_expiry[0])
-        {
+        if(curr_time >= latest_timer_expiry.u16_latest_timer_expiry[0]) {
             timer_present = false;
 
             /* Invoke Callback Function */
@@ -284,9 +273,7 @@ static int StartTimer(uint32_t expiry_time)
             Capture_timer_running = 1;
 
             adi_tmr_Enable(ADI_TMR_DEVICE_GP1, true);
-        }
-        else
-        {
+        } else {
             // Otherwise load and count up the remainder ticks using TIMER1
             /* Start Timer1 in Periodic mode by loading TxLD Register
             with a value of (TIMER_MAX_VALUE - (u16_latest_timer_expiry[0] - curr_time))*/
@@ -297,9 +284,7 @@ static int StartTimer(uint32_t expiry_time)
 
             adi_tmr_Enable(ADI_TMR_DEVICE_GP1, true);
         }
-    }
-    else
-    {
+    } else {
         timer_present = true;
 
         /*Load TxLD Register with a value of (TIMER_MAX_VALUE - u16_latest_timer_expiry[0])*/
@@ -312,8 +297,7 @@ static int StartTimer(uint32_t expiry_time)
 
 void us_ticker_init(void)
 {
-    if (us_ticker_inited)
-    {
+    if (us_ticker_inited) {
         return;
     }
 
@@ -326,8 +310,7 @@ void us_ticker_init(void)
 uint32_t us_ticker_read()
 {
     int diff;
-    if (!us_ticker_inited)
-    {
+    if (!us_ticker_inited) {
         us_ticker_init();
     }
     prev_time = current_time;

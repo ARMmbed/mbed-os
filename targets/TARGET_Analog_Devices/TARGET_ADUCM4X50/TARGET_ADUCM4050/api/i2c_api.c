@@ -30,13 +30,13 @@
 static uint8_t          i2c_Mem[ADI_I2C_MEMORY_SIZE];
 static ADI_I2C_HANDLE   i2c_Handle;
 #if defined(ADI_DEBUG)
-    #warning "BUILD_I2C_MI_STATIC is defined.  Memory allocation for I2C will be static"
-    int                 adi_i2c_memtype = 1;
+#warning "BUILD_I2C_MI_STATIC is defined.  Memory allocation for I2C will be static"
+int                 adi_i2c_memtype = 1;
 #endif
 #else
 #if defined(ADI_DEBUG)
-    #warning "BUILD_I2C_MI_STATIC is NOT defined.  Memory allocation for I2C will be dynamic"
-    int                 adi_i2c_memtype = 0;
+#warning "BUILD_I2C_MI_STATIC is NOT defined.  Memory allocation for I2C will be dynamic"
+int                 adi_i2c_memtype = 0;
 #endif
 #endif
 
@@ -137,8 +137,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     if (I2C_Return) {
         obj->error = I2C_EVENT_ERROR;
         return -1;
-    }
-    else {
+    } else {
         return length;
     }
 }
@@ -165,8 +164,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     if (I2C_Return) {
         obj->error = I2C_EVENT_ERROR;
         return -1;
-    }
-    else {
+    } else {
         return length;
     }
 }

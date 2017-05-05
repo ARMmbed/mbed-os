@@ -51,7 +51,7 @@ int rtc_isenabled(void)
 {
     uint32_t ControlReg;
 
-    adi_rtc_GetControl (hDevice0, ADI_RTC_CONTROL_REGISTER_0 ,&ControlReg);
+    adi_rtc_GetControl (hDevice0, ADI_RTC_CONTROL_REGISTER_0,&ControlReg);
 
     return((int) (ControlReg & BITM_RTC_CR0_CNTEN));
 }

@@ -28,17 +28,17 @@
  */
 static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
 {
-	uint32_t savedPriority;
-	uint16_t savedWDT;
-	uint32_t scrSetBits = 0u;
-	uint32_t scrClrBits = 0u;
+    uint32_t savedPriority;
+    uint16_t savedWDT;
+    uint32_t scrSetBits = 0u;
+    uint32_t scrClrBits = 0u;
 
-	/* pre-calculate the sleep-on-exit set/clear bits, FLEXI mode only */
-	scrSetBits |= SLEEPONEXIT_BIT;
-	scrClrBits |= (SLEEPDEEP_BIT | SLEEPONEXIT_BIT);
+    /* pre-calculate the sleep-on-exit set/clear bits, FLEXI mode only */
+    scrSetBits |= SLEEPONEXIT_BIT;
+    scrClrBits |= (SLEEPDEEP_BIT | SLEEPONEXIT_BIT);
 
-	/* put all the power mode and system control mods inside a critical section */
-	ADI_ENTER_CRITICAL_REGION();
+    /* put all the power mode and system control mods inside a critical section */
+    ADI_ENTER_CRITICAL_REGION();
 
     { /* these three lines must be in a success-checking loop if they are not inside critical section */
         /* Uninterruptable unlock sequence */
@@ -70,24 +70,23 @@ static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
     __set_BASEPRI(0);
 
     /* if we are in the software looping mode, loop on the user's flag until set */
-	/* SAR-51938: insure WDT is fully synchronized or hibernate may lock out the sync bits */
-	while ((pADI_WDT0->STAT & (BITM_WDT_STAT_COUNTING | BITM_WDT_STAT_LOADING | BITM_WDT_STAT_CLRIRQ)) != 0u)
-	{
-	}
+    /* SAR-51938: insure WDT is fully synchronized or hibernate may lock out the sync bits */
+    while ((pADI_WDT0->STAT & (BITM_WDT_STAT_COUNTING | BITM_WDT_STAT_LOADING | BITM_WDT_STAT_CLRIRQ)) != 0u) {
+    }
 
-	__DSB();  /* bus sync to insure register writes from interrupt handlers are always complete before WFI */
+    __DSB();  /* bus sync to insure register writes from interrupt handlers are always complete before WFI */
 
-	/* NOTE: aggressive compiler optimizations can muck up critical timing here, so reduce if hangs are present */
+    /* NOTE: aggressive compiler optimizations can muck up critical timing here, so reduce if hangs are present */
 
-	/* Wait for interrupt */
-	__WFI();
+    /* Wait for interrupt */
+    __WFI();
 
-	/* Recycle critical section so that interrupts are dispatched.  This
-	 * allows *pbInterruptOccurred to be set during interrupt handling.
-	 */
-	ADI_EXIT_CRITICAL_REGION();
-	/* nop */
-	ADI_ENTER_CRITICAL_REGION();
+    /* Recycle critical section so that interrupts are dispatched.  This
+     * allows *pbInterruptOccurred to be set during interrupt handling.
+     */
+    ADI_EXIT_CRITICAL_REGION();
+    /* nop */
+    ADI_ENTER_CRITICAL_REGION();
     /* ...still within critical section... */
 
     /* Restore previous base priority */
@@ -113,28 +112,27 @@ void set_clock_gating(peripheral_clk_t eClk, int enable)
 {
     uint32_t flag;
 
-    switch (eClk)
-    {
-    case PCLK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_PERCLKOFF;
-        break;
-    case I2C_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_UCLKI2COFF;
-        break;
-    case GPIO_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_GPIOCLKOFF;
-        break;
-    case GPT0_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK0OFF;
-        break;
-    case GPT1_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK1OFF;
-        break;
-    case GPT2_CLOCK:
-        flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK2OFF;
-        break;
-    default:
-        return;
+    switch (eClk) {
+        case PCLK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_PERCLKOFF;
+            break;
+        case I2C_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_UCLKI2COFF;
+            break;
+        case GPIO_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_GPIOCLKOFF;
+            break;
+        case GPT0_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK0OFF;
+            break;
+        case GPT1_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK1OFF;
+            break;
+        case GPT2_CLOCK:
+            flag = 1 << BITP_CLKG_CLK_CTL5_GPTCLK2OFF;
+            break;
+        default:
+            return;
     }
 
     // if enable, set the bit otherwise clear the bit

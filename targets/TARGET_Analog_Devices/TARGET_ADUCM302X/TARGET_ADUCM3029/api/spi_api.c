@@ -42,7 +42,8 @@ uint8_t                 SPIMem[ADI_SPI_MEMORY_SIZE];    /* Memory required for S
  * @param[in]  sclk The pin to use for SCLK
  * @param[in]  ssel The pin to use for SSEL
  */
-void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel) {
+void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
+{
     // determine the SPI to use
     uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
     uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
@@ -57,11 +58,9 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     if (mosi == SPI0_MOSI) {
         nDeviceNum = SPI_0;
-    }
-    else if (mosi == SPI1_MOSI) {
+    } else if (mosi == SPI1_MOSI) {
         nDeviceNum = SPI_1;
-    }
-    else if (mosi == SPI2_MOSI) {
+    } else if (mosi == SPI2_MOSI) {
         nDeviceNum = SPI_2;
     }
 
@@ -82,14 +81,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     if (ssel != NC) {
         if ( (ssel == SPI0_CS0) || (ssel == SPI1_CS0) || (ssel == SPI2_CS0)) {
             spi_cs = ADI_SPI_CS0;
-        }
-        else if ( (ssel == SPI0_CS1) || (ssel == SPI1_CS1) || (ssel == SPI2_CS1)) {
+        } else if ( (ssel == SPI0_CS1) || (ssel == SPI1_CS1) || (ssel == SPI2_CS1)) {
             spi_cs = ADI_SPI_CS1;
-        }
-        else if ( (ssel == SPI0_CS2) || (ssel == SPI1_CS2) || (ssel == SPI2_CS2)) {
+        } else if ( (ssel == SPI0_CS2) || (ssel == SPI1_CS2) || (ssel == SPI2_CS2)) {
             spi_cs = ADI_SPI_CS2;
-        }
-        else if ( (ssel == SPI0_CS3) || (ssel == SPI1_CS3) || (ssel == SPI2_CS3)) {
+        } else if ( (ssel == SPI0_CS3) || (ssel == SPI1_CS3) || (ssel == SPI2_CS3)) {
             spi_cs = ADI_SPI_CS3;
         }
         eResult_SPI = adi_spi_SetChipSelect(hSPIDevice, spi_cs);            /* set the chip select */
@@ -155,16 +151,14 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
     if ((uint32_t)mode & 0x1) {
         phase = true;
-    }
-    else {
+    } else {
         phase = false;
     }
     eResult_SPI = adi_spi_SetClockPhase(hSPIDevice, phase);
 
     if ((uint32_t)mode & 0x2) {
         polarity = true;
-    }
-    else {
+    } else {
         polarity = false;
     }
     eResult_SPI = adi_spi_SetClockPolarity(hSPIDevice, polarity);
@@ -229,7 +223,8 @@ int spi_master_write(spi_t *obj, int value)
  * @param[in] obj The SPI peripheral to check
  * @return non-zero if a value is available
  */
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     ADI_SPI_RESULT      eResult_SPI;
 
     return 0;

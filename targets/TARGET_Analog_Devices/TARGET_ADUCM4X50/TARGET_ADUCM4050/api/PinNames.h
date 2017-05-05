@@ -175,7 +175,7 @@ typedef enum {
 #if defined(ADUCM4050_LFCSP)
     SPI2_CS2 = P2_10,
 #else
-	SPI2_CS2 = P2_15,
+    SPI2_CS2 = P2_15,
 #endif
     SPI2_CS3 = P2_07,
 

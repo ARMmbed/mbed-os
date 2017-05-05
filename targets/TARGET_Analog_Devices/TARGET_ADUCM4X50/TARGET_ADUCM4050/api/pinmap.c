@@ -32,20 +32,19 @@ void pin_function(PinName pin, int function)
     uint32_t cfg_reg, mask;
     volatile uint32_t *pGPIO_CFG;
 
-    switch (port)
-    {
-      case 0:
-        pGPIO_CFG = (volatile uint32_t *)REG_GPIO0_CFG;
-        break;
-      case 1:
-        pGPIO_CFG = (volatile uint32_t *)REG_GPIO1_CFG;
-        break;
-      case 2:
-        pGPIO_CFG = (volatile uint32_t *)REG_GPIO2_CFG;
-        break;
+    switch (port) {
+        case 0:
+            pGPIO_CFG = (volatile uint32_t *)REG_GPIO0_CFG;
+            break;
+        case 1:
+            pGPIO_CFG = (volatile uint32_t *)REG_GPIO1_CFG;
+            break;
+        case 2:
+            pGPIO_CFG = (volatile uint32_t *)REG_GPIO2_CFG;
+            break;
 
-      default:
-        return;
+        default:
+            return;
     }
 
     cfg_reg = *pGPIO_CFG;
@@ -63,22 +62,21 @@ void pin_mode(PinName pin, PinMode mode)
     uint8_t port = pin >> GPIO_PORT_SHIFT;
     uint32_t pin_reg_value = 2 ^ (0xFF & pin);
 
-    switch (mode)
-    {
-      case PullNone:
-        break;
+    switch (mode) {
+        case PullNone:
+            break;
 
-      case PullDown:
+        case PullDown:
 
-        adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value,false);
-        break;
+            adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value,false);
+            break;
 
-      case PullUp:
+        case PullUp:
 
-        adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value,true);
-        break;
+            adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value,true);
+            break;
 
-      default:
-        break;
+        default:
+            break;
     }
 }

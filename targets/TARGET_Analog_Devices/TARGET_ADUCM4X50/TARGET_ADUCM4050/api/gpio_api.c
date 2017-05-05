@@ -32,7 +32,8 @@ static uint16_t gpio_output_val[NUM_GPIO_PORTS] = {0};
 /******************************************************************************
    Function definitions
  *****************************************************************************/
-uint32_t gpio_set(PinName pin) {
+uint32_t gpio_set(PinName pin)
+{
     MBED_ASSERT(pin != (PinName)NC);
     uint32_t pin_num = pin & 0xFF;
 
@@ -41,7 +42,8 @@ uint32_t gpio_set(PinName pin) {
     return (1 << pin_num);
 }
 
-void gpio_init(gpio_t *obj, PinName pin) {
+void gpio_init(gpio_t *obj, PinName pin)
+{
     obj->pin = pin;
 
     if (pin == (PinName)NC)
@@ -55,54 +57,52 @@ void gpio_init(gpio_t *obj, PinName pin) {
     pin_function(pin, MUX_FUNC_0);
 }
 
-void gpio_mode(gpio_t *obj, PinMode mode) {
+void gpio_mode(gpio_t *obj, PinMode mode)
+{
     uint32_t pin = obj->pin;
 
     pin_mode((PinName)pin, mode);
 }
 
-void gpio_dir(gpio_t *obj, PinDirection direction) {
+void gpio_dir(gpio_t *obj, PinDirection direction)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
-	uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
+    uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pin & 0xFF;
 
-    if (direction ==  PIN_OUTPUT)
-    {
+    if (direction ==  PIN_OUTPUT) {
         adi_gpio_OutputEnable(port, 1 << pin_num, true);
         // save the input/output configuration
         gpio_oen[port] |= (1 << pin_num);
-    }
-    else
-    {
+    } else {
         adi_gpio_InputEnable(port, 1 << pin_num, true);
         // save the input/output configuration
         gpio_oen[port] &= (~(1 << pin_num));
     }
 }
 
-void gpio_write(gpio_t *obj, int value) {
+void gpio_write(gpio_t *obj, int value)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pin & 0xFF;
 
-    if (value & 1)
-    {
+    if (value & 1) {
         adi_gpio_SetHigh(port, (1 << pin_num));
 
-    	// save the output port value
-	    gpio_output_val[port] |= ((value & 1) << pin_num);
-	}
-	else
-	{
-	    adi_gpio_SetLow(port, (1 << pin_num));
+        // save the output port value
+        gpio_output_val[port] |= ((value & 1) << pin_num);
+    } else {
+        adi_gpio_SetLow(port, (1 << pin_num));
 
-    	// save the output port value
-	    gpio_output_val[port] &= (~(1 << pin_num));
-	}
+        // save the output port value
+        gpio_output_val[port] &= (~(1 << pin_num));
+    }
 }
 
 
-int gpio_read(gpio_t *obj) {
+int gpio_read(gpio_t *obj)
+{
     MBED_ASSERT(obj->pin != (PinName)NC);
     uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pin & 0xFF;

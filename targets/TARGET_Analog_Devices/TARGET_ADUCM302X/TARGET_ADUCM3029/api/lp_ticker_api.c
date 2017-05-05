@@ -49,10 +49,9 @@ static volatile unsigned int rtc1_use_interrupt;
 void rtc1_Callback (void *pCBParam, uint32_t nEvent, void *EventArg)
 {
     /* process RTC interrupts (cleared by driver) */
-	if (ADI_RTC_ALARM_INT & nEvent)
-	{
-		lp_ticker_irq_handler();
-	}
+    if (ADI_RTC_ALARM_INT & nEvent) {
+        lp_ticker_irq_handler();
+    }
 }
 
 
@@ -73,31 +72,31 @@ const ticker_data_t* get_lp_ticker_data()
  */
 void lp_ticker_init()
 {
-	// select LF clock
-	adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFOSC);
+    // select LF clock
+    adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFOSC);
 
-	// open the rtc device
-	adi_rtc_Open(1, rtc1_memory, ADI_RTC_MEMORY_SIZE, &hRTC1_Device);
+    // open the rtc device
+    adi_rtc_Open(1, rtc1_memory, ADI_RTC_MEMORY_SIZE, &hRTC1_Device);
 
-	// set the prescaler value
-	adi_rtc_SetPreScale(hRTC1_Device, RTC_PRESCALER);
+    // set the prescaler value
+    adi_rtc_SetPreScale(hRTC1_Device, RTC_PRESCALER);
 
-	// register call back for events
-	adi_rtc_RegisterCallback(hRTC1_Device, rtc1_Callback, hRTC1_Device);
+    // register call back for events
+    adi_rtc_RegisterCallback(hRTC1_Device, rtc1_Callback, hRTC1_Device);
 
-	// reset the RTC counter
-	adi_rtc_SetCount(hRTC1_Device, 0);
+    // reset the RTC counter
+    adi_rtc_SetCount(hRTC1_Device, 0);
 
-	// set the trim value
-	adi_rtc_SetTrim(hRTC1_Device, ADI_RTC_TRIM_INTERVAL_14, ADI_RTC_TRIM_1, ADI_RTC_TRIM_SUB);
+    // set the trim value
+    adi_rtc_SetTrim(hRTC1_Device, ADI_RTC_TRIM_INTERVAL_14, ADI_RTC_TRIM_1, ADI_RTC_TRIM_SUB);
 
-	adi_rtc_EnableTrim(hRTC1_Device, true);
+    adi_rtc_EnableTrim(hRTC1_Device, true);
 
-	// enable the RTC
-	adi_rtc_Enable(hRTC1_Device, true);
+    // enable the RTC
+    adi_rtc_Enable(hRTC1_Device, true);
 
-	// interrupt is not yet used
-	rtc1_use_interrupt = 0;
+    // interrupt is not yet used
+    rtc1_use_interrupt = 0;
 }
 
 /** Read the current counter
@@ -106,18 +105,18 @@ void lp_ticker_init()
  */
 uint32_t lp_ticker_read()
 {
-	uint32_t count;
-	float t;
+    uint32_t count;
+    float t;
 
-	// get current count
-	adi_rtc_GetCount(hRTC1_Device, &count);
+    // get current count
+    adi_rtc_GetCount(hRTC1_Device, &count);
 
-	// convert ticks to us
-	t = (float)count * TIME_US_PER_TICK;
+    // convert ticks to us
+    t = (float)count * TIME_US_PER_TICK;
 
-	count = (uint32_t)t;
+    count = (uint32_t)t;
 
-	return count;
+    return count;
 }
 
 /** Set interrupt for specified timestamp
@@ -126,43 +125,38 @@ uint32_t lp_ticker_read()
  */
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-	uint32_t rtcCount, set_time;
+    uint32_t rtcCount, set_time;
 
-	// compute the tick value based on the given alarm time
-	set_time = (uint32_t)((float)(timestamp) / TIME_US_PER_TICK);
+    // compute the tick value based on the given alarm time
+    set_time = (uint32_t)((float)(timestamp) / TIME_US_PER_TICK);
 
-	// get current count
-	adi_rtc_GetCount(hRTC1_Device, &rtcCount);
+    // get current count
+    adi_rtc_GetCount(hRTC1_Device, &rtcCount);
 
-	// alarm value needs to be greater than the current time
-	// if already expired, call user ISR immediately
-	if (set_time <= rtcCount)
-	{
-	    rtc1_use_interrupt = 0;
-		rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
-		return;
-	}
-	else
-	if (set_time <= rtcCount + TICKS_TO_ENABLE_ALARM)
-	{
-		// otherwise if the alarm time is less than the current RTC count + the time
-		// it takes to enable the alarm, just wait until the desired number of counts
-		// has expired rather than using the interrupt, then call the user ISR directly.
-		do
-		{
-			adi_rtc_GetCount(hRTC1_Device, &rtcCount);
-		} while (rtcCount < set_time);
+    // alarm value needs to be greater than the current time
+    // if already expired, call user ISR immediately
+    if (set_time <= rtcCount) {
+        rtc1_use_interrupt = 0;
+        rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
+        return;
+    } else if (set_time <= rtcCount + TICKS_TO_ENABLE_ALARM) {
+        // otherwise if the alarm time is less than the current RTC count + the time
+        // it takes to enable the alarm, just wait until the desired number of counts
+        // has expired rather than using the interrupt, then call the user ISR directly.
+        do {
+            adi_rtc_GetCount(hRTC1_Device, &rtcCount);
+        } while (rtcCount < set_time);
 
-		rtc1_use_interrupt = 0;
-		rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
-		return;
-	}
+        rtc1_use_interrupt = 0;
+        rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
+        return;
+    }
 
-	// set the alarm
-	adi_rtc_EnableInterrupts(hRTC1_Device, ADI_RTC_ALARM_INT, true);
-	adi_rtc_SetAlarm(hRTC1_Device, set_time);
-	adi_rtc_EnableAlarm(hRTC1_Device,true);
-	rtc1_use_interrupt = 1;
+    // set the alarm
+    adi_rtc_EnableInterrupts(hRTC1_Device, ADI_RTC_ALARM_INT, true);
+    adi_rtc_SetAlarm(hRTC1_Device, set_time);
+    adi_rtc_EnableAlarm(hRTC1_Device,true);
+    rtc1_use_interrupt = 1;
 }
 
 /** Disable low power ticker interrupt
@@ -177,8 +171,7 @@ void lp_ticker_disable_interrupt()
     // disabling interrupt can take much longer than the alarm duration. In
     // these cases, interrupt is not used, so the interrupt does not need to
     // be disabled.
-    if (rtc1_use_interrupt)
-    {
+    if (rtc1_use_interrupt) {
         adi_rtc_EnableInterrupts(hRTC1_Device, ADI_RTC_ALARM_INT, false);
     }
 }
@@ -188,10 +181,10 @@ void lp_ticker_disable_interrupt()
  */
 void lp_ticker_clear_interrupt()
 {
-	ADI_RTC_INT_TYPE Status;
+    ADI_RTC_INT_TYPE Status;
 
-	adi_rtc_GetInterruptStatus(hRTC1_Device, &Status);
-	adi_rtc_ClearInterruptStatus(hRTC1_Device, Status);
+    adi_rtc_GetInterruptStatus(hRTC1_Device, &Status);
+    adi_rtc_ClearInterruptStatus(hRTC1_Device, Status);
 }
 
 #endif

@@ -77,13 +77,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         nDeviceNum = SPI_0;
         phSPIDevice = &hSPIDevice0;
         SPIMem = &SPIMem0[0];
-    }
-    else if (mosi == SPI1_MOSI) {
+    } else if (mosi == SPI1_MOSI) {
         nDeviceNum = SPI_1;
         phSPIDevice = &hSPIDevice1;
         SPIMem = &SPIMem1[0];
-    }
-    else if (mosi == SPI2_MOSI) {
+    } else if (mosi == SPI2_MOSI) {
         nDeviceNum = SPI_2;
         phSPIDevice = &hSPIDevice2;
         SPIMem = &SPIMem2[0];
@@ -93,11 +91,9 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 #else
     if (mosi == SPI0_MOSI) {
         nDeviceNum = SPI_0;
-    }
-    else if (mosi == SPI1_MOSI) {
+    } else if (mosi == SPI1_MOSI) {
         nDeviceNum = SPI_1;
-    }
-    else if (mosi == SPI2_MOSI) {
+    } else if (mosi == SPI2_MOSI) {
         nDeviceNum = SPI_2;
     }
     phSPIDevice = &obj->hSPIDevice;
@@ -121,26 +117,22 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     SystemCoreClockUpdate();
     adi_spi_Open(nDeviceNum, SPIMem, ADI_SPI_MEMORY_SIZE, phSPIDevice);
 
-    if (ssel != NC)
-    {
+    if (ssel != NC) {
         if ( (ssel == SPI0_CS0) || (ssel == SPI1_CS0) || (ssel == SPI2_CS0)) {
             spi_cs = ADI_SPI_CS0;
-        }
-        else if ( (ssel == SPI0_CS1) || (ssel == SPI1_CS1) || (ssel == SPI2_CS1)) {
+        } else if ( (ssel == SPI0_CS1) || (ssel == SPI1_CS1) || (ssel == SPI2_CS1)) {
             spi_cs = ADI_SPI_CS1;
-        }
-        else if ( (ssel == SPI0_CS2) || (ssel == SPI1_CS2) || (ssel == SPI2_CS2)) {
+        } else if ( (ssel == SPI0_CS2) || (ssel == SPI1_CS2) || (ssel == SPI2_CS2)) {
             spi_cs = ADI_SPI_CS2;
-        }
-        else if ( (ssel == SPI0_CS3) || (ssel == SPI1_CS3) || (ssel == SPI2_CS3)) {
+        } else if ( (ssel == SPI0_CS3) || (ssel == SPI1_CS3) || (ssel == SPI2_CS3)) {
             spi_cs = ADI_SPI_CS3;
         }
 
-        #if defined(BUILD_SPI_MI_STATIC)
+#if defined(BUILD_SPI_MI_STATIC)
         adi_spi_SetChipSelect(hSPIDevice, spi_cs);
-        #else
+#else
         adi_spi_SetChipSelect(*phSPIDevice, spi_cs);
-        #endif
+#endif
     }
 }
 
@@ -246,7 +238,8 @@ int spi_master_write(spi_t *obj, int value)
  * @param[in] obj The SPI peripheral to check
  * @return non-zero if a value is available
  */
-int spi_slave_receive(spi_t *obj) {
+int spi_slave_receive(spi_t *obj)
+{
     return 0;
 }
 
