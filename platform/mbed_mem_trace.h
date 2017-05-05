@@ -80,7 +80,7 @@ void *mbed_mem_trace_malloc(void *res, size_t size, void *caller);
  * @param res the result of running 'realloc'.
  * @param ptr the 'ptr' argument given to 'realloc'.
  * @param size the 'size' argument given to 'realloc'.
- *
+ * @param caller the caller of the memory operation.
  * @return 'res' (the first argument).
  */
 void *mbed_mem_trace_realloc(void *res, void *ptr, size_t size, void *caller);
@@ -88,10 +88,10 @@ void *mbed_mem_trace_realloc(void *res, void *ptr, size_t size, void *caller);
 /**
  * Trace a call to 'calloc'.
  * @param res the result of running 'calloc'.
- * @param nmemb the 'nmemb' argument given to 'calloc'.
+ * @param num the 'nmemb' argument given to 'calloc'.
  * @param size the 'size' argument given to 'calloc'.
  * @param caller the caller of the memory operation.
- * @Return 'res' (the first argument).
+ * @return 'res' (the first argument).
  */
 void *mbed_mem_trace_calloc(void *res, size_t num, size_t size, void *caller);
 
@@ -108,13 +108,13 @@ void mbed_mem_trace_free(void *ptr, void *caller);
  *
  * The default callback outputs trace data using 'printf', in a format that's
  * easily parsable by an external tool. For each memory operation, the callback
- * outputs a line that begins with '#<op>:<0xresult>;<0xcaller>-':
+ * outputs a line that begins with "#<op>:<0xresult>;<0xcaller>-":
  *
  * - 'op' identifies the memory operation ('m' for 'malloc', 'r' for 'realloc',
  *   'c' for 'calloc' and 'f' for 'free').
  * - 'result' (base 16) is the result of the memor operation. This is always NULL
  *   for 'free', since 'free' doesn't return anything.
- * -'caller' (base 16) is the caller of the memory operation. Note that the value
+ * - 'caller' (base 16) is the caller of the memory operation. Note that the value
  *   of 'caller' might be unreliable.
  *
  * The rest of the output depends on the operation being traced:
@@ -126,9 +126,9 @@ void mbed_mem_trace_free(void *ptr, void *caller);
  *
  * Examples:
  *
- * - '#m:0x20003240;0x600d-50' encodes a 'malloc' that returned 0x20003240, was called
+ * - "#m:0x20003240;0x600d-50" encodes a 'malloc' that returned 0x20003240, was called
  *   by the instruction at 0x600D with a the 'size' argument equal to 50.
- * - '#f:0x0;0x602f-0x20003240' encodes a 'free' that was called by the instruction at
+ * - "#f:0x0;0x602f-0x20003240" encodes a 'free' that was called by the instruction at
  *   0x602f with the 'ptr' argument equal to 0x20003240.
  */
 void mbed_mem_trace_default_callback(uint8_t op, void *res, void *caller, ...);

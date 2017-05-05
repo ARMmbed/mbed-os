@@ -20,13 +20,12 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A Timeout is used to call a function at a point in the future
  *
  * You can use as many seperate Timeout objects as you require.
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -51,6 +50,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class Timeout : public Ticker {
 
@@ -61,5 +61,3 @@ protected:
 } // namespace mbed
 
 #endif
-
-/** @}*/

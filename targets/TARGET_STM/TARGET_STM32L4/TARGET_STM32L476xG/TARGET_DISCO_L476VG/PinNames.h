@@ -142,6 +142,13 @@ typedef enum {
     JOYSTICK_UP = PA_3,
     JOYSTICK_DOWN = PA_5,
     USER_BUTTON = JOYSTICK_CENTER,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
+    BUTTON2 = JOYSTICK_LEFT,
+    BUTTON3 = JOYSTICK_RIGHT,
+    BUTTON4 = JOYSTICK_UP, 
+    BUTTON5 = JOYSTICK_DOWN,
+
     SERIAL_TX = PD_5,
     SERIAL_RX = PD_6,
     USBTX = PD_5,

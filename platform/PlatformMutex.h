@@ -1,6 +1,5 @@
 
 /** \addtogroup platform */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -24,6 +23,7 @@
 typedef rtos::Mutex PlatformMutex;
 #else
 /** A stub mutex for when an RTOS is not present
+ * @ingroup platform
 */
 class PlatformMutex {
 public:
@@ -48,4 +48,3 @@ public:
 
 #endif
 
-/** @}*/

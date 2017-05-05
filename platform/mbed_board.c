@@ -75,19 +75,16 @@ void mbed_error_printf(const char* format, ...) {
 
 void mbed_error_vfprintf(const char * format, va_list arg) {
 #if DEVICE_SERIAL
-
-#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
-    char stdio_out_prev;
-#endif
-
+#define ERROR_BUF_SIZE      (128)
     core_util_critical_section_enter();
-    char buffer[128];
-    int size = vsprintf(buffer, format, arg);
+    char buffer[ERROR_BUF_SIZE];
+    int size = vsnprintf(buffer, ERROR_BUF_SIZE, format, arg);
     if (size > 0) {
         if (!stdio_uart_inited) {
             serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
         }
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
+        char stdio_out_prev = '\0';
         for (int i = 0; i < size; i++) {
             if (buffer[i] == '\n' && stdio_out_prev != '\r') {
                  serial_putc(&stdio_uart, '\r');

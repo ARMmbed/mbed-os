@@ -60,7 +60,8 @@ class Exporter(object):
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
         self.resources = resources
-        self.generated_files = [join(self.TEMPLATE_DIR,"GettingStarted.html")]
+        self.generated_files = [join(self.TEMPLATE_DIR, "GettingStarted.html"),
+                                join(self.TEMPLATE_DIR, ".mbed")]
         self.builder_files_dict = {}
         self.add_config()
 

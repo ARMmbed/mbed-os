@@ -17,10 +17,13 @@ limitations under the License.
 
 from copy import deepcopy
 import os
+from os.path import dirname, abspath, exists
 import sys
 from collections import namedtuple
-from os.path import splitext
+from os.path import splitext, relpath
 from intelhex import IntelHex
+from jinja2 import FileSystemLoader, StrictUndefined
+from jinja2.environment import Environment
 # Implementation of mbed configuration mechanism
 from tools.utils import json_file_to_dict, intelhex_offset
 from tools.arm_pack_manager import Cache
@@ -386,25 +389,25 @@ class Config(object):
         search for a configuration file).
         """
         config_errors = []
-        app_config_location = app_config
-        if app_config_location is None:
+        self.app_config_location = app_config
+        if self.app_config_location is None:
             for directory in top_level_dirs or []:
                 full_path = os.path.join(directory, self.__mbed_app_config_name)
                 if os.path.isfile(full_path):
-                    if app_config_location is not None:
+                    if self.app_config_location is not None:
                         raise ConfigException("Duplicate '%s' file in '%s' and '%s'"
                                               % (self.__mbed_app_config_name,
-                                                 app_config_location, full_path))
+                                                 self.app_config_location, full_path))
                     else:
-                        app_config_location = full_path
+                        self.app_config_location = full_path
         try:
-            self.app_config_data = json_file_to_dict(app_config_location) \
-                                   if app_config_location else {}
+            self.app_config_data = json_file_to_dict(self.app_config_location) \
+                                   if self.app_config_location else {}
         except ValueError as exc:
             self.app_config_data = {}
             config_errors.append(
                 ConfigException("Could not parse mbed app configuration from %s"
-                                % app_config_location))
+                                % self.app_config_location))
 
         # Check the keys in the application configuration data
         unknown_keys = set(self.app_config_data.keys()) - \
@@ -503,6 +506,8 @@ class Config(object):
                                   "build a bootloader project")
         if 'target.bootloader_img' in target_overrides:
             filename = target_overrides['target.bootloader_img']
+            if not exists(filename):
+                raise ConfigException("Bootloader %s not found" % filename)
             part = intelhex_offset(filename, offset=rom_start)
             if part.minaddr() != rom_start:
                 raise ConfigException("bootloader executable does not "
@@ -523,6 +528,11 @@ class Config(object):
         if start > rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
+
+    @property
+    def report(self):
+        return {'app_config': self.app_config_location,
+                'library_configs': map(relpath, self.processed_configs.keys())}
 
     def _process_config_and_overrides(self, data, params, unit_name, unit_kind):
         """Process "config_parameters" and "target_config_overrides" into a
@@ -852,57 +862,25 @@ class Config(object):
                  WARNING: if 'fname' names an existing file, it will be
                  overwritten!
         """
-        params, macros = config[0], config[1]
+        params, macros = config[0] or {}, config[1] or {}
         Config._check_required_parameters(params)
-        header_data = "// Automatically generated configuration file.\n"
-        header_data += "// DO NOT EDIT, content will be overwritten.\n\n"
-        header_data += "#ifndef __MBED_CONFIG_DATA__\n"
-        header_data += "#define __MBED_CONFIG_DATA__\n\n"
-        # Compute maximum length of macro names for proper alignment
-        max_param_macro_name_len = (max([len(m.macro_name) for m
-                                         in params.values()
-                                         if m.value is not None])
-                                    if params else 0)
-        max_direct_macro_name_len = (max([len(m.macro_name) for m
-                                         in macros.values()])
-                                     if macros else 0)
-        max_macro_name_len = max(max_param_macro_name_len,
-                                 max_direct_macro_name_len)
-        # Compute maximum length of macro values for proper alignment
-        max_param_macro_val_len = (max([len(str(m.value)) for m
-                                       in params.values()
-                                       if m.value is not None])
-                                   if params else 0)
-        max_direct_macro_val_len = max([len(m.macro_value or "") for m
-                                        in macros.values()]) if macros else 0
-        max_macro_val_len = max(max_param_macro_val_len,
-                                max_direct_macro_val_len)
-        # Generate config parameters first
-        if params:
-            header_data += "// Configuration parameters\n"
-            for macro in params.values():
-                if macro.value is not None:
-                    header_data += ("#define {0:<{1}} {2!s:<{3}} " +
-                                    "// set by {4}\n")\
-                        .format(macro.macro_name, max_macro_name_len,
-                                macro.value, max_macro_val_len, macro.set_by)
-        # Then macros
-        if macros:
-            header_data += "// Macros\n"
-            for macro in macros.values():
-                if macro.macro_value:
-                    header_data += ("#define {0:<{1}} {2!s:<{3}}" +
-                                    " // defined by {4}\n")\
-                        .format(macro.macro_name, max_macro_name_len,
-                                macro.macro_value, max_macro_val_len,
-                                macro.defined_by)
-                else:
-                    header_data += ("#define {0:<{1}}" +
-                                    " // defined by {2}\n")\
-                        .format(macro.macro_name,
-                                max_macro_name_len + max_macro_val_len + 1,
-                                macro.defined_by)
-        header_data += "\n#endif\n"
+        params_with_values = [p for p in params.values() if p.value is not None]
+        ctx = {
+            "cfg_params" : [(p.macro_name, str(p.value), p.set_by)
+                            for p in params_with_values],
+            "macros": [(m.macro_name, str(m.macro_value or ""), m.defined_by)
+                       for m in macros.values()],
+            "name_len":  max([len(m.macro_name) for m in macros.values()] +
+                             [len(m.macro_name) for m in params_with_values]
+                             + [0]),
+            "val_len" : max([len(str(m.value)) for m in params_with_values] +
+                            [len(m.macro_value or "") for m in macros.values()]
+                            + [0]),
+        }
+        jinja_loader = FileSystemLoader(dirname(abspath(__file__)))
+        jinja_environment = Environment(loader=jinja_loader,
+                                        undefined=StrictUndefined)
+        header_data = jinja_environment.get_template("header.tmpl").render(ctx)
         # If fname is given, write "header_data" to it
         if fname:
             with open(fname, "w+") as file_desc:

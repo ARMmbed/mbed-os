@@ -22,9 +22,12 @@
 #include "platform/FileLike.h"
 
 namespace mbed {
-/** \addtogroup drivers */
-/** @{*/
+/** \addtogroup platform */
 
+/**
+ * @class FileSystem
+ * @ingroup platform
+ */
 class FileSystem;
 
 class FilePath {
@@ -48,5 +51,3 @@ private:
 } // namespace mbed
 
 #endif
-
-/** @}*/

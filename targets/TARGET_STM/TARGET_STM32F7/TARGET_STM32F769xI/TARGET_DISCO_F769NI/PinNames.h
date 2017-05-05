@@ -252,6 +252,8 @@ typedef enum {
     LED3        = PA_12, // LD3 = GREEN
     LED4        = PJ_13,
     USER_BUTTON = PA_0,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
     SERIAL_TX   = PA_9,  // Virtual Com Port
     SERIAL_RX   = PA_10, // Virtual Com Port
     USBTX       = PA_9,  // Virtual Com Port

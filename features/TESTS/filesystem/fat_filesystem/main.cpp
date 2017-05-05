@@ -116,7 +116,13 @@ void test_read_dir() {
     while ((de = readdir(&dir))) {
         printf("d_name: %.32s, d_type: %x\n", de->d_name, de->d_type);
 
-        if (strcmp(de->d_name, "test_dir") == 0) {
+        if (strcmp(de->d_name, ".") == 0) {
+            test_dir_found = true;
+            TEST_ASSERT_EQUAL(DT_DIR, de->d_type);
+        } else if (strcmp(de->d_name, "..") == 0) {
+            test_dir_found = true;
+            TEST_ASSERT_EQUAL(DT_DIR, de->d_type);
+        } else if (strcmp(de->d_name, "test_dir") == 0) {
             test_dir_found = true;
             TEST_ASSERT_EQUAL(DT_DIR, de->d_type);
         } else if (strcmp(de->d_name, "test_file") == 0) {

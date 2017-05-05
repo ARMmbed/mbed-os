@@ -1393,6 +1393,19 @@ class mbedToolchain:
     def get_config_macros(self):
         return Config.config_to_macros(self.config_data) if self.config_data else []
 
+    @property
+    def report(self):
+        to_ret = {}
+        to_ret['c_compiler'] = {'flags': copy(self.flags['c']),
+                                'symbols': self.get_symbols()}
+        to_ret['cxx_compiler'] = {'flags': copy(self.flags['cxx']),
+                                  'symbols': self.get_symbols()}
+        to_ret['assembler'] = {'flags': copy(self.flags['asm']),
+                               'symbols': self.get_symbols(True)}
+        to_ret['linker'] = {'flags': copy(self.flags['ld'])}
+        to_ret.update(self.config.report)
+        return to_ret
+
 from tools.settings import ARM_PATH
 from tools.settings import GCC_ARM_PATH
 from tools.settings import IAR_PATH
