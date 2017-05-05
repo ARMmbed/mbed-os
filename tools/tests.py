@@ -340,6 +340,19 @@ TESTS = [
         "peripherals": ["i2c_loop"]
     },
     {
+        "id": "MBED_A30", "description": "CAN API",
+        "source_dir": join(TEST_DIR, "mbed", "can_api"),
+        "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
+        "automated": True,
+        "mcu": ["LPC1549", "LPC1768","B96B_F446VE", "VK_RZ_A1H",
+                "NUCLEO_F091RC", "NUCLEO_F072RB", "NUCLEO_F042K6", "NUCLEO_F334R8", "NUCLEO_F207ZG",
+                "NUCLEO_F303RE", "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE",
+                "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
+                "NUCLEO_F429ZI", "NUCLEO_F439ZI", "NUCLEO_F756ZG", "NUCLEO_L486RG",
+                "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC",
+                "DISCO_F769NI", "NUCLEO_F767ZI", "DISCO_F303VC", "NUCLEO_F412ZG"]
+    },
+    {
         "id": "MBED_BLINKY", "description": "Blinky",
         "source_dir": join(TEST_DIR, "mbed", "blinky"),
         "dependencies": [MBED_LIBRARIES, TEST_MBED_LIB],
