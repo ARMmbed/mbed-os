@@ -27,9 +27,14 @@ EthernetInterface::EthernetInterface()
 nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
     _dhcp = false;
+
     strncpy(_ip_address, ip_address ? ip_address : "", sizeof(_ip_address));
+    _ip_address[sizeof(_ip_address) - 1] = '\0';
     strncpy(_netmask, netmask ? netmask : "", sizeof(_netmask));
+    _netmask[sizeof(_netmask) - 1] = '\0';
     strncpy(_gateway, gateway ? gateway : "", sizeof(_gateway));
+    _gateway[sizeof(_gateway) - 1] = '\0';
+
     return NSAPI_ERROR_OK;
 }
 
