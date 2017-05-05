@@ -227,7 +227,7 @@ static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const
         uint8_t *question = packet;
         dns_append_question(&question, host, version);
 
-        err = socket.sendto(SocketAddress(dns_servers[i], 53), packet, DNS_BUFFER_SIZE);
+        err = socket.sendto(SocketAddress(dns_servers[i], 53), packet, question - packet);
         // send may fail for various reasons, including wrong address type - move on
         if (err < 0) {
             continue;
