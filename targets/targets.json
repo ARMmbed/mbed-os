@@ -593,7 +593,9 @@
         "macros": ["__ADUCM3029__","RELOCATE_IVT", "ADICUP3029"],
         "extra_labels": ["Analog_Devices", "ADUCM302X", "ADUCM3029", "FLASH_CMSIS_ALGO"],
         "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "LOWPOWERTIMER", "RTC", "SPI", "FLASH"],
-        "device_name": "ADuCM3029"
+        "device_name": "ADuCM3029",
+        "detect_code": [],
+        "release_versions": ["5"]
     },
     "ADUCM4050": {
         "inherits": ["Target"],
@@ -602,7 +604,9 @@
         "macros": ["__ADUCM4050__","RELOCATE_IVT"],
         "extra_labels": ["Analog_Devices", "ADUCM4X50", "ADUCM4050"],
         "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "LOWPOWERTIMER", "RTC", "SPI"],
-        "device_name": "ADuCM4050"
+        "device_name": "ADuCM4050",
+        "detect_code": [],
+        "release_versions": ["5"]
     },
     "MTS_GAMBIT": {
         "inherits": ["Target"],
@@ -2757,7 +2761,7 @@
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
-        "bootloader_supported": true    
+        "bootloader_supported": true
     },
     "NCS36510": {
         "inherits": ["Target"],
@@ -2806,7 +2810,7 @@
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
-        "bootloader_supported": true    
+        "bootloader_supported": true
     },
     "HI2110": {
         "inherits": ["Target"],
