@@ -49,8 +49,8 @@ int32_t Semaphore::wait(uint32_t millisec) {
         case osOK:
             return osSemaphoreGetCount(_id) + 1;
         case osErrorTimeout:
-            return 0;
         case osErrorResource:
+            return 0;
         case osErrorParameter:
         default:
             return -1;
