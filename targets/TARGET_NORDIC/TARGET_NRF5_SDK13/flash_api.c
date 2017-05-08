@@ -79,7 +79,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     /* We will use *_words function to speed up flashing code. Word means 32bit -> 4B
      * or sizeof(uint32_t).
      */
-    nrf_nvmc_write_words(address, data, (size / sizeof(uint32_t)));
+    nrf_nvmc_write_words(address, (const uint32_t *) data, (size / sizeof(uint32_t)));
     return 0;
 }
 
