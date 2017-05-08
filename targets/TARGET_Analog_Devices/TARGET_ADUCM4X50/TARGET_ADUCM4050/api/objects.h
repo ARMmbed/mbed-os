@@ -63,6 +63,14 @@ struct spi_s {
 
 #include "gpio_object.h"
 
+struct analogin_s {
+    ADI_ADC_HANDLE  hDevice;
+    ADI_ADC_BUFFER  UserBuffer;
+    uint8_t         DelayCycles;
+    uint8_t         SampleCycles;
+};
+
+
 
 #ifdef __cplusplus
 }
