@@ -1008,7 +1008,10 @@ class mbedToolchain:
         map = join(tmp_path, name + '.map')
 
         r.objects = sorted(set(r.objects))
-        if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
+        config_file = ([self.config.app_config_location]
+                       if self.config.app_config_location else [])
+        if self.need_update(elf, r.objects + r.libraries + [r.linker_script] +
+                            config_file):
             needed_update = True
             self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
