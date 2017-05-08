@@ -24,6 +24,7 @@
 
 #include "adi_i2c.h"
 #include "adi_spi.h"
+#include "adi_adc.h"
 
 #ifdef __cplusplus
 extern "C" {
