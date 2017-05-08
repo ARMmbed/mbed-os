@@ -24,22 +24,22 @@
 #include "PeripheralPins.h"
 #include "drivers/i2c/adi_i2c.h"
 
-#define BUILD_I2C_MI_STATIC__
 
-#if defined(BUILD_I2C_MI_STATIC)
-static uint8_t          i2c_Mem[ADI_I2C_MEMORY_SIZE];
-static ADI_I2C_HANDLE   i2c_Handle;
-#if defined(ADI_DEBUG)
-#warning "BUILD_I2C_MI_STATIC is defined.  Memory allocation for I2C will be static"
-int                 adi_i2c_memtype = 1;
-#endif
+
+#if defined(BUILD_I2C_MI_DYNAMIC)
+    #if defined(ADI_DEBUG)
+        #warning "BUILD_I2C_MI_DYNAMIC is defined.  Memory allocation for I2C will be dynamic"
+        int adi_i2c_memtype = 0;
+    #endif
 #else
-#if defined(ADI_DEBUG)
-#warning "BUILD_I2C_MI_STATIC is NOT defined.  Memory allocation for I2C will be dynamic"
-int                 adi_i2c_memtype = 0;
+    //#define BUILD_I2C_MI_STATIC
+    static uint8_t          i2c_Mem[ADI_I2C_MEMORY_SIZE];
+    static ADI_I2C_HANDLE   i2c_Handle;
+    #if defined(ADI_DEBUG)
+        #warning "BUILD_I2C_MI_DYNAMIC is NOT defined.  Memory allocation for I2C will be static"
+        int adi_i2c_memtype = 1;
+    #endif
 #endif
-#endif
-
 
 
 
@@ -47,27 +47,22 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
     uint32_t        i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
     uint32_t        i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
-    ADI_I2C_HANDLE  I2C_Handle;
     ADI_I2C_HANDLE  *pI2C_Handle;
     uint8_t         *I2C_Mem;
     ADI_I2C_RESULT  I2C_Return = 0;
     uint32_t        I2C_DevNum = I2C_0;     /* ADuCM4050 only has 1 I2C port */
 
 
-#if defined(BUILD_I2C_MI_STATIC)
-    I2C_DevNum = I2C_0;
-    pI2C_Handle = &i2c_Handle;
-    obj->pI2C_Handle = pI2C_Handle;
-    I2C_Handle = *obj->pI2C_Handle;
-    obj->I2C_Handle = I2C_Handle;
-    I2C_Mem = &i2c_Mem[0];
-#else
+#if defined(BUILD_I2C_MI_DYNAMIC)
     I2C_DevNum = I2C_0;
     pI2C_Handle = &obj->I2C_Handle;
     obj->pI2C_Handle = pI2C_Handle;
-    I2C_Handle = *obj->pI2C_Handle;
-    obj->I2C_Handle = I2C_Handle;
     I2C_Mem = obj->I2C_Mem;
+#else    
+    I2C_DevNum = I2C_0;
+    pI2C_Handle = &i2c_Handle;
+    obj->pI2C_Handle = pI2C_Handle;
+    I2C_Mem = &i2c_Mem[0];
 #endif
 
 
