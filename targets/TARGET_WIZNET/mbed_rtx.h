@@ -47,8 +47,6 @@
 #define OS_CLOCK                20000000
 #endif
 
-#endif
-
 #elif defined(TARGET_WIZWIKI_W7500ECO)
 
 #ifndef INITIAL_SP
@@ -63,5 +61,7 @@
 #ifndef OS_CLOCK
 #define OS_CLOCK                20000000
 #endif
+
+#endif //
 
 #endif // MBED_MBED_RTX_H
