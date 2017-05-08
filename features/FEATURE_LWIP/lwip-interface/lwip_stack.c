@@ -393,8 +393,6 @@ nsapi_error_t mbed_lwip_init(emac_interface_t *emac)
     // Check if we've already brought up lwip
     if (!mbed_lwip_get_mac_address()) {
         // Set up network
-        mbed_lwip_set_mac_address();
-
         sys_sem_new(&lwip_tcpip_inited, 0);
         sys_sem_new(&lwip_netif_linked, 0);
         sys_sem_new(&lwip_netif_has_addr, 0);
@@ -411,6 +409,7 @@ nsapi_error_t mbed_lwip_init(emac_interface_t *emac)
             return NSAPI_ERROR_DEVICE_ERROR;
         }
 
+        mbed_lwip_set_mac_address();
         netif_set_default(&lwip_netif);
 
         netif_set_link_callback(&lwip_netif, mbed_lwip_netif_link_irq);
