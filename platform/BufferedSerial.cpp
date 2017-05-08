@@ -40,7 +40,7 @@ BufferedSerial::~BufferedSerial()
 
 void BufferedSerial::DCD_IRQ()
 {
-    _poll_change(this);
+    wake();
 }
 
 void BufferedSerial::set_data_carrier_detect(PinName DCD_pin, bool active_high)
@@ -92,6 +92,18 @@ int BufferedSerial::sync()
     unlock();
 
     return 0;
+}
+
+void BufferedSerial::sigio(Callback<void()> func) {
+    core_util_critical_section_enter();
+    _sigio_cb = func;
+    if (_sigio_cb) {
+        short current_events = poll(0x7FFF);
+        if (current_events) {
+            _sigio_cb();
+        }
+    }
+    core_util_critical_section_exit();
 }
 
 ssize_t BufferedSerial::write(const void* buffer, size_t length)
@@ -164,6 +176,14 @@ bool BufferedSerial::hup() const
     return _dcd && _dcd->read() != 0;
 }
 
+void BufferedSerial::wake()
+{
+    _poll_change(this);
+    if (_sigio_cb) {
+        _sigio_cb();
+    }
+}
+
 short BufferedSerial::poll(short events) const {
 
     short revents = 0;
@@ -213,7 +233,7 @@ void BufferedSerial::rx_irq(void)
 
     /* Report the File handler that data is ready to be read from the buffer. */
     if (was_empty && !_rxbuf.empty()) {
-        _poll_change(this);
+        wake();
     }
 }
 
@@ -237,7 +257,7 @@ void BufferedSerial::tx_irq(void)
 
     /* Report the File handler that data can be written to peripheral. */
     if (was_full && !_txbuf.full() && !hup()) {
-        _poll_change(this);
+        wake();
     }
 }
 

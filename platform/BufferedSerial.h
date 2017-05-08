@@ -64,7 +64,10 @@ public:
 
     virtual int set_blocking(bool blocking) { _blocking = blocking; return 0; }
 
+    virtual void sigio(Callback<void()> func);
+
     void set_data_carrier_detect(PinName DCD_pin, bool active_high=false);
+
 
 private:
 
@@ -75,6 +78,8 @@ private:
     CircularBuffer<char, MBED_CONF_PLATFORM_BUFFERED_SERIAL_TXBUF_SIZE> _txbuf;
 
     PlatformMutex _mutex;
+
+    Callback<void()> _sigio_cb;
 
     bool _blocking;
     bool _tx_irq_enabled;
@@ -94,6 +99,8 @@ private:
      */
     void tx_irq(void);
     void rx_irq(void);
+
+    void wake(void);
 
     void DCD_IRQ(void);
 };

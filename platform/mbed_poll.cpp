@@ -75,9 +75,6 @@ int poll(pollfh fhs[], unsigned nfhs, int timeout)
 void _poll_change(FileHandle *fh)
 {
     // TODO, will depend on how we implement poll
-
-    // Also, do the user callback
-    fh->_send_sigio();
 }
 
 } // namespace mbed

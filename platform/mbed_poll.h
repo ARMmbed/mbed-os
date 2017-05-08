@@ -49,7 +49,9 @@ struct pollfh {
  */
 int poll(pollfh fhs[], unsigned nfhs, int timeout);
 
-/** To be called by device when poll state changes - must be called for poll() and sigio() to work
+/** To be called by device when poll state changes - must be called for poll() to work
+ * This must be called in addition to the user-provided callback.
+ *
  * @param fh    A pointer to the file handle*/
 void _poll_change(FileHandle *fh);
 
