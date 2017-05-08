@@ -74,6 +74,9 @@
     "STM32F446RE": {
         "OGChipSelectEditMenu": "STM32F446RE\tST STM32F446RE"
     },
+    "STM32L072CZ": {
+        "OGChipSelectEditMenu": "STM32L072CZ\tST STM32L072CZ"
+    },
     "STM32L073RZ": {
         "OGChipSelectEditMenu": "STM32L073RZ\tST STM32L073RZ"
     },
