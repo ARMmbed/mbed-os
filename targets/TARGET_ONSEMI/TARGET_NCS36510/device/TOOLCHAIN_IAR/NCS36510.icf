@@ -15,7 +15,7 @@ define region RAM_ALL = Mem:[from 0x3FFF4000 size 0xC000];
 define block CSTACK with size = 0x200, alignment = 8 { };
 
 /* No Heap is created for C library, all memory management should be handled by the application */
- define block HEAP with alignment = 8, size = 0x4000    { }; 
+ define block HEAP with alignment = 8, size = 0x3000    { }; 
 
 /* Handle initialization */
 do not initialize { section .noinit };
