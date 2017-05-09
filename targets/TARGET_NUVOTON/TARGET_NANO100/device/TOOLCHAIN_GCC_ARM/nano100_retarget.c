@@ -16,7 +16,7 @@
 extern uint32_t __mbed_sbrk_start;
 extern uint32_t __mbed_krbs_start;
 
-#define NU_HEAP_ALIGN       32
+#define NU_HEAP_ALIGN       4
 
 /**
  * The default implementation of _sbrk() (in common/retarget.cpp) for GCC_ARM requires one-region model (heap and stack share one region), which doesn't

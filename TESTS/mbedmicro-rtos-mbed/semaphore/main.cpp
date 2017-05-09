@@ -41,6 +41,8 @@
     #define STACK_SIZE 768
 #elif defined(TARGET_XDOT_L151CC)
     #define STACK_SIZE 1024
+#elif defined(TARGET_NANO130KE3BN) && defined(TOOLCHAIN_IAR)
+    #define STACK_SIZE DEFAULT_STACK_SIZE/2
 #else
     #define STACK_SIZE DEFAULT_STACK_SIZE
 #endif

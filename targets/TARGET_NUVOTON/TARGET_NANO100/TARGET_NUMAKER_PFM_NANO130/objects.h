@@ -31,6 +31,7 @@ struct gpio_irq_s {
     PinName     pin;
     uint32_t    irq_handler;
     uint32_t    irq_id;
+    struct gpio_irq_s   *next;
 };
 
 struct port_s {

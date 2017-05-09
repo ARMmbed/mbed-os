@@ -2628,7 +2628,7 @@
     "NUMAKER_PFM_NANO130": {
         "core": "Cortex-M0",
         "default_toolchain": "ARM",
-        "extra_labels": ["NUVOTON", "NANO100", "NUMAKER_PFM_NANO130"],
+        "extra_labels": ["NUVOTON", "NANO100", "NANO130KE3BN"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],

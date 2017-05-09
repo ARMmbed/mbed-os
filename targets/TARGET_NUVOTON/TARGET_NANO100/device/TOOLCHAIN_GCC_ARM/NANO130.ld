@@ -140,15 +140,6 @@ SECTIONS
     __StackLimit = ADDR(.stack);
     PROVIDE(__stack = __StackTop);
 
-    /* Relocate vector table in SRAM */
-/*    .isr_vector.reloc (NOLOAD) :
-    {
-        . = ALIGN(1 << LOG2CEIL(__vector_size));
-        PROVIDE(__start_vector_table__ = .);
-        . += __vector_size;
-        PROVIDE(__end_vector_table__ = .);
-    } > RAM_INTERN
-*/    
     .data :
     {
         PROVIDE( __etext = LOADADDR(.data) );

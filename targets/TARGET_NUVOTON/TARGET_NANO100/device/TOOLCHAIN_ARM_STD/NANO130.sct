@@ -13,9 +13,6 @@ LR_IROM1 0x00000000 {
   ARM_LIB_STACK 0x20000000 EMPTY 0x800 {
   }
   
-  ;ER_IRAMVEC 0x20000800 EMPTY (4*(16 + 32)) {  ; Reserve for vectors
-  ;}
-  
   RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned
    .ANY (+RW +ZI)
   }

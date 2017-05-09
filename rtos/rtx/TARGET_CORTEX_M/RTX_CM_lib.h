@@ -361,6 +361,8 @@ extern void pre_main (void);
 static uint32_t thread_stack_main[DEFAULT_STACK_SIZE / sizeof(uint32_t)];
 #elif defined(TARGET_XDOT_L151CC)
 static uint32_t thread_stack_main[DEFAULT_STACK_SIZE * 6 / sizeof(uint32_t)];
+#elif defined(TARGET_NANO130KE3BN) && !defined(TOOLCHAIN_ARM_MICRO)
+static uint32_t thread_stack_main[DEFAULT_STACK_SIZE / sizeof(uint32_t)];
 #else
 static uint32_t thread_stack_main[DEFAULT_STACK_SIZE * 2 / sizeof(uint32_t)];
 #endif

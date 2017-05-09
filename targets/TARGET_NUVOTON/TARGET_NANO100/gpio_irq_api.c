@@ -27,7 +27,7 @@
 #define NU_MAX_PIN_PER_PORT     16
 
 struct nu_gpio_irq_var {
-    gpio_irq_t *    obj_arr[NU_MAX_PIN_PER_PORT];
+    gpio_irq_t *    obj_arr;
     //IRQn_Type       irq_n;
     uint32_t       gpio_n;
     void            (*vec)(void);
@@ -39,12 +39,12 @@ static void gpio_irq(struct nu_gpio_irq_var *var);
 
 //EINT0_IRQn
 static struct nu_gpio_irq_var gpio_irq_var_arr[] = {
-    {{NULL}, 0, GPABC_IRQHandler},
-    {{NULL}, 1, GPABC_IRQHandler},
-    {{NULL}, 2, GPABC_IRQHandler},
-    {{NULL}, 3, GPDEF_IRQHandler},
-    {{NULL}, 4, GPDEF_IRQHandler},
-    {{NULL}, 5, GPDEF_IRQHandler}
+    {NULL, 0, GPABC_IRQHandler},
+    {NULL, 1, GPABC_IRQHandler},
+    {NULL, 2, GPABC_IRQHandler},
+    {NULL, 3, GPDEF_IRQHandler},
+    {NULL, 4, GPDEF_IRQHandler},
+    {NULL, 5, GPDEF_IRQHandler}
 };
 
 #define NU_MAX_PORT     (sizeof (gpio_irq_var_arr) / sizeof (gpio_irq_var_arr[0]))
@@ -83,6 +83,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->pin = pin;
     obj->irq_handler = (uint32_t) handler;
     obj->irq_id = id;
+    obj->next = NULL;
 
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
     //gpio_set(pin);
@@ -120,7 +121,15 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     
     struct nu_gpio_irq_var *var = gpio_irq_var_arr + port_index;
     
-    var->obj_arr[pin_index] = obj;
+    // Add obj to linked list
+    gpio_irq_t *cur_obj = var->obj_arr;
+    if (cur_obj == NULL) {
+        cur_obj = obj;
+    } else {
+        while (cur_obj->next != NULL)
+            cur_obj = cur_obj->next;
+        cur_obj->next = obj;
+    }
     
     // NOTE: InterruptIn requires IRQ enabled by default.
     gpio_irq_enable(obj);
@@ -138,7 +147,21 @@ void gpio_irq_free(gpio_irq_t *obj)
     NU_PORT_BASE(port_index)->IER = 0;
     
     MBED_ASSERT(pin_index < NU_MAX_PIN_PER_PORT);
-    var->obj_arr[pin_index] = NULL;
+    gpio_irq_t *pre_obj = var->obj_arr;
+    if (pre_obj->pin == obj->pin)
+        var->obj_arr = pre_obj->next;
+    else {
+        while (pre_obj->next) {
+            gpio_irq_t *cur_obj = pre_obj->next;
+            if (cur_obj->pin == obj->pin) {
+                pre_obj->next = cur_obj->next;
+                break;
+            }
+            pre_obj = pre_obj->next;
+        }
+        if (pre_obj->next == NULL)
+            error("cannot find obj in gpio_irq_free()");
+    }
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
@@ -170,7 +193,6 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 
 void gpio_irq_enable(gpio_irq_t *obj)
 {
-    //uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
     struct nu_gpio_irq_var *var = gpio_irq_var_arr + port_index;
     
@@ -180,7 +202,6 @@ void gpio_irq_enable(gpio_irq_t *obj)
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
-    //uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
     struct nu_gpio_irq_var *var = gpio_irq_var_arr + port_index;
     
@@ -215,10 +236,18 @@ static void gpio_irq(struct nu_gpio_irq_var *var)
     uint32_t ier = gpio_base->IER;
     while (isrc) {
         int pin_index = nu_ctz(isrc);
-        gpio_irq_t *obj = var->obj_arr[pin_index];
+        PinName pin = port_pin(port_index, pin_index);
+        gpio_irq_t *obj = var->obj_arr;
+        while (obj) {
+            if (obj->pin == pin)
+                break;
+            obj = obj->next;
+        }
+        if (obj == NULL)
+            error("cannot find obj in gpio_irq()");
         if (ier & (GPIO_INT_RISING << pin_index)) {
             if (GPIO_PIN_ADDR(port_index, pin_index)) {
-                if (obj->irq_handler) {
+                if (obj && obj->irq_handler) {
                     ((gpio_irq_handler) obj->irq_handler)(obj->irq_id, IRQ_RISE);
                 }
             }
@@ -226,7 +255,7 @@ static void gpio_irq(struct nu_gpio_irq_var *var)
         
         if (ier & (GPIO_INT_FALLING << pin_index)) {   
             if (! GPIO_PIN_ADDR(port_index, pin_index)) {
-                if (obj->irq_handler) {
+                if (obj && obj->irq_handler) {
                     ((gpio_irq_handler) obj->irq_handler)(obj->irq_id, IRQ_FALL);
                 }
             }

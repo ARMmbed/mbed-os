@@ -92,10 +92,10 @@
 #elif defined(TARGET_NUMAKER_PFM_NANO130)
 
 #ifndef OS_TASKCNT
-#define OS_TASKCNT              14
+#define OS_TASKCNT              6
 #endif
 #ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
+#define OS_MAINSTKSIZE          128
 #endif
 #ifndef OS_CLOCK
 #define OS_CLOCK                42000000
