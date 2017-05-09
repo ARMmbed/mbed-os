@@ -382,7 +382,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
 int serial_getc(serial_t *obj)
 {
-    // TODO: Fix every byte access requires accompaniment of one interrupt. This has side effect of performance degradation.
+    // NOTE: Every byte access requires accompaniment of one interrupt. This has side effect of performance degradation.
     while (! serial_readable(obj));
     int c = UART_READ(((UART_T *) NU_MODBASE(obj->serial.uart)));
     
@@ -397,7 +397,7 @@ int serial_getc(serial_t *obj)
 
 void serial_putc(serial_t *obj, int c)
 {
-    // TODO: Fix every byte access requires accompaniment of one interrupt. This has side effect of performance degradation.
+    // NOTE: Every byte access requires accompaniment of one interrupt. This has side effect of performance degradation.
     while (! serial_writable(obj));
     UART_WRITE(((UART_T *) NU_MODBASE(obj->serial.uart)), c);
     
