@@ -1,1 +1,0 @@
-#include "nrf_ble_l2cap.h"

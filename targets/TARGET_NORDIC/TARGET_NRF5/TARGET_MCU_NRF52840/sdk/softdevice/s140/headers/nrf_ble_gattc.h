@@ -45,9 +45,9 @@
 #ifndef BLE_GATTC_H__
 #define BLE_GATTC_H__
 
-#include "ble_gatt.h"
-#include "ble_types.h"
-#include "ble_ranges.h"
+#include "nrf_ble_gatt.h"
+#include "nrf_ble_types.h"
+#include "nrf_ble_ranges.h"
 #include "nrf_svc.h"
 #include "nrf_error.h"
 #include "nrf.h"

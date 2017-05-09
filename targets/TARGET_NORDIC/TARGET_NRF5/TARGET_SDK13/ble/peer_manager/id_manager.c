@@ -41,8 +41,8 @@
 #include "id_manager.h"
 
 #include <string.h>
-#include "headers/ble.h"
-#include "ble_gap.h"
+#include "headers/nrf_ble.h"
+#include "headers/nrf_ble_gap.h"
 #include "ble_conn_state.h"
 #include "peer_manager_types.h"
 #include "peer_database.h"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 #include "nRF5xCharacteristicDescriptorDiscoverer.h"
-#include "ble_err.h"
+#include "headers/nrf_ble_err.h"
 #include "ble/DiscoveredCharacteristicDescriptor.h"
 
 nRF5xCharacteristicDescriptorDiscoverer::nRF5xCharacteristicDescriptorDiscoverer() :

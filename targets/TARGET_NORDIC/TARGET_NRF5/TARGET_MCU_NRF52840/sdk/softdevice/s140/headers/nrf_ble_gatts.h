@@ -45,11 +45,11 @@
 #ifndef BLE_GATTS_H__
 #define BLE_GATTS_H__
 
-#include "ble_types.h"
-#include "ble_ranges.h"
-#include "ble_l2cap.h"
-#include "ble_gap.h"
-#include "ble_gatt.h"
+#include "nrf_ble_types.h"
+#include "nrf_ble_ranges.h"
+#include "nrf_ble_l2cap.h"
+#include "nrf_ble_gap.h"
+#include "nrf_ble_gatt.h"
 #include "nrf_svc.h"
 
 #ifdef __cplusplus

@@ -45,8 +45,8 @@
 #ifndef BLE_GAP_H__
 #define BLE_GAP_H__
 
-#include "ble_types.h"
-#include "ble_ranges.h"
+#include "nrf_ble_types.h"
+#include "nrf_ble_ranges.h"
 #include "nrf_svc.h"
 
 #ifdef __cplusplus

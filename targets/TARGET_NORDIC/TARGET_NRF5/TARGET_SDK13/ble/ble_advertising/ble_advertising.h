@@ -62,8 +62,8 @@
 
 #include <stdint.h>
 #include "nrf_error.h"
-#include "headers/ble.h"
-#include "ble_gattc.h"
+#include "headers/nrf_ble.h"
+#include "headers/nrf_ble_gattc.h"
 #include "ble_advdata.h"
 
 #ifdef __cplusplus

@@ -47,8 +47,8 @@
 #define BLE_GATT_DB_H__
 
 #include <stdint.h>
-#include "headers/ble.h"
-#include "ble_gattc.h"
+#include "headers/nrf_ble.h"
+#include "headers/nrf_ble_gattc.h"
 
 #ifdef __cplusplus
 extern "C" {

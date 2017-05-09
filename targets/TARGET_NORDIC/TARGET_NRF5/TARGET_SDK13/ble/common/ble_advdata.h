@@ -51,7 +51,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
-#include "headers/ble.h"
+#include "headers/nrf_ble.h"
 #include "app_util.h"
 
 #ifdef __cplusplus

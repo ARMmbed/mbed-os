@@ -49,8 +49,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "headers\ble.h"
-#include "ble_types.h"
+#include "headers/nrf_ble.h"
+#include "headers/nrf_ble_types.h"
 
 #ifdef __cplusplus
 extern "C" {

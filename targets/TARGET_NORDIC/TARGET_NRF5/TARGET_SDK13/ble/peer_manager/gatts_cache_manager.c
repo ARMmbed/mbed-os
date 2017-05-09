@@ -41,7 +41,7 @@
 #include "gatts_cache_manager.h"
 
 #include <string.h>
-#include "ble_gap.h"
+#include "headers/nrf_ble_gap.h"
 #include "peer_manager_types.h"
 #include "peer_manager_internal.h"
 #include "peer_database.h"

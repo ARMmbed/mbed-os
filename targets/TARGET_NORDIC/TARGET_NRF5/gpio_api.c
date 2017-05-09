@@ -56,7 +56,7 @@ static gpio_cfg_t  m_gpio_cfg[GPIO_PIN_COUNT];
 
 static gpio_irq_handler m_irq_handler;
 static uint32_t m_channel_ids[GPIO_PIN_COUNT] = {0};
-static uint32_t m_gpio_irq_enabled;
+static gpio_mask_t m_gpio_irq_enabled;
 
 
 static void gpiote_irq_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
@@ -90,6 +90,7 @@ void gpio_init(gpio_t *obj, PinName pin)
 }
 
 #ifdef TARGET_SDK11
+// implement polyfill of gpio hal for the nRF5 SDK v11
 __STATIC_INLINE uint32_t nrf_gpio_pin_out_read(uint32_t pin)
 {
     return (NRF_GPIO->OUTSET & (1UL << (pin)));

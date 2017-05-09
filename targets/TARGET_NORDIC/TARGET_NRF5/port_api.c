@@ -55,7 +55,7 @@ static NRF_GPIO_Type * const m_ports[] = GPIO_REG_LIST;
     #error not recognized gpio count for mcu
 #endif
 
-#define GPIO_PORT_COUNT (sizeof(m_gpio_pin_count)/sizeof(uint32_t))
+#define GPIO_PORT_COUNT (sizeof(m_gpio_pin_count)/sizeof(m_gpio_pin_count[0]))
 
 
 PinName port_pin(PortName port, int pin_n)
