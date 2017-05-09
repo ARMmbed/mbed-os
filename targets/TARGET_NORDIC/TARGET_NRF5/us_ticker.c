@@ -139,10 +139,10 @@ void common_rtc_init(void)
     // energy efficient).
     nrf_rtc_int_enable(COMMON_RTC_INSTANCE,
 #if DEVICE_LOWPOWERTIMER
-                       LP_TICKER_INT_MASK |
+        LP_TICKER_INT_MASK |
 #endif
-                       US_TICKER_INT_MASK |
-                       NRF_RTC_INT_OVERFLOW_MASK);
+        US_TICKER_INT_MASK |
+        NRF_RTC_INT_OVERFLOW_MASK);
 
     // This event is enabled permanently, since overflow indications are needed
     // continuously.
@@ -150,20 +150,20 @@ void common_rtc_init(void)
     // All other relevant events are initially disabled.
     nrf_rtc_event_disable(COMMON_RTC_INSTANCE,
 #if defined(TARGET_MCU_NRF51822)
-                          OS_TICK_INT_MASK |
+        OS_TICK_INT_MASK |
 #endif
 #if DEVICE_LOWPOWERTIMER
-                          LP_TICKER_INT_MASK |
+        LP_TICKER_INT_MASK |
 #endif
-                          US_TICKER_INT_MASK);
+        US_TICKER_INT_MASK);
 
     nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE),
 #ifdef NRF51
-                              APP_IRQ_PRIORITY_LOW
+        APP_IRQ_PRIORITY_LOW
 #elif defined(NRF52) || defined(NRF52840_XXAA)
-                              APP_IRQ_PRIORITY_LOWEST
+        APP_IRQ_PRIORITY_LOWEST
 #endif
-                             );
+        );
 
     nrf_rtc_task_trigger(COMMON_RTC_INSTANCE, NRF_RTC_TASK_START);
 
@@ -542,7 +542,7 @@ static void register_next_tick()
     // the RTC1 keeps running.
     // This code is very short 20-38 cycles in the worst case, it shouldn't
     // disturb softdevice.
-    core_util_critical_section_enter();
+    __disable_irq();
     uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
 
     // If an overflow occur, set the next tick in COUNTER + delta clock cycles
@@ -553,7 +553,7 @@ static void register_next_tick()
     // Enable generation of the compare event for the value set above (this
     // event will trigger the interrupt).
     nrf_rtc_event_enable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
-    core_util_critical_section_exit();
+    __enable_irq();
 }
 
 /**

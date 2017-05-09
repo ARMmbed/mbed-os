@@ -51,8 +51,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "nrf.h"
-#include "ble_gap.h"
-#include "ble_hci.h"
+#include "headers/nrf_ble_gap.h"
+#include "headers/nrf_ble_hci.h"
 #include "ble_gatt_db.h"
 #include "app_util.h"
 #include "app_util_platform.h"

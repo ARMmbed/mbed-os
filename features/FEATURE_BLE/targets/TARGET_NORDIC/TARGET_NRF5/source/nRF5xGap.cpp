@@ -24,7 +24,7 @@
 
 #include "common/common.h"
 #include "ble_advdata.h"
-#include "ble_hci.h"
+#include "headers/nrf_ble_hci.h"
 
 #if  (NRF_SD_BLE_API_VERSION >= 3)
     #include "peer_manager.h"
@@ -141,6 +141,9 @@ ble_error_t nRF5xGap::setAdvertisingData(const GapAdvertisingData &advData, cons
 /**************************************************************************/
 ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 {
+    uint32_t             err;
+    ble_gap_adv_params_t adv_para = {0};
+    
     /* Make sure we support the advertising type */
     if (params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) {
         /* ToDo: This requires a propery security implementation, etc. */
@@ -173,10 +176,7 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
         (params.getTimeout() > GapAdvertisingParams::GAP_ADV_PARAMS_TIMEOUT_MAX)) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
-    uint32_t err;
-    
-    ble_gap_adv_params_t adv_para = {0};
-        
+
 #if (NRF_SD_BLE_API_VERSION <= 2)
     /* Allocate the stack's whitelist statically */
     ble_gap_whitelist_t  whitelist;

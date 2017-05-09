@@ -37,7 +37,7 @@
  */
 
 #include "ble_advdata.h"
-#include "ble_gap.h"
+#include "headers/nrf_ble_gap.h"
 #include "ble_srv_common.h"
 #include "sdk_common.h"
 

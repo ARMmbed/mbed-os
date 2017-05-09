@@ -18,7 +18,7 @@
 #define __NRF_DISCOVERED_CHARACTERISTIC_H__
 
 #include "ble/DiscoveredCharacteristic.h"
-#include "ble_gatt.h"
+#include "headers/nrf_ble_gatt.h"
 
 class nRF5xGattClient; /* forward declaration */
 

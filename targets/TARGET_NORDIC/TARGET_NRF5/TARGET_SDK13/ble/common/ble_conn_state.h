@@ -68,7 +68,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "headers/ble.h"
+#include "headers/nrf_ble.h"
 #include "sdk_mapped_flags.h"
 
 #ifdef __cplusplus

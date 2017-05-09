@@ -40,7 +40,7 @@
 #if NRF_MODULE_ENABLED(PEER_MANAGER)
 #include "gatt_cache_manager.h"
 
-#include "ble_gap.h"
+#include "headers/nrf_ble_gap.h"
 #include "ble_conn_state.h"
 #include "peer_manager_types.h"
 #include "peer_manager_internal.h"

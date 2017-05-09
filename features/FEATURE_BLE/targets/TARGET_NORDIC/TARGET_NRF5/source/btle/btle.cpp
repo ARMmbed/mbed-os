@@ -50,7 +50,7 @@ extern "C" {
 #include "ble_stack_handler_types.h"
 }
 
-#include "ble_hci.h"
+#include "nrf_ble_hci.h"
 #include "btle_discovery.h"
 
 #include "nRF5xGattClient.h"

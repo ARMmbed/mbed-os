@@ -62,7 +62,7 @@
 #elif defined(ANT_STACK_SUPPORT_REQD)
     #include "ant_interface.h"
 #elif defined(BLE_STACK_SUPPORT_REQD)
-    #include "headers/ble.h"
+    #include "headers/nrf_ble.h"
 #endif
 
 #define RAM_START_ADDRESS         0x20000000

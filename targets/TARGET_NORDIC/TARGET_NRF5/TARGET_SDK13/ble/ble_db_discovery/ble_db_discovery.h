@@ -70,8 +70,8 @@
 
 #include <stdint.h>
 #include "nrf_error.h"
-#include "headers\ble.h"
-#include "ble_gattc.h"
+#include "headers/nrf_ble.h"
+#include "headers/nrf_ble_gattc.h"
 #include "ble_srv_common.h"
 #include "ble_gatt_db.h"
 

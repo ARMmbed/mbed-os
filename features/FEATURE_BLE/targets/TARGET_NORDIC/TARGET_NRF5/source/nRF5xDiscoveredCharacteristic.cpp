@@ -16,7 +16,7 @@
 
 #include "nRF5xDiscoveredCharacteristic.h"
 #include "nRF5xGattClient.h"
-#include "ble_gatt.h"
+#include "headers/nrf_ble_gatt.h"
 
 void
 nRF5xDiscoveredCharacteristic::setup(nRF5xGattClient         *gattcIn,

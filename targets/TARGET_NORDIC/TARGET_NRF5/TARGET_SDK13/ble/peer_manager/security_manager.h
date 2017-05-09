@@ -42,8 +42,8 @@
 
 #include <stdint.h>
 #include "sdk_errors.h"
-#include "headers/ble.h"
-#include "ble_gap.h"
+#include "headers/nrf_ble.h"
+#include "headers/nrf_ble_gap.h"
 #include "peer_manager_types.h"
 #include "security_dispatcher.h"
 
