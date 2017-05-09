@@ -1,16 +1,24 @@
 /**
   ******************************************************************************
-  * @file    stm32f4xx_hal_conf.h
+  * @file    stm32f4xx.h
   * @author  MCD Application Team
-  * @version V1.4.4
-  * @date    22-January-2016
-  * @brief   HAL configuration template file. 
-  *          This file should be copied to the application folder and renamed
-  *          to stm32f4xx_hal_conf.h.
+  * @version V2.6.1
+  * @date    14-February-2017
+  * @brief   CMSIS STM32F4xx Device Peripheral Access Layer Header File.
+  *            
+  *          The file is the unique include file that the application programmer
+  *          is using in the C source code, usually in main.c. This file contains:
+  *           - Configuration section that allows to select:
+  *              - The STM32F4xx device used in the target application
+  *              - To use or not the peripheral’s drivers in application code(i.e. 
+  *                code will be based on direct access to peripheral’s registers 
+  *                rather than drivers API), this option is controlled by 
+  *                "#define USE_HAL_DRIVER"
+  *  
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -118,6 +126,10 @@
   */
 #if !defined  (HSI_VALUE)
   #define HSI_VALUE    ((uint32_t)16000000U) /*!< Value of the Internal oscillator in Hz*/
+    !defined (STM32F412Zx)
+  /* #define STM32F413xx */   /*!< STM32F413CH, STM32F413MH, STM32F413RH, STM32F413VH, STM32F413ZH, STM32F413CG, STM32F413MG,
+                                   STM32F413RG, STM32F413VG and STM32F413ZG Devices */
+  /* #define STM32F423xx */   /*!< STM32F423CH, STM32F423RH, STM32F423VH and STM32F423ZH Devices */
 #endif /* HSI_VALUE */
 
 /**
@@ -140,13 +152,13 @@
 #endif /* LSE_STARTUP_TIMEOUT */
 
 /**
-  * @brief External clock source for I2S peripheral
+  * @brief CMSIS version number V2.5.0
   *        This value is used by the I2S HAL module to compute the I2S clock source 
   *        frequency, this source is inserted directly through I2S_CKIN pad. 
   */
 #if !defined  (EXTERNAL_CLOCK_VALUE)
-  #define EXTERNAL_CLOCK_VALUE    ((uint32_t)12288000U) /*!< Value of the Internal oscillator in Hz*/
-#endif /* EXTERNAL_CLOCK_VALUE */
+#define __STM32F4xx_CMSIS_VERSION_SUB1   (0x05U) /*!< [23:16] sub1 version */
+#define __STM32F4xx_CMSIS_VERSION_SUB2   (0x00U) /*!< [15:8]  sub2 version */
 
 /* Tip: To avoid modifying this file each time you need to use different HSE,
    ===  you can define the HSE value in your toolchain compiler preprocessor. */
@@ -331,6 +343,10 @@
 
 #ifdef HAL_I2S_MODULE_ENABLED
  #include "stm32f4xx_hal_i2s.h"
+#elif defined(STM32F413xx)
+  #include "stm32f413xx.h"
+#elif defined(STM32F423xx)
+  #include "stm32f423xx.h"
 #endif /* HAL_I2S_MODULE_ENABLED */
 
 #ifdef HAL_IWDG_MODULE_ENABLED
