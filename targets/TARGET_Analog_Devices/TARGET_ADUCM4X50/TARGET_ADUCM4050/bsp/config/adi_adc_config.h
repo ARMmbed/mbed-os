@@ -80,13 +80,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     1 - Enable MULTI (DMA) acquisitions \n
     0 - Disable MULTI (use Interrupt) acquisitions \n
 */ 
-#define ADI_ADC_ENABLE_MULTI_ACQUIRE              (0)
+#define ADI_ADC_ENABLE_MULTI_ACQUIRE              (1)
 
 /*! Enable/Disable HI/LO Digital Comparator limits \n
     1 - Enable HI/LO Digital Comparator limits\n
     0 - Disable HI/LO Digital Comparator limits\n
 */    
-#define ADI_ADC_ENABLE_STATIC_COMPARATOR           (0)
+#define ADI_ADC_ENABLE_STATIC_COMPARATOR           (1)
 
 /*! Enable/Disable Channel0 limit comparator \n
     1 - Enable HI Digital Comparator limit\n

@@ -24,6 +24,7 @@
 
 #include "adi_i2c.h"
 #include "adi_spi.h"
+#include "adi_adc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,22 +47,37 @@ struct trng_s {
     uint8_t dummy;
 };
 
+#define BUILD_I2C_MI_DYNAMIC
 struct i2c_s {
     uint32_t        instance;
-    ADI_I2C_HANDLE  I2C_Handle;
-    ADI_I2C_HANDLE  *pI2C_Handle;
-    uint8_t         I2C_Mem[ADI_I2C_MEMORY_SIZE];
     uint32_t        error;
+    ADI_I2C_HANDLE  *pI2C_Handle;
+	#if defined(BUILD_I2C_MI_DYNAMIC)
+    ADI_I2C_HANDLE  I2C_Handle;
+    uint8_t         I2C_Mem[ADI_I2C_MEMORY_SIZE];
+	#endif
 };
 
+#define BUILD_SPI_MI_DYNAMIC
 struct spi_s {
-    uint32_t instance;
-    ADI_SPI_HANDLE      hSPIDevice;
-    ADI_SPI_HANDLE      *phSPIDevice;
-    uint8_t             SPIMem[ADI_SPI_MEMORY_SIZE];    /* Memory required for SPI driver */
+    uint32_t 		instance;
+    uint32_t        error;
+    ADI_SPI_HANDLE  *pSPI_Handle;
+    #if defined(BUILD_SPI_MI_DYNAMIC)
+    ADI_SPI_HANDLE  SPI_Handle;
+    uint8_t         SPI_Mem[ADI_SPI_MEMORY_SIZE];
+    #endif
 };
 
 #include "gpio_object.h"
+
+struct analogin_s {
+    ADI_ADC_HANDLE  hDevice;
+    ADI_ADC_BUFFER  UserBuffer;
+    uint8_t         DelayCycles;
+    uint8_t         SampleCycles;
+};
+
 
 
 #ifdef __cplusplus
