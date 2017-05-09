@@ -88,17 +88,17 @@ const PinMap PinMap_I2C_SDA[] = {
 };
 
 const PinMap PinMap_I2C_SCL[] = {
-    {PA_8,       I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)},           // Pin not available on any connector
-    {PB_6,       I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},           // ARDUINO D4
-    {PB_8,       I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},           // ARDUINO D9
-    {PB_10,      FMP_I, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF9_FMPI2C1)},        // ADRUINO D15
-    {PB_10_ALT0, I2C_2, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C2)},           // ARDUINO D15
-    {PB_15,      FMP_I, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_FMPI2C1)},        // Pin not available on any connector
-    {PC_6,       FMP_I, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_FMPI2C1)},        // Pin not available on any connector
-    {PD_12,      FMP_I, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_FMPI2C1)},        // Pin not available on any connector
-    {PD_14,      FMP_I, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_FMPI2C1)},        // Pin not available on any connector
-    {PF_1,       I2C_2, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C2)},           // Pin not available on any connector
-    {PF_14,      FMP_I, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_FMPI2C1)},        // Pin not available on any connector
+    {PA_8,       I2C_3,    STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)},           // Pin not available on any connector
+    {PB_6,       I2C_1,    STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},           // ARDUINO D4
+    {PB_8,       I2C_1,    STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},           // ARDUINO D9
+    {PB_10,      FMPI2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF9_FMPI2C1)},        // ADRUINO D15
+    {PB_10_ALT0, I2C_2,    STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C2)},           // ARDUINO D15
+    {PB_15,      FMPI2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_FMPI2C1)},        // Pin not available on any connector
+    {PC_6,       FMPI2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_FMPI2C1)},        // Pin not available on any connector
+    {PD_12,      FMPI2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_FMPI2C1)},        // Pin not available on any connector
+    {PD_14,      FMPI2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_FMPI2C1)},        // Pin not available on any connector
+    {PF_1,       I2C_2,    STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C2)},           // Pin not available on any connector
+    {PF_14,      FMPI2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_FMPI2C1)},        // Pin not available on any connector
     {NC,    NC,    0}
 };
 
@@ -248,7 +248,7 @@ const PinMap PinMap_UART_RX[] = {
     {PE_7,       UART_7,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART7)},   // Pin not available on any connector
     {PF_6,       UART_7,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART7)},   // ARDUINO D0
     {PF_8,       UART_8,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_UART8)},   // Pin not available on any connector
-    {PG_0,       UART_9    STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF11_UART9)},  // Pin not available on any connector
+    {PG_0,       UART_9,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF11_UART9)},  // Pin not available on any connector
     {PG_9,       UART_6,   STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF8_USART6)},  // Pin not available on any connector
     {PG_11,      UART_10,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF11_UART10)}, // Pin not available on any connector
     {NC,    NC,    0}

@@ -27,7 +27,7 @@ typedef enum {
 } ADCName;
 
 typedef enum {
-    DAC_1 = (int)DAC1_BASE
+    DAC_1 = (int)DAC_BASE
 } DACName;
 
 typedef enum {
@@ -79,7 +79,8 @@ typedef enum {
 
 typedef enum {
     CAN_1 = (int)CAN1_BASE,
-    CAN_2 = (int)CAN2_BASE
+    CAN_2 = (int)CAN2_BASE,
+    CAN_3 = (int)CAN3_BASE
 } CANName;
 
 #ifdef __cplusplus
