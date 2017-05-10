@@ -116,11 +116,11 @@
       "github":"https://github.com/ARMmbed/mbed-os-example-uvisor",
       "mbed": [],
       "features" : [],
-      "targets" : [],
+      "targets" : ["K64F"],
       "toolchains" : ["GCC_ARM"],
       "exporters": [],
-      "compile" : false,
-      "export": false,
+      "compile" : true,
+      "export": true,
       "auto-update" : false
     },
     {
@@ -128,11 +128,11 @@
       "github":"https://github.com/ARMmbed/mbed-os-example-uvisor-thread",
       "mbed": [],
       "features" : [],
-      "targets" : [],
+      "targets" : ["K64F"],
       "toolchains" : ["GCC_ARM"],
       "exporters": [],
-      "compile" : false,
-      "export": false,
+      "compile" : true,
+      "export": true,
       "auto-update" : false
     },
     {
@@ -140,11 +140,11 @@
       "github":"https://github.com/ARMmbed/mbed-os-example-uvisor-number-store",
       "mbed": [],
       "features" : [],
-      "targets" : [],
+      "targets" : ["K64F"],
       "toolchains" : ["GCC_ARM"],
       "exporters": [],
-      "compile" : false,
-      "export": false,
+      "compile" : true,
+      "export": true,
       "auto-update" : false
     },
     {
