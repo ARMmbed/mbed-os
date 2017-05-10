@@ -58,6 +58,13 @@ const PinMap PinMap_ADC[] = {
     {NC,   NC,    0}
 };
 
+const PinMap PinMap_ADC_Internal[] = {
+    {ADC_TEMP, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 16, 0)}, // See in analogin_api.c the correct ADC channel used
+    {ADC_VREF, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 17, 0)}, // See in analogin_api.c the correct ADC channel used
+    {ADC_VBAT, ADC_1, STM_PIN_DATA_EXT(STM_MODE_ANALOG, GPIO_NOPULL, 0, 18, 0)}, // See in analogin_api.c the correct ADC channel used
+    {NC,   NC,    0}
+};
+
 //*** DAC ***
 
 const PinMap PinMap_DAC[] = {
