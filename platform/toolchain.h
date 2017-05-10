@@ -24,3 +24,5 @@
 #include "platform/mbed_toolchain.h"
 
 #endif
+
+/** @}*/

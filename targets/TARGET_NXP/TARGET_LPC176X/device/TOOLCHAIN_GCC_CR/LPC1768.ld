@@ -7,7 +7,7 @@ MEMORY
 {
   /* Define each memory region */
   MFlash512 (rx) : ORIGIN = 0x0, LENGTH = 0x80000 /* 512k */
-  RamLoc32 (rwx) : ORIGIN = 0x100000C8, LENGTH = 0x7F38 /* 32k */
+  RamLoc32 (rwx) : ORIGIN = 0x100000C8, LENGTH = 0x7F18 /* 32k (topmost 32 bytes used by IAP functions) */
   RamAHB_USB (rwx) : ORIGIN = 0x2007c000, LENGTH = 0x4000 /* 16k */
   RamAHB_Eth (rwx) : ORIGIN = 0x20080000, LENGTH = 0x4000 /* 16k */
 
