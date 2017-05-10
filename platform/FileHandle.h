@@ -181,8 +181,7 @@ public:
      * The input parameter can be used or ignored - the could always return all events,
      * or could check just the events listed in events.
      * Call is non-blocking - returns instantaneous state of events.
-     * Whenever an event occurs, the derived class must call _poll_change() (as well as
-     * the sigio() callback).
+     * Whenever an event occurs, the derived class should call the sigio() callback).
      *
      * @param events bitmask of poll events we're interested in - POLLIN/POLLOUT etc.
      *

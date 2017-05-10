@@ -178,7 +178,6 @@ bool BufferedSerial::hup() const
 
 void BufferedSerial::wake()
 {
-    _poll_change(this);
     if (_sigio_cb) {
         _sigio_cb();
     }

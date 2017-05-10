@@ -32,6 +32,7 @@ off_t FileHandle::size()
     seek(off, SEEK_SET);
     return size;
 }
+
 std::FILE *fdopen(FileHandle *fh, const char *mode)
 {
     return mbed_fdopen(fh, mode);

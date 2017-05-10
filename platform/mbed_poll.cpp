@@ -72,9 +72,4 @@ int poll(pollfh fhs[], unsigned nfhs, int timeout)
     return count;
 }
 
-void _poll_change(FileHandle *fh)
-{
-    // TODO, will depend on how we implement poll
-}
-
 } // namespace mbed
