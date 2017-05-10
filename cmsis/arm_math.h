@@ -361,8 +361,8 @@ extern "C"
 #define DELTA_Q31          (0x100)
 #define DELTA_Q15          0x5
 #define INDEX_MASK         0x0000003F
-#ifndef PI
-  #define PI               3.14159265358979f
+#ifndef _PI
+  #define _PI               3.14159265358979f
 #endif
 
   /**
