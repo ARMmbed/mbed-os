@@ -310,13 +310,13 @@ If the LED is blinking, the app is running correctly. If you press the `SW2` but
 ## Expose public secure entry points to the secure box
 [Go to top](#overview)
 
-So far the code in the secure box cannot communicate to other boxes. To let other boxes call functions in our secure box you can define public secure entry points. These entry points can map to private functions within the context of a secure box, and the arguments and return values are automatically serialized using an RPC protocol to ensure no private memory can be leaked to external boxes.
+So far, the code in the secure box cannot communicate to other boxes. To let other boxes call functions in our secure box, you can define public secure entry points. These entry points can map to private functions within the context of a secure box, and an RPC protocol automatically serializes the arguments and return values to ensure no private memory can leak to external boxes.
 
-You can define a public secure entry point to retrieve the index value from the secure box. This index value is increased every time the `SW2` button is pressed.
+You can define a public secure entry point to retrieve the index value from the secure box. This index value increases every time you press the `SW2` button.
 
 ### Defining a secure entry point
 
-Create a new source file, `~/code/uvisor-example/source/secure_box.h`. In here we will define the functions that can be called through RPC.
+Create a new source file, `~/code/uvisor-example/source/secure_box.h`, where you will define the functions that you can call through RPC.
 
 ```cpp
 /* ~/code/uvisor-example/source/secure_box.h */
@@ -333,7 +333,7 @@ UVISOR_EXTERN int (*secure_get_index)(void);
 
 ### Implementing a secure entry point
 
-Now that you have defined the secure entry point, you can map the entry point to a function running in the secure box. This is done through the `UVISOR_BOX_RPC_GATEWAY_SYNC` macro. Open `~/code/uvisor-example/source/secure_box.cpp`, and replace the line with `#define PRIVATE_BUTTON_BUFFER_COUNT 8` by:
+Now that you have defined the secure entry point, you can map the entry point to a function running in the secure box. You can do this through the `UVISOR_BOX_RPC_GATEWAY_SYNC` macro. Open `~/code/uvisor-example/source/secure_box.cpp`, and replace the line with `#define PRIVATE_BUTTON_BUFFER_COUNT 8` by:
 
 ```cpp
 /* ~/code/uvisor-example/source/secure_box.cpp */
@@ -351,7 +351,7 @@ UVISOR_BOX_RPC_GATEWAY_SYNC (private_button, secure_get_index, get_index, int, v
 
 ### Listening for RPC messages
 
-To receive RPC messages you will need to spin up a new thread, running in the secure box context. You can do this in the main thread of the secure box. In `~/code/uvisor-example/source/secure_box.cpp`, replace the first five lines of `private_button_main_thread` with:
+To receive RPC messages, you need to spin up a new thread, running in the secure box context. You can do this in the main thread of the secure box. In `~/code/uvisor-example/source/secure_box.cpp`, replace the first five lines of `private_button_main_thread` with:
 
 ```cpp
 /* ~/code/uvisor-example/source/secure_box.cpp */
@@ -397,7 +397,7 @@ To call the public secure entry point from any other box, you can use the `secur
 #include "secure-box.h"
 ```
 
-And then replace the `main` function with:
+Then replace the `main` function with:
 
 ```cpp
 /* ~/code/uvisor-example/source/main.cpp */
@@ -412,7 +412,7 @@ int main(void)
 }
 ```
 
-You can observe the secure index by opening a serial port connection to the device, with a baud rate of 9600. When you press the `SW2` button the index will be increased.
+You can observe the secure index by opening a serial port connection to the device with a baud rate of 9600. When you press the `SW2` button, the index will increase.
 
 ## The NVIC APIs
 
