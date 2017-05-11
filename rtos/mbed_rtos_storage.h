@@ -45,6 +45,7 @@ typedef os_memory_pool_t mbed_rtos_storage_mem_pool_t;
 typedef os_message_queue_t mbed_rtos_storage_msg_queue_t;
 typedef os_event_flags_t mbed_rtos_storage_event_flags_t;
 typedef os_message_t mbed_rtos_storage_message_t;
+typedef os_timer_t mbed_rtos_storage_timer_t;
 
 #endif
 
