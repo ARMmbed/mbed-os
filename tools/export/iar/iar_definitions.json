@@ -179,5 +179,11 @@
     },
     "M453VG6AE": {
         "OGChipSelectEditMenu": "M451AE series\tNuvoton M451AE series (M451AE,M452AE,M453AE,M451MAE)"
+    },
+    "nRF52840_xxAA":{
+        "OGChipSelectEditMenu": "nRF52840_xxAA\tNordicSemi nRF52840_xxAA",
+        "CExtraOptionsCheck": 1,
+        "CExtraOptions": "--drv_vector_table_base=0x0",
+        "CMSISDAPJtagSpeedList": 10
     }
 }
