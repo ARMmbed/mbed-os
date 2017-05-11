@@ -172,6 +172,17 @@ NS_INLINE uint_fast8_t common_count_bits(uint8_t byte);
 /*
  * Count leading zeros in a byte
  *
+ * \deprecated Use common_count_leading_zeros_8
+ *
+ * \param byte byte to inspect
+ *
+ * \return number of leading zeros in byte (0-8)
+ */
+NS_INLINE uint_fast8_t common_count_leading_zeros(uint8_t byte);
+
+/*
+ * Count leading zeros in a byte
+ *
  * \param byte byte to inspect
  *
  * \return number of leading zeros in byte (0-8)
@@ -195,9 +206,6 @@ NS_INLINE uint_fast8_t common_count_leading_zeros_16(uint16_t value);
  * \return number of leading zeros in byte (0-32)
  */
 NS_INLINE uint_fast8_t common_count_leading_zeros_32(uint32_t value);
-
-/* Backwards compatibility */
-#define common_count_leading_zeros common_count_leading_zeros_8
 
 /*
  * Compare 8-bit serial numbers
@@ -452,6 +460,11 @@ COMMON_FUNCTIONS_FN uint_fast8_t common_count_bits(uint8_t byte)
     /* Final result is sum of nibbles (0-8) */
     count = (count >> 4) + (count & 0x0F);
     return count;
+}
+
+COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros(uint8_t byte)
+{
+    return common_count_leading_zeros_8(byte);
 }
 
 COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_8(uint8_t byte)
