@@ -27,7 +27,7 @@ UVISOR_EXTERN const uint32_t __uvisor_mode;
 UVISOR_EXTERN void const * const public_box_cfg_ptr;
 
 typedef struct {
-    void (*function)(void *);
+    void (*function)(const void *);
     size_t priority;
     size_t stack_size;
 } uvisor_box_main_t;
