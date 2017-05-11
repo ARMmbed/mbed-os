@@ -44,10 +44,10 @@
    
 #define TIM_MST      TIM5
 #define TIM_MST_IRQ  TIM5_IRQn
-#define TIM_MST_RCC  __TIM5_CLK_ENABLE()
+#define TIM_MST_RCC  __HAL_RCC_TIM5_CLK_ENABLE()
 
-#define TIM_MST_RESET_ON   __TIM5_FORCE_RESET()
-#define TIM_MST_RESET_OFF  __TIM5_RELEASE_RESET()
+#define TIM_MST_RESET_ON   __HAL_RCC_TIM5_FORCE_RESET()
+#define TIM_MST_RESET_OFF  __HAL_RCC_TIM5_RELEASE_RESET()
 
 #define TIM_MST_16BIT  0 // 1=16-bit timer, 0=32-bit timer
 

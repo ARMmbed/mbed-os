@@ -867,7 +867,7 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   }
 
   // Activate the OverDrive to reach the 180 MHz Frequency
-  if (HAL_PWREx_ActivateOverDrive() != HAL_OK)
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     return 0; // FAIL
   }
@@ -876,8 +876,8 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   PeriphClkInitStruct.PLLSAI.PLLSAIM = 8;
   PeriphClkInitStruct.PLLSAI.PLLSAIN = 384;
   PeriphClkInitStruct.PLLSAI.PLLSAIP = RCC_PLLSAIP_DIV8;
-  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CK48;
-  PeriphClkInitStruct.Clk48ClockSelection = RCC_CK48CLKSOURCE_PLLSAIP;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
+  PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48CLKSOURCE_PLLSAIP;
   HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
   
   // Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers
