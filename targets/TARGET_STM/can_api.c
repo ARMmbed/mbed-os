@@ -104,7 +104,7 @@ void can_irq_free(can_t *obj)
 
     can->IER &= ~(CAN_IT_FMP0 | CAN_IT_FMP1 | CAN_IT_TME | \
                   CAN_IT_ERR | CAN_IT_EPV | CAN_IT_BOF);
-    can_irq_ids[obj->can] = 0;
+    can_irq_ids[obj->index] = 0;
 }
 
 void can_free(can_t *obj)
