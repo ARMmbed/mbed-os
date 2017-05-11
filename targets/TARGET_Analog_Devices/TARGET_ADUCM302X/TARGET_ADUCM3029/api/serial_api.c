@@ -240,10 +240,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     MBED_ASSERT(obj);
 
     adi_uart_RegisterCallback(hDevice, &uart_callback, obj);
-
-    if (enable) {
-    } else {
-    }
 }
 
 void serial_pinout_tx(PinName tx)
