@@ -137,7 +137,7 @@ void __uvisor_lib_box_init(void * lib_config)
         uvisor_error(USER_NOT_ALLOWED);
     }
 
-    thread_id = osThreadNew(box_main->function, NULL, &thread_attr);
+    thread_id = osThreadNew((osThreadFunc_t) box_main->function, NULL, &thread_attr);
 
     if (thread_id == NULL) {
         /* Failed to create thread */
