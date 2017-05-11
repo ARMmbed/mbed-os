@@ -49,7 +49,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     const struct nu_modinit_s *modinit = get_modinit(obj->adc, adc_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->adc);
+    MBED_ASSERT((ADCName) modinit->modname == obj->adc);
     
     ADC_T *adc_base = (ADC_T *) NU_MODBASE(obj->adc);
     uint32_t chn =  NU_MODSUBINDEX(obj->adc);
@@ -99,7 +99,7 @@ void analogin_deinit(PinName pin)
 
     const struct nu_modinit_s *modinit = get_modinit(obj.adc, adc_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj.adc);
+    MBED_ASSERT((ADCName) modinit->modname == obj.adc);
     
     ADC_T *adc_base = (ADC_T *) NU_MODBASE(obj.adc);
     uint32_t chn =  NU_MODSUBINDEX(obj.adc);
@@ -128,7 +128,8 @@ uint16_t analogin_read_u16(analogin_t *obj)
     }
     adc_busy_flag = 1;
     
-    ADC_START_CONV(adc_base);
+    // Start the A/D conversion
+    adc_base->CR |= ADC_CR_ADST_Msk;
     // Wait for conversion finish
     while (! ADC_GET_INT_FLAG(adc_base, ADC_ADF_INT) & ADC_ADF_INT) ;
     ADC_CLR_INT_FLAG(ADC, ADC_ADF_INT);

@@ -153,7 +153,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
     
     /**
-     * FIXME: Scheduled alarm may go off incorrectly due to wrap around.
+     * NOTE: Scheduled alarm may go off incorrectly due to wrap around.
      * Conditions in which delta is negative:
      * 1. Wrap around
      * 2. Newly scheduled alarm is behind now

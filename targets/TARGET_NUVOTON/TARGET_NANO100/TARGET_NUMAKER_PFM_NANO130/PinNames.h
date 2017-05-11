@@ -105,23 +105,13 @@ typedef enum {
     D14 = PA_10,
     D15 = PA_11,
     
-    // FIXME: other board-specific naming
+    // NOTE: other board-specific naming
     // UART naming
     USBTX = PA_15,
     USBRX = PA_14,
     STDIO_UART_TX   = USBTX,
     STDIO_UART_RX   = USBRX,
     // LED naming
-#if 0
-    LED1 = PB_0,
-    LED2 = PB_1,
-    LED3 = PE_9,
-    LED4 = PE_10,
-    LED5 = PE_11,
-    LED6 = PD_8,
-    LED7 = PD_9,
-    LED8 = PC_7,
-#endif
     LED1 = PA_12,
     LED2 = PA_13,
     LED3 = LED1,

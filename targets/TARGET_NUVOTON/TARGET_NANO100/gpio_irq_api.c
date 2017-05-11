@@ -22,6 +22,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "mbed_error.h"
 #include "nu_bitutil.h"
 
 #define NU_MAX_PIN_PER_PORT     16
@@ -188,6 +189,8 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
                 gpio_base->IER &= ~(GPIO_INT_FALLING << pin_index);
             }
             break;
+        default:
+            break;
     }
 }
 
@@ -236,7 +239,7 @@ static void gpio_irq(struct nu_gpio_irq_var *var)
     uint32_t ier = gpio_base->IER;
     while (isrc) {
         int pin_index = nu_ctz(isrc);
-        PinName pin = port_pin(port_index, pin_index);
+        PinName pin = (PinName) NU_PINNAME(port_index, pin_index);
         gpio_irq_t *obj = var->obj_arr;
         while (obj) {
             if (obj->pin == pin)

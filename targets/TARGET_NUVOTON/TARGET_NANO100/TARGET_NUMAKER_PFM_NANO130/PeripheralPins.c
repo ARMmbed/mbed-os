@@ -200,7 +200,6 @@ const PinMap PinMap_PWM[] = {
 //*** SERIAL ***
 
 const PinMap PinMap_UART_TX[] = {
-    {PA_2, UART_1, SYS_PA_L_MFP_PA2_MFP_UART1_RX},
     {PA_3, UART_1, SYS_PA_L_MFP_PA3_MFP_UART1_TX},
     {PA_15, UART_0, SYS_PA_H_MFP_PA15_MFP_UART0_TX},
     {PB_1, UART_0, SYS_PB_L_MFP_PB1_MFP_UART0_TX},
@@ -214,7 +213,6 @@ const PinMap PinMap_UART_TX[] = {
 
 const PinMap PinMap_UART_RX[] = {
     {PA_2, UART_1, SYS_PA_L_MFP_PA2_MFP_UART1_RX},
-    {PA_3, UART_1, SYS_PA_L_MFP_PA3_MFP_UART1_TX},
     {PA_14, UART_0, SYS_PA_H_MFP_PA14_MFP_UART0_RX},
     {PB_0, UART_0, SYS_PB_L_MFP_PB0_MFP_UART0_RX},
     {PB_4, UART_1, SYS_PB_L_MFP_PB4_MFP_UART1_RX},

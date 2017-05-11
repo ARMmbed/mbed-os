@@ -71,51 +71,50 @@ extern int main(void);
 
 /* Default empty handler */
 void Default_Handler(void);
-void Default_Handler_1(void);
 
 /* Reset handler */
 void Reset_Handler(void);
 
 /* Cortex-M0 core handlers */
 WEAK_ALIAS_FUNC(NMI_Handler, Default_Handler)               // NMI Handler
-WEAK_ALIAS_FUNC(HardFault_Handler, Default_Handler_a)         // Hard Fault Handler
+WEAK_ALIAS_FUNC(HardFault_Handler, Default_Handler)         // Hard Fault Handler
 WEAK_ALIAS_FUNC(SVC_Handler, Default_Handler)               // SVCall Handler
 WEAK_ALIAS_FUNC(PendSV_Handler, Default_Handler)            // PendSV Handler
 WEAK_ALIAS_FUNC(SysTick_Handler, Default_Handler)           // SysTick Handler
 
 /* Peripherals handlers */
-WEAK_ALIAS_FUNC(BOD_IRQHandler, Default_Handler_0)            // Brownout low voltage detected interrupt  
-WEAK_ALIAS_FUNC(WDT_IRQHandler, Default_Handler_1)            // Watch Dog Timer interrupt  
-WEAK_ALIAS_FUNC(EINT0_IRQHandler, Default_Handler_2)          // External signal interrupt from PB.14 pin
-WEAK_ALIAS_FUNC(EINT1_IRQHandler, Default_Handler_3)          // External signal interrupt from PB.15 pin
-WEAK_ALIAS_FUNC(GPABC_IRQHandler, Default_Handler_4)          // External interrupt from PA[15:0]/PB[15:0]/PC[15:0]  
-WEAK_ALIAS_FUNC(GPDEF_IRQHandler, Default_Handler_5)          // External interrupt from PD[15:0]/PE[15:0]/PF[7:0]
-WEAK_ALIAS_FUNC(PWM0_IRQHandler, Default_Handler_6)           // PWM 0 interrupt 
-WEAK_ALIAS_FUNC(PWM1_IRQHandler, Default_Handler_7)           // PWM 1 interrupt  
-WEAK_ALIAS_FUNC(TMR0_IRQHandler, Default_Handler_8)           // Timer 0 interrupt
-WEAK_ALIAS_FUNC(TMR1_IRQHandler, Default_Handler_9)           // Timer 1 interrupt  
-WEAK_ALIAS_FUNC(TMR2_IRQHandler, Default_Handler_10)           // Timer 2 interrupt 
-WEAK_ALIAS_FUNC(TMR3_IRQHandler, Default_Handler_11)           // Timer 3 interrupt 
-WEAK_ALIAS_FUNC(UART0_IRQHandler, Default_Handler_12)          // UART0 interrupt
-WEAK_ALIAS_FUNC(UART1_IRQHandler, Default_Handler_13)          // UART1 interrupt
-WEAK_ALIAS_FUNC(SPI0_IRQHandler, Default_Handler_14)           // SPI0 interrupt 
-WEAK_ALIAS_FUNC(SPI1_IRQHandler, Default_Handler_15)           // SPI1 interrupt 
-WEAK_ALIAS_FUNC(SPI2_IRQHandler, Default_Handler_16)           // SPI2 interrupt 
-WEAK_ALIAS_FUNC(HIRC_IRQHandler, Default_Handler_17)           // HIRC interrupt 
-WEAK_ALIAS_FUNC(I2C0_IRQHandler, Default_Handler_18)           // I2C0 interrupt 
-WEAK_ALIAS_FUNC(I2C1_IRQHandler, Default_Handler_19)           // I2C1 interrupt 
-WEAK_ALIAS_FUNC(SC2_IRQHandler, Default_Handler_20)            // SC2 interrupt
-WEAK_ALIAS_FUNC(SC0_IRQHandler, Default_Handler_21)            // SC0 interrupt
-WEAK_ALIAS_FUNC(SC1_IRQHandler, Default_Handler_22)            // SC1 interrupt
-WEAK_ALIAS_FUNC(USBD_IRQHandler, Default_Handler_23)           // USB FS Device interrupt 
+WEAK_ALIAS_FUNC(BOD_IRQHandler, Default_Handler)            // Brownout low voltage detected interrupt  
+WEAK_ALIAS_FUNC(WDT_IRQHandler, Default_Handler)            // Watch Dog Timer interrupt  
+WEAK_ALIAS_FUNC(EINT0_IRQHandler, Default_Handler)          // External signal interrupt from PB.14 pin
+WEAK_ALIAS_FUNC(EINT1_IRQHandler, Default_Handler)          // External signal interrupt from PB.15 pin
+WEAK_ALIAS_FUNC(GPABC_IRQHandler, Default_Handler)          // External interrupt from PA[15:0]/PB[15:0]/PC[15:0]  
+WEAK_ALIAS_FUNC(GPDEF_IRQHandler, Default_Handler)          // External interrupt from PD[15:0]/PE[15:0]/PF[7:0]
+WEAK_ALIAS_FUNC(PWM0_IRQHandler, Default_Handler)           // PWM 0 interrupt 
+WEAK_ALIAS_FUNC(PWM1_IRQHandler, Default_Handler)           // PWM 1 interrupt  
+WEAK_ALIAS_FUNC(TMR0_IRQHandler, Default_Handler)           // Timer 0 interrupt
+WEAK_ALIAS_FUNC(TMR1_IRQHandler, Default_Handler)           // Timer 1 interrupt  
+WEAK_ALIAS_FUNC(TMR2_IRQHandler, Default_Handler)           // Timer 2 interrupt 
+WEAK_ALIAS_FUNC(TMR3_IRQHandler, Default_Handler)           // Timer 3 interrupt 
+WEAK_ALIAS_FUNC(UART0_IRQHandler, Default_Handler)          // UART0 interrupt
+WEAK_ALIAS_FUNC(UART1_IRQHandler, Default_Handler)          // UART1 interrupt
+WEAK_ALIAS_FUNC(SPI0_IRQHandler, Default_Handler)           // SPI0 interrupt 
+WEAK_ALIAS_FUNC(SPI1_IRQHandler, Default_Handler)           // SPI1 interrupt 
+WEAK_ALIAS_FUNC(SPI2_IRQHandler, Default_Handler)           // SPI2 interrupt 
+WEAK_ALIAS_FUNC(HIRC_IRQHandler, Default_Handler)           // HIRC interrupt 
+WEAK_ALIAS_FUNC(I2C0_IRQHandler, Default_Handler)           // I2C0 interrupt 
+WEAK_ALIAS_FUNC(I2C1_IRQHandler, Default_Handler)           // I2C1 interrupt 
+WEAK_ALIAS_FUNC(SC2_IRQHandler, Default_Handler)            // SC2 interrupt
+WEAK_ALIAS_FUNC(SC0_IRQHandler, Default_Handler)            // SC0 interrupt
+WEAK_ALIAS_FUNC(SC1_IRQHandler, Default_Handler)            // SC1 interrupt
+WEAK_ALIAS_FUNC(USBD_IRQHandler, Default_Handler)           // USB FS Device interrupt 
                                                             // Reserved  
-WEAK_ALIAS_FUNC(LCD_IRQHandler, Default_Handler_25)            // LCD interrupt 
-WEAK_ALIAS_FUNC(PDMA_IRQHandler, Default_Handler_26)           // PDMA interrupt
-WEAK_ALIAS_FUNC(I2S_IRQHandler, Default_Handler_27)            // I2S interrupt 
-WEAK_ALIAS_FUNC(PDWU_IRQHandler, Default_Handler_28)           // Power Down Wake up interrupt
-WEAK_ALIAS_FUNC(ADC_IRQHandler, Default_Handler_29)            // ADC interrupt
-WEAK_ALIAS_FUNC(DAC_IRQHandler, Default_Handler_30)            // DAC interrupt
-WEAK_ALIAS_FUNC(RTC_IRQHandler, Default_Handler_31)            // Real time clock interrupt
+WEAK_ALIAS_FUNC(LCD_IRQHandler, Default_Handler)            // LCD interrupt 
+WEAK_ALIAS_FUNC(PDMA_IRQHandler, Default_Handler)           // PDMA interrupt
+WEAK_ALIAS_FUNC(I2S_IRQHandler, Default_Handler)            // I2S interrupt 
+WEAK_ALIAS_FUNC(PDWU_IRQHandler, Default_Handler)           // Power Down Wake up interrupt
+WEAK_ALIAS_FUNC(ADC_IRQHandler, Default_Handler)            // ADC interrupt
+WEAK_ALIAS_FUNC(DAC_IRQHandler, Default_Handler)            // DAC interrupt
+WEAK_ALIAS_FUNC(RTC_IRQHandler, Default_Handler)            // Real time clock interrupt
 
 /* Vector table */
 #if defined(__CC_ARM)
@@ -259,140 +258,6 @@ void Reset_Handler(void)
  * \brief Default interrupt handler for unused IRQs.
  */
 void Default_Handler(void)
-{
-    while (1);
-}
-
-void Default_Handler_a(void)
-{
-    while (1);
-}
-
-void Default_Handler_0(void)
-{
-    while (1);
-}
-void Default_Handler_1(void)
-{
-    while (1);
-}
-void Default_Handler_2(void)
-{
-    while (1);
-}
-void Default_Handler_3(void)
-{
-    while (1);
-}
-void Default_Handler_4(void)
-{
-    while (1);
-}
-void Default_Handler_5(void)
-{
-    while (1);
-}
-void Default_Handler_6(void)
-{
-    while (1);
-}
-void Default_Handler_7(void)
-{
-    while (1);
-}
-void Default_Handler_8(void)
-{
-    while (1);
-}
-void Default_Handler_9(void)
-{
-    while (1);
-}
-void Default_Handler_10(void)
-{
-    while (1);
-}
-void Default_Handler_11(void)
-{
-    while (1);
-}
-void Default_Handler_12(void)
-{
-    while (1);
-}
-void Default_Handler_13(void)
-{
-    while (1);
-}
-void Default_Handler_14(void)
-{
-    while (1);
-}
-void Default_Handler_15(void)
-{
-    while (1);
-}
-void Default_Handler_16(void)
-{
-    while (1);
-}
-void Default_Handler_17(void)
-{
-    while (1);
-}
-void Default_Handler_18(void)
-{
-    while (1);
-}
-void Default_Handler_19(void)
-{
-    while (1);
-}
-void Default_Handler_20(void)
-{
-    while (1);
-}
-void Default_Handler_21(void)
-{
-    while (1);
-}
-void Default_Handler_22(void)
-{
-    while (1);
-}
-void Default_Handler_23(void)
-{
-    while (1);
-}
-void Default_Handler_24(void)
-{
-    while (1);
-}
-void Default_Handler_25(void)
-{
-    while (1);
-}
-void Default_Handler_26(void)
-{
-    while (1);
-}
-void Default_Handler_27(void)
-{
-    while (1);
-}
-void Default_Handler_28(void)
-{
-    while (1);
-}
-void Default_Handler_29(void)
-{
-    while (1);
-}
-void Default_Handler_30(void)
-{
-    while (1);
-}
-void Default_Handler_31(void)
 {
     while (1);
 }

@@ -128,7 +128,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->spi.spi);
+    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
     
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
@@ -182,7 +182,7 @@ void spi_free(spi_t *obj)
     
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->spi.spi);
+    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
     SPI_DisableInt(((SPI_T *) NU_MODBASE(obj->spi.spi)), (SPI_FIFO_RXOVR_INTEN_MASK | SPI_FIFO_RX_INTEN_MASK | SPI_FIFO_TX_INTEN_MASK));
     NVIC_DisableIRQ(modinit->irq_n);
     
@@ -379,7 +379,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         // DMA way
         const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
         MBED_ASSERT(modinit != NULL);
-        MBED_ASSERT(modinit->modname == obj->spi.spi);
+        MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
         
         // Configure tx DMA
         dma_enable(obj->spi.dma_chn_id_tx, 1);                  // Enable this DMA channel
@@ -467,7 +467,7 @@ void spi_abort_asynch(spi_t *obj)
         
         if (obj->spi.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->spi.dma_chn_id_tx, PDMA_IER_TD_IE_Msk);
-            // FIXME: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
+            // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
             //PDMA_STOP(obj->spi.dma_chn_id_tx);
             dma_enable(obj->spi.dma_chn_id_tx, 0);
         }
@@ -476,7 +476,7 @@ void spi_abort_asynch(spi_t *obj)
         
         if (obj->spi.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->spi.dma_chn_id_rx, PDMA_IER_TD_IE_Msk);
-            // FIXME: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
+            // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
             //PDMA_STOP(obj->spi.dma_chn_id_rx);
             dma_enable(obj->spi.dma_chn_id_rx, 0);
         }
@@ -488,7 +488,7 @@ void spi_abort_asynch(spi_t *obj)
     spi_enable_vector_interrupt(obj, 0, 0);
     spi_master_enable_interrupt(obj, 0, SPI_FIFO_RX_INTEN_MASK | SPI_FIFO_TX_INTEN_MASK);
 
-    // FIXME: SPI H/W may get out of state without the busy check.
+    // NOTE: SPI H/W may get out of state without the busy check.
     while (SPI_IS_BUSY(spi_base));
     
     SPI_ClearRxFIFO(spi_base);
@@ -516,7 +516,6 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 uint8_t spi_active(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    // FIXME
     /*
     if ((obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length)
             || (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) ){
@@ -593,7 +592,7 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->spi.spi);
+    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
     
     struct nu_spi_var *var = (struct nu_spi_var *) modinit->var;
     
@@ -835,20 +834,20 @@ static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma)
 {
     spi_t *obj = (spi_t *) id;
     
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_ABORT) {
     }
     // Expect SPI IRQ will catch this transfer done event
     if (event_dma & DMA_EVENT_TRANSFER_DONE) {
         obj->tx_buff.pos = obj->tx_buff.length;
     }
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_TIMEOUT) {
     }
     
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->spi.spi);
+    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
     
     void (*vec)(void) = (void (*)(void)) NVIC_GetVector(modinit->irq_n);
     vec();
@@ -858,20 +857,20 @@ static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma)
 {
     spi_t *obj = (spi_t *) id;
     
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_ABORT) {
     }
     // Expect SPI IRQ will catch this transfer done event
     if (event_dma & DMA_EVENT_TRANSFER_DONE) {
         obj->rx_buff.pos = obj->rx_buff.length;
     }
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_TIMEOUT) {
     }
     
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->spi.spi);
+    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
     
     void (*vec)(void) = (void (*)(void)) NVIC_GetVector(modinit->irq_n);
     vec();

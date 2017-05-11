@@ -24,7 +24,7 @@
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
 #include "nu_bitutil.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 #define NU_I2C_DEBUG    0
 
@@ -126,7 +126,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     
     const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->i2c.i2c);
+    MBED_ASSERT((I2CName) modinit->modname == obj->i2c.i2c);
     
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
@@ -442,7 +442,7 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync)
                 break;
             }
         case 0xF8:  // Bus Released
-            if (i2c_ctl & (I2C_CON_START_Msk | I2C_CON_STOP_Msk) == I2C_CON_STOP_Msk) {
+            if ((i2c_ctl & (I2C_CON_START_Msk | I2C_CON_STOP_Msk)) == I2C_CON_STOP_Msk) {
                 return 0;
             }
             else {
@@ -1023,7 +1023,7 @@ static void i2c_enable_vector_interrupt(i2c_t *obj, uint32_t handler, int enable
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->i2c.i2c);
+    MBED_ASSERT((I2CName) modinit->modname == obj->i2c.i2c);
     
     if (enable) {
         NVIC_SetVector(modinit->irq_n, handler);

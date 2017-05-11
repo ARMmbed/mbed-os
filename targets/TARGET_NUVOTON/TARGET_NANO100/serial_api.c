@@ -410,7 +410,7 @@ static void uart_irq(serial_t *obj)
         }
     }
     
-    // FIXME: Ignore all other interrupt flags. Clear them. Otherwise, program will get stuck in interrupt.
+    // NOTE: Ignore all other interrupt flags. Clear them. Otherwise, program will get stuck in interrupt.
     uart_base->ISR = uart_base->ISR;
     uart_base->FSR = uart_base->FSR;
 }
@@ -546,7 +546,7 @@ void serial_tx_abort_asynch(serial_t *obj)
     if (obj->serial.dma_usage_tx != DMA_USAGE_NEVER) {
         if (obj->serial.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->serial.dma_chn_id_tx, PDMA_IER_TD_IE_Msk);
-            // FIXME: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
+            // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
             //PDMA_STOP(obj->serial.dma_chn_id_tx);
             dma_enable(obj->serial.dma_chn_id_tx, 0);
         }
@@ -563,7 +563,7 @@ void serial_rx_abort_asynch(serial_t *obj)
     if (obj->serial.dma_usage_rx != DMA_USAGE_NEVER) {
         if (obj->serial.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->serial.dma_chn_id_rx, PDMA_IER_TD_IE_Msk);
-            // FIXME: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
+            // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
             //PDMA_STOP(obj->serial.dma_chn_id_rx);
             dma_enable(obj->serial.dma_chn_id_rx, 0);
         }
@@ -696,7 +696,6 @@ static int serial_is_tx_complete(serial_t *obj)
 {
     // NOTE: Exclude tx fifo empty check due to no such interrupt on DMA way
     //return (obj->tx_buff.pos == obj->tx_buff.length) && UART_GET_TX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart)));
-    // FIXME: Premature abort???
     return (obj->tx_buff.pos == obj->tx_buff.length);
 }
 
@@ -765,7 +764,7 @@ static uint32_t serial_rx_event_check(serial_t *obj)
     }
     if ((obj->char_match != SERIAL_RESERVED_CHAR_MATCH) && obj->char_found) {
         event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
-        // FIXME: Timing to reset char_found?
+        // NOTE: Timing to reset char_found?
         //obj->char_found = 0;
     }
     
@@ -776,14 +775,14 @@ static void uart_dma_handler_tx(uint32_t id, uint32_t event_dma)
 {
     serial_t *obj = (serial_t *) id;
     
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_ABORT) {
     }
     // Expect UART IRQ will catch this transfer done event
     if (event_dma & DMA_EVENT_TRANSFER_DONE) {
         obj->tx_buff.pos = obj->tx_buff.length;
     }
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_TIMEOUT) {
     }
     
@@ -794,14 +793,14 @@ static void uart_dma_handler_rx(uint32_t id, uint32_t event_dma)
 {
     serial_t *obj = (serial_t *) id;
     
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_ABORT) {
     }
     // Expect UART IRQ will catch this transfer done event
     if (event_dma & DMA_EVENT_TRANSFER_DONE) {
         obj->rx_buff.pos = obj->rx_buff.length;
     }
-    // FIXME: Pass this error to caller
+    // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_TIMEOUT) {
     }
     

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "analogin_api.h"
+#include "cmsis.h"
 
 // NOTE: Ensurce mbed_sdk_init() will get called before C++ global object constructor.
 #if defined(__CC_ARM) || defined(__GNUC__)
 void mbed_sdk_init_forced(void) __attribute__((constructor(101)));
 #elif defined(__ICCARM__)
-    // FIXME: How to achieve it in IAR?
+    // TODO: How to achieve it in IAR?
 #endif
 
 
@@ -63,11 +63,6 @@ void mbed_sdk_init(void)
     /*  Set HCLK frequency 42MHz */
     CLK_SetCoreClock(42000000);
 
-#if DEVICE_ANALOGIN
-    /* Vref connect to internal */
-//    SYS->VREFCTL = (SYS->VREFCTL & ~SYS_VREFCTL_VREFCTL_Msk) | SYS_VREFCTL_VREF_3_072V;
-#endif
-    
     /* Update System Core Clock */
     /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock. */
     SystemCoreClockUpdate();

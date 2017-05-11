@@ -70,7 +70,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->pwm);
+    MBED_ASSERT((PWMName) modinit->modname == obj->pwm);
     
     PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
@@ -112,7 +112,7 @@ void pwmout_free(pwmout_t* obj)
     
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->pwm);
+    MBED_ASSERT((PWMName) modinit->modname == obj->pwm);
     ((struct nu_pwm_var *) modinit->var)->en_msk &= ~(1 << chn);
     
     
@@ -177,7 +177,6 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 int pwmout_allow_powerdown(void)
 {
     uint32_t modinit_mask = pwm_modinit_mask;
-#if 0
     while (modinit_mask) {
         int pwm_idx = nu_ctz(modinit_mask);
         const struct nu_modinit_s *modinit = pwm_modinit_tab + pwm_idx;
@@ -185,13 +184,12 @@ int pwmout_allow_powerdown(void)
             PWM_T *pwm_base = (PWM_T *) NU_MODBASE(modinit->modname);
             uint32_t chn = NU_MODSUBINDEX(modinit->modname);
             // Disallow entering power-down mode if PWM counter is enabled.
-            if ((pwm_base->CNTEN & (1 << chn)) && pwm_base->CMPDAT[chn]) {
+            if (pwm_base->OE & (1 << chn)) {
                 return 0;
             }
         }
         modinit_mask &= ~(1 << pwm_idx);
     }
-#endif
     
     return 1;
 }
