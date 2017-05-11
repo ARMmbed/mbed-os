@@ -2,13 +2,13 @@
 #include "api/inc/uvisor_exports.h"
 #include "api/inc/halt_exports.h"
 #include "cmsis_os2.h"
-#include "mbed_rtos_storage.h"
+#include "rtx_lib.h"
 #include <string.h>
 
 typedef struct uvisor_semaphore_internal {
-    osSemaphoreId_t               id;
-    osSemaphoreAttr_t             attr;
-    mbed_rtos_storage_semaphore_t data;
+    osSemaphoreId_t   id;
+    osSemaphoreAttr_t attr;
+    osRtxSemaphore_t data;
 } UVISOR_ALIGN(4) uvisor_semaphore_internal_t;
 
 UVISOR_STATIC_ASSERT(UVISOR_SEMAPHORE_INTERNAL_SIZE >= sizeof(UvisorSemaphore), semaphore_size_too_small);

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "mbed_rtos_storage.h"
+#include "rtx_lib.h"
 
 /* uVisor uses rtx_memory instead of implementing its own dynamic,
  * non-fixed-size memory allocator. To do this, uVisor creates multiple
