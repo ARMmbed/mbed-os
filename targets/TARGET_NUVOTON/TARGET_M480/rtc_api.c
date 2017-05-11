@@ -71,6 +71,8 @@ time_t rtc_read(void)
 {
     // NOTE: After boot, RTC time registers are not synced immediately, about 1 sec latency.
     //       RTC time got (through RTC_GetDateAndTime()) in this sec would be last-synced and incorrect.
+    //       NUC472/M453: Known issue
+    //       M487: Fixed
     if (! rtc_isenabled()) {
         rtc_init();
     }
