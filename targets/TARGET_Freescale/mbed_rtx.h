@@ -247,6 +247,26 @@
 #define OS_CLOCK                120000000
 #endif
 
+#elif defined(TARGET_RO359B)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20030000UL)
+#endif
+
+#if defined(__CC_ARM) || defined(__GNUC__)
+#define ISR_STACK_SIZE          (0x1000)
+#endif
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                96000000
+#endif
+
 #endif
 
 #endif  // MBED_MBED_RTX_H
