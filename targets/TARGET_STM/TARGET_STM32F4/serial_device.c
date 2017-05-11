@@ -275,14 +275,13 @@ static void uart_irq(int id)
     if (serial_irq_ids[id] != 0) {
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TC) != RESET) {
             if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TC) != RESET) {
-                irq_handler(serial_irq_ids[id], TxIrq);
                 __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_TC);
+                irq_handler(serial_irq_ids[id], TxIrq);
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
             if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET) {
                 irq_handler(serial_irq_ids[id], RxIrq);
-                __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_RXNE);
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
@@ -448,7 +447,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         if (irq == RxIrq) {
             __HAL_UART_DISABLE_IT(huart, UART_IT_RXNE);
             // Check if TxIrq is disabled too
-            if ((huart->Instance->CR1 & USART_CR1_TXEIE) == 0) {
+            if ((huart->Instance->CR1 & USART_CR1_TCIE) == 0) {
                 all_disabled = 1;
             }
         } else { // TxIrq
