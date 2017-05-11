@@ -25,31 +25,33 @@
 
 #define YEAR0           1900
 
-static int rtc_inited = 0;
 
 static const struct nu_modinit_s rtc_modinit = {RTC_0, RTC_MODULE, 0, 0, 0, RTC_IRQn, NULL};
 
 void rtc_init(void)
 {
-    if (rtc_inited) {
+    if (rtc_isenabled()) {
         return;
     }
-    rtc_inited = 1;
-    
-    // Enable IP clock
-    CLK_EnableModuleClock(rtc_modinit.clkidx);
     
     RTC_Open(NULL);
 }
 
 void rtc_free(void)
 {
-    // FIXME
+    // N/A
 }
 
 int rtc_isenabled(void)
 {
-    return rtc_inited;
+    // NOTE: To access (RTC) registers, clock must be enabled first.
+    if (! (CLK->APBCLK & CLK_APBCLK_RTC_EN_Msk)) {
+        // Enable IP clock
+        CLK_EnableModuleClock(rtc_modinit.clkidx);
+    }
+    
+    // NOTE: Check RTC Init Active flag to support crossing reset cycle.
+    return !! (RTC->INIR & RTC_INIR_ACTIVE_Msk);
 }
 
 /*
@@ -67,7 +69,9 @@ int rtc_isenabled(void)
 
 time_t rtc_read(void)
 {
-    if (! rtc_inited) {
+    // NOTE: After boot, RTC time registers are not synced immediately, about 1 sec latency.
+    //       RTC time got (through RTC_GetDateAndTime()) in this sec would be last-synced and incorrect.
+    if (! rtc_isenabled()) {
         rtc_init();
     }
     
@@ -93,7 +97,7 @@ time_t rtc_read(void)
 
 void rtc_write(time_t t)
 {
-    if (! rtc_inited) {
+    if (! rtc_isenabled()) {
         rtc_init();
     }
     
