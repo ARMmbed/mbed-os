@@ -318,7 +318,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
 
     Positional arguments:
     src_paths - the paths to source directories
-    target - ['LPC1768', 'LPC11U24', 'LPC2368', etc.]
+    target - ['LPC1768', 'LPC11U24', etc.]
     toolchain_name - ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
 
     Keyword arguments:
