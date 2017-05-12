@@ -71,7 +71,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 {
     uint32_t    val;
     uint16_t    div2;
-    float32_t   mul2, nDivisor, nMulfactor;
+    float       mul2, nDivisor, nMulfactor;
 
 #ifdef ADI_DEBUG
     /* "lfclock" is only used during debug checks... */
@@ -120,7 +120,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
             /* PLL MSEL divider */
             mul2 = ( ( pADI_CLKG0_CLK->CTL3 & BITM_CLKG_CLK_CTL3_SPLLMUL2 ) >> BITP_CLKG_CLK_CTL3_SPLLMUL2 );
 
-            val = ( ( (uint32_t)( ( nMulfactor * ( mul2 + 1.0 ) * (float32_t) val ) / nDivisor ) ) >> div2 );
+            val = ( ( (uint32_t)( ( nMulfactor * ( mul2 + 1.0 ) * (float) val ) / nDivisor ) ) >> div2 );
 
             hfClock = val;
             break;
@@ -192,7 +192,7 @@ void SystemInit (void)
  * @return none
  *
  */
-void adi_system_EnableCache(bool_t bEnable)
+void adi_system_EnableCache(bool bEnable)
 {
     pADI_FLCC0_CACHE->KEY = CACHE_CONTROLLER_KEY;
     if(bEnable)
@@ -216,7 +216,7 @@ void adi_system_EnableCache(bool_t bEnable)
  * @return none
  * @note:  Please note that respective linker file need to support the configuration.
  */
-void adi_system_EnableISRAM(bool_t bEnable)
+void adi_system_EnableISRAM(bool bEnable)
 {
 
     if(bEnable)
@@ -242,7 +242,7 @@ void adi_system_EnableISRAM(bool_t bEnable)
  * @note: Please note that respective linker file need to support the configuration. Only BANK-1 and
           BANK-2 of SRAM is valid.
  */
-uint32_t adi_system_EnableRetention(ADI_SRAM_BANK eBank,bool_t bEnable)
+uint32_t adi_system_EnableRetention(ADI_SRAM_BANK eBank,bool bEnable)
 {
 #ifdef ADI_DEBUG
     if((eBank != ADI_SRAM_BANK_1) && (eBank != ADI_SRAM_BANK_2))

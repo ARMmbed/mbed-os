@@ -52,9 +52,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdint.h>
 #include <stdio.h>
-#include <services/tmr/adi_tmr.h>
-#include <services/pwr/adi_pwr.h>
-#include <services/gpio/adi_gpio.h>
+#include <drivers/tmr/adi_tmr.h>
+#include <drivers/pwr/adi_pwr.h>
+#include <drivers/gpio/adi_gpio.h>
 
 #define TIMER_MAX_VALUE	0xFFFF
 
@@ -84,15 +84,9 @@ latest_timer_expiry_t latest_timer_expiry;
 
 volatile uint32_t Core_Time_Tick = 0;
 
-bool_t timer_present = false;
-
-static ADI_TMR_HANDLE hTimer0,hTimer1;
+bool timer_present = false;
 
 static uint8_t Capture_timer_running;
-
-static uint32_t aDeviceMemory0[(ADI_TMR_MEMORY_SIZE + 3)/4];
-
-static uint32_t aDeviceMemory1[(ADI_TMR_MEMORY_SIZE + 3)/4];
 
 static uint16_t get_elapsed_time();
 static void Tmr0_Int_Callback( void *pCBParam, uint32_t Event, void *pArg );
@@ -105,6 +99,8 @@ void us_ticker_irq_handler(void);
 static int us_ticker_inited = 0;
 
 uint32_t prev_time, current_time;
+
+static ADI_TMR_CONFIG tmr0_config, tmr1_config;
 
 /*---------------------------------------------------------------------------*/
 
@@ -143,7 +139,7 @@ static void Tmr0_Int_Callback( void *pCBParam, uint32_t Event, void *pArg )
                 Capture_timer_running = 1;
 
                 /* Start Timer1 in Periodic mode */
-                adi_tmr_Enable(hTimer1, true);
+                adi_tmr_Enable(ADI_TMR_DEVICE_GP1, true);
             }
         }
     }
@@ -156,7 +152,7 @@ static void Tmr1_Int_Callback( void *pCBParam, uint32_t Event, void *pArg )
     Capture_timer_running = 0;
 
     /* Disable Timer1 */
-    adi_tmr_Enable(hTimer1, false);
+    adi_tmr_Enable(ADI_TMR_DEVICE_GP1, false);
 
     /* Invoke Callback Function */
     us_ticker_irq_handler();
@@ -164,35 +160,31 @@ static void Tmr1_Int_Callback( void *pCBParam, uint32_t Event, void *pArg )
 
 
 /*---------------------------------------------------------------------------*/
-static ADI_TMR_RESULT Init_timer(ADI_TMR_HANDLE *hDevice,
-                                 void *handle_mem,
-                                 uint8_t device_num,
+static ADI_TMR_RESULT Init_timer(ADI_TMR_DEVICE eDevice,
+                                 ADI_TMR_CONFIG *pTmr_config,
                                  ADI_CALLBACK   const   pfCallback)
 {
     ADI_TMR_RESULT result;
 
-    result = adi_tmr_Open(device_num,handle_mem,ADI_TMR_MEMORY_SIZE,hDevice);
+    result = adi_tmr_Init(eDevice, pfCallback, NULL, true);
 
-    if (ADI_TMR_SUCCESS == result)
-        result = adi_tmr_RegisterCallback( *hDevice, pfCallback,*hDevice);
-
-    // select 26MHz clock
-    if (ADI_TMR_SUCCESS == result)
-        result = adi_tmr_SetClockSource(*hDevice, ADI_TMR_CLOCK_HFOSC);
-
-    // set timer to count up mode
-    if (ADI_TMR_SUCCESS == result)
-        result = adi_tmr_SetCountMode(*hDevice, ADI_TMR_COUNT_UP);
-
-    // set prescaler
-    if (ADI_TMR_SUCCESS == result) {
+    if (result == ADI_TMR_SUCCESS) {
+        pTmr_config->bCountingUp = true;
+        pTmr_config->bPeriodic = (eDevice == ADI_TMR_DEVICE_GP0) ? false : true;
 #if TIMER_PRESCALER==64
-        result = adi_tmr_SetPrescaler(*hDevice, ADI_GPT_PRESCALER_64);
+        pTmr_config->ePrescaler = ADI_TMR_PRESCALER_64;
 #elif TIMER_PRESCALER==16
-        result = adi_tmr_SetPrescaler(*hDevice, ADI_GPT_PRESCALER_16);
+        pTmr_config->ePrescaler = ADI_TMR_PRESCALER_16;
 #else
 #error "Invalid timer prescaler value!"
 #endif
+        pTmr_config->eClockSource = ADI_TMR_CLOCK_HFOSC;
+        pTmr_config->nLoad = 0;
+        pTmr_config->nAsyncLoad = 0;
+        pTmr_config->bReloading = false;
+        pTmr_config->bSyncBypass = false;
+
+        result = adi_tmr_ConfigTimer(eDevice, *pTmr_config);
     }
 
     return result;
@@ -203,26 +195,14 @@ static void tmr_init()
     ADI_TMR_RESULT result;
 
     // Timer0 is configured as a free running count up timer
-    result = Init_timer(&hTimer0, aDeviceMemory0, 0, Tmr0_Int_Callback);
+    result = Init_timer(ADI_TMR_DEVICE_GP0, &tmr0_config, Tmr0_Int_Callback);
 
     // Timer1 is configured as a periodic count up timer.
-    if (ADI_TMR_SUCCESS == result)
-        result = Init_timer(&hTimer1, aDeviceMemory1, 1, Tmr1_Int_Callback);
+    if (result == ADI_TMR_SUCCESS)
+        adi_tmr_Enable(ADI_TMR_DEVICE_GP0, true);
 
-    // timer 0 is set to free count mode
-    if (ADI_TMR_SUCCESS == result)
-        result = adi_tmr_SetRunMode(hTimer0, ADI_TMR_FREE_RUNNING_MODE);
-
-    // set timer 0 reload value to 0
-    if (ADI_TMR_SUCCESS == result)
-        adi_tmr_SetLoadValue(hTimer0, 0);
-
-    // timer 1 is set to periodic mode
-    if (ADI_TMR_SUCCESS == result)
-        result = adi_tmr_SetRunMode( hTimer1, ADI_TMR_PERIODIC_MODE);
-
-    if (ADI_TMR_SUCCESS == result)
-        adi_tmr_Enable(hTimer0, true);
+    // Timer1 is configured as a periodic count up timer.
+    Init_timer(ADI_TMR_DEVICE_GP1, &tmr1_config, Tmr1_Int_Callback);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -242,7 +222,7 @@ static uint16_t get_elapsed_time()
 {
     uint16_t timer_value;
 
-    adi_GPT_GetCurrentValue(hTimer0, &timer_value);
+    adi_tmr_GetCurrentCount(ADI_TMR_DEVICE_GP0, &timer_value);
 
     return timer_value;
 }
@@ -252,8 +232,7 @@ static int StopTimer()
     timer_present = false;
 
     if(Capture_timer_running) {
-        adi_tmr_Enable(hTimer1, false);
-
+        adi_tmr_Enable(ADI_TMR_DEVICE_GP1, false);
         Capture_timer_running = 0;
     }
 
@@ -262,8 +241,6 @@ static int StopTimer()
 
 static int StartTimer(uint32_t expiry_time)
 {
-    //volatile __istate_t istate;
-
     uint32_t curr_time, major_ticks;
 
     // calculate the number of ticks the expiry_time requires. The time
@@ -288,29 +265,29 @@ static int StartTimer(uint32_t expiry_time)
         if(curr_time >= latest_timer_expiry.u16_latest_timer_expiry[0]) {
             timer_present = false;
 
-            /* Invoke Callback Function */
-            //us_ticker_irq_handler();
-
-            adi_tmr_SetLoadValue(hTimer1,(TIMER_MAX_VALUE - MIN_TIME_LOAD));
+            tmr1_config.nLoad = TIMER_MAX_VALUE - MIN_TIME_LOAD;
+            adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, tmr1_config);
 
             Capture_timer_running = 1;
 
-            adi_tmr_Enable(hTimer1, true);
+            adi_tmr_Enable(ADI_TMR_DEVICE_GP1, true);
         } else {
             // Otherwise load and count up the remainder ticks using TIMER1
             /* Start Timer1 in Periodic mode by loading TxLD Register
             with a value of (TIMER_MAX_VALUE - (u16_latest_timer_expiry[0] - curr_time))*/
-            adi_tmr_SetLoadValue(hTimer1,(TIMER_MAX_VALUE - (latest_timer_expiry.u16_latest_timer_expiry[0] - curr_time)));
+            tmr1_config.nLoad = TIMER_MAX_VALUE - (latest_timer_expiry.u16_latest_timer_expiry[0] - curr_time);
+            adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, tmr1_config);
 
             Capture_timer_running = 1;
 
-            adi_tmr_Enable(hTimer1, true);
+            adi_tmr_Enable(ADI_TMR_DEVICE_GP1, true);
         }
     } else {
         timer_present = true;
 
         /*Load TxLD Register with a value of (TIMER_MAX_VALUE - u16_latest_timer_expiry[0])*/
-        adi_tmr_SetLoadValue(hTimer1, (TIMER_MAX_VALUE - latest_timer_expiry.u16_latest_timer_expiry[0]));
+        tmr1_config.nLoad = TIMER_MAX_VALUE - latest_timer_expiry.u16_latest_timer_expiry[0];
+        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, tmr1_config);
     }
 
     return 0;

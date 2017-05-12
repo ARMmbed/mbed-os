@@ -22,7 +22,7 @@
 
 #include <stdlib.h>
 #include <drivers/rng/adi_rng.h>
-#include <services/pwr/adi_pwr.h>
+#include <drivers/pwr/adi_pwr.h>
 #include "cmsis.h"
 #include "trng_api.h"
 
@@ -58,7 +58,7 @@ void trng_free(trng_t *obj)
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     (void)obj;
-    bool_t bRNGRdy;
+    bool bRNGRdy;
     uint32_t nRandomNum, i;
 
     for (i = 0; i < length; ) {

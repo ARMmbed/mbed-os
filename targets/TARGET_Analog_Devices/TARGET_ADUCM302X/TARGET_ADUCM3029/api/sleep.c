@@ -20,7 +20,9 @@
 #ifdef DEVICE_SLEEP
 
 #include "adi_pwr.h"
-#include "adi_pwr_def_v1.h"
+#include "adi_pwr_def.h"
+#include "adi_rtos_map.h"
+#include "AduCM3029_device.h"
 #include "sleep.h"
 
 /**
@@ -32,10 +34,13 @@ static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
     uint16_t savedWDT;
     uint32_t scrSetBits = 0u;
     uint32_t scrClrBits = 0u;
+    ADI_INT_STATUS_ALLOC();
 
     /* pre-calculate the sleep-on-exit set/clear bits, FLEXI mode only */
-    scrSetBits |= SLEEPONEXIT_BIT;
-    scrClrBits |= (SLEEPDEEP_BIT | SLEEPONEXIT_BIT);
+    scrSetBits |= SCB_SCR_SLEEPONEXIT_Msk;
+
+    /* wfi without deepsleep or sleep-on-exit */
+    scrClrBits |= (uint32_t)(BITM_NVIC_INTCON0_SLEEPDEEP | BITM_NVIC_INTCON0_SLEEPONEXIT);
 
     /* put all the power mode and system control mods inside a critical section */
     ADI_ENTER_CRITICAL_REGION();
@@ -69,25 +74,15 @@ static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
     /* Set caller's priority threshold (left-justified) */
     __set_BASEPRI(0);
 
-    /* if we are in the software looping mode, loop on the user's flag until set */
-    /* SAR-51938: insure WDT is fully synchronized or hibernate may lock out the sync bits */
-    while ((pADI_WDT0->STAT & (BITM_WDT_STAT_COUNTING | BITM_WDT_STAT_LOADING | BITM_WDT_STAT_CLRIRQ)) != 0u) {
-    }
-
-    __DSB();  /* bus sync to insure register writes from interrupt handlers are always complete before WFI */
-
-    /* NOTE: aggressive compiler optimizations can muck up critical timing here, so reduce if hangs are present */
+    /* bus sync to insure register writes from interrupt handlers are always complete before WFI */
+    __DSB();
 
     /* Wait for interrupt */
     __WFI();
 
-    /* Recycle critical section so that interrupts are dispatched.  This
-     * allows *pbInterruptOccurred to be set during interrupt handling.
-     */
     ADI_EXIT_CRITICAL_REGION();
-    /* nop */
+
     ADI_ENTER_CRITICAL_REGION();
-    /* ...still within critical section... */
 
     /* Restore previous base priority */
     __set_BASEPRI(savedPriority);
@@ -96,7 +91,7 @@ static void go_into_WFI(const ADI_PWR_POWER_MODE PowerMode)
     pADI_WDT0->CTL = savedWDT;
 
     /* clear sleep-on-exit bit to avoid sleeping on exception return to thread level */
-    SCB->SCR &= ~SLEEPONEXIT_BIT;
+    SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
 
     __DSB(); /* bus sync before re-enabling interrupts */
 

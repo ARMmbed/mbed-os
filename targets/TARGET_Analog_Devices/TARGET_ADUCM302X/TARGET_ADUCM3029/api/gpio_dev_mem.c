@@ -1,4 +1,4 @@
-#include <services/gpio/adi_gpio.h>
+#include <drivers/gpio/adi_gpio.h>
 
 // ADI GPIO device driver state memory. Only one state memory is required globally.
 uint8_t gpioMemory[ADI_GPIO_MEMORY_SIZE];

@@ -50,12 +50,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #include <cmsis.h>
 #include <startup_ADuCM3029.h>
-#include <adi_int.h>
 
-/*----------------------------------------------------------------------------
- definition of variables required in critical region
- *----------------------------------------------------------------------------*/
-ADI_CRITICAL_REGION_VAR_DEFINE
 
 /*----------------------------------------------------------------------------
   Checksum options
