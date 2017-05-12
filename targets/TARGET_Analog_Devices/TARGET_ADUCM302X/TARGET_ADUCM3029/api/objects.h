@@ -21,6 +21,7 @@
 #include "PinNames.h"
 //#include "target_config.h"
 #include "gpio_object.h"
+#include "adi_adc.h"
 
 #ifdef __cplusplus
 extern "C" {
