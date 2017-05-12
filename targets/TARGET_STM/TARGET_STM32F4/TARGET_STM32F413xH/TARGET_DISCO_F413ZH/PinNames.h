@@ -223,12 +223,14 @@ typedef enum {
     D15         = PB_10,
 
     // Generic signals namings
-    LED1        = PE_3,       // Red
-    LED2        = PC_7,       // Green
-    LED_RED     = LED1,
+    LED1        = PC_5,       // Green = LD3 on the board
+    LED2        = PE_3,       // Red = LD4 on the board
+    LED3        = PB_12,      // Green = LD5 on the board, connected to Arduino D13
+    LED4        = LED1,
+    LED_RED     = LED2,
     USER_BUTTON = PA_0,
-    SERIAL_TX   = PG_9,
-    SERIAL_RX   = PG_14,
+    SERIAL_TX   = PG_14,
+    SERIAL_RX   = PG_9,
     USBTX       = SERIAL_TX,
     USBRX       = SERIAL_RX,
     I2C_SCL     = D15,
