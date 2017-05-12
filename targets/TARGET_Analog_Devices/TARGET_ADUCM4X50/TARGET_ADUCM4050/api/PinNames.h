@@ -186,6 +186,8 @@ typedef enum {
     A3 = P2_06,
     A4 = P2_07,
     A5 = P2_08,
+    A6 = P2_09,
+    A7 = P2_10,
 
     // Not connected
     NC = (int)0xFFFFFFFF

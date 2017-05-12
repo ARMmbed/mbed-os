@@ -93,6 +93,18 @@ const PinMap PinMap_I2C_SCL[] = {
     {NC, NC, 0}
 };
 
+/************ADC***************/
+const PinMap PinMap_ADC[] = {
+    {P2_03, ADC0_VIN0, 1},
+    {P2_04, ADC0_VIN1, 1},
+    {P2_05, ADC0_VIN2, 1},
+    {P2_06, ADC0_VIN3, 1},
+    {P2_07, ADC0_VIN4, 1},
+    {P2_08, ADC0_VIN5, 1},   
+    {P2_09, ADC0_VIN6, 1},  
+    {P2_10, ADC0_VIN7, 1},  
+    {NC, NC, 0}
+};
 
 /************RTC***************/
 const PinMap PinMap_RTC[] = {

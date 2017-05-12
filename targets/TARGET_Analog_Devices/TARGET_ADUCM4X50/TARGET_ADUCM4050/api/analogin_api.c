@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+#include "mbed_assert.h" 
 #include "analogin_api.h"
-#include "adi_adc_def.h"
  
 #if DEVICE_ANALOGIN
+
+#include "adi_adc_def.h"
+#include "pinmap.h"
+#include "PeripheralPins.h"
 
 /** Analogin hal structure. analogin_s is declared in the target's hal
  */
@@ -32,8 +35,8 @@ extern "C" {
 
 /* Memory Required for adc driver */
 static uint8_t DeviceMemory[ADI_ADC_MEMORY_SIZE] __attribute__((aligned(4)));
-
-static uint32_t adi_init_pinmux(PinName pin);
+/* Active channel */
+static uint32_t adi_get_channel(PinName pin);
 
 /**
  * \defgroup hal_analogin Analogin hal functions
@@ -53,15 +56,24 @@ void analogin_init(analogin_t *obj, PinName pin)
     bool bCalibrationDone = false; 
     bool bReady = false;
     
-    adi_pwr_Init();    
-    adi_pwr_SetClockDivider(ADI_CLOCK_HCLK,1);
-    adi_pwr_SetClockDivider(ADI_CLOCK_PCLK,1);
+    ADCName peripheral;
+    uint32_t function;
     
-    obj->UserBuffer.nChannels = adi_init_pinmux(pin);
+    uint16_t nAveragingSamples = 4;
+    
+    peripheral = (ADCName)pinmap_peripheral(pin, &PinMap_ADC[0]);	// gives peripheral
+    MBED_ASSERT(peripheral != (ADCName)NC); 
+    
+    function = pinmap_function(pin, &PinMap_ADC[0]);
+    
+    /* Configure PORT2_MUX registers */
+    pin_function(pin, function);  
+     
+    /* Configure active channel */
+    obj->UserBuffer.nChannels = adi_get_channel(pin);
     
     /* Open the ADC device */
     adi_adc_Open(ADC_DEV_NUM, DeviceMemory, sizeof(DeviceMemory),&hDevice);
-    
     obj->hDevice = hDevice;    
     
     /* Power up ADC */
@@ -92,7 +104,10 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     /* Set the acquisition time. (Application need to change it based on the impedence) */
     eResult = adi_adc_SetAcquisitionTime ( hDevice, obj->SampleCycles);
-
+    
+    /* Sample averaging */
+    adi_adc_EnableAveraging (hDevice, nAveragingSamples ) 	;
+    
 }
 
 /** Read the input voltage, represented as a float in the range [0.0, 1.0]
@@ -128,53 +143,44 @@ uint16_t analogin_read_u16(analogin_t *obj)
     return( *((uint16_t *)(obj->UserBuffer.pDataBuffer)) ); 
 }
 
-
-#define ADC0_IN_ADC0_VIN0_PORTP2_MUX  ((uint16_t) ((uint16_t) 1<<6))
-#define ADC0_IN_ADC0_VIN1_PORTP2_MUX  ((uint16_t) ((uint16_t) 1<<8))
-#define ADC0_IN_ADC0_VIN2_PORTP2_MUX  ((uint16_t) ((uint16_t) 1<<10))
-#define ADC0_IN_ADC0_VIN3_PORTP2_MUX  ((uint16_t) ((uint16_t) 1<<12))
-#define ADC0_IN_ADC0_VIN4_PORTP2_MUX  ((uint16_t) ((uint16_t) 1<<14))
-#define ADC0_IN_ADC0_VIN5_PORTP2_MUX  ((uint16_t) ((uint32_t) 1<<16))
-
-/* Configure PORTx_MUX registers */
-static uint32_t adi_init_pinmux(PinName pin) {
+/* Retrieve te active channel correspondoing to the input pin */
+static uint32_t adi_get_channel(PinName pin) {
     
     uint32_t activech; 
    
-    switch(pin) {
-        
+    switch(pin) {        
         case A0:
             activech = ADI_ADC_CHANNEL_0;
-            *pREG_GPIO2_CFG = ADC0_IN_ADC0_VIN0_PORTP2_MUX;
             break;             
         case A1:
             activech = ADI_ADC_CHANNEL_1;
-            *pREG_GPIO2_CFG = ADC0_IN_ADC0_VIN1_PORTP2_MUX;
             break;               
         case A2:
             activech = ADI_ADC_CHANNEL_2;
-            *pREG_GPIO2_CFG = ADC0_IN_ADC0_VIN2_PORTP2_MUX;
             break;                                 
         case A3:
             activech = ADI_ADC_CHANNEL_3;
-            *pREG_GPIO2_CFG = ADC0_IN_ADC0_VIN3_PORTP2_MUX;
             break; 
         case A4:
             activech = ADI_ADC_CHANNEL_4;
-            *pREG_GPIO2_CFG = ADC0_IN_ADC0_VIN4_PORTP2_MUX;
             break;  
         case A5:
             activech = ADI_ADC_CHANNEL_5;
-            *pREG_GPIO2_CFG = ADC0_IN_ADC0_VIN5_PORTP2_MUX;
             break; 
-              
+        case A6:
+            activech = ADI_ADC_CHANNEL_6;
+            break; 
+        case A7:
+            activech = ADI_ADC_CHANNEL_7;
+            break;                                       
         default: 
             activech = (uint32_t) 0xFFFFFFFF;
             break;
     } 
-
+    
     return(activech);
 }
+
     
 
 /**@}*/
