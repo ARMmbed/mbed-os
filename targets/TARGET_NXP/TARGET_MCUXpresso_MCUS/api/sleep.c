@@ -26,8 +26,8 @@ void hal_sleep(void)
 
 void hal_deepsleep(void)
 {
-    BOARD_BootClockVLPR();
+    LPC_CLOCK_INTERNAL_IRC();
     /* Enter Deep Sleep mode */
     POWER_EnterDeepSleep(APP_EXCLUDE_FROM_DEEPSLEEP);
-    BOARD_BootClockRUN();
+    LPC_CLOCK_RUN();
 }
