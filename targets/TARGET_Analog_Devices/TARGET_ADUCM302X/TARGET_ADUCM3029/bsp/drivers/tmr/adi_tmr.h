@@ -49,8 +49,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <adi_callback.h>
 #include <adi_processor.h>
+#include <adi_callback.h>
+
 
 /** @addtogroup TMR_Driver Timer Driver
  *  @{
@@ -61,7 +62,7 @@ POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************
  *  \enum ADI_TMR_RESULT
  *   Enumeration for result code returned from the timer device driver functions.
- *   The return value of all timer APIs returning #ADI_TMR_RESULT should always
+ *   The return value of all timer APIs returning #ADI_TMR_RESULT should always 
  *   be tested at the application level for success or failure.
  *****************************************************************************/
 typedef enum {
@@ -105,7 +106,7 @@ typedef enum {
     ADI_TMR_DEVICE_RGB = 3u,
     /*! Total number of devices (private) */
     ADI_TMR_DEVICE_NUM = 4u,
-#else
+#else 
 #error TMR is not ported for this processor
 #endif
 } ADI_TMR_DEVICE;
@@ -117,7 +118,7 @@ typedef enum {
  *****************************************************************************/
 typedef enum {
   /*! Timeout event occurred */
-  ADI_TMR_EVENT_TIMEOUT = 0x01,
+  ADI_TMR_EVENT_TIMEOUT = 0x01,  
   /*! Event capture event occurred */
   ADI_TMR_EVENT_CAPTURE = 0x02,
 } ADI_TMR_EVENT;
@@ -131,7 +132,7 @@ typedef enum {
     /*! Count every 1 source clock periods */
     ADI_TMR_PRESCALER_1   = 0u,
     /*! Count every 16 source clock periods */
-    ADI_TMR_PRESCALER_16  = 1u,
+    ADI_TMR_PRESCALER_16  = 1u, 
     /*! Count every 64 source clock periods */
     ADI_TMR_PRESCALER_64  = 2u,
     /*! Count every 256 source clock periods */
@@ -145,11 +146,11 @@ typedef enum {
  *****************************************************************************/
 typedef enum {
     /*! Use periphreal clock (PCLK) */
-    ADI_TMR_CLOCK_PCLK  = 0u,
+    ADI_TMR_CLOCK_PCLK  = 0u, 
     /*! Use internal high frequency clock (HFOSC) */
-    ADI_TMR_CLOCK_HFOSC = 1u,
+    ADI_TMR_CLOCK_HFOSC = 1u, 
     /*! Use internal low frequency clock (LFOSC) */
-    ADI_TMR_CLOCK_LFOSC = 2u,
+    ADI_TMR_CLOCK_LFOSC = 2u, 
     /*! Use external low frequency clock (LFXTAL) */
     ADI_TMR_CLOCK_LFXTAL = 3u,
 } ADI_TMR_CLOCK_SOURCE;
@@ -158,7 +159,7 @@ typedef enum {
  *****************************************************************************
  *  \enum ADI_TMR_PWM_OUTPUT
  *   RGB PWM outputs, used to specify which PWM output to configure. For the GP
- *   timers only #ADI_TMR_PWM_OUTPUT_0 is allowed. The RGB timer has all three
+ *   timers only #ADI_TMR_PWM_OUTPUT_0 is allowed. The RGB timer has all three 
  *   outputs.
  *****************************************************************************/
 typedef enum {
@@ -175,7 +176,7 @@ typedef enum {
 /*!
  *****************************************************************************
  *  \struct ADI_TMR_CONFIG
- *   Configuration structure to fill and pass to #adi_tmr_ConfigTimer when
+ *   Configuration structure to fill and pass to #adi_tmr_ConfigTimer when  
  *   configuring the GP or RGB timer
  *****************************************************************************/
 typedef struct {
@@ -200,7 +201,7 @@ typedef struct {
 /*!
  *****************************************************************************
  *  \struct ADI_TMR_EVENT_CONFIG
- *   Configuration structure to fill and pass to #adi_tmr_ConfigEvent when
+ *   Configuration structure to fill and pass to #adi_tmr_ConfigEvent when  
  *   configuring event capture
  *****************************************************************************/
 typedef struct {
@@ -215,7 +216,7 @@ typedef struct {
 /*!
  *****************************************************************************
  *  \struct ADI_TMR_PWM_CONFIG
- *   Configuration structure to fill and pass to #adi_tmr_ConfigPwm when
+ *   Configuration structure to fill and pass to #adi_tmr_ConfigPwm when  
  *   configuring pulse width modulation output
  *****************************************************************************/
 typedef struct {

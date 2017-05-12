@@ -51,9 +51,11 @@ POSSIBILITY OF SUCH DAMAGE.
  *  @details
  *
  *  The Crypto controller provides hardware acceleration of various AES cryptographic
- *  cipher modes, including: ECB, CBC, CTR, CMAC, CCM, and SHA-256.  The Crypto block
- *  works most efficiently in DMA mode due to the large about of data I/O which would
- *  otherwise incur a lot of PIO-mode interrupt traffic to manually pump data.
+ *  cipher modes, including: ECB, CBC, CTR, CMAC, CCM, SHA-256 and Keyed HMAC; as well
+ *  as Protected Key Storage (PKSTOR) operations for safely storing and using encrypted
+ *  keys.  The Crypto block works most efficiently in DMA mode due to the large about
+ *  of data I/O which would otherwise incur a lot of PIO-mode interrupt traffic to manually
+ *  pump data.
  *
  *  <b>Crypto Driver Static Configuration</b>
  *
@@ -113,7 +115,7 @@ POSSIBILITY OF SUCH DAMAGE.
 /* Number of crypto device for the given processor */
 #define NUM_DEVICES                               (1u)
 
-/* Compiler-specific mapping of assebbly-level byte-swap instruction
+/* Compiler-specific mapping of assembly-level byte-swap instruction
    IAR is "__REV", and we think Keil is "__rev", but lets see how that
    goes when it is undefined for Keil.
 */
@@ -141,7 +143,10 @@ static ADI_CRYPTO_RESULT ValidateUserBuffer  (ADI_CRYPTO_TRANSACTION * const pBu
 #endif
 
 /* Generate a uint32_t value from a pointer to a uint8_t buffer */
-static uint32_t u32FromU8p                   (uint8_t * const pData);
+static uint32_t u32FromU8p                   (uint8_t * const pFourBytes);
+
+/* load KEY registers with provided key */
+static void loadAesKey                       (uint8_t * const pKey, ADI_CRYPTO_AES_KEY_LEN const keyLen);
 
 /* Initialize the internal device handle object (user memory) */
 static void InitializeDevData                (ADI_CRYPTO_HANDLE const hDevice);
@@ -193,6 +198,12 @@ static CRYPTO_INFO CryptoDevInfo[] = {
 /*! \endcond */
 
 /*========  C O D E  ========*/
+
+
+/* include PKSTOR extensions into CRYPTO driver... */
+#if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
+#include "adi_pkstor.c"
+#endif
 
 
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
@@ -353,21 +364,22 @@ static ADI_CRYPTO_RESULT ValidateUserBuffer(ADI_CRYPTO_TRANSACTION * const pBuff
     }
 
 /* FIXME: Issue http://labrea.ad.analog.com/browse/MSKEW-299 describes missing support
-   for HMAC mode, so reject HMAC submits until support for this mode is implimented.
+   for HMAC mode, so reject HMAC submits until support for this mode is implemented.
    ***REMOVE THIS BLOCK WHEN HMAC SUPPORT IS ADDED***
 */
-#if defined (__ADUCM4x50__)    
+#if defined (__ADUCM4x50__)
 #if ADI_CRYPTO_ENABLE_HMAC_SUPPORT == 1
 	if (pBuffer->eCipherMode == ADI_CRYPTO_MODE_HMAC)
 	{
 		return ADI_CRYPTO_ERR_BAD_BUFFER;
 	}
 #endif
-#endif /*ADUCM4x50__*/    
+#endif /*ADUCM4x50__*/
 
     return ADI_CRYPTO_SUCCESS;
 }
 #endif
+
 
 /**
  * @brief    Opens a Crypto device instance.
@@ -409,11 +421,11 @@ ADI_CRYPTO_RESULT adi_crypto_Open (uint32_t const nDeviceNum, void * const pMemo
     if (CryptoDevInfo[nDeviceNum].hDevice != NULL) {
         return ADI_CRYPTO_ERR_ALREADY_INITIALIZED;
     }
+
     /* reality checks */
     assert (ADI_CRYPTO_MEMORY_SIZE == sizeof(ADI_CRYPTO_DEV_DATA_TYPE));
     assert (sizeof(ADI_CRYPTO_TRANSACTION) == sizeof(CRYPTO_COMPUTE));
 
-    
 #endif /* ADI_DEBUG */
 
     /* store a bad handle in case of failure */
@@ -523,7 +535,7 @@ ADI_CRYPTO_RESULT adi_crypto_Close (ADI_CRYPTO_HANDLE const hDevice)
  *
  *
  * @return   Status
- *           - #ADI_CRYPTO_SUCCESS                  Successfully registerd the callback.
+ *           - #ADI_CRYPTO_SUCCESS                  Successfully registered the callback.
  *           - #ADI_CRYPTO_ERR_BAD_DEV_HANDLE   [D] Error: Handle Passed is invalid.
  */
  ADI_CRYPTO_RESULT adi_crypto_RegisterCallback (ADI_CRYPTO_HANDLE const hDevice, ADI_CALLBACK const pfCallback, void * const pCBParam)
@@ -566,7 +578,7 @@ ADI_CRYPTO_RESULT adi_crypto_Close (ADI_CRYPTO_HANDLE const hDevice)
  * is retrieved with the #adi_crypto_GetBuffer() API or through the user callback notification.
  *
  * @note    The driver takes ownership of the ADI_CRYPTO_TRANSACTION structure passed to the driver.
- *          The application must insure the structure is not used and its scope is valid untill
+ *          The application must insure the structure is not used and its scope is valid until
  *          the structure is returned back to the application.
  *
  * @warning    The #ADI_CRYPTO_TRANSACTION buffer is a common superset of all possible cipher mode parameters.
@@ -855,16 +867,44 @@ ADI_CRYPTO_RESULT adi_crypto_EnableDmaMode (ADI_CRYPTO_HANDLE const hDevice, boo
 
 /*========  L O C A L    F U N C T I O N    D E F I N I T I O N S  ========*/
 
-/* Generate a u32 from a pointer to u8 buffer */
-static uint32_t u32FromU8p(uint8_t * const pData)
-{
-    int32_t x = 0;
-    uint32_t nValue = pData[3];
 
-    for (x = 2; x >= 0; x--) {
-        nValue = (nValue << 8u) | pData[x];
+/* Convert from a (4-byte) byte pointer to a u32 */
+static uint32_t u32FromU8p(uint8_t * const pFourBytes)
+{
+    return ( (pFourBytes[3] << 24) | (pFourBytes[2] << 16) | (pFourBytes[1] << 8) | (pFourBytes[0]) );
+}
+
+
+/* load KEY register set by length */
+static void loadAesKey(uint8_t * const pKey, ADI_CRYPTO_AES_KEY_LEN const keyLen)
+{
+	uint32_t volatile *pKeyReg = pREG_CRYPT0_AESKEY0;
+	uint8_t *pUserKey = pKey;
+	uint32_t numKeyWords;
+
+	/* set AES KEY length register */
+	CLR_BITS(*pREG_CRYPT0_CFG, BITM_CRYPT_CFG_AESKEYLEN);
+	SET_BITS(*pREG_CRYPT0_CFG, (uint32_t)keyLen);  /* pre-shifted */
+
+	/* Set the number of keywords to write to the 32-bit keyword registers */
+	switch (keyLen) {
+		case ADI_CRYPTO_AES_KEY_LEN_128_BIT:
+			numKeyWords = 4u;
+			break;
+		case ADI_CRYPTO_AES_KEY_LEN_256_BIT:
+			numKeyWords = 8u;
+			break;
+		default:
+			numKeyWords = 0u;  /* hardware only supports only 128-bit and 256-bit key length (no 192-bit) */
+			break;
+	}
+
+	/* load the key (key registers have write-no-read attribute) */
+	for (uint32_t count = 0u; count < numKeyWords; count++) {
+		*pKeyReg = u32FromU8p(pUserKey);
+		pKeyReg++;
+		pUserKey += sizeof(uint32_t);
     }
-    return nValue;
 }
 
 
@@ -916,7 +956,7 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
     /* program main config register settings */
     SET_BITS(hDevice->pDev->CFG,
             ( (uint32_t)pCompute->eCipherMode   /* cipher mode    */
-#if defined (__ADUCM4x50__)             
+#if defined (__ADUCM4x50__)
             | (uint32_t)pCompute->eKeyByteSwap  /* KEY endianness */
             | (uint32_t)pCompute->eShaByteSwap  /* SHA endianness */
 #endif /*ADUCM4x50*/
@@ -927,36 +967,32 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
         );
 
 #if (CRYPTO_SUPPORT_KEY_REQUIRED)
-    if (NULL != pCompute->pKey) {
 
-        /* program user key */
-        uint32_t volatile *pKeyReg = &hDevice->pDev->AESKEY0;
-        uint8_t *pUserKey = pCompute->pKey;
-        uint32_t numKeyWords;
+#if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
 
-        /* set key length register */
-        SET_BITS(hDevice->pDev->CFG, (uint32_t)pCompute->eAesKeyLen);
+	/* if PKSTOR extensions enabled... check is actually in use. */
 
-        /* Set the number of keywords to write to the 32-bit keyword registers */
-        switch (pCompute->eAesKeyLen) {
-            case ADI_CRYPTO_AES_KEY_LEN_128_BIT:
-                numKeyWords = 4u;
-                break;
-            case ADI_CRYPTO_AES_KEY_LEN_256_BIT:
-                numKeyWords = 8u;
-                break;
-            default:
-                numKeyWords = 0u;  /* hardware only supports only 128-bit and 256-bit key length (no 192-bit) */
-                break;
-        }
-
-        /* load the key (key registers have write-no-read attribute) */
-        for (uint32_t count = 0u; count < numKeyWords; count++) {
-            *pKeyReg = u32FromU8p(pUserKey);
-            pKeyReg++;
-            pUserKey += sizeof(uint32_t);
-        }
+	/* load AES key indirectly from encrypted key in PKSTOR (no 512-bit keys allowed here) */
+	if ( (true == pCompute->bUsePKSTOR) && ((ADI_PK_KUW_LEN_128 == pCompute->pkKuwLen) || (ADI_PK_KUW_LEN_256 == pCompute->pkKuwLen)) )
+    {
+		/* retrieve and unwrap key from PKSTOR and "use" it (load it into AES register set) */
+        adi_crypto_pk_EnablePKSTOR    (hDevice, true);
+        adi_crypto_pk_SetKuwLen       (hDevice, pCompute->pkKuwLen);
+		adi_crypto_pk_LoadDeviceKey   (hDevice);
+		adi_crypto_pk_RetrieveKey     (hDevice, pCompute->pkIndex);
+		adi_crypto_pk_UnwrapKuwReg    (hDevice);
+		adi_crypto_pk_UseDecryptedKey (hDevice);
+        adi_crypto_pk_EnablePKSTOR    (hDevice, false);
     }
+    else
+#endif /*ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT */
+    {
+		/* load AES key directly from compute block... */
+		if (NULL != pCompute->pKey) {
+            loadAesKey(pCompute->pKey, pCompute->eAesKeyLen);
+    	}
+	}  /* if PKSTOR / else */
+
 #endif  /* (CRYPTO_SUPPORT_KEY_REQUIRED) */
 
 #if (ADI_CRYPTO_ENABLE_CMAC_SUPPORT == 1)
@@ -1014,12 +1050,12 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
 
         /* mode-specific DMA interrupt enables */
         switch (pCompute->eCipherMode) {
-#if defined (__ADUCM4x50__)         
+#if defined (__ADUCM4x50__)
             case ADI_CRYPTO_MODE_HMAC:
                 /* enable HMAC done and overrun interrupts (via PIO handler) */
                 SET_BITS(hDevice->pDev->INTEN, (BITM_CRYPT_INTEN_HMACDONEEN | BITM_CRYPT_INTEN_INOVREN));
                 break;
-#endif /*ADUCM4x50__*/                
+#endif /*ADUCM4x50__*/
             case ADI_CRYPTO_MODE_SHA:
                 /* enable SHA done and overrun interrupts */
                 SET_BITS(hDevice->pDev->INTEN, (BITM_CRYPT_INTEN_SHADONEN | BITM_CRYPT_INTEN_INOVREN));
@@ -1039,12 +1075,12 @@ static void StartCompute(ADI_CRYPTO_HANDLE const hDevice)
     {
         /* mode-specific PIO interrupt enables */
         switch (pCompute->eCipherMode) {
-#if defined (__ADUCM4x50__)           
+#if defined (__ADUCM4x50__)
                 case ADI_CRYPTO_MODE_HMAC:
                 /* HMAC done interrupts via PIO handler (do NOT use INRDY in HMAC mode) */
                 SET_BITS(hDevice->pDev->INTEN, (BITM_CRYPT_INTEN_HMACDONEEN | BITM_CRYPT_INTEN_OUTRDYEN | BITM_CRYPT_INTEN_INOVREN));
                 break;
-#endif /*ADUCM4x50__*/                
+#endif /*ADUCM4x50__*/
             case ADI_CRYPTO_MODE_SHA:
                 /* SHA done interrupts via PIO handler (do NOT use INRDY in SHA mode) */
                 SET_BITS(hDevice->pDev->INTEN, (BITM_CRYPT_INTEN_SHADONEN | BITM_CRYPT_INTEN_INOVREN));
@@ -1157,7 +1193,7 @@ static void programDMA(ADI_CRYPTO_HANDLE const hDevice)
         /* setup the endpoints (point to input register & last 4 bytes of input array) */
 #if (ADI_CRYPTO_ENABLE_SHA_SUPPORT == 1)
         if (ADI_CRYPTO_MODE_SHA == pCompute->eCipherMode) {
-            
+
             /* Stop SHA-mode input writes one short of last 32-bit word so the DMA input interrupt
                can manually call PIO write function to handle SHA end flag and last write manually. */
             pCCD->DMASRCEND = (uint32_t)pCompute->pNextInput + sizeof(uint32_t) * (pCompute->numInputBytesRemaining  / FIFO_WIDTH_IN_BYTES - 2u);
@@ -1256,11 +1292,11 @@ static void writePioInputData(ADI_CRYPTO_HANDLE const hDevice, uint32_t const st
                 /* This is the simple case, load up an entire chunk and let it go */
                 for (uint8_t i = 0u; i < SHA_CHUNK_MAX_WORDS; i++) {
                     hDevice->pDev->INBUF = *pCompute->pNextInput;
-                    pCompute->pNextInput++;                    
+                    pCompute->pNextInput++;
                 }
 
                 pCompute->numShaBitsRemaining    -= SHA_CHUNK_MAX_BITS;
-                pCompute->numInputBytesRemaining -= SHA_CHUNK_MAX_BYTES;       
+                pCompute->numInputBytesRemaining -= SHA_CHUNK_MAX_BYTES;
             }
             else
             {
@@ -1408,7 +1444,7 @@ void Crypto_Int_Handler(void)
 
     if (false == hDevice->bCompletion) {
 
-        /* push more inputs, but not in SHA DMA mode (except for when its perfectly aligned block) */
+        /* push more inputs, but not in SHA DMA mode (except for when it’s perfectly aligned block) */
         if ((pCompute->eCipherMode != ADI_CRYPTO_MODE_SHA) || (hDevice->bDmaEnabled == false) || (pCompute->numInputBytesRemaining == 0u))
         {
             writePioInputData(hDevice, status);
@@ -1442,11 +1478,11 @@ void Crypto_Int_Handler(void)
 #if (ADI_CRYPTO_ENABLE_ECB_SUPPORT == 1)
 					case ADI_CRYPTO_MODE_ECB:  event = ADI_CRYPTO_EVENT_STATUS_ECB_DONE;  break;
 #endif
-#if defined (__ADUCM4x50__) /* HMAC support is provided only in ADuCM4x50*/                                          
+#if defined (__ADUCM4x50__) /* HMAC support is provided only in ADuCM4x50*/
 #if (ADI_CRYPTO_ENABLE_HMAC_SUPPORT == 1)
                     case ADI_CRYPTO_MODE_HMAC: event = ADI_CRYPTO_EVENT_STATUS_HMAC_DONE; break;
 #endif
-#endif /*__ADUCM4x50__*/                    
+#endif /*__ADUCM4x50__*/
 #if (ADI_CRYPTO_ENABLE_SHA_SUPPORT == 1)
                     case ADI_CRYPTO_MODE_SHA:  event = ADI_CRYPTO_EVENT_STATUS_SHA_DONE;  break;
 #endif
@@ -1484,7 +1520,7 @@ void DMA_AES0_IN_Int_Handler (void)
 
 #if (ADI_CRYPTO_ENABLE_SHA_SUPPORT == 1)
     if (ADI_CRYPTO_MODE_SHA == pCompute->eCipherMode) {
-        
+
         /* Update the compute structure to reflect the "post DMA" state of the transaction */
         uint32_t numTotalBytes            = pCompute->numInputBytesRemaining;
         uint32_t num32BitWords            = (numTotalBytes - (numTotalBytes % sizeof(uint32_t))) / sizeof(uint32_t) - 1u;
@@ -1502,7 +1538,7 @@ void DMA_AES0_IN_Int_Handler (void)
         }
         else
         {
-            /* Go ahead and write the remaining word, and its okay to trigger SHA_LAST_WORD */
+            /* Go ahead and write the remaining word, and it’s okay to trigger SHA_LAST_WORD */
             writePioInputData(hDevice, hDevice->pDev->STAT);
         }
     }
@@ -1512,7 +1548,7 @@ void DMA_AES0_IN_Int_Handler (void)
 
     ISR_EPILOG();
 }
-#endif
+#endif /* ADI_CRYPTO_ENABLE_DMA_SUPPORT */
 
 
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
@@ -1550,11 +1586,11 @@ void DMA_AES0_OUT_Int_Handler (void)
 #if (ADI_CRYPTO_ENABLE_ECB_SUPPORT == 1)
                 case ADI_CRYPTO_MODE_ECB:  event = ADI_CRYPTO_EVENT_STATUS_ECB_DONE;  break;
 #endif
-#if defined (__ADUCM4x50__)                  
+#if defined (__ADUCM4x50__)
 #if (ADI_CRYPTO_ENABLE_HMAC_SUPPORT == 1)
                 case ADI_CRYPTO_MODE_HMAC: event = ADI_CRYPTO_EVENT_STATUS_HMAC_DONE; break;
 #endif
-#endif /*__ADUCM4x50__*/                
+#endif /*__ADUCM4x50__*/
 #if (ADI_CRYPTO_ENABLE_SHA_SUPPORT == 1)
                 case ADI_CRYPTO_MODE_SHA:  event = ADI_CRYPTO_EVENT_STATUS_SHA_DONE;  break;
 #endif
@@ -1581,7 +1617,7 @@ void DMA_AES0_OUT_Int_Handler (void)
 
     ISR_EPILOG();
 }
-#endif
+#endif  /* ADI_CRYPTO_ENABLE_DMA_SUPPORT */
 
 /*! \endcond */
 

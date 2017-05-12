@@ -58,11 +58,6 @@ POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
-/* macro definition for ADuCM3029 */
-#if defined(__ADUCM302x__)
-#define BITM_ADC_CFG_VREFVBAT                (_ADI_MSK_3(0x00000008,0x00000008U, uint16_t  ))    /*  VRef VBAT */
-#endif
-
 /*! Amount of memory(In bytes) required by the ADC device driver for managing the operation
  *  of a ADC controller. The memory is passed to the driver when the driver is opended.
  * The memory is completely owned by the driver till the the driver is closed.

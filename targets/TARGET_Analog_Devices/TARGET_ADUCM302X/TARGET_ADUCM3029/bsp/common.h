@@ -77,8 +77,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
-/* Enable REDIRECT_OUTPUT_TO_UART to send the output to UART terminal. */
-/* #define REDIRECT_OUTPUT_TO_UART */
+/* Enable REDIRECT_OUTPUT_TO_UART to send the output to UART terminal. 
+This requires the UART Driver(adi_uart.c) to be included in the project */
+/* #define REDIRECT_OUTPUT_TO_UART */  
 
 extern char aDebugString[150]; 
 

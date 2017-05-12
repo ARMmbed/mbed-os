@@ -676,6 +676,53 @@ ADI_SPI_RESULT adi_spi_GetBitrate (ADI_SPI_CONST_HANDLE const hDevice, uint32_t*
 
 }
 
+/*!
+ * @brief  Set the clock polarity.
+ *
+ * @param[in]    hDevice      Device handle obtained from adi_spi_Open()
+ * @param[in]    bFlag        Flag to manage the idle state of the serial data clock between samples.
+ *\n               - true     Clock is idled high.
+ *\n               - false    Clock is idled low.
+ *
+ * @return         Status
+ *                - #ADI_SPI_INVALID_HANDLE [D]         Invalid device handle parameter.
+ *                - #ADI_SPI_SUCCESS                    Call completed successfully.
+ *
+ * Sets the SPI clock polarity control bit (CPOL).  Used in conjunction with clock phase (CPHA) to program
+ *\n the exact timing of serial data capture and transmit.  Both clock phase and polarity must be considered in
+ *\n selecting the data transfer mode best suited to the Master/Slave device pair, typically dependant on the
+ *\n manufacturer and timing requirements of the external SPI device.
+ *
+ *\n Both Master and Slave devices must use the same settings for clock phase and polarity.
+ *
+ *\n If the phase of the clock is zero (CPHA=0), receive data are latched on the rising-clock-edge with
+ *\n CPOL=0 (idle-low) polarity, and on the falling-clock-edge with CPOL=1 (idle high) ploarity.
+ *
+ *\n If CPHA=1, the effective clock edges are reversed; CPOL=0 latches receive data on the falling-clock-edge
+ *\n and CPOL=1 latches receive data on the rising-clock-edge.
+ *
+ *\n Data are transmitted on the opposite clock edge as the receive, i.e., receive and transmit are out of phase.
+ *
+ * @sa        adi_spi_SetClockPhase().
+ */
+ADI_SPI_RESULT adi_spi_SetClockPolarity (ADI_SPI_HANDLE const hDevice, const bool bFlag)
+{
+
+#ifdef ADI_DEBUG
+    if (ADI_SPI_VALIDATE_HANDLE(hDevice))
+    {
+        return ADI_SPI_INVALID_HANDLE;
+    }
+#endif
+
+    if (true == bFlag) {
+        hDevice->pSpi->CTL |= (BITM_SPI_CTL_CPOL);
+    } else {
+        hDevice->pSpi->CTL &= (uint16_t)~BITM_SPI_CTL_CPOL;
+    }
+
+    return ADI_SPI_SUCCESS;
+}
 
 /*!
  * @brief  Set the chip select.
@@ -704,6 +751,54 @@ ADI_SPI_RESULT adi_spi_SetChipSelect (ADI_SPI_HANDLE const hDevice, const ADI_SP
 #endif
 
     hDevice->ChipSelect = eChipSelect;
+
+    return ADI_SPI_SUCCESS;
+}
+
+/*!
+ * @brief  Set the clock phase.
+ *
+ * @param[in]    hDevice      Device handle obtained from adi_spi_Open().
+ * @param[in]    bFlag        Flag to manage the phase of the serial data clock.
+ *\n                - true     Sample data on trailing-edge of each serial bit.
+ *\n                - false    Sample data on leading-edge of each serial bit.
+ *
+ * @return         Status
+ *                - #ADI_SPI_INVALID_HANDLE [D]         Invalid device handle parameter.
+ *                - #ADI_SPI_SUCCESS                    Call completed successfully.
+ *
+ *\n Sets the SPI clock polarity phase bit (CPHA).  Used in conjunction with clock polarity (CPOL) to program
+ *\n the exact timing of serial data capture and transmit.  Both clock phase and polarity must be considered in
+ *\n selecting the data transfer mode best suited to the Master/Slave device pair, typically dependant on the
+ *\n manufacturer and timing requirements of the external SPI device.
+ *
+ *\n Both Master and Slave devices must use the same settings for clock phase and polarity.
+ *
+ *\n If the phase of the clock is zero (CPHA=0), receive data are latched on the rising-clock-edge with
+ *\n CPOL=0 (idle-low) polarity, and on the falling-clock-edge with CPOL=1 (idle high) ploarity.
+ *
+ *\n If CPHA=1, the effective clock edges are reversed; CPOL=0 latches receive data on the falling-clock-edge
+ *\n and CPOL=1 latches receive data on the rising-clock-edge.
+ *
+ *\n Data are transmitted on the opposite clock edge as the receive, i.e., receive and transmit are out of phase.
+ *
+ * @sa        adi_spi_SetClockPolarity().
+ */
+ADI_SPI_RESULT adi_spi_SetClockPhase (ADI_SPI_HANDLE const hDevice, const bool bFlag)
+{
+
+#ifdef ADI_DEBUG
+    if (ADI_SPI_VALIDATE_HANDLE(hDevice))
+    {
+        return ADI_SPI_INVALID_HANDLE;
+    }
+#endif
+
+    if (true == bFlag) {
+        hDevice->pSpi->CTL |= (BITM_SPI_CTL_CPHA);
+    } else {
+        hDevice->pSpi->CTL &= (uint16_t)~BITM_SPI_CTL_CPHA;
+    }
 
     return ADI_SPI_SUCCESS;
 }

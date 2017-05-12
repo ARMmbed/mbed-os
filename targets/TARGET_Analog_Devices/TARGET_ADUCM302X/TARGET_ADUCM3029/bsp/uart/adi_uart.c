@@ -2710,6 +2710,14 @@ static void uart_ManageProcessedBuffer(ADI_UART_HANDLE hDevice,ADI_UART_DATA_CHA
            If we are in nonblocking mode, this will allow adi_uart_GetBuffer() to return immediately so the API can have
            control over the buffer again.
         */
+		
+		/* Wait until the last bit is gone before POSTing the SEMAPHORE */
+        if(eEvent == ADI_UART_EVENT_TX_BUFFER_PROCESSED)
+          while( ((hDevice->pUARTRegs->LSR & BITM_UART_LSR_TEMT) != BITM_UART_LSR_TEMT) ||(hDevice->pUARTRegs->TFC != 0))
+          {
+            /*waiting until TFC becomes zero */
+          }
+        
         SEM_POST(pChannel);
     }
 

@@ -122,6 +122,11 @@ extern void ADC_Int_Handler(void);
 extern void ADC0_Int_Handler(void);
 #endif
 
+/* macro definition for ADuCM3029 */
+#if defined(__ADUCM302x__)
+#define BITM_ADC_CFG_VREFVBAT                (_ADI_MSK_3(0x00000008,0x00000008U, uint16_t  ))    /*  VRef VBAT */
+#endif
+
 extern void DMA_ADC0_Int_Handler (void);
                                   
 /*! \endcond */

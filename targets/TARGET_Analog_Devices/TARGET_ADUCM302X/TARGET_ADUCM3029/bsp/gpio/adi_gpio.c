@@ -234,7 +234,11 @@ ADI_GPIO_RESULT adi_gpio_UnInit(void)
         return (ADI_GPIO_NOT_INITIALIZED);
     }
 #endif
-    
+
+    /* Disable the group interrupts */
+    NVIC_DisableIRQ(SYS_GPIO_INTA_IRQn);
+    NVIC_DisableIRQ(SYS_GPIO_INTB_IRQn);
+
     /* Clear the data pointer */
     adi_gpio_Device.pData = NULL;
 
@@ -298,6 +302,14 @@ ADI_GPIO_RESULT adi_gpio_SetGroupInterruptPins(const ADI_GPIO_PORT Port, const A
 
     return (ADI_GPIO_SUCCESS);
 }
+
+
+
+
+
+
+
+
 
 
 /*!

@@ -553,15 +553,16 @@ ADI_PWR_RESULT adi_pwr_SetHFOscDivFactor(
                const ADI_PWR_HFOSC_DIV    eDivFactor
                );
 
-#endif /* __ADUCM4x50__ */
-
-
 /*
  *  To set the HF oscillator automatic divide by 1 during wakeup from Flexi mode
  */ 
 ADI_PWR_RESULT adi_pwr_EnableHFOscAutoDivBy1(
                const bool   bEnable
                );
+               
+#endif /* __ADUCM4x50__ */
+
+
                
 /* 
  * To Configure the reference clock muxing 
@@ -634,12 +635,7 @@ ADI_PWR_RESULT  adi_pwr_EnableLFXTALBypass(
                 const bool bEnable
                 );
 
-
-/* Set the clock output through the GPIO */
-ADI_PWR_RESULT  adi_pwr_SetGPIOClockOutput(
-                const ADI_CLOCK_OUTPUT_ID eClockOutput
-                );
-                
+               
 /* 
  * =================================================================
  *  Power Management related  APIs 
@@ -687,6 +683,13 @@ ADI_PWR_RESULT adi_pwr_EnableHPBuck(
                );
                
 #if defined(__ADUCM4x50__)
+
+/* Set the clock output through the GPIO */
+ADI_PWR_RESULT  adi_pwr_SetGPIOClockOutput(
+                const ADI_CLOCK_OUTPUT_ID eClockOutput
+                );
+
+                
 /* To enable the HPBUCK Low Power mode */
 ADI_PWR_RESULT adi_pwr_EnableHPBuckLowPowerMode(
                const bool bEnable

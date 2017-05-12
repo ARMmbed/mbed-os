@@ -46,9 +46,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef ADI_TMR_CONFIG_H
 #define ADI_TMR_CONFIG_H
 
-
+#include <adi_processor.h>
 #include <adi_global_config.h>
-
 
 /** @addtogroup TMR_Driver_Config Static Configuration
  *  @ingroup TMR_Driver

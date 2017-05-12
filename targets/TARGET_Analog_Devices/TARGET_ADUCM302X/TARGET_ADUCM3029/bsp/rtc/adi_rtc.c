@@ -124,6 +124,87 @@ POSSIBILITY OF SUCH DAMAGE.
 #define BITP_RTC_SSMSK_SS1MSK   BITP_RTC_SSMSK_SSMSK
 #endif /* __ADUCM302x__ */
 
+#if defined(__ADUCM4x50__)
+
+/* Data structures used to manage the enabling of all RTC interrupts */
+static uint16_t cr0 = 0u, cr1 = 0u, cr3oc = 0u, cr4oc = 0u, cr2ic = 0u, cr5ocs = 0u;
+
+struct xxx
+{
+  uint16_t *cr;
+  uint16_t  bitPositionl; 
+}
+
+Interrupt_Details[ADI_RTC_NUM_INTERRUPTS] =
+{
+  { &cr0, BITP_RTC_CR0_ALMINTEN }, 
+  { &cr0, BITP_RTC_CR0_MOD60ALMINTEN }, 
+  { &cr0, BITP_RTC_CR0_ISOINTEN },
+  { &cr0, BITP_RTC_CR0_WPNDERRINTEN },
+  { &cr0, BITP_RTC_CR0_WSYNCINTEN },
+  { &cr0, BITP_RTC_CR0_WPNDINTEN },
+  { &cr1, BITP_RTC_CR1_CNTINTEN },
+  { &cr1, BITP_RTC_CR1_PSINTEN },
+  { &cr1, BITP_RTC_CR1_TRMINTEN },
+  { &cr1, BITP_RTC_CR1_CNTROLLINTEN },
+  { &cr1, BITP_RTC_CR1_CNTMOD60ROLLINTEN },
+  { &cr3oc, BITP_RTC_CR3SS_SS1IRQEN },
+  { &cr3oc, BITP_RTC_CR3SS_SS2IRQEN },
+  { &cr3oc, BITP_RTC_CR3SS_SS2IRQEN },
+  { &cr3oc, BITP_RTC_CR3SS_SS4IRQEN },
+  { &cr2ic, BITP_RTC_CR2IC_IC0IRQEN },
+  { &cr2ic, BITP_RTC_CR2IC_IC2IRQEN },
+  { &cr2ic, BITP_RTC_CR2IC_IC3IRQEN },
+  { &cr2ic, BITP_RTC_CR2IC_IC4IRQEN },
+  { &cr2ic, BITP_CLKG_OSC_CTL_LFX_FAIL_STA },
+  { &cr3oc, BITM_RTC_CR3SS_SS4FEIRQEN},
+  { &cr3oc, BITM_RTC_CR3SS_SS3FEIRQEN},  
+  { &cr3oc, BITM_RTC_CR3SS_SS2FEIRQEN},  
+  { &cr3oc, BITM_RTC_CR3SS_SS1FEIRQEN}, 
+  { &cr4oc, BITP_RTC_CR4SS_SS4MSKEN},  
+  { &cr4oc, BITP_RTC_CR4SS_SS3MSKEN},  
+  { &cr4oc, BITP_RTC_CR4SS_SS2MSKEN},  
+  { &cr4oc, BITP_RTC_CR4SS_SS1MSKEN},  
+  { &cr5ocs, BITP_RTC_CR5SSS_SS3SMPMTCHIRQEN},  
+  { &cr5ocs, BITP_RTC_CR5SSS_SS2SMPMTCHIRQEN},  
+  { &cr5ocs, BITP_RTC_CR5SSS_SS1SMPMTCHIRQEN}
+  
+};
+#elif defined(__ADUCM302x__)
+
+/* Data structures used to manage the enabling of all RTC interrupts */
+static uint16_t cr0 = 0u, cr1 = 0u, cr3oc = 0u, cr4oc = 0u, cr2ic = 0u;
+
+struct xxx
+{
+  uint16_t *cr;
+  uint16_t  bitPositionl; 
+}
+
+Interrupt_Details[ADI_RTC_NUM_INTERRUPTS] =
+{
+  { &cr0, BITP_RTC_CR0_ALMINTEN }, 
+  { &cr0, BITP_RTC_CR0_MOD60ALMINTEN }, 
+  { &cr0, BITP_RTC_CR0_ISOINTEN },
+  { &cr0, BITP_RTC_CR0_WPNDERRINTEN },
+  { &cr0, BITP_RTC_CR0_WSYNCINTEN },
+  { &cr0, BITP_RTC_CR0_WPNDINTEN },
+  { &cr1, BITP_RTC_CR1_CNTINTEN },
+  { &cr1, BITP_RTC_CR1_PSINTEN },
+  { &cr1, BITP_RTC_CR1_TRMINTEN },
+  { &cr1, BITP_RTC_CR1_CNTROLLINTEN },
+  { &cr1, BITP_RTC_CR1_CNTMOD60ROLLINTEN },
+  { &cr3oc, BITP_RTC_CR3SS_SS1IRQEN },
+  { &cr2ic, BITP_RTC_CR2IC_IC0IRQEN },
+  { &cr2ic, BITP_RTC_CR2IC_IC2IRQEN },
+  { &cr2ic, BITP_RTC_CR2IC_IC3IRQEN },
+  { &cr2ic, BITP_RTC_CR2IC_IC4IRQEN },  
+};
+#else
+#error RTC is not ported for this processor
+#endif
+
+
 /* Forward prototypes */
 void RTC0_Int_Handler(void);
 void RTC1_Int_Handler(void);
@@ -480,86 +561,6 @@ ADI_RTC_RESULT adi_rtc_Enable(ADI_RTC_HANDLE const hDevice, bool bEnable)
     return ADI_RTC_SUCCESS;
 }
 
-
-#if defined(__ADUCM4x50__)
-
-/* Data structures used to manage the enabling of all RTC interrupts */
-static uint16_t cr0 = 0u, cr1 = 0u, cr3oc = 0u, cr4oc = 0u, cr2ic = 0u, cr5ocs = 0u;
-
-struct xxx
-{
-  uint16_t *cr;
-  uint16_t  bitPositionl; 
-}
-
-Interrupt_Details[ADI_RTC_NUM_INTERRUPTS] =
-{
-  { &cr0, BITP_RTC_CR0_ALMINTEN }, 
-  { &cr0, BITP_RTC_CR0_MOD60ALMINTEN }, 
-  { &cr0, BITP_RTC_CR0_ISOINTEN },
-  { &cr0, BITP_RTC_CR0_WPNDERRINTEN },
-  { &cr0, BITP_RTC_CR0_WSYNCINTEN },
-  { &cr0, BITP_RTC_CR0_WPNDINTEN },
-  { &cr1, BITP_RTC_CR1_CNTINTEN },
-  { &cr1, BITP_RTC_CR1_PSINTEN },
-  { &cr1, BITP_RTC_CR1_TRMINTEN },
-  { &cr1, BITP_RTC_CR1_CNTROLLINTEN },
-  { &cr1, BITP_RTC_CR1_CNTMOD60ROLLINTEN },
-  { &cr3oc, BITP_RTC_CR3SS_SS1IRQEN },
-  { &cr3oc, BITP_RTC_CR3SS_SS2IRQEN },
-  { &cr3oc, BITP_RTC_CR3SS_SS2IRQEN },
-  { &cr3oc, BITP_RTC_CR3SS_SS4IRQEN },
-  { &cr2ic, BITP_RTC_CR2IC_IC0IRQEN },
-  { &cr2ic, BITP_RTC_CR2IC_IC2IRQEN },
-  { &cr2ic, BITP_RTC_CR2IC_IC3IRQEN },
-  { &cr2ic, BITP_RTC_CR2IC_IC4IRQEN },
-  { &cr2ic, BITP_CLKG_OSC_CTL_LFX_FAIL_STA },
-  { &cr3oc, BITM_RTC_CR3SS_SS4FEIRQEN},
-  { &cr3oc, BITM_RTC_CR3SS_SS3FEIRQEN},  
-  { &cr3oc, BITM_RTC_CR3SS_SS2FEIRQEN},  
-  { &cr3oc, BITM_RTC_CR3SS_SS1FEIRQEN}, 
-  { &cr4oc, BITP_RTC_CR4SS_SS4MSKEN},  
-  { &cr4oc, BITP_RTC_CR4SS_SS3MSKEN},  
-  { &cr4oc, BITP_RTC_CR4SS_SS2MSKEN},  
-  { &cr4oc, BITP_RTC_CR4SS_SS1MSKEN},  
-  { &cr5ocs, BITP_RTC_CR5SSS_SS3SMPMTCHIRQEN},  
-  { &cr5ocs, BITP_RTC_CR5SSS_SS2SMPMTCHIRQEN},  
-  { &cr5ocs, BITP_RTC_CR5SSS_SS1SMPMTCHIRQEN}
-  
-};
-#elif defined(__ADUCM302x__)
-
-/* Data structures used to manage the enabling of all RTC interrupts */
-static uint16_t cr0 = 0u, cr1 = 0u, cr3oc = 0u, cr4oc = 0u, cr2ic = 0u;
-
-struct xxx
-{
-  uint16_t *cr;
-  uint16_t  bitPositionl; 
-}
-
-Interrupt_Details[ADI_RTC_NUM_INTERRUPTS] =
-{
-  { &cr0, BITP_RTC_CR0_ALMINTEN }, 
-  { &cr0, BITP_RTC_CR0_MOD60ALMINTEN }, 
-  { &cr0, BITP_RTC_CR0_ISOINTEN },
-  { &cr0, BITP_RTC_CR0_WPNDERRINTEN },
-  { &cr0, BITP_RTC_CR0_WSYNCINTEN },
-  { &cr0, BITP_RTC_CR0_WPNDINTEN },
-  { &cr1, BITP_RTC_CR1_CNTINTEN },
-  { &cr1, BITP_RTC_CR1_PSINTEN },
-  { &cr1, BITP_RTC_CR1_TRMINTEN },
-  { &cr1, BITP_RTC_CR1_CNTROLLINTEN },
-  { &cr1, BITP_RTC_CR1_CNTMOD60ROLLINTEN },
-  { &cr3oc, BITP_RTC_CR3SS_SS1IRQEN },
-  { &cr2ic, BITP_RTC_CR2IC_IC0IRQEN },
-  { &cr2ic, BITP_RTC_CR2IC_IC2IRQEN },
-  { &cr2ic, BITP_RTC_CR2IC_IC3IRQEN },
-  { &cr2ic, BITP_RTC_CR2IC_IC4IRQEN },  
-};
-#else
-#error RTC is not ported for this processor
-#endif
 
 /*!
  * @brief  Manage interrupt enable/disable in the RTC and NVIC controller.

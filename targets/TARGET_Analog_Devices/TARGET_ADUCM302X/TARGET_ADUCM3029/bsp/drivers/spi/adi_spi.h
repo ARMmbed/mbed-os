@@ -324,6 +324,17 @@ ADI_SPI_RESULT adi_spi_GetBuffer(
                ADI_SPI_HANDLE const hDevice,
                uint32_t * const pHWErrors
                );
+
+/* Hardware Configuration Interface */
+ADI_SPI_RESULT adi_spi_SetClockPhase(
+               ADI_SPI_HANDLE const hDevice,
+               const bool bFlag
+               );
+
+ADI_SPI_RESULT adi_spi_SetClockPolarity(
+               ADI_SPI_HANDLE const hDevice,
+               const bool bFlag
+               );
 			   
 /* Query function for the data transfer completion  */
 ADI_SPI_RESULT adi_spi_isBufferAvailable(

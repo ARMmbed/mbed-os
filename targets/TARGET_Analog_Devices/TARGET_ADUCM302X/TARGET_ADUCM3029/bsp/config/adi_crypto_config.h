@@ -119,6 +119,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADI_CRYPTO_SHA_OUTPUT_FORMAT             (1)
 
 
+/*! Enable/Disable PKSTOR Support\n
+    1 - Enable PKSTOR Support\n
+    0 - Disable PKSTOR Support\n
+*/
+#define ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT         (0)
+
+
 
 /************** Macro validation *****************************/
 
@@ -132,6 +139,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #if ((ADI_CRYPTO_ENABLE_DMA == 1) && (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 0))
 #error "DMA cannot be enabled if DMA support is disabled"
+#endif
+
+#if (!defined(__ADUCM4x50__) && (ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT == 1))
+#error "PKSTOR extensions only supported on ADuCM4x50 platform"
 #endif
 
 /*! @} */

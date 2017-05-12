@@ -87,6 +87,14 @@ POSSIBILITY OF SUCH DAMAGE.
                                             || (ADI_CRYPTO_ENABLE_CCM_SUPPORT  == 1)     \
                                             )
 
+
+/* PKSTOR config bits */
+#if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
+#define PK_CONFIG_BITS (BITM_CRYPT_CFG_PRKSTOREN | BITM_CRYPT_CFG_BLKEN )
+#define NUM_PKSTOR_VAL_STRING_WORDS (2)
+#endif
+
+
 /* define local MIN/MAX macros, if not already... */
 #ifndef MIN
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -124,10 +132,10 @@ POSSIBILITY OF SUCH DAMAGE.
 typedef struct _CRYPTO_COMPUTE {
 	ADI_CRYPTO_CIPHER_MODE    eCipherMode;              /*!< Cipher mode to use */
     ADI_CRYPTO_CODING_MODE    eCodingMode;              /*!< Coding Mode (Encryption or Decryption) */
-#if defined (__ADUCM4x50__)  
+#if defined (__ADUCM4x50__)
     ADI_CRYPTO_KEY_BYTE_SWAP  eKeyByteSwap;             /*!< KEY endianness */
     ADI_CRYPTO_SHA_BYTE_SWAP  eShaByteSwap;             /*!< SHA endianness */
-#endif /*__ADUCM4x50__*/   
+#endif /*__ADUCM4x50__*/
     ADI_CRYPTO_AES_BYTE_SWAP  eAesByteSwap;             /*!< AES endianness */
 
     uint8_t                  *pKey;                     /*!< Pointer to the key data pre-formatted as a byte array, according to eAesKeyLen. */
@@ -155,6 +163,14 @@ typedef struct _CRYPTO_COMPUTE {
     uint32_t                  CounterInit;              /*!< CTR/CCM mode: Counter Initialization Value (CTR=20-bit, CCM=16-bit) */
     uint32_t                  numValidBytes;            /*!< CCM mode: Number of valid bytes in the last (padding) block (1-16) */
     uint32_t                  numShaBitsRemaining;      /*!< SHA mode: Number of bits remaining in the SHA payload, which may be odd-sized */
+
+#if defined (__ADUCM4x50__)
+    /* PKSTOR extensions used only in context of overriding above key info with protected keys stored in flash. */
+    /* Assumes previously wrapped keys have already been stored using adi_crypto_pk_Xxx APIs. */
+    bool                      bUsePKSTOR;               /* flag controlling use of PKSTOR key overrides */
+    ADI_CRYPTO_PK_KUW_LEN     pkKuwLen;                 /* overriding key size */
+    uint8_t                   pkIndex;                  /* PKSTOR flash index for key to use */
+#endif
 } CRYPTO_COMPUTE;
 
 

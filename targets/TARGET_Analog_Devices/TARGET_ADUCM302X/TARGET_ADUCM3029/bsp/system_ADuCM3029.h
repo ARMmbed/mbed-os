@@ -64,6 +64,19 @@ extern "C" {
 
 /* Selecting GPIO as input for generating root clock*/
 #define HFMUX_GPIO_VAL              (3u << BITP_CLKG_CLK_CTL0_CLKMUX)
+
+/*
+ * Security options
+ */
+typedef struct {
+        const uint32_t ReadProtectKeyHash[4];    
+        const uint32_t CrcOfReadProtectKeyHash;  
+        const uint32_t LastCRCPage;              
+        const uint32_t InCircuitWriteProtectCode;
+        const uint32_t FlashBlockWriteProtect;   
+
+} ADI_ADUCM302X_SECURITY_OPTIONS;
+
 /*! \endcond  */
 
 /*! Cache controller key */
@@ -94,19 +107,6 @@ typedef uint32_t ADI_SRAM_BANK;
 /*! SRAM_BANK_7 */
 #define ADI_SRAM_BANK_7  (1u << 7)
 
-
-/**
- * Security options
- */
-typedef struct {
-        const uint32_t ReadProtectKeyHash[4];
-        const uint32_t CrcOfReadProtectKeyHash;
-        const uint32_t LastCRCPage;
-        const uint32_t InCircuitWriteProtectCode;
-        const uint32_t FlashBlockWriteProtect;
-
-} ADI_ADUCM302X_SECURITY_OPTIONS;
-
 extern void SystemInit(void);
 extern void SystemCoreClockUpdate(void);
 void adi_system_EnableCache(bool bEnable);
@@ -119,6 +119,8 @@ void adi_system_EnableISRAM(bool bEnable);
 
 #endif /* SYSTEM_ADUCM3029_H */
 
-/*@}*//*
+/**@}*/
+
+/*
 ** EOF
 */

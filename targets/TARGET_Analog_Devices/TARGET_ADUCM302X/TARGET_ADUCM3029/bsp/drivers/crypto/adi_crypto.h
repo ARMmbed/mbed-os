@@ -61,7 +61,7 @@ POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif /* __cplusplus */
 
-  
+
 /*!
  * \enum ADI_CRYPTO_RESULT
  * Crypto API return codes
@@ -83,6 +83,17 @@ typedef enum
     ADI_CRYPTO_ERR_INVALID_PARAM,        /*!<  Invalid function parameter.                               */
     ADI_CRYPTO_ERR_INVALID_STATE,        /*!<  Operation failed since the device is in an invalid state. */
     ADI_CRYPTO_ERR_SEMAPHORE_FAILED,     /*!<  Failure in semaphore functions.                           */
+    ADI_CRYPTO_ERR_INVALID_KEY_SIZE,     /*!<  bad key size fault detected.                              */
+#if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
+    ADI_CRYPTO_PK_ALREADY_ENABLED,       /*!<  PKSTOR is already enabled.                                */
+    ADI_CRYPTO_PK_ALREADY_DISABLED,      /*!<  PKSTOR is already disabled.                               */
+    ADI_CRYPTO_PK_NOT_ENABLED,           /*!<  PKSTOR operation attempted while PKSTOR is disabled.      */
+    ADI_CRYPTO_PK_INVALID_KUWLEN,        /*!<  Invalid KUW length parameter.                             */
+    ADI_CRYPTO_PK_INVALID_KEY_INDEX,     /*!<  PKSTOR key index overflow.                                */
+    ADI_CRYPTO_PK_CMD_BUSY,              /*!<  command busy bit set after PKSTOR command done.           */
+    ADI_CRYPTO_PK_CMD_FAULT,             /*!<  command fault bit set during PKSTOR command.              */
+    ADI_CRYPTO_PK_CMD_ECC_FAULT,         /*!<  ECC errors detected during PKSTOR command.                */
+#endif
 } ADI_CRYPTO_RESULT;
 
 /*!
@@ -97,9 +108,11 @@ typedef enum
     ADI_CRYPTO_EVENT_STATUS_CMAC_DONE,       /*!<  CMAC operation is complete.        */
     ADI_CRYPTO_EVENT_STATUS_CTR_DONE,        /*!<  CTR operation is complete.         */
     ADI_CRYPTO_EVENT_STATUS_ECB_DONE,        /*!<  ECB operation is complete.         */
-#if defined (__ADUCM4x50__)    
+#if defined (__ADUCM4x50__)
     ADI_CRYPTO_EVENT_STATUS_HMAC_DONE,       /*!<  HMAC operation is complete.        */
-#endif /*__ADUCM4x50*/    
+#else
+    ADI_CRYPTO_RESERVED_EVENT,               /*!<  reserved: preserves ordering       */
+#endif /*__ADUCM4x50*/
     ADI_CRYPTO_EVENT_STATUS_SHA_DONE,        /*!<  SHA operation is complete.         */
 
     /* other events */
@@ -112,9 +125,9 @@ typedef enum
 
 /*! The amount of application supplied memory used by the CRYPTO driver to store internal state. */
 #if defined (__ADUCM4x50__)
-#define ADI_CRYPTO_MEMORY_SIZE          (88u + ADI_SEM_SIZE)
+#define ADI_CRYPTO_MEMORY_SIZE          (96u + ADI_SEM_SIZE)  /*!< Required user memory size for ADuCM4x50 processor family. */
 #elif defined (__ADUCM302x__)
-#define ADI_CRYPTO_MEMORY_SIZE          (84u + ADI_SEM_SIZE)
+#define ADI_CRYPTO_MEMORY_SIZE          (84u + ADI_SEM_SIZE)  /*!< Required user memory size for ADuCM302x processor family. */
 #else
 #error Crypto driver is not ported to this proccesor
 #endif
@@ -140,21 +153,21 @@ typedef enum
 } ADI_CRYPTO_AES_KEY_LEN;
 
 #if defined (__ADUCM4x50__)
-
 /*! Enable byte swapping for KEY writes */
 typedef enum
 {
     ADI_CRYPTO_KEY_LITTLE_ENDIAN = (0u << BITP_CRYPT_CFG_KEY_BYTESWAP),    /*!< Do not apply KEY write byte swaps. */
     ADI_CRYPTO_KEY_BIG_ENDIAN    = (1u << BITP_CRYPT_CFG_KEY_BYTESWAP),    /*!< Apply KEY write byte swaps.        */
 } ADI_CRYPTO_KEY_BYTE_SWAP;
+#endif /*__ADUCM4x50__*/
 
+#if defined (__ADUCM4x50__)
 /*! Byte-swap the SHA Input Data */
 typedef enum
 {
     ADI_CRYPTO_SHA_LITTLE_ENDIAN = (0u << BITP_CRYPT_CFG_SHA_BYTESWAP),    /*!< Do not apply SHA data write byte swaps. */
     ADI_CRYPTO_SHA_BIG_ENDIAN    = (1u << BITP_CRYPT_CFG_SHA_BYTESWAP),    /*!< Apply SHA data write byte swaps. */
 } ADI_CRYPTO_SHA_BYTE_SWAP;
-
 #endif /*__ADUCM4x50__*/
 
 /*! Byte-swap the AES Input Data */
@@ -174,21 +187,51 @@ typedef enum {
     ADI_CRYPTO_MODE_CMAC = BITM_CRYPT_CFG_CMACEN,    /*!< Select CMAC cipher mode. */
     ADI_CRYPTO_MODE_CTR  = BITM_CRYPT_CFG_CTREN,     /*!< Select CTR cipher mode. */
     ADI_CRYPTO_MODE_ECB  = BITM_CRYPT_CFG_ECBEN,     /*!< Select ECB cipher mode. */
-#if defined (__ADUCM4x50__)   
+#if defined (__ADUCM4x50__)
     ADI_CRYPTO_MODE_HMAC = BITM_CRYPT_CFG_HMACEN,    /*!< Select HMAC cipher mode. */
-#endif /*__ADUCM4x50__*/   
+#endif /*__ADUCM4x50__*/
     ADI_CRYPTO_MODE_SHA  = BITM_CRYPT_CFG_SHA256EN,  /*!< Select SHA cipher mode. */
 } ADI_CRYPTO_CIPHER_MODE;
+
+
+#if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
+/*! PKSTOR Key Wrap/Unwrap key lengths */
+typedef enum
+{
+	ADI_PK_KUW_LEN_128       = (1u << BITP_CRYPT_CFG_KUWKEYLEN),       /*!< key wrap/unwrap size is 128-bit. */
+	ADI_PK_KUW_LEN_256       = (2u << BITP_CRYPT_CFG_KUWKEYLEN),       /*!< key wrap/unwrap size is 256-bit. */
+	ADI_PK_KUW_LEN_512       = (3u << BITP_CRYPT_CFG_KUWKEYLEN),       /*!< key wrap/unwrap size is 512-bit (compute-only; not store). */
+} ADI_CRYPTO_PK_KUW_LEN;
+#endif /*ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT*/
+
+
+#if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
+/*! PKSTOR commands */
+typedef enum
+{
+	ADI_PK_CMD_WRAP_KUW      = (0x1 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< KUW wrap command. */
+	ADI_PK_CMD_UNWRAP_KUW    = (0x2 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< KUW unwrap command. */
+	ADI_PK_CMD_RESET_KUW     = (0x3 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< clear all KUW registers command. */
+	ADI_PK_CMD_USE_KEY       = (0x4 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< load Key registers from KUW registers command. */
+	ADI_PK_CMD_USE_DEV_KEY   = (0x5 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< load Key registers with devide key command. */
+	/* gap */
+	ADI_PK_CMD_RETRIEVE_KEY  = (0x8 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< load KUW registers command. */
+	ADI_PK_CMD_STORE_KEY     = (0x9 << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< program KUW registers into flash command. */
+	ADI_PK_CMD_ERASE_KEY     = (0xA << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< erase single key set from flash command. */
+	ADI_PK_CMD_ERASE_PAGE    = (0xB << BITP_CRYPT_PRKSTORCFG_CMD),       /*!< erase entire key page command. */
+} ADI_CRYPTO_PK_CMD;
+#endif /*ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT*/
+
 
 /*! superset user Crypto transaction structure (different elements used for different modes) */
 typedef struct
 {
     ADI_CRYPTO_CIPHER_MODE    eCipherMode;        /*!< Cipher mode to use */
     ADI_CRYPTO_CODING_MODE    eCodingMode;        /*!< Coding Mode (Encryption or Decryption) */
-#if defined (__ADUCM4x50__)  
+#if defined (__ADUCM4x50__)
     ADI_CRYPTO_KEY_BYTE_SWAP  eKeyByteSwap;       /*!< KEY endianness */
     ADI_CRYPTO_SHA_BYTE_SWAP  eShaByteSwap;       /*!< SHA endianness */
-#endif /*__ADUCM4x50__*/    
+#endif /*__ADUCM4x50__*/
     ADI_CRYPTO_AES_BYTE_SWAP  eAesByteSwap;       /*!< AES endianness */
 
     uint8_t                  *pKey;               /*!< Pointer to the KEY data: pre-formatted as a byte array, according to eAesKeyLen. */
@@ -217,6 +260,17 @@ typedef struct
     uint32_t                  CounterInit;        /*!< CTR/CCM mode: Counter Initialization Value (CTR=20-bit, CCM=16-bit) */
     uint32_t                  numValidBytes;      /*!< CCM mode: Number of valid bytes in the last (padding) block (1-16) */
     uint32_t                  numShaBits;         /*!< SHA mode: Number of bits in the SHA payload, which may be odd-sized */
+
+#if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
+	/* PKSTOR extensions used only in context of overriding above key info with protected keys stored in flash. */
+    /* Assumes previously wrapped keys have already been stored using adi_crypto_pk_Xxx APIs. */
+    /* NOTE: Enabeling PKSTOR boolean results in explicit key loads being replaced with PKSTOR keys prior to all Crypto operations */
+    /* When enabled, the PKSTOR sequence is to RETRIEVE, UNWRAP and USE whichever key index and size is designated below. */
+
+    bool                      bUsePKSTOR;        /*!< Flag that controls use of PKSTOR key overrides. */
+    ADI_CRYPTO_PK_KUW_LEN     pkKuwLen;          /*!< KUW key size */
+    uint8_t                   pkIndex;           /*!< Flash index within PKSTOR for storing/rettrieving keys. */
+#endif
 } ADI_CRYPTO_TRANSACTION;
 
 
@@ -235,6 +289,27 @@ ADI_CRYPTO_RESULT adi_crypto_IsBufferAvailable     (ADI_CRYPTO_HANDLE const hDev
 #if (ADI_CRYPTO_ENABLE_DMA_SUPPORT == 1)
 ADI_CRYPTO_RESULT adi_crypto_EnableDmaMode         (ADI_CRYPTO_HANDLE const hDevice, bool const bEnable);
 #endif
+
+#if (1 == ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT)
+ADI_CRYPTO_RESULT adi_crypto_pk_EnablePKSTOR       (ADI_CRYPTO_HANDLE const hDevice, bool const bEnable);
+
+ADI_CRYPTO_RESULT adi_crypto_pk_SetValString       (ADI_CRYPTO_HANDLE const hDevice, uint8_t * const pValStr);
+ADI_CRYPTO_RESULT adi_crypto_pk_GetValString       (ADI_CRYPTO_HANDLE const hDevice, uint8_t * const pValStr);
+
+ADI_CRYPTO_RESULT adi_crypto_pk_SetKuwLen          (ADI_CRYPTO_HANDLE const hDevice, ADI_CRYPTO_PK_KUW_LEN const kuwDataLen);
+ADI_CRYPTO_RESULT adi_crypto_pk_SetKuwReg          (ADI_CRYPTO_HANDLE const hDevice, uint8_t * const pKuwData);
+ADI_CRYPTO_RESULT adi_crypto_pk_WrapKuwReg         (ADI_CRYPTO_HANDLE const hDevice);
+ADI_CRYPTO_RESULT adi_crypto_pk_UnwrapKuwReg       (ADI_CRYPTO_HANDLE const hDevice);
+ADI_CRYPTO_RESULT adi_crypto_pk_ResetKuwReg        (ADI_CRYPTO_HANDLE const hDevice);
+
+ADI_CRYPTO_RESULT adi_crypto_pk_UseDecryptedKey    (ADI_CRYPTO_HANDLE const hDevice);
+ADI_CRYPTO_RESULT adi_crypto_pk_LoadDeviceKey      (ADI_CRYPTO_HANDLE const hDevice);
+
+ADI_CRYPTO_RESULT adi_crypto_pk_RetrieveKey        (ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
+ADI_CRYPTO_RESULT adi_crypto_pk_StoreKey           (ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
+ADI_CRYPTO_RESULT adi_crypto_pk_DestroyKey         (ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
+ADI_CRYPTO_RESULT adi_crypto_pk_ErasePage          (ADI_CRYPTO_HANDLE const hDevice, uint8_t const index);
+#endif  /* ADI_CRYPTO_ENABLE_PKSTOR_SUPPORT */
 
 
 #ifdef __cplusplus
