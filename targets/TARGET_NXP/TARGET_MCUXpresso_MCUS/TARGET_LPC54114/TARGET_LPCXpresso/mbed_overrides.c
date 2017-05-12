@@ -15,6 +15,7 @@
  */
 #include "gpio_api.h"
 #include "clock_config.h"
+#include "fsl_power.h"
 
 // called before main
 void mbed_sdk_init()
@@ -29,6 +30,19 @@ void NMI_Handler(void)
 {
     //gpio_t gpio;
     //gpio_init_in(&gpio, PTA4);
+}
+
+void ADC_ClockPower_Configuration(void)
+{
+    /* SYSCON power. */
+    POWER_DisablePD(kPDRUNCFG_PD_ADC0);     /* Power on the ADC converter. */
+    POWER_DisablePD(kPDRUNCFG_PD_VD7_ENA);  /* Power on the analog power supply. */
+    POWER_DisablePD(kPDRUNCFG_PD_VREFP_SW); /* Power on the reference voltage source. */
+    POWER_DisablePD(kPDRUNCFG_PD_TEMPS);    /* Power on the temperature sensor. */
+
+    /* Enable the clock. */
+    CLOCK_AttachClk(kFRO12M_to_MAIN_CLK);
+    CLOCK_EnableClock(kCLOCK_Adc0);
 }
 
 // Enable the RTC oscillator if available on the board
