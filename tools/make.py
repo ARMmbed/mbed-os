@@ -35,10 +35,8 @@ from tools.paths import BUILD_DIR
 from tools.paths import MBED_LIBRARIES
 from tools.paths import RTOS_LIBRARIES
 from tools.paths import RPC_LIBRARY
-from tools.paths import ETH_LIBRARY
 from tools.paths import USB_HOST_LIBRARIES, USB_LIBRARIES
 from tools.paths import DSP_LIBRARIES
-from tools.paths import UBLOX_LIBRARY
 from tools.tests import TESTS, Test, TEST_MAP
 from tools.tests import TEST_MBED_LIB
 from tools.tests import test_known, test_name_known
@@ -135,7 +133,7 @@ if __name__ == '__main__':
                       default=False, help="List available tests in order and exit")
 
     # Ideally, all the tests with a single "main" thread can be run with, or
-    # without the rtos, eth, usb_host, usb, dsp, ublox
+    # without the rtos, usb_host, usb, dsp
     parser.add_argument("--rtos",
                       action="store_true", dest="rtos",
                       default=False, help="Link with RTOS library")
@@ -143,11 +141,6 @@ if __name__ == '__main__':
     parser.add_argument("--rpc",
                       action="store_true", dest="rpc",
                       default=False, help="Link with RPC library")
-
-    parser.add_argument("--eth",
-                      action="store_true", dest="eth",
-                      default=False,
-                      help="Link with Ethernet library")
 
     parser.add_argument("--usb_host",
                       action="store_true",
@@ -166,12 +159,6 @@ if __name__ == '__main__':
                       dest="dsp",
                       default=False,
                       help="Link with DSP library")
-
-    parser.add_argument("--ublox",
-                      action="store_true",
-                      dest="ublox",
-                      default=False,
-                      help="Link with U-Blox library")
 
     parser.add_argument("--testlib",
                       action="store_true",
@@ -273,11 +260,9 @@ if __name__ == '__main__':
         # Linking with extra libraries
         if options.rtos:     test.dependencies.append(RTOS_LIBRARIES)
         if options.rpc:      test.dependencies.append(RPC_LIBRARY)
-        if options.eth:      test.dependencies.append(ETH_LIBRARY)
         if options.usb_host: test.dependencies.append(USB_HOST_LIBRARIES)
         if options.usb:      test.dependencies.append(USB_LIBRARIES)
         if options.dsp:      test.dependencies.append(DSP_LIBRARIES)
-        if options.ublox:    test.dependencies.append(UBLOX_LIBRARY)
         if options.testlib:  test.dependencies.append(TEST_MBED_LIB)
 
         build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)

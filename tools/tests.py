@@ -815,122 +815,6 @@ TESTS = [
                 "NRF51822", "NRF51_DK", "SEEED_TINY_BLE", "ARM_BEETLE_SOC", "NUCLEO_F767ZI", "DISCO_F769NI"],
     },
 
-    # Networking Tests
-    {
-        "id": "NET_1", "description": "TCP client hello world",
-        "source_dir": join(TEST_DIR, "net", "helloworld", "tcpclient"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
-        "automated": True,
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_2", "description": "NIST Internet Time Service",
-        "source_dir": join(TEST_DIR, "net", "helloworld", "udpclient"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
-        "automated": True,
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_3", "description": "TCP echo server",
-        "source_dir": join(TEST_DIR, "net", "echo", "tcp_server"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
-        "automated": True,
-        #"host_test" : "tcpecho_server_auto",
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_4", "description": "TCP echo client",
-        "source_dir": join(TEST_DIR, "net", "echo", "tcp_client"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
-        "automated": True,
-        #"host_test": "tcpecho_client_auto",
-        "peripherals": ["ethernet"]
-    },
-    {
-        "id": "NET_5", "description": "UDP echo server",
-        "source_dir": join(TEST_DIR, "net", "echo", "udp_server"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
-        "automated": True,
-        #"host_test" : "udpecho_server_auto",
-        "peripherals": ["ethernet"]
-    },
-    {
-        "id": "NET_6", "description": "UDP echo client",
-        "source_dir": join(TEST_DIR, "net", "echo", "udp_client"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
-        "automated": True,
-        #"host_test" : "udpecho_client_auto",
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_7", "description": "HTTP client hello world",
-        "source_dir": join(TEST_DIR, "net", "protocols", "HTTPClient_HelloWorld"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
-        "automated": True,
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_8", "description": "NTP client",
-        "source_dir": join(TEST_DIR, "net", "protocols", "NTPClient_HelloWorld"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
-        "automated": True,
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_9", "description": "Multicast Send",
-        "source_dir": join(TEST_DIR, "net", "helloworld", "multicast_send"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_10", "description": "Multicast Receive",
-        "source_dir": join(TEST_DIR, "net", "helloworld", "multicast_receive"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_11", "description": "Broadcast Send",
-        "source_dir": join(TEST_DIR, "net", "helloworld", "broadcast_send"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_12", "description": "Broadcast Receive",
-        "source_dir": join(TEST_DIR, "net", "helloworld", "broadcast_receive"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_13", "description": "TCP client echo loop",
-        "source_dir": join(TEST_DIR, "net", "echo", "tcp_client_loop"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY, TEST_MBED_LIB],
-        "automated": True,
-        #"host_test": "tcpecho_client_auto",
-        "peripherals": ["ethernet"],
-    },
-    {
-        "id": "NET_14", "description": "UDP PHY/Data link layer",
-        "source_dir": join(TEST_DIR, "net", "echo", "udp_link_layer"),
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, ETH_LIBRARY],
-        "automated": False,
-        "host_test": "udp_link_layer_auto",
-        "peripherals": ["ethernet"],
-    },
-
-    # u-blox tests
-    {
-        "id": "UB_1", "description": "u-blox USB modem: HTTP client",
-        "source_dir": [join(TEST_DIR, "net", "cellular", "http", "ubloxusb"), join(TEST_DIR, "net", "cellular", "http", "common")],
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES, UBLOX_LIBRARY],
-        "supported": CORTEX_ARM_SUPPORT,
-    },
-    {
-        "id": "UB_2", "description": "u-blox USB modem: SMS test",
-        "source_dir": [join(TEST_DIR, "net", "cellular", "sms", "ubloxusb"), join(TEST_DIR, "net", "cellular", "sms", "common")],
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES, UBLOX_LIBRARY],
-        "supported": CORTEX_ARM_SUPPORT,
-    },
-
     # USB Tests 
     # USB device test list
     {
@@ -1123,7 +1007,6 @@ GROUPS = {
     "spi": ["MBED_A12"],
 }
 GROUPS["rtos"] = [test["id"] for test in TESTS if test["id"].startswith("RTOS_")]
-GROUPS["net"] = [test["id"] for test in TESTS if test["id"].startswith("NET_")]
 GROUPS["automated"] = [test["id"] for test in TESTS if test.get("automated", False)]
 # Look for 'TEST_GROUPS' in mbed_settings.py and update the GROUPS dictionary
 # with the information in test_groups if found

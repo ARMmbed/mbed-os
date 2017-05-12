@@ -24,10 +24,10 @@ import sys
 
 ################################################################################
 # Configure builds here
-# "libs" can contain "dsp", "rtos", "eth", "usb_host", "usb", "ublox"
+# "libs" can contain "dsp", "rtos", "usb_host", "usb"
 
 build_list = (
-    { "target": "LPC1768",           "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "eth", "usb"] },
+    { "target": "LPC1768",           "toolchains": "GCC_ARM", "libs": ["dsp", "rtos", "usb"] },
     { "target": "LPC2368",           "toolchains": "GCC_ARM", "libs": []  },
     { "target": "LPC2460",           "toolchains": "GCC_ARM", "libs": ["rtos", "usb"]  },
     { "target": "LPC11U24",          "toolchains": "GCC_ARM", "libs": ["dsp", "rtos"] },
@@ -139,7 +139,6 @@ linking_list = [
     {"target": "LPC1768",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_15", "MBED_16", "MBED_17"],
-               "eth"  : ["NET_1", "NET_2", "NET_3", "NET_4"],
                "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                }
