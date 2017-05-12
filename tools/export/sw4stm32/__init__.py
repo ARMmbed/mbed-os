@@ -31,6 +31,7 @@ class Sw4STM32(Exporter):
         'DISCO_F334C8':            {'name': 'STM32F3348DISCOVERY',   'mcuId': 'STM32F334C8Tx'},
         'DISCO_F401VC':            {'name': 'STM32F401C-DISCO',      'mcuId': 'STM32F401VCTx'},
         'DISCO_F407VG':            {'name': 'STM32F4DISCOVERY',      'mcuId': 'STM32F407VGTx'},
+        'DISCO_F413ZH':            {'name': 'DISCO_F413',            'mcuId': 'STM32F413ZHTx'},
         'DISCO_F429ZI':            {'name': 'STM32F429I-DISCO',      'mcuId': 'STM32F429ZITx'},
         'DISCO_F469NI':            {'name': 'DISCO-F469NI',          'mcuId': 'STM32F469NIHx'},
         'DISCO_F746NG':            {'name': 'STM32F746G-DISCO',      'mcuId': 'STM32F746NGHx'},
