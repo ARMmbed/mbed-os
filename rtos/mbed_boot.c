@@ -39,11 +39,11 @@
  *         -> __rt_entry (MBED: rtos/mbed_boot.c)
  *             -> __user_setup_stackheap (LIBC)
  *             -> mbed_set_stack_heap (MBED: rtos/mbed_boot.c)
+ *             -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
  *             -> mbed_sdk_init (TARGET)
  *             -> _platform_post_stackheap_init (RTX)
  *                 -> osKernelInitialize (RTX)
  *             -> mbed_start_main (MBED: rtos/mbed_boot.c)
- *                 -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
  *                 -> osThreadNew (RTX)
  *                     -> pre_main(MBED: rtos/mbed_boot.c)
  *                         -> __rt_lib_init (LIBC)
@@ -64,10 +64,10 @@
  *     -> __main (LIBC)
  *         -> _main_init (MBED: rtos/mbed_boot.c)
  *             -> mbed_set_stack_heap (MBED: rtos/mbed_boot.c)
+ *             -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
  *             -> mbed_sdk_init (TARGET)
  *             -> osKernelInitialize (RTX)
  *             -> mbed_start_main (MBED: rtos/mbed_boot.c)
- *                 -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
  *                 -> osThreadNew (RTX)
  *                     -> pre_main(MBED: rtos/mbed_boot.c)
  *                         -> __cpp_initialize__aeabi_ (LIBC)
@@ -84,10 +84,10 @@
  *     -> __main (LIBC)
  *         -> software_init_hook (MBED: rtos/mbed_boot.c)
  *             -> mbed_set_stack_heap (MBED: rtos/mbed_boot.c)
+ *             -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
  *             -> mbed_sdk_init (TARGET)
  *             -> osKernelInitialize (RTX)
  *             -> mbed_start_main (MBED: rtos/mbed_boot.c)
- *                 -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
  *                 -> osThreadNew (RTX)
  *                     -> pre_main(MBED: rtos/mbed_boot.c)
  *                     -> __libc_init_array (LIBC)
@@ -107,11 +107,11 @@
  *         -> __iar_init_vfp
  *         -> __low_level_init
  *         -> __iar_data_init3
+ *         -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
  *         -> mbed_sdk_init (TARGET)
  *         -> mbed_set_stack_heap (MBED: rtos/mbed_boot.c)
  *         -> osKernelInitialize (RTX)
  *         -> mbed_start_main (MBED: rtos/mbed_boot.c)
- *             -> mbed_cpy_nvic (MBED: rtos/mbed_boot.c)
  *             -> osThreadNew (RTX)
  *             -> pre_main(MBED: rtos/mbed_boot.c)
  *                 -> __iar_dynamic_initialization
@@ -308,11 +308,6 @@ WEAK void mbed_sdk_init(void) {
 
 void mbed_start_main(void)
 {
-    /* Copy the vector table to RAM only if uVisor is not in use. */
-#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
-    mbed_cpy_nvic();
-#endif
-
     _main_thread_attr.stack_mem = _main_stack;
     _main_thread_attr.stack_size = sizeof(_main_stack);
     _main_thread_attr.cb_size = sizeof(_main_obj);
@@ -346,6 +341,10 @@ void $Super$$__cpp_initialize__aeabi_(void);
 
 void _main_init (void) {
   mbed_set_stack_heap();
+  /* Copy the vector table to RAM only if uVisor is not in use. */
+#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
+  mbed_cpy_nvic();
+#endif
   mbed_sdk_init();
   osKernelInitialize();
   mbed_start_main();
@@ -401,6 +400,10 @@ void pre_main (void)
 void __rt_entry (void) {
     __user_setup_stackheap();
     mbed_set_stack_heap();
+    /* Copy the vector table to RAM only if uVisor is not in use. */
+#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
+    mbed_cpy_nvic();
+#endif
     mbed_sdk_init();
     _platform_post_stackheap_init();
     mbed_start_main();
@@ -455,6 +458,10 @@ void pre_main(void)
 void software_init_hook(void)
 {
     mbed_set_stack_heap();
+    /* Copy the vector table to RAM only if uVisor is not in use. */
+#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
+    mbed_cpy_nvic();
+#endif
     mbed_sdk_init();
     osKernelInitialize();
     /* uvisor_lib_init calls RTOS functions, so must be called after the RTOS has
@@ -534,6 +541,10 @@ void __iar_program_start( void )
   low_level_init_needed_local = __low_level_init();
   if (low_level_init_needed_local) {
     __iar_data_init3();
+    /* Copy the vector table to RAM only if uVisor is not in use. */
+#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
+    mbed_cpy_nvic();
+#endif
     mbed_sdk_init();
   }
 
