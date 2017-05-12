@@ -18,16 +18,15 @@
 #ifndef MBED_DEVICE_H
 #define MBED_DEVICE_H
 
-#if defined(TARGET_LPC54114_M4)
 #define NUMBER_OF_GPIO_INTS    8
-#elif defined(TARGET_LPC54114_M0)
-#define NUMBER_OF_GPIO_INTS    4
-#endif
 
 #define APP_EXCLUDE_FROM_DEEPSLEEP                                                                        \
     (SYSCON_PDRUNCFG_PDEN_WDT_OSC_MASK |  SYSCON_PDRUNCFG_PDEN_SRAMX_MASK |                               \
-     SYSCON_PDRUNCFG_PDEN_SRAM0_MASK | SYSCON_PDRUNCFG_PDEN_SRAM1_MASK | SYSCON_PDRUNCFG_PDEN_SRAM2_MASK)
+     SYSCON_PDRUNCFG_PDEN_SRAM0_MASK | SYSCON_PDRUNCFG_PDEN_SRAM1_2_3_MASK)
 
+/* Defines used by the sleep code */
+#define LPC_CLOCK_INTERNAL_IRC BOARD_BootClockFRO12M
+#define LPC_CLOCK_RUN          BOARD_BootClockFROHF48M
 
 #define DEVICE_ID_LENGTH       24
 
