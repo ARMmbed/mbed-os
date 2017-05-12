@@ -181,7 +181,7 @@ HAL_StatusTypeDef HAL_Init(void)
 
   /* Use systick as time base source and configure 1ms tick (default clock after Reset is MSI) */
 
-  //HAL_InitTick(TICK_INT_PRIORITY); // Removed to fix Issue 3683
+  HAL_InitTick(TICK_INT_PRIORITY);
 
   /* Init the low level hardware */
   HAL_MspInit();
