@@ -27,6 +27,7 @@
 
 /* Array of ADC peripheral base address. */
 static ADC_Type *const adc_addrs[] = ADC_BASE_PTRS;
+extern void ADC_ClockPower_Configuration(void);
 
 #define MAX_FADC 6000000
 
@@ -38,15 +39,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
     adc_config_t adc_config;
 
-    /* SYSCON power. */
-    POWER_DisablePD(kPDRUNCFG_PD_ADC0);     /* Power on the ADC converter. */
-    POWER_DisablePD(kPDRUNCFG_PD_VD7_ENA);  /* Power on the analog power supply. */
-    POWER_DisablePD(kPDRUNCFG_PD_VREFP_SW); /* Power on the reference voltage source. */
-    POWER_DisablePD(kPDRUNCFG_PD_TEMPS);    /* Power on the temperature sensor. */
-
-    /* Enable the clock. */
-    CLOCK_AttachClk(kFRO12M_to_MAIN_CLK);
-    CLOCK_EnableClock(kCLOCK_Adc0);
+    ADC_ClockPower_Configuration();
 
     /* Calibration after power up. */
     if (!(ADC_DoSelfCalibration(adc_addrs[instance]))) {
