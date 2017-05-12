@@ -567,7 +567,7 @@
     "MCU_K24F1M": {
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "MCU_K24F", "MCU_K24F1M", "KPSDK_MCUS", "KPSDK_CODE", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "MCU_K24F", "KPSDK_MCUS", "KPSDK_CODE", "FLASH_CMSIS_ALGO"],
         "is_disk_virtual": true,
         "public": false,
         "macros": ["CPU_MK24FN1M0VDC12", "FSL_RTOS_MBED"],
@@ -579,8 +579,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_K24F1M"],
         "detect_code": ["1022"],
-        "release_versions": ["2", "5"],
-        "extra_labels_add": ["RO359B"]
+        "release_versions": ["2", "5"]
     },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
