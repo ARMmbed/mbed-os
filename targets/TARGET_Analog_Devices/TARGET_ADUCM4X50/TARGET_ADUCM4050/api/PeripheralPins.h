@@ -23,6 +23,9 @@
 /************RTC***************/
 extern const PinMap PinMap_RTC[];
 
+/************ADC***************/
+extern const PinMap PinMap_ADC[];
+
 /************I2C***************/
 extern const PinMap PinMap_I2C_SDA[];
 extern const PinMap PinMap_I2C_SCL[];
