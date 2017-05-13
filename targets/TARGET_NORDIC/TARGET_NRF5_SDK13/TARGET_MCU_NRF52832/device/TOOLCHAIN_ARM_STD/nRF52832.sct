@@ -1,0 +1,15 @@
+;WITH SOFTDEVICE s132 5.0.0-1.aplpha:
+
+LR_IROM1 0x20000 0x0060000  {
+  ER_IROM1 0x20000 0x0060000  {
+   *.o (RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+  RW_IRAM0 0x20003288 UNINIT 0x000000D8  { ;no init section
+        *(noinit)
+  }
+  RW_IRAM1 0x20003360 0x0000CCA0  {
+   .ANY (+RW +ZI)
+  }
+}

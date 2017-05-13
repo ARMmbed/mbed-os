@@ -1,3 +1,5 @@
+// The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
+// Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -13,26 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "mbed_assert.h"
-#include "mbed_error.h"
-#include "pinmap.h"
-#include "nrf_gpio.h"
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-void pin_function(PinName pin, int function)
-{
-    /* Avoid compiler warnings */
-    (void) pin;
-    (void) function;
-}
 
-void pin_mode(PinName pin, PinMode mode)
-{
-    MBED_ASSERT(pin != (PinName)NC);
 
-    uint32_t pin_number = (uint32_t)pin;
-    
-    NRF_GPIO_Type * reg = nrf_gpio_pin_port_decode(&pin_number);
 
-    reg->PIN_CNF[pin_number] &= ~GPIO_PIN_CNF_PULL_Msk;
-    reg->PIN_CNF[pin_number] |= (mode << GPIO_PIN_CNF_PULL_Pos);
-}
+
+
+
+
+
+
+
+
+
+
+
+
+#include "objects.h"
+
+#endif
