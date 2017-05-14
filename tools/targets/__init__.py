@@ -32,7 +32,6 @@ __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
            "CUMULATIVE_ATTRIBUTES", "get_resolution_order"]
 
 CORE_LABELS = {
-    "ARM7TDMI-S": ["ARM7", "LIKE_CORTEX_ARM7"],
     "Cortex-M0" : ["M0", "CORTEX_M", "LIKE_CORTEX_M0"],
     "Cortex-M0+": ["M0P", "CORTEX_M", "LIKE_CORTEX_M0"],
     "Cortex-M1" : ["M1", "CORTEX_M", "LIKE_CORTEX_M1"],

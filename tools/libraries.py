@@ -17,8 +17,7 @@ limitations under the License.
 from tools.paths import MBED_RTX, RTOS, RTOS_LIBRARIES, MBED_LIBRARIES,\
     MBED_RPC, RPC_LIBRARY, USB, USB_LIBRARIES, USB_HOST,\
     USB_HOST_LIBRARIES, DSP_ABSTRACTION, DSP_CMSIS, DSP_LIBRARIES,\
-    ETH_SOURCES, LWIP_SOURCES, ETH_LIBRARY, UBLOX_SOURCES,\
-    UBLOX_LIBRARY, CELLULAR_SOURCES, CELLULAR_USB_SOURCES, CPPUTEST_SRC,\
+    CPPUTEST_SRC,\
     CPPUTEST_PLATFORM_SRC, CPPUTEST_TESTRUNNER_SCR, CPPUTEST_LIBRARY,\
     CPPUTEST_INC, CPPUTEST_PLATFORM_INC, CPPUTEST_TESTRUNNER_INC,\
     CPPUTEST_INC_EXT
@@ -71,22 +70,6 @@ LIBRARIES = [
         "source_dir": [DSP_ABSTRACTION, DSP_CMSIS],
         "build_dir": DSP_LIBRARIES,
         "dependencies": [MBED_LIBRARIES]
-    },
-
-    # Network libraries
-    {
-        "id": "eth",
-        "source_dir": [ETH_SOURCES, LWIP_SOURCES],
-        "build_dir": ETH_LIBRARY,
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES]
-    },
-
-    {
-        "id": "ublox",
-        "source_dir": [UBLOX_SOURCES, CELLULAR_SOURCES, CELLULAR_USB_SOURCES,
-                       LWIP_SOURCES],
-        "build_dir": UBLOX_LIBRARY,
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES],
     },
 
     # Unit Testing library

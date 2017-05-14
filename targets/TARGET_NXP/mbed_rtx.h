@@ -110,41 +110,6 @@
 #define OS_CLOCK                96000000
 #endif
 
-#elif defined(TARGET_LPC2368)
-
-/* FIXME: INITIAL_SP is undefined for this target */
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                96000000
-#endif
-#ifndef OS_SCHEDULERSTKSIZE
-#define OS_SCHEDULERSTKSIZE    (136*2)
-#endif
-
-#elif defined(TARGET_LPC2460)
-
-extern unsigned char            __usr_stack_top__[];
-#ifndef INITIAL_SP
-#define INITIAL_SP              (__usr_stack_top__)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                72000000
-#endif
-#ifndef OS_SCHEDULERSTKSIZE
-#define OS_SCHEDULERSTKSIZE     (136*2)
-#endif
-
 #elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
 
 #ifndef INITIAL_SP
