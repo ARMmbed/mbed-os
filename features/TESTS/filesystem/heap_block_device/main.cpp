@@ -24,8 +24,8 @@
 using namespace utest::v1;
 
 #define TEST_BLOCK_SIZE 512
-#define TEST_BLOCK_DEVICE_SIZE 16*TEST_BLOCK_SIZE
 #define TEST_BLOCK_COUNT 10
+#define TEST_BLOCK_DEVICE_SIZE 16*TEST_BLOCK_SIZE
 #define TEST_ERROR_MASK 16
 
 const struct {
@@ -47,12 +47,9 @@ void test_read_write() {
     TEST_ASSERT_EQUAL(0, err);
 
     for (unsigned a = 0; a < sizeof(ATTRS)/sizeof(ATTRS[0]); a++) {
-        static const char *prefixes[] = {"", "k", "M", "G"};
         for (int i = 3; i >= 0; i--) {
             bd_size_t size = (bd.*ATTRS[a].method)();
             if (size >= (1ULL << 10*i)) {
-                printf("%s: %llu%sbytes (%llubytes)\n",
-                    ATTRS[a].name, size >> 10*i, prefixes[i], size);
                 break;
             }
         }
@@ -62,7 +59,6 @@ void test_read_write() {
     uint8_t *write_block = new uint8_t[block_size];
     uint8_t *read_block = new uint8_t[block_size];
     uint8_t *error_mask = new uint8_t[TEST_ERROR_MASK];
-    unsigned addrwidth = ceil(log(float(bd.size()-1)) / log(float(16)))+1;
 
     for (int b = 0; b < TEST_BLOCK_COUNT; b++) {
         // Find a random block
@@ -78,29 +74,14 @@ void test_read_write() {
             write_block[i] = 0xff & rand();
         }
 
-        // erase, program, and read the block
-        printf("test  %0*llx:%llu...\n", addrwidth, block, block_size);
-
         err = bd.erase(block, block_size);
         TEST_ASSERT_EQUAL(0, err);
 
         err = bd.program(write_block, block, block_size);
         TEST_ASSERT_EQUAL(0, err);
 
-        printf("write %0*llx:%llu ", addrwidth, block, block_size);
-        for (int i = 0; i < 16; i++) {
-            printf("%02x", write_block[i]);
-        }
-        printf("...\n");
-
         err = bd.read(read_block, block, block_size);
         TEST_ASSERT_EQUAL(0, err);
-
-        printf("read  %0*llx:%llu ", addrwidth, block, block_size);
-        for (int i = 0; i < 16; i++) {
-            printf("%02x", read_block[i]);
-        }
-        printf("...\n");
 
         // Find error mask for debugging
         memset(error_mask, 0, TEST_ERROR_MASK);
@@ -114,12 +95,6 @@ void test_read_write() {
                 }
             }
         }
-
-        printf("error %0*llx:%llu ", addrwidth, block, block_size);
-        for (int i = 0; i < 16; i++) {
-            printf("%02x", error_mask[i]);
-        }
-        printf("\n");
 
         // Check that the data was unmodified
         srand(seed);
