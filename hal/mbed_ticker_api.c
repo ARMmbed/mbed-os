@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- #include <stdio.h>
+#include <stdio.h>
 #include <stddef.h>
 #include "hal/ticker_api.h"
 #include "platform/mbed_critical.h"
@@ -26,7 +26,8 @@ static void update_current_timestamp(const ticker_data_t *const ticker);
 /*
  * Initialize a ticker instance.  
  */
-static void initialize(const ticker_data_t *ticker) { 
+static void initialize(const ticker_data_t *ticker)
+{
     // return if the queue has already been initialized, in that case the 
     // interface used by the queue is already initialized.
     if (ticker->queue->initialized) { 
@@ -47,7 +48,8 @@ static void initialize(const ticker_data_t *ticker) {
 /**
  * Set the event handler function of a ticker instance. 
  */
-static void set_handler(const ticker_data_t *const ticker, ticker_event_handler handler) { 
+static void set_handler(const ticker_data_t *const ticker, ticker_event_handler handler)
+{
     ticker->queue->event_handler = handler;
 }
 
@@ -63,7 +65,8 @@ static void set_handler(const ticker_data_t *const ticker, ticker_event_handler 
  * @param ref: The timestamp of reference. 
  * @param relative_timestamp: The timestamp to convert. 
  */
-static us_timestamp_t convert_relative_timestamp(us_timestamp_t ref, timestamp_t relative_timestamp) { 
+static us_timestamp_t convert_relative_timestamp(us_timestamp_t ref, timestamp_t relative_timestamp)
+{
      bool overflow = relative_timestamp < ((timestamp_t) ref) ? true : false;
 
     us_timestamp_t result = (ref & ~((us_timestamp_t)UINT32_MAX)) | relative_timestamp;
@@ -77,7 +80,8 @@ static us_timestamp_t convert_relative_timestamp(us_timestamp_t ref, timestamp_t
 /**
  * update the current timestamp value of a ticker.
  */
-static void update_current_timestamp(const ticker_data_t *const ticker) { 
+static void update_current_timestamp(const ticker_data_t *const ticker)
+{ 
     ticker->queue->timestamp = convert_relative_timestamp(
         ticker->queue->timestamp, 
         ticker->interface->read()
@@ -91,7 +95,8 @@ static void update_current_timestamp(const ticker_data_t *const ticker) {
  * interrupt will be set to MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA us from now. 
  * Otherwise the interrupt will be set to head->timestamp - queue->timestamp us.
  */
-static void update_interrupt(const ticker_data_t *const ticker) { 
+static void update_interrupt(const ticker_data_t *const ticker)
+{
     update_current_timestamp(ticker);
     uint32_t diff = MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA;
 
@@ -107,12 +112,14 @@ static void update_interrupt(const ticker_data_t *const ticker) {
     );
 }
 
-void ticker_set_handler(const ticker_data_t *const ticker, ticker_event_handler handler) {
+void ticker_set_handler(const ticker_data_t *const ticker, ticker_event_handler handler)
+{
     initialize(ticker);
     set_handler(ticker, handler);
 }
 
-void ticker_irq_handler(const ticker_data_t *const ticker) {
+void ticker_irq_handler(const ticker_data_t *const ticker)
+{
     ticker->interface->clear_interrupt();
 
     /* Go through all the pending TimerEvents */
@@ -142,7 +149,8 @@ void ticker_irq_handler(const ticker_data_t *const ticker) {
     update_interrupt(ticker);
 }
 
-void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj, timestamp_t timestamp, uint32_t id) {
+void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj, timestamp_t timestamp, uint32_t id)
+{
     /* disable interrupts for the duration of the function */
     core_util_critical_section_enter();
 
@@ -161,7 +169,8 @@ void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj,
     );
 }
 
-void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *obj, us_timestamp_t timestamp, uint32_t id) { 
+void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *obj, us_timestamp_t timestamp, uint32_t id)
+{
     /* disable interrupts for the duration of the function */
     core_util_critical_section_enter();
 
@@ -207,7 +216,8 @@ void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *o
     core_util_critical_section_exit();
 }
 
-void ticker_remove_event(const ticker_data_t *const ticker, ticker_event_t *obj) {
+void ticker_remove_event(const ticker_data_t *const ticker, ticker_event_t *obj)
+{
     core_util_critical_section_enter();
 
     // remove this object from the list
@@ -230,11 +240,13 @@ void ticker_remove_event(const ticker_data_t *const ticker, ticker_event_t *obj)
     core_util_critical_section_exit();
 }
 
-timestamp_t ticker_read(const ticker_data_t *const ticker) {
+timestamp_t ticker_read(const ticker_data_t *const ticker)
+{
     return ticker_read_us(ticker);
 }
 
-us_timestamp_t ticker_read_us(const ticker_data_t *const ticker) {
+us_timestamp_t ticker_read_us(const ticker_data_t *const ticker)
+{
     update_current_timestamp(ticker);
     return ticker->queue->timestamp;
 }
