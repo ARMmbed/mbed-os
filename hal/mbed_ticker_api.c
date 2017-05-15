@@ -18,10 +18,8 @@
 #include "hal/ticker_api.h"
 #include "platform/mbed_critical.h"
 
-#define MBED_MIN(x,y) (((x)<(y))?(x):(y))
-
-static void update_interrupt(const ticker_data_t *const ticker);
-static void update_current_timestamp(const ticker_data_t *const ticker);
+static void schedule_interrupt(const ticker_data_t *const ticker);
+static void update_present_time(const ticker_data_t *const ticker);
 
 /*
  * Initialize a ticker instance.  
@@ -38,11 +36,11 @@ static void initialize(const ticker_data_t *ticker)
     
     ticker->queue->event_handler = NULL;
     ticker->queue->head = NULL;
-    ticker->queue->timestamp = 0;
+    ticker->queue->present_time = 0;
     ticker->queue->initialized = true;
     
-    update_current_timestamp(ticker);
-    update_interrupt(ticker);
+    update_present_time(ticker);
+    schedule_interrupt(ticker);
 }
 
 /**
@@ -54,22 +52,29 @@ static void set_handler(const ticker_data_t *const ticker, ticker_event_handler 
 }
 
 /*
- * Convert a low res timestamp to a high res timestamp. An high resolution 
- * timestamp is used as the reference point to convert the low res timestamp 
- * into an high res one. 
+ * Convert a 32 bit timestamp into a 64 bit timestamp.
+ *
+ * A 64 bit timestamp is used as the point of time of reference while the 
+ * timestamp to convert is relative to this point of time. 
+ *
+ * The lower 32 bits of the timestamp returned will be equal to the timestamp to 
+ * convert. 
  * 
- * It is important to note that the result will **never** be in the past. If the 
- * value of the low res timetamp is less than the low res part of the reference 
- * timestamp then an overflow is 
- * 
- * @param ref: The timestamp of reference. 
- * @param relative_timestamp: The timestamp to convert. 
+ * If the timestamp to convert is less than the lower 32 bits of the time 
+ * reference then the timestamp to convert is seen as an overflowed value and 
+ * the upper 32 bit of the timestamp returned will be equal to the upper 32 bit 
+ * of the reference point + 1. 
+ * Otherwise, the upper 32 bit returned will be equal to the upper 32 bit of the 
+ * reference point. 
+ *
+ * @param ref: The 64 bit timestamp of reference.
+ * @param timestamp: The timestamp to convert.
  */
-static us_timestamp_t convert_relative_timestamp(us_timestamp_t ref, timestamp_t relative_timestamp)
+static us_timestamp_t convert_timestamp(us_timestamp_t ref, timestamp_t timestamp)
 {
-     bool overflow = relative_timestamp < ((timestamp_t) ref) ? true : false;
+    bool overflow = timestamp < ((timestamp_t) ref) ? true : false;
 
-    us_timestamp_t result = (ref & ~((us_timestamp_t)UINT32_MAX)) | relative_timestamp;
+    us_timestamp_t result = (ref & ~((us_timestamp_t)UINT32_MAX)) | timestamp;
     if (overflow) { 
         result += (1ULL<<32);
     }
@@ -78,38 +83,42 @@ static us_timestamp_t convert_relative_timestamp(us_timestamp_t ref, timestamp_t
 }
 
 /**
- * update the current timestamp value of a ticker.
+ * Update the present timestamp value of a ticker.
  */
-static void update_current_timestamp(const ticker_data_t *const ticker)
+static void update_present_time(const ticker_data_t *const ticker)
 { 
-    ticker->queue->timestamp = convert_relative_timestamp(
-        ticker->queue->timestamp, 
+    ticker->queue->present_time = convert_timestamp(
+        ticker->queue->present_time, 
         ticker->interface->read()
     );
 }
 
 /**
- * update the interrupt with the appropriate timestamp. 
- * if there is no interrupt scheduled or the next event to execute is in more 
- * than MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA us from now then the 
- * interrupt will be set to MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA us from now. 
- * Otherwise the interrupt will be set to head->timestamp - queue->timestamp us.
+ * Compute the time when the interrupt has to be triggered and schedule it.  
+ * 
+ * If there is no event in the queue or the next event to execute is in more 
+ * than MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA us from now then the ticker 
+ * irq will be scheduled in MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA us.
+ * Otherwise the irq will be scheduled to happen when the running counter reach 
+ * the timestamp of the first event in the queue.
+ * 
+ * @note If there is no event in the queue then the interrupt is scheduled to 
+ * in MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA. This is necessary to keep track 
+ * of the timer overflow.
  */
-static void update_interrupt(const ticker_data_t *const ticker)
+static void schedule_interrupt(const ticker_data_t *const ticker)
 {
-    update_current_timestamp(ticker);
-    uint32_t diff = MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA;
+    update_present_time(ticker);
+    uint32_t duration = MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA;
 
-    if (ticker->queue->head) { 
-        diff = MBED_MIN(
-            (ticker->queue->head->timestamp - ticker->queue->timestamp), 
-            MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA
-        );
+    if (ticker->queue->head) {
+        us_timestamp_t event_interval = (ticker->queue->head->timestamp - ticker->queue->present_time);
+        if (event_interval < MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA) { 
+            duration = event_interval;
+        }
     } 
 
-    ticker->interface->set_interrupt(
-        ticker->queue->timestamp + diff
-    );
+    ticker->interface->set_interrupt(ticker->queue->present_time + duration);
 }
 
 void ticker_set_handler(const ticker_data_t *const ticker, ticker_event_handler handler)
@@ -129,9 +138,9 @@ void ticker_irq_handler(const ticker_data_t *const ticker)
         }
 
         // update the current timestamp used by the queue 
-        update_current_timestamp(ticker);
+        update_present_time(ticker);
 
-        if (ticker->queue->head->timestamp <= ticker->queue->timestamp) { 
+        if (ticker->queue->head->timestamp <= ticker->queue->present_time) { 
             // This event was in the past:
             //      point to the following one and execute its handler
             ticker_event_t *p = ticker->queue->head;
@@ -146,18 +155,17 @@ void ticker_irq_handler(const ticker_data_t *const ticker)
         } 
     }
 
-    update_interrupt(ticker);
+    schedule_interrupt(ticker);
 }
 
 void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj, timestamp_t timestamp, uint32_t id)
 {
-    /* disable interrupts for the duration of the function */
     core_util_critical_section_enter();
 
     // update the current timestamp
-    update_current_timestamp(ticker);
-    us_timestamp_t absolute_timestamp = convert_relative_timestamp(
-        ticker->queue->timestamp, 
+    update_present_time(ticker);
+    us_timestamp_t absolute_timestamp = convert_timestamp(
+        ticker->queue->present_time, 
         timestamp
     );
     core_util_critical_section_exit();
@@ -171,15 +179,14 @@ void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj,
 
 void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *obj, us_timestamp_t timestamp, uint32_t id)
 {
-    /* disable interrupts for the duration of the function */
     core_util_critical_section_enter();
 
     // update the current timestamp
-    update_current_timestamp(ticker);
+    update_present_time(ticker);
 
     // filter out timestamp in the past 
-    if (timestamp < ticker->queue->timestamp) { 
-        update_interrupt(ticker);
+    if (timestamp < ticker->queue->present_time) { 
+        schedule_interrupt(ticker);
         return;
     }
 
@@ -211,7 +218,7 @@ void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *o
         prev->next = obj;
     }
 
-    update_interrupt(ticker);
+    schedule_interrupt(ticker);
 
     core_util_critical_section_exit();
 }
@@ -224,7 +231,7 @@ void ticker_remove_event(const ticker_data_t *const ticker, ticker_event_t *obj)
     if (ticker->queue->head == obj) {
         // first in the list, so just drop me
         ticker->queue->head = obj->next;
-        update_interrupt(ticker);
+        schedule_interrupt(ticker);
     } else {
         // find the object before me, then drop me
         ticker_event_t* p = ticker->queue->head;
@@ -247,8 +254,8 @@ timestamp_t ticker_read(const ticker_data_t *const ticker)
 
 us_timestamp_t ticker_read_us(const ticker_data_t *const ticker)
 {
-    update_current_timestamp(ticker);
-    return ticker->queue->timestamp;
+    update_present_time(ticker);
+    return ticker->queue->present_time;
 }
 
 int ticker_get_next_timestamp(const ticker_data_t *const data, timestamp_t *timestamp)

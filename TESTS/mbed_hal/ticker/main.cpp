@@ -100,7 +100,7 @@ static ticker_event_queue_t queue_stub = {
 static void reset_queue_stub() { 
     queue_stub.event_handler = NULL;
     queue_stub.head = NULL,
-    queue_stub.timestamp = 0;
+    queue_stub.present_time = 0;
     queue_stub.initialized = false;
 }
 
@@ -174,7 +174,7 @@ static void test_ticker_initialization() {
 
     TEST_ASSERT_TRUE(interface_stub.initialized);
     TEST_ASSERT_EQUAL_PTR(dummy_handler, queue_stub.event_handler);
-    TEST_ASSERT_EQUAL_UINT64(interface_stub.timestamp, queue_stub.timestamp);
+    TEST_ASSERT_EQUAL_UINT64(interface_stub.timestamp, queue_stub.present_time);
     TEST_ASSERT_EQUAL(1, interface_stub.set_interrupt_call);
     TEST_ASSERT_EQUAL_UINT32(
         interface_stub.timestamp + TIMESTAMP_MAX_DELTA,
@@ -437,7 +437,7 @@ static void test_legacy_insert_event_overflow() {
         TIMESTAMP_MAX_DELTA + 
         1; 
     const us_timestamp_t expected_us_timestamp = 
-        (((queue_stub.timestamp >> 32) + 1) << 32) | expected_timestamp; 
+        (((queue_stub.present_time >> 32) + 1) << 32) | expected_timestamp;
     const uint32_t expected_id = 0xDEADDEAF;
 
     ticker_insert_event(
@@ -792,12 +792,12 @@ static void test_insert_event_us_outside_overflow_range() {
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
     interface_stub.timestamp = 0xAAAAAAAA;
-    queue_stub.timestamp = 10ULL << 32 | interface_stub.timestamp;
+    queue_stub.present_time = 10ULL << 32 | interface_stub.timestamp;
 
     // test the end of the range
     ticker_event_t last_event = { 0 };
     const us_timestamp_t timestamp_last_event = 
-        queue_stub.timestamp + TIMESTAMP_MAX_DELTA; 
+        queue_stub.present_time + TIMESTAMP_MAX_DELTA;
     const uint32_t id_last_event = 0xDEADDEAF;
 
     ticker_insert_event_us(
@@ -816,7 +816,7 @@ static void test_insert_event_us_outside_overflow_range() {
 
     // test the beginning of the range
     ticker_event_t first_event = { 0 };
-    const us_timestamp_t timestamp_first_event = queue_stub.timestamp + 1; 
+    const us_timestamp_t timestamp_first_event = queue_stub.present_time + 1;
     const uint32_t id_first_event = 0xAAAAAAAA;
 
     ticker_insert_event_us(
@@ -852,7 +852,7 @@ static void test_insert_event_us_in_overflow_range() {
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
     interface_stub.timestamp = 0xAAAAAAAA;
-    queue_stub.timestamp = 10ULL << 32 | interface_stub.timestamp;
+    queue_stub.present_time = 10ULL << 32 | interface_stub.timestamp;
 
     // test the end of the range
     ticker_event_t last_event = { 0 };
@@ -876,11 +876,11 @@ static void test_insert_event_us_in_overflow_range() {
 
     // test the beginning of the range
     ++interface_stub.timestamp;
-    ++queue_stub.timestamp;
+    ++queue_stub.present_time;
 
     ticker_event_t first_event = { 0 };
     const us_timestamp_t timestamp_first_event = 
-        queue_stub.timestamp + TIMESTAMP_MAX_DELTA + 1; 
+        queue_stub.present_time + TIMESTAMP_MAX_DELTA + 1;
     uint32_t id_first_event = 0xAAAAAAAA;
 
     ticker_insert_event_us(&ticker_stub, 
@@ -914,11 +914,11 @@ static void test_insert_event_us_underflow() {
     interface_stub.set_interrupt_call = 0;
 
     interface_stub.timestamp = 0xAAAAAAAA;
-    queue_stub.timestamp = 10ULL << 32 | interface_stub.timestamp;
+    queue_stub.present_time = 10ULL << 32 | interface_stub.timestamp;
 
     // test the end of the range
     ticker_event_t event = { 0 };
-    const timestamp_t expected_timestamp = queue_stub.timestamp - 1; 
+    const timestamp_t expected_timestamp = queue_stub.present_time - 1;
     const uint32_t expected_id = 0xDEADDEAF;
 
     ticker_insert_event_us(
@@ -951,16 +951,16 @@ static void test_insert_event_us_head() {
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
     interface_stub.timestamp = 0xAAAAAAAA;
-    queue_stub.timestamp = 10ULL << 32 | interface_stub.timestamp;
+    queue_stub.present_time = 10ULL << 32 | interface_stub.timestamp;
 
     const us_timestamp_t timestamps[] = { 
         UINT64_MAX,
-        queue_stub.timestamp + TIMESTAMP_MAX_DELTA + 1,
-        queue_stub.timestamp + TIMESTAMP_MAX_DELTA,
-        queue_stub.timestamp + (TIMESTAMP_MAX_DELTA / 2),
-        queue_stub.timestamp + (TIMESTAMP_MAX_DELTA / 4),
-        queue_stub.timestamp + (TIMESTAMP_MAX_DELTA / 8),
-        queue_stub.timestamp + (TIMESTAMP_MAX_DELTA / 16),
+        queue_stub.present_time + TIMESTAMP_MAX_DELTA + 1,
+        queue_stub.present_time + TIMESTAMP_MAX_DELTA,
+        queue_stub.present_time + (TIMESTAMP_MAX_DELTA / 2),
+        queue_stub.present_time + (TIMESTAMP_MAX_DELTA / 4),
+        queue_stub.present_time + (TIMESTAMP_MAX_DELTA / 8),
+        queue_stub.present_time + (TIMESTAMP_MAX_DELTA / 16),
     };
     ticker_event_t events[MBED_ARRAY_SIZE(timestamps)] = { 0 };
 
@@ -971,14 +971,14 @@ static void test_insert_event_us_head() {
         );
 
         TEST_ASSERT_EQUAL_PTR(&events[i], queue_stub.head);
-        if ((timestamps[i] - queue_stub.timestamp) < TIMESTAMP_MAX_DELTA) { 
+        if ((timestamps[i] - queue_stub.present_time) < TIMESTAMP_MAX_DELTA) {
             TEST_ASSERT_EQUAL_UINT32(
                 timestamps[i], 
                 interface_stub.interrupt_timestamp
             );
         } else { 
             TEST_ASSERT_EQUAL_UINT32(
-                queue_stub.timestamp + TIMESTAMP_MAX_DELTA, 
+                queue_stub.present_time + TIMESTAMP_MAX_DELTA,
                 interface_stub.interrupt_timestamp
             );
         }
@@ -1464,7 +1464,7 @@ static void test_overflow_event_update() {
     interface_stub.set_interrupt_call = 0;
 
     for (size_t i = 0; i < 8; ++i) {
-        us_timestamp_t previous_timestamp = queue_stub.timestamp;
+        us_timestamp_t previous_timestamp = queue_stub.present_time;
         timestamp_t interface_timestamp = 
             previous_timestamp + (TIMESTAMP_MAX_DELTA + i * 100);
         interface_stub.timestamp = interface_timestamp;
@@ -1505,7 +1505,7 @@ static void test_overflow_event_update_when_spurious_interrupt() {
     interface_stub.set_interrupt_call = 0;
 
     for (size_t i = 0; i < 8; ++i) {
-        us_timestamp_t previous_timestamp = queue_stub.timestamp;
+        us_timestamp_t previous_timestamp = queue_stub.present_time;
         timestamp_t interface_timestamp = 
             previous_timestamp + (TIMESTAMP_MAX_DELTA / (2 + i));
         interface_stub.timestamp = interface_timestamp;
