@@ -45,30 +45,27 @@ void Timer::stop() {
 }
 
 int Timer::read_us() {
+    return read_high_resolution_us();
+}
+
+float Timer::read() {
+    return (float)read_us() / 1000000.0f;
+}
+
+int Timer::read_ms() {
+    return read_high_resolution_us() / 1000;
+}
+
+us_timestamp_t Timer::read_high_resolution_us() {
     core_util_critical_section_enter();
     us_timestamp_t time = _time + slicetime();
     core_util_critical_section_exit();
     return time;
 }
 
-float Timer::read() {
-    core_util_critical_section_enter();
-    us_timestamp_t time = _time + slicetime();
-    core_util_critical_section_exit();
-    time = time / 1000;
-    return (float)read_ms() / 1000.0f;
-}
-
-int Timer::read_ms() {
-    core_util_critical_section_enter();
-    us_timestamp_t time = _time + slicetime();
-    core_util_critical_section_exit();
-    return time / 1000;    
-}
-
 us_timestamp_t Timer::slicetime() {
-    core_util_critical_section_enter();
     us_timestamp_t ret = 0;
+    core_util_critical_section_enter();
     if (_running) {
         ret = ticker_read_us(_ticker_data) - _start;
     }

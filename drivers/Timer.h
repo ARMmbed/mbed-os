@@ -82,6 +82,10 @@ public:
      */
     operator float();
 
+    /** Get in a high resolution type the time passed in micro-seconds.
+     */
+    us_timestamp_t read_high_resolution_us();
+
 protected:
     us_timestamp_t slicetime();
     int _running;            // whether the timer is running
