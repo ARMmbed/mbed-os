@@ -144,7 +144,7 @@ static int convert_allocation_size(int16_t requested_bytes)
         heap_failure(NS_DYN_MEM_HEAP_SECTOR_UNITIALIZED);
     } else if (requested_bytes < 1) {
         heap_failure(NS_DYN_MEM_ALLOCATE_SIZE_NOT_VALID);
-    } else if (requested_bytes > (heap_size - 2 * sizeof(int)) ) {
+    } else if ((size_t)requested_bytes > (heap_size - 2 * sizeof(int)) ) {
         heap_failure(NS_DYN_MEM_ALLOCATE_SIZE_NOT_VALID);
     }
     return (requested_bytes + sizeof(int) - 1) / sizeof(int);
@@ -153,8 +153,7 @@ static int convert_allocation_size(int16_t requested_bytes)
 // Checks that block length indicators are valid
 // Block has format: Size of data area [1 word] | data area [abs(size) words]| Size of data area [1 word]
 // If Size is negative it means area is unallocated
-// For direction, use 1 for direction up and -1 for down
-static int8_t ns_block_validate(int *block_start, int direction)
+static int8_t ns_block_validate(int *block_start)
 {
     int8_t ret_val = -1;
     int *end = block_start;
@@ -188,7 +187,7 @@ static void *ns_dyn_mem_internal_alloc(const int16_t alloc_size, int direction)
                                   : ns_list_get_previous(&holes_list, cur_hole)
         ) {
         int *p = block_start_from_hole(cur_hole);
-        if (ns_block_validate(p, direction) != 0 || *p >= 0) {
+        if (ns_block_validate(p) != 0 || *p >= 0) {
             //Validation failed, or this supposed hole has positive (allocated) size
             heap_failure(NS_DYN_MEM_HEAP_SECTOR_CORRUPTED);
             break;
@@ -204,7 +203,7 @@ static void *ns_dyn_mem_internal_alloc(const int16_t alloc_size, int direction)
         goto done;
     }
 
-    int block_data_size = -*block_ptr;
+    size_t block_data_size = -*block_ptr;
     if (block_data_size >= (data_size + 2 + HOLE_T_SIZE)) {
         int hole_size = block_data_size - data_size - 2;
         int *hole_ptr;
@@ -274,7 +273,7 @@ void *ns_dyn_mem_temporary_alloc(int16_t alloc_size)
 }
 
 #ifndef STANDARD_MALLOC
-static void ns_free_and_merge_with_adjacent_blocks(int *cur_block, int data_size)
+static void ns_free_and_merge_with_adjacent_blocks(int * const cur_block, int data_size)
 {
     // Theory of operation: Block is always in form | Len | Data | Len |
     // So we need to check length of previous (if current not heap start)
@@ -286,32 +285,37 @@ static void ns_free_and_merge_with_adjacent_blocks(int *cur_block, int data_size
     int *start = cur_block;
     int *end = cur_block + data_size + 1;
     //invalidate current block
-    *cur_block = -data_size;
+    *start = -data_size;
     *end = -data_size;
-    int merged_data_size = data_size;
+    size_t merged_data_size = data_size;
 
-    if (cur_block != heap_main) {
-        cur_block--;
-        if (*cur_block < 0) {
-            merged_data_size += (2 - *cur_block);
-            start -= (2 - *cur_block);
-            if (-*start >= HOLE_T_SIZE) {
+    if (start != heap_main) {
+        if (*(start - 1) < 0) {
+            int *block_end = start - 1;
+            size_t block_size = 1 + (-*block_end) + 1;
+            merged_data_size += block_size;
+            start -= block_size;
+            if (*start != *block_end) {
+                heap_failure(NS_DYN_MEM_HEAP_SECTOR_CORRUPTED);
+            }
+            if (block_size >= 1 + HOLE_T_SIZE + 1) {
                 existing_start = hole_from_block_start(start);
             }
         }
-        cur_block++;
     }
 
     if (end != heap_main_end) {
-        end++;
-        if (*end < 0) {
-            merged_data_size += (2 - *end);
-            if (-*end >= HOLE_T_SIZE) {
-                existing_end = hole_from_block_start(end);
+        if (*(end + 1) < 0) {
+            int *block_start = end + 1;
+            size_t block_size = 1 + (-*block_start) + 1;
+            merged_data_size += block_size;
+            end += block_size;
+            if (*end != *block_start) {
+                heap_failure(NS_DYN_MEM_HEAP_SECTOR_CORRUPTED);
             }
-            end += (1 - *end);
-        }else{
-            end--;
+            if (block_size >= 1 + HOLE_T_SIZE + 1) {
+                existing_end = hole_from_block_start(block_start);
+            }
         }
     }
 
@@ -382,7 +386,7 @@ void ns_dyn_mem_free(void *block)
     } else if ((ptr + size) >= heap_main_end) {
         heap_failure(NS_DYN_MEM_POINTER_NOT_VALID);
     } else {
-        if (ns_block_validate(ptr, 1) != 0) {
+        if (ns_block_validate(ptr) != 0) {
             heap_failure(NS_DYN_MEM_HEAP_SECTOR_CORRUPTED);
         } else {
             ns_free_and_merge_with_adjacent_blocks(ptr, size);
