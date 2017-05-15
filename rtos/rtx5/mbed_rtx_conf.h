@@ -38,7 +38,7 @@
 
 #if defined(__CC_ARM)
 #define OS_MUTEX_OBJ_MEM            1
-#define OS_MUTEX_NUM                6
+#define OS_MUTEX_NUM                7
 #endif
 
 #if !defined(OS_STACK_WATERMARK) && (defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED)
