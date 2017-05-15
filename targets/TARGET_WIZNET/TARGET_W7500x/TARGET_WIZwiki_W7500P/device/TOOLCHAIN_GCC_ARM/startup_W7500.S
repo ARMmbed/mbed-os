@@ -188,8 +188,8 @@ Reset_Handler:
 .LC3:
 #endif /* __STARTUP_CLEAR_BSS */
 
-    /*bl    _start*/
-    bl main
+    bl    _start
+    //bl main
 
     .pool
     .size Reset_Handler, . - Reset_Handler
