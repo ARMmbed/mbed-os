@@ -1,3 +1,5 @@
+/** \addtogroup rtos */
+/** @{*/
 /*
  * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
@@ -26,8 +28,10 @@
 #ifndef CORE_CM_H_
 #define CORE_CM_H_
 
-#include "RTE_Components.h"
-#include CMSIS_device_header
+#include <stdint.h>
+#include "cmsis.h"
+#include "cmsis_compiler.h"
+#include "arm_math.h"
 
 #ifndef __ARM_ARCH_6M__
 #define __ARM_ARCH_6M__         0U
@@ -1526,3 +1530,5 @@ __STATIC_INLINE void atomic_link_put (void **root, void *link) {
 
 
 #endif  // CORE_CM_H_
+
+/** @}*/
