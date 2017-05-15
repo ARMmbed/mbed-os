@@ -164,6 +164,10 @@ private:
 
     bool volatile  edBufAlloc[MAX_ENDPOINT];
     bool volatile tdBufAlloc[MAX_TD];
+#ifdef USBHOST_OTHER
+    int control_disable;
+#endif
+
 };
 
 #endif

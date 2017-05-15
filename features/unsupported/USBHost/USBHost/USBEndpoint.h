@@ -33,6 +33,9 @@ public:
     * Constructor
     */
     USBEndpoint() {
+#ifdef USBHOST_OTHER
+        speed = false;
+#endif
         state = USB_TYPE_FREE;
         nextEp = NULL;
     };
@@ -111,7 +114,11 @@ public:
 
 
     // setters
+#ifdef USBHOST_OTHER
+    void setState(USB_TYPE st);
+#else
     inline void setState(USB_TYPE st) { state = st; }
+#endif
     void setState(uint8_t st);
     void setDeviceAddress(uint8_t addr);
     inline void setLengthTransferred(int len) { transferred = len; };

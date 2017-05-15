@@ -176,7 +176,7 @@
 // Support Multicast
 #include "stdlib.h"
 #define LWIP_IGMP                   LWIP_IPV4
-#define LWIP_RAND()                 rand()
+#define LWIP_RAND()                 lwip_get_random()
 
 #define LWIP_COMPAT_SOCKETS         0
 #define LWIP_POSIX_SOCKETS_IO_NAMES 0
@@ -273,6 +273,14 @@
 
 #else
 #error A transport mechanism (Ethernet or PPP) must be defined
+#endif
+
+#include <lwip/arch.h>
+#include "lwip_random.h"
+#include "lwip_tcp_isn.h"
+#define LWIP_HOOK_TCP_ISN lwip_hook_tcp_isn
+#if MBEDTLS_MD5_C
+#define LWIP_USE_EXTERNAL_MBEDTLS 1
 #endif
 
 #endif /* LWIPOPTS_H_ */

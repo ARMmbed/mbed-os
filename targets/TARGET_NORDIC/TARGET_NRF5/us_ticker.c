@@ -40,10 +40,12 @@
 #include "common_rtc.h"
 #include "app_util.h"
 #include "nrf_drv_common.h"
-#include "nrf_drv_config.h"
 #include "lp_ticker_api.h"
 #include "mbed_critical.h"
 
+#if defined(NRF52_ERRATA_20)
+    #include "softdevice_handler.h"
+#endif
 
 //------------------------------------------------------------------------------
 // Common stuff used also by lp_ticker and rtc_api (see "common_rtc.h").
@@ -82,7 +84,23 @@ void COMMON_RTC_IRQ_HANDLER(void)
         lp_ticker_irq_handler();
     }
 #endif
+}
 
+// Function for fix errata 20: RTC Register values are invalid
+__STATIC_INLINE void errata_20(void)
+{
+#if defined(NRF52_ERRATA_20)
+    if (!softdevice_handler_is_enabled())
+    {
+        NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
+        NRF_CLOCK->TASKS_LFCLKSTART    = 1;
+
+        while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0)
+        {
+        }
+    }
+    NRF_RTC1->TASKS_STOP = 0;
+#endif
 }
 
 void RTC1_IRQHandler(void);
@@ -92,6 +110,8 @@ void common_rtc_init(void)
     if (m_common_rtc_enabled) {
         return;
     }
+
+    errata_20();
 
     NVIC_SetVector(RTC1_IRQn, (uint32_t)RTC1_IRQHandler);
     
@@ -115,9 +135,9 @@ void common_rtc_init(void)
     // events will be enabled or disabled as needed (such approach is more
     // energy efficient).
     nrf_rtc_int_enable(COMMON_RTC_INSTANCE,
-    #if DEVICE_LOWPOWERTIMER
+#if DEVICE_LOWPOWERTIMER
         LP_TICKER_INT_MASK |
-    #endif
+#endif
         US_TICKER_INT_MASK |
         NRF_RTC_INT_OVERFLOW_MASK);
 
@@ -126,18 +146,18 @@ void common_rtc_init(void)
     nrf_rtc_event_enable(COMMON_RTC_INSTANCE, NRF_RTC_INT_OVERFLOW_MASK);
     // All other relevant events are initially disabled.
     nrf_rtc_event_disable(COMMON_RTC_INSTANCE,
-    #if defined(TARGET_MCU_NRF51822)
+#if defined(TARGET_MCU_NRF51822)
         OS_TICK_INT_MASK |
-    #endif
-    #if DEVICE_LOWPOWERTIMER
+#endif
+#if DEVICE_LOWPOWERTIMER
         LP_TICKER_INT_MASK |
-    #endif
+#endif
         US_TICKER_INT_MASK);
 
     nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE),
 #ifdef NRF51
         APP_IRQ_PRIORITY_LOW
-#elif defined(NRF52)
+#elif defined(NRF52) || defined(NRF52840_XXAA)
         APP_IRQ_PRIORITY_LOWEST
 #endif
         );
@@ -294,7 +314,9 @@ static uint32_t frozen_sub_tick = 0;
  To allow compilation of us_ticker programs without RTOS, those symbols are
  exported from this module as weak ones.
  */
-MBED_WEAK void SysTick_Handler(void) {}
+MBED_WEAK void SysTick_Handler(void)
+{
+}
 
 
 #ifdef MBED_CONF_RTOS_PRESENT
@@ -330,7 +352,8 @@ void COMMON_RTC_IRQ_HANDLER(void)
  * Return the next number of clock cycle needed for the next tick.
  * @note This function has been carefully optimized for a systick occurring every 1000us.
  */
-static uint32_t get_next_tick_cc_delta() {
+static uint32_t get_next_tick_cc_delta()
+{
     uint32_t delta = 0;
 
     if (osRtxConfig.tick_freq != 1000) {
@@ -366,7 +389,8 @@ static uint32_t get_next_tick_cc_delta() {
     return delta;
 }
 
-static inline void clear_tick_interrupt() {
+static inline void clear_tick_interrupt()
+{
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, OS_TICK_EVENT);
     nrf_rtc_event_disable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
 }
@@ -378,7 +402,8 @@ static inline void clear_tick_interrupt() {
  * @param  val   value to check
  * @return       true if the value is included in the range and false otherwise.
  */
-static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t val) {
+static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t val)
+{
     // regular case, begin < end
     // return true if  begin <= val < end
     if (begin < end) {
@@ -402,7 +427,8 @@ static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t va
 /**
  * Register the next tick.
  */
-static void register_next_tick() {
+static void register_next_tick()
+{
     previous_tick_cc_value = nrf_rtc_cc_get(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL);
     uint32_t delta = get_next_tick_cc_delta();
     uint32_t new_compare_value = (previous_tick_cc_value + delta) & MAX_RTC_COUNTER_VAL;
@@ -481,7 +507,8 @@ void osRtxSysTimerAckIRQ(void)
 }
 
 // provide a free running incremental value over the entire 32-bit range
-uint32_t osRtxSysTimerGetCount(void) {
+uint32_t osRtxSysTimerGetCount(void)
+{
     uint32_t current_cnt;
     uint32_t sub_tick;
 

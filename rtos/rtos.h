@@ -43,10 +43,6 @@ using namespace rtos;
 */
 #include "mbed.h"
 
-#if (MBED_LIBRARY_VERSION < 122)
-#error "This version of RTOS requires mbed library version > 121"
-#endif
-
 #endif
 
 /** @}*/

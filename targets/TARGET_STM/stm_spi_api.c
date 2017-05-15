@@ -158,11 +158,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     handle->Init.Direction         = SPI_DIRECTION_2LINES;
     handle->Init.CLKPhase          = SPI_PHASE_1EDGE;
     handle->Init.CLKPolarity       = SPI_POLARITY_LOW;
-    handle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLED;
+    handle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
     handle->Init.CRCPolynomial     = 7;
     handle->Init.DataSize          = SPI_DATASIZE_8BIT;
     handle->Init.FirstBit          = SPI_FIRSTBIT_MSB;
-    handle->Init.TIMode            = SPI_TIMODE_DISABLED;
+    handle->Init.TIMode            = SPI_TIMODE_DISABLE;
 
     init_spi(obj);
 }
@@ -357,7 +357,7 @@ int spi_master_write(spi_t *obj, int value)
     size = (handle->Init.DataSize == SPI_DATASIZE_16BIT) ? 2 : 1;
 
     /*  Use 10ms timeout */
-    ret = HAL_SPI_TransmitReceive(handle,(uint8_t*)&value,(uint8_t*)&Rx,size,10);
+    ret = HAL_SPI_TransmitReceive(handle,(uint8_t*)&value,(uint8_t*)&Rx,size,HAL_MAX_DELAY);
 
     if(ret == HAL_OK) {
         return Rx;

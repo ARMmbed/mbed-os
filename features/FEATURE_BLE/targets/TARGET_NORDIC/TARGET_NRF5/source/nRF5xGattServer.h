@@ -20,7 +20,7 @@
 #include <stddef.h>
 
 #include "ble/blecommon.h"
-#include "nrf_ble.h" /* nordic ble */
+#include "headers/nrf_ble.h" /* nordic ble */
 #include "ble/Gap.h"
 #include "ble/GattServer.h"
 
