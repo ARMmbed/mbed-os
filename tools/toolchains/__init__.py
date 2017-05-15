@@ -958,7 +958,7 @@ class mbedToolchain:
 
     def compile_output(self, output=[]):
         _rc = output[0]
-        _stderr = output[1]
+        _stderr = output[1].decode("utf-8")
         command = output[2]
 
         # Parse output for Warnings and Errors
