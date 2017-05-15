@@ -1,3 +1,5 @@
+/** \addtogroup rtos */
+/** @{*/
 /*
  * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
@@ -210,5 +212,5 @@ extern uint32_t           svcRtxMessageQueueGetSpace    (osMessageQueueId_t mq_i
 extern osStatus_t         svcRtxMessageQueueReset       (osMessageQueueId_t mq_id);
 extern osStatus_t         svcRtxMessageQueueDelete      (osMessageQueueId_t mq_id);
 
-
 #endif  // RTX_LIB_H_
+/** @}*/
