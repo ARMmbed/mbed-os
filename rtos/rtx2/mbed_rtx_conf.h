@@ -19,50 +19,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "rtos/Semaphore.h"
-#include "platform/mbed_assert.h"
+#ifndef MBED_RTX_CONF_H
+#define MBED_RTX_CONF_H
 
-#include <string.h>
+#include "mbed_rtx.h"
 
-namespace rtos {
+#ifndef OS_STACK_SIZE
+#ifndef MBED_SMALL_TARGET
+#define OS_STACK_SIZE               4096
+#else
+#define OS_STACK_SIZE               2048
+#endif
+#endif
 
-Semaphore::Semaphore(int32_t count) {
-    constructor(count, 1024);
-}
+#define OS_TIMER_THREAD_STACK_SIZE 768
+#define OS_IDLE_THREAD_STACK_SIZE  256
 
-Semaphore::Semaphore(int32_t count, uint16_t max_count) {
-    constructor(count, max_count);
-}
+#define OS_DYNAMIC_MEM_SIZE         0
 
-void Semaphore::constructor(int32_t count, uint16_t max_count) {
-    memset(&_obj_mem, 0, sizeof(_obj_mem));
-    memset(&_attr, 0, sizeof(_attr));
-    _attr.cb_mem = &_obj_mem;
-    _attr.cb_size = sizeof(_obj_mem);
-    _id = osSemaphoreNew(max_count, count, &_attr);
-    MBED_ASSERT(_id != NULL);
-}
+#if defined(__CC_ARM)
+#define OS_MUTEX_OBJ_MEM            1
+#define OS_MUTEX_NUM                6
+#endif
 
-int32_t Semaphore::wait(uint32_t millisec) {
-    osStatus_t stat = osSemaphoreAcquire(_id, millisec);
-    switch (stat) {
-        case osOK:
-            return osSemaphoreGetCount(_id) + 1;
-        case osErrorTimeout:
-        case osErrorResource:
-            return 0;
-        case osErrorParameter:
-        default:
-            return -1;
-    }
-}
+#if !defined(OS_STACK_WATERMARK) && (defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED)
+#define OS_STACK_WATERMARK          1
+#endif
 
-osStatus Semaphore::release(void) {
-    return osSemaphoreRelease(_id);
-}
+/* Run threads unprivileged when uVisor is enabled. */
+#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
+# define OS_PRIVILEGE_MODE           0
+#endif
 
-Semaphore::~Semaphore() {
-    osSemaphoreDelete(_id);
-}
-
-}
+#endif /* MBED_RTX_CONF_H */
