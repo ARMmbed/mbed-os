@@ -2567,7 +2567,9 @@
             "BLE_STACK_SUPPORT_REQD",
             "SOFTDEVICE_PRESENT",
             "S130",
-            "TARGET_MCU_NRF51822"
+            "TARGET_MCU_NRF51822",
+            "CMSIS_VECTAB_VIRTUAL",
+            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""
         ],
         "MERGE_BOOTLOADER": false,
         "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822_UNIFIED", "NRF5", "SDK11"],
@@ -2625,7 +2627,7 @@
     "MCU_NRF52": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132"],
+        "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832", "NRF5", "SDK11"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
@@ -2705,7 +2707,7 @@
     "MCU_NRF52840": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "macros": ["TARGET_NRF52840", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S140", "NRF_SD_BLE_API_VERSION=5", "NRF52840_XXAA", "NRF_DFU_SETTINGS_VERSION=1", "NRF_SD_BLE_API_VERSION=5"],
+        "macros": ["TARGET_NRF52840", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S140", "NRF_SD_BLE_API_VERSION=5", "NRF52840_XXAA", "NRF_DFU_SETTINGS_VERSION=1", "NRF_SD_BLE_API_VERSION=5", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "extra_labels": ["NORDIC", "MCU_NRF52840", "NRF5", "SDK13"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
