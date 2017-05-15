@@ -86,6 +86,15 @@ void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, s
     unsigned char i=0;
     int currentlen = ilen;
     /* store mechanism to handle 64 bytes per 64 bytes */
+    if (currentlen == 0){ // change HW status is size if 0
+        if(ctx->hhash_md5.Phase == HAL_HASH_PHASE_READY)
+        {
+          /* Select the MD5 mode and reset the HASH processor core, so that the HASH will be ready to compute
+             the message digest of a new message */
+          HASH->CR |= HASH_ALGOSELECTION_MD5 | HASH_CR_INIT;
+        }
+        ctx->hhash_md5.Phase = HAL_HASH_PHASE_PROCESS;
+    }
     while ((currentlen+ctx->sbuf_len) >=64) {
         if (ctx->sbuf_len ==0) { /* straight forward */
             mbedtls_md5_process(ctx, input+(i*64));
