@@ -65,6 +65,26 @@
 
   #include <cmsis_iar.h>
 
+  /* CMSIS compiler control architecture macros */
+  #if (__CORE__ == __ARM6M__) || (__CORE__ == __ARM6SM__)
+    #ifndef __ARM_ARCH_6M__
+      #define __ARM_ARCH_6M__                      1
+    #endif
+  #elif (__CORE__ == __ARM7M__)
+    #ifndef __ARM_ARCH_7M__
+      #define __ARM_ARCH_7M__                      1
+    #endif
+  #elif (__CORE__ == __ARM7EM__)
+    #ifndef __ARM_ARCH_7EM__
+      #define __ARM_ARCH_7EM__                     1
+    #endif
+  #endif
+
+  // IAR version 7.8.1 and earlier do not include __ALIGNED
+  #ifndef __ALIGNED
+  #define __ALIGNED(x) __attribute__((aligned(x)))
+  #endif
+
   #ifndef   __NO_RETURN
     #define __NO_RETURN                            __noreturn
   #endif

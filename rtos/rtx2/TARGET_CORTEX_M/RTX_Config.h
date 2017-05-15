@@ -1,3 +1,5 @@
+/** \addtogroup rtos */
+/** @{*/
 /*
  * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
@@ -27,7 +29,9 @@
  
 #ifndef RTX_CONFIG_H_
 #define RTX_CONFIG_H_
- 
+
+#include "rtx2/mbed_rtx_conf.h"
+
 //-------- <<< Use Configuration Wizard in Context Menu >>> --------------------
  
 // <h>System Configuration
@@ -377,3 +381,4 @@
 //------------- <<< end of configuration section >>> ---------------------------
  
 #endif  // RTX_CONFIG_H_
+/** @}*/
