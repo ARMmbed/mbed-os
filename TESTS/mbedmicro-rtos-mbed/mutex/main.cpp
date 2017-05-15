@@ -142,7 +142,7 @@ void test_dual_thread_lock_lock_thread(Mutex *mutex)
     uint32_t start = us_ticker_read();
 
     osStatus stat = mutex->lock(TEST_HALF_SEC_MS);
-    TEST_ASSERT_EQUAL(stat, osEventTimeout);
+    TEST_ASSERT_EQUAL(stat, osErrorTimeout);
     TEST_ASSERT_UINT32_WITHIN(TEST_ONE_MS_US, TEST_HALF_SEC_US, us_ticker_read() - start);
 }
 
