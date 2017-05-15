@@ -188,14 +188,8 @@ nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
 
 void TCPSocket::event()
 {
-    int32_t wcount = _write_sem.wait(0);
-    if (wcount <= 1) {
-        _write_sem.release();
-    }
-    int32_t rcount = _read_sem.wait(0);
-    if (rcount <= 1) {
-        _read_sem.release();
-    }
+    _write_sem.release();
+    _read_sem.release();
 
     _pending += 1;
     if (_callback && _pending == 1) {

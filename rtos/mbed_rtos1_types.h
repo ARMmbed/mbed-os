@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2012 ARM Limited
+ * Copyright (c) 2006-2017 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -19,50 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "rtos/Semaphore.h"
-#include "platform/mbed_assert.h"
+#ifndef MBED_RTOS_RTX1_TYPES_H
+#define MBED_RTOS_RTX1_TYPES_H
 
-#include <string.h>
+#include "rtx/cmsis_os.h"
 
-namespace rtos {
-
-Semaphore::Semaphore(int32_t count) {
-    constructor(count, 1024);
-}
-
-Semaphore::Semaphore(int32_t count, uint16_t max_count) {
-    constructor(count, max_count);
-}
-
-void Semaphore::constructor(int32_t count, uint16_t max_count) {
-    memset(&_obj_mem, 0, sizeof(_obj_mem));
-    memset(&_attr, 0, sizeof(_attr));
-    _attr.cb_mem = &_obj_mem;
-    _attr.cb_size = sizeof(_obj_mem);
-    _id = osSemaphoreNew(max_count, count, &_attr);
-    MBED_ASSERT(_id != NULL);
-}
-
-int32_t Semaphore::wait(uint32_t millisec) {
-    osStatus_t stat = osSemaphoreAcquire(_id, millisec);
-    switch (stat) {
-        case osOK:
-            return osSemaphoreGetCount(_id) + 1;
-        case osErrorTimeout:
-        case osErrorResource:
-            return 0;
-        case osErrorParameter:
-        default:
-            return -1;
-    }
-}
-
-osStatus Semaphore::release(void) {
-    return osSemaphoreRelease(_id);
-}
-
-Semaphore::~Semaphore() {
-    osSemaphoreDelete(_id);
-}
-
-}
+#endif

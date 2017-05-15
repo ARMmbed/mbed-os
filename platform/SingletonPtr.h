@@ -23,11 +23,11 @@
 #include <new>
 #include "platform/mbed_assert.h"
 #ifdef MBED_CONF_RTOS_PRESENT
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #endif
 
 #ifdef MBED_CONF_RTOS_PRESENT
-extern osMutexId singleton_mutex_id;
+extern osMutexId_t singleton_mutex_id;
 #endif
 
 /** Lock the singleton mutex
@@ -39,7 +39,7 @@ extern osMutexId singleton_mutex_id;
 inline static void singleton_lock(void)
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    osMutexWait(singleton_mutex_id, osWaitForever);
+    osMutexAcquire(singleton_mutex_id, osWaitForever);
 #endif
 }
 
