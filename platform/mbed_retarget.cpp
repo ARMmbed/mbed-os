@@ -36,7 +36,6 @@
 #include <errno.h>
 #include "platform/mbed_retarget.h"
 
-
 #if defined(__ARMCC_VERSION)
 #   include <rt_sys.h>
 #   define PREFIX(x)    _sys##x
@@ -76,7 +75,6 @@ extern const char __stdout_name[] = "/stdout";
 extern const char __stderr_name[] = "/stderr";
 #endif
 
-// Heap limits - only used if set
 unsigned char *mbed_heap_start = 0;
 uint32_t mbed_heap_size = 0;
 
@@ -157,10 +155,6 @@ static inline int openmode_to_posix(int openmode) {
 }
 #endif
 
-extern "C" WEAK void mbed_sdk_init(void);
-extern "C" WEAK void mbed_sdk_init(void) {
-}
-
 #if MBED_CONF_FILESYSTEM_PRESENT
 // Internally used file objects with managed memory on close
 class ManagedFile : public File {
@@ -198,11 +192,6 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     // Before version 5.03, we were using a patched version of microlib with proper names
     // This is the workaround that the microlib author suggested us
     static int n = 0;
-    static int mbed_sdk_inited = 0;
-    if (!mbed_sdk_inited) {
-        mbed_sdk_inited = 1;
-        mbed_sdk_init();
-    }
     if (!std::strcmp(name, ":tt")) return n++;
     #else
     /* Use the posix convention that stdin,out,err are filehandles 0,1,2.
@@ -684,79 +673,10 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
 
 #endif
 
-#if defined(TOOLCHAIN_GCC)
-
-#ifdef  FEATURE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#endif/* FEATURE_UVISOR */
-
-
-extern "C" WEAK void software_init_hook_rtos(void)
-{
-    // Do nothing by default.
-}
-
-extern "C" void software_init_hook(void)
-{
-#ifdef   FEATURE_UVISOR
-    int return_code;
-
-    return_code = uvisor_lib_init();
-    if (return_code) {
-        mbed_die();
-    }
-#endif/* FEATURE_UVISOR */
-    mbed_sdk_init();
-    software_init_hook_rtos();
-}
-#endif
-
-// ****************************************************************************
-// mbed_main is a function that is called before main()
-// mbed_sdk_init() is also a function that is called before main(), but unlike
-// mbed_main(), it is not meant for user code, but for the SDK itself to perform
-// initializations before main() is called.
-
-extern "C" WEAK void mbed_main(void);
-extern "C" WEAK void mbed_main(void) {
-}
-
-#if defined(TOOLCHAIN_ARM)
-extern "C" int $Super$$main(void);
-
-extern "C" int $Sub$$main(void) {
-    mbed_main();
-    return $Super$$main();
-}
-
-extern "C" void _platform_post_stackheap_init (void) {
-    mbed_sdk_init();
-}
-
-#elif defined(TOOLCHAIN_GCC)
-extern "C" int __real_main(void);
-
-extern "C" int __wrap_main(void) {
-    mbed_main();
-    return __real_main();
-}
-#elif defined(TOOLCHAIN_IAR)
-// IAR doesn't have the $Super/$Sub mechanism of armcc, nor something equivalent
-// to ld's --wrap. It does have a --redirect, but that doesn't help, since redirecting
-// 'main' to another symbol looses the original 'main' symbol. However, its startup
-// code will call a function to setup argc and argv (__iar_argc_argv) if it is defined.
-// Since mbed doesn't use argc/argv, we use this function to call our mbed_main.
-extern "C" void __iar_argc_argv() {
-    mbed_main();
-}
-#endif
-
 // Provide implementation of _sbrk (low-level dynamic memory allocation
 // routine) for GCC_ARM which compares new heap pointer with MSP instead of
 // SP.  This make it compatible with RTX RTOS thread stacks.
 #if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
-// Linker defined symbol used by _sbrk to indicate where heap should start.
-extern "C" int __end__;
 
 #if defined(TARGET_CORTEX_A)
 extern "C" uint32_t  __HeapLimit;
@@ -777,6 +697,8 @@ extern "C" caddr_t _sbrk(int incr) {
     return (caddr_t) __wrap__sbrk(incr);
 }
 #else
+// Linker defined symbol used by _sbrk to indicate where heap should start.
+extern "C" uint32_t __end__;
 extern "C" caddr_t _sbrk(int incr) {
     static unsigned char* heap = (unsigned char*)&__end__;
     unsigned char*        prev_heap = heap;
@@ -897,7 +819,7 @@ namespace mbed {
 void mbed_set_unbuffered_stream(FILE *_file) {
 #if defined (__ICCARM__)
     char buf[2];
-    std::setvbuf(_file,buf,_IONBF,NULL);    
+    std::setvbuf(_file,buf,_IONBF,NULL);
 #else
     setbuf(_file, NULL);
 #endif
@@ -911,11 +833,11 @@ int mbed_getc(FILE *_file){
         _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
         _file->_Rend = _file->_Wend;
         _file->_Next = _file->_Wend;
-    }    
+    }
     return res;
-#else    
+#else
     return std::fgetc(_file);
-#endif   
+#endif
 }
 
 char* mbed_gets(char*s, int size, FILE *_file){
@@ -928,7 +850,7 @@ char* mbed_gets(char*s, int size, FILE *_file){
         _file->_Next = _file->_Wend;
     }
     return str;
-#else    
+#else
     return std::fgets(s,size,_file);
 #endif
 }

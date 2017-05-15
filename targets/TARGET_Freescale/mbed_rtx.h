@@ -22,9 +22,6 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -36,9 +33,6 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -52,9 +46,6 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20010000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -66,9 +57,6 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -82,9 +70,6 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20003000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif
@@ -96,9 +81,6 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20006000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -112,9 +94,6 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20000C00UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif
@@ -126,9 +105,6 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20003000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -142,9 +118,6 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20003000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif
@@ -157,9 +130,6 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20006000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -171,9 +141,6 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20012000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -192,9 +159,6 @@
 #define ISR_STACK_SIZE          (0x1000)
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -206,9 +170,6 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -236,9 +197,6 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256

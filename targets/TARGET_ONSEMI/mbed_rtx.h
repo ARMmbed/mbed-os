@@ -22,9 +22,6 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x40000000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif

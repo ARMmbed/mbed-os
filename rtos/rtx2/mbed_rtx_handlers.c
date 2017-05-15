@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016 u-blox
+ * Copyright (c) 2006-2016 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,25 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#include "cmsis_compiler.h"
+#include "rtx_os.h"
+#include "mbed_rtx.h"
+#include "mbed_error.h"
 
-#if defined(TARGET_HI2110)
+extern void rtos_idle_loop(void);
 
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x01000000 + 0x05000 - 256)
-#endif
+__NO_RETURN void osRtxIdleThread (void *argument)
+{
+    for (;;) {
+      rtos_idle_loop();
+    }
+}
 
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                48000000
-#endif
-#endif
+__NO_RETURN uint32_t osRtxErrorNotify (uint32_t code, void *object_id)
+{
+    osThreadId_t tid = osThreadGetId();
+    error("CMSIS-RTOS error status: 0x%X, task ID: 0x%X\n\r", code, tid);
 
-#endif  // MBED_MBED_RTX_H
+    /* That shouldn't be reached */
+    for (;;) {}
+}
