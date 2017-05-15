@@ -68,12 +68,6 @@ if __name__ == '__main__':
                       default=False,
                       help="Compile the rpc library")
 
-    parser.add_argument("-U", "--usb_host",
-                      action="store_true",
-                      dest="usb_host",
-                      default=False,
-                      help="Compile the USB Host library")
-
     parser.add_argument("-u", "--usb",
                       action="store_true",
                       dest="usb",
@@ -163,14 +157,10 @@ if __name__ == '__main__':
     libraries = []
 
     # Additional Libraries
-    if options.rtos:
-        libraries.extend(["rtx", "rtos"])
     if options.rpc:
         libraries.extend(["rpc"])
     if options.usb:
         libraries.append("usb")
-    if options.usb_host:
-        libraries.append("usb_host")
     if options.dsp:
         libraries.extend(["dsp"])
     if options.cpputest_lib:
