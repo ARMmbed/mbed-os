@@ -38,6 +38,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "spi_device.h"
 
 #if DEVICE_SPI_ASYNCH
     #define SPI_INST(obj)    ((SPI_TypeDef *)(obj->spi.spi))
@@ -349,21 +350,40 @@ static inline int ssp_busy(spi_t *obj)
 
 int spi_master_write(spi_t *obj, int value)
 {
-    uint16_t size, ret;
-    int Rx = 0;
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
-    size = (handle->Init.DataSize == SPI_DATASIZE_16BIT) ? 2 : 1;
-
-    /*  Use 10ms timeout */
-    ret = HAL_SPI_TransmitReceive(handle,(uint8_t*)&value,(uint8_t*)&Rx,size,HAL_MAX_DELAY);
-
-    if(ret == HAL_OK) {
-        return Rx;
+#if defined(LL_SPI_RX_FIFO_TH_HALF)
+    /*  Configure the default data size */
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        LL_SPI_SetRxFIFOThreshold(SPI_INST(obj), LL_SPI_RX_FIFO_TH_HALF);
     } else {
-        DEBUG_PRINTF("SPI inst=0x%8X ERROR in write\r\n", (int)handle->Instance);
-        return -1;
+        LL_SPI_SetRxFIFOThreshold(SPI_INST(obj), LL_SPI_RX_FIFO_TH_QUARTER);
+    }
+#endif
+
+    /*  Here we're using LL which means direct registers access
+     *  There is no error management, so we may end up looping
+     *  infinitely here in case of faulty device for insatnce,
+     *  but this will increase performances significantly
+     */
+
+    /* Wait TXE flag to transmit data */
+    while (!LL_SPI_IsActiveFlag_TXE(SPI_INST(obj)));
+
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        LL_SPI_TransmitData16(SPI_INST(obj), value);
+    } else {
+        LL_SPI_TransmitData8(SPI_INST(obj), (uint8_t) value);
+    }
+
+    /* Then wait RXE flag before reading */
+    while (!LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)));
+
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        return LL_SPI_ReceiveData16(SPI_INST(obj));
+    } else {
+        return LL_SPI_ReceiveData8(SPI_INST(obj));
     }
 }
 
