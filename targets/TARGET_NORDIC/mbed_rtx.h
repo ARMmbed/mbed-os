@@ -27,9 +27,6 @@
 #   endif
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              7
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          512
 #endif
@@ -44,9 +41,6 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20010000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              7
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          512
