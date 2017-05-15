@@ -118,8 +118,6 @@ build_list = (
     { "target": "MAX32600MBED", "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "MAX32620HSP",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
 
-    { "target": "RZ_A1H", "toolchains": "GCC_ARM", "libs": [] },
-
     { "target": "SAMR21G18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "SAMD21J18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "SAMD21G18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
