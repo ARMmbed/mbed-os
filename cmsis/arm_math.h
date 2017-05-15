@@ -293,13 +293,29 @@
 #ifndef _ARM_MATH_H
 #define _ARM_MATH_H
 
-/* ignore some GCC warnings */
-#if defined ( __GNUC__ )
+/* Compiler specific diagnostic adjustment */
+#if   defined ( __CC_ARM )
+
+#elif defined ( __ARMCC_VERSION ) && ( __ARMCC_VERSION >= 6010050 )
+
+#elif defined ( __GNUC__ )
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+
+#elif defined ( __ICCARM__ )
+
+#elif defined ( __TI_ARM__ )
+
+#elif defined ( __CSMC__ )
+
+#elif defined ( __TASKING__ )
+
+#else
+  #error Unknown compiler
 #endif
+
 
 #define __CMSIS_GENERIC         /* disable NVIC and Systick functions */
 
@@ -345,8 +361,8 @@ extern "C"
 #define DELTA_Q31          (0x100)
 #define DELTA_Q15          0x5
 #define INDEX_MASK         0x0000003F
-#ifndef PI
-  #define PI               3.14159265358979f
+#ifndef _PI
+  #define _PI               3.14159265358979f
 #endif
 
   /**
@@ -7213,9 +7229,24 @@ void arm_rfft_fast_f32(
 }
 #endif
 
+/* Compiler specific diagnostic adjustment */
+#if   defined ( __CC_ARM )
 
-#if defined ( __GNUC__ )
+#elif defined ( __ARMCC_VERSION ) && ( __ARMCC_VERSION >= 6010050 )
+
+#elif defined ( __GNUC__ )
 #pragma GCC diagnostic pop
+
+#elif defined ( __ICCARM__ )
+
+#elif defined ( __TI_ARM__ )
+
+#elif defined ( __CSMC__ )
+
+#elif defined ( __TASKING__ )
+
+#else
+  #error Unknown compiler
 #endif
 
 #endif /* _ARM_MATH_H */
