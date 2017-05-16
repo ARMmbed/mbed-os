@@ -914,8 +914,11 @@ class mbedToolchain:
                 deps = []
             config_file = ([self.config.app_config_location]
                            if self.config.app_config_location else [])
-            deps.append(join(self.build_dir, self.PROFILE_FILE_NAME))
             deps.append(config_file)
+            if ext == '.cpp' or self.COMPILE_C_AS_CPP:
+                deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-cxx"))
+            else:
+                deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-c"))
             if len(deps) == 0 or self.need_update(object, deps):
                 if ext == '.cpp' or self.COMPILE_C_AS_CPP:
                     return self.compile_cpp(source, object, includes)
@@ -923,7 +926,7 @@ class mbedToolchain:
                     return self.compile_c(source, object, includes)
         elif ext == '.s':
             deps = [source]
-            deps.append(join(self.build_dir, self.PROFILE_FILE_NAME))
+            deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-asm"))
             if self.need_update(object, deps):
                 return self.assemble(source, object, includes)
         else:
@@ -1018,8 +1021,9 @@ class mbedToolchain:
         r.objects = sorted(set(r.objects))
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
-        if self.need_update(elf, r.objects + r.libraries + [r.linker_script] +
-                            config_file):
+        dependencies = r.objects + r.libraries + [r.linker_script, config_file]
+        dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
+        if self.need_update(elf, dependencies):
             needed_update = True
             self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
@@ -1170,12 +1174,18 @@ class mbedToolchain:
     def dump_build_profile(self):
         """Dump the current build profile and macros into the `.profile` file
         in the build directory"""
-        to_dump = (str(sorted(list(self.flags.iteritems()))) +
-                   str(sorted(self.macros)))
-        where = join(self.build_dir, self.PROFILE_FILE_NAME)
-        if not exists(where) or to_dump != open(where).read():
-            with open(where, "wb") as out:
-                out.write(to_dump)
+        for key in ["cxx", "c", "asm", "ld"]:
+            to_dump = (str(self.flags[key]) + str(sorted(self.macros)))
+            if key in ["cxx", "c"]:
+                to_dump += str(self.flags['common'])
+            where = join(self.build_dir, self.PROFILE_FILE_NAME + "-" + key)
+            self._overwrite_when_not_equal(where, to_dump)
+
+    @staticmethod
+    def _overwrite_when_not_equal(filename, content):
+        if not exists(filename) or content != open(filename).read():
+            with open(filename, "wb") as out:
+                out.write(content)
 
     @staticmethod
     def generic_check_executable(tool_key, executable_name, levels_up,
