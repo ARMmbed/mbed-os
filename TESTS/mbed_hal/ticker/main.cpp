@@ -905,9 +905,9 @@ static void test_insert_event_us_in_overflow_range() {
  * When an event is inserted with ticker_insert_event_us and a timestamp less 
  * than timestamp value in the ticker interface.
  * Then 
- *   - The event should not be in the queue
- *   - The interrupt timestamp should be set to 
- *     interface_stub.timestamp + TIMESTAMP_MAX_DELTA.
+ *   - The event should be in the queue
+ *   - The interrupt timestamp should be set to interface_stub.timestamp so it
+ *     is scheduled immediately.
  */
 static void test_insert_event_us_underflow() { 
     ticker_set_handler(&ticker_stub, NULL);
@@ -922,15 +922,16 @@ static void test_insert_event_us_underflow() {
     const uint32_t expected_id = 0xDEADDEAF;
 
     ticker_insert_event_us(
-        &ticker_stub, 
+        &ticker_stub,
         &event, expected_timestamp, expected_id
     );
 
-    TEST_ASSERT_EQUAL_PTR(NULL, queue_stub.head);
+    TEST_ASSERT_EQUAL_PTR(&event, queue_stub.head);
     TEST_ASSERT_EQUAL_UINT32(
-        interface_stub.timestamp + TIMESTAMP_MAX_DELTA, 
+        interface_stub.timestamp, 
         interface_stub.interrupt_timestamp
     );
+    TEST_ASSERT_EQUAL(1, interface_stub.set_interrupt_call);
 
     TEST_ASSERT_EQUAL(0, interface_stub.disable_interrupt_call);
 }  

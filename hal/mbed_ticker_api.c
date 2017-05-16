@@ -109,16 +109,22 @@ static void update_present_time(const ticker_data_t *const ticker)
 static void schedule_interrupt(const ticker_data_t *const ticker)
 {
     update_present_time(ticker);
-    uint32_t duration = MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA;
+    uint32_t relative_timeout = MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA;
 
     if (ticker->queue->head) {
-        us_timestamp_t event_interval = (ticker->queue->head->timestamp - ticker->queue->present_time);
-        if (event_interval < MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA) { 
-            duration = event_interval;
+        us_timestamp_t present = ticker->queue->present_time;
+        us_timestamp_t next_event_timestamp = ticker->queue->head->timestamp;
+
+        // if the event at the head of the queue is in the past then schedule
+        // it immediately.
+        if (next_event_timestamp < present) {
+            relative_timeout = 0;
+        } else if ((next_event_timestamp - present) < MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA) {
+            relative_timeout = next_event_timestamp - present;
         }
     } 
 
-    ticker->interface->set_interrupt(ticker->queue->present_time + duration);
+    ticker->interface->set_interrupt(ticker->queue->present_time + relative_timeout);
 }
 
 void ticker_set_handler(const ticker_data_t *const ticker, ticker_event_handler handler)
@@ -183,12 +189,6 @@ void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *o
 
     // update the current timestamp
     update_present_time(ticker);
-
-    // filter out timestamp in the past 
-    if (timestamp < ticker->queue->present_time) { 
-        schedule_interrupt(ticker);
-        return;
-    }
 
     // initialise our data
     obj->timestamp = timestamp;
