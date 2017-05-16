@@ -252,6 +252,8 @@ class mbedToolchain:
 
     MBED_CONFIG_FILE_NAME="mbed_config.h"
 
+    PROFILE_FILE_NAME = ".profile"
+
     __metaclass__ = ABCMeta
 
     profile_template = {'common':[], 'c':[], 'cxx':[], 'asm':[], 'ld':[]}
@@ -798,6 +800,7 @@ class mbedToolchain:
 
         # Generate configuration header (this will update self.build_all if needed)
         self.get_config_header()
+        self.dump_build_profile()
 
         # Sort compile queue for consistency
         files_to_compile.sort()
@@ -911,13 +914,16 @@ class mbedToolchain:
                 deps = []
             config_file = ([self.config.app_config_location]
                            if self.config.app_config_location else [])
-            if len(deps) == 0 or self.need_update(object, deps + config_file):
+            deps.append(join(self.build_dir, self.PROFILE_FILE_NAME))
+            deps.append(config_file)
+            if len(deps) == 0 or self.need_update(object, deps):
                 if ext == '.cpp' or self.COMPILE_C_AS_CPP:
                     return self.compile_cpp(source, object, includes)
                 else:
                     return self.compile_c(source, object, includes)
         elif ext == '.s':
             deps = [source]
+            deps.append(join(self.build_dir, self.PROFILE_FILE_NAME))
             if self.need_update(object, deps):
                 return self.assemble(source, object, includes)
         else:
@@ -1160,6 +1166,16 @@ class mbedToolchain:
         # file for subsequent calls, without trying to manipulate its content in any way.
         self.config_processed = True
         return self.config_file
+
+    def dump_build_profile(self):
+        """Dump the current build profile and macros into the `.profile` file
+        in the build directory"""
+        to_dump = (str(sorted(list(self.flags.iteritems()))) +
+                   str(sorted(self.macros)))
+        where = join(self.build_dir, self.PROFILE_FILE_NAME)
+        if not exists(where) or to_dump != open(where).read():
+            with open(where, "wb") as out:
+                out.write(to_dump)
 
     @staticmethod
     def generic_check_executable(tool_key, executable_name, levels_up,
