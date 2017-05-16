@@ -81,8 +81,7 @@ struct gpio_irq_s {
     uint32_t ch;
 };
 
-struct qspi_s
-{
+struct qspi_s {
     volatile uint32_t is_busy;
 #if DEVICE_QSPI_ASYNCH
     uint32_t handler;
