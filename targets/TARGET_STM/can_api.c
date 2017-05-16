@@ -202,21 +202,32 @@ int can_frequency(can_t *obj, int f)
 
     if (btr > 0) {
         can->MCR |= CAN_MCR_INRQ ;
-        while ((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
-        }
         /* Get tick */
         tickstart = HAL_GetTick();
-        can->BTR = btr;
-        can->MCR &= ~(uint32_t)CAN_MCR_INRQ;
-        while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
+        while ((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
             if((HAL_GetTick() - tickstart ) > 2)
             {
                 status = 0;
                 break;
             }
         }
-        if (status ==0) {
-            error("can ESR  0x%04x.%04x + timeout status %d", (can->ESR&0XFFFF0000)>>16, (can->ESR&0XFFFF), status);
+        if (status != 0) {
+            can->BTR = btr;
+            can->MCR &= ~(uint32_t)CAN_MCR_INRQ;
+            /* Get tick */
+            tickstart = HAL_GetTick();
+            while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
+                if((HAL_GetTick() - tickstart ) > 2)
+                {
+                    status = 0;
+                    break;
+                }
+            }
+            if (status ==0) {
+                error("can ESR  0x%04x.%04x + timeout status %d", (can->ESR&0XFFFF0000)>>16, (can->ESR&0XFFFF), status);
+            }
+        } else {
+            error("can init request timeout\n");
         }
     } else {
         status=0;
