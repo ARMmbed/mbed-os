@@ -283,8 +283,6 @@
 #define PRINTPKT_SUPPORT            0
 #define PPP_LOGIT_BUFSIZE           512
 
-//Hate the config hassle.
-//#define LWIP_USE_EXTERNAL_MBEDTLS       1
 // Broadcast
 #define IP_SOF_BROADCAST            0
 #define IP_SOF_BROADCAST_RECV       0
@@ -312,7 +310,8 @@
 #include "lwip_random.h"
 #include "lwip_tcp_isn.h"
 #define LWIP_HOOK_TCP_ISN lwip_hook_tcp_isn
-#if MBEDTLS_MD5_C
+#ifdef MBEDTLS_MD5_C
+#include "mbedtls/inc/mbedtls/md5.h"
 #define LWIP_USE_EXTERNAL_MBEDTLS 1
 #endif
 

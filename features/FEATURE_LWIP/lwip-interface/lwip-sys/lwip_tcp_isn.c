@@ -76,18 +76,20 @@
 #include <string.h>
 
 /* pull in md5 of ppp? */
+#if !PPP_SUPPORT
+#undef   PPP_SUPPORT
 #define  PPP_SUPPORT  1
+#define  PPP_FAKED_ON 1
+#endif
+
 #include "netif/ppp/ppp_opts.h"
 #include "netif/ppp/ppp.h"
 #include "netif/ppp/pppcrypt.h"
-#if !LWIP_USE_EXTERNAL_POLARSSL && !LWIP_USE_EXTERNAL_MBEDTLS
+
+#if PPP_FAKED_ON && !LWIP_USE_EXTERNAL_POLARSSL && !LWIP_USE_EXTERNAL_MBEDTLS
 #undef  LWIP_INCLUDED_POLARSSL_MD5
 #define LWIP_INCLUDED_POLARSSL_MD5 1
 #include "netif/ppp/polarssl/lwip_md5.c"
-#endif
-#if LWIP_USE_EXTERNAL_MBEDTLS
-#include "mbedtls/inc/mbedtls/md5.h"
-#define md5_context mbedtls_md5_context
 #endif
 
 static u8_t input[64];
@@ -124,7 +126,7 @@ u32_t
 lwip_hook_tcp_isn(const ip_addr_t *local_ip, u16_t local_port,
     const ip_addr_t *remote_ip, u16_t remote_port)
 {
-  md5_context ctx;
+  lwip_md5_context ctx;
   u8_t output[16];
   u32_t isn;
 

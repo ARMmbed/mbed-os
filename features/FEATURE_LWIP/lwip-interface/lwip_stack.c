@@ -111,7 +111,7 @@ static void mbed_lwip_socket_callback(struct netconn *nc, enum netconn_evt eh, u
 
 /* TCP/IP and Network Interface Initialisation */
 static struct netif lwip_netif;
-#if LWIP_IPV4
+#if LWIP_DHCP
 static bool lwip_dhcp = false;
 #endif
 static char lwip_mac_address[NSAPI_MAC_SIZE];
