@@ -116,9 +116,9 @@ public:
       *
       * @param rd the rd pin
       * @param td the td pin
-      * @param f the bus frequency in hertz
+      * @param hz the bus frequency in hertz
       */
-    CAN(PinName rd, PinName td, int f);
+    CAN(PinName rd, PinName td, int hz);
 
     virtual ~CAN();
 
