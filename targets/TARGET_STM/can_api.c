@@ -198,7 +198,7 @@ int can_frequency(can_t *obj, int f)
     int btr = can_speed(pclk, (unsigned int)f, 1);
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
     uint32_t tickstart = 0;
-    int status = 0;
+    int status = 1;
 
     if (btr > 0) {
         can->MCR |= CAN_MCR_INRQ ;
@@ -211,15 +211,12 @@ int can_frequency(can_t *obj, int f)
         while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
             if((HAL_GetTick() - tickstart ) > 2)
             {
-                status = HAL_CAN_STATE_TIMEOUT;
+                status = 0;
                 break;
             }
         }
-        if (status !=0) {
+        if (status ==0) {
             error("can ESR  0x%04x.%04x + timeout status %d", (can->ESR&0XFFFF0000)>>16, (can->ESR&0XFFFF), status);
-            status=0;
-        } else {
-            status=1; //mbed OK value
         }
     } else {
         status=0;
