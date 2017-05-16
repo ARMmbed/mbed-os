@@ -37,10 +37,10 @@
  */
 
 #include "qspi_api.h"
-#include "nrf_drv_qspi.h"
-#include "nrf_drv_common.h"
 
 #if DEVICE_QSPI
+#include "nrf_drv_common.h"
+#include "nrf_drv_qspi.h"
 
 void QSPI_IRQHandler(void);
 
