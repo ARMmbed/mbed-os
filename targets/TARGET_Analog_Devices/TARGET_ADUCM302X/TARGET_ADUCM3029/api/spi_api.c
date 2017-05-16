@@ -118,7 +118,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 
     SystemCoreClockUpdate();
-    adi_spi_Open(nDeviceNum, SPI_Mem, ADI_SPI_MEMORY_SIZE, pSPI_Handle);
+    SPI_Return = adi_spi_Open(nDeviceNum, SPI_Mem, ADI_SPI_MEMORY_SIZE, pSPI_Handle);
+    if (SPI_Return) {
+        obj->error = SPI_EVENT_ERROR;
+        return;
+    }
 
     if (ssel != NC) {
         if ( (ssel == SPI0_CS0) || (ssel == SPI1_CS0) || (ssel == SPI2_CS0)) {
@@ -131,11 +135,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
             spi_cs = ADI_SPI_CS3;
         }
 
-        #if defined(BUILD_SPI_MI_DYNAMIC)
-        adi_spi_SetChipSelect(*pSPI_Handle, spi_cs);
-        #else
-        adi_spi_SetChipSelect(*pSPI_Handle, spi_cs);
-        #endif
+        SPI_Return = adi_spi_SetChipSelect(*pSPI_Handle, spi_cs);
+        if (SPI_Return) {
+            obj->error = SPI_EVENT_ERROR;
+            return;
+        }
     }
 }
 

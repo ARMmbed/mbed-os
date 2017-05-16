@@ -70,6 +70,17 @@ const PinMap PinMap_ADC[] = {
     {NC, NC, 0}
 };
 
+/************I2C***************/
+const PinMap PinMap_I2C_SDA[] = {
+    {P0_05, I2C_0, 1},
+    {NC, NC, 0}
+};
+
+const PinMap PinMap_I2C_SCL[] = {
+    {P0_04, I2C_0, 1},
+    {NC, NC, 0}
+};
+
 /************RTC***************/
 const PinMap PinMap_RTC[] = {
     {NC, OSC32KCLK, 0},
