@@ -445,17 +445,13 @@ int spi_slave_receive(spi_t *obj)
 
 int spi_slave_read(spi_t *obj)
 {
-    SPI_TypeDef *spi = SPI_INST(obj);
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     while (!ssp_readable(obj));
-    if (handle->Init.DataSize == SPI_DATASIZE_8BIT) {
-        // Force 8-bit access to the data register
-        uint8_t *p_spi_dr = 0;
-        p_spi_dr = (uint8_t *) & (spi->DR);
-        return (int)(*p_spi_dr);
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        return LL_SPI_ReceiveData16(SPI_INST(obj));
     } else {
-        return (int)spi->DR;
+        return LL_SPI_ReceiveData8(SPI_INST(obj));
     }
 }
 
