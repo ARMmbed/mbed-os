@@ -89,7 +89,7 @@ extern cb_int32 cbBTM_enableDUT(cbBTM_TestCallback callback);
  *                         0x03 = BT EDR 3MB (8-DPSK)
  *                         0x04 = BT LE (BLE, GMSK)
  *                         0x05 = ANT (GFSK)
- * @param testPattern Range: 0x00 - 0x07 
+ * @param testPattern Range: 0x00 - 0x07
  *                         0x00 = PN9
  *                         0x01 = PN15
  *                         0x02 = ZOZO (101010101010101010)
@@ -165,7 +165,7 @@ extern cb_int32 cbBTM_tiDrpbTesterConRx(
  * @param frequencyMode 0x00 = Hopping 0x03 = Single frequency
  * @param txSingleFrequency Transmission frequency in MHz,Range 2402 - 2480, 0xFFFF = no TX
  * @param rxSingleFrequency Transmission frequency in MHz,Range 2402 - 2480, 0xFFFF = no RX
- * @param aclDataPattern ACL TX packet data pattern Range: 0x00 - 0x05 
+ * @param aclDataPattern ACL TX packet data pattern Range: 0x00 - 0x05
  *                         0x00 = All 0
  *                         0x01 = All 1
  *                         0x02 = ZOZO (101010101010101010)
