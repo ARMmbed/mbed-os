@@ -82,7 +82,7 @@ int __wrap_main(void)
 
 #elif defined (__ICCARM__)
 
-// empty for now
+// cmain.S file implements the mbed SDK boot for IAR
 
 #endif
 
