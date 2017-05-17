@@ -642,14 +642,12 @@ sn_coap_hdr_s *sn_coap_protocol_parse(struct coap_s *handle, sn_nsdl_addr_s *src
         /* Remove from the list if not an notification message.
          * Initial notification message is needed for sending rest of the blocks (GET request).
         */
-        bool remove_from_the_list = false;
+        bool remove_from_the_list = true;
         if (stored_blockwise_msg_temp_ptr) {
             if (stored_blockwise_msg_temp_ptr->coap_msg_ptr &&
                 stored_blockwise_msg_temp_ptr->coap_msg_ptr->options_list_ptr &&
                 stored_blockwise_msg_temp_ptr->coap_msg_ptr->options_list_ptr->observe != COAP_OBSERVE_NONE) {
                 remove_from_the_list = false;
-            } else {
-                remove_from_the_list = true;
             }
         }
         if (remove_from_the_list) {
