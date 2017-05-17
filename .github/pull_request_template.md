@@ -1,39 +1,12 @@
-Notes:
-* Pull requests will not be accepted until the submitter has agreed to the [contributer agreement](https://github.com/ARMmbed/mbed-os/blob/master/CONTRIBUTING.md).
-* This is just a template, so feel free to use/remove the unnecessary things
+```diff
+- NOTE: Pull requests submitted without the following checklist being completed and evidenced will not be accepted -
+```
+Checklist item is marked as complete by adding a X to the box.
 
-## Description
-A few sentences describing the overall goals of the pull request's commits.
-
-
-## Status
-**READY/IN DEVELOPMENT/HOLD**
-
-
-## Migrations
-If this PR changes any APIs or behaviors, give a short description of what *API users* should do when this PR is merged.
-
-YES | NO
-
-
-## Related PRs
-List related PRs against other branches:
-
-branch | PR
------- | ------
-other_pr_production | [link]()
-other_pr_master | [link]()
-
-
-## Todos
-- [ ] Tests
-- [ ] Documentation
-
-
-## Deploy notes
-Notes regarding the deployment of this PR. These should note any
-required changes in the build environment, tools, compilers, etc.
-
-
-## Steps to test or reproduce
-Outline the steps to test or reproduce the PR here.
+- [ ] [Contributer agreement](https://github.com/ARMmbed/mbed-os/blob/master/CONTRIBUTING.md) has been signed.
+- [ ] A detailed description of the PR purpose along with a meaningful title have been provided.
+- [ ] No merge commits or merge conflicts are present.
+- [ ] Test results and/or test instructions have been provided where applicable.
+- [ ] This PR contains no API changes, or if it does the BREAKING-CHANGE label has been added.
+- [ ] Any related PRs / Issues have been listed.
+- [ ] Any changes required to the build environment, tools, compilers, etc as a result of this PR have been documented.
