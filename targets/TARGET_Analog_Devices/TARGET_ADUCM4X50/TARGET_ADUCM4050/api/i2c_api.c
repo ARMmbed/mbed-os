@@ -32,7 +32,6 @@
         int adi_i2c_memtype = 0;
     #endif
 #else
-    //#define BUILD_I2C_MI_STATIC
     static uint8_t          i2c_Mem[ADI_I2C_MEMORY_SIZE];
     static ADI_I2C_HANDLE   i2c_Handle;
     #if defined(ADI_DEBUG)
@@ -58,7 +57,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     pI2C_Handle = &obj->I2C_Handle;
     obj->pI2C_Handle = pI2C_Handle;
     I2C_Mem = obj->I2C_Mem;
-#else    
+#else
     I2C_DevNum = I2C_0;
     pI2C_Handle = &i2c_Handle;
     obj->pI2C_Handle = pI2C_Handle;
