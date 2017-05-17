@@ -10,11 +10,6 @@
 
 using namespace utest::v1;
 
-/*
- * The stack size is defined in cmsis_os.h mainly dependent on the underlying toolchain and
- * the C standard library. For GCC, ARM_STD and IAR it is defined with a size of 2048 bytes
- * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
- */
 #define TEST_STACK_SIZE 512
 
 #define TEST_ONE_SEC_MS  (1000)
@@ -106,7 +101,7 @@ template <void (*F)(Mutex *)>
 void test_dual_thread_nolock(void)
 {
     Mutex mutex;
-    Thread thread;
+    Thread thread(osPriorityNormal, TEST_STACK_SIZE);
 
     thread.start(callback(F, &mutex));
 

@@ -23,7 +23,7 @@
 #define INITIAL_SP              (0x20020000UL)
 #endif
 #ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+#define OS_TASKCNT              7
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
