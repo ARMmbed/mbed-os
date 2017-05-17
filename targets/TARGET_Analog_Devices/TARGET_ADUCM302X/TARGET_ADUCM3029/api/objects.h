@@ -21,6 +21,7 @@
 #include "PinNames.h"
 //#include "target_config.h"
 #include "gpio_object.h"
+#include "adi_adc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,6 +47,13 @@ struct trng_s {
 
 struct spi_s {
     uint32_t instance;
+};
+
+struct analogin_s {
+    ADI_ADC_HANDLE  hDevice;
+    ADI_ADC_BUFFER  UserBuffer;
+    uint8_t         DelayCycles;
+    uint8_t         SampleCycles;
 };
 
 #include "gpio_object.h"

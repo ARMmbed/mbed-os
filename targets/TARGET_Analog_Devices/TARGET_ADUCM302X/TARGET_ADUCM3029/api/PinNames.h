@@ -158,12 +158,15 @@ typedef enum {
     SPI2_CS2 = P2_10,
     SPI2_CS3 = P2_07,
 
-//    A0 = ADC0,
-//    A1 = ADC1,
-//    A2 = ADC2,
-//    A3 = ADC3,
-//    A4 = ADC4,
-//    A5 = ADC5,
+// ADC Analog Input Pins
+    A0 = P2_03,
+    A1 = P2_04,
+    A2 = P2_05,
+    A3 = P2_06,
+    A4 = P2_07,
+    A5 = P2_08,
+    A6 = P2_09,
+    A7 = P2_10,
 
     // Not connected
     NC = (int)0xFFFFFFFF

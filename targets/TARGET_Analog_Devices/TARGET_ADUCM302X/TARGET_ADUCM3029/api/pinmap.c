@@ -64,40 +64,12 @@ void pin_mode(PinName pin, PinMode mode)
 
     switch (mode) {
         case PullNone:
-//        adi_gpio_PullDownEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value,false)
-            //  != ADI_GPIO_SUCCESS)
-//          ;
-//       {
-//           //to do - process error
-//       }
-            adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value,false)
-            //!= ADI_GPIO_SUCCESS)
-            ;
-//       {
-//           //to do - process error
-//       }
-
+            adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA)pin_reg_value,false);
             break;
 
         case PullDown:
-
-//        adi_gpio_PullDownEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value,true)
-            //!= ADI_GPIO_SUCCESS)
-//          ;
-//        {
-            //to do - process error
-//        }
-
-            break;
         case PullUp:
-
-            adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA) pin_reg_value,true)
-            //!= ADI_GPIO_SUCCESS)
-            ;
-//       {
-//           //to do - process error
-//       }
-
+            adi_gpio_PullUpEnable((ADI_GPIO_PORT)port, (ADI_GPIO_DATA)pin_reg_value,true);
             break;
 
         default:

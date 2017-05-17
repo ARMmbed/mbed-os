@@ -18,7 +18,7 @@
  
 #if DEVICE_ANALOGIN
 
-#include "adi_adc_def.h"
+#include "adi_adc_def_v1.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
@@ -105,7 +105,6 @@ void analogin_init(analogin_t *obj, PinName pin)
     /* Set the acquisition time. (Application need to change it based on the impedence) */
     eResult = adi_adc_SetAcquisitionTime ( hDevice, obj->SampleCycles);
     
-    /* Sample averaging */
     adi_adc_EnableAveraging (hDevice, nAveragingSamples ) 	;
     
 }
