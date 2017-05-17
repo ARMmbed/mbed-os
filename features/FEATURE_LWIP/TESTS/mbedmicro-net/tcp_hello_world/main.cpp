@@ -11,6 +11,10 @@
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
+#include "utest.h"
+
+using namespace utest::v1;
+
 
 namespace {
     // Test connection information
@@ -35,12 +39,9 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
     return (f != last);
 }
 
-int main() {
-    GREENTEA_SETUP(60, "default_auto");
-
+void test_tcp_hello_world() {
     bool result = false;
     EthernetInterface eth;
-    //eth.init(); //Use DHCP
     eth.connect();
     printf("TCP client IP Address is %s\r\n", eth.get_ip_address());
 
@@ -83,5 +84,32 @@ int main() {
     }
 
     eth.disconnect();
-    GREENTEA_TESTSUITE_RESULT(result);
+    TEST_ASSERT_EQUAL(true, result);
 }
+
+
+// Test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(120, "default_auto", uuid, 48);
+
+    // create mac address based on uuid
+    uint64_t mac = 0;
+    for (int i = 0; i < sizeof(uuid); i++) {
+        mac += uuid[i];
+    }
+    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
+
+    return verbose_test_setup_handler(number_of_cases);
+}
+
+Case cases[] = {
+    Case("TCP hello world", test_tcp_hello_world),
+};
+
+Specification specification(test_setup, cases);
+
+int main() {
+    return !Harness::run(specification);
+}
+

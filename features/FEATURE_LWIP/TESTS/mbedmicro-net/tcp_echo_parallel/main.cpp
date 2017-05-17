@@ -10,6 +10,9 @@
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
+#include "utest.h"
+
+using namespace utest::v1;
 
 
 #ifndef MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE
@@ -64,7 +67,7 @@ public:
         TEST_ASSERT_EQUAL(0, err);
 
         iomutex.lock();
-        printf("HTTP: Connected to %s:%d\r\n", 
+        printf("HTTP: Connected to %s:%d\r\n",
                 tcp_addr.get_ip_address(), tcp_addr.get_port());
         printf("tx_buffer buffer size: %u\r\n", sizeof(tx_buffer));
         printf("rx_buffer buffer size: %u\r\n", sizeof(rx_buffer));
@@ -84,12 +87,10 @@ public:
     }
 };
 
-Echo echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
+Echo *echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
 
 
-int main() {
-    GREENTEA_SETUP(60, "tcp_echo");
-
+void test_tcp_echo_parallel() {
     int err = net.connect();
     TEST_ASSERT_EQUAL(0, err);
 
@@ -116,13 +117,40 @@ int main() {
 
     // Startup echo threads in parallel
     for (int i = 0; i < MBED_CFG_TCP_CLIENT_ECHO_THREADS; i++) {
-        echoers[i].start();
+        echoers[i] = new Echo;
+        echoers[i]->start();
     }
 
     for (int i = 0; i < MBED_CFG_TCP_CLIENT_ECHO_THREADS; i++) {
-        echoers[i].join();
+        echoers[i]->join();
+        delete echoers[i];
     }
 
     net.disconnect();
-    GREENTEA_TESTSUITE_RESULT(true);
 }
+
+// Test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(120, "tcp_echo", uuid, 48);
+
+    // create mac address based on uuid
+    uint64_t mac = 0;
+    for (int i = 0; i < sizeof(uuid); i++) {
+        mac += uuid[i];
+    }
+    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
+
+    return verbose_test_setup_handler(number_of_cases);
+}
+
+Case cases[] = {
+    Case("TCP echo parallel", test_tcp_echo_parallel),
+};
+
+Specification specification(test_setup, cases);
+
+int main() {
+    return !Harness::run(specification);
+}
+

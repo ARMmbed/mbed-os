@@ -51,13 +51,22 @@ void test_bring_up_down() {
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(60, "default_auto");
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(120, "default_auto", uuid, sizeof(uuid));
+
+    // create mac address based on uuid
+    uint64_t mac = 0;
+    for (int i = 0; i < sizeof(uuid); i++) {
+        mac += uuid[i];
+    }
+    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
+
     return verbose_test_setup_handler(number_of_cases);
 }
 
 Case cases[] = {
-    Case("Testing bringing the network up and down", test_bring_up_down<1>),
-    Case("Testing bringing the network up and down twice", test_bring_up_down<2>),
+    Case("Bringing the network up and down", test_bring_up_down<1>),
+    Case("Bringing the network up and down twice", test_bring_up_down<2>),
 };
 
 Specification specification(test_setup, cases);

@@ -13,6 +13,9 @@
 #include "UDPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
+#include "utest.h"
+
+using namespace utest::v1;
 
 
 #ifndef MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN
@@ -110,8 +113,7 @@ void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
     TEST_ASSERT(buffer);
 }
 
-int main() {
-    GREENTEA_SETUP(60, "udp_echo");
+void test_udp_packet_pressure() {
     generate_buffer(&buffer, &buffer_size,
         MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN,
         MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MAX);
@@ -125,8 +127,6 @@ int main() {
     printf("MBED: UDPClient waiting for server IP and port...\n");
 
     greentea_send_kv("target_ip", eth.get_ip_address());
-
-    bool result = true;
 
     char recv_key[] = "host_port";
     char ipbuf[60] = {0};
@@ -246,5 +246,31 @@ int main() {
             MBED_CFG_UDP_CLIENT_PACKET_PRESSURE_MIN) / (1000*timer.read()));
 
     eth.disconnect();
-    GREENTEA_TESTSUITE_RESULT(result);
 }
+
+
+// Test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(120, "udp_echo", uuid, 48);
+
+    // create mac address based on uuid
+    uint64_t mac = 0;
+    for (int i = 0; i < sizeof(uuid); i++) {
+        mac += uuid[i];
+    }
+    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
+
+    return verbose_test_setup_handler(number_of_cases);
+}
+
+Case cases[] = {
+    Case("UDP packet pressure", test_udp_packet_pressure),
+};
+
+Specification specification(test_setup, cases);
+
+int main() {
+    return !Harness::run(specification);
+}
+

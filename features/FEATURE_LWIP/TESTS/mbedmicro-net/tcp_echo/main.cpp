@@ -10,6 +10,9 @@
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
+#include "utest.h"
+
+using namespace utest::v1;
 
 
 #ifndef MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE
@@ -28,11 +31,14 @@ void prep_buffer(char *tx_buffer, size_t tx_size) {
     }
 }
 
-int main() {
-    GREENTEA_SETUP(60, "tcp_echo");
-
+void test_tcp_echo() {
     EthernetInterface eth;
-    eth.connect();
+    int err = eth.connect();
+
+    if (err) {
+        printf("MBED: failed to connect with an error of %d\r\n", err);
+        TEST_ASSERT_EQUAL(0, err);
+    }
 
     printf("MBED: TCPClient IP address is '%s'\n", eth.get_ip_address());
     printf("MBED: TCPClient waiting for server IP and port...\n");
@@ -64,17 +70,44 @@ int main() {
 
         prep_buffer(tx_buffer, sizeof(tx_buffer));
         sock.send(tx_buffer, sizeof(tx_buffer));
-
+        printf("MBED: Finished sending\r\n");
         // Server will respond with HTTP GET's success code
         const int ret = sock.recv(rx_buffer, sizeof(rx_buffer));
-        
+        printf("MBED: Finished receiving\r\n");
+
         result = !memcmp(tx_buffer, rx_buffer, sizeof(tx_buffer));
-        
         TEST_ASSERT_EQUAL(ret, sizeof(rx_buffer));
         TEST_ASSERT_EQUAL(true, result);
     }
 
     sock.close();
     eth.disconnect();
-    GREENTEA_TESTSUITE_RESULT(result);
+    TEST_ASSERT_EQUAL(true, result);
 }
+
+
+// Test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {
+    char uuid[48] = {0};
+    GREENTEA_SETUP_UUID(120, "tcp_echo", uuid, 48);
+
+    // create mac address based on uuid
+    uint64_t mac = 0;
+    for (int i = 0; i < sizeof(uuid); i++) {
+        mac += uuid[i];
+    }
+    mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
+
+    return verbose_test_setup_handler(number_of_cases);
+}
+
+Case cases[] = {
+    Case("TCP echo", test_tcp_echo),
+};
+
+Specification specification(test_setup, cases);
+
+int main() {
+    return !Harness::run(specification);
+}
+
