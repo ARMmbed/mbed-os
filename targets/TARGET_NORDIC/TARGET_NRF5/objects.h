@@ -81,8 +81,7 @@ struct gpio_irq_s {
     uint32_t ch;
 };
 
-struct flash_s
-{
+struct flash_s {
     uint32_t placeholder;
 };
 
