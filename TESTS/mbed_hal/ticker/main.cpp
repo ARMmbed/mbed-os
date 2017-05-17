@@ -46,31 +46,37 @@ struct ticker_interface_stub_t {
 
 static ticker_interface_stub_t interface_stub = { 0 };
 
-static void ticker_interface_stub_init() { 
+static void ticker_interface_stub_init()
+{
     ++interface_stub.init_call;
     interface_stub.initialized = true;
 }
 
-static uint32_t ticker_interface_stub_read() { 
+static uint32_t ticker_interface_stub_read()
+{
     ++interface_stub.read_call;
     return interface_stub.timestamp;
 } 
 
-static void ticker_interface_stub_disable_interrupt() { 
+static void ticker_interface_stub_disable_interrupt()
+{ 
     ++interface_stub.disable_interrupt_call;
 }
 
-static void ticker_interface_stub_clear_interrupt() { 
+static void ticker_interface_stub_clear_interrupt()
+{
     ++interface_stub.clear_interrupt_call;
     interface_stub.interrupt_flag = false;
 }
 
-static void ticker_interface_stub_set_interrupt(timestamp_t timestamp) { 
+static void ticker_interface_stub_set_interrupt(timestamp_t timestamp)
+{
     ++interface_stub.set_interrupt_call;
     interface_stub.interrupt_timestamp = timestamp; 
 }
 
-static void reset_ticker_interface_stub() { 
+static void reset_ticker_interface_stub()
+{
     interface_stub.interface.init = ticker_interface_stub_init;
     interface_stub.interface.read = ticker_interface_stub_read;
     interface_stub.interface.disable_interrupt = 
@@ -90,14 +96,15 @@ static void reset_ticker_interface_stub() {
 }
 
 // stub of the event queue 
-static ticker_event_queue_t queue_stub = { 
+static ticker_event_queue_t queue_stub = {
     /* event handler */ NULL,
     /* head */ NULL,
     /* timestamp */ 0,
     /* initialized */ false
 };
 
-static void reset_queue_stub() { 
+static void reset_queue_stub()
+{
     queue_stub.event_handler = NULL;
     queue_stub.head = NULL,
     queue_stub.present_time = 0;
@@ -105,12 +112,13 @@ static void reset_queue_stub() {
 }
 
 // stub of the ticker
-static ticker_data_t ticker_stub = { 
+static ticker_data_t ticker_stub = {
     /* interface */ &interface_stub.interface,
     /* queue */ &queue_stub
 };
 
-static void reset_ticker_stub() { 
+static void reset_ticker_stub()
+{
     reset_queue_stub();
     reset_ticker_interface_stub();
 }
@@ -142,7 +150,8 @@ static utest::v1::status_t greentea_failure_handler(
     return status;
 }
 
-static Case make_test_case(const char *description, const case_handler_t handler) { 
+static Case make_test_case(const char *description, const case_handler_t handler)
+{
     return Case(
         description, 
         case_setup_handler, 
@@ -164,7 +173,8 @@ static Case make_test_case(const char *description, const case_handler_t handler
  *     TIMESTAMP_MAX_DELTA
  *   - The queue should not contains any event
  */
-static void test_ticker_initialization() { 
+static void test_ticker_initialization()
+{
     ticker_event_handler dummy_handler = (ticker_event_handler)0xDEADBEEF;
 
     // setup of the stub 
@@ -192,7 +202,8 @@ static void test_ticker_initialization() {
  *   - The queue handler should be set to the new handler.
  *   - The events in the queue should remains the same.
  */
-static void test_ticker_re_initialization() { 
+static void test_ticker_re_initialization()
+{
     ticker_event_handler dummy_handler = (ticker_event_handler) 0xDEADBEEF;
     ticker_event_handler expected_handler = (ticker_event_handler) 0xFEEDDEAF;
     
@@ -226,7 +237,8 @@ static void test_ticker_re_initialization() {
  * When the ticker is read 
  * Then it should return the value present in the ticker interface
  */
-static void test_ticker_read() { 
+static void test_ticker_read()
+{
     ticker_set_handler(&ticker_stub, NULL);
 
     timestamp_t timestamps[] = { 
@@ -260,7 +272,8 @@ static void test_ticker_read() {
  *     + upper 8 bytes should be equal to the previous value of upper 8 bytes
  *       plus one.
  */
-static void test_ticker_read_overflow() { 
+static void test_ticker_read_overflow()
+{
     const timestamp_t timestamps[] = { 
         0xAAAAAAAA,
         0xAAAAAAA,
@@ -299,7 +312,8 @@ static void test_ticker_read_overflow() {
  *   - The timestamp of the event should reflect the timestamp requested. 
  *   - The id of the event should be equal to the id passed in parameter. 
  */
-static void test_legacy_insert_event_outside_overflow_range() { 
+static void test_legacy_insert_event_outside_overflow_range()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -359,7 +373,8 @@ static void test_legacy_insert_event_outside_overflow_range() {
  *   - The timestamp of the event should reflect the timestamp requested. 
  *   - The id of the event should be equal to the id passed in parameter. 
  */
-static void test_legacy_insert_event_in_overflow_range() { 
+static void test_legacy_insert_event_in_overflow_range()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -424,7 +439,7 @@ static void test_legacy_insert_event_in_overflow_range() {
  *       timestamp state stored in the queue plus one.
  *   - The id of the event should be equal to the id passed in parameter. 
  */
-static void test_legacy_insert_event_overflow() { 
+static void test_legacy_insert_event_overflow(){
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -470,7 +485,8 @@ static void test_legacy_insert_event_overflow() {
  *   - The id of the event should be equal to the id passed in parameter. 
  *   - Events in the queue should remained ordered by timestamp.
  */
-static void test_legacy_insert_event_head() { 
+static void test_legacy_insert_event_head()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -538,7 +554,8 @@ static void test_legacy_insert_event_head() {
  *   - The id of the event should be equal to the id passed in parameter. 
  *   - Events in the queue should remained ordered by timestamp.
  */
-static void test_legacy_insert_event_tail() { 
+static void test_legacy_insert_event_tail()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -597,7 +614,8 @@ static void test_legacy_insert_event_tail() {
  *   - The id of the event should be equal to the id passed in parameter. 
  *   - Events in the queue should remained ordered by timestamp.
  */
-static void test_legacy_insert_event_multiple_overflow() { 
+static void test_legacy_insert_event_multiple_overflow()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -670,7 +688,8 @@ static void test_legacy_insert_event_multiple_overflow() {
  *   - The id of the event should be equal to the id passed in parameter. 
  *   - Events in the queue should remained ordered by timestamp.
  */
-static void test_legacy_insert_event_multiple_random() { 
+static void test_legacy_insert_event_multiple_random()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -788,7 +807,8 @@ static void test_legacy_insert_event_multiple_random() {
  *   - The timestamp of the event should be equal to the timestamp requested. 
  *   - The id of the event should be equal to the id passed in parameter. 
  */
-static void test_insert_event_us_outside_overflow_range() { 
+static void test_insert_event_us_outside_overflow_range()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
     interface_stub.timestamp = 0xAAAAAAAA;
@@ -848,7 +868,8 @@ static void test_insert_event_us_outside_overflow_range() {
  *   - The timestamp of the event should be equal to the timestamp in parameter. 
  *   - The id of the event should be equal to the id passed in parameter. 
  */
-static void test_insert_event_us_in_overflow_range() { 
+static void test_insert_event_us_in_overflow_range()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
     interface_stub.timestamp = 0xAAAAAAAA;
@@ -909,7 +930,8 @@ static void test_insert_event_us_in_overflow_range() {
  *   - The interrupt timestamp should be set to interface_stub.timestamp so it
  *     is scheduled immediately.
  */
-static void test_insert_event_us_underflow() { 
+static void test_insert_event_us_underflow()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -948,7 +970,8 @@ static void test_insert_event_us_underflow() {
  *   - The id of the event should be equal to the id passed in parameter. 
  *   - Events in the queue should remained ordered by timestamp.
  */
-static void test_insert_event_us_head() { 
+static void test_insert_event_us_head()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
     interface_stub.timestamp = 0xAAAAAAAA;
@@ -1015,7 +1038,8 @@ static void test_insert_event_us_head() {
  *   - The id of the event should be equal to the id passed in parameter. 
  *   - Events in the queue should remained ordered by timestamp.
  */
-static void test_insert_event_us_tail() { 
+static void test_insert_event_us_tail()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -1073,7 +1097,8 @@ static void test_insert_event_us_tail() {
  *   - The id of the event should be equal to the id passed in parameter. 
  *   - Events in the queue should remained ordered by timestamp.
  */
-static void test_insert_event_us_multiple_random() { 
+static void test_insert_event_us_multiple_random()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -1168,7 +1193,8 @@ static void test_insert_event_us_multiple_random() {
  *    - The events in the queue should remain ordered
  *    - The interrupt timestamp should be unchanged. 
  */
-static void test_remove_event_tail() { 
+static void test_remove_event_tail()
+{
     ticker_set_handler(&ticker_stub, NULL);
     const us_timestamp_t timestamps[] = { 
         0xA,
@@ -1232,7 +1258,8 @@ static void test_remove_event_tail() {
  *      of the head event or TIMESTAMP_MAX_DELTA if the 
  *      timestamp is in the overflow range.
  */
-static void test_remove_event_head() { 
+static void test_remove_event_head()
+{
     ticker_set_handler(&ticker_stub, NULL);
     const us_timestamp_t timestamps[] = { 
         TIMESTAMP_MAX_DELTA / 8,
@@ -1293,7 +1320,8 @@ static void test_remove_event_head() {
  * When an event not in the queue is attempted to be removed.
  * Then the queue should remains identical as before.
  */
-static void test_remove_event_invalid() { 
+static void test_remove_event_invalid()
+{
     ticker_set_handler(&ticker_stub, NULL);
     const us_timestamp_t timestamps[] = { 
         TIMESTAMP_MAX_DELTA / 8,
@@ -1339,7 +1367,8 @@ static void test_remove_event_invalid() {
  *     TIMESTAMP_MAX_DELTA depending on the distance between the current time 
  *     ans the timestamp of the event at the head of the queue.
  */
-static void test_remove_random() { 
+static void test_remove_random()
+{
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
 
@@ -1452,7 +1481,8 @@ static void test_remove_random() {
  *     interface plus TIMESTAMP_MAX_DELTA. 
  *   - The irq handler registered should not be called.
  */
-static void test_overflow_event_update() { 
+static void test_overflow_event_update()
+{
     static uint32_t handler_call = 0;
     struct irq_handler_stub_t { 
         static void event_handler(uint32_t id) { 
@@ -1493,7 +1523,8 @@ static void test_overflow_event_update() {
  *     interface plus TIMESTAMP_MAX_DELTA. 
  *   - The irq handler registered should not be called.
  */
-static void test_overflow_event_update_when_spurious_interrupt() { 
+static void test_overflow_event_update_when_spurious_interrupt()
+{
     static uint32_t handler_call = 0;
     struct irq_handler_stub_t { 
         static void event_handler(uint32_t id) { 
@@ -1536,7 +1567,8 @@ static void test_overflow_event_update_when_spurious_interrupt() {
  *   - The interrupt timestamp in the ticker interface should be set to the 
  *     value of the interface timestamp + TIMESTAMP_MAX_DELTA  
  */
-static void test_irq_handler_single_event() { 
+static void test_irq_handler_single_event()
+{
     const timestamp_t event_timestamp = 0xAAAAAAAA;
     static const timestamp_t interface_timestamp_after_irq = event_timestamp + 100;
     static const uint32_t event_id = 0xFFAAFFAA;
@@ -1585,7 +1617,8 @@ static void test_irq_handler_single_event() {
  *   - The interrupt timestamp in the ticker interface should be set to the 
  *     value of the event timestamp  
  */
-static void test_irq_handler_single_event_spurious() { 
+static void test_irq_handler_single_event_spurious()
+{
     struct irq_handler_stub_t { 
         static void event_handler(uint32_t id) { 
             TEST_FAIL();
@@ -1636,7 +1669,8 @@ static void test_irq_handler_single_event_spurious() {
  *   - The interrupt timestamp in the ticker interface should be scheduled in
  *     TIMESTAMP_MAX_DELTAs
  */
-static void test_irq_handler_multiple_event_multiple_dequeue() { 
+static void test_irq_handler_multiple_event_multiple_dequeue()
+{
     const us_timestamp_t timestamps [] = {
         10, 
         10 + TIMESTAMP_MAX_DELTA - 1,
@@ -1698,7 +1732,8 @@ static void test_irq_handler_multiple_event_multiple_dequeue() {
  *   - The interrupt timestamp in the ticker interface should be scheduled in
  *     TIMESTAMP_MAX_DELTA.
  */
-static void test_irq_handler_multiple_event_single_dequeue_overflow() { 
+static void test_irq_handler_multiple_event_single_dequeue_overflow()
+{
     const us_timestamp_t timestamps [] = {
         10, 
         10 + TIMESTAMP_MAX_DELTA + 1
@@ -1753,7 +1788,8 @@ static void test_irq_handler_multiple_event_single_dequeue_overflow() {
  *   - The interrupt timestamp in the ticker interface should be equal to the 
  *     timestamp of the second event.
  */
-static void test_irq_handler_multiple_event_single_dequeue() { 
+static void test_irq_handler_multiple_event_single_dequeue()
+{
     const us_timestamp_t timestamps [] = {
         10, 
         10 + TIMESTAMP_MAX_DELTA - 1
@@ -1810,7 +1846,8 @@ static void test_irq_handler_multiple_event_single_dequeue() {
  *   - The interrupt timestamp in the ticker interface should be equal to 
  *     timestamp of the head event.
  */
-static void test_irq_handler_insert_immediate_in_irq() { 
+static void test_irq_handler_insert_immediate_in_irq()
+{
     const us_timestamp_t timestamps [] = {
         10, 
         10 + TIMESTAMP_MAX_DELTA - 1
@@ -1885,7 +1922,8 @@ static void test_irq_handler_insert_immediate_in_irq() {
  *   - The interrupt timestamp in the ticker interface should be equal to 
  *     timestamp of the head event.
  */
-static void test_irq_handler_insert_non_immediate_in_irq() { 
+static void test_irq_handler_insert_non_immediate_in_irq()
+{
     const us_timestamp_t timestamps [] = {
         10, 
         10 + TIMESTAMP_MAX_DELTA - 1
@@ -2036,13 +2074,15 @@ static const Case cases[] = {
     )
 };
 
-static utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+static utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(30, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
 static Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
