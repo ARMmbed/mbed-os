@@ -51,7 +51,7 @@ void pin_function(PinName pin, int function)
     // clear the corresponding 2 bit field first before writing the function
     // bits
     mask = ~(3 << (pin * 2));
-    cfg_reg = cfg_reg & mask | (function << (pin*2));
+    cfg_reg = (cfg_reg & mask) | (function << (pin*2));
     *pGPIO_CFG = cfg_reg;
 }
 
