@@ -224,7 +224,7 @@ void spi_frequency(spi_t *obj, int hz)
     if (SPI_Return) {
         obj->error = SPI_EVENT_ERROR;
         return;
-}
+    }
 }
 
 
