@@ -249,7 +249,8 @@
 
 #define LWIP_BROADCAST_PING         1
 
-#define LWIP_CHECKSUM_ON_COPY       1
+// Checksum-on-copy disabled due to https://savannah.nongnu.org/bugs/?50914
+#define LWIP_CHECKSUM_ON_COPY       0
 
 #define LWIP_NETIF_HOSTNAME         1
 #define LWIP_NETIF_STATUS_CALLBACK  1
