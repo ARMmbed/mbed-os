@@ -909,7 +909,9 @@ class mbedToolchain:
                 deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
             except IOError, IndexError:
                 deps = []
-            if len(deps) == 0 or self.need_update(object, deps):
+            config_file = ([self.config.app_config_location]
+                           if self.config.app_config_location else [])
+            if len(deps) == 0 or self.need_update(object, deps + config_file):
                 if ext == '.cpp' or self.COMPILE_C_AS_CPP:
                     return self.compile_cpp(source, object, includes)
                 else:
@@ -1008,7 +1010,10 @@ class mbedToolchain:
         map = join(tmp_path, name + '.map')
 
         r.objects = sorted(set(r.objects))
-        if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
+        config_file = ([self.config.app_config_location]
+                       if self.config.app_config_location else [])
+        if self.need_update(elf, r.objects + r.libraries + [r.linker_script] +
+                            config_file):
             needed_update = True
             self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)

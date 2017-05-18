@@ -42,6 +42,7 @@ def test_toolchain_profile_c(profile, source_file):
             toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
+            toolchain.config = MagicMock(app_config_locaiton=None)
             compile_command = toolchain.compile_command(to_compile,
                                                         to_compile + ".o", [])
             for parameter in profile['c'] + profile['common']:
@@ -67,6 +68,7 @@ def test_toolchain_profile_cpp(profile, source_file):
             toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
+            toolchain.config = MagicMock(app_config_locaiton=None)
             compile_command = toolchain.compile_command(to_compile,
                                                         to_compile + ".o", [])
             for parameter in profile['cxx'] + profile['common']:
