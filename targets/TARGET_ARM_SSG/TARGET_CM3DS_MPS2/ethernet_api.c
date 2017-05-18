@@ -21,60 +21,57 @@
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
-
-#define TX_PKT_SIZE 256
-#define RX_PKT_SIZE 300
-
-// Types
-#undef FALSE
-#undef TRUE
-#define FALSE   0
-#define TRUE    1
+#include "smsc9220_eth.h"
 
 /*----------------------------------------------------------------------------
   Ethernet Device initialize
  *----------------------------------------------------------------------------*/
 int ethernet_init()
 {
-    return 0;
-
+    return smsc9220_init();
 }
 
 /*----------------------------------------------------------------------------
   Ethernet Device Uninitialize
  *----------------------------------------------------------------------------*/
-void ethernet_free() {
+void ethernet_free()
+{
+    /* Uninitialize function is not implemented in Ethernet driver. */
 }
 
 int ethernet_write(const char *data, int size)
 {
+    /* smsc9220 cannot provide the functionality of writing into the tx buffer */
+    /* by chunks, without knowing the full size of the packet in the beginning */
     return 0;
 }
 
 int ethernet_send()
 {
+    /* smsc9220 cannot provide the functionality of writing into the tx buffer */
+    /* by chunks, without knowing the full size of the packet in the beginning */
     return 0;
 }
 
 int ethernet_receive()
 {
-    return 0;
+    return smsc9220_peek_next_packet_size();
 }
 
-// Read from an recevied ethernet packet.
-// After receive returnd a number bigger than 0 it is
-// possible to read bytes from this packet.
-// Read will write up to size bytes into data.
-// It is possible to use read multible times.
-// Each time read will start reading after the last read byte before.
-
+/* Read from an recevied ethernet packet.*/
+/* After receive returnd a number bigger than 0 it is*/
+/* possible to read bytes from this packet.*/
+/* Read will write up to size bytes into data.*/
+/* It is possible to use read multible times.*/
+/* Each time read will start reading after the last read byte before. */
 int ethernet_read(char *data, int dlen)
 {
-    return 0;
+    return smsc9220_receive_by_chunks(data, dlen);
 }
 
-void ethernet_address(char *mac) {
-    mbed_mac_address(mac);
+void ethernet_address(char *mac)
+{
+    smsc9220_read_mac_address(mac);
 }
 
 int ethernet_link(void)
@@ -84,5 +81,5 @@ int ethernet_link(void)
 
 void ethernet_set_link(int speed, int duplex)
 {
+    smsc9220_establish_link();
 }
-
