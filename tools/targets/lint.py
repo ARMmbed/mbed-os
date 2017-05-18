@@ -29,6 +29,7 @@ if __name__ == "__main__":
 from copy import copy
 from yaml import dump_all
 import argparse
+
 from tools.targets import Target, set_targets_json_location, TARGET_MAP
 
 def must_have_keys(keys, dict):
