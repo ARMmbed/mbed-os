@@ -8,8 +8,8 @@ define region FLASHB = Mem:[from 0x00100000 size 0x50000];
 define region RAMA = Mem:[from 0x3FFFC000 size 0x4000];
 define region RAMB = Mem:[from 0x3FFF8000 size 0x4000];
 /* G2H ZPRO requires RAMC to be enabled */
-define region RAMC = Mem:[from 0x3FFF4000 size 0x4000];
-define region RAM_ALL = Mem:[from 0x3FFF4000 size 0xC000];
+define region RAMC = Mem:[from 0x3FFF4000 + 0x90 size 0x4000 - 0x90]; /* 8_byte_aligned(35 vectors * 4 bytes each) = 0x90 */
+define region RAM_ALL = Mem:[from 0x3FFF4000 + 0x90 size 0xC000 - 0x90]; /* 8_byte_aligned(35 vectors * 4 bytes each) = 0x90 */
 
 /* Create a stack */
 define block CSTACK with size = 0x200, alignment = 8 { };

@@ -55,12 +55,6 @@ MBED_RPC = join(LIB_DIR, "rpc")
 
 RPC_LIBRARY = join(BUILD_DIR, "rpc")
 
-# mbed RTOS
-RTOS = join(ROOT, "rtos")
-MBED_RTX = join(RTOS, "rtx")
-
-RTOS_LIBRARIES = join(BUILD_DIR, "rtos")
-
 # DSP
 DSP = join(LIB_DIR, "dsp")
 DSP_CMSIS = join(DSP, "cmsis_dsp")
@@ -70,10 +64,6 @@ DSP_LIBRARIES = join(BUILD_DIR, "dsp")
 # USB Device
 USB = join(LIB_DIR, "USBDevice")
 USB_LIBRARIES = join(BUILD_DIR, "usb")
-
-# USB Host
-USB_HOST = join(LIB_DIR, "USBHost")
-USB_HOST_LIBRARIES = join(BUILD_DIR, "usb_host")
 
 # Export
 EXPORT_DIR = join(BUILD_DIR, "export")

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_ll_rcc.c
   * @author  MCD Application Team
-  * @version $VERSION$
-  * @date    $DATE$
+  * @version V1.1.0
+  * @date    14-April-2017
   * @brief   RCC LL module driver.
   ******************************************************************************
   * @attention
@@ -55,7 +55,6 @@
 
 /* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-
 /* Private constants ---------------------------------------------------------*/
 /* Private macros ------------------------------------------------------------*/
 /** @addtogroup RCC_LL_Private_Macros
@@ -71,7 +70,6 @@
 #endif /* USB */
 
 #define IS_LL_RCC_ADC_CLKSOURCE(__VALUE__)    (((__VALUE__) == LL_RCC_ADC_CLKSOURCE))
-
 /**
   * @}
   */
@@ -94,7 +92,6 @@ uint32_t RCC_PLL2_GetFreqClockFreq(void);
 /**
   * @}
   */
-
 
 /* Exported functions --------------------------------------------------------*/
 /** @addtogroup RCC_LL_Exported_Functions
@@ -163,13 +160,13 @@ ErrorStatus LL_RCC_DeInit(void)
   /* Reset PLL3ON bit */
   CLEAR_BIT(vl_mask, RCC_CR_PLL3ON);
 #endif /* RCC_CR_PLL3ON */
-  
+
   LL_RCC_WriteReg(CR, vl_mask);
 
   /* Set HSITRIM bits to the reset value */
   LL_RCC_HSI_SetCalibTrimming(0x10U);
 
-#if defined(RCC_PREDIV1_DIV_2_16_SUPPORT)
+#if defined(RCC_CFGR2_PREDIV1)
   /* Reset CFGR2 register */
   vl_mask = 0x00000000U;
 
@@ -184,7 +181,7 @@ ErrorStatus LL_RCC_DeInit(void)
 #endif /* RCC_PLLI2S_SUPPORT */
 
   LL_RCC_WriteReg(CFGR2, vl_mask);
-#endif /* RCC_PREDIV1_DIV_2_16_SUPPORT */
+#endif /* RCC_CFGR2_PREDIV1 */
 
   /* Disable all interrupts */
   LL_RCC_WriteReg(CIR, 0x00000000U);
@@ -245,7 +242,7 @@ void LL_RCC_GetSystemClocksFreq(LL_RCC_ClocksTypeDef *RCC_Clocks)
   *         @arg @ref LL_RCC_I2S2_CLKSOURCE
   *         @arg @ref LL_RCC_I2S3_CLKSOURCE
   * @retval I2S clock frequency (in Hz)
-  *         @arg @ref LL_RCC_PERIPH_FREQUENCY_NA indicates that external clock is used  */
+  */
 uint32_t LL_RCC_GetI2SClockFreq(uint32_t I2SxSource)
 {
   uint32_t i2s_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
@@ -264,13 +261,14 @@ uint32_t LL_RCC_GetI2SClockFreq(uint32_t I2SxSource)
     case LL_RCC_I2S2_CLKSOURCE_PLLI2S_VCO:    /*!< PLLI2S oscillator clock selected as I2S clock source */
     case LL_RCC_I2S3_CLKSOURCE_PLLI2S_VCO:
     default:
-      i2s_frequency = RCC_PLLI2S_GetFreqDomain_I2S() * 2;
+      i2s_frequency = RCC_PLLI2S_GetFreqDomain_I2S() * 2U;
       break;
   }
 
   return i2s_frequency;
 }
 #endif /* RCC_CFGR2_I2S2SRC */
+
 #if defined(USB) || defined(USB_OTG_FS)
 /**
   * @brief  Return USBx clock frequency
@@ -278,7 +276,6 @@ uint32_t LL_RCC_GetI2SClockFreq(uint32_t I2SxSource)
   *         @arg @ref LL_RCC_USB_CLKSOURCE
   * @retval USB clock frequency (in Hz)
   *         @arg @ref LL_RCC_PERIPH_FREQUENCY_NO indicates that oscillator (HSI), HSE or PLL is not ready
-  *         @arg @ref LL_RCC_PERIPH_FREQUENCY_NA indicates that no clock source selected
   */
 uint32_t LL_RCC_GetUSBClockFreq(uint32_t USBxSource)
 {
@@ -302,7 +299,7 @@ uint32_t LL_RCC_GetUSBClockFreq(uint32_t USBxSource)
     default:
       if (LL_RCC_PLL_IsReady())
       {
-        usb_frequency = (RCC_PLL_GetFreqDomain_SYS() * 3) / 2;
+        usb_frequency = (RCC_PLL_GetFreqDomain_SYS() * 3U) / 2U;
       }
       break;
 #endif /* RCC_CFGR_USBPRE */
@@ -319,11 +316,11 @@ uint32_t LL_RCC_GetUSBClockFreq(uint32_t USBxSource)
 
     /* USBCLK = PLLVCO/3 
               = (2 x PLLCLK) / 3 */
-    case LL_RCC_USB_CLKSOURCE_PLL_DIV_3:        /* PLL clock divided by 1.5 used as USB clock source */
+    case LL_RCC_USB_CLKSOURCE_PLL_DIV_3:        /* PLL clock divided by 3 used as USB clock source */
     default:
       if (LL_RCC_PLL_IsReady())
       {
-        usb_frequency = (RCC_PLL_GetFreqDomain_SYS() * 2) / 3;
+        usb_frequency = (RCC_PLL_GetFreqDomain_SYS() * 2U) / 3U;
       }
       break;
 #endif /* RCC_CFGR_OTGFSPRE */
@@ -338,16 +335,15 @@ uint32_t LL_RCC_GetUSBClockFreq(uint32_t USBxSource)
   * @param  ADCxSource This parameter can be one of the following values:
   *         @arg @ref LL_RCC_ADC_CLKSOURCE
   * @retval ADC clock frequency (in Hz)
-  *         - @ref LL_RCC_PERIPH_FREQUENCY_NO indicates that oscillator (HSI), HSE or PLL is not ready
   */
 uint32_t LL_RCC_GetADCClockFreq(uint32_t ADCxSource)
 {
   uint32_t adc_prescaler = 0U;
-  uint32_t adc_frequency = LL_RCC_PERIPH_FREQUENCY_NO;
+  uint32_t adc_frequency = 0U;
 
   /* Check parameter */
   assert_param(IS_LL_RCC_ADC_CLKSOURCE(ADCxSource));
-  
+
   /* Get ADC prescaler */
   adc_prescaler = LL_RCC_GetADCClockSource(ADCxSource);
 
@@ -450,21 +446,21 @@ uint32_t RCC_PLL_GetFreqDomain_SYS(void)
   switch (pllsource)
   {
     case LL_RCC_PLLSOURCE_HSI_DIV_2: /* HSI used as PLL clock source */
-      pllinputfreq = HSI_VALUE / 2;
+      pllinputfreq = HSI_VALUE / 2U;
       break;
 
     case LL_RCC_PLLSOURCE_HSE:       /* HSE used as PLL clock source */
-      pllinputfreq = HSE_VALUE / (LL_RCC_PLL_GetPrediv() + 1);
+      pllinputfreq = HSE_VALUE / (LL_RCC_PLL_GetPrediv() + 1U);
       break;
 
 #if defined(RCC_PLL2_SUPPORT)
     case LL_RCC_PLLSOURCE_PLL2:       /* PLL2 used as PLL clock source */
-      pllinputfreq = RCC_PLL2_GetFreqClockFreq() / (LL_RCC_PLL_GetPrediv() + 1);
+      pllinputfreq = RCC_PLL2_GetFreqClockFreq() / (LL_RCC_PLL_GetPrediv() + 1U);
       break;
 #endif /* RCC_PLL2_SUPPORT */
 
     default:
-      pllinputfreq = HSI_VALUE / 2;
+      pllinputfreq = HSI_VALUE / 2U;
       break;
   }
   return __LL_RCC_CALC_PLLCLK_FREQ(pllinputfreq, LL_RCC_PLL_GetMultiplicator());

@@ -28,20 +28,18 @@
 
 using namespace utest::v1;
 
-#define TEST_STACK_SIZE     1024
+#define TEST_STACK_SIZE     512
 static uint32_t instance_count = 0;
 
 class TestClass {
 public:
     TestClass() {
-        printf("TestClass ctor start\r\n");
         Thread::wait(500);
         instance_count++;
-        printf("TestClass ctor end\r\n");
     }
 
     void do_something() {
-        printf("Do something called\r\n");
+        Thread::wait(100);
     }
 
     ~TestClass() {
@@ -69,7 +67,6 @@ static void main_class_race()
 
 void test_case_func_race()
 {
-    printf("Running function race test\r\n");
     Callback<void()> cb(main_func_race);
     Thread *t1 = new Thread(osPriorityNormal, TEST_STACK_SIZE);
     Thread *t2 = new Thread(osPriorityNormal, TEST_STACK_SIZE);
@@ -95,7 +92,6 @@ void test_case_func_race()
 
 void test_case_class_race()
 {
-    printf("Running class race test\r\n");
     Callback<void()> cb(main_class_race);
     Thread *t1 = new Thread(osPriorityNormal, TEST_STACK_SIZE);
     Thread *t2 = new Thread(osPriorityNormal, TEST_STACK_SIZE);

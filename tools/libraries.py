@@ -14,9 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from tools.paths import MBED_RTX, RTOS, RTOS_LIBRARIES, MBED_LIBRARIES,\
-    MBED_RPC, RPC_LIBRARY, USB, USB_LIBRARIES, USB_HOST,\
-    USB_HOST_LIBRARIES, DSP_ABSTRACTION, DSP_CMSIS, DSP_LIBRARIES,\
+from tools.paths import MBED_LIBRARIES,\
+    MBED_RPC, RPC_LIBRARY, USB, USB_LIBRARIES, \
+    DSP_ABSTRACTION, DSP_CMSIS, DSP_LIBRARIES,\
     CPPUTEST_SRC,\
     CPPUTEST_PLATFORM_SRC, CPPUTEST_TESTRUNNER_SCR, CPPUTEST_LIBRARY,\
     CPPUTEST_INC, CPPUTEST_PLATFORM_INC, CPPUTEST_TESTRUNNER_INC,\
@@ -26,20 +26,6 @@ from tools.tests import TEST_MBED_LIB
 
 
 LIBRARIES = [
-    # RTOS libraries
-    {
-        "id": "rtx",
-        "source_dir": MBED_RTX,
-        "build_dir": RTOS_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES],
-    },
-    {
-        "id": "rtos",
-        "source_dir": RTOS,
-        "build_dir": RTOS_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, MBED_RTX],
-    },
-
     # RPC
     {
         "id": "rpc",
@@ -54,14 +40,6 @@ LIBRARIES = [
         "source_dir": USB,
         "build_dir": USB_LIBRARIES,
         "dependencies": [MBED_LIBRARIES],
-    },
-
-    # USB Host libraries
-    {
-        "id": "usb_host",
-        "source_dir": USB_HOST,
-        "build_dir": USB_HOST_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, MBED_RTX, RTOS_LIBRARIES],
     },
 
     # DSP libraries

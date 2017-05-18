@@ -35,7 +35,7 @@ void set_compare(uint16_t count)
 {
     TimMasterHandle.Instance = TIM_MST;
     // Set new output compare value
-    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, count);
+    __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, count);
     // Enable IT
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
