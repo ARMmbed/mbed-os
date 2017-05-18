@@ -1938,7 +1938,7 @@
         "supported_toolchains": ["ARM"],
         "extra_labels": ["ARM_SSG", "CM3DS_MPS2"],
         "macros": ["CMSDK_CM3DS"],
-        "device_has": ["ETHERNET","INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI"],
+        "device_has": ["ETHERNET","INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "RTC"],
         "release_versions": ["2", "5"]
     },
     "ARM_BEETLE_SOC": {
