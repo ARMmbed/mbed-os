@@ -779,6 +779,22 @@ typedef struct
 #define CMSDK_Watchdog_INTEGTESTOUTSET_Pos    1                                              /* CMSDK_Watchdog INTEGTESTOUTSET: Integration Test Output Set Position */
 #define CMSDK_Watchdog_INTEGTESTOUTSET_Msk   (0x1ul << CMSDK_Watchdog_INTEGTESTOUTSET_Pos)   /* CMSDK_Watchdog INTEGTESTOUTSET: Integration Test Output Set Mask */
 
+/*------------------------- Real Time Clock(RTC) ----------------------------------------------*/
+typedef struct
+{
+    __I  uint32_t RTCDR;                     /* 0x00 RO RTC Data Register */
+    __IO uint32_t RTCMR;                     /* 0x04 RW RTC Match Register */
+    __IO uint32_t RTCLR;                     /* 0x08 RW RTC Load Register */
+    __IO uint32_t RTCCR;                     /* 0x0C RW RTC Control Register */
+    __IO uint32_t RTCIMSC;                   /* 0x10 RW RTC Inerrupt Mask Set and Clear Register */
+    __I  uint32_t RTCRIS;                    /* 0x14 RO RTC Raw Inerrupt Status Register */
+    __I  uint32_t RTCMIS;                    /* 0x18 RO RTC Masked Inerrupt Status Register */
+    __O  uint32_t RTCICR;                    /* 0x1C WO RTC Interrupt Clear Register */
+} CMSDK_RTC_TypeDef;
+
+#define CMSDK_RTC_Enable_Pos                  0                                  /* CMSDK_RTC Enable: Real Time Clock Enable Position */
+#define CMSDK_RTC_Enable_Msk                  (0x1ul << CMSDK_RTC_Enable_Pos)    /* CMSDK_RTC Enable: Real Time Clock Enable Mask */
+
 /* --------------------  End of section using anonymous unions  ------------------- */
 #if defined ( __CC_ARM   )
   #pragma pop
@@ -821,6 +837,7 @@ typedef struct
 #define CMSDK_UART2_BASE        (0x4002C000UL)
 #define CMSDK_UART3_BASE        (0x4002D000UL)
 #define CMSDK_UART4_BASE        (0x4002E000UL)
+#define CMSDK_RTC_BASE          (CMSDK_APB_BASE + 0x6000UL)
 #define CMSDK_WATCHDOG_BASE     (CMSDK_APB_BASE + 0x8000UL)
 
 /* AHB peripherals */
@@ -848,6 +865,7 @@ typedef struct
 #define CMSDK_DUALTIMER         ((CMSDK_DUALTIMER_BOTH_TypeDef  *) CMSDK_DUALTIMER_BASE )
 #define CMSDK_DUALTIMER1        ((CMSDK_DUALTIMER_SINGLE_TypeDef  *) CMSDK_DUALTIMER_1_BASE )
 #define CMSDK_DUALTIMER2        ((CMSDK_DUALTIMER_SINGLE_TypeDef  *) CMSDK_DUALTIMER_2_BASE )
+#define CMSDK_RTC               ((CMSDK_RTC_TypeDef    *) CMSDK_RTC_BASE )
 #define CMSDK_WATCHDOG          ((CMSDK_WATCHDOG_TypeDef  *) CMSDK_WATCHDOG_BASE   )
 #define CMSDK_DMA               ((CMSDK_PL230_TypeDef  *) CMSDK_PL230_BASE   )
 #define CMSDK_GPIO0             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO0_BASE   )
