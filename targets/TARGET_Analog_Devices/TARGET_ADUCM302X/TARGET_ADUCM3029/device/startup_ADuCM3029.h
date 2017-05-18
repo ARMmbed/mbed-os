@@ -60,7 +60,7 @@ RESET_EXCPT_HNDLR
 
 #ifndef __STARTUP_H__
 #define __STARTUP_H__
-#include <adi_types.h>
+//#include <adi_types.h>
 #define VECTOR_SECTION                 ".vectors"
 
 #ifdef __CC_ARM

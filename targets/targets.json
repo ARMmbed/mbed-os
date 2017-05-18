@@ -590,9 +590,9 @@
         "inherits": ["Target"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "macros": ["__ADUCM3029__","RELOCATE_IVT", "ADICUP3029"],
+        "macros": ["__ADUCM3029__", "RELOCATE_IVT", "ADICUP3029"],
         "extra_labels": ["Analog_Devices", "ADUCM302X", "ADUCM3029", "FLASH_CMSIS_ALGO"],
-        "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "LOWPOWERTIMER", "RTC", "SPI", "FLASH", "ANALOGIN"],
+        "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "LOWPOWERTIMER", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
         "device_name": "ADuCM3029",
         "detect_code": [],
         "release_versions": ["5"]

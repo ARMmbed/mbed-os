@@ -1,9 +1,7 @@
 /*!
  *****************************************************************************
  * @file:    platform.h
- * @brief:   Platform abstraction header file.
- * @version: $Revision$
- * @date:    $Date$
+ * @brief:   Include appropriate architecture definitions.
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2010-2016 Analog Devices, Inc.
@@ -44,9 +42,19 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *****************************************************************************/
-#ifndef __ADI_PLATFORM_H__
-#define __ADI_PLATFORM_H__
+#ifndef __ADI_SYS_PLATFORM_H__
+#define __ADI_SYS_PLATFORM_H__
 
-#include <adi_processor.h>
+/* Include the ADI cdef header for the selected target. */
 
-#endif /* __ADI_PLATFORM_H__ */
+#if defined(__ADUCM4050__)
+#include <ADuCM4050_cdef.h>
+#elif defined(__ADUCM3027__)
+#include <ADuCM3027_cdef.h>
+#elif defined(__ADUCM3029__)
+#include <ADuCM3029_cdef.h>
+#else
+#error <sys/platform.h> not configured for this target.
+#endif
+
+#endif /* __ADI_SYS_PLATFORM_H__ */

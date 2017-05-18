@@ -4,11 +4,11 @@
    @brief:   Configuration options for Real Time Clock  device  driver.
              This is specific to the RTC driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision$
-   @date:    $Date$
+   @version: $Revision: 33005 $
+   @date:    $Date: 2015-12-12 10:43:13 -0500 (Sat, 12 Dec 2015) $
   -----------------------------------------------------------------------------
 
-Copyright (c) 2012-2014 Analog Devices, Inc.
+Copyright (c) 2012-2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -47,15 +47,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *****************************************************************************/
 
-#ifndef __ADI_RTC_CONFIG_H__
-#define __ADI_RTC_CONFIG_H__
+#ifndef ADI_RTC_CONFIG_H__
+#define ADI_RTC_CONFIG_H__
 #include <adi_global_config.h>
-/** @defgroup RTC_Driver_Cfg RTC Device Driver Configuration
- *  @ingroup Configuration_macros
- */
- /*! \addtogroup  RTC_Driver_Cfg RTC Device Driver Configuration
+
+/** @addtogroup RTC_Driver_Config Static Configuration
+ *  @ingroup RTC_Driver
  *  @{
  */
+
 /*!
  * The safe write mode insures any pending writes that have not yet synchronized between the faster core clock
  * domain and the internal RTC 32kHz clock domain are reconciled before multiple writes to the same RTC register
@@ -64,34 +64,33 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define ADI_RTC_CFG_ENABLE_SAFE_WRITE 1    
 
-/*!
-   Set this macro to 1 for to enable static rtc  initializations
-   during the driver initialization routine #adi_rtc_Open().
-   To eliminate static driver configuration, set this macro to 0.*/
 
-#define ADI_RTC_STATIC_CONFIG_SUPPORT_ENABLE   0
+/** @addtogroup RTC_Driver_Config_RTC0 RTC0 Static Configuration
+ *  @ingroup RTC_Driver_Config
+ *  @{
+ */
 
 /*
 ===================================================================
  ------------------------RTC-0 CONFIGURATION MACRO-----------------
 ===================================================================
 */
-/*! Enabling the Alarm */
+/*! Enable the Alarm */
 #define RTC0_CFG_ENABLE_ALARM                  0     
 
-/*! Enabling the Alarm interrupt*/
+/*! Enable the Alarm interrupt*/
 #define RTC0_CFG_ENABLE_ALARM_INTERRUPT        0     
 
-/*! Enabling the TRIM */
+/*! Enable the Trim */
 #define RTC0_CFG_ENABLE_TRIM                    0     
 
-/*! Enabling the PENDERROR interrupt*/
+/*! Enable the PENDERROR interrupt*/
 #define RTC0_CFG_ENABLE_PENDERROR_INTERRUPT     0     
 
-/*! Enabling the write sync  interrupt*/
+/*! Enable the write sync  interrupt*/
 #define RTC0_CFG_ENABLE_WSYNC_INTERRUPT         0     
 
-/*! Enabling the pend write interrupt*/
+/*! Enable the pend write interrupt*/
 #define RTC0_CFG_ENABLE_WRITEPEND_INTERRUPT     0     
 
 /*! Initial the count Value*/
@@ -109,10 +108,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*! Alarm-1  Value*/
 #define RTC0_CFG_ALARM_VALUE_1                  0     
 
-/*! TRIM interval*/
+/*! Trim interval*/
 #define RTC0_CFG_TRIM_INTERVAL                  0     
 
-/*! TRIM interval with power of 2*/
+/*! Trim interval with power of 2*/
 #define RTC0_CFG_POW2_TRIM_INTERVAL             0     
 
 /*! Trim operation to be performed for RTC0*/
@@ -121,63 +120,133 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*! Trim  Value for RTC-0*/
 #define RTC0_CFG_TRIM_VALUE                     0     
 
+/*! GPIO Sample around Rising Edge of Sensor Strobe Channel 3. 
+ * Enables sampling of Sensor Strobe GPIO inputs around rising edge of Sensor Strobe Channel 3 pulse.
+ *
+ *  0 No sampling of input around rising edge.
+ *  1 Input sampled one clock cycle before rising edge of Sensor Strobe.
+ * 10 Input sampled at rising edge of Sensor Strobe.
+ * 11 Input sampled one clock cycle after rising edge of Sensor Strobe.
+ */
+#define RTC0_SS3_SMPONRE                          0
+
+/*! GPIO Sample around Falling Edge of Sensor Strobe Channel 3. 
+ *  Enables sampling of Sensor Strobe GPIO inputs around falling edge of Sensor Strobe Channel 3 pulse. 
+ *
+ *  0	No sampling of input around rising edge.		
+ *  1	Input sampled one clock cycle before rising edge of Sensor Strobe.		
+ * 10	Input sampled at rising edge of Sensor Strobe.
+ * 11	Input sampled one clock cycle after rising edge of Sensor Strobe.		
+ */
+#define RTC0_SS3_SMPONFE                          0
+/*! GPIO Sample around Falling Edge of Sensor Strobe Channel 2.  */
+#define RTC0_SS2_SMPONFE                          0
+/*! GPIO Sample around Rising Edge of Sensor Strobe Channel 1.   */ 
+#define RTC0_SS1_SMPONRE                          0
+/*! GPIO Sample around Falling Edge of Sensor Strobe Channel 1.  */
+#define RTC0_SS1_SMPONFE                          0
+
+
+/*! Sensor Strobe's GP Input Sampling Mux
+ *  SS 2 GPIO Pin 1
+ *
+ * GPMUX0/1.SSxGPINySEL	3’b000	3’b001	3’b010	3’b011	3’b100	3’b101	3’b110	3’b111
+ * RTCSSxGPIny           p0[12] p2[0]    p0[9]  p0[8]   p1[13]   p1[2]   p2[7]   p2[9]
+ */
+#define RTC0_SS2_GPIN1SEL                       0x4
+/*! Sensor Strobe's GP Input Sampling Mux SS 2 GPIO Pin 0*/
+#define RTC0_SS2_GPIN0SEL                       0x3
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 2*/
+#define RTC0_SS1_GPIN2SEL                       0x2
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 1*/
+#define RTC0_SS1_GPIN1SEL                       0x1
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 0*/
+#define RTC0_SS1_GPIN0SEL                       0x0
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 2*/
+#define RTC0_SS3_GPIN2SEL                       0x0
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 1*/
+#define RTC0_SS3_GPIN1SEL                       0x7
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 0*/
+#define RTC0_SS3_GPIN0SEL                       0x6
+/*! Sensor Strobe's GP Input Sampling Mux SS 2 GPIO Pin 2*/
+#define RTC0_SS2_GPIN2SEL                       0x5
+
+/*! Differential output option for Sensor Strobe channel 3.
+ *  Sensor Strobe channel3 is used as differential signal, actual RTC_SS3 out 
+ *  for this channel is available in corresponding GPIO. 
+ *  RTC_SS4 of Sensor Strobe channel 4 is used to provided inverted signal of RTC_SS3.
+ */
+#define RTC0_SS3_DIFFOUT                           0
+/*! Differential output option for Sensor Strobe channel 1.
+ *  Sensor Strobe channel 1 is used as differential signal, actual RTC_SS1 out 
+ *  for this channel is available in corresponding GPIO. 
+ *  RTC_SS1 of Sensor Strobe channel 2 is used to provided inverted signal of RTC_SS1.
+ */
+#define RTC0_SS1_DIFFOUT                           0
+
+
+
+/*! @} */
+
 /*
 ===================================================================
  ------------------------RTC-1 CONFIGURATION MACRO-----------------
 ===================================================================
 */
 
-/*!
-   Set this macro to 1 for to enable static rtc-1  initializations
-   during the driver initialization routine #adi_rtc_Open().
-   To eliminate static driver configuration, set this macro to 0.*/
+/** @addtogroup RTC_Driver_Config_RTC1 RTC1 Static Configuration
+ *  @ingroup RTC_Driver_Config
+ *  @{
+ */
+
+
    
-/*! Enabling the Alarm */
+/*! Enable the Alarm */
 #define RTC1_CFG_ENABLE_ALARM                       0     
 
-/*! Enabling the Alarm interrupt*/
+/*! Enable the Alarm interrupt*/
 #define RTC1_CFG_ENABLE_ALARM_INTERRUPT             0     
 
-/*! Enabling the TRIM */
+/*! Enable the Trim */
 #define RTC1_CFG_ENABLE_TRIM                        0     
 
-/*! Enabling the mod-60 Alarm */
+/*! Enable the mod-60 Alarm */
 #define RTC1_CFG_ENABLE_MOD60_ALARM                 0     
 
-/*! Enabling the mod-60 Alarm  period*/
+/*! Enable the mod-60 Alarm  period*/
 #define RTC1_CFG_ENABLE_MOD60_ALARM_PERIOD          0     
 
-/*! Enabling the Alarm interrupt*/
+/*! Enable the Alarm interrupt*/
 #define RTC1_CFG_ENABLE_MOD60_ALARM_INTERRUPT       0     
 
-/*! Enabling the ISOINT interrupt*/
+/*! Enable the ISOINT interrupt*/
 #define RTC1_CFG_ENABLE_ISO_INTERRUPT               0     
 
-/*! Enabling the PENDERROR interrupt*/
+/*! Enable the PENDERROR interrupt*/
 #define RTC1_CFG_ENABLE_PENDERROR_INTERRUPT         0     
 
-/*! Enabling the write sync  interrupt*/
+/*! Enable the write sync  interrupt*/
 #define RTC1_CFG_ENABLE_WSYNC_INTERRUPT             0     
 
-/*! Enabling the pend write interrupt*/
+/*! Enable the pend write interrupt*/
 #define RTC1_CFG_ENABLE_WRITEPEND_INTERRUPT         0     
 
-/*! Enabling the RTC count interrupt*/
+/*! Enable the RTC count interrupt*/
 #define RTC1_CFG_ENABLE_COUNT_INTERRUPT             0     
 
-/*! Enabling the prescaled modulo-1 interrupt*/
+/*! Enable the prescaled modulo-1 interrupt*/
 #define RTC1_CFG_ENABLE_MOD1_COUNT_INTERRUPT        0     
 
-/*! Enabling the TRIM interrupt*/
+/*! Enable the Trim interrupt*/
 #define RTC1_CFG_ENABLE_TRIM_INTERRUPT              0     
 
-/*! Enabling the Mod60 roll over  interrupt*/
+/*! Enable the Mod60 roll over  interrupt*/
 #define RTC1_CFG_CNT_MOD60_ROLLLOVER_INTERRUPT      0     
 
 /*! Prescale value for the RTC1*/
 #define RTC1_CFG_PRESCALE                           0     
 
-/*! Enabling the counter roll over  interrupt*/
+/*! Enable the counter roll over  interrupt*/
 #define RTC1_CFG_CNT_ROLLLOVER_INTERRUPT            0     
 
 /*! Initial the count Value-0*/
@@ -195,10 +264,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*! Alarm  Value-2*/
 #define RTC1_CFG_ALARM_VALUE_2                      0     
 
-/*! TRIM interval*/
+/*! Trim interval*/
 #define RTC1_CFG_TRIM_INTERVAL                      0     
 
-/*! TRIM interval with power of 2*/
+/*! Trim interval with power of 2*/
 #define RTC1_CFG_POW2_TRIM_INTERVAL                 0     
 
 /*! Trim operation to be performed for RTC1*/
@@ -219,8 +288,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*! Enable the input capture channel-4*/
 #define RTC1_CFG_IC4_ENABLE                         0     
 
-/*! Enable the output compare channel-1*/
-#define RTC1_CFG_OC1_ENABLE                         1     
+/*! Enable the Sensor Strobe channel-1*/
+#define RTC1_CFG_SS1_ENABLE                         0     
+/*! Enable the Sensor Strobe channel-2*/
+#define RTC1_CFG_SS2_ENABLE                         0     
+/*! Enable the Sensor Strobe channel-3*/
+#define RTC1_CFG_SS3_ENABLE                         0     
+/*! Enable the Sensor Strobe channel-4*/
+#define RTC1_CFG_SS4_ENABLE                         0     
 
 /*! Enable the interrupt for input capture channel-0*/
 #define RTC1_CFG_IC0_INT_ENABLE                     0     
@@ -235,7 +310,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define RTC1_CFG_IC4_INT_ENABLE                     0     
 
 /*! Enable the over write input capture channels*/
-#define RTC1_CFG_IC_OVER_WRITE_ENABLE               0     
+#define RTC1_CFG_IC_OVER_WRITE_ENABLE               0    
 
 /*! Polarity for  input capture channel-0*/
 #define RTC1_CFG_IC0_EDGE_POLARITY                  0     
@@ -249,22 +324,74 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*! Polarity for  input capture channel-4*/
 #define RTC1_CFG_IC4_EDGE_POLARITY                  0     
 
-/*! Enable the interrupt for output compare channel-0*/
-#define RTC1_CFG_OC1_INT_ENABLE                     1     
+/*! Enable the interrupt for Sensor Strobe channel-1*/
+#define RTC1_CFG_SS1_INT_ENABLE                     0     
+/*! Enable the interrupt for Sensor Strobe channel-2*/
+#define RTC1_CFG_SS2_INT_ENABLE                     0     
+/*! Enable the interrupt for Sensor Strobe channel-3*/
+#define RTC1_CFG_SS3_INT_ENABLE                     0     
+/*! Enable the interrupt for Sensor Strobe channel-4*/
+#define RTC1_CFG_SS4_INT_ENABLE                     0    
 
-/*! Enable the masking  for output compare channel-0*/
-#define RTC1_CFG_OC1_MASK_ENABLE                    0     
+/*! Enable the masking for Sensor Strobe channel-1*/
+#define RTC1_CFG_SS1_MASK_ENABLE                    0     
+/*! Enable the masking for Sensor Strobe channel-2*/
+#define RTC1_CFG_SS2_MASK_ENABLE                    0     
+/*! Enable the masking for Sensor Strobe channel-3*/
+#define RTC1_CFG_SS3_MASK_ENABLE                    0     
+/*! Enable the masking for Sensor Strobe channel-4*/
+#define RTC1_CFG_SS4_MASK_ENABLE                    0     
 
-/*! Enable the auto-reloading   for output compare channel-0*/
-#define RTC1_CFG_OC1_AUTO_RELOADING_ENABLE          1     
+/*! Enable the auto-reloading for Sensor Strobe channel-0*/
+#define RTC1_CFG_SS1_AUTO_RELOADING_ENABLE          0     
 
-/*! Mask for output compare channel-0*/
-#define RTC1_CFG_OC1_MASK_VALUE                     0     
+/*! Mask for Sensor Strobe channel-0 */
+#define RTC1_CFG_SS1_MASK_VALUE                     0     
 
 
-/*! Auto reload value  for output compare channel-0*/
-#define RTC1_CFG_OC1_AUTO_RELOAD_VALUE              32768/2     
+/*! Auto reload value  for Sensor Strobe channel-0 */
+#define RTC1_CFG_SS1_AUTO_RELOAD_VALUE              32768/2
+
+
+/*! Sensor Strobe GP Input Sampling Mux
+ *  SS2 GPIO Pin 1
+ *
+ * GPMUX0/1.SSxGPINySEL	3’b000	3’b001	3’b010	3’b011	3’b100	3’b101	3’b110	3’b111
+ * RTCSSxGPIny           p0[12] p2[0]    p0[9]  p0[8]   p1[13]   p1[2]   p2[7]   p2[9]
+ */
+#define RTC1_SS2_GPIN1SEL                       0x4
+/*! Sensor Strobe's GP Input Sampling Mux SS 2 GPIO Pin 0*/
+#define RTC1_SS2_GPIN0SEL                       0x3
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 2*/
+#define RTC1_SS1_GPIN2SEL                       0x2
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 1*/
+#define RTC1_SS1_GPIN1SEL                       0x1
+/*! Sensor Strobe's GP Input Sampling Mux SS 1 GPIO Pin 0*/
+#define RTC1_SS1_GPIN0SEL                       0x0
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 2*/
+#define RTC1_SS3_GPIN2SEL                       0x0
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 1*/
+#define RTC1_SS3_GPIN1SEL                       0x7
+/*! Sensor Strobe's GP Input Sampling Mux SS 3 GPIO Pin 0*/
+#define RTC1_SS3_GPIN0SEL                       0x6
+/*! Sensor Strobe's GP Input Sampling Mux SS 2 GPIO Pin 2*/
+#define RTC1_SS2_GPIN2SEL                       0x5
+
+/*! Differential output option for Sensor Strobe channel 3.
+ *  Sensor Strobe channel3 is used as differential signal, actual RTC_SS3 out 
+ *  for this channel is available in corresponding GPIO. 
+ *  RTC_SS4 of Sensor Strobe channel 4 is used to provided inverted signal of RTC_SS3.
+ */
+#define RTC1_SS3_DIFFOUT                           0
+/*! Differential output option for Sensor Strobe channel 1.
+ *  Sensor Strobe channel 1 is used as differential signal, actual RTC_SS1 out 
+ *  for this channel is available in corresponding GPIO. 
+ *  RTC_SS1 of Sensor Strobe channel 2 is used to provided inverted signal of RTC_SS1.
+ */
+#define RTC1_SS1_DIFFOUT                           0
+
 
 /*! @} */
+
 /*! @} */
-#endif /* __ADI_RTC_CONFIG_H__ */
+#endif /* ADI_RTC_CONFIG_H__ */

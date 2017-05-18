@@ -1,15 +1,12 @@
 /*! *****************************************************************************
  * @file:    adi_crc_def.h
  * @brief:   Private header file for for CRC driver.
- * @version: $Revision$
- * @date:    $Date$
- *
  * @details
  *           This is a private header file for the CRC driver,
  *           which contains the API declarations, data and
  *           constant definitions used in driver implementation
  -----------------------------------------------------------------------------
-Copyright (c) 2010-2014 Analog Devices, Inc.
+Copyright (c) 2010-2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -48,14 +45,14 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 
 *****************************************************************************/
-#ifndef __ADI_CRC_DEF_H__
-#define __ADI_CRC_DEF_H__
+
+#ifndef ADI_CRC_DEF_H
+#define ADI_CRC_DEF_H
+
 /* CRC Driver includes */
 #include <drivers/crc/adi_crc.h>
 
 /*! \cond PRIVATE */
-/*=============  I N C L U D E S   =============*/
-
 
 typedef struct __ADI_CRC_DEVICE ADI_CRC_DEVICE;
 typedef ADI_CRC_RESULT (*CRC_BUFFER_SUBMIT) (ADI_CRC_DEVICE *pDevice, void *pBuffer, uint32_t NumBytes, uint32_t NumBits);
@@ -63,8 +60,8 @@ typedef ADI_CRC_RESULT (*CRC_BUFFER_SUBMIT) (ADI_CRC_DEVICE *pDevice, void *pBuf
 /* Enumeration of CRC operation status */
 typedef enum
 {
-    ADI_CRC_OP_IDLE                = 0u,        /* CRC idle */
-    ADI_CRC_OP_IN_PROGRESS         = 0x01u,     /* CRC operation in progress */
+    ADI_CRC_OP_IDLE             = 0u,           /* CRC idle */
+    ADI_CRC_OP_IN_PROGRESS      = 0x01u,        /* CRC operation in progress */
 } ADI_CRC_OP_STATUS;
 
 
@@ -73,20 +70,14 @@ typedef enum
 /* Structure to handle CRC Peripheral instance */
 struct __ADI_CRC_DEVICE
 {
-    ADI_DMA_CHANNEL_ID      eDMAChannel;      /* DMA Stream ID linked to this CRC peripheral */
-    volatile ADI_CRC_TypeDef *pReg;
-    CRC_BUFFER_SUBMIT       pfSubmitBuffer;   /* Function for submitting CRC data buffer for calculation */
-    ADI_CALLBACK            pfCallback;       /* Client supplied callback function */
-    void                    *pCBParam;        /* Client supplied callback parameter */
-    void                    *pBuffer;         /* Poiner to the buffer  */
-    uint32_t                RemainingBytes;   /* Remaining bytes */
-    uint32_t                RemainingBits;    /* Remaining bits */
-    ADI_CRC_OP_STATUS       eCrcOpStatus;     /* Current status of the CRC Operation */
-#if (ADI_CRC_CFG_ENABLE_DMA_SUPPORT == 1)
-    ADI_DMA_TRANSFER        gDmaDescriptor;   /* For DMA operation */
-    uint8_t                 mDmaMem[ADI_DMA_MEMORY_SIZE];
-    ADI_DMA_CHANNEL_HANDLE  hDma;
-#endif
+    volatile ADI_CRC_TypeDef    *pReg;
+    CRC_BUFFER_SUBMIT           pfSubmitBuffer;         /* Function for submitting CRC data buffer for calculation */
+    ADI_CALLBACK                pfCallback;             /* Client supplied callback function */
+    void                        *pCBParam;              /* Client supplied callback parameter */
+    void                        *pRemainingData;        /* Pointer to the buffer containing remaining bytes */
+    uint32_t                    RemainingBytes;         /* Remaining bytes */
+    uint32_t                    RemainingBits;          /* Remaining bits */
+    ADI_CRC_OP_STATUS           eCrcOpStatus;           /* Current status of the CRC Operation */
 };
 
 /* Structure to hold CRC device specific information */
@@ -96,10 +87,6 @@ typedef struct
     ADI_CRC_HANDLE              hDevice;      /* CRC device handle */
 } ADI_CRC_INFO;
 
-
-
-#define CRC_INVALID_DMA_CHANNEL 0XFFFFFFFFu
 /*! \endcond */
-#endif  /* __ADI_CRC_DEF_H__ */
 
-/*****/
+#endif  /* ADI_CRC_DEF_H */

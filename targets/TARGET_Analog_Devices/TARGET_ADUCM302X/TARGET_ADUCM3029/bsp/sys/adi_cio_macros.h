@@ -9,8 +9,8 @@
 #define _ADI_CIO_MACROS_H
 
 /*
- * Macro definitions in adi_ADuCM302x_cdef.h and the struct definitions
- * in adi_ADuCM302x_device.h use macros "__I __C", "__O" and "__IO" to
+ * Macro definitions in adi_ADuCM4*50_cdef.h and the struct definitions
+ * in adi_ADuCM4*50_device.h use macros "__I __C", "__O" and "__IO" to
  * represent read-only, write-only and read/write register attributes.
  *
  * The core_cm4.h include file will define macros __I, __O and __IO as below

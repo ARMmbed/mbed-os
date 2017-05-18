@@ -4,11 +4,9 @@
    @brief:   Configuration options for CRC driver.
              This is specific to the CRC driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision$
-   @date:    $Date$
   -----------------------------------------------------------------------------
 
-Copyright (c) 2014-2015 Analog Devices, Inc.
+Copyright (c) 2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -29,7 +27,7 @@ are permitted provided that the following conditions are met:
     contributors may be used to endorse or promote products derived
     from this software without specific prior written permission.
   - The use of this software may or may not infringe the patent rights of one
-    or more patent holders.  This license does not release you from the
+    or more patent holders. This license does not release you from the
     requirement that you obtain separate licenses from these patent holders
     to use this software.
 
@@ -47,23 +45,18 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *****************************************************************************/
 
-#ifndef __ADI_CRC_CONFIG_H__
-#define __ADI_CRC_CONFIG_H__
+#ifndef ADI_CRC_CONFIG_H
+#define ADI_CRC_CONFIG_H
+
 #include <adi_global_config.h>
-/** @defgroup CRC_Driver_Cfg CRC Device Driver Configuration
- *  @ingroup Configuration_macros
+
+/** @defgroup CRC_Driver_Cfg Static Configuration
+ *  @ingroup CRC_Driver
  */
 
-/** @addtogroup CRC_Driver_Cfg CRC Device Driver Configuration
+/** @addtogroup CRC_Driver_Cfg Static Configuration
 *  @{
 */
-
-/*!
-   Set this macro to 1 for to enable static controller initializations \n
-   during the driver initialization routing. \n
-   To eliminate static driver configuration, set this macro to 0. \n
-   */
-#define ADI_CRC_CFG_ENABLE_STATIC_CONFIG_SUPPORT  1
 
 /************* CRC Driver configurations ***************/
 /*!
@@ -74,29 +67,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADI_CRC_CFG_ENABLE_DMA_SUPPORT         0
 
 /*!
-  Enable/Disable DMA by default\n
-  1 - Enable DMA by default\n
-  0 - Disable DMA by default. PIO mode will be enabled by default.
-*/
-#define ADI_CRC_CFG_ENABLE_DMA                 0
-
-/*!
-   Enable RTOS  support in the driver code.\n
-   1 -  To have the RTOS support code in the driver.\n
-   0 -  To eliminate the RTOS  support.
-*/
-#define ADI_CFG_ENABLE_CALLBACK_SUPPORT       0
-
-/*!
    Enable Byte mirroring option\n
    1 -  To enable byte mirroring \n
-   0 -  To disable the byte mirroring. 
+   0 -  To disable the byte mirroring.
 */
 #define ADI_CFG_CRC_ENABLE_BYTE_MIRRORING      0
 /*!
    Enable Bit mirroring option\n
    1 -  To enable bit mirroring \n
-   0 -  To disable the bit mirroring. 
+   0 -  To disable the bit mirroring.
 */
 #define ADI_CFG_CRC_ENABLE_BIT_MIRRORING       0
 
@@ -104,26 +83,18 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    To specify the seed value for CRC computation
 */
 
-#define ADI_CFG_CRC_SEED_VALUE                 0XFFFFFFFFu
+#define ADI_CFG_CRC_SEED_VALUE                 (0xFFFFFFFFu)
 
 /*!
-   To specify the  polynomial to be used for CRC computation
+   To specify the polynomial to be used for CRC computation
 */
-#define ADI_CFG_CRC_POLYNOMIAL                 0x04C11DB7u
+#define ADI_CFG_CRC_POLYNOMIAL                 (0x04C11DB7u)
 
 /*!
-   To specify the  DMA channel to be used for the CRC computation
+   To specify the Software DMA channel to be used for the CRC computation
+   0 -> DMA channel SIP0, ..., 7 -> DMA channel SIP7
 */
+#define ADI_CFG_CRC_SOFTWARE_DMA_CHANNEL_ID     7
 
-#define ADI_CFG_CRC_DMA_CHANNEL                ADI_DMA_CHANNEL_SIP_0
-
-#if ((ADI_CRC_CFG_ENABLE_DMA_SUPPORT == 0 ) && ( ADI_CFG_ENABLE_CALLBACK_SUPPORT == 1) ) 
-#error " Call back mode of operation is supportted only in DMA mode"
-#endif
-
-#if ((ADI_CRC_CFG_ENABLE_DMA == 1) && (ADI_CRC_CFG_ENABLE_DMA_SUPPORT == 0))
-#error "DMA cannot be enabled if DMA support is disabled"
-#endif
-
-#endif /* __ADI_CRC_CONFIG_H__ */
+#endif /* ADI_CRC_CONFIG_H */
 /*! @} */

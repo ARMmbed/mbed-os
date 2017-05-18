@@ -28,8 +28,23 @@
 
 
 
-ADI_SPI_HANDLE          hSPIDevice;                     /* SPI device handle */
-uint8_t                 SPIMem[ADI_SPI_MEMORY_SIZE];    /* Memory required for SPI driver */
+#if defined(BUILD_SPI_MI_DYNAMIC)
+#if defined(ADI_DEBUG)
+#warning "BUILD_SPI_MI_DYNAMIC is defined.  Memory allocation for SPI will be dynamic"
+int adi_spi_memtype = 0;
+#endif
+#else
+ADI_SPI_HANDLE      spi_Handle0;
+uint8_t             spi_Mem0[ADI_SPI_MEMORY_SIZE];
+ADI_SPI_HANDLE      spi_Handle1;
+uint8_t             spi_Mem1[ADI_SPI_MEMORY_SIZE];
+ADI_SPI_HANDLE      spi_Handle2;
+uint8_t             spi_Mem2[ADI_SPI_MEMORY_SIZE];
+#if defined(ADI_DEBUG)
+#warning "BUILD_SPI_MI_DYNAMIC is NOT defined.  Memory allocation for SPI will be static"
+int adi_spi_memtype = 1;
+#endif
+#endif
 
 
 
@@ -51,11 +66,14 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
     uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
     uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
-
-    ADI_SPI_RESULT      eResult_SPI = 0;;
-    ADI_SPI_CHIP_SELECT spi_cs = 0;
+    ADI_SPI_HANDLE      *pSPI_Handle;
+    uint8_t             *SPI_Mem;
+    ADI_SPI_RESULT      SPI_Return = ADI_SPI_SUCCESS;
     uint32_t            nDeviceNum = 0;
+    ADI_SPI_CHIP_SELECT spi_cs = ADI_SPI_CS_NONE;
 
+
+#if defined(BUILD_SPI_MI_DYNAMIC)
     if (mosi == SPI0_MOSI) {
         nDeviceNum = SPI_0;
     } else if (mosi == SPI1_MOSI) {
@@ -63,6 +81,26 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     } else if (mosi == SPI2_MOSI) {
         nDeviceNum = SPI_2;
     }
+    pSPI_Handle = &obj->SPI_Handle;
+    obj->pSPI_Handle = pSPI_Handle;
+    SPI_Mem = obj->SPI_Mem;
+#else
+    if (mosi == SPI0_MOSI) {
+        nDeviceNum = SPI_0;
+        pSPI_Handle = &spi_Handle0;
+        SPI_Mem = &spi_Mem0[0];
+    } else if (mosi == SPI1_MOSI) {
+        nDeviceNum = SPI_1;
+        pSPI_Handle = &spi_Handle1;
+        SPI_Mem = &spi_Mem1[0];
+    } else if (mosi == SPI2_MOSI) {
+        nDeviceNum = SPI_2;
+        pSPI_Handle = &spi_Handle2;
+        SPI_Mem = &spi_Mem2[0];
+    }
+    obj->pSPI_Handle    = pSPI_Handle;
+#endif
+
 
     obj->instance = pinmap_merge(spi_data, spi_cntl);
     MBED_ASSERT((int)obj->instance != NC);
@@ -76,7 +114,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     }
 
     SystemCoreClockUpdate();
-    eResult_SPI = adi_spi_Open(nDeviceNum, SPIMem, ADI_SPI_MEMORY_SIZE, &hSPIDevice);  /* Initialize SPI1 */
+    SPI_Return = adi_spi_Open(nDeviceNum, SPI_Mem, ADI_SPI_MEMORY_SIZE, pSPI_Handle);
+    if (SPI_Return) {
+        obj->error = SPI_EVENT_ERROR;
+        return;
+    }
 
     if (ssel != NC) {
         if ( (ssel == SPI0_CS0) || (ssel == SPI1_CS0) || (ssel == SPI2_CS0)) {
@@ -88,7 +130,12 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         } else if ( (ssel == SPI0_CS3) || (ssel == SPI1_CS3) || (ssel == SPI2_CS3)) {
             spi_cs = ADI_SPI_CS3;
         }
-        eResult_SPI = adi_spi_SetChipSelect(hSPIDevice, spi_cs);            /* set the chip select */
+
+        SPI_Return = adi_spi_SetChipSelect(*pSPI_Handle, spi_cs);
+        if (SPI_Return) {
+            obj->error = SPI_EVENT_ERROR;
+            return;
+        }
     }
 }
 
@@ -105,9 +152,15 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
  */
 void spi_free(spi_t *obj)
 {
-    ADI_SPI_RESULT      eResult_SPI;
+    ADI_SPI_HANDLE  SPI_Handle;
+    ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
 
-    eResult_SPI = adi_spi_Close(hSPIDevice);
+    SPI_Handle = *obj->pSPI_Handle;
+    SPI_Return = adi_spi_Close(SPI_Handle);
+    if (SPI_Return) {
+        obj->error = SPI_EVENT_ERROR;
+        return;
+    }
 }
 
 
@@ -136,35 +189,17 @@ void spi_free(spi_t *obj)
  */
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
-    ADI_SPI_RESULT  eResult_SPI;
+    ADI_SPI_HANDLE  SPI_Handle;
+    ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
+    bool            master;
 
-
-    /* true  : trailing-edge
-       false : leading-edge */
-    bool_t          phase;
-
-    /* true  : CPOL=1 (idle high) polarity
-       false : CPOL=0 (idle-low) polarity */
-    bool_t          polarity;
-    bool_t          master;
-
-
-    if ((uint32_t)mode & 0x1) {
-        phase = true;
-    } else {
-        phase = false;
+    master = !((bool)slave);
+    SPI_Handle = *obj->pSPI_Handle;
+    SPI_Return = adi_spi_SetMasterMode(SPI_Handle, master);
+    if (SPI_Return) {
+        obj->error = SPI_EVENT_ERROR;
+        return;
     }
-    eResult_SPI = adi_spi_SetClockPhase(hSPIDevice, phase);
-
-    if ((uint32_t)mode & 0x2) {
-        polarity = true;
-    } else {
-        polarity = false;
-    }
-    eResult_SPI = adi_spi_SetClockPolarity(hSPIDevice, polarity);
-
-    master = !((bool_t)slave);
-    eResult_SPI = adi_spi_SetMasterMode(hSPIDevice, master);
 }
 
 
@@ -177,15 +212,15 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
  */
 void spi_frequency(spi_t *obj, int hz)
 {
-    ADI_SPI_RESULT      eResult_SPI;
+    ADI_SPI_HANDLE  SPI_Handle;
+    ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
 
-    eResult_SPI = adi_spi_SetBitrate(hSPIDevice, (uint32_t) hz);
-}
-
-
-static inline int spi_readable(spi_t * obj)
-{
-    ADI_SPI_RESULT      eResult_SPI;
+    SPI_Handle = *obj->pSPI_Handle;
+    SPI_Return = adi_spi_SetBitrate(SPI_Handle, (uint32_t) hz);
+    if (SPI_Return) {
+        obj->error = SPI_EVENT_ERROR;
+        return;
+    }
 }
 
 
@@ -197,22 +232,29 @@ static inline int spi_readable(spi_t * obj)
  */
 int spi_master_write(spi_t *obj, int value)
 {
-    ADI_SPI_RESULT          eResult_SPI;
-    ADI_SPI_TRANSCEIVER     Transceiver;
+    ADI_SPI_TRANSCEIVER transceive;
     uint8_t                 TxBuf;
     uint8_t                 RxBuf;
-
+    ADI_SPI_HANDLE  SPI_Handle;
+    ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
 
     TxBuf = (uint8_t)value;
 
-    Transceiver.pReceiver           =   &RxBuf;
-    Transceiver.ReceiverBytes       =   1u;
-    Transceiver.nRxIncrement        =   1u;
-    Transceiver.pTransmitter        =   &TxBuf;
-    Transceiver.TransmitterBytes    =   1u;
-    Transceiver.nTxIncrement        =   1u;
+    transceive.pReceiver        = &RxBuf;
+    transceive.ReceiverBytes    = 1;        /* link transceive data size to the remaining count */
+    transceive.nRxIncrement     = 1;        /* auto increment buffer */
+    transceive.pTransmitter     = &TxBuf;   /* initialize data attributes */
+    transceive.TransmitterBytes = 1;        /* link transceive data size to the remaining count */
+    transceive.nTxIncrement     = 1;        /* auto increment buffer */
 
-    eResult_SPI = adi_spi_ReadWrite(hSPIDevice, &Transceiver);
+    transceive.bDMA = false;
+    transceive.bRD_CTL = false;
+    SPI_Handle = *obj->pSPI_Handle;
+    SPI_Return = adi_spi_MasterReadWrite(SPI_Handle, &transceive);
+    if (SPI_Return) {
+        obj->error = SPI_EVENT_ERROR;
+        return 1;
+    }
 
     return((int)RxBuf);
 }
@@ -225,8 +267,6 @@ int spi_master_write(spi_t *obj, int value)
  */
 int spi_slave_receive(spi_t *obj)
 {
-    ADI_SPI_RESULT      eResult_SPI;
-
     return 0;
 }
 
@@ -239,8 +279,6 @@ int spi_slave_receive(spi_t *obj)
  */
 int spi_slave_read(spi_t *obj)
 {
-    ADI_SPI_RESULT      eResult_SPI;
-
     return 0;
 }
 
@@ -253,7 +291,7 @@ int spi_slave_read(spi_t *obj)
  */
 void spi_slave_write(spi_t *obj, int value)
 {
-    ADI_SPI_RESULT      eResult_SPI;
+    return;
 }
 
 

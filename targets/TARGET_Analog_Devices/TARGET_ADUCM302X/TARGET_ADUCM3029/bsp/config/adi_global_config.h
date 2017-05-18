@@ -1,12 +1,10 @@
 /*!
  *****************************************************************************
    @file:    adi_global_config.h
-   @brief:   Global configuration options which will affect all the drivers.
-   @version: $Revision$
-   @date:    $Date$
+   @brief:   Configuration options for all the drivers.
   -----------------------------------------------------------------------------
 
-Copyright (c) 2012-2016 Analog Devices, Inc.
+Copyright (c) 2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -45,48 +43,89 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *****************************************************************************/
 
-/* This file contains all the global configurations */
-#ifndef __ADI_GLOBAL_CONFIG_H__
-#define __ADI_GLOBAL_CONFIG_H__
+#ifndef ADI_GLOBAL_CONFIG_H
+#define ADI_GLOBAL_CONFIG_H
 
-/**  @defgroup Configuration_macros Device Driver Configuration Macros
- */
-
-/** @defgroup Global_Config Global Configuration Settings
- *  @ingroup Configuration_macros
- */
-
-/** @addtogroup Global_Config Global Configuration Settings
+/** @addtogroup GLOBAL_Driver_Config Global Static Configuration
+ *  @brief   Configuration options for all the drivers.
  *  @{
  */
 
-/*! Set this macro to 1 to enable multi threaded support.
-    Do not change this macro if you are using CrossCore Embedded Studio. The
-    CCES add-ins define a own to indicate that the RTOS is present. 
+/*! @name RTOS used
+ * In order to be used in a multi-threaded application, the device drivers
+ * may require the use of some RTOS-specific signals like semaphores or actions
+ * may be required when entering/exiting an interrupt. By specifying the RTOS
+ * that the application uses, the drivers can map their requirements to the
+ * specific RTOS, without requiring an OS abstraction layer.
+ * @note This macros do not add the RTOS sources to the application, users need
+ *       to set up the source and include paths in their application themselves
+ * @note If the RTOS specified is not in the list of supported RTOS the build
+ *       mechanism fails
  */
-#if !defined (__GNUC__)
-    #define ADI_CFG_ENABLE_RTOS_SUPPORT                   0
-#else  /* __GNUC__ */
-    #if defined (ADI_THREADS)
-        #define ADI_CFG_ENABLE_RTOS_SUPPORT               1
-    #else
-        #define ADI_CFG_ENABLE_RTOS_SUPPORT               0
-    #endif
+/**@{*/
+
+/*! @hideinitializer Indicates that no RTOS is used (bare-metal applications) */
+#define ADI_CFG_RTOS_NO_OS              (1)
+/*! @hideinitializer Indicates that Micrium uCOS-III is used  */
+#define ADI_CFG_RTOS_MICRIUM_III        (2)
+/*! @hideinitializer Indicates that Micrium FreeRTOS is used */
+#define ADI_CFG_RTOS_FREERTOS           (3)
+
+/*! Configure the RTOS required across the project.
+    It can be configured to one of the following macros:
+    - #ADI_CFG_RTOS_NO_OS
+    - #ADI_CFG_RTOS_MICRIUM_III
+    - #ADI_CFG_RTOS_FREERTOS
+ */
+#define ADI_CFG_RTOS    ADI_CFG_RTOS_NO_OS
+
+/**@}*/
+
+/*! @name Low power mode support
+    All applications may have to block when a buffer is being processed. In the
+    case of an RTOS application, when a task is blocked waiting for a buffer, a
+    different task can run. If no tasks are available then the idle task runs.
+    In many RTOS the idle task can be configured so it perform actions like
+    entering low power modes.
+
+    In the case of a bare-metal (no RTOS) application, since there are no other
+    tasks to be run, the driver can enter low power modes itself when it blocks.
+   */
+
+/*! Configures the drivers to enter low power mode (Flexi mode)
+    when waiting for a buffer to be processed. This macro is applicable
+    only when the drivers are operating in the bare metal mode (No RTOS).
+
+    The possible values it can be configured to are:
+
+    - 1 : Low power mode support required.
+    - 0 : Low power mode support not required.
+*/
+#define ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT      (1)
+/**@}*/
+
+
+
+/*
+** Verify the macro configuration
+*/
+#if ((ADI_CFG_RTOS != ADI_CFG_RTOS_NO_OS)       && \
+     (ADI_CFG_RTOS != ADI_CFG_RTOS_MICRIUM_III)  && \
+     (ADI_CFG_RTOS != ADI_CFG_RTOS_FREERTOS))
+#error "ADI_CFG_RTOS macro wrongly configured"
+#endif /* ADI_CFG_RTOS verification */
+
+#if ((ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT != 0) && \
+     (ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT != 1))
+#error "ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT macro is wrongly configured"
 #endif
 
-/*! Set this macro to put the processor in low power mode when waiting for the buffer processing to complete */
-#define ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT                0
+#if ((ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT == 1) && \
+     (ADI_CFG_RTOS != ADI_CFG_RTOS_NO_OS))
+#error "ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT cannot be set to 1 in multi-threaded applications"
+#endif
+/**
+ *  @}
+ */
 
-#if (ADI_CFG_ENTER_LOW_PWR_MODE_SUPPORT ==1 ) && (ADI_CFG_ENABLE_RTOS_SUPPORT == 1)
-#error " Low power mode supported only in NON-RTOS environment"
-#endif
-/*! @} */
-
-#if (ADI_CFG_ENABLE_RTOS_SUPPORT ==1)
-#if !defined(USER_SPECIFIED_RTOS)
-#define ADI_DEVICE_DRIVER_RTOS_MEMORY  68u
-#endif
-#else
-#define ADI_DEVICE_DRIVER_RTOS_MEMORY  4u
-#endif
-#endif /* __ADI_GLOBAL_CONFIG_H__ */
+#endif /* ADI_GLOBAL_CONFIG_H */

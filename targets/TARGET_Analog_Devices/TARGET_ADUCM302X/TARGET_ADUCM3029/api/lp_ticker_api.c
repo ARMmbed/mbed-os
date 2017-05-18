@@ -18,8 +18,8 @@
  */
 #include <sys/platform.h>
 #include "lp_ticker_api.h"
-#include <services/rtc/adi_rtc.h>
-#include <services/pwr/adi_pwr.h>
+#include <drivers/rtc/adi_rtc.h>
+#include <drivers/pwr/adi_pwr.h>
 
 #ifdef DEVICE_LOWPOWERTIMER
 
@@ -181,10 +181,7 @@ void lp_ticker_disable_interrupt()
  */
 void lp_ticker_clear_interrupt()
 {
-    ADI_RTC_INT_TYPE Status;
-
-    adi_rtc_GetInterruptStatus(hRTC1_Device, &Status);
-    adi_rtc_ClearInterruptStatus(hRTC1_Device, Status);
+    return;
 }
 
 #endif

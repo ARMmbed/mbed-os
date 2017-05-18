@@ -4,11 +4,13 @@
 
 #include "gpio_irq_api.h"
 #include "adi_gpio.h"
+#include "adi_gpio_def.h"
+#include "ADuCM302x_device.h"
 
 #ifdef DEVICE_INTERRUPTIN
 
 #define MAX_GPIO_LINES    16
-#define MAX_GPIO_PORTS    3
+#define MAX_GPIO_PORTS    ADI_GPIO_NUM_PORTS
 
 typedef struct {
     unsigned int id;
@@ -39,6 +41,51 @@ static void gpio_irq_callback(void *pCBParam, uint32_t Event, void *pArg)
         index++;
         pin >>= 1;
     }
+}
+
+
+/** Function to get the IENA and IENB register values.
+ *  Added here temporarily until these are available in the BSP
+ */
+static ADI_GPIO_RESULT adi_gpio_GetGroupInterruptPins(const ADI_GPIO_PORT Port, const IRQn_Type eIrq,
+        const ADI_GPIO_DATA Pins, uint16_t* const pValue)
+{
+    ADI_GPIO_TypeDef 	*pReg[MAX_GPIO_PORTS] = {pADI_GPIO0, pADI_GPIO1, pADI_GPIO2};
+    ADI_GPIO_TypeDef    *pPort;     /* pointer to port registers */
+    uint16_t            Value = 0u;
+
+    pPort = pReg[Port];
+
+    switch (eIrq) {
+        case SYS_GPIO_INTA_IRQn:
+            Value = pPort->IENA;
+            break;
+        case SYS_GPIO_INTB_IRQn:
+            Value = pPort->IENB;
+            break;
+        default:
+            break; /* This shall never reach */
+    }
+
+    *pValue = (Value & Pins);
+    return (ADI_GPIO_SUCCESS);
+}
+
+
+/** Function to get the interrupt polarity register content.
+ *  Added here temporarily until these are available in the BSP
+ */
+static ADI_GPIO_RESULT adi_gpio_GetGroupInterruptPolarity(const ADI_GPIO_PORT Port, const ADI_GPIO_DATA Pins,
+        uint16_t* const pValue)
+{
+    ADI_GPIO_TypeDef    *pPort;     /* pointer to port registers */
+    ADI_GPIO_TypeDef 	*pReg[MAX_GPIO_PORTS] = {pADI_GPIO0, pADI_GPIO1, pADI_GPIO2};
+
+    pPort = pReg[Port];
+
+    *pValue = (pPort->POL & Pins);
+
+    return (ADI_GPIO_SUCCESS);
 }
 
 

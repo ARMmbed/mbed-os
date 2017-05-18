@@ -184,8 +184,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     adi_uart_Open(0,ADI_UART_DIR_BIDIRECTION,UartDeviceMem,ADI_UART_MEMORY_SIZE,&hDevice);
 
-    adi_uart_EnableRxStatusInterrupt(hDevice,false);
-
     serial_baud(obj, 9600);
     serial_format(obj, 8, ParityNone, 1);
 
@@ -207,17 +205,21 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 int serial_getc(serial_t *obj)
 {
     void *pBuff;
-    adi_uart_SubmitRxBuffer(hDevice, rxbuffer, 1);
-    adi_uart_GetRxBuffer(hDevice, &pBuff);
+    uint32_t hw_error;
+
+    adi_uart_SubmitRxBuffer(hDevice, rxbuffer, 1, true);
+    adi_uart_GetRxBuffer(hDevice, &pBuff, &hw_error);
     return rxbuffer[0];
 }
 
 void serial_putc(serial_t *obj, int c)
 {
     void *pBuff;
+    uint32_t hw_error;
+
     txbuffer[0] = c;
-    adi_uart_SubmitTxBuffer(hDevice,txbuffer, 1);
-    adi_uart_GetTxBuffer(hDevice, &pBuff);
+    adi_uart_SubmitTxBuffer(hDevice,txbuffer, 1, true);
+    adi_uart_GetTxBuffer(hDevice, &pBuff, &hw_error);
     return;
 }
 
@@ -240,10 +242,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
     MBED_ASSERT(obj);
 
     adi_uart_RegisterCallback(hDevice, &uart_callback, obj);
-
-    if (enable) {
-    } else {
-    }
 }
 
 void serial_pinout_tx(PinName tx)

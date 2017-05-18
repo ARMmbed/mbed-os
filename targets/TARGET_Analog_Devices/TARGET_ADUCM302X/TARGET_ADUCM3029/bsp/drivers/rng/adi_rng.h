@@ -1,11 +1,9 @@
 /*!
  *****************************************************************************
  @file    adi_rng.h
- @brief   Random Number Generator Device Implementations for ADuCM302x
- @version $Revision$
- @date    $Date$
+ @brief   Random Number Generator Driver
  -----------------------------------------------------------------------------
-Copyright (c) 2012-2014 Analog Devices, Inc.
+Copyright (c) 2012-2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -45,23 +43,31 @@ POSSIBILITY OF SUCH DAMAGE.
 
 *****************************************************************************/
 
-/*! \addtogroup RNG_Driver RNG Device Driver
- *  Random Number Generator Device Driver
+/*! \addtogroup RNG_Driver RNG Driver
+ *  Random Number Generator Driver
  *  @{
  */
 
-#ifndef __ADI_RNG_H__
-#define __ADI_RNG_H__
+#ifndef ADI_RNG_H
+#define ADI_RNG_H
 
 #include <adi_processor.h>
+#include <adi_callback.h>
 
-#ifndef __ADUCM30xx__
-#error "Not supported processor"
+#if  !defined(__ADUCM4x50__) &&  !defined(__ADUCM302x__)
+#error "Unsupported processor"
 #endif
 
 #include <adi_rng_config.h>
-#include <services/int/adi_int.h>
-#include <adi_types.h>
+
+#ifdef __ICCARM__
+/* IAR MISRA C 2004 error suppressions.
+ *
+ * Pm011 (rule 6.3): The basic types of char, int, long, float cannot be used.
+ *   bool is used in the APIs as it is not affending the rule. Disabling this as IAR treats it as an error.
+ */
+#pragma diag_suppress=Pm011
+#endif /* __ICCARM__ */
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,14 +79,14 @@ extern "C" {
  */
 typedef enum
 {
-    ADI_RNG_SUCCESS = 0,                /*!<  No Error, API suceeded */
-    ADI_RNG_ERR_UNKNOWN_ERROR,           /*!<  An unknown error was detected */
-    ADI_RNG_ERR_ALREADY_INITIALIZED,    /*!<  RNG is already initialized */
-    ADI_RNG_ERR_INVALID_PARAM,          /*!<  Invalid function parameter */
-    ADI_RNG_ERR_BAD_DEV_HANDLE,         /*!<  Invalid device handle passed */
-    ADI_RNG_ERR_BAD_DEVICE_NUM,         /*!<  Asking to initialize an unknown instance */
-    ADI_RNG_ERR_NOT_INITIALIZED,        /*!<  RNG not yet initialized */
-    ADI_RNG_ERR_INVALID_STATE           /*!<  Operation failed since the device is in an invalid state */
+    ADI_RNG_SUCCESS = 0,            /*!<  No Error, API suceeded */
+    ADI_RNG_UNKNOWN_ERROR,          /*!<  Unknown error detected */
+    ADI_RNG_ALREADY_INITIALIZED,    /*!<  RNG is already initialized */
+    ADI_RNG_INVALID_PARAM,          /*!<  Invalid function parameter */
+    ADI_RNG_BAD_DEV_HANDLE,         /*!<  Invalid device handle passed */
+    ADI_RNG_BAD_DEVICE_NUM,         /*!<  Invalid device instance */
+    ADI_RNG_NOT_INITIALIZED,        /*!<  RNG not yet initialized */
+    ADI_RNG_INVALID_STATE           /*!<  Device is in an invalid state */
 } ADI_RNG_RESULT;
 
 /*!
@@ -89,8 +95,8 @@ typedef enum
  */
 typedef enum
 {
-    ADI_RNG_EVENT_RNG_READY,        /*!< Random number ready event */
-    ADI_RNG_EVENT_STUCK             /*!< The ring oscillator got stuck event */
+    ADI_RNG_EVENT_READY,               /*!< Random number ready event */
+    ADI_RNG_EVENT_STUCK                /*!< The ring oscillator got stuck event */
 } ADI_RNG_EVENT;
 
 
@@ -98,7 +104,7 @@ typedef enum
 #define ADI_RNG_MEMORY_SIZE        (12u)
 
 
-/*! RNG Device handle typedef. */
+/*! RNG Device handle typedef */
 typedef void* ADI_RNG_HANDLE;
 
 /*================ E X T E R N A L S ==================*/
@@ -112,7 +118,7 @@ extern ADI_RNG_RESULT adi_rng_Open(
                             uint32_t             const  nDeviceNum,
                             void*                const  pMemory,
                             uint32_t             const  MemorySize,
-                            ADI_RNG_HANDLE*      const  ppDevice
+                            ADI_RNG_HANDLE*      const  phDevice
                             );
 
 /* Close the RNG Device */
@@ -121,12 +127,12 @@ extern ADI_RNG_RESULT adi_rng_Close(ADI_RNG_HANDLE hDevice);
 /* Enable/Disable the device */
 extern ADI_RNG_RESULT adi_rng_Enable (
                                       ADI_RNG_HANDLE const hDevice,
-                                      bool_t         const bFlag
+                                      bool           const bFlag
                                       );
 /* Enable/Disable buffering */
 extern ADI_RNG_RESULT adi_rng_EnableBuffering (
                                                ADI_RNG_HANDLE const hDevice,
-                                               bool_t         const bFlag
+                                               bool           const bFlag
                                                );
 
 /* Set the sample length */
@@ -139,13 +145,13 @@ extern ADI_RNG_RESULT adi_rng_SetSampleLen (
 /* Get whether the random number is ready */
 extern ADI_RNG_RESULT adi_rng_GetRdyStatus (
                                             ADI_RNG_HANDLE const hDevice,
-                                            bool_t*        const pbFlag
+                                            bool*          const pbFlag
                                             );
 
 /* Get whether the ring oscillator output is stuck or not */
 extern ADI_RNG_RESULT adi_rng_GetStuckStatus (
                                               ADI_RNG_HANDLE const hDevice,
-                                              bool_t*        const pbFlag
+                                              bool*          const pbFlag
                                               );
 
 /* Get the random number */
@@ -185,6 +191,9 @@ extern ADI_RNG_RESULT adi_rng_GetSampleLen (
 }
 #endif
 
+#ifdef __ICCARM__
+#pragma diag_default=Pm011
+#endif /* __ICCARM__ */
 #endif /* include guard */
 
 /*

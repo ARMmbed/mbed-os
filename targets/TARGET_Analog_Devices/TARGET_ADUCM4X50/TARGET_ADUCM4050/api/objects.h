@@ -52,10 +52,10 @@ struct i2c_s {
     uint32_t        instance;
     uint32_t        error;
     ADI_I2C_HANDLE  *pI2C_Handle;
-	#if defined(BUILD_I2C_MI_DYNAMIC)
+#if defined(BUILD_I2C_MI_DYNAMIC)
     ADI_I2C_HANDLE  I2C_Handle;
     uint8_t         I2C_Mem[ADI_I2C_MEMORY_SIZE];
-	#endif
+#endif
 };
 
 #define BUILD_SPI_MI_DYNAMIC
@@ -63,10 +63,10 @@ struct spi_s {
     uint32_t 		instance;
     uint32_t        error;
     ADI_SPI_HANDLE  *pSPI_Handle;
-    #if defined(BUILD_SPI_MI_DYNAMIC)
+#if defined(BUILD_SPI_MI_DYNAMIC)
     ADI_SPI_HANDLE  SPI_Handle;
     uint8_t         SPI_Mem[ADI_SPI_MEMORY_SIZE];
-    #endif
+#endif
 };
 
 #include "gpio_object.h"

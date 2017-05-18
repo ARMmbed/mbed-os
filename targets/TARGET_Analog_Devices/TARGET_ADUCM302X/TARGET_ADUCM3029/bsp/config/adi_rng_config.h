@@ -4,11 +4,9 @@
    @brief:   Configuration options for RNG driver.
              This is specific to the RNG driver and will be included by the driver.
              It is not required for the application to include this header file.
-   @version: $Revision$
-   @date:    $Date$
   -----------------------------------------------------------------------------
 
-Copyright (c) 2012-2014 Analog Devices, Inc.
+Copyright (c) 2012-2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -47,14 +45,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *****************************************************************************/
 
-#ifndef __ADI_RNG_CONFIG_H__
-#define __ADI_RNG_CONFIG_H__
+#ifndef ADI_RNG_CONFIG_H__
+#define ADI_RNG_CONFIG_H__
 #include <adi_global_config.h>
-/** @defgroup RNG_Driver_Cfg RNG Device Driver Configuration
- *  @ingroup Configuration_macros
+/** @defgroup RNG_Driver_Cfg RNG Driver Configuration
+ *  @ingroup RNG_Driver
+
  */
 
-/*! \addtogroup  RNG_Driver_Cfg RNG Device Driver Configuration
+/*! \addtogroup  RNG_Driver_Cfg RNG Driver Configuration
  *  @{
  */
 
@@ -76,7 +75,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     Bits [11:0] contains the reload value of the sample counter
 
     */
-#define RNG0_CFG_LENGTH_RELOAD                          0u
+#define RNG0_CFG_LENGTH_RELOAD                          256u
 
 /*! RNG Sample Length Register, bits [15:12]\n
     The register defines the number of samples to accumulate in the
@@ -95,11 +94,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 #if ( RNG0_CFG_LENGTH_RELOAD > 4095u )
-#error "Invalid configuration"
+#error "Invalid value for reload"
 #endif
 
 #if ( RNG0_CFG_LENGTH_PRESCALER > 10u )
-#error "Invalid configuration"
+#error "Invalid value for prescaler"
 #endif
 
 /*! @} */

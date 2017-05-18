@@ -1,12 +1,10 @@
 /*!
  *****************************************************************************
  * @file:    adi_rng.c
- * @brief:   Random Number Generator Device Implementations for ADuCXXxxx
- * @version: $Revision$
- * @date:    $Date$
+ * @brief:   Random Number Generator Driver
  *----------------------------------------------------------------------------
  *
-Copyright (c) 2012-2014 Analog Devices, Inc.
+Copyright (c) 2012-2016 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -46,82 +44,67 @@ POSSIBILITY OF SUCH DAMAGE.
 
 *****************************************************************************/
 
-/*! \addtogroup RNG_Driver RNG Device Driver
- *  Random Number Generator Device Driver
+/*! \addtogroup RNG_Driver RNG Driver
+ *  Random Number Generator Driver
  *  @{
  */
 
  /*! \cond PRIVATE */
 
-#include <stdlib.h>  /* for 'NULL" definition */
+#include <stdlib.h>  /* for 'NULL' definition */
 #include <assert.h>
 
 #include <adi_processor.h>
 #include <drivers/rng/adi_rng.h>
-#include <ssdd_common/common_def.h>
+#include "adi_rng_def.h"
+#include <rtos_map/adi_rtos_map.h>
 
 #ifdef __ICCARM__
 /*
 * IAR MISRA C 2004 error suppressions.
 *
-* Pm123 (rule 8.5): there shall be no definition of objects or functions in a header file
-*   This isn't a header as such.
+* Pm011 (rule 6.3): Types which specify sign and size should be used
+*   We use bool which is accepted by MISRA but the toolchain does not accept it
 *
 * Pm073 (rule 14.7): a function should have a single point of exit
 * Pm143 (rule 14.7): a function should have a single point of exit at the end of the function
 *   Multiple returns are used for error handling.
 *
 * Pm050 (rule 14.2): a null statement shall only occur on a line by itself
-*   Needed for null expansion of ADI_INSTALL_HANDLER and others.
+*   Needed for null expansion of ISR_PROLOG in no-OS case and others.
+* Pm140 (rule 11.3): a cast should not be performed between a pointer type and an integral type
+*   The rule makes an exception for memory-mapped register accesses.
 */
-#pragma diag_suppress=Pm123,Pm073,Pm143,Pm050
+#pragma diag_suppress=Pm011,Pm073,Pm143,Pm050
 #endif /* __ICCARM__ */
 
-#ifdef __ADUCM30xx__
+#if   defined(__ADUCM4x50__) ||   defined(__ADUCM302x__)
 #define NUM_RNG_DEVICES       (1u)
 #else
-#error "Not supported processor"
+#error "Unsupported processor"
 #endif
 
+/*==============  D A T A  ===============*/
 
-/* forward declarations... */
-/* These are needed in the case where ADI_CFG_ENABLE_RTOS_SUPPORT=1              */
-/* The ADI_INSTALL_HANDLER macro will expand to a call to adi_int_InstallHandler */
-/* and the handler will be referenced                                            */
-/* The non-OSAL expansion of ADI_INSTALL_HANDLER results in a NULL string        */
-ADI_INT_HANDLER(RNG_Int_Handler);
-
-/*! \private RNG device internal instance data structure */
-typedef struct __ADI_RNG_DEV_DATA_TYPE
-{
-    IRQn_Type                      IRQn;            /*!< RNG interrupt number       */
-    ADI_CALLBACK                   CBFunc;          /*!< Callback function          */
-    void                          *pCBParam;        /*!< Callback parameter         */
-} ADI_RNG_DEV_DATA_TYPE;
-
-/*! \private RNG device internal data structure */
-typedef struct __ADI_RNG_DEV_TYPE
-{
-    ADI_RNG_TypeDef               *pReg;            /*!< MMR address for this RNG   */
-    ADI_RNG_DEV_DATA_TYPE         *pData;           /*!< Pointer to instance data   */
-} ADI_RNG_DEV_TYPE;
-
-
-/*! \private Private RNG device driver data */
+/**
+ * Information for managing all the RNG devices available
+ */
 #ifdef __ICCARM__
-/*
-* Pm140 (rule 11.3): a cast should not be performed between a pointer type and an integral type
-*   The rule makes an exception for MMR address casts as in the pADI_RNG0 macro here.
-*/
 #pragma diag_suppress=Pm140
-#endif /* __ICCARM__ */
-static ADI_RNG_DEV_TYPE gRNG_Device[NUM_RNG_DEVICES] = {{pADI_RNG0,NULL}};
+#endif
+
+static ADI_RNG_DEV_TYPE gRNG_Device[NUM_RNG_DEVICES] =
+{
+  {(ADI_RNG_TypeDef*)pADI_RNG0,NULL} /* RNG0 */
+};
 #ifdef __ICCARM__
 #pragma diag_default=Pm140
-#endif /* __ICCARM__ */
+#endif
 
+/* Forward prototypes */
+void RNG_Int_Handler(void);
 
-/* debug helpers */
+/** Check the validity of a handle for debug mode */
 #ifdef ADI_DEBUG
 #define ADI_RNG_INVALID_HANDLE(h) (&gRNG_Device[0] != (h))
 #endif
@@ -129,19 +112,20 @@ static ADI_RNG_DEV_TYPE gRNG_Device[NUM_RNG_DEVICES] = {{pADI_RNG0,NULL}};
 /*! \endcond */
 
 /*!
-    @brief Open a Random Number Generator Device
+    @brief Opena a Random Number Generator Device
 
-    @param[in]  nDeviceNum   The device number to be opened by the device driver.
+    @param[in]  nDeviceNum   Device number to be opened.
     @param[in]  pMemory      Pointer to the memory to be used by the driver.
-                             Size of the memory should be atleast #ADI_RNG_MEMORY_SIZE bytes.
+                             Size of the memory should be at least #ADI_RNG_MEMORY_SIZE bytes.
     @param[in]  MemorySize   Size of the memory passed in pMemory parameter.
-    @param[out] ppDevice     Pointer to a location in the calling function memory space to which
+    @param[out] phDevice     Pointer to a location in the calling function memory space to which
                              the device handle will be written upon successful driver initialization.
 
     @return    Status
-               - #ADI_RNG_SUCCESS                      Success: RNG device driver opened successfully.
-               - #ADI_RNG_ERR_ALREADY_INITIALIZED [D]  Error: The RNG is already initialized.
-               - #ADI_RNG_ERR_BAD_DEVICE_NUM [D]       Error: The device number is invalid.
+               - #ADI_RNG_SUCCESS                      RNG device driver opened successfully.
+               - #ADI_RNG_INVALID_PARAM [D]            The memory passed to the API is either NULL or its size is not sufficient.
+               - #ADI_RNG_ALREADY_INITIALIZED [D]  The RNG is already initialized.
+               - #ADI_RNG_BAD_DEVICE_NUM [D]       The device number is invalid.
 
     Initialize and allocate a RNG device for other use.  The core NVIC RNG interrupt is enabled.  This API
     must preceed all other RNG API calls and the handle returned must be passed to all other RNG API calls.
@@ -157,30 +141,34 @@ ADI_RNG_RESULT adi_rng_Open(
                             uint32_t             const  nDeviceNum,
                             void*                const  pMemory,
                             uint32_t             const  MemorySize,
-                            ADI_RNG_HANDLE*      const  ppDevice
+                            ADI_RNG_HANDLE*      const  phDevice
                             )
 {
     ADI_RNG_DEV_TYPE *pDevice;
 
     /* store a bad handle in case of failure */
-    *ppDevice = (ADI_RNG_HANDLE) NULL;
+    *phDevice = (ADI_RNG_HANDLE) NULL;
 
 #ifdef ADI_DEBUG
     if (nDeviceNum >= NUM_RNG_DEVICES)
     {
-        return ADI_RNG_ERR_BAD_DEVICE_NUM;
+        return ADI_RNG_BAD_DEVICE_NUM;
     }
 
-    assert (MemorySize >= sizeof(ADI_RNG_DEV_DATA_TYPE));
+    if ((NULL == pMemory) || ( MemorySize < (uint32_t) ADI_RNG_MEMORY_SIZE))
+    {
+        return ADI_RNG_INVALID_PARAM;
+    }
+    assert (ADI_RNG_MEMORY_SIZE == sizeof(ADI_RNG_DEV_DATA_TYPE));
 #endif
 
     /* local pointer to instance data */
     pDevice = &gRNG_Device[nDeviceNum];
 
 #ifdef ADI_DEBUG
-    if (pDevice->pData != NULL)
+    if (NULL != pDevice->pData)
     {
-        return ADI_RNG_ERR_ALREADY_INITIALIZED;
+        return ADI_RNG_ALREADY_INITIALIZED;
     }
 #endif
 
@@ -191,33 +179,35 @@ ADI_RNG_RESULT adi_rng_Open(
     pDevice->pData->IRQn    = RNG0_EVT_IRQn;
     pDevice->pData->CBFunc  = NULL;
 
-    /* clear any pending interrupts */
-    pDevice->pReg->STAT = BITM_RNG_STAT_RNRDY | BITM_RNG_STAT_STUCK;
+    /* clear any pending interrupts. Both bits are write 1 to clear */
+    pDevice->pRNG->STAT = BITM_RNG_STAT_RNRDY | BITM_RNG_STAT_STUCK;
 
     /* Set the RNG register based on static configuration */
-    pDevice->pReg->CTL = (uint16_t)RNG0_CFG_ONLY_8_BIT << BITP_RNG_CTL_SINGLE;
-    pDevice->pReg->LEN = (RNG0_CFG_LENGTH_RELOAD << BITP_RNG_LEN_RELOAD)
+    pDevice->pRNG->CTL = (uint16_t)RNG0_CFG_ONLY_8_BIT << BITP_RNG_CTL_SINGLE;
+    pDevice->pRNG->LEN = (RNG0_CFG_LENGTH_RELOAD << BITP_RNG_LEN_RELOAD)
                        | (RNG0_CFG_LENGTH_PRESCALER << BITP_RNG_LEN_PRESCALE);
 
-    /* install interrupt handler (see abstraction macro for OS in adi_rtos.h) */
-    ADI_INSTALL_HANDLER(pDevice->pData->IRQn, RNG_Int_Handler);
+   /* The interrupt handler only gets used in the case of callback mode so its
+    * enabling only happens in the adi_rng_RegisterCallBack API.
+    */
+    NVIC_ClearPendingIRQ(pDevice->pData->IRQn);
 
     /* store handle at application handle pointer */
-    *ppDevice = pDevice;
+    *phDevice = pDevice;
 
     return ADI_RNG_SUCCESS;
 }
 
 
 /*!
- * @brief  Uninitialize and deallocate a RNG device.
+ * @brief  Uninitializes and deallocates the RNG device.
  *
  * @param[in]   hDevice    Device handle obtained from adi_rng_Open().
  *
  * @return      Status
- *                - #ADI_RNG_SUCCESS                    Success: Call completed successfully.
- *                - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
- *                - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
+ *                - #ADI_RNG_SUCCESS                    Call completed successfully.
+ *                - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+ *                - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
  *
  * Uninitialize and release an allocated RNG device for other use.  The core NVIC RNG interrupt is disabled.
  *
@@ -229,58 +219,55 @@ ADI_RNG_RESULT adi_rng_Close(ADI_RNG_HANDLE hDevice)
 
 #ifdef ADI_DEBUG
     if (ADI_RNG_INVALID_HANDLE(pDevice)){
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
-    if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+    if (NULL == pDevice->pData) {
+        return ADI_RNG_NOT_INITIALIZED;
     }
 #endif
 
     /* uninitialize */
     NVIC_DisableIRQ(pDevice->pData->IRQn);
-    ADI_UNINSTALL_HANDLER(pDevice->pData->IRQn);
     pDevice->pData = NULL;
 
     return ADI_RNG_SUCCESS;
 }
 
-
-
-
 /*!
- * @brief  Enable/Disable RNG device.
+ * @brief  Enables/Disables the RNG device.
  *
  * @param[in]   hDevice       Device handle obtained from adi_rng_Open().
- * @param[in]   bFlag         Flag designating whether to enable or disable RNG device.
+ * @param[in]   bFlag         Flag to specify whether to enable or disable RNG device.
  *
  * @return      Status
- *                - #ADI_RNG_SUCCESS                    Success: Call completed successfully.
- *                - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
- *                - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
+ *                - #ADI_RNG_SUCCESS                    Call completed successfully.
+ *                - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+ *                - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
  *
  * @sa        adi_rng_Open().
  * @sa        adi_rng_RegisterCallback().
  */
-ADI_RNG_RESULT adi_rng_Enable (ADI_RNG_HANDLE const hDevice, bool_t const bFlag)
+ADI_RNG_RESULT adi_rng_Enable (ADI_RNG_HANDLE const hDevice, bool const bFlag)
 {
     ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
     if (ADI_RNG_INVALID_HANDLE(pDevice)) {
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
-    if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+    if (NULL == pDevice->pData) {
+        return ADI_RNG_NOT_INITIALIZED;
     }
 #endif
 
     ADI_ENTER_CRITICAL_REGION();
-    if (bFlag) {
-        pDevice->pReg->CTL |= BITM_RNG_CTL_EN;
+    if (true == bFlag) {
+        pDevice->pRNG->CTL |= BITM_RNG_CTL_EN;
     } else {
-        pDevice->pReg->CTL &= (uint16_t)~(BITM_RNG_CTL_EN);
+        pDevice->pRNG->CTL &= (uint16_t)~(BITM_RNG_CTL_EN);
     }
     ADI_EXIT_CRITICAL_REGION();
 
@@ -288,41 +275,42 @@ ADI_RNG_RESULT adi_rng_Enable (ADI_RNG_HANDLE const hDevice, bool_t const bFlag)
 }
 
 /*!
- * @brief  Enable/Disable Buffering for RNG.
+ * @brief  Enables/Disables Buffering for RNG.
  *
  * @param[in]   hDevice       Device handle obtained from adi_rng_Open().
- * @param[in]   bFlag         Flag designating whether to enable or disable buffering for RNG device.
- *                            When buffering is enabled, adi_rng_GetRngData returns a 32-bit values
- *                            else it return a 8-bit value.
+ * @param[in]   bFlag         Flag to specify whether to enable or disable buffering for RNG device.
+ *                            When buffering is enabled, adi_rng_GetRngData returns 32-bit values.
+ *                            When buffering is disabled the API returns 8-bit values.
  *
  * @return      Status
- *                - #ADI_RNG_SUCCESS                    Success: Call completed successfully.
- *                - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
- *                - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
+ *                - #ADI_RNG_SUCCESS                    Call completed successfully.
+ *                - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+ *                - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
  *
  * @sa        adi_rng_Open().
  * @sa        adi_rng_RegisterCallback().
  * @sa        adi_rng_GetRngData().
  */
-ADI_RNG_RESULT adi_rng_EnableBuffering (ADI_RNG_HANDLE const hDevice, bool_t const bFlag)
+ADI_RNG_RESULT adi_rng_EnableBuffering (ADI_RNG_HANDLE const hDevice, bool const bFlag)
 {
     ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
     if (ADI_RNG_INVALID_HANDLE(pDevice)) {
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
-    if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+    if (NULL == pDevice->pData) {
+        return ADI_RNG_NOT_INITIALIZED;
     }
 #endif
 
     ADI_ENTER_CRITICAL_REGION();
-    if (bFlag) {
-        pDevice->pReg->CTL &= (uint16_t)~(BITM_RNG_CTL_SINGLE);
+    if (true == bFlag) {
+        pDevice->pRNG->CTL &= (uint16_t)~(BITM_RNG_CTL_SINGLE);
     } else {
-        pDevice->pReg->CTL |= BITM_RNG_CTL_SINGLE;
+        pDevice->pRNG->CTL |= BITM_RNG_CTL_SINGLE;
     }
     ADI_EXIT_CRITICAL_REGION();
 
@@ -338,9 +326,9 @@ ADI_RNG_RESULT adi_rng_EnableBuffering (ADI_RNG_HANDLE const hDevice, bool_t con
  * @param[in]   nLenReload     Reload value for the sample counter (0-4095)
  *
  * @return      Status
- *                - #ADI_RNG_SUCCESS                    Success: Call completed successfully.
- *                - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
- *                - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
+ *                - #ADI_RNG_SUCCESS                    Call completed successfully.
+ *                - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+ *                - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
  *
  * @sa        adi_rng_Open().
  * @sa        adi_rng_RegisterCallback().
@@ -352,26 +340,27 @@ ADI_RNG_RESULT adi_rng_SetSampleLen (
                                      )
 {
     ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
+    ADI_INT_STATUS_ALLOC();
 
 #ifdef ADI_DEBUG
     if (ADI_RNG_INVALID_HANDLE(pDevice)){
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
-    if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+    if (NULL == pDevice->pData) {
+        return ADI_RNG_NOT_INITIALIZED;
     }
 
     if (   (nLenPrescaler > 10u)
-        || ((nLenPrescaler == 0u) && (nLenReload == 0u))
+        || ((0u == nLenPrescaler) && (0u == nLenReload))
         || (nLenReload > 4095u)) {
-        return ADI_RNG_ERR_INVALID_PARAM;
+        return ADI_RNG_INVALID_PARAM;
     }
 #endif
 
     ADI_ENTER_CRITICAL_REGION();
     /* Set the sample reload and prescaler value */
-    pDevice->pReg->LEN =   (uint16_t)((uint16_t)(nLenReload    << BITP_RNG_LEN_RELOAD)   & BITM_RNG_LEN_RELOAD)
+    pDevice->pRNG->LEN =   (uint16_t)((uint16_t)(nLenReload    << BITP_RNG_LEN_RELOAD)   & BITM_RNG_LEN_RELOAD)
                          | (uint16_t)((uint16_t)(nLenPrescaler << BITP_RNG_LEN_PRESCALE) & BITM_RNG_LEN_PRESCALE);
     ADI_EXIT_CRITICAL_REGION();
 
@@ -380,17 +369,18 @@ ADI_RNG_RESULT adi_rng_SetSampleLen (
 
 
 /*!
- * @brief  Retrieve the current state of RNG data/CRC accumulator register.
+ * @brief  Retrieves the current state of RNG data/CRC accumulator register.
  *
  * @param[in]   hDevice       Device handle obtained from adi_rng_Open().
- * @param[out]  pbFlag        Pointer to an application-defined Boolean variable into which to write the result:
+ * @param[out]  pbFlag        Pointer to an application-defined boolean variable into which to write the result:
  *                              - true  = RNG data is ready to be read.
  *                              - false = RNG data is not ready.
  *
  * @return      Status
- *                - #ADI_RNG_SUCCESS                    Success: Call completed successfully.
- *                - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
- *                - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
+ *                - #ADI_RNG_SUCCESS                    Call completed successfully.
+ *                - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+ *                - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
+                  - #ADI_RNG_INVALID_PARAM [D]          Argument is incorrect.
  *
  * Retrieve the current state of RNG data/CRC accumulator register. The register holds the final entropy value
  * accumulated by RNG and it should to read only when the data is ready.
@@ -399,22 +389,26 @@ ADI_RNG_RESULT adi_rng_SetSampleLen (
  * @sa        adi_rng_GetRngData().
  * @sa        adi_rng_RegisterCallback().
  */
-ADI_RNG_RESULT adi_rng_GetRdyStatus (ADI_RNG_HANDLE const hDevice, bool_t* const pbFlag)
+ADI_RNG_RESULT adi_rng_GetRdyStatus (ADI_RNG_HANDLE const hDevice, bool* const pbFlag)
 {
     ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
 
 #ifdef ADI_DEBUG
     if (ADI_RNG_INVALID_HANDLE(pDevice)){
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
-    if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+    if (NULL == pDevice->pData) {
+        return ADI_RNG_NOT_INITIALIZED;
+    }
+
+    if (NULL == pbFlag) {
+        return ADI_RNG_INVALID_PARAM;
     }
 #endif
 
     /* Get the RNG Ready status bit */
-    if ((pDevice->pReg->STAT & BITM_RNG_STAT_RNRDY) != 0u)
+    if ((pDevice->pRNG->STAT & BITM_RNG_STAT_RNRDY) != 0u)
     {
         *pbFlag = true;
     }
@@ -427,17 +421,18 @@ ADI_RNG_RESULT adi_rng_GetRdyStatus (ADI_RNG_HANDLE const hDevice, bool_t* const
 }
 
 /*!
- * @brief  Retrieve whether the ring oscillator output is stuck at a constant value
+ * @brief  Retrieve whether the RNG oscillator output is stuck at a constant value
  *
  * @param[in]   hDevice       Device handle obtained from adi_rng_Open().
- * @param[out]  pbFlag        Pointer to an application-defined Boolean variable into which to write the result:
- *                              - true  = ring oscillator is stuck at a constant value.
- *                              - false = ring oscillator is not stuck at a constant value.
+ * @param[out]  pbFlag        Pointer to an application-defined boolean variable into which to write the result:
+ *                              - true  = RNG oscillator is stuck at a constant value.
+ *                              - false = RNG oscillator is not stuck at a constant value.
  *
  * @return      Status
- *                - #ADI_RNG_SUCCESS                    Success: Call completed successfully.
- *                - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
- *                - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
+ *                - #ADI_RNG_SUCCESS                    Call completed successfully.
+ *                - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+ *                - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
+                  - #ADI_RNG_INVALID_PARAM [D]          Argument is incorrect.
  *
  * @sa        adi_rng_Open().
  * @sa        adi_rng_GetRngData().
@@ -445,23 +440,27 @@ ADI_RNG_RESULT adi_rng_GetRdyStatus (ADI_RNG_HANDLE const hDevice, bool_t* const
  */
 ADI_RNG_RESULT adi_rng_GetStuckStatus (
                                        ADI_RNG_HANDLE const hDevice,
-                                       bool_t* const pbFlag
+                                       bool* const pbFlag
                                        )
 {
     ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)hDevice;
 
 #ifdef ADI_DEBUG
     if (ADI_RNG_INVALID_HANDLE(pDevice)){
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
     if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+        return ADI_RNG_NOT_INITIALIZED;
+    }
+
+    if (NULL == pbFlag) {
+        return ADI_RNG_INVALID_PARAM;
     }
 #endif
 
     /* Get the stuck status bit */
-    if ((pDevice->pReg->STAT & BITM_RNG_STAT_STUCK) != 0u)
+    if ((pDevice->pRNG->STAT & BITM_RNG_STAT_STUCK) != 0u)
     {
         *pbFlag = true;
     }
@@ -482,11 +481,11 @@ ADI_RNG_RESULT adi_rng_GetStuckStatus (
  *                            Only lower 8-bit is valid if buffering is not enabled
  *
  * @return      Status
- *                - #ADI_RNG_SUCCESS                    Success: Call completed successfully.
- *                - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
- *                - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
- *                - #ADI_RNG_ERR_INVALID_PARAM [D]      Error: pRegData is a NULL pointer.
- *                - #ADI_RNG_ERR_INVALID_STATE[D]       Error: Random number ready status is not set
+ *                - #ADI_RNG_SUCCESS                    Call completed successfully.
+ *                - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+ *                - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
+ *                - #ADI_RNG_INVALID_PARAM [D]      pRegData is a NULL pointer.
+ *                - #ADI_RNG_INVALID_STATE[D]       Random number ready status is not set
  *
  * Retrieve the current value of RNG data register. If the buffering is enabled all 32-bit of value written to
  * pRegData is valid else only the lower 8-bit is valid.
@@ -501,24 +500,24 @@ ADI_RNG_RESULT adi_rng_GetRngData (ADI_RNG_HANDLE const hDevice, uint32_t* const
 
 #ifdef ADI_DEBUG
     if (ADI_RNG_INVALID_HANDLE(pDevice)){
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
-    if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+    if (NULL == pDevice->pData) {
+        return ADI_RNG_NOT_INITIALIZED;
     }
 
-    if (pRegData == NULL) {
-        return ADI_RNG_ERR_INVALID_PARAM;;
+    if (NULL == pRegData) {
+        return ADI_RNG_INVALID_PARAM;
     }
 
-    if ((pDevice->pReg->STAT & BITM_RNG_STAT_RNRDY) == 0u) {
-        return ADI_RNG_ERR_INVALID_STATE;
+    if ((pDevice->pRNG->STAT & BITM_RNG_STAT_RNRDY) == 0u) {
+        return ADI_RNG_INVALID_STATE;
     }
 #endif
 
     /* Get the RNG CRC accumulator value */
-    *pRegData = pDevice->pReg->DATA;
+    *pRegData = pDevice->pRNG->DATA;
 
     return ADI_RNG_SUCCESS;
 }
@@ -531,13 +530,14 @@ ADI_RNG_RESULT adi_rng_GetRngData (ADI_RNG_HANDLE const hDevice, uint32_t* const
  * @param[in]   pOscCount     Pointer to an application-defined variable into which to write the result.
  *
  * @return      Status
- *                - #ADI_RNG_SUCCESS                    Success: Call completed successfully.
- *                - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
- *                - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
- *                - #ADI_RNG_ERR_INVALID_STATE[D]       Error: Random number ready status is not set
+ *                - #ADI_RNG_SUCCESS                    Call completed successfully.
+ *                - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+ *                - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
+ *                - #ADI_RNG_INVALID_STATE[D]       Random number ready status is not set
+                  - #ADI_RNG_INVALID_PARAM [D]          Argument is incorrect.
  *
  * @sa        adi_rng_Open().
- * @sa        adi_Rng_RegisterCallback().
+ * @sa        adi_rng_RegisterCallback().
  */
 ADI_RNG_RESULT adi_rng_GetOscCount (ADI_RNG_HANDLE const hDevice, uint32_t* const pOscCount)
 {
@@ -545,24 +545,24 @@ ADI_RNG_RESULT adi_rng_GetOscCount (ADI_RNG_HANDLE const hDevice, uint32_t* cons
 
 #ifdef ADI_DEBUG
    if (ADI_RNG_INVALID_HANDLE(pDevice)){
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
-    if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+    if (NULL == pDevice->pData) {
+        return ADI_RNG_NOT_INITIALIZED;
     }
 
-    if (pOscCount == NULL) {
-        return (ADI_RNG_ERR_INVALID_PARAM);
+    if (NULL == pOscCount) {
+        return (ADI_RNG_INVALID_PARAM);
     }
 
-    if ((pDevice->pReg->STAT & BITM_RNG_STAT_RNRDY) == 0u) {
-        return ADI_RNG_ERR_INVALID_STATE;
+    if ((pDevice->pRNG->STAT & BITM_RNG_STAT_RNRDY) == 0u) {
+        return ADI_RNG_INVALID_STATE;
     }
 #endif
 
     /* Get the oscillator count high count */
-    *pOscCount = pDevice->pReg->OSCCNT;
+    *pOscCount = pDevice->pRNG->OSCCNT;
 
     return ADI_RNG_SUCCESS;
 }
@@ -576,10 +576,11 @@ ADI_RNG_RESULT adi_rng_GetOscCount (ADI_RNG_HANDLE const hDevice, uint32_t* cons
  *                          write the oscillator difference value for the given index.
  *
  * @return      Status
- *                - #ADI_RNG_SUCCESS                    Success: Call completed successfully.
- *                - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
- *                - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
- *                - #ADI_RNG_ERR_INVALID_STATE[D]       Error: Random number ready status is not set
+ *              - #ADI_RNG_SUCCESS                    Call completed successfully.
+ *              - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+ *              - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
+ *              - #ADI_RNG_INVALID_STATE[D]       Random number ready status is not set
+                - #ADI_RNG_INVALID_PARAM [D]          Argument is incorrect.
  *
  * @sa        adi_rng_Open().
  * @sa        adi_Rng_RegisterCallback().
@@ -594,24 +595,24 @@ ADI_RNG_RESULT adi_rng_GetOscDiff (
 
 #ifdef ADI_DEBUG
    if (ADI_RNG_INVALID_HANDLE(pDevice)){
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
-    if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+    if (NULL == pDevice->pData) {
+        return ADI_RNG_NOT_INITIALIZED;
     }
 
-    if ((pOscDiff == NULL) || (nIndex > 3u)) {
-        return( ADI_RNG_ERR_INVALID_PARAM );
+    if ((NULL == pOscDiff) || (nIndex > 3u)) {
+        return( ADI_RNG_INVALID_PARAM );
     }
 
-    if ((pDevice->pReg->STAT & BITM_RNG_STAT_RNRDY) == 0u) {
-        return ADI_RNG_ERR_INVALID_STATE;
+    if ((pDevice->pRNG->STAT & BITM_RNG_STAT_RNRDY) == 0u) {
+        return ADI_RNG_INVALID_STATE;
     }
 #endif
 
     /* Get the Osc Difference Register */
-    *pOscDiff = (uint8_t)pDevice->pReg->OSCDIFF[nIndex];
+    *pOscDiff = (uint8_t)pDevice->pRNG->OSCDIFF[nIndex];
 
     return ADI_RNG_SUCCESS;
 }
@@ -624,9 +625,11 @@ ADI_RNG_RESULT adi_rng_GetOscDiff (
  * @param[out]  pLenReload     Pointer to an application-defined variable into which the reload value for the sample counter is written.
  *
  * @return      Status
- *                - #ADI_RNG_SUCCESS                    Success: Call completed successfully.
- *                - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
- *                - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
+ *                - #ADI_RNG_SUCCESS                    Call completed successfully.
+ *                - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+ *                - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
+                  - #ADI_RNG_INVALID_PARAM [D]          Argument is incorrect.
+ *
  *
  * @sa        adi_rng_Open().
  * @sa        adi_rng_RegisterCallback().
@@ -641,20 +644,20 @@ ADI_RNG_RESULT adi_rng_GetSampleLen (
 
 #ifdef ADI_DEBUG
    if (ADI_RNG_INVALID_HANDLE(pDevice)){
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
-    if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+    if (NULL == pDevice->pData) {
+        return ADI_RNG_NOT_INITIALIZED;
     }
 
-    if ((pLenPrescaler == NULL) || (pLenReload == NULL)) {
-        return ADI_RNG_ERR_INVALID_PARAM;
+    if ((NULL == pLenPrescaler) || (NULL == pLenReload)) {
+        return ADI_RNG_INVALID_PARAM;
     }
 #endif
 
-    *pLenPrescaler = (pDevice->pReg->LEN & BITM_RNG_LEN_PRESCALE) >> BITP_RNG_LEN_PRESCALE;
-    *pLenReload    = (pDevice->pReg->LEN & BITM_RNG_LEN_RELOAD)   >> BITP_RNG_LEN_RELOAD;
+    *pLenPrescaler = (pDevice->pRNG->LEN & BITM_RNG_LEN_PRESCALE) >> BITP_RNG_LEN_PRESCALE;
+    *pLenReload    = (pDevice->pRNG->LEN & BITM_RNG_LEN_RELOAD)   >> BITP_RNG_LEN_RELOAD;
 
     return ADI_RNG_SUCCESS;
 }
@@ -665,7 +668,6 @@ ADI_RNG_RESULT adi_rng_GetSampleLen (
 *****************************************   CALLBACKS   ******************************************
 *****************************************      AND      ******************************************
 *****************************************   INTERRUPT   ******************************************
-*****************************************     STUFF     ******************************************
 **************************************************************************************************
 *************************************************************************************************/
 
@@ -673,16 +675,16 @@ ADI_RNG_RESULT adi_rng_GetSampleLen (
 /*!
     @brief RNG Application callback registration API.
 
-    @param[in]   hDevice     Device handle obtained from adi_rng_Open().
+    @param[in]   hDevice     Device handle obtained from #adi_rng_Open().
     @param[in]   cbFunc      Application callback address; the function to call on the interrupt.
-    @param[in]   pCBParam    Application handle to be passed in the call back\.
+    @param[in]   pCBParam    Application handle to be passed in the call back.
 
     @return    Status
-               - #ADI_RNG_SUCCESS                    Success: The callback is successfully registered.
-               - #ADI_RNG_ERR_BAD_DEV_HANDLE [D]     Error: Invalid device handle parameter.
-               - #ADI_RNG_ERR_NOT_INITIALIZED [D]    Error: Device has not been initialized for use, see #adi_rng_Open().
+               - #ADI_RNG_SUCCESS                    The callback is successfully registered.
+               - #ADI_RNG_BAD_DEV_HANDLE [D]     Invalid device handle parameter.
+               - #ADI_RNG_NOT_INITIALIZED [D]    Device has not been initialized for use, see #adi_rng_Open().
 
-    Registers an application-defined callback \a cbFunc function address of type #ADI_CALLBACK with the RNG device driver.
+    Registers an application-defined callback \a cbFunc function address of type ADI_CALLBACK with the RNG device driver.
     Callbacks are made in response to received RNG interrupts.
 
     The callback to the application is made in context of the originating interrupt (i.e., the RNG driver's
@@ -696,11 +698,11 @@ ADI_RNG_RESULT adi_rng_GetSampleLen (
             initialization (#adi_rng_Open()).  The application uses the #adi_rng_RegisterCallback()
             API to request an application-defined callback from the RNG device driver. The RNG device
             driver clears the interrupt when the callback exits.
-            The application callback should \b avoid \b extended \b processing
+            The application callback should <b>avoid extended processing</b>
             during callbacks as the callback is executing context of the initiating interrupt and will
             block lower-priority interrupts.  If extended application-level interrupt processing is
             required, the application should schedule it for the main application loop and exit the
-            callback as soon as possible.\n\n
+            callback as soon as possible.\n
 
 
     @sa    adi_rng_Open().
@@ -714,11 +716,11 @@ ADI_RNG_RESULT adi_rng_RegisterCallback (
 
 #ifdef ADI_DEBUG
    if (ADI_RNG_INVALID_HANDLE(pDevice)){
-        return ADI_RNG_ERR_BAD_DEV_HANDLE;
+        return ADI_RNG_BAD_DEV_HANDLE;
     }
 
-    if (pDevice->pData == NULL) {
-        return ADI_RNG_ERR_NOT_INITIALIZED;
+    if (NULL == pDevice->pData) {
+        return ADI_RNG_NOT_INITIALIZED;
     }
 #endif
 
@@ -726,7 +728,7 @@ ADI_RNG_RESULT adi_rng_RegisterCallback (
     pDevice->pData->CBFunc   = cbFunc;
     pDevice->pData->pCBParam = pCBParam;
 
-    if (cbFunc != NULL) {
+    if (NULL != cbFunc) {
         /* enable RNG interrupts in NVIC */
         NVIC_EnableIRQ(pDevice->pData->IRQn);
     } else {
@@ -737,34 +739,36 @@ ADI_RNG_RESULT adi_rng_RegisterCallback (
 }
 
 /*! \cond PRIVATE */
-/* RNG device driver interrupt handler.  Overrides weakly-bound default interrupt handler in startup.c. */
-ADI_INT_HANDLER (RNG_Int_Handler)
+/* RNG driver interrupt handler. Overrides weak default handler in startup file */
+void RNG_Int_Handler(void)
 {
-    ISR_PROLOG();    
+    ISR_PROLOG();
     ADI_RNG_DEV_TYPE *pDevice = &gRNG_Device[0];
     register uint16_t candidate;
 
     /* if we have an initialized driver... */
-    if (pDevice->pData != NULL)
+    if (NULL != pDevice->pData)
     {
         /* if we have a registered callback */
-        if (pDevice->pData->CBFunc != NULL)
+        if (NULL != pDevice->pData->CBFunc)
         {
+            ADI_INT_STATUS_ALLOC();
+
             ADI_ENTER_CRITICAL_REGION();
             /* read status register without other interrupts in between */
-            candidate = pDevice->pReg->STAT;
+            candidate = pDevice->pRNG->STAT;
             ADI_EXIT_CRITICAL_REGION();
 
-            /* Only have bits in stat that is necessary */
+            /* Only have bits in stat that are necessary */
             candidate = candidate & (BITM_RNG_STAT_STUCK | BITM_RNG_STAT_RNRDY);
 
-            while (candidate != 0u) {
+            while (0u != candidate) {
                 uint32_t nEvent;
 
-                if ((candidate & BITM_RNG_STAT_RNRDY) != 0u) {
-                    nEvent = ADI_RNG_EVENT_RNG_READY;
+                if (0u != (candidate & BITM_RNG_STAT_RNRDY)) {
+                    nEvent = ADI_RNG_EVENT_READY;
                     candidate &= (uint16_t)~BITM_RNG_STAT_RNRDY;
-                } else if ((candidate & BITM_RNG_STAT_STUCK) != 0u) {
+                } else if (0u != (candidate & BITM_RNG_STAT_STUCK)) {
                     nEvent = ADI_RNG_EVENT_STUCK;
                     candidate &= (uint16_t)~BITM_RNG_STAT_STUCK;
                 } else {
@@ -778,10 +782,10 @@ ADI_INT_HANDLER (RNG_Int_Handler)
                                         );
             }
 
-            pDevice->pReg->STAT = BITM_RNG_STAT_RNRDY | BITM_RNG_STAT_STUCK;
+            pDevice->pRNG->STAT = BITM_RNG_STAT_RNRDY | BITM_RNG_STAT_STUCK;
         }
     }
-    ISR_EPILOG();       
+    ISR_EPILOG();
 }
 /*! \endcond */
 

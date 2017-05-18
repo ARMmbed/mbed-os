@@ -18,11 +18,20 @@
 #include "pinmap.h"
 #include "adi_gpio.h"
 
+
 #define MUX_FUNC_0 0x0
+#define NUM_GPIO_PORTS 4
 
 extern uint8_t gpioMemory[ADI_GPIO_MEMORY_SIZE];
 extern uint8_t gpio_initialized;
 
+static uint16_t gpio_oen[NUM_GPIO_PORTS] = {0};
+static uint16_t gpio_output_val[NUM_GPIO_PORTS] = {0};
+
+
+/******************************************************************************
+   Function definitions
+ *****************************************************************************/
 uint32_t gpio_set(PinName pin)
 {
     MBED_ASSERT(pin != (PinName)NC);
@@ -40,6 +49,8 @@ void gpio_init(gpio_t *obj, PinName pin)
     if (pin == (PinName)NC)
         return;
 
+    // Initialize the GPIO driver. This function
+    // initializes the GPIO driver only once globally.
     if (!gpio_initialized)
         adi_gpio_Init(gpioMemory, ADI_GPIO_MEMORY_SIZE);
 
@@ -59,9 +70,15 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pin & 0xFF;
 
-    adi_gpio_InputEnable(port, 1 << pin_num, true);
-    if (direction ==  PIN_OUTPUT)
+    if (direction ==  PIN_OUTPUT) {
         adi_gpio_OutputEnable(port, 1 << pin_num, true);
+        // save the input/output configuration
+        gpio_oen[port] |= (1 << pin_num);
+    } else {
+        adi_gpio_InputEnable(port, 1 << pin_num, true);
+        // save the input/output configuration
+        gpio_oen[port] &= (~(1 << pin_num));
+    }
 }
 
 void gpio_write(gpio_t *obj, int value)
@@ -72,10 +89,17 @@ void gpio_write(gpio_t *obj, int value)
 
     if (value & 1) {
         adi_gpio_SetHigh(port, (1 << pin_num));
+
+        // save the output port value
+        gpio_output_val[port] |= ((value & 1) << pin_num);
     } else {
         adi_gpio_SetLow(port, (1 << pin_num));
+
+        // save the output port value
+        gpio_output_val[port] &= (~(1 << pin_num));
     }
 }
+
 
 int gpio_read(gpio_t *obj)
 {
@@ -83,18 +107,13 @@ int gpio_read(gpio_t *obj)
     uint32_t port = obj->pin >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pin & 0xFF;
     uint16_t Data;
-    uint16_t Temp;
 
     // check whether the pin is configured as input or output
-    adi_gpio_GetOutputEnable(port, (1 << pin_num), &Temp);
-
-    // if configured as output, call GetOutputData
-    // otherwise call GetData
-    if ((1 << pin_num) & Temp) {
-        adi_gpio_GetOutputData(port, (1 << pin_num), &Data);
-    } else {
+    if ((gpio_oen[port] >> pin_num) & 1)
+        Data = gpio_output_val[port] & (1 << pin_num);
+    else
+        // otherwise call GetData
         adi_gpio_GetData(port, (1 << pin_num), &Data);
-    }
 
     return ((((uint32_t)Data) >> pin_num) & 1);
 }

@@ -2,8 +2,8 @@
 *****************************************************************************
  * @file:    ADuCM3029_def.h
  * @brief:   ADuCM3029 MMR addresses and fields
- * @version: $Revision$
- * @date:    $Date$
+ * @version: $Revision: 36179 $
+ * @date:    $Date: 2017-02-10 09:56:54 -0500 (Fri, 10 Feb 2017) $
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2015-2017 Analog Devices, Inc.

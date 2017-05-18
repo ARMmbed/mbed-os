@@ -2,8 +2,8 @@
  *****************************************************************************
  * @file:    ADuCM3029_typedefs.h
  * @brief:   ADuCM3029 C Register Structures
- * @version: $Revision$
- * @date:    $Date$
+ * @version: $Revision: 36131 $
+ * @date:    $Date: 2017-01-09 10:00:32 -0500 (Mon, 09 Jan 2017) $
  *-----------------------------------------------------------------------------
  *
 Copyright (c) 2015-2016 Analog Devices, Inc.
