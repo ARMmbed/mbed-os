@@ -73,42 +73,42 @@ void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
 
 void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[MBEDTLS_SHA1_BLOCK_SIZE] )
 {
-	HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, (uint8_t *) data, MBEDTLS_SHA1_BLOCK_SIZE);
+    HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, (uint8_t *) data, MBEDTLS_SHA1_BLOCK_SIZE);
 }
 
 void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen )
 {
-    unsigned char i=0;
-    int currentlen = ilen;
-    /* store mechanism to handle 64 bytes per 64 bytes */
-    if (currentlen == 0){ // change HW status is size if 0
-        HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, (uint8_t *) input, ilen);
-    }
-    while ((currentlen+ctx->sbuf_len) >=MBEDTLS_SHA1_BLOCK_SIZE) {
-        if (ctx->sbuf_len ==0) { /* straight forward */
-            mbedtls_sha1_process(ctx, input+(i*MBEDTLS_SHA1_BLOCK_SIZE));
-        } else {
-            unsigned char tmp = ctx->sbuf_len;
-            memcpy(ctx->sbuf+tmp, input+(i*MBEDTLS_SHA1_BLOCK_SIZE),MBEDTLS_SHA1_BLOCK_SIZE-tmp);
-            mbedtls_sha1_process(ctx, ctx->sbuf);
-            if ((currentlen-(MBEDTLS_SHA1_BLOCK_SIZE-tmp)) < tmp) {
-                ctx->sbuf_len = currentlen-(MBEDTLS_SHA1_BLOCK_SIZE-tmp);
-            }
-            memcpy(ctx->sbuf,input+(i+1)*MBEDTLS_SHA1_BLOCK_SIZE-tmp, ctx->sbuf_len);
+    size_t currentlen = ilen;
+    // store mechanism to handle MBEDTLS_SHA1_BLOCK_SIZE bytes per MBEDTLS_SHA1_BLOCK_SIZE bytes
+    if (currentlen == 0){ // only change HW status is size if 0
+        if(ctx->hhash_sha1.Phase == HAL_HASH_PHASE_READY) {
+          /* Select the SHA1 mode and reset the HASH processor core, so that the HASH will be ready to compute
+             the message digest of a new message */
+          HASH->CR |= HASH_ALGOSELECTION_SHA1 | HASH_CR_INIT;
         }
-        currentlen -= MBEDTLS_SHA1_BLOCK_SIZE;
-        i++;
-    }
-    if (currentlen >0) {
-        /* Store the remaining <64 values */
-        memcpy(ctx->sbuf+ctx->sbuf_len, input+(i*MBEDTLS_SHA1_BLOCK_SIZE), currentlen);
+        ctx->hhash_sha1.Phase = HAL_HASH_PHASE_PROCESS;
+    } else if (currentlen < (MBEDTLS_SHA1_BLOCK_SIZE-ctx->sbuf_len)) {
+        // only buffurize
+        memcpy(ctx->sbuf+ctx->sbuf_len, input, currentlen);
         ctx->sbuf_len += currentlen;
+    } else {
+        // fill buffer and process it
+        memcpy(ctx->sbuf + ctx->sbuf_len, input, (MBEDTLS_SHA1_BLOCK_SIZE-ctx->sbuf_len));
+        currentlen -= (MBEDTLS_SHA1_BLOCK_SIZE-ctx->sbuf_len);
+        mbedtls_sha1_process(ctx, ctx->sbuf);
+        // now process every input as long as it is %4 bytes
+        size_t iter = currentlen / 4;
+        HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, (uint8_t *)(input+MBEDTLS_SHA1_BLOCK_SIZE-ctx->sbuf_len), (iter*4));
+        // sbuf is now fully accumulated, now copy 1 / 2 or 3 remaining bytes
+        ctx->sbuf_len = currentlen % 4;
+        if (ctx->sbuf_len !=0) {
+            memcpy(ctx->sbuf, input+iter, ctx->sbuf_len);
+        }
     }
 }
 
 void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] )
 {
-
     if (ctx->sbuf_len > 0) {
         HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, ctx->sbuf, ctx->sbuf_len);
     }
