@@ -29,21 +29,21 @@
 
 
 #if defined(BUILD_SPI_MI_DYNAMIC)
-    #if defined(ADI_DEBUG)
-        #warning "BUILD_SPI_MI_DYNAMIC is defined.  Memory allocation for SPI will be dynamic"
-        int adi_spi_memtype = 0;
-    #endif
+#if defined(ADI_DEBUG)
+#warning "BUILD_SPI_MI_DYNAMIC is defined.  Memory allocation for SPI will be dynamic"
+int adi_spi_memtype = 0;
+#endif
 #else
-    ADI_SPI_HANDLE      spi_Handle0;
-    uint8_t             spi_Mem0[ADI_SPI_MEMORY_SIZE];
-    ADI_SPI_HANDLE      spi_Handle1;
-    uint8_t             spi_Mem1[ADI_SPI_MEMORY_SIZE];
-    ADI_SPI_HANDLE      spi_Handle2;
-    uint8_t             spi_Mem2[ADI_SPI_MEMORY_SIZE];
-    #if defined(ADI_DEBUG)
-        #warning "BUILD_SPI_MI_DYNAMIC is NOT defined.  Memory allocation for SPI will be static"
-        int adi_spi_memtype = 1;
-    #endif
+ADI_SPI_HANDLE      spi_Handle0;
+uint8_t             spi_Mem0[ADI_SPI_MEMORY_SIZE];
+ADI_SPI_HANDLE      spi_Handle1;
+uint8_t             spi_Mem1[ADI_SPI_MEMORY_SIZE];
+ADI_SPI_HANDLE      spi_Handle2;
+uint8_t             spi_Mem2[ADI_SPI_MEMORY_SIZE];
+#if defined(ADI_DEBUG)
+#warning "BUILD_SPI_MI_DYNAMIC is NOT defined.  Memory allocation for SPI will be static"
+int adi_spi_memtype = 1;
+#endif
 #endif
 
 
@@ -68,19 +68,17 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
     ADI_SPI_HANDLE      *pSPI_Handle;
     uint8_t             *SPI_Mem;
-    ADI_SPI_RESULT      SPI_Return = 0;
+    ADI_SPI_RESULT      SPI_Return = ADI_SPI_SUCCESS;
     uint32_t            nDeviceNum = 0;
-    ADI_SPI_CHIP_SELECT spi_cs = 0;
+    ADI_SPI_CHIP_SELECT spi_cs = ADI_SPI_CS_NONE;
 
 
 #if defined(BUILD_SPI_MI_DYNAMIC)
     if (mosi == SPI0_MOSI) {
         nDeviceNum = SPI_0;
-    }
-    else if (mosi == SPI1_MOSI) {
+    } else if (mosi == SPI1_MOSI) {
         nDeviceNum = SPI_1;
-    }
-    else if (mosi == SPI2_MOSI) {
+    } else if (mosi == SPI2_MOSI) {
         nDeviceNum = SPI_2;
     }
     pSPI_Handle = &obj->SPI_Handle;
@@ -91,13 +89,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
         nDeviceNum = SPI_0;
         pSPI_Handle = &spi_Handle0;
         SPI_Mem = &spi_Mem0[0];
-    }
-    else if (mosi == SPI1_MOSI) {
+    } else if (mosi == SPI1_MOSI) {
         nDeviceNum = SPI_1;
         pSPI_Handle = &spi_Handle1;
         SPI_Mem = &spi_Mem1[0];
-    }
-    else if (mosi == SPI2_MOSI) {
+    } else if (mosi == SPI2_MOSI) {
         nDeviceNum = SPI_2;
         pSPI_Handle = &spi_Handle2;
         SPI_Mem = &spi_Mem2[0];
@@ -157,7 +153,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 void spi_free(spi_t *obj)
 {
     ADI_SPI_HANDLE  SPI_Handle;
-    ADI_SPI_RESULT  SPI_Return = 0;
+    ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
 
     SPI_Handle = *obj->pSPI_Handle;
     SPI_Return = adi_spi_Close(SPI_Handle);
@@ -194,7 +190,7 @@ void spi_free(spi_t *obj)
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     ADI_SPI_HANDLE  SPI_Handle;
-    ADI_SPI_RESULT  SPI_Return = 0;
+    ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
     bool            master;
 
     master = !((bool)slave);
@@ -217,7 +213,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 void spi_frequency(spi_t *obj, int hz)
 {
     ADI_SPI_HANDLE  SPI_Handle;
-    ADI_SPI_RESULT  SPI_Return = 0;
+    ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
 
     SPI_Handle = *obj->pSPI_Handle;
     SPI_Return = adi_spi_SetBitrate(SPI_Handle, (uint32_t) hz);
@@ -240,7 +236,7 @@ int spi_master_write(spi_t *obj, int value)
     uint8_t                 TxBuf;
     uint8_t                 RxBuf;
     ADI_SPI_HANDLE  SPI_Handle;
-    ADI_SPI_RESULT  SPI_Return = 0;
+    ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
 
     TxBuf = (uint8_t)value;
 

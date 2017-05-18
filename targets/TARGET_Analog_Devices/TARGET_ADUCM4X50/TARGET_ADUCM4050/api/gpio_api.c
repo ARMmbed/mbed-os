@@ -71,11 +71,11 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     uint32_t pin_num = obj->pin & 0xFF;
 
     if (direction ==  PIN_OUTPUT) {
-        adi_gpio_OutputEnable(port, 1 << pin_num, true);
+        adi_gpio_OutputEnable((ADI_GPIO_PORT)port, 1 << pin_num, true);
         // save the input/output configuration
         gpio_oen[port] |= (1 << pin_num);
     } else {
-        adi_gpio_InputEnable(port, 1 << pin_num, true);
+        adi_gpio_InputEnable((ADI_GPIO_PORT)port, 1 << pin_num, true);
         // save the input/output configuration
         gpio_oen[port] &= (~(1 << pin_num));
     }
@@ -88,12 +88,12 @@ void gpio_write(gpio_t *obj, int value)
     uint32_t pin_num = obj->pin & 0xFF;
 
     if (value & 1) {
-        adi_gpio_SetHigh(port, (1 << pin_num));
+        adi_gpio_SetHigh((ADI_GPIO_PORT)port, (1 << pin_num));
 
         // save the output port value
         gpio_output_val[port] |= ((value & 1) << pin_num);
     } else {
-        adi_gpio_SetLow(port, (1 << pin_num));
+        adi_gpio_SetLow((ADI_GPIO_PORT)port, (1 << pin_num));
 
         // save the output port value
         gpio_output_val[port] &= (~(1 << pin_num));
@@ -113,7 +113,7 @@ int gpio_read(gpio_t *obj)
         Data = gpio_output_val[port] & (1 << pin_num);
     else
         // otherwise call GetData
-        adi_gpio_GetData(port, (1 << pin_num), &Data);
+        adi_gpio_GetData((ADI_GPIO_PORT)port, (1 << pin_num), &Data);
 
     return ((((uint32_t)Data) >> pin_num) & 1);
 }

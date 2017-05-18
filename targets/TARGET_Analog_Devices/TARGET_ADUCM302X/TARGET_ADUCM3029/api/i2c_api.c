@@ -27,17 +27,17 @@
 
 
 #if defined(BUILD_I2C_MI_DYNAMIC)
-    #if defined(ADI_DEBUG)
-        #warning "BUILD_I2C_MI_DYNAMIC is defined.  Memory allocation for I2C will be dynamic"
-        int adi_i2c_memtype = 0;
-    #endif
+#if defined(ADI_DEBUG)
+#warning "BUILD_I2C_MI_DYNAMIC is defined.  Memory allocation for I2C will be dynamic"
+int adi_i2c_memtype = 0;
+#endif
 #else
-    static uint8_t          i2c_Mem[ADI_I2C_MEMORY_SIZE];
-    static ADI_I2C_HANDLE   i2c_Handle;
-    #if defined(ADI_DEBUG)
-        #warning "BUILD_I2C_MI_DYNAMIC is NOT defined.  Memory allocation for I2C will be static"
-        int adi_i2c_memtype = 1;
-    #endif
+static uint8_t          i2c_Mem[ADI_I2C_MEMORY_SIZE];
+static ADI_I2C_HANDLE   i2c_Handle;
+#if defined(ADI_DEBUG)
+#warning "BUILD_I2C_MI_DYNAMIC is NOT defined.  Memory allocation for I2C will be static"
+int adi_i2c_memtype = 1;
+#endif
 #endif
 
 
@@ -48,7 +48,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     uint32_t        i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
     ADI_I2C_HANDLE  *pI2C_Handle;
     uint8_t         *I2C_Mem;
-    ADI_I2C_RESULT  I2C_Return = 0;
+    ADI_I2C_RESULT  I2C_Return = ADI_I2C_SUCCESS;
     uint32_t        I2C_DevNum = I2C_0;
 
 
@@ -98,8 +98,7 @@ int i2c_stop(i2c_t *obj)
 void i2c_frequency(i2c_t *obj, int hz)
 {
     ADI_I2C_HANDLE  I2C_Handle;
-    ADI_I2C_RESULT  I2C_Return = 0;
-
+    ADI_I2C_RESULT  I2C_Return = ADI_I2C_SUCCESS;
 
     I2C_Handle = *obj->pI2C_Handle;
     I2C_Return = adi_i2c_SetBitRate(I2C_Handle, (uint32_t) hz);
@@ -139,7 +138,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
 
 int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 {
-    ADI_I2C_RESULT      I2C_Return = 0;
+    ADI_I2C_RESULT      I2C_Return = ADI_I2C_SUCCESS;
     ADI_I2C_TRANSACTION I2C_inst;
     uint8_t             I2C_PrologueData = 0x00;
     uint32_t            I2C_Errors;                 /* HW Error result */
