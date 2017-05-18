@@ -255,7 +255,11 @@ void thread_tasklet_configure_and_connect_to_network(void)
     int8_t status;
     link_configuration_s* temp_link_config=NULL;
 
-    if (MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE == MESH_DEVICE_TYPE_THREAD_SLEEPY_END_DEVICE) {
+
+    if (MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE == MESH_DEVICE_TYPE_THREAD_MINIMAL_END_DEVICE) {
+            thread_tasklet_data_ptr->operating_mode = NET_6LOWPAN_HOST;
+    }
+    else if (MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE == MESH_DEVICE_TYPE_THREAD_SLEEPY_END_DEVICE) {
         thread_tasklet_data_ptr->operating_mode = NET_6LOWPAN_SLEEPY_HOST;
     } else {
         thread_tasklet_data_ptr->operating_mode = NET_6LOWPAN_ROUTER;
