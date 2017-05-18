@@ -70,15 +70,15 @@ void mbedtls_md5_starts( mbedtls_md5_context *ctx )
     }
 }
 
-void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[64] )
+void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[MBEDTLS_MD5_BLOCK_SIZE] )
 {
-    HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, (uint8_t *)data, 64);
+    HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, (uint8_t *)data, MBEDTLS_MD5_BLOCK_SIZE);
 }
 
 void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen )
 {
     size_t currentlen = ilen;
-    // store mechanism to handle 64 bytes per 64 bytes
+    // store mechanism to handle MBEDTLS_MD5_BLOCK_SIZE bytes per MBEDTLS_MD5_BLOCK_SIZE bytes
     if (currentlen == 0){ // only change HW status is size if 0
         if(ctx->hhash_md5.Phase == HAL_HASH_PHASE_READY)
         {
@@ -87,18 +87,18 @@ void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, s
           HASH->CR |= HASH_ALGOSELECTION_MD5 | HASH_CR_INIT;
         }
         ctx->hhash_md5.Phase = HAL_HASH_PHASE_PROCESS;
-    } else if (currentlen < (64-ctx->sbuf_len)) {
+    } else if (currentlen < (MBEDTLS_MD5_BLOCK_SIZE-ctx->sbuf_len)) {
         // only buffurize
         memcpy(ctx->sbuf+ctx->sbuf_len, input, currentlen);
         ctx->sbuf_len += currentlen;
     } else {
         // fill buffer and process it
-        memcpy(ctx->sbuf + ctx->sbuf_len, input, (64-ctx->sbuf_len));
-        currentlen -= (64-ctx->sbuf_len);
+        memcpy(ctx->sbuf + ctx->sbuf_len, input, (MBEDTLS_MD5_BLOCK_SIZE-ctx->sbuf_len));
+        currentlen -= (MBEDTLS_MD5_BLOCK_SIZE-ctx->sbuf_len);
         mbedtls_md5_process(ctx, ctx->sbuf);
         // now process every input as long as it is %4 bytes
         size_t iter = currentlen / 4;
-        HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, (uint8_t *)(input+64-ctx->sbuf_len), (iter*4));
+        HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, (uint8_t *)(input+MBEDTLS_MD5_BLOCK_SIZE-ctx->sbuf_len), (iter*4));
         // sbuf is now fully accumulated, now copy 1 / 2 or 3 remaining bytes
         ctx->sbuf_len = currentlen % 4;
         if (ctx->sbuf_len !=0) {
@@ -112,7 +112,7 @@ void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] )
     if (ctx->sbuf_len > 0) {
         HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, ctx->sbuf, ctx->sbuf_len);
     }
-    mbedtls_zeroize( ctx->sbuf, 64);
+    mbedtls_zeroize( ctx->sbuf, MBEDTLS_MD5_BLOCK_SIZE);
     ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();
 
