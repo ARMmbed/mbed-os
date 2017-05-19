@@ -16,6 +16,7 @@
  */
 
 #include "greentea-client/test_env.h"
+#include "greentea-client/greentea_serial.h"
 
 
 /**
@@ -36,4 +37,9 @@ extern "C" int greentea_parse_kv_c(char * key, char * val,
                                    const int key_len, const int val_len){
     return greentea_parse_kv(key, val, key_len, val_len);
 };
+
+extern "C" char greentea_getc() {
+    char c = greentea_serial->getc();
+    return c;
+}
 
