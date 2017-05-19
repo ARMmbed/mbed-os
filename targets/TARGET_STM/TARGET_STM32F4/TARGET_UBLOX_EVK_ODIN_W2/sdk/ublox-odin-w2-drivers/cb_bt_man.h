@@ -141,6 +141,7 @@ typedef void (*cbBM_ChannelMapCallb)(
     TChannelMap *pChMap);
 
 typedef void (*cbBM_InitComplete)(void);
+typedef void(*cbBM_LocalAddressCb)(void);
 
 typedef enum
 {
@@ -148,6 +149,17 @@ typedef enum
     cbBM_LE_ROLE_CENTRAL = 1,
     cbBM_LE_ROLE_PERIPHERAL = 2,
 } cbBM_LeRole;
+
+typedef struct
+{
+    cb_uint8  flags;
+    cb_uint8  flowDirection;
+    cb_uint8  serviceType;
+    cb_uint32 tokenRate;
+    cb_uint32 tokenBucketSize;
+    cb_uint32 peakBandwidth;
+    cb_uint32 latency;
+} cbBM_FlowSpecParams;
 
 /** 
  * Bluetooth Manager initialization parameters.
@@ -157,12 +169,13 @@ typedef struct
     TBdAddr         address;                    /** Bluetooth address that shall be assigned to controller. Pass invalidBdAddress to use controller default address*/
     cbBM_LeRole     leRole;                     /** Bluetooth low energy role */
     cb_int8         maxOutputPower;             /** Maximum output power. */
-    cb_uint32       nvdsStartIdLinkKeysClassic; /** Start id for CLASSIC link keys storage in NVDS. */
-    cb_uint32       maxLinkKeysClassic;         /** Max number of CLASSIC link keys */
-    cb_uint32       nvdsStartIdLinkKeysLe;      /** Start id for BLE link keys storage in NVDS. */
-    cb_uint32       maxLinkKeysLe;              /** Max number of link keys BLE*/
+    cb_int32        nvdsStartIdLinkKeysClassic; /** Start id for CLASSIC link keys storage in NVDS. */
+    cb_int32        maxLinkKeysClassic;         /** Max number of CLASSIC link keys */
+    cb_int32        nvdsStartIdLinkKeysLe;      /** Start id for BLE link keys storage in NVDS. */
+    cb_int32        maxLinkKeysLe;              /** Max number of link keys BLE*/
 } cbBM_InitParams;
 
+typedef void(*cbBM_ServiceEnabled)(cb_uint8 serviceChannel);
 /*===========================================================================
  * FUNCTIONS
  *=========================================================================*/
@@ -185,10 +198,68 @@ extern void cbBM_init(
     cbBM_InitComplete initCompleteCallback);
 
 /**
+* This function sets the default link supervision timeout. The specified timeout will
+* apply for new connections.
+* @param  linkSupervisionTimeout timeout in milliseconds
+* @return If the operation is successful cbBM_OK is returned.
+*/
+extern cb_int32 cbBM_setLinkSupervisionTimeout(
+    cb_uint16 linkSupervisionTimeout);
+
+/**
+* This function gets the default link supervision timeout.
+* @return link supervision timeout in milliseconds.
+*/
+extern cb_uint16 cbBM_getLinkSupervisionTimeout(void);
+
+/**
+* This function enables or disables the fast connect feature (interlaced page scan).
+* @param   fastConnect
+* @return cbBM_OK if in parameter is valid.
+*/
+extern cb_int32 cbBM_setFastConnect(
+    cb_boolean fastConnect);
+/**
+* This function gets whether the fast connect feature is enabled or disabled.
+* @return TRUE if feature is enabled
+*/
+extern cb_boolean cbBM_getFastConnect(void);
+
+/**
+* This function enables or disables the fast discovery feature (interlaced inquiry scan).
+* @param   fastDiscovery
+* @return cbBM_OK if in parameter is valid.
+*/
+extern cb_int32 cbBM_setFastDiscovery(
+    cb_boolean fastDiscovery);
+/**
+* This function gets whether the fast discovery feature is enabled or disabled.
+* @return TRUE if feature is enabled
+*/
+extern cb_boolean cbBM_getFastDiscovery(void);
+/**
  * This function sets all default parameters for LE. 
  * This function needs to be called before the cbBM_init.
 */
 extern void cbBM_setDefaultValuesLeParams(void);
+
+/**
+* This function executes HCI_cmdWrScanEnable command according to parameters.
+* @param discoverableMode discoverable mode
+* @param connectableMode connectable mode
+* @return true if HCI command could be executed.
+*/
+extern cb_int32 cbBM_updateScan(
+    cbBM_DiscoverableMode discoverableMode,
+    cbBM_ConnectableMode connectableMode);
+
+/**
+ * Get the current Bluetooth address of the device from radio. This can
+ * be a way to get a alive-message from the radio.
+ *
+ * @param callback to application when address has been read.
+ */
+extern void cbBM_checkRadioAlive(cbBM_LocalAddressCb callback);
 
 /**
  * Get the current Bluetooth address of the device.
@@ -335,9 +406,11 @@ extern cb_int32 cbBM_remoteName(
  * Add service class to inquiry response data. Typically
  * not used by the application.
  * @param uuid16 The UUID to add
+ * @param pCallback callback to indicate service is enabled.
+ * @param serviceChannel channel the service is started on.
  * @return If the operation is successful cbBM_OK is returned.
  */
-extern cb_int32 cbBM_addServiceClass(cb_uint16 uuid16);
+extern cb_int32 cbBM_addServiceClass(cb_uint16 uuid16, cbBM_ServiceEnabled pCallback,cb_uint8 serviceChannel);
 
 /**
  * Check if service class is already registered. 
@@ -350,9 +423,11 @@ cb_boolean cbBM_isServiceClassRegistered(cb_uint16 uuid16 );
  * Add service class to inquiry response data. Typically
  * not used by the application.
  * @param uuid128 The UUID to add.
+ * @param pCallback callback to indicate service is enabled.
+ * @param serviceChannel channel the service is started on.
  * @return If the operation is successful cbBM_OK is returned.
  */
-extern cb_int32 cbBM_add128BitsServiceClass(cb_uint8* uuid128);
+extern cb_int32 cbBM_add128BitsServiceClass(cb_uint8* uuid128, cbBM_ServiceEnabled pCallback, cb_uint8 serviceChannel);
 
 /**
  * Set maximum Bluetooth Classic ACL links the stack
@@ -521,7 +596,7 @@ extern cb_int32 cbBM_deviceDiscoveryLeCancel(void);
 /**
  * Perform a remote name request for Bluetooth Low Energy.
  * @param pAddress              Pointer to address of remote device.
- * @param remoteNameCallback    Callback used to notify the the completion of the 
+ * @param remoteNameCallback    Callback used to notify the the completion of the
  *                              name request.
  * @return If the operation is successfully initiated cbBM_OK is returned.
  */
@@ -560,6 +635,9 @@ void cbBM_getConnectParameters(TAclParamsLe* aclParams);
 */
 void cbBM_getRemoteNameReqParameters(TAclParamsLe* aclParams);
 
+
+cb_int32 cbBM_setForceClassicNotSupportedInAdv(cb_boolean enforceDisable);
+cb_boolean cbBM_getForceClassicNotSupportedInAdv(void);
 /*
 * Sets the LE parameter.
 * @newValue new parameter value.

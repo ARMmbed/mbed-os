@@ -31,6 +31,7 @@
 
 #include "cb_types.h"
 #include "cb_wlan_types.h"
+#include "cb_cert_utils.h"
 #include "cb_status.h"
 
 #ifdef __cplusplus
@@ -75,25 +76,6 @@ extern "C" {
 /*===========================================================================
  * TYPES
  *=========================================================================*/
-
-typedef struct cbWLAN_Stream_s cbWLAN_Stream;
-typedef cb_uint32 cbWLAN_StreamPosition;
-
-/**
- * Stream vtable interface used by WLAN supplicant to access SSL certificates
- * for WPA Enterprise authentication.
- *
- * @ingroup wlan
- */
-struct cbWLAN_Stream_s {
-    cb_int32 (*read)(const cbWLAN_Stream *stream, void *buf, cb_uint32 count);  /**< Read function pointer, place count bytes in buf. */
-    cb_int32 (*write)(const cbWLAN_Stream *stream, void *buf, cb_uint32 count);  /**< Read function pointer, place count bytes in buf. */
-    void (*rewind)(const cbWLAN_Stream *stream); /**< Rewind function pointer, rewind stream internal iterator to the beginning. Mandatory for all streams. */
-    void (*setPosition)(const cbWLAN_Stream *stream, cbWLAN_StreamPosition position); /**< Set absolute position. */
-    cbWLAN_StreamPosition (*getPosition)(const cbWLAN_Stream *stream); /**< Get current position. */
-    cb_uint32 (*getSize)(const cbWLAN_Stream *stream);  /**< GetSize function pointer, return total size of stream contents. */
-};
-
 /**
  * Start parameters passed to WLAN driver.
  *
@@ -178,8 +160,8 @@ typedef struct cbWLAN_EnterpriseConnectParameters {
     cb_uint8                username[cbWLAN_MAX_USERNAME_LENGTH];       /**< Username string. */
     cb_uint8                passphrase[cbWLAN_MAX_PASSPHRASE_LENGTH];   /**< Passphrase string. */
     cb_uint8                domain[cbWLAN_MAX_DOMAIN_LENGTH];           /**< Domain string. */
-    cbWLAN_Stream           *clientCertificate;     /**< Stream handle to provide SSL certificate for authentication. */
-    cbWLAN_Stream           *clientPrivateKey;      /**< STream handle to provide SSL private key for authentication. */
+    cbCERT_Stream           *clientCertificate;     /**< Stream handle to provide SSL certificate for authentication. */
+    cbCERT_Stream           *clientPrivateKey;      /**< STream handle to provide SSL private key for authentication. */
 } cbWLAN_EnterpriseConnectParameters;
 
 /**
@@ -200,9 +182,10 @@ typedef struct cbWLAN_CommonApParameters {
 * @ingroup wlan
 */
 typedef struct cbWLAN_WPAPSKApParameters {
-    cbWLAN_CipherSuite      rsnCiphers; /**< Bit field indicating which ciphers that shall be displayed in RSN information elements. If 0 no RSN information elements is added to beacons and probe responses. */
-    cbWLAN_CipherSuite      wpaCiphers; /**< Bit field indicating which ciphers that shall be displayed in WPA information elements. If 0 no WPA information elements is added to beacons and probe responses. */
-    cbWLAN_WPAPSK           psk; /**< WPA pre-shared key*/
+    cbWLAN_CipherSuite      rsnCiphers;         /**< Bit field indicating which ciphers that shall be displayed in RSN information elements. If 0 no RSN information elements is added to beacons and probe responses. */
+    cbWLAN_CipherSuite      wpaCiphers;         /**< Bit field indicating which ciphers that shall be displayed in WPA information elements. If 0 no WPA information elements is added to beacons and probe responses. */
+    cbWLAN_WPAPSK           psk;                /**< WPA pre-shared key*/
+    cb_uint32               gtkRekeyInterval;   /**< Group rekey interval in seconds */
 } cbWLAN_WPAPSKApParameters;
 
 
@@ -286,8 +269,11 @@ typedef enum {
     cbWLAN_IOCTL_GET_DTIM_ENABLE,                                //!< Get DTIM enable 0, disable 1 enable
     cbWLAN_IOCTL_SET_SLEEP_TIMEOUT,                              //!< Set enter power save entry delay (in ms). Power save mode will be entered only if there no activity during this delay
     cbWLAN_IOCTL_GET_SLEEP_TIMEOUT,                              //!< Get enter power save entry delay (in ms). Power save mode will be entered only if there no activity during this delay
-
     cbWLAN_IOCTL_LAST,
+    cbWLAN_IOCTL_SET_GSETTING = 1000,                            //!< Pipe to @ref cbWM_gSet.
+    cbWLAN_IOCTL_SET_TSETTING = 2000,                            //!< Pipe to @ref cbWM_tSet.
+    cbWLAN_IOCTL_GET_GSETTING = 3000,                            //!< Pipe to @ref cbWM_gGet.
+    cbWLAN_IOCTL_GET_TSETTING = 4000,                            //!< Pipe to @ref cbWM_tGet.
 } cbWLAN_Ioctl;
 
 /**
