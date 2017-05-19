@@ -13,27 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * CMSIS-style functionality to support dynamic vectors
- */
 
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-#include "cmsis.h"
-
-#define NVIC_NUM_VECTORS      (16 + 48)
-#define NVIC_USER_IRQ_OFFSET  16
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t __NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
-}
-#endif
+#define NVIC_NUM_VECTORS        (16 + 48)
+#define NVIC_RAM_VECTOR_ADDRESS 0x20000000   //Location of vectors in RAM
 
 #endif

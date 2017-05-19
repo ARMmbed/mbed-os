@@ -17,6 +17,7 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
+#include <stdint.h>
 #include "clocking.h"
 
 #ifndef OS_CLOCK
@@ -43,9 +44,6 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20020000UL)
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -56,9 +54,6 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20002000UL)
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
 #endif
@@ -69,9 +64,6 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif
@@ -82,9 +74,6 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif
@@ -95,9 +84,6 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif

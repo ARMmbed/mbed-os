@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2012 ARM Limited
+ * Copyright (c) 2006-2017 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cmsis_os.h"
+#include "Queue.h"
+#include "MemoryPool.h"
+#include "cmsis_os2.h"
+#include "rtx_lib.h"
+#include "mbed_rtos1_types.h"
+
+using namespace rtos;
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -35,32 +41,23 @@ namespace rtos {
  A mail is a memory block that is send to a thread or interrupt service routine.
   @tparam  T         data type of a single message element.
   @tparam  queue_sz  maximum number of messages in queue.
+
+ @note
+ Memory considerations: The mail data store and control structures will be created on current thread's stack,
+ both for the mbed OS and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 template<typename T, uint32_t queue_sz>
 class Mail {
 public:
     /** Create and Initialise Mail queue. */
-    Mail() {
-    #ifdef CMSIS_OS_RTX
-        memset(_mail_q, 0, sizeof(_mail_q));
-        _mail_p[0] = _mail_q;
-
-        memset(_mail_m, 0, sizeof(_mail_m));
-        _mail_p[1] = _mail_m;
-
-        _mail_def.pool = _mail_p;
-        _mail_def.queue_sz = queue_sz;
-        _mail_def.item_sz = sizeof(T);
-    #endif
-        _mail_id = osMailCreate(&_mail_def, NULL);
-    }
+    Mail() { };
 
     /** Allocate a memory block of type T
       @param   millisec  timeout value or 0 in case of no time-out. (default: 0).
       @return  pointer to memory block that can be filled with mail or NULL in case error.
     */
     T* alloc(uint32_t millisec=0) {
-        return (T*)osMailAlloc(_mail_id, millisec);
+        return _pool.alloc();
     }
 
     /** Allocate a memory block of type T and set memory block to zero.
@@ -68,7 +65,7 @@ public:
       @return  pointer to memory block that can be filled with mail or NULL in case error.
     */
     T* calloc(uint32_t millisec=0) {
-        return (T*)osMailCAlloc(_mail_id, millisec);
+        return _pool.calloc();
     }
 
     /** Put a mail in the queue.
@@ -76,7 +73,7 @@ public:
       @return  status code that indicates the execution status of the function.
     */
     osStatus put(T *mptr) {
-        return osMailPut(_mail_id, (void*)mptr);
+        return _queue.put(mptr);
     }
 
     /** Get a mail from a queue.
@@ -84,7 +81,11 @@ public:
       @return  event that contains mail information or error code.
     */
     osEvent get(uint32_t millisec=osWaitForever) {
-        return osMailGet(_mail_id, millisec);
+        osEvent evt = _queue.get(millisec);
+        if (evt.status == osEventMessage) {
+            evt.status = osEventMail;
+        }
+        return evt;
     }
 
     /** Free a memory block from a mail.
@@ -92,17 +93,12 @@ public:
       @return  status code that indicates the execution status of the function.
     */
     osStatus free(T *mptr) {
-        return osMailFree(_mail_id, (void*)mptr);
+        return _pool.free(mptr);
     }
 
 private:
-    osMailQId    _mail_id;
-    osMailQDef_t _mail_def;
-#ifdef CMSIS_OS_RTX
-    uint32_t     _mail_q[4+(queue_sz)];
-    uint32_t     _mail_m[3+((sizeof(T)+3)/4)*(queue_sz)];
-    void        *_mail_p[2];
-#endif
+    Queue<T, queue_sz> _queue;
+    MemoryPool<T, queue_sz> _pool;
 };
 
 }
