@@ -255,13 +255,14 @@ class mbedToolchain:
 
     profile_template = {'common':[], 'c':[], 'cxx':[], 'asm':[], 'ld':[]}
 
-    def __init__(self, target, notify=None, macros=None, silent=False,
+    def __init__(self, config, notify=None, macros=None, silent=False,
                  extra_verbose=False, build_profile=None, build_dir=None):
-        self.target = target
+        self.config = config
+        self.target = config.target
         self.name = self.__class__.__name__
 
         # compile/assemble/link/binary hooks
-        self.hook = hooks.Hook(target, self)
+        self.hook = hooks.Hook(self.target, self)
 
         # Toolchain flags
         self.flags = deepcopy(build_profile or self.profile_template)
@@ -278,10 +279,6 @@ class mbedToolchain:
 
         # Labels generated from toolchain and target rules/features (used for selective build)
         self.labels = None
-
-        # This will hold the initialized config object
-        self.config = None
-
 
         # This will hold the location of the configuration file or None if there's no configuration available
         self.config_file = None
@@ -303,7 +300,9 @@ class mbedToolchain:
         self.ignore_patterns = []
 
         # Pre-mbed 2.0 ignore dirs
-        self.legacy_ignore_dirs = (LEGACY_IGNORE_DIRS | TOOLCHAINS) - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
+        self.legacy_ignore_dirs = ((LEGACY_IGNORE_DIRS | TOOLCHAINS) -
+                                   set([self.target.name,
+                                        LEGACY_TOOLCHAIN_NAMES[self.name]]))
 
         # Output notify function
         # This function is passed all events, and expected to handle notification of the
@@ -329,9 +328,9 @@ class mbedToolchain:
         self.map_outputs = list()   # Place to store memmap scan results in JSON like data structures
 
         # uVisor spepcific rules
-        if (hasattr(self.target, 'features') and
-            'UVISOR' in self.target.features and
-            'UVISOR_SUPPORTED' in self.target.extra_labels):
+        if (hasattr(self.config, 'features') and
+            'UVISOR' in self.config.features and
+            'UVISOR_SUPPORTED' in self.config.extra_labels):
             self.target.core = re.sub(r"F$", '', self.target.core)
 
         # Stats cache is used to reduce the amount of IO requests to stat

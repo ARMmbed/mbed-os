@@ -318,7 +318,6 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
 
     # If the configuration object was not yet created, create it now
     config = config or Config(target, src_paths, app_config=app_config)
-    target = config.target
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
     except KeyError:
@@ -327,10 +326,9 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         add_regions_to_profile(build_profile, config, cur_tc)
 
     # Toolchain instance
-    toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
+    toolchain = cur_tc(config, notify, macros, silent, build_dir=build_dir,
                        extra_verbose=extra_verbose, build_profile=build_profile)
 
-    toolchain.config = config
     toolchain.jobs = jobs
     toolchain.build_all = clean
     toolchain.VERBOSE = verbose
