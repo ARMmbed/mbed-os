@@ -28,6 +28,7 @@ void GREENTEA_SETUP_C(const int timeout, const char * host_test);
 void greentea_send_kv_c(const char * key, const char * val);
 int greentea_parse_kv_c(char * key, char * val,
                         const int key_len, const int val_len);
+char greentea_getc();
 
 #endif /* TEST_ENV_C_H */
 
