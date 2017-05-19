@@ -242,7 +242,7 @@
 #elif defined(__ICCARM__)
 
 #define NRF_SECTION_VARS_ADD(section_name, type_def) \
-    __root type_def @ #section_name
+    static __root type_def @ #section_name
 
 #endif
 
