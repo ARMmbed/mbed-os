@@ -20,23 +20,17 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
+#define NVIC_RAM_VECTOR_ADDRESS   (0x10000000)  // Vectors positioned at start of RAM
+#define NVIC_ROM_VECTOR_ADDRESS   (0x00000000)  // Initial vector position at start of ROM
+
 // CORE: 64 vectors = 64 bytes from 0x00 to 0x3F
 // MCU Peripherals: 85 vectors = 340 bytes from 0x40 to ...
 // Total: 128 vectors = 512 bytes (0x200) to be reserved in RAM
 #define NVIC_NUM_VECTORS      128
+#ifndef NVIC_USER_IRQ_OFFSET
 #define NVIC_USER_IRQ_OFFSET  64
+#endif
 
 #include "cmsis.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
