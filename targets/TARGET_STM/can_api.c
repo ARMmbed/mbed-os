@@ -88,7 +88,7 @@ void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
     // Set initial CAN frequency to 100 kb/s
     if (can_frequency(obj, 100000) != 1) {
         error("Can frequency could not be set\n");
-    };
+    }
 
     uint32_t filter_number = (obj->can == CAN_1) ? 0 : 14;
     can_filter(obj, 0, 0, CANStandard, filter_number);
@@ -205,8 +205,7 @@ int can_frequency(can_t *obj, int f)
         /* Get tick */
         tickstart = HAL_GetTick();
         while ((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
-            if((HAL_GetTick() - tickstart ) > 2)
-            {
+            if ((HAL_GetTick() - tickstart ) > 2) {
                 status = 0;
                 break;
             }
@@ -217,20 +216,19 @@ int can_frequency(can_t *obj, int f)
             /* Get tick */
             tickstart = HAL_GetTick();
             while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
-                if((HAL_GetTick() - tickstart ) > 2)
-                {
+                if ((HAL_GetTick() - tickstart ) > 2) {
                     status = 0;
                     break;
                 }
             }
-            if (status ==0) {
-                error("can ESR  0x%04x.%04x + timeout status %d", (can->ESR&0XFFFF0000)>>16, (can->ESR&0XFFFF), status);
+            if (status == 0) {
+                error("can ESR  0x%04x.%04x + timeout status %d", (can->ESR & 0xFFFF0000) >> 16, (can->ESR & 0xFFFF), status);
             }
         } else {
             error("can init request timeout\n");
         }
     } else {
-        status=0;
+        status = 0;
     }
     return status;
 }
