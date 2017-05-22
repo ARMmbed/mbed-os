@@ -40,7 +40,7 @@ void mbedtls_sha1_free( mbedtls_sha1_context *ctx )
     if( ctx == NULL )
         return;
 
-	/* Force the HASH Periheral Clock Reset */
+    /* Force the HASH Periheral Clock Reset */
     __HAL_RCC_HASH_FORCE_RESET();
 
     /* Release the HASH Periheral Clock Reset */
