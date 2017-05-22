@@ -162,7 +162,8 @@ public:
         Silent,
         LocalTest,
         GlobalTest,
-        SilentTest
+        SilentTest,
+        FIFO            // Tx message order preserved
     };
 
     /** Change CAN operation to the specified mode

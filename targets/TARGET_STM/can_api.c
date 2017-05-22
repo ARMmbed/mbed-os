@@ -342,6 +342,8 @@ int can_mode(can_t *obj, CanMode mode)
     }
 
     switch (mode) {
+        case MODE_FIFO:
+            can->MCR |= CAN_MCR_TXFP;
         case MODE_NORMAL:
             can->BTR &= ~(CAN_BTR_SILM | CAN_BTR_LBKM);
             success = 1;
@@ -592,4 +594,5 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 }
 
 #endif // DEVICE_CAN
+
 
