@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Component   : Bluetooth PAN Data Manager
+ * Component   : Bluetooth Serial
  * File        : cb_bt_pan.h
  *
  * Description : Data management for PAN profile

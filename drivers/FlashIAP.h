@@ -22,7 +22,7 @@
 #ifndef MBED_FLASHIAP_H
 #define MBED_FLASHIAP_H
 
-#if defined (DEVICE_FLASH) || defined(DOXYGEN_ONLY)
+#ifdef DEVICE_FLASH
 
 #include "flash_api.h"
 #include "platform/SingletonPtr.h"
@@ -31,11 +31,11 @@
 namespace mbed {
 
 /** \addtogroup drivers */
+/** @{*/
 
 /** Flash IAP driver. It invokes flash HAL functions.
  *
- * @note Synchronization level: Thread safe
- * @ingroup drivers
+ * Note Synchronization level: Thread safe
  */
 class FlashIAP {
 public:
@@ -117,7 +117,7 @@ public:
 
 private:
 
-    /* Check if address and size are aligned to a sector
+    /** Check if address and size are aligned to a sector
      *
      *  @param addr Address of block to check for alignment
      *  @param size Size of block to check for alignment
@@ -134,3 +134,5 @@ private:
 #endif  /* DEVICE_FLASH */
 
 #endif  /* MBED_FLASHIAP_H */
+
+/** @}*/

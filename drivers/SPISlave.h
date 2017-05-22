@@ -18,18 +18,19 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_SPISLAVE) || defined(DOXYGEN_ONLY)
+#if DEVICE_SPISLAVE
 
 #include "hal/spi_api.h"
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** A SPI slave, used for communicating with a SPI Master device
  *
  * The default format is set to 8-bits, mode 0, and a clock frequency of 1MHz
  *
- * @note Synchronization level: Not protected
+ * @Note Synchronization level: Not protected
  *
  * Example:
  * @code
@@ -50,7 +51,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class SPISlave {
 
@@ -124,3 +124,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

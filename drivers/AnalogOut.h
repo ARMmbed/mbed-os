@@ -18,17 +18,18 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_ANALOGOUT) || defined(DOXYGEN_ONLY)
+#if DEVICE_ANALOGOUT
 
 #include "hal/analogout_api.h"
 #include "platform/PlatformMutex.h"
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** An analog output, used for setting the voltage on a pin
  *
- * @note Synchronization level: Thread safe
+ * @Note Synchronization level: Thread safe
  *
  * Example:
  * @code
@@ -47,7 +48,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class AnalogOut {
 
@@ -55,7 +55,7 @@ public:
 
     /** Create an AnalogOut connected to the specified pin
      *
-     * @param pin AnalogOut pin to connect to
+     *  @param AnalogOut pin to connect to (18)
      */
     AnalogOut(PinName pin) {
         analogout_init(&_dac, pin);
@@ -146,3 +146,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

@@ -261,9 +261,7 @@ class GCC(mbedToolchain):
     @hook_tool
     def binary(self, resources, elf, bin):
         # Build binary command
-        _, fmt = splitext(bin)
-        bin_arg = {'.bin': 'binary', '.hex': 'ihex'}[fmt]
-        cmd = [self.elf2bin, "-O", bin_arg, elf, bin]
+        cmd = [self.elf2bin, "-O", "binary", elf, bin]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_binary(cmd)

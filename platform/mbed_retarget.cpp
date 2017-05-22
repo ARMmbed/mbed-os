@@ -120,7 +120,6 @@ static void init_serial() {
 #endif
 }
 
-#if MBED_CONF_FILESYSTEM_PRESENT
 static inline int openmode_to_posix(int openmode) {
     int posix = openmode;
 #ifdef __ARMCC_VERSION
@@ -155,7 +154,6 @@ static inline int openmode_to_posix(int openmode) {
 #endif
     return posix;
 }
-#endif
 
 extern "C" WEAK void mbed_sdk_init(void);
 extern "C" WEAK void mbed_sdk_init(void) {
@@ -766,6 +764,9 @@ extern "C" uint32_t  __HeapLimit;
 #undef errno
 extern "C" int errno;
 
+// For ARM7 only
+register unsigned char * stack_ptr __asm ("sp");
+
 // Dynamic memory allocation related syscall.
 #if defined(TARGET_NUMAKER_PFM_NUC472) || defined(TARGET_NUMAKER_PFM_M453)
 // Overwrite _sbrk() to support two region model (heap and stack are two distinct regions).
@@ -782,7 +783,9 @@ extern "C" caddr_t _sbrk(int incr) {
     unsigned char*        prev_heap = heap;
     unsigned char*        new_heap = heap + incr;
 
-#if defined(TARGET_CORTEX_A)
+#if defined(TARGET_ARM7)
+    if (new_heap >= stack_ptr) {
+#elif defined(TARGET_CORTEX_A)
     if (new_heap >= (unsigned char*)&__HeapLimit) {     /* __HeapLimit is end of heap section */
 #else
     if (new_heap >= (unsigned char*)__get_MSP()) {

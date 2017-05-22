@@ -346,7 +346,7 @@ extern cb_int32 cbBSM_getAllNumberBondedDevices(
 * @return If the operation is successful cbBSM_OK is returned.
 */
 extern cb_int32 cbBSM_getBondedDevice(
-    cb_int32 deviceIndex,
+    uint32 deviceIndex,
     TBdAddr* pBdAddr,
     cb_boolean pIsLe);
 
@@ -365,14 +365,6 @@ extern cb_int32 cbBSM_deleteBondedDevice(TBdAddr* pBdAddress);
  */
 extern cb_int32 cbBSM_deleteAllBondedDevices(void);
 
-/**
-* Initializes the static Link Keys for both classic and LE.
-* nvdsId: nvds id for the static link key,
-* (0) disables the use of a static link key.
-*
-* @return cbBSM_OK.
-*/
-cb_int32 cbBSM_setStaticLinkKeyNvdsId(cb_int32 nvdsId);
 #ifdef __cplusplus
 }
 #endif

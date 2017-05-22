@@ -24,12 +24,12 @@
 
 namespace mbed {
 /** \addtogroup platform */
+/** @{*/
 
 
 /** Callback class based on template specialization
  *
- * @note Synchronization level: Not protected
- * @ingroup platform
+ * @Note Synchronization level: Not protected
  */
 template <typename F>
 class Callback;
@@ -58,16 +58,9 @@ namespace detail {
     };
 }
 
-#define MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, M)                            \
-    typename detail::enable_if<                                             \
-            detail::is_type<M, &F::operator()>::value &&                    \
-            sizeof(F) <= sizeof(uintptr_t)                                  \
-        >::type = detail::nil()
-
 /** Callback class based on template specialization
  *
- * @note Synchronization level: Not protected
- * @ingroup platform
+ * @Note Synchronization level: Not protected
  */
 template <typename R>
 class Callback<R()> {
@@ -166,38 +159,50 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)())) {
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)() const)) {
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)() volatile)) {
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)() const volatile)) {
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
@@ -398,7 +403,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param f     Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -406,13 +411,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)())) {
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f     Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -420,13 +428,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)() const)) {
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -434,13 +445,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)() volatile)) {
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -448,7 +462,10 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)() const volatile)) {
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)() const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
@@ -553,8 +570,6 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
-     *  @return the value as determined by func which is of 
-     *      type and determined by the signiture of func
      */
     static R thunk(void *func) {
         return static_cast<Callback*>(func)->call();
@@ -640,8 +655,7 @@ private:
 
 /** Callback class based on template specialization
  *
- * @note Synchronization level: Not protected
- * @ingroup platform
+ * @Note Synchronization level: Not protected
  */
 template <typename R, typename A0>
 class Callback<R(A0)> {
@@ -740,38 +754,50 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0))) {
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0) const)) {
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0) volatile)) {
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0) const volatile)) {
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
@@ -972,7 +998,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -980,13 +1006,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0))) {
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -994,13 +1023,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0) const)) {
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1008,13 +1040,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0) volatile)) {
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1022,7 +1057,10 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0) const volatile)) {
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
@@ -1127,9 +1165,6 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
-     *  @param a0 An argument to be called with function func
-     *  @return the value as determined by func which is of 
-     *      type and determined by the signiture of func
      */
     static R thunk(void *func, A0 a0) {
         return static_cast<Callback*>(func)->call(a0);
@@ -1215,8 +1250,7 @@ private:
 
 /** Callback class based on template specialization
  *
- * @note Synchronization level: Not protected
- * @ingroup platform
+ * @Note Synchronization level: Not protected
  */
 template <typename R, typename A0, typename A1>
 class Callback<R(A0, A1)> {
@@ -1315,38 +1349,50 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1))) {
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1) const)) {
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1) volatile)) {
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1) const volatile)) {
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
@@ -1547,7 +1593,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1555,13 +1601,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1))) {
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1569,13 +1618,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1) const)) {
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1583,13 +1635,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1) volatile)) {
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -1597,7 +1652,10 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1) const volatile)) {
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
@@ -1702,10 +1760,6 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
-     *  @param a0 An argument to be called with function func
-     *  @param a1 An argument to be called with function func
-     *  @return the value as determined by func which is of 
-     *      type and determined by the signiture of func
      */
     static R thunk(void *func, A0 a0, A1 a1) {
         return static_cast<Callback*>(func)->call(a0, a1);
@@ -1791,8 +1845,7 @@ private:
 
 /** Callback class based on template specialization
  *
- * @note Synchronization level: Not protected
- * @ingroup platform
+ * @Note Synchronization level: Not protected
  */
 template <typename R, typename A0, typename A1, typename A2>
 class Callback<R(A0, A1, A2)> {
@@ -1891,38 +1944,50 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2))) {
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2) const)) {
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2) volatile)) {
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2) const volatile)) {
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
@@ -2123,7 +2188,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2131,13 +2196,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2))) {
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2145,13 +2213,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2) const)) {
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2159,13 +2230,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2) volatile)) {
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2173,7 +2247,10 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2) const volatile)) {
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
@@ -2278,11 +2355,6 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
-     *  @param a0 An argument to be called with function func
-     *  @param a1 An argument to be called with function func
-     *  @param a2 An argument to be called with function func
-     *  @return the value as determined by func which is of 
-     *      type and determined by the signiture of func
      */
     static R thunk(void *func, A0 a0, A1 a1, A2 a2) {
         return static_cast<Callback*>(func)->call(a0, a1, a2);
@@ -2368,8 +2440,7 @@ private:
 
 /** Callback class based on template specialization
  *
- * @note Synchronization level: Not protected
- * @ingroup platform
+ * @Note Synchronization level: Not protected
  */
 template <typename R, typename A0, typename A1, typename A2, typename A3>
 class Callback<R(A0, A1, A2, A3)> {
@@ -2468,38 +2539,50 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3))) {
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3) const)) {
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3) volatile)) {
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3) const volatile)) {
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
@@ -2700,7 +2783,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2708,13 +2791,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3))) {
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2722,13 +2808,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3) const)) {
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2736,13 +2825,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3) volatile)) {
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -2750,7 +2842,10 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3) const volatile)) {
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
@@ -2855,12 +2950,6 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
-     *  @param a0 An argument to be called with function func
-     *  @param a1 An argument to be called with function func
-     *  @param a2 An argument to be called with function func
-     *  @param a3 An argument to be called with function func
-     *  @return the value as determined by func which is of 
-     *      type and determined by the signiture of func
      */
     static R thunk(void *func, A0 a0, A1 a1, A2 a2, A3 a3) {
         return static_cast<Callback*>(func)->call(a0, a1, a2, a3);
@@ -2946,8 +3035,7 @@ private:
 
 /** Callback class based on template specialization
  *
- * @note Synchronization level: Not protected
- * @ingroup platform
+ * @Note Synchronization level: Not protected
  */
 template <typename R, typename A0, typename A1, typename A2, typename A3, typename A4>
 class Callback<R(A0, A1, A2, A3, A4)> {
@@ -3046,38 +3134,50 @@ public:
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3, A4))) {
+    Callback(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3, A4) const)) {
+    Callback(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3, A4) volatile)) {
+    Callback(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
     /** Create a Callback with a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      */
     template <typename F>
-    Callback(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3, A4) const volatile)) {
+    Callback(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         generate(f);
     }
 
@@ -3278,7 +3378,7 @@ public:
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -3286,13 +3386,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3, A4))) {
+    void attach(F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4), &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -3300,13 +3403,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3, A4) const)) {
+    void attach(const F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -3314,13 +3420,16 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3, A4) volatile)) {
+    void attach(volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
 
     /** Attach a function object
-     *  @param f Function object to attach
+     *  @param func     Function object to attach
      *  @note The function object is limited to a single word of storage
      *  @deprecated
      *      Replaced by simple assignment 'Callback cb = func'
@@ -3328,7 +3437,10 @@ public:
     template <typename F>
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
         "Replaced by simple assignment 'Callback cb = func")
-    void attach(const volatile F f, MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, R (F::*)(A0, A1, A2, A3, A4) const volatile)) {
+    void attach(const volatile F f, typename detail::enable_if<
+                detail::is_type<R (F::*)(A0, A1, A2, A3, A4) const volatile, &F::operator()>::value &&
+                sizeof(F) <= sizeof(uintptr_t)
+            >::type = detail::nil()) {
         this->~Callback();
         new (this) Callback(f);
     }
@@ -3433,13 +3545,6 @@ public:
 
     /** Static thunk for passing as C-style function
      *  @param func Callback to call passed as void pointer
-     *  @param a0 An argument to be called with function func
-     *  @param a1 An argument to be called with function func
-     *  @param a2 An argument to be called with function func
-     *  @param a3 An argument to be called with function func
-     *  @param a4 An argument to be called with function func
-     *  @return the value as determined by func which is of 
-     *      type and determined by the signiture of func
      */
     static R thunk(void *func, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
         return static_cast<Callback*>(func)->call(a0, a1, a2, a3, a4);
@@ -4544,3 +4649,6 @@ Callback<R(A0, A1, A2, A3, A4)> callback(const volatile U *obj, R (*func)(const 
 } // namespace mbed
 
 #endif
+
+
+/** @}*/

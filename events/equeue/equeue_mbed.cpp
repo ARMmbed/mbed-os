@@ -42,12 +42,13 @@ static void equeue_tick_init() {
             "The equeue_timer buffer must fit the class Timer");
     MBED_STATIC_ASSERT(sizeof(equeue_ticker) >= sizeof(Ticker),
             "The equeue_ticker buffer must fit the class Ticker");
-    Timer *timer = new (equeue_timer) Timer;
-    Ticker *ticker = new (equeue_ticker) Ticker;
+    new (equeue_timer) Timer;
+    new (equeue_ticker) Ticker;
 
     equeue_minutes = 0;
-    timer->start();
-    ticker->attach_us(equeue_tick_update, 1000 << 16);
+    reinterpret_cast<Timer*>(equeue_timer)->start();
+    reinterpret_cast<Ticker*>(equeue_ticker)
+            ->attach_us(equeue_tick_update, 1000 << 16);
 
     equeue_tick_inited = true;
 }
@@ -130,9 +131,7 @@ static void equeue_sema_timeout(equeue_sema_t *s) {
 bool equeue_sema_wait(equeue_sema_t *s, int ms) {
     int signal = 0;
     Timeout timeout;
-    if (ms == 0) {
-        return false;
-    } else if (ms > 0) {
+    if (ms > 0) {
         timeout.attach_us(callback(equeue_sema_timeout, s), ms*1000);
     }
 

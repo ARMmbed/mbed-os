@@ -115,14 +115,14 @@ void mbed_die(void);
 /** Print out an error message.  This is typically called when
  * hanlding a crash.
  *
- * @note Synchronization level: Interrupt safe
+ * @Note Synchronization level: Interrupt safe
  */
 void mbed_error_printf(const char* format, ...);
 
 /** Print out an error message.  Similar to mbed_error_printf
  * but uses a va_list.
  *
- * @note Synchronization level: Interrupt safe
+ * @Note Synchronization level: Interrupt safe
  */
 void mbed_error_vfprintf(const char * format, va_list arg);
 

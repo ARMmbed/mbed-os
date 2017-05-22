@@ -22,10 +22,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** A digital output, used for setting the state of a pin
  *
- * @note Synchronization level: Interrupt safe
+ * @Note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -41,7 +42,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class DigitalOut {
 
@@ -126,3 +126,5 @@ protected:
 } // namespace mbed
 
 #endif
+
+/** @}*/

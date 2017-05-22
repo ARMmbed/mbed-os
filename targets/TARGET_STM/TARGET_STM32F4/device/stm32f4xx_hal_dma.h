@@ -122,7 +122,13 @@ typedef enum
 {
   HAL_DMA_STATE_RESET             = 0x00U,  /*!< DMA not yet initialized or disabled */
   HAL_DMA_STATE_READY             = 0x01U,  /*!< DMA initialized and ready for use   */
+  HAL_DMA_STATE_READY_MEM0        = 0x11U,  /*!< DMA Mem0 process success            */ // FIX
+  HAL_DMA_STATE_READY_MEM1        = 0x21U,  /*!< DMA Mem1 process success            */ // FIX
+  HAL_DMA_STATE_READY_HALF_MEM0   = 0x31U,  /*!< DMA Mem0 Half process success       */ // FIX
+  HAL_DMA_STATE_READY_HALF_MEM1   = 0x41U,  /*!< DMA Mem1 Half process success       */ // FIX
   HAL_DMA_STATE_BUSY              = 0x02U,  /*!< DMA process is ongoing              */
+  HAL_DMA_STATE_BUSY_MEM0         = 0x12U,  /*!< DMA Mem0 process is ongoing         */ // FIX
+  HAL_DMA_STATE_BUSY_MEM1         = 0x22U,  /*!< DMA Mem1 process is ongoing         */ // FIX
   HAL_DMA_STATE_TIMEOUT           = 0x03U,  /*!< DMA timeout state                   */
   HAL_DMA_STATE_ERROR             = 0x04U,  /*!< DMA error state                     */
   HAL_DMA_STATE_ABORT             = 0x05U,  /*!< DMA Abort state                     */

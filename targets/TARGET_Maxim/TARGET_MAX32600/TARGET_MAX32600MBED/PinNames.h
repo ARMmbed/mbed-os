@@ -184,9 +184,6 @@ typedef enum {
     // Push button
     SW2 = P6_4,
     SW3 = P6_5,
-    // Standardized button names
-    BUTTON1 = SW2,
-    BUTTON2 = SW3,
 
     // UART pins
     USBTX = P7_3,

@@ -22,7 +22,8 @@ typedef int FILEHANDLE;
 #include "platform/platform.h"
 
 namespace mbed {
-/** \addtogroup platform */
+/** \addtogroup drivers */
+/** @{*/
 
 
 /** Class FileHandle
@@ -33,7 +34,6 @@ namespace mbed {
  *
  *  @note to create a file, @see File
  *  @note Synchronization level: Set by subclass
- *  @ingroup platform
  */
 class FileHandle {
 public:
@@ -155,6 +155,7 @@ public:
 };
 
 
+/** @}*/
 } // namespace mbed
 
 #endif

@@ -21,7 +21,8 @@
 #include "platform/FileHandle.h"
 
 namespace mbed {
-/** \addtogroup platform */
+/** \addtogroup drivers */
+/** @{*/
 
 
 /** Represents a directory stream. Objects of this type are returned
@@ -38,8 +39,7 @@ namespace mbed {
  *  reflect this.
  *
  *  @note to create a directory, @see Dir
- *  @note Synchronization level: Set by subclass
- *  @ingroup platform
+ *  @Note Synchronization level: Set by subclass
  */
 class DirHandle {
 public:
@@ -47,6 +47,7 @@ public:
 
     /** Read the next directory entry
      *
+     *  @param path     The buffer to read the null terminated path name in to
      *  @param ent      The directory entry to fill out
      *  @return         1 on reading a filename, 0 at end of directory, negative error on failure
      */
@@ -145,3 +146,5 @@ public:
 } // namespace mbed
 
 #endif /* MBED_DIRHANDLE_H */
+
+/** @}*/

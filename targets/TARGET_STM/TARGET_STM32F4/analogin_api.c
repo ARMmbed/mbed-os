@@ -40,9 +40,6 @@ ADC_HandleTypeDef AdcHandle;
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    uint32_t function = (uint32_t)NC;
-    obj->adc = (ADCName)NC;
-
 #if defined(ADC1)
     static int adc1_inited = 0;
 #endif
@@ -52,27 +49,20 @@ void analogin_init(analogin_t *obj, PinName pin)
 #if defined(ADC3)
     static int adc3_inited = 0;
 #endif
-    // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
-    //   are described in PinNames.h and PeripheralPins.c
-    //   Pin value must be >= 0xF0
-    if (pin < 0xF0) {
-        // Normal channels
-        // Get the peripheral name from the pin and assign it to the object
-        obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-        // Get the functions (adc channel) from the pin and assign it to the object
-        function = pinmap_function(pin, PinMap_ADC);
-        // Configure GPIO
-        pinmap_pinout(pin, PinMap_ADC);
-    } else {
-        // Internal channels
-        obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC_Internal);
-        function = pinmap_function(pin, PinMap_ADC_Internal);
-        // No GPIO configuration for internal channels
-    }
+    // Get the peripheral name from the pin and assign it to the object
+    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
     MBED_ASSERT(obj->adc != (ADCName)NC);
-    MBED_ASSERT(function != (uint32_t)NC);
 
+    // Get the functions (adc channel) from the pin and assign it to the object
+    uint32_t function = pinmap_function(pin, PinMap_ADC);
+    MBED_ASSERT(function != (uint32_t)NC);
     obj->channel = STM_PIN_CHANNEL(function);
+
+    // Configure GPIO excepted for internal channels (Temperature, Vref, Vbat, ...)
+    // ADC Internal Channels "pins" are described in PinNames.h and must have a value >= 0xF0
+    if (pin < 0xF0) {
+        pinmap_pinout(pin, PinMap_ADC);
+    }
 
     // Save pin number for the read function
     obj->pin = pin;

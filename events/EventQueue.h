@@ -24,6 +24,7 @@
 
 namespace events {
 /** \addtogroup events */
+/** @{*/
 
 /** EVENTS_EVENT_SIZE
  *  Minimum size of an event
@@ -45,7 +46,6 @@ class Event;
 /** EventQueue
  *
  *  Flexible event queue for dispatching events
- * @ingroup events
  */
 class EventQueue {
 public:
@@ -2698,3 +2698,4 @@ protected:
 
 #endif
 
+/** @}*/

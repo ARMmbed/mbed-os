@@ -23,10 +23,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** A digital input, used for reading the state of a pin
  *
- * @note Synchronization level: Interrupt safe
+ * @Note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -46,7 +47,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class DigitalIn {
 
@@ -82,7 +82,7 @@ public:
 
     /** Set the input pin mode
      *
-     *  @param pull PullUp, PullDown, PullNone, OpenDrain
+     *  @param mode PullUp, PullDown, PullNone, OpenDrain
      */
     void mode(PinMode pull) {
         core_util_critical_section_enter();
@@ -115,3 +115,5 @@ protected:
 } // namespace mbed
 
 #endif
+
+/** @}*/

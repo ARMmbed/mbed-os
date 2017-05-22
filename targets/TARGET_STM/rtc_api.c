@@ -83,7 +83,7 @@ void rtc_init(void)
         error("PeriphClkInitStruct RTC failed with LSE\n");
     }
 #else /* !RTC_LSI */
-    __HAL_RCC_PWR_CLK_ENABLE();
+    __PWR_CLK_ENABLE();
 
     // Reset Backup domain
     __HAL_RCC_BACKUPRESET_FORCE();
@@ -147,7 +147,7 @@ void rtc_free(void)
 {
 #if RTC_LSI
     // Enable Power clock
-    __HAL_RCC_PWR_CLK_ENABLE();
+    __PWR_CLK_ENABLE();
 
     // Enable access to Backup domain
     HAL_PWR_EnableBkUpAccess();

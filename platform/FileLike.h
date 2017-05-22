@@ -21,15 +21,15 @@
 #include "platform/FileHandle.h"
 
 namespace mbed {
-/** \addtogroup platform */
+/** \addtogroup drivers */
+/** @{*/
 
 
 /* Class FileLike
  *  A file-like object is one that can be opened with fopen by
  *  fopen("/name", mode).
  *
- *  @note Synchronization level: Set by subclass
- *  @ingroup platform
+ *  @Note Synchronization level: Set by subclass
  */
 class FileLike : public FileHandle, public FileBase {
 public:
@@ -42,6 +42,7 @@ public:
 };
 
 
+/** @}*/
 } // namespace mbed
 
 #endif

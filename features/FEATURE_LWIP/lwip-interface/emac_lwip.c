@@ -63,13 +63,10 @@ err_t emac_lwip_if_init(struct netif *netif)
     mac->ops.set_link_input_cb(mac, emac_lwip_input, netif);
     mac->ops.set_link_state_cb(mac, emac_lwip_state_change, netif);
 
-    if (!mac->ops.power_up(mac)) {
-        err = ERR_IF;
-    }
-
-    netif->mtu = mac->ops.get_mtu_size(mac);
     netif->hwaddr_len = mac->ops.get_hwaddr_size(mac);
     mac->ops.get_hwaddr(mac, netif->hwaddr);
+
+    netif->mtu = mac->ops.get_mtu_size(mac);
 
     /* Interface capabilities */
     netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET | NETIF_FLAG_IGMP;
@@ -81,6 +78,10 @@ err_t emac_lwip_if_init(struct netif *netif)
 #endif /* LWIP_IPV4 */
 
     netif->linkoutput = emac_lwip_low_level_output;
+
+    if (!mac->ops.power_up(mac)) {
+        err = ERR_IF;
+    }
 
     return err;
 }

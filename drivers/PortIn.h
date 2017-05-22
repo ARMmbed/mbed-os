@@ -18,17 +18,18 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_PORTIN) || defined(DOXYGEN_ONLY)
+#if DEVICE_PORTIN
 
 #include "hal/port_api.h"
 #include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** A multiple pin digital input
  *
- * @note Synchronization level: Interrupt safe
+ * @Note Synchronization level: Interrupt safe
  *
  *  Example:
  * @code
@@ -50,7 +51,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class PortIn {
 public:
@@ -100,3 +100,5 @@ private:
 #endif
 
 #endif
+
+/** @}*/

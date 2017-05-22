@@ -23,13 +23,11 @@
 
 namespace mbed {
 /** \addtogroup platform */
+/** @{*/
 
 
 // Declarations for backwards compatibility
 // To be foward compatible, code should adopt the Callback class
-/**
- * @ingroup platform
- */
 template <typename R, typename A1>
 class FunctionPointerArg1 : public Callback<R(A1)> {
 public:
@@ -61,9 +59,6 @@ public:
     }
 };
 
-/**
- * @ingroup platform
- */
 template <typename R>
 class FunctionPointerArg1<R, void> : public Callback<R()> {
 public:
@@ -101,3 +96,5 @@ typedef FunctionPointerArg1<void, void> FunctionPointer;
 } // namespace mbed
 
 #endif
+
+/** @}*/
