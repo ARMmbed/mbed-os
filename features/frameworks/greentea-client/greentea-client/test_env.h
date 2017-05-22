@@ -44,6 +44,11 @@
 #define TEST_ENV_TESTCASE_SUMMARY   GREENTEA_TEST_ENV_TESTCASE_SUMMARY
 
 /**
+ *  Default length for UUID buffers (used during the sync process)
+ */
+#define GREENTEA_UUID_LENGTH        48
+
+/**
  *  Generic test suite transport protocol keys
  */
 extern const char* GREENTEA_TEST_ENV_END;

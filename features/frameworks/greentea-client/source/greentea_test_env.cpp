@@ -91,8 +91,8 @@ void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char 
  *           This function is blocking.
  */
 void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
-    char _value[48] = {0};
-    _GREENTEA_SETUP_COMMON(timeout, host_test_name, _value, 48);
+    char _value[GREENTEA_UUID_LENGTH] = {0};
+    _GREENTEA_SETUP_COMMON(timeout, host_test_name, _value, GREENTEA_UUID_LENGTH);
 }
 
 /** \brief Handshake with host and send setup data (timeout and host test name)
