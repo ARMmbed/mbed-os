@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 #include "platform/Stream.h"
-#include "platform/mbed_error.h"
-#include <errno.h>
 
 namespace mbed {
 
@@ -25,11 +23,7 @@ Stream::Stream(const char *name) : FileLike(name), _file(NULL) {
     char buf[12]; /* :0x12345678 + null byte */
     std::sprintf(buf, ":%p", this);
     _file = std::fopen(buf, "w+");
-    if (_file) {
-        mbed_set_unbuffered_stream(_file);
-    } else {
-        error("Stream obj failure, errno=%d\r\n", errno);
-    }
+    mbed_set_unbuffered_stream(_file);
 }
 
 Stream::~Stream() {

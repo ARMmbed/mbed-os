@@ -37,7 +37,6 @@
 //*** ADC ***
 #ifdef DEVICE_ANALOGIN
 extern const PinMap PinMap_ADC[];
-extern const PinMap PinMap_ADC_Internal[];
 #endif
 
 //*** DAC ***

@@ -20,9 +20,6 @@ extern "C" {
 #endif
 
 #include "ns_types.h"
-
-#define MAX_IPV6_STRING_LEN_WITH_TRAILING_NULL 40
-
 /**
  * Print binary IPv6 address to a string.
  *

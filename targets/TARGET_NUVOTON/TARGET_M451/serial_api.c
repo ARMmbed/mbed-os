@@ -24,7 +24,6 @@
 #include "PeripheralPins.h"
 #include "nu_modutil.h"
 #include "nu_bitutil.h"
-#include <string.h>
 
 #if DEVICE_SERIAL_ASYNCH
 #include "dma_api.h"
@@ -62,8 +61,6 @@ static void uart_dma_handler_rx(uint32_t id, uint32_t event);
 
 static void serial_tx_enable_interrupt(serial_t *obj, uint32_t address, uint8_t enable);
 static void serial_rx_enable_interrupt(serial_t *obj, uint32_t address, uint8_t enable);
-static void serial_enable_interrupt(serial_t *obj, SerialIrq irq, uint32_t enable);
-static void serial_rollback_interrupt(serial_t *obj, SerialIrq irq);
 static int serial_write_async(serial_t *obj);
 static int serial_read_async(serial_t *obj);
 
@@ -162,7 +159,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
+    MBED_ASSERT(modinit->modname == obj->serial.uart);
     
     struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
     
@@ -189,7 +186,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     serial_format(obj, 8, ParityNone, 1);
     
     obj->serial.vec = var->vec;
-    obj->serial.irq_en = 0;
     
 #if DEVICE_SERIAL_ASYNCH
     obj->serial.dma_usage_tx = DMA_USAGE_NEVER;
@@ -216,7 +212,7 @@ void serial_free(serial_t *obj)
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
+    MBED_ASSERT(modinit->modname == obj->serial.uart);
     
     struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
     
@@ -333,7 +329,7 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
     
     const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
+    MBED_ASSERT(modinit->modname == obj->serial.uart);
     
     obj->serial.irq_handler = (uint32_t) handler;
     obj->serial.irq_id = id;
@@ -344,18 +340,51 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
-    obj->serial.irq_en = enable;
-    serial_enable_interrupt(obj, irq, enable);
+    if (enable) {
+        const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
+        MBED_ASSERT(modinit != NULL);
+        MBED_ASSERT(modinit->modname == obj->serial.uart);
+    
+        NVIC_SetVector(modinit->irq_n, (uint32_t) obj->serial.vec);
+        NVIC_EnableIRQ(modinit->irq_n);
+        
+        struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
+        // Multiple serial S/W objects for single UART H/W module possibly.
+        // Bind serial S/W object to UART H/W module as interrupt is enabled.
+        var->obj = obj;
+        
+        switch (irq) {
+            // NOTE: Setting inten_msk first to avoid race condition
+            case RxIrq:
+                obj->serial.inten_msk = obj->serial.inten_msk | (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk);
+                UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+                break;
+            case TxIrq:
+                obj->serial.inten_msk = obj->serial.inten_msk | UART_INTEN_THREIEN_Msk;
+                UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_THREIEN_Msk);
+                break;
+        }
+    } else { // disable
+        switch (irq) {
+            case RxIrq:
+                UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
+                obj->serial.inten_msk = obj->serial.inten_msk & ~(UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk);
+                break;
+            case TxIrq:
+                UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_THREIEN_Msk);
+                obj->serial.inten_msk = obj->serial.inten_msk & ~UART_INTEN_THREIEN_Msk;
+                break;
+        }
+    }
 }
 
 int serial_getc(serial_t *obj)
 {
-    // NOTE: Every byte access requires accompaniment of one interrupt. This has side effect of performance degradation.
+    // TODO: Fix every byte access requires accompaniness of one interrupt. This degrades performance much.    
     while (! serial_readable(obj));
     int c = UART_READ(((UART_T *) NU_MODBASE(obj->serial.uart)));
     
-    // NOTE: On Nuvoton targets, no H/W IRQ to match TxIrq/RxIrq.
-    //       Simulation of TxIrq/RxIrq requires the call to Serial::putc()/Serial::getc() respectively. 
+    // Simulate clear of the interrupt flag
     if (obj->serial.inten_msk & (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk)) {
         UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
     }
@@ -365,12 +394,11 @@ int serial_getc(serial_t *obj)
 
 void serial_putc(serial_t *obj, int c)
 {
-    // NOTE: Every byte access requires accompaniment of one interrupt. This has side effect of performance degradation.
+    // TODO: Fix every byte access requires accompaniness of one interrupt. This degrades performance much.
     while (! serial_writable(obj));
     UART_WRITE(((UART_T *) NU_MODBASE(obj->serial.uart)), c);
     
-    // NOTE: On Nuvoton targets, no H/W IRQ to match TxIrq/RxIrq.
-    //       Simulation of TxIrq/RxIrq requires the call to Serial::putc()/Serial::getc() respectively. 
+    // Simulate clear of the interrupt flag
     if (obj->serial.inten_msk & UART_INTEN_THREIEN_Msk) {
         UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_THREIEN_Msk);
     }
@@ -472,7 +500,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
         // DMA way
         const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
         MBED_ASSERT(modinit != NULL);
-        MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
+        MBED_ASSERT(modinit->modname == obj->serial.uart);
     
         PDMA_T *pdma_base = dma_modbase();
         
@@ -535,7 +563,7 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
         // DMA way
         const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
         MBED_ASSERT(modinit != NULL);
-        MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
+        MBED_ASSERT(modinit->modname == obj->serial.uart);
     
         PDMA_T *pdma_base = dma_modbase();
         
@@ -584,8 +612,10 @@ void serial_tx_abort_asynch(serial_t *obj)
     }
     
     // Necessary for both interrupt way and DMA way
-    serial_enable_interrupt(obj, TxIrq, 0);
-    serial_rollback_interrupt(obj, TxIrq);
+    serial_irq_set(obj, TxIrq, 0);
+    // FIXME: more complete abort operation
+    //UART_HAL_DisableTransmitter(obj->serial.serial.address);
+    //UART_HAL_FlushTxFifo(obj->serial.serial.address);
 }
 
 void serial_rx_abort_asynch(serial_t *obj)
@@ -603,30 +633,20 @@ void serial_rx_abort_asynch(serial_t *obj)
     }
     
     // Necessary for both interrupt way and DMA way
-    serial_enable_interrupt(obj, RxIrq, 0);
-    serial_rollback_interrupt(obj, RxIrq);
+    serial_irq_set(obj, RxIrq, 0);
+    // FIXME: more complete abort operation
+    //UART_HAL_DisableReceiver(obj->serial.serial.address);
+    //UART_HAL_FlushRxFifo(obj->serial.serial.address);
 }
 
 uint8_t serial_tx_active(serial_t *obj)
 {
-    // NOTE: Judge by serial_is_irq_en(obj, TxIrq) doesn't work with sync/async modes interleaved. Change with TX FIFO empty flag.
-    const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
-    MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
-    
-    struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;    
-    return (obj->serial.vec == var->vec_async);
+    return serial_is_irq_en(obj, TxIrq);
 }
 
 uint8_t serial_rx_active(serial_t *obj)
 {
-    // NOTE: Judge by serial_is_irq_en(obj, RxIrq) doesn't work with sync/async modes interleaved. Change with RX FIFO empty flag.
-    const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
-    MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
-    
-    struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;    
-    return (obj->serial.vec == var->vec_async);
+    return serial_is_irq_en(obj, RxIrq);
 }
 
 int serial_irq_handler_asynch(serial_t *obj)
@@ -866,7 +886,7 @@ static int serial_write_async(serial_t *obj)
 {   
     const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
+    MBED_ASSERT(modinit->modname == obj->serial.uart);
     
     UART_T *uart_base = (UART_T *) NU_MODBASE(obj->serial.uart);
     
@@ -918,7 +938,7 @@ static int serial_read_async(serial_t *obj)
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
+    MBED_ASSERT(modinit->modname == obj->serial.uart);
     
     uint32_t rx_fifo_busy = (((UART_T *) NU_MODBASE(obj->serial.uart))->FIFOSTS & UART_FIFOSTS_RXPTR_Msk) >> UART_FIFOSTS_RXPTR_Pos;
     //uint32_t rx_fifo_free = ((struct nu_uart_var *) modinit->var)->fifo_size_rx - rx_fifo_busy;
@@ -993,81 +1013,28 @@ static void serial_tx_enable_interrupt(serial_t *obj, uint32_t handler, uint8_t 
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
+    MBED_ASSERT(modinit->modname == obj->serial.uart);
     
     // Necessary for both interrupt way and DMA way
     struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
     // With our own async vector, tx/rx handlers can be different.
     obj->serial.vec = var->vec_async;
     obj->serial.irq_handler_tx_async = (void (*)(void)) handler;
-    serial_enable_interrupt(obj, TxIrq, enable);
+    serial_irq_set(obj, TxIrq, enable);
 }
 
 static void serial_rx_enable_interrupt(serial_t *obj, uint32_t handler, uint8_t enable)
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
+    MBED_ASSERT(modinit->modname == obj->serial.uart);
     
     // Necessary for both interrupt way and DMA way
     struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
     // With our own async vector, tx/rx handlers can be different.
     obj->serial.vec = var->vec_async;
     obj->serial.irq_handler_rx_async = (void (*) (void)) handler;
-    serial_enable_interrupt(obj, RxIrq, enable);
-}
-
-static void serial_enable_interrupt(serial_t *obj, SerialIrq irq, uint32_t enable)
-{
-    if (enable) {
-        const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
-        MBED_ASSERT(modinit != NULL);
-        MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
-    
-        NVIC_SetVector(modinit->irq_n, (uint32_t) obj->serial.vec);
-        NVIC_EnableIRQ(modinit->irq_n);
-        
-        struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
-        // Multiple serial S/W objects for single UART H/W module possibly.
-        // Bind serial S/W object to UART H/W module as interrupt is enabled.
-        var->obj = obj;
-        
-        switch (irq) {
-            // NOTE: Setting inten_msk first to avoid race condition
-            case RxIrq:
-                obj->serial.inten_msk = obj->serial.inten_msk | (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk);
-                UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
-                break;
-            case TxIrq:
-                obj->serial.inten_msk = obj->serial.inten_msk | UART_INTEN_THREIEN_Msk;
-                UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_THREIEN_Msk);
-                break;
-        }
-    }
-    else { // disable
-        switch (irq) {
-            case RxIrq:
-                UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk));
-                obj->serial.inten_msk = obj->serial.inten_msk & ~(UART_INTEN_RDAIEN_Msk | UART_INTEN_RXTOIEN_Msk);
-                break;
-            case TxIrq:
-                UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_THREIEN_Msk);
-                obj->serial.inten_msk = obj->serial.inten_msk & ~UART_INTEN_THREIEN_Msk;
-                break;
-        }
-    }
-}
-
-static void serial_rollback_interrupt(serial_t *obj, SerialIrq irq)
-{
-    const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
-    MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
-    
-    struct nu_uart_var *var = (struct nu_uart_var *) modinit->var;
-    
-    obj->serial.vec = var->vec;
-    serial_enable_interrupt(obj, irq, obj->serial.irq_en);
+    serial_irq_set(obj, RxIrq, enable);
 }
 
 static void serial_check_dma_usage(DMAUsage *dma_usage, int *dma_ch)

@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_SERIAL) || defined(DOXYGEN_ONLY)
+#if DEVICE_SERIAL
 
 #include "Stream.h"
 #include "SerialBase.h"
@@ -27,13 +27,14 @@
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** A serial port (UART) for communication with other serial devices
  *
  * Can be used for Full Duplex communication, or Simplex by specifying
  * one pin as NC (Not Connected)
  *
- * @note Synchronization level: Thread safe
+ * @Note Synchronization level: Thread safe
  *
  * Example:
  * @code
@@ -47,7 +48,6 @@ namespace mbed {
  *     pc.printf("Hello World\n");
  * }
  * @endcode
- * @ingroup drivers
  */
 class Serial : public SerialBase, public Stream {
 
@@ -95,3 +95,5 @@ protected:
 #endif
 
 #endif
+
+/** @}*/

@@ -7,7 +7,6 @@
 
 using namespace utest::v1;
 
-#define TEST_EQUEUE_SIZE 1024
 
 // flag for called
 volatile bool touched = false;
@@ -44,7 +43,7 @@ void func0() {
 
 #define SIMPLE_POSTS_TEST(i, ...)                           \
 void simple_posts_test##i() {                               \
-    EventQueue queue(TEST_EQUEUE_SIZE);                     \
+    EventQueue queue;                                       \
                                                             \
     touched = false;                                        \
     queue.call(func##i,##__VA_ARGS__);                      \
@@ -79,7 +78,7 @@ template <int N>
 void call_in_test() {
     Timer tickers[N];
 
-    EventQueue queue(TEST_EQUEUE_SIZE);
+    EventQueue queue;
 
     for (int i = 0; i < N; i++) {
         tickers[i].start();
@@ -93,7 +92,7 @@ template <int N>
 void call_every_test() {
     Timer tickers[N];
 
-    EventQueue queue(TEST_EQUEUE_SIZE);
+    EventQueue queue;
 
     for (int i = 0; i < N; i++) {
         tickers[i].start();
@@ -104,7 +103,7 @@ void call_every_test() {
 }
 
 void allocate_failure_test() {
-    EventQueue queue(TEST_EQUEUE_SIZE);
+    EventQueue queue;
     int id;
 
     for (int i = 0; i < 100; i++) {
@@ -120,7 +119,7 @@ void no() {
 
 template <int N>
 void cancel_test1() {
-    EventQueue queue(TEST_EQUEUE_SIZE);
+    EventQueue queue;
 
     int ids[N];
 
@@ -165,7 +164,7 @@ void count0() {
 
 void event_class_test() {
     counter = 0;
-    EventQueue queue(TEST_EQUEUE_SIZE);
+    EventQueue queue(2048);
 
     Event<void(int, int, int, int, int)> e5(&queue, count5);
     Event<void(int, int, int, int)> e4(&queue, count5, 1);
@@ -188,7 +187,7 @@ void event_class_test() {
 
 void event_class_helper_test() {
     counter = 0;
-    EventQueue queue(TEST_EQUEUE_SIZE);
+    EventQueue queue(2048);
 
     Event<void()> e5 = queue.event(count5, 1, 1, 1, 1, 1);
     Event<void()> e4 = queue.event(count4, 1, 1, 1, 1);
@@ -211,7 +210,7 @@ void event_class_helper_test() {
 
 void event_inference_test() {
     counter = 0;
-    EventQueue queue(TEST_EQUEUE_SIZE);
+    EventQueue queue(2048);
 
     queue.event(count5, 1, 1, 1, 1, 1).post();
     queue.event(count5, 1, 1, 1, 1).post(1);

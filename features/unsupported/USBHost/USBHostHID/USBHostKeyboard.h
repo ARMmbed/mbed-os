@@ -26,8 +26,7 @@
 /**
  * A class to communicate a USB keyboard
  */
-class USBHostKeyboard : public IUSBEnumerator
-{
+class USBHostKeyboard : public IUSBEnumerator {
 public:
 
     /**
@@ -54,8 +53,7 @@ public:
      *
      * @param ptr function pointer
      */
-    inline void attach(void (*ptr)(uint8_t key))
-    {
+    inline void attach(void (*ptr)(uint8_t key)) {
         if (ptr != NULL) {
             onKey = ptr;
         }
@@ -66,8 +64,7 @@ public:
      *
      * @param ptr function pointer
      */
-    inline void attach(void (*ptr)(uint8_t keyCode, uint8_t modifier))
-    {
+    inline void attach(void (*ptr)(uint8_t keyCode, uint8_t modifier)) {
         if (ptr != NULL) {
             onKeyCode = ptr;
         }

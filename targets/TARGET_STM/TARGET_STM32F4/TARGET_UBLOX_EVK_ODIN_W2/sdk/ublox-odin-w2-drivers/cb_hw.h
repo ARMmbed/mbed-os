@@ -59,11 +59,6 @@ typedef enum {
     cbHW_IRQ_LOW = 12U
 }cbHW_PRIO_LVL;
 
-typedef enum {
-    cbHW_SYSTICK_DISABLED,
-    cbHW_SYSTICK_LOW_FREQ,
-    cbHW_SYSTICK_DEFAULT,
-} cbHW_SysTickMode;
 /*===========================================================================
  * TYPES
  *=========================================================================*/
@@ -84,7 +79,6 @@ void cbHW_enterSleepMode(void);
 void cbHW_enterStopMode(void);
 void cbHW_setWakeupEvent(void);
 void cbHW_resetWakeupEvent(void);
-void cbHW_setSysTickMode(cbHW_SysTickMode sysTickMode);
 
 /**
  * Wait for specified amount of microseconds. May be interrupt dependent.
@@ -148,4 +142,5 @@ void cbHW_enableAllIrq(void);
 #endif
 
 #endif
+
 

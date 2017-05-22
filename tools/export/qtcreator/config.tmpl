@@ -1,6 +1,0 @@
-{%  for d in defines -%}
-{% if d[0] == 'D' %}#define {% else %}#undef{% endif %} {{ d[1]|join(' ')}}
-{%  endfor %}
-{%  for i in forced_includes -%}
-#include "{{i}}"
-{%  endfor %}

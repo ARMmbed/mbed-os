@@ -106,17 +106,11 @@ typedef enum {
     A4 = P1_30,
     A5 = P1_31,
 
-    // Not connected
-    NC = (int)0xFFFFFFFF,
+    I2C_SCL = D15,
+    I2C_SDA = D14,
 
-    I2C_SCL0 = NC,
-    I2C_SDA0 = NC,
-    I2C_SCL1 = p10,
-    I2C_SDA1 = p9,
-    I2C_SCL2 = p27, // pin used by application board
-    I2C_SDA2 = p28, // pin used by application board
-    I2C_SCL = I2C_SCL2,
-    I2C_SDA = I2C_SDA2,
+    // Not connected
+    NC = (int)0xFFFFFFFF
 } PinName;
 
 typedef enum {

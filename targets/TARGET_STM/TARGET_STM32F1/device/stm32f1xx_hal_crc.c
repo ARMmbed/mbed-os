@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_crc.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    14-April-2017
+  * @version V1.0.5
+  * @date    06-December-2016
   * @brief   CRC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Cyclic Redundancy Check (CRC) peripheral:
@@ -162,9 +162,6 @@ HAL_StatusTypeDef HAL_CRC_DeInit(CRC_HandleTypeDef *hcrc)
   /* Resets the CRC calculation unit and sets the data register to 0xFFFF FFFF */
   __HAL_CRC_DR_RESET(hcrc);
 
-  /* Reset IDR register content */
-  CLEAR_BIT(hcrc->Instance->IDR, CRC_IDR_IDR);
-
   /* Change CRC peripheral state */
   hcrc->State = HAL_CRC_STATE_RESET;
 
@@ -237,7 +234,7 @@ __weak void HAL_CRC_MspDeInit(CRC_HandleTypeDef *hcrc)
   */
 uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength)
 {
-  uint32_t index = 0U;
+  uint32_t index = 0;
 
   /* Process Locked */
   __HAL_LOCK(hcrc);
@@ -246,7 +243,7 @@ uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_
   hcrc->State = HAL_CRC_STATE_BUSY;
 
   /* Enter Data to the CRC calculator */
-  for(index = 0U; index < BufferLength; index++)
+  for(index = 0; index < BufferLength; index++)
   {
     hcrc->Instance->DR = pBuffer[index];
   }
@@ -272,7 +269,7 @@ uint32_t HAL_CRC_Accumulate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_
   */
 uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t BufferLength)
 {
-  uint32_t index = 0U;
+  uint32_t index = 0;
 
   /* Process Locked */
   __HAL_LOCK(hcrc); 
@@ -284,7 +281,7 @@ uint32_t HAL_CRC_Calculate(CRC_HandleTypeDef *hcrc, uint32_t pBuffer[], uint32_t
   __HAL_CRC_DR_RESET(hcrc);
 
   /* Enter Data to the CRC calculator */
-  for(index = 0U; index < BufferLength; index++)
+  for(index = 0; index < BufferLength; index++)
   {
     hcrc->Instance->DR = pBuffer[index];
   }

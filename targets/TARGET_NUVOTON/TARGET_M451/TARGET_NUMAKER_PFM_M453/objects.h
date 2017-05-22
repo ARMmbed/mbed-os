@@ -61,7 +61,6 @@ struct serial_s {
     void        (*vec)(void);
     uint32_t    irq_handler;
     uint32_t    irq_id;
-    uint32_t    irq_en;
     uint32_t    inten_msk;
     
     // Async transfer related fields

@@ -55,20 +55,18 @@ inline static void singleton_unlock(void)
     osMutexRelease (singleton_mutex_id);
 #endif
 }
-/** @}*/
 
 /** Utility class for creating an using a singleton
  *
- * @note Synchronization level: Thread safe
+ * @Note Synchronization level: Thread safe
  *
- * @note: This class must only be used in a static context -
+ * @Note: This class must only be used in a static context -
  * this class must never be allocated or created on the
  * stack.
  *
- * @note: This class is lazily initialized on first use.
+ * @Note: This class is lazily initialized on first use.
  * This class is a POD type so if it is not used it will
  * be garbage collected.
- * @ingroup platform
  */
 template <class T>
 struct SingletonPtr {
@@ -109,3 +107,4 @@ struct SingletonPtr {
 
 #endif
 
+/** @}*/
