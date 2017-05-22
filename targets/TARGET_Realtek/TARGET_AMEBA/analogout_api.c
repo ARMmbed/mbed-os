@@ -34,7 +34,8 @@
  *   \para dac_t *: obj
  *   \para PinName: pin
  */
-void analogout_init(dac_t *obj, PinName pin) {
+void analogout_init(dac_t *obj, PinName pin)
+{
     uint32_t dac_idx;
     uint32_t DacTemp;
     PHAL_DAC_INIT_DAT   pHalDacInitData = (PHAL_DAC_INIT_DAT)&(obj->DACpara);
@@ -90,7 +91,8 @@ void analogout_init(dac_t *obj, PinName pin) {
  *   This function is mainly to free a DAC channel.
  *   \para dac_t *: obj
  */
-void analogout_free(dac_t *obj) {
+void analogout_free(dac_t *obj)
+{
     PHAL_DAC_INIT_DAT   pHalDacInitData = (PHAL_DAC_INIT_DAT)&(obj->DACpara);
 
     HalDACPinMuxDeInit(pHalDacInitData);
@@ -110,7 +112,8 @@ void analogout_free(dac_t *obj) {
  *   \para dac_t *  : obj
  *   \para float      : value
  */
-void analogout_write(dac_t *obj, float value) {
+void analogout_write(dac_t *obj, float value)
+{
     uint32_t    dactemp;
     uint16_t    dacnegtemp;
     PHAL_DAC_INIT_DAT   pHalDacInitData = (PHAL_DAC_INIT_DAT)&(obj->DACpara);
@@ -149,7 +152,8 @@ void analogout_write(dac_t *obj, float value) {
  *   \para dac_t *  : obj
  *   \para float      : value
  */
-void analogout_write_u16(dac_t *obj, uint16_t value) {
+void analogout_write_u16(dac_t *obj, uint16_t value)
+{
     uint32_t    dactemp;
     PHAL_DAC_INIT_DAT   pHalDacInitData = (PHAL_DAC_INIT_DAT)&(obj->DACpara);
     
@@ -165,7 +169,8 @@ void analogout_write_u16(dac_t *obj, uint16_t value) {
  *   It always returns a fixed value of 0.0;
  *   \para dac_t *  : obj
  */
-float analogout_read(dac_t *obj) {
+float analogout_read(dac_t *obj)
+{
     return (float)0.0;
 }
 
@@ -176,7 +181,8 @@ float analogout_read(dac_t *obj) {
  *   It always returns a fixed value of 0xFFFF;
  *   \para dac_t *  : obj
  */
-uint16_t analogout_read_u16(dac_t *obj) {
+uint16_t analogout_read_u16(dac_t *obj)
+{
     return (uint16_t)0xFFFF;
 }
 

@@ -71,7 +71,8 @@ extern u32 HAL_GPIO_GetPinName(u32 chip_pin);
 
 // high nibble = port number (0=A, 1=B, 2=C, 3=D, 4=E, 5=F, ...)
 // low nibble  = pin number
-PinName port_pin(PortName port, int pin_n) {
+PinName port_pin(PortName port, int pin_n)
+{
     return (PinName)(pin_n + (port << 4));
 }
 
@@ -214,5 +215,5 @@ int port_read(port_t *obj)
     return value;
 }
 
-#endif
-#endif
+#endif  //#if DEVICE_PORTIN || DEVICE_PORTOUT
+#endif  //#if CONFIG_GPIO_EN

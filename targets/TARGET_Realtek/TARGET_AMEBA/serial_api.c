@@ -186,7 +186,8 @@ void serial_free(serial_t *obj)
 #endif
 }
 
-void serial_baud(serial_t *obj, int baudrate) {
+void serial_baud(serial_t *obj, int baudrate)
+{
 #ifdef CONFIG_MBED_ENABLED
     if(obj->index == UART_3){
         return;
@@ -459,5 +460,5 @@ void serial_pinout_tx(PinName tx)
 
 #if DEVICE_SERIAL_ASYNCH 
 #endif
-#endif
+#endif  //#if CONFIG_UART_EN
 

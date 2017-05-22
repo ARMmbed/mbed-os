@@ -54,13 +54,11 @@ int32_t log_uart_init (log_uart_t *obj, int baudrate, int data_bits, SerialParit
         if (log_uart_support_rate[i] == baudrate) {
             break;
         }
-    }
-    
+    }    
     if (log_uart_support_rate[i]== 0xFFFFFF) {
         DBG_UART_ERR("log_uart_init: Not support Baud Rate %d\n", baudrate);
         return -1;
     }
-
     // check word width
     if ((data_bits < 5) || (data_bits > 8)) {
         DBG_UART_ERR("log_uart_init: Not support Word Width %d\n", data_bits);
@@ -150,12 +148,10 @@ void log_uart_baud(log_uart_t *obj, int baudrate)
             break;
         }
     }
-    
     if (log_uart_support_rate[i]== 0xFFFFFF) {
         DBG_UART_ERR("log_uart_baud: Not support Baud Rate %d\n", baudrate);
         return;
     }
-
     pUartAdapter->BaudRate = baudrate;
     HalLogUartSetBaudRate(pUartAdapter);
 }
@@ -163,7 +159,6 @@ void log_uart_baud(log_uart_t *obj, int baudrate)
 void log_uart_format(log_uart_t *obj, int data_bits, SerialParity parity, int stop_bits) 
 {
     HAL_LOG_UART_ADAPTER *pUartAdapter;
-
     pUartAdapter = &obj->log_hal_uart;
     
     // check word width
