@@ -39,7 +39,8 @@ class Makefile(Exporter):
         "MCU_NRF51Code.binary_hook",
         "TEENSY3_1Code.binary_hook",
         "LPCTargetCode.lpc_patch",
-        "LPC4088Code.binary_hook"
+        "LPC4088Code.binary_hook",
+		"RTL8195ACode.binary_hook"
     ])
 
     def generate(self):
