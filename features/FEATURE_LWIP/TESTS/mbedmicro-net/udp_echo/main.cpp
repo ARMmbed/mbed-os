@@ -32,6 +32,13 @@ namespace {
     char uuid[GREENTEA_UUID_LENGTH] = {0};
 }
 
+// Creates a buffer that contains the test's UUID in the first part of the contents
+// so the output can be associated with individual test runs. The rest of the
+// buffer is filled with random data so it is unique within the CURRENT test run.
+//
+// Ex. A test with UUID of `33e5002c-9722-4685-817a-709cc69c4701` would have a
+// buffer filled with something like `33e5002c-9722-4685-817a-709cc69c4701 12594387`
+// where `33e5002c-9722-4685-817a-709cc69c4701` is the UUID and `12594387` is the random data
 void prep_buffer(char *uuid, char *tx_buffer, size_t tx_size) {
     size_t i = 0;
 

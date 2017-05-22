@@ -35,6 +35,19 @@ Mutex iomutex;
 char uuid[GREENTEA_UUID_LENGTH] = {0};
 
 // NOTE: assuming that "id" stays in the single digits
+//
+// Creates a buffer that first contains the thread's id.
+//
+// The second part of the buffer contains the test's UUID so the output can be
+// associated with individual test runs.
+//
+// The rest of the buffer is filled with random data so it is unique within the
+// CURRENT test run.
+//
+// Ex. A thread with id "2" and a test with UUID of `33e5002c-9722-4685-817a-709cc69c4701`
+// would have a buffer filled with something like `2 33e5002c-9722-4685-817a-709cc69c4701 12594387`
+// where `2` is the thread id, `33e5002c-9722-4685-817a-709cc69c4701` is the UUID
+// and `12594387` is the random data
 void prep_buffer(int id, char *uuid, char *tx_buffer, size_t tx_size) {
     size_t i = 0;
 
