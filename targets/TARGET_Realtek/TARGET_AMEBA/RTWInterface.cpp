@@ -93,12 +93,14 @@ RTWInterface::RTWInterface()
 
     emac = wlan_emac_init_interface();
     if (!emac) {
-       printf("Error init RTWInterface!\r\n");
+        printf("Error init RTWInterface!\r\n");
+        return;
     }
     emac->ops.power_up(emac);
     ret = mbed_lwip_init(emac);
     if (ret != 0) {
         printf("Error init RTWInterface!(%d)\r\n", ret);
+        return;
     }
 }
 
