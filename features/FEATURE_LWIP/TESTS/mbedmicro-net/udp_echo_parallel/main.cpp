@@ -32,7 +32,7 @@ const int ECHO_LOOPS = 16;
 EthernetInterface net;
 SocketAddress udp_addr;
 Mutex iomutex;
-char uuid[48] = {0};
+char uuid[GREENTEA_UUID_LENGTH] = {0};
 
 // NOTE: assuming that "id" stays in the single digits
 void prep_buffer(int id, char *uuid, char *tx_buffer, size_t tx_size) {
@@ -202,7 +202,7 @@ void test_udp_echo_parallel() {
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP_UUID(120, "udp_echo", uuid, 48);
+    GREENTEA_SETUP_UUID(120, "udp_echo", uuid, GREENTEA_UUID_LENGTH);
     return verbose_test_setup_handler(number_of_cases);
 }
 
