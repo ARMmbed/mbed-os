@@ -69,8 +69,8 @@ void test_tcp_hello_world() {
         // Find "Hello World!" string in reply
         bool found_hello = find_substring(buffer, buffer + ret, HTTP_HELLO_STR, HTTP_HELLO_STR + strlen(HTTP_HELLO_STR));
 
-        TEST_ASSERT_TRUE(found_200_ok);
-        TEST_ASSERT_TRUE(found_hello);
+        TEST_ASSERT(found_200_ok);
+        TEST_ASSERT(found_hello);
 
         if (found_200_ok && found_hello) result = true;
 
@@ -85,7 +85,7 @@ void test_tcp_hello_world() {
     }
 
     eth.disconnect();
-    TEST_ASSERT_EQUAL(true, result);
+    TEST_ASSERT(result);
 }
 
 

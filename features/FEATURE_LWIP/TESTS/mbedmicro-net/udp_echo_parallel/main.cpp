@@ -195,7 +195,7 @@ void test_udp_echo_parallel() {
         }
 
         net.disconnect();
-        TEST_ASSERT_EQUAL(true, result);
+        TEST_ASSERT(result);
     }
 }
 
