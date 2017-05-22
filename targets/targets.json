@@ -2909,6 +2909,7 @@
         "core": "Cortex-M3",
         "default_toolchain": "GCC_ARM",
         "inherits": ["Target"],
+        "detect_code": ["4600"],
         "extra_labels": ["Realtek", "AMEBA", "RTL8195A"],
         "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
@@ -2918,6 +2919,7 @@
             "function": "RTL8195ACode.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "device_name": "REALTEK_RTL8195AM"
     }
 }
