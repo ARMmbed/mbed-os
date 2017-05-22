@@ -186,15 +186,51 @@ void spi_free(spi_t *obj)
  *   2  |  1   0
  *   3  |  1   1
  * @endcode
+ 
+    bool          phase;
+        true  : trailing-edge
+        false : leading-edge
+    
+    bool          polarity;
+        true  : CPOL=1 (idle high) polarity
+        false : CPOL=0 (idle-low) polarity
  */
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     ADI_SPI_HANDLE  SPI_Handle;
     ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
-    bool            master;
+    bool          phase;
+    bool          polarity;
+    bool          master;
+
+
+    SPI_Handle = *obj->pSPI_Handle;
+
+    if ((uint32_t)mode & 0x1) {
+        phase = true;
+    }
+    else {
+        phase = false;
+    }
+    SPI_Return = adi_spi_SetClockPhase(SPI_Handle, phase);
+    if (SPI_Return) {
+        obj->error = SPI_EVENT_ERROR;
+        return;
+    }
+
+    if ((uint32_t)mode & 0x2) {
+        polarity = true;
+    }
+    else {
+        polarity = false;
+    }
+    SPI_Return = adi_spi_SetClockPolarity(SPI_Handle, polarity);
+    if (SPI_Return) {
+        obj->error = SPI_EVENT_ERROR;
+        return;
+    }
 
     master = !((bool)slave);
-    SPI_Handle = *obj->pSPI_Handle;
     SPI_Return = adi_spi_SetMasterMode(SPI_Handle, master);
     if (SPI_Return) {
         obj->error = SPI_EVENT_ERROR;
