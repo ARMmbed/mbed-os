@@ -141,4 +141,4 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 }
 
 #endif // #ifdef CONFIG_PWM_EN
-#endif
+#endif // #if DEVICE_PWMOUT

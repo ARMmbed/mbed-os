@@ -452,7 +452,6 @@ int flash_burst_write(flash_t *obj, uint32_t address ,uint32_t Length, uint8_t *
     
     SpicDisableRtl8195A();
     return 1;
-
 }
 /**
   * @brief  Read a stream of data from specified address
@@ -563,7 +562,6 @@ int flash_get_extend_addr(flash_t *obj)
     
     SpicDisableRtl8195A();
     return Status;
-
 }
 
 

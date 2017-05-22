@@ -29,8 +29,8 @@ extern u32 ConfigDebugErr;
 extern u32 ConfigDebuginfo;
 
 
-void analogin_init (analogin_t *obj, PinName pin){
-
+void analogin_init (analogin_t *obj, PinName pin)
+{
     uint32_t adc_idx;
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_USERCB_ADPT    pSalADCUserCBAdpt   = NULL;
@@ -71,7 +71,6 @@ void analogin_init (analogin_t *obj, PinName pin){
 
     /* To backup user config first */
     //_memcpy(pHalADCInitDataTmp, &(obj->HalADCInitData), sizeof(HAL_ADC_INIT_DAT));
-
     
     pSalADCMngtAdpt->pHalInitDat        = &(obj->HalADCInitData);
     pSalADCMngtAdpt->pHalOp             = &(obj->HalADCOp);
@@ -129,7 +128,8 @@ void analogin_init (analogin_t *obj, PinName pin){
     RtkADCInit(pSalADCHND); 
 }
 
-float analogin_read(analogin_t *obj){
+float analogin_read(analogin_t *obj)
+{
     float value;
     uint32_t AnaloginTmp[2]      = {0,0};
     uint32_t AnaloginDatMsk      = 0xFFFF;
@@ -158,7 +158,8 @@ float analogin_read(analogin_t *obj){
     return (float)value;
 }
 
-uint16_t analogin_read_u16(analogin_t *obj){
+uint16_t analogin_read_u16(analogin_t *obj)
+{
     uint32_t AnaloginTmp[2]      = {0,0};
     uint32_t AnaloginDatMsk      = 0xFFFF;
     uint8_t  AnaloginIdx         = 0;
@@ -178,11 +179,11 @@ uint16_t analogin_read_u16(analogin_t *obj){
     AnalogDat = (AnalogDat>>((u32)(16*(AnaloginIdx&0x01))));
 
     return (uint16_t)AnalogDat;
-    
 }
 
 
-void  analogin_deinit(analogin_t *obj){
+void  analogin_deinit(analogin_t *obj)
+{
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_HND            pSalADCHND          = NULL;
     

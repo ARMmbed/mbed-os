@@ -116,7 +116,7 @@ def rtl8195a_elf2bin(toolchain, image_elf, image_bin):
         # actually it's block
         img2_sections = ["IMAGE2"]
     else:
-        printf("[error] unsupported toolchain") + toolchain
+        print("[error] unsupported toolchain") + toolchain
         return
     ram2_info = {'addr':None, 'size':0}
     image_name = os.path.splitext(image_elf)[0]
@@ -127,12 +127,9 @@ def rtl8195a_elf2bin(toolchain, image_elf, image_bin):
     old_bin = image_name + '.bin'
     for section in img2_sections:
         section_info = parse_section(toolchain, image_elf, section)
-        #print("addr 0x%x, size 0x%x" % (section_info['addr'], section_info['size']))
         if ram2_info['addr'] is None or ram2_info['addr'] > section_info['addr']:
             ram2_info['addr'] = section_info['addr']
         ram2_info['size'] = ram2_info['size'] + section_info['size']
-
-    #print("toolchain = %s, bin name = \"%s, ram2_addr = 0x%x, ram2_size = 0x%x" % (toolchain, old_bin, ram2_info['addr'], ram2_info['size']))
 
     prepend(old_bin, ram2_prepend_bin, toolchain, ram2_info)
     # write output file
@@ -140,5 +137,5 @@ def rtl8195a_elf2bin(toolchain, image_elf, image_bin):
     append_image_file(ram1_prepend_bin, output)
     append_image_file(ram2_prepend_bin, output)
     output.close()
-    #print("post built done")
+    # post built done
 

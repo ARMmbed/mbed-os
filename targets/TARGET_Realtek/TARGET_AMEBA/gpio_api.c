@@ -103,14 +103,16 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 }
 
 // Initial the Pin direction
-void gpio_dir(gpio_t *obj, PinDirection direction) {
+void gpio_dir(gpio_t *obj, PinDirection direction)
+{
     obj->direction = direction;
     gpio_set_hal_pin_mode(obj);
     HAL_GPIO_Init(&obj->hal_pin);
 }
 
 // Change the pin direction directly
-void gpio_change_dir(gpio_t *obj, PinDirection direction) {
+void gpio_change_dir(gpio_t *obj, PinDirection direction)
+{
     uint32_t reg_value;
     uint8_t port_num;
     uint8_t pin_num;
@@ -151,7 +153,8 @@ void gpio_write(gpio_t *obj, int value)
     }
 }
 
-int gpio_read(gpio_t *obj) {
+int gpio_read(gpio_t *obj)
+{
     volatile uint32_t reg_value;
     uint8_t port_num;
     uint8_t pin_num;
@@ -191,7 +194,8 @@ void gpio_pull_ctrl(gpio_t *obj, PinMode pull_type)
 }
 
 
-void gpio_deinit(gpio_t *obj) {
+void gpio_deinit(gpio_t *obj)
+{
     HAL_GPIO_DeInit(&obj->hal_pin);
 }
 

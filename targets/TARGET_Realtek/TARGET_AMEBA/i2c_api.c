@@ -76,8 +76,8 @@ static SAL_I2C_TRANSFER_BUF    i2ctxtranbuf[4];
 static SAL_I2C_TRANSFER_BUF    i2crxtranbuf[4];
 extern u32 ConfigDebugErr;
 extern u32 ConfigDebuginfo;
-void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
-    
+void i2c_init(i2c_t *obj, PinName sda, PinName scl)
+{    
     uint32_t i2c_sel;
     uint32_t i2c_idx;
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
@@ -191,7 +191,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     RtkI2CInitForPS(pSalI2CHND); 
 }
 
-void i2c_frequency(i2c_t *obj, int hz) {
+void i2c_frequency(i2c_t *obj, int hz)
+{
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
     pSalI2CMngtAdpt     = &(obj->SalI2CMngtAdpt);
@@ -225,23 +226,23 @@ void i2c_frequency(i2c_t *obj, int hz) {
     }
 }
 
-inline int i2c_start(i2c_t *obj) {
+inline int i2c_start(i2c_t *obj)
+{
     address_save_int = 0;
     Byte_count = 0;
     memset(address_save, 0, sizeof(address_save));
     return 0;
 }
 
-inline int i2c_stop(i2c_t *obj) {
+inline int i2c_stop(i2c_t *obj)
+{
     return 0;
 }
 
-extern u32 
-HalDelayUs(
-    IN  u32 us
-);
+extern u32 HalDelayUs(IN u32 us);
 
-int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
+int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
+{
 
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
@@ -308,8 +309,8 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     }
 }
 
-int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
-
+int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
+{
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
     u32 I2CInTOTcnt     = 0;
@@ -373,7 +374,8 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     }
 }
 
-int i2c_byte_read(i2c_t *obj, int last) {
+int i2c_byte_read(i2c_t *obj, int last)
+{
     uint8_t i2cdatlocal;
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
@@ -396,7 +398,8 @@ int i2c_byte_read(i2c_t *obj, int last) {
     return (int)i2cdatlocal;
 }
 
-int i2c_byte_write(i2c_t *obj, int data) {
+int i2c_byte_write(i2c_t *obj, int data)
+{
     if(Byte_count<3){
         address_save[Byte_count]=data;
         Byte_count++;
@@ -434,7 +437,8 @@ int i2c_byte_write(i2c_t *obj, int data) {
     return 1;
 }
 
-void i2c_reset(i2c_t *obj) {
+void i2c_reset(i2c_t *obj)
+{
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
     pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
@@ -446,7 +450,8 @@ void i2c_reset(i2c_t *obj) {
 
 #if DEVICE_I2CSLAVE
 
-void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
+void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
+{
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
     pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
@@ -463,8 +468,8 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     }
 }
 
-void i2c_slave_mode(i2c_t *obj, int enable_slave) {
-
+void i2c_slave_mode(i2c_t *obj, int enable_slave)
+{
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
     pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
@@ -491,8 +496,8 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave) {
 #define WriteGeneral   2 // the master is writing to all slave
 #define WriteAddressed 3 // the master is writing to this slave (slave = receiver)
 
-int i2c_slave_receive(i2c_t *obj) {
-
+int i2c_slave_receive(i2c_t *obj)
+{
     int i2cslvrevsts = NoData;
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
@@ -503,8 +508,8 @@ int i2c_slave_receive(i2c_t *obj) {
     return i2cslvrevsts;
 }
 
-int i2c_slave_read(i2c_t *obj, char *data, int length) {
-
+int i2c_slave_read(i2c_t *obj, char *data, int length)
+{
     u32 I2CInTOTcnt     = 0;
     u32 InTimeoutCount  = 0;
     u32 InStartCount    = 0;
@@ -554,7 +559,8 @@ int i2c_slave_read(i2c_t *obj, char *data, int length) {
     }
 }
 
-int i2c_slave_write(i2c_t *obj, const char *data, int length) {
+int i2c_slave_write(i2c_t *obj, const char *data, int length)
+{
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
     pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
