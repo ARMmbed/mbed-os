@@ -77,12 +77,12 @@ void test_tcp_echo() {
 
         result = !memcmp(tx_buffer, rx_buffer, sizeof(tx_buffer));
         TEST_ASSERT_EQUAL(ret, sizeof(rx_buffer));
-        TEST_ASSERT_EQUAL(true, result);
+        TEST_ASSERT(result);
     }
 
     sock.close();
     eth.disconnect();
-    TEST_ASSERT_EQUAL(true, result);
+    TEST_ASSERT(result);
 }
 
 

@@ -80,7 +80,7 @@ public:
         const int ret = sock.recv(rx_buffer, sizeof(rx_buffer));
         bool result = !memcmp(tx_buffer, rx_buffer, sizeof(tx_buffer));
         TEST_ASSERT_EQUAL(ret, sizeof(rx_buffer));
-        TEST_ASSERT_EQUAL(true, result);
+        TEST_ASSERT(result);
 
         err = sock.close();
         TEST_ASSERT_EQUAL(0, err);
