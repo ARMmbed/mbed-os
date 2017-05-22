@@ -1,6 +1,8 @@
 /*
- *  sha1_alt.h SHA-1 hash
- *******************************************************************************
+ * \file sha1_alt.h
+ *
+ * \brief SHA1 hw acceleration (hash function)
+ *
  *  Copyright (C) 2017, STMicroelectronics
  *  SPDX-License-Identifier: Apache-2.0
  *
@@ -30,16 +32,17 @@
 extern "C" {
 #endif
 
-#define MBEDTLS_SHA1_BLOCK_SIZE   (64)
+#define MBEDTLS_SHA1_BLOCK_SIZE   (64) // must be a multiple of 4
 /**
  * \brief    SHA-1 context structure
  * \note     HAL_HASH_SHA1_Accumulate cannot handle less than 4 bytes, unless it is the last call to the  function
- *           A 64 bytes buffer is used to save values and handle the processing 64 bytes per 64 bytes
- *           If SHA1_finish is called and sbuf_len>0, the remaining bytes are accumulated before the call to HAL_HASH_SHA1_Finish
+ *           A MBEDTLS_SHA1_BLOCK_SIZE bytes buffer is used to save values and handle the processing
+ *           MBEDTLS_SHA1_BLOCK_SIZE bytes per MBEDTLS_SHA1_BLOCK_SIZE bytes
+ *           If SHA1_finish is called and sbuf_len>0, the remaining bytes are accumulated prior to the call to HAL_HASH_SHA1_Finish
  */
 typedef struct
 {
-    unsigned char sbuf[MBEDTLS_SHA1_BLOCK_SIZE]; /*!< 64 buffer to store values so that algorithm is caled once the buffer is filled */
+    unsigned char sbuf[MBEDTLS_SHA1_BLOCK_SIZE]; /*!< MBEDTLS_SHA1_BLOCK_SIZE buffer to store values so that algorithm is caled once the buffer is filled */
     unsigned char sbuf_len; /*!< number of bytes remaining in sbuf to be processed */
     HASH_HandleTypeDef hhash_sha1; /*!< ST HAL HASH struct */
 }
@@ -94,14 +97,6 @@ void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] );
 
 /* Internal use */
 void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[64] );
-
-#ifdef __cplusplus
-}
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifdef __cplusplus
 }
