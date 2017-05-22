@@ -22,13 +22,12 @@
 
 namespace mbed {
 /** \addtogroup platform */
-/** @{*/
 
 /** Group one or more functions in an instance of a CallChain, then call them in
  * sequence using CallChain::call(). Used mostly by the interrupt chaining code,
  * but can be used for other purposes.
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  *
  * Example:
  * @code
@@ -60,6 +59,7 @@ namespace mbed {
  *     chain.call();
  * }
  * @endcode
+ * @ingroup platform
  */
 
 typedef Callback<void()> *pFunctionPointer_t;
@@ -114,8 +114,8 @@ public:
 
     /** Add a function at the beginning of the chain
      *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
      *
      *  @returns
      *  The function object created for 'tptr' and 'mptr'
@@ -189,4 +189,3 @@ private:
 
 #endif
 
-/** @}*/

@@ -71,9 +71,9 @@ void rtc_init(void)
     CLKMAN_SetClkScale(CLKMAN_CLK_SYNC, CLKMAN_SCALE_DIV_1);
 
     // Prepare interrupt handlers
-    NVIC_SetVector(RTC0_IRQn, lp_ticker_irq_handler);
+    NVIC_SetVector(RTC0_IRQn, (uint32_t)lp_ticker_irq_handler);
     NVIC_EnableIRQ(RTC0_IRQn);
-    NVIC_SetVector(RTC3_IRQn, overflow_handler);
+    NVIC_SetVector(RTC3_IRQn, (uint32_t)overflow_handler);
     NVIC_EnableIRQ(RTC3_IRQn);
 
     // Enable wakeup on RTC rollover

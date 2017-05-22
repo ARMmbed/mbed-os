@@ -31,9 +31,9 @@
  *   app must wait until all responses from an outstanding request have been 
  *   received.
  * - In the callback of the request another request can not be done except when
- *   - The request is interrupted by setting the return value to FALSE
- *     or when in the last callback which contains an error code.
- *   - Most of the GATT requests can be interrupted by returning FALSE in the 
+ *   the request is interrupted by setting the return value to FALSE
+ *   or when in the last callback which contains an error code.
+ * - Most of the GATT requests can be interrupted by returning FALSE in the
  *   callback.
  *
  * See Bluetooth 4.0 specification for more info on GATT and ATT chapters:

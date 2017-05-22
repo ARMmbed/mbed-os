@@ -22,13 +22,12 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A Ticker is used to call a function at a recurring interval
  *
  *  You can use as many seperate Ticker objects as you require.
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -58,6 +57,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class Ticker : public TimerEvent {
 
@@ -97,7 +97,7 @@ public:
 
     /** Attach a function to be called by the Ticker, specifiying the interval in micro-seconds
      *
-     *  @param fptr pointer to the function to be called
+     *  @param func pointer to the function to be called
      *  @param t the time between calls in micro-seconds
      */
     void attach_us(Callback<void()> func, timestamp_t t) {
@@ -107,8 +107,8 @@ public:
 
     /** Attach a member function to be called by the Ticker, specifiying the interval in micro-seconds
      *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
      *  @param t the time between calls in micro-seconds
      *  @deprecated
      *      The attach_us function does not support cv-qualifiers. Replaced by
@@ -135,12 +135,10 @@ protected:
     virtual void handler();
 
 protected:
-    timestamp_t         _delay;     /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
-    Callback<void()>    _function;  /**< Callback. */
+    timestamp_t         _delay;     /* Time delay (in microseconds) for re-setting the multi-shot callback. */
+    Callback<void()>    _function;  /* Callback. */
 };
 
 } // namespace mbed
 
 #endif
-
-/** @}*/

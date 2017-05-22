@@ -41,7 +41,7 @@ void stoip6(const char *ip6addr, size_t len, void *dest)
     }
 
     // First go forward the string, until end, noting :: position if any
-    for (field_no = 0, p = ip6addr; (len > (p - ip6addr)) && *p && field_no < 8; p = q + 1) {
+    for (field_no = 0, p = ip6addr; (len > (size_t)(p - ip6addr)) && *p && field_no < 8; p = q + 1) {
         q = p;
         // Seek for ':' or end
         while (*q && (*q != ':')) {
@@ -51,7 +51,7 @@ void stoip6(const char *ip6addr, size_t len, void *dest)
         addr = common_write_16_bit(hex(p), addr);
         field_no++;
         //Check if we reached "::"
-        if ((len > (q - ip6addr)) && *q && (q[0] == ':') && (q[1] == ':')) {
+        if ((len > (size_t)(q - ip6addr)) && *q && (q[0] == ':') && (q[1] == ':')) {
             coloncolon = field_no;
             q++;
         }

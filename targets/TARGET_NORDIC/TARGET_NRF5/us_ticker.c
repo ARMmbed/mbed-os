@@ -40,9 +40,12 @@
 #include "common_rtc.h"
 #include "app_util.h"
 #include "nrf_drv_common.h"
-#include "nrf_drv_config.h"
 #include "lp_ticker_api.h"
+#include "mbed_critical.h"
 
+#if defined(NRF52_ERRATA_20)
+    #include "softdevice_handler.h"
+#endif
 
 //------------------------------------------------------------------------------
 // Common stuff used also by lp_ticker and rtc_api (see "common_rtc.h").
@@ -52,12 +55,25 @@
 bool              m_common_rtc_enabled = false;
 uint32_t volatile m_common_rtc_overflows = 0;
 
+__STATIC_INLINE void rtc_ovf_event_check(void)
+{
+    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW)) {
+        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW);
+        // Don't disable this event. It shall occur periodically.
+
+        ++m_common_rtc_overflows;
+    }
+}
+
 #if defined(TARGET_MCU_NRF51822)
 void common_rtc_irq_handler(void)
 #else
 void COMMON_RTC_IRQ_HANDLER(void)
 #endif
 {
+
+    rtc_ovf_event_check();
+
     if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, US_TICKER_EVENT)) {
         us_ticker_irq_handler();
     }
@@ -68,13 +84,23 @@ void COMMON_RTC_IRQ_HANDLER(void)
         lp_ticker_irq_handler();
     }
 #endif
+}
 
-    if (nrf_rtc_event_pending(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW)) {
-        nrf_rtc_event_clear(COMMON_RTC_INSTANCE, NRF_RTC_EVENT_OVERFLOW);
-        // Don't disable this event. It shall occur periodically.
+// Function for fix errata 20: RTC Register values are invalid
+__STATIC_INLINE void errata_20(void)
+{
+#if defined(NRF52_ERRATA_20)
+    if (!softdevice_handler_is_enabled())
+    {
+        NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
+        NRF_CLOCK->TASKS_LFCLKSTART    = 1;
 
-        ++m_common_rtc_overflows;
+        while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0)
+        {
+        }
     }
+    NRF_RTC1->TASKS_STOP = 0;
+#endif
 }
 
 #if (defined (__ICCARM__)) && defined(TARGET_MCU_NRF51822)//IAR
@@ -87,6 +113,8 @@ void common_rtc_init(void)
     if (m_common_rtc_enabled) {
         return;
     }
+
+    errata_20();
 
     NVIC_SetVector(RTC1_IRQn, (uint32_t)RTC1_IRQHandler);
     
@@ -110,9 +138,9 @@ void common_rtc_init(void)
     // events will be enabled or disabled as needed (such approach is more
     // energy efficient).
     nrf_rtc_int_enable(COMMON_RTC_INSTANCE,
-    #if DEVICE_LOWPOWERTIMER
+#if DEVICE_LOWPOWERTIMER
         LP_TICKER_INT_MASK |
-    #endif
+#endif
         US_TICKER_INT_MASK |
         NRF_RTC_INT_OVERFLOW_MASK);
 
@@ -121,18 +149,18 @@ void common_rtc_init(void)
     nrf_rtc_event_enable(COMMON_RTC_INSTANCE, NRF_RTC_INT_OVERFLOW_MASK);
     // All other relevant events are initially disabled.
     nrf_rtc_event_disable(COMMON_RTC_INSTANCE,
-    #if defined(TARGET_MCU_NRF51822)
+#if defined(TARGET_MCU_NRF51822)
         OS_TICK_INT_MASK |
-    #endif
-    #if DEVICE_LOWPOWERTIMER
+#endif
+#if DEVICE_LOWPOWERTIMER
         LP_TICKER_INT_MASK |
-    #endif
+#endif
         US_TICKER_INT_MASK);
 
     nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE),
 #ifdef NRF51
         APP_IRQ_PRIORITY_LOW
-#elif defined(NRF52)
+#elif defined(NRF52) || defined(NRF52840_XXAA)
         APP_IRQ_PRIORITY_LOWEST
 #endif
         );
@@ -142,13 +170,37 @@ void common_rtc_init(void)
     m_common_rtc_enabled = true;
 }
 
+__STATIC_INLINE void rtc_ovf_event_safe_check(void)
+{
+    core_util_critical_section_enter();
+
+    rtc_ovf_event_check();
+
+    core_util_critical_section_exit();
+}
+
+
 uint32_t common_rtc_32bit_ticks_get(void)
 {
-    uint32_t ticks = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
-    // The counter used for time measurements is less than 32 bit wide,
-    // so its value is complemented with the number of registered overflows
-    // of the counter.
-    ticks += (m_common_rtc_overflows << RTC_COUNTER_BITS);
+    uint32_t ticks;
+    uint32_t prev_overflows;
+
+    do {
+        prev_overflows = m_common_rtc_overflows;
+
+        ticks = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
+        // The counter used for time measurements is less than 32 bit wide,
+        // so its value is complemented with the number of registered overflows
+        // of the counter.
+        ticks += (m_common_rtc_overflows << RTC_COUNTER_BITS);
+
+        // Check in case that OVF occurred during execution of a RTC handler (apply if call was from RTC handler)
+        // m_common_rtc_overflows might been updated in this call.
+        rtc_ovf_event_safe_check();
+
+        // If call was made from a low priority level m_common_rtc_overflows might have been updated in RTC handler.
+    } while (m_common_rtc_overflows != prev_overflows);
+
     return ticks;
 }
 
@@ -185,6 +237,8 @@ void common_rtc_set_interrupt(uint32_t us_timestamp, uint32_t cc_channel,
     uint32_t compare_value =
         (uint32_t)CEIL_DIV((timestamp64) * RTC_INPUT_FREQ, 1000000);
 
+
+    core_util_critical_section_enter();
     // The COMPARE event occurs when the value in compare register is N and
     // the counter value changes from N-1 to N. Therefore, the minimal safe
     // difference between the compare value to be set and the current counter
@@ -197,6 +251,8 @@ void common_rtc_set_interrupt(uint32_t us_timestamp, uint32_t cc_channel,
 
     nrf_rtc_cc_set(COMMON_RTC_INSTANCE, cc_channel, RTC_WRAP(compare_value));
     nrf_rtc_event_enable(COMMON_RTC_INSTANCE, int_mask);
+
+    core_util_critical_section_exit();
 }
 //------------------------------------------------------------------------------
 
@@ -255,7 +311,9 @@ static uint32_t previous_tick_cc_value = 0;
  */
 MBED_WEAK uint32_t const os_trv;
 MBED_WEAK uint32_t const os_clockrate;
-MBED_WEAK void OS_Tick_Handler() { }
+MBED_WEAK void OS_Tick_Handler(void)
+{
+}
 
 
 #if defined (__CC_ARM)         /* ARMCC Compiler */
@@ -396,7 +454,8 @@ __stackless __task void COMMON_RTC_IRQ_HANDLER(void)
  * Return the next number of clock cycle needed for the next tick.
  * @note This function has been carrefuly optimized for a systick occuring every 1000us.
  */
-static uint32_t get_next_tick_cc_delta() {
+static uint32_t get_next_tick_cc_delta()
+{
     uint32_t delta = 0;
 
     if (os_clockrate != 1000) {
@@ -432,7 +491,8 @@ static uint32_t get_next_tick_cc_delta() {
     return delta;
 }
 
-static inline void clear_tick_interrupt() {
+static inline void clear_tick_interrupt()
+{
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, OS_TICK_EVENT);
     nrf_rtc_event_disable(COMMON_RTC_INSTANCE, OS_TICK_INT_MASK);
 }
@@ -444,7 +504,8 @@ static inline void clear_tick_interrupt() {
  * @param  val   value to check
  * @return       true if the value is included in the range and false otherwise.
  */
-static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t val) {
+static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t val)
+{
     // regular case, begin < end
     // return true if  begin <= val < end
     if (begin < end) {
@@ -468,7 +529,8 @@ static inline bool is_in_wrapped_range(uint32_t begin, uint32_t end, uint32_t va
 /**
  * Register the next tick.
  */
-static void register_next_tick() {
+static void register_next_tick()
+{
     previous_tick_cc_value = nrf_rtc_cc_get(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL);
     uint32_t delta = get_next_tick_cc_delta();
     uint32_t new_compare_value = (previous_tick_cc_value + delta) & MAX_RTC_COUNTER_VAL;
@@ -527,8 +589,9 @@ void os_tick_irqack(void)
  * @note This function is exposed by RTX kernel.
  * @return 1 if the timer has overflowed and 0 otherwise.
  */
-uint32_t os_tick_ovf(void) {
-    uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
+uint32_t os_tick_ovf(void)
+{
+    uint32_t current_counter    = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
     uint32_t next_tick_cc_value = nrf_rtc_cc_get(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL);
 
     return is_in_wrapped_range(previous_tick_cc_value, next_tick_cc_value, current_counter) ? 0 : 1;
@@ -543,8 +606,9 @@ uint32_t os_tick_ovf(void) {
  * descending order, even if the internal counter used is an ascending one.
  * @return the value of the alternative hardware timer.
  */
-uint32_t os_tick_val(void) {
-    uint32_t current_counter = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
+uint32_t os_tick_val(void)
+{
+    uint32_t current_counter    = nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
     uint32_t next_tick_cc_value = nrf_rtc_cc_get(COMMON_RTC_INSTANCE, OS_TICK_CC_CHANNEL);
 
     // do not use os_tick_ovf because its counter value can be different

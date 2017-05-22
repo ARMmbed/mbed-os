@@ -33,7 +33,7 @@ void hal_sleep(void)
     // the processor from disabled interrupts.
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
 
-#ifdef NRF52
+#if defined(NRF52)  || defined(NRF52840_XXAA)
     /* Clear exceptions and PendingIRQ from the FPU unit */
     __set_FPSCR(__get_FPSCR()  & ~(FPU_EXCEPTION_MASK));
     (void) __get_FPSCR();
@@ -41,7 +41,7 @@ void hal_sleep(void)
 #endif
 
     // If the SoftDevice is enabled, its API must be used to go to sleep.
-    if (softdevice_handler_isEnabled()) {
+    if (softdevice_handler_is_enabled()) {
         sd_power_mode_set(NRF_POWER_MODE_LOWPWR);
         sd_app_evt_wait();
     } else {

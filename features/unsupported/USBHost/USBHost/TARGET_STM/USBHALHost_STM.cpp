@@ -26,52 +26,44 @@ void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
 {
     USBHALHost_Private_t *priv=(USBHALHost_Private_t *)(hhcd->pData);
     USBHALHost *obj= priv->inst;
-    int i;
     void (USBHALHost::*func)(int hub, int port, bool lowSpeed, USBHostHub * hub_parent ) = priv->deviceConnected;
-	for (i=0; i<MAX_ENDPOINT; i++)
-		if (priv->addr[i]==(uint32_t)-1)priv->addr[i]=0;
-    (obj->*func)(0,1,1,NULL);
+    (obj->*func)(0,1,0,NULL);
 }
 void HAL_HCD_Disconnect_Callback(HCD_HandleTypeDef *hhcd)
 {
     USBHALHost_Private_t *priv=(USBHALHost_Private_t *)(hhcd->pData);
     USBHALHost *obj= priv->inst;
     void (USBHALHost::*func1)(int hub, int port, USBHostHub * hub_parent, volatile uint32_t addr)= priv->deviceDisconnected;
-    void (USBHALHost::*func2)(volatile uint32_t addr)= priv->transferCompleted;
-    int i;
     (obj->*func1)(0,1,(USBHostHub *)NULL,0);
-
-    /* fix me  call with same frame number */
-    /*  all on going transaction must end and any new one must be rejected */
-    for (i=0; i<MAX_ENDPOINT; i++) {
-        uint32_t addr = priv->addr[i];
-        priv->addr[i]=(uint32_t)-1;
-        if ((addr!=(uint32_t)-1)&& (addr!=0)){
-            HCTD *td = (HCTD *)addr;
-            td->currBufPtr +=HAL_HCD_HC_GetXferCount(hhcd, i);
-            td->state =  USB_TYPE_DISCONNECTED;
-            (obj->*func2)(addr);
-        }
-    }
-    for (i=1; i< MAX_ENDPOINT;i++)HAL_HCD_HC_Halt(hhcd,i);
 }
 int HAL_HCD_HC_GetDirection(HCD_HandleTypeDef *hhcd,uint8_t chnum)
 {
-/*  useful for transmission */
- return hhcd->hc[chnum].ep_is_in;
+    /*  useful for transmission */
+    return hhcd->hc[chnum].ep_is_in;
 }
 
 uint32_t HAL_HCD_HC_GetMaxPacket(HCD_HandleTypeDef *hhcd,uint8_t chnum)
 {
-/*  useful for transmission */
- return hhcd->hc[chnum].max_packet;
+    /*  useful for transmission */
+    return hhcd->hc[chnum].max_packet;
+}
+
+void  HAL_HCD_EnableInt(HCD_HandleTypeDef *hhcd,uint8_t chnum)
+{
+    USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+    USBx_HOST->HAINTMSK |= (1 << chnum);
 }
 
 
+void  HAL_HCD_DisableInt(HCD_HandleTypeDef *hhcd,uint8_t chnum)
+{
+    USB_OTG_GlobalTypeDef *USBx = hhcd->Instance;
+    USBx_HOST->HAINTMSK &= ~(1 << chnum);
+}
 uint32_t HAL_HCD_HC_GetType(HCD_HandleTypeDef *hhcd,uint8_t chnum)
 {
-/*  useful for transmission */
- return hhcd->hc[chnum].ep_type;
+    /*  useful for transmission */
+    return hhcd->hc[chnum].ep_type;
 }
 
 void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd,uint8_t chnum, HCD_URBStateTypeDef urb_state)
@@ -79,105 +71,158 @@ void HAL_HCD_HC_NotifyURBChange_Callback(HCD_HandleTypeDef *hhcd,uint8_t chnum, 
     USBHALHost_Private_t *priv=(USBHALHost_Private_t *)(hhcd->pData);
     USBHALHost *obj= priv->inst;
     void (USBHALHost::*func)(volatile uint32_t addr)= priv->transferCompleted;
+
     uint32_t addr = priv->addr[chnum];
     uint32_t max_size = HAL_HCD_HC_GetMaxPacket(hhcd, chnum);
     uint32_t type = HAL_HCD_HC_GetType(hhcd, chnum);
     uint32_t dir = HAL_HCD_HC_GetDirection(hhcd,chnum);
     uint32_t length;
-    if ((addr!=(uint32_t)-1) && (addr!=0)) {
+    if ( (addr!=0)) {
         HCTD *td = (HCTD *)addr;
-        /*  put the state */
-        if ((urb_state == URB_IDLE) && (type == EP_TYPE_INTR) ) {
-            length = td->size;
-            MBED_ASSERT(HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir ,type , 1,(uint8_t*) td->currBufPtr, length, 0)==HAL_OK);
-            return;
-        }
-        td->state = (urb_state == URB_DONE) ?  USB_TYPE_IDLE : USB_TYPE_ERROR;
-        if (urb_state == URB_NOTREADY)
-            USB_ERR("urb_state != URB_NOTREADY");
-        /*  move buffer pointer , for size  */
-        if ((type != EP_TYPE_BULK) && (type != EP_TYPE_CTRL )) {
-            /*  in packet  */
-        } else {
-            if (urb_state == URB_DONE) {
-                if (td->size >  max_size) {
-                    /*  enqueue  another request */
-                    td->currBufPtr += max_size;
-                    td->size -= max_size;
-                    length = td->size <= max_size ? td->size : max_size;
-                    MBED_ASSERT(HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir ,type , 1,(uint8_t*) td->currBufPtr, length, 0)==HAL_OK);
-                    return;
-                }
+
+        if ((type == EP_TYPE_BULK) || (type == EP_TYPE_CTRL )) {
+            switch (urb_state) {
+                case URB_DONE:
+#if defined(MAX_NYET_RETRY)
+                    td->retry = 0;
+#endif
+                    if (td->size >  max_size) {
+                        /*  enqueue  another request */
+                        td->currBufPtr += max_size;
+                        td->size -= max_size;
+                        length = td->size <= max_size ? td->size : max_size;
+                        MBED_ASSERT(HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir ,type , !td->setup,(uint8_t*) td->currBufPtr, length, 0)==HAL_OK);
+                        HAL_HCD_EnableInt(hhcd, chnum);
+                        return;
+                    }
+                    break;
+                case  URB_NOTREADY:
+                    /*  try again  */
+                    /*  abritary limit , to avoid dead lock if other error than
+                     *  slow response is  */
+#if defined(MAX_NYET_RETRY)
+                    if (td->retry < MAX_NYET_RETRY) {
+                        /*  increment retry counter */
+                        td->retry++;
+#endif
+                        length = td->size <= max_size ? td->size : max_size;
+                        MBED_ASSERT(HAL_HCD_HC_SubmitRequest(hhcd, chnum, dir ,type , !td->setup,(uint8_t*) td->currBufPtr, length, 0)==HAL_OK);
+                        HAL_HCD_EnableInt(hhcd, chnum);
+                        return;
+#if defined(MAX_NYET_RETRY)
+                    } else {
+                        USB_ERR("urb_state != URB_NOTREADY");
+                    }
+#endif
+                    break;
             }
         }
-        td->state = (urb_state == URB_DONE) ?  USB_TYPE_IDLE : USB_TYPE_ERROR;
+        if ((type == EP_TYPE_INTR) ) {
+            /*  reply a packet of length NULL, this will be analyse in call back
+             *  for mouse or hub */
+            td->state =USB_TYPE_IDLE ;
+            HAL_HCD_DisableInt(hhcd, chnum);
+
+        } else {
+            td->state = (urb_state == URB_DONE) ?  USB_TYPE_IDLE : USB_TYPE_ERROR;
+        }
         td->currBufPtr +=HAL_HCD_HC_GetXferCount(hhcd, chnum);
-        priv->addr[chnum]=0;
         (obj->*func)(addr);
-    }
-    else
-    {
-        USB_DBG_EVENT("spurious %d %d",chnum, urb_state);
+    } else {
+        if (urb_state !=0) {
+            USB_DBG_EVENT("spurious %d %d",chnum, urb_state);
+        }
     }
 }
+
 USBHALHost * USBHALHost::instHost;
 
 
-void USBHALHost::init() {
+void USBHALHost::init()
+{
 
     NVIC_DisableIRQ(USBHAL_IRQn);
     NVIC_SetVector(USBHAL_IRQn, (uint32_t)(_usbisr));
     HAL_HCD_Init((HCD_HandleTypeDef *) usb_hcca);
     NVIC_EnableIRQ(USBHAL_IRQn);
+    control_disable = 0;
     HAL_HCD_Start((HCD_HandleTypeDef *) usb_hcca);
     usb_vbus(1);
 }
 
-uint32_t USBHALHost::controlHeadED() {
+uint32_t USBHALHost::controlHeadED()
+{
     return 0xffffffff;
 }
 
-uint32_t USBHALHost::bulkHeadED() {
-   return 0xffffffff;
+uint32_t USBHALHost::bulkHeadED()
+{
+    return 0xffffffff;
 }
 
-uint32_t USBHALHost::interruptHeadED() {
-   return 0xffffffff;
+uint32_t USBHALHost::interruptHeadED()
+{
+    return 0xffffffff;
 }
 
-void USBHALHost::updateBulkHeadED(uint32_t addr) {
-}
-
-
-void USBHALHost::updateControlHeadED(uint32_t addr) {
-}
-
-void USBHALHost::updateInterruptHeadED(uint32_t addr) {
+void USBHALHost::updateBulkHeadED(uint32_t addr)
+{
 }
 
 
-void USBHALHost::enableList(ENDPOINT_TYPE type) {
+void USBHALHost::updateControlHeadED(uint32_t addr)
+{
+}
+
+void USBHALHost::updateInterruptHeadED(uint32_t addr)
+{
 }
 
 
-bool USBHALHost::disableList(ENDPOINT_TYPE type) {
-       return true;
+void USBHALHost::enableList(ENDPOINT_TYPE type)
+{
+    /*  react when the 3 lists are requested to be disabled */
+    if (type == CONTROL_ENDPOINT) {
+        control_disable--;
+        if (control_disable == 0) {
+            NVIC_EnableIRQ(USBHAL_IRQn);
+        } else {
+            printf("reent\n");
+        }
+    }
 }
 
 
-void USBHALHost::memInit() {
-	usb_hcca =  (volatile HCD_HandleTypeDef *)usb_buf;
+bool USBHALHost::disableList(ENDPOINT_TYPE type)
+{
+    if (type == CONTROL_ENDPOINT) {
+        NVIC_DisableIRQ(USBHAL_IRQn);
+        control_disable++;
+        if (control_disable > 1) {
+            printf("disable reentrance !!!\n");
+        }
+        return true;
+    }
+    return false;
+}
+
+
+void USBHALHost::memInit()
+{
+    usb_hcca =  (volatile HCD_HandleTypeDef *)usb_buf;
     usb_edBuf = usb_buf + HCCA_SIZE;
     usb_tdBuf = usb_buf + HCCA_SIZE +(MAX_ENDPOINT*ED_SIZE);
-	/*  init channel  */
-	for (int i=0; i < MAX_ENDPOINT; i++) {
-		HCED	*hced = (HCED*)(usb_edBuf + i*ED_SIZE);
-		hced->ch_num = i;
-		hced->hhcd = (HCCA *) usb_hcca;
-	}
+    /*  init channel  */
+    memset((void*)usb_buf,0, TOTAL_SIZE);
+    for (int i=0; i < MAX_ENDPOINT; i++) {
+        HCED	*hced = (HCED*)(usb_edBuf + i*ED_SIZE);
+        hced->ch_num = i;
+        hced->hhcd = (HCCA *) usb_hcca;
+    }
 }
 
-volatile uint8_t * USBHALHost::getED() {
+volatile uint8_t * USBHALHost::getED()
+{
     for (int i = 0; i < MAX_ENDPOINT; i++) {
         if ( !edBufAlloc[i] ) {
             edBufAlloc[i] = true;
@@ -188,7 +233,8 @@ volatile uint8_t * USBHALHost::getED() {
     return NULL; //Could not alloc ED
 }
 
-volatile uint8_t * USBHALHost::getTD() {
+volatile uint8_t * USBHALHost::getTD()
+{
     int i;
     for (i = 0; i < MAX_TD; i++) {
         if ( !tdBufAlloc[i] ) {
@@ -201,33 +247,38 @@ volatile uint8_t * USBHALHost::getTD() {
 }
 
 
-void USBHALHost::freeED(volatile uint8_t * ed) {
+void USBHALHost::freeED(volatile uint8_t * ed)
+{
     int i;
     i = (ed - usb_edBuf) / ED_SIZE;
     edBufAlloc[i] = false;
 }
 
-void USBHALHost::freeTD(volatile uint8_t * td) {
+void USBHALHost::freeTD(volatile uint8_t * td)
+{
     int i;
     i = (td - usb_tdBuf) / TD_SIZE;
     tdBufAlloc[i] = false;
 }
 
 
-void USBHALHost::resetRootHub() {
+void USBHALHost::resetRootHub()
+{
     // Initiate port reset
     wait(0.2);
     HAL_HCD_ResetPort((HCD_HandleTypeDef *)usb_hcca);
 }
 
 
-void USBHALHost::_usbisr(void) {
+void USBHALHost::_usbisr(void)
+{
     if (instHost) {
         instHost->UsbIrqhandler();
     }
 }
 
-void USBHALHost::UsbIrqhandler() {
+void USBHALHost::UsbIrqhandler()
+{
     HAL_HCD_IRQHandler((HCD_HandleTypeDef *)usb_hcca);
 }
 #endif

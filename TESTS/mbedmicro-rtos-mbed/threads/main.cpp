@@ -10,12 +10,7 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
-/*
- * The stack size is defined in cmsis_os.h mainly dependent on the underlying toolchain and
- * the C standard library. For GCC, ARM_STD and IAR it is defined with a size of 2048 bytes
- * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
- */
-#define PARALLEL_STACK_SIZE 512
+#define THREAD_STACK_SIZE 768
 
 using namespace utest::v1;
 
@@ -39,7 +34,7 @@ void increment_with_wait(counter_t* counter) {
 }
 
 void increment_with_child(counter_t* counter) {
-    Thread child;
+    Thread child(osPriorityNormal, THREAD_STACK_SIZE/2);
     child.start(callback(increment, counter));
     child.join();
 }
@@ -49,7 +44,7 @@ void increment_with_murder(counter_t* counter) {
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
         LockGuard lock(counter->internal_mutex());
-        Thread child;
+        Thread child(osPriorityNormal, THREAD_STACK_SIZE);
         child.start(callback(increment, counter));
         child.terminate();
     }
@@ -67,7 +62,7 @@ void self_terminate(Thread *self) {
 template <void (*F)(counter_t *)>
 void test_single_thread() {
     counter_t counter(0);
-    Thread thread;
+    Thread thread(osPriorityNormal, THREAD_STACK_SIZE, NULL);
     thread.start(callback(F, &counter));
     thread.join();
     TEST_ASSERT_EQUAL(counter, 1);
@@ -79,7 +74,7 @@ void test_parallel_threads() {
     Thread *threads[N];
 
     for (int i = 0; i < N; i++) {
-        threads[i] = new Thread(osPriorityNormal, PARALLEL_STACK_SIZE);
+        threads[i] = new Thread(osPriorityNormal, THREAD_STACK_SIZE);
         threads[i]->start(callback(F, &counter));
     }
 
@@ -96,7 +91,7 @@ void test_serial_threads() {
     counter_t counter(0);
 
     for (int i = 0; i < N; i++) {
-        Thread thread;
+        Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
         thread.start(callback(F, &counter));
         thread.join();
     }
@@ -105,7 +100,7 @@ void test_serial_threads() {
 }
 
 void test_self_terminate() {
-    Thread *thread = new Thread();
+    Thread *thread = new Thread(osPriorityNormal, THREAD_STACK_SIZE);
     thread->start(callback(self_terminate, thread));
     thread->join();
     delete thread;
@@ -131,7 +126,7 @@ Case cases[] = {
     Case("Testing serial threads with wait", test_serial_threads<10, increment_with_wait>),
 
     Case("Testing single thread with child", test_single_thread<increment_with_child>),
-    Case("Testing parallel threads with child", test_parallel_threads<2, increment_with_child>),
+    Case("Testing parallel threads with child", test_parallel_threads<3, increment_with_child>),
     Case("Testing serial threads with child", test_serial_threads<10, increment_with_child>),
 
     Case("Testing single thread with murder", test_single_thread<increment_with_murder>),

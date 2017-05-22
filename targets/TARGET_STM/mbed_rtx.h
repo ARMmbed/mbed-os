@@ -302,6 +302,21 @@
 #define OS_CLOCK                168000000
 #endif
 
+#elif defined(TARGET_UBLOX_C030)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20030000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          512
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                168000000
+#endif
+
 #elif defined(TARGET_STM32F469NI)
 
 #ifndef INITIAL_SP
@@ -546,6 +561,21 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20002000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          112
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                32000000
+#endif
+
+#elif defined(TARGET_STM32L072CZ)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20005000UL)
 #endif
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              6
