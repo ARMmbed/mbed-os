@@ -1570,24 +1570,21 @@ static void test_overflow_event_update_when_spurious_interrupt()
 static void test_irq_handler_single_event()
 {
     const timestamp_t event_timestamp = 0xAAAAAAAA;
-    static const timestamp_t interface_timestamp_after_irq = event_timestamp + 100;
-    static const uint32_t event_id = 0xFFAAFFAA;
+    const timestamp_t interface_timestamp_after_irq = event_timestamp + 100;
 
-    static uint32_t handler_call = 0;
+    uint32_t handler_call = 0;
     struct irq_handler_stub_t { 
         static void event_handler(uint32_t id) { 
-            ++handler_call;
+            ++ (*((uint32_t*) id));
             interface_stub.timestamp = interface_timestamp_after_irq;
-            TEST_ASSERT_EQUAL_UINT32(event_id, id);
         }
     };
-    handler_call = 0;
 
     ticker_set_handler(&ticker_stub, irq_handler_stub_t::event_handler);
     interface_stub.set_interrupt_call = 0;
 
     ticker_event_t e; 
-    ticker_insert_event(&ticker_stub, &e, event_timestamp, event_id);
+    ticker_insert_event(&ticker_stub, &e, event_timestamp, (uint32_t) &handler_call);
 
     interface_stub.timestamp = event_timestamp;
     interface_stub.set_interrupt_call = 0;
@@ -1635,7 +1632,7 @@ static void test_irq_handler_single_event_spurious()
         TIMESTAMP_MAX_DELTA - 1
     };
 
-    static ticker_event_t events[MBED_ARRAY_SIZE(timestamps)] = { 0 };
+    ticker_event_t events[MBED_ARRAY_SIZE(timestamps)] = { 0 };
 
     for (size_t i = 0; i < MBED_ARRAY_SIZE(events); ++i) { 
         ticker_insert_event_us(
@@ -1739,13 +1736,12 @@ static void test_irq_handler_multiple_event_single_dequeue_overflow()
         10 + TIMESTAMP_MAX_DELTA + 1
     };
 
-    static size_t handler_called = 0;
+    size_t handler_called = 0;
     struct irq_handler_stub_t { 
         static void event_handler(uint32_t id) { 
-            ++handler_called;
+            ++ (*((size_t*) id));
         }
     };
-    handler_called = 0;
 
     ticker_set_handler(&ticker_stub, irq_handler_stub_t::event_handler);
     interface_stub.set_interrupt_call = 0;
@@ -1755,7 +1751,7 @@ static void test_irq_handler_multiple_event_single_dequeue_overflow()
     for (size_t i = 0; i < MBED_ARRAY_SIZE(events); ++i) { 
         ticker_insert_event_us(
             &ticker_stub, 
-            &events[i], timestamps[i], (uint32_t) &events[i]
+            &events[i], timestamps[i], (uint32_t) &handler_called
         );
     }
 
@@ -1795,13 +1791,12 @@ static void test_irq_handler_multiple_event_single_dequeue()
         10 + TIMESTAMP_MAX_DELTA - 1
     };
 
-    static size_t handler_called = 0;
+    size_t handler_called = 0;
     struct irq_handler_stub_t { 
         static void event_handler(uint32_t id) { 
-            ++handler_called;
+            ++ (*((size_t*) id));
         }
     };
-    handler_called = 0;
 
     ticker_set_handler(&ticker_stub, irq_handler_stub_t::event_handler);
     interface_stub.set_interrupt_call = 0;
@@ -1811,7 +1806,7 @@ static void test_irq_handler_multiple_event_single_dequeue()
     for (size_t i = 0; i < MBED_ARRAY_SIZE(events); ++i) { 
         ticker_insert_event_us(
             &ticker_stub, 
-            &events[i], timestamps[i], (uint32_t) &events[i]
+            &events[i], timestamps[i], (uint32_t) &handler_called
         );
     }
 
@@ -1848,7 +1843,7 @@ static void test_irq_handler_multiple_event_single_dequeue()
  */
 static void test_irq_handler_insert_immediate_in_irq()
 {
-    const us_timestamp_t timestamps [] = {
+    static const us_timestamp_t timestamps [] = {
         10, 
         10 + TIMESTAMP_MAX_DELTA - 1
     };
@@ -1862,7 +1857,7 @@ static void test_irq_handler_insert_immediate_in_irq()
         size_t handler_called;
     };
 
-    static ctrl_block_t ctrl_block = { 0 };
+    ctrl_block_t ctrl_block = { 0 };
 
     struct irq_handler_stub_t { 
         static void event_handler(uint32_t id) { 
@@ -1924,7 +1919,7 @@ static void test_irq_handler_insert_immediate_in_irq()
  */
 static void test_irq_handler_insert_non_immediate_in_irq()
 {
-    const us_timestamp_t timestamps [] = {
+    static const us_timestamp_t timestamps [] = {
         10, 
         10 + TIMESTAMP_MAX_DELTA - 1
     };
@@ -1938,7 +1933,7 @@ static void test_irq_handler_insert_non_immediate_in_irq()
         size_t handler_called;
     };
 
-    static ctrl_block_t ctrl_block = { 0 };
+    ctrl_block_t ctrl_block = { 0 };
 
     struct irq_handler_stub_t { 
         static void event_handler(uint32_t id) { 
@@ -2080,9 +2075,8 @@ static utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
     return verbose_test_setup_handler(number_of_cases);
 }
 
-static Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
-
 int main()
 {
+    Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
     return !Harness::run(specification);
 }
