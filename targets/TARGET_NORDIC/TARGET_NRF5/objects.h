@@ -57,6 +57,9 @@ struct spi_s {
 };
 
 struct port_s {
+    __IO uint32_t *reg_cnf;
+    __IO uint32_t *reg_out;
+    __I  uint32_t *reg_in;
     PortName port;
     uint32_t mask;
 };

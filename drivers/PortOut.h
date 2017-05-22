@@ -18,16 +18,17 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_PORTOUT) || defined(DOXYGEN_ONLY)
+#if DEVICE_PORTOUT
 
 #include "hal/port_api.h"
 #include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 /** A multiple pin digital out
  *
- * @note Synchronization level: Interrupt safe
+ * @Note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -49,7 +50,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class PortOut {
 public:
@@ -109,3 +109,5 @@ private:
 #endif
 
 #endif
+
+/** @}*/

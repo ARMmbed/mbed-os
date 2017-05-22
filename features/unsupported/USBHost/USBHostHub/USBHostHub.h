@@ -31,8 +31,7 @@ class USBEndpoint;
 /**
  * A class to use a USB Hub
  */
-class USBHostHub : public IUSBEnumerator
-{
+class USBHostHub : public IUSBEnumerator {
 public:
     /**
     * Constructor

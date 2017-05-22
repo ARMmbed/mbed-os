@@ -7,7 +7,6 @@
 #endif
 
 #define NUM_THREADS         5
-
 #if defined(__CORTEX_A9)
 #define THREAD_STACK_SIZE   DEFAULT_STACK_SIZE
 #else

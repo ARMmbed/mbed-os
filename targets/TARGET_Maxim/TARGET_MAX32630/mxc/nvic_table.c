@@ -76,7 +76,7 @@ void NVIC_SetRAM(void)
 }
 
 /* ************************************************************************* */
-int NVIC_SetVector(IRQn_Type irqn, uint32_t irq_handler)
+int NVIC_SetVector(IRQn_Type irqn, void(*irq_handler)(void))
 {
     int index = irqn + 16;  /* offset for externals */
 
@@ -85,7 +85,7 @@ int NVIC_SetVector(IRQn_Type irqn, uint32_t irq_handler)
         NVIC_SetRAM();
     }
 
-    ramVectorTable[index] = (void(*)(void))irq_handler;
+    ramVectorTable[index] = irq_handler;
     NVIC_EnableIRQ(irqn);
 
     return 0;

@@ -21,10 +21,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** A general purpose timer
  *
- * @note Synchronization level: Interrupt safe
+ * @Note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -44,7 +45,6 @@ namespace mbed {
  *     printf("Toggle the led takes %d us", end - begin);
  * }
  * @endcode
- * @ingroup drivers
  */
 class Timer {
 
@@ -93,3 +93,5 @@ protected:
 } // namespace mbed
 
 #endif
+
+/** @}*/

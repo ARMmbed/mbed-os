@@ -22,11 +22,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** A digital input bus, used for reading the state of a collection of pins
  *
- * @note Synchronization level: Thread safe
- * @ingroup drivers
+ * @Note Synchronization level: Thread safe
  */
 class BusIn {
 
@@ -35,22 +35,7 @@ public:
 
     /** Create an BusIn, connected to the specified pins
      *
-     * @param p0 DigitalIn pin to connect to bus bit
-     * @param p1 DigitalIn pin to connect to bus bit
-     * @param p2 DigitalIn pin to connect to bus bit
-     * @param p3 DigitalIn pin to connect to bus bit
-     * @param p4 DigitalIn pin to connect to bus bit
-     * @param p5 DigitalIn pin to connect to bus bit
-     * @param p6 DigitalIn pin to connect to bus bit
-     * @param p7 DigitalIn pin to connect to bus bit
-     * @param p8 DigitalIn pin to connect to bus bit
-     * @param p9 DigitalIn pin to connect to bus bit
-     * @param p10 DigitalIn pin to connect to bus bit
-     * @param p11 DigitalIn pin to connect to bus bit
-     * @param p12 DigitalIn pin to connect to bus bit
-     * @param p13 DigitalIn pin to connect to bus bit
-     * @param p14 DigitalIn pin to connect to bus bit
-     * @param p15 DigitalIn pin to connect to bus bit
+     * @param <n> DigitalIn pin to connect to bus bit <n> (p5-p30, NC)
      *
      * @note
      *  It is only required to specify as many pin variables as is required
@@ -61,12 +46,7 @@ public:
           PinName p8 = NC, PinName p9 = NC, PinName p10 = NC, PinName p11 = NC,
           PinName p12 = NC, PinName p13 = NC, PinName p14 = NC, PinName p15 = NC);
 
-    
-    /** Create an BusIn, connected to the specified pins
-     *
-     * @param pins An array of pins to connect to bus bit
-     */
-     BusIn(PinName pins[16]);
+    BusIn(PinName pins[16]);
 
     virtual ~BusIn();
 
@@ -79,7 +59,7 @@ public:
 
     /** Set the input pin mode
      *
-     *  @param pull PullUp, PullDown, PullNone
+     *  @param mode PullUp, PullDown, PullNone
      */
     void mode(PinMode pull);
 
@@ -105,7 +85,7 @@ public:
 protected:
     DigitalIn* _pin[16];
 
-    /* Mask of bus's NC pins
+    /** Mask of bus's NC pins
      * If bit[n] is set to 1 - pin is connected
      * if bit[n] is cleared - pin is not connected (NC)
      */
@@ -125,3 +105,4 @@ private:
 
 #endif
 
+/** @}*/

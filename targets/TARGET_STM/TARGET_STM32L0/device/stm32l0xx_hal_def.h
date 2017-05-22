@@ -127,7 +127,7 @@ typedef enum
                                     }while (0)
 #endif /* USE_RTOS */
 
-#if  defined ( __GNUC__ ) && !defined ( __CC_ARM )
+#if  defined ( __GNUC__ )
   #ifndef __weak
     #define __weak   __attribute__((weak))
   #endif /* __weak */

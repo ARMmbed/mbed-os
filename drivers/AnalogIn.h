@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_ANALOGIN) || defined(DOXYGEN_ONLY)
+#if DEVICE_ANALOGIN
 
 #include "hal/analogin_api.h"
 #include "platform/SingletonPtr.h"
@@ -26,10 +26,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** An analog input, used for reading the voltage on a pin
  *
- * @note Synchronization level: Thread safe
+ * @Note Synchronization level: Thread safe
  *
  * Example:
  * @code
@@ -47,7 +48,6 @@ namespace mbed {
  *     }
  * }
  * @endcode
- * @ingroup drivers
  */
 class AnalogIn {
 
@@ -56,6 +56,7 @@ public:
     /** Create an AnalogIn, connected to the specified pin
      *
      * @param pin AnalogIn pin to connect to
+     * @param name (optional) A string to identify the object
      */
     AnalogIn(PinName pin) {
         lock();
@@ -128,3 +129,4 @@ protected:
 
 #endif
 
+/** @}*/

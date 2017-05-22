@@ -23,10 +23,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** Use this singleton if you need to chain interrupt handlers.
  *
- * @note Synchronization level: Thread safe
+ * @Note Synchronization level: Thread safe
  *
  * Example (for LPC1768):
  * @code
@@ -51,7 +52,6 @@ namespace mbed {
  *     InterruptManager::get()->add_handler(handler, TIMER3_IRQn);
  * }
  * @endcode
- * @ingroup drivers
  */
 class InterruptManager {
 public:
@@ -170,3 +170,6 @@ private:
 } // namespace mbed
 
 #endif
+
+
+/** @}*/

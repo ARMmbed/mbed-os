@@ -2,20 +2,12 @@
  * Nuvoton M453 GCC linker script file
  */
 
-#if !defined(MBED_APP_START)
-  #define MBED_APP_START 0x00000000
-#endif
-
-#if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x00040000
-#endif 
-
 StackSize = 0x800;
 
 MEMORY
 {
-  VECTORS (rx)          : ORIGIN = MBED_APP_START, LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400, LENGTH = MBED_APP_SIZE - 0x00000400
+  VECTORS (rx)          : ORIGIN = 0x00000000, LENGTH = 0x00000400
+  FLASH (rx)            : ORIGIN = 0x00000400, LENGTH = 0x00040000 - 0x00000400
   RAM_INTERN (rwx)      : ORIGIN = 0x20000000, LENGTH = 0x00008000 - 0x00000000
 }
 

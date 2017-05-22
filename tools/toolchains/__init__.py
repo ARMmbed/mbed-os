@@ -215,7 +215,7 @@ class Resources:
 # standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
 # had the knowledge of a list of these directories to be ignored.
 LEGACY_IGNORE_DIRS = set([
-    'LPC11U24', 'LPC1768', 'LPC4088', 'LPC812', 'KL25Z',
+    'LPC11U24', 'LPC1768', 'LPC2368', 'LPC4088', 'LPC812', 'KL25Z',
     'ARM', 'uARM', 'IAR',
     'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'GCC_CW_EWL', 'GCC_CW_NEWLIB',
 ])
@@ -474,7 +474,7 @@ class mbedToolchain:
             # This is a policy decision and it should /really/ be in the config system
             # ATM it's here for backward compatibility
             if ((("-g" in self.flags['common'] or "-g3" in self.flags['common']) and
-                 "-O0" in self.flags['common']) or
+                 "-O0") in self.flags['common'] or
                 ("-r" in self.flags['common'] and
                  "-On" in self.flags['common'])):
                 self.labels['TARGET'].append("DEBUG")
@@ -612,7 +612,6 @@ class mbedToolchain:
                             break
 
             # Add root to include paths
-            root = root.rstrip("/")
             resources.inc_dirs.append(root)
             resources.file_basepath[root] = base_path
 
@@ -909,9 +908,7 @@ class mbedToolchain:
                 deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
             except IOError, IndexError:
                 deps = []
-            config_file = ([self.config.app_config_location]
-                           if self.config.app_config_location else [])
-            if len(deps) == 0 or self.need_update(object, deps + config_file):
+            if len(deps) == 0 or self.need_update(object, deps):
                 if ext == '.cpp' or self.COMPILE_C_AS_CPP:
                     return self.compile_cpp(source, object, includes)
                 else:
@@ -960,7 +957,7 @@ class mbedToolchain:
 
     def compile_output(self, output=[]):
         _rc = output[0]
-        _stderr = output[1].decode("utf-8")
+        _stderr = output[1]
         command = output[2]
 
         # Parse output for Warnings and Errors
@@ -1006,19 +1003,16 @@ class mbedToolchain:
 
         filename = name+'.'+ext
         elf = join(tmp_path, name + '.elf')
-        bin = None if ext is 'elf' else join(tmp_path, filename)
+        bin = join(tmp_path, filename)
         map = join(tmp_path, name + '.map')
 
         r.objects = sorted(set(r.objects))
-        config_file = ([self.config.app_config_location]
-                       if self.config.app_config_location else [])
-        if self.need_update(elf, r.objects + r.libraries + [r.linker_script] +
-                            config_file):
+        if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
             needed_update = True
             self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
 
-        if bin and self.need_update(bin, [elf]):
+        if self.need_update(bin, [elf]):
             needed_update = True
             self.progress("elf2bin", name)
             self.binary(r, elf, bin)
@@ -1397,19 +1391,6 @@ class mbedToolchain:
     # Return the list of macros geenrated by the build system
     def get_config_macros(self):
         return Config.config_to_macros(self.config_data) if self.config_data else []
-
-    @property
-    def report(self):
-        to_ret = {}
-        to_ret['c_compiler'] = {'flags': copy(self.flags['c']),
-                                'symbols': self.get_symbols()}
-        to_ret['cxx_compiler'] = {'flags': copy(self.flags['cxx']),
-                                  'symbols': self.get_symbols()}
-        to_ret['assembler'] = {'flags': copy(self.flags['asm']),
-                               'symbols': self.get_symbols(True)}
-        to_ret['linker'] = {'flags': copy(self.flags['ld'])}
-        to_ret.update(self.config.report)
-        return to_ret
 
 from tools.settings import ARM_PATH
 from tools.settings import GCC_ARM_PATH

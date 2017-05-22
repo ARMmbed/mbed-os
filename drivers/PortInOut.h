@@ -18,18 +18,18 @@
 
 #include "platform/platform.h"
 
-#if defined (DEVICE_PORTINOUT) || defined(DOXYGEN_ONLY)
+#if DEVICE_PORTINOUT
 
 #include "hal/port_api.h"
 #include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */
+/** @{*/
 
 /** A multiple pin digital in/out used to set/read multiple bi-directional pins
  *
- * @note Synchronization level: Interrupt safe
- * @ingroup drivers
+ * @Note Synchronization level: Interrupt safe
  */
 class PortInOut {
 public:
@@ -115,3 +115,5 @@ private:
 #endif
 
 #endif
+
+/** @}*/

@@ -44,9 +44,6 @@ typedef enum {
     SW1 = PF7,
     BTN0 = SW0,
     BTN1 = SW1,
-    // Standardized button names
-    BUTTON1 = BTN0,
-    BUTTON2 = BTN1,
 
     /* Serial (just some usable pins) */
     SERIAL_TX   = PD10,
