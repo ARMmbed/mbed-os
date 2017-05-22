@@ -24,13 +24,12 @@
 
 #include "mbed_rtx.h"
 
-#ifndef OS_STACK_SIZE
-#ifndef MBED_SMALL_TARGET
-#define OS_STACK_SIZE               4096
-#else
-#define OS_STACK_SIZE               2048
+/** The thread's stack size can be configured by the application, if not explicitly specified it'll default to 4K */
+#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
+#define MBED_CONF_APP_THREAD_STACK_SIZE 4096
 #endif
-#endif
+
+#define OS_STACK_SIZE               MBED_CONF_APP_THREAD_STACK_SIZE
 
 #define OS_TIMER_THREAD_STACK_SIZE 768
 #define OS_IDLE_THREAD_STACK_SIZE  256
