@@ -344,8 +344,11 @@ int can_mode(can_t *obj, CanMode mode)
     switch (mode) {
         case MODE_FIFO:
             can->MCR |= CAN_MCR_TXFP;
-        case MODE_NORMAL:
             can->BTR &= ~(CAN_BTR_SILM | CAN_BTR_LBKM);
+            success = 1;
+            break;
+        case MODE_NORMAL:
+            can->BTR &= ~(CAN_BTR_SILM | CAN_BTR_LBKM | CAN_MCR_TXFP);
             success = 1;
             break;
         case MODE_SILENT:
