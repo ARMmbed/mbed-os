@@ -817,7 +817,8 @@ static int pk_parse_key_sec1_der( mbedtls_ecp_keypair *eck,
                     return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT );
             }
         }
-        else if( ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG )
+        else if( ret != MBEDTLS_ERR_ASN1_UNEXPECTED_TAG &&
+                 ret != MBEDTLS_ERR_ASN1_OUT_OF_DATA )
         {
             mbedtls_ecp_keypair_free( eck );
             return( MBEDTLS_ERR_PK_KEY_INVALID_FORMAT + ret );
