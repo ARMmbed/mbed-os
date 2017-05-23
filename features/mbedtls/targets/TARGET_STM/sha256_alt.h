@@ -98,7 +98,7 @@ void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *in
 void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[32] );
 
 /* Internal use */
-void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[64] );
+void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[MBEDTLS_SHA256_BLOCK_SIZE] );
 
 #ifdef __cplusplus
 }
