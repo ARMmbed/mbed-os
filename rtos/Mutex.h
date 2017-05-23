@@ -43,6 +43,12 @@ public:
     /** Create and Initialize a Mutex object */
     Mutex();
 
+    /** Create and Initialize a Mutex object
+
+     @param name name to be used for this mutex. It has to stay allocated for the lifetime of the thread.
+    */
+    Mutex(const char *name);
+
     /** Wait until a Mutex becomes available.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever)
       @return  status code that indicates the execution status of the function.
@@ -62,6 +68,8 @@ public:
     ~Mutex();
 
 private:
+    void constructor(const char *name = NULL);
+
     osMutexId_t               _id;
     osMutexAttr_t             _attr;
     mbed_rtos_storage_mutex_t _obj_mem;
