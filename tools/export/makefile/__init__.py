@@ -40,7 +40,7 @@ class Makefile(Exporter):
         "TEENSY3_1Code.binary_hook",
         "LPCTargetCode.lpc_patch",
         "LPC4088Code.binary_hook",
-		"RTL8195ACode.binary_hook"
+        "RTL8195ACode.binary_hook"
     ])
 
     def generate(self):
