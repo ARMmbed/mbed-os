@@ -60,17 +60,15 @@ RESET_EXCPT_HNDLR
 
 #ifndef __STARTUP_H__
 #define __STARTUP_H__
-//#include <adi_types.h>
+
 #define VECTOR_SECTION                 ".vectors"
 
 #ifdef __CC_ARM
-extern unsigned Image$$ADUCM_STACK$$ZI$$Limit[];
 extern unsigned Image$$ADUCM_HEAP$$Base[];
 extern unsigned Image$$ADUCM_HEAP$$ZI$$Limit[];
 void Default_Handler(void);
 #define SECTION_NAME(sectionname)      __attribute__ ((section(sectionname)))
 #define SECTION_PLACE(def,sectionname) def __attribute__ ((section(sectionname)))
-#define __initial_sp                   Image$$ADUCM_STACK$$ZI$$Limit
 #define IVT_NAME                       __Vectors
 #define LASTCRCPAGE                    127
 #define RESET_EXCPT_HNDLR              __main
@@ -79,9 +77,7 @@ void Default_Handler(void);
 
 #elif defined(__ICCARM__)
 #pragma diag_suppress=Pm093,Pm140
-extern unsigned CSTACK$$Limit;
 #define SECTION_PLACE(def,sectionname) def @ sectionname
-#define __initial_sp                   CSTACK$$Limit
 #define IVT_NAME                       __vector_table
 #define LASTCRCPAGE                    0
 #define WEAK_FUNC(func)                __weak func
@@ -110,7 +106,6 @@ extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 #endif
 #define SECTION_NAME(sectionname)      __attribute__ ((section(sectionname)))
 #define SECTION_PLACE(def,sectionname) def __attribute__ ((section(sectionname)))
-#define __initial_sp                   __StackTop
 #define IVT_NAME                       __Vectors
 #define LASTCRCPAGE                    127
 #define COMPILER_NAME                  "GNUC"

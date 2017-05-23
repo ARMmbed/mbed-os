@@ -50,7 +50,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #include <cmsis.h>
 #include <startup_ADuCM4050.h>
-
+#include <mbed_rtx.h>
 /*----------------------------------------------------------------------------
   User Initial Stack & Heap
  *----------------------------------------------------------------------------*/
@@ -182,7 +182,7 @@ WEAK_FUNCTION( Root_Clk_Err_Handler       )
  *----------------------------------------------------------------------------*/
 const pFunc SECTION_PLACE(IVT_NAME[96],VECTOR_SECTION) =
 {
-    (pFunc)&__initial_sp,    /* Initial Stack Pointer */
+    (pFunc) INITIAL_SP,    /* Initial Stack Pointer */
     ADUCM4050_VECTORS
 };
 

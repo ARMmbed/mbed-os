@@ -50,7 +50,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 #include <cmsis.h>
 #include <startup_ADuCM3029.h>
-
+#include <mbed_rtx.h>
 
 /*----------------------------------------------------------------------------
   Checksum options
@@ -135,7 +135,7 @@ WEAK_FUNCTION( DMA_SIP7_Int_Handler        )
  *----------------------------------------------------------------------------*/
 const pFunc SECTION_PLACE(IVT_NAME[104],VECTOR_SECTION) =
 {
-    (pFunc)&__initial_sp,    /* Initial Stack Pointer */
+    (pFunc) INITIAL_SP,    /* Initial Stack Pointer */
     ADUCM3029_VECTORS
 };
 
