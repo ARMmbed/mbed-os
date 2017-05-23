@@ -20,10 +20,6 @@
 #include <stdint.h>
 #include "clocking.h"
 
-#ifndef OS_CLOCK
-#define OS_CLOCK                  REFERENCE_FREQUENCY
-#endif
-
 #if defined(__CC_ARM)
 extern uint32_t HEAP$$Base;
 extern uint32_t HEAP$$Limit;
@@ -44,18 +40,10 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20020000UL)
 #endif
 
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-
 #elif defined(TARGET_EFM32HG_STK3400)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20002000UL)
-#endif
-
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          112
 #endif
 
 #elif defined(TARGET_EFM32LG_STK3600)
@@ -64,18 +52,10 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-
 #elif defined(TARGET_EFM32PG_STK3401)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
-#endif
-
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
 #endif
 
 #elif defined(TARGET_EFM32WG_STK3800)
@@ -84,34 +64,16 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-
 #elif defined(TARGET_EFR32MG1)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20007C00UL)
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              5
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-
 #elif defined(TARGET_EFR32MG12) || defined(TARGET_EFM32PG12)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20040000UL)
-#endif
-
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
 #endif
 
 #endif
