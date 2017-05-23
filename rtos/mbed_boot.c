@@ -342,15 +342,15 @@ void _main_init (void) __attribute__((section(".ARM.Collect$$$$000000FF")));
 void $Super$$__cpp_initialize__aeabi_(void);
 
 void _main_init (void) {
-  mbed_set_stack_heap();
-  /* Copy the vector table to RAM only if uVisor is not in use. */
+    mbed_set_stack_heap();
+    /* Copy the vector table to RAM only if uVisor is not in use. */
 #if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
-  mbed_cpy_nvic();
+    mbed_cpy_nvic();
 #endif
-  mbed_sdk_init();
-  osKernelInitialize();
-  mbed_start_main();
-  for (;;);
+    mbed_sdk_init();
+    osKernelInitialize();
+    mbed_start_main();
+    for (;;);
 }
 
 void $Sub$$__cpp_initialize__aeabi_(void)
@@ -362,13 +362,14 @@ void $Sub$$__cpp_initialize__aeabi_(void)
 
 void pre_main()
 {
-  singleton_mutex_attr.attr_bits = osMutexRecursive;
-  singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
-  singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
-  singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
+    singleton_mutex_attr.name = "singleton_mutex";
+    singleton_mutex_attr.attr_bits = osMutexRecursive;
+    singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
+    singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
+    singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
-  $Super$$__cpp_initialize__aeabi_();
-  main();
+    $Super$$__cpp_initialize__aeabi_();
+    main();
 }
 
 #else /******************** ARMC ********************/
@@ -540,14 +541,15 @@ void pre_main(void)
 #pragma required=__vector_table
 void __iar_program_start( void )
 {
-  __iar_init_core();
-  __iar_init_vfp();
+    __iar_init_core();
+    __iar_init_vfp();
 
-  uint8_t low_level_init_needed_local;
+    uint8_t low_level_init_needed_local;
 
-  low_level_init_needed_local = __low_level_init();
-  if (low_level_init_needed_local) {
-    __iar_data_init3();
+    low_level_init_needed_local = __low_level_init();
+    if (low_level_init_needed_local) {
+        __iar_data_init3();
+
     /* Copy the vector table to RAM only if uVisor is not in use. */
 #if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
     mbed_cpy_nvic();
@@ -574,37 +576,38 @@ static mbed_rtos_storage_mutex_t std_mutex_file[_FOPEN_MAX] = {0};
 
 void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
 {
-  osMutexAttr_t attr;
-  uint32_t index;
-  for (index = 0; index < _MAX_LOCK; index++) {
-    if (0 == std_mutex_id_sys[index]) {
-      attr.cb_mem = &std_mutex_sys[index];
-      attr.cb_size = sizeof(std_mutex_sys[index]);
-      attr.attr_bits = osMutexRecursive;
-      std_mutex_id_sys[index] = osMutexNew(&attr);
-      *mutex = (__iar_Rmtx*)&std_mutex_id_sys[index];
-      return;
+    osMutexAttr_t attr;
+    uint32_t index;
+    for (index = 0; index < _MAX_LOCK; index++) {
+        if (0 == std_mutex_id_sys[index]) {
+            attr.name = "system_mutex";
+            attr.cb_mem = &std_mutex_sys[index];
+            attr.cb_size = sizeof(std_mutex_sys[index]);
+            attr.attr_bits = osMutexRecursive;
+            std_mutex_id_sys[index] = osMutexNew(&attr);
+            *mutex = (__iar_Rmtx*)&std_mutex_id_sys[index];
+            return;
+        }
     }
-  }
 
-  /* This should never happen */
-  error("Not enough mutexes\n");
+    /* This should never happen */
+    error("Not enough mutexes\n");
 }
 
 void __iar_system_Mtxdst(__iar_Rmtx *mutex) /* Destroy a system lock */
 {
-  osMutexDelete(*(osMutexId_t*)*mutex);
-  *mutex = 0;
+    osMutexDelete(*(osMutexId_t*)*mutex);
+    *mutex = 0;
 }
 
 void __iar_system_Mtxlock(__iar_Rmtx *mutex) /* Lock a system lock */
 {
-  osMutexAcquire(*(osMutexId_t*)*mutex, osWaitForever);
+    osMutexAcquire(*(osMutexId_t*)*mutex, osWaitForever);
 }
 
 void __iar_system_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a system lock */
 {
-  osMutexRelease(*(osMutexId_t*)*mutex);
+    osMutexRelease(*(osMutexId_t*)*mutex);
 }
 
 void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
@@ -612,14 +615,15 @@ void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
     osMutexAttr_t attr;
     uint32_t index;
     for (index = 0; index < _FOPEN_MAX; index++) {
-      if (0 == std_mutex_id_file[index]) {
-        attr.cb_mem = &std_mutex_file[index];
-        attr.cb_size = sizeof(std_mutex_file[index]);
-        attr.attr_bits = osMutexRecursive;
-        std_mutex_id_file[index] = osMutexNew(&attr);
-        *mutex = (__iar_Rmtx*)&std_mutex_id_file[index];
-        return;
-      }
+        if (0 == std_mutex_id_file[index]) {
+            attr.name = "file_mutex";
+            attr.cb_mem = &std_mutex_file[index];
+            attr.cb_size = sizeof(std_mutex_file[index]);
+            attr.attr_bits = osMutexRecursive;
+            std_mutex_id_file[index] = osMutexNew(&attr);
+            *mutex = (__iar_Rmtx*)&std_mutex_id_file[index];
+            return;
+        }
     }
     /* The variable _FOPEN_MAX needs to be increased */
     error("Not enough mutexes\n");
@@ -627,18 +631,18 @@ void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
 
 void __iar_file_Mtxdst(__iar_Rmtx *mutex) /* Destroy a file lock */
 {
-  osMutexDelete(*(osMutexId_t*)*mutex);
-  *mutex = 0;
+    osMutexDelete(*(osMutexId_t*)*mutex);
+    *mutex = 0;
 }
 
 void __iar_file_Mtxlock(__iar_Rmtx *mutex) /* Lock a file lock */
 {
-  osMutexAcquire(*(osMutexId_t*)*mutex, osWaitForever);
+    osMutexAcquire(*(osMutexId_t*)*mutex, osWaitForever);
 }
 
 void __iar_file_Mtxunlock(__iar_Rmtx *mutex) /* Unlock a file lock */
 {
-  osMutexRelease(*(osMutexId_t*)*mutex);
+    osMutexRelease(*(osMutexId_t*)*mutex);
 }
 
 #endif
