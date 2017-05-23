@@ -1031,16 +1031,16 @@ err_t eth_arch_enetif_init(struct netif *netif)
 	LWIP_ASSERT("TXLockMutex creation error", (err == ERR_OK));
 
 	/* Packet receive task */
-	lpc_enetdata.RxThread = sys_thread_new("receive_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
+	lpc_enetdata.RxThread = sys_thread_new("lpc17_emac_rx_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
 	LWIP_ASSERT("RxThread creation error", (lpc_enetdata.RxThread));
 
 	/* Transmit cleanup task */
 	err = sys_sem_new(&lpc_enetdata.TxCleanSem, 0);
 	LWIP_ASSERT("TxCleanSem creation error", (err == ERR_OK));
-	sys_thread_new("txclean_thread", packet_tx, netif->state, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
+	sys_thread_new("lpc17_emac_txclean_thread", packet_tx, netif->state, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
 
 	/* periodic PHY status update */
-	sys_thread_new("phy_thread", phy_update, netif, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
+	sys_thread_new("lpc17_emac_phy_thread", phy_update, netif, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
 #endif
 
     return ERR_OK;

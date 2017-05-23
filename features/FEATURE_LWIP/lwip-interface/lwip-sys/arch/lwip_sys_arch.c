@@ -378,6 +378,7 @@ void sys_sem_free(sys_sem_t *sem) {}
  * @return a new mutex */
 err_t sys_mutex_new(sys_mutex_t *mutex) {
     memset(&mutex->data, 0, sizeof(mutex->data));
+    mutex->attr.name = "lwip_mutex";
     mutex->attr.cb_mem = &mutex->data;
     mutex->attr.cb_size = sizeof(mutex->data);
     mutex->id = osMutexNew(&mutex->attr);
@@ -417,6 +418,7 @@ mbed_rtos_storage_mutex_t lwip_sys_mutex_data;
 
 void sys_init(void) {
     us_ticker_read(); // Init sys tick
+    lwip_sys_mutex_attr.name = "lwip_sys_mutex";
     lwip_sys_mutex_attr.cb_mem = &lwip_sys_mutex_data;
     lwip_sys_mutex_attr.cb_size = sizeof(lwip_sys_mutex_data);
     lwip_sys_mutex = osMutexNew(&lwip_sys_mutex_attr);
@@ -517,7 +519,7 @@ sys_thread_t sys_thread_new(const char *pcName,
     sys_thread_t t = (sys_thread_t)&thread_pool[thread_pool_index];
     thread_pool_index++;
     
-    t->attr.name = pcName;
+    t->attr.name = pcName ? pcName : "lwip_unnamed_thread";
     t->attr.priority = (osPriority_t)priority;
     t->attr.cb_size = sizeof(t->data);
     t->attr.cb_mem = &t->data;

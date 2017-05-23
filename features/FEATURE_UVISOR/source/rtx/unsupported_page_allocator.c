@@ -54,7 +54,7 @@ int uvisor_page_free(const UvisorPageTable *const table)
 static osMutexId_t g_page_allocator_mutex_id = NULL;
 static osRtxMutex_t g_page_allocator_mutex_data;
 static osMutexDef_t g_page_allocator_mutex_attr = {
-  .name = "",
+  .name = "uvisor_page_alloc_mutex",
   .attr_bits = 0, /* Non-recursive */
   .cb_mem = &g_page_allocator_mutex_data,
   .cb_size = sizeof(g_page_allocator_mutex_data)

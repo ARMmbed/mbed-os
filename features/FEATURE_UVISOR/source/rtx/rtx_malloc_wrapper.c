@@ -65,6 +65,7 @@ static int init_allocator()
 
     if ((__uvisor_ps->mutex_id == NULL) && is_kernel_initialized()) {
         /* Point the mutex attr to the data. */
+        __uvisor_ps->mutex_attr.name = "uvisor_malloc_mutex";
         __uvisor_ps->mutex_attr.attr_bits = 0; /* Non-recursive */
         __uvisor_ps->mutex_attr.cb_mem = &__uvisor_ps->mutex_data;
         __uvisor_ps->mutex_attr.cb_size = sizeof(__uvisor_ps->mutex_data);
