@@ -35,7 +35,7 @@ void EADC_Open(EADC_T *eadc, uint32_t u32InputMode)
     eadc->CTL &= (~EADC_CTL_DIFFEN_Msk);
 
     eadc->CTL |= (u32InputMode | EADC_CTL_ADCEN_Msk);
-    while (!(eadc->PWRM & EADC_PWRM_PWUPRDY_Msk));
+    while (!(eadc->PWRM & EADC_PWRM_PWUPRDY_Msk)) {}
 }
 
 /**
@@ -112,23 +112,6 @@ void EADC_SetTriggerDelayTime(EADC_T *eadc, \
 {
     eadc->SCTL[u32ModuleNum] &= ~(EADC_SCTL_TRGDLYDIV_Msk | EADC_SCTL_TRGDLYCNT_Msk);
     eadc->SCTL[u32ModuleNum] |= ((u32TriggerDelayTime << EADC_SCTL_TRGDLYCNT_Pos) | u32DelayClockDivider);
-}
-
-/**
-  * @brief Set ADC internal sample time.
-  * @param[in] eadc The pointer of the specified EADC module.
-  * @param[in] u32SampleTime Decides the internal sampling time, the range is from 1~8 ADC clock. Valid value are from 1 to 8.
-  * @return None
-  * @details When A/D operation at high ADC clock rate, the sampling time of analog input voltage may not enough
-  *         if the analog channel has heavy loading to cause fully charge time is longer.
-  *         User can set SMPTSEL (EADC_CTL[18:16]) to select the sampling cycle in ADC.
-  */
-void EADC_SetInternalSampleTime(EADC_T *eadc, uint32_t u32SampleTime)
-{
-    eadc->CTL &= ~EADC_CTL_SMPTSEL_Msk;
-
-    eadc->CTL |= (u32SampleTime - 1) << EADC_CTL_SMPTSEL_Pos;
-
 }
 
 /**

@@ -2,10 +2,11 @@
  * @file     scuart.c
  * @brief    M480 Smartcard UART mode (SCUART) driver source file
  *
- * @note
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M480.h"
+
+static uint32_t SCUART_GetClock(SC_T *sc);
 
 /** @addtogroup M480_Device_Driver M480 Device Driver
   @{
@@ -27,12 +28,12 @@
   */
 void SCUART_Close(SC_T* sc)
 {
-    sc->INTEN = 0;
-    sc->UARTCTL = 0;
-    sc->CTL = 0;
+    sc->INTEN = 0UL;
+    sc->UARTCTL = 0UL;
+    sc->CTL = 0UL;
 
 }
-/// @cond HIDDEN_SYMBOLS
+/** @cond HIDDEN_SYMBOLS */
 /**
   * @brief This function returns module clock of specified SC interface
   * @param[in] sc The base address of smartcard module.
@@ -42,37 +43,38 @@ static uint32_t SCUART_GetClock(SC_T *sc)
 {
     uint32_t u32ClkSrc, u32Num, u32Clk;
 
-    if(sc == SC0)
-        u32Num = 0;
-    else if(sc == SC1)
-        u32Num = 1;
-    else
-        u32Num = 2;
+    if(sc == SC0) {
+        u32Num = 0UL;
+    } else if(sc == SC1) {
+        u32Num = 1UL;
+    } else {
+        u32Num = 2UL;
+    }
 
+    u32ClkSrc = (CLK->CLKSEL3 >> (2UL * u32Num)) & CLK_CLKSEL3_SC0SEL_Msk;
 
-    u32ClkSrc = (CLK->CLKSEL3 >> (2 * u32Num)) & CLK_CLKSEL3_SC0SEL_Msk;
-
-    // Get smartcard module clock
-    if(u32ClkSrc == 0)
+    /* Get smartcard module clock */
+    if(u32ClkSrc == 0UL) {
         u32Clk = __HXT;
-    else if(u32ClkSrc == 1)
+    } else if(u32ClkSrc == 1UL) {
         u32Clk = CLK_GetPLLClockFreq();
-    else if(u32ClkSrc == 2) {
-        if(u32Num == 1)
+    } else if(u32ClkSrc == 2UL) {
+        if(u32Num == 1UL) {
             u32Clk = CLK_GetPCLK1Freq();
-        else
+        } else {
             u32Clk = CLK_GetPCLK0Freq();
-    } else
+        }
+    } else {
         u32Clk = __HIRC;
+    }
 
-
-    u32Clk /= (((CLK->CLKDIV1 >> (8 * u32Num)) & CLK_CLKDIV1_SC0DIV_Msk) + 1);
+    u32Clk /= (((CLK->CLKDIV1 >> (8UL * u32Num)) & CLK_CLKDIV1_SC0DIV_Msk) + 1UL);
 
 
     return u32Clk;
 }
 
-/// @endcond HIDDEN_SYMBOLS
+/** @endcond HIDDEN_SYMBOLS */
 
 /**
   * @brief This function use to enable smartcard module UART mode and set baudrate.
@@ -91,14 +93,16 @@ uint32_t SCUART_Open(SC_T* sc, uint32_t u32baudrate)
 {
     uint32_t u32Clk = SCUART_GetClock(sc), u32Div;
 
-    // Calculate divider for target baudrate
-    u32Div = (u32Clk + (u32baudrate >> 1) - 1) / u32baudrate - 1;
+    /* Calculate divider for target baudrate */
+    u32Div = (u32Clk + (u32baudrate >> 1) - 1UL) / u32baudrate - 1UL;
 
-    sc->CTL = SC_CTL_SCEN_Msk | SC_CTL_NSB_Msk;  // Enable smartcard interface and stop bit = 1
-    sc->UARTCTL = SCUART_CHAR_LEN_8 | SCUART_PARITY_NONE | SC_UARTCTL_UARTEN_Msk; // Enable UART mode, disable parity and 8 bit per character
+    /* Enable smartcard interface and stop bit = 1 */
+    sc->CTL = SC_CTL_SCEN_Msk | SC_CTL_NSB_Msk;
+    /* Enable UART mode, disable parity and 8 bit per character */
+    sc->UARTCTL = SCUART_CHAR_LEN_8 | SCUART_PARITY_NONE | SC_UARTCTL_UARTEN_Msk;
     sc->ETUCTL = u32Div;
 
-    return(u32Clk / (u32Div + 1));
+    return(u32Clk / (u32Div + 1UL));
 }
 
 /**
@@ -109,22 +113,22 @@ uint32_t SCUART_Open(SC_T* sc, uint32_t u32baudrate)
   * @return Actual character number reads to buffer
   * @note This function does not block and return immediately if there's no data available
   */
-uint32_t SCUART_Read(SC_T* sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes)
+uint32_t SCUART_Read(SC_T* sc, uint8_t pu8RxBuf[], uint32_t u32ReadBytes)
 {
     uint32_t u32Count;
 
-    for(u32Count = 0; u32Count < u32ReadBytes; u32Count++) {
-        if(SCUART_GET_RX_EMPTY(sc)) { // no data available
+    for(u32Count = 0UL; u32Count < u32ReadBytes; u32Count++) {
+        if(SCUART_GET_RX_EMPTY(sc)) { /* no data available */
             break;
         }
-        pu8RxBuf[u32Count] = SCUART_READ(sc);    // get data from FIFO
+        pu8RxBuf[u32Count] = (uint8_t)SCUART_READ(sc);    /* get data from FIFO */
     }
 
     return u32Count;
 }
 
 /**
-  * @brief This function use to config smartcard UART mode line setting.
+  * @brief This function use to configure smartcard UART mode line setting.
   * @param[in] sc The base address of smartcard module.
   * @param[in] u32Baudrate Target baudrate of smartcard module. If this value is 0, UART baudrate will not change.
   * @param[in] u32DataWidth The data length, could be
@@ -151,18 +155,19 @@ uint32_t SCUART_SetLineConfig(SC_T* sc, uint32_t u32Baudrate, uint32_t u32DataWi
 
     uint32_t u32Clk = SCUART_GetClock(sc), u32Div;
 
-    if(u32Baudrate == 0) {  // keep original baudrate setting
+    if(u32Baudrate == 0UL) {  /* keep original baudrate setting */
         u32Div = sc->ETUCTL & SC_ETUCTL_ETURDIV_Msk;
     } else {
-        // Calculate divider for target baudrate
-        u32Div = (u32Clk + (u32Baudrate >> 1) - 1)/ u32Baudrate - 1;
+        /* Calculate divider for target baudrate */
+        u32Div = (u32Clk + (u32Baudrate >> 1) - 1UL)/ u32Baudrate - 1UL;
         sc->ETUCTL = u32Div;
     }
+    /* Set stop bit */
+    sc->CTL = u32StopBits | SC_CTL_SCEN_Msk;
+    /* Set character width and parity */
+    sc->UARTCTL = u32Parity | u32DataWidth | SC_UARTCTL_UARTEN_Msk;
 
-    sc->CTL = u32StopBits | SC_CTL_SCEN_Msk;  // Set stop bit
-    sc->UARTCTL = u32Parity | u32DataWidth | SC_UARTCTL_UARTEN_Msk;  // Set character width and parity
-
-    return(u32Clk / (u32Div + 1));
+    return(u32Clk / (u32Div + 1UL));
 }
 
 /**
@@ -189,13 +194,17 @@ void SCUART_SetTimeoutCnt(SC_T* sc, uint32_t u32TOC)
   * @return None
   * @note This function blocks until all data write into FIFO
   */
-void SCUART_Write(SC_T* sc,uint8_t *pu8TxBuf, uint32_t u32WriteBytes)
+void SCUART_Write(SC_T* sc,uint8_t pu8TxBuf[], uint32_t u32WriteBytes)
 {
     uint32_t u32Count;
 
-    for(u32Count = 0; u32Count != u32WriteBytes; u32Count++) {
-        while(SCUART_GET_TX_FULL(sc));  // Wait 'til FIFO not full
-        sc->DAT = pu8TxBuf[u32Count];    // Write 1 byte to FIFO
+    for(u32Count = 0UL; u32Count != u32WriteBytes; u32Count++) {
+        /* Wait 'til FIFO not full */
+        while(SCUART_GET_TX_FULL(sc)) {
+            ;
+        }
+        /* Write 1 byte to FIFO */
+        sc->DAT = pu8TxBuf[u32Count];
     }
 }
 

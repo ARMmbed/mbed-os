@@ -28,25 +28,25 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  CRC Polynomial Mode Constant Definitions                                                               */
 /*---------------------------------------------------------------------------------------------------------*/
-#define CRC_CCITT           0x00000000UL            /*!<CRC Polynomial Mode - CCITT */
-#define CRC_8               0x40000000UL            /*!<CRC Polynomial Mode - CRC8 */
-#define CRC_16              0x80000000UL            /*!<CRC Polynomial Mode - CRC16 */
-#define CRC_32              0xC0000000UL            /*!<CRC Polynomial Mode - CRC32 */
+#define CRC_CCITT           (0UL << CRC_CTL_CRCMODE_Pos) /*!<CRC Polynomial Mode - CCITT \hideinitializer */
+#define CRC_8               (1UL << CRC_CTL_CRCMODE_Pos) /*!<CRC Polynomial Mode - CRC8 \hideinitializer */
+#define CRC_16              (2UL << CRC_CTL_CRCMODE_Pos) /*!<CRC Polynomial Mode - CRC16 \hideinitializer */
+#define CRC_32              (3UL << CRC_CTL_CRCMODE_Pos) /*!<CRC Polynomial Mode - CRC32 \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Checksum, Write data Constant Definitions                                                              */
 /*---------------------------------------------------------------------------------------------------------*/
-#define CRC_CHECKSUM_COM    0x08000000UL            /*!<CRC Checksum Complement */
-#define CRC_CHECKSUM_RVS    0x02000000UL            /*!<CRC Checksum Reverse */
-#define CRC_WDATA_COM       0x04000000UL            /*!<CRC Write Data Complement */
-#define CRC_WDATA_RVS       0x01000000UL            /*!<CRC Write Data Reverse */
+#define CRC_CHECKSUM_COM    (CRC_CTL_CHKSFMT_Msk)       /*!<CRC Checksum Complement \hideinitializer */
+#define CRC_CHECKSUM_RVS    (CRC_CTL_CHKSREV_Msk)       /*!<CRC Checksum Reverse \hideinitializer */
+#define CRC_WDATA_COM       (CRC_CTL_DATFMT_Msk)        /*!<CRC Write Data Complement \hideinitializer */
+#define CRC_WDATA_RVS       (CRC_CTL_DATREV_Msk)        /*!<CRC Write Data Reverse \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  CPU Write Data Length Constant Definitions                                                             */
 /*---------------------------------------------------------------------------------------------------------*/
-#define CRC_CPU_WDATA_8     0x00000000UL            /*!<CRC CPU Write Data length is 8-bit */
-#define CRC_CPU_WDATA_16    0x10000000UL            /*!<CRC CPU Write Data length is 16-bit */
-#define CRC_CPU_WDATA_32    0x20000000UL            /*!<CRC CPU Write Data length is 32-bit */
+#define CRC_CPU_WDATA_8     (0UL << CRC_CTL_DATLEN_Pos) /*!<CRC CPU Write Data length is 8-bit \hideinitializer */
+#define CRC_CPU_WDATA_16    (1UL << CRC_CTL_DATLEN_Pos) /*!<CRC CPU Write Data length is 16-bit \hideinitializer */
+#define CRC_CPU_WDATA_32    (2UL << CRC_CTL_DATLEN_Pos) /*!<CRC CPU Write Data length is 32-bit \hideinitializer */
 
 /*@}*/ /* end of group M480_CRC_EXPORTED_CONSTANTS */
 
@@ -66,8 +66,9 @@ extern "C"
   *
   * @note       User must to perform CRC_CHKSINIT(CRC_CTL[1] CRC Engine Reset) to reload the new seed value
   *             to CRC controller.
+  * \hideinitializer
   */
-#define CRC_SET_SEED(u32Seed)   { CRC->SEED = (u32Seed); CRC->CTL |= CRC_CTL_CHKSINIT_Msk; }
+#define CRC_SET_SEED(u32Seed)   do{ CRC->SEED = (u32Seed); CRC->CTL |= CRC_CTL_CHKSINIT_Msk; }while(0)
 
 /**
  * @brief       Get CRC Seed Value
@@ -77,6 +78,7 @@ extern "C"
  * @return      CRC seed value
  *
  * @details     This macro gets the current CRC seed value.
+ * \hideinitializer
  */
 #define CRC_GET_SEED()          (CRC->SEED)
 
@@ -87,7 +89,8 @@ extern "C"
  *
  * @return      None
  *
-  * @details    User can write data directly to CRC Write Data Register(CRC_DAT) by this macro to perform CRC operation.
+ * @details    User can write data directly to CRC Write Data Register(CRC_DAT) by this macro to perform CRC operation.
+ * \hideinitializer
  */
 #define CRC_WRITE_DATA(u32Data)   (CRC->DAT = (u32Data))
 
@@ -104,6 +107,6 @@ uint32_t CRC_GetChecksum(void);
 }
 #endif
 
-#endif //__CRC_H__
+#endif
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

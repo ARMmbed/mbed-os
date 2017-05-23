@@ -26,10 +26,9 @@ extern "C"
   @{
 */
 
-#define EMAC_PHY_ADDR     1    ///< PHY address, this address is board dependent
-
-#define EMAC_RX_DESC_SIZE 4    ///< Number of Rx Descriptors, should be 2 at least
-#define EMAC_TX_DESC_SIZE 4    ///< Number of Tx Descriptors, should be 2 at least
+#define EMAC_PHY_ADDR     1UL    /*!<  PHY address, this address is board dependent \hideinitializer */
+#define EMAC_RX_DESC_SIZE 4UL    /*!<  Number of Rx Descriptors, should be 2 at least \hideinitializer */
+#define EMAC_TX_DESC_SIZE 4UL    /*!<  Number of Tx Descriptors, should be 2 at least \hideinitializer */
 
 
 /*@}*/ /* end of group M480_EMAC_EXPORTED_CONSTANTS */
@@ -155,7 +154,7 @@ extern "C"
 void EMAC_Open(uint8_t *pu8MacAddr);
 void EMAC_Close(void);
 void EMAC_SetMacAddr(uint8_t *pu8MacAddr);
-void EMAC_EnableCamEntry(uint32_t u32Entry, uint8_t *pu8MacAddr);
+void EMAC_EnableCamEntry(uint32_t u32Entry, uint8_t pu8MacAddr[]);
 void EMAC_DisableCamEntry(uint32_t u32Entry);
 
 uint32_t EMAC_RecvPkt(uint8_t *pu8Data, uint32_t *pu32Size);
@@ -186,6 +185,6 @@ void EMAC_DisableAlarm(void);
 }
 #endif
 
-#endif //__EMAC_H__
+#endif /* __EMAC_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

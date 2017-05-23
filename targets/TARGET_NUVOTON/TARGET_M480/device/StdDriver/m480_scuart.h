@@ -28,14 +28,14 @@ extern "C"
 #define SCUART_CHAR_LEN_5     (0x3ul << SC_UARTCTL_WLS_Pos)     /*!< Set SCUART word length to 5 bits \hideinitializer */
 #define SCUART_CHAR_LEN_6     (0x2ul << SC_UARTCTL_WLS_Pos)     /*!< Set SCUART word length to 6 bits \hideinitializer */
 #define SCUART_CHAR_LEN_7     (0x1ul << SC_UARTCTL_WLS_Pos)     /*!< Set SCUART word length to 7 bits \hideinitializer */
-#define SCUART_CHAR_LEN_8     (0)                               /*!< Set SCUART word length to 8 bits \hideinitializer */
+#define SCUART_CHAR_LEN_8     (0UL)                             /*!< Set SCUART word length to 8 bits \hideinitializer */
 
 #define SCUART_PARITY_NONE    (SC_UARTCTL_PBOFF_Msk)            /*!< Set SCUART transfer with no parity   \hideinitializer */
 #define SCUART_PARITY_ODD     (SC_UARTCTL_OPE_Msk)              /*!< Set SCUART transfer with odd parity  \hideinitializer */
-#define SCUART_PARITY_EVEN    (0)                               /*!< Set SCUART transfer with even parity \hideinitializer */
+#define SCUART_PARITY_EVEN    (0UL)                             /*!< Set SCUART transfer with even parity \hideinitializer */
 
-#define SCUART_STOP_BIT_1     (SC_CTL_NSB_Msk)                 /*!< Set SCUART transfer with one stop bit  \hideinitializer */
-#define SCUART_STOP_BIT_2     (0)                               /*!< Set SCUART transfer with two stop bits \hideinitializer */
+#define SCUART_STOP_BIT_1     (SC_CTL_NSB_Msk)                  /*!< Set SCUART transfer with one stop bit  \hideinitializer */
+#define SCUART_STOP_BIT_2     (0UL)                             /*!< Set SCUART transfer with two stop bits \hideinitializer */
 
 
 /*@}*/ /* end of group M480_SCUART_EXPORTED_CONSTANTS */
@@ -207,7 +207,7 @@ extern "C"
   * @retval 1 Specified interrupt happened
   * \hideinitializer
   */
-#define SCUART_GET_INT_FLAG(sc, u32Type) ((sc)->INTSTS & u32Type ? 1 : 0)
+#define SCUART_GET_INT_FLAG(sc, u32Type) ((sc)->INTSTS & (u32Type) ? 1 : 0)
 
 /**
   * @brief Clear specified interrupt flag/status
@@ -219,7 +219,7 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define SCUART_CLR_INT_FLAG(sc, u32Type) ((sc)->INTSTS = u32Type)
+#define SCUART_CLR_INT_FLAG(sc, u32Type) ((sc)->INTSTS = (u32Type))
 
 /**
   * @brief Get receive error flag/status
@@ -242,14 +242,14 @@ extern "C"
   * @return None
   * \hideinitializer
   */
-#define SCUART_CLR_ERR_FLAG(sc, u32Mask) ((sc)->STATUS = u32Mask)
+#define SCUART_CLR_ERR_FLAG(sc, u32Mask) ((sc)->STATUS = (u32Mask))
 
 void SCUART_Close(SC_T* sc);
 uint32_t SCUART_Open(SC_T* sc, uint32_t u32baudrate);
-uint32_t SCUART_Read(SC_T* sc, uint8_t *pu8RxBuf, uint32_t u32ReadBytes);
+uint32_t SCUART_Read(SC_T* sc, uint8_t pu8RxBuf[], uint32_t u32ReadBytes);
 uint32_t SCUART_SetLineConfig(SC_T* sc, uint32_t u32Baudrate, uint32_t u32DataWidth, uint32_t u32Parity, uint32_t  u32StopBits);
 void SCUART_SetTimeoutCnt(SC_T* sc, uint32_t u32TOC);
-void SCUART_Write(SC_T* sc,uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
+void SCUART_Write(SC_T* sc,uint8_t pu8TxBuf[], uint32_t u32WriteBytes);
 
 /*@}*/ /* end of group M480_SCUART_EXPORTED_FUNCTIONS */
 
@@ -261,6 +261,6 @@ void SCUART_Write(SC_T* sc,uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
 }
 #endif
 
-#endif //__SCUART_H__
+#endif /* __SCUART_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

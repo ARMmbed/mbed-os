@@ -25,7 +25,7 @@ extern "C"
 /** @addtogroup PDMA_EXPORTED_CONSTANTS PDMA Exported Constants
   @{
 */
-#define PDMA_CH_MAX    16   /*!< Specify Maximum Channels of PDMA  \hideinitializer */
+#define PDMA_CH_MAX    16UL   /*!< Specify Maximum Channels of PDMA  \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Operation Mode Constant Definitions                                                                    */
@@ -102,12 +102,12 @@ extern "C"
 #define PDMA_SPI3_RX     27UL /*!<DMA Connect to SPI3_RX \hideinitializer */
 #define PDMA_SPI4_TX     28UL /*!<DMA Connect to SPI4_TX \hideinitializer */
 #define PDMA_SPI4_RX     29UL /*!<DMA Connect to SPI4_RX \hideinitializer */
-#define PDMA_PWM0_P1_RX  32UL /*!<DMA Connect to PWM0_P1 \hideinitializer */
-#define PDMA_PWM0_P2_RX  33UL /*!<DMA Connect to PWM0_P2 \hideinitializer */
-#define PDMA_PWM0_P3_RX  34UL /*!<DMA Connect to PWM0_P3 \hideinitializer */
-#define PDMA_PWM1_P1_RX  35UL /*!<DMA Connect to PWM1_P1 \hideinitializer */
-#define PDMA_PWM1_P2_RX  36UL /*!<DMA Connect to PWM1_P2 \hideinitializer */
-#define PDMA_PWM1_P3_RX  37UL /*!<DMA Connect to PWM1_P3 \hideinitializer */
+#define PDMA_EPWM0_P1_RX  32UL /*!<DMA Connect to EPWM0_P1 \hideinitializer */
+#define PDMA_EPWM0_P2_RX  33UL /*!<DMA Connect to EPWM0_P2 \hideinitializer */
+#define PDMA_EPWM0_P3_RX  34UL /*!<DMA Connect to EPWM0_P3 \hideinitializer */
+#define PDMA_EPWM1_P1_RX  35UL /*!<DMA Connect to EPWM1_P1 \hideinitializer */
+#define PDMA_EPWM1_P2_RX  36UL /*!<DMA Connect to EPWM1_P2 \hideinitializer */
+#define PDMA_EPWM1_P3_RX  37UL /*!<DMA Connect to PWM1_P3 \hideinitializer */
 #define PDMA_I2C0_TX     38UL /*!<DMA Connect to I2C0_TX \hideinitializer */
 #define PDMA_I2C0_RX     39UL /*!<DMA Connect to I2C0_RX \hideinitializer */
 #define PDMA_I2C1_TX     40UL /*!<DMA Connect to I2C1_TX \hideinitializer */
@@ -123,6 +123,19 @@ extern "C"
 #define PDMA_ADC_RX      50UL /*!<DMA Connect to ADC_RX \hideinitializer */
 #define PDMA_DAC0_TX     51UL /*!<DMA Connect to DAC0_TX \hideinitializer */
 #define PDMA_DAC1_TX     52UL /*!<DMA Connect to DAC1_TX \hideinitializer */
+#define EPWM0_CH0_TX      53UL /*!<DMA Connect to EPWM0_CH0_TX \hideinitializer */
+#define EPWM0_CH1_TX      54UL /*!<DMA Connect to EPWM0_CH1_TX \hideinitializer */
+#define EPWM0_CH2_TX      55UL /*!<DMA Connect to EPWM0_CH2_TX \hideinitializer */
+#define EPWM0_CH3_TX      56UL /*!<DMA Connect to EPWM0_CH3_TX \hideinitializer */
+#define EPWM0_CH4_TX      57UL /*!<DMA Connect to EPWM0_CH4_TX \hideinitializer */
+#define EPWM0_CH5_TX      58UL /*!<DMA Connect to EPWM0_CH5_TX \hideinitializer */
+#define EPWM1_CH0_TX      59UL /*!<DMA Connect to EPWM1_CH0_TX \hideinitializer */
+#define EPWM1_CH1_TX      60UL /*!<DMA Connect to EPWM1_CH1_TX \hideinitializer */
+#define EPWM1_CH2_TX      61UL /*!<DMA Connect to EPWM1_CH2_TX \hideinitializer */
+#define EPWM1_CH3_TX      62UL /*!<DMA Connect to EPWM1_CH3_TX \hideinitializer */
+#define EPWM1_CH4_TX      63UL /*!<DMA Connect to EPWM1_CH4_TX \hideinitializer */
+#define EPWM1_CH5_TX      64UL /*!<DMA Connect to EPWM1_CH5_TX \hideinitializer */
+
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Interrupt Type Constant Definitions                                                                    */
@@ -146,6 +159,7 @@ extern "C"
  * @return      None
  *
  * @details     This macro gets the interrupt status.
+ * \hideinitializer
  */
 #define PDMA_GET_INT_STATUS() ((uint32_t)(PDMA->INTSTS))
 
@@ -157,6 +171,7 @@ extern "C"
  * @return      None
  *
  * @details     Get the transfer done Interrupt status.
+ * \hideinitializer
  */
 #define PDMA_GET_TD_STS() ((uint32_t)(PDMA->TDSTS))
 
@@ -168,6 +183,7 @@ extern "C"
  * @return      None
  *
  * @details     Clear the transfer done Interrupt status.
+ * \hideinitializer
  */
 #define PDMA_CLR_TD_FLAG(u32Mask) ((uint32_t)(PDMA->TDSTS = (u32Mask)))
 
@@ -179,6 +195,7 @@ extern "C"
  * @return      None
  *
  * @details     Get the target abort Interrupt status.
+ * \hideinitializer
  */
 #define PDMA_GET_ABORT_STS() ((uint32_t)(PDMA->ABTSTS))
 
@@ -190,6 +207,7 @@ extern "C"
  * @return      None
  *
  * @details     Clear the target abort Interrupt status.
+ * \hideinitializer
  */
 #define PDMA_CLR_ABORT_FLAG(u32Mask) ((uint32_t)(PDMA->ABTSTS = (u32Mask)))
 
@@ -201,6 +219,7 @@ extern "C"
  * @return      None
  *
  * @details     Get the scatter-gather table empty Interrupt status.
+ * \hideinitializer
  */
 #define PDMA_GET_EMPTY_STS() ((uint32_t)(PDMA->SCATSTS))
 
@@ -212,6 +231,7 @@ extern "C"
  * @return      None
  *
  * @details     Clear the scatter-gather table empty Interrupt status.
+ * \hideinitializer
  */
 #define PDMA_CLR_EMPTY_FLAG(u32Mask) ((uint32_t)(PDMA->SCATSTS = (u32Mask)))
 
@@ -223,6 +243,7 @@ extern "C"
  * @return      None
  *
  * @details     Clear the selected channel timeout interrupt status.
+ * \hideinitializer
  */
 #define PDMA_CLR_TMOUT_FLAG(u32Ch) ((uint32_t)(PDMA->INTSTS = (1 << ((u32Ch) + 8))))
 
@@ -235,6 +256,7 @@ extern "C"
  * @retval      1 Busy state
  *
  * @details     Check the selected channel is busy or not.
+ * \hideinitializer
  */
 #define PDMA_IS_CH_BUSY(u32Ch) ((uint32_t)(PDMA->TRGSTS & (1 << (u32Ch)))? 1 : 0)
 
@@ -247,6 +269,7 @@ extern "C"
  * @return      None
  *
  * @details     This macro set the selected channel source address.
+ * \hideinitializer
  */
 #define PDMA_SET_SRC_ADDR(u32Ch, u32Addr) ((uint32_t)(PDMA->DSCT[(u32Ch)].SA = (u32Addr)))
 
@@ -259,6 +282,7 @@ extern "C"
  * @return      None
  *
  * @details     This macro set the selected channel destination address.
+ * \hideinitializer
  */
 #define PDMA_SET_DST_ADDR(u32Ch, u32Addr) ((uint32_t)(PDMA->DSCT[(u32Ch)].DA = (u32Addr)))
 
@@ -271,8 +295,9 @@ extern "C"
  * @return      None
  *
  * @details     This macro set the selected channel transfer count.
+ * \hideinitializer
  */
-#define PDMA_SET_TRANS_CNT(u32Ch, u32TransCount) ((uint32_t)(PDMA->DSCT[(u32Ch)].CTL=(PDMA->DSCT[(u32Ch)].CTL&~PDMA_DSCT_CTL_TXCNT_Msk)|((u32TransCount-1) << PDMA_DSCT_CTL_TXCNT_Pos)))
+#define PDMA_SET_TRANS_CNT(u32Ch, u32TransCount) ((uint32_t)(PDMA->DSCT[(u32Ch)].CTL=(PDMA->DSCT[(u32Ch)].CTL&~PDMA_DSCT_CTL_TXCNT_Msk)|(((u32TransCount)-1) << PDMA_DSCT_CTL_TXCNT_Pos)))
 
 /**
  * @brief       Set Scatter-gather descriptor Address
@@ -283,6 +308,7 @@ extern "C"
  * @return      None
  *
  * @details     This macro set the selected channel scatter-gather descriptor address.
+ * \hideinitializer
  */
 #define PDMA_SET_SCATTER_DESC(u32Ch, u32Addr) ((uint32_t)(PDMA->DSCT[(u32Ch)].NEXT = (u32Addr) - (PDMA->SCATBA)))
 
@@ -294,11 +320,24 @@ extern "C"
  * @return      None
  *
  * @details     This macro stop the selected channel.
+ * \hideinitializer
  */
-#define PDMA_STOP(u32Ch) ((uint32_t)(PDMA->STOP = (1 << (u32Ch))))
+#define PDMA_STOP(u32Ch) ((uint32_t)(PDMA->PAUSE = (1 << (u32Ch))))
+
+/**
+ * @brief       Pause the channel
+ *
+ * @param[in]   u32Ch     The selected channel
+ *
+ * @return      None
+ *
+ * @details     This macro pause the selected channel.
+ * \hideinitializer
+ */
+#define PDMA_PAUSE(u32Ch) ((uint32_t)(PDMA->PAUSE = (1 << (u32Ch))))
 
 /*---------------------------------------------------------------------------------------------------------*/
-/* Define PWM functions prototype                                                                          */
+/* Define PDMA functions prototype                                                                          */
 /*---------------------------------------------------------------------------------------------------------*/
 void PDMA_Open(uint32_t u32Mask);
 void PDMA_Close(void);
@@ -312,6 +351,7 @@ void PDMA_SetTimeOut(uint32_t u32Ch, uint32_t u32OnOff, uint32_t u32TimeOutCnt);
 void PDMA_Trigger(uint32_t u32Ch);
 void PDMA_EnableInt(uint32_t u32Ch, uint32_t u32Mask);
 void PDMA_DisableInt(uint32_t u32Ch, uint32_t u32Mask);
+void PDMA_SetStride(uint32_t u32Ch, uint32_t u32DestLen, uint32_t u32SrcLen, uint32_t u32TransCount);
 
 
 /*@}*/ /* end of group PDMA_EXPORTED_FUNCTIONS */
@@ -324,6 +364,6 @@ void PDMA_DisableInt(uint32_t u32Ch, uint32_t u32Mask);
 }
 #endif
 
-#endif //__PDMA_H__
+#endif /* __PDMA_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

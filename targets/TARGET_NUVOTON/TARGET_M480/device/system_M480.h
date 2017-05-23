@@ -28,7 +28,7 @@ extern "C" {
 #define __SYS_OSC_CLK     (    ___HSI)    /* Main oscillator frequency        */
 
 
-#define __SYSTEM_CLOCK    (1*__HXT)
+#define __SYSTEM_CLOCK    (1UL*__HXT)
 
 extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
 extern uint32_t CyclesPerUs;         /*!< Cycles per micro second              */

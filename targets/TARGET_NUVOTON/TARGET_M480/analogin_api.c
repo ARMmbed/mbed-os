@@ -67,7 +67,8 @@ void analogin_init(analogin_t *obj, PinName pin)
         
         // Set the ADC internal sampling time, input mode as single-end and enable the A/D converter
         EADC_Open(eadc_base, EADC_CTL_DIFFEN_SINGLE_END);
-        EADC_SetInternalSampleTime(eadc_base, 6);
+        // NOTE: Removed in M480
+        //EADC_SetInternalSampleTime(eadc_base, 6);
     }
     
     uint32_t chn =  NU_MODSUBINDEX(obj->adc);

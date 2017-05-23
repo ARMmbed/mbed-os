@@ -15,6 +15,7 @@ extern "C"
 {
 #endif
 
+
 /** @addtogroup M480_Device_Driver M480 Device Driver
   @{
 */
@@ -28,42 +29,42 @@ extern "C"
   @{
 */
 
-#define SDH_ERR_ID       0xFFFF0100
+#define SDH_ERR_ID       0xFFFF0100ul /*!< SDH error ID  \hideinitializer */
 
-#define SDH_TIMEOUT      (SDH_ERR_ID|0x01)
-#define SDH_NO_MEMORY    (SDH_ERR_ID|0x02)
+#define SDH_TIMEOUT      (SDH_ERR_ID|0x01ul) /*!< Timeout  \hideinitializer */
+#define SDH_NO_MEMORY    (SDH_ERR_ID|0x02ul) /*!< OOM  \hideinitializer */
 
-//-- function return value
-#define    Successful  0
-#define    Fail        1
+/*-- function return value */
+#define    Successful  0ul   /*!< Success  \hideinitializer */
+#define    Fail        1ul   /*!< Failed  \hideinitializer */
 
-//--- define type of SD card or MMC
-#define SDH_TYPE_UNKNOWN     0
-#define SDH_TYPE_SD_HIGH     1
-#define SDH_TYPE_SD_LOW      2
-#define SDH_TYPE_MMC         3
-#define SDH_TYPE_EMMC       4
+/*--- define type of SD card or MMC */
+#define SDH_TYPE_UNKNOWN     0ul /*!< Unknown card type  \hideinitializer */
+#define SDH_TYPE_SD_HIGH     1ul /*!< SD card  \hideinitializer */
+#define SDH_TYPE_SD_LOW      2ul /*!< SDHC card  \hideinitializer */
+#define SDH_TYPE_MMC         3ul /*!< MMC card  \hideinitializer */
+#define SDH_TYPE_EMMC        4ul /*!< eMMC card  \hideinitializer */
 
 /* SD error */
-#define SDH_NO_SD_CARD       (SDH_ERR_ID|0x10)
-#define SDH_ERR_DEVICE       (SDH_ERR_ID|0x11)
-#define SDH_INIT_TIMEOUT     (SDH_ERR_ID|0x12)
-#define SDH_SELECT_ERROR     (SDH_ERR_ID|0x13)
-#define SDH_WRITE_PROTECT    (SDH_ERR_ID|0x14)
-#define SDH_INIT_ERROR       (SDH_ERR_ID|0x15)
-#define SDH_CRC7_ERROR       (SDH_ERR_ID|0x16)
-#define SDH_CRC16_ERROR      (SDH_ERR_ID|0x17)
-#define SDH_CRC_ERROR        (SDH_ERR_ID|0x18)
-#define SDH_CMD8_ERROR       (SDH_ERR_ID|0x19)
+#define SDH_NO_SD_CARD       (SDH_ERR_ID|0x10ul) /*!< Card removed  \hideinitializer */
+#define SDH_ERR_DEVICE       (SDH_ERR_ID|0x11ul) /*!< Device error  \hideinitializer */
+#define SDH_INIT_TIMEOUT     (SDH_ERR_ID|0x12ul) /*!< Card init timeout  \hideinitializer */
+#define SDH_SELECT_ERROR     (SDH_ERR_ID|0x13ul) /*!< Card select error  \hideinitializer */
+#define SDH_WRITE_PROTECT    (SDH_ERR_ID|0x14ul) /*!< Card write protect  \hideinitializer */
+#define SDH_INIT_ERROR       (SDH_ERR_ID|0x15ul) /*!< Card init error  \hideinitializer */
+#define SDH_CRC7_ERROR       (SDH_ERR_ID|0x16ul) /*!< CRC 7 error  \hideinitializer */
+#define SDH_CRC16_ERROR      (SDH_ERR_ID|0x17ul) /*!< CRC 16 error  \hideinitializer */
+#define SDH_CRC_ERROR        (SDH_ERR_ID|0x18ul) /*!< CRC error  \hideinitializer */
+#define SDH_CMD8_ERROR       (SDH_ERR_ID|0x19ul) /*!< Command 8 error  \hideinitializer */
 
-#define MMC_FREQ        20000   /*!< output 20MHz to MMC  \hideinitializer */
-#define SD_FREQ         25000   /*!< output 25MHz to SD  \hideinitializer */
-#define SDHC_FREQ       50000   /*!< output 50MHz to SDH \hideinitializer */
+#define MMC_FREQ        20000ul   /*!< output 20MHz to MMC  \hideinitializer */
+#define SD_FREQ         25000ul   /*!< output 25MHz to SD  \hideinitializer */
+#define SDHC_FREQ       50000ul   /*!< output 50MHz to SDH \hideinitializer */
 
 #define SD_PORT0        (1 << 0)  /*!< Card select SD0 \hideinitializer */
 #define SD_PORT1        (1 << 2)  /*!< Card select SD1 \hideinitializer */
-#define    CardDetect_From_GPIO  (1 << 8)   /*!< Card detection pin is GPIO \hideinitializer */
-#define    CardDetect_From_DAT3  (1 << 9)   /*!< Card detection pin is DAT3 \hideinitializer */
+#define CardDetect_From_GPIO  (1ul << 8)   /*!< Card detection pin is GPIO \hideinitializer */
+#define CardDetect_From_DAT3  (1ul << 9)   /*!< Card detection pin is DAT3 \hideinitializer */
 
 /*@}*/ /* end of group M480_SDH_EXPORTED_CONSTANTS */
 
@@ -72,18 +73,18 @@ extern "C"
 */
 typedef struct SDH_info_t {
     unsigned int    CardType;       /*!< SDHC, SD, or MMC */
-    unsigned int    RCA;            /*!< relative card address */
-    unsigned char   IsCardInsert;   /*!< card insert state */
-    unsigned int    totalSectorN;   /*!< total sector number */
-    unsigned int    diskSize;       /*!< disk size in Kbytes */
-    int             sectorSize;     /*!< sector size in bytes */
-} SDH_INFO_T;
+    unsigned int    RCA;            /*!< Relative card address */
+    unsigned char   IsCardInsert;   /*!< Card insert state */
+    unsigned int    totalSectorN;   /*!< Total sector number */
+    unsigned int    diskSize;       /*!< Disk size in K bytes */
+    int             sectorSize;     /*!< Sector size in bytes */
+} SDH_INFO_T;                       /*!< Structure holds SD card info */
 
 /*@}*/ /* end of group M480_SDH_EXPORTED_TYPEDEF */
 
-/// @cond HIDDEN_SYMBOLS
+/** @cond HIDDEN_SYMBOLS */
 extern SDH_INFO_T SD0, SD1;
-/// @endcond HIDDEN_SYMBOLS
+/** @endcond HIDDEN_SYMBOLS */
 
 /** @addtogroup M480_SDH_EXPORTED_FUNCTIONS SDH Exported Functions
   @{
@@ -101,7 +102,7 @@ extern SDH_INFO_T SD0, SD1;
  *  @return   None.
  * \hideinitializer
  */
-#define SDH_ENABLE_INT(sdh, u32IntMask)    (sdh->INTEN |= (u32IntMask))
+#define SDH_ENABLE_INT(sdh, u32IntMask)    ((sdh)->INTEN |= (u32IntMask))
 
 /**
  *  @brief    Disable specified interrupt.
@@ -115,7 +116,7 @@ extern SDH_INFO_T SD0, SD1;
  *  @return   None.
  * \hideinitializer
  */
-#define SDH_DISABLE_INT(sdh, u32IntMask)    (sdh->INTEN &= ~(u32IntMask))
+#define SDH_DISABLE_INT(sdh, u32IntMask)    ((sdh)->INTEN &= ~(u32IntMask))
 
 /**
  *  @brief    Get specified interrupt flag/status.
@@ -133,7 +134,7 @@ extern SDH_INFO_T SD0, SD1;
  *            1 = The specified interrupt is happened.
  * \hideinitializer
  */
-#define SDH_GET_INT_FLAG(sdh, u32IntMask) ((sdh->INTSTS & (u32IntMask))?1:0)
+#define SDH_GET_INT_FLAG(sdh, u32IntMask) (((sdh)->INTSTS & (u32IntMask))?1:0)
 
 
 /**
@@ -148,7 +149,7 @@ extern SDH_INFO_T SD0, SD1;
  *  @return   None.
  * \hideinitializer
  */
-#define SDH_CLR_INT_FLAG(sdh, u32IntMask) (sdh->INTSTS = u32IntMask)
+#define SDH_CLR_INT_FLAG(sdh, u32IntMask) ((sdh)->INTSTS = (u32IntMask))
 
 
 /**
@@ -160,7 +161,7 @@ extern SDH_INFO_T SD0, SD1;
  *            0: Card removed.
  * \hideinitializer
  */
-#define SDH_IS_CARD_PRESENT(sdh) ((sdh == SDH0)? SD0.IsCardInsert : SD1.IsCardInsert)
+#define SDH_IS_CARD_PRESENT(sdh) (((sdh) == SDH0)? SD0.IsCardInsert : SD1.IsCardInsert)
 
 /**
  *  @brief    Get SD Card capacity.
@@ -170,7 +171,7 @@ extern SDH_INFO_T SD0, SD1;
  *  @return   SD Card capacity. (unit: KByte)
  * \hideinitializer
  */
-#define SDH_GET_CARD_CAPACITY(sdh)  ((sdh == SDH0)? SD0.diskSize : SD1.diskSize)
+#define SDH_GET_CARD_CAPACITY(sdh)  (((sdh) == SDH0)? SD0.diskSize : SD1.diskSize)
 
 
 void SDH_Open(SDH_T *sdh, uint32_t u32CardDetSrc);
@@ -193,5 +194,5 @@ void SDH_Close_Disk(SDH_T *sdh);
 }
 #endif
 
-#endif  //end of __SDH_H__
+#endif  /* __SDH_H__ */
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

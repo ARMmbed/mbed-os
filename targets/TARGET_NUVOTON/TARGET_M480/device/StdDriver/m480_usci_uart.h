@@ -3,7 +3,6 @@
  * @version  V3.00
  * @brief    M480 series USCI UART (UUART) driver header file
  *
- * @note
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #ifndef __USCI_UART_H__
@@ -31,31 +30,31 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /* UUART_LINECTL constants definitions                                                                     */
 /*---------------------------------------------------------------------------------------------------------*/
-#define UUART_WORD_LEN_6     (6 << UUART_LINECTL_DWIDTH_Pos) /*!< UUART_LINECTL setting to set UART word length to 6 bits */
-#define UUART_WORD_LEN_7     (7 << UUART_LINECTL_DWIDTH_Pos) /*!< UUART_LINECTL setting to set UART word length to 7 bits */
-#define UUART_WORD_LEN_8     (8 << UUART_LINECTL_DWIDTH_Pos) /*!< UUART_LINECTL setting to set UART word length to 8 bits */
-#define UUART_WORD_LEN_9     (9 << UUART_LINECTL_DWIDTH_Pos) /*!< UUART_LINECTL setting to set UART word length to 9 bits */
+#define UUART_WORD_LEN_6     (6ul << UUART_LINECTL_DWIDTH_Pos) /*!< UUART_LINECTL setting to set UART word length to 6 bits \hideinitializer */
+#define UUART_WORD_LEN_7     (7ul << UUART_LINECTL_DWIDTH_Pos) /*!< UUART_LINECTL setting to set UART word length to 7 bits \hideinitializer */
+#define UUART_WORD_LEN_8     (8ul << UUART_LINECTL_DWIDTH_Pos) /*!< UUART_LINECTL setting to set UART word length to 8 bits \hideinitializer */
+#define UUART_WORD_LEN_9     (9ul << UUART_LINECTL_DWIDTH_Pos) /*!< UUART_LINECTL setting to set UART word length to 9 bits \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /* UUART_PROTCTL constants definitions                                                                     */
 /*---------------------------------------------------------------------------------------------------------*/
-#define UUART_PARITY_NONE    (0x0 << UUART_PROTCTL_PARITYEN_Pos)    /*!< UUART_PROTCTL setting to set UART as no parity */
-#define UUART_PARITY_ODD     (0x1 << UUART_PROTCTL_PARITYEN_Pos)    /*!< UUART_PROTCTL setting to set UART as odd parity */
-#define UUART_PARITY_EVEN    (0x3 << UUART_PROTCTL_PARITYEN_Pos)    /*!< UUART_PROTCTL setting to set UART as even parity */
+#define UUART_PARITY_NONE    (0x0ul << UUART_PROTCTL_PARITYEN_Pos)    /*!< UUART_PROTCTL setting to set UART as no parity \hideinitializer */
+#define UUART_PARITY_ODD     (0x1ul << UUART_PROTCTL_PARITYEN_Pos)    /*!< UUART_PROTCTL setting to set UART as odd parity \hideinitializer */
+#define UUART_PARITY_EVEN    (0x3ul << UUART_PROTCTL_PARITYEN_Pos)    /*!< UUART_PROTCTL setting to set UART as even parity \hideinitializer */
 
-#define UUART_STOP_BIT_1     (0x0) /*!< UUART_PROTCTL setting for one stop bit */
-#define UUART_STOP_BIT_2     (0x1) /*!< UUART_PROTCTL setting for two stop bit */
+#define UUART_STOP_BIT_1     (0x0ul) /*!< UUART_PROTCTL setting for one stop bit \hideinitializer */
+#define UUART_STOP_BIT_2     (0x1ul) /*!< UUART_PROTCTL setting for two stop bit \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
-/* USCI UART interrupt mask definitions                                                                            */
+/* USCI UART interrupt mask definitions                                                                    */
 /*---------------------------------------------------------------------------------------------------------*/
-#define UUART_ABR_INT_MASK      (0x002) /*!< Auto-baud rate interrupt mask */
-#define UUART_RLS_INT_MASK      (0x004) /*!< Receive line status interrupt mask */
-#define UUART_BUF_RXOV_INT_MASK (0x008) /*!< Buffer RX overrun interrupt mask */
-#define UUART_TXST_INT_MASK     (0x010) /*!< TX start interrupt mask */
-#define UUART_TXEND_INT_MASK    (0x020) /*!< Tx end interrupt mask */
-#define UUART_RXST_INT_MASK     (0x040) /*!< RX start interrupt mask */
-#define UUART_RXEND_INT_MASK    (0x080) /*!< RX end interrupt mask */
+#define UUART_ABR_INT_MASK      (0x002ul) /*!< Auto-baud rate interrupt mask \hideinitializer */
+#define UUART_RLS_INT_MASK      (0x004ul) /*!< Receive line status interrupt mask \hideinitializer */
+#define UUART_BUF_RXOV_INT_MASK (0x008ul) /*!< Buffer RX overrun interrupt mask \hideinitializer */
+#define UUART_TXST_INT_MASK     (0x010ul) /*!< TX start interrupt mask \hideinitializer */
+#define UUART_TXEND_INT_MASK    (0x020ul) /*!< Tx end interrupt mask \hideinitializer */
+#define UUART_RXST_INT_MASK     (0x040ul) /*!< RX start interrupt mask \hideinitializer */
+#define UUART_RXEND_INT_MASK    (0x080ul) /*!< RX end interrupt mask \hideinitializer */
 
 
 /*@}*/ /* end of group M480_USCI_UART_EXPORTED_CONSTANTS */
@@ -75,6 +74,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro write Data to Tx data register.
+ *    \hideinitializer
  */
 #define UUART_WRITE(uuart, u8Data)    ((uuart)->TXDAT = (u8Data))
 
@@ -87,6 +87,7 @@ extern "C"
  *    @return       The oldest data byte in RX buffer.
  *
  *    @details      This macro read Rx data register.
+ *    \hideinitializer
  */
 #define UUART_READ(uuart)    ((uuart)->RXDAT)
 
@@ -100,6 +101,7 @@ extern "C"
  *    @retval       >=1 Tx buffer is empty
  *
  *    @details      This macro get Transmitter buffer empty register value.
+ *    \hideinitializer
  */
 #define UUART_GET_TX_EMPTY(uuart)    ((uuart)->BUFSTS & UUART_BUFSTS_TXEMPTY_Msk)
 
@@ -113,6 +115,7 @@ extern "C"
  *    @retval       >=1 Rx buffer is empty
  *
  *    @details      This macro get Receiver buffer empty register value.
+ *    \hideinitializer
  */
 #define UUART_GET_RX_EMPTY(uuart)    ((uuart)->BUFSTS & UUART_BUFSTS_RXEMPTY_Msk)
 
@@ -127,6 +130,7 @@ extern "C"
  *
  *    @details      This macro return Transmitter Empty Flag register bit value. \n
  *                  It indicates if specified usci_uart port transmission is over nor not.
+ *    \hideinitializer
  */
 #define UUART_IS_TX_EMPTY(uuart)    (((uuart)->BUFSTS & UUART_BUFSTS_TXEMPTY_Msk) >> UUART_BUFSTS_TXEMPTY_Pos)
 
@@ -141,6 +145,7 @@ extern "C"
  *
  *    @details      This macro return Receive Empty Flag register bit value. \n
  *                  It indicates if specified usci_uart port receiver is empty nor not.
+ *    \hideinitializer
  */
 #define UUART_IS_RX_EMPTY(uuart)    (((uuart)->BUFSTS & UUART_BUFSTS_RXEMPTY_Msk) >> UUART_BUFSTS_RXEMPTY_Pos)
 
@@ -153,6 +158,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro wait specified usci_uart port transmission is over.
+ *    \hideinitializer
  */
 #define UUART_WAIT_TX_EMPTY(uuart)    while(!((((uuart)->BUFSTS) & UUART_BUFSTS_TXEMPTY_Msk) >> UUART_BUFSTS_TXEMPTY_Pos))
 
@@ -166,6 +172,7 @@ extern "C"
  *    @retval       0 TX buffer is not full
  *
  *    @details      This macro check TX buffer is full or not.
+ *    \hideinitializer
  */
 #define UUART_IS_TX_FULL(uuart)    (((uuart)->BUFSTS & UUART_BUFSTS_TXFULL_Msk)>>UUART_BUFSTS_TXFULL_Pos)
 
@@ -179,6 +186,7 @@ extern "C"
  *    @retval       0 RX buffer is not full
  *
  *    @details      This macro check RX buffer is full or not.
+ *    \hideinitializer
  */
 #define UUART_IS_RX_FULL(uuart)    (((uuart)->BUFSTS & UUART_BUFSTS_RXFULL_Msk)>>UUART_BUFSTS_RXFULL_Pos)
 
@@ -192,6 +200,7 @@ extern "C"
  *    @retval       >=1 Tx buffer is full.
  *
  *    @details      This macro get Tx full register value.
+ *    \hideinitializer
  */
 #define UUART_GET_TX_FULL(uuart)    ((uuart)->BUFSTS & UUART_BUFSTS_TXFULL_Msk)
 
@@ -205,6 +214,7 @@ extern "C"
  *    @retval       >=1 Rx buffer is full.
  *
  *    @details      This macro get Rx full register value.
+ *    \hideinitializer
  */
 #define UUART_GET_RX_FULL(uuart)    ((uuart)->BUFSTS & UUART_BUFSTS_RXFULL_Msk)
 
@@ -220,6 +230,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro enable specified USCI_UART protocol interrupt.
+ *    \hideinitializer
  */
 #define UUART_ENABLE_PROT_INT(uuart, u32IntSel)    ((uuart)->PROTIEN |= (u32IntSel))
 
@@ -235,6 +246,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro disable specified USCI_UART protocol interrupt.
+ *    \hideinitializer
  */
 #define UUART_DISABLE_PROT_INT(uuart, u32IntSel)    ((uuart)->PROTIEN &= ~(u32IntSel))
 
@@ -249,6 +261,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro enable specified USCI_UART buffer interrupt.
+ *    \hideinitializer
  */
 #define UUART_ENABLE_BUF_INT(uuart, u32IntSel)    ((uuart)->BUFCTL |= (u32IntSel))
 
@@ -263,6 +276,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro disable specified USCI_UART buffer interrupt.
+ *    \hideinitializer
  */
 #define UUART_DISABLE_BUF_INT(uuart, u32IntSel)    ((uuart)->BUFCTL &= ~ (u32IntSel))
 
@@ -280,6 +294,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro enable specified USCI_UART transfer interrupt.
+ *    \hideinitializer
  */
 #define UUART_ENABLE_TRANS_INT(uuart, u32IntSel)    ((uuart)->INTEN |= (u32IntSel))
 
@@ -297,6 +312,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro disable specified USCI_UART transfer interrupt.
+ *    \hideinitializer
  */
 #define UUART_DISABLE_TRANS_INT(uuart, u32IntSel)    ((uuart)->INTEN &= ~(u32IntSel))
 
@@ -309,6 +325,7 @@ extern "C"
  *    @return       The interrupt flag/status of protocol status register.
  *
  *    @details      This macro get protocol status register value.
+ *    \hideinitializer
  */
 #define UUART_GET_PROT_STATUS(uuart)    ((uuart)->PROTSTS)
 
@@ -331,6 +348,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro clear specified protocol interrupt flag.
+ *    \hideinitializer
  */
 #define UUART_CLR_PROT_INT_FLAG(uuart,u32IntTypeFlag)    ((uuart)->PROTSTS = (u32IntTypeFlag))
 
@@ -343,6 +361,7 @@ extern "C"
  *    @return       The interrupt flag/status of buffer status register.
  *
  *    @details      This macro get buffer status register value.
+ *    \hideinitializer
  */
 #define UUART_GET_BUF_STATUS(uuart)    ((uuart)->BUFSTS)
 
@@ -357,6 +376,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro clear specified buffer interrupt flag.
+ *    \hideinitializer
  */
 #define UUART_CLR_BUF_INT_FLAG(uuart,u32IntTypeFlag)    ((uuart)->BUFSTS = (u32IntTypeFlag))
 
@@ -370,6 +390,7 @@ extern "C"
  *    @retval       1       Chip waked up from power-down mode.
  *
  *    @details      This macro get wakeup flag.
+ *    \hideinitializer
  */
 #define UUART_GET_WAKEUP_FLAG(uuart)    ((uuart)->WKSTS & UUART_WKSTS_WKF_Msk ? 1: 0 )
 
@@ -382,6 +403,7 @@ extern "C"
  *    @return       None
  *
  *    @details      This macro clear wakeup flag.
+ *    \hideinitializer
  */
 #define UUART_CLR_WAKEUP_FLAG(uuart)    ((uuart)->WKSTS = UUART_WKSTS_WKF_Msk)
 
@@ -392,9 +414,9 @@ void UUART_Close(UUART_T* uuart);
 void UUART_DisableInt(UUART_T*  uuart, uint32_t u32Mask);
 void UUART_EnableInt(UUART_T*  uuart, uint32_t u32Mask);
 uint32_t UUART_Open(UUART_T* uuart, uint32_t u32baudrate);
-uint32_t UUART_Read(UUART_T* uuart, uint8_t *pu8RxBuf, uint32_t u32ReadBytes);
+uint32_t UUART_Read(UUART_T* uuart, uint8_t pu8RxBuf[], uint32_t u32ReadBytes);
 uint32_t UUART_SetLine_Config(UUART_T* uuart, uint32_t u32baudrate, uint32_t u32data_width, uint32_t u32parity, uint32_t u32stop_bits);
-uint32_t UUART_Write(UUART_T* uuart, uint8_t *pu8TxBuf, uint32_t u32WriteBytes);
+uint32_t UUART_Write(UUART_T* uuart, uint8_t pu8TxBuf[], uint32_t u32WriteBytes);
 void UUART_EnableWakeup(UUART_T* uuart, uint32_t u32WakeupMode);
 void UUART_DisableWakeup(UUART_T* uuart);
 void UUART_EnableFlowCtrl(UUART_T* uuart);
@@ -411,6 +433,6 @@ void UUART_DisableFlowCtrl(UUART_T* uuart);
 }
 #endif
 
-#endif //__USCI_UART_H__
+#endif /* __USCI_UART_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

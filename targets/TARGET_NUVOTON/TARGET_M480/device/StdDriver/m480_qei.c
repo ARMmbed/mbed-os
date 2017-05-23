@@ -32,7 +32,7 @@
 void QEI_Close(QEI_T* qei)
 {
     /* Reset QEI configuration */
-    qei->CTL = 0;
+    qei->CTL = (uint32_t)0;
 }
 
 /**
@@ -52,10 +52,11 @@ void QEI_DisableInt(QEI_T* qei, uint32_t u32IntSel)
     QEI_DISABLE_INT(qei, u32IntSel);
 
     /* Disable NVIC QEI IRQ */
-    if(qei == QEI0)
-        NVIC_DisableIRQ(QEI0_IRQn);
-    else
-        NVIC_DisableIRQ(QEI1_IRQn);
+    if(qei ==(QEI_T*)QEI0) {
+        NVIC_DisableIRQ((IRQn_Type)QEI0_IRQn);
+    } else {
+        NVIC_DisableIRQ((IRQn_Type)QEI1_IRQn);
+    }
 }
 
 /**
@@ -75,10 +76,11 @@ void QEI_EnableInt(QEI_T* qei, uint32_t u32IntSel)
     QEI_ENABLE_INT(qei, u32IntSel);
 
     /* Enable NVIC QEI IRQ */
-    if(qei == QEI0)
+    if(qei == (QEI_T*)QEI0) {
         NVIC_EnableIRQ(QEI0_IRQn);
-    else
+    } else {
         NVIC_EnableIRQ(QEI1_IRQn);
+    }
 }
 
 /**

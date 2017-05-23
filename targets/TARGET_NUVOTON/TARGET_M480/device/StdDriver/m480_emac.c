@@ -3,7 +3,6 @@
  * @version  V1.00
  * @brief    M480 EMAC driver source file
  *
- * @note
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include <stdio.h>
@@ -20,90 +19,83 @@
 */
 
 
-// Below are structure, definitions, static variables used locally by EMAC driver and does not want to parse by doxygen unless HIDDEN_SYMBOLS is defined
-/// @cond HIDDEN_SYMBOLS
+/* Below are structure, definitions, static variables used locally by EMAC driver and does not want to parse by doxygen unless HIDDEN_SYMBOLS is defined */
+/** @cond HIDDEN_SYMBOLS */
 
 /** @addtogroup M480_EMAC_EXPORTED_CONSTANTS EMAC Exported Constants
   @{
 */
-// Un-comment to print EMAC debug message
+/* Un-comment to print EMAC debug message */
 #define EMAC_DBG
 #ifndef EMAC_DBG
 #define printf(...)
 #endif
 
-#define GPIO_MIIM  // Use GPIO to simulation MIIM pins
-#ifdef GPIO_MIIM
-#define delay       do{int volatile ii; for(ii = 0; ii < 10; ii++);}while(0)
-#define tMDC        PC9
-#define tMDIO       PC10
-#endif
+/* PHY Register Description */
+#define PHY_CNTL_REG    0x00UL        /*!<  PHY control register address */
+#define PHY_STATUS_REG  0x01UL        /*!<  PHY status register address */
+#define PHY_ID1_REG     0x02UL        /*!<  PHY ID1 register */
+#define PHY_ID2_REG     0x03UL        /*!<  PHY ID2 register */
+#define PHY_ANA_REG     0x04UL        /*!<  PHY auto-negotiation advertisement register */
+#define PHY_ANLPA_REG   0x05UL        /*!<  PHY auto-negotiation link partner availability register */
+#define PHY_ANE_REG     0x06UL        /*!<  PHY auto-negotiation expansion register */
 
-// PHY Register Description
-#define PHY_CNTL_REG    0x00        ///< PHY control register address
-#define PHY_STATUS_REG  0x01        ///< PHY status register address
-#define PHY_ID1_REG     0x02        ///< PHY ID1 register
-#define PHY_ID2_REG     0x03        ///< PHY ID2 register
-#define PHY_ANA_REG     0x04        ///< PHY auto-negotiation advertisement register
-#define PHY_ANLPA_REG   0x05        ///< PHY auto-negotiation link partner availability register
-#define PHY_ANE_REG     0x06        ///< PHY auto-negotiation expansion register
+/* PHY Control Register */
+#define PHY_CNTL_RESET_PHY      (1UL << 15UL)
+#define PHY_CNTL_DR_100MB       (1UL << 13UL)
+#define PHY_CNTL_ENABLE_AN      (1UL << 12UL)
+#define PHY_CNTL_POWER_DOWN     (1UL << 11UL)
+#define PHY_CNTL_RESTART_AN     (1UL << 9UL)
+#define PHY_CNTL_FULLDUPLEX     (1UL << 8UL)
 
-//PHY Control Register
-#define PHY_CNTL_RESET_PHY      (1 << 15)
-#define PHY_CNTL_DR_100MB       (1 << 13)
-#define PHY_CNTL_ENABLE_AN      (1 << 12)
-#define PHY_CNTL_POWER_DOWN     (1 << 11)
-#define PHY_CNTL_RESTART_AN     (1 << 9)
-#define PHY_CNTL_FULLDUPLEX     (1 << 8)
+/* PHY Status Register */
+#define PHY_STATUS_AN_COMPLETE   (1UL << 5UL)
+#define PHY_STATUS_LINK_VALID    (1UL << 2UL)
 
-// PHY Status Register
-#define PHY_STATUS_AN_COMPLETE   (1 << 5)
-#define PHY_STATUS_LINK_VALID    (1 << 2)
+/* PHY Auto-negotiation Advertisement Register */
+#define PHY_ANA_DR100_TX_FULL   (1UL << 8UL)
+#define PHY_ANA_DR100_TX_HALF   (1UL << 7UL)
+#define PHY_ANA_DR10_TX_FULL    (1UL << 6UL)
+#define PHY_ANA_DR10_TX_HALF    (1UL << 5UL)
+#define PHY_ANA_IEEE_802_3_CSMA_CD   (1UL << 0UL)
 
-// PHY Auto-negotiation Advertisement Register
-#define PHY_ANA_DR100_TX_FULL   (1 << 8)
-#define PHY_ANA_DR100_TX_HALF   (1 << 7)
-#define PHY_ANA_DR10_TX_FULL    (1 << 6)
-#define PHY_ANA_DR10_TX_HALF    (1 << 5)
-#define PHY_ANA_IEEE_802_3_CSMA_CD   (1 << 0)
+/* PHY Auto-negotiation Link Partner Advertisement Register */
+#define PHY_ANLPA_DR100_TX_FULL   (1UL << 8UL)
+#define PHY_ANLPA_DR100_TX_HALF   (1UL << 7UL)
+#define PHY_ANLPA_DR10_TX_FULL    (1UL << 6UL)
+#define PHY_ANLPA_DR10_TX_HALF    (1UL << 5UL)
 
-// PHY Auto-negotiation Link Partner Advertisement Register
-#define PHY_ANLPA_DR100_TX_FULL   (1 << 8)
-#define PHY_ANLPA_DR100_TX_HALF   (1 << 7)
-#define PHY_ANLPA_DR10_TX_FULL    (1 << 6)
-#define PHY_ANLPA_DR10_TX_HALF    (1 << 5)
+/* EMAC Tx/Rx descriptor's owner bit */
+#define EMAC_DESC_OWN_EMAC 0x80000000UL  /*!<  Set owner to EMAC */
+#define EMAC_DESC_OWN_CPU  0x00000000UL  /*!<  Set owner to CPU */
 
-// EMAC Tx/Rx descriptor's owner bit
-#define EMAC_DESC_OWN_EMAC 0x80000000  ///< Set owner to EMAC
-#define EMAC_DESC_OWN_CPU  0x00000000  ///< Set owner to CPU
+/* Rx Frame Descriptor Status */
+#define EMAC_RXFD_RTSAS   0x0080UL  /*!<  Time Stamp Available */
+#define EMAC_RXFD_RP      0x0040UL  /*!<  Runt Packet */
+#define EMAC_RXFD_ALIE    0x0020UL  /*!<  Alignment Error */
+#define EMAC_RXFD_RXGD    0x0010UL  /*!<  Receiving Good packet received */
+#define EMAC_RXFD_PTLE    0x0008UL  /*!<  Packet Too Long Error */
+#define EMAC_RXFD_CRCE    0x0002UL  /*!<  CRC Error */
+#define EMAC_RXFD_RXINTR  0x0001UL  /*!<  Interrupt on receive */
 
-// Rx Frame Descriptor Status
-#define EMAC_RXFD_RTSAS   0x0080  ///< Time Stamp Available
-#define EMAC_RXFD_RP      0x0040  ///< Runt Packet
-#define EMAC_RXFD_ALIE    0x0020  ///< Alignment Error
-#define EMAC_RXFD_RXGD    0x0010  ///< Receiving Good packet received
-#define EMAC_RXFD_PTLE    0x0008  ///< Packet Too Long Error
-#define EMAC_RXFD_CRCE    0x0002  ///< CRC Error
-#define EMAC_RXFD_RXINTR  0x0001  ///< Interrupt on receive
+/* Tx Frame Descriptor's Control bits */
+#define EMAC_TXFD_TTSEN     0x08UL      /*!<  Tx time stamp enable */
+#define EMAC_TXFD_INTEN     0x04UL      /*!<  Tx interrupt enable */
+#define EMAC_TXFD_CRCAPP    0x02UL      /*!<  Append CRC */
+#define EMAC_TXFD_PADEN     0x01UL      /*!<  Padding mode enable */
 
-// Tx Frame Descriptor's Control bits
-#define EMAC_TXFD_TTSEN     0x08      ///< Tx time stamp enable
-#define EMAC_TXFD_INTEN     0x04      ///< Tx interrupt enable
-#define EMAC_TXFD_CRCAPP    0x02      ///< Append CRC
-#define EMAC_TXFD_PADEN     0x01      ///< Padding mode enable
-
-// Tx Frame Descriptor Status
-#define EMAC_TXFD_TXINTR 0x0001  ///< Interrupt on Transmit
-#define EMAC_TXFD_DEF    0x0002  ///< Transmit deferred 
-#define EMAC_TXFD_TXCP   0x0008  ///< Transmission Completion 
-#define EMAC_TXFD_EXDEF  0x0010  ///< Exceed Deferral
-#define EMAC_TXFD_NCS    0x0020  ///< No Carrier Sense Error
-#define EMAC_TXFD_TXABT  0x0040  ///< Transmission Abort 
-#define EMAC_TXFD_LC     0x0080  ///< Late Collision 
-#define EMAC_TXFD_TXHA   0x0100  ///< Transmission halted
-#define EMAC_TXFD_PAU    0x0200  ///< Paused
-#define EMAC_TXFD_SQE    0x0400  ///< SQE error 
-#define EMAC_TXFD_TTSAS  0x0800  ///< Time Stamp available
+/* Tx Frame Descriptor Status */
+#define EMAC_TXFD_TXINTR 0x0001UL  /*!<  Interrupt on Transmit */
+#define EMAC_TXFD_DEF    0x0002UL  /*!<  Transmit deferred  */
+#define EMAC_TXFD_TXCP   0x0008UL  /*!<  Transmission Completion  */
+#define EMAC_TXFD_EXDEF  0x0010UL  /*!<  Exceed Deferral */
+#define EMAC_TXFD_NCS    0x0020UL  /*!<  No Carrier Sense Error */
+#define EMAC_TXFD_TXABT  0x0040UL  /*!<  Transmission Abort  */
+#define EMAC_TXFD_LC     0x0080UL  /*!<  Late Collision  */
+#define EMAC_TXFD_TXHA   0x0100UL  /*!<  Transmission halted */
+#define EMAC_TXFD_PAU    0x0200UL  /*!<  Paused */
+#define EMAC_TXFD_SQE    0x0400UL  /*!<  SQE error  */
+#define EMAC_TXFD_TTSAS  0x0800UL  /*!<  Time Stamp available */
 
 /*@}*/ /* end of group M480_EMAC_EXPORTED_CONSTANTS */
 
@@ -113,12 +105,12 @@
 
 /** Tx/Rx buffer descriptor structure */
 typedef struct {
-    uint32_t u32Status1;   ///< Status word 1
-    uint32_t u32Data;      ///< Pointer to data buffer
-    uint32_t u32Status2;   ///< Status word 2
-    uint32_t u32Next;      ///< Pointer to next descriptor
-    uint32_t u32Backup1;   ///< For backup descriptor fields over written by time stamp
-    uint32_t u32Backup2;   ///< For backup descriptor fields over written by time stamp
+    uint32_t u32Status1;   /*!<  Status word 1 */
+    uint32_t u32Data;      /*!<  Pointer to data buffer */
+    uint32_t u32Status2;   /*!<  Status word 2 */
+    uint32_t u32Next;      /*!<  Pointer to next descriptor */
+    uint32_t u32Backup1;   /*!<  For backup descriptor fields over written by time stamp */
+    uint32_t u32Backup2;   /*!<  For backup descriptor fields over written by time stamp */
 } EMAC_DESCRIPTOR_T;
 
 /** Tx/Rx buffer structure */
@@ -128,7 +120,7 @@ typedef struct {
 
 /*@}*/ /* end of group M480_EMAC_EXPORTED_TYPEDEF */
 
-// local variables
+/* local variables */
 static volatile EMAC_DESCRIPTOR_T rx_desc[EMAC_RX_DESC_SIZE];
 static volatile EMAC_FRAME_T rx_buf[EMAC_RX_DESC_SIZE];
 static volatile EMAC_DESCRIPTOR_T tx_desc[EMAC_TX_DESC_SIZE];
@@ -136,7 +128,15 @@ static volatile EMAC_FRAME_T tx_buf[EMAC_TX_DESC_SIZE];
 
 
 static uint32_t u32CurrentTxDesc, u32NextTxDesc, u32CurrentRxDesc;
-static uint32_t s_u32EnableTs = 0;
+static uint32_t s_u32EnableTs = 0UL;
+
+static void EMAC_MdioWrite(uint32_t u32Reg, uint32_t u32Addr, uint32_t u32Data);
+static uint32_t EMAC_MdioRead(uint32_t u32Reg, uint32_t u32Addr);
+static void EMAC_PhyInit(void);
+static void EMAC_TxDescInit(void);
+static void EMAC_RxDescInit(void);
+static uint32_t EMAC_Subsec2Nsec(uint32_t subsec);
+static uint32_t EMAC_Nsec2Subsec(uint32_t nsec);
 
 /** @addtogroup M480_EMAC_EXPORTED_FUNCTIONS EMAC Exported Functions
   @{
@@ -147,14 +147,14 @@ static uint32_t s_u32EnableTs = 0;
   * @param  None
   * @return None
   */
-#define EMAC_TRIGGER_RX() do{EMAC->RXST = 0;}while(0)
+#define EMAC_TRIGGER_RX() do{EMAC->RXST = 0UL;}while(0)
 
 /**
   * @brief  Trigger EMAC Tx function
   * @param  None
   * @return None
   */
-#define EMAC_TRIGGER_TX() do{EMAC->TXST = 0;}while(0)
+#define EMAC_TRIGGER_TX() do{EMAC->TXST = 0UL;}while(0)
 
 
 /**
@@ -164,205 +164,36 @@ static uint32_t s_u32EnableTs = 0;
   * @param[in] u32Data data to write to PHY register
   * @return None
   */
-#ifdef GPIO_MIIM
 static void EMAC_MdioWrite(uint32_t u32Reg, uint32_t u32Addr, uint32_t u32Data)
 {
-    int i;
-
-    tMDIO = 1;
-    tMDC = 1;
-    for(i = 0; i < 64; i++) {
-        delay;
-        tMDC = 0;
-        delay;
-        tMDC = 1;
-    }
-
-    // ST
-    delay;
-    tMDC = 0;
-    tMDIO = 0;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    tMDIO = 1;
-    delay;
-    tMDC = 1;
-
-    // OP - write
-    delay;
-    tMDC = 0;
-    tMDIO = 0;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    tMDIO = 1;
-    delay;
-    tMDC = 1;
-
-    // PHYAD
-    for(i = 0; i < 5; i++) {
-        delay;
-        tMDC = 0;
-        tMDIO = (u32Addr >> (4 - i)) & 1;
-        delay;
-        tMDC = 1;
-    }
-
-    // REGAD
-    for(i = 0; i < 5; i++) {
-        delay;
-        tMDC = 0;
-        tMDIO = (u32Reg >> (4 - i)) & 1;
-        delay;
-        tMDC = 1;
-    }
-
-    //TA
-    delay;
-    tMDC = 0;
-    tMDIO = 1;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    tMDIO = 0;
-    delay;
-    tMDC = 1;
-
-    // data
-    for(i = 0; i < 16; i++) {
-        delay;
-        tMDC = 0;
-        tMDIO = (u32Data >> (15 - i)) & 1;
-        delay;
-        tMDC = 1;
-    }
-    for(i = 0; i < 32; i++) {
-        tMDC = 0;
-        tMDC = 1;
-    }
-
-}
-#else
-static void EMAC_MdioWrite(uint32_t u32Reg, uint32_t u32Addr, uint32_t u32Data)
-{
-    // Set data register
+    /* Set data register */
     EMAC->MIIMDAT = u32Data ;
-    // Set PHY address, PHY register address, busy bit and write bit
+    /* Set PHY address, PHY register address, busy bit and write bit */
     EMAC->MIIMCTL = u32Reg | (u32Addr << 8) | EMAC_MIIMCTL_BUSY_Msk | EMAC_MIIMCTL_WRITE_Msk | EMAC_MIIMCTL_MDCON_Msk;
-    // Wait write complete by polling busy bit.
-    while(EMAC->MIIMCTL & EMAC_MIIMCTL_BUSY_Msk);
+    /* Wait write complete by polling busy bit. */
+    while(EMAC->MIIMCTL & EMAC_MIIMCTL_BUSY_Msk) {
+        ;
+    }
 
 }
-#endif
+
 /**
   * @brief  Read PHY register
   * @param[in]  u32Reg PHY register number
   * @param[in]  u32Addr PHY address, this address is board dependent
   * @return Value read from PHY register
   */
-#ifdef GPIO_MIIM
 static uint32_t EMAC_MdioRead(uint32_t u32Reg, uint32_t u32Addr)
 {
-    int i;
-    uint32_t u32Data = 0;
-
-    tMDIO = 1;
-    tMDC = 1;
-
-    for(i = 0; i < 64; i++) {
-        delay;
-        tMDC = 0;
-        delay;
-        tMDC = 1;
-    }
-
-    // ST
-    delay;
-    tMDC = 0;
-    tMDIO = 0;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    tMDIO = 1;
-    delay;
-    tMDC = 1;
-
-    // OP - read
-    delay;
-    tMDC = 0;
-    tMDIO = 1;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    tMDIO = 0;
-    delay;
-    tMDC = 1;
-
-    // PHYAD
-    for(i = 0; i < 5; i++) {
-        delay;
-        tMDC = 0;
-        tMDIO = (u32Addr >> (4 - i)) & 1;
-        delay;
-        tMDC = 1;
-    }
-
-    // REGAD
-    for(i = 0; i < 5; i++) {
-        delay;
-        tMDC = 0;
-        tMDIO = (u32Reg >> (4 - i)) & 1;
-        delay;
-        tMDC = 1;
-    }
-    //TA
-    PC->MODE &= ~(1 << 20);
-    delay;
-    tMDC = 0;
-    //tMDIO = 1;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    //tMDIO = 0;
-    delay;
-    tMDC = 1;
-
-    // data
-    for(i = 0; i < 16; i++) {
-        delay;
-        tMDC = 0;
-        delay;
-        u32Data |= tMDIO << (15 - i);
-        tMDC = 1;
-    }
-    PC->MODE |= (1 << 20);
-    for(i = 0; i < 64; i++) {
-        delay;
-        tMDC = 0;
-        delay;
-        tMDC = 1;
-    }
-    return u32Data;
-
-}
-#else
-static uint32_t EMAC_MdioRead(uint32_t u32Reg, uint32_t u32Addr)
-{
-    // Set PHY address, PHY register address, busy bit
+    /* Set PHY address, PHY register address, busy bit */
     EMAC->MIIMCTL = u32Reg | (u32Addr << EMAC_MIIMCTL_PHYADDR_Pos) | EMAC_MIIMCTL_BUSY_Msk | EMAC_MIIMCTL_MDCON_Msk;
-    // Wait read complete by polling busy bit
-    while(EMAC->MIIMCTL & EMAC_MIIMCTL_BUSY_Msk);
-    // Get return data
+    /* Wait read complete by polling busy bit */
+    while(EMAC->MIIMCTL & EMAC_MIIMCTL_BUSY_Msk) {
+        ;
+    }
+    /* Get return data */
     return EMAC->MIIMDAT;
 }
-#endif
 
 /**
   * @brief  Initialize PHY chip, check for the auto-negotiation result.
@@ -372,61 +203,60 @@ static uint32_t EMAC_MdioRead(uint32_t u32Reg, uint32_t u32Addr)
 static void EMAC_PhyInit(void)
 {
     uint32_t reg;
-    uint32_t i = 0;
-#ifdef GPIO_MIIM
-    SYS->GPC_MFPH &= ~0x00000FF0;
-    PC->MODE |= (1 << 20) | (1 << 18);
-#endif
-    // Reset Phy Chip
+    uint32_t i = 0UL;
+
+    /* Reset Phy Chip */
     EMAC_MdioWrite(PHY_CNTL_REG, EMAC_PHY_ADDR, PHY_CNTL_RESET_PHY);
 
-    // Wait until reset complete
+    /* Wait until reset complete */
     while (1) {
         reg = EMAC_MdioRead(PHY_CNTL_REG, EMAC_PHY_ADDR) ;
-        if ((reg & PHY_CNTL_RESET_PHY)==0)
+        if ((reg & PHY_CNTL_RESET_PHY)==0UL) {
             break;
-    }
-    while(!(EMAC_MdioRead(PHY_STATUS_REG, EMAC_PHY_ADDR) & PHY_STATUS_LINK_VALID)) {
-        if(i++ > 80000) {     // Cable not connected
-            printf("Unplugged..\n");
-            EMAC->CTL &= ~EMAC_CTL_OPMODE_Msk;
-            EMAC->CTL &= ~EMAC_CTL_FUDUP_Msk;
-            return;
         }
     }
-    // Configure auto negotiation capability
-    EMAC_MdioWrite(PHY_ANA_REG, EMAC_PHY_ADDR, PHY_ANA_DR100_TX_FULL |
-                   PHY_ANA_DR100_TX_HALF |
-                   PHY_ANA_DR10_TX_FULL |
-                   PHY_ANA_DR10_TX_HALF |
-                   PHY_ANA_IEEE_802_3_CSMA_CD);
-    // Restart auto negotiation
-    EMAC_MdioWrite(PHY_CNTL_REG, EMAC_PHY_ADDR, EMAC_MdioRead(PHY_CNTL_REG, EMAC_PHY_ADDR) | PHY_CNTL_RESTART_AN);
+    while(!(EMAC_MdioRead(PHY_STATUS_REG, EMAC_PHY_ADDR) & PHY_STATUS_LINK_VALID)) {
+        if(i++ > 80000UL) {     /* Cable not connected */
+            EMAC->CTL &= ~EMAC_CTL_OPMODE_Msk;
+            EMAC->CTL &= ~EMAC_CTL_FUDUP_Msk;
+            break;
+        }
+    }
 
-    // Wait for auto-negotiation complete
-    while(!(EMAC_MdioRead(PHY_STATUS_REG, EMAC_PHY_ADDR) & PHY_STATUS_AN_COMPLETE));
+    if(i <= 80000UL) {
+        /* Configure auto negotiation capability */
+        EMAC_MdioWrite(PHY_ANA_REG, EMAC_PHY_ADDR, PHY_ANA_DR100_TX_FULL |
+                       PHY_ANA_DR100_TX_HALF |
+                       PHY_ANA_DR10_TX_FULL |
+                       PHY_ANA_DR10_TX_HALF |
+                       PHY_ANA_IEEE_802_3_CSMA_CD);
+        /* Restart auto negotiation */
+        EMAC_MdioWrite(PHY_CNTL_REG, EMAC_PHY_ADDR, EMAC_MdioRead(PHY_CNTL_REG, EMAC_PHY_ADDR) | PHY_CNTL_RESTART_AN);
 
-    // Check link valid again. Some PHYs needs to check result after link valid bit set
-    while(!(EMAC_MdioRead(PHY_STATUS_REG, EMAC_PHY_ADDR) & PHY_STATUS_LINK_VALID));
+        /* Wait for auto-negotiation complete */
+        while(!(EMAC_MdioRead(PHY_STATUS_REG, EMAC_PHY_ADDR) & PHY_STATUS_AN_COMPLETE)) {
+            ;
+        }
+        /* Check link valid again. Some PHYs needs to check result after link valid bit set */
+        while(!(EMAC_MdioRead(PHY_STATUS_REG, EMAC_PHY_ADDR) & PHY_STATUS_LINK_VALID)) {
+            ;
+        }
 
-    // Check link partner capability
-    reg = EMAC_MdioRead(PHY_ANLPA_REG, EMAC_PHY_ADDR) ;
-    if (reg & PHY_ANLPA_DR100_TX_FULL) {
-        printf("100F\n");
-        EMAC->CTL |= EMAC_CTL_OPMODE_Msk;
-        EMAC->CTL |= EMAC_CTL_FUDUP_Msk;
-    } else if (reg & PHY_ANLPA_DR100_TX_HALF) {
-        printf("100H\n");
-        EMAC->CTL |= EMAC_CTL_OPMODE_Msk;
-        EMAC->CTL &= ~EMAC_CTL_FUDUP_Msk;
-    } else if (reg & PHY_ANLPA_DR10_TX_FULL) {
-        printf("10F\n");
-        EMAC->CTL &= ~EMAC_CTL_OPMODE_Msk;
-        EMAC->CTL |= EMAC_CTL_FUDUP_Msk;
-    } else {
-        printf("10H\n");
-        EMAC->CTL &= ~EMAC_CTL_OPMODE_Msk;
-        EMAC->CTL &= ~EMAC_CTL_FUDUP_Msk;
+        /* Check link partner capability */
+        reg = EMAC_MdioRead(PHY_ANLPA_REG, EMAC_PHY_ADDR) ;
+        if (reg & PHY_ANLPA_DR100_TX_FULL) {
+            EMAC->CTL |= EMAC_CTL_OPMODE_Msk;
+            EMAC->CTL |= EMAC_CTL_FUDUP_Msk;
+        } else if (reg & PHY_ANLPA_DR100_TX_HALF) {
+            EMAC->CTL |= EMAC_CTL_OPMODE_Msk;
+            EMAC->CTL &= ~EMAC_CTL_FUDUP_Msk;
+        } else if (reg & PHY_ANLPA_DR10_TX_FULL) {
+            EMAC->CTL &= ~EMAC_CTL_OPMODE_Msk;
+            EMAC->CTL |= EMAC_CTL_FUDUP_Msk;
+        } else {
+            EMAC->CTL &= ~EMAC_CTL_OPMODE_Msk;
+            EMAC->CTL &= ~EMAC_CTL_FUDUP_Msk;
+        }
     }
 }
 
@@ -439,21 +269,21 @@ static void EMAC_TxDescInit(void)
 {
     uint32_t i;
 
-    // Get Frame descriptor's base address.
+    /* Get Frame descriptor's base address. */
     EMAC->TXDSA = (uint32_t)&tx_desc[0];
     u32NextTxDesc = u32CurrentTxDesc = (uint32_t)&tx_desc[0];
 
-    for(i = 0; i < EMAC_TX_DESC_SIZE; i++) {
+    for(i = 0UL; i < EMAC_TX_DESC_SIZE; i++) {
 
-        if(s_u32EnableTs)
+        if(s_u32EnableTs) {
             tx_desc[i].u32Status1 = EMAC_TXFD_PADEN | EMAC_TXFD_CRCAPP | EMAC_TXFD_INTEN;
-        else
+        } else {
             tx_desc[i].u32Status1 = EMAC_TXFD_PADEN | EMAC_TXFD_CRCAPP | EMAC_TXFD_INTEN | EMAC_TXFD_TTSEN;
-
+        }
         tx_desc[i].u32Data = (uint32_t)((uint32_t)&tx_buf[i]);
         tx_desc[i].u32Backup1 = tx_desc[i].u32Data;
-        tx_desc[i].u32Status2 = 0;
-        tx_desc[i].u32Next = (uint32_t)&tx_desc[(i + 1) % EMAC_TX_DESC_SIZE];
+        tx_desc[i].u32Status2 = 0UL;
+        tx_desc[i].u32Next = (uint32_t)&tx_desc[(i + 1UL) % EMAC_TX_DESC_SIZE];
         tx_desc[i].u32Backup2 = tx_desc[i].u32Next;
 
     }
@@ -471,16 +301,16 @@ static void EMAC_RxDescInit(void)
 
     uint32_t i;
 
-    // Get Frame descriptor's base address.
+    /* Get Frame descriptor's base address. */
     EMAC->RXDSA = (uint32_t)&rx_desc[0];
     u32CurrentRxDesc = (uint32_t)&rx_desc[0];
 
-    for(i=0; i < EMAC_RX_DESC_SIZE; i++) {
+    for(i = 0UL; i < EMAC_RX_DESC_SIZE; i++) {
         rx_desc[i].u32Status1 = EMAC_DESC_OWN_EMAC;
         rx_desc[i].u32Data = (uint32_t)((uint32_t)&rx_buf[i]);
         rx_desc[i].u32Backup1 = rx_desc[i].u32Data;
-        rx_desc[i].u32Status2 = 0;
-        rx_desc[i].u32Next = (uint32_t)&rx_desc[(i + 1) % EMAC_RX_DESC_SIZE];
+        rx_desc[i].u32Status2 = 0UL;
+        rx_desc[i].u32Next = (uint32_t)&rx_desc[(i + 1UL) % EMAC_RX_DESC_SIZE];
         rx_desc[i].u32Backup2 = rx_desc[i].u32Next;
     }
 
@@ -493,11 +323,11 @@ static void EMAC_RxDescInit(void)
   */
 static uint32_t EMAC_Subsec2Nsec(uint32_t subsec)
 {
-    // 2^31 subsec == 10^9 ns
+    /* 2^31 subsec == 10^9 ns */
     uint64_t i;
-    i = 1000000000ll * subsec;
+    i = 1000000000ull * (uint64_t)subsec;
     i >>= 31;
-    return(i);
+    return((uint32_t)i);
 }
 
 /**
@@ -507,11 +337,11 @@ static uint32_t EMAC_Subsec2Nsec(uint32_t subsec)
   */
 static uint32_t EMAC_Nsec2Subsec(uint32_t nsec)
 {
-    // 10^9 ns =  2^31 subsec
+    /* 10^9 ns =  2^31 subsec */
     uint64_t i;
-    i = (1ll << 31) * nsec;
-    i /= 1000000000;
-    return(i);
+    i = (1ull << 31) * nsec;
+    i /= 1000000000ull;
+    return((uint32_t)i);
 }
 
 
@@ -519,7 +349,7 @@ static uint32_t EMAC_Nsec2Subsec(uint32_t nsec)
 
 
 
-/// @endcond HIDDEN_SYMBOLS
+/** @endcond HIDDEN_SYMBOLS */
 
 
 /** @addtogroup M480_EMAC_EXPORTED_FUNCTIONS EMAC Exported Functions
@@ -527,7 +357,6 @@ static uint32_t EMAC_Nsec2Subsec(uint32_t nsec)
 */
 
 
-// Basic configuration functions
 /**
   * @brief  Initialize EMAC interface, including descriptors, MAC address, and PHY.
   * @param[in]  pu8MacAddr  Pointer to uint8_t array holds MAC address
@@ -540,14 +369,14 @@ static uint32_t EMAC_Nsec2Subsec(uint32_t nsec)
   */
 void EMAC_Open(uint8_t *pu8MacAddr)
 {
-    // Enable transmit and receive descriptor
+    /* Enable transmit and receive descriptor */
     EMAC_TxDescInit();
     EMAC_RxDescInit();
 
-    // Set the CAM Control register and the MAC address value
+    /* Set the CAM Control register and the MAC address value */
     EMAC_SetMacAddr(pu8MacAddr);
 
-    // Configure the MAC interrupt enable register.
+    /* Configure the MAC interrupt enable register. */
     EMAC->INTEN = EMAC_INTEN_RXIEN_Msk |
                   EMAC_INTEN_TXIEN_Msk |
                   EMAC_INTEN_RXGDIEN_Msk |
@@ -558,12 +387,12 @@ void EMAC_Open(uint8_t *pu8MacAddr)
                   EMAC_INTEN_TSALMIEN_Msk |
                   EMAC_INTEN_WOLIEN_Msk;
 
-    // Configure the MAC control register.
+    /* Configure the MAC control register. */
     EMAC->CTL = EMAC_CTL_STRIPCRC_Msk |
                 EMAC_CTL_RMIIEN_Msk |
                 EMAC_CTL_RMIIRXCTL_Msk;
 
-    //Accept packets for us and all broadcast and multicast packets
+    /* Accept packets for us and all broadcast and multicast packets */
     EMAC->CAMCTL =  EMAC_CAMCTL_CMPEN_Msk |
                     EMAC_CAMCTL_AMP_Msk |
                     EMAC_CAMCTL_ABP_Msk;
@@ -589,7 +418,7 @@ void EMAC_Close(void)
   */
 void EMAC_SetMacAddr(uint8_t *pu8MacAddr)
 {
-    EMAC_EnableCamEntry(0, pu8MacAddr);
+    EMAC_EnableCamEntry(0UL, pu8MacAddr);
 
 }
 
@@ -599,21 +428,23 @@ void EMAC_SetMacAddr(uint8_t *pu8MacAddr)
   * @param[in] pu8MacAddr  Pointer to uint8_t array holds MAC address
   * @return None
   */
-void EMAC_EnableCamEntry(uint32_t u32Entry, uint8_t *pu8MacAddr)
+void EMAC_EnableCamEntry(uint32_t u32Entry, uint8_t pu8MacAddr[])
 {
     uint32_t u32Lsw, u32Msw;
+    uint32_t reg;
+    u32Lsw = (uint32_t)(((uint32_t)pu8MacAddr[4] << 24) |
+                        ((uint32_t)pu8MacAddr[5] << 16));
+    u32Msw = (uint32_t)(((uint32_t)pu8MacAddr[0] << 24)|
+                        ((uint32_t)pu8MacAddr[1] << 16)|
+                        ((uint32_t)pu8MacAddr[2] << 8)|
+                        (uint32_t)pu8MacAddr[3]);
 
-    u32Lsw = (pu8MacAddr[4] << 24) |
-             (pu8MacAddr[5] << 16);
-    u32Msw = (pu8MacAddr[0] << 24)|
-             (pu8MacAddr[1] << 16)|
-             (pu8MacAddr[2] << 8)|
-             pu8MacAddr[3];
+    reg = (uint32_t)&EMAC->CAM0M + u32Entry * 2UL * 4UL;
+    *(uint32_t volatile *)reg = u32Msw;
+    reg = (uint32_t)&EMAC->CAM0L + u32Entry * 2UL * 4UL;
+    *(uint32_t volatile *)reg = u32Lsw;
 
-    *(uint32_t volatile *)(&EMAC->CAM0M + u32Entry * 2) = u32Msw;
-    *(uint32_t volatile *)(&EMAC->CAM0L + u32Entry * 2) = u32Lsw;
-
-    EMAC->CAMEN |= (1 << u32Entry);
+    EMAC->CAMEN |= (1UL << u32Entry);
 }
 
 /**
@@ -623,10 +454,10 @@ void EMAC_EnableCamEntry(uint32_t u32Entry, uint8_t *pu8MacAddr)
   */
 void EMAC_DisableCamEntry(uint32_t u32Entry)
 {
-    EMAC->CAMEN &= ~(1 << u32Entry);
+    EMAC->CAMEN &= ~(1UL << u32Entry);
 }
 
-// Receive functions
+
 /**
   * @brief Receive an Ethernet packet
   * @param[in] pu8Data Pointer to a buffer to store received packet (4 byte CRC removed)
@@ -640,39 +471,47 @@ uint32_t EMAC_RecvPkt(uint8_t *pu8Data, uint32_t *pu32Size)
 {
     EMAC_DESCRIPTOR_T *desc;
     uint32_t status, reg;
-    uint32_t u32Count = 0;
+    uint32_t u32Count = 0UL;
 
-    // Clear Rx interrupt flags
+    /* Clear Rx interrupt flags */
     reg = EMAC->INTSTS;
-    EMAC->INTSTS = reg & 0xFFFF;  // Clear all RX related interrupt status
+    EMAC->INTSTS = reg & 0xFFFFUL;  /* Clear all RX related interrupt status */
 
     if (reg & EMAC_INTSTS_RXBEIF_Msk) {
-        // Bus error occurred, this is usually a bad sign about software bug and will occur again...
-        printf("RX bus error\n");
+        /* Bus error occurred, this is usually a bad sign about software bug and will occur again... */
+        while(1) {
+            ;
+        }
     } else {
 
-        // Get Rx Frame Descriptor
+        /* Get Rx Frame Descriptor */
         desc = (EMAC_DESCRIPTOR_T *)u32CurrentRxDesc;
 
-        // If we reach last recv Rx descriptor, leave the loop
-        //if(EMAC->CRXDSA == (uint32_t)desc)
-        //    return(0);
-        if ((desc->u32Status1 & EMAC_DESC_OWN_EMAC) != EMAC_DESC_OWN_EMAC) { // ownership=CPU
+        /* If we reach last recv Rx descriptor, leave the loop */
+        if ((desc->u32Status1 & EMAC_DESC_OWN_EMAC) != EMAC_DESC_OWN_EMAC) { /* ownership=CPU */
 
             status = desc->u32Status1 >> 16;
 
-            // If Rx frame is good, process received frame
+            /* If Rx frame is good, process received frame */
             if(status & EMAC_RXFD_RXGD) {
-                // lower 16 bit in descriptor status1 stores the Rx packet length
-                *pu32Size = desc->u32Status1 & 0xffff;
+                /* lower 16 bit in descriptor status1 stores the Rx packet length */
+                *pu32Size = desc->u32Status1 & 0xFFFFUL;
                 memcpy(pu8Data, (uint8_t *)desc->u32Backup1, *pu32Size);
-                u32Count = 1;
+                u32Count = 1UL;
             } else {
-                // Save Error status if necessary
-                if (status & EMAC_RXFD_RP);
-                if (status & EMAC_RXFD_ALIE);
-                if (status & EMAC_RXFD_PTLE);
-                if (status & EMAC_RXFD_CRCE);
+                /* Save Error status if necessary */
+                if (status & EMAC_RXFD_RP) {
+                    ;
+                }
+                if (status & EMAC_RXFD_ALIE) {
+                    ;
+                }
+                if (status & EMAC_RXFD_PTLE) {
+                    ;
+                }
+                if (status & EMAC_RXFD_CRCE) {
+                    ;
+                }
             }
         }
     }
@@ -696,43 +535,53 @@ uint32_t EMAC_RecvPktTS(uint8_t *pu8Data, uint32_t *pu32Size, uint32_t *pu32Sec,
 {
     EMAC_DESCRIPTOR_T *desc;
     uint32_t status, reg;
-    uint32_t u32Count = 0;
+    uint32_t u32Count = 0UL;
 
-    // Clear Rx interrupt flags
+    /* Clear Rx interrupt flags */
     reg = EMAC->INTSTS;
-    EMAC->INTSTS = reg & 0xFFFF; // Clear all Rx related interrupt status
+    EMAC->INTSTS = reg & 0xFFFFUL; /* Clear all Rx related interrupt status */
 
     if (reg & EMAC_INTSTS_RXBEIF_Msk) {
-        // Bus error occurred, this is usually a bad sign about software bug and will occur again...
-        printf("RX bus error\n");
+        /* Bus error occurred, this is usually a bad sign about software bug and will occur again... */
+        while(1) {
+            ;
+        }
     } else {
 
-        // Get Rx Frame Descriptor
+        /* Get Rx Frame Descriptor */
         desc = (EMAC_DESCRIPTOR_T *)u32CurrentRxDesc;
 
-        // If we reach last recv Rx descriptor, leave the loop
-        if(EMAC->CRXDSA == (uint32_t)desc)
-            return(0);
-        if ((desc->u32Status1 | EMAC_DESC_OWN_EMAC) != EMAC_DESC_OWN_EMAC) { // ownership=CPU
+        /* If we reach last recv Rx descriptor, leave the loop */
+        if(EMAC->CRXDSA != (uint32_t)desc) {
+            if ((desc->u32Status1 | EMAC_DESC_OWN_EMAC) != EMAC_DESC_OWN_EMAC) { /* ownership=CPU */
 
-            status = desc->u32Status1 >> 16;
+                status = desc->u32Status1 >> 16;
 
-            // If Rx frame is good, process received frame
-            if(status & EMAC_RXFD_RXGD) {
-                // lower 16 bit in descriptor status1 stores the Rx packet length
-                *pu32Size = desc->u32Status1 & 0xffff;
-                memcpy(pu8Data, (uint8_t *)desc->u32Backup1, *pu32Size);
+                /* If Rx frame is good, process received frame */
+                if(status & EMAC_RXFD_RXGD) {
+                    /* lower 16 bit in descriptor status1 stores the Rx packet length */
+                    *pu32Size = desc->u32Status1 & 0xFFFFUL;
+                    memcpy(pu8Data, (uint8_t *)desc->u32Backup1, *pu32Size);
 
-                *pu32Sec = desc->u32Next; // second stores in descriptor's NEXT field
-                *pu32Nsec = EMAC_Subsec2Nsec(desc->u32Data); // Sub nano second store in DATA field
+                    *pu32Sec = desc->u32Next; /* second stores in descriptor's NEXT field */
+                    *pu32Nsec = EMAC_Subsec2Nsec(desc->u32Data); /* Sub nano second store in DATA field */
 
-                u32Count = 1;
-            } else {
-                // Save Error status if necessary
-                if (status & EMAC_RXFD_RP);
-                if (status & EMAC_RXFD_ALIE);
-                if (status & EMAC_RXFD_PTLE);
-                if (status & EMAC_RXFD_CRCE);
+                    u32Count = 1UL;
+                } else {
+                    /* Save Error status if necessary */
+                    if (status & EMAC_RXFD_RP) {
+                        ;
+                    }
+                    if (status & EMAC_RXFD_ALIE) {
+                        ;
+                    }
+                    if (status & EMAC_RXFD_PTLE) {
+                        ;
+                    }
+                    if (status & EMAC_RXFD_CRCE) {
+                        ;
+                    }
+                }
             }
         }
     }
@@ -749,26 +598,25 @@ uint32_t EMAC_RecvPktTS(uint8_t *pu8Data, uint32_t *pu32Size, uint32_t *pu32Sec,
 void EMAC_RecvPktDone(void)
 {
     EMAC_DESCRIPTOR_T *desc;
-    // Get Rx Frame Descriptor
+    /* Get Rx Frame Descriptor */
     desc = (EMAC_DESCRIPTOR_T *)u32CurrentRxDesc;
 
-    // restore descriptor link list and data pointer they will be overwrite if time stamp enabled
+    /* Restore descriptor link list and data pointer they will be overwrite if time stamp enabled */
     desc->u32Data = desc->u32Backup1;
     desc->u32Next = desc->u32Backup2;
 
-    // Change ownership to DMA for next use
+    /* Change ownership to DMA for next use */
     desc->u32Status1 |= EMAC_DESC_OWN_EMAC;
 
-    // Get Next Frame Descriptor pointer to process
+    /* Get Next Frame Descriptor pointer to process */
     desc = (EMAC_DESCRIPTOR_T *)desc->u32Next;
 
-    // Save last processed Rx descriptor
+    /* Save last processed Rx descriptor */
     u32CurrentRxDesc = (uint32_t)desc;
 
     EMAC_TRIGGER_RX();
 }
 
-// Transmit functions
 
 /**
   * @brief Send an Ethernet packet
@@ -783,31 +631,30 @@ uint32_t EMAC_SendPkt(uint8_t *pu8Data, uint32_t u32Size)
 {
     EMAC_DESCRIPTOR_T *desc;
     uint32_t status;
-
-    // Get Tx frame descriptor & data pointer
+    uint32_t ret = 0UL;
+    /* Get Tx frame descriptor & data pointer */
     desc = (EMAC_DESCRIPTOR_T *)u32NextTxDesc;
 
     status = desc->u32Status1;
 
-    // Check descriptor ownership
-    if((status & EMAC_DESC_OWN_EMAC))
-        return(0);
+    /* Check descriptor ownership */
+    if((status & EMAC_DESC_OWN_EMAC) != EMAC_DESC_OWN_EMAC) {
+        memcpy((uint8_t *)desc->u32Data, pu8Data, u32Size);
 
-    memcpy((uint8_t *)desc->u32Data, pu8Data, u32Size);
+        /* Set Tx descriptor transmit byte count */
+        desc->u32Status2 = u32Size;
 
-    // Set Tx descriptor transmit byte count
-    desc->u32Status2 = u32Size;
+        /* Change descriptor ownership to EMAC */
+        desc->u32Status1 |= EMAC_DESC_OWN_EMAC;
 
-    // Change descriptor ownership to EMAC
-    desc->u32Status1 |= EMAC_DESC_OWN_EMAC;
+        /* Get next Tx descriptor */
+        u32NextTxDesc = (uint32_t)(desc->u32Next);
 
-    // Get next Tx descriptor
-    u32NextTxDesc = (uint32_t)(desc->u32Next);
-
-    // Trigger EMAC to send the packet
-    EMAC_TRIGGER_TX();
-
-    return(1);
+        /* Trigger EMAC to send the packet */
+        EMAC_TRIGGER_TX();
+        ret = 1UL;
+    }
+    return(ret);
 }
 
 
@@ -823,48 +670,67 @@ uint32_t EMAC_SendPktDone(void)
     EMAC_DESCRIPTOR_T *desc;
     uint32_t status, reg;
     uint32_t last_tx_desc;
-    uint32_t u32Count = 0;
+    uint32_t u32Count = 0UL;
 
     reg = EMAC->INTSTS;
-    // Clear Tx interrupt flags
-    EMAC->INTSTS = reg & (0xFFFF0000 & ~EMAC_INTSTS_TSALMIF_Msk);
+    /* Clear Tx interrupt flags */
+    EMAC->INTSTS = reg & (0xFFFF0000UL & ~EMAC_INTSTS_TSALMIF_Msk);
 
 
     if (reg & EMAC_INTSTS_TXBEIF_Msk) {
-        // Bus error occurred, this is usually a bad sign about software bug and will occur again...
-        printf("TX bus error\n");
+        /* Bus error occurred, this is usually a bad sign about software bug and will occur again... */
+        while(1) {
+            ;
+        }
     } else {
-        // Process the descriptor(s).
+        /* Process the descriptor(s). */
         last_tx_desc = EMAC->CTXDSA ;
-        // Get our first descriptor to process
+        /* Get our first descriptor to process */
         desc = (EMAC_DESCRIPTOR_T *) u32CurrentTxDesc;
         do {
-            // Descriptor ownership is still EMAC, so this packet haven't been send.
-            if(desc->u32Status1 & EMAC_DESC_OWN_EMAC)
+            /* Descriptor ownership is still EMAC, so this packet haven't been send. */
+            if(desc->u32Status1 & EMAC_DESC_OWN_EMAC) {
                 break;
-            // Get Tx status stored in descriptor
-            status = desc->u32Status2 >> 16;
+            }
+            /* Get Tx status stored in descriptor */
+            status = desc->u32Status2 >> 16UL;
             if (status & EMAC_TXFD_TXCP) {
                 u32Count++;
             } else {
-                // Do nothing here on error.
-                if (status & EMAC_TXFD_TXABT);
-                if (status & EMAC_TXFD_DEF);
-                if (status & EMAC_TXFD_PAU);
-                if (status & EMAC_TXFD_EXDEF);
-                if (status & EMAC_TXFD_NCS);
-                if (status & EMAC_TXFD_SQE);
-                if (status & EMAC_TXFD_LC);
-                if (status & EMAC_TXFD_TXHA);
+                /* Do nothing here on error. */
+                if (status & EMAC_TXFD_TXABT) {
+                    ;
+                }
+                if (status & EMAC_TXFD_DEF) {
+                    ;
+                }
+                if (status & EMAC_TXFD_PAU) {
+                    ;
+                }
+                if (status & EMAC_TXFD_EXDEF) {
+                    ;
+                }
+                if (status & EMAC_TXFD_NCS) {
+                    ;
+                }
+                if (status & EMAC_TXFD_SQE) {
+                    ;
+                }
+                if (status & EMAC_TXFD_LC) {
+                    ;
+                }
+                if (status & EMAC_TXFD_TXHA) {
+                    ;
+                }
             }
 
-            // restore descriptor link list and data pointer they will be overwrite if time stamp enabled
+            /* restore descriptor link list and data pointer they will be overwrite if time stamp enabled */
             desc->u32Data = desc->u32Backup1;
             desc->u32Next = desc->u32Backup2;
-            // go to next descriptor in link
+            /* go to next descriptor in link */
             desc = (EMAC_DESCRIPTOR_T *)desc->u32Next;
-        } while (last_tx_desc != (uint32_t)desc);    // If we reach last sent Tx descriptor, leave the loop
-        // Save last processed Tx descriptor
+        } while (last_tx_desc != (uint32_t)desc);    /* If we reach last sent Tx descriptor, leave the loop */
+        /* Save last processed Tx descriptor */
         u32CurrentTxDesc = (uint32_t)desc;
     }
     return(u32Count);
@@ -885,56 +751,73 @@ uint32_t EMAC_SendPktDoneTS(uint32_t *pu32Sec, uint32_t *pu32Nsec)
 
     EMAC_DESCRIPTOR_T *desc;
     uint32_t status, reg;
-    uint32_t u32Count = 0;
+    uint32_t u32Count = 0UL;
 
     reg = EMAC->INTSTS;
-    // Clear Tx interrupt flags
-    EMAC->INTSTS = reg & (0xFFFF0000 & ~EMAC_INTSTS_TSALMIF_Msk);
+    /* Clear Tx interrupt flags */
+    EMAC->INTSTS = reg & (0xFFFF0000UL & ~EMAC_INTSTS_TSALMIF_Msk);
 
 
     if (reg & EMAC_INTSTS_TXBEIF_Msk) {
-        // Bus error occurred, this is usually a bad sign about software bug and will occur again...
-        printf("TX bus error\n");
+        /* Bus error occurred, this is usually a bad sign about software bug and will occur again... */
+        while(1) {
+            ;
+        }
     } else {
-        // Process the descriptor.
-        // Get our first descriptor to process
+        /* Process the descriptor.
+           Get our first descriptor to process */
         desc = (EMAC_DESCRIPTOR_T *) u32CurrentTxDesc;
 
-        // Descriptor ownership is still EMAC, so this packet haven't been send.
-        if(desc->u32Status1 & EMAC_DESC_OWN_EMAC)
-            return(0);
-        // Get Tx status stored in descriptor
-        status = desc->u32Status2 >> 16;
-        if (status & EMAC_TXFD_TXCP) {
-            u32Count = 1;
-            *pu32Sec = desc->u32Next; // second stores in descriptor's NEXT field
-            *pu32Nsec = EMAC_Subsec2Nsec(desc->u32Data); // Sub nano second store in DATA field
-        } else {
-            // Do nothing here on error.
-            if (status & EMAC_TXFD_TXABT);
-            if (status & EMAC_TXFD_DEF);
-            if (status & EMAC_TXFD_PAU);
-            if (status & EMAC_TXFD_EXDEF);
-            if (status & EMAC_TXFD_NCS);
-            if (status & EMAC_TXFD_SQE);
-            if (status & EMAC_TXFD_LC);
-            if (status & EMAC_TXFD_TXHA);
+        /* Descriptor ownership is still EMAC, so this packet haven't been send. */
+        if((desc->u32Status1 & EMAC_DESC_OWN_EMAC) != EMAC_DESC_OWN_EMAC) {
+            /* Get Tx status stored in descriptor */
+            status = desc->u32Status2 >> 16UL;
+            if (status & EMAC_TXFD_TXCP) {
+                u32Count = 1UL;
+                *pu32Sec = desc->u32Next; /* second stores in descriptor's NEXT field */
+                *pu32Nsec = EMAC_Subsec2Nsec(desc->u32Data); /* Sub nano second store in DATA field */
+            } else {
+                /* Do nothing here on error. */
+                if (status & EMAC_TXFD_TXABT) {
+                    ;
+                }
+                if (status & EMAC_TXFD_DEF) {
+                    ;
+                }
+                if (status & EMAC_TXFD_PAU) {
+                    ;
+                }
+                if (status & EMAC_TXFD_EXDEF) {
+                    ;
+                }
+                if (status & EMAC_TXFD_NCS) {
+                    ;
+                }
+                if (status & EMAC_TXFD_SQE) {
+                    ;
+                }
+                if (status & EMAC_TXFD_LC) {
+                    ;
+                }
+                if (status & EMAC_TXFD_TXHA) {
+                    ;
+                }
+            }
+
+            /* restore descriptor link list and data pointer they will be overwrite if time stamp enabled */
+            desc->u32Data = desc->u32Backup1;
+            desc->u32Next = desc->u32Backup2;
+            /* go to next descriptor in link */
+            desc = (EMAC_DESCRIPTOR_T *)desc->u32Next;
+
+            /* Save last processed Tx descriptor */
+            u32CurrentTxDesc = (uint32_t)desc;
         }
-
-        // restore descriptor link list and data pointer they will be overwrite if time stamp enabled
-        desc->u32Data = desc->u32Backup1;
-        desc->u32Next = desc->u32Backup2;
-        // go to next descriptor in link
-        desc = (EMAC_DESCRIPTOR_T *)desc->u32Next;
-
-        // Save last processed Tx descriptor
-        u32CurrentTxDesc = (uint32_t)desc;
     }
 
     return(u32Count);
 }
 
-// IEEE 1588 functions
 /**
   * @brief  Enable IEEE1588 time stamp function and set current time
   * @param[in]  u32Sec Second value
@@ -946,22 +829,22 @@ void EMAC_EnableTS(uint32_t u32Sec, uint32_t u32Nsec)
     double f;
     uint32_t reg;
     EMAC->TSCTL = EMAC_TSCTL_TSEN_Msk;
-    EMAC->UPDSEC = u32Sec;   // Assume current time is 0 sec + 0 nano sec
+    EMAC->UPDSEC = u32Sec;   /* Assume current time is 0 sec + 0 nano sec */
     EMAC->UPDSUBSEC = EMAC_Nsec2Subsec(u32Nsec);
 
-    // PTP source clock is 160MHz (Real chip using PLL). Each tick is 6.25ns
-    // Assume we want to set each tick to 100ns.
-    // Increase register = (100 * 2^31) / (10^9) = 214.71 =~ 215 = 0xD7
-    // Addend register = 2^32 * tick_freq / (160MHz), where tick_freq = (2^31 / 215) MHz
-    // From above equation, addend register = 2^63 / (160M * 215) ~= 268121280 = 0xFFB34C0
-    // So:
-    //  EMAC->TSIR = 0xD7;
-    //  EMAC->TSAR = 0x1E70C600;
+    /* PTP source clock is 160MHz (Real chip using PLL). Each tick is 6.25ns
+       Assume we want to set each tick to 100ns.
+       Increase register = (100 * 2^31) / (10^9) = 214.71 =~ 215 = 0xD7
+       Addend register = 2^32 * tick_freq / (160MHz), where tick_freq = (2^31 / 215) MHz
+       From above equation, addend register = 2^63 / (160M * 215) ~= 268121280 = 0xFFB34C0
+       So:
+        EMAC->TSIR = 0xD7;
+        EMAC->TSAR = 0x1E70C600; */
     f = (100.0 * 2147483648.0) / (1000000000.0) + 0.5;
     EMAC->TSINC = (reg = (uint32_t)f);
     f = (double)9223372036854775808.0 / ((double)(CLK_GetHCLKFreq()) * (double)reg);
     EMAC->TSADDEND = (uint32_t)f;
-    EMAC->TSCTL |= (EMAC_TSCTL_TSUPDATE_Msk | EMAC_TSCTL_TSIEN_Msk | EMAC_TSCTL_TSMODE_Msk); // Fine update
+    EMAC->TSCTL |= (EMAC_TSCTL_TSUPDATE_Msk | EMAC_TSCTL_TSIEN_Msk | EMAC_TSCTL_TSMODE_Msk); /* Fine update */
 }
 
 /**
@@ -971,7 +854,7 @@ void EMAC_EnableTS(uint32_t u32Sec, uint32_t u32Nsec)
   */
 void EMAC_DisableTS(void)
 {
-    EMAC->TSCTL = 0;
+    EMAC->TSCTL = 0UL;
 }
 
 /**
@@ -982,7 +865,7 @@ void EMAC_DisableTS(void)
   */
 void EMAC_GetTime(uint32_t *pu32Sec, uint32_t *pu32Nsec)
 {
-    // Must read TSLSR firstly. Hardware will preserve TSMSR value at the time TSLSR read.
+    /* Must read TSLSR firstly. Hardware will preserve TSMSR value at the time TSLSR read. */
     *pu32Nsec = EMAC_Subsec2Nsec(EMAC->TSSUBSEC);
     *pu32Sec = EMAC->TSSEC;
 }
@@ -995,7 +878,7 @@ void EMAC_GetTime(uint32_t *pu32Sec, uint32_t *pu32Nsec)
   */
 void EMAC_SetTime(uint32_t u32Sec, uint32_t u32Nsec)
 {
-    // Disable time stamp counter before update time value (clear EMAC_TSCTL_TSIEN_Msk)
+    /* Disable time stamp counter before update time value (clear EMAC_TSCTL_TSIEN_Msk) */
     EMAC->TSCTL = EMAC_TSCTL_TSEN_Msk;
     EMAC->UPDSEC = u32Sec;
     EMAC->UPDSUBSEC = EMAC_Nsec2Subsec(u32Nsec);
@@ -1041,9 +924,9 @@ void EMAC_UpdateTime(uint32_t u32Neg, uint32_t u32Sec, uint32_t u32Nsec)
 {
     EMAC->UPDSEC = u32Sec;
     EMAC->UPDSUBSEC = EMAC_Nsec2Subsec(u32Nsec);
-    if(u32Neg)
-        EMAC->UPDSUBSEC |= BIT31;   // Set bit 31 indicates this is a negative value
-
+    if(u32Neg) {
+        EMAC->UPDSUBSEC |= BIT31;   /* Set bit 31 indicates this is a negative value */
+    }
     EMAC->TSCTL |= EMAC_TSCTL_TSUPDATE_Msk;
 
 }

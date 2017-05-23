@@ -2,8 +2,7 @@
  * @file     timer.c
  * @brief    M480 Timer Controller(Timer) driver source file
  *
- * @note
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M480.h"
 
@@ -41,23 +40,23 @@
 uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq)
 {
     uint32_t u32Clk = TIMER_GetModuleClock(timer);
-    uint32_t u32Cmpr = 0, u32Prescale = 0;
+    uint32_t u32Cmpr = 0UL, u32Prescale = 0UL;
 
-    // Fastest possible timer working freq is (u32Clk / 2). While cmpr = 2, pre-scale = 0.
-    if(u32Freq > (u32Clk / 2)) {
-        u32Cmpr = 2;
+    /* Fastest possible timer working freq is (u32Clk / 2). While cmpr = 2, prescaler = 0. */
+    if(u32Freq > (u32Clk / 2UL)) {
+        u32Cmpr = 2UL;
     } else {
-        if(u32Clk > 128000000) {
-            u32Prescale = 15;    // real prescaler value is 16
+        if(u32Clk > 128000000UL) {
+            u32Prescale = 15UL;    /* real prescaler value is 16 */
             u32Clk >>= 4;
-        } else if(u32Clk > 64000000) {
-            u32Prescale = 7;    // real prescaler value is 8
+        } else if(u32Clk > 64000000UL) {
+            u32Prescale = 7UL;    /* real prescaler value is 8 */
             u32Clk >>= 3;
-        } else if(u32Clk > 32000000) {
-            u32Prescale = 3;    // real prescaler value is 4
+        } else if(u32Clk > 32000000UL) {
+            u32Prescale = 3UL;    /* real prescaler value is 4 */
             u32Clk >>= 2;
-        } else if(u32Clk > 16000000) {
-            u32Prescale = 1;    // real prescaler value is 2
+        } else if(u32Clk > 16000000UL) {
+            u32Prescale = 1UL;    /* real prescaler value is 2 */
             u32Clk >>= 1;
         }
 
@@ -67,7 +66,7 @@ uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq)
     timer->CTL = u32Mode | u32Prescale;
     timer->CMP = u32Cmpr;
 
-    return(u32Clk / (u32Cmpr * (u32Prescale + 1)));
+    return(u32Clk / (u32Cmpr * (u32Prescale + 1UL)));
 }
 
 /**
@@ -81,8 +80,8 @@ uint32_t TIMER_Open(TIMER_T *timer, uint32_t u32Mode, uint32_t u32Freq)
   */
 void TIMER_Close(TIMER_T *timer)
 {
-    timer->CTL = 0;
-    timer->EXTCTL = 0;
+    timer->CTL = 0UL;
+    timer->EXTCTL = 0UL;
 }
 
 /**
@@ -100,62 +99,68 @@ void TIMER_Close(TIMER_T *timer)
 void TIMER_Delay(TIMER_T *timer, uint32_t u32Usec)
 {
     uint32_t u32Clk = TIMER_GetModuleClock(timer);
-    uint32_t u32Prescale = 0, delay = (SystemCoreClock / u32Clk) + 1;
+    uint32_t u32Prescale = 0UL, delay = (SystemCoreClock / u32Clk) + 1UL;
     uint32_t u32Cmpr, u32NsecPerTick;
 
-    // Clear current timer configuration/
-    timer->CTL = 0;
-    timer->EXTCTL = 0;
+    /* Clear current timer configuration */
+    timer->CTL = 0UL;
+    timer->EXTCTL = 0UL;
 
-    if(u32Clk <= 1000000) { // min delay is 1000 us if timer clock source is <= 1 MHz
-        if(u32Usec < 1000)
-            u32Usec = 1000;
-        if(u32Usec > 1000000)
-            u32Usec = 1000000;
+    if(u32Clk <= 1000000UL) { /* min delay is 1000 us if timer clock source is <= 1 MHz */
+        if(u32Usec < 1000UL) {
+            u32Usec = 1000UL;
+        }
+        if(u32Usec > 1000000UL) {
+            u32Usec = 1000000UL;
+        }
     } else {
-        if(u32Usec < 100)
-            u32Usec = 100;
-        if(u32Usec > 1000000)
-            u32Usec = 1000000;
+        if(u32Usec < 100UL) {
+            u32Usec = 100UL;
+        }
+        if(u32Usec > 1000000UL) {
+            u32Usec = 1000000UL;
+        }
     }
 
-    if(u32Clk <= 1000000) {
-        u32Prescale = 0;
-        u32NsecPerTick = 1000000000 / u32Clk;
-        u32Cmpr = (u32Usec * 1000) / u32NsecPerTick;
+    if(u32Clk <= 1000000UL) {
+        u32Prescale = 0UL;
+        u32NsecPerTick = 1000000000UL / u32Clk;
+        u32Cmpr = (u32Usec * 1000UL) / u32NsecPerTick;
     } else {
-        if(u32Clk > 128000000) {
-            u32Prescale = 15;    // real prescaler value is 16
+        if(u32Clk > 128000000UL) {
+            u32Prescale = 15UL;    /* real prescaler value is 16 */
             u32Clk >>= 4;
-        } else if(u32Clk > 64000000) {
-            u32Prescale = 7;    // real prescaler value is 8
+        } else if(u32Clk > 64000000UL) {
+            u32Prescale = 7UL;    /* real prescaler value is 8 */
             u32Clk >>= 3;
-        } else if(u32Clk > 32000000) {
-            u32Prescale = 3;    // real prescaler value is 4
+        } else if(u32Clk > 32000000UL) {
+            u32Prescale = 3UL;    /* real prescaler value is 4 */
             u32Clk >>= 2;
-        } else if(u32Clk > 16000000) {
-            u32Prescale = 1;    // real prescaler value is 2
+        } else if(u32Clk > 16000000UL) {
+            u32Prescale = 1UL;    /* real prescaler value is 2 */
             u32Clk >>= 1;
         }
 
-        if(u32Usec < 250) {
-            u32Cmpr = (u32Usec * u32Clk) / 1000000;
+        if(u32Usec < 250UL) {
+            u32Cmpr = (u32Usec * u32Clk) / 1000000UL;
         } else {
-            u32NsecPerTick = 1000000000 / u32Clk;
-            u32Cmpr = (u32Usec * 1000) / u32NsecPerTick;
+            u32NsecPerTick = 1000000000UL / u32Clk;
+            u32Cmpr = (u32Usec * 1000UL) / u32NsecPerTick;
         }
     }
 
     timer->CMP = u32Cmpr;
     timer->CTL = TIMER_CTL_CNTEN_Msk | TIMER_ONESHOT_MODE | u32Prescale;
 
-    // When system clock is faster than timer clock, it is possible timer active bit cannot set in time while we check it.
-    // And the while loop below return immediately, so put a tiny delay here allowing timer start counting and raise active flag.
-    for(; delay > 0; delay--) {
+    /* When system clock is faster than timer clock, it is possible timer active bit cannot set in time while we check it.
+       And the while loop below return immediately, so put a tiny delay here allowing timer start counting and raise active flag. */
+    for(; delay > 0UL; delay--) {
         __NOP();
     }
 
-    while(timer->CTL & TIMER_CTL_ACTSTS_Msk);
+    while(timer->CTL & TIMER_CTL_ACTSTS_Msk) {
+        ;
+    }
 }
 
 /**
@@ -243,26 +248,30 @@ void TIMER_DisableEventCounter(TIMER_T *timer)
   */
 uint32_t TIMER_GetModuleClock(TIMER_T *timer)
 {
-    uint32_t u32Src;
-    const uint32_t au32Clk[] = {__HXT, __LXT, 0, 0, 0, __LIRC, 0, __HIRC};
+    uint32_t u32Src, u32Clk;
+    const uint32_t au32Clk[] = {__HXT, __LXT, 0UL, 0UL, 0UL, __LIRC, 0UL, __HIRC};
 
-    if(timer == TIMER0)
+    if(timer == TIMER0) {
         u32Src = (CLK->CLKSEL1 & CLK_CLKSEL1_TMR0SEL_Msk) >> CLK_CLKSEL1_TMR0SEL_Pos;
-    else if(timer == TIMER1)
+    } else if(timer == TIMER1) {
         u32Src = (CLK->CLKSEL1 & CLK_CLKSEL1_TMR1SEL_Msk) >> CLK_CLKSEL1_TMR1SEL_Pos;
-    else if(timer == TIMER2)
+    } else if(timer == TIMER2) {
         u32Src = (CLK->CLKSEL1 & CLK_CLKSEL1_TMR2SEL_Msk) >> CLK_CLKSEL1_TMR2SEL_Pos;
-    else  // Timer 3
+    } else {  /* Timer 3 */
         u32Src = (CLK->CLKSEL1 & CLK_CLKSEL1_TMR3SEL_Msk) >> CLK_CLKSEL1_TMR3SEL_Pos;
-
-    if(u32Src == 2) {
-        if(timer == TIMER0 || timer == TIMER1)
-            return(CLK_GetPCLK0Freq());
-        else
-            return(CLK_GetPCLK1Freq());
     }
 
-    return (au32Clk[u32Src]);
+    if(u32Src == 2UL) {
+        if((timer == TIMER0) || (timer == TIMER1)) {
+            u32Clk = CLK_GetPCLK0Freq();
+        } else {
+            u32Clk = CLK_GetPCLK1Freq();
+        }
+    } else {
+        u32Clk = au32Clk[u32Src];
+    }
+
+    return u32Clk;
 }
 
 
@@ -285,12 +294,12 @@ void TIMER_EnableFreqCounter(TIMER_T *timer,
                              uint32_t u32Timeout,
                              uint32_t u32EnableInt)
 {
-    TIMER_T *t;    // store the timer base to configure compare value
+    TIMER_T *t;    /* store the timer base to configure compare value */
 
     t = (timer == TIMER0) ? TIMER1 : TIMER3;
 
-    t->CMP = 0xFFFFFF;
-    t->EXTCTL = u32EnableInt ? TIMER_EXTCTL_CAPIEN_Msk : 0;
+    t->CMP = 0xFFFFFFUL;
+    t->EXTCTL = u32EnableInt ? TIMER_EXTCTL_CAPIEN_Msk : 0UL;
     timer->CTL = TIMER_CTL_INTRGEN_Msk | TIMER_CTL_CNTEN_Msk;
 
     return;
@@ -322,8 +331,8 @@ void TIMER_SetTriggerSource(TIMER_T *timer, uint32_t u32Src)
 /**
   * @brief This function is used to set modules trigger by timer interrupt
   * @param[in] timer The base address of Timer module
-  * @param[in] u32Mask The mask of modules (PWM, EADC, DAC and PDMA) trigger by timer. Is the combination of
-  *             - \ref TIMER_TRG_TO_PWM,
+  * @param[in] u32Mask The mask of modules (EPWM, EADC, DAC and PDMA) trigger by timer. Is the combination of
+  *             - \ref TIMER_TRG_TO_EPWM,
   *             - \ref TIMER_TRG_TO_EADC,
   *             - \ref TIMER_TRG_TO_DAC, and
   *             - \ref TIMER_TRG_TO_PDMA
@@ -331,7 +340,7 @@ void TIMER_SetTriggerSource(TIMER_T *timer, uint32_t u32Src)
   */
 void TIMER_SetTriggerTarget(TIMER_T *timer, uint32_t u32Mask)
 {
-    timer->TRGCTL = (timer->TRGCTL & ~(TIMER_TRGCTL_TRGPWM_Msk | TIMER_TRGCTL_TRGDAC_Msk | TIMER_TRGCTL_TRGEADC_Msk | TIMER_TRGCTL_TRGPDMA_Msk)) | u32Mask;
+    timer->TRGCTL = (timer->TRGCTL & ~(TIMER_TRGCTL_TRGEPWM_Msk | TIMER_TRGCTL_TRGDAC_Msk | TIMER_TRGCTL_TRGEADC_Msk | TIMER_TRGCTL_TRGPDMA_Msk)) | u32Mask;
 }
 
 /*@}*/ /* end of group M480_TIMER_EXPORTED_FUNCTIONS */
@@ -340,4 +349,3 @@ void TIMER_SetTriggerTarget(TIMER_T *timer, uint32_t u32Mask)
 
 /*@}*/ /* end of group M480_Device_Driver */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

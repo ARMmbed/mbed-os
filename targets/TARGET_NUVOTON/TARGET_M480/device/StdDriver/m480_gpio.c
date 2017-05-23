@@ -39,9 +39,9 @@ void GPIO_SetMode(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode)
 {
     uint32_t i;
 
-    for(i = 0; i < GPIO_PIN_MAX; i++) {
-        if(u32PinMask & (1 << i)) {
-            port->MODE = (port->MODE & ~(0x3 << (i << 1))) | (u32Mode << (i << 1));
+    for(i = 0ul; i < GPIO_PIN_MAX; i++) {
+        if((u32PinMask & (1ul << i))==(1ul << i)) {
+            port->MODE = (port->MODE & ~(0x3ul << (i << 1))) | (u32Mode << (i << 1));
         }
     }
 }
@@ -104,9 +104,9 @@ void GPIO_SetSlewCtl(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode)
 {
     uint32_t i;
 
-    for(i = 0; i < GPIO_PIN_MAX; i++) {
-        if(u32PinMask & (1 << i)) {
-            port->SLEWCTL = (port->SLEWCTL & ~(0x3 << (i << 1))) | (u32Mode << (i << 1));
+    for(i = 0ul; i < GPIO_PIN_MAX; i++) {
+        if(u32PinMask & (1ul << i)) {
+            port->SLEWCTL = (port->SLEWCTL & ~(0x3ul << (i << 1))) | (u32Mode << (i << 1));
         }
     }
 }
@@ -129,9 +129,9 @@ void GPIO_SetPullCtl(GPIO_T *port, uint32_t u32PinMask, uint32_t u32Mode)
 {
     uint32_t i;
 
-    for(i = 0; i < GPIO_PIN_MAX; i++) {
-        if(u32PinMask & (1 << i)) {
-            port->PUSEL = (port->PUSEL & ~(0x3 << (i << 1))) | (u32Mode << (i << 1));
+    for(i = 0ul; i < GPIO_PIN_MAX; i++) {
+        if(u32PinMask & (1ul << i)) {
+            port->PUSEL = (port->PUSEL & ~(0x3ul << (i << 1))) | (u32Mode << (i << 1));
         }
     }
 }

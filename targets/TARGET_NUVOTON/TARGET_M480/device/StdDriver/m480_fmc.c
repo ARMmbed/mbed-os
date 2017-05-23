@@ -6,7 +6,6 @@
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
-//* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
 
 #include "M480.h"
@@ -46,20 +45,25 @@ void FMC_Close(void)
   */
 int32_t FMC_Erase(uint32_t u32PageAddr)
 {
-    if (u32PageAddr == FMC_SPROM_BASE)
-        return FMC_Erase_SPROM();
+    int32_t  ret = 0;
 
-    FMC->ISPCMD = FMC_ISPCMD_PAGE_ERASE;
-    FMC->ISPADDR = u32PageAddr;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
-
-    if (FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk) {
-        FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
-        return -1;
+    if (u32PageAddr == FMC_SPROM_BASE) {
+        ret = FMC_Erase_SPROM();
     }
-    return 0;
+
+    if (ret == 0) {
+        FMC->ISPCMD = FMC_ISPCMD_PAGE_ERASE;
+        FMC->ISPADDR = u32PageAddr;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+        while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+
+        if (FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk) {
+            FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
+            ret = -1;
+        }
+    }
+    return ret;
 }
 
 
@@ -71,18 +75,20 @@ int32_t FMC_Erase(uint32_t u32PageAddr)
   */
 int32_t FMC_Erase_SPROM(void)
 {
+    int32_t  ret = 0;
+
     FMC->ISPCMD = FMC_ISPCMD_PAGE_ERASE;
     FMC->ISPADDR = FMC_SPROM_BASE;
-    FMC->ISPDAT = 0x0055AA03;
+    FMC->ISPDAT = 0x0055AA03UL;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 
     if (FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk) {
         FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
-        return -1;
+        ret = -1;
     }
-    return 0;
+    return ret;
 }
 
 /**
@@ -95,17 +101,19 @@ int32_t FMC_Erase_SPROM(void)
   */
 int32_t FMC_Erase_Block(uint32_t u32BlockAddr)
 {
+    int32_t  ret = 0;
+
     FMC->ISPCMD = FMC_ISPCMD_BLOCK_ERASE;
     FMC->ISPADDR = u32BlockAddr;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 
     if (FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk) {
         FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
-        return -1;
+        ret = -1;
     }
-    return 0;
+    return ret;
 }
 
 /**
@@ -117,17 +125,19 @@ int32_t FMC_Erase_Block(uint32_t u32BlockAddr)
   */
 int32_t FMC_Erase_Bank(uint32_t u32BankAddr)
 {
+    int32_t  ret = 0;
+
     FMC->ISPCMD = FMC_ISPCMD_BANK_ERASE;
     FMC->ISPADDR = u32BankAddr;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 
     if (FMC->ISPCTL & FMC_ISPCTL_ISPFF_Msk) {
         FMC->ISPCTL |= FMC_ISPCTL_ISPFF_Msk;
-        return -1;
+        ret = -1;
     }
-    return 0;
+    return ret;
 }
 
 /**
@@ -138,10 +148,13 @@ int32_t FMC_Erase_Bank(uint32_t u32BankAddr)
   */
 int32_t FMC_GetBootSource (void)
 {
-    if (FMC->ISPCTL & FMC_ISPCTL_BS_Msk)
-        return 1;
-    else
-        return 0;
+    int32_t  ret = 0;
+
+    if (FMC->ISPCTL & FMC_ISPCTL_BS_Msk) {
+        ret = 1;
+    }
+
+    return ret;
 }
 
 
@@ -166,29 +179,40 @@ uint32_t FMC_Read(uint32_t u32Addr)
     FMC->ISPCMD = FMC_ISPCMD_READ;
     FMC->ISPADDR = u32Addr;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 
     return FMC->ISPDAT;
 }
 
 
-int FMC_Read_64(uint32_t u32addr, uint32_t * u32data0, uint32_t * u32data1)
+/**
+  * @brief Execute FMC_ISPCMD_READ_64 command to read a double-word from flash.
+  * @param[in]  u32addr   Address of the flash location to be read.
+  *             It must be a double-word aligned address.
+  * @param[out] u32data0  Place holder of word 0 read from flash address u32addr.
+  * @param[out] u32data1  Place holder of word 0 read from flash address u32addr+4.
+  * @return   0   Success
+  * @return   -1  Failed
+  */
+int32_t FMC_Read_64(uint32_t u32addr, uint32_t * u32data0, uint32_t * u32data1)
 {
+    int32_t  ret = 0;
+
     FMC->ISPCMD = FMC_ISPCMD_READ_64;
     FMC->ISPADDR    = u32addr;
-    FMC->ISPDAT = 0x0;
+    FMC->ISPDAT = 0x0UL;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) ;
+    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
 
     if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
         FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-        return -1;
+        ret = -1;
+    } else {
+        *u32data0 = FMC->MPDAT0;
+        *u32data1 = FMC->MPDAT1;
     }
-
-    *u32data0 = FMC->MPDAT0;
-    *u32data1 = FMC->MPDAT1;
-    return 0;
+    return ret;
 }
 
 
@@ -199,9 +223,10 @@ int FMC_Read_64(uint32_t u32addr, uint32_t * u32data0, uint32_t * u32data1)
 uint32_t FMC_ReadCID(void)
 {
     FMC->ISPCMD = FMC_ISPCMD_READ_CID;
-    FMC->ISPADDR = 0x0;
+    FMC->ISPADDR = 0x0UL;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
+
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 
     return FMC->ISPDAT;
 }
@@ -214,9 +239,10 @@ uint32_t FMC_ReadCID(void)
 uint32_t FMC_ReadPID(void)
 {
     FMC->ISPCMD = FMC_ISPCMD_READ_PID;
-    FMC->ISPADDR = 0x04;
+    FMC->ISPADDR = 0x04UL;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
+
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 
     return FMC->ISPDAT;
 }
@@ -230,10 +256,10 @@ uint32_t FMC_ReadPID(void)
 uint32_t FMC_ReadUCID(uint32_t u32Index)
 {
     FMC->ISPCMD = FMC_ISPCMD_READ_UID;
-    FMC->ISPADDR = (0x04 * u32Index) + 0x10;
+    FMC->ISPADDR = (0x04UL * u32Index) + 0x10UL;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 
     return FMC->ISPDAT;
 }
@@ -247,10 +273,10 @@ uint32_t FMC_ReadUCID(uint32_t u32Index)
 uint32_t FMC_ReadUID(uint32_t u32Index)
 {
     FMC->ISPCMD = FMC_ISPCMD_READ_UID;
-    FMC->ISPADDR = 0x04 * u32Index;
+    FMC->ISPADDR = 0x04UL * u32Index;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 
     return FMC->ISPDAT;
 }
@@ -277,7 +303,7 @@ void FMC_SetVectorPageAddr(uint32_t u32PageAddr)
     FMC->ISPADDR = u32PageAddr;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 }
 
 
@@ -285,7 +311,7 @@ void FMC_SetVectorPageAddr(uint32_t u32PageAddr)
   * @brief Execute ISP FMC_ISPCMD_PROGRAM to program a word to flash.
   * @param[in]  u32Addr Address of the flash location to be programmed.
   *             It must be a word aligned address.
-  * @param[out] u32Data The word data to be programmed.
+  * @param[in]  u32Data The word data to be programmed.
   * @return None
   */
 void FMC_Write(uint32_t u32Addr, uint32_t u32Data)
@@ -294,24 +320,35 @@ void FMC_Write(uint32_t u32Addr, uint32_t u32Data)
     FMC->ISPADDR = u32Addr;
     FMC->ISPDAT = u32Data;
     FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
+    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
 }
 
-int FMC_Write_64(uint32_t u32addr, uint32_t u32data0, uint32_t u32data1)
+/**
+  * @brief Execute ISP FMC_ISPCMD_PROGRAM_64 to program a double-word to flash.
+  * @param[in]  u32addr Address of the flash location to be programmed.
+  *             It must be a double-word aligned address.
+  * @param[in]  u32data0   The word data to be programmed to flash address u32addr.
+  * @param[in]  u32data1   The word data to be programmed to flash address u32addr+4.
+  * @return   0   Success
+  * @return   -1  Failed
+  */
+int32_t FMC_Write_64(uint32_t u32addr, uint32_t u32data0, uint32_t u32data1)
 {
-    FMC->ISPCMD = FMC_ISPCMD_PROGRAM_64;
-    FMC->ISPADDR    = u32addr;
-    FMC->MPDAT0 = u32data0;
-    FMC->MPDAT1 = u32data1;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+    int32_t  ret = 0;
 
-    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) ;
+    FMC->ISPCMD  = FMC_ISPCMD_PROGRAM_64;
+    FMC->ISPADDR = u32addr;
+    FMC->MPDAT0  = u32data0;
+    FMC->MPDAT1  = u32data1;
+    FMC->ISPTRG  = FMC_ISPTRG_ISPGO_Msk;
+
+    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
 
     if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
         FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-        return -1;
+        ret = -1;
     }
-    return 0;
+    return ret;
 }
 
 
@@ -324,34 +361,43 @@ int FMC_Write_64(uint32_t u32addr, uint32_t u32data0, uint32_t u32data1)
   * @retval   -1  Program failed.
   * @retval   -2  Invalid OTP number.
   */
-int FMC_Write_OTP(int otp_num, uint32_t low_word, uint32_t high_word)
+int32_t FMC_Write_OTP(uint32_t otp_num, uint32_t low_word, uint32_t high_word)
 {
-    if ((otp_num < 0) || (otp_num > 255))
-        return -2;
+    int32_t  ret = 0;
 
-    FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
-    FMC->ISPADDR = FMC_OTP_BASE + otp_num * 8;
-    FMC->ISPDAT = low_word;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
-    if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-        FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-        return -1;
+    if (otp_num > 255UL) {
+        ret = -2;
     }
 
-    FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
-    FMC->ISPADDR = FMC_OTP_BASE + otp_num * 8 + 4;
-    FMC->ISPDAT = high_word;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+    if (ret == 0) {
+        FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
+        FMC->ISPADDR = FMC_OTP_BASE + otp_num * 8UL;
+        FMC->ISPDAT = low_word;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
-    if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-        FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-        return -1;
+        while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+
+        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        }
     }
 
-    return 0;
+    if (ret == 0) {
+        FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
+        FMC->ISPADDR = FMC_OTP_BASE + otp_num * 8UL + 4UL;
+        FMC->ISPDAT = high_word;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+        while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+
+        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        }
+    }
+
+    return ret;
 }
 
 /**
@@ -363,26 +409,31 @@ int FMC_Write_OTP(int otp_num, uint32_t low_word, uint32_t high_word)
   * @retval   -1  Read failed.
   * @retval   -2  Invalid OTP number.
   */
-int FMC_Read_OTP(int otp_num, uint32_t *low_word, uint32_t *high_word)
+int32_t FMC_Read_OTP(uint32_t otp_num, uint32_t *low_word, uint32_t *high_word)
 {
-    if ((otp_num < 0) || (otp_num > 255))
-        return -2;
+    int32_t  ret = 0;
 
-    FMC->ISPCMD = FMC_ISPCMD_READ_64;
-    FMC->ISPADDR    = FMC_OTP_BASE + otp_num * 8 ;
-    FMC->ISPDAT = 0x0;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-
-    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) ;
-
-    if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-        FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-        return -1;
+    if (otp_num > 255UL) {
+        ret = -2;
     }
 
-    *low_word = FMC->MPDAT0;
-    *high_word = FMC->MPDAT1;
-    return 0;
+    if (ret == 0) {
+        FMC->ISPCMD = FMC_ISPCMD_READ_64;
+        FMC->ISPADDR    = FMC_OTP_BASE + otp_num * 8UL ;
+        FMC->ISPDAT = 0x0UL;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+        while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
+
+        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        } else {
+            *low_word = FMC->MPDAT0;
+            *high_word = FMC->MPDAT1;
+        }
+    }
+    return ret;
 }
 
 /**
@@ -392,22 +443,28 @@ int FMC_Read_OTP(int otp_num, uint32_t *low_word, uint32_t *high_word)
   * @retval   -1  Failed to write OTP lock bits.
   * @retval   -2  Invalid OTP number.
   */
-int FMC_Lock_OTP(int otp_num)
+int32_t FMC_Lock_OTP(uint32_t otp_num)
 {
-    if ((otp_num < 0) || (otp_num > 255))
-        return -2;
+    int32_t  ret = 0;
 
-    FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
-    FMC->ISPADDR = FMC_OTP_BASE + 0x800 + otp_num * 4;
-    FMC->ISPDAT = 0;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
-
-    if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-        FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-        return -1;
+    if (otp_num > 255UL) {
+        ret = -2;
     }
-    return 0;
+
+    if (ret == 0) {
+        FMC->ISPCMD = FMC_ISPCMD_PROGRAM;
+        FMC->ISPADDR = FMC_OTP_BASE + 0x800UL + otp_num * 4UL;
+        FMC->ISPDAT = 0UL;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+        while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+
+        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        }
+    }
+    return ret;
 }
 
 /**
@@ -418,25 +475,31 @@ int FMC_Lock_OTP(int otp_num)
   * @retval   -1  Failed to read OTP lock bits.
   * @retval   -2  Invalid OTP number.
   */
-int FMC_Is_OTP_Locked(int otp_num)
+int32_t FMC_Is_OTP_Locked(uint32_t otp_num)
 {
-    if ((otp_num < 0) || (otp_num > 255))
-        return -2;
+    int32_t  ret = 0;
 
-    FMC->ISPCMD = FMC_ISPCMD_READ;
-    FMC->ISPADDR = FMC_OTP_BASE + 0x800 + otp_num * 4;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-    while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) ;
-
-    if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
-        FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
-        return -1;
+    if (otp_num > 255UL) {
+        ret = -2;
     }
 
-    if (FMC->ISPDAT == 0xFFFFFFFF)
-        return 0;
-    else
-        return 1;
+    if (ret == 0) {
+        FMC->ISPCMD = FMC_ISPCMD_READ;
+        FMC->ISPADDR = FMC_OTP_BASE + 0x800UL + otp_num * 4UL;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+
+        while (FMC->ISPTRG & FMC_ISPTRG_ISPGO_Msk) { }
+
+        if (FMC->ISPSTS & FMC_ISPSTS_ISPFF_Msk) {
+            FMC->ISPSTS |= FMC_ISPSTS_ISPFF_Msk;
+            ret = -1;
+        } else {
+            if (FMC->ISPDAT != 0xFFFFFFFFUL) {
+                ret = 1;   /* Lock work was progrmmed. OTP was locked. */
+            }
+        }
+    }
+    return ret;
 }
 
 /**
@@ -448,13 +511,18 @@ int FMC_Is_OTP_Locked(int otp_num)
   * @retval   0  Success.
   * @retval   -1  Invalid parameter.
   */
-int32_t FMC_ReadConfig(uint32_t *u32Config, uint32_t u32Count)
+int32_t FMC_ReadConfig(uint32_t u32Config[], uint32_t u32Count)
 {
+    int32_t   ret = 0;
+
     u32Config[0] = FMC_Read(FMC_CONFIG_BASE);
-    if (u32Count < 2)
-        return 0;
-    u32Config[1] = FMC_Read(FMC_CONFIG_BASE+4);
-    return 0;
+
+    if (u32Count < 2UL) {
+        ret = -1;
+    } else {
+        u32Config[1] = FMC_Read(FMC_CONFIG_BASE+4UL);
+    }
+    return ret;
 }
 
 
@@ -467,12 +535,12 @@ int32_t FMC_ReadConfig(uint32_t *u32Config, uint32_t u32Count)
   * @retval   0  Success.
   * @retval   -1  Invalid parameter.
   */
-int32_t FMC_WriteConfig(uint32_t *u32Config, uint32_t u32Count)
+int32_t FMC_WriteConfig(uint32_t u32Config[], uint32_t u32Count)
 {
     FMC_ENABLE_CFG_UPDATE();
     FMC_Erase(FMC_CONFIG_BASE);
     FMC_Write(FMC_CONFIG_BASE, u32Config[0]);
-    FMC_Write(FMC_CONFIG_BASE+4, u32Config[1]);
+    FMC_Write(FMC_CONFIG_BASE+4UL, u32Config[1]);
     FMC_DISABLE_CFG_UPDATE();
     return 0;
 }
@@ -488,22 +556,28 @@ int32_t FMC_WriteConfig(uint32_t *u32Config, uint32_t u32Count)
   */
 uint32_t  FMC_GetChkSum(uint32_t u32addr, uint32_t u32count)
 {
-    if ((u32addr % 512) || (u32count % 512))
-        return 0xFFFFFFFF;
+    uint32_t   ret;
 
-    FMC->ISPCMD  = FMC_ISPCMD_RUN_CKS;
-    FMC->ISPADDR = u32addr;
-    FMC->ISPDAT  = u32count;
-    FMC->ISPTRG  = FMC_ISPTRG_ISPGO_Msk;
+    if ((u32addr % 512UL) || (u32count % 512UL)) {
+        ret = 0xFFFFFFFF;
+    } else {
+        FMC->ISPCMD  = FMC_ISPCMD_RUN_CKS;
+        FMC->ISPADDR = u32addr;
+        FMC->ISPDAT  = u32count;
+        FMC->ISPTRG  = FMC_ISPTRG_ISPGO_Msk;
 
-    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) ;
+        while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
 
-    FMC->ISPCMD = FMC_ISPCMD_READ_CKS;
-    FMC->ISPADDR    = u32addr;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) ;
+        FMC->ISPCMD = FMC_ISPCMD_READ_CKS;
+        FMC->ISPADDR    = u32addr;
+        FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
 
-    return FMC->ISPDAT;
+        while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
+
+        ret = FMC->ISPDAT;
+    }
+
+    return ret;
 }
 
 
@@ -517,26 +591,33 @@ uint32_t  FMC_GetChkSum(uint32_t u32addr, uint32_t u32count)
   */
 uint32_t  FMC_CheckAllOne(uint32_t u32addr, uint32_t u32count)
 {
-    FMC->ISPSTS = 0x80;   // clear check all one bit
+    uint32_t  ret = READ_ALLONE_CMD_FAIL;
 
-    FMC->ISPCMD = FMC_ISPCMD_RUN_ALL1;
-    FMC->ISPADDR    = u32addr;
-    FMC->ISPDAT = u32count;
-    FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
+    FMC->ISPSTS = 0x80UL;   /* clear check all one bit */
 
-    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) ;
+    FMC->ISPCMD   = FMC_ISPCMD_RUN_ALL1;
+    FMC->ISPADDR  = u32addr;
+    FMC->ISPDAT   = u32count;
+    FMC->ISPTRG   = FMC_ISPTRG_ISPGO_Msk;
+
+    while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
 
     do {
         FMC->ISPCMD = FMC_ISPCMD_READ_ALL1;
         FMC->ISPADDR    = u32addr;
         FMC->ISPTRG = FMC_ISPTRG_ISPGO_Msk;
-        while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) ;
-    }  while (FMC->ISPDAT == 0);
+        while (FMC->ISPSTS & FMC_ISPSTS_ISPBUSY_Msk) { }
+    }  while (FMC->ISPDAT == 0UL);
 
-    if ((FMC->ISPDAT == READ_ALLONE_YES) || (FMC->ISPDAT == READ_ALLONE_NOT))
-        return FMC->ISPDAT;
+    if (FMC->ISPDAT == READ_ALLONE_YES) {
+        ret = FMC->ISPDAT;
+    }
 
-    return READ_ALLONE_CMD_FAIL;
+    if (FMC->ISPDAT == READ_ALLONE_NOT) {
+        ret = FMC->ISPDAT;
+    }
+
+    return ret;
 }
 
 
@@ -557,61 +638,65 @@ uint32_t  FMC_CheckAllOne(uint32_t u32addr, uint32_t u32count)
   * @retval   -7    KPMAX function failed.
   * @retval   -8    KEMAX function failed.
   */
-int32_t  FMC_SKey_Setup(uint32_t key[3], uint32_t kpmax, uint32_t kemax, int lock_CONFIG, int lock_SPROM)
+int32_t  FMC_SKey_Setup(uint32_t key[3], uint32_t kpmax, uint32_t kemax,
+                        const int32_t lock_CONFIG, const int32_t lock_SPROM)
 {
-    uint32_t  lock_ctrl = 0;
+    uint32_t  lock_ctrl = 0UL;
+    uint32_t  u32KeySts;
+    int32_t   ret = 0;
 
-    if (FMC->KPKEYSTS != 0x200)
-        return -1;
-
-    if (FMC_Erase(FMC_KPROM_BASE))
-        return -2;
-
-    if (FMC_Erase(FMC_KPROM_BASE+0x200))
-        return -2;
-
-    if (!lock_CONFIG)
-        lock_ctrl |= 0x1;
-
-    if (!lock_SPROM)
-        lock_ctrl |= 0x2;
-
-    FMC_Write(FMC_KPROM_BASE, key[0]);
-    FMC_Write(FMC_KPROM_BASE+0x4, key[1]);
-    FMC_Write(FMC_KPROM_BASE+0x8, key[2]);
-    FMC_Write(FMC_KPROM_BASE+0xC, kpmax);
-    FMC_Write(FMC_KPROM_BASE+0x10, kemax);
-    FMC_Write(FMC_KPROM_BASE+0x14, lock_ctrl);
-
-    while (FMC->KPKEYSTS & FMC_KPKEYSTS_KEYBUSY_Msk);
-
-    if (!(FMC->KPKEYSTS & FMC_KPKEYSTS_KEYLOCK_Msk)) {
-        printf("Security key lock failed!\n");
-        return -4;
+    if (FMC->KPKEYSTS != 0x200UL) {
+        ret = -1;
     }
 
-    if ((lock_CONFIG && !(FMC->KPKEYSTS & FMC_KPKEYSTS_CFGFLAG_Msk)) ||
-            (!lock_CONFIG && (FMC->KPKEYSTS & FMC_KPKEYSTS_CFGFLAG_Msk))) {
-        printf("CONFIG lock failed!\n");
-        return -5;
+    if (FMC_Erase(FMC_KPROM_BASE)) {
+        ret = -2;
     }
 
-    if ((lock_SPROM && !(FMC->KPKEYSTS & FMC_KPKEYSTS_SPFLAG_Msk)) ||
-            (!lock_SPROM && (FMC->KPKEYSTS & FMC_KPKEYSTS_SPFLAG_Msk))) {
-        printf("CONFIG lock failed!\n");
-        return -6;
+    if (FMC_Erase(FMC_KPROM_BASE+0x200UL)) {
+        ret = -3;
     }
 
-    if (((FMC->KPCNT & FMC_KPCNT_KPMAX_Msk) >> FMC_KPCNT_KPMAX_Pos) != kpmax) {
-        printf("KPMAX failed!\n");
-        return -7;
+    if (!lock_CONFIG) {
+        lock_ctrl |= 0x1UL;
     }
 
-    if (((FMC->KPKEYCNT & FMC_KPKEYCNT_KPKEMAX_Msk) >> FMC_KPKEYCNT_KPKEMAX_Pos) != kemax) {
-        printf("KEMAX failed!\n");
-        return -8;
+    if (!lock_SPROM) {
+        lock_ctrl |= 0x2UL;
     }
-    return 0;
+
+    if (ret == 0) {
+        FMC_Write(FMC_KPROM_BASE, key[0]);
+        FMC_Write(FMC_KPROM_BASE+0x4UL, key[1]);
+        FMC_Write(FMC_KPROM_BASE+0x8UL, key[2]);
+        FMC_Write(FMC_KPROM_BASE+0xCUL, kpmax);
+        FMC_Write(FMC_KPROM_BASE+0x10UL, kemax);
+        FMC_Write(FMC_KPROM_BASE+0x14UL, lock_ctrl);
+
+        while (FMC->KPKEYSTS & FMC_KPKEYSTS_KEYBUSY_Msk) { }
+
+        u32KeySts = FMC->KPKEYSTS;
+
+        if (!(u32KeySts & FMC_KPKEYSTS_KEYLOCK_Msk)) {
+            /* Security key lock failed! */
+            ret = -4;
+        } else if ((lock_CONFIG && (!(u32KeySts & FMC_KPKEYSTS_CFGFLAG_Msk))) ||
+                   ((!lock_CONFIG) && (u32KeySts & FMC_KPKEYSTS_CFGFLAG_Msk))) {
+            /* CONFIG lock failed! */
+            ret = -5;
+        } else if ((lock_SPROM && (!(u32KeySts & FMC_KPKEYSTS_SPFLAG_Msk))) ||
+                   ((!lock_SPROM) && (u32KeySts & FMC_KPKEYSTS_SPFLAG_Msk))) {
+            /* CONFIG lock failed! */
+            ret = -6;
+        } else if (((FMC->KPCNT & FMC_KPCNT_KPMAX_Msk) >> FMC_KPCNT_KPMAX_Pos) != kpmax) {
+            /* KPMAX failed! */
+            ret = -7;
+        } else if (((FMC->KPKEYCNT & FMC_KPKEYCNT_KPKEMAX_Msk) >> FMC_KPKEYCNT_KPKEMAX_Pos) != kemax) {
+            /* KEMAX failed! */
+            ret = -8;
+        }
+    }
+    return ret;
 }
 
 
@@ -625,35 +710,38 @@ int32_t  FMC_SKey_Setup(uint32_t key[3], uint32_t kpmax, uint32_t kemax, int loc
   */
 int32_t  FMC_SKey_Compare(uint32_t key[3])
 {
+    uint32_t  u32KeySts;
+    int32_t   ret = 0;
+
     if (FMC->KPKEYSTS & FMC_KPKEYSTS_FORBID_Msk) {
-        printf("FMC_SKey_Compare - FORBID!\n");
-        return -1;
+        /* FMC_SKey_Compare - FORBID!  */
+        ret = -1;
     }
 
     if (!(FMC->KPKEYSTS & FMC_KPKEYSTS_KEYLOCK_Msk)) {
-        printf("FMC_SKey_Compare - key is not locked!\n");
-        return -3;
+        /* FMC_SKey_Compare - key is not locked!  */
+        ret = -3;
     }
 
-    FMC->KPKEY0 = key[0];
-    FMC->KPKEY1 = key[1];
-    FMC->KPKEY2 = key[2];
-    FMC->KPKEYTRG = FMC_KPKEYTRG_KPKEYGO_Msk | FMC_KPKEYTRG_TCEN_Msk;
+    if (ret == 0) {
+        FMC->KPKEY0 = key[0];
+        FMC->KPKEY1 = key[1];
+        FMC->KPKEY2 = key[2];
+        FMC->KPKEYTRG = FMC_KPKEYTRG_KPKEYGO_Msk | FMC_KPKEYTRG_TCEN_Msk;
 
-    while (FMC->KPKEYSTS & FMC_KPKEYSTS_KEYBUSY_Msk);
+        while (FMC->KPKEYSTS & FMC_KPKEYSTS_KEYBUSY_Msk) { }
 
-    if (!(FMC->KPKEYSTS & FMC_KPKEYSTS_KEYMATCH_Msk)) {
-        printf("Key mismatched!\n");
-        return -2;
+        u32KeySts = FMC->KPKEYSTS;
+
+        if (!(u32KeySts & FMC_KPKEYSTS_KEYMATCH_Msk)) {
+            /* Key mismatched! */
+            ret = -2;
+        } else if (u32KeySts & FMC_KPKEYSTS_KEYLOCK_Msk) {
+            /* Key matched, but still be locked! */
+            ret = -2;
+        }
     }
-
-    if (FMC->KPKEYSTS & FMC_KPKEYSTS_KEYLOCK_Msk) {
-        printf("Key matched, but still be locked!\n");
-        return -2;
-    }
-
-    printf("FMC_SKey_Compare - OK.\n");
-    return 0;
+    return ret;
 }
 
 

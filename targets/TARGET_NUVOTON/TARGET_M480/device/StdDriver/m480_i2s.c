@@ -21,6 +21,8 @@
   @{
 */
 
+static uint32_t I2S_GetSourceClockFreq(I2S_T *i2s);
+
 /**
   * @brief  This function is used to get I2S source clock frequency.
   * @param[in]  i2s is the base address of I2S module.
@@ -30,7 +32,7 @@ static uint32_t I2S_GetSourceClockFreq(I2S_T *i2s)
 {
     uint32_t u32Freq, u32ClkSrcSel;
 
-    // get I2S selection clock source
+    /* get I2S selection clock source */
     u32ClkSrcSel = CLK->CLKSEL3 & CLK_CLKSEL3_I2S0SEL_Msk;
 
     switch (u32ClkSrcSel) {
@@ -47,7 +49,7 @@ static uint32_t I2S_GetSourceClockFreq(I2S_T *i2s)
         break;
 
     case CLK_CLKSEL3_I2S0SEL_PCLK0:
-        u32Freq = CLK_GetPCLK0Freq();
+        u32Freq = (uint32_t)CLK_GetPCLK0Freq();
         break;
 
     default:
@@ -92,17 +94,17 @@ uint32_t I2S_Open(I2S_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate, u
     SYS->IPRST1 |= SYS_IPRST1_I2S0RST_Msk;
     SYS->IPRST1 &= ~SYS_IPRST1_I2S0RST_Msk;
 
-    i2s->CTL0 = u32MasterSlave | u32WordWidth | u32MonoData | u32DataFormat | I2S_FIFO_TX_LEVEL_WORD_4 | I2S_FIFO_RX_LEVEL_WORD_4;
+    i2s->CTL0 = u32MasterSlave | u32WordWidth | u32MonoData | u32DataFormat | I2S_FIFO_TX_LEVEL_WORD_8 | I2S_FIFO_RX_LEVEL_WORD_8;
 
     u32SrcClk = I2S_GetSourceClockFreq(i2s);
 
-    u32BitRate = u32SampleRate * (((u32WordWidth>>4) & 0x3) + 1) * 16;
-    u16Divider = ((u32SrcClk/u32BitRate) >> 1) - 1;
-    i2s->CLKDIV = (i2s->CLKDIV & ~I2S_CLKDIV_BCLKDIV_Msk) | (u16Divider << 8);
+    u32BitRate = u32SampleRate * (((u32WordWidth>>4U) & 0x3U) + 1U) * 16U;
+    u16Divider = (uint16_t)((u32SrcClk/u32BitRate) >> 1U) - 1U;
+    i2s->CLKDIV = (i2s->CLKDIV & ~I2S_CLKDIV_BCLKDIV_Msk) | ((uint32_t)u16Divider << 8U);
 
-    //calculate real sample rate
-    u32BitRate = u32SrcClk / (2*(u16Divider+1));
-    u32SampleRate = u32BitRate / ((((u32WordWidth>>4) & 0x3) + 1) * 16);
+    /* calculate real sample rate */
+    u32BitRate = u32SrcClk / (2U*((uint32_t)u16Divider+1U));
+    u32SampleRate = u32BitRate / ((((u32WordWidth>>4U) & 0x3U) + 1U) * 16U);
 
     i2s->CTL0 |= I2S_CTL0_I2SEN_Msk;
 
@@ -152,13 +154,14 @@ void I2S_DisableInt(I2S_T *i2s, uint32_t u32Mask)
 uint32_t I2S_EnableMCLK(I2S_T *i2s, uint32_t u32BusClock)
 {
     uint8_t u8Divider;
-    uint32_t u32SrcClk, u32Reg;
+    uint32_t u32SrcClk, u32Reg, u32Clock;
 
     u32SrcClk = I2S_GetSourceClockFreq(i2s);
-    if (u32BusClock == u32SrcClk)
-        u8Divider = 0;
-    else
-        u8Divider = (u32SrcClk/u32BusClock) >> 1;
+    if (u32BusClock == u32SrcClk) {
+        u8Divider = 0U;
+    } else {
+        u8Divider = (uint8_t)(u32SrcClk/u32BusClock) >> 1U;
+    }
 
     i2s->CLKDIV = (i2s->CLKDIV & ~I2S_CLKDIV_MCLKDIV_Msk) | u8Divider;
 
@@ -166,10 +169,13 @@ uint32_t I2S_EnableMCLK(I2S_T *i2s, uint32_t u32BusClock)
 
     u32Reg = i2s->CLKDIV & I2S_CLKDIV_MCLKDIV_Msk;
 
-    if (u32Reg == 0)
-        return u32SrcClk;
-    else
-        return ((u32SrcClk >> 1) / u32Reg);
+    if (u32Reg == 0U) {
+        u32Clock = u32SrcClk;
+    } else {
+        u32Clock = ((u32SrcClk >> 1U) / u32Reg);
+    }
+
+    return u32Clock;
 }
 
 /**

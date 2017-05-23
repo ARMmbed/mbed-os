@@ -2,8 +2,7 @@
  * @file     timer.c
  * @brief    M480 Timer PWM Controller(Timer PWM) driver source file
  *
- * @note
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M480.h"
 
@@ -25,11 +24,11 @@
   *
   * @param[in]  timer           The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
   * @param[in]  u32CntClkSrc    PWM counter clock source, could be one of following source
-  *                                 - \ref TPWM_COUNTER_CLKSRC_TMR_CLK
-  *                                 - \ref TPWM_COUNTER_CLKSRC_TIMER0_INT
-  *                                 - \ref TPWM_COUNTER_CLKSRC_TIMER1_INT
-  *                                 - \ref TPWM_COUNTER_CLKSRC_TIMER2_INT
-  *                                 - \ref TPWM_COUNTER_CLKSRC_TIMER3_INT
+  *                                 - \ref TPWM_CNTR_CLKSRC_TMR_CLK
+  *                                 - \ref TPWM_CNTR_CLKSRC_TIMER0_INT
+  *                                 - \ref TPWM_CNTR_CLKSRC_TIMER1_INT
+  *                                 - \ref TPWM_CNTR_CLKSRC_TIMER2_INT
+  *                                 - \ref TPWM_CNTR_CLKSRC_TIMER3_INT
   *
   * @return     None
   *
@@ -55,22 +54,22 @@ void TPWM_SetCounterClockSource(TIMER_T *timer, uint32_t u32CntClkSrc)
 uint32_t TPWM_ConfigOutputFreqAndDuty(TIMER_T *timer, uint32_t u32Frequency, uint32_t u32DutyCycle)
 {
     uint32_t u32PWMClockFreq, u32TargetFreq;
-    uint32_t u32Prescaler = 0x1000, u32Period, u32CMP;
+    uint32_t u32Prescaler = 0x1000UL, u32Period, u32CMP;
 
-    if(timer == TIMER0 || timer == TIMER1)
+    if((timer == TIMER0) || (timer == TIMER1)) {
         u32PWMClockFreq = CLK_GetPCLK0Freq();
-    else
+    } else {
         u32PWMClockFreq = CLK_GetPCLK1Freq();
+    }
 
     /* Calculate u16PERIOD and u16PSC */
-    for(u32Prescaler = 1; u32Prescaler <= 0x1000; u32Prescaler++) {
+    for(u32Prescaler = 1UL; u32Prescaler <= 0x1000UL; u32Prescaler++) {
         u32Period = (u32PWMClockFreq / u32Prescaler) / u32Frequency;
 
         /* If target u32Period is larger than 0x10000, need to use a larger prescaler */
-        if(u32Period > 0x10000)
-            continue;
-
-        break;
+        if(u32Period <= 0x10000UL) {
+            break;
+        }
     }
     /* Store return value here 'cos we're gonna change u32Prescaler & u32Period to the real value to fill into register */
     u32TargetFreq = (u32PWMClockFreq / u32Prescaler) / u32Period;
@@ -79,16 +78,16 @@ uint32_t TPWM_ConfigOutputFreqAndDuty(TIMER_T *timer, uint32_t u32Frequency, uin
     timer->PWMCTL = (timer->PWMCTL & ~TIMER_PWMCTL_CNTTYPE_Msk) | (TPWM_UP_COUNT << TIMER_PWMCTL_CNTTYPE_Pos);
 
     /* Set PWM to auto-reload mode */
-    timer->PWMCTL = (timer->PWMCTL & ~TIMER_PWMCTL_CNTMODE_Msk) | (TPWM_AUTO_RELOAD_MODE << TIMER_PWMCTL_CNTMODE_Pos);
+    timer->PWMCTL = (timer->PWMCTL & ~TIMER_PWMCTL_CNTMODE_Msk) | TPWM_AUTO_RELOAD_MODE;
 
     /* Convert to real register value */
-    TPWM_SET_PRESCALER(timer, (u32Prescaler-1));
+    TPWM_SET_PRESCALER(timer, (u32Prescaler - 1UL));
 
-    TPWM_SET_PERIOD(timer, (u32Period-1));
+    TPWM_SET_PERIOD(timer, (u32Period - 1UL));
     if(u32DutyCycle) {
-        u32CMP = (u32DutyCycle * u32Period) / 100;
+        u32CMP = (u32DutyCycle * u32Period) / 100UL;
     } else {
-        u32CMP = 0;
+        u32CMP = 0UL;
     }
 
     TPWM_SET_CMPDAT(timer, u32CMP);
@@ -140,7 +139,7 @@ void TPWM_EnableDeadTimeWithPrescale(TIMER_T *timer, uint32_t u32DTCount)
   */
 void TPWM_DisableDeadTime(TIMER_T *timer)
 {
-    timer->PWMDTCTL = 0x0;
+    timer->PWMDTCTL = 0x0UL;
 }
 
 /**
@@ -188,7 +187,7 @@ void TPWM_DisableCounter(TIMER_T *timer)
   */
 void TPWM_EnableTriggerEADC(TIMER_T *timer, uint32_t u32Condition)
 {
-    timer->PWMEADCTS = TIMER_PWMEADCTS_TRGEN_Msk | (u32Condition << TIMER_PWMEADCTS_TRGSEL_Pos);
+    timer->PWMEADCTS = TIMER_PWMEADCTS_TRGEN_Msk | u32Condition;
 }
 
 /**
@@ -202,7 +201,7 @@ void TPWM_EnableTriggerEADC(TIMER_T *timer, uint32_t u32Condition)
   */
 void TPWM_DisableTriggerEADC(TIMER_T *timer)
 {
-    timer->PWMEADCTS = 0x0;
+    timer->PWMEADCTS = 0x0UL;
 }
 
 /**
@@ -226,12 +225,14 @@ void TPWM_DisableTriggerEADC(TIMER_T *timer)
   *                                 - \ref TPWM_BRAKE_SOURCE_EDGE_SYS_CSS
   *                                 - \ref TPWM_BRAKE_SOURCE_EDGE_SYS_BOD
   *                                 - \ref TPWM_BRAKE_SOURCE_EDGE_SYS_COR
+  *                                 - \ref TPWM_BRAKE_SOURCE_EDGE_SYS_RAM
   *                                 - \ref TPWM_BRAKE_SOURCE_LEVEL_ACMP0
   *                                 - \ref TPWM_BRAKE_SOURCE_LEVEL_ACMP1
   *                                 - \ref TPWM_BRAKE_SOURCE_LEVEL_BKPIN
   *                                 - \ref TPWM_BRAKE_SOURCE_LEVEL_SYS_CSS
   *                                 - \ref TPWM_BRAKE_SOURCE_LEVEL_SYS_BOD
   *                                 - \ref TPWM_BRAKE_SOURCE_LEVEL_SYS_COR
+  *                                 - \ref TPWM_BRAKE_SOURCE_LEVEL_SYS_RAM
   *
   * @return     None
   *
@@ -240,8 +241,9 @@ void TPWM_DisableTriggerEADC(TIMER_T *timer)
   */
 void TPWM_EnableFaultBrake(TIMER_T *timer, uint32_t u32CH0Level, uint32_t u32CH1Level, uint32_t u32BrakeSource)
 {
-    timer->PWMFAILBRK |= ((u32BrakeSource >> 16) & 0xF);
-    timer->PWMBRKCTL |= (u32BrakeSource & 0xFFFF) | (u32CH0Level << TIMER_PWMBRKCTL_BRKAEVEN_Pos) | (u32CH1Level << TIMER_PWMBRKCTL_BRKAODD_Pos);
+    timer->PWMFAILBRK |= ((u32BrakeSource >> 16) & 0xFUL);
+    timer->PWMBRKCTL = (timer->PWMBRKCTL & ~(TIMER_PWMBRKCTL_BRKAEVEN_Msk | TIMER_PWMBRKCTL_BRKAODD_Msk)) |
+                       (u32BrakeSource & 0xFFFFUL) | (u32CH0Level << TIMER_PWMBRKCTL_BRKAEVEN_Pos) | (u32CH1Level << TIMER_PWMBRKCTL_BRKAODD_Pos);
 }
 
 /**
@@ -296,7 +298,7 @@ void TPWM_DisableFaultBrakeInt(TIMER_T *timer, uint32_t u32IntSource)
   */
 uint32_t TPWM_GetFaultBrakeIntFlag(TIMER_T *timer, uint32_t u32IntSource)
 {
-    return ((timer->PWMINTSTS1 & (0x3 << u32IntSource))? 1 : 0);
+    return ((timer->PWMINTSTS1 & (0x3UL << u32IntSource))? 1UL : 0UL);
 }
 
 /**
@@ -314,7 +316,7 @@ uint32_t TPWM_GetFaultBrakeIntFlag(TIMER_T *timer, uint32_t u32IntSource)
   */
 void TPWM_ClearFaultBrakeIntFlag(TIMER_T *timer, uint32_t u32IntSource)
 {
-    timer->PWMINTSTS1 = (0x3 << u32IntSource);
+    timer->PWMINTSTS1 = (0x3UL << u32IntSource);
 }
 
 /**
@@ -345,9 +347,9 @@ void TPWM_SetLoadMode(TIMER_T *timer, uint32_t u32LoadMode)
   *                                 - \ref TPWM_TM_BRAKE1
   *                                 - \ref TPWM_TM_BRAKE2
   *                                 - \ref TPWM_TM_BRAKE3
-  * @param[in]  u32DebounceCnt  This value controls the real de-bounce sample time.
-  *                             The target de-bounce sample time is (de-bounce sample clock period) * (u32DebounceCnt).
-  * @param[in]  u32ClkSrcSel    Brake pin detector de-bounce clock source, could be one of following source
+  * @param[in]  u32DebounceCnt  This value controls the real debounce sample time.
+  *                             The target debounce sample time is (debounce sample clock period) * (u32DebounceCnt).
+  * @param[in]  u32ClkSrcSel    Brake pin detector debounce clock source, could be one of following source
   *                                 - \ref TPWM_BKP_DBCLK_PCLK_DIV_1
   *                                 - \ref TPWM_BKP_DBCLK_PCLK_DIV_2
   *                                 - \ref TPWM_BKP_DBCLK_PCLK_DIV_4
@@ -429,4 +431,4 @@ void TPWM_SetBrakePinSource(TIMER_T *timer, uint32_t u32BrakePinNum)
 
 /*@}*/ /* end of group M480_Device_Driver */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
