@@ -28,7 +28,7 @@ void GREENTEA_SETUP(const int timeout, const char * host_test);
 void greentea_send_kv(const char * key, const char * val);
 int greentea_parse_kv(char * key, char * val,
                         const int key_len, const int val_len);
-char greentea_getc();
+int greentea_getc();
 
 #endif /* TEST_ENV_C_H */
 
