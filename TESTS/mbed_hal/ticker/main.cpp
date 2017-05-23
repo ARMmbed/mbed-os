@@ -1569,8 +1569,8 @@ static void test_overflow_event_update_when_spurious_interrupt()
  */
 static void test_irq_handler_single_event()
 {
-    const timestamp_t event_timestamp = 0xAAAAAAAA;
-    const timestamp_t interface_timestamp_after_irq = event_timestamp + 100;
+    static const timestamp_t event_timestamp = 0xAAAAAAAA;
+    static const timestamp_t interface_timestamp_after_irq = event_timestamp + 100;
 
     uint32_t handler_call = 0;
     struct irq_handler_stub_t { 
