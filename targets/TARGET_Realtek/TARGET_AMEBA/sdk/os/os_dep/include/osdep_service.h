@@ -107,7 +107,7 @@ extern "C" {
 #elif defined( PLATFORM_ECOS)
 #include "ecos/ecos_service.h"
 #elif defined(PLATFORM_CMSIS_RTOS)
-#include "rtx_service.h"
+#include "rtx2_service.h"
 #endif
 
 #define RTW_MAX_DELAY			0xFFFFFFFF

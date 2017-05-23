@@ -30,7 +30,7 @@
 #elif defined(__GNUC__)
     extern uint32_t             __StackTop[];
     extern uint32_t             __StackLimit[];
-    extern uint32_t             __end__[];
+//    extern uint32_t             __end__[];
     extern uint32_t             __HeapLimit[];
     #define INITIAL_SP          (__StackTop)
 #endif
