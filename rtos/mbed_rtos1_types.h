@@ -22,6 +22,6 @@
 #ifndef MBED_RTOS_RTX1_TYPES_H
 #define MBED_RTOS_RTX1_TYPES_H
 
-#include "rtx/cmsis_os.h"
+#include "rtx4/cmsis_os.h"
 
 #endif
