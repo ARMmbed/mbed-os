@@ -60,7 +60,11 @@ static void greentea_notify_completion(const int);
 static void greentea_notify_version();
 static void greentea_write_string(const char *str);
 
-
+/** \brief Handle the handshake with the host
+ *  \details This is contains the shared handhshake functionality that is used between
+ *           GREENTEA_SETUP and GREENTEA_SETUP_UUID.
+ *           This function is blocking.
+ */
 void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char *buffer, size_t size) {
     greentea_metrics_setup();
     // Key-value protocol handshake function. Waits for {{__sync;...}} message
@@ -73,7 +77,7 @@ void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char 
         greentea_parse_kv(_key, buffer, sizeof(_key), size);
         greentea_write_string("mbedmbedmbedmbedmbedmbedmbedmbed\r\n");
         if (strcmp(_key, GREENTEA_TEST_ENV_SYNC) == 0) {
-            // Found correct __sunc message
+            // Found correct __sync message
             greentea_send_kv(_key, buffer);
             break;
         }
@@ -95,11 +99,13 @@ void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
     _GREENTEA_SETUP_COMMON(timeout, host_test_name, _value, GREENTEA_UUID_LENGTH);
 }
 
-/** \brief Handshake with host and send setup data (timeout and host test name)
+/** \brief Handshake with host and send setup data (timeout and host test name). Allows you to preserve sync UUID.
  *  \details This function will send preamble to master.
  *           After host test name is received master will invoke host test script
  *           and add hos test's callback handlers to main event loop
  *           This function is blocking.
+ *           This function differs from GREENTEA_SETUP because it allows you to
+ *           preserve the UUID sent during the sync process.
  */
 void GREENTEA_SETUP_UUID(const int timeout, const char *host_test_name, char *buffer, size_t size) {
     _GREENTEA_SETUP_COMMON(timeout, host_test_name, buffer, size);
