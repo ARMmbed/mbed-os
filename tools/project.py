@@ -20,7 +20,7 @@ from tools.utils import argparse_filestring_type, argparse_profile_filestring_ty
 from tools.utils import argparse_force_lowercase_type
 from tools.utils import argparse_force_uppercase_type
 from tools.utils import print_large_string
-from tools.options import extract_profile, list_profiles
+from tools.options import extract_profile, list_profiles, mcu_is_enabled
 
 def setup_project(ide, target, program=None, source_dir=None, build=None, export_path=None):
     """Generate a name, if not provided, and find dependencies
@@ -221,6 +221,7 @@ def main():
     if not options.mcu:
         args_error(parser, "argument -m/--mcu is required")
 
+    assert mcu_is_enabled(parser, options.mcu)
     # Toolchain
     if not options.ide:
         args_error(parser, "argument -i is required")
