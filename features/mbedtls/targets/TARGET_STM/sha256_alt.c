@@ -71,12 +71,12 @@ void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 )
     }
 }
 
-void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[64] )
+void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[MBEDTLS_SHA256_BLOCK_SIZE] )
 {
     if (ctx->is224 == 0) {
-        HAL_HASHEx_SHA256_Accumulate(&ctx->hhash_sha256, (uint8_t *) data, 64);
+        HAL_HASHEx_SHA256_Accumulate(&ctx->hhash_sha256, (uint8_t *) data, MBEDTLS_SHA256_BLOCK_SIZE);
     } else {
-        HAL_HASHEx_SHA224_Accumulate(&ctx->hhash_sha256, (uint8_t *) data, 64);
+        HAL_HASHEx_SHA224_Accumulate(&ctx->hhash_sha256, (uint8_t *) data, MBEDTLS_SHA256_BLOCK_SIZE);
     }
 }
 
