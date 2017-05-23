@@ -287,7 +287,8 @@ class ConfigCumulativeOverride(object):
                 list((set(getattr(target, self.name, []))
                       | self.additions) - self.removals))
         else:
-            setattr(target, self.name, self.override)
+            if( self.override != None ):            
+                setattr(target, self.name, self.override)
 
 def _process_config_parameters(data, params, unit_name, unit_kind):
     """Process a "config_parameters" section in either a target, a library,
@@ -665,6 +666,8 @@ class Config(object):
                                                                      label)))))
 
         for cumulatives in self.cumulative_overrides.itervalues():
+            if( type(getattr(self.target, cumulatives.name)) != type(list()) ):
+                cumulatives.isList = False
             cumulatives.update_target(self.target)
 
         return params
