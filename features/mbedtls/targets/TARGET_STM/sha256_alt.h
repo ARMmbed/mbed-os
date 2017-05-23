@@ -1,7 +1,9 @@
-/*
- *  sha256_alt.h SHA-256 hash
- *******************************************************************************
- *  Copyright (C) 2017, STMicroelectronics
+/**
+ * \file sha256_alt.h
+ *
+ * \brief SHA256 hw acceleration (hash function)
+ *
+ * Copyright (c) 2017, STMicroelectronics
  *  SPDX-License-Identifier: Apache-2.0
  *
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -21,22 +23,28 @@
 #define MBEDTLS_SHA256_ALT_H
 
 #if defined (MBEDTLS_SHA256_ALT)
-#include "mbedtls/platform.h"
-#include "mbedtls/config.h"
 
 #include "cmsis.h"
 #include <string.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define MBEDTLS_SHA256_BLOCK_SIZE ((size_t)(64)) // must be a multiple of 4
 /**
  * \brief          SHA-256 context structure
+ * \note     HAL_HASH_SHA256_Accumulate cannot handle less than 4 bytes, unless it is the last call to the  function
+ *           A MBEDTLS_SHA256_BLOCK_SIZE bytes buffer is used to save values and handle the processing
+ *           MBEDTLS_SHA256_BLOCK_SIZE bytes per MBEDTLS_SHA256_BLOCK_SIZE bytes
+ *           If sha256_finish is called and sbuf_len>0, the remaining bytes are accumulated prior to the call to HAL_HASH_SHA256_Finish
  */
 typedef struct
 {
     int is224;                  /*!< 0 => SHA-256, else SHA-224 */  
     HASH_HandleTypeDef hhash_sha256;  
+    unsigned char sbuf[MBEDTLS_SHA256_BLOCK_SIZE]; /*!< MBEDTLS_SHA256_BLOCK_SIZE buffer to store values so that algorithm is caled once the buffer is filled */
+    unsigned char sbuf_len; /*!< number of bytes to be processed in sbuf */
 }
 mbedtls_sha256_context;
 
@@ -96,32 +104,6 @@ void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char da
 }
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * \brief          Output = SHA-256( input buffer )
- *
- * \param input    buffer holding the  data
- * \param ilen     length of the input data
- * \param output   SHA-224/256 checksum result
- * \param is224    0 = use SHA256, 1 = use SHA224
- */
-void mbedtls_sha256( const unsigned char *input, size_t ilen,
-           unsigned char output[32], int is224 );
-
-/**
- * \brief          Checkup routine
- *
- * \return         0 if successful, or 1 if the test failed
- */
-int mbedtls_sha256_self_test( int verbose );
-
-#ifdef __cplusplus
-}
-#endif
-
 #endif /* MBEDTLS_SHA256_ALT */
 
-#endif /* sha1_alt.h */
+#endif /* sha256_alt.h */
