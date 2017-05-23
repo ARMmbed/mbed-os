@@ -615,7 +615,7 @@ class Config(object):
                 for attr, cumulatives in self.cumulative_overrides.iteritems():
                     if 'target.'+attr in overrides:
                         key = 'target.' + attr
-                        if( type(getattr(self.target, attr)) != type(list()) ):
+                        if( type(getattr(self.target, attr, [])) != type(list()) ):
                             cumulatives.isList = False                        
                         if (cumulatives.isList == True) and (not isinstance(overrides[key], list)):
                             raise ConfigException(
@@ -666,7 +666,7 @@ class Config(object):
                                                                      label)))))
 
         for cumulatives in self.cumulative_overrides.itervalues():
-            if( type(getattr(self.target, cumulatives.name)) != type(list()) ):
+            if( type(getattr(self.target, cumulatives.name, [])) != type(list()) ):
                 cumulatives.isList = False
             cumulatives.update_target(self.target)
 
