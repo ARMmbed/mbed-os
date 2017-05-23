@@ -13,18 +13,19 @@ MEMORY
   /* The remaining bytes of flash minus 4KB Protected Key Storage */
   FLASH (rx) : ORIGIN = 0x000001A0, LENGTH = 512k - 4k - 0x1A0
   /* SRAM bank 0 */
-  DSRAM_A (rwx) : ORIGIN = 0x20000200, LENGTH = 16k - 0x200
-  DSRAM_C (rwx) : ORIGIN = 0x20004000, LENGTH = 16k
-  /* SRAM bank 3+4+5+6 */
-  DSRAM_B (rwx) : ORIGIN = 0x20040000, LENGTH = 96k
+  DSRAM_A (rwx) : ORIGIN = 0x20000200, LENGTH = 32k - 0x200
+  /* SRAM bank 3+4+5+6+7 */
+  DSRAM_B (rwx) : ORIGIN = 0x20048000, LENGTH = 64k
+  /* stack must not be in bank 1,2,7 where ISRAM or CACHE
+     are set at power on */
 }
 
 /* Library configurations */
 GROUP(libgcc.a libc.a libm.a libnosys.a)
 
 /* Custom stack and heap sizes */
-__stack_size__ = 0x1000;
-__heap_size__ = 0x2000;
+__stack_size__ = 0x2000;
+__heap_size__  = 0x6000;
 
 /* select custom or default sizes for stack and heap */
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
@@ -189,43 +190,24 @@ SECTIONS
 
     } > DSRAM_A
 
-    .heap :
-    {
-		__HeapBase = .;
-		__end__ = .;
-		end = __end__;
-        . += HEAP_SIZE;
-		__HeapLimit = .;
-    } > DSRAM_A
-
-    .bss2 :
-    {
-        . = ALIGN(4);
-        __bss2_start__ = .;
-        *(COMMON)
-        . = ALIGN(4);
-        __bss2_end__ = .;
-    } > DSRAM_C
-
     .bss :
     {
-        . = ALIGN(4);
+        . = ALIGN(16);
+        __bss2_start__ = .;
+        *(COMMON)
+        . = ALIGN(16);
+        __bss2_end__ = .;
         __bss_start__ = .;
         *(.bss*)
-        . = ALIGN(4);
+        . = ALIGN(16);
         __bss_end__ = .;
     } > DSRAM_B
 
-    /* .stack_dummy section doesn't contains any symbols. It is only
-     * used for linker to calculate size of stack sections, and assign
-     * values to stack symbols later */
-
-    /* Set stack top to end of DSRAM_A, and move stack limit down by
-     * size of stack_dummy section */
-    __StackTop = ORIGIN(DSRAM_C);
-	__StackLimit = __StackTop - STACK_SIZE;
+    __StackTop = ORIGIN(DSRAM_B);
+    __StackLimit = __StackTop  - STACK_SIZE;
+    __HeapLimit  = __StackLimit;
+    __HeapBase   = __HeapLimit - HEAP_SIZE;
+    __end__      = __HeapBase;
+    PROVIDE(end  = __end__);
     PROVIDE(__stack = __StackTop);
-
-    /* Check if data + heap + stack exceeds DSRAM_A limit */
-	ASSERT(__StackLimit >= __HeapLimit, "region DSRAM_A overflowed with stack")
 }

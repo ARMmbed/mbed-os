@@ -35,7 +35,7 @@
 #elif defined(TARGET_ADUCM4050)
 
 #ifndef INITIAL_SP
-#define INITIAL_SP              (0x20004000UL)
+#define INITIAL_SP              (0x20048000UL)
 #endif
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              6

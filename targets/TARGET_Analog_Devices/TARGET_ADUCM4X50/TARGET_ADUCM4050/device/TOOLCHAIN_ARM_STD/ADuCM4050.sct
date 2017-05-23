@@ -29,39 +29,23 @@
 ;  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ;  POSSIBILITY OF SUCH DAMAGE.
 ;******************************************************************************
-
-LR_IROM1 0x00000000 0x00080000 {
+LR_IROM1 0x00000000 0x0007F000 {
     FLASH0   0x00000000 0x000001A0 {
-	    *(.vectors, +First)
-	}
+        *(.vectors, +First)
+    }
 
-    ER_IROM1 AlignExpr(ImageLimit(FLASH0), 16)	0x0007FE60 {  ; load address = execution address
+    ER_IROM1 AlignExpr(ImageLimit(FLASH0), 16) 0x0007EE60 {
+        ; load address = execution address
         *(InRoot$$Sections)
-        .ANY (+RO)
+        *(+RO)
     }
 
-    RW_IRAM1 0x20000200 {
-        .ANY (+RW)
-    }
+    RW_IRAM1    0x20040000 EMPTY 0 { }
 
-    ADUCM_STACK AlignExpr(ImageLimit(RW_IRAM1), 16) EMPTY
-        (0x20004000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {  ; stack
-    }
+    ADUCM_IRAM2 0x20000200 0x7E00  { *(+RW) }
 
-    ADUCM_IRAM2 0x20004000 {
-        .ANY (+RW)
-    }
+    ADUCM_IRAM3 0x20048000 0x10000 { *(+ZI) }
 
-    ADUCM_HEAP AlignExpr(ImageLimit(ADUCM_IRAM2), 16) EMPTY
-        (0x20007000 - AlignExpr(ImageLimit(ADUCM_IRAM2), 16)) {  ; heap
-    }
-
-    ADUCM_IRAM3 0x20040000 0x18000 {
-        .ANY (+RW)
-        .ANY (+RW +ZI)
-    }
+    ADUCM_HEAP  AlignExpr(ImageLimit(RW_IRAM1), 16) EMPTY
+        (ImageBase(ADUCM_IRAM3) - 0x2000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) { } ; heap
 }
-
-ScatterAssert(ImageLimit(RW_IRAM1)    <= 0x20003000)
-ScatterAssert(ImageLimit(ADUCM_IRAM2) <= 0x20006000)
-
