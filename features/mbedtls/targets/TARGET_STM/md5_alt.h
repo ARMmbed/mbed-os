@@ -95,7 +95,7 @@ void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, s
 void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] );
 
 /* Internal use */
-void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[64] );
+void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[MBEDTLS_MD5_BLOCK_SIZE] );
 
 #ifdef __cplusplus
 }
