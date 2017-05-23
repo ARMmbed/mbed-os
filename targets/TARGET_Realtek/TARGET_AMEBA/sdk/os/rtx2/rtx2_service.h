@@ -1,4 +1,3 @@
-#if 0
 #ifndef _RTX2_SERVICE_H_
 #define _RTX2_SERVICE_H_
 
@@ -295,4 +294,4 @@ extern void	rtw_list_insert_tail(_list *plist, _list *phead);
 extern void	rtw_list_delete(_list *plist);
 #define vPortExitCritical save_and_cli
 #endif /* _RTX_SERVICE_H_ */
-#endif
+

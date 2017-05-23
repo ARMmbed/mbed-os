@@ -1,4 +1,3 @@
-#if 0
 /* RTX includes */
 #include "osdep_service.h"
 #include "tcm_heap.h"
@@ -1093,4 +1092,4 @@ const struct osdep_service_ops osdep_service = {
 
 	_rtx2_get_scheduler_state  // rtw_get_scheduler_state
 };
-#endif
+
