@@ -18,7 +18,7 @@
  *
  */
 
-#include "ATParser.h"
+#include "ATCmdParser.h"
 #include "mbed_poll.h"
 #include "mbed_debug.h"
 
@@ -37,7 +37,7 @@
 #endif
 
 // getc/putc handling with timeouts
-int ATParser::putc(char c)
+int ATCmdParser::putc(char c)
 {
     pollfh fhs;
     fhs.fh = _fh;
@@ -51,7 +51,7 @@ int ATParser::putc(char c)
     }
 }
 
-int ATParser::getc()
+int ATCmdParser::getc()
 {
     pollfh fhs;
     fhs.fh = _fh;
@@ -66,7 +66,7 @@ int ATParser::getc()
     }
 }
 
-void ATParser::flush()
+void ATCmdParser::flush()
 {
     while (_fh->readable()) {
         unsigned char ch;
@@ -76,7 +76,7 @@ void ATParser::flush()
 
 
 // read/write handling with timeouts
-int ATParser::write(const char *data, int size)
+int ATCmdParser::write(const char *data, int size)
 {
     int i = 0;
     for ( ; i < size; i++) {
@@ -87,7 +87,7 @@ int ATParser::write(const char *data, int size)
     return i;
 }
 
-int ATParser::read(char *data, int size)
+int ATCmdParser::read(char *data, int size)
 {
     int i = 0;
     for ( ; i < size; i++) {
@@ -102,7 +102,7 @@ int ATParser::read(char *data, int size)
 
 
 // printf/scanf handling
-int ATParser::vprintf(const char *format, va_list args)
+int ATCmdParser::vprintf(const char *format, va_list args)
 {
 
     if (vsprintf(_buffer, format, args) < 0) {
@@ -118,7 +118,7 @@ int ATParser::vprintf(const char *format, va_list args)
     return i;
 }
 
-int ATParser::vscanf(const char *format, va_list args)
+int ATCmdParser::vscanf(const char *format, va_list args)
 {
     // Since format is const, we need to copy it into our buffer to
     // add the line's null terminator and clobber value-matches with asterisks.
@@ -181,7 +181,7 @@ int ATParser::vscanf(const char *format, va_list args)
 
 
 // Command parsing with line handling
-bool ATParser::vsend(const char *command, va_list args)
+bool ATCmdParser::vsend(const char *command, va_list args)
 {
     // Create and send command
     if (vsprintf(_buffer, command, args) < 0) {
@@ -205,7 +205,7 @@ bool ATParser::vsend(const char *command, va_list args)
     return true;
 }
 
-bool ATParser::vrecv(const char *response, va_list args)
+bool ATCmdParser::vrecv(const char *response, va_list args)
 {
 restart:
     _aborted = false;
@@ -329,7 +329,7 @@ restart:
 }
 
 // Mapping to vararg functions
-int ATParser::printf(const char *format, ...)
+int ATCmdParser::printf(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -338,7 +338,7 @@ int ATParser::printf(const char *format, ...)
     return res;
 }
 
-int ATParser::scanf(const char *format, ...)
+int ATCmdParser::scanf(const char *format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -347,7 +347,7 @@ int ATParser::scanf(const char *format, ...)
     return res;
 }
 
-bool ATParser::send(const char *command, ...)
+bool ATCmdParser::send(const char *command, ...)
 {
     va_list args;
     va_start(args, command);
@@ -356,7 +356,7 @@ bool ATParser::send(const char *command, ...)
     return res;
 }
 
-bool ATParser::recv(const char *response, ...)
+bool ATCmdParser::recv(const char *response, ...)
 {
     va_list args;
     va_start(args, response);
@@ -366,7 +366,7 @@ bool ATParser::recv(const char *response, ...)
 }
 
 // oob registration
-void ATParser::oob(const char *prefix, Callback<void()> cb)
+void ATCmdParser::oob(const char *prefix, Callback<void()> cb)
 {
     struct oob *oob = new struct oob;
     oob->len = strlen(prefix);
@@ -376,7 +376,7 @@ void ATParser::oob(const char *prefix, Callback<void()> cb)
     _oobs = oob;
 }
 
-void ATParser::abort()
+void ATCmdParser::abort()
 {
     _aborted = true;
 }

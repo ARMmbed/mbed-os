@@ -60,10 +60,6 @@ struct analogin_s {
     uint8_t channel;
 };
 
-struct modem_s {
-    uint32_t state;
-};
-
 #include "common_objects.h"
 
 #ifdef __cplusplus

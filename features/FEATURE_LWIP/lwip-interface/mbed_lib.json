@@ -27,7 +27,8 @@
         },
         "ppp-enabled": {
             "help": "Enable support for PPP interfaces",
-            "value": false
+            "value": false,
+            "macro_name": "NSAPI_PPP_AVAILABLE"
         },
         "use-mbed-trace": {
             "help": "Use mbed trace for debug, rather than printf",
@@ -67,7 +68,7 @@
         },
         "ppp-thread-stacksize": {
             "help": "Thread stack size for PPP",
-            "value": 300
+            "value": 512
         }
     }
 }

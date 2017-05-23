@@ -124,6 +124,9 @@ static void init_serial() {
 /**
  * Sets errno when file opening fails.
  * Wipes out the filehandle too.
+ *
+ * @param error is a negative error code returned from an mbed function and
+ *              will be negated to store a positive error code in errno
  */
 static int handle_open_errors(int error, unsigned filehandle_idx) {
     errno = -error;

@@ -195,7 +195,7 @@ typedef enum {
 #define ACTIVE_HIGH_POLARITY    1
 #define ACTIVE_LOW_POLARITY     0
 
-#define MDMDCD_POLARITY            ACTIVE_HIGH_POLARITY
+#define MDM_PIN_POLARITY        ACTIVE_HIGH_POLARITY
 
 
 #ifdef __cplusplus

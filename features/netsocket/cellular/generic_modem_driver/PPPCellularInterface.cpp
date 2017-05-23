@@ -12,15 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "ReferenceCellularDriver.h"
+#include "PPPCellularInterface.h"
+
+#if NSAPI_PPP_AVAILABLE
 
 #include <string.h>
-#include "modem_api.h"
-#include "platform/BufferedSerial.h"
 #include "nsapi_ppp.h"
-#if MBED_CONF_REF_CELL_DRV_APN_LOOKUP
-#include "APN_db.h"
-#endif //MBED_CONF_REF_CELL_DRV_APN_LOOKUP
+#if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+#include "utils/APN_db.h"
+#endif //MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
 #if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "UCID"
@@ -29,8 +29,6 @@
 #define tr_info(...)  (void(0)) //dummies if feature common pal is not added
 #define tr_error(...) (void(0)) //dummies if feature common pal is not added
 #endif //defined(FEATURE_COMMON_PAL)
-
-#define BAUD_RATE   115200
 
 /**
  * PDP (packet data profile) Context
@@ -42,31 +40,30 @@
  */
 #define OUTPUT_ENTER_KEY  "\r"
 
-#if MBED_CONF_REF_CELL_DRV_AT_PARSER_BUFFER_SIZE
-#define AT_PARSER_BUFFER_SIZE   MBED_CONF_REF_CELL_DRV_AT_PARSER_BUFFER_SIZE //bytes
+#if MBED_CONF_PPP_CELL_IFACE_AT_PARSER_BUFFER_SIZE
+#define AT_PARSER_BUFFER_SIZE   MBED_CONF_PPP_CELL_IFACE_AT_PARSER_BUFFER_SIZE //bytes
 #else
 #define AT_PARSER_BUFFER_SIZE   256 //bytes
-#endif //MMBED_CONF_REF_CELL_DRV_AT_PARSER_BUFFER_SIZE
+#endif //MBED_CONF_PPP_CELL_IFACE_AT_PARSER_BUFFER_SIZE
 
-#if MBED_CONF_REF_CELL_DRV_AT_PARSER_TIMEOUT
-#define AT_PARSER_TIMEOUT       MBED_CONF_REF_CELL_DRV_AT_PARSER_TIMEOUT
+#if MBED_CONF_PPP_CELL_IFACE_AT_PARSER_TIMEOUT
+#define AT_PARSER_TIMEOUT       MBED_CONF_PPP_CELL_IFACE_AT_PARSER_TIMEOUT
 #else
 #define AT_PARSER_TIMEOUT       8*1000 //miliseconds
-#endif //MBED_CONF_REF_CELL_DRV_AT_PARSER_TIMEOUT
+#endif //MBED_CONF_PPP_CELL_IFACE_AT_PARSER_TIMEOUT
 
 static bool initialized;
 static bool set_credentials_api_used;
 static bool set_sim_pin_check_request;
 static bool change_pin;
 static device_info dev_info;
-static modem_t mdm_object;
 
-static void parser_abort(ATParser *at)
+static void parser_abort(ATCmdParser *at)
 {
     at->abort();
 }
 
-static bool get_CCID(ATParser *at)
+static bool get_CCID(ATCmdParser *at)
 {
     // Returns the ICCID (Integrated Circuit Card ID) of the SIM-card.
     // ICCID is a serial number identifying the SIM.
@@ -75,7 +72,7 @@ static bool get_CCID(ATParser *at)
     return success;
 }
 
-static bool get_IMSI(ATParser *at)
+static bool get_IMSI(ATCmdParser *at)
 {
     // International mobile subscriber identification
     bool success = at->send("AT+CIMI") && at->recv("%15[^\n]\nOK\n", dev_info.imsi);
@@ -83,7 +80,7 @@ static bool get_IMSI(ATParser *at)
     return success;
 }
 
-static bool get_IMEI(ATParser *at)
+static bool get_IMEI(ATCmdParser *at)
 {
     // International mobile equipment identifier
     bool success = at->send("AT+CGSN") && at->recv("%15[^\n]\nOK\n", dev_info.imei);
@@ -91,7 +88,7 @@ static bool get_IMEI(ATParser *at)
     return success;
 }
 
-static bool get_MEID(ATParser *at)
+static bool get_MEID(ATCmdParser *at)
 {
     // Mobile equipment identifier
     bool success = at->send("AT+GSN")
@@ -100,7 +97,7 @@ static bool get_MEID(ATParser *at)
     return success;
 }
 
-static bool set_CMGF(ATParser *at)
+static bool set_CMGF(ATCmdParser *at)
 {
     // Preferred message format
     // set AT+CMGF=[mode] , 0 PDU mode, 1 text mode
@@ -108,7 +105,7 @@ static bool set_CMGF(ATParser *at)
     return success;
 }
 
-static bool set_CNMI(ATParser *at)
+static bool set_CNMI(ATCmdParser *at)
 {
     // New SMS indication configuration
     // set AT+CMTI=[mode, index] , 0 PDU mode, 1 text mode
@@ -117,7 +114,7 @@ static bool set_CNMI(ATParser *at)
     return success;
 }
 
-static void CMTI_URC(ATParser *at)
+static void CMTI_URC(ATCmdParser *at)
 {
     // our CMGF = 1, i.e., text mode. So we expect response in this format:
     //+CMTI: <mem>,<index>,
@@ -126,7 +123,7 @@ static void CMTI_URC(ATParser *at)
 
 }
 
-static void CMT_URC(ATParser *at)
+static void CMT_URC(ATCmdParser *at)
 {
     // our CMGF = 1, i.e., text mode. So we expect response in this format:
     //+CMT: <oa>,[<alpha>],<scts>[,<tooa>,
@@ -142,7 +139,7 @@ static void CMT_URC(ATParser *at)
 
 }
 
-static bool set_atd(ATParser *at)
+static bool set_atd(ATCmdParser *at)
 {
     bool success = at->send("ATD*99***"CTX"#") && at->recv("CONNECT");
 
@@ -152,7 +149,7 @@ static bool set_atd(ATParser *at)
 /**
  * Enables or disables SIM pin check lock
  */
-static nsapi_error_t do_sim_pin_check(ATParser *at, const char *pin)
+static nsapi_error_t do_sim_pin_check(ATCmdParser *at, const char *pin)
 {
     bool success;
     if (set_sim_pin_check_request) {
@@ -171,7 +168,7 @@ static nsapi_error_t do_sim_pin_check(ATParser *at, const char *pin)
 /**
  * Change the pin code for the SIM card
  */
-static nsapi_error_t do_change_sim_pin(ATParser *at, const char *old_pin, const char *new_pin)
+static nsapi_error_t do_change_sim_pin(ATCmdParser *at, const char *old_pin, const char *new_pin)
 {
     /* changes the SIM pin */
        bool success = at->send("AT+CPWD=\"SC\",\"%s\",\"%s\"", old_pin, new_pin) && at->recv("OK");
@@ -255,43 +252,58 @@ static bool is_registered_psd()
             (dev_info.reg_status_psd == PSD_REGISTERED_ROAMING);
 }
 
-ReferenceCellularDriver::ReferenceCellularDriver(PinName tx, PinName rx, int baud, bool debugOn)
+PPPCellularInterface::PPPCellularInterface(FileHandle *fh, bool debug)
 {
     _new_pin = NULL;
     _pin = NULL;
     _at = NULL;
-    _dcd = NULL;
     _apn = "internet";
     _uname = NULL;
     _pwd = NULL;
-    _debug_trace_on = false;
-
-    // Set up File Handle
-    _fh = new BufferedSerial(tx, rx, BAUD_RATE);
-
-    if (debugOn) {
-         _debug_trace_on = true;
-     }
-
+    _fh = fh;
+    _debug_trace_on = debug;
     dev_info.reg_status_csd = CSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.reg_status_psd = PSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.ppp_connection_up = false;
-
 }
 
-ReferenceCellularDriver::~ReferenceCellularDriver()
+
+PPPCellularInterface::~PPPCellularInterface()
 {
-    delete _fh;
     delete _at;
-    delete _dcd;
 }
 
-void ReferenceCellularDriver::modem_debug_on(bool on)
+void PPPCellularInterface::enable_hup(bool)
+{
+    //meant to be overridden
+}
+
+void PPPCellularInterface::modem_init()
+{
+    //meant to be overridden
+}
+
+void PPPCellularInterface::modem_deinit()
+{
+    //meant to be overridden
+}
+
+void PPPCellularInterface::modem_power_up()
+{
+    //meant to be overridden
+}
+
+void PPPCellularInterface::modem_power_down()
+{
+    //meant to be overridden
+}
+
+void PPPCellularInterface::modem_debug_on(bool on)
 {
     _debug_trace_on = on;
 }
 
-void ReferenceCellularDriver::connection_status_cb(Callback<void(nsapi_error_t)> cb)
+void PPPCellularInterface::connection_status_cb(Callback<void(nsapi_error_t)> cb)
 {
     _connection_status_cb = cb;
 }
@@ -300,7 +312,7 @@ void ReferenceCellularDriver::connection_status_cb(Callback<void(nsapi_error_t)>
  * Public API. Sets up the flag for the driver to enable or disable SIM pin check
  * at the next boot.
  */
-void ReferenceCellularDriver::set_sim_pin_check(bool check)
+void PPPCellularInterface::set_sim_pin_check(bool check)
 {
     set_sim_pin_check_request = check;
 }
@@ -308,13 +320,13 @@ void ReferenceCellularDriver::set_sim_pin_check(bool check)
 /**
  * Public API. Sets up the flag for the driver to change pin code for SIM card
  */
-void ReferenceCellularDriver::set_new_sim_pin(const char *new_pin)
+void PPPCellularInterface::set_new_sim_pin(const char *new_pin)
 {
     change_pin = true;
     _new_pin = new_pin;
 }
 
-bool ReferenceCellularDriver::nwk_registration(uint8_t nwk_type)
+bool PPPCellularInterface::nwk_registration(uint8_t nwk_type)
 {
     bool success = false;
      bool registered = false;
@@ -383,13 +395,13 @@ bool ReferenceCellularDriver::nwk_registration(uint8_t nwk_type)
      return registered;
 }
 
-bool ReferenceCellularDriver::is_connected()
+bool PPPCellularInterface::is_connected()
 {
     return dev_info.ppp_connection_up;
 }
 
 // Get the SIM card going.
-nsapi_error_t ReferenceCellularDriver::initialize_sim_card()
+nsapi_error_t PPPCellularInterface::initialize_sim_card()
 {
     nsapi_error_t nsapi_error = NSAPI_ERROR_AUTH_FAILURE;
     int retry_count = 0;
@@ -426,12 +438,12 @@ nsapi_error_t ReferenceCellularDriver::initialize_sim_card()
     return nsapi_error;
 }
 
-void ReferenceCellularDriver::set_sim_pin(const char *pin) {
+void PPPCellularInterface::set_sim_pin(const char *pin) {
     /* overwrite the default pin by user provided pin */
     _pin = pin;
 }
 
-nsapi_error_t ReferenceCellularDriver::setup_context_and_credentials()
+nsapi_error_t PPPCellularInterface::setup_context_and_credentials()
 {
     bool success;
 
@@ -463,7 +475,7 @@ retry_without_ipv6:
 
 }
 
-void  ReferenceCellularDriver::set_credentials(const char *apn, const char *uname,
+void  PPPCellularInterface::set_credentials(const char *apn, const char *uname,
                                                                const char *pwd)
 {
     _apn = apn;
@@ -474,13 +486,13 @@ void  ReferenceCellularDriver::set_credentials(const char *apn, const char *unam
 
 
 
-void ReferenceCellularDriver::setup_at_parser()
+void PPPCellularInterface::setup_at_parser()
 {
     if (_at) {
         return;
     }
 
-    _at = new ATParser(_fh, OUTPUT_ENTER_KEY, AT_PARSER_BUFFER_SIZE, AT_PARSER_TIMEOUT,
+    _at = new ATCmdParser(_fh, OUTPUT_ENTER_KEY, AT_PARSER_BUFFER_SIZE, AT_PARSER_TIMEOUT,
                          _debug_trace_on ? true : false);
 
     /* Error cases, out of band handling  */
@@ -494,13 +506,13 @@ void ReferenceCellularDriver::setup_at_parser()
     _at->oob("+CMTI", callback(CMTI_URC, _at));
 }
 
-void ReferenceCellularDriver::shutdown_at_parser()
+void PPPCellularInterface::shutdown_at_parser()
 {
     delete _at;
     _at = NULL;
 }
 
-nsapi_error_t ReferenceCellularDriver::connect(const char *sim_pin, const char *apn, const char *uname, const char *pwd)
+nsapi_error_t PPPCellularInterface::connect(const char *sim_pin, const char *apn, const char *uname, const char *pwd)
 {
     if (!sim_pin) {
         return NSAPI_ERROR_PARAMETER;
@@ -523,7 +535,7 @@ nsapi_error_t ReferenceCellularDriver::connect(const char *sim_pin, const char *
     return connect();
 }
 
-nsapi_error_t ReferenceCellularDriver::connect()
+nsapi_error_t PPPCellularInterface::connect()
 {
     nsapi_error_t retcode;
     bool success;
@@ -533,141 +545,131 @@ nsapi_error_t ReferenceCellularDriver::connect()
         return NSAPI_ERROR_IS_CONNECTED;
     }
 
-#if MBED_CONF_REF_CELL_DRV_APN_LOOKUP && !set_credentials_api_used
-    const char *apn_config;
-    do {
-#endif
-
-retry_init:
-
-    /* setup AT parser */
-    setup_at_parser();
-
-    if (!initialized) {
-
-        /* If we are using serial interface, we want to make sure that DCD line is
-         * not connected as long as we are using ATParser.
-         * As soon as we get into data mode, we would like to attach an interrupt line
-         * to DCD line.
-         * Here, we detach the line */
-        BufferedSerial *serial = static_cast<BufferedSerial *>(_fh);
-        serial->set_data_carrier_detect(NC);
-
-
-        if (!power_up_modem()) {
-            return NSAPI_ERROR_DEVICE_ERROR;
-        }
-
-        retcode = initialize_sim_card();
-        if (retcode != NSAPI_ERROR_OK) {
-            return retcode;
-        }
-
-        success =  nwk_registration(PACKET_SWITCHED) //perform network registration
-                && get_CCID(_at) //get integrated circuit ID of the SIM
-                && get_IMSI(_at) //get international mobile subscriber information
-                && get_IMEI(_at) //get international mobile equipment identifier
-                && get_MEID(_at) //its same as IMEI
-                && set_CMGF(_at) //set message format for SMS
-                && set_CNMI(_at); //set new SMS indication
-
-        if (!success) {
-            return NSAPI_ERROR_NO_CONNECTION;
-        }
-
-        /* Check if user want skip SIM pin checking on boot up */
-        if (set_sim_pin_check_request) {
-            retcode = do_sim_pin_check(_at, _pin);
-            if (retcode != NSAPI_ERROR_OK) {
-                return retcode;
-            }
-            /* set this request to false, as it is unnecessary to repeat in case of retry */
-            set_sim_pin_check_request = false;
-        }
-
-        /* check if the user requested a sim pin change */
-        if (change_pin) {
-            retcode = do_change_sim_pin(_at, _pin, _new_pin);
-            if (retcode != NSAPI_ERROR_OK) {
-                return retcode;
-            }
-            /* set this request to false, as it is unnecessary to repeat in case of retry */
-            change_pin = false;
-        }
-
-#if MBED_CONF_REF_CELL_DRV_APN_LOOKUP && !set_credentials_api_used
+    const char *apn_config = NULL;
+#if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+    if (!set_credentials_api_used) {
         apn_config = apnconfig(dev_info.imsi);
-        if (apn_config) {
-            _apn    = _APN_GET(apn_config);
-            _uname  = _APN_GET(apn_config);
-            _pwd    = _APN_GET(apn_config);
-        }
-
-        _apn    = _apn     ?  _apn    : NULL;
-        _uname  = _uname   ?  _uname  : NULL;
-        _pwd    = _pwd     ?  _pwd    : NULL;
+    }
 #endif
 
-        //sets up APN and IP protocol for external PDP context
-        retcode = setup_context_and_credentials();
-        if (retcode != NSAPI_ERROR_OK) {
-            return retcode;
+    do {
+        retry_init:
+
+        /* setup AT parser */
+        setup_at_parser();
+
+        if (!initialized) {
+
+            /* If we have hangup (eg DCD) detection, we don't want it active
+             * as long as we are using ATCmdParser.
+             * As soon as we get into data mode, we will turn it back on. */
+            enable_hup(false);
+
+            if (!power_up()) {
+                return NSAPI_ERROR_DEVICE_ERROR;
+            }
+
+            retcode = initialize_sim_card();
+            if (retcode != NSAPI_ERROR_OK) {
+                return retcode;
+            }
+
+            success = nwk_registration(PACKET_SWITCHED) //perform network registration
+            && get_CCID(_at)//get integrated circuit ID of the SIM
+            && get_IMSI(_at)//get international mobile subscriber information
+            && get_IMEI(_at)//get international mobile equipment identifier
+            && get_MEID(_at)//its same as IMEI
+            && set_CMGF(_at)//set message format for SMS
+            && set_CNMI(_at);//set new SMS indication
+
+            if (!success) {
+                return NSAPI_ERROR_NO_CONNECTION;
+            }
+
+            /* Check if user want skip SIM pin checking on boot up */
+            if (set_sim_pin_check_request) {
+                retcode = do_sim_pin_check(_at, _pin);
+                if (retcode != NSAPI_ERROR_OK) {
+                    return retcode;
+                }
+                /* set this request to false, as it is unnecessary to repeat in case of retry */
+                set_sim_pin_check_request = false;
+            }
+
+            /* check if the user requested a sim pin change */
+            if (change_pin) {
+                retcode = do_change_sim_pin(_at, _pin, _new_pin);
+                if (retcode != NSAPI_ERROR_OK) {
+                    return retcode;
+                }
+                /* set this request to false, as it is unnecessary to repeat in case of retry */
+                change_pin = false;
+            }
+
+#if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+            if (apn_config) {
+                _apn = _APN_GET(apn_config);
+                _uname = _APN_GET(apn_config);
+                _pwd = _APN_GET(apn_config);
+            }
+#endif
+
+            //sets up APN and IP protocol for external PDP context
+            retcode = setup_context_and_credentials();
+            if (retcode != NSAPI_ERROR_OK) {
+                return retcode;
+            }
+
+            if (!success) {
+                shutdown_at_parser();
+                return NSAPI_ERROR_NO_CONNECTION;
+            }
+
+            initialized = true;
+            did_init = true;
+        } else {
+            /* If we were already initialized, we expect to receive NO_CARRIER response
+             * from the modem as we were kicked out of Data mode */
+            _at->recv("NO CARRIER");
+            success = _at->send("AT") && _at->recv("OK");
         }
 
+        /* Attempt to enter data mode */
+        success = set_atd(_at); //enter into Data mode with the modem
         if (!success) {
+            power_down();
+            initialized = false;
+
+            /* if we were previously initialized , i.e., not in this particular attempt,
+             * we want to re-initialize */
+            if (!did_init) {
+                goto retry_init;
+            }
+
+            /* shutdown AT parser before notifying application of the failure */
             shutdown_at_parser();
+
             return NSAPI_ERROR_NO_CONNECTION;
         }
 
-        initialized = true;
-        did_init = true;
-    } else {
-        /* If we were already initialized, we expect to receive NO_CARRIER response
-         * from the modem as we were kicked out of Data mode */
-        _at->recv("NO CARRIER");
-        success = _at->send("AT") && _at->recv("OK");
-    }
-
-    /* Attempt to enter data mode */
-    success = set_atd(_at); //enter into Data mode with the modem
-    if (!success) {
-        power_down_modem();
-        initialized = false;
-
-        /* if we were previously initialized , i.e., not in this particular attempt,
-         * we want to re-initialize */
-        if (!did_init) {
-            goto retry_init;
-        }
-
-        /* shutdown AT parser before notifying application of the failure */
+        /* This is the success case.
+         * Save RAM, discard AT Parser as we have entered Data mode. */
         shutdown_at_parser();
 
-        return NSAPI_ERROR_NO_CONNECTION;
-    }
+        /* We now want hangup (e.g., DCD) detection if available */
+        enable_hup(true);
 
-    /* This is the success case.
-     * Save RAM, discard AT Parser as we have entered Data mode. */
-    shutdown_at_parser();
+        /* Initialize PPP
+         * mbed_ppp_init() is a blocking call, it will block until
+         * connected, or timeout after 30 seconds*/
+        retcode = nsapi_ppp_connect(_fh, _connection_status_cb, _uname, _pwd);
+        if (retcode == NSAPI_ERROR_OK) {
+            dev_info.ppp_connection_up = true;
+        }
 
-    /* Here we would like to attach an interrupt line to DCD pin
-     * We cast back the serial interface from the file handle and set
-     * the DCD line. */
-    BufferedSerial *serial = static_cast<BufferedSerial *>(_fh);
-    serial->set_data_carrier_detect(MDMDCD, MDMDCD_POLARITY);
+    }while(!dev_info.ppp_connection_up && apn_config && *apn_config);
 
-    /* Initialize PPP
-     * mbed_ppp_init() is a blocking call, it will block until
-     * connected, or timeout after 30 seconds*/
-    retcode = nsapi_ppp_connect(_fh, _connection_status_cb, _uname, _pwd);
-    if (retcode == NSAPI_ERROR_OK) {
-        dev_info.ppp_connection_up = true;
-    }
-
-#if MBED_CONF_REF_CELL_DRV_APN_LOOKUP && !set_credentials_api_used
-    } while(!dev_info.ppp_connection_up && apn_config && *apn_config);
-#endif
-     return retcode;
+    return retcode;
 }
 
 /**
@@ -676,7 +678,7 @@ retry_init:
  * Disconnects from PPP connection only and brings down the underlying network
  * interface
  */
-nsapi_error_t ReferenceCellularDriver::disconnect()
+nsapi_error_t PPPCellularInterface::disconnect()
 {
     nsapi_error_t ret = nsapi_ppp_disconnect(_fh);
     if (ret == NSAPI_ERROR_OK) {
@@ -687,27 +689,27 @@ nsapi_error_t ReferenceCellularDriver::disconnect()
     return ret;
 }
 
-const char *ReferenceCellularDriver::get_ip_address()
+const char *PPPCellularInterface::get_ip_address()
 {
     return nsapi_ppp_get_ip_addr(_fh);
 }
 
-const char *ReferenceCellularDriver::get_netmask()
+const char *PPPCellularInterface::get_netmask()
 {
     return nsapi_ppp_get_netmask(_fh);
 }
 
-const char *ReferenceCellularDriver::get_gateway()
+const char *PPPCellularInterface::get_gateway()
 {
     return nsapi_ppp_get_ip_addr(_fh);
 }
 
 /** Power down modem
  *  Uses AT command to do it */
-void ReferenceCellularDriver::power_down_modem()
+void PPPCellularInterface::power_down()
 {
-    modem_power_down(&mdm_object);
-    modem_deinit(&mdm_object);
+    modem_power_down();
+    modem_deinit();
 }
 
 /**
@@ -715,10 +717,10 @@ void ReferenceCellularDriver::power_down_modem()
  *
  * Enables the GPIO lines to the modem and then wriggles the power line in short pulses.
  */
-bool ReferenceCellularDriver::power_up_modem()
+bool PPPCellularInterface::power_up()
 {
     /* Initialize GPIO lines */
-    modem_init(&mdm_object);
+    modem_init();
     /* Give modem a little time to settle down */
     wait(0.25);
 
@@ -726,7 +728,7 @@ bool ReferenceCellularDriver::power_up_modem()
 
     int retry_count = 0;
     while (true) {
-        modem_power_up(&mdm_object);
+        modem_power_up();
         /* Modem tends to spit out noise during power up - don't confuse the parser */
         _at->flush();
         /* It is mandatory to avoid sending data to the serial port during the first 200 ms
@@ -771,8 +773,9 @@ failure:
 /**
  * Get a pointer to the underlying network stack
  */
-NetworkStack *ReferenceCellularDriver::get_stack()
+NetworkStack *PPPCellularInterface::get_stack()
 {
     return nsapi_ppp_get_stack();
 }
 
+#endif // NSAPI_PPP_AVAILABLE

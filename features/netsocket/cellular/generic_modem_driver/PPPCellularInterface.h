@@ -13,16 +13,14 @@
  * limitations under the License.
  */
 
-#ifndef REFERENCE_CELLULAR_DRIVER_
-#define REFERENCE_CELLULAR_DRIVER_
+#ifndef PPP_CELLULAR_INTERFACE_
+#define PPP_CELLULAR_INTERFACE_
 
+#include "CellularBase.h"
+#include "platform/ATCmdParser.h"
 #include "mbed.h"
-#include "nsapi.h"
-#include "rtos.h"
-#include "FileHandle.h"
-#include "InterruptIn.h"
-#include "ATParser.h"
-#include "PinNames.h"
+
+#if NSAPI_PPP_AVAILABLE
 
 // Forward declaration
 class NetworkStack;
@@ -93,16 +91,27 @@ typedef struct {
     nwk_registration_status_psd reg_status_psd;
 } device_info;
 
-/** ReferenceCellularDriver class
+/** PPPCellularInterface class
  *
  *  This interface serves as the controller/driver for the Cellular
  *  modems (tested with UBLOX_C027 and MTS_DRAGONFLY_F411RE).
+ *
+ *  The driver will work with any generic FileHandle, and can be
+ *  derived from in order to provide forms for specific interfaces, as well as
+ *  adding extra power and reset controls alongside the FileHandle.
  */
-class ReferenceCellularDriver : public CellularInterface {
+class PPPCellularInterface : public CellularBase {
 
 public:
-    ReferenceCellularDriver(PinName tx = MDMTXD, PinName rx = MDMRXD, int baud = MBED_CONF_REF_CELL_DRV_BAUD_RATE, bool debugOn = false);
-    ~ReferenceCellularDriver();
+
+    /** Constructor for a generic modem, using a single FileHandle for commands and PPP data.
+     *
+     * The file handle pointer is not accessed within the constructor, only recorded for later
+     * use - this permits a derived class to pass a pointer to a not-yet-constructed member object.
+     */
+    PPPCellularInterface(FileHandle *fh, bool debug = false);
+
+    virtual ~PPPCellularInterface();
 
     /** Set the Cellular network credentials
      *
@@ -139,7 +148,6 @@ public:
     virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0,
                                   const char *uname = 0, const char *pwd = 0);
 
-
     /** Attempt to connect to the Cellular network
      *
      *  Brings up the network interface. Connects to the Cellular Radio
@@ -148,12 +156,12 @@ public:
      *
      *  If the SIM requires a PIN, and it is not set/invalid, NSAPI_ERROR_AUTH_ERROR is returned.
      *  For APN setup, default behaviour is to use 'internet' as APN string and assuming no authentication
-     *  is required, i.e., username and password are no set. Optionally, a database lookup can be requested
-     *  by turning on the APN database lookup feature. In order to do so, add 'MBED_REF_CELL_DRV_APN_LOOKUP'
+     *  is required, i.e., username and password are not set. Optionally, a database lookup can be requested
+     *  by turning on the APN database lookup feature. In order to do so, add 'MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP'
      *  in your mbed_app.json. APN database is by no means exhaustive. It contains a short list of some public
      *  APNs with publicly available usernames and passwords (if required) in some particular countries only.
      *  Lookup is done using IMSI (International mobile subscriber identifier).
-     *  Please note that even if 'MBED_REF_CELL_DRV_APN_LOOKUP' config option is set, 'set_credentials()' api still
+     *  Please note that even if 'MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP' config option is set, 'set_credentials()' api still
      *  gets the precedence. If the aforementioned API is not used and the config option is set but no match is found in
      *  the lookup table then the driver tries to resort to default APN settings.
      *
@@ -237,8 +245,7 @@ public:
 
 private:
     FileHandle *_fh;
-    ATParser *_at;
-    InterruptIn *_dcd;
+    ATCmdParser *_at;
     const char *_new_pin;
     const char *_pin;
     const char *_apn;
@@ -246,14 +253,72 @@ private:
     const char *_pwd;
     bool _debug_trace_on;
     Callback<void(nsapi_error_t)> _connection_status_cb;
+    void base_initialization();
     void setup_at_parser();
     void shutdown_at_parser();
     nsapi_error_t initialize_sim_card();
     nsapi_error_t setup_context_and_credentials();
-    bool power_up_modem();
-    void power_down_modem();
+    bool power_up();
+    void power_down();
 
 protected:
+    /** Enable or disable hang-up detection
+     *
+     * When in PPP data pump mode, it is helpful if the FileHandle will signal hang-up via
+     * POLLHUP, e.g., if the DCD line is deasserted on a UART. During command mode, this
+     * signaling is not desired. enable_hup() controls whether this function should be
+     * active.
+     *
+     * Meant to be overridden.
+     */
+    virtual void enable_hup(bool enable);
+
+    /** Sets the modem up for powering on
+     *
+     *  modem_init() is equivalent to plugging in the device, e.g., attaching power and serial port.
+     *  It is meant to be overridden.
+     *  If the modem is on-board, an implementation of onboard_modem_api.h
+     *  will override this.
+     *  If the the modem is a plugged-in device (i.e., a shield type component), the driver deriving from this
+     *  class will override.
+     */
+    virtual void modem_init();
+
+    /** Sets the modem in unplugged state
+     *
+     *  modem_deinit() will be equivalent to pulling the plug off of the device, i.e., detaching power
+     *  and serial port. This puts the modem in lowest power state.
+     *  It is meant to be overridden.
+     *  If the modem is on-board, an implementation of onboard_modem_api.h
+     *  will override this.
+     *  If the the modem is a plugged-in device (i.e., a shield type component), the driver deriving from this
+     *  class will override.
+     */
+    virtual void modem_deinit();
+
+    /** Powers up the modem
+     *
+     *  modem_power_up() is equivalent to pressing the soft power button.
+     *  The driver may repeat this if the modem is not responsive to AT commands.
+     *  It is meant to be overridden.
+     *  If the modem is on-board, an implementation of onboard_modem_api.h
+     *  will override this.
+     *  If the the modem is a plugged-in device (i.e., a shield type component), the driver deriving from this
+     *  class will override.
+     */
+    virtual void modem_power_up();
+
+    /** Powers down the modem
+     *
+     *  modem_power_down() is equivalent to turning off the modem by button press.
+     *  It is meant to be overridden.
+     *  If the modem is on-board, an implementation of onboard_modem_api.h
+     *  will override this.
+     *  If the the modem is a plugged-in device (i.e., a shield type component), the driver deriving from this
+     *  class will override.
+     */
+    virtual void modem_power_down();
+
     /** Provide access to the underlying stack
      *
      *  @return The underlying network stack
@@ -274,4 +339,6 @@ protected:
 
 };
 
-#endif //REFERENCE_CELLULAR_DRIVER_
+#endif //NSAPI_PPP_AVAILABLE
+
+#endif //PPP_CELLULAR_INTERFACE_

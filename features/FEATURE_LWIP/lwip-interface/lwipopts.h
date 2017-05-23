@@ -104,12 +104,12 @@
 
 // Thread stack size for private PPP thread
 #ifndef MBED_CONF_LWIP_PPP_THREAD_STACKSIZE
-#define MBED_CONF_LWIP_PPP_THREAD_STACKSIZE    300
+#define MBED_CONF_LWIP_PPP_THREAD_STACKSIZE    512
 #endif
 
 #if LWIP_DEBUG
 #define DEFAULT_THREAD_STACKSIZE    MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE*2
-#define PPP_THREAD_STACK_SIZE       MBED_CONF_LWIP_PPP_THREAD_STACKSIZE*4
+#define PPP_THREAD_STACK_SIZE       MBED_CONF_LWIP_PPP_THREAD_STACKSIZE*2
 #else
 #define DEFAULT_THREAD_STACKSIZE    MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE
 #define PPP_THREAD_STACK_SIZE       MBED_CONF_LWIP_PPP_THREAD_STACKSIZE
@@ -265,15 +265,15 @@
 #if MBED_CONF_LWIP_ETHERNET_ENABLED
 #define LWIP_ARP                    1
 #define LWIP_ETHERNET               1
-#define LWIP_CHECKSUM_ON_COPY       1
 #define LWIP_DHCP                   LWIP_IPV4
 #else
 #define LWIP_ARP                    0
 #define LWIP_ETHERNET               0
-#define LWIP_CHECKSUM_ON_COPY       0
 #endif // MBED_CONF_LWIP_ETHERNET_ENABLED
 
-#if MBED_CONF_LWIP_PPP_ENABLED
+// Note generic macro name used rather than MBED_CONF_LWIP_PPP_ENABLED
+// to allow users like PPPCellularInterface to detect that nsapi_ppp.h is available.
+#if NSAPI_PPP_AVAILABLE
 #define PPP_SUPPORT                 1
 #define CHAP_SUPPORT                1
 #define PPP_INPROC_IRQ_SAFE         1
@@ -281,7 +281,6 @@
 #define PAP_SUPPORT                 0
 #define VJ_SUPPORT                  0
 #define PRINTPKT_SUPPORT            0
-#define PPP_LOGIT_BUFSIZE           512
 
 // Broadcast
 #define IP_SOF_BROADCAST            0
@@ -289,7 +288,7 @@
 
 #define MAXNAMELEN                  64     /* max length of hostname or name for auth */
 #define MAXSECRETLEN                64
-#endif // MBED_CONF_LWIP_PPP_ENABLED
+#endif // NSAPI_PPP_AVAILABLE
 
 // Make sure we default these to off, so
 // LWIP doesn't default to on

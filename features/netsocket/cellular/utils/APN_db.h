@@ -125,6 +125,7 @@ static const APN_t apnlut[] = {
     { /* Vodafone */ "234-15",  _APN("internet","web","web")          /* contract */
                                 _APN("pp.vodafone.co.uk","wap","wap")  /* pre-pay */ },
     { /* Three */    "234-20",  _APN("three.co.uk",,) },
+    { /* Jersey */   "234-50",  _APN("jtm2m",,) /* as used on u-blox C030 U201 boards */ },
 
 // 310 United States of America - US
     { /* T-Mobile */ "310-026,260,490",

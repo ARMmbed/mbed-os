@@ -17,68 +17,68 @@
 #if DEVICE_SERIAL
 
 #include <errno.h>
-#include "platform/BufferedSerial.h"
+#include "UARTSerial.h"
 #include "platform/mbed_poll.h"
 #include "platform/mbed_wait_api.h"
 
 namespace mbed {
 
-BufferedSerial::BufferedSerial(PinName tx, PinName rx, int baud) :
+UARTSerial::UARTSerial(PinName tx, PinName rx, int baud) :
         SerialBase(tx, rx, baud),
         _blocking(true),
         _tx_irq_enabled(false),
-        _dcd(NULL)
+        _dcd_irq(NULL)
 {
     /* Attatch IRQ routines to the serial device. */
-    SerialBase::attach(callback(this, &BufferedSerial::rx_irq), RxIrq);
+    SerialBase::attach(callback(this, &UARTSerial::rx_irq), RxIrq);
 }
 
-BufferedSerial::~BufferedSerial()
+UARTSerial::~UARTSerial()
 {
-    delete _dcd;
+    delete _dcd_irq;
 }
 
-void BufferedSerial::DCD_IRQ()
+void UARTSerial::dcd_irq()
 {
     wake();
 }
 
-void BufferedSerial::set_data_carrier_detect(PinName DCD_pin, bool active_high)
+void UARTSerial::set_data_carrier_detect(PinName dcd_pin, bool active_high)
 {
-    delete _dcd;
-    _dcd = NULL;
+     delete _dcd_irq;
+    _dcd_irq = NULL;
 
-    if (DCD_pin != NC) {
-        _dcd = new InterruptIn(DCD_pin);
+    if (dcd_pin != NC) {
+        _dcd_irq = new InterruptIn(dcd_pin);
         if (active_high) {
-            _dcd->fall(callback(this, &BufferedSerial::DCD_IRQ));
+            _dcd_irq->fall(callback(this, &UARTSerial::dcd_irq));
         } else {
-            _dcd->rise(callback(this, &BufferedSerial::DCD_IRQ));
+            _dcd_irq->rise(callback(this, &UARTSerial::dcd_irq));
         }
     }
 }
 
-int BufferedSerial::close()
+int UARTSerial::close()
 {
     /* Does not let us pass a file descriptor. So how to close ?
      * Also, does it make sense to close a device type file descriptor*/
     return 0;
 }
 
-int BufferedSerial::isatty()
+int UARTSerial::isatty()
 {
     return 1;
 
 }
 
-off_t BufferedSerial::seek(off_t offset, int whence)
+off_t UARTSerial::seek(off_t offset, int whence)
 {
     /*XXX lseek can be done theoratically, but is it sane to mark positions on a dynamically growing/shrinking
      * buffer system (from an interrupt context) */
     return -ESPIPE;
 }
 
-int BufferedSerial::sync()
+int UARTSerial::sync()
 {
     lock();
 
@@ -94,7 +94,7 @@ int BufferedSerial::sync()
     return 0;
 }
 
-void BufferedSerial::sigio(Callback<void()> func) {
+void UARTSerial::sigio(Callback<void()> func) {
     core_util_critical_section_enter();
     _sigio_cb = func;
     if (_sigio_cb) {
@@ -106,7 +106,7 @@ void BufferedSerial::sigio(Callback<void()> func) {
     core_util_critical_section_exit();
 }
 
-ssize_t BufferedSerial::write(const void* buffer, size_t length)
+ssize_t UARTSerial::write(const void* buffer, size_t length)
 {
     size_t data_written = 0;
     const char *buf_ptr = static_cast<const char *>(buffer);
@@ -130,9 +130,9 @@ ssize_t BufferedSerial::write(const void* buffer, size_t length)
 
     core_util_critical_section_enter();
     if (!_tx_irq_enabled) {
-        BufferedSerial::tx_irq();                // only write to hardware in one place
+        UARTSerial::tx_irq();                // only write to hardware in one place
         if (!_txbuf.empty()) {
-            SerialBase::attach(callback(this, &BufferedSerial::tx_irq), TxIrq);
+            SerialBase::attach(callback(this, &UARTSerial::tx_irq), TxIrq);
             _tx_irq_enabled = true;
         }
     }
@@ -143,7 +143,7 @@ ssize_t BufferedSerial::write(const void* buffer, size_t length)
     return data_written;
 }
 
-ssize_t BufferedSerial::read(void* buffer, size_t length)
+ssize_t UARTSerial::read(void* buffer, size_t length)
 {
     size_t data_read = 0;
 
@@ -171,19 +171,19 @@ ssize_t BufferedSerial::read(void* buffer, size_t length)
     return data_read;
 }
 
-bool BufferedSerial::hup() const
+bool UARTSerial::hup() const
 {
-    return _dcd && _dcd->read() != 0;
+    return _dcd_irq && _dcd_irq->read() != 0;
 }
 
-void BufferedSerial::wake()
+void UARTSerial::wake()
 {
     if (_sigio_cb) {
         _sigio_cb();
     }
 }
 
-short BufferedSerial::poll(short events) const {
+short UARTSerial::poll(short events) const {
 
     short revents = 0;
     /* Check the Circular Buffer if space available for writing out */
@@ -205,17 +205,17 @@ short BufferedSerial::poll(short events) const {
     return revents;
 }
 
-void BufferedSerial::lock(void)
+void UARTSerial::lock(void)
 {
     _mutex.lock();
 }
 
-void BufferedSerial::unlock(void)
+void UARTSerial::unlock(void)
 {
     _mutex.unlock();
 }
 
-void BufferedSerial::rx_irq(void)
+void UARTSerial::rx_irq(void)
 {
     bool was_empty = _rxbuf.empty();
 
@@ -237,7 +237,7 @@ void BufferedSerial::rx_irq(void)
 }
 
 // Also called from write to start transfer
-void BufferedSerial::tx_irq(void)
+void UARTSerial::tx_irq(void)
 {
     bool was_full = _txbuf.full();
 
