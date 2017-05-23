@@ -111,6 +111,7 @@ void __uvisor_lib_box_init(void * lib_config)
 
     __uvisor_initialize_rpc_queues();
 
+    thread_attr.name = "uvisor_box_main_thread";
     thread_attr.priority = box_main->priority;
     thread_attr.stack_size = box_main->stack_size;
 

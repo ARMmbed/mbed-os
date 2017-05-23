@@ -315,7 +315,7 @@ void mbed_start_main(void)
     _main_thread_attr.cb_size = sizeof(_main_obj);
     _main_thread_attr.cb_mem = &_main_obj;
     _main_thread_attr.priority = osPriorityNormal;
-    _main_thread_attr.name = "MAIN";
+    _main_thread_attr.name = "main_thread";
     osThreadId_t result = osThreadNew((osThreadFunc_t)pre_main, NULL, &_main_thread_attr);
     if ((void *)result == NULL) {
         error("Pre main thread not created");
@@ -381,6 +381,7 @@ extern int main(int argc, char* argv[]);
 
 void pre_main (void)
 {
+    singleton_mutex_attr.name = "singleton_mutex";
     singleton_mutex_attr.attr_bits = osMutexRecursive;
     singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
@@ -437,16 +438,19 @@ int __wrap_main(void) {
 
 void pre_main(void)
 {
+    singleton_mutex_attr.name = "singleton_mutex";
     singleton_mutex_attr.attr_bits = osMutexRecursive;
     singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
+    malloc_mutex_attr.name = "malloc_mutex";
     malloc_mutex_attr.attr_bits = osMutexRecursive;
     malloc_mutex_attr.cb_size = sizeof(malloc_mutex_obj);
     malloc_mutex_attr.cb_mem = &malloc_mutex_obj;
     malloc_mutex_id = osMutexNew(&malloc_mutex_attr);
 
+    env_mutex_attr.name = "env_mutex";
     env_mutex_attr.attr_bits = osMutexRecursive;
     env_mutex_attr.cb_size = sizeof(env_mutex_obj);
     env_mutex_attr.cb_mem = &env_mutex_obj;
@@ -520,6 +524,7 @@ static uint8_t low_level_init_needed;
 
 void pre_main(void)
 {
+    singleton_mutex_attr.name = "singleton_mutex";
     singleton_mutex_attr.attr_bits = osMutexRecursive;
     singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;

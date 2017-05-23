@@ -37,6 +37,7 @@ static void timer_thread(void *arg)
 void platform_timer_enable(void)
 {
     static osThreadAttr_t timer_thread_attr = {0};
+    timer_thread_attr.name = "pal_timer_thread";
     timer_thread_attr.stack_mem  = &timer_thread_stk[0];
     timer_thread_attr.cb_mem  = &timer_thread_tcb;
     timer_thread_attr.stack_size = sizeof(timer_thread_stk);

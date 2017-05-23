@@ -43,7 +43,7 @@ void Thread::constructor(osPriority priority,
     memset(&_attr, 0, sizeof(_attr));
     _attr.priority = priority;
     _attr.stack_size = stack_size;
-    _attr.name = name;
+    _attr.name = name ? name : "application_unnamed_thread";
     _attr.stack_mem = (uint32_t*)stack_mem;
 }
 
