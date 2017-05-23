@@ -362,7 +362,8 @@ class Config(object):
                         "artifact_name": str}
     }
 
-    __unused_overrides = set(["target.bootloader_img", "target.restrict_size"])
+    __unused_overrides = set(["target.bootloader_img", "target.restrict_size",
+                              "target.mbed_app_start", "target.mbed_app_size"])
 
     # Allowed features in configurations
     __allowed_features = [
@@ -485,7 +486,9 @@ class Config(object):
             target_overrides = self.app_config_data['target_overrides'].get(
                 self.target.name, {})
             return ('target.bootloader_img' in target_overrides or
-                    'target.restrict_size' in target_overrides)
+                    'target.restrict_size' in target_overrides or
+                    'target.mbed_app_start' in target_overrides or
+                    'target.mbed_app_size' in target_overrides)
         else:
             return False
 
@@ -495,15 +498,37 @@ class Config(object):
         if not self.target.bootloader_supported:
             raise ConfigException("Bootloader not supported on this target.")
         cmsis_part = Cache(False, False).index[self.target.device_name]
-        start = 0
         target_overrides = self.app_config_data['target_overrides'].get(
             self.target.name, {})
+        if  (('target.bootloader_img' in target_overrides or
+              'target.restrict_size' in target_overrides) and
+             ('target.mbed_app_start' in target_overrides or
+              'target.mbed_app_size' in target_overrides)):
+            raise ConfigException(
+                "target.bootloader_img and target.restirct_size are "
+                "incompatible with target.mbed_app_start and "
+                "target.mbed_app_size")
         try:
             rom_size = int(cmsis_part['memory']['IROM1']['size'], 0)
             rom_start = int(cmsis_part['memory']['IROM1']['start'], 0)
         except KeyError:
             raise ConfigException("Not enough information in CMSIS packs to "
                                   "build a bootloader project")
+        if  ('target.bootloader_img' in target_overrides or
+             'target.restrict_size' in target_overrides):
+            return self._generate_booloader_build(target_overrides,
+                                                  rom_size, rom_size)
+        elif ('target.mbed_app_start' in target_overrides or
+              'target.mbed_app_size' in target_overrides):
+            return self._generate_linker_overrides(target_overrides,
+                                                   rom_start, rom_size)
+        else:
+            raise ConfigException(
+                "Bootloader build requested but no bootlader configuration")
+
+    @staticmethod
+    def _generate_booloader_build(target_overrides, rom_start, rom_size):
+        start = 0
         if 'target.bootloader_img' in target_overrides:
             filename = target_overrides['target.bootloader_img']
             if not exists(filename):
@@ -533,6 +558,22 @@ class Config(object):
     def report(self):
         return {'app_config': self.app_config_location,
                 'library_configs': map(relpath, self.processed_configs.keys())}
+
+    @staticmethod
+    def _generate_linker_overrides(target_overrides, rom_start, rom_size):
+        if 'target.mbed_app_start' in target_overrides:
+            start = int(target_overrides['target.mbed_app_start'], 0)
+        else:
+            start = rom_start
+        if 'target.mbed_app_size' in target_overrides:
+            size = int(target_overrides['target.mbed_app_size'], 0)
+        else:
+            size = (rom_size + rom_start) - start
+        if start < rom_start:
+            raise ConfigException("Application starts before ROM")
+        if size + start > rom_size + rom_start:
+            raise ConfigException("Application ends after ROM")
+        yield Region("application", start, size, True, None)
 
     def _process_config_and_overrides(self, data, params, unit_name, unit_kind):
         """Process "config_parameters" and "target_config_overrides" into a

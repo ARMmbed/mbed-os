@@ -1,5 +1,5 @@
 /*---------------------------------------------------------------------------
- * Copyright (c) 2016, u-blox MalmÃ¶, All Rights Reserved
+ * Copyright (c) 2016, u-blox Malmö, All Rights Reserved
  * SPDX-License-Identifier: LicenseRef-PBL
  *
  * This file and the related binary are licensed under the
@@ -65,6 +65,11 @@
 
 #define PACKET_TYPE_ALL (PACKET_TYPE_DM1 | PACKET_TYPE_DH1 | PACKET_TYPE_DM3 | PACKET_TYPE_DH3 | PACKET_TYPE_DM5 | PACKET_TYPE_DH5)
 
+#define BD_ADDR_IS_STATIC_RANDOM(BdAddress)     ((BdAddress[0] & 0xC0) == 0xC0)
+#define BD_ADDR_IS_NON_RESOLVABLE(BdAddress)    ((BdAddress[0] & 0xC0) == 0x00)
+#define BD_ADDR_IS_RESOLVABLE(BdAddress)        ((BdAddress[0] & 0xC0) == 0x40)
+
+#define BT_INVALID_STATIC_LINK_KEY (0)
 /*===========================================================================
  * TYPES
  *=========================================================================*/
