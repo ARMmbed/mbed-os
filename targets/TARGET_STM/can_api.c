@@ -205,7 +205,7 @@ int can_frequency(can_t *obj, int f)
         /* Get tick */
         tickstart = HAL_GetTick();
         while ((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
-            if ((HAL_GetTick() - tickstart ) > 2) {
+            if ((HAL_GetTick() - tickstart) > 2) {
                 status = 0;
                 break;
             }
@@ -216,7 +216,7 @@ int can_frequency(can_t *obj, int f)
             /* Get tick */
             tickstart = HAL_GetTick();
             while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
-                if ((HAL_GetTick() - tickstart ) > 2) {
+                if ((HAL_GetTick() - tickstart) > 2) {
                     status = 0;
                     break;
                 }
