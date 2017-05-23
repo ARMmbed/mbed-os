@@ -554,7 +554,7 @@ enum Token {
  * \return Next character from the stream or EOF if stream has ended.
  *
  */
-extern "C" char greentea_getc() {
+extern "C" int greentea_getc() {
     return greentea_serial->getc();
 }
 
@@ -683,7 +683,7 @@ static int isstring(int c) {
  *
  */
 static int gettok(char *out_str, const int str_size) {
-    static char LastChar = '!';
+    static int LastChar = '!';
     static int str_idx = 0;
 
     // whitespace ::=
