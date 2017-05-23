@@ -48,7 +48,7 @@ char uuid[GREENTEA_UUID_LENGTH] = {0};
 // would have a buffer filled with something like `2 33e5002c-9722-4685-817a-709cc69c4701 12594387`
 // where `2` is the thread id, `33e5002c-9722-4685-817a-709cc69c4701` is the UUID
 // and `12594387` is the random data
-void prep_buffer(int id, char *uuid, char *tx_buffer, size_t tx_size) {
+void prep_buffer(unsigned int id, char *uuid, char *tx_buffer, size_t tx_size) {
     size_t i = 0;
 
     tx_buffer[i++] = '0' + id;
@@ -74,7 +74,7 @@ private:
     UDPSocket sock;
     Thread thread;
     bool result;
-    int id;
+    unsigned int id;
     char *uuid;
 
 public:
@@ -82,7 +82,7 @@ public:
     Echo(): thread(osPriorityNormal, 1024), result(false) {
     }
 
-    void start(int id, char *uuid) {
+    void start(unsigned int id, char *uuid) {
         this->id = id;
         this->uuid = uuid;
         osStatus status = thread.start(callback(this, &Echo::echo));
@@ -101,39 +101,39 @@ public:
 
         sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
 
-        for (int i = 0; success < ECHO_LOOPS; i++) {
+        for (unsigned int i = 0; success < ECHO_LOOPS; i++) {
             prep_buffer(id, uuid, tx_buffer, sizeof(tx_buffer));
-            const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
+            int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
             if (ret >= 0) {
                 iomutex.lock();
-                printf("[ID:%01d][%02d] sent %d bytes - %.*s  \n", id, i, ret, ret, tx_buffer);
+                printf("[ID:%01u][%02u] sent %d bytes - %.*s  \n", id, i, ret, ret, tx_buffer);
                 iomutex.unlock();
             } else {
                 iomutex.lock();
-                printf("[ID:%01d][%02d] Network error %d\n", id, i, ret);
+                printf("[ID:%01u][%02u] Network error %d\n", id, i, ret);
                 iomutex.unlock();
                 continue;
             }
 
             SocketAddress temp_addr;
-            const int n = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
-            if (n >= 0) {
+            ret = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
+            if (ret >= 0) {
                 iomutex.lock();
-                printf("[ID:%01d][%02d] recv %d bytes - %.*s  \n", id, i, n, n, tx_buffer);
+                printf("[ID:%01u][%02u] recv %d bytes - %.*s  \n", id, i, ret, ret, tx_buffer);
                 iomutex.unlock();
             } else {
                 iomutex.lock();
-                printf("[ID:%01d][%02d] Network error %d\n", id, i, n);
+                printf("[ID:%01u][%02u] Network error %d\n", id, i, ret);
                 iomutex.unlock();
                 continue;
             }
 
             if ((temp_addr == udp_addr &&
-                 n == sizeof(tx_buffer) &&
+                 ret == sizeof(tx_buffer) &&
                  memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
                 success += 1;
                 iomutex.lock();
-                printf("[ID:%01d][%02d] success #%d\n", id, i, success);
+                printf("[ID:%01u][%02u] success #%d\n", id, i, success);
                 iomutex.unlock();
                 continue;
             }
@@ -169,47 +169,42 @@ void test_udp_echo_parallel() {
     int err = net.connect();
     TEST_ASSERT_EQUAL(0, err);
 
-    if (err) {
-        printf("MBED: failed to connect with an error of %d\r\n", err);
-        GREENTEA_TESTSUITE_RESULT(false);
-    } else {
-        printf("UDP client IP Address is %s\n", net.get_ip_address());
+    printf("UDP client IP Address is %s\n", net.get_ip_address());
 
-        greentea_send_kv("target_ip", net.get_ip_address());
+    greentea_send_kv("target_ip", net.get_ip_address());
 
-        char recv_key[] = "host_port";
-        char ipbuf[60] = {0};
-        char portbuf[16] = {0};
-        unsigned int port = 0;
+    char recv_key[] = "host_port";
+    char ipbuf[60] = {0};
+    char portbuf[16] = {0};
+    unsigned int port = 0;
 
-        greentea_send_kv("host_ip", " ");
-        greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
+    greentea_send_kv("host_ip", " ");
+    greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
 
-        greentea_send_kv("host_port", " ");
-        greentea_parse_kv(recv_key, portbuf, sizeof(recv_key), sizeof(ipbuf));
-        sscanf(portbuf, "%u", &port);
+    greentea_send_kv("host_port", " ");
+    greentea_parse_kv(recv_key, portbuf, sizeof(recv_key), sizeof(ipbuf));
+    sscanf(portbuf, "%u", &port);
 
-        printf("MBED: UDP Server IP address received: %s:%d \n", ipbuf, port);
-        udp_addr.set_ip_address(ipbuf);
-        udp_addr.set_port(port);
+    printf("MBED: UDP Server IP address received: %s:%d \n", ipbuf, port);
+    udp_addr.set_ip_address(ipbuf);
+    udp_addr.set_port(port);
 
-        // Startup echo threads in parallel
-        for (int i = 0; i < MBED_CFG_UDP_CLIENT_ECHO_THREADS; i++) {
-            echoers[i] = new Echo;
-            echoers[i]->start(i, uuid);
-        }
-
-        bool result = true;
-
-        for (int i = 0; i < MBED_CFG_UDP_CLIENT_ECHO_THREADS; i++) {
-            echoers[i]->join();
-            result = result && echoers[i]->get_result();
-            delete echoers[i];
-        }
-
-        net.disconnect();
-        TEST_ASSERT(result);
+    // Startup echo threads in parallel
+    for (unsigned int i = 0; i < MBED_CFG_UDP_CLIENT_ECHO_THREADS; i++) {
+        echoers[i] = new Echo;
+        echoers[i]->start(i, uuid);
     }
+
+    bool result = true;
+
+    for (unsigned int i = 0; i < MBED_CFG_UDP_CLIENT_ECHO_THREADS; i++) {
+        echoers[i]->join();
+        result = result && echoers[i]->get_result();
+        delete echoers[i];
+    }
+
+    net.disconnect();
+    TEST_ASSERT(result);
 }
 
 

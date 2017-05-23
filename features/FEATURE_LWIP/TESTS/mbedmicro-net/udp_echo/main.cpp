@@ -87,31 +87,31 @@ void test_udp_echo() {
     SocketAddress udp_addr(ipbuf, port);
 
     int success = 0;
-    for (int i = 0; success < ECHO_LOOPS; i++) {
+    for (unsigned int i = 0; success < ECHO_LOOPS; i++) {
         prep_buffer(uuid, tx_buffer, sizeof(tx_buffer));
-        const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
+        int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
         if (ret >= 0) {
-            printf("[%02d] sent %d bytes - %.*s  \n", i, ret, ret, tx_buffer);
+            printf("[%02u] sent %d bytes - %.*s  \n", i, ret, ret, tx_buffer);
         } else {
-            printf("[%02d] Network error %d\n", i, ret);
+            printf("[%02u] Network error %d\n", i, ret);
             continue;
         }
 
         SocketAddress temp_addr;
-        const int n = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
-        if (n >= 0) {
-            printf("[%02d] recv %d bytes - %.*s  \n", i, n, n, tx_buffer);
+        ret = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
+        if (ret >= 0) {
+            printf("[%02u] recv %d bytes - %.*s  \n", i, ret, ret, tx_buffer);
         } else {
-            printf("[%02d] Network error %d\n", i, n);
+            printf("[%02u] Network error %d\n", i, ret);
             continue;
         }
 
         if ((temp_addr == udp_addr &&
-             n == sizeof(tx_buffer) &&
+             ret == sizeof(tx_buffer) &&
              memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
             success += 1;
 
-            printf("[%02d] success #%d\n", i, success);
+            printf("[%02u] success #%d\n", i, success);
             continue;
         }
 
