@@ -96,7 +96,7 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input,
 void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] );
 
 /* Internal use */
-void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[64] );
+void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[MBEDTLS_SHA1_BLOCK_SIZE] );
 
 #ifdef __cplusplus
 }
