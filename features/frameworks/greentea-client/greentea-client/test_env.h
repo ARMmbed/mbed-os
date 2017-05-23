@@ -28,6 +28,9 @@
 #endif
 
 #include <stdio.h>
+extern "C" {
+#include "test_env_c.h"
+}
 
 /**
  *  Auxilary macros
@@ -90,12 +93,10 @@ void GREENTEA_TESTCASE_FINISH(const char *test_case_name, const size_t passes, c
 /**
  *  Test suite result related notification API
  */
-void greentea_send_kv(const char *, const char *);
 void greentea_send_kv(const char *, const int);
 void greentea_send_kv(const char *, const int, const int);
 void greentea_send_kv(const char *, const char *, const int);
 void greentea_send_kv(const char *, const char *, const int, const int);
-int greentea_parse_kv(char *, char *, const int, const int);
 
 #ifdef MBED_CFG_DEBUG_OPTIONS_COVERAGE
 /**
