@@ -3,7 +3,7 @@
  * @version  V1.00
  * @brief    M480 series Timer Controller(Timer) driver header file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __TIMER_H__
 #define __TIMER_H__
@@ -28,31 +28,31 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  TIMER Operation Mode, External Counter and Capture Mode Constant Definitions                           */
 /*---------------------------------------------------------------------------------------------------------*/
-#define TIMER_ONESHOT_MODE                      (0UL << TIMER_CTL_OPMODE_Pos)      /*!< Timer working in one-shot mode */
-#define TIMER_PERIODIC_MODE                     (1UL << TIMER_CTL_OPMODE_Pos)      /*!< Timer working in periodic mode */
-#define TIMER_TOGGLE_MODE                       (2UL << TIMER_CTL_OPMODE_Pos)      /*!< Timer working in toggle-output mode */
-#define TIMER_CONTINUOUS_MODE                   (3UL << TIMER_CTL_OPMODE_Pos)      /*!< Timer working in continuous counting mode */
-#define TIMER_TOUT_PIN_FROM_TX                  (0UL << TIMER_CTL_TGLPINSEL_Pos)   /*!< Timer toggle-output pin is from Tx pin */
-#define TIMER_TOUT_PIN_FROM_TX_EXT              (1UL << TIMER_CTL_TGLPINSEL_Pos)   /*!< Timer toggle-output pin is from Tx_EXT pin */
+#define TIMER_ONESHOT_MODE                      (0UL << TIMER_CTL_OPMODE_Pos)      /*!< Timer working in one-shot mode \hideinitializer */
+#define TIMER_PERIODIC_MODE                     (1UL << TIMER_CTL_OPMODE_Pos)      /*!< Timer working in periodic mode \hideinitializer */
+#define TIMER_TOGGLE_MODE                       (2UL << TIMER_CTL_OPMODE_Pos)      /*!< Timer working in toggle-output mode \hideinitializer */
+#define TIMER_CONTINUOUS_MODE                   (3UL << TIMER_CTL_OPMODE_Pos)      /*!< Timer working in continuous counting mode \hideinitializer */
+#define TIMER_TOUT_PIN_FROM_TMX                 (0UL << TIMER_CTL_TGLPINSEL_Pos)   /*!< Timer toggle-output pin is from TMx pin \hideinitializer */
+#define TIMER_TOUT_PIN_FROM_TMX_EXT             (1UL << TIMER_CTL_TGLPINSEL_Pos)   /*!< Timer toggle-output pin is from TMx_EXT pin \hideinitializer */
 
-#define TIMER_COUNTER_EVENT_FALLING             (0UL << TIMER_EXTCTL_CNTPHASE_Pos) /*!< Counter increase on falling edge detection */
-#define TIMER_COUNTER_EVENT_RISING              (1UL << TIMER_EXTCTL_CNTPHASE_Pos) /*!< Counter increase on rising edge detection */
-#define TIMER_CAPTURE_FREE_COUNTING_MODE        (0UL << TIMER_EXTCTL_CAPFUNCS_Pos) /*!< Timer capture event to get timer counter value */
-#define TIMER_CAPTURE_COUNTER_RESET_MODE        (1UL << TIMER_EXTCTL_CAPFUNCS_Pos) /*!< Timer capture event to reset timer counter */
+#define TIMER_COUNTER_EVENT_FALLING             (0UL << TIMER_EXTCTL_CNTPHASE_Pos) /*!< Counter increase on falling edge detection \hideinitializer */
+#define TIMER_COUNTER_EVENT_RISING              (1UL << TIMER_EXTCTL_CNTPHASE_Pos) /*!< Counter increase on rising edge detection \hideinitializer */
+#define TIMER_CAPTURE_FREE_COUNTING_MODE        (0UL << TIMER_EXTCTL_CAPFUNCS_Pos) /*!< Timer capture event to get timer counter value \hideinitializer */
+#define TIMER_CAPTURE_COUNTER_RESET_MODE        (1UL << TIMER_EXTCTL_CAPFUNCS_Pos) /*!< Timer capture event to reset timer counter \hideinitializer */
 
-#define TIMER_CAPTURE_EVENT_FALLING             (0UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< Falling edge detection to trigger capture event */
-#define TIMER_CAPTURE_EVENT_RISING              (1UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< Rising edge detection to trigger capture event */
-#define TIMER_CAPTURE_EVENT_FALLING_RISING      (2UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< Both falling and rising edge detection to trigger capture event, and first event at falling edge */
-#define TIMER_CAPTURE_EVENT_RISING_FALLING      (3UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< Both rising and falling edge detection to trigger capture event, and first event at rising edge */
-#define TIMER_CAPTURE_EVENT_GET_LOW_PERIOD      (6UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< First capture event is at falling edge, follows are at at rising edge */
-#define TIMER_CAPTURE_EVENT_GET_HIGH_PERIOD     (7UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< First capture event is at rising edge, follows are at at falling edge */
+#define TIMER_CAPTURE_EVENT_FALLING             (0UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< Falling edge detection to trigger capture event \hideinitializer */
+#define TIMER_CAPTURE_EVENT_RISING              (1UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< Rising edge detection to trigger capture event \hideinitializer */
+#define TIMER_CAPTURE_EVENT_FALLING_RISING      (2UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< Both falling and rising edge detection to trigger capture event, and first event at falling edge \hideinitializer */
+#define TIMER_CAPTURE_EVENT_RISING_FALLING      (3UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< Both rising and falling edge detection to trigger capture event, and first event at rising edge \hideinitializer */
+#define TIMER_CAPTURE_EVENT_GET_LOW_PERIOD      (6UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< First capture event is at falling edge, follows are at at rising edge \hideinitializer */
+#define TIMER_CAPTURE_EVENT_GET_HIGH_PERIOD     (7UL << TIMER_EXTCTL_CAPEDGE_Pos)  /*!< First capture event is at rising edge, follows are at at falling edge \hideinitializer */
 
-#define TIMER_TRGSRC_TIMEOUT_EVENT              (0UL << TIMER_TRGCTL_TRGSSEL_Pos) /*!< Select internal trigger source from timer time-out event */
-#define TIMER_TRGSRC_CAPTURE_EVENT              (1UL << TIMER_TRGCTL_TRGSSEL_Pos) /*!< Select internal trigger source from timer capture event */
-#define TIMER_TRG_TO_PWM                        (TIMER_TRGCTL_TRGPWM_Msk)         /*!< Each timer event as PWM counter clock source */
-#define TIMER_TRG_TO_EADC                       (TIMER_TRGCTL_TRGEADC_Msk)        /*!< Each timer event to start ADC conversion */
-#define TIMER_TRG_TO_DAC                        (TIMER_TRGCTL_TRGDAC_Msk)         /*!< Each timer event to start DAC conversion */
-#define TIMER_TRG_TO_PDMA                       (TIMER_TRGCTL_TRGPDMA_Msk)        /*!< Each timer event to trigger PDMA transfer */
+#define TIMER_TRGSRC_TIMEOUT_EVENT              (0UL << TIMER_TRGCTL_TRGSSEL_Pos) /*!< Select internal trigger source from timer time-out event \hideinitializer */
+#define TIMER_TRGSRC_CAPTURE_EVENT              (1UL << TIMER_TRGCTL_TRGSSEL_Pos) /*!< Select internal trigger source from timer capture event \hideinitializer */
+#define TIMER_TRG_TO_EPWM                       (TIMER_TRGCTL_TRGEPWM_Msk)        /*!< Each timer event as EPWM counter clock source \hideinitializer */
+#define TIMER_TRG_TO_EADC                       (TIMER_TRGCTL_TRGEADC_Msk)        /*!< Each timer event to start ADC conversion \hideinitializer */
+#define TIMER_TRG_TO_DAC                        (TIMER_TRGCTL_TRGDAC_Msk)         /*!< Each timer event to start DAC conversion \hideinitializer */
+#define TIMER_TRG_TO_PDMA                       (TIMER_TRGCTL_TRGPDMA_Msk)        /*!< Each timer event to trigger PDMA transfer \hideinitializer */
 
 /*@}*/ /* end of group M480_TIMER_EXPORTED_CONSTANTS */
 
@@ -73,6 +73,7 @@ extern "C"
   * @note       1. Never write 0x0 or 0x1 in this field, or the core will run into unknown state. \n
   *             2. If update timer compared value in continuous counting mode, timer counter value will keep counting continuously. \n
   *                But if timer is operating at other modes, the timer up counter will restart counting and start from 0.
+  * \hideinitializer
   */
 #define TIMER_SET_CMP_VALUE(timer, u32Value)        ((timer)->CMP = (u32Value))
 
@@ -86,6 +87,7 @@ extern "C"
   *
   * @details    This macro is used to set timer prescale value and timer source clock will be divided by (prescale + 1) \n
   *             before it is fed into timer.
+  * \hideinitializer
   */
 #define TIMER_SET_PRESCALE_VALUE(timer, u32Value)   ((timer)->CTL = ((timer)->CTL & ~TIMER_CTL_PSC_Msk) | (u32Value))
 
@@ -98,6 +100,7 @@ extern "C"
   * @retval     1   Timer 24-bit up counter is active
   *
   * @details    This macro is used to check if specify Timer counter is inactive or active.
+  * \hideinitializer
   */
 #define TIMER_IS_ACTIVE(timer)                      (((timer)->CTL & TIMER_CTL_ACTSTS_Msk)? 1 : 0)
 
@@ -106,14 +109,40 @@ extern "C"
   *
   * @param[in]  timer       The pointer of the specified Timer module. It could be TIMER0, TIMER1, TIMER2, TIMER3.
   * @param[in]  u32ToutSel  Toggle-output pin selection, valid values are:
-  *                         - \ref TIMER_TOUT_PIN_FROM_TX
-  *                         - \ref TIMER_TOUT_PIN_FROM_TX_EXT
+  *                         - \ref TIMER_TOUT_PIN_FROM_TMX
+  *                         - \ref TIMER_TOUT_PIN_FROM_TMX_EXT
   *
   * @return     None
   *
-  * @details    This macro is used to select timer toggle-output pin is output on Tx or Tx_EXT pin.
+  * @details    This macro is used to select timer toggle-output pin is output on TMx or TMx_EXT pin.
+  * \hideinitializer
   */
 #define TIMER_SELECT_TOUT_PIN(timer, u32ToutSel)    ((timer)->CTL = ((timer)->CTL & ~TIMER_CTL_TGLPINSEL_Msk) | (u32ToutSel))
+
+/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */
+static __INLINE void TIMER_Start(TIMER_T *timer);
+static __INLINE void TIMER_Stop(TIMER_T *timer);
+static __INLINE void TIMER_EnableWakeup(TIMER_T *timer);
+static __INLINE void TIMER_DisableWakeup(TIMER_T *timer);
+static __INLINE void TIMER_StartCapture(TIMER_T *timer);
+static __INLINE void TIMER_StopCapture(TIMER_T *timer);
+static __INLINE void TIMER_EnableCaptureDebounce(TIMER_T *timer);
+static __INLINE void TIMER_DisableCaptureDebounce(TIMER_T *timer);
+static __INLINE void TIMER_EnableEventCounterDebounce(TIMER_T *timer);
+static __INLINE void TIMER_DisableEventCounterDebounce(TIMER_T *timer);
+static __INLINE void TIMER_EnableInt(TIMER_T *timer);
+static __INLINE void TIMER_DisableInt(TIMER_T *timer);
+static __INLINE void TIMER_EnableCaptureInt(TIMER_T *timer);
+static __INLINE void TIMER_DisableCaptureInt(TIMER_T *timer);
+static __INLINE uint32_t TIMER_GetIntFlag(TIMER_T *timer);
+static __INLINE void TIMER_ClearIntFlag(TIMER_T *timer);
+static __INLINE uint32_t TIMER_GetCaptureIntFlag(TIMER_T *timer);
+static __INLINE void TIMER_ClearCaptureIntFlag(TIMER_T *timer);
+static __INLINE uint32_t TIMER_GetWakeupFlag(TIMER_T *timer);
+static __INLINE void TIMER_ClearWakeupFlag(TIMER_T *timer);
+static __INLINE uint32_t TIMER_GetCaptureData(TIMER_T *timer);
+static __INLINE uint32_t TIMER_GetCounter(TIMER_T *timer);
+static __INLINE void TIMER_ResetCounter(TIMER_T *timer);
 
 /**
   * @brief      Start Timer Counting
@@ -325,7 +354,7 @@ static __INLINE void TIMER_DisableCaptureInt(TIMER_T *timer)
   */
 static __INLINE uint32_t TIMER_GetIntFlag(TIMER_T *timer)
 {
-    return ((timer->INTSTS & TIMER_INTSTS_TIF_Msk) ? 1 : 0);
+    return ((timer->INTSTS & TIMER_INTSTS_TIF_Msk) ? 1UL : 0UL);
 }
 
 /**
@@ -383,7 +412,7 @@ static __INLINE void TIMER_ClearCaptureIntFlag(TIMER_T *timer)
   */
 static __INLINE uint32_t TIMER_GetWakeupFlag(TIMER_T *timer)
 {
-    return (timer->INTSTS & TIMER_INTSTS_TWKF_Msk ? 1 : 0);
+    return (timer->INTSTS & TIMER_INTSTS_TWKF_Msk ? 1UL : 0UL);
 }
 
 /**
@@ -439,8 +468,10 @@ static __INLINE uint32_t TIMER_GetCounter(TIMER_T *timer)
   */
 static __INLINE void TIMER_ResetCounter(TIMER_T *timer)
 {
-    timer->CNT = 0x0;
-    while(timer->CNT);
+    timer->CNT = 0UL;
+    while((timer->CNT&TIMER_CNT_RSTACT_Msk) == TIMER_CNT_RSTACT_Msk) {
+        ;
+    }
 }
 
 
@@ -470,6 +501,6 @@ void TIMER_SetTriggerTarget(TIMER_T *timer, uint32_t u32Mask);
 }
 #endif
 
-#endif //__TIMER_H__
+#endif /* __TIMER_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+

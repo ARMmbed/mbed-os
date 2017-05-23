@@ -28,85 +28,79 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  RTC Initial Keyword Constant Definitions                                                               */
 /*---------------------------------------------------------------------------------------------------------*/
-#define RTC_INIT_KEY            0xA5EB1357UL    /*!< RTC Initiation Key to make RTC leaving reset state */
-#define RTC_WRITE_KEY           0x0000A965UL    /*!< RTC Register Access Enable Key to enable RTC read/write accessible and kept 1024 RTC clock */
+#define RTC_INIT_KEY            0xA5EB1357UL    /*!< RTC Initiation Key to make RTC leaving reset state \hideinitializer */
+#define RTC_WRITE_KEY           0x0000A965UL    /*!< RTC Register Access Enable Key to enable RTC read/write accessible and kept 1024 RTC clock \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  RTC Time Attribute Constant Definitions                                                                */
 /*---------------------------------------------------------------------------------------------------------*/
-#define RTC_CLOCK_12            0               /*!< RTC as 12-hour time scale with AM and PM indication */
-#define RTC_CLOCK_24            1               /*!< RTC as 24-hour time scale */
-#define RTC_AM                  1               /*!< RTC as AM indication */
-#define RTC_PM                  2               /*!< RTC as PM indication */
+#define RTC_CLOCK_12            0UL               /*!< RTC as 12-hour time scale with AM and PM indication \hideinitializer */
+#define RTC_CLOCK_24            1UL               /*!< RTC as 24-hour time scale \hideinitializer */
+#define RTC_AM                  1UL               /*!< RTC as AM indication \hideinitializer */
+#define RTC_PM                  2UL               /*!< RTC as PM indication \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  RTC Tick Period Constant Definitions                                                                   */
 /*---------------------------------------------------------------------------------------------------------*/
-#define RTC_TICK_1_SEC          0x0UL           /*!< RTC time tick period is 1 second */
-#define RTC_TICK_1_2_SEC        0x1UL           /*!< RTC time tick period is 1/2 second */
-#define RTC_TICK_1_4_SEC        0x2UL           /*!< RTC time tick period is 1/4 second */
-#define RTC_TICK_1_8_SEC        0x3UL           /*!< RTC time tick period is 1/8 second */
-#define RTC_TICK_1_16_SEC       0x4UL           /*!< RTC time tick period is 1/16 second */
-#define RTC_TICK_1_32_SEC       0x5UL           /*!< RTC time tick period is 1/32 second */
-#define RTC_TICK_1_64_SEC       0x6UL           /*!< RTC time tick period is 1/64 second */
-#define RTC_TICK_1_128_SEC      0x7UL           /*!< RTC time tick period is 1/128 second */
+#define RTC_TICK_1_SEC          0x0UL           /*!< RTC time tick period is 1 second \hideinitializer */
+#define RTC_TICK_1_2_SEC        0x1UL           /*!< RTC time tick period is 1/2 second \hideinitializer */
+#define RTC_TICK_1_4_SEC        0x2UL           /*!< RTC time tick period is 1/4 second \hideinitializer */
+#define RTC_TICK_1_8_SEC        0x3UL           /*!< RTC time tick period is 1/8 second \hideinitializer */
+#define RTC_TICK_1_16_SEC       0x4UL           /*!< RTC time tick period is 1/16 second \hideinitializer */
+#define RTC_TICK_1_32_SEC       0x5UL           /*!< RTC time tick period is 1/32 second \hideinitializer */
+#define RTC_TICK_1_64_SEC       0x6UL           /*!< RTC time tick period is 1/64 second \hideinitializer */
+#define RTC_TICK_1_128_SEC      0x7UL           /*!< RTC time tick period is 1/128 second \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  RTC Day of Week Constant Definitions                                                                   */
 /*---------------------------------------------------------------------------------------------------------*/
-#define RTC_SUNDAY              0x0UL           /*!< Day of the Week is Sunday */
-#define RTC_MONDAY              0x1UL           /*!< Day of the Week is Monday */
-#define RTC_TUESDAY             0x2UL           /*!< Day of the Week is Tuesday */
-#define RTC_WEDNESDAY           0x3UL           /*!< Day of the Week is Wednesday */
-#define RTC_THURSDAY            0x4UL           /*!< Day of the Week is Thursday */
-#define RTC_FRIDAY              0x5UL           /*!< Day of the Week is Friday */
-#define RTC_SATURDAY            0x6UL           /*!< Day of the Week is Saturday */
-
-/*---------------------------------------------------------------------------------------------------------*/
-/*  RTC Snooper Detection Mode Constant Definitions                                                        */
-/*---------------------------------------------------------------------------------------------------------*/
-//#define RTC_SNOOPER_LOW_LEVEL       0x0UL       /*!< Snooper pin detected is low-level/falling-edge trigger */
-//#define RTC_SNOOPER_HIGH_LEVEL      0x2UL       /*!< Snooper pin detected is high-level/rising-edge trigger */
+#define RTC_SUNDAY              0x0UL           /*!< Day of the Week is Sunday \hideinitializer */
+#define RTC_MONDAY              0x1UL           /*!< Day of the Week is Monday \hideinitializer */
+#define RTC_TUESDAY             0x2UL           /*!< Day of the Week is Tuesday \hideinitializer */
+#define RTC_WEDNESDAY           0x3UL           /*!< Day of the Week is Wednesday \hideinitializer */
+#define RTC_THURSDAY            0x4UL           /*!< Day of the Week is Thursday \hideinitializer */
+#define RTC_FRIDAY              0x5UL           /*!< Day of the Week is Friday \hideinitializer */
+#define RTC_SATURDAY            0x6UL           /*!< Day of the Week is Saturday \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  RTC Miscellaneous Constant Definitions                                                                         */
 /*---------------------------------------------------------------------------------------------------------*/
-#define RTC_WAIT_COUNT          0xFFFFFFFF      /*!< Initial Time-out Value */
-#define RTC_YEAR2000            2000            /*!< RTC Reference for compute year data */
-#define RTC_FCR_REFERENCE       32761           /*!< RTC Reference for frequency compensation */
+#define RTC_WAIT_COUNT          0xFFFFFFFFUL      /*!< Initial Time-out Value \hideinitializer */
+#define RTC_YEAR2000            2000UL            /*!< RTC Reference for compute year data \hideinitializer */
+#define RTC_FCR_REFERENCE       32761UL           /*!< RTC Reference for frequency compensation \hideinitializer */
 
 
-#define RTC_TAMPER0_SELECT (0x1 << 0)     /*!< Select Tamper 0 */
-#define RTC_TAMPER1_SELECT (0x1 << 1)     /*!< Select Tamper 1 */
-#define RTC_TAMPER2_SELECT (0x1 << 2)     /*!< Select Tamper 2 */
-#define RTC_TAMPER3_SELECT (0x1 << 3)     /*!< Select Tamper 3 */
-#define RTC_TAMPER4_SELECT (0x1 << 4)     /*!< Select Tamper 4 */
-#define RTC_TAMPER5_SELECT (0x1 << 5)     /*!< Select Tamper 5 */
-#define MAX_TAMPER_PIN_NUM 6              /*!< Tamper Pin number */
+#define RTC_TAMPER0_SELECT (0x1ul << 0)     /*!< Select Tamper 0 \hideinitializer */
+#define RTC_TAMPER1_SELECT (0x1ul << 1)     /*!< Select Tamper 1 \hideinitializer */
+#define RTC_TAMPER2_SELECT (0x1ul << 2)     /*!< Select Tamper 2 \hideinitializer */
+#define RTC_TAMPER3_SELECT (0x1ul << 3)     /*!< Select Tamper 3 \hideinitializer */
+#define RTC_TAMPER4_SELECT (0x1ul << 4)     /*!< Select Tamper 4 \hideinitializer */
+#define RTC_TAMPER5_SELECT (0x1ul << 5)     /*!< Select Tamper 5 \hideinitializer */
+#define MAX_TAMPER_PIN_NUM 6ul              /*!< Tamper Pin number \hideinitializer */
 
-#define RTC_TAMPER_HIGH_LEVEL_DETECT 1    /*!< Tamper pin detect voltage level is high */
-#define RTC_TAMPER_LOW_LEVEL_DETECT  0    /*!< Tamper pin detect voltage level is low  */
+#define RTC_TAMPER_HIGH_LEVEL_DETECT 1ul    /*!< Tamper pin detect voltage level is high \hideinitializer */
+#define RTC_TAMPER_LOW_LEVEL_DETECT  0ul    /*!< Tamper pin detect voltage level is low  \hideinitializer */
 
-#define RTC_TAMPER_DEBOUNCE_ENABLE   1    /*!< Enable RTC tamper pin de-bounce function */
-#define RTC_TAMPER_DEBOUNCE_DISABLE  0    /*!< Disable RTC tamper pin de-bounce function */
+#define RTC_TAMPER_DEBOUNCE_ENABLE   1ul    /*!< Enable RTC tamper pin de-bounce function \hideinitializer */
+#define RTC_TAMPER_DEBOUNCE_DISABLE  0ul    /*!< Disable RTC tamper pin de-bounce function \hideinitializer */
 
-#define RTC_PAIR0_SELECT (0x1 << 0)       /*!< Select Pair 0 */
-#define RTC_PAIR1_SELECT (0x1 << 1)       /*!< Select Pair 1 */
-#define RTC_PAIR2_SELECT (0x1 << 2)       /*!< Select Pair 2 */
-#define MAX_PAIR_NUM     3                /*!< Pair number */
+#define RTC_PAIR0_SELECT (0x1ul << 0)       /*!< Select Pair 0 \hideinitializer */
+#define RTC_PAIR1_SELECT (0x1ul << 1)       /*!< Select Pair 1 \hideinitializer */
+#define RTC_PAIR2_SELECT (0x1ul << 2)       /*!< Select Pair 2 \hideinitializer */
+#define MAX_PAIR_NUM     3ul                /*!< Pair number \hideinitializer */
 
-#define RTC_2POW10_CLK  (0x0 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 RTC clock cycles */
-#define RTC_2POW11_CLK  (0x1 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 2 RTC clock cycles */
-#define RTC_2POW12_CLK  (0x2 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 4 RTC clock cycles */
-#define RTC_2POW13_CLK  (0x3 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 6 RTC clock cycles */
-#define RTC_2POW14_CLK  (0x4 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 8 RTC clock cycles */
-#define RTC_2POW15_CLK  (0x5 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 16 RTC clock cycles */
-#define RTC_2POW16_CLK  (0x6 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 32 RTC clock cycles */
-#define RTC_2POW17_CLK  (0x7 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 64 RTC clock cycles */
+#define RTC_2POW10_CLK  (0x0 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 RTC clock cycles \hideinitializer */
+#define RTC_2POW11_CLK  (0x1 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 2 RTC clock cycles \hideinitializer */
+#define RTC_2POW12_CLK  (0x2 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 4 RTC clock cycles \hideinitializer */
+#define RTC_2POW13_CLK  (0x3 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 6 RTC clock cycles \hideinitializer */
+#define RTC_2POW14_CLK  (0x4 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 8 RTC clock cycles \hideinitializer */
+#define RTC_2POW15_CLK  (0x5 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 16 RTC clock cycles \hideinitializer */
+#define RTC_2POW16_CLK  (0x6 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 32 RTC clock cycles \hideinitializer */
+#define RTC_2POW17_CLK  (0x7 << RTC_TAMPCTL_DYNRATE_Pos) /*!< 1024 x 64 RTC clock cycles \hideinitializer */
 
-#define REF_RANDOM_PATTERN    0x0 /*!< The new reference pattern is generated by random number generator when the reference pattern run out */
-#define REF_PREVIOUS_PATTERN  0x1 /*!< The new reference pattern is repeated previous random value when the reference pattern run out */
-#define REF_SEED              0x3 /*!< The new reference pattern is repeated from SEED (RTC_TAMPSEED[31:0]) when the reference pattern run out */
+#define REF_RANDOM_PATTERN    0x0 /*!< The new reference pattern is generated by random number generator when the reference pattern run out \hideinitializer */
+#define REF_PREVIOUS_PATTERN  0x1 /*!< The new reference pattern is repeated previous random value when the reference pattern run out \hideinitializer */
+#define REF_SEED              0x3 /*!< The new reference pattern is repeated from SEED (RTC_TAMPSEED[31:0]) when the reference pattern run out \hideinitializer */
 
 /*@}*/ /* end of group M480_RTC_EXPORTED_CONSTANTS */
 
@@ -145,6 +139,7 @@ typedef struct {
   * @retval     1   This year is a leap year
   *
   * @details    According to current date, return this year is leap year or not.
+  * \hideinitializer
   */
 #define RTC_IS_LEAP_YEAR()              (RTC->LEAPYEAR & RTC_LEAPYEAR_LEAPYEAR_Msk ? 1:0)
 
@@ -156,6 +151,7 @@ typedef struct {
   * @return     None
   *
   * @details    This macro is used to clear RTC alarm interrupt flag.
+  * \hideinitializer
   */
 #define RTC_CLEAR_ALARM_INT_FLAG()      (RTC->INTSTS = RTC_INTSTS_ALMIF_Msk)
 
@@ -167,6 +163,7 @@ typedef struct {
   * @return     None
   *
   * @details    This macro is used to clear RTC tick interrupt flag.
+  * \hideinitializer
   */
 #define RTC_CLEAR_TICK_INT_FLAG()       (RTC->INTSTS = RTC_INTSTS_TICKIF_Msk)
 
@@ -184,8 +181,9 @@ typedef struct {
   * @return     None
   *
   * @details    This macro is used to clear RTC snooper pin interrupt flag.
+  * \hideinitializer
   */
-#define RTC_CLEAR_TAMPER_INT_FLAG(u32TamperFlag)    (RTC->INTSTS = u32TamperFlag)
+#define RTC_CLEAR_TAMPER_INT_FLAG(u32TamperFlag)    (RTC->INTSTS = (u32TamperFlag))
 
 /**
   * @brief      Get RTC Alarm Interrupt Flag
@@ -196,6 +194,7 @@ typedef struct {
   * @retval     1   RTC alarm interrupt occurred
   *
   * @details    This macro indicates RTC alarm interrupt occurred or not.
+  * \hideinitializer
   */
 #define RTC_GET_ALARM_INT_FLAG()        ((RTC->INTSTS & RTC_INTSTS_ALMIF_Msk)? 1:0)
 
@@ -208,6 +207,7 @@ typedef struct {
   * @retval     1   RTC time tick interrupt occurred
   *
   * @details    This macro indicates RTC time tick interrupt occurred or not.
+  * \hideinitializer
   */
 #define RTC_GET_TICK_INT_FLAG()         ((RTC->INTSTS & RTC_INTSTS_TICKIF_Msk)? 1:0)
 
@@ -220,6 +220,7 @@ typedef struct {
   * @retval     1   RTC snooper pin interrupt occurred
   *
   * @details    This macro indicates RTC snooper pin interrupt occurred or not.
+  * \hideinitializer
   */
 #define RTC_GET_TAMPER_INT_FLAG()      ((RTC->INTSTS & (0x3F00))? 1:0)
 
@@ -236,6 +237,7 @@ typedef struct {
   * @retval     RTC_INTSTS_TAMP5IF_Msk    Tamper 5 interrupt flag is generated
   *
   * @details    This macro indicates RTC snooper pin interrupt occurred or not.
+  * \hideinitializer
   */
 #define RTC_GET_TAMPER_INT_STATUS()      ((RTC->INTSTS & (0x3F00)))
 
@@ -249,6 +251,7 @@ typedef struct {
   * @details    Read the specify spare register content.
   * @note       The returned value is valid only when SPRRDY(SPRCTL[7] SPR Register Ready) bit is set. \n
   *             And its controlled by RTC Access Enable Register.
+  * \hideinitializer
   */
 #define RTC_READ_SPARE_REGISTER(u32RegNum)                  (RTC->SPR[(u32RegNum)])
 
@@ -263,9 +266,13 @@ typedef struct {
   * @details    Write specify data to spare register.
   * @note       This macro is effect only when SPRRDY(SPRCTL[7] SPR Register Ready) bit is set. \n
   *             And its controlled by RTC Access Enable Register(RTC_RWEN).
+  * \hideinitializer
   */
 #define RTC_WRITE_SPARE_REGISTER(u32RegNum, u32RegValue)    (RTC->SPR[(u32RegNum)] = (u32RegValue))
 
+/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */    
+static __INLINE void RTC_WaitAccessEnable(void);    
+    
 /**
   * @brief      Wait RTC Access Enable
   *
@@ -277,14 +284,15 @@ typedef struct {
   */
 static __INLINE void RTC_WaitAccessEnable(void)
 {
-    while((RTC->RWEN & RTC_RWEN_RTCBUSY_Msk) == RTC_RWEN_RTCBUSY_Msk);
+    while((RTC->RWEN & RTC_RWEN_RTCBUSY_Msk) == RTC_RWEN_RTCBUSY_Msk) {
+    }
 
     /* To wait RWENF bit is cleared and enable RWENF bit (Access Enable bit) again */
-    //while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == RTC_RWEN_RWENF_Msk);
     RTC->RWEN = RTC_WRITE_KEY;
 
     /* To wait RWENF bit is set and user can access the protected-register of RTC from now on */
-    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == 0x0);
+    while((RTC->RWEN & RTC_RWEN_RWENF_Msk) == (uint32_t)0x0) {
+    }
 }
 
 void RTC_Open(S_RTC_TIME_DATA_T *sPt);
@@ -320,6 +328,6 @@ void RTC_DynamicTamperConfig(uint32_t u32ChangeRate, uint32_t u32SeedReload, uin
 }
 #endif
 
-#endif //__RTC_H__
+#endif /* __RTC_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

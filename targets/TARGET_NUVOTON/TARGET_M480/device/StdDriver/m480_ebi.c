@@ -7,7 +7,6 @@
 *****************************************************************************/
 #include "M480.h"
 
-
 /** @addtogroup M480_Device_Driver M480 Device Driver
   @{
 */
@@ -55,13 +54,16 @@
   */
 void EBI_Open(uint32_t u32Bank, uint32_t u32DataWidth, uint32_t u32TimingClass, uint32_t u32BusMode, uint32_t u32CSActiveLevel)
 {
-    volatile uint32_t *pu32EBICTL  = (uint32_t *)((uint32_t)&EBI->CTL0 + (u32Bank * 0x10));
-    volatile uint32_t *pu32EBITCTL = (uint32_t *)((uint32_t)&EBI->TCTL0 + (u32Bank * 0x10));
+    uint32_t u32Index0 = (uint32_t)&EBI->CTL0 + (uint32_t)u32Bank * 0x10U;
+    uint32_t u32Index1 = (uint32_t)&EBI->TCTL0 + (uint32_t)u32Bank * 0x10U;
+    volatile uint32_t *pu32EBICTL  = (uint32_t *)( u32Index0 );
+    volatile uint32_t *pu32EBITCTL = (uint32_t *)( u32Index1 );
 
-    if(u32DataWidth == EBI_BUSWIDTH_8BIT)
+    if(u32DataWidth == EBI_BUSWIDTH_8BIT) {
         *pu32EBICTL &= ~EBI_CTL_DW16_Msk;
-    else
+    } else {
         *pu32EBICTL |= EBI_CTL_DW16_Msk;
+    }
 
     *pu32EBICTL |= u32BusMode;
 
@@ -70,54 +72,54 @@ void EBI_Open(uint32_t u32Bank, uint32_t u32DataWidth, uint32_t u32TimingClass, 
         *pu32EBICTL = (*pu32EBICTL & ~(EBI_CTL_MCLKDIV_Msk | EBI_CTL_TALE_Msk)) |
                       (EBI_MCLKDIV_1 << EBI_CTL_MCLKDIV_Pos) |
                       (u32CSActiveLevel << EBI_CTL_CSPOLINV_Pos) | EBI_CTL_EN_Msk;
-        *pu32EBITCTL = 0x0;
+        *pu32EBITCTL = 0x0U;
         break;
 
     case EBI_TIMING_VERYFAST:
         *pu32EBICTL = (*pu32EBICTL & ~(EBI_CTL_MCLKDIV_Msk | EBI_CTL_TALE_Msk)) |
                       (EBI_MCLKDIV_1 << EBI_CTL_MCLKDIV_Pos) |
                       (u32CSActiveLevel << EBI_CTL_CSPOLINV_Pos) | EBI_CTL_EN_Msk |
-                      (0x3 << EBI_CTL_TALE_Pos) ;
-        *pu32EBITCTL = 0x03003318;
+                      (0x3U << EBI_CTL_TALE_Pos) ;
+        *pu32EBITCTL = 0x03003318U;
         break;
 
     case EBI_TIMING_FAST:
         *pu32EBICTL = (*pu32EBICTL & ~(EBI_CTL_MCLKDIV_Msk | EBI_CTL_TALE_Msk)) |
                       (EBI_MCLKDIV_2 << EBI_CTL_MCLKDIV_Pos) |
                       (u32CSActiveLevel << EBI_CTL_CSPOLINV_Pos) | EBI_CTL_EN_Msk;
-        *pu32EBITCTL = 0x0;
+        *pu32EBITCTL = 0x0U;
         break;
 
     case EBI_TIMING_NORMAL:
         *pu32EBICTL = (*pu32EBICTL & ~(EBI_CTL_MCLKDIV_Msk | EBI_CTL_TALE_Msk)) |
                       (EBI_MCLKDIV_2 << EBI_CTL_MCLKDIV_Pos) |
                       (u32CSActiveLevel << EBI_CTL_CSPOLINV_Pos) | EBI_CTL_EN_Msk |
-                      (0x3 << EBI_CTL_TALE_Pos) ;
-        *pu32EBITCTL = 0x03003318;
+                      (0x3U << EBI_CTL_TALE_Pos) ;
+        *pu32EBITCTL = 0x03003318U;
         break;
 
     case EBI_TIMING_SLOW:
         *pu32EBICTL = (*pu32EBICTL & ~(EBI_CTL_MCLKDIV_Msk | EBI_CTL_TALE_Msk)) |
                       (EBI_MCLKDIV_2 << EBI_CTL_MCLKDIV_Pos) |
                       (u32CSActiveLevel << EBI_CTL_CSPOLINV_Pos) | EBI_CTL_EN_Msk |
-                      (0x7 << EBI_CTL_TALE_Pos) ;
-        *pu32EBITCTL = 0x07007738;
+                      (0x7U << EBI_CTL_TALE_Pos) ;
+        *pu32EBITCTL = 0x07007738U;
         break;
 
     case EBI_TIMING_VERYSLOW:
         *pu32EBICTL = (*pu32EBICTL & ~(EBI_CTL_MCLKDIV_Msk | EBI_CTL_TALE_Msk)) |
                       (EBI_MCLKDIV_4 << EBI_CTL_MCLKDIV_Pos) |
                       (u32CSActiveLevel << EBI_CTL_CSPOLINV_Pos) | EBI_CTL_EN_Msk |
-                      (0x7 << EBI_CTL_TALE_Pos) ;
-        *pu32EBITCTL = 0x07007738;
+                      (0x7U << EBI_CTL_TALE_Pos) ;
+        *pu32EBITCTL = 0x07007738U;
         break;
 
     case EBI_TIMING_SLOWEST:
         *pu32EBICTL = (*pu32EBICTL & ~(EBI_CTL_MCLKDIV_Msk | EBI_CTL_TALE_Msk)) |
                       (EBI_MCLKDIV_8 << EBI_CTL_MCLKDIV_Pos) |
                       (u32CSActiveLevel << EBI_CTL_CSPOLINV_Pos) | EBI_CTL_EN_Msk |
-                      (0x7 << EBI_CTL_TALE_Pos) ;
-        *pu32EBITCTL = 0x07007738;
+                      (0x7U << EBI_CTL_TALE_Pos) ;
+        *pu32EBITCTL = 0x07007738U;
         break;
 
     default:
@@ -140,7 +142,8 @@ void EBI_Open(uint32_t u32Bank, uint32_t u32DataWidth, uint32_t u32TimingClass, 
   */
 void EBI_Close(uint32_t u32Bank)
 {
-    volatile uint32_t *pu32EBICTL = (uint32_t *)((uint32_t)&EBI->CTL0 + (u32Bank * 0x10));
+    uint32_t u32Index = (uint32_t)&EBI->CTL0 + u32Bank * 0x10U;
+    volatile uint32_t *pu32EBICTL = (uint32_t *)( u32Index );
 
     *pu32EBICTL &= ~EBI_CTL_EN_Msk;
 }
@@ -160,6 +163,8 @@ void EBI_Close(uint32_t u32Bank)
   *                                     - \ref EBI_MCLKDIV_8
   *                                     - \ref EBI_MCLKDIV_16
   *                                     - \ref EBI_MCLKDIV_32
+  *                                     - \ref EBI_MCLKDIV_64
+  *                                     - \ref EBI_MCLKDIV_128
   *
   * @return     None
   *
@@ -167,8 +172,10 @@ void EBI_Close(uint32_t u32Bank)
   */
 void EBI_SetBusTiming(uint32_t u32Bank, uint32_t u32TimingConfig, uint32_t u32MclkDiv)
 {
-    volatile uint32_t *pu32EBICTL  = (uint32_t *)((uint32_t)&EBI->CTL0 + (u32Bank * 0x10));
-    volatile uint32_t *pu32EBITCTL = (uint32_t *)((uint32_t)&EBI->TCTL0 + (u32Bank * 0x10));
+    uint32_t u32Index0 = (uint32_t)&EBI->CTL0 + (uint32_t)u32Bank * 0x10U;
+    uint32_t u32Index1 = (uint32_t)&EBI->TCTL0 + (uint32_t)u32Bank * 0x10U;
+    volatile uint32_t *pu32EBICTL  = (uint32_t *)( u32Index0 );
+    volatile uint32_t *pu32EBITCTL = (uint32_t *)( u32Index1 );
 
     *pu32EBICTL = (*pu32EBICTL & ~EBI_CTL_MCLKDIV_Msk) | (u32MclkDiv << EBI_CTL_MCLKDIV_Pos);
     *pu32EBITCTL = u32TimingConfig;

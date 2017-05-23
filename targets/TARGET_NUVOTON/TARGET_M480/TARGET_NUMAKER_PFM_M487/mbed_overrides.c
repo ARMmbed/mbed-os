@@ -60,11 +60,11 @@ void mbed_sdk_init(void)
     /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
     
-    /* Set core clock as 160000000 from PLL */
-    CLK_SetCoreClock(160000000);
-
+    /* Set core clock as 192000000 from PLL */
+    CLK_SetCoreClock(192000000);
+    
     /* Set PCLK0/PCLK1 to HCLK/2 */
-    CLK->CLKSEL0 |= 0xc0;
+    CLK->PCLKDIV = (CLK_PCLKDIV_PCLK0DIV2 | CLK_PCLKDIV_PCLK1DIV2); // PCLK divider set 2
     
 #if DEVICE_ANALOGIN
     /* Vref connect to internal */

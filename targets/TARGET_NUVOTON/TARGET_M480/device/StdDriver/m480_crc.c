@@ -63,20 +63,25 @@ void CRC_Open(uint32_t u32Mode, uint32_t u32Attribute, uint32_t u32Seed, uint32_
   */
 uint32_t CRC_GetChecksum(void)
 {
+    uint32_t ret;
+
     switch(CRC->CTL & CRC_CTL_CRCMODE_Msk) {
     case CRC_CCITT:
     case CRC_16:
-        return (CRC->CHECKSUM & 0xFFFF);
-
+        ret = (CRC->CHECKSUM & 0xFFFFU);
+        break;
     case CRC_32:
-        return (CRC->CHECKSUM);
-
+        ret = (CRC->CHECKSUM);
+        break;
     case CRC_8:
-        return (CRC->CHECKSUM & 0xFF);
-
+        ret = (CRC->CHECKSUM & 0xFFU);
+        break;
     default:
-        return 0;
+        ret = 0U;
+        break;
     }
+
+    return ret;
 }
 
 /*@}*/ /* end of group M480_CRC_EXPORTED_FUNCTIONS */

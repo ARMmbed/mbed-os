@@ -25,7 +25,7 @@ extern "C"
 /** @addtogroup M480_BPWM_EXPORTED_CONSTANTS BPWM Exported Constants
   @{
 */
-#define BPWM_CHANNEL_NUM                          (6)        /*!< BPWM channel number */
+#define BPWM_CHANNEL_NUM                          (6)        /*!< BPWM channel number \hideinitializer */
 #define BPWM_CH_0_MASK                            (0x1UL)    /*!< BPWM channel 0 mask \hideinitializer */
 #define BPWM_CH_1_MASK                            (0x2UL)    /*!< BPWM channel 1 mask \hideinitializer */
 #define BPWM_CH_2_MASK                            (0x4UL)    /*!< BPWM channel 2 mask \hideinitializer */
@@ -36,46 +36,46 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Counter Type Constant Definitions                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-#define BPWM_UP_COUNTER                           (0UL)      /*!< Up counter type */
-#define BPWM_DOWN_COUNTER                         (1UL)      /*!< Down counter type */
-#define BPWM_UP_DOWN_COUNTER                      (2UL)      /*!< Up-Down counter type */
+#define BPWM_UP_COUNTER                           (0UL)      /*!< Up counter type \hideinitializer */
+#define BPWM_DOWN_COUNTER                         (1UL)      /*!< Down counter type \hideinitializer */
+#define BPWM_UP_DOWN_COUNTER                      (2UL)      /*!< Up-Down counter type \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Aligned Type Constant Definitions                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-#define BPWM_EDGE_ALIGNED                         (1UL)      /*!< BPWM working in edge aligned type(down count) */
-#define BPWM_CENTER_ALIGNED                       (2UL)      /*!< BPWM working in center aligned type */
+#define BPWM_EDGE_ALIGNED                         (1UL)      /*!< BPWM working in edge aligned type(down count) \hideinitializer */
+#define BPWM_CENTER_ALIGNED                       (2UL)      /*!< BPWM working in center aligned type \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Output Level Constant Definitions                                                                      */
 /*---------------------------------------------------------------------------------------------------------*/
-#define BPWM_OUTPUT_NOTHING                       (0UL)      /*!< BPWM output nothing */
-#define BPWM_OUTPUT_LOW                           (1UL)      /*!< BPWM output low */
-#define BPWM_OUTPUT_HIGH                          (2UL)      /*!< BPWM output high */
-#define BPWM_OUTPUT_TOGGLE                        (3UL)      /*!< BPWM output toggle */
+#define BPWM_OUTPUT_NOTHING                       (0UL)      /*!< BPWM output nothing \hideinitializer */
+#define BPWM_OUTPUT_LOW                           (1UL)      /*!< BPWM output low \hideinitializer */
+#define BPWM_OUTPUT_HIGH                          (2UL)      /*!< BPWM output high \hideinitializer */
+#define BPWM_OUTPUT_TOGGLE                        (3UL)      /*!< BPWM output toggle \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Trigger Source Select Constant Definitions                                                             */
 /*---------------------------------------------------------------------------------------------------------*/
-#define BPWM_TRIGGER_EADC_EVEN_ZERO_POINT                     (0UL)     /*!< BPWM trigger EADC while counter of even channel matches zero point */
-#define BPWM_TRIGGER_EADC_EVEN_PERIOD_POINT                   (1UL)     /*!< BPWM trigger EADC while counter of even channel matches period point */
-#define BPWM_TRIGGER_EADC_EVEN_ZERO_OR_PERIOD_POINT           (2UL)     /*!< BPWM trigger EADC while counter of even channel matches zero or period point */
-#define BPWM_TRIGGER_EADC_EVEN_COMPARE_UP_COUNT_POINT         (3UL)     /*!< BPWM trigger EADC while counter of even channel matches up count to comparator point */
-#define BPWM_TRIGGER_EADC_EVEN_COMPARE_DOWN_COUNT_POINT       (4UL)     /*!< BPWM trigger EADC while counter of even channel matches down count to comparator point */
-#define BPWM_TRIGGER_EADC_ODD_COMPARE_UP_COUNT_POINT          (8UL)     /*!< BPWM trigger EADC while counter of odd channel matches up count to comparator point */
-#define BPWM_TRIGGER_EADC_ODD_COMPARE_DOWN_COUNT_POINT        (9UL)     /*!< BPWM trigger EADC while counter of odd channel matches down count to comparator point */
+#define BPWM_TRIGGER_EADC_EVEN_ZERO_POINT                     (0UL)     /*!< BPWM trigger EADC while counter of even channel matches zero point \hideinitializer */
+#define BPWM_TRIGGER_EADC_EVEN_PERIOD_POINT                   (1UL)     /*!< BPWM trigger EADC while counter of even channel matches period point \hideinitializer */
+#define BPWM_TRIGGER_EADC_EVEN_ZERO_OR_PERIOD_POINT           (2UL)     /*!< BPWM trigger EADC while counter of even channel matches zero or period point \hideinitializer */
+#define BPWM_TRIGGER_EADC_EVEN_CMP_UP_COUNT_POINT             (3UL)     /*!< BPWM trigger EADC while counter of even channel matches up count to comparator point \hideinitializer */
+#define BPWM_TRIGGER_EADC_EVEN_CMP_DOWN_COUNT_POINT           (4UL)     /*!< BPWM trigger EADC while counter of even channel matches down count to comparator point \hideinitializer */
+#define BPWM_TRIGGER_EADC_ODD_CMP_UP_COUNT_POINT              (8UL)     /*!< BPWM trigger EADC while counter of odd channel matches up count to comparator point \hideinitializer */
+#define BPWM_TRIGGER_EADC_ODD_CMP_DOWN_COUNT_POINT            (9UL)     /*!< BPWM trigger EADC while counter of odd channel matches down count to comparator point \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Capture Control Constant Definitions                                                                   */
 /*---------------------------------------------------------------------------------------------------------*/
-#define BPWM_CAPTURE_INT_RISING_LATCH             (1UL)        /*!< BPWM capture interrupt if channel has rising transition */
-#define BPWM_CAPTURE_INT_FALLING_LATCH            (0x100UL)    /*!< BPWM capture interrupt if channel has falling transition */
+#define BPWM_CAPTURE_INT_RISING_LATCH             (1UL)        /*!< BPWM capture interrupt if channel has rising transition \hideinitializer */
+#define BPWM_CAPTURE_INT_FALLING_LATCH            (0x100UL)    /*!< BPWM capture interrupt if channel has falling transition \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Duty Interrupt Type Constant Definitions                                                               */
 /*---------------------------------------------------------------------------------------------------------*/
-#define BPWM_DUTY_INT_DOWN_COUNT_MATCH_CMP        (1 << BPWM_INTEN_CMPDIENn_Pos)   /*!< BPWM duty interrupt triggered if down count match comparator */
-#define BPWM_DUTY_INT_UP_COUNT_MATCH_CMP          (1 << BPWM_INTEN_CMPUIENn_Pos)   /*!< BPWM duty interrupt triggered if up down match comparator */
+#define BPWM_DUTY_INT_DOWN_COUNT_MATCH_CMP        (1 << BPWM_INTEN_CMPDIENn_Pos)   /*!< BPWM duty interrupt triggered if down count match comparator \hideinitializer */
+#define BPWM_DUTY_INT_UP_COUNT_MATCH_CMP          (1 << BPWM_INTEN_CMPUIENn_Pos)   /*!< BPWM duty interrupt triggered if up down match comparator \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Load Mode Constant Definitions                                                                         */
@@ -314,6 +314,6 @@ void BPWM_ClearWrapAroundFlag(BPWM_T *bpwm, uint32_t u32ChannelNum);
 }
 #endif
 
-#endif //__BPWM_H__
+#endif /* __BPWM_H__ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

@@ -3,7 +3,6 @@
  * @version  V1.00
  * @brief    M480 series DAC driver source file
  *
- * @note
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M480.h"
@@ -35,22 +34,19 @@
   *                      - \ref DAC_TIMER1_TRIGGER                :Timer 1 trigger
   *                      - \ref DAC_TIMER2_TRIGGER                :Timer 2 trigger
   *                      - \ref DAC_TIMER3_TRIGGER                :Timer 3 trigger
-  *                      - \ref DAC_PWM0_TRIGGER                  :PWM0 trigger
-  *                      - \ref DAC_PWM1_TRIGGER                  :PWM1 trigger
+  *                      - \ref DAC_EPWM0_TRIGGER                 :EPWM0 trigger
+  *                      - \ref DAC_EPWM1_TRIGGER                 :EPWM1 trigger
   * @return None
   * @details The DAC conversion can be started by writing DAC_DAT, software trigger or hardware trigger.
   *         When TRGEN (DAC_CTL[4]) is 0, the data conversion is started by writing DAC_DAT register.
   *         When TRGEN (DAC_CTL[4]) is 1, the data conversion is started by SWTRG (DAC_SWTRG[0]) is set to 1,
-  *         external STDAC pin, timer event, or PWM timer event.
+  *         external STDAC pin, timer event, or EPWM event.
   */
 void DAC_Open(DAC_T *dac,
               uint32_t u32Ch,
               uint32_t u32TrgSrc)
 {
-    if(dac == DAC0) // It's necessary to enable DAC1 to use DAC0 for engineering sample.
-        DAC1->CTL |= DAC_CTL_DACEN_Msk;
     dac->CTL &= ~(DAC_CTL_ETRGSEL_Msk | DAC_CTL_TRGSEL_Msk | DAC_CTL_TRGEN_Msk);
-
     dac->CTL |= (u32TrgSrc | DAC_CTL_DACEN_Msk);
 }
 
@@ -74,12 +70,12 @@ void DAC_Close(DAC_T *dac, uint32_t u32Ch)
   * @details For example, DAC controller clock speed is 160MHz and DAC conversion setting time is 1 us, SETTLET (DAC_TCTL[9:0]) value must be greater than 0xA0.
   * @note User needs to write appropriate value to meet DAC conversion settling time base on PCLK (APB clock) speed.
   */
-int DAC_SetDelayTime(DAC_T *dac, uint32_t u32Delay)
+uint32_t DAC_SetDelayTime(DAC_T *dac, uint32_t u32Delay)
 {
 
-    dac->TCTL = ((CLK_GetPCLK1Freq() * u32Delay / 1000000) & 0x3FF);
+    dac->TCTL = ((CLK_GetPCLK1Freq() * u32Delay / 1000000UL) & 0x3FFUL);
 
-    return ((dac->TCTL) * 1000000 / CLK_GetPCLK1Freq());
+    return ((dac->TCTL) * 1000000UL / CLK_GetPCLK1Freq());
 }
 
 

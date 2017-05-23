@@ -31,7 +31,7 @@ void crypto_init(void)
     }
     crypto_inited = 1;
     
-    CLK_EnableModuleClock(CRYPTO_MODULE);
+    CLK_EnableModuleClock(CRPT_MODULE);
 }
 
 /* Implementation that should never be optimized out by the compiler */

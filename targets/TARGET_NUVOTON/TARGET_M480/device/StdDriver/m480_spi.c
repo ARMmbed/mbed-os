@@ -22,6 +22,7 @@
 /** @addtogroup M480_SPI_EXPORTED_FUNCTIONS SPI Exported Functions
   @{
 */
+static uint32_t SPII2S_GetSourceClockFreq(SPI_T *i2s);
 
 /**
   * @brief  This function make SPI module be ready to transfer.
@@ -48,13 +49,14 @@ uint32_t SPI_Open(SPI_T *spi,
                   uint32_t u32DataWidth,
                   uint32_t u32BusClock)
 {
-    uint32_t u32ClkSrc = 0, u32Div, u32HCLKFreq;
+    uint32_t u32ClkSrc = 0U, u32Div, u32HCLKFreq, u32RetValue=0U;
 
     /* Disable I2S mode */
     spi->I2SCTL &= ~SPI_I2SCTL_I2SEN_Msk;
 
-    if(u32DataWidth == 32)
-        u32DataWidth = 0;
+    if(u32DataWidth == 32U) {
+        u32DataWidth = 0U;
+    }
 
     /* Get system clock frequency */
     u32HCLKFreq = CLK_GetHCLKFreq();
@@ -68,96 +70,102 @@ uint32_t SPI_Open(SPI_T *spi,
 
         if(u32BusClock >= u32HCLKFreq) {
             /* Select PCLK as the clock source of SPI */
-            if(spi == SPI0)
+            if(spi == SPI0) {
                 CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI0SEL_Msk)) | CLK_CLKSEL2_SPI0SEL_PCLK0;
-            else if(spi == SPI1)
+            } else if(spi == SPI1) {
                 CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI1SEL_Msk)) | CLK_CLKSEL2_SPI1SEL_PCLK1;
-            else if(spi == SPI2)
+            } else if(spi == SPI2) {
                 CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI2SEL_Msk)) | CLK_CLKSEL2_SPI2SEL_PCLK0;
-            else if(spi == SPI3)
+            } else if(spi == SPI3) {
                 CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI3SEL_Msk)) | CLK_CLKSEL2_SPI3SEL_PCLK1;
-            else
+            } else {
                 CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI4SEL_Msk)) | CLK_CLKSEL2_SPI4SEL_PCLK0;
+            }
         }
 
         /* Check clock source of SPI */
         if(spi == SPI0) {
-            if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_HXT)
+            if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_HXT) {
                 u32ClkSrc = __HXT; /* Clock source is HXT */
-            else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PLL)
+            } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PLL) {
                 u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-            else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PCLK0) {
+            } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PCLK0) {
                 /* Clock source is PCLK0 */
                 u32ClkSrc = CLK_GetPCLK0Freq();
-            } else
+            } else {
                 u32ClkSrc = __HIRC; /* Clock source is HIRC */
+            }
         } else if(spi == SPI1) {
-            if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_HXT)
+            if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_HXT) {
                 u32ClkSrc = __HXT; /* Clock source is HXT */
-            else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PLL)
+            } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PLL) {
                 u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-            else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PCLK1) {
+            } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PCLK1) {
                 /* Clock source is PCLK1 */
                 u32ClkSrc = CLK_GetPCLK1Freq();
-            } else
+            } else {
                 u32ClkSrc = __HIRC; /* Clock source is HIRC */
+            }
         } else if(spi == SPI2) {
-            if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_HXT)
+            if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_HXT) {
                 u32ClkSrc = __HXT; /* Clock source is HXT */
-            else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PLL)
+            } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PLL) {
                 u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-            else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PCLK0) {
+            } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PCLK0) {
                 /* Clock source is PCLK0 */
                 u32ClkSrc = CLK_GetPCLK0Freq();
-            } else
+            } else {
                 u32ClkSrc = __HIRC; /* Clock source is HIRC */
+            }
         } else if(spi == SPI3) {
-            if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_HXT)
+            if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_HXT) {
                 u32ClkSrc = __HXT; /* Clock source is HXT */
-            else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PLL)
+            } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PLL) {
                 u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-            else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PCLK1) {
+            } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PCLK1) {
                 u32ClkSrc = CLK_GetPCLK1Freq();
-            } else
+            } else {
                 u32ClkSrc = __HIRC; /* Clock source is HIRC */
+            }
         } else {
-            if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_HXT)
+            if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_HXT) {
                 u32ClkSrc = __HXT; /* Clock source is HXT */
-            else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PLL)
+            } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PLL) {
                 u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-            else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PCLK0) {
+            } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PCLK0) {
                 /* Clock source is PCLK0 */
                 u32ClkSrc = CLK_GetPCLK0Freq();
-            } else
+            } else {
                 u32ClkSrc = __HIRC; /* Clock source is HIRC */
+            }
         }
 
         if(u32BusClock >= u32HCLKFreq) {
             /* Set DIVIDER = 0 */
-            spi->CLKDIV = 0;
+            spi->CLKDIV = 0U;
             /* Return master peripheral clock rate */
-            return u32ClkSrc;
+            u32RetValue = u32ClkSrc;
         } else if(u32BusClock >= u32ClkSrc) {
             /* Set DIVIDER = 0 */
-            spi->CLKDIV = 0;
+            spi->CLKDIV = 0U;
             /* Return master peripheral clock rate */
-            return u32ClkSrc;
-        } else if(u32BusClock == 0) {
+            u32RetValue = u32ClkSrc;
+        } else if(u32BusClock == 0U) {
             /* Set DIVIDER to the maximum value 0xFF. f_spi = f_spi_clk_src / (DIVIDER + 1) */
             spi->CLKDIV |= SPI_CLKDIV_DIVIDER_Msk;
             /* Return master peripheral clock rate */
-            return (u32ClkSrc / (0xFF + 1));
+            u32RetValue = (u32ClkSrc / (0xFFU + 1U));
         } else {
-            u32Div = (((u32ClkSrc * 10) / u32BusClock + 5) / 10) - 1; /* Round to the nearest integer */
-            if(u32Div > 0xFF) {
-                u32Div = 0xFF;
+            u32Div = (((u32ClkSrc * 10U) / u32BusClock + 5U) / 10U) - 1U; /* Round to the nearest integer */
+            if(u32Div > 0xFFU) {
+                u32Div = 0xFFU;
                 spi->CLKDIV |= SPI_CLKDIV_DIVIDER_Msk;
                 /* Return master peripheral clock rate */
-                return (u32ClkSrc / (0xFF + 1));
+                u32RetValue = (u32ClkSrc / (0xFFU + 1U));
             } else {
                 spi->CLKDIV = (spi->CLKDIV & (~SPI_CLKDIV_DIVIDER_Msk)) | (u32Div << SPI_CLKDIV_DIVIDER_Pos);
                 /* Return master peripheral clock rate */
-                return (u32ClkSrc / (u32Div + 1));
+                u32RetValue = (u32ClkSrc / (u32Div + 1U));
             }
         }
     } else { /* For slave mode, force the SPI peripheral clock rate to equal APB clock rate. */
@@ -168,31 +176,33 @@ uint32_t SPI_Open(SPI_T *spi,
         spi->CTL = u32MasterSlave | (u32DataWidth << SPI_CTL_DWIDTH_Pos) | (u32SPIMode) | SPI_CTL_SPIEN_Msk;
 
         /* Set DIVIDER = 0 */
-        spi->CLKDIV = 0;
+        spi->CLKDIV = 0U;
 
         /* Select PCLK as the clock source of SPI */
         if(spi == SPI0) {
             CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI0SEL_Msk)) | CLK_CLKSEL2_SPI0SEL_PCLK0;
             /* Return slave peripheral clock rate */
-            return CLK_GetPCLK0Freq();
+            u32RetValue = CLK_GetPCLK0Freq();
         } else  if(spi == SPI1) {
             CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI1SEL_Msk)) | CLK_CLKSEL2_SPI1SEL_PCLK1;
             /* Return slave peripheral clock rate */
-            return CLK_GetPCLK1Freq();
+            u32RetValue = CLK_GetPCLK1Freq();
         } else if(spi == SPI2) {
             CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI2SEL_Msk)) | CLK_CLKSEL2_SPI2SEL_PCLK0;
             /* Return slave peripheral clock rate */
-            return CLK_GetPCLK0Freq();
+            u32RetValue = CLK_GetPCLK0Freq();
         } else if(spi == SPI3) {
             CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI3SEL_Msk)) | CLK_CLKSEL2_SPI3SEL_PCLK1;
             /* Return slave peripheral clock rate */
-            return CLK_GetPCLK1Freq();
+            u32RetValue = CLK_GetPCLK1Freq();
         } else {
             CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI4SEL_Msk)) | CLK_CLKSEL2_SPI4SEL_PCLK0;
             /* Return slave peripheral clock rate */
-            return CLK_GetPCLK0Freq();
+            u32RetValue = CLK_GetPCLK0Freq();
         }
     }
+
+    return u32RetValue;
 }
 
 /**
@@ -289,7 +299,7 @@ void SPI_EnableAutoSS(SPI_T *spi, uint32_t u32SSPinMask, uint32_t u32ActiveLevel
 uint32_t SPI_SetBusClock(SPI_T *spi, uint32_t u32BusClock)
 {
     uint32_t u32ClkSrc, u32HCLKFreq;
-    uint32_t u32Div;
+    uint32_t u32Div, u32RetValue;
 
     /* Get system clock frequency */
     u32HCLKFreq = CLK_GetHCLKFreq();
@@ -310,85 +320,92 @@ uint32_t SPI_SetBusClock(SPI_T *spi, uint32_t u32BusClock)
 
     /* Check clock source of SPI */
     if(spi == SPI0) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_HXT) {
             u32ClkSrc = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PLL) {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PCLK0) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PCLK0) {
             /* Clock source is PCLK0 */
             u32ClkSrc = CLK_GetPCLK0Freq();
-        } else
+        } else {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     } else if(spi == SPI1) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_HXT) {
             u32ClkSrc = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PLL) {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PCLK1) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PCLK1) {
             /* Clock source is PCLK1 */
             u32ClkSrc = CLK_GetPCLK1Freq();
-        } else
+        } else {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     } else if(spi == SPI2) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_HXT) {
             u32ClkSrc = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PLL) {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PCLK0) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PCLK0) {
             /* Clock source is PCLK0 */
             u32ClkSrc = CLK_GetPCLK0Freq();
-        } else
+        } else {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     } else if(spi == SPI3) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_HXT) {
             u32ClkSrc = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PLL) {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PCLK1) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PCLK1) {
             /* Clock source is PCLK1 */
             u32ClkSrc = CLK_GetPCLK1Freq();
-        } else
+        } else {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     } else {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_HXT) {
             u32ClkSrc = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PLL) {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PCLK0) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PCLK0) {
             /* Clock source is PCLK0 */
             u32ClkSrc = CLK_GetPCLK0Freq();
-        } else
+        } else {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     }
 
     if(u32BusClock >= u32HCLKFreq) {
         /* Set DIVIDER = 0 */
-        spi->CLKDIV = 0;
+        spi->CLKDIV = 0U;
         /* Return master peripheral clock rate */
-        return u32ClkSrc;
+        u32RetValue = u32ClkSrc;
     } else if(u32BusClock >= u32ClkSrc) {
         /* Set DIVIDER = 0 */
-        spi->CLKDIV = 0;
+        spi->CLKDIV = 0U;
         /* Return master peripheral clock rate */
-        return u32ClkSrc;
-    } else if(u32BusClock == 0) {
+        u32RetValue = u32ClkSrc;
+    } else if(u32BusClock == 0U) {
         /* Set DIVIDER to the maximum value 0xFF. f_spi = f_spi_clk_src / (DIVIDER + 1) */
         spi->CLKDIV |= SPI_CLKDIV_DIVIDER_Msk;
         /* Return master peripheral clock rate */
-        return (u32ClkSrc / (0xFF + 1));
+        u32RetValue = (u32ClkSrc / (0xFFU + 1U));
     } else {
-        u32Div = (((u32ClkSrc * 10) / u32BusClock + 5) / 10) - 1; /* Round to the nearest integer */
-        if(u32Div > 0x1FF) {
-            u32Div = 0x1FF;
+        u32Div = (((u32ClkSrc * 10U) / u32BusClock + 5U) / 10U) - 1U; /* Round to the nearest integer */
+        if(u32Div > 0x1FFU) {
+            u32Div = 0x1FFU;
             spi->CLKDIV |= SPI_CLKDIV_DIVIDER_Msk;
             /* Return master peripheral clock rate */
-            return (u32ClkSrc / (0xFF + 1));
+            u32RetValue = (u32ClkSrc / (0xFFU + 1U));
         } else {
             spi->CLKDIV = (spi->CLKDIV & (~SPI_CLKDIV_DIVIDER_Msk)) | (u32Div << SPI_CLKDIV_DIVIDER_Pos);
             /* Return master peripheral clock rate */
-            return (u32ClkSrc / (u32Div + 1));
+            u32RetValue = (u32ClkSrc / (u32Div + 1U));
         }
     }
+
+    return u32RetValue;
 }
 
 /**
@@ -422,59 +439,64 @@ uint32_t SPI_GetBusClock(SPI_T *spi)
 
     /* Check clock source of SPI */
     if(spi == SPI0) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_HXT) {
             u32ClkSrc = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PLL) {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PCLK0) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PCLK0) {
             /* Clock source is PCLK0 */
             u32ClkSrc = CLK_GetPCLK0Freq();
-        } else
+        } else {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     } else if(spi == SPI1) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_HXT) {
             u32ClkSrc = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PLL) {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PCLK1) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PCLK1) {
             /* Clock source is PCLK1 */
             u32ClkSrc = CLK_GetPCLK1Freq();
-        } else
+        } else {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     } else if(spi == SPI2) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_HXT) {
             u32ClkSrc = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PLL) {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PCLK0) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PCLK0) {
             /* Clock source is PCLK0 */
             u32ClkSrc = CLK_GetPCLK0Freq();
-        } else
+        } else {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     } else if(spi == SPI3) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_HXT) {
             u32ClkSrc = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PLL) {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PCLK1) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PCLK1) {
             /* Clock source is PCLK1 */
             u32ClkSrc = CLK_GetPCLK1Freq();
-        } else
+        } else {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     } else {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_HXT) {
             u32ClkSrc = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PLL) {
             u32ClkSrc = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PCLK0) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PCLK0) {
             /* Clock source is PCLK0 */
             u32ClkSrc = CLK_GetPCLK0Freq();
-        } else
+        } else {
             u32ClkSrc = __HIRC; /* Clock source is HIRC */
+        }
     }
 
     /* Return SPI bus clock rate */
-    return (u32ClkSrc / (u32Div + 1));
+    return (u32ClkSrc / (u32Div + 1U));
 }
 
 /**
@@ -500,44 +522,54 @@ uint32_t SPI_GetBusClock(SPI_T *spi)
 void SPI_EnableInt(SPI_T *spi, uint32_t u32Mask)
 {
     /* Enable unit transfer interrupt flag */
-    if((u32Mask & SPI_UNIT_INT_MASK) == SPI_UNIT_INT_MASK)
+    if((u32Mask & SPI_UNIT_INT_MASK) == SPI_UNIT_INT_MASK) {
         spi->CTL |= SPI_CTL_UNITIEN_Msk;
+    }
 
     /* Enable slave selection signal active interrupt flag */
-    if((u32Mask & SPI_SSACT_INT_MASK) == SPI_SSACT_INT_MASK)
+    if((u32Mask & SPI_SSACT_INT_MASK) == SPI_SSACT_INT_MASK) {
         spi->SSCTL |= SPI_SSCTL_SSACTIEN_Msk;
+    }
 
     /* Enable slave selection signal inactive interrupt flag */
-    if((u32Mask & SPI_SSINACT_INT_MASK) == SPI_SSINACT_INT_MASK)
+    if((u32Mask & SPI_SSINACT_INT_MASK) == SPI_SSINACT_INT_MASK) {
         spi->SSCTL |= SPI_SSCTL_SSINAIEN_Msk;
+    }
 
     /* Enable slave TX under run interrupt flag */
-    if((u32Mask & SPI_SLVUR_INT_MASK) == SPI_SLVUR_INT_MASK)
+    if((u32Mask & SPI_SLVUR_INT_MASK) == SPI_SLVUR_INT_MASK) {
         spi->SSCTL |= SPI_SSCTL_SLVURIEN_Msk;
+    }
 
     /* Enable slave bit count error interrupt flag */
-    if((u32Mask & SPI_SLVBE_INT_MASK) == SPI_SLVBE_INT_MASK)
+    if((u32Mask & SPI_SLVBE_INT_MASK) == SPI_SLVBE_INT_MASK) {
         spi->SSCTL |= SPI_SSCTL_SLVBEIEN_Msk;
+    }
 
     /* Enable slave TX underflow interrupt flag */
-    if((u32Mask & SPI_TXUF_INT_MASK) == SPI_TXUF_INT_MASK)
+    if((u32Mask & SPI_TXUF_INT_MASK) == SPI_TXUF_INT_MASK) {
         spi->FIFOCTL |= SPI_FIFOCTL_TXUFIEN_Msk;
+    }
 
     /* Enable TX threshold interrupt flag */
-    if((u32Mask & SPI_FIFO_TXTH_INT_MASK) == SPI_FIFO_TXTH_INT_MASK)
+    if((u32Mask & SPI_FIFO_TXTH_INT_MASK) == SPI_FIFO_TXTH_INT_MASK) {
         spi->FIFOCTL |= SPI_FIFOCTL_TXTHIEN_Msk;
+    }
 
     /* Enable RX threshold interrupt flag */
-    if((u32Mask & SPI_FIFO_RXTH_INT_MASK) == SPI_FIFO_RXTH_INT_MASK)
+    if((u32Mask & SPI_FIFO_RXTH_INT_MASK) == SPI_FIFO_RXTH_INT_MASK) {
         spi->FIFOCTL |= SPI_FIFOCTL_RXTHIEN_Msk;
+    }
 
     /* Enable RX overrun interrupt flag */
-    if((u32Mask & SPI_FIFO_RXOV_INT_MASK) == SPI_FIFO_RXOV_INT_MASK)
+    if((u32Mask & SPI_FIFO_RXOV_INT_MASK) == SPI_FIFO_RXOV_INT_MASK) {
         spi->FIFOCTL |= SPI_FIFOCTL_RXOVIEN_Msk;
+    }
 
     /* Enable RX time-out interrupt flag */
-    if((u32Mask & SPI_FIFO_RXTO_INT_MASK) == SPI_FIFO_RXTO_INT_MASK)
+    if((u32Mask & SPI_FIFO_RXTO_INT_MASK) == SPI_FIFO_RXTO_INT_MASK) {
         spi->FIFOCTL |= SPI_FIFOCTL_RXTOIEN_Msk;
+    }
 }
 
 /**
@@ -563,44 +595,54 @@ void SPI_EnableInt(SPI_T *spi, uint32_t u32Mask)
 void SPI_DisableInt(SPI_T *spi, uint32_t u32Mask)
 {
     /* Disable unit transfer interrupt flag */
-    if((u32Mask & SPI_UNIT_INT_MASK) == SPI_UNIT_INT_MASK)
+    if((u32Mask & SPI_UNIT_INT_MASK) == SPI_UNIT_INT_MASK) {
         spi->CTL &= ~SPI_CTL_UNITIEN_Msk;
+    }
 
     /* Disable slave selection signal active interrupt flag */
-    if((u32Mask & SPI_SSACT_INT_MASK) == SPI_SSACT_INT_MASK)
+    if((u32Mask & SPI_SSACT_INT_MASK) == SPI_SSACT_INT_MASK) {
         spi->SSCTL &= ~SPI_SSCTL_SSACTIEN_Msk;
+    }
 
     /* Disable slave selection signal inactive interrupt flag */
-    if((u32Mask & SPI_SSINACT_INT_MASK) == SPI_SSINACT_INT_MASK)
+    if((u32Mask & SPI_SSINACT_INT_MASK) == SPI_SSINACT_INT_MASK) {
         spi->SSCTL &= ~SPI_SSCTL_SSINAIEN_Msk;
+    }
 
     /* Disable slave TX under run interrupt flag */
-    if((u32Mask & SPI_SLVUR_INT_MASK) == SPI_SLVUR_INT_MASK)
+    if((u32Mask & SPI_SLVUR_INT_MASK) == SPI_SLVUR_INT_MASK) {
         spi->SSCTL &= ~SPI_SSCTL_SLVURIEN_Msk;
+    }
 
     /* Disable slave bit count error interrupt flag */
-    if((u32Mask & SPI_SLVBE_INT_MASK) == SPI_SLVBE_INT_MASK)
+    if((u32Mask & SPI_SLVBE_INT_MASK) == SPI_SLVBE_INT_MASK) {
         spi->SSCTL &= ~SPI_SSCTL_SLVBEIEN_Msk;
+    }
 
     /* Disable slave TX underflow interrupt flag */
-    if((u32Mask & SPI_TXUF_INT_MASK) == SPI_TXUF_INT_MASK)
+    if((u32Mask & SPI_TXUF_INT_MASK) == SPI_TXUF_INT_MASK) {
         spi->FIFOCTL &= ~SPI_FIFOCTL_TXUFIEN_Msk;
+    }
 
     /* Disable TX threshold interrupt flag */
-    if((u32Mask & SPI_FIFO_TXTH_INT_MASK) == SPI_FIFO_TXTH_INT_MASK)
+    if((u32Mask & SPI_FIFO_TXTH_INT_MASK) == SPI_FIFO_TXTH_INT_MASK) {
         spi->FIFOCTL &= ~SPI_FIFOCTL_TXTHIEN_Msk;
+    }
 
     /* Disable RX threshold interrupt flag */
-    if((u32Mask & SPI_FIFO_RXTH_INT_MASK) == SPI_FIFO_RXTH_INT_MASK)
+    if((u32Mask & SPI_FIFO_RXTH_INT_MASK) == SPI_FIFO_RXTH_INT_MASK) {
         spi->FIFOCTL &= ~SPI_FIFOCTL_RXTHIEN_Msk;
+    }
 
     /* Disable RX overrun interrupt flag */
-    if((u32Mask & SPI_FIFO_RXOV_INT_MASK) == SPI_FIFO_RXOV_INT_MASK)
+    if((u32Mask & SPI_FIFO_RXOV_INT_MASK) == SPI_FIFO_RXOV_INT_MASK) {
         spi->FIFOCTL &= ~SPI_FIFOCTL_RXOVIEN_Msk;
+    }
 
     /* Disable RX time-out interrupt flag */
-    if((u32Mask & SPI_FIFO_RXTO_INT_MASK) == SPI_FIFO_RXTO_INT_MASK)
+    if((u32Mask & SPI_FIFO_RXTO_INT_MASK) == SPI_FIFO_RXTO_INT_MASK) {
         spi->FIFOCTL &= ~SPI_FIFOCTL_RXTOIEN_Msk;
+    }
 }
 
 /**
@@ -625,47 +667,67 @@ void SPI_DisableInt(SPI_T *spi, uint32_t u32Mask)
   */
 uint32_t SPI_GetIntFlag(SPI_T *spi, uint32_t u32Mask)
 {
-    uint32_t u32IntFlag = 0;
+    uint32_t u32IntFlag = 0U, u32TmpVal;
 
+    u32TmpVal = spi->STATUS & SPI_STATUS_UNITIF_Msk;
     /* Check unit transfer interrupt flag */
-    if((u32Mask & SPI_UNIT_INT_MASK) && (spi->STATUS & SPI_STATUS_UNITIF_Msk))
+    if((u32Mask & SPI_UNIT_INT_MASK) && (u32TmpVal)) {
         u32IntFlag |= SPI_UNIT_INT_MASK;
+    }
 
+    u32TmpVal = spi->STATUS & SPI_STATUS_SSACTIF_Msk;
     /* Check slave selection signal active interrupt flag */
-    if((u32Mask & SPI_SSACT_INT_MASK) && (spi->STATUS & SPI_STATUS_SSACTIF_Msk))
+    if((u32Mask & SPI_SSACT_INT_MASK) && (u32TmpVal)) {
         u32IntFlag |= SPI_SSACT_INT_MASK;
+    }
 
+    u32TmpVal = spi->STATUS & SPI_STATUS_SSINAIF_Msk;
     /* Check slave selection signal inactive interrupt flag */
-    if((u32Mask & SPI_SSINACT_INT_MASK) && (spi->STATUS & SPI_STATUS_SSINAIF_Msk))
+    if((u32Mask & SPI_SSINACT_INT_MASK) && (u32TmpVal)) {
         u32IntFlag |= SPI_SSINACT_INT_MASK;
+    }
 
+    u32TmpVal = spi->STATUS & SPI_STATUS_SLVURIF_Msk;
     /* Check slave TX under run interrupt flag */
-    if((u32Mask & SPI_SLVUR_INT_MASK) && (spi->STATUS & SPI_STATUS_SLVURIF_Msk))
+    if((u32Mask & SPI_SLVUR_INT_MASK) && (u32TmpVal)) {
         u32IntFlag |= SPI_SLVUR_INT_MASK;
+    }
 
+    u32TmpVal = spi->STATUS & SPI_STATUS_SLVBEIF_Msk;
     /* Check slave bit count error interrupt flag */
-    if((u32Mask & SPI_SLVBE_INT_MASK) && (spi->STATUS & SPI_STATUS_SLVBEIF_Msk))
+    if((u32Mask & SPI_SLVBE_INT_MASK) && (u32TmpVal)) {
         u32IntFlag |= SPI_SLVBE_INT_MASK;
+    }
 
+    u32TmpVal = spi->STATUS & SPI_STATUS_TXUFIF_Msk;
     /* Check slave TX underflow interrupt flag */
-    if((u32Mask & SPI_TXUF_INT_MASK) && (spi->STATUS & SPI_STATUS_TXUFIF_Msk))
+    if((u32Mask & SPI_TXUF_INT_MASK) && (u32TmpVal)) {
         u32IntFlag |= SPI_TXUF_INT_MASK;
+    }
 
+    u32TmpVal = spi->STATUS & SPI_STATUS_TXTHIF_Msk;
     /* Check TX threshold interrupt flag */
-    if((u32Mask & SPI_FIFO_TXTH_INT_MASK) && (spi->STATUS & SPI_STATUS_TXTHIF_Msk))
+    if((u32Mask & SPI_FIFO_TXTH_INT_MASK) && (u32TmpVal)) {
         u32IntFlag |= SPI_FIFO_TXTH_INT_MASK;
+    }
 
+    u32TmpVal = spi->STATUS & SPI_STATUS_RXTHIF_Msk;
     /* Check RX threshold interrupt flag */
-    if((u32Mask & SPI_FIFO_RXTH_INT_MASK) && (spi->STATUS & SPI_STATUS_RXTHIF_Msk))
+    if((u32Mask & SPI_FIFO_RXTH_INT_MASK) && (u32TmpVal)) {
         u32IntFlag |= SPI_FIFO_RXTH_INT_MASK;
+    }
 
+    u32TmpVal = spi->STATUS & SPI_STATUS_RXOVIF_Msk;
     /* Check RX overrun interrupt flag */
-    if((u32Mask & SPI_FIFO_RXOV_INT_MASK) && (spi->STATUS & SPI_STATUS_RXOVIF_Msk))
+    if((u32Mask & SPI_FIFO_RXOV_INT_MASK) && (u32TmpVal)) {
         u32IntFlag |= SPI_FIFO_RXOV_INT_MASK;
+    }
 
+    u32TmpVal = spi->STATUS & SPI_STATUS_RXTOIF_Msk;
     /* Check RX time-out interrupt flag */
-    if((u32Mask & SPI_FIFO_RXTO_INT_MASK) && (spi->STATUS & SPI_STATUS_RXTOIF_Msk))
+    if((u32Mask & SPI_FIFO_RXTO_INT_MASK) && (u32TmpVal)) {
         u32IntFlag |= SPI_FIFO_RXTO_INT_MASK;
+    }
 
     return u32IntFlag;
 }
@@ -690,29 +752,37 @@ uint32_t SPI_GetIntFlag(SPI_T *spi, uint32_t u32Mask)
   */
 void SPI_ClearIntFlag(SPI_T *spi, uint32_t u32Mask)
 {
-    if(u32Mask & SPI_UNIT_INT_MASK)
+    if(u32Mask & SPI_UNIT_INT_MASK) {
         spi->STATUS = SPI_STATUS_UNITIF_Msk; /* Clear unit transfer interrupt flag */
+    }
 
-    if(u32Mask & SPI_SSACT_INT_MASK)
+    if(u32Mask & SPI_SSACT_INT_MASK) {
         spi->STATUS = SPI_STATUS_SSACTIF_Msk; /* Clear slave selection signal active interrupt flag */
+    }
 
-    if(u32Mask & SPI_SSINACT_INT_MASK)
+    if(u32Mask & SPI_SSINACT_INT_MASK) {
         spi->STATUS = SPI_STATUS_SSINAIF_Msk; /* Clear slave selection signal inactive interrupt flag */
+    }
 
-    if(u32Mask & SPI_SLVUR_INT_MASK)
+    if(u32Mask & SPI_SLVUR_INT_MASK) {
         spi->STATUS = SPI_STATUS_SLVURIF_Msk; /* Clear slave TX under run interrupt flag */
+    }
 
-    if(u32Mask & SPI_SLVBE_INT_MASK)
+    if(u32Mask & SPI_SLVBE_INT_MASK) {
         spi->STATUS = SPI_STATUS_SLVBEIF_Msk; /* Clear slave bit count error interrupt flag */
+    }
 
-    if(u32Mask & SPI_TXUF_INT_MASK)
+    if(u32Mask & SPI_TXUF_INT_MASK) {
         spi->STATUS = SPI_STATUS_TXUFIF_Msk; /* Clear slave TX underflow interrupt flag */
+    }
 
-    if(u32Mask & SPI_FIFO_RXOV_INT_MASK)
+    if(u32Mask & SPI_FIFO_RXOV_INT_MASK) {
         spi->STATUS = SPI_STATUS_RXOVIF_Msk; /* Clear RX overrun interrupt flag */
+    }
 
-    if(u32Mask & SPI_FIFO_RXTO_INT_MASK)
+    if(u32Mask & SPI_FIFO_RXTO_INT_MASK) {
         spi->STATUS = SPI_STATUS_RXTOIF_Msk; /* Clear RX time-out interrupt flag */
+    }
 }
 
 /**
@@ -735,39 +805,55 @@ void SPI_ClearIntFlag(SPI_T *spi, uint32_t u32Mask)
   */
 uint32_t SPI_GetStatus(SPI_T *spi, uint32_t u32Mask)
 {
-    uint32_t u32Flag = 0;
+    uint32_t u32Flag = 0U, u32TmpValue;
 
+    u32TmpValue = spi->STATUS & SPI_STATUS_BUSY_Msk;
     /* Check busy status */
-    if((u32Mask & SPI_BUSY_MASK) && (spi->STATUS & SPI_STATUS_BUSY_Msk))
+    if((u32Mask & SPI_BUSY_MASK) && (u32TmpValue)) {
         u32Flag |= SPI_BUSY_MASK;
+    }
 
+    u32TmpValue = spi->STATUS & SPI_STATUS_RXEMPTY_Msk;
     /* Check RX empty flag */
-    if((u32Mask & SPI_RX_EMPTY_MASK) && (spi->STATUS & SPI_STATUS_RXEMPTY_Msk))
+    if((u32Mask & SPI_RX_EMPTY_MASK) && (u32TmpValue)) {
         u32Flag |= SPI_RX_EMPTY_MASK;
+    }
 
+    u32TmpValue = spi->STATUS & SPI_STATUS_RXFULL_Msk;
     /* Check RX full flag */
-    if((u32Mask & SPI_RX_FULL_MASK) && (spi->STATUS & SPI_STATUS_RXFULL_Msk))
+    if((u32Mask & SPI_RX_FULL_MASK) && (u32TmpValue)) {
         u32Flag |= SPI_RX_FULL_MASK;
+    }
 
+    u32TmpValue = spi->STATUS & SPI_STATUS_TXEMPTY_Msk;
     /* Check TX empty flag */
-    if((u32Mask & SPI_TX_EMPTY_MASK) && (spi->STATUS & SPI_STATUS_TXEMPTY_Msk))
+    if((u32Mask & SPI_TX_EMPTY_MASK) && (u32TmpValue)) {
         u32Flag |= SPI_TX_EMPTY_MASK;
+    }
 
+    u32TmpValue = spi->STATUS & SPI_STATUS_TXFULL_Msk;
     /* Check TX full flag */
-    if((u32Mask & SPI_TX_FULL_MASK) && (spi->STATUS & SPI_STATUS_TXFULL_Msk))
+    if((u32Mask & SPI_TX_FULL_MASK) && (u32TmpValue)) {
         u32Flag |= SPI_TX_FULL_MASK;
+    }
 
+    u32TmpValue = spi->STATUS & SPI_STATUS_TXRXRST_Msk;
     /* Check TX/RX reset flag */
-    if((u32Mask & SPI_TXRX_RESET_MASK) && (spi->STATUS & SPI_STATUS_TXRXRST_Msk))
+    if((u32Mask & SPI_TXRX_RESET_MASK) && (u32TmpValue)) {
         u32Flag |= SPI_TXRX_RESET_MASK;
+    }
 
+    u32TmpValue = spi->STATUS & SPI_STATUS_SPIENSTS_Msk;
     /* Check SPIEN flag */
-    if((u32Mask & SPI_SPIEN_STS_MASK) && (spi->STATUS & SPI_STATUS_SPIENSTS_Msk))
+    if((u32Mask & SPI_SPIEN_STS_MASK) && (u32TmpValue)) {
         u32Flag |= SPI_SPIEN_STS_MASK;
+    }
 
+    u32TmpValue = spi->STATUS & SPI_STATUS_SSLINE_Msk;
     /* Check SPIx_SS line status */
-    if((u32Mask & SPI_SSLINE_STS_MASK) && (spi->STATUS & SPI_STATUS_SSLINE_Msk))
+    if((u32Mask & SPI_SSLINE_STS_MASK) && (u32TmpValue)) {
         u32Flag |= SPI_SSLINE_STS_MASK;
+    }
 
     return u32Flag;
 }
@@ -784,55 +870,60 @@ static uint32_t SPII2S_GetSourceClockFreq(SPI_T *i2s)
     uint32_t u32Freq;
 
     if(i2s == SPI0) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_HXT) {
             u32Freq = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PLL) {
             u32Freq = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PCLK0) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI0SEL_Msk) == CLK_CLKSEL2_SPI0SEL_PCLK0) {
             /* Clock source is PCLK0 */
             u32Freq = CLK_GetPCLK0Freq();
-        } else
+        } else {
             u32Freq = __HIRC; /* Clock source is HIRC */
+        }
     } else if(i2s == SPI1) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_HXT) {
             u32Freq = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PLL) {
             u32Freq = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PCLK1) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI1SEL_Msk) == CLK_CLKSEL2_SPI1SEL_PCLK1) {
             /* Clock source is PCLK1 */
             u32Freq = CLK_GetPCLK1Freq();
-        } else
+        } else {
             u32Freq = __HIRC; /* Clock source is HIRC */
+        }
     } else if(i2s == SPI2) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_HXT) {
             u32Freq = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PLL) {
             u32Freq = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PCLK0) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI2SEL_Msk) == CLK_CLKSEL2_SPI2SEL_PCLK0) {
             /* Clock source is PCLK0 */
             u32Freq = CLK_GetPCLK0Freq();
-        } else
+        } else {
             u32Freq = __HIRC; /* Clock source is HIRC */
+        }
     } else if(i2s == SPI3) {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_HXT) {
             u32Freq = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PLL) {
             u32Freq = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PCLK1) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI3SEL_Msk) == CLK_CLKSEL2_SPI3SEL_PCLK1) {
             /* Clock source is PCLK1 */
             u32Freq = CLK_GetPCLK1Freq();
-        } else
+        } else {
             u32Freq = __HIRC; /* Clock source is HIRC */
+        }
     } else {
-        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_HXT)
+        if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_HXT) {
             u32Freq = __HXT; /* Clock source is HXT */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PLL)
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PLL) {
             u32Freq = CLK_GetPLLClockFreq(); /* Clock source is PLL */
-        else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PCLK0) {
+        } else if((CLK->CLKSEL2 & CLK_CLKSEL2_SPI4SEL_Msk) == CLK_CLKSEL2_SPI4SEL_PCLK0) {
             /* Clock source is PCLK0 */
             u32Freq = CLK_GetPCLK0Freq();
-        } else
+        } else {
             u32Freq = __HIRC; /* Clock source is HIRC */
+        }
     }
 
     return u32Freq;
@@ -867,7 +958,7 @@ static uint32_t SPII2S_GetSourceClockFreq(SPI_T *i2s)
 uint32_t SPII2S_Open(SPI_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate, uint32_t u32WordWidth, uint32_t u32Channels, uint32_t u32DataFormat)
 {
     uint32_t u32Divider;
-    uint32_t u32BitRate, u32SrcClk;
+    uint32_t u32BitRate, u32SrcClk, u32RetValue;
 
     /* Reset SPI/I2S */
     if(i2s == SPI0) {
@@ -897,21 +988,21 @@ uint32_t SPII2S_Open(SPI_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate
         u32SrcClk = SPII2S_GetSourceClockFreq(i2s);
 
         /* Calculate the bit clock rate */
-        u32BitRate = u32SampleRate * ((u32WordWidth >> SPI_I2SCTL_WDWIDTH_Pos) + 1) * 16;
-        u32Divider = ((u32SrcClk / u32BitRate) >> 1) - 1;
+        u32BitRate = u32SampleRate * ((u32WordWidth >> SPI_I2SCTL_WDWIDTH_Pos) + 1U) * 16U;
+        u32Divider = ((u32SrcClk / u32BitRate) >> 1U) - 1U;
         /* Set BCLKDIV setting */
         i2s->I2SCLK = (i2s->I2SCLK & ~SPI_I2SCLK_BCLKDIV_Msk) | (u32Divider << SPI_I2SCLK_BCLKDIV_Pos);
 
         /* Calculate bit clock rate */
-        u32BitRate = u32SrcClk / ((u32Divider + 1) * 2);
+        u32BitRate = u32SrcClk / ((u32Divider + 1U) * 2U);
         /* Calculate real sample rate */
-        u32SampleRate = u32BitRate / (((u32WordWidth >> SPI_I2SCTL_WDWIDTH_Pos) + 1) * 16);
+        u32SampleRate = u32BitRate / (((u32WordWidth >> SPI_I2SCTL_WDWIDTH_Pos) + 1U) * 16U);
 
         /* Enable TX function, RX function and I2S mode. */
         i2s->I2SCTL |= (SPI_I2SCTL_RXEN_Msk | SPI_I2SCTL_TXEN_Msk | SPI_I2SCTL_I2SEN_Msk);
 
         /* Return the real sample rate */
-        return u32SampleRate;
+        u32RetValue = u32SampleRate;
     } else {
         /* Set BCLKDIV = 0 */
         i2s->I2SCLK &= ~SPI_I2SCLK_BCLKDIV_Msk;
@@ -922,37 +1013,39 @@ uint32_t SPII2S_Open(SPI_T *i2s, uint32_t u32MasterSlave, uint32_t u32SampleRate
             /* Enable TX function, RX function and I2S mode. */
             i2s->I2SCTL |= (SPI_I2SCTL_RXEN_Msk | SPI_I2SCTL_TXEN_Msk | SPI_I2SCTL_I2SEN_Msk);
             /* Return slave peripheral clock rate */
-            return CLK_GetPCLK0Freq();
+            u32RetValue = CLK_GetPCLK0Freq();
         } else if(i2s == SPI1) {
             /* Set the peripheral clock rate to equal APB clock rate */
             CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI1SEL_Msk)) | CLK_CLKSEL2_SPI1SEL_PCLK1;
             /* Enable TX function, RX function and I2S mode. */
             i2s->I2SCTL |= (SPI_I2SCTL_RXEN_Msk | SPI_I2SCTL_TXEN_Msk | SPI_I2SCTL_I2SEN_Msk);
             /* Return slave peripheral clock rate */
-            return CLK_GetPCLK1Freq();
+            u32RetValue = CLK_GetPCLK1Freq();
         } else if(i2s == SPI2) {
             /* Set the peripheral clock rate to equal APB clock rate */
             CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI2SEL_Msk)) | CLK_CLKSEL2_SPI2SEL_PCLK0;
             /* Enable TX function, RX function and I2S mode. */
             i2s->I2SCTL |= (SPI_I2SCTL_RXEN_Msk | SPI_I2SCTL_TXEN_Msk | SPI_I2SCTL_I2SEN_Msk);
             /* Return slave peripheral clock rate */
-            return CLK_GetPCLK0Freq();
+            u32RetValue = CLK_GetPCLK0Freq();
         } else if(i2s == SPI3) {
             /* Set the peripheral clock rate to equal APB clock rate */
             CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI3SEL_Msk)) | CLK_CLKSEL2_SPI3SEL_PCLK1;
             /* Enable TX function, RX function and I2S mode. */
             i2s->I2SCTL |= (SPI_I2SCTL_RXEN_Msk | SPI_I2SCTL_TXEN_Msk | SPI_I2SCTL_I2SEN_Msk);
             /* Return slave peripheral clock rate */
-            return CLK_GetPCLK1Freq();
+            u32RetValue = CLK_GetPCLK1Freq();
         } else {
             /* Set the peripheral clock rate to equal APB clock rate */
             CLK->CLKSEL2 = (CLK->CLKSEL2 & (~CLK_CLKSEL2_SPI4SEL_Msk)) | CLK_CLKSEL2_SPI4SEL_PCLK0;
             /* Enable TX function, RX function and I2S mode. */
             i2s->I2SCTL |= (SPI_I2SCTL_RXEN_Msk | SPI_I2SCTL_TXEN_Msk | SPI_I2SCTL_I2SEN_Msk);
             /* Return slave peripheral clock rate */
-            return CLK_GetPCLK0Freq();
+            u32RetValue = CLK_GetPCLK0Freq();
         }
     }
+
+    return u32RetValue;
 }
 
 /**
@@ -984,32 +1077,39 @@ void SPII2S_Close(SPI_T *i2s)
 void SPII2S_EnableInt(SPI_T *i2s, uint32_t u32Mask)
 {
     /* Enable TX threshold interrupt flag */
-    if((u32Mask & SPII2S_FIFO_TXTH_INT_MASK) == SPII2S_FIFO_TXTH_INT_MASK)
+    if((u32Mask & SPII2S_FIFO_TXTH_INT_MASK) == SPII2S_FIFO_TXTH_INT_MASK) {
         i2s->FIFOCTL |= SPI_FIFOCTL_TXTHIEN_Msk;
+    }
 
     /* Enable RX threshold interrupt flag */
-    if((u32Mask & SPII2S_FIFO_RXTH_INT_MASK) == SPII2S_FIFO_RXTH_INT_MASK)
+    if((u32Mask & SPII2S_FIFO_RXTH_INT_MASK) == SPII2S_FIFO_RXTH_INT_MASK) {
         i2s->FIFOCTL |= SPI_FIFOCTL_RXTHIEN_Msk;
+    }
 
     /* Enable RX overrun interrupt flag */
-    if((u32Mask & SPII2S_FIFO_RXOV_INT_MASK) == SPII2S_FIFO_RXOV_INT_MASK)
+    if((u32Mask & SPII2S_FIFO_RXOV_INT_MASK) == SPII2S_FIFO_RXOV_INT_MASK) {
         i2s->FIFOCTL |= SPI_FIFOCTL_RXOVIEN_Msk;
+    }
 
     /* Enable RX time-out interrupt flag */
-    if((u32Mask & SPII2S_FIFO_RXTO_INT_MASK) == SPII2S_FIFO_RXTO_INT_MASK)
+    if((u32Mask & SPII2S_FIFO_RXTO_INT_MASK) == SPII2S_FIFO_RXTO_INT_MASK) {
         i2s->FIFOCTL |= SPI_FIFOCTL_RXTOIEN_Msk;
+    }
 
     /* Enable TX underflow interrupt flag */
-    if((u32Mask & SPII2S_TXUF_INT_MASK) == SPII2S_TXUF_INT_MASK)
+    if((u32Mask & SPII2S_TXUF_INT_MASK) == SPII2S_TXUF_INT_MASK) {
         i2s->FIFOCTL |= SPI_FIFOCTL_TXUFIEN_Msk;
+    }
 
     /* Enable right channel zero cross interrupt flag */
-    if((u32Mask & SPII2S_RIGHT_ZC_INT_MASK) == SPII2S_RIGHT_ZC_INT_MASK)
+    if((u32Mask & SPII2S_RIGHT_ZC_INT_MASK) == SPII2S_RIGHT_ZC_INT_MASK) {
         i2s->I2SCTL |= SPI_I2SCTL_RZCIEN_Msk;
+    }
 
     /* Enable left channel zero cross interrupt flag */
-    if((u32Mask & SPII2S_LEFT_ZC_INT_MASK) == SPII2S_LEFT_ZC_INT_MASK)
+    if((u32Mask & SPII2S_LEFT_ZC_INT_MASK) == SPII2S_LEFT_ZC_INT_MASK) {
         i2s->I2SCTL |= SPI_I2SCTL_LZCIEN_Msk;
+    }
 }
 
 /**
@@ -1030,32 +1130,39 @@ void SPII2S_EnableInt(SPI_T *i2s, uint32_t u32Mask)
 void SPII2S_DisableInt(SPI_T *i2s, uint32_t u32Mask)
 {
     /* Disable TX threshold interrupt flag */
-    if((u32Mask & SPII2S_FIFO_TXTH_INT_MASK) == SPII2S_FIFO_TXTH_INT_MASK)
+    if((u32Mask & SPII2S_FIFO_TXTH_INT_MASK) == SPII2S_FIFO_TXTH_INT_MASK) {
         i2s->FIFOCTL &= ~SPI_FIFOCTL_TXTHIEN_Msk;
+    }
 
     /* Disable RX threshold interrupt flag */
-    if((u32Mask & SPII2S_FIFO_RXTH_INT_MASK) == SPII2S_FIFO_RXTH_INT_MASK)
+    if((u32Mask & SPII2S_FIFO_RXTH_INT_MASK) == SPII2S_FIFO_RXTH_INT_MASK) {
         i2s->FIFOCTL &= ~SPI_FIFOCTL_RXTHIEN_Msk;
+    }
 
     /* Disable RX overrun interrupt flag */
-    if((u32Mask & SPII2S_FIFO_RXOV_INT_MASK) == SPII2S_FIFO_RXOV_INT_MASK)
+    if((u32Mask & SPII2S_FIFO_RXOV_INT_MASK) == SPII2S_FIFO_RXOV_INT_MASK) {
         i2s->FIFOCTL &= ~SPI_FIFOCTL_RXOVIEN_Msk;
+    }
 
     /* Disable RX time-out interrupt flag */
-    if((u32Mask & SPII2S_FIFO_RXTO_INT_MASK) == SPII2S_FIFO_RXTO_INT_MASK)
+    if((u32Mask & SPII2S_FIFO_RXTO_INT_MASK) == SPII2S_FIFO_RXTO_INT_MASK) {
         i2s->FIFOCTL &= ~SPI_FIFOCTL_RXTOIEN_Msk;
+    }
 
     /* Disable TX underflow interrupt flag */
-    if((u32Mask & SPII2S_TXUF_INT_MASK) == SPII2S_TXUF_INT_MASK)
+    if((u32Mask & SPII2S_TXUF_INT_MASK) == SPII2S_TXUF_INT_MASK) {
         i2s->FIFOCTL &= ~SPI_FIFOCTL_TXUFIEN_Msk;
+    }
 
     /* Disable right channel zero cross interrupt flag */
-    if((u32Mask & SPII2S_RIGHT_ZC_INT_MASK) == SPII2S_RIGHT_ZC_INT_MASK)
+    if((u32Mask & SPII2S_RIGHT_ZC_INT_MASK) == SPII2S_RIGHT_ZC_INT_MASK) {
         i2s->I2SCTL &= ~SPI_I2SCTL_RZCIEN_Msk;
+    }
 
     /* Disable left channel zero cross interrupt flag */
-    if((u32Mask & SPII2S_LEFT_ZC_INT_MASK) == SPII2S_LEFT_ZC_INT_MASK)
+    if((u32Mask & SPII2S_LEFT_ZC_INT_MASK) == SPII2S_LEFT_ZC_INT_MASK) {
         i2s->I2SCTL &= ~SPI_I2SCTL_LZCIEN_Msk;
+    }
 }
 
 /**
@@ -1069,16 +1176,17 @@ void SPII2S_DisableInt(SPI_T *i2s, uint32_t u32Mask)
 uint32_t SPII2S_EnableMCLK(SPI_T *i2s, uint32_t u32BusClock)
 {
     uint32_t u32Divider;
-    uint32_t u32SrcClk;
+    uint32_t u32SrcClk, u32RetValue;
 
     u32SrcClk = SPII2S_GetSourceClockFreq(i2s);
-    if(u32BusClock == u32SrcClk)
-        u32Divider = 0;
-    else {
-        u32Divider = (u32SrcClk / u32BusClock) >> 1;
+    if(u32BusClock == u32SrcClk) {
+        u32Divider = 0U;
+    } else {
+        u32Divider = (u32SrcClk / u32BusClock) >> 1U;
         /* MCLKDIV is a 6-bit width configuration. The maximum value is 0x3F. */
-        if(u32Divider > 0x3F)
-            u32Divider = 0x3F;
+        if(u32Divider > 0x3FU) {
+            u32Divider = 0x3FU;
+        }
     }
 
     /* Write u32Divider to MCLKDIV (SPI_I2SCLK[5:0]) */
@@ -1087,10 +1195,13 @@ uint32_t SPII2S_EnableMCLK(SPI_T *i2s, uint32_t u32BusClock)
     /* Enable MCLK output */
     i2s->I2SCTL |= SPI_I2SCTL_MCLKEN_Msk;
 
-    if(u32Divider == 0)
-        return u32SrcClk; /* If MCLKDIV=0, master clock rate is equal to the source clock rate. */
-    else
-        return ((u32SrcClk >> 1) / u32Divider); /* If MCLKDIV>0, master clock rate = source clock rate / (MCLKDIV * 2) */
+    if(u32Divider == 0U) {
+        u32RetValue = u32SrcClk; /* If MCLKDIV=0, master clock rate is equal to the source clock rate. */
+    } else {
+        u32RetValue = ((u32SrcClk >> 1U) / u32Divider); /* If MCLKDIV>0, master clock rate = source clock rate / (MCLKDIV * 2) */
+    }
+
+    return u32RetValue;
 }
 
 /**

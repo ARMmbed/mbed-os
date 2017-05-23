@@ -40,19 +40,19 @@ static struct nu_pwm_var pwm1_var = {
 static uint32_t pwm_modinit_mask = 0;
 
 static const struct nu_modinit_s pwm_modinit_tab[] = {
-    {PWM_0_0, PWM0_MODULE, CLK_CLKSEL2_PWM0SEL_PCLK0, 0, PWM0_RST, PWM0P0_IRQn, &pwm0_var},
-    {PWM_0_1, PWM0_MODULE, CLK_CLKSEL2_PWM0SEL_PCLK0, 0, PWM0_RST, PWM0P0_IRQn, &pwm0_var},
-    {PWM_0_2, PWM0_MODULE, CLK_CLKSEL2_PWM0SEL_PCLK0, 0, PWM0_RST, PWM0P1_IRQn, &pwm0_var},
-    {PWM_0_3, PWM0_MODULE, CLK_CLKSEL2_PWM0SEL_PCLK0, 0, PWM0_RST, PWM0P1_IRQn, &pwm0_var},
-    {PWM_0_4, PWM0_MODULE, CLK_CLKSEL2_PWM0SEL_PCLK0, 0, PWM0_RST, PWM0P2_IRQn, &pwm0_var},
-    {PWM_0_5, PWM0_MODULE, CLK_CLKSEL2_PWM0SEL_PCLK0, 0, PWM0_RST, PWM0P2_IRQn, &pwm0_var},
+    {PWM_0_0, EPWM0_MODULE, CLK_CLKSEL2_EPWM0SEL_PCLK0, 0, EPWM0_RST, EPWM0P0_IRQn, &pwm0_var},
+    {PWM_0_1, EPWM0_MODULE, CLK_CLKSEL2_EPWM0SEL_PCLK0, 0, EPWM0_RST, EPWM0P0_IRQn, &pwm0_var},
+    {PWM_0_2, EPWM0_MODULE, CLK_CLKSEL2_EPWM0SEL_PCLK0, 0, EPWM0_RST, EPWM0P1_IRQn, &pwm0_var},
+    {PWM_0_3, EPWM0_MODULE, CLK_CLKSEL2_EPWM0SEL_PCLK0, 0, EPWM0_RST, EPWM0P1_IRQn, &pwm0_var},
+    {PWM_0_4, EPWM0_MODULE, CLK_CLKSEL2_EPWM0SEL_PCLK0, 0, EPWM0_RST, EPWM0P2_IRQn, &pwm0_var},
+    {PWM_0_5, EPWM0_MODULE, CLK_CLKSEL2_EPWM0SEL_PCLK0, 0, EPWM0_RST, EPWM0P2_IRQn, &pwm0_var},
 
-    {PWM_1_0, PWM1_MODULE, CLK_CLKSEL2_PWM1SEL_PCLK1, 0, PWM1_RST, PWM1P0_IRQn, &pwm1_var},
-    {PWM_1_1, PWM1_MODULE, CLK_CLKSEL2_PWM1SEL_PCLK1, 0, PWM1_RST, PWM1P0_IRQn, &pwm1_var},
-    {PWM_1_2, PWM1_MODULE, CLK_CLKSEL2_PWM1SEL_PCLK1, 0, PWM1_RST, PWM1P1_IRQn, &pwm1_var},
-    {PWM_1_3, PWM1_MODULE, CLK_CLKSEL2_PWM1SEL_PCLK1, 0, PWM1_RST, PWM1P1_IRQn, &pwm1_var},
-    {PWM_1_4, PWM1_MODULE, CLK_CLKSEL2_PWM1SEL_PCLK1, 0, PWM1_RST, PWM1P2_IRQn, &pwm1_var},
-    {PWM_1_5, PWM1_MODULE, CLK_CLKSEL2_PWM1SEL_PCLK1, 0, PWM1_RST, PWM1P2_IRQn, &pwm1_var},
+    {PWM_1_0, EPWM1_MODULE, CLK_CLKSEL2_EPWM1SEL_PCLK1, 0, EPWM1_RST, EPWM1P0_IRQn, &pwm1_var},
+    {PWM_1_1, EPWM1_MODULE, CLK_CLKSEL2_EPWM1SEL_PCLK1, 0, EPWM1_RST, EPWM1P0_IRQn, &pwm1_var},
+    {PWM_1_2, EPWM1_MODULE, CLK_CLKSEL2_EPWM1SEL_PCLK1, 0, EPWM1_RST, EPWM1P1_IRQn, &pwm1_var},
+    {PWM_1_3, EPWM1_MODULE, CLK_CLKSEL2_EPWM1SEL_PCLK1, 0, EPWM1_RST, EPWM1P1_IRQn, &pwm1_var},
+    {PWM_1_4, EPWM1_MODULE, CLK_CLKSEL2_EPWM1SEL_PCLK1, 0, EPWM1_RST, EPWM1P2_IRQn, &pwm1_var},
+    {PWM_1_5, EPWM1_MODULE, CLK_CLKSEL2_EPWM1SEL_PCLK1, 0, EPWM1_RST, EPWM1P2_IRQn, &pwm1_var},
     
     {NC, 0, 0, 0, 0, (IRQn_Type) 0, NULL}
 };
@@ -74,7 +74,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
         SYS_ResetModule(modinit->rsetidx);
     }
     
-    PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);
+    EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
         
     // NOTE: Channels 0/1/2/3/4/5 share a clock source.
@@ -94,8 +94,8 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     pwmout_config(obj);
     
     // Enable output of the specified PWM channel
-    PWM_EnableOutput(pwm_base, 1 << chn);
-    PWM_Start(pwm_base, 1 << chn);
+    EPWM_EnableOutput(pwm_base, 1 << chn);
+    EPWM_Start(pwm_base, 1 << chn);
     
     ((struct nu_pwm_var *) modinit->var)->en_msk |= 1 << chn;
     
@@ -106,9 +106,9 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
 void pwmout_free(pwmout_t* obj)
 {
-    PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);
+    EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
-    PWM_ForceStop(pwm_base, 1 << chn);
+    EPWM_ForceStop(pwm_base, 1 << chn);
     
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
@@ -179,7 +179,7 @@ int pwmout_allow_powerdown(void)
         int pwm_idx = nu_ctz(modinit_mask);
         const struct nu_modinit_s *modinit = pwm_modinit_tab + pwm_idx;
         if (modinit->modname != NC) {
-            PWM_T *pwm_base = (PWM_T *) NU_MODBASE(modinit->modname);
+            EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(modinit->modname);
             uint32_t chn = NU_MODSUBINDEX(modinit->modname);
             // Disallow entering power-down mode if PWM counter is enabled.
             if ((pwm_base->CNTEN & (1 << chn)) && pwm_base->CMPDAT[chn]) {
@@ -194,11 +194,11 @@ int pwmout_allow_powerdown(void)
 
 static void pwmout_config(pwmout_t* obj)
 {
-    PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);
+    EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn = NU_MODSUBINDEX(obj->pwm);
     // NOTE: Support period < 1s
-    //PWM_ConfigOutputChannel(pwm_base, chn, 1000 * 1000 / obj->period_us, obj->pulsewidth_us * 100 / obj->period_us);
-    PWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, obj->pulsewidth_us * 100 / obj->period_us, obj->period_us);
+    //EPWM_ConfigOutputChannel(pwm_base, chn, 1000 * 1000 / obj->period_us, obj->pulsewidth_us * 100 / obj->period_us);
+    EPWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, obj->pulsewidth_us * 100 / obj->period_us, obj->period_us);
 }
 
 #endif

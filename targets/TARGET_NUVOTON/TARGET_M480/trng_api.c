@@ -58,7 +58,7 @@ void trng_init(trng_t *obj)
     /* Unlock protected registers */
     SYS_UnlockReg();    
     /* Enable IP clock */
-    CLK_EnableModuleClock(CRYPTO_MODULE);
+    CLK_EnableModuleClock(CRPT_MODULE);
     
     /* Lock protected registers */
     SYS_LockReg();

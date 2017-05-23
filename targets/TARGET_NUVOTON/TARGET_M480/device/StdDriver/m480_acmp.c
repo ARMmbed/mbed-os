@@ -3,7 +3,6 @@
  * @version  V1.00
  * @brief    M480 series Analog Comparator(ACMP) driver source file
  *
- * @note
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 #include "M480.h"
@@ -26,7 +25,7 @@
 /**
   * @brief  Configure the specified ACMP module
   *
-  * @param[in]  Acmp The pointer of the specified ACMP module
+  * @param[in]  acmp The pointer of the specified ACMP module
   * @param[in]  u32ChNum Comparator number.
   * @param[in]  u32NegSrc Comparator negative input selection.  Including:
   *                  - \ref ACMP_CTL_NEGSEL_PIN
@@ -43,24 +42,24 @@
   *
   * @details    Configure hysteresis function, select the source of negative input and enable analog comparator.
   */
-void ACMP_Open(ACMP_T *Acmp, uint32_t u32ChNum, uint32_t u32NegSrc, uint32_t u32HysSel)
+void ACMP_Open(ACMP_T *acmp, uint32_t u32ChNum, uint32_t u32NegSrc, uint32_t u32HysSel)
 {
-    Acmp->CTL[u32ChNum] = (Acmp->CTL[u32ChNum] & (~(ACMP_CTL_NEGSEL_Msk | ACMP_CTL_HYSSEL_Msk))) | (u32NegSrc | u32HysSel | ACMP_CTL_ACMPEN_Msk);
+    acmp->CTL[u32ChNum] = (acmp->CTL[u32ChNum] & (~(ACMP_CTL_NEGSEL_Msk | ACMP_CTL_HYSSEL_Msk))) | (u32NegSrc | u32HysSel | ACMP_CTL_ACMPEN_Msk);
 }
 
 /**
   * @brief  Close analog comparator
   *
-  * @param[in]  Acmp The pointer of the specified ACMP module
+  * @param[in]  acmp The pointer of the specified ACMP module
   * @param[in]  u32ChNum Comparator number.
   *
   * @return     None
   *
   * @details  This function will clear ACMPEN bit of ACMP_CTL register to disable analog comparator.
   */
-void ACMP_Close(ACMP_T *Acmp, uint32_t u32ChNum)
+void ACMP_Close(ACMP_T *acmp, uint32_t u32ChNum)
 {
-    Acmp->CTL[u32ChNum] &= (~ACMP_CTL_ACMPEN_Msk);
+    acmp->CTL[u32ChNum] &= (~ACMP_CTL_ACMPEN_Msk);
 }
 
 

@@ -3,7 +3,7 @@
  * @version  V1.00
  * @brief    M480 Smartcard (SC) driver header file
  *
- * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
+ * @copyright (C) 2017 Nuvoton Technology Corp. All rights reserved.
  *****************************************************************************/
 #ifndef __SC_H__
 #define __SC_H__
@@ -100,7 +100,7 @@ extern "C"
   */
 #define SC_SET_VCC_PIN(sc, u32State) \
     do {\
-            while(sc->PINCTL & SC_PINCTL_SYNC_Msk);\
+            while((sc)->PINCTL & SC_PINCTL_SYNC_Msk);\
             if(u32State)\
                 (sc)->PINCTL |= SC_PINCTL_PWREN_Msk;\
             else\
@@ -117,7 +117,7 @@ extern "C"
   */
 #define SC_SET_CLK_PIN(sc, u32OnOff)\
     do {\
-            while(sc->PINCTL & SC_PINCTL_SYNC_Msk);\
+            while((sc)->PINCTL & SC_PINCTL_SYNC_Msk);\
             if(u32OnOff)\
                 (sc)->PINCTL |= SC_PINCTL_CLKKEEP_Msk;\
             else\
@@ -133,7 +133,7 @@ extern "C"
   */
 #define SC_SET_IO_PIN(sc, u32State)\
     do {\
-            while(sc->PINCTL & SC_PINCTL_SYNC_Msk);\
+            while((sc)->PINCTL & SC_PINCTL_SYNC_Msk);\
             if(u32State)\
                 (sc)->PINCTL |= SC_PINCTL_SCDATA_Msk;\
             else\
@@ -149,7 +149,7 @@ extern "C"
   */
 #define SC_SET_RST_PIN(sc, u32State)\
     do {\
-            while(sc->PINCTL & SC_PINCTL_SYNC_Msk);\
+            while((sc)->PINCTL & SC_PINCTL_SYNC_Msk);\
             if(u32State)\
                 (sc)->PINCTL |= SC_PINCTL_RSTEN_Msk;\
             else\
@@ -181,7 +181,11 @@ extern "C"
   * @details Stop bit length must be 1 for T = 1 protocol and 2 for T = 0 protocol.
   * \hideinitializer
   */
-#define SC_SET_STOP_BIT_LEN(sc, u32Len) ((sc)->CTL = ((sc)->CTL & ~SC_CTL_NSB_Msk) | (u32Len == 1 ? SC_CTL_NSB_Msk : 0))
+#define SC_SET_STOP_BIT_LEN(sc, u32Len) ((sc)->CTL = ((sc)->CTL & ~SC_CTL_NSB_Msk) | ((u32Len) == 1 ? SC_CTL_NSB_Msk : 0))
+
+/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */
+__STATIC_INLINE void SC_SetTxRetry(SC_T *sc, uint32_t u32Count);
+__STATIC_INLINE void  SC_SetRxRetry(SC_T *sc, uint32_t u32Count);
 
 /**
   * @brief  Enable/Disable Tx error retry, and set Tx error retry count
@@ -191,11 +195,17 @@ extern "C"
   */
 __STATIC_INLINE void SC_SetTxRetry(SC_T *sc, uint32_t u32Count)
 {
-    while(sc->CTL & SC_CTL_SYNC_Msk);
-    if(u32Count == 0) {       // disable Tx error retry
-        sc->CTL &= ~(SC_CTL_TXRTY_Msk | SC_CTL_TXRTYEN_Msk);
-    } else {
-        sc->CTL = (sc->CTL & ~SC_CTL_TXRTY_Msk) | ((u32Count - 1) << SC_CTL_TXRTY_Pos) | SC_CTL_TXRTYEN_Msk;
+    while((sc)->CTL & SC_CTL_SYNC_Msk) {
+        ;
+    }
+    /* Retry count must set while enable bit disabled, so disable it first */
+    (sc)->CTL &= ~(SC_CTL_TXRTY_Msk | SC_CTL_TXRTYEN_Msk);
+
+    if((u32Count) != 0UL) {
+        while((sc)->CTL & SC_CTL_SYNC_Msk) {
+            ;
+        }
+        (sc)->CTL |= (((u32Count) - 1UL) << SC_CTL_TXRTY_Pos) | SC_CTL_TXRTYEN_Msk;
     }
 }
 
@@ -207,19 +217,26 @@ __STATIC_INLINE void SC_SetTxRetry(SC_T *sc, uint32_t u32Count)
   */
 __STATIC_INLINE void  SC_SetRxRetry(SC_T *sc, uint32_t u32Count)
 {
-    while(sc->CTL & SC_CTL_SYNC_Msk);
-    if(u32Count == 0) {       // disable Rx error retry
-        sc->CTL &= ~(SC_CTL_RXRTY_Msk | SC_CTL_RXRTYEN_Msk);
-    } else {
-        sc->CTL = (sc->CTL & ~SC_CTL_RXRTY_Msk) | ((u32Count - 1) << SC_CTL_RXRTY_Pos) | SC_CTL_RXRTYEN_Msk;
+    while((sc)->CTL & SC_CTL_SYNC_Msk) {
+        ;
     }
+    /* Retry count must set while enable bit disabled, so disable it first */
+    (sc)->CTL &= ~(SC_CTL_RXRTY_Msk | SC_CTL_RXRTYEN_Msk);
+
+    if((u32Count) != 0UL) {
+        while((sc)->CTL & SC_CTL_SYNC_Msk) {
+            ;
+        }
+        (sc)->CTL |= (((u32Count) - 1UL) << SC_CTL_RXRTY_Pos) | SC_CTL_RXRTYEN_Msk;
+    }
+
 }
 
 
 uint32_t SC_IsCardInserted(SC_T *sc);
 void SC_ClearFIFO(SC_T *sc);
 void SC_Close(SC_T *sc);
-void SC_Open(SC_T *sc, uint32_t u32CardDet, uint32_t u32PWR);
+void SC_Open(SC_T *sc, uint32_t u32CD, uint32_t u32PWR);
 void SC_ResetReader(SC_T *sc);
 void SC_SetBlockGuardTime(SC_T *sc, uint32_t u32BGT);
 void SC_SetCharGuardTime(SC_T *sc, uint32_t u32CGT);
@@ -227,6 +244,7 @@ void SC_StopAllTimer(SC_T *sc);
 void SC_StartTimer(SC_T *sc, uint32_t u32TimerNum, uint32_t u32Mode, uint32_t u32ETUCount);
 void SC_StopTimer(SC_T *sc, uint32_t u32TimerNum);
 uint32_t SC_GetInterfaceClock(SC_T *sc);
+
 
 /*@}*/ /* end of group M480_SC_EXPORTED_FUNCTIONS */
 
@@ -238,6 +256,6 @@ uint32_t SC_GetInterfaceClock(SC_T *sc);
 }
 #endif
 
-#endif //__SC_H__
+#endif /* __SC_H__ */
 
-/*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
+/*** (C) COPYRIGHT 2017 Nuvoton Technology Corp. ***/
