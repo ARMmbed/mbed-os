@@ -188,6 +188,7 @@ SECTIONS
         KEEP(*(.bss.gChannelControlDataArray))
         KEEP(*(.bss.thread_stack_main))
         KEEP(*(.bss.UartDeviceMem))
+        KEEP(*(.bss.os_thread_def_stack_event_loop_thread))
         *(COMMON)
         *(.bss)
         . = ALIGN(4);
