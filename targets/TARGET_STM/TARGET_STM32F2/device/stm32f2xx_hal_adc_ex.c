@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the ADC extension peripheral:
   *           + Extended features functions
@@ -86,7 +86,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -319,7 +319,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStart_IT(ADC_HandleTypeDef* hadc)
     __HAL_ADC_CLEAR_FLAG(hadc, ADC_FLAG_JEOC);
     
     /* Enable end of conversion interrupt for injected channels */
-    __HAL_ADC_ENABLE_IT(hadc, (ADC_IT_JEOC | ADC_IT_OVR));
+    __HAL_ADC_ENABLE_IT(hadc, ADC_IT_JEOC);
     
     /* Check if Multimode enabled */
     if(HAL_IS_BIT_CLR(ADC->CCR, ADC_CCR_MULTI))
@@ -508,7 +508,7 @@ HAL_StatusTypeDef HAL_ADCEx_InjectedStop_IT(ADC_HandleTypeDef* hadc)
     if(HAL_IS_BIT_CLR(hadc->Instance->CR2, ADC_CR2_ADON))
     {
       /* Disable ADC end of conversion interrupt for injected channels */
-      __HAL_ADC_DISABLE_IT(hadc, (ADC_IT_JEOC | ADC_IT_OVR));
+      __HAL_ADC_DISABLE_IT(hadc, ADC_IT_JEOC);
       
       /* Set ADC state */
       ADC_STATE_CLR_SET(hadc->State,
@@ -756,6 +756,8 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeStop_DMA(ADC_HandleTypeDef* hadc)
   */
 uint32_t HAL_ADCEx_MultiModeGetValue(ADC_HandleTypeDef* hadc)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
   /* Return the multi mode conversion value */
   return ADC->CDR;
 }
