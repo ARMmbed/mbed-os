@@ -45,6 +45,8 @@ __align(4) uint8_t _SDH_ucSDHCBuffer[512];
 #elif defined ( __ICCARM__ ) /*!< IAR Compiler */
 #pragma data_alignment = 4
 uint8_t _SDH_ucSDHCBuffer[512];
+#elif defined ( __GNUC__ )
+uint8_t _SDH_ucSDHCBuffer[512] __attribute__((aligned (4)));
 #endif
 
 int SDH_ok = 0;

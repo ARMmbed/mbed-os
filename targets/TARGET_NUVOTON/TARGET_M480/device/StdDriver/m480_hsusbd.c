@@ -41,8 +41,10 @@ static uint8_t g_hsusbd_TestSelector = 0ul;
 #ifdef __ICCARM__
 #pragma data_alignment=4
 static uint8_t g_hsusbd_buf[12];
-#else
+#elif defined (__CC_ARM)
 __align(4) static uint8_t g_hsusbd_buf[12];
+#elif defined ( __GNUC__ )
+static uint8_t g_hsusbd_buf[12] __attribute__((aligned (4)));
 #endif
 
 uint8_t g_hsusbd_Configured = 0ul;
