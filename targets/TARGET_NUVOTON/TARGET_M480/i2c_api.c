@@ -24,7 +24,7 @@
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
 #include "nu_bitutil.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 #define NU_I2C_DEBUG    0
 
@@ -428,7 +428,7 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync)
                 break;
             }
         case 0xF8:  // Bus Released
-            if (i2c_ctl & (I2C_CTL0_STA_Msk | I2C_CTL0_STO_Msk) == I2C_CTL0_STO_Msk) {
+            if ((i2c_ctl & (I2C_CTL0_STA_Msk | I2C_CTL0_STO_Msk)) == I2C_CTL0_STO_Msk) {
                 return 0;
             }
             else {
