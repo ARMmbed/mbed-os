@@ -113,6 +113,13 @@ typedef enum {
     SPI_CS      = PA_4,
     PWM_OUT     = PB_0,
 
+    //USB pins
+    USB_NOE = PA_4,
+    USB_DM = PA_11,
+    USB_DP = PA_12,
+    USB_NOE_ALT = PA_13,
+    USB_NOE_ALT2 = PA_15,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
