@@ -31,7 +31,37 @@ __NO_RETURN void osRtxIdleThread (void *argument)
 __NO_RETURN uint32_t osRtxErrorNotify (uint32_t code, void *object_id)
 {
     osThreadId_t tid = osThreadGetId();
-    error("CMSIS-RTOS error status: 0x%X, task ID: 0x%X\n\r", code, tid);
+
+    switch (code) {
+      case osRtxErrorStackUnderflow:
+        // Stack underflow detected for thread (thread_id=object_id)
+        error("CMSIS-RTOS error: Stack underflow (status: 0x%X, task ID: 0x%X, task name: %s)\n\r",
+                code, object_id, osThreadGetName(object_id));
+        break;
+      case osRtxErrorISRQueueOverflow:
+        // ISR Queue overflow detected when inserting object (object_id)
+        error("CMSIS-RTOS error: ISR Queue overflow (status: 0x%X, task ID: 0x%X, object ID: 0x%X)\n\r",
+                code, tid, object_id);
+        break;
+      case osRtxErrorTimerQueueOverflow:
+        // User Timer Callback Queue overflow detected for timer (timer_id=object_id)
+        error("CMSIS-RTOS error: User Timer Callback Queue overflow (status: 0x%X, task ID: 0x%X, timer ID: 0x%X)\n\r",
+                code, tid, object_id);
+        break;
+      case osRtxErrorClibSpace:
+        // Standard C/C++ library libspace not available: increase OS_THREAD_LIBSPACE_NUM
+        error("CMSIS-RTOS error: STD C/C++ library libspace not available (status: 0x%X, task ID: 0x%X)\n\r",
+                code, tid);
+        break;
+      case osRtxErrorClibMutex:
+        // Standard C/C++ library mutex initialization failed
+        error("CMSIS-RTOS error: STD C/C++ library mutex initialization failed (status: 0x%X, task ID: 0x%X)\n\r",
+                code, tid);
+        break;
+      default:
+        error("CMSIS-RTOS error: Unknown (status: 0x%X, task ID: 0x%X)\n\r", code, tid);
+        break;
+    }
 
     /* That shouldn't be reached */
     for (;;) {}
