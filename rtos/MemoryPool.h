@@ -48,6 +48,7 @@ public:
     MemoryPool() {
         memset(_pool_mem, 0, sizeof(_pool_mem));
         memset(&_obj_mem, 0, sizeof(_obj_mem));
+        memset(&_attr, 0, sizeof(_attr));
         _attr.mp_mem = _pool_mem;
         _attr.mp_size = sizeof(_pool_mem);
         _attr.cb_mem = &_obj_mem;

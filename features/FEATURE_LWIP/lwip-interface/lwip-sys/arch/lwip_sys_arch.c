@@ -126,11 +126,8 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz) {
     if (queue_sz > MB_SIZE)
         error("sys_mbox_new size error\n");
 
-    mbox->post_idx = 0;
-    mbox->fetch_idx = 0;
-    memset(mbox->queue, 0, sizeof(mbox->queue));
+    memset(mbox, 0, sizeof(*mbox));
 
-    memset(&mbox->data, 0, sizeof(mbox->data));
     mbox->attr.cb_mem = &mbox->data;
     mbox->attr.cb_size = sizeof(mbox->data);
     mbox->id = osEventFlagsNew(&mbox->attr);
@@ -308,7 +305,7 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
  *      err_t                 -- ERR_OK if semaphore created
  *---------------------------------------------------------------------------*/
 err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
-    memset(&sem->data, 0, sizeof(sem->data));
+    memset(sem, 0, sizeof(*sem));
     sem->attr.cb_mem = &sem->data;
     sem->attr.cb_size = sizeof(sem->data);
     sem->id = osSemaphoreNew(UINT16_MAX, count, &sem->attr);
@@ -377,7 +374,7 @@ void sys_sem_free(sys_sem_t *sem) {}
  * @param mutex pointer to the mutex to create
  * @return a new mutex */
 err_t sys_mutex_new(sys_mutex_t *mutex) {
-    memset(&mutex->data, 0, sizeof(mutex->data));
+    memset(mutex, 0, sizeof(*mutex));
     mutex->attr.name = "lwip_mutex";
     mutex->attr.cb_mem = &mutex->data;
     mutex->attr.cb_size = sizeof(mutex->data);
@@ -513,12 +510,13 @@ sys_thread_t sys_thread_new(const char *pcName,
                             void (*thread)(void *arg),
                             void *arg, int stacksize, int priority) {
     LWIP_DEBUGF(SYS_DEBUG, ("New Thread: %s\n", pcName));
-    
+
     if (thread_pool_index >= SYS_THREAD_POOL_N)
         error("sys_thread_new number error\n");
     sys_thread_t t = (sys_thread_t)&thread_pool[thread_pool_index];
     thread_pool_index++;
-    
+
+    memset(t, 0, sizeof(*t));
     t->attr.name = pcName ? pcName : "lwip_unnamed_thread";
     t->attr.priority = (osPriority_t)priority;
     t->attr.cb_size = sizeof(t->data);
