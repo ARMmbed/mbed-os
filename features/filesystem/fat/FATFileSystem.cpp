@@ -252,7 +252,8 @@ int FATFileSystem::mount(BlockDevice *bd, bool force) {
             _id = i;
             _ffs[_id] = bd;
             _fsid[0] = '0' + _id;
-            _fsid[1] = '\0';
+            _fsid[1] = ':';
+            _fsid[2] = '\0';
             debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", getName(), _fsid);
             FRESULT res = f_mount(&_fs, _fsid, force);
             unlock();
@@ -377,7 +378,9 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
 
     FIL *fh = new FIL;
     char *buffer = new char[strlen(_fsid) + strlen(path) + 3];
-    sprintf(buffer, "%s:/%s", _fsid, path);
+    strcpy(buffer, _fsid);
+    strcat(buffer, "/");
+    strcat(buffer, path);
 
     /* POSIX flags -> FatFS open mode */
     BYTE openmode;
