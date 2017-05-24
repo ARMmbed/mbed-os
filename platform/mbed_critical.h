@@ -41,6 +41,17 @@ extern "C" {
   */
 bool core_util_are_interrupts_enabled(void);
 
+/** Determine if this code is executing from an interrupt
+  *
+  * This function can be called to determine if the code is running on interrupt context.
+  * @note
+  * NOTE:
+  * This function works for both cortex-A and cortex-M, although the underlyng implementation
+  * differs.
+  * @return true if in an isr, false otherwise
+  */
+bool core_util_is_isr_active(void);
+
 /** Mark the start of a critical section
   *
   * This function should be called to mark the start of a critical section of code.

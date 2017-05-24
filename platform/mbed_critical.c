@@ -37,6 +37,22 @@ bool core_util_are_interrupts_enabled(void)
 #endif
 }
 
+bool core_util_is_isr_active(void)
+{
+#if defined(__CORTEX_A9)
+    switch(__get_CPSR() & 0x1FU) {
+        case MODE_USR:
+        case MODE_SYS:
+            return false;
+        case MODE_SVC:
+        default:
+            return true;
+    }
+#else
+    return (__get_IPSR() != 0U);
+#endif
+}
+
 MBED_WEAK void core_util_critical_section_enter(void)
 {
     bool interrupts_disabled = !core_util_are_interrupts_enabled();
