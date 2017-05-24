@@ -14,52 +14,49 @@
  * limitations under the License.
  */
 
-/* Compatible with mbed OS 2 which doesn't support mbedtls */
-#if MBED_CONF_RTOS_PRESENT
-
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
 #include MBEDTLS_CONFIG_FILE
 #endif
 
-#if defined(MBEDTLS_SHA256_C)
-#if defined(MBEDTLS_SHA256_ALT)
+#if defined(MBEDTLS_SHA512_C)
+#if defined(MBEDTLS_SHA512_ALT)
 
-#include "sha256_alt.h"
+#include "sha512_alt.h"
 #include "crypto-misc.h"
 #include "nu_bitutil.h"
 #include "string.h"
 
-void mbedtls_sha256_init(mbedtls_sha256_context *ctx)
+void mbedtls_sha512_init(mbedtls_sha512_context *ctx)
 {
     if (crypto_sha_acquire()) {
         ctx->ishw = 1;
-        mbedtls_sha256_hw_init(&ctx->hw_ctx);
+        mbedtls_sha512_hw_init(&ctx->hw_ctx);
     }
     else {
         ctx->ishw = 0;
-        mbedtls_sha256_sw_init(&ctx->sw_ctx);
+        mbedtls_sha512_sw_init(&ctx->sw_ctx);
     }
 }
 
-void mbedtls_sha256_free(mbedtls_sha256_context *ctx)
+void mbedtls_sha512_free(mbedtls_sha512_context *ctx)
 {
     if (ctx == NULL) {
         return;
     }
 
     if (ctx->ishw) {
-        mbedtls_sha256_hw_free(&ctx->hw_ctx);
+        mbedtls_sha512_hw_free(&ctx->hw_ctx);
         crypto_sha_release();
     }
     else {
-        mbedtls_sha256_sw_free(&ctx->sw_ctx);
+        mbedtls_sha512_sw_free(&ctx->sw_ctx);
     }
 }
 
-void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
-                        const mbedtls_sha256_context *src)
+void mbedtls_sha512_clone(mbedtls_sha512_context *dst,
+                        const mbedtls_sha512_context *src)
 {
     if (src->ishw) {
         // Clone S/W ctx from H/W ctx
@@ -67,20 +64,21 @@ void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
         dst->sw_ctx.total[0] = src->hw_ctx.total;
         dst->sw_ctx.total[1] = 0;
         {
-            unsigned char output[32];
+            unsigned char output[128];
             crypto_sha_getinternstate(output, sizeof (output));
             unsigned char *output_pos = output;
             unsigned char *output_end = output + (sizeof (output) / sizeof (output[0]));
             uint32_t *state_pos = (uint32_t *) &(dst->sw_ctx.state[0]);
             while (output_pos != output_end) {
+                *state_pos ++ = nu_get32_be(output_pos + 4);
                 *state_pos ++ = nu_get32_be(output_pos);
-                output_pos += 4;
+                output_pos += 8;
             }
         }
         memcpy(dst->sw_ctx.buffer, src->hw_ctx.buffer, src->hw_ctx.buffer_left);
-        dst->sw_ctx.is224 = src->hw_ctx.is224_384;
+        dst->sw_ctx.is384 = src->hw_ctx.is224_384;
         if (src->hw_ctx.buffer_left == src->hw_ctx.blocksize) {
-            mbedtls_sha256_sw_process(&dst->sw_ctx, dst->sw_ctx.buffer);
+            mbedtls_sha512_sw_process(&dst->sw_ctx, dst->sw_ctx.buffer);
         }
     }
     else {
@@ -90,55 +88,53 @@ void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
 }
 
 /*
- * SHA-256 context setup
+ * SHA-512 context setup
  */
-void mbedtls_sha256_starts(mbedtls_sha256_context *ctx, int is224)
+void mbedtls_sha512_starts(mbedtls_sha512_context *ctx, int is384)
 {   
     if (ctx->ishw) {
-        mbedtls_sha256_hw_starts(&ctx->hw_ctx, is224);
+        mbedtls_sha512_hw_starts(&ctx->hw_ctx, is384);
     }
     else {
-        mbedtls_sha256_sw_starts(&ctx->sw_ctx, is224);
+        mbedtls_sha512_sw_starts(&ctx->sw_ctx, is384);
     }
 }
 
 /*
- * SHA-256 process buffer
+ * SHA-512 process buffer
  */
-void mbedtls_sha256_update(mbedtls_sha256_context *ctx, const unsigned char *input, size_t ilen)
+void mbedtls_sha512_update(mbedtls_sha512_context *ctx, const unsigned char *input, size_t ilen)
 {
     if (ctx->ishw) {
-        mbedtls_sha256_hw_update(&ctx->hw_ctx, input, ilen);
+        mbedtls_sha512_hw_update(&ctx->hw_ctx, input, ilen);
     }
     else {
-        mbedtls_sha256_sw_update(&ctx->sw_ctx, input, ilen);
+        mbedtls_sha512_sw_update(&ctx->sw_ctx, input, ilen);
     }
 }
 
 /*
- * SHA-256 final digest
+ * SHA-512 final digest
  */
-void mbedtls_sha256_finish(mbedtls_sha256_context *ctx, unsigned char output[32])
+void mbedtls_sha512_finish(mbedtls_sha512_context *ctx, unsigned char output[64])
 {
     if (ctx->ishw) {
-        mbedtls_sha256_hw_finish(&ctx->hw_ctx, output);
+        mbedtls_sha512_hw_finish(&ctx->hw_ctx, output);
     }
     else {
-        mbedtls_sha256_sw_finish(&ctx->sw_ctx, output);
+        mbedtls_sha512_sw_finish(&ctx->sw_ctx, output);
     }
 }
 
-void mbedtls_sha256_process(mbedtls_sha256_context *ctx, const unsigned char data[64])
+void mbedtls_sha512_process(mbedtls_sha512_context *ctx, const unsigned char data[128])
 {
     if (ctx->ishw) {
-        mbedtls_sha256_hw_process(&ctx->hw_ctx, data);
+        mbedtls_sha512_hw_process(&ctx->hw_ctx, data);
     }
     else {
-        mbedtls_sha256_sw_process(&ctx->sw_ctx, data);
+        mbedtls_sha512_sw_process(&ctx->sw_ctx, data);
     }
 }
 
-#endif /* MBEDTLS_SHA256_ALT */
-#endif /* MBEDTLS_SHA256_C */
-
-#endif /* MBED_CONF_RTOS_PRESENT */
+#endif /* MBEDTLS_SHA512_ALT */
+#endif /* MBEDTLS_SHA512_C */

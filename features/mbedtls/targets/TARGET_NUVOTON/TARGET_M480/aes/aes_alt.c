@@ -35,7 +35,7 @@
 #include "mbedtls/aes.h"
 
 #include "M480.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 #include "mbed_assert.h"
 
 //static int aes_init_done = 0;
@@ -135,7 +135,7 @@ void mbedtls_aes_init( mbedtls_aes_context *ctx )
 	
     /* Unlock protected registers */
     SYS_UnlockReg();
-    CLK_EnableModuleClock(CRYPTO_MODULE);
+    CLK_EnableModuleClock(CRPT_MODULE);
     /* Lock protected registers */
     SYS_LockReg();
 
