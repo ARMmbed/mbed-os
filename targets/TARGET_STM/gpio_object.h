@@ -61,7 +61,7 @@ static inline void gpio_write(gpio_t *obj, int value)
         *obj->reg_set = obj->mask;
     } else {
 #ifdef GPIO_IP_WITHOUT_BRR
-        *obj->reg_clr = obj->mask << 16;
+        *obj->reg_set = obj->mask << 16;
 #else
         *obj->reg_clr = obj->mask;
 #endif
