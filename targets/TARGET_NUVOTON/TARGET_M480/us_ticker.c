@@ -19,7 +19,7 @@
 #include "mbed_assert.h"
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
-#include "critical.h"
+#include "mbed_critical.h"
 
 // us_ticker tick = us = timestamp
 #define US_PER_TICK             1

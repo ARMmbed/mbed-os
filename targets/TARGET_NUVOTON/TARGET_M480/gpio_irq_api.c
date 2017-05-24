@@ -173,6 +173,10 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
                 gpio_base->INTEN &= ~(GPIO_INT_FALLING << pin_index);
             }
             break;
+            
+        case IRQ_NONE:
+        default:
+            break;
     }
 }
 
