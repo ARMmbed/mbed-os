@@ -68,11 +68,15 @@
 #define __CMSIS_RTOS
 #endif
 
-// The stack space occupied is mainly dependent on the underling C standard library
-#if defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_ARM_STD) || defined(TOOLCHAIN_IAR)
-#    define WORDS_STACK_SIZE   512
-#elif defined(TOOLCHAIN_ARM_MICRO)
-#    define WORDS_STACK_SIZE   128
+// The stack space occupied is mainly dependent on the underlining C standard library
+#if defined(MBED_RTOS_WORDS_STACK_SIZE)
+#   define WORDS_STACK_SIZE MBED_RTOS_WORDS_STACK_SIZE
+#else
+#   if defined(TOOLCHAIN_GCC) || defined(TOOLCHAIN_ARM_STD) || defined(TOOLCHAIN_IAR)
+#       define WORDS_STACK_SIZE   512
+#   elif defined(TOOLCHAIN_ARM_MICRO)
+#       define WORDS_STACK_SIZE   128
+#endif
 #endif
 
 #ifdef __MBED_CMSIS_RTOS_CM
