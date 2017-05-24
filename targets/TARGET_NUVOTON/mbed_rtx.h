@@ -80,7 +80,7 @@
 #define OS_MAINSTKSIZE          256
 #endif
 #ifndef OS_CLOCK
-#define OS_CLOCK                160000000
+#define OS_CLOCK                192000000
 #endif
 
 #if defined(__CC_ARM)
