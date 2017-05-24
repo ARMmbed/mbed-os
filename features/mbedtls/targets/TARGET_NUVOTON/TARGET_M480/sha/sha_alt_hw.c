@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-/* Compatible with mbed OS 2 which doesn't support mbedtls */
-#if MBED_CONF_RTOS_PRESENT
-
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
@@ -51,6 +48,7 @@ void crypto_sha_getinternstate(unsigned char output[], size_t olen);
 
 #endif /* MBEDTLS_SHA1_ALT || MBEDTLS_SHA256_ALT || MBEDTLS_SHA512_ALT */
 
+#if defined(MBEDTLS_SHA1_C)
 #if defined(MBEDTLS_SHA1_ALT)
 
 void mbedtls_sha1_hw_init(crypto_sha_context *ctx)
@@ -123,7 +121,9 @@ void mbedtls_sha1_hw_process(crypto_sha_context *ctx, const unsigned char data[6
 }
 
 #endif /* MBEDTLS_SHA1_ALT */
+#endif /* MBEDTLS_SHA1_C */
 
+#if defined(MBEDTLS_SHA256_C)
 #if defined(MBEDTLS_SHA256_ALT)
 
 void mbedtls_sha256_hw_init(crypto_sha_context *ctx)
@@ -197,9 +197,10 @@ void mbedtls_sha256_hw_process(crypto_sha_context *ctx, const unsigned char data
 }
 
 #endif /* MBEDTLS_SHA256_ALT */
+#endif /* MBEDTLS_SHA256_C */
 
 
-
+#if defined(MBEDTLS_SHA512_C)
 #if defined(MBEDTLS_SHA512_ALT)
 
 void mbedtls_sha512_hw_init(crypto_sha_context *ctx)
@@ -273,7 +274,9 @@ void mbedtls_sha512_hw_process(crypto_sha_context *ctx, const unsigned char data
 }
 
 #endif /* MBEDTLS_SHA512_ALT */
+#endif /* MBEDTLS_SHA512_C */
 
+#if defined(MBEDTLS_SHA1_C) || defined(MBEDTLS_SHA256_C) || defined(MBEDTLS_SHA512_C)
 #if defined(MBEDTLS_SHA1_ALT) || defined(MBEDTLS_SHA256_ALT) || defined(MBEDTLS_SHA512_ALT)
 
 void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size_t ilen)
@@ -431,8 +434,6 @@ void crypto_sha_getinternstate(unsigned char output[], size_t olen)
 }
 
 #endif /* MBEDTLS_SHA1_ALT || MBEDTLS_SHA256_ALT || MBEDTLS_SHA512_ALT */
-
 #endif /* MBEDTLS_SHA1_C || MBEDTLS_SHA256_C || MBEDTLS_SHA512_C */
 
-#endif /* MBED_CONF_RTOS_PRESENT */
-
+#endif /* MBEDTLS_SHA1_C || MBEDTLS_SHA256_C || MBEDTLS_SHA512_C */

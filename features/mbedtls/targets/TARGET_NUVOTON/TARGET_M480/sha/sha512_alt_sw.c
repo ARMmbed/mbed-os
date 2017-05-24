@@ -24,17 +24,14 @@
  *  http://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf
  */
 
-/* Compatible with mbed OS 2 which doesn't support mbedtls */
-#if MBED_CONF_RTOS_PRESENT
-
 #if !defined(MBEDTLS_CONFIG_FILE)
 #include "mbedtls/config.h"
 #else
 #include MBEDTLS_CONFIG_FILE
 #endif
 
-#if defined(MBEDTLS_SHA256_C)
-#if defined(MBEDTLS_SHA256_ALT)
+#if defined(MBEDTLS_SHA512_C)
+#if defined(MBEDTLS_SHA512_ALT)
 
 #include "mbedtls/sha512.h"
 
@@ -357,7 +354,4 @@ void mbedtls_sha512_sw_finish( mbedtls_sha512_sw_context *ctx, unsigned char out
 }
 
 #endif /* MBEDTLS_SHA512_ALT */
-
 #endif /* MBEDTLS_SHA512_C */
-
-#endif /* MBED_CONF_RTOS_PRESENT */

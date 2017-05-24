@@ -23,6 +23,7 @@
 #endif
 
 #if defined(MBEDTLS_SHA1_C) || defined(MBEDTLS_SHA256_C) || defined(MBEDTLS_SHA512_C)
+#if defined(MBEDTLS_SHA1_ALT) || defined(MBEDTLS_SHA256_ALT) || defined(MBEDTLS_SHA512_ALT)
 
 #include <stddef.h>
 #include <stdint.h>
@@ -50,6 +51,7 @@ void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size
 void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input, size_t ilen, int islast);
 void crypto_sha_getinternstate(unsigned char output[], size_t olen);
 
+#if defined(MBEDTLS_SHA1_C)
 #if defined(MBEDTLS_SHA1_ALT)
 
 void mbedtls_sha1_hw_init( crypto_sha_context *ctx );
@@ -62,7 +64,9 @@ void mbedtls_sha1_hw_finish( crypto_sha_context *ctx, unsigned char output[20] )
 void mbedtls_sha1_hw_process( crypto_sha_context *ctx, const unsigned char data[64] );
 
 #endif /* MBEDTLS_SHA1_ALT */
+#endif /* MBEDTLS_SHA1_C */
 
+#if defined(MBEDTLS_SHA256_C)
 #if defined(MBEDTLS_SHA256_ALT)
 
 void mbedtls_sha256_hw_init( crypto_sha_context *ctx );
@@ -76,7 +80,9 @@ void mbedtls_sha256_hw_finish( crypto_sha_context *ctx, unsigned char output[32]
 void mbedtls_sha256_hw_process( crypto_sha_context *ctx, const unsigned char data[64] );
 
 #endif /* MBEDTLS_SHA256_ALT */
+#endif /* MBEDTLS_SHA256_C */
 
+#if defined(MBEDTLS_SHA512_C)
 #if defined(MBEDTLS_SHA512_ALT)
 
 void mbedtls_sha512_hw_init( crypto_sha_context *ctx );
@@ -90,11 +96,13 @@ void mbedtls_sha512_hw_finish( crypto_sha_context *ctx, unsigned char output[64]
 void mbedtls_sha512_hw_process( crypto_sha_context *ctx, const unsigned char data[128] );
 
 #endif /* MBEDTLS_SHA512_ALT */
+#endif /* MBEDTLS_SHA512_C */
 
 #ifdef __cplusplus
 }
 #endif
 
+#endif /* MBEDTLS_SHA1_ALT || MBEDTLS_SHA256_ALT || MBEDTLS_SHA512_ALT */
 #endif /* MBEDTLS_SHA1_C || MBEDTLS_SHA256_C || MBEDTLS_SHA512_C*/
 
 #endif /* sha_alt.h */

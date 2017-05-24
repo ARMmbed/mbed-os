@@ -20,7 +20,16 @@
  *
  *  This file is part of mbed TLS (https://tls.mbed.org)
  */
+#ifndef MBEDTLS_AES_ALT_H
+#define MBEDTLS_AES_ALT_H
 
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
+
+#if defined(MBEDTLS_AES_C)
 #if defined(MBEDTLS_AES_ALT)
 // Regular implementation
 //
@@ -270,5 +279,6 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
 
 
 #endif /* MBEDTLS_AES_ALT */
+#endif /* MBEDTLS_AES_C */
 
-
+#endif /* aes_alt.h */
