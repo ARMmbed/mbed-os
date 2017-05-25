@@ -533,22 +533,26 @@ def build_project(src_paths, build_path, target, toolchain_name,
         else:
             res, _ = toolchain.link_program(resources, build_path, name)
 
+        # depth for memap is currently harcoded
+        # TODO: add proper hooks to pass parameter from command line / mbed CLI
+        memap_stats_depth = 2
         memap_instance = getattr(toolchain, 'memap_instance', None)
         memap_table = ''
         if memap_instance:
             # Write output to stdout in text (pretty table) format
-            memap_table = memap_instance.generate_output('table')
+            memap_table = memap_instance.generate_output('table', \
+                                                          memap_stats_depth)
 
             if not silent:
                 print memap_table
 
             # Write output to file in JSON format
             map_out = join(build_path, name + "_map.json")
-            memap_instance.generate_output('json', map_out)
+            memap_instance.generate_output('json', memap_stats_depth, map_out)
 
             # Write output to file in CSV format for the CI
             map_csv = join(build_path, name + "_map.csv")
-            memap_instance.generate_output('csv-ci', map_csv)
+            memap_instance.generate_output('csv-ci', memap_stats_depth, map_csv)
 
         resources.detect_duplicates(toolchain)
 
@@ -1147,7 +1151,7 @@ def mcu_toolchain_list(release_version='5'):
 
 
 def mcu_target_list(release_version='5'):
-    """  Shows target list 
+    """  Shows target list
 
     """
 
