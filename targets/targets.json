@@ -2919,7 +2919,6 @@
             "function": "RTL8195ACode.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
-        "release_versions": ["5"],
-        "device_name": "REALTEK_RTL8195AM"
+        "release_versions": ["5"]
     }
 }
