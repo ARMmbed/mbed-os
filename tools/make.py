@@ -103,6 +103,9 @@ if __name__ == '__main__':
                       default=None,
                       help='For some commands you can use filter to filter out results')
 
+    parser.add_argument("--stats-depth", type=int, dest="stats_depth",
+                      default=2, help="Depth level for static memory report")
+
     # Local run
     parser.add_argument("--automated", action="store_true", dest="automated",
                       default=False, help="Automated test")
@@ -276,7 +279,8 @@ if __name__ == '__main__':
                                      inc_dirs=[dirname(MBED_LIBRARIES)],
                                      build_profile=extract_profile(parser,
                                                                    options,
-                                                                   toolchain))
+                                                                   toolchain),
+                                     stats_depth=options.stats_depth)
             print 'Image: %s'% bin_file
 
             if options.disk:
@@ -321,7 +325,7 @@ if __name__ == '__main__':
                 traceback.print_exc(file=sys.stdout)
             else:
                 print "[ERROR] %s" % str(e)
-            
+
             sys.exit(1)
     if options.build_data:
         merge_build_data(options.build_data, build_data_blob, "application")
