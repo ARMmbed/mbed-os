@@ -413,9 +413,12 @@ void osRtxThreadSwitch (os_thread_t *thread) {
   osRtxInfo.thread.run.next = thread;
   osRtxThreadStackCheck();
   EvrRtxThreadSwitch(thread);
+}
 
+/// Notify the OS event observer of an imminent thread switch.
+void thread_switch_helper(void) {
   if (osEventObs && osEventObs->thread_switch) {
-    osEventObs->thread_switch(thread->context);
+    osEventObs->thread_switch(osRtxInfo.thread.run.next->context);
   }
 }
 
