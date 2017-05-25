@@ -116,6 +116,7 @@ typedef enum {
     LED1 = LED_RED,
     LED2 = LED_YELLOW,
     LED3 = LED_GREEN,
+    LED4 = D0,  // No real LED. Just for passing ATS.
     // Button naming
     SW2 = PC_10,
     SW3 = PC_9,
