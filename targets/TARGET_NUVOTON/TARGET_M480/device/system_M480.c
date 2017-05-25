@@ -18,9 +18,9 @@
   Clock Variable definitions
  *----------------------------------------------------------------------------*/
 uint32_t SystemCoreClock  = __SYSTEM_CLOCK;    /*!< System Clock Frequency (Core Clock)*/
-uint32_t CyclesPerUs      = (__HSI / 1000000); /* Cycles per micro second */
+uint32_t CyclesPerUs      = (__HSI / 1000000UL); /* Cycles per micro second */
 uint32_t PllClock         = __HSI;             /*!< PLL Output Clock Frequency         */
-uint32_t gau32ClkSrcTbl[] = {__HXT, __LXT, 0, __LIRC, 0, 0, 0, __HIRC};
+uint32_t gau32ClkSrcTbl[] = {__HXT, __LXT, 0UL, __LIRC, 0UL, 0UL, 0UL, __HIRC};
 
 /*----------------------------------------------------------------------------
   Clock functions
@@ -43,7 +43,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
         u32Freq = gau32ClkSrcTbl[u32ClkSrc];
     }
 
-    u32HclkDiv = (CLK->CLKDIV0 & CLK_CLKDIV0_HCLKDIV_Msk) + 1;
+    u32HclkDiv = (CLK->CLKDIV0 & CLK_CLKDIV0_HCLKDIV_Msk) + 1UL;
 
     /* Update System Core Clock */
     SystemCoreClock = u32Freq / u32HclkDiv;
@@ -52,7 +52,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
     //if(SystemCoreClock == 0)
     //    __BKPT(0);
 
-    CyclesPerUs = (SystemCoreClock + 500000) / 1000000;
+    CyclesPerUs = (SystemCoreClock + 500000UL) / 1000000UL;
 }
 
 /**
@@ -61,7 +61,7 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
  * @param  none
  * @return none
  *
- * @brief  Setup the microcontroller system.
+ * @brief  Setup the micro controller system.
  *         Initialize the System.
  */
 void SystemInit (void)
@@ -72,10 +72,13 @@ void SystemInit (void)
 
 
     /* FPU settings ------------------------------------------------------------*/
-#if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
+#if (__FPU_PRESENT == 1U) && (__FPU_USED == 1U)
     SCB->CPACR |= ((3UL << 10*2) |                 /* set CP10 Full Access */
                    (3UL << 11*2)  );               /* set CP11 Full Access */
 #endif
+
+    /* Disable Flash Access Cycle Auto-tuning, set access cycle for CPU @ 192MHz */
+    FMC->CYCCTL = FMC_CYCCTL_FADIS_Msk | (8 << FMC_CYCCTL_CYCLE_Pos);
 
 }
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/
