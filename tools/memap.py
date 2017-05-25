@@ -14,8 +14,6 @@ from prettytable import PrettyTable
 from utils import argparse_filestring_type, \
     argparse_lowercase_hyphen_type, argparse_uppercase_type
 
-DEFAULT_DEEP_DIR = 2
-
 RE_ARMCC = re.compile(
     r'^\s+0x(\w{8})\s+0x(\w{8})\s+(\w+)\s+(\w+)\s+(\d+)\s+[*]?.+\s+(.+)$')
 RE_IAR = re.compile(
@@ -34,6 +32,7 @@ class MemapParser(object):
 
     print_sections = ('.text', '.data', '.bss')
 
+    # Info from this section can be shown as misc or startup code (.text)
     misc_flash_sections = ('.interrupts', '.flash_config')
 
     other_sections = ('.interrupts_ram', '.init', '.ARM.extab',
@@ -659,21 +658,6 @@ class MemapParser(object):
         csv_module_section += ['static_ram']
         csv_sizes += [self.mem_summary['static_ram']]
 
-        csv_module_section += ['heap']
-        if self.mem_summary['heap'] == 0:
-            csv_sizes += ['unknown']
-        else:
-            csv_sizes += [self.mem_summary['heap']]
-
-        csv_module_section += ['stack']
-        if self.mem_summary['stack'] == 0:
-            csv_sizes += ['unknown']
-        else:
-            csv_sizes += [self.mem_summary['stack']]
-
-        csv_module_section += ['total_ram']
-        csv_sizes += [self.mem_summary['total_ram']]
-
         csv_module_section += ['total_flash']
         csv_sizes += [self.mem_summary['total_flash']]
 
@@ -716,23 +700,9 @@ class MemapParser(object):
         output = table.get_string()
         output += '\n'
 
-        if self.mem_summary['heap'] == 0:
-            output += "Allocated Heap: unknown\n"
-        else:
-            output += "Allocated Heap: %s bytes\n" % \
-                        str(self.mem_summary['heap'])
-
-        if self.mem_summary['stack'] == 0:
-            output += "Allocated Stack: unknown\n"
-        else:
-            output += "Allocated Stack: %s bytes\n" % \
-                        str(self.mem_summary['stack'])
-
         output += "Total Static RAM memory (data + bss): %s bytes\n" % \
                         str(self.mem_summary['static_ram'])
-        output += "Total RAM memory (data + bss + heap + stack): %s bytes\n" % \
-                        str(self.mem_summary['total_ram'])
-        output += "Total Flash memory (text + data + misc): %s bytes\n" % \
+        output += "Total Flash memory (text + data): %s bytes\n" % \
                         str(self.mem_summary['total_flash'])
 
         return output
@@ -759,12 +729,7 @@ class MemapParser(object):
 
         self.mem_summary = {
             'static_ram': (self.subtotal['.data'] + self.subtotal['.bss']),
-            'heap': (self.subtotal['.heap']),
-            'stack': (self.subtotal['.stack']),
-            'total_ram': (self.subtotal['.data'] + self.subtotal['.bss'] +
-                          self.subtotal['.heap']+self.subtotal['.stack']),
-            'total_flash': (self.subtotal['.text'] + self.subtotal['.data'] +
-                            self.misc_flash_mem),
+            'total_flash': (self.subtotal['.text'] + self.subtotal['.data']),
         }
 
         self.mem_report = []
