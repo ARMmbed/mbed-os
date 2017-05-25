@@ -121,7 +121,7 @@ class Uvision(Exporter):
     TOOLCHAIN = 'ARM'
     TARGETS = []
     for target, obj in TARGET_MAP.iteritems():
-        if not ("ARM" in obj.supported_toolchains and hasattr(obj, "device_name")):
+        if "ARM" not in obj.supported_toolchains:
             continue
         if not DeviceCMSIS.check_supported(target):
             continue
