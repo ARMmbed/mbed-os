@@ -271,14 +271,15 @@ void Reset_Handler(void)
     /* HXT Crystal Type Select: INV */
     CLK->PWRCTL &= ~CLK_PWRCTL_HXTSELTYP_Msk;
     
-    /* Enable register write-protection function */
-    SYS_LockReg();
-    
     /**
-     * Because EBI (external SRAM) init is done in SystemInit(), SystemInit() must be called at the very start.
+     * NOTE 1: Unlock is required for perhaps some register access in SystemInit().
+     * NOTE 2: Because EBI (external SRAM) init is done in SystemInit(), SystemInit() must be called at the very start.
      */
     SystemInit();
     
+    /* Enable register write-protection function */
+    SYS_LockReg();
+
 #if defined(__CC_ARM)
     __main();
     
