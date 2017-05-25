@@ -326,10 +326,21 @@ const uint32_t __vector_handlers[] = {
  */
 void Reset_Handler(void)
 {
+    /* Disable register write-protection function */
+    SYS_UnlockReg();
+    
+    /* Disable Power-on Reset function */
+    SYS_DISABLE_POR();
+    
     /**
-     * Because EBI (external SRAM) init is done in SystemInit(), SystemInit() must be called at the very start.
+     * NOTE 1: Some register accesses require unlock.
+     * NOTE 2: Because EBI (external SRAM) init is done in SystemInit(), SystemInit() must be called at the very start.
      */
     SystemInit();
+    
+    /* Enable register write-protection function */
+    SYS_LockReg();
+    
     
     /**
      * The call to uvisor_init() happens independently of uVisor being enabled or
