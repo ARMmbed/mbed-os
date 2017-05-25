@@ -58,6 +58,9 @@ typedef enum {
     PA_6  = 0x06,
     PA_6_ALT0  = 0x06|ALT0,
     PA_7  = 0x07,
+    PA_7_ALT0  = 0x07|ALT0,
+    PA_7_ALT1  = 0x07|ALT1,
+    PA_7_ALT2  = 0x07|ALT2,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
@@ -218,7 +221,7 @@ typedef enum {
     D8          = PF_12,
     D9          = PD_15,
     D10         = PD_14,
-    D11         = PA_7,
+    D11         = STM32_D11_SPI_ETHERNET_PIN, /* config in targets.json file */
     D12         = PA_6,
     D13         = PA_5,
     D14         = PB_9,

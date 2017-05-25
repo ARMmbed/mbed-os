@@ -489,7 +489,7 @@ class MCU_NRF51Code(object):
             binh.merge(blh)
 
         with open(binf.replace(".bin", ".hex"), "w") as fileout:
-            binh.tofile(fileout, format='hex')
+            binh.write_hex_file(fileout, write_start_addr=False)
 
 class NCS36510TargetCode:
     @staticmethod

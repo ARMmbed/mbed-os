@@ -71,7 +71,7 @@ typedef void (*irq_fn)(void);
  * @param      irqn         ARM external IRQ number, see #IRQn_Type
  * @param      irq_handler  Function to be called at IRQ context
  */
-int NVIC_SetVector(IRQn_Type irqn, irq_fn irq_handler);
+int NVIC_SetVector(IRQn_Type irqn, uint32_t irq_handler);
 
 /**
  * @brief Copy NVIC vector table to RAM and set NVIC to RAM based table.

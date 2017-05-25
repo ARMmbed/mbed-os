@@ -67,6 +67,8 @@ void HAL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
     assert_param(IS_GPIO_PIN(GPIO_InitStruct->GPIO_Pin));
 //    assert_param(IS_GPIO_PUPD(GPIO_InitStruct->GPIO_PuPd));
 
+    GPIOx->INTTYPESET = 0x00FF;  
+    
     if      (GPIOx == GPIOA)        px_pcr  = PA_PCR;
     else if (GPIOx == GPIOB)        px_pcr  = PB_PCR;
     else if (GPIOx == GPIOC)        px_pcr  = PC_PCR;
@@ -260,26 +262,30 @@ void HAL_PAD_AFConfig(PAD_Type Px, uint16_t GPIO_Pin, PAD_AF_TypeDef P_AF)
             if(Px == PAD_PA)
             {
                 assert_param(IS_PA_NUM(i));
-                PA_AFSR->Port[i] &= ~(0x03ul);
-                PA_AFSR->Port[i] |= P_AF;
+                //PA_AFSR->Port[i] &= ~(0x03ul);
+                //PA_AFSR->Port[i] |= P_AF;
+                PA_AFSR->Port[i] = P_AF;
             }
             else if(Px == PAD_PB)
             {
                 assert_param(IS_PB_NUM(i));
-                PB_AFSR->Port[i] &= ~(0x03ul);
-                PB_AFSR->Port[i] |= P_AF;
+                //PB_AFSR->Port[i] &= ~(0x03ul);
+                //PB_AFSR->Port[i] |= P_AF;
+                PB_AFSR->Port[i] = P_AF;
             }
             else if(Px == PAD_PC)
             {
                 assert_param(IS_PC_NUM(i));
-                PC_AFSR->Port[i] &= ~(0x03ul);
-                PC_AFSR->Port[i] |= P_AF;
+                //PC_AFSR->Port[i] &= ~(0x03ul);
+                //PC_AFSR->Port[i] |= P_AF;
+                PC_AFSR->Port[i] = P_AF;
             }
             else
             {
                 assert_param(IS_PD_NUM(i));
-                PD_AFSR->Port[i] &= ~(0x03ul);
-                PD_AFSR->Port[i] |= P_AF;
+                //PD_AFSR->Port[i] &= ~(0x03ul);
+                //PD_AFSR->Port[i] |= P_AF;
+                PD_AFSR->Port[i] = P_AF;
             }				
         }
     }

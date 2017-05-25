@@ -76,7 +76,7 @@ extern "C" {
  *                          cbGATT_CLIENT_CHAR_CONFIG - callback that is called when remote device writes the client config cbGATT_ServerWriteClientConfig
  *                          cbGATT_SERVER_CHAR_CONFIG - callback that is called when remote device writes the server config cbGATT_ServerWriteServerConfig
  *                          cbGATT_CHAR_USER_DESC and all other CHARACTERISTICS value - cbGATT_ServerWriteAttr callback
- * @param pAttrHandle       Pointer where to write the attribute handle in case it's needed by the app. 
+ * @param pAttrHandle       Pointer where to write the attribute handle in case it's needed by the app.
  *                          If not needed, pass NULL. Will be written after the service has been added.
  */
 typedef struct
@@ -152,7 +152,7 @@ typedef cbGATT_ErrorCode (*cbGATT_ServerReadAttr)(
  * @param pAttr             Pointer to attribute record
  * @param pAttrValue        Pointer where to get the data
  * @param length            The length.
- * @param writeMethod       Which write method the client is using. 
+ * @param writeMethod       Which write method the client is using.
  *                          This depends on the properties in the attribute table.
  * @param offset            The offset of the written data
  * @return cbGATT_ERROR_CODE_OK if accepted or some cbGATT_ERROR_CODE_* code when failed.
@@ -183,7 +183,7 @@ typedef cbGATT_ErrorCode (*cbGATT_ServerReadClientConfig)(
  * @param connHandle        Connection handle
  * @param attrHandle        Handle of the attribute value
  * @param config            The config to be stored
- * @param writeMethod       Which write method the client is using. 
+ * @param writeMethod       Which write method the client is using.
  *                          This depends on the properties in the attribute table.
  * @return cbGATT_ERROR_CODE_OK if accepted or some cbGATT_ERROR_CODE_* code when failed.
  */
@@ -210,7 +210,7 @@ typedef cbGATT_ErrorCode (*cbGATT_ServerReadServerConfig)(
  * @param connHandle        Connection handle
  * @param attrHandle        Handle of the attribute value
  * @param config            The config to be stored
- * @param writeMethod       Which write method the client is using. 
+ * @param writeMethod       Which write method the client is using.
  *                          This depends on the properties in the attribute table.
  * @return cbGATT_ERROR_CODE_OK if accepted or some cbGATT_ERROR_CODE_* code when failed.
  */
@@ -254,7 +254,7 @@ cb_int32 cbGATT_deregisterAllServers(void);
 /**
  * Send notification to GATT client. The characteristicValueNotificationCnf
  * callback will be called when finished and a new notification can be sent.
- * The client config notification must have been enabled by the GATT client 
+ * The client config notification must have been enabled by the GATT client
  * before an notification can be sent.
  * @param connHandle        Connection handle
  * @param attrHandle        Handle of the attribute value
@@ -264,16 +264,16 @@ cb_int32 cbGATT_deregisterAllServers(void);
  * @return cbGATT_OK if succeeded or some cbGATT_ERROR* when failed.
  */
 cb_int32 cbGATT_notification(
-    TConnHandle     connHandle, 
-    cb_uint16       attrHandle, 
-    cb_uint8*       pData, 
-    cb_uint16       length, 
+    TConnHandle     connHandle,
+    cb_uint16       attrHandle,
+    cb_uint8*       pData,
+    cb_uint16       length,
     cb_uint8        appHandle);
 
 /**
  * Send indication to GATT client. The characteristicValueIndicationCnf
  * callback will be called when finished and a new indication can be sent.
- * The client config indication must have been enabled by the GATT client 
+ * The client config indication must have been enabled by the GATT client
  * before an indication can be sent.
  * @param connHandle        Connection handle
  * @param attrHandle        Handle of the attribute value
@@ -283,17 +283,17 @@ cb_int32 cbGATT_notification(
  * @return cbGATT_OK if succeeded or some cbGATT_ERROR* when failed.
  */
 cb_int32 cbGATT_indication(
-    TConnHandle     connHandle, 
-    cb_uint16       attrHandle, 
-    cb_uint8*       pData, 
-    cb_uint16       length, 
+    TConnHandle     connHandle,
+    cb_uint16       attrHandle,
+    cb_uint8*       pData,
+    cb_uint16       length,
     cb_uint8        appHandle);
 
 /**
  * Delay write respone to client, see cbGATT_ServerWriteAttr
  * @param connHandle        Connection handle
  * @param attrHandle        Handle of the attribute value
- * @param errorCode         Error code, use cbGATT_ERROR_CODE_OK if OK otherwise some cbGATT_ERROR_CODE_* 
+ * @param errorCode         Error code, use cbGATT_ERROR_CODE_OK if OK otherwise some cbGATT_ERROR_CODE_*
  * @return cbGATT_OK if succeeded or some cbGATT_ERROR* when failed.
  */
 cb_int32 cbGATT_writeRsp(
@@ -305,15 +305,15 @@ cb_int32 cbGATT_writeRsp(
  * Add service list to attribute database
  * @param pAttrList         Attribute list
  * @param attrListSize      Size of the attribute list
- * @param startHandle       Start handle. Note that startHandle for the application 
- *                          should start at lowest 1024, cbGATT_APP_START_SERVICE_HANDLE. 
+ * @param startHandle       Start handle. Note that startHandle for the application
+ *                          should start at lowest 1024, cbGATT_APP_START_SERVICE_HANDLE.
  *                          1-1023 is reserved for GATT/GAP and other u-blox services.
  * @return cbGATT_OK if succeeded or some cbGATT_ERROR* when failed.
  */
 cb_int32 cbGATT_addService(
     const cbGATT_Attribute* pAttrList, 
-    cb_uint16       attrListSize, 
-    cb_int16        startHandle);
+    cb_uint16 attrListSize, 
+    cb_uint16 startHandle);
 
 /**
  * NOTE: Only for tests

@@ -23,6 +23,10 @@
 #include "nu_bitutil.h"
 #include "dma.h"
 
+#define NU_PDMA_CH_MAX      PDMA_CH_MAX     /* Specify maximum channels of PDMA */
+#define NU_PDMA_CH_Pos      0               /* Specify first channel number of PDMA */
+#define NU_PDMA_CH_Msk      (((1 << NU_PDMA_CH_MAX) - 1) << NU_PDMA_CH_Pos)
+
 struct nu_dma_chn_s {
     void        (*handler)(uint32_t, uint32_t);
     uint32_t    id;
@@ -31,7 +35,7 @@ struct nu_dma_chn_s {
 
 static int dma_inited = 0;
 static uint32_t dma_chn_mask = 0;
-static struct nu_dma_chn_s dma_chn_arr[PDMA_CH_MAX];
+static struct nu_dma_chn_s dma_chn_arr[NU_PDMA_CH_MAX];
 
 static void pdma_vec(void);
 static const struct nu_modinit_s dma_modinit = {DMA_0, PDMA_MODULE, 0, 0, PDMA_RST, PDMA_IRQn, (void *) pdma_vec};
@@ -44,7 +48,7 @@ void dma_init(void)
     }
     
     dma_inited = 1;
-    dma_chn_mask = 0;
+    dma_chn_mask = ~NU_PDMA_CH_Msk;
     memset(dma_chn_arr, 0x00, sizeof (dma_chn_arr));
     
     // Reset this module
@@ -65,25 +69,12 @@ int dma_channel_allocate(uint32_t capabilities)
         dma_init();
     }
     
-#if 1
     int i = nu_cto(dma_chn_mask);
     if (i != 32) {
          dma_chn_mask |= 1 << i;
-         memset(dma_chn_arr + i, 0x00, sizeof (struct nu_dma_chn_s));
+         memset(dma_chn_arr + i - NU_PDMA_CH_Pos, 0x00, sizeof (struct nu_dma_chn_s));
          return i;
     }
-#else
-    int i;
-    
-    for (i = 0; i < PDMA_CH_MAX; i ++) {
-        if ((dma_chn_mask & (1 << i)) == 0) {
-            // Channel available
-            dma_chn_mask |= 1 << i;
-            memset(dma_chn_arr + i, 0x00, sizeof (struct nu_dma_chn_s));
-            return i;
-        }
-    }
-#endif
 
     // No channel available
     return DMA_ERROR_OUT_OF_CHANNELS;
@@ -102,9 +93,9 @@ void dma_set_handler(int channelid, uint32_t handler, uint32_t id, uint32_t even
 {
     MBED_ASSERT(dma_chn_mask & (1 << channelid));
     
-    dma_chn_arr[channelid].handler = (void (*)(uint32_t, uint32_t)) handler;
-    dma_chn_arr[channelid].id = id;
-    dma_chn_arr[channelid].event = event;
+    dma_chn_arr[channelid - NU_PDMA_CH_Pos].handler = (void (*)(uint32_t, uint32_t)) handler;
+    dma_chn_arr[channelid - NU_PDMA_CH_Pos].id = id;
+    dma_chn_arr[channelid - NU_PDMA_CH_Pos].event = event;
     
     // Set interrupt vector if someone has removed it.
     NVIC_SetVector(dma_modinit.irq_n, (uint32_t) dma_modinit.var);
@@ -127,14 +118,14 @@ static void pdma_vec(void)
         PDMA_CLR_ABORT_FLAG(abtsts);
         
         while (abtsts) {
-            int chn_id = nu_ctz(abtsts);
+            int chn_id = nu_ctz(abtsts) - PDMA_ABTSTS_ABTIFn_Pos + NU_PDMA_CH_Pos;
             if (dma_chn_mask & (1 << chn_id)) {
-                struct nu_dma_chn_s *dma_chn = dma_chn_arr + chn_id;
+                struct nu_dma_chn_s *dma_chn = dma_chn_arr + chn_id - NU_PDMA_CH_Pos;
                 if (dma_chn->handler && (dma_chn->event & DMA_EVENT_ABORT)) {
                     dma_chn->handler(dma_chn->id, DMA_EVENT_ABORT);
                 }
             }
-            abtsts &= ~(1 << chn_id);
+            abtsts &= ~(1 << (chn_id - NU_PDMA_CH_Pos + PDMA_ABTSTS_ABTIFn_Pos));
         }
     }
     
@@ -145,14 +136,14 @@ static void pdma_vec(void)
         PDMA_CLR_TD_FLAG(tdsts);
         
         while (tdsts) {
-            int chn_id = nu_ctz(tdsts);
+            int chn_id = nu_ctz(tdsts) - PDMA_TDSTS_TDIFn_Pos + NU_PDMA_CH_Pos;
             if (dma_chn_mask & (1 << chn_id)) {
-                struct nu_dma_chn_s *dma_chn = dma_chn_arr + chn_id;
+                struct nu_dma_chn_s *dma_chn = dma_chn_arr + chn_id - NU_PDMA_CH_Pos;
                 if (dma_chn->handler && (dma_chn->event & DMA_EVENT_TRANSFER_DONE)) {
                     dma_chn->handler(dma_chn->id, DMA_EVENT_TRANSFER_DONE);
                 }
             }
-            tdsts &= ~(1 << chn_id);
+            tdsts &= ~(1 << (chn_id - NU_PDMA_CH_Pos + PDMA_TDSTS_TDIFn_Pos));
         }
     }
     
@@ -170,14 +161,14 @@ static void pdma_vec(void)
         PDMA->INTSTS = reqto;
         
         while (reqto) {
-            int chn_id = nu_ctz(reqto) - PDMA_INTSTS_REQTOFn_Pos;
+            int chn_id = nu_ctz(reqto) - PDMA_INTSTS_REQTOFn_Pos + NU_PDMA_CH_Pos;
             if (dma_chn_mask & (1 << chn_id)) {
-                struct nu_dma_chn_s *dma_chn = dma_chn_arr + chn_id;
+                struct nu_dma_chn_s *dma_chn = dma_chn_arr + chn_id - NU_PDMA_CH_Pos;
                 if (dma_chn->handler && (dma_chn->event & DMA_EVENT_TIMEOUT)) {
                     dma_chn->handler(dma_chn->id, DMA_EVENT_TIMEOUT);
                 }
             }
-            reqto &= ~(1 << (chn_id + PDMA_INTSTS_REQTOFn_Pos));
+            reqto &= ~(1 << (chn_id - NU_PDMA_CH_Pos + PDMA_INTSTS_REQTOFn_Pos));
         }
     }
 }
