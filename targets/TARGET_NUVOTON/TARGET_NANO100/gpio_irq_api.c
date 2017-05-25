@@ -29,7 +29,6 @@
 
 struct nu_gpio_irq_var {
     gpio_irq_t *    obj_arr;
-    //IRQn_Type       irq_n;
     uint32_t       gpio_n;
     void            (*vec)(void);
 };
@@ -125,7 +124,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     // Add obj to linked list
     gpio_irq_t *cur_obj = var->obj_arr;
     if (cur_obj == NULL) {
-        cur_obj = obj;
+        var->obj_arr = obj;
     } else {
         while (cur_obj->next != NULL)
             cur_obj = cur_obj->next;
@@ -152,15 +151,17 @@ void gpio_irq_free(gpio_irq_t *obj)
     if (pre_obj->pin == obj->pin)
         var->obj_arr = pre_obj->next;
     else {
+        int error_flag = 1;
         while (pre_obj->next) {
             gpio_irq_t *cur_obj = pre_obj->next;
             if (cur_obj->pin == obj->pin) {
                 pre_obj->next = cur_obj->next;
+                error_flag = 0;
                 break;
             }
             pre_obj = pre_obj->next;
         }
-        if (pre_obj->next == NULL)
+        if (error_flag)
             error("cannot find obj in gpio_irq_free()");
     }
 }
@@ -189,6 +190,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
                 gpio_base->IER &= ~(GPIO_INT_FALLING << pin_index);
             }
             break;
+        
         default:
             break;
     }
@@ -246,8 +248,6 @@ static void gpio_irq(struct nu_gpio_irq_var *var)
                 break;
             obj = obj->next;
         }
-        if (obj == NULL)
-            error("cannot find obj in gpio_irq()");
         if (ier & (GPIO_INT_RISING << pin_index)) {
             if (GPIO_PIN_ADDR(port_index, pin_index)) {
                 if (obj && obj->irq_handler) {
