@@ -446,7 +446,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   macros=None, inc_dirs=None, jobs=1, silent=False,
                   report=None, properties=None, project_id=None,
                   project_description=None, extra_verbose=False, config=None,
-                  app_config=None, build_profile=None):
+                  app_config=None, build_profile=None, stats_depth=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -475,6 +475,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
+    stats_depth - depth level for memap to display file/dirs
     """
 
     # Convert src_path to a list if needed
@@ -553,18 +554,18 @@ def build_project(src_paths, build_path, target, toolchain_name,
         memap_table = ''
         if memap_instance:
             # Write output to stdout in text (pretty table) format
-            memap_table = memap_instance.generate_output('table')
+            memap_table = memap_instance.generate_output('table', stats_depth)
 
             if not silent:
                 print memap_table
 
             # Write output to file in JSON format
             map_out = join(build_path, name + "_map.json")
-            memap_instance.generate_output('json', map_out)
+            memap_instance.generate_output('json', stats_depth, map_out)
 
             # Write output to file in CSV format for the CI
             map_csv = join(build_path, name + "_map.csv")
-            memap_instance.generate_output('csv-ci', map_csv)
+            memap_instance.generate_output('csv-ci', stats_depth, map_csv)
 
         resources.detect_duplicates(toolchain)
 
@@ -1163,7 +1164,7 @@ def mcu_toolchain_list(release_version='5'):
 
 
 def mcu_target_list(release_version='5'):
-    """  Shows target list 
+    """  Shows target list
 
     """
 
