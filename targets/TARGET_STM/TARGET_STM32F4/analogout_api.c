@@ -60,9 +60,9 @@ void analogout_init(dac_t *obj, PinName pin) {
     // Configure GPIO
     pinmap_pinout(pin, PinMap_DAC);
 
-    __GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
 
-    __DAC_CLK_ENABLE();
+    __HAL_RCC_DAC_CLK_ENABLE();
 
     DacHandle.Instance = DAC;
 

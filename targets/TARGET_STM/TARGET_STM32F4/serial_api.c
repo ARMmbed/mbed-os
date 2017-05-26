@@ -206,55 +206,55 @@ void serial_free(serial_t *obj)
     // Reset UART and disable clock
     switch (obj_s->index) {
         case 0:
-            __USART1_FORCE_RESET();
-            __USART1_RELEASE_RESET();
-            __USART1_CLK_DISABLE();
+            __HAL_RCC_USART1_FORCE_RESET();
+            __HAL_RCC_USART1_RELEASE_RESET();
+            __HAL_RCC_USART1_CLK_DISABLE();
             break;
         case 1:
-            __USART2_FORCE_RESET();
-            __USART2_RELEASE_RESET();
-            __USART2_CLK_DISABLE();
+            __HAL_RCC_USART2_FORCE_RESET();
+            __HAL_RCC_USART2_RELEASE_RESET();
+            __HAL_RCC_USART2_CLK_DISABLE();
             break;
 #if defined(USART3_BASE)
         case 2:
-            __USART3_FORCE_RESET();
-            __USART3_RELEASE_RESET();
-            __USART3_CLK_DISABLE();
+            __HAL_RCC_USART3_FORCE_RESET();
+            __HAL_RCC_USART3_RELEASE_RESET();
+            __HAL_RCC_USART3_CLK_DISABLE();
             break;
 #endif
 #if defined(UART4_BASE)
         case 3:
-            __UART4_FORCE_RESET();
-            __UART4_RELEASE_RESET();
-            __UART4_CLK_DISABLE();
+            __HAL_RCC_UART4_FORCE_RESET();
+            __HAL_RCC_UART4_RELEASE_RESET();
+            __HAL_RCC_UART4_CLK_DISABLE();
             break;
 #endif
 #if defined(UART5_BASE)
         case 4:
-            __UART5_FORCE_RESET();
-            __UART5_RELEASE_RESET();
-            __UART5_CLK_DISABLE();
+            __HAL_RCC_UART5_FORCE_RESET();
+            __HAL_RCC_UART5_RELEASE_RESET();
+            __HAL_RCC_UART5_CLK_DISABLE();
             break;
 #endif
 #if defined(USART6_BASE)
         case 5:
-            __USART6_FORCE_RESET();
-            __USART6_RELEASE_RESET();
-            __USART6_CLK_DISABLE();
+            __HAL_RCC_USART6_FORCE_RESET();
+            __HAL_RCC_USART6_RELEASE_RESET();
+            __HAL_RCC_USART6_CLK_DISABLE();
             break;
 #endif
 #if defined(UART7_BASE)
         case 6:
-            __UART7_FORCE_RESET();
-            __UART7_RELEASE_RESET();
-            __UART7_CLK_DISABLE();
+            __HAL_RCC_UART7_FORCE_RESET();
+            __HAL_RCC_UART7_RELEASE_RESET();
+            __HAL_RCC_UART7_CLK_DISABLE();
             break;
 #endif
 #if defined(UART8_BASE)
         case 7:
-            __UART8_FORCE_RESET();
-            __UART8_RELEASE_RESET();
-            __UART8_CLK_DISABLE();
+            __HAL_RCC_UART8_FORCE_RESET();
+            __HAL_RCC_UART8_RELEASE_RESET();
+            __HAL_RCC_UART8_CLK_DISABLE();
             break;
 #endif
     }
