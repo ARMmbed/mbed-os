@@ -111,6 +111,15 @@ public:
      * @endcode
      */
     CAN(PinName rd, PinName td);
+
+    /** Initialize CAN interface and set the frequency
+      *
+      * @param rd the rd pin
+      * @param td the td pin
+      * @param hz the bus frequency in hertz
+      */
+    CAN(PinName rd, PinName td, int hz);
+
     virtual ~CAN();
 
     /** Set the frequency of the CAN interface
