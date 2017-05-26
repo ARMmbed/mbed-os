@@ -252,6 +252,8 @@ class mbedToolchain:
 
     MBED_CONFIG_FILE_NAME="mbed_config.h"
 
+    PROFILE_FILE_NAME = ".profile"
+
     __metaclass__ = ABCMeta
 
     profile_template = {'common':[], 'c':[], 'cxx':[], 'asm':[], 'ld':[]}
@@ -798,6 +800,7 @@ class mbedToolchain:
 
         # Generate configuration header (this will update self.build_all if needed)
         self.get_config_header()
+        self.dump_build_profile()
 
         # Sort compile queue for consistency
         files_to_compile.sort()
@@ -911,13 +914,19 @@ class mbedToolchain:
                 deps = []
             config_file = ([self.config.app_config_location]
                            if self.config.app_config_location else [])
-            if len(deps) == 0 or self.need_update(object, deps + config_file):
+            deps.append(config_file)
+            if ext == '.cpp' or self.COMPILE_C_AS_CPP:
+                deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-cxx"))
+            else:
+                deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-c"))
+            if len(deps) == 0 or self.need_update(object, deps):
                 if ext == '.cpp' or self.COMPILE_C_AS_CPP:
                     return self.compile_cpp(source, object, includes)
                 else:
                     return self.compile_c(source, object, includes)
         elif ext == '.s':
             deps = [source]
+            deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-asm"))
             if self.need_update(object, deps):
                 return self.assemble(source, object, includes)
         else:
@@ -1012,8 +1021,9 @@ class mbedToolchain:
         r.objects = sorted(set(r.objects))
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
-        if self.need_update(elf, r.objects + r.libraries + [r.linker_script] +
-                            config_file):
+        dependencies = r.objects + r.libraries + [r.linker_script, config_file]
+        dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
+        if self.need_update(elf, dependencies):
             needed_update = True
             self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
@@ -1160,6 +1170,22 @@ class mbedToolchain:
         # file for subsequent calls, without trying to manipulate its content in any way.
         self.config_processed = True
         return self.config_file
+
+    def dump_build_profile(self):
+        """Dump the current build profile and macros into the `.profile` file
+        in the build directory"""
+        for key in ["cxx", "c", "asm", "ld"]:
+            to_dump = (str(self.flags[key]) + str(sorted(self.macros)))
+            if key in ["cxx", "c"]:
+                to_dump += str(self.flags['common'])
+            where = join(self.build_dir, self.PROFILE_FILE_NAME + "-" + key)
+            self._overwrite_when_not_equal(where, to_dump)
+
+    @staticmethod
+    def _overwrite_when_not_equal(filename, content):
+        if not exists(filename) or content != open(filename).read():
+            with open(filename, "wb") as out:
+                out.write(content)
 
     @staticmethod
     def generic_check_executable(tool_key, executable_name, levels_up,
