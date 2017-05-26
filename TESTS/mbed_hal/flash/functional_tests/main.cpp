@@ -24,7 +24,6 @@
 
 #include "mbed.h"
 #include "flash_api.h"
-#include "flash_data.h"
 
 using namespace utest::v1;
 
