@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_comp.c
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   COMP LL module driver
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -94,7 +94,7 @@
 /*       the same on all COMP instances.                                      */
 /*       However, comparator instance kept as macro parameter for             */
 /*       compatibility with other STM32 families.                             */
-#if defined(COMP_CSR_INMESEL_1)
+#if defined(COMP_CSR_INMESEL_1) && defined(DAC_CHANNEL2_SUPPORT)
 #define IS_LL_COMP_INPUT_MINUS(__COMP_INSTANCE__, __INPUT_MINUS__)             \
   (   ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_1_4VREFINT)                    \
    || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_1_2VREFINT)                    \
@@ -108,7 +108,20 @@
    || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO4)                           \
    || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO5)                           \
   )
-#else
+#elif defined(COMP_CSR_INMESEL_1)
+#define IS_LL_COMP_INPUT_MINUS(__COMP_INSTANCE__, __INPUT_MINUS__)             \
+  (   ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_1_4VREFINT)                    \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_1_2VREFINT)                    \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_3_4VREFINT)                    \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_VREFINT)                       \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_DAC1_CH1)                      \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO1)                           \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO2)                           \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO3)                           \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO4)                           \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO5)                           \
+  )
+#elif defined(DAC_CHANNEL2_SUPPORT)
 #define IS_LL_COMP_INPUT_MINUS(__COMP_INSTANCE__, __INPUT_MINUS__)             \
   (   ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_1_4VREFINT)                    \
    || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_1_2VREFINT)                    \
@@ -116,6 +129,16 @@
    || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_VREFINT)                       \
    || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_DAC1_CH1)                      \
    || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_DAC1_CH2)                      \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO1)                           \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO2)                           \
+  )
+#else
+#define IS_LL_COMP_INPUT_MINUS(__COMP_INSTANCE__, __INPUT_MINUS__)             \
+  (   ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_1_4VREFINT)                    \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_1_2VREFINT)                    \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_3_4VREFINT)                    \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_VREFINT)                       \
+   || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_DAC1_CH1)                      \
    || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO1)                           \
    || ((__INPUT_MINUS__) == LL_COMP_INPUT_MINUS_IO2)                           \
   )
