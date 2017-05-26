@@ -80,7 +80,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     1 - Enable MULTI (DMA) acquisitions \n
     0 - Disable MULTI (use Interrupt) acquisitions \n
 */ 
-#define ADI_ADC_ENABLE_MULTI_ACQUIRE              (0)
+#define ADI_ADC_ENABLE_MULTI_ACQUIRE              (1)
 
 /*! Enable/Disable HI/LO Digital Comparator limits \n
     1 - Enable HI/LO Digital Comparator limits\n
@@ -104,7 +104,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     1 - Enable LO Digital Comparator limit\n
     0 - Disable LO Digital Comparator limit\n 
 */
-#define ADI_ADC_COMPARATOR_AIN0_LO_EN              (1)    /* 0 or 1 */
+#define ADI_ADC_COMPARATOR_AIN0_LO_EN              (0)    /* 0 or 1 */
 
 /*! Set the Channel0 limit comparator value. \n
     Sets the LO limit value for the channel, only \n
@@ -116,7 +116,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     1 - Enable hysteresis and monitor cycles\n
     0 - Disable hysteresis and monitor cycles\n 
 */
-#define ADI_ADC_COMPARATOR_AIN0_HYS_EN             (1)   /* 0 or 1 */
+#define ADI_ADC_COMPARATOR_AIN0_HYS_EN             (0)   /* 0 or 1 */
 
 /*! Set the Channel0 limit comparator hysteresis value. \n
     Sets the hysteresis value for the channel, only \n
