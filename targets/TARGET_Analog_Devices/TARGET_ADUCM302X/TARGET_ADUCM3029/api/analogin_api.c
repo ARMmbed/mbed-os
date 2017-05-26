@@ -18,7 +18,7 @@
 
 #if DEVICE_ANALOGIN
 
-//#include "adi_adc_def_v1.h"
+#include "adi_adc_def.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
@@ -36,7 +36,7 @@ extern "C" {
 /* Memory Required for adc driver */
 static uint32_t DeviceMemory[(ADI_ADC_MEMORY_SIZE+3)/4];
 /* Active channel */
-static uint32_t adi_get_channel(PinName pin);
+static uint32_t adi_pin2channel(PinName pin);
 
 /**
  * \defgroup hal_analogin Analogin hal functions
@@ -56,37 +56,41 @@ void analogin_init(analogin_t *obj, PinName pin)
     bool bReady = false;
 
     ADCName peripheral;
-    uint32_t function;
+    uint32_t function, channel;
 
     uint16_t nAveragingSamples = 4;
 
     peripheral = (ADCName)pinmap_peripheral(pin, &PinMap_ADC[0]);	// gives peripheral
     MBED_ASSERT(peripheral != (ADCName)NC);
 
+    /* verify read function */
     function = pinmap_function(pin, &PinMap_ADC[0]);
+    MBED_ASSERT(function == 1); 
 
     /* Configure PORT2_MUX registers */
     pin_function(pin, function);
 
     /* Configure active channel */
-    obj->UserBuffer.nChannels = adi_get_channel(pin);
+    channel = adi_pin2channel(pin);
+    MBED_ASSERT(channel != 0xFFFFFFFF); 
+    obj->UserBuffer.nChannels = channel;
 
     /* Open the ADC device */
     adi_adc_Open(ADC_DEV_NUM, DeviceMemory, sizeof(DeviceMemory),&hDevice);
     obj->hDevice = hDevice;
 
     /* Power up ADC */
-    adi_adc_PowerUp(hDevice, true);
+    adi_adc_PowerUp (hDevice, true);
 
     /* Set ADC reference */
-    adi_adc_SetVrefSource(hDevice, ADI_ADC_VREF_SRC_INT_2_50_V);
+    adi_adc_SetVrefSource (hDevice, ADI_ADC_VREF_SRC_INT_2_50_V);
 
     /* Enable ADC sub system */
     adi_adc_EnableADCSubSystem (hDevice, true);
 
     /* Wait untilthe ADC is ready for sampling */
     while(bReady == false) {
-        adi_adc_IsReady(hDevice, &bReady);
+        adi_adc_IsReady (hDevice, &bReady);
     }
 
     /* Start calibration */
@@ -98,12 +102,14 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 
     /* Set the delay time */
-    adi_adc_SetDelayTime(hDevice, obj->DelayCycles);
+    adi_adc_SetDelayTime ( hDevice, obj->DelayCycles);
 
     /* Set the acquisition time. (Application need to change it based on the impedence) */
-    adi_adc_SetAcquisitionTime(hDevice, obj->SampleCycles);
+    adi_adc_SetAcquisitionTime ( hDevice, obj->SampleCycles);
 
-    adi_adc_EnableAveraging(hDevice, nAveragingSamples );
+    /* Sample averaging */
+    //adi_adc_EnableAveraging (hDevice, nAveragingSamples ) 	;
+
 }
 
 /** Read the input voltage, represented as a float in the range [0.0, 1.0]
@@ -129,53 +135,53 @@ uint16_t analogin_read_u16(analogin_t *obj)
     ADI_ADC_BUFFER  *pAdcBuffer;
 
     /* Submit the buffer to the driver */
-    adi_adc_SubmitBuffer(hDevice, &obj->UserBuffer);
+    adi_adc_SubmitBuffer (hDevice, &obj->UserBuffer);
 
     /* Enable the ADC */
-    adi_adc_Enable(hDevice, true);
+    adi_adc_Enable (hDevice, true);
 
-    adi_adc_GetBuffer(hDevice, &pAdcBuffer);
+    adi_adc_GetBuffer (hDevice, &pAdcBuffer);
+    MBED_ASSERT(pAdcBuffer == &obj->UserBuffer);
 
-    return( *((uint16_t *)(obj->UserBuffer.pDataBuffer)) );
+    return( (uint16_t) ( ((uint16_t *)pAdcBuffer->pDataBuffer)[(pAdcBuffer->nNumConversionPasses) - 1]) );
 }
 
 /* Retrieve te active channel correspondoing to the input pin */
-static uint32_t adi_get_channel(PinName pin)
-{
-
-    uint32_t activech;
-
-    switch(pin) {
+static uint32_t adi_pin2channel(PinName pin) {
+    
+    uint32_t activech; 
+   
+    switch(pin) {        
         case A0:
             activech = ADI_ADC_CHANNEL_0;
-            break;
+            break;             
         case A1:
             activech = ADI_ADC_CHANNEL_1;
-            break;
+            break;               
         case A2:
             activech = ADI_ADC_CHANNEL_2;
-            break;
+            break;                                 
         case A3:
             activech = ADI_ADC_CHANNEL_3;
-            break;
+            break; 
         case A4:
             activech = ADI_ADC_CHANNEL_4;
-            break;
+            break;  
         case A5:
             activech = ADI_ADC_CHANNEL_5;
-            break;
+            break; 
         case A6:
             activech = ADI_ADC_CHANNEL_6;
-            break;
+            break; 
         case A7:
             activech = ADI_ADC_CHANNEL_7;
-            break;
-        default:
+            break;                                       
+        default: 
             activech = (uint32_t) 0xFFFFFFFF;
             break;
-    }
-
-    return(activech);
+    } 
+    
+    return((uint32_t) activech);
 }
 
 
