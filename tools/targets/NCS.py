@@ -32,11 +32,12 @@ def ranges(i):
 def add_fib_at_start(arginput):
     import os
 # Take binary file back up to '_orig.bin'
+    input_file = arginput + ".bin"
     filesize = os.path.getsize(arginput + ".bin")
     if filesize > 0x4F000:
 # Remove gap between Flash A and B 
         origfile = open(arginput + ".bin", "rb")
-        newfile = open(arginput + "_new.bin", "wb")
+        newfile = open(arginput + "_trim.bin", "wb")
         FlashA = origfile.read(0x4F000)
         newfile.write(FlashA)
         origfile.seek(0xFF000)
@@ -44,12 +45,8 @@ def add_fib_at_start(arginput):
         newfile.write(FlashB)
         newfile.close()
         origfile.close()
-        Origfile = arginput + ".bin"
-        Newfile = arginput + "_new.bin"
-        os.remove(Origfile)
-        os.rename(Newfile, Origfile)
-    input_file = arginput + ".bin"
-    file_name_hex = arginput + "_fib.hex"
+    	input_file = arginput + "_trim.bin"
+    file_name_hex = arginput + ".hex"
     file_name_bin = arginput + ".bin"
 
     # Read in hex file
@@ -226,13 +223,31 @@ def add_fib_at_start(arginput):
     for i in range(trim_area_start + trim_size, user_code_start):
         output_hex_file[i] = 0xFF
 
-    #merge two hex files
-    output_hex_file.merge(input_hex_file, overlap='error')
 
-    # Write out file(s)
-    output_hex_file.tofile(file_name_hex, 'hex')
-    output_hex_file.tofile(file_name_bin, 'bin')
+    output_hex_file.tofile("fib.bin", 'hex')
 
-if __name__ == '__main__':
-    arginput = sys.argv[1]
-    add_fib_at_start(arginput)
+    #merge fib + bin = hex file
+    Hex_File = intelhex.IntelHex("fib.bin")
+    OrgFile = intelhex.IntelHex()
+    OrgFile.padding = 0x00
+    orig_file = arginput + ".bin"
+    OrgFile.loadbin(orig_file, offset=FLASH_BASE)
+    OrgFile.merge(Hex_File, overlap='error')
+    OrgFile.tofile(file_name_hex, 'hex')
+
+    #merge fib + bin = bin file
+    Bin_File = intelhex.IntelHex("fib.bin")
+    Org1File = intelhex.IntelHex()
+    Org1File.padding = 0x00
+    Org1File.loadbin(input_file, offset=FLASH_BASE)
+    Org1File.merge(Bin_File, overlap='error')
+    Org1File.tofile(file_name_bin, 'bin')
+
+    if filesize > 0x4F000:
+		Newfile = arginput + "_trim.bin"
+		os.remove(Newfile)
+
+# Do not remove required for testing using CLI
+#if __name__ == '__main__':
+#    arginput = sys.argv[1]
+#add_fib_at_start(arginput)
