@@ -40,8 +40,8 @@ An example of the configuration file:
 | Parameter name  | Value         | Description |
 | --------------- | ------------- | ----------- |
 | thread-pskd     | string [6-255 chars] | Human-scaled commissioning credentials. |
-| thread-device-type | enum from mesh_device_type_t | Set device operating mode. |
 | thread-use-static-link-config | boolean | True: Use the below link config, False: Use commissioning, ignore the below link config. |
+| thread-device-type | enum from mesh_device_type_t | Supported device operating modes: MESH_DEVICE_TYPE_THREAD_ROUTER, MESH_DEVICE_TYPE_THREAD_SLEEPY_END_DEVICE, MESH_DEVICE_TYPE_THREAD_MINIMAL_END_DEVICE |
 | thread-config-channel-mask | number [0-0x07fff800] | Channel mask, 0x07fff800 scans all channels. |
 | thread-config-channel-page | number [0, 2]| Channel page, 0 for 2,4 GHz and 2 for sub-GHz radios. |
 | thread-config-channel      | number [0-27] | RF channel to use. |
