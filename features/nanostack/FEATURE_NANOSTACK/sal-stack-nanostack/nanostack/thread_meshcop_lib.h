@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -95,6 +95,8 @@
 #define MESHCOP_TLV_ENERGY_LIST                            57
 #define MESHCOP_TLV_DISCOVERY_REQUEST                      128
 #define MESHCOP_TLV_DISCOVERY_RESPONSE                     129
+
+#define MESHCOP_TLV_TIMEOUT                                58
 
 /**
  * Write array TLV.

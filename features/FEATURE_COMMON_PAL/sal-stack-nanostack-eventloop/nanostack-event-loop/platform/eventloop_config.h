@@ -17,9 +17,15 @@
 #define EVENTLOOP_CONFIG_H_
 
 /*
- * Undefine all internal flags before evaluating the configuration
+ * Options can be picked up from mbed-cli JSON configuration, or from
+ * Yotta JSON configuration, or from a user configuration file - see below.
+ *
+ * Undefine all internal flags before evaluating the configuration.
  */
+
+/* Use platform-provided low-resolution tick timer for eventloop (requires "platform_tick_timer" API) */
 #undef NS_EVENTLOOP_USE_TICK_TIMER
+/* Exclude high resolution timer from build (removes need for "platform_timer" API) */
 #undef NS_EXCLUDE_HIGHRES_TIMER
 
 /*
