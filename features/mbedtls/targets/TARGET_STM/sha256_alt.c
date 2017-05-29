@@ -74,10 +74,15 @@ void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 )
 void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[MBEDTLS_SHA256_BLOCK_SIZE] )
 {
     if (ctx->is224 == 0) {
-        HAL_HASHEx_SHA256_Accumulate(&ctx->hhash_sha256, (uint8_t *) data, MBEDTLS_SHA256_BLOCK_SIZE);
+        if (HAL_HASHEx_SHA256_Accumulate(&ctx->hhash_sha256, (uint8_t *) data, MBEDTLS_SHA256_BLOCK_SIZE) != 0) {
+            // return 0; // Return error code
+        }
     } else {
-        HAL_HASHEx_SHA224_Accumulate(&ctx->hhash_sha256, (uint8_t *) data, MBEDTLS_SHA256_BLOCK_SIZE);
+        if (HAL_HASHEx_SHA224_Accumulate(&ctx->hhash_sha256, (uint8_t *) data, MBEDTLS_SHA256_BLOCK_SIZE) != 0) {
+            // return 0; // Return error code
+        }
     }
+    // return 1;
 }
 
 void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *input, size_t ilen )
@@ -107,9 +112,13 @@ void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *in
         // now process every input as long as it is %4 bytes
         size_t iter = currentlen / 4;
         if (ctx->is224 == 0) {
-            HAL_HASHEx_SHA256_Accumulate(&ctx->hhash_sha256, (uint8_t *)(input + MBEDTLS_SHA256_BLOCK_SIZE - ctx->sbuf_len),  (iter * 4));
+            if (HAL_HASHEx_SHA256_Accumulate(&ctx->hhash_sha256, (uint8_t *)(input + MBEDTLS_SHA256_BLOCK_SIZE - ctx->sbuf_len),  (iter * 4)) != 0) {
+                //return 1; // Return error code here
+            }
         } else {
-            HAL_HASHEx_SHA224_Accumulate(&ctx->hhash_sha256, (uint8_t *)(input + MBEDTLS_SHA256_BLOCK_SIZE - ctx->sbuf_len),  (iter * 4));
+            if (HAL_HASHEx_SHA224_Accumulate(&ctx->hhash_sha256, (uint8_t *)(input + MBEDTLS_SHA256_BLOCK_SIZE - ctx->sbuf_len),  (iter * 4)) != 0) {
+                //return 1; // Return error code here
+            }
         }
         // sbuf is now fully accumulated, now copy 1 / 2 or 3 remaining bytes
         ctx->sbuf_len = currentlen % 4;
@@ -123,19 +132,28 @@ void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[32
 {
     if (ctx->sbuf_len > 0) {
         if (ctx->is224 == 0) {
-            HAL_HASHEx_SHA256_Accumulate(&ctx->hhash_sha256, ctx->sbuf, ctx->sbuf_len);
+            if (HAL_HASHEx_SHA256_Accumulate(&ctx->hhash_sha256, ctx->sbuf, ctx->sbuf_len) != 0) {
+                //return 1; // Return error code here
+            }
         } else {
-            HAL_HASHEx_SHA224_Accumulate(&ctx->hhash_sha256, ctx->sbuf, ctx->sbuf_len);
+            if (HAL_HASHEx_SHA224_Accumulate(&ctx->hhash_sha256, ctx->sbuf, ctx->sbuf_len) != 0) {
+                //return 1; // Return error code here
+            }
         }
     }
     mbedtls_zeroize(ctx->sbuf, MBEDTLS_SHA256_BLOCK_SIZE);
     ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();
         
-    if (ctx->is224 == 0)
-        HAL_HASHEx_SHA256_Finish(&ctx->hhash_sha256, output, 10);
-    else
-        HAL_HASHEx_SHA224_Finish(&ctx->hhash_sha256, output, 10);
+    if (ctx->is224 == 0) {
+        if (HAL_HASHEx_SHA256_Finish(&ctx->hhash_sha256, output, 10) != 0) {
+            //return 1; // Return error code here
+        }
+    } else {
+        if (HAL_HASHEx_SHA224_Finish(&ctx->hhash_sha256, output, 10) != 0) {
+            //return 1; // Return error code here
+        }
+    }
 }
 
 #endif /*MBEDTLS_SHA256_ALT*/
