@@ -144,7 +144,7 @@ void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[32
     mbedtls_zeroize(ctx->sbuf, MBEDTLS_SHA256_BLOCK_SIZE);
     ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();
-        
+
     if (ctx->is224 == 0) {
         if (HAL_HASHEx_SHA256_Finish(&ctx->hhash_sha256, output, 10) != 0) {
             //return 1; // Return error code here
