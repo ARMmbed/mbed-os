@@ -103,8 +103,11 @@ if __name__ == '__main__':
                       default=None,
                       help='For some commands you can use filter to filter out results')
 
-    parser.add_argument("--stats-depth", type=int, dest="stats_depth",
-                      default=2, help="Depth level for static memory report")
+    parser.add_argument("--stats-depth",
+                      type=int,
+                      dest="stats_depth",
+                      default=2,
+                      help="Depth level for static memory report")
 
     # Local run
     parser.add_argument("--automated", action="store_true", dest="automated",

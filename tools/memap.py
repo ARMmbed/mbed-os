@@ -32,7 +32,6 @@ class MemapParser(object):
 
     print_sections = ('.text', '.data', '.bss')
 
-    # Info from this section can be shown as misc or startup code (.text)
     misc_flash_sections = ('.interrupts', '.flash_config')
 
     other_sections = ('.interrupts_ram', '.init', '.ARM.extab',
@@ -66,7 +65,7 @@ class MemapParser(object):
         self.misc_flash_mem = 0
 
 
-    def module_remove_unused(self):
+    def remove_unused_modules(self):
         """ Removes modules/objects that were compiled but are not used
         """
 
@@ -76,7 +75,7 @@ class MemapParser(object):
             for k in self.print_sections:
                 size += self.modules[i][k]
             if size == 0:
-                self.modules.pop(i)
+                del self.modules[i]
 
 
     def module_init(self, object_name):
@@ -102,21 +101,21 @@ class MemapParser(object):
         """
 
         # Check if object is a sub-string of key
-        for key, value in self.modules.items():
+        for module_path in self.modules:
 
             # this is required to differenciate: main.o vs xxxmain.o
-            key_split = key.split('/')[-1]
-            obj_split = object_name.split('/')[-1]
+            module_split = os.path.basename(module_path)
+            obj_split = os.path.basename(object_name)
 
-            if key_split == obj_split:
-                self.modules[key][section] += size
+            if module_split == obj_split:
+                self.modules[module_path][section] += size
                 return
 
-        temp_dic = dict()
+        new_module = dict()
         for section_idx in self.all_sections:
-            temp_dic[section_idx] = 0
-        temp_dic[section] = size
-        self.modules[object_name] = temp_dic
+            new_module[section_idx] = 0
+        new_module[section] = size
+        self.modules[object_name] = new_module
 
     def module_replace(self, old_object, new_object):
         """ Replaces an object name with a new one
@@ -154,12 +153,12 @@ class MemapParser(object):
         """
 
         line = line.replace('\\', '/')
-        rex_mbed_os_name = r'^.+\/(.+\.o)$'
-        test_rex_mbed_os_name = re.match(rex_mbed_os_name, line)
+        RE_OBJECT_FILE = r'^.+\/(.+\.o)$'
+        test_re_mbed_os_name = re.match(RE_OBJECT_FILE, line)
 
-        if test_rex_mbed_os_name:
+        if test_re_mbed_os_name:
 
-            object_name = test_rex_mbed_os_name.group(1)
+            object_name = test_re_mbed_os_name.group(1)
 
             # corner case: certain objects are provided by the GCC toolchain
             if 'arm-none-eabi' in line:
@@ -169,19 +168,17 @@ class MemapParser(object):
 
         else:
 
-            rex_obj_name = r'^.+\/(lib.+\.a)\((.+\.o)\)$'
-            #rex_obj_name = r'^.+\/(lib\w+\.a)\(.+$'
+            RE_LIBRARY_OBJECT_FILE = r'^.+\/(lib.+\.a)\((.+\.o)\)$'
+            test_re_obj_name = re.match(RE_LIBRARY_OBJECT_FILE, line)
 
-            test_rex_obj_name = re.match(rex_obj_name, line)
-
-            if test_rex_obj_name:
-                object_name = test_rex_obj_name.group(1) + '/' + \
-                              test_rex_obj_name.group(2)
+            if test_re_obj_name:
+                object_name = test_re_obj_name.group(1) + '/' + \
+                              test_re_obj_name.group(2)
 
                 return '[lib]/' + object_name
 
             else:
-                print "BUG gcc map parser: " + line
+                print "Malformed input found when parsing GCC map: %s" % line
                 return '[misc]'
 
     def parse_section_gcc(self, line):
@@ -194,10 +191,11 @@ class MemapParser(object):
         Positional arguments:
         line - the line to parse a section from
         """
-        rex_address_len_name = re.compile(
+
+        RE_STD_SECTION_GCC = re.compile(
             r'^\s+.*0x(\w{8,16})\s+0x(\w+)\s(.+)$')
 
-        test_address_len_name = re.match(rex_address_len_name, line)
+        test_address_len_name = re.match(RE_STD_SECTION_GCC, line)
 
         if test_address_len_name:
 
@@ -212,8 +210,10 @@ class MemapParser(object):
         else: # special corner case for *fill* sections
             #  example
             # *fill*         0x0000abe4        0x4
-            rex_address_len = r'^\s+\*fill\*\s+0x(\w{8,16})\s+0x(\w+).*$'
-            test_address_len = re.match(rex_address_len, line)
+
+            RE_FILL_SECTION_GCC = r'^\s+\*fill\*\s+0x(\w{8,16})\s+0x(\w+).*$'
+
+            test_address_len = re.match(RE_FILL_SECTION_GCC, line)
 
             if test_address_len:
                 if int(test_address_len.group(2), 16) == 0: # size == 0
@@ -275,16 +275,16 @@ class MemapParser(object):
 
         else:
 
-            rex_obj_name = r'(.+\.l)\((.+\.o)\)'
-            test_rex_obj_name = re.match(rex_obj_name, line)
+            RE_OBJECT_ARMCC = r'(.+\.l)\((.+\.o)\)'
+            test_re_obj_name = re.match(RE_OBJECT_ARMCC, line)
 
-            if test_rex_obj_name:
-                object_name = test_rex_obj_name.group(1) + '/' + \
-                              test_rex_obj_name.group(2)
+            if test_re_obj_name:
+                object_name = test_re_obj_name.group(1) + '/' + \
+                              test_re_obj_name.group(2)
 
                 return '[lib]/' + object_name
             else:
-                print "BUG armcc map parser (1): " + line
+                print "Malformed input found when parsing ARMCC map: %s" % line
                 return '[misc]'
 
 
@@ -301,25 +301,26 @@ class MemapParser(object):
         line - the line to parse the section data from
         """
 
-        test_rex_armcc = re.match(RE_ARMCC, line)
+        test_re_armcc = re.match(RE_ARMCC, line)
 
-        if test_rex_armcc:
+        if test_re_armcc:
 
-            size = int(test_rex_armcc.group(2), 16)
+            size = int(test_re_armcc.group(2), 16)
 
-            if test_rex_armcc.group(4) == 'RO':
+            if test_re_armcc.group(4) == 'RO':
                 section = '.text'
             else:
-                if test_rex_armcc.group(3) == 'Data':
+                if test_re_armcc.group(3) == 'Data':
                     section = '.data'
-                elif test_rex_armcc.group(3) == 'Zero':
+                elif test_re_armcc.group(3) == 'Zero':
                     section = '.bss'
                 else:
-                    print "BUG armcc map parser (2): " + line
+                    print "Malformed input found when parsing armcc map: %s" %\
+                          line
 
             # check name of object or library
             object_name = self.parse_object_name_armcc(\
-                test_rex_armcc.group(6))
+                test_re_armcc.group(6))
 
             return [object_name, size, section]
 
@@ -360,31 +361,31 @@ class MemapParser(object):
         line - the line to parse section data from
         """
 
-        test_rex_iar = re.match(RE_IAR, line)
+        test_re_iar = re.match(RE_IAR, line)
 
-        if test_rex_iar:
+        if test_re_iar:
 
-            size = int(test_rex_iar.group(4), 16)
+            size = int(test_re_iar.group(4), 16)
 
-            if test_rex_iar.group(2) == 'const' or \
-               test_rex_iar.group(2) == 'ro code':
+            if test_re_iar.group(2) == 'const' or \
+               test_re_iar.group(2) == 'ro code':
                 section = '.text'
-            elif test_rex_iar.group(2) == 'zero' or \
-            test_rex_iar.group(2) == 'uninit':
-                if test_rex_iar.group(1)[0:4] == 'HEAP':
+            elif test_re_iar.group(2) == 'zero' or \
+            test_re_iar.group(2) == 'uninit':
+                if test_re_iar.group(1)[0:4] == 'HEAP':
                     section = '.heap'
-                elif test_rex_iar.group(1)[0:6] == 'CSTACK':
+                elif test_re_iar.group(1)[0:6] == 'CSTACK':
                     section = '.stack'
                 else:
                     section = '.bss' #  default section
 
-            elif test_rex_iar.group(2) == 'inited':
+            elif test_re_iar.group(2) == 'inited':
                 section = '.data'
             else:
-                print "BUG IAR map parser: " + line
+                print "Malformed input found when parsing IAR map: %s" % line
 
             # lookup object in dictionary and return module name
-            temp = test_rex_iar.group(5)
+            temp = test_re_iar.group(5)
             object_name = self.parse_object_name_iar(temp)
 
             return [object_name, size, section]
@@ -425,9 +426,9 @@ class MemapParser(object):
 
         """
 
-        rex_address_line = re.compile(r'^(.+\.a)\:.+$')
+        RE_LIBRARY_IAR = re.compile(r'^(.+\.a)\:.+$')
 
-        test_address_line = re.match(rex_address_line, line)
+        test_address_line = re.match(RE_LIBRARY_IAR, line)
 
         if test_address_line:
             return test_address_line.group(1)
@@ -446,9 +447,9 @@ class MemapParser(object):
 
         """
 
-        rex_address_line = re.compile(r'^\s+(.+\.o)\s.*')
+        RE_OBJECT_LIBRARY_IAR = re.compile(r'^\s+(.+\.o)\s.*')
 
-        test_address_line = re.match(rex_address_line, line)
+        test_address_line = re.match(RE_OBJECT_LIBRARY_IAR, line)
 
         if test_address_line:
             return test_address_line.group(1)
@@ -510,12 +511,11 @@ class MemapParser(object):
         path = path.replace('\\', '/')
 
         # check location of map file
-        #rex = r'^(.+)' + r'\/(.+\.map)$'
-        rex = r'^(.+)\/(.+\.map)$'
-        test_rex = re.match(rex, path)
+        RE_PATH_MAP_FILE = r'^(.+)\/(.+\.map)$'
+        test_re = re.match(RE_PATH_MAP_FILE, path)
 
-        if test_rex:
-            search_path = test_rex.group(1)
+        if test_re:
+            search_path = test_re.group(1)
         else:
             print "Warning: this doesn't look like an mbed project"
             return
@@ -587,7 +587,7 @@ class MemapParser(object):
 
             for section_idx in self.all_sections:
                 self.short_modules[temp][section_idx] += \
-                self.modules[line][section_idx]
+                    self.modules[line][section_idx]
 
 
     export_formats = ["json", "csv-ci", "table"]
@@ -605,7 +605,7 @@ class MemapParser(object):
         Returns: generated string for the 'table' format, otherwise None
         """
 
-        self.module_remove_unused() # clean up unused modules/objects
+        self.remove_unused_modules()
         self.reduce_depth(depth)
         self.compute_report()
 
