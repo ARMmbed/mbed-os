@@ -87,6 +87,7 @@ typedef enum {
     PC_0  = 0x20,
     PC_1  = 0x21,
     PC_2  = 0x22,
+    PC_13 = 0x2D,
 
     PH_0  = 0x70,
     PH_1  = 0x71,
