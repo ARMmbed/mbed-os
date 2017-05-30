@@ -227,7 +227,7 @@ protected:
     
 private:
     FATFS _fs; // Work area (file system object) for logical drive
-    char _fsid[2];
+    char _fsid[sizeof("0:")];
     int _id;
 
 protected:
