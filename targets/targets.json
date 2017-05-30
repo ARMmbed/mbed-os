@@ -586,12 +586,12 @@
         "device_name": "MK64FN1M0xxx12",
         "bootloader_supported": true
     },
-    "ADUCM3029": {
+    "EVAL_ADICUP3029": {
         "inherits": ["Target"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "macros": ["__ADUCM3029__", "RELOCATE_IVT", "ADICUP3029"],
-        "extra_labels": ["Analog_Devices", "ADUCM302X", "ADUCM3029", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["Analog_Devices", "ADUCM302X", "ADUCM3029", "EVAL_ADICUP3029", "FLASH_CMSIS_ALGO"],
         "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "LOWPOWERTIMER", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
         "device_name": "ADuCM3029",
         "detect_code": [],

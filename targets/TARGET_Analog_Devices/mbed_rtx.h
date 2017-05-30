@@ -17,7 +17,7 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_ADUCM3029)
+#if defined(TARGET_EVAL_ADICUP3029)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
