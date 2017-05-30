@@ -269,9 +269,8 @@ class MemapParser(object):
         """
 
         # simple object (not library)
-        if line[-3] == '.' and line[-2] == 'o':
-            object_name = line[:-1]
-            return object_name
+        if line[-2] == '.' and line[-1] == 'o':
+            return line
 
         else:
 
