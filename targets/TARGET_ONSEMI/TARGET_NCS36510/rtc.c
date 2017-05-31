@@ -7,11 +7,11 @@
  * $Rev: 3525 $
  * $Date: 2015-07-20 15:24:25 +0530 (Mon, 20 Jul 2015) $
  ******************************************************************************
- * Copyright 2016 Semiconductor Components Industries LLC (d/b/a “ON Semiconductor”).
+ * Copyright 2016 Semiconductor Components Industries LLC (d/b/a ï¿½ON Semiconductorï¿½).
  * All rights reserved.  This software and/or documentation is licensed by ON Semiconductor
  * under limited terms and conditions.  The terms and conditions pertaining to the software
  * and/or documentation are available at http://www.onsemi.com/site/pdf/ONSEMI_T&C.pdf
- * (“ON Semiconductor Standard Terms and Conditions of Sale, Section 8 Software”) and
+ * (ï¿½ON Semiconductor Standard Terms and Conditions of Sale, Section 8 Softwareï¿½) and
  * if applicable the software license agreement.  Do not use this software and/or
  * documentation unless you have carefully read and you agree to the limited terms and
  * conditions.  By using this software and/or documentation, you agree to the limited
@@ -148,7 +148,7 @@ void fRtcSetInterrupt(uint32_t timestamp)
         /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
         while((RTCREG->STATUS.WORD & ((True << RTC_STATUS_SUB_SEC_ALARM_WRT_BIT_POS) |
                                       (True << RTC_STATUS_SEC_ALARM_WRT_BIT_POS) |
-                                      (True << RTC_STATUS_CONTROL_WRT_BIT_POS))) == True); 
+                                      (True << RTC_STATUS_CONTROL_WRT_BIT_POS)))); 
     }
     return;
 }
@@ -176,7 +176,7 @@ void fRtcClearInterrupt(void)
                               (True << RTC_INT_CLR_SEC_BIT_POS));
     
     while((RTCREG->STATUS.WORD & ((True << RTC_STATUS_SUB_SEC_INT_CLR_WRT_BIT_POS) |
-                                  (True << RTC_STATUS_SEC_INT_CLR_WRT_BIT_POS))) == True);  /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
+                                  (True << RTC_STATUS_SEC_INT_CLR_WRT_BIT_POS))));  /* Wait for RTC to finish writing register - RTC operates on 32K clock as compared to 32M core*/
 }
 
 /* See rtc.h for details */
@@ -280,7 +280,7 @@ void fRtcHandler(void)
     while((RTCREG->STATUS.WORD & ((True << RTC_STATUS_SUB_SEC_ALARM_WRT_BIT_POS) |
                                   (True << RTC_STATUS_CONTROL_WRT_BIT_POS) |
                                   (True << RTC_STATUS_SUB_SEC_INT_CLR_WRT_BIT_POS) |
-                                  (True << RTC_STATUS_SEC_INT_CLR_WRT_BIT_POS))) == True);  
+                                  (True << RTC_STATUS_SEC_INT_CLR_WRT_BIT_POS))));  
 	
 	lp_ticker_irq_handler();
 }
