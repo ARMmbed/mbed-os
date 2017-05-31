@@ -55,14 +55,6 @@ uint32_t us_ticker_read()
 
     uint16_t cntH_old, cntH, cntL;
     do {
-#if defined(TARGET_STM32L0)
-        // For some reason on L0xx series we need to read and clear the
-        // overflow flag which give extra time to propelry handle possible
-        // hiccup after ~60s
-        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF) == SET) {
-            __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF);
-        }
-#endif
         cntH_old = SlaveCounter;
         /* SlaveCounter needs to be checked before AND after we read the
          * current counter TIM_MST->CNT, in case it wraps around.
