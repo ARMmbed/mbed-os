@@ -514,7 +514,14 @@ def build_project(src_paths, build_path, target, toolchain_name,
         if  (hasattr(toolchain.target, "release_versions") and
              "5" not in toolchain.target.release_versions and
              "rtos" in toolchain.config.lib_config_data):
-            raise NotSupportedException("Target does not support mbed OS 5")
+            if "Cortex-A" in toolchain.target.core:
+                raise NotSupportedException(
+                    ("%s Will be supported in mbed OS 5.6. "
+                     "To use the %s, please checkout the mbed OS 5.4 release branch. "
+                     "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
+                     "for more information") % (toolchain.target.name, toolchain.target.name))
+            else:
+                raise NotSupportedException("Target does not support mbed OS 5")
 
         # Change linker script if specified
         if linker_script is not None:

@@ -1926,7 +1926,7 @@
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "features": ["LWIP"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2"]
     },
     "VK_RZ_A1H": {
         "inherits": ["Target"],
@@ -1938,7 +1938,7 @@
         "device_has": ["ANALOGIN", "CAN", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
         "default_lib": "std",
-        "release_versions": ["2", "5"]
+        "release_versions": ["2"]
     },
     "MAXWSNENV": {
         "inherits": ["Target"],
