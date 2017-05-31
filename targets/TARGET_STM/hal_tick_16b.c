@@ -25,8 +25,6 @@ extern TIM_HandleTypeDef TimMasterHandle;
 extern volatile uint32_t SlaveCounter;
 extern volatile uint32_t oc_int_part;
 extern volatile uint16_t oc_rem_part;
-extern volatile uint8_t  tim_it_update;
-extern volatile uint32_t tim_it_counter;
 
 volatile uint32_t PreviousVal = 0;
 
@@ -47,8 +45,6 @@ void timer_irq_handler(void)
         if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_UPDATE) == SET) {
             __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_UPDATE);
             SlaveCounter++;
-            tim_it_counter = cnt_val + (uint32_t)(SlaveCounter << 16);
-            tim_it_update = 1;
         }
     }
 

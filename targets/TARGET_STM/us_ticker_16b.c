@@ -26,8 +26,6 @@ TIM_HandleTypeDef TimMasterHandle;
 volatile uint32_t SlaveCounter = 0;
 volatile uint32_t oc_int_part = 0;
 volatile uint16_t oc_rem_part = 0;
-volatile uint8_t tim_it_update; // TIM_IT_UPDATE event flag set in timer_irq_handler()
-volatile uint32_t tim_it_counter = 0; // Time stamp to be updated by timer_irq_handler()
 
 static int us_ticker_inited = 0;
 
@@ -52,22 +50,32 @@ void us_ticker_init(void)
 
 uint32_t us_ticker_read()
 {
-    uint32_t counter;
-
     TimMasterHandle.Instance = TIM_MST;
 
     if (!us_ticker_inited) us_ticker_init();
 
-#if defined(TARGET_STM32L0)
     uint16_t cntH_old, cntH, cntL;
     do {
+#if defined(TARGET_STM32L0)
         // For some reason on L0xx series we need to read and clear the
         // overflow flag which give extra time to propelry handle possible
         // hiccup after ~60s
         if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF) == SET) {
             __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF);
         }
+#endif
         cntH_old = SlaveCounter;
+        /* SlaveCounter needs to be checked before AND after we read the
+         * current counter TIM_MST->CNT, in case it wraps around.
+         * there are 2 possible cases of wrap around
+         * 1) in case this function is interrupted by timer_irq_handler and
+         *    the SlaveCounter is updated. In that case we will loop again.
+         * 2) in case this function is called from context interrupt during
+         * wrap-around condtion. That would prevent/delay the timer_irq_handler
+         * to be called so we need to locally check the FLAG_UPDATE and
+         * update the cntH accordingly. The SlaveCounter variable itself will
+         * be updated in the interrupt handler just after ...
+         */
         if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
             cntH_old += 1;
         }
@@ -79,16 +87,6 @@ uint32_t us_ticker_read()
     } while(cntH_old != cntH);
     // Glue the upper and lower part together to get a 32 bit timer
     return (uint32_t)(cntH << 16 | cntL);
-#else
-    tim_it_update = 0; // Clear TIM_IT_UPDATE event flag
-    counter = TIM_MST->CNT + (uint32_t)(SlaveCounter << 16); // Calculate new time stamp
-    if (tim_it_update == 1) {
-        return tim_it_counter; // In case of TIM_IT_UPDATE return the time stamp that was calculated in timer_irq_handler()
-    }
-    else {
-        return counter; // Otherwise return the time stamp calculated here
-    }
-#endif
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
