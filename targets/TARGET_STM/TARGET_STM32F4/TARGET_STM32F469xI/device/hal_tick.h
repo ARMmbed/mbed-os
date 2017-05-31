@@ -40,6 +40,7 @@
 #endif
 
 #include "stm32f4xx.h"
+#include "stm32f4xx_ll_tim.h"
 #include "cmsis_nvic.h"
    
 #define TIM_MST      TIM2
