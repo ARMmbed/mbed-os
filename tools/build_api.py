@@ -478,12 +478,10 @@ def build_project(src_paths, build_path, target, toolchain_name,
         src_paths.extend(libraries_paths)
         inc_dirs.extend(map(dirname, libraries_paths))
 
-    # Build Directory
     if clean and exists(build_path):
         rmtree(build_path)
     mkdir(build_path)
 
-    # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
@@ -513,6 +511,10 @@ def build_project(src_paths, build_path, target, toolchain_name,
     try:
         # Call unified scan_resources
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
+        if  (hasattr(toolchain.target, "release_versions") and
+             "5" not in toolchain.target.release_versions and
+             "rtos" in toolchain.config.lib_config_data):
+            raise NotSupportedException("Target does not support mbed OS 5")
 
         # Change linker script if specified
         if linker_script is not None:

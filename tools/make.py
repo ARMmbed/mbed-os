@@ -313,8 +313,8 @@ if __name__ == '__main__':
 
         except KeyboardInterrupt, e:
             print "\n[CTRL+c] exit"
-        except NotSupportedException, e:
-            print "\nNot supported for selected target"
+        except NotSupportedException as e:
+            print "\nCould not compile for %s: %s" % (mcu, str(e))
         except Exception,e:
             if options.verbose:
                 import traceback
