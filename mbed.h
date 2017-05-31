@@ -22,6 +22,7 @@
 
 #if MBED_CONF_NSAPI_PRESENT
 #include "netsocket/nsapi.h"
+#include "netsocket/nsapi_ppp.h"
 #endif
 
 #if MBED_CONF_EVENTS_PRESENT
@@ -67,6 +68,7 @@
 #include "drivers/Ethernet.h"
 #include "drivers/CAN.h"
 #include "drivers/RawSerial.h"
+#include "drivers/UARTSerial.h"
 #include "drivers/FlashIAP.h"
 
 // mbed Internal components
@@ -82,6 +84,8 @@
 #include "hal/sleep_api.h"
 #include "platform/mbed_sleep.h"
 #include "platform/mbed_rtc_time.h"
+#include "platform/mbed_poll.h"
+#include "platform/ATCmdParser.h"
 
 // mbed Non-hardware components
 #include "platform/Callback.h"
