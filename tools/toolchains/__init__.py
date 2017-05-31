@@ -914,7 +914,7 @@ class mbedToolchain:
                 deps = []
             config_file = ([self.config.app_config_location]
                            if self.config.app_config_location else [])
-            deps.append(config_file)
+            deps.extend(config_file)
             if ext == '.cpp' or self.COMPILE_C_AS_CPP:
                 deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-cxx"))
             else:
@@ -1021,7 +1021,7 @@ class mbedToolchain:
         r.objects = sorted(set(r.objects))
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
-        dependencies = r.objects + r.libraries + [r.linker_script, config_file]
+        dependencies = r.objects + r.libraries + [r.linker_script] + config_file
         dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
         if self.need_update(elf, dependencies):
             needed_update = True
