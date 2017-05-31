@@ -20,11 +20,6 @@ RE_IAR = re.compile(
     r'^\s+(.+)\s+(zero|const|ro code|inited|uninit)\s'
     r'+0x(\w{8})\s+0x(\w+)\s+(.+)\s.+$')
 
-# Pending:
-# 1. Add tests
-# 2. Update markdown documentation
-
-
 class MemapParser(object):
     """An object that represents parsed results, parses the memory map files,
     and writes out different file types of memory results
@@ -76,7 +71,6 @@ class MemapParser(object):
                 size += self.modules[i][k]
             if size == 0:
                 del self.modules[i]
-
 
     def module_init(self, object_name):
         """ Initialize a module. Just adds the name of the module
@@ -604,7 +598,6 @@ class MemapParser(object):
         Returns: generated string for the 'table' format, otherwise None
         """
 
-        self.remove_unused_modules()
         self.reduce_depth(depth)
         self.compute_report()
 
@@ -719,13 +712,6 @@ class MemapParser(object):
             for k in self.sections:
                 self.subtotal[k] += self.short_modules[i][k]
 
-        # Calculate misc flash sections
-        self.misc_flash_mem = 0
-        for i in self.short_modules:
-            for k in self.misc_flash_sections:
-                if self.short_modules[i][k]:
-                    self.misc_flash_mem += self.short_modules[i][k]
-
         self.mem_summary = {
             'static_ram': (self.subtotal['.data'] + self.subtotal['.bss']),
             'total_flash': (self.subtotal['.text'] + self.subtotal['.data']),
@@ -768,6 +754,8 @@ class MemapParser(object):
                     self.parse_map_file_iar(file_input)
                 else:
                     result = False
+
+                self.remove_unused_modules()
 
         except IOError as error:
             print "I/O error({0}): {1}".format(error.errno, error.strerror)
