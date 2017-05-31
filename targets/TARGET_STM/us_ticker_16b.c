@@ -25,7 +25,6 @@ TIM_HandleTypeDef TimMasterHandle;
 
 volatile uint32_t SlaveCounter = 0;
 volatile uint32_t oc_int_part = 0;
-volatile uint16_t oc_rem_part = 0;
 
 static int us_ticker_inited = 0;
 
@@ -91,22 +90,25 @@ uint32_t us_ticker_read()
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    int delta = (int)((uint32_t)timestamp - us_ticker_read());
-
-    uint16_t cval = TIM_MST->CNT;
+    int current_time = us_ticker_read();
+    int delta = (int)(timestamp - current_time);
 
     if (delta <= 0) { // This event was in the past
-        us_ticker_irq_handler();
+        /* Force the event to be handled in next interrupt context
+         * This prevents calling interrupt handlers in loops as
+         * us_ticker_set_interrupt might called again from the
+         * application handler
+         */
+        oc_int_part = 0;
+        TimMasterHandle.Instance = TIM_MST;
+        HAL_TIM_GenerateEvent(&TimMasterHandle, TIM_EVENTSOURCE_CC1);
     } else {
+        /*  set the comparator at the timestamp lower 16 bits
+         *  and count the number of wrap-around loops to do with
+         *  the upper 16 bits
+         */
         oc_int_part = (uint32_t)(delta >> 16);
-        oc_rem_part = (uint16_t)(delta & 0xFFFF);
-        if (oc_rem_part <= (0xFFFF - cval)) {
-            set_compare(cval + oc_rem_part);
-            oc_rem_part = 0;
-        } else {
-            set_compare(0xFFFF);
-            oc_rem_part = oc_rem_part - (0xFFFF - cval);
-        }
+        set_compare(timestamp & 0xFFFF);
     }
 }
 

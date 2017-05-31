@@ -24,12 +24,12 @@ extern TIM_HandleTypeDef TimMasterHandle;
 
 extern volatile uint32_t SlaveCounter;
 extern volatile uint32_t oc_int_part;
-extern volatile uint16_t oc_rem_part;
 
 volatile uint32_t PreviousVal = 0;
 
 void us_ticker_irq_handler(void);
 void set_compare(uint16_t count);
+
 
 #if defined(TARGET_STM32F0)
 void timer_update_irq_handler(void) {
@@ -37,7 +37,6 @@ void timer_update_irq_handler(void) {
 void timer_irq_handler(void)
 {
 #endif
-    uint16_t cnt_val = TIM_MST->CNT;
     TimMasterHandle.Instance = TIM_MST;
 
     // Clear Update interrupt flag
@@ -53,7 +52,6 @@ void timer_irq_handler(void)
 // Used for mbed timeout (channel 1) and HAL tick (channel 2)
 void timer_oc_irq_handler(void)
 {
-    uint16_t cnt_val = TIM_MST->CNT;
     TimMasterHandle.Instance = TIM_MST;
 #endif
 
@@ -61,23 +59,18 @@ void timer_oc_irq_handler(void)
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
             __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
-            if (oc_rem_part > 0) {
-                set_compare(oc_rem_part); // Finish the remaining time left
-                oc_rem_part = 0;
-            } else {
+
                 if (oc_int_part > 0) {
-                    set_compare(0xFFFF);
-                    oc_rem_part = cnt_val; // To finish the counter loop the next time
                     oc_int_part--;
                 } else {
-                    us_ticker_irq_handler();
+                   us_ticker_irq_handler();
                 }
-            }
         }
     }
 
     // Channel 2 for HAL tick
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC2) == SET) {
+
         if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC2) == SET) {
             __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC2);
             uint32_t val = __HAL_TIM_GET_COUNTER(&TimMasterHandle);
@@ -114,10 +107,15 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     TimMasterHandle.Init.Prescaler     = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 us tick
     TimMasterHandle.Init.ClockDivision = 0;
     TimMasterHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
-#ifdef TARGET_STM32F0
+#if !defined(TARGET_STM32L0)
+    TimMasterHandle.Init.RepetitionCounter = 0;
+#endif
+#ifdef TIM_AUTORELOAD_PRELOAD_DISABLE
     TimMasterHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 #endif
     HAL_TIM_Base_Init(&TimMasterHandle);
+
+    //LL_TIM_EnableUpdateEvent(TimMasterHandle.Instance);
 
     // Configure output compare channel 1 for mbed timeout (enabled later when used)
     HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_1);
@@ -126,6 +124,8 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_2);
     PreviousVal = __HAL_TIM_GET_COUNTER(&TimMasterHandle);
     __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_2, PreviousVal + HAL_TICK_DELAY);
+
+
 
     // Configure interrupts
     // Update interrupt used for 32-bit counter
