@@ -33,7 +33,7 @@ from tools.export import embitz, coide, kds, simplicity, atmelstudio
 from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt, vscode
 from tools.export import gnuarmeclipse
 from tools.export import qtcreator
-from tools.targets import TARGET_NAMES
+from tools.targets import TARGET_NAMES, TARGET_MAP
 
 EXPORTERS = {
     'uvision5': uvision.Uvision,
@@ -100,6 +100,8 @@ def mcu_ide_matrix(verbose_html=False):
 
     perm_counter = 0
     for target in sorted(TARGET_NAMES):
+        if "Cortex-A" in TARGET_MAP[target].core:
+            continue
         row = [target]  # First column is platform name
         for ide in supported_ides:
             text = "-"
