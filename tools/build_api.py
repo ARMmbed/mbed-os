@@ -1244,9 +1244,6 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
             # FIlter out platforms using regex
             if re.search(platform_filter, target) is None:
                 continue
-        # TODO: Remove this check when Cortex-A is re-enabled
-        if "Cortex-A" in TARGET_MAP[target].core:
-            continue
         target_counter += 1
 
         row = [target]  # First column is platform name
