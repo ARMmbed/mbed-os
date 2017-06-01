@@ -152,7 +152,7 @@ public:
         result = success == ECHO_LOOPS;
 
         err = sock.close();
-        TEST_ASSERT_EQUAL(0, err);
+        printf("[ID:%01u][%02u] Failed to close socket!\n", id, i);
         if (err) {
             result = false;
         }

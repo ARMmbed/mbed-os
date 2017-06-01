@@ -58,11 +58,6 @@ void test_udp_echo() {
     int err = eth.connect();
     TEST_ASSERT_EQUAL(0, err);
 
-    if (err) {
-        printf("MBED: failed to connect with an error of %d\r\n", err);
-        TEST_ASSERT_EQUAL(0, err);
-    }
-
     printf("UDP client IP Address is %s\n", eth.get_ip_address());
 
     greentea_send_kv("target_ip", eth.get_ip_address());
