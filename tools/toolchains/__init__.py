@@ -22,7 +22,7 @@ from copy import copy
 from time import time, sleep
 from types import ListType
 from shutil import copyfile
-from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath, isfile, isdir
+from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath, isfile, isdir, normcase
 from inspect import getmro
 from copy import deepcopy
 from tools.config import Config
@@ -306,6 +306,7 @@ class mbedToolchain:
 
         # Ignore patterns from .mbedignore files
         self.ignore_patterns = []
+        self._ignore_regex = re.compile("$^")
 
         # Pre-mbed 2.0 ignore dirs
         self.legacy_ignore_dirs = (LEGACY_IGNORE_DIRS | TOOLCHAINS) - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
@@ -511,10 +512,7 @@ class mbedToolchain:
 
     def is_ignored(self, file_path):
         """Check if file path is ignored by any .mbedignore thus far"""
-        for pattern in self.ignore_patterns:
-            if fnmatch.fnmatch(file_path, pattern):
-                return True
-        return False
+        return self._ignore_regex.match(normcase(file_path))
 
     def add_ignore_patterns(self, root, base_path, patterns):
         """Add a series of patterns to the ignored paths
@@ -526,9 +524,10 @@ class mbedToolchain:
         """
         real_base = relpath(root, base_path)
         if real_base == ".":
-            self.ignore_patterns.extend(patterns)
+            self.ignore_patterns.extend(normcase(p) for p in patterns)
         else:
-            self.ignore_patterns.extend(join(real_base, pat) for pat in patterns)
+            self.ignore_patterns.extend(normcase(join(real_base, pat)) for pat in patterns)
+        self._ignore_regex = re.compile("|".join(fnmatch.translate(p) for p in self.ignore_patterns))
 
     # Create a Resources object from the path pointed to by *path* by either traversing a
     # a directory structure, when *path* is a directory, or adding *path* to the resources,
