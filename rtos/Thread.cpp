@@ -103,7 +103,7 @@ osStatus Thread::start(Callback<void()> task) {
 }
 
 osStatus Thread::terminate() {
-    osStatus_t ret;
+    osStatus_t ret = osOK;
     _mutex.lock();
 
     // Set the Thread's tid to NULL and
@@ -112,11 +112,11 @@ osStatus Thread::terminate() {
     osThreadId_t local_id = _tid;
     _join_sem.release();
     _tid = (osThreadId_t)NULL;
-    _finished = true;
+    if (!_finished) {
+        _finished = true;
+        ret = osThreadTerminate(local_id);
+    }
     _mutex.unlock();
-
-    ret = osThreadTerminate(local_id);
-
     return ret;
 }
 
@@ -352,8 +352,8 @@ void Thread::_thunk(void * thread_ptr)
     t->_mutex.lock();
     t->_tid = (osThreadId)NULL;
     t->_finished = true;
-    t->_mutex.unlock();
     t->_join_sem.release();
+    // rtos will release the mutex automatically
 }
 
 }
