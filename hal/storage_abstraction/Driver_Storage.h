@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
+/****** This file has been deprecated since mbed-os-5.5 *****/
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
