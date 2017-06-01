@@ -184,7 +184,7 @@ static ADI_TMR_RESULT Init_timer(ADI_TMR_DEVICE eDevice,
         pTmr_config->bReloading = false;
         pTmr_config->bSyncBypass = false;
 
-        result = adi_tmr_ConfigTimer(eDevice, *pTmr_config);
+        result = adi_tmr_ConfigTimer(eDevice, pTmr_config);
     }
 
     return result;
@@ -266,7 +266,7 @@ static int StartTimer(uint32_t expiry_time)
             timer_present = false;
 
             tmr1_config.nLoad = TIMER_MAX_VALUE - MIN_TIME_LOAD;
-            adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, tmr1_config);
+            adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, &tmr1_config);
 
             Capture_timer_running = 1;
 
@@ -276,7 +276,7 @@ static int StartTimer(uint32_t expiry_time)
             /* Start Timer1 in Periodic mode by loading TxLD Register
             with a value of (TIMER_MAX_VALUE - (u16_latest_timer_expiry[0] - curr_time))*/
             tmr1_config.nLoad = TIMER_MAX_VALUE - (latest_timer_expiry.u16_latest_timer_expiry[0] - curr_time);
-            adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, tmr1_config);
+            adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, &tmr1_config);
 
             Capture_timer_running = 1;
 
@@ -287,7 +287,7 @@ static int StartTimer(uint32_t expiry_time)
 
         /*Load TxLD Register with a value of (TIMER_MAX_VALUE - u16_latest_timer_expiry[0])*/
         tmr1_config.nLoad = TIMER_MAX_VALUE - latest_timer_expiry.u16_latest_timer_expiry[0];
-        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, tmr1_config);
+        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, &tmr1_config);
     }
 
     return 0;

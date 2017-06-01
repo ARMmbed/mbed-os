@@ -220,9 +220,9 @@ ADI_SPI_RESULT adi_spi_Open(uint32_t nDeviceNum,
      * and therefore properly initialized.
      */
     
-    spi_device_info[nDeviceNum].hDevice = (ADI_SPI_DEV_DATA_TYPE *)pDevMemory;
     memset(pDevMemory,0,nMemorySize);
     hDevice->pDevInfo =  &spi_device_info[nDeviceNum];
+	spi_device_info[nDeviceNum].hDevice = (ADI_SPI_DEV_DATA_TYPE *)pDevMemory;
 
 
     /* 
@@ -686,7 +686,8 @@ ADI_SPI_RESULT adi_spi_GetBitrate (ADI_SPI_CONST_HANDLE const hDevice, uint32_t*
  *
  * @return         Status
  *                - #ADI_SPI_INVALID_HANDLE [D]         Invalid device handle parameter.
- *                - #ADI_SPI_SUCCESS                    Call completed successfully.
+ *                - #ADI_SPI_ERR_NOT_INITIALIZED [D]        Device has not been previously configured for use.
+ *                - #ADI_SPI_SUCCESS                        Call completed successfully.
  *
  * Sets the SPI clock polarity control bit (CPOL).  Used in conjunction with clock phase (CPHA) to program
  *\n the exact timing of serial data capture and transmit.  Both clock phase and polarity must be considered in
@@ -765,7 +766,8 @@ ADI_SPI_RESULT adi_spi_SetChipSelect (ADI_SPI_HANDLE const hDevice, const ADI_SP
  *
  * @return         Status
  *                - #ADI_SPI_INVALID_HANDLE [D]         Invalid device handle parameter.
- *                - #ADI_SPI_SUCCESS                    Call completed successfully.
+ *                - #ADI_SPI_ERR_NOT_INITIALIZED [D]        Device has not been previously configured for use.
+ *                - #ADI_SPI_SUCCESS                        Call completed successfully.
  *
  *\n Sets the SPI clock polarity phase bit (CPHA).  Used in conjunction with clock polarity (CPOL) to program
  *\n the exact timing of serial data capture and transmit.  Both clock phase and polarity must be considered in
@@ -1007,6 +1009,12 @@ static void StartTransaction(ADI_SPI_HANDLE const hDevice, const ADI_SPI_TRANSCE
     /* Transaction completion is determined by the number of bytes to be received */
     uint16_t nCount;
     
+    /* Work around SPI anomaly */
+    if( (hDevice->bDmaMode == true) && (hDevice->bRdCtlMode == true) && (pXfr->ReceiverBytes == 1))
+    {
+    	/* Switch to PIO mode if the transaction is setup for a DMA transfer in RD_CTL mode with an RX count of 1 */
+    	hDevice->bDmaMode = false;
+    }
     /* Effectively flush the FIFOs before the start of the next transaction */
     hDevice->pSpi->CTL |= (BITM_SPI_CTL_RFLUSH|BITM_SPI_CTL_TFLUSH);
     hDevice->pSpi->CTL &= (uint16_t)~(BITM_SPI_CTL_RFLUSH|BITM_SPI_CTL_TFLUSH);

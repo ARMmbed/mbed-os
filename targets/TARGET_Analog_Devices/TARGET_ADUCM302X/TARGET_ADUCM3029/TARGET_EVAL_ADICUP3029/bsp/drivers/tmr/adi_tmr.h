@@ -240,9 +240,9 @@ typedef struct {
 ADI_TMR_RESULT adi_tmr_Init            (ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfCallback, void * const pCBParam, bool bEnableInt);
 
 /* Configuration interface functions */
-ADI_TMR_RESULT adi_tmr_ConfigTimer     (ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG       timerConfig);
-ADI_TMR_RESULT adi_tmr_ConfigEvent     (ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_CONFIG eventConfig);
-ADI_TMR_RESULT adi_tmr_ConfigPwm       (ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFIG   pwmConfig  );
+ADI_TMR_RESULT adi_tmr_ConfigTimer     (ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG*       timerConfig);
+ADI_TMR_RESULT adi_tmr_ConfigEvent     (ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_CONFIG* eventConfig);
+ADI_TMR_RESULT adi_tmr_ConfigPwm       (ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFIG*   pwmConfig  );
 
 /* Timer start and stop */
 ADI_TMR_RESULT adi_tmr_Enable          (ADI_TMR_DEVICE const eDevice, bool bEnable);

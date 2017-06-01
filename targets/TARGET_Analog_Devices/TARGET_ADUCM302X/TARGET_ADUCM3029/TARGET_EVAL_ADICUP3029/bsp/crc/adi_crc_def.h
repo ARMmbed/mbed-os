@@ -64,7 +64,7 @@ typedef enum
     ADI_CRC_OP_IN_PROGRESS      = 0x01u,        /* CRC operation in progress */
 } ADI_CRC_OP_STATUS;
 
-
+#pragma pack(push)
 #pragma pack()
 
 /* Structure to handle CRC Peripheral instance */
@@ -87,6 +87,7 @@ typedef struct
     ADI_CRC_HANDLE              hDevice;      /* CRC device handle */
 } ADI_CRC_INFO;
 
+#pragma pack(pop)
 /*! \endcond */
 
 #endif  /* ADI_CRC_DEF_H */
