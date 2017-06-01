@@ -5,7 +5,7 @@ All changes in code base should originate from GitHub Issues and take advantage 
 Guidelines from this document are created to help new and existing contributors understand process workflow and align to project rules before pull request is submitted. It explains how a participant should do things like format code, test fixes, and submit patches.
 
 ## Where to get more information?
-You can for example read more in our ```docs``` section in [ARMmbed/mbed-os/doc](https://github.com/ARMmbed/mbed-os/tree/master/docs) directory.
+You can read more on our [documentation page](https://docs.mbed.com/).
 
 # How to contribute
 We really appreciate your contributions! We are Open Source project and we need your help. We want to keep it as easy as possible to contribute changes that get things working in your environment. There are a few guidelines that we need contributors to follow so that we can have a chance of keeping on top of things.
