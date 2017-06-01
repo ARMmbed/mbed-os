@@ -594,18 +594,18 @@
         "extra_labels": ["Analog_Devices", "ADUCM302X", "ADUCM3029", "EVAL_ADICUP3029", "FLASH_CMSIS_ALGO"],
         "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "LOWPOWERTIMER", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
         "device_name": "ADuCM3029",
-        "detect_code": [],
+        "detect_code": ["0600"],
         "release_versions": ["5"]
     },
-    "ADUCM4050": {
+    "ADZS_U4050LF_EZKIT": {
         "inherits": ["Target"],
         "core": "Cortex-M4",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "macros": ["__ADUCM4050__","RELOCATE_IVT"],
-        "extra_labels": ["Analog_Devices", "ADUCM4X50", "ADUCM4050", "FLASH_CMSIS_ALGO"],
+        "macros": ["__ADUCM4050__", "RELOCATE_IVT"],
+        "extra_labels": ["Analog_Devices", "ADUCM4X50", "ADUCM4050", "ADZS_U4050LF_EZKIT", "FLASH_CMSIS_ALGO"],
         "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "LOWPOWERTIMER", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
         "device_name": "ADuCM4050",
-        "detect_code": [],
+        "detect_code": ["0601"],
         "release_versions": ["5"]
     },
     "MTS_GAMBIT": {

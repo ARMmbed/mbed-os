@@ -32,7 +32,7 @@
 #define OS_CLOCK                26000000
 #endif
 
-#elif defined(TARGET_ADUCM4050)
+#elif defined(TARGET_ADZS_U4050LF_EZKIT)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20048000UL)
