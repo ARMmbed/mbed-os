@@ -57,8 +57,6 @@ public:
      *
      * @return
      *           BLE_ERROR_NONE if successful.
-     *
-     * @todo check whether remove this function (because it is never called)
      */
     virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
         uint8_t i;
@@ -114,7 +112,26 @@ public:
 
         return BLE_ERROR_NONE;
     }
-#endif
+#else // -> NRF_SD_BLE_API_VERSION >= 3
+    /**
+     * @brief  Returns a list of addresses from peers in the stacks bond table.
+     *
+     * @param[in/out]   addresses
+     *                  (on input) @ref Gap::Whitelist_t structure where at
+     *                  most addresses.capacity addresses from bonded peers will
+     *                  be stored.
+     *                  (on output) A copy of the addresses from bonded peers.
+     *
+     * @retval BLE_ERROR_NONE         if successful.
+     * @retval BLE_ERROR_UNSPECIFIED  Bond data could not be found in flash or is inconsistent.
+     */
+    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
+        return btle_getAddressesFromBondTable(addresses);
+    }
+#endif // #if  (NRF_SD_BLE_API_VERSION <= 2)
+
+
+
     /**
      * @brief  Clear nRF5xSecurityManager's state.
      *
