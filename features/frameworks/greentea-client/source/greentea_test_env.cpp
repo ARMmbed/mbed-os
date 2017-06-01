@@ -91,7 +91,7 @@ void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char 
 /** \brief Handshake with host and send setup data (timeout and host test name)
  *  \details This function will send preamble to master.
  *           After host test name is received master will invoke host test script
- *           and add hos test's callback handlers to main event loop
+ *           and add host test's callback handlers to main event loop
  *           This function is blocking.
  */
 void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
@@ -102,7 +102,7 @@ void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
 /** \brief Handshake with host and send setup data (timeout and host test name). Allows you to preserve sync UUID.
  *  \details This function will send preamble to master.
  *           After host test name is received master will invoke host test script
- *           and add hos test's callback handlers to main event loop
+ *           and add host test's callback handlers to main event loop
  *           This function is blocking.
  *           This function differs from GREENTEA_SETUP because it allows you to
  *           preserve the UUID sent during the sync process.
