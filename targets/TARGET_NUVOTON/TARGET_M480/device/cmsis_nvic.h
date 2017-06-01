@@ -33,7 +33,18 @@
 #endif
 
 
-#define NVIC_FLASH_VECTOR_ADDRESS 0
+#if defined(__CC_ARM)
+    extern uint32_t Load$$LR$$LR_IROM1$$Base[];
+    #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)Load$$LR$$LR_IROM1$$Base)
+#elif defined(__ICCARM__)
+    #pragma section=".intvec"
+    #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)__section_begin(".intvec"))
+#elif defined(__GNUC__)
+      extern uint32_t __vector_table;
+      #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)&__vector_table)
+#else
+    #error "Flash vector address not set for this toolchain"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
