@@ -32,7 +32,7 @@ extern "C" {
  *  Valid error codes have negative values and may
  *  be returned by any network operation.
  *
- *  @enum nsapi_error_t
+ *  @enum nsapi_error
  */
 enum nsapi_error {
     NSAPI_ERROR_OK                  =  0,        /*!< no error */
@@ -125,7 +125,7 @@ typedef enum nsapi_security {
  *
  *  The IP version specifies the type of an IP address.
  *
- *  @enum nsapi_version_t
+ *  @enum nsapi_version
  */
 typedef enum nsapi_version {
     NSAPI_UNSPEC,   /*!< Address is unspecified */
@@ -160,51 +160,51 @@ typedef void *nsapi_socket_t;
  *  The socket protocol specifies a particular protocol to
  *  be used with a newly created socket. 
  *
- *  @enum nsapi_protocol_t
+ *  @enum nsapi_protocol
  */
 typedef enum nsapi_protocol {
    NSAPI_TCP, /*!< Socket is of TCP type */
    NSAPI_UDP, /*!< Socket is of UDP type */
 } nsapi_protocol_t;
 
-/*  Enum of standardized stack option levels
+/** Enum of standardized stack option levels
  *  for use with NetworkStack::setstackopt and getstackopt.
  *
- *  @enum nsapi_stack_level_t
+ *  @enum nsapi_stack_level
  */
 typedef enum nsapi_stack_level {
     NSAPI_STACK     = 5000, /*!< Stack option level - see nsapi_stack_option_t for options */
 } nsapi_stack_level_t;
 
-/*  Enum of standardized stack option names for level NSAPI_STACK
+/** Enum of standardized stack option names for level NSAPI_STACK
  *  of NetworkStack::setstackopt and getstackopt.
  *
  *  These options may not be supported on all stacks, in which
  *  case NSAPI_ERROR_UNSUPPORTED may be returned.
  *
- *  @enum nsapi_stack_option_t
+ *  @enum nsapi_stack_option
  */
 typedef enum nsapi_stack_option {
     NSAPI_IPV4_MRU, /*!< Sets/gets size of largest IPv4 fragmented datagram to reassemble */
     NSAPI_IPV6_MRU, /*!< Sets/gets size of largest IPv6 fragmented datagram to reassemble */
 } nsapi_stack_option_t;
 
-/*  Enum of standardized socket option levels
+/** Enum of standardized socket option levels
  *  for use with Socket::setsockopt and getsockopt.
  *
- *  @enum nsapi_socket_level_t
+ *  @enum nsapi_socket_level
  */
 typedef enum nsapi_socket_level {
     NSAPI_SOCKET    = 7000, /*!< Socket option level - see nsapi_socket_option_t for options */
 } nsapi_socket_level_t;
 
-/*  Enum of standardized socket option names for level NSAPI_SOCKET
+/** Enum of standardized socket option names for level NSAPI_SOCKET
  *  of Socket::setsockopt and getsockopt.
  *
  *  These options may not be supported on all stacks, in which
  *  case NSAPI_ERROR_UNSUPPORTED may be returned.
  *
- *  @enum nsapi_socket_option_t
+ *  @enum nsapi_socket_option
  */
 typedef enum nsapi_socket_option {
     NSAPI_REUSEADDR, /*!< Allow bind to reuse local addresses */
