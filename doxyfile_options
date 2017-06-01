@@ -844,14 +844,12 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */rtos/* \
                          */cmsis/* \
                          */hal/* \
-                         */features/* \
-                         */features/FEATURE_*/* \
+                         */FEATURE_* \
                          */features/mbedtls/* \
-                         */features/nanostack/* \
                          */features/storage/* \
                          */features/unsupported/* \
                          */features/frameworks/* \
-                         */features/filesystem/fat/* \
+                         */features/filesystem/* \
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
