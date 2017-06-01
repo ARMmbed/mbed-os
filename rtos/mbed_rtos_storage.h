@@ -22,6 +22,10 @@
 #ifndef MBED_RTOS_STORAGE_H
 #define MBED_RTOS_STORAGE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** \addtogroup rtos */
 /** @{*/
 
@@ -46,6 +50,10 @@ typedef os_message_queue_t mbed_rtos_storage_msg_queue_t;
 typedef os_event_flags_t mbed_rtos_storage_event_flags_t;
 typedef os_message_t mbed_rtos_storage_message_t;
 typedef os_timer_t mbed_rtos_storage_timer_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
