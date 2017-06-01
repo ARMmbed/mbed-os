@@ -28,8 +28,8 @@
 
 using namespace utest::v1;
 
-volatile static bool complete;
-volatile static timestamp_t complete_timestamp;
+static volatile bool complete;
+static volatile timestamp_t complete_timestamp;
 static ticker_event_t delay_event;
 static const ticker_data_t *lp_ticker_data = get_lp_ticker_data();
 
@@ -39,8 +39,13 @@ static const ticker_data_t *lp_ticker_data = get_lp_ticker_data();
 #define SHORT_TIMEOUT (600)
 
 void cb_done(uint32_t id) {
-    complete = true;
     complete_timestamp = us_ticker_read();
+    complete = true;
+}
+
+void cb_done_deepsleep(uint32_t id) {
+    complete_timestamp = lp_ticker_read();
+    complete = true;
 }
 
 void lp_ticker_delay_us(uint32_t delay_us, uint32_t tolerance)
@@ -77,7 +82,7 @@ void lp_ticker_1s_deepsleep()
      */
     wait_ms(10);
 
-    ticker_set_handler(lp_ticker_data, cb_done);
+    ticker_set_handler(lp_ticker_data, cb_done_deepsleep);
     ticker_remove_event(lp_ticker_data, &delay_event);
     delay_ts = lp_ticker_read() + 1000000;
 
