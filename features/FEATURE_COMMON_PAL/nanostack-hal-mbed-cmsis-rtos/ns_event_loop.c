@@ -30,7 +30,7 @@ static osThreadId_t event_thread_id;
 static mbed_rtos_storage_mutex_t event_mutex;
 static const osMutexAttr_t event_mutex_attr = {
   .name = "nanostack_event_mutex",
-  .attr_bits = osMutexRecursive,
+  .attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust,
   .cb_mem = &event_mutex,
   .cb_size = sizeof event_mutex,
 };
