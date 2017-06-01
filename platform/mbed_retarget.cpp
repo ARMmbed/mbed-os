@@ -30,6 +30,7 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
@@ -120,6 +121,20 @@ static void init_serial() {
 #endif
 }
 
+/**
+ * Sets errno when file opening fails.
+ * Wipes out the filehandle too.
+ *
+ * @param error is a negative error code returned from an mbed function and
+ *              will be negated to store a positive error code in errno
+ */
+static int handle_open_errors(int error, unsigned filehandle_idx) {
+    errno = -error;
+    // Free file handle
+    filehandles[filehandle_idx] = NULL;
+    return -1;
+}
+
 #if MBED_CONF_FILESYSTEM_PRESENT
 static inline int openmode_to_posix(int openmode) {
     int posix = openmode;
@@ -189,7 +204,7 @@ public:
  * @return
  *  On success, a valid FILEHANDLE is returned.
  *  On failure, -1 is returned and errno is set to an appropriate value e.g.
- *   EBADF		a bad file descriptor was found (default errno setting)
+ *   ENOENT	    file not found (default errno setting)
  *	 EMFILE		the maximum number of open files was exceeded.
  *
  * */
@@ -219,9 +234,6 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     }
     #endif
 
-    /* if something goes wrong and errno is not explicly set, errno will be set to EBADF */
-    errno = EBADF;
-
     // find the first empty slot in filehandles
     filehandle_mutex->lock();
     unsigned int fh_i;
@@ -243,7 +255,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     /* FILENAME: ":0x12345678" describes a FileHandle* */
     if (name[0] == ':') {
         void *p;
-        sscanf(name, ":%p", &p);
+        std::sscanf(name, ":%p", &p);
         res = (FileHandle*)p;
 
     /* FILENAME: "/file_system/file_name" */
@@ -253,41 +265,30 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
         if (!path.exists()) {
             /* The first part of the filename (between first 2 '/') is not a
              * registered mount point in the namespace.
-             * Free file handle.
              */
-            filehandles[fh_i] = NULL;
-            errno = ENOENT;
-            return -1;
-        } else if (path.isFile()) {
+            return handle_open_errors(-ENOENT, fh_i);
+        }
+
+        if (path.isFile()) {
             res = path.file();
 #if MBED_CONF_FILESYSTEM_PRESENT
         } else {
             FileSystem *fs = path.fileSystem();
             if (fs == NULL) {
-                /* The filesystem instance managing the namespace under the mount point
-                 * has not been found. Free file handle */
-                errno = ENOENT;
-                filehandles[fh_i] = NULL;
-                return -1;
+                return handle_open_errors(-ENOENT, fh_i);
             }
             int posix_mode = openmode_to_posix(openmode);
             File *file = new ManagedFile;
             int err = file->open(fs, path.fileName(), posix_mode);
             if (err < 0) {
-                errno = -err;
                 delete file;
-            } else {
-                res = file;
+                return handle_open_errors(err, fh_i);
             }
+            res = file;
 #endif
         }
     }
 
-    if (res == NULL) {
-        // Free file handle
-        filehandles[fh_i] = NULL;
-        return -1;
-    }
     filehandles[fh_i] = res;
 
     return fh_i + 3; // +3 as filehandles 0-2 are stdin/out/err
@@ -296,10 +297,12 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
 extern "C" int PREFIX(_close)(FILEHANDLE fh) {
     if (fh < 3) return 0;
 
-    errno = EBADF;
     FileHandle* fhc = filehandles[fh-3];
     filehandles[fh-3] = NULL;
-    if (fhc == NULL) return -1;
+    if (fhc == NULL) {
+        errno = EBADF;
+        return -1;
+    }
 
     int err = fhc->close();
     if (err < 0) {
@@ -317,7 +320,6 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
     int n; // n is the number of bytes written
 
-    errno = EBADF;
     if (fh < 3) {
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
@@ -338,7 +340,10 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
         n = length;
     } else {
         FileHandle* fhc = filehandles[fh-3];
-        if (fhc == NULL) return -1;
+        if (fhc == NULL) {
+            errno = EBADF;
+            return -1;
+        }
 
         n = fhc->write(buffer, length);
         if (n < 0) {
@@ -359,7 +364,6 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
     int n; // n is the number of bytes read
 
-    errno = EBADF;
     if (fh < 3) {
         // only read a character at a time from stdin
 #if DEVICE_SERIAL
@@ -390,7 +394,10 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
         n = 1;
     } else {
         FileHandle* fhc = filehandles[fh-3];
-        if (fhc == NULL) return -1;
+        if (fhc == NULL) {
+            errno = EBADF;
+            return -1;
+        }
 
         n = fhc->read(buffer, length);
         if (n < 0) {
@@ -404,57 +411,76 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
 }
 
+
 #ifdef __ARMCC_VERSION
 extern "C" int PREFIX(_istty)(FILEHANDLE fh)
 #else
 extern "C" int _isatty(FILEHANDLE fh)
 #endif
 {
-    errno = EBADF;
     /* stdin, stdout and stderr should be tty */
     if (fh < 3) return 1;
 
     FileHandle* fhc = filehandles[fh-3];
-    if (fhc == NULL) return -1;
-
-    int err = fhc->isatty();
-    if (err < 0) {
-        errno = -err;
-        return -1;
-    } else {
+    if (fhc == NULL) {
+        errno = EBADF;
         return 0;
+    }
+
+    int tty = fhc->isatty();
+    if (tty < 0) {
+        errno = -tty;
+        return 0;
+    } else {
+        return tty;
     }
 }
 
 extern "C"
 #if defined(__ARMCC_VERSION)
-int _sys_seek(FILEHANDLE fh, long position)
+int _sys_seek(FILEHANDLE fh, long offset)
 #elif defined(__ICCARM__)
 long __lseek(int fh, long offset, int whence)
 #else
 int _lseek(FILEHANDLE fh, int offset, int whence)
 #endif
 {
-    errno = EBADF;
-    if (fh < 3) return 0;
+#if defined(__ARMCC_VERSION)
+    int whence = SEEK_SET;
+#endif
+    if (fh < 3) {
+        errno = ESPIPE;
+        return -1;
+    }
 
     FileHandle* fhc = filehandles[fh-3];
-    if (fhc == NULL) return -1;
+    if (fhc == NULL) {
+        errno = EBADF;
+        return -1;
+    }
 
-#if defined(__ARMCC_VERSION)
-    return fhc->seek(position, SEEK_SET);
-#else
-    return fhc->seek(offset, whence);
-#endif
+    off_t off = fhc->seek(offset, whence);
+    if (off < 0) {
+        errno = -off;
+        return -1;
+    }
+    // Assuming INT_MAX = LONG_MAX, so we don't care about prototype difference
+    if (off > INT_MAX) {
+        errno = EOVERFLOW;
+        return -1;
+    }
+    return off;
 }
 
 #ifdef __ARMCC_VERSION
 extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
-    errno = EBADF;
     if (fh < 3) return 0;
 
     FileHandle* fhc = filehandles[fh-3];
-    if (fhc == NULL) return -1;
+    if (fhc == NULL) {
+        errno = EBADF;
+        return -1;
+    }
 
     int err = fhc->sync();
     if (err < 0) {
@@ -466,13 +492,27 @@ extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
 }
 
 extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
-    errno = EBADF;
-    if (fh < 3) return 0;
+    if (fh < 3) {
+        errno = EINVAL;
+        return -1;
+    }
 
     FileHandle* fhc = filehandles[fh-3];
-    if (fhc == NULL) return -1;
+    if (fhc == NULL) {
+        errno = EBADF;
+        return -1;
+    }
 
-    return fhc->size();
+    off_t size = fhc->size();
+    if (size < 0) {
+        errno = -size;
+        return -1;
+    }
+    if (size > LONG_MAX) {
+        errno = EOVERFLOW;
+        return -1;
+    }
+    return size;
 }
 #endif
 
@@ -491,10 +531,12 @@ extern "C" int _fstat(int fd, struct stat *st) {
 namespace std {
 extern "C" int remove(const char *path) {
 #if MBED_CONF_FILESYSTEM_PRESENT
-    errno = EBADF;
     FilePath fp(path);
     FileSystem *fs = fp.fileSystem();
-    if (fs == NULL) return -1;
+    if (fs == NULL) {
+        errno = ENOENT;
+        return -1;
+    }
 
     int err = fs->remove(fp.fileName());
     if (err < 0) {
@@ -511,14 +553,21 @@ extern "C" int remove(const char *path) {
 
 extern "C" int rename(const char *oldname, const char *newname) {
 #if MBED_CONF_FILESYSTEM_PRESENT
-    errno = EBADF;
     FilePath fpOld(oldname);
     FilePath fpNew(newname);
     FileSystem *fsOld = fpOld.fileSystem();
     FileSystem *fsNew = fpNew.fileSystem();
 
+    if (fsOld == NULL) {
+        errno = ENOENT;
+        return -1;
+    }
+
     /* rename only if both files are on the same FS */
-    if (fsOld != fsNew || fsOld == NULL) return -1;
+    if (fsOld != fsNew) {
+        errno = EXDEV;
+        return -1;
+    }
 
     int err = fsOld->rename(fpOld.fileName(), fpNew.fileName());
     if (err < 0) {
@@ -552,11 +601,12 @@ extern "C" char *_sys_command_string(char *cmd, int len) {
 
 extern "C" DIR *opendir(const char *path) {
 #if MBED_CONF_FILESYSTEM_PRESENT
-    errno = EBADF;
-
     FilePath fp(path);
     FileSystem* fs = fp.fileSystem();
-    if (fs == NULL) return NULL;
+    if (fs == NULL) {
+        errno = ENOENT;
+        return NULL;
+    }
 
     Dir *dir = new ManagedDir;
     int err = dir->open(fs, fp.fileName());
@@ -894,16 +944,34 @@ int __wrap_atexit(void (*func)()) {
 
 namespace mbed {
 
-void mbed_set_unbuffered_stream(FILE *_file) {
+void mbed_set_unbuffered_stream(std::FILE *_file) {
 #if defined (__ICCARM__)
     char buf[2];
-    std::setvbuf(_file,buf,_IONBF,NULL);    
+    std::setvbuf(_file,buf,_IONBF,NULL);
 #else
     setbuf(_file, NULL);
 #endif
 }
 
-int mbed_getc(FILE *_file){
+/* Applications are expected to use fdopen()
+ * not this function directly. This code had to live here because FILE and FileHandle
+ * processes are all linked together here.
+ */
+std::FILE *mbed_fdopen(FileHandle *fh, const char *mode)
+{
+    char buf[12]; /* :0x12345678 + null byte */
+    std::sprintf(buf, ":%p", fh);
+    std::FILE *stream = std::fopen(buf, mode);
+    /* newlib-nano doesn't appear to ever call _isatty itself, so
+     * happily fully buffers an interactive stream. Deal with that here.
+     */
+    if (stream && fh->isatty()) {
+        mbed_set_unbuffered_stream(stream);
+    }
+    return stream;
+}
+
+int mbed_getc(std::FILE *_file){
 #if defined (__ICCARM__)
     /*This is only valid for unbuffered streams*/
     int res = std::fgetc(_file);
@@ -918,7 +986,7 @@ int mbed_getc(FILE *_file){
 #endif   
 }
 
-char* mbed_gets(char*s, int size, FILE *_file){
+char* mbed_gets(char*s, int size, std::FILE *_file){
 #if defined (__ICCARM__)
     /*This is only valid for unbuffered streams*/
     char *str = fgets(s,size,_file);

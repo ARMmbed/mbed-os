@@ -20,7 +20,6 @@
 
 #if defined (DEVICE_SERIAL) || defined(DOXYGEN_ONLY)
 
-#include "Stream.h"
 #include "Callback.h"
 #include "serial_api.h"
 #include "mbed_toolchain.h"

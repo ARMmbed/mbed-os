@@ -1,4 +1,3 @@
-
 /** \addtogroup netsocket */
 /** @{*/
 /* CellularInterface
@@ -16,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef CELLULAR_INTERFACE_H
 #define CELLULAR_INTERFACE_H
- 
+
 #include "netsocket/NetworkInterface.h"
- 
+
 
 /** CellularInterface class
  *
@@ -48,7 +47,7 @@ public:
      *
      *  @param apn      Optional name of the network to connect to
      *  @param username Optional username for your APN
-     *  @param password Optional password for your APN 
+     *  @param password Optional password for your APN
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t connect(const char *apn,
@@ -61,7 +60,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t connect() = 0;
- 
+
     /** Stop the interface
      *
      *  @return         0 on success, negative error code on failure
@@ -69,7 +68,7 @@ public:
     virtual nsapi_error_t disconnect() = 0;
 };
 
- 
+
 #endif
 
 /** @}*/

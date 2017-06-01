@@ -81,6 +81,23 @@ public:
      */
     Serial(PinName tx, PinName rx, int baud);
 
+    /* Stream gives us a FileHandle with non-functional poll()/readable()/writable. Pass through
+     * the calls from the SerialBase instead for backwards compatibility. This problem is
+     * part of why Stream and Serial should be deprecated.
+     */
+    bool readable()
+    {
+        return SerialBase::readable();
+    }
+    bool writable()
+    {
+        return SerialBase::writeable();
+    }
+    bool writeable()
+    {
+        return SerialBase::writeable();
+    }
+
 protected:
     virtual int _getc();
     virtual int _putc(int c);

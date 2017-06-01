@@ -164,7 +164,7 @@ int LocalFileHandle::sync() {
     return ret;
 }
 
-size_t LocalFileHandle::size() {
+off_t LocalFileHandle::size() {
     lock();
     off_t off = semihost_flen(_fh);
     unlock();
