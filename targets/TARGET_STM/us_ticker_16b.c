@@ -59,9 +59,9 @@ uint32_t us_ticker_read()
          * there are 2 possible cases of wrap around
          * 1) in case this function is interrupted by timer_irq_handler and
          *    the SlaveCounter is updated. In that case we will loop again.
-         * 2) in case this function is called from context interrupt during
+         * 2) in case this function is called from interrupt context during
          * wrap-around condtion. That would prevent/delay the timer_irq_handler
-         * to be called so we need to locally check the FLAG_UPDATE and
+         * from being called so we need to locally check the FLAG_UPDATE and
          * update the cntH accordingly. The SlaveCounter variable itself will
          * be updated in the interrupt handler just after ...
          */
