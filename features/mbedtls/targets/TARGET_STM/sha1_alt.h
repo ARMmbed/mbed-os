@@ -22,7 +22,7 @@
 #ifndef MBEDTLS_SHA1_ALT_H
 #define MBEDTLS_SHA1_ALT_H
 
-#if defined MBEDTLS_SHA1_ALT
+#if defined (MBEDTLS_SHA1_ALT)
 
 
 #include "cmsis.h"
@@ -32,19 +32,22 @@
 extern "C" {
 #endif
 
-#define MBEDTLS_SHA1_BLOCK_SIZE   (64) // must be a multiple of 4
+#define ST_SHA1_BLOCK_SIZE   (64) // HW handles 512 bits, ie 64 bytes
 /**
  * \brief    SHA-1 context structure
- * \note     HAL_HASH_SHA1_Accumulate cannot handle less than 4 bytes, unless it is the last call to the  function
- *           A MBEDTLS_SHA1_BLOCK_SIZE bytes buffer is used to save values and handle the processing
- *           MBEDTLS_SHA1_BLOCK_SIZE bytes per MBEDTLS_SHA1_BLOCK_SIZE bytes
+ * \note     HAL_HASH_SHA1_Accumulate will accumulate 512 bits packets, unless it is the last call to the  function
+ *           A ST_SHA1_BLOCK_SIZE bytes buffer is used to save values and handle the processing
+ *           multiples of ST_SHA1_BLOCK_SIZE bytes
  *           If SHA1_finish is called and sbuf_len>0, the remaining bytes are accumulated prior to the call to HAL_HASH_SHA1_Finish
  */
 typedef struct
 {
-    unsigned char sbuf[MBEDTLS_SHA1_BLOCK_SIZE]; /*!< MBEDTLS_SHA1_BLOCK_SIZE buffer to store values so that algorithm is caled once the buffer is filled */
+    unsigned char sbuf[ST_SHA1_BLOCK_SIZE]; /*!< MBEDTLS_SHA1_BLOCK_SIZE buffer to store values so that algorithm is caled once the buffer is filled */
     unsigned char sbuf_len; /*!< number of bytes remaining in sbuf to be processed */
     HASH_HandleTypeDef hhash_sha1; /*!< ST HAL HASH struct */
+    uint32_t ctx_save_cr;
+    uint32_t ctx_save_str;
+    uint32_t ctx_save_csr[38];
 }
 mbedtls_sha1_context;
 
@@ -96,7 +99,7 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input,
 void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] );
 
 /* Internal use */
-void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[MBEDTLS_SHA1_BLOCK_SIZE] );
+void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[ST_SHA1_BLOCK_SIZE] );
 
 #ifdef __cplusplus
 }
