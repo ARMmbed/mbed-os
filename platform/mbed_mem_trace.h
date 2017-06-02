@@ -110,12 +110,12 @@ void mbed_mem_trace_free(void *ptr, void *caller);
  * easily parsable by an external tool. For each memory operation, the callback
  * outputs a line that begins with "#<op>:<0xresult>;<0xcaller>-":
  *
- * - 'op' identifies the memory operation ('m' for 'malloc', 'r' for 'realloc',
- *   'c' for 'calloc' and 'f' for 'free').
- * - 'result' (base 16) is the result of the memor operation. This is always NULL
- *   for 'free', since 'free' doesn't return anything.
- * - 'caller' (base 16) is the caller of the memory operation. Note that the value
- *   of 'caller' might be unreliable.
+ * @param op        identifies the memory operation ('m' for 'malloc', 'r' for 'realloc',
+ *                  'c' for 'calloc' and 'f' for 'free').
+ * @param res       (base 16) is the result of the memor operation. This is always NULL
+ *                  for 'free', since 'free' doesn't return anything.
+ * @param caller    (base 16) is the caller of the memory operation. Note that the value
+ *                  of 'caller' might be unreliable.
  *
  * The rest of the output depends on the operation being traced:
  *
