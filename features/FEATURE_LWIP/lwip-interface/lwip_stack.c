@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include "lwip_stack.h"
 
 #include "eth_arch.h"
 #include "lwip/opt.h"
@@ -391,7 +392,7 @@ char *mbed_lwip_get_ip_address(char *buf, nsapi_size_t buflen)
 #endif
 }
 
-const char *mbed_lwip_get_netmask(char *buf, nsapi_size_t buflen)
+char *mbed_lwip_get_netmask(char *buf, nsapi_size_t buflen)
 {
 #if LWIP_IPV4
     const ip4_addr_t *addr = netif_ip4_netmask(&lwip_netif);

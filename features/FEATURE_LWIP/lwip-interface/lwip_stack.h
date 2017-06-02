@@ -31,9 +31,9 @@ nsapi_error_t mbed_lwip_bringup(bool dhcp, bool ppp, const char *ip, const char 
 nsapi_error_t mbed_lwip_bringdown(bool ppp);
 
 const char *mbed_lwip_get_mac_address(void);
-char *mbed_lwip_get_ip_address(char *buf, int buflen);
-char *mbed_lwip_get_netmask(char *buf, int buflen);
-char *mbed_lwip_get_gateway(char *buf, int buflen);
+char *mbed_lwip_get_ip_address(char *buf, nsapi_size_t buflen);
+char *mbed_lwip_get_netmask(char *buf, nsapi_size_t buflen);
+char *mbed_lwip_get_gateway(char *buf, nsapi_size_t buflen);
 
 extern nsapi_stack_t lwip_stack;
 
