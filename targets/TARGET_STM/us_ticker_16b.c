@@ -49,8 +49,6 @@ void us_ticker_init(void)
 
 uint32_t us_ticker_read()
 {
-    TimMasterHandle.Instance = TIM_MST;
-
     if (!us_ticker_inited) us_ticker_init();
 
     uint16_t cntH_old, cntH, cntL;
