@@ -644,6 +644,10 @@ class Config(object):
                                                     label)
                     elif name in self.__unused_overrides:
                         pass
+                    elif (name.startswith("target.") and
+                          unit_kind is "application"):
+                        _, attribute = name.split(".")
+                        setattr(self.target, attribute, val)
                     else:
                         self.config_errors.append(
                             ConfigException(

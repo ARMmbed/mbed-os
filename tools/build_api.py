@@ -331,7 +331,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     extra_verbose - even more output!
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
-    build_profile - a dict of flags that will be passed to the compiler
+    build_profile - a list of mergeable build profiles
     """
 
     # We need to remove all paths which are repeated to avoid
@@ -345,12 +345,17 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
-    if config.has_regions:
-        add_regions_to_profile(build_profile, config, cur_tc)
 
-    # Toolchain instance
+    profile = {'c': [], 'cxx': [], 'common': [], 'asm': [], 'ld': []}
+    for contents in build_profile or []:
+        for key in profile:
+            profile[key].extend(contents[toolchain_name][key])
+
+    if config.has_regions:
+        add_regions_to_profile(profile, config, cur_tc)
+
     toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
-                       extra_verbose=extra_verbose, build_profile=build_profile)
+                       extra_verbose=extra_verbose, build_profile=profile)
 
     toolchain.config = config
     toolchain.jobs = jobs

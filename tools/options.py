@@ -108,16 +108,25 @@ def extract_profile(parser, options, toolchain, fallback="develop"):
     options - The parsed command line arguments
     toolchain - the toolchain that the profile should be extracted for
     """
-    profile = {'c': [], 'cxx': [], 'ld': [], 'common': [], 'asm': []}
+    profiles = []
     filenames = options.profile or [join(dirname(__file__), "profiles",
                                          fallback + ".json")]
     for filename in filenames:
         contents = load(open(filename))
-        try:
-            for key in profile.iterkeys():
-                profile[key] += contents[toolchain][key]
-        except KeyError:
+        if toolchain not in contents:
             args_error(parser, ("argument --profile: toolchain {} is not"
                                 " supported by profile {}").format(toolchain,
                                                                    filename))
-    return profile
+        profiles.append(contents)
+
+    return profiles
+
+def mcu_is_enabled(parser, mcu):
+    if "Cortex-A" in TARGET_MAP[mcu].core:
+        args_error(
+            parser,
+            ("%s Will be supported in mbed OS 5.6. "
+             "To use the %s, please checkout the mbed OS 5.4 release branch. "
+             "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
+             "for more information") % (mcu, mcu))
+    return True
