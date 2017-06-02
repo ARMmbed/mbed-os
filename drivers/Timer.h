@@ -82,11 +82,15 @@ public:
      */
     operator float();
 
+    /** Get in a high resolution type the time passed in micro-seconds.
+     */
+    us_timestamp_t read_high_resolution_us();
+
 protected:
-    int slicetime();
-    int _running;          // whether the timer is running
-    unsigned int _start;   // the start time of the latest slice
-    int _time;             // any accumulated time from previous slices
+    us_timestamp_t slicetime();
+    int _running;            // whether the timer is running
+    us_timestamp_t _start;   // the start time of the latest slice
+    us_timestamp_t _time;    // any accumulated time from previous slices
     const ticker_data_t *_ticker_data;
 };
 

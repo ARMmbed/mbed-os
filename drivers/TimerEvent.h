@@ -44,8 +44,11 @@ protected:
     // The handler called to service the timer event of the derived class
     virtual void handler() = 0;
 
-    // insert in to linked list
+    // insert relative timestamp in to linked list
     void insert(timestamp_t timestamp);
+
+    // insert absolute timestamp into linked list
+    void insert_absolute(us_timestamp_t timestamp);
 
     // remove from linked list, if in it
     void remove();

@@ -100,7 +100,7 @@ public:
      *  @param func pointer to the function to be called
      *  @param t the time between calls in micro-seconds
      */
-    void attach_us(Callback<void()> func, timestamp_t t) {
+    void attach_us(Callback<void()> func, us_timestamp_t t) {
         _function = func;
         setup(t);
     }
@@ -118,7 +118,7 @@ public:
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "The attach_us function does not support cv-qualifiers. Replaced by "
         "attach_us(callback(obj, method), t).")
-    void attach_us(T *obj, M method, timestamp_t t) {
+    void attach_us(T *obj, M method, us_timestamp_t t) {
         attach_us(Callback<void()>(obj, method), t);
     }
 
@@ -131,12 +131,12 @@ public:
     void detach();
 
 protected:
-    void setup(timestamp_t t);
+    void setup(us_timestamp_t t);
     virtual void handler();
 
 protected:
-    timestamp_t         _delay;     /* Time delay (in microseconds) for re-setting the multi-shot callback. */
-    Callback<void()>    _function;  /* Callback. */
+    us_timestamp_t         _delay;  /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
+    Callback<void()>    _function;  /**< Callback. */
 };
 
 } // namespace mbed
