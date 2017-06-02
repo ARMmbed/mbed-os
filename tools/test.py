@@ -39,7 +39,6 @@ from utils import argparse_filestring_type, argparse_lowercase_type, argparse_ma
 from utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS, TOOLCHAIN_CLASSES
 from tools.settings import CLI_COLOR_MAP
-from tools.options import mcu_is_enabled
 
 if __name__ == '__main__':
     try:
@@ -116,7 +115,6 @@ if __name__ == '__main__':
         if options.mcu is None :
             args_error(parser, "argument -m/--mcu is required")
         mcu = options.mcu[0]
-        assert mcu_is_enabled(parser, mcu)
 
         # Toolchain
         if options.tool is None:

@@ -478,12 +478,10 @@ def build_project(src_paths, build_path, target, toolchain_name,
         src_paths.extend(libraries_paths)
         inc_dirs.extend(map(dirname, libraries_paths))
 
-    # Build Directory
     if clean and exists(build_path):
         rmtree(build_path)
     mkdir(build_path)
 
-    # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
@@ -513,6 +511,17 @@ def build_project(src_paths, build_path, target, toolchain_name,
     try:
         # Call unified scan_resources
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
+        if  (hasattr(toolchain.target, "release_versions") and
+             "5" not in toolchain.target.release_versions and
+             "rtos" in toolchain.config.lib_config_data):
+            if "Cortex-A" in toolchain.target.core:
+                raise NotSupportedException(
+                    ("%s Will be supported in mbed OS 5.6. "
+                     "To use the %s, please checkout the mbed OS 5.4 release branch. "
+                     "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
+                     "for more information") % (toolchain.target.name, toolchain.target.name))
+            else:
+                raise NotSupportedException("Target does not support mbed OS 5")
 
         # Change linker script if specified
         if linker_script is not None:
@@ -1244,9 +1253,6 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
             # FIlter out platforms using regex
             if re.search(platform_filter, target) is None:
                 continue
-        # TODO: Remove this check when Cortex-A is re-enabled
-        if "Cortex-A" in TARGET_MAP[target].core:
-            continue
         target_counter += 1
 
         row = [target]  # First column is platform name

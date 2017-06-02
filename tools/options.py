@@ -19,7 +19,7 @@ from os.path import join, dirname
 from os import listdir
 from argparse import ArgumentParser
 from tools.toolchains import TOOLCHAINS
-from tools.targets import TARGET_NAMES, TARGET_MAP
+from tools.targets import TARGET_NAMES
 from tools.utils import argparse_force_uppercase_type, \
     argparse_lowercase_hyphen_type, argparse_many, \
     argparse_filestring_type, args_error, argparse_profile_filestring_type,\
@@ -121,13 +121,3 @@ def extract_profile(parser, options, toolchain, fallback="develop"):
                                 " supported by profile {}").format(toolchain,
                                                                    filename))
     return profile
-
-def mcu_is_enabled(parser, mcu):
-    if "Cortex-A" in TARGET_MAP[mcu].core:
-        args_error(
-            parser,
-            ("%s Will be supported in mbed OS 5.6. "
-             "To use the %s, please checkout the mbed OS 5.4 release branch. "
-             "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
-             "for more information") % (mcu, mcu))
-    return True
