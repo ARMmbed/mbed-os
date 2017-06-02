@@ -14,6 +14,7 @@ sys.path.insert(0, ROOT)
 from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES,\
     Resources, TOOLCHAIN_PATHS
 from tools.targets import TARGET_MAP
+from tools.config import Config
 
 def test_instantiation():
     """Test that all exported toolchain may be instantiated"""
@@ -39,7 +40,9 @@ def test_toolchain_profile_c(profile, source_file):
     to_compile = os.path.join(*filename)
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            config = Config(TARGET_MAP["K64F"])
+            toolchain = tc_class(config.target, build_profile=profile)
+            toolchain.config = config
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             toolchain.config = MagicMock(app_config_locaiton=None)
@@ -48,7 +51,7 @@ def test_toolchain_profile_c(profile, source_file):
             for parameter in profile['c'] + profile['common']:
                 assert any(parameter in cmd for cmd in compile_command), \
                     "Toolchain %s did not propigate arg %s" % (toolchain.name,
-                                                            parameter)
+                                                               parameter)
 
 @given(fixed_dictionaries({
     'common': lists(text()),
@@ -65,7 +68,9 @@ def test_toolchain_profile_cpp(profile, source_file):
     to_compile = os.path.join(*filename)
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            config = Config(TARGET_MAP["K64F"])
+            toolchain = tc_class(config.target, build_profile=profile)
+            toolchain.config = config
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             toolchain.config = MagicMock(app_config_locaiton=None)
@@ -91,7 +96,9 @@ def test_toolchain_profile_asm(profile, source_file):
     to_compile = os.path.join(*filename)
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            config = Config(TARGET_MAP["K64F"])
+            toolchain = tc_class(config.target, build_profile=profile)
+            toolchain.config = config
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             compile_command = toolchain.compile_command(to_compile,
@@ -114,7 +121,9 @@ def test_detect_duplicates(filenames):
     s_sources = [os.path.join(name, "dupe.s") for name in filenames]
     cpp_sources = [os.path.join(name, "dupe.cpp") for name in filenames]
     with MagicMock() as notify:
-        toolchain = TOOLCHAIN_CLASSES["ARM"](TARGET_MAP["K64F"], notify=notify)
+        config = Config(TARGET_MAP["K64F"])
+        toolchain = TOOLCHAIN_CLASSES["ARM"](config.target, notify=notify)
+        toolchain.config = config
         res = Resources()
         res.c_sources = c_sources
         res.s_sources = s_sources

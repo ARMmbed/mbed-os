@@ -1,0 +1,121 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "artifact_name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9\\-_]+$"
+        },
+        "config": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+                "^[a-z0-9\\-_]+$": {
+                    "anyOf": [
+                        {"type": "number"},
+                        {"type": "boolean"},
+                        {"type": "string"},
+                        {"type": "null"},
+                        {"type": "object",
+                         "additionalProperties": false,
+                         "properties": {
+                             "help": {"type": "string"},
+                             "value": {
+                                 "anyOf": [
+                                     {"type": "string"},
+                                     {"type": "number"},
+                                     {"type": "boolean"},
+                                     {"type": "null"}
+                                 ]
+                             },
+                             "macro_name": {
+                                 "type": "string",
+                                 "pattern": "^[A-Za-z0-9\\_]$"
+                             },
+                             "required": {"type": "boolean"}
+                         }
+                        }
+                    ]
+                }
+            }
+        },
+        "target_overrides": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "target.bootloader_img": {"type": "string"},
+                "target.restrict_size": {
+                    "anyOf": [
+                        {"type": "number"},
+                        {"type": "string",
+                         "pattern": "^((0[0-7]+)|(0x[0-9a-fA-F]+)|([1-9][0-9]*))$"
+                        }
+                    ]
+                },
+                "target.mbed_app_start": {
+                    "anyOf": [
+                        {"type": "number"},
+                        {"type": "string",
+                         "pattern": "^((0[0-7]+)|(0x[0-9a-fA-F]+)|([1-9][0-9]*))$"
+                        }
+                    ]
+                },
+                "target.mbed_app_size": {
+                    "anyOf": [
+                        {"type": "number"},
+                        {"type": "string",
+                         "pattern": "^((0[0-7]+)|(0x[0-9a-fA-F]+)|([1-9][0-9]*))$"
+                        }
+                    ]
+                }
+            },
+            "patternProperties": {
+                "^((\\*)|([A-Za-z0-9\\-_]+))$": {
+                    "type": "object",
+                    "patternProperties":{
+                        "^target\\.macros(_(add|remove))?": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "pattern" : "^[A-Za-z0-9_]+(=.+)?$"
+                            }
+                        },
+                        "^target\\.(device_has|features)(_(add|remove))?$": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[A-Z0-9_]+$"
+                            }
+                        },
+                        "^target\\.extra_labels(_(add|remove))?$": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9\\-_]+$"
+                            }
+                        }
+                    },
+                    "additionalProperties":{
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "number"},
+                            {"type": "boolean"}
+                        ]
+                    }
+                }
+            }
+        },
+        "macros": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "type": "string",
+                "pattern" : "^[A-Za-z0-9_]+(=.+)?$"
+            }
+        }
+    }
+}

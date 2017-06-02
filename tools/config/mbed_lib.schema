@@ -1,0 +1,95 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "definitions": {
+        "macros":{
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "type": "string",
+                "pattern" : "^[A-Za-z0-9_]+(=.+)?$"
+            }
+        }
+    },
+    "properties": {
+        "__config_path": {"type": "string"},
+        "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9\\-_]+$"
+        },
+        "config": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+                "^[a-zA-Z0-9\\-_]+$": {
+                    "anyOf": [
+                        {"type": "number"},
+                        {"type": "boolean"},
+                        {"type": "string"},
+                        {"type": "null"},
+                        {"type": "object",
+                         "additionalProperties": false,
+                         "properties": {
+                             "help": {"type": "string"},
+                             "value": {
+                                 "anyOf": [
+                                     {"type": "string"},
+                                     {"type": "number"},
+                                     {"type": "boolean"},
+                                     {"type": "null"}
+                                 ]
+                             },
+                             "macro_name": {
+                                 "type": "string",
+                                 "pattern": "^[A-Za-z0-9_]+$"
+                             },
+                             "required": {"type": "boolean"}
+                         }
+                        }
+                    ]
+                }
+            }
+        },
+        "target_overrides": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+                "^((\\*)|([A-Za-z0-9\\-_]+))$": {
+                    "type": "object",
+                    "patternProperties":{
+                        "^target\\.macros(_(add|remove))?": {
+                            "$ref": "#/definitions/macros"
+                        },
+                        "^target\\.(device_has|features)(_(add|remove))?$": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[A-Z0-9_]+$"
+                            }
+                        },
+                        "^target\\.extra_labels_(add|remove)$": {
+                            "type": "array",
+                            "uniqueItems": true,
+                            "items": {
+                                "type": "string",
+                                "pattern": "^[A-Za-z0-9\\-_]+$"
+                            }
+                        }
+                    },
+                    "additionalProperties":{
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "number"},
+                            {"type": "boolean"}
+                        ]
+                    }
+                }
+            }
+        },
+        "macros": {
+            "$ref": "#/definitions/macros"
+        }
+    }
+}

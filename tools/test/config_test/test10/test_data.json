@@ -1,6 +1,4 @@
-# This builds on top of test8 by adding target-conditional overrides in mbed_app_config.json.
-
-expected_results = {
+{
    "base": {
         "desc": "override values based on labels with libs, target params and target overrides (no labels)",
         "app.app1": "v_app1",

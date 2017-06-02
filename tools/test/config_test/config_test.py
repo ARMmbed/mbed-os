@@ -15,19 +15,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os, sys
+from json import load
+
 from tools.build_api import get_config
 from tools.targets import set_targets_json_location, Target
 from tools.config import ConfigException, Config
-import os, sys
 
 # Compare the output of config against a dictionary of known good results
 def compare_config(cfg, expected):
     try:
         for k in cfg:
             if cfg[k].value != expected[k]:
-                return "'%s': expected '%s', got '%s'" % (k, expected[k], cfg[k].value)
+                return "'%s': expected '%r', got '%r'" % (k, expected[k], cfg[k].value)
     except KeyError:
-        raise
         return "Unexpected key '%s' in configuration data" % k
     for k in expected:
         if k not in ["desc", "expected_macros", "expected_features"] + cfg.keys():
@@ -36,23 +37,17 @@ def compare_config(cfg, expected):
 
 def test_tree(full_name, name):
     failed = 0
-    sys.path.append(full_name)
-    if "test_data" in sys.modules:
-       del sys.modules["test_data"]
-    import test_data
-    # If the test defines custom targets, they must exist in a file called
-    # "targets.json" in the test's directory.
+    test_data = load(open(os.path.join(full_name, "test_data.json")))
     if os.path.isfile(os.path.join(full_name, "targets.json")):
         set_targets_json_location(os.path.join(full_name, "targets.json"))
-    else: # uset the regular set of targets
+    else:
         set_targets_json_location()
-    for target, expected in test_data.expected_results.items():
+    for target, expected in test_data.items():
         sys.stdout.write("%s:'%s'(%s) " % (name, expected["desc"], target))
         sys.stdout.flush()
         err_msg = None
         try:
             cfg, macros, features = get_config(full_name, target, "GCC_ARM")
-            macros = Config.config_macros_to_macros(macros)
         except ConfigException as e:
             err_msg = e.message
         if err_msg:
@@ -99,7 +94,6 @@ def test_tree(full_name, name):
                     print "OK"
             else:
                 print "OK"
-    sys.path.remove(full_name)
     return failed
 
 failed = 0
