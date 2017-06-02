@@ -113,9 +113,7 @@ void us_ticker_disable_interrupt(void)
 void us_ticker_clear_interrupt(void)
 {
     TimMasterHandle.Instance = TIM_MST;
-    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
-        __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
-    }
+    __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
 }
 
 #endif // TIM_MST_16BIT
