@@ -24,11 +24,14 @@
 extern "C" {
 #endif
 
-// Access to lwip through the nsapi
+// Access to lwip through the nsapi - be wary of API changes as external 1st-generation EMAC
+// drivers attach through these.
 nsapi_error_t mbed_lwip_init(emac_interface_t *emac);
 nsapi_error_t mbed_lwip_emac_init(emac_interface_t *emac);
-nsapi_error_t mbed_lwip_bringup(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw);
-nsapi_error_t mbed_lwip_bringdown(bool ppp);
+nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw);
+nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw);
+nsapi_error_t mbed_lwip_bringdown(void);
+nsapi_error_t mbed_lwip_bringdown_2(bool ppp);
 
 const char *mbed_lwip_get_mac_address(void);
 char *mbed_lwip_get_ip_address(char *buf, nsapi_size_t buflen);

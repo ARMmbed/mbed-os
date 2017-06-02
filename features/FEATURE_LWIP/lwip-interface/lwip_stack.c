@@ -482,7 +482,13 @@ nsapi_error_t mbed_lwip_init(emac_interface_t *emac)
     return mbed_lwip_emac_init(emac);
 }
 
-nsapi_error_t mbed_lwip_bringup(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw)
+// Backwards compatibility with people using DEVICE_EMAC
+nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
+{
+    return mbed_lwip_bringup_2(dhcp, false, ip, netmask, gw);
+}
+
+nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw)
 {
     // Check if we've already connected
     if (lwip_connected) {
@@ -625,7 +631,13 @@ void mbed_lwip_clear_ipv6_addresses(struct netif *lwip_netif)
 }
 #endif
 
-nsapi_error_t mbed_lwip_bringdown(bool ppp)
+// Backwards compatibility with people using DEVICE_EMAC
+nsapi_error_t mbed_lwip_bringdown(void)
+{
+    return mbed_lwip_bringdown_2(false);
+}
+
+nsapi_error_t mbed_lwip_bringdown_2(bool ppp)
 {
     // Check if we've connected
     if (!lwip_connected) {
