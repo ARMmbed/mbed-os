@@ -205,6 +205,40 @@ void * secure_malloc(
     return NULL;
 }
 
+void * secure_aligned_alloc(
+    SecureAllocator allocator,
+    size_t alignment,
+    size_t size)
+{
+    /* Alignment must be a power of two! */
+    if (alignment & ((1UL << ((31UL - __builtin_clz(alignment)) - 1)))) {
+        return NULL;
+    }
+    /* TODO: THIS IS A NAIVE IMPLEMENTATION, which wastes much memory. */
+    void * ptr = secure_malloc(allocator, size + alignment - 1);
+    if (ptr == NULL) {
+        return NULL;
+    }
+    return (void *) (((uint32_t) ptr + alignment - 1) & ~(alignment - 1));
+}
+
+void * secure_calloc(
+    SecureAllocator allocator,
+    size_t nmemb,
+    size_t size)
+{
+    if ((uint64_t) nmemb * size > SIZE_MAX) {
+        /* (size * nmemb) has overflowed. */
+        return NULL;
+    }
+    void * ptr = secure_malloc(allocator, size * nmemb);
+    if (ptr == NULL) {
+        return NULL;
+    }
+    memset(ptr, 0, size * nmemb);
+    return ptr;
+}
+
 void * secure_realloc(
     SecureAllocator allocator,
     void * ptr,

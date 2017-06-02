@@ -116,7 +116,7 @@
 #define UVISOR_REGION_ROUND_DOWN(x) ((x) & ~((1UL << UVISOR_REGION_BITS(x)) - 1))
 #define UVISOR_REGION_ROUND_UP(x)   (1UL << UVISOR_REGION_BITS(x))
 #define UVISOR_STACK_SIZE_ROUND(x)  UVISOR_REGION_ROUND_UP(x)
-#elif defined(ARCH_MPU_KINETIS)
+#elif defined(ARCH_MPU_ARMv8M) || defined(ARCH_MPU_KINETIS)
 #define UVISOR_REGION_ROUND_DOWN(x) UVISOR_ROUND32_DOWN(x)
 #define UVISOR_REGION_ROUND_UP(x)   UVISOR_ROUND32_UP(x)
 #define UVISOR_STACK_SIZE_ROUND(x)  UVISOR_REGION_ROUND_UP((x) + (UVISOR_STACK_BAND_SIZE * 2))
@@ -157,7 +157,9 @@ typedef struct {
 typedef struct uvisor_bss_sections_t {
     uint32_t index;
     uint32_t context;
+    uint32_t newlib_reent;
     uint32_t rpc;
+    uint32_t ipc;
     uint32_t heap;
 } UVISOR_PACKED UvisorBssSections;
 

@@ -1,7 +1,7 @@
+   597	Alessandro Angelino
    592	Milosch Meriac
-   554	Alessandro Angelino
-   105	Jaeden Amero
-    65	Niklas Hauser
+   144	Jaeden Amero
+    80	Niklas Hauser
      5	Irit Arkin
      3	JaredCJR
      3	AnotherButler

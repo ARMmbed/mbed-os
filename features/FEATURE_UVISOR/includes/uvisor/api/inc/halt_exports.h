@@ -49,6 +49,7 @@ typedef enum {
     FAULT_USAGE,
     FAULT_HARD,
     FAULT_DEBUG,
+    FAULT_SECURE,
     __THALTERROR_MAX /* always keep as the last element of the enum */
 } THaltError;
 

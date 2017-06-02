@@ -22,15 +22,16 @@
 #include "api/inc/rpc_exports.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <sys/reent.h>
 
 UVISOR_EXTERN const uint32_t __uvisor_mode;
 UVISOR_EXTERN void const * const public_box_cfg_ptr;
 
-typedef struct {
-    void (*function)(const void *);
-    size_t priority;
-    size_t stack_size;
-} uvisor_box_main_t;
+/* All pointers in the box index need to be 4-byte aligned.
+ * We therefore also need to round up all sizes to 4-byte multiples to
+ * provide the space to be able to align the pointers to 4-bytes. */
+#define __UVISOR_BOX_ROUND_4(size) \
+    (((size) + 3UL) & ~3UL)
 
 #define UVISOR_DISABLED   0
 #define UVISOR_PERMISSIVE 1
@@ -53,7 +54,9 @@ typedef struct {
         { \
             sizeof(RtxBoxIndex), \
             0, \
+            0, \
             sizeof(uvisor_rpc_t), \
+            sizeof(uvisor_ipc_t), \
             0, \
         }, \
         0, \
@@ -83,12 +86,13 @@ typedef struct {
             UVISOR_STACK_SIZE_ROUND( \
                 ( \
                     (UVISOR_MIN_STACK(stack_size) + \
-                    (context_size) + \
-                    (__uvisor_box_heapsize) + \
-                    sizeof(RtxBoxIndex) + \
-                    sizeof(uvisor_rpc_outgoing_message_queue_t) + \
-                    sizeof(uvisor_rpc_incoming_message_queue_t) + \
-                    sizeof(uvisor_rpc_fn_group_queue_t) \
+                    __UVISOR_BOX_ROUND_4(context_size) + \
+                    __UVISOR_BOX_ROUND_4(__uvisor_box_heapsize) + \
+                    __UVISOR_BOX_ROUND_4(sizeof(RtxBoxIndex)) + \
+                    __UVISOR_BOX_ROUND_4(sizeof(uvisor_rpc_outgoing_message_queue_t)) + \
+                    __UVISOR_BOX_ROUND_4(sizeof(uvisor_rpc_incoming_message_queue_t)) + \
+                    __UVISOR_BOX_ROUND_4(sizeof(uvisor_rpc_fn_group_queue_t)) + \
+                    __UVISOR_BOX_ROUND_4(sizeof(struct _reent)) \
                 ) \
             * 8) \
         / 6)]; \
@@ -99,7 +103,9 @@ typedef struct {
         { \
             sizeof(RtxBoxIndex), \
             context_size, \
+            sizeof(struct _reent), \
             sizeof(uvisor_rpc_t), \
+            sizeof(uvisor_ipc_t), \
             __uvisor_box_heapsize, \
         }, \
         UVISOR_MIN_STACK(stack_size), \

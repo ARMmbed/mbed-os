@@ -19,6 +19,7 @@ int __uvisor_semaphore_init(UvisorSemaphore * s, uint32_t max_count, uint32_t in
 
     memset(&semaphore->data, 0, sizeof(semaphore->data));
     memset(&semaphore->attr, 0, sizeof(semaphore->attr));
+    semaphore->attr.name = "uvisor_semaphore";
     semaphore->attr.cb_size = sizeof(semaphore->data);
     semaphore->attr.cb_mem = &semaphore->data;
     semaphore->id = osSemaphoreNew(max_count, initial_count, &semaphore->attr);
