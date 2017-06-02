@@ -26,6 +26,28 @@ static void mbedtls_zeroize( void *v, size_t n ) {
     volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
 }
 
+static void st_sha1_restore_hw_context(mbedtls_sha1_context *ctx)
+{
+    uint32_t i;
+    /* allow multi-instance of HASH use: save context for HASH HW module CR */
+    HASH->STR = ctx->ctx_save_str;
+    HASH->CR = (ctx->ctx_save_cr|HASH_CR_INIT);
+    for (i=0;i<38;i++) {
+        HASH->CSR[i] = ctx->ctx_save_csr[i];
+    }
+}
+
+static void st_sha1_save_hw_context(mbedtls_sha1_context *ctx)
+{
+    uint32_t i;
+    /* allow multi-instance of HASH use: restore context for HASH HW module CR */
+    ctx->ctx_save_cr = HASH->CR;
+    ctx->ctx_save_str = HASH->STR;
+    for (i=0;i<38;i++) {
+        ctx->ctx_save_csr[i] = HASH->CSR[i];
+    }
+}
+
 void mbedtls_sha1_init( mbedtls_sha1_context *ctx )
 {
     mbedtls_zeroize( ctx, sizeof( mbedtls_sha1_context ) );
@@ -39,13 +61,6 @@ void mbedtls_sha1_free( mbedtls_sha1_context *ctx )
 {
     if( ctx == NULL )
         return;
-
-    /* Force the HASH Periheral Clock Reset */
-    __HAL_RCC_HASH_FORCE_RESET();
-
-    /* Release the HASH Periheral Clock Reset */
-    __HAL_RCC_HASH_RELEASE_RESET();
-
     mbedtls_zeroize( ctx, sizeof( mbedtls_sha1_context ) );
 }
 
@@ -69,17 +84,25 @@ void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
         // error found to be returned
         return;
     }
+    st_sha1_save_hw_context(ctx);
 }
 
-void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[MBEDTLS_SHA1_BLOCK_SIZE] )
+void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[ST_SHA1_BLOCK_SIZE] )
 {
-    HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, (uint8_t *) data, MBEDTLS_SHA1_BLOCK_SIZE);
+    st_sha1_restore_hw_context(ctx);
+    if (HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, (uint8_t *) data, ST_SHA1_BLOCK_SIZE) != 0) {
+            return; // Return error code
+    }
+
+    st_sha1_save_hw_context(ctx);
 }
 
 void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen )
 {
     size_t currentlen = ilen;
-    // store mechanism to handle MBEDTLS_SHA1_BLOCK_SIZE bytes per MBEDTLS_SHA1_BLOCK_SIZE bytes
+    st_sha1_restore_hw_context(ctx);
+
+    // store mechanism to accumulate ST_SHA1_BLOCK_SIZE bytes (512 bits) in the HW
     if (currentlen == 0){ // only change HW status is size if 0
         if(ctx->hhash_sha1.Phase == HAL_HASH_PHASE_READY) {
           /* Select the SHA1 mode and reset the HASH processor core, so that the HASH will be ready to compute
@@ -87,38 +110,46 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input,
           HASH->CR |= HASH_ALGOSELECTION_SHA1 | HASH_CR_INIT;
         }
         ctx->hhash_sha1.Phase = HAL_HASH_PHASE_PROCESS;
-    } else if (currentlen < (MBEDTLS_SHA1_BLOCK_SIZE-ctx->sbuf_len)) {
+    } else if (currentlen < (ST_SHA1_BLOCK_SIZE - ctx->sbuf_len)) {
         // only buffurize
-        memcpy(ctx->sbuf+ctx->sbuf_len, input, currentlen);
+        memcpy(ctx->sbuf + ctx->sbuf_len, input, currentlen);
         ctx->sbuf_len += currentlen;
     } else {
         // fill buffer and process it
-        memcpy(ctx->sbuf + ctx->sbuf_len, input, (MBEDTLS_SHA1_BLOCK_SIZE-ctx->sbuf_len));
-        currentlen -= (MBEDTLS_SHA1_BLOCK_SIZE-ctx->sbuf_len);
+        memcpy(ctx->sbuf + ctx->sbuf_len, input, (ST_SHA1_BLOCK_SIZE - ctx->sbuf_len));
+        currentlen -= (ST_SHA1_BLOCK_SIZE - ctx->sbuf_len);
         mbedtls_sha1_process(ctx, ctx->sbuf);
-        // now process every input as long as it is %4 bytes
-        size_t iter = currentlen / 4;
-        HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, (uint8_t *)(input+MBEDTLS_SHA1_BLOCK_SIZE-ctx->sbuf_len), (iter*4));
-        // sbuf is now fully accumulated, now copy 1 / 2 or 3 remaining bytes
-        ctx->sbuf_len = currentlen % 4;
+        // Process every input as long as it is %64 bytes, ie 512 bits
+        size_t iter = currentlen / ST_SHA1_BLOCK_SIZE;
+        if (HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, (uint8_t *)(input + ST_SHA1_BLOCK_SIZE - ctx->sbuf_len), (iter * ST_SHA1_BLOCK_SIZE)) != 0) {
+            return; // Return error code here
+        }
+        // sbuf is completely accumulated, now copy up to 63 remaining bytes
+        ctx->sbuf_len = currentlen % ST_SHA1_BLOCK_SIZE;
         if (ctx->sbuf_len !=0) {
-            memcpy(ctx->sbuf, input+iter, ctx->sbuf_len);
+            memcpy(ctx->sbuf, input + ilen - ctx->sbuf_len, ctx->sbuf_len);
         }
     }
+    st_sha1_save_hw_context(ctx);
 }
 
 void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] )
 {
+    st_sha1_restore_hw_context(ctx);
+
     if (ctx->sbuf_len > 0) {
-        HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, ctx->sbuf, ctx->sbuf_len);
+        if (HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, ctx->sbuf, ctx->sbuf_len) != 0) {
+            return; // Return error code here
+        }
     }
-    mbedtls_zeroize(ctx->sbuf, MBEDTLS_SHA1_BLOCK_SIZE);
+    mbedtls_zeroize(ctx->sbuf, ST_SHA1_BLOCK_SIZE);
     ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();
 
-    if (HAL_HASH_SHA1_Finish(&ctx->hhash_sha1, output, 10)){
-        // error code to be returned
+    if (HAL_HASH_SHA1_Finish(&ctx->hhash_sha1, output, 10) != 0){
+        return; // error code to be returned
     }
+    st_sha1_save_hw_context(ctx);
 }
 
 #endif /*MBEDTLS_SHA1_ALT*/
