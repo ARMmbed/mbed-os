@@ -31,20 +31,23 @@
 extern "C" {
 #endif
 
-#define MBEDTLS_SHA256_BLOCK_SIZE ((size_t)(64)) // must be a multiple of 4
+#define ST_SHA256_BLOCK_SIZE ((size_t)(64)) // HW handles 512 bits, ie 64 bytes
 /**
  * \brief          SHA-256 context structure
- * \note     HAL_HASH_SHA256_Accumulate cannot handle less than 4 bytes, unless it is the last call to the  function
- *           A MBEDTLS_SHA256_BLOCK_SIZE bytes buffer is used to save values and handle the processing
- *           MBEDTLS_SHA256_BLOCK_SIZE bytes per MBEDTLS_SHA256_BLOCK_SIZE bytes
+ * \note     HAL_HASH_SHA256_Accumulate will accumulate 512 bits packets, unless it is the last call to the  function
+ *           A ST_SHA256_BLOCK_SIZE bytes buffer is used to save values and handle the processing
+ *           ST_SHA256_BLOCK_SIZE bytes per ST_SHA256_BLOCK_SIZE bytes
  *           If sha256_finish is called and sbuf_len>0, the remaining bytes are accumulated prior to the call to HAL_HASH_SHA256_Finish
  */
 typedef struct
 {
     int is224;                  /*!< 0 => SHA-256, else SHA-224 */  
     HASH_HandleTypeDef hhash_sha256;  
-    unsigned char sbuf[MBEDTLS_SHA256_BLOCK_SIZE]; /*!< MBEDTLS_SHA256_BLOCK_SIZE buffer to store values so that algorithm is caled once the buffer is filled */
+    unsigned char sbuf[ST_SHA256_BLOCK_SIZE]; /*!< ST_SHA256_BLOCK_SIZE buffer to store values so that algorithm is called once the buffer is filled */
     unsigned char sbuf_len; /*!< number of bytes to be processed in sbuf */
+    uint32_t ctx_save_cr;
+    uint32_t ctx_save_str;
+    uint32_t ctx_save_csr[38];
 }
 mbedtls_sha256_context;
 
@@ -98,7 +101,7 @@ void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *in
 void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[32] );
 
 /* Internal use */
-void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[MBEDTLS_SHA256_BLOCK_SIZE] );
+void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[ST_SHA256_BLOCK_SIZE] );
 
 #ifdef __cplusplus
 }
