@@ -18,7 +18,7 @@
 
 #if defined (__ICCARM__)
 #ifndef STRINGIFY
-#define STRINGIFY(s) #s
+#define STRINGIFY(a) #a
 #endif
 #ifndef SECTION
 #define SECTION(_name)      _Pragma( STRINGIFY(location=##_name##))

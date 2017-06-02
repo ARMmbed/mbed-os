@@ -191,7 +191,7 @@ typedef	    __kernel_ssize_t	SSIZE_T;
 #endif
 
 #if defined (__ICCARM__)
-#define STRINGIFY(s) #s
+#define STRINGIFY(a) #a
 #define SECTION(_name) _Pragma( STRINGIFY(location=_name))
 #define ALIGNMTO(_bound) _Pragma( STRINGIFY(data_alignment=_bound))
 #define _PACKED_       __packed
