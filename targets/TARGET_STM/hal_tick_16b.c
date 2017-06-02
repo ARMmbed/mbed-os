@@ -28,8 +28,6 @@ extern volatile uint32_t oc_int_part;
 volatile uint32_t PreviousVal = 0;
 
 void us_ticker_irq_handler(void);
-void set_compare(uint16_t count);
-
 
 #if defined(TARGET_STM32F0)
 void timer_update_irq_handler(void) {
