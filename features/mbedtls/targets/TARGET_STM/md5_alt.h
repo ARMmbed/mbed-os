@@ -31,19 +31,22 @@
 extern "C" {
 #endif
 
-#define MBEDTLS_MD5_BLOCK_SIZE (64) // must be a multiple of 4
+#define ST_MD5_BLOCK_SIZE ((size_t)(64)) // HW handles 512 bits, ie 64 bytes
 /**
  * \brief          MD5 context structure
- * \note     HAL_HASH_MD5_Accumulate cannot handle less than 4 bytes, unless it is the last call to the  function
- *           A MBEDTLS_MD5_BLOCK_SIZE bytes buffer is used to save values and handle the processing
- *           MBEDTLS_MD5_BLOCK_SIZE bytes per MBEDTLS_MD5_BLOCK_SIZE bytes
+ * \note     HAL_HASH_MD5_Accumulate will accumulate 512 bits packets, unless it is the last call to the  function
+ *           A ST_MD5_BLOCK_SIZE bytes buffer is used to save values and handle the processing
+ *           ST_MD5_BLOCK_SIZE bytes per ST_MD5_BLOCK_SIZE bytes
  *           If MD5_finish is called and sbuf_len>0, the remaining bytes are accumulated prior to the call to HAL_HASH_MD5_Finish
  */
 typedef struct
 {
-  HASH_HandleTypeDef hhash_md5;/*!< ST HAL HASH struct */
-  unsigned char sbuf[MBEDTLS_MD5_BLOCK_SIZE]; /*!< MBEDTLS_MD5_BLOCK_SIZE buffer to store values so that algorithm is caled once the buffer is filled */
-  unsigned char sbuf_len; /*!< number of bytes to be processed in sbuf */
+    HASH_HandleTypeDef hhash_md5;/*!< ST HAL HASH struct */
+    unsigned char sbuf[ST_MD5_BLOCK_SIZE]; /*!< MBEDTLS_MD5_BLOCK_SIZE buffer to store values so that algorithm is caled once the buffer is filled */
+    unsigned char sbuf_len; /*!< number of bytes to be processed in sbuf */
+    uint32_t ctx_save_cr;
+    uint32_t ctx_save_str;
+    uint32_t ctx_save_csr[38];
 }
 mbedtls_md5_context;
 
@@ -95,7 +98,7 @@ void mbedtls_md5_update( mbedtls_md5_context *ctx, const unsigned char *input, s
 void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] );
 
 /* Internal use */
-void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[64] );
+void mbedtls_md5_process( mbedtls_md5_context *ctx, const unsigned char data[ST_MD5_BLOCK_SIZE] );
 
 #ifdef __cplusplus
 }
