@@ -164,7 +164,10 @@ namespace v1 {
         bool is_empty() const;
 
     private:
-        // see data member in case_t
+        // IMPORTANT: No data members shall be declared inside this class.
+	// Data members shall be declared in case_t to preserve the layout
+	// and the compatibility between the two types.
+
         friend class Harness;
         friend class Specification;
     };
