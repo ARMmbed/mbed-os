@@ -354,7 +354,7 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_error_t)
 
     // mustn't start calling input until after connect -
     // attach deferred until ppp_lwip_connect, called from mbed_lwip_bringup
-    nsapi_error_t retcode = mbed_lwip_bringup(false, true, NULL, NULL, NULL);
+    nsapi_error_t retcode = mbed_lwip_bringup_2(false, true, NULL, NULL, NULL);
 
     if (retcode != NSAPI_ERROR_OK && connect_error_code != NSAPI_ERROR_OK) {
         return connect_error_code;
@@ -365,7 +365,7 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_error_t)
 
 nsapi_error_t nsapi_ppp_disconnect(FileHandle *stream)
 {
-    return mbed_lwip_bringdown(true);
+    return mbed_lwip_bringdown_2(true);
 }
 
 NetworkStack *nsapi_ppp_get_stack()
