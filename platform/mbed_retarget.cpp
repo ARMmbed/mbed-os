@@ -23,6 +23,7 @@
 #include "platform/PlatformMutex.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_stats.h"
+#include "platform/mbed_critical.h"
 #if MBED_CONF_FILESYSTEM_PRESENT
 #include "filesystem/FileSystem.h"
 #include "filesystem/File.h"
@@ -309,6 +310,12 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
     int n; // n is the number of bytes written
 
+#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
+    if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+        error("Error - writing to a file in an ISR or critical section\r\n");
+    }
+#endif
+
     if (fh < 3) {
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
@@ -352,6 +359,12 @@ extern "C" size_t    __read (int        fh, unsigned char *buffer, size_t       
 extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int length, int mode) {
 #endif
     int n; // n is the number of bytes read
+
+#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
+    if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+        error("Error - reading from a file in an ISR or critical section\r\n");
+    }
+#endif
 
     if (fh < 3) {
         // only read a character at a time from stdin
@@ -1033,3 +1046,67 @@ void operator delete[](void *ptr)
         free(ptr);
     }
 }
+
+#if defined(MBED_CONF_RTOS_PRESENT) && defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
+
+static const char* error_msg(int32_t status)
+{
+    switch (status) {
+    case osError:
+        return "Unspecified RTOS error";
+    case osErrorTimeout:
+        return "Operation not completed within the timeout period";
+    case osErrorResource:
+        return "Resource not available";
+    case osErrorParameter:
+        return "Parameter error";
+    case osErrorNoMemory:
+        return "System is out of memory";
+    case osErrorISR:
+        return "Not allowed in ISR context";
+    default:
+        return "Unknown";
+    }
+}
+
+extern "C" void EvrRtxKernelError (int32_t status)
+{
+    error("Kernel error %i: %s\r\n", status, error_msg(status));
+}
+
+extern "C" void EvrRtxThreadError (osThreadId_t thread_id, int32_t status)
+{
+    error("Thread %p error %i: %s\r\n", thread_id, status, error_msg(status));
+}
+
+extern "C" void EvrRtxTimerError (osTimerId_t timer_id, int32_t status)
+{
+    error("Timer %p error %i: %s\r\n", timer_id, status, error_msg(status));
+}
+
+extern "C" void EvrRtxEventFlagsError (osEventFlagsId_t ef_id, int32_t status)
+{
+    error("Event %p error %i: %s\r\n", ef_id, status, error_msg(status));
+}
+
+extern "C" void EvrRtxMutexError (osMutexId_t mutex_id, int32_t status)
+{
+    error("Mutex %p error %i: %s\r\n", mutex_id, status, error_msg(status));
+}
+
+extern "C" void EvrRtxSemaphoreError (osSemaphoreId_t semaphore_id, int32_t status)
+{
+    error("Semaphore %p error %i\r\n", semaphore_id, status);
+}
+
+extern "C" void EvrRtxMemoryPoolError (osMemoryPoolId_t mp_id, int32_t status)
+{
+    error("Memory Pool %p error %i\r\n", mp_id, status);
+}
+
+extern "C" void EvrRtxMessageQueueError (osMessageQueueId_t mq_id, int32_t status)
+{
+    error("Message Queue %p error %i\r\n", mq_id, status);
+}
+
+#endif

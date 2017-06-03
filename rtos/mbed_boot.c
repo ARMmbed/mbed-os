@@ -363,7 +363,7 @@ void $Sub$$__cpp_initialize__aeabi_(void)
 void pre_main()
 {
     singleton_mutex_attr.name = "singleton_mutex";
-    singleton_mutex_attr.attr_bits = osMutexRecursive;
+    singleton_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
     singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
@@ -383,7 +383,7 @@ extern int main(int argc, char* argv[]);
 void pre_main (void)
 {
     singleton_mutex_attr.name = "singleton_mutex";
-    singleton_mutex_attr.attr_bits = osMutexRecursive;
+    singleton_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
     singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
@@ -440,19 +440,19 @@ int __wrap_main(void) {
 void pre_main(void)
 {
     singleton_mutex_attr.name = "singleton_mutex";
-    singleton_mutex_attr.attr_bits = osMutexRecursive;
+    singleton_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
     singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
     malloc_mutex_attr.name = "malloc_mutex";
-    malloc_mutex_attr.attr_bits = osMutexRecursive;
+    malloc_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
     malloc_mutex_attr.cb_size = sizeof(malloc_mutex_obj);
     malloc_mutex_attr.cb_mem = &malloc_mutex_obj;
     malloc_mutex_id = osMutexNew(&malloc_mutex_attr);
 
     env_mutex_attr.name = "env_mutex";
-    env_mutex_attr.attr_bits = osMutexRecursive;
+    env_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
     env_mutex_attr.cb_size = sizeof(env_mutex_obj);
     env_mutex_attr.cb_mem = &env_mutex_obj;
     env_mutex_id = osMutexNew(&env_mutex_attr);
@@ -526,7 +526,7 @@ static uint8_t low_level_init_needed;
 void pre_main(void)
 {
     singleton_mutex_attr.name = "singleton_mutex";
-    singleton_mutex_attr.attr_bits = osMutexRecursive;
+    singleton_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
     singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
@@ -583,7 +583,7 @@ void __iar_system_Mtxinit(__iar_Rmtx *mutex) /* Initialize a system lock */
             attr.name = "system_mutex";
             attr.cb_mem = &std_mutex_sys[index];
             attr.cb_size = sizeof(std_mutex_sys[index]);
-            attr.attr_bits = osMutexRecursive;
+            attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
             std_mutex_id_sys[index] = osMutexNew(&attr);
             *mutex = (__iar_Rmtx*)&std_mutex_id_sys[index];
             return;
@@ -619,7 +619,7 @@ void __iar_file_Mtxinit(__iar_Rmtx *mutex) /* Initialize a file lock */
             attr.name = "file_mutex";
             attr.cb_mem = &std_mutex_file[index];
             attr.cb_size = sizeof(std_mutex_file[index]);
-            attr.attr_bits = osMutexRecursive;
+            attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
             std_mutex_id_file[index] = osMutexNew(&attr);
             *mutex = (__iar_Rmtx*)&std_mutex_id_file[index];
             return;
