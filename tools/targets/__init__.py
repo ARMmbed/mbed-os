@@ -497,6 +497,13 @@ class NCS36510TargetCode:
         from tools.targets.NCS import add_fib_at_start
         print("binf ", binf)
         add_fib_at_start(binf[:-4])
+
+class RTL8195ACode:
+    """RTL8195A Hooks"""
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
+        rtl8195a_elf2bin(t_self.name, elf, binf)
 ################################################################################
 
 # Instantiate all public targets
