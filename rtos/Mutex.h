@@ -23,19 +23,31 @@
 #define MUTEX_H
 
 #include <stdint.h>
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
+#include "mbed_rtos1_types.h"
+#include "mbed_rtos_storage.h"
 
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
 
-/** The Mutex class is used to synchronise the execution of threads.
+/** The Mutex class is used to synchronize the execution of threads.
  This is for example used to protect access to a shared resource.
+
+ @note
+ Memory considerations: The mutex control structures will be created on current thread's stack, both for the mbed OS
+ and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 class Mutex {
 public:
     /** Create and Initialize a Mutex object */
     Mutex();
+
+    /** Create and Initialize a Mutex object
+
+     @param name name to be used for this mutex. It has to stay allocated for the lifetime of the thread.
+    */
+    Mutex(const char *name);
 
     /** Wait until a Mutex becomes available.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever)
@@ -56,15 +68,11 @@ public:
     ~Mutex();
 
 private:
-    osMutexId _osMutexId;
-    osMutexDef_t _osMutexDef;
-#ifdef CMSIS_OS_RTX
-#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    int32_t _mutex_data[4];
-#else
-    int32_t _mutex_data[3];
-#endif
-#endif
+    void constructor(const char *name = NULL);
+
+    osMutexId_t               _id;
+    osMutexAttr_t             _attr;
+    mbed_rtos_storage_mutex_t _obj_mem;
 };
 
 }

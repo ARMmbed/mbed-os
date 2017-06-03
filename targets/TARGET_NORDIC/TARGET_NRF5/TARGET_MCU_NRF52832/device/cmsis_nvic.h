@@ -1,5 +1,4 @@
 /* mbed Microcontroller Library
- * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
  * Copyright (c) 2016 ARM Limited. All rights reserved.
  * All rights reserved.

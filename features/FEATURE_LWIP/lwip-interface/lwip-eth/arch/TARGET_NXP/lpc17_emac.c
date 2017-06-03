@@ -72,6 +72,7 @@
  * the same. */
 #define RX_PRIORITY   (osPriorityNormal)
 #define TX_PRIORITY   (osPriorityNormal)
+#define PHY_PRIORITY  (osPriorityNormal)
 
 /** \brief  Debug output formatter lock define
  *
@@ -605,7 +606,7 @@ static err_t lpc_low_level_output(struct netif *netif, struct pbuf *p)
 	/* THIS WILL BLOCK UNTIL THERE ARE ENOUGH DESCRIPTORS AVAILABLE */
 	while (dn > lpc_tx_ready(netif))
 #if NO_SYS == 0
-	    osSemaphoreWait(lpc_enetif->xTXDCountSem.id, osWaitForever);
+	    osSemaphoreAcquire(lpc_enetif->xTXDCountSem.id, osWaitForever);
 #else
 		osDelay(1);
 #endif
@@ -687,7 +688,7 @@ void LPC17xxEthernetHandler(void)
 
 	if (ints & RXINTGROUP) {
         /* RX group interrupt(s): Give signal to wakeup RX receive task.*/
-        osSignalSet(lpc_enetdata.RxThread->id, RX_SIGNAL);
+        osThreadFlagsSet(lpc_enetdata.RxThread->id, RX_SIGNAL);
     }
 
     if (ints & TXINTGROUP) {
@@ -713,7 +714,7 @@ static void packet_rx(void* pvParameters) {
 
     while (1) {
         /* Wait for receive task to wakeup */
-        osSignalWait(RX_SIGNAL, osWaitForever);
+        osThreadFlagsWait(RX_SIGNAL, 0, osWaitForever);
 
         /* Process packets until all empty */
         while (LPC_EMAC->RxConsumeIndex != LPC_EMAC->RxProduceIndex)
@@ -944,10 +945,13 @@ err_t lpc_etharp_output_ipv6(struct netif *netif, struct pbuf *q,
 
 #if NO_SYS == 0
 /* periodic PHY status update */
-void phy_update(void const *nif) {
-    lpc_phy_sts_sm((struct netif*)nif);
+void phy_update(void *nif) {
+    while (true) {
+        lpc_phy_sts_sm((struct netif*)nif);
+        osDelay(250);
+    }
 }
-osTimerDef(phy_update, phy_update);
+
 #endif
 
 /**
@@ -1019,28 +1023,26 @@ err_t eth_arch_enetif_init(struct netif *netif)
 
     /* CMSIS-RTOS, start tasks */
 #if NO_SYS == 0
-#ifdef CMSIS_OS_RTX
-    memset(lpc_enetdata.xTXDCountSem.data, 0, sizeof(lpc_enetdata.xTXDCountSem.data));
-    lpc_enetdata.xTXDCountSem.def.semaphore = lpc_enetdata.xTXDCountSem.data;
-#endif
-    lpc_enetdata.xTXDCountSem.id = osSemaphoreCreate(&lpc_enetdata.xTXDCountSem.def, LPC_NUM_BUFF_TXDESCS);
+    memset(&lpc_enetdata.xTXDCountSem.data, 0, sizeof(lpc_enetdata.xTXDCountSem.data));
+    lpc_enetdata.xTXDCountSem.attr.cb_mem = &lpc_enetdata.xTXDCountSem.data;
+    lpc_enetdata.xTXDCountSem.attr.cb_size = sizeof(lpc_enetdata.xTXDCountSem.data);
+    lpc_enetdata.xTXDCountSem.id = osSemaphoreNew(LPC_NUM_BUFF_TXDESCS, LPC_NUM_BUFF_TXDESCS, &lpc_enetdata.xTXDCountSem.attr);
 	LWIP_ASSERT("xTXDCountSem creation error", (lpc_enetdata.xTXDCountSem.id != NULL));
 
 	err = sys_mutex_new(&lpc_enetdata.TXLockMutex);
 	LWIP_ASSERT("TXLockMutex creation error", (err == ERR_OK));
 
 	/* Packet receive task */
-	lpc_enetdata.RxThread = sys_thread_new("receive_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
+	lpc_enetdata.RxThread = sys_thread_new("lpc17_emac_rx_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
 	LWIP_ASSERT("RxThread creation error", (lpc_enetdata.RxThread));
 
 	/* Transmit cleanup task */
 	err = sys_sem_new(&lpc_enetdata.TxCleanSem, 0);
 	LWIP_ASSERT("TxCleanSem creation error", (err == ERR_OK));
-	sys_thread_new("txclean_thread", packet_tx, netif->state, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
+	sys_thread_new("lpc17_emac_txclean_thread", packet_tx, netif->state, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
 
 	/* periodic PHY status update */
-	osTimerId phy_timer = osTimerCreate(osTimer(phy_update), osTimerPeriodic, (void *)netif);
-	osTimerStart(phy_timer, 250);
+	sys_thread_new("lpc17_emac_phy_thread", phy_update, netif, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
 #endif
 
     return ERR_OK;

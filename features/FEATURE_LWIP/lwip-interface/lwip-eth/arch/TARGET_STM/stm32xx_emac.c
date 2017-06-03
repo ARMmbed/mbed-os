@@ -4,7 +4,7 @@
 #include "lwip/tcpip.h"
 #include "lwip/ethip6.h"
 #include <string.h>
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "mbed_interface.h"
 
 // Check for LWIP having Ethernet enabled
@@ -457,8 +457,8 @@ err_t eth_arch_enetif_init(struct netif *netif)
     sys_mutex_new(&tx_lock_mutex);
 
     /* task */
-    sys_thread_new("_eth_arch_rx_task", _eth_arch_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
-    sys_thread_new("_eth_arch_phy_task", _eth_arch_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
+    sys_thread_new("stm32_emac_rx_thread", _eth_arch_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
+    sys_thread_new("stm32_emac_phy_thread", _eth_arch_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
 
     /* initialize the hardware */
     _eth_arch_low_level_init(netif);

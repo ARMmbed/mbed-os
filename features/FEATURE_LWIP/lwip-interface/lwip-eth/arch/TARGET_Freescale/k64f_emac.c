@@ -532,8 +532,8 @@ static err_t k64f_low_level_output(struct netif *netif, struct pbuf *p)
   }
 
   /* Check if a descriptor is available for the transfer. */
-  int32_t count = osSemaphoreWait(k64f_enet->xTXDCountSem.id, 0);
-  if (count < 1)
+  osStatus_t stat = osSemaphoreAcquire(k64f_enet->xTXDCountSem.id, 0);
+  if (stat != osOK)
     return ERR_BUF;
 
   /* Get exclusive access */
@@ -697,11 +697,10 @@ err_t eth_arch_enetif_init(struct netif *netif)
   netif->linkoutput = k64f_low_level_output;
 
   /* CMSIS-RTOS, start tasks */
-#ifdef CMSIS_OS_RTX
-  memset(k64f_enetdata.xTXDCountSem.data, 0, sizeof(k64f_enetdata.xTXDCountSem.data));
-  k64f_enetdata.xTXDCountSem.def.semaphore = k64f_enetdata.xTXDCountSem.data;
-#endif
-  k64f_enetdata.xTXDCountSem.id = osSemaphoreCreate(&k64f_enetdata.xTXDCountSem.def, ENET_TX_RING_LEN);
+  memset(&k64f_enetdata.xTXDCountSem.data, 0, sizeof(k64f_enetdata.xTXDCountSem.data));
+  k64f_enetdata.xTXDCountSem.attr.cb_mem = &k64f_enetdata.xTXDCountSem.data;
+  k64f_enetdata.xTXDCountSem.attr.cb_size = sizeof(k64f_enetdata.xTXDCountSem.data);
+  k64f_enetdata.xTXDCountSem.id = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &k64f_enetdata.xTXDCountSem.attr);
 
   LWIP_ASSERT("xTXDCountSem creation error", (k64f_enetdata.xTXDCountSem.id != NULL));
 
@@ -713,18 +712,18 @@ err_t eth_arch_enetif_init(struct netif *netif)
   LWIP_ASSERT("RxReadySem creation error", (err == ERR_OK));
 
 #ifdef LWIP_DEBUG
-  sys_thread_new("receive_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE*5, RX_PRIORITY);
+  sys_thread_new("k64f_emac_rx_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE*5, RX_PRIORITY);
 #else
-  sys_thread_new("receive_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
+  sys_thread_new("k64f_emac_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
 #endif
 
   /* Transmit cleanup task */
   err = sys_sem_new(&k64f_enetdata.TxCleanSem, 0);
   LWIP_ASSERT("TxCleanSem creation error", (err == ERR_OK));
-  sys_thread_new("txclean_thread", packet_tx, netif->state, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
+  sys_thread_new("k64f_emac_txclean_thread", packet_tx, netif->state, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
 
   /* PHY monitoring task */
-  sys_thread_new("phy_thread", k64f_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_PRIORITY);
+  sys_thread_new("k64f_emac_phy_thread", k64f_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_PRIORITY);
 
   /* Allow the PHY task to detect the initial link state and set up the proper flags */
   osDelay(10);

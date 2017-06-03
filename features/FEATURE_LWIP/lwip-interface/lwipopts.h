@@ -72,7 +72,7 @@
 #endif
 
 #if NO_SYS == 0
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 
 #define SYS_LIGHTWEIGHT_PROT        1
 
