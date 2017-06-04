@@ -20,6 +20,9 @@
 #include "platform/platform.h"
 
 #include "platform/FileBase.h"
+#include "platform/FileHandle.h"
+#include "platform/DirHandle.h"
+#include "platform/FileSystemLike.h"
 #include "BlockDevice.h"
 
 namespace mbed {
@@ -31,15 +34,19 @@ namespace mbed {
 typedef void *fs_file_t;
 typedef void *fs_dir_t;
 
-/** A filesystem-like object is one that can be used to open files
- *  though it by fopen("/name/filename", flags)
+// Predeclared classes
+class Dir;
+class File;
+
+/** A filesystem object provides filesystem operations and file operations
+ *  for the File and Dir classes on a block device.
  *
- *  Implementations must define at least open (the default definitions
- *  of the rest of the functions just return error values).
+ *  Implementations must provide at minimum file operations and mount
+ *  operations for block devices.
  *
- * @Note Synchronization level: Set by subclass
+ *  @Note Synchronization level: Set by subclass
  */
-class FileSystem : public FileBase {
+class FileSystem : public FileSystemLike {
 public:
     /** FileSystem lifetime
      */
@@ -64,7 +71,7 @@ public:
      *  @param path     The name of the file to remove.
      *  @return         0 on success, negative error code on failure
      */
-    virtual int remove(const char *path) = 0;
+    virtual int remove(const char *path);
 
     /** Rename a file in the filesystem.
      *
@@ -72,7 +79,7 @@ public:
      *  @param newpath  The name to rename it to
      *  @return         0 on success, negative error code on failure
      */
-    virtual int rename(const char *path, const char *newpath) = 0;
+    virtual int rename(const char *path, const char *newpath);
 
     /** Store information about the file in a stat structure
      *
@@ -80,7 +87,7 @@ public:
      *  @param st       The stat buffer to write to
      *  @return         0 on success, negative error code on failure
      */
-    virtual int stat(const char *path, struct stat *st) = 0;
+    virtual int stat(const char *path, struct stat *st);
 
     /** Create a directory in the filesystem.
      *
@@ -227,6 +234,11 @@ protected:
      *  @return         Number of files in the directory
      */
     virtual size_t dir_size(fs_dir_t dir);
+
+protected:
+    // Hooks for FileSystemHandle
+    virtual int open(FileHandle **file, const char *path, int flags);
+    virtual int open(DirHandle **dir, const char *path);
 };
 
 
