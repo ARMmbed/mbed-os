@@ -24,4 +24,19 @@ typedef struct {
     bool acquired;
 } UvisorSpinlock;
 
+/* This function is safe to call from interrupt context. */
+UVISOR_EXTERN void uvisor_spin_init(UvisorSpinlock * spinlock);
+
+/* Attempt to spin lock once. Return true if the lock was obtained, false if
+ * otherwise. This function is safe to call from interrupt context. */
+UVISOR_EXTERN bool uvisor_spin_trylock(UvisorSpinlock * spinlock);
+
+/* Spin in a tight loop until the lock is obtained. This function is safe to
+ * call from interrupt context, but probably not wise. */
+UVISOR_EXTERN void uvisor_spin_lock(UvisorSpinlock * spinlock);
+
+/* Unlock the spin lock. This function is safe to call from interrupt context.
+ * */
+UVISOR_EXTERN void uvisor_spin_unlock(UvisorSpinlock * spinlock);
+
 #endif /* __UVISOR_API_UVISOR_SPINLOCK_H__ */

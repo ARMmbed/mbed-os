@@ -18,6 +18,7 @@
 #define __UVISOR_API_UVISOR_EXPORTS_H__
 
 #include <stdint.h>
+#include <stddef.h>
 
 /* maximum number of boxes allowed: 1 is the minimum (unprivileged box) */
 #define UVISOR_MAX_BOXES 5U
@@ -189,5 +190,11 @@
     );
 
 #endif /* defined(__CC_ARM) || defined(__GNUC__) */
+
+typedef struct {
+    void (*function)(const void *);
+    size_t priority;
+    size_t stack_size;
+} uvisor_box_main_t;
 
 #endif /* __UVISOR_API_UVISOR_EXPORTS_H__ */

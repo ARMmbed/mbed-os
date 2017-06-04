@@ -18,18 +18,37 @@
 #define __UVISOR_API_NVIC_VIRTUAL_H__
 
 #include "api/inc/interrupts.h"
-#include "api/inc/unvic_exports.h"
+#include "api/inc/virq_exports.h"
 
-#define NVIC_SetPriorityGrouping    __NVIC_SetPriorityGrouping
-#define NVIC_GetPriorityGrouping    __NVIC_GetPriorityGrouping
-#define NVIC_EnableIRQ              vIRQ_EnableIRQ
-#define NVIC_DisableIRQ             vIRQ_DisableIRQ
-#define NVIC_GetPendingIRQ          vIRQ_GetPendingIRQ
-#define NVIC_SetPendingIRQ          vIRQ_SetPendingIRQ
-#define NVIC_ClearPendingIRQ        vIRQ_ClearPendingIRQ
-#define NVIC_GetActive              __NVIC_GetActive
-#define NVIC_SetPriority            vIRQ_SetPriority
-#define NVIC_GetPriority            vIRQ_GetPriority
-#define NVIC_SystemReset()          vIRQ_SystemReset(RESET_REASON_NO_REASON)
+/* The NVIC APIs are only wrapped on ARMv7-M. */
+#if !defined(ARCH_CORE_ARMv8M) && !defined(TARGET_M33)
+
+#define NVIC_SetPriorityGrouping __NVIC_SetPriorityGrouping
+#define NVIC_GetPriorityGrouping __NVIC_GetPriorityGrouping
+#define NVIC_EnableIRQ           vIRQ_EnableIRQ
+#define NVIC_DisableIRQ          vIRQ_DisableIRQ
+#define NVIC_GetPendingIRQ       vIRQ_GetPendingIRQ
+#define NVIC_SetPendingIRQ       vIRQ_SetPendingIRQ
+#define NVIC_ClearPendingIRQ     vIRQ_ClearPendingIRQ
+#define NVIC_GetActive           __NVIC_GetActive
+#define NVIC_SetPriority         vIRQ_SetPriority
+#define NVIC_GetPriority         vIRQ_GetPriority
+#define NVIC_SystemReset()       vIRQ_SystemReset(RESET_REASON_NO_REASON)
+
+#else
+
+#define NVIC_SetPriorityGrouping __NVIC_SetPriorityGrouping
+#define NVIC_GetPriorityGrouping __NVIC_GetPriorityGrouping
+#define NVIC_EnableIRQ           __NVIC_EnableIRQ
+#define NVIC_DisableIRQ          __NVIC_DisableIRQ
+#define NVIC_GetPendingIRQ       __NVIC_GetPendingIRQ
+#define NVIC_SetPendingIRQ       __NVIC_SetPendingIRQ
+#define NVIC_ClearPendingIRQ     __NVIC_ClearPendingIRQ
+#define NVIC_GetActive           __NVIC_GetActive
+#define NVIC_SetPriority         __NVIC_SetPriority
+#define NVIC_GetPriority         __NVIC_GetPriority
+#define NVIC_SystemReset()       __NVIC_SystemReset()
+
+#endif
 
 #endif /* __UVISOR_API_NVIC_VIRTUAL_H__ */

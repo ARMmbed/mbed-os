@@ -22,6 +22,7 @@
 #include "mbed_interface.h"
 #include "cmsis_os2.h"
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* Register the OS with uVisor */
@@ -36,6 +37,11 @@ extern RtxBoxIndex * const __uvisor_ps;
 
 void __uvisor_initialize_rpc_queues(void)
 {
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    // TODO Initialize RPC queues on ARMv8-M (via uvisor_start).
+    return;
+#endif
+
     UvisorBoxIndex * const index = &__uvisor_ps->index;
 
     uvisor_pool_slot_t i;
@@ -49,8 +55,7 @@ void __uvisor_initialize_rpc_queues(void)
                                &rpc_outgoing_msg_queue->pool,
                                rpc_outgoing_msg_queue->messages,
                                sizeof(*rpc_outgoing_msg_queue->messages),
-                               UVISOR_RPC_OUTGOING_MESSAGE_SLOTS,
-                               UVISOR_POOL_QUEUE_BLOCKING)) {
+                               UVISOR_RPC_OUTGOING_MESSAGE_SLOTS)) {
         uvisor_error(USER_NOT_ALLOWED);
     }
 
@@ -67,8 +72,7 @@ void __uvisor_initialize_rpc_queues(void)
                                &rpc_incoming_msg_queue->pool,
                                rpc_incoming_msg_queue->messages,
                                sizeof(*rpc_incoming_msg_queue->messages),
-                               UVISOR_RPC_INCOMING_MESSAGE_SLOTS,
-                               UVISOR_POOL_QUEUE_NON_BLOCKING)) {
+                               UVISOR_RPC_INCOMING_MESSAGE_SLOTS)) {
         uvisor_error(USER_NOT_ALLOWED);
     }
     /* This is a double init of the pool. We need a function that just inits
@@ -77,8 +81,7 @@ void __uvisor_initialize_rpc_queues(void)
                                &rpc_incoming_msg_queue->pool,
                                rpc_incoming_msg_queue->messages,
                                sizeof(*rpc_incoming_msg_queue->messages),
-                               UVISOR_RPC_INCOMING_MESSAGE_SLOTS,
-                               UVISOR_POOL_QUEUE_NON_BLOCKING)) {
+                               UVISOR_RPC_INCOMING_MESSAGE_SLOTS)) {
         uvisor_error(USER_NOT_ALLOWED);
     }
 
@@ -87,8 +90,7 @@ void __uvisor_initialize_rpc_queues(void)
                                &rpc_fn_group_queue->pool,
                                rpc_fn_group_queue->fn_groups,
                                sizeof(*rpc_fn_group_queue->fn_groups),
-                               UVISOR_RPC_FN_GROUP_SLOTS,
-                               UVISOR_POOL_QUEUE_BLOCKING)) {
+                               UVISOR_RPC_FN_GROUP_SLOTS)) {
         uvisor_error(USER_NOT_ALLOWED);
     }
 
@@ -119,20 +121,18 @@ void __uvisor_lib_box_init(void * lib_config)
      * is because the thread must be created to use a different stack than the
      * stack osCreateThread() is called from, as context information is saved
      * to the thread stack by the call to osCreateThread(). */
-    /* Allocate memory for the main thread from the process heap (which is
-     * private to the process). This memory is never freed, even if the box's
-     * main thread exits. */
-    thread_attr.stack_mem = malloc_p(thread_attr.stack_size);
+    /* Allocate memory for the main thread from the box heap. This memory is
+     * never freed, even if the box's main thread exits. */
+    thread_attr.stack_mem = malloc(thread_attr.stack_size);
     if (thread_attr.stack_mem == NULL) {
         /* No process heap memory available for thread stack */
         uvisor_error(USER_NOT_ALLOWED);
     }
 
-    /* Allocate memory for the main thread control block from the process heap
-     * (which is private to the process). This memory is never freed, even if
-     * the box's main thread exits. */
+    /* Allocate memory for the main thread control block from the box heap.
+     * This memory is never freed, even if the box's main thread exits. */
     thread_attr.cb_size = sizeof(osRtxThread_t);
-    thread_attr.cb_mem = malloc_p(thread_attr.cb_size);
+    thread_attr.cb_mem = malloc(thread_attr.cb_size);
     if (thread_attr.cb_mem == NULL) {
         /* No process heap memory available for thread control block. */
         uvisor_error(USER_NOT_ALLOWED);
