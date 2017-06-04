@@ -38,16 +38,16 @@ MBED_PACKED(struct) mbr_table {
 static inline uint32_t tole32(uint32_t a)
 {
     union {
-        uint32_t u32;
-        uint8_t u8[4];
-    } w;
+        uint32_t w;
+        uint8_t b[4];
+    } s;
 
-    w.u8[0] = a >>  0;
-    w.u8[1] = a >>  8;
-    w.u8[2] = a >> 16;
-    w.u8[3] = a >> 24;
+    s.b[0] = a >>  0;
+    s.b[1] = a >>  8;
+    s.b[2] = a >> 16;
+    s.b[3] = a >> 24;
 
-    return w.u32;
+    return s.w;
 }
 
 static inline uint32_t fromle32(uint32_t a)
