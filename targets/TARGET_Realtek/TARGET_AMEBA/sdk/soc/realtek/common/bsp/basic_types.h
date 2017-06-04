@@ -63,14 +63,14 @@ typedef signed long long        __int64_t;
 typedef unsigned long long      __uint64_t;
 #endif
 
-#define s8                      int8_t
-#define u8                      uint8_t
-#define s16                     int16_t
-#define u16                     uint16_t
-#define s32                     int32_t
-#define u32                     uint32_t
-#define s64                     int64_t
-#define u64                     uint64_t
+typedef int8_t s8;
+typedef uint8_t u8;
+typedef int16_t s16;
+typedef uint16_t u16;
+typedef int32_t s32;
+typedef uint32_t u32;
+typedef int64_t s64;
+typedef uint64_t u64;
 
 #ifdef CONFIG_MBED_ENABLED
 #ifndef BOOL
