@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_i2c.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    14-April-2017
+  * @version V1.1.1
+  * @date    12-May-2017
   * @brief   I2C HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Inter Integrated Circuit (I2C) peripheral:
@@ -1462,7 +1462,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Transmit_IT(I2C_HandleTypeDef *hi2c,
         /* Generate Start */
         hi2c->Instance->CR1 |= I2C_CR1_START;
       }
-      else if(Prev_State == I2C_STATE_MASTER_BUSY_RX)
+      else
       {
         /* Generate ReStart */
         hi2c->Instance->CR1 |= I2C_CR1_START;
@@ -1564,7 +1564,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Receive_IT(I2C_HandleTypeDef *hi2c, 
         /* Generate Start */
         hi2c->Instance->CR1 |= I2C_CR1_START;
       }
-      else if(hi2c->PreviousState == I2C_STATE_MASTER_BUSY_TX)
+      else
       {
         /* Enable Acknowledge */
         hi2c->Instance->CR1 |= I2C_CR1_ACK;
@@ -2198,8 +2198,8 @@ HAL_StatusTypeDef HAL_I2C_Master_Receive_DMA(I2C_HandleTypeDef *hi2c, uint16_t D
 HAL_StatusTypeDef HAL_I2C_Master_Abort_IT(I2C_HandleTypeDef *hi2c, uint16_t DevAddress)
 {
   /* Prevent unused argument(s) compilation warning */
-  UNUSED(DevAddress); 
-  
+  UNUSED(DevAddress);
+
   /* Abort Master transfer during Receive or Transmit process    */
   if(hi2c->Mode == HAL_I2C_MODE_MASTER)
   {
@@ -3132,11 +3132,10 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write_DMA(I2C_HandleTypeDef *hi2c, uint16_t DevAdd
 HAL_StatusTypeDef HAL_I2C_Mem_Read_DMA(I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint16_t MemAddress, uint16_t MemAddSize, uint8_t *pData, uint16_t Size)
 {
   uint32_t tickstart = 0x00U;
+  __IO uint32_t count = 0U;
 
   /* Init tickstart for timeout management*/
   tickstart = HAL_GetTick();
-
-  __IO uint32_t count = 0U;
 
   /* Check the parameters */
   assert_param(IS_I2C_MEMADD_SIZE(MemAddSize));
@@ -3983,7 +3982,6 @@ static HAL_StatusTypeDef I2C_MasterTransmit_BTF(I2C_HandleTypeDef *hi2c)
   return HAL_OK;
 }
 
-
 /**
   * @brief  Handle RXNE flag for Master
   * @param  hi2c Pointer to a I2C_HandleTypeDef structure that contains
@@ -3992,7 +3990,6 @@ static HAL_StatusTypeDef I2C_MasterTransmit_BTF(I2C_HandleTypeDef *hi2c)
   */
 static HAL_StatusTypeDef I2C_MasterReceive_RXNE(I2C_HandleTypeDef *hi2c)
 {
-
   if(hi2c->State == HAL_I2C_STATE_BUSY_RX)
   {
     uint32_t tmp = 0U;
@@ -4033,9 +4030,8 @@ static HAL_StatusTypeDef I2C_MasterReceive_RXNE(I2C_HandleTypeDef *hi2c)
       (*hi2c->pBuffPtr++) = hi2c->Instance->DR;
       hi2c->XferCount--;
 
-      tmp = (uint32_t)(hi2c->State) & I2C_STATE_MSK;
-      hi2c->PreviousState = tmp | (uint32_t)(hi2c->Mode);
       hi2c->State = HAL_I2C_STATE_READY;
+      hi2c->PreviousState = I2C_STATE_NONE;
 
       if(hi2c->Mode == HAL_I2C_MODE_MEM)
       {
@@ -4061,7 +4057,6 @@ static HAL_StatusTypeDef I2C_MasterReceive_RXNE(I2C_HandleTypeDef *hi2c)
 static HAL_StatusTypeDef I2C_MasterReceive_BTF(I2C_HandleTypeDef *hi2c)
 {
   /* Declaration of temporary variables to prevent undefined behavior of volatile usage */
-  uint32_t tmp;
   uint32_t CurrentXferOptions = hi2c->XferOptions;
 
   if(hi2c->XferCount == 3U)
@@ -4083,19 +4078,9 @@ static HAL_StatusTypeDef I2C_MasterReceive_BTF(I2C_HandleTypeDef *hi2c)
     {
       /* Disable Acknowledge */
       hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
-
-      if((CurrentXferOptions == I2C_NEXT_FRAME) || (CurrentXferOptions == I2C_FIRST_FRAME))
-      {
-        /* Generate Start */
-        hi2c->Instance->CR1 |= I2C_CR1_START;
-      }
-      tmp = (uint32_t)(hi2c->State) & I2C_STATE_MSK;
-      hi2c->PreviousState = tmp | (uint32_t)(hi2c->Mode);
     }
     else
     {
-      hi2c->PreviousState = I2C_STATE_MASTER_BUSY_RX;
-
       /* Generate Stop */
       hi2c->Instance->CR1 |= I2C_CR1_STOP;
     }
@@ -4135,7 +4120,6 @@ static HAL_StatusTypeDef I2C_MasterReceive_BTF(I2C_HandleTypeDef *hi2c)
   }
   return HAL_OK;
 }
-
 
 /**
   * @brief  Handle SB flag for Master
@@ -5568,3 +5552,4 @@ static HAL_StatusTypeDef I2C_IsAcknowledgeFailed(I2C_HandleTypeDef *hi2c)
   */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
