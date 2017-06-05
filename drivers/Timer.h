@@ -67,14 +67,20 @@ public:
     void reset();
 
     /** Get the time passed in seconds
+     *
+     *  @returns    Time passed in seconds
      */
     float read();
 
-    /** Get the time passed in mili-seconds
+    /** Get the time passed in milli-seconds
+     *
+     *  @returns    Time passed in milli seconds
      */
     int read_ms();
 
     /** Get the time passed in micro-seconds
+     *
+     *  @returns    Time passed in micro seconds
      */
     int read_us();
 
