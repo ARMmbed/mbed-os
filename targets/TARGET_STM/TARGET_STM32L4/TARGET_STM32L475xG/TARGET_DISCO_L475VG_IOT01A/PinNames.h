@@ -211,6 +211,11 @@ typedef enum {
     LED3        = PC_9, // Yellow LED (LD3 WIFI) / Blue LED (LD4 BLE)
     LED4        = LED3,
     USER_BUTTON = PC_13,
+    BUTTON1     = USER_BUTTON,
+    BUTTON2     = USER_BUTTON,
+    BUTTON3     = USER_BUTTON,
+    BUTTON4     = USER_BUTTON,
+    BUTTON5     = USER_BUTTON,
     SERIAL_TX   = PB_6,
     SERIAL_RX   = PB_7,
     USBTX       = SERIAL_TX,
