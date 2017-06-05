@@ -469,6 +469,7 @@ nsapi_error_t mbed_lwip_emac_init(emac_interface_t *emac)
     eth_arch_enable_interrupts();
 #endif
 
+	netif_inited = true;
     return NSAPI_ERROR_OK;
 #else
     return NSAPI_ERROR_UNSUPPORTED;
