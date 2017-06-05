@@ -20,19 +20,15 @@
 #define LWIPOPTS_CONF_H
 
 #define LWIP_TRANSPORT_ETHERNET    1
-#define ETHMEM_SECTIO
-
-//#define TCPIP_THREAD_STACKSIZE     2048
+#define ETHMEM_SECTION
 
 /* ---------- Pbuf options ---------- */
 #define MEM_SIZE                        (10*1600)
 #define TCP_SND_QUEUELEN                60
 #define MEMP_NUM_TCP_SEG                TCP_SND_QUEUELEN
-#define TCP_MSS                 		1460
+#define TCP_MSS                         1460
 #define TCP_SND_BUF                     (10 * TCP_MSS)
 #define TCP_WND                         (6 * TCP_MSS)
 #define PBUF_POOL_SIZE                  10
 
 #endif
-
-
