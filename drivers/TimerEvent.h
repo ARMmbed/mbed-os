@@ -33,6 +33,8 @@ public:
     TimerEvent(const ticker_data_t *data);
 
     /** The handler registered with the underlying timer interrupt
+     *
+     *  @param id       Timer Event ID
      */
     static void irq(uint32_t id);
 
