@@ -165,8 +165,8 @@ namespace v1 {
 
     private:
         // IMPORTANT: No data members shall be declared inside this class.
-	// Data members shall be declared in case_t to preserve the layout
-	// and the compatibility between the two types.
+        // Data members shall be declared in case_t to preserve the layout
+        // and the compatibility between the two types.
 
         friend class Harness;
         friend class Specification;
