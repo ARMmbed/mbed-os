@@ -48,6 +48,16 @@ namespace v1 {
     class Specification
     {
     public:
+
+        Specification(const test_setup_handler_t setup_handler,
+                      const Case *cases,
+                      size_t N,
+                      const handlers_t defaults = default_handlers) :
+            setup_handler(setup_handler), teardown_handler(default_handler), failure_handler(default_handler),
+            cases(cases), length(N),
+            defaults(defaults)
+        {}
+        
         template< size_t N >
         Specification(const Case (&cases)[N],
                       const handlers_t defaults = default_handlers) :

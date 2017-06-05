@@ -103,6 +103,12 @@ namespace v1 {
             const case_teardown_handler_t teardown_handler,
             const case_failure_handler_t failure_handler = default_handler);
 
+        Case &operator=(const Case &c) {
+            // workaround for assignment of const members
+            this->~Case();
+            new (this) Case(c);
+            return *this;
+        }
 
         /// @returns the textual description of the test case
         const char* get_description() const;
