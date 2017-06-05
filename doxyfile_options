@@ -841,7 +841,6 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */targets/* \
                          */BUILD/* \
                          */events/* \
-                         */rtos/* \
                          */cmsis/* \
                          */hal/* \
                          */FEATURE_* \
