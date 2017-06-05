@@ -1339,7 +1339,7 @@
         "macros": ["HSE_VALUE=26000000", "USE_PLL_HSE_EXTC=0", "VECT_TAB_OFFSET=0x00010000","TRANSACTION_QUEUE_SIZE_SPI=2"],
         "post_binary_hook": {
             "function": "MTSCode.combine_bins_mts_dot",
-            "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO"]
+            "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
         },
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
@@ -1365,7 +1365,7 @@
         "macros": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000","TRANSACTION_QUEUE_SIZE_SPI=2", "RTC_LSI=1"],
         "post_binary_hook": {
             "function": "MTSCode.combine_bins_mts_dragonfly",
-            "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO"]
+            "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
         },
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
