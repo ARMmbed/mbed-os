@@ -18,6 +18,13 @@
  * test support code implementation file.
  */
 
+// This file is deprecated so deprecation warnings when building it are silenced
+#if   defined ( __CC_ARM )
+#pragma diag_suppress 1361  // Deprecated declaration
+#elif defined ( __GNUC__ )
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include "cfstore_config.h"
 #include "cfstore_debug.h"
 #include "cfstore_test.h"
