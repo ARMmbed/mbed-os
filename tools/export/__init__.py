@@ -29,7 +29,7 @@ from tools.build_api import prepare_toolchain
 from tools.build_api import scan_resources
 from tools.toolchains import Resources
 from tools.export import lpcxpresso, ds5_5, iar, makefile
-from tools.export import embitz, coide, kds, simplicity, atmelstudio
+from tools.export import embitz, coide, kds, simplicity, atmelstudio, mcuxpresso
 from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt, vscode
 from tools.export import gnuarmeclipse
 from tools.export import qtcreator
@@ -56,6 +56,7 @@ EXPORTERS = {
     'eclipse_iar'      : cdt.EclipseIAR,
     'eclipse_armc5'    : cdt.EclipseArmc5,
     'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
+    'mcuxpresso': mcuxpresso.MCUXpresso,
     'qtcreator': qtcreator.QtCreator,
     'vscode_gcc_arm' : vscode.VSCodeGcc,
     'vscode_iar' : vscode.VSCodeIAR,
