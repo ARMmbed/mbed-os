@@ -44,11 +44,13 @@ class File;
  *  Implementations must provide at minimum file operations and mount
  *  operations for block devices.
  *
- *  @Note Synchronization level: Set by subclass
+ * @note Synchronization level: Set by subclass
  */
 class FileSystem : public FileSystemLike {
 public:
     /** FileSystem lifetime
+     *
+     *  @param name       Name to add filesystem to tree as
      */
     FileSystem(const char *name = NULL);
     virtual ~FileSystem() {}
@@ -114,7 +116,7 @@ protected:
     /** Close a file
      *
      *  @param file     File handle
-     *  return          0 on success, negative error code on failure
+     *  @return         0 on success, negative error code on failure
      */
     virtual int file_close(fs_file_t file) = 0;
 
@@ -195,7 +197,7 @@ protected:
     /** Close a directory
      *
      *  @param dir      Dir handle
-     *  return          0 on success, negative error code on failure
+     *  @return         0 on success, negative error code on failure
      */
     virtual int dir_close(fs_dir_t dir);
 
