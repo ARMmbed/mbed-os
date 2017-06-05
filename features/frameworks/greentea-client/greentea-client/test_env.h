@@ -21,6 +21,7 @@
 #ifndef GREENTEA_CLIENT_TEST_ENV_H_
 #define GREENTEA_CLIENT_TEST_ENV_H_
 
+#ifdef __cplusplus
 #ifdef YOTTA_GREENTEA_CLIENT_VERSION_STRING
 #define MBED_GREENTEA_CLIENT_VERSION_STRING YOTTA_GREENTEA_CLIENT_VERSION_STRING
 #else
@@ -28,9 +29,6 @@
 #endif
 
 #include <stdio.h>
-extern "C" {
-#include "test_env_c.h"
-}
 
 /**
  *  Auxilary macros
@@ -105,6 +103,25 @@ void greentea_send_kv(const char *, const char *, const int, const int);
 void greentea_notify_coverage_start(const char *path);
 void greentea_notify_coverage_end();
 #endif  // MBED_CFG_DEBUG_OPTIONS_COVERAGE
+
+#endif  // __cplusplus
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ *  Greentea-client C API
+ */
+void GREENTEA_SETUP(const int timeout, const char * host_test);
+void greentea_send_kv(const char * key, const char * val);
+int greentea_parse_kv(char * key, char * val,
+                        const int key_len, const int val_len);
+int greentea_getc();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // GREENTEA_CLIENT_TEST_ENV_H_
 
