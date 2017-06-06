@@ -740,7 +740,7 @@ class mbedToolchain:
                         c = c.replace("\\", "/")
                         if self.CHROOT:
                             c = c.replace(self.CHROOT, '')
-                        cmd_list.append('-I%s' % c)
+                        cmd_list.append('"-I%s"' % c)
                 string = " ".join(cmd_list)
                 f.write(string)
         return include_file
