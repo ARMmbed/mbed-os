@@ -164,25 +164,6 @@ static inline int openmode_to_posix(int openmode) {
     return posix;
 }
 
-// Internally used file objects with managed memory on close
-class ManagedFile : public FileHandle {
-public:
-    virtual int close() {
-        int err = FileHandle::close();
-        delete this;
-        return err;
-    }
-};
-
-class ManagedDir : public DirHandle {
-public:
-     virtual int close() {
-        int err = DirHandle::close();
-        delete this;
-        return err;
-    }
-};
-
 /* @brief 	standard c library fopen() retargeting function.
  *
  * This function is invoked by the standard c library retargeting to handle fopen()
