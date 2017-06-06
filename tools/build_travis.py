@@ -232,7 +232,6 @@ linking_list = [
      {"target": "DISCO_F413ZH",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
-               "rtos" : ["RTOS_1", "RTOS_2", "RTOS_3"],
                }
      },
     {"target": "NUCLEO_F303ZE",
