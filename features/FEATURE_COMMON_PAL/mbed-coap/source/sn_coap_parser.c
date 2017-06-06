@@ -280,11 +280,6 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
         /* Get option length WITHOUT extensions */
         uint16_t option_len = (**packet_data_pptr & 0x0F);
 
-        /* Option number length 15 is reserved for the future use - ERROR */
-        if (option_len == 15) {
-            return -1;
-        }
-
         /* Resolve option delta */
         uint16_t  option_number = (**packet_data_pptr >> COAP_OPTIONS_OPTION_NUMBER_SHIFT);
 
@@ -312,6 +307,10 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
             option_len = *(*packet_data_pptr + 2);
             option_len += (*(*packet_data_pptr + 1) << 8) + 269;
             (*packet_data_pptr) += 2;
+        }
+        /* Option number length 15 is reserved for the future use - ERROR */
+        else if (option_len == 15) {
+            return -1;
         }
 
         message_left = packet_len - (*packet_data_pptr - packet_data_start_ptr);
