@@ -40,7 +40,7 @@ namespace rtos {
 class Semaphore {
 public:
     /** Create and Initialize a Semaphore object used for managing resources.
-      @param number of available resources; maximum index value is (count-1). (default: 0).
+      @param count      number of available resources; maximum index value is (count-1). (default: 0).
     */
     Semaphore(int32_t count=0);
 
