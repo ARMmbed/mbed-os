@@ -26,6 +26,12 @@ extern const PinMap PinMap_RTC[];
 /************ADC***************/
 extern const PinMap PinMap_ADC[];
 
+#if defined(FSL_FEATURE_SOC_LPC_CAN_COUNT) && (FSL_FEATURE_SOC_LPC_CAN_COUNT > 0)
+/************CAN***************/
+extern const PinMap PinMap_CAN_TD[];
+extern const PinMap PinMap_CAN_RD[];
+#endif
+
 /************I2C***************/
 extern const PinMap PinMap_I2C_SDA[];
 extern const PinMap PinMap_I2C_SCL[];
