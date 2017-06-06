@@ -33,7 +33,7 @@ namespace mbed {
  *  Implementations must define at least open (the default definitions
  *  of the rest of the functions just return error values).
  *
- * @Note Synchronization level: Set by subclass
+ * @note Synchronization level: Set by subclass
  */
 class FileSystemHandle {
 public:
@@ -44,7 +44,7 @@ public:
     /** Open a file on the filesystem
      *
      *  @param file     Destination for the handle to a newly created file
-     *  @param path     The name of the file to open
+     *  @param filename The name of the file to open
      *  @param flags    The flags to open the file in, one of O_RDONLY, O_WRONLY, O_RDWR,
      *                  bitwise or'd with one of O_CREAT, O_TRUNC, O_APPEND
      *  @return         0 on success, negative error code on failure
