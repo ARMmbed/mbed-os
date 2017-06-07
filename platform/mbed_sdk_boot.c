@@ -67,7 +67,7 @@ void _platform_post_stackheap_init(void)
 
 extern int __real_main(void);
 
-__attribute__((naked)) void software_init_hook(void)
+void software_init_hook(void)
 {
     mbed_sdk_init();
     software_init_hook_rtos();
