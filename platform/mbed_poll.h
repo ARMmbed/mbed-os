@@ -39,13 +39,11 @@ struct pollfh {
  * For every file handle provided, poll() examines it for any events registered for that particular
  * file handle.
  *
- * @param fhs,     an array of PollFh struct carrying a FileHandle and bitmasks of events
- * @param nhfs,    number of file handles
- * @param timeout, timer value to timeout or -1 for loop forever
+ * @param fhs     an array of PollFh struct carrying a FileHandle and bitmasks of events
+ * @param nfhs    number of file handles
+ * @param timeout timer value to timeout or -1 for loop forever
  *
- * @return number of file handles selected (for which revents is non-zero).
- * @return 0 if timed out with nothing selected.
- * @return -1 for error.
+ * @return number of file handles selected (for which revents is non-zero). 0 if timed out with nothing selected. -1 for error.
  */
 int poll(pollfh fhs[], unsigned nfhs, int timeout);
 

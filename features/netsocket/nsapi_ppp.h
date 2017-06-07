@@ -83,4 +83,6 @@ const char *nsapi_ppp_get_gw_addr(FileHandle *stream);
 
 } //namespace mbed
 
+/** @} */
+
 #endif /* NSAPI_PPP_H_ */
