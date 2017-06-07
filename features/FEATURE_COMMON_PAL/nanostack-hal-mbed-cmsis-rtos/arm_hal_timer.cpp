@@ -12,7 +12,7 @@
 #include <mbed_assert.h>
 
 static osThreadId_t timer_thread_id;
-static uint64_t timer_thread_stk[2048];
+static uint64_t timer_thread_stk[2048/sizeof(uint64_t)];
 static osRtxThread_t timer_thread_tcb;
 
 static Timer timer;
