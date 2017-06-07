@@ -232,6 +232,9 @@ class ConfigCumulativeOverride(object):
             self.removals = set()
         self.strict = strict
 
+        self.isList = True
+        self.override = None
+        
     def remove_cumulative_overrides(self, overrides):
         """Extend the list of override removals.
 
@@ -260,8 +263,10 @@ class ConfigCumulativeOverride(object):
                 raise ConfigException(
                     "Configuration conflict. The %s %s both added and removed."
                     % (self.name[:-1], override))
-
-        self.additions |= set(overrides)
+        if( self.isList == True ):
+            self.additions |= set(overrides)
+        else:
+            self.override = overrides
 
     def strict_cumulative_overrides(self, overrides):
         """Remove all overrides that are not the specified ones
@@ -276,10 +281,14 @@ class ConfigCumulativeOverride(object):
 
     def update_target(self, target):
         """Update the attributes of a target based on this override"""
-        setattr(target, self.name,
+
+        if( self.isList == True ):
+            setattr(target, self.name,
                 list((set(getattr(target, self.name, []))
                       | self.additions) - self.removals))
-
+        else:
+            if( self.override != None ):            
+                setattr(target, self.name, self.override)
 
 def _process_config_parameters(data, params, unit_name, unit_kind):
     """Process a "config_parameters" section in either a target, a library,
@@ -606,7 +615,9 @@ class Config(object):
                 for attr, cumulatives in self.cumulative_overrides.iteritems():
                     if 'target.'+attr in overrides:
                         key = 'target.' + attr
-                        if not isinstance(overrides[key], list):
+                        if( type(getattr(self.target, attr, [])) != type(list()) ):
+                            cumulatives.isList = False                        
+                        if (cumulatives.isList == True) and (not isinstance(overrides[key], list)):
                             raise ConfigException(
                                 "The value of %s.%s is not of type %s" %
                                 (unit_name, "target_overrides." + key,
@@ -659,6 +670,8 @@ class Config(object):
                                                                      label)))))
 
         for cumulatives in self.cumulative_overrides.itervalues():
+            if( type(getattr(self.target, cumulatives.name, [])) != type(list()) ):
+                cumulatives.isList = False
             cumulatives.update_target(self.target)
 
         return params
