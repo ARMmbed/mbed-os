@@ -517,7 +517,7 @@ class Config(object):
         if  ('target.bootloader_img' in target_overrides or
              'target.restrict_size' in target_overrides):
             return self._generate_booloader_build(target_overrides,
-                                                  rom_size, rom_size)
+                                                  rom_start, rom_size)
         elif ('target.mbed_app_start' in target_overrides or
               'target.mbed_app_size' in target_overrides):
             return self._generate_linker_overrides(target_overrides,
