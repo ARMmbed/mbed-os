@@ -110,19 +110,10 @@ typedef enum {
     P2_15 = (2 << GPIO_PORT_SHIFT | 15),
 
     // mbed original LED naming
-#ifdef ADICUP3029
-    LED1 = P2_00,
-    LED2 = P1_15,
-    LED3 = LED1,
-    LED4 = LED2,
-#else
-    LED1 = P0_13,
-    LED2 = P1_12,
-    LED3 = P1_13,
-    LED4 = P0_13,   //duplicate of led1
-    LED5 = P1_12,   //duplicate of led2
-    LED6 = P1_13,   //duplicate of led3
-#endif
+    LED2 = P2_00,
+    LED1 = P1_15,
+    LED3 = LED2,
+    LED4 = LED1,
 
     //Push buttons
     PB0 = P1_14,
