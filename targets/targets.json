@@ -333,9 +333,6 @@
         "extra_labels": ["NXP", "LPC408X"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "GCC_CR", "GCC_ARM", "IAR"],
-        "post_binary_hook": {
-            "function": "LPC4088Code.binary_hook"
-        },
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ERROR_PATTERN", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
         "device_name": "LPC4088FBD144"
