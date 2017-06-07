@@ -111,10 +111,10 @@ void test_mk_time_out_of_range() {
         8
     );
 
-    TEST_ASSERT_EQUAL_INT(-1, st_rtc_mktime(&invalid_lower_bound));
-    TEST_ASSERT_EQUAL_INT(0, st_rtc_mktime(&valid_lower_bound));
-    TEST_ASSERT_EQUAL_INT(INT_MAX, st_rtc_mktime(&valid_upper_bound));
-    TEST_ASSERT_EQUAL_INT(-1, st_rtc_mktime(&invalid_upper_bound));
+    TEST_ASSERT_EQUAL_INT(((time_t) -1), st_rtc_mktime(&invalid_lower_bound));
+    TEST_ASSERT_EQUAL_INT(((time_t) 0), st_rtc_mktime(&valid_lower_bound));
+    TEST_ASSERT_EQUAL_INT(((time_t) INT_MAX), st_rtc_mktime(&valid_upper_bound));
+    TEST_ASSERT_EQUAL_INT(((time_t) -1), st_rtc_mktime(&invalid_upper_bound));
 }
 
 /* 
