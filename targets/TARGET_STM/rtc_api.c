@@ -183,6 +183,7 @@ time_t st_rtc_mktime(const struct tm* time) {
  *   - tm_mday
  *   - tm_mon
  *   - tm_year
+ *   - tm_wday
  * The time in input shall be in the range [0, INT32_MAX] otherwise the function 
  * will return false and the structure time_info in input will remain untouch.
  */
@@ -197,6 +198,11 @@ bool st_rtc_localtime(time_t timestamp, struct tm* time_info) {
     timestamp = timestamp / 60;  // timestamp in hours
     time_info->tm_hour = timestamp % 24;
     timestamp = timestamp / 24;  // timestamp in days;
+
+    // compute the weekday
+    // The 1st of January 1970 was a Thursday which is equal to 4 in the weekday
+    // representation ranging from [0:6]
+    time_info->tm_wday = (timestamp + 4) % 7;
 
     // years start at 70
     time_info->tm_year = 70;
