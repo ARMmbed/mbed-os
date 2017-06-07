@@ -827,6 +827,8 @@ SECTIONS
 
     .TCM_overlay :
     {
+        *lwip_mem.o (.bss*)
+        *lwip_memp.o (.bss*)
         *(.tcm.heap*)
     } > TCM
     
