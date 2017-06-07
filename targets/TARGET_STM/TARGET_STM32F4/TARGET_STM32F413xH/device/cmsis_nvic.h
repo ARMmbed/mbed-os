@@ -39,17 +39,5 @@
 #define NVIC_NUM_VECTORS      118
 #define NVIC_USER_IRQ_OFFSET  16
 
-#include "cmsis.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
