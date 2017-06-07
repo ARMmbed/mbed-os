@@ -17,6 +17,7 @@
 #include "mbed_toolchain.h"
 #include <stdlib.h>
 #include <stdint.h>
+#include "cmsis.h"
 
 /* This startup is for mbed 2 baremetal. There is no config for RTOS for mbed 2,
  * therefore we protect this file with MBED_CONF_RTOS_PRESENT
@@ -46,6 +47,24 @@ MBED_WEAK void software_init_hook_rtos()
     // Nothing by default
 }
 
+void mbed_copy_nvic(void)
+{
+    /* If vector address in RAM is defined, copy and switch to dynamic vectors. Exceptions for M0 which doesn't have
+    VTOR register and for A9 for which CMSIS doesn't define NVIC_SetVector; in both cases target code is
+    responsible for correctly handling the vectors.
+    */
+#if !defined(__CORTEX_M0) && !defined(__CORTEX_A9)
+#ifdef NVIC_RAM_VECTOR_ADDRESS
+    uint32_t *old_vectors = (uint32_t *)SCB->VTOR;
+    uint32_t *vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+    for (int i = 0; i < NVIC_NUM_VECTORS; i++) {
+        vectors[i] = old_vectors[i];
+    }
+    SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
+#endif /* NVIC_RAM_VECTOR_ADDRESS */
+#endif /* !defined(__CORTEX_M0) && !defined(__CORTEX_A9) */
+}
+
 /* Toolchain specific main code */
 
 #if defined (__CC_ARM)
@@ -60,6 +79,7 @@ int $Sub$$main(void)
 
 void _platform_post_stackheap_init(void) 
 {
+    mbed_copy_nvic();
     mbed_sdk_init();
 }
 
@@ -69,6 +89,7 @@ extern int __real_main(void);
 
 void software_init_hook(void)
 {
+    mbed_copy_nvic();
     mbed_sdk_init();
     software_init_hook_rtos();
 }
@@ -82,7 +103,11 @@ int __wrap_main(void)
 
 #elif defined (__ICCARM__)
 
-// cmsis.S file implements the mbed SDK boot for IAR
+int __low_level_init(void)
+{
+  mbed_copy_nvic();
+  return 1;
+}
 
 #endif
 
