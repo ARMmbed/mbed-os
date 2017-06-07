@@ -107,25 +107,12 @@ void lp_timeout_1s(void)
     lp_timeout_us(1000000, LONG_TIMEOUT);
 }
 
-void lp_timeout_1ms(void)
-{
-    lp_timeout_us(1000, SHORT_TIMEOUT);
-}
-
-void lp_timeout_500us(void)
-{
-    lp_timeout_us(500, SHORT_TIMEOUT);
-
-}
-
 utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
 
 Case cases[] = {
-    Case("500us LowPowerTimeout", lp_timeout_500us, greentea_failure_handler),
-    Case("1ms LowPowerTimeout", lp_timeout_1ms, greentea_failure_handler),
     Case("1sec LowPowerTimeout", lp_timeout_1s, greentea_failure_handler),
     Case("5sec LowPowerTimeout", lp_timeout_5s, greentea_failure_handler),
 #if DEVICE_SLEEP
