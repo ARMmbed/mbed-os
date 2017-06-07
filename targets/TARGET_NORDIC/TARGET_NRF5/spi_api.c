@@ -119,14 +119,14 @@ static const peripheral_handler_desc_t spi_handler_desc[SPI_COUNT] = {
 #endif    
 };
 
-
+/* LUT of SPI driver instances */
 static const sdk_driver_instances_pattern_t m_instance_patterns[SPI_COUNT] = {
 #if SPI0_ENABLED
     {
         0,
         {
-        NRF_DRV_SPI_INSTANCE(0),
-        NRF_DRV_SPIS_INSTANCE(0)
+            NRF_DRV_SPI_INSTANCE(0),
+            NRF_DRV_SPIS_INSTANCE(0)
         }
     },
 #endif
@@ -134,17 +134,17 @@ static const sdk_driver_instances_pattern_t m_instance_patterns[SPI_COUNT] = {
     {
         1,
         {
-        NRF_DRV_SPI_INSTANCE(1),
-        NRF_DRV_SPIS_INSTANCE(1)
-        }
+            NRF_DRV_SPI_INSTANCE(1),
+            NRF_DRV_SPIS_INSTANCE(1)
+            }
     },
 #endif
 #if SPI2_ENABLED
     {
         2,
         {
-        NRF_DRV_SPI_INSTANCE(2),
-        NRF_DRV_SPIS_INSTANCE(2)
+            NRF_DRV_SPI_INSTANCE(2),
+            NRF_DRV_SPIS_INSTANCE(2)
         }
     },
 #endif
@@ -239,13 +239,16 @@ static nrf_drv_spis_event_handler_t const m_slave_event_handlers[SPIS_COUNT] = {
 #endif
 };
 
-static sdk_driver_instances_t * get_driver_pattern(uint8_t hw_idx) {
-    
-    for (int i =0; i < SPI_COUNT; i++) {
+static sdk_driver_instances_t const * get_driver_pattern(uint8_t hw_idx) {
+    int i;
+
+    for (i = 0; i < SPI_COUNT; i++) {
         if (m_instance_patterns[i].hw_idx == hw_idx) {
-            return &m_instance_patterns[i].pattern;
+            break;
         }
     }
+    
+    return &m_instance_patterns[i].pattern;
 }
 
 static void prepare_master_config(nrf_drv_spi_config_t *p_config,

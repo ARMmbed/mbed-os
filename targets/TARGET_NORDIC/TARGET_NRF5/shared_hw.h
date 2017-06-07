@@ -38,6 +38,11 @@
 #ifndef SHARED_HW_H__
 #define SHARED_HW_H__
 
+/*
+ * @file shared_hw.h
+ * Module for sharing common resources between peripherals.
+ */
+
 typedef enum {
     HW_RESOURCE_SPI = 0,
     HW_RESOURCE_TWI = 1,
@@ -47,7 +52,22 @@ typedef enum {
 
 #define HW_RESOURCE_MAX HW_RESOURCE_TWI
 
-int8_t instance_hw_idx_get(hw_resource_type_t periph_type);
+/*
+ * @brief Reserve the hardware instance number for the peripheral type.
+ *
+ * @param[in]  peripheral_type: The Peripheral type requested.
+ *
+ * @retvel <0,127>: Number of instance of peripheral type.
+ * @retval -1: peripheral type unavailable.
+ */
+int8_t instance_hw_idx_get(hw_resource_type_t peripheral_type);
+
+
+/*
+ * @brief Free the hardware instance number.
+ *
+ * @param[in] idx: The number of hardware instance to be fired.
+ */
 void instance_hw_idx_free(uint8_t idx);
 
 #endif // end_of SHARED_HW_H__

@@ -48,30 +48,49 @@
 
 
 static const uint8_t m_shared_resource_map[] = {
-    ((!!SPI0_ENABLED) << HW_RESOURCE_SPI) || ((!!TWI0_ENABLED) << HW_RESOURCE_TWI),
-    ((!!SPI1_ENABLED) << HW_RESOURCE_SPI) || ((!!TWI1_ENABLED) << HW_RESOURCE_TWI),
+    ((!!SPI0_ENABLED) << HW_RESOURCE_SPI) | ((!!TWI0_ENABLED) << HW_RESOURCE_TWI),
+    ((!!SPI1_ENABLED) << HW_RESOURCE_SPI) | ((!!TWI1_ENABLED) << HW_RESOURCE_TWI),
     ((!!SPI2_ENABLED) << HW_RESOURCE_SPI)
 };
+
+#define SERCH_ASCCENDING  0
+#define SERCH_DESCCENDING 1
+
+/* Sequence here is corresponding to integer values of hw_resource_type_t.
+   Intention is to have different policies for peripheral types with shares the same resources.
+   Thanks to that, maximum numbers of peripheral instances will be available.
+*/
+static const uint8_t m_serch_policy[] = {SERCH_ASCCENDING, SERCH_DESCCENDING};
 
 #define SHARED_INSTANCES_CNT (sizeof(m_shared_resource_map)/sizeof(m_shared_resource_map[0]))
 
 static uint8_t m_reservation = 0;
 
 
-int8_t instance_hw_idx_get(hw_resource_type_t periph_type) {
-    uint8_t mask  = 1;
+int8_t instance_hw_idx_get(hw_resource_type_t peripheral_type) {
+    uint8_t mask;
     
-    MBED_ASSERT(periph_type <= HW_RESOURCE_MAX);
+    MBED_ASSERT(peripheral_type <= HW_RESOURCE_MAX);
+    
+    if (SERCH_ASCCENDING == m_serch_policy[peripheral_type]) {
+        mask = 1;
+    } else {
+        mask = 1 << (SHARED_INSTANCES_CNT - 1);
+    }
     
     for (uint32_t i = 0; i < SHARED_INSTANCES_CNT; i++) {
-        if (m_shared_resource_map[i] & (1 << periph_type)) {
+        if (m_shared_resource_map[i] & (1 << peripheral_type)) {
             if  (!(m_reservation & mask)) {
                 m_reservation |= mask;
                 return i;
             }
         }
         
-        mask <<= 1;
+        if (SERCH_ASCCENDING == m_serch_policy[peripheral_type]) {
+            mask <<= 1;
+        } else {
+            mask >>= 1;
+        }
     }
     
     return -1;
