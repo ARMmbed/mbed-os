@@ -48,6 +48,10 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
     // Enable IT
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+    // Check if timestamp has already passed, and if so, set the event immediately
+    if ((int32_t)(timestamp - TIM_MST->CNT) <= 0) {
+        LL_TIM_GenerateEvent_CC1(TimMasterHandle.Instance);
+    }
 }
 
 void us_ticker_disable_interrupt(void)
