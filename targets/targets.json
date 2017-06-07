@@ -1148,7 +1148,7 @@
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "inherits": ["Target"],
         "detect_code": ["0827"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2","USBHOST_OTHER"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2","USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L486RG"
