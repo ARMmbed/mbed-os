@@ -36,7 +36,7 @@ namespace v1 {
      *
      * @warning Initialization of handlers with either default_handler or 
      * ignore_handler helpers will prevent the object to be a POD. Prefer usage 
-     * of NULL in favor of ignore_handler or <handler_type>(1) for default 
+     * of NULL in favor of ignore_handler or \verbatim <handler_type>(1) \endverbatim for default 
      * handler.
      *
      * @see Case.
