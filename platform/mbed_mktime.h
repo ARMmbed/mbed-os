@@ -28,52 +28,64 @@
 extern "C" {
 #endif
 
-/*
- * Compute if a year is a leap year or not.
- * year 0 is translated into year 1900 CE.
+/** Compute if a year is a leap year or not.
  *
+ * @param year The year to test it shall be in the range [70:138]. Year 0 is
+ * translated into year 1900 CE.
+ * @return true if the year in input is a leap year and false otherwise.
  * @note - For use by the HAL only
  */
 bool _rtc_is_leap_year(int year);
 
-/*
- * Thread safe (partial) replacement for mktime.
- * This function is tailored around the RTC specification and is not a full
- * replacement for mktime.
- * The fields from tm used are:
+/* Convert a calendar time into time since UNIX epoch as a time_t.
+ *
+ * This function is a thread safe (partial) replacement for mktime. It is
+ * tailored around RTC peripherals needs and is not by any mean a complete
+ * replacement of mktime.
+ *
+ * @param calendar_time The calendar time to convert into a time_t since epoch.
+ * The fields from tm used for the computation are:
  *   - tm_sec
  *   - tm_min
  *   - tm_hour
  *   - tm_mday
  *   - tm_mon
  *   - tm_year
- * Other fields are ignored and won't be normalized by the call.
- * If the time in input is less than UNIX epoch (1st january of 1970 at 00:00:00),
- * then this function consider the input as invalid and will return time_t(-1).
- * Values in output range from 0 to INT_MAX.
- * Leap seconds are not supported.
+ * Other fields are ignored and won't be renormalized by a call to this function.
+ * A valid calendar time is comprised between the 1st january of 1970 at
+ * 00:00:00 and the 19th of january 2038 at 03:14:07.
  *
+ * @return The calendar time as seconds since UNIX epoch if the input is in the
+ * valid range. Otherwise ((time_t) -1).
+ *
+ * @note Leap seconds are not supported.
+ * @note Values in output range from 0 to INT_MAX.
  * @note - For use by the HAL only
  */
-time_t _rtc_mktime(const struct tm* time);
+time_t _rtc_mktime(const struct tm* calendar_time);
 
-/*
- * Thread safe (partial) replacement for localtime.
- * This function is tailored around the RTC specification and is not a full
- * replacement for localtime.
- * The tm fields filled by this function are:
+/* Convert a given time in seconds since epoch into calendar time.
+ *
+ * This function is a thread safe (partial) replacement for localtime. It is
+ * tailored around RTC peripherals specification and is not by any means a
+ * complete of localtime.
+ *
+ * @param timestamp The time (in seconds) to convert into calendar time. Valid
+ * input are in the range [0 : INT32_MAX].
+ * @param calendar_time Pointer to the object which will contain the result of
+ * the conversion. The tm fields filled by this function are:
  *   - tm_sec
  *   - tm_min
  *   - tm_hour
  *   - tm_mday
  *   - tm_mon
  *   - tm_year
- * The time in input shall be in the range [0, INT32_MAX] otherwise the function
- * will return false and the structure time_info in input will remain untouch.
+ * The object remains untouched if the time in input is invalid.
+ * @return true if the conversion was successful, false otherwise.
  *
  * @note - For use by the HAL only
  */
-bool _rtc_localtime(time_t timestamp, struct tm* time_info);
+bool _rtc_localtime(time_t timestamp, struct tm* calendar_time);
 
 #ifdef __cplusplus
 }
