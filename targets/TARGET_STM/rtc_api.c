@@ -254,7 +254,7 @@ void rtc_write(time_t t)
 
     // Convert the time into a tm
     struct tm timeinfo;
-    if (st_rtc_localtime(t, &timeinfo) == false) {
+    if (_rtc_localtime(t, &timeinfo) == false) {
         return;
     }
 
