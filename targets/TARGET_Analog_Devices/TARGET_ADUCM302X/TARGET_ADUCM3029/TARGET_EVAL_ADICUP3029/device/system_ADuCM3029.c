@@ -1,4 +1,4 @@
-/**************************************************************************//**
+/******************************************************************************
  * @file     system_ADuCM3029.c
  * @brief    CMSIS Cortex-M3 Device Peripheral Access Layer Source File for
  *           Device ADuCM3029
@@ -36,6 +36,7 @@
    ---------------------------------------------------------------------------*/
 #include <cmsis.h>
 #include <adi_pwr.h>
+#include <adi_gpio.h>
 #include <startup_ADuCM3029.h>
 /*----------------------------------------------------------------------------
   Define clocks
@@ -150,6 +151,11 @@ void SystemInit (void)
 #ifdef RELOCATE_IVT
     uint32_t i,*psrc,*pdst;
 #endif
+    /* Turn off ADICUP3029 LED */
+    pADI_GPIO1->OEN |= ADI_GPIO_PIN_15;
+    pADI_GPIO2->OEN |= ADI_GPIO_PIN_0;
+    pADI_GPIO1->CLR  = ADI_GPIO_PIN_15;
+    pADI_GPIO2->CLR  = ADI_GPIO_PIN_0;
     /* SRAM Bank1 and Banck2 are hibernate-preserved */
     adi_system_EnableRetention(ADI_SRAM_BANK_1, true);
     adi_system_EnableRetention(ADI_SRAM_BANK_2, true);
