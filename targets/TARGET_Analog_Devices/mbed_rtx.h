@@ -47,6 +47,21 @@
 #define OS_CLOCK                26000000
 #endif
 
+#elif defined(TARGET_EV_COG_AD3029LZ)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20004000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          112
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                26000000
+#endif
+
 #elif defined(TARGET_EV_COG_AD4050LZ)
 
 #ifndef INITIAL_SP
