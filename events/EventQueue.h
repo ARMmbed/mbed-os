@@ -167,7 +167,6 @@ public:
      *  events out of irq contexts.
      *
      *  @param f        Function to execute in the context of the dispatch loop
-     *  @param a0..a4   Arguments to pass to the callback
      *  @return         A unique id that represents the posted event and can
      *                  be passed to cancel, or an id of 0 if there is not
      *                  enough memory to allocate the event.
@@ -185,7 +184,9 @@ public:
     }
 
     /** Calls an event on the queue
-     *  @see EventQueue::call
+     *  @see                    EventQueue::call
+     *  @param f                Function to execute in the context of the dispatch loop
+     *  @param a0               Argument to pass to the callback
      */
     template <typename F, typename A0>
     int call(F f, A0 a0) {
@@ -193,7 +194,9 @@ public:
     }
 
     /** Calls an event on the queue
-     *  @see EventQueue::call
+     *  @see                    EventQueue::call
+     *  @param f                Function to execute in the context of the dispatch loop
+     *  @param a0,a1            Arguments to pass to the callback
      */
     template <typename F, typename A0, typename A1>
     int call(F f, A0 a0, A1 a1) {
@@ -201,7 +204,9 @@ public:
     }
 
     /** Calls an event on the queue
-     *  @see EventQueue::call
+     *  @see                    EventQueue::call
+     *  @param f                Function to execute in the context of the dispatch loop
+     *  @param a0,a1,a2         Arguments to pass to the callback
      */
     template <typename F, typename A0, typename A1, typename A2>
     int call(F f, A0 a0, A1 a1, A2 a2) {
@@ -209,7 +214,9 @@ public:
     }
 
     /** Calls an event on the queue
-     *  @see EventQueue::call
+     *  @see                     EventQueue::call
+     *  @param f                 Function to execute in the context of the dispatch loop
+     *  @param a0,a1,a2,a3       Arguments to pass to the callback
      */
     template <typename F, typename A0, typename A1, typename A2, typename A3>
     int call(F f, A0 a0, A1 a1, A2 a2, A3 a3) {
@@ -217,7 +224,9 @@ public:
     }
 
     /** Calls an event on the queue
-     *  @see EventQueue::call
+     *  @see                    EventQueue::call
+     *  @param f                Function to execute in the context of the dispatch loop
+     *  @param a0,a1,a2,a3,a4   Arguments to pass to the callback
      */
     template <typename F, typename A0, typename A1, typename A2, typename A3, typename A4>
     int call(F f, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -425,7 +434,6 @@ public:
      *  events out of irq contexts.
      *
      *  @param f        Function to execute in the context of the dispatch loop
-     *  @param a0..a4   Arguments to pass to the callback
      *  @param ms       Time to delay in milliseconds
      *  @return         A unique id that represents the posted event and can
      *                  be passed to cancel, or an id of 0 if there is not
@@ -445,7 +453,10 @@ public:
     }
 
     /** Calls an event on the queue after a specified delay
-     *  @see EventQueue::call_in
+     *  @see                        EventQueue::call_in
+     *  @param ms                   Time to delay in milliseconds
+     *  @param f                    Function to execute in the context of the dispatch loop
+     *  @param a0                   Argument to pass to the callback
      */
     template <typename F, typename A0>
     int call_in(int ms, F f, A0 a0) {
@@ -453,7 +464,10 @@ public:
     }
 
     /** Calls an event on the queue after a specified delay
-     *  @see EventQueue::call_in
+     *  @see                        EventQueue::call_in
+     *  @param ms                   Time to delay in milliseconds
+     *  @param f                    Function to execute in the context of the dispatch loop
+     *  @param a0,a1                Arguments to pass to the callback
      */
     template <typename F, typename A0, typename A1>
     int call_in(int ms, F f, A0 a0, A1 a1) {
@@ -461,7 +475,10 @@ public:
     }
 
     /** Calls an event on the queue after a specified delay
-     *  @see EventQueue::call_in
+     *  @see                        EventQueue::call_in
+     *  @param ms                   Time to delay in milliseconds
+     *  @param f                    Function to execute in the context of the dispatch loop
+     *  @param a0,a1,a2             Arguments to pass to the callback
      */
     template <typename F, typename A0, typename A1, typename A2>
     int call_in(int ms, F f, A0 a0, A1 a1, A2 a2) {
@@ -469,7 +486,10 @@ public:
     }
 
     /** Calls an event on the queue after a specified delay
-     *  @see EventQueue::call_in
+     *  @see                        EventQueue::call_in
+     *  @param ms                   Time to delay in milliseconds
+     *  @param f                    Function to execute in the context of the dispatch loop
+     *  @param a0,a1,a2,a3          Arguments to pass to the callback
      */
     template <typename F, typename A0, typename A1, typename A2, typename A3>
     int call_in(int ms, F f, A0 a0, A1 a1, A2 a2, A3 a3) {
@@ -477,7 +497,10 @@ public:
     }
 
     /** Calls an event on the queue after a specified delay
-     *  @see EventQueue::call_in
+     *  @see                        EventQueue::call_in
+     *  @param ms                   Time to delay in milliseconds
+     *  @param f                    Function to execute in the context of the dispatch loop
+     *  @param a0,a1,a2,a3,a4       Arguments to pass to the callback
      */
     template <typename F, typename A0, typename A1, typename A2, typename A3, typename A4>
     int call_in(int ms, F f, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -685,7 +708,6 @@ public:
      *  moving events out of irq contexts.
      *
      *  @param f        Function to execute in the context of the dispatch loop
-     *  @param a0..a4   Arguments to pass to the callback
      *  @param ms       Period of the event in milliseconds
      *  @return         A unique id that represents the posted event and can
      *                  be passed to cancel, or an id of 0 if there is not
@@ -706,7 +728,10 @@ public:
     }
 
     /** Calls an event on the queue periodically
-     *  @see EventQueue::call_every
+     *  @see                    EventQueue::call_every
+     *  @param f                Function to execute in the context of the dispatch loop
+     *  @param a0               Argument to pass to the callback
+     *  @param ms               Period of the event in milliseconds
      */
     template <typename F, typename A0>
     int call_every(int ms, F f, A0 a0) {
@@ -714,7 +739,10 @@ public:
     }
 
     /** Calls an event on the queue periodically
-     *  @see EventQueue::call_every
+     *  @see                    EventQueue::call_every
+     *  @param f                Function to execute in the context of the dispatch loop
+     *  @param a0,a1            Arguments to pass to the callback
+     *  @param ms               Period of the event in milliseconds
      */
     template <typename F, typename A0, typename A1>
     int call_every(int ms, F f, A0 a0, A1 a1) {
@@ -722,7 +750,10 @@ public:
     }
 
     /** Calls an event on the queue periodically
-     *  @see EventQueue::call_every
+     *  @see                    EventQueue::call_every
+     *  @param f                Function to execute in the context of the dispatch loop
+     *  @param a0,a1,a2         Arguments to pass to the callback
+     *  @param ms               Period of the event in milliseconds
      */
     template <typename F, typename A0, typename A1, typename A2>
     int call_every(int ms, F f, A0 a0, A1 a1, A2 a2) {
@@ -730,7 +761,10 @@ public:
     }
 
     /** Calls an event on the queue periodically
-     *  @see EventQueue::call_every
+     *  @see                    EventQueue::call_every
+     *  @param f                Function to execute in the context of the dispatch loop
+     *  @param a0,a1,a2,a3      Arguments to pass to the callback
+     *  @param ms               Period of the event in milliseconds
      */
     template <typename F, typename A0, typename A1, typename A2, typename A3>
     int call_every(int ms, F f, A0 a0, A1 a1, A2 a2, A3 a3) {
@@ -738,7 +772,10 @@ public:
     }
 
     /** Calls an event on the queue periodically
-     *  @see EventQueue::call_every
+     *  @see                    EventQueue::call_every
+     *  @param f                Function to execute in the context of the dispatch loop
+     *  @param a0,a1,a2,a3,a4   Arguments to pass to the callback
+     *  @param ms               Period of the event in milliseconds
      */
     template <typename F, typename A0, typename A1, typename A2, typename A3, typename A4>
     int call_every(int ms, F f, A0 a0, A1 a1, A2 a2, A3 a3, A4 a4) {
@@ -943,12 +980,8 @@ public:
      *  callback acts as the target for the event and is executed in the
      *  context of the event queue's dispatch loop once posted.
      *
-     *  @param f        Function to execute when the event is dispatched
-     *  @param c0..c4   Arguments to bind to the callback, these arguments are
-     *                  allocated on an irq-safe allocator from the event queue's
-     *                  memory pool. Must be type-compatible with b0..b4, the
-     *                  arguments to the underlying callback.
-     *  @return         Event that will dispatch on the specific queue
+     *  @param func        Function to execute when the event is dispatched
+     *  @return            Event that will dispatch on the specific queue
      */
     template <typename R>
     Event<void()> event(R (*func)());
