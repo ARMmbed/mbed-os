@@ -19,54 +19,17 @@
 #if DEVICE_RTC
 #include <time.h>
 #include "timer_api.h"      // software-RTC: use a g-timer for the tick of the RTC
+#include "mbed_mktime.h"
 
 #define SW_RTC_TIMER_ID        TIMER4
 
 static gtimer_t sw_rtc;
-static struct tm rtc_timeinfo;
 static int sw_rtc_en=0;
-
-static const u8 dim[14] = { 
-    31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 31, 28 };
-
-static inline bool is_leap_year(unsigned int year)
-{
-    return (!(year % 4) && (year % 100)) || !(year % 400);
-}
-
-    
-static u8 days_in_month (u8 month, u8 year)
-{
-    u8 ret = dim [ month - 1 ];
-    if (ret == 0)
-        ret = is_leap_year (year) ? 29 : 28;
-    return ret;
-}    
+static time_t rtc_time;
 
 void sw_rtc_tick_handler(uint32_t id)
 {
-    if(++rtc_timeinfo.tm_sec > 59) {                               // Increment seconds, check for overflow
-        rtc_timeinfo.tm_sec = 0;                                   // Reset seconds
-        if(++rtc_timeinfo.tm_min > 59) {                           // Increment minutes, check for overflow
-            rtc_timeinfo.tm_min = 0;                               // Reset minutes
-            if(++rtc_timeinfo.tm_hour > 23) {                      // Increment hours, check for overflow
-                rtc_timeinfo.tm_hour = 0;                          // Reset hours
-                ++rtc_timeinfo.tm_yday;                            // Increment day of year
-                if(++rtc_timeinfo.tm_wday > 6)                     // Increment day of week, check for overflow
-                    rtc_timeinfo.tm_wday = 0;                      // Reset day of week
-                                                        // Increment day of month, check for overflow
-                if(++rtc_timeinfo.tm_mday >
-                    days_in_month(rtc_timeinfo.tm_mon, rtc_timeinfo.tm_year + 1900)) {
-                    rtc_timeinfo.tm_mday = 1;                      // Reset day of month
-                    if(++rtc_timeinfo.tm_mon > 11) {               // Increment month, check for overflow
-                        rtc_timeinfo.tm_mon = 0;                   // Reset month
-                        rtc_timeinfo.tm_yday = 0;                  // Reset day of year
-                        ++rtc_timeinfo.tm_year;                    // Increment year
-                    }                                   // - year       
-                }                                       // - month
-            }                                           // - day
-        }                                               // - hour
-    }                                     
+    rtc_time++;
 }
 
 void rtc_init(void)
@@ -92,35 +55,15 @@ int rtc_isenabled(void)
 
 time_t rtc_read(void)
 {
-    time_t t;
-    
-    // Convert to timestamp
-    t = mktime(&rtc_timeinfo);
-
-    return t;
+    return rtc_time;
 }
 
 void rtc_write(time_t t)
 {
-    // Convert the time in to a tm
-    struct tm *timeinfo = localtime(&t);
-
-    if (timeinfo == NULL) {
-        // Error
-        return;
-    }
-    
     gtimer_stop(&sw_rtc);
 
     // Set the RTC
-    rtc_timeinfo.tm_sec = timeinfo->tm_sec;
-    rtc_timeinfo.tm_min = timeinfo->tm_min;
-    rtc_timeinfo.tm_hour = timeinfo->tm_hour;
-    rtc_timeinfo.tm_mday = timeinfo->tm_mday;
-    rtc_timeinfo.tm_wday = timeinfo->tm_wday;
-    rtc_timeinfo.tm_yday = timeinfo->tm_yday;
-    rtc_timeinfo.tm_mon = timeinfo->tm_mon;
-    rtc_timeinfo.tm_year = timeinfo->tm_year;
+    rtc_time = t;
 
     gtimer_start(&sw_rtc);    
 }
