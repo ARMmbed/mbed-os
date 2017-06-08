@@ -81,6 +81,7 @@ time_t _rtc_mktime(const struct tm* calendar_time);
  *   - tm_mon
  *   - tm_year
  *   - tm_wday
+ *   - tm_yday
  * The object remains untouched if the time in input is invalid.
  * @return true if the conversion was successful, false otherwise.
  *

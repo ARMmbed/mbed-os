@@ -143,6 +143,8 @@ bool _rtc_localtime(time_t timestamp, struct tm* time_info) {
         }
     }
 
+    time_info->tm_yday = timestamp;
+
     // convert days into seconds and find the current month
     timestamp *= SECONDS_BY_DAY;
     time_info->tm_mon = 11;
