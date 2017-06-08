@@ -186,6 +186,7 @@ void test_local_time() {
             expected->tm_mon != actual_value.tm_mon || 
             expected->tm_year != actual_value.tm_year || 
             expected->tm_wday != actual_value.tm_wday || 
+            expected->tm_yday != actual_value.tm_yday ||
             result == false
         ) { 
             printf("error: i = %lu\r\n", i);
@@ -212,6 +213,9 @@ void test_local_time() {
         );
         TEST_ASSERT_EQUAL_UINT32_MESSAGE(
             expected->tm_wday, actual_value.tm_wday, "invalid weekday"
+        );
+        TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+            expected->tm_yday, actual_value.tm_yday, "invalid year day"
         );
     }
 }
