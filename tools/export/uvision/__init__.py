@@ -209,8 +209,12 @@ class Uvision(Exporter):
         }
         core = ctx['device'].core
         ctx['cputype'] = core.rstrip("FD")
-        # Turn on FPU optimizations if the core has an FPU
-        ctx['fpu_setting'] = 1 if 'F' not in core or 'D' in core else 2
+        if core.endswith("FD"):
+            ctx['fpu_setting'] = 3
+        elif core.endswith("F"):
+            ctx['fpu_setting'] = 2
+        else:
+            ctx['fpu_setting'] = 1
         ctx['fputype'] = self.format_fpu(core)
         ctx.update(self.format_flags())
         self.gen_file('uvision/uvision.tmpl', ctx, self.project_name+".uvprojx")
