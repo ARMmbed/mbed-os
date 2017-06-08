@@ -123,6 +123,11 @@ bool _rtc_localtime(time_t timestamp, struct tm* time_info) {
     time_info->tm_hour = timestamp % 24;
     timestamp = timestamp / 24;  // timestamp in days;
 
+    // compute the weekday
+    // The 1st of January 1970 was a Thursday which is equal to 4 in the weekday
+    // representation ranging from [0:6]
+    time_info->tm_wday = (timestamp + 4) % 7;
+
     // years start at 70
     time_info->tm_year = 70;
     while (true) { 
