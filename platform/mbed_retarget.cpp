@@ -296,7 +296,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
     int n; // n is the number of bytes written
 
-#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
+#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
         error("Error - writing to a file in an ISR or critical section\r\n");
     }
@@ -346,7 +346,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
     int n; // n is the number of bytes read
 
-#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
+#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
         error("Error - reading from a file in an ISR or critical section\r\n");
     }
