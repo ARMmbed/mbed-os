@@ -151,6 +151,7 @@ public:
     }
 
     /** A operator shorthand for write()
+     *  \sa PwmOut::write()
      */
     PwmOut& operator= (float value) {
         // Underlying call is thread safe
@@ -159,6 +160,7 @@ public:
     }
 
     /** A operator shorthand for write()
+     * \sa PwmOut::write()
      */    
     PwmOut& operator= (PwmOut& rhs) {
         // Underlying call is thread safe
@@ -167,6 +169,7 @@ public:
     }
 
     /** An operator shorthand for read()
+     * \sa PwmOut::read()
      */
     operator float() {
         // Underlying call is thread safe
