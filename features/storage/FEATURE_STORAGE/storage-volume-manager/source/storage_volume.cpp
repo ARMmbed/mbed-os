@@ -15,6 +15,13 @@
  * limitations under the License.
  */
 
+// This file is deprecated so deprecation warnings when building it are silenced
+#if   defined ( __CC_ARM )
+#pragma diag_suppress 1361  // Deprecated declaration
+#elif defined ( __GNUC__ )
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include "storage-volume-manager/storage_volume_manager.h"
 #include <string.h>
 #include <inttypes.h>

@@ -85,6 +85,10 @@ struct flash_s {
     uint32_t placeholder;
 };
 
+struct trng_s {
+    uint32_t placeholder;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

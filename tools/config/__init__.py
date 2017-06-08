@@ -17,7 +17,7 @@ limitations under the License.
 
 from copy import deepcopy
 import os
-from os.path import dirname, abspath, exists
+from os.path import dirname, abspath, exists, join
 import sys
 from collections import namedtuple
 from os.path import splitext, relpath
@@ -517,7 +517,7 @@ class Config(object):
         if  ('target.bootloader_img' in target_overrides or
              'target.restrict_size' in target_overrides):
             return self._generate_booloader_build(target_overrides,
-                                                  rom_size, rom_size)
+                                                  rom_start, rom_size)
         elif ('target.mbed_app_start' in target_overrides or
               'target.mbed_app_size' in target_overrides):
             return self._generate_linker_overrides(target_overrides,
@@ -526,11 +526,11 @@ class Config(object):
             raise ConfigException(
                 "Bootloader build requested but no bootlader configuration")
 
-    @staticmethod
-    def _generate_booloader_build(target_overrides, rom_start, rom_size):
+    def _generate_booloader_build(self, target_overrides, rom_start, rom_size):
         start = 0
         if 'target.bootloader_img' in target_overrides:
-            filename = target_overrides['target.bootloader_img']
+            basedir = abspath(dirname(self.app_config_location))
+            filename = join(basedir, target_overrides['target.bootloader_img'])
             if not exists(filename):
                 raise ConfigException("Bootloader %s not found" % filename)
             part = intelhex_offset(filename, offset=rom_start)

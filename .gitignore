@@ -5,6 +5,7 @@ dist
 
 # MANIFEST file
 MANIFEST
+doxygen_objdb_*
 
 # Private settings
 mbed_settings.py

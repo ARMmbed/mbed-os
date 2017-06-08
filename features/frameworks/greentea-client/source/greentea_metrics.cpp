@@ -32,9 +32,9 @@ typedef struct {
     uint32_t max_stack;
 } thread_info_t;
 
+#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
 // Mutex to protect "buf"
 static SingletonPtr<Mutex> mutex;
-#if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
 static char buf[128];
 static SingletonPtr<CircularBuffer<thread_info_t, THREAD_BUF_COUNT> > queue;
 #endif

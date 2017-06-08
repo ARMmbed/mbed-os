@@ -53,7 +53,7 @@ time_t time(time_t *timer)
         }
     }
     
-    time_t t = 0;
+    time_t t = -1;
     if (_rtc_read != NULL) {
         t = _rtc_read();
     }

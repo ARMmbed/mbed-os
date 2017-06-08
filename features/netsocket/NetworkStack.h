@@ -1,6 +1,4 @@
 
-/** \addtogroup netsocket */
-/** @{*/
 /* NetworkStack
  * Copyright (c) 2015 ARM Limited
  *
@@ -31,6 +29,7 @@
  *  can connect to a network over IP. By implementing the
  *  NetworkStack, a network stack can be used as a target
  *  for instantiating network sockets.
+ *  @addtogroup netsocket
  */
 class NetworkStack
 {
@@ -63,7 +62,7 @@ public:
 
     /** Add a domain name server to list of servers to query
      *
-     *  @param addr     Destination for the host address
+     *  @param address  Destination for the host address
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address);
@@ -246,7 +245,7 @@ protected:
      *
      *  @param handle   Socket handle
      *  @param address  Destination for the source address or NULL
-     *  @param data     Destination buffer for data received from the host
+     *  @param buffer   Destination buffer for data received from the host
      *  @param size     Size of the buffer in bytes
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
@@ -322,5 +321,3 @@ NetworkStack *nsapi_create_stack(IF *iface)
 
 
 #endif
-
-/** @}*/

@@ -242,8 +242,8 @@ public:
  *  Returns a pointer to std::FILE.
  *  It associates a Stream to an already opened file descriptor (FileHandle)
  *
- *  @param fh, a pointer to an opened file descriptor
- *  @param mode, operation upon the file descriptor, e.g., 'wb+'*/
+ *  @param fh a pointer to an opened file descriptor
+ *  @param mode operation upon the file descriptor, e.g., 'wb+'*/
 
 std::FILE *fdopen(FileHandle *fh, const char *mode);
 

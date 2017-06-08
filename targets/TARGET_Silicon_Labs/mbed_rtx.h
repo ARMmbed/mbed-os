@@ -20,20 +20,6 @@
 #include <stdint.h>
 #include "clocking.h"
 
-#if defined(__CC_ARM)
-extern uint32_t HEAP$$Base;
-extern uint32_t HEAP$$Limit;
-extern uint32_t STACK$$Limit;
-extern uint32_t STACK$$Base;
-#ifndef INITIAL_SP
-#define INITIAL_SP            ((uint32_t)&STACK$$Limit)
-#endif
-#define ISR_STACK_START       ((uint32_t)&STACK$$Base)
-#define ISR_STACK_SIZE        ((uint32_t) ((uint32_t)&STACK$$Limit - (uint32_t)&STACK$$Base))
-#define HEAP_START            ((unsigned char*) ((uint32_t)&HEAP$$Base))
-#define HEAP_SIZE             ((uint32_t) ((uint32_t)&HEAP$$Limit - (uint32_t)&HEAP$$Base))
-#endif
-
 #if defined(TARGET_EFM32GG_STK3700)
 
 #ifndef INITIAL_SP
