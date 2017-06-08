@@ -843,7 +843,6 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */events/* \
                          */rtos/* \
                          */cmsis/* \
-                         */hal/* \
                          */FEATURE_* \
                          */features/mbedtls/* \
                          */features/storage/* \

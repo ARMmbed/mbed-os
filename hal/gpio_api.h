@@ -83,30 +83,30 @@ int gpio_read(gpio_t *obj);
 
 /** Init the input pin and set mode to PullDefault
  *
- * @param obj The GPIO object
- * @param pin The pin name
+ * @param gpio The GPIO object
+ * @param pin  The pin name
  */
 void gpio_init_in(gpio_t* gpio, PinName pin);
 
 /** Init the input pin and set the mode
  *
- * @param obj  The GPIO object
- * @param pin  The pin name
- * @param mode The pin mode to be set
+ * @param gpio  The GPIO object
+ * @param pin   The pin name
+ * @param mode  The pin mode to be set
  */
 void gpio_init_in_ex(gpio_t* gpio, PinName pin, PinMode mode);
 
 /** Init the output pin as an output, with predefined output value 0
  *
- * @param obj The GPIO object
- * @param pin The pin name
- * @return An integer value 1 or 0
+ * @param gpio The GPIO object
+ * @param pin  The pin name
+ * @return     An integer value 1 or 0
  */
 void gpio_init_out(gpio_t* gpio, PinName pin);
 
 /** Init the pin as an output and set the output value
  *
- * @param obj   The GPIO object
+ * @param gpio  The GPIO object
  * @param pin   The pin name
  * @param value The value to be set
  */
@@ -114,7 +114,7 @@ void gpio_init_out_ex(gpio_t* gpio, PinName pin, int value);
 
 /** Init the pin to be in/out
  *
- * @param obj       The GPIO object
+ * @param gpio      The GPIO object
  * @param pin       The pin name
  * @param direction The pin direction to be set
  * @param mode      The pin mode to be set
