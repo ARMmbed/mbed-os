@@ -31,7 +31,8 @@
 extern "C" {
 #endif
 
-#define ST_SHA256_BLOCK_SIZE ((size_t)(64)) // HW handles 512 bits, ie 64 bytes
+#define ST_SHA256_BLOCK_SIZE ((size_t)  64) // HW handles 512 bits, ie 64 bytes
+#define ST_SHA256_TIMEOUT    ((uint32_t) 3)
 /**
  * \brief          SHA-256 context structure
  * \note     HAL_HASH_SHA256_Accumulate will accumulate 512 bits packets, unless it is the last call to the  function
