@@ -431,7 +431,14 @@ void equeue_dispatch(equeue_t *q, int ms) {
             }
         }
         equeue_mutex_unlock(&q->queuelock);
-
+        
+        // in any case 'deadline' must be <= than 'ms'
+        // Unrecognized bug on some platform (deadline == 511999)
+        if(ms >= o && deadline > ms) {
+            deadline = ms;
+            if(ms == 0)
+                return;
+        }
         // wait for events
         equeue_sema_wait(&q->eventsema, deadline);
 
