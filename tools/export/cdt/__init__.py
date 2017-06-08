@@ -36,6 +36,7 @@ class Eclipse(Makefile):
 
         self.gen_file('cdt/.cproject.tmpl', ctx, '.cproject')
         self.gen_file('cdt/.project.tmpl', ctx, '.project')
+        self.gen_file('cdt/header.tmpl', ctx, 'project_macros.h')
 
 
 class EclipseGcc(Eclipse, GccArm):
