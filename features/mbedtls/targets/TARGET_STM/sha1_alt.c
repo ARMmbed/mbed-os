@@ -26,26 +26,44 @@ static void mbedtls_zeroize( void *v, size_t n ) {
     volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
 }
 
-static void st_sha1_restore_hw_context(mbedtls_sha1_context *ctx)
+static int st_sha1_restore_hw_context(mbedtls_sha1_context *ctx)
 {
     uint32_t i;
+    uint32_t tickstart;
     /* allow multi-instance of HASH use: save context for HASH HW module CR */
+    /* Check that there is no HASH activity on going */
+    tickstart = HAL_GetTick();
+    while ((HASH->SR & (HASH_FLAG_BUSY | HASH_FLAG_DMAS)) != 0) {
+        if ((HAL_GetTick() - tickstart) > ST_SHA1_TIMEOUT) {
+            return 0; // timeout: HASH processor is busy
+        }
+    }
     HASH->STR = ctx->ctx_save_str;
-    HASH->CR = (ctx->ctx_save_cr|HASH_CR_INIT);
+    HASH->CR = (ctx->ctx_save_cr | HASH_CR_INIT);
     for (i=0;i<38;i++) {
         HASH->CSR[i] = ctx->ctx_save_csr[i];
     }
+    return 1;
 }
 
-static void st_sha1_save_hw_context(mbedtls_sha1_context *ctx)
+static int st_sha1_save_hw_context(mbedtls_sha1_context *ctx)
 {
     uint32_t i;
+    uint32_t tickstart;
+    /* Check that there is no HASH activity on going */
+    tickstart = HAL_GetTick();
+    while ((HASH->SR & (HASH_FLAG_BUSY | HASH_FLAG_DMAS)) != 0) {
+        if ((HAL_GetTick() - tickstart) > ST_SHA1_TIMEOUT) {
+            return 0; // timeout: HASH processor is busy
+        }
+    }
     /* allow multi-instance of HASH use: restore context for HASH HW module CR */
     ctx->ctx_save_cr = HASH->CR;
     ctx->ctx_save_str = HASH->STR;
     for (i=0;i<38;i++) {
         ctx->ctx_save_csr[i] = HASH->CSR[i];
     }
+    return 1;
 }
 
 void mbedtls_sha1_init( mbedtls_sha1_context *ctx )
@@ -84,23 +102,31 @@ void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
         // error found to be returned
         return;
     }
-    st_sha1_save_hw_context(ctx);
+    if (st_sha1_save_hw_context(ctx) != 1) {
+        return; // return HASH_BUSY timeout Error here
+    }
 }
 
 void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[ST_SHA1_BLOCK_SIZE] )
 {
-    st_sha1_restore_hw_context(ctx);
+    if (st_sha1_restore_hw_context(ctx) != 1) {
+        return; // Return HASH_BUSY timout error here
+    }
     if (HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, (uint8_t *) data, ST_SHA1_BLOCK_SIZE) != 0) {
             return; // Return error code
     }
 
-    st_sha1_save_hw_context(ctx);
+    if (st_sha1_save_hw_context(ctx) != 1) {
+        return; // return HASH_BUSY timeout Error here
+    }
 }
 
 void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen )
 {
     size_t currentlen = ilen;
-    st_sha1_restore_hw_context(ctx);
+    if (st_sha1_restore_hw_context(ctx) != 1) {
+        return; // Return HASH_BUSY timout error here
+    }
 
     // store mechanism to accumulate ST_SHA1_BLOCK_SIZE bytes (512 bits) in the HW
     if (currentlen == 0){ // only change HW status is size if 0
@@ -130,12 +156,16 @@ void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input,
             memcpy(ctx->sbuf, input + ilen - ctx->sbuf_len, ctx->sbuf_len);
         }
     }
-    st_sha1_save_hw_context(ctx);
+    if (st_sha1_save_hw_context(ctx) != 1) {
+        return; // return HASH_BUSY timeout Error here
+    }
 }
 
 void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] )
 {
-    st_sha1_restore_hw_context(ctx);
+    if (st_sha1_restore_hw_context(ctx) != 1) {
+        return; // Return HASH_BUSY timout error here
+    }
 
     if (ctx->sbuf_len > 0) {
         if (HAL_HASH_SHA1_Accumulate(&ctx->hhash_sha1, ctx->sbuf, ctx->sbuf_len) != 0) {
@@ -149,7 +179,9 @@ void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] )
     if (HAL_HASH_SHA1_Finish(&ctx->hhash_sha1, output, 10) != 0){
         return; // error code to be returned
     }
-    st_sha1_save_hw_context(ctx);
+    if (st_sha1_save_hw_context(ctx) != 1) {
+        return; // return HASH_BUSY timeout Error here
+    }
 }
 
 #endif /*MBEDTLS_SHA1_ALT*/

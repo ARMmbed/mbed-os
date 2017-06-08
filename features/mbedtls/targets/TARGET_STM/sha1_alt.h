@@ -32,7 +32,8 @@
 extern "C" {
 #endif
 
-#define ST_SHA1_BLOCK_SIZE   (64) // HW handles 512 bits, ie 64 bytes
+#define ST_SHA1_BLOCK_SIZE   ((size_t) 64) // HW handles 512 bits, ie 64 bytes
+#define ST_SHA1_TIMEOUT      ((uint32_t) 3)
 /**
  * \brief    SHA-1 context structure
  * \note     HAL_HASH_SHA1_Accumulate will accumulate 512 bits packets, unless it is the last call to the  function
