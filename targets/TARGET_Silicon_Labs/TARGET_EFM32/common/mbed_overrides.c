@@ -38,19 +38,20 @@ void mbed_sdk_init()
 {
     CHIP_Init();
 
-#if defined(_SILICON_LABS_32B_PLATFORM_2)
+#if defined(_SILICON_LABS_32B_SERIES_1)
     EMU_DCDCInit_TypeDef dcdcInit = EMU_DCDCINIT_DEFAULT;
     EMU_DCDCInit(&dcdcInit);
     
+#if (CORE_CLOCK_SOURCE == HFXO)
+    // Only init HFXO if not already done (e.g. by bootloader)
+    if (CMU_ClockSelectGet(cmuClock_HF) != cmuSelect_HFXO) {
 #if defined(_EFR_DEVICE)
-    CMU_HFXOInit_TypeDef hfxoInit = CMU_HFXOINIT_WSTK_DEFAULT;
-    // Initialize the HFXO using the settings from the WSTK bspconfig.h
-    // Note: This configures things like the capacitive tuning CTUNE variable
-    //   which can vary based on your hardware design.
-    CMU_HFXOInit(&hfxoInit);
+        CMU_HFXOInit_TypeDef hfxoInit = CMU_HFXOINIT_WSTK_DEFAULT;
 #else
-    CMU_HFXOInit_TypeDef hfxoInit = CMU_HFXOINIT_STK_DEFAULT;
-    CMU_HFXOInit(&hfxoInit);
+        CMU_HFXOInit_TypeDef hfxoInit = CMU_HFXOINIT_STK_DEFAULT;
+#endif
+        CMU_HFXOInit(&hfxoInit);
+    }
 #endif
 #endif
 

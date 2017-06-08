@@ -211,5 +211,5 @@ SECTIONS
   ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 
   /* Check if FLASH usage exceeds FLASH size */
-  ASSERT( LENGTH(FLASH) >= (__etext + SIZEOF(.data)), "FLASH memory overflowed !")
+  ASSERT( ORIGIN(FLASH) + LENGTH(FLASH) >= (__etext + SIZEOF(.data)), "FLASH memory overflowed !")
 }
