@@ -85,7 +85,6 @@ public:
 
     /** Create a new thread, and start it executing the specified function.
       @param   task           function to be executed by this thread.
-      @param   argument       pointer that is passed to the thread function as start argument. (default: NULL).
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
       @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
       @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).
@@ -112,9 +111,8 @@ public:
     }
 
     /** Create a new thread, and start it executing the specified function.
-      @param   obj            argument to task.
-      @param   method         function to be executed by this thread.
       @param   argument       pointer that is passed to the thread function as start argument. (default: NULL).
+      @param   task           argument to task.
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
       @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
       @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).
@@ -143,9 +141,8 @@ public:
     }
 
     /** Create a new thread, and start it executing the specified function.
-      @param   obj            argument to task.
-      @param   method         function to be executed by this thread.
       @param   argument       pointer that is passed to the thread function as start argument. (default: NULL).
+      @param   task           argument to task.
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
       @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
       @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).
