@@ -431,29 +431,6 @@ void serial_putc(serial_t *obj, int c)
     huart->Instance->DR = (uint32_t)(c & 0x1FF);
 }
 
-int serial_readable(serial_t *obj)
-{
-    struct serial_s *obj_s = SERIAL_S(obj);
-    UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-    /*  To avoid a target blocking case, let's check for
-     *  possible OVERRUN error and discard it
-     */
-    if(__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE)) {
-        __HAL_UART_CLEAR_OREFLAG(huart);
-    }
-    // Check if data is received
-    return (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) ? 1 : 0;
-}
-
-int serial_writable(serial_t *obj)
-{
-    struct serial_s *obj_s = SERIAL_S(obj);
-    UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-    
-    // Check if data is transmitted
-    return (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) ? 1 : 0;
-}
-
 void serial_clear(serial_t *obj)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
@@ -463,22 +440,12 @@ void serial_clear(serial_t *obj)
     huart->RxXferCount = 0;
 }
 
-void serial_pinout_tx(PinName tx)
-{
-    pinmap_pinout(tx, PinMap_UART_TX);
-}
-
 void serial_break_set(serial_t *obj)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
     
     HAL_LIN_SendBreak(huart);
-}
-
-void serial_break_clear(serial_t *obj)
-{
-    (void)obj;
 }
 
 #if DEVICE_SERIAL_ASYNCH
