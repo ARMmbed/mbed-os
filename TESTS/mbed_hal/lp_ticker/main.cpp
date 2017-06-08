@@ -26,6 +26,12 @@
 #include "us_ticker_api.h"
 #include "lp_ticker_api.h"
 
+#ifdef TARGET_MCU_K64F
+extern "C" {
+#include "fsl_rtc.h"
+}
+#endif
+
 using namespace utest::v1;
 
 static volatile bool complete;
@@ -158,6 +164,12 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
     GREENTEA_SETUP(20, "default_auto");
+    #ifdef TARGET_MCU_K64F
+    CLOCK_EnableClock(kCLOCK_Rtc0);
+    printf("TSR: 0x%x\r\n", RTC->TSR);
+    printf("Enabled interrupts: 0x%x\r\n", RTC->IER);
+    printf("Pending interrupts: 0x%x\r\n", RTC->SR & 0x7);
+    #endif
     lp_ticker_data->interface->init();
     return greentea_test_setup_handler(number_of_cases);
 }
