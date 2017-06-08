@@ -32,6 +32,8 @@ extern "C" {
 #endif
 
 #define ST_MD5_BLOCK_SIZE ((size_t)(64)) // HW handles 512 bits, ie 64 bytes
+#define ST_MD5_TIMEOUT    ((uint32_t) 3)
+
 /**
  * \brief          MD5 context structure
  * \note     HAL_HASH_MD5_Accumulate will accumulate 512 bits packets, unless it is the last call to the  function
