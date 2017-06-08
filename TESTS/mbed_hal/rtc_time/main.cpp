@@ -24,7 +24,7 @@
 using namespace utest::v1;
 
 /* 
- * regular is_leap_year, see rtc_api.c for the optimized version
+ * regular is_leap_year, see platform/mbed_mktime.c for the optimized version
  */
 bool is_leap_year(int year) {
     year = 1900 + year;
