@@ -434,7 +434,7 @@ void equeue_dispatch(equeue_t *q, int ms) {
         
         // in any case 'deadline' must be <= than 'ms'
         // Unrecognized bug on some platform (deadline == 511999)
-        if(ms >= o && deadline > ms) {
+        if(ms >= 0 && deadline > ms) {
             deadline = ms;
             if(ms == 0)
                 return;
