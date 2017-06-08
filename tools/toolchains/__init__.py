@@ -500,13 +500,13 @@ class mbedToolchain:
             # information about the library paths. Safe option: assume an update
             if not d or not exists(d):
                 return True
-            
+
             if not self.stat_cache.has_key(d):
                 self.stat_cache[d] = stat(d).st_mtime
 
             if self.stat_cache[d] >= target_mod_time:
                 return True
-        
+
         return False
 
     def is_ignored(self, file_path):
@@ -760,7 +760,7 @@ class mbedToolchain:
             string = " ".join(cmd_list)
             f.write(string)
         return link_file
- 
+
     # Generate response file for all objects when archiving.
     # ARM, GCC, IAR cross compatible
     def get_arch_file(self, objects):
