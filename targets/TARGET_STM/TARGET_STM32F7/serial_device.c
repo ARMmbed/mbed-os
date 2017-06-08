@@ -426,7 +426,12 @@ int serial_readable(serial_t *obj)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
-    
+    /*  To avoid a target blocking case, let's check for
+     *  possible OVERRUN error and discard it
+     */
+    if(__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE)) {
+        __HAL_UART_CLEAR_OREFLAG(huart);
+    }
     // Check if data is received
     return (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) ? 1 : 0;
 }
