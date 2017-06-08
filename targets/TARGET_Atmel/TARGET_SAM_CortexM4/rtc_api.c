@@ -82,7 +82,7 @@ void rtc_write(time_t t)
         rtc_init();
     }
     struct tm timeinfo;
-    if (st_rtc_localtime(t, &timeinfo) == false) {
+    if (_rtc_localtime(t, &timeinfo) == false) {
         return;
     }
     uint32_t ul_hour, ul_minute, ul_second;

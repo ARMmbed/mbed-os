@@ -305,7 +305,7 @@ static int rtc_dec16_to_hex(uint16_t dec_val, uint16_t offset, int *hex_val) {
 void rtc_write(time_t t) {
 
     struct tm timeinfo;
-    if (st_rtc_localtime(t, &timeinfo) == false) {
+    if (_rtc_localtime(t, &timeinfo) == false) {
         return;
     }
     volatile uint16_t dummy_read;
