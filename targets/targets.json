@@ -1067,7 +1067,7 @@
     },
     "NUCLEO_L031K6": {
         "inherits": ["Target"],
-        "core": "Cortex-M0",
+        "core": "Cortex-M0+",
         "extra_labels": ["STM", "STM32L0", "STM32L031K6"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "default_toolchain": "uARM",
