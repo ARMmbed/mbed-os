@@ -202,14 +202,13 @@ class GNUARMEclipse(Exporter):
             print 'Build configuration: {0}'.format(opts['name'])
 
             profile = profiles[id]
-            profile_toolchain = profile[self.TOOLCHAIN]
 
             # A small hack, do not bother with src_path again,
             # pass an empty string to avoid crashing.
             src_paths = ['']
             target_name = self.toolchain.target.name
             toolchain = prepare_toolchain(
-                src_paths, "", target_name, self.TOOLCHAIN, build_profile=profile_toolchain)
+                src_paths, "", target_name, self.TOOLCHAIN, build_profile=[profile])
 
             # Hack to fill in build_dir
             toolchain.build_dir = self.toolchain.build_dir
