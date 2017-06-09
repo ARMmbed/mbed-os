@@ -31,24 +31,24 @@
 *******************************************************************************
 * CMSIS-style functionality to support dynamic vectors
 *******************************************************************************/
+#include "cmsis_nvic.h"
 
-#ifndef MBED_CMSIS_NVIC_H
-#define MBED_CMSIS_NVIC_H
+#define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Location of vectors in RAM
+#define NVIC_FLASH_VECTOR_ADDRESS (0x00000000)  // Initial vector position in flash
 
-#include "cmsis.h"
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+   // int i;
+    // Space for dynamic vectors, initialised to allocate in R/W
+    static volatile uint32_t* vectors = (uint32_t*)NVIC_FLASH_VECTOR_ADDRESS;
 
-#define NVIC_NUM_VECTORS      (16 + 48)
-#define NVIC_USER_IRQ_OFFSET  16
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
+    // Set the vector
+    vectors[IRQn + 16] = vector;
 }
-#endif
 
-#endif
+uint32_t NVIC_GetVector(IRQn_Type IRQn) {
+    // We can always read vectors at 0x0, as the addresses are remapped
+    uint32_t *vectors = (uint32_t*)NVIC_FLASH_VECTOR_ADDRESS;
+
+    // Return the vector
+    return vectors[IRQn + 16];
+}

@@ -1,7 +1,7 @@
 /* mbed Microcontroller Library
  * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2011 ARM Limited. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
+ * 3. Neither the name of ARM Limited nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -27,29 +27,24 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
- */ 
+ */
+#include "cmsis_nvic.h"
 
-#ifndef MBED_CMSIS_NVIC_H
-#define MBED_CMSIS_NVIC_H
+#define NVIC_RAM_VECTOR_ADDRESS   (0x01000000)  // Location of vectors in RAM
+#define NVIC_FLASH_VECTOR_ADDRESS (0x0)         // Initial vector position in flash
 
-// STM32F051R8
-// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
-// MCU Peripherals: 32 vectors = 128 bytes from 0x40 to 0xBF
-// Total: 48 vectors = 192 bytes (0xC0) to be reserved in RAM
-#define NVIC_NUM_VECTORS      (16 + 32 )
-#define NVIC_USER_IRQ_OFFSET  16
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
+    // Space for dynamic vectors, initialised to allocate in R/W
+    static volatile uint32_t* vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
 
-#include "cmsis.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
+    // Set the vector
+    vectors[IRQn + 16] = vector;
 }
-#endif
 
-#endif
+uint32_t NVIC_GetVector(IRQn_Type IRQn) {
+    // We can always read vectors at 0x0, as the addresses are remapped
+    uint32_t *vectors = (uint32_t*)0;
+
+    // Return the vector
+    return vectors[IRQn + 16];
+}
