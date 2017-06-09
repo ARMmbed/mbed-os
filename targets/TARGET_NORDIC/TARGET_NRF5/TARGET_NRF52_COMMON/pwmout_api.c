@@ -69,7 +69,10 @@ static const nrf_drv_pwm_t m_pwm_driver[PWM_INSTANCE_COUNT] =
     NRF_DRV_PWM_INSTANCE(1),
 #endif
 #if PWM2_ENABLED
-    NRF_DRV_PWM_INSTANCE(2)
+    NRF_DRV_PWM_INSTANCE(2),
+#endif
+#if PWM3_ENABLED
+    NRF_DRV_PWM_INSTANCE(3)
 #endif
 };
 
@@ -96,6 +99,9 @@ static pwm_t m_pwm[PWM_INSTANCE_COUNT] =
     {.p_pwm_driver = NULL},
 #endif
 #if PWM2_ENABLED
+    {.p_pwm_driver = NULL},
+#endif
+#if PWM3_ENABLED
     {.p_pwm_driver = NULL}
 #endif
 };  /// Array of internal PWM instances.
@@ -114,6 +120,7 @@ static void internal_pwmout_exe(pwmout_t *obj, bool new_period, bool initializat
 void PWM0_IRQHandler(void);
 void PWM1_IRQHandler(void);
 void PWM2_IRQHandler(void);
+void PWM3_IRQHandler(void);
 
 static const peripheral_handler_desc_t pwm_handlers[PWM_INSTANCE_COUNT] =
 {
@@ -128,6 +135,10 @@ static const peripheral_handler_desc_t pwm_handlers[PWM_INSTANCE_COUNT] =
     {
         PWM2_IRQn,
         (uint32_t)PWM2_IRQHandler
+    },
+    {
+        PWM3_IRQn,
+        (uint32_t)PWM3_IRQHandler
     }
 };
  
