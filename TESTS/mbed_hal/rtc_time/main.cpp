@@ -65,13 +65,17 @@ void test_is_leap_year() {
 }
 
 struct tm make_time_info(int year, int month, int day, int hours, int minutes, int seconds) { 
-    struct tm timeinfo;
-    timeinfo.tm_year = year;
-    timeinfo.tm_mon  = month;
-    timeinfo.tm_mday = day;
-    timeinfo.tm_hour = hours;
-    timeinfo.tm_min  = minutes;
-    timeinfo.tm_sec  = seconds;
+    struct tm timeinfo = {
+            seconds,    // tm_sec
+            minutes,    // tm_min
+            hours,      // tm_hour
+            day,        // tm_mday
+            month,      // tm_mon
+            year,       // tm_year
+            0,          // tm_wday
+            0,          // tm_yday
+            0,          // tm_isdst
+    };
     return timeinfo;
 }
 
