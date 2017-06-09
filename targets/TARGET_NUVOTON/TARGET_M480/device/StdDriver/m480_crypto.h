@@ -315,7 +315,7 @@ void SHA_Start(uint32_t u32DMAMode);
 void SHA_SetDMATransfer(uint32_t u32SrcAddr, uint32_t u32TransCnt);
 void SHA_Read(uint32_t u32Digest[]);
 void ECC_DriverISR(void);
-int  ECC_IsPrivateKeyValid(E_ECC_CURVE ecc_curve,  char *private_k);
+int  ECC_IsPrivateKeyValid(E_ECC_CURVE ecc_curve,  char private_k[]);
 int32_t  ECC_GeneratePublicKey(E_ECC_CURVE ecc_curve, char *private_k, char public_k1[], char public_k2[]);
 int32_t  ECC_GenerateSecretZ(E_ECC_CURVE ecc_curve, char *private_k, char public_k1[], char public_k2[], char secret_z[]);
 int32_t  ECC_GenerateSignature(E_ECC_CURVE ecc_curve, char *message, char *d, char *k, char *R, char *S);

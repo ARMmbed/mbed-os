@@ -350,7 +350,7 @@ uint32_t USPI_GetIntFlag(USPI_T *uspi, uint32_t u32Mask)
     /* Check slave selection signal active interrupt flag */
 
     u32TmpFlag = uspi->PROTSTS & USPI_PROTSTS_SSACTIF_Msk;
-    if(((u32Mask & USPI_SSACT_INT_MASK)==USPI_PROTSTS_SSACTIF_Msk) && (u32TmpFlag == USPI_PROTSTS_SSACTIF_Msk)) {
+    if(((u32Mask & USPI_SSACT_INT_MASK)==USPI_SSACT_INT_MASK) && (u32TmpFlag == USPI_PROTSTS_SSACTIF_Msk)) {
         u32IntFlag |= USPI_SSACT_INT_MASK;
     } else {}
 
@@ -367,13 +367,13 @@ uint32_t USPI_GetIntFlag(USPI_T *uspi, uint32_t u32Mask)
     } else {}
 
     /* Check TX under run interrupt flag */
-    u32TmpFlag = uspi->PROTSTS & USPI_BUFSTS_TXUDRIF_Msk;
+    u32TmpFlag = uspi->BUFSTS & USPI_BUFSTS_TXUDRIF_Msk;
     if(((u32Mask & USPI_TXUDR_INT_MASK)==USPI_TXUDR_INT_MASK) && (u32TmpFlag == USPI_BUFSTS_TXUDRIF_Msk)) {
         u32IntFlag |= USPI_TXUDR_INT_MASK;
     } else {}
 
     /* Check RX overrun interrupt flag */
-    u32TmpFlag = uspi->PROTSTS & USPI_BUFSTS_RXOVIF_Msk;
+    u32TmpFlag = uspi->BUFSTS & USPI_BUFSTS_RXOVIF_Msk;
     if(((u32Mask & USPI_RXOV_INT_MASK)==USPI_RXOV_INT_MASK) && (u32TmpFlag == USPI_BUFSTS_RXOVIF_Msk)) {
         u32IntFlag |= USPI_RXOV_INT_MASK;
     } else {}
@@ -493,25 +493,25 @@ uint32_t USPI_GetStatus(USPI_T *uspi, uint32_t u32Mask)
     } else {}
 
     /* Check RX empty flag */
-    u32TmpFlag = uspi->PROTSTS & USPI_BUFSTS_RXEMPTY_Msk;
+    u32TmpFlag = uspi->BUFSTS & USPI_BUFSTS_RXEMPTY_Msk;
     if(((u32Mask & USPI_RX_EMPTY_MASK)==USPI_RX_EMPTY_MASK) && (u32TmpFlag == USPI_BUFSTS_RXEMPTY_Msk)) {
         u32Flag |= USPI_RX_EMPTY_MASK;
     } else {}
 
     /* Check RX full flag */
-    u32TmpFlag = uspi->PROTSTS & USPI_BUFSTS_RXFULL_Msk;
+    u32TmpFlag = uspi->BUFSTS & USPI_BUFSTS_RXFULL_Msk;
     if(((u32Mask & USPI_RX_FULL_MASK)==USPI_RX_FULL_MASK) && (u32TmpFlag == USPI_BUFSTS_RXFULL_Msk)) {
         u32Flag |= USPI_RX_FULL_MASK;
     } else {}
 
     /* Check TX empty flag */
-    u32TmpFlag = uspi->PROTSTS & USPI_BUFSTS_TXEMPTY_Msk;
+    u32TmpFlag = uspi->BUFSTS & USPI_BUFSTS_TXEMPTY_Msk;
     if(((u32Mask & USPI_TX_EMPTY_MASK)==USPI_TX_EMPTY_MASK) && (u32TmpFlag == USPI_BUFSTS_TXEMPTY_Msk)) {
         u32Flag |= USPI_TX_EMPTY_MASK;
     } else {}
 
     /* Check TX full flag */
-    u32TmpFlag = uspi->PROTSTS & USPI_BUFSTS_TXFULL_Msk;
+    u32TmpFlag = uspi->BUFSTS & USPI_BUFSTS_TXFULL_Msk;
     if(((u32Mask & USPI_TX_FULL_MASK)==USPI_TX_FULL_MASK) && (u32TmpFlag == USPI_BUFSTS_TXFULL_Msk)) {
         u32Flag |= USPI_TX_FULL_MASK;
     } else {}

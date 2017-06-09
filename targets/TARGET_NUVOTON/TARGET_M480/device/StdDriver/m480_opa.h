@@ -25,7 +25,7 @@ extern "C"
 /** @addtogroup OPA_EXPORTED_CONSTANTS OPA Exported Constants
   @{
 */
-
+#define OPA_CALIBRATION_CLK_1K                        (0UL)                     /*!< OPA calibration clock select 1 KHz  \hideinitializer */
 #define OPA_CALIBRATION_RV_1_2_AVDD                   (0UL)                     /*!< OPA calibration reference voltage select 1/2 AVDD  \hideinitializer */
 #define OPA_CALIBRATION_RV_H_L_VCM                    (1UL)                     /*!< OPA calibration reference voltage select from high vcm to low vcm \hideinitializer */
 
@@ -136,7 +136,8 @@ __STATIC_INLINE int32_t OPA_Calibration(OPA_T *opa, uint32_t u32OpaNum, uint32_t
   * @brief This function is used to configure and start OPA calibration
   * @param[in] opa The pointer of the specified OPA module
   * @param[in] u32OpaNum The OPA number. 0 for OPA0; 1 for OPA1; 2 for OPA2.
-  * @param[in] u32ClockSel This parameter is not used
+  * @param[in] u32ClockSel Select OPA calibration clock
+  *                 - \ref OPA_CALIBRATION_CLK_1K
   * @param[in] u32RefVol Select OPA reference voltage
   *                 - \ref OPA_CALIBRATION_RV_1_2_AVDD
   *                 - \ref OPA_CALIBRATION_RV_H_L_VCM
@@ -153,6 +154,7 @@ __STATIC_INLINE int32_t OPA_Calibration(OPA_T *opa,
     uint32_t u32CALResult;
     int32_t i32Ret = 0L;
 
+    (opa)->CALCTL = (((opa)->CALCTL) & ~(OPA_CALCTL_CALCLK0_Msk << (u32OpaNum << 1)));
     (opa)->CALCTL = (((opa)->CALCTL) & ~(OPA_CALCTL_CALRVS0_Msk << (u32OpaNum))) | (((u32RefVol) << OPA_CALCTL_CALRVS0_Pos) << (u32OpaNum));
     (opa)->CALCTL |= (OPA_CALCTL_CALTRG0_Msk << (u32OpaNum));
     while((opa)->CALCTL & (OPA_CALCTL_CALTRG0_Msk << (u32OpaNum))){}

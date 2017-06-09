@@ -656,13 +656,11 @@ uint32_t CAN_SetBaudRate(CAN_T *tCAN, uint32_t u32BaudRate)
 
     SystemCoreClockUpdate();
     if(tCAN == CAN0) {
-        if(CLK->CLKSEL0 & ((uint32_t)1 << 6)) {
-            u64PCLK_DIV = (uint64_t)2;
-        }
+        u64PCLK_DIV = (uint64_t)(CLK->PCLKDIV & CLK_PCLKDIV_APB0DIV_Msk);
+        u64PCLK_DIV = (uint64_t)(1 << u64PCLK_DIV);
     } else if(tCAN == CAN1) {
-        if(CLK->CLKSEL0 & ((uint32_t)1 << 7)) {
-            u64PCLK_DIV = (uint64_t)2;
-        }
+        u64PCLK_DIV = (uint64_t)((CLK->PCLKDIV & CLK_PCLKDIV_APB1DIV_Msk) >> CLK_PCLKDIV_APB1DIV_Pos);
+        u64PCLK_DIV = (uint64_t)(1 << u64PCLK_DIV);
     }
 
     clock_freq = SystemCoreClock / u64PCLK_DIV;

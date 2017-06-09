@@ -85,8 +85,8 @@ void SystemInit (void)
     // NOTE: SPIM must keep enabled to run CCM mode.
     CLK_EnableModuleClock(SPIM_MODULE);
     SYS_ResetModule(SPIM_RST);
-    _SPIM_DISABLE_CACHE();
-    _SPIM_ENABLE_CCM();
-    while (! _SPIM_IS_CCM_EN());
+    SPIM_DISABLE_CACHE();
+    SPIM_ENABLE_CCM();
+    while (! SPIM_IS_CCM_EN());
 }
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

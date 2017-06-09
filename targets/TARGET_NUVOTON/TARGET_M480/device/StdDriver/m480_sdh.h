@@ -95,8 +95,8 @@ extern SDH_INFO_T SD0, SD1;
  *
  *  @param[in]    sdh    Select SDH0 or SDH1.
  *  @param[in]    u32IntMask    Interrupt type mask:
- *                           \ref SDH_INTEN_BLKDIEN_Msk / \ref SDH_INTEN_CRCIEN_Msk / \ref SDH_INTEN_CDIEN0_Msk / \ref SDH_INTEN_CDIEN1_Msk /
- *                           \ref SDH_INTEN_CDSRC0_Msk / \ref SDH_INTEN_CDSRC1_Msk / \ref SDH_INTEN_RTOIEN_Msk / \ref SDH_INTEN_DITOIEN_Msk /
+ *                           \ref SDH_INTEN_BLKDIEN_Msk / \ref SDH_INTEN_CRCIEN_Msk / \ref SDH_INTEN_CDIEN_Msk /
+ *                           \ref SDH_INTEN_CDSRC_Msk \ref SDH_INTEN_RTOIEN_Msk / \ref SDH_INTEN_DITOIEN_Msk /
  *                           \ref SDH_INTEN_WKIEN_Msk
  *
  *  @return   None.
@@ -109,9 +109,8 @@ extern SDH_INFO_T SD0, SD1;
  *
  *  @param[in]    sdh    Select SDH0 or SDH1.
  *  @param[in]    u32IntMask    Interrupt type mask:
- *                           \ref SDH_INTEN_BLKDIEN_Msk / \ref SDH_INTEN_CRCIEN_Msk / \ref SDH_INTEN_CDIEN0_Msk / \ref SDH_INTEN_CDIEN1_Msk /
- *                           \ref SDH_INTEN_RTOIEN_Msk / \ref SDH_INTEN_DITOIEN_Msk / \ref SDH_INTEN_WKIEN_Msk / \ref SDH_INTEN_CDSRC0_Msk /
- *                           \ref SDH_INTEN_CDSRC1_Msk
+ *                           \ref SDH_INTEN_BLKDIEN_Msk / \ref SDH_INTEN_CRCIEN_Msk / \ref SDH_INTEN_CDIEN_Msk /
+ *                           \ref SDH_INTEN_RTOIEN_Msk / \ref SDH_INTEN_DITOIEN_Msk / \ref SDH_INTEN_WKIEN_Msk / \ref SDH_INTEN_CDSRC_Msk /
  *
  *  @return   None.
  * \hideinitializer
@@ -125,8 +124,8 @@ extern SDH_INFO_T SD0, SD1;
  *  @param[in]    u32IntMask    Interrupt type mask:
  *                           \ref SDH_INTSTS_BLKDIF_Msk / \ref SDH_INTSTS_CRCIF_Msk / \ref SDH_INTSTS_CRC7_Msk /
  *                           \ref SDH_INTSTS_CRC16_Msk / \ref SDH_INTSTS_CRCSTS_Msk / \ref SDH_INTSTS_DAT0STS_Msk /
- *                           \ref SDH_INTSTS_CDIF0_Msk / \ref SDH_INTSTS_CDIF1_Msk / \ref SDH_INTSTS_RTOIF_Msk /
- *                           \ref SDH_INTSTS_DITOIF_Msk / \ref SDH_INTSTS_CDSTS0_Msk / \ref SDH_INTSTS_CDSTS1_Msk /
+ *                           \ref SDH_INTSTS_CDIF_Msk \ref SDH_INTSTS_RTOIF_Msk /
+ *                           \ref SDH_INTSTS_DITOIF_Msk / \ref SDH_INTSTS_CDSTS_Msk / 
  *                           \ref SDH_INTSTS_DAT1STS_Msk
  *
  *
@@ -142,8 +141,8 @@ extern SDH_INFO_T SD0, SD1;
  *
  *  @param[in]    sdh    Select SDH0 or SDH1.
  *  @param[in]    u32IntMask    Interrupt type mask:
- *                           \ref SDH_INTSTS_BLKDIF_Msk / \ref SDH_INTSTS_CRCIF_Msk / \ref SDH_INTSTS_CDIF0_Msk /
- *                           \ref SDH_INTSTS_CDIF1_Msk / \ref SDH_INTSTS_RTOIF_Msk / \ref SDH_INTSTS_DITOIF_Msk
+ *                           \ref SDH_INTSTS_BLKDIF_Msk / \ref SDH_INTSTS_CRCIF_Msk / \ref SDH_INTSTS_CDIF_Msk /
+ *                           \ref SDH_INTSTS_RTOIF_Msk / \ref SDH_INTSTS_DITOIF_Msk
  *
  *
  *  @return   None.

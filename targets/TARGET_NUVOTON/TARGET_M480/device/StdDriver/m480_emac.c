@@ -25,11 +25,6 @@
 /** @addtogroup M480_EMAC_EXPORTED_CONSTANTS EMAC Exported Constants
   @{
 */
-/* Un-comment to print EMAC debug message */
-#define EMAC_DBG
-#ifndef EMAC_DBG
-#define printf(...)
-#endif
 
 /* PHY Register Description */
 #define PHY_CNTL_REG    0x00UL        /*!<  PHY control register address */
@@ -389,8 +384,7 @@ void EMAC_Open(uint8_t *pu8MacAddr)
 
     /* Configure the MAC control register. */
     EMAC->CTL = EMAC_CTL_STRIPCRC_Msk |
-                EMAC_CTL_RMIIEN_Msk |
-                EMAC_CTL_RMIIRXCTL_Msk;
+                EMAC_CTL_RMIIEN_Msk;
 
     /* Accept packets for us and all broadcast and multicast packets */
     EMAC->CAMCTL =  EMAC_CAMCTL_CMPEN_Msk |
@@ -409,6 +403,7 @@ void EMAC_Open(uint8_t *pu8MacAddr)
 void EMAC_Close(void)
 {
     EMAC->CTL |= EMAC_CTL_RST_Msk;
+    while(EMAC->CTL & EMAC_CTL_RST_Msk) {}
 }
 
 /**
@@ -479,9 +474,7 @@ uint32_t EMAC_RecvPkt(uint8_t *pu8Data, uint32_t *pu32Size)
 
     if (reg & EMAC_INTSTS_RXBEIF_Msk) {
         /* Bus error occurred, this is usually a bad sign about software bug and will occur again... */
-        while(1) {
-            ;
-        }
+        while(1) {}
     } else {
 
         /* Get Rx Frame Descriptor */
@@ -500,18 +493,10 @@ uint32_t EMAC_RecvPkt(uint8_t *pu8Data, uint32_t *pu32Size)
                 u32Count = 1UL;
             } else {
                 /* Save Error status if necessary */
-                if (status & EMAC_RXFD_RP) {
-                    ;
-                }
-                if (status & EMAC_RXFD_ALIE) {
-                    ;
-                }
-                if (status & EMAC_RXFD_PTLE) {
-                    ;
-                }
-                if (status & EMAC_RXFD_CRCE) {
-                    ;
-                }
+                if (status & EMAC_RXFD_RP) {}
+                if (status & EMAC_RXFD_ALIE) {}
+                if (status & EMAC_RXFD_PTLE) {}
+                if (status & EMAC_RXFD_CRCE) {}
             }
         }
     }
@@ -543,9 +528,7 @@ uint32_t EMAC_RecvPktTS(uint8_t *pu8Data, uint32_t *pu32Size, uint32_t *pu32Sec,
 
     if (reg & EMAC_INTSTS_RXBEIF_Msk) {
         /* Bus error occurred, this is usually a bad sign about software bug and will occur again... */
-        while(1) {
-            ;
-        }
+        while(1) {}
     } else {
 
         /* Get Rx Frame Descriptor */
@@ -569,18 +552,10 @@ uint32_t EMAC_RecvPktTS(uint8_t *pu8Data, uint32_t *pu32Size, uint32_t *pu32Sec,
                     u32Count = 1UL;
                 } else {
                     /* Save Error status if necessary */
-                    if (status & EMAC_RXFD_RP) {
-                        ;
-                    }
-                    if (status & EMAC_RXFD_ALIE) {
-                        ;
-                    }
-                    if (status & EMAC_RXFD_PTLE) {
-                        ;
-                    }
-                    if (status & EMAC_RXFD_CRCE) {
-                        ;
-                    }
+                    if (status & EMAC_RXFD_RP) {}
+                    if (status & EMAC_RXFD_ALIE) {}
+                    if (status & EMAC_RXFD_PTLE) {}
+                    if (status & EMAC_RXFD_CRCE) {}
                 }
             }
         }
@@ -605,14 +580,14 @@ void EMAC_RecvPktDone(void)
     desc->u32Data = desc->u32Backup1;
     desc->u32Next = desc->u32Backup2;
 
-    /* Change ownership to DMA for next use */
-    desc->u32Status1 |= EMAC_DESC_OWN_EMAC;
-
     /* Get Next Frame Descriptor pointer to process */
     desc = (EMAC_DESCRIPTOR_T *)desc->u32Next;
 
     /* Save last processed Rx descriptor */
     u32CurrentRxDesc = (uint32_t)desc;
+
+    /* Change ownership to DMA for next use */
+    desc->u32Status1 |= EMAC_DESC_OWN_EMAC;
 
     EMAC_TRIGGER_RX();
 }
@@ -679,9 +654,7 @@ uint32_t EMAC_SendPktDone(void)
 
     if (reg & EMAC_INTSTS_TXBEIF_Msk) {
         /* Bus error occurred, this is usually a bad sign about software bug and will occur again... */
-        while(1) {
-            ;
-        }
+        while(1) {}
     } else {
         /* Process the descriptor(s). */
         last_tx_desc = EMAC->CTXDSA ;
@@ -698,30 +671,14 @@ uint32_t EMAC_SendPktDone(void)
                 u32Count++;
             } else {
                 /* Do nothing here on error. */
-                if (status & EMAC_TXFD_TXABT) {
-                    ;
-                }
-                if (status & EMAC_TXFD_DEF) {
-                    ;
-                }
-                if (status & EMAC_TXFD_PAU) {
-                    ;
-                }
-                if (status & EMAC_TXFD_EXDEF) {
-                    ;
-                }
-                if (status & EMAC_TXFD_NCS) {
-                    ;
-                }
-                if (status & EMAC_TXFD_SQE) {
-                    ;
-                }
-                if (status & EMAC_TXFD_LC) {
-                    ;
-                }
-                if (status & EMAC_TXFD_TXHA) {
-                    ;
-                }
+                if (status & EMAC_TXFD_TXABT) {}
+                if (status & EMAC_TXFD_DEF) {}
+                if (status & EMAC_TXFD_PAU) {}
+                if (status & EMAC_TXFD_EXDEF) {}
+                if (status & EMAC_TXFD_NCS) {}
+                if (status & EMAC_TXFD_SQE) {}
+                if (status & EMAC_TXFD_LC) {}
+                if (status & EMAC_TXFD_TXHA) {}
             }
 
             /* restore descriptor link list and data pointer they will be overwrite if time stamp enabled */
@@ -760,9 +717,7 @@ uint32_t EMAC_SendPktDoneTS(uint32_t *pu32Sec, uint32_t *pu32Nsec)
 
     if (reg & EMAC_INTSTS_TXBEIF_Msk) {
         /* Bus error occurred, this is usually a bad sign about software bug and will occur again... */
-        while(1) {
-            ;
-        }
+        while(1) {}
     } else {
         /* Process the descriptor.
            Get our first descriptor to process */
@@ -778,30 +733,14 @@ uint32_t EMAC_SendPktDoneTS(uint32_t *pu32Sec, uint32_t *pu32Nsec)
                 *pu32Nsec = EMAC_Subsec2Nsec(desc->u32Data); /* Sub nano second store in DATA field */
             } else {
                 /* Do nothing here on error. */
-                if (status & EMAC_TXFD_TXABT) {
-                    ;
-                }
-                if (status & EMAC_TXFD_DEF) {
-                    ;
-                }
-                if (status & EMAC_TXFD_PAU) {
-                    ;
-                }
-                if (status & EMAC_TXFD_EXDEF) {
-                    ;
-                }
-                if (status & EMAC_TXFD_NCS) {
-                    ;
-                }
-                if (status & EMAC_TXFD_SQE) {
-                    ;
-                }
-                if (status & EMAC_TXFD_LC) {
-                    ;
-                }
-                if (status & EMAC_TXFD_TXHA) {
-                    ;
-                }
+                if (status & EMAC_TXFD_TXABT) {}
+                if (status & EMAC_TXFD_DEF) {}
+                if (status & EMAC_TXFD_PAU) {}
+                if (status & EMAC_TXFD_EXDEF) {}
+                if (status & EMAC_TXFD_NCS) {}
+                if (status & EMAC_TXFD_SQE) {}
+                if (status & EMAC_TXFD_LC) {}
+                if (status & EMAC_TXFD_TXHA) {}
             }
 
             /* restore descriptor link list and data pointer they will be overwrite if time stamp enabled */

@@ -46,8 +46,8 @@ extern const S_USBD_INFO_T gsInfo;
 /** @addtogroup M480_USBD_EXPORTED_CONSTANTS USBD Exported Constants
   @{
 */
-#define USBD_BUF_BASE   (USBD_BASE+0x100ul)  /*!< USBD buffer base address */
-#define USBD_MAX_EP     12ul /*!< Total EP number */
+#define USBD_BUF_BASE   (USBD_BASE+0x100ul)  /*!< USBD buffer base address \hideinitializer */
+#define USBD_MAX_EP     12ul /*!< Total EP number \hideinitializer */
 
 #define EP0     0ul       /*!< Endpoint 0 \hideinitializer */
 #define EP1     1ul       /*!< Endpoint 1 \hideinitializer */

@@ -618,7 +618,7 @@ typedef struct {
      * |        |          |This bit is used to control HSUSB PHY at reset state or active state.
      * |        |          |0 = HSUSB PHY at reset state.
      * |        |          |1 = HSUSB PHY at active state.
-     * |        |          |Note: After set HSUSBEN (SYS_USBPHY[24]) to enable HSUSB PHY, user should keep HSUSB PHY at reset mode at lease 10uS before changing to active mode.		 
+     * |        |          |Note: After set HSUSBEN (SYS_USBPHY[24]) to enable HSUSB PHY, user should keep HSUSB PHY at reset mode at lease 10uS before changing to active mode.
      * @var SYS_T::GPA_MFPL
      * Offset: 0x30  GPIOA Low Byte Multiple Function Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -2151,13 +2151,12 @@ typedef struct {
      * |        |          |01 = Set core voltage to 1.2V.
      * |        |          |10 = Set core voltage to 0.9V.
      * |        |          |11 = Reserved.
-     * |[21:16] |CVSSTEP   |Core Voltage Scaling Step(Write Protect)
-     * |        |          |This bit filed set voltage step when core voltage is changing. The unit is 10mV.
-     * |        |          |Core voltage scaling voltage step = (CVSSTEP + 1) * 10mV.
-     * |[31:24] |CVSPRD    |Core Voltage Scaling Period(Write Protect)
-     * |        |          |This bit filed sets period between voltage steps when core voltage is changing. The unit is us.
-     * |        |          |If CVSPRD = 0 , the period between two core voltage steps is 1us.
-     * |        |          |Core voltage scaling period = (CVSPRD + 1) * 1us.
+     * |[21:16] |LVSSTEP   |LDO Voltage Scaling Step(Write Protect)
+     * |        |          |The LVSSTEP value is LDO voltage rising step.
+     * |        |          |Core voltage scaling voltage step = (LVSSTEP + 1) * 10mV.
+     * |[31:24] |LVSPRD    |LDO Voltage Scaling Period(Write Protect)
+     * |        |          |The LVSPRD value is the period of each LDO voltage rising step.
+     * |        |          |LDO voltage scaling period = (LVSPRD + 1) * 1us.
      * @var SYS_T::PLSTS
      * Offset: 0x1FC  Power Level Status Register
      * ---------------------------------------------------------------------------------------------------
@@ -2168,12 +2167,10 @@ typedef struct {
      * |        |          |After core voltage change is completed, this bit will be cleared automatically by hardware.
      * |        |          |0 = Core voltage change is completed.
      * |        |          |1 = Core voltage change is ongoing.
-     * |[9:8]   |CURPL     |Current Power Level (Read Only)
-     * |        |          |This bit field reflect the current core voltage level.
-     * |        |          |00 = Current core voltage is 1.26V.
-     * |        |          |01 = Current core voltage is 1.2V.
-     * |        |          |10 = Current core voltage is 0.9V.
-     * |        |          |11 = Reserved.
+     * |[9:8]   |PLSTATUS  |Power Level Status (Read Only)
+     * |        |          |00 = Power level is PL0.
+     * |        |          |01 = Power level is PL1.
+     * |        |          |Others = Reserved.
      * @var SYS_T::AHBMCTL
      * Offset: 0x400  AHB Bus Matrix Priority Control Register
      * ---------------------------------------------------------------------------------------------------
@@ -3406,17 +3403,17 @@ typedef struct {
 #define SYS_PLCTL_PLSEL_Pos              (0)                                               /*!< SYS_T::PLCTL: PLSEL Position           */
 #define SYS_PLCTL_PLSEL_Msk              (0x3ul << SYS_PLCTL_PLSEL_Pos)                    /*!< SYS_T::PLCTL: PLSEL Mask               */
 
-#define SYS_PLCTL_CVSSTEP_Pos            (16)                                              /*!< SYS_T::PLCTL: CVSSTEP Position         */
-#define SYS_PLCTL_CVSSTEP_Msk            (0x3ful << SYS_PLCTL_CVSSTEP_Pos)                 /*!< SYS_T::PLCTL: CVSSTEP Mask             */
+#define SYS_PLCTL_LVSSTEP_Pos            (16)                                              /*!< SYS_T::PLCTL: LVSSTEP Position         */
+#define SYS_PLCTL_LVSSTEP_Msk            (0x3ful << SYS_PLCTL_LVSSTEP_Pos)                 /*!< SYS_T::PLCTL: LVSSTEP Mask             */
 
-#define SYS_PLCTL_CVSPRD_Pos             (24)                                              /*!< SYS_T::PLCTL: CVSPRD Position          */
-#define SYS_PLCTL_CVSPRD_Msk             (0xfful << SYS_PLCTL_CVSPRD_Pos)                  /*!< SYS_T::PLCTL: CVSPRD Mask              */
+#define SYS_PLCTL_LVSPRD_Pos             (24)                                              /*!< SYS_T::PLCTL: LVSPRD Position          */
+#define SYS_PLCTL_LVSPRD_Msk             (0xfful << SYS_PLCTL_LVSPRD_Pos)                  /*!< SYS_T::PLCTL: LVSPRD Mask              */
 
 #define SYS_PLSTS_PLCBUSY_Pos            (0)                                               /*!< SYS_T::PLSTS: PLCBUSY Position         */
 #define SYS_PLSTS_PLCBUSY_Msk            (0x1ul << SYS_PLSTS_PLCBUSY_Pos)                  /*!< SYS_T::PLSTS: PLCBUSY Mask             */
 
-#define SYS_PLSTS_CURPL_Pos              (8)                                               /*!< SYS_T::PLSTS: CURPL Position           */
-#define SYS_PLSTS_CURPL_Msk              (0x3ul << SYS_PLSTS_CURPL_Pos)                    /*!< SYS_T::PLSTS: CURPL Mask               */
+#define SYS_PLSTS_PLSTATUS_Pos           (8)                                               /*!< SYS_T::PLSTS: PLSTATUS Position        */
+#define SYS_PLSTS_PLSTATUS_Msk           (0x3ul << SYS_PLSTS_PLSTATUS_Pos)                 /*!< SYS_T::PLSTS: PLSTATUS Mask            */
 
 #define SYS_AHBMCTL_INTACTEN_Pos         (0)                                               /*!< SYS_T::AHBMCTL: INTACTEN Position      */
 #define SYS_AHBMCTL_INTACTEN_Msk         (0x1ul << SYS_AHBMCTL_INTACTEN_Pos)               /*!< SYS_T::AHBMCTL: INTACTEN Mask          */
@@ -32564,12 +32561,12 @@ typedef struct {
      * |Bits    |Field     |Descriptions
      * | :----: | :----:   | :---- |
      * |[31:0]  |SADDR     |ECC DMA Source Address
-     * |        |          |The ECC accelerator supports DMA function to transfer the DATA and PARAMETER between 
-     * |        |          |SRAM memory space and ECC accelerator. The SADDR keeps the source address of the data 
-     * |        |          |buffer where the source text is stored. Based on the source address, the ECC accelerator 
-     * |        |          |can read the DATA and PARAMETER from SRAM memory space and do ECC operation. The start 
-     * |        |          |of source address should be located at word boundary. That is, bit 1 and 0 of SADDR are 
-     * |        |          |ignored. SADDR can be read and written. In DMA mode, software must update the CRPT_ECC_SADDR 
+     * |        |          |The ECC accelerator supports DMA function to transfer the DATA and PARAMETER between
+     * |        |          |SRAM memory space and ECC accelerator. The SADDR keeps the source address of the data
+     * |        |          |buffer where the source text is stored. Based on the source address, the ECC accelerator
+     * |        |          |can read the DATA and PARAMETER from SRAM memory space and do ECC operation. The start
+     * |        |          |of source address should be located at word boundary. That is, bit 1 and 0 of SADDR are
+     * |        |          |ignored. SADDR can be read and written. In DMA mode, software must update the CRPT_ECC_SADDR
      * |        |          |before triggering START.
      * @var CRPT_T::ECC_DADDR
      * Offset: 0xA4C  ECC DMA Destination Address Register
@@ -35522,6 +35519,15 @@ typedef struct {
 #define OPA_CALCTL_CALTRG2_Pos           (2)                                               /*!< OPA_T::CALCTL: CALTRG2 Position        */
 #define OPA_CALCTL_CALTRG2_Msk           (0x1ul << OPA_CALCTL_CALTRG2_Pos)                 /*!< OPA_T::CALCTL: CALTRG2 Mask            */
 
+#define OPA_CALCTL_CALCLK0_Pos           (4)                                               /*!< OPA_T::CALCTL: CALCLK0 Position        */
+#define OPA_CALCTL_CALCLK0_Msk           (0x3ul << OPA_CALCTL_CALCLK0_Pos)                 /*!< OPA_T::CALCTL: CALCLK0 Mask            */
+
+#define OPA_CALCTL_CALCLK1_Pos           (6)                                               /*!< OPA_T::CALCTL: CALCLK1 Position        */
+#define OPA_CALCTL_CALCLK1_Msk           (0x3ul << OPA_CALCTL_CALCLK1_Pos)                 /*!< OPA_T::CALCTL: CALCLK1 Mask            */
+
+#define OPA_CALCTL_CALCLK2_Pos           (8)                                               /*!< OPA_T::CALCTL: CALCLK2 Position        */
+#define OPA_CALCTL_CALCLK2_Msk           (0x3ul << OPA_CALCTL_CALCLK2_Pos)                 /*!< OPA_T::CALCTL: CALCLK2 Mask            */
+
 #define OPA_CALCTL_CALRVS0_Pos           (16)                                              /*!< OPA_T::CALCTL: CALRVS0 Position        */
 #define OPA_CALCTL_CALRVS0_Msk           (0x1ul << OPA_CALCTL_CALRVS0_Pos)                 /*!< OPA_T::CALCTL: CALRVS0 Mask            */
 
@@ -35637,7 +35643,7 @@ typedef struct {
 #define ACMP_BASE             (APBPERIPH_BASE + 0x05000UL)
 #define USBD_BASE             (APBPERIPH_BASE + 0x80000UL)
 #define OTG_BASE              (APBPERIPH_BASE + 0x0D000UL)
-#define HSOTG_BASE            (APBPERIPH_BASE + 0x0D000UL)
+#define HSOTG_BASE            (APBPERIPH_BASE + 0x0F000UL)
 #define TIMER2_BASE           (APBPERIPH_BASE + 0x11000UL)
 #define TIMER3_BASE           (APBPERIPH_BASE + 0x11100UL)
 #define EPWM1_BASE            (APBPERIPH_BASE + 0x19000UL)
@@ -35996,6 +36002,8 @@ typedef volatile unsigned long  vu32;       ///< Define 32-bit unsigned volatile
 #include "m480_sdh.h"
 #include "m480_usbd.h"
 #include "m480_hsusbd.h"
+#include "m480_otg.h"
+#include "m480_hsotg.h"
 
 
 #ifdef __cplusplus

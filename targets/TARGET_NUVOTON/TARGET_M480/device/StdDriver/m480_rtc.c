@@ -344,6 +344,7 @@ void RTC_SetDateAndTime(S_RTC_TIME_DATA_T *sPt)
         }
 
         /* Set Day of the Week */
+        RTC_WaitAccessEnable();
         RTC->WEEKDAY = sPt->u32DayOfWeek;
 
         /*-----------------------------------------------------------------------------------------------------*/
@@ -368,6 +369,7 @@ void RTC_SetDateAndTime(S_RTC_TIME_DATA_T *sPt)
         /*-----------------------------------------------------------------------------------------------------*/
         RTC_WaitAccessEnable();
         RTC->CAL  = (uint32_t)u32RegCAL;
+        RTC_WaitAccessEnable();
         RTC->TIME = (uint32_t)u32RegTIME;
     }
 }
@@ -415,9 +417,6 @@ void RTC_SetAlarmDateAndTime(S_RTC_TIME_DATA_T *sPt)
             RTC->CLKFMT |= RTC_CLKFMT_24HEN_Msk;
         }
 
-        /* Set Day of the Week */
-        RTC->WEEKDAY = sPt->u32DayOfWeek;
-
         /*-----------------------------------------------------------------------------------------------------*/
         /* Set RTC Alarm Date and Time                                                                         */
         /*-----------------------------------------------------------------------------------------------------*/
@@ -437,6 +436,7 @@ void RTC_SetAlarmDateAndTime(S_RTC_TIME_DATA_T *sPt)
 
         RTC_WaitAccessEnable();
         RTC->CALM = (uint32_t)u32RegCALM;
+        RTC_WaitAccessEnable();
         RTC->TALM = (uint32_t)u32RegTALM;
     }
 }
@@ -466,12 +466,12 @@ void RTC_SetDate(uint32_t u32Year, uint32_t u32Month, uint32_t u32Day, uint32_t 
     u32RegCAL |= ((u32Day   / 10ul) << 4);
     u32RegCAL |= (u32Day   % 10ul);
 
-    RTC_WaitAccessEnable();
-
     /* Set Day of the Week */
+    RTC_WaitAccessEnable();
     RTC->WEEKDAY = u32DayOfWeek & RTC_WEEKDAY_WEEKDAY_Msk;
 
     /* Set RTC Calender Loading */
+    RTC_WaitAccessEnable();
     RTC->CAL = (uint32_t)u32RegCAL;
 }
 
@@ -514,6 +514,7 @@ void RTC_SetTime(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, uint3
         RTC->CLKFMT |= RTC_CLKFMT_24HEN_Msk;
     }
 
+    RTC_WaitAccessEnable();
     RTC->TIME = (uint32_t)u32RegTIME;
 }
 
@@ -585,6 +586,7 @@ void RTC_SetAlarmTime(uint32_t u32Hour, uint32_t u32Minute, uint32_t u32Second, 
     }
 
     /* Set RTC Alarm Time */
+    RTC_WaitAccessEnable();
     RTC->TALM = (uint32_t)u32RegTALM;
 }
 
@@ -652,6 +654,7 @@ void RTC_SetTickPeriod(uint32_t u32TickSelection)
   */
 void RTC_EnableInt(uint32_t u32IntFlagMask)
 {
+    RTC_WaitAccessEnable();
     RTC->INTEN |= u32IntFlagMask;
 }
 
@@ -674,7 +677,9 @@ void RTC_EnableInt(uint32_t u32IntFlagMask)
   */
 void RTC_DisableInt(uint32_t u32IntFlagMask)
 {
+    RTC_WaitAccessEnable();
     RTC->INTEN  &= ~u32IntFlagMask;
+    RTC_WaitAccessEnable();
     RTC->INTSTS = u32IntFlagMask;
 }
 

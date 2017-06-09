@@ -388,10 +388,14 @@ void HSUSBD_StandardRequest(void)
             break;
         }
         case SET_FEATURE: {
-            if ((gUsbCmd.wValue & 0x3ul) == 2ul) {  /* TEST_MODE*/
+            if ((gUsbCmd.wValue & 0x3ul) == 2ul) {  /* TEST_MODE */
                 g_hsusbd_EnableTestMode = (uint8_t)1ul;
                 g_hsusbd_TestSelector = (uint8_t)(gUsbCmd.wIndex >> 8);
             }
+            if ((gUsbCmd.wValue & 0x3ul) == 3ul) {  /* HNP ebable */
+                HSOTG->CTL |= (HSOTG_CTL_HNPREQEN_Msk | HSOTG_CTL_BUSREQ_Msk);
+            }
+
             /* Status stage */
             HSUSBD_CLR_CEP_INT_FLAG(HSUSBD_CEPINTSTS_STSDONEIF_Msk);
             HSUSBD_SET_CEP_STATE(HSUSBD_CEPCTL_NAKCLR);

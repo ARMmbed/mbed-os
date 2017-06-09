@@ -516,7 +516,7 @@ __STATIC_INLINE uint32_t CLK_GetPLLClockFreq(void)
 
     u32PllReg = CLK->PLLCTL;
 
-    if((u32PllReg & (CLK_PLLCTL_PD_Msk | CLK_PLLCTL_OE_Msk)) == (CLK_PLLCTL_PD_Msk | CLK_PLLCTL_OE_Msk)) {
+    if(u32PllReg & (CLK_PLLCTL_PD_Msk | CLK_PLLCTL_OE_Msk)) {		
         u32PllFreq = 0UL;           /* PLL is in power down mode or fix low */
     } else if((u32PllReg & CLK_PLLCTL_BP_Msk) == CLK_PLLCTL_BP_Msk) {
         if((u32PllReg & CLK_PLLCTL_PLLSRC_HIRC) == CLK_PLLCTL_PLLSRC_HIRC) {

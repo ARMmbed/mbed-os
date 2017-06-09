@@ -270,9 +270,9 @@ typedef struct {
   */
 #define RTC_WRITE_SPARE_REGISTER(u32RegNum, u32RegValue)    (RTC->SPR[(u32RegNum)] = (u32RegValue))
 
-/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */    
-static __INLINE void RTC_WaitAccessEnable(void);    
-    
+/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */
+static __INLINE void RTC_WaitAccessEnable(void);
+
 /**
   * @brief      Wait RTC Access Enable
   *
