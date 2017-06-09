@@ -88,7 +88,7 @@
     },
     "OC_MBUINO": {
         "inherits": ["LPC11U24"],
-        "macros": ["TARGET_LPC11U24"],
+        "macros": ["TARGET_LPC11U24", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "extra_labels": ["NXP", "LPC11UXX"],
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2"]
