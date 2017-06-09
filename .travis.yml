@@ -2,18 +2,17 @@ python:
   - "2.7"
 
 script:
-  - mkdir BUILD && doxygen doxyfile_options
+  - mkdir BUILD
 # Assert that the Doxygen build produced no warnings.
 # The strange command below asserts that the Doxygen command had an
 # output of zero length
   - |
-    [ -z "`doxygen doxyfile_options 2>&1`" ]
-  - find -name "*.a" -and -not -name "lib*.a"
+    doxygen doxyfile_options 2>&1 | tee BUILD/doxygen.out && [ ! -s BUILD/doxygen.out ]
 # Assert that all binary libraries are named correctly
 # The strange command below asserts that there are exactly 0 libraries that do
 # not start with lib
   - |
-    [ -z '`find -name "*.a" -and -not -name "lib*.a"`' ]
+    find -name "*.a" -and -not -name "lib*" | tee BUILD/badlibs && [ ! -s BUILD/badlibs ]
   - make -C events/equeue test clean
   - PYTHONPATH=. python tools/test/config_test/config_test.py
   - PYTHONPATH=. python tools/test/build_api/build_api_test.py
