@@ -3,9 +3,15 @@ python:
 
 script:
   - mkdir BUILD && doxygen doxyfile_options
+# Assert that the Doxygen build produced no warnings.
+# The strange command below asserts that the Doxygen command had an
+# output of zero length
   - |
     [ -z "`doxygen doxyfile_options 2>&1`" ]
   - find -name "*.a" -and -not -name "lib*.a"
+# Assert that all binary libraries are named correctly
+# The strange command below asserts that there are exactly 0 libraries that do
+# not start with lib
   - |
     [ -z '`find -name "*.a" -and -not -name "lib*.a"`' ]
   - make -C events/equeue test clean
