@@ -33,6 +33,7 @@ MBED_TLS_RELEASE ?= mbedtls-2.5.0
 TARGET_PREFIX:=../
 TARGET_SRC:=$(TARGET_PREFIX)src
 TARGET_INC:=$(TARGET_PREFIX)inc
+TARGET_TESTS:=$(TARGET_PREFIX)TESTS
 
 # mbed TLS source directory - hidden from mbed via TARGET_IGNORE
 MBED_TLS_URL:=https://github.com/ARMmbed/mbedtls-restricted.git
@@ -69,6 +70,15 @@ deploy: rsync
 	#
 	# Copy the trimmed config that does not require entropy source
 	cp $(MBED_TLS_DIR)/configs/config-no-entropy.h $(TARGET_INC)/mbedtls/.
+
+deploy-tests: deploy
+	#
+	# Copying mbed TLS tests...
+	rm -rf $(TARGET_TESTS)
+	mkdir -p $(TARGET_TESTS)
+	rsync -a --delete $(MBED_TLS_DIR)/tests/TESTS/ $(TARGET_TESTS)
+	mkdir -p $(TARGET_TESTS)/host_tests
+	cp $(MBED_TLS_DIR)/tests/scripts/mbedtls_test.py $(TARGET_TESTS)/host_tests/
 
 update: $(MBED_TLS_GIT_CFG)  $(MBED_TLS_HA_GIT_CFG)
 	#
