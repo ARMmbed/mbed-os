@@ -46,6 +46,9 @@ static void dump_ecc_reg(char *str, uint32_t volatile regs[], int32_t count);
 static char get_Nth_nibble_char(uint32_t val32, uint32_t idx);
 static void Hex2Reg(char input[], uint32_t volatile reg[]);
 static void Reg2Hex(int32_t count, uint32_t volatile reg[], char output[]);
+static void Hex2RegEx(char input[], uint32_t volatile reg[], int shift);
+static char ch2hex(char ch);
+static int  get_nibble_value(char c);
 
 
 /** @endcond HIDDEN_SYMBOLS */
@@ -757,12 +760,13 @@ static void dump_ecc_reg(char *str, uint32_t volatile regs[], int32_t count) { }
 static char  ch2hex(char ch)
 {
     if (ch <= '9') {
-        return ch - '0';
+        ch = ch - '0';
     } else if ((ch <= 'z') && (ch >= 'a')) {
-        return ch - 'a' + 10U;
+        ch = ch - 'a' + 10U;
     } else {
-        return ch - 'A' + 10U;
+        ch = ch - 'A' + 10U;
     }
+    return ch;
 }
 
 static void Hex2Reg(char input[], uint32_t volatile reg[])
@@ -787,26 +791,26 @@ static void Hex2Reg(char input[], uint32_t volatile reg[])
 
 static void Hex2RegEx(char input[], uint32_t volatile reg[], int shift)
 {
-    int       hex, carry;
+    uint32_t  hex, carry;
     int       si, ri;
     uint32_t  i, val32;
 
     si = (int)strlen(input) - 1;
-    ri = 0;
-    carry = 0;
+    ri = 0L;
+    carry = 0UL;
     while (si >= 0) {
         val32 = 0UL;
-        for (i = 0UL; (i < 8UL) && (si >= 0); i++) {
-            hex = ch2hex(input[si]);
+        for (i = 0UL; (i < 8UL) && (si >= 0L); i++) {
+            hex = (uint32_t)ch2hex(input[si]);
             hex <<= shift;
 
-            val32 |= (uint32_t)((hex & 0xF) | carry) << (i * 4UL);
-            carry = (hex >> 4) & 0xF;
+            val32 |= (uint32_t)((hex & 0xFUL) | carry) << (i * 4UL);
+            carry = (hex >> 4UL) & 0xFUL;
             si--;
         }
         reg[ri++] = val32;
     }
-    if (carry != 0) {
+    if (carry != 0UL) {
         reg[ri] = carry;
     }
 }
@@ -905,17 +909,17 @@ static int32_t ecc_init_curve(E_ECC_CURVE ecc_curve)
 static int  get_nibble_value(char c)
 {
     if ((c >= '0') && (c <= '9')) {
-        return c - '0';
+        c = c - '0';
     }
 
     if ((c >= 'a') && (c <= 'f')) {
-        return c - 'a' - 10;
+        c = c - 'a' - (char)10;
     }
 
     if ((c >= 'A') && (c <= 'F')) {
-        return c - 'A' - 10;
+        c = c - 'A' - (char)10;
     }
-    return 0;
+    return (int)c;
 }
 
 volatile uint32_t g_ECC_done, g_ECCERR_done;
@@ -950,35 +954,36 @@ void ECC_DriverISR(void)
   * @return  0    Is not valid.
   * @return  -1   Invalid curve.
   */
-int ECC_IsPrivateKeyValid(E_ECC_CURVE ecc_curve, char *private_k)
+int ECC_IsPrivateKeyValid(E_ECC_CURVE ecc_curve, char private_k[])
 {
-    int  i;
+    uint32_t  i;
+    int       ret = -1;
 
     pCurve = get_curve(ecc_curve);
     if (pCurve == NULL) {
-        return -1;
+        ret = -1;
     }
 
     if (strlen(private_k) < strlen(pCurve->Eorder)) {
-        return 1;
+        ret = 1;
     }
 
     if (strlen(private_k) > strlen(pCurve->Eorder)) {
-        return 0;
+        ret = 0;
     }
 
-    for (i = 0; i < strlen(private_k); i++) {
+    for (i = 0UL; i < strlen(private_k); i++) {
         if (get_nibble_value(private_k[i]) < get_nibble_value(pCurve->Eorder[i])) {
-            return 1;
+            ret = 1;
+            break;
         }
     }
-    return 0;
+    return ret;
 }
 
 /**
   * @brief  Given a private key and curve to generate the public key pair.
-  * @param[in]  private_k   The input private key
-  .
+  * @param[in]  private_k   The input private key.
   * @param[in]  ecc_curve   The pre-defined ECC curve.
   * @param[out] public_k1   The output public key 1.
   * @param[out] public_k2   The output public key 2.
@@ -995,9 +1000,9 @@ int32_t  ECC_GeneratePublicKey(E_ECC_CURVE ecc_curve, char *private_k, char publ
 
     if (ret == 0) {
 
-        for (i = 0; i < 18; i++)
+        for (i = 0; i < 18; i++) {
             CRPT->ECC_K[i] = 0UL;
-
+        }
         Hex2Reg(private_k, CRPT->ECC_K);
 
         /* set FSEL (Field selection) */
@@ -1152,8 +1157,9 @@ int32_t  ECC_GenerateSignature(E_ECC_CURVE ecc_curve, char *message,
          */
 
         /* 3-(4) Write the random integer k to K register */
-        for (i = 0; i < 18; i++)
+        for (i = 0; i < 18; i++) {
             CRPT->ECC_K[i] = 0UL;
+        }
         Hex2Reg(k, CRPT->ECC_K);
 
         run_ecc_codec(ECCOP_POINT_MUL);
@@ -1224,8 +1230,9 @@ int32_t  ECC_GenerateSignature(E_ECC_CURVE ecc_curve, char *message,
         CRPT->ECC_Y1[0] = 0x1UL;
 
         /*  4-(3) Write the random integer k to X1 registers */
-        for (i = 0; i < 18; i++)
+        for (i = 0; i < 18; i++) {
             CRPT->ECC_X1[i] = 0UL;
+        }
         Hex2Reg(k, CRPT->ECC_X1);
 
         run_ecc_codec(ECCOP_MODULE | MODOP_DIV);

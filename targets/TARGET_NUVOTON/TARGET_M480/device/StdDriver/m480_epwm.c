@@ -244,22 +244,22 @@ void EPWM_ForceStop(EPWM_T *epwm, uint32_t u32ChannelMask)
  *                - EPWM1 : EPWM Group 1
  * @param[in] u32ChannelNum EPWM channel number. Valid values are between 0~5
  * @param[in] u32Condition The condition to trigger ADC. Combination of following conditions:
- *                  - \ref EPWM_TRIGGER_ADC_EVEN_ZERO_POINT
- *                  - \ref EPWM_TRIGGER_ADC_EVEN_PERIOD_POINT
- *                  - \ref EPWM_TRIGGER_ADC_EVEN_ZERO_OR_PERIOD_POINT
- *                  - \ref EPWM_TRIGGER_ADC_EVEN_COMPARE_UP_COUNT_POINT
- *                  - \ref EPWM_TRIGGER_ADC_EVEN_COMPARE_DOWN_COUNT_POINT
- *                  - \ref EPWM_TRIGGER_ADC_ODD_ZERO_POINT
- *                  - \ref EPWM_TRIGGER_ADC_ODD_PERIOD_POINT
- *                  - \ref EPWM_TRIGGER_ADC_ODD_ZERO_OR_PERIOD_POINT
- *                  - \ref EPWM_TRIGGER_ADC_ODD_COMPARE_UP_COUNT_POINT
- *                  - \ref EPWM_TRIGGER_ADC_ODD_COMPARE_DOWN_COUNT_POINT
- *                  - \ref EPWM_TRIGGER_ADC_CH_0_FREE_CMP_UP_COUNT_POINT
- *                  - \ref EPWM_TRIGGER_ADC_CH_0_FREE_CMP_DOWN_COUNT_POINT
- *                  - \ref EPWM_TRIGGER_ADC_CH_2_FREE_CMP_UP_COUNT_POINT
- *                  - \ref EPWM_TRIGGER_ADC_CH_2_FREE_CMP_DOWN_COUNT_POINT
- *                  - \ref EPWM_TRIGGER_ADC_CH_4_FREE_CMP_UP_COUNT_POINT
- *                  - \ref EPWM_TRIGGER_ADC_CH_4_FREE_CMP_DOWN_COUNT_POINT
+ *                  - \ref EPWM_TRG_ADC_EVEN_ZERO
+ *                  - \ref EPWM_TRG_ADC_EVEN_PERIOD
+ *                  - \ref EPWM_TRG_ADC_EVEN_ZERO_PERIOD
+ *                  - \ref EPWM_TRG_ADC_EVEN_COMPARE_UP
+ *                  - \ref EPWM_TRG_ADC_EVEN_COMPARE_DOWN
+ *                  - \ref EPWM_TRG_ADC_ODD_ZERO
+ *                  - \ref EPWM_TRG_ADC_ODD_PERIOD
+ *                  - \ref EPWM_TRG_ADC_ODD_ZERO_PERIOD
+ *                  - \ref EPWM_TRG_ADC_ODD_COMPARE_UP
+ *                  - \ref EPWM_TRG_ADC_ODD_COMPARE_DOWN
+ *                  - \ref EPWM_TRG_ADC_CH_0_FREE_CMP_UP
+ *                  - \ref EPWM_TRG_ADC_CH_0_FREE_CMP_DOWN
+ *                  - \ref EPWM_TRG_ADC_CH_2_FREE_CMP_UP
+ *                  - \ref EPWM_TRG_ADC_CH_2_FREE_CMP_DOWN
+ *                  - \ref EPWM_TRG_ADC_CH_4_FREE_CMP_UP
+ *                  - \ref EPWM_TRG_ADC_CH_4_FREE_CMP_DOWN
  * @return None
  * @details This function is used to enable selected channel to trigger ADC.
  */
@@ -329,10 +329,10 @@ uint32_t EPWM_GetADCTriggerFlag(EPWM_T *epwm, uint32_t u32ChannelNum)
  *                - EPWM1 : EPWM Group 1
  * @param[in] u32ChannelNum EPWM channel number. Valid values are between 0~5
  * @param[in] u32Condition The condition to trigger DAC. Combination of following conditions:
- *                  - \ref EPWM_TRIGGER_DAC_ZERO_POINT
- *                  - \ref EPWM_TRIGGER_DAC_PERIOD_POINT
- *                  - \ref EPWM_TRIGGER_DAC_COMPARE_UP_COUNT_POINT
- *                  - \ref EPWM_TRIGGER_DAC_COMPARE_DOWN_COUNT_POINT
+ *                  - \ref EPWM_TRIGGER_DAC_ZERO
+ *                  - \ref EPWM_TRIGGER_DAC_PERIOD
+ *                  - \ref EPWM_TRIGGER_DAC_COMPARE_UP
+ *                  - \ref EPWM_TRIGGER_DAC_COMPARE_DOWN
  * @return None
  * @details This function is used to enable selected channel to trigger DAC.
  */
@@ -352,8 +352,8 @@ void EPWM_EnableDACTrigger(EPWM_T *epwm, uint32_t u32ChannelNum, uint32_t u32Con
  */
 void EPWM_DisableDACTrigger(EPWM_T *epwm, uint32_t u32ChannelNum)
 {
-    (epwm)->DACTRGEN &= ~((EPWM_TRIGGER_DAC_ZERO_POINT | EPWM_TRIGGER_DAC_PERIOD_POINT | EPWM_TRIGGER_DAC_COMPARE_UP_COUNT_POINT | \
-                           EPWM_TRIGGER_DAC_COMPARE_DOWN_COUNT_POINT) << u32ChannelNum);
+    (epwm)->DACTRGEN &= ~((EPWM_TRIGGER_DAC_ZERO | EPWM_TRIGGER_DAC_PERIOD | EPWM_TRIGGER_DAC_COMPARE_UP | \
+                           EPWM_TRIGGER_DAC_COMPARE_DOWN) << u32ChannelNum);
 }
 
 /**

@@ -63,27 +63,27 @@ extern "C"
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Trigger Source Select Constant Definitions                                                             */
 /*---------------------------------------------------------------------------------------------------------*/
-#define EPWM_TRIGGER_ADC_EVEN_ZERO_POINT                     (0U)     /*!< EPWM trigger ADC while counter of even channel matches zero point \hideinitializer */
-#define EPWM_TRIGGER_ADC_EVEN_PERIOD_POINT                   (1U)     /*!< EPWM trigger ADC while counter of even channel matches period point \hideinitializer */
-#define EPWM_TRIGGER_ADC_EVEN_ZERO_OR_PERIOD_POINT           (2U)     /*!< EPWM trigger ADC while counter of even channel matches zero or period point \hideinitializer */
-#define EPWM_TRIGGER_ADC_EVEN_COMPARE_UP_COUNT_POINT         (3U)     /*!< EPWM trigger ADC while counter of even channel matches up count to comparator point \hideinitializer */
-#define EPWM_TRIGGER_ADC_EVEN_COMPARE_DOWN_COUNT_POINT       (4U)     /*!< EPWM trigger ADC while counter of even channel matches down count to comparator point \hideinitializer */
-#define EPWM_TRIGGER_ADC_ODD_ZERO_POINT                      (5U)     /*!< EPWM trigger ADC while counter of odd channel matches zero point \hideinitializer */
-#define EPWM_TRIGGER_ADC_ODD_PERIOD_POINT                    (6U)     /*!< EPWM trigger ADC while counter of odd channel matches period point \hideinitializer */
-#define EPWM_TRIGGER_ADC_ODD_ZERO_OR_PERIOD_POINT            (7U)     /*!< EPWM trigger ADC while counter of odd channel matches zero or period point \hideinitializer */
-#define EPWM_TRIGGER_ADC_ODD_COMPARE_UP_COUNT_POINT          (8U)     /*!< EPWM trigger ADC while counter of odd channel matches up count to comparator point \hideinitializer */
-#define EPWM_TRIGGER_ADC_ODD_COMPARE_DOWN_COUNT_POINT        (9U)     /*!< EPWM trigger ADC while counter of odd channel matches down count to comparator point \hideinitializer */
-#define EPWM_TRIGGER_ADC_CH_0_FREE_CMP_UP_COUNT_POINT        (10U)    /*!< EPWM trigger ADC while counter of channel 0 matches up count to free comparator point \hideinitializer */
-#define EPWM_TRIGGER_ADC_CH_0_FREE_CMP_DOWN_COUNT_POINT      (11U)    /*!< EPWM trigger ADC while counter of channel 0 matches down count to free comparator point \hideinitializer */
-#define EPWM_TRIGGER_ADC_CH_2_FREE_CMP_UP_COUNT_POINT        (12U)    /*!< EPWM trigger ADC while counter of channel 2 matches up count to free comparator point \hideinitializer */
-#define EPWM_TRIGGER_ADC_CH_2_FREE_CMP_DOWN_COUNT_POINT      (13U)    /*!< EPWM trigger ADC while counter of channel 2 matches down count to free comparator point \hideinitializer */
-#define EPWM_TRIGGER_ADC_CH_4_FREE_CMP_UP_COUNT_POINT        (14U)    /*!< EPWM trigger ADC while counter of channel 4 matches up count to free comparator point \hideinitializer */
-#define EPWM_TRIGGER_ADC_CH_4_FREE_CMP_DOWN_COUNT_POINT      (15U)    /*!< EPWM trigger ADC while counter of channel 4 matches down count to free comparator point \hideinitializer */
+#define EPWM_TRG_ADC_EVEN_ZERO                           (0U)     /*!< EPWM trigger ADC while counter of even channel matches zero point \hideinitializer */
+#define EPWM_TRG_ADC_EVEN_PERIOD                         (1U)     /*!< EPWM trigger ADC while counter of even channel matches period point \hideinitializer */
+#define EPWM_TRG_ADC_EVEN_ZERO_PERIOD                    (2U)     /*!< EPWM trigger ADC while counter of even channel matches zero or period point \hideinitializer */
+#define EPWM_TRG_ADC_EVEN_COMPARE_UP                     (3U)     /*!< EPWM trigger ADC while counter of even channel matches up count to comparator point \hideinitializer */
+#define EPWM_TRG_ADC_EVEN_COMPARE_DOWN                   (4U)     /*!< EPWM trigger ADC while counter of even channel matches down count to comparator point \hideinitializer */
+#define EPWM_TRG_ADC_ODD_ZERO                            (5U)     /*!< EPWM trigger ADC while counter of odd channel matches zero point \hideinitializer */
+#define EPWM_TRG_ADC_ODD_PERIOD                          (6U)     /*!< EPWM trigger ADC while counter of odd channel matches period point \hideinitializer */
+#define EPWM_TRG_ADC_ODD_ZERO_PERIOD                     (7U)     /*!< EPWM trigger ADC while counter of odd channel matches zero or period point \hideinitializer */
+#define EPWM_TRG_ADC_ODD_COMPARE_UP                      (8U)     /*!< EPWM trigger ADC while counter of odd channel matches up count to comparator point \hideinitializer */
+#define EPWM_TRG_ADC_ODD_COMPARE_DOWN                    (9U)     /*!< EPWM trigger ADC while counter of odd channel matches down count to comparator point \hideinitializer */
+#define EPWM_TRG_ADC_CH_0_FREE_CMP_UP                    (10U)    /*!< EPWM trigger ADC while counter of channel 0 matches up count to free comparator point \hideinitializer */
+#define EPWM_TRG_ADC_CH_0_FREE_CMP_DOWN                  (11U)    /*!< EPWM trigger ADC while counter of channel 0 matches down count to free comparator point \hideinitializer */
+#define EPWM_TRG_ADC_CH_2_FREE_CMP_UP                    (12U)    /*!< EPWM trigger ADC while counter of channel 2 matches up count to free comparator point \hideinitializer */
+#define EPWM_TRG_ADC_CH_2_FREE_CMP_DOWN                  (13U)    /*!< EPWM trigger ADC while counter of channel 2 matches down count to free comparator point \hideinitializer */
+#define EPWM_TRG_ADC_CH_4_FREE_CMP_UP                    (14U)    /*!< EPWM trigger ADC while counter of channel 4 matches up count to free comparator point \hideinitializer */
+#define EPWM_TRG_ADC_CH_4_FREE_CMP_DOWN                  (15U)    /*!< EPWM trigger ADC while counter of channel 4 matches down count to free comparator point \hideinitializer */
 
-#define EPWM_TRIGGER_DAC_ZERO_POINT                          (0x1U)           /*!< EPWM trigger ADC while counter down count to 0  \hideinitializer */
-#define EPWM_TRIGGER_DAC_PERIOD_POINT                        (0x100U)         /*!< EPWM trigger ADC while counter matches (PERIOD + 1) \hideinitializer */
-#define EPWM_TRIGGER_DAC_COMPARE_UP_COUNT_POINT              (0x10000U)       /*!< EPWM trigger ADC while counter up count to CMPDAT \hideinitializer */
-#define EPWM_TRIGGER_DAC_COMPARE_DOWN_COUNT_POINT            (0x1000000U)     /*!< EPWM trigger ADC while counter down count to CMPDAT \hideinitializer */
+#define EPWM_TRIGGER_DAC_ZERO                            (0x1U)           /*!< EPWM trigger ADC while counter down count to 0  \hideinitializer */
+#define EPWM_TRIGGER_DAC_PERIOD                          (0x100U)         /*!< EPWM trigger ADC while counter matches (PERIOD + 1) \hideinitializer */
+#define EPWM_TRIGGER_DAC_COMPARE_UP                      (0x10000U)       /*!< EPWM trigger ADC while counter up count to CMPDAT \hideinitializer */
+#define EPWM_TRIGGER_DAC_COMPARE_DOWN                    (0x1000000U)     /*!< EPWM trigger ADC while counter down count to CMPDAT \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Fail brake Control Constant Definitions                                                                */
@@ -108,8 +108,8 @@ extern "C"
 #define EPWM_FB_LEVEL_SYS_RAM                     (EPWM_BRKCTL0_1_SYSLBEN_Msk | EPWM_FAILBRK_RAMBRKEN_Msk)    /*!< System fail condition: SRAM parity error detection as level-detect fault brake source \hideinitializer */
 #define EPWM_FB_LEVEL_SYS_COR                     (EPWM_BRKCTL0_1_SYSLBEN_Msk | EPWM_FAILBRK_CORBRKEN_Msk)    /*!< System fail condition: core lockup detection as level-detect fault brake source \hideinitializer */
 
-#define EPWM_FB_EDGE                              (0U)    /*!< edge-detect fault brake */
-#define EPWM_FB_LEVEL                             (8U)    /*!< level-detect fault brake */
+#define EPWM_FB_EDGE                              (0U)    /*!< edge-detect fault brake \hideinitializer */
+#define EPWM_FB_LEVEL                             (8U)    /*!< level-detect fault brake \hideinitializer */
 
 /*---------------------------------------------------------------------------------------------------------*/
 /*  Leading Edge Blanking Control Constant Definitions                                                     */

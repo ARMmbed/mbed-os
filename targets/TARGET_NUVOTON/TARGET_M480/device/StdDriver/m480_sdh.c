@@ -37,7 +37,6 @@ uint32_t _SDH_uR3_CMD = 0ul;
 uint32_t _SDH_uR7_CMD = 0ul;
 uint8_t volatile _SDH_SDDataReady = FALSE;
 
-uint8_t *_SDH_pSDHCBuffer;
 uint32_t _SDH_ReferenceClock;
 
 #if defined (__CC_ARM)
@@ -547,8 +546,7 @@ uint32_t SDH_SelectCardType(SDH_T *sdh)
 
     /* if SD card set 4bit */
     if (pSD->CardType == SDH_TYPE_SD_HIGH) {
-        _SDH_pSDHCBuffer = (uint8_t *)((uint32_t)_SDH_ucSDHCBuffer);
-        sdh->DMASA = (uint32_t)_SDH_pSDHCBuffer;
+        sdh->DMASA = (uint32_t)_SDH_ucSDHCBuffer;
         sdh->BLEN = 0x07ul;  /* 64 bit */
 
         if ((status = SDH_SDCmdAndRsp(sdh, 55ul, pSD->RCA, 0ul)) != Successful) {
@@ -559,6 +557,7 @@ uint32_t SDH_SelectCardType(SDH_T *sdh)
         }
 
         if ((_SDH_ucSDHCBuffer[0] & 0xful) == 0x2ul) {
+//        if ((_SDH_ucSDHCBuffer[0] & 0xful) == 0xful) {
             status = SDH_SwitchToHighSpeed(sdh, pSD);
             if (status == Successful) {
                 /* divider */

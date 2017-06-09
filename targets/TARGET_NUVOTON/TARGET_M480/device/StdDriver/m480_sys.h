@@ -280,7 +280,7 @@ Example 1: If user want to set PA.0 as SC0_CLK in initial function,
 #define SYS_GPA_MFPH_PA11MFP_I2C2_SCL         (0x07UL<<SYS_GPA_MFPH_PA11MFP_Pos) /*!< I2C2 clock pin. \hideinitializer */
 #define SYS_GPA_MFPH_PA11MFP_BPWM0_CH0        (0x09UL<<SYS_GPA_MFPH_PA11MFP_Pos) /*!< BPWM0 channel0 output/capture input. \hideinitializer */
 #define SYS_GPA_MFPH_PA11MFP_EPWM0_SYNC_OUT   (0x0AUL<<SYS_GPA_MFPH_PA11MFP_Pos) /*!< EPWM0 counter synchronous trigger output pin. \hideinitializer */
-#define SYS_GPA_MFPH_PA11MFP_TM0_EXT          (0x0DUL<<SYS_GPA_MFPH_PA11MFP_Pos) /*!< Timer0 event counter input / toggle output */
+#define SYS_GPA_MFPH_PA11MFP_TM0_EXT          (0x0DUL<<SYS_GPA_MFPH_PA11MFP_Pos) /*!< Timer0 event counter input / toggle output \hideinitializer */
 #define SYS_GPA_MFPH_PA11MFP_DAC1_ST          (0x0EUL<<SYS_GPA_MFPH_PA11MFP_Pos) /*!< DAC1 external trigger input. \hideinitializer */
 #define SYS_GPA_MFPH_PA12MFP_GPIO             (0x00UL<<SYS_GPA_MFPH_PA12MFP_Pos) /*!< General purpose digital I/O pin. \hideinitializer */
 #define SYS_GPA_MFPH_PA12MFP_I2S0_BCLK        (0x02UL<<SYS_GPA_MFPH_PA12MFP_Pos) /*!< I2S0 bit clock pin. \hideinitializer */
