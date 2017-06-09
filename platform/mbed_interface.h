@@ -113,9 +113,17 @@ void mbed_mac_address(char *mac);
 void mbed_die(void);
 
 /** Print out an error message.  This is typically called when
- * hanlding a crash.
+ * handling a crash.
  *
  * @note Synchronization level: Interrupt safe
+ *
+ * @param format    C string that contains data stream to be printed.
+ *                  Code snippets below show valid format.
+ *
+ * @code
+ * mbed_error_printf("Failed: %s, file: %s, line %d \n", expr, file, line);
+ * @endcode
+ *
  */
 void mbed_error_printf(const char* format, ...);
 
@@ -123,6 +131,10 @@ void mbed_error_printf(const char* format, ...);
  * but uses a va_list.
  *
  * @note Synchronization level: Interrupt safe
+ *
+ * @param format    C string that contains data stream to be printed.
+ * @param arg       Variable arguments list
+ *
  */
 void mbed_error_vfprintf(const char * format, va_list arg);
 

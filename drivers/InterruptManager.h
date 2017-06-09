@@ -55,7 +55,9 @@ namespace mbed {
  */
 class InterruptManager {
 public:
-    /** Return the only instance of this class
+    /** Get the instance of InterruptManager Class
+     *
+     *  @return the only instance of this class
      */
     static InterruptManager* get();
 
