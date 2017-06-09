@@ -1,8 +1,5 @@
-
-/** \addtogroup rtos */
-/** @{*/
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2012 ARM Limited
+ * Copyright (c) 2006-2017 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,28 +19,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef RTOS_H
-#define RTOS_H
-
-#include "mbed_rtx.h"
-#include "mbed_rtx_conf.h"
-#include "mbed_rtos_storage.h"
-#include "rtos/Thread.h"
-#include "rtos/Mutex.h"
-#include "rtos/RtosTimer.h"
-#include "rtos/Semaphore.h"
-#include "rtos/Mail.h"
-#include "rtos/MemoryPool.h"
-#include "rtos/Queue.h"
 #include "rtos/EventFlags.h"
+#include <string.h>
+#include "mbed_error.h"
+#include "mbed_assert.h"
 
-using namespace rtos;
+namespace rtos {
 
-/* Get mbed lib version number, as RTOS depends on mbed lib features
-   like mbed_error, Callback and others.
-*/
-#include "mbed.h"
+EventFlags::EventFlags() {
+    constructor();
+}
 
-#endif
+EventFlags::EventFlags(const char *name) {
+    constructor(name);
+}
 
-/** @}*/
+void EventFlags::constructor(const char *name) {
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    memset(&_attr, 0, sizeof(_attr));
+    _attr.name = name ? name : "application_unnamed_event_flags";
+    _attr.cb_mem = &_obj_mem;
+    _attr.cb_size = sizeof(_obj_mem);
+    _id = osEventFlagsNew(&_attr);
+    MBED_ASSERT(_id);
+}
+
+uint32_t EventFlags::set(uint32_t flags) {
+    return osEventFlagsSet(_id, flags);
+}
+
+uint32_t EventFlags::clear(uint32_t flags) {
+    return osEventFlagsClear(_id, flags);
+}
+
+uint32_t EventFlags::get() {
+    return osEventFlagsGet(_id);
+}
+
+uint32_t EventFlags::wait(uint32_t flags, uint32_t timeout) {
+    if(flags == 0) {
+        return osEventFlagsWait(_id, 0x7fffffff, osFlagsWaitAny | osFlagsNoClear, timeout); 
+    }
+    return osEventFlagsWait(_id, flags, osFlagsWaitAll, timeout);
+}
+
+EventFlags::~EventFlags() {
+    osEventFlagsDelete(_id);
+}
+
+}
