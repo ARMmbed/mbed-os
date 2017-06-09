@@ -1,0 +1,15 @@
+{
+    "config": {
+        "header-file": {
+            "help" : "String for including your driver header file",
+            "value" : "\"EthernetInterface.h\""
+        },
+        "object-construction" : {
+            "value" : "new EthernetInterface()"
+        },
+        "connect-statement" : {
+            "help" : "Must use 'net' variable name",
+            "value" : "((EthernetInterface *)net)->connect()"
+        }
+    }
+}
