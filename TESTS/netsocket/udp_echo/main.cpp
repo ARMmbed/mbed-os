@@ -51,18 +51,11 @@ void test_udp_echo() {
 
     printf("UDP client IP Address is %s\n", net->get_ip_address());
 
-    greentea_send_kv("target_ip", net->get_ip_address());
-
-    char recv_key[] = "host_port";
-    char ipbuf[60] = {0};
-    char portbuf[16] = {0};
-    unsigned int port = 0;
-
     UDPSocket sock;
     sock.open(net);
     sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
 
-    SocketAddress udp_addr("195.34.89.241", 7);
+    SocketAddress udp_addr(MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_PORT);
 
     int success = 0;
     for (int i = 0; success < ECHO_LOOPS; i++) {
