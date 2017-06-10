@@ -129,23 +129,6 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     __extra_target_json_files = []
 
     @staticmethod
-    def _merge_dict(dct, merge_dct):
-        """ Recursive dict merge. Inspired by `dict.update()` however instead of
-        updating only top-level keys, dict_merge recurses down into dicts nested
-        to an arbitrary depth, updating keys. 
-        The provided  ``merge_dct`` is merged into ``dct`` in place.
-        :param dct: dict onto which the merge is executed
-        :param merge_dct: dct merged into dct
-        :return: None
-        """
-        for k, v in merge_dct.iteritems():
-            if (k in dct and isinstance(dct[k], dict)
-                    and isinstance(merge_dct[k], Mapping)):
-                Target._merge_dict(dct[k], merge_dct[k])
-            else:
-                dct[k] = merge_dct[k]
-
-    @staticmethod
     @cached
     def get_json_target_data():
         """Load the description of JSON target data"""
@@ -153,7 +136,11 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
                                     Target.__targets_json_location_default)
 
         for extra_target in Target.__extra_target_json_files:
-            Target._merge_dict(targets, json_file_to_dict(extra_target))
+            for k, v in json_file_to_dict(extra_target).iteritems():
+                if k in targets:
+                    print 'WARNING: Custom target "%s" cannot replace existing target.' % k
+                else:
+                    targets[k] = v
 
         return targets
 
