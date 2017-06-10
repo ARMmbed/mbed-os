@@ -76,7 +76,7 @@ class TestTargets(unittest.TestCase):
             assert TARGET_MAP['Test_Target'].core is None, \
                    "attributes should be inherited from Target"
 
-    def test_modify_default_target(self):
+    def test_modify_existing_target(self):
         """Set default targets file, then override base Target definition"""
         initial_target_json = """
         {
@@ -132,8 +132,9 @@ class TestTargets(unittest.TestCase):
                 update_target_data()
 
                 assert TARGET_MAP["Test_Target"].core == "Cortex-M4"
-                assert TARGET_MAP["Test_Target"].default_toolchain == 'GCC_ARM'
-                assert TARGET_MAP["Test_Target"].bootloader_supported == True
+                # The existing target should not be modified by custom targets
+                assert TARGET_MAP["Test_Target"].default_toolchain != 'GCC_ARM'
+                assert TARGET_MAP["Test_Target"].bootloader_supported != True
 
 
 if __name__ == '__main__':
