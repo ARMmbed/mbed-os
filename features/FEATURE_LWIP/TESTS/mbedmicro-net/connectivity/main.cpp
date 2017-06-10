@@ -51,13 +51,13 @@ void test_bring_up_down() {
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(60, "default_auto");
+    GREENTEA_SETUP(120, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
 Case cases[] = {
-    Case("Testing bringing the network up and down", test_bring_up_down<1>),
-    Case("Testing bringing the network up and down twice", test_bring_up_down<2>),
+    Case("Bringing the network up and down", test_bring_up_down<1>),
+    Case("Bringing the network up and down twice", test_bring_up_down<2>),
 };
 
 Specification specification(test_setup, cases);
