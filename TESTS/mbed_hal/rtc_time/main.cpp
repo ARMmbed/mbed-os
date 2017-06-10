@@ -21,6 +21,17 @@
 #include "mbed.h"
 #include "mbed_mktime.h"
 
+// Limit the test range to 1935 for IAR only. From the IAR C/C++ Development Guide:
+// "The 32-bit interface supports years from 1900 up to 2035 and uses a 32-bit integer
+// for time_t."
+#ifdef __ICCARM__
+#define LOCALTIME_MAX       2082758400      // 1st of january 2036 at 00:00:00
+#define MKTIME_YR_MAX       136
+#else
+#define LOCALTIME_MAX       INT_MAX
+#define MKTIME_YR_MAX       137
+#endif
+
 using namespace utest::v1;
 
 /* 
@@ -54,13 +65,17 @@ void test_is_leap_year() {
 }
 
 struct tm make_time_info(int year, int month, int day, int hours, int minutes, int seconds) { 
-    struct tm timeinfo;
-    timeinfo.tm_year = year;
-    timeinfo.tm_mon  = month;
-    timeinfo.tm_mday = day;
-    timeinfo.tm_hour = hours;
-    timeinfo.tm_min  = minutes;
-    timeinfo.tm_sec  = seconds;
+    struct tm timeinfo = {
+            seconds,    // tm_sec
+            minutes,    // tm_min
+            hours,      // tm_hour
+            day,        // tm_mday
+            month,      // tm_mon
+            year,       // tm_year
+            0,          // tm_wday
+            0,          // tm_yday
+            0,          // tm_isdst
+    };
     return timeinfo;
 }
 
@@ -116,7 +131,7 @@ void test_mk_time_out_of_range() {
  * test mktime over a large set of values 
  */
 void test_mk_time() { 
-    for (size_t year = 70; year < 137; ++year) { 
+    for (size_t year = 70; year < MKTIME_YR_MAX; ++year) {
         for (size_t month = 0; month < 12; ++month) { 
             for (size_t day = 1; day < 32; ++day) {
                 if (month == 1 && is_leap_year(year) && day == 29) { 
@@ -172,7 +187,7 @@ void test_local_time_limit() {
  * test _rtc_localtime over a large set of values.
  */
 void test_local_time() { 
-    for (uint32_t i = 0; i < INT_MAX; i += 3451) {  
+    for (uint32_t i = 0; i < LOCALTIME_MAX; i += 3451) {
         time_t copy = (time_t) i;
         struct tm* expected = localtime(&copy);
         struct tm actual_value; 
