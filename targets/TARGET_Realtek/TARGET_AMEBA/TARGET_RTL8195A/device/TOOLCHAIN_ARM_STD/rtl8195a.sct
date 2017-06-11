@@ -37,6 +37,12 @@ LR_RAM 0x10006000 0x6FFFF  {
   RW_IRAM1 +0 UNINIT FIXED {
    .ANY (+ZI)
   }
+
+  TCM_OVERLAY 0x1FFF0000 0x10000{
+    lwip_mem.o(.bss*)
+    lwip_memp.o(.bss*)
+    *.o(.tcm.heap*)
+  }
 }
 
 LR_DRAM 0x30000000 0x1FFFFF{

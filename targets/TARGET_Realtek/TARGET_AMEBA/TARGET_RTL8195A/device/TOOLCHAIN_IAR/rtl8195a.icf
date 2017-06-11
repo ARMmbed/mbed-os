@@ -208,7 +208,7 @@ place at start of SDRAM_RAM_region {
 
 /* TCM placement */
 define overlay TCM_overlay { 
-									section .tcm.heap,
+                                    section .tcm.heap,
                                     section .bss object lwip_mem.o,
                                     section .bss object lwip_memp.o,
                                     block .heap,
