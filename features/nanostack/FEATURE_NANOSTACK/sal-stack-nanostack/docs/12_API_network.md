@@ -233,143 +233,111 @@ Two hopping modes:
 
 By default, the 6LoWPAN stack uses the single channel mode. 
 
-To enable the FHSS mode:
+To enable the FHSS mode, FHSS instance must be created, configured and registered to software MAC instance.
+
+Create FHSS instance and set basic configuration using:
 
 ```
-int8_t arm_fhss_enable
+fhss_api_t *ns_fhss_create
 (
-	int8_t interface_id,
-	fhss_platform_functions_s *fhss_platform_functions,
-	const fhss_configuration_s *fhss_configuration
+	const fhss_configuration_t *fhss_configuration,
+	const fhss_timer_t *fhss_timer,
+	fhss_statistics_t *fhss_statistics
 )
 ```
 
-Parameter|Descripion
----------|----------
-`interface_id`|The network interface ID.
-`fhss_platform_functions`|A pointer to the platform functions structure.
-`fhss_configuration`|A pointer to the FHSS configuration structure.
-
-<dl>
-<dt>Return value</dt>
-<dd> 0 on success.</dd>
-<dd>-1 in case of invalid input parameters.</dd>
-<dd>-2 if no channels are available in the channel list.</dd>
-<dd>-3 if broadcast channels or tx slots are 0 in the bootstrap mode Border Router or RF access point.</dd>
-<dd>-4 if number of super frames does not work with TX slots in the bootstrap mode Border Router or RF access point.</dd>
-<dd>-5 if the FHSS tasklet creation fails.</dd>
-<dd>-6 if the PHY driver mode cannot be changed.</dd>
-<dd>-7 if the used bootstrap mode is not supported.</dd>
-<dd>-8 if FHSS is already enabled.</dd>
-<dd>-9 if memory allocation failed.</dd>
-</dl>
-
-To implement and define the FHSS platform functions, use the `fhss_platform_functions_s` structure:
-
-```
-typedef struct
-{
-    int (*fhss_timer_start)(uint32_t, void (*fhss_timer_callback)(int8_t, uint16_t), int8_t);
-    int (*fhss_timer_stop)(void);
-    uint32_t (*fhss_get_remaining_slots)(void);
-    int (*fhss_time_measure_start)(void);
-    uint32_t (*fhss_time_measure_read)(void);
-    int (*fhss_time_measure_stop)(void);
-    uint8_t fhss_resolution_divider;
-} fhss_platform_functions_s;
-```
+Application developer must implement FHSS platform timer functions as described below. FHSS timer uses 1us resolution if not reduced by resolution divider.
 
 Member|Description
 ------|-----------
-`fhss_timer_start`|FHSS timer start platform function.
-`fhss_timer_stop`|FHSS timer stop platform function.
-`fhss_get_remaining_slots`|FHSS timer get remaining slots platform function.
-`fhss_time_measure_start`|FHSS time measure start platform function.
-`fhss_time_measure_read`|FHSS time measure read platform function.
-`fhss_time_measure_stop`|FHSS time measure stop platform function.
-`fhss_resolution_divider`|FHSS timer resolution divider.
+`fhss_timer_start` | FHSS timer start platform function.
+`fhss_timer_stop` | FHSS timer stop platform function.
+`fhss_get_remaining_slots` | FHSS timer get remaining slots platform function.
+`fhss_get_timestamp` | FHSS timer timestamp (since initialization of driver).
+`fhss_resolution_divider` | FHSS timer resolution divider.
 
-FHSS configuration is always given from the border router using the `fhss_configuration_s` structure. The endpoint learns the configuration from the received synchronization message. In the initialization phase, the endpoint sets the FHSS configuration as NULL:
-
-```
-typedef struct fhss_configuration_s
-{
-    uint8_t fhss_number_of_bc_channels;
-    uint8_t fhss_number_of_tx_slots;
-    uint16_t fhss_superframe_length;
-    uint8_t fhss_number_of_superframes;
-    uint32_t fhss_beacon_send_interval;
-} fhss_configuration_s;
-```
+FHSS basic configuration is described below.
 
 Member|Description
 ------|-----------
-`fhss_number_of_bc_channels`|Number of broadcast channels.
-`fhss_number_of_tx_slots`|Number of TX slots per channel.
-`fhss_superframe_length`|Superframe dwell time (us).
-`fhss_number_of_superframes`|Number of superframes per channel.
-`fhss_beacon_send_interval`|Interval of sending synchronization messages. This configuration is currently disabled.
+`fhss_tuning_parameters` | Tuning parameters to enhance synchronization accuracy.
+`fhss_max_synch_interval` | Maximum used interval for requesting synchronization info from FHSS parent device.
+`fhss_number_of_channel_retries` | Number of channel retries.
+`channel_mask` | Channel mask.
 
-To disable the FHSS mode:
-
-```
-int8_t arm_fhss_disable
-(
-	int8_t interface_id,
-)
-```
+Some platform-specific tuning parameters can be provided:
 
 Parameter|Description
 ---------|-----------
-`interface_id`|The network interface ID.
+`tx_processing_delay` | Delay between data pushed to PHY TX function and TX started (Contains CSMA-CA maximum random period).
+`rx_processing_delay` | Delay between TX done (by transmitter) and received data pushed to MAC (by receiver).
+`ack_processing_delay` | Delay between TX done (by transmitter) and Ack transmission started (by receiver).
 
-<dl>
-<dt>Return value</dt>
-<dd> 0 on success.</dd>
-<dd>-1 on fail.</dd>
-</dl>
-
-### FHSS tuning parameters
-
-When you have enabled FHSS, you can provide some platform-specific tuning parameters using the `arm_fhss_set_tuning_params` function:
+FHSS synchronization configuration is always given from the border router using the `ns_fhss_configuration_set` function. The endpoint learns the configuration from the received synchronization message.
 
 ```
-int8_t arm_fhss_set_tuning_params
+int ns_fhss_configuration_set
 (
-	int8_t interface_id,
-	const fhss_platform_tuning_params_s *fhss_tuning_params
+	fhss_api_t *fhss_api,
+	const fhss_synch_configuration_t *fhss_synch_configuration
 )
 ```
-
-Parameter|Description
----------|-----------
-`interface_id`|The network interface ID.
-`fhss_tuning_params`|A pointer to the FHSS tuning parameters.
-
-<dl>
-<dt>Return value</dt>
-<dd> 0 on success.</dd>
-<dd>-1 on fail.</dd>
-</dl>
-
-The FHSS device provides the tuning parameters using the `fhss_platform_tuning_params_s` structure:
-
-```
-typedef struct
-{
-    uint32_t synch_tx_processing_time;
-    uint32_t synch_rx_processing_time;
-    uint32_t data_tx_processing_time;
-    uint32_t data_rx_processing_time;
-} fhss_platform_tuning_params_s;
-```
+Synchronization configuration is described below:
 
 Member|Description
 ------|-----------
-`synch_tx_processing_time`|Processing delay between synch info written and TX start (us).
-`synch_rx_processing_time`|Processing delay between TX done and synch info read (us).
-`data_tx_processing_time`|Processing delay between data pushed to driver and transmission started (us).
-`data_rx_processing_time`|Processing delay between TX done and Ack TX start (us).
+`fhss_number_of_bc_channels` | Number of broadcast channels.
+`fhss_number_of_tx_slots` | Number of TX slots per channel.
+`fhss_superframe_length` | Superframe dwell time (us).
+`fhss_number_of_superframes` | Number of superframes per channel.
+
+Register created FHSS instance to software MAC instance using `ns_sw_mac_fhss_register` function:
+```
+int ns_sw_mac_fhss_register
+(
+	struct mac_api_s *mac_api,
+	struct fhss_api *fhss_api
+)
+```
+
+FHSS implements following API which is used by higher layer (software MAC):
+
+Member|Description
+------|-----------
+`fhss_is_broadcast_channel` | Checks if current channel is broadcast channel.
+`fhss_use_broadcast_queue` | Checks if broadcast queue must be used instead of unicast queue.
+`fhss_tx_handle` | Set destination channel and write synchronization info.
+`fhss_check_tx_conditions` | Check TX permission.
+`fhss_receive_frame` | Notification of received FHSS synch or synch request frame.
+`fhss_data_tx_done` | Data TX done callback.
+`fhss_data_tx_fail` | Data TX or CCA failed callback.
+`fhss_synch_state_set` | Change synchronization state.
+`fhss_read_timestamp` | Read timestamp.
+`fhss_get_retry_period` | Get retransmission period.
+`fhss_init_callbacks` | Initialize MAC functions.
+
+
+Software MAC implements following callbacks to serve requests from FHSS:
+
+Member|Description
+------|-----------
+`mac_read_tx_queue_size` | Read MAC TX queue size.
+`mac_read_mac_address` | Read MAC address.
+`mac_read_datarate` | Read PHY datarate.
+`mac_change_channel` | Change channel.
+`mac_send_fhss_frame` | Send FHSS frame.
+`mac_synch_lost_notification` | Send notification when FHSS synchronization is lost.
+`mac_tx_poll` | Poll TX queue.
+`mac_broadcast_notify` | Broadcast channel notification from FHSS.
+`mac_read_coordinator_mac_address` | Read coordinator MAC address.
+
+To disable FHSS, instance can be deleted using `ns_fhss_delete` function.
+```
+int ns_fhss_delete
+(
+	fhss_api_t *fhss_api
+)
+```
 
 ### Beacon protocol ID filter
 
@@ -1897,7 +1865,7 @@ To set new parameters for a trickle multicast:
 void multicast_set_parameters
 (
 	uint8_t		i_min,
-	uint8_t		i_max,
+	uint8_t		i_doublings,
 	uint8_t		k,
 	uint8_t		timer_expirations,
 	uint8_t		window_expiration
@@ -1907,7 +1875,7 @@ void multicast_set_parameters
 Parameter|Description
 ---------|-----------
 `i_min`|The minimum trickle timer interval (50ms resolution), so: `Imin = i_min * 50ms`.
-`i_max`|The maximum trickle timer interval as number if doubling of minimum interval.
+`i_doublings`|The maximum trickle timer interval expressed as number of doublings of minimum interval.
 `k`|A redundancy constant.
 `timer_expirations`|Number if trickle timer expires before terminating the trickle process.
 `window_expiration`|Time window state is kept after the trickle process has ended in 50ms resolution.

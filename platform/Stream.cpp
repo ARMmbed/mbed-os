@@ -22,9 +22,10 @@ namespace mbed {
 Stream::Stream(const char *name) : FileLike(name), _file(NULL) {
     // No lock needed in constructor
     /* open ourselves */
-    char buf[12]; /* :0x12345678 + null byte */
-    std::sprintf(buf, ":%p", this);
-    _file = std::fopen(buf, "w+");
+    _file = fdopen(this, "w+");
+    // fdopen() will make us buffered because Stream::isatty()
+    // wrongly returns zero which is not being changed for
+    // backward compatibility 
     if (_file) {
         mbed_set_unbuffered_stream(_file);
     } else {
@@ -119,7 +120,7 @@ int Stream::sync() {
     return 0;
 }
 
-size_t Stream::size() {
+off_t Stream::size() {
     return 0;
 }
 

@@ -146,6 +146,16 @@ DWORD get_fattime(void)
            | (DWORD)(ptm->tm_sec/2    );
 }
 
+void *ff_memalloc(UINT size)
+{
+    return malloc(size);
+}
+
+void ff_memfree(void *p)
+{
+    free(p);
+}
+
 // Implementation of diskio functions (see ChaN/diskio.h)
 DSTATUS disk_status(BYTE pdrv)
 {
@@ -252,7 +262,8 @@ int FATFileSystem::mount(BlockDevice *bd, bool force) {
             _id = i;
             _ffs[_id] = bd;
             _fsid[0] = '0' + _id;
-            _fsid[1] = '\0';
+            _fsid[1] = ':';
+            _fsid[2] = '\0';
             debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", getName(), _fsid);
             FRESULT res = f_mount(&_fs, _fsid, force);
             unlock();
@@ -290,7 +301,7 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     fs.lock();
-    FRESULT res = f_mkfs(fs._fsid, 0, allocation_unit);
+    FRESULT res = f_mkfs(fs._fsid, 1, allocation_unit);
     fs.unlock();
     if (res != FR_OK) {
         return fat_error_remap(res);
@@ -377,7 +388,9 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
 
     FIL *fh = new FIL;
     char *buffer = new char[strlen(_fsid) + strlen(path) + 3];
-    sprintf(buffer, "%s:/%s", _fsid, path);
+    strcpy(buffer, _fsid);
+    strcat(buffer, "/");
+    strcat(buffer, path);
 
     /* POSIX flags -> FatFS open mode */
     BYTE openmode;
@@ -505,11 +518,11 @@ off_t FATFileSystem::file_tell(fs_file_t file) {
     return res;
 }
 
-size_t FATFileSystem::file_size(fs_file_t file) {
+off_t FATFileSystem::file_size(fs_file_t file) {
     FIL *fh = static_cast<FIL*>(file);
 
     lock();
-    size_t res = fh->fsize;
+    off_t res = fh->fsize;
     unlock();
 
     return res;

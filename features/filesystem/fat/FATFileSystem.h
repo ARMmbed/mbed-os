@@ -179,7 +179,7 @@ protected:
      *  @param file     File handle
      *  @return         Size of the file in bytes
      */
-    virtual size_t file_size(fs_file_t file);
+    virtual off_t file_size(fs_file_t file);
 
     /** Open a directory on the filesystem
      *
@@ -227,7 +227,7 @@ protected:
     
 private:
     FATFS _fs; // Work area (file system object) for logical drive
-    char _fsid[2];
+    char _fsid[sizeof("0:")];
     int _id;
 
 protected:

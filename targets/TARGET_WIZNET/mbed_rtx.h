@@ -22,44 +22,18 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                20000000
-#endif
 
 #elif defined(TARGET_WIZWIKI_W7500P)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                20000000
-#endif
+
 
 #elif defined(TARGET_WIZWIKI_W7500ECO)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                20000000
 #endif
 
 #endif //

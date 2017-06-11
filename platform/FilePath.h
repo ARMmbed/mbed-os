@@ -37,7 +37,7 @@ public:
     const char* fileName(void);
 
     bool          isFileSystem(void);
-    FileSystem* fileSystem(void);
+    FileSystemLike* fileSystem(void);
 
     bool    isFile(void);
     FileLike* file(void);

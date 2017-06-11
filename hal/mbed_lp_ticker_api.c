@@ -17,7 +17,7 @@
 
 #if DEVICE_LOWPOWERTIMER
 
-static ticker_event_queue_t events;
+static ticker_event_queue_t events = { 0 };
 
 static const ticker_interface_t lp_interface = {
     .init = lp_ticker_init,

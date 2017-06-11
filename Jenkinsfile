@@ -24,8 +24,7 @@ def parallelSteps = mbed.createParalleSteps("mbed-os", targets, toolchains)
 mbed.compile(parallelSteps)
 
 def testApps = [
-  "mbed-os-cliapp",
-  "mbed-client-testapp"
+  "mbed-os-cliapp"
   ]
 
 // buildTestApps accepts array of test application names and a mbed-os branch or PR reference as parameters

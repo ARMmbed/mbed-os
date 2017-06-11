@@ -127,4 +127,20 @@ bool btle_matchAddressAndIrk(ble_gap_addr_t const * p_addr, ble_gap_irk_t const 
  */
 void btle_generateResolvableAddress(const ble_gap_irk_t &irk, ble_gap_addr_t &address);
 
+#if (NRF_SD_BLE_API_VERSION >= 3)
+    /**
+     * @brief  Returns a list of addresses from peers in the stacks bond table.
+     *
+     * @param[in/out]   addresses
+     *                  (on input) @ref Gap::Whitelist_t structure where at
+     *                  most addresses.capacity addresses from bonded peers will
+     *                  be stored.
+     *                  (on output) A copy of the addresses from bonded peers.
+     *
+     * @retval BLE_ERROR_NONE         if successful.
+     * @retval BLE_ERROR_UNSPECIFIED  Bond data could not be found in flash or is inconsistent.
+     */
+    ble_error_t btle_getAddressesFromBondTable(Gap::Whitelist_t &addrList);
+#endif
+
 #endif /* _BTLE_SECURITY_H_ */

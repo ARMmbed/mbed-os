@@ -434,4 +434,53 @@ btle_generateResolvableAddress(const ble_gap_irk_t &irk, ble_gap_addr_t &address
     /* Calculate the hash and store it in the top half of the address */
     ah(irk.irk, &address.addr[BLE_GAP_ADDR_LEN - 3], address.addr);
 }
+
+
+#if (NRF_SD_BLE_API_VERSION >= 3)
+ble_error_t btle_getAddressesFromBondTable(Gap::Whitelist_t &addrList)
+{
+    pm_peer_id_t           peer_id;
+    ret_code_t             ret;
+    pm_peer_data_bonding_t bond_data;
+
+    addrList.size = 0;
+    peer_id       = pm_next_peer_id_get(PM_PEER_ID_INVALID);
+
+    /**
+     * Fill addresses list:
+     * Copy addresses from bond table, or
+     * for every private resolvable address in the bond table generate the resolvable address.
+     */
+    while ((peer_id != PM_PEER_ID_INVALID) && (addrList.capacity > addrList.size)) {
+        memset(&bond_data, 0x00, sizeof(bond_data));
+
+        // Read peer data from flash.
+        ret = pm_peer_data_bonding_load(peer_id, &bond_data);
+
+        if ((ret == NRF_ERROR_NOT_FOUND) || (ret == NRF_ERROR_INVALID_PARAM)) {
+            // Peer data could not be found in flash or peer ID is not valid.
+            return BLE_ERROR_UNSPECIFIED;
+        }
+
+        if (bond_data.peer_ble_id.id_addr_info.addr_type == BLEProtocol::AddressType::RANDOM_PRIVATE_RESOLVABLE) {
+            btle_generateResolvableAddress(bond_data.peer_ble_id.id_info,
+                (ble_gap_addr_t &) addrList.addresses[addrList.size].address);
+        } else {
+            memcpy(&addrList.addresses[addrList.size].address,
+                   &bond_data.peer_ble_id.id_addr_info.addr,
+                   sizeof(addrList.addresses[0].address));
+        }
+
+        addrList.addresses[addrList.size].type = static_cast<BLEProtocol::AddressType_t> (bond_data.peer_ble_id.id_addr_info.addr_type);
+
+        addrList.size++;
+
+        // get next peer  id
+        peer_id = pm_next_peer_id_get(peer_id);
+    }
+
+    return BLE_ERROR_NONE;
+}
 #endif
+
+#endif // defined(S130) || defined(S132) || defined(S140)

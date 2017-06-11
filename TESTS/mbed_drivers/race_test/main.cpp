@@ -22,7 +22,7 @@
 #include "SingletonPtr.h"
 #include <stdio.h>
 
-#ifndef MBED_RTOS_SINGLE_THREAD
+#ifdef MBED_RTOS_SINGLE_THREAD
   #error [NOT_SUPPORTED] test not supported for single threaded enviroment
 #endif
 

@@ -39,7 +39,11 @@ int ThreadInterface::connect()
     // Release mutex before blocking
     nanostack_unlock();
 
-    int32_t count = connect_semaphore.wait(30000);
+    // In Thread wait connection for ever:
+    // -routers will create new network and get local connectivity
+    // -end devices will get connectivity once attached to existing network
+    // -devices without network settings gets connectivity once commissioned and attached to network
+    int32_t count = connect_semaphore.wait(osWaitForever);
 
     if (count <= 0) {
         return NSAPI_ERROR_DHCP_FAILURE; // sort of...

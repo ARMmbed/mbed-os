@@ -17,17 +17,9 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_NUMAKER_PFM_NUC472)
+#include <stdint.h>
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                84000000
-#endif
+#if defined(TARGET_NUMAKER_PFM_NUC472)
 
 #if defined(__CC_ARM)
     extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
@@ -54,16 +46,6 @@
 #endif
 
 #elif defined(TARGET_NUMAKER_PFM_M453)
-
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                72000000
-#endif
 
 #if defined(__CC_ARM)
     extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];

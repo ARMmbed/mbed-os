@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_usart.c
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   USART HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Universal Synchronous/Asynchronous Receiver Transmitter
@@ -59,7 +59,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -127,10 +127,12 @@ static void USART_DMAReceiveCplt(DMA_HandleTypeDef *hdma);
 static void USART_DMATxHalfCplt(DMA_HandleTypeDef *hdma);
 static void USART_DMARxHalfCplt(DMA_HandleTypeDef *hdma);
 static void USART_DMAError(DMA_HandleTypeDef *hdma);
+static void USART_DMAAbortOnError(DMA_HandleTypeDef *hdma);
+static void USART_DMATxAbortCallback(DMA_HandleTypeDef *hdma);
+static void USART_DMARxAbortCallback(DMA_HandleTypeDef *hdma);
 static HAL_StatusTypeDef USART_WaitOnFlagUntilTimeout(USART_HandleTypeDef *husart, uint32_t Flag, FlagStatus Status, uint32_t Tickstart, uint32_t Timeout);
 static HAL_StatusTypeDef USART_SetConfig(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_CheckIdleState(USART_HandleTypeDef *husart);
-static void USART_DMAAbortOnError(DMA_HandleTypeDef *hdma);
 static HAL_StatusTypeDef USART_Transmit_IT(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_EndTransmit_IT(USART_HandleTypeDef *husart);
 static HAL_StatusTypeDef USART_Receive_IT(USART_HandleTypeDef *husart);
@@ -197,9 +199,9 @@ static HAL_StatusTypeDef USART_TransmitReceive_IT(USART_HandleTypeDef *husart);
   */
 
 /**
-  * @brief  Initializes the USART mode according to the specified
+  * @brief  Initialize the USART mode according to the specified
   *         parameters in the USART_InitTypeDef and initialize the associated handle.
-  * @param husart: USART handle.
+  * @param  husart USART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_USART_Init(USART_HandleTypeDef *husart)
@@ -247,13 +249,13 @@ HAL_StatusTypeDef HAL_USART_Init(USART_HandleTypeDef *husart)
 }
 
 /**
-  * @brief DeInitialize the USART peripheral.
-  * @param husart: USART handle.
+  * @brief  DeInitialize the USART peripheral.
+  * @param  husart USART handle.
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_USART_DeInit(USART_HandleTypeDef *husart)
 {
-   /* Check the USART handle allocation */
+  /* Check the USART handle allocation */
   if(husart == NULL)
   {
     return HAL_ERROR;
@@ -315,7 +317,7 @@ __weak void HAL_USART_MspDeInit(USART_HandleTypeDef *husart)
   */
 
 /** @defgroup USART_Exported_Functions_Group2 IO operation functions
-  *  @brief   USART Transmit and Receive functions
+  * @brief    USART Transmit and Receive functions
   *
 @verbatim
  ===============================================================================
@@ -367,12 +369,20 @@ __weak void HAL_USART_MspDeInit(USART_HandleTypeDef *husart)
         (++) HAL_USART_ErrorCallback()
         (++) HAL_USART_TxRxCpltCallback()
 
+    (#) Non-Blocking mode transfers could be aborted using Abort API's :
+        (+) HAL_USART_Abort()
+        (+) HAL_USART_Abort_IT()
+
+    (#) For Abort services based on interrupts (HAL_USART_Abort_IT), a Abort Complete Callbacks is provided:
+        (+) HAL_USART_AbortCpltCallback()
+
     (#) In Non-Blocking mode transfers, possible errors are split into 2 categories.
         Errors are handled as follows :
        (+) Error is considered as Recoverable and non blocking : Transfer could go till end, but error severity is 
            to be evaluated by user : this concerns Frame Error, Parity Error or Noise Error in Interrupt mode reception .
            Received character is then retrieved and stored in Rx buffer, Error code is set to allow user to identify error type,
            and HAL_USART_ErrorCallback() user callback is executed. Transfer is kept ongoing on USART side.
+           If user wants to abort it, Abort services should be called by user.
        (+) Error is considered as Blocking : Transfer could not be completed properly and is aborted.
            This concerns Overrun Error In Interrupt mode reception and all errors in DMA mode.
            Error code is set to allow user to identify error type, and HAL_USART_ErrorCallback() user callback is executed.
@@ -677,7 +687,7 @@ HAL_StatusTypeDef HAL_USART_Transmit_IT(USART_HandleTypeDef *husart, uint8_t *pT
 }
 
 /**
-  * @brief  Receive an amount of data in blocking mode.
+  * @brief  Receive an amount of data in interrupt mode.
   * @note   To receive synchronous data, dummy data are simultaneously transmitted.
   * @param  husart USART handle.
   * @param  pRxData pointer to data buffer.
@@ -708,11 +718,11 @@ HAL_StatusTypeDef HAL_USART_Receive_IT(USART_HandleTypeDef *husart, uint8_t *pRx
     /* Process Unlocked */
     __HAL_UNLOCK(husart);
 
+    /* Enable the USART Parity Error and Data Register not empty Interrupts */
+    SET_BIT(husart->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
+
     /* Enable the USART Error Interrupt: (Frame error, noise error, overrun error) */
     SET_BIT(husart->Instance->CR3, USART_CR3_EIE);
-
-    /* Enable the USART Parity Error and USART Data Register not empty Interrupts */
-    SET_BIT(husart->Instance->CR1, USART_CR1_PEIE | USART_CR1_RXNEIE);
 
     /* Send dummy byte in order to generate the clock for the Slave to send the next data */
     if(husart->Init.WordLength == USART_WORDLENGTH_9B)
@@ -892,7 +902,6 @@ HAL_StatusTypeDef HAL_USART_Receive_DMA(USART_HandleTypeDef *husart, uint8_t *pR
     /* Enable the USART transmit DMA channel: the transmit channel is used in order
        to generate in the non-blocking mode the clock to the slave device,
        this mode isn't a simplex receive mode but a full-duplex receive mode */
-    tmp = (uint32_t*)&pRxData;
     /* Set the USART DMA Tx Complete and Error callback to Null */
     husart->hdmatx->XferErrorCallback = NULL;
     husart->hdmatx->XferHalfCpltCallback = NULL;
@@ -1123,6 +1132,196 @@ HAL_StatusTypeDef HAL_USART_DMAStop(USART_HandleTypeDef *husart)
 }
 
 /**
+  * @brief  Abort ongoing transfers (blocking mode).
+  * @param  husart USART handle.
+  * @note   This procedure could be used for aborting any ongoing transfer started in Interrupt or DMA mode. 
+  *         This procedure performs following operations :
+  *           - Disable USART Interrupts (Tx and Rx)
+  *           - Disable the DMA transfer in the peripheral register (if enabled)
+  *           - Abort DMA transfer by calling HAL_DMA_Abort (in case of transfer in DMA mode)
+  *           - Set handle State to READY
+  * @note   This procedure is executed in blocking mode : when exiting function, Abort is considered as completed.
+  * @retval HAL status
+*/
+HAL_StatusTypeDef HAL_USART_Abort(USART_HandleTypeDef *husart)
+{
+  /* Disable TXEIE, TCIE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
+  CLEAR_BIT(husart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE | USART_CR1_TXEIE | USART_CR1_TCIE));
+  CLEAR_BIT(husart->Instance->CR3, USART_CR3_EIE);
+
+  /* Disable the USART DMA Tx request if enabled */
+  if (HAL_IS_BIT_SET(husart->Instance->CR3, USART_CR3_DMAT))
+  {
+    CLEAR_BIT(husart->Instance->CR3, USART_CR3_DMAT);
+
+    /* Abort the USART DMA Tx channel : use blocking DMA Abort API (no callback) */
+    if(husart->hdmatx != NULL)
+    {
+      /* Set the USART DMA Abort callback to Null. 
+         No call back execution at end of DMA abort procedure */
+      husart->hdmatx->XferAbortCallback = NULL;
+
+      HAL_DMA_Abort(husart->hdmatx);
+    }
+  }
+
+  /* Disable the USART DMA Rx request if enabled */
+  if (HAL_IS_BIT_SET(husart->Instance->CR3, USART_CR3_DMAR))
+  {
+    CLEAR_BIT(husart->Instance->CR3, USART_CR3_DMAR);
+
+    /* Abort the USART DMA Rx channel : use blocking DMA Abort API (no callback) */
+    if(husart->hdmarx != NULL)
+    {
+      /* Set the USART DMA Abort callback to Null. 
+         No call back execution at end of DMA abort procedure */
+      husart->hdmarx->XferAbortCallback = NULL;
+
+      HAL_DMA_Abort(husart->hdmarx);
+    }
+  }
+
+  /* Reset Tx and Rx transfer counters */
+  husart->TxXferCount = 0; 
+  husart->RxXferCount = 0; 
+
+  /* Clear the Error flags in the ICR register */
+  __HAL_USART_CLEAR_FLAG(husart, USART_CLEAR_OREF | USART_CLEAR_NEF | USART_CLEAR_PEF | USART_CLEAR_FEF);
+
+  /* Restore husart->State to Ready */
+  husart->State  = HAL_USART_STATE_READY;
+
+  /* Reset Handle ErrorCode to No Error */
+  husart->ErrorCode = HAL_USART_ERROR_NONE;
+
+  return HAL_OK;
+}
+
+/**
+  * @brief  Abort ongoing transfers (Interrupt mode).
+  * @param  husart USART handle.
+  * @note   This procedure could be used for aborting any ongoing transfer started in Interrupt or DMA mode. 
+  *         This procedure performs following operations :
+  *           - Disable USART Interrupts (Tx and Rx)
+  *           - Disable the DMA transfer in the peripheral register (if enabled)
+  *           - Abort DMA transfer by calling HAL_DMA_Abort_IT (in case of transfer in DMA mode)
+  *           - Set handle State to READY
+  *           - At abort completion, call user abort complete callback
+  * @note   This procedure is executed in Interrupt mode, meaning that abort procedure could be
+  *         considered as completed only when user abort complete callback is executed (not when exiting function).
+  * @retval HAL status
+*/
+HAL_StatusTypeDef HAL_USART_Abort_IT(USART_HandleTypeDef *husart)
+{
+  uint32_t abortcplt = 1;
+  
+  /* Disable TXEIE, TCIE, RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
+  CLEAR_BIT(husart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE | USART_CR1_TXEIE | USART_CR1_TCIE));
+  CLEAR_BIT(husart->Instance->CR3, USART_CR3_EIE);
+
+  /* If DMA Tx and/or DMA Rx Handles are associated to USART Handle, DMA Abort complete callbacks should be initialised
+     before any call to DMA Abort functions */
+  /* DMA Tx Handle is valid */
+  if(husart->hdmatx != NULL)
+  {
+    /* Set DMA Abort Complete callback if USART DMA Tx request if enabled.
+       Otherwise, set it to NULL */
+    if(HAL_IS_BIT_SET(husart->Instance->CR3, USART_CR3_DMAT))
+    {
+      husart->hdmatx->XferAbortCallback = USART_DMATxAbortCallback;
+    }
+    else
+    {
+      husart->hdmatx->XferAbortCallback = NULL;
+    }
+  }
+  /* DMA Rx Handle is valid */
+  if(husart->hdmarx != NULL)
+  {
+    /* Set DMA Abort Complete callback if USART DMA Rx request if enabled.
+       Otherwise, set it to NULL */
+    if(HAL_IS_BIT_SET(husart->Instance->CR3, USART_CR3_DMAR))
+    {
+      husart->hdmarx->XferAbortCallback = USART_DMARxAbortCallback;
+    }
+    else
+    {
+      husart->hdmarx->XferAbortCallback = NULL;
+    }
+  }
+  
+  /* Disable the USART DMA Tx request if enabled */
+  if(HAL_IS_BIT_SET(husart->Instance->CR3, USART_CR3_DMAT))
+  {
+    /* Disable DMA Tx at USART level */
+    CLEAR_BIT(husart->Instance->CR3, USART_CR3_DMAT);
+
+    /* Abort the USART DMA Tx channel : use non blocking DMA Abort API (callback) */
+    if(husart->hdmatx != NULL)
+    {
+      /* USART Tx DMA Abort callback has already been initialised : 
+         will lead to call HAL_USART_AbortCpltCallback() at end of DMA abort procedure */
+
+      /* Abort DMA TX */
+      if(HAL_DMA_Abort_IT(husart->hdmatx) != HAL_OK)
+      {
+        husart->hdmatx->XferAbortCallback = NULL;
+      }
+      else
+      {
+        abortcplt = 0;
+      }
+    }
+  }
+
+  /* Disable the USART DMA Rx request if enabled */
+  if (HAL_IS_BIT_SET(husart->Instance->CR3, USART_CR3_DMAR))
+  {
+    CLEAR_BIT(husart->Instance->CR3, USART_CR3_DMAR);
+
+    /* Abort the USART DMA Rx channel : use non blocking DMA Abort API (callback) */
+    if(husart->hdmarx != NULL)
+    {
+      /* USART Rx DMA Abort callback has already been initialised : 
+         will lead to call HAL_USART_AbortCpltCallback() at end of DMA abort procedure */
+
+      /* Abort DMA RX */
+      if(HAL_DMA_Abort_IT(husart->hdmarx) != HAL_OK)
+      {
+        husart->hdmarx->XferAbortCallback = NULL;
+        abortcplt = 1;
+      }
+      else
+      {
+        abortcplt = 0;
+      }
+    }
+  }
+
+  /* if no DMA abort complete callback execution is required => call user Abort Complete callback */
+  if (abortcplt == 1)
+  {
+    /* Reset Tx and Rx transfer counters */
+    husart->TxXferCount = 0; 
+    husart->RxXferCount = 0;
+
+    /* Reset errorCode */
+    husart->ErrorCode = HAL_USART_ERROR_NONE;
+
+    /* Clear the Error flags in the ICR register */
+    __HAL_USART_CLEAR_FLAG(husart, USART_CLEAR_OREF | USART_CLEAR_NEF | USART_CLEAR_PEF | USART_CLEAR_FEF);
+
+    /* Restore husart->State to Ready */
+    husart->State  = HAL_USART_STATE_READY;
+
+    /* As no DMA to be aborted, call directly user Abort complete callback */
+    HAL_USART_AbortCpltCallback(husart);
+  }
+
+  return HAL_OK;
+}
+
+/**
   * @brief  Handle USART interrupt request.
   * @param  husart USART handle.
   * @retval None
@@ -1155,7 +1354,9 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
 
   /* If some errors occur */
   cr3its = READ_REG(husart->Instance->CR3);
-  if((errorflags != RESET) && ((cr3its & (USART_CR3_EIE | USART_CR1_PEIE)) != RESET))
+  if(   (errorflags != RESET)
+     && (   ((cr3its & USART_CR3_EIE) != RESET)
+         || ((cr1its & (USART_CR1_RXNEIE | USART_CR1_PEIE)) != RESET)) )
   {
     /* USART parity error interrupt occurred -------------------------------------*/
     if(((isrflags & USART_ISR_PE) != RESET) && ((cr1its & USART_CR1_PEIE) != RESET))
@@ -1385,6 +1586,21 @@ __weak void HAL_USART_ErrorCallback(USART_HandleTypeDef *husart)
 }
 
 /**
+  * @brief  USART Abort Complete callback.
+  * @param  husart USART handle.
+  * @retval None
+  */
+__weak void HAL_USART_AbortCpltCallback (USART_HandleTypeDef *husart)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(husart);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_USART_AbortCpltCallback can be implemented in the user file.
+   */
+}
+
+/**
   * @}
   */
 
@@ -1598,6 +1814,88 @@ static void USART_DMAAbortOnError(DMA_HandleTypeDef *hdma)
 
   HAL_USART_ErrorCallback(husart);
 }
+
+/**
+  * @brief  DMA USART Tx communication abort callback, when initiated by user
+  *         (To be called at end of DMA Tx Abort procedure following user abort request).
+  * @note   When this callback is executed, User Abort complete call back is called only if no
+  *         Abort still ongoing for Rx DMA Handle.
+  * @param  hdma DMA handle.
+  * @retval None
+  */
+static void USART_DMATxAbortCallback(DMA_HandleTypeDef *hdma)
+{
+  USART_HandleTypeDef* husart = (USART_HandleTypeDef* )(hdma->Parent);
+  
+  husart->hdmatx->XferAbortCallback = NULL;
+
+  /* Check if an Abort process is still ongoing */
+  if(husart->hdmarx != NULL)
+  {
+    if(husart->hdmarx->XferAbortCallback != NULL)
+    {
+      return;
+    }
+  }
+  
+  /* No Abort process still ongoing : All DMA channels are aborted, call user Abort Complete callback */
+  husart->TxXferCount = 0;
+  husart->RxXferCount = 0;
+
+  /* Reset errorCode */
+  husart->ErrorCode = HAL_USART_ERROR_NONE;
+
+  /* Clear the Error flags in the ICR register */
+  __HAL_USART_CLEAR_FLAG(husart, USART_CLEAR_OREF | USART_CLEAR_NEF | USART_CLEAR_PEF | USART_CLEAR_FEF);
+
+  /* Restore husart->State to Ready */
+  husart->State  = HAL_USART_STATE_READY;
+
+  /* Call user Abort complete callback */
+  HAL_USART_AbortCpltCallback(husart);
+}
+
+
+/**
+  * @brief  DMA USART Rx communication abort callback, when initiated by user
+  *         (To be called at end of DMA Rx Abort procedure following user abort request).
+  * @note   When this callback is executed, User Abort complete call back is called only if no
+  *         Abort still ongoing for Tx DMA Handle.
+  * @param  hdma DMA handle.
+  * @retval None
+  */
+static void USART_DMARxAbortCallback(DMA_HandleTypeDef *hdma)
+{
+  USART_HandleTypeDef* husart = (USART_HandleTypeDef* )(hdma->Parent);
+  
+  husart->hdmarx->XferAbortCallback = NULL;
+
+  /* Check if an Abort process is still ongoing */
+  if(husart->hdmatx != NULL)
+  {
+    if(husart->hdmatx->XferAbortCallback != NULL)
+    {
+      return;
+    }
+  }
+  
+  /* No Abort process still ongoing : All DMA channels are aborted, call user Abort Complete callback */
+  husart->TxXferCount = 0;
+  husart->RxXferCount = 0;
+
+  /* Reset errorCode */
+  husart->ErrorCode = HAL_USART_ERROR_NONE;
+
+  /* Clear the Error flags in the ICR register */
+  __HAL_USART_CLEAR_FLAG(husart, USART_CLEAR_OREF | USART_CLEAR_NEF | USART_CLEAR_PEF | USART_CLEAR_FEF);
+
+  /* Restore husart->State to Ready */
+  husart->State  = HAL_USART_STATE_READY;
+
+  /* Call user Abort complete callback */
+  HAL_USART_AbortCpltCallback(husart);
+}
+
 
 /**
   * @brief  Handle USART Communication Timeout.

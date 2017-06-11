@@ -20,6 +20,7 @@
 #include "platform/mbed_semihost_api.h"
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 
 namespace mbed {
 
@@ -164,7 +165,7 @@ int LocalFileHandle::sync() {
     return ret;
 }
 
-size_t LocalFileHandle::size() {
+off_t LocalFileHandle::size() {
     lock();
     off_t off = semihost_flen(_fh);
     unlock();
@@ -235,26 +236,28 @@ protected:
     }
 };
 
-FileHandle *LocalFileSystem::open(const char* name, int flags) {
+int LocalFileSystem::open(FileHandle **file, const char* name, int flags) {
     // No global state modified so function is thread safe
 
     /* reject filenames with / in them */
     for (const char *tmp = name; *tmp; tmp++) {
         if (*tmp == '/') {
-            return NULL;
+            return -EINVAL;
         }
     }
 
     int openmode = posix_to_semihost_open_flags(flags);
     if (openmode == OPEN_INVALID) {
-        return NULL;
+        return -EINVAL;
     }
 
     FILEHANDLE fh = semihost_open(name, openmode);
     if (fh == -1) {
-        return NULL;
+        return -EIO;
     }
-    return new LocalFileHandle(fh);
+
+    *file = new LocalFileHandle(fh);
+    return 0;
 }
 
 int LocalFileSystem::remove(const char *filename) {
@@ -263,10 +266,11 @@ int LocalFileSystem::remove(const char *filename) {
     return semihost_remove(filename);
 }
 
-DirHandle *LocalFileSystem::opendir(const char *name) {
+int LocalFileSystem::open(DirHandle **dir, const char *name) {
     // No global state modified so function is thread safe
 
-    return new LocalDirHandle();
+    *dir = new LocalDirHandle();
+    return 0;
 }
 
 } // namespace mbed

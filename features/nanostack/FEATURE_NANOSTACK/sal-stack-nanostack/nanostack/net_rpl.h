@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -26,6 +26,7 @@ extern "C" {
  *
  * This API is primarily used with a border router. You can also use it with a basic router.
  *
+ * - arm_nwk_6lowpan_rpl_memory_limit_set(), Set RPL global memory limit sizes. Call this only at boot ones.
  * - arm_nwk_6lowpan_rpl_dodag_init(), Allocate and init RPL DODAG root.
  * - arm_nwk_6lowpan_rpl_dodag_remove(), Remove DDAG root, specifically.
  * - arm_nwk_6lowpan_rpl_dodag_start(), Activate RPL DODAG instance.
@@ -48,54 +49,68 @@ extern "C" {
  *
  */
 
-/* DoDag Root setups */
-/* DODAGPreference (Prf): A 3-bit unsigned integer that defines how
+/** \name DoDag Root setups
+ * <B>DODAGPreference (Prf):</B> A 3-bit unsigned integer that defines how
          preferable the root of this DODAG is compared to other DODAG
          roots within the instance. DAGPreference ranges from 0x00
          (least preferred) to 0x07 (most preferred). The default is 0
-         (least preferred). */
-#define RPL_DODAG_PREF_MASK         0x07
-#define RPL_DODAG_PREF(n)           ((n) & RPL_DODAG_PREF_MASK)
+         (least preferred).
+ *
+ * @{
+ */
+#define RPL_DODAG_PREF_MASK         0x07                          /**< Preference mask */
+#define RPL_DODAG_PREF(n)           ((n) & RPL_DODAG_PREF_MASK)   /**< DODAG preference */
+/** @} */
 
-/* Mode of Operation (MOP): The Mode of Operation (MOP) field identifies
+
+/** \name Mode of Operation (MOP)
+ * The Mode of Operation (MOP) field identifies
    the mode of operation of the RPL instance as administratively
    provisioned at and distributed by the DODAG root. All nodes
    joining the DODAG must be able to honor the MOP to
    fully participate as a router. Otherwise, they must only join as a leaf.
-*/
-#define RPL_MODE_MASK               0x38
-#define RPL_MODE_SHIFT              3
-#define RPL_MODE_NO_DOWNWARD        0x00
-#define RPL_MODE_NON_STORING        0x08
-#define RPL_MODE_STORING            0x10
-#define RPL_MODE_STORING_MULTICAST  0x18
-#define RPL_MODE_P2P_DISCOVERY      0x20 /* RFC 6997 */
+ * @{
+ */
+#define RPL_MODE_MASK               0x38  /**< MOP mask */
+#define RPL_MODE_SHIFT              3     /**< shift count */
+#define RPL_MODE_NO_DOWNWARD        0x00  /**< No Downward routes maintained by RPL */
+#define RPL_MODE_NON_STORING        0x08  /**< Non-Storing Mode of Operation */
+#define RPL_MODE_STORING            0x10  /**< Storing Mode of Operation with no multicast support */
+#define RPL_MODE_STORING_MULTICAST  0x18  /**< Storing Mode of Operation with multicast support */
+#define RPL_MODE_P2P_DISCOVERY      0x20  /**< RFC 6997 */
+/** @} */
 
-/* Grounded (G): The Grounded 'G' flag indicates whether the DODAG
+/** Grounded (G): The Grounded 'G' flag indicates whether the DODAG
    advertised can satisfy the application-defined goal. If the
    flag is set, the DODAG is grounded. If the flag is cleared,
    the DODAG is floating.
 */
 #define RPL_GROUNDED                0x80
 
-/** FOR BACKWARDS COMPATIBILITY **/
-#define BR_DODAG_PREF_0             RPL_DODAG_PREF(0)
-#define BR_DODAG_PREF_1             RPL_DODAG_PREF(1)
-#define BR_DODAG_PREF_2             RPL_DODAG_PREF(2)
-#define BR_DODAG_PREF_3             RPL_DODAG_PREF(3)
-#define BR_DODAG_PREF_4             RPL_DODAG_PREF(4)
-#define BR_DODAG_PREF_5             RPL_DODAG_PREF(5)
-#define BR_DODAG_PREF_6             RPL_DODAG_PREF(6)
-#define BR_DODAG_PREF_7             RPL_DODAG_PREF(7)
-#define BR_DODAG_MOP_NON_STORING    RPL_MODE_NON_STORING
-#define BR_DODAG_MOP_STORING        RPL_MODE_STORING
-#define BR_DODAG_FLOATING           0
-#define BR_DODAG_GROUNDED           RPL_GROUNDED
+/** \name FOR BACKWARDS COMPATIBILITY
+ * @{
+ */
+#define BR_DODAG_PREF_0             RPL_DODAG_PREF(0)     /**< backward compatibility */
+#define BR_DODAG_PREF_1             RPL_DODAG_PREF(1)     /**< backward compatibility */
+#define BR_DODAG_PREF_2             RPL_DODAG_PREF(2)     /**< backward compatibility */
+#define BR_DODAG_PREF_3             RPL_DODAG_PREF(3)     /**< backward compatibility */
+#define BR_DODAG_PREF_4             RPL_DODAG_PREF(4)     /**< backward compatibility */
+#define BR_DODAG_PREF_5             RPL_DODAG_PREF(5)     /**< backward compatibility */
+#define BR_DODAG_PREF_6             RPL_DODAG_PREF(6)     /**< backward compatibility */
+#define BR_DODAG_PREF_7             RPL_DODAG_PREF(7)     /**< backward compatibility */
+#define BR_DODAG_MOP_NON_STORING    RPL_MODE_NON_STORING  /**< backward compatibility */
+#define BR_DODAG_MOP_STORING        RPL_MODE_STORING      /**< backward compatibility */
+#define BR_DODAG_FLOATING           0                     /**< backward compatibility */
+#define BR_DODAG_GROUNDED           RPL_GROUNDED          /**< backward compatibility */
+/** @} */
 
-/* Compatibility for even older misspellings */
-#define BR_DODAG_MOP_NON_STRORING   BR_DODAG_MOP_NON_STORING
-#define BR_DODAG_MOP_STRORING       BR_DODAG_MOP_STORING
-#define BR_DODAG_FLOATIN            BR_DODAG_FLOATING
+/** \name Compatibility for even older misspellings
+ * @{
+ */
+#define BR_DODAG_MOP_NON_STRORING   BR_DODAG_MOP_NON_STORING    /**< backward compatibility */
+#define BR_DODAG_MOP_STRORING       BR_DODAG_MOP_STORING        /**< backward compatibility */
+#define BR_DODAG_FLOATIN            BR_DODAG_FLOATING           /**< backward compatibility */
+/** @} */
 
 /** RPL ROOT parent flag */
 #define RPL_ROOT_PARENT             0
@@ -151,6 +166,7 @@ typedef struct dodag_config_t {
 /**
   * \brief RPL DODAG root base allocate.
   *
+  * \param interface_id Interface ID
   * \param dodag_id A pointer to unique DODAGID. This must be the node's GP address in the ZigBeeIP network.
   * \param config A pointer to the DODAG configure structure.
   * \param instace_id Instance ID for RPL DODAG.
@@ -162,10 +178,23 @@ typedef struct dodag_config_t {
   *
   */
 extern int8_t arm_nwk_6lowpan_rpl_dodag_init(int8_t interface_id, const uint8_t *dodag_id, const dodag_config_t *config, uint8_t instace_id, uint8_t flags);
+
 /**
-  * \brief RPL DODAG remove by given instance ID.
+  * \brief RPL Global memory size limits.
   *
-  * \param instace_id Instance ID for removed DODAG.
+  * Calling this function you can update default memory limits. Soft default is 1024 and hard limit is 2048.
+  * \param soft_limit When RPL reach this state at total allocation it start cleaning unused data.
+  * \param hard_limit Total allocation limit. 0 means no limit and > 0 define hard limit. When hard limit > 0 soft_limit must be smaller than hard.
+  *
+  * \return 0, Set OK.
+  * \return -1, Unsupported parameter
+  *
+  */
+extern int8_t arm_nwk_6lowpan_rpl_memory_limit_set(size_t soft_limit, size_t hard_limit);
+/**
+  * \brief RPL DODAG remove by given interface ID.
+  *
+  * \param interface_id Interface ID for removed DODAG.
   *
   * \return 0, Remove OK.
   * \return -1, Remove fail.

@@ -61,11 +61,13 @@ void self_terminate(Thread *self) {
 // Tests that spawn tasks in different configurations
 template <void (*F)(counter_t *)>
 void test_single_thread() {
+    const char tname[] = "Single Thread";
     counter_t counter(0);
-    Thread thread(osPriorityNormal, THREAD_STACK_SIZE, NULL);
+    Thread thread(osPriorityNormal, THREAD_STACK_SIZE, NULL, tname);
     thread.start(callback(F, &counter));
     thread.join();
     TEST_ASSERT_EQUAL(counter, 1);
+    TEST_ASSERT_EQUAL(strcmp(tname, thread.get_name()), 0);
 }
 
 template <int N, void (*F)(counter_t *)>

@@ -91,6 +91,7 @@ class IAR(mbedToolchain):
         self.cppc = [main_cc]
         self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
         self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
+        
         self.ld   = [join(IAR_BIN, "ilinkarm")]
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")

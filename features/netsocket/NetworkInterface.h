@@ -1,6 +1,3 @@
-
-/** \addtogroup netsocket */
-/** @{*/
 /* NetworkStack
  * Copyright (c) 2015 ARM Limited
  *
@@ -30,6 +27,7 @@ class NetworkStack;
 /** NetworkInterface class
  *
  *  Common interface that is shared between network devices
+ *  @addtogroup netsocket
  */
 class NetworkInterface {
 public:
@@ -73,10 +71,10 @@ public:
      *  Implicitly disables DHCP, which can be enabled in set_dhcp.
      *  Requires that the network is disconnected.
      *
-     *  @param address  Null-terminated representation of the local IP address
-     *  @param netmask  Null-terminated representation of the local network mask
-     *  @param gateway  Null-terminated representation of the local gateway
-     *  @return         0 on success, negative error code on failure
+     *  @param ip_address Null-terminated representation of the local IP address
+     *  @param netmask    Null-terminated representation of the local network mask
+     *  @param gateway    Null-terminated representation of the local gateway
+     *  @return           0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_network(
             const char *ip_address, const char *netmask, const char *gateway);
@@ -123,7 +121,7 @@ public:
 
     /** Add a domain name server to list of servers to query
      *
-     *  @param addr     Destination for the host address
+     *  @param address  Destination for the host address
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address);
@@ -146,5 +144,3 @@ protected:
 
 
 #endif
-
-/** @}*/

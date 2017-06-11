@@ -55,6 +55,7 @@ class BuildApiTests(unittest.TestCase):
            side_effect=[i % 2 for i in range(3000)])
     @patch('os.mkdir')
     @patch('tools.toolchains.exists', return_value=True)
+    @patch('tools.toolchains.mbedToolchain.dump_build_profile')
     @patch('tools.utils.run_cmd', return_value=("", "", 0))
     def test_always_complete_build(self, *_):
         with MagicMock() as notify:
@@ -130,7 +131,7 @@ class BuildApiTests(unittest.TestCase):
         mock_exists.return_value = False
         mock_prepare_toolchain().link_program.return_value = 1, 2
         mock_prepare_toolchain().config = namedtuple(
-            "Config", "has_regions name")(None, None)
+            "Config", "has_regions name lib_config_data")(None, None, {})
 
         build_project(self.src_paths, self.build_path, self.target,
                       self.toolchain_name, app_config=app_config)
@@ -159,7 +160,7 @@ class BuildApiTests(unittest.TestCase):
         # Needed for the unpacking of the returned value
         mock_prepare_toolchain().link_program.return_value = 1, 2
         mock_prepare_toolchain().config = namedtuple(
-            "Config", "has_regions name")(None, None)
+            "Config", "has_regions name lib_config_data")(None, None, {})
 
         build_project(self.src_paths, self.build_path, self.target,
                       self.toolchain_name)

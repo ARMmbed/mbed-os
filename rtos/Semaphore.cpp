@@ -20,29 +20,49 @@
  * SOFTWARE.
  */
 #include "rtos/Semaphore.h"
+#include "platform/mbed_assert.h"
 
 #include <string.h>
 
 namespace rtos {
 
 Semaphore::Semaphore(int32_t count) {
-#ifdef CMSIS_OS_RTX
-    memset(_semaphore_data, 0, sizeof(_semaphore_data));
-    _osSemaphoreDef.semaphore = _semaphore_data;
-#endif
-    _osSemaphoreId = osSemaphoreCreate(&_osSemaphoreDef, count);
+    constructor(count, 1024);
+}
+
+Semaphore::Semaphore(int32_t count, uint16_t max_count) {
+    constructor(count, max_count);
+}
+
+void Semaphore::constructor(int32_t count, uint16_t max_count) {
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    memset(&_attr, 0, sizeof(_attr));
+    _attr.cb_mem = &_obj_mem;
+    _attr.cb_size = sizeof(_obj_mem);
+    _id = osSemaphoreNew(max_count, count, &_attr);
+    MBED_ASSERT(_id != NULL);
 }
 
 int32_t Semaphore::wait(uint32_t millisec) {
-    return osSemaphoreWait(_osSemaphoreId, millisec);
+    osStatus_t stat = osSemaphoreAcquire(_id, millisec);
+    switch (stat) {
+        case osOK:
+            return osSemaphoreGetCount(_id) + 1;
+        case osErrorTimeout:
+        case osErrorResource:
+            return 0;
+        case osErrorParameter:
+        default:
+            return -1;
+    }
 }
 
 osStatus Semaphore::release(void) {
-    return osSemaphoreRelease(_osSemaphoreId);
+    return osSemaphoreRelease(_id);
 }
 
 Semaphore::~Semaphore() {
-    osSemaphoreDelete(_osSemaphoreId);
+    osSemaphoreDelete(_id);
 }
 
 }

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_rtc.c
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   RTC HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Real-Time Clock (RTC) peripheral:
@@ -91,7 +91,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -240,6 +240,20 @@ HAL_StatusTypeDef HAL_RTC_Init(RTC_HandleTypeDef *hrtc)
 
     /* Exit Initialization mode */
     hrtc->Instance->ISR &= ((uint32_t)~RTC_ISR_INIT);
+
+    /* If  CR_BYPSHAD bit = 0, wait for synchro else this check is not needed */
+    if((hrtc->Instance->CR & RTC_CR_BYPSHAD) == RESET)
+    {
+      if(HAL_RTC_WaitForSynchro(hrtc) != HAL_OK)
+      {
+        /* Enable the write protection for RTC registers */
+        __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
+
+        hrtc->State = HAL_RTC_STATE_ERROR;
+
+        return HAL_ERROR;
+      }
+    }
 
     hrtc->Instance->OR &= (uint32_t)~(RTC_OR_ALARMOUTTYPE | RTC_OR_OUT_RMP);
     hrtc->Instance->OR |= (uint32_t)(hrtc->Init.OutPutType | hrtc->Init.OutPutRemap);
@@ -607,9 +621,9 @@ HAL_StatusTypeDef HAL_RTC_SetDate(RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDat
 
   hrtc->State = HAL_RTC_STATE_BUSY;
 
-  if((Format == RTC_FORMAT_BIN) && ((sDate->Month & 0x10) == 0x10))
+  if((Format == RTC_FORMAT_BIN) && ((sDate->Month & 0x10U) == 0x10U))
   {
-    sDate->Month = (uint8_t)((sDate->Month & (uint8_t)~(0x10)) + (uint8_t)0x0A);
+    sDate->Month = (uint8_t)((sDate->Month & (uint8_t)~(0x10U)) + (uint8_t)0x0AU);
   }
 
   assert_param(IS_RTC_WEEKDAY(sDate->WeekDay));
@@ -1276,36 +1290,33 @@ HAL_StatusTypeDef HAL_RTC_GetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sA
   */
 void HAL_RTC_AlarmIRQHandler(RTC_HandleTypeDef* hrtc)
 {
-  /* Get the AlarmA interrupt source enable status */
-  if(__HAL_RTC_ALARM_GET_IT_SOURCE(hrtc, RTC_IT_ALRA) != RESET)
-  {
-    /* Get the pending status of the AlarmA Interrupt */
-    if(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAF) != RESET)
-    {
-      /* AlarmA callback */
-      HAL_RTC_AlarmAEventCallback(hrtc);
-
-      /* Clear the AlarmA interrupt pending bit */
-      __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRAF);
-    }
-  }
-
-  /* Get the AlarmB interrupt source enable status */
-  if(__HAL_RTC_ALARM_GET_IT_SOURCE(hrtc, RTC_IT_ALRB) != RESET)
-  {
-    /* Get the pending status of the AlarmB Interrupt */
-    if(__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRBF) != RESET)
-    {
-      /* AlarmB callback */
-      HAL_RTCEx_AlarmBEventCallback(hrtc);
-
-      /* Clear the AlarmB interrupt pending bit */
-      __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRBF);
-    }
-  }
-
   /* Clear the EXTI's line Flag for RTC Alarm */
   __HAL_RTC_ALARM_EXTI_CLEAR_FLAG();
+
+  /* As alarms are sharing the same EXTI line, exit when no more pending Alarm event */
+  while(((__HAL_RTC_ALARM_GET_IT_SOURCE(hrtc, RTC_IT_ALRA) != RESET) && (__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAF) != RESET)) ||
+        ((__HAL_RTC_ALARM_GET_IT_SOURCE(hrtc, RTC_IT_ALRB) != RESET) && (__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRBF) != RESET)))
+  {
+    /* Get the AlarmA interrupt source enable status and pending flag status*/
+    if((__HAL_RTC_ALARM_GET_IT_SOURCE(hrtc, RTC_IT_ALRA) != RESET) && (__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRAF) != RESET))
+    {
+      /* Clear the AlarmA interrupt pending bit */
+      __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRAF);
+
+      /* AlarmA callback */
+      HAL_RTC_AlarmAEventCallback(hrtc);
+    }
+
+    /* Get the AlarmB interrupt source enable status and pending flag status*/
+    if((__HAL_RTC_ALARM_GET_IT_SOURCE(hrtc, RTC_IT_ALRB) != RESET) && (__HAL_RTC_ALARM_GET_FLAG(hrtc, RTC_FLAG_ALRBF) != RESET))
+    {
+      /* Clear the AlarmB interrupt pending bit */
+      __HAL_RTC_ALARM_CLEAR_FLAG(hrtc, RTC_FLAG_ALRBF);
+
+      /* AlarmB callback */
+      HAL_RTCEx_AlarmBEventCallback(hrtc);
+    }
+  }
 
   /* Change RTC state */
   hrtc->State = HAL_RTC_STATE_READY;

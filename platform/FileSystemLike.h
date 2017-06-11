@@ -18,15 +18,16 @@
 
 #include "platform/platform.h"
 
-#include "platform/FileBase.h"
+#include "platform/FileSystemHandle.h"
 #include "platform/FileHandle.h"
 #include "platform/DirHandle.h"
 
 namespace mbed {
 /** \addtogroup platform */
 
-/** A filesystem-like object is one that can be used to open files
- *  though it by fopen("/name/filename", mode)
+
+/** A filesystem-like object is one that can be used to open file-like
+ *  objects though it by fopen("/name/filename", mode)
  *
  *  Implementations must define at least open (the default definitions
  *  of the rest of the functions just return error values).
@@ -34,88 +35,50 @@ namespace mbed {
  * @note Synchronization level: Set by subclass
  * @ingroup platform
  */
-class FileSystemLike : public FileBase {
-
+class FileSystemLike : public FileSystemHandle, public FileBase {
 public:
-    /** FileSystemLike constructor
-     *
-     *  @param name The name to use for the filesystem.
+    /** FileSystemLike lifetime
      */
-    MBED_DEPRECATED_SINCE("mbed-os-5.4",
-        "The mbed 2 filesystem classes have been superseeded by the FileSystem api, "
-        "Replaced by FileSystem")
-    FileSystemLike(const char *name);
+    FileSystemLike(const char *name = NULL) : FileBase(name, FileSystemPathType) {}
+    virtual ~FileSystemLike() {}
 
-    virtual ~FileSystemLike();
+    // Inherited functions with name conflicts
+    using FileSystemHandle::open;
+    using FileSystemHandle::open;
 
-    MBED_DEPRECATED_SINCE("mbed-os-5.4",
-        "The mbed 2 filesystem classes have been superseeded by the FileSystem api, "
-        "Replaced by FileSystem")
-    static DirHandle *opendir();
-    friend class BaseDirHandle;
-
-    /** Opens a file from the filesystem
+    /** Open a file on the filesystem
      *
-     *  @param filename The name of the file to open.
-     *  @param flags One of O_RDONLY, O_WRONLY, or O_RDWR, OR'd with
-     *    zero or more of O_CREAT, O_TRUNC, or O_APPEND.
-     *
-     *  @returns
-     *    A pointer to a FileHandle object representing the
-     *   file on success, or NULL on failure.
+     *  @param path     The name of the file to open
+     *  @param flags    The flags to open the file in, one of O_RDONLY, O_WRONLY, O_RDWR,
+     *                  bitwise or'd with one of O_CREAT, O_TRUNC, O_APPEND
+     *  @return         A file handle on success, NULL on failure
+     *  @deprecated Replaced by `int open(FileHandle **, ...)` for propagating error codes
      */
-    virtual FileHandle *open(const char *filename, int flags) = 0;
+    MBED_DEPRECATED_SINCE("mbed-os-5.5",
+        "Replaced by `int open(FileHandle **, ...)` for propagating error codes")
+    FileHandle *open(const char *path, int flags)
+    {
+        FileHandle *file;
+        int err = open(&file, path, flags);
+        return err ? NULL : file;
+    }
 
-    /** Remove a file from the filesystem.
+    /** Open a directory on the filesystem
      *
-     *  @param filename the name of the file to remove.
-     *  @returns 0 on success, -1 on failure.
+     *  @param path     Name of the directory to open
+     *  @return         A directory handle on success, NULL on failure
+     *  @deprecated Replaced by `int open(DirHandle **, ...)` for propagating error codes
      */
-    virtual int remove(const char *filename) { (void) filename; return -1; };
-
-    /** Rename a file in the filesystem.
-     *
-     *  @param oldname the name of the file to rename.
-     *  @param newname the name to rename it to.
-     *
-     *  @returns
-     *    0 on success,
-     *   -1 on failure.
-     */
-    virtual int rename(const char *oldname, const char *newname) { (void) oldname, (void) newname; return -1; };
-
-    /** Opens a directory in the filesystem and returns a DirHandle
-     *   representing the directory stream.
-     *
-     *  @param name The name of the directory to open.
-     *
-     *  @returns
-     *    A DirHandle representing the directory stream, or
-     *   NULL on failure.
-     */
-    virtual DirHandle *opendir(const char *name) { (void) name; return NULL; };
-
-    /** Creates a directory in the filesystem.
-     *
-     *  @param name The name of the directory to create.
-     *  @param mode The permissions to create the directory with.
-     *
-     *  @returns
-     *    0 on success,
-     *   -1 on failure.
-     */
-    virtual int mkdir(const char *name, mode_t mode) { (void) name, (void) mode; return -1; }
-
-    /** Store information about file in stat structure
-     *
-     *  @param name The name of the file to find information about
-     *  @param st The stat buffer to write to
-     *  @returns
-     *    0 on success or un-needed,
-     *   -1 on error
-     */
-    virtual int stat(const char *name, struct stat *st) { return -1; };
+    MBED_DEPRECATED_SINCE("mbed-os-5.5",
+        "Replaced by `int open(DirHandle **, ...)` for propagating error codes")
+    DirHandle *opendir(const char *path)
+    {
+        DirHandle *dir;
+        int err = open(&dir, path);
+        return err ? NULL : dir;
+    }
 };
+
 
 } // namespace mbed
 

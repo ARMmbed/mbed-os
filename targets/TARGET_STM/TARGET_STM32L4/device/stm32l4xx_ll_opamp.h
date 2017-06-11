@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_opamp.h
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Header file of OPAMP LL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -181,7 +181,7 @@ typedef struct
   * @{
   */
 #define LL_OPAMP_MODE_FUNCTIONAL        ((uint32_t)0x00000000U)                     /*!< OPAMP functional mode */
-#define LL_OPAMP_MODE_CALIBRATION       (OPAMP1_CSR_CALON)                          /*!< OPAMP calibration mode */
+#define LL_OPAMP_MODE_CALIBRATION       (OPAMP_CSR_CALON)                           /*!< OPAMP calibration mode */
 /**
   * @}
   */
@@ -210,8 +210,8 @@ typedef struct
 /** @defgroup OPAMP_LL_EC_INPUT_NONINVERTING OPAMP input non-inverting
   * @{
   */
-#define LL_OPAMP_INPUT_NONINVERT_IO0      ((uint32_t)0x00000000U) /*!< OPAMP non inverting input connected to GPIO pin */
-#define LL_OPAMP_INPUT_NONINVERT_DAC1_CH1 (OPAMP1_CSR_VPSEL)      /*!< OPAMP non inverting input connected to DAC1 channel1 output */
+#define LL_OPAMP_INPUT_NONINVERT_IO0      ((uint32_t)0x00000000U) /*!< OPAMP non inverting input connected to GPIO pin (pin PA0 for OPAMP1, pin PA6 for OPAMP2) */
+#define LL_OPAMP_INPUT_NONINV_DAC1_CH1    (OPAMP1_CSR_VPSEL)      /*!< OPAMP non inverting input connected to DAC1 channel1 output */
 /**
   * @}
   */
@@ -220,8 +220,8 @@ typedef struct
   * @{
   */
 #define LL_OPAMP_INPUT_INVERT_IO0        ((uint32_t)0x00000000U) /*!< OPAMP inverting input connected to GPIO pin (valid also in PGA mode for filtering). Note: OPAMP inverting input is used with OPAMP in mode standalone or PGA with external capacitors for filtering circuit. Otherwise (OPAMP in mode follower), OPAMP inverting input is not used (not connected to GPIO pin). */
-#define LL_OPAMP_INPUT_INVERT_IO1        (OPAMP1_CSR_VMSEL_0)    /*!< OPAMP inverting input (low leakage input) connected to GPIO pin (available only on package BGA132). Note: OPAMP inverting input is used with OPAMP in mode standalone or PGA with external capacitors for filtering circuit. Otherwise (OPAMP in mode follower), OPAMP inverting input is not used (not connected to GPIO pin). */
-#define LL_OPAMP_INPUT_INVERT_CONNECT_NO (OPAMP1_CSR_VMSEL_1)    /*!< OPAMP inverting input not externally connected (intended for OPAMP in mode follower or PGA without external capacitors for filtering) */
+#define LL_OPAMP_INPUT_INVERT_IO1        (OPAMP_CSR_VMSEL_0)     /*!< OPAMP inverting input (low leakage input) connected to GPIO pin (available only on package BGA132). Note: OPAMP inverting input is used with OPAMP in mode standalone or PGA with external capacitors for filtering circuit. Otherwise (OPAMP in mode follower), OPAMP inverting input is not used (not connected to GPIO pin). */
+#define LL_OPAMP_INPUT_INVERT_CONNECT_NO (OPAMP_CSR_VMSEL_1)     /*!< OPAMP inverting input not externally connected (intended for OPAMP in mode follower or PGA without external capacitors for filtering) */
 /**
   * @}
   */
@@ -230,11 +230,13 @@ typedef struct
   * @{
   */
 #define LL_OPAMP_NONINVERTINGINPUT_IO0      LL_OPAMP_INPUT_NONINVERT_IO0
-#define LL_OPAMP_NONINVERTINGINPUT_DAC_CH   LL_OPAMP_INPUT_NONINVERT_DAC1_CH1
+#define LL_OPAMP_NONINVERTINGINPUT_DAC_CH   LL_OPAMP_INPUT_NONINV_DAC1_CH1
 
 #define LL_OPAMP_INVERTINGINPUT_IO0         LL_OPAMP_INPUT_INVERT_IO0
 #define LL_OPAMP_INVERTINGINPUT_IO1         LL_OPAMP_INPUT_INVERT_IO1
 #define LL_OPAMP_INVERTINGINPUT_CONNECT_NO  LL_OPAMP_INPUT_INVERT_CONNECT_NO
+
+#define LL_OPAMP_INPUT_NONINVERT_DAC1_CH1   LL_OPAMP_INPUT_NONINV_DAC1_CH1
 /**
   * @}
   */
@@ -253,6 +255,30 @@ typedef struct
   */
 #define LL_OPAMP_TRIMMING_NMOS          (OPAMP_OTR_TRIMOFFSETN)                     /*!< OPAMP trimming of transistors differential pair NMOS */
 #define LL_OPAMP_TRIMMING_PMOS          (OPAMP_OTR_TRIMOFFSETP | OPAMP1_CSR_CALSEL) /*!< OPAMP trimming of transistors differential pair PMOS */
+/**
+  * @}
+  */
+
+/** @defgroup OPAMP_LL_EC_HW_DELAYS  Definitions of OPAMP hardware constraints delays
+  * @note   Only OPAMP IP HW delays are defined in OPAMP LL driver driver,
+  *         not timeout values.
+  *         For details on delays values, refer to descriptions in source code
+  *         above each literal definition.
+  * @{
+  */
+
+/* Delay for OPAMP startup time (transition from state disable to enable).    */
+/* Note: OPAMP startup time depends on board application environment:         */
+/*       impedance connected to OPAMP output.                                 */
+/*       The delay below is specified under conditions:                       */
+/*        - OPAMP in mode low power                                           */
+/*        - OPAMP in functional mode follower                                 */
+/*        - load impedance of 4kOhm (min), 50pF (max)                         */
+/* Literal set to maximum value (refer to device datasheet,                   */
+/* parameter "tWAKEUP").                                                      */
+/* Unit: us                                                                   */
+#define LL_OPAMP_DELAY_STARTUP_US         ((uint32_t) 30U)  /*!< Delay for OPAMP startup time */
+
 /**
   * @}
   */
@@ -553,7 +579,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_GetPGAGain(OPAMP_TypeDef *OPAMPx)
   * @param  OPAMPx OPAMP instance
   * @param  InputNonInverting This parameter can be one of the following values:
   *         @arg @ref LL_OPAMP_INPUT_NONINVERT_IO0
-  *         @arg @ref LL_OPAMP_INPUT_NONINVERT_DAC1_CH1
+  *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH1
   * @retval None
   */
 __STATIC_INLINE void LL_OPAMP_SetInputNonInverting(OPAMP_TypeDef *OPAMPx, uint32_t InputNonInverting)
@@ -567,7 +593,7 @@ __STATIC_INLINE void LL_OPAMP_SetInputNonInverting(OPAMP_TypeDef *OPAMPx, uint32
   * @param  OPAMPx OPAMP instance
   * @retval Returned value can be one of the following values:
   *         @arg @ref LL_OPAMP_INPUT_NONINVERT_IO0
-  *         @arg @ref LL_OPAMP_INPUT_NONINVERT_DAC1_CH1
+  *         @arg @ref LL_OPAMP_INPUT_NONINV_DAC1_CH1
   */
 __STATIC_INLINE uint32_t LL_OPAMP_GetInputNonInverting(OPAMP_TypeDef *OPAMPx)
 {
@@ -696,7 +722,7 @@ __STATIC_INLINE uint32_t LL_OPAMP_GetCalibrationSelection(OPAMP_TypeDef *OPAMPx)
   register uint32_t CalibrationSelection = (uint32_t)(READ_BIT(OPAMPx->CSR, OPAMP_CSR_CALSEL));
   
   return (CalibrationSelection |
-          ((OPAMP_OTR_TRIMOFFSETN) << (POSITION_VAL(OPAMP_OTR_TRIMOFFSETP) * (CalibrationSelection && OPAMP1_CSR_CALSEL))));
+          ((OPAMP_OTR_TRIMOFFSETN) << (POSITION_VAL(OPAMP_OTR_TRIMOFFSETP) * (CalibrationSelection && OPAMP_CSR_CALSEL))));
 }
 
 /**
@@ -748,10 +774,10 @@ __STATIC_INLINE void LL_OPAMP_SetTrimmingValue(OPAMP_TypeDef* OPAMPx, uint32_t P
   * @brief  Get OPAMP trimming factor for the selected transistors
   *         differential pair NMOS or PMOS, corresponding to the selected
   *         power mode.
-  * @rmtoll OTR      TRIMOFFSETN    LL_OPAMP_SetTrimmingValue\n
-  *         OTR      TRIMOFFSETP    LL_OPAMP_SetTrimmingValue\n
-  *         LPOTR    TRIMLPOFFSETN  LL_OPAMP_SetTrimmingValue\n
-  *         LPOTR    TRIMLPOFFSETP  LL_OPAMP_SetTrimmingValue
+  * @rmtoll OTR      TRIMOFFSETN    LL_OPAMP_GetTrimmingValue\n
+  *         OTR      TRIMOFFSETP    LL_OPAMP_GetTrimmingValue\n
+  *         LPOTR    TRIMLPOFFSETN  LL_OPAMP_GetTrimmingValue\n
+  *         LPOTR    TRIMLPOFFSETP  LL_OPAMP_GetTrimmingValue
   * @param  OPAMPx OPAMP instance
   * @param  PowerMode This parameter can be one of the following values:
   *         @arg @ref LL_OPAMP_POWERMODE_NORMAL

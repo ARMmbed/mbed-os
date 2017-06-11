@@ -76,7 +76,7 @@ public:
      *
      * @return True if the buffer is empty, false if not
      */
-    bool empty() {
+    bool empty() const {
         core_util_critical_section_enter();
         bool is_empty = (_head == _tail) && !_full;
         core_util_critical_section_exit();
@@ -87,7 +87,7 @@ public:
      *
      * @return True if the buffer is full, false if not
      */
-    bool full() {
+    bool full() const {
         core_util_critical_section_enter();
         bool full = _full;
         core_util_critical_section_exit();
