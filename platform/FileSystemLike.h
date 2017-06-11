@@ -44,7 +44,6 @@ public:
 
     // Inherited functions with name conflicts
     using FileSystemHandle::open;
-    using FileSystemHandle::open;
 
     /** Open a file on the filesystem
      *

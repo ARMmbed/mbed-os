@@ -170,7 +170,10 @@ public:
      *  Definition depends upon the subclass implementing FileHandle.
      *  The default is blocking.
      *
-     *  @param blocking true for blocking mode, false for non-blocking mode.
+     *  @param blocking     true for blocking mode, false for non-blocking mode.
+     *
+     *  @return             0 on success
+     *  @return             Negative error code on failure
      */
     virtual int set_blocking(bool blocking)
     {
@@ -183,10 +186,9 @@ public:
      * Call is non-blocking - returns instantaneous state of events.
      * Whenever an event occurs, the derived class should call the sigio() callback).
      *
-     * @param events bitmask of poll events we're interested in - POLLIN/POLLOUT etc.
+     * @param events        bitmask of poll events we're interested in - POLLIN/POLLOUT etc.
      *
-     * @returns
-     *   bitmask of poll events that have occurred.
+     * @returns             bitmask of poll events that have occurred.
      */
     virtual short poll(short events) const
     {
@@ -194,20 +196,22 @@ public:
         return POLLIN | POLLOUT;
     }
 
-    /** Returns true if the FileHandle is writable.
-     *  Definition depends upon the subclass implementing FileHandle.
+    /** Definition depends upon the subclass implementing FileHandle.
      *  For example, if the FileHandle is of type Stream, writable() could return
      *  true when there is ample buffer space available for write() calls.
+     *
+     * @returns             true if the FileHandle is writable.
      */
     bool writable() const
     {
         return poll(POLLOUT) & POLLOUT;
     }
 
-    /** Returns true if the FileHandle is readable.
-     *  Definition depends upon the subclass implementing FileHandle.
+    /** Definition depends upon the subclass implementing FileHandle.
      *  For example, if the FileHandle is of type Stream, readable() could return
      *  true when there is something available to read.
+     *
+     *  @returns            true when there is something available to read.
      */
     bool readable() const
     {
@@ -239,11 +243,13 @@ public:
 
 /** Not a member function
  *  This call is equivalent to posix fdopen().
- *  Returns a pointer to std::FILE.
  *  It associates a Stream to an already opened file descriptor (FileHandle)
  *
- *  @param fh a pointer to an opened file descriptor
- *  @param mode operation upon the file descriptor, e.g., 'wb+'*/
+ *  @param fh       a pointer to an opened file descriptor
+ *  @param mode     operation upon the file descriptor, e.g., 'wb+'
+ *
+ *  @returns        a pointer to std::FILE
+*/
 
 std::FILE *fdopen(FileHandle *fh, const char *mode);
 

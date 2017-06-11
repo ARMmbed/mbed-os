@@ -199,6 +199,19 @@
       "compile" : true,
       "export": true,
       "auto-update" : false
+    },
+    {
+      "name": "mbed-os-example-cellular",
+      "github":"https://github.com/ARMmbed/mbed-os-example-cellular",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features" : [],
+      "targets" : ["MTS_DRAGONFLY_F411RE"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "auto-update" : true
     }
   ]
 }

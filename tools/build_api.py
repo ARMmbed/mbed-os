@@ -1061,7 +1061,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         #                       weak SDK functions
         #   - mbed_main.o: this contains main redirection
         separate_names, separate_objects = ['mbed_retarget.o', 'mbed_board.o',
-                                            'mbed_overrides.o', 'mbed_main.o'], []
+                                            'mbed_overrides.o', 'mbed_main.o', 'mbed_sdk_boot.o'], []
 
         for obj in objects:
             for name in separate_names:

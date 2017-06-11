@@ -46,6 +46,12 @@ public:
     }
 
     /** Creates CAN message with specific content.
+     *
+     *  @param _id      Message ID
+     *  @param _data    Mesaage Data
+     *  @param _len     Message Data length
+     *  @param _type    Type of Data: Use enum CANType for valid parameter values
+     *  @param _format  Data Format: Use enum CANFormat for valid parameter values
      */
     CANMessage(int _id, const char *_data, char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard) {
       len    = _len & 0xF;
@@ -56,6 +62,9 @@ public:
     }
 
     /** Creates CAN remote message.
+     *
+     *  @param _id      Message ID
+     *  @param _format  Data Format: Use enum CANType for valid parameter values
      */
     CANMessage(int _id, CANFormat _format = CANStandard) {
       len    = 0;
@@ -197,11 +206,15 @@ public:
      */
     int filter(unsigned int id, unsigned int mask, CANFormat format = CANAny, int handle = 0);
 
-    /** Returns number of read errors to detect read overflow errors.
+    /**  Detects read errors - Used to detect read overflow errors.
+     *
+     *  @returns number of read errors
      */
     unsigned char rderror();
 
-    /** Returns number of write errors to detect write overflow errors.
+    /** Detects write errors - Used to detect write overflow errors.
+     *
+     *  @returns number of write errors
      */
     unsigned char tderror();
 

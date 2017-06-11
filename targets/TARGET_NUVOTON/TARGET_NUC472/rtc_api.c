@@ -22,6 +22,7 @@
 #include "mbed_error.h"
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
+#include "mbed_mktime.h"
 
 #define YEAR0       1900
 //#define EPOCH_YR    1970
@@ -86,7 +87,7 @@ time_t rtc_read(void)
     timeinfo.tm_sec  = rtc_datetime.u32Second;
 
     // Convert to timestamp
-    time_t t = mktime(&timeinfo);
+    time_t t = _rtc_mktime(&timeinfo);
 
     return t;
 }
@@ -98,18 +99,21 @@ void rtc_write(time_t t)
     }
     
     // Convert timestamp to struct tm
-    struct tm *timeinfo = localtime(&t);
+    struct tm timeinfo;
+    if (_rtc_localtime(t, &timeinfo) == false) {
+        return;
+    }
 
     S_RTC_TIME_DATA_T rtc_datetime;
     
     // Convert S_RTC_TIME_DATA_T to struct tm
-    rtc_datetime.u32Year        = timeinfo->tm_year + YEAR0;
-    rtc_datetime.u32Month       = timeinfo->tm_mon + 1;
-    rtc_datetime.u32Day         = timeinfo->tm_mday;
-    rtc_datetime.u32DayOfWeek   = timeinfo->tm_wday;
-    rtc_datetime.u32Hour        = timeinfo->tm_hour;
-    rtc_datetime.u32Minute      = timeinfo->tm_min;
-    rtc_datetime.u32Second      = timeinfo->tm_sec;
+    rtc_datetime.u32Year        = timeinfo.tm_year + YEAR0;
+    rtc_datetime.u32Month       = timeinfo.tm_mon + 1;
+    rtc_datetime.u32Day         = timeinfo.tm_mday;
+    rtc_datetime.u32DayOfWeek   = timeinfo.tm_wday;
+    rtc_datetime.u32Hour        = timeinfo.tm_hour;
+    rtc_datetime.u32Minute      = timeinfo.tm_min;
+    rtc_datetime.u32Second      = timeinfo.tm_sec;
     rtc_datetime.u32TimeScale   = RTC_CLOCK_24;
     
     // NOTE: Timing issue with write to RTC registers. This delay is empirical, not rational.

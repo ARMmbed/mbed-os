@@ -102,6 +102,7 @@ public:
     }
 
     /** An operator shorthand for read()
+     * \sa DigitalIn::read()
      */
     operator int() {
         // Underlying read is thread safe
