@@ -87,8 +87,15 @@ void analogout_init(dac_t *obj, PinName pin) {
     obj->handle.Instance = (DAC_TypeDef *)(obj->dac);
 
     sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
-    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_DISABLE;
-
+    /* Enable both Buffer and Switch in the configuration,
+     * letting HAL layer in charge of selecting either one
+     * or the other depending on the actual DAC instance and
+     * channel being configured.
+     */
+    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+#if defined(DAC_OUTPUTSWITCH_ENABLE)
+    sConfig.DAC_OutputSwitch = DAC_OUTPUTSWITCH_ENABLE;
+#endif
 
     if (pin == PA_4) {
         pa4_used = 1;
