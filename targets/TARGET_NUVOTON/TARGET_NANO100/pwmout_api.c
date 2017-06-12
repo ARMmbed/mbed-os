@@ -90,6 +90,8 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     obj->period_us = 1000 * 10;
     obj->pulsewidth_us = 0;
     pwmout_config(obj);
+    // enable inverter to ensure the first PWM cycle is correct
+    pwm_base->CTL |= (PWM_CTL_CH0INV_Msk << (chn * 8));
     
     // Enable output of the specified PWM channel
     PWM_EnableOutput(pwm_base, 1 << chn);
@@ -200,7 +202,8 @@ static void pwmout_config(pwmout_t* obj)
     uint32_t chn = NU_MODSUBINDEX(obj->pwm);
     // NOTE: Support period < 1s
     //PWM_ConfigOutputChannel(pwm_base, chn, 1000 * 1000 / obj->period_us, obj->pulsewidth_us * 100 / obj->period_us);
-    PWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, obj->pulsewidth_us * 100 / obj->period_us, obj->period_us);
+    // enable inverter to ensure the first PWM cycle is correct
+    PWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, 100 - (obj->pulsewidth_us * 100 / obj->period_us), obj->period_us);
 }
 
 #endif
