@@ -89,11 +89,11 @@ Reset_Handler:
 CopyDataInit:
   ldr r4, [r2, r3]
   str r4, [r0, r3]
-  add r3, r3, #4
+  adds r3, r3, #4
 
 LoopCopyDataInit:
   // do {...} while (_sdata + r3 < _edata)
-  add r4, r0, r3
+  adds r4, r0, r3
   // if (r4 < r1) branch to CopyDataInit
   cmp r4, r1
   bcc CopyDataInit
