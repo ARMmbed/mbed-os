@@ -8,6 +8,9 @@
   #define MBED_APP_SIZE 0x00080000
 #endif
 
+#define SPIM_CCM_START  0x20020000
+#define SPIM_CCM_END    0x20028000
+
 LR_IROM1 MBED_APP_START {
   ER_IROM1 MBED_APP_START {  ; load address = execution address
    *(RESET, +First)
@@ -34,4 +37,6 @@ LR_IROM1 MBED_APP_START {
 }
 ScatterAssert(LoadLimit(LR_IROM1) <= (MBED_APP_START + MBED_APP_SIZE))  ; 512 KB APROM
 ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x20028000)   ; 160 KB SRAM
-
+ScatterAssert(ImageLimit(ARM_LIB_STACK) <= SPIM_CCM_START)  ; Guard from initial stack allocated on SPIM CCM memory 
+                                                            ; which is not initialized yet
+                                                            
