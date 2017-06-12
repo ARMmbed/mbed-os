@@ -60,13 +60,6 @@ struct analogin_s {
     uint32_t channel;
 };
 
-struct dac_s {
-    DACName dac;
-    PinName pin;
-    uint32_t channel;
-    DAC_HandleTypeDef handle;
-};
-
 #if defined (DEVICE_CAN)
 struct can_s {
     CANName can;
