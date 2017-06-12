@@ -3125,12 +3125,14 @@
     },
     "NRF52_DK_BOOT": {
         "inherits": ["NRF52_DK"],
+        "macros_add": ["IS_LEGACY_DEVICE_MANAGER_ENABLED=1"],
         "release_versions": ["2", "5"],
         "extra_labels_add": ["NRF52_DK"],
         "MERGE_BOOTLOADER": true
     },
     "NRF52_DK_OTA": {
         "inherits": ["NRF52_DK"],
+        "macros_add": ["IS_LEGACY_DEVICE_MANAGER_ENABLED=1"],
         "release_versions": ["2", "5"],
         "extra_labels_add": ["NRF52_DK"],
         "MERGE_BOOTLOADER": false,

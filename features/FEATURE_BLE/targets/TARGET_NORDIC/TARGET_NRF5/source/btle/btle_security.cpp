@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if defined(S110)
+#if (IS_LEGACY_DEVICE_MANAGER_ENABLED) || defined(S110)
 #include "btle.h"
 
 #include "nRF5xn.h"

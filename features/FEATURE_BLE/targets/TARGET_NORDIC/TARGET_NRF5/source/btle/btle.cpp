@@ -29,11 +29,15 @@
 #include "ble/GapEvents.h"
 #include "nRF5xn.h"
 
-#ifdef S110
-    #define IS_LEGACY_DEVICE_MANAGER_ENABLED 1
-#elif defined(S130) || defined(S132)
-    #define IS_LEGACY_DEVICE_MANAGER_ENABLED 0
+#ifndef IS_LEGACY_DEVICE_MANAGER_ENABLED
+    #ifdef S110
+        #define IS_LEGACY_DEVICE_MANAGER_ENABLED 1
+    #elif defined(S130) || defined(S132)
+        #define IS_LEGACY_DEVICE_MANAGER_ENABLED 0
+    #endif
 #endif
+
+
 
 extern "C" {
 #if (IS_LEGACY_DEVICE_MANAGER_ENABLED)
@@ -164,10 +168,7 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 
-    // Peer Manger must been initialised prior any other call to its API (this file and btle_security_pm.cpp)
-    pm_init();
-
-#if  (NRF_SD_BLE_API_VERSION <= 2)
+#if  (NRF_SD_BLE_API_VERSION <= 2) || (IS_LEGACY_DEVICE_MANAGER_ENABLED)
     ble_gap_addr_t addr;
     if (sd_ble_gap_address_get(&addr) != NRF_SUCCESS) {
         return ERROR_INVALID_PARAM;
@@ -176,6 +177,8 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 #else
+    // Peer Manger must been initialised prior any other call to its API (this file and btle_security_pm.cpp)
+    pm_init();
     ble_gap_privacy_params_t privacy_params = {0};
     privacy_params.privacy_mode = BLE_GAP_PRIVACY_MODE_OFF;
     pm_privacy_set(&privacy_params);

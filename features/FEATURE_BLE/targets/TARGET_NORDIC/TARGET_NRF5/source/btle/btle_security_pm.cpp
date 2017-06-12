@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(S130) || defined(S132) || defined(S140)
+#if (!IS_LEGACY_DEVICE_MANAGER_ENABLED) && (defined(S130) || defined(S132) || defined(S140))
 #include "btle.h"
 
 #include "nRF5xn.h"
