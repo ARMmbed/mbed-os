@@ -19,7 +19,9 @@
 #ifndef LWIPOPTS_H
 #define LWIPOPTS_H
 
+#if MBED_CONF_LWIP_ETHERNET_ENABLED
 #include "lwipopts_conf.h"
+#endif
 
 // Workaround for Linux timeval
 #if defined (TOOLCHAIN_GCC)
