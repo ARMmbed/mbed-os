@@ -60,12 +60,6 @@ struct analogin_s {
     uint8_t channel;
 };
 
-struct dac_s {
-    DACName dac;
-    PinName pin;
-    uint32_t channel;
-};
-
 struct can_s {
     CANName can;
     int index;
