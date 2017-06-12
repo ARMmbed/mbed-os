@@ -93,6 +93,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->irq_id = id;
 
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
+    // NOTE: In InterruptIn constructor, gpio_irq_init() is called with gpio_init_in() which is responsible for multi-function pin setting.
     //gpio_set(pin);
     
     {
