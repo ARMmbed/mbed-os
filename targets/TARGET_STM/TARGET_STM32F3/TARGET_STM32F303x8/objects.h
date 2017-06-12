@@ -64,6 +64,7 @@ struct dac_s {
     DACName dac;
     PinName pin;
     uint32_t channel;
+    DAC_HandleTypeDef handle;
 };
 
 struct can_s {
