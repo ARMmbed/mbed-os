@@ -92,7 +92,7 @@ CopyDataInit:
   adds r3, r3, #4
 
 LoopCopyDataInit:
-  // do {...} while (_sdata + r3 < _edata)
+  // while (_sdata + r3 < _edata)
   adds r4, r0, r3
   // if (r4 < r1) branch to CopyDataInit
   cmp r4, r1
