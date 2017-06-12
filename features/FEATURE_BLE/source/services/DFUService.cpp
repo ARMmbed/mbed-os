@@ -22,9 +22,10 @@ const uint8_t              DFUServiceBaseUUID[] = {
     0x00, 0x00, 0x00, 0x00, 0x12, 0x12, 0xEF, 0xDE,
     0x15, 0x23, 0x78, 0x5F, 0xEA, 0xBC, 0xD1, 0x23,
 };
-const uint16_t             DFUServiceShortUUID                      = 0x1530;
-const uint16_t             DFUServiceControlCharacteristicShortUUID = 0x1531;
-const uint16_t             DFUServicePacketCharacteristicShortUUID  = 0x1532;
+const uint16_t             DFUServiceShortUUID                       = 0x1530;
+const uint16_t             DFUServiceControlCharacteristicShortUUID  = 0x1531;
+const uint16_t             DFUServicePacketCharacteristicShortUUID   = 0x1532;
+const uint16_t             DFUServiceRevisionCharacteristicShortUUID = 0x1534;
 
 const uint8_t              DFUServiceUUID[] = {
     0x00, 0x00, (uint8_t)(DFUServiceShortUUID >> 8), (uint8_t)(DFUServiceShortUUID & 0xFF), 0x12, 0x12, 0xEF, 0xDE,
@@ -36,6 +37,11 @@ const uint8_t              DFUServiceControlCharacteristicUUID[] = {
 };
 const uint8_t              DFUServicePacketCharacteristicUUID[] = {
     0x00, 0x00, (uint8_t)(DFUServicePacketCharacteristicShortUUID >> 8), (uint8_t)(DFUServicePacketCharacteristicShortUUID & 0xFF), 0x12, 0x12, 0xEF, 0xDE,
+    0x15, 0x23, 0x78, 0x5F, 0xEA, 0xBC, 0xD1, 0x23,
+};
+
+const uint8_t              DFUServiceRevisionCharacteristicUUID[] = {
+    0x00, 0x00, (uint8_t)(DFUServiceRevisionCharacteristicShortUUID >> 8), (uint8_t)(DFUServiceRevisionCharacteristicShortUUID & 0xFF), 0x12, 0x12, 0xEF, 0xDE,
     0x15, 0x23, 0x78, 0x5F, 0xEA, 0xBC, 0xD1, 0x23,
 };
 

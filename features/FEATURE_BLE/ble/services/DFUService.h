@@ -16,6 +16,11 @@
 
 #ifndef __BLE_DFU_SERVICE_H__
 #define __BLE_DFU_SERVICE_H__
+
+#define DFU_REV_MAJOR                    0x00                                       /** DFU Major revision number to be exposed. */
+#define DFU_REV_MINOR                    0x01                                       /** DFU Minor revision number to be exposed. */
+#define DFU_REVISION                     ((DFU_REV_MAJOR << 8) | DFU_REV_MINOR)     /** DFU Revision number to be exposed. Combined of major and minor versions. */
+
  
 #if defined(TARGET_NRF51822) || defined(TARGET_NRF52832) /* DFU only supported on nrf5x platforms */
 
@@ -29,10 +34,12 @@ extern "C" {
 extern const uint8_t  DFUServiceBaseUUID[];
 extern const uint16_t DFUServiceShortUUID;
 extern const uint16_t DFUServiceControlCharacteristicShortUUID;
+extern const uint16_t DFUServiceRevisionCharacteristicShortUUID;
 
 extern const uint8_t  DFUServiceUUID[];
 extern const uint8_t  DFUServiceControlCharacteristicUUID[];
 extern const uint8_t  DFUServicePacketCharacteristicUUID[];
+extern const uint8_t  DFUServiceRevisionCharacteristicUUID[];
 
 /**
 * @class DFUService
@@ -61,6 +68,7 @@ public:
         controlPoint(DFUServiceControlCharacteristicUUID, controlBytes, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY),
         packet(DFUServicePacketCharacteristicUUID, packetBytes, SIZEOF_PACKET_BYTES, SIZEOF_PACKET_BYTES,
                GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE),
+        revision(DFUServiceRevisionCharacteristicUUID, &dfu_revision),
         controlBytes(),
         packetBytes() {
         static bool serviceAdded = false; /* We only add the DFU service once. */
@@ -73,7 +81,7 @@ public:
         controlBytes[0] = 0xFF;
         controlBytes[1] = 0xFF;
 
-        GattCharacteristic *dfuChars[] = {&controlPoint, &packet};
+        GattCharacteristic *dfuChars[] = {&controlPoint, &packet, &revision};
         GattService         dfuService(DFUServiceUUID, dfuChars, sizeof(dfuChars) / sizeof(GattCharacteristic *));
 
         ble.addService(dfuService);
@@ -100,6 +108,10 @@ public:
      */
     virtual void onDataWritten(const GattWriteCallbackParams *params) {
         if (params->handle == controlPoint.getValueHandle()) {
+            // if (params->len > 0) {
+            //     ble.gattServer().write(controlPoint.getValueHandle(), &params->data[0], 1);
+            // }
+
             /* At present, writing anything will do the trick - this needs to be improved. */
             if (handoverCallback) {
                 handoverCallback();
@@ -136,8 +148,11 @@ protected:
      *  handing control over to the bootloader. */
     GattCharacteristic  packet;
 
+    ReadOnlyArrayGattCharacteristic<uint16_t, 1> revision;
+
     uint8_t             controlBytes[SIZEOF_CONTROL_BYTES];
     uint8_t             packetBytes[SIZEOF_PACKET_BYTES];
+    uint16_t            dfu_revision = DFU_REVISION;
 
     static ResetPrepare_t handoverCallback;  /**< Application-specific handover callback. */
 };
