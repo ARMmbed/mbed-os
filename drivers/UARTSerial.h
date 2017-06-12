@@ -171,7 +171,9 @@ private:
 
     bool _blocking;
     bool _tx_irq_enabled;
+#if defined(DEVICE_INTERRUPTIN)
     InterruptIn *_dcd_irq;
+#endif
 
     /** Device Hanged up
      *  Determines if the device hanged up on us.
