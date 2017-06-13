@@ -16,13 +16,13 @@
 #ifndef MBED_H
 #define MBED_H
 
-#define MBED_LIBRARY_VERSION -1
+#define MBED_LIBRARY_VERSION 0
 
 #if MBED_CONF_RTOS_PRESENT
 // RTOS present, this is valid only for mbed OS 5
 #define MBED_MAJOR_VERSION 5
 #define MBED_MINOR_VERSION 5
-#define MBED_PATCH_VERSION -1
+#define MBED_PATCH_VERSION 0
 
 #else
 // mbed 2
@@ -33,10 +33,6 @@
 
 #define MBED_ENCODE_VERSION(major, minor, patch) ((major)*10000 + (minor)*100 + (patch))
 #define MBED_VERSION MBED_ENCODE_VERSION(MBED_MAJOR_VERSION, MBED_MINOR_VERSION, MBED_PATCH_VERSION)
-
-#if MBED_CONF_RTOS_PRESENT
-#include "rtos/rtos.h"
-#endif
 
 #if MBED_CONF_RTOS_PRESENT
 #include "rtos/rtos.h"

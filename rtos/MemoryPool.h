@@ -76,8 +76,8 @@ public:
     }
 
     /** Free a memory block.
-      @param   address of the allocated memory block to be freed.
-      @return  status code that indicates the execution status of the function.
+      @param   block  address of the allocated memory block to be freed.
+      @return         status code that indicates the execution status of the function.
     */
     osStatus free(T *block) {
         return osMemoryPoolFree(_id, (void*)block);

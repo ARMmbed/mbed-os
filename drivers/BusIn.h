@@ -95,10 +95,12 @@ public:
     }
 
     /** A shorthand for read()
+     *  \sa DigitalIn::read()
      */
     operator int();
 
     /** Access to particular bit in random-iterator fashion
+     * @param index  Position of bit
      */
     DigitalIn & operator[] (int index);
 

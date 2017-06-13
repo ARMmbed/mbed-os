@@ -188,8 +188,5 @@
         "CExtraOptionsCheck": 1,
         "CExtraOptions": "--drv_vector_table_base=0x0",
         "CMSISDAPJtagSpeedList": 10
-    },
-    "REALTEK_RTL8195AM": {
-        "OGChipSelectEditMenu": "REALTEK_RTL8195AM\tRealtek REALTEK_RTL8195AM"
     }
 }

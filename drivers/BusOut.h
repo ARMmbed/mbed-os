@@ -92,15 +92,18 @@ public:
     }
 
     /** A shorthand for write()
+     * \sa BusOut::write()
      */
     BusOut& operator= (int v);
     BusOut& operator= (BusOut& rhs);
 
     /** Access to particular bit in random-iterator fashion
+     * @param index  Bit Position
      */
     DigitalOut& operator[] (int index);
 
     /** A shorthand for read()
+     * \sa BusOut::read()
      */
     operator int();
 

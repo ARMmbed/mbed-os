@@ -16,7 +16,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#define NUMBER_OF_LOGICAL_ENDPOINTS (16)
+#define NUMBER_OF_LOGICAL_ENDPOINTS (4)
 #define NUMBER_OF_PHYSICAL_ENDPOINTS (NUMBER_OF_LOGICAL_ENDPOINTS * 2)
 
 /* Define physical endpoint numbers */
@@ -31,30 +31,6 @@
 #define EP2IN       (5)
 #define EP3OUT      (6)
 #define EP3IN       (7)
-#define EP4OUT      (8)
-#define EP4IN       (9)
-#define EP5OUT      (10)
-#define EP5IN       (11)
-#define EP6OUT      (12)
-#define EP6IN       (13)
-#define EP7OUT      (14)
-#define EP7IN       (15)
-#define EP8OUT      (16)
-#define EP8IN       (17)
-#define EP9OUT      (18)
-#define EP9IN       (19)
-#define EP10OUT     (20)
-#define EP10IN      (21)
-#define EP11OUT     (22)
-#define EP11IN      (23)
-#define EP12OUT     (24)
-#define EP12IN      (25)
-#define EP13OUT     (26)
-#define EP13IN      (27)
-#define EP14OUT     (28)
-#define EP14IN      (29)
-#define EP15OUT     (30)
-#define EP15IN      (31)
 
 /* Maximum Packet sizes */
 
@@ -62,18 +38,6 @@
 #define MAX_PACKET_SIZE_EP1  (64)
 #define MAX_PACKET_SIZE_EP2  (64)
 #define MAX_PACKET_SIZE_EP3  (1023)
-#define MAX_PACKET_SIZE_EP4  (64)
-#define MAX_PACKET_SIZE_EP5  (64)
-#define MAX_PACKET_SIZE_EP6  (64)
-#define MAX_PACKET_SIZE_EP7  (64)
-#define MAX_PACKET_SIZE_EP8  (64)
-#define MAX_PACKET_SIZE_EP9  (64)
-#define MAX_PACKET_SIZE_EP10 (64)
-#define MAX_PACKET_SIZE_EP11 (64)
-#define MAX_PACKET_SIZE_EP12 (64)
-#define MAX_PACKET_SIZE_EP13 (64)
-#define MAX_PACKET_SIZE_EP14 (64)
-#define MAX_PACKET_SIZE_EP15 (64)
 
 /* Generic endpoints - intended to be portable accross devices */
 /* and be suitable for simple USB devices. */

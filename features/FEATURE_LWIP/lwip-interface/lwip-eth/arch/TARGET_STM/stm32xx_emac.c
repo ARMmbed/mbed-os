@@ -59,6 +59,8 @@ static struct pbuf * _eth_arch_low_level_input(struct netif *netif);
 __weak uint8_t mbed_otp_mac_address(char *mac);
 void mbed_default_mac_address(char *mac);
 
+void _eth_config_mac(ETH_HandleTypeDef *heth);
+
 /**
  * Ethernet Rx Transfer completed callback
  *
@@ -143,6 +145,9 @@ static void _eth_arch_low_level_init(struct netif *netif)
     /* device capabilities */
     /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
     netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
+
+    /* Configure MAC */
+    _eth_config_mac(&EthHandle);
 
     /* Enable MAC and DMA transmission and reception */
     HAL_ETH_Start(&EthHandle);
@@ -300,19 +305,19 @@ static struct pbuf * _eth_arch_low_level_input(struct netif *netif)
             memcpy((uint8_t*)((uint8_t*)q->payload + payloadoffset), (uint8_t*)((uint8_t*)buffer + bufferoffset), byteslefttocopy);
             bufferoffset = bufferoffset + byteslefttocopy;
         }
-
-        /* Release descriptors to DMA */
-        /* Point to first descriptor */
-        dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
-        /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
-        for (i = 0; i < EthHandle.RxFrameInfos.SegCount; i++) {
-            dmarxdesc->Status |= ETH_DMARXDESC_OWN;
-            dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
-        }
-
-        /* Clear Segment_Count */
-        EthHandle.RxFrameInfos.SegCount = 0;
     }
+
+    /* Release descriptors to DMA */
+    /* Point to first descriptor */
+    dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
+    /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
+    for (i = 0; i < EthHandle.RxFrameInfos.SegCount; i++) {
+        dmarxdesc->Status |= ETH_DMARXDESC_OWN;
+        dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
+    }
+
+    /* Clear Segment_Count */
+    EthHandle.RxFrameInfos.SegCount = 0;
 
     /* When Rx Buffer unavailable flag is set: clear it and resume reception */
     if ((EthHandle.Instance->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) {

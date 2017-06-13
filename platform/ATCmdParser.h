@@ -80,10 +80,11 @@ public:
     /**
      * Constructor
      *
-     * @param serial         serial interface to use for AT commands
-     * @param buffer_size    size of internal buffer for transaction
-     * @param timeout        timeout of the connection
-     * @param debug          turns on/off debug output for AT commands
+     * @param fh A FileHandle to a digital interface to use for AT commands
+     * @param output_delimiter end of command line termination
+     * @param buffer_size size of internal buffer for transaction
+     * @param timeout timeout of the connection
+     * @param debug turns on/off debug output for AT commands
      */
     ATCmdParser(FileHandle *fh, const char *output_delimiter = "\r",
              int buffer_size = 256, int timeout = 8000, bool debug = false)
@@ -135,7 +136,7 @@ public:
     /**
      * Sets string of characters to use as line delimiters
      *
-     * @param delimiter string of characters to use as line delimiters
+     * @param output_delimiter string of characters to use as line delimiters
      */
     void set_delimiter(const char *output_delimiter)
     {
@@ -149,7 +150,7 @@ public:
      * Please use set_delimiter(const char *) API only from now on.
      * Sets string of characters to use as line delimiters
      *
-     * @param delimiter string of characters to use as line delimiters
+     * @param output_delimiter string of characters to use as line delimiters
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.5.0", "Replaced with set_delimiter for consistency")
     void setDelimiter(const char *output_delimiter)
@@ -184,7 +185,7 @@ public:
      * Sends an AT command
      *
      * Sends a formatted command using printf style formatting
-     * @see ::printf
+     * @see printf
      *
      * @param command printf-like format string of command to send which
      *                is appended with a newline
@@ -199,7 +200,7 @@ public:
      * Receive an AT response
      *
      * Receives a formatted response using scanf style formatting
-     * @see ::scanf
+     * @see scanf
      *
      * Responses are parsed line at a time.
      * Any received data that does not match the response is ignored until
@@ -248,7 +249,7 @@ public:
 
     /**
      * Direct printf to underlying stream
-     * @see ::printf
+     * @see printf
      *
      * @param format format string to pass to printf
      * @param ... arguments to printf
@@ -260,7 +261,7 @@ public:
 
     /**
      * Direct scanf on underlying stream
-     * @see ::scanf
+     * @see scanf
      *
      * @param format format string to pass to scanf
      * @param ... arguments to scanf

@@ -2,6 +2,9 @@ python:
   - "2.7"
 
 script:
+  - mkdir BUILD && doxygen doxyfile_options
+  - |
+    [ -z "`doxygen doxyfile_options 2>&1`" ]
   - make -C events/equeue test clean
   - PYTHONPATH=. python tools/test/config_test/config_test.py
   - PYTHONPATH=. python tools/test/build_api/build_api_test.py
@@ -13,11 +16,13 @@ script:
   - python tools/build_travis.py
 before_install:
   - sudo add-apt-repository -y ppa:terry.guo/gcc-arm-embedded
+  - sudo add-apt-repository -y ppa:libreoffice/libreoffice-4-2
   - sudo apt-get update -qq
-  - sudo apt-get install -qq gcc-arm-none-eabi --force-yes
+  - sudo apt-get install -qq gcc-arm-none-eabi doxygen --force-yes
   # Print versions we use
   - arm-none-eabi-gcc --version
   - python --version
+  - doxygen --version
 install:
   - sudo pip install -r requirements.txt
   - sudo pip install pytest

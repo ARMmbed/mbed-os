@@ -157,10 +157,13 @@ static phy_device_driver_s device_driver = {
 static void rf_thread_loop()
 {
     for (;;) {
-        int32_t event = rf_thread.signal_wait(0);
+        osEvent event = rf_thread.signal_wait(0);
+        if (event.status != osEventSignal) {
+            continue;
+        }
 
         platform_enter_critical();
-        if (event & SIGNAL_COUNT_RADIO) {
+        if (event.value.signals & SIGNAL_COUNT_RADIO) {
             handle_IRQ_events();
         }
         platform_exit_critical();
@@ -451,7 +454,7 @@ static void rf_mac_hw_init(void) {
     for (lutIndex=0;lutIndex<96;lutIndex++) {
       *(pMatchReg + lutIndex) = 0xFF;
     }
-    osStatus_t status = rf_thread.start(mbed::callback(rf_thread_loop));
+    osStatus status = rf_thread.start(mbed::callback(rf_thread_loop));
     MBED_ASSERT(status == osOK);
 
     /** Clear and enable MAC IRQ at task level, when scheduler is on. */

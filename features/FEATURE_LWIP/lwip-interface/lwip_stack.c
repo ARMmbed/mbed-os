@@ -47,8 +47,6 @@ static nsapi_error_t mbed_lwip_err_remap(err_t err);
     #define MBED_NETIF_INIT_FN eth_arch_enetif_init
 #endif
 
-#define DHCP_TIMEOUT 15000
-
 /* Static arena of sockets */
 static struct lwip_socket {
     bool in_use;
@@ -550,6 +548,7 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
 #endif /* LWIP_IPV6_AUTOCONFIG */
 #endif // LWIP_IPV6
 
+
 #if LWIP_IPV4
     if (!dhcp && !ppp) {
         ip4_addr_t ip_addr;
@@ -600,10 +599,11 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
 
     // If doesn't have address
     if (!mbed_lwip_get_ip_addr(true, &lwip_netif)) {
-        if (sys_arch_sem_wait(&lwip_netif_has_addr, 15000) == SYS_ARCH_TIMEOUT) {
+        if (sys_arch_sem_wait(&lwip_netif_has_addr, DHCP_TIMEOUT * 1000) == SYS_ARCH_TIMEOUT) {
             if (ppp) {
                 ppp_lwip_disconnect();
             }
+
             return NSAPI_ERROR_DHCP_FAILURE;
         }
     }

@@ -44,6 +44,11 @@
 #define TEST_ENV_TESTCASE_SUMMARY   GREENTEA_TEST_ENV_TESTCASE_SUMMARY
 
 /**
+ *  Default length for UUID buffers (used during the sync process)
+ */
+#define GREENTEA_UUID_LENGTH        48
+
+/**
  *  Generic test suite transport protocol keys
  */
 extern const char* GREENTEA_TEST_ENV_END;
@@ -77,6 +82,7 @@ extern const char* GREENTEA_TEST_ENV_LCOV_START;
  *  Greentea-client related API for communication with host side
  */
 void GREENTEA_SETUP(const int, const char *);
+void GREENTEA_SETUP_UUID(const int timeout, const char *host_test_name, char *buffer, size_t size);
 void GREENTEA_TESTSUITE_RESULT(const int);
 void GREENTEA_TESTCASE_START(const char *test_case_name);
 void GREENTEA_TESTCASE_FINISH(const char *test_case_name, const size_t passes, const size_t failed);
