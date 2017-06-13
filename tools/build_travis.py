@@ -79,7 +79,7 @@ build_list = (
     { "target": "DISCO_F401VC",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
 
     { "target": "DISCO_F407VG",      "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
-    { "target": "DISCO_F413ZH",      "toolchians": "GCC_ARM", "libs": ["dsp", "usb"]},
+    { "target": "DISCO_F413ZH",      "toolchains": "GCC_ARM", "libs": ["dsp", "usb"]},
     { "target": "DISCO_F429ZI",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F469NI",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F746NG",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
