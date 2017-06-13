@@ -173,9 +173,6 @@ SECTIONS
     __StackLimit = ADDR(.stack);
     PROVIDE(__stack = __StackTop);
 
-    /* Guard from initial stack allocated on SPIM CCM memory which is not initialized yet */
-    ASSERT(__StackTop <= SPIM_CCM_START, "SPIM CCM memory not initialized yet for initial stack")
-    
     /* Relocate vector table in SRAM */
     .isr_vector.reloc (NOLOAD) :
     {

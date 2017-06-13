@@ -74,6 +74,9 @@ void Default_Handler(void);
 
 /* Reset handler */
 void Reset_Handler(void);
+void Reset_Handler_1(void);
+void Reset_Handler_2(void);
+void Reset_Handler_Cascade(void *sp, void *pc);
 
 /* Cortex-M4 core handlers */
 WEAK_ALIAS_FUNC(NMI_Handler, Default_Handler)
@@ -196,11 +199,9 @@ __attribute__ ((section(".vector_table")))
 const uint32_t __vector_handlers[] = {
 #endif
 
-    /* Configure Initial Stack Pointer, using linker-generated symbols */
 #if defined(__CC_ARM)
     (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
 #elif defined(__ICCARM__)
-    //(uint32_t) __sfe("CSTACK"),
     (uint32_t) &CSTACK$$Limit,
 #elif defined(__GNUC__)
     (uint32_t) &__StackTop,
@@ -321,10 +322,72 @@ const uint32_t __vector_handlers[] = {
     (uint32_t) ETMC_IRQHandler,         // 95:
 };
 
-/**
- * \brief This is the code that gets called on processor reset.
+/* 
+ * Reset_Handler: 
+ *  Divert one small memory block for Initial Stack
+ *  Continue Initial Stack for Reset_Handler_1
+ *  Jump to Reset_Handler_1
+ * 
+ * Reset_Handler_1
+ *  Enable SPIM CCM memory. From now on, this memory could be used for Initial Stack, depending on linker.
+ *  Configure Initial Stack, using linker-generated symbols for Reset_Handler_2
+ *  Jump to Reset_Handler_2
+ * 
+ * Reset_Handler_2
+ *  C/C++ runtime initialization
  */
+     
+#if defined (__CC_ARM)
+
+__asm static void Reset_Handler(void)
+{    
+    LDR SP, =0x20000200
+    LDR R0, =0x20000200
+    LDR R1, =__cpp(Reset_Handler_1)
+    LDR R2, =__cpp(Reset_Handler_Cascade)
+    BX  R2
+}
+
+__asm void Reset_Handler_Cascade(void *sp, void *pc)
+{
+    MOV SP, R0
+    BX R1
+}
+
+#elif defined (__GNUC__) || defined (__ICCARM__)
+
 void Reset_Handler(void)
+{
+    /* NOTE: In debugger disassembly view, check initial stack cannot be accessed until initial stack pointer has changed to 0x20000200 */
+    __asm volatile (
+        "mov    sp, %0                  \n"
+        "mov    r0, sp                  \n"
+        "mov    r1, %1                  \n"
+        "b     Reset_Handler_Cascade    \n"
+        :                                           /* output operands */
+        : "l"(0x20000200), "l"(&Reset_Handler_1)    /* input operands */
+        : "r0", "r1", "cc"                          /* list of clobbered registers */
+    );
+}
+
+void Reset_Handler_Cascade(void *sp, void *pc)
+{
+    __asm volatile (
+        "mov    sp,  %0             \n"
+        "bx     %1                  \n"
+        :                           /* output operands */
+        : "l"(sp), "l"(pc)          /* input operands */
+        : "cc"                      /* list of clobbered registers */
+    );
+}
+
+#else
+
+#error "Unsupported toolchain"
+
+#endif
+
+void Reset_Handler_1(void)
 {
     /* Disable register write-protection function */
     SYS_UnlockReg();
@@ -341,7 +404,17 @@ void Reset_Handler(void)
     /* Enable register write-protection function */
     SYS_LockReg();
     
-    
+#if defined(__CC_ARM)
+    Reset_Handler_Cascade((void *) &Image$$ARM_LIB_STACK$$ZI$$Limit, (void *) Reset_Handler_2);
+#elif defined(__ICCARM__)
+    Reset_Handler_Cascade((void *) &CSTACK$$Limit, (void *) Reset_Handler_2);
+#elif defined(__GNUC__)
+    Reset_Handler_Cascade((void *) &__StackTop, (void *) Reset_Handler_2);
+#endif
+}
+
+void Reset_Handler_2(void)
+{
     /**
      * The call to uvisor_init() happens independently of uVisor being enabled or
      * not, so it is conditionally compiled only based on FEATURE_UVISOR.
@@ -397,6 +470,7 @@ void Reset_Handler(void)
     /* Infinite loop */
     while (1);
 }
+
 
 /**
  * \brief Default interrupt handler for unused IRQs.
