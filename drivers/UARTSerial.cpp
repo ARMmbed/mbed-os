@@ -26,8 +26,11 @@ namespace mbed {
 UARTSerial::UARTSerial(PinName tx, PinName rx, int baud) :
         SerialBase(tx, rx, baud),
         _blocking(true),
-        _tx_irq_enabled(false),
+        _tx_irq_enabled(false)
+#if defined(DEVICE_INTERRUPTIN)
+        ,
         _dcd_irq(NULL)
+#endif
 {
     /* Attatch IRQ routines to the serial device. */
     SerialBase::attach(callback(this, &UARTSerial::rx_irq), RxIrq);
@@ -35,7 +38,9 @@ UARTSerial::UARTSerial(PinName tx, PinName rx, int baud) :
 
 UARTSerial::~UARTSerial()
 {
+#if defined(DEVICE_INTERRUPTIN)
     delete _dcd_irq;
+#endif
 }
 
 void UARTSerial::dcd_irq()
@@ -45,6 +50,7 @@ void UARTSerial::dcd_irq()
 
 void UARTSerial::set_data_carrier_detect(PinName dcd_pin, bool active_high)
 {
+#if defined(DEVICE_INTERRUPTIN)
      delete _dcd_irq;
     _dcd_irq = NULL;
 
@@ -56,6 +62,7 @@ void UARTSerial::set_data_carrier_detect(PinName dcd_pin, bool active_high)
             _dcd_irq->rise(callback(this, &UARTSerial::dcd_irq));
         }
     }
+#endif
 }
 
 int UARTSerial::close()
@@ -173,7 +180,11 @@ ssize_t UARTSerial::read(void* buffer, size_t length)
 
 bool UARTSerial::hup() const
 {
+#if defined(DEVICE_INTERRUPTIN)
     return _dcd_irq && _dcd_irq->read() != 0;
+#else
+    return false;
+#endif
 }
 
 void UARTSerial::wake()
