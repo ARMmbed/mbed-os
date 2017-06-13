@@ -305,19 +305,19 @@ static struct pbuf * _eth_arch_low_level_input(struct netif *netif)
             memcpy((uint8_t*)((uint8_t*)q->payload + payloadoffset), (uint8_t*)((uint8_t*)buffer + bufferoffset), byteslefttocopy);
             bufferoffset = bufferoffset + byteslefttocopy;
         }
-
-        /* Release descriptors to DMA */
-        /* Point to first descriptor */
-        dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
-        /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
-        for (i = 0; i < EthHandle.RxFrameInfos.SegCount; i++) {
-            dmarxdesc->Status |= ETH_DMARXDESC_OWN;
-            dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
-        }
-
-        /* Clear Segment_Count */
-        EthHandle.RxFrameInfos.SegCount = 0;
     }
+
+    /* Release descriptors to DMA */
+    /* Point to first descriptor */
+    dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
+    /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
+    for (i = 0; i < EthHandle.RxFrameInfos.SegCount; i++) {
+        dmarxdesc->Status |= ETH_DMARXDESC_OWN;
+        dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
+    }
+
+    /* Clear Segment_Count */
+    EthHandle.RxFrameInfos.SegCount = 0;
 
     /* When Rx Buffer unavailable flag is set: clear it and resume reception */
     if ((EthHandle.Instance->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) {
