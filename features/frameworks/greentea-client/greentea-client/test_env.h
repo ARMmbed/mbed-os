@@ -82,7 +82,6 @@ extern const char* GREENTEA_TEST_ENV_LCOV_START;
 /**
  *  Greentea-client related API for communication with host side
  */
-void GREENTEA_SETUP(const int, const char *);
 void GREENTEA_SETUP_UUID(const int timeout, const char *host_test_name, char *buffer, size_t size);
 void GREENTEA_TESTSUITE_RESULT(const int);
 void GREENTEA_TESTCASE_START(const char *test_case_name);
