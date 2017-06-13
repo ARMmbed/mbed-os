@@ -929,7 +929,7 @@
                 "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
             }
         },
-        "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "nucleo-f429zi"},
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USB_STM_HAL", "USBHOST_OTHER"],
@@ -952,7 +952,7 @@
                 "macro_name": "STM32_D11_SPI_ETHERNET_PIN"
             }
         },
-        "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "STM32F439xI", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "STM32F439xI"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "progen": {"target": "nucleo-f439zi"},
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "MBEDTLS_CONFIG_HW_SUPPORT", "USB_STM_HAL", "USBHOST_OTHER"],
@@ -1248,7 +1248,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xI", "STM32F429xx", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["STM", "STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xI", "STM32F429xx"],
         "macros": ["RTC_LSI=1","TRANSACTION_QUEUE_SIZE_SPI=2", "USBHOST_OTHER"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "ERROR_RED", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG", "FLASH"],
@@ -1424,7 +1424,7 @@
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "STM32F439xI"],
         "macros": ["HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "CAN", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
