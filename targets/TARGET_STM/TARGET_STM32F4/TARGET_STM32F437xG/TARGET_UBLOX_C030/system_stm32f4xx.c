@@ -78,6 +78,7 @@
   */
 
 
+#include "ublox_low_level_api.h"
 #include "stm32f4xx.h"
 #include "hal_tick.h"
 
@@ -122,9 +123,7 @@
 
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */
-/* #define VECT_TAB_SRAM */
-#define VECT_TAB_OFFSET  0x00 /*!< Vector Table base offset field. 
-                                   This value must be a multiple of 0x200. */
+#define VECT_TAB_SRAM
 /******************************************************************************/
 
 /**
@@ -215,10 +214,16 @@ void SystemInit(void)
 #endif /* DATA_IN_ExtSRAM || DATA_IN_ExtSDRAM */
 
   /* Configure the Vector Table location add offset address ------------------*/
+  SCB->VTOR = FLASH_BASE; /* Vector Table Relocation in Internal FLASH */
+
 #ifdef VECT_TAB_SRAM
-  SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
-#else
-  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
+  int *vectors = (int *)SCB->VTOR;
+  int *old_vectors = vectors;
+  vectors = (int *)NVIC_RAM_VECTOR_ADDRESS;
+  for (int i = 0; i < NVIC_NUM_VECTORS; i++) {
+      vectors[i] = old_vectors[i];
+  }
+  SCB->VTOR = (uint32_t)NVIC_RAM_VECTOR_ADDRESS;
 #endif
 
   /* Configure the Cube driver */
@@ -232,7 +237,10 @@ void SystemInit(void)
   
   /* Reset the timer to avoid issues after the RAM initialization */
   TIM_MST_RESET_ON;
-  TIM_MST_RESET_OFF;  
+  TIM_MST_RESET_OFF;
+
+  // Initialise the board
+  ublox_board_init();
 }
 
 /**
@@ -309,7 +317,6 @@ void SystemCoreClockUpdate(void)
       SystemCoreClock = pllvco/pllp;
       break;
     default:
-      SystemCoreClock = HSI_VALUE;
       break;
   }
   /* Compute HCLK frequency --------------------------------------------------*/
