@@ -90,7 +90,7 @@
   */
 
 #include "stm32f1xx.h"
-#include "hal_tick.h"
+
 
 /**
   * @}
@@ -252,17 +252,6 @@ void SystemInit (void)
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
 #endif 
 
-  /* Configure the Cube driver */
-  SystemCoreClock = 8000000; // At this stage the HSI is used as system clock
-  HAL_Init();
-
-  /* Configure the System clock source, PLL Multiplier and Divider factors,
-     AHB/APBx prescalers and Flash settings */
-  SetSysClock();
-
-  /* Reset the timer to avoid issues after the RAM initialization */
-  TIM_MST_RESET_ON;
-  TIM_MST_RESET_OFF;
 }
 
 /**
