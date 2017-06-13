@@ -34,6 +34,13 @@ SocketAddress udp_addr;
 Mutex iomutex;
 char uuid[GREENTEA_UUID_LENGTH] = {0};
 
+// Thread safe printf macro
+#define TS_PRINTF(...) {\
+    iomutex.lock();\
+    printf(__VA_ARGS__);\
+    iomutex.unlock();\
+}
+
 // NOTE: assuming that "id" stays in the single digits
 //
 // Creates a buffer that first contains the thread's id.
@@ -63,7 +70,6 @@ void prep_buffer(unsigned int id, char *uuid, char *tx_buffer, size_t tx_size) {
         tx_buffer[i] = (rand() % 10) + '0';
     }
 }
-
 
 // Each echo class is in charge of one parallel transaction
 class Echo {
@@ -105,26 +111,18 @@ public:
             prep_buffer(id, uuid, tx_buffer, sizeof(tx_buffer));
             int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
             if (ret >= 0) {
-                iomutex.lock();
-                printf("[ID:%01u][%02u] sent %d bytes - %.*s  \n", id, i, ret, ret, tx_buffer);
-                iomutex.unlock();
+                TS_PRINTF("[ID:%01u][%02u] sent %d bytes - %.*s  \n", id, i, ret, ret, tx_buffer);
             } else {
-                iomutex.lock();
-                printf("[ID:%01u][%02u] Network error %d\n", id, i, ret);
-                iomutex.unlock();
+                TS_PRINTF("[ID:%01u][%02u] Network error %d\n", id, i, ret);
                 continue;
             }
 
             SocketAddress temp_addr;
             ret = sock.recvfrom(&temp_addr, rx_buffer, sizeof(rx_buffer));
             if (ret >= 0) {
-                iomutex.lock();
-                printf("[ID:%01u][%02u] recv %d bytes - %.*s  \n", id, i, ret, ret, tx_buffer);
-                iomutex.unlock();
+                TS_PRINTF("[ID:%01u][%02u] recv %d bytes - %.*s  \n", id, i, ret, ret, tx_buffer);
             } else {
-                iomutex.lock();
-                printf("[ID:%01u][%02u] Network error %d\n", id, i, ret);
-                iomutex.unlock();
+                TS_PRINTF("[ID:%01u][%02u] Network error %d\n", id, i, ret);
                 continue;
             }
 
@@ -132,9 +130,7 @@ public:
                  ret == sizeof(tx_buffer) &&
                  memcmp(rx_buffer, tx_buffer, sizeof(rx_buffer)) == 0)) {
                 success += 1;
-                iomutex.lock();
-                printf("[ID:%01u][%02u] success #%d\n", id, i, success);
-                iomutex.unlock();
+                TS_PRINTF("[ID:%01u][%02u] success #%d\n", id, i, success);
                 continue;
             }
 
@@ -151,9 +147,15 @@ public:
 
         result = success == ECHO_LOOPS;
 
+        if (result) {
+            TS_PRINTF("[ID:%01u] Succeeded all %d times!\n", id, success);
+        } else {
+            TS_PRINTF("[ID:%01u] Only succeeded %d times out of a required %d.\n", id, success, ECHO_LOOPS);
+        }
+
         err = sock.close();
-        printf("[ID:%01u] Failed to close socket!\n", id);
         if (err) {
+            TS_PRINTF("[ID:%01u] Failed to close socket!\n", id);
             result = false;
         }
     }
