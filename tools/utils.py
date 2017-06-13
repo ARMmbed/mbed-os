@@ -511,10 +511,11 @@ def print_large_string(large_string):
     for string_part in range(num_parts):
         start_index = string_part * string_limit
         if string_part == num_parts - 1:
-            print large_string[start_index:]
+            sys.stdout.write(large_string[start_index:])
         else:
-            end_index = ((string_part + 1) * string_limit) - 1
-            print large_string[start_index:end_index],
+            sys.stdout.write(large_string[start_index:
+                                          start_index + string_limit])
+    sys.stdout.write("\n")
 
 def intelhex_offset(filename, offset):
     """Load a hex or bin file at a particular offset"""
