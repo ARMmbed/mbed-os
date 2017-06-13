@@ -20,7 +20,7 @@ from os.path import join, abspath, dirname, exists
 from os.path import basename, relpath, normpath, splitext
 from os import makedirs, walk
 import copy
-from shutil import rmtree
+from shutil import rmtree, copyfile
 import zipfile
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
@@ -349,5 +349,9 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                        inc_repos)
         else:
             zip_export(zip_proj, name, resource_dict, files, inc_repos)
+    else:
+        for exported in files:
+            if not exists(join(export_path, basename(exported))):
+                copyfile(exported, join(export_path, basename(exported)))
 
     return exporter
