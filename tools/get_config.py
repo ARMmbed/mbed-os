@@ -66,7 +66,7 @@ if __name__ == '__main__':
         if params:
             print "Configuration parameters"
             print "------------------------"
-            for p in params:
+            for p in sorted(params):
                 for s in options.prefix:
                     if p.startswith(s):
                         print(str(params[p]) if not options.verbose else params[p].get_verbose_description())
