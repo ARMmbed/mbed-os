@@ -468,7 +468,7 @@ if __name__ == '__main__':
     return_code, ref = run_cmd_with_output(cmd) 
 
     if return_code:
-        update_log.error("Could not obtain SHA for tag: %s",  args.tag)
+        update_log.error("Could not obtain SHA for tag: %s",  tag)
         sys.exit(1)
 
     # Loop through the examples
