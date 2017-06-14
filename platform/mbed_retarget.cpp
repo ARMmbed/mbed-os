@@ -1014,6 +1014,12 @@ extern "C" void EvrRtxMutexError (osMutexId_t mutex_id, int32_t status)
 
 extern "C" void EvrRtxSemaphoreError (osSemaphoreId_t semaphore_id, int32_t status)
 {
+    /* In case of binary sempahore do not set this failure,
+     * Binary semaphore is allowed to perform release without acquire
+     */
+    if ((osRtxErrorSemaphoreCountLimit == status) && (1 == svcRtxSemaphoreGetCount(semaphore_id))) {
+        return;
+    }
     error("Semaphore %p error %i\r\n", semaphore_id, status);
 }
 

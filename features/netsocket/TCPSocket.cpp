@@ -18,8 +18,10 @@
 #include "Timer.h"
 #include "mbed_assert.h"
 
+// Binary sempahore
+#define BINARY_SEMAPHORE       1
 TCPSocket::TCPSocket()
-    : _pending(0), _read_sem(0), _write_sem(0),
+    : _pending(0), _read_sem(0, BINARY_SEMAPHORE), _write_sem(0, BINARY_SEMAPHORE),
       _read_in_progress(false), _write_in_progress(false)
 {
 }
