@@ -32,24 +32,22 @@
 static const PinMap PinMap_UART_TX[] = {
     {MCC_TX  , UART_0, 0},
     {USBTX   , UART_1, 0},
-    {XB_TX   , UART_2, 0},
-    {SH0_TX  , UART_3, 0},
-    {SH1_TX  , UART_4, 0},
+    {SH0_TX  , UART_2, ALTERNATE_FUNC},
+    {SH1_TX  , UART_3, ALTERNATE_FUNC},
+    {XB_TX   , UART_4, ALTERNATE_FUNC},
     {NC      , NC    , 0}
 };
 
 static const PinMap PinMap_UART_RX[] = {
     {MCC_RX  , UART_0, 0},
     {USBRX   , UART_1, 0},
-    {XB_RX   , UART_2, 0},
-    {SH0_RX  , UART_3, 0},
-    {SH1_RX  , UART_4, 0},
+    {SH0_RX  , UART_2, ALTERNATE_FUNC},
+    {SH1_RX  , UART_3, ALTERNATE_FUNC},
+    {XB_RX   , UART_4, ALTERNATE_FUNC},
     {NC      , NC    , 0}
 };
 
 #define UART_NUM    5
-
-extern CMSDK_GPIO_TypeDef* GPIO_MAP[];
 
 static uart_irq_handler irq_handler;
 
@@ -66,6 +64,8 @@ static struct serial_global_data_s uart_data[UART_NUM];
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
+    uint32_t uart_ctrl = 0;
+
     /* Determine the UART to use */
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
     UARTName uart_rx = (UARTName)pinmap_peripheral(rx, PinMap_UART_RX);
@@ -78,96 +78,47 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     obj->uart = (CMSDK_UART_TypeDef *)uart;
 
+    if (tx != NC) {
+        uart_ctrl = 0x01;   /* TX enable */
+    }
+    if (rx != NC) {
+        uart_ctrl |= 0x02;  /* RX enable */
+    }
+
     switch (uart) {
         case UART_0:
-            /* Disable UART when changing configuration */
-            CMSDK_UART0->CTRL = 0;
-            if((int)tx != NC) {
-              CMSDK_UART0->CTRL |= 0x01;   /* TX enable */
-            }
-            if((int)rx != NC) {
-              CMSDK_UART0->CTRL |= 0x02;   /* RX enable */
-            }
+            CMSDK_UART0->CTRL = uart_ctrl;
+            obj->index = 0;
             break;
         case UART_1:
-            /* Disable UART when changing configuration */
-            CMSDK_UART1->CTRL = 0;
-            if((int)tx != NC) {
-              CMSDK_UART1->CTRL |= 0x01;   /* TX enable */
-            }
-            if((int)rx != NC) {
-              CMSDK_UART1->CTRL |= 0x02;   /* RX enable */
-            }
+            CMSDK_UART1->CTRL = uart_ctrl;
+            obj->index = 1;
             break;
         case UART_2:
-            /* Disable UART when changing configuration */
-            CMSDK_UART2->CTRL = 0x00;
-            if ((int)tx != NC) {
-                CMSDK_UART2->CTRL = 0x1;   /* TX enable */
-                GPIO_MAP[CMSDK_GPIO_SH0_UART2_TX_GPIO_NUM]->ALTFUNCSET |=
-                                   (1<<CMSDK_GPIO_ALTFUNC_SH0_UART2_TX_SET);
-            }
-            if ((int)rx != NC) {
-                CMSDK_UART2->CTRL |= 0x2; /* RX enable */
-                GPIO_MAP[CMSDK_GPIO_SH0_UART2_RX_GPIO_NUM]->ALTFUNCSET |=
-                                   (1<<CMSDK_GPIO_ALTFUNC_SH0_UART2_RX_SET);
-            }
+            CMSDK_UART2->CTRL = 0;
+            obj->index = 2;
+            pin_function(tx, ALTERNATE_FUNC);
+            pin_function(rx, ALTERNATE_FUNC);
+            CMSDK_UART2->CTRL = uart_ctrl;
             break;
         case UART_3:
-            /* Disable UART when changing configuration */
             CMSDK_UART3->CTRL = 0;
-            if ((int)tx != NC) {
-              CMSDK_UART3->CTRL = 0x1;   /* TX enable */
-              GPIO_MAP[CMSDK_GPIO_SH1_UART3_TX_GPIO_NUM]->ALTFUNCSET |=
-                                   (1<<CMSDK_GPIO_ALTFUNC_SH1_UART3_TX_SET);
-            }
-            if((int)rx != NC)
-            {
-              CMSDK_UART3->CTRL |= 0x2;  /* RX enable */
-              GPIO_MAP[CMSDK_GPIO_SH1_UART3_RX_GPIO_NUM]->ALTFUNCSET |=
-                                   (1<<CMSDK_GPIO_ALTFUNC_SH1_UART3_RX_SET);
-            }
+            obj->index = 3;
+            pin_function(tx, ALTERNATE_FUNC);
+            pin_function(rx, ALTERNATE_FUNC);
+            CMSDK_UART3->CTRL = uart_ctrl;
             break;
         case UART_4:
-            /* Disable UART when changing configuration */
-            CMSDK_UART4->CTRL = 0x00;
-            if ((int)uart_tx != NC) {
-                CMSDK_UART4->CTRL |= 0x01;  /* TX enable */
-                GPIO_MAP[CMSDK_GPIO_UART4_TX_GPIO_NUM]->ALTFUNCSET |=
-                                       (1<<CMSDK_GPIO_ALTFUNC_UART4_TX_SET);
-            }
-            if((int)uart_rx != NC) {
-                CMSDK_UART4->CTRL |= 0x02;  /* RX enable */
-                GPIO_MAP[CMSDK_GPIO_UART4_RX_GPIO_NUM]->ALTFUNCSET |=
-                                       (1<<CMSDK_GPIO_ALTFUNC_UART4_RX_SET);
-            }
+            CMSDK_UART4->CTRL = 0;
+            obj->index = 4;
+            pin_function(tx, ALTERNATE_FUNC);
+            pin_function(rx, ALTERNATE_FUNC);
+            CMSDK_UART4->CTRL = uart_ctrl;
             break;
     }
 
     /* Set default baud rate and format */
     serial_baud(obj, 9600);
-
-    /* Pinout the chosen uart */
-    pinmap_pinout(tx, PinMap_UART_TX);
-    pinmap_pinout(rx, PinMap_UART_RX);
-
-    switch (uart) {
-        case UART_0:
-            obj->index = 0;
-            break;
-        case UART_1:
-            obj->index = 1;
-            break;
-        case UART_2:
-            obj->index = 2;
-            break;
-        case UART_3:
-            obj->index = 3;
-            break;
-        case UART_4:
-            obj->index = 4;
-            break;
-    }
 
     /*
      *  The CMSDK APB UART doesn't have support for flow control.
@@ -180,6 +131,9 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
+
+    /* Clear UART */
+    serial_clear(obj);
 }
 
 void serial_free(serial_t *obj)
