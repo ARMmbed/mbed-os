@@ -18,10 +18,10 @@
 #include "Timer.h"
 #include "mbed_assert.h"
 
-// Binary sempahore
-#define BINARY_SEMAPHORE       1
+
+// Max count for Sockets is set as 1: as we need Binary Semaphore.
 TCPSocket::TCPSocket()
-    : _pending(0), _read_sem(0, BINARY_SEMAPHORE), _write_sem(0, BINARY_SEMAPHORE),
+    : _pending(0), _read_sem(0, 1), _write_sem(0, 1),
       _read_in_progress(false), _write_in_progress(false)
 {
 }

@@ -18,8 +18,9 @@
 #include "Timer.h"
 #include "mbed_assert.h"
 
+// Max count for Sockets is set as 1: as we need Binary Semaphore.
 UDPSocket::UDPSocket()
-    : _pending(0), _read_sem(0), _write_sem(0)
+    : _pending(0), _read_sem(0, 1), _write_sem(0, 1)
 {
 }
 
