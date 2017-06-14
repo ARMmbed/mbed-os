@@ -71,6 +71,61 @@ static int fat_error_remap(FRESULT res)
     }
 }
 
+// Helper class for deferring operations when variable falls out of scope
+template <typename T>
+class Deferred {
+public:
+    T _t;
+    Callback<void(T)> _ondefer;
+
+    Deferred(const Deferred&);
+    Deferred &operator=(const Deferred&);
+
+public:
+    Deferred(T t, Callback<void(T)> ondefer = NULL)
+        : _t(t), _ondefer(ondefer)
+    {
+    }
+
+    operator T()
+    {
+        return _t;
+    }
+
+    ~Deferred()
+    {
+        if (_ondefer) {
+            _ondefer(_t);
+        }
+    }
+};
+
+static void dodelete(const char *data)
+{
+    delete[] data;
+}
+
+// Adds prefix needed internally by fatfs, this can be avoided for the first fatfs
+// (id 0) otherwise a prefix of "id:/" is inserted in front of the string.
+static Deferred<const char*> fat_path_prefix(int id, const char *path)
+{
+    // We can avoid dynamic allocation when only on fatfs is in use
+    if (id == 0) {
+        return path;
+    }
+
+    // Prefix path with id, will look something like 2:/hi/hello/filehere.txt
+    char *buffer = new char[strlen("0:/") + strlen(path) + 1];
+    if (!buffer) {
+        return NULL;
+    }
+
+    buffer[0] = '0' + id;
+    buffer[1] = ':';
+    buffer[2] = '/';
+    strcpy(buffer + strlen("0:/"), path);
+    return Deferred<const char*>(buffer, dodelete);
+}
 
 
 ////// Disk operations //////
@@ -263,9 +318,11 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
     return 0;
 }
 
-int FATFileSystem::remove(const char *filename) {
+int FATFileSystem::remove(const char *path) {
+    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+
     lock();
-    FRESULT res = f_unlink(filename);
+    FRESULT res = f_unlink(fpath);
     unlock();
 
     if (res != FR_OK) {
@@ -274,9 +331,12 @@ int FATFileSystem::remove(const char *filename) {
     return fat_error_remap(res);
 }
 
-int FATFileSystem::rename(const char *oldname, const char *newname) {
+int FATFileSystem::rename(const char *oldpath, const char *newpath) {
+    Deferred<const char*> oldfpath = fat_path_prefix(_id, oldpath);
+    Deferred<const char*> newfpath = fat_path_prefix(_id, newpath);
+
     lock();
-    FRESULT res = f_rename(oldname, newname);
+    FRESULT res = f_rename(oldfpath, newfpath);
     unlock();
 
     if (res != FR_OK) {
@@ -285,9 +345,11 @@ int FATFileSystem::rename(const char *oldname, const char *newname) {
     return fat_error_remap(res);
 }
 
-int FATFileSystem::mkdir(const char *name, mode_t mode) {
+int FATFileSystem::mkdir(const char *path, mode_t mode) {
+    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+
     lock();
-    FRESULT res = f_mkdir(name);
+    FRESULT res = f_mkdir(fpath);
     unlock();
 
     if (res != FR_OK) {
@@ -296,12 +358,14 @@ int FATFileSystem::mkdir(const char *name, mode_t mode) {
     return fat_error_remap(res);
 }
 
-int FATFileSystem::stat(const char *name, struct stat *st) {
+int FATFileSystem::stat(const char *path, struct stat *st) {
+    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+
     lock();
     FILINFO f;
     memset(&f, 0, sizeof(f));
 
-    FRESULT res = f_stat(name, &f);
+    FRESULT res = f_stat(fpath, &f);
     if (res != FR_OK) {
         unlock();
         return fat_error_remap(res);
@@ -332,13 +396,10 @@ void FATFileSystem::unlock() {
 
 ////// File operations //////
 int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
-    debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", path, getName(), _fsid);
+    debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", path, getName(), _id);
 
     FIL *fh = new FIL;
-    char *buffer = new char[strlen(_fsid) + strlen(path) + 3];
-    strcpy(buffer, _fsid);
-    strcat(buffer, "/");
-    strcat(buffer, path);
+    Deferred<const char*> fpath = fat_path_prefix(_id, path);
 
     /* POSIX flags -> FatFS open mode */
     BYTE openmode;
@@ -358,12 +419,11 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
     }
 
     lock();
-    FRESULT res = f_open(fh, buffer, openmode);
+    FRESULT res = f_open(fh, fpath, openmode);
 
     if (res != FR_OK) {
         unlock();
         debug_if(FFS_DBG, "f_open('w') failed: %d\n", res);
-        delete[] buffer;
         delete fh;
         return fat_error_remap(res);
     }
@@ -373,7 +433,6 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
     }
     unlock();
 
-    delete[] buffer;
     *file = fh;
     return 0;
 }
@@ -480,9 +539,10 @@ off_t FATFileSystem::file_size(fs_file_t file) {
 ////// Dir operations //////
 int FATFileSystem::dir_open(fs_dir_t *dir, const char *path) {
     FATFS_DIR *dh = new FATFS_DIR;
+    Deferred<const char*> fpath = fat_path_prefix(_id, path);
 
     lock();
-    FRESULT res = f_opendir(dh, path);
+    FRESULT res = f_opendir(dh, fpath);
     unlock();
 
     if (res != FR_OK) {
