@@ -33,7 +33,7 @@
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 0x200000
+  #define MBED_APP_SIZE 0x100000
 #endif
 
 ; 1MB FLASH (0x100000) + 128KB SRAM (0x20000)
