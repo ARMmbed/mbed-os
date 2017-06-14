@@ -18,15 +18,7 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 
-#define GPIO_NUM  4
-
-CMSDK_GPIO_TypeDef* GPIO_MAP[GPIO_NUM] = {
-    CMSDK_GPIO0,
-    CMSDK_GPIO1,
-    CMSDK_GPIO2,
-    CMSDK_GPIO3
-};
-
+#define GPIO_PIN_POS_MASK 0x0F /* pin % 16 */
 #define RESERVED_MISC_PIN 7
 
 /* \brief Gets the FPGA MISC (Miscellaneous control) bit position for the given
@@ -69,83 +61,96 @@ static uint8_t get_fpga_misc_pin_pos(PinName pin)
 
 uint32_t gpio_set(PinName pin)
 {
-    /* TODO */
-    return 1;
+    uint8_t pin_position;
+
+    if (pin >=EXP0 && pin <= EXP51) {
+        /* Set pin functinality as GPIO. pin_function asserts if pin == NC */
+        pin_function(pin, GPIO_FUNC);
+    } else {
+        /* Check if pin is a MISC pin */
+        pin_position = get_fpga_misc_pin_pos(pin);
+        if (pin_position != RESERVED_MISC_PIN) {
+            return (1 << pin_position);
+        }
+    }
+
+    /* Return pin mask */
+    return (1 << (pin & 0xFF));
 }
 
 void gpio_init(gpio_t *obj, PinName pin)
 {
-    uint8_t pin_position = 0;
+    uint8_t pin_position;
 
     if (pin == NC) {
        return;
     }
 
-    if(pin <= 15){
-        pin_position = pin;
+    obj->pin = pin;
+    obj->pin_number = pin;
+
+    if (pin <= EXP15) {
         obj->reg_data   = &CMSDK_GPIO0->DATAOUT;
         obj->reg_in     = &CMSDK_GPIO0->DATA;
         obj->reg_dir    = &CMSDK_GPIO0->OUTENABLESET;
         obj->reg_dirclr = &CMSDK_GPIO0->OUTENABLECLR;
-    } else if (pin >= 16 && pin <= 31) {
-        pin_position = (pin - 16);
+        /* Set pin function as a GPIO */
+        pin_function(pin, GPIO_FUNC);
+        pin_position = pin;
+    } else if (pin >= EXP16 && pin <= EXP31) {
         obj->reg_data   = &CMSDK_GPIO1->DATAOUT;
         obj->reg_in     = &CMSDK_GPIO1->DATA;
         obj->reg_dir    = &CMSDK_GPIO1->OUTENABLESET;
         obj->reg_dirclr = &CMSDK_GPIO1->OUTENABLECLR;
-    } else if (pin >= 32 && pin <= 47) {
-        pin_position = (pin - 32);
+        /* Set pin function as a GPIO */
+        pin_function(pin, GPIO_FUNC);
+        pin_position = (pin & GPIO_PIN_POS_MASK);
+    } else if (pin >= EXP32 && pin <= EXP47) {
         obj->reg_data   = &CMSDK_GPIO2->DATAOUT;
         obj->reg_in     = &CMSDK_GPIO2->DATA;
         obj->reg_dir    = &CMSDK_GPIO2->OUTENABLESET;
         obj->reg_dirclr = &CMSDK_GPIO2->OUTENABLECLR;
-    } else if (pin >= 48 && pin <= 51) {
-        pin_position = (pin - 48 );
+        /* Set pin function as a GPIO */
+        pin_function(pin, GPIO_FUNC);
+        pin_position = (pin & GPIO_PIN_POS_MASK);
+    } else if (pin >= EXP48 && pin <= EXP51) {
         obj->reg_data   = &CMSDK_GPIO3->DATAOUT;
         obj->reg_in     = &CMSDK_GPIO3->DATA;
         obj->reg_dir    = &CMSDK_GPIO3->OUTENABLESET;
         obj->reg_dirclr = &CMSDK_GPIO3->OUTENABLECLR;
+        /* Set pin function as a GPIO */
+        pin_function(pin, GPIO_FUNC);
+        pin_position = (pin & GPIO_PIN_POS_MASK);
     } else if (pin == 100 || pin == 101) {
         /* User LEDs */
-        pin_position    = (pin - 100);
+        pin_position = (pin - 100);
         obj->reg_data   = &MPS2_FPGAIO->LED;
         obj->reg_in     = &MPS2_FPGAIO->LED;
         obj->reg_dir    = NULL;
         obj->reg_dirclr = NULL;
     } else if (pin == 110 || pin == 111) {
         /* User buttons */
-        pin_position    = pin-110;
+        pin_position = (pin - 110);
         obj->reg_data   = &MPS2_FPGAIO->BUTTON;
         obj->reg_in     = &MPS2_FPGAIO->BUTTON;
         obj->reg_dir    = NULL;
         obj->reg_dirclr = NULL;
     } else if (pin >= 200 && pin <= 207) {
         /* MCC LEDs */
-        pin_position    = pin-200;
+        pin_position = (pin - 200);
         obj->reg_data   = &MPS2_SCC->LEDS;
         obj->reg_in     = &MPS2_SCC->LEDS;
         obj->reg_dir    = NULL;
         obj->reg_dirclr = NULL;
     } else if (pin >= 210 && pin <= 217) {
         /* MCC switches */
-        pin_position    = (pin - 210);
+        pin_position = (pin - 210);
         obj->reg_in     = &MPS2_SCC->SWITCHES;
         obj->reg_data   = NULL;
         obj->reg_dir    = NULL;
         obj->reg_dirclr = NULL;
-    } else if (pin == SHIELD_0_SPI_nCS) {
-        pin_position = 8;
-        GPIO_MAP[CMSDK_GPIO_SH0_CS_SPI_GPIO_NUM]->ALTFUNCSET |=
-                                (1 << CMSDK_GPIO_ALTFUNC_SH0_CS_SPI_SET);
-    } else if (pin == SHIELD_1_SPI_nCS) {
-        pin_position = 9;
-        GPIO_MAP[CMSDK_GPIO_SH1_CS_SPI_GPIO_NUM]->ALTFUNCSET |=
-                                (1 << CMSDK_GPIO_ALTFUNC_SH1_CS_SPI_SET);
-    } else if (pin == ADC_SSEL) {
-        pin_position = 7;
-        GPIO_MAP[CMSDK_GPIO_ADC_CS_SPI_GPIO_NUM]->ALTFUNCSET |=
-                                (1 << CMSDK_GPIO_ALTFUNC_ADC_CS_SPI_SET);
     } else {
+        /* Check if pin is a MISC pin */
         pin_position = get_fpga_misc_pin_pos(pin);
         if (pin_position != RESERVED_MISC_PIN) {
             obj->reg_data = &MPS2_FPGAIO->MISC;
@@ -154,9 +159,8 @@ void gpio_init(gpio_t *obj, PinName pin)
         }
     }
 
-    obj->pin  = pin;
-    obj->mask = (0x1 << pin_position);
-    obj->pin_number = pin;
+    /* Set pin mask */
+    obj->mask = (1 << pin_position);
 }
 
 void gpio_mode(gpio_t *obj, PinMode mode)
