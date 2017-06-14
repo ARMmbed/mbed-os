@@ -66,11 +66,7 @@ struct clcd_s {
 };
 
 struct analogin_s {
-    ADCName adc;
-    MPS2_SSP_TypeDef *adc_spi;
-    PinName  pin;
-    uint32_t pin_number;
-    __IO uint32_t address;
+    uint16_t ctrl_register;  /* Control bits with the channel identifier */
 };
 
 #include "gpio_object.h"
