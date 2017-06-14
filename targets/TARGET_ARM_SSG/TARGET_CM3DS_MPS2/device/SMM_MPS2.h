@@ -314,10 +314,6 @@ typedef struct
   __O    uint32_t  CONTROLC;    // Offset: 0x004 CONTROL Clear Register    ( /W)
 } MPS2_I2C_TypeDef;
 
-#define SDA                1 << 1
-#define SCL                1 << 0
-
-
 /******************************************************************************/
 /*               Audio I2S Peripheral declaration                             */
 /******************************************************************************/
@@ -560,8 +556,8 @@ __IO  uint32_t  E2P_DATA;              //   EEPROM Data (offset 0xB4)
 #define MPS2_SSP3_BASE          (0x40026000ul)       /* shield 0 SSP Base Address   */
 #define MPS2_SSP4_BASE          (0x40027000ul)       /* shield 1 SSP Base Address   */
 #define MPS2_FPGAIO_BASE        (0x40028000ul)       /* FPGAIO Base Address */
-#define MPS2_SHIELD0_I2C_BASE   (0x40029000ul)       /* Audio Interface I2C Base Address */
-#define MPS2_SHIELD1_I2C_BASE   (0x4002A000ul)       /* Audio Interface I2C Base Address */
+#define MPS2_SHIELD0_I2C_BASE   (0x40029000ul)       /* I2C shield 0 Base Address */
+#define MPS2_SHIELD1_I2C_BASE   (0x4002A000ul)       /* I2C shield 1 Base Address */
 #define MPS2_SCC_BASE           (0x4002F000ul)       /* SCC Base Address    */
 
 #define SMSC9220_BASE           (0x40200000ul)       /* Ethernet SMSC9220 Base Address   */

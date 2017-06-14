@@ -45,6 +45,7 @@ struct serial_s {
 
 struct i2c_s {
     MPS2_I2C_TypeDef *i2c;
+    uint32_t freq_us;       /* Stores I2C frequency in microseconds */
 };
 
 struct tsc_s {
