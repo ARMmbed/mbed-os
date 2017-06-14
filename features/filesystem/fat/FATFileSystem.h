@@ -69,14 +69,6 @@ public:
      */
     virtual int mount(BlockDevice *bd);
 
-    /** Mounts a filesystem to a block device
-     *
-     *  @param bd       BlockDevice to mount to
-     *  @param force    Flag to force the underlying filesystem to force mounting the filesystem
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual int mount(BlockDevice *bd, bool force);
-
     /** Unmounts a filesystem from the underlying block device
      *
      *  @return         0 on success, negative error code on failure
@@ -235,6 +227,7 @@ private:
 protected:
     virtual void lock();
     virtual void unlock();
+    virtual int mount(BlockDevice *bd, bool mount);
 };
 
 #endif
