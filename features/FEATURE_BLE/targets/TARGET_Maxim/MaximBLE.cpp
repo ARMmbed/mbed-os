@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2016 Maxim Integrated Products, Inc., All Rights Reserved.
+ * Copyright (C) 2017 Maxim Integrated Products, Inc., All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -52,10 +52,10 @@
 #include "hci_vs.h"
 
 /* Number of WSF buffer pools */
-#define WSF_BUF_POOLS               4
+#define WSF_BUF_POOLS 5
 
 /*! Free memory for pool buffers. */
-static uint8_t mainBufMem[768];
+static uint8_t mainBufMem[1040];
 
 /*! Default pool descriptor. */
 static wsfBufPoolDesc_t mainPoolDesc[WSF_BUF_POOLS] =
@@ -63,23 +63,51 @@ static wsfBufPoolDesc_t mainPoolDesc[WSF_BUF_POOLS] =
   {  16,  8 },
   {  32,  4 },
   {  64,  2 },
-  { 128,  2 }
+  { 128,  2 },
+  { 272,  1 }
 };
+
+/* Store the Event signalling */
+bool isEventsSignaled = false;
 
 /*! WSF handler ID */
 wsfHandlerId_t maximHandlerId;
 static volatile int reset_complete;
 
+#ifdef BLE_HCI_UART
+static DigitalIn _rts(BT_CTS);
+static DigitalIn _cts(BT_RTS);
+static DigitalIn _clk(BT_CLK);
+static DigitalOut _shutdown(BT_RST, 0);
+static Serial _uart(BT_TX, BT_RX, 115200);
+#else
 /* Current mbed SPI API does not support HW slave selects. Configured in HCI driver. */
 static DigitalOut _csn(HCI_CSN, 1);
 static SPI _spi(HCI_MOSI, HCI_MISO, HCI_SCK, HCI_CSN);
 static DigitalOut _rst(HCI_RST, 0);
 static InterruptIn _irq(HCI_IRQ);
+#endif
 
 /**
  * The singleton which represents the MaximBLE transport for the BLE.
  */
 static MaximBLE deviceInstance;
+
+extern "C" {
+
+/*
+ * This function will signal to the user code by calling signalEventsToProcess.
+ * It is registered and called into the Wsf Stack.
+ */
+void wsf_mbed_ble_signal_event(void)
+{
+    if (isEventsSignaled == false) {
+        isEventsSignaled = true;
+        deviceInstance.signalEventsToProcess(::BLE::DEFAULT_INSTANCE);
+    }
+}
+
+}
 
 /**
  * BLE-API requires an implementation of the following function in order to
@@ -240,16 +268,20 @@ ble_error_t MaximBLE::init(BLE::InstanceID_t instanceID, FunctionPointerWithCont
     maximHandlerId = WsfOsSetNextHandler(maximHandler);
 
     /* init HCI */
+#ifdef BLE_HCI_UART
+    hciDrvInit(BT_TX, BT_RST, BT_CLK);
+#else
     _irq.disable_irq();
     _irq.rise(hciDrvIsr);
     _irq.fall(NULL);
     hciDrvInit(HCI_CSN, HCI_RST, HCI_IRQ);
+#endif
 
     /* Register for stack callbacks */
     DmRegister(DmCback);
     DmConnRegister(DM_CLIENT_ID_APP, DmCback);
     AttConnRegister(AppServerConnCback);
-
+    
     /* Reset the device */
     reset_complete = 0;
     DmDevReset();
@@ -301,12 +333,15 @@ void MaximBLE::waitForEvent(void)
 
 void MaximBLE::processEvents()
 {
-    callDispatcher();
+    if (isEventsSignaled) {
+        isEventsSignaled = false;
+        callDispatcher();
+    }
 }
 
 void MaximBLE::timeoutCallback(void)
 {
-    // do nothing. just an interrupt for wake up.
+    wsf_mbed_ble_signal_event();
 }
 
 void MaximBLE::callDispatcher(void)
