@@ -198,13 +198,6 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     
     if (! var->ref_cnt) {
         do {
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) && defined(TARGET_DEBUG)
-            // Support uvisor debug message through stdio uart
-            if (obj->serial.uart == STDIO_UART) {
-                break;
-            }
-#endif
-
             // Reset this module
             SYS_ResetModule(modinit->rsetidx);
     
@@ -273,13 +266,6 @@ void serial_free(serial_t *obj)
 #endif
 
         do {
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) && defined(TARGET_DEBUG)
-            // Support uvisor debug message through stdio uart
-            if (obj->serial.uart == STDIO_UART) {
-                break;
-            }
-#endif
-
             UART_Close((UART_T *) NU_MODBASE(obj->serial.uart));
     
             UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), (UART_INTEN_RDAIEN_Msk | UART_INTEN_THREIEN_Msk | UART_INTEN_RXTOIEN_Msk));
@@ -306,13 +292,6 @@ void serial_free(serial_t *obj)
 }
 
 void serial_baud(serial_t *obj, int baudrate) {
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) && defined(TARGET_DEBUG)
-    // Support uvisor debug message through stdio uart
-    if (obj->serial.uart == STDIO_UART) {
-        return;
-    }
-#endif
-
     // Flush Tx FIFO. Otherwise, output data may get lost on this change.
     while (! UART_IS_TX_EMPTY((UART_T *) NU_MODBASE(obj->serial.uart)));
     
@@ -321,13 +300,6 @@ void serial_baud(serial_t *obj, int baudrate) {
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits) {
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) && defined(TARGET_DEBUG)
-    // Support uvisor debug message through stdio uart
-    if (obj->serial.uart == STDIO_UART) {
-        return;
-    }
-#endif
-
     // Flush Tx FIFO. Otherwise, output data may get lost on this change.
     while (! UART_IS_TX_EMPTY((UART_T *) NU_MODBASE(obj->serial.uart)));
     

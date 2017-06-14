@@ -10,6 +10,7 @@
 *****************************************************************************/
 
 #include "M480.h"
+#include "PeripheralNames.h"
 
 /* Suppress warning messages */
 #if defined(__CC_ARM)
@@ -425,6 +426,14 @@ void Reset_Handler_2(void)
      */
 #if defined(FEATURE_UVISOR)
     uvisor_init();
+    
+#if defined(TARGET_UVISOR_SUPPORTED) && defined(TARGET_DEBUG)
+    /* Flush debug message emitted by uvisor core */
+    while (! UART_IS_TX_EMPTY((UART_T *) NU_MODBASE(STDIO_UART)));
+    
+    /* In the following, STDIO_UART will be re-initialized by mbed but it would be compatible with uvisor core.
+     * So uvisor core still can emit debug message with the new setting. */
+#endif
 #endif
 
 #if defined(__CC_ARM)
