@@ -115,7 +115,7 @@
     },
     "MICRONFCBOARD": {
         "inherits": ["LPC11U34_421"],
-        "macros": ["LPC11U34_421", "APPNEARME_MICRONFCBOARD"],
+        "macros_add": ["LPC11U34_421", "APPNEARME_MICRONFCBOARD"],
         "extra_labels_add": ["APPNEARME_MICRONFCBOARD"],
         "release_versions": ["2"],
         "device_name": "LPC11U34FBD48/311"
