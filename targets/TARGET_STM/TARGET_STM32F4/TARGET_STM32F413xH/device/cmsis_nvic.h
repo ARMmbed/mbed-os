@@ -37,7 +37,7 @@
 // MCU Peripherals: 102 vectors = 408 bytes from 0x40 to 0x1D7
 // Total: 118 vectors = 472 bytes (0x1D8) to be reserved in RAM
 #define NVIC_NUM_VECTORS      118
-#define NVIC_USER_IRQ_OFFSET  16
+#define NVIC_RAM_VECTOR_ADDRESS   (0x20000000)  // Vectors positioned at start of RAM
 
 
 #endif
