@@ -9,7 +9,7 @@ import re
 
 from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, filter_supported
 from tools.export.cmsis import DeviceCMSIS
 
 cache_d = False
@@ -119,13 +119,19 @@ class Uvision(Exporter):
     """
     NAME = 'uvision5'
     TOOLCHAIN = 'ARM'
-    TARGETS = []
-    for target, obj in TARGET_MAP.iteritems():
-        if "ARM" not in obj.supported_toolchains:
-            continue
-        if not DeviceCMSIS.check_supported(target):
-            continue
-        TARGETS.append(target)
+
+    POST_BINARY_WHITELIST = set([
+        "MCU_NRF51Code.binary_hook",
+        "TEENSY3_1Code.binary_hook",
+        "LPCTargetCode.lpc_patch",
+        "LPC4088Code.binary_hook",
+        "MTSCode.combine_bins_mts_dot",
+        "MTSCode.combine_bins_mts_dragonfly",
+        "NCS36510TargetCode.ncs36510_addfib"
+    ])
+    TARGETS = [tgt for tgt in filter_supported("ARM", POST_BINARY_WHITELIST)
+               if DeviceCMSIS.check_supported(tgt)]
+
     #File associations within .uvprojx file
     file_types = {'.cpp': 8, '.c': 1, '.s': 2,
                   '.obj': 3, '.o': 3, '.lib': 4,
