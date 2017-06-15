@@ -24,7 +24,7 @@
 #include "m480_eth.h"
 #include "lwip/opt.h"
 #include "lwip/def.h"
-#include "toolchain.h"
+#include "mbed_toolchain.h"
 
 #define ETH_TRIGGER_RX()    do{EMAC->RXST = 0;}while(0)
 #define ETH_TRIGGER_TX()    do{EMAC->TXST = 0;}while(0)
@@ -33,12 +33,6 @@
 #define ETH_DISABLE_TX()    do{EMAC->CTL &= ~EMAC_CTL_TXON;}while(0)
 #define ETH_DISABLE_RX()    do{EMAC->CTL &= ~EMAC_CTL_RXON;}while(0)
 
-#define GPIO_MIIM  // Use GPIO to simulation MIIM pins
-#ifdef GPIO_MIIM
-#define delay       do{int volatile ii; for(ii = 0; ii < 10; ii++);}while(0)
-#define tMDC        PC9
-#define tMDIO       PC10
-#endif
 
 /*
 #ifdef __ICCARM__
@@ -68,90 +62,6 @@ extern void ack_emac_rx_isr(void);
 // Addend register = 2^32 * tick_freq / (84MHz), where tick_freq = (2^31 / 215) MHz
 // From above equation, addend register = 2^63 / (84M * 215) ~= 510707200 = 0x1E70C600
 
-
-#ifdef GPIO_MIIM
-static void mdio_write(uint32_t u32Addr, uint32_t u32Reg, uint32_t u32Data)
-{
-    int i;
-
-    tMDIO = 1;
-    tMDC = 1;
-    for(i = 0; i < 64; i++) {
-        delay;
-        tMDC = 0;
-        delay;
-        tMDC = 1;
-    }
-
-    // ST
-    delay;
-    tMDC = 0;
-    tMDIO = 0;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    tMDIO = 1;
-    delay;
-    tMDC = 1;
-
-    // OP - write
-    delay;
-    tMDC = 0;
-    tMDIO = 0;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    tMDIO = 1;
-    delay;
-    tMDC = 1;
-
-    // PHYAD
-    for(i = 0; i < 5; i++) {
-        delay;
-        tMDC = 0;
-        tMDIO = (u32Addr >> (4 - i)) & 1;
-        delay;
-        tMDC = 1;
-    }
-
-    // REGAD
-    for(i = 0; i < 5; i++) {
-        delay;
-        tMDC = 0;
-        tMDIO = (u32Reg >> (4 - i)) & 1;
-        delay;
-        tMDC = 1;
-    }
-
-    //TA
-    delay;
-    tMDC = 0;
-    tMDIO = 1;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    tMDIO = 0;
-    delay;
-    tMDC = 1;
-
-    // data
-    for(i = 0; i < 16; i++) {
-        delay;
-        tMDC = 0;
-        tMDIO = (u32Data >> (15 - i)) & 1;
-        delay;
-        tMDC = 1;
-    }
-    for(i = 0; i < 32; i++) {
-        tMDC = 0;
-        tMDC = 1;
-    }
-
-}
-#else
 static void mdio_write(u8_t addr, u8_t reg, u16_t val)
 {
 
@@ -161,97 +71,9 @@ static void mdio_write(u8_t addr, u8_t reg, u16_t val)
     while (EMAC->MIIMCTL & EMAC_MIIMCTL_BUSY_Msk);
 
 }
-#endif
 
-#ifdef GPIO_MIIM
-static uint32_t mdio_read(uint32_t u32Addr, uint32_t u32Reg)
-{
-    int i;
-    uint32_t u32Data = 0;
 
-    tMDIO = 1;
-    tMDC = 1;
 
-    for(i = 0; i < 64; i++) {
-        delay;
-        tMDC = 0;
-        delay;
-        tMDC = 1;
-    }
-
-    // ST
-    delay;
-    tMDC = 0;
-    tMDIO = 0;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    tMDIO = 1;
-    delay;
-    tMDC = 1;
-
-    // OP - read
-    delay;
-    tMDC = 0;
-    tMDIO = 1;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    tMDIO = 0;
-    delay;
-    tMDC = 1;
-
-    // PHYAD
-    for(i = 0; i < 5; i++) {
-        delay;
-        tMDC = 0;
-        tMDIO = (u32Addr >> (4 - i)) & 1;
-        delay;
-        tMDC = 1;
-    }
-
-    // REGAD
-    for(i = 0; i < 5; i++) {
-        delay;
-        tMDC = 0;
-        tMDIO = (u32Reg >> (4 - i)) & 1;
-        delay;
-        tMDC = 1;
-    }
-    //TA
-    PC->MODE &= ~(1 << 20);
-    delay;
-    tMDC = 0;
-    //tMDIO = 1;
-    delay;
-    tMDC = 1;
-    delay;
-    tMDC = 0;
-    //tMDIO = 0;
-    delay;
-    tMDC = 1;
-
-    // data
-    for(i = 0; i < 16; i++) {
-        delay;
-        tMDC = 0;
-        delay;
-        u32Data |= tMDIO << (15 - i);
-        tMDC = 1;
-    }
-    PC->MODE |= (1 << 20);
-    for(i = 0; i < 64; i++) {
-        delay;
-        tMDC = 0;
-        delay;
-        tMDC = 1;
-    }
-    return u32Data;
-
-}
-#else
 static u16_t mdio_read(u8_t addr, u8_t reg)
 {
     EMAC->MIIMCTL = (addr << EMAC_MIIMCTL_PHYADDR_Pos) | reg | EMAC_MIIMCTL_BUSY_Msk | EMAC_MIIMCTL_MDCON_Msk;
@@ -259,7 +81,6 @@ static u16_t mdio_read(u8_t addr, u8_t reg)
 
     return(EMAC->MIIMDAT);
 }
-#endif
 
 
 static int reset_phy(void)
@@ -267,11 +88,6 @@ static int reset_phy(void)
 
     u16_t reg;
     u32_t delayCnt;
-
-#ifdef GPIO_MIIM
-    SYS->GPC_MFPH &= ~0x00000FF0;
-    PC->MODE |= (1 << 20) | (1 << 18);
-#endif
 
     mdio_write(CONFIG_PHY_ADDR, MII_BMCR, BMCR_RESET);
 
@@ -286,30 +102,7 @@ static int reset_phy(void)
         LWIP_DEBUGF(LWIP_DBG_LEVEL_SEVERE|LWIP_DBG_ON,("Reset phy failed\n"));
         return(-1);
     }
-    
-#if 1  /* Enlarge IP101GA driving current as IP101A */
-		do{	
-			mdio_write(CONFIG_PHY_ADDR, 20, 0x0004);    //change to page 4
-			delay;
-		}while(mdio_read(CONFIG_PHY_ADDR, 20) != 0x0004);
-
-		do{			
-			mdio_write(CONFIG_PHY_ADDR, 22, 0x8000);    // RXC driving = 8.10mA
-			delay;
-		}while(mdio_read(CONFIG_PHY_ADDR, 22) != 0x8000);
-
-		do{	    
-			mdio_write(CONFIG_PHY_ADDR, 20, 0x0010);    // change to page 16(default)
-			delay;
-    }while(mdio_read(CONFIG_PHY_ADDR, 20) != 0x0010);
-
-//		do{	    
-			mdio_write(CONFIG_PHY_ADDR, 26, 0x4924);    // RXD driving = 8.10mA    
-			delay;
-//		}while(mdio_read(CONFIG_PHY_ADDR, 20) != 0x4924); // Can't achieve this condition
-//		printf("RXD driving: 0x%x\r\n",mdio_read(CONFIG_PHY_ADDR, 20));
-#endif
-    
+        
     mdio_write(CONFIG_PHY_ADDR, MII_ADVERTISE, ADVERTISE_CSMA |
                ADVERTISE_10HALF |
                ADVERTISE_10FULL |
@@ -401,8 +194,6 @@ static void set_mac_addr(u8_t *addr)
     EMAC->CAM0L = (addr[4] << 24) |
                   (addr[5] << 16);
 
-    EMAC->CAMCTL = EMAC_CAMCTL_CMPEN_Msk | EMAC_CAMCTL_AMP_Msk | EMAC_CAMCTL_ABP_Msk;
-    EMAC->CAMEN = 1;    // Enable CAM entry 0
 
 }
 
@@ -424,20 +215,20 @@ static void __eth_clk_pin_init()
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
     // Configure RMII pins
-    SYS->GPC_MFPL = SYS_GPC_MFPL_PC0MFP_EMAC_REFCLK |
-                    SYS_GPC_MFPL_PC1MFP_EMAC_MII_RXD0 |
-                    SYS_GPC_MFPL_PC2MFP_EMAC_MII_RXD1 |
-                    SYS_GPC_MFPL_PC3MFP_EMAC_MII_RXDV |
-                    SYS_GPC_MFPL_PC4MFP_EMAC_MII_RXERR;
+    SYS->GPA_MFPL = SYS_GPA_MFPL_PA6MFP_EMAC_RMII_RXERR | SYS_GPA_MFPL_PA7MFP_EMAC_RMII_CRSDV;
+    SYS->GPC_MFPL = SYS_GPC_MFPL_PC6MFP_EMAC_RMII_RXD1 | SYS_GPC_MFPL_PC7MFP_EMAC_RMII_RXD0;
+    SYS->GPC_MFPH = SYS_GPC_MFPH_PC8MFP_EMAC_RMII_REFCLK;
+    SYS->GPE_MFPH = SYS_GPE_MFPH_PE8MFP_EMAC_RMII_MDC |
+                    SYS_GPE_MFPH_PE9MFP_EMAC_RMII_MDIO |
+                    SYS_GPE_MFPH_PE10MFP_EMAC_RMII_TXD0 |
+                    SYS_GPE_MFPH_PE11MFP_EMAC_RMII_TXD1 |
+                    SYS_GPE_MFPH_PE12MFP_EMAC_RMII_TXEN;
 
-    SYS->GPC_MFPH = SYS_GPC_MFPH_PC9MFP_EMAC_MII_MDC |
-                    SYS_GPC_MFPH_PC10MFP_EMAC_MII_MDIO |
-                    SYS_GPC_MFPH_PC11MFP_EMAC_MII_TXD0 |
-                    SYS_GPC_MFPH_PC12MFP_EMAC_MII_TXD1 |
-                    SYS_GPC_MFPH_PC13MFP_EMAC_MII_TXEN;
-                    
-    // Enable high slew rate on all RMII pins
-    PC->SLEWCTL |= 0x3E1F;
+    // Enable high slew rate on all RMII TX output pins
+    PE->SLEWCTL = (GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN10_Pos) |
+                  (GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN11_Pos) |
+                  (GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN12_Pos);
+
 
     /* Lock protected registers */
     SYS_LockReg();
@@ -451,23 +242,38 @@ void ETH_init(u8_t *mac_addr)
 	
     // Reset MAC
     EMAC->CTL = EMAC_CTL_RST_Msk;
+    while(EMAC->CTL & EMAC_CTL_RST_Msk) {}
 
     init_tx_desc();
     init_rx_desc();
 
     set_mac_addr(mac_addr);  // need to reconfigure hardware address 'cos we just RESET emc...
-    reset_phy();
 
-    EMAC->CTL |= EMAC_CTL_STRIPCRC_Msk | EMAC_CTL_RXON_Msk | EMAC_CTL_TXON_Msk | EMAC_CTL_RMIIEN_Msk | EMAC_CTL_RMIIRXCTL_Msk;
-    EMAC->INTEN |= EMAC_INTEN_RXIEN_Msk |
-                   EMAC_INTEN_RXGDIEN_Msk |
-                   EMAC_INTEN_RDUIEN_Msk |
-                   EMAC_INTEN_RXBEIEN_Msk |
-                   EMAC_INTEN_TXIEN_Msk |
-                   EMAC_INTEN_TXABTIEN_Msk |
-                   EMAC_INTEN_TXCPIEN_Msk |
-                   EMAC_INTEN_TXBEIEN_Msk;
-    EMAC->RXST = 0;  // trigger Rx
+
+    /* Configure the MAC interrupt enable register. */
+    EMAC->INTEN = EMAC_INTEN_RXIEN_Msk |
+                  EMAC_INTEN_TXIEN_Msk |
+                  EMAC_INTEN_RXGDIEN_Msk |
+                  EMAC_INTEN_TXCPIEN_Msk |
+                  EMAC_INTEN_RXBEIEN_Msk |
+                  EMAC_INTEN_TXBEIEN_Msk |
+                  EMAC_INTEN_RDUIEN_Msk |
+                  EMAC_INTEN_TSALMIEN_Msk |
+                  EMAC_INTEN_WOLIEN_Msk;
+
+    /* Configure the MAC control register. */
+    EMAC->CTL = EMAC_CTL_STRIPCRC_Msk | EMAC_CTL_RMIIEN_Msk;
+
+    /* Accept packets for us and all broadcast and multicast packets */
+    EMAC->CAMCTL =  EMAC_CAMCTL_CMPEN_Msk |
+                    EMAC_CAMCTL_AMP_Msk |
+                    EMAC_CAMCTL_ABP_Msk;
+    EMAC->CAMEN = 1;    // Enable CAM entry 0    
+
+    reset_phy();                    
+                    
+    EMAC_ENABLE_RX();
+    EMAC_ENABLE_TX();
 }
 
 
@@ -519,7 +325,7 @@ void EMAC_RX_Action(void)
     } while (1);
 
     ETH_TRIGGER_RX();
-//	eth_arch_tcpip_thread();
+
 }
 
 void EMAC_TX_IRQHandler(void)
