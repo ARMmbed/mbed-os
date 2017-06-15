@@ -38,7 +38,6 @@
 #include "mbed_toolchain.h"
 #include "mbed_assert.h"
 
-//static int aes_init_done = 0;
 
 
 #define mbedtls_trace(...) //printf(__VA_ARGS__)
@@ -83,15 +82,21 @@ static void swapInitVector(unsigned char iv[16])
 		}			
 }	
 
-//volatile void CRYPTO_IRQHandler()
-//{
-//    if (AES_GET_INT_FLAG()) {
-//        g_AES_done = 1;
-//        AES_CLR_INT_FLAG();
-//    }
-//}
+/* IRQHandler: To share CRYPTO_IRQHandler() with TRNG & other crypto IPs 
+               For ex: 
+                    volatile void CRYPTO_IRQHandler()
+                    {
+                        ...
+                        if (AES_GET_INT_FLAG()) {
+                            g_AES_done = 1;
+                            AES_CLR_INT_FLAG();
+                        }
+                        ...
+                    }               
+*/
 
-// AES available channel 0~3
+
+/* AES available channel 0~3 */
 static unsigned char channel_flag[4]={0x00,0x00,0x00,0x00};  // 0: idle, 1: busy
 static int channel_alloc()
 {
@@ -118,17 +123,14 @@ void mbedtls_aes_init( mbedtls_aes_context *ctx )
 {
 	int i =-1;
 
-//	sw_mbedtls_aes_init(ctx); 
-//	return;
 	
     mbedtls_trace("=== %s \r\n", __FUNCTION__);
     memset( ctx, 0, sizeof( mbedtls_aes_context ) );
 	
     ctx->swapType = AES_IN_OUT_SWAP;
     while( (i = channel_alloc()) < 0 ) 	
-        {	
+    {	
         mbed_assert_internal("No available AES channel", __FILE__, __LINE__);
-        //osDelay(300);
     }
     ctx->channel = i;
     ctx->iv = au32MyAESIV;
@@ -151,15 +153,7 @@ void mbedtls_aes_free( mbedtls_aes_context *ctx )
 
     if( ctx == NULL )
         return;
-
-    /* Unlock protected registers */
-//    SYS_UnlockReg();
-//    CLK_DisableModuleClock(CRPT_MODULE);
-    /* Lock protected registers */
-//    SYS_LockReg();
-
-//    NVIC_DisableIRQ(CRPT_IRQn);
-//    AES_DISABLE_INT();       	
+      	
     channel_free(ctx->channel);
     mbedtls_zeroize( ctx, sizeof( mbedtls_aes_context ) );
 }
