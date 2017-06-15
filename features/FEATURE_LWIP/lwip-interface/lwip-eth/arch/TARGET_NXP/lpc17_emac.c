@@ -192,7 +192,7 @@ static void lpc_rxqueue_pbuf(struct lpc_enetdata *lpc_enetif, struct pbuf *p)
 	LPC_EMAC->RxConsumeIndex = idx;
 
 	LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-		("lpc_rxqueue_pbuf: pbuf packet queued: %p (free desc=%d)\n", p,
+		("lpc_rxqueue_pbuf: pbuf packet queued: %p (free desc=%"U32_F")\n", p,
 			lpc_enetif->rx_free_descs));
 }
 
@@ -215,7 +215,7 @@ s32_t lpc_rx_queue(struct netif *netif)
 		p = pbuf_alloc(PBUF_RAW, (u16_t) EMAC_ETH_MAX_FLEN, PBUF_RAM);
 		if (p == NULL) {
 			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-				("lpc_rx_queue: could not allocate RX pbuf (free desc=%d)\n",
+				("lpc_rx_queue: could not allocate RX pbuf (free desc=%"U32_F")\n",
 				lpc_enetif->rx_free_descs));
 			return queued;
 		}
@@ -341,7 +341,7 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 			lpc_rxqueue_pbuf(lpc_enetif, p);
 
 			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-				("lpc_low_level_input: Packet dropped with errors (0x%x)\n",
+				("lpc_low_level_input: Packet dropped with errors (%"X32_F")\n",
 				lpc_enetif->prxs[idx].statusinfo));
 
 			p = NULL;
@@ -365,10 +365,10 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 
     			/* Re-queue the pbuf for receive */
     			p->len = origLength;
-    			lpc_rxqueue_pbuf(lpc_enetif, p);
+                lpc_rxqueue_pbuf(lpc_enetif, p);
 
     			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-    				("lpc_low_level_input: Packet index %d dropped for OOM\n",
+                    ("lpc_low_level_input: Packet index %"U32_F" dropped for OOM\n",
     				idx));
 			
 #ifdef LOCK_RX_THREAD
@@ -381,7 +381,7 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
 			}
 
 			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-				("lpc_low_level_input: Packet received: %p, size %d (index=%d)\n",
+				("lpc_low_level_input: Packet received: %p, size %"U32_F" (index=%"U32_F")\n",
 				p, length, idx));
 
 			/* Save size */
@@ -479,7 +479,7 @@ static void lpc_tx_reclaim_st(struct lpc_enetdata *lpc_enetif, u32_t cidx)
 	while (cidx != lpc_enetif->lpc_last_tx_idx) {
 		if (lpc_enetif->txb[lpc_enetif->lpc_last_tx_idx] != NULL) {
 			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-				("lpc_tx_reclaim_st: Freeing packet %p (index %d)\n",
+				("lpc_tx_reclaim_st: Freeing packet %p (index %"U32_F")\n",
 				lpc_enetif->txb[lpc_enetif->lpc_last_tx_idx],
 				lpc_enetif->lpc_last_tx_idx));
 			pbuf_free(lpc_enetif->txb[lpc_enetif->lpc_last_tx_idx]);
@@ -646,8 +646,8 @@ static err_t lpc_low_level_output(struct netif *netif, struct pbuf *p)
 		}
 
 		LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-			("lpc_low_level_output: pbuf packet(%p) sent, chain#=%d,"
-			" size = %d (index=%d)\n", q->payload, dn, q->len, idx));
+			("lpc_low_level_output: pbuf packet(%p) sent, chain#=%"S32_F","
+			" size = %d (index=%"U32_F")\n", q->payload, dn, q->len, idx));
 
 		lpc_enetif->ptxd[idx].packet = (u32_t) q->payload;
 
