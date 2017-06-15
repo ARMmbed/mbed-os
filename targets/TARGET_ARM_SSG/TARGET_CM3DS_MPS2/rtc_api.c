@@ -31,7 +31,7 @@
  */
 void rtc_init(void)
 {
-    CMSDK_RTC->RTCCR |= (1 << CMSDK_RTC_Enable_Pos);
+    CMSDK_RTC->RTCCR |= (1 << CMSDK_RTC_ENABLE_Pos);
 }
 
 /**
@@ -51,7 +51,7 @@ void rtc_free(void)
  */
 int rtc_isenabled(void)
 {
-    return (CMSDK_RTC->RTCCR & CMSDK_RTC_Enable_Msk);
+    return (CMSDK_RTC->RTCCR & CMSDK_RTC_ENABLE_Msk);
 }
 
 /**

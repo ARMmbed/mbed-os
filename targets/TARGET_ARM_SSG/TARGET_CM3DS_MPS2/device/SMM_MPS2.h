@@ -547,20 +547,20 @@ __IO  uint32_t  E2P_DATA;              //   EEPROM Data (offset 0xB4)
 /*                         Peripheral memory map                              */
 /******************************************************************************/
 
-#define MPS2_SSP0_BASE          (0x40020000ul)       /* User SSP Base Address   */
-#define MPS2_SSP1_BASE          (0x40021000ul)       /* CLCD SSP Base Address   */
+#define MPS2_SSP0_BASE          (0x40020000ul)       /* User SSP Base Address */
+#define MPS2_SSP1_BASE          (0x40021000ul)       /* CLCD SSP Base Address */
 #define MPS2_TSC_I2C_BASE       (0x40022000ul)       /* Touch Screen I2C Base Address */
 #define MPS2_AAIC_I2C_BASE      (0x40023000ul)       /* Audio Interface I2C Base Address */
 #define MPS2_AAIC_I2S_BASE      (0x40024000ul)       /* Audio Interface I2S Base Address */
-#define MPS2_SSP2_BASE          (0x40025000ul)       /* adc SSP Base Address   */
-#define MPS2_SSP3_BASE          (0x40026000ul)       /* shield 0 SSP Base Address   */
-#define MPS2_SSP4_BASE          (0x40027000ul)       /* shield 1 SSP Base Address   */
+#define MPS2_SSP2_BASE          (0x40025000ul)       /* ADC SSP Base Address */
+#define MPS2_SSP3_BASE          (0x40026000ul)       /* Shield 0 SSP Base Address */
+#define MPS2_SSP4_BASE          (0x40027000ul)       /* Shield 1 SSP Base Address */
 #define MPS2_FPGAIO_BASE        (0x40028000ul)       /* FPGAIO Base Address */
 #define MPS2_SHIELD0_I2C_BASE   (0x40029000ul)       /* I2C shield 0 Base Address */
 #define MPS2_SHIELD1_I2C_BASE   (0x4002A000ul)       /* I2C shield 1 Base Address */
-#define MPS2_SCC_BASE           (0x4002F000ul)       /* SCC Base Address    */
+#define MPS2_SCC_BASE           (0x4002F000ul)       /* SCC Base Address */
 
-#define SMSC9220_BASE           (0x40200000ul)       /* Ethernet SMSC9220 Base Address   */
+#define SMSC9220_BASE           (0x40200000ul)       /* Ethernet SMSC9220 Base Address */
 
 #define MPS2_VGA_TEXT_BUFFER    (0x41000000ul)       /* VGA Text Buffer Address */
 #define MPS2_VGA_BUFFER         (0x41100000ul)       /* VGA Buffer Base Address */
@@ -569,19 +569,19 @@ __IO  uint32_t  E2P_DATA;              //   EEPROM Data (offset 0xB4)
 /*                         Peripheral declaration                             */
 /******************************************************************************/
 
-#define SMSC9220                ((SMSC9220_TypeDef      *) SMSC9220_BASE )
-#define MPS2_TS_I2C             ((MPS2_I2C_TypeDef      *) MPS2_TSC_I2C_BASE )
-#define MPS2_AAIC_I2C           ((MPS2_I2C_TypeDef      *) MPS2_AAIC_I2C_BASE )
-#define MPS2_SHIELD0_I2C        ((MPS2_I2C_TypeDef      *) MPS2_SHIELD0_I2C_BASE )
-#define MPS2_SHIELD1_I2C        ((MPS2_I2C_TypeDef      *) MPS2_SHIELD1_I2C_BASE )
-#define MPS2_AAIC_I2S           ((MPS2_I2S_TypeDef      *) MPS2_AAIC_I2S_BASE )
-#define MPS2_FPGAIO             ((MPS2_FPGAIO_TypeDef   *) MPS2_FPGAIO_BASE )
-#define MPS2_SCC                ((MPS2_SCC_TypeDef      *) MPS2_SCC_BASE )
-#define MPS2_SSP0               ((MPS2_SSP_TypeDef      *) MPS2_SSP0_BASE )
-#define MPS2_SSP1               ((MPS2_SSP_TypeDef      *) MPS2_SSP1_BASE )
-#define MPS2_SSP2               ((MPS2_SSP_TypeDef      *) MPS2_SSP2_BASE )
-#define MPS2_SSP3               ((MPS2_SSP_TypeDef      *) MPS2_SSP3_BASE )
-#define MPS2_SSP4               ((MPS2_SSP_TypeDef      *) MPS2_SSP4_BASE )
+#define SMSC9220                ((SMSC9220_TypeDef    *) SMSC9220_BASE )
+#define MPS2_TS_I2C             ((MPS2_I2C_TypeDef    *) MPS2_TSC_I2C_BASE )
+#define MPS2_AAIC_I2C           ((MPS2_I2C_TypeDef    *) MPS2_AAIC_I2C_BASE )
+#define MPS2_SHIELD0_I2C        ((MPS2_I2C_TypeDef    *) MPS2_SHIELD0_I2C_BASE )
+#define MPS2_SHIELD1_I2C        ((MPS2_I2C_TypeDef    *) MPS2_SHIELD1_I2C_BASE )
+#define MPS2_AAIC_I2S           ((MPS2_I2S_TypeDef    *) MPS2_AAIC_I2S_BASE )
+#define MPS2_FPGAIO             ((MPS2_FPGAIO_TypeDef *) MPS2_FPGAIO_BASE )
+#define MPS2_SCC                ((MPS2_SCC_TypeDef    *) MPS2_SCC_BASE )
+#define MPS2_SSP0               ((MPS2_SSP_TypeDef    *) MPS2_SSP0_BASE )
+#define MPS2_SSP1               ((MPS2_SSP_TypeDef    *) MPS2_SSP1_BASE )
+#define MPS2_SSP2               ((MPS2_SSP_TypeDef    *) MPS2_SSP2_BASE )
+#define MPS2_SSP3               ((MPS2_SSP_TypeDef    *) MPS2_SSP3_BASE )
+#define MPS2_SSP4               ((MPS2_SSP_TypeDef    *) MPS2_SSP4_BASE )
 
 /******************************************************************************/
 /*                     General Function Definitions                           */
