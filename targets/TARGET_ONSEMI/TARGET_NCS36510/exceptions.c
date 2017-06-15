@@ -40,7 +40,7 @@
 #include "uart_16c550.h"
 
 #include "memory_map.h"
-#include "timer.h"
+#include "timer_ncs36510.h"
 
 /* Other inclusions */
 #include "types.h"
