@@ -259,7 +259,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
-        "extra_labels": ["NXP", "LPC176X", "FLASH_CMSIS_ALGO", "UBLOX_MODEM_GENERIC"],
+        "extra_labels": ["NXP", "LPC176X", "FLASH_CMSIS_ALGO"],
         "config": {
             "modem_is_on_board": {
                 "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
@@ -1452,9 +1452,21 @@
         "default_toolchain": "ARM",
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "extra_labels": ["STM", "STM32F4", "STM32F437", "STM32F437VG", "STM32F437xx", "STM32F437xG"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "RTC_LSI=1", "HSE_VALUE=12000000"],
+        "config": {
+            "modem_is_on_board": {
+                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD" 
+            },
+            "modem_data_connection_type": {
+                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD_UART" 
+            }
+        },
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "RTC_LSI=1", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
         "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "RTC", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "RTC", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
         "features": ["LWIP"],
         "public": false,
         "device_name": "STM32F437VG"

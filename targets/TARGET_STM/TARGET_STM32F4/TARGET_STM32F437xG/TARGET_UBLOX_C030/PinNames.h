@@ -69,29 +69,34 @@ typedef enum {
     // Not connected
     NC = -1,
 
+    // Power
+    PWR3V3 = PE_0,       // 3.3V rail for the Arduino interface,
+                         // user LEDs and GNSS power, should be
+                         // set to open drain output
+    
+    // GNSS
+    GNSSEN  = PA_15,     // VCC_IO to GNSS, should be set to push-pull, no pull-up, output
     GNSSTXD = PC_6,
     GNSSRXD = PC_7,
-    // Control
-    GNSSRST = PC_10, // Reset (input to GPS, active low)
-    GNSSPWR = PE_0,  // 2.8V rail, should be set to open drain output
-    GNSSEN = PA_15,  // VCC_IO to GNSS, should be set to push-pull, no pull-up, output
-    // u-blox LISA/SARA cellular modem
-    // http://www.u-blox.com/wireless-modules.html
-    // -----------------------------------------------------------
-    // UART (LISA/SARA = DCE)
-    MDMTXD = PD_5, // Transmit Data
-    MDMRXD = PD_6, // Receive Data
-    MDMCTS = PD_3, // Clear to Send
-    MDMRTS = PD_4, // Request to Send (set high or use handshake)
-    MDMDCD = NC,   // DCD line not connecetd
     
-    // USB
-    // Control 
-    MDMEN     = PC_2,  // Supply Control (high = enabled)
-    MDMPWRON  = PE_14,  // 
-    MDMGPIO2  = PD_1,  // 
-    MDMGPIO3  = PB_4,  //
-    MDMRST    = PB_5,  // Reset (active low, set as open drain!)
+    // Cellular modem (a DCE)
+    MDMPWRON  = PE_14,   // Power (active high)
+    MDMRST    = PB_5,    // Reset (active low)
+    MDMTXD    = PD_5,    // Transmit Data
+    MDMRXD    = PD_6,    // Receive Data
+    MDMCTS    = PD_3,    // Clear to Send
+    MDMRTS    = PD_4,    // Request to Send
+    MDMDCD    = NC,      // DCD line not connected
+    MDMDSR    = NC,      // DSR line not connected
+    MDMDTR    = NC,      // DTR line not connected
+    MDMRI     = NC,      // RI line not connected
+    MDMGPIO2  = PD_1,    // 
+    MDMGPIO3  = PB_4,    //
+    MDMCURRENTSENSE = PC_2,
+
+    // SD card
+    SDPWRON     = PE_10, // Set to high to power on the SD card
+    SDCSEL      = PD_7,  // SPI chip select for on-board SD card
 
     // Board Pins
     // A0-A5
@@ -126,6 +131,20 @@ typedef enum {
     LED_RED = LED1,
     SW0     = PC_13,  // Switch-0
 
+    // Arduino header I2C
+    I2C_SDA = D14,
+    I2C_SCL = D15,
+
+    // On-board I2C
+    I2C_SDA_B = PC_9,
+    I2C_SCL_B = PA_8,
+
+    // SPI
+    SPI_MOSI    = D11,
+    SPI_MISO    = D12,
+    SPI_CLK     = D13,
+    SPI_NSS     = D10,
+
     // ST-Link
     USBRX   = PA_10,
     USBTX   = PA_9,
@@ -134,8 +153,13 @@ typedef enum {
     NTRST   = PB_4,  
 } PinName;
 
-#define GNSSBAUD    9600    // Default GNSS Baud Rate
-#define MDMBAUD     115200  // Default Modem Baud Rate
+#define ACTIVE_HIGH_POLARITY    1
+#define ACTIVE_LOW_POLARITY     0
+
+#define MDM_PIN_POLARITY            ACTIVE_LOW_POLARITY
+
+// The default GNSS baud rate is set in targets.json
+// The default modem baud rate is set in the mbed_lib.json file under features/cellular/TARGET_UBLOX_MODEM_GENERIC/ubox_modem_driver
 
 #ifdef __cplusplus
 }
