@@ -2734,11 +2734,12 @@ void flash_cache_clear(flash_config_t *config)
     __DSB();
 #endif /* FLASH_DRIVER_IS_FLASH_RESIDENT */
 }
+#if (defined(__GNUC__))
+/* #pragma GCC pop_options */
+#else
 #if (defined(__CC_ARM))
 #pragma pop
 #endif
-#if (defined(__GNUC__))
-/* #pragma GCC pop_options */
 #endif
 
 #if FLASH_DRIVER_IS_FLASH_RESIDENT
