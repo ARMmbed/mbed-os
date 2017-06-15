@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016-2017 ARM Limited
+ * Copyright (c) 2006-2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+/*
+ * Code implementation file for the fpga functions.
+ */
 
-#if defined(TARGET_BEETLE) || defined(TARGET_CM3DS_MPS2)
+#include "SMM_MPS2.h"                   // MPS2 common header
 
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
+// Function to delay n*ticks (25MHz = 40nS per tick)
+// Used for I2C drivers
+void i2c_delay(unsigned int tick);
 
-#endif
+/* Sleep function to delay n*mS
+ * Uses FPGA counter.
+ */
+void Sleepms(unsigned int msec);
 
-#endif  // MBED_MBED_RTX_H
+/* Sleep function to delay n*uS
+ */
+void Sleepus(unsigned int usec);

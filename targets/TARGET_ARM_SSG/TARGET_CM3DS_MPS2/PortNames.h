@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016-2017 ARM Limited
+ * Copyright (c) 2006-2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
-
-#if defined(TARGET_BEETLE) || defined(TARGET_CM3DS_MPS2)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#endif
+typedef enum {
+    Port0 = 0,
+    Port1 = 1
+} PortName;
 
-#endif  // MBED_MBED_RTX_H
+#ifdef __cplusplus
+}
+#endif
+#endif

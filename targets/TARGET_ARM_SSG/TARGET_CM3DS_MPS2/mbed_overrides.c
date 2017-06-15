@@ -1,5 +1,6 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016-2017 ARM Limited
+
+ * Copyright (c) 2006-2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +15,10 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#include "smsc9220_eth.h"
 
-#if defined(TARGET_BEETLE) || defined(TARGET_CM3DS_MPS2)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-
-#endif
-
-#endif  // MBED_MBED_RTX_H
+/* Provide ethernet devices with a semi-unique MAC address from the UUID */
+void mbed_mac_address(char *mac)
+{
+    smsc9220_read_mac_address(mac);
+}

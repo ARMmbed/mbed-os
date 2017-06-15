@@ -1944,6 +1944,15 @@
         "device_has": ["AACI", "ANALOGIN", "CLCD", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "TSC"],
         "release_versions": ["2"]
     },
+     "ARM_CM3DS_MPS2": {
+        "inherits": ["ARM_IOTSS_Target"],
+        "core": "Cortex-M3",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["ARM_SSG", "CM3DS_MPS2"],
+        "macros": ["CMSDK_CM3DS"],
+        "device_has": ["ETHERNET","INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "RTC"],
+        "release_versions": ["2", "5"]
+    },
     "ARM_BEETLE_SOC": {
         "inherits": ["ARM_IOTSS_Target"],
         "core": "Cortex-M3",
