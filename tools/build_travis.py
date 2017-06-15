@@ -84,7 +84,7 @@ build_list = (
     { "target": "DISCO_F769NI",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_L475VG_IOT01A", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
     { "target": "DISCO_L476VG",        "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
-    { "target": "DISCO_L072CZ_LRWAN1", "toolchains": "GCC_ARM", "libs": ["dsp"] },
+    { "target": "DISCO_L072CZ_LRWAN1", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
 
     { "target": "LPC1114",           "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "LPC11U35_401",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
