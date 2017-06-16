@@ -23,6 +23,7 @@ from time import time, sleep
 from types import ListType
 from shutil import copyfile
 from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath, isfile, isdir, normcase
+from itertools import chain
 from inspect import getmro
 from copy import deepcopy
 from tools.config import Config
@@ -48,6 +49,8 @@ class LazyDict(dict):
         self.lazy = {}
 
     def add_lazy(self, key, thunk):
+        if key in self.eager:
+            del self.eager[key]
         self.lazy[key] = thunk
 
     def __getitem__(self, key):
@@ -62,6 +65,12 @@ class LazyDict(dict):
 
     def __contains__(self, key):
         return key in self.eager or key in self.lazy
+
+    def __iter__(self):
+        return chain(iter(self.eager), iter(self.lazy))
+
+    def __len__(self):
+        return len(self.eager) + len(self.lazy)
 
     def update(self, other):
         if isinstance(other, LazyDict):
