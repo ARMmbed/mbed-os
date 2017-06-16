@@ -27,7 +27,7 @@
 namespace rtos {
 
 Semaphore::Semaphore(int32_t count) {
-    constructor(count, 1024);
+    constructor(count, 0xffff);
 }
 
 Semaphore::Semaphore(int32_t count, uint16_t max_count) {
