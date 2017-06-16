@@ -212,8 +212,8 @@ void SystemInit (void)
     extern uint32_t Load$$LR$$LR_IROM1$$Base[];
     #define FLASH_VTOR_BASE   ((uint32_t)Load$$LR$$LR_IROM1$$Base)
 #elif defined(__GNUC__)
-    extern uint32_t vectors[];
-    #define FLASH_VTOR_BASE   ((uint32_t)vectors)
+        extern uint32_t g_pfnVectors[];
+    #define FLASH_VTOR_BASE   ((uint32_t)g_pfnVectors)
 #else
     #error "Flash vector address not set for this toolchain"
 #endif
