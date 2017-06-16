@@ -71,10 +71,28 @@ class LazyDict(dict):
             self.eager.update(other)
 
     def iteritems(self):
+        """Warning: This forces the evaluation all of the items in this LazyDict
+        that are iterated over."""
         for k, v in self.eager.iteritems():
             yield k, v
         for k in self.lazy.keys():
             yield k, self[k]
+
+    def apply(self, fn):
+        """Delay the application of a computation to all items of the lazy dict.
+        Does no computation now. Instead the comuptation is performed when a
+        consumer attempts to access a value in this LazyDict"""
+        new_lazy = {}
+        for k, f in self.lazy.iteritems():
+            def closure(f=f):
+                return fn(f())
+            new_lazy[k] = closure
+        for k, v in self.eager.iteritems():
+            def closure(v=v):
+                return fn(v)
+            new_lazy[k] = closure
+        self.lazy = new_lazy
+        self.eager = {}
 
 class Resources:
     def __init__(self, base_path=None):
@@ -199,7 +217,9 @@ class Resources:
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
 
-        self.features = {k: f.relative_to(base, dot) for k, f in self.features.iteritems() if f}
+        def to_apply(feature, base=base, dot=dot):
+            feature.relative_to(base, dot)
+        self.features.apply(to_apply)
 
         if self.linker_script is not None:
             self.linker_script = rel_path(self.linker_script, base, dot)
@@ -212,7 +232,9 @@ class Resources:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
 
-        self.features = {k: f.win_to_unix() for k, f in self.features.iteritems() if f}
+        def to_apply(feature):
+            feature.win_to_unix()
+        self.features.apply(to_apply)
 
         if self.linker_script is not None:
             self.linker_script = self.linker_script.replace('\\', '/')
