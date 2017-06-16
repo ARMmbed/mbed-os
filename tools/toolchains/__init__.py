@@ -42,6 +42,40 @@ import fnmatch
 CPU_COUNT_MIN = 1
 CPU_COEF = 1
 
+class LazyDict(dict):
+    def __init__(self):
+        self.eager = {}
+        self.lazy = {}
+
+    def add_lazy(self, key, thunk):
+        self.lazy[key] = thunk
+
+    def __getitem__(self, key):
+        if  (key not in self.eager
+             and key in self.lazy):
+            self.eager[key] = self.lazy[key]()
+            del self.lazy[key]
+        return self.eager[key]
+
+    def __setitem__(self, key, value):
+        self.eager[key] = value
+
+    def __contains__(self, key):
+        return key in self.eager or key in self.lazy
+
+    def update(self, other):
+        if isinstance(other, LazyDict):
+            self.eager.update(other.eager)
+            self.lazy.update(other.lazy)
+        else:
+            self.eager.update(other)
+
+    def iteritems(self):
+        for k, v in self.eager.iteritems():
+            yield k, v
+        for k in self.lazy.keys():
+            yield k, self[k]
+
 class Resources:
     def __init__(self, base_path=None):
         self.base_path = base_path
@@ -74,7 +108,7 @@ class Resources:
         self.json_files = []
 
         # Features
-        self.features = {}
+        self.features = LazyDict()
 
     def __add__(self, resources):
         if resources is None:
@@ -603,7 +637,9 @@ class mbedToolchain:
                 elif d.startswith('FEATURE_'):
                     # Recursively scan features but ignore them in the current scan.
                     # These are dynamically added by the config system if the conditions are matched
-                    resources.features[d[8:]] = self.scan_resources(dir_path, base_path=base_path)
+                    def closure (dir_path=dir_path, base_path=base_path):
+                        return self.scan_resources(dir_path, base_path=base_path)
+                    resources.features.add_lazy(d[8:], closure)
                     dirs.remove(d)
                 elif exclude_paths:
                     for exclude_path in exclude_paths:
