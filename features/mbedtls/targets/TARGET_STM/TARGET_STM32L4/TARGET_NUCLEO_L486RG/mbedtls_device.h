@@ -22,9 +22,4 @@
 
 #define MBEDTLS_AES_ALT
 
-//the following defines are provided to maintain compatibility between STM32 families
-#define __HAL_RCC_CRYP_CLK_ENABLE    __HAL_RCC_AES_CLK_ENABLE
-#define __HAL_RCC_CRYP_FORCE_RESET   __HAL_RCC_AES_FORCE_RESET
-#define __HAL_RCC_CRYP_RELEASE_RESET __HAL_RCC_AES_RELEASE_RESET
-#define CRYP                         AES
 #endif /* MBEDTLS_DEVICE_H */
