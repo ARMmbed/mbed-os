@@ -63,6 +63,12 @@ class LazyDict(dict):
     def __setitem__(self, key, value):
         self.eager[key] = value
 
+    def __delitem__(self, key):
+        if key in self.eager:
+            del self.eager[key]
+        else:
+            del self.lazy[key]
+
     def __contains__(self, key):
         return key in self.eager or key in self.lazy
 
@@ -71,6 +77,12 @@ class LazyDict(dict):
 
     def __len__(self):
         return len(self.eager) + len(self.lazy)
+
+    def __str__(self):
+        return "Lazy{%s}" % (
+            ", ".join("%r: %r" % (k, v) for k, v in
+                      chain(self.eager.iteritems(), ((k, "not evaluated")
+                                                     for k in self.lazy))))
 
     def update(self, other):
         if isinstance(other, LazyDict):
