@@ -79,7 +79,6 @@
   */
 
 #include "stm32f2xx.h"
-#include "hal_tick.h"
 
 /**
   * @}
@@ -203,20 +202,6 @@ void SystemInit(void)
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif
 
-#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
-    SystemCoreClock = 120000000;
-#else
-    SystemCoreClock = 96000000;
-#endif
-    HAL_Init();
-
-    /* Configure the System clock source, PLL Multiplier and Divider factors,
-       AHB/APBx prescalers and Flash settings */
-    SetSysClock();
-
-    /* Reset the timer to avoid issues after the RAM initialization */
-    TIM_MST_RESET_ON;
-    TIM_MST_RESET_OFF;
 }
 
 /**
