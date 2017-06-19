@@ -61,6 +61,8 @@ u = UID()
 POST_BINARY_WHITELIST = set([
     "TEENSY3_1Code.binary_hook",
     "MCU_NRF51Code.binary_hook",
+    "LPCTargetCode.lpc_patch",
+    "LPC4088Code.binary_hook"
 ])
 
 class GNUARMEclipse(Exporter):
@@ -200,14 +202,13 @@ class GNUARMEclipse(Exporter):
             print 'Build configuration: {0}'.format(opts['name'])
 
             profile = profiles[id]
-            profile_toolchain = profile[self.TOOLCHAIN]
 
             # A small hack, do not bother with src_path again,
             # pass an empty string to avoid crashing.
             src_paths = ['']
             target_name = self.toolchain.target.name
             toolchain = prepare_toolchain(
-                src_paths, target_name, self.TOOLCHAIN, build_profile=profile_toolchain)
+                src_paths, "", target_name, self.TOOLCHAIN, build_profile=[profile])
 
             # Hack to fill in build_dir
             toolchain.build_dir = self.toolchain.build_dir
@@ -243,7 +244,9 @@ class GNUARMEclipse(Exporter):
             opts['ld']['object_files'] = objects
             opts['ld']['user_libraries'] = libraries
             opts['ld']['system_libraries'] = self.system_libraries
-            opts['ld']['script'] = self.ld_script
+            opts['ld']['script'] = join(id.capitalize(),
+                                        "linker-script-%s.ld" % id)
+            opts['cpp_cmd'] = " ".join(toolchain.preproc)
 
             # Unique IDs used in multiple places.
             # Those used only once are implemented with {{u.id}}.
@@ -260,6 +263,7 @@ class GNUARMEclipse(Exporter):
 
         jinja_ctx = {
             'name': self.project_name,
+            'ld_script': self.ld_script,
 
             # Compiler & linker command line options
             'options': self.options,
@@ -269,22 +273,13 @@ class GNUARMEclipse(Exporter):
             'u': u,
         }
 
-        # TODO: it would be good to have jinja stop if one of the
-        # expected context values is not defined.
         self.gen_file('gnuarmeclipse/.project.tmpl', jinja_ctx,
                       '.project', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('gnuarmeclipse/.cproject.tmpl', jinja_ctx,
                       '.cproject', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('gnuarmeclipse/makefile.targets.tmpl', jinja_ctx,
                       'makefile.targets', trim_blocks=True, lstrip_blocks=True)
-
-        if not exists('.mbedignore'):
-            print
-            print 'Create .mbedignore'
-            with open('.mbedignore', 'w') as f:
-                for bf in build_folders:
-                    print bf + '/'
-                    f.write(bf + '/\n')
+        self.gen_file('gnuarmeclipse/mbedignore.tmpl', jinja_ctx, '.mbedignore')
 
         print
         print 'Done. Import the \'{0}\' project in Eclipse.'.format(self.project_name)

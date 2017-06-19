@@ -21,11 +21,10 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A general purpose timer
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -45,6 +44,7 @@ namespace mbed {
  *     printf("Toggle the led takes %d us", end - begin);
  * }
  * @endcode
+ * @ingroup drivers
  */
 class Timer {
 
@@ -67,14 +67,20 @@ public:
     void reset();
 
     /** Get the time passed in seconds
+     *
+     *  @returns    Time passed in seconds
      */
     float read();
 
-    /** Get the time passed in mili-seconds
+    /** Get the time passed in milli-seconds
+     *
+     *  @returns    Time passed in milli seconds
      */
     int read_ms();
 
     /** Get the time passed in micro-seconds
+     *
+     *  @returns    Time passed in micro seconds
      */
     int read_us();
 
@@ -82,16 +88,18 @@ public:
      */
     operator float();
 
+    /** Get in a high resolution type the time passed in micro-seconds.
+     */
+    us_timestamp_t read_high_resolution_us();
+
 protected:
-    int slicetime();
-    int _running;          // whether the timer is running
-    unsigned int _start;   // the start time of the latest slice
-    int _time;             // any accumulated time from previous slices
+    us_timestamp_t slicetime();
+    int _running;            // whether the timer is running
+    us_timestamp_t _start;   // the start time of the latest slice
+    us_timestamp_t _time;    // any accumulated time from previous slices
     const ticker_data_t *_ticker_data;
 };
 
 } // namespace mbed
 
 #endif
-
-/** @}*/

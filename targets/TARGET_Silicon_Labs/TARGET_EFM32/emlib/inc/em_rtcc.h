@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file
  * @brief Real Time Counter (RTCC) peripheral API.
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -52,6 +52,21 @@ extern "C" {
  * @addtogroup RTCC
  * @{
  ******************************************************************************/
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_84)    \
+    || defined(_SILICON_LABS_GECKO_INTERNAL_SDID_89)
+/* Enable fix for errata "RTCC_E203 - Potential Stability Issue with RTCC
+ * Registers". */
+#define ERRATA_FIX_RTCC_E203
+#endif
+
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_84)
+/* Enable fix for errata "RTCC_E204 - Disabling the RTCC Backup RAM may consume extra
+ * current". */
+#define ERRATA_FIX_RTCC_E204
+#endif
+/** @endcond */
 
 /*******************************************************************************
  *********************************   ENUM   ************************************
@@ -588,7 +603,26 @@ __STATIC_INLINE void RTCC_IntSet( uint32_t flags )
  ******************************************************************************/
 __STATIC_INLINE void RTCC_Lock( void )
 {
+#if defined(ERRATA_FIX_RTCC_E203)
+  /* RTCC_E203 - Potential Stability Issue with RTCC Registers
+   * RTCC_LOCK register must be modified while RTCC clock is disabled. */
+  uint32_t lfeReg = CMU->LFECLKEN0;
+  bool cmuLocked = (CMU->LOCK == CMU_LOCK_LOCKKEY_LOCKED);
+  if (cmuLocked)
+  {
+    CMU->LOCK = CMU_LOCK_LOCKKEY_UNLOCK;
+  }
+  CMU->LFECLKEN0 = 0x0;
+#endif
   RTCC->LOCK = RTCC_LOCK_LOCKKEY_LOCK;
+#if defined(ERRATA_FIX_RTCC_E203)
+  /* Restore clock state after RTCC_E203 fix. */
+  CMU->LFECLKEN0 = lfeReg;
+  if (cmuLocked)
+  {
+    CMU->LOCK = CMU_LOCK_LOCKKEY_LOCK;
+  }
+#endif
 }
 
 /***************************************************************************//**
@@ -626,7 +660,11 @@ void RTCC_Reset( void );
  ******************************************************************************/
 __STATIC_INLINE void RTCC_RetentionRamPowerDown( void )
 {
+#if !defined(ERRATA_FIX_RTCC_E204)
+  /* Devices that are affected by RTCC_E204 should always keep the RTCC
+   * backup RAM retained. */
   RTCC->POWERDOWN = RTCC_POWERDOWN_RAM;
+#endif
 }
 
 void RTCC_StatusClear( void );
@@ -682,7 +720,26 @@ __STATIC_INLINE void RTCC_TimeSet( uint32_t time )
  ******************************************************************************/
 __STATIC_INLINE void RTCC_Unlock( void )
 {
+#if defined(ERRATA_FIX_RTCC_E203)
+  /* RTCC_E203 - Potential Stability Issue with RTCC Registers
+   * RTCC_LOCK register must be modified while RTCC clock is disabled. */
+  uint32_t lfeReg = CMU->LFECLKEN0;
+  bool cmuLocked = (CMU->LOCK == CMU_LOCK_LOCKKEY_LOCKED);
+  if (cmuLocked)
+  {
+    CMU->LOCK = CMU_LOCK_LOCKKEY_UNLOCK;
+  }
+  CMU->LFECLKEN0 = 0x0;
+#endif
   RTCC->LOCK = RTCC_LOCK_LOCKKEY_UNLOCK;
+#if defined(ERRATA_FIX_RTCC_E203)
+  /* Restore clock state after RTCC_E203 fix. */
+  CMU->LFECLKEN0 = lfeReg;
+  if (cmuLocked)
+  {
+    CMU->LOCK = CMU_LOCK_LOCKKEY_LOCK;
+  }
+#endif
 }
 
 /** @} (end addtogroup RTCC) */

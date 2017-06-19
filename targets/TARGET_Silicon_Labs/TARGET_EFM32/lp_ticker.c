@@ -95,7 +95,6 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 inline void lp_ticker_disable_interrupt()
 {
     RTC_IntDisable(RTC_IF_COMP0);
-    lp_ticker_free();
 }
 
 inline void lp_ticker_clear_interrupt()
@@ -164,7 +163,6 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 inline void lp_ticker_disable_interrupt()
 {
     RTCC_IntDisable(RTCC_IF_CC0);
-    lp_ticker_free();
 }
 
 inline void lp_ticker_clear_interrupt()

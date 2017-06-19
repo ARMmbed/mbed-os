@@ -25,7 +25,9 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
+#include "mbed_rtos1_types.h"
+#include "mbed_rtos_storage.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -34,50 +36,58 @@ namespace rtos {
 /** Define and manage fixed-size memory pools of objects of a given type.
   @tparam  T         data type of a single object (element).
   @tparam  queue_sz  maximum number of objects (elements) in the memory pool.
+
+ @note
+ Memory considerations: The memory pool data store and control structures will be created on current thread's stack,
+ both for the mbed OS and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 template<typename T, uint32_t pool_sz>
 class MemoryPool {
 public:
     /** Create and Initialize a memory pool. */
     MemoryPool() {
-    #ifdef CMSIS_OS_RTX
-        memset(_pool_m, 0, sizeof(_pool_m));
-        _pool_def.pool = _pool_m;
-
-        _pool_def.pool_sz = pool_sz;
-        _pool_def.item_sz =  sizeof(T);
-    #endif
-        _pool_id = osPoolCreate(&_pool_def);
+        memset(_pool_mem, 0, sizeof(_pool_mem));
+        memset(&_obj_mem, 0, sizeof(_obj_mem));
+        memset(&_attr, 0, sizeof(_attr));
+        _attr.mp_mem = _pool_mem;
+        _attr.mp_size = sizeof(_pool_mem);
+        _attr.cb_mem = &_obj_mem;
+        _attr.cb_size = sizeof(_obj_mem);
+        _id = osMemoryPoolNew(pool_sz, sizeof(T), &_attr);
+        MBED_ASSERT(_id);
     }
 
     /** Allocate a memory block of type T from a memory pool.
       @return  address of the allocated memory block or NULL in case of no memory available.
     */
     T* alloc(void) {
-        return (T*)osPoolAlloc(_pool_id);
+        return (T*)osMemoryPoolAlloc(_id, 0);
     }
 
     /** Allocate a memory block of type T from a memory pool and set memory block to zero.
       @return  address of the allocated memory block or NULL in case of no memory available.
     */
     T* calloc(void) {
-        return (T*)osPoolCAlloc(_pool_id);
+        T *item = (T*)osMemoryPoolAlloc(_id, 0);
+        if (item != NULL) {
+            memset(item, 0, sizeof(T));
+        }
+        return item;
     }
 
-    /** Return an allocated memory block back to a specific memory pool.
-      @param   address of the allocated memory block that is returned to the memory pool.
-      @return  status code that indicates the execution status of the function.
+    /** Free a memory block.
+      @param   block  address of the allocated memory block to be freed.
+      @return         status code that indicates the execution status of the function.
     */
     osStatus free(T *block) {
-        return osPoolFree(_pool_id, (void*)block);
+        return osMemoryPoolFree(_id, (void*)block);
     }
 
 private:
-    osPoolId    _pool_id;
-    osPoolDef_t _pool_def;
-#ifdef CMSIS_OS_RTX
-    uint32_t    _pool_m[3+((sizeof(T)+3)/4)*(pool_sz)];
-#endif
+    osMemoryPoolId_t             _id;
+    osMemoryPoolAttr_t           _attr;
+    char                         _pool_mem[sizeof(T) * pool_sz];
+    mbed_rtos_storage_mem_pool_t _obj_mem;
 };
 
 }

@@ -37,6 +37,10 @@
 #include "usb_regs.h"
 #include "clkman_regs.h"
 
+#if defined(TARGET_MAX32625) || defined(TARGET_MAX32630)
+#include "pwrman_regs.h"
+#endif
+
 #define CONNECT_INTS    (MXC_F_USB_DEV_INTEN_BRST | MXC_F_USB_DEV_INTEN_SETUP | MXC_F_USB_DEV_INTEN_EP_IN | MXC_F_USB_DEV_INTEN_EP_OUT | MXC_F_USB_DEV_INTEN_DMA_ERR)
 
 USBHAL *USBHAL::instance;
@@ -134,7 +138,7 @@ USBHAL::USBHAL(void)
 
     // attach IRQ handler and enable interrupts
     instance = this;
-    NVIC_SetVector(USB_IRQn, (uint32_t)&_usbisr);
+    NVIC_SetVector(USB_IRQn, &_usbisr);
     NVIC_EnableIRQ(USB_IRQn);
 }
 

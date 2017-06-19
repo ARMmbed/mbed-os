@@ -1,0 +1,12 @@
+{
+    "ENABLE_PREPROCESSING": "YES",
+    "MACRO_EXPANSION": "YES",
+    "EXPAND_ONLY_PREDEF": "NO",
+    "SEARCH_INCLUDES": "YES",
+    "INCLUDE_PATH": "", 
+    "INCLUDE_FILE_PATTERNS": "", 
+    "PREDEFINED": "DOXYGEN_ONLY \"MBED_DEPRECATED_SINCE(f, g)=\" \"MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, M)=\"",
+    "EXPAND_AS_DEFINED": "", 
+    "SKIP_FUNCTION_MACROS": "NO",
+    "EXCLUDE_PATTERNS": "*/tools/* */TESTS/* */targets/* */FEATURE_*/* */features/mbedtls/* */features/storage/* */features/unsupported/* */features/filesystem/* */BUILD/* */rtos/rtx*/* */cmsis/* */features/FEATURES_*"
+}

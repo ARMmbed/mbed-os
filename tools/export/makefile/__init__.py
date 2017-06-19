@@ -37,7 +37,9 @@ class Makefile(Exporter):
 
     POST_BINARY_WHITELIST = set([
         "MCU_NRF51Code.binary_hook",
-        "TEENSY3_1Code.binary_hook"
+        "TEENSY3_1Code.binary_hook",
+        "LPCTargetCode.lpc_patch",
+        "LPC4088Code.binary_hook"
     ])
 
     def generate(self):
@@ -109,7 +111,7 @@ class Makefile(Exporter):
         for key in ['include_paths', 'library_paths', 'hex_files',
                     'to_be_compiled']:
             ctx[key] = sorted(ctx[key])
-        ctx.update(self.flags)
+        ctx.update(self.format_flags())
 
         for templatefile in \
             ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
@@ -125,6 +127,17 @@ class Makefile(Exporter):
                 pass
         else:
             raise NotSupportedException("This make tool is in development")
+
+    def format_flags(self):
+        """Format toolchain flags for Makefile"""
+        flags = {}
+        for k, v in self.flags.iteritems():
+            if k in ['asm_flags', 'c_flags', 'cxx_flags']:
+                flags[k] = map(lambda x: x.replace('"', '\\"'), v)
+            else:
+                flags[k] = v
+
+        return flags
 
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):

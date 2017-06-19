@@ -34,13 +34,13 @@
 #include "sleep_api.h"
 #include "lp.h"
 
-void sleep(void)
+void hal_sleep(void)
 {
     LP_EnterLP2();
 }
 
 // Low-power stop mode
-void deepsleep(void)
+void hal_deepsleep(void)
 {
-    sleep();
+    hal_sleep();
 }

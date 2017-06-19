@@ -14,7 +14,7 @@ DigitalInOut d2(D7);
 // TARGET_FF_ARDUINO cannot be used
 // D0 is used as USBRX for some NUCLEO64
 // D7 is not used for some NUCLEO32
-DigitalInOut d1(D9);
+DigitalInOut d1(D3);
 DigitalInOut d2(D2);
 
 #elif defined(TARGET_DISCO_L053C8) || \

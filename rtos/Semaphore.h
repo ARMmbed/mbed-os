@@ -23,19 +23,32 @@
 #define SEMAPHORE_H
 
 #include <stdint.h>
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
+#include "mbed_rtos1_types.h"
+#include "mbed_rtos_storage.h"
 
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
 
-/** The Semaphore class is used to manage and protect access to a set of shared resources. */
+/** The Semaphore class is used to manage and protect access to a set of shared resources.
+ *
+ * @note
+ * Memory considerations: The semaphore control structures will be created on current thread's stack, both for the mbed OS
+ * and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
+ */
 class Semaphore {
 public:
     /** Create and Initialize a Semaphore object used for managing resources.
-      @param number of available resources; maximum index value is (count-1). (default: 0).
+      @param count      number of available resources; maximum index value is (count-1). (default: 0).
     */
     Semaphore(int32_t count=0);
+
+    /** Create and Initialize a Semaphore object used for managing resources.
+      @param  count     number of available resources
+      @param  max_count maximum number of available resources
+    */
+    Semaphore(int32_t count, uint16_t max_count);
 
     /** Wait until a Semaphore resource becomes available.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
@@ -51,11 +64,11 @@ public:
     ~Semaphore();
 
 private:
-    osSemaphoreId _osSemaphoreId;
-    osSemaphoreDef_t _osSemaphoreDef;
-#ifdef CMSIS_OS_RTX
-    uint32_t _semaphore_data[2];
-#endif
+    void constructor(int32_t count, uint16_t max_count);
+
+    osSemaphoreId_t               _id;
+    osSemaphoreAttr_t             _attr;
+    mbed_rtos_storage_semaphore_t _obj_mem;
 };
 
 }

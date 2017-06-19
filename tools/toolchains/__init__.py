@@ -215,7 +215,7 @@ class Resources:
 # standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
 # had the knowledge of a list of these directories to be ignored.
 LEGACY_IGNORE_DIRS = set([
-    'LPC11U24', 'LPC1768', 'LPC2368', 'LPC4088', 'LPC812', 'KL25Z',
+    'LPC11U24', 'LPC1768', 'LPC4088', 'LPC812', 'KL25Z',
     'ARM', 'uARM', 'IAR',
     'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'GCC_CW_EWL', 'GCC_CW_NEWLIB',
 ])
@@ -251,6 +251,8 @@ class mbedToolchain:
     }
 
     MBED_CONFIG_FILE_NAME="mbed_config.h"
+
+    PROFILE_FILE_NAME = ".profile"
 
     __metaclass__ = ABCMeta
 
@@ -474,7 +476,7 @@ class mbedToolchain:
             # This is a policy decision and it should /really/ be in the config system
             # ATM it's here for backward compatibility
             if ((("-g" in self.flags['common'] or "-g3" in self.flags['common']) and
-                 "-O0") in self.flags['common'] or
+                 "-O0" in self.flags['common']) or
                 ("-r" in self.flags['common'] and
                  "-On" in self.flags['common'])):
                 self.labels['TARGET'].append("DEBUG")
@@ -612,6 +614,7 @@ class mbedToolchain:
                             break
 
             # Add root to include paths
+            root = root.rstrip("/")
             resources.inc_dirs.append(root)
             resources.file_basepath[root] = base_path
 
@@ -797,6 +800,7 @@ class mbedToolchain:
 
         # Generate configuration header (this will update self.build_all if needed)
         self.get_config_header()
+        self.dump_build_profile()
 
         # Sort compile queue for consistency
         files_to_compile.sort()
@@ -908,6 +912,13 @@ class mbedToolchain:
                 deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
             except IOError, IndexError:
                 deps = []
+            config_file = ([self.config.app_config_location]
+                           if self.config.app_config_location else [])
+            deps.extend(config_file)
+            if ext == '.cpp' or self.COMPILE_C_AS_CPP:
+                deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-cxx"))
+            else:
+                deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-c"))
             if len(deps) == 0 or self.need_update(object, deps):
                 if ext == '.cpp' or self.COMPILE_C_AS_CPP:
                     return self.compile_cpp(source, object, includes)
@@ -915,6 +926,7 @@ class mbedToolchain:
                     return self.compile_c(source, object, includes)
         elif ext == '.s':
             deps = [source]
+            deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-asm"))
             if self.need_update(object, deps):
                 return self.assemble(source, object, includes)
         else:
@@ -957,7 +969,7 @@ class mbedToolchain:
 
     def compile_output(self, output=[]):
         _rc = output[0]
-        _stderr = output[1]
+        _stderr = output[1].decode("utf-8")
         command = output[2]
 
         # Parse output for Warnings and Errors
@@ -1003,16 +1015,20 @@ class mbedToolchain:
 
         filename = name+'.'+ext
         elf = join(tmp_path, name + '.elf')
-        bin = join(tmp_path, filename)
+        bin = None if ext is 'elf' else join(tmp_path, filename)
         map = join(tmp_path, name + '.map')
 
         r.objects = sorted(set(r.objects))
-        if self.need_update(elf, r.objects + r.libraries + [r.linker_script]):
+        config_file = ([self.config.app_config_location]
+                       if self.config.app_config_location else [])
+        dependencies = r.objects + r.libraries + [r.linker_script] + config_file
+        dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
+        if self.need_update(elf, dependencies):
             needed_update = True
             self.progress("link", name)
             self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
 
-        if self.need_update(bin, [elf]):
+        if bin and self.need_update(bin, [elf]):
             needed_update = True
             self.progress("elf2bin", name)
             self.binary(r, elf, bin)
@@ -1154,6 +1170,22 @@ class mbedToolchain:
         # file for subsequent calls, without trying to manipulate its content in any way.
         self.config_processed = True
         return self.config_file
+
+    def dump_build_profile(self):
+        """Dump the current build profile and macros into the `.profile` file
+        in the build directory"""
+        for key in ["cxx", "c", "asm", "ld"]:
+            to_dump = (str(self.flags[key]) + str(sorted(self.macros)))
+            if key in ["cxx", "c"]:
+                to_dump += str(self.flags['common'])
+            where = join(self.build_dir, self.PROFILE_FILE_NAME + "-" + key)
+            self._overwrite_when_not_equal(where, to_dump)
+
+    @staticmethod
+    def _overwrite_when_not_equal(filename, content):
+        if not exists(filename) or content != open(filename).read():
+            with open(filename, "wb") as out:
+                out.write(content)
 
     @staticmethod
     def generic_check_executable(tool_key, executable_name, levels_up,
@@ -1391,6 +1423,19 @@ class mbedToolchain:
     # Return the list of macros geenrated by the build system
     def get_config_macros(self):
         return Config.config_to_macros(self.config_data) if self.config_data else []
+
+    @property
+    def report(self):
+        to_ret = {}
+        to_ret['c_compiler'] = {'flags': copy(self.flags['c']),
+                                'symbols': self.get_symbols()}
+        to_ret['cxx_compiler'] = {'flags': copy(self.flags['cxx']),
+                                  'symbols': self.get_symbols()}
+        to_ret['assembler'] = {'flags': copy(self.flags['asm']),
+                               'symbols': self.get_symbols(True)}
+        to_ret['linker'] = {'flags': copy(self.flags['ld'])}
+        to_ret.update(self.config.report)
+        return to_ret
 
 from tools.settings import ARM_PATH
 from tools.settings import GCC_ARM_PATH

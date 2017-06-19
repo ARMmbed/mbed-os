@@ -30,7 +30,7 @@ using namespace utest::v1;
 
 #define ALLOCATION_SIZE_DEFAULT 564
 #define ALLOCATION_SIZE_SMALL   124
-#define ALLOCATION_SIZE_LARGE   790
+#define ALLOCATION_SIZE_LARGE   700
 #define ALLOCATION_SIZE_FAIL   (1024 * 1024 *1024)
 
 typedef void* (*malloc_cb_t) (uint32_t size);
@@ -49,7 +49,6 @@ malloc_cb_t malloc_thunk_array[] = {
 
 void test_case_malloc_free_size()
 {
-    printf("Initial print to setup stdio buffers\n");
     mbed_stats_heap_t stats_start;
     mbed_stats_heap_t stats_current;
     void *data;
@@ -127,26 +126,22 @@ void test_case_allocate_fail()
 
 static void* thunk_malloc(uint32_t size)
 {
-    printf("Malloc thunk\n");
     return malloc(size);
 }
 
 static void* thunk_calloc_1(uint32_t size)
 {
-    printf("Calloc thunk 1 byte\n");
     return calloc(size / 1, 1);
 }
 
 static void* thunk_calloc_4(uint32_t size)
 {
-    printf("Calloc thunk 4 bytes\n");
     return calloc(size / 4, 4);
 }
 
 
 static void* thunk_realloc(uint32_t size)
 {
-    printf("Realloc thunk\n");
     return realloc(NULL, size);
 }
 

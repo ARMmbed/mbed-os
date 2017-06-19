@@ -11,6 +11,10 @@
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
+#include "utest.h"
+
+using namespace utest::v1;
+
 
 namespace {
     // Test connection information
@@ -35,9 +39,7 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
     return (f != last);
 }
 
-int main() {
-    GREENTEA_SETUP(60, "default_auto");
-
+void test_tcp_hello_world() {
     bool result = false;
     EthernetInterface eth;
     //eth.init(); //Use DHCP
@@ -67,8 +69,8 @@ int main() {
         // Find "Hello World!" string in reply
         bool found_hello = find_substring(buffer, buffer + ret, HTTP_HELLO_STR, HTTP_HELLO_STR + strlen(HTTP_HELLO_STR));
 
-        TEST_ASSERT_TRUE(found_200_ok);
-        TEST_ASSERT_TRUE(found_hello);
+        TEST_ASSERT(found_200_ok);
+        TEST_ASSERT(found_hello);
 
         if (found_200_ok && found_hello) result = true;
 
@@ -83,5 +85,22 @@ int main() {
     }
 
     eth.disconnect();
-    GREENTEA_TESTSUITE_RESULT(result);
+    TEST_ASSERT(result);
+}
+
+
+// Test setup
+utest::v1::status_t test_setup(const size_t number_of_cases) {
+    GREENTEA_SETUP(120, "default_auto");
+    return verbose_test_setup_handler(number_of_cases);
+}
+
+Case cases[] = {
+    Case("TCP hello world", test_tcp_hello_world),
+};
+
+Specification specification(test_setup, cases);
+
+int main() {
+    return !Harness::run(specification);
 }

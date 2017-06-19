@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_exti.h
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Header file of EXTI LL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -125,7 +125,9 @@ typedef struct
 #define LL_EXTI_LINE_16                EXTI_IMR1_IM16          /*!< Extended line 16 */
 #endif
 #define LL_EXTI_LINE_17                EXTI_IMR1_IM17          /*!< Extended line 17 */
+#if defined(EXTI_IMR1_IM18)
 #define LL_EXTI_LINE_18                EXTI_IMR1_IM18          /*!< Extended line 18 */
+#endif
 #define LL_EXTI_LINE_19                EXTI_IMR1_IM19          /*!< Extended line 19 */
 #if defined(EXTI_IMR1_IM20)
 #define LL_EXTI_LINE_20                EXTI_IMR1_IM20          /*!< Extended line 20 */
@@ -164,19 +166,34 @@ typedef struct
 #define LL_EXTI_LINE_ALL_0_31          EXTI_IMR1_IM            /*!< All Extended line not reserved*/
 
 #define LL_EXTI_LINE_32                EXTI_IMR2_IM32          /*!< Extended line 32 */
+#if defined(EXTI_IMR2_IM33)
 #define LL_EXTI_LINE_33                EXTI_IMR2_IM33          /*!< Extended line 33 */
+#endif
+#if defined(EXTI_IMR2_IM34)
 #define LL_EXTI_LINE_34                EXTI_IMR2_IM34          /*!< Extended line 34 */
+#endif
+#if defined(EXTI_IMR2_IM35)
 #define LL_EXTI_LINE_35                EXTI_IMR2_IM35          /*!< Extended line 35 */
+#endif
+#if defined(EXTI_IMR2_IM36)
 #define LL_EXTI_LINE_36                EXTI_IMR2_IM36          /*!< Extended line 36 */
+#endif
+#if defined(EXTI_IMR2_IM37)
 #define LL_EXTI_LINE_37                EXTI_IMR2_IM37          /*!< Extended line 37 */
+#endif
+#if defined(EXTI_IMR2_IM38)
 #define LL_EXTI_LINE_38                EXTI_IMR2_IM38          /*!< Extended line 38 */
+#endif
+#if defined(EXTI_IMR2_IM39)
 #define LL_EXTI_LINE_39                EXTI_IMR2_IM39          /*!< Extended line 39 */
+#endif
 #define LL_EXTI_LINE_ALL_32_63         EXTI_IMR2_IM            /*!< All Extended line not reserved*/
 
-#define LL_EXTI_LINE_ALL               ((uint32_t)0xFFFFFFFFU)  /*!< All Extended line */
+
+#define LL_EXTI_LINE_ALL               (0xFFFFFFFFU)  /*!< All Extended line */
 
 #if defined(USE_FULL_LL_DRIVER)
-#define LL_EXTI_LINE_NONE              ((uint32_t)0x00000000U)  /*!< None Extended line */
+#define LL_EXTI_LINE_NONE              (0x00000000U)  /*!< None Extended line */
 #endif /*USE_FULL_LL_DRIVER*/
 
 /**
@@ -1066,10 +1083,10 @@ __STATIC_INLINE uint32_t LL_EXTI_IsEnabledFallingTrig_32_63(uint32_t ExtiLine)
 
 /**
   * @brief  Generate a software Interrupt Event for Lines in range 0 to 31
-  * @note If the interrupt is enabled on this line in the EXTI_IMR, writing a 1 to
-  *       this bit when it is at '0' sets the corresponding pending bit in EXTI_PR
+  * @note If the interrupt is enabled on this line in the EXTI_IMR1, writing a 1 to
+  *       this bit when it is at '0' sets the corresponding pending bit in EXTI_PR1
   *       resulting in an interrupt request generation.
-  *       This bit is cleared by clearing the corresponding bit in the EXTI_PR
+  *       This bit is cleared by clearing the corresponding bit in the EXTI_PR1
   *       register (by writing a 1 into the bit)
   * @rmtoll SWIER1       SWIx          LL_EXTI_GenerateSWI_0_31
   * @param  ExtiLine This parameter can be a combination of the following values:
@@ -1108,10 +1125,10 @@ __STATIC_INLINE void LL_EXTI_GenerateSWI_0_31(uint32_t ExtiLine)
 
 /**
   * @brief  Generate a software Interrupt Event for Lines in range 32 to 63
-  * @note If the interrupt is enabled on this line inthe EXTI_IMR, writing a 1 to
-  *       this bit when it is at '0' sets the corresponding pending bit in EXTI_PR
+  * @note If the interrupt is enabled on this line inthe EXTI_IMR2, writing a 1 to
+  *       this bit when it is at '0' sets the corresponding pending bit in EXTI_PR2
   *       resulting in an interrupt request generation.
-  *       This bit is cleared by clearing the corresponding bit in the EXTI_PR
+  *       This bit is cleared by clearing the corresponding bit in the EXTI_PR2
   *       register (by writing a 1 into the bit)
   * @rmtoll SWIER2       SWIx          LL_EXTI_GenerateSWI_32_63
   * @param  ExtiLine This parameter can be a combination of the following values:

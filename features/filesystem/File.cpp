@@ -25,7 +25,7 @@ File::File()
 }
 
 File::File(FileSystem *fs, const char *path, int flags)
-    : FileLike(path), _fs(0), _file(0)
+    : _fs(0), _file(0)
 {
     open(fs, path, flags);
 }
@@ -104,7 +104,7 @@ void File::rewind()
     return _fs->file_rewind(_file);
 }
 
-size_t File::size()
+off_t File::size()
 {
     MBED_ASSERT(_fs);
     return _fs->file_size(_file);

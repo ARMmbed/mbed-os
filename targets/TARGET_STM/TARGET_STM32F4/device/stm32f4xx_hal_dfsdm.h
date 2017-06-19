@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dfsdm.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    06-May-2016
+  * @version V1.7.1
+  * @date    14-April-2017
   * @brief   Header file of DFSDM HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@
  extern "C" {
 #endif
 
-#if defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx)
+#if defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"
 
@@ -246,6 +246,40 @@ typedef struct
 /**
   * @}
   */ 
+#if defined(SYSCFG_MCHDLYCR_BSCKSEL)  
+/** 
+  * @brief  Synchronization parameters structure definition for STM32F413xx/STM32F423xx devices  
+  */  
+typedef struct
+{
+  uint32_t  DFSDM1ClockIn;            /*!< Source selection for DFSDM1_Ckin.
+                                          This parameter can be a value of @ref DFSDM_1_CLOCKIN_SELECTION*/
+  uint32_t  DFSDM2ClockIn;            /*!< Source selection for DFSDM2_Ckin.
+                                          This parameter can be a value of @ref DFSDM_2_CLOCKIN_SELECTION*/
+  uint32_t  DFSDM1ClockOut;            /*!< Source selection for DFSDM1_Ckout.
+                                          This parameter can be a value of @ref DFSDM_1_CLOCKOUT_SELECTION*/
+  uint32_t  DFSDM2ClockOut;            /*!< Source selection for DFSDM2_Ckout.
+                                          This parameter can be a value of @ref DFSDM_2_CLOCKOUT_SELECTION*/
+  uint32_t  DFSDM1BitClkDistribution; /*!< Distribution of the DFSDM1 bitstream clock gated by TIM4 OC1 or TIM4 OC2.
+                                          This parameter can be a value of @ref DFSDM_1_BIT_STREAM_DISTRIBUTION 
+                                         @note The DFSDM2 audio gated by TIM4 OC2 can be injected on CKIN0 or CKIN2 
+                                         @note The DFSDM2 audio gated by TIM4 OC1 can be injected on CKIN1 or CKIN3 */
+  uint32_t  DFSDM2BitClkDistribution; /*!< Distribution of the DFSDM2 bitstream clock gated by TIM3 OC1 or TIM3 OC2 or TIM3 OC3 or TIM3 OC4.
+                                          This parameter can be a value of @ref DFSDM_2_BIT_STREAM_DISTRIBUTION 
+                                         @note The DFSDM2 audio gated by TIM3 OC4 can be injected on CKIN0 or CKIN4 
+                                         @note The DFSDM2 audio gated by TIM3 OC3 can be injected on CKIN1 or CKIN5 
+                                         @note The DFSDM2 audio gated by TIM3 OC2 can be injected on CKIN2 or CKIN6 
+                                         @note The DFSDM2 audio gated by TIM3 OC1 can be injected on CKIN3 or CKIN7 */							 
+  uint32_t  DFSDM1DataDistribution;   /*!< Source selection for DatIn0 and DatIn2 of DFSDM1.
+                                         This parameter can be a value of @ref DFSDM_1_DATA_DISTRIBUTION */
+  uint32_t  DFSDM2DataDistribution;  /*!< Source selection for DatIn0, DatIn2, DatIn4 and DatIn6 of DFSDM2.
+                                         This parameter can be a value of @ref DFSDM_2_DATA_DISTRIBUTION */
+}DFSDM_MultiChannelConfigTypeDef;
+#endif  /* SYSCFG_MCHDLYCR_BSCKSEL */
+/**
+  * @}
+  */ 
+  
 /* End of exported types -----------------------------------------------------*/
 
 /* Exported constants --------------------------------------------------------*/
@@ -256,7 +290,7 @@ typedef struct
 /** @defgroup DFSDM_Channel_OuputClock DFSDM channel output clock selection
   * @{
   */
-#define DFSDM_CHANNEL_OUTPUT_CLOCK_SYSTEM    ((uint32_t)0x00000000U) /*!< Source for ouput clock is system clock */
+#define DFSDM_CHANNEL_OUTPUT_CLOCK_SYSTEM    0x00000000U             /*!< Source for ouput clock is system clock */
 #define DFSDM_CHANNEL_OUTPUT_CLOCK_AUDIO     DFSDM_CHCFGR1_CKOUTSRC  /*!< Source for ouput clock is audio clock */
 /**
   * @}
@@ -265,8 +299,8 @@ typedef struct
 /** @defgroup DFSDM_Channel_InputMultiplexer DFSDM channel input multiplexer
   * @{
   */
-#define DFSDM_CHANNEL_EXTERNAL_INPUTS    ((uint32_t)0x00000000U) /*!< Data are taken from external inputs */
-#define DFSDM_CHANNEL_INTERNAL_REGISTER   DFSDM_CHCFGR1_DATMPX_1 /*!< Data are taken from internal register */
+#define DFSDM_CHANNEL_EXTERNAL_INPUTS        0x00000000U             /*!< Data are taken from external inputs */
+#define DFSDM_CHANNEL_INTERNAL_REGISTER      DFSDM_CHCFGR1_DATMPX_1  /*!< Data are taken from internal register */
 /**
   * @}
   */
@@ -274,9 +308,9 @@ typedef struct
 /** @defgroup DFSDM_Channel_DataPacking DFSDM channel input data packing
   * @{
   */
-#define DFSDM_CHANNEL_STANDARD_MODE         ((uint32_t)0x00000000U) /*!< Standard data packing mode */
-#define DFSDM_CHANNEL_INTERLEAVED_MODE      DFSDM_CHCFGR1_DATPACK_0 /*!< Interleaved data packing mode */
-#define DFSDM_CHANNEL_DUAL_MODE             DFSDM_CHCFGR1_DATPACK_1 /*!< Dual data packing mode */
+#define DFSDM_CHANNEL_STANDARD_MODE          0x00000000U             /*!< Standard data packing mode */
+#define DFSDM_CHANNEL_INTERLEAVED_MODE       DFSDM_CHCFGR1_DATPACK_0 /*!< Interleaved data packing mode */
+#define DFSDM_CHANNEL_DUAL_MODE              DFSDM_CHCFGR1_DATPACK_1 /*!< Dual data packing mode */
 /**
   * @}
   */
@@ -284,7 +318,7 @@ typedef struct
 /** @defgroup DFSDM_Channel_InputPins DFSDM channel input pins
   * @{
   */
-#define DFSDM_CHANNEL_SAME_CHANNEL_PINS      ((uint32_t)0x00000000U) /*!< Input from pins on same channel */
+#define DFSDM_CHANNEL_SAME_CHANNEL_PINS      0x00000000U             /*!< Input from pins on same channel */
 #define DFSDM_CHANNEL_FOLLOWING_CHANNEL_PINS DFSDM_CHCFGR1_CHINSEL   /*!< Input from pins on following channel */
 /**
   * @}
@@ -293,10 +327,10 @@ typedef struct
 /** @defgroup DFSDM_Channel_SerialInterfaceType DFSDM channel serial interface type
   * @{
   */
-#define DFSDM_CHANNEL_SPI_RISING         ((uint32_t)0x00000000U) /*!< SPI with rising edge */
-#define DFSDM_CHANNEL_SPI_FALLING        DFSDM_CHCFGR1_SITP_0    /*!< SPI with falling edge */
-#define DFSDM_CHANNEL_MANCHESTER_RISING  DFSDM_CHCFGR1_SITP_1    /*!< Manchester with rising edge */
-#define DFSDM_CHANNEL_MANCHESTER_FALLING DFSDM_CHCFGR1_SITP      /*!< Manchester with falling edge */
+#define DFSDM_CHANNEL_SPI_RISING             0x00000000U             /*!< SPI with rising edge */
+#define DFSDM_CHANNEL_SPI_FALLING            DFSDM_CHCFGR1_SITP_0    /*!< SPI with falling edge */
+#define DFSDM_CHANNEL_MANCHESTER_RISING      DFSDM_CHCFGR1_SITP_1    /*!< Manchester with rising edge */
+#define DFSDM_CHANNEL_MANCHESTER_FALLING     DFSDM_CHCFGR1_SITP      /*!< Manchester with falling edge */
 /**
   * @}
   */
@@ -304,7 +338,7 @@ typedef struct
 /** @defgroup DFSDM_Channel_SpiClock DFSDM channel SPI clock selection
   * @{
   */
-#define DFSDM_CHANNEL_SPI_CLOCK_EXTERNAL              ((uint32_t)0x00000000U)  /*!< External SPI clock */
+#define DFSDM_CHANNEL_SPI_CLOCK_EXTERNAL              0x00000000U              /*!< External SPI clock */
 #define DFSDM_CHANNEL_SPI_CLOCK_INTERNAL              DFSDM_CHCFGR1_SPICKSEL_0 /*!< Internal SPI clock */
 #define DFSDM_CHANNEL_SPI_CLOCK_INTERNAL_DIV2_FALLING DFSDM_CHCFGR1_SPICKSEL_1 /*!< Internal SPI clock divided by 2, falling edge */
 #define DFSDM_CHANNEL_SPI_CLOCK_INTERNAL_DIV2_RISING  DFSDM_CHCFGR1_SPICKSEL   /*!< Internal SPI clock divided by 2, rising edge */
@@ -315,10 +349,10 @@ typedef struct
 /** @defgroup DFSDM_Channel_AwdFilterOrder DFSDM channel analog watchdog filter order
   * @{
   */
-#define DFSDM_CHANNEL_FASTSINC_ORDER ((uint32_t)0x00000000U) /*!< FastSinc filter type */
-#define DFSDM_CHANNEL_SINC1_ORDER    DFSDM_CHAWSCDR_AWFORD_0 /*!< Sinc 1 filter type */
-#define DFSDM_CHANNEL_SINC2_ORDER    DFSDM_CHAWSCDR_AWFORD_1 /*!< Sinc 2 filter type */
-#define DFSDM_CHANNEL_SINC3_ORDER    DFSDM_CHAWSCDR_AWFORD   /*!< Sinc 3 filter type */
+#define DFSDM_CHANNEL_FASTSINC_ORDER         0x00000000U              /*!< FastSinc filter type */
+#define DFSDM_CHANNEL_SINC1_ORDER            DFSDM_CHAWSCDR_AWFORD_0  /*!< Sinc 1 filter type */
+#define DFSDM_CHANNEL_SINC2_ORDER            DFSDM_CHAWSCDR_AWFORD_1  /*!< Sinc 2 filter type */
+#define DFSDM_CHANNEL_SINC3_ORDER            DFSDM_CHAWSCDR_AWFORD    /*!< Sinc 3 filter type */
 /**
   * @}
   */
@@ -326,9 +360,9 @@ typedef struct
 /** @defgroup DFSDM_Filter_Trigger DFSDM filter conversion trigger
   * @{
   */
-#define DFSDM_FILTER_SW_TRIGGER   ((uint32_t)0x00000000U) /*!< Software trigger */
-#define DFSDM_FILTER_SYNC_TRIGGER ((uint32_t)0x00000001U) /*!< Synchronous with DFSDM_FLT0 */
-#define DFSDM_FILTER_EXT_TRIGGER  ((uint32_t)0x00000002U) /*!< External trigger (only for injected conversion) */
+#define DFSDM_FILTER_SW_TRIGGER              0x00000000U              /*!< Software trigger */
+#define DFSDM_FILTER_SYNC_TRIGGER            0x00000001U              /*!< Synchronous with DFSDM_FLT0 */
+#define DFSDM_FILTER_EXT_TRIGGER             0x00000002U              /*!< External trigger (only for injected conversion) */
 /**
   * @}
   */
@@ -336,24 +370,40 @@ typedef struct
 /** @defgroup DFSDM_Filter_ExtTrigger DFSDM filter external trigger
   * @{
   */
-#define DFSDM_FILTER_EXT_TRIG_TIM1_TRGO  ((uint32_t)0x00000000U)                           /*!< For DFSDM filter 0 and 1*/
-#define DFSDM_FILTER_EXT_TRIG_TIM3_TRGO  DFSDM_FLTCR1_JEXTSEL_0                            /*!< For DFSDM filter 0 and 1*/
-#define DFSDM_FILTER_EXT_TRIG_TIM8_TRGO  DFSDM_FLTCR1_JEXTSEL_1                            /*!< For DFSDM filter 0 and 1*/
-#define DFSDM_FILTER_EXT_TRIG_TIM10_OC1  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_1) /*!< For DFSDM filter 0 and 1*/
-#define DFSDM_FILTER_EXT_TRIG_TIM4_TRGO  DFSDM_FLTCR1_JEXTSEL_2                            /*!< For DFSDM filter 0 and 1*/
-#define DFSDM_FILTER_EXT_TRIG_TIM6_TRGO  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_2) /*!< For DFSDM filter 0 and 1*/
-#define DFSDM_FILTER_EXT_TRIG_EXTI11     (DFSDM_FLTCR1_JEXTSEL_1 | DFSDM_FLTCR1_JEXTSEL_2) /*!< For DFSDM filter 0 and 1*/
-#define DFSDM_FILTER_EXT_TRIG_EXTI15     DFSDM_FLTCR1_JEXTSEL                              /*!< For DFSDM filter 0 and 1*/
+#if defined(STM32F413xx) || defined(STM32F423xx) 
+/* Trigger for stm32f413xx and STM32f423xx devices */
+#define DFSDM_FILTER_EXT_TRIG_TIM1_TRGO  0x00000000U                                       /*!< For All DFSDM1/2 filters */
+#define DFSDM_FILTER_EXT_TRIG_TIM3_TRGO  DFSDM_FLTCR1_JEXTSEL_0                            /*!< For All DFSDM1/2 filters */
+#define DFSDM_FILTER_EXT_TRIG_TIM8_TRGO  DFSDM_FLTCR1_JEXTSEL_1                            /*!< For All DFSDM1/2 filters */
+#define DFSDM_FILTER_EXT_TRIG_TIM10_OC1  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_1) /*!< For DFSDM1 filter 0 and 1 and DFSDM2 filter 0, 1 and 2 */
+#define DFSDM_FILTER_EXT_TRIG_TIM2_TRGO  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_1) /*!< For DFSDM2 filter 3 */
+#define DFSDM_FILTER_EXT_TRIG_TIM4_TRGO  DFSDM_FLTCR1_JEXTSEL_2                            /*!< For DFSDM1 filter 0 and 1 and DFSDM2 filter 0, 1 and 2 */
+#define DFSDM_FILTER_EXT_TRIG_TIM11_OC1  DFSDM_FLTCR1_JEXTSEL_2                            /*!< For DFSDM2 filter 3 */
+#define DFSDM_FILTER_EXT_TRIG_TIM6_TRGO  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_2) /*!< For DFSDM1 filter 0 and 1 and DFSDM2 filter 0 and 1 */
+#define DFSDM_FILTER_EXT_TRIG_TIM7_TRGO  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_2) /*!< For DFSDM2 filter 2 and 3*/
+#define DFSDM_FILTER_EXT_TRIG_EXTI11     (DFSDM_FLTCR1_JEXTSEL_1 | DFSDM_FLTCR1_JEXTSEL_2) /*!< For All DFSDM1/2 filters */
+#define DFSDM_FILTER_EXT_TRIG_EXTI15     DFSDM_FLTCR1_JEXTSEL                              /*!< For All DFSDM1/2 filters */
+#else
+/* Trigger for stm32f412xx devices */
+#define DFSDM_FILTER_EXT_TRIG_TIM1_TRGO  0x00000000U                                       /*!< For DFSDM1 filter 0 and 1*/
+#define DFSDM_FILTER_EXT_TRIG_TIM3_TRGO  DFSDM_FLTCR1_JEXTSEL_0                            /*!< For DFSDM1 filter 0 and 1*/
+#define DFSDM_FILTER_EXT_TRIG_TIM8_TRGO  DFSDM_FLTCR1_JEXTSEL_1                            /*!< For DFSDM1 filter 0 and 1*/
+#define DFSDM_FILTER_EXT_TRIG_TIM10_OC1  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_1) /*!< For DFSDM1 filter 0 and 1*/
+#define DFSDM_FILTER_EXT_TRIG_TIM4_TRGO  DFSDM_FLTCR1_JEXTSEL_2                            /*!< For DFSDM1 filter 0 and 1*/
+#define DFSDM_FILTER_EXT_TRIG_TIM6_TRGO  (DFSDM_FLTCR1_JEXTSEL_0 | DFSDM_FLTCR1_JEXTSEL_2) /*!< For DFSDM1 filter 0 and 1*/
+#define DFSDM_FILTER_EXT_TRIG_EXTI11     (DFSDM_FLTCR1_JEXTSEL_1 | DFSDM_FLTCR1_JEXTSEL_2) /*!< For DFSDM1 filter 0 and 1*/
+#define DFSDM_FILTER_EXT_TRIG_EXTI15     DFSDM_FLTCR1_JEXTSEL                              /*!< For DFSDM1 filter 0 and 1*/
+#endif
 /**
   * @}
   */
-
+  
 /** @defgroup DFSDM_Filter_ExtTriggerEdge DFSDM filter external trigger edge
   * @{
   */
-#define DFSDM_FILTER_EXT_TRIG_RISING_EDGE  DFSDM_FLTCR1_JEXTEN_0 /*!< External rising edge */
-#define DFSDM_FILTER_EXT_TRIG_FALLING_EDGE DFSDM_FLTCR1_JEXTEN_1 /*!< External falling edge */
-#define DFSDM_FILTER_EXT_TRIG_BOTH_EDGES   DFSDM_FLTCR1_JEXTEN   /*!< External rising and falling edges */
+#define DFSDM_FILTER_EXT_TRIG_RISING_EDGE  DFSDM_FLTCR1_JEXTEN_0    /*!< External rising edge */
+#define DFSDM_FILTER_EXT_TRIG_FALLING_EDGE DFSDM_FLTCR1_JEXTEN_1    /*!< External falling edge */
+#define DFSDM_FILTER_EXT_TRIG_BOTH_EDGES   DFSDM_FLTCR1_JEXTEN      /*!< External rising and falling edges */
 /**
   * @}
   */
@@ -361,12 +411,12 @@ typedef struct
 /** @defgroup DFSDM_Filter_SincOrder DFSDM filter sinc order
   * @{
   */
-#define DFSDM_FILTER_FASTSINC_ORDER ((uint32_t)0x00000000U)               /*!< FastSinc filter type */
-#define DFSDM_FILTER_SINC1_ORDER    DFSDM_FLTFCR_FORD_0                         /*!< Sinc 1 filter type */
-#define DFSDM_FILTER_SINC2_ORDER    DFSDM_FLTFCR_FORD_1                         /*!< Sinc 2 filter type */
-#define DFSDM_FILTER_SINC3_ORDER    (DFSDM_FLTFCR_FORD_0 | DFSDM_FLTFCR_FORD_1) /*!< Sinc 3 filter type */
-#define DFSDM_FILTER_SINC4_ORDER    DFSDM_FLTFCR_FORD_2                         /*!< Sinc 4 filter type */
-#define DFSDM_FILTER_SINC5_ORDER    (DFSDM_FLTFCR_FORD_0 | DFSDM_FLTFCR_FORD_2) /*!< Sinc 5 filter type */
+#define DFSDM_FILTER_FASTSINC_ORDER        0x00000000U                                 /*!< FastSinc filter type */
+#define DFSDM_FILTER_SINC1_ORDER           DFSDM_FLTFCR_FORD_0                         /*!< Sinc 1 filter type */
+#define DFSDM_FILTER_SINC2_ORDER           DFSDM_FLTFCR_FORD_1                         /*!< Sinc 2 filter type */
+#define DFSDM_FILTER_SINC3_ORDER           (DFSDM_FLTFCR_FORD_0 | DFSDM_FLTFCR_FORD_1) /*!< Sinc 3 filter type */
+#define DFSDM_FILTER_SINC4_ORDER           DFSDM_FLTFCR_FORD_2                         /*!< Sinc 4 filter type */
+#define DFSDM_FILTER_SINC5_ORDER           (DFSDM_FLTFCR_FORD_0 | DFSDM_FLTFCR_FORD_2) /*!< Sinc 5 filter type */
 /**
   * @}
   */
@@ -374,8 +424,8 @@ typedef struct
 /** @defgroup DFSDM_Filter_AwdDataSource DFSDM filter analog watchdog data source
   * @{
   */
-#define DFSDM_FILTER_AWD_FILTER_DATA  ((uint32_t)0x00000000U) /*!< From digital filter */
-#define DFSDM_FILTER_AWD_CHANNEL_DATA DFSDM_FLTCR1_AWFSEL     /*!< From analog watchdog channel */
+#define DFSDM_FILTER_AWD_FILTER_DATA       0x00000000U             /*!< From digital filter */
+#define DFSDM_FILTER_AWD_CHANNEL_DATA      DFSDM_FLTCR1_AWFSEL     /*!< From analog watchdog channel */
 /**
   * @}
   */
@@ -383,10 +433,10 @@ typedef struct
 /** @defgroup DFSDM_Filter_ErrorCode DFSDM filter error code
   * @{
   */ 
-#define DFSDM_FILTER_ERROR_NONE             ((uint32_t)0x00000000U) /*!< No error */
-#define DFSDM_FILTER_ERROR_REGULAR_OVERRUN  ((uint32_t)0x00000001U) /*!< Overrun occurs during regular conversion */
-#define DFSDM_FILTER_ERROR_INJECTED_OVERRUN ((uint32_t)0x00000002U) /*!< Overrun occurs during injected conversion */
-#define DFSDM_FILTER_ERROR_DMA              ((uint32_t)0x00000003U) /*!< DMA error occurs */
+#define DFSDM_FILTER_ERROR_NONE             0x00000000U            /*!< No error */
+#define DFSDM_FILTER_ERROR_REGULAR_OVERRUN  0x00000001U            /*!< Overrun occurs during regular conversion */
+#define DFSDM_FILTER_ERROR_INJECTED_OVERRUN 0x00000002U            /*!< Overrun occurs during injected conversion */
+#define DFSDM_FILTER_ERROR_DMA              0x00000003U            /*!< DMA error occurs */
 /**
   * @}
   */
@@ -394,11 +444,11 @@ typedef struct
 /** @defgroup DFSDM_BreakSignals DFSDM break signals
   * @{
   */
-#define DFSDM_NO_BREAK_SIGNAL ((uint32_t)0x00000000U) /*!< No break signal */
-#define DFSDM_BREAK_SIGNAL_0  ((uint32_t)0x00000001U) /*!< Break signal 0 */
-#define DFSDM_BREAK_SIGNAL_1  ((uint32_t)0x00000002U) /*!< Break signal 1 */
-#define DFSDM_BREAK_SIGNAL_2  ((uint32_t)0x00000004U) /*!< Break signal 2 */
-#define DFSDM_BREAK_SIGNAL_3  ((uint32_t)0x00000008U) /*!< Break signal 3 */
+#define DFSDM_NO_BREAK_SIGNAL               0x00000000U            /*!< No break signal */
+#define DFSDM_BREAK_SIGNAL_0                0x00000001U            /*!< Break signal 0 */
+#define DFSDM_BREAK_SIGNAL_1                0x00000002U            /*!< Break signal 1 */
+#define DFSDM_BREAK_SIGNAL_2                0x00000004U            /*!< Break signal 2 */
+#define DFSDM_BREAK_SIGNAL_3                0x00000008U            /*!< Break signal 3 */
 /**
   * @}
   */
@@ -411,13 +461,17 @@ typedef struct
    - in 16-bit LSB the channel mask is set
    - in 16-bit MSB the channel number is set
    e.g. for channel 3 definition:
-        - the channel mask is 0x00000008U (bit 3 is set)
+        - the channel mask is 0x00000008 (bit 3 is set)
         - the channel number 3 is 0x00030000 
-        --> Consequently, channel 3 definition is 0x00000008U | 0x00030000 = 0x00030008 */
-#define DFSDM_CHANNEL_0                              ((uint32_t)0x00000001U)
-#define DFSDM_CHANNEL_1                              ((uint32_t)0x00010002U)
-#define DFSDM_CHANNEL_2                              ((uint32_t)0x00020004U)
-#define DFSDM_CHANNEL_3                              ((uint32_t)0x00030008U)
+        --> Consequently, channel 3 definition is 0x00000008 | 0x00030000 = 0x00030008 */
+#define DFSDM_CHANNEL_0                     0x00000001U
+#define DFSDM_CHANNEL_1                     0x00010002U
+#define DFSDM_CHANNEL_2                     0x00020004U
+#define DFSDM_CHANNEL_3                     0x00030008U
+#define DFSDM_CHANNEL_4                     0x00040010U            /* only for stmm32f413xx and stm32f423xx devices */
+#define DFSDM_CHANNEL_5                     0x00050020U            /* only for stmm32f413xx and stm32f423xx devices */
+#define DFSDM_CHANNEL_6                     0x00060040U            /* only for stmm32f413xx and stm32f423xx devices */
+#define DFSDM_CHANNEL_7                     0x00070080U            /* only for stmm32f413xx and stm32f423xx devices */
 /**
   * @}
   */
@@ -425,8 +479,8 @@ typedef struct
 /** @defgroup DFSDM_ContinuousMode DFSDM Continuous Mode
   * @{
   */
-#define DFSDM_CONTINUOUS_CONV_OFF            ((uint32_t)0x00000000U) /*!< Conversion are not continuous */
-#define DFSDM_CONTINUOUS_CONV_ON             ((uint32_t)0x00000001U) /*!< Conversion are continuous */
+#define DFSDM_CONTINUOUS_CONV_OFF            0x00000000U           /*!< Conversion are not continuous */
+#define DFSDM_CONTINUOUS_CONV_ON             0x00000001U           /*!< Conversion are continuous */
 /**
   * @}
   */
@@ -434,12 +488,199 @@ typedef struct
 /** @defgroup DFSDM_AwdThreshold DFSDM analog watchdog threshold
   * @{
   */
-#define DFSDM_AWD_HIGH_THRESHOLD            ((uint32_t)0x00000000U) /*!< Analog watchdog high threshold */
-#define DFSDM_AWD_LOW_THRESHOLD             ((uint32_t)0x00000001U) /*!< Analog watchdog low threshold */
+#define DFSDM_AWD_HIGH_THRESHOLD            0x00000000U            /*!< Analog watchdog high threshold */
+#define DFSDM_AWD_LOW_THRESHOLD             0x00000001U            /*!< Analog watchdog low threshold */
 /**
   * @}
   */
 
+#if defined(SYSCFG_MCHDLYCR_BSCKSEL)
+/** @defgroup DFSDM_1_CLOCKOUT_SELECTION  DFSDM1 ClockOut Selection
+  * @{
+  */  
+#define DFSDM1_CKOUT_DFSDM2_CKOUT           0x00000080U
+#define DFSDM1_CKOUT_DFSDM1                 0x00000000U
+/**
+  * @}
+  */  
+  
+/** @defgroup DFSDM_2_CLOCKOUT_SELECTION  DFSDM2 ClockOut Selection
+  * @{
+  */ 
+#define DFSDM2_CKOUT_DFSDM2_CKOUT           0x00040000U
+#define DFSDM2_CKOUT_DFSDM2                 0x00000000U  
+/**
+  * @}
+  */ 
+
+/** @defgroup DFSDM_1_CLOCKIN_SELECTION  DFSDM1 ClockIn Selection
+  * @{
+  */ 
+#define DFSDM1_CKIN_DFSDM2_CKOUT            0x00000040U
+#define DFSDM1_CKIN_PAD                     0x00000000U
+/**
+  * @}
+  */
+
+/** @defgroup DFSDM_2_CLOCKIN_SELECTION  DFSDM2 ClockIn Selection
+  * @{
+  */ 
+#define DFSDM2_CKIN_DFSDM2_CKOUT            0x00020000U
+#define DFSDM2_CKIN_PAD                     0x00000000U
+/**
+  * @}
+  */
+
+/** @defgroup DFSDM_1_BIT_STREAM_DISTRIBUTION  DFSDM1 Bit Stream Distribution 
+  * @{
+  */ 
+#define DFSDM1_T4_OC2_BITSTREAM_CKIN0       0x00000000U                   /* TIM4_OC2 to CLKIN0 */
+#define DFSDM1_T4_OC2_BITSTREAM_CKIN2       SYSCFG_MCHDLYCR_DFSDM1CK02SEL /* TIM4_OC2 to CLKIN2 */
+#define DFSDM1_T4_OC1_BITSTREAM_CKIN3       SYSCFG_MCHDLYCR_DFSDM1CK13SEL /* TIM4_OC1 to CLKIN3 */
+#define DFSDM1_T4_OC1_BITSTREAM_CKIN1       0x00000000U                   /* TIM4_OC1 to CLKIN1 */
+/**
+  * @}
+  */
+  
+/** @defgroup DFSDM_2_BIT_STREAM_DISTRIBUTION  DFSDM12 Bit Stream Distribution 
+  * @{
+  */
+#define DFSDM2_T3_OC4_BITSTREAM_CKIN0       0x00000000U                   /* TIM3_OC4 to CKIN0 */ 
+#define DFSDM2_T3_OC4_BITSTREAM_CKIN4       SYSCFG_MCHDLYCR_DFSDM2CK04SEL /* TIM3_OC4 to CKIN4 */ 
+#define DFSDM2_T3_OC3_BITSTREAM_CKIN5       SYSCFG_MCHDLYCR_DFSDM2CK15SEL /* TIM3_OC3 to CKIN5 */ 
+#define DFSDM2_T3_OC3_BITSTREAM_CKIN1       0x00000000U                   /* TIM3_OC3 to CKIN1 */ 
+#define DFSDM2_T3_OC2_BITSTREAM_CKIN6       SYSCFG_MCHDLYCR_DFSDM2CK26SEL /* TIM3_OC2to CKIN6 */
+#define DFSDM2_T3_OC2_BITSTREAM_CKIN2       0x00000000U                   /* TIM3_OC2 to CKIN2 */
+#define DFSDM2_T3_OC1_BITSTREAM_CKIN3       0x00000000U                   /* TIM3_OC1 to CKIN3 */
+#define DFSDM2_T3_OC1_BITSTREAM_CKIN7       SYSCFG_MCHDLYCR_DFSDM2CK37SEL /* TIM3_OC1 to CKIN7 */
+/**
+  * @}
+  */
+
+/** @defgroup DFSDM_1_DATA_DISTRIBUTION DFSDM1 Data Distribution 
+  * @{
+  */  
+#define DFSDM1_DATIN0_TO_DATIN0_PAD       0x00000000U
+#define DFSDM1_DATIN0_TO_DATIN1_PAD       SYSCFG_MCHDLYCR_DFSDM1D0SEL
+#define DFSDM1_DATIN2_TO_DATIN2_PAD       0x00000000U
+#define DFSDM1_DATIN2_TO_DATIN3_PAD       SYSCFG_MCHDLYCR_DFSDM1D2SEL
+/**
+  * @}
+  */
+  
+/** @defgroup DFSDM_2_DATA_DISTRIBUTION DFSDM2 Data Distribution 
+  * @{
+  */
+#define DFSDM2_DATIN0_TO_DATIN0_PAD       0x00000000U
+#define DFSDM2_DATIN0_TO_DATIN1_PAD       SYSCFG_MCHDLYCR_DFSDM2D0SEL
+#define DFSDM2_DATIN2_TO_DATIN2_PAD       0x00000000U
+#define DFSDM2_DATIN2_TO_DATIN3_PAD       SYSCFG_MCHDLYCR_DFSDM2D2SEL
+#define DFSDM2_DATIN4_TO_DATIN4_PAD       0x00000000U
+#define DFSDM2_DATIN4_TO_DATIN5_PAD       SYSCFG_MCHDLYCR_DFSDM2D4SEL 
+#define DFSDM2_DATIN6_TO_DATIN6_PAD       0x00000000U 
+#define DFSDM2_DATIN6_TO_DATIN7_PAD       SYSCFG_MCHDLYCR_DFSDM2D6SEL 
+/**
+  * @}
+  */
+  
+/** @defgroup HAL_MCHDLY_CLOCK HAL MCHDLY Clock enable
+  * @{
+  */
+#define HAL_MCHDLY_CLOCK_DFSDM2       SYSCFG_MCHDLYCR_MCHDLY2EN
+#define HAL_MCHDLY_CLOCK_DFSDM1       SYSCFG_MCHDLYCR_MCHDLY1EN
+/**
+  * @}
+  */
+
+/** @defgroup DFSDM_CLOCKIN_SOURCE  DFSDM Clock In Source Selection
+  * @{
+  */
+#define HAL_DFSDM2_CKIN_PAD           0x00040000U
+#define HAL_DFSDM2_CKIN_DM            SYSCFG_MCHDLYCR_DFSDM2CFG
+#define HAL_DFSDM1_CKIN_PAD           0x00000000U
+#define HAL_DFSDM1_CKIN_DM            SYSCFG_MCHDLYCR_DFSDM1CFG
+/**
+  * @}
+  */
+  
+/** @defgroup DFSDM_CLOCKOUT_SOURCE   DFSDM Clock Source Selection
+  * @{
+  */
+#define HAL_DFSDM2_CKOUT_DFSDM2       0x10000000U
+#define HAL_DFSDM2_CKOUT_M27          SYSCFG_MCHDLYCR_DFSDM2CKOSEL
+#define HAL_DFSDM1_CKOUT_DFSDM1       0x00000000U
+#define HAL_DFSDM1_CKOUT_M27          SYSCFG_MCHDLYCR_DFSDM1CKOSEL
+/**
+  * @}
+  */
+
+/** @defgroup DFSDM_DATAIN0_SOURCE   DFSDM Source Selection For DATAIN0
+  * @{
+  */
+#define HAL_DATAIN0_DFSDM2_PAD        0x10000000U
+#define HAL_DATAIN0_DFSDM2_DATAIN1    SYSCFG_MCHDLYCR_DFSDM2D0SEL
+#define HAL_DATAIN0_DFSDM1_PAD        0x00000000U
+#define HAL_DATAIN0_DFSDM1_DATAIN1    SYSCFG_MCHDLYCR_DFSDM1D0SEL
+/**
+  * @}
+  */
+
+/** @defgroup DFSDM_DATAIN2_SOURCE   DFSDM Source Selection For DATAIN2
+  * @{
+  */
+#define HAL_DATAIN2_DFSDM2_PAD        0x10000000U
+#define HAL_DATAIN2_DFSDM2_DATAIN3    SYSCFG_MCHDLYCR_DFSDM2D2SEL
+#define HAL_DATAIN2_DFSDM1_PAD        0x00000000U
+#define HAL_DATAIN2_DFSDM1_DATAIN3    SYSCFG_MCHDLYCR_DFSDM1D2SEL
+/**
+  * @}
+  */ 
+ 
+/** @defgroup DFSDM_DATAIN4_SOURCE   DFSDM Source Selection For DATAIN4
+  * @{
+  */
+#define HAL_DATAIN4_DFSDM2_PAD        0x00000000U
+#define HAL_DATAIN4_DFSDM2_DATAIN5    SYSCFG_MCHDLYCR_DFSDM2D4SEL
+/**
+  * @}
+  */ 
+  
+/** @defgroup DFSDM_DATAIN6_SOURCE   DFSDM Source Selection For DATAIN6
+  * @{
+  */
+#define HAL_DATAIN6_DFSDM2_PAD        0x00000000U
+#define HAL_DATAIN6_DFSDM2_DATAIN7    SYSCFG_MCHDLYCR_DFSDM2D6SEL
+/**
+  * @}
+  */ 
+
+/** @defgroup DFSDM1_CLKIN_SOURCE   DFSDM1 Source Selection For CLKIN
+  * @{
+  */
+#define HAL_DFSDM1_CLKIN0_TIM4OC2      0x01000000U
+#define HAL_DFSDM1_CLKIN2_TIM4OC2      SYSCFG_MCHDLYCR_DFSDM1CK02SEL
+#define HAL_DFSDM1_CLKIN1_TIM4OC1      0x02000000U
+#define HAL_DFSDM1_CLKIN3_TIM4OC1      SYSCFG_MCHDLYCR_DFSDM1CK13SEL
+/**
+  * @}
+  */ 
+  
+/** @defgroup DFSDM2_CLKIN_SOURCE  DFSDM2 Source Selection For CLKIN
+  * @{
+  */
+#define HAL_DFSDM2_CLKIN0_TIM3OC4      0x04000000U
+#define HAL_DFSDM2_CLKIN4_TIM3OC4      SYSCFG_MCHDLYCR_DFSDM2CK04SEL
+#define HAL_DFSDM2_CLKIN1_TIM3OC3      0x08000000U
+#define HAL_DFSDM2_CLKIN5_TIM3OC3      SYSCFG_MCHDLYCR_DFSDM2CK15SEL
+#define HAL_DFSDM2_CLKIN2_TIM3OC2      0x10000000U
+#define HAL_DFSDM2_CLKIN6_TIM3OC2      SYSCFG_MCHDLYCR_DFSDM2CK26SEL
+#define HAL_DFSDM2_CLKIN3_TIM3OC1      0x00000000U
+#define HAL_DFSDM2_CLKIN7_TIM3OC1      SYSCFG_MCHDLYCR_DFSDM2CK37SEL
+/**
+  * @}
+  */    
+       
+#endif /* SYSCFG_MCHDLYCR_BSCKSEL*/
 /**
   * @}
   */ 
@@ -589,7 +830,7 @@ void HAL_DFSDM_FilterErrorCallback(DFSDM_Filter_HandleTypeDef *hdfsdm_filter);
   * @}
   */
 
-/** @defgroup DFSDM_Exported_Functions_Group4_Filter Filter state functions
+/** @addtogroup DFSDM_Exported_Functions_Group4_Filter Filter state functions
   * @{
   */
 /* Filter state functions *****************************************************/
@@ -598,7 +839,26 @@ uint32_t                      HAL_DFSDM_FilterGetError(DFSDM_Filter_HandleTypeDe
 /**
   * @}
   */
-
+/** @addtogroup DFSDM_Exported_Functions_Group5_Filter MultiChannel operation functions
+  * @{
+  */
+#if defined(SYSCFG_MCHDLYCR_BSCKSEL)
+void HAL_DFSDM_ConfigMultiChannelDelay(DFSDM_MultiChannelConfigTypeDef* mchdlystruct);
+void HAL_DFSDM_BitstreamClock_Start(void);
+void HAL_DFSDM_BitstreamClock_Stop(void);
+void HAL_DFSDM_DisableDelayClock(uint32_t MCHDLY);
+void HAL_DFSDM_EnableDelayClock(uint32_t MCHDLY);
+void HAL_DFSDM_ClockIn_SourceSelection(uint32_t source);
+void HAL_DFSDM_ClockOut_SourceSelection(uint32_t source);
+void HAL_DFSDM_DataIn0_SourceSelection(uint32_t source);
+void HAL_DFSDM_DataIn2_SourceSelection(uint32_t source);
+void HAL_DFSDM_DataIn4_SourceSelection(uint32_t source);
+void HAL_DFSDM_DataIn6_SourceSelection(uint32_t source);
+void HAL_DFSDM_BitStreamClkDistribution_Config(uint32_t source);
+#endif /* SYSCFG_MCHDLYCR_BSCKSEL */
+/**
+  * @}
+  */
 /**
   * @}
   */
@@ -639,6 +899,20 @@ uint32_t                      HAL_DFSDM_FilterGetError(DFSDM_Filter_HandleTypeDe
 #define IS_DFSDM_FILTER_INJ_TRIGGER(TRIG)             (((TRIG) == DFSDM_FILTER_SW_TRIGGER) || \
                                                        ((TRIG) == DFSDM_FILTER_SYNC_TRIGGER) || \
                                                        ((TRIG) == DFSDM_FILTER_EXT_TRIGGER))
+#if defined (STM32F413xx) || defined (STM32F423xx)
+#define IS_DFSDM_FILTER_EXT_TRIG(TRIG)                (((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM1_TRGO) || \
+                                                       ((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM3_TRGO) || \
+                                                       ((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM8_TRGO) || \
+                                                       ((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM10_OC1) || \
+                                                       ((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM2_TRGO) || \
+                                                       ((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM4_TRGO) || \
+                                                       ((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM11_OC1) || \
+                                                       ((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM6_TRGO) || \
+                                                       ((TRIG) == DFSDM_FILTER_EXT_TRIG_EXTI11)    || \
+                                                       ((TRIG) == DFSDM_FILTER_EXT_TRIG_EXTI15))
+#define IS_DFSDM_DELAY_CLOCK(CLOCK)                     (((CLOCK) == HAL_MCHDLY_CLOCK_DFSDM2) || \
+                                                         ((CLOCK) == HAL_MCHDLY_CLOCK_DFSDM1)) 
+#else
 #define IS_DFSDM_FILTER_EXT_TRIG(TRIG)                (((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM1_TRGO) || \
                                                        ((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM3_TRGO) || \
                                                        ((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM8_TRGO) || \
@@ -647,6 +921,7 @@ uint32_t                      HAL_DFSDM_FilterGetError(DFSDM_Filter_HandleTypeDe
                                                        ((TRIG) == DFSDM_FILTER_EXT_TRIG_TIM6_TRGO) || \
                                                        ((TRIG) == DFSDM_FILTER_EXT_TRIG_EXTI11) || \
                                                        ((TRIG) == DFSDM_FILTER_EXT_TRIG_EXTI15))
+#endif
 #define IS_DFSDM_FILTER_EXT_TRIG_EDGE(EDGE)           (((EDGE) == DFSDM_FILTER_EXT_TRIG_RISING_EDGE)  || \
                                                        ((EDGE) == DFSDM_FILTER_EXT_TRIG_FALLING_EDGE)  || \
                                                        ((EDGE) == DFSDM_FILTER_EXT_TRIG_BOTH_EDGES))
@@ -662,13 +937,107 @@ uint32_t                      HAL_DFSDM_FilterGetError(DFSDM_Filter_HandleTypeDe
                                                        ((DATA) == DFSDM_FILTER_AWD_CHANNEL_DATA))
 #define IS_DFSDM_FILTER_AWD_THRESHOLD(VALUE)           ((-8388608 <= (VALUE)) && ((VALUE) <= 8388607))
 #define IS_DFSDM_BREAK_SIGNALS(VALUE)                  ((VALUE) <= 0x0FU)
+#if defined(DFSDM2_Channel0)
+#define IS_DFSDM_REGULAR_CHANNEL(CHANNEL)             (((CHANNEL) == DFSDM_CHANNEL_0)  || \
+                                                       ((CHANNEL) == DFSDM_CHANNEL_1)  || \
+                                                       ((CHANNEL) == DFSDM_CHANNEL_2)  || \
+                                                       ((CHANNEL) == DFSDM_CHANNEL_3)  || \
+                                                       ((CHANNEL) == DFSDM_CHANNEL_4)  || \
+                                                       ((CHANNEL) == DFSDM_CHANNEL_5)  || \
+                                                       ((CHANNEL) == DFSDM_CHANNEL_6)  || \
+                                                       ((CHANNEL) == DFSDM_CHANNEL_7))
+#define IS_DFSDM_INJECTED_CHANNEL(CHANNEL)            (((CHANNEL) != 0U) && ((CHANNEL) <= 0x000F00FFU))
+#else
 #define IS_DFSDM_REGULAR_CHANNEL(CHANNEL)             (((CHANNEL) == DFSDM_CHANNEL_0)  || \
                                                        ((CHANNEL) == DFSDM_CHANNEL_1)  || \
                                                        ((CHANNEL) == DFSDM_CHANNEL_2)  || \
                                                        ((CHANNEL) == DFSDM_CHANNEL_3))
 #define IS_DFSDM_INJECTED_CHANNEL(CHANNEL)            (((CHANNEL) != 0U) && ((CHANNEL) <= 0x0003000FU))
+#endif
 #define IS_DFSDM_CONTINUOUS_MODE(MODE)                (((MODE) == DFSDM_CONTINUOUS_CONV_OFF)  || \
                                                        ((MODE) == DFSDM_CONTINUOUS_CONV_ON))
+#if defined(DFSDM2_Channel0)
+#define IS_DFSDM1_CHANNEL_INSTANCE(INSTANCE)          (((INSTANCE) == DFSDM1_Channel0) || \
+                                                       ((INSTANCE) == DFSDM1_Channel1) || \
+                                                       ((INSTANCE) == DFSDM1_Channel2) || \
+                                                       ((INSTANCE) == DFSDM1_Channel3))
+#define IS_DFSDM1_FILTER_INSTANCE(INSTANCE)          (((INSTANCE) == DFSDM1_Filter0) || \
+                                                      ((INSTANCE) == DFSDM1_Filter1)) 
+#endif /* DFSDM2_Channel0 */
+
+#if defined(SYSCFG_MCHDLYCR_BSCKSEL)
+#define IS_DFSDM_CLOCKIN_SELECTION(SELECTION)           (((SELECTION) == HAL_DFSDM2_CKIN_PAD) || \
+                                                          ((SELECTION) == HAL_DFSDM2_CKIN_DM)  || \
+                                                          ((SELECTION) == HAL_DFSDM1_CKIN_PAD) || \
+                                                          ((SELECTION) == HAL_DFSDM1_CKIN_DM)) 
+#define IS_DFSDM_CLOCKOUT_SELECTION(SELECTION)         (((SELECTION) == HAL_DFSDM2_CKOUT_DFSDM2) || \
+                                                          ((SELECTION) == HAL_DFSDM2_CKOUT_M27)    || \
+                                                          ((SELECTION) == HAL_DFSDM1_CKOUT_DFSDM1) || \
+                                                          ((SELECTION) == HAL_DFSDM1_CKOUT_M27)) 
+#define IS_DFSDM_DATAIN0_SRC_SELECTION(SELECTION)        (((SELECTION) == HAL_DATAIN0_DFSDM2_PAD)    || \
+                                                          ((SELECTION) == HAL_DATAIN0_DFSDM2_DATAIN1) || \
+                                                          ((SELECTION) == HAL_DATAIN0_DFSDM1_PAD)     || \
+                                                          ((SELECTION) == HAL_DATAIN0_DFSDM1_DATAIN1))
+#define IS_DFSDM_DATAIN2_SRC_SELECTION(SELECTION)        (((SELECTION) == HAL_DATAIN2_DFSDM2_PAD)    || \
+                                                          ((SELECTION) == HAL_DATAIN2_DFSDM2_DATAIN3) || \
+                                                          ((SELECTION) == HAL_DATAIN2_DFSDM1_PAD)     || \
+                                                          ((SELECTION) == HAL_DATAIN2_DFSDM1_DATAIN3))
+#define IS_DFSDM_DATAIN4_SRC_SELECTION(SELECTION)        (((SELECTION) == HAL_DATAIN4_DFSDM2_PAD)    || \
+                                                          ((SELECTION) == HAL_DATAIN4_DFSDM2_DATAIN5))
+#define IS_DFSDM_DATAIN6_SRC_SELECTION(SELECTION)         (((SELECTION) == HAL_DATAIN6_DFSDM2_PAD)    || \
+                                                          ((SELECTION) == HAL_DATAIN6_DFSDM2_DATAIN7))
+#define IS_DFSDM_BITSTREM_CLK_DISTRIBUTION(DISTRIBUTION) (((DISTRIBUTION) == HAL_DFSDM1_CLKIN0_TIM4OC2) || \
+                                                          ((DISTRIBUTION) == HAL_DFSDM1_CLKIN2_TIM4OC2) || \
+                                                          ((DISTRIBUTION) == HAL_DFSDM1_CLKIN1_TIM4OC1) || \
+                                                          ((DISTRIBUTION) == HAL_DFSDM1_CLKIN3_TIM4OC1) || \
+                                                          ((DISTRIBUTION) == HAL_DFSDM2_CLKIN0_TIM3OC4) || \
+                                                          ((DISTRIBUTION) == HAL_DFSDM2_CLKIN4_TIM3OC4) || \
+                                                          ((DISTRIBUTION) == HAL_DFSDM2_CLKIN1_TIM3OC3)|| \
+                                                          ((DISTRIBUTION) == HAL_DFSDM2_CLKIN5_TIM3OC3) || \
+                                                          ((DISTRIBUTION) == HAL_DFSDM2_CLKIN2_TIM3OC2) || \
+                                                          ((DISTRIBUTION) == HAL_DFSDM2_CLKIN6_TIM3OC2) || \
+                                                          ((DISTRIBUTION) == HAL_DFSDM2_CLKIN3_TIM3OC1)|| \
+                                                          ((DISTRIBUTION) == HAL_DFSDM2_CLKIN7_TIM3OC1))
+#define IS_DFSDM_DFSDM1_CLKOUT(CLKOUT)                 (((CLKOUT) == DFSDM1_CKOUT_DFSDM2_CKOUT)    || \
+                                                        ((CLKOUT) == DFSDM1_CKOUT_DFSDM1))
+#define IS_DFSDM_DFSDM2_CLKOUT(CLKOUT)                 (((CLKOUT) == DFSDM2_CKOUT_DFSDM2_CKOUT)    || \
+                                                        ((CLKOUT) == DFSDM2_CKOUT_DFSDM2))   
+#define IS_DFSDM_DFSDM1_CLKIN(CLKIN)                   (((CLKIN) == DFSDM1_CKIN_DFSDM2_CKOUT)    || \
+                                                        ((CLKIN) == DFSDM1_CKIN_PAD))                                   
+#define IS_DFSDM_DFSDM2_CLKIN(CLKIN)                   (((CLKIN) == DFSDM2_CKIN_DFSDM2_CKOUT)    || \
+                                                        ((CLKIN) == DFSDM2_CKIN_PAD))
+#define IS_DFSDM_DFSDM1_BIT_CLK(CLK)                   (((CLK) == DFSDM1_T4_OC2_BITSTREAM_CKIN0)  || \
+                                                        ((CLK) == DFSDM1_T4_OC2_BITSTREAM_CKIN2)  || \
+                                                        ((CLK) == DFSDM1_T4_OC1_BITSTREAM_CKIN3)  || \
+                                                        ((CLK) == DFSDM1_T4_OC1_BITSTREAM_CKIN1)  || \
+                                                        ((CLK) <= 0x30U)) 
+
+#define IS_DFSDM_DFSDM2_BIT_CLK(CLK)                   (((CLK) == DFSDM2_T3_OC4_BITSTREAM_CKIN0)  || \
+                                                        ((CLK) == DFSDM2_T3_OC4_BITSTREAM_CKIN4)  || \
+                                                        ((CLK) == DFSDM2_T3_OC3_BITSTREAM_CKIN5)  || \
+                                                        ((CLK) == DFSDM2_T3_OC3_BITSTREAM_CKIN1)  || \
+                                                        ((CLK) == DFSDM2_T3_OC2_BITSTREAM_CKIN6)  || \
+                                                        ((CLK) == DFSDM2_T3_OC2_BITSTREAM_CKIN2)  || \
+                                                        ((CLK) == DFSDM2_T3_OC1_BITSTREAM_CKIN3)  || \
+                                                        ((CLK) == DFSDM2_T3_OC1_BITSTREAM_CKIN7)|| \
+                                                        ((CLK) <= 0x1E000U)) 
+
+#define IS_DFSDM_DFSDM1_DATA_DISTRIBUTION(DISTRIBUTION)(((DISTRIBUTION) == DFSDM1_DATIN0_TO_DATIN0_PAD )|| \
+                                                        ((DISTRIBUTION) == DFSDM1_DATIN0_TO_DATIN1_PAD) || \
+                                                        ((DISTRIBUTION) == DFSDM1_DATIN2_TO_DATIN2_PAD) || \
+                                                        ((DISTRIBUTION) == DFSDM1_DATIN2_TO_DATIN3_PAD)|| \
+                                                        ((DISTRIBUTION) <= 0xCU)) 
+                                                      
+#define IS_DFSDM_DFSDM2_DATA_DISTRIBUTION(DISTRIBUTION)(((DISTRIBUTION) == DFSDM2_DATIN0_TO_DATIN0_PAD)|| \
+                                                        ((DISTRIBUTION) == DFSDM2_DATIN0_TO_DATIN1_PAD)|| \
+                                                        ((DISTRIBUTION) == DFSDM2_DATIN2_TO_DATIN2_PAD)|| \
+                                                        ((DISTRIBUTION) == DFSDM2_DATIN2_TO_DATIN3_PAD)|| \
+                                                        ((DISTRIBUTION) == DFSDM2_DATIN4_TO_DATIN4_PAD)|| \
+                                                        ((DISTRIBUTION) == DFSDM2_DATIN4_TO_DATIN5_PAD)|| \
+                                                        ((DISTRIBUTION) == DFSDM2_DATIN6_TO_DATIN6_PAD)|| \
+                                                        ((DISTRIBUTION) == DFSDM2_DATIN6_TO_DATIN7_PAD)|| \
+                                                        ((DISTRIBUTION) <= 0x1D00U))                                                                                       
+#endif /* (SYSCFG_MCHDLYCR_BSCKSEL) */
 /**
   * @}
   */ 
@@ -681,7 +1050,7 @@ uint32_t                      HAL_DFSDM_FilterGetError(DFSDM_Filter_HandleTypeDe
 /**
   * @}
   */
-#endif /* STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
+#endif /* STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx || STM32F413xx || STM32F423xx */
 #ifdef __cplusplus
 }
 #endif

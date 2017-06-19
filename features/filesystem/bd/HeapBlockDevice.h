@@ -44,14 +44,25 @@
  *     printf("%s", block);
  *     bd.deinit();
  * }
+ * @endcode
  */
 class HeapBlockDevice : public BlockDevice
 {
 public:
 
     /** Lifetime of the memory block device
+     *
+     * @param size      Size of the Block Device in bytes
+     * @param block     Block size in bytes
      */
     HeapBlockDevice(bd_size_t size, bd_size_t block=512);
+    /** Lifetime of the memory block device
+     *
+     * @param size      Size of the Block Device in bytes
+     * @param read      Minimum read size required in bytes
+     * @param program   Minimum program size required in bytes
+     * @param erase     Minimum erase size required in bytes
+     */
     HeapBlockDevice(bd_size_t size, bd_size_t read, bd_size_t program, bd_size_t erase);
     virtual ~HeapBlockDevice();
 

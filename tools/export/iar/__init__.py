@@ -10,6 +10,7 @@ from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, TargetNotSupportedException
 import json
 from tools.export.cmsis import DeviceCMSIS
+from tools.utils import NotSupportedException
 from multiprocessing import cpu_count
 
 class IAR(Exporter):
@@ -78,6 +79,9 @@ class IAR(Exporter):
             "FPU2": 0,
             "NrRegs": 0,
             "NEON": '',
+            "CExtraOptionsCheck": 0,
+            "CExtraOptions": "",
+            "CMSISDAPJtagSpeedList": 0,
         }
 
         iar_defaults.update(device_info)
@@ -97,6 +101,8 @@ class IAR(Exporter):
 
     def generate(self):
         """Generate the .eww, .ewd, and .ewp files"""
+        if not self.resources.linker_script:
+            raise NotSupportedException("No linker script found.")
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
                self.resources.objects + self.resources.libraries
@@ -108,7 +114,7 @@ class IAR(Exporter):
         template = ["--vla", "--no_static_destruction"]
         # Flag invalid if set in template
         # Optimizations are also set in template
-        invalid_flag = lambda x: x in template or re.match("-O(\d|time|n)", x)
+        invalid_flag = lambda x: x in template or re.match("-O(\d|time|n|hz?)", x)
         flags['c_flags'] = [flag for flag in c_flags if not invalid_flag(flag)]
 
         try:

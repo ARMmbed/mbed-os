@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_cryp.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   CRYP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Cryptography (CRYP) peripheral:
@@ -70,7 +70,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -2347,7 +2347,7 @@ HAL_StatusTypeDef HAL_CRYP_DESCBC_Encrypt(CRYP_HandleTypeDef *hcryp, uint8_t *pP
   hcryp->State = HAL_CRYP_STATE_BUSY;
   
   /* Set CRYP peripheral in DES CBC encryption mode */
-  CRYP_SetDESCBCMode(hcryp, 0);
+  CRYP_SetDESCBCMode(hcryp, 0U);
   
   /* Enable CRYP */
   __HAL_CRYP_ENABLE(hcryp);
@@ -2436,7 +2436,7 @@ HAL_StatusTypeDef HAL_CRYP_DESECB_Encrypt_IT(CRYP_HandleTypeDef *hcryp, uint8_t 
     hcryp->State = HAL_CRYP_STATE_BUSY;
     
     /* Set CRYP peripheral in DES ECB encryption mode */
-    CRYP_SetDESECBMode(hcryp, 0);
+    CRYP_SetDESECBMode(hcryp, 0U);
     
     /* Enable Interrupts */
     __HAL_CRYP_ENABLE_IT(hcryp, CRYP_IT_INI | CRYP_IT_OUTI);
@@ -3710,59 +3710,59 @@ void HAL_CRYP_IRQHandler(CRYP_HandleTypeDef *hcryp)
   switch(CRYP->CR & CRYP_CR_ALGOMODE_DIRECTION)
   {
   case CRYP_CR_ALGOMODE_TDES_ECB_ENCRYPT:
-    HAL_CRYP_TDESECB_Encrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_TDESECB_Encrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_TDES_ECB_DECRYPT:
-    HAL_CRYP_TDESECB_Decrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_TDESECB_Decrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_TDES_CBC_ENCRYPT:
-    HAL_CRYP_TDESCBC_Encrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_TDESCBC_Encrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_TDES_CBC_DECRYPT:
-    HAL_CRYP_TDESCBC_Decrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_TDESCBC_Decrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_DES_ECB_ENCRYPT:
-    HAL_CRYP_DESECB_Encrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_DESECB_Encrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_DES_ECB_DECRYPT:
-    HAL_CRYP_DESECB_Decrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_DESECB_Decrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_DES_CBC_ENCRYPT:
-    HAL_CRYP_DESCBC_Encrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_DESCBC_Encrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_DES_CBC_DECRYPT:
-    HAL_CRYP_DESCBC_Decrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_DESCBC_Decrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_ECB_ENCRYPT:
-    HAL_CRYP_AESECB_Encrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_AESECB_Encrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_ECB_DECRYPT:
-    HAL_CRYP_AESECB_Decrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_AESECB_Decrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_CBC_ENCRYPT:
-    HAL_CRYP_AESCBC_Encrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_AESCBC_Encrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_CBC_DECRYPT:
-    HAL_CRYP_AESCBC_Decrypt_IT(hcryp, NULL, 0U, NULL);
+    HAL_CRYP_AESCBC_Decrypt_IT(hcryp, NULL, 0, NULL);
     break;
     
   case CRYP_CR_ALGOMODE_AES_CTR_ENCRYPT:
-    HAL_CRYP_AESCTR_Encrypt_IT(hcryp, NULL, 0U, NULL);       
+    HAL_CRYP_AESCTR_Encrypt_IT(hcryp, NULL, 0, NULL);       
     break;
     
   case CRYP_CR_ALGOMODE_AES_CTR_DECRYPT:
-    HAL_CRYP_AESCTR_Decrypt_IT(hcryp, NULL, 0U, NULL);        
+    HAL_CRYP_AESCTR_Decrypt_IT(hcryp, NULL, 0, NULL);        
     break;
     
   default:

@@ -52,6 +52,8 @@
 #define ADDR_TIMEOUT                0
 #endif
 
+#define DHCP_TIMEOUT                60
+
 #define PREF_IPV4                   1
 #define PREF_IPV6                   2
 
@@ -65,10 +67,14 @@
 #error "Either IPv4 or IPv6 must be preferred."
 #endif
 
-//#define LWIP_DEBUG
+#if defined(MBED_CONF_LWIP_DEBUG_ENABLED)
+#define LWIP_DEBUG                  MBED_CONF_LWIP_DEBUG_ENABLED
+#else
+#define LWIP_DEBUG                  0
+#endif
 
 #if NO_SYS == 0
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 
 #define SYS_LIGHTWEIGHT_PROT        1
 
@@ -80,18 +86,35 @@
 #define DEFAULT_RAW_RECVMBOX_SIZE   8
 #define DEFAULT_ACCEPTMBOX_SIZE     8
 
-#ifdef LWIP_DEBUG
-#define TCPIP_THREAD_STACKSIZE      1200*2
+// Thread stack size for lwip tcpip thread
+#ifndef MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE
+#define MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE      1200
+#endif
+
+#if LWIP_DEBUG
+#define TCPIP_THREAD_STACKSIZE      MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE*2
 #else
-#define TCPIP_THREAD_STACKSIZE      1200
+#define TCPIP_THREAD_STACKSIZE      MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE
 #endif
 
 #define TCPIP_THREAD_PRIO           (osPriorityNormal)
 
-#ifdef LWIP_DEBUG
-#define DEFAULT_THREAD_STACKSIZE    512*2
+// Thread stack size for lwip system threads
+#ifndef MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE
+#define MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE    512
+#endif
+
+// Thread stack size for private PPP thread
+#ifndef MBED_CONF_LWIP_PPP_THREAD_STACKSIZE
+#define MBED_CONF_LWIP_PPP_THREAD_STACKSIZE    512
+#endif
+
+#if LWIP_DEBUG
+#define DEFAULT_THREAD_STACKSIZE    MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE*2
+#define PPP_THREAD_STACK_SIZE       MBED_CONF_LWIP_PPP_THREAD_STACKSIZE*2
 #else
-#define DEFAULT_THREAD_STACKSIZE    512
+#define DEFAULT_THREAD_STACKSIZE    MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE
+#define PPP_THREAD_STACK_SIZE       MBED_CONF_LWIP_PPP_THREAD_STACKSIZE
 #endif
 
 #define MEMP_NUM_SYS_TIMEOUT        16
@@ -154,10 +177,15 @@
 #define MEMP_NUM_NETCONN            4
 #endif
 
+#if MBED_CONF_LWIP_TCP_ENABLED
+#define LWIP_TCP                    1
 #define TCP_QUEUE_OOSEQ             0
 #define TCP_OVERSIZE                0
+#define LWIP_TCP_KEEPALIVE          1
+#else
+#define LWIP_TCP                    0
+#endif
 
-#define LWIP_DHCP                   LWIP_IPV4
 #define LWIP_DNS                    1
 #define LWIP_SOCKET                 0
 
@@ -166,12 +194,13 @@
 // Support Multicast
 #include "stdlib.h"
 #define LWIP_IGMP                   LWIP_IPV4
-#define LWIP_RAND()                 rand()
+#define LWIP_RAND()                 lwip_get_random()
 
 #define LWIP_COMPAT_SOCKETS         0
 #define LWIP_POSIX_SOCKETS_IO_NAMES 0
 #define LWIP_SO_RCVTIMEO            1
-#define LWIP_TCP_KEEPALIVE          1
+
+#define LWIP_BROADCAST_PING         1
 
 // Fragmentation on, as per IPv4 default
 #define LWIP_IPV6_FRAG              LWIP_IPV6
@@ -211,58 +240,80 @@
 #define AUTOIP_DEBUG                LWIP_DBG_OFF
 #define DNS_DEBUG                   LWIP_DBG_OFF
 #define IP6_DEBUG                   LWIP_DBG_OFF
-
+#if MBED_CONF_LWIP_ENABLE_PPP_TRACE
+#define PPP_DEBUG                   LWIP_DBG_ON
+#else
 #define PPP_DEBUG                   LWIP_DBG_OFF
+#endif //MBED_CONF_LWIP_ENABLE_PPP_TRACE
 #define ETHARP_DEBUG                LWIP_DBG_OFF
 #define UDP_LPC_EMAC                LWIP_DBG_OFF
 
-#ifdef LWIP_DEBUG
+#if LWIP_DEBUG
 #define MEMP_OVERFLOW_CHECK         1
 #define MEMP_SANITY_CHECK           1
+#define LWIP_DBG_TYPES_ON           LWIP_DBG_ON
+#define LWIP_DBG_MIN_LEVEL          LWIP_DBG_LEVEL_ALL
 #else
 #define LWIP_NOASSERT               1
 #define LWIP_STATS                  0
 #endif
 
-#define LWIP_DBG_TYPES_ON           LWIP_DBG_ON
-#define LWIP_DBG_MIN_LEVEL          LWIP_DBG_LEVEL_ALL
-
 #define LWIP_PLATFORM_BYTESWAP      1
 
 #define LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS 1
 
-#if LWIP_TRANSPORT_ETHERNET
+// Interface type configuration
+
+#if MBED_CONF_LWIP_ETHERNET_ENABLED
+#define LWIP_ARP                    1
+#define LWIP_ETHERNET               1
+#define LWIP_DHCP                   LWIP_IPV4
+#else
+#define LWIP_ARP                    0
+#define LWIP_ETHERNET               0
+#endif // MBED_CONF_LWIP_ETHERNET_ENABLED
+
+// Note generic macro name used rather than MBED_CONF_LWIP_PPP_ENABLED
+// to allow users like PPPCellularInterface to detect that nsapi_ppp.h is available.
+#if NSAPI_PPP_AVAILABLE
+#define PPP_SUPPORT                 1
+#define CHAP_SUPPORT                1
+#define PPP_INPROC_IRQ_SAFE         1
+// Save RAM
+#define PAP_SUPPORT                 0
+#define VJ_SUPPORT                  0
+#define PRINTPKT_SUPPORT            0
 
 // Broadcast
 #define IP_SOF_BROADCAST            0
 #define IP_SOF_BROADCAST_RECV       0
 
-#define LWIP_BROADCAST_PING         1
+#define MAXNAMELEN                  64     /* max length of hostname or name for auth */
+#define MAXSECRETLEN                64
+#endif // NSAPI_PPP_AVAILABLE
 
-#define LWIP_CHECKSUM_ON_COPY       1
+// Make sure we default these to off, so
+// LWIP doesn't default to on
+#ifndef LWIP_ARP
+#define LWIP_ARP                    0
+#endif
+// Checksum-on-copy disabled due to https://savannah.nongnu.org/bugs/?50914
+#define LWIP_CHECKSUM_ON_COPY       0
 
 #define LWIP_NETIF_HOSTNAME         1
 #define LWIP_NETIF_STATUS_CALLBACK  1
 #define LWIP_NETIF_LINK_CALLBACK    1
 
-#elif LWIP_TRANSPORT_PPP
+#define DNS_TABLE_SIZE                  2
+#define DNS_MAX_NAME_LENGTH             128
 
-#define TCP_SND_BUF                     (3 * 536)
-#define TCP_WND                         (2 * 536)
-
-#define LWIP_ARP 0
-
-#define PPP_SUPPORT 1
-#define CHAP_SUPPORT                    1
-#define PAP_SUPPORT                     1
-#define PPP_THREAD_STACKSIZE            4*192
-#define PPP_THREAD_PRIO 0
-
-#define MAXNAMELEN                      64     /* max length of hostname or name for auth */
-#define MAXSECRETLEN                    64
-
-#else
-#error A transport mechanism (Ethernet or PPP) must be defined
+#include <lwip/arch.h>
+#include "lwip_random.h"
+#include "lwip_tcp_isn.h"
+#define LWIP_HOOK_TCP_ISN lwip_hook_tcp_isn
+#ifdef MBEDTLS_MD5_C
+#include "mbedtls/inc/mbedtls/md5.h"
+#define LWIP_USE_EXTERNAL_MBEDTLS 1
 #endif
 
 #endif /* LWIPOPTS_H_ */

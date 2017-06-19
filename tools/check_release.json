@@ -11,6 +11,8 @@
       "name" : "test_compile_mbed_dev",
       "lib" : "mbed-dev"
     }
-  ]
+  ],
+  "target_list" : [],
+  "ignore_list" : []
 }
 

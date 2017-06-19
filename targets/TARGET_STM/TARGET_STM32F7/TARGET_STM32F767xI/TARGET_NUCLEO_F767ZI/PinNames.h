@@ -183,7 +183,7 @@ typedef enum {
     D8          = PF_12,
     D9          = PD_15,
     D10         = PD_14,
-    D11         = PA_7,
+    D11         = STM32_D11_SPI_ETHERNET_PIN, /* config in targets.json file */
     D12         = PA_6,
     D13         = PA_5,
     D14         = PB_9,
@@ -195,6 +195,8 @@ typedef enum {
     LED3        = PB_14, // Red
     LED4        = PB_0,
     USER_BUTTON = PC_13,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
     SERIAL_TX   = PD_8, // Virtual Com Port
     SERIAL_RX   = PD_9, // Virtual Com Port
     USBTX       = PD_8, // Virtual Com Port

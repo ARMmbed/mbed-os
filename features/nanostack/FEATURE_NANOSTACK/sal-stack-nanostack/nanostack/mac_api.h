@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2016-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -50,6 +50,10 @@ typedef struct mac_api_s mac_api_t;
  * \return mac_api_t Ownership of newly created object
  */
 
+/*!
+ * \enum mlme_primitive
+ * \brief Enum for MLME primitive types.
+ */
 typedef enum {
     MLME_ASSOCIATE,
     MLME_DISASSOCIATE,
@@ -68,14 +72,21 @@ typedef enum {
     MLME_POLL
 } mlme_primitive;
 
-
+/**
+ * \struct mac_description_storage_size_t
+ * \brief Container for MAC storage sizes.
+ */
 typedef struct mac_description_storage_size_s {
-    uint8_t device_decription_table_size;   /** MAC Device description list size */
-    uint8_t key_description_table_size;     /** MAC Key description list size */
-    uint8_t key_lookup_size;                /** Key description key lookup list size */
-    uint8_t key_usage_size;                 /** Key description key usage list size */
+    uint8_t device_decription_table_size;   /**< MAC Device description list size */
+    uint8_t key_description_table_size;     /**< MAC Key description list size */
+    uint8_t key_lookup_size;                /**< Key description key lookup list size */
+    uint8_t key_usage_size;                 /**< Key description key usage list size */
 } mac_description_storage_size_t;
 
+/*!
+ * \enum mac_extended_address_type
+ * \brief Enum for MAC extended address types.
+ */
 typedef enum mac_extended_address_type {
     MAC_EXTENDED_READ_ONLY, /** EUID64 which is unique */
     MAC_EXTENDED_DYNAMIC /** Configured MAC 64-bit address to RAM and Radio */
@@ -194,24 +205,24 @@ typedef int8_t mac_api_initialize(mac_api_t *api, mcps_data_confirm *data_conf_c
  * Then MAC is operated by Upper layer by calling MLME or MCPS primitive functions.
  */
 struct mac_api_s {
-    mac_api_initialize          *mac_initialize;
+    mac_api_initialize          *mac_initialize;                /**< MAC initialize function to use */
     //External MAC callbacks
-    mlme_request                *mlme_req;
-    mcps_data_request           *mcps_data_req;
-    mcps_purge_request          *mcps_purge_req;
+    mlme_request                *mlme_req;                      /**< MAC MLME request function to use */
+    mcps_data_request           *mcps_data_req;                 /**< MAC MCPS data request function to use */
+    mcps_purge_request          *mcps_purge_req;                /**< MAC MCPS purge request function to use */
 
     //Upper layer callbacksMLME_ASSOCIATE
-    mcps_data_confirm           *data_conf_cb;
-    mcps_data_indication        *data_ind_cb;
-    mcps_purge_confirm          *purge_conf_cb;
-    mlme_confirm                *mlme_conf_cb;
-    mlme_indication             *mlme_ind_cb;
-    mac_ext_mac64_address_set   *mac64_set;
-    mac_ext_mac64_address_get   *mac64_get;
-    mac_storage_decription_sizes_get *mac_storage_sizes_get;
+    mcps_data_confirm           *data_conf_cb;                  /**< MAC MCPS data confirm callback function */
+    mcps_data_indication        *data_ind_cb;                   /**< MAC MCPS data indication callback function */
+    mcps_purge_confirm          *purge_conf_cb;                 /**< MAC MCPS purge confirm callback function */
+    mlme_confirm                *mlme_conf_cb;                  /**< MAC MLME confirm callback function */
+    mlme_indication             *mlme_ind_cb;                   /**< MAC MLME indication callback function */
+    mac_ext_mac64_address_set   *mac64_set;                     /**< MAC extension function to set mac64 address */
+    mac_ext_mac64_address_get   *mac64_get;                     /**< MAC extension function to get mac64 address */
+    mac_storage_decription_sizes_get *mac_storage_sizes_get;    /**< Getter function to query data storage sizes from MAC */
 
-    int8_t                      parent_id;
-    uint16_t                    phyMTU;
+    int8_t                      parent_id;                      /**< Upper layer id */
+    uint16_t                    phyMTU;                         /**< Maximum Transmission Unit(MTU) used by MAC*/
 };
 
 #ifdef __cplusplus

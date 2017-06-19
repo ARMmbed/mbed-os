@@ -18,7 +18,7 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_CAN
+#if defined (DEVICE_CAN) || defined(DOXYGEN_ONLY)
 
 #include "hal/can_api.h"
 #include "platform/Callback.h"
@@ -26,11 +26,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** CANMessage class
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
+ * @ingroup drivers
  */
 class CANMessage : public CAN_Message {
 
@@ -46,6 +46,12 @@ public:
     }
 
     /** Creates CAN message with specific content.
+     *
+     *  @param _id      Message ID
+     *  @param _data    Mesaage Data
+     *  @param _len     Message Data length
+     *  @param _type    Type of Data: Use enum CANType for valid parameter values
+     *  @param _format  Data Format: Use enum CANFormat for valid parameter values
      */
     CANMessage(int _id, const char *_data, char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard) {
       len    = _len & 0xF;
@@ -56,6 +62,9 @@ public:
     }
 
     /** Creates CAN remote message.
+     *
+     *  @param _id      Message ID
+     *  @param _format  Data Format: Use enum CANType for valid parameter values
      */
     CANMessage(int _id, CANFormat _format = CANStandard) {
       len    = 0;
@@ -67,6 +76,7 @@ public:
 };
 
 /** A can bus client, used for communicating with can devices
+ * @ingroup drivers
  */
 class CAN {
 
@@ -110,6 +120,15 @@ public:
      * @endcode
      */
     CAN(PinName rd, PinName td);
+
+    /** Initialize CAN interface and set the frequency
+      *
+      * @param rd the rd pin
+      * @param td the td pin
+      * @param hz the bus frequency in hertz
+      */
+    CAN(PinName rd, PinName td, int hz);
+
     virtual ~CAN();
 
     /** Set the frequency of the CAN interface
@@ -187,11 +206,15 @@ public:
      */
     int filter(unsigned int id, unsigned int mask, CANFormat format = CANAny, int handle = 0);
 
-    /** Returns number of read errors to detect read overflow errors.
+    /**  Detects read errors - Used to detect read overflow errors.
+     *
+     *  @returns number of read errors
      */
     unsigned char rderror();
 
-    /** Returns number of write errors to detect write overflow errors.
+    /** Detects write errors - Used to detect write overflow errors.
+     *
+     *  @returns number of write errors
      */
     unsigned char tderror();
 
@@ -213,7 +236,7 @@ public:
      *  generated.
      *
      *  @param func A pointer to a void function, or 0 to set as none
-     *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
+     *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
      */
     void attach(Callback<void()> func, IrqType type=RxIrq);
 
@@ -222,12 +245,18 @@ public:
     *
     *  @param obj pointer to the object to call the member function on
     *  @param method pointer to the member function to be called
-    *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+    *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+    *  @deprecated
+    *      The attach function does not support cv-qualifiers. Replaced by
+    *      attach(callback(obj, method), type).
     */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The attach function does not support cv-qualifiers. Replaced by "
+        "attach(callback(obj, method), type).")
     void attach(T* obj, void (T::*method)(), IrqType type=RxIrq) {
         // Underlying call thread safe
-        attach(Callback<void()>(obj, method), type);
+        attach(callback(obj, method), type);
     }
 
    /** Attach a member function to call whenever a CAN frame received interrupt
@@ -235,12 +264,18 @@ public:
     *
     *  @param obj pointer to the object to call the member function on
     *  @param method pointer to the member function to be called
-    *  @param event Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+    *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+    *  @deprecated
+    *      The attach function does not support cv-qualifiers. Replaced by
+    *      attach(callback(obj, method), type).
     */
     template<typename T>
+    MBED_DEPRECATED_SINCE("mbed-os-5.1",
+        "The attach function does not support cv-qualifiers. Replaced by "
+        "attach(callback(obj, method), type).")
     void attach(T* obj, void (*method)(T*), IrqType type=RxIrq) {
         // Underlying call thread safe
-        attach(Callback<void()>(obj, method), type);
+        attach(callback(obj, method), type);
     }
 
     static void _irq_handler(uint32_t id, CanIrqType type);
@@ -259,4 +294,3 @@ protected:
 
 #endif    // MBED_CAN_H
 
-/** @}*/

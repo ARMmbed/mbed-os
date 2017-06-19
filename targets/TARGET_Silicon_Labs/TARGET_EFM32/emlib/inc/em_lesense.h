@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_lesense.h
  * @brief Low Energy Sensor (LESENSE) peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -35,9 +35,7 @@
 
 #include "em_device.h"
 
-/* LESENSE is currently only supported on Platform 1. Full support for Platform 2 LESENSE
-   will be included in the next release. */
-#if defined(LESENSE_COUNT) && (LESENSE_COUNT > 0) && defined(_SILICON_LABS_32B_PLATFORM_1)
+#if defined(LESENSE_COUNT) && (LESENSE_COUNT > 0)
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -56,11 +54,11 @@ extern "C" {
  * @{
  ******************************************************************************/
 
-/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+/** Number of decoder states supported by current device. */
+#define LESENSE_NUM_DECODER_STATES   (_LESENSE_DECSTATE_DECSTATE_MASK + 1)
 
-
-
-/** @endcond */
+/** Number of LESENSE channels. */
+#define LESENSE_NUM_CHANNELS         16
 
 /*******************************************************************************
  ********************************   ENUMS   ************************************
@@ -139,8 +137,16 @@ typedef enum
   /** Alternate excitation is mapped to the LES_ALTEX pins. */
   lesenseAltExMapALTEX = _LESENSE_CTRL_ALTEXMAP_ALTEX,
 
+#if defined(_LESENSE_CTRL_ALTEXMAP_ACMP)
   /** Alternate excitation is mapped to the pins of the other ACMP. */
-  lesenseAltExMapACMP  = _LESENSE_CTRL_ALTEXMAP_ACMP
+  lesenseAltExMapACMP  = _LESENSE_CTRL_ALTEXMAP_ACMP,
+#endif
+
+#if defined(_LESENSE_CTRL_ALTEXMAP_CH)
+  /** Alternative excitation is mapped to the pin of LESENSE channel
+   * (X+8 mod 16), X being the active channel. */
+  lesenseAltExMapCH  = _LESENSE_CTRL_ALTEXMAP_CH,
+#endif
 } LESENSE_AltExMap_TypeDef;
 
 
@@ -213,12 +219,20 @@ typedef enum
    *  Note: this value could be used for both DAC Ch0 and Ch1. */
   lesenseDACIfData = _LESENSE_PERCTRL_DACCH0DATA_DACDATA,
 
+#if defined(_LESENSE_PERCTRL_DACCH0DATA_ACMPTHRES)
   /** DAC channel x data is defined by ACMPTHRES in LESENSE_CHx_INTERACT.
    *  Note: this value could be used for both DAC Ch0 and Ch1. */
-  lesenseACMPThres = _LESENSE_PERCTRL_DACCH0DATA_ACMPTHRES
+  lesenseACMPThres = _LESENSE_PERCTRL_DACCH0DATA_ACMPTHRES,
+#endif
+
+#if defined(_LESENSE_PERCTRL_DACCH0DATA_THRES)
+  /** DAC channel x data is defined by THRES in LESENSE_CHx_INTERACT.
+   *  Note: this value could be used for both DAC Ch0 and Ch1. */
+  lesenseThres     = _LESENSE_PERCTRL_DACCH0DATA_THRES,
+#endif
 } LESENSE_ControlDACData_TypeDef;
 
-
+#if defined(_LESENSE_PERCTRL_DACCH0CONV_MASK)
 /** DAC channel x conversion mode configuration. */
 typedef enum
 {
@@ -238,8 +252,9 @@ typedef enum
    *  Note: this value could be used for both DAC Ch0 and Ch1. */
   lesenseDACConvModeSampleOff  = _LESENSE_PERCTRL_DACCH0CONV_SAMPLEOFF
 } LESENSE_ControlDACConv_TypeDef;
+#endif
 
-
+#if defined(_LESENSE_PERCTRL_DACCH0OUT_MASK)
 /** DAC channel x output mode configuration. */
 typedef enum
 {
@@ -259,8 +274,10 @@ typedef enum
    *  Note: this value could be used for both DAC Ch0 and Ch1. */
   lesenseDACOutModePinADCACMP = _LESENSE_PERCTRL_DACCH0OUT_PINADCACMP
 } LESENSE_ControlDACOut_TypeDef;
+#endif
 
 
+#if defined(_LESENSE_PERCTRL_DACREF_MASK)
 /**  DAC reference configuration. */
 typedef enum
 {
@@ -270,6 +287,7 @@ typedef enum
   /** DAC uses bandgap reference. */
   lesenseDACRefBandGap = LESENSE_PERCTRL_DACREF_BANDGAP
 } LESENSE_DACRef_TypeDef;
+#endif
 
 
 /** ACMPx control configuration. */
@@ -321,10 +339,18 @@ typedef enum
 typedef enum
 {
   /** Counter output will be used in comparison. */
-  lesenseSampleModeCounter = LESENSE_CH_INTERACT_SAMPLE_COUNTER,
+  lesenseSampleModeCounter = 0x0 << _LESENSE_CH_INTERACT_SAMPLE_SHIFT,
 
   /** ACMP output will be used in comparison. */
-  lesenseSampleModeACMP    = LESENSE_CH_INTERACT_SAMPLE_ACMP
+  lesenseSampleModeACMP    = LESENSE_CH_INTERACT_SAMPLE_ACMP,
+
+#if defined(LESENSE_CH_INTERACT_SAMPLE_ADC)
+  /** ADC output will be used in comparison. */
+  lesenseSampleModeADC     = LESENSE_CH_INTERACT_SAMPLE_ADC,
+
+  /** Differential ADC output will be used in comparison. */
+  lesenseSampleModeADCDiff = LESENSE_CH_INTERACT_SAMPLE_ADCDIFF,
+#endif
 } LESENSE_ChSampleMode_TypeDef;
 
 
@@ -377,13 +403,19 @@ typedef enum
    *  Note: this value could be used for all channels. */
   lesenseChPinIdleLow    = _LESENSE_IDLECONF_CH0_LOW,
 
+#if defined(_LESENSE_IDLECONF_CH0_DAC)
+  /** Channel pin is connected to DAC output in idle phase.
+   *  Note: this value could be used for all channels. */
+  lesenseChPinIdleDACC   = _LESENSE_IDLECONF_CH0_DAC
+#else
   /** Channel pin is connected to DAC CH0 output in idle phase.
    *  Note: only applies to channel 0, 1, 2, 3. */
   lesenseChPinIdleDACCh0 = _LESENSE_IDLECONF_CH0_DACCH0,
 
   /** Channel pin is connected to DAC CH1 output in idle phase.
    *  Note: only applies to channel 12, 13, 14, 15. */
-  lesenseChPinIdleDACCh1 = _LESENSE_IDLECONF_CH12_DACCH1
+  lesenseChPinIdleDACCh1 = _LESENSE_IDLECONF_CH12_DACCH1,
+#endif
 } LESENSE_ChPinIdleMode_TypeDef;
 
 
@@ -401,14 +433,41 @@ typedef enum
 /** Compare modes for counter comparison. */
 typedef enum
 {
-  /** Set interrupt flag if counter value is less than CTRTHRESHOLD, or if the
-   *  ACMP output is 0. */
+  /** Comparison evaluates to 1 if the sensor data is less than the counter
+   *  threshold, or if the ACMP output is 0. */
   lesenseCompModeLess        = LESENSE_CH_EVAL_COMP_LESS,
 
-  /** Set interrupt flag if counter value is greater than, or equal to
-   *  CTRTHRESHOLD, or if the ACMP output is 1. */
+  /** Comparison evaluates to 1 if the sensor data is greater than, or equal to
+   *  the counter threshold, or if the ACMP output is 1. */
   lesenseCompModeGreaterOrEq = LESENSE_CH_EVAL_COMP_GE
 } LESENSE_ChCompMode_TypeDef;
+
+
+#if defined(_LESENSE_CH_EVAL_MODE_MASK)
+/** Sensor evaluation modes. */
+typedef enum
+{
+  /** Threshold comparison evaluation mode. In this mode the sensor data
+   *  is compared to the configured threshold value. Two possible comparison
+   *  operators can be used on the sensor data, either >= (GE) or < (LT).
+   *  Which operator to use is given using the
+   *  @ref LESENSE_ChDesc_TypeDef::compMode member. */
+  lesenseEvalModeThreshold        = _LESENSE_CH_EVAL_MODE_THRES,
+
+  /** Sliding window evaluation mode. In this mode the sensor data is
+   *  evaluated against the upper and lower limits of a window range. The
+   *  windows range is defined by a base value and a window size. */
+  lesenseEvalModeSlidingWindow    = _LESENSE_CH_EVAL_MODE_SLIDINGWIN,
+
+  /** Step detection evaluation mode. In this mode the sensor data is compared
+   *  to the sensor data from the previous measurement. The sensor evaluation
+   *  will result in a "1" if the difference between the current measurement
+   *  and the previous one is greater than a configurable "step size". If the
+   *  difference is less than the configured step size then the sensor
+   *  evaluation will result in a "0". */
+  lesenseEvalModeStepDetection    = _LESENSE_CH_EVAL_MODE_STEPDET,
+} LESENSE_ChEvalMode_TypeDef;
+#endif
 
 
 /** Idle phase configuration of alternate excitation channels. */
@@ -533,19 +592,25 @@ typedef struct
   true                       /* Keep LESENSE running in debug mode. */                              \
 }
 
-
 /** LESENSE timing control descriptor structure. */
 typedef struct
 {
   /** Set the number of LFACLK cycles to delay sensor interaction on
    *  each channel. Valid range: 0-3 (2 bit). */
   uint8_t startDelay;
+
+  /**
+   * Set to true do delay the startup of AUXHFRCO until the system enters
+   * the excite phase. This will reduce the time AUXHFRCO is enabled and
+   * reduce power usage. */
+  bool    delayAuxStartup;
 } LESENSE_TimeCtrlDesc_TypeDef;
 
 /** Default configuration for LESENSE_TimeCtrlDesc_TypeDef structure. */
-#define LESENSE_TIMECTRL_DESC_DEFAULT   \
-{                                       \
-  0U /* No sensor interaction delay. */ \
+#define LESENSE_TIMECTRL_DESC_DEFAULT            \
+{                                                \
+  0U,   /* No sensor interaction delay. */       \
+  false /* Don't delay the AUXHFRCO startup. */  \
 }
 
 
@@ -555,28 +620,36 @@ typedef struct
   /** Configure DAC channel 0 data control. */
   LESENSE_ControlDACData_TypeDef dacCh0Data;
 
+#if defined(_LESENSE_PERCTRL_DACCH0CONV_MASK)
   /** Configure how LESENSE controls conversion on DAC channel 0. */
   LESENSE_ControlDACConv_TypeDef dacCh0ConvMode;
 
   /** Configure how LESENSE controls output on DAC channel 0. */
   LESENSE_ControlDACOut_TypeDef  dacCh0OutMode;
+#endif
 
   /** Configure DAC channel 1 data control. */
   LESENSE_ControlDACData_TypeDef dacCh1Data;
 
+#if defined(_LESENSE_PERCTRL_DACCH1CONV_MASK)
   /** Configure how LESENSE controls conversion on DAC channel 1. */
   LESENSE_ControlDACConv_TypeDef dacCh1ConvMode;
 
   /** Configure how LESENSE controls output on DAC channel 1. */
   LESENSE_ControlDACOut_TypeDef  dacCh1OutMode;
+#endif
 
+#if defined(_LESENSE_PERCTRL_DACPRESC_MASK)
   /** Configure the prescaling factor for the LESENSE - DAC interface.
    *  Valid range: 0-31 (5bit). */
   uint8_t                        dacPresc;
+#endif
 
+#if defined(_LESENSE_PERCTRL_DACREF_MASK)
   /** Configure the DAC reference to be used. Set to #lesenseDACRefVdd to use
    *  VDD and set to #lesenseDACRefBandGap to use bandgap as reference. */
   LESENSE_DACRef_TypeDef         dacRef;
+#endif
 
   /** Configure how LESENSE controls ACMP 0. */
   LESENSE_ControlACMP_TypeDef    acmp0Mode;
@@ -586,24 +659,41 @@ typedef struct
 
   /** Configure how LESENSE controls ACMPs and the DAC in idle mode. */
   LESENSE_WarmupMode_TypeDef     warmupMode;
+
+#if defined(_LESENSE_PERCTRL_DACCONVTRIG_MASK)
+  /** When set to true the DAC is only enabled once for each scan. When
+   *  set to false the DAC is enabled before every channel measurement. */
+  bool                           dacScan;
+#endif
 } LESENSE_PerCtrlDesc_TypeDef;
 
 /** Default configuration for LESENSE_PerCtrl_TypeDef structure. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
 #define LESENSE_PERCTRL_DESC_DEFAULT  \
 {                                     \
-  lesenseDACIfData,          /**/     \
-  lesenseDACConvModeDisable, /**/     \
-  lesenseDACOutModeDisable,  /**/     \
-  lesenseDACIfData,          /**/     \
-  lesenseDACConvModeDisable, /**/     \
-  lesenseDACOutModeDisable,  /**/     \
-  0U,                        /**/     \
-  lesenseDACRefVdd,          /**/     \
-  lesenseACMPModeMuxThres,   /**/     \
-  lesenseACMPModeMuxThres,   /**/     \
-  lesenseWarmupModeKeepWarm, /**/     \
+  lesenseDACIfData,          /* DAC channel 0 data is defined by DAC_CH0DATA register */             \
+  lesenseDACConvModeDisable, /* LESENSE does not control DAC CH0. */                                 \
+  lesenseDACOutModeDisable,  /* DAC channel 0 output to pin disabled. */                             \
+  lesenseDACIfData,          /* DAC channel 1 data is defined by DAC_CH1DATA register */             \
+  lesenseDACConvModeDisable, /* LESENSE does not control DAC CH1. */                                 \
+  lesenseDACOutModeDisable,  /* DAC channel 1 output to pin disabled. */                             \
+  0U,                        /* DAC prescaling factor of 1 (0+1). */                                 \
+  lesenseDACRefVdd,          /* DAC uses VDD reference. */                                           \
+  lesenseACMPModeMuxThres,   /* LESENSE controls the input mux and the threshold value of ACMP0. */  \
+  lesenseACMPModeMuxThres,   /* LESENSE controls the input mux and the threshold value of ACMP1. */  \
+  lesenseWarmupModeKeepWarm, /* Keep both ACMPs and the DAC powered up when LESENSE is idle. */      \
 }
-
+#else
+#define LESENSE_PERCTRL_DESC_DEFAULT                                                                 \
+{                                                                                                    \
+  lesenseDACIfData,          /* DAC channel 0 data is defined by DAC_CH0DATA register. */            \
+  lesenseDACIfData,          /* DAC channel 1 data is defined by DAC_CH1DATA register. */            \
+  lesenseACMPModeMuxThres,   /* LESENSE controls the input mux and the threshold value of ACMP0. */  \
+  lesenseACMPModeMuxThres,   /* LESENSE controls the input mux and the threshold value of ACMP1. */  \
+  lesenseWarmupModeKeepWarm, /* Keep both ACMPs and the DAC powered up when LESENSE is idle. */      \
+  false,                     /* DAC is enable for before every channel measurement. */               \
+}
+#endif
 
 /** LESENSE decoder control descriptor structure. */
 typedef struct
@@ -615,7 +705,7 @@ typedef struct
   uint32_t                 initState;
 
   /** Set to enable the decoder to check the present state in addition
-   *  to the states defined in DECCONF. */
+   *  to the states defined in TCONF. */
   bool                     chkState;
 
   /** When set, a transition from state x in the decoder will set interrupt flag
@@ -658,19 +748,19 @@ typedef struct
 /** Default configuration for LESENSE_PerCtrl_TypeDef structure. */
 #define LESENSE_DECCTRL_DESC_DEFAULT  \
 {                                     \
-  lesenseDecInputSensorSt, /**/       \
-  0U,                      /**/       \
-  false,                   /**/       \
-  true,                    /**/       \
-  true,                    /**/       \
-  true,                    /**/       \
-  true,                    /**/       \
-  true,                    /**/       \
-  false,                   /**/       \
-  lesensePRSCh0,           /**/       \
-  lesensePRSCh1,           /**/       \
-  lesensePRSCh2,           /**/       \
-  lesensePRSCh3,           /**/       \
+  lesenseDecInputSensorSt, /* The SENSORSTATE register is used as input to the decoder. */   \
+  0U,                      /* State 0 is the initial state of the decoder. */                \
+  false,                   /* Disable check of current state. */                             \
+  true,                    /* Enable channel x % 16 interrupt on state x change. */          \
+  true,                    /* Enable decoder hysteresis on PRS0 output. */                   \
+  true,                    /* Enable decoder hysteresis on PRS1 output. */                   \
+  true,                    /* Enable decoder hysteresis on PRS2 output. */                   \
+  true,                    /* Enable decoder hysteresis on PRS3 output. */                   \
+  false,                   /* Disable count mode on decoder PRS channels 0 and 1*/           \
+  lesensePRSCh0,           /* PRS Channel 0 as input for bit 0 of the LESENSE decoder. */    \
+  lesensePRSCh1,           /* PRS Channel 1 as input for bit 1 of the LESENSE decoder. */    \
+  lesensePRSCh2,           /* PRS Channel 2 as input for bit 2 of the LESENSE decoder. */    \
+  lesensePRSCh3,           /* PRS Channel 3 as input for bit 3 of the LESENSE decoder. */    \
 }
 
 
@@ -745,14 +835,16 @@ typedef struct
   uint8_t                       exTime;
 
   /** Configure sample delay. Sampling will occur after sampleDelay+1 sample
-   *  clock cycles. Valid range: 0-127 (7 bits). */
+   *  clock cycles. Valid range: 0-127 (7 bits) or 0-255 (8 bits) depending on
+   *  device. */
   uint8_t                       sampleDelay;
 
   /** Configure measure delay. Sensor measuring is delayed for measDelay
-   *  excitation clock cycles. Valid range: 0-127 (7 bits). */
-  uint8_t                       measDelay;
+   *  excitation clock cycles. Valid range: 0-127 (7 bits) or 0-1023 (10 bits)
+   *  depending on device. */
+  uint16_t                       measDelay;
 
-  /** Configure ACMP threshold.
+  /** Configure ACMP threshold or DAC data.
    *  If perCtrl.dacCh0Data or perCtrl.dacCh1Data is set to #lesenseDACIfData,
    *  acmpThres defines the 12-bit DAC data in the corresponding data register
    *  of the DAC interface (DACn_CH0DATA and DACn_CH1DATA).
@@ -763,29 +855,61 @@ typedef struct
    *  In this case, the valid range is: 0-63 (6 bits). */
   uint16_t                     acmpThres;
 
-  /** Select if ACMP output or counter output should be used in comparison. */
+  /** Select if ACMP output, ADC output or counter output should be used in
+   *  comparison. */
   LESENSE_ChSampleMode_TypeDef sampleMode;
 
   /** Configure interrupt generation mode for CHx interrupt flag. */
   LESENSE_ChIntMode_TypeDef    intMode;
 
-  /** Configure decision threshold for counter comparison.
+  /** Configure decision threshold for sensor data comparison.
    *  Valid range: 0-65535 (16 bits). */
   uint16_t                     cntThres;
 
   /** Select mode for counter comparison. */
   LESENSE_ChCompMode_TypeDef   compMode;
+
+#if defined(_LESENSE_CH_EVAL_MODE_MASK)
+  /** Select sensor evaluation mode. */
+  LESENSE_ChEvalMode_TypeDef   evalMode;
+#endif
+
 } LESENSE_ChDesc_TypeDef;
 
 
 /** Configuration structure for all scan channels. */
 typedef struct
 {
-  /** Channel descriptor for all 16 channels. */
-  LESENSE_ChDesc_TypeDef Ch[16];
+  /** Channel descriptor for all LESENSE channels. */
+  LESENSE_ChDesc_TypeDef Ch[LESENSE_NUM_CHANNELS];
 } LESENSE_ChAll_TypeDef;
 
 /** Default configuration for scan channel. */
+#if defined(_LESENSE_CH_EVAL_MODE_MASK)
+#define LESENSE_CH_CONF_DEFAULT                                                                       \
+{                                                                                                     \
+  true,                    /* Enable scan channel. */                                                 \
+  true,                    /* Enable the assigned pin on scan channel. */                             \
+  true,                    /* Enable interrupts on channel. */                                        \
+  lesenseChPinExHigh,      /* Channel pin is high during the excitation period. */                    \
+  lesenseChPinIdleLow,     /* Channel pin is low during the idle period. */                           \
+  false,                   /* Don't use alternate excitation pins for excitation. */                  \
+  false,                   /* Disabled to shift results from this channel to the decoder register. */ \
+  false,                   /* Disabled to invert the scan result bit. */                              \
+  false,                   /* Disabled to store counter value in the result buffer. */                \
+  lesenseClkLF,            /* Use the LF clock for excitation timing. */                              \
+  lesenseClkLF,            /* Use the LF clock for sample timing. */                                  \
+  0x03U,                   /* Excitation time is set to 3(+1) excitation clock cycles. */             \
+  0x09U,                   /* Sample delay is set to 9(+1) sample clock cycles. */                    \
+  0x06U,                   /* Measure delay is set to 6 excitation clock cycles.*/                    \
+  0x00U,                   /* ACMP threshold has been set to 0. */                                    \
+  lesenseSampleModeACMP,   /* ACMP output will be used in comparison. */                              \
+  lesenseSetIntNone,       /* No interrupt is generated by the channel. */                            \
+  0xFFU,                   /* Counter threshold has bee set to 0xFF. */                               \
+  lesenseCompModeLess,     /* Compare mode has been set to trigger interrupt on "less". */            \
+  lesenseEvalModeThreshold /* Compare mode has been set to trigger interrupt on "less". */            \
+}
+#else
 #define LESENSE_CH_CONF_DEFAULT                                                                     \
 {                                                                                                   \
   true,                  /* Enable scan channel. */                                                 \
@@ -808,6 +932,8 @@ typedef struct
   0xFFU,                 /* Counter threshold has bee set to 0xFF. */                               \
   lesenseCompModeLess    /* Compare mode has been set to trigger interrupt on "less". */            \
 }
+#endif
+
 
 /** Default configuration for all sensor channels. */
 #define LESENSE_SCAN_CONF_DEFAULT                   \
@@ -887,6 +1013,7 @@ typedef struct
 }
 
 /** Default configuration for all alternate excitation channels. */
+#if defined(_LESENSE_CTRL_ALTEXMAP_ACMP)
 #define LESENSE_ALTEX_CONF_DEFAULT                                        \
 {                                                                         \
   lesenseAltExMapACMP,                                                    \
@@ -909,7 +1036,30 @@ typedef struct
     LESENSE_ALTEX_CH_CONF_DEFAULT  /* Alternate excitation channel 15. */ \
   }                                                                       \
 }
-
+#else
+#define LESENSE_ALTEX_CONF_DEFAULT                                        \
+{                                                                         \
+  lesenseAltExMapCH,                                                      \
+  {                                                                       \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 0. */  \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 1. */  \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 2. */  \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 3. */  \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 4. */  \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 5. */  \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 6. */  \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 7. */  \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 8. */  \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 9. */  \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 10. */ \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 11. */ \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 12. */ \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 13. */ \
+    LESENSE_ALTEX_CH_CONF_DEFAULT, /* Alternate excitation channel 14. */ \
+    LESENSE_ALTEX_CH_CONF_DEFAULT  /* Alternate excitation channel 15. */ \
+  }                                                                       \
+}
+#endif
 
 /** Decoder state condition descriptor structure. */
 typedef struct
@@ -966,11 +1116,12 @@ typedef struct
 /** Configuration structure for the decoder. */
 typedef struct
 {
-  /** Descriptor of the 16 decoder states. */
-  LESENSE_DecStDesc_TypeDef St[16];
+  /** Descriptor of the 16 or 32 decoder states depending on the device. */
+  LESENSE_DecStDesc_TypeDef St[LESENSE_NUM_DECODER_STATES];
 } LESENSE_DecStAll_TypeDef;
 
 /** Default configuration for all decoder states. */
+#if defined(_SILICON_LABS_32B_SERIES_0)
 #define LESENSE_DECODER_CONF_DEFAULT                                                     \
 {  /* chain |   Descriptor A         |   Descriptor B   */                               \
   {                                                                                      \
@@ -992,44 +1143,93 @@ typedef struct
     { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }  /* Decoder state 15. */ \
   }                                                                                      \
 }
+#else
+#define LESENSE_DECODER_CONF_DEFAULT                                                     \
+{  /* chain |   Descriptor A         |   Descriptor B   */                               \
+  {                                                                                      \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 0. */  \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 1. */  \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 2. */  \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 3. */  \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 4. */  \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 5. */  \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 6. */  \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 7. */  \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 8. */  \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 9. */  \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 10. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 11. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 12. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 13. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 14. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 15. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 16. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 17. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 18. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 19. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 20. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 21. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 22. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 23. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 24. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 25. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 26. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 27. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 28. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 29. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }, /* Decoder state 30. */ \
+    { false, LESENSE_ST_CONF_DEFAULT, LESENSE_ST_CONF_DEFAULT }  /* Decoder state 31. */ \
+  }                                                                                      \
+}
+#endif
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
-void LESENSE_Init(LESENSE_Init_TypeDef const *init, bool const reqReset);
+void LESENSE_Init(const LESENSE_Init_TypeDef * init, bool reqReset);
 void LESENSE_Reset(void);
 
-uint32_t LESENSE_ScanFreqSet(uint32_t refFreq, uint32_t const scanFreq);
-void LESENSE_ScanModeSet(LESENSE_ScanMode_TypeDef const scanMode,
-                         bool const start);
+uint32_t LESENSE_ScanFreqSet(uint32_t refFreq, uint32_t scanFreq);
+void LESENSE_ScanModeSet(LESENSE_ScanMode_TypeDef scanMode, bool start);
+void LESENSE_StartDelaySet(uint8_t startDelay);
+void LESENSE_ClkDivSet(LESENSE_ChClk_TypeDef clk,
+                       LESENSE_ClkPresc_TypeDef clkDiv);
 
-void LESENSE_StartDelaySet(uint8_t const startDelay);
-
-void LESENSE_ClkDivSet(LESENSE_ChClk_TypeDef const clk,
-                       LESENSE_ClkPresc_TypeDef const clkDiv);
-
-void LESENSE_ChannelAllConfig(LESENSE_ChAll_TypeDef const *confChAll);
-void LESENSE_ChannelConfig(LESENSE_ChDesc_TypeDef const *confCh,
-                           uint32_t const chIdx);
-void LESENSE_ChannelEnable(uint8_t const chIdx,
-                           bool const enaScanCh,
-                           bool const enaPin);
+void LESENSE_ChannelAllConfig(const LESENSE_ChAll_TypeDef * confChAll);
+void LESENSE_ChannelConfig(const LESENSE_ChDesc_TypeDef * confCh,
+                           uint32_t chIdx);
+void LESENSE_ChannelEnable(uint8_t chIdx,
+                           bool enaScanCh,
+                           bool enaPin);
 void LESENSE_ChannelEnableMask(uint16_t chMask, uint16_t pinMask);
-void LESENSE_ChannelTimingSet(uint8_t const chIdx,
-                              uint8_t const exTime,
-                              uint8_t const sampleDelay,
-                              uint8_t const measDelay);
-void LESENSE_ChannelThresSet(uint8_t const chIdx,
-                             uint16_t const acmpThres,
-                             uint16_t const cntThres);
+void LESENSE_ChannelTimingSet(uint8_t chIdx,
+                              uint8_t exTime,
+                              uint8_t sampleDelay,
+                              uint16_t measDelay);
+void LESENSE_ChannelThresSet(uint8_t chIdx,
+                             uint16_t acmpThres,
+                             uint16_t cntThres);
+#if defined(_LESENSE_CH_EVAL_MODE_MASK)
+void LESENSE_ChannelSlidingWindow(uint8_t chIdx,
+                                  uint32_t windowSize,
+                                  uint32_t initValue);
+void LESENSE_ChannelStepDetection(uint8_t chIdx,
+                                  uint32_t stepSize,
+                                  uint32_t initValue);
+void LESENSE_WindowSizeSet(uint32_t windowSize);
+void LESENSE_StepSizeSet(uint32_t stepSize);
+#endif
 
-void LESENSE_AltExConfig(LESENSE_ConfAltEx_TypeDef const *confAltEx);
+void LESENSE_AltExConfig(const LESENSE_ConfAltEx_TypeDef * confAltEx);
 
-void LESENSE_DecoderStateAllConfig(LESENSE_DecStAll_TypeDef const *confDecStAll);
-void LESENSE_DecoderStateConfig(LESENSE_DecStDesc_TypeDef const *confDecSt,
-                                uint32_t const decSt);
+void LESENSE_DecoderStateAllConfig(const LESENSE_DecStAll_TypeDef * confDecStAll);
+void LESENSE_DecoderStateConfig(const LESENSE_DecStDesc_TypeDef * confDecSt,
+                                uint32_t decSt);
 void LESENSE_DecoderStateSet(uint32_t decSt);
 uint32_t LESENSE_DecoderStateGet(void);
+#if defined(_LESENSE_PRSCTRL_MASK)
+void LESENSE_DecoderPrsOut(bool enable, uint32_t decMask, uint32_t decCmp);
+#endif
 
 void LESENSE_ScanStart(void);
 void LESENSE_ScanStop(void);
@@ -1126,7 +1326,7 @@ __STATIC_INLINE uint32_t LESENSE_ChannelActiveGet(void)
  ******************************************************************************/
 __STATIC_INLINE uint32_t LESENSE_ScanResultGet(void)
 {
-  return LESENSE->SCANRES;
+  return LESENSE->SCANRES & _LESENSE_SCANRES_SCANRES_MASK;
 }
 
 
@@ -1184,6 +1384,7 @@ __STATIC_INLINE uint32_t LESENSE_SensorStateGet(void)
 }
 
 
+#if defined(LESENSE_POWERDOWN_RAM)
 /***************************************************************************//**
  * @brief
  *   Shut off power to the LESENSE RAM, disables LESENSE.
@@ -1201,6 +1402,7 @@ __STATIC_INLINE void LESENSE_RAMPowerDown(void)
   /* Power down LESENSE RAM */
   LESENSE->POWERDOWN = LESENSE_POWERDOWN_RAM;
 }
+#endif
 
 
 /***************************************************************************//**

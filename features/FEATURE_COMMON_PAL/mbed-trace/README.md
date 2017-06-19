@@ -33,9 +33,9 @@ The purpose of the library is to provide a light, simple and general tracing sol
 
 ```
 [DBG ][abc ]: This is a debug message from module abc<cr><lf>
-[ERR ][abc ]: Something goes wrong in module abc<cr><lf>
-[WARN][br  ]: Oh no, br warning occurs!<cr><lf>
 [INFO][br  ]: Hi there.<cr><lf>
+[WARN][br  ]: Oh no, br warning occurs!<cr><lf>
+[ERR ][abc ]: Something goes wrong in module abc<cr><lf>
 ```
 
 ## Usage
@@ -47,8 +47,10 @@ The purpose of the library is to provide a light, simple and general tracing sol
 * To enable the tracing API:
     * With yotta: set `YOTTA_CFG_MBED_TRACE` to 1 or true. Setting the flag to 0 or false disables tracing.
     * [With mbed OS 5](#enabling-the-tracing-api-in-mbed-os-5)
-* By default, trace uses 1024 bytes buffer for trace lines, but you can change it by yotta with: `YOTTA_CFG_MBED_TRACE_LINE_LENGTH`.
-* To disable the IPv6 conversion, set `YOTTA_CFG_MBED_TRACE_FEA_IPV6 = 0`.
+* By default, trace uses 1024 bytes buffer for trace lines, but you can change it by setting the configuration macro `MBED_TRACE_LINE_LENGTH` to the desired value.
+* To disable the IPv6 conversion:
+    * With yotta: set `YOTTA_CFG_MBED_TRACE_FEA_IPV6 = 0`.
+    * With mbed OS 5: set `MBED_CONF_MBED_TRACE_FEA_IPV6 = 0`.
 * If thread safety is needed, configure the wait and release callback functions before initialization to enable the protection. Usually, this needs to be done only once in the application's lifetime.
 * Call the trace initialization (`mbed_trace_init`) once before using any other APIs. It allocates the trace buffer and initializes the internal variables.
 * Define `TRACE_GROUP` in your source code (not in the header!) to use traces. It is a 1-4 characters long char-array (for example `#define TRACE_GROUP "APPL"`). This will be printed on every trace line.
@@ -82,9 +84,9 @@ When you want to print traces, use the `tr_<level>` macros. The macros behave li
 Available levels:
 
 * debug
+* info
 * warning
 * error
-* info
 * cmdline (special behavior, should not be used)
 
 For the thread safety, set the mutex wait and release functions. You need do this before the initialization to have the functions available right away:
@@ -128,7 +130,7 @@ See more in [mbed_trace.h](https://github.com/ARMmbed/mbed-trace/blob/master/mbe
 ## Usage example:
 
 ```c++
-#define YOTTA_CFG_MBED_TRACE 1 //this can be defined also in the yotta configuration file config.json
+#define MBED_CONF_MBED_TRACE_ENABLE 1 //this could be defined also in the mbed-cli configuration file mbed_app.json
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP  "main"
 
@@ -148,9 +150,9 @@ int main(void){
     mbed_trace_mutex_release_function_set( my_mutex_release ); // only if thread safety is needed
     mbed_trace_init();       // initialize the trace library
     tr_debug("this is debug msg");  //-> "[DBG ][main]: this is a debug msg"
-    tr_err("this is error msg");    //-> "[ERR ][main]: this is an error msg"
-    tr_warn("this is warning msg"); //-> "[WARN][main]: this is a warning msg"
     tr_info("this is info msg");    //-> "[INFO][main]: this is an info msg"
+    tr_warn("this is warning msg"); //-> "[WARN][main]: this is a warning msg"
+    tr_err("this is error msg");    //-> "[ERR ][main]: this is an error msg"
     char arr[] = {30, 31, 32};
     tr_debug("printing array: %s", mbed_trace_array(arr, 3)); //-> "[DBG ][main]: printing array: 01:02:03"
     return 0;

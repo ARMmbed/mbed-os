@@ -126,7 +126,7 @@
 /  When _LFN_UNICODE is 0, this option has no effect. */
 
 
-#define _FS_RPATH	0
+#define _FS_RPATH	1
 /* This option configures relative path feature.
 /
 /   0: Disable relative path feature and remove related functions.
@@ -140,7 +140,7 @@
 / Drive/Volume Configurations
 /---------------------------------------------------------------------------*/
 
-#define _VOLUMES	1
+#define _VOLUMES	4
 /* Number of volumes (logical drives) to be used. */
 
 
@@ -162,7 +162,7 @@
 
 
 #define	_MIN_SS		512
-#define	_MAX_SS		512
+#define	_MAX_SS		4096
 /* These options configure the range of sector size to be supported. (512, 1024,
 /  2048 or 4096) Always set both 512 for most systems, all type of memory cards and
 /  harddisk. But a larger value may be required for on-board flash memory and some
@@ -194,12 +194,20 @@
 / System Configurations
 /---------------------------------------------------------------------------*/
 
-#define	_FS_TINY	0
+#define	_FS_TINY	1
 /* This option switches tiny buffer configuration. (0:Normal or 1:Tiny)
 /  At the tiny configuration, size of the file object (FIL) is reduced _MAX_SS
 /  bytes. Instead of private sector buffer eliminated from the file object,
 /  common sector buffer in the file system object (FATFS) is used for the file
 /  data transfer. */
+
+
+#define _FS_HEAPBUF 1
+/* This option enables the use of the heap for allocating buffers. Otherwise
+/  _MAX_SS sized buffers are allocated statically in relevant structures (in
+/  FATFS if _FS_TINY, otherwise in FATFS and FIL)
+/  This option allows the filesystem to dynamically allocate the buffers based
+/  on underlying sector size. */
 
 
 #define _FS_NORTC	0

@@ -436,9 +436,9 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     // I2C configuration
     handle->Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-    handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
-    handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;
-    handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
+    handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
     handle->Init.OwnAddress1     = 0;
     handle->Init.OwnAddress2     = 0;
     HAL_I2C_Init(handle);
@@ -904,7 +904,10 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c){
 
 #if DEVICE_I2CSLAVE
     /*  restore slave address */
-    i2c_slave_address(obj, 0, address, 0);
+    if (address != 0) {
+        obj_s->slave = 1;
+        i2c_slave_address(obj, 0, address, 0);
+    }
 #endif
 
     /* Keep Set event flag */

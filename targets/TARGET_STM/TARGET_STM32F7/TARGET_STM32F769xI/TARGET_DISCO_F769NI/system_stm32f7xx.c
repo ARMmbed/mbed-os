@@ -79,9 +79,6 @@
   */
 
 #include "stm32f7xx.h"
-#include "hal_tick.h"
-
-HAL_StatusTypeDef HAL_Init(void);
 
 #if !defined  (HSE_VALUE)
   #define HSE_VALUE    ((uint32_t)25000000) /*!< Value of the External oscillator in Hz */
@@ -223,21 +220,6 @@ void SystemInit(void)
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif
 
-  /* Configure the Cube driver */
-  SystemCoreClock = HSI_VALUE; // At this stage the HSI is used as system clock
-  HAL_Init();
-
-  // Enable CPU L1-Cache
-  SCB_EnableICache();
-  SCB_EnableDCache();
-
-  /* Configure the System clock source, PLL Multiplier and Divider factors,
-     AHB/APBx prescalers and Flash settings */
-  SetSysClock();
-  
-  /* Reset the timer to avoid issues after the RAM initialization */
-  TIM_MST_RESET_ON;
-  TIM_MST_RESET_OFF;  
 }
 
 /**

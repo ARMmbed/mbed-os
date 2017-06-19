@@ -112,7 +112,7 @@ typedef struct equeue_sema {
     bool signal;
 } equeue_sema_t;
 #elif defined(EQUEUE_PLATFORM_MBED) && defined(MBED_CONF_RTOS_PRESENT)
-typedef unsigned equeue_sema_t[8];
+typedef unsigned equeue_sema_t[9];
 #elif defined(EQUEUE_PLATFORM_MBED)
 typedef volatile int equeue_sema_t;
 #endif
@@ -129,7 +129,8 @@ typedef volatile int equeue_sema_t;
 // The equeue_sema_wait waits for a semaphore to be signalled or returns
 // immediately if equeue_sema_signal had been called since the last
 // equeue_sema_wait. The equeue_sema_wait returns true if it detected that
-// equeue_sema_signal had been called.
+// equeue_sema_signal had been called. If ms is negative, equeue_sema_wait
+// will wait for a signal indefinitely.
 int equeue_sema_create(equeue_sema_t *sema);
 void equeue_sema_destroy(equeue_sema_t *sema);
 void equeue_sema_signal(equeue_sema_t *sema);

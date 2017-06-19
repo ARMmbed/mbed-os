@@ -27,10 +27,21 @@ CAN::CAN(PinName rd, PinName td) : _can(), _irq() {
     // No lock needed in constructor
 
     for (int i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i].attach(donothing);
+        _irq[i] = callback(donothing);
     }
 
     can_init(&_can, rd, td);
+    can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
+}
+
+CAN::CAN(PinName rd, PinName td, int hz) : _can(), _irq() {
+    // No lock needed in constructor
+
+    for (int i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
+        _irq[i].attach(donothing);
+    }
+
+    can_init_freq(&_can, rd, td, hz);
     can_irq_init(&_can, (&CAN::_irq_handler), (uint32_t)this);
 }
 
@@ -104,10 +115,10 @@ int CAN::filter(unsigned int id, unsigned int mask, CANFormat format, int handle
 void CAN::attach(Callback<void()> func, IrqType type) {
     lock();
     if (func) {
-        _irq[(CanIrqType)type].attach(func);
+        _irq[(CanIrqType)type] = func;
         can_irq_set(&_can, (CanIrqType)type, 1);
     } else {
-        _irq[(CanIrqType)type].attach(donothing);
+        _irq[(CanIrqType)type] = callback(donothing);
         can_irq_set(&_can, (CanIrqType)type, 0);
     }
     unlock();

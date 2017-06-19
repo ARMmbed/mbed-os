@@ -161,6 +161,8 @@ typedef enum {
     LED4        = PD_12,
     LED_RED     = LED1,
     USER_BUTTON = PD_13,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
     SERIAL_TX   = PC_10,
     SERIAL_RX   = PC_11,
     USBTX       = SERIAL_TX,

@@ -57,6 +57,8 @@ public:
      *    volume and upto 16MiB for exFAT volume. If zero is given,
      *    the default allocation unit size is selected by the underlying
      *    filesystem, which depends on the volume size.
+     *   
+     *  @return         0 on success, negative error code on failure
      */
     static int format(BlockDevice *bd, int allocation_unit = 0);
 
@@ -126,7 +128,7 @@ protected:
     /** Close a file
      *
      *  @param file     File handle
-     *  return          0 on success, negative error code on failure
+     *  @return         0 on success, negative error code on failure
      */
     virtual int file_close(fs_file_t file);
 
@@ -134,7 +136,7 @@ protected:
      *
      *  @param file     File handle
      *  @param buffer   The buffer to read in to
-     *  @param size     The number of bytes to read
+     *  @param len      The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
     virtual ssize_t file_read(fs_file_t file, void *buffer, size_t len);
@@ -143,7 +145,7 @@ protected:
      *
      *  @param file     File handle
      *  @param buffer   The buffer to write from
-     *  @param size     The number of bytes to write 
+     *  @param len      The number of bytes to write 
      *  @return         The number of bytes written, negative error on failure
      */
     virtual ssize_t file_write(fs_file_t file, const void *buffer, size_t len);
@@ -179,7 +181,7 @@ protected:
      *  @param file     File handle
      *  @return         Size of the file in bytes
      */
-    virtual size_t file_size(fs_file_t file);
+    virtual off_t file_size(fs_file_t file);
 
     /** Open a directory on the filesystem
      *
@@ -192,7 +194,7 @@ protected:
     /** Close a directory
      *
      *  @param dir      Dir handle
-     *  return          0 on success, negative error code on failure
+     *  @return         0 on success, negative error code on failure
      */
     virtual int dir_close(fs_dir_t dir);
 
@@ -227,7 +229,7 @@ protected:
     
 private:
     FATFS _fs; // Work area (file system object) for logical drive
-    char _fsid[2];
+    char _fsid[sizeof("0:")];
     int _id;
 
 protected:

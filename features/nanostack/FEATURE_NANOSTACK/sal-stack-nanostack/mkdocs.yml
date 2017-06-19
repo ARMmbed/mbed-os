@@ -25,6 +25,7 @@ pages:
 - ['08_API_events.md', 'API Reference Manual','Event-driven Scheduling Model & Eventing API']
 - ['09_API_network_def.md','API Reference Manual', 'Network Definition APIs']
 - ['12_API_network.md','API Reference Manual', 'Network Layer Control APIs']
+- ['17_API_load_balancer.md','API Reference Manual','Load balancing API']
 - ['10_API_timer.md','API Reference Manual', 'Library Timer API']
 - ['11_API_sockets.md','API Reference Manual', 'Socket API']
 - ['13_API_memory.md','API Reference Manual', 'Dynamic Memory API']
@@ -32,3 +33,5 @@ pages:
 - ['15_API_debug.md','API Reference Manual', 'Network Debug Statistics API']
 - ['thread_APIs.md','API Reference Manual', 'Thread Stack APIs']
 - ['16_API_porting.md','Porting a new platform to ARM mbed Networking Stack', 'Porting to the Stack']
+
+copyright: © ARM Ltd. Copyright 2016 – ARM mbed IoT Device Platform

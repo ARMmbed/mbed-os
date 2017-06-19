@@ -91,6 +91,7 @@ class IAR(mbedToolchain):
         self.cppc = [main_cc]
         self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
         self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
+        
         self.ld   = [join(IAR_BIN, "ilinkarm")]
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
@@ -224,8 +225,10 @@ class IAR(mbedToolchain):
 
     @hook_tool
     def binary(self, resources, elf, bin):
+        _, fmt = splitext(bin)
+        bin_arg = {".bin": "--bin", ".hex": "--ihex"}[fmt]
         # Build binary command
-        cmd = [self.elf2bin, "--bin", elf, bin]
+        cmd = [self.elf2bin, bin_arg, elf, bin]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_binary(cmd)

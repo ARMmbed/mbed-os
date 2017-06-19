@@ -18,15 +18,14 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_ETHERNET
+#if defined (DEVICE_ETHERNET) || defined(DOXYGEN_ONLY)
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** An ethernet interface, to use with the ethernet pins.
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  *
  * Example:
  * @code
@@ -53,6 +52,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class Ethernet {
 
@@ -111,15 +111,16 @@ public:
 
     /** Read from an recevied ethernet packet.
      *
-     *  After receive returnd a number bigger than 0it is
+     *  After receive returned a number bigger than 0 it is
      *  possible to read bytes from this packet.
-     *  Read will write up to size bytes into data.
      *
-     *  It is possible to use read multible times.
+     *  @param data      Pointer to data packet
+     *  @param size      Size of data to be read.
+     *  @returns         The number of byte read.
+     *
+     *  @note It is possible to use read multiple times.
      *  Each time read will start reading after the last read byte before.
      *
-     *  @returns
-     *  The number of byte read.
      */
     int read(char *data, int size);
 
@@ -172,5 +173,3 @@ public:
 #endif
 
 #endif
-
-/** @}*/

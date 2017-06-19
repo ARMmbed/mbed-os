@@ -31,6 +31,11 @@ static can_irq_handler irq_handler;
 
 void can_init(can_t *obj, PinName rd, PinName td)
 {
+    can_init_freq(obj, rd, td, 100000);
+}
+
+void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
+{
     CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
 
@@ -81,7 +86,9 @@ void can_init(can_t *obj, PinName rd, PinName td)
     }
 
     // Set initial CAN frequency to 100 kb/s
-    can_frequency(obj, 100000);
+    if (can_frequency(obj, 100000) != 1) {
+        error("Can frequency could not be set\n");
+    }
 
     uint32_t filter_number = (obj->can == CAN_1) ? 0 : 14;
     can_filter(obj, 0, 0, CANStandard, filter_number);
@@ -99,7 +106,7 @@ void can_irq_free(can_t *obj)
 
     can->IER &= ~(CAN_IT_FMP0 | CAN_IT_FMP1 | CAN_IT_TME | \
                   CAN_IT_ERR | CAN_IT_EPV | CAN_IT_BOF);
-    can_irq_ids[obj->can] = 0;
+    can_irq_ids[obj->index] = 0;
 }
 
 void can_free(can_t *obj)
@@ -190,19 +197,40 @@ int can_frequency(can_t *obj, int f)
     int pclk = HAL_RCC_GetPCLK1Freq();
     int btr = can_speed(pclk, (unsigned int)f, 1);
     CAN_TypeDef *can = (CAN_TypeDef *)(obj->can);
+    uint32_t tickstart = 0;
+    int status = 1;
 
     if (btr > 0) {
         can->MCR |= CAN_MCR_INRQ ;
+        /* Get tick */
+        tickstart = HAL_GetTick();
         while ((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
+            if ((HAL_GetTick() - tickstart) > 2) {
+                status = 0;
+                break;
+            }
         }
-        can->BTR = btr;
-        can->MCR &= ~(uint32_t)CAN_MCR_INRQ;
-        while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
+        if (status != 0) {
+            can->BTR = btr;
+            can->MCR &= ~(uint32_t)CAN_MCR_INRQ;
+            /* Get tick */
+            tickstart = HAL_GetTick();
+            while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
+                if ((HAL_GetTick() - tickstart) > 2) {
+                    status = 0;
+                    break;
+                }
+            }
+            if (status == 0) {
+                error("can ESR  0x%04x.%04x + timeout status %d", (can->ESR & 0xFFFF0000) >> 16, (can->ESR & 0xFFFF), status);
+            }
+        } else {
+            error("can init request timeout\n");
         }
-        return 1;
     } else {
-        return 0;
+        status = 0;
     }
+    return status;
 }
 
 int can_write(can_t *obj, CAN_Message msg, int cc)
@@ -227,19 +255,19 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
     } else {
       can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | msg.type);
     }
-    
+
     /* Set up the DLC */
     can->sTxMailBox[transmitmailbox].TDTR &= (uint32_t)0xFFFFFFF0;
     can->sTxMailBox[transmitmailbox].TDTR |= (msg.len & (uint8_t)0x0000000F);
-    
+
     /* Set up the data field */
     can->sTxMailBox[transmitmailbox].TDLR = (((uint32_t)msg.data[3] << 24) |
-					     ((uint32_t)msg.data[2] << 16) |
-					     ((uint32_t)msg.data[1] << 8) |
-					     ((uint32_t)msg.data[0]));
+                                            ((uint32_t)msg.data[2] << 16) |
+                                            ((uint32_t)msg.data[1] << 8) |
+                                            ((uint32_t)msg.data[0]));
     can->sTxMailBox[transmitmailbox].TDHR = (((uint32_t)msg.data[7] << 24) |
-					     ((uint32_t)msg.data[6] << 16) |
-					     ((uint32_t)msg.data[5] << 8) |
+                                            ((uint32_t)msg.data[6] << 16) |
+                                            ((uint32_t)msg.data[5] << 8) |
                                                 ((uint32_t)msg.data[4]));
     /* Request transmission */
     can->sTxMailBox[transmitmailbox].TIR |= CAN_TI0R_TXRQ;

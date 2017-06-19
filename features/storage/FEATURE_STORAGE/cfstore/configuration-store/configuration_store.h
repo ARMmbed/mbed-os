@@ -82,6 +82,8 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>								/* requierd for memset() in ARM_CFSTORE_HANDLE_INIT() */
 
+#include "mbed_toolchain.h"                     /* required for MBED_DEPRECATED_SINCE */
+
 #define DEVICE_STORAGE 1						/* enable storage */
 /// @cond CFSTORE_DOXYGEN_DISABLE
 #include <Driver_Storage.h>
@@ -873,6 +875,7 @@ typedef struct _ARM_DRIVER_CFSTORE
 
 
 
+MBED_DEPRECATED_SINCE("mbed-os-5.5", "CFSTORE replace by FATFileSystem.")
 extern ARM_CFSTORE_DRIVER cfstore_driver;
 
 #ifdef __cplusplus

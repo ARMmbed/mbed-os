@@ -24,7 +24,6 @@
 
 #include "mbed.h"
 #include "flash_api.h"
-#include "flash_data.h"
 
 using namespace utest::v1;
 
@@ -49,6 +48,7 @@ static void erase_range(flash_t *flash, uint32_t addr, uint32_t size)
         TEST_ASSERT_NOT_EQUAL(0, sector_size);
         int32_t ret = flash_erase_sector(flash, addr);
         TEST_ASSERT_EQUAL_INT32(0, ret);
+        addr += sector_size;
         size = size > sector_size ? size - sector_size : 0;
     }
 }

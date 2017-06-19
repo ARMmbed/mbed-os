@@ -35,7 +35,6 @@
 #include "mbed-coap/sn_coap_protocol.h"
 #include "sn_coap_header_internal.h"
 #include "sn_coap_protocol_internal.h"
-
 /* * * * * * * * * * * * * * * * * * * * */
 /* * * * LOCAL FUNCTION PROTOTYPES * * * */
 /* * * * * * * * * * * * * * * * * * * * */
@@ -281,11 +280,6 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
         /* Get option length WITHOUT extensions */
         uint16_t option_len = (**packet_data_pptr & 0x0F);
 
-        /* Option number length 15 is reserved for the future use - ERROR */
-        if (option_len == 15) {
-            return -1;
-        }
-
         /* Resolve option delta */
         uint16_t  option_number = (**packet_data_pptr >> COAP_OPTIONS_OPTION_NUMBER_SHIFT);
 
@@ -314,7 +308,12 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
             option_len += (*(*packet_data_pptr + 1) << 8) + 269;
             (*packet_data_pptr) += 2;
         }
+        /* Option number length 15 is reserved for the future use - ERROR */
+        else if (option_len == 15) {
+            return -1;
+        }
 
+        message_left = packet_len - (*packet_data_pptr - packet_data_start_ptr);
 
         /* * * Parse option itself * * */
         /* Some options are handled independently in own functions */
@@ -655,7 +654,7 @@ static int16_t sn_coap_parser_options_count_needed_memory_multiple_option(uint8_
     uint16_t i                      = 1;
 
     /* Loop all Uri-Query options */
-    while (i < packet_left_len) {
+    while (i <= packet_left_len) {
         if (option == COAP_OPTION_LOCATION_PATH && option_number_len > 255) {
             return -1;
         }
@@ -677,14 +676,13 @@ static int16_t sn_coap_parser_options_count_needed_memory_multiple_option(uint8_
 
         i += option_number_len;
         ret_value += option_number_len + 1; /* + 1 is for separator */
-        if(ret_value >= packet_left_len)
-            break;
 
-        if(ret_value >= packet_left_len)
+        if( i == packet_left_len ) {
             break;
-
-        if( i == packet_left_len )
-            break;
+        }
+        else if( i > packet_left_len ) {
+            return -1;
+        }
 
         if ((*(packet_data_ptr + i) >> COAP_OPTIONS_OPTION_NUMBER_SHIFT) != 0) {
             return (ret_value - 1);    /* -1 because last Part path does not include separator */
@@ -693,9 +691,19 @@ static int16_t sn_coap_parser_options_count_needed_memory_multiple_option(uint8_
         option_number_len = (*(packet_data_ptr + i) & 0x0F);
 
         if (option_number_len == 13) {
+
+            if(i + 1 >= packet_left_len) {
+                return -1;
+            }
+
             i++;
             option_number_len = *(packet_data_ptr + i) + 13;
         } else if (option_number_len == 14) {
+
+            if(i + 2 >= packet_left_len) {
+                return -1;
+            }
+
             option_number_len = *(packet_data_ptr + i + 2);
             option_number_len += (*(packet_data_ptr + i + 1) << 8) + 269;
             i += 2;
@@ -750,3 +758,4 @@ static int8_t sn_coap_parser_payload_parse(uint16_t packet_data_len, uint8_t *pa
     }
     return 0;
 }
+

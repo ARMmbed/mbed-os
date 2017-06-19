@@ -64,14 +64,12 @@ typedef struct BDT {
     uint32_t  address;    // Addr
 } BDT;
 
-
 // there are:
-//    * 16 bidirectionnal endpt -> 32 physical endpt
-//    * as there are ODD and EVEN buffer -> 32*2 bdt
+//    * 4 bidirectionnal endpt -> 8 physical endpt
+//    * as there are ODD and EVEN buffer -> 8*2 bdt
 MBED_ALIGN(512) BDT bdt[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];  // 512 bytes aligned!
 
-uint8_t * endpoint_buffer[(NUMBER_OF_PHYSICAL_ENDPOINTS - 2) * 2];
-uint8_t * endpoint_buffer_iso[2*2];
+uint8_t * endpoint_buffer[NUMBER_OF_PHYSICAL_ENDPOINTS * 2];
 
 static uint8_t set_addr = 0;
 static uint8_t addr = 0;
@@ -102,28 +100,6 @@ USBHAL::USBHAL(void) {
     epCallback[5] = &USBHAL::EP3_IN_callback;
     epCallback[6] = &USBHAL::EP4_OUT_callback;
     epCallback[7] = &USBHAL::EP4_IN_callback;
-    epCallback[8] = &USBHAL::EP5_OUT_callback;
-    epCallback[9] = &USBHAL::EP5_IN_callback;
-    epCallback[10] = &USBHAL::EP6_OUT_callback;
-    epCallback[11] = &USBHAL::EP6_IN_callback;
-    epCallback[12] = &USBHAL::EP7_OUT_callback;
-    epCallback[13] = &USBHAL::EP7_IN_callback;
-    epCallback[14] = &USBHAL::EP8_OUT_callback;
-    epCallback[15] = &USBHAL::EP8_IN_callback;
-    epCallback[16] = &USBHAL::EP9_OUT_callback;
-    epCallback[17] = &USBHAL::EP9_IN_callback;
-    epCallback[18] = &USBHAL::EP10_OUT_callback;
-    epCallback[19] = &USBHAL::EP10_IN_callback;
-    epCallback[20] = &USBHAL::EP11_OUT_callback;
-    epCallback[21] = &USBHAL::EP11_IN_callback;
-    epCallback[22] = &USBHAL::EP12_OUT_callback;
-    epCallback[23] = &USBHAL::EP12_IN_callback;
-    epCallback[24] = &USBHAL::EP13_OUT_callback;
-    epCallback[25] = &USBHAL::EP13_IN_callback;
-    epCallback[26] = &USBHAL::EP14_OUT_callback;
-    epCallback[27] = &USBHAL::EP14_IN_callback;
-    epCallback[28] = &USBHAL::EP15_OUT_callback;
-    epCallback[29] = &USBHAL::EP15_IN_callback;
 
 #if defined(TARGET_KL43Z) || defined(TARGET_K22F) || defined(TARGET_K64F)
     // enable USBFS clock
@@ -161,6 +137,10 @@ USBHAL::USBHAL(void) {
     USB0->USBCTRL &= ~(USB_USBCTRL_PDE_MASK | USB_USBCTRL_SUSP_MASK);
 
     USB0->USBTRC0 |= 0x40;
+
+    /* Allocate control endpoint buffers */
+    endpoint_buffer[EP_BDT_IDX(0, TX, ODD)] = (uint8_t *)malloc(MAX_PACKET_SIZE_EP0);
+    endpoint_buffer[EP_BDT_IDX(0, RX, ODD)] = (uint8_t *)malloc(MAX_PACKET_SIZE_EP0);
 }
 
 USBHAL::~USBHAL(void) { }
@@ -170,6 +150,15 @@ void USBHAL::connect(void) {
     USB0->CTL |= USB_CTL_USBENSOFEN_MASK;
     // Pull up enable
     USB0->CONTROL |= USB_CONTROL_DPPULLUPNONOTG_MASK;
+
+    // Allocate endpoint buffers; do allocate control endpoint buffers
+    for (int i = 4; i < (NUMBER_OF_PHYSICAL_ENDPOINTS * 2); i++) {
+        if ((i == EPISO_OUT) || (i == EPISO_IN)) {
+            endpoint_buffer[i] = (uint8_t *)malloc(MAX_PACKET_SIZE_EPISO);
+        } else {
+            endpoint_buffer[i] = (uint8_t *)malloc(MAX_PACKET_SIZE_EPBULK);
+        }
+    }
 }
 
 void USBHAL::disconnect(void) {
@@ -178,15 +167,11 @@ void USBHAL::disconnect(void) {
     // Pull up disable
     USB0->CONTROL &= ~USB_CONTROL_DPPULLUPNONOTG_MASK;
 
-    //Free buffers if required:
-    for (int i = 0; i<(NUMBER_OF_PHYSICAL_ENDPOINTS - 2) * 2; i++) {
+    //Free buffers if required; do not free the control endpoint buffers
+    for (int i = 4; i < (NUMBER_OF_PHYSICAL_ENDPOINTS * 2); i++) {
         free(endpoint_buffer[i]);
         endpoint_buffer[i] = NULL;
     }
-    free(endpoint_buffer_iso[2]);
-    endpoint_buffer_iso[2] = NULL;
-    free(endpoint_buffer_iso[0]);
-    endpoint_buffer_iso[0] = NULL;
 }
 
 void USBHAL::configureDevice(void) {
@@ -217,25 +202,12 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket, uint32_t flag
 
     if ((flags & ISOCHRONOUS) == 0) {
         handshake_flag = USB_ENDPT_EPHSHK_MASK;
-        if (IN_EP(endpoint)) {
-            if (endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)] == NULL)
-                endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)] = (uint8_t *) malloc (64);
-            buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)][0];
-        } else {
-            if (endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)] == NULL)
-                endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)] = (uint8_t *) malloc (64);
-            buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)][0];
-        }
+    }
+
+    if (IN_EP(endpoint)) {
+        buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, TX, ODD)][0];
     } else {
-        if (IN_EP(endpoint)) {
-            if (endpoint_buffer_iso[2] == NULL)
-                endpoint_buffer_iso[2] = (uint8_t *) malloc (1023);
-            buf = &endpoint_buffer_iso[2][0];
-        } else {
-            if (endpoint_buffer_iso[0] == NULL)
-                endpoint_buffer_iso[0] = (uint8_t *) malloc (1023);
-            buf = &endpoint_buffer_iso[0][0];
-        }
+        buf = &endpoint_buffer[EP_BDT_IDX(log_endpoint, RX, ODD)][0];
     }
 
     // IN endpt -> device to host (TX)
@@ -329,12 +301,7 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
         setup = 1;
     }
 
-    // non iso endpoint
-    if (not_iso) {
-        ep_buf = endpoint_buffer[idx];
-    } else {
-        ep_buf = endpoint_buffer_iso[0];
-    }
+    ep_buf = endpoint_buffer[idx];
 
     for (n = 0; n < sz; n++) {
         buffer[n] = ep_buf[n];
@@ -377,13 +344,7 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) 
     idx = EP_BDT_IDX(PHY_TO_LOG(endpoint), TX, 0);
     bdt[idx].byte_count = size;
 
-
-    // non iso endpoint
-    if (USB0->ENDPOINT[PHY_TO_LOG(endpoint)].ENDPT & USB_ENDPT_EPHSHK_MASK) {
-        ep_buf = endpoint_buffer[idx];
-    } else {
-        ep_buf = endpoint_buffer_iso[2];
-    }
+    ep_buf = endpoint_buffer[idx];
 
     for (n = 0; n < size; n++) {
         ep_buf[n] = data[n];
@@ -454,6 +415,9 @@ void USBHAL::usbisr(void) {
         USB0->ERRSTAT =  0xFF;  // clear all error flags
         USB0->ERREN   =  0xFF;  // enable error interrupt sources
         USB0->ADDR    =  0x00;  // set default address
+
+        // reset bus for USBDevice layer
+        busReset();
 
         return;
     }

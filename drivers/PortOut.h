@@ -18,17 +18,16 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_PORTOUT
+#if defined (DEVICE_PORTOUT) || defined(DOXYGEN_ONLY)
 
 #include "hal/port_api.h"
 #include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 /** A multiple pin digital out
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -50,6 +49,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class PortOut {
 public:
@@ -83,18 +83,23 @@ public:
     }
 
     /** A shorthand for write()
+     * \sa PortOut::write()
      */
     PortOut& operator= (int value) {
         write(value);
         return *this;
     }
 
+    /** A shorthand for read()
+     * \sa PortOut::read()
+     */
     PortOut& operator= (PortOut& rhs) {
         write(rhs.read());
         return *this;
     }
 
     /** A shorthand for read()
+     * \sa PortOut::read()
      */
     operator int() {
         return read();
@@ -109,5 +114,3 @@ private:
 #endif
 
 #endif
-
-/** @}*/

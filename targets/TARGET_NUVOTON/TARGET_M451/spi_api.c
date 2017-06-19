@@ -241,6 +241,20 @@ int spi_master_write(spi_t *obj, int value)
     return value2;
 }
 
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length) {
+    int total = (tx_length > rx_length) ? tx_length : rx_length;
+
+    for (int i = 0; i < total; i++) {
+        char out = (i < tx_length) ? tx_buffer[i] : 0xff;
+        char in = spi_master_write(obj, out);
+        if (i < rx_length) {
+            rx_buffer[i] = in;
+        }
+    }
+
+    return total;
+}
+
 #if DEVICE_SPISLAVE
 int spi_slave_receive(spi_t *obj)
 {
@@ -314,8 +328,10 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         MBED_ASSERT(modinit != NULL);
         MBED_ASSERT(modinit->modname == obj->spi.spi);
     
+        PDMA_T *pdma_base = dma_modbase();
+        
         // Configure tx DMA
-        PDMA->CHCTL |= 1 << obj->spi.dma_chn_id_tx;  // Enable this DMA channel
+        pdma_base->CHCTL |= 1 << obj->spi.dma_chn_id_tx;  // Enable this DMA channel
         PDMA_SetTransferMode(obj->spi.dma_chn_id_tx,
             ((struct nu_spi_var *) modinit->var)->pdma_perp_tx,    // Peripheral connected to this PDMA
             0,  // Scatter-gather disabled
@@ -339,7 +355,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         dma_set_handler(obj->spi.dma_chn_id_tx, (uint32_t) spi_dma_handler_tx, (uint32_t) obj, DMA_EVENT_ALL);
         
         // Configure rx DMA
-        PDMA->CHCTL |= 1 << obj->spi.dma_chn_id_rx;  // Enable this DMA channel
+        pdma_base->CHCTL |= 1 << obj->spi.dma_chn_id_rx;  // Enable this DMA channel
         PDMA_SetTransferMode(obj->spi.dma_chn_id_rx,
             ((struct nu_spi_var *) modinit->var)->pdma_perp_rx,    // Peripheral connected to this PDMA
             0,  // Scatter-gather disabled
@@ -380,6 +396,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 void spi_abort_asynch(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
+    PDMA_T *pdma_base = dma_modbase();
     
     if (obj->spi.dma_usage != DMA_USAGE_NEVER) {
         // Receive FIFO Overrun in case of tx length > rx length on DMA way
@@ -388,18 +405,18 @@ void spi_abort_asynch(spi_t *obj)
         }
         
         if (obj->spi.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
-            PDMA_DisableInt(obj->spi.dma_chn_id_tx, 0);
+            PDMA_DisableInt(obj->spi.dma_chn_id_tx, PDMA_INT_TRANS_DONE);
             // FIXME: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
             //PDMA_STOP(obj->spi.dma_chn_id_tx);
-            PDMA->CHCTL &= ~(1 << obj->spi.dma_chn_id_tx);
+            pdma_base->CHCTL &= ~(1 << obj->spi.dma_chn_id_tx);
         }
         SPI_DISABLE_TX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
         
         if (obj->spi.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
-            PDMA_DisableInt(obj->spi.dma_chn_id_rx, 0);
+            PDMA_DisableInt(obj->spi.dma_chn_id_rx, PDMA_INT_TRANS_DONE);
             // FIXME: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
             //PDMA_STOP(obj->spi.dma_chn_id_rx);
-            PDMA->CHCTL &= ~(1 << obj->spi.dma_chn_id_rx);
+            pdma_base->CHCTL &= ~(1 << obj->spi.dma_chn_id_rx);
         }
         SPI_DISABLE_RX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
     }
