@@ -36,8 +36,6 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 
-ADC_HandleTypeDef AdcHandle;
-
 int adc_inited = 0;
 
 void analogin_init(analogin_t *obj, PinName pin)
@@ -74,37 +72,38 @@ void analogin_init(analogin_t *obj, PinName pin)
     if (adc_inited == 0) {
         adc_inited = 1;
 
-        AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+        obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
+        obj->handle.State = HAL_ADC_STATE_RESET;
 
         // Enable ADC clock
         __ADC1_CLK_ENABLE();
 
         // Configure ADC
-        AdcHandle.Init.OversamplingMode      = DISABLE;
-        AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV1;
-        AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
-        AdcHandle.Init.SamplingTime          = ADC_SAMPLETIME_239CYCLES_5;
-        AdcHandle.Init.ScanConvMode          = ADC_SCAN_DIRECTION_FORWARD;
-        AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-        AdcHandle.Init.ContinuousConvMode    = DISABLE;
-        AdcHandle.Init.DiscontinuousConvMode = DISABLE;
-        AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIG_EDGE_NONE;
-        AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIG0_T6_TRGO; // Not used here
-        AdcHandle.Init.DMAContinuousRequests = DISABLE;
-        AdcHandle.Init.EOCSelection          = EOC_SINGLE_CONV;
-        AdcHandle.Init.Overrun               = OVR_DATA_OVERWRITTEN;
-        AdcHandle.Init.LowPowerAutoWait      = ENABLE;
-        AdcHandle.Init.LowPowerFrequencyMode = DISABLE; // To be enabled only if ADC clock < 2.8 MHz
-        AdcHandle.Init.LowPowerAutoPowerOff  = DISABLE;
+        obj->handle.Init.OversamplingMode      = DISABLE;
+        obj->handle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV1;
+        obj->handle.Init.Resolution            = ADC_RESOLUTION12b;
+        obj->handle.Init.SamplingTime          = ADC_SAMPLETIME_239CYCLES_5;
+        obj->handle.Init.ScanConvMode          = ADC_SCAN_DIRECTION_FORWARD;
+        obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+        obj->handle.Init.ContinuousConvMode    = DISABLE;
+        obj->handle.Init.DiscontinuousConvMode = DISABLE;
+        obj->handle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIG_EDGE_NONE;
+        obj->handle.Init.ExternalTrigConv      = ADC_EXTERNALTRIG0_T6_TRGO; // Not used here
+        obj->handle.Init.DMAContinuousRequests = DISABLE;
+        obj->handle.Init.EOCSelection          = EOC_SINGLE_CONV;
+        obj->handle.Init.Overrun               = OVR_DATA_OVERWRITTEN;
+        obj->handle.Init.LowPowerAutoWait      = ENABLE;
+        obj->handle.Init.LowPowerFrequencyMode = DISABLE; // To be enabled only if ADC clock < 2.8 MHz
+        obj->handle.Init.LowPowerAutoPowerOff  = DISABLE;
 
-        if (HAL_ADC_Init(&AdcHandle) != HAL_OK) {
+        if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
             error("Cannot initialize ADC");
         }
 
         // Calibration
-        HAL_ADCEx_Calibration_Start(&AdcHandle, ADC_SINGLE_ENDED);
+        HAL_ADCEx_Calibration_Start(&obj->handle, ADC_SINGLE_ENDED);
 
-        __HAL_ADC_ENABLE(&AdcHandle);
+        __HAL_ADC_ENABLE(&obj->handle);
     }
 }
 
@@ -112,7 +111,7 @@ static inline uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
 
-    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+    obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
     sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
@@ -181,13 +180,13 @@ static inline uint16_t adc_read(analogin_t *obj)
     }
 
     ADC1->CHSELR = 0; // [TODO] Workaround. To be removed after Cube driver is corrected.
-    HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
+    HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 
-    HAL_ADC_Start(&AdcHandle); // Start conversion
+    HAL_ADC_Start(&obj->handle); // Start conversion
 
     // Wait end of conversion and get value
-    if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
-        return (HAL_ADC_GetValue(&AdcHandle));
+    if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
+        return (HAL_ADC_GetValue(&obj->handle));
     } else {
         return 0;
     }

@@ -36,8 +36,6 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 
-ADC_HandleTypeDef AdcHandle;
-
 int adc_inited = 0;
 
 void analogin_init(analogin_t *obj, PinName pin)
@@ -78,26 +76,27 @@ void analogin_init(analogin_t *obj, PinName pin)
         __HAL_RCC_ADC_CLK_ENABLE();
         __HAL_RCC_ADC_CONFIG(RCC_ADCCLKSOURCE_SYSCLK);
 
-        AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+        obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
+        obj->handle.State = HAL_ADC_STATE_RESET;
 
         // Configure ADC
-        AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV2;          // Asynchronous clock mode, input ADC clock
-        AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
-        AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-        AdcHandle.Init.ScanConvMode          = DISABLE;                       // Sequencer disabled (ADC conversion on only 1 channel: channel set on rank 1)
-        AdcHandle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;           // On STM32L1xx ADC, overrun detection is enabled only if EOC selection is set to each conversion (or transfer by DMA enabled, this is not the case in this example).
-        AdcHandle.Init.LowPowerAutoWait      = DISABLE;
-        AdcHandle.Init.ContinuousConvMode    = DISABLE;                       // Continuous mode disabled to have only 1 conversion at each conversion trig
-        AdcHandle.Init.NbrOfConversion       = 1;                             // Parameter discarded because sequencer is disabled
-        AdcHandle.Init.DiscontinuousConvMode = DISABLE;                       // Parameter discarded because sequencer is disabled
-        AdcHandle.Init.NbrOfDiscConversion   = 1;                             // Parameter discarded because sequencer is disabled
-        AdcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;            // Software start to trig the 1st conversion manually, without external event
-        AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-        AdcHandle.Init.DMAContinuousRequests = DISABLE;
-        AdcHandle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;      // DR register is overwritten with the last conversion result in case of overrun
-        AdcHandle.Init.OversamplingMode      = DISABLE;                       // No oversampling
+        obj->handle.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV2;          // Asynchronous clock mode, input ADC clock
+        obj->handle.Init.Resolution            = ADC_RESOLUTION_12B;
+        obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+        obj->handle.Init.ScanConvMode          = DISABLE;                       // Sequencer disabled (ADC conversion on only 1 channel: channel set on rank 1)
+        obj->handle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;           // On STM32L1xx ADC, overrun detection is enabled only if EOC selection is set to each conversion (or transfer by DMA enabled, this is not the case in this example).
+        obj->handle.Init.LowPowerAutoWait      = DISABLE;
+        obj->handle.Init.ContinuousConvMode    = DISABLE;                       // Continuous mode disabled to have only 1 conversion at each conversion trig
+        obj->handle.Init.NbrOfConversion       = 1;                             // Parameter discarded because sequencer is disabled
+        obj->handle.Init.DiscontinuousConvMode = DISABLE;                       // Parameter discarded because sequencer is disabled
+        obj->handle.Init.NbrOfDiscConversion   = 1;                             // Parameter discarded because sequencer is disabled
+        obj->handle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;            // Software start to trig the 1st conversion manually, without external event
+        obj->handle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+        obj->handle.Init.DMAContinuousRequests = DISABLE;
+        obj->handle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;      // DR register is overwritten with the last conversion result in case of overrun
+        obj->handle.Init.OversamplingMode      = DISABLE;                       // No oversampling
 
-        if (HAL_ADC_Init(&AdcHandle) != HAL_OK) {
+        if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
             error("Cannot initialize ADC\n");
         }
     }
@@ -107,7 +106,7 @@ static inline uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
 
-    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
+    obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
     switch (obj->channel) {
@@ -178,13 +177,13 @@ static inline uint16_t adc_read(analogin_t *obj)
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
 
-    HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
+    HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 
-    HAL_ADC_Start(&AdcHandle); // Start conversion
+    HAL_ADC_Start(&obj->handle); // Start conversion
 
     // Wait end of conversion and get value
-    if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
-        return (HAL_ADC_GetValue(&AdcHandle));
+    if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
+        return (HAL_ADC_GetValue(&obj->handle));
     } else {
         return 0;
     }
