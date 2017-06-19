@@ -36,8 +36,6 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 
-ADC_HandleTypeDef AdcHandle;
-
 void analogin_init(analogin_t *obj, PinName pin)
 {
     uint32_t function = (uint32_t)NC;
@@ -101,20 +99,21 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 #endif
     // Configure ADC
-    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
-    AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
-    AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
-    AdcHandle.Init.ScanConvMode          = DISABLE;
-    AdcHandle.Init.ContinuousConvMode    = DISABLE;
-    AdcHandle.Init.DiscontinuousConvMode = DISABLE;
-    AdcHandle.Init.NbrOfDiscConversion   = 0;
-    AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
-    AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    AdcHandle.Init.NbrOfConversion       = 1;
-    AdcHandle.Init.DMAContinuousRequests = DISABLE;
-    AdcHandle.Init.EOCSelection          = DISABLE;
-    if (HAL_ADC_Init(&AdcHandle) != HAL_OK) {
+    obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
+    obj->handle.State = HAL_ADC_STATE_RESET;
+    obj->handle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
+    obj->handle.Init.Resolution            = ADC_RESOLUTION12b;
+    obj->handle.Init.ScanConvMode          = DISABLE;
+    obj->handle.Init.ContinuousConvMode    = DISABLE;
+    obj->handle.Init.DiscontinuousConvMode = DISABLE;
+    obj->handle.Init.NbrOfDiscConversion   = 0;
+    obj->handle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    obj->handle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
+    obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    obj->handle.Init.NbrOfConversion       = 1;
+    obj->handle.Init.DMAContinuousRequests = DISABLE;
+    obj->handle.Init.EOCSelection          = DISABLE;
+    if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
         error("Cannot initialize ADC\n");
     }
 }
@@ -122,8 +121,6 @@ void analogin_init(analogin_t *obj, PinName pin)
 static inline uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
-
-    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
     sConfig.Rank         = 1;
@@ -192,13 +189,13 @@ static inline uint16_t adc_read(analogin_t *obj)
             return 0;
     }
 
-    HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
+    HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 
-    HAL_ADC_Start(&AdcHandle); // Start conversion
+    HAL_ADC_Start(&obj->handle); // Start conversion
 
     // Wait end of conversion and get value
-    if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
-        return (HAL_ADC_GetValue(&AdcHandle));
+    if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
+        return (HAL_ADC_GetValue(&obj->handle));
     } else {
         return 0;
     }

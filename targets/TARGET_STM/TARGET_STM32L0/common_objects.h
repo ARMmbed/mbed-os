@@ -116,6 +116,13 @@ struct flash_s {
     uint32_t dummy;
 };
 
+struct analogin_s {
+    ADCName adc;
+    ADC_HandleTypeDef handle;
+    PinName pin;
+    uint8_t channel;
+};
+
 #include "gpio_object.h"
 
 #if DEVICE_ANALOGOUT
