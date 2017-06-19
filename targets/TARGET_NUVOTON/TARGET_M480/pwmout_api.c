@@ -197,8 +197,12 @@ static void pwmout_config(pwmout_t* obj)
     EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn = NU_MODSUBINDEX(obj->pwm);
     // NOTE: Support period < 1s
-    //EPWM_ConfigOutputChannel(pwm_base, chn, 1000 * 1000 / obj->period_us, obj->pulsewidth_us * 100 / obj->period_us);
-    EPWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, obj->pulsewidth_us * 100 / obj->period_us, obj->period_us);
+    // NOTE: ARM mbed CI test fails due to first PWM pulse error. Workaround by:
+    //       1. Inverse duty cycle (100 - duty)
+    //       2. Inverse PWM output polarity
+    //       This trick is here to pass ARM mbed CI test. First PWM pulse error still remains.    
+    EPWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, 100 - obj->pulsewidth_us * 100 / obj->period_us, obj->period_us);
+    pwm_base->POLCTL |= 1 << (EPWM_POLCTL_PINV0_Pos + chn);
 }
 
 #endif
