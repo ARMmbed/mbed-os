@@ -247,10 +247,10 @@ FATFileSystem::~FATFileSystem()
 
 int FATFileSystem::mount(BlockDevice *bd) {
     // requires duplicate definition to allow virtual overload to work
-    return mount(bd, false);
+    return mount(bd, true);
 }
 
-int FATFileSystem::mount(BlockDevice *bd, bool force) {
+int FATFileSystem::mount(BlockDevice *bd, bool mount) {
     lock();
     if (_id != -1) {
         unlock();
@@ -265,7 +265,7 @@ int FATFileSystem::mount(BlockDevice *bd, bool force) {
             _fsid[1] = ':';
             _fsid[2] = '\0';
             debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", getName(), _fsid);
-            FRESULT res = f_mount(&_fs, _fsid, force);
+            FRESULT res = f_mount(&_fs, _fsid, mount);
             unlock();
             return fat_error_remap(res);
         }
