@@ -43,8 +43,8 @@ void analogin_init(analogin_t *obj, PinName pin)
     RCC_OscInitTypeDef RCC_OscInitStruct;
 
     // Get the peripheral name from the pin and assign it to the object
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT(obj->adc != (ADCName)NC);
+    obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
+    MBED_ASSERT(obj->handle.Instance != (ADC_TypeDef *)NC);
 
     // Get the pin function and assign the used channel to the object
     uint32_t function = pinmap_function(pin, PinMap_ADC);
@@ -71,9 +71,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
         HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-        obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
         obj->handle.State = HAL_ADC_STATE_RESET;
-
         // Enable ADC clock
         __ADC1_CLK_ENABLE();
 
@@ -103,8 +101,6 @@ void analogin_init(analogin_t *obj, PinName pin)
 static inline uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
-
-    obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
     switch (obj->channel) {

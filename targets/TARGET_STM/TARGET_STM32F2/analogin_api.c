@@ -39,7 +39,6 @@
 void analogin_init(analogin_t *obj, PinName pin)
 {
     uint32_t function = (uint32_t)NC;
-    obj->adc = (ADCName)NC;
 
 #if defined(ADC1)
     static int adc1_inited = 0;
@@ -56,18 +55,18 @@ void analogin_init(analogin_t *obj, PinName pin)
     if ((pin < 0xF0) || (pin >= 0x100)) {
         // Normal channels
         // Get the peripheral name from the pin and assign it to the object
-        obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
+        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
         // Get the functions (adc channel) from the pin and assign it to the object
         function = pinmap_function(pin, PinMap_ADC);
         // Configure GPIO
         pinmap_pinout(pin, PinMap_ADC);
     } else {
         // Internal channels
-        obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC_Internal);
+        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
         function = pinmap_function(pin, PinMap_ADC_Internal);
         // No GPIO configuration for internal channels
     }
-    MBED_ASSERT(obj->adc != (ADCName)NC);
+    MBED_ASSERT(obj->handle.Instance != (ADC_TypeDef *)NC);
     MBED_ASSERT(function != (uint32_t)NC);
 
     obj->channel = STM_PIN_CHANNEL(function);
@@ -78,28 +77,27 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Check if ADC is already initialized
     // Enable ADC clock
 #if defined(ADC1)
-    if ((obj->adc == ADC_1) && adc1_inited) return;
-    if (obj->adc == ADC_1) {
+    if (((ADCName)obj->handle.Instance == ADC_1) && adc1_inited) return;
+    if ((ADCName)obj->handle.Instance == ADC_1) {
         __ADC1_CLK_ENABLE();
         adc1_inited = 1;
     }
 #endif
 #if defined(ADC2)
-    if ((obj->adc == ADC_2) && adc2_inited) return;
-    if (obj->adc == ADC_2) {
+    if (((ADCName)obj->handle.Instance == ADC_2) && adc2_inited) return;
+    if ((ADCName)obj->handle.Instance == ADC_2) {
         __ADC2_CLK_ENABLE();
         adc2_inited = 1;
     }
 #endif
 #if defined(ADC3)
-    if ((obj->adc == ADC_3) && adc3_inited) return;
-    if (obj->adc == ADC_3) {
+    if (((ADCName)obj->handle.Instance == ADC_3) && adc3_inited) return;
+    if ((ADCName)obj->handle.Instance == ADC_3) {
         __ADC3_CLK_ENABLE();
         adc3_inited = 1;
     }
 #endif
     // Configure ADC
-    obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
     obj->handle.State = HAL_ADC_STATE_RESET;
     obj->handle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
     obj->handle.Init.Resolution            = ADC_RESOLUTION12b;

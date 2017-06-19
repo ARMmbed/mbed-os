@@ -41,7 +41,6 @@ int adc_inited = 0;
 void analogin_init(analogin_t *obj, PinName pin)
 {
     uint32_t function = (uint32_t)NC;
-    obj->adc = (ADCName)NC;
 
     // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
     //   are described in PinNames.h and PeripheralPins.c
@@ -49,18 +48,18 @@ void analogin_init(analogin_t *obj, PinName pin)
     if (pin < 0xF0) {
         // Normal channels
         // Get the peripheral name from the pin and assign it to the object
-        obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
+        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
         // Get the functions (adc channel) from the pin and assign it to the object
         function = pinmap_function(pin, PinMap_ADC);
         // Configure GPIO
         pinmap_pinout(pin, PinMap_ADC);
     } else {
         // Internal channels
-        obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC_Internal);
+        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
         function = pinmap_function(pin, PinMap_ADC_Internal);
         // No GPIO configuration for internal channels
     }
-    MBED_ASSERT(obj->adc != (ADCName)NC);
+    MBED_ASSERT(obj->handle.Instance != (ADC_TypeDef *)NC);
     MBED_ASSERT(function != (uint32_t)NC);
 
     obj->channel = STM_PIN_CHANNEL(function);
@@ -76,9 +75,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         __HAL_RCC_ADC_CLK_ENABLE();
         __HAL_RCC_ADC_CONFIG(RCC_ADCCLKSOURCE_SYSCLK);
 
-        obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
         obj->handle.State = HAL_ADC_STATE_RESET;
-
         // Configure ADC
         obj->handle.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV2;          // Asynchronous clock mode, input ADC clock
         obj->handle.Init.Resolution            = ADC_RESOLUTION_12B;
@@ -105,8 +102,6 @@ void analogin_init(analogin_t *obj, PinName pin)
 static inline uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
-
-    obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
     switch (obj->channel) {

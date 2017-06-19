@@ -42,9 +42,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     RCC_PeriphCLKInitTypeDef  PeriphClkInit;
 
     // Get the peripheral name from the pin and assign it to the object
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT(obj->adc != (ADCName)NC);
-    
+    obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
+    MBED_ASSERT(obj->handle.Instance != (ADC_TypeDef *)NC);
+
     // Get the functions (adc channel) from the pin and assign it to the object
     uint32_t function = pinmap_function(pin, PinMap_ADC);
     MBED_ASSERT(function != (uint32_t)NC);
@@ -77,7 +77,6 @@ void analogin_init(analogin_t *obj, PinName pin)
         HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
 
         // Configure ADC
-        obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
         obj->handle.State = HAL_ADC_STATE_RESET;
         obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
         obj->handle.Init.ScanConvMode          = DISABLE;
@@ -93,8 +92,6 @@ void analogin_init(analogin_t *obj, PinName pin)
 static inline uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig;
-
-    obj->handle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
     sConfig.Rank         = 1;
