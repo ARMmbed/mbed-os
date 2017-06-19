@@ -31,6 +31,7 @@
 #include "mbed_error.h"
 #include "serial_api.h"
 #include "serial_api_hal.h"
+#include "PeripheralPins.h"
 
 #if DEVICE_SERIAL
 
@@ -117,6 +118,43 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     }
 
     init_uart(obj);
+}
+
+/******************************************************************************
+ * READ/WRITE
+ ******************************************************************************/
+
+int serial_readable(serial_t *obj)
+{
+    struct serial_s *obj_s = SERIAL_S(obj);
+    UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
+    /*  To avoid a target blocking case, let's check for
+     *  possible OVERRUN error and discard it
+     */
+    if(__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE)) {
+        __HAL_UART_CLEAR_OREFLAG(huart);
+    }
+    // Check if data is received
+    return (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) ? 1 : 0;
+}
+
+int serial_writable(serial_t *obj)
+{
+    struct serial_s *obj_s = SERIAL_S(obj);
+    UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
+
+    // Check if data is transmitted
+    return (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) ? 1 : 0;
+}
+
+void serial_pinout_tx(PinName tx)
+{
+    pinmap_pinout(tx, PinMap_UART_TX);
+}
+
+void serial_break_clear(serial_t *obj)
+{
+    (void)obj;
 }
 
 #endif /* DEVICE_SERIAL */
