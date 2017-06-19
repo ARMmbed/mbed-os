@@ -121,12 +121,9 @@ USBHAL::USBHAL(void)
     /* hardcoded size of FIFO according definition*/
     HAL_PCDEx_PMAConfig(&hpcd , 0x00 , PCD_SNG_BUF, 0x30);
     HAL_PCDEx_PMAConfig(&hpcd , 0x80 , PCD_SNG_BUF, 0x70);
-#if 1
     HAL_PCDEx_PMAConfig(&hpcd , 0x3, PCD_DBL_BUF, 0x018000b0);
-#else
-    HAL_PCDEx_PMAConfig(&hpcd , 0x3, PCD_SNG_BUF, 0x180);
-#endif
     HAL_PCDEx_PMAConfig(&hpcd , 0x83, PCD_SNG_BUF, 0xb0);
+
     NVIC_SetVector(USBHAL_IRQn,(uint32_t)&_usbisr);
     NVIC_SetPriority(USBHAL_IRQn, 1);
     HAL_PCD_Start(&hpcd);
