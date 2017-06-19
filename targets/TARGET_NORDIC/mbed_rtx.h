@@ -43,6 +43,9 @@
 #define INITIAL_SP              (0x20040000UL)
 #endif
 
+// More than 256 bytes are needed for the idle thread stack on the NRF52840
+#define OS_IDLE_THREAD_STACK_SIZE  512
+
 #endif // defined(TARGET_MCU_NRF51822)...
 
 #endif // #ifndef MBED_MBED_RTX_H
