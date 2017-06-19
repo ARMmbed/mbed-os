@@ -102,6 +102,8 @@ typedef enum {
     D11 = PA_0,
     D12 = PA_1,
     D13 = PA_2,
+    D14 = PG_3,
+    D15 = PG_2,
 
     // Note: board-specific
     // UART naming
