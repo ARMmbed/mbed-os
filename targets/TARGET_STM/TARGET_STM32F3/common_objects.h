@@ -119,7 +119,6 @@ struct dac_s {
 };
 
 struct analogin_s {
-    ADCName adc;
     ADC_HandleTypeDef handle;
     PinName pin;
     uint8_t channel;
