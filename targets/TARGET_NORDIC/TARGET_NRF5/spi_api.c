@@ -90,8 +90,8 @@ typedef struct {
 } sdk_driver_instances_t;
 
 typedef struct {
-  uint8_t hw_idx;
-  sdk_driver_instances_t pattern;  
+    uint8_t hw_idx;
+    sdk_driver_instances_t pattern;  
 } sdk_driver_instances_pattern_t;
 
 void SPI0_TWI0_IRQHandler(void);
@@ -239,7 +239,8 @@ static nrf_drv_spis_event_handler_t const m_slave_event_handlers[SPIS_COUNT] = {
 #endif
 };
 
-static sdk_driver_instances_t const * get_driver_pattern(uint8_t hw_idx) {
+static sdk_driver_instances_t const * get_driver_pattern(uint8_t hw_idx)
+{
     int i;
 
     for (i = 0; i < SPI_COUNT; i++) {
@@ -313,8 +314,7 @@ void spi_init(spi_t *obj,
             // get index of SPI hardware instance.
             int8_t idx = instance_hw_idx_get(HW_RESOURCE_SPI);
             
-            if (idx < 0)
-            {
+            if (idx < 0) {
                 MBED_ASSERT(0);
                 return;
             }
@@ -341,6 +341,7 @@ void spi_init(spi_t *obj,
             nrf_drv_spi_t const *p_spi = &m_instances[i].master;
             ret_code_t ret_code = nrf_drv_spi_init(p_spi,
                 &config, m_master_event_handlers[i]);
+
             if (ret_code == NRF_SUCCESS) {
                 p_spi_info->initialized = true;
                 p_spi_info->master      = true;

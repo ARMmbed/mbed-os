@@ -312,8 +312,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
             // get index of I2C hardware instance.
             int8_t idx = instance_hw_idx_get(HW_RESOURCE_TWI);
 
-            if (idx < 0)
-            {
+            if (idx < 0) {
                 MBED_ASSERT(0);
                 return;
             }
