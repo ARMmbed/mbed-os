@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include "platform/platform.h"
 #include "platform/FileHandle.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup platform */
@@ -41,7 +42,7 @@ namespace mbed {
  *  @note Synchronization level: Set by subclass
  *  @ingroup platform
  */
-class DirHandle {
+class DirHandle : private NonCopyable<DirHandle> {
 public:
     virtual ~DirHandle() {}
 

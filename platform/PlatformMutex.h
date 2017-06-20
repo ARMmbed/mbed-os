@@ -18,6 +18,8 @@
 #ifndef PLATFORM_MUTEX_H
 #define PLATFORM_MUTEX_H
 
+#include "platform/NonCopyable.h"
+
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/Mutex.h"
 typedef rtos::Mutex PlatformMutex;
@@ -25,7 +27,7 @@ typedef rtos::Mutex PlatformMutex;
 /** A stub mutex for when an RTOS is not present
  * @ingroup platform
 */
-class PlatformMutex {
+class PlatformMutex : private mbed::NonCopyable<PlatformMutex> {
 public:
     PlatformMutex() {
         // Stub
