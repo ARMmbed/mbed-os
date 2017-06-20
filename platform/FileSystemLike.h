@@ -21,6 +21,7 @@
 #include "platform/FileSystemHandle.h"
 #include "platform/FileHandle.h"
 #include "platform/DirHandle.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup platform */
@@ -35,7 +36,7 @@ namespace mbed {
  * @note Synchronization level: Set by subclass
  * @ingroup platform
  */
-class FileSystemLike : public FileSystemHandle, public FileBase {
+class FileSystemLike : public FileSystemHandle, public FileBase, private NonCopyable<FileSystemLike> {
 public:
     /** FileSystemLike lifetime
      */
