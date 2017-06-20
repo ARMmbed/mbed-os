@@ -405,29 +405,6 @@ int SDBlockDevice::_cmd(int cmd, int arg) {
     return -1; // timeout
 }
 
-int SDBlockDevice::_cmdx(int cmd, int arg) {
-    _select();
-
-    // send a command
-    _spi.write(0x40 | cmd);
-    _spi.write(arg >> 24);
-    _spi.write(arg >> 16);
-    _spi.write(arg >> 8);
-    _spi.write(arg >> 0);
-    _spi.write(0x95);
-
-    // wait for the response (response[7] == 0)
-    for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
-        int response = _spi.write(0xFF);
-        if (!(response & 0x80)) {
-            _deselect();
-            return response;
-        }
-    }
-    _deselect();
-    return -1; // timeout
-}
-
 int SDBlockDevice::_cmd58() {
     int arg = 0;
     _select();
@@ -582,7 +559,7 @@ uint32_t SDBlockDevice::_sd_sectors() {
     uint32_t blocks;
 
     // CMD9, Response R2 (R1 byte + 16-byte block read)
-    if (_cmdx(9, 0) != 0) {
+    if (_cmd(9, 0) != 0) {
         debug_if(_dbg, "Didn't get a response from the disk\n");
         return 0;
     }

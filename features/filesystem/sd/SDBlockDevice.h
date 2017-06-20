@@ -129,7 +129,6 @@ public:
 
 private:
     int _cmd(int cmd, int arg);
-    int _cmdx(int cmd, int arg);
     int _cmd8();
     int _cmd58();
 
@@ -154,13 +153,14 @@ private:
     uint32_t _sd_sectors();
     uint32_t _sectors;
 
-    DigitalOut _cs;
     uint32_t _init_sck;
     uint32_t _transfer_sck;
     SPI _spi;
     void _spi_init();
     void _select();
     void _deselect();
+
+    DigitalOut _cs;
     mutable Mutex _lock;
 
     unsigned _block_size;
