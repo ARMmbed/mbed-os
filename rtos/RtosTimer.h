@@ -26,6 +26,7 @@
 #include "cmsis_os2.h"
 #include "rtx_lib.h"
 #include "platform/Callback.h"
+#include "platform/NonCopyable.h"
 #include "platform/mbed_toolchain.h"
 #include "mbed_rtos1_types.h"
 
@@ -79,7 +80,7 @@ namespace rtos {
  Memory considerations: The timer control structures will be created on current thread's stack, both for the mbed OS
  and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
-class RtosTimer {
+class RtosTimer : private mbed::NonCopyable<RtosTimer> {
 public:
     /** Create timer.
       @param   func      function to be executed by this timer.
