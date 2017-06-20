@@ -18,6 +18,7 @@
 
 #include "drivers/DigitalOut.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -25,7 +26,7 @@ namespace mbed {
 /** A digital output bus, used for setting the state of a collection of pins
  * @ingroup drivers
  */
-class BusOut {
+class BusOut : private NonCopyable<BusOut> {
 
 public:
 
@@ -119,11 +120,6 @@ protected:
     int _nc_mask;
 
     PlatformMutex _mutex;
-
-   /* disallow copy constructor and assignment operators */
-private:
-    BusOut(const BusOut&);
-    BusOut & operator = (const BusOut&);
 };
 
 } // namespace mbed
