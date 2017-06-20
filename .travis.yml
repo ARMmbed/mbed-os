@@ -13,6 +13,11 @@ script:
 # not start with lib
   - |
     find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" | tee BUILD/badlibs | sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
+# Assert that all assebler files are named correctly
+# The strange command below asserts that there are exactly 0 libraries that do
+# end with .s
+  - |
+    find  -name "*.s" | tee BUILD/badasm | sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
   - make -C events/equeue test clean
   - PYTHONPATH=. python tools/test/config_test/config_test.py
   - PYTHONPATH=. python tools/test/build_api/build_api_test.py
