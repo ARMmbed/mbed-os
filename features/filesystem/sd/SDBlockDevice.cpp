@@ -199,14 +199,7 @@ SDBlockDevice::~SDBlockDevice()
 int SDBlockDevice::_initialise_card()
 {
     _dbg = SD_DBG;
-    // Set to SCK for initialisation, and clock card with cs = 1
-    _spi.lock();
-    _spi.frequency(_init_sck);
-    _cs = 1;
-    for (int i = 0; i < 16; i++) {
-        _spi.write(0xFF);
-    }
-    _spi.unlock();
+    _spi_init();
 
     /* Transition from SD Card mode to SPI mode by sending CMD0 GO_IDLE_STATE command */
     if (_go_idle_state() != R1_IDLE_STATE) {
@@ -388,11 +381,9 @@ void SDBlockDevice::debug(bool dbg)
     _dbg = dbg;
 }
 
-
 // PRIVATE FUNCTIONS
 int SDBlockDevice::_cmd(int cmd, int arg) {
-    _spi.lock();
-    _cs = 0;
+    _select();
 
     // send a command
     _spi.write(0x40 | cmd);
@@ -406,20 +397,16 @@ int SDBlockDevice::_cmd(int cmd, int arg) {
     for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
         int response = _spi.write(0xFF);
         if (!(response & 0x80)) {
-            _cs = 1;
-            _spi.write(0xFF);
-            _spi.unlock();
+            _deselect();
             return response;
         }
     }
-    _cs = 1;
-    _spi.write(0xFF);
-    _spi.unlock();
+    _deselect();
     return -1; // timeout
 }
+
 int SDBlockDevice::_cmdx(int cmd, int arg) {
-    _spi.lock();
-    _cs = 0;
+    _select();
 
     // send a command
     _spi.write(0x40 | cmd);
@@ -433,23 +420,17 @@ int SDBlockDevice::_cmdx(int cmd, int arg) {
     for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
         int response = _spi.write(0xFF);
         if (!(response & 0x80)) {
-            _cs = 1;
-            _spi.unlock();
+            _deselect();
             return response;
         }
     }
-    _cs = 1;
-    _spi.write(0xFF);
-    _spi.unlock();
+    _deselect();
     return -1; // timeout
 }
-
 
 int SDBlockDevice::_cmd58() {
-    _spi.lock();
-    _cs = 0;
     int arg = 0;
-
+    _select();
     // send a command
     _spi.write(0x40 | 58);
     _spi.write(arg >> 24);
@@ -466,21 +447,16 @@ int SDBlockDevice::_cmd58() {
             ocr |= _spi.write(0xFF) << 16;
             ocr |= _spi.write(0xFF) << 8;
             ocr |= _spi.write(0xFF) << 0;
-            _cs = 1;
-            _spi.write(0xFF);
-            _spi.unlock();
+            _deselect();
             return response;
         }
     }
-    _cs = 1;
-    _spi.write(0xFF);
-    _spi.unlock();
+    _deselect();
     return -1; // timeout
 }
 
 int SDBlockDevice::_cmd8() {
-    _spi.lock();
-    _cs = 0;
+    _select();
 
     // send a command
     _spi.write(0x40 | 8); // CMD8
@@ -498,24 +474,19 @@ int SDBlockDevice::_cmd8() {
             for (int j = 1; j < 5; j++) {
                 response[i] = _spi.write(0xFF);
             }
-            _cs = 1;
-            _spi.write(0xFF);
-            _spi.unlock();
+            _deselect();
             return response[0];
         }
     }
-    _cs = 1;
-    _spi.write(0xFF);
-    _spi.unlock();
+    _deselect();
     return -1; // timeout
 }
 
 int SDBlockDevice::_go_idle_state() {
-    _spi.lock();
-    _cs = 0;
     int cmd_arg = 0;    /* CMD0 argument is just "stuff bits" */
     int ret = SD_CMD0_INVALID_RESPONSE_TIMEOUT;
 
+    _select();
     /* Reseting the MCU SPI master may not reset the on-board SDCard, in which
      * case when MCU power-on occurs the SDCard will resume operations as
      * though there was no reset. In this scenario the first CMD0 will
@@ -542,15 +513,12 @@ int SDBlockDevice::_go_idle_state() {
             wait_ms(1);
         }
     }
-    _cs = 1;
-    _spi.write(0xFF);
-    _spi.unlock();
+    _deselect();
     return ret;
 }
 
 int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
-    _spi.lock();
-    _cs = 0;
+    _select();
 
     // read until start byte (0xFF)
     while (_spi.write(0xFF) != 0xFE);
@@ -562,15 +530,12 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
     _spi.write(0xFF); // checksum
     _spi.write(0xFF);
 
-    _cs = 1;
-    _spi.write(0xFF);
-    _spi.unlock();
+    _deselect();
     return 0;
 }
 
 int SDBlockDevice::_write(const uint8_t*buffer, uint32_t length) {
-    _spi.lock();
-    _cs = 0;
+    _select();
 
     // indicate start of block
     _spi.write(0xFE);
@@ -586,18 +551,14 @@ int SDBlockDevice::_write(const uint8_t*buffer, uint32_t length) {
 
     // check the response token
     if ((_spi.write(0xFF) & 0x1F) != 0x05) {
-        _cs = 1;
-        _spi.write(0xFF);
-        _spi.unlock();
+        _deselect();
         return 1;
     }
 
     // wait for write to finish
     while (_spi.write(0xFF) == 0);
 
-    _cs = 1;
-    _spi.write(0xFF);
-    _spi.unlock();
+    _deselect();
     return 0;
 }
 
@@ -668,4 +629,28 @@ uint32_t SDBlockDevice::_sd_sectors() {
     return blocks;
 }
 
+void SDBlockDevice::_spi_init() {
+    _spi.lock();
+    // Set to SCK for initialization, and clock card with cs = 1
+    _spi.frequency(_init_sck);
+    _spi.format(8, 0);
+    // Initial 74 cycles required for few cards, before selecting SPI mode
+    _cs = 1;
+    for (int i = 0; i < 10; i++) {
+        _spi.write(0xFF);
+    }
+    _spi.unlock();
+}
+
+
+void SDBlockDevice::_select() {
+    _spi.lock();
+    _cs = 0;
+}
+
+void SDBlockDevice::_deselect() {
+    _cs = 1;
+    _spi.write(0xFF);
+    _spi.unlock();
+}
 #endif  /* DEVICE_SPI */

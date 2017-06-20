@@ -154,15 +154,18 @@ private:
     uint32_t _sd_sectors();
     uint32_t _sectors;
 
+    DigitalOut _cs;
     uint32_t _init_sck;
     uint32_t _transfer_sck;
-
     SPI _spi;
-    DigitalOut _cs;
+    void _spi_init();
+    void _select();
+    void _deselect();
+    mutable Mutex _lock;
+
     unsigned _block_size;
     bool _is_initialized;
     bool _dbg;
-    mutable Mutex _lock;
 };
 
 
