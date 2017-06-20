@@ -13,32 +13,33 @@ from tools.export.cmsis import DeviceCMSIS
 from tools.utils import NotSupportedException
 from multiprocessing import cpu_count
 
+
+def _supported(mcu, iar_targets):
+    if "IAR" not in mcu.supported_toolchains:
+        return False
+    if hasattr(mcu, 'device_name') and mcu.device_name in iar_targets:
+        return True
+    if mcu.name in iar_targets:
+        return True
+    return False
+
+
+_iar_defs = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'iar_definitions.json')
+
+with open(_iar_defs, 'r') as f:
+    _GUI_OPTIONS = json.load(f)
+
+_IAR_TARGETS = [target for target, obj in TARGET_MAP.iteritems() if
+                _supported(obj, _GUI_OPTIONS.keys())]
+
+
 class IAR(Exporter):
     NAME = 'iar'
     TOOLCHAIN = 'IAR'
 
-    #iar_definitions.json location
-    def_loc = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', '..',
-        'tools','export', 'iar', 'iar_definitions.json')
+    TARGETS = _IAR_TARGETS
 
-    #create a dictionary of the definitions
-    with open(def_loc, 'r') as f:
-        IAR_DEFS = json.load(f)
-
-    def _iar_support(tgt, iar_targets):
-        if "IAR" not in tgt.supported_toolchains:
-            return False
-        if hasattr(tgt, 'device_name') and tgt.device_name in iar_targets:
-            return True
-        if tgt.name in iar_targets:
-            return True
-        return False
-
-    #supported targets have a name or device_name which maps to a definition
-    #in iar_definitions.json
-    TARGETS = [target for target, obj in TARGET_MAP.iteritems() if
-               _iar_support(obj, IAR_DEFS.keys())]
 
     def iar_groups(self, grouped_src):
         """Return a namedtuple of group info
@@ -68,7 +69,7 @@ class IAR(Exporter):
         tgt = TARGET_MAP[self.target]
         device_name = (tgt.device_name if hasattr(tgt, "device_name") else
                        tgt.name)
-        device_info = self.IAR_DEFS[device_name]
+        device_info = _GUI_OPTIONS[device_name]
         iar_defaults ={
             "OGChipSelectEditMenu": "",
             "CoreVariant": '',
@@ -192,3 +193,5 @@ class IAR(Exporter):
             return -1
         else:
             return 0
+
+
