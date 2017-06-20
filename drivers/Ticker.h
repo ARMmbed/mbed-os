@@ -19,6 +19,7 @@
 #include "drivers/TimerEvent.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -59,7 +60,7 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class Ticker : public TimerEvent {
+class Ticker : public TimerEvent, private NonCopyable<Ticker> {
 
 public:
     Ticker() : TimerEvent() {

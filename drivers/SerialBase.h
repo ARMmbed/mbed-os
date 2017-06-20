@@ -23,6 +23,7 @@
 #include "Callback.h"
 #include "serial_api.h"
 #include "mbed_toolchain.h"
+#include "platform/NonCopyable.h"
 
 #if DEVICE_SERIAL_ASYNCH
 #include "CThunk.h"
@@ -38,7 +39,7 @@ namespace mbed {
  * @note Synchronization level: Set by subclass
  * @ingroup drivers
  */
-class SerialBase {
+class SerialBase : private NonCopyable<SerialBase> {
 
 public:
     /** Set the baud rate of the serial port

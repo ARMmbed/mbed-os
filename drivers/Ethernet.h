@@ -17,6 +17,7 @@
 #define MBED_ETHERNET_H
 
 #include "platform/platform.h"
+#include "platform/NonCopyable.h"
 
 #if defined (DEVICE_ETHERNET) || defined(DOXYGEN_ONLY)
 
@@ -54,7 +55,7 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class Ethernet {
+class Ethernet : private NonCopyable<Ethernet> {
 
 public:
 

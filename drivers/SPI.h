@@ -23,6 +23,7 @@
 #include "platform/PlatformMutex.h"
 #include "hal/spi_api.h"
 #include "platform/SingletonPtr.h"
+#include "platform/NonCopyable.h"
 
 #if DEVICE_SPI_ASYNCH
 #include "platform/CThunk.h"
@@ -72,7 +73,7 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class SPI {
+class SPI : private NonCopyable<SPI> {
 
 public:
 

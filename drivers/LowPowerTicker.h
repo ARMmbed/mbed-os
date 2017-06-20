@@ -18,6 +18,7 @@
 
 #include "platform/platform.h"
 #include "drivers/Ticker.h"
+#include "platform/NonCopyable.h"
 
 #if defined (DEVICE_LOWPOWERTIMER) || defined(DOXYGEN_ONLY)
 
@@ -31,7 +32,7 @@ namespace mbed {
  * @note Synchronization level: Interrupt safe
  * @ingroup drivers
  */
-class LowPowerTicker : public Ticker {
+class LowPowerTicker : public Ticker, private NonCopyable<LowPowerTicker> {
 
 public:
     LowPowerTicker() : Ticker(get_lp_ticker_data()) {
