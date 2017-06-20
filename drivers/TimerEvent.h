@@ -18,6 +18,7 @@
 
 #include "hal/ticker_api.h"
 #include "hal/us_ticker_api.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -27,7 +28,7 @@ namespace mbed {
  * @note Synchronization level: Interrupt safe
  * @ingroup drivers
  */
-class TimerEvent {
+class TimerEvent : private NonCopyable<TimerEvent> {
 public:
     TimerEvent();
     TimerEvent(const ticker_data_t *data);

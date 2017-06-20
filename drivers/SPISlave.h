@@ -17,6 +17,7 @@
 #define MBED_SPISLAVE_H
 
 #include "platform/platform.h"
+#include "platform/NonCopyable.h"
 
 #if defined (DEVICE_SPISLAVE) || defined(DOXYGEN_ONLY)
 
@@ -52,7 +53,7 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class SPISlave {
+class SPISlave : private NonCopyable<SPISlave> {
 
 public:
 
