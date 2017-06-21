@@ -159,6 +159,14 @@
 #define SD_BLOCK_DEVICE_ERROR_NO_INIT            -5004	/*!< uninitialized */
 #define SD_BLOCK_DEVICE_ERROR_NO_DEVICE          -5005	/*!< device is missing or not connected */
 #define SD_BLOCK_DEVICE_ERROR_WRITE_PROTECTED    -5006	/*!< write protected */
+#define SD_BLOCK_DEVICE_ERROR_UNUSABLE           -5007  /*!< unusable card */
+#define SD_BLOCK_DEVICE_ERROR_NO_RESPONSE        -5008  /*!< No response from device */
+#define SD_BLOCK_DEVICE_ERROR_CRC                -5009  /*!< CRC Error */
+#define SD_BLOCK_DEVICE_ERROR_R1_OTHER           -5010  /*!< See R1 response to know more about error */
+
+#define BLOCK_SIZE_HC                            512    /*!< Block size supported for SD card is 512 bytes  */
+#define WRITE_BL_PARTIAL                         0      /*!< Partial block write - Not supported */
+#define SPI_CMD(x) (0x40 | (x & 0x3f))
 
 
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs)
@@ -178,6 +186,9 @@ SDBlockDevice::~SDBlockDevice()
     }
 }
 
+/* R1 Response Format */
+#define R1_NO_RESPONSE          (0xFF)
+#define R1_RESPONSE_RECV        (0x80)
 #define R1_IDLE_STATE           (1 << 0)
 #define R1_ERASE_RESET          (1 << 1)
 #define R1_ILLEGAL_COMMAND      (1 << 2)
@@ -187,14 +198,55 @@ SDBlockDevice::~SDBlockDevice()
 #define R1_PARAMETER_ERROR      (1 << 6)
 
 // Types
-//  - v1.x Standard Capacity
-//  - v2.x Standard Capacity
-//  - v2.x High Capacity
-//  - Not recognised as an SD Card
-#define SDCARD_FAIL 0
-#define SDCARD_V1   1
-#define SDCARD_V2   2
-#define SDCARD_V2HC 3
+#define SDCARD_None              0           /**< No card is present */
+#define SDCARD_V1                1           /**< v1.x Standard Capacity */
+#define SDCARD_V2                2           /**< v2.x Standard capacity SD card */
+#define SDCARD_V2HC              3           /**< v2.x High capacity SD card */
+#define CARD_UNKNOWN             4           /**< Unknown or unsupported card */
+                                             
+/* SIZE in Bytes */                          
+#define PACKET_SIZE              6           /*!< SD Packet size CMD+ARG+CRC */
+#define R1_RESPONSE_SIZE         1           /*!< Size of R1 response */
+#define R2_RESPONSE_SIZE         2           /*!< Size of R2 response */
+#define R3_R7_RESPONSE_SIZE      5           /*!< Size of R3/R7 response */
+
+/* R1b Response */
+#define DEVICE_BUSY             (0x00)
+
+/* R2 Response Format */
+#define R2_CARD_LOCKED          (1 << 0)
+#define R2_CMD_FAILED           (1 << 1)
+#define R2_ERROR                (1 << 2)
+#define R2_CC_ERROR             (1 << 3)
+#define R2_CC_FAILED            (1 << 4)
+#define R2_WP_VIOLATION         (1 << 5)
+#define R2_ERASE_PARAM          (1 << 6)
+#define R2_OUT_OF_RANGE         (1 << 7)
+
+/* R3 Response : OCR Register */
+#define OCR_HCS_CCS             (0x1 << 30)
+#define OCR_LOW_VOLTAGE         (0x01 << 24)
+#define OCR_3_3V                (0x1 << 20)
+
+/* R7 response pattern for CMD8 */
+#define CMD8_PATTERN             (0xAA)
+
+/*  CRC Enable  */
+#define CRC_ENABLE               (0)         /*!< CRC 1 - Enable 0 - Disable */
+
+/* Control Tokens   */
+#define SPI_DATA_ACCEPTED        (0xE5)
+#define SPI_DATA_CRC_ERROR       (0xEB)
+#define SPI_DATA_WRITE_ERROR     (0xED)
+#define SPI_START_BLOCK          (0xFE)      /*!< For Single Block Read/Write and Multiple Block Read */
+#define SPI_START_BLK_MUL_WRITE  (0xFC)      /*!< Start Multi-block write */
+#define SPI_STOP_TRAN            (0xFD)      /*!< Stop Multi-block write */
+
+#define SPI_DATA_READ_ERROR_MASK (0xF)       /*!< Data Error Token: 4 LSB bits */
+#define SPI_READ_ERROR           (0x1 << 0)  /*!< Error */
+#define SPI_READ_ERROR_CC        (0x1 << 1)  /*!< CC Error*/
+#define SPI_READ_ERROR_ECC_C     (0x1 << 2)  /*!< Card ECC failed */
+#define SPI_READ_ERROR_OFR       (0x1 << 3)  /*!< Out of Range */
 
 int SDBlockDevice::_initialise_card()
 {
