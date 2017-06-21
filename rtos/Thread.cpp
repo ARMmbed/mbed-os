@@ -240,7 +240,7 @@ uint32_t Thread::free_stack() {
 
     if (_tid != NULL) {
         os_thread_t *thread = (os_thread_t *)_tid;
-        size = (uint32_t)thread->stack_mem - thread->sp;
+        size = (uint32_t)thread->sp - (uint32_t)thread->stack_mem;
     }
 
     _mutex.unlock();
