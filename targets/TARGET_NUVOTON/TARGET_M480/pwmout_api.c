@@ -57,7 +57,7 @@ static const struct nu_modinit_s pwm_modinit_tab[] = {
     {NC, 0, 0, 0, 0, (IRQn_Type) 0, NULL}
 };
 
-static void pwmout_config(pwmout_t* obj);
+static void pwmout_config(pwmout_t* obj, int start);
 
 void pwmout_init(pwmout_t* obj, PinName pin)
 {
@@ -91,11 +91,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     // Default: period = 10 ms, pulse width = 0 ms
     obj->period_us = 1000 * 10;
     obj->pulsewidth_us = 0;
-    pwmout_config(obj);
-    
-    // Enable output of the specified PWM channel
-    EPWM_EnableOutput(pwm_base, 1 << chn);
-    EPWM_Start(pwm_base, 1 << chn);
+    pwmout_config(obj, 0);
     
     ((struct nu_pwm_var *) modinit->var)->en_msk |= 1 << chn;
     
@@ -128,7 +124,7 @@ void pwmout_free(pwmout_t* obj)
 void pwmout_write(pwmout_t* obj, float value)
 {
     obj->pulsewidth_us = NU_CLAMP((uint32_t) (value * obj->period_us), 0, obj->period_us);
-    pwmout_config(obj);
+    pwmout_config(obj, 1);
 }
 
 float pwmout_read(pwmout_t* obj)
@@ -153,7 +149,7 @@ void pwmout_period_us(pwmout_t* obj, int us)
     uint32_t pulsewidth_us_old = obj->pulsewidth_us;
     obj->period_us = us;
     obj->pulsewidth_us = NU_CLAMP(obj->period_us * pulsewidth_us_old / period_us_old, 0, obj->period_us);
-    pwmout_config(obj);
+    pwmout_config(obj, 1);
 }
 
 void pwmout_pulsewidth(pwmout_t* obj, float seconds)
@@ -169,7 +165,7 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
 void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 {
     obj->pulsewidth_us = NU_CLAMP(us, 0, obj->period_us);
-    pwmout_config(obj);
+    pwmout_config(obj, 1);
 }
 
 int pwmout_allow_powerdown(void)
@@ -192,10 +188,15 @@ int pwmout_allow_powerdown(void)
     return 1;
 }
 
-static void pwmout_config(pwmout_t* obj)
+static void pwmout_config(pwmout_t* obj, int start)
 {
     EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn = NU_MODSUBINDEX(obj->pwm);
+    
+    // To avoid abnormal pulse on (re-)configuration, follow the sequence: stop/configure(/re-start).
+    // NOTE: The issue is met in ARM mbed CI test tests-api-pwm on M487.
+    EPWM_ForceStop(pwm_base, 1 << chn);
+    
     // NOTE: Support period < 1s
     // NOTE: ARM mbed CI test fails due to first PWM pulse error. Workaround by:
     //       1. Inverse duty cycle (100 - duty)
@@ -203,6 +204,12 @@ static void pwmout_config(pwmout_t* obj)
     //       This trick is here to pass ARM mbed CI test. First PWM pulse error still remains.    
     EPWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, 100 - obj->pulsewidth_us * 100 / obj->period_us, obj->period_us);
     pwm_base->POLCTL |= 1 << (EPWM_POLCTL_PINV0_Pos + chn);
+    
+    if (start) {
+        // Enable output of the specified PWM channel
+        EPWM_EnableOutput(pwm_base, 1 << chn);
+        EPWM_Start(pwm_base, 1 << chn);
+    }
 }
 
 #endif
