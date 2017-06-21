@@ -168,7 +168,7 @@ private:
         ACMD51_SEND_SCR = 51,
     };
 
-    int _cmd(int cmd, int arg);
+    int _cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t *resp=NULL);
     int _cmd8();
     int _cmd58();
 
@@ -193,16 +193,19 @@ private:
     uint32_t _sd_sectors();
     uint32_t _sectors;
 
-    uint32_t _init_sck;
-    uint32_t _transfer_sck;
+    /* SPI functions */
+    uint32_t _init_sck;             /**< Intial SPI frequency */
+    uint32_t _transfer_sck;         /**< SPI frequency during data transfer/after initialization */
     SPI _spi;
     void _spi_init();
+    uint8_t _cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg);
+
+    /* Chip Select and SPI mode select */
+    DigitalOut _cs;
     void _select();
     void _deselect();
 
-    DigitalOut _cs;
     mutable Mutex _lock;
-
     unsigned _block_size;
     bool _is_initialized;
     bool _dbg;
