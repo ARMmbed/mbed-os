@@ -57,6 +57,11 @@ public:
         MBED_ASSERT(_id);
     }
 
+    /** Destroy a memory pool */
+    ~MemoryPool() {
+        osMemoryPoolDelete(_id);
+    }
+
     /** Allocate a memory block of type T from a memory pool.
       @return  address of the allocated memory block or NULL in case of no memory available.
     */
