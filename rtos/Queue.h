@@ -59,6 +59,10 @@ public:
         MBED_ASSERT(_id);
     }
 
+    ~Queue() {
+        osMessageQueueDelete(_id);
+    }
+
     /** Put a message in a Queue.
       @param   data      message pointer.
       @param   millisec  timeout value or 0 in case of no time-out. (default: 0)
