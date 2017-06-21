@@ -309,9 +309,10 @@ osEvent Thread::signal_wait(int32_t signals, uint32_t millisec) {
                 evt.status = (osStatus)osErrorValue;
                 break;
         }
+    } else {
+        evt.status = (osStatus)osEventSignal;
+        evt.value.signals = res;
     }
-    evt.status = (osStatus)osEventSignal;
-    evt.value.signals = res;
 
     return evt;
 }
