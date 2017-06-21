@@ -72,6 +72,7 @@ static void send_heap_info()
     mbed_stats_heap_t heap_stats;
     mbed_stats_heap_get(&heap_stats);
     greentea_send_kv("max_heap_usage",heap_stats.max_size);
+    greentea_send_kv("reserved_heap",heap_stats.reserved_size);
 }
 
 #if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED

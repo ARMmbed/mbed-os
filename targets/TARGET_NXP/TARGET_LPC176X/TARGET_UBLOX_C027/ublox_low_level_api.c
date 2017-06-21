@@ -46,6 +46,12 @@ void ublox_mdm_init(void)
     while ((us_ticker_read() - start) < 50000);
 }
 
+// For forwards compatibility
+void ublox_mdm_power_on(int usb)
+{
+    ublox_mdm_powerOn(usb);
+}
+
 void ublox_mdm_powerOn(int usb)
 {
     gpio_t gpio;
@@ -59,6 +65,12 @@ void ublox_mdm_powerOn(int usb)
         if (gpsOn)
             gpio_init_out_ex(&gpio, MDMILVLOE, 1); // ILVLEN: 1=enabled (i2c)
     }
+}
+
+// For forwards compatibility
+void ublox_mdm_power_off()
+{
+    ublox_mdm_powerOff();
 }
 
 void ublox_mdm_powerOff(void)
