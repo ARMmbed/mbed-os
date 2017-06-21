@@ -291,13 +291,15 @@ int SDBlockDevice::_initialise_card_v1()
 int SDBlockDevice::_initialise_card_v2()
 {
     uint32_t response;
+    uint32_t ocr;
+
     for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
         wait_ms(50);
-        _cmd58();
+        _cmd(CMD58_READ_OCR, 0, &ocr);
         _cmd(CMD55_APP_CMD, 0);
         _cmd(ACMD41_SD_SEND_OP_COND, 0x40000000, &response);
         if (response == 0) {
-            _cmd58();
+            _cmd(CMD58_READ_OCR, 0, &ocr);
             debug_if(_dbg, "\n\rInit: SDCARD_V2\n\r");
             _block_size = 1;
             return BD_ERROR_OK;
@@ -542,33 +544,6 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t 
     // Deselect card
     _deselect();
     return status;
-}
-
-int SDBlockDevice::_cmd58() {
-    int arg = 0;
-    _select();
-    // send a command
-    _spi.write(0x40 | 58);
-    _spi.write(arg >> 24);
-    _spi.write(arg >> 16);
-    _spi.write(arg >> 8);
-    _spi.write(arg >> 0);
-    _spi.write(0x95);
-
-    // wait for the response (response[7] == 0)
-    for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
-        int response = _spi.write(0xFF);
-        if (!(response & 0x80)) {
-            int ocr = _spi.write(0xFF) << 24;
-            ocr |= _spi.write(0xFF) << 16;
-            ocr |= _spi.write(0xFF) << 8;
-            ocr |= _spi.write(0xFF) << 0;
-            _deselect();
-            return response;
-        }
-    }
-    _deselect();
-    return -1; // timeout
 }
 
 int SDBlockDevice::_cmd8() {
