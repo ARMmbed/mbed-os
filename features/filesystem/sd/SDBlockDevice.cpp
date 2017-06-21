@@ -179,7 +179,7 @@
 #define R1_PARAMETER_ERROR      (1 << 6)
 
 // Types
-#define SDCARD_None              0           /**< No card is present */
+#define SDCARD_NONE              0           /**< No card is present */
 #define SDCARD_V1                1           /**< v1.x Standard Capacity */
 #define SDCARD_V2                2           /**< v2.x Standard capacity SD card */
 #define SDCARD_V2HC              3           /**< v2.x High capacity SD card */
@@ -216,9 +216,10 @@
 #define CRC_ENABLE               (0)         /*!< CRC 1 - Enable 0 - Disable */
 
 /* Control Tokens   */
-#define SPI_DATA_ACCEPTED        (0xE5)
-#define SPI_DATA_CRC_ERROR       (0xEB)
-#define SPI_DATA_WRITE_ERROR     (0xED)
+#define SPI_DATA_RESPONSE_MASK   (0x1F)
+#define SPI_DATA_ACCEPTED        (0x05)
+#define SPI_DATA_CRC_ERROR       (0x0B)
+#define SPI_DATA_WRITE_ERROR     (0x0D)
 #define SPI_START_BLOCK          (0xFE)      /*!< For Single Block Read/Write and Multiple Block Read */
 #define SPI_START_BLK_MUL_WRITE  (0xFC)      /*!< Start Multi-block write */
 #define SPI_STOP_TRAN            (0xFD)      /*!< Stop Multi-block write */
@@ -233,7 +234,7 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
     : _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
 {
     _cs = 1;
-    _card_type = SDCARD_None;
+    _card_type = SDCARD_NONE;
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
     _init_sck = 100000;
@@ -326,7 +327,6 @@ int SDBlockDevice::_initialise_card()
         _card_type = SDCARD_V1;
         debug_if(SD_DBG, "Card Initialized: Version 1.x Card\n");
     }
-
     return status;
 }
 
@@ -357,10 +357,12 @@ int SDBlockDevice::init()
     return BD_ERROR_OK;
 }
 
+
 int SDBlockDevice::deinit()
 {
     return 0;
 }
+
 
 int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
@@ -413,29 +415,42 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     }
 
     uint8_t *buffer = static_cast<uint8_t *>(b);
-    bd_addr_t block;
-    while (size > 0) {
-        if(SDCARD_V2HC == _card_type) {
-            // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
-            block = addr / _block_size;
-        }else {
-            // SDSC Card (CCS=0) uses byte unit address
-            block = addr;
-        }
-        // set read address for single block (CMD17)
-        if (_cmd(CMD17_READ_SINGLE_BLOCK, block) != 0) {
-            _lock.unlock();
-            return BD_ERROR_DEVICE_ERROR;
-        }
+    int status = BD_ERROR_OK;
+    bd_addr_t blockCnt =  size / _block_size;
 
-        // receive the data
-        _read(buffer, _block_size);
+    // SDSC Card (CCS=0) uses byte unit address
+    // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
+    if(SDCARD_V2HC == _card_type) {
+        addr = addr / _block_size;
+    }
+
+    // Write command ro receive data
+    if(blockCnt > 1) {
+        status = _cmd(CMD18_READ_MULTIPLE_BLOCK, addr);
+    } else {
+        status = _cmd(CMD17_READ_SINGLE_BLOCK, addr);
+    }
+
+    if(BD_ERROR_OK != status) {
+        _lock.unlock();
+        return status;
+    }
+
+    // receive the data : one block at a time
+    do {
+        if(0 != _read(buffer, _block_size)) {
+            status = SD_BLOCK_DEVICE_ERROR_NO_RESPONSE;
+            break;
+        }
         buffer += _block_size;
-        addr += _block_size;
-        size -= _block_size;
+    }while (--blockCnt);     // Receive all blocks of data
+
+    // Send CMD12(0x00000000) to stop the transmission for multi-block transfer
+    if(size > _block_size) {
+        status = _cmd(CMD12_STOP_TRANSMISSION, 0x0);
     }
     _lock.unlock();
-    return 0;
+    return status;
 }
 
 int SDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
@@ -620,17 +635,21 @@ uint32_t SDBlockDevice::_go_idle_state() {
 }
 
 int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
+    uint16_t crc;
+
     _select();
 
-    // read until start byte (0xFF)
-    while (_spi.write(0xFF) != 0xFE);
+    // read until start byte (0xFE)
+    while (_spi.write(0xFF) != SPI_START_BLOCK);
 
     // read data
     for (uint32_t i = 0; i < length; i++) {
         buffer[i] = _spi.write(0xFF);
     }
-    _spi.write(0xFF); // checksum
-    _spi.write(0xFF);
+
+    // Read the CRC16 checksum for the data block
+    crc = (_spi.write(0xFF) << 8);
+    crc |= _spi.write(0xFF);
 
     _deselect();
     return 0;
@@ -659,8 +678,8 @@ int SDBlockDevice::_write(const uint8_t*buffer, uint32_t length) {
 
     // wait for write to finish
     while (_spi.write(0xFF) == 0);
-
     _deselect();
+
     return 0;
 }
 
