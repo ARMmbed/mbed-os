@@ -169,24 +169,6 @@
 #define CRC_SUPPORT                              0      /*!< CRC - Not supported */
 #define SPI_CMD(x) (0x40 | (x & 0x3f))
 
-
-SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs)
-    : _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
-{
-    _cs = 1;
-
-    // Set default to 100kHz for initialisation and 1MHz for data transfer
-    _init_sck = 100000;
-    _transfer_sck = 1000000;
-}
-
-SDBlockDevice::~SDBlockDevice()
-{
-    if (_is_initialized) {
-        deinit();
-    }
-}
-
 /* R1 Response Format */
 #define R1_NO_RESPONSE          (0xFF)
 #define R1_RESPONSE_RECV        (0x80)
@@ -248,6 +230,23 @@ SDBlockDevice::~SDBlockDevice()
 #define SPI_READ_ERROR_CC        (0x1 << 1)  /*!< CC Error*/
 #define SPI_READ_ERROR_ECC_C     (0x1 << 2)  /*!< Card ECC failed */
 #define SPI_READ_ERROR_OFR       (0x1 << 3)  /*!< Out of Range */
+
+SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs)
+    : _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
+{
+    _cs = 1;
+    _card_type = SDCARD_None;
+    // Set default to 100kHz for initialisation and 1MHz for data transfer
+    _init_sck = 100000;
+    _transfer_sck = 1000000;
+}
+
+SDBlockDevice::~SDBlockDevice()
+{
+    if (_is_initialized) {
+        deinit();
+    }
+}
 
 int SDBlockDevice::_initialise_card()
 {
@@ -497,6 +496,47 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t 
     }else if(response & R1_COM_CRC_ERROR) {
         debug_if(SD_DBG, "CRC Error: CMD: %d\n", cmd);
         status = SD_BLOCK_DEVICE_ERROR_CRC;             // Retry for CRC
+    }
+
+    // Get rest of the response part for other commands
+    switch(cmd) {
+        case CMD8_SEND_IF_COND:             // Response R7
+            // Illegal command is for Ver1 or not SD Card
+            if(response & R1_ILLEGAL_COMMAND) {
+                debug_if(SD_DBG, "Illegal command response - CMD8\n");
+                _card_type = CARD_UNKNOWN;
+            }
+            else {
+                debug_if(SD_DBG, "V2-Version Card\n");
+                _card_type = SDCARD_V2;
+            }
+            // Note: No break here, need to read rest of the response
+        case CMD58_READ_OCR:                // Response R3
+            if(NULL == resp) {
+                status = SD_BLOCK_DEVICE_ERROR_PARAMETER;
+                break;
+            }
+            *resp  = (_spi.write(0xFF) << 24);
+            *resp |= (_spi.write(0xFF) << 16);
+            *resp |= (_spi.write(0xFF) << 8);
+            *resp |= (_spi.write(0xFF) << 0);
+            debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x 0x%x \n", cmd, arg, response, *resp);
+            break;
+        case CMD12_STOP_TRANSMISSION:       // Response R1b
+        case CMD38_ERASE:                   // TODO:
+            debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x \n", cmd, arg, response);
+            break;
+        case CMD13_SEND_STATUS:             // Response R2
+            if(NULL == resp) {
+                status = SD_BLOCK_DEVICE_ERROR_PARAMETER;
+                break;
+            }
+            *resp = _spi.write(0xFF);
+            debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x 0x%x \n", cmd, arg, response, *resp);
+            break;
+        default:                            // Response R1
+            debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x \n", cmd, arg, response);
+            break;
     }
 
     // Deselect card

@@ -168,6 +168,7 @@ private:
         ACMD51_SEND_SCR = 51,
     };
 
+    uint8_t _card_type;
     int _cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t *resp=NULL);
     int _cmd8();
     int _cmd58();
