@@ -19,6 +19,11 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #if defined(TARGET_NUMAKER_PFM_NUC472)
 
 #if defined(__CC_ARM)
@@ -71,6 +76,10 @@
     #error "no toolchain defined"
 #endif
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif  // MBED_MBED_RTX_H
