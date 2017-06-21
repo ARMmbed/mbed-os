@@ -696,30 +696,29 @@ uint32_t SDBlockDevice::_sd_sectors() {
     }
 
     // csd_structure : csd[127:126]
-    // c_size        : csd[73:62]
-    // c_size_mult   : csd[49:47]
-    // read_bl_len   : csd[83:80] - the *maximum* read block length
-
     int csd_structure = ext_bits(csd, 127, 126);
-
     switch (csd_structure) {
         case 0:
-            c_size = ext_bits(csd, 73, 62);
-            c_size_mult = ext_bits(csd, 49, 47);
-            read_bl_len = ext_bits(csd, 83, 80);
-
-            block_len = 1 << read_bl_len;
-            mult = 1 << (c_size_mult + 2);
-            blocknr = (c_size + 1) * mult;
-            capacity = blocknr * block_len;
+            c_size = ext_bits(csd, 73, 62);              // c_size        : csd[73:62]
+            c_size_mult = ext_bits(csd, 49, 47);         // c_size_mult   : csd[49:47]
+            read_bl_len = ext_bits(csd, 83, 80);         // read_bl_len   : csd[83:80] - the *maximum* read block length
+            block_len = 1 << read_bl_len;                // BLOCK_LEN = 2^READ_BL_LEN
+            mult = 1 << (c_size_mult + 2);               // MULT = 2^C_SIZE_MULT+2 (C_SIZE_MULT < 8)
+            blocknr = (c_size + 1) * mult;               // BLOCKNR = (C_SIZE+1) * MULT
+            capacity = blocknr * block_len;              // memory capacity = BLOCKNR * BLOCK_LEN
             blocks = capacity / _block_size;
-            debug_if(_dbg, "\n\rSDBlockDevice\n\rc_size: %d \n\rcapacity: %ld \n\rsectors: %lld\n\r", c_size, capacity, blocks);
+            debug_if(_dbg, "Standard Capacity: c_size: %d \n\r", c_size);
+            debug_if(_dbg, "Sectors: 0x%x : %ld\n\r", blocks, blocks);
+            debug_if(_dbg, "Capacity: 0x%x : %lld MB\n\r", capacity, (capacity/(1024U*1024U)));
             break;
 
         case 1:
-            hc_c_size = ext_bits(csd, 63, 48);
-            blocks = (hc_c_size+1)*1024;
-            debug_if(_dbg, "\n\rSDHC Card \n\rhc_c_size: %d\n\rcapacity: %lld \n\rsectors: %lld\n\r", hc_c_size, blocks*512, blocks);
+            hc_c_size = ext_bits(csd, 69, 48);            // device size : C_SIZE : [69:48]
+            blocks = (hc_c_size+1) << 10;                 // block count = C_SIZE+1) * 1K byte (512B is block size)
+            capacity = blocks << 9;                       // memory capacity = (C_SIZE+1) * 512K byte
+            debug_if(_dbg, "SDHC/SDXC Card: hc_c_size: %d \n\r", hc_c_size);
+            debug_if(_dbg, "Sectors: 0x%x : %ld\n\r", blocks, blocks);
+            debug_if(_dbg, "Capacity: 0x%x : %ld MB\n\r", capacity, (capacity/(1024U*1024U)));
             break;
 
         default:
