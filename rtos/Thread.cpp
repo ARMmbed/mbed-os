@@ -162,10 +162,6 @@ int32_t Thread::signal_set(int32_t flags) {
     return osThreadFlagsSet(_tid, flags);
 }
 
-int32_t Thread::signal_clr(int32_t flags) {
-    return osThreadFlagsClear(flags);
-}
-
 Thread::State Thread::get_state() {
     uint8_t state = osThreadTerminated;
 
@@ -282,6 +278,10 @@ uint32_t Thread::max_stack() {
 
 const char *Thread::get_name() {
     return _attr.name;
+}
+
+int32_t Thread::signal_clr(int32_t flags) {
+    return osThreadFlagsClear(flags);
 }
 
 osEvent Thread::signal_wait(int32_t signals, uint32_t millisec) {
