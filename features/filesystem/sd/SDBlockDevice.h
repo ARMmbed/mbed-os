@@ -179,11 +179,10 @@ private:
      *  "SPI Startup" section of the comments at the head of the
      *  implementation file for further details and specification references.
      *
-     *  @return         -1 if an error occurred e.g. a valid response was not
-     *                  received. Otherwise R1_IDLE_STATE (0x1), the successful
-     *                  response from CMD0.
+     *  @return         Response form the card. R1_IDLE_STATE (0x1), the successful
+     *                  response from CMD0. R1_XXX_XXX for more response
      */
-    int _go_idle_state();
+    uint32_t _go_idle_state();
     int _initialise_card();
     int _initialise_card_v1();
     int _initialise_card_v2();
