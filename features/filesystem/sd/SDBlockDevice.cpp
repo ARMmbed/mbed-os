@@ -234,9 +234,13 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
 {
     _cs = 1;
     _card_type = SDCARD_None;
+
     // Set default to 100kHz for initialisation and 1MHz for data transfer
     _init_sck = 100000;
     _transfer_sck = 1000000;
+
+    // Only HC block size is supported.
+    _block_size = BLOCK_SIZE_HC;
 }
 
 SDBlockDevice::~SDBlockDevice()
@@ -323,8 +327,6 @@ int SDBlockDevice::_initialise_card()
         debug_if(SD_DBG, "Card Initialized: Version 1.x Card\n");
     }
 
-    // Only HC block size is supported.
-    _block_size = BLOCK_SIZE_HC;
     return status;
 }
 
@@ -343,8 +345,8 @@ int SDBlockDevice::init()
     _sectors = _sd_sectors();
 
     // Set block length to 512 (CMD16)
-    if (_cmd(CMD16_SET_BLOCKLEN, 512) != 0) {
-        debug_if(_dbg, "Set 512-byte block timed out\n");
+    if (_cmd(CMD16_SET_BLOCKLEN, _block_size) != 0) {
+        debug_if(_dbg, "Set %d-byte block timed out\n", _block_size);
         _lock.unlock();
         return BD_ERROR_DEVICE_ERROR;
     }
@@ -377,7 +379,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     while (size > 0) {
         if(SDCARD_V2HC == _card_type) {
             // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
-            block = addr / 512;
+            block = addr / _block_size;
         }else {
             // SDSC Card (CCS=0) uses byte unit address
             block = addr;
@@ -389,10 +391,10 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         }
 
         // send the data block
-        _write(buffer, 512);
-        buffer += 512;
-        addr += 512;
-        size -= 512;
+        _write(buffer, _block_size);
+        buffer += _block_size;
+        addr += _block_size;
+        size -= _block_size;
     }
     _lock.unlock();
     return 0;
@@ -415,7 +417,7 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     while (size > 0) {
         if(SDCARD_V2HC == _card_type) {
             // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
-            block = addr / 512;
+            block = addr / _block_size;
         }else {
             // SDSC Card (CCS=0) uses byte unit address
             block = addr;
@@ -427,10 +429,10 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         }
 
         // receive the data
-        _read(buffer, 512);
-        buffer += 512;
-        addr += 512;
-        size -= 512;
+        _read(buffer, _block_size);
+        buffer += _block_size;
+        addr += _block_size;
+        size -= _block_size;
     }
     _lock.unlock();
     return 0;
@@ -443,17 +445,17 @@ int SDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 
 bd_size_t SDBlockDevice::get_read_size() const
 {
-    return 512;
+    return _block_size;
 }
 
 bd_size_t SDBlockDevice::get_program_size() const
 {
-    return 512;
+    return _block_size;
 }
 
 bd_size_t SDBlockDevice::get_erase_size() const
 {
-    return 512;
+    return _block_size;
 }
 
 bd_size_t SDBlockDevice::size() const
@@ -464,7 +466,7 @@ bd_size_t SDBlockDevice::size() const
     	sectors = _sectors;
     }
     _lock.unlock();
-    return 512*sectors;
+    return _block_size*sectors;
 }
 
 void SDBlockDevice::debug(bool dbg)
@@ -702,7 +704,6 @@ uint32_t SDBlockDevice::_sd_sectors() {
 
     switch (csd_structure) {
         case 0:
-            _block_size = 512;
             c_size = ext_bits(csd, 73, 62);
             c_size_mult = ext_bits(csd, 49, 47);
             read_bl_len = ext_bits(csd, 83, 80);
@@ -711,12 +712,11 @@ uint32_t SDBlockDevice::_sd_sectors() {
             mult = 1 << (c_size_mult + 2);
             blocknr = (c_size + 1) * mult;
             capacity = blocknr * block_len;
-            blocks = capacity / 512;
+            blocks = capacity / _block_size;
             debug_if(_dbg, "\n\rSDBlockDevice\n\rc_size: %d \n\rcapacity: %ld \n\rsectors: %lld\n\r", c_size, capacity, blocks);
             break;
 
         case 1:
-            _block_size = 512;
             hc_c_size = ext_bits(csd, 63, 48);
             blocks = (hc_c_size+1)*1024;
             debug_if(_dbg, "\n\rSDHC Card \n\rhc_c_size: %d\n\rcapacity: %lld \n\rsectors: %lld\n\r", hc_c_size, blocks*512, blocks);
