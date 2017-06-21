@@ -14,11 +14,29 @@
 # 2) Update a different ARMmbed branch of the specified example
 #
 #    A branch to update is specified. If it doesn't already exist then it is first created.
-#    This branch will be updated and the change automatically pushed. 
+#    This branch will be updated and the change automatically pushed. The new branch will 
+#    be created from the specified source branch.
+#
+# The modes are controlled via configuration data in the json file.
+# E.g.
+# 
+#   "update-config" : {
+#      "help" : "Update each example repo with a version of mbed-os identified by the tag",
+#      "via-fork" : {
+#        "help" : "-f cmd line option. Update a fork",
+#        "github-user" : "adbridge"          
+#      },
+#      "via-branch" : {
+#        "help" : "-b cmd line option. Update dst branch, created from src branch",
+#        "src-branch" : "mbed-os-5.5.0-rc1-oob",
+#        "dst-branch" : "mbed-os-5.5.0-rc2-oob"    
+#      },
+#      "tag" : "mbed-os-5.5.0-rc2"
+#
 #
 # Command usage:
 #
-# update.py -c <config file> - T <github_token> -l <logging level> -U <github user> -b <branch> <tag>
+# update.py -c <config file> - T <github_token> -l <logging level> -f -b 
 #
 # Where:
 # -c <config file> - Optional path to an examples file.
@@ -27,16 +45,18 @@
 # -l <logging level> - Optional Level for providing logging output. Can be one of,
 #                      CRITICAL, ERROR, WARNING, INFO, DEBUG
 #                      If not provided the default is 'INFO'
-# -U <github_user> - GitHub user for forked repos
-# -b <branch> - Branch to be updated
+# -f                 - Update forked repos. This will use the 'github-user' parameter in
+#                      the 'via-fork' section.
+# -b                 - Update branched repos. This will use the "src-branch" and 
+#                      "dst-branch" parameters in the 'via-branch' section. The destination
+#                      branch is created from the source branch (if it doesn't already exist).
+# 
+# The options -f and -b are mutually exlusive. Only one can be specified.
 #
-#               NOTE only one of -U or -b can be specified.
-#
-# <tag> mbed-os tag to which all examples will be updated
 #
 
 import os
-from os.path import dirname, abspath, basename
+from os.path import dirname, abspath, basename, join
 import sys
 import logging
 import argparse
@@ -46,6 +66,8 @@ import shutil
 import stat
 import re
 from github import Github, GithubException
+from jinja2 import FileSystemLoader, StrictUndefined
+from jinja2.environment import Environment
 
 ROOT = abspath(dirname(dirname(dirname(dirname(__file__)))))
 sys.path.insert(0, ROOT)
@@ -216,7 +238,6 @@ def prepare_fork(arm_example):
         
     Args:
     arm_example - Full GitHub repo path for original example 
-    ret - True if the fork was synchronised successfully, False otherwise
     
     """
 
@@ -227,10 +248,7 @@ def prepare_fork(arm_example):
                 ['git', 'fetch', 'armmbed'],
                 ['git', 'reset', '--hard', 'armmbed/master'],
                 ['git', 'push', '-f', 'origin']]:
-        if run_cmd(cmd):
-            update_log.error("Fork preparation failed")
-            return False
-    return True
+        run_cmd(cmd, exit_on_failure=True)
 
 def prepare_branch(src, dst):
     """ Set up at branch ready for use in updating examples 
@@ -244,9 +262,6 @@ def prepare_branch(src, dst):
     Args:
     src - branch to create the dst branch from
     dst - branch to update
-
-    Return:
-    ret - True if the fork was synchronised successfully, False otherwise
     
     """
 
@@ -254,35 +269,24 @@ def prepare_branch(src, dst):
 
     # Check if branch already exists or not.
     cmd = ['git', 'branch']
-    return_code, output = run_cmd_with_output(cmd)
+    _, output = run_cmd_with_output(cmd, exit_on_failure=True)
 
     if not dst in output:
         
-        # OOB branch does not exist thus create it and then check it out
+        # OOB branch does not exist thus create it, first ensuring we are on 
+        # the src branch and then check it out
 
-        # First ensure we are on the src branch
-        cmd = ['git', 'checkout', src]
-        return_code = run_cmd(cmd)
-        if not return_code:
-                
-            cmd = ['git', 'checkout', '-b', dst]
-            return_code = run_cmd(cmd)
-            if not return_code:
+        for cmd in [['git', 'checkout', src],
+                    ['git', 'checkout', '-b', dst],
+                    ['git', 'push', '-u', 'origin', dst]]:
 
-                # Push new branch upstream
-                cmd = ['git', 'push', '-u', 'origin', dst]
-                return_code = run_cmd(cmd)
+            run_cmd(cmd, exit_on_failure=True)
+
     else: 
         cmd = ['git', 'checkout', dst]
-        return_code = run_cmd(cmd)
-
-    if return_code:
-        update_log.error("Failed to prepare branch: %s", dst)
-        return False
-        
-    return True
-    
-def upgrade_example(github, example, tag, ref, user, src, dst):
+        run_cmd(cmd, exit_on_failure=True)
+   
+def upgrade_example(github, example, tag, ref, user, src, dst, template):
     """ Upgrade all versions of mbed-os.lib found in the specified example repo
     
     Description:
@@ -375,13 +379,15 @@ def upgrade_example(github, example, tag, ref, user, src, dst):
                         update_log.error("Upstream repo: %s, does not exist - skipping", upstream_repo)
                         return False
            
-                    body = "Please test this PR.\n"
-                    body += "If successful then merge, otherwise provide a known issue.\n"
-                    body += "Once you get notification of the release being made public then tag Master with " + tag
+                    jinja_loader = FileSystemLoader(template)
+                    jinja_environment = Environment(loader=jinja_loader,
+                                                    undefined=StrictUndefined)
+                    pr_body = jinja_environment.get_template("pr.tmpl").render(tag=tag)
+
                     # Raise a PR from release-candidate to master
                     user_fork = user + ':master' 
                     try:
-                        pr = repo.create_pull(title='Updating mbed-os to ' + tag, head=user_fork, base='master', body=body)
+                        pr = repo.create_pull(title='Updating mbed-os to ' + tag, head=user_fork, base='master', body=pr_body)
                         ret = True
                     except GithubException as e:
                         # Default to False
@@ -475,13 +481,15 @@ if __name__ == '__main__':
     failures = []
     successes = []
     results = {}
+    template = dirname(abspath(__file__))
+
     os.chdir('examples')
 
     for example in json_data['examples']:
         # Determine if this example should be updated and if so update any found 
         # mbed-os.lib files. 
         
-        result = upgrade_example(github, example, tag, ref, user, src, dst)
+        result = upgrade_example(github, example, tag, ref, user, src, dst, template)
             
         if result:
             successes += [example['name']]
