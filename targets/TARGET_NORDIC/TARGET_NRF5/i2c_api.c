@@ -49,6 +49,7 @@
 #include "app_util_platform.h"
 #include "nrf_gpio.h"
 #include "nrf_delay.h"
+#include "shared_hw.h"
 
 // An arbitrary value used as the counter in loops waiting for given event
 // (e.g. STOPPED), needed to avoid infinite loops (and not involve any timers
@@ -73,6 +74,7 @@ typedef struct {
     uint32_t            pselscl;
     nrf_twi_frequency_t frequency;
     bool                start_twi;
+    uint8_t hw_instance;
 
 #if DEVICE_I2C_ASYNCH
     volatile bool   active;
@@ -89,14 +91,17 @@ typedef struct {
 } twi_info_t;
 static twi_info_t m_twi_info[TWI_COUNT];
 
-static NRF_TWI_Type * const m_twi_instances[TWI_COUNT] = {
-#if TWI0_ENABLED
+/* LUT of TWI instance addresses */
+static NRF_TWI_Type * const m_twi_instance_patterns[] = {
+#ifdef NRF_TWI0
     NRF_TWI0,
 #endif
-#if TWI1_ENABLED
+#ifdef NRF_TWI1
     NRF_TWI1,
 #endif
 };
+
+static NRF_TWI_Type * m_twi_instances[TWI_COUNT];
 
 void SPI0_TWI0_IRQHandler(void);
 void SPI1_TWI1_IRQHandler(void);
@@ -304,6 +309,16 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     for (i = 0; i < TWI_COUNT; ++i) {
         if (!m_twi_info[i].initialized) {
+            // get index of I2C hardware instance.
+            int8_t idx = instance_hw_idx_get(HW_RESOURCE_TWI);
+
+            if (idx < 0) {
+                MBED_ASSERT(0);
+                return;
+            }
+
+            m_twi_instances[i] = m_twi_instances[idx];
+            m_twi_info[i].hw_instance = idx;
             TWI_IDX(obj) = i;
 
             twi_info_t *twi_info = TWI_INFO(obj);
@@ -326,7 +341,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 #if DEVICE_I2C_ASYNCH
             nrf_drv_common_per_res_acquire(m_twi_instances[i],
                 m_twi_irq_handlers[i]);
-            NVIC_SetVector(twi_handlers[i].IRQn, twi_handlers[i].vector);
+            NVIC_SetVector(twi_handlers[idx].IRQn, twi_handlers[i].vector);
             nrf_drv_common_irq_enable(twi_handlers[i].IRQn, TWI_IRQ_PRIORITY);
 #endif
 

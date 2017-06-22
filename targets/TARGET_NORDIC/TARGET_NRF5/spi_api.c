@@ -49,6 +49,7 @@
 #include "nrf_drv_spis.h"
 #include "app_util_platform.h"
 #include "sdk_config.h"
+#include "shared_hw.h"
 
 #if DEVICE_SPI_ASYNCH
     #define SPI_IDX(obj)    ((obj)->spi.spi_idx)
@@ -60,8 +61,9 @@
 #define SLAVE_INST(obj)     (&m_instances[SPI_IDX(obj)].slave)
 
 typedef struct {
-    bool    initialized;
+    bool    initialized;    
     bool    master;
+    uint8_t hw_instance;
     uint8_t sck_pin;
     uint8_t mosi_pin;
     uint8_t miso_pin;
@@ -86,6 +88,11 @@ typedef struct {
     nrf_drv_spi_t  master;
     nrf_drv_spis_t slave;
 } sdk_driver_instances_t;
+
+typedef struct {
+    uint8_t hw_idx;
+    sdk_driver_instances_t pattern;  
+} sdk_driver_instances_pattern_t;
 
 void SPI0_TWI0_IRQHandler(void);
 void SPI1_TWI1_IRQHandler(void);
@@ -112,27 +119,38 @@ static const peripheral_handler_desc_t spi_handler_desc[SPI_COUNT] = {
 #endif    
 };
 
-
-static sdk_driver_instances_t m_instances[SPI_COUNT] = {
+/* LUT of SPI driver instances */
+static const sdk_driver_instances_pattern_t m_instance_patterns[SPI_COUNT] = {
 #if SPI0_ENABLED
     {
-        NRF_DRV_SPI_INSTANCE(0),
-        NRF_DRV_SPIS_INSTANCE(0)
+        0,
+        {
+            NRF_DRV_SPI_INSTANCE(0),
+            NRF_DRV_SPIS_INSTANCE(0)
+        }
     },
 #endif
 #if SPI1_ENABLED
     {
-        NRF_DRV_SPI_INSTANCE(1),
-        NRF_DRV_SPIS_INSTANCE(1)
+        1,
+        {
+            NRF_DRV_SPI_INSTANCE(1),
+            NRF_DRV_SPIS_INSTANCE(1)
+            }
     },
 #endif
 #if SPI2_ENABLED
     {
-        NRF_DRV_SPI_INSTANCE(2),
-        NRF_DRV_SPIS_INSTANCE(2)
+        2,
+        {
+            NRF_DRV_SPI_INSTANCE(2),
+            NRF_DRV_SPIS_INSTANCE(2)
+        }
     },
 #endif
 };
+
+static sdk_driver_instances_t m_instances[SPI_COUNT];
 
 static void master_event_handler(uint8_t spi_idx,
                                  nrf_drv_spi_evt_t const *p_event)
@@ -221,6 +239,19 @@ static nrf_drv_spis_event_handler_t const m_slave_event_handlers[SPIS_COUNT] = {
 #endif
 };
 
+static sdk_driver_instances_t const * get_driver_pattern(uint8_t hw_idx)
+{
+    int i;
+
+    for (i = 0; i < SPI_COUNT; i++) {
+        if (m_instance_patterns[i].hw_idx == hw_idx) {
+            break;
+        }
+    }
+    
+    return &m_instance_patterns[i].pattern;
+}
+
 static void prepare_master_config(nrf_drv_spi_config_t *p_config,
                                   spi_info_t const *p_spi_info)
 {
@@ -280,6 +311,14 @@ void spi_init(spi_t *obj,
     for (i = 0; i < SPI_COUNT; ++i) {
         spi_info_t *p_spi_info = &m_spi_info[i];
         if (!p_spi_info->initialized) {
+            // get index of SPI hardware instance.
+            int8_t idx = instance_hw_idx_get(HW_RESOURCE_SPI);
+            
+            if (idx < 0) {
+                MBED_ASSERT(0);
+                return;
+            }
+            
             p_spi_info->sck_pin   = (uint8_t)sclk;
             p_spi_info->mosi_pin  = (mosi != NC) ?
                 (uint8_t)mosi : NRF_DRV_SPI_PIN_NOT_USED;
@@ -290,7 +329,7 @@ void spi_init(spi_t *obj,
             p_spi_info->spi_mode  = (uint8_t)NRF_DRV_SPI_MODE_0;
             p_spi_info->frequency = NRF_DRV_SPI_FREQ_1M;
 
-            NVIC_SetVector(spi_handler_desc[i].IRQn, spi_handler_desc[i].vector);
+            NVIC_SetVector(spi_handler_desc[idx].IRQn, spi_handler_desc[idx].vector);
 
             // By default each SPI instance is initialized to work as a master.
             // Should the slave mode be used, the instance will be reconfigured
@@ -298,9 +337,11 @@ void spi_init(spi_t *obj,
             nrf_drv_spi_config_t config;
             prepare_master_config(&config, p_spi_info);
 
+            memcpy(&m_instances[i], get_driver_pattern(idx), sizeof(sdk_driver_instances_t));
             nrf_drv_spi_t const *p_spi = &m_instances[i].master;
             ret_code_t ret_code = nrf_drv_spi_init(p_spi,
                 &config, m_master_event_handlers[i]);
+
             if (ret_code == NRF_SUCCESS) {
                 p_spi_info->initialized = true;
                 p_spi_info->master      = true;
@@ -309,7 +350,8 @@ void spi_init(spi_t *obj,
                 p_spi_info->handler     = 0;
             #endif
                 SPI_IDX(obj) = i;
-
+                p_spi_info->hw_instance = idx;
+                
                 return;
             }
         }
@@ -329,6 +371,7 @@ void spi_free(spi_t *obj)
         nrf_drv_spis_uninit(SLAVE_INST(obj));
     }
     p_spi_info->initialized = false;
+    instance_hw_idx_free(p_spi_info->hw_instance);
 }
 
 int spi_busy(spi_t *obj)
