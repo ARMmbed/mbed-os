@@ -33,7 +33,6 @@
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
-#include "strings.h"
 
 using namespace utest::v1;
 
@@ -80,8 +79,7 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
     return greentea_test_setup_handler(number_of_cases);
 }
 
-Specification specification(greentea_test_setup, cases,
-        greentea_test_teardown_handler);
+Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
 int main() {
     Harness::run(specification);
