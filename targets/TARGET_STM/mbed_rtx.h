@@ -275,7 +275,7 @@
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#elif defined(TARGET_STM32L476VG)
+#elif defined(TARGET_STM32L476VG) || defined(TARGET_STM32L475VG)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20018000UL)

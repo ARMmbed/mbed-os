@@ -66,7 +66,8 @@ def setup_project(ide, target, program=None, source_dir=None, build=None, export
 
 
 def export(target, ide, build=None, src=None, macros=None, project_id=None,
-           zip_proj=False, build_profile=None, export_path=None, silent=False):
+           zip_proj=False, build_profile=None, export_path=None, silent=False,
+           app_config=None):
     """Do an export of a project.
 
     Positional arguments:
@@ -90,7 +91,8 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
 
     return export_project(src, project_dir, target, ide, name=name,
                           macros=macros, libraries_paths=lib, zip_proj=zip_name,
-                          build_profile=build_profile, silent=silent)
+                          build_profile=build_profile, silent=silent,
+                          app_config=app_config)
 
 
 def main():
@@ -180,6 +182,9 @@ def main():
                         dest="update_packs",
                         action="store_true",
                         default=False)
+    parser.add_argument("--app-config",
+                        dest="app_config",
+                        default=None)
 
     options = parser.parse_args()
 
@@ -245,7 +250,7 @@ def main():
     export(options.mcu, options.ide, build=options.build,
            src=options.source_dir, macros=options.macros,
            project_id=options.program, zip_proj=zip_proj,
-           build_profile=profile)
+           build_profile=profile, app_config=options.app_config)
 
 
 if __name__ == "__main__":

@@ -3,14 +3,13 @@
 #endif
 
 #if !defined(MBED_APP_SIZE)
-  #define MBED_APP_SIZE 2048k
+  #define MBED_APP_SIZE 1024k
 #endif
 
 /* Linker script to configure memory regions. */
 MEMORY
 { 
-  VECTORS (rx) : ORIGIN = MBED_APP_START, LENGTH = 0x400
-  FLASH (rx)   : ORIGIN = MBED_APP_START + 0x400, LENGTH = MBED_APP_SIZE - 0x400
+  FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   SRAM2 (rwx)  : ORIGIN = 0x10000188, LENGTH = 32k - 0x188
   SRAM1 (rwx)  : ORIGIN = 0x20000000, LENGTH = 96k
 }

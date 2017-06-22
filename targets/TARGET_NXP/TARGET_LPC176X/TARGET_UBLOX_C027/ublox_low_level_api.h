@@ -22,8 +22,10 @@ extern "C" {
 
 void ublox_mdm_init(void);
 
+void ublox_mdm_power_on(int usb);
 void ublox_mdm_powerOn(int usb);
 
+void ublox_mdm_power_off(void);
 void ublox_mdm_powerOff(void);
 
 void ublox_gps_powerOn(void);
