@@ -157,6 +157,12 @@ public:
      */
     void set_data_carrier_detect(PinName dcd_pin, bool active_high = false);
 
+    /** Set the baud rate
+     *
+     *  @param baud   The baud rate
+     */
+    void set_baud(int baud);
+
 private:
 
     /** Software serial buffers
