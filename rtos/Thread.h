@@ -253,11 +253,11 @@ public:
 
     /** State of the Thread */
     enum State {
-        Inactive,           /**< Not created */
+        Inactive,           /**< NOT USED */
         Ready,              /**< Ready to run */
         Running,            /**< Running */
         WaitingDelay,       /**< Waiting for a delay to occur */
-        WaitingJoin,        /**< Waiting for thread to join */
+        WaitingJoin,        /**< Waiting for thread to join. Only happens when using RTX directly. */
         WaitingThreadFlag,  /**< Waiting for a thread flag to be set */
         WaitingEventFlag,   /**< Waiting for a event flag to be set */
         WaitingMutex,       /**< Waiting for a mutex event to occur */
@@ -265,13 +265,13 @@ public:
         WaitingMemoryPool,  /**< Waiting for a memory pool */
         WaitingMessageGet,  /**< Waiting for message to arrive */
         WaitingMessagePut,  /**< Waiting for message to be send */
-        WaitingInterval,    /**< Waiting for an interval to occur */
-        WaitingOr,          /**< Waiting for one event in a set to occur */
-        WaitingAnd,         /**< Waiting for multiple events in a set to occur */
-        WaitingMailbox,     /**< Waiting for a mailbox event to occur */
+        WaitingInterval,    /**< NOT USED */
+        WaitingOr,          /**< NOT USED */
+        WaitingAnd,         /**< NOT USED */
+        WaitingMailbox,     /**< NOT USED (Mail is implemented as MemoryPool and Queue) */
 
         /* Not in sync with RTX below here */
-        Deleted,            /**< The task has been deleted */
+        Deleted,            /**< The task has been deleted or not started */
     };
 
     /** State of this Thread
