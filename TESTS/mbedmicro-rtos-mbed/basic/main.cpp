@@ -38,7 +38,7 @@
 #error [NOT_SUPPORTED] test not supported
 #endif
 
-#define TEST_STACK_SIZE 768
+#define TEST_STACK_SIZE 1024
 #define ONE_MILLI_SEC 1000
 
 volatile uint32_t callback_trigger_count = 0;
@@ -73,7 +73,6 @@ void gt_comm_wait_thread() {
     if (strcmp("pass", _key) == 0) {
         test_result = true;
     }
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key, "expected host to send pass...");
 }
 
 int main() {
