@@ -35,8 +35,16 @@ void mbed_sdk_init()
 {
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
-    // Need to restart HAL driver after the RAM is initialized
     HAL_Init();
+
+    // Enable CPU L1-Cache
+    SCB_EnableICache();
+    SCB_EnableDCache();
+
+    /* Configure the System clock source, PLL Multiplier and Divider factors,
+       AHB/APBx prescalers and Flash settings */
+    SetSysClock();
+    SystemCoreClockUpdate();
 }
 
 

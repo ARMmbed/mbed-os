@@ -35,7 +35,6 @@ void mbed_sdk_init()
 {
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
-    // Need to restart HAL driver after the RAM is initialized
     HAL_Init();
 
 #if defined(TARGET_XDOT_L151CC)
@@ -44,4 +43,9 @@ void mbed_sdk_init()
         xdot_disable_standby_wake_pin();
     }
 #endif /* TARGET_XDOT_L151CC */
+
+    /* Configure the System clock source, PLL Multiplier and Divider factors,
+       AHB/APBx prescalers and Flash settings */
+    SetSysClock();
+    SystemCoreClockUpdate();
 }

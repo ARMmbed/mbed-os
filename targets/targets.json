@@ -115,7 +115,7 @@
     },
     "MICRONFCBOARD": {
         "inherits": ["LPC11U34_421"],
-        "macros": ["LPC11U34_421", "APPNEARME_MICRONFCBOARD"],
+        "macros_add": ["LPC11U34_421", "APPNEARME_MICRONFCBOARD"],
         "extra_labels_add": ["APPNEARME_MICRONFCBOARD"],
         "release_versions": ["2"],
         "device_name": "LPC11U34FBD48/311"
@@ -1424,7 +1424,7 @@
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["STM", "STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "STM32F439xI", "FLASH_CMSIS_ALGO"],
         "macros": ["HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "CAN", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
@@ -1943,6 +1943,15 @@
         "macros": ["CMSDK_BEID"],
         "device_has": ["AACI", "ANALOGIN", "CLCD", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "TSC"],
         "release_versions": ["2"]
+    },
+     "ARM_CM3DS_MPS2": {
+        "inherits": ["ARM_IOTSS_Target"],
+        "core": "Cortex-M3",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["ARM_SSG", "CM3DS_MPS2"],
+        "macros": ["CMSDK_CM3DS"],
+        "device_has": ["ETHERNET","INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "RTC"],
+        "release_versions": ["2", "5"]
     },
     "ARM_BEETLE_SOC": {
         "inherits": ["ARM_IOTSS_Target"],

@@ -83,7 +83,6 @@
   */
 
 #include "stm32l4xx.h"
-#include "hal_tick.h"
 #include "nvic_addr.h"
 
 #if !defined  (HSE_VALUE)
@@ -219,17 +218,6 @@ void SystemInit(void)
   SCB->VTOR = NVIC_FLASH_VECTOR_ADDRESS; /* Vector Table Relocation in Internal FLASH */
 #endif
 
-  /* Configure the Cube driver */
-  SystemCoreClock = MSI_VALUE; // At this stage the MSI is used as system clock
-  HAL_Init();
-
-  /* Configure the System clock source, PLL Multiplier and Divider factors,
-     AHB/APBx prescalers and Flash settings */
-  SetSysClock();
-  
-  /* Reset the timer to avoid issues after the RAM initialization */
-  TIM_MST_RESET_ON;
-  TIM_MST_RESET_OFF;
 }
 
 /**
