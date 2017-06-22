@@ -159,8 +159,9 @@
 #define SD_BLOCK_DEVICE_ERROR_WRITE_PROTECTED    -5006	/*!< write protected */
 #define SD_BLOCK_DEVICE_ERROR_UNUSABLE           -5007  /*!< unusable card */
 #define SD_BLOCK_DEVICE_ERROR_NO_RESPONSE        -5008  /*!< No response from device */
-#define SD_BLOCK_DEVICE_ERROR_CRC                -5009  /*!< CRC Error */
-#define SD_BLOCK_DEVICE_ERROR_R1_OTHER           -5010  /*!< See R1 response to know more about error */
+#define SD_BLOCK_DEVICE_ERROR_CRC                -5009  /*!< CRC error */
+#define SD_BLOCK_DEVICE_ERROR_ERASE              -5010  /*!< Erase error: reset/sequence */
+#define SD_BLOCK_DEVICE_ERROR_WRITE              -5011  /*!< SPI Write error: !SPI_DATA_ACCEPTED */
 
 #define BLOCK_SIZE_HC                            512    /*!< Block size supported for SD card is 512 bytes  */
 #define WRITE_BL_PARTIAL                         0      /*!< Partial block write - Not supported */
@@ -377,29 +378,62 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     }
 
     const uint8_t *buffer = static_cast<const uint8_t*>(b);
-    bd_addr_t block;
-    while (size > 0) {
-        if(SDCARD_V2HC == _card_type) {
-            // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
-            block = addr / _block_size;
-        }else {
-            // SDSC Card (CCS=0) uses byte unit address
-            block = addr;
-        }
-        // set write address for single block (CMD24)
-        if (_cmd(CMD24_WRITE_BLOCK, block) != 0) {
-            _lock.unlock();
-            return BD_ERROR_DEVICE_ERROR;
-        }
+    int status = BD_ERROR_OK;
+    uint8_t token = 0xFF;
 
-        // send the data block
-        _write(buffer, _block_size);
+    // Get block count
+    bd_addr_t blockCnt = size / _block_size;
+
+    // SDSC Card (CCS=0) uses byte unit address
+    // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
+    if(SDCARD_V2HC == _card_type) {
+        addr = addr / _block_size;
+    }
+
+    // Send command to perform write operation
+    if(blockCnt > 1) {
+        status = _cmd(CMD25_WRITE_MULTIPLE_BLOCK, addr);
+        token = SPI_START_BLK_MUL_WRITE;
+    } else {
+        status = _cmd(CMD24_WRITE_BLOCK, addr);
+        token = SPI_START_BLOCK;
+    }
+    if(BD_ERROR_OK != status) {
+        _lock.unlock();
+        return status;
+    }
+
+    // Write the data: one block at a time
+    do {
+        if(BD_ERROR_OK != (status = _write(buffer, token, _block_size))) {
+            // CMD13 to get the failure status
+            status = _cmd(CMD13_SEND_STATUS, 0);
+            break;
+        }
         buffer += _block_size;
-        addr += _block_size;
-        size -= _block_size;
+    }while (--blockCnt);     // Receive all blocks of data
+
+    /* In a Multiple Block write operation, the stop transmission will be done by
+     * sending 'Stop Tran' token instead of 'Start Block' token at the beginning
+     * of the next block
+     */
+    if(SPI_START_BLK_MUL_WRITE == token) {
+        _select();
+        _spi.write(SPI_STOP_TRAN);
+        _deselect();
+    }
+
+    // SEND_NUM_WR_BLOCKS (ACMD22) in order to get the number of well written write blocks.
+    _cmd(CMD55_APP_CMD, 0);
+    if(BD_ERROR_OK == _cmd(ACMD22_SEND_NUM_WR_BLOCKS, 0)) {
+        uint8_t wr_blocks[4];
+        if(BD_ERROR_OK == _read(wr_blocks, 4)) {
+            debug_if(SD_DBG, "Blocks Written successfully 0x%x\n",
+            ((wr_blocks[0] << 24) | (wr_blocks[1] << 16) | (wr_blocks[2] << 0) | wr_blocks[3]));
+        }
     }
     _lock.unlock();
-    return 0;
+    return status;
 }
 
 int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
@@ -513,7 +547,6 @@ uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg) {
             cmdPacket[5] = 0xFF;    // Make sure bit 0-End bit is high
             break;
     }
-
     // send a command
     for (int i = 0; i < PACKET_SIZE; i++) {
         _spi.write(cmdPacket[i]);
@@ -538,16 +571,22 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t 
     // Send command over SPI interface
     response = _cmd_spi(cmd, arg);
     // Pass the response to the command call if required
-    if(NULL != resp) {
+    if (NULL != resp) {
         *resp = response;
     }
 
     // Process the response R1
-    if(R1_NO_RESPONSE == response) {
+    if (R1_NO_RESPONSE == response) {
         status = SD_BLOCK_DEVICE_ERROR_NO_DEVICE;        // No device
-    }else if(response & R1_COM_CRC_ERROR) {
-        debug_if(SD_DBG, "CRC Error: CMD: %d\n", cmd);
-        status = SD_BLOCK_DEVICE_ERROR_CRC;             // Retry for CRC
+    }else if (response & R1_COM_CRC_ERROR) {
+        status = SD_BLOCK_DEVICE_ERROR_CRC;              // CRC error
+    }else if (response & R1_ILLEGAL_COMMAND) {
+        status = SD_BLOCK_DEVICE_ERROR_UNSUPPORTED;      // Command not supported
+    }else if ((response & R1_ERASE_RESET) || (response & R1_ERASE_SEQUENCE_ERROR)) {
+        status = SD_BLOCK_DEVICE_ERROR_ERASE;            // Erase error
+    }else if ((response & R1_ADDRESS_ERROR) || (response & R1_PARAMETER_ERROR)) {
+        // Misaligned address / invalid address block length
+        status = SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
     // Get rest of the response part for other commands
@@ -562,6 +601,7 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t 
                 debug_if(SD_DBG, "V2-Version Card\n");
                 _card_type = SDCARD_V2;
             }
+
             // Note: No break here, need to read rest of the response
         case CMD58_READ_OCR:                // Response R3
             if(NULL == resp) {
@@ -574,11 +614,13 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t 
             *resp |= (_spi.write(0xFF) << 0);
             debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x 0x%x \n", cmd, arg, response, *resp);
             break;
+
         case CMD12_STOP_TRANSMISSION:       // Response R1b
         case CMD38_ERASE:                   // TODO:
             debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x \n", cmd, arg, response);
             break;
-        case CMD13_SEND_STATUS:             // Response R2
+
+        case ACMD13_SD_STATUS:             // Response R2
             if(NULL == resp) {
                 status = SD_BLOCK_DEVICE_ERROR_PARAMETER;
                 break;
@@ -586,6 +628,7 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t 
             *resp = _spi.write(0xFF);
             debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x 0x%x \n", cmd, arg, response, *resp);
             break;
+
         default:                            // Response R1
             debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x \n", cmd, arg, response);
             break;
@@ -655,25 +698,28 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
     return 0;
 }
 
-int SDBlockDevice::_write(const uint8_t*buffer, uint32_t length) {
+int SDBlockDevice::_write(const uint8_t*buffer, uint8_t token, uint32_t length) {
+    uint16_t crc = 0xFFFF;
+
+    // Select card
     _select();
 
     // indicate start of block
-    _spi.write(0xFE);
+    _spi.write(token);
 
     // write the data
     for (uint32_t i = 0; i < length; i++) {
         _spi.write(buffer[i]);
     }
 
-    // write the checksum
-    _spi.write(0xFF);
-    _spi.write(0xFF);
+    // write the checksum CRC16
+    _spi.write(crc >> 8);
+    _spi.write(crc);
 
     // check the response token
-    if ((_spi.write(0xFF) & 0x1F) != 0x05) {
+    if ((_spi.write(0xFF) & SPI_DATA_RESPONSE_MASK) != SPI_DATA_ACCEPTED) {
         _deselect();
-        return 1;
+        return SD_BLOCK_DEVICE_ERROR_WRITE;
     }
 
     // wait for write to finish
@@ -707,7 +753,6 @@ uint32_t SDBlockDevice::_sd_sectors() {
         debug_if(_dbg, "Didn't get a response from the disk\n");
         return 0;
     }
-
     uint8_t csd[16];
     if (_read(csd, 16) != 0) {
         debug_if(_dbg, "Couldn't read csd response from disk\n");

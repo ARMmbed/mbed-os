@@ -188,7 +188,7 @@ private:
     int _initialise_card_v2();
 
     int _read(uint8_t * buffer, uint32_t length);
-    int _write(const uint8_t *buffer, uint32_t length);
+    int _write(const uint8_t *buffer,uint8_t token, uint32_t length);
     uint32_t _sd_sectors();
     uint32_t _sectors;
 
