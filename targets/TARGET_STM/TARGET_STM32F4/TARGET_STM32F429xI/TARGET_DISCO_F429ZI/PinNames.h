@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,17 +46,23 @@ typedef enum {
 
 typedef enum {
     PA_0  = 0x00,
+    PA_0_ALT0 = PA_0|ALT0,
+    PA_0_ALT1 = PA_0|ALT1,
     PA_1  = 0x01,
+    PA_1_ALT0 = PA_1|ALT0,
+    PA_1_ALT1 = PA_1|ALT1,
     PA_2  = 0x02,
     PA_2_ALT0 = PA_2|ALT0,
     PA_3  = 0x03,
     PA_3_ALT0 = PA_3|ALT0,
+    PA_3_ALT1 = PA_3|ALT1,
     PA_4  = 0x04,
     PA_4_ALT0 = PA_4|ALT0,
     PA_5  = 0x05,
     PA_5_ALT0 = PA_5|ALT0,
     PA_5_ALT1 = PA_5|ALT1,
     PA_6  = 0x06,
+    PA_6_ALT0 = PA_6|ALT0,
     PA_7  = 0x07,
     PA_7_ALT0 = PA_7|ALT0,
     PA_7_ALT1 = PA_7|ALT1,
@@ -101,11 +107,17 @@ typedef enum {
     PB_15_ALT1 = PB_15|ALT1,
 
     PC_0  = 0x20,
+    PC_0_ALT0 = PC_0|ALT0,
     PC_1  = 0x21,
+    PC_1_ALT0 = PC_1|ALT0,
     PC_2  = 0x22,
+    PC_2_ALT0 = PC_2|ALT0,
     PC_3  = 0x23,
+    PC_3_ALT0 = PC_3|ALT0,
     PC_4  = 0x24,
+    PC_4_ALT0 = PC_4|ALT0,
     PC_5  = 0x25,
+    PC_5_ALT0 = PC_5|ALT0,
     PC_6  = 0x26,
     PC_6_ALT0 = PC_6|ALT0,
     PC_7  = 0x27,
