@@ -2,7 +2,7 @@
  * Nuvoton NANO130 GCC linker script file
  */
 
-StackSize = 0x800;
+StackSize = 0x600;
 
 MEMORY
 {

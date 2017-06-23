@@ -22,6 +22,7 @@
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
 #include "mbed_critical.h"
+#include "mbed_wait_api.h"
 
 // lp_ticker tick = us = timestamp
 #define US_PER_TICK             (1)
@@ -219,9 +220,6 @@ static void lp_ticker_arm_cd(void)
     uint32_t ctl_timer3 = timer3_base->CTL;
     ctl_timer3 &= ~TIMER_CTL_MODE_SEL_Msk;
     ctl_timer3 |= TIMER_ONESHOT_MODE;
-    // Wait 3 cycles of engine clock to ensure previous CTL write action is finish
-    nu_nop(SystemCoreClock / __LXT * 3);
-    timer3_base->CTL = ctl_timer3;
     timer3_base->PRECNT = prescale_timer3;
     
     cd_minor_clks = cd_major_minor_clks;
@@ -230,8 +228,8 @@ static void lp_ticker_arm_cd(void)
     
     TIMER_EnableInt(timer3_base);
     TIMER_EnableWakeup((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
-    // Wait 3 cycles of engine clock to ensure previous CTL write action is finish
-    nu_nop(SystemCoreClock / __LXT * 3);
-    TIMER_Start(timer3_base);
+    // Wait 2 cycles of engine clock to ensure previous CTL write action is finish
+    wait_us(30 * 2);
+    timer3_base->CTL = ctl_timer3 | TIMER_CTL_TMR_EN_Msk;
 }
 #endif
