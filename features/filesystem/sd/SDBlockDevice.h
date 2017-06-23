@@ -169,7 +169,7 @@ private:
     };
 
     uint8_t _card_type;
-    int _cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t *resp=NULL);
+    int _cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAcmd=0, uint32_t *resp=NULL);
     int _cmd8();
 
     /*  Move the SDCard into the SPI Mode idle state
@@ -193,11 +193,15 @@ private:
     uint32_t _sectors;
 
     /* SPI functions */
+    Timer _spi_timer;               /**< Timer Class object used for busy wait */
     uint32_t _init_sck;             /**< Intial SPI frequency */
     uint32_t _transfer_sck;         /**< SPI frequency during data transfer/after initialization */
     SPI _spi;
     void _spi_init();
     uint8_t _cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg);
+    void _spi_wait(uint8_t count);
+
+    void _wait_ready(uint16_t ms=200);      /**< 200ms default wait for card to be ready */
 
     /* Chip Select and SPI mode select */
     DigitalOut _cs;

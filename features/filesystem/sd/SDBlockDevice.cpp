@@ -147,9 +147,9 @@
 #include "SDBlockDevice.h"
 #include "mbed_debug.h"
 
-#define SD_COMMAND_TIMEOUT                       5000    /*!< Number of times to query card for correct result */
-#define SD_CMD0_GO_IDLE_STATE_RETRIES            5       /*!< Number of retries for sending CMDO */
-#define SD_DBG                                   1
+#define SD_COMMAND_TIMEOUT                       5000   /*!< Timeout in ms for response */
+#define SD_CMD0_GO_IDLE_STATE_RETRIES            5      /*!< Number of retries for sending CMDO */
+#define SD_DBG                                   0      /*!< 1 - Enable debugging */
 
 #define SD_BLOCK_DEVICE_ERROR_WOULD_BLOCK        -5001	/*!< operation would block */
 #define SD_BLOCK_DEVICE_ERROR_UNSUPPORTED        -5002	/*!< unsupported operation */
@@ -299,13 +299,12 @@ int SDBlockDevice::_initialise_card()
      * "0" indicates completion of initialization. The host repeatedly issues ACMD41 until
      * this bit is set to "0".
      */
-    for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
-        _cmd(CMD55_APP_CMD, 0);
-        status = _cmd(ACMD41_SD_SEND_OP_COND, arg, &response);
-        if (0x0 == (R1_IDLE_STATE & response))
-            break;
-        wait_ms(5);
-    }
+    _spi_timer.start();
+    do {
+        status = _cmd(ACMD41_SD_SEND_OP_COND, arg, 1, &response);
+    } while ((response & R1_IDLE_STATE) && (_spi_timer.read_ms() < SD_COMMAND_TIMEOUT));
+    _spi_timer.stop();
+
     // Initialization complete: ACMD41 successful
     if ((BD_ERROR_OK != status) || (0x00 != response)) {
         _card_type = CARD_UNKNOWN;
@@ -413,22 +412,25 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         buffer += _block_size;
     }while (--blockCnt);     // Receive all blocks of data
 
-    /* In a Multiple Block write operation, the stop transmission will be done by
-     * sending 'Stop Tran' token instead of 'Start Block' token at the beginning
-     * of the next block
-     */
-    if(SPI_START_BLK_MUL_WRITE == token) {
+    if (SPI_START_BLK_MUL_WRITE == token) {
+        /* In a Multiple Block write operation, the stop transmission will be done by
+         * sending 'Stop Tran' token instead of 'Start Block' token at the beginning
+         * of the next block
+         */
         _select();
         _spi.write(SPI_STOP_TRAN);
         _deselect();
-    }
-    // SEND_NUM_WR_BLOCKS (ACMD22) in order to get the number of well written write blocks.
-    _cmd(CMD55_APP_CMD, 0);
-    if(BD_ERROR_OK == _cmd(ACMD22_SEND_NUM_WR_BLOCKS, 0)) {
-        uint8_t wr_blocks[4];
-        if(BD_ERROR_OK == _read(wr_blocks, 4)) {
-            debug_if(SD_DBG, "Blocks Written without errors: 0x%x\n",
-            ((wr_blocks[0] << 24) | (wr_blocks[1] << 16) | (wr_blocks[2] << 0) | wr_blocks[3]));
+
+        // Wait for last block to be written
+        _wait_ready(SD_COMMAND_TIMEOUT);
+
+        // SEND_NUM_WR_BLOCKS (ACMD22) in order to get the number of well written write blocks.
+        if (BD_ERROR_OK == _cmd(ACMD22_SEND_NUM_WR_BLOCKS, 0, 1)) {
+            uint8_t wr_blocks[4];
+            if (BD_ERROR_OK == _read(wr_blocks, 4)) {
+                debug_if(_dbg, "Blocks Written without errors: 0x%x\n",
+                ((wr_blocks[0] << 24) | (wr_blocks[1] << 16) | (wr_blocks[2] << 0) | wr_blocks[3]));
+            }
         }
     }
     _lock.unlock();
@@ -558,8 +560,8 @@ uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg) {
         _spi.write(0xFF);
     }
 
-    // wait for the response (response[7] == 0)
-    for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
+    // Loop for response: Response is sent back within command response time (NCR), 0 to 8 bytes for SDC
+    for (int i = 0; i < 0x10; i++) {
         response = _spi.write(0xFF);
         // Got the response
         if (!(response & R1_RESPONSE_RECV)) {
@@ -569,11 +571,18 @@ uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg) {
     return response;
 }
 
-int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t *resp) {
+int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAcmd, uint32_t *resp) {
     int32_t status = BD_ERROR_OK;
     uint32_t response;
-    // Select card
+
+    // Select card and wait for card to be ready before sending next command
     _select();
+    _wait_ready();
+
+    // Send CMD55 for APP command first
+    if (isAcmd) {
+        _cmd_spi(CMD55_APP_CMD, 0x0);
+    }
 
     // Send command over SPI interface
     response = _cmd_spi(cmd, arg);
@@ -624,7 +633,8 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t 
             break;
 
         case CMD12_STOP_TRANSMISSION:       // Response R1b
-        case CMD38_ERASE:                   // TODO:
+        case CMD38_ERASE:
+            _wait_ready(SD_COMMAND_TIMEOUT);
             break;
 
         case ACMD13_SD_STATUS:             // Response R2
@@ -653,9 +663,9 @@ int SDBlockDevice::_cmd8() {
 
     arg |= (0x1 << 8);  // 2.7-3.6V             // [11:8]supply voltage(VHS)
 
-    status = _cmd(CMD8_SEND_IF_COND, arg, &response);
+    status = _cmd(CMD8_SEND_IF_COND, arg, 0x0, &response);
     // Verify voltage and pattern for V2 version of card
-    if( (BD_ERROR_OK == status) && (SDCARD_V2 == _card_type)) {
+    if ((BD_ERROR_OK == status) && (SDCARD_V2 == _card_type)) {
         // If check pattern is not matched, CMD8 communication is not valid
         if((response & 0xFFF) != arg)
         {
@@ -676,7 +686,7 @@ uint32_t SDBlockDevice::_go_idle_state() {
      * not be interpreted as a command and get lost. For some cards retrying
      * the command overcomes this situation. */
     for (int i = 0; i < SD_CMD0_GO_IDLE_STATE_RETRIES; i++) {
-        _cmd(CMD0_GO_IDLE_STATE, 0, &response);
+        _cmd(CMD0_GO_IDLE_STATE, 0x0, 0x0, &response);
         if (R1_IDLE_STATE == response)
             break;
         wait_ms(1);
@@ -711,6 +721,11 @@ int SDBlockDevice::_write(const uint8_t*buffer, uint8_t token, uint32_t length) 
     // Select card
     _select();
 
+    /* If previous write is in progress, the card will drive DO low again when reselected.
+     * Therefore a preceding busy check, check if card is busy prior to each command and
+     * data packet, instead of post wait, can eliminate busy wait time */
+    _wait_ready(SD_COMMAND_TIMEOUT);
+
     // indicate start of block
     _spi.write(token);
 
@@ -729,8 +744,6 @@ int SDBlockDevice::_write(const uint8_t*buffer, uint8_t token, uint32_t length) 
         return SD_BLOCK_DEVICE_ERROR_WRITE;
     }
 
-    // wait for write to finish
-    while (_spi.write(0xFF) == 0);
     _deselect();
 
     return 0;
@@ -799,6 +812,30 @@ uint32_t SDBlockDevice::_sd_sectors() {
     return blocks;
 }
 
+// SPI function to wait till chip is ready
+// The host controller should wait for end of the process until DO goes high (a 0xFF is received).
+void SDBlockDevice::_wait_ready(uint16_t ms) {
+    uint8_t response;
+    _spi_timer.reset();
+    _spi_timer.start();
+    do {
+        response = _spi.write(0xFF);
+        if (response == 0xFF) {
+            break;
+        }
+    } while (_spi_timer.read_ms() < ms);
+    _spi_timer.stop();
+    return;
+}
+
+// SPI function to wait for count
+void SDBlockDevice::_spi_wait(uint8_t count)
+{
+    for (uint8_t i = 0; i < count; ++i) {
+        _spi.write(0xFF);
+    }
+}
+
 void SDBlockDevice::_spi_init() {
     _spi.lock();
     // Set to SCK for initialization, and clock card with cs = 1
@@ -806,9 +843,7 @@ void SDBlockDevice::_spi_init() {
     _spi.format(8, 0);
     // Initial 74 cycles required for few cards, before selecting SPI mode
     _cs = 1;
-    for (int i = 0; i < 10; i++) {
-        _spi.write(0xFF);
-    }
+    _spi_wait(10);
     _spi.unlock();
 }
 
