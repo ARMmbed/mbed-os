@@ -66,7 +66,7 @@ build_list = (
 
     { "target": "MOTE_L152RC",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
 
-    { "target": "ELMO_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp"] },
+    { "target": "ELMO_F411RE",       "toolchains": "GCC_ARM", "libs": ["dsp"] },
 
     { "target": "MTS_MDOT_F405RG",   "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "MTS_MDOT_F411RE",   "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -77,7 +77,9 @@ build_list = (
     { "target": "DISCO_F303VC",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F334C8",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F401VC",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
+
     { "target": "DISCO_F407VG",      "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+    { "target": "DISCO_F413ZH",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F429ZI",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F469NI",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F746NG",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -225,6 +227,11 @@ linking_list = [
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     },
+     {"target": "DISCO_F413ZH",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                }
      },
     {"target": "NUCLEO_F303ZE",
