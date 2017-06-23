@@ -184,24 +184,24 @@ private:
      */
     uint32_t _go_idle_state();
     int _initialise_card();
-    int _initialise_card_v1();
-    int _initialise_card_v2();
 
-    int _read(uint8_t * buffer, uint32_t length);
-    int _write(const uint8_t *buffer,uint8_t token, uint32_t length);
-    uint32_t _sd_sectors();
     uint32_t _sectors;
+    uint32_t _sd_sectors();
 
     /* SPI functions */
     Timer _spi_timer;               /**< Timer Class object used for busy wait */
     uint32_t _init_sck;             /**< Intial SPI frequency */
     uint32_t _transfer_sck;         /**< SPI frequency during data transfer/after initialization */
-    SPI _spi;
+    SPI _spi;                       /**< SPI Class object */
+
+    /* SPI initialization function */
     void _spi_init();
     uint8_t _cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg);
     void _spi_wait(uint8_t count);
 
     void _wait_ready(uint16_t ms=200);      /**< 200ms default wait for card to be ready */
+    int _read(uint8_t * buffer, uint32_t length);
+    int _write(const uint8_t *buffer,uint8_t token, uint32_t length);
 
     /* Chip Select and SPI mode select */
     DigitalOut _cs;
@@ -213,7 +213,6 @@ private:
     bool _is_initialized;
     bool _dbg;
 };
-
 
 #endif  /* DEVICE_SPI */
 
