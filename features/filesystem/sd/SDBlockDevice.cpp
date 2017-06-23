@@ -406,7 +406,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     // Write the data: one block at a time
     do {
         if(BD_ERROR_OK != (status = _write(buffer, token, _block_size))) {
-            // CMD13 to get the failure status
+            // CMD13 to get the status
             status = _cmd(CMD13_SEND_STATUS, 0);
             break;
         }
@@ -422,13 +422,12 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         _spi.write(SPI_STOP_TRAN);
         _deselect();
     }
-
     // SEND_NUM_WR_BLOCKS (ACMD22) in order to get the number of well written write blocks.
     _cmd(CMD55_APP_CMD, 0);
     if(BD_ERROR_OK == _cmd(ACMD22_SEND_NUM_WR_BLOCKS, 0)) {
         uint8_t wr_blocks[4];
         if(BD_ERROR_OK == _read(wr_blocks, 4)) {
-            debug_if(SD_DBG, "Blocks Written successfully 0x%x\n",
+            debug_if(SD_DBG, "Blocks Written without errors: 0x%x\n",
             ((wr_blocks[0] << 24) | (wr_blocks[1] << 16) | (wr_blocks[2] << 0) | wr_blocks[3]));
         }
     }
@@ -547,10 +546,18 @@ uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg) {
             cmdPacket[5] = 0xFF;    // Make sure bit 0-End bit is high
             break;
     }
+
     // send a command
     for (int i = 0; i < PACKET_SIZE; i++) {
         _spi.write(cmdPacket[i]);
     }
+
+    // The received byte immediataly following CMD12 is a stuff byte,
+    // it should be discarded before receive the response of the CMD12.
+    if (CMD12_STOP_TRANSMISSION == cmd) {
+        _spi.write(0xFF);
+    }
+
     // wait for the response (response[7] == 0)
     for (int i = 0; i < SD_COMMAND_TIMEOUT; i++) {
         response = _spi.write(0xFF);
@@ -564,25 +571,38 @@ uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg) {
 
 int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t *resp) {
     int32_t status = BD_ERROR_OK;
-    uint8_t response;
+    uint32_t response;
     // Select card
     _select();
 
     // Send command over SPI interface
     response = _cmd_spi(cmd, arg);
+    debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x \n", cmd, arg, response);
     // Pass the response to the command call if required
     if (NULL != resp) {
         *resp = response;
     }
 
-    // Process the response R1
+    // Process the response R1  : Exit on CRC/Illegal command error/No response
     if (R1_NO_RESPONSE == response) {
-        status = SD_BLOCK_DEVICE_ERROR_NO_DEVICE;        // No device
-    }else if (response & R1_COM_CRC_ERROR) {
-        status = SD_BLOCK_DEVICE_ERROR_CRC;              // CRC error
-    }else if (response & R1_ILLEGAL_COMMAND) {
-        status = SD_BLOCK_DEVICE_ERROR_UNSUPPORTED;      // Command not supported
-    }else if ((response & R1_ERASE_RESET) || (response & R1_ERASE_SEQUENCE_ERROR)) {
+        _deselect();
+        return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;         // No device
+    }
+    if (response & R1_COM_CRC_ERROR) {
+        _deselect();
+        return SD_BLOCK_DEVICE_ERROR_CRC;                // CRC error
+    }
+    if (response & R1_ILLEGAL_COMMAND) {
+        debug_if(SD_DBG, "Illegal command response\n");
+        if (CMD8_SEND_IF_COND == cmd) {                  // Illegal command is for Ver1 or not SD Card
+            _card_type = CARD_UNKNOWN;
+        }
+        _deselect();
+        return SD_BLOCK_DEVICE_ERROR_UNSUPPORTED;      // Command not supported
+    }
+
+    // Set status for other errors
+    if ((response & R1_ERASE_RESET) || (response & R1_ERASE_SEQUENCE_ERROR)) {
         status = SD_BLOCK_DEVICE_ERROR_ERASE;            // Erase error
     }else if ((response & R1_ADDRESS_ERROR) || (response & R1_PARAMETER_ERROR)) {
         // Misaligned address / invalid address block length
@@ -592,46 +612,33 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t 
     // Get rest of the response part for other commands
     switch(cmd) {
         case CMD8_SEND_IF_COND:             // Response R7
-            // Illegal command is for Ver1 or not SD Card
-            if(response & R1_ILLEGAL_COMMAND) {
-                debug_if(SD_DBG, "Illegal command response - CMD8\n");
-                _card_type = CARD_UNKNOWN;
-            }
-            else {
-                debug_if(SD_DBG, "V2-Version Card\n");
-                _card_type = SDCARD_V2;
-            }
-
+            debug_if(SD_DBG, "V2-Version Card\n");
+            _card_type = SDCARD_V2;
             // Note: No break here, need to read rest of the response
         case CMD58_READ_OCR:                // Response R3
-            if(NULL == resp) {
-                status = SD_BLOCK_DEVICE_ERROR_PARAMETER;
-                break;
-            }
-            *resp  = (_spi.write(0xFF) << 24);
-            *resp |= (_spi.write(0xFF) << 16);
-            *resp |= (_spi.write(0xFF) << 8);
-            *resp |= (_spi.write(0xFF) << 0);
-            debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x 0x%x \n", cmd, arg, response, *resp);
+            response  = (_spi.write(0xFF) << 24);
+            response |= (_spi.write(0xFF) << 16);
+            response |= (_spi.write(0xFF) << 8);
+            response |= _spi.write(0xFF);
+            debug_if(SD_DBG, "R3/R7: 0x%x \n", response);
             break;
 
         case CMD12_STOP_TRANSMISSION:       // Response R1b
         case CMD38_ERASE:                   // TODO:
-            debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x \n", cmd, arg, response);
             break;
 
         case ACMD13_SD_STATUS:             // Response R2
-            if(NULL == resp) {
-                status = SD_BLOCK_DEVICE_ERROR_PARAMETER;
-                break;
-            }
-            *resp = _spi.write(0xFF);
-            debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x 0x%x \n", cmd, arg, response, *resp);
+            response = _spi.write(0xFF);
+            debug_if(SD_DBG, "R2: 0x%x \n", response);
             break;
 
         default:                            // Response R1
-            debug_if(SD_DBG, "CMD:%d \t arg:0x%x \t Response:0x%x \n", cmd, arg, response);
             break;
+    }
+
+    // Pass the updated response to the command
+    if (NULL != resp) {
+        *resp = response;
     }
 
     // Deselect card
@@ -640,11 +647,11 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, uint32_t 
 }
 
 int SDBlockDevice::_cmd8() {
-    uint32_t arg = (CMD8_PATTERN << 0);
+    uint32_t arg = (CMD8_PATTERN << 0);         // [7:0]check pattern
     uint32_t response = 0;
     int32_t status = BD_ERROR_OK;
 
-    arg |= (0x1 << 8);  // 3.3V
+    arg |= (0x1 << 8);  // 2.7-3.6V             // [11:8]supply voltage(VHS)
 
     status = _cmd(CMD8_SEND_IF_COND, arg, &response);
     // Verify voltage and pattern for V2 version of card
