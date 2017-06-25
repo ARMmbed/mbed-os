@@ -428,6 +428,15 @@ osMutexId_t               env_mutex_id;
 mbed_rtos_storage_mutex_t env_mutex_obj;
 osMutexAttr_t             env_mutex_attr;
 
+static int                main_running;
+
+/* newlib reentrancy data. */
+static struct _reent      os_libspace[OS_THREAD_LIBSPACE_NUM] \
+__attribute__((section(".bss.os")));
+
+static osThreadId_t       os_libspace_id[OS_THREAD_LIBSPACE_NUM] \
+__attribute__((section(".bss.os")));
+
 #ifdef  FEATURE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
 #endif/* FEATURE_UVISOR */
@@ -439,6 +448,8 @@ int __wrap_main(void) {
 
 void pre_main(void)
 {
+    main_running = 1;
+    
     singleton_mutex_attr.name = "singleton_mutex";
     singleton_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
     singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
@@ -484,9 +495,6 @@ void software_init_hook(void)
     mbed_start_main();
 }
 
-/* Opaque declaration of _reent structure */
-struct _reent;
-
 void __rtos_malloc_lock( struct _reent *_r )
 {
     osMutexAcquire(malloc_mutex_id, osWaitForever);
@@ -505,6 +513,40 @@ void __rtos_env_lock( struct _reent *_r )
 void __rtos_env_unlock( struct _reent *_r )
 {
     osMutexRelease(env_mutex_id);
+}
+
+
+/* Return thread specific reentrant data for newlib. newlib starts out using
+   the _global_impure_ptr instance that it statically allocates and this code 
+   re-uses that instance for the main thread. */
+struct _reent* __user_perthread_libspace(osThreadId_t id)
+{
+    uint32_t     n;
+
+    if (!main_running) {
+        return _global_impure_ptr;
+    }
+    
+    if (id == (osThreadId_t)&_main_obj) {
+        return _global_impure_ptr;
+    }
+    
+    for (n = 0U; n < OS_THREAD_LIBSPACE_NUM; n++) {
+        if (os_libspace_id[n] == NULL) {
+            os_libspace_id[n] = id;
+            os_libspace[n] = (struct _reent)_REENT_INIT(os_libspace[n]);
+            return &os_libspace[n];
+        }
+        if (os_libspace_id[n] == id) {
+            return &os_libspace[n];
+        }
+    }
+    
+    if (n == OS_THREAD_LIBSPACE_NUM) {
+        osRtxErrorNotify(osRtxErrorClibSpace, id);
+    }
+    
+    return _global_impure_ptr;
 }
 
 #endif
