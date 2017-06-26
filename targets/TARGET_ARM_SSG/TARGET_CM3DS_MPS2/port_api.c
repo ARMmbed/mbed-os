@@ -17,26 +17,45 @@
 #include "pinmap.h"
 #include "gpio_api.h"
 
+#define MAX_GPIO_PINS  16
+
 PinName port_pin(PortName port, int pin_n)
 {
+    if (pin_n < 0 || pin_n > MAX_GPIO_PINS) {
+        error("Invalid GPIO pin number %d", pin_n);
+    }
+
     return (PinName)((port << PORT_SHIFT) | pin_n);
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
-    obj->port = port;
-    obj->mask = mask;
+    uint32_t i;
+    CMSDK_GPIO_TypeDef *port_reg;
 
-    CMSDK_GPIO_TypeDef *port_reg = (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO0_BASE
-                                                          + ((int)port * 0x10));
+    switch (port) {
+        case Port0:
+            port_reg = (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO0_BASE);
+            break;
+        case Port1:
+            port_reg = (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO1_BASE);
+            break;
+        case Port2:
+            port_reg = (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO2_BASE);
+            break;
+        case Port3:
+            port_reg = (CMSDK_GPIO_TypeDef *)(CMSDK_GPIO3_BASE);
+            break;
+    }
 
-    obj->reg_in  = &port_reg->DATAOUT;
-    obj->reg_dir = &port_reg->OUTENABLESET;
+    obj->port       = port;
+    obj->mask       = mask;
+    obj->reg_in     = &port_reg->DATAOUT;
+    obj->reg_dir    = &port_reg->OUTENABLESET;
     obj->reg_dirclr = &port_reg->OUTENABLECLR;
 
-    uint32_t i;
-    // The function is set per pin: reuse gpio logic
-    for (i=0; i<16; i++) {
+    /* The function is set per pin: reuse gpio logic */
+    for (i=0; i < MAX_GPIO_PINS; i++) {
         if (obj->mask & (1<<i)) {
             gpio_set(port_pin(obj->port, i));
         }
@@ -48,9 +67,9 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 void port_mode(port_t *obj, PinMode mode)
 {
     uint32_t i;
-    // The mode is set per pin: reuse pinmap logic
-    for (i=0; i<32; i++) {
-        if (obj->mask & (1<<i)) {
+    /* The mode is set per pin: reuse pinmap logic */
+    for (i=0; i < MAX_GPIO_PINS; i++) {
+        if (obj->mask & (1 << i)) {
             pin_mode(port_pin(obj->port, i), mode);
         }
     }

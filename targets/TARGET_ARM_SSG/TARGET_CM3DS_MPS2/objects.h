@@ -45,6 +45,7 @@ struct serial_s {
 
 struct i2c_s {
     MPS2_I2C_TypeDef *i2c;
+    uint32_t freq_us;       /* Stores I2C frequency in microseconds */
 };
 
 struct tsc_s {
@@ -65,11 +66,7 @@ struct clcd_s {
 };
 
 struct analogin_s {
-    ADCName adc;
-    MPS2_SSP_TypeDef *adc_spi;
-    PinName  pin;
-    uint32_t pin_number;
-    __IO uint32_t address;
+    uint16_t ctrl_register;  /* Control bits with the channel identifier */
 };
 
 #include "gpio_object.h"

@@ -22,7 +22,9 @@ extern "C" {
 
 typedef enum {
     Port0 = 0,
-    Port1 = 1
+    Port1,
+    Port2,
+    Port3,
 } PortName;
 
 #ifdef __cplusplus
