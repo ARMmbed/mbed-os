@@ -898,31 +898,6 @@ extern "C" WEAK void __iar_file_Mtxunlock(__iar_Rmtx *mutex) {}
 #elif defined(__CC_ARM)
 // Do nothing
 #elif defined (__GNUC__)
-// Stub out locks when an rtos is not present
-extern "C" WEAK void __rtos_malloc_lock( struct _reent *_r ) {}
-extern "C" WEAK void __rtos_malloc_unlock( struct _reent *_r ) {}
-extern "C" WEAK void __rtos_env_lock( struct _reent *_r ) {}
-extern "C" WEAK void __rtos_env_unlock( struct _reent *_r ) {}
-
-extern "C" void __malloc_lock( struct _reent *_r )
-{
-    __rtos_malloc_lock(_r);
-}
-
-extern "C" void __malloc_unlock( struct _reent *_r )
-{
-    __rtos_malloc_unlock(_r);
-}
-
-extern "C" void __env_lock( struct _reent *_r )
-{
-    __rtos_env_lock(_r);
-}
-
-extern "C" void __env_unlock( struct _reent *_r )
-{
-    __rtos_env_unlock(_r);
-}
 
 #define CXA_GUARD_INIT_DONE             (1 << 0)
 #define CXA_GUARD_INIT_IN_PROGRESS      (1 << 1)
