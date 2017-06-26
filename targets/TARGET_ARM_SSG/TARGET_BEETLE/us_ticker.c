@@ -99,7 +99,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     /* Check if the event was in the past */
     if (delta <= 0) {
         /* This event was in the past */
-        Timer_SetInterrupt(TIMER0, 0);
+        NVIC_SetPendingIRQ(Timer_GetIRQn(TIMER0));
         return;
     }
 
