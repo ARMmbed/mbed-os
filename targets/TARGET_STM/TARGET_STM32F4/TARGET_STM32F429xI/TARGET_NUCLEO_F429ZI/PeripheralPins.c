@@ -40,7 +40,7 @@
 //
 // - The pins which are connected to other components present on the board have
 //   the comment "Connected to xxx". The pin function may not work properly in this
-//   case. These pins may not displayed on the board pinout image on mbed.org.
+//   case. These pins may not be displayed on the board pinout image on mbed.org.
 //   Please read the board reference manual and schematic for more information.
 //
 //==============================================================================
