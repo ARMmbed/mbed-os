@@ -46,6 +46,7 @@
         EXTERN  exit
         EXTERN  __iar_dynamic_initialization
         EXTERN mbed_sdk_init
+        EXTERN mbed_main
         EXTERN SystemInit
         
         THUMB
@@ -86,6 +87,10 @@ _call_main:
         MOVS    r0,#0             ;  No parameters  
           FUNCALL __cmain, __iar_argc_argv
         BL      __iar_argc_argv   ; Maybe setup command line
+
+        MOVS    r0,#0             ;  No parameters  
+          FUNCALL __cmain, mbed_main
+        BL      mbed_main
 
           FUNCALL __cmain, main
         BL      main
