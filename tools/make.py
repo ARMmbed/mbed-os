@@ -42,6 +42,7 @@ from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
+from tools.options import extract_mcus
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import mcu_toolchain_list
@@ -200,7 +201,7 @@ if __name__ == '__main__':
     # Target
     if options.mcu is None :
         args_error(parser, "argument -m/--mcu is required")
-    mcu = options.mcu[0]
+    mcu = extract_mcus(parser, options)[0]
 
     # Toolchain
     if options.tool is None:

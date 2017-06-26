@@ -15,17 +15,22 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 """
-
+import os
 import sys
+import shutil
+import tempfile
 from os.path import join, abspath, dirname
+from contextlib import contextmanager
 import unittest
 
 # Be sure that the tools directory is in the search path
+
 ROOT = abspath(join(dirname(__file__), "..", "..", ".."))
 sys.path.insert(0, ROOT)
 
-from tools.targets import TARGETS
+from tools.targets import TARGETS, TARGET_MAP, Target, update_target_data
 from tools.arm_pack_manager import Cache
+
 
 class TestTargets(unittest.TestCase):
 
@@ -38,6 +43,99 @@ class TestTargets(unittest.TestCase):
             self.assertTrue(target.device_name in cache.index,
                             "Target %s contains invalid device_name %s" %
                             (target.name, target.device_name))
+
+    @contextmanager
+    def temp_target_file(self, extra_target, json_filename='custom_targets.json'):
+        """Create an extra targets temp file in a context manager"""
+        tempdir = tempfile.mkdtemp()
+        try:
+            targetfile = os.path.join(tempdir, json_filename)
+            with open(targetfile, 'w') as f:
+                f.write(extra_target)
+            yield tempdir
+        finally:
+            # Reset extra targets
+            Target.set_targets_json_location()
+            # Delete temp files
+            shutil.rmtree(tempdir)
+
+    def test_add_extra_targets(self):
+        """Search for extra targets json in a source folder"""
+        test_target_json = """
+        { 
+            "Test_Target": {
+                "inherits": ["Target"]
+            }
+        }
+        """
+        with self.temp_target_file(test_target_json) as source_dir:
+            Target.add_extra_targets(source_dir=source_dir)
+            update_target_data()
+
+            assert 'Test_Target' in TARGET_MAP
+            assert TARGET_MAP['Test_Target'].core is None, \
+                   "attributes should be inherited from Target"
+
+    def test_modify_existing_target(self):
+        """Set default targets file, then override base Target definition"""
+        initial_target_json = """
+        {
+            "Target": {
+                "core": null,
+                "default_toolchain": "ARM",
+                "supported_toolchains": null,
+                "extra_labels": [],
+                "is_disk_virtual": false,
+                "macros": [],
+                "device_has": [],
+                "features": [],
+                "detect_code": [],
+                "public": false,
+                "default_lib": "std",
+                "bootloader_supported": false
+            },
+            "Test_Target": {
+                "inherits": ["Target"],
+                "core": "Cortex-M4",
+                "supported_toolchains": ["ARM"]
+            }
+        }"""
+
+        test_target_json = """
+        { 
+            "Target": {
+                "core": "Cortex-M0",
+                "default_toolchain": "GCC_ARM",
+                "supported_toolchains": null,
+                "extra_labels": [],
+                "is_disk_virtual": false,
+                "macros": [],
+                "device_has": [],
+                "features": [],
+                "detect_code": [],
+                "public": false,
+                "default_lib": "std",
+                "bootloader_supported": true
+            }
+        }
+        """
+
+        with self.temp_target_file(initial_target_json, json_filename="targets.json") as targets_dir:
+            Target.set_targets_json_location(os.path.join(targets_dir, "targets.json"))
+            update_target_data()
+            assert TARGET_MAP["Test_Target"].core == "Cortex-M4"
+            assert TARGET_MAP["Test_Target"].default_toolchain == 'ARM'
+            assert TARGET_MAP["Test_Target"].bootloader_supported == False
+
+            with self.temp_target_file(test_target_json) as source_dir:
+                Target.add_extra_targets(source_dir=source_dir)
+                update_target_data()
+
+                assert TARGET_MAP["Test_Target"].core == "Cortex-M4"
+                # The existing target should not be modified by custom targets
+                assert TARGET_MAP["Test_Target"].default_toolchain != 'GCC_ARM'
+                assert TARGET_MAP["Test_Target"].bootloader_supported != True
+
 
 if __name__ == '__main__':
     unittest.main()
