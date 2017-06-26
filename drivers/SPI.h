@@ -270,6 +270,12 @@ protected:
     int _bits;
     int _mode;
     int _hz;
+
+private:
+    /* Private acquire fucntion without locking/unlocking
+     * Implemented in order to avoid duplicate locking and boost performance
+     */
+    void _acquire(void);
 };
 
 } // namespace mbed
