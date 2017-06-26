@@ -290,7 +290,9 @@ static void twi_clear_bus(twi_info_t *twi_info)
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {
+    ret_code_t ret;
     int i;
+
     for (i = 0; i < TWI_COUNT; ++i) {
         if (m_twi_info[i].initialized &&
             m_twi_info[i].pselsda == (uint32_t)sda &&
@@ -304,6 +306,13 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     for (i = 0; i < TWI_COUNT; ++i) {
         if (!m_twi_info[i].initialized) {
+            ret = nrf_drv_common_per_res_acquire(m_twi_instances[i],
+                    m_twi_irq_handlers[i]);
+
+            if (ret != NRF_SUCCESS) {
+                continue; /* the hw resource is busy - test another one */
+            }
+
             TWI_IDX(obj) = i;
 
             twi_info_t *twi_info = TWI_INFO(obj);
@@ -324,8 +333,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
             i2c_reset(obj);
 
 #if DEVICE_I2C_ASYNCH
-            nrf_drv_common_per_res_acquire(m_twi_instances[i],
-                m_twi_irq_handlers[i]);
             NVIC_SetVector(twi_handlers[i].IRQn, twi_handlers[i].vector);
             nrf_drv_common_irq_enable(twi_handlers[i].IRQn, TWI_IRQ_PRIORITY);
 #endif
