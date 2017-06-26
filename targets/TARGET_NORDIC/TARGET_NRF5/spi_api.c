@@ -305,9 +305,9 @@ void spi_init(spi_t *obj,
                 p_spi_info->initialized = true;
                 p_spi_info->master      = true;
                 p_spi_info->flag.busy   = false;
-            #if DEVICE_SPI_ASYNCH
+#if DEVICE_SPI_ASYNCH
                 p_spi_info->handler     = 0;
-            #endif
+#endif
                 SPI_IDX(obj) = i;
                 NVIC_SetVector(spi_handler_desc[i].IRQn, spi_handler_desc[i].vector);
                 return;
