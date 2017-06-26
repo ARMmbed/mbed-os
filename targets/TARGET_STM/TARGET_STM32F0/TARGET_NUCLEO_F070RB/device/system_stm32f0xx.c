@@ -438,8 +438,8 @@ uint8_t SetSysClock_PLL_HSI(void)
   RCC_OscInitStruct.HSI48State              = RCC_HSI_ON;
   RCC_OscInitStruct.LSIState                = RCC_LSI_OFF;
   RCC_OscInitStruct.PLL.PLLState            = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource           = RCC_PLLSOURCE_HSI; // HSI div 2
-  RCC_OscInitStruct.PLL.PREDIV              = RCC_PREDIV_DIV1;
+  RCC_OscInitStruct.PLL.PLLSource           = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PREDIV              = RCC_PREDIV_DIV2; // HSI div 2
   RCC_OscInitStruct.PLL.PLLMUL              = RCC_PLL_MUL12;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
       return 0; // FAIL
