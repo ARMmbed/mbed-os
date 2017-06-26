@@ -43,16 +43,28 @@ void SPI::format(int bits, int mode) {
     lock();
     _bits = bits;
     _mode = mode;
-    spi_format(&_spi, _bits, _mode, 0);
-    _owner = this;
+    // If changing format while you are the owner than just
+    // update format, but if owner is changed than even frequency should be
+    // updated which is done by acquire.
+    if (_owner == this) {
+        spi_format(&_spi, _bits, _mode, 0);
+    } else {
+        _acquire();
+    }
     unlock();
 }
 
 void SPI::frequency(int hz) {
     lock();
     _hz = hz;
-    spi_frequency(&_spi, _hz);
-    _owner = this;
+    // If changing format while you are the owner than just
+    // update frequency, but if owner is changed than even frequency should be
+    // updated which is done by acquire.
+    if (_owner == this) {
+        spi_frequency(&_spi, _hz);
+    } else {
+        _acquire();
+    }
     unlock();
 }
 
