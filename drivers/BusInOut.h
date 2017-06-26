@@ -18,6 +18,7 @@
 
 #include "drivers/DigitalInOut.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -27,7 +28,7 @@ namespace mbed {
  * @note Synchronization level: Thread safe
  * @ingroup drivers
  */
-class BusInOut {
+class BusInOut : private NonCopyable<BusInOut> {
 
 public:
 
@@ -135,11 +136,6 @@ protected:
     int _nc_mask;
 
     PlatformMutex _mutex;
-
-    /* disallow copy constructor and assignment operators */
-private:
-    BusInOut(const BusInOut&);
-    BusInOut & operator = (const BusInOut&);
 };
 
 } // namespace mbed

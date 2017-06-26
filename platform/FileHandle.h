@@ -22,6 +22,7 @@ typedef int FILEHANDLE;
 #include "Callback.h"
 #include "platform/mbed_poll.h"
 #include "platform/platform.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup platform */
@@ -37,7 +38,7 @@ namespace mbed {
  *  @note Synchronization level: Set by subclass
  *  @ingroup platform
  */
-class FileHandle {
+class FileHandle : private NonCopyable<FileHandle> {
 public:
     virtual ~FileHandle() {}
 

@@ -28,6 +28,7 @@
 #include "cmsis_os2.h"
 #include "mbed_rtos_storage.h"
 #include "platform/mbed_error.h"
+#include "platform/NonCopyable.h"
 #include "mbed_rtos1_types.h"
 
 namespace rtos {
@@ -45,7 +46,7 @@ namespace rtos {
  and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 template<typename T, uint32_t queue_sz>
-class Queue {
+class Queue : private mbed::NonCopyable<Queue<T, queue_sz> > {
 public:
     /** Create and initialize a message Queue. */
     Queue() {

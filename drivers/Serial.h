@@ -24,6 +24,7 @@
 #include "SerialBase.h"
 #include "PlatformMutex.h"
 #include "serial_api.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -49,7 +50,7 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class Serial : public SerialBase, public Stream {
+class Serial : public SerialBase, public Stream, private NonCopyable<Serial> {
 
 public:
 #if DEVICE_SERIAL_ASYNCH

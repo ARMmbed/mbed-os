@@ -27,6 +27,7 @@
 #include "PlatformMutex.h"
 #include "serial_api.h"
 #include "CircularBuffer.h"
+#include "platform/NonCopyable.h"
 
 #ifndef MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE
 #define MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE  256
@@ -38,7 +39,7 @@
 
 namespace mbed {
 
-class UARTSerial : private SerialBase, public FileHandle {
+class UARTSerial : private SerialBase, public FileHandle, private NonCopyable<UARTSerial> {
 
 public:
 
