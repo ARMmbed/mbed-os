@@ -19,7 +19,7 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_SERIAL
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 
 #include "FileHandle.h"
 #include "SerialBase.h"
@@ -27,6 +27,7 @@
 #include "PlatformMutex.h"
 #include "serial_api.h"
 #include "CircularBuffer.h"
+#include "platform/NonCopyable.h"
 
 #ifndef MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE
 #define MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE  256
@@ -38,7 +39,7 @@
 
 namespace mbed {
 
-class UARTSerial : private SerialBase, public FileHandle {
+class UARTSerial : private SerialBase, public FileHandle, private NonCopyable<UARTSerial> {
 
 public:
 
@@ -58,7 +59,7 @@ public:
     /** Write the contents of a buffer to a file
      *
      *  @param buffer   The buffer to write from
-     *  @param size     The number of bytes to write
+     *  @param length   The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
     virtual ssize_t write(const void* buffer, size_t length);
@@ -72,16 +73,10 @@ public:
      *  * If any data is available, call returns immediately
      *
      *  @param buffer   The buffer to read in to
-     *  @param size     The number of bytes to read
+     *  @param length   The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
     virtual ssize_t read(void* buffer, size_t length);
-
-    /** Acquire mutex */
-    virtual void lock(void);
-
-    /** Release mutex */
-    virtual void unlock(void);
 
     /** Close a file
      *
@@ -159,6 +154,18 @@ public:
 
 private:
 
+    /** SerialBase lock override */
+    virtual void lock(void);
+
+    /** SerialBase unlock override */
+    virtual void unlock(void);
+
+    /** Acquire mutex */
+    virtual void api_lock(void);
+
+    /** Release mutex */
+    virtual void api_unlock(void);
+
     /** Software serial buffers
      *  By default buffer size is 256 for TX and 256 for RX. Configurable through mbed_app.json
      */
@@ -191,8 +198,9 @@ private:
     void wake(void);
 
     void dcd_irq(void);
+
 };
 } //namespace mbed
 
-#endif //DEVICE_SERIAL
+#endif //(DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 #endif //MBED_UARTSERIAL_H

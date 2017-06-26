@@ -31,6 +31,8 @@
 #include "rtx_lib.h"
 #include "mbed_rtos1_types.h"
 
+#include "platform/NonCopyable.h"
+
 using namespace rtos;
 
 namespace rtos {
@@ -47,7 +49,7 @@ namespace rtos {
  both for the mbed OS and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 template<typename T, uint32_t queue_sz>
-class Mail {
+class Mail : private mbed::NonCopyable<Mail<T, queue_sz> > {
 public:
     /** Create and Initialise Mail queue. */
     Mail() { };

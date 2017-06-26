@@ -27,6 +27,7 @@
 #include "flash_api.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 
@@ -37,7 +38,7 @@ namespace mbed {
  * @note Synchronization level: Thread safe
  * @ingroup drivers
  */
-class FlashIAP {
+class FlashIAP : private NonCopyable<FlashIAP> {
 public:
     FlashIAP();
     ~FlashIAP();

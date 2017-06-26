@@ -18,6 +18,7 @@
 
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
+#include "platform/NonCopyable.h"
 #include <string.h>
 
 namespace mbed {
@@ -65,7 +66,7 @@ namespace mbed {
 typedef Callback<void()> *pFunctionPointer_t;
 class CallChainLink;
 
-class CallChain {
+class CallChain : private NonCopyable<CallChain> {
 public:
     /** Create an empty chain
      *
@@ -178,10 +179,7 @@ public:
         return get(i);
     }
 
-    /* disallow copy constructor and assignment operators */
 private:
-    CallChain(const CallChain&);
-    CallChain & operator = (const CallChain&);
     CallChainLink *_chain;
 };
 

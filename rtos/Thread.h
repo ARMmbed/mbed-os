@@ -29,6 +29,7 @@
 #include "mbed_rtx_conf.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
+#include "platform/NonCopyable.h"
 #include "rtos/Semaphore.h"
 #include "rtos/Mutex.h"
 
@@ -69,7 +70,7 @@ namespace rtos {
  * and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
  * Additionally the stack memory for this thread will be allocated on the heap, if it wasn't supplied to the constructor.
  */
-class Thread {
+class Thread : private mbed::NonCopyable<Thread> {
 public:
     /** Allocate a new thread without starting execution
       @param   priority       initial priority of the thread function. (default: osPriorityNormal).
@@ -348,10 +349,6 @@ public:
     virtual ~Thread();
 
 private:
-    /* disallow copy constructor and assignment operators */
-    Thread(const Thread&);
-    Thread& operator=(const Thread&);
-
     // Required to share definitions without
     // delegated constructors
     void constructor(osPriority priority=osPriorityNormal,

@@ -18,6 +18,7 @@
 
 #include "platform/platform.h"
 #include "hal/ticker_api.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -46,7 +47,7 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class Timer {
+class Timer : private NonCopyable<Timer> {
 
 public:
     Timer();

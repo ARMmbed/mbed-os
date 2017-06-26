@@ -27,6 +27,8 @@
 #include "mbed_rtos1_types.h"
 #include "mbed_rtos_storage.h"
 
+#include "platform/NonCopyable.h"
+
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
@@ -38,7 +40,7 @@ namespace rtos {
  Memory considerations: The mutex control structures will be created on current thread's stack, both for the mbed OS
  and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
-class Mutex {
+class Mutex : private mbed::NonCopyable<Mutex> {
 public:
     /** Create and Initialize a Mutex object */
     Mutex();

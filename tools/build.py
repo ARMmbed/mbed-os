@@ -32,6 +32,7 @@ from tools.toolchains import mbedToolchain
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
+from tools.options import extract_mcus
 from tools.build_api import build_library, build_mbed_libs, build_lib
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import print_build_results
@@ -134,7 +135,7 @@ if __name__ == '__main__':
 
 
     # Get target list
-    targets = options.mcu if options.mcu else TARGET_NAMES
+    targets = extract_mcus(parser, options) if options.mcu else TARGET_NAMES
 
     # Get toolchains list
     toolchains = options.tool if options.tool else TOOLCHAINS
