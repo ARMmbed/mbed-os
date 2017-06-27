@@ -410,6 +410,8 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
          */
         status = _cmd(CMD13_SEND_STATUS, 0);
     } else {
+        // Pre-erase setting prior to multiple block write operation
+        _cmd(ACMD23_SET_WR_BLK_ERASE_COUNT, blockCnt, 1);
         // Multiple block write command
         if (BD_ERROR_OK != (status = _cmd(CMD25_WRITE_MULTIPLE_BLOCK, addr))) {
             _lock.unlock();
