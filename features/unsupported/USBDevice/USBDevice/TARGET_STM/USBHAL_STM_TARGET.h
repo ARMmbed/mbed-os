@@ -34,6 +34,9 @@
 #elif defined(TARGET_DISCO_L072CZ_LRWAN1)
 #include "USBHAL_STM32L072CZ.h"
 
+#elif defined(TARGET_DISCO_L475VG_IOT01A)
+#include "USBHAL_STM32L475VG.h"
+
 #else /* default configuration */
 #include "USBHAL_STM_144_64pins.h"
 
