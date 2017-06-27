@@ -1,11 +1,17 @@
 /* Linker script to configure memory regions. */
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
 
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 256k
+#endif
 MEMORY
 {
   /* 256KB FLASH, 32KB RAM, Reserve up till 0x13C. There are 0x73 vectors = 292
    * bytes (0x124) in RAM. But all GCC scripts seem to require BootRAM @0x138
    */
-  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 256k
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx) : ORIGIN = 0x2000013C, LENGTH = 0x8000-0x13C
 }
 
