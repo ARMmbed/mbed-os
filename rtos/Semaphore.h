@@ -53,7 +53,7 @@ public:
 
     /** Wait until a Semaphore resource becomes available.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
-      @return  number of available tokens, or -1 in case of incorrect parameters
+      @return  number of available tokens, before taking one; or -1 in case of incorrect parameters
     */
     int32_t wait(uint32_t millisec=osWaitForever);
 
