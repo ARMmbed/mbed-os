@@ -21,10 +21,6 @@
 
 int32_t flash_init(flash_t *obj)
 {
-    //obj->flash_size = FLASH_SIZE;
-    //obj->sector_size = FLASH_SECTOR_SIZE;
-    //obj->page_size = FLASH_PAGE_SIZE;
-
     __flash_ext_turnon();
 
     return 0;
@@ -52,7 +48,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     if (address < FLASH_START || address >= FLASH_END)
-        return (uint32_t)-1;
+        return 0;
 
     return FLASH_SECTOR_SIZE;
 }
