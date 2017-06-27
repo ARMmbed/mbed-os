@@ -22,9 +22,8 @@
 /* Introduction
  * ------------
  * SD and MMC cards support a number of interfaces, but common to them all
- * is one based on SPI. This is the one I'm implmenting because it means
- * it is much more portable even though not so performant, and we already
- * have the mbed SPI Interface!
+ * is one based on SPI. Since we already have the mbed SPI Interface, it will
+ * be used for SD cards.
  *
  * The main reference I'm using is Chapter 7, "SPI Mode" of:
  *  http://www.sdcard.org/developers/tech/sdcard/pls/Simplified_Physical_Layer_Spec.pdf
@@ -240,7 +239,7 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
     _init_sck = 100000;
-    _transfer_sck = 1000000;
+    _transfer_sck = 10000000;
 
     // Only HC block size is supported.
     _block_size = BLOCK_SIZE_HC;
@@ -425,15 +424,6 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
         // Wait for last block to be written
         _wait_ready(SD_COMMAND_TIMEOUT);
-
-        // SEND_NUM_WR_BLOCKS (ACMD22) in order to get the number of well written write blocks.
-        if (BD_ERROR_OK == _cmd(ACMD22_SEND_NUM_WR_BLOCKS, 0, 1)) {
-            uint8_t wr_blocks[4];
-            if (BD_ERROR_OK == _read(wr_blocks, 4)) {
-                debug_if(_dbg, "Blocks Written without errors: 0x%x\n",
-                ((wr_blocks[0] << 24) | (wr_blocks[1] << 16) | (wr_blocks[2] << 0) | wr_blocks[3]));
-            }
-        }
     }
     _lock.unlock();
     return status;
@@ -578,6 +568,7 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
     uint32_t response;
 
     // Select card and wait for card to be ready before sending next command
+    // Note: next command will fail if card is not ready
     _select();
     _wait_ready();
 
@@ -702,7 +693,11 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
     _select();
 
     // read until start byte (0xFE)
-    while (_spi.write(0xFF) != SPI_START_BLOCK);
+    if (false == _wait_token(SPI_START_BLOCK)) {
+        debug_if(SD_DBG, "Read timeout\n");
+        _deselect();
+        return SD_BLOCK_DEVICE_ERROR_NO_RESPONSE;
+    }
 
     // read data
     for (uint32_t i = 0; i < length; i++) {
@@ -726,7 +721,10 @@ int SDBlockDevice::_write(const uint8_t*buffer, uint8_t token, uint32_t length) 
     /* If previous write is in progress, the card will drive DO low again when reselected.
      * Therefore a preceding busy check, check if card is busy prior to each command and
      * data packet, instead of post wait, can eliminate busy wait time */
-    _wait_ready(SD_COMMAND_TIMEOUT);
+    if(false == _wait_ready(SD_COMMAND_TIMEOUT)) {
+        _deselect();
+        return SD_BLOCK_DEVICE_ERROR_WRITE;
+    }
 
     // indicate start of block
     _spi.write(token);
@@ -747,7 +745,6 @@ int SDBlockDevice::_write(const uint8_t*buffer, uint8_t token, uint32_t length) 
     }
 
     _deselect();
-
     return 0;
 }
 
@@ -814,20 +811,34 @@ uint32_t SDBlockDevice::_sd_sectors() {
     return blocks;
 }
 
+// SPI function to wait till chip is ready and sends start token
+bool SDBlockDevice::_wait_token(uint8_t token) {
+    _spi_timer.reset();
+    _spi_timer.start();
+
+    do {
+        if (token == _spi.write(0xFF)) {
+            return true;
+        }
+    } while (_spi_timer.read_ms() < SD_COMMAND_TIMEOUT);
+    _spi_timer.stop();
+    return false;
+}
+
 // SPI function to wait till chip is ready
 // The host controller should wait for end of the process until DO goes high (a 0xFF is received).
-void SDBlockDevice::_wait_ready(uint16_t ms) {
+bool SDBlockDevice::_wait_ready(uint16_t ms) {
     uint8_t response;
     _spi_timer.reset();
     _spi_timer.start();
     do {
         response = _spi.write(0xFF);
         if (response == 0xFF) {
-            break;
+            return true;
         }
     } while (_spi_timer.read_ms() < ms);
     _spi_timer.stop();
-    return;
+    return false;
 }
 
 // SPI function to wait for count
