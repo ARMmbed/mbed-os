@@ -27,7 +27,7 @@
 
 #if !defined(YOTTA_CFG_MBED_OS)
 #include <mbed_error.h>
-#include <toolchain.h>
+#include <mbed_toolchain.h>
 #endif
 
 ble_error_t
