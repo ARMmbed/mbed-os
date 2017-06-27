@@ -480,26 +480,38 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         addr = addr / _block_size;
     }
 
-    // Write command ro receive data
-    if (blockCnt > 1) {
-        status = _cmd(CMD18_READ_MULTIPLE_BLOCK, addr);
-    } else {
-        status = _cmd(CMD17_READ_SINGLE_BLOCK, addr);
-    }
+    for (uint8_t i = 0; i < 3; i++) {
+        // Write command ro receive data
+        if (blockCnt > 1) {
+            status = _cmd(CMD18_READ_MULTIPLE_BLOCK, addr);
+        } else {
+            status = _cmd(CMD17_READ_SINGLE_BLOCK, addr);
+        }
+        if (BD_ERROR_OK != status) {
+            _lock.unlock();
+            return status;
+        }
 
-    if (BD_ERROR_OK != status) {
-        _lock.unlock();
-        return status;
+        // For the first time in read if start token is not received
+        // means command is lost, retry sending read command once more
+        if (SD_BLOCK_DEVICE_ERROR_NO_RESPONSE == _read(buffer, _block_size)) {
+            continue;
+        } else {
+            buffer += _block_size;
+            --blockCnt;
+            break;
+        }
     }
 
     // receive the data : one block at a time
-    do {
+    while (blockCnt) {
         if (0 != _read(buffer, _block_size)) {
             status = SD_BLOCK_DEVICE_ERROR_NO_RESPONSE;
             break;
         }
         buffer += _block_size;
-    }while (--blockCnt);     // Receive all blocks of data
+        --blockCnt;
+    }
 
     // Send CMD12(0x00000000) to stop the transmission for multi-block transfer
     if (size > _block_size) {
@@ -897,8 +909,9 @@ bool SDBlockDevice::_wait_token(uint8_t token) {
         if (token == _spi.write(0xFF)) {
             return true;
         }
-    } while (_spi_timer.read_ms() < SD_COMMAND_TIMEOUT);
+    } while (_spi_timer.read_ms() < 300);       // Wait for 300 msec for start token
     _spi_timer.stop();
+    debug_if(SD_DBG, "_wait_token: timeout\n");
     return false;
 }
 
