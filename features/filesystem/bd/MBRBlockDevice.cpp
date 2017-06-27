@@ -187,11 +187,16 @@ MBRBlockDevice::MBRBlockDevice(BlockDevice *bd, int part)
 
 int MBRBlockDevice::init()
 {
+    int err = _bd->init();
+    if (err) {
+        return err;
+    }
+
     // Allocate smallest buffer necessary to write MBR
     uint32_t buffer_size = std::max<uint32_t>(_bd->get_read_size(), sizeof(struct mbr_table));
     uint8_t *buffer = new uint8_t[buffer_size];
 
-    int err = _bd->read(buffer, 512-buffer_size, buffer_size);
+    err = _bd->read(buffer, 512-buffer_size, buffer_size);
     if (err) {
         delete[] buffer;
         return err;
