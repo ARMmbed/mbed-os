@@ -44,7 +44,7 @@
 
 namespace mbed {
 
-class ATCmdParser
+class ATCmdParser : private NonCopyable<ATCmdParser>
 {
 private:
     // File handle
@@ -69,11 +69,6 @@ private:
         oob *next;
     };
     oob *_oobs;
-
-    // Prohibiting use of of copy constructor
-    ATCmdParser(const ATCmdParser &);
-    // Prohibiting copy assignment Operator
-    ATCmdParser &operator=(const ATCmdParser &);
 
 public:
 

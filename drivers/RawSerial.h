@@ -22,6 +22,7 @@
 
 #include "drivers/SerialBase.h"
 #include "hal/serial_api.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -49,7 +50,7 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class RawSerial: public SerialBase {
+class RawSerial: public SerialBase, private NonCopyable<RawSerial> {
 
 public:
     /** Create a RawSerial port, connected to the specified transmit and receive pins, with the specified baud.

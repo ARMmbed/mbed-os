@@ -94,7 +94,7 @@ void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char 
  *           and add host test's callback handlers to main event loop
  *           This function is blocking.
  */
-void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
+extern "C" void GREENTEA_SETUP(const int timeout, const char *host_test_name) {
     char _value[GREENTEA_UUID_LENGTH] = {0};
     _GREENTEA_SETUP_COMMON(timeout, host_test_name, _value, GREENTEA_UUID_LENGTH);
 }
@@ -293,7 +293,7 @@ inline void greentea_write_int(const int val)
  * \param value Message payload, string value
  *
  */
-void greentea_send_kv(const char *key, const char *val) {
+extern "C" void greentea_send_kv(const char *key, const char *val) {
     if (key && val) {
         greentea_write_preamble();
         greentea_write_string(key);
@@ -511,7 +511,6 @@ static int gettok(char *, const int);
 static int getNextToken(char *, const int);
 static int HandleKV(char *,  char *,  const int,  const int);
 static int isstring(int);
-static int _get_char();
 
 /**
  *  \brief Current token of key-value protocol's tokenizer
@@ -555,7 +554,7 @@ enum Token {
  * \return Next character from the stream or EOF if stream has ended.
  *
  */
-static int _get_char() {
+extern "C" int greentea_getc() {
     return greentea_serial->getc();
 }
 
@@ -574,7 +573,7 @@ static int _get_char() {
  * success == 0 when end of the stream was found
  *
  */
-int greentea_parse_kv(char *out_key,
+extern "C" int greentea_parse_kv(char *out_key,
                       char *out_value,
                       const int out_key_size,
                       const int out_value_size) {
@@ -689,7 +688,7 @@ static int gettok(char *out_str, const int str_size) {
 
     // whitespace ::=
     while (isspace(LastChar)) {
-        LastChar = _get_char();
+        LastChar = greentea_getc();
     }
 
     // string ::= [a-zA-Z0-9_-!@#$%^&*()]+
@@ -699,7 +698,7 @@ static int gettok(char *out_str, const int str_size) {
             out_str[str_idx++] = LastChar;
         }
 
-        while (isstring((LastChar = _get_char())))
+        while (isstring((LastChar = greentea_getc())))
             if (out_str && str_idx < str_size - 1) {
                 out_str[str_idx++] = LastChar;
             }
@@ -712,24 +711,23 @@ static int gettok(char *out_str, const int str_size) {
 
     // semicolon ::= ';'
     if (LastChar == ';') {
-        LastChar = _get_char();
+        LastChar = greentea_getc();
         return tok_semicolon;
     }
 
     // open ::= '{{'
     if (LastChar == '{') {
-        LastChar = _get_char();
+        LastChar = greentea_getc();
         if (LastChar == '{') {
-            LastChar = _get_char();
+            LastChar = greentea_getc();
             return tok_open;
         }
     }
 
     // close ::= '}'
 	if (LastChar == '}') {
-		LastChar = _get_char();
+		LastChar = greentea_getc();
 		if (LastChar == '}') {
-			//LastChar = _get_char();
 			return tok_close;
 		}
 	}
@@ -739,7 +737,7 @@ static int gettok(char *out_str, const int str_size) {
 
     // Otherwise, just return the character as its ascii value.
     int ThisChar = LastChar;
-    LastChar = _get_char();
+    LastChar = greentea_getc();
     return ThisChar;
 }
 

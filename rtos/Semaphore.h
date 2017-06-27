@@ -26,6 +26,7 @@
 #include "cmsis_os2.h"
 #include "mbed_rtos1_types.h"
 #include "mbed_rtos_storage.h"
+#include "platform/NonCopyable.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -37,7 +38,7 @@ namespace rtos {
  * Memory considerations: The semaphore control structures will be created on current thread's stack, both for the mbed OS
  * and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
  */
-class Semaphore {
+class Semaphore : private mbed::NonCopyable<Semaphore> {
 public:
     /** Create and Initialize a Semaphore object used for managing resources.
       @param count      number of available resources; maximum index value is (count-1). (default: 0).

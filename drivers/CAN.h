@@ -23,6 +23,7 @@
 #include "hal/can_api.h"
 #include "platform/Callback.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -78,7 +79,7 @@ public:
 /** A can bus client, used for communicating with can devices
  * @ingroup drivers
  */
-class CAN {
+class CAN : private NonCopyable<CAN> {
 
 public:
     /** Creates an CAN interface connected to specific pins.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if DEVICE_SERIAL
+#if (DEVICE_SERIAL && DEVICE_INTERRUPTIN)
 
 #include <errno.h>
 #include "UARTSerial.h"
@@ -80,16 +80,16 @@ off_t UARTSerial::seek(off_t offset, int whence)
 
 int UARTSerial::sync()
 {
-    lock();
+    api_lock();
 
     while (!_txbuf.empty()) {
-        unlock();
+        api_unlock();
         // Doing better than wait would require TxIRQ to also do wake() when becoming empty. Worth it?
         wait_ms(1);
-        lock();
+        api_lock();
     }
 
-    unlock();
+    api_unlock();
 
     return 0;
 }
@@ -111,16 +111,16 @@ ssize_t UARTSerial::write(const void* buffer, size_t length)
     size_t data_written = 0;
     const char *buf_ptr = static_cast<const char *>(buffer);
 
-    lock();
+    api_lock();
 
     while (_txbuf.full()) {
         if (!_blocking) {
-            unlock();
+            api_unlock();
             return -EAGAIN;
         }
-        unlock();
+        api_unlock();
         wait_ms(1); // XXX todo - proper wait, WFE for non-rtos ?
-        lock();
+        api_lock();
     }
 
     while (data_written < length && !_txbuf.full()) {
@@ -138,7 +138,7 @@ ssize_t UARTSerial::write(const void* buffer, size_t length)
     }
     core_util_critical_section_exit();
 
-    unlock();
+    api_unlock();
 
     return data_written;
 }
@@ -149,16 +149,16 @@ ssize_t UARTSerial::read(void* buffer, size_t length)
 
     char *ptr = static_cast<char *>(buffer);
 
-    lock();
+    api_lock();
 
     while (_rxbuf.empty()) {
         if (!_blocking) {
-            unlock();
+            api_unlock();
             return -EAGAIN;
         }
-        unlock();
+        api_unlock();
         wait_ms(1);  // XXX todo - proper wait, WFE for non-rtos ?
-        lock();
+        api_lock();
     }
 
     while (data_read < length && !_rxbuf.empty()) {
@@ -166,7 +166,7 @@ ssize_t UARTSerial::read(void* buffer, size_t length)
         data_read++;
     }
 
-    unlock();
+    api_unlock();
 
     return data_read;
 }
@@ -205,12 +205,24 @@ short UARTSerial::poll(short events) const {
     return revents;
 }
 
-void UARTSerial::lock(void)
+void UARTSerial::lock()
+{
+    // This is the override for SerialBase.
+    // No lock required as we only use SerialBase from interrupt or from
+    // inside our own critical section.
+}
+
+void UARTSerial::unlock()
+{
+    // This is the override for SerialBase.
+}
+
+void UARTSerial::api_lock(void)
 {
     _mutex.lock();
 }
 
-void UARTSerial::unlock(void)
+void UARTSerial::api_unlock(void)
 {
     _mutex.unlock();
 }
@@ -262,4 +274,4 @@ void UARTSerial::tx_irq(void)
 
 } //namespace mbed
 
-#endif //DEVICE_SERIAL
+#endif //(DEVICE_SERIAL && DEVICE_INTERRUPTIN)

@@ -1014,6 +1014,11 @@ extern "C" void EvrRtxMutexError (osMutexId_t mutex_id, int32_t status)
 
 extern "C" void EvrRtxSemaphoreError (osSemaphoreId_t semaphore_id, int32_t status)
 {
+    // Ignore semaphore overflow, the count will saturate with a returned error
+    if (status == osRtxErrorSemaphoreCountLimit) {
+        return;
+    }
+
     error("Semaphore %p error %i\r\n", semaphore_id, status);
 }
 

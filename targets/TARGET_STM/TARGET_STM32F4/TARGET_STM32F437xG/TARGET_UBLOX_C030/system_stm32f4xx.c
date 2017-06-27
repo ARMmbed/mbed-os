@@ -78,6 +78,7 @@
   */
 
 
+#include "ublox_low_level_api.h"
 #include "stm32f4xx.h"
 
 #if !defined  (HSE_VALUE) 
@@ -220,6 +221,7 @@ void SystemInit(void)
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif
 
+  ublox_board_init();
 }
 
 /**

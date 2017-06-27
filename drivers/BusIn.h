@@ -19,6 +19,7 @@
 #include "platform/platform.h"
 #include "drivers/DigitalIn.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -28,7 +29,7 @@ namespace mbed {
  * @note Synchronization level: Thread safe
  * @ingroup drivers
  */
-class BusIn {
+class BusIn : private NonCopyable<BusIn> {
 
 public:
     /* Group: Configuration Methods */
@@ -115,12 +116,9 @@ protected:
 
     PlatformMutex _mutex;
 
-    /* disallow copy constructor and assignment operators */
 private:
     virtual void lock();
     virtual void unlock();
-    BusIn(const BusIn&);
-    BusIn & operator = (const BusIn&);
 };
 
 } // namespace mbed

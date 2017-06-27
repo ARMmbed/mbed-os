@@ -179,6 +179,22 @@
 #define INITIAL_SP              (0x20040000UL)
 #endif
 
+#elif defined(TARGET_STM32F413ZH)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20050000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                100000000
+#endif
+
+
 #elif defined(TARGET_STM32F446RE)
 
 #ifndef INITIAL_SP
@@ -275,7 +291,7 @@
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#elif defined(TARGET_STM32L476VG)
+#elif defined(TARGET_STM32L476VG) || defined(TARGET_STM32L475VG)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20018000UL)

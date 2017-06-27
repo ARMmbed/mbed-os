@@ -66,7 +66,7 @@ build_list = (
 
     { "target": "MOTE_L152RC",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
 
-    { "target": "ELMO_F411RE", "toolchains": "GCC_ARM", "libs": ["dsp"] },
+    { "target": "ELMO_F411RE",       "toolchains": "GCC_ARM", "libs": ["dsp"] },
 
     { "target": "MTS_MDOT_F405RG",   "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "MTS_MDOT_F411RE",   "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -77,11 +77,16 @@ build_list = (
     { "target": "DISCO_F303VC",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F334C8",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F401VC",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
+
     { "target": "DISCO_F407VG",      "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+    { "target": "DISCO_F413ZH",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F429ZI",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F469NI",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F746NG",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "DISCO_F769NI",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
+    { "target": "DISCO_L475VG_IOT01A", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+    { "target": "DISCO_L476VG",        "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+    { "target": "DISCO_L072CZ_LRWAN1", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
 
     { "target": "LPC1114",           "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "LPC11U35_401",      "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -123,8 +128,6 @@ build_list = (
     { "target": "SAMD21G18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "SAML21J18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
 
-    { "target": "DISCO_L476VG",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
-    { "target": "DISCO_L072CZ_LRWAN1",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "NUMAKER_PFM_NUC472",   "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
     { "target": "NUMAKER_PFM_M453",     "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
  )
@@ -226,7 +229,18 @@ linking_list = [
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                }
      },
+     {"target": "DISCO_F413ZH",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+               }
+     },
     {"target": "NUCLEO_F303ZE",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+             }
+    },
+    {"target": "DISCO_L475VG_IOT01A",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],

@@ -93,8 +93,8 @@ typedef enum IRQn
   MPS2_SPI0_IRQn                = 49,      /* SPI Interrupt (spi header)            */
   MPS2_SPI1_IRQn                = 50,      /* SPI Interrupt (clcd)                  */
   MPS2_SPI2_IRQn                = 51,      /* SPI Interrupt (spi 1 ADC replacement) */
-  MPS2_SPI3_IRQn                = 52,      /* SPI Interrupt (spi 0 shield 0 replacement) */
-  MPS2_SPI4_IRQn                = 53,      /* SPI Interrupt  (shield 1)             */
+  MPS2_SPI3_IRQn                = 52,      /* SPI Interrupt (shield 0)              */
+  MPS2_SPI4_IRQn                = 53,      /* SPI Interrupt (shield 1)              */
   PORT4_ALL_IRQn                = 54,      /* GPIO Port 4 combined Interrupt        */
   PORT5_ALL_IRQn                = 55,      /* GPIO Port 5 combined Interrupt        */
   UART4_IRQn                    = 56       /* UART 4 RX and TX Combined Interrupt   */
@@ -635,104 +635,7 @@ typedef struct
 #define CMSDK_SYSCON_RSTINFO_LOCKUPRESET_Pos   2
 #define CMSDK_SYSCON_RSTINFO_LOCKUPRESET_Msk   (0x00001ul << CMSDK_SYSCON_RSTINFO_LOCKUPRESET_Pos) /* CMSDK_SYSCON RSTINFO: LOCKUPRESET Mask */
 
-
-/*------------- PL230 uDMA (PL230) --------------------------------------*/
-typedef struct
-{
-  __I    uint32_t  DMA_STATUS;               /* Offset: 0x000 (R/W) DMA status Register */
-  __O    uint32_t  DMA_CFG;                  /* Offset: 0x004 ( /W) DMA configuration Register */
-  __IO   uint32_t  CTRL_BASE_PTR;            /* Offset: 0x008 (R/W) Channel Control Data Base Pointer Register */
-  __I    uint32_t  ALT_CTRL_BASE_PTR;        /* Offset: 0x00C (R/ ) Channel Alternate Control Data Base Pointer Register */
-  __I    uint32_t  DMA_WAITONREQ_STATUS;     /* Offset: 0x010 (R/ ) Channel Wait On Request Status Register */
-  __O    uint32_t  CHNL_SW_REQUEST;          /* Offset: 0x014 ( /W) Channel Software Request Register */
-  __IO   uint32_t  CHNL_USEBURST_SET;        /* Offset: 0x018 (R/W) Channel UseBurst Set Register */
-  __O    uint32_t  CHNL_USEBURST_CLR;        /* Offset: 0x01C ( /W) Channel UseBurst Clear Register */
-  __IO   uint32_t  CHNL_REQ_MASK_SET;        /* Offset: 0x020 (R/W) Channel Request Mask Set Register */
-  __O    uint32_t  CHNL_REQ_MASK_CLR;        /* Offset: 0x024 ( /W) Channel Request Mask Clear Register */
-  __IO   uint32_t  CHNL_ENABLE_SET;          /* Offset: 0x028 (R/W) Channel Enable Set Register */
-  __O    uint32_t  CHNL_ENABLE_CLR;          /* Offset: 0x02C ( /W) Channel Enable Clear Register */
-  __IO   uint32_t  CHNL_PRI_ALT_SET;         /* Offset: 0x030 (R/W) Channel Primary-Alterante Set Register */
-  __O    uint32_t  CHNL_PRI_ALT_CLR;         /* Offset: 0x034 ( /W) Channel Primary-Alterante Clear Register */
-  __IO   uint32_t  CHNL_PRIORITY_SET;        /* Offset: 0x038 (R/W) Channel Priority Set Register */
-  __O    uint32_t  CHNL_PRIORITY_CLR;        /* Offset: 0x03C ( /W) Channel Priority Clear Register */
-         uint32_t  RESERVED0[3];
-  __IO   uint32_t  ERR_CLR;                  /* Offset: 0x04C Bus Error Clear Register  (R/W) */
-
-} CMSDK_PL230_TypeDef;
-
-#define PL230_DMA_CHNL_BITS 0
-
-#define CMSDK_PL230_DMA_STATUS_MSTREN_Pos          0                                                          /* CMSDK_PL230 DMA STATUS: MSTREN Position */
-#define CMSDK_PL230_DMA_STATUS_MSTREN_Msk          (0x00000001ul << CMSDK_PL230_DMA_STATUS_MSTREN_Pos)        /* CMSDK_PL230 DMA STATUS: MSTREN Mask */
-
-#define CMSDK_PL230_DMA_STATUS_STATE_Pos           0                                                          /* CMSDK_PL230 DMA STATUS: STATE Position */
-#define CMSDK_PL230_DMA_STATUS_STATE_Msk           (0x0000000Ful << CMSDK_PL230_DMA_STATUS_STATE_Pos)         /* CMSDK_PL230 DMA STATUS: STATE Mask */
-
-#define CMSDK_PL230_DMA_STATUS_CHNLS_MINUS1_Pos    0                                                          /* CMSDK_PL230 DMA STATUS: CHNLS_MINUS1 Position */
-#define CMSDK_PL230_DMA_STATUS_CHNLS_MINUS1_Msk    (0x0000001Ful << CMSDK_PL230_DMA_STATUS_CHNLS_MINUS1_Pos)  /* CMSDK_PL230 DMA STATUS: CHNLS_MINUS1 Mask */
-
-#define CMSDK_PL230_DMA_STATUS_TEST_STATUS_Pos     0                                                          /* CMSDK_PL230 DMA STATUS: TEST_STATUS Position */
-#define CMSDK_PL230_DMA_STATUS_TEST_STATUS_Msk     (0x00000001ul << CMSDK_PL230_DMA_STATUS_TEST_STATUS_Pos)   /* CMSDK_PL230 DMA STATUS: TEST_STATUS Mask */
-
-#define CMSDK_PL230_DMA_CFG_MSTREN_Pos             0                                                          /* CMSDK_PL230 DMA CFG: MSTREN Position */
-#define CMSDK_PL230_DMA_CFG_MSTREN_Msk             (0x00000001ul << CMSDK_PL230_DMA_CFG_MSTREN_Pos)           /* CMSDK_PL230 DMA CFG: MSTREN Mask */
-
-#define CMSDK_PL230_DMA_CFG_CPCCACHE_Pos           2                                                          /* CMSDK_PL230 DMA CFG: CPCCACHE Position */
-#define CMSDK_PL230_DMA_CFG_CPCCACHE_Msk           (0x00000001ul << CMSDK_PL230_DMA_CFG_CPCCACHE_Pos)         /* CMSDK_PL230 DMA CFG: CPCCACHE Mask */
-
-#define CMSDK_PL230_DMA_CFG_CPCBUF_Pos             1                                                          /* CMSDK_PL230 DMA CFG: CPCBUF Position */
-#define CMSDK_PL230_DMA_CFG_CPCBUF_Msk             (0x00000001ul << CMSDK_PL230_DMA_CFG_CPCBUF_Pos)           /* CMSDK_PL230 DMA CFG: CPCBUF Mask */
-
-#define CMSDK_PL230_DMA_CFG_CPCPRIV_Pos            0                                                          /* CMSDK_PL230 DMA CFG: CPCPRIV Position */
-#define CMSDK_PL230_DMA_CFG_CPCPRIV_Msk            (0x00000001ul << CMSDK_PL230_DMA_CFG_CPCPRIV_Pos)          /* CMSDK_PL230 DMA CFG: CPCPRIV Mask */
-
-#define CMSDK_PL230_CTRL_BASE_PTR_Pos              PL230_DMA_CHNL_BITS + 5                                    /* CMSDK_PL230 STATUS: BASE_PTR Position */
-#define CMSDK_PL230_CTRL_BASE_PTR_Msk              (0x0FFFFFFFul << CMSDK_PL230_CTRL_BASE_PTR_Pos)            /* CMSDK_PL230 STATUS: BASE_PTR Mask */
-
-#define CMSDK_PL230_ALT_CTRL_BASE_PTR_Pos          0                                                          /* CMSDK_PL230 STATUS: MSTREN Position */
-#define CMSDK_PL230_ALT_CTRL_BASE_PTR_Msk          (0xFFFFFFFFul << CMSDK_PL230_ALT_CTRL_BASE_PTR_Pos)        /* CMSDK_PL230 STATUS: MSTREN Mask */
-
-#define CMSDK_PL230_DMA_WAITONREQ_STATUS_Pos       0                                                          /* CMSDK_PL230 DMA_WAITONREQ_STATUS: DMA_WAITONREQ_STATUS Position */
-#define CMSDK_PL230_DMA_WAITONREQ_STATUS_Msk       (0xFFFFFFFFul << CMSDK_PL230_DMA_WAITONREQ_STATUS_Pos)     /* CMSDK_PL230 DMA_WAITONREQ_STATUS: DMA_WAITONREQ_STATUS Mask */
-
-#define CMSDK_PL230_CHNL_SW_REQUEST_Pos            0                                                          /* CMSDK_PL230 CHNL_SW_REQUEST: CHNL_SW_REQUEST Position */
-#define CMSDK_PL230_CHNL_SW_REQUEST_Msk            (0xFFFFFFFFul << CMSDK_PL230_CHNL_SW_REQUEST_Pos)          /* CMSDK_PL230 CHNL_SW_REQUEST: CHNL_SW_REQUEST Mask */
-
-#define CMSDK_PL230_CHNL_USEBURST_SET_Pos          0                                                          /* CMSDK_PL230 CHNL_USEBURST: SET Position */
-#define CMSDK_PL230_CHNL_USEBURST_SET_Msk          (0xFFFFFFFFul << CMSDK_PL230_CHNL_USEBURST_SET_Pos)        /* CMSDK_PL230 CHNL_USEBURST: SET Mask */
-
-#define CMSDK_PL230_CHNL_USEBURST_CLR_Pos          0                                                          /* CMSDK_PL230 CHNL_USEBURST: CLR Position */
-#define CMSDK_PL230_CHNL_USEBURST_CLR_Msk          (0xFFFFFFFFul << CMSDK_PL230_CHNL_USEBURST_CLR_Pos)        /* CMSDK_PL230 CHNL_USEBURST: CLR Mask */
-
-#define CMSDK_PL230_CHNL_REQ_MASK_SET_Pos          0                                                          /* CMSDK_PL230 CHNL_REQ_MASK: SET Position */
-#define CMSDK_PL230_CHNL_REQ_MASK_SET_Msk          (0xFFFFFFFFul << CMSDK_PL230_CHNL_REQ_MASK_SET_Pos)        /* CMSDK_PL230 CHNL_REQ_MASK: SET Mask */
-
-#define CMSDK_PL230_CHNL_REQ_MASK_CLR_Pos          0                                                          /* CMSDK_PL230 CHNL_REQ_MASK: CLR Position */
-#define CMSDK_PL230_CHNL_REQ_MASK_CLR_Msk          (0xFFFFFFFFul << CMSDK_PL230_CHNL_REQ_MASK_CLR_Pos)        /* CMSDK_PL230 CHNL_REQ_MASK: CLR Mask */
-
-#define CMSDK_PL230_CHNL_ENABLE_SET_Pos            0                                                          /* CMSDK_PL230 CHNL_ENABLE: SET Position */
-#define CMSDK_PL230_CHNL_ENABLE_SET_Msk            (0xFFFFFFFFul << CMSDK_PL230_CHNL_ENABLE_SET_Pos)          /* CMSDK_PL230 CHNL_ENABLE: SET Mask */
-
-#define CMSDK_PL230_CHNL_ENABLE_CLR_Pos            0                                                          /* CMSDK_PL230 CHNL_ENABLE: CLR Position */
-#define CMSDK_PL230_CHNL_ENABLE_CLR_Msk            (0xFFFFFFFFul << CMSDK_PL230_CHNL_ENABLE_CLR_Pos)          /* CMSDK_PL230 CHNL_ENABLE: CLR Mask */
-
-#define CMSDK_PL230_CHNL_PRI_ALT_SET_Pos           0                                                          /* CMSDK_PL230 CHNL_PRI_ALT: SET Position */
-#define CMSDK_PL230_CHNL_PRI_ALT_SET_Msk           (0xFFFFFFFFul << CMSDK_PL230_CHNL_PRI_ALT_SET_Pos)         /* CMSDK_PL230 CHNL_PRI_ALT: SET Mask */
-
-#define CMSDK_PL230_CHNL_PRI_ALT_CLR_Pos           0                                                          /* CMSDK_PL230 CHNL_PRI_ALT: CLR Position */
-#define CMSDK_PL230_CHNL_PRI_ALT_CLR_Msk           (0xFFFFFFFFul << CMSDK_PL230_CHNL_PRI_ALT_CLR_Pos)         /* CMSDK_PL230 CHNL_PRI_ALT: CLR Mask */
-
-#define CMSDK_PL230_CHNL_PRIORITY_SET_Pos          0                                                          /* CMSDK_PL230 CHNL_PRIORITY: SET Position */
-#define CMSDK_PL230_CHNL_PRIORITY_SET_Msk          (0xFFFFFFFFul << CMSDK_PL230_CHNL_PRIORITY_SET_Pos)        /* CMSDK_PL230 CHNL_PRIORITY: SET Mask */
-
-#define CMSDK_PL230_CHNL_PRIORITY_CLR_Pos          0                                                          /* CMSDK_PL230 CHNL_PRIORITY: CLR Position */
-#define CMSDK_PL230_CHNL_PRIORITY_CLR_Msk          (0xFFFFFFFFul << CMSDK_PL230_CHNL_PRIORITY_CLR_Pos)        /* CMSDK_PL230 CHNL_PRIORITY: CLR Mask */
-
-#define CMSDK_PL230_ERR_CLR_Pos                    0                                                          /* CMSDK_PL230 ERR: CLR Position */
-#define CMSDK_PL230_ERR_CLR_Msk                    (0x00000001ul << CMSDK_PL230_ERR_CLR_Pos)                  /* CMSDK_PL230 ERR: CLR Mask */
-
-
-/*------------------- Watchdog ----------------------------------------------*/
+/*------------------- WATCHDOG ----------------------------------------------*/
 typedef struct
 {
 
@@ -749,35 +652,35 @@ typedef struct
   __O     uint32_t  ITOP;                   /* Offset: 0xF04 ( /W) Watchdog Integration Test Output Set Register */
 }CMSDK_WATCHDOG_TypeDef;
 
-#define CMSDK_Watchdog_LOAD_Pos               0                                              /* CMSDK_Watchdog LOAD: LOAD Position */
-#define CMSDK_Watchdog_LOAD_Msk              (0xFFFFFFFFul << CMSDK_Watchdog_LOAD_Pos)       /* CMSDK_Watchdog LOAD: LOAD Mask */
+#define CMSDK_WATCHDOG_LOAD_Pos               0                                              /* CMSDK_WATCHDOG LOAD: LOAD Position */
+#define CMSDK_WATCHDOG_LOAD_Msk              (0xFFFFFFFFul << CMSDK_WATCHDOG_LOAD_Pos)       /* CMSDK_WATCHDOG LOAD: LOAD Mask */
 
-#define CMSDK_Watchdog_VALUE_Pos              0                                              /* CMSDK_Watchdog VALUE: VALUE Position */
-#define CMSDK_Watchdog_VALUE_Msk             (0xFFFFFFFFul << CMSDK_Watchdog_VALUE_Pos)      /* CMSDK_Watchdog VALUE: VALUE Mask */
+#define CMSDK_WATCHDOG_VALUE_Pos              0                                              /* CMSDK_WATCHDOG VALUE: VALUE Position */
+#define CMSDK_WATCHDOG_VALUE_Msk             (0xFFFFFFFFul << CMSDK_WATCHDOG_VALUE_Pos)      /* CMSDK_WATCHDOG VALUE: VALUE Mask */
 
-#define CMSDK_Watchdog_CTRL_RESEN_Pos         1                                              /* CMSDK_Watchdog CTRL_RESEN: Enable Reset Output Position */
-#define CMSDK_Watchdog_CTRL_RESEN_Msk        (0x1ul << CMSDK_Watchdog_CTRL_RESEN_Pos)        /* CMSDK_Watchdog CTRL_RESEN: Enable Reset Output Mask */
+#define CMSDK_WATCHDOG_CTRL_RESEN_Pos         1                                              /* CMSDK_WATCHDOG CTRL_RESEN: Enable Reset Output Position */
+#define CMSDK_WATCHDOG_CTRL_RESEN_Msk        (0x1ul << CMSDK_WATCHDOG_CTRL_RESEN_Pos)        /* CMSDK_WATCHDOG CTRL_RESEN: Enable Reset Output Mask */
 
-#define CMSDK_Watchdog_CTRL_INTEN_Pos         0                                              /* CMSDK_Watchdog CTRL_INTEN: Int Enable Position */
-#define CMSDK_Watchdog_CTRL_INTEN_Msk        (0x1ul << CMSDK_Watchdog_CTRL_INTEN_Pos)        /* CMSDK_Watchdog CTRL_INTEN: Int Enable Mask */
+#define CMSDK_WATCHDOG_CTRL_INTEN_Pos         0                                              /* CMSDK_WATCHDOG CTRL_INTEN: Int Enable Position */
+#define CMSDK_WATCHDOG_CTRL_INTEN_Msk        (0x1ul << CMSDK_WATCHDOG_CTRL_INTEN_Pos)        /* CMSDK_WATCHDOG CTRL_INTEN: Int Enable Mask */
 
-#define CMSDK_Watchdog_INTCLR_Pos             0                                              /* CMSDK_Watchdog INTCLR: Int Clear Position */
-#define CMSDK_Watchdog_INTCLR_Msk            (0x1ul << CMSDK_Watchdog_INTCLR_Pos)            /* CMSDK_Watchdog INTCLR: Int Clear Mask */
+#define CMSDK_WATCHDOG_INTCLR_Pos             0                                              /* CMSDK_WATCHDOG INTCLR: Int Clear Position */
+#define CMSDK_WATCHDOG_INTCLR_Msk            (0x1ul << CMSDK_WATCHDOG_INTCLR_Pos)            /* CMSDK_WATCHDOG INTCLR: Int Clear Mask */
 
-#define CMSDK_Watchdog_RAWINTSTAT_Pos         0                                              /* CMSDK_Watchdog RAWINTSTAT: Raw Int Status Position */
-#define CMSDK_Watchdog_RAWINTSTAT_Msk        (0x1ul << CMSDK_Watchdog_RAWINTSTAT_Pos)        /* CMSDK_Watchdog RAWINTSTAT: Raw Int Status Mask */
+#define CMSDK_WATCHDOG_RAWINTSTAT_Pos         0                                              /* CMSDK_WATCHDOG RAWINTSTAT: Raw Int Status Position */
+#define CMSDK_WATCHDOG_RAWINTSTAT_Msk        (0x1ul << CMSDK_WATCHDOG_RAWINTSTAT_Pos)        /* CMSDK_WATCHDOG RAWINTSTAT: Raw Int Status Mask */
 
-#define CMSDK_Watchdog_MASKINTSTAT_Pos        0                                              /* CMSDK_Watchdog MASKINTSTAT: Mask Int Status Position */
-#define CMSDK_Watchdog_MASKINTSTAT_Msk       (0x1ul << CMSDK_Watchdog_MASKINTSTAT_Pos)       /* CMSDK_Watchdog MASKINTSTAT: Mask Int Status Mask */
+#define CMSDK_WATCHDOG_MASKINTSTAT_Pos        0                                              /* CMSDK_WATCHDOG MASKINTSTAT: Mask Int Status Position */
+#define CMSDK_WATCHDOG_MASKINTSTAT_Msk       (0x1ul << CMSDK_WATCHDOG_MASKINTSTAT_Pos)       /* CMSDK_WATCHDOG MASKINTSTAT: Mask Int Status Mask */
 
-#define CMSDK_Watchdog_LOCK_Pos               0                                              /* CMSDK_Watchdog LOCK: LOCK Position */
-#define CMSDK_Watchdog_LOCK_Msk              (0x1ul << CMSDK_Watchdog_LOCK_Pos)              /* CMSDK_Watchdog LOCK: LOCK Mask */
+#define CMSDK_WATCHDOG_LOCK_Pos               0                                              /* CMSDK_WATCHDOG LOCK: LOCK Position */
+#define CMSDK_WATCHDOG_LOCK_Msk              (0x1ul << CMSDK_WATCHDOG_LOCK_Pos)              /* CMSDK_WATCHDOG LOCK: LOCK Mask */
 
-#define CMSDK_Watchdog_INTEGTESTEN_Pos        0                                              /* CMSDK_Watchdog INTEGTESTEN: Integration Test Enable Position */
-#define CMSDK_Watchdog_INTEGTESTEN_Msk       (0x1ul << CMSDK_Watchdog_INTEGTESTEN_Pos)       /* CMSDK_Watchdog INTEGTESTEN: Integration Test Enable Mask */
+#define CMSDK_WATCHDOG_INTEGTESTEN_Pos        0                                              /* CMSDK_WATCHDOG INTEGTESTEN: Integration Test Enable Position */
+#define CMSDK_WATCHDOG_INTEGTESTEN_Msk       (0x1ul << CMSDK_WATCHDOG_INTEGTESTEN_Pos)       /* CMSDK_WATCHDOG INTEGTESTEN: Integration Test Enable Mask */
 
-#define CMSDK_Watchdog_INTEGTESTOUTSET_Pos    1                                              /* CMSDK_Watchdog INTEGTESTOUTSET: Integration Test Output Set Position */
-#define CMSDK_Watchdog_INTEGTESTOUTSET_Msk   (0x1ul << CMSDK_Watchdog_INTEGTESTOUTSET_Pos)   /* CMSDK_Watchdog INTEGTESTOUTSET: Integration Test Output Set Mask */
+#define CMSDK_WATCHDOG_INTEGTESTOUTSET_Pos    1                                              /* CMSDK_WATCHDOG INTEGTESTOUTSET: Integration Test Output Set Position */
+#define CMSDK_WATCHDOG_INTEGTESTOUTSET_Msk   (0x1ul << CMSDK_WATCHDOG_INTEGTESTOUTSET_Pos)   /* CMSDK_WATCHDOG INTEGTESTOUTSET: Integration Test Output Set Mask */
 
 /*------------------------- Real Time Clock(RTC) ----------------------------------------------*/
 typedef struct
@@ -792,8 +695,8 @@ typedef struct
     __O  uint32_t RTCICR;                    /* 0x1C WO RTC Interrupt Clear Register */
 } CMSDK_RTC_TypeDef;
 
-#define CMSDK_RTC_Enable_Pos                  0                                  /* CMSDK_RTC Enable: Real Time Clock Enable Position */
-#define CMSDK_RTC_Enable_Msk                  (0x1ul << CMSDK_RTC_Enable_Pos)    /* CMSDK_RTC Enable: Real Time Clock Enable Mask */
+#define CMSDK_RTC_ENABLE_Pos                  0                                /* CMSDK_RTC Enable: Real Time Clock Enable Position */
+#define CMSDK_RTC_ENABLE_Msk                  (0x1ul << CMSDK_RTC_ENABLE_Pos)  /* CMSDK_RTC Enable: Real Time Clock Enable Mask */
 
 /* --------------------  End of section using anonymous unions  ------------------- */
 #if defined ( __CC_ARM   )
@@ -809,9 +712,6 @@ typedef struct
 #else
   #warning Not supported compiler type
 #endif
-
-
-
 
 /* ================================================================================ */
 /* ================              Peripheral memory map             ================ */
@@ -855,21 +755,20 @@ typedef struct
 /* ================             Peripheral declaration             ================ */
 /* ================================================================================ */
 
-#define CMSDK_UART0             ((CMSDK_UART_TypeDef   *) CMSDK_UART0_BASE   )
-#define CMSDK_UART1            ((CMSDK_UART_TypeDef   *) CMSDK_UART1_BASE   )
-#define CMSDK_UART2             ((CMSDK_UART_TypeDef   *) CMSDK_UART2_BASE   )
-#define CMSDK_UART3             ((CMSDK_UART_TypeDef   *) CMSDK_UART3_BASE   )
-#define CMSDK_UART4             ((CMSDK_UART_TypeDef   *) CMSDK_UART4_BASE   )
-#define CMSDK_TIMER0            ((CMSDK_TIMER_TypeDef  *) CMSDK_TIMER0_BASE  )
-#define CMSDK_TIMER1            ((CMSDK_TIMER_TypeDef  *) CMSDK_TIMER1_BASE  )
+#define CMSDK_UART0             ((CMSDK_UART_TypeDef   *) CMSDK_UART0_BASE )
+#define CMSDK_UART1             ((CMSDK_UART_TypeDef   *) CMSDK_UART1_BASE )
+#define CMSDK_UART2             ((CMSDK_UART_TypeDef   *) CMSDK_UART2_BASE )
+#define CMSDK_UART3             ((CMSDK_UART_TypeDef   *) CMSDK_UART3_BASE )
+#define CMSDK_UART4             ((CMSDK_UART_TypeDef   *) CMSDK_UART4_BASE )
+#define CMSDK_TIMER0            ((CMSDK_TIMER_TypeDef  *) CMSDK_TIMER0_BASE )
+#define CMSDK_TIMER1            ((CMSDK_TIMER_TypeDef  *) CMSDK_TIMER1_BASE )
 #define CMSDK_DUALTIMER         ((CMSDK_DUALTIMER_BOTH_TypeDef  *) CMSDK_DUALTIMER_BASE )
 #define CMSDK_DUALTIMER1        ((CMSDK_DUALTIMER_SINGLE_TypeDef  *) CMSDK_DUALTIMER_1_BASE )
 #define CMSDK_DUALTIMER2        ((CMSDK_DUALTIMER_SINGLE_TypeDef  *) CMSDK_DUALTIMER_2_BASE )
 #define CMSDK_RTC               ((CMSDK_RTC_TypeDef    *) CMSDK_RTC_BASE )
-#define CMSDK_WATCHDOG          ((CMSDK_WATCHDOG_TypeDef  *) CMSDK_WATCHDOG_BASE   )
-#define CMSDK_DMA               ((CMSDK_PL230_TypeDef  *) CMSDK_PL230_BASE   )
-#define CMSDK_GPIO0             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO0_BASE   )
-#define CMSDK_GPIO1             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO1_BASE   )
+#define CMSDK_WATCHDOG          ((CMSDK_WATCHDOG_TypeDef  *) CMSDK_WATCHDOG_BASE )
+#define CMSDK_GPIO0             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO0_BASE )
+#define CMSDK_GPIO1             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO1_BASE )
 #define CMSDK_GPIO2             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO2_BASE )
 #define CMSDK_GPIO3             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO3_BASE )
 #define CMSDK_GPIO4             ((CMSDK_GPIO_TypeDef   *) CMSDK_GPIO4_BASE )

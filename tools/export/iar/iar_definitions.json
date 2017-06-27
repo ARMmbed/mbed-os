@@ -87,6 +87,13 @@
         "FPU2": 6,
         "NrRegs": 1
     },
+    "STM32F767ZI": {
+        "OGChipSelectEditMenu": "STM32F767ZI\tST STM32F767ZI",
+        "GBECoreSlave": 41,
+        "CoreVariant": 41,
+        "FPU2": 7,
+        "NrRegs": 1
+    },
     "MKL43Z256xxx4": {
         "OGChipSelectEditMenu": "MKL43Z256xxx4\tFreescale MKL43Z256xxx4"
     },
@@ -102,6 +109,9 @@
     },
     "STM32F411RE": {
         "OGChipSelectEditMenu": "STM32F411RE\tST STM32F411RE"
+    },
+    "STM32F413ZH": {
+        "OGChipSelectEditMenu": "STM32F413ZH\tST STM32F413ZH"
     },
     "STM32L053C8": {
         "OGChipSelectEditMenu": "STM32L053x8\tST STM32L053x8"
