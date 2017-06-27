@@ -603,15 +603,22 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
         debug_if(SD_DBG, "Card not ready yet \n");
     }
 
+    // Re-try command
+    for(int i = 0; i < 3; i++) {
+        // Send CMD55 for APP command first
+        if (isAcmd) {
+            _cmd_spi(CMD55_APP_CMD, 0x0);
+        }
 
-    // Send CMD55 for APP command first
-    if (isAcmd) {
-        _cmd_spi(CMD55_APP_CMD, 0x0);
+        // Send command over SPI interface
+        response = _cmd_spi(cmd, arg);
+        if (R1_NO_RESPONSE == response) {
+            debug_if(SD_DBG, "No response CMD:%d \n", cmd);
+            continue;
+        }
+        break;
     }
 
-    // Send command over SPI interface
-    response = _cmd_spi(cmd, arg);
-    debug_if(_dbg, "CMD:%d \t arg:0x%x \t Response:0x%x \n", cmd, arg, response);
     // Pass the response to the command call if required
     if (NULL != resp) {
         *resp = response;
