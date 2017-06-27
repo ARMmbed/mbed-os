@@ -401,6 +401,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         response = _write(buffer, SPI_START_BLOCK, _block_size);
         // Only CRC and general write error are communicated via response token
         if ((response == SPI_DATA_CRC_ERROR) || (response == SPI_DATA_WRITE_ERROR)) {
+            debug_if(SD_DBG, "Single Block Write failed: 0x%x \n", response);
             status = SD_BLOCK_DEVICE_ERROR_WRITE;
         }
 
@@ -419,6 +420,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         do {
             response = _write(buffer, SPI_START_BLK_MUL_WRITE, _block_size);
             if (response != SPI_DATA_ACCEPTED) {
+                debug_if(SD_DBG, "Multiple Block Write failed: 0x%x \n", response);
                 break;
             }
             buffer += _block_size;
@@ -433,7 +435,9 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         _deselect();
 
         // Wait for last block to be written
-        _wait_ready(SD_COMMAND_TIMEOUT);
+        if (false == _wait_ready(SD_COMMAND_TIMEOUT)) {
+            debug_if(SD_DBG, "Card not ready yet \n");
+        }
 
         /* In case of Write Error indication (on the data response) the host shall
          * use SEND_NUM_WR_BLOCKS (ACMD22) in order to get the number of well written write blocks.
@@ -593,7 +597,10 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
     // Select card and wait for card to be ready before sending next command
     // Note: next command will fail if card is not ready
     _select();
-    _wait_ready();
+    if (false == _wait_ready(SD_COMMAND_TIMEOUT)) {
+        debug_if(SD_DBG, "Card not ready yet \n");
+    }
+
 
     // Send CMD55 for APP command first
     if (isAcmd) {
@@ -611,14 +618,16 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
     // Process the response R1  : Exit on CRC/Illegal command error/No response
     if (R1_NO_RESPONSE == response) {
         _deselect();
+        debug_if(SD_DBG, "No response CMD:%d \n", cmd);
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;         // No device
     }
     if (response & R1_COM_CRC_ERROR) {
         _deselect();
+        debug_if(SD_DBG, "CRC error CMD:%d \n", cmd);
         return SD_BLOCK_DEVICE_ERROR_CRC;                // CRC error
     }
     if (response & R1_ILLEGAL_COMMAND) {
-        debug_if(SD_DBG, "Illegal command response\n");
+        debug_if(SD_DBG, "Illegal command CMD:%d\n", cmd);
         if (CMD8_SEND_IF_COND == cmd) {                  // Illegal command is for Ver1 or not SD Card
             _card_type = CARD_UNKNOWN;
         }
@@ -626,6 +635,7 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
         return SD_BLOCK_DEVICE_ERROR_UNSUPPORTED;      // Command not supported
     }
 
+    debug_if(_dbg, "CMD:%d \t arg:0x%x \t Response:0x%x \n", cmd, arg, response);
     // Set status for other errors
     if ((response & R1_ERASE_RESET) || (response & R1_ERASE_SEQUENCE_ERROR)) {
         status = SD_BLOCK_DEVICE_ERROR_ERASE;            // Erase error
@@ -743,7 +753,9 @@ uint8_t SDBlockDevice::_write(const uint8_t *buffer, uint8_t token, uint32_t len
     /* If previous write is in progress, the card will drive DO low again when reselected.
      * Therefore a preceding busy check, check if card is busy prior to each command and
      * data packet, instead of post wait, can eliminate busy wait time */
-    _wait_ready(SD_COMMAND_TIMEOUT);
+    if( false == _wait_ready(SD_COMMAND_TIMEOUT)) {
+        debug_if(SD_DBG, "Card not ready yet \n");
+    }
 
     // indicate start of block
     _spi.write(token);
