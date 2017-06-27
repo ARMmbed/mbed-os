@@ -210,7 +210,8 @@ private:
     void _deselect();
 
     mutable Mutex _lock;
-    unsigned _block_size;
+    uint32_t _block_size;
+    uint32_t _erase_size;
     bool _is_initialized;
     bool _dbg;
 };

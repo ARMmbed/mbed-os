@@ -511,7 +511,40 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 
 int SDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
-    return 0;
+    if (!is_valid_erase(addr, size)) {
+        return SD_BLOCK_DEVICE_ERROR_PARAMETER;
+    }
+
+    _lock.lock();
+    if (!_is_initialized) {
+        _lock.unlock();
+        return SD_BLOCK_DEVICE_ERROR_NO_INIT;
+    }
+    int status = BD_ERROR_OK;
+    uint8_t response = 0xFF;
+
+    size -= _block_size;
+    // SDSC Card (CCS=0) uses byte unit address
+    // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
+    if (SDCARD_V2HC == _card_type) {
+        size = size / _block_size;
+        addr = addr / _block_size;
+    }
+
+    // Start lba sent in start command
+    if (BD_ERROR_OK != (status = _cmd(CMD32_ERASE_WR_BLK_START_ADDR, addr))) {
+        _lock.unlock();
+        return status;
+    }
+
+    // End lba = addr+size sent in end addr command
+    if (BD_ERROR_OK != (status = _cmd(CMD33_ERASE_WR_BLK_END_ADDR, addr+size))) {
+        _lock.unlock();
+        return status;
+    }
+    status = _cmd(CMD38_ERASE, 0x0);
+    _lock.unlock();
+    return status;
 }
 
 bd_size_t SDBlockDevice::get_read_size() const
@@ -526,7 +559,7 @@ bd_size_t SDBlockDevice::get_program_size() const
 
 bd_size_t SDBlockDevice::get_erase_size() const
 {
-    return _block_size;
+    return _erase_size;
 }
 
 bd_size_t SDBlockDevice::size() const
@@ -827,6 +860,14 @@ uint32_t SDBlockDevice::_sd_sectors() {
             debug_if(SD_DBG, "Standard Capacity: c_size: %d \n", c_size);
             debug_if(SD_DBG, "Sectors: 0x%x : %ld\n", blocks, blocks);
             debug_if(SD_DBG, "Capacity: 0x%x : %lld MB\n", capacity, (capacity/(1024U*1024U)));
+
+            // ERASE_BLK_EN = 1: Erase in multiple of 512 bytes supported
+            if (ext_bits(csd, 46, 46)) {
+                _erase_size = BLOCK_SIZE_HC;
+            } else {
+                // ERASE_BLK_EN = 1: Erase in multiple of SECTOR_SIZE supported
+                _erase_size = ext_bits(csd, 45, 39);
+            }
             break;
 
         case 1:
@@ -836,6 +877,8 @@ uint32_t SDBlockDevice::_sd_sectors() {
             debug_if(SD_DBG, "SDHC/SDXC Card: hc_c_size: %d \n", hc_c_size);
             debug_if(SD_DBG, "Sectors: 0x%x : %ld\n", blocks, blocks);
             debug_if(SD_DBG, "Capacity: 0x%x : %ld MB\n", capacity, (capacity/(1024U*1024U)));
+            // ERASE_BLK_EN is fixed to 1, which means host can erase one or multiple of 512 bytes.
+            _erase_size = BLOCK_SIZE_HC;
             break;
 
         default:
