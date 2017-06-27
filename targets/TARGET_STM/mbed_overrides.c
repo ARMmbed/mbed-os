@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,12 @@ void mbed_sdk_init()
     // Update the SystemCoreClock variable.
     SystemCoreClockUpdate();
     HAL_Init();
+
+#if TARGET_STM32F7
+    // Enable CPU L1-Cache
+    SCB_EnableICache();
+    SCB_EnableDCache();
+#endif /* TARGET_STM32F7 */
 
     /* Configure the System clock source, PLL Multiplier and Divider factors,
        AHB/APBx prescalers and Flash settings */
