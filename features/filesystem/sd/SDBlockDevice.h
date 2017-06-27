@@ -202,7 +202,7 @@ private:
     bool _wait_token(uint8_t token);        /**< Wait for token */
     bool _wait_ready(uint16_t ms=300);      /**< 300ms default wait for card to be ready */
     int _read(uint8_t * buffer, uint32_t length);
-    int _write(const uint8_t *buffer,uint8_t token, uint32_t length);
+    uint8_t _write(const uint8_t *buffer,uint8_t token, uint32_t length);
 
     /* Chip Select and SPI mode select */
     DigitalOut _cs;

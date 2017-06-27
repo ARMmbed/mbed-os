@@ -239,7 +239,7 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
     _init_sck = 100000;
-    _transfer_sck = 10000000;
+    _transfer_sck = 25000000;
 
     // Only HC block size is supported.
     _block_size = BLOCK_SIZE_HC;
@@ -262,8 +262,7 @@ int SDBlockDevice::_initialise_card()
     // Initialize the SPI interface: Card by default is in SD mode
     _spi_init();
 
-    // The card is transitioned from SDCard mode to SPI mode by sending the
-    // CMD0 + CS Asserted("0")
+    // The card is transitioned from SDCard mode to SPI mode by sending the CMD0 + CS Asserted("0")
     if (_go_idle_state() != R1_IDLE_STATE) {
         debug_if(SD_DBG, "No disk, or could not put SD card in to SPI idle state\n");
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;
@@ -379,7 +378,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
     const uint8_t *buffer = static_cast<const uint8_t*>(b);
     int status = BD_ERROR_OK;
-    uint8_t token = 0xFF;
+    uint8_t response;
 
     // Get block count
     bd_addr_t blockCnt = size / _block_size;
@@ -391,29 +390,40 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     }
 
     // Send command to perform write operation
-    if (blockCnt > 1) {
-        status = _cmd(CMD25_WRITE_MULTIPLE_BLOCK, addr);
-        token = SPI_START_BLK_MUL_WRITE;
-    } else {
-        status = _cmd(CMD24_WRITE_BLOCK, addr);
-        token = SPI_START_BLOCK;
-    }
-    if (BD_ERROR_OK != status) {
-        _lock.unlock();
-        return status;
-    }
-
-    // Write the data: one block at a time
-    do {
-        if(BD_ERROR_OK != (status = _write(buffer, token, _block_size))) {
-            // CMD13 to get the status
-            status = _cmd(CMD13_SEND_STATUS, 0);
-            break;
+    if (blockCnt == 1) {
+        // Single block write command
+        if (BD_ERROR_OK != (status = _cmd(CMD24_WRITE_BLOCK, addr))) {
+            _lock.unlock();
+            return status;
         }
-        buffer += _block_size;
-    }while (--blockCnt);     // Receive all blocks of data
 
-    if (SPI_START_BLK_MUL_WRITE == token) {
+        // Write data
+        response = _write(buffer, SPI_START_BLOCK, _block_size);
+        // Only CRC and general write error are communicated via response token
+        if ((response == SPI_DATA_CRC_ERROR) || (response == SPI_DATA_WRITE_ERROR)) {
+            status = SD_BLOCK_DEVICE_ERROR_WRITE;
+        }
+
+        /* Once the programming operation is completed, the host should check the
+         * results of the programming using the SEND_STATUS command (CMD13).
+         */
+        status = _cmd(CMD13_SEND_STATUS, 0);
+    } else {
+        // Multiple block write command
+        if (BD_ERROR_OK != (status = _cmd(CMD25_WRITE_MULTIPLE_BLOCK, addr))) {
+            _lock.unlock();
+            return status;
+        }
+
+        // Write the data: one block at a time
+        do {
+            response = _write(buffer, SPI_START_BLK_MUL_WRITE, _block_size);
+            if (response != SPI_DATA_ACCEPTED) {
+                break;
+            }
+            buffer += _block_size;
+        }while (--blockCnt);     // Receive all blocks of data
+
         /* In a Multiple Block write operation, the stop transmission will be done by
          * sending 'Stop Tran' token instead of 'Start Block' token at the beginning
          * of the next block
@@ -424,6 +434,19 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
         // Wait for last block to be written
         _wait_ready(SD_COMMAND_TIMEOUT);
+
+        /* In case of Write Error indication (on the data response) the host shall
+         * use SEND_NUM_WR_BLOCKS (ACMD22) in order to get the number of well written write blocks.
+         */
+        if(response == SPI_DATA_WRITE_ERROR) {
+            if (BD_ERROR_OK == _cmd(ACMD22_SEND_NUM_WR_BLOCKS, 0, 1)) {
+                uint8_t wr_blocks[4];
+                if (BD_ERROR_OK == _read(wr_blocks, 4)) {
+                    debug_if(_dbg, "Blocks Written without errors: 0x%x\n",
+                            ((wr_blocks[0] << 24) | (wr_blocks[1] << 16) | (wr_blocks[2] << 0) | wr_blocks[3]));
+                }
+            }
+        }
     }
     _lock.unlock();
     return status;
@@ -700,9 +723,7 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
     }
 
     // read data
-    for (uint32_t i = 0; i < length; i++) {
-        buffer[i] = _spi.write(0xFF);
-    }
+    _spi.write(NULL, 0, (char*)buffer, length);
 
     // Read the CRC16 checksum for the data block
     crc = (_spi.write(0xFF) << 8);
@@ -712,8 +733,9 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
     return 0;
 }
 
-int SDBlockDevice::_write(const uint8_t*buffer, uint8_t token, uint32_t length) {
+uint8_t SDBlockDevice::_write(const uint8_t *buffer, uint8_t token, uint32_t length) {
     uint16_t crc = 0xFFFF;
+    uint8_t response = 0xFF;
 
     // Select card
     _select();
@@ -721,31 +743,22 @@ int SDBlockDevice::_write(const uint8_t*buffer, uint8_t token, uint32_t length) 
     /* If previous write is in progress, the card will drive DO low again when reselected.
      * Therefore a preceding busy check, check if card is busy prior to each command and
      * data packet, instead of post wait, can eliminate busy wait time */
-    if(false == _wait_ready(SD_COMMAND_TIMEOUT)) {
-        _deselect();
-        return SD_BLOCK_DEVICE_ERROR_WRITE;
-    }
+    _wait_ready(SD_COMMAND_TIMEOUT);
 
     // indicate start of block
     _spi.write(token);
 
     // write the data
-    for (uint32_t i = 0; i < length; i++) {
-        _spi.write(buffer[i]);
-    }
+    _spi.write((char*)buffer, length, NULL, 0);
 
     // write the checksum CRC16
     _spi.write(crc >> 8);
     _spi.write(crc);
 
     // check the response token
-    if ((_spi.write(0xFF) & SPI_DATA_RESPONSE_MASK) != SPI_DATA_ACCEPTED) {
-        _deselect();
-        return SD_BLOCK_DEVICE_ERROR_WRITE;
-    }
-
+    response = _spi.write(0xFF);
     _deselect();
-    return 0;
+    return (response & SPI_DATA_RESPONSE_MASK);
 }
 
 static uint32_t ext_bits(unsigned char *data, int msb, int lsb) {
