@@ -216,8 +216,8 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                DWORD size = _ffs[pdrv]->get_erase_size();
-                *((DWORD*)buff) = size;
+                WORD size = _ffs[pdrv]->get_erase_size();
+                *((WORD*)buff) = size;
                 return RES_OK;
             }
         case GET_BLOCK_SIZE:
