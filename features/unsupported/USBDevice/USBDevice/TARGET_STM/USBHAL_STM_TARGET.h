@@ -31,6 +31,9 @@
 #elif defined(TARGET_DISCO_L053C8)
 #include "USBHAL_STM32L053C8.h"
 
+#elif defined(TARGET_DISCO_L072CZ_LRWAN1)
+#include "USBHAL_STM32L072CZ.h"
+
 #else /* default configuration */
 #include "USBHAL_STM_144_64pins.h"
 
