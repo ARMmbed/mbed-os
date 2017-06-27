@@ -77,13 +77,12 @@ def check_inherits(dict):
     if  ("inherits" in dict and len(dict["inherits"]) > 1):
         yield "multiple inheritance is forbidden"
 
-DEVICE_HAS_ALLOWED = ["AACI", "ANALOGIN", "ANALOGOUT", "CAN", "CLCD",
-                      "ERROR_PATTERN", "ETHERNET", "EMAC", "FLASH", "I2C",
-                      "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER",
-                      "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "TRNG",
-                      "TSC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP",
-                      "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES",
-                      "STORAGE", "SEMIHOST", "LOCALFILESYSTEM"]
+DEVICE_HAS_ALLOWED = ["ANALOGIN", "ANALOGOUT", "CAN", "ETHERNET", "EMAC",
+                      "FLASH", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN",
+                      "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT",
+                      "PWMOUT", "RTC", "TRNG","SERIAL", "SERIAL_ASYNCH",
+                      "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE",
+                      "STORAGE"]
 def check_device_has(dict):
     for name in dict.get("device_has", []):
         if name not in DEVICE_HAS_ALLOWED:
