@@ -115,25 +115,22 @@ uint32_t lp_ticker_read(void)
  */
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    int32_t delta = 0;
-
     /* Verify if lp_ticker has been not Initialized */
     if (lp_ticker_initialized == 0)
         lp_ticker_init();
 
     /* Calculate the delta */
-    delta = (int32_t)(timestamp - lp_ticker_read());
-    /* Check if the event was in the past */
-    if (delta <= 0) {
-        /* This event was in the past */
-        DualTimer_SetInterrupt_1(DUALTIMER0, 0,
-                DUALTIMER_COUNT_32 | DUALTIMER_ONESHOT);
-        return;
-    }
+    uint32_t delta = timestamp - lp_ticker_read();
 
     /* Enable interrupt on SingleTimer1 */
     DualTimer_SetInterrupt_1(DUALTIMER0, delta,
             DUALTIMER_COUNT_32 | DUALTIMER_ONESHOT);
+}
+
+void lp_ticker_fire_interrupt(void)
+{
+    uint32_t lp_ticker_irqn = DualTimer_GetIRQn(DUALTIMER0);
+    NVIC_SetPendingIRQ((IRQn_Type)lp_ticker_irqn);
 }
 
 /**

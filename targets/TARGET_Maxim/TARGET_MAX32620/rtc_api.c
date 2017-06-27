@@ -281,6 +281,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     while(MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
+void lp_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(RTC0_IRQn);
+}
+
 //******************************************************************************
 inline void lp_ticker_disable_interrupt(void)
 {

@@ -117,14 +117,23 @@ static void schedule_interrupt(const ticker_data_t *const ticker)
 
         // if the event at the head of the queue is in the past then schedule
         // it immediately.
-        if (next_event_timestamp < present) {
-            relative_timeout = 0;
+        if (next_event_timestamp <= present) {
+            ticker->interface->fire_interrupt();
+            return;
         } else if ((next_event_timestamp - present) < MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA) {
             relative_timeout = next_event_timestamp - present;
         }
     } 
 
-    ticker->interface->set_interrupt(ticker->queue->present_time + relative_timeout);
+    us_timestamp_t new_match_time = ticker->queue->present_time + relative_timeout;
+    ticker->interface->set_interrupt(new_match_time);
+    // there could be a delay, reread the time, check if it was set in the past
+    // As result, if it is already in the past, we fire it immediately
+    update_present_time(ticker);
+    us_timestamp_t present = ticker->queue->present_time;
+    if (present >= new_match_time) {
+        ticker->interface->fire_interrupt();
+    }
 }
 
 void ticker_set_handler(const ticker_data_t *const ticker, ticker_event_handler handler)

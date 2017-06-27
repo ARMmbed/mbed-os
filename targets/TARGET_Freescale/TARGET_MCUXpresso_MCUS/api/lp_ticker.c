@@ -163,6 +163,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     }
 }
 
+void lp_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(LPTMR0_IRQn);
+}
+
 /** Disable low power ticker interrupt
  *
  */
@@ -180,4 +185,5 @@ void lp_ticker_clear_interrupt(void)
     RTC->TAR = 0; /* Write clears the IRQ flag */
     LPTMR_ClearStatusFlags(LPTMR0, kLPTMR_TimerCompareFlag);
 }
+
 #endif /* DEVICE_LOWPOWERTIMER */
