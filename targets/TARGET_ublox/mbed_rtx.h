@@ -23,6 +23,11 @@
 #define INITIAL_SP              (0x01000000 + 0x05000 - 256)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif

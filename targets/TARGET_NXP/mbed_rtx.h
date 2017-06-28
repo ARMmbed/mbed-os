@@ -22,6 +22,12 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -37,6 +43,12 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10002000UL)
 #endif
+
+     // RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif
@@ -48,6 +60,12 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10001000UL)
+#endif
+
+ // RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
@@ -61,6 +79,12 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10002000UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -72,6 +96,12 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x02009000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -85,6 +115,12 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -96,6 +132,12 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10010000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
@@ -109,6 +151,12 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -121,6 +169,12 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10001000UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif
@@ -132,6 +186,12 @@
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10002000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
 #endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128

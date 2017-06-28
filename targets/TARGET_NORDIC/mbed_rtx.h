@@ -27,6 +27,11 @@
 #   endif
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              7
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          512
 #endif
@@ -42,6 +47,12 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20010000UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              7
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          512
 #endif
@@ -54,6 +65,12 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20040000UL)
 #endif
+
+// More than 256 bytes are needed for the idle thread stack on the NRF52840
+#define OS_IDLE_THREAD_STACK_SIZE  512
+
+// RTX 4 only config below, for backward-compability
+
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              24
 #endif
@@ -63,9 +80,6 @@
 #ifndef OS_CLOCK
 #define OS_CLOCK                64000000
 #endif
-
-// More than 256 bytes are needed for the idle thread stack on the NRF52840
-#define OS_IDLE_THREAD_STACK_SIZE  512
 
 #endif // defined(TARGET_MCU_NRF51822)...
 

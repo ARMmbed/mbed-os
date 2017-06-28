@@ -22,6 +22,9 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
+
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              6
 #endif
@@ -37,6 +40,9 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
+
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              6
 #endif
@@ -52,6 +58,9 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
+
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              6
 #endif

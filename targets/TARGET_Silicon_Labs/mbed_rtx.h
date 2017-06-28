@@ -24,26 +24,17 @@
 #define OS_CLOCK                  REFERENCE_FREQUENCY
 #endif
 
-#if defined(__CC_ARM)
-extern uint32_t HEAP$$Base;
-extern uint32_t HEAP$$Limit;
-extern uint32_t STACK$$Limit;
-extern uint32_t STACK$$Base;
-#ifndef INITIAL_SP
-#define INITIAL_SP            ((uint32_t)&STACK$$Limit)
-#endif
-#define ISR_STACK_START       ((uint32_t)&STACK$$Base)
-#define ISR_STACK_SIZE        ((uint32_t) ((uint32_t)&STACK$$Limit - (uint32_t)&STACK$$Base))
-#define HEAP_START            ((unsigned char*) ((uint32_t)&HEAP$$Base))
-#define HEAP_SIZE             ((uint32_t) ((uint32_t)&HEAP$$Limit - (uint32_t)&HEAP$$Base))
-#endif
-
 #if defined(TARGET_EFM32GG_STK3700)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          256
 #endif
@@ -54,6 +45,11 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20002000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          112
 #endif
@@ -64,6 +60,11 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif
@@ -74,6 +75,11 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif
@@ -84,6 +90,11 @@ extern uint32_t STACK$$Base;
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
 #ifndef OS_MAINSTKSIZE
 #define OS_MAINSTKSIZE          128
 #endif
@@ -93,6 +104,8 @@ extern uint32_t STACK$$Base;
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20007C00UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
 
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              5
@@ -106,6 +119,8 @@ extern uint32_t STACK$$Base;
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20040000UL)
 #endif
+
+// RTX 4 only config below, for backward-compability
 
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              14
