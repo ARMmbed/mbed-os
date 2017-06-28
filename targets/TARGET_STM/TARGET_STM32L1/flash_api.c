@@ -118,7 +118,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address) 
 {
-    /*  considering 1 sector = 1 page */
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return MBED_FLASH_INVALID_SIZE;
     } else {
@@ -128,7 +127,6 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 
 uint32_t flash_get_page_size(const flash_t *obj)
 {
-    /*  considering 1 sector = 1 page */
     return FLASH_PAGE_SIZE;
 }
 
