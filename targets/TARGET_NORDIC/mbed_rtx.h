@@ -27,6 +27,12 @@
 #   endif
 #endif
 
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          512
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                32768
+#endif
 #ifndef OS_SYSTICK
 #define OS_SYSTICK              0
 #endif
@@ -36,11 +42,26 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20010000UL)
 #endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          512
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                64000000
+#endif
 
 #elif defined(TARGET_MCU_NRF52840)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20040000UL)
+#endif
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              24
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          2048
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                64000000
 #endif
 
 // More than 256 bytes are needed for the idle thread stack on the NRF52840
