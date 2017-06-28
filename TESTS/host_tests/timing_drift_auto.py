@@ -99,37 +99,32 @@ class TimingDriftSync(BaseHostTest):
         self.register_callback('final_time', self._callback_final_time)
 
     def compute_parameter(self, failure_criteria=0.05):
-        nominal_time = (self.round_trip_final_start + self.round_trip_final_end) / 2.0 - (self.round_trip_base_start + self.round_trip_base_end) / 2.0
-        transport_error = self.round_trip_final_time / 2.0 + self.round_trip_base_time / 2.0
-
-        min_range = nominal_time * (1 - failure_criteria)
-        max_range = nominal_time * (1 + failure_criteria)
-
+        t_max = self.round_trip_final_end - self.round_trip_base_start
+        t_min = self.round_trip_final_start - self.round_trip_base_end
+        t_max_hi = t_max * (1 + failure_criteria)
+        t_max_lo = t_max * (1 - failure_criteria)
+        t_min_hi = t_min * (1 + failure_criteria)
+        t_min_lo = t_min * (1 - failure_criteria)
         device_time = (self.device_time_final - self.device_time_base) / self.mega
-
-        min_pass_value = (device_time - transport_error)
-        max_pass_value = (device_time + transport_error)
 
         self.log("Compute host events")
         self.log("Transport delay 0: {}".format(self.round_trip_base_time))
         self.log("Transport delay 1: {}".format(self.round_trip_final_time))
-        self.log("Transport dealy avg : {} ".format(transport_error))
         self.log("DUT base time : {}".format(self.device_time_base))
         self.log("DUT end time  : {}".format(self.device_time_final))
-        self.log("Actual Time : {}".format(device_time))
-        self.log("Nominal Time : {}".format(nominal_time))
 
-        self.log("min_pass : {} , max_pass : {}".format(min_pass_value, max_pass_value))
-        self.log("min_range : {} , max_range : {}".format(min_range, max_range))
+        self.log("min_pass : {} , max_pass : {} for {}%%".format(t_max_lo, t_min_hi, failure_criteria * 100))
+        self.log("min_inconclusive : {} , max_inconclusive : {}".format(t_min_lo, t_max_hi))
+        self.log("Time reported by device: {}".format(device_time))
 
-        if (min_pass_value >= min_range) and (max_pass_value <= max_range):
+        if t_max_lo <= device_time <= t_min_hi:
             self.log("Test passed !!!")
             self.__result = True
-        elif (min_pass_value > max_range) or (max_pass_value < min_pass_value):
-            self.log("Time outside of passing range. Timing drift seems to be present !!!")
+        elif t_min_lo <= device_time <= t_max_hi:
+            self.log("Test inconclusive due to transport delay, retrying")
             self.__result = False
         else:
-            self.log("Test inconclusive due to transport delay, retrying")
+            self.log("Time outside of passing range. Timing drift seems to be present !!!")
             self.__result = False
         return self.__result
 
