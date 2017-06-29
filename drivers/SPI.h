@@ -273,7 +273,7 @@ protected:
     int _hz;
 
 private:
-    /* Private acquire fucntion without locking/unlocking
+    /* Private acquire function without locking/unlocking
      * Implemented in order to avoid duplicate locking and boost performance
      */
     void _acquire(void);
