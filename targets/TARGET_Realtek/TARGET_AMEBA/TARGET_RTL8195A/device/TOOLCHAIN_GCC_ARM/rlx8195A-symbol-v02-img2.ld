@@ -731,7 +731,6 @@ SECTIONS
         *(.hal.flash.text*)
         *(.hal.sdrc.text*)
         *(.hal.gpio.text*)
-        *(.text*)
 
         KEEP(*(.init))
         KEEP(*(.fini))
@@ -839,6 +838,15 @@ SECTIONS
     {
         *(.stack)
     } > BD_RAM
+
+    .sdr_all :
+    {
+        __sdram_data_start__ = .;
+        *(.text*) 
+        __sdram_data_end__ = .;
+        __sdram_bss_start__ = .;
+        __sdram_bss_end__ = .;
+    } > SD_RAM
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
