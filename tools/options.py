@@ -17,9 +17,9 @@ limitations under the License.
 from json import load
 from os.path import join, dirname
 from os import listdir
-from argparse import ArgumentParser
+from argparse import ArgumentParser, ArgumentTypeError
 from tools.toolchains import TOOLCHAINS
-from tools.targets import TARGET_NAMES
+from tools.targets import TARGET_NAMES, Target, update_target_data
 from tools.utils import argparse_force_uppercase_type, \
     argparse_lowercase_hyphen_type, argparse_many, \
     argparse_filestring_type, args_error, argparse_profile_filestring_type,\
@@ -47,10 +47,7 @@ def get_default_options_parser(add_clean=True, add_options=True,
     parser.add_argument("-m", "--mcu",
                         help=("build for the given MCU (%s)" %
                               ', '.join(targetnames)),
-                        metavar="MCU",
-                        type=argparse_many(
-                            argparse_force_uppercase_type(
-                                targetnames, "MCU")))
+                        metavar="MCU")
 
     parser.add_argument("-t", "--tool",
                         help=("build using the given TOOLCHAIN (%s)" %
@@ -108,16 +105,41 @@ def extract_profile(parser, options, toolchain, fallback="develop"):
     options - The parsed command line arguments
     toolchain - the toolchain that the profile should be extracted for
     """
-    profile = {'c': [], 'cxx': [], 'ld': [], 'common': [], 'asm': []}
+    profiles = []
     filenames = options.profile or [join(dirname(__file__), "profiles",
                                          fallback + ".json")]
     for filename in filenames:
         contents = load(open(filename))
-        try:
-            for key in profile.iterkeys():
-                profile[key] += contents[toolchain][key]
-        except KeyError:
+        if toolchain not in contents:
             args_error(parser, ("argument --profile: toolchain {} is not"
                                 " supported by profile {}").format(toolchain,
                                                                    filename))
-    return profile
+        profiles.append(contents)
+
+    return profiles
+
+def mcu_is_enabled(parser, mcu):
+    if "Cortex-A" in TARGET_MAP[mcu].core:
+        args_error(
+            parser,
+            ("%s Will be supported in mbed OS 5.6. "
+             "To use the %s, please checkout the mbed OS 5.4 release branch. "
+             "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
+             "for more information") % (mcu, mcu))
+    return True
+    
+def extract_mcus(parser, options):
+    try:
+        if options.source_dir:
+            for source_dir in options.source_dir:
+                Target.add_extra_targets(source_dir)
+            update_target_data()
+    except KeyError:
+        pass
+    targetnames = TARGET_NAMES
+    targetnames.sort()
+    try:
+        return argparse_many(argparse_force_uppercase_type(targetnames, "MCU"))(options.mcu)
+    except ArgumentTypeError as exc:
+        args_error(parser, "argument -m/--mcu: {}".format(str(exc)))
+

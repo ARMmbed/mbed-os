@@ -268,24 +268,28 @@ int can_config_rxmsgobj(can_t *obj) {
 }
 
 
-void can_init(can_t *obj, PinName rd, PinName td) {
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
     // Enable power and clock
     LPC_SYSCON->PRESETCTRL |= PRESETCTRL_CAN_RST_N;
     LPC_SYSCON->SYSAHBCLKCTRL |= SYSAHBCLKCTRL_CAN;
-    
+
     // Enable Initialization mode
     if (!(LPC_CAN->CNTL & CANCNTL_INIT)) {
         LPC_CAN->CNTL |= CANCNTL_INIT;
     }
-    
-    can_frequency(obj, 125000);
-    
+
+    can_frequency(obj, hz);
+
     // Resume operation
     LPC_CAN->CNTL &= ~CANCNTL_INIT;
     while ( LPC_CAN->CNTL & CANCNTL_INIT );
-    
+
     // Initialize RX message object
     can_config_rxmsgobj(obj);
+}
+
+void can_init(can_t *obj, PinName rd, PinName td) {
+    can_init_freq(obj, rd, td, 125000);
 }
 
 void can_free(can_t *obj) {

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "uvisor-lib/uvisor-lib.h"
 
 #include <stdint.h>
@@ -23,12 +23,13 @@
 #include <stdio.h>
 #include <reent.h>
 
-#define OP_MALLOC  0
-#define OP_REALLOC 1
-#define OP_FREE    2
-
-#define HEAP_ACTIVE  0
-#define HEAP_PROCESS 1
+/*
+ * These are the C standard memory functions:
+ * - void *calloc(size_t nmemb, size_t size);
+ * - void free(void *ptr);
+ * - void *malloc(size_t size);
+ * - void *realloc(void *ptr, size_t size);
+*/
 
 /* Use printf with caution inside malloc: printf may allocate memory itself,
    so using printf in malloc may lead to recursive calls! */
@@ -40,11 +41,19 @@ extern RtxBoxIndex * const __uvisor_ps;
  *  @retval 1 The kernel is initialized.. */
 static int is_kernel_initialized()
 {
+    /* TODO: Bare-bone boxes must not call any RTX2 functions for now.
+     * Each box should instead provide `heap_lock` and `heap_unlock` functions
+     * as part of the box context. These would just be empty for boxes without
+     * the need for heap locking. */
+    if (__uvisor_ps->index.box_id_self != 0) {
+        return 0;
+    }
+
     static uint8_t kernel_running = 0;
     if (kernel_running) {
         return 1;
     }
-    if (osKernelRunning()) {
+    if (osKernelGetState() == osKernelRunning) {
         kernel_running = 1;
         return 1;
     }
@@ -64,10 +73,14 @@ static int init_allocator()
     }
 
     if ((__uvisor_ps->mutex_id == NULL) && is_kernel_initialized()) {
-        /* Point the mutex pointer to the data. */
-        __uvisor_ps->mutex.mutex = &(__uvisor_ps->mutex_data);
+        /* Point the mutex attr to the data. */
+        __uvisor_ps->mutex_attr.name = "uvisor_malloc_mutex";
+        __uvisor_ps->mutex_attr.attr_bits = 0; /* Non-recursive */
+        __uvisor_ps->mutex_attr.cb_mem = &__uvisor_ps->mutex_data;
+        __uvisor_ps->mutex_attr.cb_size = sizeof(__uvisor_ps->mutex_data);
+
         /* Create mutex if not already done. */
-        __uvisor_ps->mutex_id = osMutexCreate(&(__uvisor_ps->mutex));
+        __uvisor_ps->mutex_id = osMutexNew(&__uvisor_ps->mutex_attr);
         /* Mutex failed to be created. */
         if (__uvisor_ps->mutex_id == NULL) {
             return -1;
@@ -80,7 +93,7 @@ static int init_allocator()
             /* Lock the mutex during initialization. */
             int kernel_initialized = is_kernel_initialized();
             if (kernel_initialized) {
-                osMutexWait(__uvisor_ps->mutex_id, osWaitForever);
+                osMutexAcquire(__uvisor_ps->mutex_id, osWaitForever);
             }
             /* Initialize the process heap. */
             SecureAllocator allocator = secure_allocator_create_with_pool(
@@ -102,7 +115,16 @@ static int init_allocator()
     return ret;
 }
 
-static void * memory(void * ptr, size_t size, int heap, int operation)
+typedef enum {
+    MEMOP_MALLOC,
+    MEMOP_MEMALIGN,
+    MEMOP_CALLOC,
+    MEMOP_REALLOC,
+    MEMOP_FREE
+} MemoryOperation;
+
+
+static void * memory(MemoryOperation operation, uint32_t * args)
 {
     /* Buffer the return value. */
     void * ret = NULL;
@@ -111,31 +133,33 @@ static void * memory(void * ptr, size_t size, int heap, int operation)
         return NULL;
     }
     /* Check if we need to aquire the mutex. */
-    int mutexed = is_kernel_initialized() &&
-                  ((heap == HEAP_PROCESS) ||
-                   (void *) __uvisor_ps->index.bss.address_of.heap == __uvisor_ps->index.active_heap);
-    void * allocator = (heap == HEAP_PROCESS) ?
-                       ((void *) __uvisor_ps->index.bss.address_of.heap) :
-                       (__uvisor_ps->index.active_heap);
+    int mutexed = is_kernel_initialized();
+    void * allocator = __uvisor_ps->index.active_heap;
 
     /* Aquire the mutex if required.
      * TODO: Mutex use is very coarse here. It may be sufficient to guard
      * the `rt_alloc_mem` and `rt_free_mem` functions in `uvisor_allocator.c`.
      * However, it is simpler to do it here for now. */
     if (mutexed) {
-        osMutexWait(__uvisor_ps->mutex_id, osWaitForever);
+        osMutexAcquire(__uvisor_ps->mutex_id, osWaitForever);
     }
     /* Perform the required operation. */
     switch(operation)
     {
-        case OP_MALLOC:
-            ret = secure_malloc(allocator, size);
+        case MEMOP_MALLOC:
+            ret = secure_malloc(allocator, (size_t) args[0]);
             break;
-        case OP_REALLOC:
-            ret = secure_realloc(allocator, ptr, size);
+        case MEMOP_MEMALIGN:
+            ret = secure_aligned_alloc(allocator, (size_t) args[0], (size_t) args[1]);
             break;
-        case OP_FREE:
-            secure_free(allocator, ptr);
+        case MEMOP_CALLOC:
+            ret = secure_calloc(allocator, (size_t) args[0], (size_t) args[1]);
+            break;
+        case MEMOP_REALLOC:
+            ret = secure_realloc(allocator, (void *) args[0], (size_t) args[1]);
+            break;
+        case MEMOP_FREE:
+            secure_free(allocator, (void *) args[0]);
             break;
         default:
             break;
@@ -148,42 +172,36 @@ static void * memory(void * ptr, size_t size, int heap, int operation)
 }
 
 /* Wrapped memory management functions. */
-#if defined (__CC_ARM)
-void * $Sub$$_malloc_r(struct _reent * r, size_t size) {
-    return memory(r, size, HEAP_ACTIVE, OP_MALLOC);
-}
-void * $Sub$$_realloc_r(struct _reent * r, void * ptr, size_t size) {
-    (void)r;
-    return memory(ptr, size, HEAP_ACTIVE, OP_REALLOC);
-}
-void $Sub$$_free_r(struct _reent * r, void * ptr) {
-    (void)r;
-    memory(ptr, 0, HEAP_ACTIVE, OP_FREE);
-}
-#elif defined (__GNUC__)
+#if defined (__GNUC__)
+
 void * __wrap__malloc_r(struct _reent * r, size_t size) {
-    return memory(r, size, HEAP_ACTIVE, OP_MALLOC);
+    (void) r;
+    return memory(MEMOP_MALLOC, (uint32_t *) &size);
+}
+void * __wrap__memalign_r(struct _reent * r, size_t alignment, size_t bytes) {
+    (void) r;
+    uint32_t args[2] = {(uint32_t) alignment, (uint32_t) bytes};
+    return memory(MEMOP_MEMALIGN, args);
+}
+void * __wrap__calloc_r(struct _reent * r, size_t nmemb, size_t size) {
+    (void) r;
+    uint32_t args[2] = {(uint32_t) nmemb, (uint32_t) size};
+    return memory(MEMOP_CALLOC, args);
 }
 void * __wrap__realloc_r(struct _reent * r, void * ptr, size_t size) {
-    (void)r;
-    return memory(ptr, size, HEAP_ACTIVE, OP_REALLOC);
+    (void) r;
+    uint32_t args[2] = {(uint32_t) ptr, (uint32_t) size};
+    return memory(MEMOP_REALLOC, args);
 }
 void __wrap__free_r(struct _reent * r, void * ptr) {
-    (void)r;
-    memory(ptr, 0, HEAP_ACTIVE, OP_FREE);
+    (void) r;
+    memory(MEMOP_FREE, (uint32_t *) &ptr);
 }
+
+#elif defined (__CC_ARM)
+/* TODO: Find out how to do function wrapping for ARMCC. See microlib libc. */
+#   warning "Using uVisor allocator is not available for ARMCC. Falling back to default allocator."
 #elif defined (__ICCARM__)
 /* TODO: Find out how to do function wrapping for IARCC. */
-/* TODO: newlib allocator is not thread-safe! */
-#   warning "Using uVisor allocator is not available for IARCC. Falling back to newlib allocator."
+#   warning "Using uVisor allocator is not available for IARCC. Falling back to default allocator."
 #endif
-
-void * malloc_p(size_t size) {
-    return memory(NULL, size, HEAP_PROCESS, OP_MALLOC);
-}
-void * realloc_p(void * ptr, size_t size) {
-    return memory(ptr, size, HEAP_PROCESS, OP_REALLOC);
-}
-void free_p(void * ptr) {
-    memory(ptr, 0, HEAP_PROCESS, OP_FREE);
-}

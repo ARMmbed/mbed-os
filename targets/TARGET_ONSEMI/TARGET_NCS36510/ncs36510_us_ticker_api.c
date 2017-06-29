@@ -28,7 +28,7 @@
 */
 
 #include <stddef.h>
-#include "timer.h"
+#include "timer_ncs36510.h"
 
 #define US_TIMER  TIMER0
 #define US_TICKER TIMER1

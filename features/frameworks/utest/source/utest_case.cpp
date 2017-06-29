@@ -21,44 +21,75 @@
 
 using namespace utest::v1;
 
+// case_t factory used by Case contructor
+static inline case_t make_case(
+    const char *description,
+    const case_handler_t handler,
+    const case_control_handler_t control_handler,
+    const case_call_count_handler_t repeat_count_handler,
+    const case_setup_handler_t setup_handler,
+    const case_teardown_handler_t teardown_handler,
+    const case_failure_handler_t failure_handler)
+{
+    case_t result = {
+        description,
+        handler,
+        control_handler,
+        repeat_count_handler,
+        setup_handler,
+        teardown_handler,
+        failure_handler
+    };
+
+    return result;
+}
+
 // normal handler
 Case::Case(const char *description,
            const case_setup_handler_t setup_handler,
            const case_handler_t handler,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
-    description(description),
-    handler(handler),
-    control_handler(ignore_handler),
-    repeat_count_handler(ignore_handler),
-    setup_handler(setup_handler),
-    teardown_handler(teardown_handler),
-    failure_handler(failure_handler)
+    case_t(make_case(
+        description,
+        handler,
+        ignore_handler,
+        ignore_handler,
+        setup_handler,
+        teardown_handler,
+        failure_handler
+    ))
+
 {}
 
 Case::Case(const char *description,
            const case_handler_t handler,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
-    description(description),
-    handler(handler),
-    control_handler(ignore_handler),
-    repeat_count_handler(ignore_handler),
-    setup_handler(default_handler),
-    teardown_handler(teardown_handler),
-    failure_handler(failure_handler)
+    case_t(make_case(
+        description,
+        handler,
+        ignore_handler,
+        ignore_handler,
+        default_handler,
+        teardown_handler,
+        failure_handler
+    ))
+
 {}
 
 Case::Case(const char *description,
            const case_handler_t handler,
            const case_failure_handler_t failure_handler) :
-    description(description),
-    handler(handler),
-    control_handler(ignore_handler),
-    repeat_count_handler(ignore_handler),
-    setup_handler(default_handler),
-    teardown_handler(default_handler),
-    failure_handler(failure_handler)
+    case_t(make_case(
+        description,
+        handler,
+        ignore_handler,
+        ignore_handler,
+        default_handler,
+        default_handler,
+        failure_handler
+    ))
 {}
 
 // control handler
@@ -67,38 +98,44 @@ Case::Case(const char *description,
            const case_control_handler_t handler,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
-    description(description),
-    handler(ignore_handler),
-    control_handler(handler),
-    repeat_count_handler(ignore_handler),
-    setup_handler(setup_handler),
-    teardown_handler(teardown_handler),
-    failure_handler(failure_handler)
+    case_t(make_case(
+        description,
+        ignore_handler,
+        handler,
+        ignore_handler,
+        setup_handler,
+        teardown_handler,
+        failure_handler
+    ))
 {}
 
 Case::Case(const char *description,
            const case_control_handler_t handler,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
-    description(description),
-    handler(ignore_handler),
-    control_handler(handler),
-    repeat_count_handler(ignore_handler),
-    setup_handler(default_handler),
-    teardown_handler(teardown_handler),
-    failure_handler(failure_handler)
+    case_t(make_case(
+        description,
+        ignore_handler,
+        handler,
+        ignore_handler,
+        default_handler,
+        teardown_handler,
+        failure_handler
+    ))
 {}
 
 Case::Case(const char *description,
            const case_control_handler_t handler,
            const case_failure_handler_t failure_handler) :
-    description(description),
-    handler(ignore_handler),
-    control_handler(handler),
-    repeat_count_handler(ignore_handler),
-    setup_handler(default_handler),
-    teardown_handler(default_handler),
-    failure_handler(failure_handler)
+    case_t(make_case(
+        description,
+        ignore_handler,
+        handler,
+        ignore_handler,
+        default_handler,
+        default_handler,
+        failure_handler
+    ))
 {}
 
 // control flow handler
@@ -107,38 +144,44 @@ Case::Case(const char *description,
            const case_call_count_handler_t case_repeat_count_handler,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
-    description(description),
-    handler(ignore_handler),
-    control_handler(ignore_handler),
-    repeat_count_handler(case_repeat_count_handler),
-    setup_handler(setup_handler),
-    teardown_handler(teardown_handler),
-    failure_handler(failure_handler)
+    case_t(make_case(
+        description,
+        ignore_handler,
+        ignore_handler,
+        case_repeat_count_handler,
+        setup_handler,
+        teardown_handler,
+        failure_handler
+    ))
 {}
 
 Case::Case(const char *description,
            const case_call_count_handler_t case_repeat_count_handler,
            const case_failure_handler_t failure_handler) :
-    description(description),
-    handler(ignore_handler),
-    control_handler(ignore_handler),
-    repeat_count_handler(case_repeat_count_handler),
-    setup_handler(default_handler),
-    teardown_handler(default_handler),
-    failure_handler(failure_handler)
+    case_t(make_case(
+        description,
+        ignore_handler,
+        ignore_handler,
+        case_repeat_count_handler,
+        default_handler,
+        default_handler,
+        failure_handler
+    ))
 {}
 
 Case::Case(const char *description,
            const case_call_count_handler_t case_repeat_count_handler,
            const case_teardown_handler_t teardown_handler,
            const case_failure_handler_t failure_handler) :
-    description(description),
-    handler(ignore_handler),
-    control_handler(ignore_handler),
-    repeat_count_handler(case_repeat_count_handler),
-    setup_handler(default_handler),
-    teardown_handler(teardown_handler),
-    failure_handler(failure_handler)
+    case_t(make_case(
+        description,
+        ignore_handler,
+        ignore_handler,
+        case_repeat_count_handler,
+        default_handler,
+        teardown_handler,
+        failure_handler
+    ))
 {}
 
 const char*

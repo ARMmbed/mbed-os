@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_comp.h
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Header file of COMP LL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -149,7 +149,7 @@ typedef struct
 #define LL_COMP_INPUT_PLUS_IO1          ((uint32_t)0x00000000U)                 /*!< Comparator input plus connected to IO1 (pin PC5 for COMP1, pin PB4 for COMP2) */
 #define LL_COMP_INPUT_PLUS_IO2          (COMP_CSR_INPSEL_0)                     /*!< Comparator input plus connected to IO2 (pin PB2 for COMP1, pin PB6 for COMP2) */
 #if defined(COMP_CSR_INPSEL_1)
-#define LL_COMP_INPUT_PLUS_IO3          (COMP_CSR_INPSEL_1 | COMP_CSR_INPSEL_0) /*!< Comparator input plus connected to IO3 (pin PA1 for COMP1, pin PA3 for COMP2) */
+#define LL_COMP_INPUT_PLUS_IO3          (COMP_CSR_INPSEL_1)                     /*!< Comparator input plus connected to IO3 (pin PA1 for COMP1, pin PA3 for COMP2) */
 #endif
 /**
   * @}
@@ -163,7 +163,9 @@ typedef struct
 #define LL_COMP_INPUT_MINUS_3_4VREFINT  (                    COMP_CSR_INMSEL_1                     | COMP_CSR_SCALEN | COMP_CSR_BRGEN)        /*!< Comparator input minus connected to 3/4 VrefInt  */
 #define LL_COMP_INPUT_MINUS_VREFINT     (                    COMP_CSR_INMSEL_1 | COMP_CSR_INMSEL_0 | COMP_CSR_SCALEN                 )        /*!< Comparator input minus connected to VrefInt */
 #define LL_COMP_INPUT_MINUS_DAC1_CH1    (COMP_CSR_INMSEL_2                                        )                                           /*!< Comparator input minus connected to DAC1 channel 1 (DAC_OUT1)  */
+#if defined(DAC_CHANNEL2_SUPPORT)
 #define LL_COMP_INPUT_MINUS_DAC1_CH2    (COMP_CSR_INMSEL_2                     | COMP_CSR_INMSEL_0)                                           /*!< Comparator input minus connected to DAC1 channel 2 (DAC_OUT2)  */
+#endif
 #define LL_COMP_INPUT_MINUS_IO1         (COMP_CSR_INMSEL_2 | COMP_CSR_INMSEL_1                    )                                           /*!< Comparator input minus connected to IO1 (pin PB1 for COMP1, pin PB3 for COMP2) */
 #define LL_COMP_INPUT_MINUS_IO2         (COMP_CSR_INMSEL_2 | COMP_CSR_INMSEL_1 | COMP_CSR_INMSEL_0)                                           /*!< Comparator input minus connected to IO2 (pin PC4 for COMP1, pin PB7 for COMP2) */
 #if defined(COMP_CSR_INMESEL_1)
@@ -185,7 +187,9 @@ typedef struct
 #define LL_COMP_INVERTINGINPUT_3_4VREFINT LL_COMP_INPUT_MINUS_3_4VREFINT
 #define LL_COMP_INVERTINGINPUT_VREFINT    LL_COMP_INPUT_MINUS_VREFINT
 #define LL_COMP_INVERTINGINPUT_DAC1       LL_COMP_INPUT_MINUS_DAC1_CH1
+#if defined(DAC_CHANNEL2_SUPPORT)
 #define LL_COMP_INVERTINGINPUT_DAC2       LL_COMP_INPUT_MINUS_DAC1_CH2
+#endif
 #define LL_COMP_INVERTINGINPUT_IO1        LL_COMP_INPUT_MINUS_IO1
 #define LL_COMP_INVERTINGINPUT_IO2        LL_COMP_INPUT_MINUS_IO2
 #if defined(COMP_CSR_INMESEL_1)
@@ -226,7 +230,7 @@ typedef struct
 /** @defgroup COMP_LL_EC_OUTPUT_BLANKING_SOURCE Comparator output - Blanking source
   * @{
   */
-#define LL_COMP_BLANKINGSRC_NONE        ((uint32_t)0x00000000U) /*!<Comparator output without blanking */
+#define LL_COMP_BLANKINGSRC_NONE            ((uint32_t)0x00000000U) /*!<Comparator output without blanking */
 #define LL_COMP_BLANKINGSRC_TIM1_OC5_COMP1  (COMP_CSR_BLANKING_0)   /*!< Comparator output blanking source TIM1 OC5 (specific to COMP instance: COMP1) */
 #define LL_COMP_BLANKINGSRC_TIM2_OC3_COMP1  (COMP_CSR_BLANKING_1)   /*!< Comparator output blanking source TIM2 OC3 (specific to COMP instance: COMP1) */
 #define LL_COMP_BLANKINGSRC_TIM3_OC3_COMP1  (COMP_CSR_BLANKING_2)   /*!< Comparator output blanking source TIM3 OC3 (specific to COMP instance: COMP1) */
@@ -458,7 +462,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetPowerMode(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_INPUT_MINUS_3_4VREFINT
   *         @arg @ref LL_COMP_INPUT_MINUS_VREFINT
   *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH1
-  *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH2
+  *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH2 (*)
   *         @arg @ref LL_COMP_INPUT_MINUS_IO1
   *         @arg @ref LL_COMP_INPUT_MINUS_IO2
   *         @arg @ref LL_COMP_INPUT_MINUS_IO3 (*)
@@ -553,7 +557,7 @@ __STATIC_INLINE uint32_t LL_COMP_GetInputPlus(COMP_TypeDef *COMPx)
   *         @arg @ref LL_COMP_INPUT_MINUS_3_4VREFINT
   *         @arg @ref LL_COMP_INPUT_MINUS_VREFINT
   *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH1
-  *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH2
+  *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH2 (*)
   *         @arg @ref LL_COMP_INPUT_MINUS_IO1
   *         @arg @ref LL_COMP_INPUT_MINUS_IO2
   *         @arg @ref LL_COMP_INPUT_MINUS_IO3 (*)
@@ -587,7 +591,7 @@ __STATIC_INLINE void LL_COMP_SetInputMinus(COMP_TypeDef *COMPx, uint32_t InputMi
   *         @arg @ref LL_COMP_INPUT_MINUS_3_4VREFINT
   *         @arg @ref LL_COMP_INPUT_MINUS_VREFINT
   *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH1
-  *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH2
+  *         @arg @ref LL_COMP_INPUT_MINUS_DAC1_CH2 (*)
   *         @arg @ref LL_COMP_INPUT_MINUS_IO1
   *         @arg @ref LL_COMP_INPUT_MINUS_IO2
   *         @arg @ref LL_COMP_INPUT_MINUS_IO3 (*)

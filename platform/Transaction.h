@@ -37,7 +37,7 @@ typedef struct {
 
 /** Transaction class defines a transaction.
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  * @ingroup platform
  */
 template<typename Class>

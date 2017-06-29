@@ -1,45 +1,60 @@
 Thread network device types and roles
 ============
 
-## Device types
+There are different device types and roles in the Thread network. mbed OS offers own builds or configurations to different Thread device types and roles.
 
-The different device types within a Thread network are described in the subsequent sections.
+## End devices
 
-### Border routers
+Usually, end devices are the most constrained devices in the Thread network. They serve as a last hop in the mesh topology. Devices such as plain sensors, controls and switches can be implemented as end devices only. The different types of end devices are described in the following sections.
 
-A border router is a specific type of a router that provides connectivity from the 802.15.4 network to adjacent networks on other physical layers (for example, WiFi and Ethernet). Border routers provide services for devices within the 802.15.4 network, including routing services for off-network operations. There may be one or more border routers in a Thread network.
+### Full end device (FED)
 
-### Routers
+A Thread host device that communicates through the parent device, but has the least constraints to the parent. A FED makes address queries and listens to multicast messages.
 
-Routers provide routing services to network devices. Routers also provide joining and security services for devices trying to join the network. They are not designed to sleep and they can downgrade their functionality and become Router-eligible End Devices (REED).
+### Minimal end device (MED)
 
-### Router-eligible end devices (REED)
+A Thread host device type that registers its addresses to the parent leaving all routing and address queries to be done by the parent.
 
-REEDs have the capability to become Routers but due to the network topology or conditions these devices are not acting as Routers. These devices do not generally forward messages or provide joining or security services for other devices in the Thread network. The Thread network manages REEDs becoming Routers if necessary without user interaction.
+### Sleepy end device (SED)
 
-### Sleepy end devices
+A Thread host device that is similar to the minimal end device, but does not keep the radio on all the time. It uses the polling mechanism to receive packets from the parent. Requires parents to store the packets.
 
-Sleepy end devices are host devices. They communicate only through their Parent Router and cannot forward messages for other devices.
+## Routers
+
+Routers provide routing services to the network devices. Routers also provide joining and security services for devices trying to join the network.
+
+A router always attaches to the Thread network as a Router Eligible End Device (REED). REEDs do not forward messages or provide any joining or security services for other devices in the Thread network. The Thread network manages REEDs becoming routers (or vice versa) if necessary without user interaction.
 
 ## Roles
 
-Devices participating in a Thread network can take up various roles depending upon their type and configuration of the Thread network join process. A Thread network join process is called as Thread Commissioning. The different roles Thread devices are described in the subsequent sections.
+Devices participating in a Thread network can take up various roles depending upon their device type and the Thread network join process configuration. The Thread network join process is called Thread Commissioning. The different roles of Thread devices are described in the subsequent sections.
+
+### Border router
+
+A border router is a specific type of a router that provides connectivity from the Thread network to adjacent networks on other physical layers (for example, WiFi and Ethernet). Border routers provide services for devices within the 802.15.4 network, including routing services for off-network operations. There may be one or more border routers in a Thread network.
 
 ### Commissioner 
 
-The currently elected authentication server for new Thread devices and the authority for providing the network credentials required to join the network. A device capable of being elected as a commissioner is called a commissioner candidate. Devices without Thread interfaces may perform this role, but the ones with a Thread interface may combine this role with all other roles except the Joiner. For example, a Border Router can perform the role of commissioner. This device may be, for example, a cell phone or a server in the cloud, and typically provides the interface by which a human administrator manages the joining of a new device to the Thread network.
+The currently elected authentication server for new Thread devices and the authority for providing the network credentials required to join the network. A device capable of being elected as a commissioner is called a commissioner candidate. Devices without Thread interfaces may perform this role, but the ones with a Thread interface may combine this role with all other roles except the Joiner. For example, a border router can perform the role of commissioner. This device may be, for example, a cell phone or a server in the cloud, and typically provides the interface by which a human administrator manages the joining of a new device to the Thread network.
 
 ### Joiner
 
-Joiner is a device to be added by a human administrator or generally a device needed to be commissioned for the Thread network. This role requires a Thread interface and cannot be combined with any other role in a single device. A joiner does not have network credentials.
+A joiner is a device to be added by a human administrator or generally a device needed to be commissioned for the Thread network. This role requires a Thread interface and cannot be combined with any other role in a single device. A joiner does not have network credentials.
 
-### Joiner Router
+### Joiner router
 
-Joiner Router is an existing Thread Router or a REED on the secure Thread network that is one radio hop away from the joiner. A Joiner Router requires a Thread interface to operate, and may be combined in any device with other roles except the joiner role.
+A joiner router is an existing Thread router or a REED on the secure Thread network that is one radio hop away from the joiner. A Joiner router requires a Thread interface to operate, and may be combined in any device with other roles except the joiner role.
 
-### Thread Leader
+### Thread leader
 
-Thread Leader is a device responsible for managing router ID assignment. It is a single distinguished device in any Thread network that currently acts as a central arbiter for the network configuration. A Leader requires a Thread interface and may be combined in any device with other roles except the joiner.
+A Thread leader is one of the routers that has formed the network and takes the following additional responsibilities on top of the router responsibilities. The first router on a network becomes a leader. 
+
+* Managing router ID assignment.
+* Thread network data registration and distribution.
+* Commissioner petition.
+* Accepting and distributing Thread configurations to the rest of the network.
+
+Thread leader is a single distinguished device in any Thread network, acting as a central arbiter for the network configuration. 
 
 **Figure 2-2 General Thread Network**
 

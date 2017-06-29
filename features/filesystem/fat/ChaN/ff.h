@@ -104,7 +104,11 @@ typedef struct {
 	DWORD	dirbase;		/* Root directory start sector (FAT32:Cluster#) */
 	DWORD	database;		/* Data start sector */
 	DWORD	winsect;		/* Current sector appearing in the win[] */
+#if _FS_HEAPBUF
+	BYTE	*win;			/* Disk access window for Directory, FAT (and file data at tiny cfg) */
+#else
 	BYTE	win[_MAX_SS];	/* Disk access window for Directory, FAT (and file data at tiny cfg) */
+#endif
 } FATFS;
 
 
@@ -132,7 +136,11 @@ typedef struct {
 	UINT	lockid;			/* File lock ID origin from 1 (index of file semaphore table Files[]) */
 #endif
 #if !_FS_TINY
+#if _FS_HEAPBUF
+	BYTE	*buf;			/* File private data read/write window */
+#else
 	BYTE	buf[_MAX_SS];	/* File private data read/write window */
+#endif
 #endif
 } FIL;
 
@@ -264,14 +272,16 @@ TCHAR* f_gets (TCHAR* buff, int len, FIL* fp);						/* Get a string from the fil
 DWORD get_fattime (void);
 #endif
 
+/* Memory functions */
+#if _USE_LFN == 3 || _FS_HEAPBUF
+void* ff_memalloc (UINT msize);		/* Allocate memory block */
+void ff_memfree (void* mblock);		/* Free memory block */
+#endif
+
 /* Unicode support functions */
 #if _USE_LFN							/* Unicode - OEM code conversion */
 WCHAR ff_convert (WCHAR chr, UINT dir);	/* OEM-Unicode bidirectional conversion */
 WCHAR ff_wtoupper (WCHAR chr);			/* Unicode upper-case conversion */
-#if _USE_LFN == 3						/* Memory functions */
-void* ff_memalloc (UINT msize);			/* Allocate memory block */
-void ff_memfree (void* mblock);			/* Free memory block */
-#endif
 #endif
 
 /* Sync functions */

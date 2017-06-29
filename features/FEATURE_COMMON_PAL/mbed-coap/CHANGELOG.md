@@ -1,5 +1,12 @@
 # Change Log
 
+## [v4.0.4](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.0.4) 
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.0.3...v4.0.4)
+
+ **Closed issues:**
+	- https://github.com/ARMmbed/mbed-client/issues/481 - Obs Con blockwise fails to transmit 2nd block
+
 ## [v4.0.3](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.0.3)
 
 -[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.0.2...v4.0.3)

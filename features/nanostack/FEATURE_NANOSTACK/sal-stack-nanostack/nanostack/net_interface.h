@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -30,10 +30,6 @@ struct eth_mac_api_s;
  * \brief  Network API
 */
 
-/*!
- * \enum arm_nwk_interface_status_type_e
- * \brief Interface status type definition.
- */
 /** Network Interface Status */
 typedef enum arm_nwk_interface_status_type_e {
     ARM_NWK_BOOTSTRAP_READY = 0, /**< Interface configured Bootstrap is ready.*/
@@ -49,10 +45,6 @@ typedef enum arm_nwk_interface_status_type_e {
     ARM_NWK_PHY_CONNECTION_DOWN, /**< Interface PHY cable off or serial port interface not responding anymore. */
 } arm_nwk_interface_status_type_e;
 
-/*!
- * \enum arm_library_event_type_e
- * \brief Event library type definition.
- */
 /** Event library type. */
 typedef enum arm_library_event_type_e {
     ARM_LIB_TASKLET_INIT_EVENT = 0, /**< Tasklet init occurs always when generating a tasklet. */
@@ -62,7 +54,7 @@ typedef enum arm_library_event_type_e {
 } arm_library_event_type_e;
 
 
-/**
+/*
  *  Socket event description:
  *
  *  8-bit variable where four MSB bits describes the event type and
@@ -75,7 +67,9 @@ typedef enum arm_library_event_type_e {
  */
 
 
-/** Socket type exceptions. */
+/** \name Socket type exceptions.
+ * @{
+ */
 /** Socket event mask. */
 #define SOCKET_EVENT_MASK                   0xF0
 /** Data received. */
@@ -103,16 +97,12 @@ typedef enum arm_library_event_type_e {
 /** TCP connection problem indication (RFC 1122 R1) */
 #define SOCKET_CONNECTION_PROBLEM           (11 << 4)
 
-/* Backwards compatibility */
-#define SOCKET_BIND_DONE                    SOCKET_CONNECT_DONE
-#define SOCKET_BIND_FAIL                    SOCKET_CONNECT_FAIL
-#define SOCKET_BIND_AUTH_FAIL               SOCKET_CONNECT_AUTH_FAIL
+#define SOCKET_BIND_DONE                    SOCKET_CONNECT_DONE      /**< Backward compatibility */
+#define SOCKET_BIND_FAIL                    SOCKET_CONNECT_FAIL      /**< Backward compatibility */
+#define SOCKET_BIND_AUTH_FAIL               SOCKET_CONNECT_AUTH_FAIL /**< Backward compatibility */
+/* @} */
 
-/*!
- * \enum net_security_t
- * Network security levels.
- */
-/** Network level security type. */
+/** Network security levels. */
 typedef enum net_security_t {
     NW_NO_SECURITY = 0,                       /**< No Security. */
     NW_SECURITY_LEVEL_MIC32 = 1,              /**< 32-bit MIC verify, no encoding. */
@@ -124,10 +114,6 @@ typedef enum net_security_t {
     NW_SECURITY_LEVEL_ENC_MIC128 = 7          /**< 128-bit MIC verify with encoding. */
 } net_security_t;
 
-/*!
- * \enum net_address_t
- * \brief Addresses for arm_net_address_get().
- */
 /** Ipv6 address type.*/
 typedef enum net_address_t {
     ADDR_IPV6_GP,             /**< Node default global address. */
@@ -135,20 +121,12 @@ typedef enum net_address_t {
     ADDR_IPV6_LL              /**< Node default link local address. */
 } net_address_t;
 
-/*!
- * \enum net_mac_address_t
- * \brief MAC addresses of nodes.
- */
 /** MAC address type. */
 typedef enum net_mac_address_t {
     ADDR_MAC_SHORT16,             /**< Nodes 16-bit short address. */
     ADDR_MAC_LONG64,              /**< IP layer EUID64 based on MAC layer 64-bit long address after U/I -bit conversion.  */
 } net_mac_address_t;
 
-/*!
- * \enum net_tls_cipher_e
- * \brief TLS cipher mode enumeration types.
- */
 /** TLS cipher type */
 typedef enum {
     NET_TLS_PSK_CIPHER,         /**< Network authentication support, only PSK. */
@@ -156,21 +134,13 @@ typedef enum {
     NET_TLS_PSK_AND_ECC_CIPHER, /**< Network authentication support, PSK & ECC. */
 } net_tls_cipher_e;
 
-/*!
- * \enum net_pana_session_mode_e
- * \brief PANA session cache support.
- */
 /** PANA session type. */
 typedef enum {
     NET_PANA_SINGLE_SESSION,        /**< Client tracks only one PANA session data, default use case. */
     NET_PANA_MULTI_SESSION,         /**< Client supports many Start network coordinator session data */
 } net_pana_session_mode_e;
 
-/*!
- * \enum net_6lowpan_link_layer_sec_mode_e
- * \brief 6LoWPAN network security & authentication modes.
- */
-/** 6lowpan security mode. */
+/** 6LoWPAN network security & authentication modes. */
 typedef enum {
     NET_SEC_MODE_NO_LINK_SECURITY,      /**< Security disabled at link layer, DEFAULT. */
     NET_SEC_MODE_PSK_LINK_SECURITY,     /**< Link security by PSK key. */
@@ -178,11 +148,7 @@ typedef enum {
 } net_6lowpan_link_layer_sec_mode_e;
 
 
-/*!
- * \enum net_6lowpan_mode_e
- * \brief 6LoWPAN bootstrap modes.
- */
-/** Bootstrap mode types. */
+/** Bootstrap modes */
 typedef enum {
     NET_6LOWPAN_BORDER_ROUTER,  /**< Root device for 6LoWPAN ND. */
     NET_6LOWPAN_ROUTER,         /**< Router device. */
@@ -192,35 +158,25 @@ typedef enum {
     NET_6LOWPAN_SNIFFER         /**< Sniffer device, no bootstrap. */
 } net_6lowpan_mode_e;
 
-/*!
- * \enum net_6lowpan_mode_extension_e
- * \brief 6LoWPAN Extension modes.
- */
-/** Bootstrap extension mode types.. */
+/**  6LoWPAN Extension modes. */
 typedef enum {
-    NET_6LOWPAN_ND_WITHOUT_MLE,         /**< 6LoWPAN ND without MLE. */
+    NET_6LOWPAN_ND_WITHOUT_MLE,         /**< **UNSUPPORTED** */
     NET_6LOWPAN_ND_WITH_MLE,            /**< 6LoWPAN ND with MLE. */
     NET_6LOWPAN_THREAD,                 /**< 6LoWPAN Thread with MLE attached. */
-    NET_6LOWPAN_ZIGBEE_IP               /**< 6LoWPAN ZigBeeIP setup. */
+    NET_6LOWPAN_ZIGBEE_IP               /**< **UNSUPPORTED** */
 } net_6lowpan_mode_extension_e;
 
 
-/*!
- * \enum net_ipv6_mode_e
- * \brief IPv6 bootstrap modes.
- */
-/** IPv6 bootstrap mode type. */
+/** IPv6 bootstrap modes */
 typedef enum {
     NET_IPV6_BOOTSTRAP_STATIC,  /**< Application defines the IPv6 prefix. */
     NET_IPV6_BOOTSTRAP_AUTONOMOUS /**< Interface gets IPv6 address automatically from network using ICMP and DHCP. */
 }
 net_ipv6_mode_e;
 
-/*!
- * \struct link_layer_setups_s
- * \brief Network coordinator parameter list.
+/** Network coordinator parameter list.
+ * Structure is used to read network parameter for warm start.
  */
-/** Structure is used to read network parameter for warm start. */
 typedef struct link_layer_setups_s {
     uint16_t PANId;            /**< Network PAN-ID. */
     uint8_t LogicalChannel;    /**< Network logical channel. */
@@ -229,11 +185,7 @@ typedef struct link_layer_setups_s {
     uint8_t sf;                /**< Network superframe setup. */
 } link_layer_setups_s;
 
-/*!
- * \struct link_layer_address_s
- * \brief Network MAC address info.
- */
-/**Structure is used to read link layer address. */
+/** Network MAC address info. */
 typedef struct link_layer_address_s {
     uint16_t PANId;            /**< Network PAN-ID. */
     uint16_t mac_short;        /**< MAC short address, if <0xfffe then is valid. */
@@ -241,54 +193,32 @@ typedef struct link_layer_address_s {
     uint8_t iid_eui64[8];      /**< IPv6 interface identifier based on EUI-64. */
 } link_layer_address_s;
 
-/*!
- * \struct network_layer_address_s
- * \brief Network layer parent address info.
- */
-/**Structure is used to read network layer address of the parent node. */
+/** Network layer parent address info. */
 typedef struct network_layer_address_s {
     uint8_t border_router[16]; /**< ND Border Router Address. */
     uint8_t prefix[8];        /**< Long 64-bit network ID. */
 } network_layer_address_s;
 
-/*!
- * \enum net_6lowpan_gp_address_mode_e
- * \brief 6LoWPAN stack address modes.
- */
-/**Different addressing modes for a network interface. */
+/** Different addressing modes for a network interface. */
 typedef enum {
     NET_6LOWPAN_GP64_ADDRESS,       /**< Interface registers only GP64 address. */
     NET_6LOWPAN_GP16_ADDRESS,       /**< Interface registers only GP16 address. */
     NET_6LOWPAN_MULTI_GP_ADDRESS,   /**< Interface registers GP16 & GP64 addresses. */
 } net_6lowpan_gp_address_mode_e;
 
-
-/*!
- * \struct net_tls_psk_info_s
- * \brief TLS PSK info structure.
- */
-/**Structure is used to set TLS PSK key. */
+/** TLS PSK info */
 typedef struct net_tls_psk_info_s {
     uint32_t key_id;    /**< PSK Key ID can be 0x01-0xffff, storage size is intentionally 32 bits. */
     uint8_t key[16];    /**< 128-bit PSK Key. */
 } net_tls_psk_info_s;
 
-/*!
- * \struct net_link_layer_psk_security_info_s
- * \brief NETWORK PSK link key structure.
- */
-/**Structure is used to set link level PSK key. */
+/** NETWORK PSK link key structure. */
 typedef struct {
     uint8_t key_id;             /**< Link layer PSK Key ID, can be 0x01-0xff. */
     uint8_t security_key[16];   /**< Link layer 128-bit PSK Key. */
 } net_link_layer_psk_security_info_s;
 
-
-/*!
- * \struct arm_certificate_chain_entry_s
- * \brief Certificate chain structure.
- */
-/**Structure is used to define a certificate chain. */
+/** Certificate chain structure. */
 typedef struct {
     uint8_t chain_length;           /**< Certificate chain length, indicates the chain length. */
     const uint8_t *cert_chain[4];   /**< Certificate chain pointer list. */
@@ -296,11 +226,7 @@ typedef struct {
     const uint8_t *key_chain[4];    /**< Certificate private key. */
 } arm_certificate_chain_entry_s;
 
-/*!
-* \struct ns_keys_t
-* \brief Structure for the network keys used by net_network_key_get
-*/
-/**Structure is used to hold currently active and previously used network keys. */
+/** Structure for the network keys used by net_network_key_get */
 typedef struct ns_keys_t
 
 {
@@ -310,11 +236,7 @@ typedef struct ns_keys_t
     uint8_t current_active_key_index;           /**< The index associated to the current_active_network_key. */
 } ns_keys_t;
 
-/*!
- * \struct border_router_setup_s
- * \brief 6LoWPAN border router information structure.
- */
-/**Structure is used to set up a border router device. */
+/** 6LoWPAN border router information structure. */
 typedef struct {
     uint16_t mac_panid;             /**< Link layer PAN-ID, accepts only < 0xfffe.  */
     uint16_t mac_short_adr;         /**< Defines 802.15.4 short address. If the value is <0xfffe it indicates that GP16 is activated. */
@@ -325,18 +247,14 @@ typedef struct {
     uint32_t abro_version_num;      /**< ND ABRO version number (0 when starting a new ND setup). */
 } border_router_setup_s;
 
-
+/** Channel list */
 typedef struct channel_list_s
 {
-    channel_page_e channel_page;
-    uint32_t channel_mask[8];
+    channel_page_e channel_page;    /**< Channel page */
+    uint32_t channel_mask[8];       /**< Channel mask. Each bit defining one channel */
 } channel_list_s;
 
-/*!
- * \struct network_driver_setup_s
- * \brief 6LoWPAN radio interface setup.
- */
-/**Structure is used to setup a network interface driver. */
+/** 6LoWPAN radio interface setup. */
 typedef struct {
     uint16_t mac_panid;                 /**< Link layer PAN-ID, accepts only < 0xfffe. */
     uint16_t mac_short_adr;             /**< Defines 802.15.4 short address. If the value is <0xfffe it indicates that GP16 is activated. */
@@ -347,7 +265,7 @@ typedef struct {
 } network_driver_setup_s;
 
 /**
-  * \brief Init 6LoWPAN library
+  * Init 6LoWPAN library
   *
   * \return 0, Init OK.
   */
@@ -510,7 +428,7 @@ extern uint16_t arm_net_get_nwk_pan_id_filter(int8_t interface_id);
   * \brief Enable/Disable network ID filter.
   *
   * \param interface_id Network interface ID.
-  * \param nwk_id A pointer to a new network ID filter, NULL disable filter.
+  * \param nwk_id_filter A pointer to a new network ID filter, NULL disable filter.
   *
   * \return 0 On success.
   * \return -1 Unknown network ID.
@@ -679,7 +597,8 @@ extern int8_t arm_pana_activate_new_key(int8_t interface_id);
  *
  * previous_active_network_key Only valid when current_active_key_index is bigger than 1.
  *
- *\param key Pointer for key material information store.
+ * \param interface_id Interface
+ * \param key Pointer for key material information store.
  *
  * \return 0 Key read OK.
  * \return -1 PANA server key material not available.
@@ -771,6 +690,13 @@ extern int8_t arm_nwk_6lowpan_border_router_context_remove_by_id(int8_t interfac
  */
 extern int8_t arm_nwk_6lowpan_border_router_configure_push(int8_t interface_id);
 
+/**
+ * Set timeout for default prefix on cache.
+ * Requires arm_nwk_6lowpan_border_router_configure_push() be called to settings be taken into use.
+ * \param interface_id mesh interface.
+ * \param time seconds
+ * \return 0 on success, negative value on failure.
+ */
 extern int8_t arm_nwk_6lowpan_border_route_nd_default_prefix_timeout_set(int8_t interface_id, uint32_t time);
 
 /**
@@ -816,9 +742,8 @@ extern int8_t arm_net_address_get(int8_t interface_id, net_address_t addr_id, ui
 /**
  * \brief A function to read networking addresses one by one.
  * \param interface_id Network interface ID.
- * \param addr_id The address information type to be read.
- * \param integer A pointer that is incremented every call. Start looping with n=0.
- * \param address_buffer[16] A pointer to buffer where address is copied.
+ * \param n A pointer that is incremented every call. Start looping with n=0.
+ * \param address_buffer A pointer to buffer where address is copied.
  * \return 0 On success.
  * \return -1 No more addresses available.
  */
@@ -920,13 +845,18 @@ extern int8_t arm_net_route_delete(const uint8_t *prefix, uint8_t prefix_len, co
  *
  *
  * \param interface_id Network Interface ID
- * \param context_data A pointer to properly built 20 bytes update array.
+ * \param contex_data A pointer to properly built 20 bytes update array.
  *
  * \return 0 Context reload OK.
  * \return <0 Load fail.
  */
 extern int8_t arm_nwk_6lowpan_border_router_nd_context_load(int8_t interface_id, uint8_t *contex_data);  //NVM
 
+/**
+ * Set certificate chain for PANA
+ * \param chain_info Certificate chain.
+ * \return 0 on success, negative on failure.
+ */
 extern int8_t arm_network_certificate_chain_set(const arm_certificate_chain_entry_s *chain_info);
 
 /**
@@ -946,7 +876,7 @@ extern int8_t arm_tls_add_psk_key(const uint8_t *key_ptr, uint16_t key_id);
  * \param key_id PSK key ID.
  *
  * \return 0 = success
- * \retun -1 = failure
+ * \return -1 = failure
  */
 extern int8_t arm_tls_remove_psk_key(uint16_t key_id);
 
@@ -956,7 +886,7 @@ extern int8_t arm_tls_remove_psk_key(uint16_t key_id);
  * \param key_id PSK key ID
  *
  * \return 0 = success
- * \retun -1 = failure
+ * \return -1 = failure
  */
 extern int8_t arm_tls_check_key(uint16_t key_id);
 

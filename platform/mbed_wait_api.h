@@ -41,6 +41,7 @@ extern "C" {
  *         wait(0.5);
  *     }
  * }
+ * @endcode
  */
 
 /** Waits for a number of seconds, with microsecond resolution (within

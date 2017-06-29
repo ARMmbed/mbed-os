@@ -23,6 +23,7 @@
 #include "hal/i2c_api.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 #if DEVICE_I2C_ASYNCH
 #include "platform/CThunk.h"
@@ -53,7 +54,7 @@ namespace mbed {
  * @endcode
  * @ingroup drivers
  */
-class I2C {
+class I2C : private NonCopyable<I2C> {
 
 public:
     enum RxStatus {

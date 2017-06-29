@@ -77,7 +77,7 @@ typedef void (*CThunkEntry)(void);
 /**
  * Class for created a pointer with data bound to it
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  * @ingroup platform
  */
 template<class T>

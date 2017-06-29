@@ -59,7 +59,7 @@ void analogout_init(dac_t *obj, PinName pin) {
     obj->pin = pin;
 
     // Enable DAC clock
-    __DAC1_CLK_ENABLE();
+    __HAL_RCC_DAC1_CLK_ENABLE();
 
     // Configure DAC
     DacHandle.Instance = (DAC_TypeDef *)(obj->dac);
@@ -78,9 +78,9 @@ void analogout_init(dac_t *obj, PinName pin) {
 
 void analogout_free(dac_t *obj) {
     // Reset DAC and disable clock
-    __DAC1_FORCE_RESET();
-    __DAC1_RELEASE_RESET();
-    __DAC1_CLK_DISABLE();
+    __HAL_RCC_DAC1_FORCE_RESET();
+    __HAL_RCC_DAC1_RELEASE_RESET();
+    __HAL_RCC_DAC1_CLK_DISABLE();
 
     // Configure GPIO
     pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));

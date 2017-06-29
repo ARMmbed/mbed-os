@@ -23,6 +23,7 @@
 #endif // __cplusplus
 
 #include "storage_abstraction/Driver_Storage.h"
+#include "mbed_toolchain.h"                     /* required for MBED_DEPRECATED_SINCE */
 
 #if !defined(YOTTA_CFG_STORAGE_VOLUME_MANAGER_MAX_VOLUMES)
 #define MAX_VOLUMES 4
@@ -88,6 +89,8 @@ class StorageVolumeManager; /* forward declaration */
 
 class StorageVolume {
 public:
+    MBED_DEPRECATED_SINCE("mbed-os-5.5", "StorageVolume is deprecated. "
+                          "Use MBRBlockDevice for volumes instead")
     StorageVolume() : allocated(false) { /* empty */ }
 
 public:
@@ -161,6 +164,8 @@ private:
 
 class StorageVolumeManager {
 public:
+    MBED_DEPRECATED_SINCE("mbed-os-5.5", "StorageVolumeManager is deprecated. "
+                          "Use MBRBlockDevice to manage volumes instead")
     StorageVolumeManager()  { /* empty */ }
     ~StorageVolumeManager() { /* empty */ }
 

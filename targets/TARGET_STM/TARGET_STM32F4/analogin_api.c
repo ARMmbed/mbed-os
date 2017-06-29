@@ -82,28 +82,28 @@ void analogin_init(analogin_t *obj, PinName pin)
 #if defined(ADC1)
     if ((obj->adc == ADC_1) && adc1_inited) return;
     if (obj->adc == ADC_1) {
-        __ADC1_CLK_ENABLE();
+        __HAL_RCC_ADC1_CLK_ENABLE();
         adc1_inited = 1;
     }
 #endif
 #if defined(ADC2)
     if ((obj->adc == ADC_2) && adc2_inited) return;
     if (obj->adc == ADC_2) {
-        __ADC2_CLK_ENABLE();
+        __HAL_RCC_ADC2_CLK_ENABLE();
         adc2_inited = 1;
     }
 #endif
 #if defined(ADC3)
     if ((obj->adc == ADC_3) && adc3_inited) return;
     if (obj->adc == ADC_3) {
-        __ADC3_CLK_ENABLE();
+        __HAL_RCC_ADC3_CLK_ENABLE();
         adc3_inited = 1;
     }
 #endif
     // Configure ADC
     AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
-    AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
-    AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
+    AdcHandle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;
+    AdcHandle.Init.Resolution            = ADC_RESOLUTION_12B;
     AdcHandle.Init.ScanConvMode          = DISABLE;
     AdcHandle.Init.ContinuousConvMode    = DISABLE;
     AdcHandle.Init.DiscontinuousConvMode = DISABLE;

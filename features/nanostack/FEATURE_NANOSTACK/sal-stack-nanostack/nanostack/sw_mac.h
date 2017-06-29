@@ -28,6 +28,7 @@ extern "C" {
 struct protocol_interface_rf_mac_setup;
 struct mac_api_s;
 struct mac_description_storage_size_s;
+struct fhss_api;
 
 /**
  * @brief Creates 802.15.4 MAC API instance which will use RF driver given
@@ -52,6 +53,14 @@ extern int8_t ns_sw_mac_virtual_client_register(struct mac_api_s *api, int8_t vi
  * @return 0 if success, -1 if api is invalid
  */
 extern int8_t ns_sw_mac_virtual_client_unregister(struct mac_api_s *api);
+
+/**
+ * @brief Registers created FHSS API instance to given software MAC instance.
+ * @param mac_api MAC instance.
+ * @param fhss_api FHSS instance.
+ * @return 0 on success, -1 on fail.
+ */
+extern int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api);
 
 
 #ifdef __cplusplus

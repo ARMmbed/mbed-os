@@ -436,9 +436,9 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     // I2C configuration
     handle->Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-    handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
-    handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;
-    handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
+    handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
     handle->Init.OwnAddress1     = 0;
     handle->Init.OwnAddress2     = 0;
     HAL_I2C_Init(handle);

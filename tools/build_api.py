@@ -17,12 +17,16 @@ limitations under the License.
 
 import re
 import tempfile
+import datetime
+import uuid
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
+from os.path import relpath
 from os import linesep, remove, makedirs
 from time import time
 from intelhex import IntelHex
+from json import load, dump
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException, intelhex_offset
@@ -102,6 +106,8 @@ def add_result_to_report(report, result):
     report - the report to append to
     result - the result to append
     """
+    result["date"] = datetime.datetime.utcnow().isoformat()
+    result["uuid"] = str(uuid.uuid1())
     target = result["target_name"]
     toolchain = result["toolchain_name"]
     id_name = result['id']
@@ -145,6 +151,8 @@ def get_config(src_paths, target, toolchain_name):
 
         prev_features = features
     toolchain.config.validate_config()
+    if toolchain.config.has_regions:
+        _ = list(toolchain.config.regions)
 
     cfg, macros = toolchain.config.get_config_data()
     features = toolchain.config.get_features()
@@ -310,7 +318,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
 
     Positional arguments:
     src_paths - the paths to source directories
-    target - ['LPC1768', 'LPC11U24', 'LPC2368', etc.]
+    target - ['LPC1768', 'LPC11U24', etc.]
     toolchain_name - ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
 
     Keyword arguments:
@@ -323,7 +331,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     extra_verbose - even more output!
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
-    build_profile - a dict of flags that will be passed to the compiler
+    build_profile - a list of mergeable build profiles
     """
 
     # We need to remove all paths which are repeated to avoid
@@ -337,12 +345,17 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
-    if config.has_regions:
-        add_regions_to_profile(build_profile, config, cur_tc)
 
-    # Toolchain instance
+    profile = {'c': [], 'cxx': [], 'common': [], 'asm': [], 'ld': []}
+    for contents in build_profile or []:
+        for key in profile:
+            profile[key].extend(contents[toolchain_name][key])
+
+    if config.has_regions:
+        add_regions_to_profile(profile, config, cur_tc)
+
     toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
-                       extra_verbose=extra_verbose, build_profile=build_profile)
+                       extra_verbose=extra_verbose, build_profile=profile)
 
     toolchain.config = config
     toolchain.jobs = jobs
@@ -470,12 +483,10 @@ def build_project(src_paths, build_path, target, toolchain_name,
         src_paths.extend(libraries_paths)
         inc_dirs.extend(map(dirname, libraries_paths))
 
-    # Build Directory
     if clean and exists(build_path):
         rmtree(build_path)
     mkdir(build_path)
 
-    # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
@@ -505,6 +516,17 @@ def build_project(src_paths, build_path, target, toolchain_name,
     try:
         # Call unified scan_resources
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
+        if  (hasattr(toolchain.target, "release_versions") and
+             "5" not in toolchain.target.release_versions and
+             "rtos" in toolchain.config.lib_config_data):
+            if "Cortex-A" in toolchain.target.core:
+                raise NotSupportedException(
+                    ("%s Will be supported in mbed OS 5.6. "
+                     "To use the %s, please checkout the mbed OS 5.4 release branch. "
+                     "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
+                     "for more information") % (toolchain.target.name, toolchain.target.name))
+            else:
+                raise NotSupportedException("Target does not support mbed OS 5")
 
         # Change linker script if specified
         if linker_script is not None:
@@ -550,6 +572,9 @@ def build_project(src_paths, build_path, target, toolchain_name,
             cur_result["output"] = toolchain.get_output() + memap_table
             cur_result["result"] = "OK"
             cur_result["memory_usage"] = toolchain.map_outputs
+            cur_result["bin"] = res
+            cur_result["elf"] = splitext(res)[0] + ".elf"
+            cur_result.update(toolchain.report)
 
             add_result_to_report(report, cur_result)
 
@@ -651,6 +676,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         prep_report(report, toolchain.target.name, toolchain_name, id_name)
         cur_result = create_result(toolchain.target.name, toolchain_name,
                                    id_name, description)
+        cur_result['type'] = 'library'
         if properties != None:
             prep_properties(properties, toolchain.target.name, toolchain_name,
                             vendor_label)
@@ -1028,13 +1054,14 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
 
         # A number of compiled files need to be copied as objects as opposed to
         # way the linker search for symbols in archives. These are:
-        #   - retarget.o: to make sure that the C standard lib symbols get
+        #   - mbed_retarget.o: to make sure that the C standard lib symbols get
         #                 overridden
-        #   - board.o: mbed_die is weak
+        #   - mbed_board.o: mbed_die is weak
         #   - mbed_overrides.o: this contains platform overrides of various
         #                       weak SDK functions
-        separate_names, separate_objects = ['retarget.o', 'board.o',
-                                            'mbed_overrides.o'], []
+        #   - mbed_main.o: this contains main redirection
+        separate_names, separate_objects = ['mbed_retarget.o', 'mbed_board.o',
+                                            'mbed_overrides.o', 'mbed_main.o', 'mbed_sdk_boot.o'], []
 
         for obj in objects:
             for name in separate_names:
@@ -1360,3 +1387,24 @@ def write_build_report(build_report, template_filename, filename):
         placeholder.write(template.render(
             failing_builds=build_report_failing,
             passing_builds=build_report_passing))
+
+
+def merge_build_data(filename, toolchain_report, app_type):
+    path_to_file = dirname(abspath(filename))
+    try:
+        build_data = load(open(filename))
+    except (IOError, ValueError):
+        build_data = {'builds': []}
+    for tgt in toolchain_report.values():
+        for tc in tgt.values():
+            for project in tc.values():
+                for build in project:
+                    try:
+                        build[0]['elf'] = relpath(build[0]['elf'], path_to_file)
+                        build[0]['bin'] = relpath(build[0]['bin'], path_to_file)
+                    except KeyError:
+                        pass
+                    if 'type' not in build[0]:
+                        build[0]['type'] = app_type
+                    build_data['builds'].append(build[0])
+    dump(build_data, open(filename, "wb"), indent=4, separators=(',', ': '))

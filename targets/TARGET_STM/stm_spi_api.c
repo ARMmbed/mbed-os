@@ -38,6 +38,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "spi_device.h"
 
 #if DEVICE_SPI_ASYNCH
     #define SPI_INST(obj)    ((SPI_TypeDef *)(obj->spi.spi))
@@ -158,11 +159,11 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     handle->Init.Direction         = SPI_DIRECTION_2LINES;
     handle->Init.CLKPhase          = SPI_PHASE_1EDGE;
     handle->Init.CLKPolarity       = SPI_POLARITY_LOW;
-    handle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLED;
+    handle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
     handle->Init.CRCPolynomial     = 7;
     handle->Init.DataSize          = SPI_DATASIZE_8BIT;
     handle->Init.FirstBit          = SPI_FIRSTBIT_MSB;
-    handle->Init.TIMode            = SPI_TIMODE_DISABLED;
+    handle->Init.TIMode            = SPI_TIMODE_DISABLE;
 
     init_spi(obj);
 }
@@ -349,22 +350,56 @@ static inline int ssp_busy(spi_t *obj)
 
 int spi_master_write(spi_t *obj, int value)
 {
-    uint16_t size, ret;
-    int Rx = 0;
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
-    size = (handle->Init.DataSize == SPI_DATASIZE_16BIT) ? 2 : 1;
-
-    /*  Use 10ms timeout */
-    ret = HAL_SPI_TransmitReceive(handle,(uint8_t*)&value,(uint8_t*)&Rx,size,10);
-
-    if(ret == HAL_OK) {
-        return Rx;
+#if defined(LL_SPI_RX_FIFO_TH_HALF)
+    /*  Configure the default data size */
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        LL_SPI_SetRxFIFOThreshold(SPI_INST(obj), LL_SPI_RX_FIFO_TH_HALF);
     } else {
-        DEBUG_PRINTF("SPI inst=0x%8X ERROR in write\r\n", (int)handle->Instance);
-        return -1;
+        LL_SPI_SetRxFIFOThreshold(SPI_INST(obj), LL_SPI_RX_FIFO_TH_QUARTER);
     }
+#endif
+
+    /*  Here we're using LL which means direct registers access
+     *  There is no error management, so we may end up looping
+     *  infinitely here in case of faulty device for insatnce,
+     *  but this will increase performances significantly
+     */
+
+    /* Wait TXE flag to transmit data */
+    while (!LL_SPI_IsActiveFlag_TXE(SPI_INST(obj)));
+
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        LL_SPI_TransmitData16(SPI_INST(obj), value);
+    } else {
+        LL_SPI_TransmitData8(SPI_INST(obj), (uint8_t) value);
+    }
+
+    /* Then wait RXE flag before reading */
+    while (!LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)));
+
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        return LL_SPI_ReceiveData16(SPI_INST(obj));
+    } else {
+        return LL_SPI_ReceiveData8(SPI_INST(obj));
+    }
+}
+
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length)
+{
+    int total = (tx_length > rx_length) ? tx_length : rx_length;
+
+    for (int i = 0; i < total; i++) {
+        char out = (i < tx_length) ? tx_buffer[i] : 0xff;
+        char in = spi_master_write(obj, out);
+        if (i < rx_length) {
+            rx_buffer[i] = in;
+        }
+    }
+
+    return total;
 }
 
 int spi_slave_receive(spi_t *obj)

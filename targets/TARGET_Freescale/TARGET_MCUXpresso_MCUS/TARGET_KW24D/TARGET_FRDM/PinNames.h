@@ -82,6 +82,11 @@ typedef enum {
     SW2 = PTE3,
     SW3 = PTD1,
     SW4 = PTA19,
+    // Standardized button names
+    BUTTON1 = SW1,
+    BUTTON2 = SW2,
+    BUTTON3 = SW3,
+    BUTTON4 = SW4,
 
     // USB Pins
     USBTX = PTE0,

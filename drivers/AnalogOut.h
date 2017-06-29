@@ -103,6 +103,7 @@ public:
     }
 
     /** An operator shorthand for write()
+     * \sa AnalogOut::write()
      */
     AnalogOut& operator= (float percent) {
         // Underlying write call is thread safe
@@ -110,6 +111,9 @@ public:
         return *this;
     }
 
+    /** An operator shorthand for write()
+     * \sa AnalogOut::write()
+     */
     AnalogOut& operator= (AnalogOut& rhs) {
         // Underlying write call is thread safe
         write(rhs.read());
@@ -117,6 +121,7 @@ public:
     }
 
     /** An operator shorthand for read()
+     * \sa AnalogOut::read()
      */
     operator float() {
         // Underlying read call is thread safe

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.0.5
-  * @date    06-December-2016
+  * @version V1.1.0
+  * @date    14-April-2017
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
@@ -438,7 +438,7 @@ typedef struct
     tmpreg = (__HANDLE__)->Instance->SR1;       \
     tmpreg = (__HANDLE__)->Instance->SR2;       \
     UNUSED(tmpreg);                             \
-  } while(0)
+  } while(0U)
 
 /** @brief  Clears the I2C STOPF pending flag.
   * @param  __HANDLE__: specifies the I2C Handle.
@@ -451,7 +451,7 @@ typedef struct
     tmpreg = (__HANDLE__)->Instance->SR1;       \
     (__HANDLE__)->Instance->CR1 |= I2C_CR1_PE;  \
     UNUSED(tmpreg);                             \
-  } while(0)
+  } while(0U)
     
 /** @brief  Enable the I2C peripheral.
   * @param  __HANDLE__: specifies the I2C Handle.

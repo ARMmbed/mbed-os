@@ -28,7 +28,8 @@
 
 using namespace utest::v1;
 
-volatile static bool complete;
+static volatile bool complete;
+static volatile timestamp_t complete_timestamp;
 static ticker_event_t delay_event;
 static const ticker_data_t *lp_ticker_data = get_lp_ticker_data();
 
@@ -38,6 +39,12 @@ static const ticker_data_t *lp_ticker_data = get_lp_ticker_data();
 #define SHORT_TIMEOUT (600)
 
 void cb_done(uint32_t id) {
+    complete_timestamp = us_ticker_read();
+    complete = true;
+}
+
+void cb_done_deepsleep(uint32_t id) {
+    complete_timestamp = lp_ticker_read();
     complete = true;
 }
 
@@ -53,7 +60,7 @@ void lp_ticker_delay_us(uint32_t delay_us, uint32_t tolerance)
     timestamp_t start = us_ticker_read();
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
     while (!complete);
-    timestamp_t end = us_ticker_read();
+    timestamp_t end = complete_timestamp;
 
     TEST_ASSERT_UINT32_WITHIN(tolerance, delay_us, end - start);
     TEST_ASSERT_TRUE(complete);
@@ -75,7 +82,7 @@ void lp_ticker_1s_deepsleep()
      */
     wait_ms(10);
 
-    ticker_set_handler(lp_ticker_data, cb_done);
+    ticker_set_handler(lp_ticker_data, cb_done_deepsleep);
     ticker_remove_event(lp_ticker_data, &delay_event);
     delay_ts = lp_ticker_read() + 1000000;
 
@@ -87,7 +94,7 @@ void lp_ticker_1s_deepsleep()
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
     deepsleep();
     while (!complete);
-    timestamp_t end = lp_ticker_read();
+    timestamp_t end = complete_timestamp;
 
     TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);
     TEST_ASSERT_TRUE(complete);
@@ -106,7 +113,7 @@ void lp_ticker_1s_sleep()
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
     sleep();
     while (!complete);
-    timestamp_t end = us_ticker_read();
+    timestamp_t end = complete_timestamp;
 
     TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);
     TEST_ASSERT_TRUE(complete);

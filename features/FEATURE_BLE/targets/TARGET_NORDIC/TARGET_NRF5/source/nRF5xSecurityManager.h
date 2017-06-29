@@ -45,7 +45,7 @@ public:
     virtual ble_error_t purgeAllBondingState(void) {
         return btle_purgeAllBondingState();
     }
-
+#if  (NRF_SD_BLE_API_VERSION <= 2)
     /**
      * @brief  Returns a list of addresses from peers in the stacks bond table.
      *
@@ -112,6 +112,25 @@ public:
 
         return BLE_ERROR_NONE;
     }
+#else // -> NRF_SD_BLE_API_VERSION >= 3
+    /**
+     * @brief  Returns a list of addresses from peers in the stacks bond table.
+     *
+     * @param[in/out]   addresses
+     *                  (on input) @ref Gap::Whitelist_t structure where at
+     *                  most addresses.capacity addresses from bonded peers will
+     *                  be stored.
+     *                  (on output) A copy of the addresses from bonded peers.
+     *
+     * @retval BLE_ERROR_NONE         if successful.
+     * @retval BLE_ERROR_UNSPECIFIED  Bond data could not be found in flash or is inconsistent.
+     */
+    virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
+        return btle_getAddressesFromBondTable(addresses);
+    }
+#endif // #if  (NRF_SD_BLE_API_VERSION <= 2)
+
+
 
     /**
      * @brief  Clear nRF5xSecurityManager's state.
@@ -146,6 +165,7 @@ private:
     nRF5xSecurityManager(const nRF5xSecurityManager &);
     const nRF5xSecurityManager& operator=(const nRF5xSecurityManager &);
 
+#if  (NRF_SD_BLE_API_VERSION <= 2)
     /*
      * Expose an interface that allows us to query the SoftDevice bond table
      * and extract a whitelist.
@@ -153,7 +173,7 @@ private:
     ble_error_t createWhitelistFromBondTable(ble_gap_whitelist_t &whitelistFromBondTable) const {
         return btle_createWhitelistFromBondTable(&whitelistFromBondTable);
     }
-
+#endif
     /*
      * Given a BLE address and a IRK this function check whether the address
      * can be generated from the IRK. To do so, this function uses the hash

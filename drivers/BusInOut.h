@@ -18,6 +18,7 @@
 
 #include "drivers/DigitalInOut.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -27,7 +28,7 @@ namespace mbed {
  * @note Synchronization level: Thread safe
  * @ingroup drivers
  */
-class BusInOut {
+class BusInOut : private NonCopyable<BusInOut> {
 
 public:
 
@@ -108,15 +109,18 @@ public:
     }
 
      /** A shorthand for write()
-     */
+    * \sa BusInOut::write()
+      */
     BusInOut& operator= (int v);
     BusInOut& operator= (BusInOut& rhs);
 
     /** Access to particular bit in random-iterator fashion
-    */
+     * @param index  Bit Position
+     */
     DigitalInOut& operator[] (int index);
 
     /** A shorthand for read()
+     * \sa BusInOut::read()
      */
     operator int();
 
@@ -132,11 +136,6 @@ protected:
     int _nc_mask;
 
     PlatformMutex _mutex;
-
-    /* disallow copy constructor and assignment operators */
-private:
-    BusInOut(const BusInOut&);
-    BusInOut & operator = (const BusInOut&);
 };
 
 } // namespace mbed

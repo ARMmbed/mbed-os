@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   Extended FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the FLASH extension peripheral:
@@ -36,7 +36,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -82,7 +82,7 @@
 /** @addtogroup FLASHEx_Private_Constants
   * @{
   */
-#define FLASH_TIMEOUT_VALUE       ((uint32_t)50000U)/* 50 s */
+#define FLASH_TIMEOUT_VALUE       50000U   /* 50 s */
 /**
   * @}
   */
@@ -452,6 +452,9 @@ void FLASH_FlushCaches(void)
   */
 static void FLASH_MassErase(uint8_t VoltageRange, uint32_t Banks)
 { 
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(Banks);
+
   /* Check the parameters */
   assert_param(IS_VOLTAGERANGE(VoltageRange));
   assert_param(IS_FLASH_BANK(Banks));
@@ -481,7 +484,10 @@ static void FLASH_MassErase(uint8_t VoltageRange, uint32_t Banks)
 static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WRPSector, uint32_t Banks)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  
+
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(Banks);
+
   /* Check the parameters */
   assert_param(IS_OB_WRP_SECTOR(WRPSector));
   assert_param(IS_FLASH_BANK(Banks));
@@ -516,7 +522,10 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WRPSector, uint32_t Banks)
 static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WRPSector, uint32_t Banks)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  
+
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(Banks);
+
   /* Check the parameters */
   assert_param(IS_OB_WRP_SECTOR(WRPSector));
   assert_param(IS_FLASH_BANK(Banks));
@@ -580,7 +589,7 @@ static HAL_StatusTypeDef FLASH_OB_RDP_LevelConfig(uint8_t Level)
   */
 static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t Iwdg, uint8_t Stop, uint8_t Stdby)
 {
-  uint8_t optiontmp = 0xFFU;
+  uint8_t optiontmp = 0xFF;
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the parameters */
@@ -594,7 +603,7 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t Iwdg, uint8_t Stop, uint8_t
   if(status == HAL_OK)
   {     
     /* Mask OPTLOCK, OPTSTRT, BOR_LEV and BFB2 bits */
-    optiontmp =  (uint8_t)((*(__IO uint8_t *)OPTCR_BYTE0_ADDRESS) & (uint8_t)0x1FU);
+    optiontmp =  (uint8_t)((*(__IO uint8_t *)OPTCR_BYTE0_ADDRESS) & (uint8_t)0x1F);
 
     /* Update User Option Byte */
     *(__IO uint8_t *)OPTCR_BYTE0_ADDRESS = Iwdg | (uint8_t)(Stdby | (uint8_t)(Stop | ((uint8_t)optiontmp))); 
@@ -634,7 +643,7 @@ static HAL_StatusTypeDef FLASH_OB_BOR_LevelConfig(uint8_t Level)
 static uint8_t FLASH_OB_GetUser(void)
 {
   /* Return the User Option Byte */
-  return ((uint8_t)(FLASH->OPTCR & 0xE0U));
+  return ((uint8_t)(FLASH->OPTCR & 0xE0));
 }
 
 /**
@@ -686,7 +695,7 @@ static uint8_t FLASH_OB_GetRDP(void)
 static uint8_t FLASH_OB_GetBOR(void)
 {
   /* Return the FLASH BOR level */
-  return (uint8_t)(*(__IO uint8_t *)(OPTCR_BYTE0_ADDRESS) & (uint8_t)0x0CU);
+  return (uint8_t)(*(__IO uint8_t *)(OPTCR_BYTE0_ADDRESS) & (uint8_t)0x0C);
 }
 
 /**

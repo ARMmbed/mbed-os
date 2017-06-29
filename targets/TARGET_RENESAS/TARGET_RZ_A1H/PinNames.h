@@ -87,6 +87,8 @@ typedef enum {
     I2C_SDA = D14,
 
     USER_BUTTON0 = P6_0,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON0,
 
     // Not connected
     NC = (int)0xFFFFFFFF

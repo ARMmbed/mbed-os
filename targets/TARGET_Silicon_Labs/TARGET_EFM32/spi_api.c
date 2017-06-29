@@ -196,6 +196,7 @@ void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, Pin
     /* Enabling pins and setting location */
 #ifdef _USART_ROUTEPEN_RESETVALUE
     uint32_t route = USART_ROUTEPEN_CLKPEN;
+
     obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_CLKLOC_MASK;
     obj->spi.spi->ROUTELOC0 |= pin_location(clk, PinMap_SPI_CLK)<<_USART_ROUTELOC0_CLKLOC_SHIFT;
     if (mosi != NC) {
@@ -206,12 +207,12 @@ void spi_enable_pins(spi_t *obj, uint8_t enable, PinName mosi, PinName miso, Pin
     if (miso != NC) {
         route |= USART_ROUTEPEN_RXPEN;
         obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_RXLOC_MASK;
-        obj->spi.spi->ROUTELOC0 |= pin_location(miso, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_RXLOC_SHIFT;
+        obj->spi.spi->ROUTELOC0 |= pin_location(miso, PinMap_SPI_MISO)<<_USART_ROUTELOC0_RXLOC_SHIFT;
     }
     if (!obj->spi.master) {
         route |= USART_ROUTEPEN_CSPEN;
         obj->spi.spi->ROUTELOC0 &= ~_USART_ROUTELOC0_CSLOC_MASK;
-        obj->spi.spi->ROUTELOC0 |= pin_location(cs, PinMap_SPI_MOSI)<<_USART_ROUTELOC0_CSLOC_SHIFT;
+        obj->spi.spi->ROUTELOC0 |= pin_location(cs, PinMap_SPI_CS)<<_USART_ROUTELOC0_CSLOC_SHIFT;
     }
     obj->spi.location = obj->spi.spi->ROUTELOC0;
     obj->spi.route = route;
@@ -388,6 +389,20 @@ int spi_master_write(spi_t *obj, int value)
     }
 
     return spi_read(obj);
+}
+
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length) {
+    int total = (tx_length > rx_length) ? tx_length : rx_length;
+
+    for (int i = 0; i < total; i++) {
+        char out = (i < tx_length) ? tx_buffer[i] : 0xff;
+        char in = spi_master_write(obj, out);
+        if (i < rx_length) {
+            rx_buffer[i] = in;
+        }
+    }
+
+    return total;
 }
 
 inline uint8_t spi_master_tx_ready(spi_t *obj)

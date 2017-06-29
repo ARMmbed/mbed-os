@@ -17,10 +17,10 @@ limitations under the License.
 
 from copy import deepcopy
 import os
-from os.path import dirname, abspath
+from os.path import dirname, abspath, exists, join
 import sys
 from collections import namedtuple
-from os.path import splitext
+from os.path import splitext, relpath
 from intelhex import IntelHex
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
@@ -362,7 +362,8 @@ class Config(object):
                         "artifact_name": str}
     }
 
-    __unused_overrides = set(["target.bootloader_img", "target.restrict_size"])
+    __unused_overrides = set(["target.bootloader_img", "target.restrict_size",
+                              "target.mbed_app_start", "target.mbed_app_size"])
 
     # Allowed features in configurations
     __allowed_features = [
@@ -389,25 +390,25 @@ class Config(object):
         search for a configuration file).
         """
         config_errors = []
-        app_config_location = app_config
-        if app_config_location is None:
+        self.app_config_location = app_config
+        if self.app_config_location is None:
             for directory in top_level_dirs or []:
                 full_path = os.path.join(directory, self.__mbed_app_config_name)
                 if os.path.isfile(full_path):
-                    if app_config_location is not None:
+                    if self.app_config_location is not None:
                         raise ConfigException("Duplicate '%s' file in '%s' and '%s'"
                                               % (self.__mbed_app_config_name,
-                                                 app_config_location, full_path))
+                                                 self.app_config_location, full_path))
                     else:
-                        app_config_location = full_path
+                        self.app_config_location = full_path
         try:
-            self.app_config_data = json_file_to_dict(app_config_location) \
-                                   if app_config_location else {}
+            self.app_config_data = json_file_to_dict(self.app_config_location) \
+                                   if self.app_config_location else {}
         except ValueError as exc:
             self.app_config_data = {}
             config_errors.append(
                 ConfigException("Could not parse mbed app configuration from %s"
-                                % app_config_location))
+                                % self.app_config_location))
 
         # Check the keys in the application configuration data
         unknown_keys = set(self.app_config_data.keys()) - \
@@ -485,7 +486,9 @@ class Config(object):
             target_overrides = self.app_config_data['target_overrides'].get(
                 self.target.name, {})
             return ('target.bootloader_img' in target_overrides or
-                    'target.restrict_size' in target_overrides)
+                    'target.restrict_size' in target_overrides or
+                    'target.mbed_app_start' in target_overrides or
+                    'target.mbed_app_size' in target_overrides)
         else:
             return False
 
@@ -494,18 +497,50 @@ class Config(object):
         """Generate a list of regions from the config"""
         if not self.target.bootloader_supported:
             raise ConfigException("Bootloader not supported on this target.")
-        cmsis_part = Cache(False, False).index[self.target.device_name]
-        start = 0
+        if not hasattr(self.target, "device_name"):
+            raise ConfigException("Bootloader not supported on this target: "
+                                  "targets.json `device_name` not specified.")
+        cache = Cache(False, False)
+        if self.target.device_name not in cache.index:
+            raise ConfigException("Bootloader not supported on this target: "
+                                  "targets.json `device_name` not found in "
+                                  "arm_pack_manager index.")
+        cmsis_part = cache.index[self.target.device_name]
         target_overrides = self.app_config_data['target_overrides'].get(
             self.target.name, {})
+        if  (('target.bootloader_img' in target_overrides or
+              'target.restrict_size' in target_overrides) and
+             ('target.mbed_app_start' in target_overrides or
+              'target.mbed_app_size' in target_overrides)):
+            raise ConfigException(
+                "target.bootloader_img and target.restirct_size are "
+                "incompatible with target.mbed_app_start and "
+                "target.mbed_app_size")
         try:
             rom_size = int(cmsis_part['memory']['IROM1']['size'], 0)
             rom_start = int(cmsis_part['memory']['IROM1']['start'], 0)
         except KeyError:
             raise ConfigException("Not enough information in CMSIS packs to "
                                   "build a bootloader project")
+        if  ('target.bootloader_img' in target_overrides or
+             'target.restrict_size' in target_overrides):
+            return self._generate_booloader_build(target_overrides,
+                                                  rom_start, rom_size)
+        elif ('target.mbed_app_start' in target_overrides or
+              'target.mbed_app_size' in target_overrides):
+            return self._generate_linker_overrides(target_overrides,
+                                                   rom_start, rom_size)
+        else:
+            raise ConfigException(
+                "Bootloader build requested but no bootlader configuration")
+
+    def _generate_booloader_build(self, target_overrides, rom_start, rom_size):
+        start = 0
         if 'target.bootloader_img' in target_overrides:
-            filename = target_overrides['target.bootloader_img']
+            basedir = abspath(dirname(self.app_config_location))
+            filename = join(basedir, target_overrides['target.bootloader_img'])
+            if not exists(filename):
+                raise ConfigException("Bootloader %s not found" % filename)
             part = intelhex_offset(filename, offset=rom_start)
             if part.minaddr() != rom_start:
                 raise ConfigException("bootloader executable does not "
@@ -526,6 +561,27 @@ class Config(object):
         if start > rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
+
+    @property
+    def report(self):
+        return {'app_config': self.app_config_location,
+                'library_configs': map(relpath, self.processed_configs.keys())}
+
+    @staticmethod
+    def _generate_linker_overrides(target_overrides, rom_start, rom_size):
+        if 'target.mbed_app_start' in target_overrides:
+            start = int(target_overrides['target.mbed_app_start'], 0)
+        else:
+            start = rom_start
+        if 'target.mbed_app_size' in target_overrides:
+            size = int(target_overrides['target.mbed_app_size'], 0)
+        else:
+            size = (rom_size + rom_start) - start
+        if start < rom_start:
+            raise ConfigException("Application starts before ROM")
+        if size + start > rom_size + rom_start:
+            raise ConfigException("Application ends after ROM")
+        yield Region("application", start, size, True, None)
 
     def _process_config_and_overrides(self, data, params, unit_name, unit_kind):
         """Process "config_parameters" and "target_config_overrides" into a
@@ -596,6 +652,10 @@ class Config(object):
                                                     label)
                     elif name in self.__unused_overrides:
                         pass
+                    elif (name.startswith("target.") and
+                          unit_kind is "application"):
+                        _, attribute = name.split(".")
+                        setattr(self.target, attribute, val)
                     else:
                         self.config_errors.append(
                             ConfigException(

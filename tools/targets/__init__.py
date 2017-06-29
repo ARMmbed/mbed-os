@@ -22,7 +22,7 @@ import shutil
 import inspect
 import sys
 from copy import copy
-from collections import namedtuple
+from collections import namedtuple, Mapping
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict
@@ -32,7 +32,6 @@ __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
            "CUMULATIVE_ATTRIBUTES", "get_resolution_order"]
 
 CORE_LABELS = {
-    "ARM7TDMI-S": ["ARM7", "LIKE_CORTEX_ARM7"],
     "Cortex-M0" : ["M0", "CORTEX_M", "LIKE_CORTEX_M0"],
     "Cortex-M0+": ["M0P", "CORTEX_M", "LIKE_CORTEX_M0"],
     "Cortex-M1" : ["M1", "CORTEX_M", "LIKE_CORTEX_M1"],
@@ -126,18 +125,38 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     # Current/new location of the 'targets.json' file
     __targets_json_location = None
 
+    # Extra custom targets files
+    __extra_target_json_files = []
+
     @staticmethod
     @cached
     def get_json_target_data():
         """Load the description of JSON target data"""
-        return json_file_to_dict(Target.__targets_json_location or
-                                 Target.__targets_json_location_default)
+        targets = json_file_to_dict(Target.__targets_json_location or
+                                    Target.__targets_json_location_default)
+
+        for extra_target in Target.__extra_target_json_files:
+            for k, v in json_file_to_dict(extra_target).iteritems():
+                if k in targets:
+                    print 'WARNING: Custom target "%s" cannot replace existing target.' % k
+                else:
+                    targets[k] = v
+
+        return targets
+
+    @staticmethod
+    def add_extra_targets(source_dir):
+        extra_targets_file = os.path.join(source_dir, "custom_targets.json")
+        if os.path.exists(extra_targets_file):
+            Target.__extra_target_json_files.append(extra_targets_file)
+            CACHES.clear()
 
     @staticmethod
     def set_targets_json_location(location=None):
         """Set the location of the targets.json file"""
         Target.__targets_json_location = (location or
                                           Target.__targets_json_location_default)
+        Target.__extra_target_json_files = []
         # Invalidate caches, since the location of the JSON file changed
         CACHES.clear()
 
@@ -490,7 +509,7 @@ class MCU_NRF51Code(object):
             binh.merge(blh)
 
         with open(binf.replace(".bin", ".hex"), "w") as fileout:
-            binh.tofile(fileout, format='hex')
+            binh.write_hex_file(fileout, write_start_addr=False)
 
 class NCS36510TargetCode:
     @staticmethod
@@ -498,17 +517,30 @@ class NCS36510TargetCode:
         from tools.targets.NCS import add_fib_at_start
         print("binf ", binf)
         add_fib_at_start(binf[:-4])
+
+class RTL8195ACode:
+    """RTL8195A Hooks"""
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
+        rtl8195a_elf2bin(t_self.name, elf, binf)
 ################################################################################
 
 # Instantiate all public targets
-TARGETS = [Target.get_target(name) for name, value
-           in Target.get_json_target_data().items()
-           if value.get("public", True)]
+def update_target_data():
+    TARGETS[:] = [Target.get_target(tgt) for tgt, obj
+                  in Target.get_json_target_data().items()
+                  if obj.get("public", True)]
+    # Map each target name to its unique instance
+    TARGET_MAP.clear()
+    TARGET_MAP.update(dict([(tgt.name, tgt) for tgt in TARGETS]))
+    TARGET_NAMES[:] = TARGET_MAP.keys()
 
-# Map each target name to its unique instance
-TARGET_MAP = dict([(t.name, t) for t in TARGETS])
+TARGETS = []
+TARGET_MAP = dict()
+TARGET_NAMES = []
 
-TARGET_NAMES = TARGET_MAP.keys()
+update_target_data()
 
 # Some targets with different name have the same exporters
 EXPORT_MAP = {}
@@ -531,9 +563,5 @@ def set_targets_json_location(location=None):
     # re-initialization does not create new variables, it keeps the old ones
     # instead. This ensures compatibility with code that does
     # "from tools.targets import TARGET_NAMES"
-    TARGETS[:] = [Target.get_target(tgt) for tgt, obj
-                  in Target.get_json_target_data().items()
-                  if obj.get("public", True)]
-    TARGET_MAP.clear()
-    TARGET_MAP.update(dict([(tgt.name, tgt) for tgt in TARGETS]))
-    TARGET_NAMES[:] = TARGET_MAP.keys()
+    update_target_data()
+

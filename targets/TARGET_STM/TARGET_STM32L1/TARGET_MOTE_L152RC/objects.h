@@ -65,6 +65,7 @@ struct dac_s {
     PinName pin;
 };
 
+#define GPIO_IP_WITHOUT_BRR
 #include "common_objects.h"
 
 #ifdef __cplusplus

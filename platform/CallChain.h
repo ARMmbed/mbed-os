@@ -18,6 +18,7 @@
 
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
+#include "platform/NonCopyable.h"
 #include <string.h>
 
 namespace mbed {
@@ -27,7 +28,7 @@ namespace mbed {
  * sequence using CallChain::call(). Used mostly by the interrupt chaining code,
  * but can be used for other purposes.
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  *
  * Example:
  * @code
@@ -65,7 +66,7 @@ namespace mbed {
 typedef Callback<void()> *pFunctionPointer_t;
 class CallChainLink;
 
-class CallChain {
+class CallChain : private NonCopyable<CallChain> {
 public:
     /** Create an empty chain
      *
@@ -114,8 +115,8 @@ public:
 
     /** Add a function at the beginning of the chain
      *
-     *  @param tptr pointer to the object to call the member function on
-     *  @param mptr pointer to the member function to be called
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
      *
      *  @returns
      *  The function object created for 'tptr' and 'mptr'
@@ -178,10 +179,7 @@ public:
         return get(i);
     }
 
-    /* disallow copy constructor and assignment operators */
 private:
-    CallChain(const CallChain&);
-    CallChain & operator = (const CallChain&);
     CallChainLink *_chain;
 };
 
