@@ -90,7 +90,9 @@ RTWInterface::RTWInterface()
 {
     emac_interface_t *emac;
     int ret;
+    extern u32 GlobalDebugEnable; 
 
+    GlobalDebugEnable = 0;
     emac = wlan_emac_init_interface();
     if (!emac) {
         printf("Error init RTWInterface!\r\n");
