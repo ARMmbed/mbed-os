@@ -43,12 +43,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-
-extern uint32_t SystemCoreClock;     /* System Clock Frequency (Core Clock)  */
-
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+extern uint32_t SystemCoreClock;     /* System Clock Frequency (Core Clock)  */
 
 #if defined (__ICCARM__)
 /*

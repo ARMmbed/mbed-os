@@ -131,8 +131,6 @@ extern void                   adi_cyclecount_init(void);
 extern void                   adi_cyclecount_report(void);
 extern ADI_CYCLECOUNT_RESULT  adi_cyclecount_addEntity(const char *EntityName, uint32_t *pid);
 
-extern void SysTick_Handler(void);
-
 /**@}*/
 
 #endif /* ADI_CYCLECOUNT_H */

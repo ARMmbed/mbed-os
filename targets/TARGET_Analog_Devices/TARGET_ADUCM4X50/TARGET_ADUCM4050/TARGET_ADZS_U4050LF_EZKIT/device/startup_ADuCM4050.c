@@ -51,16 +51,11 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cmsis.h>
 #include <startup_ADuCM4050.h>
 #include <mbed_rtx.h>
+
 /*----------------------------------------------------------------------------
   User Initial Stack & Heap
  *----------------------------------------------------------------------------*/
-#if defined( __GNUC__) && !defined (__CC_ARM)
-// Stack and heap arrays disabled to allow definition in the LD file.
-#if 0
-static uint8_t stack[__STACK_SIZE] __attribute__ ((aligned(8), used, section(".stack")));
-static uint8_t heap[__HEAP_SIZE]   __attribute__ ((aligned(8), used, section(".heap")));
-#endif  // #if 0
-#endif
+
 
 /*----------------------------------------------------------------------------
   Security options
@@ -96,13 +91,16 @@ __root const uint32_t blank_checksum[] =
   at the start of RAM.  We need  (72 + 15 + 1)*4 = 352 bytes,
   which address 0x20000000.
 *----------------------------------------------------------------------------*/
-#ifdef RELOCATE_IVT
 #ifdef __ICCARM__
-void (*__Relocated___Vectors[NUM_VECTORS])(void) @(RELOCATION_ADDRESS);
+void (*__Relocated___Vectors[NVIC_NUM_VECTORS])(void) @(NVIC_RAM_VECTOR_ADDRESS);
 #else
-void (*__Relocated___Vectors[NUM_VECTORS])(void) __attribute__((at(RELOCATION_ADDRESS)));
+void (*__Relocated___Vectors[NVIC_NUM_VECTORS])(void) __attribute__((at(NVIC_RAM_VECTOR_ADDRESS)));
 #endif /* __ICCARM__ */
-#endif /* RELOCATE_IVT */
+
+/*----------------------------------------------------------------------------
+  External function Declaration
+ *----------------------------------------------------------------------------*/
+extern void SramInit(void);
 
 /*----------------------------------------------------------------------------
   Exception / Interrupt Handler
@@ -282,10 +280,17 @@ void zero_bss(void)
 *----------------------------------------------------------------------------*/
 void Reset_Handler(void)
 {
-    SystemInit();
-#if defined( __GNUC__) && !defined (__CC_ARM)
+    /* Initialize SRAM configuration. */
+    SramInit();
+
+#if defined(__GNUC__) && !defined (__CC_ARM)
     zero_bss();
 #endif
+
+    /* Setup system. */
+    SystemInit();
+
+    /* Call remaining startup code and then main. */
     RESET_EXCPT_HNDLR();
 }
 

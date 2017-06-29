@@ -210,10 +210,4 @@ typedef void( *pFunc )( void );
     (pFunc)0xA79C3203u, (pFunc)LASTCRCPAGE,                            \
     (pFunc)BLANKX4, (pFunc)BLANKX4            /* 80 - 87 */
 
-#ifdef RELOCATE_IVT
-#define RELOCATION_ADDRESS    (0x20000000)
-#define NUM_VECTORS           (64 + 16)
-#else
-#define RELOCATION_ADDRESS    (0x00000000)
-#endif /* RELOCATE_IVT */
 #endif /* __STARTUP_H__ */

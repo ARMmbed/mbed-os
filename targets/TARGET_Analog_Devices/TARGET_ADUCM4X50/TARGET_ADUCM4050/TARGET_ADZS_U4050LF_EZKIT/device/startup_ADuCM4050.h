@@ -229,13 +229,6 @@ typedef void( *pFunc )( void );
    RGB_Tmr_Int_Handler,                      /* 69 */                    \
    0,                                        /* 70 */                    \
    Root_Clk_Err_Handler,                     /* 71 */                    \
-   0,0,0,0,0,0,0,0                           /* 72 - 79 */ 
+   0,0,0,0,0,0,0,0                           /* 72 - 79 */
 
-#ifdef RELOCATE_IVT
-#define RELOCATION_ADDRESS    (0x20000000)
-#define RELOCATION_ALIGNMENT  (0x80)
-#define NUM_VECTORS           (72 + 16)
-#else
-#define RELOCATION_ADDRESS    (0x00000000)
-#endif /* RELOCATE_IVT */
 #endif /* __STARTUP_H__ */

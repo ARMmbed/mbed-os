@@ -36,26 +36,28 @@
    ---------------------------------------------------------------------------*/
 
 #include <cmsis.h>
-#include <startup_ADuCM4050.h>
 #include <adi_pwr.h>
+#include <startup_ADuCM4050.h>
 
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
-
 #ifdef ADI_DEBUG
 /* only needed in debug mode */
 uint32_t lfClock = 0u;    /* "lf_clk" coming out of LF mux             */
 #endif
 
-uint32_t hfClock = 0u;    /* "root_clk" output of HF mux               */
-uint32_t gpioClock = 0u;  /* external GPIO clock                       */
-
 /*----------------------------------------------------------------------------
   Clock Variable definitions
  *----------------------------------------------------------------------------*/
+/* Note that these variables will be re-initialized to the value set here by the
+   LIBC startup code, so if other clock values are required, make sure set them
+   here.
+*/
+uint32_t hfClock = __HFOSC;         /* "root_clk" output of HF mux              */
+uint32_t gpioClock = 0u;            /* external GPIO clock                      */
+uint32_t SystemCoreClock = __HFOSC; /*!< System Clock Frequency (Core Clock)    */
 
-uint32_t SystemCoreClock = 0u;  /*!< System Clock Frequency (Core Clock)*/
 
 /*----------------------------------------------------------------------------
   Clock functions
@@ -132,19 +134,15 @@ void SystemCoreClockUpdate(void)
 }
 
 /*!
- * Initialize the system
+ * Configure the SRAM banks
  *
  * @return none
  *
- * @brief  Setup the microcontroller system.
- *         Initialize the System and update the relocate vector table.
+ * @brief  Setup the SRAM banks.
+ *         Initialize the SRAM configuration and retention.
  */
-void SystemInit (void)
+void SramInit(void)
 {
-    uint32_t IntStatus;
-#ifdef RELOCATE_IVT
-    uint32_t i,*psrc=(uint32_t *)0,*pdst=(uint32_t *)RELOCATION_ADDRESS;
-#endif
     /* On reset, there is no SRAM retention.  Any retention has to be explicitly
      * set here. */
     adi_system_EnableRetention(ADI_SRAM_BANK_1 |
@@ -157,17 +155,26 @@ void SystemInit (void)
     adi_system_EnableISRAM(false);
     /* To disable the instruction cache  */
     adi_system_EnableCache(false);
-#ifdef RELOCATE_IVT
-    /* Copy the IVT (avoid use of memcpy here so it does not become locked into flash). */
-    for (i = 0u; i < NUM_VECTORS; i++)
-    {
-        *pdst++ = *psrc++;
-    }
-#endif
+}
+
+/*!
+ * Initialize the system
+ *
+ * @return none
+ *
+ * @brief  Setup the microcontroller system.
+ *         Initialize the System and update the relocate vector table.
+ */
+void SystemInit (void)
+{
+    uint32_t IntStatus;
+
     IntStatus = __get_PRIMASK();
     __disable_irq();
-    /* Switch from boot ROM IVT to application's IVT. */
-    SCB->VTOR = (uint32_t) RELOCATION_ADDRESS;
+
+    /* Set boot ROM IVT. */
+    SCB->VTOR = (uint32_t)NVIC_FLASH_VECTOR_ADDRESS;
+
     /* Set all three (USGFAULTENA, BUSFAULTENA, and MEMFAULTENA) fault enable bits
      * in the System Control Block, System Handler Control and State Register
      * otherwise these faults are handled as hard faults.
