@@ -907,6 +907,7 @@ bool SDBlockDevice::_wait_token(uint8_t token) {
 
     do {
         if (token == _spi.write(0xFF)) {
+            _spi_timer.stop();
             return true;
         }
     } while (_spi_timer.read_ms() < 300);       // Wait for 300 msec for start token
@@ -924,6 +925,7 @@ bool SDBlockDevice::_wait_ready(uint16_t ms) {
     do {
         response = _spi.write(0xFF);
         if (response == 0xFF) {
+            _spi_timer.stop();
             return true;
         }
     } while (_spi_timer.read_ms() < ms);
