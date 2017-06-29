@@ -53,7 +53,7 @@ static void erase_range(flash_t *flash, uint32_t addr, uint32_t size)
     }
 }
 
-static int time_cpu_cycles(uint32_t cycles)
+__attribute__((noinline)) static int time_cpu_cycles(uint32_t cycles)
 {
     Timer timer;
     timer.start();
