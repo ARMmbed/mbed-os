@@ -2979,5 +2979,29 @@
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
         "release_versions": ["5"]
+    },
+    "VBLUNO51_LEGACY": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K"],
+        "extra_labels_add": ["VBLUNO51"]
+    },
+    "VBLUNO51_BOOT": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_BOOT"],
+        "extra_labels_add": ["VBLUNO51"],
+        "macros_add": ["TARGET_VBLUNO51"]
+    },
+    "VBLUNO51_OTA": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_OTA"],
+        "extra_labels_add": ["VBLUNO51"],
+        "macros_add": ["TARGET_VBLUNO51"]
+    },
+    "VBLUNO51": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "release_versions": ["2"],
+        "device_name": "nRF51822_xxAC"
     }
 }
