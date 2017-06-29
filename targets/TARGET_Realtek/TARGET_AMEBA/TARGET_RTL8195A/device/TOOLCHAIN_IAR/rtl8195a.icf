@@ -142,7 +142,6 @@ define block .ram_image2.text with fixed order{ section .infra.ram.start*,
                                                 section .hal.flash.text*,
                                                 section .hal.gpio.text*,
                                                 section .text* object main.o,
-                                                section .text*,
                                                 section .wlan.text,
                                                 section .wps.text,
                                                 section CODE,
@@ -189,7 +188,9 @@ place at end of BD_RAM_region   {
                                      block HEAP,
                                   };
 								  
-define block SDRAM with fixed order{ section .sdram.text*, 
+define block SDRAM with fixed order{
+                                     section .text*,  
+                                     section .sdram.text*, 
                                      section .sdram.data*, 
                                      section .mdns.text*, 
                                      section .mdns.data*,

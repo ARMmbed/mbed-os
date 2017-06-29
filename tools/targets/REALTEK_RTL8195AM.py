@@ -25,6 +25,8 @@ from datetime import datetime
 
 # Constant Variables
 RAM2_RSVD = 0x3131373835393138
+RAM3_RSVD = 0xFFFFFFFFFFFFFFFF
+IMG2_OFFSET = 0x10006000 #default
 
 def write_fixed_width_string(value, width, output):
     # cut string to list & reverse
@@ -44,22 +46,39 @@ def write_fixed_width_value(value, width, output):
     output.write("".join([chr(long(b, 16)) for b in line]))
 
 def append_image_file(image, output):
-    input = open(image, "rb")
-    output.write(input.read())
+    try:
+        input = open(image, "rb")
+        output.write(input.read())
+    except Exception:
+        return
     input.close()
 
 def prepend(image, image_prepend, toolchain, info):
+    if info['size'] == 0:
+        return
     output = open(image_prepend, "wb")  
     write_fixed_width_value(info['size'], 8, output)
     write_fixed_width_value(info['addr'], 8, output)
-    write_fixed_width_value(RAM2_RSVD, 16, output)
-    with open(image, "rb") as input:
-        if toolchain == "IAR":
-            input.seek(info['addr'])
-        output.write(input.read(info['size']))
-    output.close()
+    if info['img'] == 2 :
+        write_fixed_width_value(RAM2_RSVD, 16, output)
+    elif info['img'] == 3 :
+        write_fixed_width_value(RAM3_RSVD, 16, output)
+    if os.path.isfile(image):
+        with open(image, "rb") as input:
+            if toolchain == "IAR": 
+                input.seek(info['addr']) 
+            elif info['img'] == 3: #toolchain is not IAR
+                input.seek(info['addr']-IMG2_OFFSET)        
+            output.write(input.read(info['size']))
+    else:
+        image = os.path.join(image, info['name'])
+        with open(image, "rb") as input:    
+            output.write(input.read(info['size']))
 
-def parse_section(toolchain, elf, section):
+    output.close()
+        
+
+def _parse_section(toolchain, elf, section):
     info = {'addr':None, 'size':0};
     if toolchain not in ["GCC_ARM", "ARM_STD", "ARM", "ARM_MICRO", "IAR"]:
         print "[ERROR] unsupported toolchain " + toolchain
@@ -104,38 +123,60 @@ def parse_section(toolchain, elf, section):
     print "[ERROR] cannot find the address of section " + section    
     return info
 
+def parse_section(toolchain, elf, sections, img):
+    img_info = {'name':"", 'addr':None, 'size':0, 'img':img}
+    for section in sections:
+        section_info = _parse_section(toolchain, elf, section)
+        if img_info['addr'] is None or img_info['addr'] > section_info['addr']:
+            img_info['addr'] = section_info['addr']
+            img_info['name'] = section
+        img_info['size'] = img_info['size'] + section_info['size']
+    return img_info    
+
 # ----------------------------
 #       main function
 # ----------------------------
 def rtl8195a_elf2bin(toolchain, image_elf, image_bin):
     if toolchain == "GCC_ARM":
         img2_sections = [".image2.table", ".text", ".data"]
+        img3_sections = [".sdr_all"]
     elif toolchain in ["ARM_STD", "ARM", "ARM_MICRO"]:
         img2_sections = [".image2.table", ".text", ".data"]
+        img3_sections = ["_DRAM_CODE"]
     elif toolchain == "IAR":
-        # actually it's block
         img2_sections = ["IMAGE2"]
+        img3_sections = ["SDRAM"]
     else:
         print("[error] unsupported toolchain") + toolchain
         return
-    ram2_info = {'addr':None, 'size':0}
+    image2_info = {'addr':None, 'size':0, 'img':2}
+    image3_info = {'addr':None, 'size':0, 'img':3}
     image_name = os.path.splitext(image_elf)[0]
 
-    ram1_prepend_bin = os.path.join(TOOLS_BOOTLOADERS, "REALTEK_RTL8195AM", "ram_1_prepend.bin")
-    ram2_prepend_bin = image_name + '-ram_2_prepend.bin'
+    img1_prepend_bin = os.path.join(TOOLS_BOOTLOADERS, "REALTEK_RTL8195AM", "ram_1_prepend.bin")
+    img2_prepend_bin = image_name + '-ram_2_prepend.bin'
+    img3_prepend_bin = image_name + '-ram_3_prepend.bin'
     
-    old_bin = image_name + '.bin'
-    for section in img2_sections:
-        section_info = parse_section(toolchain, image_elf, section)
-        if ram2_info['addr'] is None or ram2_info['addr'] > section_info['addr']:
-            ram2_info['addr'] = section_info['addr']
-        ram2_info['size'] = ram2_info['size'] + section_info['size']
+    old_bin = image_name + '.bin'    
 
-    prepend(old_bin, ram2_prepend_bin, toolchain, ram2_info)
+    img_info = parse_section(toolchain, image_elf, img2_sections, 2)
+    prepend(old_bin, img2_prepend_bin, toolchain, img_info)
+    img_info = parse_section(toolchain, image_elf, img3_sections, 3)
+    prepend(old_bin, img3_prepend_bin, toolchain, img_info)
+    
+    #delete original binary
+    if os.path.isfile(image_bin):
+        os.remove(image_bin)
+    else:
+        for i in os.listdir(image_bin):
+            os.remove(os.path.join(image_bin, i))
+        os.removedirs(image_bin)
+        
     # write output file
     output = open(image_bin, "wb")
-    append_image_file(ram1_prepend_bin, output)
-    append_image_file(ram2_prepend_bin, output)
+    append_image_file(img1_prepend_bin, output)
+    append_image_file(img2_prepend_bin, output)
+    append_image_file(img3_prepend_bin, output)
     output.close()
     # post built done
 
