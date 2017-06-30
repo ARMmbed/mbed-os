@@ -290,6 +290,8 @@ void gpio_irq_enable(gpio_irq_t *obj)
 void gpio_irq_disable(gpio_irq_t *obj)
 {
     /* Clear EXTI line configuration */
+    LL_EXTI_DisableRisingTrig_0_31(1 << STM_PIN(obj->pin));
+    LL_EXTI_DisableFallingTrig_0_31(1 << STM_PIN(obj->pin));
     LL_EXTI_DisableIT_0_31(1 << STM_PIN(obj->pin));
     NVIC_DisableIRQ(obj->irq_n);
     NVIC_ClearPendingIRQ(obj->irq_n);
