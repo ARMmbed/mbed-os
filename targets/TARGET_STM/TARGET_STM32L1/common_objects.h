@@ -109,6 +109,7 @@ struct i2c_s {
     uint8_t available_events;
 #endif
 };
+
 struct flash_s {
     /*  nothing to be stored for now */
     uint32_t dummy;
