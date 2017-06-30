@@ -199,6 +199,7 @@ class MemapParser(object):
                 o_name = self.parse_object_name_gcc(\
                     test_address_len_name.group(3))
                 o_size = int(test_address_len_name.group(2), 16)
+
                 return [o_name, o_size]
 
         else: # special corner case for *fill* sections
@@ -504,7 +505,7 @@ class MemapParser(object):
         path = path.replace('\\', '/')
 
         # check location of map file
-        RE_PATH_MAP_FILE = r'^(.+)\/(.+\.map)$'
+        RE_PATH_MAP_FILE = r'^(.+)\/.+\.map$'
         test_re = re.match(RE_PATH_MAP_FILE, path)
 
         if test_re:
@@ -516,7 +517,7 @@ class MemapParser(object):
         # create empty disctionary
         self.modules = dict()
 
-        # serach for object files
+        # search for object files
         for root, _, obj_files in os.walk(search_path):
             for obj_file in obj_files:
                 if obj_file.endswith(".o"):
@@ -526,7 +527,30 @@ class MemapParser(object):
                     txt = txt.replace('\\', '/')
 
                     # add relative path + object to list
-                    #self.dir_obj.append(txt[len(search_path)+1:])
+                    self.module_init(txt[len(search_path)+1:])
+
+        # The code below is a special case for TESTS.
+        # mbed-os lives in a separate location and we need to explicitly search
+        # their object files skiping the TESTS folder (already scanned above)
+
+        # check location of mbed-os
+        RE_PATH_MAP_FILE = r'^(.+)\/mbed-os\/.*TESTS\/.+\.map$'
+        test_re = re.match(RE_PATH_MAP_FILE, path)
+
+        if test_re == None:
+            return
+
+        search_path = test_re.group(1)
+
+        # search for object files
+        for root, _, obj_files in os.walk(search_path):
+            for obj_file in obj_files:
+                if 'TESTS' not in root and obj_file.endswith(".o"):
+
+                    txt = os.path.join(root, obj_file)
+                    txt = txt.replace('\\', '/')
+
+                    # add relative path + object to list
                     self.module_init(txt[len(search_path)+1:])
 
 
@@ -545,8 +569,8 @@ class MemapParser(object):
 
         """
 
-        # depth 0 shows all entries
-        if depth == 0:
+        # depth 0 or None shows all entries
+        if depth == 0 or depth == None:
             self.short_modules = deepcopy(self.modules)
             return
 
@@ -814,7 +838,7 @@ def main():
             sys.exit(0)
 
     if args.depth is None:
-        depth = 0
+        depth = 2  # default depth level
     else:
         depth = args.depth
 
