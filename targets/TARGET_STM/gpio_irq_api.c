@@ -254,18 +254,23 @@ void gpio_irq_free(gpio_irq_t *obj)
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
+    /*  Enable / Disable Edge triggered interrupt and store event */
     if (event == IRQ_RISE) {
         if (enable) {
             LL_EXTI_EnableRisingTrig_0_31(1 << STM_PIN(obj->pin));
+            obj->event |= IRQ_RISE;
         } else {
             LL_EXTI_DisableRisingTrig_0_31(1 << STM_PIN(obj->pin));
+            obj->event &= ~IRQ_RISE;
         }
     }
     if (event == IRQ_FALL) {
         if (enable) {
             LL_EXTI_EnableFallingTrig_0_31(1 << STM_PIN(obj->pin));
+            obj->event |= IRQ_FALL;
         } else {
             LL_EXTI_DisableFallingTrig_0_31(1 << STM_PIN(obj->pin));
+            obj->event &= ~IRQ_FALL;
         }
     }
 }
@@ -284,6 +289,15 @@ void gpio_irq_enable(gpio_irq_t *obj)
 
     LL_EXTI_EnableIT_0_31(1 << pin_index);
 
+    /* Restore previous edge interrupt configuration if applicable */
+    if (obj->event & IRQ_RISE) {
+        LL_EXTI_EnableRisingTrig_0_31(1 << STM_PIN(obj->pin));
+    }
+    if (obj->event & IRQ_FALL) {
+            LL_EXTI_EnableFallingTrig_0_31(1 << STM_PIN(obj->pin));
+
+    }
+
     NVIC_EnableIRQ(obj->irq_n);
 }
 
@@ -295,5 +309,4 @@ void gpio_irq_disable(gpio_irq_t *obj)
     LL_EXTI_DisableIT_0_31(1 << STM_PIN(obj->pin));
     NVIC_DisableIRQ(obj->irq_n);
     NVIC_ClearPendingIRQ(obj->irq_n);
-    obj->event = EDGE_NONE;
 }
