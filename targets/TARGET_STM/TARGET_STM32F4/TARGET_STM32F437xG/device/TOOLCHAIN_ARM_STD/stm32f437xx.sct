@@ -29,9 +29,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; 1 MB FLASH (0x100000) + 192 KB SRAM (0x30000) + 64 KB CCBRAM (0x10000)+ 4 KB BKPSRAM
-LR_IROM1 0x08000000 0x100000  {    ; load region size_region
 
-  ER_IROM1 0x08000000 0x100000  {  ; load address = execution address
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x100000
+#endif
+
+LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
+
+  ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)
