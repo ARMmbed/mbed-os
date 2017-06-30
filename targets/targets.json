@@ -1465,10 +1465,11 @@
             }
         },
         "macros_add": ["RTC_LSI=1", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
-        "device_has_add": ["ANALOGOUT", "TRNG"],
+        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "public": false,
-        "device_name": "STM32F437VG"
+        "device_name": "STM32F437VG",
+        "bootloader_supported": true
     },
     "UBLOX_C030_U201": {
         "inherits": ["UBLOX_C030"],
