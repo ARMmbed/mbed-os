@@ -46,5 +46,4 @@
 #endif
 
 #endif  // TARGET_NUVOTON
-
 #endif  // MBED_MBED_RTX_H
