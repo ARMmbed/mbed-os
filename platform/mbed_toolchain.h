@@ -137,6 +137,27 @@
 #endif
 #endif
 
+/** MBED_NOINLINE
+ *  Declare a function that must not be inlined.
+ *
+ *  @code
+ *  #include "mbed_toolchain.h"
+ *  
+ *  MBED_NOINLINE void foo() {
+ *  
+ *  }
+ *  @endcode
+ */
+#ifndef MBED_NOINLINE
+#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#define MBED_NOINLINE __attribute__((noinline))
+#elif defined(__ICCARM__)
+#define MBED_NOINLINE _Pragma("inline=never")
+#else
+#define MBED_NOINLINE
+#endif
+#endif
+
 /** MBED_FORCEINLINE
  *  Declare a function that must always be inlined. Failure to inline
  *  such a function will result in an error.
