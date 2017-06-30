@@ -53,6 +53,7 @@ static void timeout_tasklet(arm_event_s *event)
 static timeout_t *eventOS_timeout_at_(void (*callback)(void *), void *arg, uint32_t at, uint32_t period)
 {
     arm_event_storage_t *storage;
+    arm_event_t event;
 
     timeout_t *timeout = ns_dyn_mem_alloc(sizeof(timeout_t));
     if (!timeout) {
@@ -70,13 +71,11 @@ static timeout_t *eventOS_timeout_at_(void (*callback)(void *), void *arg, uint3
         }
     }
 
-    arm_event_t event = {
-        .receiver   = timeout_tasklet_id,
-        .sender     = timeout_tasklet_id,
-        .event_type = TIMER_EVENT,
-        .event_id   = TIMER_EVENT,
-        .data_ptr   = timeout
-    };
+    event.receiver   = timeout_tasklet_id;
+	event.sender     = timeout_tasklet_id;
+	event.event_type = TIMER_EVENT;
+	event.event_id   = TIMER_EVENT;
+	event.data_ptr   = timeout;
 
     if (period)
         storage = eventOS_event_timer_request_every(&event, period);
