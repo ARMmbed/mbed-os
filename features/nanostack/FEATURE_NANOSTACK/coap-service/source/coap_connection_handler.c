@@ -99,7 +99,6 @@ static secure_session_t *secure_session_find_by_timer_id(int8_t timer_id)
 
 static bool is_secure_session_valid(secure_session_t *session)
 {
-    secure_session_t *this = NULL;
     ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
         if (cur_ptr == session) {
             return true;
