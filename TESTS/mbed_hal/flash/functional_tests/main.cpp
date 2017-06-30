@@ -101,7 +101,7 @@ static int time_cpu_cycles(uint32_t cycles)
 
     int timer_start = timer.read_us();
 
-    volatile uint32_t delay = (volatile uint32_t)cycles;
+    uint32_t delay = cycles;
     delay_loop(delay);
     int timer_end = timer.read_us();
 
