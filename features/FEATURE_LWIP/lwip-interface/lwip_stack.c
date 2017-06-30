@@ -579,9 +579,6 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
 
     if (!netif_is_link_up(&lwip_netif)) {
         if (sys_arch_sem_wait(&lwip_netif_linked, 15000) == SYS_ARCH_TIMEOUT) {
-            if (ppp) {
-                ppp_lwip_disconnect();
-            }
             return NSAPI_ERROR_NO_CONNECTION;
         }
     }
@@ -605,10 +602,6 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
     // If doesn't have address
     if (!mbed_lwip_get_ip_addr(true, &lwip_netif)) {
         if (sys_arch_sem_wait(&lwip_netif_has_addr, DHCP_TIMEOUT * 1000) == SYS_ARCH_TIMEOUT) {
-            if (ppp) {
-                ppp_lwip_disconnect();
-            }
-
             return NSAPI_ERROR_DHCP_FAILURE;
         }
     }
