@@ -108,7 +108,7 @@
 
 // Thread stack size for private PPP thread
 #ifndef MBED_CONF_LWIP_PPP_THREAD_STACKSIZE
-#define MBED_CONF_LWIP_PPP_THREAD_STACKSIZE    512
+#define MBED_CONF_LWIP_PPP_THREAD_STACKSIZE    768
 #endif
 
 #if LWIP_DEBUG
