@@ -60,11 +60,6 @@ struct analogin_s {
     uint8_t channel;
 };
 
-struct dac_s {
-    DACName dac;
-    uint8_t channel;
-};
-
 #include "common_objects.h"
 
 #ifdef __cplusplus

@@ -35,11 +35,6 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 
-#define DAC_RANGE (0xFFF) // 12 bits
-#define DAC_NB_BITS  (12)
-
-static DAC_HandleTypeDef DacHandle;
-
 void analogout_init(dac_t *obj, PinName pin) {
     DAC_ChannelConfTypeDef sConfig;
 
@@ -50,7 +45,20 @@ void analogout_init(dac_t *obj, PinName pin) {
     // Get the pin function and assign the used channel to the object
     uint32_t function = pinmap_function(pin, PinMap_DAC);
     MBED_ASSERT(function != (uint32_t)NC);
-    obj->channel = STM_PIN_CHANNEL(function);
+
+    switch (STM_PIN_CHANNEL(function)) {
+        case 1:
+            obj->channel = DAC_CHANNEL_1;
+            break;
+#if defined(DAC_CHANNEL_2)
+        case 2:
+            obj->channel = DAC_CHANNEL_2;
+            break;
+#endif
+        default:
+            error("Unknown DAC channel");
+            break;
+    }
 
     // Configure GPIO
     pinmap_pinout(pin, PinMap_DAC);
@@ -62,15 +70,16 @@ void analogout_init(dac_t *obj, PinName pin) {
     __HAL_RCC_DAC1_CLK_ENABLE();
 
     // Configure DAC
-    DacHandle.Instance = (DAC_TypeDef *)(obj->dac);
+    obj->handle.Instance = (DAC_TypeDef *)(obj->dac);
+    if (HAL_DAC_Init(&obj->handle) != HAL_OK ) {
+        error("HAL_DAC_Init failed");
+    }
 
     sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
-    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_DISABLE;
+    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
 
-    if (pin == PA_4) {
-        HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_1);
-    } else { // PA_5
-        HAL_DAC_ConfigChannel(&DacHandle, &sConfig, DAC_CHANNEL_2);
+    if (HAL_DAC_ConfigChannel(&obj->handle, &sConfig, obj->channel) != HAL_OK) {
+        error("HAL_DAC_ConfigChannel failed");
     }
 
     analogout_write_u16(obj, 0);
@@ -84,55 +93,6 @@ void analogout_free(dac_t *obj) {
 
     // Configure GPIO
     pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
-}
-
-static inline void dac_write(dac_t *obj, int value) {
-    if (obj->channel == 1) {
-        HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_1, DAC_ALIGN_12B_R, (value & DAC_RANGE));
-        HAL_DAC_Start(&DacHandle, DAC_CHANNEL_1);
-    }
-#if defined(DAC_CHANNEL_2)
-    if (obj->channel == 2) {
-        HAL_DAC_SetValue(&DacHandle, DAC_CHANNEL_2, DAC_ALIGN_12B_R, (value & DAC_RANGE));
-        HAL_DAC_Start(&DacHandle, DAC_CHANNEL_2);
-    }
-#endif
-}
-
-static inline int dac_read(dac_t *obj) {
-    if (obj->channel == 1) {
-        return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_1);
-    }
-#if defined(DAC_CHANNEL_2)
-    if (obj->channel == 2) {
-        return (int)HAL_DAC_GetValue(&DacHandle, DAC_CHANNEL_2);
-    }
-#endif
-    return 0;
-}
-
-void analogout_write(dac_t *obj, float value) {
-    if (value < 0.0f) {
-        dac_write(obj, 0); // Min value
-    } else if (value > 1.0f) {
-        dac_write(obj, (int)DAC_RANGE); // Max value
-    } else {
-        dac_write(obj, (int)(value * (float)DAC_RANGE));
-    }
-}
-
-void analogout_write_u16(dac_t *obj, uint16_t value) {
-    dac_write(obj, value >> (16 - DAC_NB_BITS));
-}
-
-float analogout_read(dac_t *obj) {
-    uint32_t value = dac_read(obj);
-    return (float)value * (1.0f / (float)DAC_RANGE);
-}
-
-uint16_t analogout_read_u16(dac_t *obj) {
-    uint32_t value = dac_read(obj);
-    return (value << 4) | ((value >> 8) & 0x000F); // Conversion from 12 to 16 bits
 }
 
 #endif // DEVICE_ANALOGOUT

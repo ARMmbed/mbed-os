@@ -46,7 +46,7 @@ struct pwmout_s {
     uint32_t period;
     uint32_t pulse;
     uint8_t channel;
-    uint8_t inverted; 
+    uint8_t inverted;
 };
 
 struct serial_s {
@@ -108,6 +108,13 @@ struct i2c_s {
     uint8_t stop;
     uint8_t available_events;
 #endif
+};
+
+struct dac_s {
+    DACName dac;
+    PinName pin;
+    uint32_t channel;
+    DAC_HandleTypeDef handle;
 };
 
 #include "gpio_object.h"
