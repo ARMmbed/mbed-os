@@ -220,8 +220,9 @@ if __name__ == '__main__':
                         notify=notify,
                         jobs=options.jobs,
                         continue_on_build_fail=options.continue_on_build_fail,
-                                                             app_config=options.app_config,
-                                                             build_profile=profile)
+                        app_config=options.app_config,
+                        build_profile=profile,
+                        stats_depth=options.stats_depth)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
