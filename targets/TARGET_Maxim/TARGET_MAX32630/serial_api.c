@@ -180,6 +180,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 //******************************************************************************
 void uart_handler(serial_t *obj)
 {
+    // clear interrupts
+    volatile uint32_t flags = obj->uart->intfl;
+    obj->uart->intfl = flags;
+
     if (obj && obj->id) {
         irq_handler(obj->id, RxIrq);
     }
