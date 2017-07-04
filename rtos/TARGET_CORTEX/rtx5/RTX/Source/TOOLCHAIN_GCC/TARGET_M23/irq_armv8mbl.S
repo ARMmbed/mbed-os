@@ -27,9 +27,9 @@
         .file    "irq_armv8mbl.S"
         .syntax  unified
 
-        .ifndef  DOMAIN_NS
+#ifndef  DOMAIN_NS
         .equ     DOMAIN_NS, 0
-        .endif
+#endif
 
         .equ     I_T_RUN_OFS, 20        // osRtxInfo.thread.run offset
         .equ     TCB_SM_OFS,  48        // TCB.stack_mem offset
