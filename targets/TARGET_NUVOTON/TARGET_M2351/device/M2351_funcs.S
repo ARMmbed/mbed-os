@@ -2,10 +2,6 @@
         AREA    |.text|, CODE, READONLY
 __PC        PROC
             EXPORT      __PC        
-#elif defined(__ICCARM__)
-        SECTION .text:CODE:REORDER:NOROOT(1)
-        PUBLIC  __PC
-__PC        
 #elif defined(__GNUC__)
     .text
     .thumb
@@ -13,20 +9,28 @@ __PC
     .globl    __PC
     .type    __PC, %function
 __PC:
+#else   ;; for IAR, __ICCARM__ seems not defined in IAR asm
+    MODULE  nvtfunc
+        
+    SECTION .text:CODE:REORDER:NOROOT(1)        
+    THUMB     
+
+    PUBLIC  __PC
+__PC        
 #endif
                 
     MOV     r0, lr
     BLX     lr
 
+
 #if defined(__CC_ARM)
     ALIGN    
-    END
-#elif defined(__ICCARM__)
-    ALIGNROM
     END
 #elif defined(__GNUC__)                
     .align 
     .pool
     .size __PC, . - __PC
     .end
+#else       ;; for IAR, __ICCARM__ seems not defined in IAR asm 
+     END   
 #endif
