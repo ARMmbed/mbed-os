@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-#if MODEM_ON_BOARD
+#if !MODEM_ON_BOARD
+#error [NOT_SUPPORTED] MODEM_ON_BOARD should be set for this test to be functional
+#endif
 
 #include "mbed.h"
 #include "gmd_ut_config_header.h"
@@ -436,14 +438,3 @@ static void unlock()
 {
     mtx.unlock();
 }
-
-#else
-
-int main ()
-{
-    return 0;
-}
-
-#endif //MODEM_ON_BOARD
-// End Of File
-
