@@ -26,8 +26,7 @@
 #ifndef RTX_CORE_CA_H_
 #define RTX_CORE_CA_H_
 
-#include "RTE_Components.h"
-#include CMSIS_device_header
+#include <cmsis.h>
 
 #define __DOMAIN_NS             0U
 #define __EXCLUSIVE_ACCESS      1U

@@ -27,8 +27,6 @@
 #include "cmsis_compiler.h"
 #include "rtx_evr.h"                    // RTX Event Recorder definitions
 
-#include "RTE_Components.h"
-
 #ifdef RTE_Compiler_EventRecorder
 
 #include "EventRecorder.h"              // Keil::Compiler:Event Recorder
