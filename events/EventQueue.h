@@ -19,6 +19,7 @@
 
 #include "equeue/equeue.h"
 #include "platform/Callback.h"
+#include "platform/NonCopyable.h"
 #include <cstddef>
 #include <new>
 
@@ -47,7 +48,7 @@ class Event;
  *  Flexible event queue for dispatching events
  * @ingroup events
  */
-class EventQueue {
+class EventQueue : private mbed::NonCopyable<EventQueue> {
 public:
     /** Create an EventQueue
      *

@@ -28,6 +28,7 @@
 #include "cmsis_os2.h"
 #include "mbed_rtos1_types.h"
 #include "mbed_rtos_storage.h"
+#include "platform/NonCopyable.h"
 
 namespace rtos {
 /** \addtogroup rtos */
@@ -42,7 +43,7 @@ namespace rtos {
  both for the mbed OS and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 template<typename T, uint32_t pool_sz>
-class MemoryPool {
+class MemoryPool : private mbed::NonCopyable<MemoryPool<T, pool_sz> > {
 public:
     /** Create and Initialize a memory pool. */
     MemoryPool() {
@@ -55,6 +56,11 @@ public:
         _attr.cb_size = sizeof(_obj_mem);
         _id = osMemoryPoolNew(pool_sz, sizeof(T), &_attr);
         MBED_ASSERT(_id);
+    }
+
+    /** Destroy a memory pool */
+    ~MemoryPool() {
+        osMemoryPoolDelete(_id);
     }
 
     /** Allocate a memory block of type T from a memory pool.

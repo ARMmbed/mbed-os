@@ -187,6 +187,9 @@ osStatus_t svcRtxMutexAcquire (osMutexId_t mutex_id, uint32_t timeout) {
     mutex->owner_thread = runnig_thread;
     mutex->owner_next   = runnig_thread->mutex_list;
     mutex->owner_prev   = NULL;
+    if (runnig_thread->mutex_list != NULL) {
+        runnig_thread->mutex_list->owner_prev = mutex;
+    }
     runnig_thread->mutex_list = mutex;
     mutex->lock = 1U;
     EvrRtxMutexAcquired(mutex, mutex->lock);

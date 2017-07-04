@@ -113,6 +113,14 @@ struct i2c_s {
 #define GPIO_IP_WITHOUT_BRR
 #include "gpio_object.h"
 
+#if DEVICE_ANALOGOUT
+struct dac_s {
+    DACName dac;
+    uint32_t channel;
+    DAC_HandleTypeDef handle;
+};
+#endif
+
 #ifdef __cplusplus
 }
 #endif

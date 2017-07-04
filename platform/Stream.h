@@ -19,6 +19,7 @@
 #include "platform/platform.h"
 #include "platform/FileLike.h"
 #include "platform/FileHandle.h"
+#include "platform/NonCopyable.h"
 #include <cstdio>
 #include <cstdarg>
 
@@ -36,7 +37,7 @@ extern char* mbed_gets(char *s, int size, std::FILE *_file);
  * @note Synchronization level: Set by subclass
  * @ingroup platform
  */
-class Stream : public FileLike {
+class Stream : public FileLike, private NonCopyable<Stream> {
 
 public:
     Stream(const char *name=NULL);
@@ -80,11 +81,6 @@ protected:
     virtual void unlock() {
         // Stub
     }
-
-    /* disallow copy constructor and assignment operators */
-private:
-    Stream(const Stream&);
-    Stream & operator = (const Stream&);
 };
 
 } // namespace mbed

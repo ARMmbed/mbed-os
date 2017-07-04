@@ -22,7 +22,8 @@ from copy import copy
 from time import time, sleep
 from types import ListType
 from shutil import copyfile
-from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath, isfile, isdir
+from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath, isfile, isdir, normcase
+from itertools import chain
 from inspect import getmro
 from copy import deepcopy
 from tools.config import Config
@@ -41,6 +42,78 @@ import fnmatch
 #Disables multiprocessing if set to higher number than the host machine CPUs
 CPU_COUNT_MIN = 1
 CPU_COEF = 1
+
+class LazyDict(dict):
+    def __init__(self):
+        self.eager = {}
+        self.lazy = {}
+
+    def add_lazy(self, key, thunk):
+        if key in self.eager:
+            del self.eager[key]
+        self.lazy[key] = thunk
+
+    def __getitem__(self, key):
+        if  (key not in self.eager
+             and key in self.lazy):
+            self.eager[key] = self.lazy[key]()
+            del self.lazy[key]
+        return self.eager[key]
+
+    def __setitem__(self, key, value):
+        self.eager[key] = value
+
+    def __delitem__(self, key):
+        if key in self.eager:
+            del self.eager[key]
+        else:
+            del self.lazy[key]
+
+    def __contains__(self, key):
+        return key in self.eager or key in self.lazy
+
+    def __iter__(self):
+        return chain(iter(self.eager), iter(self.lazy))
+
+    def __len__(self):
+        return len(self.eager) + len(self.lazy)
+
+    def __str__(self):
+        return "Lazy{%s}" % (
+            ", ".join("%r: %r" % (k, v) for k, v in
+                      chain(self.eager.iteritems(), ((k, "not evaluated")
+                                                     for k in self.lazy))))
+
+    def update(self, other):
+        if isinstance(other, LazyDict):
+            self.eager.update(other.eager)
+            self.lazy.update(other.lazy)
+        else:
+            self.eager.update(other)
+
+    def iteritems(self):
+        """Warning: This forces the evaluation all of the items in this LazyDict
+        that are iterated over."""
+        for k, v in self.eager.iteritems():
+            yield k, v
+        for k in self.lazy.keys():
+            yield k, self[k]
+
+    def apply(self, fn):
+        """Delay the application of a computation to all items of the lazy dict.
+        Does no computation now. Instead the comuptation is performed when a
+        consumer attempts to access a value in this LazyDict"""
+        new_lazy = {}
+        for k, f in self.lazy.iteritems():
+            def closure(f=f):
+                return fn(f())
+            new_lazy[k] = closure
+        for k, v in self.eager.iteritems():
+            def closure(v=v):
+                return fn(v)
+            new_lazy[k] = closure
+        self.lazy = new_lazy
+        self.eager = {}
 
 class Resources:
     def __init__(self, base_path=None):
@@ -74,7 +147,7 @@ class Resources:
         self.json_files = []
 
         # Features
-        self.features = {}
+        self.features = LazyDict()
 
     def __add__(self, resources):
         if resources is None:
@@ -165,7 +238,9 @@ class Resources:
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
 
-        self.features = {k: f.relative_to(base, dot) for k, f in self.features.iteritems() if f}
+        def to_apply(feature, base=base, dot=dot):
+            feature.relative_to(base, dot)
+        self.features.apply(to_apply)
 
         if self.linker_script is not None:
             self.linker_script = rel_path(self.linker_script, base, dot)
@@ -178,7 +253,9 @@ class Resources:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
 
-        self.features = {k: f.win_to_unix() for k, f in self.features.iteritems() if f}
+        def to_apply(feature):
+            feature.win_to_unix()
+        self.features.apply(to_apply)
 
         if self.linker_script is not None:
             self.linker_script = self.linker_script.replace('\\', '/')
@@ -306,6 +383,7 @@ class mbedToolchain:
 
         # Ignore patterns from .mbedignore files
         self.ignore_patterns = []
+        self._ignore_regex = re.compile("$^")
 
         # Pre-mbed 2.0 ignore dirs
         self.legacy_ignore_dirs = (LEGACY_IGNORE_DIRS | TOOLCHAINS) - set([target.name, LEGACY_TOOLCHAIN_NAMES[self.name]])
@@ -511,10 +589,7 @@ class mbedToolchain:
 
     def is_ignored(self, file_path):
         """Check if file path is ignored by any .mbedignore thus far"""
-        for pattern in self.ignore_patterns:
-            if fnmatch.fnmatch(file_path, pattern):
-                return True
-        return False
+        return self._ignore_regex.match(normcase(file_path))
 
     def add_ignore_patterns(self, root, base_path, patterns):
         """Add a series of patterns to the ignored paths
@@ -526,9 +601,10 @@ class mbedToolchain:
         """
         real_base = relpath(root, base_path)
         if real_base == ".":
-            self.ignore_patterns.extend(patterns)
+            self.ignore_patterns.extend(normcase(p) for p in patterns)
         else:
-            self.ignore_patterns.extend(join(real_base, pat) for pat in patterns)
+            self.ignore_patterns.extend(normcase(join(real_base, pat)) for pat in patterns)
+        self._ignore_regex = re.compile("|".join(fnmatch.translate(p) for p in self.ignore_patterns))
 
     # Create a Resources object from the path pointed to by *path* by either traversing a
     # a directory structure, when *path* is a directory, or adding *path* to the resources,
@@ -604,7 +680,9 @@ class mbedToolchain:
                 elif d.startswith('FEATURE_'):
                     # Recursively scan features but ignore them in the current scan.
                     # These are dynamically added by the config system if the conditions are matched
-                    resources.features[d[8:]] = self.scan_resources(dir_path, base_path=base_path)
+                    def closure (dir_path=dir_path, base_path=base_path):
+                        return self.scan_resources(dir_path, base_path=base_path)
+                    resources.features.add_lazy(d[8:], closure)
                     dirs.remove(d)
                 elif exclude_paths:
                     for exclude_path in exclude_paths:

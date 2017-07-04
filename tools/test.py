@@ -28,7 +28,7 @@ sys.path.insert(0, ROOT)
 
 from tools.config import ConfigException
 from tools.test_api import test_path_to_name, find_tests, print_tests, build_tests, test_spec_from_test_builds
-from tools.options import get_default_options_parser, extract_profile
+from tools.options import get_default_options_parser, extract_profile, extract_mcus
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
 from tools.build_api import merge_build_data
@@ -114,7 +114,7 @@ if __name__ == '__main__':
         # Target
         if options.mcu is None :
             args_error(parser, "argument -m/--mcu is required")
-        mcu = options.mcu[0]
+        mcu = extract_mcus(parser, options)[0]
 
         # Toolchain
         if options.tool is None:

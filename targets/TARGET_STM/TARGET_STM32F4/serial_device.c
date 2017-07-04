@@ -40,7 +40,7 @@
 #include "PeripheralPins.h"
 #include "mbed_error.h"
 
-#define UART_NUM (8)
+#define UART_NUM (10)
 static uint32_t serial_irq_ids[UART_NUM] = {0};
 UART_HandleTypeDef uart_handlers[UART_NUM];
 
@@ -122,6 +122,22 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             __HAL_RCC_UART8_RELEASE_RESET();
             __HAL_RCC_UART8_CLK_ENABLE();
             obj_s->index = 7;
+            break;
+#endif
+#if defined(UART9_BASE)
+        case UART_9:
+            __HAL_RCC_UART9_FORCE_RESET();
+            __HAL_RCC_UART9_RELEASE_RESET();
+            __HAL_RCC_UART9_CLK_ENABLE();
+            obj_s->index = 8;
+            break;
+#endif
+#if defined(UART10_BASE)
+        case UART_10:
+            __HAL_RCC_UART10_FORCE_RESET();
+            __HAL_RCC_UART10_RELEASE_RESET();
+            __HAL_RCC_UART10_CLK_ENABLE();
+            obj_s->index = 9;
             break;
 #endif
     }
@@ -215,6 +231,20 @@ void serial_free(serial_t *obj)
             __HAL_RCC_UART8_FORCE_RESET();
             __HAL_RCC_UART8_RELEASE_RESET();
             __HAL_RCC_UART8_CLK_DISABLE();
+            break;
+#endif
+#if defined(UART9_BASE)
+        case 8:
+            __HAL_RCC_UART9_FORCE_RESET();
+            __HAL_RCC_UART9_RELEASE_RESET();
+            __HAL_RCC_UART9_CLK_DISABLE();
+            break;
+#endif
+#if defined(UART10_BASE)
+        case 9:
+            __HAL_RCC_UART10_FORCE_RESET();
+            __HAL_RCC_UART10_RELEASE_RESET();
+            __HAL_RCC_UART10_CLK_DISABLE();
             break;
 #endif
     }
@@ -315,6 +345,20 @@ static void uart8_irq(void)
 }
 #endif
 
+#if defined(UART9_BASE)
+static void uart9_irq(void)
+{
+    uart_irq(8);
+}
+#endif
+
+#if defined(UART10_BASE)
+static void uart10_irq(void)
+{
+    uart_irq(9);
+}
+#endif
+
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
@@ -374,6 +418,18 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         case 7:
             irq_n = UART8_IRQn;
             vector = (uint32_t)&uart8_irq;
+            break;
+#endif
+#if defined(UART9_BASE)
+        case 8:
+            irq_n = UART9_IRQn;
+            vector = (uint32_t)&uart9_irq;
+            break;
+#endif
+#if defined(UART10_BASE)
+        case 9:
+            irq_n = UART10_IRQn;
+            vector = (uint32_t)&uart10_irq;
             break;
 #endif
     }
@@ -566,6 +622,16 @@ static IRQn_Type serial_get_irq_n(serial_t *obj)
 #if defined(UART8_BASE)
         case 7:
             irq_n = UART8_IRQn;
+            break;
+#endif
+#if defined(UART9_BASE)
+        case 8:
+            irq_n = UART9_IRQn;
+            break;
+#endif
+#if defined(UART10_BASE)
+        case 9:
+            irq_n = UART10_IRQn;
             break;
 #endif
         default:
