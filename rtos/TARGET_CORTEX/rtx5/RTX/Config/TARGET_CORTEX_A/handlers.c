@@ -22,9 +22,8 @@
  *
  * -----------------------------------------------------------------------------
  */
-#include "RTE_Components.h"
-#include CMSIS_device_header
 
+#include <cmsis.h>
 
 //Fault Status Register (IFSR/DFSR) definitions
 #define FSR_ALIGNMENT_FAULT                  0x01   //DFSR only. Fault on first lookup
