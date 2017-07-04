@@ -17,8 +17,8 @@
  *
  * ----------------------------------------------------------------------
  *
- * $Date:        10. January 2017
- * $Revision:    V2.1.0
+ * $Date:        9. June 2017
+ * $Revision:    V2.1.1
  *
  * Project:      CMSIS-RTOS API
  * Title:        cmsis_os.h RTX header file
@@ -118,6 +118,11 @@
  *    - added: osKernelRestoreLock
  *    Updated Thread and Event Flags:
  *    - changed flags parameter and return type from int32_t to uint32_t
+ * Version 2.1.1
+ *    Additional functions allowed to be called from Interrupt Service Routines:
+ *    - osKernelGetTickCount, osKernelGetTickFreq
+ *    Changed Kernel Tick type to uint32_t:
+ *    - updated: osKernelGetTickCount, osDelayUntil
  *---------------------------------------------------------------------------*/
  
 #ifndef CMSIS_OS_H_
@@ -433,23 +438,23 @@ uint32_t osKernelSysTick (void);
 /// \param         instances     number of possible thread instances.
 /// \param         stacksz       stack size (in bytes) requirements for the thread function.
 #if defined (osObjectsExternal)  // object is external
-#define osThreadDef(name, priority, stacksz) \
+#define osThreadDef(name, priority, instances, stacksz) \
 extern const osThreadDef_t os_thread_def_##name
 #else                            // define the object
 #if (osCMSIS < 0x20000U)
-#define osThreadDef(name, priority, stacksz) \
+#define osThreadDef(name, priority, instances, stacksz) \
 const osThreadDef_t os_thread_def_##name = \
-{ (name), (priority), (1), (stacksz) }
+{ (name), (priority), (instances), (stacksz) }
 #else
-#define osThreadDef(name, priority, stacksz) \
-uint64_t os_thread_stack##name[(stacksz)?(((stacksz+7)/8)):1] __attribute__((section(".bss.os.thread.stack"))); \
+#define osThreadDef(name, priority, instances, stacksz) \
+static uint64_t os_thread_stack##name[(stacksz)?(((stacksz+7)/8)):1] __attribute__((section(".bss.os.thread.stack"))); \
 static osRtxThread_t os_thread_cb_##name __attribute__((section(".bss.os.thread.cb"))); \
 const osThreadDef_t os_thread_def_##name = \
 { (name), \
   { NULL, osThreadDetached, \
-    (&os_thread_cb_##name),\
-    osRtxThreadCbSize, \
-    (stacksz) ? (&os_thread_stack##name) : NULL, \
+    (instances == 1) ? (&os_thread_cb_##name) : NULL,\
+    (instances == 1) ? osRtxThreadCbSize : 0U, \
+    ((stacksz) && (instances == 1)) ? (&os_thread_stack##name) : NULL, \
     8*((stacksz+7)/8), \
     (priority), 0U, 0U } }
 #endif
