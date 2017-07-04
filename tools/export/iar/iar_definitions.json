@@ -110,9 +110,6 @@
     "STM32F411RE": {
         "OGChipSelectEditMenu": "STM32F411RE\tST STM32F411RE"
     },
-    "STM32F413ZH": {
-        "OGChipSelectEditMenu": "STM32F413ZH\tST STM32F413ZH"
-    },
     "STM32L053C8": {
         "OGChipSelectEditMenu": "STM32L053x8\tST STM32L053x8"
     },
