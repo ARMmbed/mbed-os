@@ -19,8 +19,11 @@
 #endif
 
 
-
+#if defined(__ICCARM__)
+extern void *__vector_table;                   /* see startup file */
+#else
 extern void *__vector_handlers;                   /* see startup file */
+#endif
 extern uint32_t GetPC(void);              /* Get current program counter(PC) */
 
 
@@ -70,7 +73,11 @@ void SystemInit(void)
 {
 
 #if defined (__VTOR_PRESENT) && (__VTOR_PRESENT == 1U)
+#if defined(__ICCARM__)
+    SCB->VTOR = (uint32_t) &__vector_table;
+#else
     SCB->VTOR = (uint32_t) &__vector_handlers;
+#endif
 #endif
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)

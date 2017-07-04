@@ -398,6 +398,7 @@ void Default_Handler(void)
 }
 
 
+#if defined(__CC_ARM)
 uint32_t GetPC(void)
 {
     uint32_t val=0;
@@ -408,3 +409,4 @@ __asm  {
        }    
     return val;
 }    
+#endif
