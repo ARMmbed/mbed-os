@@ -1,3 +1,5 @@
+/** \addtogroup rtos */
+/** @{*/
 /*
  * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
@@ -63,3 +65,4 @@
 #endif
 
 #endif  // RTX_CORE_C_H_
+/** @}*/

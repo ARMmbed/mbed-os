@@ -1,3 +1,5 @@
+/** \addtogroup rtos */
+/** @{*/
 /*
  * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
@@ -379,3 +381,4 @@
 //------------- <<< end of configuration section >>> ---------------------------
  
 #endif  // RTX_CONFIG_H_
+/** @}*/

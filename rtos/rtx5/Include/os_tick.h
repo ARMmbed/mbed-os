@@ -1,3 +1,5 @@
+/** \addtogroup rtos */
+/** @{*/
 /**************************************************************************//**
  * @file     os_tick.h
  * @brief    CMSIS OS Tick header file
@@ -72,3 +74,4 @@ uint32_t OS_Tick_GetCount (void);
 uint32_t OS_Tick_GetOverflow (void);
 
 #endif  /* OS_TICK_H */
+/** @}*/

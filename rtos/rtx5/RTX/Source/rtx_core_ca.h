@@ -1,3 +1,5 @@
+/** \addtogroup rtos */
+/** @{*/
 /*
  * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
@@ -1097,3 +1099,4 @@ __STATIC_INLINE void atomic_link_put (void **root, void *link) {
 
 
 #endif  // RTX_CORE_CA_H_
+/** @}*/

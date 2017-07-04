@@ -1,3 +1,5 @@
+/** \addtogroup rtos */
+/** @{*/
 /*
  * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
@@ -1842,3 +1844,4 @@ extern void EvrRtxMessageQueueDestroyed (osMessageQueueId_t mq_id);
 
 
 #endif  // RTX_EVR_H_
+/** @}*/
