@@ -293,7 +293,8 @@ void SDH_Set_clock(SDH_T *sdh, uint32_t sd_clock_khz)
     }
 }
 
-uint32_t SDH_CardDetection(SDH_T *sdh)
+//uint32_t SDH_CardDetection(SDH_T *sdh)
+unsigned int SDH_CardDetection(SDH_T *sdh)
 {
     uint32_t i;
     SDH_INFO_T *pSD;
