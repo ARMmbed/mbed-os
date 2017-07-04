@@ -315,12 +315,17 @@ public:
      * @param[in]  hasVariableLen
      *             Whether the attribute's value length changes over time.
      *
-     * @note   The UUID value must be unique in the service and is normally >1.
+     * @note  The UUID value must be unique in the service and is normally >1.
      *
      * @note  If valuePtr == NULL, length == 0, and properties == READ
      *        for the value attribute of a characteristic, then that particular
      *        characteristic may be considered optional and dropped while
      *        instantiating the service with the underlying BLE stack.
+     *
+     * @note  A CCCD should not be allocated if either the notify or indicate
+     *        flag is set, as it is handled by the underlying BLE stack. In such
+     *        a case, the param descriptors could be empty and the param
+     *        numDescriptors equal to zero.
      */
     GattCharacteristic(const UUID    &uuid,
                        uint8_t       *valuePtr       = NULL,
@@ -584,6 +589,8 @@ private:
     SecurityManager::SecurityMode_t   _requiredSecurity;
     /**
      * The characteristic's descriptor attributes.
+     * This contains only CCCDs that has neither the notify nor the indicate
+     * flag set, as thoses are handled by the underlying BLE stack.
      */
     GattAttribute                   **_descriptors;
     /**
