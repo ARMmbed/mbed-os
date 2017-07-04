@@ -27,7 +27,9 @@
  
 #ifndef RTX_CONFIG_H_
 #define RTX_CONFIG_H_
- 
+
+#include "mbed_rtx_conf.h"
+
 //-------- <<< Use Configuration Wizard in Context Menu >>> --------------------
  
 // <h>System Configuration

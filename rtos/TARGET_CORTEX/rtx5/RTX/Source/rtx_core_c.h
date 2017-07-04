@@ -26,8 +26,7 @@
 #ifndef RTX_CORE_C_H_
 #define RTX_CORE_C_H_
 
-#include "RTE_Components.h"
-#include CMSIS_device_header
+#include <cmsis.h>
 
 #ifndef __ARM_ARCH_6M__
 #define __ARM_ARCH_6M__         0U
