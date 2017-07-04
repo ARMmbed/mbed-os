@@ -41,7 +41,7 @@ MBED_TLS_DIR:=TARGET_IGNORE/mbedtls
 MBED_TLS_API:=$(MBED_TLS_DIR)/include/mbedtls
 MBED_TLS_GIT_CFG=$(MBED_TLS_DIR)/.git/config
 
-.PHONY: all deploy rsync mbedtls clean update
+.PHONY: all deploy deploy-tests rsync mbedtls clean update
 
 all: mbedtls
 
