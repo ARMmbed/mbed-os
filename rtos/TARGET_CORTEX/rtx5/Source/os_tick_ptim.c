@@ -22,13 +22,12 @@
  * limitations under the License.
  */
 
+#if defined(PTIM)
+
 #include "os_tick.h"
 #include "irq_ctrl.h"
 
-#include "RTE_Components.h"
-#include CMSIS_device_header
-
-#if defined(PTIM)
+#include <cmsis.h>
 
 #ifndef PTIM_IRQ_PRIORITY
 #define PTIM_IRQ_PRIORITY           0xFFU
