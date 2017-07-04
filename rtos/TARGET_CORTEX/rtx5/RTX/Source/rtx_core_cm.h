@@ -26,8 +26,7 @@
 #ifndef RTX_CORE_CM_H_
 #define RTX_CORE_CM_H_
 
-#include "RTE_Components.h"
-#include CMSIS_device_header
+#include <cmsis.h>
 
 #ifdef RTE_CMSIS_RTOS2_RTX5_ARMV8M_NS
 #define __DOMAIN_NS             1U

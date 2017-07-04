@@ -24,8 +24,7 @@
 
 #include "os_tick.h"
 
-#include "RTE_Components.h"
-#include CMSIS_device_header
+#include <cmsis.h>
 
 #ifdef  SysTick
 
