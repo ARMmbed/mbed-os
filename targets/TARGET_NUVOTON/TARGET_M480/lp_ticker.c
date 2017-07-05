@@ -210,8 +210,7 @@ static void lp_ticker_arm_cd(void)
     TIMER_T * timer3_base = (TIMER_T *) NU_MODBASE(timer3_modinit.modname);
     
     // Reset 8-bit PSC counter, 24-bit up counter value and CNTEN bit
-    // NUC472/M451
-    //timer3_base->CTL |= TIMER_CTL_RSTCNT_Msk;
+    // NUC472/M451: See TIMER_CTL_RSTCNT_Msk
     // M480
     timer3_base->CNT = 0;
     while (timer3_base->CNT & TIMER_CNT_RSTACT_Msk);

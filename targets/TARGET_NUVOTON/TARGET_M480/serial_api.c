@@ -427,7 +427,6 @@ void serial_putc(serial_t *obj, int c)
 
 int serial_readable(serial_t *obj)
 {
-    //return UART_IS_RX_READY(((UART_T *) NU_MODBASE(obj->serial.uart)));
     return ! UART_GET_RX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart)));
 }
 
@@ -518,9 +517,6 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
     // UART IRQ is necessary for both interrupt way and DMA way
     serial_tx_enable_event(obj, event, 1);
     serial_tx_buffer_set(obj, tx, tx_length, tx_width);
-    //UART_HAL_DisableTransmitter(obj->serial.address);
-    //UART_HAL_FlushTxFifo(obj->serial.address);
-    //UART_HAL_EnableTransmitter(obj->serial.address);
             
     int n_word = 0;
     if (obj->serial.dma_usage_tx == DMA_USAGE_NEVER) {
@@ -584,9 +580,6 @@ void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_widt
     serial_rx_enable_event(obj, event, 1);
     serial_rx_buffer_set(obj, rx, rx_length, rx_width);
     serial_rx_set_char_match(obj, char_match);
-    //UART_HAL_DisableReceiver(obj->serial.address);
-    //UART_HAL_FlushRxFifo(obj->serial.address);
-    //UART_HAL_EnableReceiver(obj->serial.address);
         
     if (obj->serial.dma_usage_rx == DMA_USAGE_NEVER) {
         // Interrupt way
@@ -637,8 +630,7 @@ void serial_tx_abort_asynch(serial_t *obj)
         
         if (obj->serial.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->serial.dma_chn_id_tx, PDMA_INT_TRANS_DONE);
-            // FIXME: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
-            //PDMA_STOP(obj->serial.dma_chn_id_tx);
+            // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
             pdma_base->CHCTL &= ~(1 << obj->serial.dma_chn_id_tx);
         }
         UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_TXPDMAEN_Msk);
@@ -656,8 +648,7 @@ void serial_rx_abort_asynch(serial_t *obj)
         
         if (obj->serial.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->serial.dma_chn_id_rx, PDMA_INT_TRANS_DONE);
-            // FIXME: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
-            //PDMA_STOP(obj->serial.dma_chn_id_rx);
+            // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
             pdma_base->CHCTL &= ~(1 << obj->serial.dma_chn_id_rx);
         }
         UART_DISABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_RXPDMAEN_Msk);
@@ -791,8 +782,9 @@ static void serial_tx_enable_event(serial_t *obj, int event, uint8_t enable)
     obj->serial.event &= ~SERIAL_EVENT_TX_MASK;
     obj->serial.event |= (event & SERIAL_EVENT_TX_MASK);
     
-    //if (event & SERIAL_EVENT_TX_COMPLETE) {
-    //}
+    if (event & SERIAL_EVENT_TX_COMPLETE) {
+        // N/A
+    }
 }
 
 static void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
@@ -800,10 +792,12 @@ static void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
     obj->serial.event &= ~SERIAL_EVENT_RX_MASK;
     obj->serial.event |= (event & SERIAL_EVENT_RX_MASK);
     
-    //if (event & SERIAL_EVENT_RX_COMPLETE) {
-    //}
-    //if (event & SERIAL_EVENT_RX_OVERRUN_ERROR) {
-    //}
+    if (event & SERIAL_EVENT_RX_COMPLETE) {
+        // N/A
+    }
+    if (event & SERIAL_EVENT_RX_OVERRUN_ERROR) {
+        // N/A
+    }
     if (event & SERIAL_EVENT_RX_FRAMING_ERROR) {
         UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_RLSIEN_Msk);
     }
@@ -813,21 +807,19 @@ static void serial_rx_enable_event(serial_t *obj, int event, uint8_t enable)
     if (event & SERIAL_EVENT_RX_OVERFLOW) {
         UART_ENABLE_INT(((UART_T *) NU_MODBASE(obj->serial.uart)), UART_INTEN_BUFERRIEN_Msk);
     }
-    //if (event & SERIAL_EVENT_RX_CHARACTER_MATCH) {
-    //}
+    if (event & SERIAL_EVENT_RX_CHARACTER_MATCH) {
+        // N/A
+    }
 }
 
 static int serial_is_tx_complete(serial_t *obj)
 {
     // NOTE: Exclude tx fifo empty check due to no such interrupt on DMA way
-    //return (obj->tx_buff.pos == obj->tx_buff.length) && UART_GET_TX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart)));
-    // FIXME: Premature abort???
     return (obj->tx_buff.pos == obj->tx_buff.length);
 }
 
 static int serial_is_rx_complete(serial_t *obj)
 {
-    //return (obj->rx_buff.pos == obj->rx_buff.length) && UART_GET_RX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart)));
     return (obj->rx_buff.pos == obj->rx_buff.length);
 }
 
@@ -890,8 +882,6 @@ static uint32_t serial_rx_event_check(serial_t *obj)
     }
     if ((obj->char_match != SERIAL_RESERVED_CHAR_MATCH) && obj->char_found) {
         event |= SERIAL_EVENT_RX_CHARACTER_MATCH;
-        // FIXME: Timing to reset char_found?
-        //obj->char_found = 0;
     }
     
     return event;
@@ -992,10 +982,6 @@ static int serial_read_async(serial_t *obj)
     MBED_ASSERT(modinit->modname == (int) obj->serial.uart);
     
     uint32_t rx_fifo_busy = (((UART_T *) NU_MODBASE(obj->serial.uart))->FIFOSTS & UART_FIFOSTS_RXPTR_Msk) >> UART_FIFOSTS_RXPTR_Pos;
-    //uint32_t rx_fifo_free = ((struct nu_uart_var *) modinit->var)->fifo_size_rx - rx_fifo_busy;
-    //if (rx_fifo_free == 0) {
-    //    return 0;
-    //}
     
     uint32_t bytes_per_word = obj->rx_buff.width / 8;
     

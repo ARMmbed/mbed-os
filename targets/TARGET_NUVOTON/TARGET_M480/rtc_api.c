@@ -120,7 +120,6 @@ void rtc_write(time_t t)
     
     // NOTE: Timing issue with write to RTC registers. This delay is empirical, not rational.
     RTC_SetDateAndTime(&rtc_datetime);
-    //nu_nop(6000);
     wait_us(100);
 }
 

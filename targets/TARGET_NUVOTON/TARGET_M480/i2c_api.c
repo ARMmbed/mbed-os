@@ -80,8 +80,6 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync);
 #define NU_I2C_TIMEOUT_STOP         500000
 static int i2c_poll_status_timeout(i2c_t *obj, int (*is_status)(i2c_t *obj), uint32_t timeout);
 static int i2c_poll_tran_heatbeat_timeout(i2c_t *obj, uint32_t timeout);
-//static int i2c_is_stat_int(i2c_t *obj);
-//static int i2c_is_stop_det(i2c_t *obj);
 static int i2c_is_trsn_done(i2c_t *obj);
 static int i2c_is_tran_started(i2c_t *obj);
 static int i2c_addr2data(int address, int read);
@@ -855,8 +853,6 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     obj->i2c.event = event;
     i2c_buffer_set(obj, tx, tx_length, rx, rx_length);
 
-    //I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
-    
     i2c_enable_vector_interrupt(obj, handler, 1);
     i2c_start(obj);
 }

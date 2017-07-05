@@ -28,7 +28,6 @@ void pin_function(PinName pin, int data)
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(pin);
     __IO uint32_t *GPx_MFPx = ((__IO uint32_t *) &SYS->GPA_MFPL) + port_index * 2 + (pin_index / 8);
-    //uint32_t MFP_Pos = NU_MFP_POS(pin_index);
     uint32_t MFP_Msk = NU_MFP_MSK(pin_index);
     
     // E.g.: SYS->GPA_MFPL  = (SYS->GPA_MFPL & (~SYS_GPA_MFPL_PA0MFP_Msk) ) | SYS_GPA_MFPL_PA0MFP_SC0_CD  ;
