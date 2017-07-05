@@ -29,7 +29,7 @@ void pin_function(PinName pin, int data)
     uint32_t port_index = NU_PINNAME_TO_PORT(pin);
     __IO uint32_t *GPx_MFPx = ((__IO uint32_t *) &SYS->GPA_MFPL) + port_index * 2 + (pin_index / 8);
     uint32_t MFP_Msk = NU_MFP_MSK(pin_index);
-    
+
     // E.g.: SYS->GPA_MFPL  = (SYS->GPA_MFPL & (~SYS_GPA_MFPL_PA0MFP_Msk) ) | SYS_GPA_MFPL_PA0MFP_SC0_CD  ;
     *GPx_MFPx  = (*GPx_MFPx & (~MFP_Msk)) | data;
 }
@@ -43,31 +43,31 @@ void pin_mode(PinName pin, PinMode mode)
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(pin);
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
-    
+
     uint32_t mode_intern = GPIO_MODE_INPUT;
-    
+
     switch (mode) {
-        case PullUp:
-            mode_intern = GPIO_MODE_INPUT;
-            break;
-            
-        case PullDown:
-        case PullNone:
-            // NOTE: Not support
-            return;
-        
-        case PushPull:
-            mode_intern = GPIO_MODE_OUTPUT;
-            break;
-            
-        case OpenDrain:
-            mode_intern = GPIO_MODE_OPEN_DRAIN;
-            break;
-            
-        case Quasi:
-            mode_intern = GPIO_MODE_QUASI;
-            break;
+    case PullUp:
+        mode_intern = GPIO_MODE_INPUT;
+        break;
+
+    case PullDown:
+    case PullNone:
+        // NOTE: Not support
+        return;
+
+    case PushPull:
+        mode_intern = GPIO_MODE_OUTPUT;
+        break;
+
+    case OpenDrain:
+        mode_intern = GPIO_MODE_OPEN_DRAIN;
+        break;
+
+    case Quasi:
+        mode_intern = GPIO_MODE_QUASI;
+        break;
     }
-    
+
     GPIO_SetMode(gpio_base, 1 << pin_index, mode_intern);
 }

@@ -39,7 +39,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
             gpio_set(port_pin(port, i));
         }
     }
-    
+
     port_dir(obj, dir);
 }
 
@@ -61,7 +61,7 @@ void port_dir(port_t *obj, PinDirection dir)
 void port_mode(port_t *obj, PinMode mode)
 {
     uint32_t i;
-    
+
     for (i = 0; i < GPIO_PIN_MAX; i++) {
         if (obj->mask & (1 << i)) {
             pin_mode(port_pin(obj->port, i), mode);
@@ -73,7 +73,7 @@ void port_write(port_t *obj, int value)
 {
     uint32_t i;
     uint32_t port_index = obj->port;
-    
+
     for (i = 0; i < GPIO_PIN_MAX; i++) {
         if (obj->mask & (1 << i)) {
             GPIO_PIN_DATA(port_index, i) = (value & obj->mask) ? 1 : 0;
@@ -86,13 +86,13 @@ int port_read(port_t *obj)
     uint32_t i;
     uint32_t port_index = obj->port;
     int value = 0;
-    
+
     for (i = 0; i < GPIO_PIN_MAX; i++) {
         if (obj->mask & (1 << i)) {
             value = value | (GPIO_PIN_DATA(port_index, i) << i);
         }
     }
-    
+
     return value;
 }
 

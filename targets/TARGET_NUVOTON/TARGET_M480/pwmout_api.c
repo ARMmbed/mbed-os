@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "pwmout_api.h"
 
 #if DEVICE_PWMOUT
@@ -53,7 +53,7 @@ static const struct nu_modinit_s pwm_modinit_tab[] = {
     {PWM_1_3, EPWM1_MODULE, CLK_CLKSEL2_EPWM1SEL_PCLK1, 0, EPWM1_RST, EPWM1P1_IRQn, &pwm1_var},
     {PWM_1_4, EPWM1_MODULE, CLK_CLKSEL2_EPWM1SEL_PCLK1, 0, EPWM1_RST, EPWM1P2_IRQn, &pwm1_var},
     {PWM_1_5, EPWM1_MODULE, CLK_CLKSEL2_EPWM1SEL_PCLK1, 0, EPWM1_RST, EPWM1P2_IRQn, &pwm1_var},
-    
+
     {NC, 0, 0, 0, 0, (IRQn_Type) 0, NULL}
 };
 
@@ -67,16 +67,16 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->pwm);
-    
+
     // NOTE: All channels (identified by PWMName) share a PWM module. This reset will also affect other channels of the same PWM module.
     if (! ((struct nu_pwm_var *) modinit->var)->en_msk) {
         // Reset this module if no channel enabled
         SYS_ResetModule(modinit->rsetidx);
     }
-    
+
     EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
-        
+
     // NOTE: Channels 0/1/2/3/4/5 share a clock source.
     if ((((struct nu_pwm_var *) modinit->var)->en_msk & 0x3F) == 0) {
         // Select clock source of paired channels
@@ -84,17 +84,17 @@ void pwmout_init(pwmout_t* obj, PinName pin)
         // Enable clock of paired channels
         CLK_EnableModuleClock(modinit->clkidx);
     }
-    
+
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
-    
+
     // Default: period = 10 ms, pulse width = 0 ms
     obj->period_us = 1000 * 10;
     obj->pulsewidth_us = 0;
     pwmout_config(obj, 0);
-    
+
     ((struct nu_pwm_var *) modinit->var)->en_msk |= 1 << chn;
-    
+
     // Mark this module to be inited.
     int i = modinit - pwm_modinit_tab;
     pwm_modinit_mask |= 1 << i;
@@ -105,17 +105,17 @@ void pwmout_free(pwmout_t* obj)
     EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
     EPWM_ForceStop(pwm_base, 1 << chn);
-    
+
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
     MBED_ASSERT(modinit->modname == obj->pwm);
     ((struct nu_pwm_var *) modinit->var)->en_msk &= ~(1 << chn);
-    
-    
+
+
     if ((((struct nu_pwm_var *) modinit->var)->en_msk & 0x3F) == 0) {
         CLK_DisableModuleClock(modinit->clkidx);
     }
-    
+
     // Mark this module to be deinited.
     int i = modinit - pwm_modinit_tab;
     pwm_modinit_mask &= ~(1 << i);
@@ -184,7 +184,7 @@ int pwmout_allow_powerdown(void)
         }
         modinit_mask &= ~(1 << pwm_idx);
     }
-    
+
     return 1;
 }
 
@@ -192,19 +192,19 @@ static void pwmout_config(pwmout_t* obj, int start)
 {
     EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn = NU_MODSUBINDEX(obj->pwm);
-    
+
     // To avoid abnormal pulse on (re-)configuration, follow the sequence: stop/configure(/re-start).
     // NOTE: The issue is met in ARM mbed CI test tests-api-pwm on M487.
     EPWM_ForceStop(pwm_base, 1 << chn);
-    
+
     // NOTE: Support period < 1s
     // NOTE: ARM mbed CI test fails due to first PWM pulse error. Workaround by:
     //       1. Inverse duty cycle (100 - duty)
     //       2. Inverse PWM output polarity
-    //       This trick is here to pass ARM mbed CI test. First PWM pulse error still remains.    
+    //       This trick is here to pass ARM mbed CI test. First PWM pulse error still remains.
     EPWM_ConfigOutputChannel2(pwm_base, chn, 1000 * 1000, 100 - obj->pulsewidth_us * 100 / obj->period_us, obj->period_us);
     pwm_base->POLCTL |= 1 << (EPWM_POLCTL_PINV0_Pos + chn);
-    
+
     if (start) {
         // Enable output of the specified PWM channel
         EPWM_EnableOutput(pwm_base, 1 << chn);

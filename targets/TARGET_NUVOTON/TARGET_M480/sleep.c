@@ -74,13 +74,12 @@ static void mbed_enter_sleep(struct sleep_s *obj)
         obj->powerdown = pwmout_allow_powerdown();
     }
     // TODO: Check if other peripherals allow entering power-down mode
-  
+
     if (obj->powerdown) {   // Power-down mode (HIRC/HXT disabled, LIRC/LXT enabled)
         SYS_UnlockReg();
         CLK_PowerDown();
         SYS_LockReg();
-    }
-    else {  // CPU halt mode (HIRC/HXT enabled, LIRC/LXT enabled)
+    } else { // CPU halt mode (HIRC/HXT enabled, LIRC/LXT enabled)
         SYS_UnlockReg();
         CLK_Idle();
         SYS_LockReg();

@@ -37,7 +37,7 @@ void CRYPTO_IRQHandler()
         g_AES_done = 1;
         AES_CLR_INT_FLAG();
     }
-} 
+}
 
 static void trng_get(unsigned char *pConversionData)
 {
@@ -56,13 +56,13 @@ void trng_init(trng_t *obj)
 {
     (void)obj;
     /* Unlock protected registers */
-    SYS_UnlockReg();    
+    SYS_UnlockReg();
     /* Enable IP clock */
     CLK_EnableModuleClock(CRPT_MODULE);
-    
+
     /* Lock protected registers */
     SYS_LockReg();
-    
+
     NVIC_EnableIRQ(CRPT_IRQn);
     PRNG_ENABLE_INT();
 }
@@ -94,6 +94,6 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 
     return 0;
 }
- 
+
 #endif
 

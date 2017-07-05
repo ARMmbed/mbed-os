@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "rtc_api.h"
 
 #if DEVICE_RTC
@@ -33,7 +33,7 @@ void rtc_init(void)
     if (rtc_isenabled()) {
         return;
     }
-    
+
     RTC_Open(NULL);
 }
 
@@ -49,7 +49,7 @@ int rtc_isenabled(void)
         // Enable IP clock
         CLK_EnableModuleClock(rtc_modinit.clkidx);
     }
-    
+
     // NOTE: Check RTC Init Active flag to support crossing reset cycle.
     return !! (RTC->INIT & RTC_INIT_ACTIVE_Msk);
 }
@@ -76,10 +76,10 @@ time_t rtc_read(void)
     if (! rtc_isenabled()) {
         rtc_init();
     }
-    
+
     S_RTC_TIME_DATA_T rtc_datetime;
     RTC_GetDateAndTime(&rtc_datetime);
-    
+
     struct tm timeinfo;
 
     // Convert struct tm to S_RTC_TIME_DATA_T
@@ -102,12 +102,12 @@ void rtc_write(time_t t)
     if (! rtc_isenabled()) {
         rtc_init();
     }
-    
+
     // Convert timestamp to struct tm
     struct tm *timeinfo = localtime(&t);
 
     S_RTC_TIME_DATA_T rtc_datetime;
-    
+
     // Convert S_RTC_TIME_DATA_T to struct tm
     rtc_datetime.u32Year        = timeinfo->tm_year + YEAR0;
     rtc_datetime.u32Month       = timeinfo->tm_mon + 1;
@@ -117,7 +117,7 @@ void rtc_write(time_t t)
     rtc_datetime.u32Minute      = timeinfo->tm_min;
     rtc_datetime.u32Second      = timeinfo->tm_sec;
     rtc_datetime.u32TimeScale   = RTC_CLOCK_24;
-    
+
     // NOTE: Timing issue with write to RTC registers. This delay is empirical, not rational.
     RTC_SetDateAndTime(&rtc_datetime);
     wait_us(100);
