@@ -447,7 +447,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         if(response == SPI_DATA_WRITE_ERROR) {
             if (BD_ERROR_OK == _cmd(ACMD22_SEND_NUM_WR_BLOCKS, 0, 1)) {
                 uint8_t wr_blocks[4];
-                if (BD_ERROR_OK == _read(wr_blocks, 4)) {
+                if (BD_ERROR_OK == _read_bytes(wr_blocks, 4)) {
                     debug_if(_dbg, "Blocks Written without errors: 0x%x\n",
                             ((wr_blocks[0] << 24) | (wr_blocks[1] << 16) | (wr_blocks[2] << 0) | wr_blocks[3]));
                 }
@@ -774,6 +774,31 @@ uint32_t SDBlockDevice::_go_idle_state() {
     return response;
 }
 
+int SDBlockDevice::_read_bytes(uint8_t *buffer, uint32_t length) {
+    uint16_t crc;
+
+    _select();
+
+    // read until start byte (0xFE)
+    if (false == _wait_token(SPI_START_BLOCK)) {
+        debug_if(SD_DBG, "Read timeout\n");
+        _deselect();
+        return SD_BLOCK_DEVICE_ERROR_NO_RESPONSE;
+    }
+
+    // read data
+    for (uint32_t i = 0; i < length; i++) {
+        buffer[i] = _spi.write(0xFF);
+    }
+
+    // Read the CRC16 checksum for the data block
+    crc = (_spi.write(0xFF) << 8);
+    crc |= _spi.write(0xFF);
+
+    _deselect();
+    return 0;
+}
+
 int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
     uint16_t crc;
 
@@ -842,9 +867,9 @@ static uint32_t ext_bits(unsigned char *data, int msb, int lsb) {
 
 uint32_t SDBlockDevice::_sd_sectors() {
     uint32_t c_size, c_size_mult, read_bl_len;
-    uint32_t block_len, mult, blocknr, capacity;
+    uint32_t block_len, mult, blocknr;
     uint32_t hc_c_size;
-    uint32_t blocks;
+    bd_size_t blocks = 0, capacity = 0;
 
     // CMD9, Response R2 (R1 byte + 16-byte block read)
     if (_cmd(CMD9_SEND_CSD, 0x0) != 0x0) {
@@ -852,7 +877,7 @@ uint32_t SDBlockDevice::_sd_sectors() {
         return 0;
     }
     uint8_t csd[16];
-    if (_read(csd, 16) != 0) {
+    if (_read_bytes(csd, 16) != 0) {
         debug_if(SD_DBG, "Couldn't read csd response from disk\n");
         return 0;
     }
@@ -870,8 +895,8 @@ uint32_t SDBlockDevice::_sd_sectors() {
             capacity = blocknr * block_len;              // memory capacity = BLOCKNR * BLOCK_LEN
             blocks = capacity / _block_size;
             debug_if(SD_DBG, "Standard Capacity: c_size: %d \n", c_size);
-            debug_if(SD_DBG, "Sectors: 0x%x : %ld\n", blocks, blocks);
-            debug_if(SD_DBG, "Capacity: 0x%x : %lld MB\n", capacity, (capacity/(1024U*1024U)));
+            debug_if(SD_DBG, "Sectors: 0x%x : %llu\n", blocks, blocks);
+            debug_if(SD_DBG, "Capacity: 0x%x : %llu MB\n", capacity, (capacity/(1024U*1024U)));
 
             // ERASE_BLK_EN = 1: Erase in multiple of 512 bytes supported
             if (ext_bits(csd, 46, 46)) {
@@ -885,10 +910,9 @@ uint32_t SDBlockDevice::_sd_sectors() {
         case 1:
             hc_c_size = ext_bits(csd, 69, 48);            // device size : C_SIZE : [69:48]
             blocks = (hc_c_size+1) << 10;                 // block count = C_SIZE+1) * 1K byte (512B is block size)
-            capacity = blocks << 9;                       // memory capacity = (C_SIZE+1) * 512K byte
             debug_if(SD_DBG, "SDHC/SDXC Card: hc_c_size: %d \n", hc_c_size);
-            debug_if(SD_DBG, "Sectors: 0x%x : %ld\n", blocks, blocks);
-            debug_if(SD_DBG, "Capacity: 0x%x : %ld MB\n", capacity, (capacity/(1024U*1024U)));
+            debug_if(SD_DBG, "Sectors: 0x%x : %llu\n", blocks, blocks);
+            debug_if(SD_DBG, "Capacity: %llu MB\n", (blocks/(2048U)));
             // ERASE_BLK_EN is fixed to 1, which means host can erase one or multiple of 512 bytes.
             _erase_size = BLOCK_SIZE_HC;
             break;
