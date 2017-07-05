@@ -94,7 +94,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
     // NOTE: In InterruptIn constructor, gpio_irq_init() is called with gpio_init_in() which is responsible for multi-function pin setting.
-    //gpio_set(pin);
+    //       There is no need to call gpio_set() redundantly.
     
     {
 #if MBED_CONF_M480_GPIO_IRQ_DEBOUNCE_ENABLE
@@ -183,7 +183,6 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 
 void gpio_irq_enable(gpio_irq_t *obj)
 {
-    //uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
     struct nu_gpio_irq_var *var = gpio_irq_var_arr + port_index;
     
@@ -193,7 +192,6 @@ void gpio_irq_enable(gpio_irq_t *obj)
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
-    //uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
     struct nu_gpio_irq_var *var = gpio_irq_var_arr + port_index;
     

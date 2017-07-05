@@ -124,8 +124,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
-
-    //SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
         
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
@@ -137,10 +135,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi.pin_sclk = sclk;
     obj->spi.pin_ssel = ssel;
 
-    
-    // Configure the SPI data format and frequency
-    //spi_format(obj, 8, 0, SPI_MSB); // 8 bits, mode 0
-    //spi_frequency(obj, 1000000);
     
 #if DEVICE_SPI_ASYNCH
     obj->spi.dma_usage = DMA_USAGE_NEVER;
@@ -178,8 +172,6 @@ void spi_free(spi_t *obj)
     
     // Disable IP clock
     CLK_DisableModuleClock(modinit->clkidx);
-    
-    //((struct nu_spi_var *) modinit->var)->obj = NULL;
     
     // Mark this module to be deinited.
     int i = modinit - spi_modinit_tab;
@@ -292,7 +284,6 @@ void spi_slave_write(spi_t *obj, int value)
 #if DEVICE_SPI_ASYNCH
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-    //MBED_ASSERT(bits >= NU_SPI_FRAME_MIN && bits <= NU_SPI_FRAME_MAX);
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     SPI_SET_DATA_WIDTH(spi_base, bit_width);
 
@@ -406,16 +397,14 @@ void spi_abort_asynch(spi_t *obj)
         
         if (obj->spi.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->spi.dma_chn_id_tx, PDMA_INT_TRANS_DONE);
-            // FIXME: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
-            //PDMA_STOP(obj->spi.dma_chn_id_tx);
+            // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
             pdma_base->CHCTL &= ~(1 << obj->spi.dma_chn_id_tx);
         }
         SPI_DISABLE_TX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
         
         if (obj->spi.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->spi.dma_chn_id_rx, PDMA_INT_TRANS_DONE);
-            // FIXME: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
-            //PDMA_STOP(obj->spi.dma_chn_id_rx);
+            // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called. Cause is unknown.
             pdma_base->CHCTL &= ~(1 << obj->spi.dma_chn_id_rx);
         }
         SPI_DISABLE_RX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
@@ -425,7 +414,7 @@ void spi_abort_asynch(spi_t *obj)
     spi_enable_vector_interrupt(obj, 0, 0);
     spi_master_enable_interrupt(obj, 0);
 
-    // FIXME: SPI H/W may get out of state without the busy check.
+    // NOTE: SPI H/W may get out of state without the busy check.
     while (SPI_IS_BUSY(spi_base));
     SPI_DISABLE(spi_base);
     
@@ -454,18 +443,7 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 uint8_t spi_active(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    // FIXME
-    /*
-    if ((obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length)
-            || (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) ){
-        return 1;
-    } else  {
-        // interrupts are disabled, all transaction have been completed
-        // TODO: checking rx fifo, it reports data eventhough RFDF is not set
-        return DSPI_HAL_GetIntMode(obj->spi.address, kDspiRxFifoDrainRequest);
-    }*/
-    
-    //return SPI_IS_BUSY(spi_base);
+
     return (spi_base->CTL & SPI_CTL_SPIEN_Msk);
 }
 
@@ -519,7 +497,6 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
         NVIC_EnableIRQ(modinit->irq_n);
     }
     else {
-        //NVIC_SetVector(modinit->irq_n, handler);
         NVIC_DisableIRQ(modinit->irq_n);
     }
 }
@@ -531,7 +508,6 @@ static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable)
     if (enable) {
         uint32_t fifo_depth = spi_fifo_depth(obj);
         SPI_SetFIFO(spi_base, fifo_depth / 2, fifo_depth / 2);
-        //SPI_SET_SUSPEND_CYCLE(spi_base, 4);
         // Enable tx/rx FIFO threshold interrupt
         SPI_EnableInt(spi_base, SPI_FIFO_RXTH_INT_MASK | SPI_FIFO_TXTH_INT_MASK);
     }
@@ -730,9 +706,7 @@ static uint8_t spi_get_data_width(spi_t *obj)
 
 static int spi_is_tx_complete(spi_t *obj)
 {
-    // ???: Exclude tx fifo empty check due to no such interrupt on DMA way
     return (obj->tx_buff.pos == obj->tx_buff.length);
-    //return (obj->tx_buff.pos == obj->tx_buff.length && SPI_GET_TX_FIFO_EMPTY_FLAG(((SPI_T *) NU_MODBASE(obj->spi.spi))));
 }
 
 static int spi_is_rx_complete(spi_t *obj)

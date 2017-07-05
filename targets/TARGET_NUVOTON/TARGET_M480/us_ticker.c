@@ -191,8 +191,7 @@ static void us_ticker_arm_cd(void)
     cd_minor_us = cd_major_minor_us;
 
     // Reset 8-bit PSC counter, 24-bit up counter value and CNTEN bit
-    // NUC472/M451
-    //timer1_base->CTL |= TIMER_CTL_RSTCNT_Msk;
+    // NUC472/M451: See TIMER_CTL_RSTCNT_Msk
     // M480
     timer1_base->CNT = 0;
     while (timer1_base->CNT & TIMER_CNT_RSTACT_Msk);

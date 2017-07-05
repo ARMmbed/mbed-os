@@ -48,10 +48,6 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
     /* Update System Core Clock */
     SystemCoreClock = u32Freq / u32HclkDiv;
 
-
-    //if(SystemCoreClock == 0)
-    //    __BKPT(0);
-
     CyclesPerUs = (SystemCoreClock + 500000UL) / 1000000UL;
 }
 

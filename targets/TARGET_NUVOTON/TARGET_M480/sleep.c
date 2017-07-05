@@ -93,8 +93,6 @@ static void mbed_enter_sleep(struct sleep_s *obj)
 
 static void mbed_exit_sleep(struct sleep_s *obj)
 {
-    // TODO: TO BE CONTINUED
-    
     (void)obj;
 }
 
