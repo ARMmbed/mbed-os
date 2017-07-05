@@ -127,6 +127,14 @@ public:
      */
     virtual void debug(bool dbg);
 
+    /** Set the transfer frequency
+     *
+     *  @param         Transfer frequency
+     *  @note Max frequency supported is 25MHZ
+     */
+    virtual int set_freq(uint64_t freq);
+
+
 private:
     /* Commands : Listed below are commands supported
      * in SPI mode for SD card : Only Mandatory ones
@@ -204,6 +212,7 @@ private:
     int _read(uint8_t * buffer, uint32_t length);
     int _read_bytes(uint8_t * buffer, uint32_t length);
     uint8_t _write(const uint8_t *buffer,uint8_t token, uint32_t length);
+    int _freq(void);
 
     /* Chip Select and SPI mode select */
     DigitalOut _cs;
