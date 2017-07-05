@@ -239,7 +239,7 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
     _init_sck = 100000;
-    _transfer_sck = 25000000;
+    _transfer_sck = 1000000;
 
     // Only HC block size is supported.
     _block_size = BLOCK_SIZE_HC;
@@ -352,7 +352,7 @@ int SDBlockDevice::init()
     }
 
     // Set SCK for data transfer
-    _spi.frequency(_transfer_sck);
+    _freq();
     _lock.unlock();
     return BD_ERROR_OK;
 }
@@ -533,7 +533,6 @@ int SDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
     int status = BD_ERROR_OK;
-    uint8_t response = 0xFF;
 
     size -= _block_size;
     // SDSC Card (CCS=0) uses byte unit address
@@ -590,7 +589,29 @@ void SDBlockDevice::debug(bool dbg)
     _dbg = dbg;
 }
 
+int SDBlockDevice::set_freq(uint64_t freq)
+{
+    _lock.lock();
+    _transfer_sck = freq;
+    _freq();
+    _lock.unlock();
+    return 0;
+}
+
 // PRIVATE FUNCTIONS
+int SDBlockDevice::_freq(void)
+{
+    // Max frequency supported is 25MHZ
+    if (_transfer_sck <= 25000000) {
+        _spi.frequency(_transfer_sck);
+    }
+    else {  // TODO: Switch function to be implemented for higher frequency
+        _transfer_sck = 25000000;
+        _spi.frequency(_transfer_sck);
+    }
+    return 0;
+}
+
 uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg) {
     uint8_t response;
     char cmdPacket[PACKET_SIZE];
