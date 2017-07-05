@@ -93,12 +93,16 @@ void test_case_1x_ticker() {
     char _key[11] = { };
     char _value[128] = { };
     uint8_t results_size = 0;
+    int expected_key = 1;
 
     greentea_send_kv("timing_drift_check_start", 0);
     ticker1->attach_us(&ticker_callback_0, ONE_MILLI_SEC);
 
     // wait for 1st signal from host
-    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    do {
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        expected_key = strcmp(_key, "base_time");
+    } while (expected_key);
     greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
 
     // wait for 2nd signal from host
@@ -116,6 +120,7 @@ void test_case_2x_callbacks() {
     char _key[11] = { };
     char _value[128] = { };
     uint8_t results_size = 0;
+    int expected_key =  1;
 
     led1 = 0;
     led2 = 0;
@@ -125,7 +130,10 @@ void test_case_2x_callbacks() {
     ticker1->attach_us(ticker_callback_1_switch_to_2, ONE_MILLI_SEC);
 
     // wait for 1st signal from host
-    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    do {
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        expected_key = strcmp(_key, "base_time");
+    } while (expected_key);
     greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
 
     // wait for 2nd signal from host
