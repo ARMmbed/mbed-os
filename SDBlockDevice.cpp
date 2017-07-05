@@ -589,7 +589,7 @@ void SDBlockDevice::debug(bool dbg)
     _dbg = dbg;
 }
 
-int SDBlockDevice::set_freq(uint64_t freq)
+int SDBlockDevice::frequency(uint64_t freq)
 {
     _lock.lock();
     _transfer_sck = freq;

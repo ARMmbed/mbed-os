@@ -132,7 +132,7 @@ public:
      *  @param         Transfer frequency
      *  @note Max frequency supported is 25MHZ
      */
-    virtual int set_freq(uint64_t freq);
+    virtual int frequency(uint64_t freq);
 
 
 private:
