@@ -25,9 +25,9 @@ uint32_t gpio_set(PinName pin)
     if (pin == (PinName) NC) {
         return 0;
     }
-    
+
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
-    
+
 #if 1
     pin_function(pin, 0 << NU_MFP_POS(pin_index));
 #else
@@ -40,7 +40,7 @@ uint32_t gpio_set(PinName pin)
 void gpio_init(gpio_t *obj, PinName pin)
 {
     obj->pin = pin;
-    
+
     if (obj->pin == (PinName) NC) {
         return;
     }
@@ -53,7 +53,7 @@ void gpio_mode(gpio_t *obj, PinMode mode)
     if (obj->pin == (PinName) NC) {
         return;
     }
-    
+
     pin_mode(obj->pin, mode);
 }
 
@@ -62,25 +62,25 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
     if (obj->pin == (PinName) NC) {
         return;
     }
-    
+
     uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
-    
+
     uint32_t mode_intern = GPIO_MODE_INPUT;
-    
+
     switch (direction) {
-        case PIN_INPUT:
-            mode_intern = GPIO_MODE_INPUT;
-            break;
-        
-        case PIN_OUTPUT:
-            mode_intern = GPIO_MODE_OUTPUT;
-            break;
-            
-        default:
-            return;
+    case PIN_INPUT:
+        mode_intern = GPIO_MODE_INPUT;
+        break;
+
+    case PIN_OUTPUT:
+        mode_intern = GPIO_MODE_OUTPUT;
+        break;
+
+    default:
+        return;
     }
-    
+
     GPIO_SetMode(gpio_base, 1 << pin_index, mode_intern);
 }

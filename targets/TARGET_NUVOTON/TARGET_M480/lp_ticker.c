@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include "lp_ticker_api.h"
 
 #if DEVICE_LOWPOWERTIMER
@@ -56,7 +56,7 @@ void lp_ticker_init(void)
         return;
     }
     lp_ticker_inited = 1;
-    
+
     counter_major = 0;
     cd_major_minor_clks = 0;
     cd_minor_clks = 0;
@@ -65,7 +65,7 @@ void lp_ticker_init(void)
     // Reset module
     SYS_ResetModule(timer2_modinit.rsetidx);
     SYS_ResetModule(timer3_modinit.rsetidx);
-    
+
     // Select IP clock source
     CLK_SetModuleClock(timer2_modinit.clkidx, timer2_modinit.clksrc, timer2_modinit.clkdiv);
     CLK_SetModuleClock(timer3_modinit.clkidx, timer3_modinit.clksrc, timer3_modinit.clkdiv);
@@ -84,92 +84,88 @@ void lp_ticker_init(void)
     // NOTE: TIMER_CTL_CNTDATEN_Msk exists in NUC472, but not in M451/M480. In M451/M480, TIMER_CNT is updated continuously by default.
     ((TIMER_T *) NU_MODBASE(timer2_modinit.modname))->CTL = TIMER_PERIODIC_MODE | prescale_timer2/* | TIMER_CTL_CNTDATEN_Msk*/;
     ((TIMER_T *) NU_MODBASE(timer2_modinit.modname))->CMP = cmp_timer2;
-    
+
     // Set vector
     NVIC_SetVector(timer2_modinit.irq_n, (uint32_t) timer2_modinit.var);
     NVIC_SetVector(timer3_modinit.irq_n, (uint32_t) timer3_modinit.var);
-    
+
     NVIC_EnableIRQ(timer2_modinit.irq_n);
     NVIC_EnableIRQ(timer3_modinit.irq_n);
-    
+
     TIMER_EnableInt((TIMER_T *) NU_MODBASE(timer2_modinit.modname));
     TIMER_EnableWakeup((TIMER_T *) NU_MODBASE(timer2_modinit.modname));
-    
+
     // NOTE: TIMER_Start() first and then lp_ticker_set_interrupt(); otherwise, we may get stuck in lp_ticker_read() because
     //       timer is not running.
-    
+
     // Start timer
     TIMER_Start((TIMER_T *) NU_MODBASE(timer2_modinit.modname));
-    
+
     // Schedule wakeup to match semantics of lp_ticker_get_compare_match()
     lp_ticker_set_interrupt(wakeup_tick);
-    
-    
+
+
 }
 
 timestamp_t lp_ticker_read()
-{    
+{
     if (! lp_ticker_inited) {
         lp_ticker_init();
     }
-    
+
     TIMER_T * timer2_base = (TIMER_T *) NU_MODBASE(timer2_modinit.modname);
-    
+
     do {
         uint64_t major_minor_clks;
         uint32_t minor_clks;
-        
+
         // NOTE: As TIMER_CNT = TIMER_CMP and counter_major has increased by one, TIMER_CNT doesn't change to 0 for one tick time.
         // NOTE: As TIMER_CNT = TIMER_CMP or TIMER_CNT = 0, counter_major (ISR) may not sync with TIMER_CNT. So skip and fetch stable one at the cost of 1 clock delay on this read.
         do {
             core_util_critical_section_enter();
-        
+
             // NOTE: Order of reading minor_us/carry here is significant.
             minor_clks = TIMER_GetCounter(timer2_base);
             uint32_t carry = (timer2_base->INTSTS & TIMER_INTSTS_TIF_Msk) ? 1 : 0;
             // When TIMER_CNT approaches TIMER_CMP and will wrap soon, we may get carry but TIMER_CNT not wrapped. Handle carefully carry == 1 && TIMER_CNT is near TIMER_CMP.
             if (carry && minor_clks > (TMR2_CLK_PER_TMR2_INT / 2)) {
                 major_minor_clks = (counter_major + 1) * TMR2_CLK_PER_TMR2_INT;
-            }
-            else {
+            } else {
                 major_minor_clks = (counter_major + carry) * TMR2_CLK_PER_TMR2_INT + minor_clks;
             }
-            
+
             core_util_critical_section_exit();
-        }
-        while (minor_clks == 0 || minor_clks == TMR2_CLK_PER_TMR2_INT);
+        } while (minor_clks == 0 || minor_clks == TMR2_CLK_PER_TMR2_INT);
 
         // Add power-down compensation
         return ((uint64_t) major_minor_clks * US_PER_SEC / TMR2_CLK_PER_SEC / US_PER_TICK);
-    }
-    while (0);
+    } while (0);
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     uint32_t now = lp_ticker_read();
     wakeup_tick = timestamp;
-    
+
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
-    
+
     /**
      * FIXME: Scheduled alarm may go off incorrectly due to wrap around.
      * Conditions in which delta is negative:
      * 1. Wrap around
      * 2. Newly scheduled alarm is behind now
-     */ 
+     */
     //int delta = (timestamp > now) ? (timestamp - now) : (uint32_t) ((uint64_t) timestamp + 0xFFFFFFFFu - now);
     int delta = (int) (timestamp - now);
     if (delta > 0) {
         cd_major_minor_clks = (uint64_t) delta * US_PER_TICK * TMR3_CLK_PER_SEC / US_PER_SEC;
         lp_ticker_arm_cd();
-    }
-    else {
+    } else {
         cd_major_minor_clks = cd_minor_clks = 0;
         /**
          * This event was in the past. Set the interrupt as pending, but don't process it here.
          * This prevents a recurive loop under heavy load which can lead to a stack overflow.
-         */  
+         */
         NVIC_SetPendingIRQ(timer3_modinit.irq_n);
     }
 }
@@ -199,8 +195,7 @@ static void tmr3_vec(void)
     if (cd_major_minor_clks == 0) {
         // NOTE: lp_ticker_set_interrupt() may get called in lp_ticker_irq_handler();
         lp_ticker_irq_handler();
-    }
-    else {
+    } else {
         lp_ticker_arm_cd();
     }
 }
@@ -208,13 +203,13 @@ static void tmr3_vec(void)
 static void lp_ticker_arm_cd(void)
 {
     TIMER_T * timer3_base = (TIMER_T *) NU_MODBASE(timer3_modinit.modname);
-    
+
     // Reset 8-bit PSC counter, 24-bit up counter value and CNTEN bit
     // NUC472/M451: See TIMER_CTL_RSTCNT_Msk
     // M480
     timer3_base->CNT = 0;
     while (timer3_base->CNT & TIMER_CNT_RSTACT_Msk);
-    // One-shot mode, Clock = 1 KHz 
+    // One-shot mode, Clock = 1 KHz
     uint32_t clk_timer3 = TIMER_GetModuleClock((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
     uint32_t prescale_timer3 = clk_timer3 / TMR3_CLK_PER_SEC - 1;
     MBED_ASSERT((prescale_timer3 != (uint32_t) -1) && prescale_timer3 <= 127);
@@ -222,11 +217,11 @@ static void lp_ticker_arm_cd(void)
     // NOTE: TIMER_CTL_CNTDATEN_Msk exists in NUC472, but not in M451/M480. In M451/M480, TIMER_CNT is updated continuously by default.
     timer3_base->CTL &= ~(TIMER_CTL_OPMODE_Msk | TIMER_CTL_PSC_Msk/* | TIMER_CTL_CNTDATEN_Msk*/);
     timer3_base->CTL |= TIMER_ONESHOT_MODE | prescale_timer3/* | TIMER_CTL_CNTDATEN_Msk*/;
-    
+
     cd_minor_clks = cd_major_minor_clks;
     cd_minor_clks = NU_CLAMP(cd_minor_clks, TMR_CMP_MIN, TMR_CMP_MAX);
     timer3_base->CMP = cd_minor_clks;
-    
+
     TIMER_EnableInt(timer3_base);
     TIMER_EnableWakeup((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
     TIMER_Start(timer3_base);
