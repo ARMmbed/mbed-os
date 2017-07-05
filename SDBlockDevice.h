@@ -50,7 +50,7 @@ class SDBlockDevice : public BlockDevice {
 public:
     /** Lifetime of an SD card
      */
-    SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs);
+    SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz=1000000);
     virtual ~SDBlockDevice();
 
     /** Initialize a block device

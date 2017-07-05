@@ -232,7 +232,7 @@
 #define SPI_READ_ERROR_ECC_C     (0x1 << 2)  /*!< Card ECC failed */
 #define SPI_READ_ERROR_OFR       (0x1 << 3)  /*!< Out of Range */
 
-SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs)
+SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz)
     : _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
 {
     _cs = 1;
@@ -240,7 +240,7 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
     _init_sck = 100000;
-    _transfer_sck = 1000000;
+    _transfer_sck = hz;
 
     // Only HC block size is supported.
     _block_size = BLOCK_SIZE_HC;
