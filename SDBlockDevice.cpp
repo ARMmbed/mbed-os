@@ -145,6 +145,7 @@
 
 #include "SDBlockDevice.h"
 #include "mbed_debug.h"
+#include <errno.h>
 
 #define SD_COMMAND_TIMEOUT                       5000   /*!< Timeout in ms for response */
 #define SD_CMD0_GO_IDLE_STATE_RETRIES            5      /*!< Number of retries for sending CMDO */
@@ -231,7 +232,7 @@
 #define SPI_READ_ERROR_ECC_C     (0x1 << 2)  /*!< Card ECC failed */
 #define SPI_READ_ERROR_OFR       (0x1 << 3)  /*!< Out of Range */
 
-SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs)
+SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz)
     : _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
 {
     _cs = 1;
@@ -239,7 +240,7 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
 
     // Set default to 100kHz for initialisation and 1MHz for data transfer
     _init_sck = 100000;
-    _transfer_sck = 1000000;
+    _transfer_sck = hz;
 
     // Only HC block size is supported.
     _block_size = BLOCK_SIZE_HC;
@@ -352,7 +353,12 @@ int SDBlockDevice::init()
     }
 
     // Set SCK for data transfer
-    _freq();
+    err = _freq();
+    if (err) {
+        _lock.unlock();
+        return err;
+    }
+
     _lock.unlock();
     return BD_ERROR_OK;
 }
@@ -589,13 +595,13 @@ void SDBlockDevice::debug(bool dbg)
     _dbg = dbg;
 }
 
-int SDBlockDevice::set_freq(uint64_t freq)
+int SDBlockDevice::frequency(uint64_t freq)
 {
     _lock.lock();
     _transfer_sck = freq;
-    _freq();
+    int err = _freq();
     _lock.unlock();
-    return 0;
+    return err;
 }
 
 // PRIVATE FUNCTIONS
@@ -604,12 +610,12 @@ int SDBlockDevice::_freq(void)
     // Max frequency supported is 25MHZ
     if (_transfer_sck <= 25000000) {
         _spi.frequency(_transfer_sck);
-    }
-    else {  // TODO: Switch function to be implemented for higher frequency
+        return 0;
+    } else {  // TODO: Switch function to be implemented for higher frequency
         _transfer_sck = 25000000;
         _spi.frequency(_transfer_sck);
+        return -EINVAL;
     }
-    return 0;
 }
 
 uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg) {
