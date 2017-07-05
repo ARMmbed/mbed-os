@@ -52,13 +52,18 @@ void test_case_timeout() {
 
     char _key[11] = { };
     char _value[128] = { };
+    int expected_key = 1;
     uint8_t results_size = 0;
 
     greentea_send_kv("timing_drift_check_start", 0);
     timeout.attach_us(set_incremeant_count, ONE_MILLI_SEC);
 
     // wait for 1st signal from host
-    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    do {
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        expected_key = strcmp(_key, "base_time");
+    } while (expected_key);
+
     greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
 
     // wait for 2nd signal from host
