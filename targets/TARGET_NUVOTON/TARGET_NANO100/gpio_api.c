@@ -28,11 +28,8 @@ uint32_t gpio_set(PinName pin)
     
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
     
-#if 1
+    // GPIO PinMap
     pin_function(pin, 0 << NU_MFP_POS(pin_index));
-#else
-    pinmap_pinout(pin, PinMap_GPIO);
-#endif
 
     return (uint32_t)(1 << pin_index);    // Return the pin mask
 }

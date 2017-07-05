@@ -542,23 +542,6 @@ static int i2c_poll_tran_heatbeat_timeout(i2c_t *obj, uint32_t timeout)
     return (elapsed >= timeout);
 }
 
-#if 0
-static int i2c_is_stat_int(i2c_t *obj)
-{
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
-    // NUC472/M453/M487
-    //return !! (i2c_base->CON & I2C_CON_I2C_STS_Msk);
-    // NANO130
-    return !! (i2c_base->INTSTS & I2C_INTSTS_INTSTS_Msk);
-}
-
-static int i2c_is_stop_det(i2c_t *obj)
-{
-    I2C_T *i2c_base = (I2C_T *) NU_MODBASE(obj->i2c.i2c);
-
-    return ! (i2c_base->CON & I2C_CON_STOP_Msk);
-}
-#endif
 
 static int i2c_is_trsn_done(i2c_t *obj)
 {
