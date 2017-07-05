@@ -2919,7 +2919,6 @@
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
-        "progen": {"target": "numaker-pfm-nano130"},
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "release_versions": ["5"],
