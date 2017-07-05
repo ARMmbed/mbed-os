@@ -24,7 +24,7 @@ SDCard support and other resources, as outlined below:
 - POSIX File API test cases for testing the FAT32 filesystem on SDCard.
     - basic.cpp, a basic set of functional test cases.
     - fopen.cpp, more functional tests reading/writing greater volumes of data to SDCard, for example.
-- `mbed_app.json` mbed-os application configuration file with SPI pin configurations for the CI shield and overrides for specific targets. 
+- `mbed_lib.json` mbed-os application configuration file with SPI pin configurations for the CI shield and overrides for specific targets. 
    This file allows the SPI pins to be specified for the target without having to edit the implementation files.
 - This README which includes [Summary of POSIX File API Documentation](#summary-posix-api-documentation) 
   including detailed instruction on how to use the FAT filesystem and SDBlockDevice driver. 
@@ -247,15 +247,15 @@ Next, get add the sd-driver component to the application project:
     <trace removed>
     shell:/d/demo_area/sd_ex1$ 
 
-Next, copy the example1.cpp file and `mbed_app.json` files from inside the sd-driver directory to the top level sd_ex1 directory:
+Next, copy the example1.cpp file and `mbed_lib.json` files from inside the sd-driver directory to the top level sd_ex1 directory:
     
     shell:/d/demo_area/sd_ex1$ cp sd-driver/features/TESTS/examples/example1.cpp .
-    shell:/d/demo_area/sd_ex1$ cp sd-driver/config/mbed_app.json .
+    shell:/d/demo_area/sd_ex1$ cp sd-driver/config/mbed_lib.json .
     shell:/d/demo_area/sd_ex1$
 
-The `mbed_app.json` file specifies the SPI bus pin configuration for different targets. 
+The `mbed_lib.json` file specifies the SPI bus pin configuration for different targets. 
 The file includes a specific configuration of the K64F which is used
-because the mbed compile command specifies the K64F build target. The `mbed_app.json` file 
+because the mbed compile command specifies the K64F build target. The `mbed_lib.json` file 
 is described in more detail in the [Testing with an SDCard on Target XYZ](#testing-with-an-sdcard-on-target-xyx) section. 
 
 ### <a name="build-the-example-project"></a> Build the Example Project 
@@ -342,9 +342,9 @@ After connecting a serial console and resetting the target, the following trace 
 
 The standard way to test is with the mbed CI Test Shield plugged into the 
 target board. This pin mapping for this configuration is parameterised in 
-the `mbed_app.json` file.
+the `mbed_lib.json` file.
 
-The following is an example of the `mbed_app.json` file available in the repository:
+The following is an example of the `mbed_lib.json` file available in the repository:
 
     {
         "config": {
@@ -465,9 +465,9 @@ The following is an example of the `mbed_app.json` file available in the reposit
         }
     }
 
-Note the following things about the `mbed_app.json` file:
+Note the following things about the `mbed_lib.json` file:
 
-- The `mbed_app.json` file is used to define target specific symbols for the SPI pins connecting the SDCard slot to the target MCU:
+- The `mbed_lib.json` file is used to define target specific symbols for the SPI pins connecting the SDCard slot to the target MCU:
     - "SPI\_CS". This is the Chip Select line.
     - "SPI\_MOSI". This is the Master Out Slave In data line.
     - "SPI\_MISO". This is the Master In Slave Out data line.
@@ -495,7 +495,7 @@ Note the following things about the `mbed_app.json` file:
   will be used in preference. 
 - Hence in the case that you want to test a platform with an SDCard inserted into a 
   fitted CI test shield (rather than the on-board SDCard slot)
-  and there is a `"target_overrides"` section present in the `mbed_app.json` file, you must then delete the `"target_overrides"`
+  and there is a `"target_overrides"` section present in the `mbed_lib.json` file, you must then delete the `"target_overrides"`
   section before building. This will result in the default configuration being used (suitable for the CI
   Test Shield).
 - Note when inserting the v1.0.0 CI Test Shield into the Arduino header of the target platform, the shield pins D0 and
@@ -596,7 +596,7 @@ In summary the following steps will be covered in this section:
 - A top level application project directory is created. The directory name is ex_app1.
 - In the ex_app1 directory, the mbed-os repository is cloned.
 - In the ex_app1 directory at the same level as the mbed-os directory, the sd-driver repository is cloned.
-- The `mbed_app.json` file is copied from the `sd-driver/config/mbed_app.json` to the ex_app1 directory.
+- The `mbed_lib.json` file is copied from the `sd-driver/config/mbed_lib.json` to the ex_app1 directory.
 
 First create the top level application directory ex_app1 and move into it:
 
@@ -615,12 +615,12 @@ Next, get a clone of the sd-driver repository:
     <trace removed>
     shell:/d/demo_area/ex_app1$
     
-Finally, copy the `mbed_app.json` application configuration file from `sd-driver/config/mbed_app.json` to the ex_app1 directory:
+Finally, copy the `mbed_lib.json` application configuration file from `sd-driver/config/mbed_lib.json` to the ex_app1 directory:
 
-    shell:/d/demo_area/ex_app1$ cp sd-driver/config/mbed_app.json .
+    shell:/d/demo_area/ex_app1$ cp sd-driver/config/mbed_lib.json .
     shell:/d/demo_area/ex_app1$
 
-The `mbed_app.json` file specifies the SPI bus pin configuration for different targets, 
+The `mbed_lib.json` file specifies the SPI bus pin configuration for different targets, 
 and is discussed in the [Testing with an SDCard on Target XYZ](#testing-with-an-sdcard-on-target-xyx) section. 
 
 
@@ -628,7 +628,7 @@ and is discussed in the [Testing with an SDCard on Target XYZ](#testing-with-an-
 
 Build the test cases for the K64F target using the following command:
 
-    shell:/d/demo_area/ex_app1$ mbed -v test --compile -t GCC_ARM -m K64F --app-config mbed_app.json 
+    shell:/d/demo_area/ex_app1$ mbed -v test --compile -t GCC_ARM -m K64F --app-config mbed_lib.json 
     <trace removed>
     shell:/d/demo_area/ex_app1$
 
