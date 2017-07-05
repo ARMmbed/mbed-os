@@ -91,6 +91,19 @@ TEST(trace, Array)
   mbed_tracef(TRACE_LEVEL_DEBUG, "mygr", "%s", mbed_trace_array(longStr, 200) );
 }
 
+TEST(trace, Null0Array)
+{
+  static const unsigned char array[2] = { 0x23, 0x45 };
+  mbed_tracef(TRACE_LEVEL_DEBUG, "mygr", "%s", mbed_trace_array(array, 2));
+  STRCMP_EQUAL("23:45", buf);
+  mbed_tracef(TRACE_LEVEL_DEBUG, "mygr", "%s", mbed_trace_array(array, 0));
+  STRCMP_EQUAL("", buf);
+  mbed_tracef(TRACE_LEVEL_DEBUG, "mygr", "%s", mbed_trace_array(NULL, 0));
+  STRCMP_EQUAL("", buf);
+  mbed_tracef(TRACE_LEVEL_DEBUG, "mygr", "%s", mbed_trace_array(NULL, 2));
+  STRCMP_EQUAL("<null>", buf);
+}
+
 TEST(trace, LongString)
 {
   char longStr[1000] = {0x36};
