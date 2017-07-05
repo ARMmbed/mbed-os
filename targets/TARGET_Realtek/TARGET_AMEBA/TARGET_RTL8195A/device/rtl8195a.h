@@ -35,6 +35,7 @@
 #include "diag.h"
 //#include "hal_common.h"
 //#include "hal_soc_ps_monitor.h"
+#include "system_8195a.h"
 
 
 // from RDC team
