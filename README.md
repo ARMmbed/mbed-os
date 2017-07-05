@@ -5,7 +5,7 @@ Simon Hughes
 
 20170329
 
-Version 1.00
+Version 0.1.0
 
 
 # Executive Summary
@@ -83,6 +83,7 @@ The following versions of the mbed-os and sd-driver repositories are known to wo
 - {mbed-os, sd-driver} = {mbed-os-5.4.0, sd-driver-0.0.2-mbed-os-5.4.0}.
   `K64F`, `NUCLEO_F429ZI` and `UBLOX_EVK_ODIN_W2` fopen and basic filesystem tests working.
 - {mbed-os, sd-driver} = {mbed-os-5.4.1, sd-driver-0.0.3-mbed-os-5.4.1}.
+- {mbed-os, sd-driver} = {mbed-os-5.5.1, sd-driver-0.1.0-mbed-os-5.5.1}.
 
 To find the latest compatible versions, use the following command to see the messages attached to the tags
 in the sd-driver repository:
@@ -92,6 +93,7 @@ in the sd-driver repository:
 	sd-driver-0.0.1-mbed-os-5.3.4 Version compatible with mbed-os-5.3.4, and private_mbedos_filesystems-0.0.1-mbed-os-5.3.4.
 	sd-driver-0.0.2-mbed-os-5.4.0 Updated README.md to include worked exmaples and restructuring of information.
 	sd-driver-0.0.3-mbed-os-5.4.1 Version compatible with mbed-os-5.4.1.
+	sd-driver-0.1.0-mbed-os-5.5.1 Version compatible with mbed-os-5.5.1
 
 
 ### Known Issues With This Document
