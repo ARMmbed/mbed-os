@@ -743,13 +743,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int count = I2C_ERROR_BUS_BUSY, ret = 0;
     uint32_t timeout = 0;
 
-    if((length == 0) || (data == 0)) {
-        if(HAL_I2C_IsDeviceReady(handle, address, 1, 10) == HAL_OK)
-            return 0;
-        else
-            return I2C_ERROR_BUS_BUSY;
-    }
-
     if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
         (obj_s->XferOperation == I2C_LAST_FRAME)) {
         if (stop)
@@ -801,13 +794,6 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     int count = I2C_ERROR_BUS_BUSY, ret = 0;
     uint32_t timeout = 0;
-
-    if((length == 0) || (data == 0)) {
-        if(HAL_I2C_IsDeviceReady(handle, address, 1, 10) == HAL_OK)
-            return 0;
-        else
-            return I2C_ERROR_BUS_BUSY;
-    }
 
     if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
         (obj_s->XferOperation == I2C_LAST_FRAME)) {
