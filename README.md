@@ -223,35 +223,35 @@ For more information on how to setup a development environment, please review th
 
 First create the top level application directory sd_ex1 and move into it:
 
-    simhug01@E107851:/d/demo_area$ mkdir sd_ex1
-    simhug01@E107851:/d/demo_area$ cd sd_ex1
-    simhug01@E107851:/d/demo_area/sd_ex1$ 
+    shell:/d/demo_area$ mkdir sd_ex1
+    shell:/d/demo_area$ cd sd_ex1
+    shell:/d/demo_area/sd_ex1$ 
 
 Next, perform the "mbed new" operation to download the mbed-os repository into this directory:
 
-	simhug01@E107851:/d/demo_area/sd_ex1$ mbed new .
+	shell:/d/demo_area/sd_ex1$ mbed new .
 	[mbed] Creating new program "ex_sdcard" (git)
 	[mbed] Adding library "mbed-os" from "https://github.com/ARMmbed/mbed-os" at branch latest
 	[mbed] Updating reference "mbed-os" -> "https://github.com/ARMmbed/mbed-os/#5faf4b26c5954d15c7c1cccac6498e0c690ad101"
 	warning: LF will be replaced by CRLF in mbed-os.lib.
 	The file will have its original line endings in your working directory.
-	(mx1_venv1) simhug01@E107851:/d/demo_area/sd_ex1$ ls -1
+	shell:/d/demo_area/sd_ex1$ ls -1
 	mbed-os
 	mbed-os.lib
 	mbed_settings.py
-	(mx1_venv1) simhug01@E107851:/d/demo_area/sd_ex1$
+	shell:/d/demo_area/sd_ex1$
 
 Next, get add the sd-driver component to the application project: 
 
-    simhug01@E107851:/d/demo_area/sd_ex1$ mbed add sd-driver
+    shell:/d/demo_area/sd_ex1$ mbed add sd-driver
     <trace removed>
-    simhug01@E107851:/d/demo_area/sd_ex1$ 
+    shell:/d/demo_area/sd_ex1$ 
 
 Next, copy the example1.cpp file and `mbed_app.json` files from inside the sd-driver directory to the top level sd_ex1 directory:
     
-    simhug01@E107851:/d/demo_area/sd_ex1$ cp sd-driver/features/TESTS/examples/example1.cpp .
-    simhug01@E107851:/d/demo_area/sd_ex1$ cp sd-driver/config/mbed_app.json .
-    simhug01@E107851:/d/demo_area/sd_ex1$
+    shell:/d/demo_area/sd_ex1$ cp sd-driver/features/TESTS/examples/example1.cpp .
+    shell:/d/demo_area/sd_ex1$ cp sd-driver/config/mbed_app.json .
+    shell:/d/demo_area/sd_ex1$
 
 The `mbed_app.json` file specifies the SPI bus pin configuration for different targets. 
 The file includes a specific configuration of the K64F which is used
@@ -262,7 +262,7 @@ is described in more detail in the [Testing with an SDCard on Target XYZ](#testi
 
 Next, build the example application: 
 
-	simhug01@E107851:/d/demo_area/sd_ex1$ mbed compile -m K64F -t GCC_ARM 
+	shell:/d/demo_area/sd_ex1$ mbed compile -m K64F -t GCC_ARM 
 
 
 #### WARNING: "mbed new ." command and possible mbed-os sd-driver versioning incompatibilities
@@ -600,25 +600,25 @@ In summary the following steps will be covered in this section:
 
 First create the top level application directory ex_app1 and move into it:
 
-    simhug01@E107851:/d/demo_area$ mkdir ex_app1
-    simhug01@E107851:/d/demo_area$ pushd ex_app1
+    shell:/d/demo_area$ mkdir ex_app1
+    shell:/d/demo_area$ pushd ex_app1
 
 Next, get a clone of public mbed OS repository in the following way:
 
-    simhug01@E107851:/d/demo_area/ex_app1$ git clone git@github.com:/armmbed/mbed-os
+    shell:/d/demo_area/ex_app1$ git clone git@github.com:/armmbed/mbed-os
     <trace removed>
-    simhug01@E107851:/d/demo_area/ex_app1$
+    shell:/d/demo_area/ex_app1$
 
 Next, get a clone of the sd-driver repository:
 
-    simhug01@E107851:/d/demo_area/ex_app1$ git clone git@github.com:/armmbed/sd-driver
+    shell:/d/demo_area/ex_app1$ git clone git@github.com:/armmbed/sd-driver
     <trace removed>
-    simhug01@E107851:/d/demo_area/ex_app1$
+    shell:/d/demo_area/ex_app1$
     
 Finally, copy the `mbed_app.json` application configuration file from `sd-driver/config/mbed_app.json` to the ex_app1 directory:
 
-    simhug01@E107851:/d/demo_area/ex_app1$ cp sd-driver/config/mbed_app.json .
-    simhug01@E107851:/d/demo_area/ex_app1$
+    shell:/d/demo_area/ex_app1$ cp sd-driver/config/mbed_app.json .
+    shell:/d/demo_area/ex_app1$
 
 The `mbed_app.json` file specifies the SPI bus pin configuration for different targets, 
 and is discussed in the [Testing with an SDCard on Target XYZ](#testing-with-an-sdcard-on-target-xyx) section. 
@@ -628,9 +628,9 @@ and is discussed in the [Testing with an SDCard on Target XYZ](#testing-with-an-
 
 Build the test cases for the K64F target using the following command:
 
-    simhug01@E107851:/d/demo_area/ex_app1$ mbed -v test --compile -t GCC_ARM -m K64F --app-config mbed_app.json 
+    shell:/d/demo_area/ex_app1$ mbed -v test --compile -t GCC_ARM -m K64F --app-config mbed_app.json 
     <trace removed>
-    simhug01@E107851:/d/demo_area/ex_app1$
+    shell:/d/demo_area/ex_app1$
 
 The build trace is quite extensive but on a successful build you should see the following output at the end of the log:
 
@@ -669,12 +669,12 @@ with one another and therefore no specific tagged versions need to be checked ou
 However, in the case that you experience problems building, checkout out the compatible 
 tagged version of each repository, as shown below:
 
-    simhug01@E107851:/d/demo_area/ex_app1$ pushd mbed-os
-    simhug01@E107851:/d/demo_area/ex_app1$ git checkout tags/mbed-os-5.4.0
-    simhug01@E107851:/d/demo_area/ex_app1$ popd 
-    simhug01@E107851:/d/demo_area/ex_app1$ pushd sd-driver
-    simhug01@E107851:/d/demo_area/ex_app1$ git checkout tags/sd-driver-0.0.2-mbed-os-5.4.0
-    simhug01@E107851:/d/demo_area/ex_app1$ popd 
+    shell:/d/demo_area/ex_app1$ pushd mbed-os
+    shell:/d/demo_area/ex_app1$ git checkout tags/mbed-os-5.4.0
+    shell:/d/demo_area/ex_app1$ popd 
+    shell:/d/demo_area/ex_app1$ pushd sd-driver
+    shell:/d/demo_area/ex_app1$ git checkout tags/sd-driver-0.0.2-mbed-os-5.4.0
+    shell:/d/demo_area/ex_app1$ popd 
 
 In the above: 
 
@@ -694,24 +694,24 @@ PC using a suitable USB cable.
 
 All tests can be run using the following command:
 
-    simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS
+    shell:/d/demo_area/ex_app1$ mbedgt -VS
     <trace removed>
 
 However, it's possible to run a particular test case using the following form of the mbedgt command:
 
-    simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS --test-by-names=<test-name>
+    shell:/d/demo_area/ex_app1$ mbedgt -VS --test-by-names=<test-name>
     
 The names of the tests can be listed using: 
 
-    simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS --list
+    shell:/d/demo_area/ex_app1$ mbedgt -VS --list
 
 For example, to run the basic test use:
     
-    simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS --test-by-names=sd-driver-features-tests-filesystem-basic 
+    shell:/d/demo_area/ex_app1$ mbedgt -VS --test-by-names=sd-driver-features-tests-filesystem-basic 
 
 To run the fopen test use:
 
-    simhug01@E107851:/d/demo_area/ex_app1$ mbedgt -VS --test-by-names=sd-driver-features-tests-filesystem-fopen 
+    shell:/d/demo_area/ex_app1$ mbedgt -VS --test-by-names=sd-driver-features-tests-filesystem-fopen 
     
 On a successful run, results similar to the following will be shown:
 
@@ -845,5 +845,3 @@ The following are related mbed storage projects and useful resources:
   including the schematics for the CI test shield. 
 - [POSIX File Interface ISO/IEC 9899:TC2 Documentation](http://www.eng.utah.edu/~cs5785/slides-f10/n1124.pdf).
 - [FATFS: Generic FAT File System Module used in mbed OS](http://elm-chan.org/fsw/ff/00index_e.html)
-
-
