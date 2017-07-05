@@ -81,6 +81,11 @@
     #endif
   #endif
 
+  // IAR version 7.8.1 and earlier do not include __ALIGNED
+  #ifndef __ALIGNED
+  #define __ALIGNED(x) __attribute__((aligned(x)))
+  #endif
+
   #ifndef   __NO_RETURN
     #define __NO_RETURN                            __noreturn
   #endif
