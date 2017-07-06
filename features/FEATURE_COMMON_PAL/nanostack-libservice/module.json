@@ -11,6 +11,8 @@
   "extraIncludes": [
     "mbed-client-libservice"
   ],
-  "dependencies": {},
+  "dependencies": {
+      "mbed-trace": "ARMmbed/mbed-trace"
+  },
   "targetDependencies": {}
 }
