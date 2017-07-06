@@ -573,7 +573,7 @@ static uint32_t spi_event_check(spi_t *obj)
     // Receive Time-Out
     if (spi_base->STATUS & SPI_STATUS_RXTOIF_Msk) {
         spi_base->STATUS = SPI_STATUS_RXTOIF_Msk;
-        //event |= SPI_EVENT_ERROR;
+        // Not using this IF. Just clear it.
     }
     // Transmit FIFO Under-Run
     if (spi_base->STATUS & SPI_STATUS_TXUFIF_Msk) {
