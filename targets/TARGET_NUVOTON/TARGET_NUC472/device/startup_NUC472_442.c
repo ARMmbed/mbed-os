@@ -63,12 +63,11 @@ extern uint32_t __bss_extern_start__  WEAK;
 extern uint32_t __bss_extern_end__ WEAK;
 
 extern void uvisor_init(void);
-//#if defined(TOOLCHAIN_GCC_ARM)
-//extern void _start(void);
-//#endif
-extern void software_init_hook(void) __attribute__((weak));
-extern void __libc_init_array(void);
-extern int main(void);
+#if defined(TOOLCHAIN_GCC_ARM)
+extern void _start(void);
+#else
+#error("For GCC toolchain, only support GNU ARM Embedded")
+#endif
 #endif
 
 /* Default empty handler */
@@ -476,19 +475,7 @@ void Reset_Handler(void)
         }
     }
     
-    //uvisor_init();
-
-    if (software_init_hook) {
-        /**
-         * Give control to the RTOS via software_init_hook() which will also call __libc_init_array().
-         * Assume software_init_hook() is defined in libraries/rtos/rtx/TARGET_CORTEX_M/RTX_CM_lib.h.
-         */
-        software_init_hook();
-    }
-    else {
-        __libc_init_array();
-        main();
-    }
+    _start();
     
 #endif
     /* Infinite loop */
