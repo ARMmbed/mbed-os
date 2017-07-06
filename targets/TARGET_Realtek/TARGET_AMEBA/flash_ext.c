@@ -128,7 +128,7 @@ int flash_ext_stream_read(flash_t *obj, uint32_t addr, uint32_t len, uint8_t *da
     __flash_ext_turnon();
 
     SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
-    
+
     offset = addr & 0x03;
     addr = addr & ~0x03;
     pbuf = data;
@@ -189,13 +189,13 @@ int __flash_ext_stream_write(flash_t *obj, uint32_t addr, uint32_t len, const ui
     uint32_t i, offset, word;
     const uint8_t*pbuf;
     uint8_t *ptr;
-    u8 flashtype = 0; 
+    u8 flashtype = 0;
 
     offset = addr & 0x03;
     addr = addr & ~0x03;
     pbuf = data;
     flashtype = flashobj.SpicInitPara.flashtype;
-    
+
     if (offset != 0) {
         word = HAL_READ32(SPI_FLASH_BASE, addr);
         ptr = (uint8_t *)&word + offset;
@@ -207,7 +207,7 @@ int __flash_ext_stream_write(flash_t *obj, uint32_t addr, uint32_t len, const ui
         }
         HAL_WRITE32(SPI_FLASH_BASE, addr, word);
         SpicWaitBusyDoneRtl8195A();
-        
+
         if(flashtype == FLASH_MICRON){
             SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
         } else {
@@ -222,7 +222,7 @@ int __flash_ext_stream_write(flash_t *obj, uint32_t addr, uint32_t len, const ui
                 ((uint32_t)(*(pbuf+2)) << 16) | ((uint32_t)(*(pbuf+3)) << 24);
             HAL_WRITE32(SPI_FLASH_BASE, addr, word);
             SpicWaitBusyDoneRtl8195A();
-            
+
             if(flashtype == FLASH_MICRON){
                 SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
             } else {
@@ -237,7 +237,7 @@ int __flash_ext_stream_write(flash_t *obj, uint32_t addr, uint32_t len, const ui
         while (len >= 4) {
             HAL_WRITE32(SPI_FLASH_BASE, addr, (uint32_t)*((uint32_t *)pbuf));
             SpicWaitBusyDoneRtl8195A();
-            
+
             if(flashtype == FLASH_MICRON){
                 SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
             } else {
@@ -260,7 +260,7 @@ int __flash_ext_stream_write(flash_t *obj, uint32_t addr, uint32_t len, const ui
 
         HAL_WRITE32(SPI_FLASH_BASE, addr, word);
         SpicWaitBusyDoneRtl8195A();
-        
+
         if(flashtype == FLASH_MICRON){
             SpicWaitOperationDoneRtl8195A(flashobj.SpicInitPara);
         } else {
@@ -271,7 +271,7 @@ int __flash_ext_stream_write(flash_t *obj, uint32_t addr, uint32_t len, const ui
     return 0;
 }
 
-int flash_ext_stream_write(flash_t *obj, uint32_t addr, uint32_t len, uint8_t *data)
+int flash_ext_stream_write(flash_t *obj, uint32_t addr, uint32_t len, const uint8_t *data)
 {
     int32_t status;
 
@@ -287,7 +287,7 @@ int flash_stream_read(flash_t *obj, uint32_t addr, uint32_t len, uint8_t *data)
     return flash_ext_stream_read(obj, addr, len, data);
 }
 
-int flash_stream_write(flash_t *obj, uint32_t addr, uint32_t len, uint8_t *data)
+int flash_stream_write(flash_t *obj, uint32_t addr, uint32_t len, const uint8_t *data)
 {
     return flash_ext_stream_write(obj, addr, len, data);
 }
@@ -308,7 +308,7 @@ Users can use either of functions depending on their needs.
 */
 
 int flash_ext_burst_write(flash_t *obj, uint32_t address ,uint32_t length, uint8_t *data)
-{    
+{
     u32 OccuSize;
     u32 ProgramSize;
     u32 PageSize;
@@ -340,7 +340,7 @@ int flash_ext_burst_write(flash_t *obj, uint32_t address ,uint32_t length, uint8
             }
 
             address += ProgramSize;
-            data += ProgramSize;   
+            data += ProgramSize;
             length -= ProgramSize;
             OccuSize = 0;
         } else{
@@ -435,7 +435,7 @@ This function aims to reset the status register, please make sure the operation 
 void flash_ext_reset_status(flash_t *obj)
 {
     __flash_ext_turnon();
-    SpicSetFlashStatusRefinedRtl8195A(0, flashobj.SpicInitPara);    
+    SpicSetFlashStatusRefinedRtl8195A(0, flashobj.SpicInitPara);
     SpicWaitWipDoneRefinedRtl8195A(flashobj.SpicInitPara);
     __flash_ext_turnoff();
 }
