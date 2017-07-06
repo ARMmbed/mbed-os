@@ -171,6 +171,7 @@ static void *ns_dyn_mem_internal_alloc(const int16_t alloc_size, int direction)
 {
 #ifndef STANDARD_MALLOC
     int *block_ptr = NULL;
+    size_t block_data_size;
 
     platform_enter_critical();
 
@@ -203,7 +204,7 @@ static void *ns_dyn_mem_internal_alloc(const int16_t alloc_size, int direction)
         goto done;
     }
 
-    size_t block_data_size = -*block_ptr;
+    block_data_size = -*block_ptr;
     if (block_data_size >= (data_size + 2 + HOLE_T_SIZE)) {
         int hole_size = block_data_size - data_size - 2;
         int *hole_ptr;
