@@ -115,7 +115,7 @@ typedef enum {
     LED1 = PD_2,
     LED2 = PD_3,
     LED3 = PD_7,
-    LED4 = D0,  // No real LED. Just for passing ATS.
+    LED4 = LED1,    // No real LED. Just for passing ATS.
     LED_RED = LED2,
     LED_GREEN = LED3,
     LED_BLUE = LED1,
