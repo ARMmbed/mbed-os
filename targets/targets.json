@@ -627,7 +627,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "macros": ["__ADUCM4050__"],
+        "macros": ["__ADUCM4050__", "MBEDTLS_CONFIG_HW_SUPPORT"],
         "extra_labels": ["Analog_Devices", "ADUCM4X50", "ADUCM4050", "ADZS_U4050LF_EZKIT", "FLASH_CMSIS_ALGO"],
         "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "LOWPOWERTIMER", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
         "device_name": "ADuCM4050",
