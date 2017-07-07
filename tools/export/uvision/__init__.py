@@ -9,7 +9,7 @@ import re
 
 from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter, filter_supported
+from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.export.cmsis import DeviceCMSIS
 
 cache_d = False
@@ -129,8 +129,13 @@ class Uvision(Exporter):
         "MTSCode.combine_bins_mts_dragonfly",
         "NCS36510TargetCode.ncs36510_addfib"
     ])
-    TARGETS = [tgt for tgt in filter_supported("ARM", POST_BINARY_WHITELIST)
-               if DeviceCMSIS.check_supported(tgt)]
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target) and\
+            DeviceCMSIS.check_supported(target_name)
 
     #File associations within .uvprojx file
     file_types = {'.cpp': 8, '.c': 1, '.s': 2,

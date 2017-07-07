@@ -103,8 +103,11 @@ class DeviceCMSIS():
 class CMSIS(Exporter):
     NAME = 'cmsis'
     TOOLCHAIN = 'ARM'
-    TARGETS = [target for target, obj in TARGET_MAP.iteritems()
-               if "ARM" in obj.supported_toolchains]
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return cls.TOOLCHAIN in target.supported_toolchains
 
     def make_key(self, src):
         """turn a source file into its group name"""
