@@ -42,8 +42,7 @@ extern "C" {
  *                 - for alignment purposes if VIA padlock is used, and/or
  *                 - to simplify key expansion in the 256-bit case by
  *                 generating an extra round key
- */  
-#define CRYPTO_ENABLE_CALLBACK 
+ */   
 #ifdef CRYPTO_ENABLE_CALLBACK
 typedef struct {
     ADI_CRYPTO_TRANSACTION  *pcbReturnedBuffer;
