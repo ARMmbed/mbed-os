@@ -297,8 +297,7 @@ void gpio_irq_enable(gpio_irq_t *obj)
         LL_EXTI_EnableRisingTrig_0_31(1 << STM_PIN(obj->pin));
     }
     if (obj->event & IRQ_FALL) {
-            LL_EXTI_EnableFallingTrig_0_31(1 << STM_PIN(obj->pin));
-
+        LL_EXTI_EnableFallingTrig_0_31(1 << STM_PIN(obj->pin));
     }
 
     NVIC_EnableIRQ(obj->irq_n);
