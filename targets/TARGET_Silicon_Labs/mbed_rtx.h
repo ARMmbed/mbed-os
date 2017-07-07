@@ -20,10 +20,23 @@
 #include <stdint.h>
 #include "clocking.h"
 
+#ifndef OS_CLOCK
+#define OS_CLOCK                  REFERENCE_FREQUENCY
+#endif
+
 #if defined(TARGET_EFM32GG_STK3700)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
 #endif
 
 #elif defined(TARGET_EFM32HG_STK3400)
@@ -32,10 +45,28 @@
 #define INITIAL_SP              (0x20002000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          112
+#endif
+
 #elif defined(TARGET_EFM32LG_STK3600)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          128
 #endif
 
 #elif defined(TARGET_EFM32PG_STK3401)
@@ -44,10 +75,28 @@
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          128
+#endif
+
 #elif defined(TARGET_EFM32WG_STK3800)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          128
 #endif
 
 #elif defined(TARGET_EFR32MG1)
@@ -56,10 +105,28 @@
 #define INITIAL_SP              (0x20007C00UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              5
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+
 #elif defined(TARGET_EFR32MG12) || defined(TARGET_EFM32PG12)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20040000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
 #endif
 
 #endif

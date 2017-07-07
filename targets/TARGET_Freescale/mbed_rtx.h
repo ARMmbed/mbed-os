@@ -23,10 +23,34 @@
 #define INITIAL_SP              (0x10008000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                96000000
+#endif
+
 #elif defined(TARGET_TEENSY3_1)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                96000000
 #endif
 
 #elif defined(TARGET_MCU_K22F)
@@ -35,10 +59,34 @@
 #define INITIAL_SP              (0x20010000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                80000000
+#endif
+
 #elif defined(TARGET_K66F)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                120000000
 #endif
 
 #elif defined(TARGET_KL27Z)
@@ -47,10 +95,34 @@
 #define INITIAL_SP              (0x20003000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              6
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          128
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                48000000
+#endif
+
 #elif defined(TARGET_KL43Z)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20006000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                48000000
 #endif
 
 #elif defined(TARGET_KL05Z)
@@ -59,10 +131,34 @@
 #define INITIAL_SP              (0x20000C00UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          128
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                48000000
+#endif
+
 #elif defined(TARGET_KL25Z)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20003000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          128
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                48000000
 #endif
 
 #elif defined(TARGET_KL26Z)
@@ -71,10 +167,34 @@
 #define INITIAL_SP              (0x20003000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          128
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                48000000
+#endif
+
 #elif defined(TARGET_KL46Z)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20006000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                48000000
 #endif
 
 #elif defined(TARGET_KL82Z)
@@ -83,10 +203,38 @@
 #define INITIAL_SP              (0x20012000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                72000000
+#endif
+
 #elif defined(TARGET_K64F)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#if defined(__CC_ARM) || defined(__GNUC__)
+#define ISR_STACK_SIZE          (0x1000)
+#endif
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                120000000
 #endif
 
 #elif defined(TARGET_KW24D)
@@ -95,10 +243,34 @@
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                48000000
+#endif
+
 #elif defined(TARGET_KW41Z)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20018000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                40000000
 #endif
 
 #elif defined(TARGET_K82F)
@@ -107,10 +279,38 @@
 #define INITIAL_SP              (0x20030000UL)
 #endif
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                120000000
+#endif
+
 #elif defined(TARGET_RO359B)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
+#endif
+
+// RTX 4 only config below, for backward-compability
+
+#if defined(__CC_ARM) || defined(__GNUC__)
+#define ISR_STACK_SIZE          (0x1000)
+#endif
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                96000000
 #endif
 
 #endif

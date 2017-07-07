@@ -13,28 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_NCS36510)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x40000000UL)
-#endif
-
-// RTX 4 only config below, for backward-compability
-
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
+#if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
 #ifndef OS_CLOCK
-#define OS_CLOCK                32000000
+#define OS_CLOCK         12000000
 #endif
-
 #endif
 
 #endif  // MBED_MBED_RTX_H

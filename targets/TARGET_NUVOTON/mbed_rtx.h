@@ -21,6 +21,18 @@
 
 #if defined(TARGET_NUMAKER_PFM_NUC472)
 
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                84000000
+#endif
+
 #if defined(__CC_ARM)
     extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
     extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Length[];
@@ -46,6 +58,18 @@
 #endif
 
 #elif defined(TARGET_NUMAKER_PFM_M453)
+
+// RTX 4 only config below, for backward-compability
+
+#ifndef OS_TASKCNT
+#define OS_TASKCNT              14
+#endif
+#ifndef OS_MAINSTKSIZE
+#define OS_MAINSTKSIZE          256
+#endif
+#ifndef OS_CLOCK
+#define OS_CLOCK                72000000
+#endif
 
 #if defined(__CC_ARM)
     extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
