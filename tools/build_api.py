@@ -992,7 +992,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         mkdir(tmp_path)
 
         toolchain = prepare_toolchain(
-            [""], tmp_path, target, toolchain_name, macros=macros,
+            [""], tmp_path, target, toolchain_name, macros=macros,verbose=verbose,
             notify=notify, silent=silent, extra_verbose=extra_verbose,
             build_profile=build_profile, jobs=jobs, clean=clean)
 
