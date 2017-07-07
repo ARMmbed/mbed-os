@@ -105,7 +105,7 @@ time_t _rtc_mktime(const struct tm* time) {
     }
 
     if (result > INT32_MAX) { 
-        return -1;
+        return (time_t) -1;
     }
 
     return result;
