@@ -1,4 +1,4 @@
-/**************************************************************************//**
+/******************************************************************************
  * @file     system_ADuCM3029.c
  * @brief    CMSIS Cortex-M3 Device Peripheral Access Layer Source File for
  *           Device ADuCM3029
@@ -36,7 +36,9 @@
    ---------------------------------------------------------------------------*/
 #include <cmsis.h>
 #include <adi_pwr.h>
+#include <adi_gpio.h>
 #include <startup_ADuCM3029.h>
+
 /*----------------------------------------------------------------------------
   Define clocks
  *----------------------------------------------------------------------------*/
@@ -45,14 +47,17 @@
 uint32_t lfClock = 0u;    /* "lf_clk" coming out of LF mux             */
 #endif
 
-uint32_t hfClock = 0u;    /* "root_clk" output of HF mux               */
-uint32_t gpioClock = 0u;  /* external GPIO clock                       */
-
 /*----------------------------------------------------------------------------
   Clock Variable definitions
  *----------------------------------------------------------------------------*/
+/* Note that these variables will be re-initialized to the value set here by the
+   LIBC startup code, so if other clock values are required, make sure set them
+   here.
+*/
+uint32_t hfClock = __HFOSC;         /* "root_clk" output of HF mux              */
+uint32_t gpioClock = 0;             /* external GPIO clock                      */
+uint32_t SystemCoreClock = __HFOSC; /*!< System Clock Frequency (Core Clock)    */
 
-uint32_t SystemCoreClock = 0u;  /*!< System Clock Frequency (Core Clock)*/
 
 /*----------------------------------------------------------------------------
   Clock functions
@@ -136,6 +141,27 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
     SystemCoreClock = hfClock;
 }
 
+
+/*!
+ * Configure the SRAM banks
+ *
+ * @return none
+ *
+ * @brief  Setup the SRAM banks.
+ *         Initialize the SRAM configuration and retention.
+ */
+void SramInit(void)
+{
+    /* SRAM Bank1 and Banck2 are hibernate-preserved */
+    adi_system_EnableRetention(ADI_SRAM_BANK_1, true);
+    adi_system_EnableRetention(ADI_SRAM_BANK_2, true);
+    /* To disable the instruction SRAM and entire 64K of SRAM is used as DSRAM */
+    adi_system_EnableISRAM(false);
+    /* To disable the instruction cache  */
+    adi_system_EnableCache(false);
+}
+
+
 /*!
  * Initialize the system
  *
@@ -147,28 +173,19 @@ void SystemCoreClockUpdate (void)            /* Get Core Clock Frequency      */
 void SystemInit (void)
 {
     uint32_t IntStatus;
-#ifdef RELOCATE_IVT
-    uint32_t i,*psrc,*pdst;
-#endif
-    /* SRAM Bank1 and Banck2 are hibernate-preserved */
-    adi_system_EnableRetention(ADI_SRAM_BANK_1, true);
-    adi_system_EnableRetention(ADI_SRAM_BANK_2, true);
-    /* To disable the instruction SRAM and entire 64K of SRAM is used as DSRAM */
-    adi_system_EnableISRAM(false);
-    /* To disable the instruction cache  */
-    adi_system_EnableCache(false);
-#ifdef RELOCATE_IVT
-    /* Copy the IVT (avoid use of memcpy here so it does not become locked into flash). */
-    for (i = 0, psrc = 0, pdst = (uint32_t *)RELOCATION_ADDRESS;
-    i < NUM_VECTORS; i++)
-    {
-        *pdst++ = *psrc++;
-    }
-#endif
+
+    /* Turn off Tile 3029 LED */
+    pADI_GPIO1->OEN |= ADI_GPIO_PIN_10;
+    pADI_GPIO2->OEN |= ADI_GPIO_PIN_2;
+    pADI_GPIO1->SET  = ADI_GPIO_PIN_10;
+    pADI_GPIO2->SET  = ADI_GPIO_PIN_2;
+
     IntStatus = __get_PRIMASK();
     __disable_irq();
-    /* Switch from boot ROM IVT to application's IVT. */
-    SCB->VTOR = (uint32_t) RELOCATION_ADDRESS;
+
+    /* Set boot ROM IVT. */
+    SCB->VTOR = (uint32_t)NVIC_FLASH_VECTOR_ADDRESS;
+
     /* Set all three (USGFAULTENA, BUSFAULTENA, and MEMFAULTENA) fault enable bits
      * in the System Control Block, System Handler Control and State Register
      * otherwise these faults are handled as hard faults.

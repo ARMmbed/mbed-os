@@ -52,6 +52,12 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <startup_ADuCM3029.h>
 #include <mbed_rtx.h>
 
+
+/*----------------------------------------------------------------------------
+  External function Declaration
+ *----------------------------------------------------------------------------*/
+extern void SramInit(void);
+
 /*----------------------------------------------------------------------------
   Checksum options
  *----------------------------------------------------------------------------*/
@@ -177,10 +183,10 @@ void zero_bss(void)
  *
  *  All addresses must be aligned to 4 bytes boundary.
  */
-    pSrc  = &__etext;
-    pDest = &__data_start__;
+    pSrc  = (uint32_t*)(&__etext);
+    pDest = (uint32_t*)(&__data_start__);
 
-    for ( ; pDest < &__data_end__ ; ) {
+    for ( ; pDest < (uint32_t*)(&__data_end__) ; ) {
         *pDest++ = *pSrc++;
     }
 #endif /*__STARTUP_COPY_MULTIPLE */
@@ -203,9 +209,9 @@ void zero_bss(void)
  *    offset 0: Start of a BSS section
  *    offset 4: Size of this BSS section. Must be multiply of 4
  */
-    pTable = &__zero_table_start__;
+    pTable = (uint32_t*)(&__zero_table_start__);
 
-    for (; pTable < &__zero_table_end__; pTable = pTable + 2) {
+    for (; pTable < (uint32_t*)(&__zero_table_end__); pTable = pTable + 2) {
         pDest = (uint32_t*)*(pTable + 0);
         for (; pDest < (uint32_t*)(*(pTable + 0) + *(pTable + 1)) ; ) {
             *pDest++ = 0;
@@ -235,10 +241,19 @@ void zero_bss(void)
 *----------------------------------------------------------------------------*/
 void Reset_Handler(void)
 {
-    SystemInit();
-#if defined( __GNUC__) && !defined (__CC_ARM)
+    /* Configure the SRAM first. This is done first because the bss section
+       may reside in DSRAM bank B. */
+    SramInit();
+
+#if defined(__GNUC__) && !defined (__CC_ARM)
+    /* Clear the bss section for GCC build only */
     zero_bss();
 #endif
+
+    /* initialize system */
+    SystemInit();
+
+    /* branch to other initialization routines before main */
     RESET_EXCPT_HNDLR();
 }
 
