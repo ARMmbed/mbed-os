@@ -681,6 +681,13 @@
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M0",
         "extra_labels_add": ["STM32F0", "STM32F030R8"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0725"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["SERIAL_FC"],
@@ -694,6 +701,13 @@
         "core": "Cortex-M0",
         "default_toolchain": "uARM",
         "extra_labels_add": ["STM32F0", "STM32F031K6"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0791"],
         "macros_add": ["RTC_LSI=1", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["SERIAL_FC"],
@@ -707,6 +721,13 @@
         "core": "Cortex-M0",
         "default_toolchain": "uARM",
         "extra_labels_add": ["STM32F0", "STM32F042K6"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0785"],
         "macros_add": ["RTC_LSI=1", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CAN", "SERIAL_FC"],
@@ -719,6 +740,13 @@
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M0",
         "extra_labels_add": ["STM32F0", "STM32F070RB"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0755"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH"],
@@ -730,6 +758,13 @@
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M0",
         "extra_labels_add": ["STM32F0", "STM32F072RB"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0730"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH"],
@@ -741,6 +776,13 @@
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M0",
         "extra_labels_add": ["STM32F0", "STM32F091RC"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0750"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH"],
@@ -1211,6 +1253,13 @@
         "core": "Cortex-M0",
         "extra_labels_add": ["STM32F0", "STM32F051", "STM32F051R8"],
         "supported_toolchains": ["GCC_ARM"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["SERIAL_FC"],
         "device_name": "STM32F051R8"
