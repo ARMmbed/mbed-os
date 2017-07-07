@@ -26,7 +26,7 @@ static void donothing() {}
 CAN::CAN(PinName rd, PinName td) : _can(), _irq() {
     // No lock needed in constructor
 
-    for (int i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
+    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
         _irq[i] = callback(donothing);
     }
 
@@ -37,7 +37,7 @@ CAN::CAN(PinName rd, PinName td) : _can(), _irq() {
 CAN::CAN(PinName rd, PinName td, int hz) : _can(), _irq() {
     // No lock needed in constructor
 
-    for (int i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
+    for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
         _irq[i].attach(donothing);
     }
 

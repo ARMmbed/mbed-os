@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f769xx.s
+  * @file      startup_stm32f767xx.s
   * @author    MCD Application Team
-  * @version   V1.1.0
-  * @date      22-April-2016
-  * @brief     STM32F769xx Devices vector table for GCC based toolchain. 
+  * @version   V1.2.0
+  * @date      30-December-2016
+  * @brief     STM32F767xx Devices vector table for GCC based toolchain. 
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -58,6 +58,10 @@ defined in linker script */
 .word  _sdata
 /* end address for the .data section. defined in linker script */
 .word  _edata
+/* start address for the .bss section. defined in linker script */
+.word  _sbss
+/* end address for the .bss section. defined in linker script */
+.word  _ebss
 /* stack used for SystemInit_ExtMemCtl; always internal RAM used */
 
 /**
@@ -91,18 +95,24 @@ LoopCopyDataInit:
   adds  r2, r0, r1
   cmp  r2, r3
   bcc  CopyDataInit
+  ldr  r2, =_sbss
+  b  LoopFillZerobss
+/* Zero fill the bss segment. */  
+FillZerobss:
+  movs  r3, #0
+  str  r3, [r2], #4
+    
+LoopFillZerobss:
+  ldr  r3, = _ebss
+  cmp  r2, r3
+  bcc  FillZerobss
 
 /* Call the clock system initialization function.*/
   bl  SystemInit   
 /* Call static constructors */
-  //bl __libc_init_array
+    bl __libc_init_array
 /* Call the application's entry point.*/
-  //bl  main
-  // Calling the crt0 'cold-start' entry point. There __libc_init_array is called
-  // and when existing hardware_init_hook() and software_init_hook() before 
-  // starting main(). software_init_hook() is available and has to be called due 
-  // to initializsation when using rtos.
-  bl _start
+  bl  main
   bx  lr    
 .size  Reset_Handler, .-Reset_Handler
 
@@ -248,7 +258,7 @@ g_pfnVectors:
   .word     I2C4_EV_IRQHandler                /* I2C4 Event                   */
   .word     I2C4_ER_IRQHandler                /* I2C4 Error                   */
   .word     SPDIF_RX_IRQHandler               /* SPDIF_RX                     */
-  .word     DSI_IRQHandler                    /* DSI                          */
+  .word     0                                 /* Reserved                     */
   .word     DFSDM1_FLT0_IRQHandler            /* DFSDM1 Filter 0 global Interrupt */
   .word     DFSDM1_FLT1_IRQHandler            /* DFSDM1 Filter 1 global Interrupt */
   .word     DFSDM1_FLT2_IRQHandler            /* DFSDM1 Filter 2 global Interrupt */
@@ -589,9 +599,6 @@ g_pfnVectors:
    .weak      SPDIF_RX_IRQHandler            
    .thumb_set SPDIF_RX_IRQHandler,Default_Handler
 
-   .weak      DSI_IRQHandler            
-   .thumb_set DSI_IRQHandler,Default_Handler
-
    .weak      DFSDM1_FLT0_IRQHandler            
    .thumb_set DFSDM1_FLT0_IRQHandler,Default_Handler
 
@@ -625,5 +632,5 @@ g_pfnVectors:
    .weak      MDIOS_IRQHandler            
    .thumb_set MDIOS_IRQHandler,Default_Handler   
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/        
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
  

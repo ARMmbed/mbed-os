@@ -19,7 +19,7 @@ GCC_ARM|ARM|IAR
 **mbed-cli version:** 
 (`mbed --version`)
 
-**meed-os sha:**
+**mbed-os sha:**
 (`git log -n1 --oneline`)
 
 **DAPLink version:**
