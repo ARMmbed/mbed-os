@@ -24,7 +24,7 @@
 
 #include <stdint.h>
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
+#include "mbed_rtos_storage.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 #include "platform/mbed_toolchain.h"
@@ -150,7 +150,7 @@ private:
 
     osTimerId_t _id;
     osTimerAttr_t _attr;
-    os_timer_t _obj_mem;
+    mbed_rtos_storage_timer_t _obj_mem;
     mbed::Callback<void()> _function;
 };
 

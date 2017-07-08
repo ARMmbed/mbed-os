@@ -51,7 +51,7 @@ extern "C" {
 #include <pthread.h>
 #elif defined(EQUEUE_PLATFORM_MBED)
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
+#include "mbed_rtos_storage.h"
 #endif
 
 
@@ -117,7 +117,7 @@ typedef struct equeue_sema {
 #elif defined(EQUEUE_PLATFORM_MBED) && defined(MBED_CONF_RTOS_PRESENT)
 typedef struct equeue_sema {
     osEventFlagsId_t id;
-    os_event_flags_t mem;
+    mbed_rtos_storage_event_flags_t mem;
 } equeue_sema_t;
 #elif defined(EQUEUE_PLATFORM_MBED)
 typedef volatile int equeue_sema_t;
