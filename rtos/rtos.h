@@ -25,8 +25,6 @@
 #ifndef RTOS_H
 #define RTOS_H
 
-#include "mbed_rtx.h"
-#include "mbed_rtx_conf.h"
 #include "mbed_rtos_storage.h"
 #include "rtos/Thread.h"
 #include "rtos/Mutex.h"
