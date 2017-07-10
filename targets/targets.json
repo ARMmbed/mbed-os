@@ -958,7 +958,7 @@
                 "macro_name": "CLOCK_SOURCE_USB"
             }
         },
-        "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI", "FLASH_CMSIS_ALGO"],
+        "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "ERROR_RED", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "detect_code": ["0796"],
@@ -988,7 +988,7 @@
                 "macro_name": "CLOCK_SOURCE_USB"
             }
         },
-        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "STM32F439xI", "FLASH_CMSIS_ALGO"],
+        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "STM32F439xI"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "ERROR_RED", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "detect_code": ["0797"],
@@ -1255,7 +1255,7 @@
     "DISCO_F429ZI": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
-        "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xI", "STM32F429xx", "FLASH_CMSIS_ALGO"],
+        "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xI", "STM32F429xx"],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
@@ -1437,7 +1437,7 @@
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
-        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "STM32F439xI", "FLASH_CMSIS_ALGO"],
+        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "STM32F439xI"],
         "macros": ["HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
         "device_has_add": ["CAN", "EMAC", "TRNG", "FLASH"],
         "device_has_remove": ["RTC", "SLEEP"],
