@@ -160,6 +160,8 @@
  *
  */
 
+#include <stdlib.h>
+
 #include "cmsis.h"
 #include "mbed_rtx.h"
 #include "mbed_rtos_storage.h"
@@ -411,6 +413,47 @@ void __rt_entry (void) {
     mbed_sdk_init();
     _platform_post_stackheap_init();
     mbed_start_main();
+}
+
+typedef void *mutex;
+
+/* ARM toolchain requires dynamically created mutexes to enforce thread safety. There's
+   up to 8 static mutexes, protecting atexit, signalinit, stdin, stdout, stderr, stream_list,
+   fp_trap_init and the heap. Additionally for each call to fopen one extra mutex will be
+   created.
+   mbed OS provides a RTX pool for 8 mutexes, to satisfy the static requirements. All
+   additional mutexes will be allocated on the heap. We can't use the heap allocation for
+   all the required mutexes, as the heap operations also require a mutex. We don't need to
+   worry about freeing the allocated memory as library mutexes are only freed when the
+   application finishes executing.
+ */
+int _mutex_initialize(mutex *m)
+{
+    osMutexAttr_t attr;
+    memset(&attr, 0, sizeof(attr));
+    attr.name = "ARM toolchain mutex";
+    attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
+
+    *m = osMutexNew(&attr);
+    if (*m != NULL) {
+        return 1;
+    }
+
+    /* Mutex pool exhausted, try using HEAP */
+    attr.cb_size = sizeof(mbed_rtos_storage_mutex_t);
+    attr.cb_mem = (void*)malloc(attr.cb_size);
+    if (attr.cb_mem == NULL) {
+        osRtxErrorNotify(osRtxErrorClibSpace, m);
+        return 0;
+    }
+
+    *m = osMutexNew(&attr);
+    if (*m == NULL) {
+        osRtxErrorNotify(osRtxErrorClibMutex, m);
+        return 0;
+    }
+
+    return 1;
 }
 
 #endif /* ARMC */
