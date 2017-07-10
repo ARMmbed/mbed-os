@@ -1010,7 +1010,6 @@ void SDBlockDevice::_select() {
 
 void SDBlockDevice::_deselect() {
     _cs = 1;
-    _spi.write(0xFF);
     _spi.unlock();
 }
 #endif  /* DEVICE_SPI */
