@@ -1215,6 +1215,13 @@
         "supported_toolchains": ["uARM"],
         "default_toolchain": "uARM",
         "supported_form_factors": ["ARDUINO"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0780"],
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
@@ -1227,6 +1234,13 @@
         "extra_labels_add": ["STM32L0", "STM32L031K6"],
         "default_toolchain": "uARM",
         "supported_form_factors": ["ARDUINO"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0790"],
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
@@ -1238,6 +1252,13 @@
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M0+",
         "extra_labels_add": ["STM32L0", "STM32L053R8"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0715"],
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "default_lib": "small",
@@ -1249,6 +1270,13 @@
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M0+",
         "extra_labels_add": ["STM32L0", "STM32L073RZ", "STM32L073xx"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0760"],
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
@@ -1418,6 +1446,13 @@
         "core": "Cortex-M0+",
         "extra_labels_add": ["STM32L0", "STM32L053C8"],
         "macros": ["RTC_LSI=1"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -1429,6 +1464,13 @@
         "extra_labels_add": ["STM32L0", "STM32L072CZ", "STM32L072xx"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "macros": ["RTC_LSI=1"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
         "detect_code": ["0833"],
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG"],
         "release_versions": ["2", "5"],
