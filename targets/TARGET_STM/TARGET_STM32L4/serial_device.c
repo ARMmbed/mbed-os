@@ -225,8 +225,8 @@ static void uart_irq(int id)
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
             if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
-            irq_handler(serial_irq_ids[id], RxIrq);
-                __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_RXNE);
+                irq_handler(serial_irq_ids[id], RxIrq);
+                /*  Flag has been cleared when reading the content */
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
