@@ -38,52 +38,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 
-/** \addtogroup GPT_Test GPT Test
- *  Example code demonstrating use of the GPIO functions.
- *  @{
- */
-
 #include <stdint.h>
 #include <stdio.h>
 #include <drivers/tmr/adi_tmr.h>
 #include <drivers/pwr/adi_pwr.h>
 #include <drivers/gpio/adi_gpio.h>
 
-#define TIMER_MAX_VALUE	0xFFFF
-
-#define MIN_TIME_LOAD 50
-
-#define TIMER_CLK_FREQ_MHZ  26
-#define TIMER_PRESCALER     16
-
-// Prescaler value of 64 gives 2.46us/tick where as
-// a prescaler value of 16 gives 0.62us/tick
-#if TIMER_PRESCALER==64
-#define CORE_TIME_REG_MAX 0x6800
-#elif TIMER_PRESCALER==16
-#define CORE_TIME_REG_MAX 0x1A000
-#else
-#error "CORE_TIME_REG_MAX undefined!"
+#ifndef BITM_TMR_RGB_CTL_EN
+#define BITM_TMR_RGB_CTL_EN BITM_TMR_CTL_EN
 #endif
 
 typedef uint32_t timestamp_t;
-
-typedef union {
-    unsigned long long u64_latest_timer_expiry;
-    uint16_t u16_latest_timer_expiry[4];
-} latest_timer_expiry_t;
-
-latest_timer_expiry_t latest_timer_expiry;
-
-volatile uint32_t Core_Time_Tick = 0;
-
-bool timer_present = false;
-
-static uint8_t Capture_timer_running;
-
-static uint16_t get_elapsed_time();
-static void Tmr0_Int_Callback( void *pCBParam, uint32_t Event, void *pArg );
-static void Tmr1_Int_Callback( void *pCBParam, uint32_t Event, void *pArg );
 
 // defined in mbed_us_ticker_api.c which calls the ticker_irq_handler() routine
 // defined in mbed_ticker_api.c
@@ -91,201 +56,174 @@ void us_ticker_irq_handler(void);
 
 static int us_ticker_inited = 0;
 
-uint32_t prev_time, current_time;
+ADI_TMR_CONFIG tmrConfig, tmr2Config;
 
-static ADI_TMR_CONFIG tmr0_config, tmr1_config;
+static volatile uint32_t Upper_count = 0, smallcnt = 0, largecnt = 0;
 
-/*---------------------------------------------------------------------------*/
+static ADI_TMR_TypeDef * adi_tmr_registers[ADI_TMR_DEVICE_NUM] = {pADI_TMR0, pADI_TMR1, pADI_TMR2};
 
-static void Tmr0_Int_Callback( void *pCBParam, uint32_t Event, void *pArg )
-{
-    uint32_t major_ticks;
-
-    Core_Time_Tick++;
-
-    // CORE_TIME_REG_MAX is set to give a maximum of 2^32 ticks,
-    // i.e. CORE_TIME_REG_MAX * 65536 * TIMER_PRESCALER / TIMER_CLK_FREQ_MHZ = 2^32
-    // based on oscillator and the value of prescaler. Core_Time_Tick is
-    // incremented once every 65536 ticks.
-    if(Core_Time_Tick >= CORE_TIME_REG_MAX) {
-        Core_Time_Tick = 0;
-    }
-
-    // timer_present indicates the timer has been started and running
-    if(true == timer_present) {
-        major_ticks = (latest_timer_expiry.u16_latest_timer_expiry[2] << 16) | \
-                      latest_timer_expiry.u16_latest_timer_expiry[1];
-
-        // check the number of major ticks (each made up of 65536 clock ticks).
-        if(Core_Time_Tick == major_ticks) {
-            // if the required clock ticks happens to be 0, that means we have
-            // reached the required time out, so call the IRQ handler. Otherwise
-            // start the remainder count up in TIMER1 by using the reload value of
-            // (TIMER_MAX_VALUE - u16_latest_timer_expiry[0])
-            // Capture_timer_running is set to 1 to indicate TIMER1 is running.
-            if(0 == latest_timer_expiry.u16_latest_timer_expiry[0]) {
-                timer_present = false;
-
-                /* Invoke Callback Function */
-                us_ticker_irq_handler();
-            } else {
-                Capture_timer_running = 1;
-
-                /* Start Timer1 in Periodic mode */
-                adi_tmr_Enable(ADI_TMR_DEVICE_GP1, true);
-            }
-        }
-    }
-}
-
-static void Tmr1_Int_Callback( void *pCBParam, uint32_t Event, void *pArg )
-{
-    timer_present = false;
-
-    Capture_timer_running = 0;
-
-    /* Disable Timer1 */
-    adi_tmr_Enable(ADI_TMR_DEVICE_GP1, false);
-
-    /* Invoke Callback Function */
-    us_ticker_irq_handler();
-}
-
-
-/*---------------------------------------------------------------------------*/
-static ADI_TMR_RESULT Init_timer(ADI_TMR_DEVICE eDevice,
-                                 ADI_TMR_CONFIG *pTmr_config,
-                                 ADI_CALLBACK   const   pfCallback)
-{
-    ADI_TMR_RESULT result;
-
-    result = adi_tmr_Init(eDevice, pfCallback, NULL, true);
-
-    if (result == ADI_TMR_SUCCESS) {
-        pTmr_config->bCountingUp = true;
-        pTmr_config->bPeriodic = (eDevice == ADI_TMR_DEVICE_GP0) ? false : true;
-#if TIMER_PRESCALER==64
-        pTmr_config->ePrescaler = ADI_TMR_PRESCALER_64;
-#elif TIMER_PRESCALER==16
-        pTmr_config->ePrescaler = ADI_TMR_PRESCALER_16;
+#if defined(__ADUCM302x__)
+    static const IRQn_Type adi_tmr_interrupt[ADI_TMR_DEVICE_NUM] = {TMR0_EVT_IRQn, TMR1_EVT_IRQn, TMR2_EVT_IRQn};
+#elif defined(__ADUCM4x50__)
+    static const IRQn_Type adi_tmr_interrupt[ADI_TMR_DEVICE_NUM] = {TMR0_EVT_IRQn, TMR1_EVT_IRQn, TMR2_EVT_IRQn, TMR_RGB_EVT_IRQn};
 #else
-#error "Invalid timer prescaler value!"
+#error TMR is not ported for this processor
 #endif
-        pTmr_config->eClockSource = ADI_TMR_CLOCK_HFOSC;
-        pTmr_config->nLoad = 0;
-        pTmr_config->nAsyncLoad = 0;
-        pTmr_config->bReloading = false;
-        pTmr_config->bSyncBypass = false;
 
-        result = adi_tmr_ConfigTimer(eDevice, pTmr_config);
-    }
 
-    return result;
+/*---------------------------------------------------------------------------*
+   Local functions
+ *---------------------------------------------------------------------------*/
+void GP1CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
+{
+	Upper_count++;
 }
 
-static void tmr_init()
+
+uint32_t get_current_time(void)
 {
-    ADI_TMR_RESULT result;
+	uint16_t tmrcnt0, tmrcnt1;
+	uint32_t totaltmr0, totaltmr1;
+	uint32_t uc1, tmrpend0, tmrpend1;
 
-    // Timer0 is configured as a free running count up timer
-    result = Init_timer(ADI_TMR_DEVICE_GP0, &tmr0_config, Tmr0_Int_Callback);
+    do {
+    	volatile uint32_t *ucptr = &Upper_count;
 
-    // Timer1 is configured as a periodic count up timer.
-    if (result == ADI_TMR_SUCCESS)
-        adi_tmr_Enable(ADI_TMR_DEVICE_GP0, true);
+    	/*
+    	 * Carefully coded to prevent race conditions.  Do not make changes unless you understand all the
+    	 * implications.
+    	 *
+    	 * There are three main conditions protected against.
+    	 * 1. TMR0 and TMR1 both run from synchronous clocks.  TMR0 runs at 26MHz and TMR1 runs at 26/256MHz
+    	 * Read both timer counters, and check if the middle 8 bits match, if they don't then read the counts again
+    	 * until they do.  This ensures that one or the other counters have not incremented while reading them.
+    	 *
+    	 * 2. CURCNT and Upper_count racing.  TMR1.CURCNT hardware might have incremented before the GP1 interrupt can occur.
+    	 * This would put Upper_count one value behind the GP1 CURCNT.  How to prevent this: read GP0 then GP1
+    	 * timer.  GP1 is started slightly ahead of GP0.  We read GP0 then GP1.
+    	 *
+    	 * 3. CURCNT and Upper_count mismatch.  This is where an interrupt occurs after CURCNT is read, which delays the reading of Upper_count.
+    	 * Upper_count could then be incremented again.  This would only occur if interrupts held up the code for over 0.5seconds.
+    	 */
 
-    // Timer1 is configured as a periodic count up timer.
-    Init_timer(ADI_TMR_DEVICE_GP1, &tmr1_config, Tmr1_Int_Callback);
+        NVIC_DisableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
+    	tmrpend0 = NVIC_GetPendingIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
+  																    // Check if there is a pending interrupt for timer 1
+
+        __DMB();                                                    // memory barrier: read GP0 before GP1
+
+    	tmrcnt0 = adi_tmr_registers[ADI_TMR_DEVICE_GP0]->CURCNT;    // to minimize skew, read both timers manually
+
+    	__DMB();                                                    // memory barrier: read GP0 before GP1
+
+    	tmrcnt1 = adi_tmr_registers[ADI_TMR_DEVICE_GP1]->CURCNT;    // read both timers manually
+
+    	totaltmr0 = tmrcnt0;        // expand to u32 bits
+    	totaltmr1 = tmrcnt1;        // expand to u32 bits
+
+    	tmrcnt0 &= 0xff00u;
+    	tmrcnt1 <<= 8;
+
+        __DMB();
+
+    	uc1 = *ucptr;						// Read Upper_count as late as possible to allow interrupt to happen
+    	
+    	tmrpend1 = NVIC_GetPendingIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
+    	
+    	// Check for a pending interrupt.  Only read the timer if pending state matches
+        NVIC_EnableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
+    } while ((tmrcnt0 != tmrcnt1) || (tmrpend0 != tmrpend1));
+
+	totaltmr1 <<= 8;                 // Timer1 runs 256x slower
+	totaltmr1 += totaltmr0 & 0xffu;  // Use last 8 bits of Timer0 as it runs faster
+									 // totaltmr1 now contain 24 bits of significance
+
+	if (tmrpend0) {					 // If an interrupt is pending, then increment local copy of upper count
+		uc1++;
+	}
+
+	uint64_t Uc = totaltmr1;         // expand out to 64 bits
+	Uc += ((uint64_t) uc1) << 24;
+
+	Uc *= 1290555u;                  // (1/26) << 25
+	Uc >>= 25;
+
+	return Uc;
 }
 
-/*---------------------------------------------------------------------------*/
-static uint32_t get_current_time(void)
+
+static void calc_event_counts(uint32_t timestamp)
 {
-    unsigned long long ticks;
-    uint32_t current_time;
+    uint32_t calc_time, blocks, offset;
+	uint64_t aa;
 
-    ticks = ((unsigned long long)Core_Time_Tick << 16) + get_elapsed_time();
-    current_time = (uint32_t)(ticks / TIMER_CLK_FREQ_MHZ * TIMER_PRESCALER);
+    calc_time = get_current_time();
+    offset = timestamp - calc_time;             // offset in useconds
 
-    return current_time;
-}
-/*---------------------------------------------------------------------------*/
+    if (offset > 0xf0000000u)					// if offset is a really big number, assume that timer has already expired (i.e. negative)
+    	offset = 0u;
 
-static uint16_t get_elapsed_time()
-{
-    uint16_t timer_value;
+    if (offset > 10u) {							// it takes 25us to user timer routine after interrupt.  Offset timer to account for that.
+    	offset -= 10u;
+    } else
+    	offset = 0u;
 
-    adi_tmr_GetCurrentCount(ADI_TMR_DEVICE_GP0, &timer_value);
+    aa = (uint64_t) offset;
+    aa *= 26u;
 
-    return timer_value;
-}
+    blocks = aa >> 7;
+    blocks++;                                   // round
 
-static int StopTimer()
-{
-    timer_present = false;
-
-    if(Capture_timer_running) {
-        adi_tmr_Enable(ADI_TMR_DEVICE_GP1, false);
-        Capture_timer_running = 0;
-    }
-
-    return 0;
+	largecnt = blocks>>1;                       // communicate to event_timer() routine
 }
 
-static int StartTimer(uint32_t expiry_time)
+void event_timer()
 {
-    uint32_t curr_time, major_ticks;
+    if (largecnt) {
+    	uint32_t cnt = largecnt;
 
-    // calculate the number of ticks the expiry_time requires. The time
-    // is specified in micro seconds.
-    latest_timer_expiry.u64_latest_timer_expiry = (unsigned long long)expiry_time / \
-            TIMER_PRESCALER * TIMER_CLK_FREQ_MHZ;
+    	if (cnt > 65535u) {
+    		cnt = 0u;
+    	} else
+    		cnt = 65536u - cnt;
 
-    // if the current major tick is already the same as the required time stamp,
-    // need to check the lower 16 bit of the time stamp
-    major_ticks = (latest_timer_expiry.u16_latest_timer_expiry[2] << 16) | \
-                  latest_timer_expiry.u16_latest_timer_expiry[1];
-
-    if(Core_Time_Tick == major_ticks) {
-        // get the current time in the timer0
-        curr_time = get_current_time() & 0x0000FFFF;
-
-        // if current time is larger or equal to the required time stamp
-        // value. Note that this condition shouldn't happen, as the required
-        // time stamp is in the past.
-        // Here timer1 is set to count down from max value of 65536 instead
-        // of triggering IRQ handler immediately.
-        if(curr_time >= latest_timer_expiry.u16_latest_timer_expiry[0]) {
-            timer_present = false;
-
-            tmr1_config.nLoad = TIMER_MAX_VALUE - MIN_TIME_LOAD;
-            adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, &tmr1_config);
-
-            Capture_timer_running = 1;
-
-            adi_tmr_Enable(ADI_TMR_DEVICE_GP1, true);
-        } else {
-            // Otherwise load and count up the remainder ticks using TIMER1
-            /* Start Timer1 in Periodic mode by loading TxLD Register
-            with a value of (TIMER_MAX_VALUE - (u16_latest_timer_expiry[0] - curr_time))*/
-            tmr1_config.nLoad = TIMER_MAX_VALUE - (latest_timer_expiry.u16_latest_timer_expiry[0] - curr_time);
-            adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, &tmr1_config);
-
-            Capture_timer_running = 1;
-
-            adi_tmr_Enable(ADI_TMR_DEVICE_GP1, true);
-        }
+    	tmr2Config.nLoad        = cnt;
+    	tmr2Config.nAsyncLoad   = cnt;
+    	adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, &tmr2Config);
+        adi_tmr_Enable(ADI_TMR_DEVICE_GP2, true);
     } else {
-        timer_present = true;
-
-        /*Load TxLD Register with a value of (TIMER_MAX_VALUE - u16_latest_timer_expiry[0])*/
-        tmr1_config.nLoad = TIMER_MAX_VALUE - latest_timer_expiry.u16_latest_timer_expiry[0];
-        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, &tmr1_config);
+    	us_ticker_irq_handler();
     }
-
-    return 0;
 }
 
+
+/*
+ * Interrupt routine for timer 2
+ *
+ * largecnt counts how many timer ticks should be counted to reach timer event.
+ * Each interrupt happens every 65536 timer ticks, unless there are less than 65536 ticks to count.
+ * In that case do the remaining timers ticks.
+ *
+ * largecnt is a global that is used to communicate between event_timer and the interrupt routine
+ * On entry, largecnt will be any value larger than 0.
+ */
+void GP2CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
+{
+   	if (largecnt >= 65536u) {
+   		largecnt -= 65536u;
+   	} else
+   		largecnt = 0;
+
+   	if (largecnt < 65536u) {
+       	adi_tmr_Enable(ADI_TMR_DEVICE_GP2, false);
+       	event_timer();
+   	}
+}
+
+
+/*---------------------------------------------------------------------------*
+   us_ticker HAL APIs
+ *---------------------------------------------------------------------------*/
 void us_ticker_init(void)
 {
     if (us_ticker_inited) {
@@ -293,42 +231,98 @@ void us_ticker_init(void)
     }
 
     us_ticker_inited = 1;
-    prev_time = 0;
-    current_time = 0;
-    tmr_init();
+
+    //adi_pwr_Init();
+
+    //adi_pwr_SetClockDivider(ADI_CLOCK_HCLK, 1u);
+    //adi_pwr_SetClockDivider(ADI_CLOCK_PCLK, 1u);   // PCLK = 26MHz
+
+    /*--------------------- GP TIMER INITIALIZATION --------------------------*/
+
+    /* Set up GP0 callback function */
+    adi_tmr_Init(ADI_TMR_DEVICE_GP0, NULL, NULL, false);
+
+    /* Set up GP1 callback function */
+    adi_tmr_Init(ADI_TMR_DEVICE_GP1, GP1CallbackFunction, NULL, true);
+
+    /* Set up GP1 callback function */
+    adi_tmr_Init(ADI_TMR_DEVICE_GP2, GP2CallbackFunction, NULL, true);
+
+    /* Configure GP0 to run at 26MHz */
+    tmrConfig.bCountingUp  = true;
+    tmrConfig.bPeriodic    = true;
+    tmrConfig.ePrescaler   = ADI_TMR_PRESCALER_1;     // TMR0 at 6.5MHz
+    tmrConfig.eClockSource = ADI_TMR_CLOCK_PCLK;      // TMR source is PCLK (most examples use HFOSC)
+    tmrConfig.nLoad        = 0;
+    tmrConfig.nAsyncLoad   = 0;
+    tmrConfig.bReloading   = false;
+    tmrConfig.bSyncBypass  = true;                    // Allow x1 prescale: requires PCLK as a clk
+    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP0, &tmrConfig);
+
+    /* Configure GP1 to have a period 256 times longer than GP0 */
+    tmrConfig.nLoad        = 0;
+    tmrConfig.nAsyncLoad   = 0;
+    tmrConfig.ePrescaler   = ADI_TMR_PRESCALER_256;    // TMR1 = 6.5MHz/256
+    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, &tmrConfig);
+
+    /* Configure GP2 for doing event counts */
+    tmr2Config.bCountingUp  = true;
+    tmr2Config.bPeriodic    = true;
+    tmr2Config.ePrescaler   = ADI_TMR_PRESCALER_256;   // TMR2 at 26MHz/256
+    tmr2Config.eClockSource = ADI_TMR_CLOCK_PCLK;      // TMR source is PCLK (most examples use HFOSC)
+    tmr2Config.nLoad        = 0;
+    tmr2Config.nAsyncLoad   = 0;
+    tmr2Config.bReloading   = false;
+    tmr2Config.bSyncBypass  = true;                    // Allow x1 prescale
+    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, &tmr2Config);
+
+
+    /*------------------------- GP TIMER ENABLE ------------------------------*/
+
+    /* Manually enable both timers to get them started at the same time
+     *
+     * Start Timer 0 first.  This is important as detailed in get_current_time().
+     * TMR0 should tick over first, followed shortly after by TMR1.
+     */
+    adi_tmr_registers[ADI_TMR_DEVICE_GP0]->CTL |= (uint16_t) BITM_TMR_RGB_CTL_EN;
+    adi_tmr_registers[ADI_TMR_DEVICE_GP1]->CTL |= (uint16_t) BITM_TMR_RGB_CTL_EN;
 }
 
 uint32_t us_ticker_read()
 {
-    int diff;
+    uint32_t curr_time;
+
     if (!us_ticker_inited) {
         us_ticker_init();
     }
-    prev_time = current_time;
-    current_time = get_current_time();
-    diff = (current_time - prev_time);
-    if (diff < 0) current_time = prev_time;
-    return current_time;
+
+    curr_time = get_current_time();
+
+    return curr_time;
 }
 
 void us_ticker_disable_interrupt(void)
 {
-    StopTimer();
+    adi_tmr_Enable(ADI_TMR_DEVICE_GP2, false);    
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    NVIC_ClearPendingIRQ(TMR1_EVT_IRQn);
+    NVIC_ClearPendingIRQ(TMR2_EVT_IRQn);
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    StartTimer(timestamp);
+
+    /* timestamp is when interrupt should fire.
+     * We only have 16 bit timer, but we need to setup for interrupt at 32 bits.
+     *
+     *
+     */
+	calc_event_counts(timestamp);             // use timestamp to calculate largecnt to control number of timer interrupts
+	event_timer();							  // uses largecnt to initiate timer interrupts
 }
 
 /*
 ** EOF
 */
-
-/*@}*/
-
