@@ -116,8 +116,6 @@ typedef enum {
     LED4 = LED1,
 
     //Push buttons
-    PB0 = P1_14,
-    PB1 = P2_06,
     BOOT = P1_01,
     WAKE_J12 = P0_15,  //4 options depending on jumper
     WAKE_J34 = P1_00,  //4 options depending on jumper
