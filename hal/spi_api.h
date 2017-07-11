@@ -127,11 +127,12 @@ int  spi_master_write(spi_t *obj, int value);
  * @param[in] tx_length Number of bytes to write, may be zero
  * @param[in] rx_buffer Pointer to the byte-array of data to read from the device
  * @param[in] rx_length Number of bytes to read, may be zero
+ * @param[in] dummy     Dummy data transmitted while performing read
  * @returns
  *      The number of bytes written and read from the device. This is
  *      maximum of tx_length and rx_length.
  */
-int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length);
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char dummy);
 
 /** Check if a value is available to read
  *

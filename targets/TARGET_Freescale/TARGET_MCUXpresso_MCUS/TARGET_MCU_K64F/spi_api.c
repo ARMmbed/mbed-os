@@ -127,7 +127,7 @@ int spi_master_write(spi_t *obj, int value)
     return rx_data & 0xffff;
 }
 
-int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length) {
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char dummy) {
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 
     DSPI_MasterTransferBlocking(spi_address[obj->spi.instance], &(dspi_transfer_t){
@@ -135,7 +135,7 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
         .rxData = (uint8_t *)rx_buffer,
         .dataSize = total,
         .configFlags = kDSPI_MasterCtar0 | kDSPI_MasterPcs0 | kDSPI_MasterPcsContinuous,
-    });
+    }, dummy);
 
     DSPI_ClearStatusFlags(spi_address[obj->spi.instance], kDSPI_RxFifoDrainRequestFlag | kDSPI_EndOfQueueFlag);
 
