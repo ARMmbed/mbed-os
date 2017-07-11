@@ -369,6 +369,9 @@ int SDBlockDevice::init()
 
 int SDBlockDevice::deinit()
 {
+    _lock.lock();
+    _is_initialized = false;
+    _lock.unlock();
     return 0;
 }
 
