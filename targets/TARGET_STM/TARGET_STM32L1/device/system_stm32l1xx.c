@@ -5,38 +5,21 @@
   * @version V2.2.0
   * @date    01-July-2016
   * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Source File.
-  *
+  *             
   *   This file provides two functions and one global variable to be called from 
   *   user application:
   *      - SystemInit(): This function is called at startup just after reset and 
   *                      before branch to main program. This call is made inside
   *                      the "startup_stm32l1xx.s" file.
-  *
+  *                        
   *      - SystemCoreClock variable: Contains the core clock (HCLK), it can be used
   *                                  by the user application to setup the SysTick 
   *                                  timer or configure other parameters.
   *                                     
   *      - SystemCoreClockUpdate(): Updates the variable SystemCoreClock and must
   *                                 be called whenever the core clock is changed
-  *                                 during program execution.
-  *
-  * This file configures the system clock as follows:
-  *-----------------------------------------------------------------------------
-  * System clock source                | 1- PLL_HSE_EXTC         | 3- PLL_HSI
-  *                                    | (external 24 MHz clock) | (internal 16 MHz)
-  *                                    | 2- PLL_HSE_XTAL         |
-  *                                    | (external 24 MHz xtal)  |
-  *-----------------------------------------------------------------------------
-  * SYSCLK(MHz)                        | 32                     | 32
-  *-----------------------------------------------------------------------------
-  * AHBCLK (MHz)                       | 32                     | 32
-  *-----------------------------------------------------------------------------
-  * APB1CLK (MHz)                      | 32                     | 32
-  *-----------------------------------------------------------------------------
-  * APB2CLK (MHz)                      | 32                     | 32
-  *-----------------------------------------------------------------------------
-  * USB capable (48 MHz precise clock) | YES                    | NO
-  *-----------------------------------------------------------------------------
+  *                                 during program execution.   
+  *      
   ******************************************************************************
   * @attention
   *
@@ -80,7 +63,6 @@
   */
 
 #include "stm32l1xx.h"
-#include "stdio.h"
 
 /**
   * @}
@@ -97,10 +79,13 @@
 /** @addtogroup STM32L1xx_System_Private_Defines
   * @{
   */
-#define HSE_VALUE    ((uint32_t)24000000) /*!< XDOT-L151CC has a 24MHz External crystal */
+#if !defined  (HSE_VALUE) 
+  #define HSE_VALUE    ((uint32_t)8000000) /*!< Default value of the External oscillator in Hz.
+                                                This value can be provided and adapted by the user application. */
+#endif /* HSE_VALUE */
 
 #if !defined  (HSI_VALUE)
-  #define HSI_VALUE    ((uint32_t)16000000) /*!< Default value of the Internal oscillator in Hz.
+  #define HSI_VALUE    ((uint32_t)8000000) /*!< Default value of the Internal oscillator in Hz.
                                                 This value can be provided and adapted by the user application. */
 #endif /* HSI_VALUE */
 
@@ -121,10 +106,6 @@
   * @{
   */
 
-/* Select the clock sources (other than HSI) to start with (0=OFF, 1=ON) */
-#define USE_PLL_HSE_EXTC (0) /* Use external clock */
-#define USE_PLL_HSE_XTAL (1) /* Use external xtal */
-
 /**
   * @}
   */
@@ -140,8 +121,8 @@
                is no need to call the 2 first functions listed above, since SystemCoreClock
                variable is updated automatically.
   */
-uint32_t SystemCoreClock = 32000000; /* Default with HSI. Will be updated if HSE is used */
-const uint8_t PLLMulTable[9] = {3, 4, 6, 8, 12, 16, 24, 32, 48};
+uint32_t SystemCoreClock        = 2097000;
+const uint8_t PLLMulTable[9]    = {3, 4, 6, 8, 12, 16, 24, 32, 48};
 const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
 
@@ -159,12 +140,6 @@ const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
 #endif /* DATA_IN_ExtSRAM */
 #endif /* STM32L151xD || STM32L152xD || STM32L162xD */
 
-#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
-uint8_t SetSysClock_PLL_HSE(uint8_t bypass);
-#endif
-
-uint8_t SetSysClock_PLL_HSI(void);
-
 /**
   * @}
   */
@@ -172,6 +147,10 @@ uint8_t SetSysClock_PLL_HSI(void);
 /** @addtogroup STM32L1xx_System_Private_Functions
   * @{
   */
+
+/*+ MBED */
+#if 0
+/*- MBED */
 
 /**
   * @brief  Setup the microcontroller system.
@@ -203,28 +182,17 @@ void SystemInit (void)
 #ifdef DATA_IN_ExtSRAM
   SystemInit_ExtMemCtl(); 
 #endif /* DATA_IN_ExtSRAM */
- 
-
-#if defined(__ICCARM__)
-    #pragma section=".intvec"
-    #define FLASH_VTOR_BASE   ((uint32_t)__section_begin(".intvec"))
-#elif defined(__CC_ARM)
-    extern uint32_t Load$$LR$$LR_IROM1$$Base[];
-    #define FLASH_VTOR_BASE   ((uint32_t)Load$$LR$$LR_IROM1$$Base)
-#elif defined(__GNUC__)
-        extern uint32_t g_pfnVectors[];
-    #define FLASH_VTOR_BASE   ((uint32_t)g_pfnVectors)
-#else
-    #error "Flash vector address not set for this toolchain"
-#endif
-
+    
 #ifdef VECT_TAB_SRAM
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
 #else
-  SCB->VTOR = FLASH_VTOR_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
+  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
 #endif
-
 }
+
+/*+ MBED */
+#endif
+/*- MBED */
 
 /**
   * @brief  Update SystemCoreClock according to Clock Register Values
@@ -468,164 +436,6 @@ void SystemInit_ExtMemCtl(void)
 }
 #endif /* DATA_IN_ExtSRAM */
 #endif /* STM32L151xD || STM32L152xD || STM32L162xD */
-
-/**
-  * @brief  Configures the System clock source, PLL Multiplier and Divider factors,
-  *               AHB/APBx prescalers and Flash settings
-  * @note   This function should be called only once the RCC clock configuration  
-  *         is reset to the default reset state (done in SystemInit() function).             
-  * @param  None
-  * @retval None
-  */
-void SetSysClock(void)
-{
-  /* 1- Try to start with HSE and external clock */
-#if USE_PLL_HSE_EXTC != 0
-  if (SetSysClock_PLL_HSE(1) == 0)
-#endif
-  {
-    /* 2- If fail try to start with HSE and external xtal */
-    #if USE_PLL_HSE_XTAL != 0
-    if (SetSysClock_PLL_HSE(0) == 0)
-    #endif
-    {
-      /* 3- If fail start with HSI clock */
-      if (SetSysClock_PLL_HSI() == 0)
-      {
-        while(1)
-        {
-          // [TODO] Put something here to tell the user that a problem occured...
-        }
-      }
-    }
-  }
-  
-  /* Output clock on MCO1 pin(PA8) for debugging purpose */
-  //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_1);
-}
-
-#if (USE_PLL_HSE_XTAL != 0) || (USE_PLL_HSE_EXTC != 0)
-/******************************************************************************/
-/*            PLL (clocked by HSE) used as System clock source                */
-/******************************************************************************/
-uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
-{
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-
-  /* Used to gain time after DeepSleep in case HSI is used */
-  if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY) != RESET)
-  {
-    return 0;
-  }
-  
-  /* The voltage scaling allows optimizing the power consumption when the device is 
-     clocked below the maximum system frequency, to update the voltage scaling value 
-     regarding system frequency refer to product datasheet. */
-  __PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-  
-  /* Enable HSE and HSI48 oscillators and activate PLL with HSE as source */
-  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSE;
-  if (bypass == 0)
-  {
-    RCC_OscInitStruct.HSEState          = RCC_HSE_ON; /* External 24 MHz xtal on OSC_IN/OSC_OUT */
-  }
-  else
-  {
-    RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External 24 MHz clock on OSC_IN */
-  }
-  RCC_OscInitStruct.HSIState            = RCC_HSI_OFF;
-  // SYSCLK = 32 MHz ((24 MHz * 4) / 3)
-  // USBCLK = 48 MHz ((24 MHz * 4) / 2) --> USB OK
-  RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL4;
-  RCC_OscInitStruct.PLL.PLLDIV          = RCC_PLL_DIV3;
-
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    return 0; // FAIL
-  }
- 
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
-  RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 32 MHz
-  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 32 MHz
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 32 MHz
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 32 MHz
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
-  {
-    return 0; // FAIL
-  }
-
-  /* Output clock on MCO1 pin(PA8) for debugging purpose */
-  //if (bypass == 0)
-    //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_2); // 4 MHz
-  //else
-    //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_1); // 8 MHz
-  
-  return 1; // OK
-}
-#endif
-
-/******************************************************************************/
-/*            PLL (clocked by HSI) used as System clock source                */
-/******************************************************************************/
-uint8_t SetSysClock_PLL_HSI(void)
-{
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-
-  /* The voltage scaling allows optimizing the power consumption when the device is 
-     clocked below the maximum system frequency, to update the voltage scaling value 
-     regarding system frequency refer to product datasheet. */
-  __PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-  
-  /* Enable HSI oscillator and activate PLL with HSI as source */
-  RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSEState            = RCC_HSE_OFF;
-  RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
-  // SYSCLK = 32 MHz ((16 MHz * 4) / 2)
-  // USBCLK = 64 MHz (16 MHz * 4) --> USB not possible
-  RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL4;
-  RCC_OscInitStruct.PLL.PLLDIV          = RCC_PLL_DIV2;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-  {
-    return 0; // FAIL
-  }
-  
-  /* Poll VOSF bit of in PWR_CSR. Wait until it is reset to 0 */
-  while (__HAL_PWR_GET_FLAG(PWR_FLAG_VOS) != RESET) {};
-
-  /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
-  RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-  RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 32 MHz
-  RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 32 MHz
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 32 MHz
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 32 MHz
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
-  {
-    return 0; // FAIL
-  }
-
-  /* Output clock on MCO1 pin(PA8) for debugging purpose */
-  //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1); // 16 MHz
-  
-  return 1; // OK
-}
-
-/******************************************************************************/
-/*            Hard Fault Handler                                              */
-/******************************************************************************/
-void HardFault_Handler(void)
-{
-  printf("Hard Fault\n");
-  NVIC_SystemReset();
-}
 
 /**
   * @}
