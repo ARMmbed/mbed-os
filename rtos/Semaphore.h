@@ -58,7 +58,10 @@ public:
     int32_t wait(uint32_t millisec=osWaitForever);
 
     /** Release a Semaphore resource that was obtain with Semaphore::wait.
-      @return  status code that indicates the execution status of the function.
+      @return status code that indicates the execution status of the function:
+              @a osOK the token has been correctly released.
+              @a osErrorResource the maximum token count has been reached.
+              @a osErrorParameter internal error.
     */
     osStatus release(void);
 
