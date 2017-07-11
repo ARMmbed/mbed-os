@@ -143,6 +143,14 @@ public:
      */
     virtual void unlock(void);
 
+    /** SPI block read dummy data
+      * SPI requires master to send dummy data, in order to perform read operation.
+      * Dummy bytes can be different for devices. Example SD Card require 0xFF.
+      *
+      * @param dummy    Dummy character to be transmitted while read operation
+      */
+    void dummy(char data);
+
 #if DEVICE_SPI_ASYNCH
 
     /** Start non-blocking SPI transfer using 8bit buffers.
@@ -271,6 +279,7 @@ protected:
     int _bits;
     int _mode;
     int _hz;
+    char _dummy;
 
 private:
     /* Private acquire function without locking/unlocking
