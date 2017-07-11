@@ -42,6 +42,7 @@ struct ticker_interface_stub_t {
     unsigned int disable_interrupt_call;
     unsigned int clear_interrupt_call;
     unsigned int set_interrupt_call;
+    unsigned int fire_interrupt_call;
 };
 
 static ticker_interface_stub_t interface_stub = { 0 };
@@ -75,6 +76,11 @@ static void ticker_interface_stub_set_interrupt(timestamp_t timestamp)
     interface_stub.interrupt_timestamp = timestamp; 
 }
 
+static void ticker_interface_stub_fire_interrupt()
+{
+    ++interface_stub.fire_interrupt_call;
+}
+
 static void reset_ticker_interface_stub()
 {
     interface_stub.interface.init = ticker_interface_stub_init;
@@ -84,6 +90,7 @@ static void reset_ticker_interface_stub()
     interface_stub.interface.clear_interrupt = 
         ticker_interface_stub_clear_interrupt;
     interface_stub.interface.set_interrupt =ticker_interface_stub_set_interrupt;
+    interface_stub.interface.fire_interrupt = ticker_interface_stub_fire_interrupt;
     interface_stub.initialized = false;
     interface_stub.interrupt_flag = false;
     interface_stub.timestamp = 0;
@@ -93,6 +100,7 @@ static void reset_ticker_interface_stub()
     interface_stub.disable_interrupt_call = 0;
     interface_stub.clear_interrupt_call = 0;
     interface_stub.set_interrupt_call = 0;
+    interface_stub.fire_interrupt_call = 0;
 }
 
 // stub of the event queue 
@@ -949,11 +957,7 @@ static void test_insert_event_us_underflow()
     );
 
     TEST_ASSERT_EQUAL_PTR(&event, queue_stub.head);
-    TEST_ASSERT_EQUAL_UINT32(
-        interface_stub.timestamp, 
-        interface_stub.interrupt_timestamp
-    );
-    TEST_ASSERT_EQUAL(1, interface_stub.set_interrupt_call);
+    TEST_ASSERT_EQUAL(1, interface_stub.fire_interrupt_call);
 
     TEST_ASSERT_EQUAL(0, interface_stub.disable_interrupt_call);
 }  
