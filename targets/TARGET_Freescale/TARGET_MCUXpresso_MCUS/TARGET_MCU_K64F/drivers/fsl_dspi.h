@@ -1058,7 +1058,7 @@ void DSPI_MasterTransferCreateHandle(SPI_Type *base,
  * @param transfer Pointer to the dspi_transfer_t structure.
  * @return status of status_t.
  */
-status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer, char dummy);
+status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer);
 
 /*!
  * @brief DSPI master transfer data using interrupts.

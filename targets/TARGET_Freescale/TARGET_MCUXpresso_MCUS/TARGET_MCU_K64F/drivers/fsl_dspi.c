@@ -576,13 +576,13 @@ void DSPI_MasterTransferCreateHandle(SPI_Type *base,
     handle->userData = userData;
 }
 
-status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer, char dummy)
+status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer)
 {
     assert(transfer);
 
     uint16_t wordToSend = 0;
     uint16_t wordReceived = 0;
-    uint8_t dummyData = dummy;
+    uint8_t dummyData = DSPI_DUMMY_DATA;
     uint8_t bitsPerFrame;
 
     uint32_t command;

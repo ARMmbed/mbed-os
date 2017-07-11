@@ -33,7 +33,7 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
         _bits(8),
         _mode(0),
         _hz(1000000),
-        _dummy(0x00) {
+        _write_fill(SPI_FILL_CHAR) {
     // No lock needed in the constructor
 
     spi_init(&_spi, mosi, miso, sclk, ssel);
@@ -103,7 +103,7 @@ int SPI::write(int value) {
 int SPI::write(const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length) {
     lock();
     _acquire();
-    int ret = spi_master_block_write(&_spi, tx_buffer, tx_length, rx_buffer, rx_length, _dummy);
+    int ret = spi_master_block_write(&_spi, tx_buffer, tx_length, rx_buffer, rx_length, _write_fill);
     unlock();
     return ret;
 }
@@ -116,9 +116,9 @@ void SPI::unlock() {
     _mutex->unlock();
 }
 
-void SPI::dummy(char data) {
+void SPI::set_default_write_value(char data) {
     lock();
-    _dummy = data;
+    _write_fill = data;
     unlock();
 }
 
