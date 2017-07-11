@@ -383,19 +383,24 @@ The following sample code illustrates how to use the sd-driver Block Device API:
     int main()
     {
         // call the SDBlockDevice instance initialisation method.
-        sd.init();
+		if ( 0 != sd.init()) {
+			printf("Init failed \n");
+			return -1;
+		}
 
 		// set the frequency
-		sd.frequency(25000000);
+		if ( 0 != sd.frequency(5000000)) {
+			printf("Error setting frequency \n");
+		}
 
-        // Write some the data block to the device
-        sd.program(block, 0, 512);
-
-        // read the data block from the device
-        sd.read(block, 0, 512);
-
-        // print the contents of the block
-        printf("%s", block);
+		// Write some the data block to the device
+		if ( 0 == sd.program(block, 0, 512)) {
+			// read the data block from the device
+			if ( 0 == sd.read(block, 0, 512)) {
+				// print the contents of the block
+				printf("%s", block);
+			}
+		}
 
         // call the SDBlockDevice instance de-initialisation method.
         sd.deinit();
