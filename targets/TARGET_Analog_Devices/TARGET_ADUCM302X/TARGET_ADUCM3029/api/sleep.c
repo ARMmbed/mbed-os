@@ -45,7 +45,7 @@
 #include "adi_pwr.h"
 #include "adi_pwr_def.h"
 #include "adi_rtos_map.h"
-#include "AduCM3029_device.h"
+#include "ADuCM3029_device.h"
 #include "sleep.h"
 
 /**
