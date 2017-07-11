@@ -16,14 +16,6 @@
 
 #include "cmsis.h"
 
-// NOTE: Ensurce mbed_sdk_init() will get called before C++ global object constructor.
-#if defined(__CC_ARM) || defined(__GNUC__)
-void mbed_sdk_init_forced(void) __attribute__((constructor(101)));
-#elif defined(__ICCARM__)
-    // TODO: How to achieve it in IAR?
-#endif
-
-
 void mbed_sdk_init(void)
 {
     // NOTE: Support singleton semantics to be called from other init functions
@@ -69,9 +61,4 @@ void mbed_sdk_init(void)
 
     /* Lock protected registers */
     SYS_LockReg();
-}
-
-void mbed_sdk_init_forced(void)
-{
-    mbed_sdk_init();
 }
