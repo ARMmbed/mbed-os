@@ -57,8 +57,6 @@ EXPORTERS = {
     'eclipse_armc5'    : cdt.EclipseArmc5,
     'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
     'qtcreator': qtcreator.QtCreator,
-    'zip' : zip.ZIP,
-    'cmsis'    : cmsis.CMSIS,
     'vscode_gcc_arm' : vscode.VSCodeGcc,
     'vscode_iar' : vscode.VSCodeIAR,
     'vscode_armc5' : vscode.VSCodeArmc5
