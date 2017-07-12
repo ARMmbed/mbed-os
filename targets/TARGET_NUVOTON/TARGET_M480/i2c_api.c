@@ -26,19 +26,6 @@
 #include "nu_bitutil.h"
 #include "mbed_critical.h"
 
-#define NU_I2C_DEBUG    0
-
-#if NU_I2C_DEBUG
-struct i2c_s MY_I2C;
-struct i2c_s MY_I2C_2;
-char MY_I2C_STATUS[64];
-int MY_I2C_STATUS_POS = 0;
-uint32_t MY_I2C_TIMEOUT;
-uint32_t MY_I2C_ELAPSED;
-uint32_t MY_I2C_T1;
-uint32_t MY_I2C_T2;
-#endif
-
 struct nu_i2c_var {
     i2c_t *     obj;
     void        (*vec)(void);
@@ -378,10 +365,7 @@ static int i2c_do_tran(i2c_t *obj, char *buf, int length, int read, int naklastd
     i2c_enable_int(obj);
 
     if (i2c_poll_tran_heatbeat_timeout(obj, NU_I2C_TIMEOUT_STAT_INT)) {
-#if NU_I2C_DEBUG
-        MY_I2C_2 = obj->i2c;
-        while (1);
-#endif
+        // N/A
     } else {
         i2c_disable_int(obj);
         tran_len = obj->i2c.tran_pos - obj->i2c.tran_beg;
@@ -403,12 +387,7 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync)
 
     if (i2c_poll_status_timeout(obj, i2c_is_trsn_done, NU_I2C_TIMEOUT_STAT_INT)) {
         err = I2C_ERROR_BUS_BUSY;
-#if NU_I2C_DEBUG
-        MY_I2C_2 = obj->i2c;
-        while (1);
-#endif
     } else {
-#if 1
         // NOTE: Avoid duplicate Start/Stop. Otherwise, we may meet strange error.
         uint32_t status = I2C_GET_STATUS(i2c_base);
 
@@ -427,14 +406,9 @@ static int i2c_do_trsn(i2c_t *obj, uint32_t i2c_ctl, int sync)
                 break;
             }
         }
-#endif
         I2C_SET_CONTROL_REG(i2c_base, i2c_ctl);
         if (sync && i2c_poll_status_timeout(obj, i2c_is_trsn_done, NU_I2C_TIMEOUT_STAT_INT)) {
             err = I2C_ERROR_BUS_BUSY;
-#if NU_I2C_DEBUG
-            MY_I2C_2 = obj->i2c;
-            while (1);
-#endif
         }
     }
 
@@ -458,14 +432,6 @@ static int i2c_poll_status_timeout(i2c_t *obj, int (*is_status)(i2c_t *obj), uin
         t2 = us_ticker_read();
         elapsed = (t2 > t1) ? (t2 - t1) : ((uint64_t) t2 + 0xFFFFFFFF - t1 + 1);
         if (elapsed >= timeout) {
-#if NU_I2C_DEBUG
-            MY_I2C_T1 = t1;
-            MY_I2C_T2 = t2;
-            MY_I2C_ELAPSED = elapsed;
-            MY_I2C_TIMEOUT = timeout;
-            MY_I2C_2 = obj->i2c;
-            while (1);
-#endif
             break;
         }
     }
@@ -504,15 +470,6 @@ static int i2c_poll_tran_heatbeat_timeout(i2c_t *obj, uint32_t timeout)
 
         elapsed = (t2 > t1) ? (t2 - t1) : ((uint64_t) t2 + 0xFFFFFFFF - t1 + 1);
         if (elapsed >= timeout) {   // Transfer idle
-#if NU_I2C_DEBUG
-            MY_I2C = obj->i2c;
-            MY_I2C_T1 = t1;
-            MY_I2C_T2 = t2;
-            MY_I2C_ELAPSED = elapsed;
-            MY_I2C_TIMEOUT = timeout;
-            MY_I2C_2 = obj->i2c;
-            while (1);
-#endif
             break;
         }
     }
@@ -592,14 +549,6 @@ static void i2c_irq(i2c_t *obj)
     }
 
     status = I2C_GET_STATUS(i2c_base);
-#if NU_I2C_DEBUG
-    if (MY_I2C_STATUS_POS < (sizeof (MY_I2C_STATUS) / sizeof (MY_I2C_STATUS[0]))) {
-        MY_I2C_STATUS[MY_I2C_STATUS_POS ++] = status;
-    } else {
-        memset(MY_I2C_STATUS, 0x00, sizeof (MY_I2C_STATUS));
-        MY_I2C_STATUS_POS = 0;
-    }
-#endif
 
     switch (status) {
     // Master Transmit
@@ -645,12 +594,6 @@ static void i2c_irq(i2c_t *obj)
                 }
 
                 if (status == 0x58) {
-#if NU_I2C_DEBUG
-                    if (obj->i2c.tran_pos != obj->i2c.tran_end) {
-                        MY_I2C = obj->i2c;
-                        while (1);
-                    }
-#endif
                     i2c_fsm_tranfini(obj, 1);
                 } else {
                     uint32_t i2c_ctl = I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk;
@@ -718,12 +661,6 @@ static void i2c_irq(i2c_t *obj)
                 }
 
                 if (status == 0x88) {
-#if NU_I2C_DEBUG
-                    if (obj->i2c.tran_pos != obj->i2c.tran_end) {
-                        MY_I2C = obj->i2c;
-                        while (1);
-                    }
-#endif
                     obj->i2c.slaveaddr_state = NoData;
                     i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
                 } else {
@@ -760,12 +697,6 @@ static void i2c_irq(i2c_t *obj)
                 }
 
                 if (status == 0x98) {
-#if NU_I2C_DEBUG
-                    if (obj->i2c.tran_pos != obj->i2c.tran_end) {
-                        MY_I2C = obj->i2c;
-                        while (1);
-                    }
-#endif
                     obj->i2c.slaveaddr_state = NoData;
                     i2c_fsm_reset(obj, I2C_CTL0_SI_Msk | I2C_CTL0_AA_Msk);
                 } else {
