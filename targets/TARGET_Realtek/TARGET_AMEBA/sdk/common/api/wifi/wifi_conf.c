@@ -30,6 +30,12 @@
 #if CONFIG_EXAMPLE_UART_ATCMD
 #include "at_cmd/atcmd_wifi.h"
 #endif
+extern u32 GlobalDebugEnable;
+#define WIFI_CONF_MSG(...)     do {\
+    if (GlobalDebugEnable) \
+        printf("\r" __VA_ARGS__);\
+}while(0)
+
 #if CONFIG_INIC_EN
 extern int inic_start(void);
 extern int inic_stop(void);
@@ -195,7 +201,7 @@ static int wifi_connect_local(rtw_network_info_t *pWifi)
 			break;
 		default:
 			ret = -1;
-			printf("\n\rWIFICONF: security type(0x%x) is not supported.\n\r", pWifi->security_type);
+			WIFI_CONF_MSG("\n\rWIFICONF: security type(0x%x) is not supported.\n\r", pWifi->security_type);
 			break;
 	}
 	if(ret == 0)
@@ -244,7 +250,7 @@ static int wifi_connect_bssid_local(rtw_network_info_t *pWifi)
 			break;
 		default:
 			ret = -1;
-			printf("\n\rWIFICONF: security type(0x%x) is not supported.\n\r", pWifi->security_type);
+			WIFI_CONF_MSG("\n\rWIFICONF: security type(0x%x) is not supported.\n\r", pWifi->security_type);
 			break;
 	}
 	if(ret == 0){
@@ -351,7 +357,7 @@ void restore_wifi_info_to_flash()
 
 	if(data_to_flash && p_write_reconnect_ptr){
 		if(wifi_get_setting((const char*)ifname[0],&setting) || setting.mode == RTW_MODE_AP){
-			printf("\r\n %s():wifi_get_setting fail or ap mode", __func__);
+			WIFI_CONF_MSG("\r\n %s():wifi_get_setting fail or ap mode", __func__);
 			return;
 		}
 		channel = setting.channel;
@@ -515,7 +521,7 @@ int wifi_connect(
 #ifdef CONFIG_ENABLE_EAP
 		if(get_eap_phase()){
 			if(rtw_down_timeout_sema( &join_result->join_sema, 60000 ) == RTW_FALSE) {
-				printf("RTW API: Join bss timeout\r\n");
+				WIFI_CONF_MSG("RTW API: Join bss timeout\r\n");
 				if(password_len) {
 					rtw_free(join_result->network_info.password);
 				}
@@ -531,7 +537,7 @@ int wifi_connect(
 		else
 #endif
 		if(rtw_down_timeout_sema( &join_result->join_sema, RTW_JOIN_TIMEOUT ) == RTW_FALSE) {
-			printf("RTW API: Join bss timeout\r\n");
+			WIFI_CONF_MSG("RTW API: Join bss timeout\r\n");
 			if(password_len) {
 				rtw_free(join_result->network_info.password);
 			}
@@ -641,7 +647,7 @@ int wifi_connect_bssid(
 
 	if(semaphore == NULL) {
 		if(rtw_down_timeout_sema( &join_result->join_sema, RTW_JOIN_TIMEOUT ) == RTW_FALSE) {
-			printf("RTW API: Join bss timeout\r\n");
+			WIFI_CONF_MSG("RTW API: Join bss timeout\r\n");
 			if(password_len) {
 				rtw_free(join_result->network_info.password);
 			}
@@ -685,7 +691,7 @@ int wifi_disconnect(void)
 	const __u8 null_bssid[ETH_ALEN + 2] = {0, 0, 0, 0, 0, 1, 0, 0};
 
 	if (wext_set_bssid(WLAN0_NAME, null_bssid) < 0){
-		printf("\n\rWEXT: Failed to set bogus BSSID to disconnect");
+		WIFI_CONF_MSG("\n\rWEXT: Failed to set bogus BSSID to disconnect");
 		ret = -1;
 	}
 	return ret;
@@ -918,7 +924,7 @@ int wifi_on(rtw_mode_t mode)
 	static int event_init = 0;
 	
 	if(rltk_wlan_running(WLAN0_IDX)) {
-		printf("\n\rWIFI is already running");
+		WIFI_CONF_MSG("\n\rWIFI is already running");
 		return 1;
 	}
 
@@ -934,7 +940,7 @@ int wifi_on(rtw_mode_t mode)
 
 	// set wifi mib
 	wifi_set_mib();
-	printf("\n\rInitializing WIFI ...");
+	WIFI_CONF_MSG("\n\rInitializing WIFI ...");
 	for(idx=0;idx<devnum;idx++){
 		ret = rltk_wlan_init(idx, mode);
 		if(ret <0)
@@ -943,7 +949,7 @@ int wifi_on(rtw_mode_t mode)
 	for(idx=0;idx<devnum;idx++){
 		ret = rltk_wlan_start(idx);
 		if(ret <0){
-			printf("\n\rERROR: Start WIFI Failed!");
+			WIFI_CONF_MSG("\n\rERROR: Start WIFI Failed!");
 			rltk_wlan_deinit();
 			return ret;
 		}
@@ -951,7 +957,7 @@ int wifi_on(rtw_mode_t mode)
 
 	while(1) {
 		if(rltk_wlan_running(devnum-1)) {
-			printf("\n\rWIFI initialized\n");
+			WIFI_CONF_MSG("\n\rWIFI initialized\n");
 
 
 			/*
@@ -962,7 +968,7 @@ int wifi_on(rtw_mode_t mode)
 		}
 
 		if(timeout == 0) {
-			printf("\n\rERROR: Init WIFI timeout!");
+			WIFI_CONF_MSG("\n\rERROR: Init WIFI timeout!");
 			break;
 		}
 
@@ -994,7 +1000,7 @@ int wifi_off(void)
 
 	if((rltk_wlan_running(WLAN0_IDX) == 0) &&
 		(rltk_wlan_running(WLAN1_IDX) == 0)) {
-		printf("\n\rWIFI is not running");
+		WIFI_CONF_MSG("\n\rWIFI is not running");
 		return 0;
 	}
 #if CONFIG_LWIP_LAYER
@@ -1011,18 +1017,18 @@ int wifi_off(void)
 	if((wifi_mode ==  RTW_MODE_AP) || (wifi_mode == RTW_MODE_STA_AP))
 		wpas_wps_deinit();
 #endif
-	printf("\n\rDeinitializing WIFI ...");
+	WIFI_CONF_MSG("\n\rDeinitializing WIFI ...");
 	rltk_wlan_deinit();
 
 	while(1) {
 		if((rltk_wlan_running(WLAN0_IDX) == 0) &&
 			(rltk_wlan_running(WLAN1_IDX) == 0)) {
-			printf("\n\rWIFI deinitialized");
+			WIFI_CONF_MSG("\n\rWIFI deinitialized");
 			break;
 		}
 
 		if(timeout == 0) {
-			printf("\n\rERROR: Deinit WIFI timeout!");
+			WIFI_CONF_MSG("\n\rERROR: Deinit WIFI timeout!");
 			break;
 		}
 
@@ -1133,7 +1139,7 @@ int wifi_start_ap(
 			break;
 		default:
 			ret = -1;
-			printf("\n\rWIFICONF: security type is not supported");
+			WIFI_CONF_MSG("\n\rWIFICONF: security type is not supported");
 			break;
 	}
 	if(ret < 0) goto exit;
@@ -1184,7 +1190,7 @@ int wifi_start_ap_with_hidden_ssid(
 			break;
 		default:
 			ret = -1;
-			printf("\n\rWIFICONF: security type is not supported");
+			WIFI_CONF_MSG("\n\rWIFICONF: security type is not supported");
 			break;
 	}
 	if(ret < 0) goto exit;
@@ -1324,7 +1330,7 @@ int wifi_scan_networks_with_ssid(int (results_handler)(char*buf, int buflen, cha
 	scan_buf.buf_len = scan_buflen;
 	scan_buf.buf = (char*)rtw_malloc(scan_buf.buf_len);
 	if(!scan_buf.buf){
-		printf("\n\rERROR: Can't malloc memory(%d)", scan_buf.buf_len);
+		WIFI_CONF_MSG("\n\rERROR: Can't malloc memory(%d)", scan_buf.buf_len);
 		return RTW_NOMEM;
 	}
 	//set ssid
@@ -1334,7 +1340,7 @@ int wifi_scan_networks_with_ssid(int (results_handler)(char*buf, int buflen, cha
 
 	//Scan channel	
 	if(scan_cnt = (wifi_scan(RTW_SCAN_TYPE_ACTIVE, RTW_BSS_TYPE_ANY, &scan_buf)) < 0){
-		printf("\n\rERROR: wifi scan failed");
+		WIFI_CONF_MSG("\n\rERROR: wifi scan failed");
 		ret = RTW_ERROR;
 	}else{
 		if(NULL == results_handler)
@@ -1432,7 +1438,7 @@ int wifi_scan_networks(rtw_scan_result_handler_t results_handler, void* user_dat
 			count --;
 		}
 		if(count == 0){
-			printf("\n\r[%d]WiFi: Scan is running. Wait 2s timeout.", rtw_get_current_time());
+			WIFI_CONF_MSG("\n\r[%d]WiFi: Scan is running. Wait 2s timeout.", rtw_get_current_time());
 			return RTW_TIMEOUT;
 		}
 	}
@@ -1715,7 +1721,7 @@ int wifi_restart_ap(
 	}
 	// start ap
 	if(wifi_start_ap((char*)ssid, security_type, (char*)password, ssid_len, password_len, channel) < 0) {
-		printf("\n\rERROR: Operation failed!");
+		WIFI_CONF_MSG("\n\rERROR: Operation failed!");
 		return -1;
 	}
 
@@ -1776,7 +1782,7 @@ static void wifi_autoreconnect_thread(void *param)
 {
 	int ret = RTW_ERROR;
 	struct wifi_autoreconnect_param *reconnect_param = (struct wifi_autoreconnect_param *) param;
-	printf("\n\rauto reconnect ...\n");
+	WIFI_CONF_MSG("\n\rauto reconnect ...\n");
 	ret = wifi_connect(reconnect_param->ssid, reconnect_param->security_type, reconnect_param->password,
 	                   reconnect_param->ssid_len, reconnect_param->password_len, reconnect_param->key_id, NULL);
 #if DEVICE_EMAC
@@ -1797,7 +1803,7 @@ static void wifi_autoreconnect_thread(void *param)
 #if LWIP_AUTOIP
 			uint8_t *ip = LwIP_GetIP(&xnetif[0]);
 			if((ip[0] == 0) && (ip[1] == 0) && (ip[2] == 0) && (ip[3] == 0)) {
-				printf("\n\nIPv4 AUTOIP ...");
+				WIFI_CONF_MSG("\n\nIPv4 AUTOIP ...");
 				LwIP_AUTOIP(&xnetif[0]);
 			}
 #endif
@@ -1822,7 +1828,7 @@ void wifi_autoreconnect_hdl(rtw_security_t security_type,
 	param.key_id = key_id;
 	
 	if(!rtw_create_task(&g_wifi_auto_reconnect_task,"wifi_autoreconnect",512,TASK_PRORITY_IDEL+1,wifi_autoreconnect_thread, &param))
-			printf("\n\rTCP ERROR: Create TCP server task failed.");
+			WIFI_CONF_MSG("\n\rTCP ERROR: Create TCP server task failed.");
 }
 
 int wifi_config_autoreconnect(__u8 mode, __u8 retry_times, __u16 timeout)
