@@ -34,7 +34,7 @@ class RTWInterface: public WiFiInterface
 public:
     /** RTWWlanInterface lifetime
      */
-    RTWInterface();
+    RTWInterface(bool debug=false);
     ~RTWInterface();
 
     /** Set a static IP address
