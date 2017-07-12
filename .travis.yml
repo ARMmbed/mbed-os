@@ -1,0 +1,32 @@
+python:
+    - "2.7"
+
+script:
+      # Check that example compiles
+    - PYTHONPATH=mbed-os python mbed-os/tools/make.py -t GCC_ARM -m K82F
+          --source=. --build=BUILD/K82F/GCC_ARM -j0      
+
+      # Run local littlefs tests
+    - CFLAGS="
+          -DLFS_READ_SIZE=64
+          -DLFS_PROG_SIZE=64
+          -Wno-error=format"
+          make -Clittlefs test
+    - CFLAGS="
+          -DLFS_READ_SIZE=512
+          -DLFS_PROG_SIZE=512
+          -Wno-error=format"
+          make -Clittlefs test
+
+install:
+      # Get arm-none-eabi-gcc
+    - sudo add-apt-repository -y ppa:terry.guo/gcc-arm-embedded
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq gcc-arm-none-eabi --force-yes
+      # Get dependencies
+    - git clone https://github.com/armmbed/mbed-os.git
+    - git clone https://github.com/armmbed/spiflash-driver.git
+      # Install python dependencies
+    - sudo pip install -r mbed-os/requirements.txt
+      # Create main file for example
+    - sed -n '/``` c++/,/```/{/```/d; p;}' README.md > main.cpp
