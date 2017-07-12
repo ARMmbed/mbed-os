@@ -1986,6 +1986,58 @@ static void test_irq_handler_insert_non_immediate_in_irq()
     TEST_ASSERT_EQUAL(0, interface_stub.disable_interrupt_call);
 }
 
+static uint32_t ticker_interface_stub_read_interrupt_time()
+{
+    ++interface_stub.read_call;
+    // only if set interrupt call, to test the condition afterwards
+    if (interface_stub.set_interrupt_call) {
+        return interface_stub.interrupt_timestamp;
+    } else {
+        return interface_stub.timestamp;
+    }
+} 
+
+/**
+ * Test to insert an event that is already in the past, the fire_interrupt should
+ * be invoked, instead of set_interrupt
+ */
+static void test_set_interrupt_past_time()
+{
+    interface_stub.set_interrupt_call = 0;
+    interface_stub.fire_interrupt_call = 0;
+    interface_stub.timestamp = 0xFF;
+
+
+    // This tests fire now functinality when next_event_timestamp <= present
+    ticker_event_t event = { 0 };
+    const timestamp_t event_timestamp = interface_stub.timestamp;
+    const uint32_t id_last_event = 0xDEADDEAF;
+
+    ticker_insert_event(&ticker_stub, &event, event_timestamp, id_last_event);
+    TEST_ASSERT_EQUAL(0, interface_stub.set_interrupt_call);
+    TEST_ASSERT_EQUAL(1, interface_stub.fire_interrupt_call);
+}
+/**
+ * Test to insert an event that is being delayed, set_interrupt is set
+ * but then event is already in the past, thus fire_interrupt should be invoked right-away
+ */
+static void test_set_interrupt_past_time_with_delay()
+{
+    interface_stub.set_interrupt_call = 0;
+    interface_stub.fire_interrupt_call = 0;
+    interface_stub.timestamp = 0xFF;
+
+    // This tests fire now functionality when present time >= new_match_time
+    interface_stub.interface.read = ticker_interface_stub_read_interrupt_time;
+    ticker_event_t event = { 0 };
+    const timestamp_t event_timestamp = interface_stub.timestamp + 5;
+    const uint32_t id_last_event = 0xDEADDEAF;
+
+    ticker_insert_event(&ticker_stub, &event, event_timestamp, id_last_event);
+    TEST_ASSERT_EQUAL(1, interface_stub.set_interrupt_call);
+    TEST_ASSERT_EQUAL(1, interface_stub.fire_interrupt_call);
+}
+
 static const case_t cases[] = {
     MAKE_TEST_CASE("ticker initialization", test_ticker_initialization),
     MAKE_TEST_CASE(
@@ -2070,6 +2122,14 @@ static const case_t cases[] = {
     MAKE_TEST_CASE(
         "test_irq_handler_insert_non_immediate_in_irq", 
         test_irq_handler_insert_non_immediate_in_irq
+    ),
+    MAKE_TEST_CASE(
+        "test_set_interrupt_past_time", 
+        test_set_interrupt_past_time
+    ),
+    MAKE_TEST_CASE(
+        "test_set_interrupt_past_time_with_delay", 
+        test_set_interrupt_past_time_with_delay
     )
 };
 
