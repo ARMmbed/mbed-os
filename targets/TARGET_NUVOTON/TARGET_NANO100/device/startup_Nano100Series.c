@@ -28,8 +28,6 @@
 void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 #elif defined(__ICCARM__)
-//#define STRINGIFY(x) #x
-//#define _STRINGIFY(x) STRINGIFY(x)
 #define WEAK_ALIAS_FUNC(FUN, FUN_ALIAS) \
 void FUN(void);                         \
 _Pragma(_STRINGIFY(_WEAK_ALIAS_FUNC(FUN, FUN_ALIAS)))
@@ -131,7 +129,6 @@ const uint32_t __vector_handlers[] = {
 #if defined(__CC_ARM)
     (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
 #elif defined(__ICCARM__)
-    //(uint32_t) __sfe("CSTACK"),
     (uint32_t) &CSTACK$$Limit,
 #elif defined(__GNUC__)
     (uint32_t) &__StackTop,

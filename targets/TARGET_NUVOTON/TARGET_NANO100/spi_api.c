@@ -113,9 +113,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
     // NOTE:
     // NANO130: Support two-port SPI MOSI/MISO 0/1
-#if 0    
-    obj->spi.spi = (SPIName) pinmap_merge(spi_data, spi_cntl);
-#else
     if (NU_MODBASE(spi_data) == NU_MODBASE(spi_cntl)) {
         // NOTE: spi_data has subindex(port) encoded but spi_cntl hasn't.
         obj->spi.spi = (SPIName) spi_data;
@@ -123,7 +120,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     else {
         obj->spi.spi = (SPIName) NC;
     }
-#endif
     MBED_ASSERT((int)obj->spi.spi != NC);
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
@@ -148,10 +144,6 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi.pin_sclk = sclk;
     obj->spi.pin_ssel = ssel;
 
-    //SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    // Configure the SPI data format and frequency
-    //spi_format(obj, 8, 0, SPI_MSB); // 8 bits, mode 0
-    //spi_frequency(obj, 1000000);
     
 #if DEVICE_SPI_ASYNCH
     obj->spi.dma_usage = DMA_USAGE_NEVER;
@@ -188,8 +180,6 @@ void spi_free(spi_t *obj)
     
     // Disable IP clock
     CLK_DisableModuleClock(modinit->clkidx);
-    
-    //((struct nu_spi_var *) modinit->var)->obj = NULL;
     
     // Mark this module to be deinited.
     int i = modinit - spi_modinit_tab;
@@ -280,7 +270,6 @@ int spi_master_write(spi_t *obj, int value)
     // NOTE:
     // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
     // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    //SPI_TRIGGER(spi_base);
     
     // Wait for tx buffer empty
     while(! spi_writeable(obj));
@@ -316,8 +305,6 @@ int spi_slave_receive(spi_t *obj)
     // NOTE:
     // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
     // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    //SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    //SPI_TRIGGER(spi_base);
     
     return spi_readable(obj);
 };
@@ -329,7 +316,6 @@ int spi_slave_read(spi_t *obj)
     // NOTE:
     // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
     // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    //SPI_TRIGGER(spi_base);
     
     // Wait for rx buffer full
     while (! spi_readable(obj));
@@ -345,7 +331,6 @@ void spi_slave_write(spi_t *obj, int value)
     // NOTE:
     // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
     // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    //SPI_TRIGGER(spi_base);
     
     // Wait for tx buffer empty
     while(! spi_writeable(obj));
@@ -357,7 +342,6 @@ void spi_slave_write(spi_t *obj, int value)
 #if DEVICE_SPI_ASYNCH
 void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint8_t bit_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
-    //MBED_ASSERT(bits >= NU_SPI_FRAME_MIN && bits <= NU_SPI_FRAME_MAX);
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     SPI_SET_DATA_WIDTH(spi_base, bit_width);
 
@@ -383,7 +367,6 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     // NOTE:
     // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
     // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    //SPI_TRIGGER(spi_base);
     
     if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
         // Interrupt way
@@ -413,12 +396,6 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
             PDMA_SAR_INC,   // Source address incremental
             NU_MODSUBINDEX(obj->spi.spi) == 0 ? (uint32_t) &spi_base->TX0 : (uint32_t) &spi_base->TX1,  // Destination address
             PDMA_DAR_FIX);  // Destination address fixed
-#if 0   // NOTE:
-        // NANO130: No burst type setting
-        PDMA_SetBurstType(obj->spi.dma_chn_id_tx, 
-            PDMA_REQ_SINGLE,    // Single mode
-            0); // Burst size
-#endif
         PDMA_EnableInt(obj->spi.dma_chn_id_tx,
             PDMA_IER_TD_IE_Msk);    // Interrupt type
         // Register DMA event handler
@@ -441,12 +418,6 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
                             // M451: Start of destination address
                             // NANO130: Start of destination address
             PDMA_DAR_INC);  // Destination address incremental
-#if 0   // NOTE:
-        // NANO130: No burst type setting
-        PDMA_SetBurstType(obj->spi.dma_chn_id_rx, 
-            PDMA_REQ_SINGLE,    // Single mode
-            0); // Burst size
-#endif
         PDMA_EnableInt(obj->spi.dma_chn_id_rx,
             PDMA_IER_TD_IE_Msk);    // Interrupt type
         // Register DMA event handler
@@ -483,7 +454,6 @@ void spi_abort_asynch(spi_t *obj)
         if (obj->spi.dma_chn_id_tx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->spi.dma_chn_id_tx, PDMA_IER_TD_IE_Msk);
             // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
-            //PDMA_STOP(obj->spi.dma_chn_id_tx);
             dma_enable(obj->spi.dma_chn_id_tx, 0);
         }
         //SPI_DISABLE_TX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
@@ -492,7 +462,6 @@ void spi_abort_asynch(spi_t *obj)
         if (obj->spi.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->spi.dma_chn_id_rx, PDMA_IER_TD_IE_Msk);
             // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
-            //PDMA_STOP(obj->spi.dma_chn_id_rx);
             dma_enable(obj->spi.dma_chn_id_rx, 0);
         }
         //SPI_DISABLE_RX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
@@ -531,15 +500,6 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 uint8_t spi_active(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    /*
-    if ((obj->rx_buff.buffer && obj->rx_buff.pos < obj->rx_buff.length)
-            || (obj->tx_buff.buffer && obj->tx_buff.pos < obj->tx_buff.length) ){
-        return 1;
-    } else  {
-        // interrupts are disabled, all transaction have been completed
-        // TODO: checking rx fifo, it reports data eventhough RFDF is not set
-        return DSPI_HAL_GetIntMode(obj->spi.address, kDspiRxFifoDrainRequest);
-    }*/
     
     return SPI_IS_BUSY(spi_base);
 }
@@ -585,7 +545,6 @@ static void spi_irq(spi_t *obj)
 static int spi_writeable(spi_t * obj)
 {
     // Receive FIFO must not be full to avoid receive FIFO overflow on next transmit/receive
-    //return (! SPI_GET_TX_FIFO_FULL_FLAG(((SPI_T *) NU_MODBASE(obj->spi.spi)))) && (SPI_GET_RX_FIFO_COUNT(((SPI_T *) NU_MODBASE(obj->spi.spi))) < NU_SPI_FIFO_DEPTH);
     return (! SPI_GET_TX_FIFO_FULL_FLAG(((SPI_T *) NU_MODBASE(obj->spi.spi))));
 }
 
@@ -631,7 +590,6 @@ static void spi_master_enable_interrupt(spi_t *obj, uint8_t enable, uint32_t mas
     // NOTE:
     // NANO130: SPI_IE_MASK/SPI_STATUS_INTSTS_Msk are for unit transfer IE/EF. Don't get confused.
     if (enable) {
-        //SPI_SET_SUSPEND_CYCLE(spi_base, 4);
         // Enable tx/rx FIFO threshold interrupt
         SPI_EnableInt(spi_base, mask);
     }
@@ -666,16 +624,7 @@ static uint32_t spi_event_check(spi_t *obj)
     // Receive Time-Out
     if (spi_base->STATUS & SPI_STATUS_TIME_OUT_STS_Msk) {
         spi_base->STATUS = SPI_STATUS_TIME_OUT_STS_Msk;
-        //event |= SPI_EVENT_ERROR;
     }
-#if 0   // NOTE:
-        // NANO130: No FIFO Under-RUN IF
-    // Transmit FIFO Under-Run
-    if (spi_base->STATUS & SPI_STATUS_TXUFIF_Msk) {
-        spi_base->STATUS = SPI_STATUS_TXUFIF_Msk;
-        event |= SPI_EVENT_ERROR;
-    }
-#endif
     
     return event;
 }
@@ -835,9 +784,7 @@ static uint8_t spi_get_data_width(spi_t *obj)
 
 static int spi_is_tx_complete(spi_t *obj)
 {
-    // ???: Exclude tx fifo empty check due to no such interrupt on DMA way
     return (obj->tx_buff.pos == obj->tx_buff.length);
-    //return (obj->tx_buff.pos == obj->tx_buff.length && SPI_GET_TX_FIFO_EMPTY_FLAG(((SPI_T *) NU_MODBASE(obj->spi.spi))));
 }
 
 static int spi_is_rx_complete(spi_t *obj)

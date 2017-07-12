@@ -28,20 +28,10 @@ void pin_function(PinName pin, int data)
     uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(pin);
     __IO uint32_t *Px_x_MFP = ((__IO uint32_t *) &SYS->PA_L_MFP) + port_index * 2 + (pin_index / 8);
-    //uint32_t MFP_Pos = NU_MFP_POS(pin_index);
     uint32_t MFP_Msk = NU_MFP_MSK(pin_index);
     
     // E.g.: SYS->PA_L_MFP  = (SYS->PA_L_MFP & (~SYS_PA_L_MFP_PA0_MFP_Msk) ) | SYS_PA_L_MFP_PA0_MFP_SC0_CD  ;
     *Px_x_MFP  = (*Px_x_MFP & (~MFP_Msk)) | data;
-    
-    // [TODO] Disconnect JTAG-DP + SW-DP signals.
-    // Warning: Need to reconnect under reset
-    //if ((pin == PA_13) || (pin == PA_14)) {
-    //
-    //}
-    //if ((pin == PA_15) || (pin == PB_3) || (pin == PB_4)) {
-    //
-    //}
 }
 
 /**

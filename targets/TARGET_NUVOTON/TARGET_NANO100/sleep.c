@@ -57,7 +57,6 @@ void hal_deepsleep(void)
 
 static void mbed_enter_sleep(struct sleep_s *obj)
 {
-#if 0
     // Check if serial allows entering power-down mode
     if (obj->powerdown) {
         obj->powerdown = serial_allow_powerdown();
@@ -75,14 +74,12 @@ static void mbed_enter_sleep(struct sleep_s *obj)
         obj->powerdown = pwmout_allow_powerdown();
     }
     // TODO: Check if other peripherals allow entering power-down mode
-#endif
-  
+
     if (obj->powerdown) {   // Power-down mode (HIRC/HXT disabled, LIRC/LXT enabled)
         SYS_UnlockReg();
         CLK_PowerDown();
         SYS_LockReg();
-    }
-    else {  // CPU halt mode (HIRC/HXT enabled, LIRC/LXT enabled)
+    } else { // CPU halt mode (HIRC/HXT enabled, LIRC/LXT enabled)
         SYS_UnlockReg();
         CLK_Idle();
         SYS_LockReg();
@@ -95,8 +92,6 @@ static void mbed_enter_sleep(struct sleep_s *obj)
 
 static void mbed_exit_sleep(struct sleep_s *obj)
 {
-    // TODO: TO BE CONTINUED
-    
     (void)obj;
 }
 

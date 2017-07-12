@@ -86,7 +86,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->next = NULL;
 
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
-    //gpio_set(pin);
+    // NOTE: In InterruptIn constructor, gpio_irq_init() is called with gpio_init_in() which is responsible for multi-function pin setting.
+    //       There is no need to call gpio_set() redundantly.
     
     {
 #if MBED_CONF_NANO100_GPIO_IRQ_DEBOUNCE_ENABLE
