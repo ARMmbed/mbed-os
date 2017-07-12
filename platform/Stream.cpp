@@ -77,9 +77,10 @@ ssize_t Stream::write(const void* buffer, size_t length) {
 
     lock();
     while (ptr != end) {
-        if (_putc(*ptr++) == EOF) {
+        if (_putc(*ptr) == EOF) {
             break;
         }
+        ptr++; // ptr is incremented only on __putc success
     }
     unlock();
 
