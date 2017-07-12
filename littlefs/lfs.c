@@ -283,7 +283,7 @@ static int lfs_alloc(lfs_t *lfs, lfs_block_t *block) {
         while (true) {
             // check if we have looked at all blocks since last ack
             if (lfs->free.start + lfs->free.off == lfs->free.end) {
-                LFS_WARN("No more free space %d", lfs->free.end);
+                LFS_WARN("No more free space %ld", lfs->free.end);
                 return LFS_ERR_NOSPC;
             }
 
@@ -415,7 +415,7 @@ static int lfs_dir_fetch(lfs_t *lfs,
     }
 
     if (!valid) {
-        LFS_ERROR("Corrupted dir pair at %d %d", tpair[0], tpair[1]);
+        LFS_ERROR("Corrupted dir pair at %ld %ld", tpair[0], tpair[1]);
         return LFS_ERR_CORRUPT;
     }
 
@@ -527,7 +527,7 @@ static int lfs_dir_commit(lfs_t *lfs, lfs_dir_t *dir,
 
 relocate:
         //commit was corrupted
-        LFS_DEBUG("Bad block at %d", dir->pair[0]);
+        LFS_DEBUG("Bad block at %ld", dir->pair[0]);
 
         // drop caches and prepare to relocate block
         relocated = true;
@@ -535,7 +535,7 @@ relocate:
 
         // can't relocate superblock, filesystem is now frozen
         if (lfs_paircmp(oldpair, (const lfs_block_t[2]){0, 1}) == 0) {
-            LFS_WARN("Superblock %d has become unwritable", oldpair[0]);
+            LFS_WARN("Superblock %ld has become unwritable", oldpair[0]);
             return LFS_ERR_CORRUPT;
         }
 
@@ -548,7 +548,7 @@ relocate:
 
     if (relocated) {
         // update references if we relocated
-        LFS_DEBUG("Relocating %d %d to %d %d",
+        LFS_DEBUG("Relocating %ld %ld to %ld %ld",
                 oldpair[0], oldpair[1], dir->pair[0], dir->pair[1]);
         return lfs_relocate(lfs, oldpair, dir->pair);
     }
@@ -1055,7 +1055,7 @@ static int lfs_index_extend(lfs_t *lfs,
         return 0;
 
 relocate:
-        LFS_DEBUG("Bad block at %d", *block);
+        LFS_DEBUG("Bad block at %ld", *block);
 
         // just clear cache and try a new block
         pcache->block = 0xffffffff;
@@ -1189,7 +1189,7 @@ int lfs_file_close(lfs_t *lfs, lfs_file_t *file) {
 
 static int lfs_file_relocate(lfs_t *lfs, lfs_file_t *file) {
 relocate:
-    LFS_DEBUG("Bad block at %d", file->block);
+    LFS_DEBUG("Bad block at %ld", file->block);
 
     // just relocate what exists into new block
     lfs_block_t nblock;
@@ -1874,12 +1874,12 @@ int lfs_mount(lfs_t *lfs, const struct lfs_config *cfg) {
 
     if (err == LFS_ERR_CORRUPT ||
             memcmp(superblock.d.magic, "littlefs", 8) != 0) {
-        LFS_ERROR("Invalid superblock at %d %d", dir.pair[0], dir.pair[1]);
+        LFS_ERROR("Invalid superblock at %ld %ld", dir.pair[0], dir.pair[1]);
         return LFS_ERR_CORRUPT;
     }
 
     if (superblock.d.version > (0x00010001 | 0x0000ffff)) {
-        LFS_ERROR("Invalid version %d.%d\n",
+        LFS_ERROR("Invalid version %ld.%ld\n",
                 0xffff & (superblock.d.version >> 16),
                 0xffff & (superblock.d.version >> 0));
         return LFS_ERR_INVAL;
@@ -2048,7 +2048,7 @@ static int lfs_relocate(lfs_t *lfs,
 
         // update internal root
         if (lfs_paircmp(oldpair, lfs->root) == 0) {
-            LFS_DEBUG("Relocating root %d %d", newpair[0], newpair[1]);
+            LFS_DEBUG("Relocating root %ld %ld", newpair[0], newpair[1]);
             lfs->root[0] = newpair[0];
             lfs->root[1] = newpair[1];
         }
@@ -2109,7 +2109,7 @@ int lfs_deorphan(lfs_t *lfs) {
 
             if (!res) {
                 // we are an orphan
-                LFS_DEBUG("Orphan %d %d", pdir.d.tail[0], pdir.d.tail[1]);
+                LFS_DEBUG("Orphan %ld %ld", pdir.d.tail[0], pdir.d.tail[1]);
 
                 pdir.d.tail[0] = cdir.d.tail[0];
                 pdir.d.tail[1] = cdir.d.tail[1];
@@ -2124,7 +2124,7 @@ int lfs_deorphan(lfs_t *lfs) {
 
             if (!lfs_pairsync(entry.d.u.dir, pdir.d.tail)) {
                 // we have desynced
-                LFS_DEBUG("Desync %d %d", entry.d.u.dir[0], entry.d.u.dir[1]);
+                LFS_DEBUG("Desync %ld %ld", entry.d.u.dir[0], entry.d.u.dir[1]);
 
                 pdir.d.tail[0] = entry.d.u.dir[0];
                 pdir.d.tail[1] = entry.d.u.dir[1];
