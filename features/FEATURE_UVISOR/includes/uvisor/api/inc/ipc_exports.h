@@ -46,15 +46,15 @@ typedef enum uvisor_ipc_io_state {
     UVISOR_IPC_IO_STATE_VALID, /* uVisor has copied the message */
 } uvisor_ipc_io_state_t;
 
-/* IPC Descriptor Structure */
-/* When sending:
+/* IPC Descriptor Structure
+ * When sending:
  * @param[in]  box_id  the ID of the destination box
  * @param[in]  port    the port to send the message to
  * @param[in]  len     the length of the message
  * @param[out] token   a token that can be used to wait at a later time for
  *                     the send to complete
- */
-/* When receiving before a message has been received:
+ *
+ * When receiving before a message has been received:
  * @param[in]   box_id  an ID of a box that is allowed to send to this box, or
  *                      UVISOR_BOX_ID_ANY to allow messages from any box
  * @param[in]   port    the port to listen for messages on
