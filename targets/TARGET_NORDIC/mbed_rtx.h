@@ -37,6 +37,8 @@
 #define INITIAL_SP              (0x20010000UL)
 #endif
 
+#define OS_IDLE_THREAD_STACK_SIZE  512
+
 #elif defined(TARGET_MCU_NRF52840)
 
 #ifndef INITIAL_SP
