@@ -33,7 +33,7 @@ from os.path import splitext, basename, relpath, dirname, exists, join, dirname
 from random import randint
 from json import load
 
-from tools.export.exporters import Exporter, filter_supported
+from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.options import list_profiles
 from tools.targets import TARGET_MAP
 from tools.utils import NotSupportedException
@@ -69,7 +69,11 @@ class GNUARMEclipse(Exporter):
     NAME = 'GNU ARM Eclipse'
     TOOLCHAIN = 'GCC_ARM'
 
-    TARGETS = filter_supported("GCC_ARM", POST_BINARY_WHITELIST)
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, POST_BINARY_WHITELIST, target)
 
     # override
     @property

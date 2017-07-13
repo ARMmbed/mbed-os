@@ -107,7 +107,7 @@ def main():
 
     parser.add_argument("-m", "--mcu",
                         metavar="MCU",
-                        type=argparse_force_uppercase_type(targetnames, "MCU"),
+                        type=str.upper,
                         help="generate project for the given MCU ({})".format(
                             ', '.join(targetnames)))
 
@@ -235,19 +235,17 @@ def main():
         if exists(EXPORT_DIR):
             rmtree(EXPORT_DIR)
 
-    for mcu in options.mcu:
-        zip_proj = not bool(options.source_dir)
+    zip_proj = not bool(options.source_dir)
 
     if (options.program is None) and (not options.source_dir):
         args_error(parser, "one of -p, -n, or --source is required")
-        # Export to selected toolchain
     exporter, toolchain_name = get_exporter_toolchain(options.ide)
-    if options.mcu not in exporter.TARGETS:
-        args_error(parser, "%s not supported by %s"%(options.mcu,options.ide))
+    mcu = extract_mcus(parser, options)[0]
+    if not exporter.is_target_supported(mcu):
+        args_error(parser, "%s not supported by %s"%(mcu,options.ide))
     profile = extract_profile(parser, options, toolchain_name, fallback="debug")
     if options.clean:
         rmtree(BUILD_DIR)
-    mcu = extract_mcus(parser, options)[0]
     export(mcu, options.ide, build=options.build,
            src=options.source_dir, macros=options.macros,
            project_id=options.program, zip_proj=zip_proj,
