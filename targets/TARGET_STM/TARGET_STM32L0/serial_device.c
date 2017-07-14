@@ -202,19 +202,19 @@ static void uart_irq(int id)
     
     if (serial_irq_ids[id] != 0) {
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TC) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TC) != RESET) {
+            if (__HAL_UART_GET_IT(huart, UART_IT_TC) != RESET) {
                 irq_handler(serial_irq_ids[id], TxIrq);
                 __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_TCF);
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET) {
+            if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
                 irq_handler(serial_irq_ids[id], RxIrq);
                 volatile uint32_t tmpval = huart->Instance->RDR; // Clear RXNE flag
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ORE) != RESET) {
+            if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
                 __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF);
             }
         }
@@ -645,27 +645,27 @@ int serial_irq_handler_asynch(serial_t *obj)
     
     // Handle error events
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_PE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
             __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_PEF);
+        if (__HAL_UART_GET_IT(huart, USART_IT_ERR) != RESET) {
             return_event |= (SERIAL_EVENT_RX_PARITY_ERROR & obj_s->events);
         }
     }
     
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT(huart, UART_IT_FE) != RESET) {
             __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_FEF);
             return_event |= (SERIAL_EVENT_RX_FRAMING_ERROR & obj_s->events);
         }
     }
     
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_NE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT(huart, UART_IT_NE) != RESET) {
             __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_NEF);
         }
     }
     
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
             __HAL_UART_CLEAR_FLAG(huart, UART_CLEAR_OREF);
             return_event |= (SERIAL_EVENT_RX_OVERRUN_ERROR & obj_s->events);
         }
