@@ -17,7 +17,7 @@
 #ifndef MBED_CMSIS_H
 #define MBED_CMSIS_H
 
-#include "NANO100Series.h"
+#include "Nano100Series.h"
 #include "cmsis_nvic.h"
 
 // Support linker-generated symbol as start of relocated vector table.
