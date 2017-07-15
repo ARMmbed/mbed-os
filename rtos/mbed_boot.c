@@ -528,6 +528,9 @@ void __retarget_lock_init(struct __lock** lock)
     if (*lock) {
         init_lock(*lock, "newlib_dynamic_mutex");
     }
+    else {
+        error("newlib mutex init is out of memory\r\n");
+    }
 }
 
 void __retarget_lock_init_recursive(struct __lock **lock)
@@ -535,6 +538,9 @@ void __retarget_lock_init_recursive(struct __lock **lock)
     *lock = (struct __lock*)malloc(sizeof(**lock));
     if (*lock) {
         init_recursive_lock(*lock, "newlib_dynamic_recursive_mutex");
+    }
+    else {
+        error("newlib mutex init is out of memory\r\n");
     }
 }
 
