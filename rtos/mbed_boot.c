@@ -415,6 +415,7 @@ void __rt_entry (void) {
 
 #endif /* ARMC */
 #elif defined (__GNUC__) /******************** GCC ********************/
+#include <stdio.h>
 #include <stdlib.h>
 
 extern int main(int argc, char* argv[]);
@@ -589,6 +590,119 @@ void __retarget_lock_release_recursive(struct __lock* lock)
 {
     osMutexRelease(lock->id);
 }
+
+
+/* The full newlib library provides versions of these locking routines which
+   call the above __retarget_lock*() functions but newlib-nano doesn't. The
+   following routines are taken from the full newlib sources. */
+#ifdef _REENT_SMALL
+
+void __env_lock(struct _reent *ptr)
+{
+    __retarget_lock_acquire_recursive(&__lock___env_recursive_mutex);
+}
+
+void __env_unlock(struct _reent *ptr)
+{
+    __retarget_lock_release_recursive(&__lock___env_recursive_mutex);
+}
+
+void __sfp_lock_acquire(void)
+{
+    __retarget_lock_acquire_recursive(&__lock___sfp_recursive_mutex);
+}
+
+void __sfp_lock_release(void)
+{
+    __retarget_lock_release_recursive(&__lock___sfp_recursive_mutex);
+}
+
+void __sinit_lock_acquire(void)
+{
+    __retarget_lock_acquire_recursive(&__lock___sinit_recursive_mutex);
+}
+
+void __sinit_lock_release(void)
+{
+    __retarget_lock_release_recursive(&__lock___sinit_recursive_mutex);
+}
+
+void __malloc_lock(struct _reent *ptr)
+{
+    __retarget_lock_acquire_recursive(&__lock___malloc_recursive_mutex);
+}
+
+void __malloc_unlock(struct _reent *ptr)
+{
+    __retarget_lock_release_recursive(&__lock___malloc_recursive_mutex);
+}
+
+void __tz_lock(void)
+{
+    __retarget_lock_acquire(&__lock___tz_mutex);
+}
+
+void __tz_unlock(void)
+{
+    __retarget_lock_release(&__lock___tz_mutex);
+}
+
+/* There are some newlib-nano routines which don't call the required locking
+   routines at all so wrap them with the necessary locks. */
+uint32_t __real_arc4random(void);
+uint32_t __wrap_arc4random(void)
+{
+    uint32_t val;
+
+    __retarget_lock_acquire(&__lock___arc4random_mutex);
+        val = __real_arc4random();
+    __retarget_lock_release(&__lock___arc4random_mutex);
+
+    return val;
+}
+
+void __real_arc4random_buf(void *buf, size_t n);
+void __wrap_arc4random_buf(void *buf, size_t n)
+{
+    __retarget_lock_acquire(&__lock___arc4random_mutex);
+        __real_arc4random_buf(buf, n);
+    __retarget_lock_release(&__lock___arc4random_mutex);
+}
+
+FILE * __real___sfp(struct _reent *d);
+FILE * __wrap___sfp(struct _reent *d)
+{
+    FILE* pFile;
+    
+    __sfp_lock_acquire();
+        pFile = __real___sfp(d);
+    __sfp_lock_release();
+
+    return pFile;
+}
+
+void __real___sinit(struct _reent *s);
+void __wrap___sinit(struct _reent *s)
+{
+    __sinit_lock_acquire();
+        __real___sinit(s);
+    __sinit_lock_release();
+}
+
+int __real_at_quick_exit(void (*func)(void));
+int __wrap_at_quick_exit(void (*func)(void))
+{
+    int ret;
+
+    __retarget_lock_acquire(&__lock___at_quick_exit_mutex);
+        ret = __real_at_quick_exit(func);
+    __retarget_lock_release(&__lock___at_quick_exit_mutex);
+
+    return ret;
+}
+
+
+#endif /* _REENT_SMALL */
 
 
 /* Return thread specific reentrant data for newlib. newlib starts out using
