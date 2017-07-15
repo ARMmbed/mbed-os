@@ -153,7 +153,8 @@ private:
     void _write_command(uint32_t command, const uint8_t *buffer, uint32_t size);
     void _write_enable(bool enable);
     int _sync(void);
-    int _write_page(const uint8_t *buffer, uint32_t addr, uint32_t size);
+    int _write_page(const uint8_t *buffer, uint32_t addr, uint32_t offset, uint32_t size);
+    uint32_t _translate_address(bd_addr_t addr);
 };
 
 

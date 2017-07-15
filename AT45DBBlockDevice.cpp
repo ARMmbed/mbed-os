@@ -25,9 +25,15 @@
 #define AT45DB_ID_MATCH         0x1F20
 #define AT45DB_ID_DENSITY_MASK  0x001F
 #define AT45DB_PAGE_SIZE_256    0x0100
+#define AT45DB_PAGE_SIZE_264    0x0108
 #define AT45DB_PAGE_SIZE_512    0x0200
+#define AT45DB_PAGE_SIZE_528    0x0210
 #define AT45DB_BLOCK_SIZE_2K    0x0800
+#define AT45DB_BLOCK_SIZE_2K1   0x0840
 #define AT45DB_BLOCK_SIZE_4K    0x1000
+#define AT45DB_BLOCK_SIZE_4K1   0x1080
+#define AT45DB_PAGE_BIT_264     9
+#define AT45DB_PAGE_BIT_528     10
 
 /* enable debug */
 #define AT45DB_DEBUG 0
@@ -42,20 +48,22 @@ void _print_status(uint16_t status);
 
 /* non-exhaustive opcode list */
 enum opcode {
-    AT45DB_OP_NOP                = 0x00,
-    AT45DB_OP_STATUS             = 0xD7,
-    AT45DB_OP_ID                 = 0x9F,
-    AT45DB_OP_READ_LOW_POWER     = 0x01,
-    AT45DB_OP_READ_LOW_FREQUENCY = 0x03,
-    AT45DB_OP_PROGRAM_DIRECT     = 0x02, // Program through Buffer 1 without Built-In Erase
-    AT45DB_OP_ERASE_BLOCK        = 0x50,
+    AT45DB_OP_NOP                       = 0x00,
+    AT45DB_OP_STATUS                    = 0xD7,
+    AT45DB_OP_ID                        = 0x9F,
+    AT45DB_OP_READ_LOW_POWER            = 0x01,
+    AT45DB_OP_READ_LOW_FREQUENCY        = 0x03,
+    AT45DB_OP_PROGRAM_DIRECT            = 0x02, // Program through Buffer 1 without Built-In Erase
+    AT45DB_OP_PROGRAM_DIRECT_WITH_ERASE = 0x82,
+    AT45DB_OP_ERASE_BLOCK               = 0x50,
 };
 
 /* non-exhaustive command list */
 enum command {
-    AT45DB_COMMAND_WRITE_DISABLE = 0x3D2A7F9A,
-    AT45DB_COMMAND_WRITE_ENABLE  = 0x3D2A7FA9,
-    AT45DB_COMMAND_SET_PAGE_SIZE = 0x3D2A80A6,
+    AT45DB_COMMAND_WRITE_DISABLE        = 0x3D2A7F9A,
+    AT45DB_COMMAND_WRITE_ENABLE         = 0x3D2A7FA9,
+    AT45DB_COMMAND_BINARY_PAGE_SIZE     = 0x3D2A80A6,
+    AT45DB_COMMAND_DATAFLASH_PAGE_SIZE  = 0x3D2A80A7,
 };
 
 /* bit masks for interpreting the status register */
@@ -158,10 +166,51 @@ int AT45DBBlockDevice::init()
 
     DEBUG_PRINTF("id: %04X\r\n", id & AT45DB_ID_MATCH);
 
+    /* get status register to verify the page size mode */
+    uint16_t status = _get_register(AT45DB_OP_STATUS);
+
     /* manufacture ID match */
     if ((id & AT45DB_ID_MATCH) == AT45DB_ID_MATCH) {
+
         /* calculate density */
         _device_size = 0x8000 << (id & AT45DB_ID_DENSITY_MASK);
+
+        bool binary_page_size = true;
+
+        /* check if device is configured for binary page sizes */
+        if ((status & AT45DB_BIT_PAGE_SIZE) == AT45DB_BIT_PAGE_SIZE) {
+            DEBUG_PRINTF("Page size is binary\r\n");
+
+#if MBED_CONF_AT45DB_DATAFLASH_SIZE
+            /* send reconfiguration command */
+            _write_command(AT45DB_COMMAND_DATAFLASH_PAGE_SIZE, NULL, 0);
+
+            /* wait for device to be ready and update return code */
+            result = _sync();
+
+            /* set binary flag */
+            binary_page_size = false;
+#else
+            /* set binary flag */
+            binary_page_size = true;
+#endif
+        } else {
+            DEBUG_PRINTF("Page size is not binary\r\n");
+
+#if MBED_CONF_AT45DB_BINARY_SIZE
+            /* send reconfiguration command */
+            _write_command(AT45DB_COMMAND_BINARY_PAGE_SIZE, NULL, 0);
+
+            /* wait for device to be ready and update return code */
+            result = _sync();
+
+            /* set binary flag */
+            binary_page_size = true;
+#else
+            /* set binary flag */
+            binary_page_size = false;
+#endif
+        }
 
         /* set page program size and block erase size */
         switch (id & AT45DB_ID_DENSITY_MASK) {
@@ -169,13 +218,31 @@ int AT45DBBlockDevice::init()
             case AT45DB_ID_DENSITY_4_MBIT:
             case AT45DB_ID_DENSITY_8_MBIT:
             case AT45DB_ID_DENSITY_64_MBIT:
-                _page_size = AT45DB_PAGE_SIZE_256;
-                _block_size = AT45DB_BLOCK_SIZE_2K;
+                if (binary_page_size) {
+                    _page_size = AT45DB_PAGE_SIZE_256;
+                    _block_size = AT45DB_BLOCK_SIZE_2K;
+                } else {
+                    _page_size = AT45DB_PAGE_SIZE_264;
+                    _block_size = AT45DB_BLOCK_SIZE_2K1;
+
+                    /* adjust device size */
+                    _device_size = (_device_size / AT45DB_PAGE_SIZE_256) *
+                                    AT45DB_PAGE_SIZE_264;
+                }
                 break;
             case AT45DB_ID_DENSITY_16_MBIT:
             case AT45DB_ID_DENSITY_32_MBIT:
-                _page_size = AT45DB_PAGE_SIZE_512;
-                _block_size = AT45DB_BLOCK_SIZE_4K;
+                if (binary_page_size) {
+                    _page_size = AT45DB_PAGE_SIZE_512;
+                    _block_size = AT45DB_BLOCK_SIZE_4K;
+                } else {
+                    _page_size = AT45DB_PAGE_SIZE_528;
+                    _block_size = AT45DB_BLOCK_SIZE_4K1;
+
+                    /* adjust device size */
+                    _device_size = (_device_size / AT45DB_PAGE_SIZE_512) *
+                                    AT45DB_PAGE_SIZE_528;
+                }
                 break;
             default:
                 break;
@@ -183,30 +250,11 @@ int AT45DBBlockDevice::init()
 
         DEBUG_PRINTF("density: %" PRIu16 "\r\n", id & AT45DB_ID_DENSITY_MASK);
         DEBUG_PRINTF("size: %" PRIu32 "\r\n", _device_size);
+        DEBUG_PRINTF("page: %" PRIu16 "\r\n", _page_size);
+        DEBUG_PRINTF("block: %" PRIu16 "\r\n", _block_size);
 
         /* device successfully detected, set OK error code */
         result = BD_ERROR_OK;
-    }
-
-    /* get status register to verify the page size mode */
-    uint16_t status = _get_register(AT45DB_OP_STATUS);
-
-    /* If the page size is set to a size that is not a power of two
-       then reconfigure it to use binary sizes instead.
-
-       In the future, the extra space can be used for error correction codes.
-     */
-    if ((status & AT45DB_BIT_PAGE_SIZE) != AT45DB_BIT_PAGE_SIZE) {
-        DEBUG_PRINTF("Page size is 528 bytes\r\n");
-
-        /* send reconfiguration command */
-        _write_command(AT45DB_COMMAND_SET_PAGE_SIZE, NULL, 0);
-
-        /* wait for device to be ready and update return code */
-        result = _sync();
-
-    } else {
-        DEBUG_PRINTF("Page size is 512 bytes\r\n");
     }
 
     /* write protect device when idle */
@@ -224,7 +272,7 @@ int AT45DBBlockDevice::deinit()
 
 int AT45DBBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
-    DEBUG_PRINTF("program: %p %" PRIX64 " %" PRIX64 "\r\n", buffer, addr, size);
+    DEBUG_PRINTF("read: %p %" PRIX64 " %" PRIX64 "\r\n", buffer, addr, size);
 
     int result = BD_ERROR_DEVICE_ERROR;
 
@@ -239,10 +287,15 @@ int AT45DBBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
         /* send read opcode */
         _spi.write(AT45DB_OP_READ_LOW_FREQUENCY);
 
+        /* translate address */
+        uint32_t address = _translate_address(addr);
+
+        DEBUG_PRINTF("address: %" PRIX32 "\r\n", address);
+
         /* send read address */
-        _spi.write((addr >> 16) & 0xFF);
-        _spi.write((addr >>  8) & 0xFF);
-        _spi.write(addr & 0xFF);
+        _spi.write((address >> 16) & 0xFF);
+        _spi.write((address >>  8) & 0xFF);
+        _spi.write(address & 0xFF);
 
         /* clock out one byte at a time and store in external buffer */
         for (uint32_t index = 0; index < size; index++) {
@@ -272,8 +325,8 @@ int AT45DBBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t siz
         /* Each write command can only cover one page at a time.
            Find page and current page offset for handling unaligned writes.
          */
-        uint32_t write_page = addr & ~(_page_size - 1);
-        uint32_t page_offset = addr & (_page_size - 1);
+        uint32_t page_number = addr / _page_size;
+        uint32_t page_offset = addr % _page_size;
 
         /* disable write protection */
         _write_enable(true);
@@ -285,23 +338,24 @@ int AT45DBBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t siz
             /* find remaining bytes to be written */
             uint32_t bytes_remaining = size - bytes_written;
 
-            /* cap the value at the page size */
-            if (bytes_remaining > _page_size) {
-                bytes_remaining = _page_size;
+            /* cap the value at the page size and offset */
+            if (bytes_remaining > (_page_size - page_offset)) {
+                bytes_remaining = _page_size - page_offset;
             }
 
             /* Write one page, bytes_written keeps track of the progress,
-               write_page is the page address, and page_offset is non-zero for
+               page_number is the page address, and page_offset is non-zero for
                unaligned writes.
              */
             result = _write_page(&external_buffer[bytes_written],
-                                 write_page + page_offset,
-                                 bytes_remaining - page_offset);
+                                 page_number,
+                                 page_offset,
+                                 bytes_remaining);
 
             /* update loop variables upon success otherwise break loop */
             if (result == BD_ERROR_OK) {
-                bytes_written += (_page_size - page_offset);
-                write_page += _page_size;
+                bytes_written += bytes_remaining;
+                page_number++;
 
                 /* After the first successful write,
                    all subsequent writes will be aligned.
@@ -338,10 +392,13 @@ int AT45DBBlockDevice::erase(bd_addr_t addr, bd_size_t size)
             /* set block erase opcode */
             uint32_t command = AT45DB_OP_ERASE_BLOCK;
 
+            /* translate address */
+            uint32_t address = _translate_address(addr);
+
             /* set block address */
-            command = (command << 8) | ((addr >> 16) & 0xFF);
-            command = (command << 8) | ((addr >>  8) & 0xFF);
-            command = (command << 8) | (addr & 0xFF);
+            command = (command << 8) | ((address >> 16) & 0xFF);
+            command = (command << 8) | ((address >>  8) & 0xFF);
+            command = (command << 8) | (address & 0xFF);
 
             /* send command to device */
             _write_command(command, NULL, 0);
@@ -368,28 +425,28 @@ int AT45DBBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 
 bd_size_t AT45DBBlockDevice::get_read_size() const
 {
-    DEBUG_PRINTF("size: %d\r\n", AT45DB_READ_SIZE);
+    DEBUG_PRINTF("read size: %d\r\n", AT45DB_READ_SIZE);
 
     return AT45DB_READ_SIZE;
 }
 
 bd_size_t AT45DBBlockDevice::get_program_size() const
 {
-    DEBUG_PRINTF("size: %d\r\n", AT45DB_PROG_SIZE);
+    DEBUG_PRINTF("program size: %d\r\n", AT45DB_PROG_SIZE);
 
     return AT45DB_PROG_SIZE;
 }
 
 bd_size_t AT45DBBlockDevice::get_erase_size() const
 {
-    DEBUG_PRINTF("size: %" PRIX16 "\r\n", _block_size);
+    DEBUG_PRINTF("erase size: %" PRIX16 "\r\n", _block_size);
 
     return _block_size;
 }
 
 bd_size_t AT45DBBlockDevice::size() const
 {
-    DEBUG_PRINTF("size: %" PRIX32 "\r\n", _device_size);
+    DEBUG_PRINTF("device size: %" PRIX32 "\r\n", _device_size);
 
     return _device_size;
 }
@@ -539,19 +596,35 @@ int AT45DBBlockDevice::_sync(void)
  * @param size Bytes to write. Can at most be the full page.
  * @return BlockDevice error code.
  */
-int AT45DBBlockDevice::_write_page(const uint8_t *buffer, uint32_t addr, uint32_t size)
+int AT45DBBlockDevice::_write_page(const uint8_t *buffer,
+                                   uint32_t page,
+                                   uint32_t offset,
+                                   uint32_t size)
 {
-    DEBUG_PRINTF("_write_page: %p %" PRIX32 " %" PRIX32 "\r\n", buffer, addr, size);
+    DEBUG_PRINTF("_write_page: %p %" PRIX32 " %" PRIX32 "\r\n", buffer, page, size);
+
+    uint32_t command = AT45DB_OP_NOP;
 
     /* opcode for writing directly to device, in a single command,
        assuming the page has been erased before hand.
      */
-    uint32_t command = AT45DB_OP_PROGRAM_DIRECT;
+    command = AT45DB_OP_PROGRAM_DIRECT;
+
+    uint32_t address = 0;
+
+    /* convert page number and offset into device address based on address format */
+    if (_page_size == AT45DB_PAGE_SIZE_264) {
+        address = (page << AT45DB_PAGE_BIT_264) | offset;
+    } else if (_page_size == AT45DB_PAGE_SIZE_528) {
+        address = (page << AT45DB_PAGE_BIT_528) | offset;
+    } else {
+        address = (page * _page_size) | offset;
+    }
 
     /* set write address */
-    command = (command << 8) | ((addr >> 16) & 0xFF);
-    command = (command << 8) | ((addr >>  8) & 0xFF);
-    command = (command << 8) | (addr & 0xFF);
+    command = (command << 8) | ((address >> 16) & 0xFF);
+    command = (command << 8) | ((address >>  8) & 0xFF);
+    command = (command << 8) | (address & 0xFF);
 
     /* send write command with data */
     _write_command(command, buffer, size);
@@ -560,6 +633,30 @@ int AT45DBBlockDevice::_write_page(const uint8_t *buffer, uint32_t addr, uint32_
     int result = _sync();
 
     return result;
+}
+
+/**
+ * @brief Translate address.
+ * @details If the device is configured for non-binary page sizes,
+ *          the address is translated from binary to non-binary form.
+ *
+ * @param addr Binary address.
+ * @return Address in format expected by device.
+ */
+uint32_t AT45DBBlockDevice::_translate_address(bd_addr_t addr)
+{
+    uint32_t address = addr;
+
+    /* translate address if page size is non-binary */
+    if (_page_size == AT45DB_PAGE_SIZE_264) {
+        address = ((addr / AT45DB_PAGE_SIZE_264) << AT45DB_PAGE_BIT_264) |
+                  (addr % AT45DB_PAGE_SIZE_264);
+    } else if (_page_size == AT45DB_PAGE_SIZE_528) {
+        address = ((addr / AT45DB_PAGE_SIZE_528) << AT45DB_PAGE_BIT_528) |
+                  (addr % AT45DB_PAGE_SIZE_528);
+    }
+
+    return address;
 }
 
 /**
@@ -573,92 +670,77 @@ void _print_status(uint16_t status)
     DEBUG_PRINTF("%04X\r\n", status);
 
     /* device is ready (after write/erase) */
-    if (status & AT45DB_BIT_READY)
-    {
+    if (status & AT45DB_BIT_READY) {
         DEBUG_PRINTF("AT45DB_BIT_READY\r\n");
     }
 
     /* Buffer comparison failed */
-    if (status & AT45DB_BIT_COMPARE)
-    {
+    if (status & AT45DB_BIT_COMPARE) {
         DEBUG_PRINTF("AT45DB_BIT_COMPARE\r\n");
     }
 
     /* device size is 2 MB */
-    if (status & AT45DB_STATUS_DENSITY_2_MBIT)
-    {
+    if (status & AT45DB_STATUS_DENSITY_2_MBIT) {
         DEBUG_PRINTF("AT45DB_STATUS_DENSITY_2_MBIT\r\n");
     }
 
     /* device size is 4 MB */
-    if (status & AT45DB_STATUS_DENSITY_4_MBIT)
-    {
+    if (status & AT45DB_STATUS_DENSITY_4_MBIT) {
         DEBUG_PRINTF("AT45DB_STATUS_DENSITY_4_MBIT\r\n");
     }
 
     /* device size is 8 MB */
-    if (status & AT45DB_STATUS_DENSITY_8_MBIT)
-    {
+    if (status & AT45DB_STATUS_DENSITY_8_MBIT) {
         DEBUG_PRINTF("AT45DB_STATUS_DENSITY_8_MBIT\r\n");
     }
 
     /* device size is 16 MB */
-    if (status & AT45DB_STATUS_DENSITY_16_MBIT)
-    {
+    if (status & AT45DB_STATUS_DENSITY_16_MBIT) {
         DEBUG_PRINTF("AT45DB_STATUS_DENSITY_16_MBIT\r\n");
     }
 
     /* device size is 32 MB */
-    if (status & AT45DB_STATUS_DENSITY_32_MBIT)
-    {
+    if (status & AT45DB_STATUS_DENSITY_32_MBIT) {
         DEBUG_PRINTF("AT45DB_STATUS_DENSITY_32_MBIT\r\n");
     }
 
     /* device size is 64 MB */
-    if (status & AT45DB_STATUS_DENSITY_64_MBIT)
-    {
+    if (status & AT45DB_STATUS_DENSITY_64_MBIT) {
         DEBUG_PRINTF("AT45DB_STATUS_DENSITY_64_MBIT\r\n");
     }
 
     /* sector protectino enabled */
-    if (status & AT45DB_BIT_PROTECT)
-    {
+    if (status & AT45DB_BIT_PROTECT) {
         DEBUG_PRINTF("AT45DB_BIT_PROTECT\r\n");
     }
 
     /* page size is a power of 2 */
-    if (status & AT45DB_BIT_PAGE_SIZE)
-    {
+    if (status & AT45DB_BIT_PAGE_SIZE) {
         DEBUG_PRINTF("AT45DB_BIT_PAGE_SIZE\r\n");
     }
 
     /* erase/program error */
-    if (status & AT45DB_BIT_ERASE_PROGRAM_ERROR)
-    {
+    if (status & AT45DB_BIT_ERASE_PROGRAM_ERROR) {
         DEBUG_PRINTF("AT45DB_BIT_ERASE_PROGRAM_ERROR\r\n");
     }
 
     /* sector lockdown still possible */
-    if (status & AT45DB_BIT_SECTOR_LOCKDOWN)
-    {
+    if (status & AT45DB_BIT_SECTOR_LOCKDOWN) {
         DEBUG_PRINTF("AT45DB_BIT_SECTOR_LOCKDOWN\r\n");
     }
 
     /* program operation suspended while using buffer 2 */
-    if (status & AT45DB_BIT_PROGRAM_SUSPEND_2)
-    {
+    if (status & AT45DB_BIT_PROGRAM_SUSPEND_2) {
         DEBUG_PRINTF("AT45DB_BIT_PROGRAM_SUSPEND_2\r\n");
     }
 
     /* program operation suspended while using buffer 1 */
-    if (status & AT45DB_BIT_PROGRAM_SUSPEND_1)
-    {
+    if (status & AT45DB_BIT_PROGRAM_SUSPEND_1) {
         DEBUG_PRINTF("AT45DB_BIT_PROGRAM_SUSPEND_1\r\n");
     }
 
     /* erase has been suspended */
-    if (status & AT45DB_BIT_ERASE_SUSPEND)
-    {
+    if (status & AT45DB_BIT_ERASE_SUSPEND) {
         DEBUG_PRINTF("AT45DB_BIT_ERASE_SUSPEND\r\n");
     }
 #endif

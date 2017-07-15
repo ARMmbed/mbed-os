@@ -1,0 +1,13 @@
+{
+    "name": "at45db",
+    "config": {
+        "binary-size": {
+            "help": "Configure device to use binary address space.",
+            "value": "0"
+        },
+        "dataflash-size": {
+            "help": "Configure device to use DataFlash address space.",
+            "value": "0"
+        }
+    }
+}
