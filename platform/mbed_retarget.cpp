@@ -54,12 +54,15 @@
 #   define STDOUT_FILENO    1
 #   define STDERR_FILENO    2
 
-#else
+#elif defined(__GNUC__)
 #   include <sys/stat.h>
 #   include <sys/syslimits.h>
 #   define PREFIX_SUFFIX(x) x##_r
 #   define REENT_PARAM      struct _reent *preent,
 #   define ERRNO            preent->_errno
+
+#else
+#   error Unknown compiler
 #endif
 
 #define FILE_HANDLE_RESERVED    0xFFFFFFFF
@@ -160,7 +163,7 @@ static inline int openmode_to_posix(int openmode) {
     if (openmode & _LLIO_CREAT ) posix |= O_CREAT;
     if (openmode & _LLIO_APPEND) posix |= O_APPEND;
     if (openmode & _LLIO_TRUNC ) posix |= O_TRUNC;
-#elif defined(TOOLCHAIN_GCC)
+#elif defined(__GNUC__)
     posix &= ~O_BINARY;
 #endif
     return posix;
@@ -398,11 +401,11 @@ extern "C" int PREFIX_SUFFIX(_read)(REENT_PARAM FILEHANDLE fh, unsigned char *bu
 
 
 #ifdef __ARMCC_VERSION
-extern "C" int            _sys_istty(                       FILEHANDLE fh)
+extern "C" int _sys_istty(                       FILEHANDLE fh)
 #elif defined(__ICCARM__)
-extern "C" int               _isatty(                       FILEHANDLE fh)
+extern "C" int    _isatty(                       FILEHANDLE fh)
 #else
-extern "C" int             _isatty_r(struct _reent *preent, FILEHANDLE fh)
+extern "C" int  _isatty_r(struct _reent *preent, FILEHANDLE fh)
 #endif
 {
     /* stdin, stdout and stderr should be tty */
@@ -425,7 +428,7 @@ extern "C" int             _isatty_r(struct _reent *preent, FILEHANDLE fh)
 
 // The isatty() implemented in newlib is the only high level API which appears to not call the reentrant
 // version of its syscall.
-#if defined(TOOLCHAIN_GCC)
+#if defined(__GNUC__) && !defined(__ARMCC_VERSION)
 extern "C" int isatty(FILEHANDLE fh)
 {
     return _isatty_r(_REENT, fh);
@@ -672,7 +675,7 @@ extern "C" int stat(const char *path, struct stat *st) {
     }
 }
 
-#if defined(TOOLCHAIN_GCC)
+#if defined(__GNUC__) && !defined(__ARMCC_VERSION)
 /* prevents the exception handling name demangling code getting pulled in */
 #include "mbed_error.h"
 namespace __gnu_cxx {
@@ -685,13 +688,9 @@ extern "C" WEAK void __cxa_pure_virtual(void) {
     exit(1);
 }
 
-#endif
-
 // Provide implementation of _sbrk (low-level dynamic memory allocation
-// routine) for GCC_ARM which compares new heap pointer with MSP instead of
+// routine) for GCC which compares new heap pointer with MSP instead of
 // SP.  This make it compatible with RTX RTOS thread stacks.
-#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
-
 #if defined(TARGET_CORTEX_A)
 extern "C" uint32_t  __HeapLimit;
 #endif
@@ -733,13 +732,13 @@ extern "C" caddr_t _sbrk_r(struct _reent *preent, int incr) {
     return (caddr_t) prev_heap;
 }
 #endif
-#endif
+#endif // __GNUC__
 
-#if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
-extern "C" void _exit(int return_code) {
-#else
+#if defined(__ARMCC_VERSION) || defined(__ICCARM__)
 namespace std {
 extern "C" void exit(int return_code) {
+#else
+extern "C" void _exit(int return_code) {
 #endif
 
 #if DEVICE_STDIO_MESSAGES
@@ -761,11 +760,11 @@ extern "C" void exit(int return_code) {
     while (1);
 }
 
-#if !defined(TOOLCHAIN_GCC_ARM) && !defined(TOOLCHAIN_GCC_CR)
+#if defined(__ARMCC_VERSION) || defined(__ICCARM__)
 } //namespace std
 #endif
 
-#if defined(TOOLCHAIN_ARM) || defined(TOOLCHAIN_GCC)
+#if defined(__GNUC__) && !defined(__ARMCC_VERSION)
 
 // This series of function disable the registration of global destructors
 // in a dynamic table which will be called when the application exit.
@@ -786,10 +785,6 @@ void __cxa_finalize(void *handle) {
 
 } // end of extern "C"
 
-#endif
-
-
-#if defined(TOOLCHAIN_GCC)
 
 /*
  * Depending on how newlib is  configured, it is often not enough to define
@@ -820,7 +815,7 @@ int __wrap_atexit(void (*func)()) {
 
 }
 
-#endif
+#endif // __GNUC__
 
 
 
@@ -973,7 +968,7 @@ extern "C" int _wait_r(struct _reent *preent, int *status)
     preent->_errno = ENOSYS;
     return -1;
 }
-#endif
+#endif // __GNUC__
 
 void *operator new(std::size_t count)
 {
