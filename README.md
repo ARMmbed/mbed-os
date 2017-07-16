@@ -28,7 +28,7 @@ int main() {
     printf("i2cee erase size: %llu\n",   i2cee.get_erase_size());
 
     // Write "Hello World!" to the first block
-    uint8_t *buffer = malloc(i2cee.get_erase_size());
+    char *buffer = (char*)malloc(i2cee.get_erase_size());
     sprintf(buffer, "Hello World!\n");
     i2cee.erase(0, i2cee.get_erase_size());
     i2cee.program(buffer, 0, i2cee.get_erase_size());
