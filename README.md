@@ -26,7 +26,7 @@ int main() {
     printf("spif erase size: %llu\n",   spif.get_erase_size());
 
     // Write "Hello World!" to the first block
-    uint8_t *buffer = malloc(spif.get_erase_size());
+    char *buffer = (char*)malloc(spif.get_erase_size());
     sprintf(buffer, "Hello World!\n");
     spif.erase(0, spif.get_erase_size());
     spif.program(buffer, 0, spif.get_erase_size());

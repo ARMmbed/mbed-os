@@ -24,29 +24,37 @@
  *  such as the MX25R or SST26F016B
  *
  *  @code
+ *  // Here's an example using the MX25R SPI flash device on the K82F
  *  #include "mbed.h"
  *  #include "SPIFBlockDevice.h"
- *
- *  // Create mx25r on SPI bus with PTE5 as chip select
- *  SPIFBlockDevice mx25r(PTE2, PTE4, PTE1, PTE5);
- *
+ *  
+ *  // Create flash device on SPI bus with PTE5 as chip select
+ *  SPIFBlockDevice spif(PTE2, PTE4, PTE1, PTE5);
+ *  
  *  int main() {
- *      printf("mx25r test\n");
- *      mx52r.init();
- *      printf("mx25r size: %llu\n", mx25r.size());
- *      printf("mx25r read size: %llu\n", mx25r.get_read_size());
- *      printf("mx25r program size: %llu\n", mx25r.get_program_size());
- *      printf("mx25r erase size: %llu\n", mx25r.get_erase_size());
- *
- *      uint8_t *buffer = malloc(mx25r.get_erase_size());
+ *      printf("spif test\n");
+ *  
+ *      // Initialize the SPI flash device and print the memory layout
+ *      spif.init();
+ *      printf("spif size: %llu\n",         spif.size());
+ *      printf("spif read size: %llu\n",    spif.get_read_size());
+ *      printf("spif program size: %llu\n", spif.get_program_size());
+ *      printf("spif erase size: %llu\n",   spif.get_erase_size());
+ *  
+ *      // Write "Hello World!" to the first block
+ *      char *buffer = (char*)malloc(spif.get_erase_size());
  *      sprintf(buffer, "Hello World!\n");
- *      mx25r.erase(0, mx25r.get_erase_size());
- *      mx25r.program(buffer, 0, mx25r.get_erase_size());
- *      mx25r.read(buffer, 0, mx25r.get_erase_size());
+ *      spif.erase(0, spif.get_erase_size());
+ *      spif.program(buffer, 0, spif.get_erase_size());
+ *  
+ *      // Read back what was stored
+ *      spif.read(buffer, 0, spif.get_erase_size());
  *      printf("%s", buffer);
- *
- *      mx25r.deinit();
+ *  
+ *      // Deinitialize the device
+ *      spif.deinit();
  *  }
+ *  @endcode
  */
 class SPIFBlockDevice : public BlockDevice {
 public:
