@@ -22,10 +22,10 @@ https://en.wikipedia.org/wiki/DataFlash
 #include "DataFlashBlockDevice.h"
 
 // Create DataFlash on SPI bus with PTE5 as chip select
-DataFlashBlockDevice at45db(PTE2, PTE4, PTE1, PTE5);
+DataFlashBlockDevice dataflash(PTE2, PTE4, PTE1, PTE5);
 
 // Create DataFlash on SPI bus with PTE6 as write-protect
-DataFlashBlockDevice at45db(PTE2, PTE4, PTE1, PTE5, PTE6);
+DataFlashBlockDevice dataflash2(PTE2, PTE4, PTE1, PTE5, PTE6);
 
 int main() {
     printf("dataflash test\n");
@@ -38,17 +38,17 @@ int main() {
     printf("dataflash erase size: %llu\n", dataflash.get_erase_size());
 
     // Write "Hello World!" to the first block
-    uint8_t *buffer = (uint8_t*)malloc(spif.get_erase_size());
+    char *buffer = (char*)malloc(dataflash.get_erase_size());
     sprintf(buffer, "Hello World!\n");
-    spif.erase(0, spif.get_erase_size());
-    spif.program(buffer, 0, spif.get_erase_size());
+    dataflash.erase(0, dataflash.get_erase_size());
+    dataflash.program(buffer, 0, dataflash.get_erase_size());
 
     // Read back what was stored
-    spif.read(buffer, 0, spif.get_erase_size());
+    dataflash.read(buffer, 0, dataflash.get_erase_size());
     printf("%s", buffer);
 
     // Deinitialize the device
-    spif.deinit();
+    dataflash.deinit();
 }
 ```
 
