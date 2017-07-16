@@ -3,7 +3,7 @@
 #include "unity.h"
 #include "utest.h"
 
-#include "AT45DBBlockDevice.h"
+#include "DataFlashBlockDevice.h"
 #include <stdlib.h>
 
 using namespace utest::v1;
@@ -26,7 +26,7 @@ const struct {
 
 
 void test_read_write() {
-    AT45DBBlockDevice bd(TEST_PINS, TEST_FREQ);
+    DataFlashBlockDevice bd(TEST_PINS, TEST_FREQ);
 
     int err = bd.init();
     TEST_ASSERT_EQUAL(0, err);

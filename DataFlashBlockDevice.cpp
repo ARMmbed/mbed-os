@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-#include "AT45DBBlockDevice.h"
+#include "DataFlashBlockDevice.h"
 
 #include <inttypes.h>
 
 /* constants */
-#define AT45DB_READ_SIZE        1
-#define AT45DB_PROG_SIZE        1
-#define AT45DB_TIMEOUT          10000
-#define AT45DB_ID_MATCH         0x1F20
-#define AT45DB_ID_DENSITY_MASK  0x001F
-#define AT45DB_PAGE_SIZE_256    0x0100
-#define AT45DB_PAGE_SIZE_264    0x0108
-#define AT45DB_PAGE_SIZE_512    0x0200
-#define AT45DB_PAGE_SIZE_528    0x0210
-#define AT45DB_BLOCK_SIZE_2K    0x0800
-#define AT45DB_BLOCK_SIZE_2K1   0x0840
-#define AT45DB_BLOCK_SIZE_4K    0x1000
-#define AT45DB_BLOCK_SIZE_4K1   0x1080
-#define AT45DB_PAGE_BIT_264     9
-#define AT45DB_PAGE_BIT_528     10
+#define DATAFLASH_READ_SIZE        1
+#define DATAFLASH_PROG_SIZE        1
+#define DATAFLASH_TIMEOUT          10000
+#define DATAFLASH_ID_MATCH         0x1F20
+#define DATAFLASH_ID_DENSITY_MASK  0x001F
+#define DATAFLASH_PAGE_SIZE_256    0x0100
+#define DATAFLASH_PAGE_SIZE_264    0x0108
+#define DATAFLASH_PAGE_SIZE_512    0x0200
+#define DATAFLASH_PAGE_SIZE_528    0x0210
+#define DATAFLASH_BLOCK_SIZE_2K    0x0800
+#define DATAFLASH_BLOCK_SIZE_2K1   0x0840
+#define DATAFLASH_BLOCK_SIZE_4K    0x1000
+#define DATAFLASH_BLOCK_SIZE_4K1   0x1080
+#define DATAFLASH_PAGE_BIT_264     9
+#define DATAFLASH_PAGE_BIT_528     10
 
 /* enable debug */
-#define AT45DB_DEBUG 0
+#define DATAFLASH_DEBUG 0
 
-#if AT45DB_DEBUG
+#if DATAFLASH_DEBUG
 #define DEBUG_PRINTF(...) printf(__VA_ARGS__)
 #else
 #define DEBUG_PRINTF(...)
@@ -48,86 +48,86 @@ void _print_status(uint16_t status);
 
 /* non-exhaustive opcode list */
 enum opcode {
-    AT45DB_OP_NOP                       = 0x00,
-    AT45DB_OP_STATUS                    = 0xD7,
-    AT45DB_OP_ID                        = 0x9F,
-    AT45DB_OP_READ_LOW_POWER            = 0x01,
-    AT45DB_OP_READ_LOW_FREQUENCY        = 0x03,
-    AT45DB_OP_PROGRAM_DIRECT            = 0x02, // Program through Buffer 1 without Built-In Erase
-    AT45DB_OP_PROGRAM_DIRECT_WITH_ERASE = 0x82,
-    AT45DB_OP_ERASE_BLOCK               = 0x50,
+    DATAFLASH_OP_NOP                       = 0x00,
+    DATAFLASH_OP_STATUS                    = 0xD7,
+    DATAFLASH_OP_ID                        = 0x9F,
+    DATAFLASH_OP_READ_LOW_POWER            = 0x01,
+    DATAFLASH_OP_READ_LOW_FREQUENCY        = 0x03,
+    DATAFLASH_OP_PROGRAM_DIRECT            = 0x02, // Program through Buffer 1 without Built-In Erase
+    DATAFLASH_OP_PROGRAM_DIRECT_WITH_ERASE = 0x82,
+    DATAFLASH_OP_ERASE_BLOCK               = 0x50,
 };
 
 /* non-exhaustive command list */
 enum command {
-    AT45DB_COMMAND_WRITE_DISABLE        = 0x3D2A7F9A,
-    AT45DB_COMMAND_WRITE_ENABLE         = 0x3D2A7FA9,
-    AT45DB_COMMAND_BINARY_PAGE_SIZE     = 0x3D2A80A6,
-    AT45DB_COMMAND_DATAFLASH_PAGE_SIZE  = 0x3D2A80A7,
+    DATAFLASH_COMMAND_WRITE_DISABLE        = 0x3D2A7F9A,
+    DATAFLASH_COMMAND_WRITE_ENABLE         = 0x3D2A7FA9,
+    DATAFLASH_COMMAND_BINARY_PAGE_SIZE     = 0x3D2A80A6,
+    DATAFLASH_COMMAND_DATAFLASH_PAGE_SIZE  = 0x3D2A80A7,
 };
 
 /* bit masks for interpreting the status register */
 enum status_bit {
-    AT45DB_BIT_READY                = (0x01 << 15),
-    AT45DB_BIT_COMPARE              = (0x01 << 14),
-    AT45DB_BIT_DENSITY              = (0x0F << 10),
-    AT45DB_BIT_PROTECT              = (0x01 <<  9),
-    AT45DB_BIT_PAGE_SIZE            = (0x01 <<  8),
+    DATAFLASH_BIT_READY                = (0x01 << 15),
+    DATAFLASH_BIT_COMPARE              = (0x01 << 14),
+    DATAFLASH_BIT_DENSITY              = (0x0F << 10),
+    DATAFLASH_BIT_PROTECT              = (0x01 <<  9),
+    DATAFLASH_BIT_PAGE_SIZE            = (0x01 <<  8),
 
-    AT45DB_BIT_ERASE_PROGRAM_ERROR  = (0x01 <<  5),
-    AT45DB_BIT_SECTOR_LOCKDOWN      = (0x01 <<  3),
-    AT45DB_BIT_PROGRAM_SUSPEND_2    = (0x01 <<  2),
-    AT45DB_BIT_PROGRAM_SUSPEND_1    = (0x01 <<  1),
-    AT45DB_BIT_ERASE_SUSPEND        = (0x01 <<  0),
+    DATAFLASH_BIT_ERASE_PROGRAM_ERROR  = (0x01 <<  5),
+    DATAFLASH_BIT_SECTOR_LOCKDOWN      = (0x01 <<  3),
+    DATAFLASH_BIT_PROGRAM_SUSPEND_2    = (0x01 <<  2),
+    DATAFLASH_BIT_PROGRAM_SUSPEND_1    = (0x01 <<  1),
+    DATAFLASH_BIT_ERASE_SUSPEND        = (0x01 <<  0),
 };
 
 /* bit masks for detecting density from status register */
 enum status_density {
-    AT45DB_STATUS_DENSITY_2_MBIT    = (0x05 << 10),
-    AT45DB_STATUS_DENSITY_4_MBIT    = (0x07 << 10),
-    AT45DB_STATUS_DENSITY_8_MBIT    = (0x09 << 10),
-    AT45DB_STATUS_DENSITY_16_MBIT   = (0x0B << 10),
-    AT45DB_STATUS_DENSITY_32_MBIT   = (0x0D << 10),
-    AT45DB_STATUS_DENSITY_64_MBIT   = (0x0F << 10),
+    DATAFLASH_STATUS_DENSITY_2_MBIT    = (0x05 << 10),
+    DATAFLASH_STATUS_DENSITY_4_MBIT    = (0x07 << 10),
+    DATAFLASH_STATUS_DENSITY_8_MBIT    = (0x09 << 10),
+    DATAFLASH_STATUS_DENSITY_16_MBIT   = (0x0B << 10),
+    DATAFLASH_STATUS_DENSITY_32_MBIT   = (0x0D << 10),
+    DATAFLASH_STATUS_DENSITY_64_MBIT   = (0x0F << 10),
 };
 
 /* code for calculating density */
 enum id_density {
-    AT45DB_ID_DENSITY_2_MBIT    = 0x03,
-    AT45DB_ID_DENSITY_4_MBIT    = 0x04,
-    AT45DB_ID_DENSITY_8_MBIT    = 0x05,
-    AT45DB_ID_DENSITY_16_MBIT   = 0x06,
-    AT45DB_ID_DENSITY_32_MBIT   = 0x07,
-    AT45DB_ID_DENSITY_64_MBIT   = 0x08,
+    DATAFLASH_ID_DENSITY_2_MBIT    = 0x03,
+    DATAFLASH_ID_DENSITY_4_MBIT    = 0x04,
+    DATAFLASH_ID_DENSITY_8_MBIT    = 0x05,
+    DATAFLASH_ID_DENSITY_16_MBIT   = 0x06,
+    DATAFLASH_ID_DENSITY_32_MBIT   = 0x07,
+    DATAFLASH_ID_DENSITY_64_MBIT   = 0x08,
 };
 
 /* typical duration in milliseconds for each operation */
 enum timing {
-    AT45DB_TIMING_ERASE_PROGRAM_PAGE   =    17,
-    AT45DB_TIMING_PROGRAM_PAGE         =     3,
-    AT45DB_TIMING_ERASE_PAGE           =    12,
-    AT45DB_TIMING_ERASE_BLOCK          =    45,
-    AT45DB_TIMING_ERASE_SECTOR         =   700,
-    AT45DB_TIMING_ERASE_CHIP           = 45000
+    DATAFLASH_TIMING_ERASE_PROGRAM_PAGE   =    17,
+    DATAFLASH_TIMING_PROGRAM_PAGE         =     3,
+    DATAFLASH_TIMING_ERASE_PAGE           =    12,
+    DATAFLASH_TIMING_ERASE_BLOCK          =    45,
+    DATAFLASH_TIMING_ERASE_SECTOR         =   700,
+    DATAFLASH_TIMING_ERASE_CHIP           = 45000
 };
 
 /* frequency domains */
 enum frequency {
-    AT45DB_LOW_POWER_FREQUENCY =  15000000,
-    AT45DB_LOW_FREQUENCY       =  50000000,
-    AT45DB_HIGH_FREQUENCY      =  85000000,
-    AT45DB_HIGHEST_FREQUENCY   = 104000000
+    DATAFLASH_LOW_POWER_FREQUENCY =  15000000,
+    DATAFLASH_LOW_FREQUENCY       =  50000000,
+    DATAFLASH_HIGH_FREQUENCY      =  85000000,
+    DATAFLASH_HIGHEST_FREQUENCY   = 104000000
 };
 
 /* number of dummy bytes required in each frequency domain */
 enum dummy {
-    AT45DB_LOW_POWER_BYTES         = 0,
-    AT45DB_LOW_FREQUENCY_BYTES     = 0,
-    AT45DB_HIGH_FREQUENCY_BYTES    = 1,
-    AT45DB_HIGHEST_FREQUENCY_BYTES = 2
+    DATAFLASH_LOW_POWER_BYTES         = 0,
+    DATAFLASH_LOW_FREQUENCY_BYTES     = 0,
+    DATAFLASH_HIGH_FREQUENCY_BYTES    = 1,
+    DATAFLASH_HIGHEST_FREQUENCY_BYTES = 2
 };
 
-AT45DBBlockDevice::AT45DBBlockDevice(PinName mosi,
+DataFlashBlockDevice::DataFlashBlockDevice(PinName mosi,
                                      PinName miso,
                                      PinName sclk,
                                      PinName cs,
@@ -139,10 +139,10 @@ AT45DBBlockDevice::AT45DBBlockDevice(PinName mosi,
         _device_size(0)
 {
     /* check that frequency is within range */
-    if (freq > AT45DB_LOW_FREQUENCY) {
+    if (freq > DATAFLASH_LOW_FREQUENCY) {
 
         /* cap frequency at the highest supported one */
-        _spi.frequency(AT45DB_LOW_FREQUENCY);
+        _spi.frequency(DATAFLASH_LOW_FREQUENCY);
 
     } else {
         /* freqency is valid, use as-is */
@@ -155,35 +155,35 @@ AT45DBBlockDevice::AT45DBBlockDevice(PinName mosi,
     }
 }
 
-int AT45DBBlockDevice::init()
+int DataFlashBlockDevice::init()
 {
     DEBUG_PRINTF("init\r\n");
 
     int result = BD_ERROR_DEVICE_ERROR;
 
     /* read ID register to validate model and set dimensions */
-    uint16_t id = _get_register(AT45DB_OP_ID);
+    uint16_t id = _get_register(DATAFLASH_OP_ID);
 
-    DEBUG_PRINTF("id: %04X\r\n", id & AT45DB_ID_MATCH);
+    DEBUG_PRINTF("id: %04X\r\n", id & DATAFLASH_ID_MATCH);
 
     /* get status register to verify the page size mode */
-    uint16_t status = _get_register(AT45DB_OP_STATUS);
+    uint16_t status = _get_register(DATAFLASH_OP_STATUS);
 
     /* manufacture ID match */
-    if ((id & AT45DB_ID_MATCH) == AT45DB_ID_MATCH) {
+    if ((id & DATAFLASH_ID_MATCH) == DATAFLASH_ID_MATCH) {
 
         /* calculate density */
-        _device_size = 0x8000 << (id & AT45DB_ID_DENSITY_MASK);
+        _device_size = 0x8000 << (id & DATAFLASH_ID_DENSITY_MASK);
 
         bool binary_page_size = true;
 
         /* check if device is configured for binary page sizes */
-        if ((status & AT45DB_BIT_PAGE_SIZE) == AT45DB_BIT_PAGE_SIZE) {
+        if ((status & DATAFLASH_BIT_PAGE_SIZE) == DATAFLASH_BIT_PAGE_SIZE) {
             DEBUG_PRINTF("Page size is binary\r\n");
 
-#if MBED_CONF_AT45DB_DATAFLASH_SIZE
+#if MBED_CONF_DATAFLASH_DATAFLASH_SIZE
             /* send reconfiguration command */
-            _write_command(AT45DB_COMMAND_DATAFLASH_PAGE_SIZE, NULL, 0);
+            _write_command(DATAFLASH_COMMAND_DATAFLASH_PAGE_SIZE, NULL, 0);
 
             /* wait for device to be ready and update return code */
             result = _sync();
@@ -197,9 +197,9 @@ int AT45DBBlockDevice::init()
         } else {
             DEBUG_PRINTF("Page size is not binary\r\n");
 
-#if MBED_CONF_AT45DB_BINARY_SIZE
+#if MBED_CONF_DATAFLASH_BINARY_SIZE
             /* send reconfiguration command */
-            _write_command(AT45DB_COMMAND_BINARY_PAGE_SIZE, NULL, 0);
+            _write_command(DATAFLASH_COMMAND_BINARY_PAGE_SIZE, NULL, 0);
 
             /* wait for device to be ready and update return code */
             result = _sync();
@@ -213,42 +213,42 @@ int AT45DBBlockDevice::init()
         }
 
         /* set page program size and block erase size */
-        switch (id & AT45DB_ID_DENSITY_MASK) {
-            case AT45DB_ID_DENSITY_2_MBIT:
-            case AT45DB_ID_DENSITY_4_MBIT:
-            case AT45DB_ID_DENSITY_8_MBIT:
-            case AT45DB_ID_DENSITY_64_MBIT:
+        switch (id & DATAFLASH_ID_DENSITY_MASK) {
+            case DATAFLASH_ID_DENSITY_2_MBIT:
+            case DATAFLASH_ID_DENSITY_4_MBIT:
+            case DATAFLASH_ID_DENSITY_8_MBIT:
+            case DATAFLASH_ID_DENSITY_64_MBIT:
                 if (binary_page_size) {
-                    _page_size = AT45DB_PAGE_SIZE_256;
-                    _block_size = AT45DB_BLOCK_SIZE_2K;
+                    _page_size = DATAFLASH_PAGE_SIZE_256;
+                    _block_size = DATAFLASH_BLOCK_SIZE_2K;
                 } else {
-                    _page_size = AT45DB_PAGE_SIZE_264;
-                    _block_size = AT45DB_BLOCK_SIZE_2K1;
+                    _page_size = DATAFLASH_PAGE_SIZE_264;
+                    _block_size = DATAFLASH_BLOCK_SIZE_2K1;
 
                     /* adjust device size */
-                    _device_size = (_device_size / AT45DB_PAGE_SIZE_256) *
-                                    AT45DB_PAGE_SIZE_264;
+                    _device_size = (_device_size / DATAFLASH_PAGE_SIZE_256) *
+                                    DATAFLASH_PAGE_SIZE_264;
                 }
                 break;
-            case AT45DB_ID_DENSITY_16_MBIT:
-            case AT45DB_ID_DENSITY_32_MBIT:
+            case DATAFLASH_ID_DENSITY_16_MBIT:
+            case DATAFLASH_ID_DENSITY_32_MBIT:
                 if (binary_page_size) {
-                    _page_size = AT45DB_PAGE_SIZE_512;
-                    _block_size = AT45DB_BLOCK_SIZE_4K;
+                    _page_size = DATAFLASH_PAGE_SIZE_512;
+                    _block_size = DATAFLASH_BLOCK_SIZE_4K;
                 } else {
-                    _page_size = AT45DB_PAGE_SIZE_528;
-                    _block_size = AT45DB_BLOCK_SIZE_4K1;
+                    _page_size = DATAFLASH_PAGE_SIZE_528;
+                    _block_size = DATAFLASH_BLOCK_SIZE_4K1;
 
                     /* adjust device size */
-                    _device_size = (_device_size / AT45DB_PAGE_SIZE_512) *
-                                    AT45DB_PAGE_SIZE_528;
+                    _device_size = (_device_size / DATAFLASH_PAGE_SIZE_512) *
+                                    DATAFLASH_PAGE_SIZE_528;
                 }
                 break;
             default:
                 break;
         }
 
-        DEBUG_PRINTF("density: %" PRIu16 "\r\n", id & AT45DB_ID_DENSITY_MASK);
+        DEBUG_PRINTF("density: %" PRIu16 "\r\n", id & DATAFLASH_ID_DENSITY_MASK);
         DEBUG_PRINTF("size: %" PRIu32 "\r\n", _device_size);
         DEBUG_PRINTF("page: %" PRIu16 "\r\n", _page_size);
         DEBUG_PRINTF("block: %" PRIu16 "\r\n", _block_size);
@@ -263,14 +263,14 @@ int AT45DBBlockDevice::init()
     return result;
 }
 
-int AT45DBBlockDevice::deinit()
+int DataFlashBlockDevice::deinit()
 {
     DEBUG_PRINTF("deinit\r\n");
 
     return BD_ERROR_OK;
 }
 
-int AT45DBBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
+int DataFlashBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     DEBUG_PRINTF("read: %p %" PRIX64 " %" PRIX64 "\r\n", buffer, addr, size);
 
@@ -285,7 +285,7 @@ int AT45DBBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
         _cs = 0;
 
         /* send read opcode */
-        _spi.write(AT45DB_OP_READ_LOW_FREQUENCY);
+        _spi.write(DATAFLASH_OP_READ_LOW_FREQUENCY);
 
         /* translate address */
         uint32_t address = _translate_address(addr);
@@ -299,7 +299,7 @@ int AT45DBBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
         /* clock out one byte at a time and store in external buffer */
         for (uint32_t index = 0; index < size; index++) {
-            external_buffer[index] = _spi.write(AT45DB_OP_NOP);
+            external_buffer[index] = _spi.write(DATAFLASH_OP_NOP);
         }
 
         /* deactivate device */
@@ -311,7 +311,7 @@ int AT45DBBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     return result;
 }
 
-int AT45DBBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
+int DataFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
     DEBUG_PRINTF("program: %p %" PRIX64 " %" PRIX64 "\r\n", buffer, addr, size);
 
@@ -373,7 +373,7 @@ int AT45DBBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t siz
     return result;
 }
 
-int AT45DBBlockDevice::erase(bd_addr_t addr, bd_size_t size)
+int DataFlashBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     DEBUG_PRINTF("erase: %" PRIX64 " %" PRIX64 "\r\n", addr, size);
 
@@ -390,7 +390,7 @@ int AT45DBBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         while (erased < size) {
 
             /* set block erase opcode */
-            uint32_t command = AT45DB_OP_ERASE_BLOCK;
+            uint32_t command = DATAFLASH_OP_ERASE_BLOCK;
 
             /* translate address */
             uint32_t address = _translate_address(addr);
@@ -423,28 +423,28 @@ int AT45DBBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     return result;
 }
 
-bd_size_t AT45DBBlockDevice::get_read_size() const
+bd_size_t DataFlashBlockDevice::get_read_size() const
 {
-    DEBUG_PRINTF("read size: %d\r\n", AT45DB_READ_SIZE);
+    DEBUG_PRINTF("read size: %d\r\n", DATAFLASH_READ_SIZE);
 
-    return AT45DB_READ_SIZE;
+    return DATAFLASH_READ_SIZE;
 }
 
-bd_size_t AT45DBBlockDevice::get_program_size() const
+bd_size_t DataFlashBlockDevice::get_program_size() const
 {
-    DEBUG_PRINTF("program size: %d\r\n", AT45DB_PROG_SIZE);
+    DEBUG_PRINTF("program size: %d\r\n", DATAFLASH_PROG_SIZE);
 
-    return AT45DB_PROG_SIZE;
+    return DATAFLASH_PROG_SIZE;
 }
 
-bd_size_t AT45DBBlockDevice::get_erase_size() const
+bd_size_t DataFlashBlockDevice::get_erase_size() const
 {
     DEBUG_PRINTF("erase size: %" PRIX16 "\r\n", _block_size);
 
     return _block_size;
 }
 
-bd_size_t AT45DBBlockDevice::size() const
+bd_size_t DataFlashBlockDevice::size() const
 {
     DEBUG_PRINTF("device size: %" PRIX32 "\r\n", _device_size);
 
@@ -458,7 +458,7 @@ bd_size_t AT45DBBlockDevice::size() const
  * @param opcode Register to be read.
  * @return value.
  */
-uint16_t AT45DBBlockDevice::_get_register(uint8_t opcode)
+uint16_t DataFlashBlockDevice::_get_register(uint8_t opcode)
 {
     DEBUG_PRINTF("_get_register: %" PRIX8 "\r\n", opcode);
 
@@ -469,8 +469,8 @@ uint16_t AT45DBBlockDevice::_get_register(uint8_t opcode)
     _spi.write(opcode);
 
     /* read and store result */
-    int status = (_spi.write(AT45DB_OP_NOP));
-    status = (status << 8) | (_spi.write(AT45DB_OP_NOP));
+    int status = (_spi.write(DATAFLASH_OP_NOP));
+    status = (status << 8) | (_spi.write(DATAFLASH_OP_NOP));
 
     /* deactivate device */
     _cs = 1;
@@ -490,7 +490,7 @@ uint16_t AT45DBBlockDevice::_get_register(uint8_t opcode)
  * @param buffer Data to be sent after command.
  * @param size Size of buffer.
  */
-void AT45DBBlockDevice::_write_command(uint32_t command, const uint8_t *buffer, uint32_t size)
+void DataFlashBlockDevice::_write_command(uint32_t command, const uint8_t *buffer, uint32_t size)
 {
     DEBUG_PRINTF("_write_command: %" PRIX32 " %p %" PRIX32 "\r\n", command, buffer, size);
 
@@ -519,7 +519,7 @@ void AT45DBBlockDevice::_write_command(uint32_t command, const uint8_t *buffer, 
  *
  * @param enable Boolean for enabling or disabling write protection.
  */
-void AT45DBBlockDevice::_write_enable(bool enable)
+void DataFlashBlockDevice::_write_enable(bool enable)
 {
     DEBUG_PRINTF("_write_enable: %d\r\n", enable);
 
@@ -527,7 +527,7 @@ void AT45DBBlockDevice::_write_enable(bool enable)
     if (enable) {
 
         /* send 4 byte command enabling writes */
-        _write_command(AT45DB_COMMAND_WRITE_ENABLE, NULL, 0);
+        _write_command(DATAFLASH_COMMAND_WRITE_ENABLE, NULL, 0);
 
         /* if not-write-protected pin is connected, deselect it */
         if (_nwp.is_connected()) {
@@ -542,7 +542,7 @@ void AT45DBBlockDevice::_write_enable(bool enable)
         }
 
         /* send 4 byte command disabling writes */
-        _write_command(AT45DB_COMMAND_WRITE_DISABLE, NULL, 0);
+        _write_command(DATAFLASH_COMMAND_WRITE_DISABLE, NULL, 0);
     }
 }
 
@@ -551,7 +551,7 @@ void AT45DBBlockDevice::_write_enable(bool enable)
  *
  * @return BlockDevice compatible error code.
  */
-int AT45DBBlockDevice::_sync(void)
+int DataFlashBlockDevice::_sync(void)
 {
     DEBUG_PRINTF("_sync\r\n");
 
@@ -562,25 +562,25 @@ int AT45DBBlockDevice::_sync(void)
        The polling interval is based on the typical page program time.
      */
     for (uint32_t timeout = 0;
-         timeout < AT45DB_TIMEOUT;
-         timeout += AT45DB_TIMING_ERASE_PROGRAM_PAGE) {
+         timeout < DATAFLASH_TIMEOUT;
+         timeout += DATAFLASH_TIMING_ERASE_PROGRAM_PAGE) {
 
         /* get status register */
-        uint16_t status = _get_register(AT45DB_OP_STATUS);
+        uint16_t status = _get_register(DATAFLASH_OP_STATUS);
 
         /* erase/program bit set, exit with error code set */
-        if (status & AT45DB_BIT_ERASE_PROGRAM_ERROR) {
-            DEBUG_PRINTF("AT45DB_BIT_ERASE_PROGRAM_ERROR\r\n");
+        if (status & DATAFLASH_BIT_ERASE_PROGRAM_ERROR) {
+            DEBUG_PRINTF("DATAFLASH_BIT_ERASE_PROGRAM_ERROR\r\n");
             break;
         /* device ready, set OK code set */
-        } else if (status & AT45DB_BIT_READY) {
-            DEBUG_PRINTF("AT45DB_BIT_READY\r\n");
+        } else if (status & DATAFLASH_BIT_READY) {
+            DEBUG_PRINTF("DATAFLASH_BIT_READY\r\n");
             result = BD_ERROR_OK;
             break;
         /* wait the typical write period before trying again */
         } else {
-            DEBUG_PRINTF("wait_ms: %d\r\n", AT45DB_TIMING_ERASE_PROGRAM_PAGE);
-            wait_ms(AT45DB_TIMING_ERASE_PROGRAM_PAGE);
+            DEBUG_PRINTF("wait_ms: %d\r\n", DATAFLASH_TIMING_ERASE_PROGRAM_PAGE);
+            wait_ms(DATAFLASH_TIMING_ERASE_PROGRAM_PAGE);
         }
     }
 
@@ -596,27 +596,27 @@ int AT45DBBlockDevice::_sync(void)
  * @param size Bytes to write. Can at most be the full page.
  * @return BlockDevice error code.
  */
-int AT45DBBlockDevice::_write_page(const uint8_t *buffer,
+int DataFlashBlockDevice::_write_page(const uint8_t *buffer,
                                    uint32_t page,
                                    uint32_t offset,
                                    uint32_t size)
 {
     DEBUG_PRINTF("_write_page: %p %" PRIX32 " %" PRIX32 "\r\n", buffer, page, size);
 
-    uint32_t command = AT45DB_OP_NOP;
+    uint32_t command = DATAFLASH_OP_NOP;
 
     /* opcode for writing directly to device, in a single command,
        assuming the page has been erased before hand.
      */
-    command = AT45DB_OP_PROGRAM_DIRECT;
+    command = DATAFLASH_OP_PROGRAM_DIRECT;
 
     uint32_t address = 0;
 
     /* convert page number and offset into device address based on address format */
-    if (_page_size == AT45DB_PAGE_SIZE_264) {
-        address = (page << AT45DB_PAGE_BIT_264) | offset;
-    } else if (_page_size == AT45DB_PAGE_SIZE_528) {
-        address = (page << AT45DB_PAGE_BIT_528) | offset;
+    if (_page_size == DATAFLASH_PAGE_SIZE_264) {
+        address = (page << DATAFLASH_PAGE_BIT_264) | offset;
+    } else if (_page_size == DATAFLASH_PAGE_SIZE_528) {
+        address = (page << DATAFLASH_PAGE_BIT_528) | offset;
     } else {
         address = (page * _page_size) | offset;
     }
@@ -643,17 +643,17 @@ int AT45DBBlockDevice::_write_page(const uint8_t *buffer,
  * @param addr Binary address.
  * @return Address in format expected by device.
  */
-uint32_t AT45DBBlockDevice::_translate_address(bd_addr_t addr)
+uint32_t DataFlashBlockDevice::_translate_address(bd_addr_t addr)
 {
     uint32_t address = addr;
 
     /* translate address if page size is non-binary */
-    if (_page_size == AT45DB_PAGE_SIZE_264) {
-        address = ((addr / AT45DB_PAGE_SIZE_264) << AT45DB_PAGE_BIT_264) |
-                  (addr % AT45DB_PAGE_SIZE_264);
-    } else if (_page_size == AT45DB_PAGE_SIZE_528) {
-        address = ((addr / AT45DB_PAGE_SIZE_528) << AT45DB_PAGE_BIT_528) |
-                  (addr % AT45DB_PAGE_SIZE_528);
+    if (_page_size == DATAFLASH_PAGE_SIZE_264) {
+        address = ((addr / DATAFLASH_PAGE_SIZE_264) << DATAFLASH_PAGE_BIT_264) |
+                  (addr % DATAFLASH_PAGE_SIZE_264);
+    } else if (_page_size == DATAFLASH_PAGE_SIZE_528) {
+        address = ((addr / DATAFLASH_PAGE_SIZE_528) << DATAFLASH_PAGE_BIT_528) |
+                  (addr % DATAFLASH_PAGE_SIZE_528);
     }
 
     return address;
@@ -666,82 +666,82 @@ uint32_t AT45DBBlockDevice::_translate_address(bd_addr_t addr)
  */
 void _print_status(uint16_t status)
 {
-#if AT45DB_DEBUG
+#if DATAFLASH_DEBUG
     DEBUG_PRINTF("%04X\r\n", status);
 
     /* device is ready (after write/erase) */
-    if (status & AT45DB_BIT_READY) {
-        DEBUG_PRINTF("AT45DB_BIT_READY\r\n");
+    if (status & DATAFLASH_BIT_READY) {
+        DEBUG_PRINTF("DATAFLASH_BIT_READY\r\n");
     }
 
     /* Buffer comparison failed */
-    if (status & AT45DB_BIT_COMPARE) {
-        DEBUG_PRINTF("AT45DB_BIT_COMPARE\r\n");
+    if (status & DATAFLASH_BIT_COMPARE) {
+        DEBUG_PRINTF("DATAFLASH_BIT_COMPARE\r\n");
     }
 
     /* device size is 2 MB */
-    if (status & AT45DB_STATUS_DENSITY_2_MBIT) {
-        DEBUG_PRINTF("AT45DB_STATUS_DENSITY_2_MBIT\r\n");
+    if (status & DATAFLASH_STATUS_DENSITY_2_MBIT) {
+        DEBUG_PRINTF("DATAFLASH_STATUS_DENSITY_2_MBIT\r\n");
     }
 
     /* device size is 4 MB */
-    if (status & AT45DB_STATUS_DENSITY_4_MBIT) {
-        DEBUG_PRINTF("AT45DB_STATUS_DENSITY_4_MBIT\r\n");
+    if (status & DATAFLASH_STATUS_DENSITY_4_MBIT) {
+        DEBUG_PRINTF("DATAFLASH_STATUS_DENSITY_4_MBIT\r\n");
     }
 
     /* device size is 8 MB */
-    if (status & AT45DB_STATUS_DENSITY_8_MBIT) {
-        DEBUG_PRINTF("AT45DB_STATUS_DENSITY_8_MBIT\r\n");
+    if (status & DATAFLASH_STATUS_DENSITY_8_MBIT) {
+        DEBUG_PRINTF("DATAFLASH_STATUS_DENSITY_8_MBIT\r\n");
     }
 
     /* device size is 16 MB */
-    if (status & AT45DB_STATUS_DENSITY_16_MBIT) {
-        DEBUG_PRINTF("AT45DB_STATUS_DENSITY_16_MBIT\r\n");
+    if (status & DATAFLASH_STATUS_DENSITY_16_MBIT) {
+        DEBUG_PRINTF("DATAFLASH_STATUS_DENSITY_16_MBIT\r\n");
     }
 
     /* device size is 32 MB */
-    if (status & AT45DB_STATUS_DENSITY_32_MBIT) {
-        DEBUG_PRINTF("AT45DB_STATUS_DENSITY_32_MBIT\r\n");
+    if (status & DATAFLASH_STATUS_DENSITY_32_MBIT) {
+        DEBUG_PRINTF("DATAFLASH_STATUS_DENSITY_32_MBIT\r\n");
     }
 
     /* device size is 64 MB */
-    if (status & AT45DB_STATUS_DENSITY_64_MBIT) {
-        DEBUG_PRINTF("AT45DB_STATUS_DENSITY_64_MBIT\r\n");
+    if (status & DATAFLASH_STATUS_DENSITY_64_MBIT) {
+        DEBUG_PRINTF("DATAFLASH_STATUS_DENSITY_64_MBIT\r\n");
     }
 
     /* sector protectino enabled */
-    if (status & AT45DB_BIT_PROTECT) {
-        DEBUG_PRINTF("AT45DB_BIT_PROTECT\r\n");
+    if (status & DATAFLASH_BIT_PROTECT) {
+        DEBUG_PRINTF("DATAFLASH_BIT_PROTECT\r\n");
     }
 
     /* page size is a power of 2 */
-    if (status & AT45DB_BIT_PAGE_SIZE) {
-        DEBUG_PRINTF("AT45DB_BIT_PAGE_SIZE\r\n");
+    if (status & DATAFLASH_BIT_PAGE_SIZE) {
+        DEBUG_PRINTF("DATAFLASH_BIT_PAGE_SIZE\r\n");
     }
 
     /* erase/program error */
-    if (status & AT45DB_BIT_ERASE_PROGRAM_ERROR) {
-        DEBUG_PRINTF("AT45DB_BIT_ERASE_PROGRAM_ERROR\r\n");
+    if (status & DATAFLASH_BIT_ERASE_PROGRAM_ERROR) {
+        DEBUG_PRINTF("DATAFLASH_BIT_ERASE_PROGRAM_ERROR\r\n");
     }
 
     /* sector lockdown still possible */
-    if (status & AT45DB_BIT_SECTOR_LOCKDOWN) {
-        DEBUG_PRINTF("AT45DB_BIT_SECTOR_LOCKDOWN\r\n");
+    if (status & DATAFLASH_BIT_SECTOR_LOCKDOWN) {
+        DEBUG_PRINTF("DATAFLASH_BIT_SECTOR_LOCKDOWN\r\n");
     }
 
     /* program operation suspended while using buffer 2 */
-    if (status & AT45DB_BIT_PROGRAM_SUSPEND_2) {
-        DEBUG_PRINTF("AT45DB_BIT_PROGRAM_SUSPEND_2\r\n");
+    if (status & DATAFLASH_BIT_PROGRAM_SUSPEND_2) {
+        DEBUG_PRINTF("DATAFLASH_BIT_PROGRAM_SUSPEND_2\r\n");
     }
 
     /* program operation suspended while using buffer 1 */
-    if (status & AT45DB_BIT_PROGRAM_SUSPEND_1) {
-        DEBUG_PRINTF("AT45DB_BIT_PROGRAM_SUSPEND_1\r\n");
+    if (status & DATAFLASH_BIT_PROGRAM_SUSPEND_1) {
+        DEBUG_PRINTF("DATAFLASH_BIT_PROGRAM_SUSPEND_1\r\n");
     }
 
     /* erase has been suspended */
-    if (status & AT45DB_BIT_ERASE_SUSPEND) {
-        DEBUG_PRINTF("AT45DB_BIT_ERASE_SUSPEND\r\n");
+    if (status & DATAFLASH_BIT_ERASE_SUSPEND) {
+        DEBUG_PRINTF("DATAFLASH_BIT_ERASE_SUSPEND\r\n");
     }
 #endif
 }

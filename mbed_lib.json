@@ -1,5 +1,5 @@
 {
-    "name": "at45db",
+    "name": "dataflash",
     "config": {
         "binary-size": {
             "help": "Configure device to use binary address space.",

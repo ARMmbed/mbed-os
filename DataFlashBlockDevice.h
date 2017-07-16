@@ -14,46 +14,46 @@
  * limitations under the License.
  */
 
-#ifndef MBED_AT45DB_BLOCK_DEVICE_H
-#define MBED_AT45DB_BLOCK_DEVICE_H
+#ifndef MBED_DATAFLASH_BLOCK_DEVICE_H
+#define MBED_DATAFLASH_BLOCK_DEVICE_H
 
 #include <mbed.h>
 #include "BlockDevice.h"
 
 
-/** BlockDevice for AT45DB flash devices
+/** BlockDevice for DataFlash flash devices
  *
  *  @code
  *  #include "mbed.h"
- *  #include "AT45DBBlockDevice.h"
+ *  #include "DataFlashBlockDevice.h"
  *
- *  // Create at45db on SPI bus with PTE5 as chip select
- *  AT45DBBlockDevice at45db(PTE2, PTE4, PTE1, PTE5);
+ *  // Create DataFlash on SPI bus with PTE5 as chip select
+ *  DataFlashBlockDevice dataflash(PTE2, PTE4, PTE1, PTE5);
  *
- *  // Create at45db on SPI bus with PTE6 as write-protect
- *  AT45DBBlockDevice at45db(PTE2, PTE4, PTE1, PTE5, PTE6);
+ *  // Create DataFlash on SPI bus with PTE6 as write-protect
+ *  DataFlashBlockDevice dataflash(PTE2, PTE4, PTE1, PTE5, PTE6);
  *
  *  int main() {
- *      printf("at45db test\n");
- *      at45db.init();
- *      printf("at45db size: %llu\n", at45db.size());
- *      printf("at45db read size: %llu\n", at45db.get_read_size());
- *      printf("at45db program size: %llu\n", at45db.get_program_size());
- *      printf("at45db erase size: %llu\n", at45db.get_erase_size());
+ *      printf("dataflash test\n");
+ *      dataflash.init();
+ *      printf("dataflash size: %llu\n", dataflash.size());
+ *      printf("dataflash read size: %llu\n", dataflash.get_read_size());
+ *      printf("dataflash program size: %llu\n", dataflash.get_program_size());
+ *      printf("dataflash erase size: %llu\n", dataflash.get_erase_size());
  *
- *      uint8_t *buffer = malloc(at45db.get_erase_size());
+ *      uint8_t *buffer = malloc(dataflash.get_erase_size());
  *      sprintf(buffer, "Hello World!\n");
- *      at45db.erase(0, at45db.get_erase_size());
- *      at45db.program(buffer, 0, at45db.get_erase_size());
- *      at45db.read(buffer, 0, at45db.get_erase_size());
+ *      dataflash.erase(0, dataflash.get_erase_size());
+ *      dataflash.program(buffer, 0, dataflash.get_erase_size());
+ *      dataflash.read(buffer, 0, dataflash.get_erase_size());
  *      printf("%s", buffer);
  *
- *      at45db.deinit();
+ *      dataflash.deinit();
  *  }
  */
-class AT45DBBlockDevice : public BlockDevice {
+class DataFlashBlockDevice : public BlockDevice {
 public:
-    /** Creates a AT45DBBlockDevice on a SPI bus specified by pins
+    /** Creates a DataFlashBlockDevice on a SPI bus specified by pins
      *
      *  @param mosi     SPI master out, slave in pin
      *  @param miso     SPI master in, slave out pin
@@ -62,7 +62,7 @@ public:
      *  @param nowp     GPIO not-write-protect
      *  @param freq     Clock speed of the SPI bus (defaults to 40MHz)
      */
-    AT45DBBlockDevice(PinName mosi,
+    DataFlashBlockDevice(PinName mosi,
                       PinName miso,
                       PinName sclk,
                       PinName csel,
@@ -158,4 +158,4 @@ private:
 };
 
 
-#endif  /* MBED_AT45DB_BLOCK_DEVICE_H */
+#endif  /* MBED_DATAFLASH_BLOCK_DEVICE_H */
