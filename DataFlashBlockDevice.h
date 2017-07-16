@@ -24,32 +24,40 @@
 /** BlockDevice for DataFlash flash devices
  *
  *  @code
+ *  // Here's an example using the AT45DB on the K64F
  *  #include "mbed.h"
  *  #include "DataFlashBlockDevice.h"
  *
  *  // Create DataFlash on SPI bus with PTE5 as chip select
- *  DataFlashBlockDevice dataflash(PTE2, PTE4, PTE1, PTE5);
+ *  DataFlashBlockDevice at45db(PTE2, PTE4, PTE1, PTE5);
  *
  *  // Create DataFlash on SPI bus with PTE6 as write-protect
- *  DataFlashBlockDevice dataflash(PTE2, PTE4, PTE1, PTE5, PTE6);
+ *  DataFlashBlockDevice at45db(PTE2, PTE4, PTE1, PTE5, PTE6);
  *
  *  int main() {
  *      printf("dataflash test\n");
+ *
+ *      // Initialize the SPI flash device and print the memory layout
  *      dataflash.init();
  *      printf("dataflash size: %llu\n", dataflash.size());
  *      printf("dataflash read size: %llu\n", dataflash.get_read_size());
  *      printf("dataflash program size: %llu\n", dataflash.get_program_size());
  *      printf("dataflash erase size: %llu\n", dataflash.get_erase_size());
  *
- *      uint8_t *buffer = malloc(dataflash.get_erase_size());
+ *      // Write "Hello World!" to the first block
+ *      uint8_t *buffer = (uint8_t*)malloc(spif.get_erase_size());
  *      sprintf(buffer, "Hello World!\n");
- *      dataflash.erase(0, dataflash.get_erase_size());
- *      dataflash.program(buffer, 0, dataflash.get_erase_size());
- *      dataflash.read(buffer, 0, dataflash.get_erase_size());
+ *      spif.erase(0, spif.get_erase_size());
+ *      spif.program(buffer, 0, spif.get_erase_size());
+ *
+ *      // Read back what was stored
+ *      spif.read(buffer, 0, spif.get_erase_size());
  *      printf("%s", buffer);
  *
- *      dataflash.deinit();
+ *      // Deinitialize the device
+ *      spif.deinit();
  *  }
+ *  @endcode
  */
 class DataFlashBlockDevice : public BlockDevice {
 public:
