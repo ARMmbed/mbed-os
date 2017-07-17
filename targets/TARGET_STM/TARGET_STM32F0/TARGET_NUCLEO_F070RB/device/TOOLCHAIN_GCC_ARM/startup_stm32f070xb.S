@@ -65,21 +65,39 @@ Reset_Handler:
   mov   sp, r0          /* set stack pointer */
 
 /* Copy the data segment initializers from flash to SRAM */
-  movs r1, #0
+  // Load from _sidata -> _sdata through _edata
+  // _sidata has a vma = lma in flash at the end of .text
+  // _sdata has a lma in flash but a vma of ram, so here we move it from where
+  // it was loaded (lma) into where it will be accessed (vma).
+  // Register Schema:
+  //  r0 = _sdata, r1 = _edata, r2 = _sidata
+  //  r3 = index (goes from 0 -> _sdata - _edata)
+  //  r4 = temp var for *(_sidata + r3) or (_sdata + r3)
+  // This is all equivalent to this C:
+  //  int index = 0;
+  //  extern uint32_t *_sdata, *_sidata;
+  //  while (_sdata + index < _edata) {
+  //    *_sdata[index] = *_sidata[index];
+  //    index += 1;
+  //  }
+  ldr r0, =_sdata
+  ldr r1, =_edata
+  ldr r2, =_sidata
+  movs r3, #0
   b LoopCopyDataInit
 
 CopyDataInit:
-  ldr r3, =_sidata
-  ldr r3, [r3, r1]
-  str r3, [r0, r1]
-  adds r1, r1, #4
+  ldr r4, [r2, r3]
+  str r4, [r0, r3]
+  adds r3, r3, #4
 
 LoopCopyDataInit:
-  ldr r0, =_sdata
-  ldr r3, =_edata
-  adds r2, r0, r1
-  cmp r2, r3
+  // while (_sdata + r3 < _edata)
+  adds r4, r0, r3
+  // if (r4 < r1) branch to CopyDataInit
+  cmp r4, r1
   bcc CopyDataInit
+
 
 /* Call the clock system intitialization function.*/
   bl  SystemInit

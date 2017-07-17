@@ -68,7 +68,7 @@
         },
         "ppp-thread-stacksize": {
             "help": "Thread stack size for PPP",
-            "value": 512
+            "value": 768
         }
     }
 }

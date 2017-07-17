@@ -218,19 +218,19 @@ static void uart_irq(int id)
     
     if (serial_irq_ids[id] != 0) {
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TC) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TC) != RESET) {
+            if (__HAL_UART_GET_IT(huart, UART_IT_TC) != RESET) {
             irq_handler(serial_irq_ids[id], TxIrq);
                 __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_TC);
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET) {
+            if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
             irq_handler(serial_irq_ids[id], RxIrq);
                 __HAL_UART_CLEAR_FLAG(huart, UART_FLAG_RXNE);
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ERR) != RESET) {
+            if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
                 volatile uint32_t tmpval = huart->Instance->RDR; // Clear ORE flag
             }
         }
@@ -697,19 +697,19 @@ int serial_irq_handler_asynch(serial_t *obj)
     
     // Handle error events
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_PE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT(huart, UART_IT_PE) != RESET) {
             return_event |= (SERIAL_EVENT_RX_PARITY_ERROR & obj_s->events);
         }
 }
 
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT(huart, UART_IT_FE) != RESET) {
             return_event |= (SERIAL_EVENT_RX_FRAMING_ERROR & obj_s->events);
         }
     }
     
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
             return_event |= (SERIAL_EVENT_RX_OVERRUN_ERROR & obj_s->events);
         }
     }

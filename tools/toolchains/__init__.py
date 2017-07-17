@@ -818,7 +818,7 @@ class mbedToolchain:
                         c = c.replace("\\", "/")
                         if self.CHROOT:
                             c = c.replace(self.CHROOT, '')
-                        cmd_list.append('-I%s' % c)
+                        cmd_list.append('"-I%s"' % c)
                 string = " ".join(cmd_list)
                 f.write(string)
         return include_file
@@ -863,7 +863,10 @@ class mbedToolchain:
 
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
-            inc_paths.extend(inc_dirs)
+            if isinstance(inc_dirs, list):
+                inc_paths.extend(inc_dirs)
+            else:
+                inc_paths.append(inc_dirs)
         # De-duplicate include paths
         inc_paths = set(inc_paths)
         # Sort include paths for consistency
