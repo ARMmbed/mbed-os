@@ -1408,9 +1408,10 @@
         "default_toolchain": "ARM",
         "extra_labels_add": ["STM32L1", "STM32L151CC"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "device_has_add": ["ANALOGOUT"],
+        "device_has_add": ["ANALOGOUT", "FLASH"],
         "release_versions": ["5"],
-        "device_name": "STM32L151CC"
+        "device_name": "STM32L151CC",
+        "bootloader_supported": true
     },
     "MOTE_L152RC": {
         "inherits": ["FAMILY_STM32"],
