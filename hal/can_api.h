@@ -50,7 +50,8 @@ typedef enum {
     MODE_SILENT,
     MODE_TEST_LOCAL,
     MODE_TEST_GLOBAL,
-    MODE_TEST_SILENT
+    MODE_TEST_SILENT,
+    MODE_FIFO
 } CanMode;
 
 typedef void (*can_irq_handler)(uint32_t id, CanIrqType type);
