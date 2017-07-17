@@ -1976,7 +1976,9 @@
         "extra_labels": ["ARM_SSG", "CM3DS_MPS2"],
         "macros": ["CMSDK_CM3DS"],
         "device_has": ["ANALOGIN", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "RTC"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "copy_method": "mps2",
+        "reset_method": "reboot.txt"
     },
     "ARM_BEETLE_SOC": {
         "inherits": ["ARM_IOTSS_Target"],
