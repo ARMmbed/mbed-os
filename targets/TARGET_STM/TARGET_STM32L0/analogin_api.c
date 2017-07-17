@@ -41,7 +41,7 @@ int adc_inited = 0;
 void analogin_init(analogin_t *obj, PinName pin)
 {
     uint32_t function = (uint32_t)NC;
-    obj->adc = (ADCName)NC;
+    obj->handle.Instance = (ADC_TypeDef *)NC;
 
     // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
     //   are described in PinNames.h and PeripheralPins.c
