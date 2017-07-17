@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "hal/us_ticker_api.h"
+#include "mbed_toolchain.h"
 
 static ticker_event_queue_t events = { 0 };
 
@@ -36,7 +37,8 @@ const ticker_data_t* get_us_ticker_data(void)
     return &us_data;
 }
 
-void us_ticker_irq_handler(void)
+// MBED_WEAK for testing only
+MBED_WEAK void us_ticker_irq_handler(void)
 {
     ticker_irq_handler(&us_data);
 }

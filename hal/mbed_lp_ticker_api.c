@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "hal/lp_ticker_api.h"
+#include "mbed_toolchain.h"
 
 #if DEVICE_LOWPOWERTIMER
 
@@ -38,7 +39,8 @@ const ticker_data_t* get_lp_ticker_data(void)
     return &lp_data;
 }
 
-void lp_ticker_irq_handler(void)
+// MBED_WEAK for testing only
+MBED_WEAK void lp_ticker_irq_handler(void)
 {
     ticker_irq_handler(&lp_data);
 }
