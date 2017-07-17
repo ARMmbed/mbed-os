@@ -94,9 +94,15 @@
 
 /** MBED_WEAK
  *  Mark a function as being weak.
+ *
+ *  @note
+ *  Functions should only be marked as weak in the source file. The header file
+ *  should contain a regular function declaration to insure the function is emitted.
+ *  A function marked weak will not be emitted if an alternative non-weak
+ *  implementation is defined.
  *  
  *  @note
- *  weak functions are not friendly to making code re-usable, as they can only
+ *  Weak functions are not friendly to making code re-usable, as they can only
  *  be overridden once (and if they are multiply overridden the linker will emit
  *  no warning). You should not normally use weak symbols as part of the API to
  *  re-usable modules.
