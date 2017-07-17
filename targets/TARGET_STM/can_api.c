@@ -85,8 +85,8 @@ void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
         error("Cannot initialize CAN");
     }
 
-    // Set initial CAN frequency to 100 kb/s
-    if (can_frequency(obj, 100000) != 1) {
+    // Set initial CAN frequency to specified frequency
+    if (can_frequency(obj, hz) != 1) {
         error("Can frequency could not be set\n");
     }
 
