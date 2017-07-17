@@ -1914,6 +1914,37 @@ private:
     /* Disallow copy and assignment. */
     Gap(const Gap &);
     Gap& operator=(const Gap &);
+
+public:
+    /** BLE Temporary Key length */
+    static const unsigned TEMPORARY_KEY_LEN = 16;
+
+    /** BLE Temporary Key type*/
+    typedef uint8_t Temporarykey_t[TEMPORARY_KEY_LEN];
+
+protected:
+    /** Temporary key value
+     *
+     *
+     * Requesting action from porters: use this value for servicing the OOB.
+     * */
+    Temporarykey_t OobTK;
+
+public:
+    /**
+    * Function for register Temporary Key.
+    *
+    * This function store in the object memory a temporary key for further using for OOB pairing.
+    *
+    * @param[in] A Temporary Key value to register.
+    *
+    * @retval BLE_ERROR_NONE             On success, always.
+    */
+    ble_error_t setOobTK(Temporarykey_t &tk) {
+        memcpy(&OobTK, &tk, sizeof(Temporarykey_t));
+        return BLE_ERROR_NONE;
+    }
+
 };
 
 #endif // ifndef __GAP_H__
