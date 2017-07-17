@@ -1,7 +1,7 @@
-   597	Alessandro Angelino
+   600	Alessandro Angelino
    592	Milosch Meriac
-   144	Jaeden Amero
-    80	Niklas Hauser
+   155	Jaeden Amero
+    89	Niklas Hauser
      5	Irit Arkin
      3	JaredCJR
      3	AnotherButler
@@ -12,5 +12,6 @@
      2	Jan Jongboom
      2	Nathan Chong
      2	Vincenzo Frascino
-     1	ccli8
      1	Aksel Skauge Mellbye
+     1	ccli8
+     1	Michael Schwarcz
