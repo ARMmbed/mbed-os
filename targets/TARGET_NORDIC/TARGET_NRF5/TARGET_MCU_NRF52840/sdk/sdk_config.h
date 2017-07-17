@@ -1311,6 +1311,8 @@
 #endif //PWM_CONFIG_LOG_ENABLED
 // </e>
 
+#define PWM_COUNT (PWM0_ENABLED + PWM1_ENABLED + PWM2_ENABLED + PWM3_ENABLED)
+
 #endif //PWM_ENABLED
 // </e>
 
@@ -2883,7 +2885,7 @@
 // <e> APP_TIMER_ENABLED - app_timer - Application timer functionality
 //==========================================================
 #ifndef APP_TIMER_ENABLED
-#define APP_TIMER_ENABLED 0
+#define APP_TIMER_ENABLED 1
 #endif
 #if  APP_TIMER_ENABLED
 // <q> APP_TIMER_WITH_PROFILER  - Enable app_timer profiling
