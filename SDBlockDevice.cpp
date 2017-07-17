@@ -344,6 +344,11 @@ int SDBlockDevice::init()
     }
     debug_if(SD_DBG, "init card = %d\n", _is_initialized);
     _sectors = _sd_sectors();
+    // CMD9 failed
+    if (0 == _sectors) {
+        _lock.unlock();
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     // Set block length to 512 (CMD16)
     if (_cmd(CMD16_SET_BLOCKLEN, _block_size) != 0) {
@@ -358,14 +363,15 @@ int SDBlockDevice::init()
         _lock.unlock();
         return err;
     }
-
     _lock.unlock();
     return BD_ERROR_OK;
 }
 
-
 int SDBlockDevice::deinit()
 {
+    _lock.lock();
+    _is_initialized = false;
+    _lock.unlock();
     return 0;
 }
 
@@ -1010,7 +1016,6 @@ void SDBlockDevice::_select() {
 
 void SDBlockDevice::_deselect() {
     _cs = 1;
-    _spi.write(0xFF);
     _spi.unlock();
 }
 #endif  /* DEVICE_SPI */
