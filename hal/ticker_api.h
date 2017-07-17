@@ -60,6 +60,7 @@ typedef struct {
     void (*disable_interrupt)(void);              /**< Disable interrupt function */
     void (*clear_interrupt)(void);                /**< Clear interrupt function */
     void (*set_interrupt)(timestamp_t timestamp); /**< Set interrupt function */
+    void (*fire_interrupt)(void);                 /**< Fire interrupt right-away */
 } ticker_interface_t;
 
 /** Ticker's event queue structure

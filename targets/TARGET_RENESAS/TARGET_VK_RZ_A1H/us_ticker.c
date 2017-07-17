@@ -130,6 +130,10 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
+void us_ticker_fire_interrupt(void) {
+    GIC_SetPendingIRQ(US_TICKER_TIMER_IRQn);
+}
+
 void us_ticker_disable_interrupt(void) {
     GIC_DisableIRQ(US_TICKER_TIMER_IRQn);
 }

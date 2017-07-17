@@ -138,13 +138,7 @@ static void ticker_isr(void) {
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
-    int delta = (int)((uint32_t)timestamp - us_ticker_read());
-    if (delta <= 0) {
-        // This event was in the past:
-        us_ticker_irq_handler();
-        return;
-    }
-
+    uint32_t delta = timestamp - us_ticker_read();
     //Calculate how much falls outside the 32-bit after multiplying with clk_mhz
     //We shift twice 16-bit to keep everything within the 32-bit variable
     us_ticker_int_counter = (uint32_t)(delta >> 16);
@@ -158,4 +152,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
     } else {
         ticker_set(us_ticker_int_remainder);
     }
+}
+
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(PIT_TICKER_IRQ);
 }
