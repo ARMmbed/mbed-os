@@ -10,7 +10,7 @@
 
 /*!<Includes */
 #include <string.h>
-#include "nano100Series.h"
+#include "Nano100Series.h"
 
 /*--------------------------------------------------------------------------*/
 /* Global variables for Control Pipe */

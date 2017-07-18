@@ -9,7 +9,7 @@
  * Copyright (C) 2013~2015 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
-#include "NANO100Series.h"
+#include "Nano100Series.h"
 #include <errno.h>
 #include "nu_miscutil.h"
 

@@ -9,7 +9,7 @@
  * Copyright (C) 2014 Nuvoton Technology Corp. All rights reserved.
 *****************************************************************************/
 
-#include "nano100series.h"
+#include "Nano100Series.h"
 
 /** @addtogroup NANO100_Device_Driver NANO100 Device Driver
   @{
