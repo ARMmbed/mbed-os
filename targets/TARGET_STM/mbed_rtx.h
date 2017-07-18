@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016 ARM Limited
+ * Copyright (c) 2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,298 +17,90 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_STM32F051R8)
-
 #ifndef INITIAL_SP
+
+#if (defined(TARGET_STM32F051R8) ||\
+     defined(TARGET_STM32F100RB) ||\
+     defined(TARGET_STM32L031K6) ||\
+     defined(TARGET_STM32L053C8) ||\
+     defined(TARGET_STM32L053R8))
 #define INITIAL_SP              (0x20002000UL)
-#endif
 
-#elif defined(TARGET_STM32L031K6)
+#elif (defined(TARGET_STM32F303K8) ||\
+       defined(TARGET_STM32F334C8) ||\
+       defined(TARGET_STM32F334R8))
+#define INITIAL_SP              (0x20003000UL)
 
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20002000UL)
-#endif
-
-#elif defined(TARGET_STM32F070RB)
-
-#ifndef INITIAL_SP
+#elif (defined(TARGET_STM32F070RB) ||\
+       defined(TARGET_STM32F072RB) ||\
+       defined(TARGET_STM32F302R8))
 #define INITIAL_SP              (0x20004000UL)
-#endif
 
-#elif defined(TARGET_STM32F072RB)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20004000UL)
-#endif
-
-#elif defined(TARGET_STM32F091RC)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20008000UL)
-#endif
-
-#elif defined(TARGET_STM32F100RB)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20002000UL)
-#endif
-
-#elif defined(TARGET_STM32F103RB)
-
-#ifndef INITIAL_SP
+#elif (defined(TARGET_STM32F103RB) ||\
+       defined(TARGET_STM32L072CZ) ||\
+       defined(TARGET_STM32L073RZ))
 #define INITIAL_SP              (0x20005000UL)
-#endif
 
-#elif defined(TARGET_STM32F207ZG)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
+#elif (defined(TARGET_STM32F091RC) ||\
+       defined(TARGET_STM32F410RB) ||\
+       defined(TARGET_STM32L151CC) ||\
+       defined(TARGET_STM32L151RC) ||\
+       defined(TARGET_STM32L152RC))
+#define INITIAL_SP              (0x20008000UL)
 
 #elif defined(TARGET_STM32F303VC)
-
-#ifndef INITIAL_SP
 #define INITIAL_SP              (0x2000A000UL)
-#endif
-
-#elif defined(TARGET_STM32F334C8)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20003000UL)
-#endif
-
-#elif defined(TARGET_STM32F302R8)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20004000UL)
-#endif
-
-#elif defined(TARGET_STM32F303K8)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20003000UL)
-#endif
-
-#elif defined(TARGET_STM32F303RE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20010000UL)
-#endif
-
-#elif defined(TARGET_STM32F303ZE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20010000UL)
-#endif
-
-#elif defined(TARGET_STM32F334R8)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20003000UL)
-#endif
-
-#elif defined(TARGET_STM32F446VE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-
-#elif defined(TARGET_STM32F401VC)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20010000UL)
-#endif
-
-#elif (defined(TARGET_STM32F429ZI) || defined(TARGET_STM32F439ZI))
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20030000UL)
-#endif
-
-#elif defined(TARGET_UBLOX_EVK_ODIN_W2)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20030000UL)
-#endif
-
-#elif defined(TARGET_UBLOX_C030)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20030000UL)
-#endif
-
-#elif defined(TARGET_STM32F469NI)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20050000UL)
-#endif
-
-#elif defined(TARGET_STM32F405RG)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-
-#elif defined(TARGET_STM32F401RE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20018000UL)
-#endif
-
-#elif defined(TARGET_STM32F410RB)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20008000UL)
-#endif
-
-#elif defined(TARGET_MTS_MDOT_F411RE) || defined (TARGET_MTS_DRAGONFLY_F411RE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-
-#elif defined(TARGET_STM32F411RE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-
-#elif defined(TARGET_STM32F412ZG)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20040000UL)
-#endif
-
-#elif defined(TARGET_STM32F413ZH)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20050000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                100000000
-#endif
-
-
-#elif defined(TARGET_STM32F446RE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-
-#elif defined(TARGET_STM32F446ZE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-
-#elif defined(TARGET_STM32F407VG)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
-#endif
-
-#elif defined(TARGET_STM32F746NG)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20050000UL)
-#endif
-
-#elif (defined(TARGET_STM32F746ZG) || defined(TARGET_STM32F756ZG))
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20050000UL)
-#endif
-
-#elif defined(TARGET_STM32F767ZI)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20080000UL)
-#endif
-
-#elif defined(TARGET_STM32F769NI)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20080000UL)
-#endif
-
-#elif defined(TARGET_STM32L053C8)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20002000UL)
-#endif
-
-#elif defined(TARGET_STM32L031K6)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20002000UL)
-#endif
-
-#elif defined(TARGET_STM32L053R8)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20002000UL)
-#endif
-
-#elif defined(TARGET_STM32L072CZ)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20005000UL)
-#endif
-
-#elif defined(TARGET_STM32L073RZ)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20005000UL)
-#endif
-
-#elif defined(TARGET_STM32L152RC)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20008000UL)
-#endif
-
-#elif defined(TARGET_STM32L152RE)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20014000UL)
-#endif
-
-#elif defined(TARGET_NZ32_SC151)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20008000UL)
-#endif
-
-#elif defined(TARGET_XDOT_L151CC)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20008000UL)
-#endif
-
-#elif defined(TARGET_STM32L476VG) || defined(TARGET_STM32L475VG)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20018000UL)
-#endif
 
 #elif defined(TARGET_STM32L432KC)
-
-#ifndef INITIAL_SP
 #define INITIAL_SP              (0x2000C000UL)
-#endif
 
-#elif (defined(TARGET_STM32L476RG) || defined(TARGET_STM32L486RG))
+#elif (defined(TARGET_STM32F303RE) ||\
+       defined(TARGET_STM32F303ZE) ||\
+       defined(TARGET_STM32F401VC))
+#define INITIAL_SP              (0x20010000UL)
 
-#ifndef INITIAL_SP
+#elif defined(TARGET_STM32L152RE)
+#define INITIAL_SP              (0x20014000UL)
+
+#elif (defined(TARGET_STM32F401RE) ||\
+       defined(TARGET_STM32L475VG) ||\
+       defined(TARGET_STM32L476RG) ||\
+       defined(TARGET_STM32L476VG) ||\
+       defined(TARGET_STM32L486RG))
 #define INITIAL_SP              (0x20018000UL)
+
+#elif (defined(TARGET_STM32F207ZG) ||\
+       defined(TARGET_STM32F405RG) ||\
+       defined(TARGET_STM32F407VG) ||\
+       defined(TARGET_STM32F411RE) ||\
+       defined(TARGET_STM32F446RE) ||\
+       defined(TARGET_STM32F446VE) ||\
+       defined(TARGET_STM32F446ZE))
+#define INITIAL_SP              (0x20020000UL)
+
+#elif (defined(TARGET_STM32F429ZI) ||\
+       defined(TARGET_STM32F437VG) ||\
+       defined(TARGET_STM32F439ZI))
+#define INITIAL_SP              (0x20030000UL)
+
+#elif defined(TARGET_STM32F412ZG)
+#define INITIAL_SP              (0x20040000UL)
+
+#elif (defined(TARGET_STM32F413ZH) ||\
+       defined(TARGET_STM32F469NI) ||\
+       defined(TARGET_STM32F746NG) ||\
+       defined(TARGET_STM32F746ZG) ||\
+       defined(TARGET_STM32F756ZG))
+#define INITIAL_SP              (0x20050000UL)
+
+#elif (defined(TARGET_STM32F767ZI) ||\
+       defined(TARGET_STM32F769NI))
+#define INITIAL_SP              (0x20080000UL)
+
+#else
+#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
 #endif
 
-#endif
+#endif // INITIAL_SP
 
 #endif  // MBED_MBED_RTX_H

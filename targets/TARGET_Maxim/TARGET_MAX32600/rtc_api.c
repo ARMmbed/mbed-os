@@ -229,6 +229,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     MXC_PWRSEQ->msk_flags &= ~MXC_F_PWRSEQ_MSK_FLAGS_RTC_CMPR0;
 }
 
+void lp_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(RTC0_IRQn);
+}
+
 //******************************************************************************
 inline void lp_ticker_disable_interrupt(void)
 {

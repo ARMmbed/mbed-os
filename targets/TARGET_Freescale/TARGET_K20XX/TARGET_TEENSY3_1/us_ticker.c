@@ -70,15 +70,14 @@ void us_ticker_clear_interrupt(void) {
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
-    int delta = (int)((uint32_t)timestamp - us_ticker_read());
-    if (delta <= 0) {
-        // This event was in the past:
-        us_ticker_irq_handler();
-        return;
-    }
-    
+    uint32_t delta = timestamp - us_ticker_read();
     PIT->CHANNEL[3].TCTRL = 0;
     PIT->CHANNEL[3].LDVAL = delta;
     PIT->CHANNEL[3].TCTRL = PIT_TCTRL_TIE_MASK | PIT_TCTRL_TEN_MASK | PIT_TCTRL_CHN_MASK;
     
+}
+
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(PIT3_IRQn);
 }
