@@ -314,7 +314,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
         name = basename(normpath(abspath(src_paths[0])))
 
     # Call unified scan_resources
-    resource_dict = {loc: scan_resources(path, toolchain, inc_dirs=inc_dirs)
+    resource_dict = {loc: scan_resources(path, toolchain, inc_dirs=inc_dirs, collect_ignores=True)
                      for loc, path in src_paths.iteritems()}
     resources = Resources()
     toolchain.build_dir = export_path
