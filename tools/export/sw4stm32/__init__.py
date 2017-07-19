@@ -14,8 +14,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import os
 
+from os import walk, sep
 from os.path import splitext, basename, join, dirname
 from random import randint
 from tools.utils import mkdir
@@ -82,33 +82,30 @@ class Sw4STM32(Exporter):
         return "%0.9u" % randint(0, 999999999)
 
     @staticmethod
-    def filter_dot(str):
+    def filter_dot(path):
         """
         This function removes ./ from str.
         str must be converted with win_to_unix() before using this function.
         """
-	if str == None:
+        if path is None:
             return None
-        if str[:2] == './':
-            return str[2:]
-        return str
+        if path[:2] == './':
+            return path[2:]
+        return path
 
     def build_excludelist(self):
         self.source_folders = [self.filter_dot(s) for s in set(dirname(
             src) for src in self.resources.c_sources + self.resources.cpp_sources + self.resources.s_sources)]
         if '.' in self.source_folders:
             self.source_folders.remove('.')
-        #print source_folders
 
         top_folders = [f for f in set(s.split('/')[0] for s in self.source_folders)]
-        #print top_folders
 
         for top_folder in top_folders:
-            #
-            for root, dirs, files in os.walk(top_folder, topdown=True):
+            for root, dirs, files in walk(top_folder, topdown=True):
                 # Paths returned by os.walk() must be split with os.dep
                 # to accomodate Windows weirdness.
-                parts = root.split(os.sep)
+                parts = root.split(sep)
                 self.remove_unused('/'.join(parts))
                 
     def remove_unused(self, path):
@@ -144,26 +141,20 @@ class Sw4STM32(Exporter):
             libraries.append(l[3:])
 
         self.include_path = [self.filter_dot(s) for s in self.resources.inc_dirs]
-        print 'Include folders: {0}'.format(len(self.include_path))
-        #for dir in self.include_path:
-        #   print "%s" % dir
+        print 'Include folders: %d' % len(self.include_path)
 
         self.exclude_dirs = []
         self.build_excludelist()
 
-        print 'Exclude folders: {0}'.format(len(self.exclude_dirs))
-        #for dir in self.exclude_dirs:
-        #   print "%s" % dir
+        print 'Exclude folders: %d' % len(self.exclude_dirs)
 
         self.exclude_dirs = '|'.join(self.exclude_dirs)
 
         self.ld_script = self.filter_dot(self.resources.linker_script)
-        #print 'Linker script: {0}'.format(self.ld_script)
 
         self.lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
 
         self.symbols = [s.replace('"', '&quot;') for s in self.toolchain.get_symbols()]
-        #print "%s" % self.symbols
 
         ctx = {
             'name': self.project_name,
