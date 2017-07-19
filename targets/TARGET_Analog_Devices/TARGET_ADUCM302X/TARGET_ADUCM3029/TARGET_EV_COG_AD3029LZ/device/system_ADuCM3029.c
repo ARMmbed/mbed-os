@@ -196,6 +196,11 @@ void SystemInit (void)
     adi_pwr_Init();
     adi_pwr_SetClockDivider(ADI_CLOCK_HCLK,1);
     adi_pwr_SetClockDivider(ADI_CLOCK_PCLK,1);
+
+    /* Set up the LF clock source */
+    adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFXTAL);
+    adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFXTAL,true);
+
     __set_PRIMASK(IntStatus);
 }
 

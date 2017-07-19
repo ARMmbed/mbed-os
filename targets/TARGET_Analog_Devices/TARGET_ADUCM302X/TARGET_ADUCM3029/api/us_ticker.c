@@ -232,11 +232,6 @@ void us_ticker_init(void)
 
     us_ticker_inited = 1;
 
-    //adi_pwr_Init();
-
-    //adi_pwr_SetClockDivider(ADI_CLOCK_HCLK, 1u);
-    //adi_pwr_SetClockDivider(ADI_CLOCK_PCLK, 1u);   // PCLK = 26MHz
-
     /*--------------------- GP TIMER INITIALIZATION --------------------------*/
 
     /* Set up GP0 callback function */

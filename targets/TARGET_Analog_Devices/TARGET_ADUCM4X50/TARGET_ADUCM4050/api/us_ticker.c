@@ -127,9 +127,9 @@ uint32_t get_current_time(void)
         __DMB();
 
     	uc1 = *ucptr;						// Read Upper_count as late as possible to allow interrupt to happen
-    	
+
     	tmrpend1 = NVIC_GetPendingIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
-    	
+
     															   // Check for a pending interrupt.  Only read the timer if pending state matches
         NVIC_EnableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
     } while ((tmrcnt0 != tmrcnt1) || (tmrpend0 != tmrpend1));
@@ -232,11 +232,6 @@ void us_ticker_init(void)
 
     us_ticker_inited = 1;
 
-    //adi_pwr_Init();
-
-    //adi_pwr_SetClockDivider(ADI_CLOCK_HCLK, 1u);
-    //adi_pwr_SetClockDivider(ADI_CLOCK_PCLK, 1u);   // PCLK = 26MHz
-
     /*--------------------- GP TIMER INITIALIZATION --------------------------*/
 
     /* Set up GP0 callback function */
@@ -303,7 +298,7 @@ uint32_t us_ticker_read()
 
 void us_ticker_disable_interrupt(void)
 {
-    adi_tmr_Enable(ADI_TMR_DEVICE_GP2, false);    
+    adi_tmr_Enable(ADI_TMR_DEVICE_GP2, false);
 }
 
 void us_ticker_clear_interrupt(void)

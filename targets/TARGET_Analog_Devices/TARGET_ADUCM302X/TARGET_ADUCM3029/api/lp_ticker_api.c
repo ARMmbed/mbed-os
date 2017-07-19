@@ -42,6 +42,8 @@
 #include "lp_ticker_api.h"
 #include <drivers/rtc/adi_rtc.h>
 #include <drivers/pwr/adi_pwr.h>
+#include "adi_rtc_def.h"
+
 
 #ifdef DEVICE_LOWPOWERTIMER
 
@@ -53,17 +55,62 @@
 /* time for each tick of the LF clock in us */
 #define TIME_US_PER_TICK 	((float)1000000/(float)(LFCLK_FREQUENCY_HZ>>RTC_PRESCALER))
 
-// The number of clock ticks it takes to set & enable the alarm
-#define TICKS_TO_ENABLE_ALARM 40
+// The number of RTC clock ticks it takes to set & enable the alarm
+#define TICKS_TO_ENABLE_ALARM 10
 
 static unsigned char rtc1_memory[ADI_RTC_MEMORY_SIZE];
 static ADI_RTC_HANDLE hRTC1_Device;
-static volatile unsigned int rtc1_use_interrupt;
 
 /**
  * \defgroup hal_LpTicker Low Power Ticker Functions
  * @{
  */
+/**
+ * Local stream-lined alarm setting function.
+ *
+ */
+int set_rtc_alarm_interrupt(ADI_RTC_HANDLE const hDevice, uint32_t nAlarm)
+{
+    ADI_RTC_DEVICE *pDevice = hDevice;
+    uint16_t cr0;
+    ADI_INT_STATUS_ALLOC();
+
+    // Section to enable interrupts
+    // The interrupt used is ADI_RTC_ALARM_INT
+    // Set the Alarm interrupt enable and Alarm enable bits in cr0
+    cr0 = BITM_RTC_CR0_ALMEN | (1u << BITP_RTC_CR0_ALMINTEN);
+
+    // Set the alarm value
+    /* Wait till previously posted write to Alram Register to complete */
+    PEND_BEFORE_WRITE(SR1,(BITM_RTC_SR1_WPNDALM0|BITM_RTC_SR1_WPNDALM1))
+
+    ADI_ENTER_CRITICAL_REGION();
+    /* RTC hardware insures paired write, so no need to disable interrupts */
+    pDevice->pRTCRegs->ALM0 = (uint16_t)nAlarm;
+    pDevice->pRTCRegs->ALM1 = (uint16_t)(nAlarm >> 16);
+    pDevice->pRTCRegs->ALM2 = 0u;
+    ADI_EXIT_CRITICAL_REGION();
+
+    /* Wait till  write to Control Register to take effect */
+    SYNC_AFTER_WRITE(SR0,(BITM_RTC_SR0_WSYNCALM0|BITM_RTC_SR0_WSYNCALM1))
+
+    // Enable alarm
+    /* Wait till previously posted write to Control Register to complete */
+    PEND_BEFORE_WRITE(SR1,BITM_RTC_SR1_WPNDALM1|BITM_RTC_SR1_WPNDALM0)
+
+    ADI_ENTER_CRITICAL_REGION();
+    /* set RTC alarm enable */
+    pDevice->pRTCRegs->CR0 |= cr0;
+    ADI_EXIT_CRITICAL_REGION();
+
+    /* Wait till  write to Control Register to take effect */
+    SYNC_AFTER_WRITE(SR0,BITM_RTC_SR0_WSYNCCR0)
+
+    return ADI_RTC_SUCCESS;
+}
+
+
+
 /**
  * Local RTC 1 ISR callback function.
  *
@@ -94,9 +141,6 @@ const ticker_data_t* get_lp_ticker_data()
  */
 void lp_ticker_init()
 {
-    // select LF clock
-    adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFOSC);
-
     // open the rtc device
     adi_rtc_Open(1, rtc1_memory, ADI_RTC_MEMORY_SIZE, &hRTC1_Device);
 
@@ -116,9 +160,6 @@ void lp_ticker_init()
 
     // enable the RTC
     adi_rtc_Enable(hRTC1_Device, true);
-
-    // interrupt is not yet used
-    rtc1_use_interrupt = 0;
 }
 
 /** Read the current counter
@@ -155,13 +196,9 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     // get current count
     adi_rtc_GetCount(hRTC1_Device, &rtcCount);
 
-    // alarm value needs to be greater than the current time
-    // if already expired, call user ISR immediately
-    if (set_time <= rtcCount) {
-        rtc1_use_interrupt = 0;
-        rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
-        return;
-    } else if (set_time <= rtcCount + TICKS_TO_ENABLE_ALARM) {
+    // check if the desired alarm is less than TICKS_TO_ENABLE_ALARM,
+    // if so just wait it out rather than setting the alarm
+    if (set_time <= rtcCount + TICKS_TO_ENABLE_ALARM) {
         // otherwise if the alarm time is less than the current RTC count + the time
         // it takes to enable the alarm, just wait until the desired number of counts
         // has expired rather than using the interrupt, then call the user ISR directly.
@@ -169,16 +206,12 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
             adi_rtc_GetCount(hRTC1_Device, &rtcCount);
         } while (rtcCount < set_time);
 
-        rtc1_use_interrupt = 0;
         rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
         return;
     }
 
     // set the alarm
-    adi_rtc_EnableInterrupts(hRTC1_Device, ADI_RTC_ALARM_INT, true);
-    adi_rtc_SetAlarm(hRTC1_Device, set_time);
-    adi_rtc_EnableAlarm(hRTC1_Device,true);
-    rtc1_use_interrupt = 1;
+    set_rtc_alarm_interrupt(hRTC1_Device, set_time);
 }
 
 /** Disable low power ticker interrupt
@@ -186,16 +219,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
  */
 void lp_ticker_disable_interrupt()
 {
-    // Disable alarm only if it's used in the current context
-    // This is done to get around the issue that it takes a while for the
-    // adi_rtc_EnableInterrupts() to disable the interrupts since the RTC
-    // is in a slower clock domain. For alarms in the 1ms or less range,
-    // disabling interrupt can take much longer than the alarm duration. In
-    // these cases, interrupt is not used, so the interrupt does not need to
-    // be disabled.
-    if (rtc1_use_interrupt) {
-        adi_rtc_EnableInterrupts(hRTC1_Device, ADI_RTC_ALARM_INT, false);
-    }
+    adi_rtc_EnableInterrupts(hRTC1_Device, ADI_RTC_ALARM_INT, false);
 }
 
 /** Clear the low power ticker interrupt
