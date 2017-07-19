@@ -14,7 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from os.path import splitext, basename, join
+import os
+
+from os.path import splitext, basename, join, dirname
 from random import randint
 from tools.utils import mkdir
 from tools.export.exporters import Exporter
@@ -79,32 +81,103 @@ class Sw4STM32(Exporter):
     def __generate_uid(self):
         return "%0.9u" % randint(0, 999999999)
 
+    @staticmethod
+    def filter_dot(str):
+        """
+        This function removes ./ from str.
+        str must be converted with win_to_unix() before using this function.
+        """
+	if str == None:
+            return None
+        if str[:2] == './':
+            return str[2:]
+        return str
+
+    def build_excludelist(self):
+        self.source_folders = [self.filter_dot(s) for s in set(dirname(
+            src) for src in self.resources.c_sources + self.resources.cpp_sources + self.resources.s_sources)]
+        if '.' in self.source_folders:
+            self.source_folders.remove('.')
+        #print source_folders
+
+        top_folders = [f for f in set(s.split('/')[0] for s in self.source_folders)]
+        #print top_folders
+
+        for top_folder in top_folders:
+            #
+            for root, dirs, files in os.walk(top_folder, topdown=True):
+                # Paths returned by os.walk() must be split with os.dep
+                # to accomodate Windows weirdness.
+                parts = root.split(os.sep)
+                self.remove_unused('/'.join(parts))
+                
+    def remove_unused(self, path):
+	found = False
+        for used in self.include_path:
+            if path == used:
+                found = True
+	needToAdd = True
+        if not found:
+            for dir in self.exclude_dirs:
+               # Do not exclude subfolders from excluded folder
+               if path.find(dir+'/') != -1:
+                  needToAdd = False
+            if needToAdd:
+                self.exclude_dirs.append(path)
+
     def generate(self):
         fp_hardware = "no"
         fp_abi = "soft"
         core = self.toolchain.target.core
         if core == "Cortex-M4F" or core == "Cortex-M7F":
             fp_hardware = "fpv4-sp-d16"
-            fp_abi = "soft-fp"
+            fp_abi = "softfp"
         elif core == "Cortex-M7FD":
             fp_hardware = "fpv5-d16"
-            fp_abi = "soft-fp"
-            
+            fp_abi = "softfp"
+
+        self.resources.win_to_unix()
+
         libraries = []
         for lib in self.resources.libraries:
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 
+        self.include_path = [self.filter_dot(s) for s in self.resources.inc_dirs]
+        print 'Include folders: {0}'.format(len(self.include_path))
+        #for dir in self.include_path:
+        #   print "%s" % dir
+
+        self.exclude_dirs = []
+        self.build_excludelist()
+
+        print 'Exclude folders: {0}'.format(len(self.exclude_dirs))
+        #for dir in self.exclude_dirs:
+        #   print "%s" % dir
+
+        self.exclude_dirs = '|'.join(self.exclude_dirs)
+
+        self.ld_script = self.filter_dot(self.resources.linker_script)
+        #print 'Linker script: {0}'.format(self.ld_script)
+
+        self.lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
+
+        self.symbols = [s.replace('"', '&quot;') for s in self.toolchain.get_symbols()]
+        #print "%s" % self.symbols
+
         ctx = {
             'name': self.project_name,
-            'include_paths': self.resources.inc_dirs,
-            'linker_script': self.resources.linker_script,
-            'library_paths': self.resources.lib_dirs,
+            'include_paths': self.include_path,
+            'exclude_paths': self.exclude_dirs,
+            'linker_script': self.ld_script,
+            'library_paths': self.lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
-            'symbols': self.toolchain.get_symbols(),
+            'symbols': self.symbols,
             'board_name': self.BOARDS[self.target.upper()]['name'],
             'mcu_name': self.BOARDS[self.target.upper()]['mcuId'],
+            'c_include_uid': self.__generate_uid(),
+            'cpp_include_uid': self.__generate_uid(),
             'debug_config_uid': self.__generate_uid(),
             'debug_tool_compiler_uid': self.__generate_uid(),
             'debug_tool_compiler_input_uid': self.__generate_uid(),
