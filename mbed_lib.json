@@ -1,0 +1,19 @@
+{
+    "name": "flashiap-block-device",
+    "config": {
+        "base-address": {
+            "help": "Base address for the block device on the external flash.",
+            "value": null
+        },
+        "size": {
+            "help": "Memory allocated for block device.",
+            "value": null
+        }
+    },
+    "target_overrides": {
+        "REALTEK_RTL8195AM": {
+            "base-address": "0xC0000",
+            "size": "0x40000"
+        }
+    }
+}
