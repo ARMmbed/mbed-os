@@ -608,6 +608,9 @@
         "detect_code": ["0240"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "STORAGE", "TRNG", "FLASH"],
         "features": ["LWIP", "STORAGE"],
+        "network_test_configurations" : {
+            "EthernetInterface" : "mbed-os/tools/test/network_test_configs/EthernetInterface.json"
+        },
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
         "bootloader_supported": true

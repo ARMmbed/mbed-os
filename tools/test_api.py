@@ -1999,6 +1999,13 @@ def test_path_to_name(path, base):
 
     return "-".join(name_parts).lower()
 
+def find_configs(target_name):
+    target = TARGET_MAP[target_name]
+    try:
+        return target.network_test_configurations
+    except AttributeError:
+        return {}
+
 def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     """ Finds all tests in a directory recursively
     base_dir: path to the directory to scan for tests (ex. 'path/to/project')
@@ -2009,6 +2016,8 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     """
 
     tests = {}
+
+    configs = find_configs(target_name)
 
     # Prepare the toolchain
     toolchain = prepare_toolchain([base_dir], None, target_name, toolchain_name,
