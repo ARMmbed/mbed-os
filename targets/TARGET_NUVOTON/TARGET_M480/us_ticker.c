@@ -152,13 +152,19 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         cd_major_minor_us = delta * US_PER_TICK;
         us_ticker_arm_cd();
     } else {
-        cd_major_minor_us = cd_minor_us = 0;
-        /**
-         * This event was in the past. Set the interrupt as pending, but don't process it here.
-         * This prevents a recurive loop under heavy load which can lead to a stack overflow.
-         */
-        NVIC_SetPendingIRQ(timer1hires_modinit.irq_n);
+        // NOTE: With us_ticker_fire_interrupt() introduced, upper layer would handle past event case.
+        //       This code fragment gets redundant, but it is still kept here for backward-compatible.
+        void us_ticker_fire_interrupt(void);
+        us_ticker_fire_interrupt();
     }
+}
+
+void us_ticker_fire_interrupt(void)
+{
+    // NOTE: This event was in the past. Set the interrupt as pending, but don't process it here.
+    //       This prevents a recursive loop under heavy load which can lead to a stack overflow.
+    cd_major_minor_us = cd_minor_us = 0;
+    NVIC_SetPendingIRQ(timer1hires_modinit.irq_n);
 }
 
 static void tmr0_vec(void)
