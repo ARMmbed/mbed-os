@@ -36,9 +36,11 @@
 									<listOptionValue builtIn="false" value="{{s}}"/>
 									{% endfor %}
 								</option>
-								<option id="gnu.c.compiler.option.include.files.{{c_include_uid}}" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
-									<listOptionValue builtIn="false" value="${ProjDirPath}/mbed_config.h"/>
+								{% if config_header %}
+								<option id="gnu.c.compiler.option.include.files.{{uid}}" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="${ProjDirPath}/{{config_header}}"/>
 								</option>
+								{% endif %}
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.{{release_tool_compiler_input_uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.{{uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
 							</tool>
@@ -56,9 +58,11 @@
 									<listOptionValue builtIn="false" value="{{s}}"/>
 								{% endfor %}
 								</option>
-								<option id="gnu.cpp.compiler.option.include.files.{{cpp_include_uid}}" name="Include files (-include)" superClass="gnu.cpp.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
-									<listOptionValue builtIn="false" value="${ProjDirPath}/mbed_config.h"/>
-                                                                </option>
+								{% if config_header %}
+								<option id="gnu.cpp.compiler.option.include.files.{{uid}}" name="Include files (-include)" superClass="gnu.cpp.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="${ProjDirPath}/{{config_header}}"/>
+                                </option>
+                                {% endif %}
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.{{uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s.{{uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s"/>
 							</tool>
@@ -103,7 +107,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="{{exclude_paths}}" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="{{exclude_paths}}|Debug|Release" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -142,6 +146,11 @@
 									<listOptionValue builtIn="false" value="{{s}}"/>
 								{% endfor %}
 								</option>
+								{% if config_header %}
+								<option id="gnu.c.compiler.option.include.files.{{uid}}" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="${ProjDirPath}/{{config_header}}"/>
+								</option>
+								{% endif %}
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.{{debug_tool_compiler_input_uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.{{uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
 							</tool>
@@ -158,6 +167,11 @@
 									<listOptionValue builtIn="false" value="{{s}}"/>
 								{% endfor %}
 								</option>
+								{% if config_header %}
+								<option id="gnu.cpp.compiler.option.include.files.{{uid}}" name="Include files (-include)" superClass="gnu.c.compiler.option.include.files" useByScannerDiscovery="false" valueType="includeFiles">
+									<listOptionValue builtIn="false" value="${ProjDirPath}/{{config_header}}"/>
+								</option>
+								{% endif %}
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.{{uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s.{{uid}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s"/>
 							</tool>
@@ -203,7 +217,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="{{exclude_paths}}" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="{{exclude_paths}}|Debug|Release" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
