@@ -15,8 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import copy
+
 from os import walk, sep
-from os.path import splitext, basename, join, dirname
+from os.path import splitext, basename, join, dirname, relpath
 from random import randint
 from tools.utils import mkdir
 from tools.export.exporters import Exporter
@@ -251,7 +253,7 @@ class Sw4STM32(Exporter):
 
     def __gen_dir(self, dir_name):
         """
-        Method that created directory
+        Method that creates directory
         """
         settings = join(self.export_dir, dir_name)
         mkdir(settings)
@@ -268,9 +270,9 @@ class Sw4STM32(Exporter):
         This function removes ./ from str.
         str must be converted with win_to_unix() before using this function.
         """
-        if path is None:
-            return None
-        if path[:2] == './':
+        if not path:
+            return path
+        if path.startswith('./'):
             return path[2:]
         return path
 
@@ -302,15 +304,12 @@ class Sw4STM32(Exporter):
         Method adds path to excluded list if not needed
         and is not subdirectory of already excluded directory
         """
-        found = False
-        for used in self.include_path:
-            if path == used:
-                found = True
+        found = path in self.include_path
         needtoadd = True
         if not found:
             for directory in self.exclude_dirs:
-               # Do not exclude subfolders from excluded folder
-                if path.find(directory+'/') != -1:
+                # Do not exclude subfolders from excluded folder
+                if directory+'/' in path:
                     needtoadd = False
             if needtoadd:
                 self.exclude_dirs.append(path)
@@ -325,6 +324,8 @@ class Sw4STM32(Exporter):
         elif core == "Cortex-M7FD":
             fp_hardware = "fpv5-d16"
             fp_abi = "softfp"
+
+        config_header = self.filter_dot(self.toolchain.get_config_header())
 
         self.resources.win_to_unix()
 
@@ -346,7 +347,6 @@ class Sw4STM32(Exporter):
 
         ld_script = self.filter_dot(self.resources.linker_script)
 
-        # self.lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
         lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
 
         symbols = [s.replace('"', '&quot;')
@@ -355,6 +355,7 @@ class Sw4STM32(Exporter):
         ctx = {
             'name': self.project_name,
             'include_paths': self.include_path,
+            'config_header': config_header,
             'exclude_paths': self.exclude_dirs,
             'linker_script': ld_script,
             'library_paths': lib_dirs,
@@ -363,8 +364,6 @@ class Sw4STM32(Exporter):
             'symbols': symbols,
             'board_name': self.BOARDS[self.target.upper()]['name'],
             'mcu_name': self.BOARDS[self.target.upper()]['mcuId'],
-            'c_include_uid': self.__generate_uid(),
-            'cpp_include_uid': self.__generate_uid(),
             'debug_config_uid': self.__generate_uid(),
             'debug_tool_compiler_uid': self.__generate_uid(),
             'debug_tool_compiler_input_uid': self.__generate_uid(),
