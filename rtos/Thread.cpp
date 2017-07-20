@@ -162,10 +162,6 @@ int32_t Thread::signal_set(int32_t flags) {
     return osThreadFlagsSet(_tid, flags);
 }
 
-int32_t Thread::signal_clr(int32_t flags) {
-    return osThreadFlagsClear(flags);
-}
-
 Thread::State Thread::get_state() {
     uint8_t state = osThreadTerminated;
 
@@ -244,7 +240,7 @@ uint32_t Thread::free_stack() {
 
     if (_tid != NULL) {
         os_thread_t *thread = (os_thread_t *)_tid;
-        size = (uint32_t)thread->stack_mem - thread->sp;
+        size = (uint32_t)thread->sp - (uint32_t)thread->stack_mem;
     }
 
     _mutex.unlock();
@@ -284,6 +280,10 @@ const char *Thread::get_name() {
     return _attr.name;
 }
 
+int32_t Thread::signal_clr(int32_t flags) {
+    return osThreadFlagsClear(flags);
+}
+
 osEvent Thread::signal_wait(int32_t signals, uint32_t millisec) {
     uint32_t res;
     osEvent evt;
@@ -309,9 +309,10 @@ osEvent Thread::signal_wait(int32_t signals, uint32_t millisec) {
                 evt.status = (osStatus)osErrorValue;
                 break;
         }
+    } else {
+        evt.status = (osStatus)osEventSignal;
+        evt.value.signals = res;
     }
-    evt.status = (osStatus)osEventSignal;
-    evt.value.signals = res;
 
     return evt;
 }

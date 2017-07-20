@@ -23,6 +23,7 @@ static const ticker_interface_t us_interface = {
     .disable_interrupt = us_ticker_disable_interrupt,
     .clear_interrupt = us_ticker_clear_interrupt,
     .set_interrupt = us_ticker_set_interrupt,
+    .fire_interrupt = us_ticker_fire_interrupt,
 };
 
 static const ticker_data_t us_data = {

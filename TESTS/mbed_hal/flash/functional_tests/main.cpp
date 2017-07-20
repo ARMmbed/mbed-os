@@ -52,7 +52,48 @@ static void erase_range(flash_t *flash, uint32_t addr, uint32_t size)
         size = size > sector_size ? size - sector_size : 0;
     }
 }
+#ifdef __CC_ARM
+MBED_NOINLINE
+__asm static void delay_loop(uint32_t count)
+{
+1
+  SUBS a1, a1, #1
+  BCS  %BT1
+  BX   lr
+}
+#elif defined (__ICCARM__)
+MBED_NOINLINE
+static void delay_loop(uint32_t count)
+{
+  __asm volatile(
+    "loop: \n"
+    " SUBS %0, %0, #1 \n"
+    " BCS.n  loop\n"
+    : "+r" (count)
+    :
+    : "cc"
+  );
+}
+#else // GCC
+MBED_NOINLINE
+static void delay_loop(uint32_t count)
+{
+  __asm__ volatile (
+    "%=:\n\t"
+#if defined(__thumb__) && !defined(__thumb2__)
+    "SUB  %0, #1\n\t"
+#else
+    "SUBS %0, %0, #1\n\t"
+#endif
+    "BCS  %=b\n\t"
+    : "+l" (count)
+    :
+    : "cc"
+  );
+}
+#endif
 
+MBED_NOINLINE
 static int time_cpu_cycles(uint32_t cycles)
 {
     Timer timer;
@@ -60,9 +101,8 @@ static int time_cpu_cycles(uint32_t cycles)
 
     int timer_start = timer.read_us();
 
-    volatile uint32_t delay = (volatile uint32_t)cycles;
-    while (delay--);
-
+    uint32_t delay = cycles;
+    delay_loop(delay);
     int timer_end = timer.read_us();
 
     timer.stop();

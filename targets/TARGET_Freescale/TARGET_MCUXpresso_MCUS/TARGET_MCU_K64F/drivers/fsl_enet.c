@@ -316,9 +316,8 @@ void ENET_Init(ENET_Type *base,
     assert(bufferConfig->rxBufferAlign);
     assert(macAddr);
 
-    uint32_t instance = ENET_GetInstance(base);
-
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+	uint32_t instance = ENET_GetInstance(base);
     /* Ungate ENET clock. */
     CLOCK_EnableClock(s_enetClock[instance]);
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
@@ -413,7 +412,7 @@ static void ENET_SetMacController(ENET_Type *base,
     uint32_t tcr = 0;
     uint32_t ecr = 0;
     uint32_t macSpecialConfig = config->macSpecialConfig;
-    uint32_t instance = ENET_GetInstance(base);
+    ENET_GetInstance(base);
 
     /* Configures MAC receive controller with user configure structure. */
     rcr = ENET_RCR_NLC(!!(macSpecialConfig & kENET_ControlRxPayloadCheckEnable)) |

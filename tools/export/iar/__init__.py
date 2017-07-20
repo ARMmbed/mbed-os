@@ -30,15 +30,15 @@ _iar_defs = os.path.join(
 with open(_iar_defs, 'r') as f:
     _GUI_OPTIONS = json.load(f)
 
-_IAR_TARGETS = [target for target, obj in TARGET_MAP.iteritems() if
-                _supported(obj, _GUI_OPTIONS.keys())]
-
 
 class IAR(Exporter):
     NAME = 'iar'
     TOOLCHAIN = 'IAR'
 
-    TARGETS = _IAR_TARGETS
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return _supported(target, _GUI_OPTIONS.keys())
 
 
     def iar_groups(self, grouped_src):

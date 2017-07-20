@@ -271,6 +271,14 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         US_TICKER_CC_CHANNEL, US_TICKER_INT_MASK);
 }
 
+void us_ticker_fire_interrupt(void)
+{
+    uint32_t closest_safe_compare = common_rtc_32bit_ticks_get() + 2;
+
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, US_TICKER_CC_CHANNEL, RTC_WRAP(closest_safe_compare));
+    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, US_TICKER_INT_MASK);
+}
+
 void us_ticker_disable_interrupt(void)
 {
     nrf_rtc_event_disable(COMMON_RTC_INSTANCE, US_TICKER_INT_MASK);
@@ -302,22 +310,6 @@ static uint32_t os_rtc_period;
 /* Variable for frozen RTC1 counter value. It is used when system timer is disabled. */
 static uint32_t frozen_sub_tick = 0;
      
-
-/*
- RTX provide the following definitions which are used by the tick code:
-   * osRtxConfig.tick_freq: The RTX tick frequency.
-   * osRtxInfo.kernel.tick: Count of RTX ticks.
-   
-   * SysTick_Handler: The function which handle a tick event.
-     This function is special because it never returns.
- Those definitions are used by the code which handle the os tick.
- To allow compilation of us_ticker programs without RTOS, those symbols are
- exported from this module as weak ones.
- */
-MBED_WEAK void SysTick_Handler(void)
-{
-}
-
 
 #ifdef MBED_CONF_RTOS_PRESENT
     #include "rtx_os.h" //import osRtxInfo, SysTick_Handler()

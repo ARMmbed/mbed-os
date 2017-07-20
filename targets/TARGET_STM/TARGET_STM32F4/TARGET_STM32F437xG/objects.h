@@ -64,11 +64,6 @@ struct trng_s {
     RNG_HandleTypeDef handle;
 };
 
-struct dac_s {
-    DACName dac;
-    uint8_t channel;
-};
-
 #include "common_objects.h"
 struct can_s {
     CANName can;

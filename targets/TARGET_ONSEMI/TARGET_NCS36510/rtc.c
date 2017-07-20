@@ -125,17 +125,6 @@ void fRtcSetInterrupt(uint32_t timestamp)
 {
 	uint64_t current_time = fRtcRead();
 
-	/* compute delta between current time and timestamp.
-	 * Note: the current time used to compute the delta is relative (truncated 
-     * to 32 bits).
-	 */
-	int32_t delta = timestamp - (uint32_t) current_time;
-	if (delta <= 0) {
-		// event considered in the past, set the interrupt as pending.
-		NVIC_SetPendingIRQ(Rtc_IRQn);
-		return;
-	}
-
 	uint64_t full_timestamp = (current_time & ~UINT32_MAX) | timestamp;
 	if ( (uint32_t)current_time > timestamp) {
 		full_timestamp += ((uint64_t) UINT32_MAX) + 1;

@@ -58,6 +58,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     fRtcSetInterrupt(timestamp);
 }
 
+void lp_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(Rtc_IRQn);
+}
+
 /** Disable low power ticker interrupt
  *
  */

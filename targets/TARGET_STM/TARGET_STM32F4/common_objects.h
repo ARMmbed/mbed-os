@@ -109,9 +109,21 @@ struct i2c_s {
     uint8_t available_events;
 #endif
 };
-
+#if DEVICE_FLASH
+struct flash_s {
+    uint32_t dummy;
+};
+#endif
 #define GPIO_IP_WITHOUT_BRR
 #include "gpio_object.h"
+
+#if DEVICE_ANALOGOUT
+struct dac_s {
+    DACName dac;
+    uint32_t channel;
+    DAC_HandleTypeDef handle;
+};
+#endif
 
 #ifdef __cplusplus
 }

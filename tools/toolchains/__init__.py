@@ -292,7 +292,7 @@ class Resources:
 # standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
 # had the knowledge of a list of these directories to be ignored.
 LEGACY_IGNORE_DIRS = set([
-    'LPC11U24', 'LPC1768', 'LPC4088', 'LPC812', 'KL25Z',
+    'LPC11U24', 'LPC1768', 'LPC2368', 'LPC4088', 'LPC812', 'KL25Z',
     'ARM', 'uARM', 'IAR',
     'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'GCC_CW_EWL', 'GCC_CW_NEWLIB',
 ])
@@ -818,7 +818,7 @@ class mbedToolchain:
                         c = c.replace("\\", "/")
                         if self.CHROOT:
                             c = c.replace(self.CHROOT, '')
-                        cmd_list.append('-I%s' % c)
+                        cmd_list.append('"-I%s"' % c)
                 string = " ".join(cmd_list)
                 f.write(string)
         return include_file
@@ -863,7 +863,10 @@ class mbedToolchain:
 
         inc_paths = resources.inc_dirs
         if inc_dirs is not None:
-            inc_paths.extend(inc_dirs)
+            if isinstance(inc_dirs, list):
+                inc_paths.extend(inc_dirs)
+            else:
+                inc_paths.append(inc_dirs)
         # De-duplicate include paths
         inc_paths = set(inc_paths)
         # Sort include paths for consistency

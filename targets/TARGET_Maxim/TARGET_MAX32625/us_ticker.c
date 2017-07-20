@@ -228,6 +228,11 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     TMR32_Start(US_TIMER);
 }
 
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(US_TIMER_IRQn);
+}
+
 //******************************************************************************
 void us_ticker_disable_interrupt(void)
 {

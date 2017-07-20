@@ -85,12 +85,14 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
     return RTW_SUCCESS;
 }
 
-RTWInterface::RTWInterface()
+RTWInterface::RTWInterface(bool debug)
     : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
     emac_interface_t *emac;
     int ret;
+    extern u32 GlobalDebugEnable; 
 
+    GlobalDebugEnable = debug?1:0;
     emac = wlan_emac_init_interface();
     if (!emac) {
         printf("Error init RTWInterface!\r\n");

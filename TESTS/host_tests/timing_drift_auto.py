@@ -16,91 +16,120 @@ limitations under the License.
 """
 
 from mbed_host_tests import BaseHostTest
+import time
 
 
-class TimingDriftTest(BaseHostTest):
-    """ This test is reading single characters from stdio
-        and measures time between their occurrences.
+class TimingDriftSync(BaseHostTest):
+    """
+    This works as master-slave fashion
+    1) Device says its booted up and ready to run the test, wait for host to respond
+    2) Host sends the message to get the device current time i.e base time
+
+    #
+    # *
+    #   *                   |
+    #<---* DUT<- base_time  | - round_trip_base_time ------
+    #   *                   |                              |
+    # *                    -                               |
+    #                      -                               |
+    #                       |                              |
+    #                       |                              |
+    #                       | - measurement_stretch        | - nominal_time
+    #                       |                              |
+    #                       |                              |
+    #                      -                               |
+    # *                    -                               |
+    #   *                   |                              |
+    #<---* DUT <-final_time | - round_trip_final_time------
+    #   *                   |
+    # *                    -
+    #
+    #
+    # As we increase the measurement_stretch, the error because of transport delay diminishes.
+    # The values of measurement_stretch is propotional to round_trip_base_time(transport delays)
+    # by factor time_measurement_multiplier.This multiplier is used is 80 to tolerate 2 sec of
+    # transport delay and test time ~ 180 secs
+    #
+    # Failure in timing can occur if we are ticking too fast or we are ticking too slow, hence we have
+    # min_range and max_range. if we cross on either side tests would be marked fail. The range is a function of
+    # tolerance/acceptable drift currently its 5%.
+    #
+
     """
     __result = None
-    
-    # This is calculated later: average_drift_max * number of tick events
-    total_drift_max = None
-    
-    average_drift_max = 0.05
-    ticks = []
-    start_time = None
-    finish_time = None
-    dut_seconds_passed = None
-    total_time = None
-    total_drift = None
-    average_drift = None
-    
-    def _callback_result(self, key, value, timestamp):
-        # We should not see result data in this test
-        self.__result = False
+    mega = 1000000.0
+    max_measurement_time = 180
 
-    def _callback_end(self, key, value, timestamp):
-        """ {{end;%s}}} """
-        self.log("Received end event, timestamp: %f" % timestamp)
-        self.notify_complete(result=self.result(print_stats=True))
+    # this value is obtained for measurements when there is 0 transport delay and we want accurancy of 5%
+    time_measurement_multiplier = 80
 
+    def _callback_timing_drift_check_start(self, key, value, timestamp):
+        self.round_trip_base_start = timestamp
+        self.send_kv("base_time", 0)
 
-    def _callback_tick(self, key, value, timestamp):
-        """ {{tick;%d}}} """
-        self.log("tick! %f" % timestamp)
-        self.ticks.append((key, value, timestamp))
+    def _callback_base_time(self, key, value, timestamp):
+        self.round_trip_base_end = timestamp
+        self.device_time_base = float(value)
+        self.round_trip_base_time = self.round_trip_base_end - self.round_trip_base_start
 
+        self.log("Device base time {}".format(value))
+        measurement_stretch = (self.round_trip_base_time * self.time_measurement_multiplier) + 5
+
+        if measurement_stretch > self.max_measurement_time:
+            self.log("Time required {} to determine device timer is too high due to transport delay, skipping".format(measurement_stretch))
+        else:
+            self.log("sleeping for {} to measure drift accurately".format(measurement_stretch))
+            time.sleep(measurement_stretch)
+        self.round_trip_final_start = time.time()
+        self.send_kv("final_time", 0)
+
+    def _callback_final_time(self, key, value, timestamp):
+        self.round_trip_final_end = timestamp
+        self.device_time_final = float(value)
+        self.round_trip_final_time = self.round_trip_final_end - self.round_trip_final_start
+        self.log("Device final time {} ".format(value))
+
+        # compute the test results and send to device
+        results = "pass" if self.compute_parameter() else "fail"
+        self.send_kv(results, "0")
 
     def setup(self):
-        self.register_callback("end", self._callback_end)
-        self.register_callback('tick', self._callback_tick)
+        self.register_callback('timing_drift_check_start', self._callback_timing_drift_check_start)
+        self.register_callback('base_time', self._callback_base_time)
+        self.register_callback('final_time', self._callback_final_time)
 
+    def compute_parameter(self, failure_criteria=0.05):
+        t_max = self.round_trip_final_end - self.round_trip_base_start
+        t_min = self.round_trip_final_start - self.round_trip_base_end
+        t_max_hi = t_max * (1 + failure_criteria)
+        t_max_lo = t_max * (1 - failure_criteria)
+        t_min_hi = t_min * (1 + failure_criteria)
+        t_min_lo = t_min * (1 - failure_criteria)
+        device_time = (self.device_time_final - self.device_time_base) / self.mega
 
-    def result(self, print_stats=True):        
-        self.dut_seconds_passed = len(self.ticks) - 1
-        
-        if self.dut_seconds_passed < 1:
-            if print_stats:
-                self.log("FAIL: failed to receive at least two tick events")
-            self.__result = False
-            return self.__result
+        self.log("Compute host events")
+        self.log("Transport delay 0: {}".format(self.round_trip_base_time))
+        self.log("Transport delay 1: {}".format(self.round_trip_final_time))
+        self.log("DUT base time : {}".format(self.device_time_base))
+        self.log("DUT end time  : {}".format(self.device_time_final))
 
-        self.total_drift_max = self.dut_seconds_passed * self.average_drift_max
+        self.log("min_pass : {} , max_pass : {} for {}%%".format(t_max_lo, t_min_hi, failure_criteria * 100))
+        self.log("min_inconclusive : {} , max_inconclusive : {}".format(t_min_lo, t_max_hi))
+        self.log("Time reported by device: {}".format(device_time))
 
-        self.start_time = self.ticks[0][2]
-        self.finish_time = self.ticks[-1][2]
-        self.total_time = self.finish_time - self.start_time
-        self.total_drift = self.total_time - self.dut_seconds_passed
-        self.average_drift = self.total_drift / self.dut_seconds_passed
-        
-        if print_stats:
-            self.log("Start: %f" % self.start_time)
-            self.log("Finish: %f" % self.finish_time)
-            self.log("Total time taken: %f" % self.total_time)
-        
-            total_drift_ratio_string = "Total drift/Max total drift: %f/%f"
-            self.log(total_drift_ratio_string % (self.total_drift,
-                                                 self.total_drift_max))
-                                                 
-            average_drift_ratio_string = "Average drift/Max average drift: %f/%f"
-            self.log(average_drift_ratio_string % (self.average_drift,
-                                                   self.average_drift_max))
-        
-
-        if abs(self.total_drift) > self.total_drift_max:
-            if print_stats:
-                self.log("FAIL: Total drift exceeded max total drift")
-            self.__result = False
-        elif self.average_drift > self.average_drift_max:
-            if print_stats:
-                self.log("FAIL: Average drift exceeded max average drift")
+        if t_max_lo <= device_time <= t_min_hi:
+            self.log("Test passed !!!")
+            self.__result = True
+        elif t_min_lo <= device_time <= t_max_hi:
+            self.log("Test inconclusive due to transport delay, retrying")
             self.__result = False
         else:
-            self.__result = True
-        
+            self.log("Time outside of passing range. Timing drift seems to be present !!!")
+            self.__result = False
         return self.__result
 
+    def result(self):
+        return self.__result
 
     def teardown(self):
         pass

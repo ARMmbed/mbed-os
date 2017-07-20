@@ -103,7 +103,7 @@ def mcu_ide_matrix(verbose_html=False):
         row = [target]  # First column is platform name
         for ide in supported_ides:
             text = "-"
-            if target in EXPORTERS[ide].TARGETS:
+            if EXPORTERS[ide].is_target_supported(target):
                 if verbose_html:
                     text = "&#10003;"
                 else:
