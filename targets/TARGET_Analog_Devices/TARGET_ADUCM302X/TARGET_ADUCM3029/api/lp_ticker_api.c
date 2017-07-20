@@ -53,7 +53,7 @@
 #define RTC_PRESCALER         	0
 
 /* time for each tick of the LF clock in us */
-#define TIME_US_PER_TICK 	((float)1000000/(float)(LFCLK_FREQUENCY_HZ>>RTC_PRESCALER))
+  #define TIME_US_PER_TICK 	((float)1000000/(float)(LFCLK_FREQUENCY_HZ>>RTC_PRESCALER))
 
 // The number of RTC clock ticks it takes to set & enable the alarm
 #define TICKS_TO_ENABLE_ALARM 10
@@ -69,7 +69,7 @@ static ADI_RTC_HANDLE hRTC1_Device;
  * Local stream-lined alarm setting function.
  *
  */
-int set_rtc_alarm_interrupt(ADI_RTC_HANDLE const hDevice, uint32_t nAlarm)
+static int set_rtc_alarm_interrupt(ADI_RTC_HANDLE const hDevice, uint32_t nAlarm)
 {
     ADI_RTC_DEVICE *pDevice = hDevice;
     uint16_t cr0;
@@ -85,7 +85,7 @@ int set_rtc_alarm_interrupt(ADI_RTC_HANDLE const hDevice, uint32_t nAlarm)
     PEND_BEFORE_WRITE(SR1,(BITM_RTC_SR1_WPNDALM0|BITM_RTC_SR1_WPNDALM1))
 
     ADI_ENTER_CRITICAL_REGION();
-    /* RTC hardware insures paired write, so no need to disable interrupts */
+    /* Program the alarm count registers. */
     pDevice->pRTCRegs->ALM0 = (uint16_t)nAlarm;
     pDevice->pRTCRegs->ALM1 = (uint16_t)(nAlarm >> 16);
     pDevice->pRTCRegs->ALM2 = 0u;
@@ -99,7 +99,7 @@ int set_rtc_alarm_interrupt(ADI_RTC_HANDLE const hDevice, uint32_t nAlarm)
     PEND_BEFORE_WRITE(SR1,BITM_RTC_SR1_WPNDALM1|BITM_RTC_SR1_WPNDALM0)
 
     ADI_ENTER_CRITICAL_REGION();
-    /* set RTC alarm enable */
+    /* set RTC alarm and interrupt enable */
     pDevice->pRTCRegs->CR0 |= cr0;
     ADI_EXIT_CRITICAL_REGION();
 
@@ -115,7 +115,7 @@ int set_rtc_alarm_interrupt(ADI_RTC_HANDLE const hDevice, uint32_t nAlarm)
  * Local RTC 1 ISR callback function.
  *
  */
-void rtc1_Callback (void *pCBParam, uint32_t nEvent, void *EventArg)
+static void rtc1_Callback (void *pCBParam, uint32_t nEvent, void *EventArg)
 {
     /* process RTC interrupts (cleared by driver) */
     if (ADI_RTC_ALARM_INT & nEvent) {
@@ -227,8 +227,25 @@ void lp_ticker_disable_interrupt()
  */
 void lp_ticker_clear_interrupt()
 {
+    ADI_RTC_DEVICE *pDevice = hRTC1_Device;
+
+    NVIC_ClearPendingIRQ(pDevice->eIRQn);
+
     return;
 }
+
+
+/** Set pending interrupt that should be fired right away.
+ *
+ * The ticker should be initialized prior calling this function.
+ */
+void lp_ticker_fire_interrupt(void)
+{
+    ADI_RTC_DEVICE *pDevice = hRTC1_Device;
+
+    NVIC_SetPendingIRQ(pDevice->eIRQn);
+}
+
 
 #endif
 /**@}*/

@@ -56,9 +56,9 @@ void us_ticker_irq_handler(void);
 
 static int us_ticker_inited = 0;
 
-ADI_TMR_CONFIG tmrConfig, tmr2Config;
+static ADI_TMR_CONFIG tmrConfig, tmr2Config;
 
-static volatile uint32_t Upper_count = 0, smallcnt = 0, largecnt = 0;
+static volatile uint32_t Upper_count = 0, largecnt = 0;
 
 static ADI_TMR_TypeDef * adi_tmr_registers[ADI_TMR_DEVICE_NUM] = {pADI_TMR0, pADI_TMR1, pADI_TMR2};
 
@@ -74,13 +74,13 @@ static ADI_TMR_TypeDef * adi_tmr_registers[ADI_TMR_DEVICE_NUM] = {pADI_TMR0, pAD
 /*---------------------------------------------------------------------------*
    Local functions
  *---------------------------------------------------------------------------*/
-void GP1CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
+static void GP1CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
 {
 	Upper_count++;
 }
 
 
-uint32_t get_current_time(void)
+static uint32_t get_current_time(void)
 {
 	uint16_t tmrcnt0, tmrcnt1;
 	uint32_t totaltmr0, totaltmr1;
@@ -93,20 +93,30 @@ uint32_t get_current_time(void)
     	 * Carefully coded to prevent race conditions.  Do not make changes unless you understand all the
     	 * implications.
     	 *
-    	 * There are three main conditions protected against.
-    	 * 1. TMR0 and TMR1 both run from synchronous clocks.  TMR0 runs at 26MHz and TMR1 runs at 26/256MHz
-    	 * Read both timer counters, and check if the middle 8 bits match, if they don't then read the counts again
-    	 * until they do.  This ensures that one or the other counters have not incremented while reading them.
+    	 * Note this function can be called with interrupts globally disabled or enabled.  It has been coded to work in both cases.
     	 *
-    	 * 2. CURCNT and Upper_count racing.  TMR1.CURCNT hardware might have incremented before the GP1 interrupt can occur.
-    	 * This would put Upper_count one value behind the GP1 CURCNT.  How to prevent this: read GP0 then GP1
-    	 * timer.  GP1 is started slightly ahead of GP0.  We read GP0 then GP1.
+    	 * TMR0 and TMR1 both run from the same synchronous clock. TMR0 runs at 26MHz and TMR1 runs at 26/256MHz.
+    	 * TMR1 generates an interrupt every time it overflows its 16 bit counter.  TMR0 runs faster and provides
+    	 * the lowest 8 bits of the current time count.  When TMR0 and TMR1 are combined, they provide 24 bits of
+    	 * timer precision. i.e. (TMR0.CURCNT & 0xff) + (TMR1.CURCNT << 8)
     	 *
-    	 * 3. CURCNT and Upper_count mismatch.  This is where an interrupt occurs after CURCNT is read, which delays the reading of Upper_count.
-    	 * Upper_count could then be incremented again.  This would only occur if interrupts held up the code for over 0.5seconds.
+    	 * There are several race conditions protected against:
+    	 * 1. TMR0 and TMR1 are both read at the same time, however, on rare occasions, one will have incremented before the other.
+    	 * Therefore we read both timer counters, and check if the middle 8 bits match, if they don't then read the counts again
+    	 * until they do.  This ensures that one or the other counters are stable with respect to each other.
+    	 *
+    	 * 2. TMR1.CURCNT and Upper_count racing. Prevent this by disabling the TMR1 interrupt, which stops Upper_count increment interrupt (GP1CallbackFunction).
+    	 * Then check pending bit of TMR1 to see if we missed Upper_count interrupt, and add it manually later.
+    	 *
+    	 * 3. Race between the TMR1 pend, and the TMR1.CURCNT read.  Even with TMR1 interrupt disabled, the pend bit
+    	 * may be set while TMR1.CURCNT is being read.  We don't know if the pend bit matches the TMR1 state.
+    	 * To prevent this, the pending bit is read twice, and we see if it matches; if it doesn't, loop around again.
+    	 *
+    	 * Note the TMR1 interrupt is enabled on each iteration of the loop to flush out any pending TMR1 interrupt,
+    	 * thereby clearing any TMR1 pend's.  This have no effect if this routine is called with interrupts globally disabled.
     	 */
 
-        NVIC_DisableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
+        NVIC_DisableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);		// Prevent Upper_count increment
     	tmrpend0 = NVIC_GetPendingIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
   																    // Check if there is a pending interrupt for timer 1
 
@@ -118,20 +128,20 @@ uint32_t get_current_time(void)
 
     	tmrcnt1 = adi_tmr_registers[ADI_TMR_DEVICE_GP1]->CURCNT;    // read both timers manually
 
-    	totaltmr0 = tmrcnt0;        // expand to u32 bits
-    	totaltmr1 = tmrcnt1;        // expand to u32 bits
+    	totaltmr0 = tmrcnt0;        								// expand to u32 bits
+    	totaltmr1 = tmrcnt1;        								// expand to u32 bits
 
     	tmrcnt0 &= 0xff00u;
     	tmrcnt1 <<= 8;
 
         __DMB();
 
-    	uc1 = *ucptr;						// Read Upper_count as late as possible to allow interrupt to happen
+    	uc1 = *ucptr;												// Read Upper_count
 
     	tmrpend1 = NVIC_GetPendingIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
+    				// Check for a pending interrupt again.  Only leave loop if they match
 
-    															   // Check for a pending interrupt.  Only read the timer if pending state matches
-        NVIC_EnableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);
+        NVIC_EnableIRQ(adi_tmr_interrupt[ADI_TMR_DEVICE_GP1]);		// enable interrupt on every loop to allow TMR1 interrupt to run
     } while ((tmrcnt0 != tmrcnt1) || (tmrpend0 != tmrpend1));
 
 	totaltmr1 <<= 8;                 // Timer1 runs 256x slower
@@ -142,11 +152,14 @@ uint32_t get_current_time(void)
 		uc1++;
 	}
 
-	uint64_t Uc = totaltmr1;         // expand out to 64 bits
-	Uc += ((uint64_t) uc1) << 24;
+	uint64_t Uc = totaltmr1;         // expand out to 64 bits unsigned
+	Uc += ((uint64_t) uc1) << 24;    // Add on the upper count to get the full precision count
 
-	Uc *= 1290555u;    // (1/26) << 25
-	Uc >>= 25;
+	 	 	 	 	 	 	 	 	 // Divide Uc by 26 (26MHz converted to 1MHz) todo scale for other clock freqs
+
+	Uc *= 1290555u;                  // Divide total(1/26) << 25
+	Uc >>= 25;						 // shift back.  Fixed point avoid use of floating point divide.
+									 // Compiler does this inline using shifts and adds.
 
 	return Uc;
 }
@@ -158,26 +171,26 @@ static void calc_event_counts(uint32_t timestamp)
 	uint64_t aa;
 
     calc_time = get_current_time();
-    offset = timestamp - calc_time;               // offset in useconds
+    offset = timestamp - calc_time;             // offset in useconds
 
-    if (offset > 0xf0000000u)					  // if offset is a really big number, assume that timer has already expired (i.e. negative)
+    if (offset > 0xf0000000u)					// if offset is a really big number, assume that timer has already expired (i.e. negative)
     	offset = 0u;
 
-    if (offset > 10u) {							 // it takes 25us to user timer routine after interrupt.  Offset timer to account for that.
+    if (offset > 10u) {							// it takes 10us to user timer routine after interrupt.  Offset timer to account for that.
     	offset -= 10u;
     } else
     	offset = 0u;
 
     aa = (uint64_t) offset;
-    aa *= 26u;
+    aa *= 26u;									// convert from 1MHz to 26MHz clock. todo scale for other clock freqs
 
     blocks = aa >> 7;
-    blocks++;  // round
+    blocks++;                                   // round
 
-	largecnt = blocks>>1;                        // communicate to event_timer() routine
+	largecnt = blocks>>1;                       // communicate to event_timer() routine
 }
 
-void event_timer()
+static void event_timer()
 {
     if (largecnt) {
     	uint32_t cnt = largecnt;
@@ -207,7 +220,7 @@ void event_timer()
  * largecnt is a global that is used to communicate between event_timer and the interrupt routine
  * On entry, largecnt will be any value larger than 0.
  */
-void GP2CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
+static void GP2CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
 {
    	if (largecnt >= 65536u) {
    		largecnt -= 65536u;
@@ -246,7 +259,7 @@ void us_ticker_init(void)
     /* Configure GP0 to run at 26MHz */
     tmrConfig.bCountingUp  = true;
     tmrConfig.bPeriodic    = true;
-    tmrConfig.ePrescaler   = ADI_TMR_PRESCALER_1;     // TMR0 at 6.5MHz
+    tmrConfig.ePrescaler   = ADI_TMR_PRESCALER_1;     // TMR0 at 26MHz
     tmrConfig.eClockSource = ADI_TMR_CLOCK_PCLK;      // TMR source is PCLK (most examples use HFOSC)
     tmrConfig.nLoad        = 0;
     tmrConfig.nAsyncLoad   = 0;
@@ -257,13 +270,13 @@ void us_ticker_init(void)
     /* Configure GP1 to have a period 256 times longer than GP0 */
     tmrConfig.nLoad        = 0;
     tmrConfig.nAsyncLoad   = 0;
-    tmrConfig.ePrescaler   = ADI_TMR_PRESCALER_256;    // TMR1 = 6.5MHz/256
+    tmrConfig.ePrescaler   = ADI_TMR_PRESCALER_256;    // TMR1 = 26MHz/256
     adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, tmrConfig);
 
     /* Configure GP2 for doing event counts */
     tmr2Config.bCountingUp  = true;
     tmr2Config.bPeriodic    = true;
-    tmr2Config.ePrescaler   = ADI_TMR_PRESCALER_256;     // TMR2 at 26MHz/256
+    tmr2Config.ePrescaler   = ADI_TMR_PRESCALER_256;   // TMR2 at 26MHz/256
     tmr2Config.eClockSource = ADI_TMR_CLOCK_PCLK;      // TMR source is PCLK (most examples use HFOSC)
     tmr2Config.nLoad        = 0;
     tmr2Config.nAsyncLoad   = 0;
@@ -276,8 +289,6 @@ void us_ticker_init(void)
 
     /* Manually enable both timers to get them started at the same time
      *
-     * Start Timer 0 first.  This is important as detailed in get_current_time().
-     * TMR0 should tick over first, followed shortly after by TMR1.
      */
     adi_tmr_registers[ADI_TMR_DEVICE_GP0]->CTL |= (uint16_t) BITM_TMR_RGB_CTL_EN;
     adi_tmr_registers[ADI_TMR_DEVICE_GP1]->CTL |= (uint16_t) BITM_TMR_RGB_CTL_EN;
@@ -310,13 +321,25 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 {
 
     /* timestamp is when interrupt should fire.
-     * We only have 16 bit timer, but we need to setup for interrupt at 32 bits.
      *
+     * This MUST not be called if another timer event is currently enabled.
      *
      */
 	calc_event_counts(timestamp);             // use timestamp to calculate largecnt to control number of timer interrupts
 	event_timer();							  // uses largecnt to initiate timer interrupts
 }
+
+/** Set pending interrupt that should be fired right away.
+ *
+ * The ticker should be initialized prior calling this function.
+ *
+ * This MUST not be called if another timer event is currently enabled.
+ */
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(TMR2_EVT_IRQn);
+}
+
 
 /*
 ** EOF
