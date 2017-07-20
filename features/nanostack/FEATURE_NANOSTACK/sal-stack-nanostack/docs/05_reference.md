@@ -43,4 +43,6 @@ The reference manual contains several chapters; you can read them in sequence, b
 
 13. [**Thread Related APIs**](thread_APIs.md):Read this to familiarize yourself with the Thread protocol related APIs.
 
+14. [**Load balancing API**](17_API_load_balancer.md):Read this to familiarize yourself with the Load balancing API
+
 

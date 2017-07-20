@@ -19,19 +19,20 @@
 #include "platform/mbed_toolchain.h"
 #include "platform/FileBase.h"
 #include "platform/FileHandle.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
-/** @{*/
+/** \addtogroup platform */
 
 
 /* Class FileLike
  *  A file-like object is one that can be opened with fopen by
  *  fopen("/name", mode).
  *
- *  @Note Synchronization level: Set by subclass
+ *  @note Synchronization level: Set by subclass
+ *  @ingroup platform
  */
-class FileLike : public FileHandle, public FileBase {
+class FileLike : public FileHandle, public FileBase, private NonCopyable<FileLike> {
 public:
     /** Constructor FileLike
      *
@@ -42,7 +43,6 @@ public:
 };
 
 
-/** @}*/
 } // namespace mbed
 
 #endif

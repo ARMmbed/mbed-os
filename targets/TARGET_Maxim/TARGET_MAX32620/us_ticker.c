@@ -265,6 +265,11 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     US_TIMER->ctrl |= MXC_F_TMR_CTRL_ENABLE0;   // enable timer
 }
 
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(US_TIMER_IRQn);
+}
+
 //******************************************************************************
 void us_ticker_disable_interrupt(void)
 {

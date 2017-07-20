@@ -82,7 +82,7 @@
   */
 
 #include "stm32f0xx.h"
-#include "hal_tick.h"
+
 /**
   * @}
   */
@@ -234,18 +234,7 @@ void SystemInit(void)
 
   /* Enable SYSCFGENR in APB2EN, needed for 1st call of NVIC_SetVector, to copy vectors from flash to ram */
   RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
-  
-  /* Configure the Cube driver */
-  SystemCoreClock = 8000000; // At this stage the HSI is used as system clock
-  HAL_Init();
 
-  /* Configure the System clock source, PLL Multiplier and Divider factors,
-     AHB/APBx prescalers and Flash settings */
-  SetSysClock();
-
-  /* Reset the timer to avoid issues after the RAM initialization */
-  TIM_MST_RESET_ON;
-  TIM_MST_RESET_OFF;
 }
 
 /**
@@ -449,8 +438,8 @@ uint8_t SetSysClock_PLL_HSI(void)
   RCC_OscInitStruct.HSI48State              = RCC_HSI_ON;
   RCC_OscInitStruct.LSIState                = RCC_LSI_OFF;
   RCC_OscInitStruct.PLL.PLLState            = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource           = RCC_PLLSOURCE_HSI; // HSI div 2
-  RCC_OscInitStruct.PLL.PREDIV              = RCC_PREDIV_DIV1;
+  RCC_OscInitStruct.PLL.PLLSource           = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PREDIV              = RCC_PREDIV_DIV2; // HSI div 2
   RCC_OscInitStruct.PLL.PLLMUL              = RCC_PLL_MUL12;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
       return 0; // FAIL

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_wwdg.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   Header file of WWDG HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -118,7 +118,7 @@ typedef struct
 /** @defgroup WWDG_Prescaler WWDG Prescaler
   * @{
   */ 
-#define WWDG_PRESCALER_1                 ((uint32_t)0x00000000U)  /*!< WWDG counter clock = (PCLK1/4096)/1 */
+#define WWDG_PRESCALER_1                  0x00000000U  /*!< WWDG counter clock = (PCLK1/4096)/1 */
 #define WWDG_PRESCALER_2                  WWDG_CFR_WDGTB0         /*!< WWDG counter clock = (PCLK1/4096)/2 */
 #define WWDG_PRESCALER_4                  WWDG_CFR_WDGTB1         /*!< WWDG counter clock = (PCLK1/4096)/4 */
 #define WWDG_PRESCALER_8                  WWDG_CFR_WDGTB          /*!< WWDG counter clock = (PCLK1/4096)/8 */
@@ -129,7 +129,7 @@ typedef struct
 /** @defgroup WWDG_EWI_Mode WWDG Early Wakeup Interrupt Mode
   * @{
   */
-#define WWDG_EWI_DISABLE                    0x00000000u       /*!< EWI Disable */
+#define WWDG_EWI_DISABLE                    0x00000000U       /*!< EWI Disable */
 #define WWDG_EWI_ENABLE                     WWDG_CFR_EWI      /*!< EWI Enable */
 /**
   * @}

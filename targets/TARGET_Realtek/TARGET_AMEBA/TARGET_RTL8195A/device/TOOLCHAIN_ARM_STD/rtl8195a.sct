@@ -1,0 +1,51 @@
+; *************************************************************
+; *** Scatter-Loading Description File for RTL8195A         ***
+; *************************************************************
+LR_ROM 0x00000000 0x00030000{
+	_ROM_CODE 0x00000000 0x00030000  {
+	;*.o (RESET, +First)   
+	;*(InRoot$$Sections)
+	}
+}
+
+LR_RAM 0x10006000 0x6FFFF  {
+;LR_RAM 0x10000000 0x6FFFF  {
+  ;ROM_BSS 0x10000000 0x0005FFF{
+	;rtl_console.o(.mon.ram.bss*)
+  ;}
+  
+  .image2.table 0x10006000 FIXED  {
+    rtl8195a_init.o(.image2.ram.data*)	
+    rtl8195a_init.o(.image2.validate.rodata*)
+  }
+  
+  .text +0 FIXED{
+	rtl8195a_init.o(.infra.ram.start)
+  	;*.o(.mon.ram.text*)
+  	;*.o(.hal.flash.text*)
+  	;*.o(.hal.sdrc.text*)
+  	;*.o(.hal.gpio.text*)
+  	;*.o(.text*)
+  	;*.o(.rodata*)
+  	.ANY (+RO)
+  }
+
+  .data +0 FIXED{
+    .ANY (+RW)
+  }
+
+  RW_IRAM1 +0 UNINIT FIXED {
+   .ANY (+ZI)
+  }
+
+  TCM_OVERLAY 0x1FFF0000 0x10000{
+    lwip_mem.o(.bss*)
+    lwip_memp.o(.bss*)
+    *.o(.tcm.heap*)
+  }
+}
+
+LR_DRAM 0x30000000 0x1FFFFF{
+	_DRAM_CODE 0x30000000 0x1FFFFF{
+	}
+}

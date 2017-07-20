@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_conf.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    30-December-2016
+  * @version V1.2.2
+  * @date    14-April-2017
   * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -438,16 +438,8 @@
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT
-/**
-  * @brief  The assert_param macro is used for function's parameters check.
-  * @param  expr: If expr is false, it calls assert_failed function
-  *         which reports the name of the source file and the source
-  *         line number of the call that failed.
-  *         If expr is true, it returns no value.
-  * @retval None
-  */
-  #include "mbed_assert.h"
-  #define assert_param(expr) MBED_ASSERT(expr)
+/* ALL MBED targets use same stm32_assert.h */
+#include "stm32_assert.h"
 #else
   #define assert_param(expr) ((void)0)
 #endif /* USE_FULL_ASSERT */

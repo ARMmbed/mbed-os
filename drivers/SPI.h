@@ -18,11 +18,12 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_SPI
+#if defined (DEVICE_SPI) || defined(DOXYGEN_ONLY)
 
 #include "platform/PlatformMutex.h"
 #include "hal/spi_api.h"
 #include "platform/SingletonPtr.h"
+#include "platform/NonCopyable.h"
 
 #if DEVICE_SPI_ASYNCH
 #include "platform/CThunk.h"
@@ -34,16 +35,15 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A SPI Master, used for communicating with SPI slave devices
  *
  * The default format is set to 8-bits, mode 0, and a clock frequency of 1MHz
  *
  * Most SPI devices will also require Chip Select and Reset signals. These
- * can be controlled using <DigitalOut> pins
+ * can be controlled using DigitalOut pins
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
  * Example:
  * @code
@@ -71,8 +71,9 @@ namespace mbed {
  *
  * }
  * @endcode
+ * @ingroup drivers
  */
-class SPI {
+class SPI : private NonCopyable<SPI> {
 
 public:
 
@@ -115,8 +116,24 @@ public:
      *
      *  @returns
      *    Response from the SPI slave
-    */
+     */
     virtual int write(int value);
+
+    /** Write to the SPI Slave and obtain the response
+     *
+     *  The total number of bytes sent and recieved will be the maximum of
+     *  tx_length and rx_length. The bytes written will be padded with the
+     *  value 0xff.
+     *
+     *  @param tx_buffer Pointer to the byte-array of data to write to the device
+     *  @param tx_length Number of bytes to write, may be zero
+     *  @param rx_buffer Pointer to the byte-array of data to read from the device
+     *  @param rx_length Number of bytes to read, may be zero
+     *  @returns
+     *      The number of bytes written and read from the device. This is
+     *      maximum of tx_length and rx_length.
+     */
+    virtual int write(const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length);
 
     /** Acquire exclusive access to this SPI bus
      */
@@ -254,6 +271,12 @@ protected:
     int _bits;
     int _mode;
     int _hz;
+
+private:
+    /* Private acquire function without locking/unlocking
+     * Implemented in order to avoid duplicate locking and boost performance
+     */
+    void _acquire(void);
 };
 
 } // namespace mbed
@@ -261,5 +284,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

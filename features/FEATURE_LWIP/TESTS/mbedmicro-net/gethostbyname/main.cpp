@@ -91,16 +91,16 @@ void test_dns_literal_pref() {
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(60, "default_auto");
+    GREENTEA_SETUP(120, "default_auto");
     net_bringup();
     return verbose_test_setup_handler(number_of_cases);
 }
 
 Case cases[] = {
-    Case("Testing DNS query",               test_dns_query),
-    Case("Testing DNS preference query",    test_dns_query_pref),
-    Case("Testing DNS literal",             test_dns_literal),
-    Case("Testing DNS preference literal",  test_dns_literal_pref),
+    Case("DNS query",               test_dns_query),
+    Case("DNS preference query",    test_dns_query_pref),
+    Case("DNS literal",             test_dns_literal),
+    Case("DNS preference literal",  test_dns_literal_pref),
 };
 
 Specification specification(test_setup, cases);

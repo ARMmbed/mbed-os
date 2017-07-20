@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_rcc.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
@@ -48,17 +48,15 @@
           after the clock enable bit is set on the hardware register
 
     [..]  
-      Possible Workarounds:
-      (#) Enable the peripheral clock sometimes before the peripheral read/write 
-          register is required.
-      (#) For AHB peripheral, insert two dummy read to the peripheral register.
-      (#) For APB peripheral, insert a dummy read to the peripheral register.
+      Implemented Workaround:
+      (+) For AHB & APB peripherals, a dummy read to the peripheral register has been
+          inserted in each __HAL_RCC_PPP_CLK_ENABLE() macro.
 
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -104,7 +102,7 @@
 /** @addtogroup RCC_Private_Constants
   * @{
   */
-#define CLOCKSWITCH_TIMEOUT_VALUE  ((uint32_t)5000U) /* 5 s    */
+#define CLOCKSWITCH_TIMEOUT_VALUE  5000U /* 5 s */
 
 /* Private macro -------------------------------------------------------------*/
 #define __MCO1_CLK_ENABLE()   __HAL_RCC_GPIOA_CLK_ENABLE()
@@ -122,11 +120,9 @@
 /** @defgroup RCC_Private_Variables RCC Private Variables
   * @{
   */    
-const uint8_t APBAHBPrescTable[16] = {0U, 0U, 0U, 0U, 1U, 2U, 3U, 4U, 1U, 2U, 3U, 4U, 6U, 7U, 8U, 9U};
 /**
   * @}
   */
-
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -480,7 +476,7 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
       /* Wait till LSE is ready */  
       while(__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY) == RESET)
       {
-        if((HAL_GetTick() - tickstart ) > LSE_TIMEOUT_VALUE)
+        if((HAL_GetTick() - tickstart ) > RCC_LSE_TIMEOUT_VALUE)
         {
           return HAL_TIMEOUT;
         }       
@@ -736,7 +732,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   }
 
   /* Update the SystemCoreClock global variable */
-  SystemCoreClock = HAL_RCC_GetSysClockFreq() >> APBAHBPrescTable[(RCC->CFGR & RCC_CFGR_HPRE)>> POSITION_VAL(RCC_CFGR_HPRE)];
+  SystemCoreClock = HAL_RCC_GetSysClockFreq() >> AHBPrescTable[(RCC->CFGR & RCC_CFGR_HPRE)>> POSITION_VAL(RCC_CFGR_HPRE)];
 
   /* Configure the source of time base considering new system clocks settings*/
   HAL_InitTick (TICK_INT_PRIORITY);
@@ -830,7 +826,7 @@ void HAL_RCC_MCOConfig(uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_M
     HAL_GPIO_Init(MCO2_GPIO_PORT, &GPIO_InitStruct);
     
     /* Mask MCO2 and MCO2PRE[2:0] bits then Select MCO2 clock source and prescaler */
-    MODIFY_REG(RCC->CFGR, (RCC_CFGR_MCO2 | RCC_CFGR_MCO2PRE), (RCC_MCOSource | (RCC_MCODiv << 3)));
+    MODIFY_REG(RCC->CFGR, (RCC_CFGR_MCO2 | RCC_CFGR_MCO2PRE), (RCC_MCOSource | (RCC_MCODiv << 3U)));
   }
 }
 
@@ -957,7 +953,7 @@ uint32_t HAL_RCC_GetHCLKFreq(void)
 uint32_t HAL_RCC_GetPCLK1Freq(void)
 {  
   /* Get HCLK source and Compute PCLK1 frequency ---------------------------*/
-  return (HAL_RCC_GetHCLKFreq() >> APBAHBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE1)>> POSITION_VAL(RCC_CFGR_PPRE1)]);
+  return (HAL_RCC_GetHCLKFreq() >> APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE1)>> POSITION_VAL(RCC_CFGR_PPRE1)]);
 }
 
 /**
@@ -969,7 +965,7 @@ uint32_t HAL_RCC_GetPCLK1Freq(void)
 uint32_t HAL_RCC_GetPCLK2Freq(void)
 {
   /* Get HCLK source and Compute PCLK2 frequency ---------------------------*/
-  return (HAL_RCC_GetHCLKFreq()>> APBAHBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE2)>> POSITION_VAL(RCC_CFGR_PPRE2)]);
+  return (HAL_RCC_GetHCLKFreq()>> APBPrescTable[(RCC->CFGR & RCC_CFGR_PPRE2)>> POSITION_VAL(RCC_CFGR_PPRE2)]);
 } 
 
 /**

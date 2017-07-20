@@ -195,8 +195,8 @@ err_t eth_arch_enetif_init(struct netif *netif)
     sys_sem_new(&recv_ready_sem, 0);
 
     /* task */
-    sys_thread_new("rza1_recv_task", rza1_recv_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
-    sys_thread_new("rza1_phy_task", rza1_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
+    sys_thread_new("rza1_emac_rx_thread", rza1_recv_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
+    sys_thread_new("rza1_emac_phy_thread", rza1_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
 
     return ERR_OK;
 }

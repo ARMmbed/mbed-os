@@ -339,6 +339,11 @@ void mbed_vtracef(uint8_t dlevel, const char* grp, const char *fmt, va_list ap)
         if (plain == true || dlevel == TRACE_LEVEL_CMD) {
             //add trace data
             retval = vsnprintf(ptr, bLeft, fmt, ap);
+            //convenience - trim off one trailing \n. Useful if trying to directly
+            //connect debug layers that do expect callers to pass \n to mbed_trace.
+            if (retval > 0 && retval < bLeft && ptr[retval - 1] == '\n') {
+                ptr[--retval] = '\0';
+            }
             if (dlevel == TRACE_LEVEL_CMD && m_trace.cmd_printf) {
                 m_trace.cmd_printf(m_trace.line);
                 m_trace.cmd_printf("\n");
@@ -441,6 +446,12 @@ void mbed_vtracef(uint8_t dlevel, const char* grp, const char *fmt, va_list ap)
                 if (retval > 0) {
                     ptr += retval;
                     bLeft -= retval;
+                    //convenience - trim off one trailing \n. Useful if trying to directly
+                    //connect debug layers that do expect callers to pass \n to mbed_trace.
+                    if (ptr[-1] == '\n') {
+                        *--ptr = '\0';
+                        ++bLeft;
+                    }
                 }
             }
 

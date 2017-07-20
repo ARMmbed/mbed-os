@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2016-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -26,35 +26,44 @@
 extern "C" {
 #endif
 
-#define ETHERTYPE_IPV4              0x0800
-#define ETHERTYPE_ARP               0x0806
-#define ETHERTYPE_802_1Q_TAG        0x8100
-#define ETHERTYPE_IPV6              0x86dd
+#define ETHERTYPE_IPV4              0x0800  /**< ethernet type for IPv4 */
+#define ETHERTYPE_ARP               0x0806  /**< ethernet type for ARP */
+#define ETHERTYPE_802_1Q_TAG        0x8100  /**< ethernet type for 802_1Q */
+#define ETHERTYPE_IPV6              0x86dd  /**< ethernet type for IPv6 */
 
 typedef struct eth_mac_api_s eth_mac_api_t;
 
+/**
+  * \brief Struct eth_data_conf_s defines arguments for data confirm message
+  */
 typedef struct eth_data_conf_s {
-    uint8_t msduHandle;
-    uint8_t status;
+    uint8_t msduHandle;         /**< Handle associated with MSDU */
+    uint8_t status;             /**< Status of the last transaction */
 }eth_data_conf_t;
 
+/**
+  * \brief Struct eth_data_req_s defines arguments for data request message
+  */
 typedef struct eth_data_req_s {
-    uint16_t msduLength;
-    uint8_t *msdu;
-    uint8_t *srcAddress;
-    uint8_t *dstAddress;
-    uint16_t etehernet_type;
-    uint8_t msduHandle;
+    uint16_t msduLength;        /**< Service data unit length */
+    uint8_t *msdu;              /**< Service data unit */
+    uint8_t *srcAddress;        /**< Source address */
+    uint8_t *dstAddress;        /**< Destination address */
+    uint16_t etehernet_type;    /**< Ethernet type */
+    uint8_t msduHandle;         /**< Handle associated with MSDU */
 } eth_data_req_t;
 
+/**
+  * \brief Struct eth_data_ind_s defines arguments for data indication message
+  */
 typedef struct eth_data_ind_s {
-    uint16_t msduLength;
-    uint8_t *msdu;
-    uint8_t srcAddress[6];
-    uint8_t dstAddress[6];
-    uint16_t etehernet_type;
-    uint8_t link_quality;
-    int8_t dbm;
+    uint16_t msduLength;        /**< Service data unit length */
+    uint8_t *msdu;              /**< Service data unit */
+    uint8_t srcAddress[6];      /**< Source address */
+    uint8_t dstAddress[6];      /**< Destination address */
+    uint16_t etehernet_type;    /**< Ethernet type */
+    uint8_t link_quality;       /**< Link quality */
+    int8_t dbm;                 /**< measured dBm */
 }eth_data_ind_t;
 
 /**
@@ -122,18 +131,21 @@ typedef int8_t eth_mac_mac48_address_get(const eth_mac_api_t* api, uint8_t *mac4
 typedef int8_t eth_mac_api_initialize(eth_mac_api_t *api, eth_mac_data_confirm *conf_cb,
                                        eth_mac_data_indication *ind_cb, uint8_t parent_id);
 
+/**
+  * \brief Struct eth_mac_api_s defines functions for two-way communications between ethernet MAC and Upper layer.
+  */
 struct eth_mac_api_s {
-    eth_mac_api_initialize      *mac_initialize;
+    eth_mac_api_initialize      *mac_initialize;                /**< Callback function for MAC initialization */
 
-    eth_mac_data_request                *data_req;
-    eth_mac_data_confirm                *data_conf_cb;
-    eth_mac_data_indication             *data_ind_cb;
+    eth_mac_data_request        *data_req;                      /**< Callback function for data request */
+    eth_mac_data_confirm        *data_conf_cb;                  /**< Callback function for data confirmation */
+    eth_mac_data_indication     *data_ind_cb;                   /**< Callback function for data indication */
 
-    eth_mac_mac48_address_set   *mac48_set;
-    eth_mac_mac48_address_get   *mac48_get;
+    eth_mac_mac48_address_set   *mac48_set;                     /**< Setter for MAC address */
+    eth_mac_mac48_address_get   *mac48_get;                     /**< Getter for MAC address */
 
-    uint8_t                     parent_id;
-    bool                        address_resolution_needed; //Normal ethernet should set this true and tunnel or slip false
+    uint8_t                     parent_id;                      /**< Upper layer ID */
+    bool                        address_resolution_needed;      /**< Normal ethernet should set this true for tunnel or false for slip */
 };
 
 #ifdef __cplusplus

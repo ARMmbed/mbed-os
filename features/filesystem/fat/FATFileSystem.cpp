@@ -71,58 +71,61 @@ static int fat_error_remap(FRESULT res)
     }
 }
 
-void fat_filesystem_set_errno(FRESULT res)
-{
-    switch(res) {
-        case FR_OK:                     /* (0) Succeeded */
-            errno = 0;                  /* no error */
-            break;
-        case FR_DISK_ERR:               /* (1) A hard error occurred in the low level disk I/O layer */
-        case FR_NOT_READY:              /* (3) The physical drive cannot work */
-            errno = EIO;                /* I/O error */
-            break;
-        case FR_NO_FILE:                /* (4) Could not find the file */
-        case FR_NO_PATH:                /* (5) Could not find the path */
-        case FR_INVALID_NAME:           /* (6) The path name format is invalid */
-        case FR_INVALID_DRIVE:          /* (11) The logical drive number is invalid */
-        case FR_NO_FILESYSTEM:          /* (13) There is no valid FAT volume */
-            errno = ENOENT;             /* No such file or directory */
-            break;
-        case FR_DENIED:                 /* (7) Access denied due to prohibited access or directory full */
-            errno = EACCES;             /* Permission denied */
-            break;
-        case FR_EXIST:                  /* (8) Access denied due to prohibited access */
-            errno = EEXIST;             /* File exists */
-            break;
-        case FR_WRITE_PROTECTED:        /* (10) The physical drive is write protected */
-        case FR_LOCKED:                 /* (16) The operation is rejected according to the file sharing policy */
-            errno = EACCES;             /* Permission denied */
-            break;
-        case FR_INVALID_OBJECT:         /* (9) The file/directory object is invalid */
-            errno = EFAULT;             /* Bad address */
-            break;
-        case FR_NOT_ENABLED:            /* (12) The volume has no work area */
-            errno = ENXIO;              /* No such device or address */
-            break;
-        case FR_NOT_ENOUGH_CORE:        /* (17) LFN working buffer could not be allocated */
-            errno = ENOMEM;             /* Not enough space */
-            break;
-        case FR_TOO_MANY_OPEN_FILES:    /* (18) Number of open files > _FS_LOCK */
-            errno = ENFILE;             /* Too many open files in system */
-            break;
-        case FR_INVALID_PARAMETER:      /* (19) Given parameter is invalid */
-            errno = ENOEXEC;            /* Exec format error */
-            break;
-        case FR_INT_ERR:                /* (2) Assertion failed */
-        case FR_MKFS_ABORTED:           /* (14) The f_mkfs() aborted due to any parameter error */
-        case FR_TIMEOUT:                /* (15) Could not get a grant to access the volume within defined period */
-        default:
-            errno = EBADF;              /* Bad file number */
-            break;
+// Helper class for deferring operations when variable falls out of scope
+template <typename T>
+class Deferred {
+public:
+    T _t;
+    Callback<void(T)> _ondefer;
+
+    Deferred(const Deferred&);
+    Deferred &operator=(const Deferred&);
+
+public:
+    Deferred(T t, Callback<void(T)> ondefer = NULL)
+        : _t(t), _ondefer(ondefer)
+    {
     }
-    return;
+
+    operator T()
+    {
+        return _t;
+    }
+
+    ~Deferred()
+    {
+        if (_ondefer) {
+            _ondefer(_t);
+        }
+    }
+};
+
+static void dodelete(const char *data)
+{
+    delete[] data;
 }
 
+// Adds prefix needed internally by fatfs, this can be avoided for the first fatfs
+// (id 0) otherwise a prefix of "id:/" is inserted in front of the string.
+static Deferred<const char*> fat_path_prefix(int id, const char *path)
+{
+    // We can avoid dynamic allocation when only on fatfs is in use
+    if (id == 0) {
+        return path;
+    }
+
+    // Prefix path with id, will look something like 2:/hi/hello/filehere.txt
+    char *buffer = new char[strlen("0:/") + strlen(path) + 1];
+    if (!buffer) {
+        return NULL;
+    }
+
+    buffer[0] = '0' + id;
+    buffer[1] = ':';
+    buffer[2] = '/';
+    strcpy(buffer + strlen("0:/"), path);
+    return Deferred<const char*>(buffer, dodelete);
+}
 
 
 ////// Disk operations //////
@@ -144,6 +147,16 @@ DWORD get_fattime(void)
            | (DWORD)(ptm->tm_hour     ) << 11
            | (DWORD)(ptm->tm_min      ) << 5
            | (DWORD)(ptm->tm_sec/2    );
+}
+
+void *ff_memalloc(UINT size)
+{
+    return malloc(size);
+}
+
+void ff_memfree(void *p)
+{
+    free(p);
 }
 
 // Implementation of diskio functions (see ChaN/diskio.h)
@@ -206,8 +219,8 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                DWORD size = _ffs[pdrv]->get_erase_size();
-                *((DWORD*)buff) = size;
+                WORD size = _ffs[pdrv]->get_erase_size();
+                *((WORD*)buff) = size;
                 return RES_OK;
             }
         case GET_BLOCK_SIZE:
@@ -237,10 +250,10 @@ FATFileSystem::~FATFileSystem()
 
 int FATFileSystem::mount(BlockDevice *bd) {
     // requires duplicate definition to allow virtual overload to work
-    return mount(bd, false);
+    return mount(bd, true);
 }
 
-int FATFileSystem::mount(BlockDevice *bd, bool force) {
+int FATFileSystem::mount(BlockDevice *bd, bool mount) {
     lock();
     if (_id != -1) {
         unlock();
@@ -252,9 +265,10 @@ int FATFileSystem::mount(BlockDevice *bd, bool force) {
             _id = i;
             _ffs[_id] = bd;
             _fsid[0] = '0' + _id;
-            _fsid[1] = '\0';
+            _fsid[1] = ':';
+            _fsid[2] = '\0';
             debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", getName(), _fsid);
-            FRESULT res = f_mount(&_fs, _fsid, force);
+            FRESULT res = f_mount(&_fs, _fsid, mount);
             unlock();
             return fat_error_remap(res);
         }
@@ -290,7 +304,7 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     fs.lock();
-    FRESULT res = f_mkfs(fs._fsid, 0, allocation_unit);
+    FRESULT res = f_mkfs(fs._fsid, 1, allocation_unit);
     fs.unlock();
     if (res != FR_OK) {
         return fat_error_remap(res);
@@ -304,9 +318,11 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
     return 0;
 }
 
-int FATFileSystem::remove(const char *filename) {
+int FATFileSystem::remove(const char *path) {
+    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+
     lock();
-    FRESULT res = f_unlink(filename);
+    FRESULT res = f_unlink(fpath);
     unlock();
 
     if (res != FR_OK) {
@@ -315,9 +331,12 @@ int FATFileSystem::remove(const char *filename) {
     return fat_error_remap(res);
 }
 
-int FATFileSystem::rename(const char *oldname, const char *newname) {
+int FATFileSystem::rename(const char *oldpath, const char *newpath) {
+    Deferred<const char*> oldfpath = fat_path_prefix(_id, oldpath);
+    Deferred<const char*> newfpath = fat_path_prefix(_id, newpath);
+
     lock();
-    FRESULT res = f_rename(oldname, newname);
+    FRESULT res = f_rename(oldfpath, newfpath);
     unlock();
 
     if (res != FR_OK) {
@@ -326,9 +345,11 @@ int FATFileSystem::rename(const char *oldname, const char *newname) {
     return fat_error_remap(res);
 }
 
-int FATFileSystem::mkdir(const char *name, mode_t mode) {
+int FATFileSystem::mkdir(const char *path, mode_t mode) {
+    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+
     lock();
-    FRESULT res = f_mkdir(name);
+    FRESULT res = f_mkdir(fpath);
     unlock();
 
     if (res != FR_OK) {
@@ -337,12 +358,14 @@ int FATFileSystem::mkdir(const char *name, mode_t mode) {
     return fat_error_remap(res);
 }
 
-int FATFileSystem::stat(const char *name, struct stat *st) {
+int FATFileSystem::stat(const char *path, struct stat *st) {
+    Deferred<const char*> fpath = fat_path_prefix(_id, path);
+
     lock();
     FILINFO f;
     memset(&f, 0, sizeof(f));
 
-    FRESULT res = f_stat(name, &f);
+    FRESULT res = f_stat(fpath, &f);
     if (res != FR_OK) {
         unlock();
         return fat_error_remap(res);
@@ -373,11 +396,10 @@ void FATFileSystem::unlock() {
 
 ////// File operations //////
 int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
-    debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", path, getName(), _fsid);
+    debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", path, getName(), _id);
 
     FIL *fh = new FIL;
-    char *buffer = new char[strlen(_fsid) + strlen(path) + 3];
-    sprintf(buffer, "%s:/%s", _fsid, path);
+    Deferred<const char*> fpath = fat_path_prefix(_id, path);
 
     /* POSIX flags -> FatFS open mode */
     BYTE openmode;
@@ -397,12 +419,11 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
     }
 
     lock();
-    FRESULT res = f_open(fh, buffer, openmode);
+    FRESULT res = f_open(fh, fpath, openmode);
 
     if (res != FR_OK) {
         unlock();
         debug_if(FFS_DBG, "f_open('w') failed: %d\n", res);
-        delete[] buffer;
         delete fh;
         return fat_error_remap(res);
     }
@@ -412,7 +433,6 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
     }
     unlock();
 
-    delete[] buffer;
     *file = fh;
     return 0;
 }
@@ -505,11 +525,11 @@ off_t FATFileSystem::file_tell(fs_file_t file) {
     return res;
 }
 
-size_t FATFileSystem::file_size(fs_file_t file) {
+off_t FATFileSystem::file_size(fs_file_t file) {
     FIL *fh = static_cast<FIL*>(file);
 
     lock();
-    size_t res = fh->fsize;
+    off_t res = fh->fsize;
     unlock();
 
     return res;
@@ -519,9 +539,10 @@ size_t FATFileSystem::file_size(fs_file_t file) {
 ////// Dir operations //////
 int FATFileSystem::dir_open(fs_dir_t *dir, const char *path) {
     FATFS_DIR *dh = new FATFS_DIR;
+    Deferred<const char*> fpath = fat_path_prefix(_id, path);
 
     lock();
-    FRESULT res = f_opendir(dh, path);
+    FRESULT res = f_opendir(dh, fpath);
     unlock();
 
     if (res != FR_OK) {

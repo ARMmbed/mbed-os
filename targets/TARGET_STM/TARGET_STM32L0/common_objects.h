@@ -111,7 +111,21 @@ struct i2c_s {
 #endif
 };
 
+struct flash_s {
+    /*  nothing to be stored for now */
+    uint32_t dummy;
+};
+
 #include "gpio_object.h"
+
+#if DEVICE_ANALOGOUT
+struct dac_s {
+    DACName dac;
+    PinName pin;
+    uint32_t channel;
+    DAC_HandleTypeDef handle;
+};
+#endif
 
 #ifdef __cplusplus
 }

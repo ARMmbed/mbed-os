@@ -25,6 +25,9 @@
 #ifndef RTOS_H
 #define RTOS_H
 
+#include "mbed_rtx.h"
+#include "mbed_rtx_conf.h"
+#include "mbed_rtos_storage.h"
 #include "rtos/Thread.h"
 #include "rtos/Mutex.h"
 #include "rtos/RtosTimer.h"
@@ -39,10 +42,6 @@ using namespace rtos;
    like mbed_error, Callback and others.
 */
 #include "mbed.h"
-
-#if (MBED_LIBRARY_VERSION < 122)
-#error "This version of RTOS requires mbed library version > 121"
-#endif
 
 #endif
 

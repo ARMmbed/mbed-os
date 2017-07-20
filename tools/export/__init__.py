@@ -20,7 +20,7 @@ from os.path import join, abspath, dirname, exists
 from os.path import basename, relpath, normpath, splitext
 from os import makedirs, walk
 import copy
-from shutil import rmtree
+from shutil import rmtree, copyfile
 import zipfile
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
@@ -30,8 +30,9 @@ from tools.build_api import scan_resources
 from tools.toolchains import Resources
 from tools.export import lpcxpresso, ds5_5, iar, makefile
 from tools.export import embitz, coide, kds, simplicity, atmelstudio
-from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt
+from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt, vscode
 from tools.export import gnuarmeclipse
+from tools.export import qtcreator
 from tools.targets import TARGET_NAMES
 
 EXPORTERS = {
@@ -55,8 +56,12 @@ EXPORTERS = {
     'eclipse_iar'      : cdt.EclipseIAR,
     'eclipse_armc5'    : cdt.EclipseArmc5,
     'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
+    'qtcreator': qtcreator.QtCreator,
     'zip' : zip.ZIP,
-    'cmsis'    : cmsis.CMSIS
+    'cmsis'    : cmsis.CMSIS,
+    'vscode_gcc_arm' : vscode.VSCodeGcc,
+    'vscode_iar' : vscode.VSCodeIAR,
+    'vscode_armc5' : vscode.VSCodeArmc5
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
@@ -67,6 +72,14 @@ Please refer to <a href='/handbook/Exporting-to-offline-toolchains' target='_bla
 ERROR_MESSAGE_NOT_EXPORT_LIBS = """
 To export this project please <a href='http://mbed.org/compiler/?import=http://mbed.org/users/mbed_official/code/mbed-export/k&mode=lib' target='_blank'>import the export version of the mbed library</a>.
 """
+
+def mcu_ide_list():
+    """Shows list of exportable ides 
+
+    """
+    supported_ides = sorted(EXPORTERS.keys())
+    return "\n".join(supported_ides)
+
 
 def mcu_ide_matrix(verbose_html=False):
     """Shows target map using prettytable
@@ -90,7 +103,7 @@ def mcu_ide_matrix(verbose_html=False):
         row = [target]  # First column is platform name
         for ide in supported_ides:
             text = "-"
-            if target in EXPORTERS[ide].TARGETS:
+            if EXPORTERS[ide].is_target_supported(target):
                 if verbose_html:
                     text = "&#10003;"
                 else:
@@ -138,7 +151,7 @@ def rewrite_basepath(file_name, resources, export_path, loc):
     export_path - the final destination of the file after export
     """
     new_f = join(loc, relpath(file_name, resources.file_basepath[file_name]))
-    resources.file_basepath[join(export_path, new_f)] = export_path
+    resources.file_basepath[new_f] = export_path
     return new_f
 
 
@@ -242,7 +255,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                    linker_script=None, notify=None, verbose=False, name=None,
                    inc_dirs=None, jobs=1, silent=False, extra_verbose=False,
                    config=None, macros=None, zip_proj=None, inc_repos=False,
-                   build_profile=None):
+                   build_profile=None, app_config=None):
     """Generates a project file and creates a zip archive if specified
 
     Positional Arguments:
@@ -294,7 +307,8 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     toolchain = prepare_toolchain(
         paths, "", target, toolchain_name, macros=macros, jobs=jobs,
         notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose, config=config, build_profile=build_profile)
+        extra_verbose=extra_verbose, config=config, build_profile=build_profile,
+        app_config=app_config)
     # The first path will give the name to the library
     if name is None:
         name = basename(normpath(abspath(src_paths[0])))
@@ -309,10 +323,10 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     resources.file_basepath[config_header] = dirname(config_header)
 
     if zip_proj:
-        subtract_basepath(resources, export_path)
+        subtract_basepath(resources, ".")
         for loc, res in resource_dict.iteritems():
             temp = copy.deepcopy(res)
-            subtract_basepath(temp, export_path, loc)
+            subtract_basepath(temp, ".", loc)
             resources.add(temp)
     else:
         for _, res in resource_dict.iteritems():
@@ -336,5 +350,9 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                        inc_repos)
         else:
             zip_export(zip_proj, name, resource_dict, files, inc_repos)
+    else:
+        for exported in files:
+            if not exists(join(export_path, basename(exported))):
+                copyfile(exported, join(export_path, basename(exported)))
 
     return exporter

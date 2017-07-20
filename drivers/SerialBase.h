@@ -18,12 +18,12 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_SERIAL
+#if defined (DEVICE_SERIAL) || defined(DOXYGEN_ONLY)
 
-#include "Stream.h"
 #include "Callback.h"
 #include "serial_api.h"
 #include "mbed_toolchain.h"
+#include "platform/NonCopyable.h"
 
 #if DEVICE_SERIAL_ASYNCH
 #include "CThunk.h"
@@ -32,14 +32,14 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A base class for serial port implementations
  * Can't be instantiated directly (use Serial or RawSerial)
  *
- * @Note Synchronization level: Set by subclass
+ * @note Synchronization level: Set by subclass
+ * @ingroup drivers
  */
-class SerialBase {
+class SerialBase : private NonCopyable<SerialBase> {
 
 public:
     /** Set the baud rate of the serial port
@@ -74,7 +74,7 @@ public:
      *
      *  @param bits The number of bits in a word (5-8; default = 8)
      *  @param parity The parity used (SerialBase::None, SerialBase::Odd, SerialBase::Even, SerialBase::Forced1, SerialBase::Forced0; default = SerialBase::None)
-     *  @param stop The number of stop bits (1 or 2; default = 1)
+     *  @param stop_bits The number of stop bits (1 or 2; default = 1)
      */
     void format(int bits=8, Parity parity=SerialBase::None, int stop_bits=1);
 
@@ -258,5 +258,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

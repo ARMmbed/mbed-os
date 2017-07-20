@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Extended PWR HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -13,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -57,11 +57,19 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
-#define PWR_PORTH_AVAILABLE_PINS   (PWR_GPIO_BIT_0|PWR_GPIO_BIT_1)    
-#elif defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx)
-#define PWR_PORTH_AVAILABLE_PINS   (PWR_GPIO_BIT_0|PWR_GPIO_BIT_1|PWR_GPIO_BIT_3)
-#endif   
+#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx)
+#define PWR_PORTH_AVAILABLE_PINS   ((uint32_t)0x0000000B) /* PH0/PH1/PH3 */
+#elif defined (STM32L451xx) || defined (STM32L452xx) || defined (STM32L462xx)
+#define PWR_PORTH_AVAILABLE_PINS   ((uint32_t)0x0000000B) /* PH0/PH1/PH3 */
+#elif defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+#define PWR_PORTH_AVAILABLE_PINS   ((uint32_t)0x00000003) /* PH0/PH1 */
+#elif defined (STM32L496xx) || defined (STM32L4A6xx)
+#define PWR_PORTH_AVAILABLE_PINS   ((uint32_t)0x0000FFFF) /* PH0..PH15 */
+#endif
+
+#if defined (STM32L496xx) || defined (STM32L4A6xx)
+#define PWR_PORTI_AVAILABLE_PINS   ((uint32_t)0x00000FFF) /* PI0..PI11 */
+#endif
 
 /** @defgroup PWR_Extended_Private_Defines PWR Extended Private Defines
   * @{
@@ -219,7 +227,7 @@ void HAL_PWREx_DisableBatteryCharging(void)
 }  
 
 
-#if defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+#if defined(PWR_CR2_USV)
 /**
   * @brief Enable VDDUSB supply. 
   * @note  Remove VDDUSB electrical and logical isolation, once VDDUSB supply is present.  
@@ -239,9 +247,9 @@ void HAL_PWREx_DisableVddUSB(void)
 {
   CLEAR_BIT(PWR->CR2, PWR_CR2_USV);
 }
-#endif /* defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) */
+#endif /* PWR_CR2_USV */
 
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+#if defined(PWR_CR2_IOSV)
 /**
   * @brief Enable VDDIO2 supply. 
   * @note  Remove VDDIO2 electrical and logical isolation, once VDDIO2 supply is present. 
@@ -261,7 +269,7 @@ void HAL_PWREx_DisableVddIO2(void)
 {
   CLEAR_BIT(PWR->CR2, PWR_CR2_IOSV);
 }
-#endif /* defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) */
+#endif /* PWR_CR2_IOSV */
 
 
 /**
@@ -298,10 +306,10 @@ void HAL_PWREx_DisableInternalWakeUpLine(void)
   * @note  Even if a PUy bit to set is reserved, the other PUy bits entered as input 
   *        parameter at the same time are set.     
   * @param  GPIO: Specify the IO port. This parameter can be PWR_GPIO_A, ..., PWR_GPIO_H 
-  *         to select the GPIO peripheral.
+  *         (or PWR_GPIO_I depending on the devices) to select the GPIO peripheral.
   * @param  GPIONumber: Specify the I/O pins numbers.
   *         This parameter can be one of the following values:
-  *         PWR_GPIO_BIT_0, ..., PWR_GPIO_BIT_15 (except for PORTH where less  
+  *         PWR_GPIO_BIT_0, ..., PWR_GPIO_BIT_15 (except for the port where less  
   *         I/O pins are available) or the logical OR of several of them to set 
   *         several bits for a given port in a single API call.    
   * @retval HAL Status
@@ -315,44 +323,58 @@ HAL_StatusTypeDef HAL_PWREx_EnableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber)
   {
     case PWR_GPIO_A:
        SET_BIT(PWR->PUCRA, (GPIONumber & (~(PWR_GPIO_BIT_14))));
-       CLEAR_BIT(PWR->PDCRA, (GPIONumber & (~(PWR_GPIO_BIT_13|PWR_GPIO_BIT_15))));                       
+       CLEAR_BIT(PWR->PDCRA, (GPIONumber & (~(PWR_GPIO_BIT_13|PWR_GPIO_BIT_15))));
        break;
     case PWR_GPIO_B:
        SET_BIT(PWR->PUCRB, GPIONumber);
-       CLEAR_BIT(PWR->PDCRB, (GPIONumber & (~(PWR_GPIO_BIT_4))));                  
-       break; 
+       CLEAR_BIT(PWR->PDCRB, (GPIONumber & (~(PWR_GPIO_BIT_4))));
+       break;
     case PWR_GPIO_C:
        SET_BIT(PWR->PUCRC, GPIONumber);
-       CLEAR_BIT(PWR->PDCRC, GPIONumber);         
-       break; 
-#if defined (STM32L431xx) || defined (STM32L433xx) || defined (STM32L443xx) || defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+       CLEAR_BIT(PWR->PDCRC, GPIONumber);
+       break;
+#if defined(GPIOD)
     case PWR_GPIO_D:
        SET_BIT(PWR->PUCRD, GPIONumber);
-       CLEAR_BIT(PWR->PDCRD, GPIONumber);         
-       break;
-    case PWR_GPIO_E:
-       SET_BIT(PWR->PUCRE, GPIONumber);
-       CLEAR_BIT(PWR->PDCRE, GPIONumber);         
+       CLEAR_BIT(PWR->PDCRD, GPIONumber);
        break;
 #endif
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)            
+#if defined(GPIOE)
+    case PWR_GPIO_E:
+       SET_BIT(PWR->PUCRE, GPIONumber);
+       CLEAR_BIT(PWR->PDCRE, GPIONumber);
+       break;
+#endif
+#if defined(GPIOF)
     case PWR_GPIO_F:
        SET_BIT(PWR->PUCRF, GPIONumber);
-       CLEAR_BIT(PWR->PDCRF, GPIONumber);         
+       CLEAR_BIT(PWR->PDCRF, GPIONumber);
        break;
+#endif
+#if defined(GPIOG)
     case PWR_GPIO_G:
        SET_BIT(PWR->PUCRG, GPIONumber);
-       CLEAR_BIT(PWR->PDCRG, GPIONumber);         
+       CLEAR_BIT(PWR->PDCRG, GPIONumber);
        break;
-#endif           
+#endif
     case PWR_GPIO_H:
        SET_BIT(PWR->PUCRH, (GPIONumber & PWR_PORTH_AVAILABLE_PINS));
-       CLEAR_BIT(PWR->PDCRH, (GPIONumber & PWR_PORTH_AVAILABLE_PINS));           
-       break;                                                   
+#if defined (STM32L496xx) || defined (STM32L4A6xx)
+       CLEAR_BIT(PWR->PDCRH, ((GPIONumber & PWR_PORTH_AVAILABLE_PINS) & (~(PWR_GPIO_BIT_3))));
+#else       
+       CLEAR_BIT(PWR->PDCRH, (GPIONumber & PWR_PORTH_AVAILABLE_PINS));
+#endif       
+       break;
+#if defined(GPIOI)
+    case PWR_GPIO_I:
+       SET_BIT(PWR->PUCRI, (GPIONumber & PWR_PORTI_AVAILABLE_PINS));
+       CLEAR_BIT(PWR->PDCRI, (GPIONumber & PWR_PORTI_AVAILABLE_PINS));
+       break;
+#endif
     default:
-        return HAL_ERROR;
+       return HAL_ERROR;
   }
-       
+  
   return HAL_OK;
 }
 
@@ -364,10 +386,10 @@ HAL_StatusTypeDef HAL_PWREx_EnableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber)
   * @note  Even if a PUy bit to reset is reserved, the other PUy bits entered as input 
   *        parameter at the same time are reset.      
   * @param  GPIO: Specifies the IO port. This parameter can be PWR_GPIO_A, ..., PWR_GPIO_H 
-  *         to select the GPIO peripheral.
+  *          (or PWR_GPIO_I depending on the devices) to select the GPIO peripheral.
   * @param  GPIONumber: Specify the I/O pins numbers.
   *         This parameter can be one of the following values:
-  *         PWR_GPIO_BIT_0, ..., PWR_GPIO_BIT_15 (except for PORTH where less  
+  *         PWR_GPIO_BIT_0, ..., PWR_GPIO_BIT_15 (except for the port where less  
   *         I/O pins are available) or the logical OR of several of them to reset 
   *         several bits for a given port in a single API call. 
   * @retval HAL Status
@@ -380,37 +402,46 @@ HAL_StatusTypeDef HAL_PWREx_DisableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber
   switch (GPIO)
   {
     case PWR_GPIO_A:
-       CLEAR_BIT(PWR->PUCRA, (GPIONumber & (~(PWR_GPIO_BIT_14))));         
+       CLEAR_BIT(PWR->PUCRA, (GPIONumber & (~(PWR_GPIO_BIT_14))));
        break;
     case PWR_GPIO_B:
        CLEAR_BIT(PWR->PUCRB, GPIONumber);
-       break; 
+       break;
     case PWR_GPIO_C:
        CLEAR_BIT(PWR->PUCRC, GPIONumber);
-       break; 
-#if defined (STM32L431xx) || defined (STM32L433xx) || defined (STM32L443xx) || defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+       break;
+#if defined(GPIOD)
     case PWR_GPIO_D:
        CLEAR_BIT(PWR->PUCRD, GPIONumber);
        break;
+#endif
+#if defined(GPIOE)
     case PWR_GPIO_E:
        CLEAR_BIT(PWR->PUCRE, GPIONumber);
        break;
 #endif
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)            
+#if defined(GPIOF)
     case PWR_GPIO_F:
        CLEAR_BIT(PWR->PUCRF, GPIONumber);
        break;
+#endif
+#if defined(GPIOG)
     case PWR_GPIO_G:
        CLEAR_BIT(PWR->PUCRG, GPIONumber);
        break;
-#endif           
-    case PWR_GPIO_H:
+#endif
+    case PWR_GPIO_H:    
        CLEAR_BIT(PWR->PUCRH, (GPIONumber & PWR_PORTH_AVAILABLE_PINS));
-       break;                                                   
+       break;
+#if defined(GPIOI)
+    case PWR_GPIO_I:
+       CLEAR_BIT(PWR->PUCRI, (GPIONumber & PWR_PORTI_AVAILABLE_PINS));
+       break;
+#endif
     default:
-        return HAL_ERROR;
+       return HAL_ERROR;
   }
-       
+  
   return HAL_OK;
 }
 
@@ -429,10 +460,10 @@ HAL_StatusTypeDef HAL_PWREx_DisableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber
   * @note  Even if a PDy bit to set is reserved, the other PDy bits entered as input 
   *        parameter at the same time are set.         
   * @param  GPIO: Specify the IO port. This parameter can be PWR_GPIO_A..PWR_GPIO_H 
-  *         to select the GPIO peripheral.
+  *         (or PWR_GPIO_I depending on the devices) to select the GPIO peripheral.
   * @param  GPIONumber: Specify the I/O pins numbers.
   *         This parameter can be one of the following values:
-  *         PWR_GPIO_BIT_0, ..., PWR_GPIO_BIT_15 (except for PORTH where less  
+  *         PWR_GPIO_BIT_0, ..., PWR_GPIO_BIT_15 (except for the port where less  
   *         I/O pins are available) or the logical OR of several of them to set 
   *         several bits for a given port in a single API call. 
   * @retval HAL Status
@@ -443,47 +474,61 @@ HAL_StatusTypeDef HAL_PWREx_EnableGPIOPullDown(uint32_t GPIO, uint32_t GPIONumbe
   assert_param(IS_PWR_GPIO_BIT_NUMBER(GPIONumber));
   
   switch (GPIO)
-  { 
+  {
     case PWR_GPIO_A:
-       SET_BIT(PWR->PDCRA, (GPIONumber & (~(PWR_GPIO_BIT_13|PWR_GPIO_BIT_15))));        
-       CLEAR_BIT(PWR->PUCRA, (GPIONumber & (~(PWR_GPIO_BIT_14))));           
+       SET_BIT(PWR->PDCRA, (GPIONumber & (~(PWR_GPIO_BIT_13|PWR_GPIO_BIT_15))));
+       CLEAR_BIT(PWR->PUCRA, (GPIONumber & (~(PWR_GPIO_BIT_14))));
        break;
     case PWR_GPIO_B:
        SET_BIT(PWR->PDCRB, (GPIONumber & (~(PWR_GPIO_BIT_4))));
-       CLEAR_BIT(PWR->PUCRB, GPIONumber);                    
-       break; 
+       CLEAR_BIT(PWR->PUCRB, GPIONumber);
+       break;
     case PWR_GPIO_C:
        SET_BIT(PWR->PDCRC, GPIONumber);
-       CLEAR_BIT(PWR->PUCRC, GPIONumber);        
-       break; 
-#if defined (STM32L431xx) || defined (STM32L433xx) || defined (STM32L443xx) || defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+       CLEAR_BIT(PWR->PUCRC, GPIONumber);
+       break;
+#if defined(GPIOD)
     case PWR_GPIO_D:
        SET_BIT(PWR->PDCRD, GPIONumber);
-       CLEAR_BIT(PWR->PUCRD, GPIONumber);        
-       break;
-    case PWR_GPIO_E:
-       SET_BIT(PWR->PDCRE, GPIONumber);
-       CLEAR_BIT(PWR->PUCRE, GPIONumber);        
+       CLEAR_BIT(PWR->PUCRD, GPIONumber);
        break;
 #endif
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)            
+#if defined(GPIOE)
+    case PWR_GPIO_E:
+       SET_BIT(PWR->PDCRE, GPIONumber);
+       CLEAR_BIT(PWR->PUCRE, GPIONumber);
+       break;
+#endif
+#if defined(GPIOF)
     case PWR_GPIO_F:
        SET_BIT(PWR->PDCRF, GPIONumber);
-       CLEAR_BIT(PWR->PUCRF, GPIONumber);        
+       CLEAR_BIT(PWR->PUCRF, GPIONumber);
        break;
+#endif
+#if defined(GPIOG)
     case PWR_GPIO_G:
        SET_BIT(PWR->PDCRG, GPIONumber);
-       CLEAR_BIT(PWR->PUCRG, GPIONumber);        
+       CLEAR_BIT(PWR->PUCRG, GPIONumber);
        break;
-#endif           
+#endif
     case PWR_GPIO_H:
+#if defined (STM32L496xx) || defined (STM32L4A6xx)
+       SET_BIT(PWR->PDCRH, ((GPIONumber & PWR_PORTH_AVAILABLE_PINS) & (~(PWR_GPIO_BIT_3))));
+#else       
        SET_BIT(PWR->PDCRH, (GPIONumber & PWR_PORTH_AVAILABLE_PINS));
-       CLEAR_BIT(PWR->PUCRH, (GPIONumber & PWR_PORTH_AVAILABLE_PINS));          
-       break;                                                   
+#endif  
+       CLEAR_BIT(PWR->PUCRH, (GPIONumber & PWR_PORTH_AVAILABLE_PINS));
+       break;
+#if defined(GPIOI)
+    case PWR_GPIO_I:
+       SET_BIT(PWR->PDCRI, (GPIONumber & PWR_PORTI_AVAILABLE_PINS));
+       CLEAR_BIT(PWR->PUCRI, (GPIONumber & PWR_PORTI_AVAILABLE_PINS));
+       break;
+#endif
     default:
-        return HAL_ERROR;
+       return HAL_ERROR;
   }
-       
+  
   return HAL_OK;
 }
 
@@ -495,10 +540,10 @@ HAL_StatusTypeDef HAL_PWREx_EnableGPIOPullDown(uint32_t GPIO, uint32_t GPIONumbe
   * @note  Even if a PDy bit to reset is reserved, the other PDy bits entered as input 
   *        parameter at the same time are reset.   
   * @param  GPIO: Specifies the IO port. This parameter can be PWR_GPIO_A..PWR_GPIO_H 
-  *         to select the GPIO peripheral.
+  *         (or PWR_GPIO_I depending on the devices) to select the GPIO peripheral.
   * @param  GPIONumber: Specify the I/O pins numbers.
   *         This parameter can be one of the following values:
-  *         PWR_GPIO_BIT_0, ..., PWR_GPIO_BIT_15 (except for PORTH where less  
+  *         PWR_GPIO_BIT_0, ..., PWR_GPIO_BIT_15 (except for the port where less  
   *         I/O pins are available) or the logical OR of several of them to reset 
   *         several bits for a given port in a single API call. 
   * @retval HAL Status
@@ -511,37 +556,50 @@ HAL_StatusTypeDef HAL_PWREx_DisableGPIOPullDown(uint32_t GPIO, uint32_t GPIONumb
   switch (GPIO)
   {
     case PWR_GPIO_A:
-       CLEAR_BIT(PWR->PDCRA, (GPIONumber & (~(PWR_GPIO_BIT_13|PWR_GPIO_BIT_15))));                        
+       CLEAR_BIT(PWR->PDCRA, (GPIONumber & (~(PWR_GPIO_BIT_13|PWR_GPIO_BIT_15))));
        break;
     case PWR_GPIO_B:
-       CLEAR_BIT(PWR->PDCRB, (GPIONumber & (~(PWR_GPIO_BIT_4))));           
+       CLEAR_BIT(PWR->PDCRB, (GPIONumber & (~(PWR_GPIO_BIT_4))));
        break; 
     case PWR_GPIO_C:
        CLEAR_BIT(PWR->PDCRC, GPIONumber);
-       break; 
-#if defined (STM32L431xx) || defined (STM32L433xx) || defined (STM32L443xx) || defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+       break;
+#if defined(GPIOD)
     case PWR_GPIO_D:
        CLEAR_BIT(PWR->PDCRD, GPIONumber);
        break;
+#endif
+#if defined(GPIOE)
     case PWR_GPIO_E:
        CLEAR_BIT(PWR->PDCRE, GPIONumber);
        break;
 #endif
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)             
+#if defined(GPIOF) 
     case PWR_GPIO_F:
        CLEAR_BIT(PWR->PDCRF, GPIONumber);
        break;
+#endif
+#if defined(GPIOG)
     case PWR_GPIO_G:
        CLEAR_BIT(PWR->PDCRG, GPIONumber);
        break;
-#endif              
+#endif
     case PWR_GPIO_H:
-      CLEAR_BIT(PWR->PDCRH, (GPIONumber & PWR_PORTH_AVAILABLE_PINS));
-       break;                                                   
+#if defined (STM32L496xx) || defined (STM32L4A6xx)
+       CLEAR_BIT(PWR->PDCRH, ((GPIONumber & PWR_PORTH_AVAILABLE_PINS) & (~(PWR_GPIO_BIT_3))));
+#else       
+       CLEAR_BIT(PWR->PDCRH, (GPIONumber & PWR_PORTH_AVAILABLE_PINS));
+#endif     
+       break; 
+#if defined(GPIOI)
+    case PWR_GPIO_I:
+       CLEAR_BIT(PWR->PDCRI, (GPIONumber & PWR_PORTI_AVAILABLE_PINS));
+       break;
+#endif
     default:
-        return HAL_ERROR;
+       return HAL_ERROR;
   }
-       
+  
   return HAL_OK;
 }
 
@@ -602,7 +660,7 @@ void HAL_PWREx_DisableSRAM2ContentRetention(void)
 
 
 
-#if defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+#if defined(PWR_CR2_PVME1)
 /**
   * @brief Enable the Power Voltage Monitoring 1: VDDUSB versus 1.2V.
   * @retval None
@@ -620,10 +678,10 @@ void HAL_PWREx_DisablePVM1(void)
 {
   CLEAR_BIT(PWR->CR2, PWR_PVM_1);    
 }
-#endif /* defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) */
+#endif /* PWR_CR2_PVME1 */
 
 
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+#if defined(PWR_CR2_PVME2)
 /**
   * @brief Enable the Power Voltage Monitoring 2: VDDIO2 versus 0.9V.
   * @retval None
@@ -641,7 +699,7 @@ void HAL_PWREx_DisablePVM2(void)
 {
   CLEAR_BIT(PWR->CR2, PWR_PVM_2);    
 }
-#endif /* defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) */
+#endif /* PWR_CR2_PVME2 */
 
 
 /**
@@ -708,7 +766,7 @@ HAL_StatusTypeDef HAL_PWREx_ConfigPVM(PWR_PVMTypeDef *sConfigPVM)
      configure the corresponding EXTI line accordingly. */
   switch (sConfigPVM->PVMType)
   {
-#if defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)  
+#if defined(PWR_CR2_PVME1)  
     case PWR_PVM_1:
       /* Clear any previous config. Keep it clear if no event or IT mode is selected */
       __HAL_PWR_PVM1_EXTI_DISABLE_EVENT();
@@ -739,9 +797,9 @@ HAL_StatusTypeDef HAL_PWREx_ConfigPVM(PWR_PVMTypeDef *sConfigPVM)
         __HAL_PWR_PVM1_EXTI_ENABLE_FALLING_EDGE();
       }
       break; 
-#endif /* defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L443xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) */        
+#endif /* PWR_CR2_PVME1 */        
     
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)    
+#if defined(PWR_CR2_PVME2)    
     case PWR_PVM_2:
       /* Clear any previous config. Keep it clear if no event or IT mode is selected */
       __HAL_PWR_PVM2_EXTI_DISABLE_EVENT();
@@ -772,7 +830,7 @@ HAL_StatusTypeDef HAL_PWREx_ConfigPVM(PWR_PVMTypeDef *sConfigPVM)
         __HAL_PWR_PVM2_EXTI_ENABLE_FALLING_EDGE();
       }
       break;
-#endif /* defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) */      
+#endif /* PWR_CR2_PVME2 */      
       
     case PWR_PVM_3:
       /* Clear any previous config. Keep it clear if no event or IT mode is selected */
@@ -1098,7 +1156,7 @@ void HAL_PWREx_PVD_PVM_IRQHandler(void)
     __HAL_PWR_PVD_EXTI_CLEAR_FLAG();
   }
   /* Next, successively check PVMx exti flags */
-#if defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)  
+#if defined(PWR_CR2_PVME1)  
   if(__HAL_PWR_PVM1_EXTI_GET_FLAG() != RESET) 
   {
     /* PWR PVM1 interrupt user callback */
@@ -1107,8 +1165,8 @@ void HAL_PWREx_PVD_PVM_IRQHandler(void)
     /* Clear PVM1 exti pending bit */
     __HAL_PWR_PVM1_EXTI_CLEAR_FLAG();
   }
-#endif /* defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) */
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)  
+#endif /* PWR_CR2_PVME1 */
+#if defined(PWR_CR2_PVME2)  
   if(__HAL_PWR_PVM2_EXTI_GET_FLAG() != RESET) 
   {
     /* PWR PVM2 interrupt user callback */
@@ -1117,7 +1175,7 @@ void HAL_PWREx_PVD_PVM_IRQHandler(void)
     /* Clear PVM2 exti pending bit */
     __HAL_PWR_PVM2_EXTI_CLEAR_FLAG();
   }
-#endif /* defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) */  
+#endif /* PWR_CR2_PVME2 */  
   if(__HAL_PWR_PVM3_EXTI_GET_FLAG() != RESET) 
   {
     /* PWR PVM3 interrupt user callback */
@@ -1137,7 +1195,7 @@ void HAL_PWREx_PVD_PVM_IRQHandler(void)
 }
 
 
-#if defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+#if defined(PWR_CR2_PVME1)
 /**
   * @brief PWR PVM1 interrupt callback
   * @retval None
@@ -1148,9 +1206,9 @@ __weak void HAL_PWREx_PVM1Callback(void)
             HAL_PWREx_PVM1Callback() API can be implemented in the user file
    */
 }
-#endif /* defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) */
+#endif /* PWR_CR2_PVME1 */
 
-#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+#if defined(PWR_CR2_PVME2)
 /**
   * @brief PWR PVM2 interrupt callback
   * @retval None
@@ -1161,7 +1219,7 @@ __weak void HAL_PWREx_PVM2Callback(void)
             HAL_PWREx_PVM2Callback() API can be implemented in the user file
    */
 }
-#endif /* defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) */
+#endif /* PWR_CR2_PVME2 */
 
 /**
   * @brief PWR PVM3 interrupt callback

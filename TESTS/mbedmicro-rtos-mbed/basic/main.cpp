@@ -1,57 +1,92 @@
+/*
+ * Copyright (c) 2013-2017, ARM Limited, All Rights Reserved
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+/*
+ * Tests is to measure the accuracy of Thread::wait() over a period of time
+ *
+ *
+ * 1) DUT would start to update callback_trigger_count every milli sec
+ * 2) Host would query what is current count base_time, Device responds by the callback_trigger_count
+ * 3) Host after waiting for measurement stretch. It will query for device time again final_time.
+ * 4) Host computes the drift considering base_time, final_time, transport delay and measurement stretch
+ * 5) Finally host send the results back to device pass/fail based on tolerance.
+ * 6) More details on tests can be found in timing_drift_auto.py
+ *
+ */
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "rtos.h"
+#include "unity/unity.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
-/*
- * The stack size is defined in cmsis_os.h mainly dependent on the underlying toolchain and
- * the C standard library. For GCC, ARM_STD and IAR it is defined with a size of 2048 bytes
- * and for ARM_MICRO 512. Because of reduce RAM size some targets need a reduced stacksize.
- */
-#if defined(TARGET_STM32F070RB) && defined(TOOLCHAIN_GCC)
-#define STACK_SIZE DEFAULT_STACK_SIZE/2
-#elif (defined(TARGET_EFM32HG_STK3400)) && !defined(TOOLCHAIN_ARM_MICRO)
-#define STACK_SIZE 512
-#elif (defined(TARGET_EFM32LG_STK3600) || defined(TARGET_EFM32WG_STK3800) || defined(TARGET_EFM32PG_STK3401)) && !defined(TOOLCHAIN_ARM_MICRO)
-#define STACK_SIZE 768
-#elif (defined(TARGET_EFM32GG_STK3700)) && !defined(TOOLCHAIN_ARM_MICRO)
-#define STACK_SIZE 1536
-#elif defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832)
-#define STACK_SIZE 768
-#elif defined(TARGET_XDOT_L151CC)
-#define STACK_SIZE 1024
-#else
-#define STACK_SIZE DEFAULT_STACK_SIZE
-#endif
+#define TEST_STACK_SIZE 1024
+#define ONE_MILLI_SEC 1000
 
-#define SIGNAL_PRINT_TICK 0x01
+volatile uint32_t callback_trigger_count = 0;
 
-DigitalOut led1(LED1);
+static const int test_timeout = 240;
+bool test_result = false;
 
-const int total_ticks = 10;
+void update_tick_thread() {
+    while (true) {
+        Thread::wait(1);
+        ++callback_trigger_count;
+    }
+}
 
-void print_tick_thread() {
-    for (int i = 0; i <= total_ticks; i++) {
-      Thread::signal_wait(SIGNAL_PRINT_TICK);
-      greentea_send_kv("tick", i);
-      led1 = !led1;
+void gt_comm_wait_thread() {
+    char _key[11] = { };
+    char _value[128] = { };
+    int expected_key = 1;
+
+    greentea_send_kv("timing_drift_check_start", 0);
+
+    // wait for 1st signal from host
+    do {
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        expected_key = strcmp(_key, "base_time");
+    } while (expected_key);
+    greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
+
+    // wait for 2nd signal from host
+    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
+
+    //get the results from host
+    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+
+    if (strcmp("pass", _key) == 0) {
+        test_result = true;
     }
 }
 
 int main() {
-    GREENTEA_SETUP(total_ticks + 5, "timing_drift_auto");
-    
-    Thread tick_thread(osPriorityNormal, STACK_SIZE);
-    tick_thread.start(print_tick_thread);
-    
-    for (int i = 0; i <= total_ticks; i++) {
-        Thread::wait(1000);
-        tick_thread.signal_set(SIGNAL_PRINT_TICK);
-    }
-    
-    tick_thread.join();
-    GREENTEA_TESTSUITE_RESULT(1);
+    GREENTEA_SETUP(test_timeout, "timing_drift_auto");
+    Thread tick_thread(osPriorityHigh, TEST_STACK_SIZE);
+    Thread gt_conn_thread(osPriorityNormal, TEST_STACK_SIZE);
+
+    tick_thread.start(update_tick_thread);
+    gt_conn_thread.start(gt_comm_wait_thread);
+    gt_conn_thread.join();
+
+    GREENTEA_TESTSUITE_RESULT(test_result);
 }

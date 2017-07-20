@@ -25,6 +25,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/****** This file has been deprecated since mbed-os-5.5 *****/
+
 #define ARM_DRIVER_VERSION_MAJOR_MINOR(major,minor) (((major) << 8) | (minor))
 
 /**

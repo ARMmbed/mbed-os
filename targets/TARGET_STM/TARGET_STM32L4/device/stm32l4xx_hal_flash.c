@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_flash.c
   * @author  MCD Application Team
-  * @version V1.5.1 
-  * @date    31-May-2016
+  * @version V1.7.1 
+  * @date    21-April-2017
   * @brief   FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the internal FLASH memory:
@@ -77,7 +77,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -119,7 +119,8 @@
 #ifdef HAL_FLASH_MODULE_ENABLED
 
 /* Private typedef -----------------------------------------------------------*/
-/* Private defines -----------------------------------------------------------*/ 
+/* Private defines -----------------------------------------------------------*/
+#define FLASH_NB_DOUBLE_WORDS_IN_ROW  32 
 /* Private macros ------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /** @defgroup FLASH_Private_Variables FLASH Private Variables
@@ -196,6 +197,18 @@ HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint
   {
     pFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
+    /* Deactivate the data cache if they are activated to avoid data misbehavior */
+    if(READ_BIT(FLASH->ACR, FLASH_ACR_DCEN) != RESET)
+    {
+      /* Disable data cache  */
+      __HAL_FLASH_DATA_CACHE_DISABLE();
+      pFlash.CacheToReactivate = FLASH_CACHE_DCACHE_ENABLED;
+    }
+    else
+    {
+      pFlash.CacheToReactivate = FLASH_CACHE_DISABLED;
+    }
+
     if(TypeProgram == FLASH_TYPEPROGRAM_DOUBLEWORD)
     {
       /* Program double-word (64-bit) at a specified address */
@@ -222,6 +235,9 @@ HAL_StatusTypeDef HAL_FLASH_Program(uint32_t TypeProgram, uint32_t Address, uint
     {
       CLEAR_BIT(FLASH->CR, prog_bit);
     }
+
+    /* Flush the caches to be sure of the data consistency */
+    FLASH_FlushCaches();
   }
 
   /* Process Unlocked */
@@ -253,6 +269,18 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, u
 
   pFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
+  /* Deactivate the data cache if they are activated to avoid data misbehavior */
+  if(READ_BIT(FLASH->ACR, FLASH_ACR_DCEN) != RESET)
+  {
+    /* Disable data cache  */
+    __HAL_FLASH_DATA_CACHE_DISABLE();
+    pFlash.CacheToReactivate = FLASH_CACHE_DCACHE_ENABLED;
+  }
+  else
+  {
+    pFlash.CacheToReactivate = FLASH_CACHE_DISABLED;
+  }
+
   /* Set internal variables used by the IRQ handler */
   if(TypeProgram == FLASH_TYPEPROGRAM_FAST_AND_LAST)
   {
@@ -272,7 +300,7 @@ HAL_StatusTypeDef HAL_FLASH_Program_IT(uint32_t TypeProgram, uint32_t Address, u
     /* Program double-word (64-bit) at a specified address */
     FLASH_Program_DoubleWord(Address, Data);
   }
-    else if((TypeProgram == FLASH_TYPEPROGRAM_FAST) || (TypeProgram == FLASH_TYPEPROGRAM_FAST_AND_LAST))
+  else if((TypeProgram == FLASH_TYPEPROGRAM_FAST) || (TypeProgram == FLASH_TYPEPROGRAM_FAST_AND_LAST))
   {
     /* Fast program a 32 row double-word (64-bit) at a specified address */
     FLASH_Program_Fast(Address, (uint32_t)Data);
@@ -291,7 +319,8 @@ void HAL_FLASH_IRQHandler(void)
 
   /* If the operation is completed, disable the PG, PNB, MER1, MER2 and PER Bit */
   CLEAR_BIT(FLASH->CR, (FLASH_CR_PG | FLASH_CR_MER1 | FLASH_CR_PER | FLASH_CR_PNB));
-#if defined(STM32L471xx) || defined(STM32L475xx) || defined(STM32L476xx) || defined(STM32L485xx) || defined(STM32L486xx)
+#if defined (STM32L471xx) || defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) || \
+    defined (STM32L496xx) || defined (STM32L4A6xx)
   CLEAR_BIT(FLASH->CR, FLASH_CR_MER2);
 #endif
   
@@ -307,7 +336,8 @@ void HAL_FLASH_IRQHandler(void)
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_SIZERR)) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGSERR))  ||
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_MISERR)) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_FASTERR)) || 
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR))  || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERR)) ||
-#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx)
+#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || \
+    defined (STM32L451xx) || defined (STM32L452xx) || defined (STM32L462xx) || defined (STM32L496xx) || defined (STM32L4A6xx)
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_ECCD))   || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_PEMPTY)))
 #else
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_ECCD)))
@@ -316,22 +346,23 @@ void HAL_FLASH_IRQHandler(void)
     /*Save the error code*/
     FLASH_SetErrorCode();
     
+    /* Flush the caches to be sure of the data consistency */
+    FLASH_FlushCaches() ;
+
     /* FLASH error interrupt user callback */
     if(pFlash.ProcedureOnGoing == FLASH_PROC_PAGE_ERASE)
     {
-       HAL_FLASH_EndOfOperationCallback(pFlash.Page);
+       HAL_FLASH_OperationErrorCallback(pFlash.Page);
     }
     else if(pFlash.ProcedureOnGoing == FLASH_PROC_MASS_ERASE)
     {
-        HAL_FLASH_EndOfOperationCallback(pFlash.Bank);
+        HAL_FLASH_OperationErrorCallback(pFlash.Bank);
     }
     else if((pFlash.ProcedureOnGoing == FLASH_PROC_PROGRAM) || 
             (pFlash.ProcedureOnGoing == FLASH_PROC_PROGRAM_LAST))
     {
        HAL_FLASH_OperationErrorCallback(pFlash.Address);
     }
-
-    HAL_FLASH_OperationErrorCallback(pFlash.Address);
 
     /*Stop the procedure ongoing*/
     pFlash.ProcedureOnGoing = FLASH_PROC_NONE;
@@ -375,12 +406,12 @@ void HAL_FLASH_IRQHandler(void)
     }
     else
     {
+      /* Flush the caches to be sure of the data consistency */
+      FLASH_FlushCaches() ;
+
       if(pFlash.ProcedureOnGoing == FLASH_PROC_MASS_ERASE)
       {
         /* MassErase ended. Return the selected bank */
-        /* Flush the caches to be sure of the data consistency */
-        FLASH_FlushCaches() ;
-
         /* FLASH EOP interrupt user callback */
         HAL_FLASH_EndOfOperationCallback(pFlash.Bank);
       }
@@ -629,7 +660,8 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout)
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_SIZERR)) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_PGSERR))  ||
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_MISERR)) || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_FASTERR)) || 
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_RDERR))  || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_OPTVERR)) ||
-#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx)
+#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || \
+    defined (STM32L451xx) || defined (STM32L452xx) || defined (STM32L462xx) || defined (STM32L496xx) || defined (STM32L4A6xx)
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_ECCD))   || (__HAL_FLASH_GET_FLAG(FLASH_FLAG_PEMPTY)))
 #else
      (__HAL_FLASH_GET_FLAG(FLASH_FLAG_ECCD)))
@@ -713,7 +745,8 @@ static void FLASH_SetErrorCode(void)
    pFlash.ErrorCode |= HAL_FLASH_ERROR_ECCD;
   }
 
-#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx)
+#if defined (STM32L431xx) || defined (STM32L432xx) || defined (STM32L433xx) || defined (STM32L442xx) || defined (STM32L443xx) || \
+    defined (STM32L451xx) || defined (STM32L452xx) || defined (STM32L462xx) || defined (STM32L496xx) || defined (STM32L4A6xx)
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_PEMPTY))
   { 
     pFlash.ErrorCode |= HAL_FLASH_ERROR_PEMPTY;
@@ -745,16 +778,16 @@ static void FLASH_Program_DoubleWord(uint32_t Address, uint64_t Data)
 }
 
 /**
-  * @brief  Fast program a 32 row double-word (64-bit) at a specified address.
+  * @brief  Fast program a row double-word (64-bit) at a specified address.
   * @param  Address: specifies the address to be programmed.
   * @param  DataAddress: specifies the address where the data are stored.
   * @retval None
   */
 static void FLASH_Program_Fast(uint32_t Address, uint32_t DataAddress)
 {
-  uint8_t row_index = 32;
-  __IO uint64_t *dest_addr = (__IO uint64_t*)Address;
-  __IO uint64_t *src_addr = (__IO uint64_t*)DataAddress;
+  uint8_t row_index = (2*FLASH_NB_DOUBLE_WORDS_IN_ROW);
+  __IO uint32_t *dest_addr = (__IO uint32_t*)Address;
+  __IO uint32_t *src_addr = (__IO uint32_t*)DataAddress;
 
   /* Check the parameters */
   assert_param(IS_FLASH_MAIN_MEM_ADDRESS(Address));
@@ -765,7 +798,7 @@ static void FLASH_Program_Fast(uint32_t Address, uint32_t DataAddress)
   /* Disable interrupts to avoid any interruption during the loop */
   __disable_irq();
   
-  /* Program the 32 double word */
+  /* Program the double word of the row */
   do
   {
     *dest_addr++ = *src_addr++;

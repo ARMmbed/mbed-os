@@ -40,14 +40,15 @@
 #endif
 
 #include "stm32l4xx.h"
+#include "stm32l4xx_ll_tim.h"
 #include "cmsis_nvic.h"
 
 #define TIM_MST      TIM2
 #define TIM_MST_IRQ  TIM2_IRQn
-#define TIM_MST_RCC  __TIM2_CLK_ENABLE()
+#define TIM_MST_RCC  __HAL_RCC_TIM2_CLK_ENABLE()
 
-#define TIM_MST_RESET_ON   __TIM2_FORCE_RESET()
-#define TIM_MST_RESET_OFF  __TIM2_RELEASE_RESET()
+#define TIM_MST_RESET_ON   __HAL_RCC_TIM2_FORCE_RESET()
+#define TIM_MST_RESET_OFF  __HAL_RCC_TIM2_RELEASE_RESET()
 
 #define TIM_MST_16BIT  0 // 1=16-bit timer, 0=32-bit timer
 

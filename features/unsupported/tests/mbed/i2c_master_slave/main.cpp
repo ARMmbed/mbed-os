@@ -72,6 +72,9 @@ I2CSlave slave(D2, D4);
     defined (TARGET_NUCLEO_F072RB)
 I2CSlave slave(PB_11, D6);
 
+#elif defined (TARGET_DISCO_L475VG_IOT01A)
+I2CSlave slave(A4, A5);
+
 #else
 I2CSlave slave(D3, D6);
 

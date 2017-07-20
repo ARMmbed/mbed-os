@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    30-December-2016
+  * @version V1.2.2
+  * @date    14-April-2017
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -145,7 +145,7 @@ static inline  void atomic_clr_u32(volatile uint32_t *ptr, uint32_t mask)
 	} while (__STREXW(newValue,(volatile unsigned long*) ptr));
 }
 
-#if  defined ( __GNUC__ )
+#if  defined ( __GNUC__ ) && !defined ( __CC_ARM )
   #ifndef __weak
     #define __weak   __attribute__((weak))
   #endif /* __weak */

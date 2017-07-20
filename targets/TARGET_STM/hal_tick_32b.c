@@ -47,7 +47,7 @@ void timer_irq_handler(void)
                 // Increment HAL variable
                 HAL_IncTick();
                 // Prepare next interrupt
-                __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_2, val + HAL_TICK_DELAY);
+                __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_2, val + HAL_TICK_DELAY);
                 PreviousVal = val;
 #if DEBUG_TICK > 0
                 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
@@ -101,7 +101,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 #if !TARGET_STM32L1
     TimMasterHandle.Init.RepetitionCounter = 0;
 #endif
-#if TARGET_STM32F0||TARGET_STM32F7
+#ifdef TIM_AUTORELOAD_PRELOAD_DISABLE
     TimMasterHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 #endif
     HAL_TIM_OC_Init(&TimMasterHandle);
@@ -115,11 +115,11 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     // Channel 2 for HAL tick
     HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_2);
     PreviousVal = __HAL_TIM_GetCounter(&TimMasterHandle);
-    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_2, PreviousVal + HAL_TICK_DELAY);
+    __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_2, PreviousVal + HAL_TICK_DELAY);
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 
 #if DEBUG_TICK > 0
-    __GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitTypeDef GPIO_InitStruct;
     GPIO_InitStruct.Pin = GPIO_PIN_6;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;

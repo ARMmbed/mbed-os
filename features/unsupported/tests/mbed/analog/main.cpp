@@ -66,7 +66,7 @@ AnalogOut out(A1);
       defined(TARGET_NUCLEO_F303ZE) || \
       defined(TARGET_NUCLEO_F410RB) || \
       defined(TARGET_NUCLEO_F446ZE) || \
-      defined(TARGET_NUCLEO_F429ZI)
+      defined(TARGET_NUCLEO_F429ZI) || defined(TARGET_DISCO_L475VG_IOT01A)
 AnalogIn in(A0);
 AnalogOut out(D13);
 

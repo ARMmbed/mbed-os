@@ -18,21 +18,21 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_INTERRUPTIN
+#if defined (DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 
 #include "hal/gpio_api.h"
 #include "hal/gpio_irq_api.h"
 #include "platform/Callback.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_toolchain.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A digital interrupt input, used to call a function on a rising or falling edge
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -55,15 +55,15 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
-class InterruptIn {
+class InterruptIn : private NonCopyable<InterruptIn> {
 
 public:
 
     /** Create an InterruptIn connected to the specified pin
      *
      *  @param pin InterruptIn pin to connect to
-     *  @param name (optional) A string to identify the object
      */
     InterruptIn(PinName pin);
     virtual ~InterruptIn();
@@ -131,7 +131,7 @@ public:
 
     /** Set the input pin mode
      *
-     *  @param mode PullUp, PullDown, PullNone
+     *  @param pull PullUp, PullDown, PullNone
      */
     void mode(PinMode pull);
 
@@ -160,5 +160,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

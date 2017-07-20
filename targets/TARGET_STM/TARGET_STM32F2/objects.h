@@ -63,6 +63,7 @@ struct analogin_s {
 struct dac_s {
     DACName dac;
     uint8_t channel;
+    DAC_HandleTypeDef handle;
 };
 
 struct serial_s {

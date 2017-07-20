@@ -80,7 +80,6 @@
   */
 
 #include "stm32l0xx.h"
-#include "hal_tick.h"
 
 #if !defined  (HSE_VALUE)
   #define HSE_VALUE    ((uint32_t)8000000U) /*!< Value of the External oscillator in Hz */
@@ -207,17 +206,6 @@ void SystemInit (void)
   SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
 #endif
 
-  /* Configure the Cube driver */
-  SystemCoreClock = 8000000; // At this stage the HSI is used as system clock
-  HAL_Init();
-
-  /* Configure the System clock source, PLL Multiplier and Divider factors,
-     AHB/APBx prescalers and Flash settings */
-  SetSysClock();
-
-  /* Reset the timer to avoid issues after the RAM initialization */
-  TIM_MST_RESET_ON;
-  TIM_MST_RESET_OFF;
 }
 
 /**
@@ -377,10 +365,8 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.HSEState          = RCC_HSE_BYPASS; /* External 8 MHz clock on OSC_IN */
   }
   RCC_OscInitStruct.HSIState            = RCC_HSI_OFF;
-#if !defined (STM32L031xx) && !defined (STM32L041xx) && !defined(STM32L051xx) && !defined(STM32L061xx) && !defined(STM32L071xx)  && !defined(STM32L081xx) && \
-  !defined (STM32L011xx) && !defined (STM32L021xx)
   RCC_OscInitStruct.HSI48State          = RCC_HSI48_ON; /* For USB and RNG clock */
-#endif
+
   // PLLCLK = (8 MHz * 8)/2 = 32 MHz
   RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
@@ -390,6 +376,12 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
   {
     return 0; // FAIL
   }
+
+  /* Select HSI48 as USB clock source */
+  RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct;
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+  PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
+  HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
   /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers */
   RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);

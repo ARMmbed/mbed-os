@@ -80,7 +80,6 @@
   */
 
 #include "stm32l1xx.h"
-#include "hal_tick.h"
 #include "stdio.h"
 
 /**
@@ -204,24 +203,27 @@ void SystemInit (void)
 #ifdef DATA_IN_ExtSRAM
   SystemInit_ExtMemCtl(); 
 #endif /* DATA_IN_ExtSRAM */
-    
+ 
+
+#if defined(__ICCARM__)
+    #pragma section=".intvec"
+    #define FLASH_VTOR_BASE   ((uint32_t)__section_begin(".intvec"))
+#elif defined(__CC_ARM)
+    extern uint32_t Load$$LR$$LR_IROM1$$Base[];
+    #define FLASH_VTOR_BASE   ((uint32_t)Load$$LR$$LR_IROM1$$Base)
+#elif defined(__GNUC__)
+        extern uint32_t g_pfnVectors[];
+    #define FLASH_VTOR_BASE   ((uint32_t)g_pfnVectors)
+#else
+    #error "Flash vector address not set for this toolchain"
+#endif
+
 #ifdef VECT_TAB_SRAM
   SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
 #else
-  SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
+  SCB->VTOR = FLASH_VTOR_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH. */
 #endif
 
-  /* Configure the Cube driver */
-  SystemCoreClock = 16000000; // At this stage the HSI is used as system clock
-  HAL_Init();
-
-  /* Configure the System clock source, PLL Multiplier and Divider factors,
-     AHB/APBx prescalers and Flash settings */
-  SetSysClock();
-  
-  /* Reset the timer to avoid issues after the RAM initialization */
-  TIM_MST_RESET_ON;
-  TIM_MST_RESET_OFF;
 }
 
 /**

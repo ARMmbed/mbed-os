@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   Header file of TIM HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -120,16 +120,16 @@ typedef struct
 /** @defgroup TIMEx_Remap  TIM Remap
   * @{
   */
-#define TIM_TIM2_TIM8_TRGO                     (0x00000000U)
-#define TIM_TIM2_ETH_PTP                       (0x00000400U)
-#define TIM_TIM2_USBFS_SOF                     (0x00000800U)
-#define TIM_TIM2_USBHS_SOF                     (0x00000C00U)
-#define TIM_TIM5_GPIO                          (0x00000000U)
-#define TIM_TIM5_LSI                           (0x00000040U)
-#define TIM_TIM5_LSE                           (0x00000080U)
-#define TIM_TIM5_RTC                           (0x000000C0U)
-#define TIM_TIM11_GPIO                         (0x00000000U)
-#define TIM_TIM11_HSE                          (0x00000002U)
+#define TIM_TIM2_TIM8_TRGO                     0x00000000U
+#define TIM_TIM2_ETH_PTP                       0x00000400U
+#define TIM_TIM2_USBFS_SOF                     0x00000800U
+#define TIM_TIM2_USBHS_SOF                     0x00000C00U
+#define TIM_TIM5_GPIO                          0x00000000U
+#define TIM_TIM5_LSI                           0x00000040U
+#define TIM_TIM5_LSE                           0x00000080U
+#define TIM_TIM5_RTC                           0x000000C0U
+#define TIM_TIM11_GPIO                         0x00000000U
+#define TIM_TIM11_HSE                          0x00000002U
 
 /**
   * @}
@@ -277,6 +277,41 @@ HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef* htim);
                                   ((TIM_REMAP) == TIM_TIM11_HSE))
 
 #define IS_TIM_DEADTIME(DEADTIME)      ((DEADTIME) <= 0xFFU) 
+
+/**
+  * @brief  Sets the TIM Output compare preload.
+  * @param  __HANDLE__: TIM handle.
+  * @param  __CHANNEL__: TIM Channels to be configured.
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
+  * @retval None
+  */
+#define __HAL_TIM_ENABLE_OCxPRELOAD(__HANDLE__, __CHANNEL__)    \
+        (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCMR1 |= TIM_CCMR1_OC1PE) :\
+         ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCMR1 |= TIM_CCMR1_OC2PE) :\
+         ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCMR2 |= TIM_CCMR2_OC3PE) :\
+         ((__HANDLE__)->Instance->CCMR2 |= TIM_CCMR2_OC4PE))
+
+/**
+  * @brief  Resets the TIM Output compare preload.
+  * @param  __HANDLE__: TIM handle.
+  * @param  __CHANNEL__: TIM Channels to be configured.
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
+  * @retval None
+  */
+#define __HAL_TIM_DISABLE_OCxPRELOAD(__HANDLE__, __CHANNEL__)    \
+        (((__CHANNEL__) == TIM_CHANNEL_1) ? ((__HANDLE__)->Instance->CCMR1 &= (uint16_t)~TIM_CCMR1_OC1PE) :\
+         ((__CHANNEL__) == TIM_CHANNEL_2) ? ((__HANDLE__)->Instance->CCMR1 &= (uint16_t)~TIM_CCMR1_OC2PE) :\
+         ((__CHANNEL__) == TIM_CHANNEL_3) ? ((__HANDLE__)->Instance->CCMR2 &= (uint16_t)~TIM_CCMR2_OC3PE) :\
+         ((__HANDLE__)->Instance->CCMR2 &= (uint16_t)~TIM_CCMR2_OC4PE))
+
 /**
   * @}
   */  

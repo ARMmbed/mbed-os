@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
+/****** This file has been deprecated since mbed-os-5.5 *****/
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
@@ -613,9 +615,9 @@ typedef struct _ARM_DRIVER_STORAGE {
    *
    * This optional function erases the complete device. If the device does not
    *    support global erase then the function returns the error value \ref
-   *    ARM_DRIVER_ERROR_UNSUPPORTED. The data field \em 'erase_all' =
-   *    \token{1} of the structure \ref ARM_STORAGE_CAPABILITIES encodes that
-   *    \ref ARM_STORAGE_EraseAll is supported.
+   *    ARM_DRIVER_ERROR_UNSUPPORTED. The data field \em 'erase_all' = 1
+   *    of the structure \ref ARM_STORAGE_CAPABILITIES encodes that
+   *    ARM_STORAGE_EraseAll is supported.
    *
    * @note This API may execute asynchronously if
    *     ARM_STORAGE_CAPABILITIES::asynchronous_ops is set. Asynchronous

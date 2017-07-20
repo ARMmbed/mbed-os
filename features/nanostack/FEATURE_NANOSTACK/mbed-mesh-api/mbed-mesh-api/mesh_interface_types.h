@@ -55,7 +55,8 @@ typedef enum {
  */
 typedef enum {
     MESH_DEVICE_TYPE_THREAD_ROUTER = 0,         /*<! Thread router */
-    MESH_DEVICE_TYPE_THREAD_SLEEPY_END_DEVICE  /*<! Thread Sleepy end device */
+    MESH_DEVICE_TYPE_THREAD_SLEEPY_END_DEVICE,  /*<! Thread Sleepy end device */
+    MESH_DEVICE_TYPE_THREAD_MINIMAL_END_DEVICE  /*<! Thread minimal end device */
 } mesh_device_type_t;
 
 #ifdef __cplusplus

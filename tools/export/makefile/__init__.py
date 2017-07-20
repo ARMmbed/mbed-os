@@ -21,7 +21,7 @@ import sys
 from subprocess import check_output, CalledProcessError, Popen, PIPE
 import shutil
 from jinja2.exceptions import TemplateNotFound
-from tools.export.exporters import Exporter, filter_supported
+from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.utils import NotSupportedException
 from tools.targets import TARGET_MAP
 
@@ -37,8 +37,16 @@ class Makefile(Exporter):
 
     POST_BINARY_WHITELIST = set([
         "MCU_NRF51Code.binary_hook",
-        "TEENSY3_1Code.binary_hook"
+        "TEENSY3_1Code.binary_hook",
+        "LPCTargetCode.lpc_patch",
+        "LPC4088Code.binary_hook"
     ])
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
 
     def generate(self):
         """Generate the makefile
@@ -109,7 +117,7 @@ class Makefile(Exporter):
         for key in ['include_paths', 'library_paths', 'hex_files',
                     'to_be_compiled']:
             ctx[key] = sorted(ctx[key])
-        ctx.update(self.flags)
+        ctx.update(self.format_flags())
 
         for templatefile in \
             ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
@@ -125,6 +133,17 @@ class Makefile(Exporter):
                 pass
         else:
             raise NotSupportedException("This make tool is in development")
+
+    def format_flags(self):
+        """Format toolchain flags for Makefile"""
+        flags = {}
+        for k, v in self.flags.iteritems():
+            if k in ['asm_flags', 'c_flags', 'cxx_flags']:
+                flags[k] = map(lambda x: x.replace('"', '\\"'), v)
+            else:
+                flags[k] = v
+
+        return flags
 
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
@@ -173,7 +192,6 @@ class Makefile(Exporter):
 
 class GccArm(Makefile):
     """GCC ARM specific makefile target"""
-    TARGETS = filter_supported("GCC_ARM", Makefile.POST_BINARY_WHITELIST)
     NAME = 'Make-GCC-ARM'
     TEMPLATE = 'make-gcc-arm'
     TOOLCHAIN = "GCC_ARM"
@@ -191,7 +209,6 @@ class GccArm(Makefile):
 
 class Armc5(Makefile):
     """ARM Compiler 5 specific makefile target"""
-    TARGETS = filter_supported("ARM", Makefile.POST_BINARY_WHITELIST)
     NAME = 'Make-ARMc5'
     TEMPLATE = 'make-armc5'
     TOOLCHAIN = "ARM"
@@ -209,7 +226,6 @@ class Armc5(Makefile):
 
 class IAR(Makefile):
     """IAR specific makefile target"""
-    TARGETS = filter_supported("IAR", Makefile.POST_BINARY_WHITELIST)
     NAME = 'Make-IAR'
     TEMPLATE = 'make-iar'
     TOOLCHAIN = "IAR"

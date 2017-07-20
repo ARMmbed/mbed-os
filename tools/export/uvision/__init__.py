@@ -9,7 +9,7 @@ import re
 
 from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.export.cmsis import DeviceCMSIS
 
 cache_d = False
@@ -119,13 +119,24 @@ class Uvision(Exporter):
     """
     NAME = 'uvision5'
     TOOLCHAIN = 'ARM'
-    TARGETS = []
-    for target, obj in TARGET_MAP.iteritems():
-        if not ("ARM" in obj.supported_toolchains and hasattr(obj, "device_name")):
-            continue
-        if not DeviceCMSIS.check_supported(target):
-            continue
-        TARGETS.append(target)
+
+    POST_BINARY_WHITELIST = set([
+        "MCU_NRF51Code.binary_hook",
+        "TEENSY3_1Code.binary_hook",
+        "LPCTargetCode.lpc_patch",
+        "LPC4088Code.binary_hook",
+        "MTSCode.combine_bins_mts_dot",
+        "MTSCode.combine_bins_mts_dragonfly",
+        "NCS36510TargetCode.ncs36510_addfib"
+    ])
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target) and\
+            DeviceCMSIS.check_supported(target_name)
+
     #File associations within .uvprojx file
     file_types = {'.cpp': 8, '.c': 1, '.s': 2,
                   '.obj': 3, '.o': 3, '.lib': 4,
@@ -166,7 +177,7 @@ class Uvision(Exporter):
         # Flag is invalid if set in template
         # Optimizations are also set in the template
         invalid_flag = lambda x: x in template or re.match("-O(\d|time)", x) 
-        flags['c_flags'] = [flag for flag in c_flags if not invalid_flag(flag)]
+        flags['c_flags'] = [flag.replace('"','\\"') for flag in c_flags if not invalid_flag(flag)]
         flags['c_flags'] = " ".join(flags['c_flags'])
         return flags
 
@@ -209,8 +220,12 @@ class Uvision(Exporter):
         }
         core = ctx['device'].core
         ctx['cputype'] = core.rstrip("FD")
-        # Turn on FPU optimizations if the core has an FPU
-        ctx['fpu_setting'] = 1 if 'F' not in core or 'D' in core else 2
+        if core.endswith("FD"):
+            ctx['fpu_setting'] = 3
+        elif core.endswith("F"):
+            ctx['fpu_setting'] = 2
+        else:
+            ctx['fpu_setting'] = 1
         ctx['fputype'] = self.format_fpu(core)
         ctx.update(self.format_flags())
         self.gen_file('uvision/uvision.tmpl', ctx, self.project_name+".uvprojx")

@@ -1,5 +1,4 @@
 /* mbed Microcontroller Library
- * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
  * Copyright (c) 2016, STMicroelectronics
  * All rights reserved.
@@ -35,20 +34,7 @@
 // CORE: 16 vectors (= 64 bytes from 0x00 to 0x3F)
 // MCU Peripherals: 81 vectors
 // Total:  388 bytes to be reserved in RAM (see scatter file)
-#define NVIC_NUM_VECTORS      97
-#define NVIC_USER_IRQ_OFFSET  16
-
-#include "cmsis.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
-}
-#endif
+#define NVIC_NUM_VECTORS        97
+#define NVIC_RAM_VECTOR_ADDRESS 0x20000000    // Vectors positioned at start of RAM
 
 #endif

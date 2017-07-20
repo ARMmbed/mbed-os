@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_iwdg.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   IWDG HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Independent Watchdog (IWDG) peripheral:
@@ -74,7 +74,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -137,7 +137,7 @@
   */
 
 /** @addtogroup IWDG_Exported_Functions_Group1
-  *  @brief    Initialization and Start functions.
+  * @brief    Initialization and Start functions.
   *
 @verbatim
  ===============================================================================
@@ -210,7 +210,7 @@ HAL_StatusTypeDef HAL_IWDG_Init(IWDG_HandleTypeDef *hiwdg)
   */
 
 /** @addtogroup IWDG_Exported_Functions_Group2
-  *  @brief   IO operation functions
+  * @brief   IO operation functions
   *
 @verbatim
  ===============================================================================

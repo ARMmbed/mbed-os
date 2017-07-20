@@ -70,6 +70,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     rtc_set_wake_up_timer(delta);
 }
 
+void lp_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(RTC_WKUP_IRQn);
+}
+
 void lp_ticker_disable_interrupt(void)
 {
     rtc_deactivate_wake_up_timer();

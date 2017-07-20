@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_hcd.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   Header file of HCD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -87,7 +87,7 @@ typedef struct
 {
   HCD_TypeDef               *Instance;  /*!< Register base address    */
   HCD_InitTypeDef           Init;       /*!< HCD required parameters  */
-  HCD_HCTypeDef             hc[15];     /*!< Host channels parameters */
+  HCD_HCTypeDef             hc[15U];     /*!< Host channels parameters */
   HAL_LockTypeDef           Lock;       /*!< HCD peripheral status    */
   __IO HCD_StateTypeDef     State;      /*!< HCD communication state  */
   void                      *pData;     /*!< Pointer Stack Handler    */
@@ -109,7 +109,7 @@ typedef struct
   * @{
   */
 #define HCD_SPEED_HIGH               0U
-#define HCD_SPEED_LOW                2U  
+#define HCD_SPEED_LOW                2U
 #define HCD_SPEED_FULL               3U
 /**
   * @}
@@ -181,7 +181,7 @@ void                HAL_HCD_MspDeInit(HCD_HandleTypeDef *hhcd);
   * @{
   */
 HAL_StatusTypeDef   HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
-                                             uint8_t pipe, 
+                                             uint8_t ch_num, 
                                              uint8_t direction,
                                              uint8_t ep_type,  
                                              uint8_t token, 

@@ -60,11 +60,7 @@ struct analogin_s {
     uint32_t channel;
 };
 
-struct dac_s {
-    DACName dac;
-    PinName pin;
-};
-
+#define GPIO_IP_WITHOUT_BRR
 #include "common_objects.h"
 
 #ifdef __cplusplus

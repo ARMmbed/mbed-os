@@ -9,9 +9,17 @@
 /* Version 4.2.0 */
 /*                                                                  */
 
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x00000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 65536
+#endif
+
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 65536
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 8192
 }
 
