@@ -61,7 +61,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         pinmap_pinout(pin, PinMap_ADC);
     } else {
         // Internal channels
-        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
+        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC_Internal);
         function = pinmap_function(pin, PinMap_ADC_Internal);
         // No GPIO configuration for internal channels
     }
