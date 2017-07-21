@@ -22,6 +22,7 @@
 #include "ble/ArrayView.h"
 #include "ble/blecommon.h"
 #include "platform/Callback.h"
+#include "AttServerMessage.h"
 
 namespace ble {
 namespace pal {
@@ -453,7 +454,7 @@ struct AttClient {
         connection_handle_t connection_handle,
         attribute_handle_t attribute_handle,
         const ArrayView<const uint8_t>& value
-    );
+    ) = 0;
 
     /**
      * Send a write command to the server. A write command is similar to a write
