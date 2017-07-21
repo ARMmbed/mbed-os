@@ -17,6 +17,7 @@
 #include <ble/DiscoveredService.h>
 #include <ble/DiscoveredCharacteristic.h>
 #include "ble/generic/GenericGattClient.h"
+#include "ble/blecommon.h"
 #include <algorithm>
 
 using ble::pal::AttServerMessage;
@@ -65,6 +66,11 @@ struct procedure_control_block_t {
 	 */
 	virtual void handle(GenericGattClient* client, const AttServerMessage& message) = 0;
 
+	/*
+	 * Function call in case of timeout
+	 */
+	virtual void handle_timeout_error(GenericGattClient* client) = 0;
+
 	procedure_type_t type;
 	Gap::Handle_t connection_handle;
 	procedure_control_block_t* next;
@@ -96,6 +102,10 @@ struct discovery_control_block_t : public procedure_control_block_t {
 			delete services_discovered;
 			services_discovered = tmp;
 		}
+	}
+
+	virtual void handle_timeout_error(GenericGattClient* client) { 
+		terminate(client);
 	}
 
 	virtual void handle(GenericGattClient* client, const AttServerMessage& message) {
@@ -346,12 +356,12 @@ struct discovery_control_block_t : public procedure_control_block_t {
 		static DiscoveredCharacteristic::Properties_t get_properties(const ArrayView<const uint8_t>& value) {
 			uint8_t raw_properties = value[0];
 			DiscoveredCharacteristic::Properties_t result;
-			result._broadcast = raw_properties & (1 << 0);
-			result._read = raw_properties & (1 << 1);
-			result._writeWoResp = raw_properties & (1 << 2);
-			result._write = raw_properties & (1 << 3);
-			result._notify = raw_properties & (1 << 4);
-			result._indicate = raw_properties & (1 << 5);
+			result._broadcast = raw_properties && (1 << 0);
+			result._read = raw_properties && (1 << 1);
+			result._writeWoResp = raw_properties && (1 << 2);
+			result._write = raw_properties && (1 << 3);
+			result._notify = raw_properties && (1 << 4);
+			result._indicate = raw_properties && (1 << 5);
 			result._authSignedWrite = raw_properties & (1 << 6);
 			return result;
 		}
@@ -414,6 +424,18 @@ struct read_control_block_t : public procedure_control_block_t {
 		}
 
 		return result;
+	}
+
+	virtual void handle_timeout_error(GenericGattClient* client) { 
+		GattReadCallbackParams response = {
+			connection_handle,
+			attribute_handle,
+			offset,
+			BLE_ERROR_UNSPECIFIED,
+			0, // size of 0
+			NULL // no data
+		};
+		terminate(client, response);
 	}
 
 	void terminate(GenericGattClient* client, const GattReadCallbackParams& response) {
@@ -568,6 +590,17 @@ struct write_control_block_t : public procedure_control_block_t {
 		}
 
 		return result;
+	}
+
+	virtual void handle_timeout_error(GenericGattClient* client) { 
+		GattWriteCallbackParams response = {
+			connection_handle,
+			attribute_handle,
+			GattWriteCallbackParams::OP_WRITE_REQ,
+			BLE_ERROR_UNSPECIFIED,
+			0x00
+		};
+		terminate(client, response);
 	}
 
 	void terminate(GenericGattClient* client, const GattWriteCallbackParams& response) {
@@ -753,6 +786,10 @@ struct descriptor_discovery_control_block_t : public procedure_control_block_t {
 				characteristic.getLastHandle()
 			)
 		);
+	}
+
+	virtual void handle_timeout_error(GenericGattClient* client) { 
+		terminate(client, BLE_ERROR_UNSPECIFIED);
 	}
 
 	virtual void handle(GenericGattClient* client, const AttServerMessage& message) {
@@ -1188,7 +1225,7 @@ void GenericGattClient::on_server_event(connection_handle_t connection, const At
 			const AttHandleValueNotification& notification =
 				static_cast<const AttHandleValueNotification&>(message);
 			callbacks_params.handle = notification.attribute_handle;
-			callbacks_params.type = HVXType_t::BLE_HVX_NOTIFICATION;
+			callbacks_params.type = BLE_HVX_NOTIFICATION;
 			callbacks_params.len = notification.attribute_value.size();
 			callbacks_params.data = notification.attribute_value.data();
 		} break;
@@ -1197,7 +1234,7 @@ void GenericGattClient::on_server_event(connection_handle_t connection, const At
 			const AttHandleValueIndication& indication =
 				static_cast<const AttHandleValueIndication&>(message);
 			callbacks_params.handle = indication.attribute_handle;
-			callbacks_params.type = HVXType_t::BLE_HVX_INDICATION;
+			callbacks_params.type = BLE_HVX_INDICATION;
 			callbacks_params.len = indication.attribute_value.size();
 			callbacks_params.data = indication.attribute_value.data();
 		} break;
@@ -1209,8 +1246,13 @@ void GenericGattClient::on_server_event(connection_handle_t connection, const At
 	processHVXEvent(&callbacks_params);
 }
 
-void GenericGattClient::on_transaction_timeout(connection_handle_t) {
+void GenericGattClient::on_transaction_timeout(connection_handle_t connection) {
+	procedure_control_block_t* pcb = get_control_block(connection);
+	if (pcb == NULL) {
+		return;
+	}
 
+	pcb->handle_timeout_error(this);
 }
 
 procedure_control_block_t* GenericGattClient::get_control_block(Gap::Handle_t connection) {
