@@ -35,8 +35,8 @@ uint32_t us_ticker_read()
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    /* Disable global IRQs */
-    core_util_critical_section_enter();
+    // NOTE: This function must be called with interrupts disabled to keep our
+    //       timer interrupt setup atomic
 
     // disable IT while we are handling the correct timestamp
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
@@ -44,9 +44,6 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, (uint32_t)timestamp);
     // Enable IT
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-
-    /* Enable global IRQs */
-    core_util_critical_section_exit();
 }
 
 void us_ticker_fire_interrupt(void)
