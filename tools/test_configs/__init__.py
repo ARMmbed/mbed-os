@@ -23,3 +23,12 @@ class TestConfig:
             return join(cls.CONFIG_DIR, configs[conf_name.upper()])
         else:
             return None
+
+    @classmethod
+    def get_default_config(cls, target_name):
+        configs = cls.get_valid_configs(target_name)
+        if configs:
+            keys = configs.keys()
+            return join(cls.CONFIG_DIR, configs[keys[0]])
+        else:
+            return None

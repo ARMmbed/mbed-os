@@ -28,6 +28,7 @@ sys.path.insert(0, ROOT)
 
 from tools.config import ConfigException
 from tools.test_api import test_path_to_name, find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
+from tools.test_configs import TestConfig
 from tools.options import get_default_options_parser, extract_profile, extract_mcus
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
@@ -145,6 +146,8 @@ if __name__ == '__main__':
             config, module_conf = get_test_config(options.test_config, mcu)
             if not config:
                 args_error(parser, "argument --test-config contains invalid path or identifier")
+        elif not options.app_config:
+            config = TestConfig.get_default_config(mcu)
         else:
             config = options.app_config
 
