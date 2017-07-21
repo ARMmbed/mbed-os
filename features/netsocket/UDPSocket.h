@@ -56,6 +56,13 @@ public:
      */
     virtual ~UDPSocket();
 
+    /** Subscribes to an IP multicast group
+     *
+     * @param address   Multicast group IP address
+     * @return          Negative error code on failure 
+     */
+    int join_multicast_group(const SocketAddress &address);
+
     /** Send a packet over a UDP socket
      *
      *  Sends data to the specified address specified by either a domain name
