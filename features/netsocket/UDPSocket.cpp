@@ -37,6 +37,7 @@ nsapi_protocol_t UDPSocket::get_proto()
     return NSAPI_UDP;
 }
 
+
 nsapi_size_or_error_t UDPSocket::sendto(const char *host, uint16_t port, const void *data, nsapi_size_t size)
 {
     SocketAddress address;
