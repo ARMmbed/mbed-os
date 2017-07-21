@@ -22,7 +22,7 @@
 #include "GattAttribute.h"
 #include "GattClient.h"
 #include "CharacteristicDescriptorDiscovery.h"
-#include "ble/DiscoveredCharacteristicDescriptor.h"
+#include "DiscoveredCharacteristicDescriptor.h"
 
 /**
  * @brief Representation of a characteristic discovered during a GattClient
