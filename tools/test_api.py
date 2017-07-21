@@ -50,6 +50,7 @@ from tools.utils import NotSupportedException
 from tools.utils import construct_enum
 from tools.memap import MemapParser
 from tools.targets import TARGET_MAP
+from tools.test_configs import TestConfig
 from tools.test_db import BaseDBAccess
 from tools.build_api import build_project, build_mbed_libs, build_lib
 from tools.build_api import get_target_supported_toolchains
@@ -1999,12 +2000,18 @@ def test_path_to_name(path, base):
 
     return "-".join(name_parts).lower()
 
-def find_configs(target_name):
-    target = TARGET_MAP[target_name]
-    try:
-        return target.network_test_configurations
-    except AttributeError:
-        return {}
+def get_test_config(config_name, target_name):
+    """Finds the path to a test configuration file
+    config_name: path to a custom configuration file OR mbed OS interface "ethernet, wifi_odin, etc"
+    target_name: name of target to determing if mbed OS interface given is valid
+    returns path to config, boolean of whether it is a module or mbed OS interface
+    """
+    # If they passed in a full path
+    if exists(config_name):
+        # This is a module config
+        return config_name, True
+    # Otherwise find the path to configuration file based on mbed OS interface
+    return TestConfig.get_config_path(config_name, target_name), False
 
 def find_tests(base_dir, target_name, toolchain_name, app_config=None, module_config=None):
     """ Finds all tests in a directory recursively
@@ -2017,7 +2024,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None, module_co
 
     tests = {}
 
-    configs = find_configs(target_name)
+    configs = TestConfig.get_valid_configs(target_name)
 
     # Prepare the toolchain
     toolchain = prepare_toolchain([base_dir], None, target_name, toolchain_name,
