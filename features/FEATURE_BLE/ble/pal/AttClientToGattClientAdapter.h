@@ -30,6 +30,8 @@ namespace pal {
  * and adapt any AttClient into a GattClient.
  */
 class AttClientToGattClientAdapter : public GattClient {
+
+public:
     static const uint16_t END_ATTRIBUTE_HANDLE = 0xFFFF;
     static const uint16_t SERVICE_TYPE_UUID = 0x2800;
     static const uint16_t INCLUDE_TYPE_UUID = 0x2802;
