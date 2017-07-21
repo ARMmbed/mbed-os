@@ -75,7 +75,14 @@ void init_spi(spi_t *obj)
         error("Cannot initialize SPI");
     }
 
-    __HAL_SPI_ENABLE(handle);
+    /* In case of standard 4 wires SPI,PI can be kept enabled all time
+     * and SCK will only be generated during the write operations. But in case
+     * of 3 wires, it should be only enabled during rd/wr unitary operations,
+     * which is handled inside STM32 HAL layer.
+     */
+    if (handle->Init.Direction  == SPI_DIRECTION_2LINES) {
+        __HAL_SPI_ENABLE(handle);
+    }
 }
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
