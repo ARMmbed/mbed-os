@@ -1,0 +1,4 @@
+{
+    "ETHERNET" : "EthernetInterface.json",
+    "ODIN_WIFI" : "OdinInterface.json"
+}

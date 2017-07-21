@@ -27,7 +27,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from tools.config import ConfigException
-from tools.test_api import test_path_to_name, find_tests, find_configs, print_tests, build_tests, test_spec_from_test_builds
+from tools.test_api import test_path_to_name, find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
 from tools.options import get_default_options_parser, extract_profile, extract_mcus
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
@@ -84,10 +84,7 @@ if __name__ == '__main__':
         parser.add_argument("-n", "--names", dest="names", type=argparse_many(str),
                           default=None, help="Limit the tests to a comma separated list of names")
 
-        parser.add_argument("--net-config", dest="net_config", type=str,
-                          default="EthernetInterface", help="Limit the tests to a networkinterface")
-
-        parser.add_argument("--module-config", dest="module_config", type=str,
+        parser.add_argument("--test-config", dest="test_config", type=str,
                           default=None, help="Test config for a module")
 
         parser.add_argument("--test-spec", dest="test_spec",
@@ -139,13 +136,15 @@ if __name__ == '__main__':
                                "Currently set search path: %s"
                        % (toolchain, search_path))
 
-        # Assign config file. Precedence: module_config>net_config>app_config
-        # TODO: merge configs if there are multiple
-        if options.module_config:
-            config = options.module_config
-        elif find_configs(mcu):
-            net_configs = find_configs(mcu) # will be {} if target has no network configs
-            config = net_configs[options.net_config]
+         # boolean, true if test configuration file is for module false if mbed-os interface
+        module_conf = False
+
+        # Assign config file. Precedence: test_config>app_config
+        # TODO: merge configs if both given
+        if options.test_config:
+            config, module_conf = get_test_config(options.test_config, mcu)
+            if not config:
+                args_error(parser, "argument --test-config contains invalid path or identifier")
         else:
             config = options.app_config
 
@@ -153,7 +152,7 @@ if __name__ == '__main__':
         for path in all_paths:
             all_tests.update(find_tests(path, mcu, toolchain,
                                         app_config=config,
-                                        module_config=options.module_config))
+                                        module_config=module_conf))
 
         # Filter tests by name if specified
         if options.names:
