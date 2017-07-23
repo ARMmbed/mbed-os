@@ -18,7 +18,7 @@
     },
     "lookahead": {
         "macro_name": "MBED_LFS_LOOKAHEAD",
-        "value": 128,
+        "value": 512,
         "help": "Number of blocks to lookahead during block allocation. A larger lookahead reduces the number of passes required to allocate a block. The lookahead buffer requires only 1 bit per block so it can be quite large with little ram impact. Should be a multiple of 32."
     }
   }
