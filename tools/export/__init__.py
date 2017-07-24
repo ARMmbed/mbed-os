@@ -16,7 +16,7 @@
 # limitations under the License.
 
 import sys
-from os.path import join, abspath, dirname, exists
+from os.path import join, abspath, isabs, dirname, exists
 from os.path import basename, relpath, normpath, splitext
 from os import makedirs, walk
 import copy
@@ -352,7 +352,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
             zip_export(zip_proj, name, resource_dict, files, inc_repos)
     else:
         for exported in files:
-            if not exists(join(export_path, basename(exported))):
+            if isabs(exported) and not exists(join(export_path, basename(exported))):
                 copyfile(exported, join(export_path, basename(exported)))
 
     return exporter
