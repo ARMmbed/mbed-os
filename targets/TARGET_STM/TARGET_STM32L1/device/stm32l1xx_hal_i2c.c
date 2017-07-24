@@ -1337,7 +1337,7 @@ HAL_StatusTypeDef HAL_I2C_Master_Receive_IT(I2C_HandleTypeDef *hi2c, uint16_t De
 
     /* Enable Acknowledge */
     SET_BIT(hi2c->Instance->CR1, I2C_CR1_ACK);
-    
+
     /* Generate Start */
     SET_BIT(hi2c->Instance->CR1, I2C_CR1_START);
 
@@ -1428,8 +1428,17 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Transmit_IT(I2C_HandleTypeDef *hi2c,
     /* Generate Start */
     if((hi2c->PreviousState == I2C_STATE_MASTER_BUSY_RX) || (hi2c->PreviousState == I2C_STATE_NONE))
     {
-        /* Generate Start or ReStart */
+      /* Generate Start condition if first transfer */
+      if((XferOptions == I2C_FIRST_AND_LAST_FRAME) || (XferOptions == I2C_FIRST_FRAME))
+      {
+        /* Generate Start */
         SET_BIT(hi2c->Instance->CR1, I2C_CR1_START);
+      }
+      else if(hi2c->PreviousState == I2C_STATE_MASTER_BUSY_RX)
+      {
+        /* Generate ReStart */
+        SET_BIT(hi2c->Instance->CR1, I2C_CR1_START);
+      }
     }
 
     /* Process Unlocked */
@@ -1518,10 +1527,23 @@ HAL_StatusTypeDef HAL_I2C_Master_Sequential_Receive_IT(I2C_HandleTypeDef *hi2c, 
 
     if((hi2c->PreviousState == I2C_STATE_MASTER_BUSY_TX) || (hi2c->PreviousState == I2C_STATE_NONE))
     {
+      /* Generate Start condition if first transfer */
+      if((XferOptions == I2C_FIRST_AND_LAST_FRAME) || (XferOptions == I2C_FIRST_FRAME)  || (XferOptions == I2C_NO_OPTION_FRAME))
+      {
         /* Enable Acknowledge */
         SET_BIT(hi2c->Instance->CR1, I2C_CR1_ACK);
-        /* Generate Start or ReStart */
+
+        /* Generate Start */
         SET_BIT(hi2c->Instance->CR1, I2C_CR1_START);
+      }
+      else if(hi2c->PreviousState == I2C_STATE_MASTER_BUSY_TX)
+      {
+        /* Enable Acknowledge */
+        SET_BIT(hi2c->Instance->CR1, I2C_CR1_ACK);
+
+        /* Generate ReStart */
+        SET_BIT(hi2c->Instance->CR1, I2C_CR1_START);
+      }
     }
 
     /* Process Unlocked */
@@ -3866,11 +3888,15 @@ static HAL_StatusTypeDef I2C_MasterReceive_BTF(I2C_HandleTypeDef *hi2c)
     {
       /* Disable Acknowledge */
       hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
+
+      if((CurrentXferOptions == I2C_NEXT_FRAME) || (CurrentXferOptions == I2C_FIRST_FRAME))
+      {
+        /* Generate ReStart */
+        hi2c->Instance->CR1 |= I2C_CR1_START;
+      }
     }
     else
     {
-      hi2c->PreviousState = I2C_STATE_MASTER_BUSY_RX;
-
       /* Generate Stop */
       hi2c->Instance->CR1 |= I2C_CR1_STOP;
     }
