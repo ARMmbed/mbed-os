@@ -351,8 +351,8 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
         else:
             zip_export(zip_proj, name, resource_dict, files, inc_repos)
     else:
-        for exported in files:
-            if not exists(join(export_path, basename(exported))):
-                copyfile(exported, join(export_path, basename(exported)))
+        for static_file in exporter.static_files:
+            if not exists(join(export_path, basename(static_file))):
+                copyfile(static_file, join(export_path, basename(static_file)))
 
     return exporter
