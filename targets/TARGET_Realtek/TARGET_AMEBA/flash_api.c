@@ -15,10 +15,6 @@
  */
 #include "flash_ext.h"
 
-#define FLASH_START       (SPI_FLASH_BASE + FLASH_OFS_START)
-#define FLASH_END         (SPI_FLASH_BASE + FLASH_OFS_END)
-#define FLASH_OFS(addr)   ((addr) - SPI_FLASH_BASE)
-
 int32_t flash_init(flash_t *obj)
 {
     __flash_ext_turnon();
@@ -35,20 +31,25 @@ int32_t flash_free(flash_t *obj)
 
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
-    __flash_ext_erase_sector(obj, FLASH_OFS(address));
+    flash_ext_erase_sector(obj, address);
 
     return 0;
 }
 
+int32_t flash_read(flash_t *obj, uint32_t address, uint8_t *data, uint32_t size)
+{
+    return flash_ext_stream_read(obj, address, size, data);;
+}
+
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
-    return __flash_ext_stream_write(obj, FLASH_OFS(address), size, data);
+    return flash_ext_stream_write(obj, address, size, data);
 }
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
-    if (address < FLASH_START || address >= FLASH_END)
-        return 0;
+    if (address >= FLASH_OFS_END)
+        return MBED_FLASH_INVALID_SIZE;
 
     return FLASH_SECTOR_SIZE;
 }
@@ -60,7 +61,7 @@ uint32_t flash_get_page_size(const flash_t *obj)
 
 uint32_t flash_get_start_address(const flash_t *obj)
 {
-    return FLASH_START;
+    return FLASH_OFS_START;
 }
 
 uint32_t flash_get_size(const flash_t *obj)
