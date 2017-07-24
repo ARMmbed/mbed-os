@@ -383,24 +383,32 @@ The following sample code illustrates how to use the sd-driver Block Device API:
     int main()
     {
         // call the SDBlockDevice instance initialisation method.
-		if ( 0 != sd.init()) {
-			printf("Init failed \n");
-			return -1;
-		}
+        if ( 0 != sd.init()) {
+            printf("Init failed \n");
+            return -1;
+        }
+        printf("sd size: %llu\n",         sd.size());
+        printf("sd read size: %llu\n",    sd.get_read_size());
+        printf("sd program size: %llu\n", sd.get_program_size());
+        printf("sd erase size: %llu\n",   sd.get_erase_size());
 
-		// set the frequency
-		if ( 0 != sd.frequency(5000000)) {
-			printf("Error setting frequency \n");
-		}
+        // set the frequency
+        if ( 0 != sd.frequency(5000000)) {
+            printf("Error setting frequency \n");
+        }
 
-		// Write some the data block to the device
-		if ( 0 == sd.program(block, 0, 512)) {
-			// read the data block from the device
-			if ( 0 == sd.read(block, 0, 512)) {
-				// print the contents of the block
-				printf("%s", block);
-			}
-		}
+        if ( 0 != sd.erase(0, sd.get_erase_size())) {
+            printf("Error Erasing block \n");
+        }
+
+        // Write some the data block to the device
+        if ( 0 == sd.program(block, 0, 512)) {
+            // read the data block from the device
+            if ( 0 == sd.read(block, 0, 512)) {
+                // print the contents of the block
+                printf("%s", block);
+            }
+        }
 
         // call the SDBlockDevice instance de-initialisation method.
         sd.deinit();
