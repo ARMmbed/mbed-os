@@ -47,14 +47,16 @@
  * Erik Andersson <erian747@gmail.com>
  *
  */
-#include <string.h>
+#include "lwip/apps/mqtt.h"
 #include "lwip/timeouts.h"
 #include "lwip/ip_addr.h"
 #include "lwip/mem.h"
 #include "lwip/err.h"
 #include "lwip/pbuf.h"
 #include "lwip/tcp.h"
-#include "lwip/apps/mqtt.h"
+#include <string.h>
+
+#if LWIP_TCP && LWIP_CALLBACK_API
 
 /**
  * MQTT_DEBUG: Default is off.
@@ -257,7 +259,7 @@ mqtt_create_request(struct mqtt_request_t *r_objs, u16_t pkt_id, mqtt_request_cb
   struct mqtt_request_t *r = NULL;
   u8_t n;
   LWIP_ASSERT("mqtt_create_request: r_objs != NULL", r_objs != NULL);
-  for (n = 0; n < MQTT_REQ_MAX_IN_FLIGHT && r == NULL; n++) {
+  for (n = 0; n < MQTT_REQ_MAX_IN_FLIGHT; n++) {
     /* Item point to itself if not in use */
     if (r_objs[n].next == &r_objs[n]) {
       r = &r_objs[n];
@@ -265,6 +267,7 @@ mqtt_create_request(struct mqtt_request_t *r_objs, u16_t pkt_id, mqtt_request_cb
       r->cb = cb;
       r->arg = arg;
       r->pkt_id = pkt_id;
+      break;
     }
   }
   return r;
@@ -281,7 +284,7 @@ mqtt_append_request(struct mqtt_request_t **tail, struct mqtt_request_t *r)
 {
   struct mqtt_request_t *head = NULL;
   s16_t time_before = 0;
-  struct mqtt_request_t *iter = *tail;
+  struct mqtt_request_t *iter;
 
   LWIP_ASSERT("mqtt_append_request: tail != NULL", tail != NULL);
 
@@ -634,7 +637,7 @@ mqtt_incomming_suback(struct mqtt_request_t *r, u8_t result)
  * @param remaining_length Remaining length of complete message
  */
 static mqtt_connection_status_t
-mqtt_message_received(mqtt_client_t *client, u8_t fixed_hdr_idx, u16_t length, u32_t remaining_length)
+  mqtt_message_received(mqtt_client_t *client, u8_t fixed_hdr_idx, u16_t length, u32_t remaining_length)
 {
   mqtt_connection_status_t res = MQTT_CONNECT_ACCEPTED;
 
@@ -680,7 +683,7 @@ mqtt_message_received(mqtt_client_t *client, u8_t fixed_hdr_idx, u16_t length, u
       topic = var_hdr_payload + 2;
       after_topic = 2 + topic_len;
       /* Check length, add one byte even for QoS 0 so that zero termination will fit */
-      if ((after_topic + qos ? 2 : 1) > length) {
+      if ((after_topic + (qos? 2 : 1)) > length) {
         LWIP_DEBUGF(MQTT_DEBUG_WARN,("mqtt_message_received: Receive buffer can not fit topic + pkt_id\n"));
         goto out_disconnect;
       }
@@ -1230,6 +1233,7 @@ mqtt_client_connect(mqtt_client_t *client, const ip_addr_t *ip_addr, u16_t port,
     }
     len = strlen(client_info->will_topic);
     LWIP_ERROR("mqtt_client_connect: client_info->will_topic length overflow", len <= 0xFF, return ERR_VAL);
+    LWIP_ERROR("mqtt_client_connect: client_info->will_topic length must be > 0", len > 0, return ERR_VAL);
     will_topic_len = (u8_t)len;
     len = strlen(client_info->will_msg);
     LWIP_ERROR("mqtt_client_connect: client_info->will_msg length overflow", len <= 0xFF, return ERR_VAL);
@@ -1291,7 +1295,7 @@ mqtt_client_connect(mqtt_client_t *client, const ip_addr_t *ip_addr, u16_t port,
   /* Append client id */
   mqtt_output_append_string(&client->output, client_info->client_id, client_id_length);
   /* Append will message if used */
-  if (will_topic_len > 0) {
+  if ((flags & MQTT_CONNECT_FLAG_WILL) != 0) {
     mqtt_output_append_string(&client->output, client_info->will_topic, will_topic_len);
     mqtt_output_append_string(&client->output, client_info->will_msg, will_msg_len);
   }
@@ -1333,3 +1337,5 @@ mqtt_client_is_connected(mqtt_client_t *client)
   LWIP_ASSERT("mqtt_client_is_connected: client != NULL", client);
   return client->conn_state == MQTT_CONNECTED;
 }
+
+#endif /* LWIP_TCP && LWIP_CALLBACK_API */

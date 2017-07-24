@@ -240,7 +240,7 @@ igmp_lookfor_group(struct netif *ifp, const ip4_addr_t *addr)
  * @return a struct igmp_group*,
  *         NULL on memory error.
  */
-struct igmp_group *
+static struct igmp_group *
 igmp_lookup_group(struct netif *ifp, const ip4_addr_t *addr)
 {
   struct igmp_group *group;

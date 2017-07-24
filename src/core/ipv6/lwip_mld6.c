@@ -573,6 +573,11 @@ mld6_send(struct netif *netif, struct mld_group *group, u8_t type)
   /* Add hop-by-hop headers options: router alert with MLD value. */
   ip6_options_add_hbh_ra(p, IP6_NEXTH_ICMP6, IP6_ROUTER_ALERT_VALUE_MLD);
 
+  if (type == ICMP6_TYPE_MLR) {
+    /* Remember we were the last to report */
+    group->last_reporter_flag = 1;
+  }
+
   /* Send the packet out. */
   MLD6_STATS_INC(mld6.xmit);
   ip6_output_if(p, (ip6_addr_isany(src_addr)) ? NULL : src_addr, &(group->group_address),
