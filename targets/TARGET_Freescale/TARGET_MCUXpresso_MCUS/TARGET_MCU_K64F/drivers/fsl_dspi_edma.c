@@ -1,32 +1,32 @@
 /*
-* Copyright (c) 2015, Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* o Redistributions of source code must retain the above copyright notice, this list
-*   of conditions and the following disclaimer.
-*
-* o Redistributions in binary form must reproduce the above copyright notice, this
-*   list of conditions and the following disclaimer in the documentation and/or
-*   other materials provided with the distribution.
-*
-* o Neither the name of Freescale Semiconductor, Inc. nor the names of its
-*   contributors may be used to endorse or promote products derived from this
-*   software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * Copyright (c) 2015, Freescale Semiconductor, Inc.
+ * Copyright 2016-2017 NXP
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * o Redistributions of source code must retain the above copyright notice, this list
+ *   of conditions and the following disclaimer.
+ *
+ * o Redistributions in binary form must reproduce the above copyright notice, this
+ *   list of conditions and the following disclaimer in the documentation and/or
+ *   other materials provided with the distribution.
+ *
+ * o Neither the name of the copyright holder nor the names of its
+ *   contributors may be used to endorse or promote products derived from this
+ *   software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "fsl_dspi_edma.h"
 
@@ -57,7 +57,7 @@ typedef struct _dspi_slave_edma_private_handle
 ***********************************************************************************************************************/
 /*!
 * @brief EDMA_DspiMasterCallback after the DSPI master transfer completed by using EDMA.
-* This is not a public API as it is called from other driver functions.
+* This is not a public API.
 */
 static void EDMA_DspiMasterCallback(edma_handle_t *edmaHandle,
                                     void *g_dspiEdmaPrivateHandle,
@@ -66,7 +66,7 @@ static void EDMA_DspiMasterCallback(edma_handle_t *edmaHandle,
 
 /*!
 * @brief EDMA_DspiSlaveCallback after the DSPI slave transfer completed by using EDMA.
-* This is not a public API as it is called from other driver functions.
+* This is not a public API.
 */
 static void EDMA_DspiSlaveCallback(edma_handle_t *edmaHandle,
                                    void *g_dspiEdmaPrivateHandle,
@@ -89,6 +89,8 @@ extern uint32_t DSPI_GetInstance(SPI_Type *base);
 static dspi_master_edma_private_handle_t s_dspiMasterEdmaPrivateHandle[FSL_FEATURE_SOC_DSPI_COUNT];
 static dspi_slave_edma_private_handle_t s_dspiSlaveEdmaPrivateHandle[FSL_FEATURE_SOC_DSPI_COUNT];
 
+/*! @brief Global variable for dummy data value setting. */
+extern volatile uint8_t s_dummyData[];
 /***********************************************************************************************************************
 * Code
 ***********************************************************************************************************************/
@@ -103,7 +105,9 @@ void DSPI_MasterTransferCreateHandleEDMA(SPI_Type *base,
 {
     assert(handle);
     assert(edmaRxRegToRxDataHandle);
+#if (!(defined(FSL_FEATURE_DSPI_HAS_GASKET) && FSL_FEATURE_DSPI_HAS_GASKET))
     assert(edmaTxDataToIntermediaryHandle);
+#endif
     assert(edmaIntermediaryToTxRegHandle);
 
     /* Zero the handle. */
@@ -145,9 +149,11 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
         return kStatus_DSPI_Busy;
     }
 
+    handle->state = kDSPI_Busy;
+
     uint32_t instance = DSPI_GetInstance(base);
     uint16_t wordToSend = 0;
-    uint8_t dummyData = DSPI_DUMMY_DATA;
+    uint8_t dummyData = s_dummyData[DSPI_GetInstance(base)];
     uint8_t dataAlreadyFed = 0;
     uint8_t dataFedMax = 2;
 
@@ -158,9 +164,8 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
 
     edma_transfer_config_t transferConfigA;
     edma_transfer_config_t transferConfigB;
-    edma_transfer_config_t transferConfigC;
 
-    handle->txBuffIfNull = ((uint32_t)DSPI_DUMMY_DATA << 8) | DSPI_DUMMY_DATA;
+    handle->txBuffIfNull = ((uint32_t)dummyData << 8) | dummyData;
 
     dspi_command_data_config_t commandStruct;
     DSPI_StopTransfer(base);
@@ -196,20 +201,32 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
     handle->remainingReceiveByteCount = transfer->dataSize;
     handle->totalByteCount = transfer->dataSize;
 
-    /* This limits the amount of data we can transfer due to the linked channel.
-    * The max bytes is 511 if 8-bit/frame or 1022 if 16-bit/frame
+    /* If using a shared RX/TX DMA request, then this limits the amount of data we can transfer
+    * due to the linked channel. The max bytes is 511 if 8-bit/frame or 1022 if 16-bit/frame
     */
+    uint32_t limited_size = 0;
+    if (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
+    {
+        limited_size = 32767u;
+    }
+    else
+    {
+        limited_size = 511u;
+    }
+
     if (handle->bitsPerFrame > 8)
     {
-        if (transfer->dataSize > 1022)
+        if (transfer->dataSize > (limited_size << 1u))
         {
+            handle->state = kDSPI_Idle;
             return kStatus_DSPI_OutOfRange;
         }
     }
     else
     {
-        if (transfer->dataSize > 511)
+        if (transfer->dataSize > limited_size)
         {
+            handle->state = kDSPI_Idle;
             return kStatus_DSPI_OutOfRange;
         }
     }
@@ -217,15 +234,37 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
     /*The data size should be even if the bitsPerFrame is greater than 8 (that is 2 bytes per frame in dspi) */
     if ((handle->bitsPerFrame > 8) && (transfer->dataSize & 0x1))
     {
+        handle->state = kDSPI_Idle;
         return kStatus_InvalidArgument;
     }
-
-    handle->state = kDSPI_Busy;
 
     DSPI_DisableDMA(base, kDSPI_RxDmaEnable | kDSPI_TxDmaEnable);
 
     EDMA_SetCallback(handle->edmaRxRegToRxDataHandle, EDMA_DspiMasterCallback,
                      &s_dspiMasterEdmaPrivateHandle[instance]);
+
+    /*
+    (1)For DSPI instances with shared RX/TX DMA requests: Rx DMA request -> channel_A -> channel_B-> channel_C.
+    channel_A minor link to channel_B , channel_B minor link to channel_C.
+
+    Already pushed 1 or 2 data in SPI_PUSHR , then start the DMA tansfer.
+    channel_A:SPI_POPR to rxData,
+    channel_B:next txData to handle->command (low 16 bits),
+    channel_C:handle->command (32 bits) to SPI_PUSHR, and use the scatter/gather to transfer the last data
+    (handle->lastCommand to SPI_PUSHR).
+
+    (2)For DSPI instances with separate RX and TX DMA requests:
+    Rx DMA request -> channel_A
+    Tx DMA request -> channel_C -> channel_B .
+    channel_C major link to channel_B.
+    So need prepare the first data in "intermediary"  before the DMA
+    transfer and then channel_B is used to prepare the next data to "intermediary"
+
+    channel_A:SPI_POPR to rxData,
+    channel_C: handle->command (32 bits) to SPI_PUSHR,
+    channel_B: next txData to handle->command (low 16 bits), and use the scatter/gather to prepare the last data
+    (handle->lastCommand to handle->Command).
+    */
 
     /*If dspi has separate dma request , prepare the first data in "intermediary" .
     else (dspi has shared dma request) , send first 2 data if there is fifo or send first 1 data if there is no fifo*/
@@ -252,6 +291,7 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
                     wordToSend = ((uint32_t)dummyData << 8) | dummyData;
                 }
                 handle->lastCommand = (handle->lastCommand & 0xffff0000U) | wordToSend;
+                handle->command = handle->lastCommand;
             }
             else /* For all words except the last word , frame > 8bits */
             {
@@ -284,6 +324,7 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
             if (handle->remainingSendByteCount == 1)
             {
                 handle->lastCommand = (handle->lastCommand & 0xffff0000U) | wordToSend;
+                handle->command = handle->lastCommand;
             }
             else
             {
@@ -293,11 +334,10 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
     }
 
     else /*dspi has shared dma request*/
-
     {
         /* For DSPI instances with shared RX/TX DMA requests, we'll use the RX DMA request to
-        * trigger ongoing transfers and will link to the TX DMA channel from the RX DMA channel.
-        */
+         * trigger ongoing transfers and will link to the TX DMA channel from the RX DMA channel.
+         */
 
         /* If bits/frame is greater than one byte */
         if (handle->bitsPerFrame > 8)
@@ -388,7 +428,7 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
         }
     }
 
-    /***channel_A *** used for carry the data from Rx_Data_Register(POPR) to User_Receive_Buffer*/
+    /***channel_A *** used for carry the data from Rx_Data_Register(POPR) to User_Receive_Buffer(rxData)*/
     EDMA_ResetChannel(handle->edmaRxRegToRxDataHandle->base, handle->edmaRxRegToRxDataHandle->channel);
 
     transferConfigA.srcAddr = (uint32_t)rxAddr;
@@ -428,71 +468,7 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
     EDMA_EnableChannelInterrupts(handle->edmaRxRegToRxDataHandle->base, handle->edmaRxRegToRxDataHandle->channel,
                                  kEDMA_MajorInterruptEnable);
 
-    /***channel_B *** used for carry the data from User_Send_Buffer to "intermediary" because the SPIx_PUSHR should
-    write the 32bits at once time . Then use channel_C to carry the "intermediary" to SPIx_PUSHR. Note that the
-    SPIx_PUSHR upper 16 bits are the "command" and the low 16bits are data */
-    EDMA_ResetChannel(handle->edmaTxDataToIntermediaryHandle->base, handle->edmaTxDataToIntermediaryHandle->channel);
-
-    if (handle->remainingSendByteCount > 0)
-    {
-        if (handle->txData)
-        {
-            transferConfigB.srcAddr = (uint32_t)(handle->txData);
-            transferConfigB.srcOffset = 1;
-        }
-        else
-        {
-            transferConfigB.srcAddr = (uint32_t)(&handle->txBuffIfNull);
-            transferConfigB.srcOffset = 0;
-        }
-
-        transferConfigB.destAddr = (uint32_t)(&handle->command);
-        transferConfigB.destOffset = 0;
-
-        transferConfigB.srcTransferSize = kEDMA_TransferSize1Bytes;
-
-        if (handle->bitsPerFrame <= 8)
-        {
-            transferConfigB.destTransferSize = kEDMA_TransferSize1Bytes;
-            transferConfigB.minorLoopBytes = 1;
-
-            if (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
-            {
-                /*already prepared the first data in "intermediary" , so minus 1 */
-                transferConfigB.majorLoopCounts = handle->remainingSendByteCount - 1;
-            }
-            else
-            {
-                /*Only enable channel_B minorlink to channel_C , so need to add one count due to the last time is
-                majorlink , the majorlink would not trigger the channel_C*/
-                transferConfigB.majorLoopCounts = handle->remainingSendByteCount + 1;
-            }
-        }
-        else
-        {
-            transferConfigB.destTransferSize = kEDMA_TransferSize2Bytes;
-            transferConfigB.minorLoopBytes = 2;
-            if (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
-            {
-                /*already prepared the first data in "intermediary" , so minus 1 */
-                transferConfigB.majorLoopCounts = handle->remainingSendByteCount / 2 - 1;
-            }
-            else
-            {
-                /*Only enable channel_B minorlink to channel_C , so need to add one count due to the last time is
-                * majorlink*/
-                transferConfigB.majorLoopCounts = handle->remainingSendByteCount / 2 + 1;
-            }
-        }
-
-        EDMA_SetTransferConfig(handle->edmaTxDataToIntermediaryHandle->base,
-                               handle->edmaTxDataToIntermediaryHandle->channel, &transferConfigB, NULL);
-    }
-
-    /***channel_C ***carry the "intermediary" to SPIx_PUSHR. used the edma Scatter Gather function on channel_C to
-    handle the last data */
-    EDMA_ResetChannel(handle->edmaIntermediaryToTxRegHandle->base, handle->edmaIntermediaryToTxRegHandle->channel);
-
+    /*Calculate the last data : handle->lastCommand*/
     if (((handle->remainingSendByteCount > 0) && (1 != FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))) ||
         ((((handle->remainingSendByteCount > 1) && (handle->bitsPerFrame <= 8)) ||
           ((handle->remainingSendByteCount > 2) && (handle->bitsPerFrame > 8))) &&
@@ -543,8 +519,252 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
         }
     }
 
+/* The feature of GASKET is that the SPI supports 8-bit or 16-bit writes to the PUSH TX FIFO,
+ * allowing a single write to the command word followed by multiple writes to the transmit word.
+ * The TX FIFO will save the last command word written, and convert a 8-bit/16-bit write to the
+ * transmit word into a 32-bit write that pushes both the command word and transmit word into
+ * the TX FIFO (PUSH TX FIFO Register In Master Mode)
+ * So, if this feature is supported, we can use use one channel to carry the receive data from
+ * receive regsiter to user data buffer, use the other channel to carry the data from user data buffer
+ * to transmit register,and use the scatter/gather function to prepare the last data.
+ * That is to say, if GASKET feature is supported, we can use only two channels for tansferring data.
+ */
+#if defined(FSL_FEATURE_DSPI_HAS_GASKET) && FSL_FEATURE_DSPI_HAS_GASKET
+    /*  For DSPI instances with separate RX and TX DMA requests: use the scatter/gather to prepare the last data
+     * (handle->lastCommand) to PUSHR register.
+     */
+
+    EDMA_ResetChannel(handle->edmaIntermediaryToTxRegHandle->base, handle->edmaIntermediaryToTxRegHandle->channel);
+
     if ((1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base)) ||
-        ((1 != FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base)) && (handle->remainingSendByteCount > 0)))
+        ((handle->remainingSendByteCount > 0) && (1 != FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))))
+    {
+        transferConfigB.srcAddr = (uint32_t) & (handle->lastCommand);
+        transferConfigB.destAddr = (uint32_t)txAddr;
+        transferConfigB.srcTransferSize = kEDMA_TransferSize4Bytes;
+        transferConfigB.destTransferSize = kEDMA_TransferSize4Bytes;
+        transferConfigB.srcOffset = 0;
+        transferConfigB.destOffset = 0;
+        transferConfigB.minorLoopBytes = 4;
+        transferConfigB.majorLoopCounts = 1;
+
+        EDMA_TcdReset(softwareTCD);
+        EDMA_TcdSetTransferConfig(softwareTCD, &transferConfigB, NULL);
+    }
+
+    /*User_Send_Buffer(txData) to PUSHR register. */
+    if (((handle->remainingSendByteCount > 2) && (handle->bitsPerFrame <= 8)) ||
+        ((handle->remainingSendByteCount > 4) && (handle->bitsPerFrame > 8)))
+    {
+        if (handle->txData)
+        {
+            if (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
+            {
+                /* For DSPI with separate RX and TX DMA requests, one frame data has been carry
+                 * to handle->command, so need to reduce the pointer of txData.
+                 */
+                transferConfigB.srcAddr =
+                    (uint32_t)((uint8_t *)(handle->txData) - ((handle->bitsPerFrame <= 8) ? (1U) : (2U)));
+                transferConfigB.srcOffset = 1;
+            }
+            else
+            {
+                /* For DSPI with shared RX and TX DMA requests, one or two frame data have been carry
+                 * to PUSHR register, so no need to change the pointer of txData.
+                 */
+                transferConfigB.srcAddr = (uint32_t)((uint8_t *)(handle->txData));
+                transferConfigB.srcOffset = 1;
+            }
+        }
+        else
+        {
+            transferConfigB.srcAddr = (uint32_t)(&handle->txBuffIfNull);
+            transferConfigB.srcOffset = 0;
+        }
+
+        transferConfigB.destAddr = (uint32_t)txAddr;
+        transferConfigB.destOffset = 0;
+
+        transferConfigB.srcTransferSize = kEDMA_TransferSize1Bytes;
+
+        if (handle->bitsPerFrame <= 8)
+        {
+            transferConfigB.destTransferSize = kEDMA_TransferSize1Bytes;
+            transferConfigB.minorLoopBytes = 1;
+
+            transferConfigB.majorLoopCounts = handle->remainingSendByteCount - 1;
+        }
+        else
+        {
+            transferConfigB.destTransferSize = kEDMA_TransferSize2Bytes;
+            transferConfigB.minorLoopBytes = 2;
+            transferConfigB.majorLoopCounts = (handle->remainingSendByteCount / 2) - 1;
+        }
+
+        EDMA_SetTransferConfig(handle->edmaIntermediaryToTxRegHandle->base,
+                               handle->edmaIntermediaryToTxRegHandle->channel, &transferConfigB, softwareTCD);
+    }
+    /* If only one word to transmit, only carry the lastcommand. */
+    else
+    {
+        EDMA_SetTransferConfig(handle->edmaIntermediaryToTxRegHandle->base,
+                               handle->edmaIntermediaryToTxRegHandle->channel, &transferConfigB, NULL);
+    }
+
+    /*Start the EDMA channel_A , channel_C. */
+    EDMA_StartTransfer(handle->edmaRxRegToRxDataHandle);
+    EDMA_StartTransfer(handle->edmaIntermediaryToTxRegHandle);
+
+    /* Set the channel link.
+     * For DSPI instances with shared TX and RX DMA requests, setup channel minor link, first receive data from the
+     * receive register, and then carry transmit data to PUSHER register.
+     * For DSPI instance with separate TX and RX DMA requests, there is no need to set up channel link.
+     */
+    if (1 != FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
+    {
+        /*Set channel priority*/
+        uint8_t channelPriorityLow = handle->edmaRxRegToRxDataHandle->channel;
+        uint8_t channelPriorityHigh = handle->edmaIntermediaryToTxRegHandle->channel;
+        uint8_t t = 0;
+
+        if (channelPriorityLow > channelPriorityHigh)
+        {
+            t = channelPriorityLow;
+            channelPriorityLow = channelPriorityHigh;
+            channelPriorityHigh = t;
+        }
+
+        edma_channel_Preemption_config_t preemption_config_t;
+        preemption_config_t.enableChannelPreemption = true;
+        preemption_config_t.enablePreemptAbility = true;
+        preemption_config_t.channelPriority = channelPriorityLow;
+
+        EDMA_SetChannelPreemptionConfig(handle->edmaRxRegToRxDataHandle->base, handle->edmaRxRegToRxDataHandle->channel,
+                                        &preemption_config_t);
+
+        preemption_config_t.channelPriority = channelPriorityHigh;
+        EDMA_SetChannelPreemptionConfig(handle->edmaIntermediaryToTxRegHandle->base,
+                                        handle->edmaIntermediaryToTxRegHandle->channel, &preemption_config_t);
+        /*if there is Rx DMA request , carry the 32bits data (handle->command) to user data first , then link to
+          channelC to carry the next data to PUSHER register.(txData to PUSHER) */
+        if (handle->remainingSendByteCount > 0)
+        {
+            EDMA_SetChannelLink(handle->edmaRxRegToRxDataHandle->base, handle->edmaRxRegToRxDataHandle->channel,
+                                kEDMA_MinorLink, handle->edmaIntermediaryToTxRegHandle->channel);
+        }
+    }
+
+    DSPI_EnableDMA(base, kDSPI_RxDmaEnable | kDSPI_TxDmaEnable);
+
+    /* Setup control info to PUSHER register. */
+    *((uint16_t *)&(base->PUSHR) + 1) = (handle->command >> 16U);
+#else
+
+    /***channel_B *** used for carry the data from User_Send_Buffer to "intermediary" because the SPIx_PUSHR should
+    write the 32bits at once time . Then use channel_C to carry the "intermediary" to SPIx_PUSHR. Note that the
+    SPIx_PUSHR upper 16 bits are the "command" and the low 16bits are data */
+
+    EDMA_ResetChannel(handle->edmaTxDataToIntermediaryHandle->base, handle->edmaTxDataToIntermediaryHandle->channel);
+
+    /*For DSPI instances with separate RX and TX DMA requests: use the scatter/gather to prepare the last data
+     * (handle->lastCommand) to handle->Command*/
+    if (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
+    {
+        transferConfigB.srcAddr = (uint32_t) & (handle->lastCommand);
+        transferConfigB.destAddr = (uint32_t) & (handle->command);
+        transferConfigB.srcTransferSize = kEDMA_TransferSize4Bytes;
+        transferConfigB.destTransferSize = kEDMA_TransferSize4Bytes;
+        transferConfigB.srcOffset = 0;
+        transferConfigB.destOffset = 0;
+        transferConfigB.minorLoopBytes = 4;
+        transferConfigB.majorLoopCounts = 1;
+
+        EDMA_TcdReset(softwareTCD);
+        EDMA_TcdSetTransferConfig(softwareTCD, &transferConfigB, NULL);
+    }
+
+    /*User_Send_Buffer(txData) to intermediary(handle->command)*/
+    if (((((handle->remainingSendByteCount > 2) && (handle->bitsPerFrame <= 8)) ||
+          ((handle->remainingSendByteCount > 4) && (handle->bitsPerFrame > 8))) &&
+         (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))) ||
+        (1 != FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base)))
+    {
+        if (handle->txData)
+        {
+            transferConfigB.srcAddr = (uint32_t)(handle->txData);
+            transferConfigB.srcOffset = 1;
+        }
+        else
+        {
+            transferConfigB.srcAddr = (uint32_t)(&handle->txBuffIfNull);
+            transferConfigB.srcOffset = 0;
+        }
+
+        transferConfigB.destAddr = (uint32_t)(&handle->command);
+        transferConfigB.destOffset = 0;
+
+        transferConfigB.srcTransferSize = kEDMA_TransferSize1Bytes;
+
+        if (handle->bitsPerFrame <= 8)
+        {
+            transferConfigB.destTransferSize = kEDMA_TransferSize1Bytes;
+            transferConfigB.minorLoopBytes = 1;
+
+            if (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
+            {
+                transferConfigB.majorLoopCounts = handle->remainingSendByteCount - 2;
+            }
+            else
+            {
+                /*Only enable channel_B minorlink to channel_C , so need to add one count due to the last time is
+                majorlink , the majorlink would not trigger the channel_C*/
+                transferConfigB.majorLoopCounts = handle->remainingSendByteCount + 1;
+            }
+        }
+        else
+        {
+            transferConfigB.destTransferSize = kEDMA_TransferSize2Bytes;
+            transferConfigB.minorLoopBytes = 2;
+            if (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
+            {
+                transferConfigB.majorLoopCounts = handle->remainingSendByteCount / 2 - 2;
+            }
+            else
+            {
+                /*Only enable channel_B minorlink to channel_C , so need to add one count due to the last time is
+                * majorlink*/
+                transferConfigB.majorLoopCounts = handle->remainingSendByteCount / 2 + 1;
+            }
+        }
+
+        if (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
+        {
+            EDMA_SetTransferConfig(handle->edmaTxDataToIntermediaryHandle->base,
+                                   handle->edmaTxDataToIntermediaryHandle->channel, &transferConfigB, softwareTCD);
+            EDMA_EnableAutoStopRequest(handle->edmaIntermediaryToTxRegHandle->base,
+                                       handle->edmaIntermediaryToTxRegHandle->channel, false);
+        }
+        else
+        {
+            EDMA_SetTransferConfig(handle->edmaTxDataToIntermediaryHandle->base,
+                                   handle->edmaTxDataToIntermediaryHandle->channel, &transferConfigB, NULL);
+        }
+    }
+    else
+    {
+        EDMA_SetTransferConfig(handle->edmaTxDataToIntermediaryHandle->base,
+                               handle->edmaTxDataToIntermediaryHandle->channel, &transferConfigB, NULL);
+    }
+
+    /***channel_C ***carry the "intermediary" to SPIx_PUSHR. used the edma Scatter Gather function on channel_C to
+    handle the last data */
+
+    edma_transfer_config_t transferConfigC;
+    EDMA_ResetChannel(handle->edmaIntermediaryToTxRegHandle->base, handle->edmaIntermediaryToTxRegHandle->channel);
+
+    /*For DSPI instances with shared RX/TX DMA requests: use the scatter/gather to prepare the last data
+     * (handle->lastCommand) to SPI_PUSHR*/
+    if (((1 != FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base)) && (handle->remainingSendByteCount > 0)))
     {
         transferConfigC.srcAddr = (uint32_t) & (handle->lastCommand);
         transferConfigC.destAddr = (uint32_t)txAddr;
@@ -560,7 +780,8 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
     }
 
     if (((handle->remainingSendByteCount > 1) && (handle->bitsPerFrame <= 8)) ||
-        ((handle->remainingSendByteCount > 2) && (handle->bitsPerFrame > 8)))
+        ((handle->remainingSendByteCount > 2) && (handle->bitsPerFrame > 8)) ||
+        (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base)))
     {
         transferConfigC.srcAddr = (uint32_t)(&(handle->command));
         transferConfigC.destAddr = (uint32_t)txAddr;
@@ -570,18 +791,28 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
         transferConfigC.srcOffset = 0;
         transferConfigC.destOffset = 0;
         transferConfigC.minorLoopBytes = 4;
-
-        if (handle->bitsPerFrame <= 8)
+        if (1 != FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
         {
-            transferConfigC.majorLoopCounts = handle->remainingSendByteCount - 1;
+            if (handle->bitsPerFrame <= 8)
+            {
+                transferConfigC.majorLoopCounts = handle->remainingSendByteCount - 1;
+            }
+            else
+            {
+                transferConfigC.majorLoopCounts = handle->remainingSendByteCount / 2 - 1;
+            }
+
+            EDMA_SetTransferConfig(handle->edmaIntermediaryToTxRegHandle->base,
+                                   handle->edmaIntermediaryToTxRegHandle->channel, &transferConfigC, softwareTCD);
         }
         else
         {
-            transferConfigC.majorLoopCounts = handle->remainingSendByteCount / 2 - 1;
+            transferConfigC.majorLoopCounts = 1;
+
+            EDMA_SetTransferConfig(handle->edmaIntermediaryToTxRegHandle->base,
+                                   handle->edmaIntermediaryToTxRegHandle->channel, &transferConfigC, NULL);
         }
 
-        EDMA_SetTransferConfig(handle->edmaIntermediaryToTxRegHandle->base,
-                               handle->edmaIntermediaryToTxRegHandle->channel, &transferConfigC, softwareTCD);
         EDMA_EnableAutoStopRequest(handle->edmaIntermediaryToTxRegHandle->base,
                                    handle->edmaIntermediaryToTxRegHandle->channel, false);
     }
@@ -653,20 +884,15 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
                                         &preemption_config_t);
     }
 
-    /*Set the channel link.
-    For DSPI instances with shared RX/TX DMA requests: Rx DMA request -> channel_A -> channel_B-> channel_C.
-    For DSPI instances with separate RX and TX DMA requests:
-    Rx DMA request -> channel_A
-    Tx DMA request -> channel_C -> channel_B . (so need prepare the first data in "intermediary"  before the DMA
-    transfer and then channel_B is used to prepare the next data to "intermediary" ) */
+    /*Set the channel link.*/
     if (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
     {
         /*if there is Tx DMA request , carry the 32bits data (handle->command) to PUSHR first , then link to channelB
-        to prepare the next 32bits data (User_send_buffer to handle->command) */
+        to prepare the next 32bits data (txData to handle->command) */
         if (handle->remainingSendByteCount > 1)
         {
             EDMA_SetChannelLink(handle->edmaIntermediaryToTxRegHandle->base,
-                                handle->edmaIntermediaryToTxRegHandle->channel, kEDMA_MinorLink,
+                                handle->edmaIntermediaryToTxRegHandle->channel, kEDMA_MajorLink,
                                 handle->edmaTxDataToIntermediaryHandle->channel);
         }
 
@@ -686,7 +912,7 @@ status_t DSPI_MasterTransferEDMA(SPI_Type *base, dspi_master_edma_handle_t *hand
 
         DSPI_EnableDMA(base, kDSPI_RxDmaEnable);
     }
-
+#endif
     DSPI_StartTransfer(base);
 
     return kStatus_Success;
@@ -805,6 +1031,8 @@ status_t DSPI_SlaveTransferEDMA(SPI_Type *base, dspi_slave_edma_handle_t *handle
         return kStatus_DSPI_Busy;
     }
 
+    handle->state = kDSPI_Busy;
+
     uint32_t instance = DSPI_GetInstance(base);
     uint8_t whichCtar = (transfer->configFlags & DSPI_SLAVE_CTAR_MASK) >> DSPI_SLAVE_CTAR_SHIFT;
     handle->bitsPerFrame =
@@ -813,33 +1041,41 @@ status_t DSPI_SlaveTransferEDMA(SPI_Type *base, dspi_slave_edma_handle_t *handle
     /* If using a shared RX/TX DMA request, then this limits the amount of data we can transfer
     * due to the linked channel. The max bytes is 511 if 8-bit/frame or 1022 if 16-bit/frame
     */
-    if (1 != FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
+    uint32_t limited_size = 0;
+    if (1 == FSL_FEATURE_DSPI_HAS_SEPARATE_DMA_RX_TX_REQn(base))
     {
-        if (handle->bitsPerFrame > 8)
+        limited_size = 32767u;
+    }
+    else
+    {
+        limited_size = 511u;
+    }
+
+    if (handle->bitsPerFrame > 8)
+    {
+        if (transfer->dataSize > (limited_size << 1u))
         {
-            if (transfer->dataSize > 1022)
-            {
-                return kStatus_DSPI_OutOfRange;
-            }
+            handle->state = kDSPI_Idle;
+            return kStatus_DSPI_OutOfRange;
         }
-        else
+    }
+    else
+    {
+        if (transfer->dataSize > limited_size)
         {
-            if (transfer->dataSize > 511)
-            {
-                return kStatus_DSPI_OutOfRange;
-            }
+            handle->state = kDSPI_Idle;
+            return kStatus_DSPI_OutOfRange;
         }
     }
 
     /*The data size should be even if the bitsPerFrame is greater than 8 (that is 2 bytes per frame in dspi) */
     if ((handle->bitsPerFrame > 8) && (transfer->dataSize & 0x1))
     {
+        handle->state = kDSPI_Idle;
         return kStatus_InvalidArgument;
     }
 
     EDMA_SetCallback(handle->edmaRxRegToRxDataHandle, EDMA_DspiSlaveCallback, &s_dspiSlaveEdmaPrivateHandle[instance]);
-
-    handle->state = kDSPI_Busy;
 
     /* Store transfer information */
     handle->txData = transfer->txData;
@@ -849,7 +1085,7 @@ status_t DSPI_SlaveTransferEDMA(SPI_Type *base, dspi_slave_edma_handle_t *handle
     handle->totalByteCount = transfer->dataSize;
 
     uint16_t wordToSend = 0;
-    uint8_t dummyData = DSPI_DUMMY_DATA;
+    uint8_t dummyData = s_dummyData[DSPI_GetInstance(base)];
     uint8_t dataAlreadyFed = 0;
     uint8_t dataFedMax = 2;
 
@@ -1003,11 +1239,11 @@ status_t DSPI_SlaveTransferEDMA(SPI_Type *base, dspi_slave_edma_handle_t *handle
             transferConfigC.srcOffset = 0;
             if (handle->bitsPerFrame <= 8)
             {
-                handle->txBuffIfNull = DSPI_DUMMY_DATA;
+                handle->txBuffIfNull = dummyData;
             }
             else
             {
-                handle->txBuffIfNull = (DSPI_DUMMY_DATA << 8) | DSPI_DUMMY_DATA;
+                handle->txBuffIfNull = ((uint32_t)dummyData << 8) | dummyData;
             }
         }
 
@@ -1106,13 +1342,13 @@ static void EDMA_DspiSlaveCallback(edma_handle_t *edmaHandle,
 
     DSPI_DisableDMA((dspiEdmaPrivateHandle->base), kDSPI_RxDmaEnable | kDSPI_TxDmaEnable);
 
+    dspiEdmaPrivateHandle->handle->state = kDSPI_Idle;
+
     if (dspiEdmaPrivateHandle->handle->callback)
     {
         dspiEdmaPrivateHandle->handle->callback(dspiEdmaPrivateHandle->base, dspiEdmaPrivateHandle->handle,
                                                 kStatus_Success, dspiEdmaPrivateHandle->handle->userData);
     }
-
-    dspiEdmaPrivateHandle->handle->state = kDSPI_Idle;
 }
 
 void DSPI_SlaveTransferAbortEDMA(SPI_Type *base, dspi_slave_edma_handle_t *handle)

@@ -1,32 +1,32 @@
 /*
-* Copyright (c) 2015, Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* o Redistributions of source code must retain the above copyright notice, this list
-*   of conditions and the following disclaimer.
-*
-* o Redistributions in binary form must reproduce the above copyright notice, this
-*   list of conditions and the following disclaimer in the documentation and/or
-*   other materials provided with the distribution.
-*
-* o Neither the name of Freescale Semiconductor, Inc. nor the names of its
-*   contributors may be used to endorse or promote products derived from this
-*   software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * Copyright (c) 2015, Freescale Semiconductor, Inc.
+ * Copyright 2016-2017 NXP
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * o Redistributions of source code must retain the above copyright notice, this list
+ *   of conditions and the following disclaimer.
+ *
+ * o Redistributions in binary form must reproduce the above copyright notice, this
+ *   list of conditions and the following disclaimer in the documentation and/or
+ *   other materials provided with the distribution.
+ *
+ * o Neither the name of the copyright holder nor the names of its
+ *   contributors may be used to endorse or promote products derived from this
+ *   software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "fsl_dspi.h"
 
@@ -65,27 +65,27 @@ static void DSPI_SetOnePcsPolarity(SPI_Type *base, dspi_which_pcs_t pcs, dspi_pc
 
 /*!
  * @brief Master fill up the TX FIFO with data.
- * This is not a public API as it is called from other driver functions.
+ * This is not a public API.
  */
 static void DSPI_MasterTransferFillUpTxFifo(SPI_Type *base, dspi_master_handle_t *handle);
 
 /*!
  * @brief Master finish up a transfer.
  * It would call back if there is callback function and set the state to idle.
- * This is not a public API as it is called from other driver functions.
+ * This is not a public API.
  */
 static void DSPI_MasterTransferComplete(SPI_Type *base, dspi_master_handle_t *handle);
 
 /*!
  * @brief Slave fill up the TX FIFO with data.
- * This is not a public API as it is called from other driver functions.
+ * This is not a public API.
  */
 static void DSPI_SlaveTransferFillUpTxFifo(SPI_Type *base, dspi_slave_handle_t *handle);
 
 /*!
  * @brief Slave finish up a transfer.
  * It would call back if there is callback function and set the state to idle.
- * This is not a public API as it is called from other driver functions.
+ * This is not a public API.
  */
 static void DSPI_SlaveTransferComplete(SPI_Type *base, dspi_slave_handle_t *handle);
 
@@ -100,7 +100,7 @@ static void DSPI_CommonIRQHandler(SPI_Type *base, void *param);
 /*!
  * @brief Master prepare the transfer.
  * Basically it set up dspi_master_handle .
- * This is not a public API as it is called from other driver functions. fsl_dspi_edma.c also call this function.
+ * This is not a public API.
  */
 static void DSPI_MasterTransferPrepare(SPI_Type *base, dspi_master_handle_t *handle, dspi_transfer_t *transfer);
 
@@ -129,7 +129,7 @@ static clock_ip_name_t const s_dspiClock[] = DSPI_CLOCKS;
 #endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 /*! @brief Pointers to dspi handles for each instance. */
-static void *g_dspiHandle[FSL_FEATURE_SOC_DSPI_COUNT];
+static void *g_dspiHandle[ARRAY_SIZE(s_dspiBases)];
 
 /*! @brief Pointer to master IRQ handler for each instance. */
 static dspi_master_isr_t s_dspiMasterIsr;
@@ -137,6 +137,8 @@ static dspi_master_isr_t s_dspiMasterIsr;
 /*! @brief Pointer to slave IRQ handler for each instance. */
 static dspi_slave_isr_t s_dspiSlaveIsr;
 
+/* @brief Dummy data for each instance. This data is used when user's tx buffer is NULL*/
+volatile uint8_t s_dummyData[ARRAY_SIZE(s_dspiBases)] = {0};
 /**********************************************************************************************************************
 * Code
 *********************************************************************************************************************/
@@ -145,7 +147,7 @@ uint32_t DSPI_GetInstance(SPI_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_DSPI_COUNT; instance++)
+    for (instance = 0; instance < ARRAY_SIZE(s_dspiBases); instance++)
     {
         if (s_dspiBases[instance] == base)
         {
@@ -153,9 +155,15 @@ uint32_t DSPI_GetInstance(SPI_Type *base)
         }
     }
 
-    assert(instance < FSL_FEATURE_SOC_DSPI_COUNT);
+    assert(instance < ARRAY_SIZE(s_dspiBases));
 
     return instance;
+}
+
+void DSPI_SetDummyData(SPI_Type *base, uint8_t dummyData)
+{
+    uint32_t instance = DSPI_GetInstance(base);
+    s_dummyData[instance] = dummyData;
 }
 
 void DSPI_MasterInit(SPI_Type *base, const dspi_master_config_t *masterConfig, uint32_t srcClock_Hz)
@@ -202,6 +210,7 @@ void DSPI_MasterInit(SPI_Type *base, const dspi_master_config_t *masterConfig, u
     DSPI_MasterSetDelayTimes(base, masterConfig->whichCtar, kDSPI_BetweenTransfer, srcClock_Hz,
                              masterConfig->ctarConfig.betweenTransferDelayInNanoSec);
 
+    DSPI_SetDummyData(base, DSPI_DUMMY_DATA);
     DSPI_StartTransfer(base);
 }
 
@@ -261,6 +270,8 @@ void DSPI_SlaveInit(SPI_Type *base, const dspi_slave_config_t *slaveConfig)
     base->CTAR[slaveConfig->whichCtar] = temp | SPI_CTAR_SLAVE_FMSZ(slaveConfig->ctarConfig.bitsPerFrame - 1) |
                                          SPI_CTAR_SLAVE_CPOL(slaveConfig->ctarConfig.cpol) |
                                          SPI_CTAR_SLAVE_CPHA(slaveConfig->ctarConfig.cpha);
+
+    DSPI_SetDummyData(base, DSPI_DUMMY_DATA);
 
     DSPI_StartTransfer(base);
 }
@@ -582,7 +593,7 @@ status_t DSPI_MasterTransferBlocking(SPI_Type *base, dspi_transfer_t *transfer)
 
     uint16_t wordToSend = 0;
     uint16_t wordReceived = 0;
-    uint8_t dummyData = DSPI_DUMMY_DATA;
+    uint8_t dummyData = s_dummyData[DSPI_GetInstance(base)];
     uint8_t bitsPerFrame;
 
     uint32_t command;
@@ -897,12 +908,9 @@ status_t DSPI_MasterTransferNonBlocking(SPI_Type *base, dspi_master_handle_t *ha
     handle->state = kDSPI_Busy;
 
     DSPI_MasterTransferPrepare(base, handle, transfer);
-    DSPI_StartTransfer(base);
 
     /* Enable the NVIC for DSPI peripheral. */
     EnableIRQ(s_dspiIRQ[DSPI_GetInstance(base)]);
-
-    DSPI_MasterTransferFillUpTxFifo(base, handle);
 
     /* RX FIFO Drain request: RFDF_RE to enable RFDF interrupt
     * Since SPI is a synchronous interface, we only need to enable the RX interrupt.
@@ -911,7 +919,10 @@ status_t DSPI_MasterTransferNonBlocking(SPI_Type *base, dspi_master_handle_t *ha
     s_dspiMasterIsr = DSPI_MasterTransferHandleIRQ;
 
     DSPI_EnableInterrupts(base, kDSPI_RxFifoDrainRequestInterruptEnable);
+    DSPI_StartTransfer(base);
 
+    /* Fill up the Tx FIFO to trigger the transfer. */
+    DSPI_MasterTransferFillUpTxFifo(base, handle);
     return kStatus_Success;
 }
 
@@ -952,13 +963,12 @@ static void DSPI_MasterTransferComplete(SPI_Type *base, dspi_master_handle_t *ha
         status = kStatus_Success;
     }
 
+    handle->state = kDSPI_Idle;
+
     if (handle->callback)
     {
         handle->callback(base, handle, status, handle->userData);
     }
-
-    /* The transfer is complete.*/
-    handle->state = kDSPI_Idle;
 }
 
 static void DSPI_MasterTransferFillUpTxFifo(SPI_Type *base, dspi_master_handle_t *handle)
@@ -966,7 +976,7 @@ static void DSPI_MasterTransferFillUpTxFifo(SPI_Type *base, dspi_master_handle_t
     assert(handle);
 
     uint16_t wordToSend = 0;
-    uint8_t dummyData = DSPI_DUMMY_DATA;
+    uint8_t dummyData = s_dummyData[DSPI_GetInstance(base)];
 
     /* If bits/frame is greater than one byte */
     if (handle->bitsPerFrame > 8)
@@ -1257,11 +1267,6 @@ status_t DSPI_SlaveTransferNonBlocking(SPI_Type *base, dspi_slave_handle_t *hand
     DSPI_FlushFifo(base, true, true);
     DSPI_ClearStatusFlags(base, kDSPI_AllStatusFlag);
 
-    DSPI_StartTransfer(base);
-
-    /* Prepare data to transmit */
-    DSPI_SlaveTransferFillUpTxFifo(base, handle);
-
     s_dspiSlaveIsr = DSPI_SlaveTransferHandleIRQ;
 
     /* Enable RX FIFO drain request, the slave only use this interrupt */
@@ -1277,6 +1282,11 @@ status_t DSPI_SlaveTransferNonBlocking(SPI_Type *base, dspi_slave_handle_t *hand
         /* TX FIFO underflow request enable */
         DSPI_EnableInterrupts(base, kDSPI_TxFifoUnderflowInterruptEnable);
     }
+
+    DSPI_StartTransfer(base);
+
+    /* Prepare data to transmit */
+    DSPI_SlaveTransferFillUpTxFifo(base, handle);
 
     return kStatus_Success;
 }
@@ -1306,7 +1316,7 @@ static void DSPI_SlaveTransferFillUpTxFifo(SPI_Type *base, dspi_slave_handle_t *
     assert(handle);
 
     uint16_t transmitData = 0;
-    uint8_t dummyPattern = DSPI_DUMMY_DATA;
+    uint8_t dummyPattern = s_dummyData[DSPI_GetInstance(base)];
 
     /* Service the transmitter, if transmit buffer provided, transmit the data,
     * else transmit dummy pattern
@@ -1413,12 +1423,12 @@ static void DSPI_SlaveTransferComplete(SPI_Type *base, dspi_slave_handle_t *hand
         status = kStatus_Success;
     }
 
+    handle->state = kDSPI_Idle;
+
     if (handle->callback)
     {
         handle->callback(base, handle, status, handle->userData);
     }
-
-    handle->state = kDSPI_Idle;
 }
 
 void DSPI_SlaveTransferAbort(SPI_Type *base, dspi_slave_handle_t *handle)
@@ -1440,7 +1450,7 @@ void DSPI_SlaveTransferHandleIRQ(SPI_Type *base, dspi_slave_handle_t *handle)
 {
     assert(handle);
 
-    uint8_t dummyPattern = DSPI_DUMMY_DATA;
+    uint8_t dummyPattern = s_dummyData[DSPI_GetInstance(base)];
     uint32_t dataReceived;
     uint32_t dataSend = 0;
 
@@ -1617,7 +1627,7 @@ static void DSPI_CommonIRQHandler(SPI_Type *base, void *param)
     }
 }
 
-#if (FSL_FEATURE_SOC_DSPI_COUNT > 0)
+#if defined(SPI0)
 void SPI0_DriverIRQHandler(void)
 {
     assert(g_dspiHandle[0]);
@@ -1625,7 +1635,7 @@ void SPI0_DriverIRQHandler(void)
 }
 #endif
 
-#if (FSL_FEATURE_SOC_DSPI_COUNT > 1)
+#if defined(SPI1)
 void SPI1_DriverIRQHandler(void)
 {
     assert(g_dspiHandle[1]);
@@ -1633,7 +1643,7 @@ void SPI1_DriverIRQHandler(void)
 }
 #endif
 
-#if (FSL_FEATURE_SOC_DSPI_COUNT > 2)
+#if defined(SPI2)
 void SPI2_DriverIRQHandler(void)
 {
     assert(g_dspiHandle[2]);
@@ -1641,7 +1651,7 @@ void SPI2_DriverIRQHandler(void)
 }
 #endif
 
-#if (FSL_FEATURE_SOC_DSPI_COUNT > 3)
+#if defined(SPI3)
 void SPI3_DriverIRQHandler(void)
 {
     assert(g_dspiHandle[3]);
@@ -1649,7 +1659,7 @@ void SPI3_DriverIRQHandler(void)
 }
 #endif
 
-#if (FSL_FEATURE_SOC_DSPI_COUNT > 4)
+#if defined(SPI4)
 void SPI4_DriverIRQHandler(void)
 {
     assert(g_dspiHandle[4]);
@@ -1657,7 +1667,7 @@ void SPI4_DriverIRQHandler(void)
 }
 #endif
 
-#if (FSL_FEATURE_SOC_DSPI_COUNT > 5)
+#if defined(SPI5)
 void SPI5_DriverIRQHandler(void)
 {
     assert(g_dspiHandle[5]);

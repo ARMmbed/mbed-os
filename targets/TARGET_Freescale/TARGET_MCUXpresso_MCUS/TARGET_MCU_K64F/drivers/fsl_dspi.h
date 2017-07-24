@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -37,15 +37,14 @@
  * @{
  */
 
-
 /**********************************************************************************************************************
  * Definitions
  *********************************************************************************************************************/
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief DSPI driver version 2.1.3. */
-#define FSL_DSPI_DRIVER_VERSION (MAKE_VERSION(2, 1, 3))
+/*! @brief DSPI driver version 2.2.0. */
+#define FSL_DSPI_DRIVER_VERSION (MAKE_VERSION(2, 2, 0))
 /*@}*/
 
 #ifndef DSPI_DUMMY_DATA
@@ -107,7 +106,8 @@ typedef enum _dspi_master_slave_mode
 } dspi_master_slave_mode_t;
 
 /*!
- * @brief DSPI Sample Point: Controls when the DSPI master samples SIN in the Modified Transfer Format. This field is valid
+ * @brief DSPI Sample Point: Controls when the DSPI master samples SIN in the Modified Transfer Format. This field is
+ * valid
  * only when the CPHA bit in the CTAR register is 0.
  */
 typedef enum _dspi_master_sample_point
@@ -216,8 +216,9 @@ enum _dspi_transfer_config_flag_for_master
     kDSPI_MasterPcs4 = 4U << DSPI_MASTER_PCS_SHIFT, /*!< DSPI master transfer use PCS4 signal. */
     kDSPI_MasterPcs5 = 5U << DSPI_MASTER_PCS_SHIFT, /*!< DSPI master transfer use PCS5 signal. */
 
-    kDSPI_MasterPcsContinuous = 1U << 20,       /*!< Indicates whether the PCS signal is continuous. */
-    kDSPI_MasterActiveAfterTransfer = 1U << 21, /*!< Indicates whether the PCS signal is active after the last frame transfer.*/
+    kDSPI_MasterPcsContinuous = 1U << 20, /*!< Indicates whether the PCS signal is continuous. */
+    kDSPI_MasterActiveAfterTransfer =
+        1U << 21, /*!< Indicates whether the PCS signal is active after the last frame transfer.*/
 };
 
 #define DSPI_SLAVE_CTAR_SHIFT (0U)   /*!< DSPI slave CTAR shift macro; used internally. */
@@ -240,7 +241,7 @@ enum _dspi_transfer_state
 /*! @brief DSPI master command date configuration used for the SPIx_PUSHR.*/
 typedef struct _dspi_command_data_config
 {
-    bool isPcsContinuous;            /*!< Option to enable the continuous assertion of the chip select between transfers.*/
+    bool isPcsContinuous; /*!< Option to enable the continuous assertion of the chip select between transfers.*/
     dspi_ctar_selection_t whichCtar; /*!< The desired Clock and Transfer Attributes
                                           Register (CTAR) to use for CTAS.*/
     dspi_which_pcs_t whichPcs;       /*!< The desired PCS signal to use for the data transfer.*/
@@ -257,10 +258,10 @@ typedef struct _dspi_master_ctar_config
     dspi_clock_phase_t cpha;          /*!< Clock phase. */
     dspi_shift_direction_t direction; /*!< MSB or LSB data shift direction. */
 
-    uint32_t pcsToSckDelayInNanoSec;        /*!< PCS to SCK delay time in nanoseconds; setting to 0 sets the minimum
-                                               delay. It also sets the boundary value if out of range.*/
-    uint32_t lastSckToPcsDelayInNanoSec;    /*!< The last SCK to PCS delay time in nanoseconds; setting to 0 sets the
-                                               minimum delay. It also sets the boundary value if out of range.*/
+    uint32_t pcsToSckDelayInNanoSec;     /*!< PCS to SCK delay time in nanoseconds; setting to 0 sets the minimum
+                                            delay. It also sets the boundary value if out of range.*/
+    uint32_t lastSckToPcsDelayInNanoSec; /*!< The last SCK to PCS delay time in nanoseconds; setting to 0 sets the
+                                            minimum delay. It also sets the boundary value if out of range.*/
 
     uint32_t betweenTransferDelayInNanoSec; /*!< After the SCK delay time in nanoseconds; setting to 0 sets the minimum
                                              delay. It also sets the boundary value if out of range.*/
@@ -370,8 +371,9 @@ struct _dspi_master_handle
 
     uint8_t fifoSize; /*!< FIFO dataSize. */
 
-    volatile bool isPcsActiveAfterTransfer; /*!< Indicates whether the PCS signal is active after the last frame transfer.*/
-    volatile bool isThereExtraByte;         /*!< Indicates whether there are extra bytes.*/
+    volatile bool
+        isPcsActiveAfterTransfer;   /*!< Indicates whether the PCS signal is active after the last frame transfer.*/
+    volatile bool isThereExtraByte; /*!< Indicates whether there are extra bytes.*/
 
     uint8_t *volatile txData;                  /*!< Send buffer. */
     uint8_t *volatile rxData;                  /*!< Receive buffer. */
@@ -575,6 +577,7 @@ static inline void DSPI_ClearStatusFlags(SPI_Type *base, uint32_t statusFlags)
  *
  * This function configures the various interrupt masks of the DSPI.  The parameters are a base and an interrupt mask.
  * Note, for Tx Fill and Rx FIFO drain requests, enable the interrupt request and disable the DMA request.
+ *       Do not use this API(write to RSER register) while DSPI is in running state.
  *
  * @code
  *  DSPI_EnableInterrupts(base, kDSPI_TxCompleteInterruptEnable | kDSPI_EndOfQueueInterruptEnable );
@@ -950,10 +953,12 @@ static inline uint32_t DSPI_MasterGetFormattedCommand(dspi_command_data_config_t
  * @brief Writes a 32-bit data word (16-bit command appended with 16-bit data) into the data
  *        buffer master mode and waits till complete to return.
  *
- * In this function, the user must append the 16-bit data to the 16-bit command information and then provide the total 32-bit word
+ * In this function, the user must append the 16-bit data to the 16-bit command information and then provide the total
+* 32-bit word
  * as the data to send.
  * The command portion provides characteristics of the data, such as the optional continuous chip select operation
- * between transfers, the desired Clock and Transfer Attributes register to use for the associated SPI frame, the desired PCS
+ * between transfers, the desired Clock and Transfer Attributes register to use for the associated SPI frame, the
+* desired PCS
  * signal to use for the data transfer, whether the current transfer is the last in the queue, and whether to clear the
  * transfer count (normally needed when sending the first frame of a data packet). The user is responsible for
  * appending this command with the data to send. This is an example:
@@ -1021,6 +1026,14 @@ static inline uint32_t DSPI_ReadData(SPI_Type *base)
 {
     return (base->POPR);
 }
+
+/*!
+ * @brief Set up the dummy data.
+ *
+ * @param base DSPI peripheral address.
+ * @param dummyData Data to be transferred when tx buffer is NULL.
+ */
+void DSPI_SetDummyData(SPI_Type *base, uint8_t dummyData);
 
 /*!
  *@}
