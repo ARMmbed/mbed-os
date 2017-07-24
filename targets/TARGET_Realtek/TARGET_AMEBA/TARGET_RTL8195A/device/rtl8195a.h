@@ -32,7 +32,7 @@
 #include "hal_efuse.h"
 #include "hal_soc_ps_monitor.h"
 #include "diag.h"
-
+#include "system_8195a.h"
 
 // from RDC team
 #ifdef CONFIG_MBED_ENABLED
