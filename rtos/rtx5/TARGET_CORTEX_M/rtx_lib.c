@@ -597,7 +597,7 @@ typedef void *mutex;
 // Initialize mutex
 __USED
 int _mutex_initialize(mutex *m);
-int _mutex_initialize(mutex *m) {
+__WEAK int _mutex_initialize(mutex *m) {
   *m = osMutexNew(NULL);
   if (*m == NULL) {
     osRtxErrorNotify(osRtxErrorClibMutex, m);
@@ -609,7 +609,7 @@ int _mutex_initialize(mutex *m) {
 // Acquire mutex
 __USED
 void _mutex_acquire(mutex *m);
-void _mutex_acquire(mutex *m) {
+__WEAK void _mutex_acquire(mutex *m) {
   if (os_kernel_is_active()) {
     osMutexAcquire(*m, osWaitForever);
   }
@@ -618,7 +618,7 @@ void _mutex_acquire(mutex *m) {
 // Release mutex
 __USED
 void _mutex_release(mutex *m);
-void _mutex_release(mutex *m) {
+__WEAK void _mutex_release(mutex *m) {
   if (os_kernel_is_active()) {
     osMutexRelease(*m);
   }
@@ -627,7 +627,7 @@ void _mutex_release(mutex *m) {
 // Free mutex
 __USED
 void _mutex_free(mutex *m);
-void _mutex_free(mutex *m) {
+__WEAK void _mutex_free(mutex *m) {
   osMutexDelete(*m);
 }
 
