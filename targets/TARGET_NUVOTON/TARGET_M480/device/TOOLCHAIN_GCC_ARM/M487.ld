@@ -89,12 +89,7 @@ SECTIONS
         . = ALIGN(32);
         __uvisor_bss_boxes_end = .;
 
-        /************************** ARMv7-M MPU only **************************/
-        __uvisor_bss_end_padding_max = (2 << (LOG2CEIL(__uvisor_bss_boxes_end - ORIGIN(RAM_INTERN)) - 1)) / 8;
-        . = __uvisor_bss_end_padding_max == 0 ? 0 :
-                MIN(__uvisor_bss_end_padding_max * (((__uvisor_bss_boxes_end - ORIGIN(RAM_INTERN)) / __uvisor_bss_end_padding_max) +
-                    MIN((__uvisor_bss_boxes_end - ORIGIN(RAM_INTERN)) % __uvisor_bss_end_padding_max, 1)) - __UVISOR_SRAM_OFFSET,
-                    ORIGIN(RAM_INTERN) + LENGTH(RAM_INTERN));
+        . = ALIGN(32);
         __uvisor_bss_end = .;
     } > RAM_INTERN
 
