@@ -80,6 +80,18 @@
 #define INITIAL_SP              (0x10002000UL)
 #endif
 
+#elif defined(TARGET_LPC54114_M4)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20010000UL)
+#endif
+
+#elif defined(TARGET_LPC54608)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20028000UL)
+#endif
+
 #endif
 
 #endif  // MBED_MBED_RTX_H
