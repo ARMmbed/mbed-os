@@ -23,7 +23,11 @@
 #include "platform/mbed_assert.h"
 #include "platform/mbed_toolchain.h"
 
-#define EXCLUSIVE_ACCESS (!defined (__CORTEX_M0) && !defined (__CORTEX_M0PLUS))
+#if !defined (__CORTEX_M0) && !defined (__CORTEX_M0PLUS)
+#define EXCLUSIVE_ACCESS 1
+#else
+#define EXCLUSIVE_ACCESS 0
+#endif
 
 static volatile uint32_t interrupt_enable_counter = 0;
 static volatile bool critical_interrupts_disabled = false;
