@@ -23,27 +23,21 @@
 
 TIM_HandleTypeDef TimMasterHandle;
 
-static int us_ticker_inited = 0;
-
 void us_ticker_init(void)
 {
-    if (us_ticker_inited) return;
-    us_ticker_inited = 1;
-
-    TimMasterHandle.Instance = TIM_MST;
-
-    HAL_InitTick(0); // The passed value is not used
+    /* NOTE: assuming that HAL tick has already been initialized! */
 }
 
 uint32_t us_ticker_read()
 {
-    if (!us_ticker_inited) us_ticker_init();
     return TIM_MST->CNT;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    TimMasterHandle.Instance = TIM_MST;
+    // NOTE: This function must be called with interrupts disabled to keep our
+    //       timer interrupt setup atomic
+
     // disable IT while we are handling the correct timestamp
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
     // Set new output compare value
@@ -59,14 +53,16 @@ void us_ticker_fire_interrupt(void)
 
 void us_ticker_disable_interrupt(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
+    core_util_critical_section_enter();
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+    core_util_critical_section_exit();
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
+    core_util_critical_section_enter();
     __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
+    core_util_critical_section_exit();
 }
 
 #endif // !TIM_MST_16BIT
