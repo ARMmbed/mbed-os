@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "m480.h"
+#include "M480.h"
 
 /** @addtogroup M480_Device_Driver M480 Device Driver
   @{
