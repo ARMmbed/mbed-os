@@ -102,7 +102,7 @@
 #include <stdlib.h> /* atoi */
 #include <stdio.h>
 
-#if LWIP_TCP
+#if LWIP_TCP && LWIP_CALLBACK_API
 
 /** Minimum length for a valid HTTP/0.9 request: "GET /\r\n" -> 7 bytes */
 #define MIN_REQ_LEN   7
@@ -335,9 +335,34 @@ char *http_cgi_param_vals[LWIP_HTTPD_MAX_CGI_PARAMETERS]; /* Values for each ext
 /** global list of active HTTP connections, use to kill the oldest when
     running out of memory */
 static struct http_state *http_connections;
-#endif /* LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED */
 
-#if LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED
+static void
+http_add_connection(struct http_state *hs)
+{
+  /* add the connection to the list */
+  hs->next = http_connections;
+  http_connections = hs;
+}
+
+static void
+http_remove_connection(struct http_state *hs)
+{
+  /* take the connection off the list */
+  if (http_connections) {
+    if (http_connections == hs) {
+      http_connections = hs->next;
+    } else {
+      struct http_state *last;
+      for(last = http_connections; last->next != NULL; last = last->next) {
+        if (last->next == hs) {
+          last->next = hs->next;
+          break;
+        }
+      }
+    }
+  }
+}
+
 static void
 http_kill_oldest_connection(u8_t ssi_required)
 {
@@ -366,6 +391,11 @@ http_kill_oldest_connection(u8_t ssi_required)
     http_close_or_abort_conn(hs_free_next->next->pcb, hs_free_next->next, 1); /* this also unlinks the http_state from the list */
   }
 }
+#else /* LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED */
+
+#define http_add_connection(hs)
+#define http_remove_connection(hs)
+
 #endif /* LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED */
 
 #if LWIP_HTTPD_SSI
@@ -422,17 +452,7 @@ http_state_alloc(void)
 #endif /* LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED */
   if (ret != NULL) {
     http_state_init(ret);
-#if LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED
-    /* add the connection to the list */
-    if (http_connections == NULL) {
-      http_connections = ret;
-    } else {
-      struct http_state *last;
-      for(last = http_connections; last->next != NULL; last = last->next);
-      LWIP_ASSERT("last != NULL", last != NULL);
-      last->next = ret;
-    }
-#endif /* LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED */
+    http_add_connection(ret);
   }
   return ret;
 }
@@ -481,22 +501,7 @@ http_state_free(struct http_state *hs)
 {
   if (hs != NULL) {
     http_state_eof(hs);
-#if LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED
-    /* take the connection off the list */
-    if (http_connections) {
-      if (http_connections == hs) {
-        http_connections = hs->next;
-      } else {
-        struct http_state *last;
-        for(last = http_connections; last->next != NULL; last = last->next) {
-          if (last->next == hs) {
-            last->next = hs->next;
-            break;
-          }
-        }
-      }
-    }
-#endif /* LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED */
+    http_remove_connection(hs);
     HTTP_FREE_HTTP_STATE(hs);
   }
 }
@@ -638,17 +643,14 @@ http_eof(struct tcp_pcb *pcb, struct http_state *hs)
   /* HTTP/1.1 persistent connection? (Not supported for SSI) */
 #if LWIP_HTTPD_SUPPORT_11_KEEPALIVE
   if (hs->keepalive) {
-#if LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED
-    struct http_state* next = hs->next;
-#endif
+    http_remove_connection(hs);
+
     http_state_eof(hs);
     http_state_init(hs);
     /* restore state: */
-#if LWIP_HTTPD_KILL_OLD_ON_CONNECTIONS_EXCEEDED
-    hs->next = next;
-#endif
     hs->pcb = pcb;
     hs->keepalive = 1;
+    http_add_connection(hs);
     /* ensure nagle doesn't interfere with sending all data as fast as possible: */
     tcp_nagle_disable(pcb);
   } else
@@ -1690,7 +1692,14 @@ http_post_rxpbuf(struct http_state *hs, struct pbuf *p)
       hs->post_content_len_left -= p->tot_len;
     }
   }
+#if LWIP_HTTPD_SUPPORT_POST && LWIP_HTTPD_POST_MANUAL_WND
+  /* prevent connection being closed if httpd_post_data_recved() is called nested */
+  hs->unrecved_bytes++;
+#endif
   err = httpd_post_receive_data(hs, p);
+#if LWIP_HTTPD_SUPPORT_POST && LWIP_HTTPD_POST_MANUAL_WND
+  hs->unrecved_bytes--;
+#endif
   if (err != ERR_OK) {
     /* Ignore remaining content in case of application error */
     hs->post_content_len_left = 0;
@@ -1751,8 +1760,8 @@ http_post_request(struct pbuf *inp, struct http_state *hs,
         if (content_len >= 0) {
           /* adjust length of HTTP header passed to application */
           const char *hdr_start_after_uri = uri_end + 1;
-          u16_t hdr_len = LWIP_MIN(data_len, crlfcrlf + 4 - data);
-          u16_t hdr_data_len = LWIP_MIN(data_len, crlfcrlf + 4 - hdr_start_after_uri);
+          u16_t hdr_len = (u16_t)LWIP_MIN(data_len, crlfcrlf + 4 - data);
+          u16_t hdr_data_len = (u16_t)LWIP_MIN(data_len, crlfcrlf + 4 - hdr_start_after_uri);
           u8_t post_auto_wnd = 1;
           http_uri_buf[0] = 0;
           /* trim http header */
@@ -2617,4 +2626,4 @@ http_set_cgi_handlers(const tCGI *cgis, int num_handlers)
 }
 #endif /* LWIP_HTTPD_CGI */
 
-#endif /* LWIP_TCP */
+#endif /* LWIP_TCP && LWIP_CALLBACK_API */

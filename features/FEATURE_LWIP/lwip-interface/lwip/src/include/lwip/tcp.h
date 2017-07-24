@@ -145,7 +145,7 @@ typedef u32_t tcpwnd_size_t;
 typedef u16_t tcpwnd_size_t;
 #endif
 
-#if LWIP_WND_SCALE || TCP_LISTEN_BACKLOG
+#if LWIP_WND_SCALE || TCP_LISTEN_BACKLOG || LWIP_TCP_TIMESTAMPS
 typedef u16_t tcpflags_t;
 #else
 typedef u8_t tcpflags_t;
@@ -210,7 +210,7 @@ struct tcp_pcb {
 #define TF_ACK_DELAY   0x01U   /* Delayed ACK. */
 #define TF_ACK_NOW     0x02U   /* Immediate ACK. */
 #define TF_INFR        0x04U   /* In fast recovery. */
-#define TF_TIMESTAMP   0x08U   /* Timestamp option enabled */
+#define TF_CLOSEPEND   0x08U   /* If this is set, tcp_close failed to enqueue the FIN (retried in tcp_tmr) */
 #define TF_RXCLOSED    0x10U   /* rx closed by tcp_shutdown */
 #define TF_FIN         0x20U   /* Connection was closed locally (FIN segment enqueued). */
 #define TF_NODELAY     0x40U   /* Disable Nagle algorithm */
@@ -220,6 +220,9 @@ struct tcp_pcb {
 #endif
 #if TCP_LISTEN_BACKLOG
 #define TF_BACKLOGPEND 0x0200U /* If this is set, a connection pcb has increased the backlog on its listener */
+#endif
+#if LWIP_TCP_TIMESTAMPS
+#define TF_TIMESTAMP   0x0400U   /* Timestamp option enabled */
 #endif
 
   /* the rest of the fields are in host byte order
@@ -358,7 +361,11 @@ void             tcp_accept  (struct tcp_pcb *pcb, tcp_accept_fn accept);
 #endif /* LWIP_CALLBACK_API */
 void             tcp_poll    (struct tcp_pcb *pcb, tcp_poll_fn poll, u8_t interval);
 
+#if LWIP_TCP_TIMESTAMPS
 #define          tcp_mss(pcb)             (((pcb)->flags & TF_TIMESTAMP) ? ((pcb)->mss - 12)  : (pcb)->mss)
+#else /* LWIP_TCP_TIMESTAMPS */
+#define          tcp_mss(pcb)             ((pcb)->mss)
+#endif /* LWIP_TCP_TIMESTAMPS */
 #define          tcp_sndbuf(pcb)          (TCPWND16((pcb)->snd_buf))
 #define          tcp_sndqueuelen(pcb)     ((pcb)->snd_queuelen)
 /** @ingroup tcp_raw */
