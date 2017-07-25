@@ -346,13 +346,14 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                 if label not in toolchain.target.features:
                     resource.add(res)
         if isinstance(zip_proj, basestring):
-            zip_export(join(export_path, zip_proj), name, resource_dict, files,
-                       inc_repos)
+            zip_export(join(export_path, zip_proj), name, resource_dict,
+                       files + exporter.static_files, inc_repos)
         else:
-            zip_export(zip_proj, name, resource_dict, files, inc_repos)
-
-    for static_file in exporter.static_files:
-        if not exists(join(export_path, basename(static_file))):
-            copyfile(static_file, join(export_path, basename(static_file)))
+            zip_export(zip_proj, name, resource_dict,
+                       files + exporter.static_files, inc_repos)
+    else:
+        for static_file in exporter.static_files:
+            if not exists(join(export_path, basename(static_file))):
+                copyfile(static_file, join(export_path, basename(static_file)))
 
     return exporter
