@@ -131,15 +131,15 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     return HAL_OK;
 }
 
+/* NOTE: must be called with interrupts disabled! */
 void HAL_SuspendTick(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 }
 
+/* NOTE: must be called with interrupts disabled! */
 void HAL_ResumeTick(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 }
 
