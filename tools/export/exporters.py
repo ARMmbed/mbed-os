@@ -61,8 +61,10 @@ class Exporter(object):
         self.jinja_environment = Environment(loader=jinja_loader)
         self.resources = resources
         self.generated_files = []
-        self.static_files = [join(self.TEMPLATE_DIR, "GettingStarted.html"),
-                             join(self.TEMPLATE_DIR, ".mbed")]
+        self.static_files = (
+            join(self.TEMPLATE_DIR, "GettingStarted.html"),
+            join(self.TEMPLATE_DIR, ".mbed"),
+        )
         self.builder_files_dict = {}
         self.add_config()
 
