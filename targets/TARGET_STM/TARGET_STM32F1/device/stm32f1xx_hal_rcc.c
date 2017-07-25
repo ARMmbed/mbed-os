@@ -285,6 +285,23 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     }
     else
     {
+      if((__HAL_RCC_GET_FLAG(RCC_CR_HSEBYP) != RESET) && (RCC_OscInitStruct->HSEState == RCC_HSE_ON)) 
+      {
+          /* if it's in bypass mode, and the new mode is HSE_ON, must disable the bypass first
+             which requires HSE off to be changed*/
+        CLEAR_BIT(RCC->CR, RCC_CR_HSEON);                   \
+        CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP);                  \
+        tickstart = HAL_GetTick();
+
+        /* Wait till HSE is disabled        */
+        while(__HAL_RCC_GET_FLAG(RCC_FLAG_HSERDY) != RESET)
+        {
+          if((HAL_GetTick() - tickstart ) > HSE_TIMEOUT_VALUE)
+          {
+             return HAL_TIMEOUT;
+          }
+        } 
+      }
       /* Set the new HSE configuration ---------------------------------------*/
       __HAL_RCC_HSE_CONFIG(RCC_OscInitStruct->HSEState);
       
