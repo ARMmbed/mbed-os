@@ -39,10 +39,10 @@ bool core_util_is_isr_active(void)
 {
 #if defined(__CORTEX_A9)
     switch(__get_CPSR() & 0x1FU) {
-        case MODE_USR:
-        case MODE_SYS:
+        case CPSR_M_USR:
+        case CPSR_M_SYS:
             return false;
-        case MODE_SVC:
+        case CPSR_M_SVC:
         default:
             return true;
     }
