@@ -3132,7 +3132,7 @@
         "device_name": "NUC472HI8AE",
         "bootloader_supported": true
     },
-    "36510": {
+    "NCS36510": {
         "inherits": ["Target"],
         "core": "Cortex-M3",
         "extra_labels": ["ONSEMI"],
