@@ -1,8 +1,8 @@
 /****************************************************************************//**
  * @file     spi.h
  * @version  V1.00
- * $Revision: 18 $
- * $Date: 14/10/06 1:36p $
+ * $Revision: 21 $
+ * $Date: 15/06/18 4:12p $
  * @brief    NUC472/NUC442 SPI driver header file
  *
  * @note
@@ -31,8 +31,8 @@ extern "C"
 
 #define SPI_MODE_0        (SPI_CTL_TXNEG_Msk)                             /*!< CLKP=0; RX_NEG=0; TX_NEG=1 \hideinitializer */
 #define SPI_MODE_1        (SPI_CTL_RXNEG_Msk)                             /*!< CLKP=0; RX_NEG=1; TX_NEG=0 \hideinitializer */
-#define SPI_MODE_2        (SPI_CTL_CLKPOL_Msk | SPI_CTL_TXNEG_Msk)        /*!< CLKP=1; RX_NEG=1; TX_NEG=0 \hideinitializer */
-#define SPI_MODE_3        (SPI_CTL_CLKPOL_Msk | SPI_CTL_RXNEG_Msk)        /*!< CLKP=1; RX_NEG=0; TX_NEG=1 \hideinitializer */
+#define SPI_MODE_2        (SPI_CTL_CLKPOL_Msk | SPI_CTL_RXNEG_Msk)        /*!< CLKP=1; RX_NEG=1; TX_NEG=0 \hideinitializer */
+#define SPI_MODE_3        (SPI_CTL_CLKPOL_Msk | SPI_CTL_TXNEG_Msk)        /*!< CLKP=1; RX_NEG=0; TX_NEG=1 \hideinitializer */
 
 #define SPI_SLAVE         (SPI_CTL_SLAVE_Msk)                             /*!< Set as slave \hideinitializer */
 #define SPI_MASTER        (0x0)                                           /*!< Set as master \hideinitializer */
@@ -70,7 +70,7 @@ extern "C"
   * @return none
   * \hideinitializer
   */
-#define SPI_SET_SLAVE_TIMEOUT_PERIOD(spi, u32TimeoutPeriod) ( (spi)->SSCTL = ((spi)->SSCTL & ~SPI_SSCTL_SLVTOCNT_Msk) | (u32TimeoutPeriod & 0xFFFF) )
+#define SPI_SET_SLAVE_TIMEOUT_PERIOD(spi, u32TimeoutPeriod) ( (spi)->SSCTL = ((spi)->SSCTL & ~SPI_SSCTL_SLVTOCNT_Msk) | (((uint32_t)u32TimeoutPeriod & 0xFFFF) << SPI_SSCTL_SLVTOCNT_Pos) )
 
 /**
   * @brief  Enable time out clear function for FIFO mode.
@@ -194,56 +194,41 @@ extern "C"
 #define SPI_WRITE_TX(spi, u32TxData) ( (spi)->TX = u32TxData )
 
 /**
-  * @brief  Disable automatic slave select function and set SPI_SS pin to high state.
-  * @param[in]  spi is the base address of SPI module.
-  * @return none
+  * @brief      Set SPIn_SS0 pin to high state.
+  * @param[in]  spi The pointer of the specified SPI module.
+  * @return     None.
+  * @details    Disable automatic slave selection function and set SPIn_SS0 pin to high state. Only available in Master mode.
   * \hideinitializer
   */
-static __INLINE void SPI_SET_SS0_HIGH(SPI_T *spi)
-{
-    spi->SSCTL &= ~SPI_SSCTL_AUTOSS_Msk;
-    spi->SSCTL |= SPI_SSCTL_SSACTPOL_Msk;
-    spi->SSCTL = (spi->SSCTL & ~SPI_SSCTL_SS_Msk) | SPI_SS0;
-}
+#define SPI_SET_SS0_HIGH(spi)   ((spi)->SSCTL = ((spi)->SSCTL & ~(SPI_SSCTL_AUTOSS_Msk|SPI_SSCTL_SSACTPOL_Msk|SPI_SS0)))
 
 /**
-  * @brief  Disable automatic slave select function and set SPI_SS pin to low state.
-  * @param[in]  spi is the base address of SPI module.
-  * @return none
+  * @brief      Set SPIn_SS0 pin to low state.
+  * @param[in]  spi The pointer of the specified SPI module.
+  * @return     None.
+  * @details    Disable automatic slave selection function and set SPIn_SS0 pin to low state. Only available in Master mode.
   * \hideinitializer
   */
-static __INLINE void SPI_SET_SS0_LOW(SPI_T *spi)
-{
-    spi->SSCTL &= ~SPI_SSCTL_AUTOSS_Msk;
-    spi->SSCTL &= ~SPI_SSCTL_SSACTPOL_Msk;
-    spi->SSCTL = (spi->SSCTL & ~SPI_SSCTL_SS_Msk) | SPI_SS0;
-}
+#define SPI_SET_SS0_LOW(spi)   ((spi)->SSCTL = ((spi)->SSCTL & ~(SPI_SSCTL_AUTOSS_Msk|SPI_SSCTL_SSACTPOL_Msk|SPI_SS0)) | SPI_SS0)
 
 /**
-  * @brief  Disable automatic slave select function and set SPI_SS pin to high state.
-  * @param[in]  spi is the base address of SPI module.
-  * @return none
+  * @brief      Set SPIn_SS1 pin to high state.
+  * @param[in]  spi The pointer of the specified SPI module.
+  * @return     None.
+  * @details    Disable automatic slave selection function and set SPIn_SS1 pin to high state. Only available in Master mode.
   * \hideinitializer
   */
-static __INLINE void SPI_SET_SS1_HIGH(SPI_T *spi)
-{
-    spi->SSCTL &= ~SPI_SSCTL_AUTOSS_Msk;
-    spi->SSCTL |= SPI_SSCTL_SSACTPOL_Msk;
-    spi->SSCTL = (spi->SSCTL & ~SPI_SSCTL_SS_Msk) | SPI_SS1;
-}
+#define SPI_SET_SS1_HIGH(spi)   ((spi)->SSCTL = ((spi)->SSCTL & ~(SPI_SSCTL_AUTOSS_Msk|SPI_SSCTL_SSACTPOL_Msk|SPI_SS1)))
 
 /**
-  * @brief  Disable automatic slave select function and set SPI_SS pin to low state.
-  * @param[in]  spi is the base address of SPI module.
-  * @return none
+  * @brief      Set SPIn_SS1 pin to low state.
+  * @param[in]  spi The pointer of the specified SPI module.
+  * @return     None.
+  * @details    Disable automatic slave selection function and set SPIn_SS1 pin to low state. Only available in Master mode.
   * \hideinitializer
   */
-static __INLINE void SPI_SET_SS1_LOW(SPI_T *spi)
-{
-    spi->SSCTL &= ~SPI_SSCTL_AUTOSS_Msk;
-    spi->SSCTL |= SPI_SSCTL_SSACTPOL_Msk;
-    spi->SSCTL = (spi->SSCTL & ~SPI_SSCTL_SS_Msk) | SPI_SS1;
-}
+#define SPI_SET_SS1_LOW(spi)   ((spi)->SSCTL = ((spi)->SSCTL & ~(SPI_SSCTL_AUTOSS_Msk|SPI_SSCTL_SSACTPOL_Msk|SPI_SS1)) | SPI_SS1)
+
 
 /**
   * @brief Enable byte reorder function.
@@ -342,14 +327,6 @@ static __INLINE void SPI_SET_DATA_WIDTH(SPI_T *spi, uint32_t u32Width)
 #define SPI_DISABLE(spi) (  (spi)->CTL &= ~SPI_CTL_SPIEN_Msk )
 
 /**
-  * @brief  Enable SPI Dual IO function.
-  * @param[in]  spi is the base address of SPI module.
-  * @return none
-  * \hideinitializer
-  */
-#define SPI_ENABLE_DUAL_MODE(spi) ( (spi)->CTL |= SPI_CTL_DUALIOEN_Msk )
-
-/**
   * @brief  Disable SPI Dual IO function.
   * @param[in]  spi is the base address of SPI module.
   * @return none
@@ -358,28 +335,20 @@ static __INLINE void SPI_SET_DATA_WIDTH(SPI_T *spi, uint32_t u32Width)
 #define SPI_DISABLE_DUAL_MODE(spi) ( (spi)->CTL &= ~SPI_CTL_DUALIOEN_Msk )
 
 /**
-  * @brief  Set SPI Dual IO direction to input.
+  * @brief  Enable Dual IO function and set SPI Dual IO direction to input.
   * @param[in]  spi is the base address of SPI module.
   * @return none
   * \hideinitializer
   */
-#define SPI_ENABLE_DUAL_INPUT_MODE(spi) ( (spi)->CTL &= ~SPI_CTL_QDIODIR_Msk )
+#define SPI_ENABLE_DUAL_INPUT_MODE(spi) ( (spi)->CTL = ((spi)->CTL & ~SPI_CTL_QDIODIR_Msk) | SPI_CTL_DUALIOEN_Msk )
 
 /**
-  * @brief  Set SPI Dual IO direction to output.
+  * @brief  Enable Dual IO function and set SPI Dual IO direction to output.
   * @param[in]  spi is the base address of SPI module.
   * @return none
   * \hideinitializer
   */
-#define SPI_ENABLE_DUAL_OUTPUT_MODE(spi) ( (spi)->CTL |= SPI_CTL_QDIODIR_Msk )
-
-/**
-  * @brief  Enable SPI QUAD IO function.
-  * @param[in]  spi is the base address of SPI module.
-  * @return none
-  * \hideinitializer
-  */
-#define SPI_ENABLE_QUAD_MODE(spi) ( (spi)->CTL |= SPI_CTL_QUADIOEN_Msk )
+#define SPI_ENABLE_DUAL_OUTPUT_MODE(spi) ( (spi)->CTL |= SPI_CTL_QDIODIR_Msk | SPI_CTL_DUALIOEN_Msk )
 
 /**
   * @brief  Disable SPI Dual IO function.
@@ -395,7 +364,7 @@ static __INLINE void SPI_SET_DATA_WIDTH(SPI_T *spi, uint32_t u32Width)
   * @return none
   * \hideinitializer
   */
-#define SPI_ENABLE_QUAD_INPUT_MODE(spi) ( (spi)->CTL &= ~SPI_CTL_QDIODIR_Msk )
+#define SPI_ENABLE_QUAD_INPUT_MODE(spi) ( (spi)->CTL = ((spi)->CTL & ~SPI_CTL_QDIODIR_Msk) | SPI_CTL_QUADIOEN_Msk )
 
 /**
   * @brief  Set SPI Quad IO direction to output.
@@ -403,7 +372,7 @@ static __INLINE void SPI_SET_DATA_WIDTH(SPI_T *spi, uint32_t u32Width)
   * @return none
   * \hideinitializer
   */
-#define SPI_ENABLE_QUAD_OUTPUT_MODE(spi) ( (spi)->CTL |= SPI_CTL_QDIODIR_Msk )
+#define SPI_ENABLE_QUAD_OUTPUT_MODE(spi) ( (spi)->CTL |= SPI_CTL_QDIODIR_Msk | SPI_CTL_QUADIOEN_Msk )
 
 /**
   * @brief  Trigger RX PDMA transfer.
@@ -489,3 +458,4 @@ void SPI_DisableInt(SPI_T *spi, uint32_t u32Mask);
 #endif //__SPI_H__
 
 /*** (C) COPYRIGHT 2014 Nuvoton Technology Corp. ***/
+
