@@ -25,6 +25,18 @@ class ExporterTargetsProperty(object):
     def __get__(self, inst, cls):
         return self.func(cls)
 
+def deprecated_exporter(CLS):
+    old_init = CLS.__init__
+    old_name = CLS.NAME
+    def __init__(*args, **kwargs):
+        print("==================== DEPRECATION NOTICE ====================")
+        print("The exporter %s is no longer maintained, and deprecated." % old_name)
+        print("%s will be removed from mbed OS for the mbed OS 5.6 release." % old_name)
+        old_init(*args, **kwargs)
+    CLS.__init__ = __init__
+    CLS.NAME = "%s (DEPRECATED)" % old_name
+    return CLS
+
 class Exporter(object):
     """Exporter base class
 
