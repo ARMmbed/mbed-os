@@ -78,8 +78,7 @@ const uint32_t adi_aducm4x50_security_options[] =
  *----------------------------------------------------------------------------*/
 #ifdef __ICCARM__
 #pragma location = ".checksum"
-__root const uint32_t blank_checksum[] =
-{
+__root const uint32_t blank_checksum[] = {
     BLANKX60,BLANKX600
 };
 #endif /* __ICCARM__ */
@@ -178,8 +177,7 @@ WEAK_FUNCTION( Root_Clk_Err_Handler       )
 /*----------------------------------------------------------------------------
   Exception / Interrupt Vector table
  *----------------------------------------------------------------------------*/
-const pFunc SECTION_PLACE(IVT_NAME[96],VECTOR_SECTION) =
-{
+const pFunc SECTION_PLACE(IVT_NAME[96],VECTOR_SECTION) = {
     (pFunc) INITIAL_SP,    /* Initial Stack Pointer */
     ADUCM4050_VECTORS
 };
@@ -193,35 +191,35 @@ void zero_bss(void)
     uint32_t *pSrc, *pDest;
     uint32_t *pTable __attribute__((unused));
 #ifdef __STARTUP_COPY_MULTIPLE
-/*  Multiple sections scheme.
- *
- *  Between symbol address __copy_table_start__ and __copy_table_end__,
- *  there are array of triplets, each of which specify:
- *    offset 0: LMA of start of a section to copy from
- *    offset 4: VMA of start of a section to copy to
- *    offset 8: size of the section to copy. Must be multiply of 4
- *
- *  All addresses must be aligned to 4 bytes boundary.
- */
+    /*  Multiple sections scheme.
+     *
+     *  Between symbol address __copy_table_start__ and __copy_table_end__,
+     *  there are array of triplets, each of which specify:
+     *    offset 0: LMA of start of a section to copy from
+     *    offset 4: VMA of start of a section to copy to
+     *    offset 8: size of the section to copy. Must be multiply of 4
+     *
+     *  All addresses must be aligned to 4 bytes boundary.
+     */
     pTable = &__copy_table_start__;
 
     for (; pTable < &__copy_table_end__; pTable = pTable + 3) {
         pSrc  = (uint32_t*)*(pTable + 0);
         pDest = (uint32_t*)*(pTable + 1);
         for (; pDest < (uint32_t*)(*(pTable + 1) + *(pTable + 2)) ; ) {
-      *pDest++ = *pSrc++;
+            *pDest++ = *pSrc++;
         }
     }
 #else
-/*  Single section scheme.
- *
- *  The ranges of copy from/to are specified by following symbols
- *    __etext: LMA of start of the section to copy from. Usually end of text
- *    __data_start__: VMA of start of the section to copy to
- *    __data_end__: VMA of end of the section to copy to
- *
- *  All addresses must be aligned to 4 bytes boundary.
- */
+    /*  Single section scheme.
+     *
+     *  The ranges of copy from/to are specified by following symbols
+     *    __etext: LMA of start of the section to copy from. Usually end of text
+     *    __data_start__: VMA of start of the section to copy to
+     *    __data_end__: VMA of end of the section to copy to
+     *
+     *  All addresses must be aligned to 4 bytes boundary.
+     */
     pSrc  = &__etext;
     pDest = &__data_start__;
 
@@ -230,24 +228,24 @@ void zero_bss(void)
     }
 #endif /*__STARTUP_COPY_MULTIPLE */
 
-/*  This part of work usually is done in C library startup code. Otherwise,
- *  define this macro to enable it in this startup.
- *
- *  There are two schemes too. One can clear multiple BSS sections. Another
- *  can only clear one section. The former is more size expensive than the
- *  latter.
- *
- *  Define macro __STARTUP_CLEAR_BSS_MULTIPLE to choose the former.
- *  Otherwise efine macro __STARTUP_CLEAR_BSS to choose the later.
- */
+    /*  This part of work usually is done in C library startup code. Otherwise,
+     *  define this macro to enable it in this startup.
+     *
+     *  There are two schemes too. One can clear multiple BSS sections. Another
+     *  can only clear one section. The former is more size expensive than the
+     *  latter.
+     *
+     *  Define macro __STARTUP_CLEAR_BSS_MULTIPLE to choose the former.
+     *  Otherwise efine macro __STARTUP_CLEAR_BSS to choose the later.
+     */
 #ifdef __STARTUP_CLEAR_BSS_MULTIPLE
-/*  Multiple sections scheme.
- *
- *  Between symbol address __copy_table_start__ and __copy_table_end__,
- *  there are array of tuples specifying:
- *    offset 0: Start of a BSS section
- *    offset 4: Size of this BSS section. Must be multiply of 4
- */
+    /*  Multiple sections scheme.
+     *
+     *  Between symbol address __copy_table_start__ and __copy_table_end__,
+     *  there are array of tuples specifying:
+     *    offset 0: Start of a BSS section
+     *    offset 4: Size of this BSS section. Must be multiply of 4
+     */
     pTable = &__zero_table_start__;
 
     for (; pTable < &__zero_table_end__; pTable = pTable + 2) {
@@ -257,14 +255,14 @@ void zero_bss(void)
         }
     }
 #elif defined (__STARTUP_CLEAR_BSS)
-/*  Single BSS section scheme.
- *
- *  The BSS section is specified by following symbols
- *    __bss_start__: start of the BSS section.
- *    __bss_end__: end of the BSS section.
- *
- *  Both addresses must be aligned to 4 bytes boundary.
- */
+    /*  Single BSS section scheme.
+     *
+     *  The BSS section is specified by following symbols
+     *    __bss_start__: start of the BSS section.
+     *    __bss_end__: end of the BSS section.
+     *
+     *  Both addresses must be aligned to 4 bytes boundary.
+     */
     pDest = &__bss_start__;
 
     for ( ; pDest < &__bss_end__ ; ) {

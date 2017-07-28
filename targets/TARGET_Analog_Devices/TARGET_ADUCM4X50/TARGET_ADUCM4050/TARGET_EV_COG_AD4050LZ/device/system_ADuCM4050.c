@@ -80,9 +80,8 @@ void SystemCoreClockUpdate(void)
     /* "lfclock" is only used during debug checks... */
     /* LF clock is always 32k, whether osc or xtal */
     lfClock = __LFCLK;  /* for beep, wdt and lcd */
-    if (lfClock == 0u)
-    {
-      while (1) {}
+    if (lfClock == 0u) {
+        while (1) {}
     }
 #endif
     /* Update Core Clock sources */
@@ -150,7 +149,7 @@ void SramInit(void)
                                ADI_SRAM_BANK_4 |
                                ADI_SRAM_BANK_5 |
                                ADI_SRAM_BANK_6 |
-                               ADI_SRAM_BANK_7 , true);
+                               ADI_SRAM_BANK_7, true);
     /* To disable the instruction SRAM and entire 64K of SRAM is used as DSRAM */
     adi_system_EnableISRAM(false);
     /* To disable the instruction cache  */
@@ -203,12 +202,9 @@ void SystemInit (void)
 void adi_system_EnableCache(bool bEnable)
 {
     pADI_FLCC0_CACHE->KEY = CACHE_CONTROLLER_KEY;
-    if( bEnable == true )
-    {
+    if( bEnable == true ) {
         pADI_FLCC0_CACHE->SETUP |= BITM_FLCC_CACHE_SETUP_ICEN;
-    }
-    else
-    {
+    } else {
         pADI_FLCC0_CACHE->SETUP &= ~BITM_FLCC_CACHE_SETUP_ICEN;
     }
 }
@@ -225,12 +221,9 @@ void adi_system_EnableCache(bool bEnable)
 void adi_system_EnableISRAM(bool bEnable)
 {
 
-    if( bEnable == true )
-    {
+    if( bEnable == true ) {
         pADI_PMG0_TST->SRAM_CTL |= BITM_PMG_TST_SRAM_CTL_INSTREN;
-    }
-    else
-    {
+    } else {
         pADI_PMG0_TST->SRAM_CTL &= ~BITM_PMG_TST_SRAM_CTL_INSTREN;
     }
 }
@@ -260,25 +253,25 @@ ADI_SYS_RESULT adi_system_EnableRetention(ADI_SRAM_BANK eBank, bool bEnable)
 
 #ifdef ADI_DEBUG
     if((0u != (eBank & ADI_SRAM_BANK_0)) ||
-       (0u != (eBank & ADI_SRAM_BANK_2))) {
+            (0u != (eBank & ADI_SRAM_BANK_2))) {
         /* Banks 0 and 2 are not selectable */
         return ADI_SYS_FAILURE;
     }
 
     /* Are banks 3 or 4 selected? */
     if(0u != (eBank & (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4))) {
-       /* If so, the only valid option is for both to be retained. */
-       if((eBank & (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4)) != (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4)) {
-           return ADI_SYS_FAILURE;
-       }
+        /* If so, the only valid option is for both to be retained. */
+        if((eBank & (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4)) != (ADI_SRAM_BANK_3 | ADI_SRAM_BANK_4)) {
+            return ADI_SYS_FAILURE;
+        }
     }
 
     /* Are banks 6 or 7 selected? */
     if(0u != (eBank & (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7))) {
-       /* If so, the only valid option is for both to be retained */
-       if((eBank & (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) != (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) {
-           return ADI_SYS_FAILURE;
-       }
+        /* If so, the only valid option is for both to be retained */
+        if((eBank & (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) != (ADI_SRAM_BANK_6 | ADI_SRAM_BANK_7)) {
+            return ADI_SYS_FAILURE;
+        }
     }
 #endif
     if((eBank & ADI_SRAM_BANK_1) != 0u) {
@@ -302,8 +295,7 @@ ADI_SYS_RESULT adi_system_EnableRetention(ADI_SRAM_BANK eBank, bool bEnable)
     pADI_PMG0->PWRKEY = PWRKEY_VALUE_KEY;
     if(bEnable) {
         pADI_PMG0->SRAMRET |= retainBits;
-    }
-    else {
+    } else {
         pADI_PMG0->SRAMRET &= ~(retainBits);
     }
 

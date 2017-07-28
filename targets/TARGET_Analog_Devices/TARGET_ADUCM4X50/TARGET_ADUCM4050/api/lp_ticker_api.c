@@ -53,7 +53,7 @@
 #define RTC_PRESCALER         	0
 
 /* time for each tick of the LF clock in us */
-  #define TIME_US_PER_TICK 	((float)1000000/(float)(LFCLK_FREQUENCY_HZ>>RTC_PRESCALER))
+#define TIME_US_PER_TICK 	((float)1000000/(float)(LFCLK_FREQUENCY_HZ>>RTC_PRESCALER))
 
 // The number of RTC clock ticks it takes to set & enable the alarm
 #define TICKS_TO_ENABLE_ALARM 10
