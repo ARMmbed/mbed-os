@@ -37,7 +37,6 @@
 #include "netif/lwip_ethernet.h"
 #include "emac_api.h"
 #include "ppp_lwip.h"
-#include "lwip_tcp_isn.h"
 
 static nsapi_error_t mbed_lwip_err_remap(err_t err);
 

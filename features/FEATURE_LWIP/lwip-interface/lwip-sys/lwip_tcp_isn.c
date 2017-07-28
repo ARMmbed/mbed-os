@@ -70,7 +70,7 @@
  * Author: David van Moolenbroek <david@minix3.org>
  */
 
-#include "lwip_tcp_isn.h"
+#include "lwip/opt.h"
 #include "lwip/ip_addr.h"
 #include "lwip/sys.h"
 #include <string.h>
@@ -122,13 +122,16 @@ lwip_init_tcp_isn(u32_t boot_time, const u8_t *secret_16_bytes)
  * @param remote_port The remote port number, in host-byte order.
  * @return The ISN to use for the new TCP connection.
  */
+
 u32_t
-lwip_hook_tcp_isn(const ip_addr_t *local_ip, u16_t local_port,
-    const ip_addr_t *remote_ip, u16_t remote_port)
+lwip_hook_tcp_isn(const void *local_ip_ptr, u16_t local_port,
+        const void *remote_ip_ptr, u16_t remote_port)
 {
   lwip_md5_context ctx;
   u8_t output[16];
   u32_t isn;
+  const ip_addr_t *local_ip = local_ip_ptr;
+  const ip_addr_t *remote_ip = remote_ip_ptr;
 
 #if LWIP_IPV4 && LWIP_IPV6
   if (IP_IS_V6(local_ip))

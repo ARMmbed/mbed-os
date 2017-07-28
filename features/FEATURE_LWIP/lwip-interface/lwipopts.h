@@ -309,7 +309,6 @@
 #define DNS_TABLE_SIZE                  2
 #define DNS_MAX_NAME_LENGTH             128
 
-#include <lwip/arch.h>
 #include "lwip_random.h"
 #include "lwip_tcp_isn.h"
 #define LWIP_HOOK_TCP_ISN lwip_hook_tcp_isn
