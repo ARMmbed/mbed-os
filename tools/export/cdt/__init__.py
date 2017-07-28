@@ -30,7 +30,9 @@ class Eclipse(Makefile):
 
 
         self.gen_file('cdt/pyocd_settings.tmpl', ctx,
-                      join('eclipse-extras',self.target+'_pyocd_settings.launch'))
+                      join('eclipse-extras',
+                           '{target}_pyocd_{project}_settings.launch'.format(target=self.target,
+                                                                             project=self.project_name)))
         self.gen_file('cdt/necessary_software.tmpl', ctx,
                       join('eclipse-extras','necessary_software.p2f'))
 
