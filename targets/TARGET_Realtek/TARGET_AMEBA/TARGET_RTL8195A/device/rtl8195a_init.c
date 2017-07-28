@@ -105,15 +105,15 @@ void __TRAP_HardFaultHandler_Patch(uint32_t addr)
     uint32_t stackpc;
     uint16_t asmcode;
 
-    cfsr = __HAL_READ32(0xE000ED28, 0x0);
+    cfsr = HAL_READ32(0xE000ED28, 0x0);
 
     // Violation to memory access protection
     if (cfsr & 0x82) {
 
-        bfar = __HAL_READ32(0xE000ED38, 0x0);
+        bfar = HAL_READ32(0xE000ED38, 0x0);
 
         // invalid access to wifi register, usually happened in LPS 32K or IPS
-        if (bfar >= WLAN_BASE && bfar < WLAN_BASE + 0x40000) {
+        if (bfar >= WIFI_REG_BASE && bfar < WIFI_REG_BASE + 0x40000) {
 
             //__BKPT(0);
 
@@ -128,18 +128,18 @@ void __TRAP_HardFaultHandler_Patch(uint32_t addr)
              * However, the fault assembly code (Ex. LDR or ADR) is not actually executed,
              * So the register value is un-predictable.
              **/
-            stackpc = __HAL_READ32(addr, 0x18);
-            asmcode = __HAL_READ16(stackpc, 0);
+            stackpc = HAL_READ32(addr, 0x18);
+            asmcode = HAL_READ16(stackpc, 0);
             if ((asmcode & 0xF800) > 0xE000) {
                 // 32-bit instruction, (opcode[15:11] = 0b11111, 0b11110, 0b11101)
-                __HAL_WRITE32(addr, 0x18, stackpc + 4);
+                HAL_WRITE32(addr, 0x18, stackpc + 4);
             } else {
                 // 16-bit instruction
-                __HAL_WRITE32(addr, 0x18, stackpc + 2);
+                HAL_WRITE32(addr, 0x18, stackpc + 2);
             }
 
             // clear Hard Fault Status Register
-            __HAL_WRITE32(0xE000ED2C, 0x0, __HAL_READ32(0xE000ED2C, 0x0));
+            HAL_WRITE32(0xE000ED2C, 0x0, HAL_READ32(0xE000ED2C, 0x0));
             return;
         }
     }
@@ -181,11 +181,11 @@ void PLAT_Start(void)
 #endif
 
     // Clear RAM BSS
-#ifdef __GNUC__
+#if defined (__ICCARM__) || defined (__CC_ARM)
+    __memset((void *)__bss_start__, 0, __bss_end__ - __bss_start__);
+#else
     __memset((void *)__bss_sram1_start__, 0, __bss_sram1_end__ - __bss_sram1_start__);
     __memset((void *)__bss_sram2_start__, 0, __bss_sram2_end__ - __bss_sram2_start__);
-#else
-    __memset((void *)__bss_start__, 0, __bss_end__ - __bss_start__);
 #endif
 
 #if defined (__CC_ARM)
