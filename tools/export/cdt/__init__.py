@@ -1,6 +1,6 @@
 import re
 
-from os.path import join, exists, realpath, relpath, basename
+from os.path import join, exists
 from os import makedirs
 
 from tools.export.makefile import Makefile, GccArm, Armc5, IAR
