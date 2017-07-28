@@ -104,7 +104,7 @@ uint32_t OTA_UpdateImage(uint32_t offset, uint32_t len, uint8_t *data)
         shift = start - addr;
         count = MIN(FLASH_SECTOR_SIZE - shift, len);
         flash_ext_stream_read(&flash_obj, addr, shift, buf);
-        memcpy((void *)buf + shift, (void *)pdata, count);
+        memcpy((void *)(buf + shift), (void *)pdata, count);
 
         flash_ext_erase_sector(&flash_obj, addr);
         flash_ext_stream_write(&flash_obj, addr, FLASH_SECTOR_SIZE, buf);

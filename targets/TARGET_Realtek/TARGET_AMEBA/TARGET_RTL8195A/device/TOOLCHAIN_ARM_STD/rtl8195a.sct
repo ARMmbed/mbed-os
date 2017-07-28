@@ -38,6 +38,9 @@ LR_RAM 0x10006000 0x6FFFF  {
    .ANY (+ZI)
   }
 
+  ARM_LIB_STACK (0x10070000 - 0x1000) EMPTY 0x1000 {
+  }
+
   TCM_OVERLAY 0x1FFF0000 0x10000{
     lwip_mem.o(.bss*)
     lwip_memp.o(.bss*)
