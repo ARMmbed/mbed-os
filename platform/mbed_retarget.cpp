@@ -231,7 +231,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
     /* FILENAME: ":0x12345678" describes a FileHandle* */
     if (name[0] == ':') {
         void *p;
-        std::sscanf(name, ":%p", &p);
+        memcpy(&p, name + 1, sizeof(p));
         res = (FileHandle*)p;
 
     /* FILENAME: "/file_system/file_name" */
@@ -826,8 +826,12 @@ void mbed_set_unbuffered_stream(std::FILE *_file) {
  */
 std::FILE *mbed_fdopen(FileHandle *fh, const char *mode)
 {
-    char buf[12]; /* :0x12345678 + null byte */
-    std::sprintf(buf, ":%p", fh);
+    char buf[2 + sizeof(fh) + 1]; /* :(pointer) + null byte */
+    static_assert(sizeof(buf) == 7, "Pointers should be 4 bytes.");
+    buf[0] = ':';
+    memcpy(buf + 1, &fh, sizeof(fh));
+    buf[1 + sizeof(fh)] = '\0';
+
     std::FILE *stream = std::fopen(buf, mode);
     /* newlib-nano doesn't appear to ever call _isatty itself, so
      * happily fully buffers an interactive stream. Deal with that here.
