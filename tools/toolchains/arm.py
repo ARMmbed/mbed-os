@@ -244,6 +244,15 @@ class ARM(mbedToolchain):
         write(handle, "RESOLVE %s AS %s\n" % (source, sync))
         return "--edit=%s" % filename
 
+    @staticmethod
+    def redirect_main(dest, build_dir):
+        if dest == 'main':
+            return ARM.redirect_symbol("mbed_entry_point",
+                                       "$Super$$main", build_dir)
+        else:
+            return ARM.redirect_symbol("mbed_entry_point",
+                                       ARM.name_mangle(dest), build_dir)
+
 
 class ARM_STD(ARM):
     pass

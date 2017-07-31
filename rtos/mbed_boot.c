@@ -330,11 +330,17 @@ void mbed_start_main(void)
 
 #if defined (__CC_ARM)
 
+#if defined(CUSTOM_ENTRY_POINT)
+    #define mbed_real_main      mbed_entry_point
+#else
+    #define mbed_real_main      $Super$$main
+#endif
+
 /* Common for both ARMC and MICROLIB */
-int $Super$$main(void);
+int mbed_real_main(void);
 int $Sub$$main(void) {
     mbed_main();
-    return $Super$$main();
+    return mbed_real_main();
 }
 
 #if defined (__MICROLIB)  /******************** MICROLIB ********************/
@@ -459,9 +465,15 @@ int _mutex_initialize(mutex *m)
 #endif /* ARMC */
 #elif defined (__GNUC__) /******************** GCC ********************/
 
+#if defined(CUSTOM_ENTRY_POINT)
+    #define mbed_real_main      mbed_entry_point
+#else
+    #define mbed_real_main      __real_main
+#endif
+
 extern int main(int argc, char* argv[]);
 extern void __libc_init_array (void);
-extern int __real_main(void);
+extern int mbed_real_main(void);
 
 osMutexId_t               malloc_mutex_id;
 mbed_rtos_storage_mutex_t malloc_mutex_obj;
@@ -477,7 +489,7 @@ osMutexAttr_t             env_mutex_attr;
 
 int __wrap_main(void) {
     mbed_main();
-    return __real_main();
+    return mbed_real_main();
 }
 
 void pre_main(void)

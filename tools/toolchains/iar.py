@@ -248,3 +248,10 @@ class IAR(mbedToolchain):
     @staticmethod
     def redirect_symbol(source, sync, build_dir):
         return "--redirect %s=%s" % (source, sync)
+
+    @staticmethod
+    def redirect_main(dest, build_dir):
+        if dest != 'main':
+            return IAR.redirect_symbol("main", IAR.name_mangle(dest), build_dir)
+        else:
+            return None

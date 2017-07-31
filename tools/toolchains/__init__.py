@@ -1514,6 +1514,24 @@ class mbedToolchain:
         """
         raise NotImplemented
 
+    @staticmethod
+    @abstractmethod
+    def redirect_main(dest, build_dir):
+        """Redirect the main function
+
+        Positional arguments:
+        dest -- the new main function to link against
+        build_dir -- the directory to put "response files" if needed by the toolchain
+
+        Side Effects:
+        Possibly create a file in the build directory
+
+        Return:
+        The linker flag to redirect main as a string
+        """
+        raise NotImplemented
+
+
     # Return the list of macros geenrated by the build system
     def get_config_macros(self):
         return Config.config_to_macros(self.config_data) if self.config_data else []

@@ -285,6 +285,15 @@ class GCC(mbedToolchain):
         return "-Wl,--defsym=%s=%s" % (source, sync)
 
     @staticmethod
+    def redirect_main(dest, build_dir):
+        if dest == 'main':
+            return GCC.redirect_symbol("mbed_entry_point",
+                                       "__real_main", build_dir)
+        else:
+            return GCC.redirect_symbol("mbed_entry_point",
+                                       GCC.name_mangle(dest), build_dir)
+
+    @staticmethod
     def check_executable():
         """Returns True if the executable (arm-none-eabi-gcc) location
         specified by the user exists OR the executable can be found on the PATH.
