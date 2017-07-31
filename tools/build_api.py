@@ -400,7 +400,7 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
         merged.tofile(output, format='bin')
 
 def scan_resources(src_paths, toolchain, dependencies_paths=None,
-                   inc_dirs=None, base_path=None):
+                   inc_dirs=None, base_path=None, collect_ignores=False):
     """ Scan resources using initialized toolcain
 
     Positional arguments
@@ -412,9 +412,11 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     """
 
     # Scan src_path
-    resources = toolchain.scan_resources(src_paths[0], base_path=base_path)
+    resources = toolchain.scan_resources(src_paths[0], base_path=base_path,
+                                         collect_ignores=collect_ignores)
     for path in src_paths[1:]:
-        resources.add(toolchain.scan_resources(path, base_path=base_path))
+        resources.add(toolchain.scan_resources(path, base_path=base_path,
+                                               collect_ignores=collect_ignores))
 
     # Scan dependency paths for include dirs
     if dependencies_paths is not None:

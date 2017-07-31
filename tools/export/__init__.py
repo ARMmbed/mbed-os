@@ -57,8 +57,6 @@ EXPORTERS = {
     'eclipse_armc5'    : cdt.EclipseArmc5,
     'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
     'qtcreator': qtcreator.QtCreator,
-    'zip' : zip.ZIP,
-    'cmsis'    : cmsis.CMSIS,
     'vscode_gcc_arm' : vscode.VSCodeGcc,
     'vscode_iar' : vscode.VSCodeIAR,
     'vscode_armc5' : vscode.VSCodeArmc5
@@ -314,7 +312,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
         name = basename(normpath(abspath(src_paths[0])))
 
     # Call unified scan_resources
-    resource_dict = {loc: scan_resources(path, toolchain, inc_dirs=inc_dirs)
+    resource_dict = {loc: scan_resources(path, toolchain, inc_dirs=inc_dirs, collect_ignores=True)
                      for loc, path in src_paths.iteritems()}
     resources = Resources()
     toolchain.build_dir = export_path
@@ -346,13 +344,14 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                 if label not in toolchain.target.features:
                     resource.add(res)
         if isinstance(zip_proj, basestring):
-            zip_export(join(export_path, zip_proj), name, resource_dict, files,
-                       inc_repos)
+            zip_export(join(export_path, zip_proj), name, resource_dict,
+                       files + exporter.static_files, inc_repos)
         else:
-            zip_export(zip_proj, name, resource_dict, files, inc_repos)
+            zip_export(zip_proj, name, resource_dict,
+                       files + exporter.static_files, inc_repos)
     else:
-        for exported in files:
-            if not exists(join(export_path, basename(exported))):
-                copyfile(exported, join(export_path, basename(exported)))
+        for static_file in exporter.static_files:
+            if not exists(join(export_path, basename(static_file))):
+                copyfile(static_file, join(export_path, basename(static_file)))
 
     return exporter

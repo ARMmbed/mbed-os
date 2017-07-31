@@ -16,9 +16,10 @@ limitations under the License.
 """
 from os.path import splitext, basename
 
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, deprecated_exporter
 
 
+@deprecated_exporter
 class KDS(Exporter):
     NAME = 'Kinetis Design Studio'
     TOOLCHAIN = 'GCC_ARM'

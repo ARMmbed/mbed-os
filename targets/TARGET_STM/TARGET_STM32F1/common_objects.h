@@ -110,6 +110,12 @@ struct i2c_s {
 #endif
 };
 
+struct analogin_s {
+    ADC_HandleTypeDef handle;
+    PinName pin;
+    uint8_t channel;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

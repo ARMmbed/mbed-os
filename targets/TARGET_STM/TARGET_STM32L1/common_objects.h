@@ -122,6 +122,12 @@ struct dac_s {
     DAC_HandleTypeDef handle;
 };
 
+struct analogin_s {
+    ADC_HandleTypeDef handle;
+    PinName pin;
+    uint8_t channel;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
