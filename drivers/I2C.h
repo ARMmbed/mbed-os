@@ -17,6 +17,7 @@
 #define MBED_I2C_H
 
 #include "platform/platform.h"
+#include "hal/gpio_api.h"
 
 #if defined (DEVICE_I2C) || defined(DOXYGEN_ONLY)
 
@@ -151,6 +152,15 @@ public:
      */
     virtual void unlock(void);
 
+    /* Recover I2C bus, when stuck with SDA low
+     *
+     * @returns:
+     *    '0' - Successfully recovered
+     *    'I2C_ERROR_BUS_BUSY' - In case of failure
+     *
+     */
+    virtual int reset(void);
+
     virtual ~I2C() {
         // Do nothing
     }
@@ -188,6 +198,10 @@ protected:
     static I2C  *_owner;
     int         _hz;
     static SingletonPtr<PlatformMutex> _mutex;
+    gpio_t _gpio_sda;
+    PinName _sda;
+    gpio_t _gpio_scl;
+    PinName _scl;
 };
 
 } // namespace mbed

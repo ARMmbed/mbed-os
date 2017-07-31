@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "drivers/I2C.h"
+#include "platform/mbed_wait_api.h"
 
 #if DEVICE_I2C
 
@@ -30,7 +31,10 @@ I2C::I2C(PinName sda, PinName scl) :
     // No lock needed in the constructor
 
     // The init function also set the frequency to 100000
-    i2c_init(&_i2c, sda, scl);
+    _sda = sda;
+    _scl = scl;
+
+    i2c_init(&_i2c, _sda, _scl);
 
     // Used to avoid unnecessary frequency updates
     _owner = this;
@@ -120,6 +124,82 @@ void I2C::unlock() {
     _mutex->unlock();
 }
 
+int I2C::reset() {
+    lock();
+    // Try i2c_reset() i.e. target specific reset
+    i2c_reset(&_i2c);
+
+    // SCL and SDA as input pins with pullup
+    gpio_init_inout(&_gpio_scl, _scl, PIN_INPUT, PullUp, 1);
+    gpio_init_inout(&_gpio_sda, _sda, PIN_INPUT, PullUp, 1);
+
+    // Read and verify if reset was successful
+    if (gpio_read(&_gpio_scl)) {
+        if (gpio_read(&_gpio_sda)) {
+            // Return successfuly as SDA and SCL is high
+            unlock();
+            // i2c pin initialization required again, since current mux and pin
+            // settings are as GPIO's
+            i2c_init(&_i2c, _sda, _scl);
+            return 0;
+        }
+    } else {
+        // Return as SCL is low and no access to become master.
+        unlock();
+        return I2C_ERROR_BUS_BUSY;
+    }
+
+    // Send clock pulses, for device to recover 2*9
+    int count = 20;
+    while ( (!gpio_read(&_gpio_sda)) && (count > 0)) {
+        count--;
+
+        gpio_mode(&_gpio_scl, PullNone);
+        gpio_dir(&_gpio_scl, PIN_OUTPUT);
+        gpio_write(&_gpio_scl, 0);
+        wait_us(10);
+
+        gpio_mode(&_gpio_scl, PullUp);
+        wait_us(10);
+
+        // Wait for SCL to become high (clock-stretching)
+        gpio_dir(&_gpio_scl, PIN_INPUT);
+        int scl_count = 20;
+        while ((scl_count--) && (!gpio_read(&_gpio_scl))) {
+            wait_us(10);
+        }
+        // SCL line low, return with error
+        if (!gpio_read(&_gpio_scl)) {
+            unlock();
+            return I2C_ERROR_BUS_BUSY;
+        }
+    }
+
+    // SDA line still low, return with error
+    if (!gpio_read(&_gpio_sda)) {
+        unlock();
+        return I2C_ERROR_BUS_BUSY;
+    }
+
+    // Send Stop
+    gpio_dir(&_gpio_sda, PIN_OUTPUT);
+    gpio_mode(&_gpio_sda, PullNone);
+    gpio_write(&_gpio_sda, 1);
+
+    // Check if recovery was successful?
+    if (!gpio_read(&_gpio_scl) || !gpio_read(&_gpio_sda)) {
+        unlock();
+        return I2C_ERROR_BUS_BUSY;
+    }
+
+    // i2c pin initialization required again, since current mux and pin
+    // settings are as GPIO's
+    i2c_init(&_i2c, _sda, _scl);
+
+    unlock();
+    return 0;
+}
+
 #if DEVICE_I2C_ASYNCH
 
 int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event, bool repeated)
@@ -152,7 +232,6 @@ void I2C::irq_handler_asynch(void)
     if (_callback && event) {
         _callback.call(event);
     }
-
 }
 
 
