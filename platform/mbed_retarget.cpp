@@ -828,7 +828,7 @@ std::FILE *mbed_fdopen(FileHandle *fh, const char *mode)
 {
     // This is to avoid scanf(buf, ":%.4s", fh) and the bloat it brings.
     char buf[2 + sizeof(fh) + 1]; /* :(pointer) + null byte */
-    static_assert(sizeof(buf) == 7, "Pointers should be 4 bytes.");
+    MBED_STATIC_ASSERT(sizeof(buf) == 7, "Pointers should be 4 bytes.");
     buf[0] = ':';
     memcpy(buf + 1, &fh, sizeof(fh));
     buf[1 + sizeof(fh)] = '\0';
