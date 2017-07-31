@@ -17,6 +17,7 @@
 #define MBED_I2C_H
 
 #include "platform/platform.h"
+#include "hal/gpio_api.h"
 
 #if defined (DEVICE_I2C) || defined(DOXYGEN_ONLY)
 
@@ -197,8 +198,24 @@ protected:
 
     i2c_t _i2c;
     static I2C  *_owner;
-    int         _hz;
+    int    _hz;
     static SingletonPtr<PlatformMutex> _mutex;
+    PinName _sda;
+    PinName _scl;
+
+private:
+    /** Recover I2C bus, when stuck with SDA low
+     *  @note : Initialization of I2C bus is required after this API.
+     *
+     *  @param sda I2C data line pin
+     *  @param scl I2C clock line pin
+     *
+     * @returns:
+     *    '0' - Successfully recovered
+     *    'I2C_ERROR_BUS_BUSY' - In case of failure
+     *
+     */
+    int recover(PinName sda, PinName scl);
 };
 
 } // namespace mbed
