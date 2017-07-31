@@ -115,7 +115,7 @@ void hal_deepsleep(void)
 
     // Deep Sleep is not working properly on Revisions A3 and earlier
     if (part_rev <= REVISION_A3) {
-        sleep();
+        hal_sleep();
         return;
     }
 
@@ -128,7 +128,7 @@ void hal_deepsleep(void)
     // Do not enter Deep Sleep if connected to VBUS
     if (MXC_USB->dev_intfl & MXC_F_USB_DEV_INTFL_VBUS_ST) {
         __enable_irq();
-        sleep();
+        hal_sleep();
         return;
     }
 
