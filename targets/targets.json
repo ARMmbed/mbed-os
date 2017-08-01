@@ -3348,5 +3348,17 @@
         "release_versions": ["5"],
         "device_name": "M487JIDAE",
         "bootloader_supported": true
+    },
+    "TMPM066": {
+        "inherits": ["Target"],
+        "core": "Cortex-M0",
+        "is_disk_virtual": true,
+        "extra_labels": ["TOSHIBA"],
+        "macros": ["__TMPM066__", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": ["ANALOGIN", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_FC", "SLEEP", "I2C", "I2CSLAVE", "STDIO_MESSAGES", "PWMOUT"],
+        "device_name": "TMPM066FWUG",
+        "detect_code": ["7011"],
+        "release_versions": ["5"]
     }
 }
