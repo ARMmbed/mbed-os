@@ -6,6 +6,7 @@ RTL8195A elf2bin script
 
 import sys, array, struct, os, re, subprocess
 import hashlib
+import shutil
 
 from tools.paths import TOOLS_BOOTLOADERS
 from datetime import datetime
@@ -59,6 +60,9 @@ def get_version_by_time():
     secs = int((datetime.now()-datetime(2016,11,1)).total_seconds())
     return RAM2_VER + secs
 
+# ----------------------------
+#       main function
+# ----------------------------
 def prepend(image, entry, segment, image_ram2, image_ota):
 
     # parse input arguments
@@ -226,13 +230,6 @@ def parse_load_segment(toolchain, image_elf):
 
 def write_load_segment(image_elf, image_bin, segment):
     file_elf = open(image_elf, "rb")
-    #delete folder with same name when using ARMCC
-    if os.path.isfile(image_bin):
-        pass
-    else:
-        for i in os.listdir(image_bin):
-            os.remove(os.path.join(image_bin, i))
-        os.removedirs(image_bin)
     file_bin = open(image_bin, "wb")
     for (offset, addr, size) in segment:
         file_elf.seek(offset)
@@ -248,6 +245,12 @@ def write_load_segment(image_elf, image_bin, segment):
 #       main function
 # ----------------------------
 def rtl8195a_elf2bin(t_self, image_elf, image_bin):
+    # remove target binary file/path
+    if os.path.isfile(image_bin):
+        os.remove(image_bin)
+    else:
+        shutil.rmtree(image_bin)
+
     segment = parse_load_segment(t_self.name, image_elf)
     write_load_segment(image_elf, image_bin, segment)
 
