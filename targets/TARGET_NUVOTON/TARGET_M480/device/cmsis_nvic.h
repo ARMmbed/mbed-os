@@ -32,43 +32,4 @@
 #   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) &__start_vector_table__)
 #endif
 
-
-#if defined(__CC_ARM)
-    extern uint32_t Load$$LR$$LR_IROM1$$Base[];
-    #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)Load$$LR$$LR_IROM1$$Base)
-#elif defined(__ICCARM__)
-    #pragma section=".intvec"
-    #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)__section_begin(".intvec"))
-#elif defined(__GNUC__)
-      extern uint32_t __vector_table;
-      #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)&__vector_table)
-#else
-    #error "Flash vector address not set for this toolchain"
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/** Set the ISR for IRQn
- *
- * Sets an Interrupt Service Routine vector for IRQn; if the feature is available, the vector table is relocated to SRAM
- * the first time this function is called
- * @param[in] IRQn   The Interrupt Request number for which a vector will be registered
- * @param[in] vector The ISR vector to register for IRQn
- */
-void __NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-
-/** Get the ISR registered for IRQn
- *
- * Reads the Interrupt Service Routine currently registered for IRQn
- * @param[in] IRQn   The Interrupt Request number the vector of which will be read
- * @return           Returns the ISR registered for IRQn
- */
-uint32_t __NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
-}
-#endif
-
 #endif
