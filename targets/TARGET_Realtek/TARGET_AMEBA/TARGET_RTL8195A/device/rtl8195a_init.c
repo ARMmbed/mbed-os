@@ -175,6 +175,7 @@ void TRAP_OverrideTable(uint32_t stackp)
     #endif
 }
 
+extern _LONG_CALL_ void * __rtl_memset_v1_00(void * m , int c , size_t n);
 // Image2 Entry Function
 void PLAT_Start(void)
 {
@@ -186,10 +187,10 @@ void PLAT_Start(void)
 
     // Clear RAM BSS
 #if defined (__ICCARM__)
-    __memset((void *)__bss_start__, 0, __bss_end__ - __bss_start__);
+    __rtl_memset_v1_00((void *)__bss_start__, 0, __bss_end__ - __bss_start__);
 #else
-    __memset((void *)__bss_sram_start__, 0, __bss_sram_end__ - __bss_sram_start__);
-    __memset((void *)__bss_dram_start__, 0, __bss_dram_end__ - __bss_dram_start__);
+    __rtl_memset_v1_00((void *)__bss_sram_start__, 0, __bss_sram_end__ - __bss_sram_start__);
+    __rtl_memset_v1_00((void *)__bss_dram_start__, 0, __bss_dram_end__ - __bss_dram_start__);
 #endif
 
 #if defined (__CC_ARM)
