@@ -692,7 +692,8 @@ class mbedToolchain:
                     # Recursively scan features but ignore them in the current scan.
                     # These are dynamically added by the config system if the conditions are matched
                     def closure (dir_path=dir_path, base_path=base_path):
-                        return self.scan_resources(dir_path, base_path=base_path)
+                        return self.scan_resources(dir_path, base_path=base_path,
+                                                   collect_ignores=resources.collect_ignores)
                     resources.features.add_lazy(d[8:], closure)
                     resources.ignore_dir(dir_path)
                     dirs.remove(d)
