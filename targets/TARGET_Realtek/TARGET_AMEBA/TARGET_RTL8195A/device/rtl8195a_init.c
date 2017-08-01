@@ -28,10 +28,14 @@
     (defined (__ARMCC_VERSION) && __ARMCC_VERSION >= 6010050)
 
 extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
-extern uint8_t Image$$RW_IRAM1$$ZI$$Base[];
-extern uint8_t Image$$RW_IRAM1$$ZI$$Limit[];
-#define __bss_start__ Image$$RW_IRAM1$$ZI$$Base
-#define __bss_end__   Image$$RW_IRAM1$$ZI$$Limit
+extern uint8_t Image$$RW_IRAM2$$ZI$$Base[];
+extern uint8_t Image$$RW_IRAM2$$ZI$$Limit[];
+extern uint8_t Image$$RW_DRAM2$$ZI$$Base[];
+extern uint8_t Image$$RW_DRAM2$$ZI$$Limit[];
+#define __bss_sram_start__ Image$$RW_IRAM2$$ZI$$Base
+#define __bss_sram_end__   Image$$RW_IRAM2$$ZI$$Limit
+#define __bss_dram_start__ Image$$RW_DRAM2$$ZI$$Base
+#define __bss_dram_end__   Image$$RW_DRAM2$$ZI$$Limit
 
 #elif defined (__ICCARM__)
 
@@ -181,11 +185,11 @@ void PLAT_Start(void)
 #endif
 
     // Clear RAM BSS
-#if defined (__ICCARM__) || defined (__CC_ARM)
+#if defined (__ICCARM__)
     __memset((void *)__bss_start__, 0, __bss_end__ - __bss_start__);
 #else
-    __memset((void *)__bss_sram1_start__, 0, __bss_sram1_end__ - __bss_sram1_start__);
-    __memset((void *)__bss_sram2_start__, 0, __bss_sram2_end__ - __bss_sram2_start__);
+    __memset((void *)__bss_sram_start__, 0, __bss_sram_end__ - __bss_sram_start__);
+    __memset((void *)__bss_dram_start__, 0, __bss_dram_end__ - __bss_dram_start__);
 #endif
 
 #if defined (__CC_ARM)
