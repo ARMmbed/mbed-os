@@ -162,21 +162,21 @@ SECTIONS
 
     .bss.sram1 (NOLOAD) :
     {
-        __bss_sram1_start__ = .;
+        __bss_sram_start__ = .;
         *rtl8195a_crypto.o (.bss* COMMON)
         *mbedtls*.o (.bss* COMMON)
         *(.bss.thread_stack_main)
-        __bss_sram1_end__ = .;
+        __bss_sram_end__ = .;
     } > SRAM1
 
     .bss.sram2 (NOLOAD) :
     {
         __bss_start__ = .;
-        __bss_sram2_start__ = .;
+        __bss_dram_start__ = .;
         *(.bss*)
         *(COMMON)
         *(.bdsram.data*)
-        __bss_sram2_end__ = .;
+        __bss_dram_end__ = .;
         __bss_end__ = .;
     } > SRAM2
 

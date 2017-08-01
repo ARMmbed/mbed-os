@@ -54,10 +54,10 @@ void __iar_data_init_app(void)
 #else
 
 extern uint32_t __StackTop;
-extern uint8_t __bss_sram1_start__[];
-extern uint8_t __bss_sram1_end__[];
-extern uint8_t __bss_sram2_start__[];
-extern uint8_t __bss_sram2_end__[];
+extern uint8_t __bss_sram_start__[];
+extern uint8_t __bss_sram_end__[];
+extern uint8_t __bss_dram_start__[];
+extern uint8_t __bss_dram_end__[];
 
 #endif
 
