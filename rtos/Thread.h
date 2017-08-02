@@ -245,25 +245,19 @@ public:
     */
     osPriority get_priority();
 
-    /** Set the specified Signal Flags of an active thread.
+    /** Set the specified Thread Flags for the thread.
       @param   signals  specifies the signal flags of the thread that should be set.
       @return  previous signal flags of the specified thread or osFlagsError in case of incorrect parameters.
     */
     int32_t signal_set(int32_t signals);
 
-    /** Clears the specified Signal Flags of an active thread.
-      @param   signals  specifies the signal flags of the thread that should be cleared.
-      @return  resultant signal flags of the specified thread or osFlagsError in case of incorrect parameters.
-    */
-    int32_t signal_clr(int32_t signals);
-
     /** State of the Thread */
     enum State {
-        Inactive,           /**< Not created */
+        Inactive,           /**< NOT USED */
         Ready,              /**< Ready to run */
         Running,            /**< Running */
         WaitingDelay,       /**< Waiting for a delay to occur */
-        WaitingJoin,        /**< Waiting for thread to join */
+        WaitingJoin,        /**< Waiting for thread to join. Only happens when using RTX directly. */
         WaitingThreadFlag,  /**< Waiting for a thread flag to be set */
         WaitingEventFlag,   /**< Waiting for a event flag to be set */
         WaitingMutex,       /**< Waiting for a mutex event to occur */
@@ -271,13 +265,13 @@ public:
         WaitingMemoryPool,  /**< Waiting for a memory pool */
         WaitingMessageGet,  /**< Waiting for message to arrive */
         WaitingMessagePut,  /**< Waiting for message to be send */
-        WaitingInterval,    /**< Waiting for an interval to occur */
-        WaitingOr,          /**< Waiting for one event in a set to occur */
-        WaitingAnd,         /**< Waiting for multiple events in a set to occur */
-        WaitingMailbox,     /**< Waiting for a mailbox event to occur */
+        WaitingInterval,    /**< NOT USED */
+        WaitingOr,          /**< NOT USED */
+        WaitingAnd,         /**< NOT USED */
+        WaitingMailbox,     /**< NOT USED (Mail is implemented as MemoryPool and Queue) */
 
         /* Not in sync with RTX below here */
-        Deleted,            /**< The task has been deleted */
+        Deleted,            /**< The task has been deleted or not started */
     };
 
     /** State of this Thread
@@ -310,10 +304,16 @@ public:
      */
     const char *get_name();
 
-    /** Wait for one or more Signal Flags to become signaled for the current RUNNING thread.
+    /** Clears the specified Thread Flags of the currently running thread.
+      @param   signals  specifies the signal flags of the thread that should be cleared.
+      @return  resultant signal flags of the specified thread or osFlagsError in case of incorrect parameters.
+    */
+    static int32_t signal_clr(int32_t signals);
+
+    /** Wait for one or more Thread Flags to become signaled for the current RUNNING thread.
       @param   signals   wait until all specified signal flags are set or 0 for any single signal flag.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
-      @return  event flag information or error code.
+      @return  event flag information or error code. @note if @a millisec is set to 0 and flag is no set the event carries osOK value.
       @note not callable from interrupt
     */
     static osEvent signal_wait(int32_t signals, uint32_t millisec=osWaitForever);

@@ -43,6 +43,11 @@ void UARTSerial::dcd_irq()
     wake();
 }
 
+void UARTSerial::set_baud(int baud)
+{
+    SerialBase::baud(baud);
+}
+
 void UARTSerial::set_data_carrier_detect(PinName dcd_pin, bool active_high)
 {
      delete _dcd_irq;

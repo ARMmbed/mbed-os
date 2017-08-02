@@ -111,6 +111,8 @@ publish: TARGET_M3 TARGET_M4
 	#
 	# Updated list of authors, sorted by contributions
 	git -C $(UVISOR_DIR) shortlog -s -n > $(TARGET_PREFIX)AUTHORS.txt
+	# Updated version of uvisor-tests
+	cp $(UVISOR_DIR)/tools/uvisor-tests.txt $(TARGET_PREFIX)uvisor-tests.txt
 
 uvisor-compile: $(UVISOR_GIT_CFG)
 	make -C $(UVISOR_DIR)

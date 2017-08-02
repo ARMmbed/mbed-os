@@ -116,8 +116,9 @@ class LazyDict(dict):
         self.eager = {}
 
 class Resources:
-    def __init__(self, base_path=None):
+    def __init__(self, base_path=None, collect_ignores=False):
         self.base_path = base_path
+        self.collect_ignores = collect_ignores
 
         self.file_basepath = {}
 
@@ -148,6 +149,7 @@ class Resources:
 
         # Features
         self.features = LazyDict()
+        self.ignored_dirs = []
 
     def __add__(self, resources):
         if resources is None:
@@ -160,6 +162,10 @@ class Resources:
             return self
         else:
             return self.add(resources)
+
+    def ignore_dir(self, directory):
+        if self.collect_ignores:
+            self.ignored_dirs.append(directory)
 
     def add(self, resources):
         for f,p in resources.file_basepath.items():
@@ -190,6 +196,7 @@ class Resources:
         self.json_files += resources.json_files
 
         self.features.update(resources.features)
+        self.ignored_dirs += resources.ignored_dirs
 
         return self
 
@@ -292,7 +299,7 @@ class Resources:
 # standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
 # had the knowledge of a list of these directories to be ignored.
 LEGACY_IGNORE_DIRS = set([
-    'LPC11U24', 'LPC1768', 'LPC4088', 'LPC812', 'KL25Z',
+    'LPC11U24', 'LPC1768', 'LPC2368', 'LPC4088', 'LPC812', 'KL25Z',
     'ARM', 'uARM', 'IAR',
     'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'GCC_CW_EWL', 'GCC_CW_NEWLIB',
 ])
@@ -612,10 +619,11 @@ class mbedToolchain:
     # The parameter *base_path* is used to set the base_path attribute of the Resources
     # object and the parameter *exclude_paths* is used by the directory traversal to
     # exclude certain paths from the traversal.
-    def scan_resources(self, path, exclude_paths=None, base_path=None):
+    def scan_resources(self, path, exclude_paths=None, base_path=None,
+                       collect_ignores=False):
         self.progress("scan", path)
 
-        resources = Resources(path)
+        resources = Resources(path, collect_ignores=collect_ignores)
         if not base_path:
             if isfile(path):
                 base_path = dirname(path)
@@ -656,8 +664,10 @@ class mbedToolchain:
                     self.add_ignore_patterns(root, base_path, lines)
 
             # Skip the whole folder if ignored, e.g. .mbedignore containing '*'
-            if (self.is_ignored(join(relpath(root, base_path),"")) or
-                self.build_dir == join(relpath(root, base_path))):
+            root_path =join(relpath(root, base_path))
+            if  (self.is_ignored(join(root_path,"")) or
+                 self.build_dir == root_path):
+                resources.ignore_dir(root_path)
                 dirs[:] = []
                 continue
 
@@ -676,18 +686,22 @@ class mbedToolchain:
                     self.is_ignored(join(relpath(root, base_path), d,"")) or
                     # Ignore TESTS dir
                     (d == 'TESTS')):
+                        resources.ignore_dir(dir_path)
                         dirs.remove(d)
                 elif d.startswith('FEATURE_'):
                     # Recursively scan features but ignore them in the current scan.
                     # These are dynamically added by the config system if the conditions are matched
                     def closure (dir_path=dir_path, base_path=base_path):
-                        return self.scan_resources(dir_path, base_path=base_path)
+                        return self.scan_resources(dir_path, base_path=base_path,
+                                                   collect_ignores=resources.collect_ignores)
                     resources.features.add_lazy(d[8:], closure)
+                    resources.ignore_dir(dir_path)
                     dirs.remove(d)
                 elif exclude_paths:
                     for exclude_path in exclude_paths:
                         rel_path = relpath(dir_path, exclude_path)
                         if not (rel_path.startswith('..')):
+                            resources.ignore_dir(dir_path)
                             dirs.remove(d)
                             break
 

@@ -180,6 +180,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 //******************************************************************************
 void uart_handler(serial_t *obj)
 {
+    // clear interrupts
+    volatile uint32_t flags = obj->uart->intfl;
+    obj->uart->intfl = flags;
+
     if (obj && obj->id) {
         irq_handler(obj->id, RxIrq);
     }
@@ -200,6 +204,9 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 //******************************************************************************
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
+    MBED_ASSERT(obj->index < MXC_CFG_UART_INSTANCES);
+    objs[obj->index] = obj;
+
     switch (obj->index) {
         case 0:
             NVIC_SetVector(UART0_IRQn, (uint32_t)uart0_handler);

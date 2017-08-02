@@ -357,7 +357,20 @@ public:
      *         Where the first element is the length of the field.
      */
     const uint8_t* findField(DataType_t type) const {
-        return findField(type);
+        /* Scan through advertisement data */
+        for (uint8_t idx = 0; idx < _payloadLen; ) {
+            uint8_t fieldType = _payload[idx + 1];
+
+            if (fieldType == type) {
+                return &_payload[idx];
+            }
+
+            /* Advance to next field */
+            idx += _payload[idx] + 1;
+        }
+
+        /* Field not found */
+        return NULL;
     }
 
 private:
@@ -408,20 +421,7 @@ private:
      *         otherwise. Where the first element is the length of the field.
      */
     uint8_t* findField(DataType_t type) {
-        /* Scan through advertisement data */
-        for (uint8_t idx = 0; idx < _payloadLen; ) {
-            uint8_t fieldType = _payload[idx + 1];
-
-            if (fieldType == type) {
-                return &_payload[idx];
-            }
-
-            /* Advance to next field */
-            idx += _payload[idx] + 1;
-        }
-
-        /* Field not found */
-        return NULL;
+        return const_cast<uint8_t*>(static_cast<const GapAdvertisingData*>(this)->findField(type));
     }
 
     /**

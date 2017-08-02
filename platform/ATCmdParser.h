@@ -29,7 +29,8 @@
  *
  * Here are some examples:
  * @code
- * ATCmdParser at = ATCmdParser(serial, "\r\n");
+ * UARTSerial serial = UARTSerial(D1, D0);
+ * ATCmdParser at = ATCmdParser(&serial, "\r\n");
  * int value;
  * char buffer[100];
  *

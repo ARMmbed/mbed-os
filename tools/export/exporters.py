@@ -25,6 +25,18 @@ class ExporterTargetsProperty(object):
     def __get__(self, inst, cls):
         return self.func(cls)
 
+def deprecated_exporter(CLS):
+    old_init = CLS.__init__
+    old_name = CLS.NAME
+    def __init__(*args, **kwargs):
+        print("==================== DEPRECATION NOTICE ====================")
+        print("The exporter %s is no longer maintained, and deprecated." % old_name)
+        print("%s will be removed from mbed OS for the mbed OS 5.6 release." % old_name)
+        old_init(*args, **kwargs)
+    CLS.__init__ = __init__
+    CLS.NAME = "%s (DEPRECATED)" % old_name
+    return CLS
+
 class Exporter(object):
     """Exporter base class
 
@@ -60,8 +72,11 @@ class Exporter(object):
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
         self.resources = resources
-        self.generated_files = [join(self.TEMPLATE_DIR, "GettingStarted.html"),
-                                join(self.TEMPLATE_DIR, ".mbed")]
+        self.generated_files = []
+        self.static_files = (
+            join(self.TEMPLATE_DIR, "GettingStarted.html"),
+            join(self.TEMPLATE_DIR, ".mbed"),
+        )
         self.builder_files_dict = {}
         self.add_config()
 

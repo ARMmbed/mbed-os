@@ -33,6 +33,7 @@
 #define SPI_EVENT_INTERNAL_TRANSFER_COMPLETE (1 << 30) // Internal flag to report that an event occurred
 
 #define SPI_FILL_WORD         (0xFFFF)
+#define SPI_FILL_CHAR         (0xFF)
 
 #if DEVICE_SPI_ASYNCH
 /** Asynch SPI HAL structure
@@ -122,16 +123,17 @@ int  spi_master_write(spi_t *obj, int value);
  *  tx_length and rx_length. The bytes written will be padded with the
  *  value 0xff.
  *
- * @param[in] obj       The SPI peripheral to use for sending
- * @param[in] tx_buffer Pointer to the byte-array of data to write to the device
- * @param[in] tx_length Number of bytes to write, may be zero
- * @param[in] rx_buffer Pointer to the byte-array of data to read from the device
- * @param[in] rx_length Number of bytes to read, may be zero
+ * @param[in] obj        The SPI peripheral to use for sending
+ * @param[in] tx_buffer  Pointer to the byte-array of data to write to the device
+ * @param[in] tx_length  Number of bytes to write, may be zero
+ * @param[in] rx_buffer  Pointer to the byte-array of data to read from the device
+ * @param[in] rx_length  Number of bytes to read, may be zero
+ * @param[in] write_fill Default data transmitted while performing a read
  * @returns
  *      The number of bytes written and read from the device. This is
  *      maximum of tx_length and rx_length.
  */
-int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length);
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char write_fill);
 
 /** Check if a value is available to read
  *
