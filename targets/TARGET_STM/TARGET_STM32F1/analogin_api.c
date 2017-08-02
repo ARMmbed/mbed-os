@@ -35,8 +35,6 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
-ADC_HandleTypeDef AdcHandle;
-
 int adc_inited = 0;
 
 void analogin_init(analogin_t *obj, PinName pin)
@@ -44,9 +42,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     RCC_PeriphCLKInitTypeDef  PeriphClkInit;
 
     // Get the peripheral name from the pin and assign it to the object
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT(obj->adc != (ADCName)NC);
-    
+    obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
+    MBED_ASSERT(obj->handle.Instance != (ADC_TypeDef *)NC);
+
     // Get the functions (adc channel) from the pin and assign it to the object
     uint32_t function = pinmap_function(pin, PinMap_ADC);
     MBED_ASSERT(function != (uint32_t)NC);
@@ -79,23 +77,21 @@ void analogin_init(analogin_t *obj, PinName pin)
         HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
 
         // Configure ADC
-        AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
-        AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-        AdcHandle.Init.ScanConvMode          = DISABLE;
-        AdcHandle.Init.ContinuousConvMode    = DISABLE;
-        AdcHandle.Init.NbrOfConversion       = 1;
-        AdcHandle.Init.DiscontinuousConvMode = DISABLE;
-        AdcHandle.Init.NbrOfDiscConversion   = 0;
-        AdcHandle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-        HAL_ADC_Init(&AdcHandle);
+        obj->handle.State = HAL_ADC_STATE_RESET;
+        obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+        obj->handle.Init.ScanConvMode          = DISABLE;
+        obj->handle.Init.ContinuousConvMode    = DISABLE;
+        obj->handle.Init.NbrOfConversion       = 1;
+        obj->handle.Init.DiscontinuousConvMode = DISABLE;
+        obj->handle.Init.NbrOfDiscConversion   = 0;
+        obj->handle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+        HAL_ADC_Init(&obj->handle);
     }
 }
 
 static inline uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig;
-
-    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
     sConfig.Rank         = 1;
@@ -160,13 +156,13 @@ static inline uint16_t adc_read(analogin_t *obj)
             return 0;
     }
 
-    HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
+    HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 
-    HAL_ADC_Start(&AdcHandle); // Start conversion
+    HAL_ADC_Start(&obj->handle); // Start conversion
 
     // Wait end of conversion and get value
-    if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
-        return (HAL_ADC_GetValue(&AdcHandle));
+    if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
+        return (HAL_ADC_GetValue(&obj->handle));
     } else {
         return 0;
     }

@@ -16,7 +16,7 @@ limitations under the License.
 """
 from os.path import split,splitext, basename
 
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, deprecated_exporter
 
 class Folder:
     def __init__(self, name):
@@ -54,6 +54,7 @@ class Folder:
 
         return self.findChild(folderName)
 
+@deprecated_exporter
 class SimplicityV3(Exporter):
     NAME = 'SimplicityV3'
     TOOLCHAIN = 'GCC_ARM'

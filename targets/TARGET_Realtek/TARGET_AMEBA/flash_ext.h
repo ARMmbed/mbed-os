@@ -25,17 +25,17 @@ extern "C" {
 
 #define FLASH_PAGE_SIZE 256
 #define FLASH_SIZE        0x100000
-#define FLASH_OFS_START   0xc0000
+#define FLASH_OFS_START   0x0
 #define FLASH_OFS_END     (FLASH_OFS_START + FLASH_SIZE)
 
 extern void flash_ext_erase_sector(flash_t *obj, uint32_t address);
 extern void flash_ext_erase_block(flash_t * obj, uint32_t address);
-extern int flash_ext_read_word(flash_t *obj, uint32_t address, uint32_t * data);
+extern int flash_ext_read_word(flash_t *obj, uint32_t address, uint32_t *data);
 extern int flash_ext_write_word(flash_t *obj, uint32_t address, uint32_t data);
-extern int flash_ext_stream_read(flash_t *obj, uint32_t address, uint32_t len, uint8_t * data);
-extern int flash_ext_stream_write(flash_t *obj, uint32_t address, uint32_t len, uint8_t * data);
+extern int flash_ext_stream_read(flash_t *obj, uint32_t address, uint32_t len, uint8_t *data);
+extern int flash_ext_stream_write(flash_t *obj, uint32_t address, uint32_t len, const uint8_t *data);
 extern int flash_stream_read(flash_t *obj, uint32_t addr, uint32_t len, uint8_t *data);
-extern int flash_stream_write(flash_t *obj, uint32_t addr, uint32_t len, uint8_t *data);
+extern int flash_stream_write(flash_t *obj, uint32_t addr, uint32_t len, const uint8_t *data);
 extern void flash_ext_write_protect(flash_t *obj, uint32_t protect);
 extern int flash_ext_get_status(flash_t *obj);
 extern int flash_ext_set_status(flash_t *obj, uint32_t data);

@@ -37,8 +37,8 @@ before_install:
   - python --version
   - doxygen --version
 install:
-  - sudo pip install -r requirements.txt
-  - sudo pip install pytest
-  - sudo pip install pylint
-  - sudo pip install hypothesis
-  - sudo pip install mock
+  - pip install -r requirements.txt
+  - pip install pytest
+  - pip install pylint
+  - pip install hypothesis
+  - pip install mock

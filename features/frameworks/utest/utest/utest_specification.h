@@ -159,6 +159,18 @@ namespace v1 {
             );
         }
 
+        Specification(const test_setup_handler_t setup_handler,
+                      const Case *cases,
+                      const size_t length,
+                      const test_teardown_handler_t teardown_handler,
+                      const test_failure_handler_t failure_handler,
+                      const handlers_t defaults = default_handlers) :
+            setup_handler(setup_handler), teardown_handler(teardown_handler), failure_handler(failure_handler),
+            cases(cases), length(length),
+            defaults(defaults)
+        {
+        }
+
     private:
         const test_setup_handler_t setup_handler;
         const test_teardown_handler_t teardown_handler;

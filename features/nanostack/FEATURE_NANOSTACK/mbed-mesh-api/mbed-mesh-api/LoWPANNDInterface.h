@@ -34,9 +34,9 @@ public:
     LoWPANNDInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
 
     nsapi_error_t initialize(NanostackRfPhy *phy);
-    int connect();
-    int disconnect();
-    bool getOwnIpAddress(char *address, int8_t len);
+    virtual int connect();
+    virtual int disconnect();
+    virtual bool getOwnIpAddress(char *address, int8_t len);
     bool getRouterIpAddress(char *address, int8_t len);
 private:
     mesh_error_t init();

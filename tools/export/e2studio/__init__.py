@@ -16,8 +16,9 @@ limitations under the License.
 """
 from os.path import splitext, basename
 
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, deprecated_exporter
 
+@deprecated_exporter
 class E2Studio(Exporter):
     NAME = 'e2 studio'
     TOOLCHAIN = 'GCC_ARM'

@@ -58,10 +58,6 @@ defined in linker script */
 .word  _sdata
 /* end address for the .data section. defined in linker script */
 .word  _edata
-/* start address for the .bss section. defined in linker script */
-.word  _sbss
-/* end address for the .bss section. defined in linker script */
-.word  _ebss
 /* stack used for SystemInit_ExtMemCtl; always internal RAM used */
 
 /**
@@ -95,24 +91,18 @@ LoopCopyDataInit:
   adds  r2, r0, r1
   cmp  r2, r3
   bcc  CopyDataInit
-  ldr  r2, =_sbss
-  b  LoopFillZerobss
-/* Zero fill the bss segment. */  
-FillZerobss:
-  movs  r3, #0
-  str  r3, [r2], #4
-    
-LoopFillZerobss:
-  ldr  r3, = _ebss
-  cmp  r2, r3
-  bcc  FillZerobss
 
 /* Call the clock system initialization function.*/
   bl  SystemInit   
 /* Call static constructors */
-    bl __libc_init_array
+  //bl __libc_init_array
 /* Call the application's entry point.*/
-  bl  main
+  //bl  main
+  // Calling the crt0 'cold-start' entry point. There __libc_init_array is called
+  // and when existing hardware_init_hook() and software_init_hook() before
+  // starting main(). software_init_hook() is available and has to be called due
+  // to initializsation when using rtos.
+  bl _start
   bx  lr    
 .size  Reset_Handler, .-Reset_Handler
 
