@@ -99,6 +99,8 @@ void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 )
     ctx->is224 = is224;
     /* HASH Configuration */
     ctx->hhash_sha256.Init.DataType = HASH_DATATYPE_8B;
+    /* clear CR ALGO value */
+    HASH->CR &= ~HASH_CR_ALGO_Msk;
     if (HAL_HASH_Init(&ctx->hhash_sha256) == HAL_ERROR) {
         // error found to be returned
         return;

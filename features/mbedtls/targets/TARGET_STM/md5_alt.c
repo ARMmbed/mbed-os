@@ -100,6 +100,8 @@ void mbedtls_md5_starts( mbedtls_md5_context *ctx )
 
     /* HASH Configuration */
     ctx->hhash_md5.Init.DataType = HASH_DATATYPE_8B;
+    /* clear CR ALGO value */
+    HASH->CR &= ~HASH_CR_ALGO_Msk;
     if (HAL_HASH_Init(&ctx->hhash_md5) != 0) {
         // return error code
         return;
