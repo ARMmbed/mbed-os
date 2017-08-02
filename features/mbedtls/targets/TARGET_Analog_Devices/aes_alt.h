@@ -24,11 +24,10 @@
 #ifndef MBEDTLS_AES_ALT_H
 #define MBEDTLS_AES_ALT_H
 
-
 #if defined(MBEDTLS_AES_ALT)
 
-// ADI implementation
-/* Managed drivers and/or services include */
+#include "mbedtls/config.h"
+/* ADI Crypto structures */
 #include "drivers/crypto/adi_crypto.h"
 
 #ifdef __cplusplus
@@ -58,10 +57,9 @@ typedef struct
 #ifdef CRYPTO_ENABLE_CALLBACK    
     void                    *pCBParam;
     void                    *pfCryptoCallback;
-#endif        
+#endif 
 }
 mbedtls_aes_context;
-
 
 /**
  * \brief          Initialize AES context
@@ -275,23 +273,6 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
 }
 #endif
 
-#else  /* MBEDTLS_AES_ALT */
-#include "aes_alt.h"
 #endif /* MBEDTLS_AES_ALT */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * \brief          Checkup routine
- *
- * \return         0 if successful, or 1 if the test failed
- */
-int mbedtls_aes_self_test( int verbose );
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* aes.h */
+#endif /* MBEDTLS_AES_ALT_H */
