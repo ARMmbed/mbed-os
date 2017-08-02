@@ -121,8 +121,15 @@ SVC_ContextRestore:
         CPSIE I                         // The PSP has been set. Re-enable interrupts.
 #endif
 
+SVC_ContextForNewlib:
+        PUSH     {R12,LR}               // Save EXC_RETURN before next BL
+        MOV      R0,R2                  // Pass in current thread id
+        BL       __user_perthread_libspace // Fetch _reent structure for this thread
+        LDR      R1,=_impure_ptr        // Place it in _impure_ptr for newlib
+        STR      R0,[R1]
+
 SVC_Exit:
-        BX       LR                     // Exit from handler
+        POP      {R12,PC}               // Exit from handler
 
 SVC_User:
         PUSH     {R4,LR}                // Save registers

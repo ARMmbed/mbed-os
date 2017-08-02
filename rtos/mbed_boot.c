@@ -458,22 +458,44 @@ int _mutex_initialize(mutex *m)
 
 #endif /* ARMC */
 #elif defined (__GNUC__) /******************** GCC ********************/
+#include <stdio.h>
+#include <stdlib.h>
 
 extern int main(int argc, char* argv[]);
 extern void __libc_init_array (void);
 extern int __real_main(void);
 
-osMutexId_t               malloc_mutex_id;
-mbed_rtos_storage_mutex_t malloc_mutex_obj;
-osMutexAttr_t             malloc_mutex_attr;
 
-osMutexId_t               env_mutex_id;
-mbed_rtos_storage_mutex_t env_mutex_obj;
-osMutexAttr_t             env_mutex_attr;
+struct __lock {
+    osMutexId_t               id;
+    mbed_rtos_storage_mutex_t obj;
+    osMutexAttr_t             attr;
+};
+
+struct __lock   __lock___sinit_recursive_mutex;
+struct __lock   __lock___sfp_recursive_mutex;
+struct __lock   __lock___at_quick_exit_mutex;
+struct __lock   __lock___malloc_recursive_mutex;
+struct __lock   __lock___env_recursive_mutex;
+struct __lock   __lock___tz_mutex;
+struct __lock   __lock___arc4random_mutex;
+
+static int      main_running;
+
+/* newlib reentrancy data. */
+static struct _reent      os_libspace[OS_THREAD_LIBSPACE_NUM] \
+__attribute__((section(".bss.os")));
+
+static osThreadId_t       os_libspace_id[OS_THREAD_LIBSPACE_NUM] \
+__attribute__((section(".bss.os")));
 
 #ifdef  FEATURE_UVISOR
 #include "uvisor-lib/uvisor-lib.h"
 #endif/* FEATURE_UVISOR */
+
+static void init_lock(struct __lock* pLock, const char* pName);
+static void init_recursive_lock(struct __lock* pLock, const char* pName);
+
 
 int __wrap_main(void) {
     mbed_main();
@@ -482,23 +504,21 @@ int __wrap_main(void) {
 
 void pre_main(void)
 {
+    main_running = 1;
+
     singleton_mutex_attr.name = "singleton_mutex";
     singleton_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
     singleton_mutex_attr.cb_size = sizeof(singleton_mutex_obj);
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
-    malloc_mutex_attr.name = "malloc_mutex";
-    malloc_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
-    malloc_mutex_attr.cb_size = sizeof(malloc_mutex_obj);
-    malloc_mutex_attr.cb_mem = &malloc_mutex_obj;
-    malloc_mutex_id = osMutexNew(&malloc_mutex_attr);
-
-    env_mutex_attr.name = "env_mutex";
-    env_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
-    env_mutex_attr.cb_size = sizeof(env_mutex_obj);
-    env_mutex_attr.cb_mem = &env_mutex_obj;
-    env_mutex_id = osMutexNew(&env_mutex_attr);
+    init_recursive_lock(&__lock___sinit_recursive_mutex, "sinit_mutex");
+    init_recursive_lock(&__lock___sfp_recursive_mutex, "sfp_mutex");
+    init_recursive_lock(&__lock___malloc_recursive_mutex, "malloc_mutex");
+    init_recursive_lock(&__lock___env_recursive_mutex, "env_mutex");
+    init_lock(&__lock___at_quick_exit_mutex, "at_quick_exit_mutex");
+    init_lock(&__lock___tz_mutex, "tz_mutex");
+    init_lock(&__lock___arc4random_mutex, "arc4random_mutex");
 
     __libc_init_array();
 
@@ -527,27 +547,238 @@ void software_init_hook(void)
     mbed_start_main();
 }
 
-/* Opaque declaration of _reent structure */
-struct _reent;
-
-void __rtos_malloc_lock( struct _reent *_r )
+static void init_lock_common(struct __lock* pLock, const char* pName, uint32_t attributeBits)
 {
-    osMutexAcquire(malloc_mutex_id, osWaitForever);
+    pLock->attr.name = pName;
+    pLock->attr.attr_bits = attributeBits;
+    pLock->attr.cb_size = sizeof(pLock->obj);
+    pLock->attr.cb_mem = &pLock->obj;
+    pLock->id = osMutexNew(&pLock->attr);
 }
 
-void __rtos_malloc_unlock( struct _reent *_r )
+static void init_lock(struct __lock* pLock, const char* pName)
 {
-    osMutexRelease(malloc_mutex_id);
+    init_lock_common(pLock, pName, osMutexPrioInherit | osMutexRobust);
 }
 
-void __rtos_env_lock( struct _reent *_r )
+static void init_recursive_lock(struct __lock* pLock, const char* pName)
 {
-    osMutexAcquire(env_mutex_id, osWaitForever);
+    init_lock_common(pLock, pName, osMutexRecursive | osMutexPrioInherit | osMutexRobust);
 }
 
-void __rtos_env_unlock( struct _reent *_r )
+void __retarget_lock_init(struct __lock** lock)
 {
-    osMutexRelease(env_mutex_id);
+    *lock = (struct __lock*)malloc(sizeof(**lock));
+    if (*lock) {
+        init_lock(*lock, "newlib_dynamic_mutex");
+    }
+    else {
+        error("newlib mutex init is out of memory\r\n");
+    }
+}
+
+void __retarget_lock_init_recursive(struct __lock **lock)
+{
+    *lock = (struct __lock*)malloc(sizeof(**lock));
+    if (*lock) {
+        init_recursive_lock(*lock, "newlib_dynamic_recursive_mutex");
+    }
+    else {
+        error("newlib mutex init is out of memory\r\n");
+    }
+}
+
+void __retarget_lock_close(struct __lock* lock)
+{
+    if (lock) {
+        osMutexDelete(lock->id);
+        free(lock);
+    }
+}
+
+void __retarget_lock_close_recursive(struct __lock* lock)
+{
+    if (lock) {
+        osMutexDelete(lock->id);
+        free(lock);
+    }
+}
+
+void __retarget_lock_acquire(struct __lock* lock)
+{
+    osMutexAcquire(lock->id, osWaitForever);
+}
+
+void __retarget_lock_acquire_recursive(struct __lock* lock)
+{
+    osMutexAcquire(lock->id, osWaitForever);
+}
+
+int __retarget_lock_try_acquire(struct __lock* lock)
+{
+    return osMutexAcquire(lock->id, 0);
+}
+
+int __retarget_lock_try_acquire_recursive(struct __lock* lock)
+{
+    return osMutexAcquire(lock->id, 0);
+}
+
+void __retarget_lock_release(struct __lock* lock)
+{
+    osMutexRelease(lock->id);
+}
+
+void __retarget_lock_release_recursive(struct __lock* lock)
+{
+    osMutexRelease(lock->id);
+}
+
+
+/* The full newlib library provides versions of these locking routines which
+   call the above __retarget_lock*() functions but newlib-nano doesn't. The
+   following routines are taken from the full newlib sources. */
+#ifdef _REENT_SMALL
+
+void __env_lock(struct _reent *ptr)
+{
+    __retarget_lock_acquire_recursive(&__lock___env_recursive_mutex);
+}
+
+void __env_unlock(struct _reent *ptr)
+{
+    __retarget_lock_release_recursive(&__lock___env_recursive_mutex);
+}
+
+void __sfp_lock_acquire(void)
+{
+    __retarget_lock_acquire_recursive(&__lock___sfp_recursive_mutex);
+}
+
+void __sfp_lock_release(void)
+{
+    __retarget_lock_release_recursive(&__lock___sfp_recursive_mutex);
+}
+
+void __sinit_lock_acquire(void)
+{
+    __retarget_lock_acquire_recursive(&__lock___sinit_recursive_mutex);
+}
+
+void __sinit_lock_release(void)
+{
+    __retarget_lock_release_recursive(&__lock___sinit_recursive_mutex);
+}
+
+void __malloc_lock(struct _reent *ptr)
+{
+    __retarget_lock_acquire_recursive(&__lock___malloc_recursive_mutex);
+}
+
+void __malloc_unlock(struct _reent *ptr)
+{
+    __retarget_lock_release_recursive(&__lock___malloc_recursive_mutex);
+}
+
+void __tz_lock(void)
+{
+    __retarget_lock_acquire(&__lock___tz_mutex);
+}
+
+void __tz_unlock(void)
+{
+    __retarget_lock_release(&__lock___tz_mutex);
+}
+
+/* There are some newlib-nano routines which don't call the required locking
+   routines at all so wrap them with the necessary locks. */
+uint32_t __real_arc4random(void);
+uint32_t __wrap_arc4random(void)
+{
+    uint32_t val;
+
+    __retarget_lock_acquire(&__lock___arc4random_mutex);
+        val = __real_arc4random();
+    __retarget_lock_release(&__lock___arc4random_mutex);
+
+    return val;
+}
+
+void __real_arc4random_buf(void *buf, size_t n);
+void __wrap_arc4random_buf(void *buf, size_t n)
+{
+    __retarget_lock_acquire(&__lock___arc4random_mutex);
+        __real_arc4random_buf(buf, n);
+    __retarget_lock_release(&__lock___arc4random_mutex);
+}
+
+FILE * __real___sfp(struct _reent *d);
+FILE * __wrap___sfp(struct _reent *d)
+{
+    FILE* pFile;
+    
+    __sfp_lock_acquire();
+        pFile = __real___sfp(d);
+    __sfp_lock_release();
+
+    return pFile;
+}
+
+void __real___sinit(struct _reent *s);
+void __wrap___sinit(struct _reent *s)
+{
+    __sinit_lock_acquire();
+        __real___sinit(s);
+    __sinit_lock_release();
+}
+
+int __real_at_quick_exit(void (*func)(void));
+int __wrap_at_quick_exit(void (*func)(void))
+{
+    int ret;
+
+    __retarget_lock_acquire(&__lock___at_quick_exit_mutex);
+        ret = __real_at_quick_exit(func);
+    __retarget_lock_release(&__lock___at_quick_exit_mutex);
+
+    return ret;
+}
+
+
+#endif /* _REENT_SMALL */
+
+
+/* Return thread specific reentrant data for newlib. newlib starts out using
+   the _global_impure_ptr instance that it statically allocates and this code 
+   re-uses that instance for the main thread. */
+struct _reent* __user_perthread_libspace(osThreadId_t id)
+{
+    uint32_t     n;
+
+    if (!main_running) {
+        return _global_impure_ptr;
+    }
+    
+    if (id == (osThreadId_t)&_main_obj) {
+        return _global_impure_ptr;
+    }
+    
+    for (n = 0U; n < OS_THREAD_LIBSPACE_NUM; n++) {
+        if (os_libspace_id[n] == NULL) {
+            os_libspace_id[n] = id;
+            os_libspace[n] = (struct _reent)_REENT_INIT(os_libspace[n]);
+            return &os_libspace[n];
+        }
+        if (os_libspace_id[n] == id) {
+            return &os_libspace[n];
+        }
+    }
+    
+    if (n == OS_THREAD_LIBSPACE_NUM) {
+        osRtxErrorNotify(osRtxErrorClibSpace, id);
+    }
+    
+    return _global_impure_ptr;
 }
 
 #endif

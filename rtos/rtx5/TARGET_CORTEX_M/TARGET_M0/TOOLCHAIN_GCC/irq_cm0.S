@@ -98,6 +98,12 @@ SVC_ContextRestore:
         SUBS     R0,R0,#32              // Adjust address
         LDMIA    R0!,{R4-R7}            // Restore R4..R7
 
+SVC_ContextForNewlib:
+        MOV      R0,R2                  // Pass in current thread id
+        BL       __user_perthread_libspace // Fetch _reent structure for this thread
+        LDR      R1,=_impure_ptr        // Place it in _impure_ptr for newlib
+        STR      R0,[R1]
+
         MOVS     R0,#~0xFFFFFFFD
         MVNS     R0,R0                  // Set EXC_RETURN value
         BX       R0                     // Exit from handler
