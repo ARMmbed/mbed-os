@@ -40,7 +40,7 @@
 #include "mbedtls/sha1.h"
 #include "mbedtls/sha256.h"
 
-#if defined(MBEDTLS_SHA256_ALT) || defined(MBEDTLS_SHA1_ALT)
+#if ( defined(MBEDTLS_SHA256_ALT) && defined(MBEDTLS_SHA256_C) ) || ( defined(MBEDTLS_SHA1_ALT) && defined (MBEDTLS_SHA1_C) )
 
 #include "em_device.h"
 
@@ -51,6 +51,7 @@
 #include "em_assert.h"
 #include <string.h>
 
+#if defined(MBEDTLS_SHA1_C)
 static const uint32_t init_state_sha1[8] =
 {
     0x67452301UL,
@@ -62,7 +63,9 @@ static const uint32_t init_state_sha1[8] =
     0x0UL,
     0x0UL
 };
+#endif /* defined(MBEDTLS_SHA1_C) */
 
+#if defined(MBEDTLS_SHA256_C)
 static const uint32_t init_state_sha256[8] =
 {
     0x6A09E667UL,
@@ -86,6 +89,7 @@ static const uint32_t init_state_sha224[8] =
     0x64F98FA7UL,
     0xBEFA4FA4UL
 };
+#endif /* defined(MBEDTLS_SHA256_C) */
 
 static const unsigned char sha_padding[64] =
 {
@@ -96,8 +100,12 @@ static const unsigned char sha_padding[64] =
 };
 
 typedef enum {
+#if defined(MBEDTLS_SHA1_C)
     CRYPTO_SHA1,
+#endif /* defined(MBEDTLS_SHA1_C) */
+#if defined(MBEDTLS_SHA256_C)
     CRYPTO_SHA2
+#endif /* defined(MBEDTLS_SHA256_C) */
 } crypto_sha_mode_t;
 
 /*
@@ -131,12 +139,16 @@ static void crypto_sha_update_state( uint32_t state[8],
     CRYPTO_TypeDef *crypto = crypto_management_acquire();
 
     switch ( mode ) {
+#if defined(MBEDTLS_SHA1_C)
         case CRYPTO_SHA1:
             crypto->CTRL = CRYPTO_CTRL_SHA_SHA1;
             break;
+#endif /* defined(MBEDTLS_SHA1_C) */
+#if defined(MBEDTLS_SHA256_C)
         case CRYPTO_SHA2:
             crypto->CTRL = CRYPTO_CTRL_SHA_SHA2;
             break;
+#endif /* defined(MBEDTLS_SHA256_C) */
     }
 
     crypto->WAC      = 0;
@@ -446,4 +458,4 @@ void mbedtls_sha1_process( mbedtls_sha1_context *ctx,
 
 #endif /* #if defined(CRYPTO_PRESENT) */
 
-#endif /* #if defined(MBEDTLS_SHA256_ALT) || defined(MBEDTLS_SHA1_ALT) */
+#endif /* #if ( defined(MBEDTLS_SHA256_ALT) && defined(MBEDTLS_SHA256_C) ) || ( defined(MBEDTLS_SHA1_ALT) && defined (MBEDTLS_SHA1_C) ) */
