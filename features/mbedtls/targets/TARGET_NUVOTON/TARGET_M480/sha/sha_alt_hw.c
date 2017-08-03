@@ -323,8 +323,8 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
     int rmn = ilen;
     uint32_t sha_ctl_start = (CRPT->HMAC_CTL & ~(CRPT_HMAC_CTL_DMALAST_Msk | CRPT_HMAC_CTL_DMAEN_Msk | CRPT_HMAC_CTL_HMACEN_Msk)) | CRPT_HMAC_CTL_START_Msk;
     uint32_t sha_opmode = (CRPT->HMAC_CTL & CRPT_HMAC_CTL_OPMODE_Msk) >> CRPT_HMAC_CTL_OPMODE_Pos;
-    uint32_t DGST0_old, DGST1_old, DGST2_old, DGST3_old, DGST4_old, DGST5_old, DGST6_old, DGST7_old,
-        DGST8_old, DGST9_old, DGST10_old, DGST11_old, DGST12_old, DGST13_old, DGST14_old, DGST15_old;
+    uint32_t DGST0_old = 0, DGST1_old = 0, DGST2_old = 0, DGST3_old = 0, DGST4_old = 0, DGST5_old = 0, DGST6_old = 0, DGST7_old = 0,
+        DGST8_old = 0, DGST9_old = 0, DGST10_old = 0, DGST11_old = 0, DGST12_old = 0, DGST13_old = 0, DGST14_old = 0, DGST15_old = 0;
     
     while (rmn > 0) {
         CRPT->HMAC_CTL = sha_ctl_start;

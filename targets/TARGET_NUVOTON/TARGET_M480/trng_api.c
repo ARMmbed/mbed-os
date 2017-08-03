@@ -85,7 +85,7 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
         memcpy(output, &tmpBuff, length);
         *output_length = length;
     } else {
-        for (int i = 0; i < (length/32); i++) {
+        for (unsigned i = 0; i < (length/32); i++) {
             trng_get(output);
             *output_length += 32;
             output += 32;

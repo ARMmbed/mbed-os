@@ -51,7 +51,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     const struct nu_modinit_s *modinit = get_modinit(obj->adc, adc_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->adc);
+    MBED_ASSERT(modinit->modname == (int) obj->adc);
 
     EADC_T *eadc_base = (EADC_T *) NU_MODBASE(obj->adc);
 
@@ -86,7 +86,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     uint32_t chn =  NU_MODSUBINDEX(obj->adc);
 
     EADC_START_CONV(eadc_base, 1 << chn);
-    while (EADC_GET_DATA_VALID_FLAG(eadc_base, 1 << chn) != (1 << chn));
+    while (EADC_GET_DATA_VALID_FLAG(eadc_base, 1 << chn) != ((uint32_t) (1 << chn)));
     uint16_t conv_res_12 = EADC_GET_CONV_DATA(eadc_base, chn);
     // Just 12 bits are effective. Convert to 16 bits.
     // conv_res_12: 0000 b11b10b9b8 b7b6b5b4 b3b2b1b0

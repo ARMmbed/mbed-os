@@ -610,18 +610,18 @@ int32_t CAN_ReadMsgObj(CAN_T *tCAN, uint8_t u8MsgObj, uint8_t u8Release, STR_CAN
 static int can_update_spt(int sampl_pt, int tseg, int *tseg1, int *tseg2)
 {
     *tseg2 = tseg + 1 - (sampl_pt * (tseg + 1)) / 1000;
-    if (*tseg2 < TSEG2_MIN) {
+    if (*tseg2 < ((int) TSEG2_MIN)) {
         *tseg2 = TSEG2_MIN;
     } else {
     }
 
-    if (*tseg2 > TSEG2_MAX) {
+    if (*tseg2 > ((int) TSEG2_MAX)) {
         *tseg2 = TSEG2_MAX;
     } else {
     }
 
     *tseg1 = tseg - *tseg2;
-    if (*tseg1 > TSEG1_MAX) {
+    if (*tseg1 > ((int) TSEG1_MAX)) {
         *tseg1 = TSEG1_MAX;
         *tseg2 = tseg - *tseg1;
     } else {
@@ -679,14 +679,14 @@ uint32_t CAN_SetBaudRate(CAN_T *tCAN, uint32_t u32BaudRate)
     }
 
     /* tseg even = round down, odd = round up */
-    for (tseg = (TSEG1_MAX + TSEG2_MAX) * 2ul + 1ul; tseg >= (TSEG1_MIN + TSEG2_MIN) * 2ul; tseg--) {
+    for (tseg = (TSEG1_MAX + TSEG2_MAX) * 2ul + 1ul; tseg >= (int) ((TSEG1_MIN + TSEG2_MIN) * 2ul); tseg--) {
         tsegall = 1ul + tseg / 2ul;
         /* Compute all possible tseg choices (tseg=tseg1+tseg2) */
         brp = clock_freq / (tsegall * u32BaudRate) + tseg % 2;
         /* chose brp step which is possible in system */
         brp = (brp / BRP_INC) * BRP_INC;
 
-        if ((brp < BRP_MIN) || (brp > BRP_MAX)) {
+        if ((brp < ((int) BRP_MIN)) || (brp > ((int) BRP_MAX))) {
             continue;
         }
         rate = clock_freq / (brp * tsegall);
@@ -728,7 +728,7 @@ uint32_t CAN_SetBaudRate(CAN_T *tCAN, uint32_t u32BaudRate)
         sjw = SJW_MAX;
     }
     /* bt->sjw must not be higher than tseg2 */
-    if (tseg2 < sjw) {
+    if (tseg2 < ((int) sjw)) {
         sjw = tseg2;
     }
 

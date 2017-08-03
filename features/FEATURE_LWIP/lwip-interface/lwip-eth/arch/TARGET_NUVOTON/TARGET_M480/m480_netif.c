@@ -429,7 +429,9 @@ err_t
     /* Packet receive task */
 
     err = sys_sem_new(&RxReadySem, 0);
-    if(err != ERR_OK) LWIP_ASSERT("RxReadySem creation error", (err == ERR_OK));
+    if(err != ERR_OK) {
+        LWIP_ASSERT("RxReadySem creation error", (err == ERR_OK));
+    }
 	// In GCC code, DEFAULT_THREAD_STACKSIZE 512 bytes is not enough for rx_task
 #if defined (__GNUC__)	
     // mbed OS 2.0, DEFAULT_THREAD_STACKSIZE*3
