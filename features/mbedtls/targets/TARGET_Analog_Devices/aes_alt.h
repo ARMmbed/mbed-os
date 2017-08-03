@@ -26,9 +26,12 @@
 
 #if defined(MBEDTLS_AES_ALT)
 
+#include "mbedtls/platform.h"
 #include "mbedtls/config.h"
 /* ADI Crypto structures */
 #include "drivers/crypto/adi_crypto.h"
+
+#define CRYPTO_ENABLE_CALLBACK	// uncomment to enable callback code
 
 #ifdef __cplusplus
 extern "C" {
