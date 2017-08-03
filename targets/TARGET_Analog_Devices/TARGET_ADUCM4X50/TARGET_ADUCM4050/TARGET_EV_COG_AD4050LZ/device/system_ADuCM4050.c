@@ -185,9 +185,13 @@ void SystemInit (void)
     adi_pwr_SetClockDivider(ADI_CLOCK_HCLK,1);
     adi_pwr_SetClockDivider(ADI_CLOCK_PCLK,1);
 
-    /* Set up the LF clock source */
-    adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFXTAL);
+    /* Set up the LF clock MUX. Currently LFXTAL is unstable so use the
+       internal LF Oscillator instead. LFXTAL is still required to be enabled
+       as it is required by RTC0. This LFXTAL issue is going to be fixed
+       in the next revision of the silicon. */
     adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFXTAL,true);
+    adi_pwr_SetLFClockMux(ADI_CLOCK_MUX_LFCLK_LFOSC);
+    adi_pwr_EnableClockSource(ADI_CLOCK_SOURCE_LFOSC,true);
 
     __set_PRIMASK(IntStatus);
 }
