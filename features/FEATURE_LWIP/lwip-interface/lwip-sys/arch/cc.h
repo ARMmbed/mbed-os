@@ -117,6 +117,13 @@ void assert_printf(char *msg, int line, char *file);
 #endif // MBED_CONF_LWIP_USE_MBED_TRACE
 #endif 
 
+#if TRACE_TO_ASCII_HEX_DUMP
+#define TRACE_TO_ASCII_HEX_DUMPF(prefix, len, data) trace_to_ascii_hex_dump(prefix, len, data)
+void trace_to_ascii_hex_dump(char* prefix, int len, char *data);
+#else
+#define TRACE_TO_ASCII_HEX_DUMPF(prefix, len, data) ((void)0)
+#endif
+
 #include "cmsis.h"
 #define LWIP_PLATFORM_HTONS(x)      __REV16(x)
 #define LWIP_PLATFORM_HTONL(x)      __REV(x)

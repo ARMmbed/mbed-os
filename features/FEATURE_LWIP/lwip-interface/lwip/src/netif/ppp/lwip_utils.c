@@ -727,6 +727,7 @@ void ppp_dump_packet(ppp_pcb *pcb, const char *tag, unsigned char *p, int len) {
 	    return;
     }
 
+    TRACE_TO_ASCII_HEX_DUMPF("PPP>", len, (char *) p);
     ppp_dbglog("%s %P", tag, p, len);
 }
 #endif /* PRINTPKT_SUPPORT */

@@ -1101,6 +1101,8 @@ ip6_debug_print(struct pbuf *p)
 {
   struct ip6_hdr *ip6hdr = (struct ip6_hdr *)p->payload;
 
+  TRACE_TO_ASCII_HEX_DUMPF("IP>", IP6H_PLEN(ip6hdr) + 40, (char *) ip6hdr);
+
   LWIP_DEBUGF(IP6_DEBUG, ("IPv6 header:\n"));
   LWIP_DEBUGF(IP6_DEBUG, ("+-------------------------------+\n"));
   LWIP_DEBUGF(IP6_DEBUG, ("| %2"U16_F" |  %3"U16_F"  |      %7"U32_F"     | (ver, class, flow)\n",
