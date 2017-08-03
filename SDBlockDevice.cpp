@@ -147,6 +147,11 @@
 #include "mbed_debug.h"
 #include <errno.h>
 
+/* Required version: 5.5.4 and above */
+#if (MBED_VERSION < MBED_ENCODE_VERSION(5,5,4))
+#error "Incompatible mbed-os version detected! Required 5.5.4 and above"
+#endif
+
 #define SD_COMMAND_TIMEOUT                       5000   /*!< Timeout in ms for response */
 #define SD_CMD0_GO_IDLE_STATE_RETRIES            5      /*!< Number of retries for sending CMDO */
 #define SD_DBG                                   0      /*!< 1 - Enable debugging */
