@@ -70,6 +70,15 @@ SECTIONS
         *rtl8195a_crypto.o (.text* .rodata*)
         *mbedtls*.o (.text* .rodata*)
         *libc.a: (.text* .rodata*)
+		*Ticker.o (.text*)
+		*Timeout.o (.text*)
+		*TimerEvent.o (.text*)
+		*mbed_ticker_api.o (.text*)
+		*mbed_critical.o (.text*)
+		
+		*us_ticker.o (.text*)
+		*lib_peripheral_mbed_gcc.a: (.text*)
+		
     } > SRAM1
 
     .text.sram2 :
@@ -109,17 +118,18 @@ SECTIONS
     .data.sram1 :
     {
         . = ALIGN(4);
-        __sdram_data_start__ = .;
+        __sram_data_start__ = .;
         *rtl8195a_crypto*.o (.data*)
         *mbedtls*.o (.data*)
-        *(.sdram.data*)
-        __sdram_data_end__ = .;
+        __sram_data_end__ = .;
     } > SRAM1
 
     .data.sram2 :
     {
+        __sdram_data_start__ = .;
         *(vtable)
         *(.data*)
+        *(.sdram.data*)
 
         . = ALIGN(4);
         /* preinit data */
@@ -143,6 +153,7 @@ SECTIONS
 
         . = ALIGN(4);
 
+        __sdram_data_end__ = .;
         /* All data end */
     } > SRAM2
     __data_end__ = .;
