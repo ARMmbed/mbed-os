@@ -5,7 +5,7 @@ Simon Hughes
 
 20170329
 
-Version 0.1.0
+Version 0.1.1
 
 
 # Executive Summary
@@ -84,16 +84,17 @@ The following versions of the mbed-os and sd-driver repositories are known to wo
   `K64F`, `NUCLEO_F429ZI` and `UBLOX_EVK_ODIN_W2` fopen and basic filesystem tests working.
 - {mbed-os, sd-driver} = {mbed-os-5.4.1, sd-driver-0.0.3-mbed-os-5.4.1}.
 - {mbed-os, sd-driver} = {mbed-os-5.5.1, sd-driver-0.1.0-mbed-os-5.5.1}.
+- {mbed-os, sd-driver} = {mbed-os-5.5.4, sd-driver-0.1.1-mbed-os-5.5.4}.
 
 To find the latest compatible versions, use the following command to see the messages attached to the tags
 in the sd-driver repository:
 
-	ex_app7/$ cd sd-driver
-	ex_app7/sd-driver$ git tag -n
-	sd-driver-0.0.1-mbed-os-5.3.4 Version compatible with mbed-os-5.3.4, and private_mbedos_filesystems-0.0.1-mbed-os-5.3.4.
-	sd-driver-0.0.2-mbed-os-5.4.0 Updated README.md to include worked exmaples and restructuring of information.
-	sd-driver-0.0.3-mbed-os-5.4.1 Version compatible with mbed-os-5.4.1.
-	sd-driver-0.1.0-mbed-os-5.5.1 Version compatible with mbed-os-5.5.1
+    ex_app7/$ cd sd-driver
+    ex_app7/sd-driver$ git tag -n
+    sd-driver-0.0.1-mbed-os-5.3.4 Version compatible with mbed-os-5.3.4, and private_mbedos_filesystems-0.0.1-mbed-os-5.3.4.
+    sd-driver-0.0.2-mbed-os-5.4.0 Updated README.md to include worked exmaples and restructuring of information.
+    sd-driver-0.0.3-mbed-os-5.4.1 Version compatible with mbed-os-5.4.1.
+    sd-driver-0.1.1-mbed-os-5.5.4 Version compatible with mbed-os-5.5.4
 
 
 ### Known Issues With This Document
@@ -162,12 +163,12 @@ storage on SDCard:
 - mbed_retarget.cpp implements the libc back-end file OS handlers and maps them
   to the FileSystem.
 - The File System code (hosted in mbed-os) is composed of 2 parts:
-	- The mbed OS file system wrapper classes (e.g. FileSystem, File, FileBase classes)
-	  which are used to present a consistent API to the retarget module for different
-	  (third-party) file system implementations.
-	- The FAT filesystem implementation code.
-	  The [FATFS: Generic FAT File System Module](http://elm-chan.org/fsw/ff/00index_e.html)
-	  (ChanFS) has been integrated within mbed-os.
+    - The mbed OS file system wrapper classes (e.g. FileSystem, File, FileBase classes)
+      which are used to present a consistent API to the retarget module for different
+      (third-party) file system implementations.
+    - The FAT filesystem implementation code.
+      The [FATFS: Generic FAT File System Module](http://elm-chan.org/fsw/ff/00index_e.html)
+      (ChanFS) has been integrated within mbed-os.
 - The Block API Device Driver. The SDCard driver is an example of a persistent storage driver.
   It's maintained as a separate component from the mbed OS repository (in this repository).
 - The SPI module provides the mbed OS generic SPI API. This functionality is maintained in
@@ -472,20 +473,20 @@ Build the test cases for the K64F target using the following command:
 
 The build trace is quite extensive but on a successful build you should see the following output at the end of the log:
 
-	Build successes:
-	  * K64F::GCC_ARM::MBED-BUILD
-	  * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-CONNECTIVITY
-	  <trace removed>
-	  * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-FAT_FILE_SYSTEM
-	  * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-HEAP_BLOCK_DEVICE
-	  * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-UTIL_BLOCK_DEVICE
-	  <trace removed>
-	  * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-BASIC
-	  * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-FOPEN
-
-	Build skips:
-	  * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-TCP_PACKET_PRESSURE
-	  <trace removed>
+    Build successes:
+      * K64F::GCC_ARM::MBED-BUILD
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-CONNECTIVITY
+      <trace removed>
+      * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-FAT_FILE_SYSTEM
+      * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-HEAP_BLOCK_DEVICE
+      * K64F::GCC_ARM::MBED-OS-FEATURES-TESTS-FILESYSTEM-UTIL_BLOCK_DEVICE
+      <trace removed>
+      * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-BASIC
+      * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-FOPEN
+    
+    Build skips:
+      * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-TCP_PACKET_PRESSURE
+      <trace removed>
 
 
 Notice the following tests in the sd-driver tree are listed above:
@@ -553,35 +554,35 @@ To run the fopen test use:
 
 On a successful run, results similar to the following will be shown:
 
-	mbedgt: test suite report:
-	+--------------+---------------+-------------------------------------------+--------+--------------------+-------------+
-	| target       | platform_name | test suite                                | result | elapsed_time (sec) | copy_method |
-	+--------------+---------------+-------------------------------------------+--------+--------------------+-------------+
-	| K64F-GCC_ARM | K64F          | sd-driver-features-tests-filesystem-fopen | OK     | 151.46             | shell       |
-	+--------------+---------------+-------------------------------------------+--------+--------------------+-------------+
-	mbedgt: test suite results: 1 OK
-	mbedgt: test case report:
-	+--------------+---------------+------------------------------------+----------------------------------------------------------------------------------------+--------+--------+--------+--------------------+
-	| target       | platform_name | test suite                         | test case                                                                              | passed | failed | result | elapsed_time (sec) |
-	+--------------+---------------+------------------------------------+----------------------------------------------------------------------------------------+--------+--------+--------+--------------------+
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_01: fopen()/fwrite()/fclose() directories/file in multi-dir filepath. | 1      | 0      | OK     | 7.57               |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_02: fopen(r) pre-existing file try to write it.                       | 1      | 0      | OK     | 0.2                |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_03: fopen(w+) pre-existing file try to write it.                      | 1      | 0      | OK     | 0.41               |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_04: fopen() with a filename exceeding the maximum length.             | 1      | 0      | OK     | 0.11               |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_06: fopen() with bad filenames (minimal).                             | 1      | 0      | OK     | 0.1                |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_07: fopen()/errno handling.                                           | 1      | 0      | OK     | 0.07               |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_08: ferror()/clearerr()/errno handling.                               | 1      | 0      | OK     | 0.1                |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_09: ftell() handling.                                                 | 1      | 0      | OK     | 0.17               |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_10: remove() test.                                                    | 1      | 0      | OK     | 1.28               |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_11: rename().                                                         | 1      | 0      | OK     | 2.3                |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_12: opendir(), readdir(), closedir() test.                            | 1      | 0      | OK     | 3.57               |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_13: mkdir() test.                                                     | 1      | 0      | OK     | 1.21               |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_14: stat() test.                                                      | 1      | 0      | OK     | 1.47               |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_15: format() test.                                                    | 1      | 0      | OK     | 26.12              |
-	| K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_16: write/check n x 25kB data files.                                  | 1      | 0      | OK     | 87.11              |
-	+--------------+---------------+------------------------------------+----------------------------------------------------------------------------------------+--------+--------+--------+--------------------+
-	mbedgt: test case results: 15 OK
-	mbedgt: completed in 152.35 sec
+    mbedgt: test suite report:
+    +--------------+---------------+-------------------------------------------+--------+--------------------+-------------+
+    | target       | platform_name | test suite                                | result | elapsed_time (sec) | copy_method |
+    +--------------+---------------+-------------------------------------------+--------+--------------------+-------------+
+    | K64F-GCC_ARM | K64F          | sd-driver-features-tests-filesystem-fopen | OK     | 151.46             | shell       |
+    +--------------+---------------+-------------------------------------------+--------+--------------------+-------------+
+    mbedgt: test suite results: 1 OK
+    mbedgt: test case report:
+    +--------------+---------------+------------------------------------+----------------------------------------------------------------------------------------+--------+--------+--------+--------------------+
+    | target       | platform_name | test suite                         | test case                                                                              | passed | failed | result | elapsed_time (sec) |
+    +--------------+---------------+------------------------------------+----------------------------------------------------------------------------------------+--------+--------+--------+--------------------+
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_01: fopen()/fwrite()/fclose() directories/file in multi-dir filepath. | 1      | 0      | OK     | 7.57               |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_02: fopen(r) pre-existing file try to write it.                       | 1      | 0      | OK     | 0.2                |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_03: fopen(w+) pre-existing file try to write it.                      | 1      | 0      | OK     | 0.41               |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_04: fopen() with a filename exceeding the maximum length.             | 1      | 0      | OK     | 0.11               |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_06: fopen() with bad filenames (minimal).                             | 1      | 0      | OK     | 0.1                |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_07: fopen()/errno handling.                                           | 1      | 0      | OK     | 0.07               |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_08: ferror()/clearerr()/errno handling.                               | 1      | 0      | OK     | 0.1                |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_09: ftell() handling.                                                 | 1      | 0      | OK     | 0.17               |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_10: remove() test.                                                    | 1      | 0      | OK     | 1.28               |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_11: rename().                                                         | 1      | 0      | OK     | 2.3                |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_12: opendir(), readdir(), closedir() test.                            | 1      | 0      | OK     | 3.57               |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_13: mkdir() test.                                                     | 1      | 0      | OK     | 1.21               |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_14: stat() test.                                                      | 1      | 0      | OK     | 1.47               |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_15: format() test.                                                    | 1      | 0      | OK     | 26.12              |
+    | K64F-GCC_ARM | K64F          | sd-driver-tests-filesystem-fopen   | FSFAT_FOPEN_TEST_16: write/check n x 25kB data files.                                  | 1      | 0      | OK     | 87.11              |
+    +--------------+---------------+------------------------------------+----------------------------------------------------------------------------------------+--------+--------+--------+--------------------+
+    mbedgt: test case results: 15 OK
+    mbedgt: completed in 152.35 sec
 
 
 # <a name="summary-posix-api-documentation"></a> Summary of POSIX File API Documentation
