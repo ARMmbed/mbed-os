@@ -1268,7 +1268,7 @@ nd6_send_rs(struct netif *netif)
   ip6_addr_set_allrouters_linklocal(&multicast_address);
 
   /* Allocate a packet. */
-  if (src_addr != IP6_ADDR_ANY6) {
+  if (src_addr != IP6_ADDR_ANY6 && netif->hwaddr_len) {
     lladdr_opt_len = ((netif->hwaddr_len + 2) >> 3) + (((netif->hwaddr_len + 2) & 0x07) ? 1 : 0);
   }
   p = pbuf_alloc(PBUF_IP, sizeof(struct rs_header) + (lladdr_opt_len << 3), PBUF_RAM);
@@ -1285,7 +1285,7 @@ nd6_send_rs(struct netif *netif)
   rs_hdr->chksum = 0;
   rs_hdr->reserved = 0;
 
-  if (src_addr != IP6_ADDR_ANY6) {
+  if (src_addr != IP6_ADDR_ANY6 && lladdr_opt_len) {
     /* Include our hw address. */
     lladdr_opt = (struct lladdr_option *)((u8_t*)p->payload + sizeof(struct rs_header));
     lladdr_opt->type = ND6_OPTION_TYPE_SOURCE_LLADDR;
@@ -1736,9 +1736,13 @@ nd6_new_router(const ip6_addr_t *router_addr, struct netif *netif)
     ip6_addr_set(&(neighbor_cache[neighbor_index].next_hop_address), router_addr);
     neighbor_cache[neighbor_index].netif = netif;
     neighbor_cache[neighbor_index].q = NULL;
-    neighbor_cache[neighbor_index].state = ND6_INCOMPLETE;
-    neighbor_cache[neighbor_index].counter.probes_sent = 1;
-    nd6_send_neighbor_cache_probe(&neighbor_cache[neighbor_index], ND6_SEND_FLAG_MULTICAST_DEST);
+    if (netif->hwaddr_len) {
+      neighbor_cache[neighbor_index].state = ND6_INCOMPLETE;
+      neighbor_cache[neighbor_index].counter.probes_sent = 1;
+      nd6_send_neighbor_cache_probe(&neighbor_cache[neighbor_index], ND6_SEND_FLAG_MULTICAST_DEST);
+    } else {
+      neighbor_cache[neighbor_index].state = ND6_STALE;
+    }
   }
 
   /* Mark neighbor as router. */
