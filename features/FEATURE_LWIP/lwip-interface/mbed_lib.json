@@ -14,9 +14,13 @@
             "value": 4
         },
         "addr-timeout": {
-            "help": "On dual-stack system how long to wait preferred stack's address in seconds",
+            "help": "On dual-stack system how long to additionally wait for other stack's address in seconds",
             "value": 5
-        },
+        },        
+        "addr-timeout-mode": {
+            "help": "Address timeout mode; true: wait both stack's addresses; false: wait for preferred stack's address",
+            "value": true
+        },        
         "ethernet-enabled": {
             "help": "Enable support for Ethernet interfaces",
             "value": true
