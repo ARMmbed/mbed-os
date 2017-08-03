@@ -75,7 +75,7 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
             ap.channel = record->channel;
             WiFiAccessPoint *accesspoint = new WiFiAccessPoint(ap);
             memcpy(&scan_handler->ap_details[scan_handler->ap_num], accesspoint, sizeof(WiFiAccessPoint));
-            delete[] accesspoint;
+            delete accesspoint;
         }
         scan_handler->ap_num++;
     } else{
