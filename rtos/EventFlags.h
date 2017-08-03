@@ -33,9 +33,9 @@ namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
 
-/** The EventFlags class is used to signal to whom it may concern about an event has occured.
+/** The EventFlags class is used to signal or wait for an arbitrary event or events.
  @note 
- EventFlags support 31 flags so the MSB flag is ignored, it is used to return error code (osFlagsError)
+ EventFlags support 31 flags so the MSB flag is ignored, it is used to return an error code (@a osFlagsError)
  @note
  Memory considerations: The EventFlags control structures will be created on current thread's stack, both for the mbed OS
  and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
@@ -52,35 +52,43 @@ public:
     EventFlags(const char *name);
 
     /** Set the specified Event Flags.
-      @param   flags  specifies the flags that shall be set. (default: 0x7fffffff)
-      @return  event flags after setting or error code if highest bit set (osFlagsError).
+      @param   flags  specifies the flags that shall be set.
+      @return  event flags after setting or error code if highest bit set (@a osFlagsError).
      */
-    uint32_t set(uint32_t flags = 0x7fffffff);
+    uint32_t set(uint32_t flags);
 
     /** Clear the specified Event Flags.
-      @param   flags  specifies the flags that shall be cleared. (default: 0x7fffffff0)
-      @return  event flags before clearing or error code if highest bit set (osFlagsError).
+      @param   flags  specifies the flags that shall be cleared. (default: 0x7fffffff - all flags)
+      @return  event flags before clearing or error code if highest bit set (@a osFlagsError).
      */
     uint32_t clear(uint32_t flags = 0x7fffffff);
 
-    /** Get the current Event Flags.
-      @return  current event flags.
+    /** Get the currently set Event Flags.
+      @return  set event flags.
      */
-    uint32_t get();
+    uint32_t get() const;
 
-    /** Wait for one or more Event Flags to become signaled.
+    /** Wait for all of the specified event flags to become signaled.
+      @param   flags    specifies the flags to wait for.
+      @param   timeout  timeout value or 0 in case of no time-out. (default: osWaitForever)
+      @param   clear    specifies wether to clear the flags after waiting for them. (default: true)
+      @return  event flags before clearing or error code if highest bit set (@a osFlagsError).
+     */
+    uint32_t wait_all(uint32_t flags = 0, uint32_t timeout = osWaitForever, bool clear = true);
+
+    /** Wait for any of the specified event flags to become signaled.
       @param   flags    specifies the flags to wait for. (default: 0)
       @param   timeout  timeout value or 0 in case of no time-out. (default: osWaitForever)
-      @return  event flags before clearing or error code if highest bit set (osFlagsError).
-      @note    incase of flags 0 the function will wait to any flag and will not clear the flags, 
-               the user must clear the flags. otherwise the function to wait all specified flags and clear them. 
+      @param   clear    specifies wether to clear the flags after waiting for them. (default: true)
+      @return  event flags before clearing or error code if highest bit set (@a osFlagsError).
      */
-    uint32_t wait(uint32_t flags = 0, uint32_t timeout = osWaitForever);
+    uint32_t wait_any(uint32_t flags = 0, uint32_t timeout = osWaitForever, bool clear = true);
 
     ~EventFlags();
 
 private:
     void constructor(const char *name = NULL);
+    uint32_t wait(uint32_t flags, uint32_t opt, uint32_t timeout, bool clear);
     osEventFlagsId_t                _id;
     osEventFlagsAttr_t              _attr;
     mbed_rtos_storage_event_flags_t _obj_mem;

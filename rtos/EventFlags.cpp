@@ -26,15 +26,18 @@
 
 namespace rtos {
 
-EventFlags::EventFlags() {
+EventFlags::EventFlags()
+{
     constructor();
 }
 
-EventFlags::EventFlags(const char *name) {
+EventFlags::EventFlags(const char *name)
+{
     constructor(name);
 }
 
-void EventFlags::constructor(const char *name) {
+void EventFlags::constructor(const char *name)
+{
     memset(&_obj_mem, 0, sizeof(_obj_mem));
     memset(&_attr, 0, sizeof(_attr));
     _attr.name = name ? name : "application_unnamed_event_flags";
@@ -44,27 +47,43 @@ void EventFlags::constructor(const char *name) {
     MBED_ASSERT(_id);
 }
 
-uint32_t EventFlags::set(uint32_t flags) {
+uint32_t EventFlags::set(uint32_t flags)
+{
     return osEventFlagsSet(_id, flags);
 }
 
-uint32_t EventFlags::clear(uint32_t flags) {
+uint32_t EventFlags::clear(uint32_t flags)
+{
     return osEventFlagsClear(_id, flags);
 }
 
-uint32_t EventFlags::get() {
+uint32_t EventFlags::get() const
+{
     return osEventFlagsGet(_id);
 }
 
-uint32_t EventFlags::wait(uint32_t flags, uint32_t timeout) {
-    if(flags == 0) {
-        return osEventFlagsWait(_id, 0x7fffffff, osFlagsWaitAny | osFlagsNoClear, timeout); 
-    }
-    return osEventFlagsWait(_id, flags, osFlagsWaitAll, timeout);
+uint32_t EventFlags::wait_all(uint32_t flags, uint32_t timeout, bool clear)
+{
+    return wait(flags, osFlagsWaitAll, timeout, clear);
 }
 
-EventFlags::~EventFlags() {
+uint32_t EventFlags::wait_any(uint32_t flags, uint32_t timeout, bool clear)
+{
+    return wait(flags, osFlagsWaitAny, timeout, clear);
+}
+
+EventFlags::~EventFlags()
+{
     osEventFlagsDelete(_id);
+}
+
+uint32_t EventFlags::wait(uint32_t flags, uint32_t opt, uint32_t timeout, bool clear)
+{
+    if (clear == false) {
+        opt |= osFlagsNoClear;
+    }
+
+    return osEventFlagsWait(_id, flags, opt, timeout);
 }
 
 }
