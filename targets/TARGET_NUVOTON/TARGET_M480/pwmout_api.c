@@ -74,7 +74,6 @@ void pwmout_init(pwmout_t* obj, PinName pin)
         SYS_ResetModule(modinit->rsetidx);
     }
 
-    EPWM_T *pwm_base = (EPWM_T *) NU_MODBASE(obj->pwm);
     uint32_t chn =  NU_MODSUBINDEX(obj->pwm);
 
     // NOTE: Channels 0/1/2/3/4/5 share a clock source.
