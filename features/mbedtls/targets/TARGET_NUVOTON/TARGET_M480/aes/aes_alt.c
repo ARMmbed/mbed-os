@@ -56,8 +56,8 @@ extern volatile int  g_AES_done;
 
 // Must be a multiple of 16 bytes block size 
 #define MAX_DMA_CHAIN_SIZE (16*6)
-static uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE] MBED_ALIGN(4);
-static uint8_t au8InputData[MAX_DMA_CHAIN_SIZE] MBED_ALIGN(4);
+MBED_ALIGN(4) static uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE];
+MBED_ALIGN(4) static uint8_t au8InputData[MAX_DMA_CHAIN_SIZE];
 
 static void dumpHex(const unsigned char au8Data[], int len)
 {

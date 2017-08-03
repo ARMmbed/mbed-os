@@ -36,6 +36,8 @@ void FUN(void);                         \
 _Pragma(_STRINGIFY(_WEAK_ALIAS_FUNC(FUN, FUN_ALIAS)))
 #define _WEAK_ALIAS_FUNC(FUN, FUN_ALIAS) weak __WEAK_ALIAS_FUNC(FUN, FUN_ALIAS)
 #define __WEAK_ALIAS_FUNC(FUN, FUN_ALIAS) FUN##=##FUN_ALIAS
+// Suppress warning message Pe1665
+#pragma diag_suppress=Pe1665
 
 #elif defined(__GNUC__)
 #define WEAK            __attribute__ ((weak))
