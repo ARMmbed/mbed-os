@@ -289,7 +289,7 @@ static void SPIM_ReadStatusRegister2(uint8_t dataBuf[], uint32_t u32NRx, uint32_
     SwitchNBitOutput(u32NBit);
     spim_write(cmdBuf, sizeof (cmdBuf));
     SwitchNBitInput(u32NBit);
-    spim_read(dataBuf, sizeof (dataBuf));
+    spim_read(dataBuf, u32NRx);
     SPIM_SET_SS_EN(0);                          /* CS deactivated.  */
 }
 
@@ -349,7 +349,7 @@ static void SPIM_ReadStatusRegister3(uint8_t dataBuf[], uint32_t u32NRx, uint32_
     SwitchNBitOutput(u32NBit);
     spim_write(cmdBuf, sizeof (cmdBuf));
     SwitchNBitInput(u32NBit);
-    spim_read(dataBuf, sizeof (dataBuf));
+    spim_read(dataBuf, u32NRx);
     SPIM_SET_SS_EN(0);                          /* CS deactivated. */
 }
 
@@ -388,7 +388,7 @@ static void SPIM_ReadSecurityRegister(uint8_t dataBuf[], uint32_t u32NRx, uint32
     SwitchNBitOutput(u32NBit);
     spim_write(cmdBuf, sizeof (cmdBuf));
     SwitchNBitInput(u32NBit);
-    spim_read(dataBuf, sizeof (dataBuf));
+    spim_read(dataBuf, u32NRx);
     SPIM_SET_SS_EN(0);                          /* CS deactivated. */
 }
 

@@ -116,7 +116,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->spi.spi);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
 
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
@@ -166,7 +166,7 @@ void spi_free(spi_t *obj)
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->spi.spi);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
 
     SPI_DisableInt(((SPI_T *) NU_MODBASE(obj->spi.spi)), (SPI_FIFO_RXOV_INT_MASK | SPI_FIFO_RXTH_INT_MASK | SPI_FIFO_TXTH_INT_MASK));
     NVIC_DisableIRQ(modinit->irq_n);
@@ -331,7 +331,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         // DMA way
         const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
         MBED_ASSERT(modinit != NULL);
-        MBED_ASSERT(modinit->modname == obj->spi.spi);
+        MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
 
         PDMA_T *pdma_base = dma_modbase();
 
@@ -504,7 +504,7 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->spi.spi);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
 
     if (enable) {
         NVIC_SetVector(modinit->irq_n, handler);
@@ -741,7 +741,7 @@ static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma)
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->spi.spi);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
 
     void (*vec)(void) = (void (*)(void)) NVIC_GetVector(modinit->irq_n);
     vec();
@@ -764,7 +764,7 @@ static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma)
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->spi.spi);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
 
     void (*vec)(void) = (void (*)(void)) NVIC_GetVector(modinit->irq_n);
     vec();

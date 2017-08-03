@@ -66,7 +66,7 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->pwm);
+    MBED_ASSERT(modinit->modname == (int) obj->pwm);
 
     // NOTE: All channels (identified by PWMName) share a PWM module. This reset will also affect other channels of the same PWM module.
     if (! ((struct nu_pwm_var *) modinit->var)->en_msk) {
@@ -107,7 +107,7 @@ void pwmout_free(pwmout_t* obj)
 
     const struct nu_modinit_s *modinit = get_modinit(obj->pwm, pwm_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->pwm);
+    MBED_ASSERT(modinit->modname == (int) obj->pwm);
     ((struct nu_pwm_var *) modinit->var)->en_msk &= ~(1 << chn);
 
 

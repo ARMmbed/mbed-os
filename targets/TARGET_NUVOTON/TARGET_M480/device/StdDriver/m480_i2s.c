@@ -198,7 +198,7 @@ void I2S_DisableMCLK(I2S_T *i2s)
   */
 void I2S_SetFIFO(I2S_T *i2s, uint32_t u32TxThreshold, uint32_t u32RxThreshold)
 {
-    i2s->CTL1 = (i2s->CTL1 & ~(I2S_CTL1_TXTH_Msk | I2S_CTL1_RXTH_Msk) |
+    i2s->CTL1 = ((i2s->CTL1 & ~(I2S_CTL1_TXTH_Msk | I2S_CTL1_RXTH_Msk)) |
                  (u32TxThreshold << I2S_CTL1_TXTH_Pos) |
                  (u32RxThreshold << I2S_CTL1_RXTH_Pos));
 }
@@ -225,7 +225,7 @@ void I2S_SetFIFO(I2S_T *i2s, uint32_t u32TxThreshold, uint32_t u32RxThreshold)
   */
 void I2S_ConfigureTDM(I2S_T *i2s, uint32_t u32ChannelWidth, uint32_t u32ChannelNum, uint32_t u32SyncWidth)
 {
-    i2s->CTL0 = (i2s->CTL0 & ~(I2S_CTL0_TDMCHNUM_Msk | I2S_CTL0_CHWIDTH_Msk | I2S_CTL0_PCMSYNC_Msk) |
+    i2s->CTL0 = ((i2s->CTL0 & ~(I2S_CTL0_TDMCHNUM_Msk | I2S_CTL0_CHWIDTH_Msk | I2S_CTL0_PCMSYNC_Msk)) |
                  (u32ChannelWidth << I2S_CTL0_CHWIDTH_Pos) |
                  (u32ChannelNum << I2S_CTL0_TDMCHNUM_Pos) |
                  (u32SyncWidth << I2S_CTL0_PCMSYNC_Pos));

@@ -100,7 +100,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->i2c.i2c);
+    MBED_ASSERT(modinit->modname == (int) obj->i2c.i2c);
 
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
@@ -881,7 +881,7 @@ uint8_t i2c_active(i2c_t *obj)
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->i2c.i2c);
+    MBED_ASSERT(modinit->modname == (int) obj->i2c.i2c);
 
     // Vector will be changed for async transfer. Use it to judge if async transfer is on-going.
     uint32_t vec = NVIC_GetVector(modinit->irq_n);
@@ -909,7 +909,7 @@ static void i2c_enable_vector_interrupt(i2c_t *obj, uint32_t handler, int enable
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->i2c.i2c);
+    MBED_ASSERT(modinit->modname == (int) obj->i2c.i2c);
 
     if (enable) {
         NVIC_SetVector(modinit->irq_n, handler);
@@ -924,7 +924,7 @@ static void i2c_rollback_vector_interrupt(i2c_t *obj)
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->i2c.i2c, i2c_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT(modinit->modname == obj->i2c.i2c);
+    MBED_ASSERT(modinit->modname == (int) obj->i2c.i2c);
 
     struct nu_i2c_var *var = (struct nu_i2c_var *) modinit->var;
     i2c_enable_vector_interrupt(obj, (uint32_t) var->vec, 1);

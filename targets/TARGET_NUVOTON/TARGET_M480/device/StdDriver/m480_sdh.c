@@ -360,7 +360,7 @@ uint32_t SDH_Init(SDH_T *sdh)
 {
     uint32_t volatile i, status;
     unsigned int resp;
-    unsigned int CIDBuffer[4];
+    uint32_t CIDBuffer[4];
     uint32_t volatile u32CmdTimeOut;
     SDH_INFO_T *pSD;
 
@@ -630,7 +630,7 @@ uint32_t SDH_SelectCardType(SDH_T *sdh)
 void SDH_Get_SD_info(SDH_T *sdh)
 {
     unsigned int R_LEN, C_Size, MULT, size;
-    unsigned int Buffer[4];
+    uint32_t Buffer[4];
     unsigned char *ptr;
     SDH_INFO_T *pSD;
 
@@ -796,7 +796,7 @@ uint32_t SDH_Probe(SDH_T *sdh)
  */
 uint32_t SDH_Read(SDH_T *sdh, uint8_t *pu8BufAddr, uint32_t u32StartSec, uint32_t u32SecCount)
 {
-    uint32_t volatile bIsSendCmd = FALSE, buf;
+    uint32_t volatile bIsSendCmd = FALSE;
     uint32_t volatile reg;
     uint32_t volatile i, loop, status;
     uint32_t blksize = SDH_BLOCK_SIZE;

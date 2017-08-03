@@ -128,7 +128,7 @@ struct trng_s {
 
 struct can_s {
     CANName can;
-    char index; 
+    int index; 
 };
 #ifdef __cplusplus
 }
