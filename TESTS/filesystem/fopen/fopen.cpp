@@ -775,12 +775,6 @@ control_t fsfat_fopen_test_07(const size_t call_count)
     errno_val = errno;
     FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: errno has unexpected value (errno != 0 expected) (filename=%s, errno=%d).\n", __func__, filename, errno);
     TEST_ASSERT_MESSAGE(errno_val != 0, fsfat_fopen_utest_msg_g);
-
-    /* check ferror() returns non-zero indicating there is an error
-     * Note ARMCC appears to fault when null FILE* is supplied to ferror() */
-    ret = ferror(f);
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: ferror() did not return non-zero value when error exists (filename=%s, ret=%d).\n", __func__, filename, (int) ret);
-    TEST_ASSERT_MESSAGE(ret != 0, fsfat_fopen_utest_msg_g);
 #endif  /* ! defined(__ARMCC_VERSION) && defined(__GNUC__) */
     return CaseNext;
 }
