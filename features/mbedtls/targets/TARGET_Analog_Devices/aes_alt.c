@@ -33,7 +33,6 @@
 #include "adi_crypto.h"
 #include "mbed_assert.h" 
 
-
 /* CRYPTO Device number */
 #define CRYPTO_DEV_NUM               (0u)
 
@@ -243,7 +242,7 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
     return( 0 );
 }    
 
-#if defined(MBEDTLS_CIPHER_MODE_CBC)
+#if defined(MBEDTLS_CIPHER_MODE_CBC_ALT)
 /*
  * AES-CBC buffer encryption/decryption
  */
@@ -335,9 +334,9 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
     return( 0 );    
 }
 
-#endif /* MBEDTLS_CIPHER_MODE_CBC */    
+#endif /* MBEDTLS_CIPHER_MODE_CBC_ALT */    
 
-#if defined(MBEDTLS_CIPHER_MODE_CTR)
+#if defined(MBEDTLS_CIPHER_MODE_CTR_ALT)
 /*
  * AES-CTR buffer encryption
  */
@@ -388,7 +387,7 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
 #else
      /* Get ECB ciphertext */
     adi_crypto_GetBuffer (hDevice, &pGottenBuffer);
-    MBED_ASSERT(pBuffer != pGottenBuffer);
+    MBED_ASSERT(pBuffer == pGottenBuffer);
 #endif    
             
     /* Disable the device */
@@ -433,9 +432,9 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
     
     return(0);
 }  
-#endif // MBEDTLS_CIPHER_MODE_CTR  
+#endif // MBEDTLS_CIPHER_MODE_CTR_ALT  
 
-#if defined(MBEDTLS_CIPHER_MODE_CFB)
+#if defined(MBEDTLS_CIPHER_MODE_CFB_ALT)
 /*
  * AES-CFB128 buffer encryption/decryption
  */
@@ -515,6 +514,6 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
 
     return( 0 );
 }
-#endif /*MBEDTLS_CIPHER_MODE_CFB */                     
+#endif /*MBEDTLS_CIPHER_MODE_CFB_ALT */                     
 
 #endif /* !MBEDTLS_AES_ALT */
