@@ -147,6 +147,11 @@
 #include "mbed_debug.h"
 #include <errno.h>
 
+/* Required version: 5.5.4 and above */
+#if (MBED_VERSION < MBED_ENCODE_VERSION(5,5,4))
+#error "Incompatible mbed-os version detected! Required 5.5.4 and above"
+#endif
+
 #define SD_COMMAND_TIMEOUT                       5000   /*!< Timeout in ms for response */
 #define SD_CMD0_GO_IDLE_STATE_RETRIES            5      /*!< Number of retries for sending CMDO */
 #define SD_DBG                                   0      /*!< 1 - Enable debugging */
@@ -656,12 +661,12 @@ uint8_t SDBlockDevice::_cmd_spi(SDBlockDevice::cmdSupported cmd, uint32_t arg) {
     // The received byte immediataly following CMD12 is a stuff byte,
     // it should be discarded before receive the response of the CMD12.
     if (CMD12_STOP_TRANSMISSION == cmd) {
-        _spi.write(0xFF);
+        _spi.write(SPI_FILL_CHAR);
     }
 
     // Loop for response: Response is sent back within command response time (NCR), 0 to 8 bytes for SDC
     for (int i = 0; i < 0x10; i++) {
-        response = _spi.write(0xFF);
+        response = _spi.write(SPI_FILL_CHAR);
         // Got the response
         if (!(response & R1_RESPONSE_RECV)) {
             break;
@@ -738,10 +743,10 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
             _card_type = SDCARD_V2;
             // Note: No break here, need to read rest of the response
         case CMD58_READ_OCR:                // Response R3
-            response  = (_spi.write(0xFF) << 24);
-            response |= (_spi.write(0xFF) << 16);
-            response |= (_spi.write(0xFF) << 8);
-            response |= _spi.write(0xFF);
+            response  = (_spi.write(SPI_FILL_CHAR) << 24);
+            response |= (_spi.write(SPI_FILL_CHAR) << 16);
+            response |= (_spi.write(SPI_FILL_CHAR) << 8);
+            response |= _spi.write(SPI_FILL_CHAR);
             debug_if(_dbg, "R3/R7: 0x%x \n", response);
             break;
 
@@ -751,7 +756,7 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
             break;
 
         case ACMD13_SD_STATUS:             // Response R2
-            response = _spi.write(0xFF);
+            response = _spi.write(SPI_FILL_CHAR);
             debug_if(_dbg, "R2: 0x%x \n", response);
             break;
 
@@ -821,12 +826,12 @@ int SDBlockDevice::_read_bytes(uint8_t *buffer, uint32_t length) {
 
     // read data
     for (uint32_t i = 0; i < length; i++) {
-        buffer[i] = _spi.write(0xFF);
+        buffer[i] = _spi.write(SPI_FILL_CHAR);
     }
 
     // Read the CRC16 checksum for the data block
-    crc = (_spi.write(0xFF) << 8);
-    crc |= _spi.write(0xFF);
+    crc = (_spi.write(SPI_FILL_CHAR) << 8);
+    crc |= _spi.write(SPI_FILL_CHAR);
 
     _deselect();
     return 0;
@@ -848,8 +853,8 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
     _spi.write(NULL, 0, (char*)buffer, length);
 
     // Read the CRC16 checksum for the data block
-    crc = (_spi.write(0xFF) << 8);
-    crc |= _spi.write(0xFF);
+    crc = (_spi.write(SPI_FILL_CHAR) << 8);
+    crc |= _spi.write(SPI_FILL_CHAR);
 
     _deselect();
     return 0;
@@ -880,7 +885,7 @@ uint8_t SDBlockDevice::_write(const uint8_t *buffer, uint8_t token, uint32_t len
     _spi.write(crc);
 
     // check the response token
-    response = _spi.write(0xFF);
+    response = _spi.write(SPI_FILL_CHAR);
     _deselect();
     return (response & SPI_DATA_RESPONSE_MASK);
 }
@@ -963,7 +968,7 @@ bool SDBlockDevice::_wait_token(uint8_t token) {
     _spi_timer.start();
 
     do {
-        if (token == _spi.write(0xFF)) {
+        if (token == _spi.write(SPI_FILL_CHAR)) {
             _spi_timer.stop();
             return true;
         }
@@ -980,7 +985,7 @@ bool SDBlockDevice::_wait_ready(uint16_t ms) {
     _spi_timer.reset();
     _spi_timer.start();
     do {
-        response = _spi.write(0xFF);
+        response = _spi.write(SPI_FILL_CHAR);
         if (response == 0xFF) {
             _spi_timer.stop();
             return true;
@@ -994,7 +999,7 @@ bool SDBlockDevice::_wait_ready(uint16_t ms) {
 void SDBlockDevice::_spi_wait(uint8_t count)
 {
     for (uint8_t i = 0; i < count; ++i) {
-        _spi.write(0xFF);
+        _spi.write(SPI_FILL_CHAR);
     }
 }
 
@@ -1003,6 +1008,7 @@ void SDBlockDevice::_spi_init() {
     // Set to SCK for initialization, and clock card with cs = 1
     _spi.frequency(_init_sck);
     _spi.format(8, 0);
+    _spi.set_default_write_value(SPI_FILL_CHAR);
     // Initial 74 cycles required for few cards, before selecting SPI mode
     _cs = 1;
     _spi_wait(10);
