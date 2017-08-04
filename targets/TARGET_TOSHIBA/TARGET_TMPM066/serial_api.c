@@ -18,7 +18,7 @@
 #include "PeripheralNames.h"
 #include "pinmap.h"
 
-#define UART_NUM              6
+#define UART_NUM              2
 
 static const PinMap PinMap_UART_TX[] = {
     {PC2, SERIAL_0, PIN_DATA(1, 1)},
@@ -238,16 +238,4 @@ void serial_clear(serial_t *obj)
 void serial_pinout_tx(PinName tx)
 {
     pinmap_pinout(tx, PinMap_UART_TX);
-}
-
-void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow)
-{
-}
-
-void serial_break_set(serial_t *obj)
-{
-}
-
-void serial_break_clear(serial_t *obj)
-{
 }

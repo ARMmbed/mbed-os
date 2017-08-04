@@ -18,10 +18,14 @@
 #include "PeripheralNames.h"
 #include "pinmap.h"
 
-#define I2C_NACK         (0)
-#define I2C_ACK          (1)
-#define I2C_TIMEOUT      (100000)
-#define SELF_ADDR        (0xE0)
+#define I2C_NACK                (0)
+#define I2C_ACK                 (1)
+#define I2C_NO_DATA             (0)
+#define I2C_READ_ADDRESSED      (1)
+#define I2C_WRITE_GENERAL       (2)
+#define I2C_WRITE_ADDRESSED     (3)
+#define SELF_ADDR               (0xE0)
+#define I2C_TIMEOUT             (100000)
 
 static const PinMap PinMap_I2C_SDA[] = {
     {PC1, I2C_0, PIN_DATA(1, 2)},
@@ -42,7 +46,7 @@ typedef struct {
     uint32_t prsck;
 } I2C_clock_setting_t;
 
-static const uint32_t I2C_SCK_DIVIDER_TBL[8] = { 20, 24, 32, 48, 80, 144, 272, 528};  // SCK Divider value table
+static const uint32_t I2C_SCK_DIVIDER_TBL[8] = {20, 24, 32, 48, 80, 144, 272, 528};  // SCK Divider value table
 static uint32_t start_flag = 0;
 I2C_clock_setting_t clk;
 I2C_State status;
@@ -68,7 +72,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     I2CName i2c_name = (I2CName)pinmap_merge(i2c_sda, i2c_scl);
     MBED_ASSERT((int)i2c_name != NC);
 
-    switch(i2c_name) {
+    switch (i2c_name) {
         case I2C_0:
             CG_SetFcPeriphA(CG_FC_PERIPH_I2C0, ENABLE);
             obj->i2c = TSB_I2C0;
@@ -153,7 +157,6 @@ int i2c_stop(i2c_t *obj)
 void i2c_reset(i2c_t *obj)
 {
     I2C_SWReset(obj->i2c);
-    return;
 }
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
@@ -165,7 +168,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
         start_flag = 1;  // Start Condition
         if (i2c_byte_write(obj, (int32_t)((uint32_t)address | 1U)) == I2C_ACK) {
             while (count < length) {
-                int32_t pdata = i2c_byte_read(obj, ((count < (length - 1))? 0: 1));
+                int32_t pdata = i2c_byte_read(obj, ((count < (length - 1)) ? 0 : 1));
                 if (pdata < 0) {
                     break;
                 }
@@ -245,7 +248,7 @@ int i2c_byte_write(i2c_t *obj, int data)
 
     I2C_ClearINTOutput(obj->i2c);
 
-    if(start_flag == 1) {
+    if (start_flag == 1) {
         I2C_Start_Condition(obj, (uint32_t)data);
         start_flag = 0;
     } else {
@@ -264,14 +267,6 @@ int i2c_byte_write(i2c_t *obj, int data)
     }
     return (result);
 }
-
-
-#if DEVICE_I2CSLAVE
-
-#define I2C_NO_DATA             (0)
-#define I2C_READ_ADDRESSED      (1)
-#define I2C_WRITE_GENERAL       (2)
-#define I2C_WRITE_ADDRESSED     (3)
 
 void i2c_slave_mode(i2c_t *obj, int enable_slave)
 {
@@ -292,7 +287,6 @@ void i2c_slave_mode(i2c_t *obj, int enable_slave)
     }
     I2C_Init(obj->i2c, &obj->myi2c);
 }
-
 
 int i2c_slave_receive(i2c_t *obj)
 {
@@ -346,16 +340,4 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
 {
     obj->address = address & 0xFE;
     i2c_slave_mode(obj, 1);
-}
-
-#endif
-
-void INTI2C0_IRQHandler(void)
-{
-
-}
-
-void INTI2C1_IRQHandler(void)
-{
-
 }

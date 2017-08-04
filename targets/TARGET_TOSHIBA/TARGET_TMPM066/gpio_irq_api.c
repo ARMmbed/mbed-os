@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "string.h"
 #include "gpio_irq_api.h"
 #include "mbed_error.h"
 #include "PeripheralNames.h"
 #include "pinmap.h"
+#include "mbed_critical.h"
 
 #define CHANNEL_NUM        6
 
@@ -103,19 +103,13 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 {
     // Get gpio interrupt ID
     obj->irq_id = pinmap_peripheral(pin, PinMap_GPIO_IRQ);
-
-    // Disable interrupt by CPU
-    __set_PRIMASK(1);
-
+    core_util_critical_section_enter();
     // Get pin mask
     obj->mask = (uint32_t)(1 << (pin & 0x07));
-
     // Get GPIO port
     obj->port = (GPIO_Port)(pin >> 3);
-
     // Set pin level as LOW
     GPIO_WriteDataBit(obj->port, obj->mask, 0);
-
     // Enable gpio interrupt function
     pinmap_pinout(pin, PinMap_GPIO_IRQ);
 
@@ -145,21 +139,15 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
     // Save irq handler
     hal_irq_handler[obj->irq_src] = handler;
-
     // Save irq id
     channel_ids[obj->irq_src] = id;
-
     // Initialize interrupt event as both edges detection
     obj->event = INTIFAO_INT_ACTIVE_STATE_INVALID;
-
     // Set interrupt event and enable INTx clear
     INTIFAO_SetSTBYReleaseINTSrc(obj->irq_src, (INTIFAO_INTActiveState)obj->event, ENABLE);
-
     // Clear gpio pending interrupt
     NVIC_ClearPendingIRQ((IRQn_Type)obj->irq_id);
-
-    // Enable gpio interrupt
-    __set_PRIMASK(0);
+    core_util_critical_section_exit();;
 
     return 0;
 }
@@ -218,7 +206,7 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
         }
     }
 
-    if (obj->event != INTIFAO_INT_ACTIVE_STATE_INVALID ) {
+    if (obj->event != INTIFAO_INT_ACTIVE_STATE_INVALID) {
         // Set interrupt event and enable INTx clear
         INTIFAO_SetSTBYReleaseINTSrc(obj->irq_src, (INTIFAO_INTActiveState)obj->event, ENABLE);
         GPIO_SetOutputEnableReg(obj->port, obj->mask, DISABLE);

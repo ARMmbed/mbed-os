@@ -42,7 +42,7 @@ void gpio_init(gpio_t *obj, PinName pin)
     obj->pin      = pin;
     obj->mask     = gpio_set(pin);
     obj->port     = (GPIO_Port) (pin >> 3);
-    if((PortName)obj->port == PortH) {
+    if ((PortName)obj->port == PortH) {
         CG_SetFcPeriphA(CG_FC_PERIPH_PORTH, ENABLE);
     }
     if ((PortName)obj->port == PortJ) {
@@ -68,7 +68,7 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
             // Set pin output
             GPIO_SetOutput(obj->port, obj->mask);
             break;
-        case  PIN_INOUT:
+        case PIN_INOUT:
             // Set pin both input and output
             GPIO_SetOutputEnableReg(obj->port, obj->mask, ENABLE);
             GPIO_SetInputEnableReg(obj->port, obj->mask, ENABLE);
@@ -89,7 +89,7 @@ void gpio_write(gpio_t *obj, int value)
     }
 }
 
-int  gpio_read (gpio_t *obj)
+int gpio_read(gpio_t *obj)
 {
     // Read gpio object pin data
     return GPIO_ReadDataBit(obj->port, obj->mask);

@@ -39,8 +39,8 @@ void pin_function(PinName pin, int function)
     // Set function if function is in range
     if (func <= PIN_FUNC_MAX) {
         // Disable other functions
-        for(i = 0; i < PIN_FUNC_MAX; i++) {
-            if(i != (func - 1)) {
+        for (i = 0; i < PIN_FUNC_MAX; i++) {
+            if (i != (func - 1)) {
                 GPIO_DisableFuncReg((GPIO_Port)port, i, (1 << bit));
             }
         }
