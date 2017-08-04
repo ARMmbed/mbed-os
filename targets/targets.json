@@ -1688,13 +1688,8 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "STM32F439xI"],
-<<<<<<< HEAD
         "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
         "device_has_add": ["CAN", "EMAC", "TRNG", "FLASH"],
-=======
-        "macros": ["HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
-        "device_has_add": ["CAN", "EMAC", "TRNG", "FLASH", "ETHERNET", "ODIN_WIFI"],
->>>>>>> Add ETHERNET and ODIN_WIFI to odin device has. Add odin WiFi test configuration
         "device_has_remove": ["RTC", "SLEEP"],
         "features": ["LWIP"],
         "release_versions": ["5"],

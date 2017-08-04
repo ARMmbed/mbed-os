@@ -50,7 +50,7 @@ from tools.utils import NotSupportedException
 from tools.utils import construct_enum
 from tools.memap import MemapParser
 from tools.targets import TARGET_MAP
-from tools.test_configs import TestConfig
+import tools.test_configs as TestConfig
 from tools.test_db import BaseDBAccess
 from tools.build_api import build_project, build_mbed_libs, build_lib
 from tools.build_api import get_target_supported_toolchains

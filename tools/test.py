@@ -28,7 +28,7 @@ sys.path.insert(0, ROOT)
 
 from tools.config import ConfigException
 from tools.test_api import test_path_to_name, find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
-from tools.test_configs import TestConfig
+import tools.test_configs as TestConfig
 from tools.options import get_default_options_parser, extract_profile, extract_mcus
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
