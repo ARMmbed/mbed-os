@@ -92,7 +92,7 @@
   /* #define STM32L476xx */   /*!< STM32L476xx Devices */
   /* #define STM32L485xx */   /*!< STM32L485xx Devices */
   /* #define STM32L486xx */   /*!< STM32L486xx Devices */
- #define STM32L496xx   		  /*!< STM32L496xx Devices */
+ #define STM32L496xx          /*!< STM32L496xx Devices */
   /* #define STM32L4A6xx */   /*!< STM32L4A6xx Devices */
 #endif
 
