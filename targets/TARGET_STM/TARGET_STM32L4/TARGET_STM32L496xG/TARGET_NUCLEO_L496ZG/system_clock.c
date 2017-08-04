@@ -341,10 +341,11 @@ uint8_t SetSysClock_PLL_MSI(void)
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
     PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_MSI; /* 48 MHz */
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-	/* Select LSE as clock source for LPUART1 */
-	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-  	PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
-  	HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+
+    /* Select LSE as clock source for LPUART1 */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+    PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
+    HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
     // Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers
     RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
