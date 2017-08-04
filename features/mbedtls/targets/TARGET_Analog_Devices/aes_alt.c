@@ -101,7 +101,7 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
  * AES-ECB block encryption
  */
 #if defined(MBEDTLS_AES_ENCRYPT_ALT)
-void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
+int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
 {
@@ -144,6 +144,8 @@ void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
 
     /* Disable the device */
     adi_crypto_Enable (hDevice, false);
+    
+    return(0);
 }
 #endif /* !  */
 
@@ -177,7 +179,7 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
  * AES-ECB block decryption
  */
 #if defined(MBEDTLS_AES_DECRYPT_ALT)
-void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
+int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )                         
 {
@@ -222,6 +224,7 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
     /* Disable the device */
     adi_crypto_Enable (hDevice, false);    
 
+    return(0);
 }
 #endif  // defined(MBEDTLS_AES_DECRYPT_ALT)    
 
@@ -235,9 +238,9 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
                            unsigned char output[16] )                         
 {
     if( mode == MBEDTLS_AES_ENCRYPT )
-        mbedtls_aes_encrypt( ctx, input, output );
+        mbedtls_internal_aes_encrypt( ctx, input, output );
     else
-        mbedtls_aes_decrypt( ctx, input, output );
+        mbedtls_internal_aes_decrypt( ctx, input, output );
 
     return( 0 );
 }    
