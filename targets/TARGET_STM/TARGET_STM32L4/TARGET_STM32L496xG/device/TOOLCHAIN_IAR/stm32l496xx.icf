@@ -1,37 +1,32 @@
-/*###ICF### Section handled by ICF editor, don't touch! ****/
-/*-Editor annotation file-*/
-/* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
-/*-Specials-*/
-define symbol __ICFEDIT_intvec_start__ = 0x08000000;
-/*-Memory Regions-*/
-define symbol __ICFEDIT_region_ROM_start__    = 0x08000000;
-define symbol __ICFEDIT_region_ROM_end__      = 0x080FFFFF;
-define symbol __ICFEDIT_region_RAM_start__    = 0x20000000;
-define symbol __ICFEDIT_region_RAM_end__      = 0x2003FFFF;
-define symbol __ICFEDIT_region_SRAM2_start__  = 0x10000000;
-define symbol __ICFEDIT_region_SRAM2_end__    = 0x1000FFFF;
+/* [ROM = 1024kb = 0x100000] */
+define symbol __intvec_start__     = 0x08000000;
+define symbol __region_ROM_start__ = 0x08000000;
+define symbol __region_ROM_end__   = 0x08000000 + 0x100000 - 1;
 
-/*-Sizes-*/
-define symbol __ICFEDIT_size_cstack__ = 0x400;
-define symbol __ICFEDIT_size_heap__   = 0x200;
-/**** End of ICF editor section. ###ICF###*/
+/* [RAM = 0x50000] */
+/* Vector table dynamic copy: Total: 107 vectors = 428 bytes (0x1AC) to be reserved in RAM */
+define symbol __NVIC_start__          = 0x20000000;
+define symbol __NVIC_end__            = 0x200001AC; /* Aligned on 8 bytes (428 = 53 x 8) */
+define symbol __region_SRAM1_start__  = 0x20000000;
+define symbol __region_SRAM1_end__    = 0x2004FFFF;
 
-
+/* Memory regions */
 define memory mem with size = 4G;
-define region ROM_region      = mem:[from __ICFEDIT_region_ROM_start__   to __ICFEDIT_region_ROM_end__];
-define region RAM_region      = mem:[from __ICFEDIT_region_RAM_start__   to __ICFEDIT_region_RAM_end__];
-define region SRAM2_region    = mem:[from __ICFEDIT_region_SRAM2_start__   to __ICFEDIT_region_SRAM2_end__];
+define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__];
+define region SRAM1_region = mem:[from __region_SRAM1_start__ to __region_SRAM1_end__];
 
-define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
-define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+/* Stack 1/8 and Heap 1/4 of RAM */
+define symbol __size_cstack__ = 0x8000;
+define symbol __size_heap__   = 0xa000;
+define block CSTACK    with alignment = 8, size = __size_cstack__   { };
+define block HEAP      with alignment = 8, size = __size_heap__     { };
+define block STACKHEAP with fixed order { block HEAP, block CSTACK };
 
-initialize by copy { readwrite };
+initialize by copy with packing = zeros { readwrite };
 do not initialize  { section .noinit };
 
-place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
+place at address mem:__intvec_start__ { readonly section .intvec };
 
 place in ROM_region   { readonly };
-place in RAM_region   { readwrite,
-                        block CSTACK, block HEAP };
-place in SRAM2_region { };
-                        
+place in SRAM1_region   { readwrite, block STACKHEAP };
+
