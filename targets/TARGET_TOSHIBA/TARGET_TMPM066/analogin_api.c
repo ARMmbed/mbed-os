@@ -21,15 +21,15 @@
 #define ADC_10BIT_RANGE        0x3FF
 
 static const PinMap PinMap_ADC[] = {
-    {PA0, ADC_A0,  PIN_DATA(0, 0)},
-    {PA1, ADC_A1,  PIN_DATA(0, 0)},
-    {PA2, ADC_A2,  PIN_DATA(0, 0)},
-    {PA3, ADC_A3,  PIN_DATA(0, 0)},
-    {PA4, ADC_A4,  PIN_DATA(0, 0)},
-    {PA5, ADC_A5,  PIN_DATA(0, 0)},
-    {PA6, ADC_A6,  PIN_DATA(0, 0)},
-    {PA7, ADC_A7,  PIN_DATA(0, 0)},
-    {NC,  NC,      0}
+    {PA0, ADC_A0, PIN_DATA(0, 0)},
+    {PA1, ADC_A1, PIN_DATA(0, 0)},
+    {PA2, ADC_A2, PIN_DATA(0, 0)},
+    {PA3, ADC_A3, PIN_DATA(0, 0)},
+    {PA4, ADC_A4, PIN_DATA(0, 0)},
+    {PA5, ADC_A5, PIN_DATA(0, 0)},
+    {PA6, ADC_A6, PIN_DATA(0, 0)},
+    {PA7, ADC_A7, PIN_DATA(0, 0)},
+    {NC,  NC,     0}
 };
 
 void analogin_init(analogin_t *obj, PinName pin)
@@ -72,7 +72,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     // Start ADC conversion
     ADC_Start();
     // Wait until AD conversion complete
-    while(ADC_GetConvertState().Bit.NormalComplete != 1) {
+    while (ADC_GetConvertState().Bit.NormalComplete != 1) {
         // Do nothing
     }
     // Convert result

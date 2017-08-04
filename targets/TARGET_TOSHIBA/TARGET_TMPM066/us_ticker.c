@@ -24,7 +24,7 @@ static uint8_t us_ticker_inited = 0;  // Is ticker initialized yet?
 static volatile uint32_t acc_us_ticker = 0;
 
 // 16Bb high timer counter
-static uint32_t us_ticker_16h = 0;
+static volatile uint32_t us_ticker_16h = 0;
 
 void INT16A0_IRQHandler(void)
 {
@@ -57,11 +57,10 @@ void us_ticker_init(void)
     NVIC_EnableIRQ(INT16A0_IRQn);
     // Match counter set to max value
     TSB_T16A0->RG = TMR16A_100US;
-    // TSB_T16A0->CP = 0x00;
     TSB_T16A0->RUN = TMR16A_RUN;
 }
 
-uint32_t us_ticker_read()
+uint32_t us_ticker_read(void)
 {
     uint32_t ret_val = 0;
 

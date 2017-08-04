@@ -19,6 +19,6 @@
 #define DEVICE_ID_LENGTH    32
 
 #include "objects.h"
-#include "stddef.h"
+#include <stddef.h>
 
 #endif

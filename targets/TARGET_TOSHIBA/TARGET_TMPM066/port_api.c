@@ -36,7 +36,7 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
     obj->port = port;
     obj->mask = mask;
 
-    if((PortName)obj->port == PortH) {
+    if ((PortName)obj->port == PortH) {
         CG_SetFcPeriphA(CG_FC_PERIPH_PORTH, ENABLE);
     }
     if ((PortName)obj->port == PortJ) {

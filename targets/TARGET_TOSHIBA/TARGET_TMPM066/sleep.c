@@ -16,7 +16,7 @@
 #include "sleep_api.h"
 
 // number of warm-up cycle = warm-up time to set / input frequency cycle (s)
-// number of 3*10^-6 (s) / (1/12 (MHz) ) = 60000 = 0xea60
+// number of 3*10^-6 (s) / (1/12 (MHz)) = 60000 = 0xea60
 #define CG_WUODR_INT     ((uint16_t)0xea60)
 
 void external_losc_enable(void);
