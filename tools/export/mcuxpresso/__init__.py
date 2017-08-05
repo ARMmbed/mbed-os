@@ -241,6 +241,7 @@ class MCUXpresso(Exporter):
             opts['common']['include_paths'] = self.include_path
             opts['common']['excluded_folders'] = '|'.join(
                 self.excluded_folders)
+            self.excluded_folders = [item.replace("\\", "/") for item in self.excluded_folders]
 
             opts['ld']['library_paths'] = [
                 self.filter_dot(s) for s in self.resources.lib_dirs]
