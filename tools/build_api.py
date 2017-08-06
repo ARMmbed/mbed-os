@@ -574,7 +574,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
             cur_result["elapsed_time"] = end - start
             cur_result["output"] = toolchain.get_output() + memap_table
             cur_result["result"] = "OK"
-            cur_result["memory_usage"] = toolchain.map_outputs
+            cur_result["memory_usage"] = memap_instance.mem_report
             cur_result["bin"] = res
             cur_result["elf"] = splitext(res)[0] + ".elf"
             cur_result.update(toolchain.report)
@@ -1324,7 +1324,7 @@ def print_build_memory_usage(report):
     """
     from prettytable import PrettyTable
     columns_text = ['name', 'target', 'toolchain']
-    columns_int = ['static_ram', 'stack', 'heap', 'total_ram', 'total_flash']
+    columns_int = ['static_ram', 'total_flash']
     table = PrettyTable(columns_text + columns_int)
 
     for col in columns_text:
@@ -1351,10 +1351,6 @@ def print_build_memory_usage(report):
                                 record['toolchain_name'],
                                 record['memory_usage'][-1]['summary'][
                                     'static_ram'],
-                                record['memory_usage'][-1]['summary']['stack'],
-                                record['memory_usage'][-1]['summary']['heap'],
-                                record['memory_usage'][-1]['summary'][
-                                    'total_ram'],
                                 record['memory_usage'][-1]['summary'][
                                     'total_flash'],
                             ]
