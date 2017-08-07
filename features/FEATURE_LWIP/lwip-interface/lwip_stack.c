@@ -763,15 +763,29 @@ static nsapi_error_t mbed_lwip_gethostbyname(nsapi_stack_t *stack, const char *h
     if (version == NSAPI_UNSPEC) {
         const ip_addr_t *ip_addr;
         ip_addr = mbed_lwip_get_ip_addr(true, &lwip_netif);
+        // Prefer IPv6
         if (IP_IS_V6(ip_addr)) {
-            addr_type = NETCONN_DNS_IPV6;
+            // If IPv4 is available use it as backup
+            if (mbed_lwip_get_ipv4_addr(&lwip_netif)) {
+                addr_type = NETCONN_DNS_IPV6_IPV4;
+            } else {
+                addr_type = NETCONN_DNS_IPV6;
+            }
+        // Prefer IPv4
         } else {
-            addr_type = NETCONN_DNS_IPV4;
+            // If IPv6 is available use it as backup
+            if (mbed_lwip_get_ipv6_addr(&lwip_netif)) {
+                addr_type = NETCONN_DNS_IPV4_IPV6;
+            } else {
+                addr_type = NETCONN_DNS_IPV4;
+            }
         }
     } else if (version == NSAPI_IPv4) {
         addr_type = NETCONN_DNS_IPV4;
     } else if (version == NSAPI_IPv6) {
         addr_type = NETCONN_DNS_IPV6;
+    } else {
+        return NSAPI_ERROR_DNS_FAILURE;
     }
     err_t err = netconn_gethostbyname_addrtype(host, &lwip_addr, addr_type);
 #elif LWIP_IPV4
