@@ -18,6 +18,7 @@
 #include "pinmap.h"
 #include "mbed_wait_api.h"
 
+static uint8_t adc_reset_init = 0;  // Is ADC Reset happened yet?
 #define ADC_10BIT_RANGE        0x3FF
 
 static const PinMap PinMap_ADC[] = {
@@ -43,8 +44,11 @@ void analogin_init(analogin_t *obj, PinName pin)
     CG_SetADCClkSupply(ENABLE);
     // Set pin function as ADC
     pinmap_pinout(pin, PinMap_ADC);
-    // Software reset ADC
-    ADC_SWReset();
+    if (!adc_reset_init) {
+        // Software reset ADC
+        ADC_SWReset();
+        adc_reset_init = 1;
+    }
     // Set sample hold time and pre-scale clock
     ADC_SetClk(ADC_CONVERSION_81_CLOCK, ADC_FC_DIVIDE_LEVEL_8);
     // Set input channel
