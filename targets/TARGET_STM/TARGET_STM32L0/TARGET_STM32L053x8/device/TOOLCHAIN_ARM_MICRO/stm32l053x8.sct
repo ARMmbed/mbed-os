@@ -27,7 +27,7 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; STM32L053C8: 64KB FLASH (0x10000) + 8KB RAM (0x2000)
+; 64KB FLASH (0x10000) + 8KB RAM (0x2000)
 LR_IROM1 0x08000000 0x10000  {    ; load region size_region
 
   ER_IROM1 0x08000000 0x10000  {  ; load address = execution address
