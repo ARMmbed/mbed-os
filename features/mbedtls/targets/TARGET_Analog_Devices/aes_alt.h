@@ -24,12 +24,14 @@
 #ifndef MBEDTLS_AES_ALT_H
 #define MBEDTLS_AES_ALT_H
 
-
 #if defined(MBEDTLS_AES_ALT)
 
-// ADI implementation
-/* Managed drivers and/or services include */
+#include "mbedtls/platform.h"
+#include "mbedtls/config.h"
+/* ADI Crypto structures */
 #include "drivers/crypto/adi_crypto.h"
+
+//#define CRYPTO_ENABLE_CALLBACK	// uncomment to enable callback code
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,10 +60,9 @@ typedef struct
 #ifdef CRYPTO_ENABLE_CALLBACK    
     void                    *pCBParam;
     void                    *pfCryptoCallback;
-#endif        
+#endif 
 }
 mbedtls_aes_context;
-
 
 /**
  * \brief          Initialize AES context
@@ -116,7 +117,7 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
                     const unsigned char input[16],
                     unsigned char output[16] );
 
-#if defined(MBEDTLS_CIPHER_MODE_CBC)
+#if defined(MBEDTLS_CIPHER_MODE_CBC_ALT)
 /**
  * \brief          AES-CBC buffer encryption/decryption
  *                 Length should be a multiple of the block
@@ -145,9 +146,9 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
                     unsigned char iv[16],
                     const unsigned char *input,
                     unsigned char *output );
-#endif /* MBEDTLS_CIPHER_MODE_CBC */
+#endif /* MBEDTLS_CIPHER_MODE_CBC_ALT */
 
-#if defined(MBEDTLS_CIPHER_MODE_CFB)
+#if defined(MBEDTLS_CIPHER_MODE_CFB_ALT)
 /**
  * \brief          AES-CFB128 buffer encryption/decryption.
  *
@@ -211,9 +212,9 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
                     unsigned char iv[16],
                     const unsigned char *input,
                     unsigned char *output );
-#endif /*MBEDTLS_CIPHER_MODE_CFB */
+#endif /*MBEDTLS_CIPHER_MODE_CFB_ALT */
 
-#if defined(MBEDTLS_CIPHER_MODE_CTR)
+#if defined(MBEDTLS_CIPHER_MODE_CTR_ALT)
 /**
  * \brief               AES-CTR buffer encryption/decryption
  *
@@ -243,7 +244,7 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
                        unsigned char stream_block[16],
                        const unsigned char *input,
                        unsigned char *output );
-#endif /* MBEDTLS_CIPHER_MODE_CTR */
+#endif /* MBEDTLS_CIPHER_MODE_CTR_ALT */
 
 /**
  * \brief           Internal AES block encryption function
@@ -254,7 +255,7 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
  * \param input     Plaintext block
  * \param output    Output (ciphertext) block
  */                          
-void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,                          
+int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,                          
                           const unsigned char input[16],
                           unsigned char output[16] );
 
@@ -267,7 +268,7 @@ void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
  * \param input     Ciphertext block
  * \param output    Output (plaintext) block
  */
-void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
+int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] );
 
@@ -275,23 +276,6 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
 }
 #endif
 
-#else  /* MBEDTLS_AES_ALT */
-#include "aes_alt.h"
 #endif /* MBEDTLS_AES_ALT */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * \brief          Checkup routine
- *
- * \return         0 if successful, or 1 if the test failed
- */
-int mbedtls_aes_self_test( int verbose );
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* aes.h */
+#endif /* MBEDTLS_AES_ALT_H */
