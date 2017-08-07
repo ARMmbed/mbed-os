@@ -35,6 +35,10 @@
 
 #if DEVICE_FLASH
 
+#if defined (STM32F427xx) || defined (STM32F437xx)
+#define FLASH_SIZE      (uint32_t) 0x100000
+#endif
+ 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
