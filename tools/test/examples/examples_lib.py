@@ -115,7 +115,7 @@ def target_cross_ide(allowed_targets, allowed_ides, features=[], toolchains=[]):
     """
     for target in allowed_targets:
         for ide in allowed_ides:
-            if (target in EXPORTERS[ide].TARGETS and
+            if (EXPORTERS[ide].is_target_supported(target) and
                 (not toolchains or EXPORTERS[ide].TOOLCHAIN in toolchains) and
                 all(feature in TARGET_MAP[target].features
                     for feature in features)):
