@@ -137,13 +137,10 @@ if __name__ == '__main__':
                                "Currently set search path: %s"
                        % (toolchain, search_path))
 
-         # boolean, true if test configuration file is for module false if mbed-os interface
-        module_conf = False
-
         # Assign config file. Precedence: test_config>app_config
         # TODO: merge configs if both given
         if options.test_config:
-            config, module_conf = get_test_config(options.test_config, mcu)
+            config = get_test_config(options.test_config, mcu)
             if not config:
                 args_error(parser, "argument --test-config contains invalid path or identifier")
         elif not options.app_config:
@@ -154,8 +151,7 @@ if __name__ == '__main__':
         # Find all tests in the relevant paths
         for path in all_paths:
             all_tests.update(find_tests(path, mcu, toolchain,
-                                        app_config=config,
-                                        module_config=module_conf))
+                                        app_config=config))
 
         # Filter tests by name if specified
         if options.names:
