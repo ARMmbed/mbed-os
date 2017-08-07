@@ -1022,9 +1022,10 @@
         },
         "detect_code": ["0826"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["CAN", "ERROR_RED", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG"],
+        "device_has_add": ["CAN", "ERROR_RED", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F412ZG"
+        "device_name": "STM32F412ZG",
+        "bootloader_supported": true
     },
     "DISCO_F413ZH": {
         "inherits": ["FAMILY_STM32"],
