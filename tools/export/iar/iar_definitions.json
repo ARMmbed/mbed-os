@@ -1,4 +1,7 @@
 {
+    "STM32L496ZG": {
+        "OGChipSelectEditMenu": "STM32L496ZG\tST STM32L496ZG"
+    },
     "STM32L476VG": {
         "OGChipSelectEditMenu": "STM32L476VG\tST STM32L476VG"
     },
