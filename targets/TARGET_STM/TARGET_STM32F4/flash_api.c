@@ -151,7 +151,7 @@ static uint32_t GetSector(uint32_t address)
     uint32_t sector = 0; 
     uint32_t tmp = address - ADDR_FLASH_SECTOR_0;
     /* This function supports 1Mb and 2Mb flash sizes */
-#if defined(FLASH_SECTOR_12)
+#if defined(ADDR_FLASH_SECTOR_12)
     if (address & 0x100000) { // handle 2nd bank
         sector = FLASH_SECTOR_12;
         tmp = address - ADDR_FLASH_SECTOR_12;
