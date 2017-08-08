@@ -76,7 +76,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     
     int FRF = 0;                   // FRF (frame format) = SPI
     uint32_t tmp = obj->spi->CR0;
-    tmp &= ~(0xFFFF);
+    tmp &= ~(0x00FF);              // Clear DSS, FRF, CPOL and CPHA [7:0]
     tmp |= DSS << 0
         | FRF << 4
         | SPO << 6
@@ -112,7 +112,7 @@ void spi_frequency(spi_t *obj, int hz) {
             obj->spi->CPSR = prescaler;
             
             // divider
-            obj->spi->CR0 &= ~(0xFFFF << 8);
+            obj->spi->CR0 &= ~(0xFF00);  // Clear SCR: Serial clock rate [15:8]
             obj->spi->CR0 |= (divider - 1) << 8;
             ssp_enable(obj);
             return;
