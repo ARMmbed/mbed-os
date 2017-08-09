@@ -79,18 +79,13 @@ uint32_t us_ticker_read(void)
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    int delta = 0;
+    uint32_t delta = 0;
 
     // Stops and clear count operation
     TSB_T16A1->RUN = TMR16A_STOP;
     TSB_T16A1->CR = TMR16A_SYSCK;
     // Set the compare register
-    delta = (int)(timestamp - us_ticker_read());
-    if (delta < 0) {
-        // Ticker interrupt handle
-        us_ticker_irq_handler();
-        return;
-    }
+    delta = (timestamp - us_ticker_read());
     TSB_T16A1->RG = delta;
     // Set Interrupt
     NVIC_EnableIRQ(INT16A1_IRQn);
@@ -110,5 +105,5 @@ void us_ticker_disable_interrupt(void)
 
 void us_ticker_clear_interrupt(void)
 {
-    NVIC_ClearPendingIRQ(INT16A1_IRQn);
+    //no flags to clear
 }
