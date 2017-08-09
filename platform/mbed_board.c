@@ -41,28 +41,32 @@ WEAK void mbed_die(void) {
 
     while (1) {
 #if   (DEVICE_ERROR_RED == 1)
-        gpio_write(&led_red, 1);
+        for (int i = 0; i < 4; ++i) {
+            gpio_write(&led_red, 1);
+            wait_ms(150);
+            gpio_write(&led_red, 0);
+            wait_ms(150);
+        }
 
+        for (int i = 0; i < 4; ++i) {
+            gpio_write(&led_red, 1);
+            wait_ms(400);
+            gpio_write(&led_red, 0);
+            wait_ms(400);
+        }
 #elif (DEVICE_ERROR_PATTERN == 1)
         gpio_write(&led_1, 1);
         gpio_write(&led_2, 0);
         gpio_write(&led_3, 0);
         gpio_write(&led_4, 1);
-#endif
-
         wait_ms(150);
 
-#if   (DEVICE_ERROR_RED == 1)
-        gpio_write(&led_red, 0);
-
-#elif (DEVICE_ERROR_PATTERN == 1)
         gpio_write(&led_1, 0);
         gpio_write(&led_2, 1);
         gpio_write(&led_3, 1);
         gpio_write(&led_4, 0);
-#endif
-
         wait_ms(150);
+#endif
     }
 }
 
