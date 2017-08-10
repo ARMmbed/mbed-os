@@ -35,8 +35,41 @@
     "STM32F070RB": {
         "OGChipSelectEditMenu": "STM32F070RB\tST STM32F070RB"
     },
+    "MK22DN512xxx5": {
+        "OGChipSelectEditMenu": "MK22DN512xxx5\tNXP MK22DN512xxx5"
+    },
+    "MK24FN1M0xxx12": {
+        "OGChipSelectEditMenu": "MK24FN1M0xxx12\tNXP MK24FN1M0xxx12"
+    },
     "MK64FN1M0xxx12": {
-        "OGChipSelectEditMenu": "MK64FN1M0xxx12\tFreescale MK64FN1M0xxx12"
+        "OGChipSelectEditMenu": "MK64FN1M0xxx12\tNXP MK64FN1M0xxx12"
+    },
+    "MK66FN2M0xxx18": {
+        "OGChipSelectEditMenu": "MK66FN2M0xxx18\tNXP MK66FN2M0xxx18"
+    },
+    "MK82FN256xxx15": {
+        "OGChipSelectEditMenu": "MK82FN256xxx15\tNXP MK82FN256xxx15"
+    },
+    "MKL27Z64xxx4": {
+        "OGChipSelectEditMenu": "MKL27Z64xxx4\tNXP MKL27Z64xxx4"
+    },
+    "MKL43Z256xxx4": {
+        "OGChipSelectEditMenu": "MKL43Z256xxx4\tNXP MKL43Z256xxx4"
+    },
+    "MKL82Z128xxx7": {
+        "OGChipSelectEditMenu": "MKL82Z128xxx7\tNXP MKL82Z128xxx7"
+    },
+    "MKW24D512xxx5": {
+        "OGChipSelectEditMenu": "MKW24D512xxx5\tNXP MKW24D512xxx5"
+    },
+    "MKW41Z512xxx4": {
+        "OGChipSelectEditMenu": "MKW41Z512xxx4\tNXP MKW41Z512xxx4"
+    },
+    "LPC54114J256BD64": {
+        "OGChipSelectEditMenu": "LPC54114J256_M4\tNXP LPC54114J256_M4"
+    },
+    "LPC54608J512ET180": {
+        "OGChipSelectEditMenu": "LPC54608J512\tNXP LPC54608J512"
     },
     "STM32F072RB": {
         "OGChipSelectEditMenu": "STM32F072RB\tST STM32F072RB"
