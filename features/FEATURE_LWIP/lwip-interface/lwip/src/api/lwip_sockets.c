@@ -407,7 +407,7 @@ alloc_socket(struct netconn *newconn, int accepted)
   for (i = 0; i < NUM_SOCKETS; ++i) {
     /* Protect socket array */
     SYS_ARCH_PROTECT(lev);
-    if (!sockets[i].conn) {
+    if (!sockets[i].conn && (sockets[i].select_waiting == 0)) {
       sockets[i].conn       = newconn;
       /* The socket is not yet known to anyone, so no need to protect
          after having marked it as used. */
@@ -420,7 +420,6 @@ alloc_socket(struct netconn *newconn, int accepted)
       sockets[i].sendevent  = (NETCONNTYPE_GROUP(newconn->type) == NETCONN_TCP ? (accepted != 0) : 1);
       sockets[i].errevent   = 0;
       sockets[i].err        = 0;
-      sockets[i].select_waiting = 0;
       return i + LWIP_SOCKET_OFFSET;
     }
     SYS_ARCH_UNPROTECT(lev);
@@ -585,9 +584,9 @@ lwip_bind(int s, const struct sockaddr *name, socklen_t namelen)
   LWIP_DEBUGF(SOCKETS_DEBUG, (" port=%"U16_F")\n", local_port));
 
 #if LWIP_IPV4 && LWIP_IPV6
-  /* Dual-stack: Unmap IPv6 mapped IPv4 addresses */
-  if (IP_IS_V6_VAL(local_addr) && ip6_addr_isipv6mappedipv4(ip_2_ip6(&local_addr))) {
-    unmap_ipv6_mapped_ipv4(ip_2_ip4(&local_addr), ip_2_ip6(&local_addr));
+  /* Dual-stack: Unmap IPv4 mapped IPv6 addresses */
+  if (IP_IS_V6_VAL(local_addr) && ip6_addr_isipv4mappedipv6(ip_2_ip6(&local_addr))) {
+    unmap_ipv4_mapped_ipv6(ip_2_ip4(&local_addr), ip_2_ip6(&local_addr));
     IP_SET_TYPE_VAL(local_addr, IPADDR_TYPE_V4);
   }
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
@@ -677,9 +676,9 @@ lwip_connect(int s, const struct sockaddr *name, socklen_t namelen)
     LWIP_DEBUGF(SOCKETS_DEBUG, (" port=%"U16_F")\n", remote_port));
 
 #if LWIP_IPV4 && LWIP_IPV6
-    /* Dual-stack: Unmap IPv6 mapped IPv4 addresses */
-    if (IP_IS_V6_VAL(remote_addr) && ip6_addr_isipv6mappedipv4(ip_2_ip6(&remote_addr))) {
-      unmap_ipv6_mapped_ipv4(ip_2_ip4(&remote_addr), ip_2_ip6(&remote_addr));
+    /* Dual-stack: Unmap IPv4 mapped IPv6 addresses */
+    if (IP_IS_V6_VAL(remote_addr) && ip6_addr_isipv4mappedipv6(ip_2_ip6(&remote_addr))) {
+      unmap_ipv4_mapped_ipv6(ip_2_ip4(&remote_addr), ip_2_ip6(&remote_addr));
       IP_SET_TYPE_VAL(remote_addr, IPADDR_TYPE_V4);
     }
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
@@ -865,9 +864,9 @@ lwip_recvfrom(int s, void *mem, size_t len, int flags,
         }
 
 #if LWIP_IPV4 && LWIP_IPV6
-        /* Dual-stack: Map IPv4 addresses to IPv6 mapped IPv4 */
+        /* Dual-stack: Map IPv4 addresses to IPv4 mapped IPv6 */
         if (NETCONNTYPE_ISIPV6(netconn_type(sock->conn)) && IP_IS_V4(fromaddr)) {
-          ip4_2_ipv6_mapped_ipv4(ip_2_ip6(fromaddr), ip_2_ip4(fromaddr));
+          ip4_2_ipv4_mapped_ipv6(ip_2_ip6(fromaddr), ip_2_ip4(fromaddr));
           IP_SET_TYPE(fromaddr, IPADDR_TYPE_V6);
         }
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
@@ -995,6 +994,10 @@ lwip_sendmsg(int s, const struct msghdr *msg, int flags)
     ((flags & MSG_DONTWAIT) ? NETCONN_DONTBLOCK : 0);
 
     for (i = 0; i < msg->msg_iovlen; i++) {
+      u8_t apiflags = write_flags;
+      if (i + 1 < msg->msg_iovlen) {
+        apiflags |= NETCONN_MORE;
+      }
       written = 0;
       err = netconn_write_partly(sock->conn, msg->msg_iov[i].iov_base, msg->msg_iov[i].iov_len, write_flags, &written);
       if (err == ERR_OK) {
@@ -1092,9 +1095,9 @@ lwip_sendmsg(int s, const struct msghdr *msg, int flags)
 
     if (err == ERR_OK) {
 #if LWIP_IPV4 && LWIP_IPV6
-      /* Dual-stack: Unmap IPv6 mapped IPv4 addresses */
-      if (IP_IS_V6_VAL(chain_buf->addr) && ip6_addr_isipv6mappedipv4(ip_2_ip6(&chain_buf->addr))) {
-        unmap_ipv6_mapped_ipv4(ip_2_ip4(&chain_buf->addr), ip_2_ip6(&chain_buf->addr));
+      /* Dual-stack: Unmap IPv4 mapped IPv6 addresses */
+      if (IP_IS_V6_VAL(chain_buf->addr) && ip6_addr_isipv4mappedipv6(ip_2_ip6(&chain_buf->addr))) {
+        unmap_ipv4_mapped_ipv6(ip_2_ip4(&chain_buf->addr), ip_2_ip6(&chain_buf->addr));
         IP_SET_TYPE_VAL(chain_buf->addr, IPADDR_TYPE_V4);
       }
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
@@ -1190,9 +1193,9 @@ lwip_sendto(int s, const void *data, size_t size, int flags,
 #endif /* LWIP_NETIF_TX_SINGLE_PBUF */
   if (err == ERR_OK) {
 #if LWIP_IPV4 && LWIP_IPV6
-    /* Dual-stack: Unmap IPv6 mapped IPv4 addresses */
-    if (IP_IS_V6_VAL(buf.addr) && ip6_addr_isipv6mappedipv4(ip_2_ip6(&buf.addr))) {
-      unmap_ipv6_mapped_ipv4(ip_2_ip4(&buf.addr), ip_2_ip6(&buf.addr));
+    /* Dual-stack: Unmap IPv4 mapped IPv6 addresses */
+    if (IP_IS_V6_VAL(buf.addr) && ip6_addr_isipv4mappedipv6(ip_2_ip6(&buf.addr))) {
+      unmap_ipv4_mapped_ipv6(ip_2_ip4(&buf.addr), ip_2_ip6(&buf.addr));
       IP_SET_TYPE_VAL(buf.addr, IPADDR_TYPE_V4);
     }
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
@@ -1490,9 +1493,7 @@ lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
         SYS_ARCH_PROTECT(lev);
         sock = tryget_socket(i);
         if (sock != NULL) {
-          /* @todo: what if this is a new socket (reallocated?) in this case,
-             select_waiting-- would be wrong (a global 'sockalloc' counter,
-             stored per socket could help) */
+          /* for now, handle select_waiting==0... */
           LWIP_ASSERT("sock->select_waiting > 0", sock->select_waiting > 0);
           if (sock->select_waiting > 0) {
             sock->select_waiting--;
@@ -1684,8 +1685,7 @@ again:
 }
 
 /**
- * Unimplemented: Close one end of a full-duplex connection.
- * Currently, the full connection is closed.
+ * Close one end of a full-duplex connection.
  */
 int
 lwip_shutdown(int s, int how)
@@ -1750,10 +1750,10 @@ lwip_getaddrname(int s, struct sockaddr *name, socklen_t *namelen, u8_t local)
   }
 
 #if LWIP_IPV4 && LWIP_IPV6
-  /* Dual-stack: Map IPv4 addresses to IPv6 mapped IPv4 */
+  /* Dual-stack: Map IPv4 addresses to IPv4 mapped IPv6 */
   if (NETCONNTYPE_ISIPV6(netconn_type(sock->conn)) &&
       IP_IS_V4_VAL(naddr)) {
-    ip4_2_ipv6_mapped_ipv4(ip_2_ip6(&naddr), ip_2_ip4(&naddr));
+    ip4_2_ipv4_mapped_ipv6(ip_2_ip6(&naddr), ip_2_ip4(&naddr));
     IP_SET_TYPE_VAL(naddr, IPADDR_TYPE_V6);
   }
 #endif /* LWIP_IPV4 && LWIP_IPV6 */
@@ -2574,6 +2574,12 @@ lwip_setsockopt_impl(int s, int level, int optname, const void *optval, socklen_
     switch (optname) {
 #if LWIP_IPV6 && LWIP_RAW
     case IPV6_CHECKSUM:
+      /* It should not be possible to disable the checksum generation with ICMPv6
+       * as per RFC 3542 chapter 3.1 */
+      if(sock->conn->pcb.raw->protocol == IPPROTO_ICMPV6) {
+        return EINVAL;
+      }
+
       LWIP_SOCKOPT_CHECK_OPTLEN_CONN_PCB_TYPE(sock, optlen, int, NETCONN_RAW);
       if (*(const int *)optval < 0) {
         sock->conn->pcb.raw->chksum_reqd = 0;

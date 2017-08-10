@@ -376,6 +376,9 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
 #if TCP_OVERSIZE
   u16_t oversize = 0;
   u16_t oversize_used = 0;
+#if TCP_OVERSIZE_DBGCHECK
+  u16_t oversize_add = 0;
+#endif /* TCP_OVERSIZE_DBGCHECK*/
 #endif /* TCP_OVERSIZE */
   u16_t extendlen = 0;
 #if TCP_CHECKSUM_ON_COPY
@@ -461,13 +464,13 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
      */
 #if TCP_OVERSIZE
 #if TCP_OVERSIZE_DBGCHECK
-    /* check that pcb->unsent_oversize matches last_unsent->unsent_oversize */
+    /* check that pcb->unsent_oversize matches last_unsent->oversize_left */
     LWIP_ASSERT("unsent_oversize mismatch (pcb vs. last_unsent)",
                 pcb->unsent_oversize == last_unsent->oversize_left);
 #endif /* TCP_OVERSIZE_DBGCHECK */
     oversize = pcb->unsent_oversize;
     if (oversize > 0) {
-      LWIP_ASSERT("inconsistent oversize vs. space", oversize_used <= space);
+      LWIP_ASSERT("inconsistent oversize vs. space", oversize <= space);
       seg = last_unsent;
       oversize_used = LWIP_MIN(space, LWIP_MIN(oversize, len));
       pos += oversize_used;
@@ -475,7 +478,7 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
       space -= oversize_used;
     }
     /* now we are either finished or oversize is zero */
-    LWIP_ASSERT("inconsistend oversize vs. len", (oversize == 0) || (pos == len));
+    LWIP_ASSERT("inconsistent oversize vs. len", (oversize == 0) || (pos == len));
 #endif /* TCP_OVERSIZE */
 
     /*
@@ -490,7 +493,7 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
      * the end.
      */
     if ((pos < len) && (space > 0) && (last_unsent->len > 0)) {
-      u16_t seglen = space < len - pos ? space : len - pos;
+      u16_t seglen = LWIP_MIN(space, len - pos);
       seg = last_unsent;
 
       /* Create a pbuf with a copy or reference to seglen bytes. We
@@ -505,7 +508,7 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
           goto memerr;
         }
 #if TCP_OVERSIZE_DBGCHECK
-        last_unsent->oversize_left += oversize;
+        oversize_add = oversize;
 #endif /* TCP_OVERSIZE_DBGCHECK */
         TCP_DATA_COPY2(concat_p->payload, (const u8_t*)arg + pos, seglen, &concat_chksum, &concat_chksum_swapped);
 #if TCP_CHECKSUM_ON_COPY
@@ -557,7 +560,7 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
     struct pbuf *p;
     u16_t left = len - pos;
     u16_t max_len = mss_local - optlen;
-    u16_t seglen = left > max_len ? max_len : left;
+    u16_t seglen = LWIP_MIN(left, max_len);
 #if TCP_CHECKSUM_ON_COPY
     u16_t chksum = 0;
     u8_t chksum_swapped = 0;
@@ -656,6 +659,11 @@ tcp_write(struct tcp_pcb *pcb, const void *arg, u16_t len, u8_t apiflags)
    * All three segmentation phases were successful. We can commit the
    * transaction.
    */
+#if TCP_OVERSIZE_DBGCHECK
+  if ((last_unsent != NULL) && (oversize_add != 0)) {
+    last_unsent->oversize_left += oversize_add;
+  }
+#endif /* TCP_OVERSIZE_DBGCHECK */
 
   /*
    * Phase 1: If data has been added to the preallocated tail of
@@ -1412,7 +1420,9 @@ tcp_rexmit_rto(struct tcp_pcb *pcb)
   pcb->unacked = NULL;
 
   /* increment number of retransmissions */
-  ++pcb->nrtx;
+  if (pcb->nrtx < 0xFF) {
+    ++pcb->nrtx;
+  }
 
   /* Don't take any RTT measurements after retransmitting. */
   pcb->rttest = 0;
@@ -1457,7 +1467,9 @@ tcp_rexmit(struct tcp_pcb *pcb)
   }
 #endif /* TCP_OVERSIZE */
 
-  ++pcb->nrtx;
+  if (pcb->nrtx < 0xFF) {
+    ++pcb->nrtx;
+  }
 
   /* Don't take any rtt measurements after retransmitting. */
   pcb->rttest = 0;
@@ -1488,11 +1500,7 @@ tcp_rexmit_fast(struct tcp_pcb *pcb)
 
     /* Set ssthresh to half of the minimum of the current
      * cwnd and the advertised window */
-    if (pcb->cwnd > pcb->snd_wnd) {
-      pcb->ssthresh = pcb->snd_wnd / 2;
-    } else {
-      pcb->ssthresh = pcb->cwnd / 2;
-    }
+    pcb->ssthresh = LWIP_MIN(pcb->cwnd, pcb->snd_wnd) / 2;
 
     /* The minimum value for ssthresh should be 2 MSS */
     if (pcb->ssthresh < (2U * pcb->mss)) {

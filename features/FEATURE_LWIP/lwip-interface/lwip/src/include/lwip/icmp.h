@@ -69,7 +69,7 @@ enum icmp_dur_type {
 
 /** ICMP time exceeded codes */
 enum icmp_te_type {
-  /* time to live exceeded in transit */
+  /** time to live exceeded in transit */
   ICMP_TE_TTL  = 0,
   /** fragment reassembly time exceeded */
   ICMP_TE_FRAG = 1

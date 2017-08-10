@@ -39,8 +39,9 @@
 
 #include "lwip/apps/mqtt_opts.h"
 #include "lwip/err.h"
+#include "lwip/ip_addr.h"
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -236,7 +237,7 @@ err_t mqtt_sub_unsub(mqtt_client_t *client, const char *topic, u8_t qos, mqtt_re
 err_t mqtt_publish(mqtt_client_t *client, const char *topic, const void *payload, u16_t payload_length, u8_t qos, u8_t retain,
                                     mqtt_request_cb_t cb, void *arg);
 
-#ifdef	__cplusplus
+#ifdef __cplusplus
 }
 #endif
 

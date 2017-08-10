@@ -170,16 +170,18 @@ err_t            tcp_process_refused_data(struct tcp_pcb *pcb);
                 LWIP_EVENT_RECV, NULL, 0, ERR_OK)
 #define TCP_EVENT_CONNECTED(pcb,err,ret) ret = lwip_tcp_event((pcb)->callback_arg, (pcb),\
                 LWIP_EVENT_CONNECTED, NULL, 0, (err))
-#define TCP_EVENT_POLL(pcb,ret)       ret = lwip_tcp_event((pcb)->callback_arg, (pcb),\
-                LWIP_EVENT_POLL, NULL, 0, ERR_OK)
-#define TCP_EVENT_ERR(errf,arg,err)  lwip_tcp_event((arg), NULL, \
-                LWIP_EVENT_ERR, NULL, 0, (err))
+#define TCP_EVENT_POLL(pcb,ret)       do { if ((pcb)->state != SYN_RCVD) {                          \
+                ret = lwip_tcp_event((pcb)->callback_arg, (pcb), LWIP_EVENT_POLL, NULL, 0, ERR_OK); \
+                } else {                                                                            \
+                ret = ERR_ARG; } } while(0)
+#define TCP_EVENT_ERR(last_state,errf,arg,err)  do { if (last_state != SYN_RCVD) {                \
+                lwip_tcp_event((arg), NULL, LWIP_EVENT_ERR, NULL, 0, (err)); } } while(0)
 
 #else /* LWIP_EVENT_API */
 
 #define TCP_EVENT_ACCEPT(lpcb,pcb,arg,err,ret)                 \
   do {                                                         \
-    if((lpcb != NULL) && ((lpcb)->accept != NULL))             \
+    if((lpcb)->accept != NULL)                                 \
       (ret) = (lpcb)->accept((arg),(pcb),(err));               \
     else (ret) = ERR_ARG;                                      \
   } while (0)
@@ -223,8 +225,9 @@ err_t            tcp_process_refused_data(struct tcp_pcb *pcb);
     else (ret) = ERR_OK;                                       \
   } while (0)
 
-#define TCP_EVENT_ERR(errf,arg,err)                            \
+#define TCP_EVENT_ERR(last_state,errf,arg,err)                 \
   do {                                                         \
+    LWIP_UNUSED_ARG(last_state);                               \
     if((errf) != NULL)                                         \
       (errf)((arg),(err));                                     \
   } while (0)
@@ -249,7 +252,7 @@ struct tcp_seg {
 #if TCP_OVERSIZE_DBGCHECK
   u16_t oversize_left;     /* Extra bytes available at the end of the last
                               pbuf in unsent (used for asserting vs.
-                              tcp_pcb.unsent_oversized only) */
+                              tcp_pcb.unsent_oversize only) */
 #endif /* TCP_OVERSIZE_DBGCHECK */
 #if TCP_CHECKSUM_ON_COPY
   u16_t chksum;

@@ -155,19 +155,19 @@ tcp_set_state(struct tcp_pcb* pcb, enum tcp_state state, ip_addr_t* local_ip,
   
   if (state == ESTABLISHED) {
     TCP_REG(&tcp_active_pcbs, pcb);
-    pcb->local_ip.addr = local_ip->addr;
+    ip_addr_copy(pcb->local_ip, *local_ip);
     pcb->local_port = local_port;
-    pcb->remote_ip.addr = remote_ip->addr;
+    ip_addr_copy(pcb->remote_ip, *remote_ip);
     pcb->remote_port = remote_port;
   } else if(state == LISTEN) {
     TCP_REG(&tcp_listen_pcbs.pcbs, pcb);
-    pcb->local_ip.addr = local_ip->addr;
+    ip_addr_copy(pcb->local_ip, *local_ip);
     pcb->local_port = local_port;
   } else if(state == TIME_WAIT) {
     TCP_REG(&tcp_tw_pcbs, pcb);
-    pcb->local_ip.addr = local_ip->addr;
+    ip_addr_copy(pcb->local_ip, *local_ip);
     pcb->local_port = local_port;
-    pcb->remote_ip.addr = remote_ip->addr;
+    ip_addr_copy(pcb->remote_ip, *remote_ip);
     pcb->remote_port = remote_port;
   } else {
     fail();
@@ -302,8 +302,8 @@ void test_tcp_init_netif(struct netif *netif, struct test_tcp_txcounters *txcoun
   }
   netif->output = test_tcp_netif_output;
   netif->flags |= NETIF_FLAG_UP | NETIF_FLAG_LINK_UP;
-  ip4_addr_copy(netif->netmask, *ip_2_ip4(netmask));
-  ip4_addr_copy(netif->ip_addr, *ip_2_ip4(ip_addr));
+  ip_addr_copy_from_ip4(netif->netmask, *ip_2_ip4(netmask));
+  ip_addr_copy_from_ip4(netif->ip_addr, *ip_2_ip4(ip_addr));
   for (n = netif_list; n != NULL; n = n->next) {
     if (n == netif) {
       return;

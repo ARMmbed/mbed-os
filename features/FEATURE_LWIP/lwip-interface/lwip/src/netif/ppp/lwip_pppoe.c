@@ -119,7 +119,7 @@ LWIP_MEMPOOL_DECLARE(PPPOE_IF, MEMP_NUM_PPPOE_INTERFACES, sizeof(struct pppoe_so
 /* callbacks called from PPP core */
 static err_t pppoe_write(ppp_pcb *ppp, void *ctx, struct pbuf *p);
 static err_t pppoe_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *p, u_short protocol);
-static err_t pppoe_connect(ppp_pcb *ppp, void *ctx);
+static void pppoe_connect(ppp_pcb *ppp, void *ctx);
 static void pppoe_disconnect(ppp_pcb *ppp, void *ctx);
 static err_t pppoe_destroy(ppp_pcb *ppp, void *ctx);
 
@@ -879,7 +879,7 @@ pppoe_timeout(void *arg)
 }
 
 /* Start a connection (i.e. initiate discovery phase) */
-static err_t
+static void
 pppoe_connect(ppp_pcb *ppp, void *ctx)
 {
   err_t err;
@@ -934,7 +934,6 @@ pppoe_connect(ppp_pcb *ppp, void *ctx)
     PPPDEBUG(LOG_DEBUG, ("pppoe: %c%c%"U16_F": failed to send PADI, error=%d\n", sc->sc_ethif->name[0], sc->sc_ethif->name[1], sc->sc_ethif->num, err));
   }
   sys_timeout(PPPOE_DISC_TIMEOUT, pppoe_timeout, sc);
-  return err;
 }
 
 /* disconnect */
