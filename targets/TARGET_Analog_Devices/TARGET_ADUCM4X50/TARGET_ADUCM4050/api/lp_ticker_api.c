@@ -58,6 +58,10 @@
 // The number of RTC clock ticks it takes to set & enable the alarm
 #define TICKS_TO_ENABLE_ALARM 10
 
+// Mask to limit the value of the RTC value to 27 bits so the converted time in us fits
+// in 32-bits
+#define MAX_TICK_MASK ((1 << 27) - 1)
+
 static unsigned char rtc1_memory[ADI_RTC_MEMORY_SIZE];
 static ADI_RTC_HANDLE hRTC1_Device;
 
@@ -174,12 +178,11 @@ uint32_t lp_ticker_read()
     // get current count
     adi_rtc_GetCount(hRTC1_Device, &count);
 
-    // convert ticks to us
+    // Throw away top 5 bits to avoid overflow and convert ticks to us
+    count &= MAX_TICK_MASK;
     t = (float)count * TIME_US_PER_TICK;
 
-    count = (uint32_t)t;
-
-    return count;
+    return (uint32_t)t;
 }
 
 /** Set interrupt for specified timestamp
@@ -195,6 +198,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
     // get current count
     adi_rtc_GetCount(hRTC1_Device, &rtcCount);
+    rtcCount &= MAX_TICK_MASK;
 
     // check if the desired alarm is less than TICKS_TO_ENABLE_ALARM,
     // if so just wait it out rather than setting the alarm

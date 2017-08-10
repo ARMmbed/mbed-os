@@ -13,7 +13,9 @@
 
 #define __CM4_REV              0x0001U /*!< CM4 Core Revision r0p1                */
 #define __MPU_PRESENT          1u      /*!< MPU present                           */
+#ifndef __FPU_PRESENT
 #define __FPU_PRESENT          1u      /*!< FPU present                           */
+#endif
 #define __NVIC_PRIO_BITS       3u      /*!< Number of Bits for Priority Levels    */
 #define __Vendor_SysTickConfig 0       /*!< 1 if different SysTick Config is used */
 

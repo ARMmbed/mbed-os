@@ -181,6 +181,21 @@ void SystemInit (void)
     SCB->SHCSR = SCB_SHCSR_USGFAULTENA_Msk |
                  SCB_SHCSR_BUSFAULTENA_Msk |
                  SCB_SHCSR_MEMFAULTENA_Msk ;
+
+#if (__FPU_PRESENT == 1u) && (__FPU_USED == 1u)
+    /* the FPU is disabled by default so enable FPU (NEON and VFP)
+     * set the System Control Block, Coprocessor Access Control Register bits:
+     * CP10 = grant CP10 coprocessor privileges and user mode access (full access)
+     * CP11 = grant CP11 coprocessor privileged and user mode access (full access)
+     * (CP10 and CP11 MUST be the same or "BEHAVIOR IS UNPREDICTABLE")
+     */
+    SCB->CPACR |= ((3UL << 10*2)|(3UL << 11*2));  /* set CP10 and CP11 for Full Access */
+#endif
+
+    /* Flush instruction and data pipelines to insure assertion of new settings. */
+    __ISB();
+    __DSB();
+
     adi_pwr_Init();
     adi_pwr_SetClockDivider(ADI_CLOCK_HCLK,1);
     adi_pwr_SetClockDivider(ADI_CLOCK_PCLK,1);
