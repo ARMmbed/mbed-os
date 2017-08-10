@@ -23,10 +23,6 @@
 #define INITIAL_SP                        (0x20004000UL)
 #endif
 
-#ifdef TOOLCHAIN_GCC_ARM
-#define MBED_CONF_APP_MAIN_STACK_SIZE     2048
-#endif
-
 #endif
 
 #endif  // MBED_MBED_RTX_H
