@@ -73,7 +73,7 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
             }
             ap.rssi = record->signal_strength;
             ap.channel = record->channel;
-            new (&scan_handler->ap_details[scan_handler->ap_num]) WiFiAccessPoint(ap);
+            scan_handler->ap_details[scan_handler->ap_num] = WiFiAccessPoint(ap);
         }
         scan_handler->ap_num++;
     } else{
