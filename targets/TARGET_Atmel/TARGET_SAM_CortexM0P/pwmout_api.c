@@ -60,7 +60,7 @@ static void pwmout_set_period(pwmout_t* obj, int period_us)
 
     freq_hz = system_gclk_gen_get_hz(obj->clock_source);
 
-    for (i=0; i<sizeof(tcc_prescaler); i++) {
+    for (i=0; i<sizeof(tcc_prescaler) / sizeof(tcc_prescaler[0]); i++) {
         div_freq = freq_hz >> tcc_prescaler[i];
         if (!div_freq) break;
         us_per_cycle = 1000000.00 / div_freq;
