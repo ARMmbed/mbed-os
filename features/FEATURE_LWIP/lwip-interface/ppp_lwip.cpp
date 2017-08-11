@@ -313,7 +313,7 @@ extern "C" err_t ppp_lwip_disconnect()
     return ret;
 }
 
-extern "C" nsapi_error_t ppp_lwip_if_init(struct netif *netif)
+extern "C" nsapi_error_t ppp_lwip_if_init(struct netif *netif, const nsapi_ip_stack_t stack)
 {
     if (!prepare_event_queue()) {
         return NSAPI_ERROR_NO_MEMORY;
@@ -330,8 +330,16 @@ extern "C" nsapi_error_t ppp_lwip_if_init(struct netif *netif)
     }
 
 #if LWIP_IPV4
-    ppp_set_usepeerdns(my_ppp_pcb, true);
+    if (stack != IPV6_STACK) {
+        ppp_set_usepeerdns(my_ppp_pcb, true);
+    }
 #endif
+
+    if (stack == IPV4_STACK) {
+        my_ppp_pcb->ipv6cp_disabled = true;
+    } else if (stack == IPV6_STACK) {
+        my_ppp_pcb->ipcp_disabled = true;
+    }
 
     return NSAPI_ERROR_OK;
 }
@@ -341,7 +349,7 @@ nsapi_error_t nsapi_ppp_error_code()
     return connect_error_code;
 }
 
-nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_error_t)> cb, const char *uname, const char *password)
+nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_error_t)> cb, const char *uname, const char *password, const nsapi_ip_stack_t stack)
 {
     if (my_stream) {
         return NSAPI_ERROR_PARAMETER;
@@ -354,7 +362,7 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_error_t)
 
     // mustn't start calling input until after connect -
     // attach deferred until ppp_lwip_connect, called from mbed_lwip_bringup
-    nsapi_error_t retcode = mbed_lwip_bringup_2(false, true, NULL, NULL, NULL);
+    nsapi_error_t retcode = mbed_lwip_bringup_2(false, true, NULL, NULL, NULL, stack);
 
     if (retcode != NSAPI_ERROR_OK && connect_error_code != NSAPI_ERROR_OK) {
         return connect_error_code;
@@ -388,7 +396,7 @@ const char *nsapi_ppp_get_ip_addr(FileHandle *stream)
 }
 const char *nsapi_ppp_get_netmask(FileHandle *stream)
 {
-#if LWIP_IPV6
+#if !LWIP_IPV4
     return NULL;
 #endif
 
@@ -403,7 +411,7 @@ const char *nsapi_ppp_get_netmask(FileHandle *stream)
 }
 const char *nsapi_ppp_get_gw_addr(FileHandle *stream)
 {
-#if LWIP_IPV6
+#if !LWIP_IPV4
     return NULL;
 #endif
 

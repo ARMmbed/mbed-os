@@ -216,6 +216,17 @@ typedef enum nsapi_socket_option {
     NSAPI_RCVBUF,    /*!< Sets recv buffer size */
 } nsapi_socket_option_t;
 
+/** Supported IP protocol versions of IP stack
+ *
+ *  @enum nsapi_ip_stack
+ */
+typedef enum nsapi_ip_stack {
+    DEFAULT_STACK = 0,
+    IPV4_STACK,
+    IPV6_STACK,
+    IPV4V6_STACK
+} nsapi_ip_stack_t;
+
 /* Backwards compatibility - previously didn't distinguish stack and socket options */
 typedef nsapi_socket_level_t nsapi_level_t;
 typedef nsapi_socket_option_t nsapi_option_t;

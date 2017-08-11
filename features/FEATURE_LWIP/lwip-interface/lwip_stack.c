@@ -511,10 +511,10 @@ nsapi_error_t mbed_lwip_init(emac_interface_t *emac)
 // Backwards compatibility with people using DEVICE_EMAC
 nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
 {
-    return mbed_lwip_bringup_2(dhcp, false, ip, netmask, gw);
+    return mbed_lwip_bringup_2(dhcp, false, ip, netmask, gw, DEFAULT_STACK);
 }
 
-nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw)
+nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack)
 {
     // Check if we've already connected
     if (lwip_connected) {
@@ -533,7 +533,7 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
         }
     } else {
         if (ppp) {
-            ret = ppp_lwip_if_init(&lwip_netif);
+            ret = ppp_lwip_if_init(&lwip_netif, stack);
         } else {
             ret = mbed_lwip_emac_init(NULL);
         }
@@ -553,43 +553,49 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
     netif_set_status_callback(&lwip_netif, mbed_lwip_netif_status_irq);
 
 #if LWIP_IPV6
-    if (lwip_netif.hwaddr_len == ETH_HWADDR_LEN) {
-        netif_create_ip6_linklocal_address(&lwip_netif, 1/*from MAC*/);
-    }
+    if (stack != IPV4_STACK) {
+        if (lwip_netif.hwaddr_len == ETH_HWADDR_LEN) {
+            netif_create_ip6_linklocal_address(&lwip_netif, 1/*from MAC*/);
+        }
 
 #if LWIP_IPV6_MLD
-  /*
-   * For hardware/netifs that implement MAC filtering.
-   * All-nodes link-local is handled by default, so we must let the hardware know
-   * to allow multicast packets in.
-   * Should set mld_mac_filter previously. */
-  if (lwip_netif.mld_mac_filter != NULL) {
-    ip6_addr_t ip6_allnodes_ll;
-    ip6_addr_set_allnodes_linklocal(&ip6_allnodes_ll);
-    lwip_netif.mld_mac_filter(&lwip_netif, &ip6_allnodes_ll, NETIF_ADD_MAC_FILTER);
-  }
+        /*
+         * For hardware/netifs that implement MAC filtering.
+         * All-nodes link-local is handled by default, so we must let the hardware know
+         * to allow multicast packets in.
+         * Should set mld_mac_filter previously. */
+        if (lwip_netif.mld_mac_filter != NULL) {
+            ip6_addr_t ip6_allnodes_ll;
+            ip6_addr_set_allnodes_linklocal(&ip6_allnodes_ll);
+            lwip_netif.mld_mac_filter(&lwip_netif, &ip6_allnodes_ll, NETIF_ADD_MAC_FILTER);
+        }
 #endif /* LWIP_IPV6_MLD */
 
 #if LWIP_IPV6_AUTOCONFIG
-    /* IPv6 address autoconfiguration not enabled by default */
-    lwip_netif.ip6_autoconfig_enabled = 1;
+        /* IPv6 address autoconfiguration not enabled by default */
+        lwip_netif.ip6_autoconfig_enabled = 1;
+    } else {
+        // Disable router solidifications
+        lwip_netif.rs_count = 0;
+    }
 #endif /* LWIP_IPV6_AUTOCONFIG */
 #endif // LWIP_IPV6
 
-
 #if LWIP_IPV4
-    if (!dhcp && !ppp) {
-        ip4_addr_t ip_addr;
-        ip4_addr_t netmask_addr;
-        ip4_addr_t gw_addr;
+    if (stack != IPV6_STACK) {
+        if (!dhcp && !ppp) {
+            ip4_addr_t ip_addr;
+            ip4_addr_t netmask_addr;
+            ip4_addr_t gw_addr;
 
-        if (!inet_aton(ip, &ip_addr) ||
-            !inet_aton(netmask, &netmask_addr) ||
-            !inet_aton(gw, &gw_addr)) {
-            return NSAPI_ERROR_PARAMETER;
+            if (!inet_aton(ip, &ip_addr) ||
+                !inet_aton(netmask, &netmask_addr) ||
+                !inet_aton(gw, &gw_addr)) {
+                return NSAPI_ERROR_PARAMETER;
+            }
+
+            netif_set_addr(&lwip_netif, &ip_addr, &netmask_addr, &gw_addr);
         }
-
-        netif_set_addr(&lwip_netif, &ip_addr, &netmask_addr, &gw_addr);
     }
 #endif
 
@@ -614,13 +620,15 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
     }
 
 #if LWIP_DHCP
-    // Connect to the network
-    lwip_dhcp = dhcp;
+    if (stack != IPV6_STACK) {
+        // Connect to the network
+        lwip_dhcp = dhcp;
 
-    if (lwip_dhcp) {
-        err_t err = dhcp_start(&lwip_netif);
-        if (err) {
-            return NSAPI_ERROR_DHCP_FAILURE;
+        if (lwip_dhcp) {
+            err_t err = dhcp_start(&lwip_netif);
+            if (err) {
+                return NSAPI_ERROR_DHCP_FAILURE;
+            }
         }
     }
 #endif
@@ -636,17 +644,21 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
     }
 
 #if PREF_ADDR_TIMEOUT
-    // If address is not for preferred stack waits a while to see
-    // if preferred stack address is acquired
-    if (!mbed_lwip_get_ip_addr(false, &lwip_netif)) {
-        sys_arch_sem_wait(&lwip_netif_has_pref_addr, PREF_ADDR_TIMEOUT * 1000);
+    if (stack != IPV4_STACK && stack != IPV6_STACK) {
+        // If address is not for preferred stack waits a while to see
+        // if preferred stack address is acquired
+        if (!mbed_lwip_get_ip_addr(false, &lwip_netif)) {
+            sys_arch_sem_wait(&lwip_netif_has_pref_addr, PREF_ADDR_TIMEOUT * 1000);
+        }
     }
 #endif
 #if BOTH_ADDR_TIMEOUT
-    // If addresses for both stacks are not available waits a while to
-    // see if address for both stacks are acquired
-    if (!(mbed_lwip_get_ipv4_addr(&lwip_netif) && mbed_lwip_get_ipv6_addr(&lwip_netif))) {
-        sys_arch_sem_wait(&lwip_netif_has_both_addr, BOTH_ADDR_TIMEOUT * 1000);
+    if (stack != IPV4_STACK && stack != IPV6_STACK) {
+        // If addresses for both stacks are not available waits a while to
+        // see if address for both stacks are acquired
+        if (!(mbed_lwip_get_ipv4_addr(&lwip_netif) && mbed_lwip_get_ipv6_addr(&lwip_netif))) {
+            sys_arch_sem_wait(&lwip_netif_has_both_addr, BOTH_ADDR_TIMEOUT * 1000);
+        }
     }
 #endif
 
