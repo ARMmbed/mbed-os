@@ -191,31 +191,44 @@ uint32_t lp_ticker_read()
  */
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t rtcCount, set_time;
+    uint32_t rtcCount, trunc_rtcCount, set_tick, tick_delta, alarm_tick;
 
     // compute the tick value based on the given alarm time
-    set_time = (uint32_t)((float)(timestamp) / TIME_US_PER_TICK);
+    set_tick = (uint32_t)((float)(timestamp) / TIME_US_PER_TICK);
 
     // get current count
     adi_rtc_GetCount(hRTC1_Device, &rtcCount);
-    rtcCount &= MAX_TICK_MASK;
+    
+    // compute the number of ticks required for the alarm  
+    trunc_rtcCount = rtcCount & MAX_TICK_MASK;
+    
+    // if set_tick is less than the current RTC count, then the counter
+    // must have been wrapped around.
+    if (set_tick >= trunc_rtcCount) {
+        tick_delta = set_tick - trunc_rtcCount;
+    } else {
+        tick_delta = MAX_TICK_MASK - (trunc_rtcCount - set_tick);
+    }
+    
+    // compute the absolute RTC alarm count required
+    alarm_tick = rtcCount + tick_delta;
 
-    // check if the desired alarm is less than TICKS_TO_ENABLE_ALARM,
+    // check if the desired alarm duration is less than TICKS_TO_ENABLE_ALARM,
     // if so just wait it out rather than setting the alarm
-    if (set_time <= rtcCount + TICKS_TO_ENABLE_ALARM) {
+    if (tick_delta <= TICKS_TO_ENABLE_ALARM) {
         // otherwise if the alarm time is less than the current RTC count + the time
         // it takes to enable the alarm, just wait until the desired number of counts
         // has expired rather than using the interrupt, then call the user ISR directly.
         do {
             adi_rtc_GetCount(hRTC1_Device, &rtcCount);
-        } while (rtcCount < set_time);
+        } while (rtcCount < alarm_tick);
 
         rtc1_Callback(NULL, ADI_RTC_ALARM_INT, NULL);
         return;
     }
 
-    // set the alarm
-    set_rtc_alarm_interrupt(hRTC1_Device, set_time);
+    // set the alarm otherwise
+    set_rtc_alarm_interrupt(hRTC1_Device, alarm_tick);
 }
 
 /** Disable low power ticker interrupt
