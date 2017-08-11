@@ -4220,13 +4220,12 @@
         "macros": ["CMSDK_CM7"]
     },
     "NUMAKER_PFM_M2351": {
-        "core": "Cortex-M0+",
-        "default_toolchain": "ARM",
+        "core": "Cortex-M23",
+        "default_toolchain": "GCC_ARM",
         "extra_labels": ["NUVOTON", "M2351", "M2351K1AAEES"],
         "is_disk_virtual": true,
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "IAR"],
         "inherits": ["Target"],
-        "macros": ["CMSIS_NVIC_VIRTUAL", "CMSIS_NVIC_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],        
         "device_has": ["LOWPOWERTIMER", "RTC", "INTERRUPTIN","PORTIN", "PORTINOUT", "PORTOUT", "SERIAL","SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP"],
         "release_versions": ["5"],
         "device_name": "M2351K1AAEES"
