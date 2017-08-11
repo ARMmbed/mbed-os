@@ -3165,6 +3165,7 @@
                 "value": "0xFFFFFFFF"
             }
         },
+        "OUTPUT_EXT": "hex",
         "post_binary_hook": {"function": "NCS36510TargetCode.ncs36510_addfib"},
         "macros": ["CM3", "CPU_NCS36510", "TARGET_NCS36510", "LOAD_ADDRESS=0x3000"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
