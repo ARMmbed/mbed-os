@@ -188,10 +188,8 @@ typedef enum IRQn
 /*@}*/ /* end of group CMSIS */
 
 
-//#include "core_armv8mbl.h"                  /* Processor and core peripherals */
-#include "core_cm0plus.h"                       /* Regard M2351 as M0+ for early mbed test */
-#include "system_M2351.h"                           /* System Header */
-
+#include "core_armv8mbl.h"                  /* Processor and core peripherals */
+#include "system_M2351.h"                   /* System Header */
 
 
 /**

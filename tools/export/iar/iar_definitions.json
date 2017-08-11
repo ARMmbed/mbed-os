@@ -231,5 +231,8 @@
         "CExtraOptionsCheck": 1,
         "CExtraOptions": "--drv_vector_table_base=0x0",
         "CMSISDAPJtagSpeedList": 10
+    },
+    "M2351K1AAEES": {
+        "OGChipSelectEditMenu": "M2351 series\tNuvoton M2351 series"
     }
 }
