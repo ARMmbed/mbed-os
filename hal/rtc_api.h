@@ -28,37 +28,145 @@ extern "C" {
 #endif
 
 /**
- * \defgroup hal_rtc RTC hal functions
+ * \defgroup hal_rtc RTC hal
+ *
+ * The RTC hal provides a low level interface to the Real Time Counter (RTC) of a
+ * target.
+ *
+ * # Defined behavior
+ * * The function ::rtc_init is safe to call repeatedly - Verified by test ::rtc_init_test
+ * * RTC accuracy is at least 10% - Not verified
+ * * Init/free doesn't stop RTC from counting - Verified by test ::rtc_persist_test
+ * * Software reset doesn't stop RTC from counting - Verified by ::rtc_reset_test
+ * * Sleep modes don't stop RTC from counting - Verified by ::rtc_sleep_test
+ * * Shutdown mode doesn't stop RTC from counting - Not verified
+ *
+ * # Undefined behavior
+ * * Calling any function other than ::rtc_init before the initialization of the RTC
+ *
+ * # Potential bugs
+ * * Incorrect overflow handling - Verified by ::rtc_range_test
+ * * Glitches due to ripple counter - Verified by ::rtc_glitch_test
+ *
+ * @see hal_rtc_tests
+ *
  * @{
  */
 
+/**
+ * \defgroup hal_rtc_tests RTC hal tests
+ * The RTC test validate proper implementation of the RTC hal.
+ *
+ * To run the RTC hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-rtc*
+ */
+
+
 /** Initialize the RTC peripheral
  *
+ * Powerup the RTC in perpetration for access. This function must be called
+ * before any other RTC functions ares called. This does not change the state
+ * of the RTC. It just enables access to it.
+ *
+ * @note This function is safe to call repeatedly - Tested by ::rtc_init_test
+ *
+ * Pseudo Code:
+ * @code
+ * void rtc_init()
+ * {
+ *     // Enable clock gate so processor can read RTC registers
+ *     POWER_CTRL |= POWER_CTRL_RTC_Msk;
+ *
+ *     // See if the RTC is already setup
+ *     if (!(RTC_STATUS & RTC_STATUS_COUNTING_Msk)) {
+ *
+ *         // Setup the RTC clock source
+ *         RTC_CTRL |= RTC_CTRL_CLK32_Msk;
+ *     }
+ * }
+ * @endcode
  */
 void rtc_init(void);
 
 /** Deinitialize RTC
  *
- * TODO: The function is not used by rtc api in mbed-drivers.
+ * Powerdown the RTC in preparation for sleep, powerdown or reset.
+ * After this function is called no other RTC functions should be called
+ * except for ::rtc_init.
+ *
+ * @note This function does not stop the RTC from counting - Tested by ::rtc_persist_test
+ *
+ * Pseudo Code:
+ * @code
+ * void rtc_free()
+ * {
+ *     // Disable clock gate since processor no longer needs to read RTC registers
+ *     POWER_CTRL &= ~POWER_CTRL_RTC_Msk;
+ * }
+ * @endcode
  */
 void rtc_free(void);
 
-/** Get the RTC enable status
+/** Check if the RTC has the time set and is counting
  *
- * @retval 0 disabled
- * @retval 1 enabled
+ * @retval 0 The time reported by the RTC is not valid
+ * @retval 1 The time has been set the RTC is counting
+ *
+ * Pseudo Code:
+ * @code
+ * int rtc_isenabled()
+ * {
+ *     if (RTC_STATUS & RTC_STATUS_COUNTING_Msk) {
+ *         return 1;
+ *     } else {
+ *         return 0;
+ *     }
+ * }
+ * @endcode
  */
 int rtc_isenabled(void);
 
 /** Get the current time from the RTC peripheral
  *
- * @return The current time
+ * @return The current time in seconds
+ *
+ * @note Some RTCs are not synchronized with the main clock. If
+ * this is the case with your RTC then you must read the RTC time
+ * in a loop to prevent reading the wrong time due to a glitch.
+ * The test ::rtc_glitch_test is intended to catch this bug.
+ *
+ * Example implementation for an unsynchronized ripple counter:
+ * @code
+ * time_t rtc_read()
+ * {
+ *     uint32_t val;
+ *     uint32_t last_val;
+ *
+ *     // Loop until the same value is read twice
+ *     val = RTC_SECONDS;
+ *     do {
+ *         last_val = val;
+ *         val = RTC_SECONDS;
+ *     } while (last_val != val);
+ *
+ *     return (time_t)val;
+ * }
+ * @endcode
  */
 time_t rtc_read(void);
 
-/** Set the current time to the RTC peripheral
+/** Write the current time in seconds to the RTC peripheral
  *
- * @param t The current time to be set
+ * @param t The current time to be set in seconds.
+ *
+ * Pseudo Code:
+ * @code
+ * void rtc_write(time_t t)
+ * {
+ *     RTC_SECONDS = t;
+ * }
+ * @endcode
  */
 void rtc_write(time_t t);
 
