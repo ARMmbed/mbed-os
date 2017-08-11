@@ -23,12 +23,6 @@
 #include "platform/mbed_assert.h"
 #include "platform/mbed_toolchain.h"
 
-#if !defined (__CORTEX_M0) && !defined (__CORTEX_M0PLUS)
-#define EXCLUSIVE_ACCESS 1
-#else
-#define EXCLUSIVE_ACCESS 0
-#endif
-
 static volatile uint32_t interrupt_enable_counter = 0;
 static volatile bool critical_interrupts_disabled = false;
 
@@ -107,7 +101,7 @@ MBED_WEAK void core_util_critical_section_exit(void)
     }
 }
 
-#if EXCLUSIVE_ACCESS
+#if __EXCLUSIVE_ACCESS
 
 /* Supress __ldrex and __strex deprecated warnings - "#3731-D: intrinsic is deprecated" */
 #if defined (__CC_ARM) 
