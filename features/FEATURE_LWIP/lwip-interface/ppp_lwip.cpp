@@ -335,11 +335,13 @@ extern "C" nsapi_error_t ppp_lwip_if_init(struct netif *netif, const nsapi_ip_st
     }
 #endif
 
+#if LWIP_IPV4 && LWIP_IPV6
     if (stack == IPV4_STACK) {
         my_ppp_pcb->ipv6cp_disabled = true;
     } else if (stack == IPV6_STACK) {
         my_ppp_pcb->ipcp_disabled = true;
     }
+#endif
 
     return NSAPI_ERROR_OK;
 }
