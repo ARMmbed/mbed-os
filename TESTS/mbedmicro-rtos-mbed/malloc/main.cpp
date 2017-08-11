@@ -21,7 +21,7 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
-#define NUM_THREADS         5
+#define NUM_THREADS         2
 
 #if defined(__CORTEX_A9)
 #define THREAD_STACK_SIZE   DEFAULT_STACK_SIZE
