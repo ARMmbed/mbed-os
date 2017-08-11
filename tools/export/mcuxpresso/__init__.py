@@ -188,6 +188,7 @@ class MCUXpresso(Exporter):
         print 'Linker script: {0}'.format(self.ld_script)
 
         self.options = {}
+        profile_ids.remove('develop')
         for id in profile_ids:
 
             # There are 4 categories of options, a category common too
@@ -249,8 +250,9 @@ class MCUXpresso(Exporter):
             opts['ld']['object_files'] = objects
             opts['ld']['user_libraries'] = libraries
             opts['ld']['system_libraries'] = self.system_libraries
-            opts['ld']['script'] = join(id.capitalize(),
-                                        "linker-script-%s.ld" % id)
+ #           opts['ld']['script'] = join(id.capitalize(),
+ #                                       "linker-script-%s.ld" % id)
+            opts['ld']['script'] = self.ld_script
             opts['cpp_cmd'] = " ".join(toolchain.preproc)
 
             # Unique IDs used in multiple places.
@@ -519,6 +521,17 @@ class MCUXpresso(Exporter):
             'Cortex-A9': {'mcpu': 'cortex-a9', 'fpu_unit': 'vfpv3'}
         }
 
+        MCPU_NXP = {
+            'cortex-m7' : 'cm7',
+            'cortex-m4' : 'cm4',
+            'cortex-m3' : 'cm3',
+            'cortex-m1' : 'cm1',
+            'cortex-m0' : 'cm0',
+            'cortex-m0.small-multiply' : 'cm0.smallmul',
+            'cortex-m0plus' : 'cm0plus',
+            'cortex-m0plus.small-multiply' : 'cm0plus.smallmul'
+        }
+
         # Remove options that are supplied by CDT
         self.remove_option(flags['common_flags'], '-c')
         self.remove_option(flags['common_flags'], '-MMD')
@@ -534,6 +547,7 @@ class MCUXpresso(Exporter):
         str = self.find_options(flags['common_flags'], '-mcpu=')
         if str != None:
             opts['common']['arm.target.family'] = str[len('-mcpu='):]
+            opts['common']['arm.target.family_nxp'] = MCPU_NXP[str[len('-mcpu='):]]
             self.remove_option(flags['common_flags'], str)
             self.remove_option(flags['ld_flags'], str)
         else:
@@ -582,8 +596,14 @@ class MCUXpresso(Exporter):
                 'fpv5-d16': 'fpv5d16',
                 'fpv5-sp-d16': 'fpv5spd16'
             }
+            fpus_nxp = {
+                'fpv4-sp-d16': 'fpv4',
+                'fpv5-d16': 'fpv5dp',
+                'fpv5-sp-d16': 'fpv5sp'
+            }
             if fpu in fpus:
                 opts['common']['arm.target.fpu.unit'] = fpus[fpu]
+                opts['common']['arm.target.fpu.unit_nxp'] = fpus_nxp[fpu]
 
                 self.remove_option(flags['common_flags'], str)
                 self.remove_option(flags['ld_flags'], str)
@@ -602,15 +622,9 @@ class MCUXpresso(Exporter):
                 len('-mfloat-abi='):]
             self.remove_option(flags['common_flags'], str)
             self.remove_option(flags['ld_flags'], str)
-
-        opts['common']['arm.target.unalignedaccess'] = None
-        if '-munaligned-access' in flags['common_flags']:
-            opts['common']['arm.target.unalignedaccess'] = 'enabled'
-            self.remove_option(flags['common_flags'], '-munaligned-access')
-        elif '-mno-unaligned-access' in flags['common_flags']:
-            opts['common']['arm.target.unalignedaccess'] = 'disabled'
-            self.remove_option(flags['common_flags'], '-mno-unaligned-access')
-
+            if opts['common']['arm.target.fpu.abi'] == 'hard':
+                opts['common']['arm.target.fpu.unit_nxp'] += '.hard'
+        
         # Default optimisation level for Release.
         opts['common']['optimization.level'] = '-Os'
 
