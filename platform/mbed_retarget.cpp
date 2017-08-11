@@ -827,11 +827,10 @@ void mbed_set_unbuffered_stream(std::FILE *_file) {
 std::FILE *mbed_fdopen(FileHandle *fh, const char *mode)
 {
     // This is to avoid scanf(buf, ":%.4s", fh) and the bloat it brings.
-    char buf[2 + sizeof(fh) + 1]; /* :(pointer) + null byte */
-    MBED_STATIC_ASSERT(sizeof(buf) == 7, "Pointers should be 4 bytes.");
+    char buf[1 + sizeof(fh)]; /* :(pointer) */
+    MBED_STATIC_ASSERT(sizeof(buf) == 5, "Pointers should be 4 bytes.");
     buf[0] = ':';
     memcpy(buf + 1, &fh, sizeof(fh));
-    buf[1 + sizeof(fh)] = '\0';
 
     std::FILE *stream = std::fopen(buf, mode);
     /* newlib-nano doesn't appear to ever call _isatty itself, so
