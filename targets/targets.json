@@ -2951,7 +2951,7 @@
     },
     "EFR32MG12P332F1024GL125": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFR32MG12", "EFR32_12", "1024K", "SL_RAIL", "SL_CRYPTO"],
+        "extra_labels_add": ["EFR32_12", "EFR32MG12", "EFR32_12", "1024K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
         "macros_add": ["EFR32MG12P332F1024GL125", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -2999,9 +2999,9 @@
     },
     "EFR32FG1P132F256GM48": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFR32FG1", "256K", "SL_RAIL", "SL_CRYPTO"],
+        "extra_labels_add": ["EFR32_1", "EFR32FG1", "256K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
-        "macros": ["EFR32FG1P132F256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4", "INITIAL_SP=0x20005000UL"],
+        "macros": ["EFR32FG1", "EFR32FG1P132F256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
         "release_versions": ["2", "5"],
         "public": false,
@@ -3052,9 +3052,9 @@
     },
     "EFR32FG12P433F1024GL125": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFR32FG12", "256K", "SL_RAIL", "SL_CRYPTO"],
+        "extra_labels_add": ["EFR32_12", "EFR32FG12", "256K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
-        "macros": ["EFR32FG12P433F1024GL125", "TRANSACTION_QUEUE_SIZE_SPI=4", "INITIAL_SP=0x20005000UL"],
+        "macros": ["EFR32FG12", "EFR32FG12P433F1024GL125", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
         "release_versions": ["2", "5"],
         "public": false,
