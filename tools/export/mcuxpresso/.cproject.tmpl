@@ -59,7 +59,7 @@
 								<option id="com.crt.advproject.gcc.specs.{{u.id}}" name="Specs" superClass="com.crt.advproject.gcc.specs"  value="com.crt.advproject.gcc.specs.newlibnano" valueType="enumerated"/>
 								<option id="com.crt.advproject.gcc.arch.{{u.id}}" name="Architecture" superClass="com.crt.advproject.gcc.arch"  value="com.crt.advproject.gcc.target.{{opts['common']['arm.target.family_nxp']}}" valueType="enumerated"/>
                                 {% if opts['common']['optimization.level'] != '' %}
-								<option id="com.crt.advproject.gcc.exe.{{opts['id']}}.option.optimization.level.{{u.id}}" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.{{opts['id']}}.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.none" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.exe.{{opts['id']}}.option.optimization.level.{{u.id}}" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.{{opts['id']}}.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.{{opts['common']['optimization.level']}}" valueType="enumerated"/>
                                 {% endif %}
 								{% if opts['c']['compiler.std'] %}
 								<option id="com.crt.advproject.gcc.misc.dialect.{{u.id}}" name="Language standard" superClass="com.crt.advproject.gcc.misc.dialect" useByScannerDiscovery="true" value="com.crt.advproject.misc.dialect.default" valueType="enumerated"/>
