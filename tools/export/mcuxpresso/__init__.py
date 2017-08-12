@@ -282,7 +282,7 @@ class MCUXpresso(Exporter):
 
         self.gen_file('mcuxpresso/.project.tmpl', jinja_ctx,
                       '.project', trim_blocks=True, lstrip_blocks=True)
-        self.gen_file('mcuxpresso/.cproject.tmpl', jinja_ctx,
+        self.gen_file('mcuxpresso/{0}_cproject.tmpl'.format(target_name), jinja_ctx,
                       '.cproject', trim_blocks=True, lstrip_blocks=True)
 #        self.gen_file('mcuxpresso/makefile.targets.tmpl', jinja_ctx,
 #                      'makefile.targets', trim_blocks=True, lstrip_blocks=True)
@@ -587,6 +587,7 @@ class MCUXpresso(Exporter):
             self.remove_option(flags['common_flags'], '-mbig-endian')
 
         opts['common']['arm.target.fpu.unit'] = None
+        opts['common']['arm.target.fpu.unit_nxp'] = None
         # default, fpv4spd16, fpv5d16, fpv5spd16
         str = self.find_options(flags['common_flags'], '-mfpu=')
         if str != None:
