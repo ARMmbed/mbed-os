@@ -690,7 +690,12 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
     for(int i = 0; i < 3; i++) {
         // Send CMD55 for APP command first
         if (isAcmd) {
-            _cmd_spi(CMD55_APP_CMD, 0x0);
+            response = _cmd_spi(CMD55_APP_CMD, 0x0);
+        }
+
+        // Wait for card to be ready after CMD55
+        if (false == _wait_ready(SD_COMMAND_TIMEOUT)) {
+            debug_if(SD_DBG, "Card not ready yet \n");
         }
 
         // Send command over SPI interface
@@ -710,20 +715,20 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
     // Process the response R1  : Exit on CRC/Illegal command error/No response
     if (R1_NO_RESPONSE == response) {
         _deselect();
-        debug_if(SD_DBG, "No response CMD:%d \n", cmd);
+        debug_if(SD_DBG, "No response CMD:%d response: 0x%x\n",cmd, response);
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;         // No device
     }
     if (response & R1_COM_CRC_ERROR) {
         _deselect();
-        debug_if(SD_DBG, "CRC error CMD:%d \n", cmd);
+        debug_if(SD_DBG, "CRC error CMD:%d response 0x%x \n",cmd, response);
         return SD_BLOCK_DEVICE_ERROR_CRC;                // CRC error
     }
     if (response & R1_ILLEGAL_COMMAND) {
-        debug_if(SD_DBG, "Illegal command CMD:%d\n", cmd);
+        _deselect();
+        debug_if(SD_DBG, "Illegal command CMD:%d response 0x%x\n",cmd, response);
         if (CMD8_SEND_IF_COND == cmd) {                  // Illegal command is for Ver1 or not SD Card
             _card_type = CARD_UNKNOWN;
         }
-        _deselect();
         return SD_BLOCK_DEVICE_ERROR_UNSUPPORTED;      // Command not supported
     }
 
@@ -1024,4 +1029,5 @@ void SDBlockDevice::_deselect() {
     _cs = 1;
     _spi.unlock();
 }
+
 #endif  /* DEVICE_SPI */
