@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-#include "mbed_assert.h"
-#include "PinNames.h"
-#include "nu_modutil.h"
+#ifndef MBED_CMSIS_H
+#define MBED_CMSIS_H
 
-const struct nu_modinit_s *get_modinit(uint32_t modname, const struct nu_modinit_s *modprop_tab)
-{
-    MBED_ASSERT(modprop_tab != NULL);
-    const struct nu_modinit_s *modprop_ind = modprop_tab;
-    while (modprop_ind->modname != NC) {
-        if ((int) modname == modprop_ind->modname) {
-            return modprop_ind;
-        }
-        else {
-            modprop_ind ++;
-        }
-    }
-    
-    return NULL;
-}
+#include "M480.h"
+#include "cmsis_nvic.h"
+
+// Support linker-generated symbol as start of relocated vector table.
+#if defined(__CC_ARM)
+extern uint32_t Image$$ER_IRAMVEC$$ZI$$Base;
+#elif defined(__ICCARM__)
+
+#elif defined(__GNUC__)
+extern uint32_t __start_vector_table__;
+#endif
+
+
+#endif

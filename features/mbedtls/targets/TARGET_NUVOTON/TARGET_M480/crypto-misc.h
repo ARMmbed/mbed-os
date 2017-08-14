@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-#include "mbed_assert.h"
-#include "PinNames.h"
-#include "nu_modutil.h"
+#ifndef MBED_CRYPTO_MISC_H
+#define MBED_CRYPTO_MISC_H
 
-const struct nu_modinit_s *get_modinit(uint32_t modname, const struct nu_modinit_s *modprop_tab)
-{
-    MBED_ASSERT(modprop_tab != NULL);
-    const struct nu_modinit_s *modprop_ind = modprop_tab;
-    while (modprop_ind->modname != NC) {
-        if ((int) modname == modprop_ind->modname) {
-            return modprop_ind;
-        }
-        else {
-            modprop_ind ++;
-        }
-    }
-    
-    return NULL;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void crypto_init(void);
+void crypto_zeroize(void *v, size_t n);
+int crypto_sha_acquire(void);
+void crypto_sha_release(void);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

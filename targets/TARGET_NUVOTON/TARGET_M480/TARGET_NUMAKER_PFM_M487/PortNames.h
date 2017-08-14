@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-#include "mbed_assert.h"
-#include "PinNames.h"
-#include "nu_modutil.h"
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
-const struct nu_modinit_s *get_modinit(uint32_t modname, const struct nu_modinit_s *modprop_tab)
-{
-    MBED_ASSERT(modprop_tab != NULL);
-    const struct nu_modinit_s *modprop_ind = modprop_tab;
-    while (modprop_ind->modname != NC) {
-        if ((int) modname == modprop_ind->modname) {
-            return modprop_ind;
-        }
-        else {
-            modprop_ind ++;
-        }
-    }
-    
-    return NULL;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum {
+    PortA = 0,
+    PortB = 1,
+    PortC = 2,
+    PortD = 3,
+    PortE = 4,
+    PortF = 5,
+    PortG = 6,
+    PortH = 7
+} PortName;
+
+#ifdef __cplusplus
 }
+#endif
+#endif

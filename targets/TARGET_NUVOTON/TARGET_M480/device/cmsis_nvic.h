@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#include "mbed_assert.h"
-#include "PinNames.h"
-#include "nu_modutil.h"
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
 
-const struct nu_modinit_s *get_modinit(uint32_t modname, const struct nu_modinit_s *modprop_tab)
-{
-    MBED_ASSERT(modprop_tab != NULL);
-    const struct nu_modinit_s *modprop_ind = modprop_tab;
-    while (modprop_ind->modname != NC) {
-        if ((int) modname == modprop_ind->modname) {
-            return modprop_ind;
-        }
-        else {
-            modprop_ind ++;
-        }
-    }
-    
-    return NULL;
-}
+#include "cmsis.h"
+
+#define NVIC_USER_IRQ_OFFSET 16
+#define NVIC_USER_IRQ_NUMBER 96
+#define NVIC_NUM_VECTORS     (NVIC_USER_IRQ_OFFSET + NVIC_USER_IRQ_NUMBER)
+
+#if defined(__CC_ARM)
+#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) &Image$$ER_IRAMVEC$$ZI$$Base)
+#elif defined(__ICCARM__)
+#   pragma section = "IRAMVEC"
+#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) __section_begin("IRAMVEC"))
+#elif defined(__GNUC__)
+#   define NVIC_RAM_VECTOR_ADDRESS  ((uint32_t) &__start_vector_table__)
+#endif
+
+#endif

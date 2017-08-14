@@ -14,22 +14,11 @@
  * limitations under the License.
  */
 
-#include "mbed_assert.h"
-#include "PinNames.h"
-#include "nu_modutil.h"
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-const struct nu_modinit_s *get_modinit(uint32_t modname, const struct nu_modinit_s *modprop_tab)
-{
-    MBED_ASSERT(modprop_tab != NULL);
-    const struct nu_modinit_s *modprop_ind = modprop_tab;
-    while (modprop_ind->modname != NC) {
-        if ((int) modname == modprop_ind->modname) {
-            return modprop_ind;
-        }
-        else {
-            modprop_ind ++;
-        }
-    }
-    
-    return NULL;
-}
+#define DEVICE_ID_LENGTH       24
+
+#include "objects.h"
+
+#endif
