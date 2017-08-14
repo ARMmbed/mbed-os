@@ -98,7 +98,6 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address);
 /** Get page size
  *
  * @param obj The flash object
- * @param address The page starting address
  * @return The size of a page
  */
 uint32_t flash_get_page_size(const flash_t *obj);
