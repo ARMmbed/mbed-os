@@ -269,7 +269,11 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     // Flush Tx FIFO. Otherwise, output data may get lost on this change.
     while (! UART_IS_TX_EMPTY(((UART_T *) NU_MODBASE(obj->serial.uart))));
     
-    // TODO: Assert for not supported parity and data bits
+    // Sanity check arguments    
+    MBED_ASSERT((data_bits == 5) || (data_bits == 6) || (data_bits == 7) || (data_bits == 8));
+    MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven) || (parity == ParityForced1) || (parity == ParityForced0));
+    MBED_ASSERT((stop_bits == 1) || (stop_bits == 2));
+    
     obj->serial.databits = data_bits;
     obj->serial.parity = parity;
     obj->serial.stopbits = stop_bits;

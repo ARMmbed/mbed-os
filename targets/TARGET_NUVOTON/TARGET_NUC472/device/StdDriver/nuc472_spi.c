@@ -1,8 +1,8 @@
 /****************************************************************************//**
  * @file     spi.c
  * @version  V0.10
- * $Revision: 15 $
- * $Date: 14/09/30 1:10p $
+ * $Revision: 16 $
+ * $Date: 15/06/18 4:00p $
  * @brief    NUC472/NUC442 SPI driver source file
  *
  * @note
@@ -102,7 +102,7 @@ void SPI_ClearTxFIFO(SPI_T *spi)
   */
 void SPI_DisableAutoSS(SPI_T *spi)
 {
-    spi->SSCTL &= ~SPI_SSCTL_AUTOSS_Msk;
+    spi->SSCTL &= ~(SPI_SSCTL_AUTOSS_Msk | SPI_SSCTL_SS_Msk);
 }
 
 /**
@@ -118,7 +118,7 @@ void SPI_DisableAutoSS(SPI_T *spi)
   */
 void SPI_EnableAutoSS(SPI_T *spi, uint32_t u32SSPinMask, uint32_t u32ActiveLevel)
 {
-    spi->SSCTL |= (u32SSPinMask | u32ActiveLevel) | SPI_SSCTL_AUTOSS_Msk;
+    spi->SSCTL = (spi->SSCTL & ~(SPI_SSCTL_SSACTPOL_Msk | SPI_SSCTL_SS_Msk)) | (u32SSPinMask | u32ActiveLevel) | SPI_SSCTL_AUTOSS_Msk;
 }
 
 /**
@@ -153,12 +153,15 @@ uint32_t SPI_SetBusClock(SPI_T *spi, uint32_t u32BusClock)
             u32ClkSrc = CLK_GetPLLClockFreq();
     }
 
+    if(u32BusClock > u32ClkSrc)
+        u32BusClock = u32ClkSrc;
 
     if(u32BusClock != 0 ) {
         u32Div = (u32ClkSrc / u32BusClock) - 1;
         if(u32Div > SPI_CLKDIV_DIVIDER_Msk)
             u32Div = SPI_CLKDIV_DIVIDER_Msk;
-    }
+    } else
+        return 0;
 
     spi->CLKDIV = (spi->CLKDIV & ~SPI_CLKDIV_DIVIDER_Msk) | u32Div;
 
