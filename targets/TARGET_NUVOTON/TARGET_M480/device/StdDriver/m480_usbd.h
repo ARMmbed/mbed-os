@@ -69,17 +69,17 @@ extern const S_USBD_INFO_T gsInfo;
 #define REQ_VENDOR          0x40ul
 
 /* USB Standard Request */
-#define GET_STATUS          0x00ul
-#define CLEAR_FEATURE       0x01ul
-#define SET_FEATURE         0x03ul
-#define SET_ADDRESS         0x05ul
-#define GET_DESCRIPTOR      0x06ul
-#define SET_DESCRIPTOR      0x07ul
-#define GET_CONFIGURATION   0x08ul
-#define SET_CONFIGURATION   0x09ul
-#define GET_INTERFACE       0x0Aul
-#define SET_INTERFACE       0x0Bul
-#define SYNC_FRAME          0x0Cul
+#define USBD_GET_STATUS          0x00ul
+#define USBD_CLEAR_FEATURE       0x01ul
+#define USBD_SET_FEATURE         0x03ul
+#define USBD_SET_ADDRESS         0x05ul
+#define USBD_GET_DESCRIPTOR      0x06ul
+#define USBD_SET_DESCRIPTOR      0x07ul
+#define USBD_GET_CONFIGURATION   0x08ul
+#define USBD_SET_CONFIGURATION   0x09ul
+#define USBD_GET_INTERFACE       0x0Aul
+#define USBD_SET_INTERFACE       0x0Bul
+#define USBD_SYNC_FRAME          0x0Cul
 
 /* USB Descriptor Type */
 #define DESC_DEVICE         0x01ul
