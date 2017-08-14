@@ -57,6 +57,8 @@ typedef enum {
 #include "USBEndpoints_NUC472.h"
 #elif defined(TARGET_NUMAKER_PFM_M453)
 #include "USBEndpoints_M453.h"
+#elif defined(TARGET_M480)
+#include "USBEndpoints_M480.h"
 #else
 #error "Unknown target type"
 #endif
