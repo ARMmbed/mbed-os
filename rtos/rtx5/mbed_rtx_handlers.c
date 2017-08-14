@@ -16,6 +16,7 @@
 
 #include "cmsis_compiler.h"
 #include "rtx_os.h"
+#include "rtx_evr.h"
 #include "mbed_rtx.h"
 #include "mbed_error.h"
 
@@ -66,3 +67,72 @@ __NO_RETURN uint32_t osRtxErrorNotify (uint32_t code, void *object_id)
     /* That shouldn't be reached */
     for (;;) {}
 }
+
+#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
+
+static const char* error_msg(int32_t status)
+{
+    switch (status) {
+    case osError:
+        return "Unspecified RTOS error";
+    case osErrorTimeout:
+        return "Operation not completed within the timeout period";
+    case osErrorResource:
+        return "Resource not available";
+    case osErrorParameter:
+        return "Parameter error";
+    case osErrorNoMemory:
+        return "System is out of memory";
+    case osErrorISR:
+        return "Not allowed in ISR context";
+    default:
+        return "Unknown";
+    }
+}
+
+void EvrRtxKernelError (int32_t status)
+{
+    error("Kernel error %i: %s\r\n", status, error_msg(status));
+}
+
+void EvrRtxThreadError (osThreadId_t thread_id, int32_t status)
+{
+    error("Thread %p error %i: %s\r\n", thread_id, status, error_msg(status));
+}
+
+void EvrRtxTimerError (osTimerId_t timer_id, int32_t status)
+{
+    error("Timer %p error %i: %s\r\n", timer_id, status, error_msg(status));
+}
+
+void EvrRtxEventFlagsError (osEventFlagsId_t ef_id, int32_t status)
+{
+    error("Event %p error %i: %s\r\n", ef_id, status, error_msg(status));
+}
+
+void EvrRtxMutexError (osMutexId_t mutex_id, int32_t status)
+{
+    error("Mutex %p error %i: %s\r\n", mutex_id, status, error_msg(status));
+}
+
+void EvrRtxSemaphoreError (osSemaphoreId_t semaphore_id, int32_t status)
+{
+    // Ignore semaphore overflow, the count will saturate with a returned error
+    if (status == osRtxErrorSemaphoreCountLimit) {
+        return;
+    }
+
+    error("Semaphore %p error %i\r\n", semaphore_id, status);
+}
+
+void EvrRtxMemoryPoolError (osMemoryPoolId_t mp_id, int32_t status)
+{
+    error("Memory Pool %p error %i\r\n", mp_id, status);
+}
+
+void EvrRtxMessageQueueError (osMessageQueueId_t mq_id, int32_t status)
+{
+    error("Message Queue %p error %i\r\n", mq_id, status);
+}
+
+#endif
