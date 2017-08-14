@@ -3185,6 +3185,18 @@
         "device_name": "M453VG6AE",
         "bootloader_supported": true
     },
+    "NUMAKER_PFM_NANO130": {
+        "core": "Cortex-M0",
+        "default_toolchain": "ARM",
+        "extra_labels": ["NUVOTON", "NANO100", "NANO130KE3BN"],
+        "is_disk_virtual": true,
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "inherits": ["Target"],
+        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
+        "release_versions": ["5"],
+        "device_name": "NANO130KE3BN"
+    },
     "HI2110": {
         "inherits": ["Target"],
         "core": "Cortex-M0",
