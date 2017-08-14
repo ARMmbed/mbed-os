@@ -19,6 +19,7 @@
 #include "platform/platform.h"
 #include "hal/ticker_api.h"
 #include "platform/NonCopyable.h"
+#include "platform/mbed_sleep.h"
 
 namespace mbed {
 /** \addtogroup drivers */

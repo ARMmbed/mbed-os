@@ -125,6 +125,7 @@ void I2C::unlock() {
 int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event, bool repeated)
 {
     lock();
+    sleep_manager_lock_deep_sleep();
     if (i2c_active(&_i2c)) {
         unlock();
         return -1; // transaction ongoing
@@ -143,6 +144,7 @@ void I2C::abort_transfer(void)
 {
     lock();
     i2c_abort_asynch(&_i2c);
+    sleep_manager_unlock_deep_sleep();
     unlock();
 }
 
@@ -151,6 +153,9 @@ void I2C::irq_handler_asynch(void)
     int event = i2c_irq_handler_asynch(&_i2c);
     if (_callback && event) {
         _callback.call(event);
+    }
+    if (event) {
+        sleep_manager_unlock_deep_sleep();
     }
 
 }
