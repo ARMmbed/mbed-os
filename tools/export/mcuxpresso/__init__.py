@@ -144,12 +144,12 @@ class MCUXpresso(Exporter):
 
         # TODO: use some logger to display additional info if verbose
 
-        libraries = []
+        self.libraries = []
         # print 'libraries'
         # print self.resources.libraries
         for lib in self.resources.libraries:
             l, _ = splitext(basename(lib))
-            libraries.append(l[3:])
+            self.libraries.append(l[3:])
 
         self.system_libraries = [
             'stdc++', 'supc++', 'm', 'c', 'gcc', 'nosys'
@@ -248,7 +248,7 @@ class MCUXpresso(Exporter):
                 self.filter_dot(s) for s in self.resources.lib_dirs]
 
             opts['ld']['object_files'] = objects
-            opts['ld']['user_libraries'] = libraries
+            opts['ld']['user_libraries'] = self.libraries
             opts['ld']['system_libraries'] = self.system_libraries
  #           opts['ld']['script'] = join(id.capitalize(),
  #                                       "linker-script-%s.ld" % id)
@@ -937,7 +937,9 @@ class MCUXpresso(Exporter):
         if len(self.system_libraries) > 0:
             opts['ld']['other'] += ' -Wl,--start-group '
             opts['ld'][
-                'other'] += ' '.join('-l' + s for s in self.system_libraries)
+                'other'] += ' '.join('-l' + s for s in self.system_libraries) + ' '
+            opts['ld'][
+                'other'] += ' '.join('-l' + s for s in self.libraries)
             opts['ld']['other'] += ' -Wl,--end-group '
 
         # Strip all 'other' flags, since they might have leading spaces.

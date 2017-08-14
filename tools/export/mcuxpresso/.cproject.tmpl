@@ -48,6 +48,9 @@
 									{% endfor %}
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.{{u.id}}" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"  value="-c -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -funsigned-char -fno-delete-null-pointer-checks -fomit-frame-pointer" valueType="string"/>
+								{% if opts['cpp']['otheroptimizations'] != '' %}
+								<option id="gnu.cpp.compiler.option.optimization.flags.{{u.id}}" superClass="gnu.cpp.compiler.option.optimization.flags" useByScannerDiscovery="false" value="{{opts['cpp']['otheroptimizations']}}" valueType="string"/>
+								{% endif %}
                                 {% if opts['common']['arm.target.fpu.unit_nxp'] %}
    								<option id="com.crt.advproject.cpp.fpu.{{u.id}}" name="Floating point" superClass="com.crt.advproject.cpp.fpu" useByScannerDiscovery="false" value="com.crt.advproject.cpp.fpu.{{opts['common']['arm.target.fpu.unit_nxp']}}" valueType="enumerated"/>
                                 {% endif %}
@@ -102,7 +105,7 @@
 								<inputType id="com.crt.advproject.assembler.input.{{u.id}}" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
 							</tool>
 
-							<tool id="com.crt.advproject.link.cpp.exe.{{opts['id']}}.{{u.id}}" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.{{opts['id']}}">
+							<tool commandLinePattern="${COMMAND} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS} ${FLAGS}" id="com.crt.advproject.link.cpp.exe.{{opts['id']}}.{{u.id}}" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.{{opts['id']}}">
 								<option defaultValue="com.crt.advproject.heapAndStack.lpcXpressoStyle.cpp" id="com.crt.advproject.link.memory.heapAndStack.style.cpp.{{u.id}}" name="Heap and Stack placement" superClass="com.crt.advproject.link.memory.heapAndStack.style.cpp" useByScannerDiscovery="false" value="com.crt.advproject.heapAndStack.lpcXpressoStyle.cpp" valueType="enumerated"/>
 								<option id="com.crt.advproject.link.memory.heapAndStack.cpp.{{u.id}}" name="Heap and Stack options" superClass="com.crt.advproject.link.memory.heapAndStack.cpp" useByScannerDiscovery="false" value="&amp;Heap:Default;Post Data;Default&amp;Stack:Default;End;Default" valueType="string"/>
 								<option id="com.crt.advproject.link.cpp.multicore.master.{{u.id}}" name="Multicore master" superClass="com.crt.advproject.link.cpp.multicore.master" useByScannerDiscovery="false"/>
