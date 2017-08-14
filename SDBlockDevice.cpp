@@ -274,13 +274,12 @@ int SDBlockDevice::_initialise_card()
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;
     }
 
-    // Send CMD8
-    if (BD_ERROR_OK != (status = _cmd8())) {
+    // Send CMD8, if the card rejects the command then it's probably using the
+    // legacy protocol, or is a MMC, or just flat-out broken
+    status = _cmd8();
+    if (BD_ERROR_OK != status && SD_BLOCK_DEVICE_ERROR_UNSUPPORTED != status) {
         return status;
     }
-
-    // Disable CRC
-    status = _cmd(CMD59_CRC_ON_OFF, 0);
 
     // Read OCR - CMD58 Response contains OCR register
     if (BD_ERROR_OK != (status = _cmd(CMD58_READ_OCR, 0x0, 0x0, &response))) {
@@ -333,6 +332,10 @@ int SDBlockDevice::_initialise_card()
         _card_type = SDCARD_V1;
         debug_if(SD_DBG, "Card Initialized: Version 1.x Card\n");
     }
+
+    // Disable CRC
+    status = _cmd(CMD59_CRC_ON_OFF, 0);
+
     return status;
 }
 
