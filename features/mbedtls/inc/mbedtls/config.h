@@ -2268,7 +2268,7 @@
  *
  * This module is required for SSL/TLS and SHA1-signed certificates.
  */
-//#define MBEDTLS_SHA1_C
+#define MBEDTLS_SHA1_C
 
 /**
  * \def MBEDTLS_SHA256_C
