@@ -20,6 +20,7 @@
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
+#include "platform/mbed_sleep.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -103,6 +104,7 @@ public:
      */
     void attach_us(Callback<void()> func, us_timestamp_t t) {
         _function = func;
+        sleep_manager_lock_deep_sleep();
         setup(t);
     }
 

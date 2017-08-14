@@ -16,17 +16,21 @@
 #include "drivers/SerialBase.h"
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_critical.h"
+#include "platform/mbed_sleep.h"
 
 #if DEVICE_SERIAL
 
 namespace mbed {
 
 static void donothing() {};
+static void donothing2(int arg) {};
+
 
 SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
 #if DEVICE_SERIAL_ASYNCH
                                                  _thunk_irq(this), _tx_usage(DMA_USAGE_NEVER),
-                                                 _rx_usage(DMA_USAGE_NEVER),
+                                                 _rx_usage(DMA_USAGE_NEVER), _tx_callback(donothing2),
+                                                 _rx_callback(donothing2),
 #endif
                                                 _serial(), _baud(baud) {
     // No lock needed in the constructor
@@ -73,9 +77,11 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
     // Disable interrupts when attaching interrupt handler
     core_util_critical_section_enter();
     if (func) {
+        sleep_manager_lock_deep_sleep();
         _irq[type] = func;
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
+        sleep_manager_unlock_deep_sleep();
         _irq[type] = donothing;
         serial_irq_set(&_serial, (SerialIrq)type, 0);
     }
@@ -173,16 +179,27 @@ void SerialBase::start_write(const void *buffer, int buffer_size, char buffer_wi
     _tx_callback = callback;
 
     _thunk_irq.callback(&SerialBase::interrupt_handler_asynch);
+    sleep_manager_lock_deep_sleep();
     serial_tx_asynch(&_serial, buffer, buffer_size, buffer_width, _thunk_irq.entry(), event, _tx_usage);
 }
 
 void SerialBase::abort_write(void)
 {
+    // rx might still be active
+    if (_rx_callback == &donothing2) {
+        sleep_manager_unlock_deep_sleep();
+    }
+    _tx_callback = donothing2;
     serial_tx_abort_asynch(&_serial);
 }
 
 void SerialBase::abort_read(void)
 {
+    // tx might still be active
+    if (_tx_callback == &donothing2) {
+        sleep_manager_unlock_deep_sleep();
+    }
+    _rx_callback = donothing2;
     serial_rx_abort_asynch(&_serial);
 }
 
@@ -235,13 +252,21 @@ void SerialBase::interrupt_handler_asynch(void)
 {
     int event = serial_irq_handler_asynch(&_serial);
     int rx_event = event & SERIAL_EVENT_RX_MASK;
+    bool unlock_deepsleep = false;
+
     if (_rx_callback && rx_event) {
+        unlock_deepsleep = true;
         _rx_callback.call(rx_event);
     }
 
     int tx_event = event & SERIAL_EVENT_TX_MASK;
     if (_tx_callback && tx_event) {
+        unlock_deepsleep = true;
         _tx_callback.call(tx_event);
+    }
+    // unlock if tx or rx events are generated
+    if (unlock_deepsleep) {
+        sleep_manager_unlock_deep_sleep();
     }
 }
 

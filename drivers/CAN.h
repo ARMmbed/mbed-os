@@ -235,7 +235,9 @@ public:
 
     /** Attach a function to call whenever a CAN frame received interrupt is
      *  generated.
-     *
+     *  
+     *  This function locks the deep sleep while a callback is attached
+     *  
      *  @param func A pointer to a void function, or 0 to set as none
      *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
      */

@@ -26,6 +26,7 @@ void Ticker::detach() {
     core_util_critical_section_enter();
     remove();
     _function = 0;
+    sleep_manager_unlock_deep_sleep();
     core_util_critical_section_exit();
 }
 

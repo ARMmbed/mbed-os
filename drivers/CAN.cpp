@@ -18,6 +18,7 @@
 #if DEVICE_CAN
 
 #include "cmsis.h"
+#include "platform/mbed_sleep.h"
 
 namespace mbed {
 
@@ -115,9 +116,11 @@ int CAN::filter(unsigned int id, unsigned int mask, CANFormat format, int handle
 void CAN::attach(Callback<void()> func, IrqType type) {
     lock();
     if (func) {
+        sleep_manager_lock_deep_sleep();
         _irq[(CanIrqType)type] = func;
         can_irq_set(&_can, (CanIrqType)type, 1);
     } else {
+        sleep_manager_unlock_deep_sleep();
         _irq[(CanIrqType)type] = callback(donothing);
         can_irq_set(&_can, (CanIrqType)type, 0);
     }
