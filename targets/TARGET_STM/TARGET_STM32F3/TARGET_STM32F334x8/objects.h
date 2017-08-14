@@ -54,12 +54,6 @@ struct port_s {
     __IO uint32_t *reg_out;
 };
 
-struct analogin_s {
-    ADCName adc;
-    PinName pin;
-    uint32_t channel;
-};
-
 #if defined (DEVICE_CAN)
 struct can_s {
     CANName can;

@@ -68,15 +68,24 @@ public:
       @param   data      message pointer.
       @param   millisec  timeout value or 0 in case of no time-out. (default: 0)
       @param   prio      priority value or 0 in case of default. (default: 0)
-      @return  status code that indicates the execution status of the function.
+      @return  status code that indicates the execution status of the function:
+               @a osOK the message has been put into the queue.
+               @a osErrorTimeout the message could not be put into the queue in the given time.
+               @a osErrorResource not enough space in the queue.
+               @a osErrorParameter internal error or non-zero timeout specified in an ISR.
     */
     osStatus put(T* data, uint32_t millisec=0, uint8_t prio=0) {
         return osMessageQueuePut(_id, &data, prio, millisec);
     }
 
-    /** Get a message or Wait for a message from a Queue.
+    /** Get a message or Wait for a message from a Queue. Messages are retrieved in a descending priority order or
+        first in first out when the priorities are the same.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
-      @return  event information that includes the message and the status code.
+      @return  event information that includes the message in event.value and the status code in event.status:
+               @a osEventMessage message received.
+               @a osOK no message is available in the queue and no timeout was specified.
+               @a osEventTimeout no message has arrived during the given timeout period.
+               @a osErrorParameter a parameter is invalid or outside of a permitted range.
     */
     osEvent get(uint32_t millisec=osWaitForever) {
         osEvent event;
