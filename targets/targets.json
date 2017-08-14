@@ -1707,7 +1707,7 @@
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
-        "macros_add": ["RTC_LSI=1", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "RTC_LSI=1", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
         "device_has_add": ["ANALOGOUT", "SERIAL_FC", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "public": false,
