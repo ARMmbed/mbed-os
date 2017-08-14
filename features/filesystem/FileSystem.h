@@ -68,6 +68,16 @@ public:
      */
     virtual int unmount() = 0;
 
+    /** Reformats a filesystem, results in an empty and mounted filesystem
+     *
+     *  @param bd       BlockDevice to reformat and mount. If NULL, the mounted
+     *                  block device will be used.
+     *                  Note: if mount fails, bd must be provided.
+     *                  Default: NULL
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int reformat(BlockDevice *bd = NULL);
+
     /** Remove a file from the filesystem.
      *
      *  @param path     The name of the file to remove.
