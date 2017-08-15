@@ -68,4 +68,25 @@ void sleep_manager_sleep_auto(void)
     core_util_critical_section_exit();
 }
 
+#else
+
+// locking is valid only if DEVICE_SLEEP is defined
+// we provide empty implementation
+
+void sleep_manager_lock_deep_sleep(void)
+{
+
+}
+
+void sleep_manager_unlock_deep_sleep(void)
+{
+
+}
+
+bool sleep_manager_can_deep_sleep(void)
+{
+    // no sleep implemented
+    return false;
+}
+
 #endif
