@@ -19,7 +19,7 @@
 
 #include "nsapi.h"
 #include "rtos.h"
-#include "lwip/netif.h"
+#include "mbed_ipstack.h"
 
 // Forward declaration
 class NetworkStack;
@@ -33,7 +33,7 @@ class EthernetInterface : public EthInterface
 public:
     /** EthernetInterface lifetime
      */
-    EthernetInterface();
+    EthernetInterface(const emac_interface_ops_t *emac_ops = &mbed_emac_eth_ops_default, void *hw = mbed_emac_eth_hw_default);
 
     /** Set a static IP address
      *
@@ -41,10 +41,10 @@ public:
      *  Implicitly disables DHCP, which can be enabled in set_dhcp.
      *  Requires that the network is disconnected.
      *
-     *  @param address  Null-terminated representation of the local IP address
-     *  @param netmask  Null-terminated representation of the local network mask
-     *  @param gateway  Null-terminated representation of the local gateway
-     *  @return         0 on success, negative error code on failure
+     *  @param ip_address  Null-terminated representation of the local IP address
+     *  @param netmask     Null-terminated representation of the local network mask
+     *  @param gateway     Null-terminated representation of the local gateway
+     *  @return            0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_network(
             const char *ip_address, const char *netmask, const char *gateway);
@@ -107,11 +107,14 @@ protected:
      */
     virtual NetworkStack *get_stack();
 
+    const emac_interface_ops_t *_emac_ops;
+    void *_hw;
+    mbed_ipstack_interface_t *_interface;
     bool _dhcp;
-    char _ip_address[IPADDR_STRLEN_MAX];
+    char _mac_address[NSAPI_MAC_SIZE];
+    char _ip_address[NSAPI_IPv6_SIZE];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
 };
-
 
 #endif

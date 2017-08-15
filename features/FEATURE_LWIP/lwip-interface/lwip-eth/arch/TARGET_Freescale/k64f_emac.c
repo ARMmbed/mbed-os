@@ -1,28 +1,52 @@
-#include "lwip/opt.h"
-#include "lwip/sys.h"
-#include "lwip/def.h"
-#include "lwip/mem.h"
-#include "lwip/pbuf.h"
-#include "lwip/stats.h"
-#include "lwip/snmp.h"
-#include "lwip/tcpip.h"
-#include "lwip/ethip6.h"
-#include "lwip/igmp.h"
-#include "lwip/mld6.h"
-#include "netif/etharp.h"
-#include "netif/ppp/pppoe.h"
+/*
+ * Copyright (c) 2013 - 2014, Freescale Semiconductor, Inc.
+ * Copyright (c) 2017 ARM Limited
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * o Redistributions of source code must retain the above copyright notice, this list
+ *   of conditions and the following disclaimer.
+ *
+ * o Redistributions in binary form must reproduce the above copyright notice, this
+ *   list of conditions and the following disclaimer in the documentation and/or
+ *   other materials provided with the distribution.
+ *
+ * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ *   contributors may be used to endorse or promote products derived from this
+ *   software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
-#include "eth_arch.h"
+#include "cmsis_os.h"
 #include "sys_arch.h"
-
 #include "fsl_phy.h"
-#include "k64f_emac_config.h"
+
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 #include "mbed_interface.h"
+#include "emac_api.h"
+#include "emac_stack_mem.h"
+#include "mbed_assert.h"
+#include "netsocket/nsapi_types.h"
+
+#include "k64f_emac_queue_helper.h"
+#include "k64f_emac_config.h"
 
 enet_handle_t g_handle;
 // TX Buffer descriptors
@@ -30,9 +54,9 @@ uint8_t *tx_desc_start_addr;
 // RX Buffer descriptors
 uint8_t *rx_desc_start_addr;
 // RX packet buffer pointers
-struct pbuf *rx_buff[ENET_RX_RING_LEN];
+emac_stack_mem_t *rx_buff[ENET_RX_RING_LEN];
 // TX packet buffer pointers
-struct pbuf *tx_buff[ENET_RX_RING_LEN];
+emac_stack_mem_t *tx_buff[ENET_RX_RING_LEN];
 // RX packet payload pointers
 uint32_t *rx_ptr[ENET_RX_RING_LEN];
 
@@ -52,10 +76,18 @@ extern void k66f_init_eth_hardware(void);
 /* K64F EMAC driver data structure */
 struct k64f_enetdata {
   struct netif *netif;  /**< Reference back to LWIP parent netif */
+  os_thread_t thread_cb;
   osThreadId_t thread; /**< Processing thread */
-  sys_mutex_t TXLockMutex; /**< TX critical section mutex */
-  sys_sem_t xTXDCountSem; /**< TX free buffer counting semaphore */
+  os_mutex_t txlock_mutex_cb;
+  osMutexId_t TXLockMutex;/**< TX critical section mutex */
+  os_semaphore_t xtxdcountsem_cb;
+  osSemaphoreId_t xTXDCountSem; /**< TX free buffer counting semaphore */
   uint8_t tx_consume_index, tx_produce_index; /**< TX buffers ring */
+  emac_link_input_fn emac_link_input_cb; /**< Callback for incoming data */
+  void *emac_link_input_cb_data; /**< Data to be passed to input cb */
+  emac_link_state_change_fn emac_link_state_cb; /**< Link state change callback */
+  void *emac_link_state_cb_data; /**< Data to be passed to link state cb */
+  int phy_task_handle; /**< Handle for phy task event */
 };
 
 static struct k64f_enetdata k64f_enetdata;
@@ -79,6 +111,17 @@ static void packet_tx(struct k64f_enetdata *k64f_enet);
 
 #define PHY_TASK_PERIOD_MS      200
 
+static osThreadId_t create_new_thread(const char *threadName, void (*thread)(void *arg), void *arg, int stacksize, int priority, os_thread_t *thread_cb)
+{
+    osThreadAttr_t attr = {0};
+    attr.name = threadName;
+    attr.stack_mem  = malloc(stacksize);
+    attr.cb_mem  = thread_cb;
+    attr.stack_size = stacksize;
+    attr.cb_size = sizeof(os_thread_t);
+    attr.priority = priority;
+    return osThreadNew(thread, arg, &attr);
+}
 /********************************************************************************
  * Buffer management
  ********************************************************************************/
@@ -110,66 +153,68 @@ static void update_read_buffer(uint8_t *buf)
 
 /** \brief  Free TX buffers that are complete
  *
- *  \param[in] k64f_enet  Pointer to driver data structure
+ *  \param[in] k64f  Pointer to driver data structure
  */
-static void k64f_tx_reclaim(struct k64f_enetdata *k64f_enet)
+static void k64f_tx_reclaim(struct k64f_enetdata *enet)
 {
   /* Get exclusive access */
-  sys_mutex_lock(&k64f_enet->TXLockMutex);
+  osMutexAcquire(enet->TXLockMutex, osWaitForever);
 
   // Traverse all descriptors, looking for the ones modified by the uDMA
-  while((k64f_enet->tx_consume_index != k64f_enet->tx_produce_index) &&
+  while((enet->tx_consume_index != enet->tx_produce_index) &&
         (!(g_handle.txBdDirty->control & ENET_BUFFDESCRIPTOR_TX_READY_MASK))) {
-      pbuf_free(tx_buff[k64f_enet->tx_consume_index % ENET_TX_RING_LEN]);
+	  emac_stack_mem_free(tx_buff[enet->tx_consume_index % ENET_TX_RING_LEN]);
       if (g_handle.txBdDirty->control & ENET_BUFFDESCRIPTOR_TX_WRAP_MASK)
         g_handle.txBdDirty = g_handle.txBdBase;
       else
         g_handle.txBdDirty++;
 
-      k64f_enet->tx_consume_index += 1;
-      osSemaphoreRelease(k64f_enet->xTXDCountSem.id);
+      enet->tx_consume_index += 1;
+      osSemaphoreRelease(enet->xTXDCountSem);
   }
 
   /* Restore access */
-  sys_mutex_unlock(&k64f_enet->TXLockMutex);
+  osMutexRelease(enet->TXLockMutex);
 }
 
 /** \brief Ethernet receive interrupt handler
  *
  *  This function handles the receive interrupt of K64F.
  */
-void enet_mac_rx_isr()
+void enet_mac_rx_isr(struct k64f_enetdata *enet)
 {
-    osThreadFlagsSet(k64f_enetdata.thread, FLAG_RX);
+    osThreadFlagsSet(enet->thread, FLAG_RX);
 }
 
-void enet_mac_tx_isr()
+void enet_mac_tx_isr(struct k64f_enetdata *enet)
 {
-    osThreadFlagsSet(k64f_enetdata.thread, FLAG_TX);
+    osThreadFlagsSet(enet->thread, FLAG_TX);
 }
 
 void ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event_t event, void *param)
 {
-    switch (event)
+	struct k64f_enetdata *enet = param;
+	switch (event)
     {
       case kENET_RxEvent:
-        enet_mac_rx_isr();
+        enet_mac_rx_isr(enet);
         break;
       case kENET_TxEvent:
-        enet_mac_tx_isr();
+        enet_mac_tx_isr(enet);
         break;
       default:
         break;
     }
 }
 
+
 /** \brief  Low level init of the MAC and PHY.
  *
- *  \param[in]      netif  Pointer to LWIP netif structure
+ *  \param[in]      enet       Pointer to K64F enet structure
+ *  \param[in]      hwaddr     MAC address
  */
-static err_t low_level_init(struct netif *netif)
+static bool low_level_init_successful(struct k64f_enetdata *enet, char *hwaddr)
 {
-  struct k64f_enetdata *k64f_enet = netif->state;
   uint8_t i;
   uint32_t sysClock;
   phy_speed_t phy_speed;
@@ -177,35 +222,37 @@ static err_t low_level_init(struct netif *netif)
   uint32_t phyAddr = 0;
   bool link = false;
   enet_config_t config;
+  void *payload;
 
   // Allocate RX descriptors
   rx_desc_start_addr = (uint8_t *)calloc(1, sizeof(enet_rx_bd_struct_t) * ENET_RX_RING_LEN + ENET_BUFF_ALIGNMENT);
   if(!rx_desc_start_addr)
-    return ERR_MEM;
+    return false;
 
   // Allocate TX descriptors
   tx_desc_start_addr = (uint8_t *)calloc(1, sizeof(enet_tx_bd_struct_t) * ENET_TX_RING_LEN + ENET_BUFF_ALIGNMENT);
   if(!tx_desc_start_addr)
-    return ERR_MEM;
+    return false;
 
   rx_desc_start_addr = (uint8_t *)ENET_ALIGN(rx_desc_start_addr, ENET_BUFF_ALIGNMENT);
   tx_desc_start_addr = (uint8_t *)ENET_ALIGN(tx_desc_start_addr, ENET_BUFF_ALIGNMENT);
 
   /* Create buffers for each receive BD */
   for (i = 0; i < ENET_RX_RING_LEN; i++) {
-    rx_buff[i] = pbuf_alloc(PBUF_RAW, ENET_ETH_MAX_FLEN + ENET_BUFF_ALIGNMENT, PBUF_RAM);
+    rx_buff[i] = emac_stack_mem_alloc(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
     if (NULL == rx_buff[i])
-      return ERR_MEM;
+      return false;
 
     /* K64F note: the next line ensures that the RX buffer is properly aligned for the K64F
        RX descriptors (16 bytes alignment). However, by doing so, we're effectively changing
        a data structure which is internal to lwIP. This might not prove to be a good idea
        in the long run, but a better fix would probably involve modifying lwIP itself */
-    rx_buff[i]->payload = (void*)ENET_ALIGN((uint32_t)rx_buff[i]->payload, ENET_BUFF_ALIGNMENT);
-    rx_ptr[i] = rx_buff[i]->payload;
+    payload = emac_stack_mem_ptr(rx_buff[i]);
+    payload = (void*)ENET_ALIGN((uint32_t)payload, ENET_BUFF_ALIGNMENT);
+    rx_ptr[i] = payload;
   }
 
-  k64f_enet->tx_consume_index = k64f_enet->tx_produce_index = 0;
+  enet->tx_consume_index = enet->tx_produce_index = 0;
 
   /* prepare the buffer configuration. */
   enet_buffer_config_t buffCfg = {
@@ -245,154 +292,38 @@ static err_t low_level_init(struct netif *netif)
   config.macSpecialConfig = kENET_ControlFlowControlEnable;
   config.txAccelerConfig = kENET_TxAccelIsShift16Enabled;
   config.rxAccelerConfig = kENET_RxAccelisShift16Enabled | kENET_RxAccelMacCheckEnabled;
-  ENET_Init(ENET, &g_handle, &config, &buffCfg, netif->hwaddr, sysClock);
-  ENET_SetCallback(&g_handle, ethernet_callback, netif);
+  ENET_Init(ENET, &g_handle, &config, &buffCfg, (uint8_t*)hwaddr, sysClock);
+  ENET_SetCallback(&g_handle, ethernet_callback, enet);
   ENET_ActiveRead(ENET);
 
-  return ERR_OK;
+  return true;
 }
 
 
-/**
- * This function is the ipv4 ethernet packet send function. It calls
- * etharp_output after checking link status.
+/** \brief  Allocates a emac_stack_mem_t and returns the data from the incoming packet.
  *
- * \param[in] netif the lwip network interface structure for this enetif
- * \param[in] q Pointer to pbug to send
- * \param[in] ipaddr IP address
- * \return ERR_OK or error code
- */
-#if LWIP_IPV4
-err_t k64f_etharp_output_ipv4(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr)
-{
-  /* Only send packet is link is up */
-  if (netif->flags & NETIF_FLAG_LINK_UP) {
-    return etharp_output(netif, q, ipaddr);
-  }
-
-  return ERR_CONN;
-}
-#endif
-
-/**
- * This function is the ipv6 ethernet packet send function. It calls
- * ethip6_output after checking link status.
- *
- * \param[in] netif the lwip network interface structure for this enetif
- * \param[in] q Pointer to pbug to send
- * \param[in] ipaddr IP address
- * \return ERR_OK or error code
- */
-#if LWIP_IPV6
-err_t k64f_etharp_output_ipv6(struct netif *netif, struct pbuf *q, const ip6_addr_t *ipaddr)
-{
-  /* Only send packet is link is up */
-  if (netif->flags & NETIF_FLAG_LINK_UP) {
-    return ethip6_output(netif, q, ipaddr);
-  }
-
-  return ERR_CONN;
-}
-#endif
-
-#if LWIP_IGMP
-/**
- * IPv4 address filtering setup.
- *
- * \param[in] netif the lwip network interface structure for this enetif
- * \param[in] group IPv4 group to modify
- * \param[in] action
- * \return ERR_OK or error code
- */
-err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, enum netif_mac_filter_action action)
-{
-    switch (action) {
-        case NETIF_ADD_MAC_FILTER:
-        {
-            uint32_t group23 = ntohl(group->addr) & 0x007FFFFF;
-            uint8_t addr[6];
-            addr[0] = LL_IP4_MULTICAST_ADDR_0;
-            addr[1] = LL_IP4_MULTICAST_ADDR_1;
-            addr[2] = LL_IP4_MULTICAST_ADDR_2;
-            addr[3] = group23 >> 16;
-            addr[4] = group23 >> 8;
-            addr[5] = group23;
-            ENET_AddMulticastGroup(ENET, addr);
-            return ERR_OK;
-        }
-        case NETIF_DEL_MAC_FILTER:
-            /* As we don't reference count, silently ignore delete requests */
-            return ERR_OK;
-        default:
-            return ERR_ARG;
-    }
-}
-#endif
-
-#if LWIP_IPV6_MLD
-/**
- * IPv6 address filtering setup.
- *
- * \param[in] netif the lwip network interface structure for this enetif
- * \param[in] group IPv6 group to modify
- * \param[in] action
- * \return ERR_OK or error code
- */
-err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, enum netif_mac_filter_action action)
-{
-    switch (action) {
-        case NETIF_ADD_MAC_FILTER:
-        {
-            uint32_t group32 = ntohl(group->addr[3]);
-            uint8_t addr[6];
-            addr[0] = LL_IP6_MULTICAST_ADDR_0;
-            addr[1] = LL_IP6_MULTICAST_ADDR_1;
-            addr[2] = group32 >> 24;
-            addr[3] = group32 >> 16;
-            addr[4] = group32 >> 8;
-            addr[5] = group32;
-            ENET_AddMulticastGroup(ENET, addr);
-            return ERR_OK;
-        }
-        case NETIF_DEL_MAC_FILTER:
-            /* As we don't reference count, silently ignore delete requests */
-            return ERR_OK;
-        default:
-            return ERR_ARG;
-    }
-}
-#endif
-
-/** \brief  Allocates a pbuf and returns the data from the incoming packet.
- *
- *  \param[in] netif the lwip network interface structure
  *  \param[in] idx   index of packet to be read
- *  \return a pbuf filled with the received packet (including MAC header)
+ *  \return a emac_stack_mem_t filled with the received packet (including MAC header)
  */
-static struct pbuf *k64f_low_level_input(struct netif *netif, int idx)
+static emac_stack_mem_t *k64f_low_level_input(int idx)
 {
   volatile enet_rx_bd_struct_t *bdPtr = g_handle.rxBdCurrent;
-  struct pbuf *p = NULL;
-  struct pbuf *temp_rxbuf = NULL;
+  emac_stack_mem_t *p = NULL;
+  emac_stack_mem_t *temp_rxbuf = NULL;
   u32_t length = 0;
   const u16_t err_mask = ENET_BUFFDESCRIPTOR_RX_TRUNC_MASK | ENET_BUFFDESCRIPTOR_RX_CRC_MASK |
                          ENET_BUFFDESCRIPTOR_RX_NOOCTET_MASK | ENET_BUFFDESCRIPTOR_RX_LENVLIOLATE_MASK;
 
 
-#ifdef LOCK_RX_THREAD
-  /* Get exclusive access */
-  sys_mutex_lock(&k64f_enet->TXLockMutex);
-#endif
+  void *payload;
+
+  #ifdef LOCK_RX_THREAD
+    /* Get exclusive access */
+    osMutexAcquire(enet->TXLockMutex, osWaitForever);
+  #endif
 
   /* Determine if a frame has been received */
   if ((bdPtr->control & err_mask) != 0) {
-#if LINK_STATS
-    if ((bdPtr->control & ENET_BUFFDESCRIPTOR_RX_LENVLIOLATE_MASK) != 0)
-      LINK_STATS_INC(link.lenerr);
-    else
-      LINK_STATS_INC(link.chkerr);
-#endif
-    LINK_STATS_INC(link.drop);
     /* Re-use the same buffer in case of error */
     update_read_buffer(NULL);
   } else {
@@ -401,22 +332,16 @@ static struct pbuf *k64f_low_level_input(struct netif *netif, int idx)
 
     /* Zero-copy */
     p = rx_buff[idx];
-    p->len = length;
+    emac_stack_mem_set_len(p, length);
 
     /* Attempt to queue new buffer */
-    temp_rxbuf = pbuf_alloc(PBUF_RAW, ENET_ETH_MAX_FLEN + ENET_BUFF_ALIGNMENT, PBUF_RAM);
+    temp_rxbuf = emac_stack_mem_alloc(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
     if (NULL == temp_rxbuf) {
-      /* Drop frame (out of memory) */
-      LINK_STATS_INC(link.drop);
-
       /* Re-queue the same buffer */
       update_read_buffer(NULL);
 
-      LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-        ("k64f_low_level_input: Packet index %d dropped for OOM\n",
-        idx));
 #ifdef LOCK_RX_THREAD
-      sys_mutex_unlock(&k64f_enet->TXLockMutex);
+      osMutexRelease(enet->TXLockMutex);
 #endif
 
       return NULL;
@@ -427,21 +352,18 @@ static struct pbuf *k64f_low_level_input(struct netif *netif, int idx)
        RX descriptors (16 bytes alignment). However, by doing so, we're effectively changing
        a data structure which is internal to lwIP. This might not prove to be a good idea
        in the long run, but a better fix would probably involve modifying lwIP itself */
-    rx_buff[idx]->payload = (void*)ENET_ALIGN((uint32_t)rx_buff[idx]->payload, ENET_BUFF_ALIGNMENT);
-    rx_ptr[idx] = rx_buff[idx]->payload;
+    payload = emac_stack_mem_ptr(rx_buff[idx]);
+    payload = (void*)ENET_ALIGN((uint32_t)payload, ENET_BUFF_ALIGNMENT);
+    rx_ptr[idx] = payload;
 
-    update_read_buffer(rx_buff[idx]->payload);
-    LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-      ("k64f_low_level_input: Packet received: %p, size %"PRIu32" (index=%d)\n",
-      p, length, idx));
+    update_read_buffer(payload);
 
     /* Save size */
-    p->tot_len = (u16_t) length;
-    LINK_STATS_INC(link.recv);
+    emac_stack_mem_set_chain_len(p, length);
   }
 
 #ifdef LOCK_RX_THREAD
-  sys_mutex_unlock(&k64f_enet->TXLockMutex);
+  osMutexRelease(enet->TXLockMutex);
 #endif
 
   return p;
@@ -452,21 +374,17 @@ static struct pbuf *k64f_low_level_input(struct netif *netif, int idx)
  *  \param[in] netif the lwip network interface structure
  *  \param[in] idx   index of packet to be read
  */
-void k64f_enetif_input(struct netif *netif, int idx)
+void k64f_enetif_input(struct k64f_enetdata *enet, int idx)
 {
-  struct pbuf *p;
+  emac_stack_mem_t *p;
 
-  /* move received packet into a new pbuf */
-  p = k64f_low_level_input(netif, idx);
+  /* move received packet into a new buf */
+  p = k64f_low_level_input(idx);
   if (p == NULL)
     return;
 
-  /* pass all packets to ethernet_input, which decides what packets it supports */
-  if (netif->input(p, netif) != ERR_OK) {
-      LWIP_DEBUGF(NETIF_DEBUG, ("k64f_enetif_input: input error\n"));
-      /* Free buffer */
-      pbuf_free(p);
-  }
+  enet->emac_link_input_cb(enet->emac_link_input_cb_data, p);
+
 }
 
 /** \brief  Worker thread.
@@ -480,17 +398,7 @@ static void emac_thread(void* pvParameters)
     struct k64f_enetdata *k64f_enet = pvParameters;
 
     for (;;) {
-        uint32_t flags = osThreadFlagsWait(FLAG_RX|FLAG_TX, osFlagsWaitAny, PHY_TASK_PERIOD_MS);
-        if (flags == osFlagsErrorTimeout) {
-            // Rather than calling strictly every period, we call when idle
-            // for that period - hopefully good enough. We run this task
-            // from lwIP's thread rather than our RX/TX thread, as PHY reads can
-            // be slow, and we don't want them to interfere with data pumping.
-            // This is analogous to the way the PHY polling works in the Nanostack
-            // version of the driver
-            tcpip_callback_with_block(k64f_phy_task, k64f_enet->netif, 0);
-            continue;
-        }
+        uint32_t flags = osThreadFlagsWait(FLAG_RX|FLAG_TX, osFlagsWaitAny, osWaitForever);
 
         LWIP_ASSERT("osThreadFlagsWait error", !(flags & osFlagsError));
 
@@ -516,7 +424,7 @@ static void packet_rx(struct k64f_enetdata *k64f_enet)
     static int idx = 0;
 
     while ((g_handle.rxBdCurrent->control & ENET_BUFFDESCRIPTOR_RX_EMPTY_MASK) == 0) {
-        k64f_enetif_input(k64f_enet->netif, idx);
+        k64f_enetif_input(k64f_enet, idx);
         idx = (idx + 1) % ENET_RX_RING_LEN;
     }
 }
@@ -524,7 +432,7 @@ static void packet_rx(struct k64f_enetdata *k64f_enet)
 /** \brief  Transmit cleanup task
  *
  * This task is called when a transmit interrupt occurs and
- * reclaims the pbuf and descriptor used for the packet once
+ * reclaims the buffer and descriptor used for the packet once
  * the packet has been transferred.
  *
  *  \param[in] k64f_enet pointer to the interface data
@@ -538,47 +446,47 @@ static void packet_tx(struct k64f_enetdata *k64f_enet)
  *          interrupt context, as it may block until TX descriptors
  *          become available.
  *
- *  \param[in] netif the lwip network interface structure for this netif
- *  \param[in] p the MAC packet to send (e.g. IP packet including MAC addresses and type)
+ *  \param[in] emac     Emac driver for the network interface
+ *  \param[in] buf      the MAC packet to send (e.g. IP packet including MAC addresses and type)
  *  \return ERR_OK if the packet could be sent or an err_t value if the packet couldn't be sent
  */
-static err_t k64f_low_level_output(struct netif *netif, struct pbuf *p)
+static bool k64f_eth_link_out(void *hw, emac_stack_mem_chain_t *chain)
 {
-  struct k64f_enetdata *k64f_enet = netif->state;
-  struct pbuf *q;
-  struct pbuf *temp_pbuf;
+  struct k64f_enetdata *enet = hw;
+  emac_stack_mem_t *q;
+  emac_stack_mem_t *temp_pbuf;
   uint8_t *psend = NULL, *dst;
 
-  temp_pbuf = pbuf_alloc(PBUF_RAW, p->tot_len + ENET_BUFF_ALIGNMENT, PBUF_RAM);
+  temp_pbuf = emac_stack_mem_alloc(emac_stack_mem_chain_len(chain), ENET_BUFF_ALIGNMENT);
   if (NULL == temp_pbuf)
-    return ERR_MEM;
+    return false;
 
   /* K64F note: the next line ensures that the RX buffer is properly aligned for the K64F
      RX descriptors (16 bytes alignment). However, by doing so, we're effectively changing
      a data structure which is internal to lwIP. This might not prove to be a good idea
      in the long run, but a better fix would probably involve modifying lwIP itself */
-  psend = (uint8_t *)ENET_ALIGN((uint32_t)temp_pbuf->payload, ENET_BUFF_ALIGNMENT);
+  psend = (uint8_t *)ENET_ALIGN((uint32_t)emac_stack_mem_ptr(temp_pbuf), ENET_BUFF_ALIGNMENT);
 
-  for (q = p, dst = psend; q != NULL; q = q->next) {
-    MEMCPY(dst, q->payload, q->len);
-    dst += q->len;
+  for (q = emac_stack_mem_chain_dequeue(&chain), dst = psend; q != NULL; q = emac_stack_mem_chain_dequeue(&chain)) {
+    memcpy(dst, emac_stack_mem_ptr(q), emac_stack_mem_len(q));
+    dst += emac_stack_mem_len(q);
   }
 
   /* Check if a descriptor is available for the transfer. */
-  osStatus_t stat = osSemaphoreAcquire(k64f_enet->xTXDCountSem.id, 0);
+  osStatus_t stat = osSemaphoreAcquire(enet->xTXDCountSem, 0);
   if (stat != osOK)
-    return ERR_BUF;
+    return false;
 
   /* Get exclusive access */
-  sys_mutex_lock(&k64f_enet->TXLockMutex);
+  osMutexAcquire(enet->TXLockMutex, osWaitForever);
 
   /* Save the buffer so that it can be freed when transmit is done */
-  tx_buff[k64f_enet->tx_produce_index % ENET_TX_RING_LEN] = temp_pbuf;
-  k64f_enet->tx_produce_index += 1;
+  tx_buff[enet->tx_produce_index % ENET_TX_RING_LEN] = temp_pbuf;
+  enet->tx_produce_index += 1;
 
   /* Setup transfers */
   g_handle.txBdCurrent->buffer = psend;
-  g_handle.txBdCurrent->length = p->tot_len;
+  g_handle.txBdCurrent->length = emac_stack_mem_len(temp_pbuf);
   g_handle.txBdCurrent->control |= (ENET_BUFFDESCRIPTOR_TX_READY_MASK | ENET_BUFFDESCRIPTOR_TX_LAST_MASK);
 
   /* Increase the buffer descriptor address. */
@@ -590,12 +498,10 @@ static err_t k64f_low_level_output(struct netif *netif, struct pbuf *p)
   /* Active the transmit buffer descriptor. */
   ENET->TDAR = ENET_TDAR_TDAR_MASK;
 
-  LINK_STATS_INC(link.xmit);
-
   /* Restore access */
-  sys_mutex_unlock(&k64f_enet->TXLockMutex);
+  osMutexRelease(enet->TXLockMutex);
 
-  return ERR_OK;
+  return true;
 }
 
 /*******************************************************************************
@@ -620,7 +526,7 @@ int phy_link_status(void) {
 
 static void k64f_phy_task(void *data)
 {
-    struct netif *netif = data;
+    struct k64f_enetdata *enet = data;
 
     static PHY_STATE prev_state = {STATE_UNKNOWN, (phy_speed_t)STATE_UNKNOWN, (phy_duplex_t)STATE_UNKNOWN};
 
@@ -636,12 +542,7 @@ static void k64f_phy_task(void *data)
 
     // Compare with previous state
     if (crt_state.connected != prev_state.connected) {
-      // We're called from lwIP's tcpip thread, so can call link functions directly
-      if (crt_state.connected) {
-          netif_set_link_up(netif);
-      } else {
-          netif_set_link_down(netif);
-      }
+        enet->emac_link_state_cb(enet->emac_link_state_cb_data, crt_state.connected);
     }
 
     if (crt_state.speed != prev_state.speed) {
@@ -654,110 +555,118 @@ static void k64f_phy_task(void *data)
     prev_state = crt_state;
 }
 
-/**
- * Should be called at the beginning of the program to set up the
- * network interface.
- *
- * This function should be passed as a parameter to netif_add().
- *
- * @param[in] netif the lwip network interface structure for this netif
- * @return ERR_OK if the loopif is initialized
- *         ERR_MEM if private data couldn't be allocated
- *         any other err_t on error
- */
-err_t eth_arch_enetif_init(struct netif *netif)
+static bool k64f_eth_power_up(void *hw)
 {
-  err_t err;
-
-  LWIP_ASSERT("netif != NULL", (netif != NULL));
-
-  k64f_enetdata.netif = netif;
-
-  /* set MAC hardware address */
-#if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
-  netif->hwaddr[0] = MBED_MAC_ADDR_0;
-  netif->hwaddr[1] = MBED_MAC_ADDR_1;
-  netif->hwaddr[2] = MBED_MAC_ADDR_2;
-  netif->hwaddr[3] = MBED_MAC_ADDR_3;
-  netif->hwaddr[4] = MBED_MAC_ADDR_4;
-  netif->hwaddr[5] = MBED_MAC_ADDR_5;
-#else
-  mbed_mac_address((char *)netif->hwaddr);
-#endif
-
-  /* Ethernet address length */
-  netif->hwaddr_len = ETH_HWADDR_LEN;
-
-  /* maximum transfer unit */
-  netif->mtu = 1500;
-
-  /* device capabilities */
-  // TODOETH: check if the flags are correct below
-  netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
+  char hwaddr[K64F_HWADDR_SIZE];
+  struct k64f_enetdata *enet = hw;
 
   /* Initialize the hardware */
-  netif->state = &k64f_enetdata;
-  err = low_level_init(netif);
-  if (err != ERR_OK)
-    return err;
+  mbed_mac_address(hwaddr);
+  if (!low_level_init_successful(enet, hwaddr))
+    return false;
 
-#if LWIP_NETIF_HOSTNAME
-  /* Initialize interface hostname */
-  netif->hostname = "lwipk64f";
-#endif /* LWIP_NETIF_HOSTNAME */
+  const osSemaphoreAttr_t xtxdcountsem_attr = {
+    .name = "",
+    .attr_bits = 0,
+    .cb_mem = &enet->xtxdcountsem_cb,
+    .cb_size = sizeof enet->xtxdcountsem_cb,
+  };
 
-  netif->name[0] = 'e';
-  netif->name[1] = 'n';
+  enet->xTXDCountSem = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &xtxdcountsem_attr);
+  MBED_ASSERT(enet->xTXDCountSem);
 
-#if LWIP_IPV4
-  netif->output = k64f_etharp_output_ipv4;
-#if LWIP_IGMP
-  netif->igmp_mac_filter = igmp_mac_filter;
-  netif->flags |= NETIF_FLAG_IGMP;
-#endif
-#endif
-#if LWIP_IPV6
-  netif->output_ip6 = k64f_etharp_output_ipv6;
-#if LWIP_IPV6_MLD
-  netif->mld_mac_filter = mld_mac_filter;
-  netif->flags |= NETIF_FLAG_MLD6;
-#else
-  // Would need to enable all multicasts here - no API in fsl_enet to do that
-  #error "IPv6 multicasts won't be received if LWIP_IPV6_MLD is disabled, breaking the system"
-#endif
-#endif
-  netif->linkoutput = k64f_low_level_output;
+  const osMutexAttr_t txlock_mutex_attr = {
+    .name = "tx_mutex_mutex",
+    .attr_bits = 0,
+    .cb_mem = &enet->txlock_mutex_cb,
+    .cb_size = sizeof enet->txlock_mutex_cb,
+  };
 
-  /* CMSIS-RTOS, start tasks */
-  memset(&k64f_enetdata.xTXDCountSem.data, 0, sizeof(k64f_enetdata.xTXDCountSem.data));
-  k64f_enetdata.xTXDCountSem.attr.cb_mem = &k64f_enetdata.xTXDCountSem.data;
-  k64f_enetdata.xTXDCountSem.attr.cb_size = sizeof(k64f_enetdata.xTXDCountSem.data);
-  k64f_enetdata.xTXDCountSem.id = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &k64f_enetdata.xTXDCountSem.attr);
-
-  LWIP_ASSERT("xTXDCountSem creation error", (k64f_enetdata.xTXDCountSem.id != NULL));
-
-  err = sys_mutex_new(&k64f_enetdata.TXLockMutex);
-  LWIP_ASSERT("TXLockMutex creation error", (err == ERR_OK));
-
-  /* Allow the PHY task to detect the initial link state and set up the proper flags */
-  tcpip_callback_with_block(k64f_phy_task, netif, 1);
-  osDelay(10);
+  enet->TXLockMutex = osMutexNew(&txlock_mutex_attr);
+  MBED_ASSERT(enet->TXLockMutex);
 
   /* Worker thread */
-  k64f_enetdata.thread = sys_thread_new("k64f_emac_thread", emac_thread, netif->state, THREAD_STACKSIZE, THREAD_PRIORITY)->id;
+  enet->thread = create_new_thread("k64f_emac_thread", emac_thread, enet, THREAD_STACKSIZE, THREAD_PRIORITY, &enet->thread_cb);
 
-  return ERR_OK;
+  /* PHY monitoring task */
+  enet->phy_task_handle = k64f_emac_call_every(PHY_TASK_PERIOD_MS, k64f_phy_task, enet);
+
+  /* Allow the PHY task to detect the initial link state and set up the proper flags */
+  osDelay(10);
+
+  return true;
 }
 
-void eth_arch_enable_interrupts(void) {
-  //NVIC_SetPriority(ENET_Receive_IRQn, 6U);
-  //NVIC_SetPriority(ENET_Transmit_IRQn, 6U);
+
+static uint32_t k64f_eth_get_mtu_size(void *hw)
+{
+  return K64_ETH_MTU_SIZE;
 }
 
-void eth_arch_disable_interrupts(void) {
-
+static void k64f_eth_get_ifname(void *hw, char *name, uint8_t size)
+{
+  memcpy(name, K64_ETH_IF_NAME, (size < sizeof(K64_ETH_IF_NAME)) ? size : sizeof(K64_ETH_IF_NAME));
 }
 
+static uint8_t k64f_eth_get_hwaddr_size(void *hw)
+{
+    return K64F_HWADDR_SIZE;
+}
+
+static void k64f_eth_get_hwaddr(void *hw, uint8_t *addr)
+{
+  mbed_mac_address((char *)addr);
+}
+
+static void k64f_eth_set_hwaddr(void *hw, const uint8_t *addr)
+{
+  /* No-op at this stage */
+}
+
+static void k64f_eth_set_link_input_cb(void *hw, const emac_link_input_fn input_cb, void *data)
+{
+  struct k64f_enetdata *enet = hw;
+
+  enet->emac_link_input_cb = input_cb;
+  enet->emac_link_input_cb_data = data;
+}
+
+static void k64f_eth_set_link_state_cb(void *hw, const emac_link_state_change_fn state_cb, void *data)
+{
+  struct k64f_enetdata *enet = hw;
+
+  enet->emac_link_state_cb = state_cb;
+  enet->emac_link_state_cb_data = data;
+}
+
+static void k64f_eth_add_multicast_group(void *hw, uint8_t *addr)
+{
+  ENET_AddMulticastGroup(ENET, addr);
+}
+
+static void k64f_eth_power_down(void *hw)
+{
+  /* No-op at this stage */
+}
+
+
+const emac_interface_ops_t mbed_emac_eth_ops_default = {
+    .get_mtu_size = k64f_eth_get_mtu_size,
+    .get_ifname = k64f_eth_get_ifname,
+    .get_hwaddr_size = k64f_eth_get_hwaddr_size,
+    .get_hwaddr = k64f_eth_get_hwaddr,
+    .set_hwaddr = k64f_eth_set_hwaddr,
+    .link_out = k64f_eth_link_out,
+    .power_up = k64f_eth_power_up,
+    .power_down = k64f_eth_power_down,
+    .set_link_input_cb = k64f_eth_set_link_input_cb,
+    .set_link_state_cb = k64f_eth_set_link_state_cb,
+    .add_multicast_group = k64f_eth_add_multicast_group
+};
+
+//emac_interface_t mbed_emac_eth_default = {&k64f_eth_emac_ops, &k64f_enetdata};
+//emac_interface_ops_t mbed_emac_eth_ops_default = {&k64f_eth_emac_ops};
+void *mbed_emac_eth_hw_default = &k64f_enetdata;
 /**
  * @}
  */

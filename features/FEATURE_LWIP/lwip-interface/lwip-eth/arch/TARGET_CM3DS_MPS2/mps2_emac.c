@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 #include "ethernet_api.h"
-#include "eth_arch.h"
+#include "emac_lwip.h"
 
 #include "lwip/def.h"
 #include "lwip/ethip6.h"

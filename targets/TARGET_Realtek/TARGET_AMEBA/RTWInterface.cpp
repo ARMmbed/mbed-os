@@ -97,7 +97,7 @@ RTWInterface::RTWInterface(bool debug)
         return;
     }
     emac->ops.power_up(emac);
-    ret = mbed_lwip_init(emac);
+    ret = mbed_ipstack_init(emac);
     if (ret != 0) {
         printf("Error init RTWInterface!(%d)\r\n", ret);
         return;
@@ -107,7 +107,7 @@ RTWInterface::RTWInterface(bool debug)
 RTWInterface::~RTWInterface()
 {
     wlan_emac_link_change(false);
-    mbed_lwip_bringdown();
+    mbed_ipstack_bringdown();
 }
 
 nsapi_error_t RTWInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
@@ -175,7 +175,7 @@ nsapi_error_t RTWInterface::connect()
     }
 
     wlan_emac_link_change(true);
-    return mbed_lwip_bringup(_dhcp,
+    return mbed_ipstack_bringup(_dhcp,
                              _ip_address[0] ? _ip_address : 0,
                              _netmask[0] ? _netmask : 0,
                              _gateway[0] ? _gateway : 0);
@@ -251,12 +251,12 @@ int RTWInterface::is_connected()
 
 const char *RTWInterface::get_mac_address()
 {
-    return mbed_lwip_get_mac_address();
+    return mbed_ipstack_get_mac_address();
 }
 
 const char *RTWInterface::get_ip_address()
 {
-    if (mbed_lwip_get_ip_address(_ip_address, sizeof _ip_address)) {
+    if (mbed_ipstack_get_ip_address(_ip_address, sizeof _ip_address)) {
         return _ip_address;
     }
     return 0;
@@ -264,7 +264,7 @@ const char *RTWInterface::get_ip_address()
 
 const char *RTWInterface::get_netmask()
 {
-    if (mbed_lwip_get_netmask(_netmask, sizeof _netmask)) {
+    if (mbed_ipstack_get_netmask(_netmask, sizeof _netmask)) {
         return _netmask;
     }
     return 0;
@@ -272,7 +272,7 @@ const char *RTWInterface::get_netmask()
 
 const char *RTWInterface::get_gateway()
 {
-    if (mbed_lwip_get_gateway(_gateway, sizeof _gateway)) {
+    if (mbed_ipstack_get_gateway(_gateway, sizeof _gateway)) {
         return _gateway;
     }
     return 0;

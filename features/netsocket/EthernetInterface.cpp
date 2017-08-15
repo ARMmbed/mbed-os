@@ -15,15 +15,13 @@
  */
 
 #include "EthernetInterface.h"
-#include "lwip_stack.h"
-
+#include "mbed_ipstack.h"
 
 /* Interface implementation */
-EthernetInterface::EthernetInterface()
-    : _dhcp(true), _ip_address(), _netmask(), _gateway()
+EthernetInterface::EthernetInterface(const emac_interface_ops_t *emac_ops, void *hw)
+    : _emac_ops(emac_ops), _hw(hw), _dhcp(true), _mac_address(), _ip_address(), _netmask(), _gateway()
 {
 }
-
 nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
     _dhcp = false;
@@ -46,7 +44,20 @@ nsapi_error_t EthernetInterface::set_dhcp(bool dhcp)
 
 nsapi_error_t EthernetInterface::connect()
 {
-    return mbed_lwip_bringup_2(_dhcp, false,
+    nsapi_error_t err;
+    if (_emac_ops == NULL) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    // This checks for double init, so okay
+    mbed_ipstack_init();
+    // XXX But this will add a second time
+    err = mbed_ipstack_add_ethernet_interface(_emac_ops, _hw, true, &_interface);
+    if (err != NSAPI_ERROR_OK) {
+        return err;
+    }
+
+    return mbed_ipstack_bringup(_interface, _dhcp,
             _ip_address[0] ? _ip_address : 0,
             _netmask[0] ? _netmask : 0,
             _gateway[0] ? _gateway : 0,
@@ -55,17 +66,20 @@ nsapi_error_t EthernetInterface::connect()
 
 nsapi_error_t EthernetInterface::disconnect()
 {
-    return mbed_lwip_bringdown_2(false);
+    return mbed_ipstack_bringdown(_interface);
 }
 
 const char *EthernetInterface::get_mac_address()
 {
-    return mbed_lwip_get_mac_address();
+    if (mbed_ipstack_get_mac_address(_interface, _mac_address, sizeof(_mac_address))) {
+        return _mac_address;
+    }
+    return NULL;
 }
 
 const char *EthernetInterface::get_ip_address()
 {
-    if (mbed_lwip_get_ip_address(_ip_address, sizeof _ip_address)) {
+    if (mbed_ipstack_get_ip_address(_interface, _ip_address, sizeof(_ip_address))) {
         return _ip_address;
     }
 
@@ -74,7 +88,7 @@ const char *EthernetInterface::get_ip_address()
 
 const char *EthernetInterface::get_netmask()
 {
-    if (mbed_lwip_get_netmask(_netmask, sizeof _netmask)) {
+    if (mbed_ipstack_get_netmask(_interface, _netmask, sizeof(_netmask))) {
         return _netmask;
     }
 
@@ -83,7 +97,7 @@ const char *EthernetInterface::get_netmask()
 
 const char *EthernetInterface::get_gateway()
 {
-    if (mbed_lwip_get_gateway(_gateway, sizeof _gateway)) {
+    if (mbed_ipstack_get_gateway(_interface, _gateway, sizeof(_gateway))) {
         return _gateway;
     }
 
@@ -92,5 +106,5 @@ const char *EthernetInterface::get_gateway()
 
 NetworkStack *EthernetInterface::get_stack()
 {
-    return nsapi_create_stack(&lwip_stack);
+    return mbed_ipstack_get_stack();
 }
