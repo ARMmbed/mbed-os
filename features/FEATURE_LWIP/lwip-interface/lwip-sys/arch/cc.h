@@ -128,4 +128,55 @@ void trace_to_ascii_hex_dump(char* prefix, int len, char *data);
 #define LWIP_PLATFORM_HTONS(x)      __REV16(x)
 #define LWIP_PLATFORM_HTONL(x)      __REV(x)
 
+/* Define the memory area for the lwip's memory pools */
+#ifndef MEMP_SECTION
+#if defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
+#  if defined (__ICCARM__)
+#     define MEMP_SECTION
+#  elif defined(TOOLCHAIN_GCC_CR)
+#     define MEMP_SECTION __attribute__((section(".data.$RamPeriph32")))
+#  else
+#     define MEMP_SECTION __attribute__((section("AHBSRAM0"),aligned))
+#  endif
+#elif defined(TARGET_LPC1768)
+#  if defined (__ICCARM__)
+#     define MEMP_SECTION
+#  elif defined(TOOLCHAIN_GCC_CR)
+#     define MEMP_SECTION __attribute__((section(".data.$RamPeriph32")))
+#  else
+#     define MEMP_SECTION __attribute__((section("AHBSRAM1"),aligned))
+#  endif
+#endif
+#endif
+
+#ifdef MEMP_SECTION
+#define SET_MEMP_SECTION(name) extern uint8_t MEMP_SECTION name[]
+
+#if defined (__ICCARM__)
+#pragma default_variable_attributes = @ ".ethusbram"
+#endif
+SET_MEMP_SECTION(memp_memory_REASSDATA_base);
+SET_MEMP_SECTION(memp_memory_TCP_PCB_LISTEN_base);
+SET_MEMP_SECTION(memp_memory_PBUF_POOL_base);
+SET_MEMP_SECTION(memp_memory_NETCONN_base);
+SET_MEMP_SECTION(memp_memory_IGMP_GROUP_base);
+SET_MEMP_SECTION(memp_memory_UDP_PCB_base);
+SET_MEMP_SECTION(memp_memory_TCP_PCB_base);
+SET_MEMP_SECTION(memp_memory_FRAG_PBUF_base);
+SET_MEMP_SECTION(memp_memory_PBUF_base);
+SET_MEMP_SECTION(memp_memory_MLD6_GROUP_base);
+SET_MEMP_SECTION(memp_memory_IP6_REASSDATA_base);
+SET_MEMP_SECTION(memp_memory_NETBUF_base);
+SET_MEMP_SECTION(memp_memory_TCPIP_MSG_INPKT_base);
+SET_MEMP_SECTION(memp_memory_SYS_TIMEOUT_base);
+SET_MEMP_SECTION(memp_memory_TCP_SEG_base);
+SET_MEMP_SECTION(memp_memory_TCPIP_MSG_API_base);
+SET_MEMP_SECTION(memp_memory_PPP_PCB_base);
+SET_MEMP_SECTION(memp_memory_PPPOS_PCB_base);
+SET_MEMP_SECTION(memp_memory_PPP_PCB_base);
+#if defined (__ICCARM__)
+#pragma default_variable_attributes =
+#endif
+#endif
+
 #endif /* __CC_H__ */ 
