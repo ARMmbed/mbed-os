@@ -27,11 +27,13 @@
 								<option id="com.crt.advproject.cpp.specs.{{u.id}}" name="Specs" superClass="com.crt.advproject.cpp.specs"  value="com.crt.advproject.cpp.specs.newlibnano" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.arch.{{u.id}}" name="Architecture" superClass="com.crt.advproject.cpp.arch"  value="com.crt.advproject.cpp.target.{{opts['common']['arm.target.family_nxp']}}" valueType="enumerated"/>
                                 {% if opts['common']['optimization.level'] != '' %}
-								<option id="com.crt.advproject.cpp.exe.{{opts['id']}}.option.optimization.level.{{u.id}}" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.{{opts['id']}}.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.{{opts['common']['optimization.level']}}" valueType="enumerated"/>
+							    <option id="com.crt.advproject.cpp.exe.{{opts['id']}}.option.optimization.level.{{u.id}}" name="Optimization Level" superClass="com.crt.advproject.cpp.exe.{{opts['id']}}.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.{{opts['common']['optimization.level']}}" valueType="enumerated"/>
                                 {% endif %}
+								<option id="gnu.cpp.compiler.option.optimization.flags.{{u.id}}" superClass="gnu.cpp.compiler.option.optimization.flags" useByScannerDiscovery="false" value="{{opts['cpp']['otheroptimizations']}} {{opts['common']['optimization.other']}}" valueType="string"/>
 								{% if opts['cpp']['compiler.std'] %}
-								<option id="com.crt.advproject.cpp.misc.dialect.{{u.id}}" name="Language standard" superClass="com.crt.advproject.cpp.misc.dialect" useByScannerDiscovery="true" value="com.crt.advproject.misc.dialect.cppdefault" valueType="enumerated"/>
+								<option id="com.crt.advproject.cpp.misc.dialect.{{u.id}}" name="Language standard" superClass="com.crt.advproject.cpp.misc.dialect" useByScannerDiscovery="true" value="com.crt.advproject.misc.dialect.{{opts['cpp']['compiler.std']}}" valueType="enumerated"/>
 								{% endif %}
+
 								<option id="gnu.cpp.compiler.option.preprocessor.def.{{u.id}}" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def"  valueType="definedSymbols">
 									{% for s in opts['cpp']['defines'] %}
 									<listOptionValue builtIn="false" value="{{s|replace("\"", "\\\"")|escape}}"/>
@@ -47,13 +49,46 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{file}}&quot;"/>
 									{% endfor %}
 								</option>
-								<option id="gnu.cpp.compiler.option.other.other.{{u.id}}" name="Other flags" superClass="gnu.cpp.compiler.option.other.other"  value="-c -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -funsigned-char -fno-delete-null-pointer-checks -fomit-frame-pointer" valueType="string"/>
-								{% if opts['cpp']['otheroptimizations'] != '' %}
-								<option id="gnu.cpp.compiler.option.optimization.flags.{{u.id}}" superClass="gnu.cpp.compiler.option.optimization.flags" useByScannerDiscovery="false" value="{{opts['cpp']['otheroptimizations']}}" valueType="string"/>
-								{% endif %}
+                                
+                                {% if opts['common']['warnings.syntaxonly'] %}
+                                <option id="gnu.cpp.compiler.option.warnings.syntax.{{u.id}}" superClass="gnu.cpp.compiler.option.warnings.syntax" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.pedantic'] %}
+                                <option id="gnu.cpp.compiler.option.warnings.pedantic.{{u.id}}" superClass="gnu.cpp.compiler.option.warnings.pedantic" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.pedanticerrors'] %}
+                                <option id="gnu.cpp.compiler.option.warnings.pedantic.error.{{u.id}}" superClass="gnu.cpp.compiler.option.warnings.pedantic.error" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.nowarn'] %}
+                                <option id="gnu.cpp.compiler.option.warnings.nowarn.{{u.id}}" superClass="gnu.cpp.compiler.option.warnings.nowarn" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.allwarn'] %}
+                                <option id="gnu.cpp.compiler.option.warnings.allwarn.{{u.id}}" name="Enable all common warnings (-Wall)" superClass="gnu.cpp.compiler.option.warnings.allwarn" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.extrawarn'] %}
+                                <option id="gnu.cpp.compiler.option.warnings.extrawarn.{{u.id}}" name="Enable extra warnings (-Wextra)" superClass="gnu.cpp.compiler.option.warnings.extrawarn" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.toerrors'] %}
+                                <option id="gnu.cpp.compiler.option.warnings.toerrors.{{u.id}}" superClass="gnu.cpp.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.conversion'] %}
+                                <option id="gnu.cpp.compiler.option.warnings.wconversion.{{u.id}}" name="Warn on implicit conversions (-Wconversion)" superClass="gnu.cpp.compiler.option.warnings.wconversion" value="true" valueType="boolean"/>
+                                {% endif %}
+                                
+                                {% if opts['common']['optimization.lto'] %}
+								<option id="com.crt.advproject.cpp.lto.{{u.id}}" name="Enable Link-time optimization (-flto)" superClass="com.crt.advproject.cpp.lto" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['optimization.lto_objects'] %}
+								<option id="com.crt.advproject.cpp.lto.fat.{{u.id}}" name="Fat lto objects (-ffat-lto-objects)" superClass="com.crt.advproject.cpp.lto.fat" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                {% endif %}
+                                
+								{% if opts['cpp']['verbose'] %}
+   								<option id="gnu.cpp.compiler.option.other.verbose.{{u.id}}" name="Verbose (-v)" superClass="gnu.cpp.compiler.option.other.verbose" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                {% endif %}
                                 {% if opts['common']['arm.target.fpu.unit_nxp'] %}
    								<option id="com.crt.advproject.cpp.fpu.{{u.id}}" name="Floating point" superClass="com.crt.advproject.cpp.fpu" useByScannerDiscovery="false" value="com.crt.advproject.cpp.fpu.{{opts['common']['arm.target.fpu.unit_nxp']}}" valueType="enumerated"/>
                                 {% endif %}
+								<option id="gnu.cpp.compiler.option.other.other.{{u.id}}" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c {{opts['cpp']['other']}} {{opts['common']['warnings.other']}}" valueType="string"/>
 								<inputType id="com.crt.advproject.compiler.cpp.input.{{opts['uid']['tool_cpp_compiler_input']}}" superClass="com.crt.advproject.compiler.cpp.input"/>
 							</tool>
 
@@ -64,8 +99,10 @@
                                 {% if opts['common']['optimization.level'] != '' %}
 								<option id="com.crt.advproject.gcc.exe.{{opts['id']}}.option.optimization.level.{{u.id}}" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.{{opts['id']}}.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.{{opts['common']['optimization.level']}}" valueType="enumerated"/>
                                 {% endif %}
+								<option id="gnu.c.compiler.option.optimization.flags.{{u.id}}" superClass="gnu.c.compiler.option.optimization.flags" useByScannerDiscovery="false" value="{{opts['c']['otheroptimizations']}} {{opts['common']['optimization.other']}}" valueType="string"/>
+
 								{% if opts['c']['compiler.std'] %}
-								<option id="com.crt.advproject.gcc.misc.dialect.{{u.id}}" name="Language standard" superClass="com.crt.advproject.gcc.misc.dialect" useByScannerDiscovery="true" value="com.crt.advproject.misc.dialect.default" valueType="enumerated"/>
+								<option id="com.crt.advproject.c.misc.dialect.{{u.id}}" name="Language standard" superClass="com.crt.advproject.c.misc.dialect" useByScannerDiscovery="true" value="com.crt.advproject.misc.dialect.{{opts['c']['compiler.std']}}" valueType="enumerated"/>
 								{% endif %}
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.{{u.id}}" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols"  valueType="definedSymbols">
 									{% for s in opts['c']['defines'] %}
@@ -82,10 +119,46 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{file}}&quot;"/>
 									{% endfor %}
 								</option>
-								<option id="gnu.c.compiler.option.misc.other.{{u.id}}" name="Other flags" superClass="gnu.c.compiler.option.misc.other"  value="-c -fmessage-length=0 -fno-exceptions -fno-builtin -ffunction-sections -fdata-sections -funsigned-char -fno-delete-null-pointer-checks -fomit-frame-pointer" valueType="string"/>
+                                
+                                {% if opts['common']['warnings.syntaxonly'] %}
+                                <option id="gnu.c.compiler.option.warnings.syntax.{{u.id}}" superClass="gnu.c.compiler.option.warnings.syntax" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.pedantic'] %}
+                                <option id="gnu.c.compiler.option.warnings.pedantic.{{u.id}}" superClass="gnu.c.compiler.option.warnings.pedantic" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.pedanticerrors'] %}
+                                <option id="gnu.c.compiler.option.warnings.pedantic.error.{{u.id}}" superClass="gnu.c.compiler.option.warnings.pedantic.error" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.nowarn'] %}
+                                <option id="gnu.c.compiler.option.warnings.nowarn.{{u.id}}" superClass="gnu.c.compiler.option.warnings.nowarn" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.allwarn'] %}
+                                <option id="gnu.c.compiler.option.warnings.allwarn.{{u.id}}" name="Enable all common warnings (-Wall)" superClass="gnu.c.compiler.option.warnings.allwarn" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.extrawarn'] %}
+                                <option id="gnu.c.compiler.option.warnings.extrawarn.{{u.id}}" name="Enable extra warnings (-Wextra)" superClass="gnu.c.compiler.option.warnings.extrawarn" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.toerrors'] %}
+                                <option id="gnu.c.compiler.option.warnings.toerrors.{{u.id}}" superClass="gnu.c.compiler.option.warnings.toerrors" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['warnings.conversion'] %}
+                                <option id="gnu.c.compiler.option.warnings.wconversion.{{u.id}}" name="Warn on implicit conversions (-Wconversion)" superClass="gnu.c.compiler.option.warnings.wconversion" value="true" valueType="boolean"/>
+                                {% endif %}
+								{% if opts['c']['verbose'] %}
+								<option id="gnu.c.compiler.option.misc.verbose.{{u.id}}" name="Verbose (-v)" superClass="gnu.c.compiler.option.misc.verbose" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                {% endif %}
                                 {% if opts['common']['arm.target.fpu.unit_nxp'] %}
 								<option id="com.crt.advproject.gcc.fpu.{{u.id}}" name="Floating point" superClass="com.crt.advproject.gcc.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gcc.fpu.{{opts['common']['arm.target.fpu.unit_nxp']}}" valueType="enumerated"/>
                                 {% endif %}
+
+                                {% if opts['common']['optimization.lto'] %}
+								<option id="com.crt.advproject.gcc.lto.{{u.id}}" name="Enable Link-time optimization (-flto)" superClass="com.crt.advproject.gcc.lto" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                {% endif %}
+                                {% if opts['common']['optimization.lto_objects'] %}
+								<option id="com.crt.advproject.gcc.lto.fat.{{u.id}}" name="Fat lto objects (-ffat-lto-objects)" superClass="com.crt.advproject.gcc.lto.fat" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+                                {% endif %}
+                                
+								<option id="gnu.c.compiler.option.misc.other.{{u.id}}" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c {{opts['c']['other']}} {{opts['common']['warnings.other']}}" valueType="string"/>
 								<inputType id="com.crt.advproject.compiler.input.{{opts['uid']['tool_c_compiler']}}" superClass="com.crt.advproject.compiler.input"/>
 							</tool>
 
@@ -101,6 +174,10 @@
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.{{u.id}}" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
                                 {% if opts['common']['arm.target.fpu.unit_nxp'] %}
 								<option id="com.crt.advproject.gas.fpu.{{u.id}}" name="Floating point" superClass="com.crt.advproject.gas.fpu" useByScannerDiscovery="false" value="com.crt.advproject.gas.fpu.{{opts['common']['arm.target.fpu.unit_nxp']}}" valueType="enumerated"/>
+                                {% endif %}
+								<option id="gnu.both.asm.option.flags.crt.{{u.id}}" superClass="gnu.both.asm.option.flags.crt" useByScannerDiscovery="false" value="-c {{opts['as']['other']}}" valueType="string"/>
+								{% if opts['as']['verbose'] %}
+								<option id="gnu.both.asm.option.version.{{u.id}}" superClass="gnu.both.asm.option.version" useByScannerDiscovery="false" value="true" valueType="boolean"/>
                                 {% endif %}
 								<inputType id="com.crt.advproject.assembler.input.{{u.id}}" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
 							</tool>
@@ -133,14 +210,29 @@
 								<option id="gnu.cpp.link.option.other.{{u.id}}" name="Other options (-Xlinker [option])" superClass="gnu.cpp.link.option.other"  useByScannerDiscovery="false" valueType="stringList">
 									<listOptionValue builtIn="false" value="-Map=&quot;${BuildArtifactFileBaseName}.map&quot;"/>
 									<listOptionValue builtIn="false" value="-print-memory-usage"/>
-									<listOptionValue builtIn="false" value="--gc-sections"/>
+                                    {% if opts['ld']['gcsections'] %}
+                                    <listOptionValue builtIn="false" value="--gc-sections"/>
+                                    {% endif %}
 									{% for opt in opts['ld']['flags'] %}
 									<listOptionValue builtIn="false" value="{{opt}}"/>
 									{% endfor %}
 								</option>
 
+								{% if opts['ld']['nostart'] %}
+								<option id="gnu.cpp.link.option.nostart.{{u.id}}" name="Do not use standard start files (-nostartfiles)" superClass="gnu.cpp.link.option.nostart" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								{% endif %}
+								{% if opts['ld']['nodeflibs'] %}
+								<option id="gnu.cpp.link.option.nodeflibs.{{u.id}}" name="Do not use default libraries (-nodefaultlibs)" superClass="gnu.cpp.link.option.nodeflibs" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								{% endif %}
+								{% if opts['ld']['nostdlibs'] %}
+								<option id="gnu.cpp.link.option.nostdlibs.{{u.id}}" name="No startup or default libs (-nostdlib)" superClass="gnu.cpp.link.option.nostdlibs" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								{% endif %}
 								{% if opts['ld']['other'] != '' %}
 								<option id="gnu.cpp.link.option.flags.{{u.id}}" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false"  value="{{opts['ld']['other']}}" valueType="string"/>
+								{% endif %}
+                                
+                                {% if opts['common']['optimization.lto'] %}
+								<option id="com.crt.advproject.link.cpp.lto.{{u.id}}" superClass="com.crt.advproject.link.cpp.lto" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								{% endif %}
 
 								<option id="com.crt.advproject.link.cpp.script.{{u.id}}" name="Linker script" superClass="com.crt.advproject.link.cpp.script" useByScannerDiscovery="false" value="${ProjDirPath}/{{opts['ld']['script']}}"  valueType="string"/>

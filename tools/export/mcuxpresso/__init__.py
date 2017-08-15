@@ -675,13 +675,13 @@ class MCUXpresso(Exporter):
             str = self.find_options(flags['cxx_flags'], '-std')
             std = str[len('-std='):]
             cpp_std = {
-                'c++98': 'cpp98', 'c++03': 'cpp98',
-                'gnu++98': 'gnucpp98', 'gnu++03': 'gnucpp98',
-                'c++0x': 'cpp0x', 'gnu++0x': 'gnucpp0x',
-                'c++11': 'cpp11', 'gnu++11': 'gnucpp11',
-                'c++1y': 'cpp1y', 'gnu++1y': 'gnucpp1y',
-                'c++14': 'cpp14', 'gnu++14': 'gnucpp14',
-                'c++1z': 'cpp1z', 'gnu++1z': 'gnucpp1z',
+                'c++98': 'cpp98', 'c++03': 'cpp03',
+                'gnu++98': 'gnupp98', 'gnu++03': 'gnupp03',
+                'c++0x': 'cpp03', 'gnu++0x': 'gnupp03',
+                'c++11': 'cpp11', 'gnu++11': 'gnupp11',
+                'c++1y': 'cpp11', 'gnu++1y': 'gnupp11',
+                'c++14': 'cpp14', 'gnu++14': 'gnupp14',
+                'c++1z': 'cpp1z', 'gnu++1z': 'gnupp1z',
             }
             if std in cpp_std:
                 opts['cpp']['compiler.std'] = cpp_std[std]
@@ -689,19 +689,9 @@ class MCUXpresso(Exporter):
 
         # Common optimisation options.
         optimization_options = {
-            '-fmessage-length=0': 'optimization.messagelength',
-            '-fsigned-char': 'optimization.signedchar',
-            '-ffunction-sections': 'optimization.functionsections',
-            '-fdata-sections': 'optimization.datasections',
-            '-fno-common': 'optimization.nocommon',
-            '-fno-inline-functions': 'optimization.noinlinefunctions',
-            '-ffreestanding': 'optimization.freestanding',
-            '-fno-builtin': 'optimization.nobuiltin',
-            '-fsingle-precision-constant': 'optimization.spconstant',
-            '-fPIC': 'optimization.PIC',
-            '-fno-move-loop-invariants': 'optimization.nomoveloopinvariants',
+            '-flto': 'optimization.lto',
+            '--ffat-lto-objects': 'optimization.lto_objects'
         }
-
         for option in optimization_options:
             opts['common'][optimization_options[option]] = False
             if option in flags['common_flags']:
@@ -714,18 +704,9 @@ class MCUXpresso(Exporter):
             '-pedantic': 'warnings.pedantic',
             '-pedantic-errors': 'warnings.pedanticerrors',
             '-w': 'warnings.nowarn',
-            '-Wunused': 'warnings.unused',
-            '-Wuninitialized': 'warnings.uninitialized',
             '-Wall': 'warnings.allwarn',
             '-Wextra': 'warnings.extrawarn',
-            '-Wmissing-declarations': 'warnings.missingdeclaration',
             '-Wconversion': 'warnings.conversion',
-            '-Wpointer-arith': 'warnings.pointerarith',
-            '-Wpadded': 'warnings.padded',
-            '-Wshadow': 'warnings.shadow',
-            '-Wlogical-op': 'warnings.logicalop',
-            '-Waggregate-return': 'warnings.agreggatereturn',
-            '-Wfloat-equal': 'warnings.floatequal',
             '-Werror': 'warnings.toerrors',
         }
 
@@ -748,22 +729,6 @@ class MCUXpresso(Exporter):
                     'debugging.level'] = debug_levels[option]
                 self.remove_option(flags['common_flags'], option)
 
-        debug_formats = {
-            '-ggdb': 'gdb',
-            '-gstabs': 'stabs',
-            '-gstabs+': 'stabsplus',
-            '-gdwarf-2': 'dwarf2',
-            '-gdwarf-3': 'dwarf3',
-            '-gdwarf-4': 'dwarf4',
-            '-gdwarf-5': 'dwarf5',
-        }
-
-        opts['common']['debugging.format'] = ''
-        for option in debug_levels:
-            if option in flags['common_flags']:
-                opts['common'][
-                    'debugging.format'] = debug_formats[option]
-                self.remove_option(flags['common_flags'], option)
 
         opts['common']['debugging.prof'] = False
         if '-p' in flags['common_flags']:
@@ -811,17 +776,6 @@ class MCUXpresso(Exporter):
             opts['c']['verbose'] = True
             self.remove_option(flags['c_flags'], '-v')
 
-        warning_options = {
-            '-Wmissing-prototypes': 'warnings.missingprototypes',
-            '-Wstrict-prototypes': 'warnings.strictprototypes',
-            '-Wbad-function-cast': 'warnings.badfunctioncast',
-        }
-
-        for option in warning_options:
-            opts['c'][warning_options[option]] = False
-            if option in flags['common_flags']:
-                opts['c'][warning_options[option]] = True
-                self.remove_option(flags['common_flags'], option)
 
         # C++ options.
         opts['cpp']['nostdinc'] = False
@@ -845,29 +799,8 @@ class MCUXpresso(Exporter):
             opts['cpp'][optimization_options[option]] = False
             if option in flags['cxx_flags']:
                 opts['cpp'][optimization_options[option]] = True
-                self.remove_option(flags['cxx_flags'], option)
             if option in flags['common_flags']:
                 opts['cpp'][optimization_options[option]] = True
-                self.remove_option(flags['common_flags'], option)
-
-        warning_options = {
-            '-Wabi': 'warnabi',
-            '-Wctor-dtor-privacy': 'warnings.ctordtorprivacy',
-            '-Wnoexcept': 'warnings.noexcept',
-            '-Wnon-virtual-dtor': 'warnings.nonvirtualdtor',
-            '-Wstrict-null-sentinel': 'warnings.strictnullsentinel',
-            '-Wsign-promo': 'warnings.signpromo',
-            '-Weffc++': 'warneffc',
-        }
-
-        for option in warning_options:
-            opts['cpp'][warning_options[option]] = False
-            if option in flags['cxx_flags']:
-                opts['cpp'][warning_options[option]] = True
-                self.remove_option(flags['cxx_flags'], option)
-            if option in flags['common_flags']:
-                opts['cpp'][warning_options[option]] = True
-                self.remove_option(flags['common_flags'], option)
 
         opts['cpp']['verbose'] = False
         if '-v' in flags['cxx_flags']:
