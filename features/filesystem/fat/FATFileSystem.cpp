@@ -308,7 +308,7 @@ int FATFileSystem::unmount()
 
 /* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
  * associated arguments. */
-int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
+int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size) {
     FATFileSystem fs;
     int err = fs.mount(bd, false);
     if (err) {
@@ -317,7 +317,7 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     fs.lock();
-    FRESULT res = f_mkfs(fs._fsid, 1, allocation_unit);
+    FRESULT res = f_mkfs(fs._fsid, 1, cluster_size);
     fs.unlock();
     if (res != FR_OK) {
         return fat_error_remap(res);
