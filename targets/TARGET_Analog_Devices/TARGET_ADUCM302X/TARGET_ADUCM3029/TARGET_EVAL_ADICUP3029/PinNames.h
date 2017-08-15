@@ -109,43 +109,22 @@ typedef enum {
     P2_14 = (2 << GPIO_PORT_SHIFT | 14),
     P2_15 = (2 << GPIO_PORT_SHIFT | 15),
 
+    // USB Pins
+    USBTX = P0_10,
+    USBRX = P0_11,
+
     // mbed original LED naming
     LED2 = P2_00,
     LED1 = P1_15,
     LED3 = LED2,
     LED4 = LED1,
 
-    //Push buttons
+    // Push buttons
     BOOT = P1_01,
     WAKE_J12 = P0_15,  //4 options depending on jumper
     WAKE_J34 = P1_00,  //4 options depending on jumper
     WAKE_J56 = P0_13,  //4 options depending on jumper
     WAKE_J78 = P2_01,  //4 options depending on jumper
-
-    // USB Pins
-    USBTX = P0_10,
-    USBRX = P0_11,
-
-    // Arduino Headers
-    D0 = P0_11,
-    D1 = P0_10,
-    D2 = P0_15,
-    D3 = P2_11,
-    D4 = P2_01,
-    D5 = P2_02,
-    D6 = P2_00,
-    D7 = P0_12,
-    D8 = P1_02,
-    D9 = P1_15,
-    D10 = P0_03,
-    D11 = P0_01,
-    D12 = P0_02,
-    D13 = P0_00,
-    D14 = P0_05,
-    D15 = P0_04,
-
-    I2C_SCL = D15,
-    I2C_SDA = D14,
 
     // SPI Pins
     SPI0_SCLK = P0_00,
@@ -172,7 +151,37 @@ typedef enum {
     SPI2_CS2 = P2_10,
     SPI2_CS3 = P2_07,
 
-// ADC Analog Input Pins
+    // ADC Analog Input Pins
+    ADC_VIN0 = P2_03,
+    ADC_VIN1 = P2_04,
+    ADC_VIN2 = P2_05,
+    ADC_VIN3 = P2_06,
+    ADC_VIN4 = P2_07,
+    ADC_VIN5 = P2_08,
+    ADC_VIN6 = P2_09,
+    ADC_VIN7 = P2_10,
+
+    // Arduino Headers
+    D0 = P0_11,
+    D1 = P0_10,
+    D2 = P0_15,
+    D3 = P2_11,
+    D4 = P2_01,
+    D5 = P2_02,
+    D6 = P2_00,
+    D7 = P0_12,
+    D8 = P1_02,
+    D9 = P1_15,
+    D10 = P0_03,
+    D11 = P0_01,
+    D12 = P0_02,
+    D13 = P0_00,
+    D14 = P0_05,
+    D15 = P0_04,
+
+    I2C_SCL = D15,
+    I2C_SDA = D14,
+    
     A0 = P2_03,
     A1 = P2_04,
     A2 = P2_05,
@@ -180,7 +189,7 @@ typedef enum {
     A4 = P2_07,
     A5 = P2_08,
     A6 = P2_09,
-    A7 = P2_10,
+    A7 = P2_10,    
 
     // Not connected
     NC = (int)0xFFFFFFFF
