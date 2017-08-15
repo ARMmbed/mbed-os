@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -225,6 +225,7 @@ status_t FLEXIO_UART_TransferSendDMA(FLEXIO_UART_Type *base,
     else
     {
         handle->txState = kFLEXIO_UART_TxBusy;
+        handle->txDataSizeAll = xfer->dataSize;
 
         /* Set transfer data address and data size. */
         DMA_SetSourceAddress(handle->txDmaHandle->base, handle->txDmaHandle->channel, (uint32_t)xfer->data);
@@ -265,6 +266,7 @@ status_t FLEXIO_UART_TransferReceiveDMA(FLEXIO_UART_Type *base,
     else
     {
         handle->rxState = kFLEXIO_UART_RxBusy;
+        handle->rxDataSizeAll = xfer->dataSize;
 
         /* Set transfer data address and data size. */
         DMA_SetDestinationAddress(handle->rxDmaHandle->base, handle->rxDmaHandle->channel, (uint32_t)xfer->data);
@@ -317,42 +319,32 @@ void FLEXIO_UART_TransferAbortReceiveDMA(FLEXIO_UART_Type *base, flexio_uart_dma
 
 status_t FLEXIO_UART_TransferGetSendCountDMA(FLEXIO_UART_Type *base, flexio_uart_dma_handle_t *handle, size_t *count)
 {
+    assert(handle);
     assert(handle->txDmaHandle);
+    assert(count);
 
-    if (!count)
+    if (kFLEXIO_UART_TxIdle == handle->txState)
     {
-        return kStatus_InvalidArgument;
+        return kStatus_NoTransferInProgress;
     }
 
-    if (kFLEXIO_UART_TxBusy == handle->txState)
-    {
-        *count = (handle->txSize - DMA_GetRemainingBytes(handle->txDmaHandle->base, handle->txDmaHandle->channel));
-    }
-    else
-    {
-        *count = handle->txSize;
-    }
+    *count = handle->txDataSizeAll - DMA_GetRemainingBytes(handle->txDmaHandle->base, handle->txDmaHandle->channel);
 
     return kStatus_Success;
 }
 
 status_t FLEXIO_UART_TransferGetReceiveCountDMA(FLEXIO_UART_Type *base, flexio_uart_dma_handle_t *handle, size_t *count)
 {
+    assert(handle);
     assert(handle->rxDmaHandle);
+    assert(count);
 
-    if (!count)
+    if (kFLEXIO_UART_RxIdle == handle->rxState)
     {
-        return kStatus_InvalidArgument;
+        return kStatus_NoTransferInProgress;
     }
 
-    if (kFLEXIO_UART_RxBusy == handle->rxState)
-    {
-        *count = (handle->rxSize - DMA_GetRemainingBytes(handle->rxDmaHandle->base, handle->rxDmaHandle->channel));
-    }
-    else
-    {
-        *count = handle->rxSize;
-    }
+    *count = handle->rxDataSizeAll - DMA_GetRemainingBytes(handle->rxDmaHandle->base, handle->rxDmaHandle->channel);
 
     return kStatus_Success;
 }

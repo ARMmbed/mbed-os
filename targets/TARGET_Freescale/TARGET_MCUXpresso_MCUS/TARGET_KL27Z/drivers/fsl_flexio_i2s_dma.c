@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -120,6 +120,9 @@ void FLEXIO_I2S_TransferTxCreateHandleDMA(FLEXIO_I2S_Type *base,
 {
     assert(handle && dmaHandle);
 
+    /* Zero the handle */
+    memset(handle, 0, sizeof(*handle));
+
     /* Set flexio_i2s base to handle */
     handle->dmaHandle = dmaHandle;
     handle->callback = callback;
@@ -142,6 +145,9 @@ void FLEXIO_I2S_TransferRxCreateHandleDMA(FLEXIO_I2S_Type *base,
                                           dma_handle_t *dmaHandle)
 {
     assert(handle && dmaHandle);
+
+    /* Zero the handle */
+    memset(handle, 0, sizeof(*handle));
 
     /* Set flexio_i2s base to handle */
     handle->dmaHandle = dmaHandle;
@@ -232,7 +238,7 @@ status_t FLEXIO_I2S_TransferReceiveDMA(FLEXIO_I2S_Type *base,
     assert(handle && xfer);
 
     dma_transfer_config_t config = {0};
-    uint32_t srcAddr = FLEXIO_I2S_RxGetDataRegisterAddress(base) - (4U - handle->bytesPerFrame);
+    uint32_t srcAddr = FLEXIO_I2S_RxGetDataRegisterAddress(base) + (4U - handle->bytesPerFrame);
 
     /* Check if input parameter invalid */
     if ((xfer->data == NULL) || (xfer->dataSize == 0U))

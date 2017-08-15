@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -45,9 +45,17 @@ enum _flexio_i2c_master_transfer_states
     kFLEXIO_I2C_ReceiveData = 0x5U,      /*!< Receive data transfer phase*/
 };
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+extern const clock_ip_name_t s_flexioClocks[];
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
+
+extern FLEXIO_Type *const s_flexioBases[];
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
+
+extern uint32_t FLEXIO_GetInstance(FLEXIO_Type *base);
 
 /*!
  * @brief Set up master transfer, send slave address and decide the initial
@@ -88,6 +96,11 @@ static void FLEXIO_I2C_MasterTransferComplete(FLEXIO_I2C_Type *base,
 /*******************************************************************************
  * Codes
  ******************************************************************************/
+
+uint32_t FLEXIO_I2C_GetInstance(FLEXIO_I2C_Type *base)
+{
+    return FLEXIO_GetInstance(base->flexioBase);
+}
 
 static status_t FLEXIO_I2C_MasterTransferInitStateMachine(FLEXIO_I2C_Type *base,
                                                           flexio_i2c_master_handle_t *handle,
@@ -261,17 +274,21 @@ static status_t FLEXIO_I2C_MasterTransferRunStateMachine(FLEXIO_I2C_Type *base,
                 else
                 {
                     FLEXIO_I2C_MasterStop(base);
+
+                    while (!(FLEXIO_I2C_MasterGetStatusFlags(base) & kFLEXIO_I2C_RxFullFlag))
+                    {
+                    }
+                    FLEXIO_I2C_MasterReadByte(base);
+
                     handle->state = kFLEXIO_I2C_Idle;
                 }
             }
             break;
 
         case kFLEXIO_I2C_ReceiveDataBegin:
-            if (statusFlags & kFLEXIO_I2C_TxEmptyFlag)
+            if (statusFlags & kFLEXIO_I2C_RxFullFlag)
             {
-                /* Read one byte of data. */
-                FLEXIO_I2C_MasterWriteByte(base, 0xFFFFFFFFU);
-
+                handle->state = kFLEXIO_I2C_ReceiveData;
                 /* Send nak at the last receive byte. */
                 if (handle->transfer.dataSize == 1)
                 {
@@ -286,9 +303,13 @@ static status_t FLEXIO_I2C_MasterTransferRunStateMachine(FLEXIO_I2C_Type *base,
                     FLEXIO_I2C_MasterEnableAck(base, true);
                 }
             }
+            else if (statusFlags & kFLEXIO_I2C_TxEmptyFlag)
+            {
+                /* Read one byte of data. */
+                FLEXIO_I2C_MasterWriteByte(base, 0xFFFFFFFFU);
+            }
             else
             {
-                handle->state = kFLEXIO_I2C_ReceiveData;
             }
             break;
 
@@ -297,14 +318,9 @@ static status_t FLEXIO_I2C_MasterTransferRunStateMachine(FLEXIO_I2C_Type *base,
             {
                 *handle->transfer.data = FLEXIO_I2C_MasterReadByte(base);
                 handle->transfer.data++;
-                /* Receive one byte of data. */
                 if (handle->transfer.dataSize--)
                 {
-                    if (handle->transfer.dataSize != 0)
-                    {
-                        FLEXIO_I2C_MasterWriteByte(base, 0xFFFFFFFFU);
-                    }
-                    else
+                    if (handle->transfer.dataSize == 0)
                     {
                         FLEXIO_I2C_MasterDisableInterrupts(base, kFLEXIO_I2C_RxFullInterruptEnable);
                         handle->state = kFLEXIO_I2C_Idle;
@@ -320,6 +336,16 @@ static status_t FLEXIO_I2C_MasterTransferRunStateMachine(FLEXIO_I2C_Type *base,
                         FLEXIO_I2C_MasterStop(base);
                     }
                 }
+            }
+            else if (statusFlags & kFLEXIO_I2C_TxEmptyFlag)
+            {
+                if (handle->transfer.dataSize > 1)
+                {
+                    FLEXIO_I2C_MasterWriteByte(base, 0xFFFFFFFFU);
+                }
+            }
+            else
+            {
             }
             break;
 
@@ -353,8 +379,10 @@ void FLEXIO_I2C_MasterInit(FLEXIO_I2C_Type *base, flexio_i2c_master_config_t *ma
     memset(&shifterConfig, 0, sizeof(shifterConfig));
     memset(&timerConfig, 0, sizeof(timerConfig));
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Ungate flexio clock. */
-    CLOCK_EnableClock(kCLOCK_Flexio0);
+    CLOCK_EnableClock(s_flexioClocks[FLEXIO_I2C_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
     FLEXIO_Reset(base->flexioBase);
 
@@ -431,9 +459,12 @@ void FLEXIO_I2C_MasterInit(FLEXIO_I2C_Type *base, flexio_i2c_master_config_t *ma
     controlVal = base->flexioBase->CTRL;
     controlVal &=
         ~(FLEXIO_CTRL_DOZEN_MASK | FLEXIO_CTRL_DBGE_MASK | FLEXIO_CTRL_FASTACC_MASK | FLEXIO_CTRL_FLEXEN_MASK);
-    controlVal |=
-        (FLEXIO_CTRL_DOZEN(masterConfig->enableInDoze) | FLEXIO_CTRL_DBGE(masterConfig->enableInDebug) |
-         FLEXIO_CTRL_FASTACC(masterConfig->enableFastAccess) | FLEXIO_CTRL_FLEXEN(masterConfig->enableMaster));
+    controlVal |= (FLEXIO_CTRL_DBGE(masterConfig->enableInDebug) | FLEXIO_CTRL_FASTACC(masterConfig->enableFastAccess) |
+                   FLEXIO_CTRL_FLEXEN(masterConfig->enableMaster));
+    if (!masterConfig->enableInDoze)
+    {
+        controlVal |= FLEXIO_CTRL_DOZEN_MASK;
+    }
 
     base->flexioBase->CTRL = controlVal;
 }
@@ -645,6 +676,35 @@ void FLEXIO_I2C_MasterReadBlocking(FLEXIO_I2C_Type *base, uint8_t *rxBuff, uint8
     }
 }
 
+status_t FLEXIO_I2C_MasterTransferBlocking(FLEXIO_I2C_Type *base, flexio_i2c_master_transfer_t *xfer)
+{
+    assert(xfer);
+
+    flexio_i2c_master_handle_t tmpHandle;
+    uint32_t statusFlags;
+    uint32_t result = kStatus_Success;
+
+    /* Zero the handle. */
+    memset(&tmpHandle, 0, sizeof(tmpHandle));
+
+    /* Set up transfer machine. */
+    FLEXIO_I2C_MasterTransferInitStateMachine(base, &tmpHandle, xfer);
+
+    do
+    {
+        /* Wait either tx empty or rx full flag is asserted. */
+        while (!((statusFlags = FLEXIO_I2C_MasterGetStatusFlags(base)) &
+                 (kFLEXIO_I2C_TxEmptyFlag | kFLEXIO_I2C_RxFullFlag)))
+        {
+        }
+
+        result = FLEXIO_I2C_MasterTransferRunStateMachine(base, &tmpHandle, statusFlags);
+
+    } while ((tmpHandle.state != kFLEXIO_I2C_Idle) && (result == kStatus_Success));
+
+    return result;
+}
+
 status_t FLEXIO_I2C_MasterTransferCreateHandle(FLEXIO_I2C_Type *base,
                                                flexio_i2c_master_handle_t *handle,
                                                flexio_i2c_master_transfer_callback_t callback,
@@ -662,7 +722,7 @@ status_t FLEXIO_I2C_MasterTransferCreateHandle(FLEXIO_I2C_Type *base,
     handle->userData = userData;
 
     /* Enable interrupt in NVIC. */
-    EnableIRQ(flexio_irqs[0]);
+    EnableIRQ(flexio_irqs[FLEXIO_I2C_GetInstance(base)]);
 
     /* Save the context in global variables to support the double weak mechanism. */
     return FLEXIO_RegisterHandleIRQ(base, handle, FLEXIO_I2C_MasterTransferHandleIRQ);

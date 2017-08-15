@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -97,6 +97,9 @@ extern uint32_t LPUART_GetInstance(LPUART_Type *base);
 
 static void LPUART_TransferSendDMACallback(dma_handle_t *handle, void *param)
 {
+    assert(handle);
+    assert(param);
+
     lpuart_dma_private_handle_t *lpuartPrivateHandle = (lpuart_dma_private_handle_t *)param;
 
     /* Disable LPUART TX DMA. */
@@ -117,6 +120,9 @@ static void LPUART_TransferSendDMACallback(dma_handle_t *handle, void *param)
 
 static void LPUART_TransferReceiveDMACallback(dma_handle_t *handle, void *param)
 {
+    assert(handle);
+    assert(param);
+
     lpuart_dma_private_handle_t *lpuartPrivateHandle = (lpuart_dma_private_handle_t *)param;
 
     /* Disable LPUART RX DMA. */
@@ -136,11 +142,11 @@ static void LPUART_TransferReceiveDMACallback(dma_handle_t *handle, void *param)
 }
 
 void LPUART_TransferCreateHandleDMA(LPUART_Type *base,
-                            lpuart_dma_handle_t *handle,
-                            lpuart_dma_transfer_callback_t callback,
-                            void *userData,
-                            dma_handle_t *txDmaHandle,
-                            dma_handle_t *rxDmaHandle)
+                                    lpuart_dma_handle_t *handle,
+                                    lpuart_dma_transfer_callback_t callback,
+                                    void *userData,
+                                    dma_handle_t *txDmaHandle,
+                                    dma_handle_t *rxDmaHandle)
 {
     assert(handle);
 
@@ -190,16 +196,14 @@ void LPUART_TransferCreateHandleDMA(LPUART_Type *base,
 
 status_t LPUART_TransferSendDMA(LPUART_Type *base, lpuart_dma_handle_t *handle, lpuart_transfer_t *xfer)
 {
+    assert(handle);
     assert(handle->txDmaHandle);
+    assert(xfer);
+    assert(xfer->data);
+    assert(xfer->dataSize);
 
     status_t status;
     dma_transfer_config_t xferConfig;
-
-    /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
-        return kStatus_InvalidArgument;
-    }
 
     /* If previous TX not finished. */
     if (kLPUART_TxBusy == handle->txState)
@@ -230,16 +234,14 @@ status_t LPUART_TransferSendDMA(LPUART_Type *base, lpuart_dma_handle_t *handle, 
 
 status_t LPUART_TransferReceiveDMA(LPUART_Type *base, lpuart_dma_handle_t *handle, lpuart_transfer_t *xfer)
 {
+    assert(handle);
     assert(handle->rxDmaHandle);
+    assert(xfer);
+    assert(xfer->data);
+    assert(xfer->dataSize);
 
     status_t status;
     dma_transfer_config_t xferConfig;
-
-    /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
-        return kStatus_InvalidArgument;
-    }
 
     /* If previous RX not finished. */
     if (kLPUART_RxBusy == handle->rxState)
@@ -270,6 +272,7 @@ status_t LPUART_TransferReceiveDMA(LPUART_Type *base, lpuart_dma_handle_t *handl
 
 void LPUART_TransferAbortSendDMA(LPUART_Type *base, lpuart_dma_handle_t *handle)
 {
+    assert(handle);
     assert(handle->txDmaHandle);
 
     /* Disable LPUART TX DMA. */
@@ -286,6 +289,7 @@ void LPUART_TransferAbortSendDMA(LPUART_Type *base, lpuart_dma_handle_t *handle)
 
 void LPUART_TransferAbortReceiveDMA(LPUART_Type *base, lpuart_dma_handle_t *handle)
 {
+    assert(handle);
     assert(handle->rxDmaHandle);
 
     /* Disable LPUART RX DMA. */
@@ -302,16 +306,13 @@ void LPUART_TransferAbortReceiveDMA(LPUART_Type *base, lpuart_dma_handle_t *hand
 
 status_t LPUART_TransferGetSendCountDMA(LPUART_Type *base, lpuart_dma_handle_t *handle, uint32_t *count)
 {
+    assert(handle);
     assert(handle->txDmaHandle);
+    assert(count);
 
     if (kLPUART_TxIdle == handle->txState)
     {
         return kStatus_NoTransferInProgress;
-    }
-
-    if (!count)
-    {
-        return kStatus_InvalidArgument;
     }
 
     *count = handle->txDataSizeAll - DMA_GetRemainingBytes(handle->txDmaHandle->base, handle->txDmaHandle->channel);
@@ -321,16 +322,13 @@ status_t LPUART_TransferGetSendCountDMA(LPUART_Type *base, lpuart_dma_handle_t *
 
 status_t LPUART_TransferGetReceiveCountDMA(LPUART_Type *base, lpuart_dma_handle_t *handle, uint32_t *count)
 {
+    assert(handle);
     assert(handle->rxDmaHandle);
+    assert(count);
 
     if (kLPUART_RxIdle == handle->rxState)
     {
         return kStatus_NoTransferInProgress;
-    }
-
-    if (!count)
-    {
-        return kStatus_InvalidArgument;
     }
 
     *count = handle->rxDataSizeAll - DMA_GetRemainingBytes(handle->rxDmaHandle->base, handle->rxDmaHandle->channel);

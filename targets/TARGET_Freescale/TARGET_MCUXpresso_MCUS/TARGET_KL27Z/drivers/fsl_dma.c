@@ -1,32 +1,32 @@
 /*
-* Copyright (c) 2015, Freescale Semiconductor, Inc.
-* All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without modification,
-* are permitted provided that the following conditions are met:
-*
-* o Redistributions of source code must retain the above copyright notice, this list
-*   of conditions and the following disclaimer.
-*
-* o Redistributions in binary form must reproduce the above copyright notice, this
-*   list of conditions and the following disclaimer in the documentation and/or
-*   other materials provided with the distribution.
-*
-* o Neither the name of Freescale Semiconductor, Inc. nor the names of its
-*   contributors may be used to endorse or promote products derived from this
-*   software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-* ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ * Copyright (c) 2015, Freescale Semiconductor, Inc.
+ * Copyright 2016-2017 NXP
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * o Redistributions of source code must retain the above copyright notice, this list
+ *   of conditions and the following disclaimer.
+ *
+ * o Redistributions in binary form must reproduce the above copyright notice, this
+ *   list of conditions and the following disclaimer in the documentation and/or
+ *   other materials provided with the distribution.
+ *
+ * o Neither the name of the copyright holder nor the names of its
+ *   contributors may be used to endorse or promote products derived from this
+ *   software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include "fsl_dma.h"
 
@@ -52,14 +52,16 @@ static uint32_t DMA_GetInstance(DMA_Type *base);
 /*! @brief Array to map DMA instance number to base pointer. */
 static DMA_Type *const s_dmaBases[] = DMA_BASE_PTRS;
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
 /*! @brief Array to map DMA instance number to clock name. */
 static const clock_ip_name_t s_dmaClockName[] = DMA_CLOCKS;
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 /*! @brief Array to map DMA instance number to IRQ number. */
-static const IRQn_Type s_dmaIRQNumber[] = DMA_CHN_IRQS;
+static const IRQn_Type s_dmaIRQNumber[][FSL_FEATURE_DMA_MODULE_CHANNEL] = DMA_CHN_IRQS;
 
 /*! @brief Pointers to transfer handle for each DMA channel. */
-static dma_handle_t *s_DMAHandle[FSL_FEATURE_DMAMUX_MODULE_CHANNEL * FSL_FEATURE_SOC_DMA_COUNT];
+static dma_handle_t *s_DMAHandle[FSL_FEATURE_DMA_MODULE_CHANNEL * FSL_FEATURE_SOC_DMA_COUNT];
 
 /*******************************************************************************
  * Code
@@ -69,7 +71,7 @@ static uint32_t DMA_GetInstance(DMA_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_DMA_COUNT; instance++)
+    for (instance = 0; instance < ARRAY_SIZE(s_dmaBases); instance++)
     {
         if (s_dmaBases[instance] == base)
         {
@@ -77,24 +79,28 @@ static uint32_t DMA_GetInstance(DMA_Type *base)
         }
     }
 
-    assert(instance < FSL_FEATURE_SOC_DMA_COUNT);
+    assert(instance < ARRAY_SIZE(s_dmaBases));
 
     return instance;
 }
 
 void DMA_Init(DMA_Type *base)
 {
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     CLOCK_EnableClock(s_dmaClockName[DMA_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 void DMA_Deinit(DMA_Type *base)
 {
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     CLOCK_DisableClock(s_dmaClockName[DMA_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 void DMA_ResetChannel(DMA_Type *base, uint32_t channel)
 {
-    assert(channel < FSL_FEATURE_DMAMUX_MODULE_CHANNEL);
+    assert(channel < FSL_FEATURE_DMA_MODULE_CHANNEL);
 
     /* clear all status bit */
     base->DMA[channel].DSR_BCR |= DMA_DSR_BCR_DONE(true);
@@ -108,7 +114,7 @@ void DMA_ResetChannel(DMA_Type *base, uint32_t channel)
 
 void DMA_SetTransferConfig(DMA_Type *base, uint32_t channel, const dma_transfer_config_t *config)
 {
-    assert(channel < FSL_FEATURE_DMAMUX_MODULE_CHANNEL);
+    assert(channel < FSL_FEATURE_DMA_MODULE_CHANNEL);
     assert(config != NULL);
 
     uint32_t tmpreg;
@@ -129,7 +135,7 @@ void DMA_SetTransferConfig(DMA_Type *base, uint32_t channel, const dma_transfer_
 
 void DMA_SetChannelLinkConfig(DMA_Type *base, uint32_t channel, const dma_channel_link_config_t *config)
 {
-    assert(channel < FSL_FEATURE_DMAMUX_MODULE_CHANNEL);
+    assert(channel < FSL_FEATURE_DMA_MODULE_CHANNEL);
     assert(config != NULL);
 
     uint32_t tmpreg;
@@ -142,7 +148,7 @@ void DMA_SetChannelLinkConfig(DMA_Type *base, uint32_t channel, const dma_channe
 
 void DMA_SetModulo(DMA_Type *base, uint32_t channel, dma_modulo_t srcModulo, dma_modulo_t destModulo)
 {
-    assert(channel < FSL_FEATURE_DMAMUX_MODULE_CHANNEL);
+    assert(channel < FSL_FEATURE_DMA_MODULE_CHANNEL);
 
     uint32_t tmpreg;
 
@@ -155,20 +161,23 @@ void DMA_SetModulo(DMA_Type *base, uint32_t channel, dma_modulo_t srcModulo, dma
 void DMA_CreateHandle(dma_handle_t *handle, DMA_Type *base, uint32_t channel)
 {
     assert(handle != NULL);
-    assert(channel < FSL_FEATURE_DMAMUX_MODULE_CHANNEL);
+    assert(channel < FSL_FEATURE_DMA_MODULE_CHANNEL);
 
     uint32_t dmaInstance;
     uint32_t channelIndex;
+
+    /* Zero the handle */
+    memset(handle, 0, sizeof(*handle));
 
     handle->base = base;
     handle->channel = channel;
     /* Get the DMA instance number */
     dmaInstance = DMA_GetInstance(base);
-    channelIndex = (dmaInstance * FSL_FEATURE_DMAMUX_MODULE_CHANNEL) + channel;
+    channelIndex = (dmaInstance * FSL_FEATURE_DMA_MODULE_CHANNEL) + channel;
     /* Store handle */
     s_DMAHandle[channelIndex] = handle;
     /* Enable NVIC interrupt. */
-    EnableIRQ(s_dmaIRQNumber[channelIndex]);
+    EnableIRQ(s_dmaIRQNumber[dmaInstance][channelIndex]);
 }
 
 void DMA_PrepareTransfer(dma_transfer_config_t *config,
@@ -182,8 +191,8 @@ void DMA_PrepareTransfer(dma_transfer_config_t *config,
     assert(config != NULL);
     assert(srcAddr != NULL);
     assert(destAddr != NULL);
-    assert(srcWidth == 1U || srcWidth == 2U || srcWidth == 4U);
-    assert(destWidth == 1U || destWidth == 2U || destWidth == 4U);
+    assert((srcWidth == 1U) || (srcWidth == 2U) || (srcWidth == 4U));
+    assert((destWidth == 1U) || (destWidth == 2U) || (destWidth == 4U));
 
     config->srcAddr = (uint32_t)srcAddr;
     config->destAddr = (uint32_t)destAddr;
@@ -283,7 +292,7 @@ void DMA_HandleIRQ(dma_handle_t *handle)
     }
 }
 
-#if defined(FSL_FEATURE_DMAMUX_MODULE_CHANNEL) && (FSL_FEATURE_DMAMUX_MODULE_CHANNEL == 4U)
+#if defined(FSL_FEATURE_DMA_MODULE_CHANNEL) && (FSL_FEATURE_DMA_MODULE_CHANNEL == 4U)
 void DMA0_DriverIRQHandler(void)
 {
     DMA_HandleIRQ(s_DMAHandle[0]);
@@ -303,4 +312,4 @@ void DMA3_DriverIRQHandler(void)
 {
     DMA_HandleIRQ(s_DMAHandle[3]);
 }
-#endif /* FSL_FEATURE_DMAMUX_MODULE_CHANNEL */
+#endif /* FSL_FEATURE_DMA_MODULE_CHANNEL */

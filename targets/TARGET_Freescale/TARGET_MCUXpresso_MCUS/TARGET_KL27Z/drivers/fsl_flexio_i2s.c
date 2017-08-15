@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -42,6 +42,9 @@ enum _sai_transfer_state
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
+
+extern uint32_t FLEXIO_GetInstance(FLEXIO_Type *base);
+
 /*!
  * @brief Receive a piece of data in non-blocking way.
  *
@@ -65,9 +68,21 @@ static void FLEXIO_I2S_WriteNonBlocking(FLEXIO_I2S_Type *base, uint8_t bitWidth,
  * Variables
  ******************************************************************************/
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+extern const clock_ip_name_t s_flexioClocks[];
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
+
+extern FLEXIO_Type *const s_flexioBases[];
+
 /*******************************************************************************
  * Code
  ******************************************************************************/
+
+uint32_t FLEXIO_I2S_GetInstance(FLEXIO_I2S_Type *base)
+{
+    return FLEXIO_GetInstance(base->flexioBase);
+}
+
 static void FLEXIO_I2S_WriteNonBlocking(FLEXIO_I2S_Type *base, uint8_t bitWidth, uint8_t *txData, size_t size)
 {
     uint32_t i = 0;
@@ -98,7 +113,7 @@ static void FLEXIO_I2S_ReadNonBlocking(FLEXIO_I2S_Type *base, uint8_t bitWidth, 
 
     for (i = 0; i < size / bytesPerWord; i++)
     {
-        data = base->flexioBase->SHIFTBUFBIS[base->rxShifterIndex];
+        data = (base->flexioBase->SHIFTBUFBIS[base->rxShifterIndex] >> (32U - bitWidth));
         for (j = 0; j < bytesPerWord; j++)
         {
             *rxData = (data >> (8U * j)) & 0xFF;
@@ -114,8 +129,10 @@ void FLEXIO_I2S_Init(FLEXIO_I2S_Type *base, const flexio_i2s_config_t *config)
     flexio_shifter_config_t shifterConfig = {0};
     flexio_timer_config_t timerConfig = {0};
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Ungate flexio clock. */
-    CLOCK_EnableClock(kCLOCK_Flexio0);
+    CLOCK_EnableClock(s_flexioClocks[FLEXIO_I2S_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
     FLEXIO_Reset(base->flexioBase);
 
@@ -155,7 +172,7 @@ void FLEXIO_I2S_Init(FLEXIO_I2S_Type *base, const flexio_i2s_config_t *config)
     /* Set Timer to I2S frame sync */
     if (config->masterSlave == kFLEXIO_I2S_Master)
     {
-        timerConfig.triggerSelect = FLEXIO_TIMER_TRIGGER_SEL_TIMn(base->bclkTimerIndex);
+        timerConfig.triggerSelect = FLEXIO_TIMER_TRIGGER_SEL_PININPUT(base->txPinIndex);
         timerConfig.triggerPolarity = kFLEXIO_TimerTriggerPolarityActiveHigh;
         timerConfig.triggerSource = kFLEXIO_TimerTriggerSourceExternal;
         timerConfig.pinConfig = kFLEXIO_PinConfigOutput;
@@ -248,8 +265,10 @@ void FLEXIO_I2S_Deinit(FLEXIO_I2S_Type *base)
     /* Disable FLEXIO I2S module. */
     FLEXIO_I2S_Enable(base, false);
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Gate flexio clock. */
     CLOCK_DisableClock(kCLOCK_Flexio0);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 void FLEXIO_I2S_EnableInterrupts(FLEXIO_I2S_Type *base, uint32_t mask)
@@ -291,6 +310,11 @@ void FLEXIO_I2S_MasterSetFormat(FLEXIO_I2S_Type *base, flexio_i2s_format_t *form
     uint32_t timDiv = srcClock_Hz / (format->sampleRate_Hz * 32U * 2U);
     uint32_t bclkDiv = 0;
 
+    /* Shall keep bclk and fs div an integer */
+    if (timDiv%2)
+    {
+        timDiv += 1U;
+    }
     /* Set Frame sync timer cmp */
     base->flexioBase->TIMCMP[base->fsTimerIndex] = FLEXIO_TIMCMP_CMP(32U * timDiv - 1U);
 
@@ -302,10 +326,10 @@ void FLEXIO_I2S_MasterSetFormat(FLEXIO_I2S_Type *base, flexio_i2s_format_t *form
 void FLEXIO_I2S_SlaveSetFormat(FLEXIO_I2S_Type *base, flexio_i2s_format_t *format)
 {
     /* Set Frame sync timer cmp */
-    base->flexioBase->TIMCMP[base->fsTimerIndex] = FLEXIO_TIMCMP_CMP(format->bitWidth * 4U - 3U);
+    base->flexioBase->TIMCMP[base->fsTimerIndex] = FLEXIO_TIMCMP_CMP(32U * 4U - 3U);
 
     /* Set bit clock timer cmp */
-    base->flexioBase->TIMCMP[base->bclkTimerIndex] = FLEXIO_TIMCMP_CMP(format->bitWidth * 2U - 1U);
+    base->flexioBase->TIMCMP[base->bclkTimerIndex] = FLEXIO_TIMCMP_CMP(32U * 2U - 1U);
 }
 
 void FLEXIO_I2S_WriteBlocking(FLEXIO_I2S_Type *base, uint8_t bitWidth, uint8_t *txData, size_t size)
@@ -370,7 +394,7 @@ void FLEXIO_I2S_TransferTxCreateHandle(FLEXIO_I2S_Type *base,
     handle->state = kFLEXIO_I2S_Idle;
 
     /* Enable interrupt in NVIC. */
-    EnableIRQ(flexio_irqs[0]);
+    EnableIRQ(flexio_irqs[FLEXIO_I2S_GetInstance(base)]);
 }
 
 void FLEXIO_I2S_TransferRxCreateHandle(FLEXIO_I2S_Type *base,
@@ -396,7 +420,7 @@ void FLEXIO_I2S_TransferRxCreateHandle(FLEXIO_I2S_Type *base,
     handle->state = kFLEXIO_I2S_Idle;
 
     /* Enable interrupt in NVIC. */
-    EnableIRQ(flexio_irqs[0]);
+    EnableIRQ(flexio_irqs[FLEXIO_I2S_GetInstance(base)]);
 }
 
 void FLEXIO_I2S_TransferSetFormat(FLEXIO_I2S_Type *base,
@@ -494,8 +518,6 @@ void FLEXIO_I2S_TransferAbortSend(FLEXIO_I2S_Type *base, flexio_i2s_handle_t *ha
     assert(handle);
 
     /* Stop Tx transfer and disable interrupt */
-    FLEXIO_I2S_Enable(base, false);
-
     FLEXIO_I2S_DisableInterrupts(base, kFLEXIO_I2S_TxDataRegEmptyInterruptEnable);
     handle->state = kFLEXIO_I2S_Idle;
 
@@ -509,9 +531,7 @@ void FLEXIO_I2S_TransferAbortReceive(FLEXIO_I2S_Type *base, flexio_i2s_handle_t 
 {
     assert(handle);
 
-    /* Stop Tx transfer and disable interrupt */
-    FLEXIO_I2S_Enable(base, false);
-
+    /* Stop rx transfer and disable interrupt */
     FLEXIO_I2S_DisableInterrupts(base, kFLEXIO_I2S_RxDataRegFullInterruptEnable);
     handle->state = kFLEXIO_I2S_Idle;
 
@@ -572,7 +592,8 @@ void FLEXIO_I2S_TransferTxHandleIRQ(void *i2sBase, void *i2sHandle)
         FLEXIO_ClearShifterErrorFlags(base->flexioBase, (1U << base->txShifterIndex));
     }
     /* Handle transfer */
-    if ((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_TxDataRegEmptyFlag) != 0)
+    if (((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_TxDataRegEmptyFlag) != 0) &&
+        (handle->queue[handle->queueDriver].data != NULL))
     {
         FLEXIO_I2S_WriteNonBlocking(base, handle->bitWidth, buffer, dataSize);
 
@@ -582,7 +603,7 @@ void FLEXIO_I2S_TransferTxHandleIRQ(void *i2sBase, void *i2sHandle)
     }
 
     /* If finished a blcok, call the callback function */
-    if (handle->queue[handle->queueDriver].dataSize == 0U)
+    if ((handle->queue[handle->queueDriver].dataSize == 0U) && (handle->queue[handle->queueDriver].data != NULL))
     {
         memset(&handle->queue[handle->queueDriver], 0, sizeof(flexio_i2s_transfer_t));
         handle->queueDriver = (handle->queueDriver + 1) % FLEXIO_I2S_XFER_QUEUE_SIZE;
@@ -609,7 +630,8 @@ void FLEXIO_I2S_TransferRxHandleIRQ(void *i2sBase, void *i2sHandle)
     uint8_t dataSize = handle->bitWidth / 8U;
 
     /* Handle transfer */
-    if ((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_RxDataRegFullFlag) != 0)
+    if (((FLEXIO_I2S_GetStatusFlags(base) & kFLEXIO_I2S_RxDataRegFullFlag) != 0) &&
+        (handle->queue[handle->queueDriver].data != NULL))
     {
         FLEXIO_I2S_ReadNonBlocking(base, handle->bitWidth, buffer, dataSize);
 
@@ -619,7 +641,7 @@ void FLEXIO_I2S_TransferRxHandleIRQ(void *i2sBase, void *i2sHandle)
     }
 
     /* If finished a blcok, call the callback function */
-    if (handle->queue[handle->queueDriver].dataSize == 0U)
+    if ((handle->queue[handle->queueDriver].dataSize == 0U) && (handle->queue[handle->queueDriver].data != NULL))
     {
         memset(&handle->queue[handle->queueDriver], 0, sizeof(flexio_i2s_transfer_t));
         handle->queueDriver = (handle->queueDriver + 1) % FLEXIO_I2S_XFER_QUEUE_SIZE;

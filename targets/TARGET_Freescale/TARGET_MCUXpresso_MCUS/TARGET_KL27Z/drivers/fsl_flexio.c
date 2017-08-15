@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -50,22 +50,54 @@ static void *s_flexioType[FLEXIO_HANDLE_COUNT];
 /*< @brief pointer to array of FLEXIO Isr. */
 static flexio_isr_t s_flexioIsr[FLEXIO_HANDLE_COUNT];
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+/*! @brief Pointers to flexio clocks for each instance. */
+const clock_ip_name_t s_flexioClocks[] = FLEXIO_CLOCKS;
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
+
+/*! @brief Pointers to flexio bases for each instance. */
+FLEXIO_Type *const s_flexioBases[] = FLEXIO_BASE_PTRS;
+
 /*******************************************************************************
  * Codes
  ******************************************************************************/
+
+uint32_t FLEXIO_GetInstance(FLEXIO_Type *base)
+{
+    uint32_t instance;
+
+    /* Find the instance index from base address mappings. */
+    for (instance = 0; instance < ARRAY_SIZE(s_flexioBases); instance++)
+    {
+        if (s_flexioBases[instance] == base)
+        {
+            break;
+        }
+    }
+
+    assert(instance < ARRAY_SIZE(s_flexioBases));
+
+    return instance;
+}
 
 void FLEXIO_Init(FLEXIO_Type *base, const flexio_config_t *userConfig)
 {
     uint32_t ctrlReg = 0;
 
-    CLOCK_EnableClock(kCLOCK_Flexio0);
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+    CLOCK_EnableClock(s_flexioClocks[FLEXIO_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
     FLEXIO_Reset(base);
 
     ctrlReg = base->CTRL;
     ctrlReg &= ~(FLEXIO_CTRL_DOZEN_MASK | FLEXIO_CTRL_DBGE_MASK | FLEXIO_CTRL_FASTACC_MASK | FLEXIO_CTRL_FLEXEN_MASK);
-    ctrlReg |= (FLEXIO_CTRL_DOZEN(userConfig->enableInDoze) | FLEXIO_CTRL_DBGE(userConfig->enableInDebug) |
-                FLEXIO_CTRL_FASTACC(userConfig->enableFastAccess) | FLEXIO_CTRL_FLEXEN(userConfig->enableFlexio));
+    ctrlReg |= (FLEXIO_CTRL_DBGE(userConfig->enableInDebug) | FLEXIO_CTRL_FASTACC(userConfig->enableFastAccess) |
+                FLEXIO_CTRL_FLEXEN(userConfig->enableFlexio));
+    if (!userConfig->enableInDoze)
+    {
+        ctrlReg |= FLEXIO_CTRL_DOZEN_MASK;
+    }
 
     base->CTRL = ctrlReg;
 }
@@ -73,7 +105,9 @@ void FLEXIO_Init(FLEXIO_Type *base, const flexio_config_t *userConfig)
 void FLEXIO_Deinit(FLEXIO_Type *base)
 {
     FLEXIO_Enable(base, false);
-    CLOCK_DisableClock(kCLOCK_Flexio0);
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+    CLOCK_DisableClock(s_flexioClocks[FLEXIO_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 void FLEXIO_GetDefaultConfig(flexio_config_t *userConfig)
@@ -252,6 +286,11 @@ void FLEXIO_DriverIRQHandler(void)
 }
 
 void FLEXIO0_DriverIRQHandler(void)
+{
+    FLEXIO_CommonIRQHandler();
+}
+
+void FLEXIO1_DriverIRQHandler(void)
 {
     FLEXIO_CommonIRQHandler();
 }

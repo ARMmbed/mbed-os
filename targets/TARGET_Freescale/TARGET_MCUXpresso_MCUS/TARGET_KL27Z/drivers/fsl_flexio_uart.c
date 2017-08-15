@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright (c) 2015-2016, Freescale Semiconductor, Inc.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -43,9 +43,17 @@ enum _flexio_uart_transfer_states
     kFLEXIO_UART_RxBusy  /* RX busy. */
 };
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
+extern const clock_ip_name_t s_flexioClocks[];
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
+
+extern FLEXIO_Type *const s_flexioBases[];
+
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
+
+extern uint32_t FLEXIO_GetInstance(FLEXIO_Type *base);
 
 /*!
  * @brief Get the length of received data in RX ring buffer.
@@ -67,6 +75,11 @@ static bool FLEXIO_UART_TransferIsRxRingBufferFull(flexio_uart_handle_t *handle)
 /*******************************************************************************
  * Codes
  ******************************************************************************/
+
+uint32_t FLEXIO_UART_GetInstance(FLEXIO_UART_Type *base)
+{
+    return FLEXIO_GetInstance(base->flexioBase);
+}
 
 static size_t FLEXIO_UART_TransferGetRxRingBufferLength(flexio_uart_handle_t *handle)
 {
@@ -100,7 +113,7 @@ static bool FLEXIO_UART_TransferIsRxRingBufferFull(flexio_uart_handle_t *handle)
     return full;
 }
 
-void FLEXIO_UART_Init(FLEXIO_UART_Type *base, const flexio_uart_config_t *userConfig, uint32_t srcClock_Hz)
+status_t FLEXIO_UART_Init(FLEXIO_UART_Type *base, const flexio_uart_config_t *userConfig, uint32_t srcClock_Hz)
 {
     assert(base && userConfig);
 
@@ -109,13 +122,16 @@ void FLEXIO_UART_Init(FLEXIO_UART_Type *base, const flexio_uart_config_t *userCo
     uint32_t ctrlReg = 0;
     uint16_t timerDiv = 0;
     uint16_t timerCmp = 0;
+    status_t result = kStatus_Success;
 
     /* Clear the shifterConfig & timerConfig struct. */
     memset(&shifterConfig, 0, sizeof(shifterConfig));
     memset(&timerConfig, 0, sizeof(timerConfig));
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Ungate flexio clock. */
-    CLOCK_EnableClock(kCLOCK_Flexio0);
+    CLOCK_EnableClock(s_flexioClocks[FLEXIO_UART_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
     /* Reset FLEXIO before configuration. */
     FLEXIO_Reset(base->flexioBase);
@@ -123,8 +139,12 @@ void FLEXIO_UART_Init(FLEXIO_UART_Type *base, const flexio_uart_config_t *userCo
     /* Configure FLEXIO UART */
     ctrlReg = base->flexioBase->CTRL;
     ctrlReg &= ~(FLEXIO_CTRL_DOZEN_MASK | FLEXIO_CTRL_DBGE_MASK | FLEXIO_CTRL_FASTACC_MASK | FLEXIO_CTRL_FLEXEN_MASK);
-    ctrlReg |= (FLEXIO_CTRL_DOZEN(userConfig->enableInDoze) | FLEXIO_CTRL_DBGE(userConfig->enableInDebug) |
-                FLEXIO_CTRL_FASTACC(userConfig->enableFastAccess) | FLEXIO_CTRL_FLEXEN(userConfig->enableUart));
+    ctrlReg |= (FLEXIO_CTRL_DBGE(userConfig->enableInDebug) | FLEXIO_CTRL_FASTACC(userConfig->enableFastAccess) |
+                FLEXIO_CTRL_FLEXEN(userConfig->enableUart));
+    if (!userConfig->enableInDoze)
+    {
+        ctrlReg |= FLEXIO_CTRL_DOZEN_MASK;
+    }
 
     base->flexioBase->CTRL = ctrlReg;
 
@@ -160,6 +180,11 @@ void FLEXIO_UART_Init(FLEXIO_UART_Type *base, const flexio_uart_config_t *userCo
 
     timerDiv = srcClock_Hz / userConfig->baudRate_Bps;
     timerDiv = timerDiv / 2 - 1;
+
+    if (timerDiv > 0xFFU)
+    {
+        result = kStatus_InvalidArgument;
+    }
 
     timerCmp = ((uint32_t)(userConfig->bitCountPerChar * 2 - 1)) << 8U;
     timerCmp |= timerDiv;
@@ -200,6 +225,8 @@ void FLEXIO_UART_Init(FLEXIO_UART_Type *base, const flexio_uart_config_t *userCo
     timerConfig.timerCompare = timerCmp;
 
     FLEXIO_SetTimerConfig(base->flexioBase, base->timerIndex[1], &timerConfig);
+
+    return result;
 }
 
 void FLEXIO_UART_Deinit(FLEXIO_UART_Type *base)
@@ -207,8 +234,10 @@ void FLEXIO_UART_Deinit(FLEXIO_UART_Type *base)
     /* Disable FLEXIO UART module. */
     FLEXIO_UART_Enable(base, false);
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Gate flexio clock. */
     CLOCK_DisableClock(kCLOCK_Flexio0);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 void FLEXIO_UART_GetDefaultConfig(flexio_uart_config_t *userConfig)
@@ -332,7 +361,7 @@ status_t FLEXIO_UART_TransferCreateHandle(FLEXIO_UART_Type *base,
     handle->userData = userData;
 
     /* Enable interrupt in NVIC. */
-    EnableIRQ(flexio_irqs[0]);
+    EnableIRQ(flexio_irqs[FLEXIO_UART_GetInstance(base)]);
 
     /* Save the context in global variables to support the double weak mechanism. */
     return FLEXIO_RegisterHandleIRQ(base, handle, FLEXIO_UART_TransferHandleIRQ);
@@ -394,6 +423,7 @@ status_t FLEXIO_UART_TransferSendNonBlocking(FLEXIO_UART_Type *base,
     {
         handle->txData = xfer->data;
         handle->txDataSize = xfer->dataSize;
+        handle->txDataSizeAll = xfer->dataSize;
         handle->txState = kFLEXIO_UART_TxBusy;
 
         /* Enable transmiter interrupt. */
@@ -417,13 +447,14 @@ void FLEXIO_UART_TransferAbortSend(FLEXIO_UART_Type *base, flexio_uart_handle_t 
 status_t FLEXIO_UART_TransferGetSendCount(FLEXIO_UART_Type *base, flexio_uart_handle_t *handle, size_t *count)
 {
     assert(handle);
+    assert(count);
 
-    if (!count)
+    if (kFLEXIO_UART_TxIdle == handle->txState)
     {
-        return kStatus_Success;
+        return kStatus_NoTransferInProgress;
     }
 
-    *count = handle->txSize - handle->txDataSize;
+    *count = handle->txDataSizeAll - handle->txDataSize;
 
     return kStatus_Success;
 }
@@ -441,7 +472,6 @@ status_t FLEXIO_UART_TransferReceiveNonBlocking(FLEXIO_UART_Type *base,
     size_t bytesToReceive;
     /* How many bytes currently have received. */
     size_t bytesCurrentReceived;
-    uint32_t regPrimask = 0U;
 
     /* Return error if xfer invalid. */
     if ((0U == xfer->dataSize) || (NULL == xfer->data))
@@ -471,9 +501,8 @@ status_t FLEXIO_UART_TransferReceiveNonBlocking(FLEXIO_UART_Type *base,
         /* If RX ring buffer is used. */
         if (handle->rxRingBuffer)
         {
-            /* Disable IRQ, protect ring buffer. */
-            regPrimask = __get_PRIMASK();
-            __disable_irq();
+            /* Disable FLEXIO_UART RX IRQ, protect ring buffer. */
+            FLEXIO_UART_DisableInterrupts(base, kFLEXIO_UART_RxDataRegFullInterruptEnable);
 
             /* How many bytes in RX ring buffer currently. */
             bytesToCopy = FLEXIO_UART_TransferGetRxRingBufferLength(handle);
@@ -507,17 +536,19 @@ status_t FLEXIO_UART_TransferReceiveNonBlocking(FLEXIO_UART_Type *base,
                 /* No data in ring buffer, save the request to UART handle. */
                 handle->rxData = xfer->data + bytesCurrentReceived;
                 handle->rxDataSize = bytesToReceive;
+                handle->rxDataSizeAll = bytesToReceive;
                 handle->rxState = kFLEXIO_UART_RxBusy;
             }
 
-            /* Recover PRIMASK, enable IRQ if previously enabled. */
-            __set_PRIMASK(regPrimask);
+            /* Enable FLEXIO_UART RX IRQ if previously enabled. */
+            FLEXIO_UART_EnableInterrupts(base, kFLEXIO_UART_RxDataRegFullInterruptEnable);
         }
         /* Ring buffer not used. */
         else
         {
             handle->rxData = xfer->data + bytesCurrentReceived;
             handle->rxDataSize = bytesToReceive;
+            handle->rxDataSizeAll = bytesToReceive;
             handle->rxState = kFLEXIO_UART_RxBusy;
 
             /* Enable RX interrupt. */
@@ -552,13 +583,14 @@ void FLEXIO_UART_TransferAbortReceive(FLEXIO_UART_Type *base, flexio_uart_handle
 status_t FLEXIO_UART_TransferGetReceiveCount(FLEXIO_UART_Type *base, flexio_uart_handle_t *handle, size_t *count)
 {
     assert(handle);
+    assert(count);
 
-    if (!count)
+    if (kFLEXIO_UART_RxIdle == handle->rxState)
     {
-        return kStatus_Success;
+        return kStatus_NoTransferInProgress;
     }
 
-    *count = handle->rxSize - handle->rxDataSize;
+    *count = handle->rxDataSizeAll - handle->rxDataSize;
 
     return kStatus_Success;
 }

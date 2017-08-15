@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -148,6 +148,9 @@ void SPI_MasterTransferCreateHandleDMA(SPI_Type *base,
     dma_transfer_config_t config = {0};
     uint32_t instance = SPI_GetInstance(base);
 
+    /* Zero the handle */
+    memset(handle, 0, sizeof(*handle));
+
     /* Set spi base to handle */
     handle->txHandle = txHandle;
     handle->rxHandle = rxHandle;
@@ -225,11 +228,11 @@ status_t SPI_MasterTransferDMA(SPI_Type *base, spi_dma_handle_t *handle, spi_tra
     {
         return kStatus_InvalidArgument;
     }
-
+    
     /* Disable SPI and then enable it, this is used to clear S register*/
     SPI_Enable(base, false);
     SPI_Enable(base, true);
-
+    
     /* Configure tx transfer DMA */
     config.destAddr = SPI_GetDataRegisterAddress(base);
     config.enableDestIncrement = false;

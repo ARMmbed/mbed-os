@@ -16,9 +16,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if defined(TARGET_KL25Z) | defined(TARGET_KL43Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | defined(TARGET_K64F) | defined(TARGET_K22F) | defined(TARGET_TEENSY3_1)
+#if defined(TARGET_KL25Z) | defined(TARGET_KL27Z) | defined(TARGET_HEADSUP_AERO) | defined(TARGET_KL43Z) | defined(TARGET_KL46Z) | defined(TARGET_K20D50M) | defined(TARGET_K64F) | defined(TARGET_K22F) | defined(TARGET_TEENSY3_1)
 
-#if defined(TARGET_KSDK2_MCUS)
+#if defined(TARGET_KSDK2_MCUS) | defined(TARGET_HEADSUP_AERO)
 #include "fsl_common.h"
 #endif
 #include "USBHAL.h"
@@ -125,7 +125,7 @@ USBHAL::USBHAL(void) {
     epCallback[28] = &USBHAL::EP15_OUT_callback;
     epCallback[29] = &USBHAL::EP15_IN_callback;
 
-#if defined(TARGET_KL43Z) || defined(TARGET_K22F) || defined(TARGET_K64F)
+#if defined(TARGET_KL43Z) || defined(TARGET_K22F) || defined(TARGET_K64F) || defined(TARGET_HEADSUP_AERO) || defined(TARGET_KL27Z)
     // enable USBFS clock
     CLOCK_EnableUsbfs0Clock(kCLOCK_UsbSrcIrc48M, 48000000U);
 #else

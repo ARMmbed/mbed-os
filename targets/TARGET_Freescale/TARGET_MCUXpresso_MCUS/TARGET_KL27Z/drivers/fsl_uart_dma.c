@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -125,6 +125,9 @@ extern uint32_t UART_GetInstance(UART_Type *base);
 
 static void UART_TransferSendDMACallback(dma_handle_t *handle, void *param)
 {
+    assert(handle);
+    assert(param);
+
     uart_dma_private_handle_t *uartPrivateHandle = (uart_dma_private_handle_t *)param;
 
     /* Disable UART TX DMA. */
@@ -144,6 +147,9 @@ static void UART_TransferSendDMACallback(dma_handle_t *handle, void *param)
 
 static void UART_TransferReceiveDMACallback(dma_handle_t *handle, void *param)
 {
+    assert(handle);
+    assert(param);
+
     uart_dma_private_handle_t *uartPrivateHandle = (uart_dma_private_handle_t *)param;
 
     /* Disable UART RX DMA. */
@@ -162,11 +168,11 @@ static void UART_TransferReceiveDMACallback(dma_handle_t *handle, void *param)
 }
 
 void UART_TransferCreateHandleDMA(UART_Type *base,
-                          uart_dma_handle_t *handle,
-                          uart_dma_transfer_callback_t callback,
-                          void *userData,
-                          dma_handle_t *txDmaHandle,
-                          dma_handle_t *rxDmaHandle)
+                                  uart_dma_handle_t *handle,
+                                  uart_dma_transfer_callback_t callback,
+                                  void *userData,
+                                  dma_handle_t *txDmaHandle,
+                                  dma_handle_t *rxDmaHandle)
 {
     assert(handle);
 
@@ -216,16 +222,14 @@ void UART_TransferCreateHandleDMA(UART_Type *base,
 
 status_t UART_TransferSendDMA(UART_Type *base, uart_dma_handle_t *handle, uart_transfer_t *xfer)
 {
+    assert(handle);
     assert(handle->txDmaHandle);
+    assert(xfer);
+    assert(xfer->data);
+    assert(xfer->dataSize);
 
     dma_transfer_config_t xferConfig;
     status_t status;
-
-    /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
-        return kStatus_InvalidArgument;
-    }
 
     /* If previous TX not finished. */
     if (kUART_TxBusy == handle->txState)
@@ -256,16 +260,14 @@ status_t UART_TransferSendDMA(UART_Type *base, uart_dma_handle_t *handle, uart_t
 
 status_t UART_TransferReceiveDMA(UART_Type *base, uart_dma_handle_t *handle, uart_transfer_t *xfer)
 {
+    assert(handle);
     assert(handle->rxDmaHandle);
+    assert(xfer);
+    assert(xfer->data);
+    assert(xfer->dataSize);
 
     dma_transfer_config_t xferConfig;
     status_t status;
-
-    /* Return error if xfer invalid. */
-    if ((0U == xfer->dataSize) || (NULL == xfer->data))
-    {
-        return kStatus_InvalidArgument;
-    }
 
     /* If previous RX not finished. */
     if (kUART_RxBusy == handle->rxState)
@@ -296,6 +298,7 @@ status_t UART_TransferReceiveDMA(UART_Type *base, uart_dma_handle_t *handle, uar
 
 void UART_TransferAbortSendDMA(UART_Type *base, uart_dma_handle_t *handle)
 {
+    assert(handle);
     assert(handle->txDmaHandle);
 
     /* Disable UART TX DMA. */
@@ -312,6 +315,7 @@ void UART_TransferAbortSendDMA(UART_Type *base, uart_dma_handle_t *handle)
 
 void UART_TransferAbortReceiveDMA(UART_Type *base, uart_dma_handle_t *handle)
 {
+    assert(handle);
     assert(handle->rxDmaHandle);
 
     /* Disable UART RX DMA. */
@@ -328,16 +332,13 @@ void UART_TransferAbortReceiveDMA(UART_Type *base, uart_dma_handle_t *handle)
 
 status_t UART_TransferGetSendCountDMA(UART_Type *base, uart_dma_handle_t *handle, uint32_t *count)
 {
+    assert(handle);
     assert(handle->txDmaHandle);
+    assert(count);
 
     if (kUART_TxIdle == handle->txState)
     {
         return kStatus_NoTransferInProgress;
-    }
-
-    if (!count)
-    {
-        return kStatus_InvalidArgument;
     }
 
     *count = handle->txDataSizeAll - DMA_GetRemainingBytes(handle->txDmaHandle->base, handle->txDmaHandle->channel);
@@ -347,16 +348,13 @@ status_t UART_TransferGetSendCountDMA(UART_Type *base, uart_dma_handle_t *handle
 
 status_t UART_TransferGetReceiveCountDMA(UART_Type *base, uart_dma_handle_t *handle, uint32_t *count)
 {
+    assert(handle);
     assert(handle->rxDmaHandle);
+    assert(count);
 
     if (kUART_RxIdle == handle->rxState)
     {
         return kStatus_NoTransferInProgress;
-    }
-
-    if (!count)
-    {
-        return kStatus_InvalidArgument;
     }
 
     *count = handle->rxDataSizeAll - DMA_GetRemainingBytes(handle->rxDmaHandle->base, handle->rxDmaHandle->channel);
