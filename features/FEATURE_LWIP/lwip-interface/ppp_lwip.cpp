@@ -38,7 +38,7 @@ extern "C" { // "pppos.h" is missing extern C
 
 #include "nsapi_ppp.h"
 #include "ppp_lwip.h"
-#include "lwip_stack.h"
+//#include "mbed_ipstack.h"
 
 namespace mbed {
 

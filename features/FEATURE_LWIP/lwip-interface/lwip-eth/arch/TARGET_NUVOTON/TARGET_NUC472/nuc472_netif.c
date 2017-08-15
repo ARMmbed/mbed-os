@@ -57,7 +57,7 @@
 #include "nuc472_eth.h"
 #include "string.h"
 
-#include "eth_arch.h"
+#include "emac_lwip.h"
 #include "sys_arch.h"
 #include <ctype.h>
 #include <stdio.h>

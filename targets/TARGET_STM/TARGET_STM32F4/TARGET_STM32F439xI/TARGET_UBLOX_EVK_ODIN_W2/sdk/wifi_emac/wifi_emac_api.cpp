@@ -1,4 +1,4 @@
-#if DEVICE_EMAC
+#if DEVICE_WIFI
 
 #include <stdio.h>
 #include "cb_main.h"
