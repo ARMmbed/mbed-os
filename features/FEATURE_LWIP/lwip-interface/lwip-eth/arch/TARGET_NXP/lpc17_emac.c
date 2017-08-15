@@ -35,7 +35,7 @@
 #include "netif/ppp/pppoe.h"
 
 #include "lpc17xx_emac.h"
-#include "eth_arch.h"
+#include "emac_lwip.h"
 #include "lpc_emac_config.h"
 #include "lpc_phy.h"
 #include "sys_arch.h"
