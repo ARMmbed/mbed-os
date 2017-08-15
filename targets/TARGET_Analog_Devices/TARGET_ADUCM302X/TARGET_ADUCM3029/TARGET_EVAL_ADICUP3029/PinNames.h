@@ -162,26 +162,26 @@ typedef enum {
     ADC_VIN7 = P2_10,
 
     // Arduino Headers
-    D0 = P0_11,
-    D1 = P0_10,
-    D2 = P0_15,
-    D3 = P2_11,
-    D4 = P2_01,
-    D5 = P2_02,
-    D6 = P2_00,
-    D7 = P0_12,
-    D8 = P1_02,
-    D9 = P1_15,
-    D10 = P0_03,
-    D11 = P0_01,
-    D12 = P0_02,
-    D13 = P0_00,
-    D14 = P0_05,
-    D15 = P0_04,
+    D0 = P0_11,     // GPIO11   UART0_RX
+    D1 = P0_10,     // GPIO10   UART0_RX
+    D2 = P0_15,     // GPIO15
+    D3 = P0_13,     // GPIO13
+    D4 = P0_09,     // GPIO09   BEEP0_TONE	SPI2_CS1
+    D5 = P2_01,     // GPIO33               TMR2_OUT
+    D6 = P1_11,     // GPIO27               TMR1_OUT
+    D7 = P0_08,     // GPIO08   BEEP0_TONE
+    D8 = P1_12,     // GPIO28
+    D9 = P1_14,     // GPIO30               SPI0_RDY
+    D10 = P1_10,    // GPIO26   SPI0_CS1	SYS_CLKIN	SPI1_CS3
+    D11 = P0_01,    // GPIO01   SPI0_MOSI
+    D12 = P0_02,    // GPIO02   SPI0_MISO
+    D13 = P0_00,    // GPIO00   SPI0_CLK
+    D14 = P0_05,    // GPIO05   I2C0_SDA
+    D15 = P0_04,    // GPIO04   I2C0_SCL
 
     I2C_SCL = D15,
     I2C_SDA = D14,
-    
+
     A0 = P2_03,
     A1 = P2_04,
     A2 = P2_05,
@@ -189,7 +189,7 @@ typedef enum {
     A4 = P2_07,
     A5 = P2_08,
     A6 = P2_09,
-    A7 = P2_10,    
+    A7 = P2_10,
 
     // Not connected
     NC = (int)0xFFFFFFFF
