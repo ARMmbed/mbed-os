@@ -85,10 +85,6 @@ class ARM(mbedToolchain):
         self.ar = [join(ARMC6_PATH, "armar")]
         self.elf2bin = join(ARMC6_PATH, "fromelf")
 
-
-    def parse_dependencies(self, dep_path):
-        return []
-
     def parse_output(self, output):
         pass
 
