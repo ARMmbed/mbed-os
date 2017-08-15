@@ -15,20 +15,19 @@
  */
 
 #include "EthernetInterface.h"
-#include "lwip_stack.h"
-
 
 /* Interface implementation */
-EthernetInterface::EthernetInterface() : 
-    _dhcp(true), 
-    _ip_address(), 
-    _netmask(), 
-    _gateway(),
-    _connection_status_cb(NULL),
-    _connect_status(NSAPI_STATUS_DISCONNECTED)
+EthernetInterface::EthernetInterface(EMAC &emac, OnboardNetworkStack &stack) :
+    _emac(emac),
+    _stack(stack),
+    _interface(NULL),
+    _dhcp(true),
+    _blocking(true),
+    _ip_address(),
+    _netmask(),
+    _gateway()
 {
 }
-
 
 nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
@@ -52,26 +51,39 @@ nsapi_error_t EthernetInterface::set_dhcp(bool dhcp)
 
 nsapi_error_t EthernetInterface::connect()
 {
-    return mbed_lwip_bringup_2(_dhcp, false,
+    if (!_interface) {
+        nsapi_error_t err = _stack.add_ethernet_interface(_emac, true, &_interface);
+        if (err != NSAPI_ERROR_OK) {
+            _interface = NULL;
+            return err;
+        }
+        _interface->attach(_connection_status_cb);
+    }
+
+    return _interface->bringup(_dhcp,
             _ip_address[0] ? _ip_address : 0,
             _netmask[0] ? _netmask : 0,
             _gateway[0] ? _gateway : 0,
-            DEFAULT_STACK);
+            DEFAULT_STACK,
+            _blocking);
 }
 
 nsapi_error_t EthernetInterface::disconnect()
 {
-    return mbed_lwip_bringdown_2(false);
+    return _interface->bringdown();
 }
 
 const char *EthernetInterface::get_mac_address()
 {
-    return mbed_lwip_get_mac_address();
+    if (_interface->get_mac_address(_mac_address, sizeof(_mac_address))) {
+        return _mac_address;
+    }
+    return NULL;
 }
 
 const char *EthernetInterface::get_ip_address()
 {
-    if (mbed_lwip_get_ip_address(_ip_address, sizeof _ip_address)) {
+    if (_interface->get_ip_address(_ip_address, sizeof(_ip_address))) {
         return _ip_address;
     }
 
@@ -80,7 +92,7 @@ const char *EthernetInterface::get_ip_address()
 
 const char *EthernetInterface::get_netmask()
 {
-    if (mbed_lwip_get_netmask(_netmask, sizeof _netmask)) {
+    if (_interface->get_netmask(_netmask, sizeof(_netmask))) {
         return _netmask;
     }
 
@@ -89,7 +101,7 @@ const char *EthernetInterface::get_netmask()
 
 const char *EthernetInterface::get_gateway()
 {
-    if (mbed_lwip_get_gateway(_gateway, sizeof _gateway)) {
+    if (_interface->get_gateway(_gateway, sizeof(_gateway))) {
         return _gateway;
     }
 
@@ -98,34 +110,29 @@ const char *EthernetInterface::get_gateway()
 
 NetworkStack *EthernetInterface::get_stack()
 {
-    return nsapi_create_stack(&lwip_stack);
+    return &_stack;
 }
 
 void EthernetInterface::attach(
     Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     _connection_status_cb = status_cb;
-    mbed_lwip_attach(netif_status_cb, this);
+    if (_interface) {
+        _interface->attach(status_cb);
+    }
 }
 
 nsapi_connection_status_t EthernetInterface::get_connection_status() const
 {
-    return _connect_status;
-}
-
-void EthernetInterface::netif_status_cb(void *ethernet_if_ptr, 
-    nsapi_event_t reason, intptr_t parameter) 
-{
-    EthernetInterface *eth_ptr = static_cast<EthernetInterface*>(ethernet_if_ptr);
-    eth_ptr->_connect_status = (nsapi_connection_status_t)parameter;
-    if (eth_ptr->_connection_status_cb)
-    {
-        eth_ptr->_connection_status_cb(reason, parameter);
-    }   
+    if (_interface) {
+        return _interface->get_connection_status();
+    } else {
+        return NSAPI_STATUS_DISCONNECTED;
+    }
 }
 
 nsapi_error_t EthernetInterface::set_blocking(bool blocking)
 {
-    mbed_lwip_set_blocking(blocking);
+    _blocking = blocking;
     return NSAPI_ERROR_OK;
 }

@@ -2070,6 +2070,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_CAN              \
                          DEVICE_ETHERNET         \
                          DEVICE_EMAC             \
+                         DEVICE_ETH              \
                          DEVICE_FLASH            \
                          DEVICE_I2C              \
                          DEVICE_I2CSLAVE         \

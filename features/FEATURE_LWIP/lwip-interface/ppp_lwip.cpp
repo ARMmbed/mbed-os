@@ -32,7 +32,7 @@ extern "C" { // "pppos.h" is missing extern C
 
 #include "nsapi_ppp.h"
 #include "ppp_lwip.h"
-#include "lwip_stack.h"
+#include "LWIPStack.h"
 
 namespace mbed {
 
@@ -48,8 +48,10 @@ static nsapi_error_t connect_error_code;
 
 // Just one interface for now
 static FileHandle *my_stream;
+static LWIP::Interface *my_interface;
 static ppp_pcb *my_ppp_pcb;
 static bool ppp_active = false;
+static bool blocking_connect = true;
 static const char *login;
 static const char *pwd;
 static sys_sem_t ppp_close_sem;
@@ -275,7 +277,7 @@ static void stream_cb() {
     }
 }
 
-extern "C" err_t ppp_lwip_connect()
+extern "C" err_t ppp_lwip_connect(void *pcb)
 {
 #if PPP_AUTH_SUPPORT
    ppp_set_auth(my_ppp_pcb, PPPAUTHTYPE_ANY, login, pwd);
@@ -291,7 +293,7 @@ extern "C" err_t ppp_lwip_connect()
    return ret;
 }
 
-extern "C" err_t ppp_lwip_disconnect()
+extern "C" err_t ppp_lwip_disconnect(void *pcb)
 {
     err_t ret = ppp_close(my_ppp_pcb, 0);
     if (ret != ERR_OK) {
@@ -309,7 +311,7 @@ extern "C" err_t ppp_lwip_disconnect()
     return ret;
 }
 
-extern "C" nsapi_error_t ppp_lwip_if_init(struct netif *netif, const nsapi_ip_stack_t stack)
+extern "C" nsapi_error_t ppp_lwip_if_init(void *pcb, struct netif *netif, const nsapi_ip_stack_t stack)
 {
     if (!prepare_event_queue()) {
         return NSAPI_ERROR_NO_MEMORY;
@@ -349,7 +351,7 @@ nsapi_error_t nsapi_ppp_error_code()
 
 nsapi_error_t nsapi_ppp_set_blocking(bool blocking)
 {
-    mbed_lwip_set_blocking(blocking);
+    blocking_connect = blocking;
     return NSAPI_ERROR_OK;
 }
 
@@ -364,9 +366,20 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t,
     login = uname;
     pwd = password;
 
+    nsapi_error_t retcode;
+
+    if (!my_interface) {
+        LWIP &lwip = LWIP::get_instance();
+        retcode = lwip._add_ppp_interface(stream, true, &my_interface);
+        if (retcode != NSAPI_ERROR_OK) {
+            my_interface = NULL;
+            return retcode;
+        }
+    }
+
     // mustn't start calling input until after connect -
     // attach deferred until ppp_lwip_connect, called from mbed_lwip_bringup
-    nsapi_error_t retcode = mbed_lwip_bringup_2(false, true, NULL, NULL, NULL, stack);
+    retcode = my_interface->bringup(false, NULL, NULL, NULL, stack, blocking_connect);
 
     if (retcode != NSAPI_ERROR_OK && connect_error_code != NSAPI_ERROR_OK) {
         return connect_error_code;
@@ -377,12 +390,12 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t,
 
 nsapi_error_t nsapi_ppp_disconnect(FileHandle *stream)
 {
-    return mbed_lwip_bringdown_2(true);
+    return my_interface->bringdown();
 }
 
 NetworkStack *nsapi_ppp_get_stack()
 {
-    return nsapi_create_stack(&lwip_stack);
+    return &LWIP::get_instance();
 }
 
 const char *nsapi_ppp_get_ip_addr(FileHandle *stream)
@@ -391,7 +404,7 @@ const char *nsapi_ppp_get_ip_addr(FileHandle *stream)
 
     if (stream == my_stream) {
 
-        if (mbed_lwip_get_ip_address(ip_addr, IPADDR_STRLEN_MAX)) {
+        if (my_interface->get_ip_address(ip_addr, IPADDR_STRLEN_MAX)) {
             return ip_addr;
         }
     }
@@ -406,7 +419,7 @@ const char *nsapi_ppp_get_netmask(FileHandle *stream)
 
     static char netmask[IPADDR_STRLEN_MAX];
     if (stream == my_stream) {
-        if (mbed_lwip_get_netmask(netmask, IPADDR_STRLEN_MAX)) {
+        if (my_interface->get_netmask(netmask, IPADDR_STRLEN_MAX)) {
             return netmask;
         }
     }
@@ -421,7 +434,7 @@ const char *nsapi_ppp_get_gw_addr(FileHandle *stream)
 
     static char gwaddr[IPADDR_STRLEN_MAX];
     if (stream == my_stream) {
-        if (mbed_lwip_get_gateway(gwaddr, IPADDR_STRLEN_MAX)) {
+        if (my_interface->get_netmask(gwaddr, IPADDR_STRLEN_MAX)) {
             return gwaddr;
         }
     }
