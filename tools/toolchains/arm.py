@@ -84,7 +84,7 @@ class ARM(mbedToolchain):
                 #we need to append chroot, because when the .d files are generated the compiler is chrooted
                 dependencies.append((self.CHROOT if self.CHROOT else '') + match.group('file'))
         return dependencies
-        
+
     def parse_output(self, output):
         msg = None
         for line in output.splitlines():
@@ -314,7 +314,7 @@ class ARMC6(ARM_STD):
 
 
     def parse_dependencies(self, dep_path):
-        return []
+        return mbedToolchain.parse_dependencies(self, dep_path)
 
     def parse_output(self, output):
         pass
