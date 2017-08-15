@@ -58,51 +58,66 @@ if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser(add_app_config=True)
     group = parser.add_mutually_exclusive_group(required=False)
-    group.add_argument("-p",
-                      type=argparse_many(test_known),
-                      dest="program",
-                      help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
+    group.add_argument(
+        "-p",
+        type=argparse_many(test_known),
+        dest="program",
+        help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
 
-    group.add_argument("-n",
-                       type=argparse_many(test_name_known),
-                      dest="program",
-                      help="The name of the desired test program")
+    group.add_argument(
+        "-n",
+        type=argparse_many(test_name_known),
+        dest="program",
+        help="The name of the desired test program")
 
-    parser.add_argument("-j", "--jobs",
-                      type=int,
-                      dest="jobs",
-                      default=0,
-                      help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
+    parser.add_argument(
+        "-j", "--jobs",
+        type=int,
+        dest="jobs",
+        default=0,
+        help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
-    parser.add_argument("-v", "--verbose",
-                      action="store_true",
-                      dest="verbose",
-                      default=False,
-                      help="Verbose diagnostic output")
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        dest="verbose",
+        default=False,
+        help="Verbose diagnostic output")
 
-    parser.add_argument("--silent",
-                      action="store_true",
-                      dest="silent",
-                      default=False,
-                      help="Silent diagnostic output (no copy, compile notification)")
+    parser.add_argument(
+        "--silent",
+        action="store_true",
+        dest="silent",
+        default=False,
+        help="Silent diagnostic output (no copy, compile notification)")
 
-    parser.add_argument("-D",
-                      action="append",
-                      dest="macros",
-                      help="Add a macro definition")
+    parser.add_argument(
+        "-D",
+        action="append",
+        dest="macros",
+        help="Add a macro definition")
 
-    group.add_argument("-S", "--supported-toolchains",
-                      dest="supported_toolchains",
-                      default=False,
-                      const="matrix",
-                      choices=["matrix", "toolchains", "targets"],
-                      nargs="?",
-                      help="Displays supported matrix of MCUs and toolchains")
+    group.add_argument(
+        "-S", "--supported-toolchains",
+        dest="supported_toolchains",
+        default=False,
+        const="matrix",
+        choices=["matrix", "toolchains", "targets"],
+        nargs="?",
+        help="Displays supported matrix of MCUs and toolchains")
 
-    parser.add_argument('-f', '--filter',
-                      dest='general_filter_regex',
-                      default=None,
-                      help='For some commands you can use filter to filter out results')
+    parser.add_argument(
+        '-f', '--filter',
+        dest='general_filter_regex',
+        default=None,
+        help='For some commands you can use filter to filter out results')
+
+    parser.add_argument(
+        "--stats-depth",
+        type=int,
+        dest="stats_depth",
+        default=2,
+        help="Depth level for static memory report")
 
     # Local run
     parser.add_argument("--automated", action="store_true", dest="automated",
@@ -277,7 +292,8 @@ if __name__ == '__main__':
                                      inc_dirs=[dirname(MBED_LIBRARIES)],
                                      build_profile=extract_profile(parser,
                                                                    options,
-                                                                   toolchain))
+                                                                   toolchain),
+                                     stats_depth=options.stats_depth)
             print 'Image: %s'% bin_file
 
             if options.disk:
@@ -322,7 +338,7 @@ if __name__ == '__main__':
                 traceback.print_exc(file=sys.stdout)
             else:
                 print "[ERROR] %s" % str(e)
-            
+
             sys.exit(1)
     if options.build_data:
         merge_build_data(options.build_data, build_data_blob, "application")

@@ -416,7 +416,6 @@ class mbedToolchain:
 
         # Print output buffer
         self.output = str()
-        self.map_outputs = list()   # Place to store memmap scan results in JSON like data structures
 
         # uVisor spepcific rules
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
@@ -585,13 +584,13 @@ class mbedToolchain:
             # information about the library paths. Safe option: assume an update
             if not d or not exists(d):
                 return True
-            
+
             if not self.stat_cache.has_key(d):
                 self.stat_cache[d] = stat(d).st_mtime
 
             if self.stat_cache[d] >= target_mod_time:
                 return True
-        
+
         return False
 
     def is_ignored(self, file_path):
@@ -852,7 +851,7 @@ class mbedToolchain:
             string = " ".join(cmd_list)
             f.write(string)
         return link_file
- 
+
     # Generate response file for all objects when archiving.
     # ARM, GCC, IAR cross compatible
     def get_arch_file(self, objects):
@@ -1128,7 +1127,8 @@ class mbedToolchain:
             self.progress("elf2bin", name)
             self.binary(r, elf, bin)
 
-        self.map_outputs = self.mem_stats(map)
+        # Initialize memap and process map file. This doesn't generate output.
+        self.mem_stats(map)
 
         self.var("compile_succeded", True)
         self.var("binary", filename)
@@ -1193,8 +1193,7 @@ class mbedToolchain:
     def mem_stats(self, map):
         """! Creates parser object
         @param map Path to linker map file to parse and decode
-        @return Memory summary structure with memory usage statistics
-                None if map file can't be opened and processed
+        @return None
         """
         toolchain = self.__class__.__name__
 
@@ -1209,10 +1208,10 @@ class mbedToolchain:
         # Store the memap instance for later use
         self.memap_instance = memap
 
-        # Here we return memory statistics structure (constructed after
-        # call to generate_output) which contains raw data in bytes
-        # about sections + summary
-        return memap.mem_report
+        # Note: memory statistics are not returned.
+        # Need call to generate_output later (depends on depth & output format)
+
+        return None
 
     # Set the configuration data
     def set_config_data(self, config_data):

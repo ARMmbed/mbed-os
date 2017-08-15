@@ -34,6 +34,7 @@ An example of the configuration file:
 | Parameter name  | Value         | Description |
 | --------------- | ------------- | ----------- |
 | heap-size       | number [0-0xfffe] | Nanostack's internal heap size |
+| use-malloc-for-heap | `false` or `true` | Use `malloc()` for reserving the internal heap. Default: `false` |
 
 ### Thread related configuration parameters
 

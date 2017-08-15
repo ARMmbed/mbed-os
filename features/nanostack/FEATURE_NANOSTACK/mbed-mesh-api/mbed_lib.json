@@ -2,6 +2,7 @@
     "name": "mbed-mesh-api",
     "config": {
         "heap-size": 32500,
+        "use-malloc-for-heap": false,
         "6lowpan-nd-channel-mask": "(1<<12)",
         "6lowpan-nd-channel-page": 0,
         "6lowpan-nd-channel": 12,

@@ -496,7 +496,8 @@ class SingleTestRunner(object):
                                      properties=build_properties,
                                      project_id=test_id,
                                      project_description=test.get_description(),
-                                     build_profile=profile)
+                                     build_profile=profile,
+                                     stats_depth=stats_depth)
 
                 except Exception, e:
                     project_name_str = project_name if project_name is not None else test_id
@@ -2038,7 +2039,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
                 if path_depth == 2:
                     test_group_directory_path, test_case_directory = os.path.split(d)
                     test_group_directory = os.path.basename(test_group_directory_path)
-                    
+
                     # Check to make sure discoverd folder is not in a host test directory
                     if test_case_directory != 'host_tests' and test_group_directory != 'host_tests':
                         test_name = test_path_to_name(d, base_dir)
@@ -2122,7 +2123,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 clean=False, notify=None, verbose=False, jobs=1, macros=None,
                 silent=False, report=None, properties=None,
                 continue_on_build_fail=False, app_config=None,
-                build_profile=None):
+                build_profile=None, stats_depth=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
@@ -2158,7 +2159,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         src_path = base_source_paths + [test_path]
         bin_file = None
         test_case_folder_name = os.path.basename(test_path)
-        
+
         args = (src_path, test_build_path, target, toolchain_name)
         kwargs = {
             'jobs': 1,
@@ -2172,9 +2173,10 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'app_config': app_config,
             'build_profile': build_profile,
             'silent': True,
-            'toolchain_paths': TOOLCHAIN_PATHS
+            'toolchain_paths': TOOLCHAIN_PATHS,
+            'stats_depth': stats_depth
         }
-        
+
         results.append(p.apply_async(build_test_worker, args, kwargs))
 
     p.close()
@@ -2199,7 +2201,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                         report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
                         for test_key in report_entry.keys():
                             report[target_name][toolchain_name][test_key] = report_entry[test_key]
-                        
+
                         # Set the overall result to a failure if a build failure occurred
                         if ('reason' in worker_result and
                             not worker_result['reason'] and
