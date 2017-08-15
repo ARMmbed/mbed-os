@@ -19,21 +19,32 @@
 
 #include "nsapi.h"
 #include "rtos.h"
-#include "lwip/netif.h"
-
-// Forward declaration
-class NetworkStack;
+#include "EMAC.h"
+#include "OnboardNetworkStack.h"
 
 
 /** EthernetInterface class
- *  Implementation of the NetworkStack for LWIP
+ *  Implementation of the NetworkStack for an EMAC-based driver
  */
 class EthernetInterface : public EthInterface
 {
 public:
-    /** EthernetInterface lifetime
+    /** Create an EMAC-based ethernet interface.
+     *
+     * The default arguments obtain the default EMAC, which will be target-
+     * dependent (and the target may have some JSON option to choose which
+     * is the default, if there are multiple). The default stack is configured
+     * by JSON option nsapi.default-stack.
+     *
+     * Due to inability to return errors from the constructor, no real
+     * work is done until the first call to connect().
+     *
+     * @param emac  Reference to EMAC to use
+     * @param stack Reference to onboard-network stack to use
      */
-    EthernetInterface();
+    EthernetInterface(
+            EMAC &emac = EMAC::get_default_instance(),
+            OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
 
     /** Set a static IP address
      *
@@ -41,10 +52,10 @@ public:
      *  Implicitly disables DHCP, which can be enabled in set_dhcp.
      *  Requires that the network is disconnected.
      *
-     *  @param address  Null-terminated representation of the local IP address
-     *  @param netmask  Null-terminated representation of the local network mask
-     *  @param gateway  Null-terminated representation of the local gateway
-     *  @return         0 on success, negative error code on failure
+     *  @param ip_address  Null-terminated representation of the local IP address
+     *  @param netmask     Null-terminated representation of the local network mask
+     *  @param gateway     Null-terminated representation of the local gateway
+     *  @return            0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_network(
             const char *ip_address, const char *netmask, const char *gateway);
@@ -107,11 +118,14 @@ protected:
      */
     virtual NetworkStack *get_stack();
 
+    EMAC &_emac;
+    OnboardNetworkStack &_stack;
+    OnboardNetworkStack::Interface *_interface;
     bool _dhcp;
-    char _ip_address[IPADDR_STRLEN_MAX];
+    char _mac_address[NSAPI_MAC_SIZE];
+    char _ip_address[NSAPI_IPv6_SIZE];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
 };
-
 
 #endif

@@ -20,8 +20,12 @@
 #include "stddef.h"
 #include <new>
 
-
 // Default NetworkStack operations
+const char *NetworkStack::get_ip_address()
+{
+    return 0;
+
+}
 nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
 {
     // check for simple ip addresses
