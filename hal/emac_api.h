@@ -17,10 +17,10 @@
 #ifndef MBED_EMAC_API_H
 #define MBED_EMAC_API_H
 
-#if DEVICE_EMAC
-
 #include <stdbool.h>
 #include "emac_stack_mem.h"
+#include "arch/sys_arch.h"
+#include "lwip/netif.h"
 
 typedef struct emac_interface emac_interface_t;
 
@@ -29,6 +29,11 @@ typedef struct emac_interface emac_interface_t;
  *
  * This interface should be used to abstract low level access to networking hardware
  */
+
+/** This structure needs to be defined by targets wishing to provide ethernet driver using EMAC interface. It will
+ *  be used by the EthernetInterface class to initialize the networking subsystem.
+ */
+extern emac_interface_t mbed_emac_eth_default;
 
 /**
  * Callback to be register with Emac interface and to be called fore received packets
@@ -100,7 +105,7 @@ typedef void (*emac_set_hwaddr_fn)(emac_interface_t *emac, uint8_t *addr);
  * @param buf  Packet to be send
  * @return     True if the packet was send successfully, False otherwise
  */
-typedef bool (*emac_link_out_fn)(emac_interface_t *emac, emac_stack_mem_t *buf);
+typedef bool (*emac_link_out_fn)(emac_interface_t *emac, emac_stack_mem_chain_t *buf);
 
 /**
  * Initializes the HW
@@ -134,6 +139,13 @@ typedef void (*emac_set_link_input_cb_fn)(emac_interface_t *emac, emac_link_inpu
  */
 typedef void (*emac_set_link_state_cb_fn)(emac_interface_t *emac, emac_link_state_change_fn state_cb, void *data);
 
+/** Add device to a multicast group
+ *
+ * @param emac     Emac interface
+ * @param address  An multicast group IPv4 address
+ */
+typedef void (*emac_add_multicast_group)(emac_interface_t *emac, uint8_t *address);
+
 typedef struct emac_interface_ops {
     emac_get_mtu_size_fn        get_mtu_size;
     emac_get_ifname_fn          get_ifname;
@@ -145,16 +157,21 @@ typedef struct emac_interface_ops {
     emac_power_down_fn          power_down;
     emac_set_link_input_cb_fn   set_link_input_cb;
     emac_set_link_state_cb_fn   set_link_state_cb;
+    emac_add_multicast_group    add_multicast_group;
 } emac_interface_ops_t;
 
 typedef struct emac_interface {
-    const emac_interface_ops_t ops;
-    void *hw;
+    /* Members implemented by vendor */
+    const emac_interface_ops_t *ops; /**< HW specific emac implementation */
+    void *hw; /**< EMAC implementation specific user data */
+
+    /* Private members used by the stack */
+    sys_sem_t linked;
+    sys_sem_t has_addr;
+    bool connected;
+    bool dhcp;
+    char hwaddr[6];
+    struct netif netif;
 } emac_interface_t;
 
-#else
-
-typedef void *emac_interface_t;
-
-#endif /* DEVICE_EMAC */
 #endif  /* MBED_EMAC_API_H */
