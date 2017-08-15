@@ -558,7 +558,15 @@ int SDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     }
     int status = BD_ERROR_OK;
 
-    size -= _block_size;
+    // Toss out erases that are too small, this is fine as the block device api
+    // doesn't garuntee the final state of erased bytes and a following program
+    // will still work fine.
+    if (size < _erase_size) {
+        _lock.unlock();
+        return status;
+    }
+
+    size -= _erase_size;
     // SDSC Card (CCS=0) uses byte unit address
     // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
     if (SDCARD_V2HC == _card_type) {
@@ -594,7 +602,7 @@ bd_size_t SDBlockDevice::get_program_size() const
 
 bd_size_t SDBlockDevice::get_erase_size() const
 {
-    return _erase_size;
+    return _block_size;
 }
 
 bd_size_t SDBlockDevice::size() const
