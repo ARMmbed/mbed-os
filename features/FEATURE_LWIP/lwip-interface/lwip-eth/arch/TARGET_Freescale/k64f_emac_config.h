@@ -37,15 +37,12 @@
 
 #define ENET_ETH_MAX_FLEN             (1522) // recommended size for a VLAN frame
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+#define K64F_HWADDR_SIZE              (6)
 
-int phy_link_status(void);
+#define K64_ETH_MTU_SIZE              1500
+#define K64_ETH_IF_NAME               "en"
 
-#if defined(__cplusplus)
-}
-#endif
+#define THREAD_STACKSIZE              512
 
 #endif // #define K64F_EMAC_CONFIG_H__
 

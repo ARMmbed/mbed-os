@@ -1,6 +1,7 @@
 {
     "name": "nsapi",
     "config": {
-        "present": 1
+        "present": 1,
+        "default-stack": "LWIP"
     }
 }

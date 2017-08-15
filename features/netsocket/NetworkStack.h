@@ -37,11 +37,14 @@ public:
     virtual ~NetworkStack() {};
 
     /** Get the local IP address
+     *  @deprecated
      *
      *  @return         Null-terminated representation of the local IP address
      *                  or null if not yet connected
      */
-    virtual const char *get_ip_address() = 0;
+    MBED_DEPRECATED_SINCE("mbed-os-5.7",
+        "Use NetworkInterface::get_ip_address()")
+    virtual const char *get_ip_address();
 
     /** Translates a hostname to an IP address with specific version
      *
