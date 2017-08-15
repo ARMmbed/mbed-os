@@ -17,8 +17,7 @@
 #ifndef NU_BIT_UTIL_H
 #define NU_BIT_UTIL_H
 
-#if defined(TOOLCHAIN_IAR) && ( defined(TARGET_M0) || defined(TARGET_M0P) )
-
+#if defined(__ICCARM__) && ( defined(TARGET_M0) || defined(TARGET_M0P) )
 #include <arm_math.h>
 #endif
 #include "cmsis.h"
