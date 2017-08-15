@@ -13,10 +13,6 @@
 #include "emac_stack_mem.h"
 #include "mbed_assert.h"
 
-/* LWIP dependencies - TODO: Should be removed */
-#include "lwip/sys.h"
-#include "lwip_ethernet.h"
-
 enet_handle_t g_handle;
 // TX Buffer descriptors
 uint8_t *tx_desc_start_addr;
@@ -28,9 +24,6 @@ emac_stack_mem_t *rx_buff[ENET_RX_RING_LEN];
 emac_stack_mem_t *tx_buff[ENET_RX_RING_LEN];
 // RX packet payload pointers
 uint32_t *rx_ptr[ENET_RX_RING_LEN];
-
-#define K64_ETH_MTU_SIZE 1500
-#define K64_ETH_IF_NAME "en"
 
 /********************************************************************************
  * Internal data
@@ -45,12 +38,44 @@ extern void k64f_init_eth_hardware(void);
 extern void k66f_init_eth_hardware(void);
 #endif
 
+static os_mutex_t txlock_mutex = {0};
+static const osMutexAttr_t txlock_mutex_attr = {
+  .name = "tx_mutex_mutex",
+  .attr_bits = 0,
+  .cb_mem = &txlock_mutex,
+  .cb_size = sizeof txlock_mutex,
+};
+
+static os_semaphore_t rxreadysem = {0};
+static const osSemaphoreAttr_t rxreadysem_attr = {
+  .name = "",
+  .attr_bits = 0,
+  .cb_mem = &rxreadysem,
+  .cb_size = sizeof(rxreadysem),
+};
+
+static os_semaphore_t txcleansem = {0};
+static const osSemaphoreAttr_t txcleansem_attr = {
+  .name = "",
+  .attr_bits = 0,
+  .cb_mem = &txcleansem,
+  .cb_size = sizeof(txcleansem),
+};
+
+static os_semaphore_t xtxdcountsem = {0};
+static const osSemaphoreAttr_t xtxdcountsem_attr = {
+  .name = "",
+  .attr_bits = 0,
+  .cb_mem = &xtxdcountsem,
+  .cb_size = sizeof(xtxdcountsem),
+};
+
 /* K64F EMAC driver data structure */
 struct k64f_enetdata {
-  sys_sem_t RxReadySem; /**< RX packet ready semaphore */
-  sys_sem_t TxCleanSem; /**< TX cleanup thread wakeup semaphore */
-  sys_mutex_t TXLockMutex; /**< TX critical section mutex */
-  sys_sem_t xTXDCountSem; /**< TX free buffer counting semaphore */
+  osSemaphoreId_t RxReadySem; /**< RX packet ready semaphore */
+  osSemaphoreId_t TxCleanSem; /**< TX cleanup thread wakeup semaphore */
+  osMutexId_t TXLockMutex;/**< TX critical section mutex */
+  osSemaphoreId_t xTXDCountSem; /**< TX free buffer counting semaphore */
   uint8_t tx_consume_index, tx_produce_index; /**< TX buffers ring */
   emac_link_input_fn emac_link_input_cb; /**< Callback for incoming data */
   void *emac_link_input_cb_data; /**< Data to be passed to input cb */
@@ -59,6 +84,11 @@ struct k64f_enetdata {
 };
 
 static struct k64f_enetdata k64f_enetdata;
+
+static osThreadAttr_t default_thread_attr = {0};
+static os_thread_t packet_tx_cb = {0};
+static os_thread_t packet_rx_cb = {0};
+static os_thread_t phy_task_cb = {0};
 
 /** \brief  Driver transmit and receive thread priorities
  *
@@ -70,6 +100,16 @@ static struct k64f_enetdata k64f_enetdata;
 #define TX_PRIORITY   (osPriorityNormal)
 #define PHY_PRIORITY  (osPriorityNormal)
 
+static void create_new_thread(const char *threadName, void (*thread)(void *arg), void *arg, int stacksize, int priority, os_thread_t *thread_cb)
+{
+  default_thread_attr.name = threadName;
+  default_thread_attr.stack_mem  = malloc(stacksize);
+  default_thread_attr.cb_mem  = thread_cb;
+  default_thread_attr.stack_size = stacksize;
+  default_thread_attr.cb_size = sizeof(os_thread_t);
+  default_thread_attr.priority = priority;
+  osThreadNew((osThreadFunc_t)thread, &k64f_enetdata, &default_thread_attr);
+}
 /********************************************************************************
  * Buffer management
  ********************************************************************************/
@@ -106,7 +146,7 @@ static void update_read_buffer(uint8_t *buf)
 static void k64f_tx_reclaim(struct k64f_enetdata *enet)
 {
   /* Get exclusive access */
-  sys_mutex_lock(&enet->TXLockMutex);
+  osMutexAcquire(enet->TXLockMutex, osWaitForever);
 
   // Traverse all descriptors, looking for the ones modified by the uDMA
   while((enet->tx_consume_index != enet->tx_produce_index) &&
@@ -118,11 +158,11 @@ static void k64f_tx_reclaim(struct k64f_enetdata *enet)
         g_handle.txBdDirty++;
 
       enet->tx_consume_index += 1;
-      osSemaphoreRelease(enet->xTXDCountSem.id);
+      osSemaphoreRelease(enet->xTXDCountSem);
   }
 
   /* Restore access */
-  sys_mutex_unlock(&enet->TXLockMutex);
+  osMutexRelease(enet->TXLockMutex);
 }
 
 /** \brief Ethernet receive interrupt handler
@@ -131,12 +171,12 @@ static void k64f_tx_reclaim(struct k64f_enetdata *enet)
  */
 void enet_mac_rx_isr(struct k64f_enetdata *enet)
 {
-  sys_sem_signal(&enet->RxReadySem);
+  osSemaphoreRelease(enet->RxReadySem);
 }
 
 void enet_mac_tx_isr(struct k64f_enetdata *enet)
 {
-  sys_sem_signal(&enet->TxCleanSem);
+  osSemaphoreRelease(enet->TxCleanSem);
 }
 
 void ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event_t event, void *param)
@@ -267,7 +307,7 @@ static emac_stack_mem_t *k64f_low_level_input(int idx)
 
   #ifdef LOCK_RX_THREAD
     /* Get exclusive access */
-    sys_mutex_lock(&enet->TXLockMutex);
+    osMutexAcquire(enet->TXLockMutex, osWaitForever);
   #endif
 
   /* Determine if a frame has been received */
@@ -302,7 +342,7 @@ static emac_stack_mem_t *k64f_low_level_input(int idx)
         ("k64f_low_level_input: Packet index %d dropped for OOM\n",
         idx));
 #ifdef LOCK_RX_THREAD
-      sys_mutex_unlock(&enet->TXLockMutex);
+      osMutexRelease(enet->TXLockMutex);
 #endif
 
       return NULL;
@@ -328,7 +368,7 @@ static emac_stack_mem_t *k64f_low_level_input(int idx)
   }
 
 #ifdef LOCK_RX_THREAD
-  sys_mutex_unlock(&enet->TXLockMutex);
+  osMutexRelease(enet->TXLockMutex);
 #endif
 
   return p;
@@ -365,7 +405,7 @@ static void packet_rx(void* pvParameters) {
 
   while (1) {
     /* Wait for receive task to wakeup */
-    sys_arch_sem_wait(&enet->RxReadySem, 0);
+    osSemaphoreAcquire(enet->RxReadySem, osWaitForever);
 
     while ((g_handle.rxBdCurrent->control & ENET_BUFFDESCRIPTOR_RX_EMPTY_MASK) == 0) {
       k64f_enetif_input(enet, idx);
@@ -387,7 +427,7 @@ static void packet_tx(void* pvParameters) {
 
   while (1) {
     /* Wait for transmit cleanup task to wakeup */
-    sys_arch_sem_wait(&enet->TxCleanSem, 0);
+    osSemaphoreAcquire(enet->TxCleanSem, osWaitForever);
     k64f_tx_reclaim(enet);
   }
 }
@@ -423,12 +463,12 @@ static bool k64f_eth_link_out(emac_interface_t *emac, emac_stack_mem_chain_t *ch
   }
 
   /* Check if a descriptor is available for the transfer. */
-  osStatus_t stat = osSemaphoreAcquire(enet->xTXDCountSem.id, 0);
+  osStatus_t stat = osSemaphoreAcquire(enet->xTXDCountSem, 0);
   if (stat != osOK)
     return false;
 
   /* Get exclusive access */
-  sys_mutex_lock(&enet->TXLockMutex);
+  osMutexAcquire(enet->TXLockMutex, osWaitForever);
 
   /* Save the buffer so that it can be freed when transmit is done */
   tx_buff[enet->tx_produce_index % ENET_TX_RING_LEN] = temp_pbuf;
@@ -451,7 +491,7 @@ static bool k64f_eth_link_out(emac_interface_t *emac, emac_stack_mem_chain_t *ch
   LINK_STATS_INC(link.xmit);
 
   /* Restore access */
-  sys_mutex_unlock(&enet->TXLockMutex);
+  osMutexRelease(enet->TXLockMutex);
 
   return true;
 }
@@ -521,34 +561,28 @@ static bool k64f_eth_power_up(emac_interface_t *emac)
   if (err != ERR_OK)
     return false;
 
-  /* CMSIS-RTOS, start tasks */
-  memset(&k64f_enetdata.xTXDCountSem.data, 0, sizeof(k64f_enetdata.xTXDCountSem.data));
-  k64f_enetdata.xTXDCountSem.attr.cb_mem = &k64f_enetdata.xTXDCountSem.data;
-  k64f_enetdata.xTXDCountSem.attr.cb_size = sizeof(k64f_enetdata.xTXDCountSem.data);
-  k64f_enetdata.xTXDCountSem.id = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &k64f_enetdata.xTXDCountSem.attr);
+  k64f_enetdata.xTXDCountSem = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &xtxdcountsem_attr);
+  MBED_ASSERT(k64f_enetdata.xTXDCountSem);
 
-  MBED_ASSERT(k64f_enetdata.xTXDCountSem.id != NULL);
+  k64f_enetdata.TXLockMutex = osMutexNew(&txlock_mutex_attr);
+  MBED_ASSERT(k64f_enetdata.TXLockMutex);
 
-  err = sys_mutex_new(&k64f_enetdata.TXLockMutex);
-  MBED_ASSERT(err == ERR_OK);
-
-  /* Packet receive task */
-  err = sys_sem_new(&k64f_enetdata.RxReadySem, 0);
-  MBED_ASSERT(err == ERR_OK);
+  k64f_enetdata.RxReadySem = osSemaphoreNew(UINT16_MAX, 0, &rxreadysem_attr);
+  MBED_ASSERT(k64f_enetdata.RxReadySem);
 
 #ifdef LWIP_DEBUG
-  sys_thread_new("k64f_emac_rx_thread", packet_rx, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE*5, RX_PRIORITY);
+  create_new_thread("k64f_emac_rx_thread", packet_rx, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE*5, RX_PRIORITY, &packet_rx_cb);
 #else
-  sys_thread_new("k64f_emac_thread", packet_rx, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
+  create_new_thread("k64f_emac_thread", packet_rx, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY, &packet_rx_cb);
 #endif
 
-  /* Transmit cleanup task */
-  err = sys_sem_new(&k64f_enetdata.TxCleanSem, 0);
-  MBED_ASSERT(err == ERR_OK);
-  sys_thread_new("k64f_emac_txclean_thread", packet_tx, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
+  k64f_enetdata.TxCleanSem = osSemaphoreNew(UINT16_MAX, 0, &txcleansem_attr);
+  MBED_ASSERT(k64f_enetdata.TxCleanSem);
+
+  create_new_thread("k64f_emac_txclean_thread", packet_tx, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY, &packet_tx_cb);
 
   /* PHY monitoring task */
-  sys_thread_new("k64f_emac_phy_thread", k64f_phy_task, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE, PHY_PRIORITY);
+  create_new_thread("k64f_emac_phy_thread", k64f_phy_task, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE, PHY_PRIORITY, &phy_task_cb);
 
   /* Allow the PHY task to detect the initial link state and set up the proper flags */
   osDelay(10);
