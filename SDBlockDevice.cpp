@@ -148,8 +148,12 @@
 #include <errno.h>
 
 /* Required version: 5.5.4 and above */
+#ifdef MBED_MAJOR_VERSION
 #if (MBED_VERSION < MBED_ENCODE_VERSION(5,5,4))
 #error "Incompatible mbed-os version detected! Required 5.5.4 and above"
+#endif
+#else
+#warning "mbed-os version 5.5.4 or above required"
 #endif
 
 #define SD_COMMAND_TIMEOUT                       5000   /*!< Timeout in ms for response */
