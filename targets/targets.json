@@ -1649,6 +1649,12 @@
         "core": "Cortex-M3",
         "default_toolchain": "ARM",
         "extra_labels_add": ["STM32L1", "STM32L151CC"],
+        "config": {
+            "hse_value": {
+            "value": "24000000",
+            "macro_name": "HSE_VALUE"
+            }
+        },
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "device_has_add": ["ANALOGOUT", "FLASH"],
         "release_versions": ["5"],
