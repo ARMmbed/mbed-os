@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(TARGET_NUMAKER_PFM_M453)
+#if defined(TARGET_M451)
 
 #include "USBHAL.h"
 #include "M451Series.h"
