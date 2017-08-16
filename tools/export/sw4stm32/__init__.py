@@ -323,12 +323,10 @@ class Sw4STM32(Exporter):
         if not self.resources.linker_script:
             raise NotSupportedException("No linker script found.")
 
-        print
-        print 'Create a System Workbench for STM32 managed project'
-        print 'Project name: {0}'.format(self.project_name)
-        print 'Target: {0}'.format(self.toolchain.target.name)
-        print 'Toolchain: {0}'.format(self.TOOLCHAIN)
-        print
+        print ('\nCreate a System Workbench for STM32 managed project')
+        print ('Project name: {0}'.format(self.project_name))
+        print ('Target:       {0}'.format(self.toolchain.target.name))
+        print ('Toolchain:    {0}'.format(self.TOOLCHAIN) + '\n')
 
         self.resources.win_to_unix()
 
@@ -341,7 +339,6 @@ class Sw4STM32(Exporter):
         elif core == "Cortex-M7FD":
             fp_hardware = "fpv5-d16"
             fp_abi = "softfp"
-        print 'FP hardware: ' + fp_hardware
 
         config_header = self.filter_dot(self.toolchain.get_config_header())
 
@@ -354,17 +351,17 @@ class Sw4STM32(Exporter):
 
         self.include_path = [self.filter_dot(s)
                              for s in self.resources.inc_dirs]
-        print 'Include folders: %d' % len(self.include_path)
+        print ('Include folders: {0}'.format(len(self.include_path)))
 
         self.exclude_dirs = []
         self.build_excludelist()
 
-        print 'Exclude folders: %d' % len(self.exclude_dirs)
+        print ('Exclude folders: {0}'.format(len(self.exclude_dirs)))
 
         self.exclude_dirs = '|'.join(self.exclude_dirs)
 
         ld_script = self.filter_dot(self.resources.linker_script)
-        print ('Linker script: {0}'.format(ld_script))
+        print ('Linker script:   {0}'.format(ld_script))
 
         lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
 
@@ -380,7 +377,7 @@ class Sw4STM32(Exporter):
             'config_header': config_header,
             'exclude_paths': self.exclude_dirs,
             'ld_script': ld_script,
-            'linker_script': 'linker-script-' + self.project_name + '.ld',
+            'linker_script': 'linker-script-' + self.toolchain.target.name + '.ld',
             'library_paths': lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
