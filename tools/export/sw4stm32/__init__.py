@@ -34,218 +34,218 @@ class Sw4STM32(Exporter):
     BOARDS = {
         'B96B_F446VE':
         {
-           'name': 'B96B-F446VE',
-           'mcuId': 'STM32F446VETx'
+            'name': 'B96B-F446VE',
+            'mcuId': 'STM32F446VETx'
         },
         'DISCO_F051R8':
         {
-           'name': 'STM32F0DISCOVERY',
-           'mcuId': 'STM32F051R8Tx'
+            'name': 'STM32F0DISCOVERY',
+            'mcuId': 'STM32F051R8Tx'
         },
         'DISCO_F303VC':
         {
-           'name': 'STM32F3DISCOVERY',
-           'mcuId': 'STM32F303VCTx'
+            'name': 'STM32F3DISCOVERY',
+            'mcuId': 'STM32F303VCTx'
         },
         'DISCO_F334C8':
         {
-           'name': 'STM32F3348DISCOVERY',
-           'mcuId': 'STM32F334C8Tx'
+            'name': 'STM32F3348DISCOVERY',
+            'mcuId': 'STM32F334C8Tx'
         },
         'DISCO_F401VC':
         {
-           'name': 'STM32F401C-DISCO',
-           'mcuId': 'STM32F401VCTx'
+            'name': 'STM32F401C-DISCO',
+            'mcuId': 'STM32F401VCTx'
         },
         'DISCO_F407VG':
         {
-           'name': 'STM32F4DISCOVERY',
-           'mcuId': 'STM32F407VGTx'
+            'name': 'STM32F4DISCOVERY',
+            'mcuId': 'STM32F407VGTx'
         },
         'DISCO_F413ZH':
         {
-           'name': 'DISCO_F413',
-           'mcuId': 'STM32F413ZHTx'
+            'name': 'DISCO_F413',
+            'mcuId': 'STM32F413ZHTx'
         },
         'DISCO_F429ZI':
         {
-           'name': 'STM32F429I-DISCO',
-           'mcuId': 'STM32F429ZITx'
+            'name': 'STM32F429I-DISCO',
+            'mcuId': 'STM32F429ZITx'
         },
         'DISCO_F469NI':
         {
-           'name': 'DISCO-F469NI',
-           'mcuId': 'STM32F469NIHx'
+            'name': 'DISCO-F469NI',
+            'mcuId': 'STM32F469NIHx'
         },
         'DISCO_F746NG':
         {
-           'name': 'STM32F746G-DISCO',
-           'mcuId': 'STM32F746NGHx'
+            'name': 'STM32F746G-DISCO',
+            'mcuId': 'STM32F746NGHx'
         },
         'DISCO_F769NI':
         {
-           'name': 'DISCO-F769NI',
-           'mcuId': 'STM32F769NIHx'
+            'name': 'DISCO-F769NI',
+            'mcuId': 'STM32F769NIHx'
         },
         'DISCO_L053C8':
         {
-           'name': 'STM32L0538DISCOVERY',
-           'mcuId': 'STM32L053C8Tx'
+            'name': 'STM32L0538DISCOVERY',
+            'mcuId': 'STM32L053C8Tx'
         },
         'DISCO_L072CZ_LRWAN1':
         {
-           'name': 'DISCO-L072CZ-LRWAN1',
-           'mcuId': 'STM32L072CZTx'
+            'name': 'DISCO-L072CZ-LRWAN1',
+            'mcuId': 'STM32L072CZTx'
         },
         'DISCO_L475VG_IOT01A':
         {
-           'name': 'STM32L475G-DISCO',
-           'mcuId': 'STM32L475VGTx'
+            'name': 'STM32L475G-DISCO',
+            'mcuId': 'STM32L475VGTx'
         },
         'DISCO_L476VG':
         {
-           'name': 'STM32L476G-DISCO',
-           'mcuId': 'STM32L476VGTx'
+            'name': 'STM32L476G-DISCO',
+            'mcuId': 'STM32L476VGTx'
         },
         'NUCLEO_F030R8':
         {
-           'name': 'NUCLEO-F030R8',
-           'mcuId': 'STM32F030R8Tx'
+            'name': 'NUCLEO-F030R8',
+            'mcuId': 'STM32F030R8Tx'
         },
         'NUCLEO_F031K6':
         {
-           'name': 'NUCLEO-F031K6',
-           'mcuId': 'STM32F031K6Tx'
+            'name': 'NUCLEO-F031K6',
+            'mcuId': 'STM32F031K6Tx'
         },
         'NUCLEO_F042K6':
         {
-           'name': 'NUCLEO-F042K6',
-           'mcuId': 'STM32F042K6Tx'
+            'name': 'NUCLEO-F042K6',
+            'mcuId': 'STM32F042K6Tx'
         },
         'NUCLEO_F070RB':
         {
-           'name': 'NUCLEO-F070RB',
-           'mcuId': 'STM32F070RBTx'
+            'name': 'NUCLEO-F070RB',
+            'mcuId': 'STM32F070RBTx'
         },
         'NUCLEO_F072RB':
         {
-           'name': 'NUCLEO-F072RB',
-           'mcuId': 'STM32F072RBTx'
+            'name': 'NUCLEO-F072RB',
+            'mcuId': 'STM32F072RBTx'
         },
         'NUCLEO_F091RC':
         {
-           'name': 'NUCLEO-F091RC',
-           'mcuId': 'STM32F091RCTx'
+            'name': 'NUCLEO-F091RC',
+            'mcuId': 'STM32F091RCTx'
         },
         'NUCLEO_F103RB':
         {
-           'name': 'NUCLEO-F103RB',
-           'mcuId': 'STM32F103RBTx'
+            'name': 'NUCLEO-F103RB',
+            'mcuId': 'STM32F103RBTx'
         },
         'NUCLEO_F207ZG':
         {
-           'name': 'NUCLEO-F207ZG',
-           'mcuId': 'STM32F207ZGTx'
+            'name': 'NUCLEO-F207ZG',
+            'mcuId': 'STM32F207ZGTx'
         },
         'NUCLEO_F302R8':
         {
-           'name': 'NUCLEO-F302R8',
-           'mcuId': 'STM32F302R8Tx'
+            'name': 'NUCLEO-F302R8',
+            'mcuId': 'STM32F302R8Tx'
         },
         'NUCLEO_F303K8':
         {
-           'name': 'NUCLEO-F303K8',
-           'mcuId': 'STM32F303K8Tx'
+            'name': 'NUCLEO-F303K8',
+            'mcuId': 'STM32F303K8Tx'
         },
         'NUCLEO_F303RE':
         {
-           'name': 'NUCLEO-F303RE',
-           'mcuId': 'STM32F303RETx'
+            'name': 'NUCLEO-F303RE',
+            'mcuId': 'STM32F303RETx'
         },
         'NUCLEO_F303ZE':
         {
-           'name': 'NUCLEO-F303ZE',
-           'mcuId': 'STM32F303ZETx'
+            'name': 'NUCLEO-F303ZE',
+            'mcuId': 'STM32F303ZETx'
         },
         'NUCLEO_F334R8':
         {
-           'name': 'NUCLEO-F334R8',
-           'mcuId': 'STM32F334R8Tx'
+            'name': 'NUCLEO-F334R8',
+            'mcuId': 'STM32F334R8Tx'
         },
         'NUCLEO_F401RE':
         {
-           'name': 'NUCLEO-F401RE',
-           'mcuId': 'STM32F401RETx'
+            'name': 'NUCLEO-F401RE',
+            'mcuId': 'STM32F401RETx'
         },
         'NUCLEO_F410RB':
         {
-           'name': 'NUCLEO-F410RB',
-           'mcuId': 'STM32F410RBTx'
+            'name': 'NUCLEO-F410RB',
+            'mcuId': 'STM32F410RBTx'
         },
         'NUCLEO_F411RE':
         {
-           'name': 'NUCLEO-F411RE',
-           'mcuId': 'STM32F411RETx'
+            'name': 'NUCLEO-F411RE',
+            'mcuId': 'STM32F411RETx'
         },
         'NUCLEO_F429ZI':
         {
-           'name': 'NUCLEO-F429ZI',
-           'mcuId': 'STM32F429ZITx'
+            'name': 'NUCLEO-F429ZI',
+            'mcuId': 'STM32F429ZITx'
         },
         'NUCLEO_F446RE':
         {
-           'name': 'NUCLEO-F446RE',
-           'mcuId': 'STM32F446RETx'
+            'name': 'NUCLEO-F446RE',
+            'mcuId': 'STM32F446RETx'
         },
         'NUCLEO_F446ZE':
         {
-           'name': 'NUCLEO-F446ZE',
-           'mcuId': 'STM32F446ZETx'
+            'name': 'NUCLEO-F446ZE',
+            'mcuId': 'STM32F446ZETx'
         },
         'NUCLEO_F746ZG':
         {
-           'name': 'NUCLEO-F746ZG',
-           'mcuId': 'STM32F746ZGTx'
+            'name': 'NUCLEO-F746ZG',
+            'mcuId': 'STM32F746ZGTx'
         },
         'NUCLEO_F767ZI':
         {
-           'name': 'NUCLEO-F767ZI',
-           'mcuId': 'STM32F767ZITx'
+            'name': 'NUCLEO-F767ZI',
+            'mcuId': 'STM32F767ZITx'
         },
         'NUCLEO_L011K4':
         {
-           'name': 'NUCLEO-L011K4',
-           'mcuId': 'STM32L011K4Tx'
+            'name': 'NUCLEO-L011K4',
+            'mcuId': 'STM32L011K4Tx'
         },
         'NUCLEO_L031K6':
         {
-           'name': 'NUCLEO-L031K6',
-           'mcuId': 'STM32L031K6Tx'
+            'name': 'NUCLEO-L031K6',
+            'mcuId': 'STM32L031K6Tx'
         },
         'NUCLEO_L053R8':
         {
-           'name': 'NUCLEO-L053R8',
-           'mcuId': 'STM32L053R8Tx'
+            'name': 'NUCLEO-L053R8',
+            'mcuId': 'STM32L053R8Tx'
         },
         'NUCLEO_L073RZ':
         {
-           'name': 'NUCLEO-L073RZ',
-           'mcuId': 'STM32L073RZTx'
+            'name': 'NUCLEO-L073RZ',
+            'mcuId': 'STM32L073RZTx'
         },
         'NUCLEO_L152RE':
         {
-           'name': 'NUCLEO-L152RE',
-           'mcuId': 'STM32L152RETx'
+            'name': 'NUCLEO-L152RE',
+            'mcuId': 'STM32L152RETx'
         },
         'NUCLEO_L432KC':
         {
-           'name': 'NUCLEO-L432KC',
-           'mcuId': 'STM32L432KCUx'
+            'name': 'NUCLEO-L432KC',
+            'mcuId': 'STM32L432KCUx'
         },
         'NUCLEO_L476RG':
         {
-           'name': 'NUCLEO-L476RG',
-           'mcuId': 'STM32L476RGTx'
+            'name': 'NUCLEO-L476RG',
+            'mcuId': 'STM32L476RGTx'
         },
     }
 
@@ -281,15 +281,15 @@ class Sw4STM32(Exporter):
         This method creates list for excluded directories.
         """
         self.source_folders = [self.filter_dot(s)
-           for s in set(dirname(src) for src in
-               self.resources.c_sources +
-               self.resources.cpp_sources +
-               self.resources.s_sources)]
+                               for s in set(dirname(src) for src in
+                                            self.resources.c_sources +
+                                            self.resources.cpp_sources +
+                                            self.resources.s_sources)]
         if '.' in self.source_folders:
             self.source_folders.remove('.')
 
         top_folders = [f for f in set(s.split('/')[0]
-           for s in self.source_folders)]
+                                      for s in self.source_folders)]
 
         for top_folder in top_folders:
             for root, dirs, files in walk(top_folder, topdown=True):
@@ -309,12 +309,29 @@ class Sw4STM32(Exporter):
         if not found:
             for directory in self.exclude_dirs:
                 # Do not exclude subfolders from excluded folder
-                if directory+'/' in path:
+                if directory + '/' in path:
                     needtoadd = False
             if needtoadd:
                 self.exclude_dirs.append(path)
 
     def generate(self):
+        """
+        Generate the .project and .cproject files.
+        """
+        opts = {}
+
+        if not self.resources.linker_script:
+            raise NotSupportedException("No linker script found.")
+
+        print
+        print 'Create a System Workbench for STM32 managed project'
+        print 'Project name: {0}'.format(self.project_name)
+        print 'Target: {0}'.format(self.toolchain.target.name)
+        print 'Toolchain: {0}'.format(self.TOOLCHAIN)
+        print
+
+        self.resources.win_to_unix()
+
         fp_hardware = "no"
         fp_abi = "soft"
         core = self.toolchain.target.core
@@ -324,6 +341,7 @@ class Sw4STM32(Exporter):
         elif core == "Cortex-M7FD":
             fp_hardware = "fpv5-d16"
             fp_abi = "softfp"
+        print 'FP hardware: ' + fp_hardware
 
         config_header = self.filter_dot(self.toolchain.get_config_header())
 
@@ -335,7 +353,7 @@ class Sw4STM32(Exporter):
             libraries.append(library[3:])
 
         self.include_path = [self.filter_dot(s)
-           for s in self.resources.inc_dirs]
+                             for s in self.resources.inc_dirs]
         print 'Include folders: %d' % len(self.include_path)
 
         self.exclude_dirs = []
@@ -346,18 +364,23 @@ class Sw4STM32(Exporter):
         self.exclude_dirs = '|'.join(self.exclude_dirs)
 
         ld_script = self.filter_dot(self.resources.linker_script)
+        print ('Linker script: {0}'.format(ld_script))
 
         lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
 
         symbols = [s.replace('"', '&quot;')
-           for s in self.toolchain.get_symbols()]
+                   for s in self.toolchain.get_symbols()]
+        # TODO: We need to fetch all flags from CDT
+        opts['ld'] = {}
+        opts['ld']['extra_flags'] = ''
 
         ctx = {
             'name': self.project_name,
             'include_paths': self.include_path,
             'config_header': config_header,
             'exclude_paths': self.exclude_dirs,
-            'linker_script': ld_script,
+            'ld_script': ld_script,
+            'linker_script': 'linker-script-' + self.project_name + '.ld',
             'library_paths': lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
@@ -372,10 +395,15 @@ class Sw4STM32(Exporter):
             'release_tool_compiler_input_uid': self.__generate_uid(),
             'uid': self.__generate_uid(),
             'floating_point_hardware': fp_hardware,
-            'floating_point_abi': fp_abi
+            'floating_point_abi': fp_abi,
+            'cpp_cmd': " ".join(self.toolchain.preproc),
+            'options': opts
         }
 
         self.__gen_dir('.settings')
-        self.gen_file('sw4stm32/language_settings_commom.tmpl', ctx, '.settings/language.settings.xml')
+        self.gen_file('sw4stm32/language_settings_commom.tmpl',
+                      ctx, '.settings/language.settings.xml')
         self.gen_file('sw4stm32/project_common.tmpl', ctx, '.project')
         self.gen_file('sw4stm32/cproject_common.tmpl', ctx, '.cproject')
+        self.gen_file('sw4stm32/makefile.targets.tmpl', ctx,
+                      'makefile.targets', trim_blocks=True, lstrip_blocks=True)
