@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2017 ARM Limited
+Copyright (c) 2011-2016 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,31 +14,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Title: GNU ARM Eclipse (http://gnuarmeclipse.github.io) exporter.
+Title: MCUXpresso exporter.
 
 Description: Creates a managed build project that can be imported by 
-the GNU ARM Eclipse plug-ins.
+the MCUXpresso IDE from NXP
 
-Author: Liviu Ionescu <ilg@livius.net>
+Based on GNU ARM Eclipse Exporter from Liviu Ionescu <ilg@livius.net>
+modified for MCUXpresso by Johannes Stratmann <jojos62@online.de>
 """
 
-import os
-import copy
-import tempfile
-import shutil
 import copy
 
-from subprocess import call, Popen, PIPE
-from os.path import splitext, basename, relpath, dirname, exists, join, dirname
+from os.path import splitext, basename, exists
 from random import randint
-from json import load
 
-from tools.export.exporters import Exporter, apply_supported_whitelist
-from tools.options import list_profiles
+from tools.export.gnuarmeclipse import GNUARMEclipse
+from tools.export.exporters import apply_supported_whitelist
 from tools.targets import TARGET_MAP
 from tools.utils import NotSupportedException
 from tools.build_api import prepare_toolchain
 
+ 
 # =============================================================================
 
 
@@ -65,66 +61,21 @@ POST_BINARY_WHITELIST = set([
     "LPC4088Code.binary_hook"
 ])
 
-class MCUXpresso(Exporter):
+class MCUXpresso(GNUARMEclipse):
     NAME = 'MCUXpresso'
     TOOLCHAIN = 'GCC_ARM'
 
+    MBED_CONFIG_HEADER_SUPPORTED = True
+
     @classmethod
     def is_target_supported(cls, target_name):
-        target = TARGET_MAP[target_name]
-        return apply_supported_whitelist(
-            cls.TOOLCHAIN, POST_BINARY_WHITELIST, target)
-
-    # override
-    @property
-    def flags(self):
-        """Returns a dictionary of toolchain flags.
-        Keys of the dictionary are:
-        cxx_flags    - c++ flags
-        c_flags      - c flags
-        ld_flags     - linker flags
-        asm_flags    - assembler flags
-        common_flags - common options
-
-        The difference from the parent function is that it does not
-        add macro definitions, since they are passed separately.
-        """
-
-        config_header = self.toolchain.get_config_header()
-        flags = {key + "_flags": copy.deepcopy(value) for key, value
-                 in self.toolchain.flags.iteritems()}
-        if config_header:
-            config_header = relpath(config_header,
-                                    self.resources.file_basepath[config_header])
-            flags['c_flags'] += self.toolchain.get_config_option(config_header)
-            flags['cxx_flags'] += self.toolchain.get_config_option(
-                config_header)
-        return flags
-
-    def toolchain_flags(self, toolchain):
-        """Returns a dictionary of toolchain flags.
-        Keys of the dictionary are:
-        cxx_flags    - c++ flags
-        c_flags      - c flags
-        ld_flags     - linker flags
-        asm_flags    - assembler flags
-        common_flags - common options
-
-        The difference from the above is that it takes a parameter.
-        """
-
-        # Note: use the config options from the currently selected toolchain.
-        config_header = self.toolchain.get_config_header()
-
-        flags = {key + "_flags": copy.deepcopy(value) for key, value
-                 in toolchain.flags.iteritems()}
-        if config_header:
-            config_header = relpath(config_header,
-                                    self.resources.file_basepath[config_header])
-            header_options = self.toolchain.get_config_option(config_header)
-            flags['c_flags'] += header_options
-            flags['cxx_flags'] += header_options
-        return flags
+        # targes suppoerted when .cproject templatefile exists
+        if exists('./export/mcuxpresso/' + target_name + '_cproject.tmpl'):
+            target = TARGET_MAP[target_name]
+            return apply_supported_whitelist(
+                cls.TOOLCHAIN, POST_BINARY_WHITELIST, target)
+        else:
+            return False
 
     # override
     def generate(self):
@@ -378,93 +329,6 @@ class MCUXpresso(Exporter):
         # Seems like something went wrong.
         return -1
 
-   # -------------------------------------------------------------------------
-
-    @staticmethod
-    def get_all_profiles():
-        tools_path = dirname(dirname(dirname(__file__)))
-        file_names = [join(tools_path, "profiles", fn) for fn in os.listdir(
-            join(tools_path, "profiles")) if fn.endswith(".json")]
-
-        # print file_names
-
-        profile_names = [basename(fn).replace(".json", "")
-                         for fn in file_names]
-        # print profile_names
-
-        profiles = {}
-
-        for fn in file_names:
-            content = load(open(fn))
-            profile_name = basename(fn).replace(".json", "")
-            profiles[profile_name] = content
-
-        return profiles
-
-    # -------------------------------------------------------------------------
-    # Process source files/folders exclusions.
-
-    def compute_exclusions(self):
-        """
-        With the project root as the only source folder known to CDT,
-        based on the list of source files, compute the folders to not
-        be included in the build.
-
-        The steps are:
-        - get the list of source folders, as dirname(source_file)
-        - compute the top folders (subfolders of the project folder)
-        - iterate all subfolders and add them to a tree, with all 
-        nodes markes as 'not used'
-        - iterate the source folders and mark them as 'used' in the
-        tree, including all intermediate nodes
-        - recurse the tree and collect all unused folders; descend
-        the hierarchy only for used nodes
-        """
-        source_folders = [self.filter_dot(s) for s in set(dirname(
-            src) for src in self.resources.c_sources + self.resources.cpp_sources + self.resources.s_sources)]
-
-        self.excluded_folders = set(self.resources.ignored_dirs) - set(self.resources.inc_dirs)
-        print 'Source folders: {0}, with {1} exclusions'.format(len(source_folders), len(self.excluded_folders))
-
-
-    # -------------------------------------------------------------------------
-
-    @staticmethod
-    def filter_dot(str):
-        """
-        Remove the './' prefix, if present.
-        This function assumes that resources.win_to_unix()
-        replaced all windows backslashes with slashes.
-        """
-        if str == None:
-            return None
-        if str[:2] == './':
-            return str[2:]
-        return str
-
-    # -------------------------------------------------------------------------
-
-    def dump_tree(self, nodes, depth=0):
-        for k in nodes.keys():
-            node = nodes[k]
-            parent_name = node['parent'][
-                'name'] if 'parent' in node.keys() else ''
-            print '  ' * depth, node['name'], node['is_used'], parent_name
-            if len(node['children'].keys()) != 0:
-                self.dump_tree(node['children'], depth + 1)
-
-    def dump_paths(self, nodes, depth=0):
-        for k in nodes.keys():
-            node = nodes[k]
-            parts = []
-            while True:
-                parts.insert(0, node['name'])
-                if 'parent' not in node:
-                    break
-                node = node['parent']
-            path = '/'.join(parts)
-            print path, nodes[k]['is_used']
-            self.dump_paths(nodes[k]['children'], depth + 1)
 
     # -------------------------------------------------------------------------
 
@@ -892,27 +756,3 @@ class MCUXpresso(Exporter):
             print 'cxx_flags', flags['cxx_flags']
             print 'ld_flags', flags['ld_flags']
 
-    @staticmethod
-    def find_options(lst, option):
-        tmp = [str for str in lst if str.startswith(option)]
-        if len(tmp) > 0:
-            return tmp[0]
-        else:
-            return None
-
-    @staticmethod
-    def find_options(lst, prefix):
-        other = ''
-        opts = [str for str in lst if str.startswith(prefix)]
-        if len(opts) > 0:
-            for opt in opts:
-                other += ' ' + opt
-                MCUXpresso.remove_option(lst, opt)
-        return other.strip()
-
-    @staticmethod
-    def remove_option(lst, option):
-        if option in lst:
-            lst.remove(option)
-
-# =============================================================================
