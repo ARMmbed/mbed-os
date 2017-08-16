@@ -2845,7 +2845,7 @@
         "inherits": ["EFM32"],
         "extra_labels_add": ["EFR32FG1", "256K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
-        "macros": ["EFR32FG1P132F256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4"],
+        "macros": ["EFR32FG1P132F256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4", "INITIAL_SP=0x20005000UL"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
         "release_versions": ["2", "5"],
         "public": true,
