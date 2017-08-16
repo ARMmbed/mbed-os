@@ -70,7 +70,7 @@ class MCUXpresso(GNUARMEclipse):
     @classmethod
     def is_target_supported(cls, target_name):
         # targes suppoerted when .cproject templatefile exists
-        if exists('./export/mcuxpresso/' + target_name + '_cproject.tmpl'):
+        if exists(cls.TEMPLATE_DIR + '/mcuxpresso/' + target_name + '_cproject.tmpl'):
             target = TARGET_MAP[target_name]
             return apply_supported_whitelist(
                 cls.TOOLCHAIN, POST_BINARY_WHITELIST, target)
