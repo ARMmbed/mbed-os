@@ -97,7 +97,7 @@
              "SPI_CLK":  "p13",
              "SPI_CS":   "p14"
         },
-         "NUCLEO_F429ZI": { 
+         "NUCLEO_F429ZI": {
              "SPI_MOSI": "PC_12",
              "SPI_MISO": "PC_11",
              "SPI_CLK":  "PC_10",
@@ -138,6 +138,12 @@
              "SPI_MISO": "P8_6",
              "SPI_CLK":  "P8_3",
              "SPI_CS":   "P8_4"
+        },
+        "HEXIWEAR": {
+             "SPI_MOSI": "PTE3",
+             "SPI_MISO": "PTE1",
+             "SPI_CLK":  "PTE2",
+             "SPI_CS":   "PTE4"
         }
     }
 }
