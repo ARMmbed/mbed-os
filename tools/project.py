@@ -235,7 +235,7 @@ def main():
         if exists(EXPORT_DIR):
             rmtree(EXPORT_DIR)
 
-    zip_proj = True #not bool(options.source_dir)
+    zip_proj = not bool(options.source_dir)
 
     if (options.program is None) and (not options.source_dir):
         args_error(parser, "one of -p, -n, or --source is required")
