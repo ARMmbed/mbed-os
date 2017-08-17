@@ -843,7 +843,7 @@ std::FILE *mbed_fdopen(FileHandle *fh, const char *mode)
 }
 
 int mbed_getc(std::FILE *_file){
-#if defined (__ICCARM__)
+#if (defined (__ICCARM__) && (__IAR_SYSTEMS_ICC__ < 8) )
     /*This is only valid for unbuffered streams*/
     int res = std::fgetc(_file);
     if (res>=0){
@@ -858,7 +858,7 @@ int mbed_getc(std::FILE *_file){
 }
 
 char* mbed_gets(char*s, int size, std::FILE *_file){
-#if defined (__ICCARM__)
+#if (defined (__ICCARM__) && (__IAR_SYSTEMS_ICC__ < 8))
     /*This is only valid for unbuffered streams*/
     char *str = fgets(s,size,_file);
     if (str!=NULL){
