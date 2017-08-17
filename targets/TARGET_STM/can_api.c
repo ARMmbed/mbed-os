@@ -211,7 +211,11 @@ int can_frequency(can_t *obj, int f)
             }
         }
         if (status != 0) {
-            can->BTR = btr;
+            /*  Do not erase all BTR registers (e.g. silent mode), only the
+             *  ones calculated in can_speed */
+            can->BTR &= ~(CAN_BTR_TS2 | CAN_BTR_TS1 | CAN_BTR_SJW | CAN_BTR_BRP);
+            can->BTR |= btr;
+
             can->MCR &= ~(uint32_t)CAN_MCR_INRQ;
             /* Get tick */
             tickstart = HAL_GetTick();
