@@ -31,8 +31,7 @@ struct mbedtls_sha512_context_s;
 /**
  * \brief          SHA-512 context structure
  */
-typedef struct mbedtls_sha512_context_s
-{
+typedef struct mbedtls_sha512_context_s {
     int ishw;
     crypto_sha_context hw_ctx;
     mbedtls_sha512_sw_context sw_ctx;
@@ -78,7 +77,7 @@ void mbedtls_sha512_starts( mbedtls_sha512_context *ctx, int is384 );
  * \param ilen     length of the input data
  */
 void mbedtls_sha512_update( mbedtls_sha512_context *ctx, const unsigned char *input,
-                    size_t ilen );
+                            size_t ilen );
 
 /**
  * \brief          SHA-512 final digest

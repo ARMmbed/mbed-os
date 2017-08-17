@@ -28,8 +28,7 @@ void mbedtls_sha256_init(mbedtls_sha256_context *ctx)
     if (crypto_sha_acquire()) {
         ctx->ishw = 1;
         mbedtls_sha256_hw_init(&ctx->hw_ctx);
-    }
-    else {
+    } else {
         ctx->ishw = 0;
         mbedtls_sha256_sw_init(&ctx->sw_ctx);
     }
@@ -44,14 +43,13 @@ void mbedtls_sha256_free(mbedtls_sha256_context *ctx)
     if (ctx->ishw) {
         mbedtls_sha256_hw_free(&ctx->hw_ctx);
         crypto_sha_release();
-    }
-    else {
+    } else {
         mbedtls_sha256_sw_free(&ctx->sw_ctx);
     }
 }
 
 void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
-                        const mbedtls_sha256_context *src)
+                          const mbedtls_sha256_context *src)
 {
     if (src->ishw) {
         // Clone S/W ctx from H/W ctx
@@ -74,8 +72,7 @@ void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
         if (src->hw_ctx.buffer_left == src->hw_ctx.blocksize) {
             mbedtls_sha256_sw_process(&dst->sw_ctx, dst->sw_ctx.buffer);
         }
-    }
-    else {
+    } else {
         // Clone S/W ctx from S/W ctx
         dst->sw_ctx = src->sw_ctx;
     }
@@ -85,11 +82,10 @@ void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
  * SHA-256 context setup
  */
 void mbedtls_sha256_starts(mbedtls_sha256_context *ctx, int is224)
-{   
+{
     if (ctx->ishw) {
         mbedtls_sha256_hw_starts(&ctx->hw_ctx, is224);
-    }
-    else {
+    } else {
         mbedtls_sha256_sw_starts(&ctx->sw_ctx, is224);
     }
 }
@@ -101,8 +97,7 @@ void mbedtls_sha256_update(mbedtls_sha256_context *ctx, const unsigned char *inp
 {
     if (ctx->ishw) {
         mbedtls_sha256_hw_update(&ctx->hw_ctx, input, ilen);
-    }
-    else {
+    } else {
         mbedtls_sha256_sw_update(&ctx->sw_ctx, input, ilen);
     }
 }
@@ -114,8 +109,7 @@ void mbedtls_sha256_finish(mbedtls_sha256_context *ctx, unsigned char output[32]
 {
     if (ctx->ishw) {
         mbedtls_sha256_hw_finish(&ctx->hw_ctx, output);
-    }
-    else {
+    } else {
         mbedtls_sha256_sw_finish(&ctx->sw_ctx, output);
     }
 }
@@ -124,8 +118,7 @@ void mbedtls_sha256_process(mbedtls_sha256_context *ctx, const unsigned char dat
 {
     if (ctx->ishw) {
         mbedtls_sha256_hw_process(&ctx->hw_ctx, data);
-    }
-    else {
+    } else {
         mbedtls_sha256_sw_process(&ctx->sw_ctx, data);
     }
 }

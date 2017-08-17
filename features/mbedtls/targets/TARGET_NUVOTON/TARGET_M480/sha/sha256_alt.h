@@ -31,8 +31,7 @@ struct mbedtls_sha256_context_s;
 /**
  * \brief          SHA-256 context structure
  */
-typedef struct mbedtls_sha256_context_s
-{
+typedef struct mbedtls_sha256_context_s {
     int ishw;
     crypto_sha_context hw_ctx;
     mbedtls_sha256_sw_context sw_ctx;
@@ -78,7 +77,7 @@ void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 );
  * \param ilen     length of the input data
  */
 void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *input,
-                    size_t ilen );
+                            size_t ilen );
 
 /**
  * \brief          SHA-256 final digest

@@ -24,8 +24,8 @@
 #include "nu_bitutil.h"
 #include "mbed_toolchain.h"
 
-static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_SIZE], int enc, uint32_t tdes_opmode, size_t length, 
-    unsigned char iv[8], const unsigned char *input, unsigned char *output);
+static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_SIZE], int enc, uint32_t tdes_opmode, size_t length,
+                               unsigned char iv[8], const unsigned char *input, unsigned char *output);
 
 void mbedtls_des_init(mbedtls_des_context *ctx)
 {
@@ -58,15 +58,16 @@ void mbedtls_des3_free( mbedtls_des3_context *ctx )
 }
 
 static const unsigned char odd_parity_table[128] = { 1,  2,  4,  7,  8,
-        11, 13, 14, 16, 19, 21, 22, 25, 26, 28, 31, 32, 35, 37, 38, 41, 42, 44,
-        47, 49, 50, 52, 55, 56, 59, 61, 62, 64, 67, 69, 70, 73, 74, 76, 79, 81,
-        82, 84, 87, 88, 91, 93, 94, 97, 98, 100, 103, 104, 107, 109, 110, 112,
-        115, 117, 118, 121, 122, 124, 127, 128, 131, 133, 134, 137, 138, 140,
-        143, 145, 146, 148, 151, 152, 155, 157, 158, 161, 162, 164, 167, 168,
-        171, 173, 174, 176, 179, 181, 182, 185, 186, 188, 191, 193, 194, 196,
-        199, 200, 203, 205, 206, 208, 211, 213, 214, 217, 218, 220, 223, 224,
-        227, 229, 230, 233, 234, 236, 239, 241, 242, 244, 247, 248, 251, 253,
-        254 };
+                                                     11, 13, 14, 16, 19, 21, 22, 25, 26, 28, 31, 32, 35, 37, 38, 41, 42, 44,
+                                                     47, 49, 50, 52, 55, 56, 59, 61, 62, 64, 67, 69, 70, 73, 74, 76, 79, 81,
+                                                     82, 84, 87, 88, 91, 93, 94, 97, 98, 100, 103, 104, 107, 109, 110, 112,
+                                                     115, 117, 118, 121, 122, 124, 127, 128, 131, 133, 134, 137, 138, 140,
+                                                     143, 145, 146, 148, 151, 152, 155, 157, 158, 161, 162, 164, 167, 168,
+                                                     171, 173, 174, 176, 179, 181, 182, 185, 186, 188, 191, 193, 194, 196,
+                                                     199, 200, 203, 205, 206, 208, 211, 213, 214, 217, 218, 220, 223, 224,
+                                                     227, 229, 230, 233, 234, 236, 239, 241, 242, 244, 247, 248, 251, 253,
+                                                     254
+                                                   };
 
 void mbedtls_des_key_set_parity(unsigned char key[MBEDTLS_DES_KEY_SIZE])
 {
@@ -114,8 +115,7 @@ int mbedtls_des_key_check_key_parity( const unsigned char key[MBEDTLS_DES_KEY_SI
 
 #define WEAK_KEY_COUNT 16
 
-static const unsigned char weak_key_table[WEAK_KEY_COUNT][MBEDTLS_DES_KEY_SIZE] =
-{
+static const unsigned char weak_key_table[WEAK_KEY_COUNT][MBEDTLS_DES_KEY_SIZE] = {
     { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 },
     { 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE, 0xFE },
     { 0x1F, 0x1F, 0x1F, 0x1F, 0x0E, 0x0E, 0x0E, 0x0E },
@@ -157,7 +157,7 @@ int mbedtls_des_setkey_enc( mbedtls_des_context *ctx, const unsigned char key[MB
     memcpy(ctx->key[0], key, MBEDTLS_DES_KEY_SIZE);
     memcpy(ctx->key[1], key, MBEDTLS_DES_KEY_SIZE);
     memcpy(ctx->key[2], key, MBEDTLS_DES_KEY_SIZE);
-    
+
     return 0;
 }
 
@@ -180,7 +180,7 @@ int mbedtls_des_setkey_dec( mbedtls_des_context *ctx, const unsigned char key[MB
  * Triple-DES key schedule (112-bit, encryption)
  */
 int mbedtls_des3_set2key_enc( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] )
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] )
 {
     ctx->enc = 1;
     // Keying option 2: K1 and K2 are independent, and K3 = K1.
@@ -196,7 +196,7 @@ int mbedtls_des3_set2key_enc( mbedtls_des3_context *ctx,
  * Triple-DES key schedule (112-bit, decryption)
  */
 int mbedtls_des3_set2key_dec( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] )
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] )
 {
     ctx->enc = 0;
     // Keying option 2: K1 and K2 are independent, and K3 = K1.
@@ -212,7 +212,7 @@ int mbedtls_des3_set2key_dec( mbedtls_des3_context *ctx,
  * Triple-DES key schedule (168-bit, encryption)
  */
 int mbedtls_des3_set3key_enc( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] )
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] )
 {
     ctx->enc = 1;
     // Keying option 1: All three keys are independent.
@@ -228,7 +228,7 @@ int mbedtls_des3_set3key_enc( mbedtls_des3_context *ctx,
  * Triple-DES key schedule (168-bit, decryption)
  */
 int mbedtls_des3_set3key_dec( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] )
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] )
 {
     ctx->enc = 0;
     // Keying option 1: All three keys are independent.
@@ -244,8 +244,8 @@ int mbedtls_des3_set3key_dec( mbedtls_des3_context *ctx,
  * DES-ECB block encryption/decryption
  */
 int mbedtls_des_crypt_ecb( mbedtls_des_context *ctx,
-                    const unsigned char input[8],
-                    unsigned char output[8] )
+                           const unsigned char input[8],
+                           unsigned char output[8] )
 {
     unsigned char iv[8] = {0x00};
     return mbedtls_des_docrypt(ctx->keyopt, ctx->key, ctx->enc, DES_MODE_ECB, 8, iv, input, output);
@@ -256,11 +256,11 @@ int mbedtls_des_crypt_ecb( mbedtls_des_context *ctx,
  * DES-CBC buffer encryption/decryption
  */
 int mbedtls_des_crypt_cbc( mbedtls_des_context *ctx,
-                    int mode,
-                    size_t length,
-                    unsigned char iv[8],
-                    const unsigned char *input,
-                    unsigned char *output )
+                           int mode,
+                           size_t length,
+                           unsigned char iv[8],
+                           const unsigned char *input,
+                           unsigned char *output )
 {
     return mbedtls_des_docrypt(ctx->keyopt, ctx->key, mode == MBEDTLS_DES_ENCRYPT, DES_MODE_CBC, length, iv, input, output);
 }
@@ -270,8 +270,8 @@ int mbedtls_des_crypt_cbc( mbedtls_des_context *ctx,
  * 3DES-ECB block encryption/decryption
  */
 int mbedtls_des3_crypt_ecb( mbedtls_des3_context *ctx,
-                     const unsigned char input[8],
-                     unsigned char output[8] )
+                            const unsigned char input[8],
+                            unsigned char output[8] )
 {
     unsigned char iv[8] = {0x00};
     return mbedtls_des_docrypt(ctx->keyopt, ctx->key, ctx->enc, TDES_MODE_ECB, 8, iv, input, output);
@@ -282,11 +282,11 @@ int mbedtls_des3_crypt_ecb( mbedtls_des3_context *ctx,
  * 3DES-CBC buffer encryption/decryption
  */
 int mbedtls_des3_crypt_cbc( mbedtls_des3_context *ctx,
-                     int mode,
-                     size_t length,
-                     unsigned char iv[8],
-                     const unsigned char *input,
-                     unsigned char *output )
+                            int mode,
+                            size_t length,
+                            unsigned char iv[8],
+                            const unsigned char *input,
+                            unsigned char *output )
 {
     return mbedtls_des_docrypt(ctx->keyopt, ctx->key, mode == MBEDTLS_DES_ENCRYPT, TDES_MODE_CBC, length, iv, input, output);
 }
@@ -294,24 +294,23 @@ int mbedtls_des3_crypt_cbc( mbedtls_des3_context *ctx,
 
 
 
-static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_SIZE], int enc, uint32_t tdes_opmode, size_t length, 
-    unsigned char iv[8], const unsigned char *input, unsigned char *output)
+static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_SIZE], int enc, uint32_t tdes_opmode, size_t length,
+                               unsigned char iv[8], const unsigned char *input, unsigned char *output)
 {
     if (length % 8) {
         return MBEDTLS_ERR_DES_INVALID_INPUT_LENGTH;
     }
-    
+
     // NOTE: Don't call driver function TDES_Open in BSP because it doesn't support TDES_CTL[3KEYS] setting.
     CRPT->TDES_CTL = (0 << CRPT_TDES_CTL_CHANNEL_Pos) | (enc << CRPT_TDES_CTL_ENCRPT_Pos) |
-        tdes_opmode | (TDES_IN_OUT_WHL_SWAP << CRPT_TDES_CTL_BLKSWAP_Pos);
+                     tdes_opmode | (TDES_IN_OUT_WHL_SWAP << CRPT_TDES_CTL_BLKSWAP_Pos);
 
     // Keying option 1: All three keys are independent.
     // Keying option 2: K1 and K2 are independent, and K3 = K1.
-    // Keying option 3: All three keys are identical, i.e. K1 = K2 = K3. 
+    // Keying option 3: All three keys are identical, i.e. K1 = K2 = K3.
     if (keyopt == 1) {
         CRPT->TDES_CTL |= CRPT_TDES_CTL_3KEYS_Msk;
-    }
-    else {
+    } else {
         CRPT->TDES_CTL &= ~CRPT_TDES_CTL_3KEYS_Msk;
     }
 
@@ -331,72 +330,71 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
     *tdes_key ++ = val;
     val = nu_get32_be(key[2] + 4);
     *tdes_key ++ = val;
-    
+
     uint32_t rmn = length;
     const unsigned char *in_pos = input;
     unsigned char *out_pos = output;
-    
+
     // Must be a multiple of 64-bit block size
-    #define MAXSIZE_DMABUF  (8 * 5)
+#define MAXSIZE_DMABUF  (8 * 5)
     MBED_ALIGN(4) uint8_t dmabuf_in[MAXSIZE_DMABUF];
     MBED_ALIGN(4) uint8_t dmabuf_out[MAXSIZE_DMABUF];
 
     while (rmn) {
         uint32_t data_len = (rmn <= MAXSIZE_DMABUF) ? rmn : MAXSIZE_DMABUF;
-        
+
         uint32_t ivh, ivl;
         ivh = nu_get32_be(iv);
         ivl = nu_get32_be(iv + 4);
         TDES_SetInitVect(0, ivh, ivl);
-    
+
         memcpy(dmabuf_in, in_pos, data_len);
-        
+
         TDES_SetDMATransfer(0, (uint32_t) dmabuf_in, (uint32_t) dmabuf_out, data_len);
-        
+
         // Start enc/dec.
         // NOTE: Don't call driver function TDES_Start in BSP because it will override TDES_CTL[3KEYS] setting.
         CRPT->TDES_CTL |= CRPT_TDES_CTL_START_Msk | (CRYPTO_DMA_ONE_SHOT << CRPT_TDES_CTL_DMALAST_Pos);
         while (CRPT->TDES_STS & CRPT_TDES_STS_BUSY_Msk);
-        
+
         memcpy(out_pos, dmabuf_out, data_len);
         in_pos += data_len;
         out_pos += data_len;
         rmn -= data_len;
-        
+
         // Update IV for next block enc/dec in next function call
         switch (tdes_opmode) {
-            case DES_MODE_OFB:
-            case TDES_MODE_OFB: {
-                // OFB: IV (enc/dec) = output block XOR input block
-                uint32_t lbh, lbl;
-                // Last block of input data
-                lbh = nu_get32_be(dmabuf_in + data_len - 8 + 4);
-                lbl = nu_get32_be(dmabuf_in + data_len - 8 + 0);
-                // Last block of output data
-                ivh = nu_get32_be(dmabuf_out + 4);
-                ivl = nu_get32_be(dmabuf_out + 0);
-                ivh = ivh ^ lbh;
-                ivl = ivl ^ lbl;
-                nu_set32_be(iv + 4, ivh);
-                nu_set32_be(iv, ivl);
-                break;
-            }
-            case DES_MODE_CBC:
-            case DES_MODE_CFB:
-            case TDES_MODE_CBC:
-            case TDES_MODE_CFB: {
-                // CBC/CFB: IV (enc) = output block
-                //          IV (dec) = input block
-                if (enc) {    
-                    memcpy(iv, dmabuf_out + data_len - 8, 8);
-                }
-                else {
-                    memcpy(iv, dmabuf_in + data_len - 8, 8);
-                }
+        case DES_MODE_OFB:
+        case TDES_MODE_OFB: {
+            // OFB: IV (enc/dec) = output block XOR input block
+            uint32_t lbh, lbl;
+            // Last block of input data
+            lbh = nu_get32_be(dmabuf_in + data_len - 8 + 4);
+            lbl = nu_get32_be(dmabuf_in + data_len - 8 + 0);
+            // Last block of output data
+            ivh = nu_get32_be(dmabuf_out + 4);
+            ivl = nu_get32_be(dmabuf_out + 0);
+            ivh = ivh ^ lbh;
+            ivl = ivl ^ lbl;
+            nu_set32_be(iv + 4, ivh);
+            nu_set32_be(iv, ivl);
+            break;
+        }
+        case DES_MODE_CBC:
+        case DES_MODE_CFB:
+        case TDES_MODE_CBC:
+        case TDES_MODE_CFB: {
+            // CBC/CFB: IV (enc) = output block
+            //          IV (dec) = input block
+            if (enc) {
+                memcpy(iv, dmabuf_out + data_len - 8, 8);
+            } else {
+                memcpy(iv, dmabuf_in + data_len - 8, 8);
             }
         }
+        }
     }
-    
+
     return 0;
 }
 
