@@ -28,6 +28,18 @@
 static uint32_t can_irq_ids[CAN_NUM] = {0};
 static can_irq_handler irq_handler;
 
+static void can_registers_init(can_t *obj)
+{
+    if (HAL_CAN_Init(&obj->CanHandle) != HAL_OK) {
+        error("Cannot initialize CAN");
+    }
+
+    // Set initial CAN frequency to specified frequency
+    if (can_frequency(obj, obj->hz) != 1) {
+        error("Can frequency could not be set\n");
+    }
+}
+
 void can_init(can_t *obj, PinName rd, PinName td)
 {
     can_init_freq(obj, rd, td, 100000);
@@ -66,8 +78,8 @@ void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
         pin_mode(td, PullUp);
     }
 
+    /*  Use default values for rist init */
     obj->CanHandle.Instance = (CAN_TypeDef *)can;
-
     obj->CanHandle.Init.TTCM = DISABLE;
     obj->CanHandle.Init.ABOM = DISABLE;
     obj->CanHandle.Init.AWUM = DISABLE;
@@ -80,18 +92,15 @@ void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
     obj->CanHandle.Init.BS2 = CAN_BS2_8TQ;
     obj->CanHandle.Init.Prescaler = 2;
 
-    if (HAL_CAN_Init(&obj->CanHandle) != HAL_OK) {
-        error("Cannot initialize CAN");
-    }
+    /*  Store frequency to be restored in case of reset */
+    obj->hz = hz;
 
-    // Set initial CAN frequency to specified frequency
-    if (can_frequency(obj, hz) != 1) {
-        error("Can frequency could not be set\n");
-    }
+    can_registers_init(obj);
 
     uint32_t filter_number = (can == CAN_1) ? 0 : 14;
     can_filter(obj, 0, 0, CANStandard, filter_number);
 }
+
 
 void can_irq_init(can_t *obj, can_irq_handler handler, uint32_t id)
 {
@@ -329,8 +338,13 @@ int can_read(can_t *obj, CAN_Message *msg, int handle)
 void can_reset(can_t *obj)
 {
     CAN_TypeDef *can = obj->CanHandle.Instance;
+
+    /* Reset IP and delete errors */
     can->MCR |= CAN_MCR_RESET;
     can->ESR = 0x0;
+
+    /* restore registers state as saved in obj context */
+    can_registers_init(obj);
 }
 
 unsigned char can_rderror(can_t *obj)

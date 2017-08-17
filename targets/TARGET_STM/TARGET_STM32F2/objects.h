@@ -139,6 +139,7 @@ struct pwmout_s {
 struct can_s {
     CAN_HandleTypeDef CanHandle;
     int index;
+    int hz;
 };
 
 #define GPIO_IP_WITHOUT_BRR
