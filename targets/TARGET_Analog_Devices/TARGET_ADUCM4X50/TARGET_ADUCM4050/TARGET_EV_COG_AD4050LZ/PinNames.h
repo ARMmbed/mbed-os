@@ -122,18 +122,22 @@ typedef enum {
 
     // mbed original LED naming
     LED1 = P2_02,
-    LED2 = P1_10,
+    LED2 = P2_10,
     LED3 = LED2,
     LED4 = LED1,
 
     //Push buttons
-    PB0 = P0_15,
-    PB1 = P1_05,
+    PB0 = P1_00,
+    PB1 = P0_09,
     BOOT = P1_01,
-    WAKE_J12 = P0_15,  //4 options depending on jumper JP10 position
-    WAKE_J34 = P1_00,  //4 options depending on jumper JP10 position
-    WAKE_J56 = P0_13,  //4 options depending on jumper JP10 position
-    WAKE_J78 = P2_01,  //4 options depending on jumper JP10 position
+    WAKE0 = P0_15,
+    WAKE1 = P1_00,
+    WAKE2 = P0_13,
+    WAKE3 = P2_01,
+    WAKE_J12 = P0_15,   // left for compatibility
+    WAKE_J34 = P1_00,   // left for compatibility
+    WAKE_J56 = P0_13,   // left for compatibility
+    WAKE_J78 = P2_01,   // left for compatibility
 
     // USB Pins
     USBTX = P0_10,
