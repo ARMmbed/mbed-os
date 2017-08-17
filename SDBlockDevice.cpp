@@ -948,7 +948,7 @@ uint32_t SDBlockDevice::_sd_sectors() {
                 _erase_size = BLOCK_SIZE_HC;
             } else {
                 // ERASE_BLK_EN = 1: Erase in multiple of SECTOR_SIZE supported
-                _erase_size = ext_bits(csd, 45, 39);
+                _erase_size = BLOCK_SIZE_HC * (ext_bits(csd, 45, 39) + 1);
             }
             break;
 
