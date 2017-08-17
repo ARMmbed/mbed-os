@@ -32,8 +32,10 @@
 #include "mbed_assert.h"
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = (unsigned char*)v;
+    while( n-- ) *p++ = 0;
 }
 
 
@@ -43,7 +45,7 @@ static uint32_t au32MyAESIV[4] = {
 
 extern volatile int  g_AES_done;
 
-// Must be a multiple of 16 bytes block size 
+// Must be a multiple of 16 bytes block size
 #define MAX_DMA_CHAIN_SIZE (16*6)
 static uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE] MBED_ALIGN(4);
 static uint8_t au8InputData[MAX_DMA_CHAIN_SIZE] MBED_ALIGN(4);
@@ -51,19 +53,18 @@ static uint8_t au8InputData[MAX_DMA_CHAIN_SIZE] MBED_ALIGN(4);
 
 static void swapInitVector(unsigned char iv[16])
 {
-	  unsigned int* piv;
-	  int i;
-		// iv SWAP
-		piv = (unsigned int*)iv;
-		for( i=0; i< 4; i++)
-		{
-				*piv = (((*piv) & 0x000000FF) << 24) |
-				(((*piv) & 0x0000FF00) << 8) |
-				(((*piv) & 0x00FF0000) >> 8) |
-				(((*piv) & 0xFF000000) >> 24);
-				piv++;
-		}			
-}	
+    unsigned int* piv;
+    int i;
+    // iv SWAP
+    piv = (unsigned int*)iv;
+    for( i=0; i< 4; i++) {
+        *piv = (((*piv) & 0x000000FF) << 24) |
+               (((*piv) & 0x0000FF00) << 8) |
+               (((*piv) & 0x00FF0000) >> 8) |
+               (((*piv) & 0xFF000000) >> 24);
+        piv++;
+    }
+}
 
 //volatile void CRYPTO_IRQHandler()
 //{
@@ -74,54 +75,51 @@ static void swapInitVector(unsigned char iv[16])
 //}
 
 // AES available channel 0~3
-static unsigned char channel_flag[4]={0x00,0x00,0x00,0x00};  // 0: idle, 1: busy
+static unsigned char channel_flag[4]= {0x00,0x00,0x00,0x00}; // 0: idle, 1: busy
 static int channel_alloc()
 {
-	int i;
-	for(i=0; i< (int)sizeof(channel_flag); i++)
-	{
-		if( channel_flag[i] == 0x00 )
-		{
-			channel_flag[i] = 0x01;
-			return i;
-		}	
-	}
-	return(-1);
+    int i;
+    for(i=0; i< (int)sizeof(channel_flag); i++) {
+        if( channel_flag[i] == 0x00 ) {
+            channel_flag[i] = 0x01;
+            return i;
+        }
+    }
+    return(-1);
 }
 
 static void channel_free(int i)
 {
-	if( i >=0 && i < (int)sizeof(channel_flag) )
-		channel_flag[i] = 0x00;
+    if( i >=0 && i < (int)sizeof(channel_flag) )
+        channel_flag[i] = 0x00;
 }
 
 
 void mbedtls_aes_init( mbedtls_aes_context *ctx )
 {
-	int i =-1;
+    int i =-1;
 
-//	sw_mbedtls_aes_init(ctx); 
-//	return;
-	
+//  sw_mbedtls_aes_init(ctx);
+//  return;
+
     memset( ctx, 0, sizeof( mbedtls_aes_context ) );
-	
+
     ctx->swapType = AES_IN_OUT_SWAP;
-		while( (i = channel_alloc()) < 0 ) 	
-		{	
-		  mbed_assert_internal("No available AES channel", __FILE__, __LINE__);
-			//osDelay(300);
+    while( (i = channel_alloc()) < 0 ) {
+        mbed_assert_internal("No available AES channel", __FILE__, __LINE__);
+        //osDelay(300);
     }
     ctx->channel = i;
     ctx->iv = au32MyAESIV;
-	
+
     /* Unlock protected registers */
     SYS_UnlockReg();
-	  CLK_EnableModuleClock(CRPT_MODULE);
+    CLK_EnableModuleClock(CRPT_MODULE);
     /* Lock protected registers */
     SYS_LockReg();
 
     NVIC_EnableIRQ(CRPT_IRQn);
-    AES_ENABLE_INT();    	
+    AES_ENABLE_INT();
 }
 
 void mbedtls_aes_free( mbedtls_aes_context *ctx )
@@ -138,8 +136,8 @@ void mbedtls_aes_free( mbedtls_aes_context *ctx )
 //    SYS_LockReg();
 
 //    NVIC_DisableIRQ(CRPT_IRQn);
-//    AES_DISABLE_INT();       	
-		channel_free(ctx->channel);
+//    AES_DISABLE_INT();
+    channel_free(ctx->channel);
     mbedtls_zeroize( ctx, sizeof( mbedtls_aes_context ) );
 }
 
@@ -147,35 +145,34 @@ void mbedtls_aes_free( mbedtls_aes_context *ctx )
  * AES key schedule (encryption)
  */
 int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
-                    unsigned int keybits )
+                            unsigned int keybits )
 {
     unsigned int i;
-	
 
-    switch( keybits )
-    {
-        case 128: 
-       	    ctx->keySize = AES_KEY_SIZE_128;
-            break;
-        case 192:  
-        	ctx->keySize = AES_KEY_SIZE_192;
-            break;
-        case 256:  
-            ctx->keySize = AES_KEY_SIZE_256;
-            break;
-        default : return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
+
+    switch( keybits ) {
+    case 128:
+        ctx->keySize = AES_KEY_SIZE_128;
+        break;
+    case 192:
+        ctx->keySize = AES_KEY_SIZE_192;
+        break;
+    case 256:
+        ctx->keySize = AES_KEY_SIZE_256;
+        break;
+    default :
+        return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
     }
 
 
 
-	// key swap
-		for( i = 0; i < ( keybits >> 5 ); i++ )
-		{
-						ctx->buf[i] = (*(key+i*4) << 24) |
-													(*(key+1+i*4) << 16) |
-													(*(key+2+i*4) << 8) |
-													(*(key+3+i*4) );
-		}
+    // key swap
+    for( i = 0; i < ( keybits >> 5 ); i++ ) {
+        ctx->buf[i] = (*(key+i*4) << 24) |
+                      (*(key+1+i*4) << 16) |
+                      (*(key+2+i*4) << 8) |
+                      (*(key+3+i*4) );
+    }
     AES_SetKey(ctx->channel, ctx->buf, ctx->keySize);
 
 
@@ -186,14 +183,14 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
  * AES key schedule (decryption)
  */
 int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
-                    unsigned int keybits )
+                            unsigned int keybits )
 {
     int ret;
-	
-	
+
+
     /* Also checks keybits */
     if( ( ret = mbedtls_aes_setkey_enc( ctx, key, keybits ) ) != 0 )
-        goto exit;    
+        goto exit;
 
 exit:
 
@@ -202,30 +199,28 @@ exit:
 
 
 static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
-                          const unsigned char input[16],
-                          unsigned char output[16], int dataSize)
+                             const unsigned char input[16],
+                             unsigned char output[16], int dataSize)
 {
-		unsigned char* pIn;
-	  unsigned char* pOut;
+    unsigned char* pIn;
+    unsigned char* pOut;
 
- 
+
     AES_Open(ctx->channel, ctx->encDec, ctx->opMode, ctx->keySize, ctx->swapType);
     AES_SetInitVect(ctx->channel, ctx->iv);
-		if( ((uint32_t)input) & 0x03 )
-		{
-			memcpy(au8InputData, input, dataSize);
-			pIn = au8InputData;
-		}else{
-		  pIn = (unsigned char*)input;
+    if( ((uint32_t)input) & 0x03 ) {
+        memcpy(au8InputData, input, dataSize);
+        pIn = au8InputData;
+    } else {
+        pIn = (unsigned char*)input;
     }
-		if( (((uint32_t)output) & 0x03) || (dataSize%4))   // HW CFB output byte count must be multiple of word
-		{		
-			pOut = au8OutputData;
-		} else {
-		  pOut = output;
-    }			
+    if( (((uint32_t)output) & 0x03) || (dataSize%4)) { // HW CFB output byte count must be multiple of word
+        pOut = au8OutputData;
+    } else {
+        pOut = output;
+    }
 
-    AES_SetDMATransfer(ctx->channel, (uint32_t)pIn, (uint32_t)pOut, dataSize);		
+    AES_SetDMATransfer(ctx->channel, (uint32_t)pIn, (uint32_t)pOut, dataSize);
 
     g_AES_done = 0;
     AES_Start(ctx->channel, CRYPTO_DMA_ONE_SHOT);
@@ -243,10 +238,10 @@ void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
                           unsigned char output[16] )
 {
 
-	
-	  ctx->encDec = 1;
-	  __nvt_aes_crypt(ctx, input, output, 16);
-  
+
+    ctx->encDec = 1;
+    __nvt_aes_crypt(ctx, input, output, 16);
+
 }
 
 /*
@@ -256,10 +251,10 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
 {
- 
 
-	  ctx->encDec = 0;
-	  __nvt_aes_crypt(ctx, input, output, 16);
+
+    ctx->encDec = 0;
+    __nvt_aes_crypt(ctx, input, output, 16);
 
 
 }
@@ -268,18 +263,18 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
  * AES-ECB block encryption/decryption
  */
 int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
-                    int mode,
-                    const unsigned char input[16],
-                    unsigned char output[16] )
+                           int mode,
+                           const unsigned char input[16],
+                           unsigned char output[16] )
 {
-	
-		
-	  ctx->opMode = AES_MODE_ECB;
+
+
+    ctx->opMode = AES_MODE_ECB;
     if( mode == MBEDTLS_AES_ENCRYPT )
         mbedtls_aes_encrypt( ctx, input, output );
     else
         mbedtls_aes_decrypt( ctx, input, output );
-		
+
 
     return( 0 );
 }
@@ -289,49 +284,46 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
  * AES-CBC buffer encryption/decryption
  */
 int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
-                    int mode,
-                    size_t len,
-                    unsigned char iv[16],
-                    const unsigned char *input,
-                    unsigned char *output )
+                           int mode,
+                           size_t len,
+                           unsigned char iv[16],
+                           const unsigned char *input,
+                           unsigned char *output )
 {
     unsigned char temp[16];
     int length = len;
-	  int blockChainLen;
+    int blockChainLen;
     if( length % 16 )
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
 
-    if( (((uint32_t)input) & 0x03) || (((uint32_t)output) & 0x03) )
-		{
-			  blockChainLen = (( length > MAX_DMA_CHAIN_SIZE ) ?  MAX_DMA_CHAIN_SIZE : length );
+    if( (((uint32_t)input) & 0x03) || (((uint32_t)output) & 0x03) ) {
+        blockChainLen = (( length > MAX_DMA_CHAIN_SIZE ) ?  MAX_DMA_CHAIN_SIZE : length );
     } else {
-			  blockChainLen = length;
-    }			
-		
-    while( length > 0 )
-    {
-			  ctx->opMode = AES_MODE_CBC;
-			  swapInitVector(iv); // iv SWAP
-			  ctx->iv = (uint32_t *)iv;
+        blockChainLen = length;
+    }
 
-    		if( mode == MBEDTLS_AES_ENCRYPT )
-    		{					
-	            ctx->encDec = 1;
-	            __nvt_aes_crypt(ctx, input, output, blockChainLen);
-//					    if( blockChainLen == length ) break;		// finish last block chain but still need to prepare next iv for mbedtls_aes_self_test()
-							memcpy( iv, output+blockChainLen-16, 16 );
-				}else{
-					    memcpy( temp, input+blockChainLen-16, 16 );
-		          ctx->encDec = 0;
-	            __nvt_aes_crypt(ctx, input, output, blockChainLen);
-//					    if( blockChainLen == length ) break;		// finish last block chain but still need to prepare next iv for mbedtls_aes_self_test()
-					    memcpy( iv, temp, 16 );
-         }	
-         length -= blockChainLen;
-         input  += blockChainLen;
-         output += blockChainLen;
-			   if(length < MAX_DMA_CHAIN_SIZE ) blockChainLen = length;		// For last remainder block chain				
-	
+    while( length > 0 ) {
+        ctx->opMode = AES_MODE_CBC;
+        swapInitVector(iv); // iv SWAP
+        ctx->iv = (uint32_t *)iv;
+
+        if( mode == MBEDTLS_AES_ENCRYPT ) {
+            ctx->encDec = 1;
+            __nvt_aes_crypt(ctx, input, output, blockChainLen);
+//                      if( blockChainLen == length ) break;        // finish last block chain but still need to prepare next iv for mbedtls_aes_self_test()
+            memcpy( iv, output+blockChainLen-16, 16 );
+        } else {
+            memcpy( temp, input+blockChainLen-16, 16 );
+            ctx->encDec = 0;
+            __nvt_aes_crypt(ctx, input, output, blockChainLen);
+//                      if( blockChainLen == length ) break;        // finish last block chain but still need to prepare next iv for mbedtls_aes_self_test()
+            memcpy( iv, temp, 16 );
+        }
+        length -= blockChainLen;
+        input  += blockChainLen;
+        output += blockChainLen;
+        if(length < MAX_DMA_CHAIN_SIZE ) blockChainLen = length;     // For last remainder block chain
+
     }
 
     return( 0 );
@@ -344,49 +336,42 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
  */
 /* Support partial block encryption/decryption */
 static int __nvt_aes_crypt_partial_block_cfb128( mbedtls_aes_context *ctx,
-                       int mode,
-                       size_t length,
-                       size_t *iv_off,
-                       unsigned char iv[16],
-                       const unsigned char *input,
-                       unsigned char *output )
+        int mode,
+        size_t length,
+        size_t *iv_off,
+        unsigned char iv[16],
+        const unsigned char *input,
+        unsigned char *output )
 {
     int c;
     size_t n = *iv_off;
-		unsigned char iv_tmp[16];
-    if( mode == MBEDTLS_AES_DECRYPT )
-    {
-        while( length-- )
-        {
+    unsigned char iv_tmp[16];
+    if( mode == MBEDTLS_AES_DECRYPT ) {
+        while( length-- ) {
             if( n == 0)
                 mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
-						else if( ctx->opMode == AES_MODE_CFB)		// For previous cryption is CFB mode 
-						{
-							memcpy(iv_tmp, iv, n);
-							mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, ctx->prv_iv, iv );
-							memcpy(iv, iv_tmp, n);
-						}
-						
+            else if( ctx->opMode == AES_MODE_CFB) {     // For previous cryption is CFB mode
+                memcpy(iv_tmp, iv, n);
+                mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, ctx->prv_iv, iv );
+                memcpy(iv, iv_tmp, n);
+            }
+
             c = *input++;
             *output++ = (unsigned char)( c ^ iv[n] );
             iv[n] = (unsigned char) c;
 
             n = ( n + 1 ) & 0x0F;
         }
-    }
-    else
-    {
-        while( length-- )
-        {
+    } else {
+        while( length-- ) {
             if( n == 0 )
                 mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
-						else if( ctx->opMode == AES_MODE_CFB)	// For previous cryption is CFB mode
-						{
-							memcpy(iv_tmp, iv, n);
-							mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, ctx->prv_iv, iv );
-							memcpy(iv, iv_tmp, n);
-						}
-						
+            else if( ctx->opMode == AES_MODE_CFB) { // For previous cryption is CFB mode
+                memcpy(iv_tmp, iv, n);
+                mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, ctx->prv_iv, iv );
+                memcpy(iv, iv_tmp, n);
+            }
+
             iv[n] = *output++ = (unsigned char)( iv[n] ^ *input++ );
 
             n = ( n + 1 ) & 0x0F;
@@ -399,75 +384,70 @@ static int __nvt_aes_crypt_partial_block_cfb128( mbedtls_aes_context *ctx,
 }
 
 int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
-                       int mode,
-                       size_t len,
-                       size_t *iv_off,
-                       unsigned char iv[16],
-                       const unsigned char *input,
-                       unsigned char *output )
+                              int mode,
+                              size_t len,
+                              size_t *iv_off,
+                              unsigned char iv[16],
+                              const unsigned char *input,
+                              unsigned char *output )
 {
-		size_t n = *iv_off;
+    size_t n = *iv_off;
     unsigned char temp[16];
-   	int length=len;
-	  int blockChainLen;
-		int remLen=0;
-   	int ivLen;
-	
-		
-	// proceed: start with partial block by ECB mode first
-	  if( n !=0 ) {
-				__nvt_aes_crypt_partial_block_cfb128(ctx, mode, 16 - n , iv_off, iv, input, output);
-				input += (16 - n);
-				output += (16 - n);
-				length -= (16 - n);
-		}
-		
-		// For address or byte count non-word alignment, go through reserved DMA buffer.
-		if( (((uint32_t)input) & 0x03) || (((uint32_t)output) & 0x03) )  // Must reserved DMA buffer for each block
-		{	
-			  blockChainLen = (( length > MAX_DMA_CHAIN_SIZE ) ?  MAX_DMA_CHAIN_SIZE : length );
-		} else if(length%4) {																						// Need reserved DMA buffer once for last chain
-				blockChainLen = (( length > MAX_DMA_CHAIN_SIZE ) ?  (length - length%16) : length );
-    } else {																												// Not need reserved DMA buffer
-			  blockChainLen = length;
-    }						
-		
-		// proceed: start with block alignment
-		while( length > 0 )
-		{
+    int length=len;
+    int blockChainLen;
+    int remLen=0;
+    int ivLen;
 
-				ctx->opMode = AES_MODE_CFB;
 
-				swapInitVector(iv); // iv SWAP
-	
-				ctx->iv = (uint32_t *)iv;
-				remLen = blockChainLen%16;
-				ivLen = (( remLen > 0) ? remLen: 16 );
-	
-				if( mode == MBEDTLS_AES_DECRYPT )
-				{
-						memcpy(temp, input+blockChainLen - ivLen, ivLen);
-						if(blockChainLen >= 16) memcpy(ctx->prv_iv, input+blockChainLen-remLen-16 , 16);
-						ctx->encDec = 0;
-						__nvt_aes_crypt(ctx, input, output, blockChainLen);
-						memcpy(iv,temp, ivLen);
-				}
-				else
-				{
-						ctx->encDec = 1;
-						__nvt_aes_crypt(ctx, input, output, blockChainLen);					
-						if(blockChainLen >= 16) memcpy(ctx->prv_iv, output+blockChainLen-remLen-16 , 16);
-						memcpy(iv,output+blockChainLen-ivLen,ivLen);
-				}
-				length -= blockChainLen;
+    // proceed: start with partial block by ECB mode first
+    if( n !=0 ) {
+        __nvt_aes_crypt_partial_block_cfb128(ctx, mode, 16 - n, iv_off, iv, input, output);
+        input += (16 - n);
+        output += (16 - n);
+        length -= (16 - n);
+    }
+
+    // For address or byte count non-word alignment, go through reserved DMA buffer.
+    if( (((uint32_t)input) & 0x03) || (((uint32_t)output) & 0x03) ) { // Must reserved DMA buffer for each block
+        blockChainLen = (( length > MAX_DMA_CHAIN_SIZE ) ?  MAX_DMA_CHAIN_SIZE : length );
+    } else if(length%4) {                                                                                       // Need reserved DMA buffer once for last chain
+        blockChainLen = (( length > MAX_DMA_CHAIN_SIZE ) ?  (length - length%16) : length );
+    } else {                                                                                                                // Not need reserved DMA buffer
+        blockChainLen = length;
+    }
+
+    // proceed: start with block alignment
+    while( length > 0 ) {
+
+        ctx->opMode = AES_MODE_CFB;
+
+        swapInitVector(iv); // iv SWAP
+
+        ctx->iv = (uint32_t *)iv;
+        remLen = blockChainLen%16;
+        ivLen = (( remLen > 0) ? remLen: 16 );
+
+        if( mode == MBEDTLS_AES_DECRYPT ) {
+            memcpy(temp, input+blockChainLen - ivLen, ivLen);
+            if(blockChainLen >= 16) memcpy(ctx->prv_iv, input+blockChainLen-remLen-16, 16);
+            ctx->encDec = 0;
+            __nvt_aes_crypt(ctx, input, output, blockChainLen);
+            memcpy(iv,temp, ivLen);
+        } else {
+            ctx->encDec = 1;
+            __nvt_aes_crypt(ctx, input, output, blockChainLen);
+            if(blockChainLen >= 16) memcpy(ctx->prv_iv, output+blockChainLen-remLen-16, 16);
+            memcpy(iv,output+blockChainLen-ivLen,ivLen);
+        }
+        length -= blockChainLen;
         input  += blockChainLen;
         output += blockChainLen;
-			  if(length < MAX_DMA_CHAIN_SIZE ) blockChainLen = length;		// For last remainder block chain							
-		}
-		
+        if(length < MAX_DMA_CHAIN_SIZE ) blockChainLen = length;      // For last remainder block chain
+    }
+
     *iv_off = remLen;
 
-    return( 0 );		
+    return( 0 );
 }
 
 
@@ -475,17 +455,16 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
  * AES-CFB8 buffer encryption/decryption
  */
 int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
-                       int mode,
-                       size_t length,
-                       unsigned char iv[16],
-                       const unsigned char *input,
-                       unsigned char *output )
+                            int mode,
+                            size_t length,
+                            unsigned char iv[16],
+                            const unsigned char *input,
+                            unsigned char *output )
 {
     unsigned char c;
     unsigned char ov[17];
 
-    while( length-- )
-    {
+    while( length-- ) {
         memcpy( ov, iv, 16 );
         mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
 
@@ -509,18 +488,17 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
  * AES-CTR buffer encryption/decryption
  */
 int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
-                       size_t length,
-                       size_t *nc_off,
-                       unsigned char nonce_counter[16],
-                       unsigned char stream_block[16],
-                       const unsigned char *input,
-                       unsigned char *output )
+                           size_t length,
+                           size_t *nc_off,
+                           unsigned char nonce_counter[16],
+                           unsigned char stream_block[16],
+                           const unsigned char *input,
+                           unsigned char *output )
 {
     int c, i;
     size_t n = *nc_off;
 
-    while( length-- )
-    {
+    while( length-- ) {
         if( n == 0 ) {
             mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, nonce_counter, stream_block );
 

@@ -33,8 +33,7 @@ struct mbedtls_sha1_context_s;
 /**
  * \brief          SHA-1 context structure
  */
-typedef struct mbedtls_sha1_context_s
-{
+typedef struct mbedtls_sha1_context_s {
     int ishw;
     crypto_sha_context hw_ctx;
     mbedtls_sha1_sw_context sw_ctx;

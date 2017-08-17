@@ -53,7 +53,7 @@ void mbedtls_sha1_hw_free(crypto_sha_context *ctx)
 }
 
 void mbedtls_sha1_hw_clone(crypto_sha_context *dst,
-                        const crypto_sha_context *src)
+                           const crypto_sha_context *src)
 {
     *dst = *src;
 }
@@ -62,17 +62,17 @@ void mbedtls_sha1_hw_starts(crypto_sha_context *ctx)
 {
     // NOTE: mbedtls may call mbedtls_shaXXX_starts multiple times and then call the ending mbedtls_shaXXX_finish. Guard from it.
     CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
-    
+
     ctx->total = 0;
     ctx->buffer_left = 0;
     ctx->blocksize = 64;
     ctx->blocksize_mask = 0x3F;
 
     SHA_Open(SHA_MODE_SHA1, SHA_NO_SWAP);
-    
+
     // Ensure we have correct initial inernal states in SHA_DGST registers even though SHA H/W is not actually started.
     CRPT->SHA_CTL |= CRPT_SHA_CTL_START_Msk;
-    
+
     return;
 }
 
@@ -88,12 +88,11 @@ void mbedtls_sha1_hw_finish(crypto_sha_context *ctx, unsigned char output[20])
         crypto_sha_update_nobuf(ctx, ctx->buffer, ctx->buffer_left, 1);
         ctx->buffer_left = 0;
         crypto_sha_getinternstate(output, 20);
-    
+
         CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
-    }
-    else {
+    } else {
         mbedtls_sha1_sw_context ctx_sw;
-    
+
         mbedtls_sha1_sw_init(&ctx_sw);
         mbedtls_sha1_sw_starts(&ctx_sw);
         mbedtls_sha1_sw_finish(&ctx_sw, output);
@@ -128,7 +127,7 @@ void mbedtls_sha256_hw_free(crypto_sha_context *ctx)
 }
 
 void mbedtls_sha256_hw_clone(crypto_sha_context *dst,
-                        const crypto_sha_context *src)
+                             const crypto_sha_context *src)
 {
     *dst = *src;
 }
@@ -137,7 +136,7 @@ void mbedtls_sha256_hw_starts( crypto_sha_context *ctx, int is224)
 {
     // NOTE: mbedtls may call mbedtls_shaXXX_starts multiple times and then call the ending mbedtls_shaXXX_finish. Guard from it.
     CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
-     
+
     ctx->total = 0;
     ctx->buffer_left = 0;
     ctx->blocksize = 64;
@@ -145,10 +144,10 @@ void mbedtls_sha256_hw_starts( crypto_sha_context *ctx, int is224)
     ctx->is224 = is224;
 
     SHA_Open(is224 ? SHA_MODE_SHA224 : SHA_MODE_SHA256, SHA_NO_SWAP);
-    
+
     // Ensure we have correct initial inernal states in SHA_DGST registers even though SHA H/W is not actually started.
     CRPT->SHA_CTL |= CRPT_SHA_CTL_START_Msk;
-    
+
     return;
 }
 
@@ -164,12 +163,11 @@ void mbedtls_sha256_hw_finish(crypto_sha_context *ctx, unsigned char output[32])
         crypto_sha_update_nobuf(ctx, ctx->buffer, ctx->buffer_left, 1);
         ctx->buffer_left = 0;
         crypto_sha_getinternstate(output, ctx->is224 ? 28 : 32);
-    
+
         CRPT->SHA_CTL |= CRPT_SHA_CTL_STOP_Msk;
-    }
-    else {
+    } else {
         mbedtls_sha256_sw_context ctx_sw;
-    
+
         mbedtls_sha256_sw_init(&ctx_sw);
         mbedtls_sha256_sw_starts(&ctx_sw, ctx->is224);
         mbedtls_sha256_sw_finish(&ctx_sw, output);
@@ -193,7 +191,7 @@ void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size
     if (ilen == 0) {
         return;
     }
-    
+
     size_t fill = ctx->blocksize - ctx->buffer_left;
 
     ctx->total += (uint32_t) ilen;
@@ -208,7 +206,7 @@ void crypto_sha_update(crypto_sha_context *ctx, const unsigned char *input, size
             ctx->buffer_left = 0;
         }
     }
-    
+
     while (ilen > ctx->blocksize) {
         crypto_sha_update_nobuf(ctx, input, ctx->blocksize, 0);
         input += ctx->blocksize;
@@ -227,16 +225,16 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
     // 1. Last block which may be incomplete
     // 2. Non-last block which is complete
     MBED_ASSERT(islast || ilen == ctx->blocksize);
-    
+
     const unsigned char *in_pos = input;
     int rmn = ilen;
     uint32_t sha_ctl_start = (CRPT->SHA_CTL & ~(CRPT_SHA_CTL_DMALAST_Msk | CRPT_SHA_CTL_DMAEN_Msk)) | CRPT_SHA_CTL_START_Msk;
     uint32_t sha_opmode = (CRPT->SHA_CTL & CRPT_SHA_CTL_OPMODE_Msk) >> CRPT_SHA_CTL_OPMODE_Pos;
     uint32_t DGST0_old, DGST1_old, DGST2_old, DGST3_old, DGST4_old, DGST5_old, DGST6_old, DGST7_old;
-    
+
     while (rmn > 0) {
         CRPT->SHA_CTL = sha_ctl_start;
-        
+
         uint32_t data = nu_get32_be(in_pos);
         if (rmn <= 4) { // Last word of a (in)complete block
             if (islast) {
@@ -246,60 +244,57 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
                 }
                 CRPT->SHA_DMACNT = lastblock_size;
                 CRPT->SHA_CTL = sha_ctl_start | CRPT_SHA_CTL_DMALAST_Msk;
-            }
-            else {
+            } else {
                 switch (sha_opmode) {
-                    case SHA_MODE_SHA256:
-                        DGST7_old = CRPT->SHA_DGST7;
-                    case SHA_MODE_SHA224:
-                        DGST5_old = CRPT->SHA_DGST5;
-                        DGST6_old = CRPT->SHA_DGST6;
-                    case SHA_MODE_SHA1:
-                        DGST0_old = CRPT->SHA_DGST0;
-                        DGST1_old = CRPT->SHA_DGST1;
-                        DGST2_old = CRPT->SHA_DGST2;
-                        DGST3_old = CRPT->SHA_DGST3;
-                        DGST4_old = CRPT->SHA_DGST4;
+                case SHA_MODE_SHA256:
+                    DGST7_old = CRPT->SHA_DGST7;
+                case SHA_MODE_SHA224:
+                    DGST5_old = CRPT->SHA_DGST5;
+                    DGST6_old = CRPT->SHA_DGST6;
+                case SHA_MODE_SHA1:
+                    DGST0_old = CRPT->SHA_DGST0;
+                    DGST1_old = CRPT->SHA_DGST1;
+                    DGST2_old = CRPT->SHA_DGST2;
+                    DGST3_old = CRPT->SHA_DGST3;
+                    DGST4_old = CRPT->SHA_DGST4;
                 }
 
                 CRPT->SHA_CTL = sha_ctl_start;
             }
-        }
-        else {  // Non-last word of a complete block
+        } else { // Non-last word of a complete block
             CRPT->SHA_CTL = sha_ctl_start;
         }
         while (! (CRPT->SHA_STS & CRPT_SHA_STS_DATINREQ_Msk));
         CRPT->SHA_DATIN = data;
-        
+
         in_pos += 4;
         rmn -= 4;
     }
-    
+
     if (islast) {   // Finish of last block
         while (CRPT->SHA_STS & CRPT_SHA_STS_BUSY_Msk);
-    }
-    else {  // Finish of non-last block
+    } else { // Finish of non-last block
         // No H/W flag to indicate finish of non-last block process.
         // Values of SHA_DGSTx registers will change as last word of the block is input, so use it for judgement.
         int isfinish = 0;
         while (! isfinish) {
             switch (sha_opmode) {
-                case SHA_MODE_SHA256:
-                    if (DGST7_old != CRPT->SHA_DGST7) {
-                        isfinish = 1;
-                        break;
-                    }
-                case SHA_MODE_SHA224:
-                    if (DGST5_old != CRPT->SHA_DGST5 || DGST6_old != CRPT->SHA_DGST6) {
-                        isfinish = 1;
-                        break;
-                    }
-                case SHA_MODE_SHA1:
-                    if (DGST0_old != CRPT->SHA_DGST0 || DGST1_old != CRPT->SHA_DGST1 || DGST2_old != CRPT->SHA_DGST2 ||
+            case SHA_MODE_SHA256:
+                if (DGST7_old != CRPT->SHA_DGST7) {
+                    isfinish = 1;
+                    break;
+                }
+            case SHA_MODE_SHA224:
+                if (DGST5_old != CRPT->SHA_DGST5 || DGST6_old != CRPT->SHA_DGST6) {
+                    isfinish = 1;
+                    break;
+                }
+            case SHA_MODE_SHA1:
+                if (DGST0_old != CRPT->SHA_DGST0 || DGST1_old != CRPT->SHA_DGST1 || DGST2_old != CRPT->SHA_DGST2 ||
                         DGST3_old != CRPT->SHA_DGST3 || DGST4_old != CRPT->SHA_DGST4) {
-                        isfinish = 1;
-                        break;
-                    }
+                    isfinish = 1;
+                    break;
+                }
             }
         }
     }
@@ -310,7 +305,7 @@ void crypto_sha_getinternstate(unsigned char output[], size_t olen)
     uint32_t *in_pos = (uint32_t *) &CRPT->SHA_DGST0;
     unsigned char *out_pos = output;
     uint32_t rmn = olen;
-    
+
     while (rmn) {
         uint32_t val = *in_pos ++;
         nu_set32_be(out_pos, val);
