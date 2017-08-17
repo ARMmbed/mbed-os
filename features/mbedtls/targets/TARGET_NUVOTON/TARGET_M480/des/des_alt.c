@@ -24,11 +24,6 @@
 #include "nu_bitutil.h"
 #include "mbed_toolchain.h"
 
-// Must be a multiple of 64-bit block size
-#define MAXSIZE_DMABUF  (8 * 5)
-static uint8_t dmabuf_in[MAXSIZE_DMABUF] MBED_ALIGN(4);
-static uint8_t dmabuf_out[MAXSIZE_DMABUF] MBED_ALIGN(4);
-
 static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_SIZE], int enc, uint32_t tdes_opmode, size_t length, 
     unsigned char iv[8], const unsigned char *input, unsigned char *output);
 
@@ -341,6 +336,11 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
     const unsigned char *in_pos = input;
     unsigned char *out_pos = output;
     
+    // Must be a multiple of 64-bit block size
+    #define MAXSIZE_DMABUF  (8 * 5)
+    MBED_ALIGN(4) uint8_t dmabuf_in[MAXSIZE_DMABUF];
+    MBED_ALIGN(4) uint8_t dmabuf_out[MAXSIZE_DMABUF];
+
     while (rmn) {
         uint32_t data_len = (rmn <= MAXSIZE_DMABUF) ? rmn : MAXSIZE_DMABUF;
         
