@@ -884,6 +884,9 @@ extern "C" WEAK void __iar_file_Mtxinit(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxdst(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxlock(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxunlock(__iar_Rmtx *mutex) {}
+#if (__IAR_SYSTEMS_ICC__ >= 8)
+extern "C" WEAK void *__aeabi_read_tp (void) {}
+#endif
 #elif defined(__CC_ARM)
 // Do nothing
 #elif defined (__GNUC__)
