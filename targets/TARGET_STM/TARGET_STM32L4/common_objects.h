@@ -135,6 +135,13 @@ struct dac_s {
 }
 #endif
 
+#if DEVICE_CAN
+struct can_s {
+    CANName can;
+    int index;
+};
+#endif
+
 /* STM32L4 HAL doesn't provide this API called in rtc_api.c */
 #define __HAL_RCC_RTC_CLKPRESCALER(__RTCCLKSource__)
 
