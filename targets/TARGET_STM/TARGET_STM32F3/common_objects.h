@@ -128,6 +128,7 @@ struct analogin_s {
 struct can_s {
     CAN_HandleTypeDef CanHandle;
     int index;
+    int hz;
 };
 #endif
 
