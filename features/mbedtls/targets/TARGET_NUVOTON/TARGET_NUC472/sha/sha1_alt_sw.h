@@ -23,11 +23,7 @@
 #ifndef MBEDTLS_SHA1_ALT_SW_H
 #define MBEDTLS_SHA1_ALT_SW_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/sha256.h"
 
 #if defined(MBEDTLS_SHA1_C)
 #if defined(MBEDTLS_SHA1_ALT)

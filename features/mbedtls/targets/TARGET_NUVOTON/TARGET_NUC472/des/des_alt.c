@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/des.h"
 
 #if defined(MBEDTLS_DES_C)
 #if defined(MBEDTLS_DES_ALT)
 
 #include <string.h>
-#include "mbedtls/des.h"
-#include "des_alt.h"
 #include "crypto-misc.h"
 #include "nu_bitutil.h"
 #include "mbed_toolchain.h"
