@@ -30,7 +30,7 @@ void crypto_init(void)
         return;
     }
     crypto_inited = 1;
-    
+
     CLK_EnableModuleClock(CRPT_MODULE);
 }
 
@@ -48,11 +48,10 @@ int crypto_sha_acquire(void)
     if (crypto_sha_avail) {
         crypto_sha_avail = 0;
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
-    
+
 }
 
 void crypto_sha_release(void)

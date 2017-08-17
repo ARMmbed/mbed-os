@@ -36,8 +36,7 @@ extern "C" {
 /**
  * \brief          SHA-1 context structure
  */
-typedef struct
-{
+typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */
     uint32_t state[5];          /*!< intermediate digest state  */
     unsigned char buffer[64];   /*!< data block being processed */
@@ -65,7 +64,7 @@ void mbedtls_sha1_sw_free( mbedtls_sha1_sw_context *ctx );
  * \param src      The context to be cloned
  */
 void mbedtls_sha1_sw_clone( mbedtls_sha1_sw_context *dst,
-                         const mbedtls_sha1_sw_context *src );
+                            const mbedtls_sha1_sw_context *src );
 
 /**
  * \brief          SHA-1 context setup

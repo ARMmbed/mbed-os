@@ -28,8 +28,7 @@ void mbedtls_sha1_init(mbedtls_sha1_context *ctx)
     if (crypto_sha_acquire()) {
         ctx->ishw = 1;
         mbedtls_sha1_hw_init(&ctx->hw_ctx);
-    }
-    else {
+    } else {
         ctx->ishw = 0;
         mbedtls_sha1_sw_init(&ctx->sw_ctx);
     }
@@ -44,8 +43,7 @@ void mbedtls_sha1_free(mbedtls_sha1_context *ctx)
     if (ctx->ishw) {
         mbedtls_sha1_hw_free(&ctx->hw_ctx);
         crypto_sha_release();
-    }
-    else {
+    } else {
         mbedtls_sha1_sw_free(&ctx->sw_ctx);
     }
 }
@@ -73,8 +71,7 @@ void mbedtls_sha1_clone(mbedtls_sha1_context *dst,
         if (src->hw_ctx.buffer_left == src->hw_ctx.blocksize) {
             mbedtls_sha1_sw_process(&dst->sw_ctx, dst->sw_ctx.buffer);
         }
-    }
-    else {
+    } else {
         // Clone S/W ctx from S/W ctx
         dst->sw_ctx = src->sw_ctx;
     }
@@ -87,8 +84,7 @@ void mbedtls_sha1_starts(mbedtls_sha1_context *ctx)
 {
     if (ctx->ishw) {
         mbedtls_sha1_hw_starts(&ctx->hw_ctx);
-    }
-    else {
+    } else {
         mbedtls_sha1_sw_starts(&ctx->sw_ctx);
     }
 }
@@ -100,8 +96,7 @@ void mbedtls_sha1_update(mbedtls_sha1_context *ctx, const unsigned char *input, 
 {
     if (ctx->ishw) {
         mbedtls_sha1_hw_update(&ctx->hw_ctx, input, ilen);
-    }
-    else {
+    } else {
         mbedtls_sha1_sw_update(&ctx->sw_ctx, input, ilen);
     }
 }
@@ -113,8 +108,7 @@ void mbedtls_sha1_finish(mbedtls_sha1_context *ctx, unsigned char output[20])
 {
     if (ctx->ishw) {
         mbedtls_sha1_hw_finish(&ctx->hw_ctx, output);
-    }
-    else {
+    } else {
         mbedtls_sha1_sw_finish(&ctx->sw_ctx, output);
     }
 }
@@ -123,8 +117,7 @@ void mbedtls_sha1_process(mbedtls_sha1_context *ctx, const unsigned char data[64
 {
     if (ctx->ishw) {
         mbedtls_sha1_hw_process(&ctx->hw_ctx, data);
-    }
-    else {
+    } else {
         mbedtls_sha1_sw_process(&ctx->sw_ctx, data);
     }
 }

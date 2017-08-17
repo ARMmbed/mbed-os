@@ -39,8 +39,10 @@
 #endif /* MBEDTLS_SELF_TEST */
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = (unsigned char*)v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
@@ -80,7 +82,7 @@ void mbedtls_sha1_sw_free( mbedtls_sha1_sw_context *ctx )
 }
 
 void mbedtls_sha1_sw_clone( mbedtls_sha1_sw_context *dst,
-                         const mbedtls_sha1_sw_context *src )
+                            const mbedtls_sha1_sw_context *src )
 {
     *dst = *src;
 }
@@ -276,8 +278,7 @@ void mbedtls_sha1_sw_update( mbedtls_sha1_sw_context *ctx, const unsigned char *
     if( ctx->total[0] < (uint32_t) ilen )
         ctx->total[1]++;
 
-    if( left && ilen >= fill )
-    {
+    if( left && ilen >= fill ) {
         memcpy( (void *) (ctx->buffer + left), input, fill );
         mbedtls_sha1_sw_process( ctx, ctx->buffer );
         input += fill;
@@ -285,8 +286,7 @@ void mbedtls_sha1_sw_update( mbedtls_sha1_sw_context *ctx, const unsigned char *
         left = 0;
     }
 
-    while( ilen >= 64 )
-    {
+    while( ilen >= 64 ) {
         mbedtls_sha1_sw_process( ctx, input );
         input += 64;
         ilen  -= 64;
@@ -296,9 +296,8 @@ void mbedtls_sha1_sw_update( mbedtls_sha1_sw_context *ctx, const unsigned char *
         memcpy( (void *) (ctx->buffer + left), input, ilen );
 }
 
-static const unsigned char sha1_padding[64] =
-{
- 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+static const unsigned char sha1_padding[64] = {
+    0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -314,7 +313,7 @@ void mbedtls_sha1_sw_finish( mbedtls_sha1_sw_context *ctx, unsigned char output[
     unsigned char msglen[8];
 
     high = ( ctx->total[0] >> 29 )
-         | ( ctx->total[1] <<  3 );
+           | ( ctx->total[1] <<  3 );
     low  = ( ctx->total[0] <<  3 );
 
     PUT_UINT32_BE( high, msglen, 0 );
