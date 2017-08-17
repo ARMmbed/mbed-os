@@ -148,7 +148,6 @@ void mbedtls_aes_free( mbedtls_aes_context *ctx )
 /*
  * AES key schedule (encryption)
  */
-#if defined(MBEDTLS_AES_SETKEY_ENC_ALT)
 int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
                     unsigned int keybits )
 {
@@ -184,12 +183,10 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
 
     return( 0 );
 }
-#endif /* MBEDTLS_AES_SETKEY_ENC_ALT */
 
 /*
  * AES key schedule (decryption)
  */
-#if defined(MBEDTLS_AES_SETKEY_DEC_ALT)
 int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
                     unsigned int keybits )
 {
@@ -204,7 +201,6 @@ exit:
 
     return( ret );
 }
-#endif /* MBEDTLS_AES_SETKEY_DEC_ALT */
 
 
 static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
@@ -244,7 +240,6 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
 /*
  * AES-ECB block encryption
  */
-#if defined(MBEDTLS_AES_ENCRYPT_ALT)
 void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
@@ -252,12 +247,10 @@ void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
 	  ctx->encDec = 1;
 	  __nvt_aes_crypt(ctx, input, output, 16);
 }
-#endif /* MBEDTLS_AES_ENCRYPT_ALT */
 
 /*
  * AES-ECB block decryption
  */
-#if defined(MBEDTLS_AES_DECRYPT_ALT)
 void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
@@ -265,7 +258,6 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
 	  ctx->encDec = 0;
 	  __nvt_aes_crypt(ctx, input, output, 16);
 }
-#endif /* MBEDTLS_AES_DECRYPT_ALT */
 
 /*
  * AES-ECB block encryption/decryption
