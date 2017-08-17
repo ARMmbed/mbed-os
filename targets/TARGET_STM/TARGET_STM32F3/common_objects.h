@@ -126,7 +126,7 @@ struct analogin_s {
 
 #if DEVICE_CAN
 struct can_s {
-    CANName can;
+    CAN_HandleTypeDef CanHandle;
     int index;
 };
 #endif

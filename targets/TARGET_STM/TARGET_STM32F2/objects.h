@@ -137,7 +137,7 @@ struct pwmout_s {
 };
 
 struct can_s {
-    CANName can;
+    CAN_HandleTypeDef CanHandle;
     int index;
 };
 
