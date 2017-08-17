@@ -38,11 +38,6 @@
 #include "mbed_toolchain.h"
 #include "mbed_assert.h"
 
-//static int aes_init_done = 0;
-
-
-#define mbedtls_trace(...) //printf(__VA_ARGS__)
-
 /* Implementation that should never be optimized out by the compiler */
 static void mbedtls_zeroize( void *v, size_t n ) {
     volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
@@ -60,12 +55,6 @@ extern volatile int  g_AES_done;
 static uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE] MBED_ALIGN(4);
 static uint8_t au8InputData[MAX_DMA_CHAIN_SIZE] MBED_ALIGN(4);
 
-static void dumpHex(const unsigned char au8Data[], int len)
-{
-		int j;									
-		for (j = 0; j < len; j++) mbedtls_trace("%02x ", au8Data[j]);									
-		mbedtls_trace("\r\n");										
-}	
 
 static void swapInitVector(unsigned char iv[16])
 {
@@ -121,7 +110,6 @@ void mbedtls_aes_init( mbedtls_aes_context *ctx )
 //	sw_mbedtls_aes_init(ctx); 
 //	return;
 	
-		mbedtls_trace("=== %s \r\n", __FUNCTION__);
     memset( ctx, 0, sizeof( mbedtls_aes_context ) );
 	
     ctx->swapType = AES_IN_OUT_SWAP;
@@ -141,13 +129,11 @@ void mbedtls_aes_init( mbedtls_aes_context *ctx )
 
     NVIC_EnableIRQ(CRPT_IRQn);
     AES_ENABLE_INT();    	
-	  mbedtls_trace("=== %s channel[%d]\r\n", __FUNCTION__, (int)ctx->channel);
 }
 
 void mbedtls_aes_free( mbedtls_aes_context *ctx )
 {
 
-	  mbedtls_trace("=== %s channel[%d]\r\n", __FUNCTION__,(int)ctx->channel);	
 
     if( ctx == NULL )
         return;
@@ -173,8 +159,6 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
 {
     unsigned int i;
 	
-	mbedtls_trace("=== %s keybits[%d]\r\n", __FUNCTION__, keybits);
-	dumpHex(key,keybits/8);
 
     switch( keybits )
     {
@@ -216,8 +200,6 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
 {
     int ret;
 	
-	  mbedtls_trace("=== %s keybits[%d]\r\n", __FUNCTION__, keybits);
-	  dumpHex((uint8_t *)key,keybits/8);
 	
     /* Also checks keybits */
     if( ( ret = mbedtls_aes_setkey_enc( ctx, key, keybits ) ) != 0 )
@@ -237,8 +219,6 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
 		unsigned char* pIn;
 	  unsigned char* pOut;
 
-//	  mbedtls_trace("=== %s \r\n", __FUNCTION__);
-	  dumpHex(input,16);
  
     AES_Open(ctx->channel, ctx->encDec, ctx->opMode, ctx->keySize, ctx->swapType);
     AES_SetInitVect(ctx->channel, ctx->iv);
@@ -263,7 +243,6 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     while (!g_AES_done);
 
     if( pOut != output ) memcpy(output, au8OutputData, dataSize);
-		dumpHex(output,16);
 
 }
 
@@ -276,7 +255,6 @@ void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
                           unsigned char output[16] )
 {
 
-	  mbedtls_trace("=== %s \r\n", __FUNCTION__);
 	
 	  ctx->encDec = 1;
 	  __nvt_aes_crypt(ctx, input, output, 16);
@@ -293,7 +271,6 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
                           unsigned char output[16] )
 {
  
-	  mbedtls_trace("=== %s \r\n", __FUNCTION__);
 
 	  ctx->encDec = 0;
 	  __nvt_aes_crypt(ctx, input, output, 16);
@@ -311,7 +288,6 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
                     unsigned char output[16] )
 {
 	
-	  mbedtls_trace("=== %s \r\n", __FUNCTION__);
 		
 	  ctx->opMode = AES_MODE_ECB;
     if( mode == MBEDTLS_AES_ENCRYPT )
@@ -337,7 +313,6 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
     unsigned char temp[16];
     int length = len;
 	  int blockChainLen;
-		mbedtls_trace("=== %s [0x%x]\r\n", __FUNCTION__,length);
     if( length % 16 )
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
 
@@ -394,7 +369,6 @@ static int __nvt_aes_crypt_partial_block_cfb128( mbedtls_aes_context *ctx,
     int c;
     size_t n = *iv_off;
 		unsigned char iv_tmp[16];
-		mbedtls_trace("=== %s \r\n", __FUNCTION__);
     if( mode == MBEDTLS_AES_DECRYPT )
     {
         while( length-- )
@@ -454,7 +428,6 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
 		int remLen=0;
    	int ivLen;
 	
-		mbedtls_trace("=== %s \r\n", __FUNCTION__);
 		
 	// proceed: start with partial block by ECB mode first
 	  if( n !=0 ) {
@@ -526,7 +499,6 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
     unsigned char c;
     unsigned char ov[17];
 
-		mbedtls_trace("=== %s \r\n", __FUNCTION__);
     while( length-- )
     {
         memcpy( ov, iv, 16 );
@@ -562,7 +534,6 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
     int c, i;
     size_t n = *nc_off;
 
-	mbedtls_trace("=== %s \r\n", __FUNCTION__);	
     while( length-- )
     {
         if( n == 0 ) {

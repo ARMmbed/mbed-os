@@ -54,15 +54,8 @@ typedef struct
     uint32_t channel;
     uint32_t swapType;
     uint32_t *iv;
-		unsigned char prv_iv[16];
-#if 1	
-    uint32_t buf[8]; 
-/* For comparsion with software AES for correctness */ 
-#else
-    uint32_t buf[68];           /*!<  unaligned data    */    
-    int nr;                     /*!<  number of rounds  */
-    uint32_t *rk;               /*!<  AES round keys    */    
-#endif    
+    unsigned char prv_iv[16];
+    uint32_t buf[8];    
 }
 mbedtls_aes_context;
 
