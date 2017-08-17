@@ -41,8 +41,10 @@ void Timer::start() {
 void Timer::stop() {
     core_util_critical_section_enter();
     _time += slicetime();
+    if (_running) {
+        sleep_manager_unlock_deep_sleep();
+    }
     _running = 0;
-    sleep_manager_unlock_deep_sleep();
     core_util_critical_section_exit();
 }
 

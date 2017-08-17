@@ -25,8 +25,11 @@ namespace mbed {
 void Ticker::detach() {
     core_util_critical_section_enter();
     remove();
+    // unlocked only if we were attached (we locked it)
+    if (_function) {
+        sleep_manager_unlock_deep_sleep();
+    }
     _function = 0;
-    sleep_manager_unlock_deep_sleep();
     core_util_critical_section_exit();
 }
 
