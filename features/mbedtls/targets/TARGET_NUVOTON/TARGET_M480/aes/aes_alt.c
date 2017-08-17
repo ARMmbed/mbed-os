@@ -21,18 +21,12 @@
  *  http://csrc.nist.gov/publications/fips/fips197/fips-197.pdf
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/aes.h"
 
 #if defined(MBEDTLS_AES_C)
 #if defined(MBEDTLS_AES_ALT)
 
 #include <string.h>
-
-#include "mbedtls/aes.h"
 
 #include "M480.h"
 #include "mbed_toolchain.h"

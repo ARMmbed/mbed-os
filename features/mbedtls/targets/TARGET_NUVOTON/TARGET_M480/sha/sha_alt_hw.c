@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/sha1.h"
+#include "mbedtls/sha256.h"
+#include "mbedtls/sha512.h"
 
 #if defined(MBEDTLS_SHA1_C) || defined(MBEDTLS_SHA256_C) || defined(MBEDTLS_SHA512_C)
 
 #if defined(MBEDTLS_SHA1_ALT) || defined(MBEDTLS_SHA256_ALT) || defined(MBEDTLS_SHA512_ALT)
-
-#if defined(MBEDTLS_SHA1_ALT)
-#include "sha1_alt.h"
-#endif /* MBEDTLS_SHA1_ALT */
-
-#if defined(MBEDTLS_SHA256_ALT)
-#include "sha256_alt.h"
-#endif /* MBEDTLS_SHA256_ALT */
-
-#if defined(MBEDTLS_SHA512_ALT)
-#include "sha512_alt.h"
-#endif /* MBEDTLS_SHA512_ALT */
 
 #include "nu_bitutil.h"
 #include "mbed_assert.h"

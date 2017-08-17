@@ -17,12 +17,6 @@
 #ifndef MBEDTLS_DES_ALT_H
 #define MBEDTLS_DES_ALT_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
-
 #if defined(MBEDTLS_DES_C)
 #if defined(MBEDTLS_DES_ALT)
 

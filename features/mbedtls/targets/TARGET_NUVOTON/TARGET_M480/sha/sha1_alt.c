@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/sha1.h"
 
 #if defined(MBEDTLS_SHA1_C)
 #if defined(MBEDTLS_SHA1_ALT)
 
-#include "sha1_alt.h"
 #include "crypto-misc.h"
 #include "nu_bitutil.h"
 #include "string.h"
