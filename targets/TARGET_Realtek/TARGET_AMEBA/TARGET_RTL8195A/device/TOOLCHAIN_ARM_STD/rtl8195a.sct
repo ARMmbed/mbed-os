@@ -18,28 +18,49 @@ LR_IRAM 0x10007000 (0x70000 - 0x7000) {
   }
 
   ER_IRAM +0 FIXED {
-    *rtl8195a_crypto.o(.text*, .rodata*)
-    *mbedtls*.o(.text*, .rodata*)
-    libc.a: (.text*, .rodata*)
+    *rtl8195a_crypto.o (+RO)
+    * (i.mbedtls*)
+    *libc.a (+RO)
+    
+	*rtx_*.o (+RO)
+    *Ticker.o (+RO)
+    *Timeout.o (+RO)
+	*rtx_timer.o (+RO)
+    *TimerEvent.o (+RO)
+    *mbed_ticker_api.o (+RO)
+    *mbed_critical.o (+RO)
+    *us_ticker.o (+RO)
+    
+    *lib_peripheral_mbed_arm.ar (+RO)
   }
 
   RW_IRAM1 +0 UNINIT FIXED {
-    *rtl8195a_crypto.o(.data*)
-    *mbedtls*.o(.data*)
-    libc.a: (.data*)
+    *rtl8195a_crypto.o(+RW)
+    ;*mbedtls*.o(+RW)
+    *libc.a (+RW)
     *(.sdram.data*)
+    *lib_peripheral_mbed_arm.ar (+RW)
   }
 
   RW_IRAM2 +0 UNINIT FIXED {
-    *rtl8195a_crypto.o(.bss*, COMMON)
-    *mbedtls*.o(.bss*, COMMON)
-    libc.a: (.bss*, COMMON)
+    *rtl8195a_crypto.o(+ZI, COMMON)
+    ;*mbedtls*.o(+ZI, COMMON)
+    *libc.a (+ZI, COMMON)
     *(.bss.thread_stack_main)
+    *lib_peripheral_mbed_arm.ar (+ZI, COMMON)
   }
 
   ARM_LIB_STACK (0x10070000 - 0x1000) EMPTY 0x1000 {
   }
 }
+
+;LR_TCM 0x1FFF0000 0x10000 {
+;    TCM_OVERLAY 0x1FFF0000 0x10000 {
+;        lwip_mem.o(.bss*)
+;        lwip_memp.o(.bss*)
+;        *.o(.tcm.heap*)
+;    }
+;}
 
 LR_DRAM 0x30000000 0x200000 {
 

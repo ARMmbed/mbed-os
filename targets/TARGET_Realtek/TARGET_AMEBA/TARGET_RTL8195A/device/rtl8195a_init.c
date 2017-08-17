@@ -125,9 +125,9 @@ void __TRAP_HardFaultHandler_Patch(uint32_t addr)
              * Otherwise it will keep hitting MemMange Fault on the same assembly code.
              *
              * To step to next command, we need parse the assembly code to check if
-	     * it is 16-bit or 32-bit command.
+         * it is 16-bit or 32-bit command.
              * Ref: ARM Architecture Reference Manual (ARMv7-A and ARMv7-R edition),
-	     * Chapter A6 - Thumb Instruction Set Encoding
+         * Chapter A6 - Thumb Instruction Set Encoding
              *
              * However, the fault assembly code (Ex. LDR or ADR) is not actually executed,
              * So the register value is un-predictable.
@@ -202,6 +202,9 @@ void PLAT_Start(void)
 #else
     TRAP_OverrideTable(0x1FFFFFFC);
 #endif
+    extern HAL_TIMER_OP_EXT HalTimerOpExt;
+    __rtl_memset_v1_00((void *)&HalTimerOpExt, 0, sizeof(HalTimerOpExt));
+    __rtl_memset_v1_00((void *)&HalTimerOp, 0, sizeof(HalTimerOp));
 
     HalTimerOpInit_Patch(&HalTimerOp);
     SystemCoreClockUpdate();
