@@ -38,8 +38,7 @@ extern "C" {
 /**
  * \brief          SHA-256 context structure
  */
-typedef struct
-{
+typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */
     uint32_t state[8];          /*!< intermediate digest state  */
     unsigned char buffer[64];   /*!< data block being processed */
@@ -68,7 +67,7 @@ void mbedtls_sha256_sw_free( mbedtls_sha256_sw_context *ctx );
  * \param src      The context to be cloned
  */
 void mbedtls_sha256_sw_clone( mbedtls_sha256_sw_context *dst,
-                           const mbedtls_sha256_sw_context *src );
+                              const mbedtls_sha256_sw_context *src );
 
 /**
  * \brief          SHA-256 context setup
@@ -86,7 +85,7 @@ void mbedtls_sha256_sw_starts( mbedtls_sha256_sw_context *ctx, int is224 );
  * \param ilen     length of the input data
  */
 void mbedtls_sha256_sw_update( mbedtls_sha256_sw_context *ctx, const unsigned char *input,
-                    size_t ilen );
+                               size_t ilen );
 
 /**
  * \brief          SHA-256 final digest
