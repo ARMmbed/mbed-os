@@ -168,7 +168,9 @@
 #include "cmsis_os2.h"
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
-
+#if (defined(__ICCARM__) && (__IAR_SYSTEMS_ICC__ >= 8) )
+#include <DLib_Threads.h>
+#endif
 /* Heap limits - only used if set */
 extern unsigned char *mbed_heap_start;
 extern uint32_t mbed_heap_size;
