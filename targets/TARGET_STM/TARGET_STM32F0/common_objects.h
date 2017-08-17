@@ -128,6 +128,13 @@ struct dac_s {
 };
 #endif
 
+#if DEVICE_CAN
+struct can_s {
+    CANName can;
+    int index;
+};
+#endif
+
 #ifdef __cplusplus
 }
 #endif

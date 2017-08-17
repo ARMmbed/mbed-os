@@ -59,11 +59,6 @@ struct trng_s {
 };
 
 #include "common_objects.h"
-struct can_s {
-    CANName can;
-    int index;
-};
-
 #include "gpio_object.h"
 
 #ifdef __cplusplus

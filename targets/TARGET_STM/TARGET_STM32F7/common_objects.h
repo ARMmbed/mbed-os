@@ -132,6 +132,13 @@ struct flash_s {
     uint32_t dummy;
 };
 
+#if DEVICE_CAN
+struct can_s {
+    CANName can;
+    int index;
+};
+#endif
+
 #ifdef __cplusplus
 }
 #endif
