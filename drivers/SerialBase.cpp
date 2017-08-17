@@ -77,7 +77,10 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
     // Disable interrupts when attaching interrupt handler
     core_util_critical_section_enter();
     if (func) {
-        sleep_manager_lock_deep_sleep();
+        // lock deep sleep only the first time
+        if (_irq[type] == donothing) {
+            sleep_manager_lock_deep_sleep();
+        } 
         _irq[type] = func;
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
