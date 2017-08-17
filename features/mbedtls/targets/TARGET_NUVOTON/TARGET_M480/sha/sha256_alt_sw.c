@@ -24,16 +24,10 @@
  *  http://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/sha256.h"
 
 #if defined(MBEDTLS_SHA256_C)
 #if defined(MBEDTLS_SHA256_ALT)
-
-#include "mbedtls/sha256.h"
 
 #include <string.h>
 #if defined(MBEDTLS_SELF_TEST)
