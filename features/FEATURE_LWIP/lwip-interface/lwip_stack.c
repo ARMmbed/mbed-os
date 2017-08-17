@@ -259,15 +259,46 @@ const ip_addr_t *mbed_lwip_get_ip_addr(bool any_addr, const struct netif *netif)
     return NULL;
 }
 
+static void add_dns_addr_to_dns_list_index(const u8_t addr_type, const u8_t index)
+{
+#if LWIP_IPV6
+    if (addr_type == IPADDR_TYPE_V6) {
+        /* 2001:4860:4860::8888 google */
+        ip_addr_t ipv6_dns_addr = IPADDR6_INIT(
+                PP_HTONL(0x20014860UL),
+                PP_HTONL(0x48600000UL),
+                PP_HTONL(0x00000000UL),
+                PP_HTONL(0x00008888UL));
+        dns_setserver(index, &ipv6_dns_addr);
+    }
+#endif
+#if LWIP_IPV4
+    if (addr_type == IPADDR_TYPE_V4) {
+        /* 8.8.8.8 google */
+        ip_addr_t ipv4_dns_addr = IPADDR4_INIT(0x08080808);
+        dns_setserver(index, &ipv4_dns_addr);
+    }
+#endif
+}
+
+static int get_ip_addr_type(const ip_addr_t *ip_addr)
+{
+#if LWIP_IPV6
+    if (IP_IS_V6(ip_addr)) {
+        return IPADDR_TYPE_V6;
+    }
+#endif
+#if LWIP_IPV4
+    if (IP_IS_V4(ip_addr)) {
+        return IPADDR_TYPE_V4;
+    }
+#endif
+    return IPADDR_TYPE_ANY;
+}
+
 void add_dns_addr(struct netif *lwip_netif)
 {
-    // Do nothing if not brought up
-    const ip_addr_t *ip_addr = mbed_lwip_get_ip_addr(true, lwip_netif);
-    if (!ip_addr) {
-        return;
-    }
-
-    // Check for existing dns server
+    // Check for existing dns address
     for (char numdns = 0; numdns < DNS_MAX_SERVERS; numdns++) {
         const ip_addr_t *dns_ip_addr = dns_getserver(numdns);
         if (!ip_addr_isany(dns_ip_addr)) {
@@ -275,23 +306,41 @@ void add_dns_addr(struct netif *lwip_netif)
         }
     }
 
-#if LWIP_IPV6
-    if (IP_IS_V6(ip_addr)) {
-        /* 2001:4860:4860::8888 google */
-        ip_addr_t ipv6_dns_addr = IPADDR6_INIT(
-                PP_HTONL(0x20014860UL),
-                PP_HTONL(0x48600000UL),
-                PP_HTONL(0x00000000UL),
-                PP_HTONL(0x00008888UL));
-        dns_setserver(0, &ipv6_dns_addr);
-    }
-#endif
+    // Get preferred ip version
+    const ip_addr_t *ip_addr = mbed_lwip_get_ip_addr(false, lwip_netif);
+    u8_t addr_type = IPADDR_TYPE_ANY;
 
-#if LWIP_IPV4
-    if (IP_IS_V4(ip_addr)) {
-        /* 8.8.8.8 google */
-        ip_addr_t ipv4_dns_addr = IPADDR4_INIT(0x08080808);
-        dns_setserver(0, &ipv4_dns_addr);
+    // Add preferred ip version dns address to index 0
+    if (ip_addr) {
+        addr_type = get_ip_addr_type(ip_addr);
+        add_dns_addr_to_dns_list_index(addr_type, 0);
+    }
+
+#if LWIP_IPV4 && LWIP_IPV6
+    if (!ip_addr) {
+        // Get address for any ip version
+        ip_addr = mbed_lwip_get_ip_addr(true, lwip_netif);
+        if (!ip_addr) {
+            return;
+        }
+        addr_type = get_ip_addr_type(ip_addr);
+        // Add the dns address to index 0
+        add_dns_addr_to_dns_list_index(addr_type, 0);
+    }
+
+    if (addr_type == IPADDR_TYPE_V4) {
+        // If ipv4 is preferred and ipv6 is available add ipv6 dns address to index 1
+        ip_addr = mbed_lwip_get_ipv6_addr(lwip_netif);
+    } else if (addr_type == IPADDR_TYPE_V6) {
+        // If ipv6 is preferred and ipv4 is available add ipv4 dns address to index 1
+        ip_addr = mbed_lwip_get_ipv4_addr(lwip_netif);
+    } else {
+        ip_addr = NULL;
+    }
+
+    if (ip_addr) {
+        addr_type = get_ip_addr_type(ip_addr);
+        add_dns_addr_to_dns_list_index(addr_type, 1);
     }
 #endif
 }
