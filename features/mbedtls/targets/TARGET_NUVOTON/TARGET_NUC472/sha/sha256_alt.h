@@ -16,11 +16,7 @@
 #ifndef MBEDTLS_SHA256_ALT_H
 #define MBEDTLS_SHA256_ALT_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/sha256.h"
 
 #if defined(MBEDTLS_SHA256_C)
 #if defined(MBEDTLS_SHA256_ALT)

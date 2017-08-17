@@ -17,18 +17,13 @@
 #ifndef MBEDTLS_DES_ALT_H
 #define MBEDTLS_DES_ALT_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/des.h"
 
 #if defined(MBEDTLS_DES_C)
 #if defined(MBEDTLS_DES_ALT)
 
 #include <stddef.h>
 #include <stdint.h>
-#include "des.h"
 #include "des_alt_sw.h"
 
 #ifdef __cplusplus

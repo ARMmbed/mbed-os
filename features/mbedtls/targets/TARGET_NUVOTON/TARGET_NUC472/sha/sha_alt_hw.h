@@ -16,12 +16,6 @@
 #ifndef MBEDTLS_SHA_ALT_HW_H
 #define MBEDTLS_SHA_ALT_HW_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
-
 #if defined(MBEDTLS_SHA1_C) || defined(MBEDTLS_SHA256_C) || defined(MBEDTLS_SHA512_C)
 #if defined(MBEDTLS_SHA1_ALT) || defined(MBEDTLS_SHA256_ALT) || defined(MBEDTLS_SHA512_ALT)
 
@@ -89,4 +83,4 @@ void mbedtls_sha256_hw_process( crypto_sha_context *ctx, const unsigned char dat
 #endif /* MBEDTLS_SHA1_ALT || MBEDTLS_SHA256_ALT || MBEDTLS_SHA512_ALT */
 #endif /* MBEDTLS_SHA1_C || MBEDTLS_SHA256_C || MBEDTLS_SHA512_C */
 
-#endif /* sha_alt.h */
+#endif /* sha_alt_hw.h */
