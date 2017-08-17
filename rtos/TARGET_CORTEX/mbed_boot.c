@@ -554,7 +554,7 @@ void __rtos_env_unlock( struct _reent *_r )
 
 #endif
 
-#if defined(TOOLCHAIN_IAR) /******************** IAR ********************/
+#if defined(__ICCARM__) /******************** IAR ********************/
 
 extern void* __vector_table;
 extern int  __low_level_init(void);
