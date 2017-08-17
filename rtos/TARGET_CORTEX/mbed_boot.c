@@ -234,7 +234,7 @@ osMutexAttr_t             singleton_mutex_attr;
 #if !defined(HEAP_START)
     #if defined(__ICCARM__)
         #error "Heap should already be defined for IAR"
-    #elif defined(__CC_ARM)
+    #elif defined(__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
         extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
         #define HEAP_START      ((unsigned char*)Image$$RW_IRAM1$$ZI$$Limit)
         #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
@@ -330,7 +330,7 @@ void mbed_start_main(void)
 
 /******************** Toolchain specific code ********************/
 
-#if defined (__CC_ARM)
+#if defined (__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
 /* Common for both ARMC and MICROLIB */
 int $Super$$main(void);
@@ -402,7 +402,12 @@ void pre_main (void)
    With the RTOS there is not only one stack above the heap, there are multiple
    stacks and some of them are underneath the heap pointer.
 */
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+__asm(".global __use_two_region_memory\n\t");
+__asm(".global __use_no_semihosting\n\t");
+#else
 #pragma import(__use_two_region_memory)
+#endif
 
 /* Called by the C library */
 void __rt_entry (void) {
