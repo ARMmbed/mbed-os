@@ -31,36 +31,119 @@ extern "C" {
 
 /**
  * \defgroup hal_rtc RTC hal functions
+ *
+ * The RTC hal provides a low level interface to the Real Time Counter (RTC) of a
+ * target.
+ *
+ * @see hal_rtc_tests
+ *
  * @{
  */
 
 /** Initialize the RTC peripheral
  *
+ * Powerup the RTC in perpetration for access. This function must be called
+ * before any other RTC functions ares called. This does not change the state
+ * of the RTC. It just enables access to it.
+ *
+ * @note This function is safe to call repeatedly - Tested by ::rtc_init_test
+ *
+ * Psuedo Code:
+ * @code
+ * void rtc_init()
+ * {
+ *     // Enable clock gate so processor can read RTC registers
+ *     POWER_CTRL |= POWER_CTRL_RTC_Msk;
+ *
+ *     // See if the RTC is already setup
+ *     if (!(RTC_STATUS & RTC_STATUS_COUNTING_Msk)) {
+ *
+ *         // Setup the RTC clock source
+ *         RTC_CTRL |= RTC_CTRL_CLK32_Msk;
+ *     }
+ * }
+ * @endcode
  */
 void rtc_init(void);
 
 /** Deinitialize RTC
  *
- * TODO: The function is not used by rtc api in mbed-drivers.
+ * Powerdown the RTC after in preparation for sleep, powerdown or reset.
+ * After this function is called no other RTC functions should be called
+ * except for ::rtc_init.
+ *
+ * @note This function does not stop the RTC from counting - Tested by ::rtc_persist_test
+ *
+ * Psuedo Code:
+ * @code
+ * void rtc_free()
+ * {
+ *     // Disable clock gate since processor no longer needs to read RTC registers
+ *     POWER_CTRL &= ~POWER_CTRL_RTC_Msk;
+ * }
+ * @endcode
  */
 void rtc_free(void);
 
-/** Get the RTC enable status
+/** Check if the RTC has the time set and is counting
  *
- * @retval 0 disabled
- * @retval 1 enabled
+ * @retval 0 The time reported by the RTC is not valid
+ * @retval 1 The time has been set the RTC is counting
+ *
+ * Psuedo Code:
+ * @code
+ * int rtc_isenabled()
+ * {
+ *     if (RTC_STATUS & RTC_STATUS_COUNTING_Msk) {
+ *         return 1;
+ *     } else {
+ *         return 0;
+ *     }
+ * }
+ * @endcode
  */
 int rtc_isenabled(void);
 
 /** Get the current time from the RTC peripheral
  *
- * @return The current time
+ * @return The current time in seconds
+ *
+ * @note Some RTCs are not synchronized with the main clock. If
+ * this is the case with your RTC then you must read the RTC time
+ * in a loop to prevent reading the wrong time due to a glitch.
+ * The test ::rtc_glitch_test is intended to catch this bug.
+ *
+ * Example implementation for an unsynchronized ripple counter:
+ * @code
+ * time_t rtc_read()
+ * {
+ *     uint32_t val;
+ *     uint32_t last_val;
+ *
+ *     // Loop until the same value is read twice
+ *     val = RTC_SECONDS;
+ *     do {
+ *         last_val = val;
+ *         val = RTC_SECONDS;
+ *     } while (last_val != val);
+ *
+ *     return (time_t)val;
+ * }
+ * @endcode
  */
 time_t rtc_read(void);
 
-/** Set the current time to the RTC peripheral
+/** Write the current time in seconds to the RTC peripheral
  *
- * @param t The current time to be set
+ * @param t The current time to be set in seconds.
+ *
+ * Psuedo Code:
+ * @code
+ * void rtc_write(time_t t)
+ * {
+ *     RTC_SECONDS = t;
+ * }
+ * @endcode
  */
 void rtc_write(time_t t);
 
