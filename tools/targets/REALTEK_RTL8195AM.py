@@ -214,6 +214,8 @@ def parse_load_segment_iar(image_elf):
             offset = int(segment[2][2:], 16)
             addr   = int(segment[3][2:], 16)
             size   = int(segment[5][2:], 16)
+            if addr < 0x10007000:
+                continue
             if addr != 0 and size != 0:
                 segment_list.append((offset, addr, size))
     return segment_list
