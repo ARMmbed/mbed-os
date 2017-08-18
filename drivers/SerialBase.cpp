@@ -84,7 +84,10 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
         _irq[type] = func;
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
-        sleep_manager_unlock_deep_sleep();
+        // unlock deep sleep only the first time
+        if (_irq[type] != donothing) {
+            sleep_manager_unlock_deep_sleep();
+        } 
         _irq[type] = donothing;
         serial_irq_set(&_serial, (SerialIrq)type, 0);
     }
@@ -248,6 +251,7 @@ void SerialBase::start_read(void *buffer, int buffer_size, char buffer_width, co
 {
     _rx_callback = callback;
     _thunk_irq.callback(&SerialBase::interrupt_handler_asynch);
+    sleep_manager_lock_deep_sleep();
     serial_rx_asynch(&_serial, buffer, buffer_size, buffer_width, _thunk_irq.entry(), event, char_match, _rx_usage);
 }
 

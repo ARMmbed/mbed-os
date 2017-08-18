@@ -129,11 +129,11 @@ void I2C::unlock() {
 int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event, bool repeated)
 {
     lock();
-    sleep_manager_lock_deep_sleep();
     if (i2c_active(&_i2c)) {
         unlock();
         return -1; // transaction ongoing
     }
+    sleep_manager_lock_deep_sleep();
     aquire();
 
     _callback = callback;

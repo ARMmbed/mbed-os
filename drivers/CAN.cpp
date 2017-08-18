@@ -123,7 +123,10 @@ void CAN::attach(Callback<void()> func, IrqType type) {
         _irq[(CanIrqType)type] = func;
         can_irq_set(&_can, (CanIrqType)type, 1);
     } else {
-        sleep_manager_unlock_deep_sleep();
+        // unlock deep sleep only the first time
+        if (_irq[(CanIrqType)type] != callback(donothing)) {
+            sleep_manager_unlock_deep_sleep();
+        }
         _irq[(CanIrqType)type] = callback(donothing);
         can_irq_set(&_can, (CanIrqType)type, 0);
     }
