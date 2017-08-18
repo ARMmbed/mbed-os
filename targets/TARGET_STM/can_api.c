@@ -347,21 +347,31 @@ unsigned char can_tderror(can_t *obj)
 
 void can_monitor(can_t *obj, int silent)
 {
-    CAN_TypeDef *can = obj->CanHandle.Instance;
-
-    can->MCR |= CAN_MCR_INRQ ;
-    while ((can->MSR & CAN_MSR_INAK) != CAN_MSR_INAK) {
-    }
-
-    if (silent) {
-        can->BTR |= ((uint32_t)1 << 31);
+    CanMode mode = MODE_NORMAL;
+    /*  Update current state w/ or w/o silent */
+    if(silent) {
+        switch (obj->CanHandle.Init.Mode) {
+            case CAN_MODE_LOOPBACK:
+            case CAN_MODE_SILENT_LOOPBACK:
+                mode = MODE_TEST_SILENT;
+                break;
+            default:
+                mode = MODE_SILENT;
+                break;
+        }
     } else {
-        can->BTR &= ~((uint32_t)1 << 31);
+        switch (obj->CanHandle.Init.Mode) {
+            case CAN_MODE_LOOPBACK:
+            case CAN_MODE_SILENT_LOOPBACK:
+                mode = MODE_TEST_LOCAL;
+                break;
+            default:
+                mode = MODE_NORMAL;
+                break;
+        }
     }
 
-    can->MCR &= ~(uint32_t)CAN_MCR_INRQ;
-    while ((can->MSR & CAN_MSR_INAK) == CAN_MSR_INAK) {
-    }
+    can_mode(obj, mode);
 }
 
 int can_mode(can_t *obj, CanMode mode)
@@ -375,21 +385,25 @@ int can_mode(can_t *obj, CanMode mode)
 
     switch (mode) {
         case MODE_NORMAL:
+            obj->CanHandle.Init.Mode = CAN_MODE_NORMAL;
             can->BTR &= ~(CAN_BTR_SILM | CAN_BTR_LBKM);
             success = 1;
             break;
         case MODE_SILENT:
+            obj->CanHandle.Init.Mode = CAN_MODE_SILENT;
             can->BTR |= CAN_BTR_SILM;
             can->BTR &= ~CAN_BTR_LBKM;
             success = 1;
             break;
         case MODE_TEST_GLOBAL:
         case MODE_TEST_LOCAL:
+            obj->CanHandle.Init.Mode = CAN_MODE_LOOPBACK;
             can->BTR |= CAN_BTR_LBKM;
             can->BTR &= ~CAN_BTR_SILM;
             success = 1;
             break;
         case MODE_TEST_SILENT:
+            obj->CanHandle.Init.Mode = CAN_MODE_SILENT_LOOPBACK;
             can->BTR |= (CAN_BTR_SILM | CAN_BTR_LBKM);
             success = 1;
             break;
