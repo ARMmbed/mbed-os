@@ -41,17 +41,10 @@ static void mbedtls_zeroize( void *v, size_t n )
     while( n-- ) *p++ = 0;
 }
 
-
-static uint32_t au32MyAESIV[4] = {
-    0x00000000, 0x00000000, 0x00000000, 0x00000000
-};
-
 extern volatile int  g_AES_done;
 
 // Must be a multiple of 16 bytes block size
 #define MAX_DMA_CHAIN_SIZE (16*6)
-MBED_ALIGN(4) static uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE];
-MBED_ALIGN(4) static uint8_t au8InputData[MAX_DMA_CHAIN_SIZE];
 
 static void swapInitVector(unsigned char iv[16])
 {
@@ -114,7 +107,7 @@ void mbedtls_aes_init( mbedtls_aes_context *ctx )
         mbed_assert_internal("No available AES channel", __FILE__, __LINE__);
     }
     ctx->channel = i;
-    ctx->iv = au32MyAESIV;
+    memset(ctx->iv, 0, sizeof (ctx->iv));
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -201,6 +194,8 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     unsigned char* pIn;
     unsigned char* pOut;
 
+    MBED_ALIGN(4) uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE];
+    MBED_ALIGN(4) uint8_t au8InputData[MAX_DMA_CHAIN_SIZE];
 
     AES_Open(ctx->channel, ctx->encDec, ctx->opMode, ctx->keySize, ctx->swapType);
     AES_SetInitVect(ctx->channel, ctx->iv);
@@ -293,7 +288,7 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
     while( length > 0 ) {
         ctx->opMode = AES_MODE_CBC;
         swapInitVector(iv); // iv SWAP
-        ctx->iv = (uint32_t *)iv;
+        memcpy(ctx->iv, iv, 16);
 
         if( mode == MBEDTLS_AES_ENCRYPT ) {
             ctx->encDec = 1;
@@ -412,7 +407,7 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
 
         swapInitVector(iv); // iv SWAP
 
-        ctx->iv = (uint32_t *)iv;
+        memcpy(ctx->iv, iv, 16);
         remLen = blockChainLen%16;
         ivLen = (( remLen > 0) ? remLen: 16 );
 
