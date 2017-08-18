@@ -172,11 +172,11 @@ static nsapi_error_t mbed_lwip_gethostbyname(nsapi_stack_t *stack, const char *h
 {
     ip_addr_t lwip_addr;
 
-#if LWIP_IPV4 && LWIP_IPV6
+    #if LWIP_IPV4 && LWIP_IPV6
     u8_t addr_type;
     if (version == NSAPI_UNSPEC) {
         const ip_addr_t *ip_addr;
-        ip_addr = mbed_lwip_get_ip_addr(true, &stack->emac->netif);
+        ip_addr = mbed_lwip_get_ip_addr(true, (struct netif *)&stack->emac->netif);
         if (IP_IS_V6(ip_addr)) {
             addr_type = NETCONN_DNS_IPV6;
         } else {
@@ -189,7 +189,7 @@ static nsapi_error_t mbed_lwip_gethostbyname(nsapi_stack_t *stack, const char *h
     }
     err_t err = netconn_gethostbyname_addrtype(host, &lwip_addr, addr_type);
 #elif LWIP_IPV4
-    if (version != NSAPI_IPv4 && version != NSAPI_UNSPEC) {
+     if (version != NSAPI_IPv4 && version != NSAPI_UNSPEC) {
         return NSAPI_ERROR_DNS_FAILURE;
     }
     err_t err = netconn_gethostbyname(host, &lwip_addr);
@@ -242,7 +242,7 @@ static nsapi_error_t mbed_lwip_socket_open(nsapi_stack_t *stack, nsapi_socket_t 
 
 #if LWIP_IPV6 && LWIP_IPV4
     const ip_addr_t *ip_addr;
-    ip_addr = mbed_lwip_get_ip_addr(true, &stack->emac->netif);
+    ip_addr = mbed_lwip_get_ip_addr(true, (struct netif *)&stack->emac->netif);
 
     if (IP_IS_V6(ip_addr)) {
         // Enable IPv6 (or dual-stack). LWIP dual-stack support is

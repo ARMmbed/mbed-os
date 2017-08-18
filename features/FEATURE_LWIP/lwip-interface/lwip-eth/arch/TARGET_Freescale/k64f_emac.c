@@ -233,7 +233,7 @@ void ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event_t even
  *  \param[in]      enet       Pointer to K64F enet structure
  *  \param[in]      hwaddr     MAC address
  */
-static err_t low_level_init(struct k64f_enetdata *enet, char *hwaddr)
+static bool low_level_init_successful(struct k64f_enetdata *enet, char *hwaddr)
 {
   uint8_t i;
   uint32_t sysClock;
@@ -247,12 +247,12 @@ static err_t low_level_init(struct k64f_enetdata *enet, char *hwaddr)
   // Allocate RX descriptors
   rx_desc_start_addr = (uint8_t *)calloc(1, sizeof(enet_rx_bd_struct_t) * ENET_RX_RING_LEN + ENET_BUFF_ALIGNMENT);
   if(!rx_desc_start_addr)
-    return ERR_MEM;
+    return false;
 
   // Allocate TX descriptors
   tx_desc_start_addr = (uint8_t *)calloc(1, sizeof(enet_tx_bd_struct_t) * ENET_TX_RING_LEN + ENET_BUFF_ALIGNMENT);
   if(!tx_desc_start_addr)
-    return ERR_MEM;
+    return false;
 
   rx_desc_start_addr = (uint8_t *)ENET_ALIGN(rx_desc_start_addr, ENET_BUFF_ALIGNMENT);
   tx_desc_start_addr = (uint8_t *)ENET_ALIGN(tx_desc_start_addr, ENET_BUFF_ALIGNMENT);
@@ -261,7 +261,7 @@ static err_t low_level_init(struct k64f_enetdata *enet, char *hwaddr)
   for (i = 0; i < ENET_RX_RING_LEN; i++) {
     rx_buff[i] = emac_stack_mem_alloc(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
     if (NULL == rx_buff[i])
-      return ERR_MEM;
+      return false;
 
     /* K64F note: the next line ensures that the RX buffer is properly aligned for the K64F
        RX descriptors (16 bytes alignment). However, by doing so, we're effectively changing
@@ -316,7 +316,7 @@ static err_t low_level_init(struct k64f_enetdata *enet, char *hwaddr)
   ENET_SetCallback(&g_handle, ethernet_callback, enet);
   ENET_ActiveRead(ENET);
 
-  return ERR_OK;
+  return true;
 }
 
 
@@ -344,13 +344,6 @@ static emac_stack_mem_t *k64f_low_level_input(int idx)
 
   /* Determine if a frame has been received */
   if ((bdPtr->control & err_mask) != 0) {
-#if LINK_STATS
-    if ((bdPtr->control & ENET_BUFFDESCRIPTOR_RX_LENVLIOLATE_MASK) != 0)
-      LINK_STATS_INC(link.lenerr);
-    else
-      LINK_STATS_INC(link.chkerr);
-#endif
-    LINK_STATS_INC(link.drop);
     /* Re-use the same buffer in case of error */
     update_read_buffer(NULL);
   } else {
@@ -364,15 +357,9 @@ static emac_stack_mem_t *k64f_low_level_input(int idx)
     /* Attempt to queue new buffer */
     temp_rxbuf = emac_stack_mem_alloc(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
     if (NULL == temp_rxbuf) {
-      /* Drop frame (out of memory) */
-      LINK_STATS_INC(link.drop);
-
       /* Re-queue the same buffer */
       update_read_buffer(NULL);
 
-      LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-        ("k64f_low_level_input: Packet index %d dropped for OOM\n",
-        idx));
 #ifdef LOCK_RX_THREAD
       osMutexRelease(enet->TXLockMutex);
 #endif
@@ -390,13 +377,9 @@ static emac_stack_mem_t *k64f_low_level_input(int idx)
     rx_ptr[idx] = payload;
 
     update_read_buffer(payload);
-    LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
-      ("k64f_low_level_input: Packet received: %p, size %"PRIu32" (index=%d)\n",
-      p, length, idx));
 
     /* Save size */
     emac_stack_mem_set_chain_len(p, length);
-    LINK_STATS_INC(link.recv);
   }
 
 #ifdef LOCK_RX_THREAD
@@ -520,8 +503,6 @@ static bool k64f_eth_link_out(emac_interface_t *emac, emac_stack_mem_chain_t *ch
   /* Active the transmit buffer descriptor. */
   ENET->TDAR = ENET_TDAR_TDAR_MASK;
 
-  LINK_STATS_INC(link.xmit);
-
   /* Restore access */
   osMutexRelease(enet->TXLockMutex);
 
@@ -584,13 +565,11 @@ static void k64f_phy_task(void *data) {
 
 static bool k64f_eth_power_up(emac_interface_t *emac)
 {
-  err_t err;
   char hwaddr[ETH_HWADDR_LEN];
 
   /* Initialize the hardware */
   mbed_mac_address(hwaddr);
-  err = low_level_init(&k64f_enetdata, hwaddr);
-  if (err != ERR_OK)
+  if (!low_level_init_successful(&k64f_enetdata, hwaddr))
     return false;
 
   k64f_enetdata.xTXDCountSem = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &xtxdcountsem_attr);

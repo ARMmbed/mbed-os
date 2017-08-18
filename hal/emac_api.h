@@ -20,7 +20,6 @@
 #include <stdbool.h>
 #include "emac_stack_mem.h"
 #include "arch/sys_arch.h"
-#include "lwip/netif.h"
 
 typedef struct emac_interface emac_interface_t;
 
@@ -171,7 +170,7 @@ typedef struct emac_interface {
     bool connected;
     bool dhcp;
     char hwaddr[6];
-    struct netif netif;
+    void *netif;
 } emac_interface_t;
 
 #endif  /* MBED_EMAC_API_H */
