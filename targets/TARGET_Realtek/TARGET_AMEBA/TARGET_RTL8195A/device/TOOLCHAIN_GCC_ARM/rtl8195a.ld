@@ -70,15 +70,16 @@ SECTIONS
         *rtl8195a_crypto.o (.text* .rodata*)
         *mbedtls*.o (.text* .rodata*)
         *libc.a: (.text* .rodata*)
-		*Ticker.o (.text*)
-		*Timeout.o (.text*)
-		*TimerEvent.o (.text*)
-		*mbed_ticker_api.o (.text*)
-		*mbed_critical.o (.text*)
-		
-		*us_ticker.o (.text*)
-		*lib_peripheral_mbed_gcc.a: (.text*)
-		
+        *Ticker.o (.text*)
+        *Timeout.o (.text*)
+		/* *rtx_timer.o (.text*)*/
+        *TimerEvent.o (.text*)
+        *mbed_ticker_api.o (.text*)
+        *mbed_critical.o (.text*)
+        *us_ticker.o (.text*)
+        
+        *lib_peripheral_mbed_gcc.a: (.text*)
+        
     } > SRAM1
 
     .text.sram2 :
@@ -203,7 +204,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
-	. = ORIGIN(SRAM1) + LENGTH(SRAM1) - StackSize;
+    . = ORIGIN(SRAM1) + LENGTH(SRAM1) - StackSize;
         __HeapLimit = .;
     } > SRAM1
 
@@ -214,7 +215,7 @@ SECTIONS
     {
         __StackLimit = .;
         *(.stack)
-	. += StackSize - (. - __StackLimit);
+    . += StackSize - (. - __StackLimit);
     } > SRAM1
 
     /* Set stack top to end of RAM, and stack limit move down by
