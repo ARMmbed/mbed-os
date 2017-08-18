@@ -1,5 +1,5 @@
 /***************************************************************************//**
- * @file PeripheralNames.h
+ * @file PinNames.h
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
@@ -20,47 +20,46 @@
  * limitations under the License.
  *
  ******************************************************************************/
-#ifndef MBED_PERIPHERALNAMES_H
-#define MBED_PERIPHERALNAMES_H
+#ifndef MBED_PINNAMES_H
+#define MBED_PINNAMES_H
 
-#include "em_adc.h"
-#include "em_usart.h"
-#include "em_i2c.h"
+#include "CommonPinNames.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef enum {
-    ADC_0 = ADC0_BASE
-} ADCName;
+    EFM32_STANDARD_PIN_DEFINITIONS,
 
-typedef enum {
-    I2C_0 = I2C0_BASE,
-    I2C_1 = I2C1_BASE,
-} I2CName;
+    /* Starter Kit says LED0 and LED1, but mbed expects 1 and 2. This way using 1 and 2 or 0 and 1 will work. */
+    LED0 = PF4,
+    LED1 = PF5,
+    LED2 = LED0,
+    LED3 = LED0,
+    LED4 = LED1,
 
-typedef enum {
-    PWM_CH0 = 0,
-    PWM_CH1 = 1,
-    PWM_CH2 = 2,
-    PWM_CH3 = 3
-} PWMName;
+    /* Push Buttons */
+    SW0 = PF6,
+    SW1 = PF7,
+    BTN0 = SW0,
+    BTN1 = SW1,
+    // Standardized button names
+    BUTTON1 = BTN0,
+    BUTTON2 = BTN1,
 
-typedef enum {
-    USART_0 = USART0_BASE,
-    USART_1 = USART1_BASE,
-    USART_2 = USART2_BASE,
-    USART_3 = USART3_BASE,
-    LEUART_0 = LEUART0_BASE,
-} UARTName;
+    /* Serial (just some usable pins) */
+    SERIAL_TX   = PD10,
+    SERIAL_RX   = PD11,
 
-typedef enum {
-    SPI_0 = USART0_BASE,
-    SPI_1 = USART1_BASE,
-    SPI_2 = USART2_BASE,
-    SPI_3 = USART3_BASE,
-} SPIName;
+    /* Board Controller UART (USB)*/
+    USBTX       = PA0,
+    USBRX       = PA1,
+
+    /* Board Controller */
+    STDIO_UART_TX = USBTX,
+    STDIO_UART_RX = USBRX
+} PinName;
 
 #ifdef __cplusplus
 }

@@ -134,7 +134,9 @@ SECTIONS
   .data : AT (__etext)
   {
     __data_start__ = .;
+    PROVIDE( __start_vector_table__ = .);
     *(vtable)
+    PROVIDE( __end_vector_table__ = .);
     *(.data*)
     . = ALIGN (4);
     *(.ram)

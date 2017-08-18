@@ -64,10 +64,10 @@ typedef enum {
 
 static const RAIL_CsmaConfig_t csma_config = RAIL_CSMA_CONFIG_802_15_4_2003_2p4_GHz_OQPSK_CSMA;
 
-#if defined(TARGET_EFR32MG1)
+#if defined(TARGET_EFR32MG1) || defined(TARGET_EFR32FG1)
 #include "ieee802154_subg_efr32xg1_configurator_out.h"
 #include "ieee802154_efr32xg1_configurator_out.h"
-#elif defined(TARGET_EFR32MG12)
+#elif defined(TARGET_EFR32MG12) || defined(TARGET_EFR32FG12)
 #include "ieee802154_efr32xg12_configurator_out.h"
 #else
 #error "Not a valid target."
