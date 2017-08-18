@@ -576,9 +576,14 @@ void pre_main(void)
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
+#if (__IAR_SYSTEMS_ICC__ >= 8)
+    __iar_Initlocks();
+#endif
+
     if (low_level_init_needed) {
         __iar_dynamic_initialization();
     }
+
     mbed_main();
     main();
 }
