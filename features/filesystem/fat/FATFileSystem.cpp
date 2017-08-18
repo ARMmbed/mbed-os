@@ -167,12 +167,17 @@ static WORD disk_get_sector_size(BYTE pdrv)
         ssize = 512;
     }
 
+    MBED_ASSERT(ssize >= _MIN_SS && ssize <= _MAX_SS);
+    MBED_ASSERT(_ffs[pdrv]->get_read_size() <= _ffs[pdrv]->get_erase_size());
+    MBED_ASSERT(_ffs[pdrv]->get_program_size() <= _ffs[pdrv]->get_erase_size());
     return ssize;
 }
 
 static DWORD disk_get_sector_count(BYTE pdrv)
 {
-    return _ffs[pdrv]->size() / disk_get_sector_size(pdrv);
+    DWORD scount = _ffs[pdrv]->size() / disk_get_sector_size(pdrv);
+    MBED_ASSERT(scount >= 64);
+    return scount;
 }
 
 DSTATUS disk_status(BYTE pdrv)
