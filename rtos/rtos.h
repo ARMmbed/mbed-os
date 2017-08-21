@@ -35,6 +35,7 @@
 #include "rtos/Mail.h"
 #include "rtos/MemoryPool.h"
 #include "rtos/Queue.h"
+#include "rtos/EventFlags.h"
 
 using namespace rtos;
 
