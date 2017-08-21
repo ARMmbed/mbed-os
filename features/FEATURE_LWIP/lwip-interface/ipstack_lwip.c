@@ -81,12 +81,12 @@ static void add_dns_addr(struct netif *lwip_netif)
 #endif
 }
 
-static void mbed_ipstack_tcpip_init_irq(void *eh)
+static void mbed_lwip_tcpip_init_irq(void *eh)
 {
     sys_sem_signal(&lwip_tcpip_inited);
 }
 
-static void mbed_ipstack_netif_link_irq(struct netif *netif)
+static void mbed_lwip_netif_link_irq(struct netif *netif)
 {
     if (netif_is_link_up(netif)) {
         emac_interface_t *emac = netif->state;
@@ -94,7 +94,7 @@ static void mbed_ipstack_netif_link_irq(struct netif *netif)
     }
 }
 
-static void mbed_ipstack_netif_status_irq(struct netif *netif)
+static void mbed_lwip_netif_status_irq(struct netif *netif)
 {
     static bool any_addr = true;
     emac_interface_t *emac = netif->state;
@@ -183,7 +183,7 @@ void mbed_ipstack_init(void)
         return;
 
     sys_sem_new(&lwip_tcpip_inited, 0);
-    tcpip_init(mbed_ipstack_tcpip_init_irq, NULL);
+    tcpip_init(mbed_lwip_tcpip_init_irq, NULL);
     sys_arch_sem_wait(&lwip_tcpip_inited, 0);
 
     // Zero out socket set
@@ -218,8 +218,8 @@ nsapi_error_t mbed_ipstack_add_netif(emac_interface_t *emac, bool default_if)
     if (default_if)
         netif_set_default((struct netif *)emac->netif);
 
-    netif_set_link_callback((struct netif *)emac->netif, mbed_ipstack_netif_link_irq);
-    netif_set_status_callback((struct netif *)emac->netif, mbed_ipstack_netif_status_irq);
+    netif_set_link_callback((struct netif *)emac->netif, mbed_lwip_netif_link_irq);
+    netif_set_status_callback((struct netif *)emac->netif, mbed_lwip_netif_status_irq);
 
     return NSAPI_ERROR_OK;
 }
