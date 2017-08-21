@@ -33,7 +33,7 @@ nsapi_protocol_t UDPSocket::get_proto()
     return NSAPI_UDP;
 }
 
-int UDPSocket::join_multicast_group(const SocketAddress &address)
+int UDPSocket::modify_multicast_group(const SocketAddress &address, nsapi_socket_option_t socketopt)
 {
     nsapi_ip_mreq_t mreq;
 
@@ -41,7 +41,17 @@ int UDPSocket::join_multicast_group(const SocketAddress &address)
     mreq.imr_multiaddr = address.get_addr();
     mreq.imr_interface = SocketAddress().get_addr();   // 0.0.0.0 INADDR_ANY
 
-    return this->setsockopt(0, NSAPI_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
+    return this->setsockopt(0, socketopt, &mreq, sizeof(mreq));
+}
+
+int UDPSocket::join_multicast_group(const SocketAddress &address)
+{
+    return modify_multicast_group(address, NSAPI_ADD_MEMBERSHIP);
+}
+
+int UDPSocket::leave_multicast_group(const SocketAddress &address)
+{
+    return modify_multicast_group(address, NSAPI_DROP_MEMBERSHIP);
 }
 
 nsapi_size_or_error_t UDPSocket::sendto(const char *host, uint16_t port, const void *data, nsapi_size_t size)

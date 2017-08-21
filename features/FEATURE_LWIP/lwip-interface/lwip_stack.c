@@ -1045,15 +1045,13 @@ static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t h
 
         case NSAPI_ADD_MEMBERSHIP:
         case NSAPI_DROP_MEMBERSHIP: {
-#if LWIP_IPV6
-            return NSAPI_ERROR_UNSUPPORTED; 
-#else
+#if LWIP_IPV4
             if (optlen != sizeof(nsapi_ip_mreq_t)) {
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
             err_t igmp_err;
-            nsapi_ip_mreq_t *imr = (nsapi_ip_mreq_t *)optval;
+            nsapi_ip_mreq_t *imr = optval;
 
             ip_addr_t if_addr;
             ip_addr_t multi_addr;
@@ -1067,10 +1065,11 @@ static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t h
                 igmp_err = igmp_leavegroup(&if_addr, &multi_addr);
             }
             if (igmp_err != ERR_OK) {
-                return EADDRNOTAVAIL;
+                return mbed_lwip_err_remap(EADDRNOTAVAIL);
             }
             return 0;
 #endif
+            return NSAPI_ERROR_UNSUPPORTED;
          }
 
         default:

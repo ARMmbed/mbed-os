@@ -59,9 +59,17 @@ public:
     /** Subscribes to an IP multicast group
      *
      * @param address   Multicast group IP address
-     * @return          Negative error code on failure 
+     * @return          Negative error code on failure
      */
     int join_multicast_group(const SocketAddress &address);
+
+    /** Leave an IP multicast group
+     *
+     * @param address   Multicast group IP address
+     * @return          Negative error code on failure
+     */
+    int leave_multicast_group(const SocketAddress &address);
+
 
     /** Send a packet over a UDP socket
      *
@@ -122,6 +130,7 @@ public:
 protected:
     virtual nsapi_protocol_t get_proto();
     virtual void event();
+    int modify_multicast_group(const SocketAddress &address, nsapi_socket_option_t socketopt);
 
     volatile unsigned _pending;
     rtos::Semaphore _read_sem;
