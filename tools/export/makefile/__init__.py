@@ -209,13 +209,11 @@ class GccArm(Makefile):
         return "-l" + libname
 
 
-class Armc5(Makefile):
-    """ARM Compiler 5 specific makefile target"""
-    NAME = 'Make-ARMc5'
-    TEMPLATE = 'make-armc5'
-    TOOLCHAIN = "ARM"
+class Arm(Makefile):
+    """ARM Compiler generic makefile target"""
     LINK_SCRIPT_OPTION = "--scatter"
     USER_LIBRARY_FLAG = "--userlibpath "
+    TEMPLATE = 'make-arm'
 
     @staticmethod
     def prepare_lib(libname):
@@ -224,6 +222,25 @@ class Armc5(Makefile):
     @staticmethod
     def prepare_sys_lib(libname):
         return libname
+
+    def generate(self):
+        if self.resources.linker_script:
+            new_script = self.toolchain.make_real_scatter(
+                self.resources.linker_script)
+            if new_script is not self.resources.linker_script:
+                self.resources.linker_script = new_script
+                self.generated_files.append(new_script)
+        return super(Arm, self).generate()
+
+class Armc5(Arm):
+    """ARM Compiler 5 (armcc) specific makefile target"""
+    NAME = 'Make-ARMc5'
+    TOOLCHAIN = "ARM"
+
+class Armc6(Arm):
+    """ARM Compiler 6 (armclang) specific generic makefile target"""
+    NAME = 'Make-ARMc6'
+    TOOLCHAIN = "ARMC6"
 
 
 class IAR(Makefile):
