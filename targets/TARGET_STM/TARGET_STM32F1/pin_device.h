@@ -37,6 +37,9 @@ extern const uint32_t ll_pin_defines[16];
 
 static inline void stm_pin_DisconnectDebug(PinName pin)
 {
+    // Enable AFIO clock
+    __HAL_RCC_AFIO_CLK_ENABLE();
+
     // Disconnect JTAG-DP + SW-DP signals.
     // Warning: Need to reconnect under reset
     if ((pin == PA_13) || (pin == PA_14)) {
