@@ -400,7 +400,7 @@
         "inherits": ["LPCTarget"],
         "device_has": ["ANALOGIN", "ERROR_PATTERN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_lib": "small",
-        "release_versions": ["2", "5"],
+        "release_versions": ["2"],
         "device_name": "LPC11U37HFBD64/401"
     },
     "ELEKTOR_COCORICO": {
