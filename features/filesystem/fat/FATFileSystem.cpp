@@ -293,6 +293,15 @@ int FATFileSystem::unmount()
     return fat_error_remap(res);
 }
 
+BlockDevice *FATFileSystem::get_block_device() const
+{
+    if (_id != -1) {
+        return _ffs[_id];
+    } else {
+        return NULL;
+    }
+}
+
 /* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
  * associated arguments. */
 int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {

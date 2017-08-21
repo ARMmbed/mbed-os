@@ -49,6 +49,11 @@ int FileSystem::mkdir(const char *path, mode_t mode)
     return -ENOSYS;
 }
 
+BlockDevice *FileSystem::get_block_device() const
+{
+    return NULL;
+}
+
 int FileSystem::file_sync(fs_file_t file)
 {
     return 0;

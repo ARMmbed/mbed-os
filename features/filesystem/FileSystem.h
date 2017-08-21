@@ -109,6 +109,13 @@ public:
      */
     virtual int mkdir(const char *path, mode_t mode);
 
+    /** Get the underlying block device
+     *
+     *  @return         The underlying block device, or NULL if no block
+     *                  device has been mounted
+     */
+    virtual BlockDevice *get_block_device() const;
+
 protected:
     friend class File;
     friend class Dir;
