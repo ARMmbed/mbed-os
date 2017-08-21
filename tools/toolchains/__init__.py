@@ -1357,6 +1357,25 @@ class mbedToolchain:
         raise NotImplemented
 
     @abstractmethod
+    def get_compile_options(self, defines, includes, for_asm=False):
+        """Generate the compiler options from the defines and includes
+
+        Positional arguments:
+        defines -- The preprocessor macros defined on the command line
+        includes -- The include file search paths
+
+        Keyword arguments:
+        for_asm -- generate the assembler options instead of the compiler options
+
+        Return value:
+        A list of the command line arguments that will force the inclusion the specified header
+
+        Side effects:
+        None
+        """
+        raise NotImplemented
+
+    @abstractmethod
     def assemble(self, source, object, includes):
         """Generate the command line that assembles.
 
