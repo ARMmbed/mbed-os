@@ -21,6 +21,7 @@
 #include "HeapBlockDevice.h"
 #include "SlicingBlockDevice.h"
 #include "ChainingBlockDevice.h"
+#include "ProfilingBlockDevice.h"
 #include <stdlib.h>
 
 using namespace utest::v1;
@@ -176,6 +177,67 @@ void test_chaining() {
     TEST_ASSERT_EQUAL(0, err);
 }
 
+// Simple test which read/writes blocks on a chain of block devices
+void test_profiling() {
+    HeapBlockDevice bd(BLOCK_COUNT*BLOCK_SIZE, BLOCK_SIZE);
+    uint8_t *write_block = new uint8_t[BLOCK_SIZE];
+    uint8_t *read_block = new uint8_t[BLOCK_SIZE];
+
+    // Test under profiling
+    ProfilingBlockDevice profiler(&bd);
+
+    int err = profiler.init();
+    TEST_ASSERT_EQUAL(0, err);
+
+    TEST_ASSERT_EQUAL(BLOCK_SIZE, profiler.get_erase_size());
+    TEST_ASSERT_EQUAL(BLOCK_COUNT*BLOCK_SIZE, profiler.size());
+
+    // Fill with random sequence
+    srand(1);
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        write_block[i] = 0xff & rand();
+    }
+
+    // Write, sync, and read the block
+    err = profiler.erase(0, BLOCK_SIZE);
+    TEST_ASSERT_EQUAL(0, err);
+
+    err = profiler.program(write_block, 0, BLOCK_SIZE);
+    TEST_ASSERT_EQUAL(0, err);
+
+    err = profiler.read(read_block, 0, BLOCK_SIZE);
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Check that the data was unmodified
+    srand(1);
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
+    }
+
+    // Check with original block device
+    err = bd.read(read_block, 0, BLOCK_SIZE);
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Check that the data was unmodified
+    srand(1);
+    for (int i = 0; i < BLOCK_SIZE; i++) {
+        TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
+    }
+
+    delete[] write_block;
+    delete[] read_block;
+    err = profiler.deinit();
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Check that profiled operations match expectations
+    bd_size_t read_count = profiler.get_read_count();
+    TEST_ASSERT_EQUAL(BLOCK_SIZE, read_count);
+    bd_size_t program_count = profiler.get_program_count();
+    TEST_ASSERT_EQUAL(BLOCK_SIZE, program_count);
+    bd_size_t erase_count = profiler.get_erase_count();
+    TEST_ASSERT_EQUAL(BLOCK_SIZE, erase_count);
+}
+
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
@@ -186,6 +248,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases) {
 Case cases[] = {
     Case("Testing slicing of a block device", test_slicing),
     Case("Testing chaining of block devices", test_chaining),
+    Case("Testing profiling of block devices", test_profiling),
 };
 
 Specification specification(test_setup, cases);
