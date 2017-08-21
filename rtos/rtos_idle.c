@@ -29,7 +29,9 @@ static void default_idle_hook(void)
        Unfortunately, this usually requires disconnecting the interface chip (debugger).
        This can be done, but it would break the local file system.
     */
+    sleep_manager_lock_deep_sleep();
     sleep();
+    sleep_manager_unlock_deep_sleep();
 }
 static void (*idle_hook_fptr)(void) = &default_idle_hook;
 
