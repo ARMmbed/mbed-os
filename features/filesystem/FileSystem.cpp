@@ -24,6 +24,11 @@ FileSystem::FileSystem(const char *name)
 {
 }
 
+int FileSystem::reformat(BlockDevice *bd)
+{
+    return -ENOSYS;
+}
+
 int FileSystem::remove(const char *path)
 {
     return -ENOSYS;
