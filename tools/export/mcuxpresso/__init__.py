@@ -28,29 +28,13 @@ import copy
 from os.path import splitext, basename, exists
 from random import randint
 
-from tools.export.gnuarmeclipse import GNUARMEclipse
+from tools.export.gnuarmeclipse import GNUARMEclipse, UID
 from tools.export.exporters import apply_supported_whitelist
 from tools.targets import TARGET_MAP
 from tools.utils import NotSupportedException
 from tools.build_api import prepare_toolchain
 
  
-# =============================================================================
-
-
-class UID:
-    """
-    Helper class, used to generate unique ids required by .cproject symbols.
-    """
-    @property
-    def id(self):
-        return "%0.9u" % randint(0, 999999999)
-
-# Global UID generator instance.
-# Passed to the template engine, and referred as {{u.id}}.
-# Each invocation generates a new number.
-u = UID()
-
 # =============================================================================
 
 
@@ -201,13 +185,12 @@ class MCUXpresso(GNUARMEclipse):
             opts['ld']['object_files'] = objects
             opts['ld']['user_libraries'] = self.libraries
             opts['ld']['system_libraries'] = self.system_libraries
- #           opts['ld']['script'] = join(id.capitalize(),
- #                                       "linker-script-%s.ld" % id)
             opts['ld']['script'] = self.ld_script
             opts['cpp_cmd'] = " ".join(toolchain.preproc)
 
             # Unique IDs used in multiple places.
             # Those used only once are implemented with {{u.id}}.
+            u = UID()
             uid = {}
             uid['config'] = u.id
             uid['tool_c_compiler'] = u.id
@@ -235,8 +218,6 @@ class MCUXpresso(GNUARMEclipse):
                       '.project', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('mcuxpresso/{0}_cproject.tmpl'.format(target_name), jinja_ctx,
                       '.cproject', trim_blocks=True, lstrip_blocks=True)
-#        self.gen_file('mcuxpresso/makefile.targets.tmpl', jinja_ctx,
-#                      'makefile.targets', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('mcuxpresso/mbedignore.tmpl', jinja_ctx, '.mbedignore')
 
         print
