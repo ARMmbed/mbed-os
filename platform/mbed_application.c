@@ -44,12 +44,12 @@ void mbed_start_application(uintptr_t address)
 
 static void powerdown_nvic()
 {
-    int isr_count;
+    int isr_groups_32;
     int i;
     int j;
 
-    isr_count = (SCnSCB->ICTR & SCnSCB_ICTR_INTLINESNUM_Msk) >> SCnSCB_ICTR_INTLINESNUM_Pos;
-    for (i = 0; i < isr_count; i++) {
+    isr_groups_32 = ((SCnSCB->ICTR & SCnSCB_ICTR_INTLINESNUM_Msk) >> SCnSCB_ICTR_INTLINESNUM_Pos) + 1;
+    for (i = 0; i < isr_groups_32; i++) {
         NVIC->ICER[i] = 0xFFFFFFFF;
         NVIC->ICPR[i] = 0xFFFFFFFF;
         for (j = 0; j < 8; j++) {
