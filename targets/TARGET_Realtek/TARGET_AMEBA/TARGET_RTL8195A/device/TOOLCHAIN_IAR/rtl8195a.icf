@@ -39,7 +39,7 @@ define region BD_RAM_region           = mem:[from __ICFEDIT_region_BD_RAM_start_
 define region SDRAM_RAM_region       = mem:[from __ICFEDIT_region_SDRAM_RAM_start__       to __ICFEDIT_region_SDRAM_RAM_end__];
 
 define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
-define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block HEAP      with expanding size, minimum size = __ICFEDIT_size_heap__, alignment = 8     { };
 
 //initialize by copy { readwrite };
 //initialize by copy with packing = none { section __DLIB_PERTHREAD }; // Required in a multi-threaded application

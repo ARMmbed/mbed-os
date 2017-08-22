@@ -41,7 +41,7 @@ define region CSTACK_region  = mem:[from __region_CSTACK_start__ to __region_CST
 define region IPC_region     = mem:[from __region_IPC_start__ to __region_IPC_end__];
 
 define block CSTACK     with alignment = 8, size = __size_cstack__     { };
-define block HEAP       with alignment = 8, size = __size_heap__       { };
+define block HEAP       with expanding size, minimum size = __size_heap__, alignment = 8     { };
 define block RW         { readwrite };
 define block ZI         { zi };
 
