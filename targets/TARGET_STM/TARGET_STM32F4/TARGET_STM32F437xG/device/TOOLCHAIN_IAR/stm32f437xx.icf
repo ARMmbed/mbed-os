@@ -39,7 +39,7 @@ define exported symbol __CRASH_DATA_RAM_START__ = __region_CRASH_DATA_RAM_start_
 define exported symbol __CRASH_DATA_RAM_END__ = __region_CRASH_DATA_RAM_end__;
 
 define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
-define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block HEAP      with expanding size, minimum size = __ICFEDIT_size_heap__, alignment = 8     { };
 
 initialize by copy { readwrite };
 do not initialize  { section .noinit };
