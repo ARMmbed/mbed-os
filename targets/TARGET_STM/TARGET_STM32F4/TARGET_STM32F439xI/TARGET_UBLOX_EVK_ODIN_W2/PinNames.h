@@ -95,7 +95,7 @@ typedef enum {
     P_A17   = PD_12,  // GPIO-3
     P_A18   = PA_3,   // UART-DSR
     // B
-	  // C
+    // C
     P_C5    = PG_4,   // SPI-IRQ
     P_C6    = PE_13,  // SPI-MISO
     P_C8    = PE_12,  // Res
@@ -153,9 +153,14 @@ typedef enum {
     LED1    = PE_0,   // Red / Mode
     LED2    = PB_6,   // Green / Switch-1
     LED3    = PB_8,   // Blue
-	LED4    = D10,
+    LED4    = D10,
     SW0     = PF_2,   // Switch-0
     SW1     = PB_6,   // Green / Switch-1
+
+    // Standardized button names
+    BUTTON1 = SW0,
+    BUTTON2 = SW1,
+
     // ST-Link
     USBRX   = PA_10,
     USBTX   = PA_9,
