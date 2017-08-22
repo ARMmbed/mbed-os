@@ -44,6 +44,7 @@
 #include "emac_api.h"
 #include "emac_stack_mem.h"
 #include "mbed_assert.h"
+#include "netsocket/nsapi_types.h"
 
 enet_handle_t g_handle;
 // TX Buffer descriptors
@@ -643,9 +644,14 @@ static void k64f_eth_set_link_state_cb(emac_interface_t *emac, emac_link_state_c
   enet->emac_link_state_cb_data = data;
 }
 
-static void k64f_eth_add_multicast_group(emac_interface_t *emac, uint8_t *addr)
+static void k64f_eth_add_multicast_group(emac_interface_t *emac, const nsapi_addr_t *addr)
 {
-  ENET_AddMulticastGroup(ENET, addr);
+
+  uint8_t _addr[NSAPI_IP_BYTES];
+  for (int i = 0; i < NSAPI_IP_BYTES; i++) {
+    _addr[i] = addr->bytes[i];
+  }
+  ENET_AddMulticastGroup(ENET, _addr);
 }
 
 static void k64f_eth_power_down(emac_interface_t *emac)

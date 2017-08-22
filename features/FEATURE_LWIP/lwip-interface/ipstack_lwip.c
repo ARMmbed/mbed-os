@@ -192,7 +192,7 @@ void mbed_ipstack_init(void)
     mbed_lwip_inited = true;
 }
 
-nsapi_error_t mbed_ipstack_add_netif(emac_interface_t *emac, bool default_if)
+nsapi_error_t mbed_ipstack_add_interface(emac_interface_t *emac, bool default_if)
 {
     emac->connected = false;
     emac->dhcp = true;
@@ -241,16 +241,16 @@ nsapi_error_t mbed_ipstack_bringup(emac_interface_t *emac, bool dhcp, const char
    * All-nodes link-local is handled by default, so we must let the hardware know
    * to allow multicast packets in.
    * Should set mld_mac_filter previously. */
-  if (emac->netif.mld_mac_filter != NULL) {
+  if (((struct netif *)emac->netif)->mld_mac_filter != NULL) {
     ip6_addr_t ip6_allnodes_ll;
     ip6_addr_set_allnodes_linklocal(&ip6_allnodes_ll);
-    emac->netif.mld_mac_filter((struct netif *)emac->netif, &ip6_allnodes_ll, NETIF_ADD_MAC_FILTER);
+    ((struct netif *)emac->netif)->mld_mac_filter((struct netif *)emac->netif, &ip6_allnodes_ll, NETIF_ADD_MAC_FILTER);
   }
 #endif /* LWIP_IPV6_MLD */
 
 #if LWIP_IPV6_AUTOCONFIG
     /* IPv6 address autoconfiguration not enabled by default */
-  emac->netif.ip6_autoconfig_enabled = 1;
+  ((struct netif *)emac->netif)->ip6_autoconfig_enabled = 1;
 #endif /* LWIP_IPV6_AUTOCONFIG */
 
 #endif /* LWIP_IPV6 */

@@ -20,6 +20,8 @@
 #include "lwip/tcp.h"
 #include "lwip/ip.h"
 #include "netif/etharp.h"
+#include "lwip/ethip6.h"
+#include "netsocket/nsapi_types.h"
 
 static err_t emac_lwip_low_level_output(struct netif *netif, struct pbuf *p)
 {
@@ -73,15 +75,16 @@ static err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, u8_t 
     switch (action) {
         case NETIF_ADD_MAC_FILTER:
         {
+            nsapi_addr_t *addrs;
             uint32_t group23 = ntohl(group->addr) & 0x007FFFFF;
-            uint8_t addr[6];
-            addr[0] = LL_IP4_MULTICAST_ADDR_0;
-            addr[1] = LL_IP4_MULTICAST_ADDR_1;
-            addr[2] = LL_IP4_MULTICAST_ADDR_2;
-            addr[3] = group23 >> 16;
-            addr[4] = group23 >> 8;
-            addr[5] = group23;
-            emac->ops->add_multicast_group(emac, addr);
+            addrs->version = NSAPI_IPv4;
+            addrs->bytes[0] = LL_IP4_MULTICAST_ADDR_0;
+            addrs->bytes[1] = LL_IP4_MULTICAST_ADDR_1;
+            addrs->bytes[2] = LL_IP4_MULTICAST_ADDR_2;
+            addrs->bytes[3] = group23 >> 16;
+            addrs->bytes[4] = group23 >> 8;
+            addrs->bytes[5] = group23;
+            emac->ops->add_multicast_group(emac, addrs);
             return ERR_OK;
         }
         case NETIF_DEL_MAC_FILTER:
@@ -114,15 +117,16 @@ static err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, u8_t a
     switch (action) {
         case NETIF_ADD_MAC_FILTER:
         {
+            nsapi_addr_t *addrs;
             uint32_t group32 = ntohl(group->addr[3]);
-            uint8_t addr[6];
-            addr[0] = LL_IP6_MULTICAST_ADDR_0;
-            addr[1] = LL_IP6_MULTICAST_ADDR_1;
-            addr[2] = group32 >> 24;
-            addr[3] = group32 >> 16;
-            addr[4] = group32 >> 8;
-            addr[5] = group32;
-            emac->ops->add_multicast_group(emac, addr);
+            addrs->version = NSAPI_IPv6;
+            addrs->bytes[0] = LL_IP6_MULTICAST_ADDR_0;
+            addrs->bytes[1] = LL_IP6_MULTICAST_ADDR_1;
+            addrs->bytes[2] = group32 >> 24;
+            addrs->bytes[3] = group32 >> 16;
+            addrs->bytes[4] = group32 >> 8;
+            addrs->bytes[5] = group32;
+            emac->ops->add_multicast_group(emac, addrs);
             return ERR_OK;
         }
         case NETIF_DEL_MAC_FILTER:

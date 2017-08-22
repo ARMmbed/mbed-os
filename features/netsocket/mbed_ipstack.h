@@ -36,8 +36,6 @@ extern "C" {
  * sure that the stack is initialized and all the existing interfaces are registered with the stack.
  * This function can be safely called multiple times, it will do nothing and return NSAPI_ERROR_OK if stack is already
  * initialized.
- *
- * @return    NSAPI_ERROR_OK on success, or error code
  */
 void mbed_ipstack_init(void);
 
@@ -50,7 +48,7 @@ void mbed_ipstack_init(void);
  * @param    default_if true if the interface should be treated as the default one
  * @return              NSAPI_ERROR_OK on success, or error code
  */
-nsapi_error_t mbed_ipstack_add_netif(emac_interface_t *emac, bool default_if);
+nsapi_error_t mbed_ipstack_add_interface(emac_interface_t *emac, bool default_if);
 
 /** Connect network stack with the IP stack
  *

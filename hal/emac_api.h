@@ -22,6 +22,7 @@
 #include "arch/sys_arch.h"
 
 typedef struct emac_interface emac_interface_t;
+typedef struct nsapi_addr nsapi_addr_t;
 
 /**
  * EmacInterface
@@ -141,9 +142,9 @@ typedef void (*emac_set_link_state_cb_fn)(emac_interface_t *emac, emac_link_stat
 /** Add device to a multicast group
  *
  * @param emac     Emac interface
- * @param address  An multicast group IPv4 address
+ * @param address  An multicast group address
  */
-typedef void (*emac_add_multicast_group)(emac_interface_t *emac, uint8_t *address);
+typedef void (*emac_add_multicast_group)(emac_interface_t *emac, const nsapi_addr_t *address);
 
 typedef struct emac_interface_ops {
     emac_get_mtu_size_fn        get_mtu_size;

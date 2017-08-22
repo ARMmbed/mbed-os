@@ -27,9 +27,14 @@ EthernetInterface::EthernetInterface(emac_interface_t *emac)
 nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
     _dhcp = false;
+
     strncpy(_ip_address, ip_address ? ip_address : "", sizeof(_ip_address));
+    _ip_address[sizeof(_ip_address) - 1] = '\0';
     strncpy(_netmask, netmask ? netmask : "", sizeof(_netmask));
+    _netmask[sizeof(_netmask) - 1] = '\0';
     strncpy(_gateway, gateway ? gateway : "", sizeof(_gateway));
+    _gateway[sizeof(_gateway) - 1] = '\0';
+
     return NSAPI_ERROR_OK;
 }
 
@@ -42,13 +47,15 @@ nsapi_error_t EthernetInterface::set_dhcp(bool dhcp)
 nsapi_error_t EthernetInterface::connect()
 {
     nsapi_error_t err;
-    if (_stack.emac == NULL)
+    if (_stack.emac == NULL) {
         return NSAPI_ERROR_UNSUPPORTED;
+    }
 
     mbed_ipstack_init();
-    err = mbed_ipstack_add_netif(_stack.emac, true);
-    if (err != NSAPI_ERROR_OK)
+    err = mbed_ipstack_add_interface(_stack.emac, true);
+    if (err != NSAPI_ERROR_OK) {
         return err;
+    }
 
     return mbed_ipstack_bringup(_stack.emac, _dhcp,
             _ip_address[0] ? _ip_address : 0,
