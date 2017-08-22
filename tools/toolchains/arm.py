@@ -191,7 +191,8 @@ class ARM(mbedToolchain):
         """
         with open(scatter_file, "rb") as input:
             lines = input.readlines()
-            if lines[0].startswith(self.SHEBANG):
+            if  (lines[0].startswith(self.SHEBANG) or
+                 not lines[0].startswith("#!")):
                 return scatter_file
             else:
                 new_scatter = join(self.build_dir, ".link_script.sct")
