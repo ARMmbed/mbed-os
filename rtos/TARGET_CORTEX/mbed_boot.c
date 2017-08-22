@@ -168,7 +168,7 @@
 #include "cmsis_os2.h"
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
-#if (defined(__ICCARM__) && (__IAR_SYSTEMS_ICC__ >= 8) )
+#if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
 #include <DLib_Threads.h>
 #endif
 /* Heap limits - only used if set */
@@ -576,7 +576,7 @@ void pre_main(void)
     singleton_mutex_attr.cb_mem = &singleton_mutex_obj;
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
-#if (__IAR_SYSTEMS_ICC__ >= 8)
+#if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
     __iar_Initlocks();
 #endif
 
