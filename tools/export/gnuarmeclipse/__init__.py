@@ -126,19 +126,13 @@ class GNUARMEclipse(Exporter):
             flags['cxx_flags'] += header_options
         return flags
 
-    # override
-    def generate(self):
-        """
-        Generate the .project and .cproject files.
-        """
+    def validate_resources(self):
         if not self.resources.linker_script:
             raise NotSupportedException("No linker script found.")
 
-        print
-        print 'Create a GNU ARM Eclipse C++ managed project'
-        print 'Project name: {0}'.format(self.project_name)
-        print 'Target: {0}'.format(self.toolchain.target.name)
-        print 'Toolchain: {0}'.format(self.TOOLCHAIN)
+    def create_jinja_ctx(self):
+
+        self.validate_resources()
 
         self.resources.win_to_unix()
 
@@ -276,6 +270,20 @@ class GNUARMEclipse(Exporter):
             # will be called repeatedly, to generate multiple UIDs.
             'u': u,
         }
+        return jinja_ctx
+
+    # override
+    def generate(self):
+        """
+        Generate the .project and .cproject files.
+        """
+        jinja_ctx = self.create_jinja_ctx()
+
+        print
+        print 'Create a GNU ARM Eclipse C++ managed project'
+        print 'Project name: {0}'.format(self.project_name)
+        print 'Target: {0}'.format(self.toolchain.target.name)
+        print 'Toolchain: {0}'.format(self.TOOLCHAIN)
 
         self.gen_file('gnuarmeclipse/.project.tmpl', jinja_ctx,
                       '.project', trim_blocks=True, lstrip_blocks=True)
