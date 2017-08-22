@@ -26,6 +26,7 @@
 #include "hal/ticker_api.h"
 #include "hal/lp_ticker_api.h"
 #include "cmsis_os2.h"
+#include "rtx_lib.h"
 #include <limits.h>
 
 static ticker_event_t idle_loop_event;
@@ -38,31 +39,30 @@ void idle_loop_handler(uint32_t id)
 static void default_idle_hook(void)
 {
 #if DEVICE_LOWPOWERTIMER
-    uint32_t tick_freq = osKernelGetTickFreq();
     timestamp_t time_in_sleep = 0UL;
 
-    uint32_t ticks_to_sleep = osKernelSuspend();
+    core_util_critical_section_enter();
+    uint32_t tick_freq = svcRtxKernelGetTickFreq();
+    uint32_t ticks_to_sleep = svcRtxKernelSuspend();
     if (ticks_to_sleep) {
-        core_util_critical_section_enter();
-        uint64_t us_to_sleep = ticks_to_sleep * tick_freq; 
+        uint64_t us_to_sleep = 1000000 * (uint64_t)ticks_to_sleep / tick_freq;
         // Calculate the maximum period we can sleep and stay within
-        uint64_t max_us_sleep = (UINT_MAX / tick_freq) * tick_freq; 
-        if (us_to_sleep > max_us_sleep) {
-            us_to_sleep = max_us_sleep;
+        if (us_to_sleep >= UINT32_MAX) {
+            us_to_sleep = UINT32_MAX;
         }
 
         const ticker_data_t *lp_ticker_data = get_lp_ticker_data();
         ticker_remove_event(lp_ticker_data, &idle_loop_event);
         ticker_set_handler(lp_ticker_data, &idle_loop_handler);
         timestamp_t start_time = lp_ticker_read();
-        ticker_insert_event_us(lp_ticker_data, &idle_loop_event, us_to_sleep, (uint32_t)&idle_loop_event);
+        ticker_insert_event_us(lp_ticker_data, &idle_loop_event, start_time + us_to_sleep, (uint32_t)&idle_loop_event);
 
         sleep();
-        core_util_critical_section_exit();
         // calculate how long we slept
         time_in_sleep = lp_ticker_read() - start_time;
     }
-    osKernelResume(time_in_sleep / tick_freq);
+    svcRtxKernelResume((uint64_t)time_in_sleep * tick_freq / 1000000);
+    core_util_critical_section_exit();
 #else
     sleep();
 #endif
