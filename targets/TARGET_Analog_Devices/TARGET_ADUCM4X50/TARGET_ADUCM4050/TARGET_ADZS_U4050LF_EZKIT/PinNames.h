@@ -144,16 +144,17 @@ typedef enum {
     PB0 = P2_09,
     PB1 = P2_06,
     BOOT = P1_01,
-    WAKE_J12 = P0_15,  //4 options depending on jumper JP10 position
-    WAKE_J34 = P1_00,  //4 options depending on jumper JP10 position
-    WAKE_J56 = P0_13,  //4 options depending on jumper JP10 position
-    WAKE_J78 = P2_01,  //4 options depending on jumper JP10 position
+    WAKE0 = P0_15,  //4 options depending on jumper JP10 position
+    WAKE1 = P1_00,  //4 options depending on jumper JP10 position
+    WAKE2 = P0_13,  //4 options depending on jumper JP10 position
+    WAKE3 = P2_01,  //4 options depending on jumper JP10 position
 
     // USB Pins
     USBTX0 = P0_10,
     USBRX0 = P0_11,
     USBTX = P1_15,
     USBRX = P2_00,
+
     // Arduino Headers
     D0 = P0_11,
     D1 = P0_10,
@@ -204,7 +205,7 @@ typedef enum {
 #endif
     SPI2_CS3 = P2_07,
 
-// ADC Analog Input Pins
+    // ADC Analog Input Pins
     A0 = P2_03,
     A1 = P2_04,
     A2 = P2_05,
@@ -213,6 +214,16 @@ typedef enum {
     A5 = P2_08,
     A6 = P2_09,
     A7 = P2_10,
+
+    // ADC Pins
+    ADC_VIN0 = P2_03,
+    ADC_VIN1 = P2_04,
+    ADC_VIN2 = P2_05,
+    ADC_VIN3 = P2_06,
+    ADC_VIN4 = P2_07,
+    ADC_VIN5 = P2_08,
+    ADC_VIN6 = P2_09,
+    ADC_VIN7 = P2_10,
 
     // Not connected
     NC = (int)0xFFFFFFFF

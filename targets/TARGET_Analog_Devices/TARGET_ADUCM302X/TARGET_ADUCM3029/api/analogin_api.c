@@ -177,28 +177,28 @@ static uint32_t adi_pin2channel(PinName pin) {
     uint32_t activech;
 
     switch(pin) {
-        case A0:
+        case ADC_VIN0:
             activech = ADI_ADC_CHANNEL_0;
             break;
-        case A1:
+        case ADC_VIN1:
             activech = ADI_ADC_CHANNEL_1;
             break;
-        case A2:
+        case ADC_VIN2:
             activech = ADI_ADC_CHANNEL_2;
             break;
-        case A3:
+        case ADC_VIN3:
             activech = ADI_ADC_CHANNEL_3;
             break;
-        case A4:
+        case ADC_VIN4:
             activech = ADI_ADC_CHANNEL_4;
             break;
-        case A5:
+        case ADC_VIN5:
             activech = ADI_ADC_CHANNEL_5;
             break;
-        case A6:
+        case ADC_VIN6:
             activech = ADI_ADC_CHANNEL_6;
             break;
-        case A7:
+        case ADC_VIN7:
             activech = ADI_ADC_CHANNEL_7;
             break;
         default:

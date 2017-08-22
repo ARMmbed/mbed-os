@@ -105,6 +105,12 @@ typedef enum {
     P2_10 = (2 << GPIO_PORT_SHIFT | 10),
     P2_11 = (2 << GPIO_PORT_SHIFT | 11),
 
+    // USB Pins
+    USBTX = P0_10,
+    USBRX = P0_11,
+    USBTX1 = P1_15,
+    USBRX1 = P2_00,
+
     // mbed original LED naming
     LED1 = P2_02,
     LED2 = P2_10,
@@ -112,43 +118,13 @@ typedef enum {
     LED4 = LED1,
 
     //Push buttons
-    PB0 = P1_00,
-    PB1 = P0_09,
+    PB0 = P1_00,        // BTN1
+    PB1 = P0_09,        // BTN2
     BOOT = P1_01,
-    WAKE0 = P0_15,
-    WAKE1 = P1_00,
-    WAKE2 = P0_13,
-    WAKE3 = P2_01,
-    WAKE_J12 = P0_15,   // left for compatibility
-    WAKE_J34 = P1_00,   // left for compatibility
-    WAKE_J56 = P0_13,   // left for compatibility
-    WAKE_J78 = P2_01,   // left for compatibility
-
-    // USB Pins
-    USBTX = P0_10,
-    USBRX = P0_11,
-    USBTX1 = P1_15,
-    USBRX1 = P2_00,
-    // Arduino Headers
-    D0 = P0_11,
-    D1 = P0_10,
-    D2 = P0_15,
-    D3 = P2_11,
-    D4 = P2_01,
-    D5 = P2_02,
-    D6 = P2_00,
-    D7 = P0_12,
-    D8 = P1_02,
-    D9 = P1_15,
-    D10 = P0_03,
-    D11 = P0_01,
-    D12 = P0_02,
-    D13 = P0_00,
-    D14 = P0_05,
-    D15 = P0_04,
-
-    I2C_SCL = P0_04,
-    I2C_SDA = P0_05,
+    WAKE0 = P0_15,      // JP15 to select
+    WAKE1 = P1_00,      // JP8 (BTN1 jumper) to select
+    WAKE2 = P0_13,      // JP4 to select
+    WAKE3 = P2_01,      // JP15 to select
 
     // SPI Pins
     SPI0_SCLK = P0_00,
@@ -175,15 +151,41 @@ typedef enum {
     SPI2_CS2 = P2_10,
     SPI2_CS3 = P2_07,
 
-// ADC Analog Input Pins
-    A0 = P2_03,
-    A1 = P2_04,
-    A2 = P2_05,
-    A3 = P2_06,
-    A4 = P2_07,
-    A5 = P2_08,
-    A6 = P2_09,
-    A7 = P2_10,
+    // ADC Pins
+    ADC_VIN0 = P2_03,
+    ADC_VIN1 = P2_04,
+    ADC_VIN2 = P2_05,
+    ADC_VIN3 = P2_06,
+    ADC_VIN4 = P2_07,
+    ADC_VIN5 = P2_08,
+    ADC_VIN6 = P2_09,
+    ADC_VIN7 = P2_10,
+
+    // Arduino Headers
+    D0 = P0_10,        // UART0_TXD
+    D1 = P0_11,        // UART0_RXD
+    D2 = P0_15,        // INT_WAKE0
+    D3 = P0_13,        // EXT_INT_WAKE2
+    D4 = P0_09,        // EXT_SPI2_CS1
+    D5 = P2_01,        // INT_WAKE3 or EXT_RTC1_SS1 via JP8
+    D6 = P1_11,        // GPIO_27
+    D7 = P0_12,        // GPIO_08 or GPIO_12 via JP7
+
+    D8 = P1_12,         // GPIO_28
+    D9 = P1_14,         // GPIO_30
+    D10 = SPI0_CS2,     // P2_08
+    D11 = SPI0_MOSI,    // P0_01
+    D12 = SPI0_MISO,    // P0_02
+    D13 = SPI0_SCLK,    // P0_00
+    I2C_SCL = P0_04,    // I2C_SCL
+    I2C_SDA = P0_05,    // I2C_SDA
+
+    A0 = P2_03,         // ADC0
+    A1 = P2_04,         // EXT_ADC1
+    A2 = P2_05,         // EXT_ADC2
+    A3 = P2_06,         // ADC3
+    A4 = P2_07,         // SPI2_CS3/ADC_VIN4
+    A5 = P2_10,         // EXT_GPIO42/ADC_VIN7
 
     // Not connected
     NC = (int)0xFFFFFFFF

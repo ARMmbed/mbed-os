@@ -121,10 +121,10 @@ typedef enum {
 
     // Push buttons
     BOOT = P1_01,
-    WAKE_J12 = P0_15,  //4 options depending on jumper
-    WAKE_J34 = P1_00,  //4 options depending on jumper
-    WAKE_J56 = P0_13,  //4 options depending on jumper
-    WAKE_J78 = P2_01,  //4 options depending on jumper
+    WAKE0 = P0_15,      //4 options depending on jumper
+    WAKE1 = P1_00,      //4 options depending on jumper
+    WAKE2 = P0_13,      //4 options depending on jumper
+    WAKE3 = P2_01,      //4 options depending on jumper
 
     // SPI Pins
     SPI0_SCLK = P0_00,
@@ -163,7 +163,7 @@ typedef enum {
 
     // Arduino Headers
     D0 = P0_11,     // GPIO11   UART0_RX
-    D1 = P0_10,     // GPIO10   UART0_RX
+    D1 = P0_10,     // GPIO10   UART0_TX
     D2 = P0_15,     // GPIO15
     D3 = P0_13,     // GPIO13
     D4 = P0_09,     // GPIO09   BEEP0_TONE	SPI2_CS1

@@ -65,6 +65,7 @@
 static unsigned char rtc1_memory[ADI_RTC_MEMORY_SIZE];
 static ADI_RTC_HANDLE hRTC1_Device;
 
+
 /**
  * \defgroup hal_LpTicker Low Power Ticker Functions
  * @{
@@ -198,18 +199,18 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 
     // get current count
     adi_rtc_GetCount(hRTC1_Device, &rtcCount);
-    
-    // compute the number of ticks required for the alarm  
+
+    // compute the number of ticks required for the alarm
     trunc_rtcCount = rtcCount & MAX_TICK_MASK;
-    
-    // if set_tick is less than the current RTC count, then the counter
-    // must have been wrapped around.
+
+    // if set_tick is less than the current RTC count, the counter has
+    // missed the desired time, so set tick_delta to 0
     if (set_tick >= trunc_rtcCount) {
         tick_delta = set_tick - trunc_rtcCount;
     } else {
-        tick_delta = MAX_TICK_MASK - (trunc_rtcCount - set_tick);
+        tick_delta = 0;
     }
-    
+
     // compute the absolute RTC alarm count required
     alarm_tick = rtcCount + tick_delta;
 
