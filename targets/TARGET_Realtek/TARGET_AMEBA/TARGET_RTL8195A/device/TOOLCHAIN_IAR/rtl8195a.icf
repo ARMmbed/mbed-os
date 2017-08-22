@@ -30,7 +30,7 @@ define region RAM_region = mem:[from __SRAM_start__ to __SRAM_end__] |
                            mem:[from __DRAM_start__ to __DRAM_end__];
 
 define block CSTACK with alignment = 8, size = 0x1000  { };
-define block HEAP   with alignment = 8, size = 0x19000 { };
+define block HEAP   with expanding size, minimum size = 0x19000, alignment = 8  { };
 
 do not initialize  { section .noinit };
 
