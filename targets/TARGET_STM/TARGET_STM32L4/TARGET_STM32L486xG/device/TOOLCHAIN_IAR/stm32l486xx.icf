@@ -22,7 +22,7 @@ define region SRAM1_region = mem:[from __region_SRAM1_start__ to __region_SRAM1_
 define symbol __size_cstack__ = 0x8000;
 define symbol __size_heap__   = 0xa000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
-define block HEAP      with alignment = 8, size = __size_heap__     { };
+define block HEAP      with expanding size, minimum size = __size_heap__, alignment = 8     { };
 define block STACKHEAP with fixed order { block HEAP, block CSTACK };
 
 initialize by copy with packing = zeros { readwrite };

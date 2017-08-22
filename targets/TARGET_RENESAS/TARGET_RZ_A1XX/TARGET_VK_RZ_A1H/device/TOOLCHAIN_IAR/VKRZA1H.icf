@@ -47,7 +47,7 @@ define block IRQ_STACK with alignment = 8, size = __ICFEDIT_size_irqstack__ { };
 define block FIQ_STACK with alignment = 8, size = __ICFEDIT_size_fiqstack__ { };
 define block UND_STACK with alignment = 8, size = __ICFEDIT_size_undstack__ { };
 define block ABT_STACK with alignment = 8, size = __ICFEDIT_size_abtstack__ { };
-define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block HEAP      with expanding size, minimum size = __ICFEDIT_size_heap__, alignment = 8     { };
 
 initialize by copy { readwrite };
 do not initialize  { section .noinit };

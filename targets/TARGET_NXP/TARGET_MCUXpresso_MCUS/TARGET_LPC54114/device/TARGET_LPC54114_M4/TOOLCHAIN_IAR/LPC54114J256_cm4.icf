@@ -110,7 +110,7 @@ define region m_interrupts_ram_region = mem:[from m_interrupts_ram_start to m_in
 define region rpmsg_sh_mem_region     = mem:[from rpmsg_sh_mem_start to rpmsg_sh_mem_end];
 
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
-define block HEAP      with alignment = 8, size = __size_heap__     { };
+define block HEAP      with expanding size, minimum size = __size_heap__, alignment = 8     { };
 define block RW        { readwrite };
 define block ZI        { zi };
 

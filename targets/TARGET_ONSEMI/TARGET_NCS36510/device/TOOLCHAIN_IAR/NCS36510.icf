@@ -53,7 +53,7 @@ define overlay MIBOVERLAY { section MIBSTARTSECTION };
 define overlay MIBOVERLAY { section MIBSECTION };
 
 define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
-define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block HEAP      with expanding size, minimum size = __ICFEDIT_size_heap__, alignment = 8     { };
 define block RAM_VECTORS  with alignment = 8, size = 0x90     { };
 
 initialize by copy { readwrite };

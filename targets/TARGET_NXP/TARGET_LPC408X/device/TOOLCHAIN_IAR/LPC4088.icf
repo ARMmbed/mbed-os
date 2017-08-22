@@ -29,7 +29,7 @@ define region CRP_region   = mem:[from __CRP_start__ to __CRP_end__];
 define region RAM1_region  = mem:[from __RAM1_start__ to __RAM1_end__];
 
 define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
-define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block HEAP      with expanding size, minimum size = __ICFEDIT_size_heap__, alignment = 8     { };
 
 initialize by copy { readwrite };
 do not initialize  { section .noinit };
