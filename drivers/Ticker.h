@@ -20,6 +20,7 @@
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
+#include "platform/mbed_sleep.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -63,10 +64,10 @@ namespace mbed {
 class Ticker : public TimerEvent, private NonCopyable<Ticker> {
 
 public:
-    Ticker() : TimerEvent() {
+    Ticker() : TimerEvent(), _function(0) {
     }
 
-    Ticker(const ticker_data_t *data) : TimerEvent(data) {
+    Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0) {
         data->interface->init();
     }
 
@@ -102,6 +103,10 @@ public:
      *  @param t the time between calls in micro-seconds
      */
     void attach_us(Callback<void()> func, us_timestamp_t t) {
+        // lock only for the initial callback setup
+        if (!_function) {
+            sleep_manager_lock_deep_sleep();
+        }
         _function = func;
         setup(t);
     }

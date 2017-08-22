@@ -31,6 +31,7 @@
 #include "platform/CircularBuffer.h"
 #include "platform/FunctionPointer.h"
 #include "platform/Transaction.h"
+#include "platform/mbed_sleep.h"
 #endif
 
 namespace mbed {
@@ -156,6 +157,8 @@ public:
 
     /** Start non-blocking SPI transfer using 8bit buffers.
      *
+     * This function locks the deep sleep until any event has occured
+     * 
      * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
      *                  the default SPI value is sent
      * @param tx_length The length of TX buffer in bytes
