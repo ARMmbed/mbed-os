@@ -256,7 +256,7 @@ class MCUXpresso(GNUARMEclipse):
         tmp_folder = tempfile.mkdtemp()
 
         cmd = [
-            'eclipse',
+            'mcuxpressoidec',
             '--launcher.suppressErrors',
             '-nosplash',
             '-application org.eclipse.cdt.managedbuilder.core.headlessbuild',
