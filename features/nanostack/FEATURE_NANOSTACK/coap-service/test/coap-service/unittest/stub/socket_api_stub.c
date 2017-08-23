@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
  */
 #include "socket_api.h"
 #include "socket_api_stub.h"

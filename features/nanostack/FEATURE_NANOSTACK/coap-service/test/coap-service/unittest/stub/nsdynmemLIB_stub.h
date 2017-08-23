@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -30,11 +30,6 @@ typedef struct {
 } nsdynmemlib_stub_data_t;
 
 extern nsdynmemlib_stub_data_t nsdynmemlib_stub;
-
-
-void *ns_dyn_mem_alloc(int16_t alloc_size);
-void *ns_dyn_mem_temporary_alloc(int16_t alloc_size);
-void ns_dyn_mem_free(void *block);
 
 #ifdef __cplusplus
 }

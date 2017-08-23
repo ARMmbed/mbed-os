@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
  */
 
 #include "coap_message_handler_stub.h"
@@ -58,6 +58,11 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
 int8_t coap_message_handler_response_send(coap_msg_handler_t *handle, int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr,  sn_coap_msg_code_e message_code,sn_coap_content_format_e content_type, const uint8_t *payload_ptr, uint16_t payload_len)
 {
     return coap_message_handler_stub.int8_value;
+}
+
+int8_t coap_message_handler_request_delete(coap_msg_handler_t *handle, int8_t service_id, uint16_t msg_id)
+{
+    return 0;
 }
 
 int8_t coap_message_handler_exec(coap_msg_handler_t *handle, uint32_t current_time)
