@@ -98,6 +98,8 @@ void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
 
     /* HASH Configuration */
     ctx->hhash_sha1.Init.DataType = HASH_DATATYPE_8B;
+    /* clear CR ALGO value */
+    HASH->CR &= ~HASH_CR_ALGO_Msk;
     if (HAL_HASH_Init(&ctx->hhash_sha1) == HAL_ERROR) {
         // error found to be returned
         return;

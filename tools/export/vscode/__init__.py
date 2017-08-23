@@ -63,15 +63,18 @@ class VSCode(Makefile):
             "configurations": [
                 {
                     "name": "Windows",
-                    "includePath": [x.replace("/", "\\") for x in all_directories]
+                    "includePath": [x.replace("/", "\\") for x in all_directories],
+                    "defines": [symbol for symbol in self.toolchain.get_symbols()]
                 },
                 {
                     "name": "Mac",
-                    "includePath": all_directories
+                    "includePath": all_directories,
+                    "defines": [symbol for symbol in self.toolchain.get_symbols()]
                 },
                 {
                     "name": "Linux",
-                    "includePath": all_directories
+                    "includePath": all_directories,
+                    "defines": [symbol for symbol in self.toolchain.get_symbols()]
                 }
             ]
         }

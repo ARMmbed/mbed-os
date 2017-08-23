@@ -75,6 +75,39 @@ public:
      */
     virtual int unmount();
 
+    /** Reformats a filesystem, results in an empty and mounted filesystem
+     *
+     *  @param bd
+     *      BlockDevice to reformat and mount. If NULL, the mounted
+     *      block device will be used.
+     *      Note: if mount fails, bd must be provided.
+     *      Default: NULL
+     *
+     *  @param allocation_unit
+     *      This is the number of bytes per cluster size. The valid value is N
+     *      times the sector size. N is a power of 2 from 1 to 128 for FAT
+     *      volume and upto 16MiB for exFAT volume. If zero is given,
+     *      the default allocation unit size is selected by the underlying
+     *      filesystem, which depends on the volume size.
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int reformat(BlockDevice *bd, int allocation_unit);
+
+    /** Reformats a filesystem, results in an empty and mounted filesystem
+     *
+     *  @param bd       BlockDevice to reformat and mount. If NULL, the mounted
+     *                  block device will be used.
+     *                  Note: if mount fails, bd must be provided.
+     *                  Default: NULL
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int reformat(BlockDevice *bd = NULL)
+    {
+        // required for virtual inheritance shenanigans
+        return reformat(bd, 0);
+    }
+
     /** Remove a file from the filesystem.
      *
      *  @param path     The name of the file to remove.

@@ -200,7 +200,9 @@ class GccArm(Makefile):
 
     @staticmethod
     def prepare_lib(libname):
-        return "-l:" + libname
+        if "lib" == libname[:3]:
+            libname = libname[3:-2]
+        return "-l" + libname
 
     @staticmethod
     def prepare_sys_lib(libname):

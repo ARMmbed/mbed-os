@@ -1066,9 +1066,10 @@
         },
         "detect_code": ["0826"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["CAN", "ERROR_RED", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG"],
+        "device_has_add": ["CAN", "ERROR_RED", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F412ZG"
+        "device_name": "STM32F412ZG",
+        "bootloader_supported": true
     },
     "DISCO_F413ZH": {
         "inherits": ["FAMILY_STM32"],
@@ -1322,7 +1323,7 @@
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M0+",
-        "extra_labels_add": ["STM32L0", "STM32L053R8"],
+        "extra_labels_add": ["STM32L0", "STM32L053x8", "STM32L053R8"],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
@@ -1536,7 +1537,7 @@
     "DISCO_L053C8": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M0+",
-        "extra_labels_add": ["STM32L0", "STM32L053C8"],
+        "extra_labels_add": ["STM32L0", "STM32L053x8", "STM32L053C8"],
         "macros": ["RTC_LSI=1"],
         "config": {
             "clock_source": {
@@ -1751,10 +1752,11 @@
             }
         },
         "macros_add": ["RTC_LSI=1", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
-        "device_has_add": ["ANALOGOUT", "TRNG"],
+        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "public": false,
-        "device_name": "STM32F437VG"
+        "device_name": "STM32F437VG",
+        "bootloader_supported": true
     },
     "UBLOX_C030_U201": {
         "inherits": ["UBLOX_C030"],
@@ -3170,7 +3172,26 @@
         "extra_labels": ["NUVOTON", "NUC472", "NU_XRAM_SUPPORTED", "FLASH_CMSIS_ALGO"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "config": {
+            "gpio-irq-debounce-enable": {
+                "help": "Enable GPIO IRQ debounce",
+                "value": 0
+            },
+            "gpio-irq-debounce-enable-list": {
+                "help": "Comma separated pin list to enable GPIO IRQ debounce",
+                "value": "NC"
+            },
+            "gpio-irq-debounce-clock-source": {
+                "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_IRC10K",
+                "value": "GPIO_DBCTL_DBCLKSRC_IRC10K"
+            },
+            "gpio-irq-debounce-sample-rate": {
+                "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
+                "value": "GPIO_DBCTL_DBCLKSEL_16"
+            }
+        },
         "inherits": ["Target"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["5"],
@@ -3207,6 +3228,7 @@
                 "value": "0xFFFFFFFF"
             }
         },
+        "OUTPUT_EXT": "hex",
         "post_binary_hook": {"function": "NCS36510TargetCode.ncs36510_addfib"},
         "macros": ["CM3", "CPU_NCS36510", "TARGET_NCS36510", "LOAD_ADDRESS=0x3000"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
@@ -3219,12 +3241,42 @@
         "extra_labels": ["NUVOTON", "M451", "NUMAKER_PFM_M453", "FLASH_CMSIS_ALGO"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "config": {
+            "gpio-irq-debounce-enable": {
+                "help": "Enable GPIO IRQ debounce",
+                "value": 0
+            },
+            "gpio-irq-debounce-enable-list": {
+                "help": "Comma separated pin list to enable GPIO IRQ debounce",
+                "value": "NC"
+            },
+            "gpio-irq-debounce-clock-source": {
+                "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC",
+                "value": "GPIO_DBCTL_DBCLKSRC_LIRC"
+            },
+            "gpio-irq-debounce-sample-rate": {
+                "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
+                "value": "GPIO_DBCTL_DBCLKSEL_16"
+            }
+        },
         "inherits": ["Target"],
         "progen": {"target": "numaker-pfm-m453"},
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
         "bootloader_supported": true
+    },
+    "NUMAKER_PFM_NANO130": {
+        "core": "Cortex-M0",
+        "default_toolchain": "ARM",
+        "extra_labels": ["NUVOTON", "NANO100", "NANO130KE3BN"],
+        "is_disk_virtual": true,
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "inherits": ["Target"],
+        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
+        "release_versions": ["5"],
+        "device_name": "NANO130KE3BN"
     },
     "HI2110": {
         "inherits": ["Target"],
@@ -3300,5 +3352,45 @@
         "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2"],
         "device_name": "nRF52832_xxAA"
+    },
+    "NUMAKER_PFM_M487": {
+        "core": "Cortex-M4F",
+        "default_toolchain": "ARM",
+        "extra_labels": ["NUVOTON", "M480", "FLASH_CMSIS_ALGO"],
+        "is_disk_virtual": true,
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "config": {
+            "gpio-irq-debounce-enable": {
+                "help": "Enable GPIO IRQ debounce",
+                "value": 0
+            },
+            "gpio-irq-debounce-enable-list": {
+                "help": "Comma separated pin list to enable GPIO IRQ debounce",
+                "value": "NC"
+            },
+            "gpio-irq-debounce-clock-source": {
+                "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC",
+                "value": "GPIO_DBCTL_DBCLKSRC_LIRC"
+            },
+            "gpio-irq-debounce-sample-rate": {
+                "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
+                "value": "GPIO_DBCTL_DBCLKSEL_16"
+            },
+            "usb-device-hsusbd": {
+                "help": "Select high-speed USB device or not",
+                "value": 1
+            },
+            "ctrl01-enable": {
+                "help": "Enable control_01",
+                "value": 0
+            }
+        },
+        "inherits": ["Target"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN"],
+        "features": ["LWIP"],
+        "release_versions": ["5"],
+        "device_name": "M487JIDAE",
+        "bootloader_supported": true
     }
 }

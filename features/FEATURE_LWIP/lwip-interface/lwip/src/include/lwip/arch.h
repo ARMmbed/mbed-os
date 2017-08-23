@@ -66,7 +66,7 @@
 #endif
 
 /** Define random number generator function of your system */
-#ifndef LWIP_RAND
+#ifdef __DOXYGEN__
 #define LWIP_RAND() ((u32_t)rand())
 #endif
 
@@ -76,7 +76,7 @@
  * systems, this should be defined to something less resource-consuming.
  */
 #ifndef LWIP_PLATFORM_DIAG
-#define LWIP_PLATFORM_DIAG(x)	do {printf x;} while(0)
+#define LWIP_PLATFORM_DIAG(x) do {printf x;} while(0)
 #include <stdio.h>
 #include <stdlib.h>
 #endif
@@ -160,6 +160,19 @@ typedef uintptr_t mem_ptr_t;
 #ifndef SZT_F
 #define SZT_F PRIuPTR
 #endif
+#endif
+
+/** Define this to 1 in arch/cc.h of your port if your compiler does not provide
+ * the limits.h header. You need to define the type limits yourself in this case
+ * (e.g. INT_MAX).
+ */
+#ifndef LWIP_NO_LIMITS_H
+#define LWIP_NO_LIMITS_H 0
+#endif
+
+/* Include limits.h? */
+#if !LWIP_NO_LIMITS_H
+#include <limits.h>
 #endif
 
 /** C++ const_cast<target_type>(val) equivalent to remove constness from a value (GCC -Wcast-qual) */

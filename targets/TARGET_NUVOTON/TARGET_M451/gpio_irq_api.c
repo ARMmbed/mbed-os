@@ -52,23 +52,23 @@ static struct nu_gpio_irq_var gpio_irq_var_arr[] = {
 
 #define NU_MAX_PORT     (sizeof (gpio_irq_var_arr) / sizeof (gpio_irq_var_arr[0]))
 
-#ifndef MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_ENABLE
-#define MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_ENABLE 0
+#ifndef MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_ENABLE
+#define MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_ENABLE 0
 #endif
 
-#ifndef MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_ENABLE_LIST
-#define MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_ENABLE_LIST NC
+#ifndef MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_ENABLE_LIST
+#define MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_ENABLE_LIST NC
 #endif
 static PinName gpio_irq_debounce_arr[] = {
-    MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_ENABLE_LIST
+    MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_ENABLE_LIST
 };
 
-#ifndef MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE
-#define MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE GPIO_DBCTL_DBCLKSRC_LIRC
+#ifndef MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE
+#define MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE GPIO_DBCTL_DBCLKSRC_LIRC
 #endif
 
-#ifndef MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE
-#define MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE GPIO_DBCTL_DBCLKSEL_16
+#ifndef MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE
+#define MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE GPIO_DBCTL_DBCLKSEL_16
 #endif
 
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id)
@@ -88,15 +88,16 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     obj->irq_id = id;
 
     GPIO_T *gpio_base = NU_PORT_BASE(port_index);
+    // NOTE: In InterruptIn constructor, gpio_irq_init() is called with gpio_init_in() which is responsible for multi-function pin setting.
     //gpio_set(pin);
     
     {
-#if MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_ENABLE
+#if MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_ENABLE
         // Suppress compiler warning
         (void) gpio_irq_debounce_arr;
 
         // Configure de-bounce clock source and sampling cycle time
-        GPIO_SET_DEBOUNCE_TIME(MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE, MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE);
+        GPIO_SET_DEBOUNCE_TIME(MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE, MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE);
         GPIO_ENABLE_DEBOUNCE(gpio_base, 1 << pin_index);
 #else
         // Enable de-bounce if the pin is in the de-bounce enable list
@@ -113,7 +114,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             if (pin_index == pin_index_debunce &&
                 port_index == port_index_debounce) {
                 // Configure de-bounce clock source and sampling cycle time
-                GPIO_SET_DEBOUNCE_TIME(MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE, MBED_CONF_M451_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE);
+                GPIO_SET_DEBOUNCE_TIME(MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_CLOCK_SOURCE, MBED_CONF_TARGET_GPIO_IRQ_DEBOUNCE_SAMPLE_RATE);
                 GPIO_ENABLE_DEBOUNCE(gpio_base, 1 << pin_index);
                 break;
             }
