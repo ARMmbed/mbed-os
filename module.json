@@ -14,9 +14,12 @@
     "nanostack-event-loop"
   ],
   "dependencies": {
-    "nanostack-libservice": "^3.0.0",
-    "mbed-6lowpan-eventloop-adaptor": "^1.0.0",
-    "minar": "^1.0.0"
+    "nanostack-libservice": "ARMmbed/nanostack-libservice#master"
   },
-  "targetDependencies": {}
+  "targetDependencies": {
+    "mbed": {
+      "mbed-6lowpan-eventloop-adaptor": "^1.0.0",
+      "minar": "^1.0.0"
+    }
+  }
 }
