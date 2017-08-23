@@ -438,6 +438,18 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     # Set the toolchain's configuration data
     toolchain.set_config_data(toolchain.config.get_config_data())
 
+    if  (hasattr(toolchain.target, "release_versions") and
+            "5" not in toolchain.target.release_versions and
+            "rtos" in toolchain.config.lib_config_data):
+        if "Cortex-A" in toolchain.target.core:
+            raise NotSupportedException(
+                ("%s Will be supported in mbed OS 5.6. "
+                    "To use the %s, please checkout the mbed OS 5.4 release branch. "
+                    "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
+                    "for more information") % (toolchain.target.name, toolchain.target.name))
+        else:
+            raise NotSupportedException("Target does not support mbed OS 5")
+
     return resources
 
 def build_project(src_paths, build_path, target, toolchain_name,
@@ -519,17 +531,6 @@ def build_project(src_paths, build_path, target, toolchain_name,
     try:
         # Call unified scan_resources
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
-        if  (hasattr(toolchain.target, "release_versions") and
-             "5" not in toolchain.target.release_versions and
-             "rtos" in toolchain.config.lib_config_data):
-            if "Cortex-A" in toolchain.target.core:
-                raise NotSupportedException(
-                    ("%s Will be supported in mbed OS 5.6. "
-                     "To use the %s, please checkout the mbed OS 5.4 release branch. "
-                     "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
-                     "for more information") % (toolchain.target.name, toolchain.target.name))
-            else:
-                raise NotSupportedException("Target does not support mbed OS 5")
 
         # Change linker script if specified
         if linker_script is not None:
