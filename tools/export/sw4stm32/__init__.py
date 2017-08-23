@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2016 ARM Limited
+Copyright (c) 2011-2017 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,10 +21,16 @@ from os import walk, sep
 from os.path import splitext, basename, join, dirname, relpath
 from random import randint
 from tools.utils import mkdir
-from tools.export.exporters import Exporter
+from tools.export.gnuarmeclipse import GNUARMEclipse
+from tools.export.gnuarmeclipse import UID
+from tools.build_api import prepare_toolchain
+from sys import flags
+
+# Global random number generator instance.
+u = UID()
 
 
-class Sw4STM32(Exporter):
+class Sw4STM32(GNUARMEclipse):
     """
     Sw4STM32 class
     """
@@ -258,24 +264,6 @@ class Sw4STM32(Exporter):
         settings = join(self.export_dir, dir_name)
         mkdir(settings)
 
-    def __generate_uid(self):
-        """
-        Method to create random int
-        """
-        return "%0.9u" % randint(0, 999999999)
-
-    @staticmethod
-    def filter_dot(path):
-        """
-        This function removes ./ from str.
-        str must be converted with win_to_unix() before using this function.
-        """
-        if not path:
-            return path
-        if path.startswith('./'):
-            return path[2:]
-        return path
-
     def build_excludelist(self):
         """
         This method creates list for excluded directories.
@@ -314,11 +302,65 @@ class Sw4STM32(Exporter):
             if needtoadd:
                 self.exclude_dirs.append(path)
 
+    def get_fpu_hardware(self, fpu_unit):
+        """
+        Convert fpu unit name into hardware name.
+        """
+        hw = ''
+        fpus = {
+            'fpv4spd16': 'fpv4-sp-d16',
+            'fpv5d16': 'fpv5-d16',
+            'fpv5spd16': 'fpv5-sp-d16'
+        }
+        if fpu_unit in fpus:
+            hw = fpus[fpu_unit]
+        return hw
+
+    def process_sw_options(self, opts, flags_in):
+        """
+        Process System Workbench specific options.
+
+        System Workbench for STM32 has some compile options, which are not recognized by the GNUARMEclipse exporter.
+        Those are handled in this method.
+        """
+        opts['c']['preprocess'] = False
+        if '-E' in flags_in['c_flags']:
+            opts['c']['preprocess'] = True
+        opts['cpp']['preprocess'] = False
+        if '-E' in flags_in['cxx_flags']:
+            opts['cpp']['preprocess'] = True
+        opts['ld']['strip'] = False
+        if '-s' in flags_in['ld_flags']:
+            opts['ld']['strip'] = True
+        opts['ld']['shared'] = False
+        if '-shared' in flags_in['ld_flags']:
+            opts['ld']['shared'] = True
+        opts['ld']['soname'] = ''
+        opts['ld']['implname'] = ''
+        opts['ld']['defname'] = ''
+        for item in flags_in['ld_flags']:
+            if item.startswith('-Wl,-soname='):
+                opts['ld']['soname'] = item[len('-Wl,-soname='):]
+            if item.startswith('-Wl,--out-implib='):
+                opts['ld']['implname'] = item[len('-Wl,--out-implib='):]
+            if item.startswith('-Wl,--output-def='):
+                opts['ld']['defname'] = item[len('-Wl,--output-def='):]
+        opts['common']['arm.target.fpu.hardware'] = self.get_fpu_hardware(
+            opts['common']['arm.target.fpu.unit'])
+        opts['common']['debugging.codecov'] = False
+        if '-fprofile-arcs' in flags_in['common_flags'] and '-ftest-coverage' in flags_in['common_flags']:
+            opts['common']['debugging.codecov'] = True
+        # Passing linker options to linker with '-Wl,'-prefix.
+        for index in range(len(opts['ld']['flags'])):
+            item = opts['ld']['flags'][index]
+            if not item.startswith('-Wl,'):
+                opts['ld']['flags'][index] = '-Wl,' + item
+
     def generate(self):
         """
         Generate the .project and .cproject files.
         """
-        opts = {}
+        options = {}
 
         if not self.resources.linker_script:
             raise NotSupportedException("No linker script found.")
@@ -330,24 +372,23 @@ class Sw4STM32(Exporter):
 
         self.resources.win_to_unix()
 
-        fp_hardware = "no"
-        fp_abi = "soft"
-        core = self.toolchain.target.core
-        if core == "Cortex-M4F" or core == "Cortex-M7F":
-            fp_hardware = "fpv4-sp-d16"
-            fp_abi = "softfp"
-        elif core == "Cortex-M7FD":
-            fp_hardware = "fpv5-d16"
-            fp_abi = "softfp"
-
         config_header = self.filter_dot(self.toolchain.get_config_header())
-
-        self.resources.win_to_unix()
 
         libraries = []
         for lib in self.resources.libraries:
             library, _ = splitext(basename(lib))
             libraries.append(library[3:])
+
+        self.system_libraries = [
+            'stdc++', 'supc++', 'm', 'c', 'gcc', 'nosys'
+        ]
+
+        profiles = self.get_all_profiles()
+
+        self.as_defines = self.toolchain.get_symbols(True)
+        self.c_defines = self.toolchain.get_symbols()
+        self.cpp_defines = self.c_defines
+        print 'Symbols: {0}'.format(len(self.c_defines))
 
         self.include_path = [self.filter_dot(s)
                              for s in self.resources.inc_dirs]
@@ -367,9 +408,74 @@ class Sw4STM32(Exporter):
 
         symbols = [s.replace('"', '&quot;')
                    for s in self.toolchain.get_symbols()]
-        # TODO: We need to fetch all flags from CDT
-        opts['ld'] = {}
-        opts['ld']['extra_flags'] = ''
+
+        for id in ['debug', 'release']:
+            opts = {}
+            opts['common'] = {}
+            opts['as'] = {}
+            opts['c'] = {}
+            opts['cpp'] = {}
+            opts['ld'] = {}
+
+            opts['id'] = id
+            opts['name'] = opts['id'].capitalize()
+
+            # TODO: Add prints to log or console in verbose mode.
+            #print ('\nBuild configuration: {0}'.format(opts['name']))
+
+            profile = profiles[id]
+
+            # A small hack, do not bother with src_path again,
+            # pass an empty string to avoid crashing.
+            src_paths = ['']
+            toolchain = prepare_toolchain(
+                src_paths, "", self.toolchain.target.name, self.TOOLCHAIN, build_profile=[profile])
+
+            # Hack to fill in build_dir
+            toolchain.build_dir = self.toolchain.build_dir
+
+            flags = self.toolchain_flags(toolchain)
+
+            # TODO: Add prints to log or console in verbose mode.
+            # print 'Common flags:', ' '.join(flags['common_flags'])
+            # print 'C++ flags:', ' '.join(flags['cxx_flags'])
+            # print 'C flags:', ' '.join(flags['c_flags'])
+            # print 'ASM flags:', ' '.join(flags['asm_flags'])
+            # print 'Linker flags:', ' '.join(flags['ld_flags'])
+
+            # Most GNU ARM Eclipse options have a parent,
+            # either debug or release.
+            if '-O0' in flags['common_flags'] or '-Og' in flags['common_flags']:
+                opts['parent_id'] = 'debug'
+            else:
+                opts['parent_id'] = 'release'
+
+            self.process_options(opts, flags)
+
+            self.process_sw_options(opts, flags)
+
+            opts['as']['defines'] = self.as_defines
+            opts['c']['defines'] = self.c_defines
+            opts['cpp']['defines'] = self.cpp_defines
+
+            opts['ld']['library_paths'] = [
+                self.filter_dot(s) for s in self.resources.lib_dirs]
+
+            opts['ld']['user_libraries'] = libraries
+            opts['ld']['system_libraries'] = self.system_libraries
+            opts['ld']['script'] = "linker-script-" + id + ".ld"
+
+            # Unique IDs used in multiple places.
+            uid = {}
+            uid['config'] = u.id
+            uid['tool_c_compiler'] = u.id
+            uid['tool_c_compiler_input'] = u.id
+            uid['tool_cpp_compiler'] = u.id
+            uid['tool_cpp_compiler_input'] = u.id
+
+            opts['uid'] = uid
+
+            options[id] = opts
 
         ctx = {
             'name': self.project_name,
@@ -377,24 +483,17 @@ class Sw4STM32(Exporter):
             'config_header': config_header,
             'exclude_paths': self.exclude_dirs,
             'ld_script': ld_script,
-            'linker_script': 'linker-script-' + self.toolchain.target.name + '.ld',
             'library_paths': lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
             'symbols': symbols,
             'board_name': self.BOARDS[self.target.upper()]['name'],
             'mcu_name': self.BOARDS[self.target.upper()]['mcuId'],
-            'debug_config_uid': self.__generate_uid(),
-            'debug_tool_compiler_uid': self.__generate_uid(),
-            'debug_tool_compiler_input_uid': self.__generate_uid(),
-            'release_config_uid': self.__generate_uid(),
-            'release_tool_compiler_uid': self.__generate_uid(),
-            'release_tool_compiler_input_uid': self.__generate_uid(),
-            'uid': self.__generate_uid(),
-            'floating_point_hardware': fp_hardware,
-            'floating_point_abi': fp_abi,
             'cpp_cmd': " ".join(self.toolchain.preproc),
-            'options': opts
+            'options': options,
+            # id property of 'u' will generate new random identifier every time
+            # when called.
+            'u': u
         }
 
         self.__gen_dir('.settings')
