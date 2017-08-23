@@ -31,8 +31,10 @@ void idle_loop_test_sleep_ms_callback(timestamp_t *time_ms)
 {
     LowPowerTimer timer;
     timer.start();
+    const uint64_t kernel_tick_start = osKernelGetTickCount();
     Thread::wait(*time_ms);
     const timestamp_t end = timer.read_ms();
+    const uint64_t kernel_tick_end = osKernelGetTickCount();
 
     // this does not test accurancy for waking up
     // just that we are with some margin awake (10ms)
@@ -40,6 +42,8 @@ void idle_loop_test_sleep_ms_callback(timestamp_t *time_ms)
     // Note: if this does not work, we wake up with
     // default freq - 1ms
     TEST_ASSERT_UINT32_WITHIN(3, *time_ms, end);
+    uint64_t kernel_ticks_expected = (uint64_t)*time_ms * osKernelGetTickFreq() * 1000UL;
+    TEST_ASSERT_UINT32_WITHIN(3, kernel_ticks_expected, kernel_tick_end - kernel_tick_start);
 }
 
 template<timestamp_t time_ms>
