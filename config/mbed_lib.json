@@ -43,6 +43,12 @@
              "SPI_CLK":  "SPI_SCK",
              "SPI_CS":   "SPI_CS"
         },
+        "DISCO_L476VG": {
+          "SPI_MOSI": "PE_15",
+          "SPI_MISO": "PE_14",
+          "SPI_CLK":  "PE_13",
+          "SPI_CS":   "PE_12"
+        },
         "K20D50M": {
              "SPI_MOSI": "PTD2",
              "SPI_MISO": "PTD3",
