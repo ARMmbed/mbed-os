@@ -25,7 +25,7 @@
  *  - ccm_sec_init(), A function to init CCM library.
  *  - ccm_process_run(), A function to run configured CCM process.
  *
- *  \section ccm-inctuction CCM process sequence:
+ *  \section ccm-instruction CCM process sequence:
  *  1. Init CCM library by, ccm key, ccm_sec_init()
  *      - security level
  *      - 128-bit CCM key

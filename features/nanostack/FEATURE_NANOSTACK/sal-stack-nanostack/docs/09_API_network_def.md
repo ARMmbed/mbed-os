@@ -462,3 +462,73 @@ Parameter|Description
 <dd>0 Success.</dd>
 <dd>-1 Failure.</dd>
 </dl>
+
+```
+int8_t net_nvm_data_clean
+(
+	int8_t interface_id
+);
+```
+Parameter|Description
+---------|-----------
+`interface_id`|The 6LoWPAN interface ID.
+
+<dl>
+<dt>Return value:</dt>
+<dd>0 Success.</dd>
+<dd>-1 Failure.</dd>
+</dl>
+
+
+```
+int8_t net_nvm_wpan_params_storage_enable
+(
+	int8_t interface_id, 
+	wpan_params_updated *nvm_update_cb, 
+	wpan_params_get *nvm_get_cb
+);
+```
+Parameter|Description
+---------|-----------
+`interface_id`|The 6LoWPAN interface ID.
+
+<dl>
+<dt>Return value:</dt>
+<dd>0 Success.</dd>
+<dd>-1 Failure.</dd>
+<dd>-2 OOM Failure.</dd>
+</dl>
+
+```
+int8_t net_nvm_wpan_params_storage_reset
+(
+	int8_t interface_id
+);
+```
+Parameter|Description
+---------|-----------
+`interface_id`|The 6LoWPAN interface ID.
+
+<dl>
+<dt>Return value:</dt>
+<dd>0 Success.</dd>
+<dd>-1 Failure.</dd>
+</dl>
+
+```
+int8_t net_nvm_wpan_params_storage_disable
+(
+	int8_t interface_id
+);
+```
+Parameter|Description
+---------|-----------
+`interface_id`|The 6LoWPAN interface ID.
+
+<dl>
+<dt>Return value:</dt>
+<dd>0 Success.</dd>
+<dd>-1 Failure.</dd>
+</dl>
+
+

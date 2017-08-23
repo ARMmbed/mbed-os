@@ -40,7 +40,7 @@
 #define DIAGCOP_TLV_SUPPLY_VOLTAGE                          15  /**< Can not reset*/
 #define DIAGCOP_TLV_CHILD_TABLE                             16  /**< Can not reset*/
 #define DIAGCOP_TLV_CHANNEL_PAGES                           17  /**< Can not reset*/
-#define DIAGCOP_TLV_TYPE_LIST                               18
+#define DIAGCOP_TLV_TYPE_LIST                               18  /**< List type*/
 
 /**
  * \brief Write array TLV.
@@ -99,7 +99,7 @@
  * \param ptr Message buffer.
  * \param length Length of the message buffer to validate message.
  * \param type Type of TLV searched.
- * \param result_ptr Pointer value is given as result if length is positive. Can be NULL which only searches for the length.
+ * \param result Pointer value is given as result if length is positive. Can be NULL which only searches for the length.
  * \return The length of the TLV data found
  * \return 0 if TLV is empty or no TLV found.
  * \return negative value indicates corrupted message.
@@ -112,7 +112,7 @@
  * \param ptr pointer TLV message array.
  * \param length length of TLV message array.
  * \param type Type of TLV.
- * \param data_ptr pointer to variable where the value is read.
+ * \param data pointer to variable where the value is read.
  * \return pointer length of TLV 1 if success. 0 means TLV not found or does not have any data.
  * Any other value indicates that TLV is not as expected.
  */
@@ -124,7 +124,7 @@
  * \param ptr pointer TLV message array.
  * \param length length of TLV message array.
  * \param type Type of TLV.
- * \param data_ptr pointer to variable where the value is read.
+ * \param data pointer to variable where the value is read.
  * \return pointer length of TLV 2 if success. 0 means TLV not found or does not have any data.
  * Any other value indicates that TLV is not as expected.
  */
@@ -136,7 +136,7 @@
  * \param ptr pointer TLV message array.
  * \param length length of TLV message array.
  * \param type Type of TLV.
- * \param data_ptr pointer to variable where the value is read.
+ * \param data pointer to variable where the value is read.
  * \return pointer length of TLV 4 if success. 0 means TLV not found or does not have any data.
  * Any other value indicates that TLV is not as expected.
  */
@@ -148,7 +148,7 @@
  * \param ptr pointer TLV message array.
  * \param length length of TLV message array.
  * \param type Type of TLV.
- * \param data_ptr pointer to variable where the value is read.
+ * \param data pointer to variable where the value is read.
  * \return pointer length of TLV 4 if success. 0 means TLV not found or does not have any data.
  * Any other value indicates that TLV is not as expected.
  */

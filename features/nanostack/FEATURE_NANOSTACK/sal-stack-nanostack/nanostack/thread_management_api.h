@@ -43,7 +43,7 @@ extern "C" {
 
 #include "ns_types.h"
 
-#define TRACE_GROUP_THREAD_MANAGEMENT_API "TMaA"
+#define TRACE_GROUP_THREAD_MANAGEMENT_API "TMaA"  /**< trace group definition */
 
 /** Thread management state
  */
@@ -163,10 +163,13 @@ int thread_management_get(int8_t instance_id, uint8_t dst_addr[static 16], char 
  *
  * \param instance_id Instance ID of the management session.
  * \param dst_addr Destination address, the address of a remote device where it is desired to setup management information. If however, the address is not provided, a request is sent to leader of the network for this purpose. If a  native commissioner is being used, the rquest for setting up management information is sent to the Border router.
-  * \param uri_ptr The ASCII string for the URI. This string identifies the CoAP URI for the desired resource, for example, /c/ms identifies the the management set information resource.
+ * \param uri_ptr The ASCII string for the URI. This string identifies the CoAP URI for the desired resource, for example, /c/ms identifies the the management set information resource.
  * \param data_ptr A pointer to the desired set of TLVs. 
  * \param data_len count of the members (no. of TLVs) in the TLV set.
  * \param cb_ptr A callback function carrying the result of the operation.
+ *
+ * \return 0, Success
+ * \return <0 Fail.
  *
  */
 int thread_management_set(int8_t instance_id, uint8_t dst_addr[static 16], char *uri_ptr, uint8_t *data_ptr, uint8_t data_len, management_set_response_cb *cb_ptr);
