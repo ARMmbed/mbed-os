@@ -54,13 +54,13 @@ LR_IRAM 0x10007000 (0x70000 - 0x7000) {
   }
 }
 
-;LR_TCM 0x1FFF0000 0x10000 {
-;    TCM_OVERLAY 0x1FFF0000 0x10000 {
-;        lwip_mem.o(.bss*)
-;        lwip_memp.o(.bss*)
-;        *.o(.tcm.heap*)
-;    }
-;}
+LR_TCM 0x1FFF0000 0x10000 {
+    TCM_OVERLAY 0x1FFF0000 0x10000 {
+        lwip_mem.o(.bss*)
+        lwip_memp.o(.bss*)
+        *.o(.tcm.heap*)
+    }
+}
 
 LR_DRAM 0x30000000 0x200000 {
 
