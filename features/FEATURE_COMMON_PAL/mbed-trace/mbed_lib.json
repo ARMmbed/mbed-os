@@ -1,9 +1,0 @@
-{
-    "name": "mbed-trace",
-    "config": {
-        "enable": {
-            "help": "Used to globally enable traces.",
-            "value": null
-        }
-    }    
-}

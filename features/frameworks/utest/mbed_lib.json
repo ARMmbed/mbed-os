@@ -1,4 +1,0 @@
-{
-    "name": "utest",
-    "macros": ["UNITY_INCLUDE_CONFIG_H"]
-}

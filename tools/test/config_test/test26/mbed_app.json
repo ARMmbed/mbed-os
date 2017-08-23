@@ -1,8 +1,0 @@
-{
-    "target_overrides": {
-        "*": {
-            "target.features_add": ["IPV4"],
-            "lib2.test": "GOOD"
-        }
-    }
-}

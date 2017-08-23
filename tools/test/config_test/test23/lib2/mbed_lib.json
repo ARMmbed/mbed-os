@@ -1,8 +1,0 @@
-{
-    "name": "lib2",
-    "target_overrides": {
-        "*": {
-            "target.features_remove": ["IPV4"]
-        }
-    }
-}
