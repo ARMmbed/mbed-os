@@ -129,9 +129,10 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 
 uint32_t flash_get_page_size(const flash_t *obj)
 {
-    // not applicable for STM32F4
-    return (0x4000); // minimum sector size
+    // Flash of STM32F4 devices can be programed 1 byte at a time
+    return (1);
 }
+
 uint32_t flash_get_start_address(const flash_t *obj)
 {
     return FLASH_BASE;
