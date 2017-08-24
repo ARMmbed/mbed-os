@@ -456,7 +456,7 @@ static void packet_tx(void* pvParameters) {
  *  \param[in] buf      the MAC packet to send (e.g. IP packet including MAC addresses and type)
  *  \return ERR_OK if the packet could be sent or an err_t value if the packet couldn't be sent
  */
-static bool k64f_eth_link_out(emac_interface_t *emac, emac_stack_mem_chain_t *chain)
+static bool k64f_eth_link_out(const emac_interface_t *emac, emac_stack_mem_chain_t *chain)
 {
   struct k64f_enetdata *enet = emac->hw;
   emac_stack_mem_t *q;
@@ -564,7 +564,7 @@ static void k64f_phy_task(void *data) {
   }
 }
 
-static bool k64f_eth_power_up(emac_interface_t *emac)
+static bool k64f_eth_power_up(const emac_interface_t *emac)
 {
   char hwaddr[ETH_HWADDR_LEN];
 
@@ -603,32 +603,32 @@ static bool k64f_eth_power_up(emac_interface_t *emac)
 }
 
 
-static uint32_t k64f_eth_get_mtu_size(emac_interface_t *emac)
+static uint32_t k64f_eth_get_mtu_size(const emac_interface_t *emac)
 {
   return K64_ETH_MTU_SIZE;
 }
 
-static void k64f_eth_get_ifname(emac_interface_t *emac, char *name, uint8_t size)
+static void k64f_eth_get_ifname(const emac_interface_t *emac, char *name, uint8_t size)
 {
   memcpy(name, K64_ETH_IF_NAME, (size < sizeof(K64_ETH_IF_NAME)) ? size : sizeof(K64_ETH_IF_NAME));
 }
 
-static uint8_t k64f_eth_get_hwaddr_size(emac_interface_t *emac)
+static uint8_t k64f_eth_get_hwaddr_size(const emac_interface_t *emac)
 {
     return ETH_HWADDR_LEN;
 }
 
-static void k64f_eth_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
+static void k64f_eth_get_hwaddr(const emac_interface_t *emac, uint8_t addr[ETH_HWADDR_LEN])
 {
   mbed_mac_address((char*)addr);
 }
 
-static void k64f_eth_set_hwaddr(emac_interface_t *emac, uint8_t *addr)
+static void k64f_eth_set_hwaddr(const emac_interface_t *emac, const uint8_t addr[ETH_HWADDR_LEN])
 {
   /* No-op at this stage */
 }
 
-static void k64f_eth_set_link_input_cb(emac_interface_t *emac, emac_link_input_fn input_cb, void *data)
+static void k64f_eth_set_link_input_cb(emac_interface_t *emac, const emac_link_input_fn input_cb, void *data)
 {
   struct k64f_enetdata *enet = emac->hw;
 
@@ -636,7 +636,7 @@ static void k64f_eth_set_link_input_cb(emac_interface_t *emac, emac_link_input_f
   enet->emac_link_input_cb_data = data;
 }
 
-static void k64f_eth_set_link_state_cb(emac_interface_t *emac, emac_link_state_change_fn state_cb, void *data)
+static void k64f_eth_set_link_state_cb(emac_interface_t *emac, const emac_link_state_change_fn state_cb, void *data)
 {
   struct k64f_enetdata *enet = emac->hw;
 
@@ -644,7 +644,7 @@ static void k64f_eth_set_link_state_cb(emac_interface_t *emac, emac_link_state_c
   enet->emac_link_state_cb_data = data;
 }
 
-static void k64f_eth_add_multicast_group(emac_interface_t *emac, const nsapi_addr_t *addr)
+static void k64f_eth_add_multicast_group(const emac_interface_t *emac, const nsapi_addr_t *addr)
 {
 
   uint8_t _addr[NSAPI_IP_BYTES];
@@ -654,7 +654,7 @@ static void k64f_eth_add_multicast_group(emac_interface_t *emac, const nsapi_add
   ENET_AddMulticastGroup(ENET, _addr);
 }
 
-static void k64f_eth_power_down(emac_interface_t *emac)
+static void k64f_eth_power_down(const emac_interface_t *emac)
 {
   /* No-op at this stage */
 }

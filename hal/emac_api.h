@@ -23,6 +23,7 @@
 
 typedef struct emac_interface emac_interface_t;
 typedef struct nsapi_addr nsapi_addr_t;
+#define ETH_HWADDR_LEN    6
 
 /**
  * EmacInterface
@@ -57,7 +58,7 @@ typedef void (*emac_link_state_change_fn)(void *data, bool up);
  * @param emac Emac interface
  * @return     MTU in bytes
  */
-typedef uint32_t (*emac_get_mtu_size_fn)(emac_interface_t *emac);
+typedef uint32_t (*emac_get_mtu_size_fn)(const emac_interface_t *emac);
 
 /**
  * Return interface name
@@ -66,7 +67,7 @@ typedef uint32_t (*emac_get_mtu_size_fn)(emac_interface_t *emac);
  * @param name Pointer to where the name should be written
  * @param size Maximum number of character to copy
  */
-typedef void (*emac_get_ifname_fn)(emac_interface_t *emac, char *name, uint8_t size);
+typedef void (*emac_get_ifname_fn)(const emac_interface_t *emac, char *name, uint8_t size);
 
 /**
  * Returns size of the underlying interface HW address size
@@ -74,7 +75,7 @@ typedef void (*emac_get_ifname_fn)(emac_interface_t *emac, char *name, uint8_t s
  * @param emac Emac interface
  * @return     HW address size in bytes
  */
-typedef uint8_t (*emac_get_hwaddr_size_fn)(emac_interface_t *emac);
+typedef uint8_t (*emac_get_hwaddr_size_fn)(const emac_interface_t *emac);
 
 /**
  * Return interface hw address
@@ -84,7 +85,7 @@ typedef uint8_t (*emac_get_hwaddr_size_fn)(emac_interface_t *emac);
  * @param emac Emac interface
  * @param addr HW address for underlying interface
  */
-typedef void (*emac_get_hwaddr_fn)(emac_interface_t *emac, uint8_t *addr);
+typedef void (*emac_get_hwaddr_fn)(const emac_interface_t *emac, uint8_t addr[ETH_HWADDR_LEN]);
 
 /**
  * Set HW address for interface
@@ -94,7 +95,7 @@ typedef void (*emac_get_hwaddr_fn)(emac_interface_t *emac, uint8_t *addr);
  * @param emac Emac interface
  * @param addr Address to be set
  */
-typedef void (*emac_set_hwaddr_fn)(emac_interface_t *emac, uint8_t *addr);
+typedef void (*emac_set_hwaddr_fn)(const emac_interface_t *emac, const uint8_t addr[ETH_HWADDR_LEN]);
 
 /**
  * Sends the packet over the link
@@ -105,21 +106,21 @@ typedef void (*emac_set_hwaddr_fn)(emac_interface_t *emac, uint8_t *addr);
  * @param buf  Packet to be send
  * @return     True if the packet was send successfully, False otherwise
  */
-typedef bool (*emac_link_out_fn)(emac_interface_t *emac, emac_stack_mem_chain_t *buf);
+typedef bool (*emac_link_out_fn)(const emac_interface_t *emac, emac_stack_mem_chain_t *buf);
 
 /**
  * Initializes the HW
  *
  * @return True on success, False in case of an error.
  */
-typedef bool (*emac_power_up_fn)(emac_interface_t *emac);
+typedef bool (*emac_power_up_fn)(const emac_interface_t *emac);
 
 /**
  * Deinitializes the HW
  *
  * @param emac Emac interface
  */
-typedef void (*emac_power_down_fn)(emac_interface_t *emac);
+typedef void (*emac_power_down_fn)(const emac_interface_t *emac);
 
 /**
  * Sets a callback that needs to be called for packets received for that interface
@@ -128,7 +129,7 @@ typedef void (*emac_power_down_fn)(emac_interface_t *emac);
  * @param input_cb Function to be register as a callback
  * @param data     Arbitrary user data to be passed to the callback
  */
-typedef void (*emac_set_link_input_cb_fn)(emac_interface_t *emac, emac_link_input_fn input_cb, void *data);
+typedef void (*emac_set_link_input_cb_fn)(emac_interface_t *emac, const emac_link_input_fn input_cb, void *data);
 
 /**
  * Sets a callback that needs to be called on link status changes for given interface
@@ -137,14 +138,14 @@ typedef void (*emac_set_link_input_cb_fn)(emac_interface_t *emac, emac_link_inpu
  * @param state_cb Function to be register as a callback
  * @param data Arbitrary user data to be passed to the callback
  */
-typedef void (*emac_set_link_state_cb_fn)(emac_interface_t *emac, emac_link_state_change_fn state_cb, void *data);
+typedef void (*emac_set_link_state_cb_fn)(emac_interface_t *emac, const emac_link_state_change_fn state_cb, void *data);
 
 /** Add device to a multicast group
  *
  * @param emac     Emac interface
  * @param address  An multicast group address
  */
-typedef void (*emac_add_multicast_group)(emac_interface_t *emac, const nsapi_addr_t *address);
+typedef void (*emac_add_multicast_group)(const emac_interface_t *emac, const nsapi_addr_t *address);
 
 typedef struct emac_interface_ops {
     emac_get_mtu_size_fn        get_mtu_size;
