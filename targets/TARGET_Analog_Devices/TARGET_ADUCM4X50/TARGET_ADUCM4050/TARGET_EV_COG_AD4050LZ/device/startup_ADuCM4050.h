@@ -70,7 +70,6 @@ void Default_Handler(void);
 #define SECTION_NAME(sectionname)      __attribute__ ((section(sectionname)))
 #define SECTION_PLACE(def,sectionname) def __attribute__ ((section(sectionname)))
 #define IVT_NAME                       __Vectors
-#define LASTCRCPAGE                    253
 #define RESET_EXCPT_HNDLR              __main
 #define COMPILER_NAME                  "ARMCC"
 #define WEAK_FUNCTION(x)               void x (void) __attribute__ ((weak, alias("Default_Handler")));
@@ -88,7 +87,6 @@ void Default_Handler(void);
 #define SECTION_PLACE(def,sectionname) def @ sectionname
 #define SECTION_NAME(sectionname)     def @ sectionname
 #define IVT_NAME                       __vector_table
-#define LASTCRCPAGE                    0
 #define WEAK_FUNC(func)                __weak func
 #define RESET_EXCPT_HNDLR              __iar_program_start
 #define COMPILER_NAME                  "ICCARM"
@@ -124,11 +122,11 @@ extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 #define SECTION_NAME(sectionname)      __attribute__ ((section(sectionname)))
 #define SECTION_PLACE(def,sectionname) def __attribute__ ((section(sectionname)))
 #define IVT_NAME                       __Vectors
-#define LASTCRCPAGE                    253
 #define COMPILER_NAME                  "GNUC"
 #define WEAK_FUNCTION(x)               void x (void) __attribute__ ((weak, alias("Default_Handler")));
 #define __STARTUP_CLEAR_BSS_MULTIPLE
 #endif // __GNUC__
+#define LASTCRCPAGE                    0
 #define BLANKX4   0xFFFFFFFF
 #define BLANKX20  BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4
 #define BLANKX100 BLANKX20,BLANKX20,BLANKX20,BLANKX20,BLANKX20,BLANKX20,BLANKX20,BLANKX20
@@ -229,6 +227,10 @@ typedef void( *pFunc )( void );
    RGB_Tmr_Int_Handler,                      /* 69 */                    \
    0,                                        /* 70 */                    \
    Root_Clk_Err_Handler,                     /* 71 */                    \
-   0,0,0,0,0,0,0,0                           /* 72 - 79 */
+   0,0,0,0,0,0,0,0,                          /* 72 - 79 */               \
+   (pFunc)BLANKX4, (pFunc)BLANKX4,           /* security_options */      \
+   (pFunc)BLANKX4, (pFunc)BLANKX4,                                       \
+   (pFunc)0xA79C3203u, (pFunc)LASTCRCPAGE,                               \
+   (pFunc)BLANKX4, (pFunc)BLANKX4            /* 80 - 87 */
 
 #endif /* __STARTUP_H__ */

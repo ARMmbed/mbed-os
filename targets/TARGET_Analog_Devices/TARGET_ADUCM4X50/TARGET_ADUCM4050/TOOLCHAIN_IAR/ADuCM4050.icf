@@ -30,8 +30,7 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 ******************************************************************************/
 define memory mem with size               = 4G;
-define region ROM_PAGE0_INTVEC            = mem:[from 0x00000000 size 0x00000180];
-define region ROM_PAGE0_SEC               = mem:[from 0x00000180 size 0x00000020];
+define region ROM_PAGE0_INTVEC            = mem:[from 0x00000000 size 0x000001A0];
 define region ROM_PAGE0_CHECKSUM          = mem:[from 0x000001A0 size 0x00000660];
 define region ROM_REGION                  = mem:[from 0x00000800 size 506K];
 define region RAM_bank1_region            = mem:[from 0x20040000 size 0x00008000];
@@ -42,7 +41,6 @@ define block HEAP     with alignment = 16, size = 0x6000 { };
 do not initialize                         { section .noinit };
 initialize by copy                        { rw };
 place at start of ROM_PAGE0_INTVEC        { ro section .vectors  };
-place in          ROM_PAGE0_SEC           { ro section .security_options };
 place in          ROM_PAGE0_CHECKSUM      { ro section .checksum };
 place in          ROM_REGION              { ro };
 place at end of   RAM_bank1_region        { block CSTACK };

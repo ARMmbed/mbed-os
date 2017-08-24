@@ -61,12 +61,15 @@ extern void SramInit(void);
 /*----------------------------------------------------------------------------
   Checksum options
  *----------------------------------------------------------------------------*/
-#ifdef __ICCARM__
-__root const uint32_t SECTION_PLACE(blank_checksum[],".checksum") =
+#if defined (__CC_ARM)
+__attribute__ ((at(0x000001A0u)))
+#elif defined( __ICCARM__)
+__root 
+#endif
+const uint32_t SECTION_PLACE(blank_checksum[],".checksum") =
 {
     BLANKX60,BLANKX600
 };
-#endif /* __ICCARM__ */
 
 /*----------------------------------------------------------------------------
   Exception / Interrupt Handler

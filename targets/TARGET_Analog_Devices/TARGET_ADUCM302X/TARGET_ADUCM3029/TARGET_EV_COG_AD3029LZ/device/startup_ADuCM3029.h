@@ -70,7 +70,6 @@ void Default_Handler(void);
 #define SECTION_NAME(sectionname)      __attribute__ ((section(sectionname)))
 #define SECTION_PLACE(def,sectionname) def __attribute__ ((section(sectionname)))
 #define IVT_NAME                       __Vectors
-#define LASTCRCPAGE                    127
 #define RESET_EXCPT_HNDLR              __main
 #define COMPILER_NAME                  "ARMCC"
 #define WEAK_FUNCTION(x)               void x (void) __attribute__ ((weak, alias("Default_Handler")));
@@ -79,7 +78,6 @@ void Default_Handler(void);
 #pragma diag_suppress=Pm093,Pm140
 #define SECTION_PLACE(def,sectionname) def @ sectionname
 #define IVT_NAME                       __vector_table
-#define LASTCRCPAGE                    0
 #define WEAK_FUNC(func)                __weak func
 #define RESET_EXCPT_HNDLR              __iar_program_start
 #define COMPILER_NAME                  "ICCARM"
@@ -107,12 +105,11 @@ extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 #define SECTION_NAME(sectionname)      __attribute__ ((section(sectionname)))
 #define SECTION_PLACE(def,sectionname) def __attribute__ ((section(sectionname)))
 #define IVT_NAME                       __Vectors
-#define LASTCRCPAGE                    127
 #define COMPILER_NAME                  "GNUC"
 #define WEAK_FUNCTION(x)               void x (void) __attribute__ ((weak, alias("Default_Handler")));
 #define __STARTUP_CLEAR_BSS_MULTIPLE
 #endif // __GNUC__
-
+#define LASTCRCPAGE                    0
 #define BLANKX4   0xFFFFFFFF
 #define BLANKX20  BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4
 #define BLANKX100 BLANKX20,BLANKX20,BLANKX20,BLANKX20,BLANKX20,BLANKX20,BLANKX20,BLANKX20

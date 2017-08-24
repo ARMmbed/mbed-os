@@ -30,11 +30,12 @@
 ;  POSSIBILITY OF SUCH DAMAGE.
 ;******************************************************************************
 LR_IROM1 0x00000000 0x0007F000 {
-    FLASH0   0x00000000 0x000001A0 {
+    FLASH0   0x00000000 0x00000800 {
         *(.vectors, +First)
+        *(.checksum)
     }
 
-    ER_IROM1 AlignExpr(ImageLimit(FLASH0), 16) 0x0007EE60 {
+    ER_IROM1 AlignExpr(ImageLimit(FLASH0), 16) 0x0007E800 {
         ; load address = execution address
         *(InRoot$$Sections)
         *(+RO)

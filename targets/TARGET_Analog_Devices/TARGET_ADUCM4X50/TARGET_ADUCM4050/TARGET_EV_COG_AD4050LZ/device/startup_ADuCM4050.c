@@ -53,35 +53,17 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mbed_rtx.h>
 
 /*----------------------------------------------------------------------------
-  User Initial Stack & Heap
- *----------------------------------------------------------------------------*/
-
-
-/*----------------------------------------------------------------------------
-  Security options
- *----------------------------------------------------------------------------*/
-#if defined (__CC_ARM)
-__attribute__ ((at(0x00000180u)))
-__attribute__ ((weak))
-#elif defined (__GNUC__)
-__attribute__ ((section(".security_options")))
-__attribute__ ((weak))
-#elif __ICCARM__
-#pragma location=".security_options"
-__root
-#endif
-const uint32_t adi_aducm4x50_security_options[] =
-{ BLANKX4, BLANKX4, BLANKX4, BLANKX4, 0xA79C3203u, LASTCRCPAGE, BLANKX4, BLANKX4};
-
-/*----------------------------------------------------------------------------
   Checksum options
  *----------------------------------------------------------------------------*/
-#ifdef __ICCARM__
-#pragma location = ".checksum"
-__root const uint32_t blank_checksum[] = {
+#if defined (__CC_ARM)
+__attribute__ ((at(0x000001A0u)))
+#elif defined(__ICCARM__)
+__root 
+#endif
+const uint32_t SECTION_PLACE(blank_checksum[],".checksum") =
+{
     BLANKX60,BLANKX600
 };
-#endif /* __ICCARM__ */
 
 /*----------------------------------------------------------------------------
   A relocated IVT is requested.  Provision for IVT relocation
@@ -177,7 +159,7 @@ WEAK_FUNCTION( Root_Clk_Err_Handler       )
 /*----------------------------------------------------------------------------
   Exception / Interrupt Vector table
  *----------------------------------------------------------------------------*/
-const pFunc SECTION_PLACE(IVT_NAME[96],VECTOR_SECTION) = {
+const pFunc SECTION_PLACE(IVT_NAME[104],VECTOR_SECTION) = {
     (pFunc) INITIAL_SP,    /* Initial Stack Pointer */
     ADUCM4050_VECTORS
 };

@@ -36,6 +36,7 @@
 LR_IROM1 0x00000000 0x00040000 {
     ADUCM_IROM1 0x00000000 0x00040000 {  ; romflash start address
         *(.vectors, +First)
+        *(.checksum)
         *(InRoot$$Sections)
         .ANY (+RO)
     }

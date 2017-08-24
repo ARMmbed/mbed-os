@@ -8,10 +8,10 @@
 /* Linker script to configure memory regions. */
 MEMORY
 {
-  /* The first 0x180 bytes of flash */
-  FLASH0 (rx) : ORIGIN = 0x00000000, LENGTH = 0x1A0
+  /* The first 0x800 bytes of flash */
+  FLASH0 (rx) : ORIGIN = 0x00000000, LENGTH = 0x800
   /* The remaining bytes of flash minus 4KB Protected Key Storage */
-  FLASH (rx) : ORIGIN = 0x000001A0, LENGTH = 512k - 4k - 0x1A0
+  FLASH (rx) : ORIGIN = 0x00000800, LENGTH = 512k - 4k - 0x800
   /* SRAM bank 0 */
   DSRAM_A (rwx) : ORIGIN = 0x20000200, LENGTH = 32k - 0x200
   /* SRAM bank 3+4+5+6+7 */
@@ -73,6 +73,7 @@ SECTIONS
         __Vectors_End = .;
         __Vectors_Size = __Vectors_End - __Vectors;
         __end__ = .;
+        KEEP(*(.checksum))
     } > FLASH0
 
     .security_options :
