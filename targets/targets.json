@@ -1183,7 +1183,7 @@
         "macros_add": ["USBHOST_OTHER"],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0816"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746ZG"
@@ -1207,7 +1207,7 @@
         "macros_add": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT"],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0819"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F756ZG"
@@ -1231,7 +1231,7 @@
         "supported_form_factors": ["ARDUINO"],
         "macros_add": ["USBHOST_OTHER"],
         "detect_code": ["0818"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F767ZI"
@@ -1538,7 +1538,7 @@
             }
         },
         "detect_code": ["0815"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746NG"
@@ -1556,7 +1556,7 @@
             }
         },
         "detect_code": ["0817"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F769NI"
