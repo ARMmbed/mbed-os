@@ -981,7 +981,7 @@
             }
         },
         "detect_code": ["0744"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG"],
+        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F410RB"
     },
