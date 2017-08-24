@@ -153,7 +153,7 @@ def parse_load_segment_armcc(image_elf):
     (offset, addr, size) = (0, 0, 0)
     segment_list = []
     in_segment = False
-    cmd = 'fromelf.exe --text -v --only=none ' + image_elf
+    cmd = 'fromelf --text -v --only=none ' + image_elf
     for line in subprocess.check_output(cmd, shell=True, universal_newlines=True).split("\n"):
         if line == "":
             pass
@@ -201,7 +201,7 @@ def parse_load_segment_iar(image_elf):
 
     segment_list = []
     in_segment = False
-    cmd = 'ielfdumparm.exe ' + image_elf
+    cmd = 'ielfdumparm ' + image_elf
     for line in subprocess.check_output(cmd, shell=True, universal_newlines=True).split("\n"):
         if line.startswith("  SEGMENTS:"):
             in_segment = True
