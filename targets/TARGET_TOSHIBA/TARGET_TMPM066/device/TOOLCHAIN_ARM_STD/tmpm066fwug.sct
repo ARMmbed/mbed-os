@@ -1,0 +1,32 @@
+;;  TMPM066FWUG scatter file
+
+;;  Vector table starts at 0
+;;    Initial SP == |Image$$ARM_LIB_STACK$$ZI$$Limit| (for two region model)
+;;               or |Image$$ARM_LIB_STACKHEAP$$ZI$$Limit| (for one region model)
+;;    Initial PC == &__main (with LSB set to indicate Thumb)
+;;    These two values are provided by the library
+;;    Other vectors must be provided by the user
+;;  Code starts after the last possible vector
+;;  Data starts at 0x20000000
+;;    Heap is positioned by ARM_LIB_HEAB (this is the heap managed by the ARM libraries)
+;;    Stack is positioned by ARM_LIB_STACK (library will use this to set SP - see above)
+
+;; Compatible with ISSM model
+
+LR_IROM1 0x00000000 0x20000
+{
+  ER_IROM1 0x00000000 0x20000
+  {
+    *.o (RESET, +First)
+    *(InRoot$$Sections)
+    *.o (+RO-CODE)
+    .ANY2 (+RO-DATA)
+    .ANY (+RO)
+  }
+
+  /* 8_byte_aligned(32 + 16 vect * 4 bytes) =  8_byte_aligned(0xC0) */
+  RW_IRAM1 0x200000C0 (0x4000 - 0xC0)
+  {
+    .ANY (+RW, +ZI)
+  }
+}

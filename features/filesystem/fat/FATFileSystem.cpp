@@ -318,6 +318,36 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
     return 0;
 }
 
+int FATFileSystem::reformat(BlockDevice *bd, int allocation_unit) {
+    lock();
+    if (_id != -1) {
+        if (!bd) {
+            bd = _ffs[_id];
+        }
+
+        int err = unmount();
+        if (err) {
+            unlock();
+            return err;
+        }
+    }
+
+    if (!bd) {
+        unlock();
+        return -ENODEV;
+    }
+
+    int err = FATFileSystem::format(bd, allocation_unit);
+    if (err) {
+        unlock();
+        return err;
+    }
+
+    err = mount(bd);
+    unlock();
+    return err;
+}
+
 int FATFileSystem::remove(const char *path) {
     Deferred<const char*> fpath = fat_path_prefix(_id, path);
 

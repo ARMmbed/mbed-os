@@ -38,7 +38,7 @@ CAN::CAN(PinName rd, PinName td, int hz) : _can(), _irq() {
     // No lock needed in constructor
 
     for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i].attach(donothing);
+        _irq[i] = callback(donothing);
     }
 
     can_init_freq(&_can, rd, td, hz);

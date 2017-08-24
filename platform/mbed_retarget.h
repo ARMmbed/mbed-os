@@ -120,6 +120,9 @@ extern "C" {
 #undef EXDEV
 #define EXDEV       18      /* Cross-device link */
 
+#undef ENODEV
+#define ENODEV      19
+
 #undef EINVAL
 #define EINVAL      22      /* Invalid argument */
 
