@@ -563,9 +563,10 @@
         "macros": ["CPU_MKW24D512VHA5", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0250"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "MKW24D512xxx5"
+        "device_name": "MKW24D512xxx5",
+        "bootloader_supported": true
     },
     "KW41Z": {
         "supported_form_factors": ["ARDUINO"],
