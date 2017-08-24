@@ -964,7 +964,7 @@
         },
         "detect_code": ["0720"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F401RE"
     },
@@ -1004,7 +1004,7 @@
             }
         },
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE"
     },
@@ -1132,7 +1132,7 @@
         },
         "detect_code": ["0777"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446RE"
     },
@@ -1150,7 +1150,7 @@
         },
         "detect_code": ["0778"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446ZE"
     },
@@ -1160,7 +1160,7 @@
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F446xE", "STM32F446VE"],
         "detect_code": ["0840"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name":"STM32F446VE"
     },
