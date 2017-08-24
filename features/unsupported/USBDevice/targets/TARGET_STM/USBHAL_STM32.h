@@ -15,29 +15,29 @@
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+#ifndef USBHAL_STM32_H
+#define USBHAL_STM32_H
 
-#if defined(TARGET_DISCO_L476VG)
-#include "USBHAL_STM32L476VG.h"
+#if defined(TARGET_NUCLEO_F207ZG) || \
+    defined(TARGET_NUCLEO_F412ZG) || \
+    defined(TARGET_NUCLEO_F429ZI) || \
+    defined(TARGET_NUCLEO_F446ZE) || \
+    defined(TARGET_NUCLEO_F767ZI) || \
+    defined(TARGET_NUCLEO_F746ZG) || \
+    defined(TARGET_DISCO_L476VG) || \
+    defined(TARGET_DISCO_L475VG_IOT01A) || \
+    defined(TARGET_DISCO_F769NI)
+#include "USBHAL_IP_OTGFSHS.h"
 
-#elif defined(TARGET_DISCO_L475VG_IOT01A)
-#include "USBHAL_STM32L475VG.h"
+#elif defined(TARGET_NUCLEO_F303ZE) || \
+      defined(TARGET_NUCLEO_F103RB) || \
+      defined(TARGET_DISCO_L072CZ_LRWAN1) || \
+      defined(TARGET_DISCO_L053C8)
+#include "USBHAL_IP_DEVICE.h"
 
-#elif defined(TARGET_DISCO_L072CZ_LRWAN1)
-#include "USBHAL_STM32L072CZ.h"
+#else
+#error "Target not supported !"
 
-#elif defined(TARGET_NUCLEO_F303ZE)
-#include "USBHAL_STM32F303ZE.h"
-
-#elif defined(TARGET_NUCLEO_F103RB)
-#include "USBHAL_STM32F103RB.h"
-
-#elif defined(TARGET_DISCO_F769NI)
-#include "USBHAL_STM32F769NI.h"
-
-#elif defined(TARGET_DISCO_L053C8)
-#include "USBHAL_STM32L053C8.h"
-
-#else /* default configuration */
-#include "USBHAL_STM_144_64pins.h"
-  		  
 #endif
+
+#endif // USBHAL_STM32_H
