@@ -9,12 +9,24 @@
 /* Version 5.1.3 */
 /*                                                                     */
 
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x00000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 1048576
+#endif
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 1048576
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx)  : ORIGIN = 0x20000000, LENGTH = 262144
 }
+
+/* MBED: mbed needs to be able to dynamically set the interrupt vector table.
+ * We make room for the table at the very beginning of RAM, i.e. at
+ * 0x20000000. We need (16+51 * sizeof(uint32_t) = 268 bytes for EFM32PG */
+__vector_size = 0x10C;
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
@@ -135,8 +147,9 @@ SECTIONS
   {
     __data_start__ = .;
     PROVIDE( __start_vector_table__ = .);
-    *(vtable)
+    . += __vector_size;
     PROVIDE( __end_vector_table__ = .);
+     *(vtable)
     *(.data*)
     . = ALIGN (4);
     *(.ram)
@@ -206,5 +219,5 @@ SECTIONS
   ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 
   /* Check if FLASH usage exceeds FLASH size */
-  ASSERT( LENGTH(FLASH) >= (__etext + SIZEOF(.data)), "FLASH memory overflowed !")
+  ASSERT(ORIGIN(FLASH) + LENGTH(FLASH) >= (__etext + SIZEOF(.data)), "FLASH memory overflowed !")
 }
