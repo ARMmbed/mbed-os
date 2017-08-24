@@ -15,9 +15,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, dirname, splitext, basename, exists
-from os import makedirs, write
-from tempfile import mkstemp
+from copy import copy
+from os.path import join, dirname, splitext
+
+from tools.settings import ARMC6_PATH
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -28,145 +29,94 @@ class ARM(mbedToolchain):
     LIBRARY_EXT = '.ar'
 
     STD_LIB_NAME = "%s.ar"
-    DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error|Fatal error): (?P<message>.+)')
-    INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
-    DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
+
+    # ANY changes to these default flags is backwards incompatible and require
+    # an update to the mbed-sdk-tools and website that introduces a profile
+    # for the previous version of these flags
+    DEFAULT_FLAGS = {
+        'common': ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-g"],
+        'asm': [],
+        'c': ["-D__ASSERT_MSG"],
+        'cxx': [],
+        'ld': [],
+    }
 
     @staticmethod
     def check_executable():
-        """Returns True if the executable (armcc) location specified by the
+        """Returns True if the executable (armclang) location specified by the
          user exists OR the executable can be found on the PATH.
          Returns False otherwise."""
-        return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
+        return mbedToolchain.generic_check_executable("ARM", "armclang", 1)
 
-    def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None,
-                 build_dir=None):
-        mbedToolchain.__init__(self, target, notify, macros, silent,
-                               build_dir=build_dir,
-                               extra_verbose=extra_verbose,
-                               build_profile=build_profile)
+    def __init__(self, target, *args, **kwargs):
+        mbedToolchain.__init__(self, target, *args, **kwargs)
 
-        if target.core == "Cortex-M0+":
-            cpu = "Cortex-M0"
-        elif target.core == "Cortex-M4F":
-            cpu = "Cortex-M4.fp"
-        elif target.core == "Cortex-M7FD":
-            cpu = "Cortex-M7.fp.dp"
-        elif target.core == "Cortex-M7F":
-            cpu = "Cortex-M7.fp.sp"
+        if target.core.lower()[-1] == 'f':
+            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-1])
+            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
         else:
-            cpu = target.core
+            self.flags['common'].append("-mcpu=%s" % target.core.lower())
+            self.flags['ld'].append("--cpu=%s" % target.core.lower())
 
-        ARM_BIN = join(TOOLCHAIN_PATHS['ARM'], "bin")
-        ARM_INC = join(TOOLCHAIN_PATHS['ARM'], "include")
-        
-        main_cc = join(ARM_BIN, "armcc")
+        if target.core == "Cortex-M4F":
+            self.flags['common'].append("-mfpu=fpv4-sp-d16")
+            self.flags['common'].append("-mfloat-abi=hard")
+        elif target.core == "Cortex-M7F":
+            self.flags['common'].append("-mfpu=fpv5-sp-d16")
+            self.flags['common'].append("-mfloat-abi=softfp")
+        elif target.core == "Cortex-M7FD":
+            self.flags['common'].append("-mfpu=fpv5-d16")
+            self.flags['common'].append("-mfloat-abi=softfp")
 
-        self.flags['common'] += ["--cpu=%s" % cpu]
+        asm_cpu = {
+            "Cortex-M0+": "Cortex-M0",
+            "Cortex-M4F": "Cortex-M4.fp",
+            "Cortex-M7F": "Cortex-M7.fp.sp",
+            "Cortex-M7DF": "Cortex-M7.fp.dp"}.get(target.core, target.core)
 
-        self.asm = [main_cc] + self.flags['common'] + self.flags['asm']
-        self.cc = [main_cc] + self.flags['common'] + self.flags['c']
-        self.cppc = [main_cc] + self.flags['common'] + self.flags['c'] + self.flags['cxx']
+        self.flags['asm'].append("--cpu=%s" % asm_cpu)
 
-        self.ld = [join(ARM_BIN, "armlink")]
+        self.cc = ([join(ARMC6_PATH, "armclang")] + self.flags['common'] +
+                   self.flags['c'])
+        self.cppc = ([join(ARMC6_PATH, "armclang")] + self.flags['common'] +
+                     self.flags['cxx'])
+        self.asm = [join(ARMC6_PATH, "armasm")] + self.flags['asm']
+        self.ld = [join(ARMC6_PATH, "armlink")] + self.flags['ld']
+        self.ar = [join(ARMC6_PATH, "armar")]
+        self.elf2bin = join(ARMC6_PATH, "fromelf")
 
-        self.ar = join(ARM_BIN, "armar")
-        self.elf2bin = join(ARM_BIN, "fromelf")
-
-    def parse_dependencies(self, dep_path):
-        dependencies = []
-        for line in open(dep_path).readlines():
-            match = ARM.DEP_PATTERN.match(line)
-            if match is not None:
-                #we need to append chroot, because when the .d files are generated the compiler is chrooted
-                dependencies.append((self.CHROOT if self.CHROOT else '') + match.group('file'))
-        return dependencies
-        
     def parse_output(self, output):
-        msg = None
-        for line in output.splitlines():
-            match = ARM.DIAGNOSTIC_PATTERN.match(line)
-            if match is not None:
-                if msg is not None:
-                    self.cc_info(msg)
-                    msg = None
-                msg = {
-                    'severity': match.group('severity').lower(),
-                    'file': match.group('file'),
-                    'line': match.group('line'),
-                    'col': match.group('column') if match.group('column') else 0,
-                    'message': match.group('message'),
-                    'text': '',
-                    'target_name': self.target.name,
-                    'toolchain_name': self.name
-                }
-            elif msg is not None:
-                # Determine the warning/error column by calculating the ^ position
-                match = ARM.INDEX_PATTERN.match(line)
-                if match is not None:
-                    msg['col'] = len(match.group('col'))
-                    self.cc_info(msg)
-                    msg = None
-                else:
-                    msg['text'] += line+"\n"
-        
-        if msg is not None:
-            self.cc_info(msg)
-
-    def get_dep_option(self, object):
-        base, _ = splitext(object)
-        dep_path = base + '.d'
-        return ["--depend", dep_path]
+        pass
 
     def get_config_option(self, config_header):
-        return ['--preinclude=' + config_header]
+        return ["-include", config_header]
 
-    def get_compile_options(self, defines, includes, for_asm=False):        
+    def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines]
-        if self.RESPONSE_FILES:
-            opts += ['--via', self.get_inc_file(includes)]
+        opts.extend(["-I%s" % i for i in includes])
+        if for_asm:
+            return ["--cpreproc",
+                    "--cpreproc_opts=%s" % ",".join(self.flags['common'] + opts)]
         else:
-            opts += ["-I%s" % i for i in includes]
-
-        if not for_asm:
             config_header = self.get_config_header()
-            if config_header is not None:
-                opts = opts + self.get_config_option(config_header)
-        return opts
+            if config_header:
+                opts.extend(self.get_config_option(config_header))
+            return opts
 
     @hook_tool
     def assemble(self, source, object, includes):
-        # Preprocess first, then assemble
-        dir = join(dirname(object), '.temp')
-        mkdir(dir)
-        tempfile = join(dir, basename(object) + '.E.s')
-        
-        # Build preprocess assemble command
-        cmd_pre = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-E", "-o", tempfile, source]
-
-        # Build main assemble command
-        cmd = self.asm + ["-o", object, tempfile]
-
-        # Call cmdline hook
-        cmd_pre = self.hook.get_cmdline_assembler(cmd_pre)
-        cmd = self.hook.get_cmdline_assembler(cmd)
-       
-        # Return command array, don't execute
-        return [cmd_pre, cmd]
+        cmd_pre = copy(self.asm)
+        cmd_pre.extend(self.get_compile_options(
+            self.get_symbols(True), includes, for_asm=True))
+        cmd_pre.extend(["-o", object, source])
+        return [self.hook.get_cmdline_assembler(cmd_pre)]
 
     @hook_tool
     def compile(self, cc, source, object, includes):
-        # Build compile command
-        cmd = cc + self.get_compile_options(self.get_symbols(), includes)
-        
-        cmd.extend(self.get_dep_option(object))
-            
+        cmd = copy(cc)
+        cmd.extend(self.get_compile_options(self.get_symbols(), includes))
         cmd.extend(["-o", object, source])
-
-        # Call cmdline hook
         cmd = self.hook.get_cmdline_compiler(cmd)
-
         return [cmd]
 
     def compile_c(self, source, object, includes):
@@ -176,31 +126,25 @@ class ARM(mbedToolchain):
         return self.compile(self.cppc, source, object, includes)
 
     @hook_tool
-    def link(self, output, objects, libraries, lib_dirs, mem_map):
-        map_file = splitext(output)[0] + ".map"
-        if len(lib_dirs):
-            args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--map", "--list=%s" % map_file]
-        else:
-            args = ["-o", output, "--info=totals", "--map", "--list=%s" % map_file]
+    def link(self, output, objects, libraries, lib_dirs, scatter_file):
+        base, _ = splitext(output)
+        map_file = base + ".map"
+        args = ["-o", output, "--info=totals", "--map", "--list=%s" % map_file]
+        args.extend(objects)
+        args.extend(libraries)
+        if lib_dirs:
+            args.append("--userlibpath", ",".join(lib_dirs))
+        if scatter_file:
+            args.extend(["--scatter", scatter_file])
 
-        args.extend(self.flags['ld'])
-
-        if mem_map:
-            args.extend(["--scatter", mem_map])
-
-        # Build linker command
-        cmd = self.ld + args + objects + libraries + self.sys_libs
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_linker(cmd)
+        cmd_pre = self.ld + args
+        cmd = self.hook.get_cmdline_linker(cmd_pre)
 
         if self.RESPONSE_FILES:
-            # Split link command to linker executable + response file
             cmd_linker = cmd[0]
             link_files = self.get_link_file(cmd[1:])
             cmd = [cmd_linker, '--via', link_files]
 
-        # Exec command
         self.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
@@ -210,44 +154,16 @@ class ARM(mbedToolchain):
             param = ['--via', self.get_arch_file(objects)]
         else:
             param = objects
-
-        # Exec command
         self.default_cmd([self.ar, '-r', lib_path] + param)
 
     @hook_tool
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
         bin_arg = {".bin": "--bin", ".hex": "--i32"}[fmt]
-        # Build binary command
-        cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_binary(cmd)
-
-        # Exec command
+        cmd_pre = [self.elf2bin, bin_arg, '-o', bin, elf]
+        cmd = self.hook.get_cmdline_binary(cmd_pre)
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
-    @staticmethod
-    def name_mangle(name):
-        return "_Z%i%sv" % (len(name), name)
-
-    @staticmethod
-    def make_ld_define(name, value):
-        return "--predefine=\"-D%s=0x%x\"" % (name, value)
-
-    @staticmethod
-    def redirect_symbol(source, sync, build_dir):
-        if not exists(build_dir):
-            makedirs(build_dir)
-        handle, filename = mkstemp(prefix=".redirect-symbol.", dir=build_dir)
-        write(handle, "RESOLVE %s AS %s\n" % (source, sync))
-        return "--edit=%s" % filename
-
-
 class ARM_STD(ARM):
     pass
-
-
-class ARM_MICRO(ARM):
-    PATCHED_LIBRARY = False

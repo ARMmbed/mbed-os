@@ -334,6 +334,16 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
 }
 
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+extern "C" void PREFIX(_exit)(int return_code) {
+    while(1) {}
+}
+
+extern "C" void _ttywrch(int ch) {
+    serial_putc(&stdio_uart, ch);
+}
+#endif
+
 #if defined(__ICCARM__)
 extern "C" size_t    __read (int        fh, unsigned char *buffer, size_t       length) {
 #else

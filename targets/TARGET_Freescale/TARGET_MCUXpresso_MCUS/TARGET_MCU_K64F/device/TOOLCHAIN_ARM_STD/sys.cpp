@@ -9,6 +9,7 @@
 extern "C" {
 #endif
 
+#include <arm_compat.h>
 #include <rt_misc.h>
 #include <stdint.h>
 

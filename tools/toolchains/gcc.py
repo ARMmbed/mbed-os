@@ -100,27 +100,6 @@ class GCC(mbedToolchain):
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
 
-    def parse_dependencies(self, dep_path):
-        dependencies = []
-        buff = open(dep_path).readlines()
-        buff[0] = re.sub('^(.*?)\: ', '', buff[0])
-        for line in buff:
-            file = line.replace('\\\n', '').strip()
-            if file:
-                # GCC might list more than one dependency on a single line, in this case
-                # the dependencies are separated by a space. However, a space might also
-                # indicate an actual space character in a dependency path, but in this case
-                # the space character is prefixed by a backslash.
-                # Temporary replace all '\ ' with a special char that is not used (\a in this
-                # case) to keep them from being interpreted by 'split' (they will be converted
-                # back later to a space char)
-                file = file.replace('\\ ', '\a')
-                if file.find(" ") == -1:
-                    dependencies.append((self.CHROOT if self.CHROOT else '') + file.replace('\a', ' '))
-                else:
-                    dependencies = dependencies + [(self.CHROOT if self.CHROOT else '') + f.replace('\a', ' ') for f in file.split(" ")]
-        return dependencies
-
     def is_not_supported_error(self, output):
         return "error: #error [NOT_SUPPORTED]" in output
 

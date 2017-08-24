@@ -165,7 +165,7 @@ typedef struct _ARM_CFSTORE_STATUS {
     ARM_CFSTORE_HANDLE (__name) = (ARM_CFSTORE_HANDLE) (__name##_buf_cFsToRe);  \
     memset((__name##_buf_cFsToRe), 0, CFSTORE_HANDLE_BUFSIZE)
 
-#if defined __MBED__ && defined TOOLCHAIN_GCC_ARM
+#if defined __MBED__ && (defined TOOLCHAIN_GCC_ARM || defined TOOLCHAIN_ARM)
 /** @brief  Helper macro to swap 2 handles, which is useful for the Find() idiom. */
 #define CFSTORE_HANDLE_SWAP(__a_HaNdLe, __b_HaNdLe)         \
     do{ ARM_CFSTORE_HANDLE __temp_HaNdLe = (__a_HaNdLe);    \
@@ -174,18 +174,6 @@ typedef struct _ARM_CFSTORE_STATUS {
         __asm volatile("" ::: "memory");                    \
         (__b_HaNdLe) = (__temp_HaNdLe);                     \
         __asm volatile("" ::: "memory");                    \
-    }while(0)
-#endif
-
-#if defined __MBED__ && defined TOOLCHAIN_ARM
-/** @brief  Helper macro to swap 2 handles, which is useful for the Find() idiom. */
-#define CFSTORE_HANDLE_SWAP(__a_HaNdLe, __b_HaNdLe)         \
-    do{ ARM_CFSTORE_HANDLE __temp_HaNdLe = (__a_HaNdLe);    \
-        __dmb(0xf);                                         \
-        (__a_HaNdLe) = (__b_HaNdLe);                        \
-        __dmb(0xf);                                         \
-        (__b_HaNdLe) = (__temp_HaNdLe);                     \
-        __dmb(0xf);                                         \
     }while(0)
 #endif
 

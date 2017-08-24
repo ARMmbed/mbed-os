@@ -595,7 +595,9 @@ void *__user_perthread_libspace (void) {
 typedef void *mutex;
 
 // Initialize mutex
+#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
+#endif
 int _mutex_initialize(mutex *m);
 __WEAK int _mutex_initialize(mutex *m) {
   *m = osMutexNew(NULL);
@@ -607,7 +609,9 @@ __WEAK int _mutex_initialize(mutex *m) {
 }
 
 // Acquire mutex
+#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
+#endif
 void _mutex_acquire(mutex *m);
 __WEAK void _mutex_acquire(mutex *m) {
   if (os_kernel_is_active()) {
@@ -616,7 +620,9 @@ __WEAK void _mutex_acquire(mutex *m) {
 }
 
 // Release mutex
+#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
+#endif
 void _mutex_release(mutex *m);
 __WEAK void _mutex_release(mutex *m) {
   if (os_kernel_is_active()) {
@@ -625,7 +631,9 @@ __WEAK void _mutex_release(mutex *m) {
 }
 
 // Free mutex
+#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
+#endif
 void _mutex_free(mutex *m);
 __WEAK void _mutex_free(mutex *m) {
   osMutexDelete(*m);
