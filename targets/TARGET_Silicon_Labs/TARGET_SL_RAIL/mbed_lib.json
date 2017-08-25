@@ -30,6 +30,10 @@
         "EFR32MG1_BRD4150": {
             "sl-rail.has-2p4": true,
             "sl-rail.has-subgig": true
+        },
+        "EFR32PG12_SLWRB4254A": {
+            "sl-rail.has-2p4": true,
+            "sl-rail.has-subgig": true
         }
     }
 }

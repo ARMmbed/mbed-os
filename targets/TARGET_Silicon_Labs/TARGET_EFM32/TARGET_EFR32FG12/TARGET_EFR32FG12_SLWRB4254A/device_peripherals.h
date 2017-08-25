@@ -29,9 +29,9 @@
 #define US_TICKER_TIMER_IRQ     TIMER0_IRQn
 
 /* PWM */
-#define PWM_TIMER        TIMER1
-#define PWM_TIMER_CLOCK  cmuClock_TIMER1
-#define PWM_ROUTE        TIMER_ROUTE_LOCATION_LOC1
+#define PWM_TIMER               TIMER1
+#define PWM_TIMER_CLOCK         cmuClock_TIMER1
+#define PWM_ROUTE               TIMER_ROUTE_LOCATION_LOC1
 
 /* Crystal calibration */
 #if !defined(CMU_HFXOINIT_WSTK_DEFAULT)
