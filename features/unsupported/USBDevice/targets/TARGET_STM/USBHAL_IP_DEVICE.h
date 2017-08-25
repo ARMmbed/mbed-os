@@ -132,17 +132,13 @@ USBHAL::USBHAL(void) {
     gpio_init_out(&HALPriv->usb_switch, PG_6);
 
 #elif defined(TARGET_NUCLEO_F103RB)
-    /* Configure DM DP Pins
-       - USB-DP (D+ of the USB connector) <======> PA12 (Nucleo board)
-         Make sure to connect a 1.5KOhm pull up to USB-DP PA12 pin (permanent pull-up)
-       - USB-DM (D- of the USB connector) <======> PA11 (Nucleo board)
-     */
-    __HAL_RCC_GPIOA_CLK_ENABLE();
-    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_MODE_AF_INPUT)); // DM
-    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_MODE_AF_INPUT)); // DP
     __HAL_RCC_GPIOB_CLK_ENABLE();
     gpio_init_out(&HALPriv->usb_switch, PB_14);
     gpio_mode(&HALPriv->usb_switch, OpenDrain);
+    // Make sure to connect a 1.5K pull-up to USB-DP PA12 pin (permanent pull-up)
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_MODE_AF_INPUT)); // DM
+    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_MODE_AF_INPUT)); // DP
 
 #elif defined(TARGET_DISCO_L072CZ_LRWAN1) || \
       defined(TARGET_DISCO_L053C8)

@@ -18,7 +18,17 @@
 #ifndef USBHAL_IP_OTGFSHS_H
 #define USBHAL_IP_OTGFSHS_H
 
-#if defined(TARGET_DISCO_F769NI)
+//==================================================================
+// This board has both USB OTG FS and HS connectors.
+// Select one line only.
+//==================================================================
+#if defined(TARGET_DISCO_F746NG)
+//#define TARGET_DISCO_F746NG_OTG_FS
+#define TARGET_DISCO_F746NG_OTG_HS
+#endif
+
+#if defined(TARGET_DISCO_F769NI) || \
+    defined(TARGET_DISCO_F746NG_OTG_HS)
 #define USBHAL_IRQn  OTG_HS_IRQn
 #else
 #define USBHAL_IRQn  OTG_FS_IRQn
@@ -85,7 +95,8 @@ USBHAL::USBHAL(void) {
 
     memset(&hpcd.Init, 0, sizeof(hpcd.Init));
 
-#if defined(TARGET_DISCO_F769NI)
+#if defined(TARGET_DISCO_F769NI) || \
+    defined(TARGET_DISCO_F746NG_OTG_HS)
     hpcd.Instance = USB_OTG_HS;
     hpcd.Init.phy_itface = PCD_PHY_ULPI;
     hpcd.Init.Sof_enable = 0;
@@ -120,33 +131,45 @@ USBHAL::USBHAL(void) {
 
     // Configure USB pins and other clocks
 
-    // NUCLEO_144 boards
 #if defined(TARGET_NUCLEO_F207ZG) || \
+    defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_F411RE) || \
     defined(TARGET_NUCLEO_F412ZG) || \
     defined(TARGET_NUCLEO_F429ZI) || \
     defined(TARGET_NUCLEO_F446ZE) || \
     defined(TARGET_NUCLEO_F767ZI) || \
-    defined(TARGET_NUCLEO_F746ZG)
+    defined(TARGET_NUCLEO_F746ZG) || \
+    defined(TARGET_DISCO_F469NI) || \
+    defined(TARGET_DISCO_F746NG_OTG_FS)
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    pin_function(PA_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS));  /* OTG_FS_SOF */
-    pin_function(PA_9, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF10_OTG_FS));  /* OTG_FS_VBUS */
-    pin_function(PA_10, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS)); /* OTG_FS_ID */
-    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); /* OTG_FS_DM */
-    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); /* OTG_FS_DP */
+    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
+    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
+    pin_function(PA_9, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF10_OTG_FS));  // VBUS
+    pin_function(PA_10, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS)); // ID
+    pin_function(PA_8, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS));  // SOF
+    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+
+#elif defined(TARGET_DISCO_F429ZI)
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    pin_function(PB_14, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_OTG_HS_FS)); // DM
+    pin_function(PB_15, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_OTG_HS_FS)); // DP
+    pin_function(PB_13, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF12_OTG_HS_FS)); // VBUS
+    pin_function(PB_12, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF12_OTG_HS_FS)); // ID
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
 #elif defined(TARGET_DISCO_L475VG_IOT01A) || \
       defined(TARGET_DISCO_L476VG)
     __HAL_RCC_GPIOA_CLK_ENABLE();
-    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); /* OTG_FS_DM */
-    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); /* OTG_FS_DP */
+    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
+    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
     __HAL_RCC_GPIOC_CLK_ENABLE();
-    pin_function(PC_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); /* VBUS pin */
+    pin_function(PC_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // VBUS
     __HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWREx_EnableVddUSB();
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
 
-#elif defined(TARGET_DISCO_F769NI)
+#elif defined(TARGET_DISCO_F769NI) || \
+      defined(TARGET_DISCO_F746NG_OTG_HS)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -163,9 +186,14 @@ USBHAL::USBHAL(void) {
     pin_function(PB_13, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D7
     pin_function(PC_0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // STP
     pin_function(PH_4, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // NXT
+#if defined(TARGET_DISCO_F769NI)
     pin_function(PI_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // DIR
+#else // TARGET_DISCO_F746NG
+    pin_function(PC_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // DIR
+#endif
     __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+
 #else
 #error "USB pins are not configured !"
 #endif
