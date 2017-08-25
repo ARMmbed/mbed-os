@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -37,7 +37,6 @@
  * @{
  */
 
-/*! @file */
 
 /*******************************************************************************
  * Definitions
@@ -45,8 +44,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief SDRAMC driver version 2.0.0. */
-#define FSL_SDRAMC_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+/*! @brief SDRAMC driver version 2.1.0. */
+#define FSL_SDRAMC_DRIVER_VERSION (MAKE_VERSION(2, 1, 0))
 /*@}*/
 
 /*! @brief SDRAM controller auto-refresh timing. */
@@ -60,14 +59,14 @@ typedef enum _sdramc_refresh_time
 /*!
  * @brief Setting latency for SDRAM controller timing specifications.
  *
- * The latency setting will affects the following SDRAM timing specifications:
+ * The latency setting affects the following SDRAM timing specifications:
  *       - trcd: SRAS assertion to SCAS assertion \n
  *       - tcasl: SCAS assertion to data out \n
  *       - tras: ACTV command to Precharge command \n
  *       - trp: Precharge command to ACTV command \n
  *       - trwl, trdl: Last data input to Precharge command \n
  *       - tep: Last data out to Precharge command \n
- * the details of the latency setting and timing specifications are shown on the following table list: \n
+ * The details of the latency setting and timing specifications are shown in the following table list. \n
  *   latency      trcd:          tcasl         tras           trp        trwl,trdl        tep   \n
  *    0       1 bus clock    1 bus clock   2 bus clocks   1 bus clock   1 bus clock   1 bus clock  \n
  *    1       2 bus clock    2 bus clock   4 bus clocks   2 bus clock   1 bus clock   1 bus clock  \n
@@ -219,10 +218,10 @@ void SDRAMC_Deinit(SDRAM_Type *base);
 
 /*!
  * @brief Sends the SDRAM command.
- * This function sends the command to SDRAM. There are precharge command, initialize MRS command,
+ * This function sends commands to SDRAM. The commands are precharge command, initialization MRS command,
  * auto-refresh enable/disable command, and self-refresh enter/exit commands.
- * Note the self-refresh enter/exit commands are all blocks setting and "block"
- * are ignored. Ensure to set the right "block" when send other commands.
+ * Note that the self-refresh enter/exit commands are all blocks setting and "block"
+ * is ignored. Ensure to set the correct "block" when send other commands.
  *
  * @param base SDRAM controller peripheral base address.
  * @param block The block selection.
@@ -233,13 +232,8 @@ void SDRAMC_Deinit(SDRAM_Type *base);
  *        kSDRAMC_SelfrefreshExitCommand  -  Exit self-refresh command \n
  *        kSDRAMC_AutoRefreshEnableCommand  - Enable auto refresh command \n
  *        kSDRAMC_AutoRefreshDisableCommand  - Disable auto refresh command
- * @return Command execution status.
- * All commands except the "initialize MRS command" and "precharge command"
- * return kStatus_Success directly.
- * For "initialize MRS command" and "precharge command"
- * return kStatus_Success when the command success else return kStatus_Fail.
  */
-status_t SDRAMC_SendCommand(SDRAM_Type *base, sdramc_block_selection_t block, sdramc_command_t command);
+void SDRAMC_SendCommand(SDRAM_Type *base, sdramc_block_selection_t block, sdramc_command_t command);
 
 /*!
  * @brief Enables/disables the write protection.
@@ -261,11 +255,11 @@ static inline void SDRAMC_EnableWriteProtect(SDRAM_Type *base, sdramc_block_sele
 }
 
 /*!
- * @brief Enables/disables the operation valid.
+ * @brief Enables/disables the valid operation.
  *
  * @param base SDRAM peripheral base address.
  * @param block The block which is selected.
- * @param enable True enable the operation valid, false disable the operation valid.
+ * @param enable True enable the valid operation; false disable the valid operation.
  */
 static inline void SDRAMC_EnableOperateValid(SDRAM_Type *base, sdramc_block_selection_t block, bool enable)
 {

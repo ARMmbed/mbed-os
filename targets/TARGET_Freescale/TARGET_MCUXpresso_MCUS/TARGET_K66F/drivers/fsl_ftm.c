@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -72,8 +72,10 @@ static void FTM_SetReloadPoints(FTM_Type *base, uint32_t reloadPoints);
 /*! @brief Pointers to FTM bases for each instance. */
 static FTM_Type *const s_ftmBases[] = FTM_BASE_PTRS;
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
 /*! @brief Pointers to FTM clocks for each instance. */
 static const clock_ip_name_t s_ftmClocks[] = FTM_CLOCKS;
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 /*******************************************************************************
  * Code
@@ -228,8 +230,10 @@ status_t FTM_Init(FTM_Type *base, const ftm_config_t *config)
         return kStatus_Fail;
     }
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Ungate the FTM clock*/
     CLOCK_EnableClock(s_ftmClocks[FTM_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
     /* Configure the fault mode, enable FTM mode and disable write protection */
     base->MODE = FTM_MODE_FAULTM(config->faultMode) | FTM_MODE_FTMEN_MASK | FTM_MODE_WPDIS_MASK;
@@ -266,7 +270,13 @@ status_t FTM_Init(FTM_Type *base, const ftm_config_t *config)
 #endif /* FSL_FEATURE_FTM_HAS_RELOAD_INITIALIZATION_TRIGGER */
 
     /* FTM deadtime insertion control */
-    base->DEADTIME = (FTM_DEADTIME_DTPS(config->deadTimePrescale) | FTM_DEADTIME_DTVAL(config->deadTimeValue));
+    base->DEADTIME = (0u | 
+#if defined(FSL_FEATURE_FTM_HAS_EXTENDED_DEADTIME_VALUE) && (FSL_FEATURE_FTM_HAS_EXTENDED_DEADTIME_VALUE)
+                        /* Has extended deadtime value register) */
+                        FTM_DEADTIME_DTVALEX(config->deadTimeValue >> 6) | 
+#endif /* FSL_FEATURE_FTM_HAS_EXTENDED_DEADTIME_VALUE */
+                        FTM_DEADTIME_DTPS(config->deadTimePrescale) | 
+                        FTM_DEADTIME_DTVAL(config->deadTimeValue));
 
     /* FTM fault filter value */
     reg = base->FLTCTRL;
@@ -282,8 +292,10 @@ void FTM_Deinit(FTM_Type *base)
     /* Set clock source to none to disable counter */
     base->SC &= ~(FTM_SC_CLKS_MASK);
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Gate the FTM clock */
     CLOCK_DisableClock(s_ftmClocks[FTM_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
 void FTM_GetDefaultConfig(ftm_config_t *config)
