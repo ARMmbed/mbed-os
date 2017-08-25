@@ -19,20 +19,25 @@
 #define USBHAL_STM32_H
 
 #if defined(TARGET_NUCLEO_F207ZG) || \
+    defined(TARGET_NUCLEO_F401RE) || \
+    defined(TARGET_NUCLEO_F411RE) || \
     defined(TARGET_NUCLEO_F412ZG) || \
     defined(TARGET_NUCLEO_F429ZI) || \
     defined(TARGET_NUCLEO_F446ZE) || \
     defined(TARGET_NUCLEO_F767ZI) || \
     defined(TARGET_NUCLEO_F746ZG) || \
-    defined(TARGET_DISCO_L476VG) || \
+    defined(TARGET_DISCO_F429ZI) || \
+    defined(TARGET_DISCO_F469NI) || \
+    defined(TARGET_DISCO_F746NG) || \
+    defined(TARGET_DISCO_F769NI) || \
     defined(TARGET_DISCO_L475VG_IOT01A) || \
-    defined(TARGET_DISCO_F769NI)
+    defined(TARGET_DISCO_L476VG)
 #include "USBHAL_IP_OTGFSHS.h"
 
-#elif defined(TARGET_NUCLEO_F303ZE) || \
-      defined(TARGET_NUCLEO_F103RB) || \
-      defined(TARGET_DISCO_L072CZ_LRWAN1) || \
-      defined(TARGET_DISCO_L053C8)
+#elif defined(TARGET_NUCLEO_F103RB) || \
+      defined(TARGET_NUCLEO_F303ZE) || \
+      defined(TARGET_DISCO_L053C8) || \
+      defined(TARGET_DISCO_L072CZ_LRWAN1)
 #include "USBHAL_IP_DEVICE.h"
 
 #else
