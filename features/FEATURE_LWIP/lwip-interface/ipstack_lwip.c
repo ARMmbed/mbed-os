@@ -42,7 +42,31 @@ extern "C" {
 #endif
 
 static bool mbed_lwip_inited = false;
-static sys_sem_t lwip_tcpip_inited;
+
+static os_semaphore_t tcpip_inited_sem = {0};
+static const osSemaphoreAttr_t tcpip_inited_sem_attr = {
+  .name = "",
+  .attr_bits = 0,
+  .cb_mem = &tcpip_inited_sem,
+  .cb_size = sizeof(tcpip_inited_sem),
+};
+
+static os_semaphore_t linked_sem = {0};
+static const osSemaphoreAttr_t linked_sem_attr = {
+  .name = "",
+  .attr_bits = 0,
+  .cb_mem = &linked_sem,
+  .cb_size = sizeof(linked_sem),
+};
+
+static os_semaphore_t has_addr_sem = {0};
+static const osSemaphoreAttr_t has_addr_sem_attr = {
+  .name = "",
+  .attr_bits = 0,
+  .cb_mem = &has_addr_sem,
+  .cb_size = sizeof(has_addr_sem),
+};
+osSemaphoreId_t tcpip_inited;
 
 static void add_dns_addr(struct netif *lwip_netif)
 {
@@ -83,14 +107,14 @@ static void add_dns_addr(struct netif *lwip_netif)
 
 static void mbed_lwip_tcpip_init_irq(void *eh)
 {
-    sys_sem_signal(&lwip_tcpip_inited);
+    osSemaphoreRelease(tcpip_inited);
 }
 
 static void mbed_lwip_netif_link_irq(struct netif *netif)
 {
     if (netif_is_link_up(netif)) {
         emac_interface_t *emac = netif->state;
-        sys_sem_signal(&emac->linked);
+        osSemaphoreRelease(emac->linked);
     }
 }
 
@@ -102,14 +126,14 @@ static void mbed_lwip_netif_status_irq(struct netif *netif)
     if (netif_is_up(netif)) {
         // Indicates that has address
         if (any_addr == true && mbed_lwip_get_ip_addr(true, netif)) {
-            sys_sem_signal(&emac->has_addr);
+            osSemaphoreRelease(emac->has_addr);
             any_addr = false;
             return;
         }
 
         // Indicates that has preferred address
         if (mbed_lwip_get_ip_addr(false, netif)) {
-            sys_sem_signal(&emac->has_addr);
+            osSemaphoreRelease(emac->has_addr);
         }
     } else {
         any_addr = true;
@@ -182,9 +206,9 @@ void mbed_ipstack_init(void)
     if(mbed_lwip_inited)
         return;
 
-    sys_sem_new(&lwip_tcpip_inited, 0);
+    tcpip_inited = osSemaphoreNew(UINT16_MAX, 0, &tcpip_inited_sem_attr);
     tcpip_init(mbed_lwip_tcpip_init_irq, NULL);
-    sys_arch_sem_wait(&lwip_tcpip_inited, 0);
+    osSemaphoreAcquire(tcpip_inited, 0);
 
     // Zero out socket set
     mbed_lwip_arena_init();
@@ -196,9 +220,8 @@ nsapi_error_t mbed_ipstack_add_interface(emac_interface_t *emac, bool default_if
 {
     emac->connected = false;
     emac->dhcp = true;
-    sys_sem_new(&emac->linked, 0);
-    sys_sem_new(&emac->has_addr, 0);
-
+    emac->linked = osSemaphoreNew(UINT16_MAX, 0, &linked_sem_attr);
+    emac->has_addr = osSemaphoreNew(UINT16_MAX, 0, &has_addr_sem_attr);
     mbed_mac_address(emac->hwaddr);
 
     struct netif *lwip_netif = (struct netif *)malloc(sizeof(struct netif));
@@ -258,9 +281,8 @@ nsapi_error_t mbed_ipstack_bringup(emac_interface_t *emac, bool dhcp, const char
     u32_t ret;
 
     if (!netif_is_link_up((struct netif *)emac->netif)) {
-        ret = sys_arch_sem_wait(&emac->linked, 15000);
-
-        if (ret == SYS_ARCH_TIMEOUT) {
+        ret = osSemaphoreAcquire(emac->linked, 15000);
+        if (ret != osOK) {
             return NSAPI_ERROR_NO_CONNECTION;
         }
     }
@@ -297,11 +319,10 @@ nsapi_error_t mbed_ipstack_bringup(emac_interface_t *emac, bool dhcp, const char
 
     // If doesn't have address
     if (!mbed_lwip_get_ip_addr(true, (struct netif *)emac->netif)) {
-        ret = sys_arch_sem_wait(&emac->has_addr, 15000);
-        if (ret == SYS_ARCH_TIMEOUT) {
+        ret = osSemaphoreAcquire(emac->has_addr, 15000);
+        if (ret != osOK) {
             return NSAPI_ERROR_DHCP_FAILURE;
         }
-
         emac->connected = true;
     }
 
@@ -340,8 +361,7 @@ nsapi_error_t mbed_ipstack_bringdown(emac_interface_t *emac)
     mbed_lwip_clear_ipv6_addresses((struct netif *)emac->netif);
 #endif
 
-    sys_sem_free(&emac->has_addr);
-    sys_sem_new(&emac->has_addr, 0);
+    emac->has_addr = osSemaphoreNew(UINT16_MAX, 0, &has_addr_sem_attr);
     emac->connected = false;
     return 0;
 }

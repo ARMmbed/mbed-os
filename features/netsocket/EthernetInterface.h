@@ -20,6 +20,7 @@
 #include "nsapi.h"
 #include "rtos.h"
 #include "hal/emac_api.h"
+#include "lwip/api.h"
 
 // Forward declaration
 class NetworkStack;

@@ -19,7 +19,7 @@
 
 #include <stdbool.h>
 #include "emac_stack_mem.h"
-#include "arch/sys_arch.h"
+#include "cmsis_os.h"
 
 typedef struct emac_interface emac_interface_t;
 typedef struct nsapi_addr nsapi_addr_t;
@@ -167,8 +167,8 @@ typedef struct emac_interface {
     void *hw; /**< EMAC implementation specific user data */
 
     /* Private members used by the stack */
-    sys_sem_t linked;
-    sys_sem_t has_addr;
+    osSemaphoreId_t linked;
+    osSemaphoreId_t has_addr;
     bool connected;
     bool dhcp;
     char hwaddr[6];
