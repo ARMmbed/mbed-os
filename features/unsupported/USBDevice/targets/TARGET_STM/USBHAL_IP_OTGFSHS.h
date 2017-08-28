@@ -136,6 +136,7 @@ USBHAL::USBHAL(void) {
     defined(TARGET_NUCLEO_F411RE) || \
     defined(TARGET_NUCLEO_F412ZG) || \
     defined(TARGET_NUCLEO_F429ZI) || \
+    defined(TARGET_NUCLEO_F446RE) || \
     defined(TARGET_NUCLEO_F446ZE) || \
     defined(TARGET_NUCLEO_F767ZI) || \
     defined(TARGET_NUCLEO_F746ZG) || \
