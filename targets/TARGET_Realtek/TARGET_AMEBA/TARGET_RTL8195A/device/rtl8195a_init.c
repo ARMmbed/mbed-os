@@ -30,12 +30,17 @@
 extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
 extern uint8_t Image$$RW_IRAM2$$ZI$$Base[];
 extern uint8_t Image$$RW_IRAM2$$ZI$$Limit[];
+extern uint8_t Image$$TCM_OVERLAY$$ZI$$Base[];
+extern uint8_t Image$$TCM_OVERLAY$$ZI$$Limit[];
 extern uint8_t Image$$RW_DRAM2$$ZI$$Base[];
 extern uint8_t Image$$RW_DRAM2$$ZI$$Limit[];
 #define __bss_sram_start__ Image$$RW_IRAM2$$ZI$$Base
 #define __bss_sram_end__   Image$$RW_IRAM2$$ZI$$Limit
+#define __bss_dtcm_start__ Image$$TCM_OVERLAY$$ZI$$Base
+#define __bss_dtcm_end__   Image$$TCM_OVERLAY$$ZI$$Limit
 #define __bss_dram_start__ Image$$RW_DRAM2$$ZI$$Base
 #define __bss_dram_end__   Image$$RW_DRAM2$$ZI$$Limit
+#define __stackp           Image$$ARM_LIB_STACK$$ZI$$Limit
 
 #elif defined (__ICCARM__)
 
@@ -50,15 +55,20 @@ void __iar_data_init_app(void)
     __bss_start__ = (uint8_t *)__section_begin(".ram.bss");
     __bss_end__   = (uint8_t *)__section_end(".ram.bss");
 }
+#define __stackp           CSTACK$$Limit
 
 #else
 
 extern uint32_t __StackTop;
+extern uint32_t __StackLimit;
 extern uint8_t __bss_sram_start__[];
 extern uint8_t __bss_sram_end__[];
+extern uint8_t __bss_dtcm_start__[];
+extern uint8_t __bss_dtcm_end__[];
 extern uint8_t __bss_dram_start__[];
 extern uint8_t __bss_dram_end__[];
 
+#define __stackp           __StackTop
 #endif
 
 extern VECTOR_Func NewVectorTable[];
@@ -161,20 +171,6 @@ void TRAP_HardFaultHandler_Patch(void)
 }
 #endif
 
-// Override original Interrupt Vector Table
-void TRAP_OverrideTable(uint32_t stackp)
-{
-    // Set MSP
-    __set_MSP(stackp);
-
-    // Override NMI Handler
-    NewVectorTable[2] = (VECTOR_Func) TRAP_NMIHandler;
-
-    #if defined ( __ICCARM__ )
-    NewVectorTable[3] = (VECTOR_Func) TRAP_HardFaultHandler_Patch;
-    #endif
-}
-
 extern _LONG_CALL_ void * __rtl_memset_v1_00(void * m , int c , size_t n);
 // Image2 Entry Function
 void PLAT_Start(void)
@@ -190,18 +186,18 @@ void PLAT_Start(void)
     __rtl_memset_v1_00((void *)__bss_start__, 0, __bss_end__ - __bss_start__);
 #else
     __rtl_memset_v1_00((void *)__bss_sram_start__, 0, __bss_sram_end__ - __bss_sram_start__);
+    __rtl_memset_v1_00((void *)__bss_dtcm_start__, 0, __bss_dtcm_end__ - __bss_dtcm_start__);
     __rtl_memset_v1_00((void *)__bss_dram_start__, 0, __bss_dram_end__ - __bss_dram_start__);
 #endif
 
-#if defined (__CC_ARM)
-    TRAP_OverrideTable((uint32_t)&Image$$ARM_LIB_STACK$$ZI$$Limit);
-#elif defined (__ICCARM__)
-    TRAP_OverrideTable((uint32_t)&CSTACK$$Limit);
-#elif defined (__GNUC__)
-    TRAP_OverrideTable((uint32_t)&__StackTop);
-#else
-    TRAP_OverrideTable(0x1FFFFFFC);
+    // Set MSP
+    __set_MSP((uint32_t)&__stackp - 0x100);
+    // Overwrite vector table
+    NewVectorTable[2] = (VECTOR_Func) TRAP_NMIHandler;
+#if defined ( __ICCARM__ )
+    NewVectorTable[3] = (VECTOR_Func) TRAP_HardFaultHandler_Patch;
 #endif
+
     extern HAL_TIMER_OP_EXT HalTimerOpExt;
     __rtl_memset_v1_00((void *)&HalTimerOpExt, 0, sizeof(HalTimerOpExt));
     __rtl_memset_v1_00((void *)&HalTimerOp, 0, sizeof(HalTimerOp));
