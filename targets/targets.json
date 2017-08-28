@@ -1486,6 +1486,7 @@
             }
         },
         "detect_code": ["0788"],
+        "macros_add": ["USB_STM_HAL"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F469NI"
