@@ -25,22 +25,34 @@
      defined(TARGET_STM32L053C8) ||\
      defined(TARGET_STM32L053R8))
 #define INITIAL_SP              (0x20002000UL)
+#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
+#define MBED_CONF_APP_THREAD_STACK_SIZE 2048 // default value is 4096 in rtos/rtx5/mbed_rtx_conf.h
+#endif
 
 #elif (defined(TARGET_STM32F303K8) ||\
        defined(TARGET_STM32F334C8) ||\
        defined(TARGET_STM32F334R8))
 #define INITIAL_SP              (0x20003000UL)
+#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
+#define MBED_CONF_APP_THREAD_STACK_SIZE 2048 // default value is 4096 in rtos/rtx5/mbed_rtx_conf.h
+#endif
 
 #elif (defined(TARGET_STM32F070RB) ||\
        defined(TARGET_STM32F072RB) ||\
        defined(TARGET_STM32F302R8))
 #define INITIAL_SP              (0x20004000UL)
+#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
+#define MBED_CONF_APP_THREAD_STACK_SIZE 2048 // default value is 4096 in rtos/rtx5/mbed_rtx_conf.h
+#endif
 
 #elif (defined(TARGET_STM32F103RB) ||\
        defined(TARGET_STM32F103C8) ||\
        defined(TARGET_STM32L072CZ) ||\
        defined(TARGET_STM32L073RZ))
 #define INITIAL_SP              (0x20005000UL)
+#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
+#define MBED_CONF_APP_THREAD_STACK_SIZE 2048 // default value is 4096 in rtos/rtx5/mbed_rtx_conf.h
+#endif
 
 #elif (defined(TARGET_STM32F091RC) ||\
        defined(TARGET_STM32F410RB) ||\
@@ -99,7 +111,7 @@
 #define INITIAL_SP              (0x20080000UL)
 
 #else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
+#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file (only for mbed OS5 compatible targets)"
 #endif
 
 #endif // INITIAL_SP
