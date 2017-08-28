@@ -91,7 +91,10 @@ public:
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int erase(bd_addr_t addr, bd_size_t size) = 0;
+    virtual int erase(bd_addr_t addr, bd_size_t size)
+    {
+        return 0;
+    }
 
     /** Get the size of a readable block
      *
@@ -111,7 +114,10 @@ public:
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size() const = 0;
+    virtual bd_size_t get_erase_size() const
+    {
+        return get_program_size();
+    }
 
     /** Get the total size of the underlying device
      *
