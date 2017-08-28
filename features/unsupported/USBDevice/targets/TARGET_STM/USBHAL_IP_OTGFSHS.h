@@ -140,6 +140,7 @@ USBHAL::USBHAL(void) {
     defined(TARGET_NUCLEO_F446ZE) || \
     defined(TARGET_NUCLEO_F767ZI) || \
     defined(TARGET_NUCLEO_F746ZG) || \
+    defined(TARGET_DISCO_F407VG) || \
     defined(TARGET_DISCO_F469NI) || \
     defined(TARGET_DISCO_F746NG_OTG_FS)
     __HAL_RCC_GPIOA_CLK_ENABLE();
