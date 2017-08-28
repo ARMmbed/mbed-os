@@ -240,6 +240,10 @@ def write_load_segment(image_elf, image_bin, segment):
         write_fixed_width_value(size, 8, file_bin)
         # write load segment
         file_bin.write(file_elf.read(size))
+        delta = size % 4
+        if delta != 0:
+            padding = 4 - delta
+            write_fixed_width_value(0x0, padding * 2, file_bin)
     file_bin.close()
     file_elf.close()
 
