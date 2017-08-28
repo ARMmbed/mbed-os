@@ -19,11 +19,10 @@ script:
   - |
     find  -name "*.s" | tee BUILD/badasm | sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
   - make -C events/equeue test clean
-  - PYTHONPATH=. coverage run -m pytest tools/test/config_test/config_test.py tools/test/toolchains/api.py
+  - PYTHONPATH=. coverage run -m pytest tools/test/config_test/config_test.py tools/test/toolchains/api.py tools/test/memap/memap_test.py
   - PYTHONPATH=. coverage run tools/test/build_api/build_api_test.py
   - PYTHONPATH=. coverage run tools/test/targets/target_test.py
   - coverage run tools/test/pylint.py
-  - coverage run tools/test/memap/memap_test.py
   - coverage run tools/project.py -S
   - coverage run tools/build_travis.py
   - coverage html
