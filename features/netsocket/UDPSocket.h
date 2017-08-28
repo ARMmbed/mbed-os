@@ -23,7 +23,7 @@
 #include "netsocket/Socket.h"
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
-#include "rtos/Semaphore.h"
+#include "rtos/EventFlags.h"
 
 
 /** UDP socket
@@ -45,7 +45,7 @@ public:
      */
     template <typename S>
     UDPSocket(S *stack)
-        : _pending(0), _read_sem(0), _write_sem(0)
+        : _pending(0), _event_flag(0)
     {
         open(stack);
     }
@@ -117,8 +117,7 @@ protected:
     virtual void event();
 
     volatile unsigned _pending;
-    rtos::Semaphore _read_sem;
-    rtos::Semaphore _write_sem;
+    rtos::EventFlags _event_flag;
 };
 
 
