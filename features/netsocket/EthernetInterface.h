@@ -42,10 +42,10 @@ public:
      *  Implicitly disables DHCP, which can be enabled in set_dhcp.
      *  Requires that the network is disconnected.
      *
-     *  @param address  Null-terminated representation of the local IP address
-     *  @param netmask  Null-terminated representation of the local network mask
-     *  @param gateway  Null-terminated representation of the local gateway
-     *  @return         0 on success, negative error code on failure
+     *  @param ip_address  Null-terminated representation of the local IP address
+     *  @param netmask     Null-terminated representation of the local network mask
+     *  @param gateway     Null-terminated representation of the local gateway
+     *  @return            0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_network(
             const char *ip_address, const char *netmask, const char *gateway);
