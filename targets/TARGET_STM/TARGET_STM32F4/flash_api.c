@@ -160,11 +160,19 @@ static uint32_t GetSector(uint32_t address)
 #endif
     if (address < ADDR_FLASH_SECTOR_4) { // 16k sectorsize
         sector += tmp >>14;
-    } else if (address < ADDR_FLASH_SECTOR_5) { //64k sector size
+    }
+#if defined(ADDR_FLASH_SECTOR_5)
+    else if (address < ADDR_FLASH_SECTOR_5) { //64k sector size
         sector += FLASH_SECTOR_4; 
     } else {
         sector += 4 + (tmp >>17);
     }
+#else
+    // In case ADDR_FLASH_SECTOR_5 is not defined, sector 4 is the last one.
+    else { //64k sector size
+        sector += FLASH_SECTOR_4; 
+    }
+#endif
     return sector;
 }
 
