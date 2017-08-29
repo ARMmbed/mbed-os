@@ -32,7 +32,7 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 extern uint32_t Image$$VECTOR_RAM$$Base[];
 #define __VECTOR_RAM Image$$VECTOR_RAM$$Base
 #else
@@ -40,7 +40,7 @@ extern uint32_t __VECTOR_RAM[];
 #endif
 
 /* Symbols defined by the linker script */
-#define NVIC_NUM_VECTORS        (16 + 40)         // CORE + MCU Peripherals
+#define NVIC_NUM_VECTORS        (16 + 57)         // CORE + MCU Peripherals
 #define NVIC_RAM_VECTOR_ADDRESS (__VECTOR_RAM)    // Vectors positioned at start of RAM
 
 #endif

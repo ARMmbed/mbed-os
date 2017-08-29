@@ -29,36 +29,10 @@
 */
 
 #include "fsl_common.h"
-/* This is not needed for mbed */
-#if 0
-#include "fsl_debug_console.h"
-
-#ifndef NDEBUG
-#if (defined(__CC_ARM)) || (defined(__ICCARM__))
-void __aeabi_assert(const char *failedExpr, const char *file, int line)
-{
-    PRINTF("ASSERT ERROR \" %s \": file \"%s\" Line \"%d\" \n", failedExpr, file, line);
-    for (;;)
-    {
-        __asm("bkpt #0");
-    }
-}
-#elif(defined(__GNUC__))
-void __assert_func(const char *file, int line, const char *func, const char *failedExpr)
-{
-    PRINTF("ASSERT ERROR \" %s \": file \"%s\" Line \"%d\" function name \"%s\" \n", failedExpr, file, line, func);
-    for (;;)
-    {
-        __asm("bkpt #0");
-    }
-}
-#endif /* (defined(__CC_ARM)) ||  (defined (__ICCARM__)) */
-#endif /* NDEBUG */
-#endif
 void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler)
 {
 /* Addresses for VECTOR_TABLE and VECTOR_RAM come from the linker file */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t Image$$VECTOR_ROM$$Base[];
     extern uint32_t Image$$VECTOR_RAM$$Base[];
     extern uint32_t Image$$RW_m_data$$Base[];
