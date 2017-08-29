@@ -345,10 +345,10 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
                     resource.add(res)
         if isinstance(zip_proj, basestring):
             zip_export(join(export_path, zip_proj), name, resource_dict,
-                       files + exporter.static_files, inc_repos)
+                       files + list(exporter.static_files), inc_repos)
         else:
             zip_export(zip_proj, name, resource_dict,
-                       files + exporter.static_files, inc_repos)
+                       files + list(exporter.static_files), inc_repos)
     else:
         for static_file in exporter.static_files:
             if not exists(join(export_path, basename(static_file))):

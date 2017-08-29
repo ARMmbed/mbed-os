@@ -89,7 +89,7 @@ void emac_stack_mem_set_len(emac_stack_t* stack, emac_stack_mem_t *mem, uint32_t
  * Returns first memory structure from the list and move the head to point to the next node
  *
  * @param  stack Emac stack context
- * @param  list Pointer to the list
+ * @param  chain Pointer to the list
  * @return      First memory structure from the list
  */
 emac_stack_mem_t *emac_stack_mem_chain_dequeue(emac_stack_t* stack, emac_stack_mem_chain_t **chain);

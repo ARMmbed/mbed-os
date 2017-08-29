@@ -180,10 +180,10 @@ static unsigned int can_speed(unsigned int pclk, unsigned int cclk, unsigned cha
     }
 
     if (hit) {
-        btr = ((timing_pts[bits][1] << 20) & 0x00700000)
-              | ((timing_pts[bits][0] << 16) & 0x000F0000)
-              | ((psjw                << 24) & 0x0000C000)
-              | ((brp                 <<  0) & 0x000003FF);
+        btr = ((timing_pts[bits][1] << CAN_BTR_TS2_Pos) & CAN_BTR_TS2) |
+              ((timing_pts[bits][0] << CAN_BTR_TS1_Pos) & CAN_BTR_TS1) |
+              ((psjw                << CAN_BTR_SJW_Pos) & CAN_BTR_SJW) |
+              ((brp                 << CAN_BTR_BRP_Pos) & CAN_BTR_BRP);
     } else {
         btr = 0xFFFFFFFF;
     }

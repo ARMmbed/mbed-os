@@ -2027,7 +2027,7 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                 original_payload_len = stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_len;
                 original_payload_ptr = stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_ptr;
 
-                if ((block_size * (block_number + 1)) > stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_len) {
+                if ((block_size * (block_number + 1)) >= stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_len) {
                     src_coap_blockwise_ack_msg_ptr->payload_len = stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_len - (block_size * block_number);
                     src_coap_blockwise_ack_msg_ptr->payload_ptr = stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_ptr + (block_size * block_number);
                 }
@@ -2080,7 +2080,7 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                 stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_len = original_payload_len;
                 stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_ptr = original_payload_ptr;
 
-                if ((block_size * (block_number + 1)) > stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_len) {
+                if ((block_size * (block_number + 1)) >= stored_blockwise_msg_temp_ptr->coap_msg_ptr->payload_len) {
                     sn_coap_protocol_linked_list_blockwise_msg_remove(handle, stored_blockwise_msg_temp_ptr);
                 }
 

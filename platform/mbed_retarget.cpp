@@ -228,10 +228,10 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
 
     FileHandle *res = NULL;
 
-    /* FILENAME: ":0x12345678" describes a FileHandle* */
+    /* FILENAME: ":(pointer)" describes a FileHandle* */
     if (name[0] == ':') {
         void *p;
-        std::sscanf(name, ":%p", &p);
+        memcpy(&p, name + 1, sizeof(p));
         res = (FileHandle*)p;
 
     /* FILENAME: "/file_system/file_name" */
@@ -682,11 +682,11 @@ extern "C" uint32_t  __HeapLimit;
 extern "C" int errno;
 
 // Dynamic memory allocation related syscall.
-#if defined(TARGET_NUMAKER_PFM_NUC472) || defined(TARGET_NUMAKER_PFM_M453)
+#if defined(TARGET_NUVOTON)
 // Overwrite _sbrk() to support two region model (heap and stack are two distinct regions).
 // __wrap__sbrk() is implemented in:
-// TARGET_NUMAKER_PFM_NUC472    hal/targets/cmsis/TARGET_NUVOTON/TARGET_NUC472/TARGET_NUMAKER_PFM_NUC472/TOOLCHAIN_GCC_ARM/retarget.c
-// TARGET_NUMAKER_PFM_M453      hal/targets/cmsis/TARGET_NUVOTON/TARGET_M451/TARGET_NUMAKER_PFM_M453/TOOLCHAIN_GCC_ARM/retarget.c
+// TARGET_NUMAKER_PFM_NUC472    targets/TARGET_NUVOTON/TARGET_NUC472/TARGET_NUMAKER_PFM_NUC472/TOOLCHAIN_GCC_ARM/nuc472_retarget.c
+// TARGET_NUMAKER_PFM_M453      targets/TARGET_NUVOTON/TARGET_M451/TARGET_NUMAKER_PFM_M453/TOOLCHAIN_GCC_ARM/m451_retarget.c
 extern "C" void *__wrap__sbrk(int incr);
 extern "C" caddr_t _sbrk(int incr) {
     return (caddr_t) __wrap__sbrk(incr);
@@ -826,8 +826,12 @@ void mbed_set_unbuffered_stream(std::FILE *_file) {
  */
 std::FILE *mbed_fdopen(FileHandle *fh, const char *mode)
 {
-    char buf[12]; /* :0x12345678 + null byte */
-    std::sprintf(buf, ":%p", fh);
+    // This is to avoid scanf(buf, ":%.4s", fh) and the bloat it brings.
+    char buf[1 + sizeof(fh)]; /* :(pointer) */
+    MBED_STATIC_ASSERT(sizeof(buf) == 5, "Pointers should be 4 bytes.");
+    buf[0] = ':';
+    memcpy(buf + 1, &fh, sizeof(fh));
+
     std::FILE *stream = std::fopen(buf, mode);
     /* newlib-nano doesn't appear to ever call _isatty itself, so
      * happily fully buffers an interactive stream. Deal with that here.
@@ -978,72 +982,3 @@ void operator delete[](void *ptr)
         free(ptr);
     }
 }
-
-#if defined(MBED_CONF_RTOS_PRESENT) && defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
-
-static const char* error_msg(int32_t status)
-{
-    switch (status) {
-    case osError:
-        return "Unspecified RTOS error";
-    case osErrorTimeout:
-        return "Operation not completed within the timeout period";
-    case osErrorResource:
-        return "Resource not available";
-    case osErrorParameter:
-        return "Parameter error";
-    case osErrorNoMemory:
-        return "System is out of memory";
-    case osErrorISR:
-        return "Not allowed in ISR context";
-    default:
-        return "Unknown";
-    }
-}
-
-extern "C" void EvrRtxKernelError (int32_t status)
-{
-    error("Kernel error %i: %s\r\n", status, error_msg(status));
-}
-
-extern "C" void EvrRtxThreadError (osThreadId_t thread_id, int32_t status)
-{
-    error("Thread %p error %i: %s\r\n", thread_id, status, error_msg(status));
-}
-
-extern "C" void EvrRtxTimerError (osTimerId_t timer_id, int32_t status)
-{
-    error("Timer %p error %i: %s\r\n", timer_id, status, error_msg(status));
-}
-
-extern "C" void EvrRtxEventFlagsError (osEventFlagsId_t ef_id, int32_t status)
-{
-    error("Event %p error %i: %s\r\n", ef_id, status, error_msg(status));
-}
-
-extern "C" void EvrRtxMutexError (osMutexId_t mutex_id, int32_t status)
-{
-    error("Mutex %p error %i: %s\r\n", mutex_id, status, error_msg(status));
-}
-
-extern "C" void EvrRtxSemaphoreError (osSemaphoreId_t semaphore_id, int32_t status)
-{
-    // Ignore semaphore overflow, the count will saturate with a returned error
-    if (status == osRtxErrorSemaphoreCountLimit) {
-        return;
-    }
-
-    error("Semaphore %p error %i\r\n", semaphore_id, status);
-}
-
-extern "C" void EvrRtxMemoryPoolError (osMemoryPoolId_t mp_id, int32_t status)
-{
-    error("Memory Pool %p error %i\r\n", mp_id, status);
-}
-
-extern "C" void EvrRtxMessageQueueError (osMessageQueueId_t mq_id, int32_t status)
-{
-    error("Message Queue %p error %i\r\n", mq_id, status);
-}
-
-#endif

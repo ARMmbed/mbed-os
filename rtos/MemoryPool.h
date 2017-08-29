@@ -44,6 +44,7 @@ namespace rtos {
 */
 template<typename T, uint32_t pool_sz>
 class MemoryPool : private mbed::NonCopyable<MemoryPool<T, pool_sz> > {
+	MBED_STATIC_ASSERT(pool_sz > 0, "Invalid memory pool size. Must be greater than 0.");
 public:
     /** Create and Initialize a memory pool. */
     MemoryPool() {
@@ -83,7 +84,10 @@ public:
 
     /** Free a memory block.
       @param   block  address of the allocated memory block to be freed.
-      @return         status code that indicates the execution status of the function.
+      @return         osOK on successful deallocation, osErrorParameter if given memory block id
+                      is NULL or invalid, or osErrorResource if given memory block is in an
+                      invalid memory pool state.
+
     */
     osStatus free(T *block) {
         return osMemoryPoolFree(_id, (void*)block);
@@ -92,7 +96,8 @@ public:
 private:
     osMemoryPoolId_t             _id;
     osMemoryPoolAttr_t           _attr;
-    char                         _pool_mem[sizeof(T) * pool_sz];
+    /* osMemoryPoolNew requires that pool block size is a multiple of 4 bytes. */
+    char                         _pool_mem[((sizeof(T) + 3) & ~3) * pool_sz];
     mbed_rtos_storage_mem_pool_t _obj_mem;
 };
 
