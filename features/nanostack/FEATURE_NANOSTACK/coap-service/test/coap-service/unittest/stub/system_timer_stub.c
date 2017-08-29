@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2014-2017 ARM Limited. All Rights Reserved.
  */
 #include "ns_types.h"
 #include "timer_sys.h"

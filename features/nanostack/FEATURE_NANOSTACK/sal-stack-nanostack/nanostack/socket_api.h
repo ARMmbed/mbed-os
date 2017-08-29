@@ -107,7 +107,7 @@ extern "C" {
  * | SOCKET_TX_FAIL             | 0x50  | Socket data send failed.                                            |
  * | SOCKET_CONNECT_CLOSED      | 0x60  | TCP connection closed.                                              |
  * | SOCKET_CONNECTION_RESET    | 0x70  | TCP connection reset.                                               |
- * | SOCKET_NO_ROUTER           | 0x80  | No route available to destination.                                  |
+ * | SOCKET_NO_ROUTE            | 0x80  | No route available to destination.                                  |
  * | SOCKET_TX_DONE             | 0x90  | UDP: link layer TX ready (d_len = length of datagram).              |
  * |                            |       | TCP: some data acknowledged (d_len = data remaining in send queue)  |
  * | SOCKET_NO_RAM              | 0xA0  | No RAM available.                                                   |

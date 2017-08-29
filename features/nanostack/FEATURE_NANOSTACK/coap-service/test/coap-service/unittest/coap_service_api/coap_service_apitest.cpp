@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM. All rights reserved.
+ * Copyright (c) 2015-2017 ARM. All rights reserved.
  */
 #include "CppUTest/TestHarness.h"
 #include "test_coap_service_api.h"
@@ -48,6 +48,11 @@ TEST(coap_service_api, test_coap_service_unregister_uri)
 TEST(coap_service_api, test_coap_service_request_send)
 {
     CHECK(test_coap_service_request_send());
+}
+
+TEST(coap_service_api, test_coap_service_request_delete)
+{
+    CHECK(test_coap_service_request_delete());
 }
 
 TEST(coap_service_api, test_coap_service_response_send)

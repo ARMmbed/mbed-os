@@ -461,6 +461,17 @@ int8_t thread_test_router_id_request_send(int8_t interface_id, uint8_t status);
  */
 int8_t thread_test_joiner_router_joiner_port_set(uint16_t port);
 
+/**
+ *\brief set a router address to be requested. For a router, this address is sent
+ *\in address solicit request to leader and for leader this is the router address
+ *
+ * \param interface_id               Network Interface
+ * \param router_addr                Address requested
+ * \return 0,                        Command OK
+ * \return <0                        Command Fail
+ */
+int8_t thread_test_router_address_set(int8_t interface_id, uint16_t router_addr);
+
 #ifdef __cplusplus
 }
 #endif

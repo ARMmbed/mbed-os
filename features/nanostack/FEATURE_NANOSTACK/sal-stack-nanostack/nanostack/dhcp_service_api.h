@@ -59,6 +59,10 @@
 #define TX_OPT_MULTICAST_HOP_LIMIT_64   0x02    /**< Use multicast hop limit of 64. */
 ///@}
 
+/**
+ * /enum dhcp_instance_type
+ * /brief DHCP instance types.
+ */
 typedef enum dhcp_instance_type
 {
     DHCP_INSTANCE_CLIENT,
@@ -72,6 +76,7 @@ typedef enum dhcp_instance_type
  * until some instance acknowledges that the message belongs to it.
  * \param instance_id An instance of registered server.
  * \param msg_tr_id The message transaction ID.
+ * \param msg_name Message type.
  * \param msg_ptr An allocated message pointer. Should not deallocate unless RET_MSG_ACCEPTED returned (then responsibility of client).
  * \param msg_len The length of the message.
  *
@@ -90,6 +95,7 @@ typedef int (dhcp_service_receive_req_cb)(uint16_t instance_id, uint32_t msg_tr_
  *
  * \param instance_id An instance of a registered server.
  * \param ptr A pointer for the client object.
+ * \param msg_name Message type.
  * \param msg_ptr An allocated message pointer. Should not deallocate unless RET_MSG_ACCEPTED returned (then responsibility of client).
  * \param msg_len The length of the message.
  *
@@ -108,7 +114,7 @@ typedef int (dhcp_service_receive_resp_cb)(uint16_t instance_id, void *ptr, uint
  *
  * \param interface_id Interface for the new DHCP instance.
  * \param instance_type The type of the new DHCP instance.
- * \param A callback function to receive DHCP messages.
+ * \param receive_req_cb A callback function to receive DHCP messages.
  *
  * \return Instance ID that is used to identify the service.
  */

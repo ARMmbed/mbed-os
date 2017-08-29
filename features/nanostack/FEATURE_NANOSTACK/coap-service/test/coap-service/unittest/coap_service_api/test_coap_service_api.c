@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
  */
 #include "test_coap_service_api.h"
 #include <string.h>
@@ -211,6 +211,13 @@ bool test_coap_service_request_send()
     uint8_t buf[16];
     coap_message_handler_stub.uint16_value = 6;
     if( 6 != coap_service_request_send(0,0,&buf,0,0,0,NULL, 0,NULL,0,NULL))
+        return false;
+    return true;
+}
+
+bool test_coap_service_request_delete()
+{
+    if( 0 != coap_service_request_delete(NULL,0))
         return false;
     return true;
 }

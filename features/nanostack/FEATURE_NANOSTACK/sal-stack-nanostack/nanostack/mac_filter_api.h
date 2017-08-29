@@ -49,6 +49,10 @@
 
 #include "ns_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \brief Start MAC level filter.
  * This function can be called again if default values are modified.
@@ -190,5 +194,9 @@ int_fast8_t mac_filter_add_short(int8_t interface_id, uint16_t mac16, int16_t lq
  * \return <0 Not OK.
  */
 int_fast8_t mac_filter_add_long(int8_t interface_id, uint8_t mac64[8], int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAC_FILTER_API_H_ */
