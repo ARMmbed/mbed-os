@@ -43,7 +43,7 @@
 									{% endfor %}
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.{{u.id}}" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									{% for s in symbols %}
+									{% for s in opts['c']['defines'] %}
 									<listOptionValue builtIn="false" value="{{s}}"/>
 									{% endfor %}
 								</option>
@@ -125,7 +125,7 @@
 									{% endfor %}
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.{{u.id}}" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
-								{% for s in symbols %}
+								{% for s in opts['cpp']['defines'] %}
 									<listOptionValue builtIn="false" value="{{s}}"/>
 								{% endfor %}
 								</option>
@@ -192,7 +192,7 @@
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s.{{u.id}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s"/>
 							</tool>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.{{u.id}}" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker">
-								<option id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script.{{u.id}}" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script" value="${workspace_loc:/${ProjName}/{{opts['ld']['script']}}}" valueType="string"/>
+								<option id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script.{{u.id}}" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script" value="${ProjDirPath}/{{opts['name']}}/{{opts['ld']['script']}}" valueType="string"/>
 								{% if opts['ld']['flags'] != '' %}
 								<option id="gnu.cpp.link.option.flags.{{u.id}}" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="{{ opts['ld']['flags']|join(' ') }}" valueType="string"/>
 								{% endif %}
@@ -256,6 +256,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
 									{% endfor %}
 								</option>
+								<option id="gnu.both.asm.option.flags.{{u.id}}" superClass="gnu.both.asm.option.flags" useByScannerDiscovery="false" value="{{opts['as']['other']}}" valueType="string"/>
 								{% for item in opts['as']['otherwarnings'] %}
 								{% if item == '-W' %}
 								<option id="gnu.both.asm.option.warnings.nowarn.{{u.id}}" superClass="gnu.both.asm.option.warnings.nowarn" useByScannerDiscovery="false" value="true" valueType="boolean"/>
