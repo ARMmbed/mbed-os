@@ -1353,6 +1353,7 @@
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476VG"
+        "bootloader_supported": true
     },
     "MTS_MDOT_F405RG": {
         "inherits": ["FAMILY_STM32"],
