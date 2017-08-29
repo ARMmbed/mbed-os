@@ -74,7 +74,8 @@ struct spi_s {
 struct flash_s {
 	/*  nothing to be stored for now */
 	uint32_t dummy;
-};#ifdef __cplusplus
+};
+#ifdef __cplusplus
 }
 #endif
 
