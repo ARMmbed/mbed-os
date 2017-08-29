@@ -22,14 +22,50 @@
 
 #include "rtos/rtos_idle.h"
 #include "platform/mbed_sleep.h"
+#include "mbed_critical.h"
+#include "hal/ticker_api.h"
+#include "hal/lp_ticker_api.h"
+#include "cmsis_os2.h"
+#include "rtx_lib.h"
+#include <limits.h>
+
+static ticker_event_t idle_loop_event;
+
+void idle_loop_handler(uint32_t id)
+{
+    (void)id;
+}
 
 static void default_idle_hook(void)
 {
-    /* Sleep: ideally, we should put the chip to sleep.
-       Unfortunately, this usually requires disconnecting the interface chip (debugger).
-       This can be done, but it would break the local file system.
-    */
+#if DEVICE_LOWPOWERTIMER
+    timestamp_t time_in_sleep = 0UL;
+
+    core_util_critical_section_enter();
+    uint32_t tick_freq = svcRtxKernelGetTickFreq();
+    uint32_t ticks_to_sleep = svcRtxKernelSuspend();
+    if (ticks_to_sleep) {
+        uint64_t us_to_sleep = 1000000 * (uint64_t)ticks_to_sleep / tick_freq;
+        // Calculate the maximum period we can sleep and stay within
+        if (us_to_sleep >= UINT32_MAX) {
+            us_to_sleep = UINT32_MAX;
+        }
+
+        const ticker_data_t *lp_ticker_data = get_lp_ticker_data();
+        ticker_remove_event(lp_ticker_data, &idle_loop_event);
+        ticker_set_handler(lp_ticker_data, &idle_loop_handler);
+        timestamp_t start_time = lp_ticker_read();
+        ticker_insert_event_us(lp_ticker_data, &idle_loop_event, start_time + us_to_sleep, (uint32_t)&idle_loop_event);
+
+        sleep();
+        // calculate how long we slept
+        time_in_sleep = lp_ticker_read() - start_time;
+    }
+    svcRtxKernelResume((uint64_t)time_in_sleep * tick_freq / 1000000);
+    core_util_critical_section_exit();
+#else
     sleep();
+#endif
 }
 static void (*idle_hook_fptr)(void) = &default_idle_hook;
 
