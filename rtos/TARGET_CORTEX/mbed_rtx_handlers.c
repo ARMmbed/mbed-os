@@ -19,8 +19,17 @@
 #include "rtx_evr.h"
 #include "mbed_rtx.h"
 #include "mbed_error.h"
+#include "RTX_Config.h"
+
+#ifdef RTE_Compiler_EventRecorder
+#include "EventRecorder.h"              // Keil::Compiler:Event Recorder
+// Used from rtx_evr.c
+#define EvtRtxThreadExit               EventID(EventLevelAPI, 0xF2U, 0x19U)
+#define EvtRtxThreadTerminate          EventID(EventLevelAPI, 0xF2U, 0x1AU)
+#endif
 
 extern void rtos_idle_loop(void);
+extern void thread_terminate_hook(osThreadId_t id);
 
 __NO_RETURN void osRtxIdleThread (void *argument)
 {
@@ -136,3 +145,21 @@ void EvrRtxMessageQueueError (osMessageQueueId_t mq_id, int32_t status)
 }
 
 #endif
+
+// RTX hook which gets called when a thread terminates, using the event function to call hook
+void EvrRtxThreadExit (void)
+{
+    osThreadId_t thread_id = osThreadGetId();
+    thread_terminate_hook(thread_id);
+#if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_EXIT_DISABLE) && defined(RTE_Compiler_EventRecorder))
+    EventRecord2(EvtRtxThreadExit, 0U, 0U);
+#endif
+}
+
+void EvrRtxThreadTerminate (osThreadId_t thread_id)
+{
+    thread_terminate_hook(thread_id);
+#if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_TERMINATE_DISABLE) && defined(RTE_Compiler_EventRecorder))
+    EventRecord2(EvtRtxThreadTerminate, (uint32_t)thread_id, 0U);
+#endif
+}
