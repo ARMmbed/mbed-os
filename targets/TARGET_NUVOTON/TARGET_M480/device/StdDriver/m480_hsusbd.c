@@ -294,7 +294,7 @@ void HSUSBD_StandardRequest(void)
     if ((gUsbCmd.bmRequestType & 0x80ul) == 0x80ul) { /* request data transfer direction */
         /* Device to host */
         switch (gUsbCmd.bRequest) {
-        case GET_CONFIGURATION: {
+        case USBD_GET_CONFIGURATION: {
             /* Return current configuration setting */
             HSUSBD_PrepareCtrlIn((uint8_t *)&g_hsusbd_UsbConfig, 1ul);
 
@@ -302,14 +302,14 @@ void HSUSBD_StandardRequest(void)
             HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_INTKIEN_Msk);
             break;
         }
-        case GET_DESCRIPTOR: {
+        case USBD_GET_DESCRIPTOR: {
             if (!HSUSBD_GetDescriptor()) {
                 HSUSBD_CLR_CEP_INT_FLAG(HSUSBD_CEPINTSTS_INTKIF_Msk);
                 HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_INTKIEN_Msk);
             }
             break;
         }
-        case GET_INTERFACE: {
+        case USBD_GET_INTERFACE: {
             /* Return current interface setting */
             HSUSBD_PrepareCtrlIn((uint8_t *)&g_hsusbd_UsbAltInterface, 1ul);
 
@@ -317,7 +317,7 @@ void HSUSBD_StandardRequest(void)
             HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_INTKIEN_Msk);
             break;
         }
-        case GET_STATUS: {
+        case USBD_GET_STATUS: {
             /* Device */
             if (gUsbCmd.bmRequestType == 0x80ul) {
                 if ((g_hsusbd_sInfo->gu8ConfigDesc[7] & 0x40ul) == 0x40ul) {
@@ -350,7 +350,7 @@ void HSUSBD_StandardRequest(void)
     } else {
         /* Host to device */
         switch (gUsbCmd.bRequest) {
-        case CLEAR_FEATURE: {
+        case USBD_CLEAR_FEATURE: {
             if((gUsbCmd.wValue & 0xfful) == FEATURE_ENDPOINT_HALT) {
 
                 uint32_t epNum, i;
@@ -370,7 +370,7 @@ void HSUSBD_StandardRequest(void)
             HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_STSDONEIEN_Msk);
             break;
         }
-        case SET_ADDRESS: {
+        case USBD_SET_ADDRESS: {
             g_hsusbd_UsbAddr = (uint8_t)gUsbCmd.wValue;
             /* Status Stage */
             HSUSBD_CLR_CEP_INT_FLAG(HSUSBD_CEPINTSTS_STSDONEIF_Msk);
@@ -378,7 +378,7 @@ void HSUSBD_StandardRequest(void)
             HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_STSDONEIEN_Msk);
             break;
         }
-        case SET_CONFIGURATION: {
+        case USBD_SET_CONFIGURATION: {
             g_hsusbd_UsbConfig = (uint8_t)gUsbCmd.wValue;
             g_hsusbd_Configured = (uint8_t)1ul;
             /* Status stage */
@@ -387,7 +387,7 @@ void HSUSBD_StandardRequest(void)
             HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_STSDONEIEN_Msk);
             break;
         }
-        case SET_FEATURE: {
+        case USBD_SET_FEATURE: {
             if ((gUsbCmd.wValue & 0x3ul) == 2ul) {  /* TEST_MODE */
                 g_hsusbd_EnableTestMode = (uint8_t)1ul;
                 g_hsusbd_TestSelector = (uint8_t)(gUsbCmd.wIndex >> 8);
@@ -402,7 +402,7 @@ void HSUSBD_StandardRequest(void)
             HSUSBD_ENABLE_CEP_INT(HSUSBD_CEPINTEN_STSDONEIEN_Msk);
             break;
         }
-        case SET_INTERFACE: {
+        case USBD_SET_INTERFACE: {
             g_hsusbd_UsbAltInterface = (uint8_t)gUsbCmd.wValue;
             if (g_hsusbd_pfnSetInterface != NULL) {
                 g_hsusbd_pfnSetInterface((uint32_t)g_hsusbd_UsbAltInterface);
@@ -442,11 +442,11 @@ void HSUSBD_StandardRequest(void)
 void HSUSBD_UpdateDeviceState(void)
 {
     switch (gUsbCmd.bRequest) {
-    case SET_ADDRESS: {
+    case USBD_SET_ADDRESS: {
         HSUSBD_SET_ADDR(g_hsusbd_UsbAddr);
         break;
     }
-    case SET_CONFIGURATION: {
+    case USBD_SET_CONFIGURATION: {
         if (g_hsusbd_UsbConfig == 0ul) {
             uint32_t volatile i;
             /* Reset PID DATA0 */
@@ -458,7 +458,7 @@ void HSUSBD_UpdateDeviceState(void)
         }
         break;
     }
-    case SET_FEATURE: {
+    case USBD_SET_FEATURE: {
         if(gUsbCmd.wValue == FEATURE_ENDPOINT_HALT) {
             uint32_t idx;
             idx = (uint32_t)(gUsbCmd.wIndex & 0xFul);
@@ -479,7 +479,7 @@ void HSUSBD_UpdateDeviceState(void)
         }
         break;
     }
-    case CLEAR_FEATURE: {
+    case USBD_CLEAR_FEATURE: {
         if(gUsbCmd.wValue == FEATURE_ENDPOINT_HALT) {
             uint32_t idx;
             idx = (uint32_t)(gUsbCmd.wIndex & 0xFul);

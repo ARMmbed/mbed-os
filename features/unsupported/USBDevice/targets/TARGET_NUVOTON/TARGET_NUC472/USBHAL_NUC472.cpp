@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if defined(TARGET_NUMAKER_PFM_NUC472)
+#if defined(TARGET_NUC472)
 
 #include "USBHAL.h"
 #include "NUC472_442.h"
