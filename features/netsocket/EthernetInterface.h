@@ -20,7 +20,6 @@
 #include "nsapi.h"
 #include "rtos.h"
 #include "hal/emac_api.h"
-#include "lwip/api.h"
 
 // Forward declaration
 class NetworkStack;
@@ -109,7 +108,7 @@ protected:
     virtual NetworkStack *get_stack();
 
     bool _dhcp;
-    char _ip_address[IPADDR_STRLEN_MAX];
+    char _ip_address[NSAPI_IPv6_SIZE];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
     nsapi_stack_t _stack;
