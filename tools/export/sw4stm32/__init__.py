@@ -15,11 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import copy
-
-from os import walk, sep
-from os.path import splitext, basename, join, dirname, relpath
-from random import randint
+from os.path import splitext, basename, join
 from tools.utils import mkdir
 from tools.export.gnuarmeclipse import GNUARMEclipse
 from tools.export.gnuarmeclipse import UID
@@ -264,44 +260,6 @@ class Sw4STM32(GNUARMEclipse):
         settings = join(self.export_dir, dir_name)
         mkdir(settings)
 
-    def build_excludelist(self):
-        """
-        This method creates list for excluded directories.
-        """
-        self.source_folders = [self.filter_dot(s)
-                               for s in set(dirname(src) for src in
-                                            self.resources.c_sources +
-                                            self.resources.cpp_sources +
-                                            self.resources.s_sources)]
-        if '.' in self.source_folders:
-            self.source_folders.remove('.')
-
-        top_folders = [f for f in set(s.split('/')[0]
-                                      for s in self.source_folders)]
-
-        for top_folder in top_folders:
-            for root, dirs, files in walk(top_folder, topdown=True):
-                # Paths returned by os.walk() must be split with os.dep
-                # to accomodate Windows weirdness.
-                parts = root.split(sep)
-                self.remove_unused('/'.join(parts))
-
-    def remove_unused(self, path):
-        """
-        Method for checking if path is needed.
-        Method adds path to excluded list if not needed
-        and is not subdirectory of already excluded directory
-        """
-        found = path in self.include_path
-        needtoadd = True
-        if not found:
-            for directory in self.exclude_dirs:
-                # Do not exclude subfolders from excluded folder
-                if directory + '/' in path:
-                    needtoadd = False
-            if needtoadd:
-                self.exclude_dirs.append(path)
-
     def get_fpu_hardware(self, fpu_unit):
         """
         Convert fpu unit name into hardware name.
@@ -394,20 +352,14 @@ class Sw4STM32(GNUARMEclipse):
                              for s in self.resources.inc_dirs]
         print ('Include folders: {0}'.format(len(self.include_path)))
 
-        self.exclude_dirs = []
-        self.build_excludelist()
+        self.compute_exclusions()
 
-        print ('Exclude folders: {0}'.format(len(self.exclude_dirs)))
-
-        self.exclude_dirs = '|'.join(self.exclude_dirs)
+        print ('Exclude folders: {0}'.format(len(self.excluded_folders)))
 
         ld_script = self.filter_dot(self.resources.linker_script)
         print ('Linker script:   {0}'.format(ld_script))
 
         lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
-
-        symbols = [s.replace('"', '&quot;')
-                   for s in self.toolchain.get_symbols()]
 
         for id in ['debug', 'release']:
             opts = {}
@@ -454,7 +406,13 @@ class Sw4STM32(GNUARMEclipse):
 
             self.process_sw_options(opts, flags)
 
-            opts['as']['defines'] = self.as_defines
+            if opts['as']['usepreprocessor']:
+                opts['as']['other'] += ' -x assembler-with-cpp'
+            for as_def in self.as_defines:
+                if '=' in as_def:
+                    opts['as']['other'] += ' -Wa,--defsym ' + as_def
+                else:
+                    opts['as']['other'] += ' -Wa,--defsym ' + as_def + '=1'
             opts['c']['defines'] = self.c_defines
             opts['cpp']['defines'] = self.cpp_defines
 
@@ -481,12 +439,11 @@ class Sw4STM32(GNUARMEclipse):
             'name': self.project_name,
             'include_paths': self.include_path,
             'config_header': config_header,
-            'exclude_paths': self.exclude_dirs,
+            'exclude_paths': '|'.join(self.excluded_folders),
             'ld_script': ld_script,
             'library_paths': lib_dirs,
             'object_files': self.resources.objects,
             'libraries': libraries,
-            'symbols': symbols,
             'board_name': self.BOARDS[self.target.upper()]['name'],
             'mcu_name': self.BOARDS[self.target.upper()]['mcuId'],
             'cpp_cmd': " ".join(self.toolchain.preproc),
