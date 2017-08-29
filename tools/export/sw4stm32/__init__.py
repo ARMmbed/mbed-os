@@ -342,9 +342,10 @@ class Sw4STM32(GNUARMEclipse):
         ]
 
         profiles = self.get_all_profiles()
-
-        self.as_defines = self.toolchain.get_symbols(True)
-        self.c_defines = self.toolchain.get_symbols()
+        self.as_defines = [s.replace('"', '&quot;')
+                           for s in self.toolchain.get_symbols(True)]
+        self.c_defines = [s.replace('"', '&quot;')
+                          for s in self.toolchain.get_symbols()]
         self.cpp_defines = self.c_defines
         print 'Symbols: {0}'.format(len(self.c_defines))
 
