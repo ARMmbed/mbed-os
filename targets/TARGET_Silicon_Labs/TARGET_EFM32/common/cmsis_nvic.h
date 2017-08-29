@@ -8,7 +8,7 @@
 #define NVIC_NUM_VECTORS        (16 + EXT_IRQ_COUNT)     // CORE + MCU Peripherals
 
 /* For GCC, use dynamic vector table placement since otherwise we run into an alignment conflict */
-#if (defined (__GNUC__) && (!defined(__CC_ARM)))
+#if (defined (__GNUC__) && (!defined(__CC_ARM) && (!defined(__ARMCC_VERSION))))
 extern uint32_t __start_vector_table__;       // Dynamic vector positioning in GCC
 #define NVIC_RAM_VECTOR_ADDRESS (&__start_vector_table__)
 #else
