@@ -441,7 +441,7 @@ static inline uint32_t ram_end_address_get(void)
 uint32_t sd_check_ram_start(uint32_t sd_req_ram_start)
 {
 #if (defined(S130) || defined(S132) || defined(S332))
-#if defined ( __CC_ARM )
+#if defined ( __CC_ARM ) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t Image$$RW_IRAM1$$Base;
     const volatile uint32_t ram_start = (uint32_t) &Image$$RW_IRAM1$$Base;
 #elif defined ( __ICCARM__ )
@@ -474,7 +474,7 @@ uint32_t softdevice_enable(ble_enable_params_t * p_ble_enable_params)
     uint32_t err_code;
     uint32_t app_ram_base;
 
-#if defined ( __CC_ARM )
+#if defined ( __CC_ARM ) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t Image$$RW_IRAM1$$Base;
     const volatile uint32_t ram_start = (uint32_t) &Image$$RW_IRAM1$$Base;
 #elif defined ( __ICCARM__ )
