@@ -157,6 +157,10 @@ typedef enum {
     SW0     = PF_2,   // Switch-0
     SW1     = PB_6,   // Green / Switch-1
 
+    LED_RED   = LED1,
+    LED_GREEN = LED2,
+    LED_BLUE  = LED3,
+
     // Standardized button names
     BUTTON1 = SW0,
     BUTTON2 = SW1,
