@@ -20,7 +20,7 @@
 
 #include "rtl8195a.h"
 
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) || (__ARMCC_VERSION >= 6010050))
     extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Base[];
     extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Length[];
     #define ISR_STACK_START     (unsigned char *)(Image$$ARM_LIB_STACK$$ZI$$Base)
