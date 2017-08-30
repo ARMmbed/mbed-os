@@ -112,7 +112,7 @@ public:
      * controlPoint characteristic.
      *
      * @param[in] params
-     *     Information about the characterisitc being updated.
+     *     Information about the characteristic being updated.
      */
     virtual void onDataWritten(const GattWriteCallbackParams *params) {
         if (params->handle == controlPoint.getValueAttribute().getHandle()) {
