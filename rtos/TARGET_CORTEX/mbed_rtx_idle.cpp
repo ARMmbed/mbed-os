@@ -37,14 +37,29 @@ using namespace mbed;
 
 #ifdef MBED_TICKLESS
 
+#if (defined(NO_SYSTICK))
+/**
+ * Return an IRQ number that can be used in the absence of SysTick
+ *
+ * @return Free IRQ number that can be used
+ */
+extern "C" IRQn_Type mbed_get_m0_tick_irqn(void);
+#endif
+
 class RtosTimer : private TimerEvent {
 public:
     RtosTimer(): TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0) {
         _start_time = ticker_read_us(_ticker_data);
+#if (defined(NO_SYSTICK))
+        NVIC_SetVector(mbed_get_m0_tick_irqn(), (uint32_t)SysTick_Handler);
+        NVIC_SetPriority(mbed_get_m0_tick_irqn(), 0xFF); /* RTOS requires lowest priority */
+        NVIC_EnableIRQ(mbed_get_m0_tick_irqn());
+#else
         // Ensure SysTick has the correct priority as it is still used
         // to trigger software interrupts on each tick. The period does
         // not matter since it will never start counting.
         SysTick_Setup(16);
+#endif
     };
 
     /**
@@ -108,7 +123,11 @@ public:
 protected:
 
     void handler() {
+#if (defined(NO_SYSTICK))
+        NVIC_SetPendingIRQ(mbed_get_m0_tick_irqn());
+#else
         SCB->ICSR = SCB_ICSR_PENDSTSET_Msk;
+#endif
         _tick++;
     }
 
