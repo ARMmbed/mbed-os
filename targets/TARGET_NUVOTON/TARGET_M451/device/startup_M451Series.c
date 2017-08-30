@@ -47,7 +47,7 @@ void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 
 /* Initialize segments */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
 extern void __main(void);
 #elif defined(__ICCARM__)
@@ -152,7 +152,7 @@ WEAK_ALIAS_FUNC(SC0_IRQHandler, Default_Handler)        // 58:
 WEAK_ALIAS_FUNC(TK_IRQHandler, Default_Handler)         // 63:
 
 /* Vector table */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 __attribute__ ((section("RESET")))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
@@ -164,7 +164,7 @@ const uint32_t __vector_handlers[] = {
 #endif
 
     /* Configure Initial Stack Pointer, using linker-generated symbols */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
 #elif defined(__ICCARM__)
     //(uint32_t) __sfe("CSTACK"),
@@ -279,7 +279,7 @@ void Reset_Handler(void)
     /* Enable register write-protection function */
     SYS_LockReg();
 
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     __main();
     
 #elif defined(__ICCARM__)
