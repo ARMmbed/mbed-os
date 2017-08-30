@@ -19,7 +19,8 @@
 #if DEVICE_FLASH
 #include "mbed_assert.h"
 #include "cmsis.h"
-
+#include <stdlib.h>
+#include <string.h>
 
   #define MEMMAP     (*((volatile unsigned long *) 0x400FC040))
 
@@ -109,9 +110,21 @@ typedef void (*IAP_Entry) (unsigned long *cmd, unsigned long *stat);
 
 
 int32_t flash_program_page(flash_t *obj, uint32_t address,
-		const uint8_t *data, uint32_t size)
+		const uint8_t *datain, uint32_t size)
 {
+	uint8_t *data;
 	unsigned long n;
+	
+	if ((unsigned long)datain%4==0)//word boundary
+	{
+		data = datain;
+	}
+	else
+	{
+		data = malloc(size);
+		memcpy(data,datain,size);
+	}
+	
 
 #if SET_VALID_CODE != 0						// Set valid User Code Signature
   if (address == 0) {							  // Check for Vector Table
@@ -141,6 +154,10 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
   IAP.par[2] = 1024;						   // Fixed Page Size
   IAP.par[3] = CCLK;						   // CCLK in kHz
   IAP_Call (&IAP.cmd, &IAP.stat);			  // Call IAP Command
+  if(data !=datain)//We allocated our own memory
+  {
+	free(data);
+  }
   if (IAP.stat) return (1);					// Command Failed
 
   return (0);								  // Finished without Errors
