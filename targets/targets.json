@@ -1664,8 +1664,7 @@
     "FF1705_L151CC": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["XDOT_L151CC"],
-        "detect_code": ["8080"],
-        "extra_labels_add": ["L-TEK"]
+        "detect_code": ["8080"]
     },
     "MOTE_L152RC": {
         "inherits": ["FAMILY_STM32"],
