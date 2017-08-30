@@ -22,14 +22,16 @@
 
 #include "rtos/rtos_idle.h"
 #include "platform/mbed_sleep.h"
+#include "mbed_critical.h"
 
 static void default_idle_hook(void)
 {
-    /* Sleep: ideally, we should put the chip to sleep.
-       Unfortunately, this usually requires disconnecting the interface chip (debugger).
-       This can be done, but it would break the local file system.
-    */
+    // critical section to complete sleep with locked deepsleep
+    core_util_critical_section_enter();
+    sleep_manager_lock_deep_sleep();
     sleep();
+    sleep_manager_unlock_deep_sleep();
+    core_util_critical_section_exit();
 }
 static void (*idle_hook_fptr)(void) = &default_idle_hook;
 
