@@ -241,8 +241,7 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
-        "device_name": "LPC1768",
-        "bootloader_supported": true
+        "device_name": "LPC1768"
     },
     "ARCH_PRO": {
         "supported_form_factors": ["ARDUINO"],
@@ -254,8 +253,7 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
-        "device_name": "LPC1768",
-        "bootloader_supported": true
+        "device_name": "LPC1768"
     },
     "UBLOX_C027": {
         "supported_form_factors": ["ARDUINO"],
@@ -279,8 +277,7 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
-        "device_name": "LPC1768",
-        "bootloader_supported": true
+        "device_name": "LPC1768"
     },
     "XBED_LPC1768": {
         "inherits": ["LPCTarget"],
@@ -290,8 +287,7 @@
         "macros": ["TARGET_LPC1768"],
         "detect_code": ["1010"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
-        "device_name": "LPC1768",
-        "bootloader_supported": true
+        "device_name": "LPC1768"
     },
     "LPC810": {
         "inherits": ["LPCTarget"],
