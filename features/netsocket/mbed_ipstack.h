@@ -74,7 +74,7 @@ nsapi_error_t mbed_ipstack_bringup(emac_interface_t *emac, bool dhcp, const char
 
 /** Disconnect interface from the network
  *
- * After this call the network interface is inactive, to use it again user needs to call @mbed_ipstack_bringup again.
+ * After this call the network interface is inactive, to use it again user needs to call @a mbed_ipstack_bringup again.
  *
  * @return    NSAPI_ERROR_OK on success, or error code
  */
