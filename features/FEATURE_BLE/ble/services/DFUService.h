@@ -96,7 +96,7 @@ public:
      * chance to clean up.
      *
      * @param[in] params
-     *     Information about the characterisitc being updated.
+     *     Information about the characteristic being updated.
      */
     virtual void onDataWritten(const GattWriteCallbackParams *params) {
         if (params->handle == controlPoint.getValueHandle()) {
@@ -124,16 +124,16 @@ protected:
 protected:
     BLE          &ble;
 
-    /**< Writing to the control characteristic triggers the handover to DFU 
-      *  bootloader. At present, writing anything will do the trick - this needs
-      *  to be improved. */
+    /** Writing to the control characteristic triggers the handover to DFU
+     *  bootloader. At present, writing anything will do the trick - this needs
+     *  to be improved. */
     WriteOnlyArrayGattCharacteristic<uint8_t, SIZEOF_CONTROL_BYTES> controlPoint;
 
-    /**< The packet characteristic in this service doesn't do anything meaningful;
-      *  it is only a placeholder to mimic the corresponding characteristic in the
-      *  actual DFU service implemented by the bootloader. Without this, some
-      *  FOTA clients might get confused, because service definitions change after
-      *  handing control over to the bootloader. */
+    /** The packet characteristic in this service doesn't do anything meaningful;
+     *  it is only a placeholder to mimic the corresponding characteristic in the
+     *  actual DFU service implemented by the bootloader. Without this, some
+     *  FOTA clients might get confused, because service definitions change after
+     *  handing control over to the bootloader. */
     GattCharacteristic  packet;
 
     uint8_t             controlBytes[SIZEOF_CONTROL_BYTES];
