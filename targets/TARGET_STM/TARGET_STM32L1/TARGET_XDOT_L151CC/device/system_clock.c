@@ -91,7 +91,7 @@ void SystemInit (void)
 #if defined(__ICCARM__)
 #pragma section=".intvec"
 #define FLASH_VTOR_BASE   ((uint32_t)__section_begin(".intvec"))
-#elif defined(__CC_ARM)
+#elif defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t Load$$LR$$LR_IROM1$$Base[];
 #define FLASH_VTOR_BASE   ((uint32_t)Load$$LR$$LR_IROM1$$Base)
 #elif defined(__GNUC__)
