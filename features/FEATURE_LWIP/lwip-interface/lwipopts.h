@@ -69,10 +69,9 @@
 #error "Either IPv4 or IPv6 must be preferred."
 #endif
 
-#if defined(MBED_CONF_LWIP_DEBUG_ENABLED)
-#define LWIP_DEBUG                  MBED_CONF_LWIP_DEBUG_ENABLED
-#else
-#define LWIP_DEBUG                  0
+#undef  LWIP_DEBUG
+#if MBED_CONF_LWIP_DEBUG_ENABLED
+#define LWIP_DEBUG                  1
 #endif
 
 #if NO_SYS == 0
@@ -93,7 +92,7 @@
 #define MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE      1200
 #endif
 
-#if LWIP_DEBUG
+#ifdef LWIP_DEBUG
 #define TCPIP_THREAD_STACKSIZE      MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE*2
 #else
 #define TCPIP_THREAD_STACKSIZE      MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE
@@ -111,7 +110,7 @@
 #define MBED_CONF_LWIP_PPP_THREAD_STACKSIZE    768
 #endif
 
-#if LWIP_DEBUG
+#ifdef LWIP_DEBUG
 #define DEFAULT_THREAD_STACKSIZE    MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE*2
 #define PPP_THREAD_STACK_SIZE       MBED_CONF_LWIP_PPP_THREAD_STACKSIZE*2
 #else
@@ -250,7 +249,7 @@
 #define ETHARP_DEBUG                LWIP_DBG_OFF
 #define UDP_LPC_EMAC                LWIP_DBG_OFF
 
-#if LWIP_DEBUG
+#ifdef LWIP_DEBUG
 #define MEMP_OVERFLOW_CHECK         1
 #define MEMP_SANITY_CHECK           1
 #define LWIP_DBG_TYPES_ON           LWIP_DBG_ON
