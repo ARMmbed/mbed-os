@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -44,6 +44,8 @@ typedef struct coap_conn_handler_s{
     send_to_socket_cb *_send_cb;
     get_pw_cb *_get_password_cb;
     security_done_cb *_security_done_cb;
+    int8_t socket_interface_selection;
+    bool registered_to_multicast;
 } coap_conn_handler_t;
 
 coap_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_from_cb,
@@ -51,7 +53,7 @@ coap_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_from
                                                  get_pw_cb *pw_cb,
                                                  security_done_cb *done_cb);
 
-void connection_handler_destroy( coap_conn_handler_t *handler );
+void connection_handler_destroy( coap_conn_handler_t *handler, bool multicast_group_leave);
 
 void connection_handler_close_secure_connection( coap_conn_handler_t *handler, uint8_t destination_addr_ptr[static 16], uint16_t port );
 

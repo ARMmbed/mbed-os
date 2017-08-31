@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
  */
 
 #include <string.h>
@@ -50,6 +50,18 @@ static coap_transaction_t *transaction_find_server(uint16_t msg_id)
     coap_transaction_t *this = NULL;
     ns_list_foreach(coap_transaction_t, cur_ptr, &request_list) {
         if (cur_ptr->msg_id == msg_id && !cur_ptr->client_request) {
+            this = cur_ptr;
+            break;
+        }
+    }
+    return this;
+}
+
+static coap_transaction_t *transaction_find_client(uint16_t msg_id)
+{
+    coap_transaction_t *this = NULL;
+    ns_list_foreach(coap_transaction_t, cur_ptr, &request_list) {
+        if (cur_ptr->msg_id == msg_id && cur_ptr->client_request) {
             this = cur_ptr;
             break;
         }
@@ -168,6 +180,10 @@ coap_msg_handler_t *coap_message_handler_init(void *(*used_malloc_func_ptr)(uint
         used_free_func_ptr(handle);
         return NULL;
     }
+
+    /* Set default buffer size for CoAP duplicate message detection */
+    sn_coap_protocol_set_duplicate_buffer_size(handle->coap, DUPLICATE_MESSAGE_BUFFER_SIZE);
+
     return handle;
 }
 
@@ -388,6 +404,28 @@ int8_t coap_message_handler_response_send(coap_msg_handler_t *handle, int8_t ser
     handle->sn_coap_tx_callback(data_ptr, data_len, &dst_addr, transaction_ptr);
     sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, request_ptr);
     own_free(data_ptr);
+    return 0;
+}
+
+int8_t coap_message_handler_request_delete(coap_msg_handler_t *handle, int8_t service_id, uint16_t msg_id)
+{
+    coap_transaction_t *transaction_ptr;
+    (void)service_id;
+
+
+    tr_debug("Service %d, delete CoAP request %d", service_id, msg_id);
+    if (!handle) {
+        tr_error("invalid params");
+        return -1;
+    }
+    sn_coap_protocol_delete_retransmission(handle->coap, msg_id);
+
+    transaction_ptr = transaction_find_client(msg_id);
+    if (!transaction_ptr) {
+        tr_error("response transaction not found");
+        return -2;
+    }
+    transaction_delete(transaction_ptr);
     return 0;
 }
 

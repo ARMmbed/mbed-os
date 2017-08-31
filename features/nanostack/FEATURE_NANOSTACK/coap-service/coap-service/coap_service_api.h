@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -45,6 +45,10 @@ extern "C" {
 #define COAP_SERVICE_OPTIONS_VIRTUAL_SOCKET     0x01
 #define COAP_SERVICE_OPTIONS_SECURE 	        0x02
 #define COAP_SERVICE_OPTIONS_EPHEMERAL_PORT     0x04
+/** Coap interface selected as socket interface */
+#define COAP_SERVICE_OPTIONS_SELECT_SOCKET_IF   0x08
+/** Register to COAP multicast groups */
+#define COAP_SERVICE_OPTIONS_MULTICAST_JOIN     0x10
 /** Link-layer security bypass option is set*/
 #define COAP_SERVICE_OPTIONS_SECURE_BYPASS      0x80
 
@@ -55,6 +59,10 @@ extern "C" {
 #define COAP_REQUEST_OPTIONS_ADDRESS_SHORT      0x02
 #define COAP_REQUEST_OPTIONS_MULTICAST          0x04 //!< indicates that CoAP library support multicasting
 #define COAP_REQUEST_OPTIONS_SECURE_BYPASS      0x08
+
+extern const uint8_t COAP_MULTICAST_ADDR_LINK_LOCAL[16]; //!< ff02::fd, COAP link local multicast address
+extern const uint8_t COAP_MULTICAST_ADDR_ADMIN_LOCAL[16]; //!< ff03::fd, COAP admin-local multicast address
+extern const uint8_t COAP_MULTICAST_ADDR_SITE_LOCAL[16]; //!> ff05::fd, COAP site-local multicast address
 
 /**
  * \brief Service message response receive callback.
@@ -262,7 +270,45 @@ extern uint16_t coap_service_request_send(int8_t service_id, uint8_t options, co
  */
 extern int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hdr_s *request_ptr, sn_coap_msg_code_e message_code, sn_coap_content_format_e content_type, const uint8_t *payload_ptr,uint16_t payload_len);
 
+/**
+ * \brief Delete CoAP request transaction
+ *
+ * Removes pending CoAP transaction from service.
+ *
+ * \param service_id       Id number of the current service.
+ * \param msg_id           Message ID number.
+ *
+ * \return -1              For failure
+ *-         0              For success
+ */
+extern int8_t coap_service_request_delete(int8_t service_id, uint16_t msg_id);
+
+/**
+ * \brief Set DTLS handshake timeout values
+ *
+ * Configures the DTLS handshake timeout values.
+ *
+ * \param service_id       Id number of the current service.
+ * \param min              Initial timeout value.
+ * \param max              Maximum value of timeout.
+ *
+ * \return -1              For failure
+ *-         0              For success
+ */
 extern int8_t coap_service_set_handshake_timeout(int8_t service_id, uint32_t min, uint32_t max);
+
+/**
+ * \brief Set CoAP duplication message buffer size
+ *
+ * Configures the CoAP duplication message buffer size.
+ *
+ * \param service_id       Id number of the current service.
+ * \param size             Buffer size (messages)
+ *
+ * \return -1              For failure
+ *-         0              For success
+ */
+extern int8_t coap_service_set_duplicate_message_buffer(int8_t service_id, uint8_t size);
 #ifdef __cplusplus
 }
 #endif

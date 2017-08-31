@@ -267,7 +267,7 @@ void USBD_StandardRequest(void)
     if((g_usbd_SetupPacket[0] & 0x80ul) == 0x80ul) {  /* request data transfer direction */
         /* Device to host */
         switch(g_usbd_SetupPacket[1]) {
-        case GET_CONFIGURATION: {
+        case USBD_GET_CONFIGURATION: {
             /* Return current configuration setting */
             /* Data stage */
             addr = USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0);
@@ -278,12 +278,12 @@ void USBD_StandardRequest(void)
             USBD_PrepareCtrlOut(0, 0ul);
             break;
         }
-        case GET_DESCRIPTOR: {
+        case USBD_GET_DESCRIPTOR: {
             USBD_GetDescriptor();
             USBD_PrepareCtrlOut(0, 0ul); /* For status stage */
             break;
         }
-        case GET_INTERFACE: {
+        case USBD_GET_INTERFACE: {
             /* Return current interface setting */
             /* Data stage */
             addr = USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP0);
@@ -294,7 +294,7 @@ void USBD_StandardRequest(void)
             USBD_PrepareCtrlOut(0, 0ul);
             break;
         }
-        case GET_STATUS: {
+        case USBD_GET_STATUS: {
             /* Device */
             if(g_usbd_SetupPacket[0] == 0x80ul) {
                 uint8_t u8Tmp;
@@ -342,7 +342,7 @@ void USBD_StandardRequest(void)
     } else {
         /* Host to device */
         switch(g_usbd_SetupPacket[1]) {
-        case CLEAR_FEATURE: {
+        case USBD_CLEAR_FEATURE: {
             if(g_usbd_SetupPacket[2] == FEATURE_ENDPOINT_HALT) {
                 uint32_t epNum, i;
 
@@ -363,7 +363,7 @@ void USBD_StandardRequest(void)
             USBD_SET_PAYLOAD_LEN(EP0, 0ul);
             break;
         }
-        case SET_ADDRESS: {
+        case USBD_SET_ADDRESS: {
             g_usbd_UsbAddr = g_usbd_SetupPacket[2];
             /* Status Stage */
             USBD_SET_DATA1(EP0);
@@ -371,7 +371,7 @@ void USBD_StandardRequest(void)
 
             break;
         }
-        case SET_CONFIGURATION: {
+        case USBD_SET_CONFIGURATION: {
             g_usbd_UsbConfig = g_usbd_SetupPacket[2];
 
             if(g_usbd_pfnSetConfigCallback) {
@@ -383,7 +383,7 @@ void USBD_StandardRequest(void)
             USBD_SET_PAYLOAD_LEN(EP0, 0ul);
             break;
         }
-        case SET_FEATURE: {
+        case USBD_SET_FEATURE: {
             if( (g_usbd_SetupPacket[0] & 0xFul) == 0ul ) { /* 0: device */
                 if((g_usbd_SetupPacket[2] == 3ul) && (g_usbd_SetupPacket[3] == 0ul)) { /* 3: HNP enable */
                     OTG->CTL |= (OTG_CTL_HNPREQEN_Msk | OTG_CTL_BUSREQ_Msk);
@@ -401,7 +401,7 @@ void USBD_StandardRequest(void)
 
             break;
         }
-        case SET_INTERFACE: {
+        case USBD_SET_INTERFACE: {
             g_usbd_UsbAltInterface = g_usbd_SetupPacket[2];
             if(g_usbd_pfnSetInterface != NULL) {
                 g_usbd_pfnSetInterface(g_usbd_UsbAltInterface);
@@ -491,7 +491,7 @@ void USBD_CtrlIn(void)
         }
     } else {
         /* In ACK for Set address */
-        if((g_usbd_SetupPacket[0] == REQ_STANDARD) && (g_usbd_SetupPacket[1] == SET_ADDRESS)) {
+        if((g_usbd_SetupPacket[0] == REQ_STANDARD) && (g_usbd_SetupPacket[1] == USBD_SET_ADDRESS)) {
             addr = USBD_GET_ADDR();
             if((addr != g_usbd_UsbAddr) && (addr == 0ul)) {
                 USBD_SET_ADDR(g_usbd_UsbAddr);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM. All rights reserved.
+ * Copyright (c) 2015-2017 ARM. All rights reserved.
  */
 #include "CppUTest/TestHarness.h"
 #include "test_coap_message_handler.h"
@@ -45,8 +45,14 @@ TEST(coap_message_handler, test_coap_message_handler_response_send)
     CHECK(test_coap_message_handler_response_send());
 }
 
+TEST(coap_message_handler, test_coap_message_handler_request_delete)
+{
+    CHECK(test_coap_message_handler_request_delete());
+}
+
 TEST(coap_message_handler, test_coap_message_handler_exec)
 {
     CHECK(test_coap_message_handler_exec());
 }
+
 

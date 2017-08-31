@@ -35,8 +35,9 @@ extern "C" {
 /*
  * Current protocol version of the Thread implementation.
  */
-#define THREAD_BEACON_PROTOCOL_ID       3
-#define THREAD_BEACON_PROTOCOL_VERSION  1
+#define THREAD_BEACON_PROTOCOL_ID       3   /**< Beacon Protocol ID */
+#define THREAD_BEACON_PROTOCOL_VERSION  1   /**< Beacon Protocol version */
+
 /**
  * Thread network configuration.
  *
@@ -63,8 +64,8 @@ typedef struct link_configuration {
     uint8_t extended_random_mac[8]; /**< Extended random mac which is generated during commissioning*/
     uint8_t channel_mask[8]; /**< channel page and mask only supported is page 0*/
     uint8_t channel_page;/**< channel page supported pages 0*/
-    char *PSKc_ptr; /**< Commissioning credentials @TODO think if we need the actual credentials*/
-    uint8_t PSKc_len;
+    char *PSKc_ptr; /**< Commissioning credentials.  TODO! think if we need the actual credentials*/
+    uint8_t PSKc_len; /**< Length of PSKc */
     uint16_t key_rotation; /**< Key rotation time in hours*/
     uint32_t key_sequence; /**< Key sequence counter */
     uint16_t panId; /**< network id*/
@@ -93,7 +94,7 @@ typedef struct link_configuration {
 typedef struct {
     uint8_t eui64[8];/**< eui64 of the device. This field is used to identify device when joining to network Mandatory*/
     uint8_t *PSKd_ptr;/**< Device credentials used to authenticate device to commissioner Mandatory  length 6-32*/
-    uint8_t PSKd_len;
+    uint8_t PSKd_len;/**< Length of PSKd_ptr*/
     char *provisioning_uri_ptr;/**< Provisioning url max 64 bytes*/
     char *vendor_name_ptr;/**< Vendor name optional max 32 bytes*/
     char *vendor_model_ptr;/**< Vendor model optional max 32 bytes*/
@@ -108,7 +109,7 @@ typedef struct {
  * Initialize Thread stack to node mode.
  *
  * If static configuration is given and new one is updated by commissioner
- * it will override current setup. it is save to always give this as
+ * it will override current setup. it is safe to always give this as
  * default configuration.
  *
  * \param interface_id Network interface ID.
@@ -154,7 +155,6 @@ typedef enum {
  * \return 0, Set OK.
  * \return <0 Set fail.
  */
-
 int thread_management_device_type_set(int8_t interface_id, thread_device_type_e device_type);
 
 /**
@@ -206,7 +206,7 @@ int thread_management_link_configuration_delete(int8_t interface_id);
  *
  * \param interface_id Network interface ID.
  *
- * \return Pointer to link configuration.
+ * \return Pointer to Device configuration.
  * \return NULL Failure.
  */
 device_configuration_s *thread_management_device_configuration_get(int8_t interface_id);
@@ -227,10 +227,10 @@ int thread_management_max_child_count(
     uint8_t maxChildCount);
 
 /**
- * Get Thread device link timeout.
+ * Set Thread device link timeout.
  *
  * \param interface_id Network interface ID.
- * \link_timeout New timeout value in seconds.
+ * \param link_timeout New timeout value in seconds.
  *
  * \return 0, Set OK.
  * \return <0 Set Fail.
@@ -238,10 +238,10 @@ int thread_management_max_child_count(
 int8_t thread_management_set_link_timeout(int8_t interface_id, uint32_t link_timeout);
 
 /**
- * Set link timeout for Thread device.
+ * Get link timeout from Thread device.
  *
  * \param interface_id Network interface ID.
- * \link_timeout[out] A pointer to the location for writing the timeout.
+ * \param link_timeout [out] A pointer to the location for writing the timeout.
  *
  * \return 0, Get OK
  * \return <0 Get Fail
@@ -263,7 +263,8 @@ int8_t thread_management_set_request_full_nwk_data(int8_t interface_id, bool ful
  * Get Thread request full network data.
  *
  * \param interface_id Network interface ID.
- * \link_timeout[out] A pointer to the location for writing the flag value.
+ * \param link_timeout [out] A pointer to the location for writing the flag value.
+ * \param full_nwk_data Request full network data
  *
  * \return 0, Get OK.
  * \return <0 Get Fail.
