@@ -404,18 +404,6 @@ uint32_t HAL_GetDEVID(void)
 }
 
 /**
-  * @brief Return the unique device identifier (UID based on 96 bits)
-  * @param UID: pointer to 3 words array.
-  * @retval Device identifier
-  */
-void HAL_GetUID_12Byte(uint32_t *UID)
-{
-    UID[0] = (uint32_t)(READ_REG(*((uint32_t *)UID_BASE)));
-    UID[1] = (uint32_t)(READ_REG(*((uint32_t *)(UID_BASE + 4U))));
-    UID[2] = (uint32_t)(READ_REG(*((uint32_t *)(UID_BASE + 8U))));
-}
-
-/**
   * @brief  Return the first word of the unique device identifier (UID based on 96 bits)
   * @retval Device identifier
   */
