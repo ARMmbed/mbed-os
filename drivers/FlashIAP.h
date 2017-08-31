@@ -112,6 +112,7 @@ public:
 
     /** Get the program page size
      *
+     *  The page size defines the writable page size
      *  @return Size of a program page in bytes
      */
     uint32_t get_page_size() const;
