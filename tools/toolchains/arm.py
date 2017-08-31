@@ -22,7 +22,7 @@ from tempfile import mkstemp
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
-from tools.utils import mkdir
+from tools.utils import mkdir, NotSupportedException
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -275,6 +275,9 @@ class ARMC6(ARM_STD):
 
     def __init__(self, target, *args, **kwargs):
         mbedToolchain.__init__(self, target, *args, **kwargs)
+
+        if "ARM" not in target.supported_toolchains:
+            raise NotSupportedException("ARM compiler support is required for ARMC6 support")
 
         if target.core.lower().endswith("fd"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-2])
