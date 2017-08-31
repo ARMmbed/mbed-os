@@ -1037,6 +1037,7 @@ void SDBlockDevice::_spi_init() {
 
 void SDBlockDevice::_select() {
     _spi.lock();
+    _spi.write(SPI_FILL_CHAR);
     _cs = 0;
 }
 
