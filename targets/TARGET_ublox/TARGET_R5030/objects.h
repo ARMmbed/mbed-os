@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifndef MBED_OBJECTS_H
+#define MBED_OBJECTS_H
 
-#if defined(TARGET_HI2110)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x01000000 + 0x05000 - 256)
-#endif
-#endif
+#include "cmsis.h"
+//#include "PortNames.h"
+//#include "PeripheralNames.h"
+//#include "PinNames.h"
+#include "stdbool.h"
 
-#if defined(TARGET_R5030)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x01000000 + 0x05000 - 256)
-#endif
-#else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#endif  // MBED_MBED_RTX_H
+
+//#include "gpio_object.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
