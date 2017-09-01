@@ -54,7 +54,7 @@ if (!isdefinedsymbol(MBED_APP_START)) {
 }
 
 if (!isdefinedsymbol(MBED_APP_SIZE)) {
-    define symbol MBED_APP_SIZE = 0x100000;
+    define symbol MBED_APP_SIZE = 0x200000;
 }
 
 define symbol __ram_vector_table_size__ =  isdefinedsymbol(__ram_vector_table__) ? 0x00000400 : 0;
@@ -120,4 +120,3 @@ place in DATA_region                        { block ZI };
 place in DATA_region                        { last block HEAP };
 place in CSTACK_region                      { block CSTACK };
 place in m_interrupts_ram_region            { section m_interrupts_ram };
-
