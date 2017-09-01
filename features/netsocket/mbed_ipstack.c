@@ -5,7 +5,7 @@
 
 #include "platform/mbed_toolchain.h"
 #include "mbed_ipstack.h"
-#include "ns_trace.h"
+#include "mbed_trace.h"
 
 #define TRACE_GROUP "mbed_ipstack"
 
