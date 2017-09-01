@@ -16,7 +16,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="elf" artifactName="${ProjName}-{{cfg_id}}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.{{cfg_id}}" cleanCommand="rm -rf" description="" id="fr.ac6.managedbuild.config.gnu.cross.exe.{{cfg_id}}.{{opts['uid']['config']}}" name="{{opts['name']}}" parent="fr.ac6.managedbuild.config.gnu.cross.exe.{{cfg_id}}" postannouncebuildStep="Generating binary and Printing size information:" postbuildStep="arm-none-eabi-objcopy -O binary &quot;${BuildArtifactFileBaseName}.elf&quot; &quot;${ProjName}.bin&quot; &amp;&amp; arm-none-eabi-size -B &quot;${BuildArtifactFileName}&quot;">
+				<configuration artifactExtension="elf" artifactName="${ProjName}-{{cfg_id}}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.{{cfg_id}}" cleanCommand="rm -rf" description="" id="fr.ac6.managedbuild.config.gnu.cross.exe.{{cfg_id}}.{{opts['uid']['config']}}" name="{{opts['name']}}" parent="fr.ac6.managedbuild.config.gnu.cross.exe.{{cfg_id}}" postannouncebuildStep="Generating binary and Printing size information:" postbuildStep="arm-none-eabi-objcopy -O binary &quot;${BuildArtifactFileBaseName}.elf&quot; &quot;${ProjName}.bin&quot; &amp;&amp; arm-none-eabi-size -B &quot;${BuildArtifactFileName}&quot; &amp;&amp; make ldclean">
 					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.{{cfg_id}}.{{opts['uid']['config']}}." name="/" resourcePath="">
 						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.exe.{{cfg_id}}.{{u.id}}" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.exe.{{cfg_id}}">
 							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.{{u.id}}" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu" value="{{mcu_name}}" valueType="string"/>
@@ -107,6 +107,9 @@
 								{% endif %}
 								{% if opts['common']['optimization.functionsections'] %}
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.ffunction.{{u.id}}" name="Place the function in their own section (-ffunction-sections)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.ffunction" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								{% endif %}
+								{% if opts['c']['other'] != '' %}
+								<option id="fr.ac6.managedbuid.gnu.c.compiler.option.misc.other.{{u.id}}" name="Other flags" superClass="fr.ac6.managedbuid.gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="{{opts['c']['other']}}" valueType="string"/>
 								{% endif %}
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.{{opts['uid']['tool_c_compiler_input']}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.{{u.id}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
