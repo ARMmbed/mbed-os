@@ -228,5 +228,11 @@
         "CExtraOptionsCheck": 1,
         "CExtraOptions": "--drv_vector_table_base=0x0",
         "CMSISDAPJtagSpeedList": 10
+    },
+    "ADuCM3029": {
+        "OGChipSelectEditMenu": "ADuCM3029\tAnalogDevices ADuCM3029"
+    },
+    "ADuCM4050": {
+        "OGChipSelectEditMenu": "ADuCM4050\tAnalogDevices ADuCM4050"
     }
 }
