@@ -39,7 +39,10 @@ def test_device_name():
 
 @contextmanager
 def temp_target_file(extra_target, json_filename='custom_targets.json'):
-    """Create an extra targets temp file in a context manager"""
+    """Create an extra targets temp file in a context manager
+
+    :param extra_target: the contents of the extra targets temp file
+    """
     tempdir = tempfile.mkdtemp()
     try:
         targetfile = os.path.join(tempdir, json_filename)
@@ -67,7 +70,7 @@ def test_add_extra_targets():
 
         assert 'Test_Target' in TARGET_MAP
         assert TARGET_MAP['Test_Target'].core is None, \
-                "attributes should be inherited from Target"
+            "attributes should be inherited from Target"
 
 def test_modify_existing_target():
     """Set default targets file, then override base Target definition"""
