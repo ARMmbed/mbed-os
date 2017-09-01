@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2011-2016 ARM Limited
+Copyright (c) 2011-2017 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,8 +27,12 @@ from tools.build_api import get_config
 from tools.targets import set_targets_json_location, Target, TARGET_NAMES
 from tools.config import ConfigException, Config
 
-# Compare the output of config against a dictionary of known good results
 def compare_config(cfg, expected):
+    """Compare the output of config against a dictionary of known good results
+
+    :param cfg: the configuration to check
+    :param expected: what to expect in that config
+    """
     try:
         for k in cfg:
             if cfg[k].value != expected[k]:
@@ -41,16 +45,28 @@ def compare_config(cfg, expected):
     return ""
 
 def data_path(path):
+    """The expected data file for a particular test
+
+    :param path: the path to the test
+    """
     return join(path, "test_data.json")
 
 def is_test(path):
+    """Does a directory represent a test?
+
+    :param path: the path to the test
+    """
     return isfile(data_path(path))
 
 root_dir = abspath(dirname(__file__))
 
 @pytest.mark.parametrize("name", filter(lambda d: is_test(join(root_dir, d)),
-                                             os.listdir(root_dir)))
+                                        os.listdir(root_dir)))
 def test_config(name):
+    """Run a particular configuration test
+
+    :param name: test name (same as directory name)
+    """
     test_dir = join(root_dir, name)
     test_data = json.load(open(data_path(test_dir)))
     targets_json = os.path.join(test_dir, "targets.json")
@@ -81,9 +97,7 @@ def test_init_app_config(target):
     """
     Test that the initialisation correctly uses app_config
 
-    :param mock_json_file_to_dict: mock of function json_file_to_dict
-    :param _: mock of function _process_config_and_overrides (not tested)
-    :return:
+    :param target: The target to use
     """
     set_targets_json_location()
     with patch.object(Config, '_process_config_and_overrides'),\
@@ -103,9 +117,7 @@ def test_init_no_app_config(target):
     """
     Test that the initialisation works without app config
 
-    :param mock_json_file_to_dict: mock of function json_file_to_dict
-    :param _: patch of function _process_config_and_overrides (not tested)
-    :return:
+    :param target: The target to use
     """
     set_targets_json_location()
     with patch.object(Config, '_process_config_and_overrides'),\
@@ -122,9 +134,7 @@ def test_init_no_app_config_with_dir(target):
     Test that the initialisation works without app config and with a
     specified top level directory
 
-    :param mock_json_file_to_dict: mock of function json_file_to_dict
-    :param _: patch of function _process_config_and_overrides (not tested)
-    :return:
+    :param target: The target to use
     """
     set_targets_json_location()
     with patch.object(Config, '_process_config_and_overrides'),\
@@ -149,9 +159,7 @@ def test_init_override_app_config(target):
     Test that the initialisation uses app_config instead of top_level_dir
     when both are specified
 
-    :param mock_json_file_to_dict: mock of function json_file_to_dict
-    :param _: patch of function _process_config_and_overrides (not tested)
-    :return:
+    :param target: The target to use
     """
     set_targets_json_location()
     with patch.object(Config, '_process_config_and_overrides'),\

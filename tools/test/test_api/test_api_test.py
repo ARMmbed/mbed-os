@@ -42,9 +42,10 @@ def test_find_tests_app_config(base_dir, target, toolchain_name, app_config):
     """
     Test find_tests for correct use of app_config
 
-    :param mock_prepare_toolchain: mock of function prepare_toolchain
-    :param mock_scan_resources: mock of function scan_resources
-    :return:
+    :param base_dir: dummy value for the test base directory
+    :param target: the target to "test" for
+    :param toolchain_name: the toolchain to use for "testing"
+    :param app_config: Application configuration parameter to find tests
     """
     set_targets_json_location()
     with patch('tools.test_api.scan_resources') as mock_scan_resources,\
@@ -68,9 +69,10 @@ def test_find_tests_app_config(build_path, target, toolchain_name, app_config):
     """
     Test find_tests for correct use of app_config
 
-    :param mock_prepare_toolchain: mock of function prepare_toolchain
-    :param mock_scan_resources: mock of function scan_resources
-    :return:
+    :param base_dir: dummy value for the test base directory
+    :param target: the target to "test" for
+    :param toolchain_name: the toolchain to use for "testing"
+    :param app_config: Application configuration parameter to find tests
     """
     tests = {'test1': 'test1_path','test2': 'test2_path'}
     src_paths = ['.']

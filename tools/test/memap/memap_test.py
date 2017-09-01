@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2016 ARM Limited
+Copyright (c) 2017 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ def memap_parser():
             ".flash_config":0,
             "unknown":0,
             "OUTPUT":0,
-            },
+        },
         "[lib]/libc.a/lib_a-printf.o": {
             ".text": 4,
             ".data": 5,
@@ -84,7 +84,7 @@ def memap_parser():
             ".flash_config":0,
             "unknown":0,
             "OUTPUT":0,
-            },
+        },
         "main.o": {
             ".text": 7,
             ".data": 8,
@@ -108,7 +108,7 @@ def memap_parser():
             ".flash_config":0,
             "unknown":0,
             "OUTPUT":0,
-            },
+        },
         "test.o": {
             ".text": 0,
             ".data": 0,
@@ -132,7 +132,7 @@ def memap_parser():
             ".flash_config":0,
             "unknown":0,
             "OUTPUT":0,
-            },
+        },
     }
     return memap_parser
 
@@ -142,8 +142,10 @@ def generate_test_helper(memap_parser, format, depth, file_output=None):
     Helper that tests that the member variables "modules" is
     unchanged after calling "generate_output"
 
-    :param output_type: type string that is passed to "generate_output"
-    :param file_output: path to output file that is passed to "generate_output"
+    :param memap_parser: the parser object
+    :param depth: how much detail to put in the report
+    :param format:  the file type to output
+    :param file_output: the file to output to
     """
 
     old_modules = deepcopy(memap_parser.modules)
@@ -158,6 +160,9 @@ def generate_test_helper(memap_parser, format, depth, file_output=None):
 def test_report_computed(memap_parser, depth):
     """
     Test that a report and summary are computed
+
+    :param memap_parser: Mocked parser
+    :param depth: the detail of the output
     """
 
     memap_parser.generate_output('table', depth)
@@ -171,6 +176,8 @@ def test_report_computed(memap_parser, depth):
 def test_generate_output_table(memap_parser, depth):
     """
     Test that an output of type "table" can be generated correctly
+    :param memap_parser: Mocked parser
+    :param depth: the detail of the output
     """
     generate_test_helper(memap_parser, 'table', depth)
 
@@ -179,8 +186,11 @@ def test_generate_output_table(memap_parser, depth):
 def test_generate_output_json(memap_parser, tmpdir, depth):
     """
     Test that an output of type "json" can be generated correctly
+    :param memap_parser: Mocked parser
+    :param tmpdir: a unique location to place an output file
+    :param depth: the detail of the output
     """
-    file_name = str(tmpdir.join('json_test_output.json').realpath())
+    file_name = str(tmpdir.join('output.json').realpath())
     generate_test_helper(memap_parser, 'json', depth, file_name)
     assert isfile(file_name), "Failed to create json file"
     json.load(open(file_name))
@@ -191,8 +201,10 @@ def test_generate_output_csv_ci(memap_parser, tmpdir, depth):
     """
     Test ensures that an output of type "csv-ci" can be generated correctly
 
-    :return:
+    :param memap_parser: Mocked parser
+    :param tmpdir: a unique location to place an output file
+    :param depth: the detail of the output
     """
-    file_name = str(tmpdir.join('.csv_ci_test_output.csv').realpath())
+    file_name = str(tmpdir.join('output.csv').realpath())
     generate_test_helper(memap_parser, 'csv-ci', depth, file_name)
     assert isfile(file_name), "Failed to create csv-ci file"
