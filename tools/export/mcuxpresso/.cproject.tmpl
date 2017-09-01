@@ -21,7 +21,7 @@
 					<folderInfo id="com.crt.advproject.config.exe.{{opts['id']}}.{{opts['uid']['config']}}" name="/" resourcePath="">
 						<toolChain id="com.crt.advproject.toolchain.exe.{{opts['id']}}.{{u.id}}" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.{{opts['parent_id']}}">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.{{opts['id']}}.{{u.id}}" name="ARM-based MCU ({{opts['name']}})" superClass="com.crt.advproject.platform.exe.{{opts['id']}}"/>
-							<builder buildPath="${workspace_loc:/{{name}}}/{{opts['name']}}" id="com.crt.advproject.builder.exe.{{opts['id']}}.{{u.id}}" keepEnvironmentInBuildfile="false" managedBuildOn="true" parallelBuildOn="true" parallelizationNumber="optimal" name="Gnu Make Builder" superClass="com.crt.advproject.builder.exe.{{opts['id']}}"/>
+							<builder buildPath="${workspace_loc:/{{name}}}/{{opts['name']}}" cleanBuildTarget="mbedclean" id="com.crt.advproject.builder.exe.{{opts['id']}}.{{u.id}}" incrementalBuildTarget="{{opts['ld']['script']}} all" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="com.crt.advproject.builder.exe.{{opts['id']}}"/>
 
 							<tool id="com.crt.advproject.cpp.exe.{{opts['id']}}.{{opts['uid']['tool_cpp_compiler']}}" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.{{opts['id']}}">
 								<option id="com.crt.advproject.cpp.specs.{{u.id}}" name="Specs" superClass="com.crt.advproject.cpp.specs"  value="com.crt.advproject.cpp.specs.newlibnano" valueType="enumerated"/>
@@ -49,7 +49,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{file}}&quot;"/>
 									{% endfor %}
 								</option>
-                                
+
                                 {% if opts['common']['warnings.syntaxonly'] %}
                                 <option id="gnu.cpp.compiler.option.warnings.syntax.{{u.id}}" superClass="gnu.cpp.compiler.option.warnings.syntax" value="true" valueType="boolean"/>
                                 {% endif %}
@@ -74,14 +74,14 @@
                                 {% if opts['common']['warnings.conversion'] %}
                                 <option id="gnu.cpp.compiler.option.warnings.wconversion.{{u.id}}" name="Warn on implicit conversions (-Wconversion)" superClass="gnu.cpp.compiler.option.warnings.wconversion" value="true" valueType="boolean"/>
                                 {% endif %}
-                                
+
                                 {% if opts['common']['optimization.lto'] %}
 								<option id="com.crt.advproject.cpp.lto.{{u.id}}" name="Enable Link-time optimization (-flto)" superClass="com.crt.advproject.cpp.lto" useByScannerDiscovery="false" value="true" valueType="boolean"/>
                                 {% endif %}
                                 {% if opts['common']['optimization.lto_objects'] %}
 								<option id="com.crt.advproject.cpp.lto.fat.{{u.id}}" name="Fat lto objects (-ffat-lto-objects)" superClass="com.crt.advproject.cpp.lto.fat" useByScannerDiscovery="false" value="true" valueType="boolean"/>
                                 {% endif %}
-                                
+
 								{% if opts['cpp']['verbose'] %}
    								<option id="gnu.cpp.compiler.option.other.verbose.{{u.id}}" name="Verbose (-v)" superClass="gnu.cpp.compiler.option.other.verbose" useByScannerDiscovery="false" value="true" valueType="boolean"/>
                                 {% endif %}
@@ -119,7 +119,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{file}}&quot;"/>
 									{% endfor %}
 								</option>
-                                
+
                                 {% if opts['common']['warnings.syntaxonly'] %}
                                 <option id="gnu.c.compiler.option.warnings.syntax.{{u.id}}" superClass="gnu.c.compiler.option.warnings.syntax" value="true" valueType="boolean"/>
                                 {% endif %}
@@ -157,7 +157,7 @@
                                 {% if opts['common']['optimization.lto_objects'] %}
 								<option id="com.crt.advproject.gcc.lto.fat.{{u.id}}" name="Fat lto objects (-ffat-lto-objects)" superClass="com.crt.advproject.gcc.lto.fat" useByScannerDiscovery="false" value="true" valueType="boolean"/>
                                 {% endif %}
-                                
+
 								<option id="gnu.c.compiler.option.misc.other.{{u.id}}" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c {{opts['c']['other']}} {{opts['common']['warnings.other']}}" valueType="string"/>
 								<inputType id="com.crt.advproject.compiler.input.{{opts['uid']['tool_c_compiler']}}" superClass="com.crt.advproject.compiler.input"/>
 							</tool>
@@ -230,13 +230,13 @@
 								{% if opts['ld']['other'] != '' %}
 								<option id="gnu.cpp.link.option.flags.{{u.id}}" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false"  value="{{opts['ld']['other']}}" valueType="string"/>
 								{% endif %}
-                                
+
                                 {% if opts['common']['optimization.lto'] %}
 								<option id="com.crt.advproject.link.cpp.lto.{{u.id}}" superClass="com.crt.advproject.link.cpp.lto" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								{% endif %}
 
-								<option id="com.crt.advproject.link.cpp.script.{{u.id}}" name="Linker script" superClass="com.crt.advproject.link.cpp.script" useByScannerDiscovery="false" value="${ProjDirPath}/{{opts['ld']['script']}}"  valueType="string"/>
-								
+								<option id="com.crt.advproject.link.cpp.script.{{u.id}}" name="Linker script" superClass="com.crt.advproject.link.cpp.script" useByScannerDiscovery="false" value="${ProjDirPath}/{{opts['name']}}/{{opts['ld']['script']}}"  valueType="string"/>
+
                                 <option id="com.crt.advproject.link.cpp.multicore.slave.{{u.id}}" name="Multicore configuration" superClass="com.crt.advproject.link.cpp.multicore.slave" useByScannerDiscovery="false"/>
                                 {% if opts['common']['arm.target.fpu.unit_nxp'] %}
 								<option id="com.crt.advproject.link.cpp.fpu.{{u.id}}" name="Floating point" superClass="com.crt.advproject.link.cpp.fpu" useByScannerDiscovery="false" value="com.crt.advproject.link.cpp.fpu.{{opts['common']['arm.target.fpu.unit_nxp']}}" valueType="enumerated"/>

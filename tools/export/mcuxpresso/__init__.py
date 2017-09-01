@@ -16,7 +16,7 @@ limitations under the License.
 
 Title: MCUXpresso exporter.
 
-Description: Creates a managed build project that can be imported by 
+Description: Creates a managed build project that can be imported by
 the MCUXpresso IDE from NXP
 
 Based on GNU ARM Eclipse Exporter from Liviu Ionescu <ilg@livius.net>
@@ -34,7 +34,7 @@ from tools.targets import TARGET_MAP
 from tools.utils import NotSupportedException
 from tools.build_api import prepare_toolchain
 
- 
+
 # =============================================================================
 
 
@@ -185,7 +185,7 @@ class MCUXpresso(GNUARMEclipse):
             opts['ld']['object_files'] = objects
             opts['ld']['user_libraries'] = self.libraries
             opts['ld']['system_libraries'] = self.system_libraries
-            opts['ld']['script'] = self.ld_script
+            opts['ld']['script'] = "linker-script-%s.ld" % id
             opts['cpp_cmd'] = " ".join(toolchain.preproc)
 
             # Unique IDs used in multiple places.
@@ -218,6 +218,8 @@ class MCUXpresso(GNUARMEclipse):
                       '.project', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('mcuxpresso/{0}_cproject.tmpl'.format(target_name), jinja_ctx,
                       '.cproject', trim_blocks=True, lstrip_blocks=True)
+        self.gen_file('mcuxpresso/makefile.targets.tmpl', jinja_ctx,
+                      'makefile.targets', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('mcuxpresso/mbedignore.tmpl', jinja_ctx, '.mbedignore')
 
         print
@@ -230,9 +232,9 @@ class MCUXpresso(GNUARMEclipse):
         Headless build an Eclipse project.
 
         The following steps are performed:
-        - a temporary workspace is created, 
+        - a temporary workspace is created,
         - the project is imported,
-        - a clean build of all configurations is performed and 
+        - a clean build of all configurations is performed and
         - the temporary workspace is removed.
 
         The build results are in the Debug & Release folders.
@@ -326,8 +328,8 @@ class MCUXpresso(GNUARMEclipse):
 
         Once identified, the options are removed from the command lines.
 
-        The options that were not identified are options that do not 
-        have CDT equivalents and will be passed in the 'Other options' 
+        The options that were not identified are options that do not
+        have CDT equivalents and will be passed in the 'Other options'
         categories.
 
         Although this process does not have a very complicated logic,
@@ -470,7 +472,7 @@ class MCUXpresso(GNUARMEclipse):
             self.remove_option(flags['ld_flags'], str)
             if opts['common']['arm.target.fpu.abi'] == 'hard':
                 opts['common']['arm.target.fpu.unit_nxp'] += '.hard'
-        
+
         # Default optimisation level for Release.
         opts['common']['optimization.level'] = '-Os'
 
