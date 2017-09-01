@@ -270,5 +270,9 @@
 	<storageModule moduleId="com.crt.config">
 		<projectStorage>{% block cpu_config %}{% endblock %}</projectStorage>
 	</storageModule>
+	<storageModule moduleId="com.nxp.mcuxpresso.core.datamodels">
+		<sdkName>{% block sdk_name %}{% endblock %}</sdkName>
+		<sdkVersion>{% block sdk_version %}{% endblock %}</sdkVersion>
+	</storageModule>
 	<storageModule moduleId="com.crt.advproject"/>
 </cproject>
