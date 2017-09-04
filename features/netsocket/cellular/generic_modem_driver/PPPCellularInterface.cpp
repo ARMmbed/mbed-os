@@ -540,17 +540,11 @@ nsapi_error_t PPPCellularInterface::connect()
     nsapi_error_t retcode;
     bool success;
     bool did_init = false;
+    const char *apn_config = NULL;
 
     if (dev_info.ppp_connection_up) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
-
-    const char *apn_config = NULL;
-#if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
-    if (!set_credentials_api_used) {
-        apn_config = apnconfig(dev_info.imsi);
-    }
-#endif
 
     do {
         retry_init:
@@ -586,6 +580,12 @@ nsapi_error_t PPPCellularInterface::connect()
                 return NSAPI_ERROR_NO_CONNECTION;
             }
 
+#if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+            if (!apn_config) {
+                apn_config = apnconfig(dev_info.imsi);
+            }
+#endif
+
             /* Check if user want skip SIM pin checking on boot up */
             if (set_sim_pin_check_request) {
                 retcode = do_sim_pin_check(_at, _pin);
@@ -611,6 +611,7 @@ nsapi_error_t PPPCellularInterface::connect()
                 _apn = _APN_GET(apn_config);
                 _uname = _APN_GET(apn_config);
                 _pwd = _APN_GET(apn_config);
+                tr_info("Looked up APN %s.", _apn);
             }
 #endif
 
