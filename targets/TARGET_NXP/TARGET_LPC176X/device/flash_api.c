@@ -54,7 +54,8 @@ struct sIAP { // IAP Structure
  *    Return Value:   Sector Number
  */
 
-unsigned long GetSecNum (unsigned long address) {
+unsigned long GetSecNum (unsigned long address)
+{
     unsigned long n;
 
     n = address >> 12; // 4kB Sector
