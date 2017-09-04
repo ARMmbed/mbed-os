@@ -160,6 +160,26 @@ void ff_memfree(void *p)
 }
 
 // Implementation of diskio functions (see ChaN/diskio.h)
+static WORD disk_get_sector_size(BYTE pdrv)
+{
+    WORD ssize = _ffs[pdrv]->get_erase_size();
+    if (ssize < 512) {
+        ssize = 512;
+    }
+
+    MBED_ASSERT(ssize >= _MIN_SS && ssize <= _MAX_SS);
+    MBED_ASSERT(_ffs[pdrv]->get_read_size() <= _ffs[pdrv]->get_erase_size());
+    MBED_ASSERT(_ffs[pdrv]->get_program_size() <= _ffs[pdrv]->get_erase_size());
+    return ssize;
+}
+
+static DWORD disk_get_sector_count(BYTE pdrv)
+{
+    DWORD scount = _ffs[pdrv]->size() / disk_get_sector_size(pdrv);
+    MBED_ASSERT(scount >= 64);
+    return scount;
+}
+
 DSTATUS disk_status(BYTE pdrv)
 {
     debug_if(FFS_DBG, "disk_status on pdrv [%d]\n", pdrv);
@@ -175,7 +195,7 @@ DSTATUS disk_initialize(BYTE pdrv)
 DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
-    bd_size_t ssize = _ffs[pdrv]->get_erase_size();
+    DWORD ssize = disk_get_sector_size(pdrv);
     int err = _ffs[pdrv]->read(buff, sector*ssize, count*ssize);
     return err ? RES_PARERR : RES_OK;
 }
@@ -183,7 +203,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
-    bd_size_t ssize = _ffs[pdrv]->get_erase_size();
+    DWORD ssize = disk_get_sector_size(pdrv);
     int err = _ffs[pdrv]->erase(sector*ssize, count*ssize);
     if (err) {
         return RES_PARERR;
@@ -211,16 +231,14 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                DWORD count = _ffs[pdrv]->size() / _ffs[pdrv]->get_erase_size();
-                *((DWORD*)buff) = count;
+                *((DWORD*)buff) = disk_get_sector_count(pdrv);
                 return RES_OK;
             }
         case GET_SECTOR_SIZE:
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                WORD size = _ffs[pdrv]->get_erase_size();
-                *((WORD*)buff) = size;
+                *((WORD*)buff) = disk_get_sector_size(pdrv);
                 return RES_OK;
             }
         case GET_BLOCK_SIZE:
@@ -295,7 +313,7 @@ int FATFileSystem::unmount()
 
 /* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
  * associated arguments. */
-int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
+int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size) {
     FATFileSystem fs;
     int err = fs.mount(bd, false);
     if (err) {
@@ -304,7 +322,7 @@ int FATFileSystem::format(BlockDevice *bd, int allocation_unit) {
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     fs.lock();
-    FRESULT res = f_mkfs(fs._fsid, 1, allocation_unit);
+    FRESULT res = f_mkfs(fs._fsid, 1, cluster_size);
     fs.unlock();
     if (res != FR_OK) {
         return fat_error_remap(res);
