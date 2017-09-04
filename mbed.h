@@ -89,6 +89,7 @@
 #include "platform/FileSystemHandle.h"
 #include "platform/FileHandle.h"
 #include "platform/DirHandle.h"
+#include "platform/CriticalSectionLock.h"
 
 // mbed Non-hardware components
 #include "platform/Callback.h"
