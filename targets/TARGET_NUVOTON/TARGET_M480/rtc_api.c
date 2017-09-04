@@ -89,6 +89,9 @@ time_t rtc_read(void)
     timeinfo.tm_mday = rtc_datetime.u32Day;
     timeinfo.tm_wday = rtc_datetime.u32DayOfWeek;
     timeinfo.tm_hour = rtc_datetime.u32Hour;
+    if (rtc_datetime.u32TimeScale == RTC_CLOCK_12 && rtc_datetime.u32AmPm == RTC_PM) {
+        timeinfo.tm_hour += 12;
+    }
     timeinfo.tm_min  = rtc_datetime.u32Minute;
     timeinfo.tm_sec  = rtc_datetime.u32Second;
 
