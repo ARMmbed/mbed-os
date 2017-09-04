@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include "lwip/opt.h"
+#include "lwip/debug.h"
+#include "lwip/def.h"
 #include "lwip_random.h"
 
 #if FEATURE_COMMON_PAL

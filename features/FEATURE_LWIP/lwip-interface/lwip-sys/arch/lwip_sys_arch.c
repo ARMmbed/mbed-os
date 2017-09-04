@@ -590,4 +590,23 @@ void assert_printf(char *msg, int line, char *file) {
 }
 #endif // MBED_CONF_LWIP_USE_MBED_TRACE
 
+#if TRACE_TO_ASCII_HEX_DUMP
+void trace_to_ascii_hex_dump(char *prefix, int len, char *data)
+{
+    int line_len = 0;
+
+    for (int i = 0; i < len; i++) {
+       if ((line_len % 16) == 0) {
+           if (line_len != 0) {
+               LWIP_PLATFORM_DIAG(("\n"));
+           }
+           LWIP_PLATFORM_DIAG(("%s %06x", prefix, line_len));
+       }
+       line_len++;
+       LWIP_PLATFORM_DIAG((" %02x", data[i]));
+    }
+    LWIP_PLATFORM_DIAG(("\n"));
+}
+#endif
+
 #endif /* LWIP_DEBUG */

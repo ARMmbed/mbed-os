@@ -30,7 +30,7 @@ extern "C" {
  *
  *  @return 0 for success and negative error codes for failure
  */
-nsapi_error_t ppp_lwip_if_init(struct netif *netif);
+nsapi_error_t ppp_lwip_if_init(struct netif *netif, const nsapi_ip_stack_t stack);
 
 /** Connects to a PPP pipe
  *
@@ -53,9 +53,9 @@ err_t ppp_lwip_disconnect(void);
 /**
  * Stubs in case LWIP PPP is not enabled
  */
-#define ppp_lwip_if_init(netif)     NSAPI_ERROR_UNSUPPORTED
-#define ppp_lwip_connect()          ERR_IF
-#define ppp_lwip_disconnect()       ERR_IF
+#define ppp_lwip_if_init(netif, stack)     NSAPI_ERROR_UNSUPPORTED
+#define ppp_lwip_connect()                 ERR_IF
+#define ppp_lwip_disconnect()              ERR_IF
 #endif //LWIP_PPP_API
 #ifdef __cplusplus
 }

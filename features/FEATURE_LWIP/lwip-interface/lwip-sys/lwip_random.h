@@ -17,10 +17,6 @@
 #ifndef LWIP_HDR_RANDOM_H
 #define LWIP_HDR_RANDOM_H
 
-#include "lwip/opt.h"
-#include "lwip/debug.h"
-#include "lwip/def.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

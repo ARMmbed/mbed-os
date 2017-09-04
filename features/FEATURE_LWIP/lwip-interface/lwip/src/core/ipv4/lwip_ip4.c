@@ -1048,6 +1048,8 @@ ip4_debug_print(struct pbuf *p)
 {
   struct ip_hdr *iphdr = (struct ip_hdr *)p->payload;
 
+  TRACE_TO_ASCII_HEX_DUMPF("IP>", lwip_ntohs(IPH_LEN(iphdr)), (char *) iphdr);
+
   LWIP_DEBUGF(IP_DEBUG, ("IP header:\n"));
   LWIP_DEBUGF(IP_DEBUG, ("+-------------------------------+\n"));
   LWIP_DEBUGF(IP_DEBUG, ("|%2"S16_F" |%2"S16_F" |  0x%02"X16_F" |     %5"U16_F"     | (v, hl, tos, len)\n",
