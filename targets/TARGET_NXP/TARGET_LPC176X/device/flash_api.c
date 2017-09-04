@@ -122,12 +122,9 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
     IAP.cmd = 51;// Copy RAM to Flash
     IAP.par[0] = address;// Destination Flash Address
     
-    if ((unsigned long)data%4==0)// Word boundary
-    {
+    if ((unsigned long)data%4==0){// Word boundary
         IAP.par[1] = (unsigned long)data;// Source RAM Address
-    }
-    else
-    {
+    } else {
         alignedData = malloc(size);
         memcpy(alignedData,data,size);
         IAP.par[1] = (unsigned long)alignedData;// Source RAM Address
@@ -137,8 +134,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
     IAP.par[3] = CCLK;// CCLK in kHz
     IAP_Call (&IAP.cmd, &IAP.stat);// Call IAP Command
     
-    if(alignedData !=0)//We allocated our own memory
-    {
+    if(alignedData !=0){//We allocated our own memory
         free(alignedData);
     }
     
@@ -149,16 +145,12 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
-    if(address < flash_get_start_address(obj) || address >= flash_get_start_address(obj) +flash_get_size(obj))
-    {
+    if(address < flash_get_start_address(obj) || address >= flash_get_start_address(obj) +flash_get_size(obj)){
         return MBED_FLASH_INVALID_SIZE;
     }
-    if(GetSecNum(address)>=0x10)
-    {
+    if(GetSecNum(address)>=0x10){
         return 0x8000;
-    }
-    else
-    {
+    } else {
         return 0x1000;
     }
 }
