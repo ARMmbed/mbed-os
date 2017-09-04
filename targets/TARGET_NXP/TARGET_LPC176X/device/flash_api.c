@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#if DEVICE_FLASH
 #include "mbed_critical.h"
 
 #include "flash_api.h"
@@ -106,20 +106,10 @@ typedef void (*IAP_Entry) (unsigned long *cmd, unsigned long *stat);
 #define IAP_Call ((IAP_Entry) 0x1FFF1FF1)
 
 int32_t flash_program_page(flash_t *obj, uint32_t address,
-        const uint8_t *datain, uint32_t size)
+        const uint8_t *data, uint32_t size)
 {
-    uint8_t *data;
     unsigned long n;
-
-    if ((unsigned long)datain%4==0)//word boundary
-    {
-        data = datain;
-    }
-    else
-    {
-        data = malloc(size);
-        memcpy(data,datain,size);
-    }
+    uint8_t *alignedData = 0;
 
     n = GetSecNum(address);// Get Sector Number
 
@@ -131,15 +121,27 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
 
     IAP.cmd = 51;// Copy RAM to Flash
     IAP.par[0] = address;// Destination Flash Address
-    IAP.par[1] = (unsigned long)data;// Source RAM Address
+    
+    if ((unsigned long)data%4==0)// Word boundary
+    {
+        IAP.par[1] = (unsigned long)data;// Source RAM Address
+    }
+    else
+    {
+        alignedData = malloc(size);
+        memcpy(alignedData,data,size);
+        IAP.par[1] = (unsigned long)alignedData;// Source RAM Address
+    }
 
     IAP.par[2] = 1024;// Fixed Page Size
     IAP.par[3] = CCLK;// CCLK in kHz
     IAP_Call (&IAP.cmd, &IAP.stat);// Call IAP Command
-    if(data !=datain)//We allocated our own memory
+    
+    if(alignedData !=0)//We allocated our own memory
     {
-        free(data);
+        free(alignedData);
     }
+    
     if (IAP.stat) return (1);// Command Failed
 
     return (0);// Finished without Errors
