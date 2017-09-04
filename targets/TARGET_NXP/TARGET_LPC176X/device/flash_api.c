@@ -39,9 +39,9 @@ typedef void (*IAP_Entry) (unsigned long *cmd, unsigned long *stat);
 #define IAP_Call ((IAP_Entry) 0x1FFF1FF1)
 
 typedef struct flash_s flash_t;
-unsigned long CCLK;// CCLK in kHz
+unsigned long CCLK; // CCLK in kHz
 
-struct sIAP {// IAP Structure
+struct sIAP { // IAP Structure
     unsigned long cmd;// Command
     unsigned long par[4];// Parameters
     unsigned long stat;// Status
@@ -57,16 +57,16 @@ struct sIAP {// IAP Structure
 unsigned long GetSecNum (unsigned long address) {
     unsigned long n;
 
-    n = address >> 12;// 4kB Sector
+    n = address >> 12; // 4kB Sector
     if (n >= 0x10) {
-        n = 0x0E + (n >> 3);// 32kB Sector
+        n = 0x0E + (n >> 3); // 32kB Sector
     }
 
-    return (n);// Sector Number
+    return (n); // Sector Number
 }
 int32_t flash_init(flash_t *obj)
 {
-    CCLK = SystemCoreClock / 1000;// CCLK value is in kHz, clk in Hz
+    CCLK = SystemCoreClock / 1000; // CCLK value is in kHz, clk in Hz
 
     MEMMAP = 0x01;// User Flash Mode
 
@@ -88,16 +88,20 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     IAP.par[0] = n;// Start Sector
     IAP.par[1] = n;// End Sector
     IAP_Call (&IAP.cmd, &IAP.stat);// Call IAP Command
-    if (IAP.stat) return (1);// Command Failed
+    if (IAP.stat) {
+        return (1); // Command Failed
+    }
 
-    IAP.cmd = 52;// Erase Sector
+    IAP.cmd = 52; // Erase Sector
     IAP.par[0] = n;// Start Sector
     IAP.par[1] = n;// End Sector
     IAP.par[2] = CCLK;// CCLK in kHz
     IAP_Call (&IAP.cmd, &IAP.stat);// Call IAP Command
-    if (IAP.stat) return (1);// Command Failed
+    if (IAP.stat) {
+        return (1); // Command Failed
+    }
 
-    return (0);// Finished without Errors
+    return (0); // Finished without Errors
 
 }
 
@@ -111,44 +115,47 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
     unsigned long n;
     uint8_t *alignedData = 0;
 
-    n = GetSecNum(address);// Get Sector Number
+    n = GetSecNum(address); // Get Sector Number
 
     IAP.cmd = 50;// Prepare Sector for Write
     IAP.par[0] = n;// Start Sector
     IAP.par[1] = n;// End Sector
     IAP_Call (&IAP.cmd, &IAP.stat);// Call IAP Command
-    if (IAP.stat) return (1);// Command Failed
+    if (IAP.stat) {
+        return (1); // Command Failed
+    }
 
-    IAP.cmd = 51;// Copy RAM to Flash
+    IAP.cmd = 51; // Copy RAM to Flash
     IAP.par[0] = address;// Destination Flash Address
-    
-    if ((unsigned long)data%4==0){// Word boundary
+
+    if ((unsigned long)data%4==0) { // Word boundary
         IAP.par[1] = (unsigned long)data;// Source RAM Address
     } else {
         alignedData = malloc(size);
         memcpy(alignedData,data,size);
-        IAP.par[1] = (unsigned long)alignedData;// Source RAM Address
+        IAP.par[1] = (unsigned long)alignedData; // Source RAM Address
     }
 
-    IAP.par[2] = 1024;// Fixed Page Size
+    IAP.par[2] = 1024; // Fixed Page Size
     IAP.par[3] = CCLK;// CCLK in kHz
     IAP_Call (&IAP.cmd, &IAP.stat);// Call IAP Command
-    
-    if(alignedData !=0){//We allocated our own memory
+
+    if(alignedData !=0) { // We allocated our own memory
         free(alignedData);
     }
-    
-    if (IAP.stat) return (1);// Command Failed
 
-    return (0);// Finished without Errors
+    if (IAP.stat) {
+        return (1); // Command Failed
+    }
+    return (0); // Finished without Errors
 }
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
-    if(address < flash_get_start_address(obj) || address >= flash_get_start_address(obj) +flash_get_size(obj)){
+    if (address < flash_get_start_address(obj) || address >= flash_get_start_address(obj) +flash_get_size(obj)) {
         return MBED_FLASH_INVALID_SIZE;
     }
-    if(GetSecNum(address)>=0x10){
+    if(GetSecNum(address)>=0x10) {
         return 0x8000;
     } else {
         return 0x1000;
