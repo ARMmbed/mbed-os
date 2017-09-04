@@ -16,7 +16,6 @@
 
 #include "mbed_critical.h"
 
-#if DEVICE_FLASH
 #include "flash_api.h"
 #include "mbed_assert.h"
 #include "cmsis.h"
@@ -121,19 +120,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
         data = malloc(size);
         memcpy(data,datain,size);
     }
-
-#if SET_VALID_CODE != 0// Set valid User Code Signature
-    if (address == 0) {// Check for Vector Table
-        n = *((unsigned long *)(data + 0x00)) +
-        *((unsigned long *)(data + 0x04)) +
-        *((unsigned long *)(data + 0x08)) +
-        *((unsigned long *)(data + 0x0C)) +
-        *((unsigned long *)(data + 0x10)) +
-        *((unsigned long *)(data + 0x14)) +
-        *((unsigned long *)(data + 0x18));
-        *((unsigned long *)(data + 0x1C)) = 0 - n;// Signature at Reserved Vector
-    }
-#endif
 
     n = GetSecNum(address);// Get Sector Number
 
