@@ -33,7 +33,7 @@ typedef struct {
     void (*priv_svc_0)(void);
     void (*priv_pendsv)(void);
     void (*priv_systick)(void);
-    uint32_t (*priv_os_suspend)(void);
+    int32_t (*priv_os_suspend)(void);
     int (*priv_uvisor_semaphore_post)(UvisorSemaphore * semaphore);
 } UvisorPrivSystemHooks;
 

@@ -396,7 +396,7 @@ To call the public secure entry point from any other box, you can use the `secur
 ```cpp
 /* ~/code/uvisor-example/source/main.cpp */
 
-#include "secure-box.h"
+#include "secure_box.h"
 ```
 
 Then replace the `main` function with:
@@ -451,16 +451,17 @@ Once the uVisor debug messages are enabled, your application fails. The failure 
                     BUS FAULT
 ***********************************************************
 
-...
+* Active Box ID: 0
+* FAULT SYNDROME REGISTERS
 
-/* MEMORY MAP
-  Address:           0x4004800C
-  Region/Peripheral: SIM
-    Base address:    0x40047000
-    End address:     0x40048060
+  CFSR: 0x00008200
+  BFAR: 0x40048044
+  --> PRECISERR: precise data access.
 
 ...
 ```
+
+Look up the faulty address (the value of BFAR) in the target device reference manual.
 
 Once you know which peripheral is causing the fault (the `SIM` peripheral, in this example), add its entry to the ACLs list:
 
