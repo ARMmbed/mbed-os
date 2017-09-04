@@ -127,6 +127,11 @@ struct dac_s {
     DAC_HandleTypeDef handle;
 };
 
+struct flash_s {
+    /*  nothing to be stored for now */
+    uint32_t dummy;
+};
+
 #ifdef __cplusplus
 }
 #endif
