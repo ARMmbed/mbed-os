@@ -243,6 +243,8 @@ uint8_t SetSysClock_PLL_HSI(void)
 /******************************************************************************/
 void HardFault_Handler(void)
 {
+#if !defined(NDEBUG) || NDEBUG == 0
     printf("Hard Fault\n");
+#endif
     NVIC_SystemReset();
 }
