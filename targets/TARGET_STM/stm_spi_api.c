@@ -63,6 +63,9 @@
 #   define DEBUG_PRINTF(...) {}
 #endif
 
+/* Consider 10ms as the default timeout for sending/receving 1 byte */
+#define TIMEOUT_1_BYTE 10
+
 void init_spi(spi_t *obj)
 {
     struct spi_s *spiobj = SPI_S(obj);
@@ -367,7 +370,7 @@ int spi_master_write(spi_t *obj, int value)
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
     if (handle->Init.Direction == SPI_DIRECTION_1LINE) {
-        return HAL_SPI_Transmit(handle, (uint8_t*)&value, 1, 10);
+        return HAL_SPI_Transmit(handle, (uint8_t*)&value, 1, TIMEOUT_1_BYTE);
     }
 
 #if defined(LL_SPI_RX_FIFO_TH_HALF)
@@ -422,13 +425,13 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     } else {
         /* In case of 1 WIRE only, first handle TX, then Rx */
         if (tx_length != 0) {
-            if (HAL_OK != HAL_SPI_Transmit(handle, (uint8_t*)tx_buffer, tx_length, tx_length*10)) {
+            if (HAL_OK != HAL_SPI_Transmit(handle, (uint8_t*)tx_buffer, tx_length, tx_length*TIMEOUT_1_BYTE)) {
                 /*  report an error */
                 total = 0;
             }
         }
         if (rx_length != 0) {
-            if (HAL_OK != HAL_SPI_Receive(handle, (uint8_t*)rx_buffer, rx_length, rx_length*10)) {
+            if (HAL_OK != HAL_SPI_Receive(handle, (uint8_t*)rx_buffer, rx_length, rx_length*TIMEOUT_1_BYTE)) {
                 /*  report an error */
                 total = 0;
             }
