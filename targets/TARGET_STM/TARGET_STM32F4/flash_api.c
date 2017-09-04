@@ -41,6 +41,16 @@ static uint32_t GetSectorSize(uint32_t Sector);
 
 int32_t flash_init(flash_t *obj)
 {
+    return 0;
+}
+
+int32_t flash_free(flash_t *obj)
+{
+    return 0;
+}
+
+static int32_t flash_unlock(void)
+{
     /* Allow Access to Flash control registers and user Falsh */
     if (HAL_FLASH_Unlock()) {
         return -1;
@@ -48,9 +58,10 @@ int32_t flash_init(flash_t *obj)
         return 0;
     }
 }
-int32_t flash_free(flash_t *obj)
+
+static int32_t flash_lock(void)
 {
-    /* Disable the Flash option control register access (recommended to protect 
+    /* Disable the Flash option control register access (recommended to protect
     the option Bytes against possible unwanted operations) */
     if (HAL_FLASH_Lock()) {
         return -1;
@@ -58,18 +69,23 @@ int32_t flash_free(flash_t *obj)
         return 0;
     }
 }
+
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
     /*Variable used for Erase procedure*/
     static FLASH_EraseInitTypeDef EraseInitStruct;
     uint32_t FirstSector;
     uint32_t SectorError = 0;
- 
-    if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
+    int32_t status = 0;
 
+    if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return -1;
     }
-   
+
+    if (flash_unlock() != HAL_OK) {
+        return -1;
+    }
+
     /* Get the 1st sector to erase */
     FirstSector = GetSector(address);
 
@@ -79,16 +95,23 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     EraseInitStruct.Sector = FirstSector;
     EraseInitStruct.NbSectors = 1;
     if(HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK){
-        return -1;
-    } else {
-        return 0;
+        status = -1;
     }
+
+    flash_lock();
+
+    return status;
 }
 
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
+    int32_t status = 0;
 
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
+        return -1;
+    }
+
+    if (flash_unlock() != HAL_OK) {
         return -1;
     }
 
@@ -105,16 +128,19 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     __HAL_FLASH_INSTRUCTION_CACHE_ENABLE();
     __HAL_FLASH_DATA_CACHE_ENABLE();
 
-    while (size > 0) {
+    while ((size > 0) && (status == 0)) {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, address, (uint64_t)*data) != HAL_OK) {
-            return -1;
+            status = -1;
         } else {
             size--;
             address++;
             data++;
         }
     }
-    return 0;
+
+    flash_lock();
+
+    return status;
 }
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
