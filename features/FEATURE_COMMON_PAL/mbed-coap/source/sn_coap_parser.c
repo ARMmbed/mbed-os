@@ -35,6 +35,9 @@
 #include "mbed-coap/sn_coap_protocol.h"
 #include "sn_coap_header_internal.h"
 #include "sn_coap_protocol_internal.h"
+#include "mbed-trace/mbed_trace.h"
+
+#define TRACE_GROUP "coap"
 /* * * * * * * * * * * * * * * * * * * * */
 /* * * * LOCAL FUNCTION PROTOTYPES * * * */
 /* * * * * * * * * * * * * * * * * * * * */
@@ -49,6 +52,7 @@ sn_coap_hdr_s *sn_coap_parser_init_message(sn_coap_hdr_s *coap_msg_ptr)
 {
     /* * * * Check given pointer * * * */
     if (coap_msg_ptr == NULL) {
+        tr_error("sn_coap_parser_init_message - message null!");
         return NULL;
     }
 
@@ -91,6 +95,7 @@ sn_coap_options_list_s *sn_coap_parser_alloc_options(struct coap_s *handle, sn_c
     coap_msg_ptr->options_list_ptr = handle->sn_coap_protocol_malloc(sizeof(sn_coap_options_list_s));
 
     if (coap_msg_ptr->options_list_ptr == NULL) {
+        tr_error("sn_coap_parser_alloc_options - failed to allocate options list!");
         return NULL;
     }
 
@@ -121,6 +126,7 @@ sn_coap_hdr_s *sn_coap_parser(struct coap_s *handle, uint16_t packet_data_len, u
     parsed_and_returned_coap_msg_ptr = sn_coap_parser_alloc_message(handle);
 
     if (parsed_and_returned_coap_msg_ptr == NULL) {
+        tr_error("sn_coap_parser - failed to allocate message!");
         return NULL;
     }
 
@@ -259,12 +265,14 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
     if (dst_coap_msg_ptr->token_len) {
         if ((dst_coap_msg_ptr->token_len > 8) || dst_coap_msg_ptr->token_ptr) {
+            tr_error("sn_coap_parser_options_parse - token not valid!");
             return -1;
         }
 
         dst_coap_msg_ptr->token_ptr = handle->sn_coap_protocol_malloc(dst_coap_msg_ptr->token_len);
 
         if (dst_coap_msg_ptr->token_ptr == NULL) {
+            tr_error("sn_coap_parser_options_parse - failed to allocate token!");
             return -1;
         }
 
@@ -293,6 +301,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
         }
         /* Option number 15 reserved for payload marker. This is handled as a error! */
         else if (option_number == 15) {
+            tr_error("sn_coap_parser_options_parse - invalid option number(15)!");
             return -1;
         }
 
@@ -310,6 +319,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
         }
         /* Option number length 15 is reserved for the future use - ERROR */
         else if (option_len == 15) {
+            tr_error("sn_coap_parser_options_parse - invalid option len(15)!");
             return -1;
         }
 
@@ -335,6 +345,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
             case COAP_OPTION_SIZE1:
             case COAP_OPTION_SIZE2:
                 if (sn_coap_parser_alloc_options(handle, dst_coap_msg_ptr) == NULL) {
+                    tr_error("sn_coap_parser_options_parse - failed to allocate options!");
                     return -1;
                 }
                 break;
@@ -344,6 +355,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
         switch (option_number) {
             case COAP_OPTION_CONTENT_FORMAT:
                 if ((option_len > 2) || (dst_coap_msg_ptr->content_format != COAP_CT_NONE)) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_CONTENT_FORMAT not valid!");
                     return -1;
                 }
                 (*packet_data_pptr)++;
@@ -352,6 +364,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_MAX_AGE:
                 if (option_len > 4) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_MAX_AGE not valid!");
                     return -1;
                 }
                 (*packet_data_pptr)++;
@@ -360,6 +373,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_PROXY_URI:
                 if ((option_len > 1034) || (option_len < 1) || dst_coap_msg_ptr->options_list_ptr->proxy_uri_ptr) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_PROXY_URI not valid!");
                     return -1;
                 }
                 dst_coap_msg_ptr->options_list_ptr->proxy_uri_len = option_len;
@@ -368,8 +382,10 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
                 dst_coap_msg_ptr->options_list_ptr->proxy_uri_ptr = handle->sn_coap_protocol_malloc(option_len);
 
                 if (dst_coap_msg_ptr->options_list_ptr->proxy_uri_ptr == NULL) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_PROXY_URI allocation failed!");
                     return -1;
                 }
+
                 memcpy(dst_coap_msg_ptr->options_list_ptr->proxy_uri_ptr, *packet_data_pptr, option_len);
                 (*packet_data_pptr) += option_len;
 
@@ -386,12 +402,14 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
                 if (ret_status >= 0) {
                     i += (ret_status - 1); /* i += is because possible several Options are handled by sn_coap_parser_options_parse_multiple_options() */
                 } else {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_ETAG not valid!");
                     return -1;
                 }
                 break;
 
             case COAP_OPTION_URI_HOST:
                 if ((option_len > 255) || (option_len < 1) || dst_coap_msg_ptr->options_list_ptr->uri_host_ptr) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_URI_HOST not valid!");
                     return -1;
                 }
                 dst_coap_msg_ptr->options_list_ptr->uri_host_len = option_len;
@@ -400,6 +418,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
                 dst_coap_msg_ptr->options_list_ptr->uri_host_ptr = handle->sn_coap_protocol_malloc(option_len);
 
                 if (dst_coap_msg_ptr->options_list_ptr->uri_host_ptr == NULL) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_URI_HOST allocation failed!");
                     return -1;
                 }
                 memcpy(dst_coap_msg_ptr->options_list_ptr->uri_host_ptr, *packet_data_pptr, option_len);
@@ -409,6 +428,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_LOCATION_PATH:
                 if (dst_coap_msg_ptr->options_list_ptr->location_path_ptr) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_LOCATION_PATH exists!");
                     return -1;
                 }
                 /* This is managed independently because User gives this option in one character table */
@@ -418,6 +438,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
                 if (ret_status >= 0) {
                     i += (ret_status - 1); /* i += is because possible several Options are handled by sn_coap_parser_options_parse_multiple_options() */
                 } else {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_LOCATION_PATH not valid!");
                     return -1;
                 }
 
@@ -426,6 +447,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_URI_PORT:
                 if ((option_len > 2) || dst_coap_msg_ptr->options_list_ptr->uri_port != COAP_OPTION_URI_PORT_NONE) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_URI_PORT not valid!");
                     return -1;
                 }
                 (*packet_data_pptr)++;
@@ -440,6 +462,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
                 if (ret_status >= 0) {
                     i += (ret_status - 1); /* i += is because possible several Options are handled by sn_coap_parser_options_parse_multiple_options() */
                 } else {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_LOCATION_QUERY not valid!");
                     return -1;
                 }
 
@@ -452,6 +475,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
                 if (ret_status >= 0) {
                     i += (ret_status - 1); /* i += is because possible several Options are handled by sn_coap_parser_options_parse_multiple_options() */
                 } else {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_URI_PATH not valid!");
                     return -1;
                 }
 
@@ -459,6 +483,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_OBSERVE:
                 if ((option_len > 2) || dst_coap_msg_ptr->options_list_ptr->observe != COAP_OBSERVE_NONE) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_OBSERVE not valid!");
                     return -1;
                 }
 
@@ -475,6 +500,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
                 if (ret_status >= 0) {
                     i += (ret_status - 1); /* i += is because possible several Options are handled by sn_coap_parser_options_parse_multiple_options() */
                 } else {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_URI_QUERY not valid!");
                     return -1;
                 }
 
@@ -482,6 +508,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_BLOCK2:
                 if ((option_len > 3) || dst_coap_msg_ptr->options_list_ptr->block2 != COAP_OPTION_BLOCK_NONE) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_BLOCK2 not valid!");
                     return -1;
                 }
                 (*packet_data_pptr)++;
@@ -492,6 +519,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_BLOCK1:
                 if ((option_len > 3) || dst_coap_msg_ptr->options_list_ptr->block1 != COAP_OPTION_BLOCK_NONE) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_BLOCK1 not valid!");
                     return -1;
                 }
                 (*packet_data_pptr)++;
@@ -502,6 +530,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_ACCEPT:
                 if ((option_len > 2) || (dst_coap_msg_ptr->options_list_ptr->accept != COAP_CT_NONE)) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_ACCEPT not valid!");
                     return -1;
                 }
 
@@ -512,6 +541,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_SIZE1:
                 if ((option_len > 4) || dst_coap_msg_ptr->options_list_ptr->use_size1) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_SIZE1 not valid!");
                     return -1;
                 }
                 dst_coap_msg_ptr->options_list_ptr->use_size1 = true;
@@ -521,6 +551,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
 
             case COAP_OPTION_SIZE2:
                 if ((option_len > 4) || dst_coap_msg_ptr->options_list_ptr->use_size2) {
+                    tr_error("sn_coap_parser_options_parse - COAP_OPTION_SIZE2 not valid!");
                     return -1;
                 }
                 dst_coap_msg_ptr->options_list_ptr->use_size2 = true;
@@ -529,6 +560,7 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
                 break;
 
             default:
+                tr_error("sn_coap_parser_options_parse - unknown option!");
                 return -1;
         }
 
@@ -538,7 +570,6 @@ static int8_t sn_coap_parser_options_parse(struct coap_s *handle, uint8_t **pack
         }
 
         message_left = packet_len - (*packet_data_pptr - packet_data_start_ptr);
-
 
     }
 
@@ -576,6 +607,7 @@ static int8_t sn_coap_parser_options_parse_multiple_options(struct coap_s *handl
         *dst_pptr = (uint8_t *) handle->sn_coap_protocol_malloc(uri_query_needed_heap);
 
         if (*dst_pptr == NULL) {
+            tr_error("sn_coap_parser_options_parse_multiple_options - failed to allocate options!");
             return -1;
         }
     }
@@ -753,6 +785,7 @@ static int8_t sn_coap_parser_payload_parse(uint16_t packet_data_len, uint8_t *pa
         }
         /* No payload marker.. */
         else {
+            tr_error("sn_coap_parser_payload_parse - payload marker not found!");
             return -1;
         }
     }
