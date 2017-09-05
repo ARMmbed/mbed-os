@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-INCLUDE "mbed-os/targets/TARGET_Realtek/TARGET_AMEBA/TARGET_RTL8195A/device/TOOLCHAIN_GCC_ARM/rtl8195a_rom.h"
+INCLUDE "rtl8195a_rom.h"
 /* DATA_RAM: We cannot put Code(.text) in DATA_RAM, this region is reserved for Image1(boot loader).
    But we can put .data/.bss of Image2 in this region */
 MEMORY
