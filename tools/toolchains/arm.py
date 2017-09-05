@@ -238,7 +238,7 @@ class ARM(mbedToolchain):
     @hook_tool
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
-        bin_arg = {".bin": "--bin", ".hex": "--i32"}[fmt]
+        bin_arg = {".bin": "--bincombined", ".hex": "--i32"}[fmt]
         cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
         cmd = self.hook.get_cmdline_binary(cmd)
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
