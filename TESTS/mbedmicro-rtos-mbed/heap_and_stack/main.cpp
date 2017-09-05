@@ -14,6 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if defined(TARGET_CORTEX_A)
+　  #error [NOT_SUPPORTED] This function not supported for this target
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
