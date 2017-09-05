@@ -56,7 +56,7 @@ public:
      *
      * @deprecated Use BLEProtocol::AddressType_t instead. The following
      *             constants have been left in their deprecated state to
-     *             transparenly support existing applications which may have
+     *             transparently support existing applications which may have
      *             used Gap::ADDR_TYPE_*.
      */
     enum DeprecatedAddressType_t {
@@ -320,7 +320,7 @@ public:
 
     /**
      * Type for the registered callbacks added to the disconnection event
-     * callchain. Refer to Gap::onDisconnetion().
+     * callchain. Refer to Gap::onDisconnection().
      */
     typedef FunctionPointerWithContext<const DisconnectionCallbackParams_t*> DisconnectionEventCallback_t;
     /**
@@ -447,7 +447,7 @@ public:
      * @param[in] connectionParams
      *              Connection parameters.
      * @param[in] scanParams
-     *              Paramters to be used while scanning for the peer.
+     *              Parameters to be used while scanning for the peer.
      *
      * @return  BLE_ERROR_NONE if connection establishment procedure is started
      *          successfully. The connectionCallChain (if set) will be invoked upon
@@ -516,7 +516,7 @@ public:
      *
      * @deprecated This version of disconnect() doesn't take a connection handle. It
      *             works reliably only for stacks that are limited to a single
-     *             connection. Use instead Gap::disconnect(Handle_t connectionHandle,
+     *             connection. Use Gap::disconnect(Handle_t connectionHandle,
      *             DisconnectionReason_t reason) instead.
      */
     virtual ble_error_t disconnect(DisconnectionReason_t reason) {

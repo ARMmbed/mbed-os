@@ -160,7 +160,7 @@ public:
     }
 
     /**
-     * Get The advertising timeout.
+     * Get the advertising timeout.
      *
      * @return The advertising timeout (in seconds).
      */
