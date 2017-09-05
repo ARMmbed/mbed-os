@@ -1,5 +1,4 @@
-
- {
+{
     "b1": {
         "app.app1": "v_app1[b1_label]",
         "app.app2": "v_app2"

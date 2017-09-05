@@ -1,5 +1,4 @@
-
- {
+{
     "f": {
         "exception_msg": "Parameter name 'base1_1' defined in both 'target:b2' and 'target:b1'"
     },
@@ -9,4 +8,3 @@
         "target.base1_1": "v_base1_1_b2"
     }
 }
-
