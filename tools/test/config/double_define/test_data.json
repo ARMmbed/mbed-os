@@ -1,8 +1,8 @@
 {
-    "f": {
-        "exception_msg": "Parameter name 'base1_1' defined in both 'target:b2' and 'target:b1'"
+    "double_config": {
+        "exception_msg": "Parameter name 'base1_1' defined in both 'target:second_base' and 'target:first_base'"
     },
-    "b2": {
+    "second_base": {
         "target.base2_1": "v_base2_1_b2",
         "target.base2_2": "v_base2_2_b2",
         "target.base1_1": "v_base1_1_b2"
