@@ -28,6 +28,8 @@ def get_config_path(conf_name, target_name):
 def get_default_config(target_name):
     if target_name in TARGET_CONFIGS:
         config_name = TARGET_CONFIGS[target_name]['default_test_configuration']
+        if config_name == "NONE":
+            return None
         return join(CONFIG_DIR, CONFIG_MAP[config_name])
     else:
         return None
