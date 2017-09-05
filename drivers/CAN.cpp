@@ -22,13 +22,11 @@
 
 namespace mbed {
 
-static void donothing() {}
-
 CAN::CAN(PinName rd, PinName td) : _can(), _irq() {
     // No lock needed in constructor
 
     for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i] = callback(donothing);
+        _irq[i] = NULL;
     }
 
     can_init(&_can, rd, td);
@@ -39,7 +37,7 @@ CAN::CAN(PinName rd, PinName td, int hz) : _can(), _irq() {
     // No lock needed in constructor
 
     for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i] = callback(donothing);
+        _irq[i] = NULL;
     }
 
     can_init_freq(&_can, rd, td, hz);
@@ -117,17 +115,17 @@ void CAN::attach(Callback<void()> func, IrqType type) {
     lock();
     if (func) {
         // lock deep sleep only the first time
-        if (_irq[(CanIrqType)type] == callback(donothing)) {
+        if (!_irq[(CanIrqType)type]) {
             sleep_manager_lock_deep_sleep();
         }
         _irq[(CanIrqType)type] = func;
         can_irq_set(&_can, (CanIrqType)type, 1);
     } else {
         // unlock deep sleep only the first time
-        if (_irq[(CanIrqType)type] != callback(donothing)) {
+        if (_irq[(CanIrqType)type]) {
             sleep_manager_unlock_deep_sleep();
         }
-        _irq[(CanIrqType)type] = callback(donothing);
+        _irq[(CanIrqType)type] = NULL;
         can_irq_set(&_can, (CanIrqType)type, 0);
     }
     unlock();
@@ -135,7 +133,9 @@ void CAN::attach(Callback<void()> func, IrqType type) {
 
 void CAN::_irq_handler(uint32_t id, CanIrqType type) {
     CAN *handler = (CAN*)id;
-    handler->_irq[type].call();
+    if (handler->_irq[type]) {
+        handler->_irq[type].call();
+    }
 }
 
 void CAN::lock() {

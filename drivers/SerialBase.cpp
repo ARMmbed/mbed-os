@@ -22,21 +22,17 @@
 
 namespace mbed {
 
-static void donothing() {};
-static void donothing2(int arg) {};
-
-
 SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
 #if DEVICE_SERIAL_ASYNCH
                                                  _thunk_irq(this), _tx_usage(DMA_USAGE_NEVER),
-                                                 _rx_usage(DMA_USAGE_NEVER), _tx_callback(donothing2),
-                                                 _rx_callback(donothing2),
+                                                 _rx_usage(DMA_USAGE_NEVER), _tx_callback(NULL),
+                                                 _rx_callback(NULL),
 #endif
                                                 _serial(), _baud(baud) {
     // No lock needed in the constructor
 
     for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
-        _irq[i] = donothing;
+        _irq[i] = NULL;
     }
 
     serial_init(&_serial, tx, rx);
@@ -78,17 +74,17 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
     core_util_critical_section_enter();
     if (func) {
         // lock deep sleep only the first time
-        if (_irq[type] == donothing) {
+        if (!_irq[type]) {
             sleep_manager_lock_deep_sleep();
         } 
         _irq[type] = func;
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
         // unlock deep sleep only the first time
-        if (_irq[type] != donothing) {
+        if (_irq[type]) {
             sleep_manager_unlock_deep_sleep();
         } 
-        _irq[type] = donothing;
+        _irq[type] = NULL;
         serial_irq_set(&_serial, (SerialIrq)type, 0);
     }
     core_util_critical_section_exit();
@@ -97,7 +93,9 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
 
 void SerialBase::_irq_handler(uint32_t id, SerialIrq irq_type) {
     SerialBase *handler = (SerialBase*)id;
-    handler->_irq[irq_type]();
+    if (handler->_irq[irq_type]) {
+        handler->_irq[irq_type]();
+    }
 }
 
 int SerialBase::_base_getc() {
@@ -192,20 +190,20 @@ void SerialBase::start_write(const void *buffer, int buffer_size, char buffer_wi
 void SerialBase::abort_write(void)
 {
     // rx might still be active
-    if (_rx_callback == &donothing2) {
+    if (_rx_callback) {
         sleep_manager_unlock_deep_sleep();
     }
-    _tx_callback = donothing2;
+    _tx_callback = NULL;
     serial_tx_abort_asynch(&_serial);
 }
 
 void SerialBase::abort_read(void)
 {
     // tx might still be active
-    if (_tx_callback == &donothing2) {
+    if (_tx_callback) {
         sleep_manager_unlock_deep_sleep();
     }
-    _rx_callback = donothing2;
+    _rx_callback = NULL;
     serial_rx_abort_asynch(&_serial);
 }
 
