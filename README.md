@@ -21,6 +21,8 @@ We run continuous integration on all of our branches and pull requests to verify
  - Master branch [![Master Branch CI Badge](https://travis-ci.org/ARMmbed/mbed-os.svg?branch=master)](https://travis-ci.org/ARMmbed/mbed-os)
  - Latest release [![Latest Tag CI Badge](https://travis-ci.org/ARMmbed/mbed-os.svg?branch=latest)](https://travis-ci.org/ARMmbed/mbed-os/branches)
 
+Tools coverage [![Coverage Status](https://coveralls.io/repos/github/ARMmbed/mbed-os/badge.svg?branch=master)](https://coveralls.io/github/ARMmbed/mbed-os?branch=master)
+
 ## Getting Started for Developers
  
 You need [mbed CLI](https://github.com/ARMmbed/mbed-cli) to build mbed OS. For more details, read the [mbed OS Handbook](https://docs.mbed.com/docs/mbed-os-handbook/en/latest/).
