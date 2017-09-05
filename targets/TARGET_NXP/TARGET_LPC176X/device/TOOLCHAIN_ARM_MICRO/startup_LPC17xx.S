@@ -99,12 +99,6 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
                 DCD     PLL1_IRQHandler           ; 48: PLL1 Lock (USB PLL)
 
 
-                IF      :LNOT::DEF:NO_CRP
-                AREA    |.ARM.__at_0x02FC|, CODE, READONLY
-CRP_Key         DCD     0xFFFFFFFF
-                ENDIF
-
-
                 AREA    |.text|, CODE, READONLY
 
 
