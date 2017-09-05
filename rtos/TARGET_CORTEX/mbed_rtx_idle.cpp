@@ -177,22 +177,28 @@ static void default_idle_hook(void)
 {
     uint32_t elapsed_ticks = 0;
 
-    core_util_critical_section_enter();
-    uint32_t ticks_to_sleep = svcRtxKernelSuspend();
-    MBED_ASSERT(os_timer->get_tick() == svcRtxKernelGetTickCount());
+
+    uint32_t ticks_to_sleep = osKernelSuspend();
+    MBED_ASSERT(os_timer->get_tick() == osKernelGetTickCount());
     if (ticks_to_sleep) {
+
         os_timer->schedule_tick(ticks_to_sleep);
 
+        core_util_critical_section_enter();
         sleep_manager_lock_deep_sleep();
-        sleep();
+        if (osKernelCanSleep()) {
+            sleep();
+        }
         sleep_manager_unlock_deep_sleep();
+        core_util_critical_section_exit();
 
         os_timer->cancel_tick();
         // calculate how long we slept
         elapsed_ticks = os_timer->update_tick();
+
     }
-    svcRtxKernelResume(elapsed_ticks);
-    core_util_critical_section_exit();
+    osKernelResume(elapsed_ticks);
+
 }
 
 #else

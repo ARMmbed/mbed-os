@@ -641,3 +641,13 @@ uint32_t osKernelGetSysTimerFreq (void) {
     return  __svcKernelGetSysTimerFreq();
   }
 }
+
+/// Check if it is safe to sleep.
+osStatus_t osKernelCanSleep (void) {
+  if (osRtxInfo.kernel.pendSV) {
+    return osErrorTimeout;
+  } else {
+    return osOK;
+  }
+}
+
