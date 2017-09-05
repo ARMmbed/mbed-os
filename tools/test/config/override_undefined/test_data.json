@@ -1,5 +1,4 @@
-
- {
+{
     "f": {
         "exception_msg": "Attempt to override undefined parameter 'base1_1' in 'target:b2'"
     },
@@ -11,4 +10,3 @@
         "target.derived2": "v_derived2_d1"
     }
 }
-

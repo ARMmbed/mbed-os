@@ -1,5 +1,4 @@
-
- {
+{
     "f": {
         "target.base1_1": "v_base1_1_f",
         "target.base1_2": "v_base1_2_d1",
@@ -24,4 +23,3 @@
         "target.derived2": "v_derived2_d1"
     }
 }
-
