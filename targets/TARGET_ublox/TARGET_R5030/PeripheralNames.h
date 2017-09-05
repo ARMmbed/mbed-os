@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-/*#define STDIO_UART_TX     UART0_TX
+#define STDIO_UART_TX     UART0_TX
 #define STDIO_UART_RX     UART0_RX
 
 typedef enum {
@@ -78,7 +78,7 @@ typedef enum {
     PIN_FUNCTION_UART1_RI = 41,
     PIN_FUNCTION_LP_UART = 42,
     PIN_FUNCTION_MAX_NUMBER
-} PinFunction;*/
+} PinFunction;
 
 #ifdef __cplusplus
 }

@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-/*typedef enum {
+typedef enum {
     PIN_INPUT,
     PIN_OUTPUT
 } PinDirection;
@@ -102,7 +102,7 @@ typedef enum {
     PullDown = 1,
     PullUp = 0xff,  // TODO: current HI2110 chip does not have pull-up 
     PullDefault = PullDown // TODO: mbed requires PullUp as default but HI2110 doesn't have it 
-} PinMode;*/
+} PinMode;
 
 #ifdef __cplusplus
 }

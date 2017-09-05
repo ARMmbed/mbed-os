@@ -18,17 +18,59 @@
 #define MBED_OBJECTS_H
 
 #include "cmsis.h"
-//#include "PortNames.h"
-//#include "PeripheralNames.h"
-//#include "PinNames.h"
+#include "PortNames.h"
+#include "PeripheralNames.h"
+#include "PinNames.h"
 #include "stdbool.h"
+#include "uart.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+typedef enum {
+    IRQ_NOT_SET,
+    IRQ_ON,
+    IRQ_OFF
+} irq_setting_t;
 
+struct port_s {
+    __IO uint32_t *reg_dir;
+    __IO uint32_t *reg_out;
+    __IO uint32_t *reg_val;
+    __IO uint32_t *reg_drv;
+    PortName port;
+    uint32_t mask;
+};
 
-//#include "gpio_object.h"
+// Check if needed in KM
+struct gpio_irq_s {
+    /* Don't bother with having a port number here as there's only one */
+    uint32_t ch;   /* Corresponds to the interrupt pin */
+};
+
+struct serial_s {
+    SerialConfig config;
+    PinName rx_pin;
+    PinName tx_pin;
+
+    //  add it once serial is being done
+    volatile uart_ctrl_t *reg_base;
+     /*
+     *
+     */
+    uint8_t index;
+    uint32_t baud_rate;
+    bool format_set; /* If true then the struct that follows is populated */
+    struct {
+        uint8_t stop_bits;
+        uint8_t data_bits;
+        uint8_t parity;
+    } format;
+    irq_setting_t irq_rx_setting;
+    irq_setting_t irq_tx_setting;
+};
+
+#include "gpio_object.h"
 
 #ifdef __cplusplus
 }
