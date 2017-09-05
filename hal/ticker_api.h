@@ -132,8 +132,9 @@ void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj,
  *
  * The event will be executed in timestamp - ticker_read_us() us.
  *
- * @warning If an event is inserted with a timestamp less than the current
- * timestamp then the event will **not** be inserted.
+ * @note If an event is inserted with a timestamp less than the current
+ * timestamp then the event will be scheduled immediately resulting in
+ * an instant call to event handler.
  *
  * @param ticker    The ticker object.
  * @param obj       The event object to be inserted to the queue
