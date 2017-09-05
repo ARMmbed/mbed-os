@@ -20,9 +20,7 @@
 #ifndef MBEDTLS_DEVICE_H
 #define MBEDTLS_DEVICE_H
 
-/* FIXME: Don't enable AES hardware acceleration until issue #4928 is fixed.
- * (https://github.com/ARMmbed/mbed-os/issues/4928) */
-/* #define MBEDTLS_AES_ALT */
+#define MBEDTLS_AES_ALT
 
 #define MBEDTLS_SHA256_ALT
 
