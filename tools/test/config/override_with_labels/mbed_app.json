@@ -4,11 +4,11 @@
         "app2": "v_app2"
     },
     "target_overrides": {
-        "b1_label": {
-            "app1": "v_app1[b1_label]"
+        "left_intermediate_label": {
+            "app1": "v_app1[left_intermediate_label]"
         },
-        "b2_label": {
-            "app2": "v_app2[b2_label]"
+        "right_intermediate_label": {
+            "app2": "v_app2[right_intermediate_label]"
         },
         "dummy_label": {
             "app1": "dummy.app1",

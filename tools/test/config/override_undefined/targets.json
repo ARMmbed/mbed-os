@@ -1,5 +1,5 @@
 {
-    "b1": {
+    "first_base_target": {
         "extra_labels": [],
         "default_lib": "std",
         "core": "Cortex-M0",
@@ -9,8 +9,8 @@
             "base1_3": "v_base1_3_b1"
         }
     },
-    "d1": {
-        "inherits": ["b1"],
+    "intermediate": {
+        "inherits": ["first_base_target"],
         "config": {
             "derived1": "v_derived1_d1",
             "derived2": "v_derived2_d1"
@@ -20,7 +20,7 @@
             "base1_2": "v_base1_2_d1"
         }
     },
-    "b2": {
+    "second_base_target": {
         "config": {
             "base2_1": "v_base2_1_b2",
             "base2_2": "v_base2_2_b2"
@@ -29,8 +29,8 @@
             "base1_1": "v_base1_1_b2"
         }
     },
-    "f": {
-        "inherits": ["b2", "d1"],
+    "should_fail": {
+        "inherits": ["second_base_target", "intermediate"],
         "config": {
             "f1_1": "v_f1_1_f",
             "f1_2": "v_f1_2_f"

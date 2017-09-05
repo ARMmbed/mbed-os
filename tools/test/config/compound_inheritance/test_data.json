@@ -1,5 +1,5 @@
 {
-    "f": {
+    "inherits_diamond": {
         "target.base1_1": "v_base1_1_f",
         "target.base1_2": "v_base1_2_b2",
         "target.base1_3": "v_base1_3_b1",
@@ -10,7 +10,7 @@
         "target.f1_1": "v_f1_1_f_override",
         "target.f1_2": "v_f1_2_f"
     },
-    "b2": {
+    "right_middle": {
         "target.base1_1": "v_base1_1_b1",
         "target.base1_2": "v_base1_2_b2",
         "target.base1_3": "v_base1_3_b1",
