@@ -697,8 +697,12 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
     // Select card and wait for card to be ready before sending next command
     // Note: next command will fail if card is not ready
     _select();
-    if (false == _wait_ready(SD_COMMAND_TIMEOUT)) {
-        debug_if(SD_DBG, "Card not ready yet \n");
+
+    // No need to wait for card to be ready when sending the stop command
+    if (CMD12_STOP_TRANSMISSION != cmd) {
+        if (false == _wait_ready(SD_COMMAND_TIMEOUT)) {
+            debug_if(SD_DBG, "Card not ready yet \n");
+        }
     }
 
     // Re-try command
@@ -706,11 +710,10 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
         // Send CMD55 for APP command first
         if (isAcmd) {
             response = _cmd_spi(CMD55_APP_CMD, 0x0);
-        }
-
-        // Wait for card to be ready after CMD55
-        if (false == _wait_ready(SD_COMMAND_TIMEOUT)) {
-            debug_if(SD_DBG, "Card not ready yet \n");
+            // Wait for card to be ready after CMD55
+            if (false == _wait_ready(SD_COMMAND_TIMEOUT)) {
+                debug_if(SD_DBG, "Card not ready yet \n");
+            }
         }
 
         // Send command over SPI interface
