@@ -110,6 +110,9 @@
     "LPC1768": {
         "OGChipSelectEditMenu": "LPC1768\tNXP LPC1768"
     },
+    "LPC1769": {
+        "OGChipSelectEditMenu": "LPC1769\tNXP LPC1769"
+    },
     "STM32F446RE": {
         "OGChipSelectEditMenu": "STM32F446RE\tST STM32F446RE"
     },
