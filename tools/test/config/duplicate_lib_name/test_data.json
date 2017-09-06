@@ -1,0 +1,5 @@
+{
+    "K64F": {
+        "exception_msg": "Library name 'lib1' is not unique"
+    }
+}

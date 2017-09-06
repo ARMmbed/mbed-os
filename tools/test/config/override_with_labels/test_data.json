@@ -1,0 +1,18 @@
+{
+    "left_intermediate": {
+        "app.app1": "v_app1[left_intermediate_label]",
+        "app.app2": "v_app2"
+    },
+    "right_intermediate": {
+        "app.app1": "v_app1",
+        "app.app2": "v_app2[right_intermediate_label]"
+    },
+    "both": {
+        "app.app1": "v_app1[left_intermediate_label]",
+        "app.app2": "v_app2[right_intermediate_label]"
+    },
+    "base": {
+        "app.app1": "v_app1",
+        "app.app2": "v_app2"
+    }
+}

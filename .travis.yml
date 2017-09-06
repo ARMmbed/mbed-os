@@ -19,14 +19,13 @@ script:
   - |
     find  -name "*.s" | tee BUILD/badasm | sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
   - make -C events/equeue test clean
-  - PYTHONPATH=. python tools/test/config_test/config_test.py
-  - PYTHONPATH=. python tools/test/build_api/build_api_test.py
-  - PYTHONPATH=. python tools/test/targets/target_test.py
-  - python tools/test/pylint.py
-  - py.test tools/test/toolchains/api.py
-  - python tools/test/memap/memap_test.py
-  - python tools/project.py -S
-  - python tools/build_travis.py
+  - PYTHONPATH=. coverage run -a -m pytest tools/test
+  - python2 tools/test/pylint.py
+  - coverage run -a tools/project.py -S
+  - python2 tools/build_travis.py
+  - coverage html
+after_success:
+  - coveralls
 before_install:
   - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
   - sudo add-apt-repository -y ppa:libreoffice/libreoffice-4-2
@@ -42,3 +41,5 @@ install:
   - pip install pylint
   - pip install hypothesis
   - pip install mock
+  - pip install coverage
+  - pip install coveralls

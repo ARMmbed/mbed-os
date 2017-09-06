@@ -1,0 +1,18 @@
+{
+    "base": {
+        "extra_labels": [],
+        "default_lib": "std",
+        "core": "Cortex-M0"
+    },
+    "left_intermediate": {
+        "inherits": ["base"],
+        "extra_labels_add": ["b1_label"]
+    },
+    "right_intermediate": {
+        "inherits": ["base"],
+        "extra_labels_add": ["b2_label"]
+    },
+    "both": {
+        "inherits": ["left_intermediate", "right_intermediate"]
+    }
+}

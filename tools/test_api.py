@@ -2195,9 +2195,10 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                         results.remove(r)
 
                         # Take report from the kwargs and merge it into existing report
-                        report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
-                        for test_key in report_entry.keys():
-                            report[target_name][toolchain_name][test_key] = report_entry[test_key]
+                        if report:
+                            report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
+                            for test_key in report_entry.keys():
+                                report[target_name][toolchain_name][test_key] = report_entry[test_key]
 
                         # Set the overall result to a failure if a build failure occurred
                         if ('reason' in worker_result and
@@ -2221,7 +2222,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                             }
 
                             test_key = worker_result['kwargs']['project_id'].upper()
-                            print report[target_name][toolchain_name][test_key][0][0]['output'].rstrip()
+                            if report:
+                                print report[target_name][toolchain_name][test_key][0][0]['output'].rstrip()
                             print 'Image: %s\n' % bin_file
 
                     except:

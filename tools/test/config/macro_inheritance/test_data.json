@@ -1,0 +1,5 @@
+{
+    "test_target": {
+        "expected_macros": ["APP1=10", "APP2", "LIB1_1=1","LIB1_2", "LIB2_1=5"]
+    }
+}

@@ -1,0 +1,9 @@
+{
+   "test_target": {
+        "lib1.p1": "v_p1_lib1_app",
+        "lib1.p2": "v_p2_lib1",
+        "lib1.p3": "v_p3_lib1",
+        "lib2.p1": "v_p1_lib2_app",
+        "lib2.p2": "v_p2_lib2"
+    }
+}

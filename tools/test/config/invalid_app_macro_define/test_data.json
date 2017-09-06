@@ -1,0 +1,5 @@
+{
+    "K64F": {
+        "exception_msg": "Macro 'LIB2_1' defined in both 'library:lib2' and 'application' with incompatible values"
+    }
+}
