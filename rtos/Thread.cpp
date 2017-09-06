@@ -168,7 +168,11 @@ Thread::State Thread::get_state() {
     _mutex.lock();
 
     if (_tid != NULL) {
+#if defined(MBED_OS_BACKEND_RTX5)
         state = _obj_mem.state;
+#else
+        state = osThreadGetState(_tid);
+#endif
     }
 
     _mutex.unlock();
@@ -185,6 +189,7 @@ Thread::State Thread::get_state() {
         case osThreadRunning:
             user_state = Running;
             break;
+#if defined(MBED_OS_BACKEND_RTX5)
         case osRtxThreadWaitingDelay:
             user_state = WaitingDelay;
             break;
@@ -212,6 +217,7 @@ Thread::State Thread::get_state() {
         case osRtxThreadWaitingMessagePut:
             user_state = WaitingMessagePut;
             break;
+#endif
         case osThreadTerminated:
         default:
             user_state = Deleted;
@@ -226,8 +232,7 @@ uint32_t Thread::stack_size() {
     _mutex.lock();
 
     if (_tid != NULL) {
-        os_thread_t *thread = (os_thread_t *)_tid;
-        size = thread->stack_size;
+        size = osThreadGetStackSize(_tid);
     }
 
     _mutex.unlock();
@@ -238,10 +243,12 @@ uint32_t Thread::free_stack() {
     uint32_t size = 0;
     _mutex.lock();
 
+#if defined(MBED_OS_BACKEND_RTX5)
     if (_tid != NULL) {
         os_thread_t *thread = (os_thread_t *)_tid;
         size = (uint32_t)thread->sp - (uint32_t)thread->stack_mem;
     }
+#endif
 
     _mutex.unlock();
     return size;
@@ -251,10 +258,12 @@ uint32_t Thread::used_stack() {
     uint32_t size = 0;
     _mutex.lock();
 
+#if defined(MBED_OS_BACKEND_RTX5)
     if (_tid != NULL) {
         os_thread_t *thread = (os_thread_t *)_tid;
         size = ((uint32_t)thread->stack_mem + thread->stack_size) - thread->sp;
     }
+#endif
 
     _mutex.unlock();
     return size;
@@ -265,11 +274,15 @@ uint32_t Thread::max_stack() {
     _mutex.lock();
 
     if (_tid != NULL) {
+#if defined(MBED_OS_BACKEND_RTX5)
         os_thread_t *thread = (os_thread_t *)_tid;
         uint32_t high_mark = 0;
         while (((uint32_t *)(thread->stack_mem))[high_mark] == 0xE25A2EA5)
             high_mark++;
         size = thread->stack_size - (high_mark * sizeof(uint32_t));
+#else
+        size = osThreadGetStackSize(_tid) - osThreadGetStackSpace(_tid);
+#endif
     }
 
     _mutex.unlock();
