@@ -83,8 +83,6 @@ void analogin_init(analogin_t *obj, PinName pin)
     ADCName peripheral;
     uint32_t function, channel;
 
-    uint16_t nAveragingSamples = 4;
-
     peripheral = (ADCName)pinmap_peripheral(pin, &PinMap_ADC[0]);	// gives peripheral
     MBED_ASSERT(peripheral != (ADCName)NC);
 
@@ -131,10 +129,6 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     /* Set the acquisition time. (Application need to change it based on the impedence) */
     adi_adc_SetAcquisitionTime ( hDevice, obj->SampleCycles);
-
-    /* Sample averaging */
-    //adi_adc_EnableAveraging (hDevice, nAveragingSamples ) 	;
-
 }
 
 /** Read the input voltage, represented as a float in the range [0.0, 1.0]
