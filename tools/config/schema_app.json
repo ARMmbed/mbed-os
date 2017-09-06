@@ -4,99 +4,18 @@
   "description": "Configuration file for an mbed library",
   "type": "object",
   "$id": "http://example.com/root.json",
-  "definitions": {
-    "config_parameter_long": {
-      "type": "object",
-      "properties": {
-        "help": {
-          "description": "An optional help message that describes the purpose of the parameter",
-          "type": "string"
-        },
-        "value": {
-          "description": "An optional field that defines the value of the parameter",
-          "type": [
-            "integer",
-            "string",
-            "boolean"
-          ]
-        },
-        "required": {
-          "description": "An optional field that specifies whether the parameter must be given a value before compiling the code. (False by default)",
-          "type": "boolean"
-        },
-        "macro_name": {
-          "description": "An optional field for the macro defined at compile time for this configuration parameter. The system will automatically figure out the macro name from the configuration parameter, but this field will override it",
-          "type": "string"
-        }
-      }
-    },
-    "config_parameter_short": {
-      "type": [
-        "string",
-        "integer",
-        "boolean"
-      ]
-    },
-    "config_parameter_base": {
-      "oneOf": [
-        {
-          "$ref": "#/definitions/config_parameter_long"
-        },
-        {
-          "$ref": "#/definitions/config_parameter_short"
-        }
-      ]
-    },
-    "target_override_entry": {
-      "type": "object",
-      "patternProperties": {
-        "^\\S+$": {}
-      },
-      "additionalProperties": false
-    }
-  },
   "properties": {
     "name": {
-      "description": "Name of the library",
-      "type": "string",
-      "items": {
-        "type": "string"
-      }
+      "$ref": "file:definitions.json#/name_definition"
     },
     "config": {
-      "description": "List of configuration parameters",
-      "type": "object",
-      "patternProperties": {
-        "^[^ ]+$": {
-          "$ref": "#/definitions/config_parameter_base"
-        }
-      },
-      "additionalProperties": false
+      "$ref": "file:definitions.json#/config_definition"
     },
     "target_overrides": {
-      "description": "List of overrides for specific targets",
-      "type": "object",
-      "patternProperties": {
-        "\\*": {
-          "type": "object",
-          "patternProperties": {
-            ".*\\..*": {}
-          },
-          "additionalProperties": false
-        },
-        "^\\S+$": {
-          "$ref": "#/definitions/target_override_entry"
-        }
-      },
-      "additionalProperties": false
+      "$ref": "file:definitions.json#/target_overrides_definition"
     },
     "macros": {
-      "description": "A list of extra macros that will be defined when compiling a project that includes this library.",
-      "type": "array",
-      "items": {
-        "type": "string",
-        "pattern": "(^[\\w]+$|^[\\w]+=.+$)"
-      }
+      "$ref": "file:definitions.json#/macro_definition"
     },
     "artifact_name": {
       "type": "string"

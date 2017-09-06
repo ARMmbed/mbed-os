@@ -25,7 +25,7 @@ from os.path import splitext, relpath
 from intelhex import IntelHex
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
-from jsonschema import validate, Draft4Validator
+from jsonschema import Draft4Validator, RefResolver
 # Implementation of mbed configuration mechanism
 from tools.utils import json_file_to_dict, intelhex_offset
 from tools.arm_pack_manager import Cache
@@ -408,8 +408,12 @@ class Config(object):
                                 % self.app_config_location))
 
         # Validate the format of the JSON file based on the schema_app.json
-        schema_path = os.path.join(os.path.dirname(__file__), "schema_app.json")
-        validator = Draft4Validator(json_file_to_dict(schema_path))
+        schema_root = os.path.dirname(__file__)
+        schema_path = os.path.join(schema_root, "schema_app.json")
+        schema_file = json_file_to_dict(schema_path)
+
+        resolver = RefResolver("file://{}/".format(schema_root), schema_file)
+        validator = Draft4Validator(schema_file, resolver=resolver)
 
         errors = sorted(validator.iter_errors(self.app_config_data))
 
@@ -466,9 +470,13 @@ class Config(object):
                 continue
 
             # Validate the format of the JSON file based on the schema_lib.json
-            schema_path = os.path.join(os.path.dirname(__file__),
-                                       "schema_lib.json")
-            validator = Draft4Validator(json_file_to_dict(schema_path))
+            schema_root = os.path.dirname(__file__)
+            schema_path = os.path.join(schema_root, "schema_lib.json")
+            schema_file = json_file_to_dict(schema_path)
+
+            resolver = RefResolver("file://{}/".format(schema_root),
+                                   schema_file)
+            validator = Draft4Validator(schema_file, resolver=resolver)
 
             errors = sorted(validator.iter_errors(cfg))
 
