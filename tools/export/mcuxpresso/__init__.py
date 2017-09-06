@@ -24,7 +24,11 @@ modified for MCUXpresso by Johannes Stratmann <jojos62@online.de>
 """
 
 import copy
+import tempfile
+import shutil
 
+from subprocess import Popen, PIPE
+from os import getcwd, remove
 from os.path import splitext, basename, exists
 from random import randint
 
@@ -258,12 +262,12 @@ class MCUXpresso(GNUARMEclipse):
         tmp_folder = tempfile.mkdtemp()
 
         cmd = [
-            'mcuxpressoidec',
+            'mcuxpressoide',
             '--launcher.suppressErrors',
             '-nosplash',
             '-application org.eclipse.cdt.managedbuilder.core.headlessbuild',
             '-data', tmp_folder,
-            '-import', os.getcwd(),
+            '-import', getcwd(),
             '-cleanBuild', project_name
         ]
 
@@ -291,15 +295,15 @@ class MCUXpresso(GNUARMEclipse):
         # Cleanup the exported and built files
         if cleanup:
             if exists(log_name):
-                os.remove(log_name)
-            os.remove('.project')
-            os.remove('.cproject')
+                remove(log_name)
+            remove('.project')
+            remove('.cproject')
             if exists('Debug'):
                 shutil.rmtree('Debug')
             if exists('Release'):
                 shutil.rmtree('Release')
             if exists('makefile.targets'):
-                os.remove('makefile.targets')
+                remove('makefile.targets')
 
         # Always remove the temporary folder.
         if exists(tmp_folder):
