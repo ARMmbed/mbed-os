@@ -21,16 +21,14 @@
 #include "rtl8195a.h"
 
 #if defined(__CC_ARM)
-#ifdef CONFIG_RTL8195A
-    #define INITIAL_SP          0x10070000
-    #define ISR_STACK_START 0x1FFFEFFC
-#else
-	#ERROR "NOT SUPPORT NOW" 
-#endif
+    extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Base[];
+    extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Length[];
+    #define ISR_STACK_START     (unsigned char *)(Image$$ARM_LIB_STACK$$ZI$$Base)
+    #define ISR_STACK_SIZE      (uint32_t)(Image$$ARM_LIB_STACK$$ZI$$Length)
+    #define INITIAL_SP          (uint32_t)(Image$$ARM_LIB_STACK$$ZI$$Base)
 #elif defined(__GNUC__)
     extern uint32_t             __StackTop[];
     extern uint32_t             __StackLimit[];
-//    extern uint32_t             __end__[];
     extern uint32_t             __HeapLimit[];
     #define INITIAL_SP          (__StackTop)
 #endif
@@ -54,4 +52,3 @@
 
 #endif
 #endif
-

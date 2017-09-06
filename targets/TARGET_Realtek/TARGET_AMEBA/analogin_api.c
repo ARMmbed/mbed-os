@@ -113,12 +113,10 @@ void analogin_init (analogin_t *obj, PinName pin)
 
     /* Load user setting */
     if ((pHalADCInitDataTmp->ADCEndian == ADC_DATA_ENDIAN_LITTLE) || (pHalADCInitDataTmp->ADCEndian == ADC_DATA_ENDIAN_BIG)) {
-        DBG_8195A("K\n");
         pSalADCHND->pInitDat->ADCEndian = pHalADCInitDataTmp->ADCEndian;
     }
     
     if ((pHalADCInitDataTmp->ADCAudioEn != ADC_FEATURE_DISABLED) && (pHalADCInitDataTmp->ADCAudioEn < 2)) {
-        DBG_8195A("O\n");
         pSalADCHND->pInitDat->ADCAudioEn = pHalADCInitDataTmp->ADCAudioEn;
     }
     

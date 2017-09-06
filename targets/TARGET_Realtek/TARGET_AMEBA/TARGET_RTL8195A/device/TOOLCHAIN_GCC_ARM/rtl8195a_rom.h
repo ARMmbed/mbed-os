@@ -13,11 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-ENTRY(Reset_Handler)
-
-/*INCLUDE "mbed-os/targets/TARGET_Realtek/TARGET_AMEBA/TARGET_RTL8195A/device/TOOLCHAIN_GCC_ARM/export-rom_v02.txt"*/
 SECTIONS
 {
     __vectors_table = 0x0;
@@ -28,6 +23,7 @@ SECTIONS
     BusFault_Handler = 0x125;
     UsageFault_Handler = 0x129;
     HalLogUartInit = 0x201;
+    HalSerialPutcRtl8195a = 0x2d9;
     HalSerialGetcRtl8195a = 0x309;
     HalSerialGetIsrEnRegRtl8195a = 0x329;
     HalSerialSetIrqEnRegRtl8195a = 0x335;
@@ -171,7 +167,7 @@ SECTIONS
     HalGdmaChDisRtl8195a = 0x5e6d;
     HalGdamChInitRtl8195a = 0x5e91;
     HalGdmaChSetingRtl8195a = 0x5ebd;
-    HalGdmaChBlockSetingRtl8195a = 0x000060dd;
+    HalGdmaChBlockSetingRtl8195a = 0x60dd;
     HalGdmaChIsrCleanRtl8195a = 0x6419;
     HalGdmaChCleanAutoSrcRtl8195a = 0x64a1;
     HalGdmaChCleanAutoDstRtl8195a = 0x6501;
@@ -337,20 +333,30 @@ SECTIONS
     _memcmp = 0xf429;
     _memcpy = 0xf465;
     _memset = 0xf511;
+    __memcmp = 0xf429;
+    __memcpy = 0xf465;
+    __memset = 0xf511;
     Rand = 0xf585;
     _strncpy = 0xf60d;
     _strcpy = 0xf629;
+    __strncpy = 0xf60d;
+    __strcpy = 0xf629;
     prvStrCpy = 0xf639;
     _strlen = 0xf651;
     _strnlen = 0xf669;
+    __strlen = 0xf651;
+    __strnlen = 0xf669;
     prvStrLen = 0xf699;
     _strcmp = 0xf6b1;
     _strncmp = 0xf6d1;
+    __strcmp = 0xf6b1;
+    __strncmp = 0xf6d1;
     prvStrCmp = 0xf719;
     StrUpr = 0xf749;
     prvAtoi = 0xf769;
     prvStrStr = 0xf7bd;
     _strsep = 0xf7d5;
+    __strsep = 0xf7d5;
     skip_spaces = 0xf815;
     skip_atoi = 0xf831;
     _parse_integer_fixup_radix = 0xf869;
@@ -365,8 +371,8 @@ SECTIONS
     div_s64 = 0xff99;
     div_u64_rem = 0xffa1;
     div_s64_rem = 0xffb1;
-    _strpbrk = 0xffc1;
-    _strchr = 0xffed;
+    __strpbrk = 0xffc1;
+    __strchr = 0xffed;
     aes_set_key = 0x10005;
     aes_encrypt = 0x103d1;
     aes_decrypt = 0x114a5;
@@ -613,6 +619,11 @@ SECTIONS
     __AES_rcon = 0x30e78;
     __AES_Te4 = 0x30ea0;
     I2CDmaChNo = 0x312a0;
+    _GPIO_PinMap_Chip2IP_8195a = 0x312b4;
+    _GPIO_PinMap_PullCtrl_8195a = 0x3136c;
+    _GPIO_SWPORT_DDR_TBL = 0x31594;
+    _GPIO_EXT_PORT_TBL = 0x31598;
+    _GPIO_SWPORT_DR_TBL = 0x3159c;
     UartLogRomCmdTable = 0x316a0;
     _HalRuartOp = 0x31700;
     _HalGdmaOp = 0x31760;
@@ -634,6 +645,90 @@ SECTIONS
     rom_wps_rcons = 0x35d88;
     rom_wps_Td4s = 0x35d94;
     rom_wps_Td0 = 0x35e94;
+    __rom_b_cut_end__ = 0x4467c;
+    __rom_c_cut_text_start__ = 0x4467c;
+    HalInitPlatformLogUartV02 = 0x4467d;
+    HalReInitPlatformLogUartV02 = 0x4471d;
+    HalInitPlatformTimerV02 = 0x44755;
+    HalShowBuildInfoV02 = 0x447cd;
+    SpicReleaseDeepPowerDownFlashRtl8195A = 0x44831;
+    HalSpiInitV02 = 0x4488d;
+    HalBootFlowV02 = 0x44a29;
+    HalInitialROMCodeGlobalVarV02 = 0x44ae5;
+    HalResetVsrV02 = 0x44b41;
+    HalI2CSendRtl8195aV02 = 0x44ce1;
+    HalI2CSetCLKRtl8195aV02 = 0x44d59;
+    RtkI2CSendV02 = 0x4508d;
+    RtkI2CReceiveV02 = 0x459a1;
+    HalI2COpInitV02 = 0x461ed;
+    I2CISRHandleV02 = 0x463e9;
+    RtkSalI2COpInitV02 = 0x46be1;
+    SpicLoadInitParaFromClockRtl8195AV02 = 0x46c25;
+    SpiFlashAppV02 = 0x46c85;
+    SpicInitRtl8195AV02 = 0x46dc5;
+    SpicEraseFlashRtl8195AV02 = 0x46ea1;
+    HalTimerIrq2To7HandleV02 = 0x46f5d;
+    HalTimerIrqRegisterRtl8195aV02 = 0x46fe1;
+    HalTimerInitRtl8195aV02 = 0x4706d;
+    HalTimerReadCountRtl8195aV02 = 0x471b5;
+    HalTimerReLoadRtl8195aV02 = 0x471d1;
+    HalTimerIrqUnRegisterRtl8195aV02 = 0x4722d;
+    HalTimerDeInitRtl8195aV02 = 0x472c1;
+    HalTimerOpInitV02 = 0x472f9;
+    GPIO_LockV02 = 0x47345;
+    GPIO_UnLockV02 = 0x47379;
+    GPIO_Int_Clear_8195aV02 = 0x473a5;
+    HAL_GPIO_IntCtrl_8195aV02 = 0x473b5;
+    FindElementIndexV02 = 0x47541;
+    HalRuartInitRtl8195aV02 = 0x4756d;
+    DramInit_rom = 0x47619;
+    ChangeRandSeed_rom = 0x47979;
+    Sdr_Rand2_rom = 0x47985;
+    MemTest_rom = 0x479dd;
+    SdrCalibration_rom = 0x47a45;
+    SdrControllerInit_rom = 0x47d99;
+    SDIO_EnterCritical = 0x47e39;
+    SDIO_ExitCritical = 0x47e85;
+    SDIO_IRQ_Handler_Rom = 0x47ec5;
+    SDIO_Interrupt_Init_Rom = 0x47f31;
+    SDIO_Device_Init_Rom = 0x47f81;
+    SDIO_Interrupt_DeInit_Rom = 0x48215;
+    SDIO_Device_DeInit_Rom = 0x48255;
+    SDIO_Enable_Interrupt_Rom = 0x48281;
+    SDIO_Disable_Interrupt_Rom = 0x482a1;
+    SDIO_Clear_ISR_Rom = 0x482c1;
+    SDIO_Alloc_Rx_Pkt_Rom = 0x482d9;
+    SDIO_Free_Rx_Pkt_Rom = 0x48331;
+    SDIO_Recycle_Rx_BD_Rom = 0x48355;
+    SDIO_RX_IRQ_Handler_BH_Rom = 0x484f1;
+    SDIO_RxTask_Rom = 0x4851d;
+    SDIO_Process_H2C_IOMsg_Rom = 0x4856d;
+    SDIO_Send_C2H_IOMsg_Rom = 0x4859d;
+    SDIO_Process_RPWM_Rom = 0x485b5;
+    SDIO_Reset_Cmd_Rom = 0x485e9;
+    SDIO_Rx_Data_Transaction_Rom = 0x48611;
+    SDIO_Send_C2H_PktMsg_Rom = 0x48829;
+    SDIO_Register_Tx_Callback_Rom = 0x488f5;
+    SDIO_ReadMem_Rom = 0x488fd;
+    SDIO_WriteMem_Rom = 0x489a9;
+    SDIO_SetMem_Rom = 0x48a69;
+    SDIO_TX_Pkt_Handle_Rom = 0x48b29;
+    SDIO_TX_FIFO_DataReady_Rom = 0x48c69;
+    SDIO_IRQ_Handler_BH_Rom = 0x48d95;
+    SDIO_TxTask_Rom = 0x48e9d;
+    SDIO_TaskUp_Rom = 0x48eed;
+    SDIO_Boot_Up = 0x48f55;
+    __rom_c_cut_text_end__ = 0x49070;
+    __rom_c_cut_rodata_start__ = 0x49070;
+    BAUDRATE_v02 = 0x49070;
+    OVSR_v02 = 0x490fc;
+    DIV_v02 = 0x49188;
+    OVSR_ADJ_v02 = 0x49214;
+    SdrDramInfo_rom = 0x492a0;
+    SdrDramTiming_rom = 0x492b4;
+    SdrDramModeReg_rom = 0x492e8;
+    SdrDramDev_rom = 0x49304;
+    __rom_c_cut_rodata_end__ = 0x49314;
     NewVectorTable = 0x10000000;
     UserIrqFunTable = 0x10000100;
     UserIrqDataTable = 0x10000200;
@@ -661,193 +756,4 @@ SECTIONS
     DM_CfoTrack = 0x10000738;
     rom_libgloss_ram_map = 0x10000760;
     __rtl_errno = 0x10000bc4;
-    _rtl_impure_ptr = 0x10001c60;
 }
-
-/* DATA_RAM: We cannot put Code(.text) in DATA_RAM, this region is reserved for Image1(boot loader).
-   But we can put .data/.bss of Image2 in this region */
-MEMORY
-{
-  TCM (rwx)        : ORIGIN = 0x1FFF0000, LENGTH = 0x00010000
-  ROM_USED_RAM (rwx)  : ORIGIN = 0x10000bc8, LENGTH = 0x10006000-0x10000bc8
-  DATA_RAM (rwx)   : ORIGIN = 0x10002100, LENGTH = 0x10006000 - 0x10002100
-  BD_RAM (rwx)     : ORIGIN = 0x10006000, LENGTH = 0x10070000 - 0x10006000
-  SD_RAM (rwx)     : ORIGIN = 0x30000000, LENGTH = 2M
-}
-
-/* Linker script to place sections and symbol values. Should be used together
- * with other linker script that defines memory regions FLASH and RAM.
- * It references following symbols, which must be defined in code:
- * _reset_init : Entry of reset handler
- *
- * It defines following symbols, which code can use without definition:
- * __exidx_start
- * __exidx_end
- * __etext
- * __data_start__
- * __preinit_array_start
- * __preinit_array_end
- * __init_array_start
- * __init_array_end
- * __fini_array_start
- * __fini_array_end
- * __data_end__
- * __bss_start__
- * __bss_end__
- * __end__
- * end
- * __HeapLimit
- * __StackLimit
- * __StackTop
- * __stack
- */
-ENTRY(Reset_Handler)
-
-SECTIONS
-{
-    __rom_bss_start__ = 0x10000300;
-    __rom_bss_end__ = 0x10000bc8;
-    __ram_table_start__ = 0x10000bc8;
-/*
-    .ram.start.table :
-	{
-	
-	} > ROM_USED_RAM
-*/
-    .image2.table :
-    {
-        __image2_start__ = .;
-        __image2_entry_func__ = .;
-        KEEP(*(SORT(.image2.ram.data*)))
-        __image2_validate_code__ = .;
-        KEEP(*(.image2.validate.rodata*))
-    } > BD_RAM
-
-    .text :
-    {
-        . = ALIGN(4);
-        *(.infra.ram.start*)
-        *(.mon.ram.text*)
-        *(.hal.flash.text*)
-        *(.hal.sdrc.text*)
-        *(.hal.gpio.text*)
-        *(.text*)
-
-        KEEP(*(.init))
-        KEEP(*(.fini))
-
-        /* .ctors */
-        *crtbegin.o(.ctors)
-        *crtbegin?.o(.ctors)
-        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
-        *(SORT(.ctors.*))
-        *(.ctors)
-
-        /* .dtors */
-        *crtbegin.o(.dtors)
-        *crtbegin?.o(.dtors)
-        *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
-        *(SORT(.dtors.*))
-        *(.dtors)
-	    *(.rodata*)
-        KEEP(*(.eh_frame*))
-    } > BD_RAM
-    __etext = .;
-
-
-    __data_start__ = .;
-    .data :
-    {
-        *(vtable)
-        *(.data*)
-
-        . = ALIGN(4);
-        /* preinit data */
-        PROVIDE (__preinit_array_start = .);
-        KEEP(*(.preinit_array))
-        PROVIDE (__preinit_array_end = .);
-
-        . = ALIGN(4);
-        /* init data */
-        PROVIDE (__init_array_start = .);
-        KEEP(*(SORT(.init_array.*)))
-        KEEP(*(.init_array))
-        PROVIDE (__init_array_end = .);
-
-        . = ALIGN(4);
-        /* finit data */
-        PROVIDE (__fini_array_start = .);
-        KEEP(*(SORT(.fini_array.*)))
-        KEEP(*(.fini_array))
-        PROVIDE (__fini_array_end = .);
-
-        . = ALIGN(4);
-
-        /* All data end */
-    } > BD_RAM
-    __data_end__ = .;
-    __image2_end__ = .;
-
-    .ARM.extab :
-    {
-        *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > BD_RAM
-
-    __exidx_start = .;
-    .ARM.exidx :
-    {
-        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > BD_RAM
-    __exidx_end = .;
-
-    .bss :
-    {
-        __bss_start__ = .;
-        *(.bss*)
-        *(.bdsram.data*)
-        *(COMMON)
-        __bss_end__ = .;
-    } > BD_RAM
-
-
-    .bf_data :
-    {
-        __buffer_data_start__ = .;
-        *(.bfsram.data*)
-        __buffer_data_end__ = .;
-    } > BD_RAM
-
-    .heap :
-    {
-        __end__ = .;
-        end = __end__;
-        *(.heap*)
-        __HeapLimit = .;
-    } > BD_RAM
-
-    .TCM_overlay :
-    {
-        *lwip_mem.o (.bss*)
-        *lwip_memp.o (.bss*)
-        *(.tcm.heap*)
-    } > TCM
-    
-    /* .stack_dummy section doesn't contains any symbols. It is only
-     * used for linker to calculate size of stack sections, and assign
-     * values to stack symbols later */
-    .stack_dummy :
-    {
-        *(.stack)
-    } > BD_RAM
-
-    /* Set stack top to end of RAM, and stack limit move down by
-     * size of stack_dummy section */
-    __StackTop = ORIGIN(BD_RAM) + LENGTH(BD_RAM);
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
-    PROVIDE(__stack = __StackTop);
-
-    /* Check if data + heap + stack exceeds RAM limit */
-    ASSERT(__StackLimit >= __HeapLimit, "region RAM exceeds ram limit")
-
-}
-

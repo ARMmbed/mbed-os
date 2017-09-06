@@ -77,21 +77,22 @@ uint32_t us_ticker_read()
 void us_ticker_set_interrupt(timestamp_t timestamp) 
 {
     uint32_t cur_time_us;
-    uint32_t time_def;
+    uint32_t time_dif;
 
-
+    HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
     cur_time_us = us_ticker_read();
-    if ((uint32_t)timestamp >= cur_time_us) {
-        time_def = (uint32_t)timestamp - cur_time_us;
+    if ((uint32_t)timestamp > cur_time_us) {
+        time_dif = (uint32_t)timestamp - cur_time_us;
     } else {
-        time_def = 0xffffffff - cur_time_us + (uint32_t)timestamp;
+        HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, 0xffffffff);
+        HalTimerOpExt.HalTimerIrqEn((u32)TimerAdapter.TimerId);
+        HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
+        NVIC_SetPendingIRQ(TIMER2_7_IRQ);
+        return;
     }    
 
-    if (time_def < TIMER_TICK_US) {
-        time_def = TIMER_TICK_US;       // at least 1 tick
-    }
-    HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
-    HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, time_def);
+    TimerAdapter.TimerLoadValueUs = time_dif;
+    HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, time_dif / TIMER_TICK_US);
     HalTimerOpExt.HalTimerIrqEn((u32)TimerAdapter.TimerId);
     HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
 
