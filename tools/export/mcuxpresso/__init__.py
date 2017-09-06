@@ -277,10 +277,12 @@ class MCUXpresso(GNUARMEclipse):
         stdout_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
         err_string = "=" * 10 + "STDERR" + "=" * 10 + "\n"
         err_string += err
+        success = any(l.startswith("Finished building target:") for l in out.split("\n"))
 
-        ret_string = "SUCCESS\n"
-        if ret_code != 0:
-            ret_string += "FAILURE\n"
+        if success:
+            ret_string = "SUCCESS\n"
+        else:
+            ret_string = "FAILURE: build returned %s \n" % ret_code
 
         print "%s\n%s\n%s\n%s" % (stdout_string, out, err_string, ret_string)
 
@@ -309,12 +311,7 @@ class MCUXpresso(GNUARMEclipse):
         if exists(tmp_folder):
             shutil.rmtree(tmp_folder)
 
-        if ret_code == 0:
-            # Return Success
-            return 0
-
-        # Seems like something went wrong.
-        return -1
+        return not(success)
 
 
     # -------------------------------------------------------------------------
