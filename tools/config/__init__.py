@@ -465,8 +465,6 @@ class Config(object):
                 sys.stderr.write(str(exc) + "\n")
                 continue
 
-            cfg["__config_path"] = full_path
-
             # Validate the format of the JSON file based on the schema_lib.json
             schema_path = os.path.join(os.path.dirname(__file__),
                                        "schema_lib.json")
@@ -476,6 +474,8 @@ class Config(object):
 
             if errors:
                 raise ConfigException(",".join(x.message for x in errors))
+
+            cfg["__config_path"] = full_path
 
             # If there's already a configuration for a module with the same
             # name, exit with error

@@ -95,12 +95,8 @@
       "type": "array",
       "items": {
         "type": "string",
-        "pattern": "^([A-Za-z0-9_]+|[A-Za-z0-9_]+=[0-9]+|[A-Za-z0-9_]+=\\\".*\\\")$"
+        "pattern": "(^[\\w]+$|^[\\w]+=.+$)"
       }
-    },
-    "__config_path": {
-      "description": "Path to configuration file",
-      "type": "string"
     },
     "artifact_name": {
       "type": "string"
