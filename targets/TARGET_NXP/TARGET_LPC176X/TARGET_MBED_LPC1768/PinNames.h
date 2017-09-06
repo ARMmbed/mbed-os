@@ -55,6 +55,32 @@ typedef enum {
     p18 = P0_26,
     p19 = P1_30,
     p20 = P1_31,
+#if defined(TARGET_LPC1769)
+    p21 = P0_2,
+    p22 = P0_3,
+    p23 = P0_21,
+    p24 = P0_22,
+    p25 = P0_27,
+    p26 = P0_28,
+    p27 = P2_13,
+
+    p38 = P0_4,
+    p39 = P0_5,
+    p40 = P0_10,
+    p41 = P0_11,
+    p42 = P2_0,
+    p43 = P2_1,
+    p44 = P2_2,
+    p45 = P2_3,
+    p46 = P2_4,
+    p47 = P2_5,
+    p48 = P2_6,
+    p49 = P2_7,
+    p50 = P2_8,
+    p51 = P2_10,
+    p52 = P2_11,
+    p53 = P2_12,
+#else
     p21 = P2_5,
     p22 = P2_4,
     p23 = P2_3,
@@ -65,6 +91,7 @@ typedef enum {
     p28 = P0_10,
     p29 = P0_5,
     p30 = P0_4,
+#endif
 
     // Other mbed Pin Names
 #ifdef MCB1700
@@ -72,6 +99,11 @@ typedef enum {
     LED2 = P1_29,
     LED3 = P1_31,
     LED4 = P2_2,
+#elif defined(TARGET_LPC1769)
+    LED1 = P0_22,
+    LED2 = P0_22,
+    LED3 = P0_22,
+    LED4 = P0_22,
 #else
     LED1 = P1_18,
     LED2 = P1_20,
@@ -113,8 +145,8 @@ typedef enum {
     I2C_SDA0 = NC,
     I2C_SCL1 = p10,
     I2C_SDA1 = p9,
-    I2C_SCL2 = p27, // pin used by application board
-    I2C_SDA2 = p28, // pin used by application board
+    I2C_SCL2 = P0_11, // pin used by application board
+    I2C_SDA2 = P0_10, // pin used by application board
     I2C_SCL = I2C_SCL2,
     I2C_SDA = I2C_SDA2,
 } PinName;
