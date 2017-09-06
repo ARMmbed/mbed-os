@@ -313,6 +313,12 @@ class Sw4STM32(GNUARMEclipse):
             item = opts['ld']['flags'][index]
             if not item.startswith('-Wl,'):
                 opts['ld']['flags'][index] = '-Wl,' + item
+        # Assembler options
+        for as_def in self.as_defines:
+            if '=' in as_def:
+                opts['as']['other'] += ' --defsym ' + as_def
+            else:
+                opts['as']['other'] += ' --defsym ' + as_def + '=1'
 
     def generate(self):
         """
@@ -349,8 +355,9 @@ class Sw4STM32(GNUARMEclipse):
         self.cpp_defines = self.c_defines
         print 'Symbols: {0}'.format(len(self.c_defines))
 
-        self.include_path = [self.filter_dot(s)
-                             for s in self.resources.inc_dirs]
+        self.include_path = []
+        for s in self.resources.inc_dirs:
+            self.include_path.append("../" + self.filter_dot(s))
         print ('Include folders: {0}'.format(len(self.include_path)))
 
         self.compute_exclusions()
@@ -361,6 +368,15 @@ class Sw4STM32(GNUARMEclipse):
         print ('Linker script:   {0}'.format(ld_script))
 
         lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
+
+        preproc_cmd = ""
+        # Hack for Windows. Build fails if command contains parentheses.
+        if ('(' in self.toolchain.preproc[0] or ')' in self.toolchain.preproc[0]) and self.toolchain.preproc[0][0] != "'":
+            preproc_cmd = '"' + \
+                self.toolchain.preproc[0] + '"' + " " + \
+                " ".join(self.toolchain.preproc[1:])
+        else:
+            preproc_cmd = " ".join(self.toolchain.preproc)
 
         for id in ['debug', 'release']:
             opts = {}
@@ -407,13 +423,6 @@ class Sw4STM32(GNUARMEclipse):
 
             self.process_sw_options(opts, flags)
 
-            if opts['as']['usepreprocessor']:
-                opts['as']['other'] += ' -x assembler-with-cpp'
-            for as_def in self.as_defines:
-                if '=' in as_def:
-                    opts['as']['other'] += ' -Wa,--defsym ' + as_def
-                else:
-                    opts['as']['other'] += ' -Wa,--defsym ' + as_def + '=1'
             opts['c']['defines'] = self.c_defines
             opts['cpp']['defines'] = self.cpp_defines
 
@@ -447,7 +456,7 @@ class Sw4STM32(GNUARMEclipse):
             'libraries': libraries,
             'board_name': self.BOARDS[self.target.upper()]['name'],
             'mcu_name': self.BOARDS[self.target.upper()]['mcuId'],
-            'cpp_cmd': " ".join(self.toolchain.preproc),
+            'cpp_cmd': preproc_cmd,
             'options': options,
             # id property of 'u' will generate new random identifier every time
             # when called.

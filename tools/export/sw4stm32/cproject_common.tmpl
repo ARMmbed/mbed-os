@@ -16,7 +16,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="elf" artifactName="${ProjName}-{{cfg_id}}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.{{cfg_id}}" cleanCommand="rm -rf" description="" id="fr.ac6.managedbuild.config.gnu.cross.exe.{{cfg_id}}.{{opts['uid']['config']}}" name="{{opts['name']}}" parent="fr.ac6.managedbuild.config.gnu.cross.exe.{{cfg_id}}" postannouncebuildStep="Generating binary and Printing size information:" postbuildStep="arm-none-eabi-objcopy -O binary &quot;${BuildArtifactFileBaseName}.elf&quot; &quot;${ProjName}.bin&quot; &amp;&amp; arm-none-eabi-size -B &quot;${BuildArtifactFileName}&quot; &amp;&amp; make ldclean">
+				<configuration artifactExtension="elf" artifactName="${ProjName}-{{cfg_id}}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.{{cfg_id}}" cleanCommand="rm -rf" description="" id="fr.ac6.managedbuild.config.gnu.cross.exe.{{cfg_id}}.{{opts['uid']['config']}}" name="{{opts['name']}}" parent="fr.ac6.managedbuild.config.gnu.cross.exe.{{cfg_id}}" postannouncebuildStep="Generating binary and Printing size information:" postbuildStep="arm-none-eabi-objcopy -O binary &quot;${BuildArtifactFileBaseName}.elf&quot; &quot;${ProjName}.bin&quot; &amp;&amp; arm-none-eabi-size -B &quot;${BuildArtifactFileName}&quot; &amp;&amp; make ldclean" preannouncebuildStep="Creating makefile.defs:" prebuildStep="echo &quot;export PREPROC_CMD = ${openstm32_compiler_path}/${compiler_prefix}cpp -E -P&quot; &gt; ${ProjDirPath}/makefile.defs">
 					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.{{cfg_id}}.{{opts['uid']['config']}}." name="/" resourcePath="">
 						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.exe.{{cfg_id}}.{{u.id}}" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.exe.{{cfg_id}}">
 							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.{{u.id}}" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu" value="{{mcu_name}}" valueType="string"/>
@@ -39,7 +39,7 @@
 								{% endif %}
 								<option id="gnu.c.compiler.option.include.paths.{{u.id}}" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									{% for path in include_paths %}
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;{{path}}&quot;"/>
 									{% endfor %}
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.{{u.id}}" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
@@ -124,7 +124,7 @@
 								{% endif %}
 								<option id="gnu.cpp.compiler.option.include.paths.{{u.id}}" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									{% for path in include_paths %}
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;{{path}}&quot;"/>
 									{% endfor %}
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.{{u.id}}" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
@@ -196,8 +196,8 @@
 							</tool>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.{{u.id}}" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker">
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script.{{u.id}}" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.script" value="${ProjDirPath}/{{opts['name']}}/{{opts['ld']['script']}}" valueType="string"/>
-								{% if opts['ld']['flags'] != '' %}
-								<option id="gnu.cpp.link.option.flags.{{u.id}}" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="{{ opts['ld']['flags']|join(' ') }}" valueType="string"/>
+								{% if opts['ld']['flags'] != '' or opts['ld']['other'] != '' %}
+								<option id="gnu.cpp.link.option.flags.{{u.id}}" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="{{ opts['ld']['flags']|join(' ') }} {{opts['ld']['other']}}" valueType="string"/>
 								{% endif %}
 								<option id="gnu.cpp.link.option.userobjs.{{u.id}}" name="Other objects" superClass="gnu.cpp.link.option.userobjs" valueType="userObjs">
 									{% for path in object_files %}
@@ -256,7 +256,7 @@
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.{{u.id}}" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler">
 								<option id="gnu.both.asm.option.include.paths.{{u.id}}" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									{% for path in include_paths %}
-									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;{{path}}&quot;"/>
 									{% endfor %}
 								</option>
 								<option id="gnu.both.asm.option.flags.{{u.id}}" superClass="gnu.both.asm.option.flags" useByScannerDiscovery="false" value="{{opts['as']['other']}}" valueType="string"/>
