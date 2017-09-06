@@ -118,6 +118,13 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_2, PreviousVal + HAL_TICK_DELAY);
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 
+#ifndef NDEBUG
+#ifdef TIM_MST_DBGMCU_FREEZE
+    // Freeze timer on stop/breakpoint
+    TIM_MST_DBGMCU_FREEZE;
+#endif
+#endif
+
 #if DEBUG_TICK > 0
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitTypeDef GPIO_InitStruct;
