@@ -20,7 +20,7 @@ from tools.utils import mkdir
 from tools.export.gnuarmeclipse import GNUARMEclipse
 from tools.export.gnuarmeclipse import UID
 from tools.build_api import prepare_toolchain
-from sys import flags
+from sys import flags, platform
 
 # Global random number generator instance.
 u = UID()
@@ -447,6 +447,7 @@ class Sw4STM32(GNUARMEclipse):
 
         ctx = {
             'name': self.project_name,
+            'platform': platform,
             'include_paths': self.include_path,
             'config_header': config_header,
             'exclude_paths': '|'.join(self.excluded_folders),
@@ -470,3 +471,5 @@ class Sw4STM32(GNUARMEclipse):
         self.gen_file('sw4stm32/cproject_common.tmpl', ctx, '.cproject')
         self.gen_file('sw4stm32/makefile.targets.tmpl', ctx,
                       'makefile.targets', trim_blocks=True, lstrip_blocks=True)
+        self.gen_file('sw4stm32/launch.tmpl', ctx, self.project_name +
+                      ' ' + options['debug']['name'] + '.launch')
