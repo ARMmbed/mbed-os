@@ -69,6 +69,7 @@ static const RAIL_CsmaConfig_t csma_config = RAIL_CSMA_CONFIG_802_15_4_2003_2p4_
 #include "ieee802154_efr32xg1_configurator_out.h"
 #elif defined(TARGET_EFR32MG12) || defined(TARGET_EFR32FG12)
 #include "ieee802154_efr32xg12_configurator_out.h"
+#include "ieee802154_efr32xg12_configurator_out.h"
 #else
 #error "Not a valid target."
 #endif
