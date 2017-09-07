@@ -44,7 +44,6 @@ extern uint8_t Image$$RW_DRAM2$$ZI$$Limit[];
 
 #pragma section=".ram.bss"
 
-extern uint32_t CSTACK$$Limit;
 uint8_t *__bss_start__;
 uint8_t *__bss_end__;
 
@@ -56,8 +55,6 @@ void __iar_data_init_app(void)
 
 #else
 
-extern uint32_t __StackTop;
-extern uint32_t __StackLimit;
 extern uint8_t __bss_sram_start__[];
 extern uint8_t __bss_sram_end__[];
 extern uint8_t __bss_dtcm_start__[];
@@ -70,7 +67,6 @@ extern uint8_t __bss_dram_end__[];
 extern VECTOR_Func NewVectorTable[];
 extern void SystemCoreClockUpdate(void);
 extern void PLAT_Start(void);
-extern void PLAT_Init(void);
 extern void PLAT_Main(void);
 
 IMAGE2_START_RAM_FUN_SECTION
@@ -189,7 +185,6 @@ void PLAT_Init(void)
     __rtl_memset_v1_00((void *)__bss_dtcm_start__, 0, __bss_dtcm_end__ - __bss_dtcm_start__);
     __rtl_memset_v1_00((void *)__bss_dram_start__, 0, __bss_dram_end__ - __bss_dram_start__);
 #endif
-
 
     extern HAL_TIMER_OP_EXT HalTimerOpExt;
     __rtl_memset_v1_00((void *)&HalTimerOpExt, 0, sizeof(HalTimerOpExt));
