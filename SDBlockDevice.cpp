@@ -423,19 +423,16 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
         // Write data
         response = _write(buffer, SPI_START_BLOCK, _block_size);
+
         // Only CRC and general write error are communicated via response token
         if ((response == SPI_DATA_CRC_ERROR) || (response == SPI_DATA_WRITE_ERROR)) {
             debug_if(SD_DBG, "Single Block Write failed: 0x%x \n", response);
             status = SD_BLOCK_DEVICE_ERROR_WRITE;
         }
-
-        /* Once the programming operation is completed, the host should check the
-         * results of the programming using the SEND_STATUS command (CMD13).
-         */
-        status = _cmd(CMD13_SEND_STATUS, 0);
     } else {
         // Pre-erase setting prior to multiple block write operation
         _cmd(ACMD23_SET_WR_BLK_ERASE_COUNT, blockCnt, 1);
+
         // Multiple block write command
         if (BD_ERROR_OK != (status = _cmd(CMD25_WRITE_MULTIPLE_BLOCK, addr))) {
             _lock.unlock();
@@ -456,28 +453,10 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
          * sending 'Stop Tran' token instead of 'Start Block' token at the beginning
          * of the next block
          */
-        _select();
         _spi.write(SPI_STOP_TRAN);
-        _deselect();
-
-        // Wait for last block to be written
-        if (false == _wait_ready(SD_COMMAND_TIMEOUT)) {
-            debug_if(SD_DBG, "Card not ready yet \n");
-        }
-
-        /* In case of Write Error indication (on the data response) the host shall
-         * use SEND_NUM_WR_BLOCKS (ACMD22) in order to get the number of well written write blocks.
-         */
-        if(response == SPI_DATA_WRITE_ERROR) {
-            if (BD_ERROR_OK == _cmd(ACMD22_SEND_NUM_WR_BLOCKS, 0, 1)) {
-                uint8_t wr_blocks[4];
-                if (BD_ERROR_OK == _read_bytes(wr_blocks, 4)) {
-                    debug_if(_dbg, "Blocks Written without errors: 0x%x\n",
-                            ((wr_blocks[0] << 24) | (wr_blocks[1] << 16) | (wr_blocks[2] << 0) | wr_blocks[3]));
-                }
-            }
-        }
     }
+
+    _deselect();
     _lock.unlock();
     return status;
 }
@@ -504,27 +483,15 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         addr = addr / _block_size;
     }
 
-    for (uint8_t i = 0; i < 3; i++) {
-        // Write command ro receive data
-        if (blockCnt > 1) {
-            status = _cmd(CMD18_READ_MULTIPLE_BLOCK, addr);
-        } else {
-            status = _cmd(CMD17_READ_SINGLE_BLOCK, addr);
-        }
-        if (BD_ERROR_OK != status) {
-            _lock.unlock();
-            return status;
-        }
-
-        // For the first time in read if start token is not received
-        // means command is lost, retry sending read command once more
-        if (SD_BLOCK_DEVICE_ERROR_NO_RESPONSE == _read(buffer, _block_size)) {
-            continue;
-        } else {
-            buffer += _block_size;
-            --blockCnt;
-            break;
-        }
+    // Write command ro receive data
+    if (blockCnt > 1) {
+        status = _cmd(CMD18_READ_MULTIPLE_BLOCK, addr);
+    } else {
+        status = _cmd(CMD17_READ_SINGLE_BLOCK, addr);
+    }
+    if (BD_ERROR_OK != status) {
+        _lock.unlock();
+        return status;
     }
 
     // receive the data : one block at a time
@@ -536,6 +503,7 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         buffer += _block_size;
         --blockCnt;
     }
+    _deselect();
 
     // Send CMD12(0x00000000) to stop the transmission for multi-block transfer
     if (size > _block_size) {
@@ -792,6 +760,13 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
         *resp = response;
     }
 
+    // Do not deselect card if read is in progress.
+    if (((CMD9_SEND_CSD == cmd) || (ACMD22_SEND_NUM_WR_BLOCKS == cmd) ||
+        (CMD24_WRITE_BLOCK == cmd) || (CMD25_WRITE_MULTIPLE_BLOCK == cmd) ||
+        (CMD17_READ_SINGLE_BLOCK == cmd) || (CMD18_READ_MULTIPLE_BLOCK == cmd))
+        && (BD_ERROR_OK == status)) {
+        return BD_ERROR_OK;
+    }
     // Deselect card
     _deselect();
     return status;
@@ -838,8 +813,6 @@ uint32_t SDBlockDevice::_go_idle_state() {
 int SDBlockDevice::_read_bytes(uint8_t *buffer, uint32_t length) {
     uint16_t crc;
 
-    _select();
-
     // read until start byte (0xFE)
     if (false == _wait_token(SPI_START_BLOCK)) {
         debug_if(SD_DBG, "Read timeout\n");
@@ -863,8 +836,6 @@ int SDBlockDevice::_read_bytes(uint8_t *buffer, uint32_t length) {
 int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
     uint16_t crc;
 
-    _select();
-
     // read until start byte (0xFE)
     if (false == _wait_token(SPI_START_BLOCK)) {
         debug_if(SD_DBG, "Read timeout\n");
@@ -879,23 +850,12 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length) {
     crc = (_spi.write(SPI_FILL_CHAR) << 8);
     crc |= _spi.write(SPI_FILL_CHAR);
 
-    _deselect();
     return 0;
 }
 
 uint8_t SDBlockDevice::_write(const uint8_t *buffer, uint8_t token, uint32_t length) {
     uint16_t crc = 0xFFFF;
     uint8_t response = 0xFF;
-
-    // Select card
-    _select();
-
-    /* If previous write is in progress, the card will drive DO low again when reselected.
-     * Therefore a preceding busy check, check if card is busy prior to each command and
-     * data packet, instead of post wait, can eliminate busy wait time */
-    if( false == _wait_ready(SD_COMMAND_TIMEOUT)) {
-        debug_if(SD_DBG, "Card not ready yet \n");
-    }
 
     // indicate start of block
     _spi.write(token);
@@ -909,7 +869,12 @@ uint8_t SDBlockDevice::_write(const uint8_t *buffer, uint8_t token, uint32_t len
 
     // check the response token
     response = _spi.write(SPI_FILL_CHAR);
-    _deselect();
+
+    // Wait for last block to be written
+    if (false == _wait_ready(SD_COMMAND_TIMEOUT)) {
+        debug_if(SD_DBG, "Card not ready yet \n");
+    }
+
     return (response & SPI_DATA_RESPONSE_MASK);
 }
 
@@ -1046,6 +1011,7 @@ void SDBlockDevice::_select() {
 
 void SDBlockDevice::_deselect() {
     _cs = 1;
+    _spi.write(SPI_FILL_CHAR);
     _spi.unlock();
 }
 
