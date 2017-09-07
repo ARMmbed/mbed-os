@@ -271,7 +271,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="{{exclude_paths}}|Debug|Release" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="{{exclude_paths}}" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -287,6 +287,9 @@
 		{% for cfg_key in options %}
 		{% set opts = options[cfg_key] %}	
 		<scannerConfigBuildInfo instanceId="fr.ac6.managedbuild.config.gnu.cross.exe.{{opts['id']}}.{{opts['uid']['config']}};fr.ac6.managedbuild.config.gnu.cross.exe.{{opts['id']}}.{{opts['uid']['config']}}.;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.{{opts['uid']['tool_c_compiler']}};fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.{{opts['uid']['tool_c_compiler_input']}}">
+			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="fr.ac6.managedbuild.config.gnu.cross.exe.{{opts['id']}}.{{opts['uid']['config']}};fr.ac6.managedbuild.config.gnu.cross.exe.{{opts['id']}}.{{opts['uid']['config']}}.;fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.{{opts['uid']['tool_cpp_compiler']}};fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.{{opts['uid']['tool_cpp_compiler_input']}}">
 			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
 		</scannerConfigBuildInfo>
 		{% endfor %}
