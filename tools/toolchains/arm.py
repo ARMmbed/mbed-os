@@ -320,6 +320,9 @@ class ARMC6(ARM_STD):
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)
 
+    def is_not_supported_error(self, output):
+        return "#error [NOT_SUPPORTED]" in output
+
     def parse_output(self, output):
         pass
 
