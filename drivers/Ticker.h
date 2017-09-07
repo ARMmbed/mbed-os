@@ -101,6 +101,11 @@ public:
      *
      *  @param func pointer to the function to be called
      *  @param t the time between calls in micro-seconds
+     *
+     *  @note setting @a t to a value shorter that it takes to process the ticker callback
+     *  will cause the system to hang. Ticker callback will be called constantly with no time
+     *  for threads scheduling.
+     *
      */
     void attach_us(Callback<void()> func, us_timestamp_t t) {
         // lock only for the initial callback setup
