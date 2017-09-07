@@ -129,9 +129,10 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 
 uint32_t flash_get_page_size(const flash_t *obj)
 {
-    // not applicable for STM32F4
-    return (0x4000); // minimum sector size
+    // Flash of STM32F4 devices can be programed 1 byte at a time
+    return (1);
 }
+
 uint32_t flash_get_start_address(const flash_t *obj)
 {
     return FLASH_BASE;
@@ -151,7 +152,7 @@ static uint32_t GetSector(uint32_t address)
     uint32_t sector = 0; 
     uint32_t tmp = address - ADDR_FLASH_SECTOR_0;
     /* This function supports 1Mb and 2Mb flash sizes */
-#if defined(ADDR_FLASH_SECTOR_12)
+#if defined(ADDR_FLASH_SECTOR_16)
     if (address & 0x100000) { // handle 2nd bank
         sector = FLASH_SECTOR_12;
         tmp = address - ADDR_FLASH_SECTOR_12;
@@ -159,11 +160,19 @@ static uint32_t GetSector(uint32_t address)
 #endif
     if (address < ADDR_FLASH_SECTOR_4) { // 16k sectorsize
         sector += tmp >>14;
-    } else if (address < ADDR_FLASH_SECTOR_5) { //64k sector size
+    }
+#if defined(ADDR_FLASH_SECTOR_5)
+    else if (address < ADDR_FLASH_SECTOR_5) { //64k sector size
         sector += FLASH_SECTOR_4; 
     } else {
         sector += 4 + (tmp >>17);
     }
+#else
+    // In case ADDR_FLASH_SECTOR_5 is not defined, sector 4 is the last one.
+    else { //64k sector size
+        sector += FLASH_SECTOR_4; 
+    }
+#endif
     return sector;
 }
 
@@ -175,7 +184,7 @@ static uint32_t GetSector(uint32_t address)
 static uint32_t GetSectorSize(uint32_t Sector)
 {
     uint32_t sectorsize = 0x00;
-#if defined(FLASH_SECTOR_12)
+#if defined(FLASH_SECTOR_16)
     if((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || (Sector == FLASH_SECTOR_2) ||\
        (Sector == FLASH_SECTOR_3) || (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) ||\
        (Sector == FLASH_SECTOR_14) || (Sector == FLASH_SECTOR_15)) {

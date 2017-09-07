@@ -365,6 +365,7 @@ class SingleTestRunner(object):
             clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
             profile = extract_profile(self.opts_parser, self.opts, toolchain)
+            stats_depth = self.opts.stats_depth or 2
 
 
             try:
@@ -481,23 +482,13 @@ class SingleTestRunner(object):
 
                 project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
                 try:
-                    path = build_project(test.source_dir,
-                                     join(build_dir, test_id),
-                                     T,
-                                     toolchain,
-                                     test.dependencies,
-                                     clean=clean_project_options,
-                                     verbose=self.opts_verbose,
-                                     name=project_name,
-                                     macros=MACROS,
-                                     inc_dirs=INC_DIRS,
-                                     jobs=self.opts_jobs,
-                                     report=build_report,
-                                     properties=build_properties,
-                                     project_id=test_id,
-                                     project_description=test.get_description(),
-                                     build_profile=profile,
-                                     stats_depth=stats_depth)
+                    path = build_project(test.source_dir, join(build_dir, test_id), T,
+                        toolchain, test.dependencies, clean=clean_project_options,
+                        verbose=self.opts_verbose, name=project_name, macros=MACROS,
+                        inc_dirs=INC_DIRS, jobs=self.opts_jobs, report=build_report,
+                        properties=build_properties, project_id=test_id,
+                        project_description=test.get_description(),
+                        build_profile=profile, stats_depth=stats_depth)
 
                 except Exception, e:
                     project_name_str = project_name if project_name is not None else test_id
@@ -1988,6 +1979,12 @@ def get_default_test_options_parser():
                         default=False,
                         action="store_true",
                         help='Prints script version and exits')
+
+    parser.add_argument('--stats-depth',
+                        dest='stats_depth',
+                        default=2,
+                        type=int,
+                        help="Depth level for static memory report")
     return parser
 
 def test_path_to_name(path, base):

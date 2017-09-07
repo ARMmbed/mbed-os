@@ -262,6 +262,7 @@ PPPCellularInterface::PPPCellularInterface(FileHandle *fh, bool debug)
     _pwd = NULL;
     _fh = fh;
     _debug_trace_on = debug;
+    _stack = DEFAULT_STACK;
     dev_info.reg_status_csd = CSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.reg_status_psd = PSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.ppp_connection_up = false;
@@ -451,21 +452,38 @@ nsapi_error_t PPPCellularInterface::setup_context_and_credentials()
         return NSAPI_ERROR_PARAMETER;
     }
 
-    bool try_ipv6 = false;
+#if NSAPI_PPP_IPV4_AVAILABLE && NSAPI_PPP_IPV6_AVAILABLE
+    const char ipv4v6_pdp_type[] = {"IPV4V6"};
+    const char ipv4_pdp_type[] = {"IP"};
+    const char *pdp_type = ipv4v6_pdp_type;
+    _stack = IPV4V6_STACK;
+#elif NSAPI_PPP_IPV6_AVAILABLE
+    const char pdp_type[] = {"IPV6"};
+#elif NSAPI_PPP_IPV4_AVAILABLE
+    const char pdp_type[] = {"IP"};
+#endif
     const char *auth = _uname && _pwd ? "CHAP:" : "";
 
-retry_without_ipv6:
+#if NSAPI_PPP_IPV4_AVAILABLE && NSAPI_PPP_IPV6_AVAILABLE
+retry_without_dual_stack:
+#endif
     success = _at->send("AT"
                           "+FCLASS=0;" // set to connection (ATD) to data mode
                           "+CGDCONT="CTX",\"%s\",\"%s%s\"",
-                          try_ipv6 ? "IPV4V6" : "IP", auth, _apn
+                          pdp_type, auth, _apn
                          )
                    && _at->recv("OK");
 
-    if (!success && try_ipv6) {
-        try_ipv6 = false;
-        goto retry_without_ipv6;
+#if NSAPI_PPP_IPV4_AVAILABLE && NSAPI_PPP_IPV6_AVAILABLE
+    if (_stack == IPV4V6_STACK) {
+        if (!success) {
+            // fallback to ipv4
+            pdp_type = ipv4_pdp_type;
+            _stack = IPV4_STACK;
+            goto retry_without_dual_stack;
+        }
     }
+#endif
 
     if (!success) {
         _at->recv("OK");
@@ -662,7 +680,7 @@ nsapi_error_t PPPCellularInterface::connect()
         /* Initialize PPP
          * mbed_ppp_init() is a blocking call, it will block until
          * connected, or timeout after 30 seconds*/
-        retcode = nsapi_ppp_connect(_fh, _connection_status_cb, _uname, _pwd);
+        retcode = nsapi_ppp_connect(_fh, _connection_status_cb, _uname, _pwd, _stack);
         if (retcode == NSAPI_ERROR_OK) {
             dev_info.ppp_connection_up = true;
         }

@@ -840,7 +840,7 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */TESTS/* \
                          */targets/* \
                          */BUILD/* \
-                         */rtos/rtx* \
+                         */rtos/TARGET_CORTEX/rtx* \
                          */cmsis/* \
                          */FEATURE_* \
                          */features/mbedtls/* \

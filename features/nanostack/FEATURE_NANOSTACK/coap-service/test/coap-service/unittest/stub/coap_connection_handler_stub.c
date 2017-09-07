@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
  */
 
 #include <string.h>
@@ -32,7 +32,7 @@ coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, 
     return thread_conn_handler_stub.handler_obj;
 }
 
-void connection_handler_destroy(coap_conn_handler_t *handler)
+void connection_handler_destroy( coap_conn_handler_t *handler, bool multicast_group_leave)
 {
 
 }

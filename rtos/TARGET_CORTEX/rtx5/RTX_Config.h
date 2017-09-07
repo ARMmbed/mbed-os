@@ -30,7 +30,7 @@
 #ifndef RTX_CONFIG_H_
 #define RTX_CONFIG_H_
 
-#include "rtx5/mbed_rtx_conf.h"
+#include "mbed_rtx_conf.h"
 
 //-------- <<< Use Configuration Wizard in Context Menu >>> --------------------
  

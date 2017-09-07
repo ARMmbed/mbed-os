@@ -31,6 +31,12 @@
 #include "xdot_low_power.h"
 #include "stdio.h"
 
+#if defined(NDEBUG) && NDEBUG == 1
+#define xdot_lp_debug(...) do {} while(0)
+#else
+#define xdot_lp_debug(...) printf(__VA_ARGS__)
+#endif
+
 static uint32_t portA[6];
 static uint32_t portB[6];
 static uint32_t portC[6];
@@ -230,7 +236,7 @@ void xdot_enter_stop_mode() {
     HSERCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL4;
     HSERCC_OscInitStruct.PLL.PLLDIV          = RCC_PLL_DIV3;
     if (HAL_RCC_OscConfig(&HSERCC_OscInitStruct) != HAL_OK) {
-        printf("OSC initialization failed - initiating soft reset\r\n");
+        xdot_lp_debug("OSC initialization failed - initiating soft reset\r\n");
         NVIC_SystemReset();
     }
 
@@ -241,7 +247,7 @@ void xdot_enter_stop_mode() {
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 32 MHz
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 32 MHz
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
-        printf("PLL initialization failed - initiating soft reset\r\n");
+        xdot_lp_debug("PLL initialization failed - initiating soft reset\r\n");
         NVIC_SystemReset();
     }
 
@@ -254,7 +260,7 @@ void xdot_enter_stop_mode() {
         HSIRCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
         HAL_StatusTypeDef ret = HAL_RCC_OscConfig(&HSIRCC_OscInitStruct);
         if ( ret != HAL_OK ) {
-            printf("HSI initialization failed - ADC will not function properly\r\n");
+            xdot_lp_debug("HSI initialization failed - ADC will not function properly\r\n");
         }
     }
 

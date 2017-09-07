@@ -49,18 +49,18 @@ public:
      *  The block device to format should be mounted when this function is called.
      *
      *  @param bd
-     *    This is the block device that will be formated.
+     *    This is the block device that will be formatted.
      *
-     *  @param allocation_unit
-     *    This is the number of bytes per cluster size. The valid value is N
-     *    times the sector size. N is a power of 2 from 1 to 128 for FAT
-     *    volume and upto 16MiB for exFAT volume. If zero is given,
-     *    the default allocation unit size is selected by the underlying
-     *    filesystem, which depends on the volume size.
+     *  @param cluster_size
+     *    This is the number of bytes per cluster. A larger cluster size will decrease
+     *    the overhead of the FAT table, but also increase the minimum file size. The
+     *    cluster_size must be a multiple of the underlying device's allocation unit
+     *    and is currently limited to a max of 32,768 bytes. If zero, a cluster size
+     *    will be determined from the device's allocation unit. Defaults to zero.
      *   
      *  @return         0 on success, negative error code on failure
      */
-    static int format(BlockDevice *bd, int allocation_unit = 0);
+    static int format(BlockDevice *bd, bd_size_t cluster_size = 0);
 
     /** Mounts a filesystem to a block device
      *

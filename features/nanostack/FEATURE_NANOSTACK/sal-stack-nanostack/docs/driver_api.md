@@ -1,41 +1,107 @@
 # Device Driver API
 
-
 The 6LoWPAN stack uses Device Driver API to communicate with different physical layer drivers. The 6LoWPAN stack supports different device types for PHY layer and special cases where raw IPv6 datagrams are forwarded to a driver.
 
-The driver must first be registered with the 6LoWPAN stack using the `phy_device_driver_s` structure defined in section [_PHY device driver register_](#phy-device-driver-register). This structure defines all the functions that a stack uses in calling a device driver. When the device driver must call the driver API from the stack, it uses the ID number received in the registration phase to distinct between different devices. The following sections define the contents of the driver structures and API interfaces that the driver can use.
+The driver must first be registered with the 6LoWPAN stack using the `phy_device_driver_s` structure defined in section [_PHY device driver register_](#phy-device-driver-register). This structure defines all the functions that the stack uses when calling a device driver. When the device driver must call the driver API from the stack, it uses the ID number received in the registration phase to distinct between different devices. The following sections define the contents of the driver structures and API interfaces that the driver can use.
 
-See Doxygen documentation for the latest [Device Drive API](https://docs.mbed.com/docs/arm-ipv66lowpan-stack/en/latest/api/arm__hal__phy_8h.html)
+See Doxygen documentation for the latest [Device Drive API](https://docs.mbed.com/docs/arm-ipv66lowpan-stack/en/latest/api/arm__hal__phy_8h.html).
+
+## Providing RF driver for Mbed OS applications
+
+For Mbed OS 5, the RF driver implements the `NanostackRfPhy` API. `MeshInterfaceNanostack` requires the driver object to be provided when initializing.
+
+![NanostackRfPhy](img/NanostackRfPhy.png)
+
+Applications use only `LoWPANNDInterface`, `ThreadInterface` or `NanostackEthernetInterface`
+directly to set up the network and provide a driver. The rest of the classes provide an abstration
+between Nanostack and the socket layers of Mbed OS.
+
+See [NanostackRfPhy.h](https://github.com/ARMmbed/mbed-os/blob/master/features/nanostack/FEATURE_NANOSTACK/nanostack-interface/NanostackRfPhy.h) for an up-to-date header file and API.
 
 ### How to create a new RF driver
 
-The following steps describe how you can create a new RF driver.
+The following steps describe how you can create a new RF driver:
 
 1. Read through the section [_Example RF driver_](#example-rf-driver). You can use this example code as your starting point.
 
-2. Fill in the actual transceiver-specific parts of the RF driver.
+1. Fill in the actual transceiver-specific parts of the RF driver.
 
-3. Register the driver to the 6LoWPAN stack on your application. You can use the example node applications with your driver.
+1. Register the driver to the 6LoWPAN stack on your application. You can use the example node applications with your driver.
 
-4. Create a MAC that is suitable for your purpose (802.15.4, Ethernet or serial).
+1. Create a MAC that is suitable for your purpose (802.15.4, Ethernet or serial).
 
-5. Configure the interface. See instructions in section _How to configure a network interface_ of the chapter [_6LoWPAN stack Initialisation_](07_API_initialize.md#how-to-configure-a-network-interface).
+1. Configure the interface. See instructions in the chapter [_6LoWPAN stack Initialisation_](07_API_initialize.md#how-to-configure-a-network-interface).
 
-6. Check with a RF sniffer tool that you can see RF packets transmitted when you start your device. The 6LoWPAN bootstrap should start with IEEE 802.15.4 Beacon Request packets.
+1. Implement the `NanostackRfPhy` API.
+
+1. Check with a RF sniffer tool that you can see RF packets transmitted when you start your device. The 6LoWPAN bootstrap should start with IEEE 802.15.4 Beacon Request packets.
+
+#### Worker thread for Mbed OS
+
+Nanostack's interfaces use mutexes for protecting the access from multiple threads. In Mbed OS, the mutex cannot be used
+from an interrupt. The same applies to all APIs that have internal locking and multithread support. Therefore, each driver must implement their own worker thread to handle the interrupt requests.
+
+![Worker Thread](img/worker_thread.png)
+
+Example: Use worked thread and signals from an interrupt
+
+```
+// Signals from interrupt routines
+#define SIG_RADIO       1
+#define SIG_TIMER       2
+
+// Worker thread
+Thread irq_thread;
+
+// Interrupt routines
+static void rf_interrupt(void)
+{
+    irq_thread.signal_set(SIG_RADIO);
+}
+
+static void rf_timer_signal(void)
+{
+    irq_thread.signal_set(SIG_TIMER);
+}
+
+
+// Worker thread
+void rf_worker_thread(void)
+{
+    for (;;) {
+        osEvent event = irq_thread.signal_wait(0);
+        if (event.status != osEventSignal) {
+            continue;
+        }
+
+        if (event.value.signals & SIG_RADIO) {
+            rf_process_irq();
+        }
+        if (event.value.signals & SIG_TIMER) {
+            rf_process_timer();
+        }
+    }
+}
+
+...
+// Somewhere in the initialization code
+irq_thread.start(rf_if_irq_task);
+
+```
 
 ### RF driver states
 
 _Figure 11-1_ below shows the basic states of the RF driver.
 
-The following describes the basic states in more detail:
+The basic states in more detail:
 
 State|Description
 -----|-----------
 `DOWN`|This is the initial state of the driver. The radio is not used in this state.
-`RX ACTIVE`|In this state, the driver has the radio turned on and it can receive a packet or ACK from the radio. The driver can also go from this state to the TX ACTIVE state to transmit a packet.
+`RX ACTIVE`|In this state, the driver has the radio turned on and it can receive a packet or ACK from the radio. The driver can also go from this state to the `TX ACTIVE` state to transmit a packet.
 `TX ACTIVE`|In this state, the driver will try to start a transmission:<br>1. It must first check that it is not currently busy doing something else.<br>2. It must check that the channel is free.<br>3. Finally, it can try to transmit the packet.
 `SNIFFER`|This mode can be implemented to enable using the device as a packet sniffer. In this state, the RX is always on and the received packets are sent to the application layer but nothing is transmitted back.
-`ED SCAN`|This mode can be implemented to enable using energy scan. It enables scanning the energy from channels one by one and nothing else.
+`ED SCAN`|This mode can be implemented to enable energy scan. It enables scanning the energy from channels one by one and nothing else.
 `ANY STATE`|This state represents all the states in the state machine.
 
 <span class="notes">**Note**: The driver [initialization and registration](#phy-device-driver-register) using the function `arm_net_phy_register` must be performed before the driver is functional.</span>
@@ -84,7 +150,7 @@ To register a PHY driver to the stack:
 int8_t arm_net_phy_register(phy_device_driver_s *phy_driver);
 ```
 
-See: [Doxygen](https://docs.mbed.com/docs/arm-ipv66lowpan-stack/en/latest/api/arm__hal__phy_8h.html#aff06eaa736d3784c956dc6eda9f27419) for description.
+See the [Doxygen](https://docs.mbed.com/docs/arm-ipv66lowpan-stack/en/latest/api/arm__hal__phy_8h.html#aff06eaa736d3784c956dc6eda9f27419) for the description.
 
 
 ### PHY data RX API

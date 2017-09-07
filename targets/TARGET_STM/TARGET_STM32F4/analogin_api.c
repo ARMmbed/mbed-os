@@ -180,11 +180,12 @@ static inline uint16_t adc_read(analogin_t *obj)
             break;
         case 17:
             sConfig.Channel = ADC_CHANNEL_VREFINT;
+            /*  From experiment, measurement needs max sampling time to be valid */
+            sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
             break;
         case 18:
             sConfig.Channel = ADC_CHANNEL_VBAT;
-            /*  From experiment, VBAT measurement needs max
-             *  sampling time to be avlid */
+            /*  From experiment, measurement needs max sampling time to be valid */
             sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
             break;
         default:

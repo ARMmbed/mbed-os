@@ -52,6 +52,7 @@ The purpose of the library is to provide a light, simple and general tracing sol
     * With yotta: set `YOTTA_CFG_MBED_TRACE_FEA_IPV6 = 0`.
     * With mbed OS 5: set `MBED_CONF_MBED_TRACE_FEA_IPV6 = 0`.
 * If thread safety is needed, configure the wait and release callback functions before initialization to enable the protection. Usually, this needs to be done only once in the application's lifetime.
+    * If [helping functions](#helping-functions) are used the mutex must be **recursive** (counting) so it can be acquired from a single thread repeatedly.
 * Call the trace initialization (`mbed_trace_init`) once before using any other APIs. It allocates the trace buffer and initializes the internal variables.
 * Define `TRACE_GROUP` in your source code (not in the header!) to use traces. It is a 1-4 characters long char-array (for example `#define TRACE_GROUP "APPL"`). This will be printed on every trace line.
 

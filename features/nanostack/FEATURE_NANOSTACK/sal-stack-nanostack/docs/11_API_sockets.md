@@ -89,7 +89,7 @@ Event type|Description
 `SOCKET_TX_FAIL`|Socket data send failed.
 `SOCKET_CONNECT_CLOSED`|TCP connection closed.
 `SOCKET_CONNECTION_RESET`|TCP connection reset.
-`SOCKET_NO_ROUTER`|No route available to destination.
+`SOCKET_NO_ROUTE`|No route available to destination.
 `SOCKET_TX_DONE`|TX process done (one per datagram, or if stream will be called each time some data acknowledged)
 `SOCKET_NO_RAM `|If no RAM is present.
 `SOCKET_CONNECTION_PROBLEM`|If TCP is suffering a connection problem (a soft event, it continues to retry).
@@ -103,7 +103,7 @@ An example parsing socket event:
 static uint8_t rx_buffer[APP_SOCK_RX_SIZE];
 
 void main_receive
-(SOCKET_NO_ROUTER
+(SOCKET_NO_ROUTE
 	void *cb
 )
 {

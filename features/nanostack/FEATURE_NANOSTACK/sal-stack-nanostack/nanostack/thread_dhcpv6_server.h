@@ -29,6 +29,8 @@
  *
  * \param interface_id Network Interface
  * \param prefix_ptr pointer DHCPv6 Server Given Prefix
+ * \param max_client_cnt Max number of clients
+ * \param stableData True if data is stable
  *
  * \return 0, Set OK
  * \return <0 Set Not OK
