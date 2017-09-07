@@ -1128,6 +1128,9 @@ def get_unique_supported_toolchains(release_targets=None):
                 if toolchain not in unique_supported_toolchains:
                     unique_supported_toolchains.append(toolchain)
 
+    if "ARM" in unique_supported_toolchains:
+        unique_supported_toolchains.append("ARMC6")
+
     return unique_supported_toolchains
 
 def mcu_toolchain_list(release_version='5'):
@@ -1273,7 +1276,9 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
             row.append(text)
 
         for unique_toolchain in unique_supported_toolchains:
-            if unique_toolchain in TARGET_MAP[target].supported_toolchains:
+            if (unique_toolchain in TARGET_MAP[target].supported_toolchains or
+                (unique_toolchain == "ARMC6" and
+                 "ARM" in TARGET_MAP[target].supported_toolchains)):
                 text = "Supported"
                 perm_counter += 1
             else:
