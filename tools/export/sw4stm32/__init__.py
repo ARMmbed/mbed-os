@@ -371,12 +371,9 @@ class Sw4STM32(GNUARMEclipse):
 
         preproc_cmd = ""
         # Hack for Windows. Build fails if command contains parentheses.
-        if ('(' in self.toolchain.preproc[0] or ')' in self.toolchain.preproc[0]) and self.toolchain.preproc[0][0] != "'":
-            preproc_cmd = '"' + \
-                self.toolchain.preproc[0] + '"' + " " + \
-                " ".join(self.toolchain.preproc[1:])
-        else:
-            preproc_cmd = " ".join(self.toolchain.preproc)
+        preproc_cmd = '"' + \
+            self.toolchain.preproc[0] + '"' + " " + \
+            " ".join(self.toolchain.preproc[1:])
 
         for id in ['debug', 'release']:
             opts = {}
