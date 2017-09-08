@@ -21,17 +21,17 @@
 						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.exe.{{cfg_id}}.{{u.id}}" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.exe.{{cfg_id}}">
 							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.{{u.id}}" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu" value="{{mcu_name}}" valueType="string"/>
 							<option id="fr.ac6.managedbuild.option.gnu.cross.board.{{u.id}}" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board" value="{{board_name}}" valueType="string"/>
-							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.{{u.id}}" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
-							<builder buildPath="${workspace_loc:/{{name}}}/{{opts['name']}}" id="fr.ac6.managedbuild.builder.gnu.cross.{{u.id}}" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross"/>
 							{% if opts['common']['arm.target.fpu.hardware'] %}
 							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.{{u.id}}" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu" value="fr.ac6.managedbuild.option.gnu.cross.fpu.{{opts['common']['arm.target.fpu.hardware']}}" valueType="enumerated"/>
 							{% endif %}
 							{% if opts['common']['arm.target.fpu.abi'] %}
 							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.{{u.id}}" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi" value="fr.ac6.managedbuild.option.gnu.cross.floatabi.{{opts['common']['arm.target.fpu.abi']}}" valueType="enumerated"/>
 							{% endif %}
-							<tool command="gcc" id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.{{opts['uid']['tool_c_compiler']}}" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler">
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="fr.ac6.managedbuild.targetPlatform.gnu.cross.{{u.id}}" isAbstract="false" osList="all" superClass="fr.ac6.managedbuild.targetPlatform.gnu.cross"/>
+							<builder buildPath="${workspace_loc:/{{name}}}/{{opts['name']}}" id="fr.ac6.managedbuild.builder.gnu.cross.{{u.id}}" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="fr.ac6.managedbuild.builder.gnu.cross"/>
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.{{opts['uid']['tool_c_compiler']}}" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler">
 								{% if cfg_id == 'debug' %}
-								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.{{u.id}}" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" value="fr.ac6.managedbuild.gnu.c.optimization.level.more" useByScannerDiscovery="false"/>
+								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.{{u.id}}" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.c.optimization.level.more" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.{{u.id}}" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								{% else %}
 								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.{{u.id}}" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.c.optimization.level.most" valueType="enumerated"/>
@@ -108,13 +108,13 @@
 								{% if opts['common']['optimization.functionsections'] %}
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.ffunction.{{u.id}}" name="Place the function in their own section (-ffunction-sections)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.ffunction" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								{% endif %}
-								{% if opts['c']['other'] != '' %}
-								<option id="fr.ac6.managedbuid.gnu.c.compiler.option.misc.other.{{u.id}}" name="Other flags" superClass="fr.ac6.managedbuid.gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="{{opts['c']['other']}}" valueType="string"/>
+								{% if opts['c']['other'] != '' or opts['c']['otherwarnings'] != ''%}
+								<option id="fr.ac6.managedbuid.gnu.c.compiler.option.misc.other.{{u.id}}" name="Other flags" superClass="fr.ac6.managedbuid.gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="{{opts['c']['other']}} {{opts['c']['otherwarnings']}}" valueType="string"/>
 								{% endif %}
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.{{opts['uid']['tool_c_compiler_input']}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.{{u.id}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
 							</tool>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.{{opts['uid']['tool_cpp_compiler_input']}}" name="MCU G++ Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler">
+							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.{{opts['uid']['tool_cpp_compiler']}}" name="MCU G++ Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler">
 								{% if cfg_id == 'debug' %}
 								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level.{{u.id}}" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.{{u.id}}" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
@@ -191,7 +191,10 @@
 								{% if opts['common']['optimization.functionsections'] %}
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.ffunction.{{u.id}}" name="Place the function in their own section (-ffunction-sections)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.ffunction" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								{% endif %}
-								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.{{u.id}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp"/>
+								{% if opts['cpp']['other'] != '' or opts['cpp']['otherwarnings'] != ''%}
+								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other.{{u.id}}" name="Other flags" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other" useByScannerDiscovery="false" value="{{opts['cpp']['other']}} {{opts['cpp']['otherwarnings']}}" valueType="string"/>
+								{% endif %}
+								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.{{opts['uid']['tool_cpp_compiler_input']}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s.{{u.id}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s"/>
 							</tool>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.{{u.id}}" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker">
@@ -259,7 +262,9 @@
 									<listOptionValue builtIn="false" value="&quot;{{path}}&quot;"/>
 									{% endfor %}
 								</option>
-								<option id="gnu.both.asm.option.flags.{{u.id}}" superClass="gnu.both.asm.option.flags" useByScannerDiscovery="false" value="{{opts['as']['other']}}" valueType="string"/>
+								{% if opts['as']['other'] != '' or opts['as']['otherwarnings'] != ''%}
+								<option id="gnu.both.asm.option.flags.{{u.id}}" superClass="gnu.both.asm.option.flags" useByScannerDiscovery="false" value="{{opts['as']['other']}} {{opts['as']['otherwarnings']}}" valueType="string"/>
+								{% endif %}
 								{% for item in opts['as']['otherwarnings'] %}
 								{% if item == '-W' %}
 								<option id="gnu.both.asm.option.warnings.nowarn.{{u.id}}" superClass="gnu.both.asm.option.warnings.nowarn" useByScannerDiscovery="false" value="true" valueType="boolean"/>
