@@ -25,6 +25,7 @@ class E2Studio(Exporter):
 
     TARGETS = [
         'RZ_A1H',
+        'VK_RZ_A1H',
     ]
 
     def generate(self):
