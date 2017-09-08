@@ -1,6 +1,6 @@
 python:
   - "2.7"
-
+group: deprecated-2017Q3
 script:
   - mkdir BUILD
 # Assert that the Doxygen build produced no warnings.
