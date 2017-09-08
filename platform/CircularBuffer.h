@@ -108,16 +108,16 @@ public:
     /** Returns the number of available transactions the buffer contains */
     CounterType available() {
         core_util_critical_section_enter();
-        CounterType elements = 0;
+        CounterType elements;
         if (!_full)
         {
             if (_head < _tail)
                 elements = BufferSize + _head - _tail;
             else
                 elements = _head - _tail;
-            
-            elements /= sizeof(T);
         }
+        else
+            elements = BufferSize;
         core_util_critical_section_exit();
         return elements;
     }
