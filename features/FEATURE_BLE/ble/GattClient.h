@@ -80,6 +80,9 @@ public:
      * The following functions are meant to be overridden in the platform-specific sub-class.
      */
 public:
+
+    virtual ~GattClient() { }
+
     /**
      * Launch service discovery. Once launched, application callbacks will be
      * invoked for matching services or characteristics. isServiceDiscoveryActive()
