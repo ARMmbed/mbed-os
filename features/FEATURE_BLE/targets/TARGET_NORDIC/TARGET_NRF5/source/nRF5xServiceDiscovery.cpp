@@ -24,8 +24,8 @@ nRF5xServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHan
     characteristicDiscoveryStarted(connectionHandle);
 
     ble_gattc_handle_range_t handleRange = {
-        .start_handle = startHandle,
-        .end_handle   = endHandle
+        (uint16_t) startHandle,
+        (uint16_t) endHandle
     };
     uint32_t rc = sd_ble_gattc_characteristics_discover(connectionHandle, &handleRange);
     ble_error_t err = BLE_ERROR_NONE;
@@ -170,8 +170,8 @@ nRF5xServiceDiscovery::progressCharacteristicDiscovery(void)
 
     if (startHandle < endHandle) {
         ble_gattc_handle_range_t handleRange = {
-            .start_handle = startHandle,
-            .end_handle   = endHandle
+            (uint16_t) startHandle,
+            (uint16_t) endHandle
         };
         if (sd_ble_gattc_characteristics_discover(connHandle, &handleRange) != NRF_SUCCESS) {
             terminateCharacteristicDiscovery(BLE_ERROR_UNSPECIFIED);
@@ -288,8 +288,8 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_t *p_gatt
     if (state == DISCOVER_SERVICE_UUIDS) {
         if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID)) {
             UUID::LongUUIDBytes_t uuid;
-            
-#if (NRF_SD_BLE_API_VERSION >= 3)            
+
+#if (NRF_SD_BLE_API_VERSION >= 3)
             ble_gattc_handle_value_t iter;
             memset(&iter, 0, sizeof(ble_gattc_handle_value_t));
             (void) sd_ble_gattc_evt_char_val_by_uuid_read_rsp_iter(const_cast<ble_gattc_evt_t*>(p_gattc_evt), &iter);
@@ -308,7 +308,7 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_t *p_gatt
     } else if (state == DISCOVER_CHARACTERISTIC_UUIDS) {
         if ((response->count == 1) && (response->value_len == UUID::LENGTH_OF_LONG_UUID + 1 /* props */ + 2 /* value handle */)) {
             UUID::LongUUIDBytes_t uuid;
-            
+
 #if (NRF_SD_BLE_API_VERSION >= 3)
             ble_gattc_handle_value_t iter;
             memset(&iter, 0, sizeof(ble_gattc_handle_value_t));
@@ -317,7 +317,7 @@ nRF5xServiceDiscovery::processDiscoverUUIDResponse(const ble_gattc_evt_t *p_gatt
 #else
             memcpy(uuid, &(response->handle_value[0].p_value[3]), UUID::LENGTH_OF_LONG_UUID);
 #endif
-        
+
             unsigned charIndex = charUUIDDiscoveryQueue.dequeue();
             characteristics[charIndex].setupLongUUID(uuid, UUID::LSB);
 
