@@ -17,6 +17,16 @@
 #ifndef __GATT_CALLBACK_PARAM_TYPES_H__
 #define __GATT_CALLBACK_PARAM_TYPES_H__
 
+/**
+ * Parameter of the callback invoked on a write operation.
+ * This parameter is used whether a GattServer as received a write operation or
+ * if the GattClient has completed a write operation.
+ *
+ * @important The fields connHandle, handle and writeOp are used in both
+ * callbacks while:
+ *   - offset, len and data are reserved for GattServer write callbacks.
+ *   - status and error_code are reserved for GattClient write callbacks.
+ */
 struct GattWriteCallbackParams {
     /**
      * Enumeration for write operations.
@@ -34,22 +44,48 @@ struct GattWriteCallbackParams {
     Gap::Handle_t            connHandle; /**< The handle of the connection that triggered the event. */
     GattAttribute::Handle_t  handle;     /**< Attribute Handle to which the write operation applies. */
     WriteOp_t                writeOp;    /**< Type of write operation. */
-    uint16_t                 offset;     /**< Offset for the write operation. */
-    uint16_t                 len;        /**< Length (in bytes) of the data to write. */
+
+    // Note: offset is used in GattServer while status is used in GattClient
+    union {
+        uint16_t                offset;     /**< Offset for the GattServer write operation. */
+        ble_error_t             status;     /**< Status of the GattClient Write operation */
+    };
+
+    // Note: len is used in GattServer while error_code is used in GattClient
+    union {
+        uint16_t                 len;        /**< Length (in bytes) of the data to write (GattServer). */
+        uint8_t                  error_code; /**< Error code of the GattClient Write operation */
+    };
+
     /**
      * Pointer to the data to write.
      *
      * @note Data might not persist beyond the callback; make a local copy if
      *       needed.
+     * @note This field is not used by callbacks invoked by the GattClient module.
      */
     const uint8_t           *data;
 };
 
+/**
+ * Parameter of the callback invoked on a read operation.
+ * This parameter is used whether a GattServer as received a read operation or
+ * if the GattClient has completed a read operation.
+ *
+ * @important The fields connHandle, handle and offset are used in both
+ * callbacks while:
+ *   - len and data are reserved for GattServer read callbacks.
+ *   - status and error_code are reserved for GattClient read callbacks.
+ */
 struct GattReadCallbackParams {
     Gap::Handle_t            connHandle; /**< The handle of the connection that triggered the event. */
     GattAttribute::Handle_t  handle;     /**< Attribute Handle to which the read operation applies. */
     uint16_t                 offset;     /**< Offset for the read operation. */
-    uint16_t                 len;        /**< Length (in bytes) of the data to read. */
+    union {
+        uint16_t             len;        /**< Length (in bytes) of the data to read. */
+        uint8_t              error_code; /**< Error code if any (GattClient) */
+    };
+
     /**
      * Pointer to the data read.
      *
@@ -57,6 +93,7 @@ struct GattReadCallbackParams {
      *       needed.
      */
     const uint8_t           *data;
+    ble_error_t              status;     /**< Status of the operation BLE_ERROR_NONE in case of success or the error in case of error */
 };
 
 enum GattAuthCallbackReply_t {
