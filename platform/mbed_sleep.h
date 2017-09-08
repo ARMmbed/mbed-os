@@ -123,10 +123,7 @@ void sleep_manager_sleep_auto(void);
  *
  * The processor can be woken up by any internal peripheral interrupt or external pin interrupt.
  *
- * @note
- *  The mbed interface semihosting is disconnected as part of going to sleep, and can not be restored.
- * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
- * able to access the LocalFileSystem
+ * The wake-up time shall be less than 10 us.
  */
 __INLINE static void sleep(void)
 {
@@ -149,12 +146,9 @@ __INLINE static void sleep(void)
  * has the same sleep features as sleep plus it powers down peripherals and clocks. All state
  * is still maintained.
  *
- * The processor can only be woken up by an external interrupt on a pin or a watchdog timer.
+ * The processor can only be woken up by low power ticker, RTC, an external interrupt on a pin or a watchdog timer.
  *
- * @note
- *  The mbed interface semihosting is disconnected as part of going to sleep, and can not be restored.
- * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
- * able to access the LocalFileSystem
+ * The wake-up time shall be less than 10 ms.
  */
 
 MBED_DEPRECATED_SINCE("mbed-os-5.6", "One entry point for an application, use sleep()")
