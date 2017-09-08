@@ -56,7 +56,7 @@ public:
 
     /** Pop the transaction from the buffer
      *
-     * @param data Data to be pushed to the buffer
+     * @param data Data to be popped from the buffer
      * @return True if the buffer is not empty and data contains a transaction, false otherwise
      */
     bool pop(T& data) {
@@ -104,6 +104,23 @@ public:
         _full = false;
         core_util_critical_section_exit();
     }
+    
+    /** Returns the available transactions the buffer can store */
+    CounterType available() {
+        core_util_critical_section_enter();
+        CounterType elements = 0;
+        if (!_full)
+        {
+            if (_head < _tail)
+                elements = BufferSize + _head - _tail;
+            else
+                elements = _head - _tail;
+            
+            elements /= sizeof(T);
+        }
+        core_util_critical_section_exit();
+        return elements;
+    }
 
 private:
     T _pool[BufferSize];
@@ -115,4 +132,3 @@ private:
 }
 
 #endif
-
