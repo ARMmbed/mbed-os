@@ -105,7 +105,7 @@ public:
         core_util_critical_section_exit();
     }
     
-    /** Returns the available transactions the buffer can store */
+    /** Returns the number of available transactions the buffer contains */
     CounterType available() {
         core_util_critical_section_enter();
         CounterType elements = 0;
