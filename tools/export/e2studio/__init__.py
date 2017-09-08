@@ -22,6 +22,7 @@ class E2Studio(GNUARMEclipse):
 
     TARGETS = [
         'RZ_A1H',
+        'VK_RZ_A1H',
     ]
 
     # override
