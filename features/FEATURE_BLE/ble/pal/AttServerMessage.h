@@ -90,7 +90,6 @@ private:
 };
 
 
-
 /**
  * Base class for Attribute Server Message.
  * The correct type of the instance can be determined with the attribute opcode.
