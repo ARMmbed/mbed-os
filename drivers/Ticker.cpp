@@ -43,7 +43,9 @@ void Ticker::setup(us_timestamp_t t) {
 
 void Ticker::handler() {
     insert_absolute(event.timestamp + _delay);
-    _function();
+    if (_function) {
+        _function();
+    }
 }
 
 } // namespace mbed
