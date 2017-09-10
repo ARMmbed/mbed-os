@@ -25,6 +25,7 @@
 #include "mbed.h"
 #include "us_ticker_api.h"
 #include "lp_ticker_api.h"
+#include "TimerEvent.h"
 
 using namespace utest::v1;
 
@@ -39,13 +40,23 @@ static const ticker_data_t *lp_ticker_data = get_lp_ticker_data();
 #define SHORT_TIMEOUT (600)
 
 void cb_done(uint32_t id) {
-    complete_timestamp = us_ticker_read();
-    complete = true;
+    if ((uint32_t)&delay_event == id) {
+        complete_timestamp = us_ticker_read();
+        complete = true;
+    } else {
+        // Normal ticker handling
+        TimerEvent::irq(id);
+    }
 }
 
 void cb_done_deepsleep(uint32_t id) {
-    complete_timestamp = lp_ticker_read();
-    complete = true;
+    if ((uint32_t)&delay_event == id) {
+        complete_timestamp = lp_ticker_read();
+        complete = true;
+    } else {
+        // Normal ticker handling
+        TimerEvent::irq(id);
+    }
 }
 
 void lp_ticker_delay_us(uint32_t delay_us, uint32_t tolerance)
