@@ -36,7 +36,7 @@
 
 using namespace utest::v1;
 
-#define ONE_MILLI_SEC 1000
+#define PERIOD_US   10000
 
 volatile int ticker_count = 0;
 volatile uint32_t callback_trigger_count = 0;
@@ -44,7 +44,7 @@ static const int test_timeout = 240;
 Timeout timeout;
 
 void set_incremeant_count() {
-    timeout.attach_us(set_incremeant_count, ONE_MILLI_SEC);
+    timeout.attach_us(set_incremeant_count, PERIOD_US);
     ++callback_trigger_count;
 }
 
@@ -56,7 +56,7 @@ void test_case_timeout() {
     uint8_t results_size = 0;
 
     greentea_send_kv("timing_drift_check_start", 0);
-    timeout.attach_us(set_incremeant_count, ONE_MILLI_SEC);
+    timeout.attach_us(set_incremeant_count, PERIOD_US);
 
     // wait for 1st signal from host
     do {
@@ -64,11 +64,11 @@ void test_case_timeout() {
         expected_key = strcmp(_key, "base_time");
     } while (expected_key);
 
-    greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
+    greentea_send_kv(_key, callback_trigger_count * PERIOD_US);
 
     // wait for 2nd signal from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
-    greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
+    greentea_send_kv(_key, callback_trigger_count * PERIOD_US);
 
     //get the results from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
