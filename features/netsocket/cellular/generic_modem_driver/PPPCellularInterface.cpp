@@ -110,7 +110,7 @@ static bool set_CNMI(ATCmdParser *at)
     // New SMS indication configuration
     // set AT+CMTI=[mode, index] , 0 PDU mode, 1 text mode
     // Multiple URCs for SMS, i.e., CMT, CMTI, UCMT, CBMI, CDSI as DTE could be following any of these SMS formats
-    bool success = at->send("AT+CNMI=2,"CTX) && at->recv("OK");
+    bool success = at->send("AT+CNMI=2,""1") && at->recv("OK");
     return success;
 }
 
@@ -141,7 +141,7 @@ static void CMT_URC(ATCmdParser *at)
 
 static bool set_atd(ATCmdParser *at)
 {
-    bool success = at->send("ATD*99***"CTX"#") && at->recv("CONNECT");
+    bool success = at->send("ATD*99***""1""#") && at->recv("CONNECT");
 
     return success;
 }
@@ -469,7 +469,7 @@ retry_without_dual_stack:
 #endif
     success = _at->send("AT"
                           "+FCLASS=0;" // set to connection (ATD) to data mode
-                          "+CGDCONT="CTX",\"%s\",\"%s%s\"",
+                          "+CGDCONT=""1"",\"%s\",\"%s%s\"",
                           pdp_type, auth, _apn
                          )
                    && _at->recv("OK");
