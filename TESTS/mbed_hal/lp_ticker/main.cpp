@@ -109,11 +109,13 @@ void lp_ticker_1s_sleep()
     ticker_remove_event(lp_ticker_data, &delay_event);
     delay_ts = lp_ticker_read() + 1000000;
 
+    sleep_manager_lock_deep_sleep();
     timestamp_t start = us_ticker_read();
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
     sleep();
     while (!complete);
     timestamp_t end = complete_timestamp;
+    sleep_manager_unlock_deep_sleep();
 
     TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);
     TEST_ASSERT_TRUE(complete);
