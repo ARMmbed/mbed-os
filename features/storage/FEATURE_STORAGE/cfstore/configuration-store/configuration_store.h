@@ -189,7 +189,7 @@ typedef struct _ARM_CFSTORE_STATUS {
     }while(0)
 #endif
 
-#if defined __MBED__ && defined TOOLCHAIN_IAR
+#if defined __MBED__ && defined __ICCARM__
 /** @brief  Helper macro to swap 2 handles, which is useful for the Find() idiom. */
 /* note, memory barriers may be required in the following implementation */
 #define CFSTORE_HANDLE_SWAP(__a_HaNdLe, __b_HaNdLe)         \

@@ -35,7 +35,7 @@
  * FlashJournal_t. The caller will only allocate a FlashJournal_t and expect the
  * Sequential Strategy to reuse that space for a SequentialFlashJournal_t.
  */
-#ifndef TOOLCHAIN_IAR
+#ifndef __ICCARM__
 typedef char AssertStorageVolumeManagerMaxVolumesIsSane[(((MAX_VOLUMES) > 0) && ((MAX_VOLUMES) <= 8)) ? 0:-1];
 #endif
 
