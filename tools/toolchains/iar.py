@@ -45,9 +45,9 @@ class IAR(mbedToolchain):
                                build_profile=build_profile)
         if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
             cpuchoice = "Cortex-M7"
-        elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M23":
+        elif target.core.startswith("Cortex-M23"):
             cpuchoice = "8-M.baseline"
-        elif target.core == "Cortex-M33-NS" or target.core == "Cortex-M33":
+        elif target.core.startswith("Cortex-M33"):
             cpuchoice = "8-M.mainline"
         else:
             cpuchoice = target.core

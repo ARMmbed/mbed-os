@@ -86,10 +86,13 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
-        if target.core == "Cortex-M23" or target.core == "Cortex-M23-NS":
+        if target.core.startswith("Cortex-M23"):
             self.cpu.append("-march=armv8-m.base")
-        elif target.core == "Cortex-M33" or target.core == "Cortex-M33-NS":
+        elif target.core.startswith("Cortex-M33"):
             self.cpu.append("-march=armv8-m.main")
+
+        if target.core == "Cortex-M23" or target.core == "Cortex-M33":
+            self.cpu.append("-mcmse")
 
         self.flags["common"] += self.cpu
 
