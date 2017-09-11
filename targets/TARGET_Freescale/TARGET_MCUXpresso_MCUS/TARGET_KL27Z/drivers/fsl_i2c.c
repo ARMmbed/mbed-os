@@ -788,6 +788,7 @@ status_t I2C_MasterWriteBlocking(I2C_Type *base, const uint8_t *txBuff, size_t t
     uint8_t statusFlags = 0;
 
     /* Wait until the data register is ready for transmit. */
+    // BUG - CAUSE OF LOCKUP
     while (!(base->S & kI2C_TransferCompleteFlag))
     {
     }
@@ -1359,6 +1360,7 @@ void I2C_SlaveReadBlocking(I2C_Type *base, uint8_t *rxBuff, size_t rxSize)
 #endif /* FSL_FEATURE_I2C_HAS_START_STOP_DETECT */
 
     /* Wait for address match and int pending flag. */
+    // BUG - CAUSE OF LOCKUP
     while (!(base->S & kI2C_AddressMatchFlag))
     {
     }

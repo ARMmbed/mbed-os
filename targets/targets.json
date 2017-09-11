@@ -532,7 +532,7 @@
         "device_has": ["ANALOGIN", "ERROR_RED", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_lib": "std",
         "release_versions": ["2"],
-        "device_name": "MKL27Z64xxx4"
+        "device_name": "MKL27Z128xxx4"
     },
     "KL43Z": {
         "supported_form_factors": ["ARDUINO"],
