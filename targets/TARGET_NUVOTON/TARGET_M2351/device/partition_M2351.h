@@ -452,7 +452,7 @@
 __STATIC_INLINE void TZ_SAU_Setup(void)
 {
 
-#if defined (__SAU_PRESENT) && (__SAU_PRESENT == 1U)
+#if defined (__SAUREGION_PRESENT) && (__SAUREGION_PRESENT  == 1U)
 
 #if defined (SAU_INIT_REGION0) && (SAU_INIT_REGION0 == 1U)
     SAU_INIT_REGION(0);
@@ -488,13 +488,13 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 
     /* repeat this for all possible SAU regions */
 
+#endif /* defined (__SAUREGION_PRESENT ) && (__SAUREGION_PRESENT  == 1U) */
 
 #if defined (SAU_INIT_CTRL) && (SAU_INIT_CTRL == 1U)
     SAU->CTRL = ((SAU_INIT_CTRL_ENABLE << SAU_CTRL_ENABLE_Pos) & SAU_CTRL_ENABLE_Msk) |
                 ((SAU_INIT_CTRL_ALLNS  << SAU_CTRL_ALLNS_Pos)  & SAU_CTRL_ALLNS_Msk)   ;
 #endif
 
-#endif /* defined (__SAU_PRESENT) && (__SAU_PRESENT == 1U) */
 
 #if defined (SCB_CSR_AIRCR_INIT) && (SCB_CSR_AIRCR_INIT == 1U)
     SCB->SCR   = (SCB->SCR   & ~(SCB_SCR_SLEEPDEEPS_Msk)) |
