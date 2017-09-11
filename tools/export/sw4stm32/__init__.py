@@ -287,6 +287,46 @@ class Sw4STM32(GNUARMEclipse):
         opts['cpp']['preprocess'] = False
         if '-E' in flags_in['cxx_flags']:
             opts['cpp']['preprocess'] = True
+        opts['c']['slowflashdata'] = False
+        if '-mslow-flash-data' in flags_in['c_flags']:
+            opts['c']['slowflashdata'] = True
+        opts['cpp']['slowflashdata'] = False
+        if '-mslow-flash-data' in flags_in['cxx_flags']:
+            opts['cpp']['slowflashdata'] = True
+        if opts['common']['optimization.messagelength']:
+            opts['common']['optimization.other'] += ' -fmessage-length=0'
+        if opts['common']['optimization.signedchar']:
+            opts['common']['optimization.other'] += ' -fsigned-char'
+        if opts['common']['optimization.nocommon']:
+            opts['common']['optimization.other'] += ' -fno-common'
+        if opts['common']['optimization.noinlinefunctions']:
+            opts['common']['optimization.other'] += ' -fno-inline-functions'
+        if opts['common']['optimization.freestanding']:
+            opts['common']['optimization.other'] += ' -ffreestanding'
+        if opts['common']['optimization.nobuiltin']:
+            opts['common']['optimization.other'] += ' -fno-builtin'
+        if opts['common']['optimization.spconstant']:
+            opts['common']['optimization.other'] += ' -fsingle-precision-constant'
+        if opts['common']['optimization.nomoveloopinvariants']:
+            opts['common']['optimization.other'] += ' -fno-move-loop-invariants'
+        if opts['common']['warnings.unused']:
+            opts['common']['warnings.other'] += ' -Wunused'
+        if opts['common']['warnings.uninitialized']:
+            opts['common']['warnings.other'] += ' -Wuninitialized'
+        if opts['common']['warnings.missingdeclaration']:
+            opts['common']['warnings.other'] += ' -Wmissing-declarations'
+        if opts['common']['warnings.pointerarith']:
+            opts['common']['warnings.other'] += ' -Wpointer-arith'
+        if opts['common']['warnings.padded']:
+            opts['common']['warnings.other'] += ' -Wpadded'
+        if opts['common']['warnings.shadow']:
+            opts['common']['warnings.other'] += ' -Wshadow'
+        if opts['common']['warnings.logicalop']:
+            opts['common']['warnings.other'] += ' -Wlogical-op'
+        if opts['common']['warnings.agreggatereturn']:
+            opts['common']['warnings.other'] += ' -Waggregate-return'
+        if opts['common']['warnings.floatequal']:
+            opts['common']['warnings.other'] += ' -Wfloat-equal'
         opts['ld']['strip'] = False
         if '-s' in flags_in['ld_flags']:
             opts['ld']['strip'] = True
@@ -313,8 +353,20 @@ class Sw4STM32(GNUARMEclipse):
             item = opts['ld']['flags'][index]
             if not item.startswith('-Wl,'):
                 opts['ld']['flags'][index] = '-Wl,' + item
+        # Strange System Workbench feature: If first parameter in Other flags is a
+        # define (-D...), Other flags will be replaced by defines and other flags
+        # are completely ignored. Moving -D parameters to defines.
+        for compiler in ['c', 'cpp', 'as']:
+            tmpList = opts[compiler]['other'].split(' ')
+            otherList = []
+            for item in tmpList:
+                if item.startswith('-D'):
+                    opts[compiler]['defines'].append(str(item[2:]))
+                else:
+                    otherList.append(item)
+            opts[compiler]['other'] = ' '.join(otherList)
         # Assembler options
-        for as_def in self.as_defines:
+        for as_def in opts['as']['defines']:
             if '=' in as_def:
                 opts['as']['other'] += ' --defsym ' + as_def
             else:
@@ -369,11 +421,7 @@ class Sw4STM32(GNUARMEclipse):
 
         lib_dirs = [self.filter_dot(s) for s in self.resources.lib_dirs]
 
-        preproc_cmd = ""
-        # Hack for Windows. Build fails if command contains parentheses.
-        preproc_cmd = '"' + \
-            self.toolchain.preproc[0] + '"' + " " + \
-            " ".join(self.toolchain.preproc[1:])
+        preproc_cmd = basename(self.toolchain.preproc[0]) + " " + " ".join(self.toolchain.preproc[1:])
 
         for id in ['debug', 'release']:
             opts = {}
@@ -418,10 +466,11 @@ class Sw4STM32(GNUARMEclipse):
 
             self.process_options(opts, flags)
 
-            self.process_sw_options(opts, flags)
-
             opts['c']['defines'] = self.c_defines
             opts['cpp']['defines'] = self.cpp_defines
+            opts['as']['defines'] = self.as_defines
+
+            self.process_sw_options(opts, flags)
 
             opts['ld']['library_paths'] = [
                 self.filter_dot(s) for s in self.resources.lib_dirs]
