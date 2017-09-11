@@ -31,6 +31,7 @@ check_required_modules(['prettytable'])
 # Imports related to mbed build api
 from tools.build_api import mcu_toolchain_matrix
 from tools.test_api import get_autodetected_MUTS_list
+from tools.test_api import get_mounted_details_txt
 from argparse import ArgumentParser
 
 
@@ -75,9 +76,11 @@ def main():
         count = 0
         for mut in muts.values():
             if re.match(mcu_filter, mut['mcu']):
+                # Grab additional target details about the mut
+                details_txt = get_mounted_details_txt(mut['disk'])
                 print ""
-                print "[mbed] Detected %s, port %s, mounted %s" % \
-                    (mut['mcu'], mut['port'], mut['disk'])
+                print "[mbed] Detected %s, port %s, mounted %s, DAPLink version %s" % \
+                    (mut['mcu'], mut['port'], mut['disk'], details_txt['Interface Version'])
                 print "[mbed] Supported toolchains for %s" % mut['mcu']
                 print mcu_toolchain_matrix(platform_filter=mut['mcu'])
                 count += 1
