@@ -72,11 +72,13 @@ void lp_timeout_1s_sleep(void)
 {
     complete = false;
 
+    sleep_manager_lock_deep_sleep();
     timestamp_t start = us_ticker_read();
     lpt.attach(&cb_done, 1);
     sleep();
     while (!complete);
     timestamp_t end = us_ticker_read();
+    sleep_manager_unlock_deep_sleep();
 
     TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);
     TEST_ASSERT_TRUE(complete);

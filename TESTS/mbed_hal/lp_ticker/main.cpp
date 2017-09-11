@@ -25,6 +25,7 @@
 #include "mbed.h"
 #include "us_ticker_api.h"
 #include "lp_ticker_api.h"
+#include "TimerEvent.h"
 
 using namespace utest::v1;
 
@@ -39,13 +40,23 @@ static const ticker_data_t *lp_ticker_data = get_lp_ticker_data();
 #define SHORT_TIMEOUT (600)
 
 void cb_done(uint32_t id) {
-    complete_timestamp = us_ticker_read();
-    complete = true;
+    if ((uint32_t)&delay_event == id) {
+        complete_timestamp = us_ticker_read();
+        complete = true;
+    } else {
+        // Normal ticker handling
+        TimerEvent::irq(id);
+    }
 }
 
 void cb_done_deepsleep(uint32_t id) {
-    complete_timestamp = lp_ticker_read();
-    complete = true;
+    if ((uint32_t)&delay_event == id) {
+        complete_timestamp = lp_ticker_read();
+        complete = true;
+    } else {
+        // Normal ticker handling
+        TimerEvent::irq(id);
+    }
 }
 
 void lp_ticker_delay_us(uint32_t delay_us, uint32_t tolerance)
@@ -109,11 +120,13 @@ void lp_ticker_1s_sleep()
     ticker_remove_event(lp_ticker_data, &delay_event);
     delay_ts = lp_ticker_read() + 1000000;
 
+    sleep_manager_lock_deep_sleep();
     timestamp_t start = us_ticker_read();
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
     sleep();
     while (!complete);
     timestamp_t end = complete_timestamp;
+    sleep_manager_unlock_deep_sleep();
 
     TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);
     TEST_ASSERT_TRUE(complete);

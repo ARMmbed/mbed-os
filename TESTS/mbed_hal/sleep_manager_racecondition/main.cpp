@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+#define TEST_STACK_SIZE 256
+
 void sleep_manager_locking_thread_test()
 {
     for (uint32_t i = 0; i < 100; i++) {
@@ -37,8 +39,8 @@ void sleep_manager_multithread_test()
 {
     {
         Callback<void()> cb(sleep_manager_locking_thread_test);
-        Thread t1;
-        Thread t2;
+        Thread t1(osPriorityNormal, TEST_STACK_SIZE);
+        Thread t2(osPriorityNormal, TEST_STACK_SIZE);
 
         t1.start(callback(cb));
         Thread::wait(25);
