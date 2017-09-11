@@ -37,7 +37,8 @@
 #define CTHUNK_ADDRESS 1
 #define CTHUNK_VARIABLES volatile uint32_t code[2]
 
-#if (defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__CORTEX_M7) || defined(__CORTEX_A9))
+#if (defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__CORTEX_M7) || defined(__CORTEX_A9) \
+    || defined(__CORTEX_M23) || defined(__CORTEX_M33))
 /**
 * CTHUNK disassembly for Cortex-M3/M4/M7/A9 (thumb2):
 * * adr  r0, #4

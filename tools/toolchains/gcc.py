@@ -56,6 +56,10 @@ class GCC(mbedToolchain):
             cpu = "cortex-m7"
         elif target.core == "Cortex-M7FD":
             cpu = "cortex-m7"
+        elif target.core == "Cortex-M23-NS":
+            cpu = "cortex-m23"
+        elif target.core == "Cortex-M33-NS":
+            cpu = "cortex-m33"
         else:
             cpu = target.core.lower()
 
@@ -81,6 +85,14 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfpu=vfpv3")
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
+
+        if target.core.startswith("Cortex-M23"):
+            self.cpu.append("-march=armv8-m.base")
+        elif target.core.startswith("Cortex-M33"):
+            self.cpu.append("-march=armv8-m.main")
+
+        if target.core == "Cortex-M23" or target.core == "Cortex-M33":
+            self.cpu.append("-mcmse")
 
         self.flags["common"] += self.cpu
 

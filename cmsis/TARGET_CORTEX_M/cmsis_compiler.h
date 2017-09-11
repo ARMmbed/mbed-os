@@ -78,6 +78,14 @@
     #ifndef __ARM_ARCH_7EM__
       #define __ARM_ARCH_7EM__                     1
     #endif
+  #elif (__CORE__ == __ARM8M_BASELINE__)
+    #ifndef __ARM_ARCH_8M_BASE__
+      #define __ARM_ARCH_8M_BASE__                 1
+    #endif
+  #elif (__CORE__ == __ARM8M_MAINLINE__)
+    #ifndef __ARM_ARCH_8M_MAIN__
+      #define __ARM_ARCH_8M_MAIN__                 1
+    #endif
   #endif
 
   // IAR version 7.8.1 and earlier do not include __ALIGNED
