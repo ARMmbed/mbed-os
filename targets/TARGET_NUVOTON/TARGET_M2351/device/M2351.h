@@ -179,6 +179,7 @@ typedef enum IRQn
 /* --------  Configuration of the Cortex-ARMv8MBL Processor and Core Peripherals  ------- */
 #define __ARMv8MBL_REV            0x0000U   /* Core revision r0p0 */
 #define __SAU_PRESENT             1U        /* SAU present */
+#define __SAUREGION_PRESENT       1U        /* SAU regions are present */
 #define __MPU_PRESENT             1U        /* MPU present */
 #define __VTOR_PRESENT            1U        /* VTOR present */
 #define __NVIC_PRIO_BITS          2U        /* Number of Bits used for Priority Levels */
