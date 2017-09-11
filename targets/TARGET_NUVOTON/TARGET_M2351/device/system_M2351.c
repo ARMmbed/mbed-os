@@ -9,7 +9,7 @@
  * Copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  *
  ******************************************************************************/
-//#include <arm_cmse.h>
+#include <arm_cmse.h>
 #include <stdio.h>
 #include <stdint.h>
 #include "M2351.h"
