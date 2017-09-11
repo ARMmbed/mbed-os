@@ -1647,6 +1647,12 @@ def get_module_avail(module_name):
     """
     return module_name in sys.modules.keys()
 
+def get_mounted_details_txt(mount_point):
+    """ Function returns object containing details.txt information from the specified mount point
+        @param mount_point Name of disk where platform is connected to host machine.
+    """
+    mbeds = mbed_lstools.create()
+    return mbeds.get_details_txt(mount_point)
 
 def get_autodetected_MUTS_list(platform_name_filter=None):
     oldError = None
