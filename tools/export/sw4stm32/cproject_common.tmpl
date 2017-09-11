@@ -108,8 +108,14 @@
 								{% if opts['common']['optimization.functionsections'] %}
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.ffunction.{{u.id}}" name="Place the function in their own section (-ffunction-sections)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.ffunction" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								{% endif %}
-								{% if opts['c']['other'] != '' or opts['c']['otherwarnings'] != ''%}
-								<option id="fr.ac6.managedbuid.gnu.c.compiler.option.misc.other.{{u.id}}" name="Other flags" superClass="fr.ac6.managedbuid.gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="{{opts['c']['other']}} {{opts['c']['otherwarnings']}}" valueType="string"/>
+								{% if opts['c']['otheroptimizations'] != '' or opts['common']['optimization.other'] != '' %}
+								<option id="gnu.c.compiler.option.optimization.flags.{{u.id}}" superClass="gnu.c.compiler.option.optimization.flags" useByScannerDiscovery="false" value="{{opts['c']['otheroptimizations']}} {{opts['common']['optimization.other']}}" valueType="string"/>
+								{% endif %}
+								{% if opts['c']['other'] != '' or opts['c']['otherwarnings'] != '' or opts['common']['warnings.other'] != '' %}
+								<option id="fr.ac6.managedbuid.gnu.c.compiler.option.misc.other.{{u.id}}" name="Other flags" superClass="fr.ac6.managedbuid.gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="{{opts['c']['other']}} {{opts['c']['otherwarnings']}} {{opts['common']['warnings.other']}}" valueType="string"/>
+								{% endif %}
+								{% if opts['c']['slowflashdata'] %}
+								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.pcrop.{{u.id}}" name="No data reads in code memory (-mslow-flash-data) " superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.pcrop" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								{% endif %}
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.{{opts['uid']['tool_c_compiler_input']}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.{{u.id}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s"/>
@@ -191,8 +197,14 @@
 								{% if opts['common']['optimization.functionsections'] %}
 								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.ffunction.{{u.id}}" name="Place the function in their own section (-ffunction-sections)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.ffunction" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								{% endif %}
-								{% if opts['cpp']['other'] != '' or opts['cpp']['otherwarnings'] != ''%}
-								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other.{{u.id}}" name="Other flags" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other" useByScannerDiscovery="false" value="{{opts['cpp']['other']}} {{opts['cpp']['otherwarnings']}}" valueType="string"/>
+								{% if opts['cpp']['otheroptimizations'] != '' or opts['common']['optimization.other'] != '' %}
+								<option id="gnu.cpp.compiler.option.optimization.flags.{{u.id}}" superClass="gnu.cpp.compiler.option.optimization.flags" useByScannerDiscovery="false" value="{{opts['cpp']['otheroptimizations']}} {{opts['common']['optimization.other']}}" valueType="string"/>
+								{% endif %}
+								{% if opts['cpp']['other'] != '' or opts['cpp']['otherwarnings'] != '' or opts['common']['warnings.other'] != '' %}
+								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other.{{u.id}}" name="Other flags" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other" useByScannerDiscovery="false" value="{{opts['cpp']['other']}} {{opts['cpp']['otherwarnings']}} {{opts['common']['warnings.other']}}" valueType="string"/>
+								{% endif %}
+								{% if opts['cpp']['slowflashdata'] %}
+								<option id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.pcrop.{{u.id}}" name="No data reads in code memory (-mslow-flash-data) " superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.pcrop" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								{% endif %}
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.{{opts['uid']['tool_cpp_compiler_input']}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp"/>
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s.{{u.id}}" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s"/>
@@ -262,7 +274,7 @@
 									<listOptionValue builtIn="false" value="&quot;{{path}}&quot;"/>
 									{% endfor %}
 								</option>
-								{% if opts['as']['other'] != '' or opts['as']['otherwarnings'] != ''%}
+								{% if opts['as']['other'] != '' or opts['as']['otherwarnings'] != '' %}
 								<option id="gnu.both.asm.option.flags.{{u.id}}" superClass="gnu.both.asm.option.flags" useByScannerDiscovery="false" value="{{opts['as']['other']}} {{opts['as']['otherwarnings']}}" valueType="string"/>
 								{% endif %}
 								{% for item in opts['as']['otherwarnings'] %}
