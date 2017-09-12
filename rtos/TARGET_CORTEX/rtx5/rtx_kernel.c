@@ -607,8 +607,7 @@ void osKernelResume (uint32_t sleep_ticks) {
 /// Get the RTOS kernel tick count.
 uint64_t osKernelGetTickCount (void) {
   if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
-    EvrRtxKernelGetTickCount(0U);
-    return  0U;
+    return svcRtxKernelGetTickCount();
   } else {
     return  __svcKernelGetTickCount();
   }
@@ -617,8 +616,7 @@ uint64_t osKernelGetTickCount (void) {
 /// Get the RTOS kernel tick frequency.
 uint32_t osKernelGetTickFreq (void) {
   if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
-    EvrRtxKernelGetTickFreq(0U);
-    return  0U;
+    return svcRtxKernelGetTickFreq();
   } else {
     return  __svcKernelGetTickFreq();
   }
