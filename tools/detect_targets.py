@@ -79,7 +79,7 @@ def main():
                 # Grab additional target details about the mut
                 details_txt = get_mounted_details_txt(mut['disk'])
                 print ""
-                print "[mbed] Detected %s, port %s, mounted %s, DAPLink version %s" % \
+                print "[mbed] Detected %s, port %s, mounted %s, interface version %s" % \
                     (mut['mcu'], mut['port'], mut['disk'], details_txt['Interface Version'])
                 print "[mbed] Supported toolchains for %s" % mut['mcu']
                 print mcu_toolchain_matrix(platform_filter=mut['mcu'])
