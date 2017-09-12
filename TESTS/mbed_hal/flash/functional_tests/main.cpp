@@ -74,13 +74,13 @@ static void delay_loop(uint32_t count)
     : "cc"
   );
 }
-#else // GCC
+#elif  defined ( __GNUC__ ) ||  (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 MBED_NOINLINE
 static void delay_loop(uint32_t count)
 {
   __asm__ volatile (
     "%=:\n\t"
-#if defined(__thumb__) && !defined(__thumb2__) && !defined(TOOLCHAIN_ARMC6)
+#if defined(__thumb__) && !defined(__thumb2__) && !defined(__ARMCC_VERSION)
     "SUB  %0, #1\n\t"
 #else
     "SUBS %0, %0, #1\n\t"
