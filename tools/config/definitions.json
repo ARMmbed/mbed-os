@@ -53,7 +53,8 @@
         "type": [
           "integer",
           "string",
-          "boolean"
+          "boolean",
+          "null"
         ]
       },
       "required": {
@@ -70,7 +71,8 @@
     "type": [
       "string",
       "integer",
-      "boolean"
+      "boolean",
+      "null"
     ]
   },
   "config_parameter_base": {

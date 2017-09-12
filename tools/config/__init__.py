@@ -16,7 +16,9 @@ limitations under the License.
 """
 
 from copy import deepcopy
+from six import moves
 import json
+import six
 import os
 from os.path import dirname, abspath, exists, join, isabs
 import sys
@@ -407,18 +409,23 @@ class Config(object):
                 ConfigException("Could not parse mbed app configuration from %s"
                                 % self.app_config_location))
 
-        # Validate the format of the JSON file based on the schema_app.json
-        schema_root = os.path.dirname(__file__)
-        schema_path = os.path.join(schema_root, "schema_app.json")
-        schema_file = json_file_to_dict(schema_path)
 
-        resolver = RefResolver("file://{}/".format(schema_root), schema_file)
-        validator = Draft4Validator(schema_file, resolver=resolver)
+        if self.app_config_location is not None:
+            # Validate the format of the JSON file based on schema_app.json
+            schema_root = os.path.dirname(os.path.abspath(__file__))
+            schema_path = os.path.join(schema_root, "schema_app.json")
+            schema      = json_file_to_dict(schema_path)
 
-        errors = sorted(validator.iter_errors(self.app_config_data))
+            url = moves.urllib.request.pathname2url(schema_path)
+            uri = moves.urllib_parse.urljoin("file://", url)
 
-        if errors:
-            raise ConfigException(",".join(x.message for x in errors))
+            resolver = RefResolver(uri, schema)
+            validator = Draft4Validator(schema, resolver=resolver)
+
+            errors = sorted(validator.iter_errors(self.app_config_data))
+
+            if errors:
+                raise ConfigException(",".join(x.message for x in errors))
 
         # Update the list of targets with the ones defined in the application
         # config, if applicable
@@ -470,12 +477,14 @@ class Config(object):
                 continue
 
             # Validate the format of the JSON file based on the schema_lib.json
-            schema_root = os.path.dirname(__file__)
+            schema_root = os.path.dirname(os.path.abspath(__file__))
             schema_path = os.path.join(schema_root, "schema_lib.json")
             schema_file = json_file_to_dict(schema_path)
 
-            resolver = RefResolver("file://{}/".format(schema_root),
-                                   schema_file)
+            url = moves.urllib.request.pathname2url(schema_path)
+            uri = moves.urllib_parse.urljoin("file://", url)
+
+            resolver = RefResolver(uri, schema_file)
             validator = Draft4Validator(schema_file, resolver=resolver)
 
             errors = sorted(validator.iter_errors(cfg))

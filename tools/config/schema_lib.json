@@ -5,16 +5,16 @@
   "type": "object",
   "properties": {
     "name": {
-      "$ref": "file:definitions.json#/name_definition"
+      "$ref": "definitions.json#/name_definition"
     },
     "config": {
-      "$ref": "file:definitions.json#/config_definition"
+      "$ref": "definitions.json#/config_definition"
     },
     "target_overrides": {
-      "$ref": "file:definitions.json#/target_overrides_definition"
+      "$ref": "definitions.json#/target_overrides_definition"
     },
     "macros": {
-      "$ref": "file:definitions.json#/macro_definition"
+      "$ref": "definitions.json#/macro_definition"
     }
   },
   "required": [
