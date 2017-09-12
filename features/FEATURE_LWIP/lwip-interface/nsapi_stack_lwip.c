@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#if !NSAPI_PPP_AVAILABLE
+
 #include "nsapi.h"
 #include "mbed_interface.h"
 #include "mbed_assert.h"
@@ -34,10 +36,7 @@
 
 #include "emac_api.h"
 #include "lwip_tools.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "nsapi_stack_lwip.h"
 
 static void mbed_lwip_socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t len)
 {
@@ -228,9 +227,9 @@ static nsapi_error_t mbed_lwip_add_dns_server(nsapi_stack_t *stack, nsapi_addr_t
 static nsapi_error_t mbed_lwip_socket_open(nsapi_stack_t *stack, nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
     // check if network is connected
-    if (!stack->emac->connected) {
-        return NSAPI_ERROR_NO_CONNECTION;
-    }
+//    if (!stack-> ->emac->connected) {
+//        return NSAPI_ERROR_NO_CONNECTION;
+//    }
 
     // allocate a socket
     struct mbed_lwip_socket *s = mbed_lwip_arena_alloc();
@@ -482,7 +481,7 @@ static void mbed_lwip_socket_attach(nsapi_stack_t *stack, nsapi_socket_t handle,
 }
 
 /* LWIP network stack */
-const nsapi_stack_api_t lwip_stack_api = {
+static const nsapi_stack_api_t lwip_stack_api = {
     .gethostbyname      = mbed_lwip_gethostbyname,
     .add_dns_server     = mbed_lwip_add_dns_server,
     .socket_open        = mbed_lwip_socket_open,
@@ -499,6 +498,8 @@ const nsapi_stack_api_t lwip_stack_api = {
     .socket_attach      = mbed_lwip_socket_attach,
 };
 
-#ifdef __cplusplus
-}
-#endif
+nsapi_stack_t lwip_stack = {
+    .stack_api = &lwip_stack_api,
+};
+
+#endif //#if !NSAPI_PPP_AVAILABLE

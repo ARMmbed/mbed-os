@@ -456,9 +456,9 @@ static void packet_tx(void* pvParameters) {
  *  \param[in] buf      the MAC packet to send (e.g. IP packet including MAC addresses and type)
  *  \return ERR_OK if the packet could be sent or an err_t value if the packet couldn't be sent
  */
-static bool k64f_eth_link_out(const emac_interface_t *emac, emac_stack_mem_chain_t *chain)
+static bool k64f_eth_link_out(void *hw, emac_stack_mem_chain_t *chain)
 {
-  struct k64f_enetdata *enet = emac->hw;
+  struct k64f_enetdata *enet = hw;
   emac_stack_mem_t *q;
   emac_stack_mem_t *temp_pbuf;
   uint8_t *psend = NULL, *dst;
@@ -564,37 +564,38 @@ static void k64f_phy_task(void *data) {
   }
 }
 
-static bool k64f_eth_power_up(const emac_interface_t *emac)
+static bool k64f_eth_power_up(void *hw)
 {
-  char hwaddr[ETH_HWADDR_LEN];
+  char hwaddr[K64F_HWADDR_SIZE];
+  struct k64f_enetdata *enet = hw;
 
   /* Initialize the hardware */
   mbed_mac_address(hwaddr);
-  if (!low_level_init_successful(&k64f_enetdata, hwaddr))
+  if (!low_level_init_successful(enet, hwaddr))
     return false;
 
-  k64f_enetdata.xTXDCountSem = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &xtxdcountsem_attr);
-  MBED_ASSERT(k64f_enetdata.xTXDCountSem);
+  enet->xTXDCountSem = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &xtxdcountsem_attr);
+  MBED_ASSERT(enet->xTXDCountSem);
 
-  k64f_enetdata.TXLockMutex = osMutexNew(&txlock_mutex_attr);
-  MBED_ASSERT(k64f_enetdata.TXLockMutex);
+  enet->TXLockMutex = osMutexNew(&txlock_mutex_attr);
+  MBED_ASSERT(enet->TXLockMutex);
 
-  k64f_enetdata.RxReadySem = osSemaphoreNew(UINT16_MAX, 0, &rxreadysem_attr);
-  MBED_ASSERT(k64f_enetdata.RxReadySem);
+  enet->RxReadySem = osSemaphoreNew(UINT16_MAX, 0, &rxreadysem_attr);
+  MBED_ASSERT(enet->RxReadySem);
 
 #ifdef LWIP_DEBUG
-  create_new_thread("k64f_emac_rx_thread", packet_rx, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE*5, RX_PRIORITY, &packet_rx_cb);
+  create_new_thread("k64f_emac_rx_thread", packet_rx, enet, DEFAULT_THREAD_STACKSIZE*5, RX_PRIORITY, &packet_rx_cb);
 #else
-  create_new_thread("k64f_emac_thread", packet_rx, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY, &packet_rx_cb);
+  create_new_thread("k64f_emac_thread", packet_rx, enet, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY, &packet_rx_cb);
 #endif
 
-  k64f_enetdata.TxCleanSem = osSemaphoreNew(UINT16_MAX, 0, &txcleansem_attr);
-  MBED_ASSERT(k64f_enetdata.TxCleanSem);
+  enet->TxCleanSem = osSemaphoreNew(UINT16_MAX, 0, &txcleansem_attr);
+  MBED_ASSERT(enet->TxCleanSem);
 
-  create_new_thread("k64f_emac_txclean_thread", packet_tx, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY, &packet_tx_cb);
+  create_new_thread("k64f_emac_txclean_thread", packet_tx, enet, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY, &packet_tx_cb);
 
   /* PHY monitoring task */
-  create_new_thread("k64f_emac_phy_thread", k64f_phy_task, &k64f_enetdata, DEFAULT_THREAD_STACKSIZE, PHY_PRIORITY, &phy_task_cb);
+  create_new_thread("k64f_emac_phy_thread", k64f_phy_task, enet, DEFAULT_THREAD_STACKSIZE, PHY_PRIORITY, &phy_task_cb);
 
   /* Allow the PHY task to detect the initial link state and set up the proper flags */
   osDelay(10);
@@ -603,64 +604,59 @@ static bool k64f_eth_power_up(const emac_interface_t *emac)
 }
 
 
-static uint32_t k64f_eth_get_mtu_size(const emac_interface_t *emac)
+static uint32_t k64f_eth_get_mtu_size(void *hw)
 {
   return K64_ETH_MTU_SIZE;
 }
 
-static void k64f_eth_get_ifname(const emac_interface_t *emac, char *name, uint8_t size)
+static void k64f_eth_get_ifname(void *hw, char *name, uint8_t size)
 {
   memcpy(name, K64_ETH_IF_NAME, (size < sizeof(K64_ETH_IF_NAME)) ? size : sizeof(K64_ETH_IF_NAME));
 }
 
-static uint8_t k64f_eth_get_hwaddr_size(const emac_interface_t *emac)
+static uint8_t k64f_eth_get_hwaddr_size(void *hw)
 {
-    return ETH_HWADDR_LEN;
+    return K64F_HWADDR_SIZE;
 }
 
-static void k64f_eth_get_hwaddr(const emac_interface_t *emac, uint8_t addr[ETH_HWADDR_LEN])
+static void k64f_eth_get_hwaddr(void *hw, uint8_t *addr)
 {
-  mbed_mac_address((char*)addr);
+  mbed_mac_address((char *)addr);
 }
 
-static void k64f_eth_set_hwaddr(const emac_interface_t *emac, const uint8_t addr[ETH_HWADDR_LEN])
+static void k64f_eth_set_hwaddr(void *hw, const uint8_t *addr)
 {
   /* No-op at this stage */
 }
 
-static void k64f_eth_set_link_input_cb(emac_interface_t *emac, const emac_link_input_fn input_cb, void *data)
+static void k64f_eth_set_link_input_cb(void *hw, const emac_link_input_fn input_cb, void *data)
 {
-  struct k64f_enetdata *enet = emac->hw;
+  struct k64f_enetdata *enet = hw;
 
   enet->emac_link_input_cb = input_cb;
   enet->emac_link_input_cb_data = data;
 }
 
-static void k64f_eth_set_link_state_cb(emac_interface_t *emac, const emac_link_state_change_fn state_cb, void *data)
+static void k64f_eth_set_link_state_cb(void *hw, const emac_link_state_change_fn state_cb, void *data)
 {
-  struct k64f_enetdata *enet = emac->hw;
+  struct k64f_enetdata *enet = hw;
 
   enet->emac_link_state_cb = state_cb;
   enet->emac_link_state_cb_data = data;
 }
 
-static void k64f_eth_add_multicast_group(const emac_interface_t *emac, const nsapi_addr_t *addr)
+static void k64f_eth_add_multicast_group(void *hw, uint8_t *addr)
 {
-
-  uint8_t _addr[NSAPI_IP_BYTES];
-  for (int i = 0; i < NSAPI_IP_BYTES; i++) {
-    _addr[i] = addr->bytes[i];
-  }
-  ENET_AddMulticastGroup(ENET, _addr);
+  ENET_AddMulticastGroup(ENET, addr);
 }
 
-static void k64f_eth_power_down(const emac_interface_t *emac)
+static void k64f_eth_power_down(void *hw)
 {
   /* No-op at this stage */
 }
 
 
-const emac_interface_ops_t k64f_eth_emac_ops = {
+const emac_interface_ops_t mbed_emac_eth_ops_default = {
     .get_mtu_size = k64f_eth_get_mtu_size,
     .get_ifname = k64f_eth_get_ifname,
     .get_hwaddr_size = k64f_eth_get_hwaddr_size,
@@ -674,8 +670,9 @@ const emac_interface_ops_t k64f_eth_emac_ops = {
     .add_multicast_group = k64f_eth_add_multicast_group
 };
 
-emac_interface_t mbed_emac_eth_default = {&k64f_eth_emac_ops, &k64f_enetdata};
-
+//emac_interface_t mbed_emac_eth_default = {&k64f_eth_emac_ops, &k64f_enetdata};
+//emac_interface_ops_t mbed_emac_eth_ops_default = {&k64f_eth_emac_ops};
+void *mbed_emac_eth_hw_default = &k64f_enetdata;
 /**
  * @}
  */

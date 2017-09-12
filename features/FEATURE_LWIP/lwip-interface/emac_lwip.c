@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#include "emac_api.h"
+#if !NSAPI_PPP_AVAILABLE
+#include "mbed_ipstack.h"
 #include "emac_stack_mem.h"
 #include "lwip/tcpip.h"
 #include "lwip/tcp.h"
@@ -23,17 +24,19 @@
 #include "lwip/ethip6.h"
 #include "netsocket/nsapi_types.h"
 
+#include "mbed_ipstack_lwip.h"
+
 static err_t emac_lwip_low_level_output(struct netif *netif, struct pbuf *p)
 {
-    emac_interface_t *mac = (emac_interface_t *)netif->state;
-    bool ret = mac->ops->link_out(mac, (emac_stack_mem_chain_t *)p);
+    mbed_ipstack_interface_t *mac = netif->state;
+    bool ret = mac->ops->link_out(mac->hw, p);
     return ret ? ERR_OK : ERR_IF;
 }
 
 static void emac_lwip_input(void *data, emac_stack_mem_t *buf)
 {
-    struct pbuf *p = (struct pbuf *)buf;
-    struct netif *netif = (struct netif *)data;
+    struct pbuf *p = buf;
+    struct netif *netif = data;
 
     /* pass all packets to ethernet_input, which decides what packets it supports */
     if (netif->input(p, netif) != ERR_OK) {
@@ -45,7 +48,7 @@ static void emac_lwip_input(void *data, emac_stack_mem_t *buf)
 
 static void emac_lwip_state_change(void *data, bool up)
 {
-    struct netif *netif = (struct netif *)data;
+    struct netif *netif = data;
 
     if (up) {
         tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, netif, 1);
@@ -67,7 +70,7 @@ static void emac_lwip_state_change(void *data, bool up)
  */
 static err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, u8_t action)
 {
-    emac_interface_t *emac = netif->state;
+    mbed_ipstack_interface_t *emac = netif->state;
     if (emac->ops->add_multicast_group == NULL) {
         return ERR_OK; /* This function is not mandatory */
     }
@@ -75,17 +78,15 @@ static err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, u8_t 
     switch (action) {
         case NETIF_ADD_MAC_FILTER:
         {
-            nsapi_addr_t addrs;
-            memset(&addrs, 0x00, sizeof(nsapi_addr_t));
             uint32_t group23 = ntohl(group->addr) & 0x007FFFFF;
-            addrs.version = NSAPI_IPv4;
-            addrs.bytes[0] = LL_IP4_MULTICAST_ADDR_0;
-            addrs.bytes[1] = LL_IP4_MULTICAST_ADDR_1;
-            addrs.bytes[2] = LL_IP4_MULTICAST_ADDR_2;
-            addrs.bytes[3] = group23 >> 16;
-            addrs.bytes[4] = group23 >> 8;
-            addrs.bytes[5] = group23;
-            emac->ops->add_multicast_group(emac, &addrs);
+            uint8_t addr[6];
+            addr[0] = LL_IP4_MULTICAST_ADDR_0;
+            addr[1] = LL_IP4_MULTICAST_ADDR_1;
+            addr[2] = LL_IP4_MULTICAST_ADDR_2;
+            addr[3] = group23 >> 16;
+            addr[4] = group23 >> 8;
+            addr[5] = group23;
+            emac->ops->add_multicast_group(emac, addr);
             return ERR_OK;
         }
         case NETIF_DEL_MAC_FILTER:
@@ -110,7 +111,7 @@ static err_t igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, u8_t 
  */
 static err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, u8_t action)
 {
-    emac_interface_t *emac = netif->state;
+    mbed_ipstack_interface_t *emac = netif->state;
     if (emac->ops->add_multicast_group == NULL) {
         return ERR_OK; /* This function is not mandatory */
     }
@@ -118,17 +119,15 @@ static err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, u8_t a
     switch (action) {
         case NETIF_ADD_MAC_FILTER:
         {
-            nsapi_addr_t addrs;
-            memset((void*)&addrs, 0x00, sizeof(nsapi_addr_t));
             uint32_t group32 = ntohl(group->addr[3]);
-            addrs.version = NSAPI_IPv6;
-            addrs.bytes[0] = LL_IP6_MULTICAST_ADDR_0;
-            addrs.bytes[1] = LL_IP6_MULTICAST_ADDR_1;
-            addrs.bytes[2] = group32 >> 24;
-            addrs.bytes[3] = group32 >> 16;
-            addrs.bytes[4] = group32 >> 8;
-            addrs.bytes[5] = group32;
-            emac->ops->add_multicast_group(emac, &addrs);
+            uint8_t addr[6];
+            addr[0] = LL_IP6_MULTICAST_ADDR_0;
+            addr[1] = LL_IP6_MULTICAST_ADDR_1;
+            addr[2] = group32 >> 24;
+            addr[3] = group32 >> 16;
+            addr[4] = group32 >> 8;
+            addr[5] = group32;
+            emac->ops->add_multicast_group(emac, addr);
             return ERR_OK;
         }
         case NETIF_DEL_MAC_FILTER:
@@ -143,19 +142,19 @@ static err_t mld_mac_filter(struct netif *netif, const ip6_addr_t *group, u8_t a
 err_t emac_lwip_if_init(struct netif *netif)
 {
     int err = ERR_OK;
-    emac_interface_t *emac = netif->state;
+    mbed_ipstack_interface_t *emac = netif->state;
 
-    emac->ops->set_link_input_cb(emac, emac_lwip_input, netif);
-    emac->ops->set_link_state_cb(emac, emac_lwip_state_change, netif);
+    emac->ops->set_link_input_cb(emac->hw, emac_lwip_input, netif);
+    emac->ops->set_link_state_cb(emac->hw, emac_lwip_state_change, netif);
 
     netif->hwaddr_len = emac->ops->get_hwaddr_size(emac);
-    emac->ops->get_hwaddr(emac, netif->hwaddr);
-    netif->mtu = emac->ops->get_mtu_size(emac);
+    emac->ops->get_hwaddr(emac->hw, netif->hwaddr);
+    netif->mtu = emac->ops->get_mtu_size(emac->hw);
 
     /* Interface capabilities */
     netif->flags = NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP | NETIF_FLAG_ETHERNET;
 
-    emac->ops->get_ifname(emac, netif->name, 2);
+    emac->ops->get_ifname(emac->hw, netif->name, 2);
 
 #if LWIP_IPV4
     netif->output = etharp_output;
@@ -177,9 +176,11 @@ err_t emac_lwip_if_init(struct netif *netif)
 
     netif->linkoutput = emac_lwip_low_level_output;
 
-    if (!emac->ops->power_up(emac)) {
+    if (!emac->ops->power_up(emac->hw)) {
         err = ERR_IF;
     }
 
     return err;
 }
+
+#endif //!NSAPI_PPP_AVAILABLE

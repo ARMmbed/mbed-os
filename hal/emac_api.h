@@ -21,20 +21,14 @@
 #include "emac_stack_mem.h"
 #include "cmsis_os.h"
 
-typedef struct emac_interface emac_interface_t;
-typedef struct nsapi_addr nsapi_addr_t;
-#define ETH_HWADDR_LEN    6
-
 /**
- * EmacInterface
+ * emac_interface_ops_t
  *
  * This interface should be used to abstract low level access to networking hardware
+ * All operations receive a `void *` hw pointer which an emac device provides when
+ * it is registered with a stack.
  */
 
-/** This structure needs to be defined by targets wishing to provide ethernet driver using EMAC interface. It will
- *  be used by the EthernetInterface class to initialize the networking subsystem.
- */
-extern emac_interface_t mbed_emac_eth_default;
 
 /**
  * Callback to be register with Emac interface and to be called fore received packets
@@ -55,97 +49,98 @@ typedef void (*emac_link_state_change_fn)(void *data, bool up);
 /**
  * Return maximum transmission unit
  *
- * @param emac Emac interface
+ * @param hw   Emac interface's handle
  * @return     MTU in bytes
  */
-typedef uint32_t (*emac_get_mtu_size_fn)(const emac_interface_t *emac);
+typedef uint32_t (*emac_get_mtu_size_fn)(void *hw);
 
 /**
  * Return interface name
  *
- * @param emac Emac interface
+ * @param hw   Emac interface's handle
  * @param name Pointer to where the name should be written
  * @param size Maximum number of character to copy
  */
-typedef void (*emac_get_ifname_fn)(const emac_interface_t *emac, char *name, uint8_t size);
+typedef void (*emac_get_ifname_fn)(void *hw, char *name, uint8_t size);
 
 /**
  * Returns size of the underlying interface HW address size
  *
- * @param emac Emac interface
+ * @param hw   Emac interface's handle
  * @return     HW address size in bytes
  */
-typedef uint8_t (*emac_get_hwaddr_size_fn)(const emac_interface_t *emac);
+typedef uint8_t (*emac_get_hwaddr_size_fn)(void *hw);
 
 /**
  * Return interface hw address
  *
  * Copies HW address to provided memory, @param addr has to be of correct size see @a get_hwaddr_size
  *
- * @param emac Emac interface
+ * @param hw   Emac interface's handle
  * @param addr HW address for underlying interface
  */
-typedef void (*emac_get_hwaddr_fn)(const emac_interface_t *emac, uint8_t addr[ETH_HWADDR_LEN]);
+typedef void (*emac_get_hwaddr_fn)(void *hw, uint8_t *addr);
 
 /**
  * Set HW address for interface
  *
  * Provided address has to be of correct size, see @a get_hwaddr_size
  *
- * @param emac Emac interface
+ * @param hw   Emac interface's handle
  * @param addr Address to be set
  */
-typedef void (*emac_set_hwaddr_fn)(const emac_interface_t *emac, const uint8_t addr[ETH_HWADDR_LEN]);
+typedef void (*emac_set_hwaddr_fn)(void *hw, const uint8_t *addr);
 
 /**
  * Sends the packet over the link
  *
  * That can not be called from an interrupt context.
  *
- * @param emac Emac interface
+ * @param hw   Emac interface's handle
  * @param buf  Packet to be send
  * @return     True if the packet was send successfully, False otherwise
  */
-typedef bool (*emac_link_out_fn)(const emac_interface_t *emac, emac_stack_mem_chain_t *buf);
+typedef bool (*emac_link_out_fn)(void *hw, emac_stack_mem_chain_t *buf);
 
 /**
  * Initializes the HW
  *
+ * @param hw   Emac interface's handle
  * @return True on success, False in case of an error.
  */
-typedef bool (*emac_power_up_fn)(const emac_interface_t *emac);
+typedef bool (*emac_power_up_fn)(void *hw);
 
 /**
  * Deinitializes the HW
  *
- * @param emac Emac interface
+ * @param hw   Emac interface's handle
  */
-typedef void (*emac_power_down_fn)(const emac_interface_t *emac);
+typedef void (*emac_power_down_fn)(void *hw);
 
 /**
  * Sets a callback that needs to be called for packets received for that interface
  *
- * @param emac     Emac interface
+ * @param hw       Emac interface's handle
  * @param input_cb Function to be register as a callback
  * @param data     Arbitrary user data to be passed to the callback
  */
-typedef void (*emac_set_link_input_cb_fn)(emac_interface_t *emac, const emac_link_input_fn input_cb, void *data);
+typedef void (*emac_set_link_input_cb_fn)(void *hw,  emac_link_input_fn input_cb, void *data);
 
 /**
  * Sets a callback that needs to be called on link status changes for given interface
  *
- * @param emac     Emac interface
+ * @param hw       Emac interface's handle
  * @param state_cb Function to be register as a callback
- * @param data Arbitrary user data to be passed to the callback
+ * @param data     Arbitrary user data to be passed to the callback
  */
-typedef void (*emac_set_link_state_cb_fn)(emac_interface_t *emac, const emac_link_state_change_fn state_cb, void *data);
+typedef void (*emac_set_link_state_cb_fn)(void *hw, emac_link_state_change_fn state_cb, void *data);
 
 /** Add device to a multicast group
  *
- * @param emac     Emac interface
- * @param address  An multicast group address
+ * @param hw       Emac interface's handle
+ * @param address  A multicast group hardware address
  */
-typedef void (*emac_add_multicast_group)(const emac_interface_t *emac, const nsapi_addr_t *address);
+typedef void (*emac_add_multicast_group)(void *hw,  uint8_t *address);
 
 typedef struct emac_interface_ops {
     emac_get_mtu_size_fn        get_mtu_size;
@@ -161,18 +156,10 @@ typedef struct emac_interface_ops {
     emac_add_multicast_group    add_multicast_group;
 } emac_interface_ops_t;
 
-typedef struct emac_interface {
-    /* Members implemented by vendor */
-    const emac_interface_ops_t *ops; /**< HW specific emac implementation */
-    void *hw; /**< EMAC implementation specific user data */
-
-    /* Private members used by the stack */
-    osSemaphoreId_t linked;
-    osSemaphoreId_t has_addr;
-    bool connected;
-    bool dhcp;
-    char hwaddr[6];
-    void *netif;
-} emac_interface_t;
+/** These need to be defined by targets wishing to provide an Ethernet driver using EMAC interface. It will
+ *  be used by the EthernetInterface class's default constructor to initialise the networking subsystem.
+ */
+extern const emac_interface_ops_t mbed_emac_eth_ops_default;
+extern void *mbed_emac_eth_hw_default;
 
 #endif  /* MBED_EMAC_API_H */

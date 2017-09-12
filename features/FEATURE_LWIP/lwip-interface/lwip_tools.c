@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if !NSAPI_PPP_AVAILABLE
+
 #include <stdbool.h>
 #include <string.h>
 
@@ -110,3 +112,5 @@ void mbed_lwip_arena_dealloc(struct mbed_lwip_socket *s)
 {
     s->in_use = false;
 }
+
+#endif //!NSAPI_PPP_AVAILABLE

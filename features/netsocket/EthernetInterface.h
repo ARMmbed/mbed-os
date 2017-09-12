@@ -19,7 +19,7 @@
 
 #include "nsapi.h"
 #include "rtos.h"
-#include "hal/emac_api.h"
+#include "mbed_ipstack.h"
 
 // Forward declaration
 class NetworkStack;
@@ -33,7 +33,7 @@ class EthernetInterface : public NetworkInterface
 public:
     /** EthernetInterface lifetime
      */
-    EthernetInterface(emac_interface_t *emac = &mbed_emac_eth_default);
+    EthernetInterface(void);
 
     /** Set a static IP address
      *
@@ -107,11 +107,13 @@ protected:
      */
     virtual NetworkStack *get_stack();
 
+    const emac_interface_ops_t *_emac_ops;
+    void *_hw;
+    mbed_ipstack_interface_t *_interface;
     bool _dhcp;
     char _ip_address[NSAPI_IPv6_SIZE];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
-    nsapi_stack_t _stack;
 };
 
 #endif
