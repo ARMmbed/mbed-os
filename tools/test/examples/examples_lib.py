@@ -19,7 +19,7 @@ from tools.build_api import get_mbed_official_release
 from tools.targets import TARGET_MAP
 from tools.export import EXPORTERS
 
-SUPPORTED_TOOLCHAINS = ["ARM", "IAR", "GCC_ARM"]
+SUPPORTED_TOOLCHAINS = ["ARM", "IAR", "GCC_ARM", "ARMC6"]
 SUPPORTED_IDES = [exp for exp in EXPORTERS.keys() if exp != "cmsis" and exp != "zip"]
 
 
