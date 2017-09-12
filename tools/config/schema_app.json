@@ -1,9 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-06/schema#",
   "title": "Mbed Library Schema",
-  "description": "Configuration file for an mbed library",
+  "description": "Configuration file for an mbed application",
   "type": "object",
-  "$id": "http://example.com/root.json",
   "properties": {
     "name": {
       "$ref": "file:definitions.json#/name_definition"

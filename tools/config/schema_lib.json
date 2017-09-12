@@ -3,7 +3,6 @@
   "title": "Mbed Library Schema",
   "description": "Configuration file for an mbed library",
   "type": "object",
-  "$id": "http://example.com/root.json",
   "properties": {
     "name": {
       "$ref": "file:definitions.json#/name_definition"
