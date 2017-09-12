@@ -80,7 +80,7 @@ static void delay_loop(uint32_t count)
 {
   __asm__ volatile (
     "%=:\n\t"
-#if defined(__thumb__) && !defined(__thumb2__)
+#if defined(__thumb__) && !defined(__thumb2__) && !defined(TOOLCHAIN_ARMC6)
     "SUB  %0, #1\n\t"
 #else
     "SUBS %0, %0, #1\n\t"
