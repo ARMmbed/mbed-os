@@ -60,4 +60,20 @@
 # define OS_PRIVILEGE_MODE           0
 #endif
 
+#if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
+
+/* Number of process slots (threads may call secure library code) */
+#ifndef MBED_CONF_APP_TZ_PROCESS_STACK_SLOTS
+#define MBED_CONF_APP_TZ_PROCESS_STACK_SLOTS     8U
+#endif
+
+/* Stack size of the secure library code */
+#ifndef MBED_CONF_APP_TZ_PROCESS_STACK_SIZE
+#define MBED_CONF_APP_TZ_PROCESS_STACK_SIZE      512U
+#endif
+
+#define TZ_PROCESS_STACK_SLOTS      MBED_CONF_APP_TZ_PROCESS_STACK_SLOTS
+#define TZ_PROCESS_STACK_SIZE       MBED_CONF_APP_TZ_PROCESS_STACK_SIZE
+#endif
+
 #endif /* MBED_RTX_CONF_H */
