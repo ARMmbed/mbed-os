@@ -21,6 +21,7 @@
 #define NSAPI_TYPES_H
 
 #include <stdint.h>
+#include "hal/emac_api.h"
 
 #ifdef __cplusplus
 extern "C" {

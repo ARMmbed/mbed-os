@@ -1,8 +1,5 @@
-
-/** \addtogroup netsocket */
-/** @{*/
-/* nsapi.h - The network socket API
- * Copyright (c) 2015 ARM Limited
+/* mbed Microcontroller Library
+ * Copyright (c) 2017 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,32 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef NSAPI_H
-#define NSAPI_H
-
-
-// entry point for nsapi types
-#include "nsapi_types.h"
+#ifndef NSAPI_STACK_LWIP_H_
+#define NSAPI_STACK_LWIP_H_
 
 #ifdef __cplusplus
+extern "C" {
+#endif
 
-// entry point for C++ api
-#include "netsocket/SocketAddress.h"
-#include "netsocket/NetworkStack.h"
+extern nsapi_stack_t lwip_stack;
 
-#include "netsocket/NetworkInterface.h"
-#include "netsocket/WiFiInterface.h"
-#include "netsocket/CellularInterface.h"
-#include "netsocket/MeshInterface.h"
-
-#include "netsocket/Socket.h"
-#include "netsocket/UDPSocket.h"
-#include "netsocket/TCPSocket.h"
-#include "netsocket/TCPServer.h"
-
+#ifdef __cplusplus
+}
 #endif
 
 
-#endif
-
-/** @}*/
+#endif /* NSAPI_LWIP_H_ */
