@@ -31,6 +31,9 @@
 #ifndef OS_CLOCK
 #define OS_CLOCK                26000000
 #endif
+#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
+#define MBED_CONF_APP_THREAD_STACK_SIZE 1024
+#endif
 
 #elif defined(TARGET_ADZS_U4050LF_EZKIT)
 
@@ -45,6 +48,9 @@
 #endif
 #ifndef OS_CLOCK
 #define OS_CLOCK                26000000
+#endif
+#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
+#define MBED_CONF_APP_THREAD_STACK_SIZE 1024
 #endif
 
 #elif defined(TARGET_EV_COG_AD3029LZ)
@@ -61,6 +67,9 @@
 #ifndef OS_CLOCK
 #define OS_CLOCK                26000000
 #endif
+#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
+#define MBED_CONF_APP_THREAD_STACK_SIZE 1024
+#endif
 
 #elif defined(TARGET_EV_COG_AD4050LZ)
 
@@ -75,6 +84,9 @@
 #endif
 #ifndef OS_CLOCK
 #define OS_CLOCK                26000000
+#endif
+#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
+#define MBED_CONF_APP_THREAD_STACK_SIZE 1024
 #endif
 
 #endif
