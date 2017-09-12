@@ -1,0 +1,40 @@
+; 
+; Copyright (C) u-blox
+; All rights reserved.
+; This source file is the sole property of u-blox. Reproduction or utilization
+; of this source in whole or part is forbidden without the written consent of
+; u-blox.
+; 
+; FILE: spi.hs
+
+SPI_HAL_VERSION EQU 0
+SPI_CRS EQU 0x000
+SPI_CRC EQU 0x004
+SPI_CR EQU 0x008
+SPI_IMRS EQU 0x010
+SPI_IMRC EQU 0x014
+SPI_IMR EQU 0x018
+SPI_SR EQU 0x020
+SPI_CDR EQU 0x024
+SPI_TOR EQU 0x028
+SPI_TFFR EQU 0x02C
+SPI_RFFR EQU 0x030
+SPI_TWCR EQU 0x034
+SPI_RWCR EQU 0x038
+SPI_WSR EQU 0x03C
+SPI_WGR EQU 0x040
+SPI_CSR EQU 0x044
+SPI_CNTBR EQU 0x048
+SPI_THR EQU 0x080
+SPI_RHR EQU 0x100
+SPI_CTXPTR EQU 0x200
+SPI_CTXCNT EQU 0x204
+SPI_NTXPTR EQU 0x208
+SPI_NTXCNT EQU 0x20C
+SPI_CRXPTR EQU 0x210
+SPI_CRXCNT EQU 0x214
+SPI_NRXPTR EQU 0x218
+SPI_NRXCNT EQU 0x21C
+SPI_RXCMP EQU 0x220
+; EOF: spi.hs
+   END
