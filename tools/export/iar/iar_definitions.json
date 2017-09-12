@@ -23,6 +23,9 @@
     "STM32L476RG": {
         "OGChipSelectEditMenu": "STM32L476RG\tST STM32L476RG"
     },
+    "STM32L486RG": {
+        "OGChipSelectEditMenu": "STM32L486RG\tST STM32L486RG"
+    },
     "STM32L011K4": {
         "OGChipSelectEditMenu": "STM32L011x4\tST STM32L011x4"
     },
