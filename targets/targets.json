@@ -4227,7 +4227,6 @@
         "supported_toolchains": ["GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "device_has": ["LOWPOWERTIMER", "RTC", "INTERRUPTIN","PORTIN", "PORTINOUT", "PORTOUT", "SERIAL","SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP"],
-        "release_versions": ["5"],
-        "device_name": "M2351K1AAEES"
+        "release_versions": ["5"]
     }
 }
