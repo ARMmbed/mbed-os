@@ -18,7 +18,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "cmsis.h"
-
+#if DEVICE_CRYPTOCELL
+#include "sns_silib.h"
+#endif
 /* This startup is for mbed 2 baremetal. There is no config for RTOS for mbed 2,
  * therefore we protect this file with MBED_CONF_RTOS_PRESENT
  * Note: The new consolidated started for mbed OS is in rtos/mbed_boot code file.
@@ -64,6 +66,19 @@ void mbed_copy_nvic(void)
 #endif /* NVIC_RAM_VECTOR_ADDRESS */
 #endif /* !defined(__CORTEX_M0) && !defined(__CORTEX_A9) */
 }
+#if DEVICE_CRYPTOCELL
+#if defined(TOOLCHAIN_GCC)
+CRYS_RND_State_t   rndState = {0};
+CRYS_RND_WorkBuff_t  rndWorkBuff = {0};
+#else
+CRYS_RND_State_t   rndState;
+CRYS_RND_WorkBuff_t  rndWorkBuff;
+#endif
+
+CRYS_RND_State_t*   rndState_ptr;
+CRYS_RND_WorkBuff_t*  rndWorkBuff_ptr;
+
+#endif
 
 /* Toolchain specific main code */
 
@@ -80,6 +95,11 @@ int $Sub$$main(void)
 void _platform_post_stackheap_init(void) 
 {
     mbed_copy_nvic();
+#if DEVICE_CRYPTOCELL
+    if (  SaSi_LibInit( &rndState , &rndWorkBuff ) ) {
+        mbed_die();
+    }
+#endif
     mbed_sdk_init();
 }
 
@@ -90,6 +110,11 @@ extern int __real_main(void);
 void software_init_hook(void)
 {
     mbed_copy_nvic();
+#if DEVICE_CRYPTOCELL
+    if (  SaSi_LibInit( &rndState , &rndWorkBuff ) ) {
+        mbed_die();
+    }
+#endif
     mbed_sdk_init();
     software_init_hook_rtos();
 }
