@@ -62,13 +62,13 @@ extern "C" {
 
 /** Lock the deep sleep mode
  *
- * This locks the automatic deep mode selection. 
+ * This locks the automatic deep mode selection.
  * sleep_manager_sleep_auto() will ignore deepsleep mode if
  * this function is invoked at least once (the internal counter is non-zero)
  *
  * Use this locking mechanism for interrupt driven API that are
  * running in the background and deepsleep could affect their functionality
- * 
+ *
  * The lock is a counter, can be locked up to USHRT_MAX
  * This function is IRQ and thread safe
  */
@@ -76,8 +76,8 @@ void sleep_manager_lock_deep_sleep(void);
 
 /** Unlock the deep sleep mode
  *
- * Use unlocking in pair with sleep_manager_lock_deep_sleep(). 
- * 
+ * Use unlocking in pair with sleep_manager_lock_deep_sleep().
+ *
  * The lock is a counter, should be equally unlocked as locked
  * This function is IRQ and thread safe
  */
@@ -97,7 +97,7 @@ bool sleep_manager_can_deep_sleep(void);
  * @note
  * If MBED_DEBUG is defined, only hal_sleep is allowed. This ensures the debugger
  * to be active for debug modes.
- * 
+ *
  */
 void sleep_manager_sleep_auto(void);
 
@@ -106,6 +106,10 @@ void sleep_manager_sleep_auto(void);
  * @note This function can be a noop if not implemented by the platform.
  * @note This function will be a noop in debug mode (debug build profile when MBED_DEBUG is defined).
  * @note This function will be a noop while uVisor is in use.
+ * @note This function will be a noop if the following conditions are met:
+ *   - The RTOS is present
+ *   - The processor turn off the Systick clock during sleep
+ *   - The target does not implement tickless mode
  *
  * The processor is setup ready for sleep, and sent to sleep using __WFI(). In this mode, the
  * system clock to the core is stopped until a reset or an interrupt occurs. This eliminates
@@ -123,7 +127,9 @@ __INLINE static void sleep(void)
 {
 #if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
 #if DEVICE_SLEEP
+#if (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_STCLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS)
     sleep_manager_sleep_auto();
+#endif /* (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_STCLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS) */
 #endif /* DEVICE_SLEEP */
 #endif /* !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)) */
 }
