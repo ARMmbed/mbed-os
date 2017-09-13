@@ -26,7 +26,6 @@ from os.path import join, splitext, exists, relpath, dirname, basename, split, a
 from itertools import chain
 from inspect import getmro
 from copy import deepcopy
-from tools.config import Config
 from abc import ABCMeta, abstractmethod
 from distutils.spawn import find_executable
 
@@ -1257,7 +1256,7 @@ class mbedToolchain:
         else:
             prev_data = None
         # Get the current configuration data
-        crt_data = Config.config_to_header(self.config_data) if self.config_data else None
+        crt_data = self.config.config_to_header(self.config_data) if self.config_data else None
         # "changed" indicates if a configuration change was detected
         changed = False
         if prev_data is not None: # a previous mbed_config.h exists
@@ -1553,7 +1552,7 @@ class mbedToolchain:
 
     # Return the list of macros geenrated by the build system
     def get_config_macros(self):
-        return Config.config_to_macros(self.config_data) if self.config_data else []
+        return self.config.config_to_macros(self.config_data) if self.config_data else []
 
     @property
     def report(self):
