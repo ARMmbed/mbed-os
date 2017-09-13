@@ -91,6 +91,11 @@ typedef enum {
 
     PD_2  = 0x32,
 
+    PG_9  = 0x69,
+    PG_10 = 0x6A,
+    PG_11 = 0x6B,
+    PG_12 = 0x6C,
+
     PH_0  = 0x70,
     PH_1  = 0x71,
 
@@ -131,16 +136,16 @@ typedef enum {
     USER_BUTTON = PC_13,
     // Standardized button names
     BUTTON1 = USER_BUTTON,
-    SERIAL_TX   = PA_2,
-    SERIAL_RX   = PA_3,
+    SERIAL_TX   = PC_12,
+    SERIAL_RX   = PD_2,
     USBTX       = PA_2,
     USBRX       = PA_3,
-    I2C_SCL     = PB_8,
-    I2C_SDA     = PB_9,
-    SPI_MOSI    = PA_7,
-    SPI_MISO    = PA_6,
-    SPI_SCK     = PA_5,
-    SPI_CS      = PB_6,
+    I2C_SCL     = PC_0,
+    I2C_SDA     = PC_1,
+    SPI_MOSI    = PG_11,
+    SPI_MISO    = PG_10,
+    SPI_SCK     = PG_9,
+    SPI_CS      = PG_12,
     PWM_OUT     = PB_3,
 
     //USB pins
