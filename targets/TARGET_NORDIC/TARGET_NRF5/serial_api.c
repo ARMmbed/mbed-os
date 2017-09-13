@@ -544,9 +544,9 @@ static void internal_set_hwfc(FlowControl type,
                              PinName rxflow, PinName txflow)
 {
     UART_CB.pselrts =
-        ((rxflow == NC) || (type == FlowControlCTS)) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)rxflow;
+        ((rxflow == NC) || (type == FlowControlCTS)) ? UART_DEFAULT_RTS : (uint32_t)rxflow;
     UART_CB.pselcts =
-        ((txflow == NC) || (type == FlowControlRTS)) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)txflow;
+        ((txflow == NC) || (type == FlowControlRTS)) ? UART_DEFAULT_CTS : (uint32_t)txflow;
 
     if (UART_CB.pselrts != NRF_UART_PSEL_DISCONNECTED) {
         nrf_gpio_pin_set(UART_CB.pselrts);
