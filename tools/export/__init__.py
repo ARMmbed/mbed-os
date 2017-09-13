@@ -42,6 +42,7 @@ EXPORTERS = {
     'gcc_arm': makefile.GccArm,
     'make_gcc_arm': makefile.GccArm,
     'make_armc5': makefile.Armc5,
+    'make_armc6': makefile.Armc6,
     'make_iar': makefile.IAR,
     'ds5_5': ds5_5.DS5_5,
     'iar': iar.IAR,

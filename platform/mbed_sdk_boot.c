@@ -67,7 +67,7 @@ void mbed_copy_nvic(void)
 
 /* Toolchain specific main code */
 
-#if defined (__CC_ARM)
+#if defined (__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 5010060))
 
 int $Super$$main(void);
 

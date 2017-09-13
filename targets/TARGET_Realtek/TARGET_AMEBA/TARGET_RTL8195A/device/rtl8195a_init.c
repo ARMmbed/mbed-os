@@ -17,6 +17,8 @@
 
 #if defined(__CC_ARM)
 #include "cmsis_armcc.h"
+#elif (defined(__ARMCC_VERSION) && __ARMCC_VERSION >= 6010050)
+#include "cmsis_armclang.h"
 #elif defined(__GNUC__)
 #include "cmsis_gcc.h"
 #else
@@ -270,7 +272,11 @@ void PLAT_Main(void)
 #else
     __asm ("ldr  r0, =SystemInit   \n"
            "blx  r0                \n"
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+           "ldr  r0, =__main \n"
+#else
            "ldr  r0, =_start       \n"
+#endif
            "bx   r0                \n"
     );
 #endif

@@ -1,8 +1,7 @@
-/* mbed Microcontroller Library - stackheap
- * Setup a fixed single stack/heap memory model, 
- * between the top of the RW/ZI region and the stackpointer
+/* mbed Microcontroller Library
+ * CMSIS-style functionality to support dynamic vectors
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2011 ARM Limited. All rights reserved.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -13,7 +12,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 3. Neither the name of STMicroelectronics nor the names of its contributors
+ * 3. Neither the name of ARM Limited nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -26,31 +25,22 @@
  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
 
-#ifdef __cplusplus
-extern "C" {
-#endif 
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
 
-#include <rt_misc.h>
-#include <stdint.h>
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+extern uint32_t Image$$VECTOR_RAM$$Base[];
+#define __VECTOR_RAM Image$$VECTOR_RAM$$Base
+#else
+extern uint32_t __VECTOR_RAM[];
+#endif
 
-extern char Image$$RW_IRAM1$$ZI$$Limit[];
+/* Symbols defined by the linker script */
+#define NVIC_NUM_VECTORS        (16 + 57)         // CORE + MCU Peripherals
+#define NVIC_RAM_VECTOR_ADDRESS (__VECTOR_RAM)    // Vectors positioned at start of RAM
 
-extern __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
-    uint32_t zi_limit = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
-    uint32_t sp_limit = __current_sp();
-
-    zi_limit = (zi_limit + 7) & ~0x7;    // ensure zi_limit is 8-byte aligned
-
-    struct __initial_stackheap r;
-    r.heap_base = zi_limit;
-    r.heap_limit = sp_limit;
-    return r;
-}
-
-#ifdef __cplusplus
-}
-#endif 
+#endif

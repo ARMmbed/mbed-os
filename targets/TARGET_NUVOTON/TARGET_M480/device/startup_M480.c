@@ -50,7 +50,7 @@ void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 
 /* Initialize segments */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
 extern void __main(void);
 #elif defined(__ICCARM__)
@@ -190,7 +190,7 @@ WEAK_ALIAS_FUNC(SWDC_IRQHandler, Default_Handler)       // 94:
 WEAK_ALIAS_FUNC(ETMC_IRQHandler, Default_Handler)       // 95:
 
 /* Vector table */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 __attribute__ ((section("RESET")))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
@@ -201,7 +201,7 @@ __attribute__ ((section(".vector_table")))
 const uint32_t __vector_handlers[] = {
 #endif
 
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
 #elif defined(__ICCARM__)
     (uint32_t) &CSTACK$$Limit,
@@ -339,7 +339,7 @@ const uint32_t __vector_handlers[] = {
  *  C/C++ runtime initialization
  */
      
-#if defined (__CC_ARM)
+#if defined(__CC_ARM)
 
 __asm static void Reset_Handler(void)
 {    
@@ -406,7 +406,7 @@ void Reset_Handler_1(void)
     /* Enable register write-protection function */
     SYS_LockReg();
     
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     Reset_Handler_Cascade((void *) &Image$$ARM_LIB_STACK$$ZI$$Limit, (void *) Reset_Handler_2);
 #elif defined(__ICCARM__)
     Reset_Handler_Cascade((void *) &CSTACK$$Limit, (void *) Reset_Handler_2);
@@ -429,7 +429,7 @@ void Reset_Handler_2(void)
     uvisor_init();
 #endif
 
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     __main();
     
 #elif defined(__ICCARM__)

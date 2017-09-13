@@ -227,6 +227,9 @@ typedef _US64 _U_SINT;
 #endif
 typedef UNITY_FLOAT_TYPE _UF;
 
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#else
+
 #ifndef isinf
 #define isinf(n) (((1.0f / f_zero) == n) ? 1 : 0) || (((-1.0f / f_zero) == n) ? 1 : 0)
 #define UNITY_FLOAT_NEEDS_ZERO
@@ -235,6 +238,8 @@ typedef UNITY_FLOAT_TYPE _UF;
 #ifndef isnan
 #define isnan(n) ((n != n) ? 1 : 0)
 #endif
+
+#endif /* ARMC6 */
 
 #ifndef isneg
 #define isneg(n) ((n < 0.0f) ? 1 : 0)

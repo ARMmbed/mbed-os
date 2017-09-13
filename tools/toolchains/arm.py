@@ -15,13 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
+from copy import copy
 from os.path import join, dirname, splitext, basename, exists
 from os import makedirs, write
 from tempfile import mkstemp
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
-from tools.utils import mkdir
+from tools.utils import mkdir, NotSupportedException
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -31,6 +32,7 @@ class ARM(mbedToolchain):
     DIAGNOSTIC_PATTERN  = re.compile('"(?P<file>[^"]+)", line (?P<line>\d+)( \(column (?P<column>\d+)\)|): (?P<severity>Warning|Error|Fatal error): (?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
+    SHEBANG = "#! armcc -E"
 
     @staticmethod
     def check_executable():
@@ -82,7 +84,7 @@ class ARM(mbedToolchain):
                 #we need to append chroot, because when the .d files are generated the compiler is chrooted
                 dependencies.append((self.CHROOT if self.CHROOT else '') + match.group('file'))
         return dependencies
-        
+
     def parse_output(self, output):
         msg = None
         for line in output.splitlines():
@@ -175,32 +177,53 @@ class ARM(mbedToolchain):
     def compile_cpp(self, source, object, includes):
         return self.compile(self.cppc, source, object, includes)
 
+    def correct_scatter_shebang(self, scatter_file):
+        """Correct the shebang at the top of a scatter file.
+
+        Positional arguments:
+        scatter_file -- the scatter file to correct
+
+        Return:
+        The location of the correct scatter file
+
+        Side Effects:
+        This method MAY write a new scatter file to disk
+        """
+        with open(scatter_file, "rb") as input:
+            lines = input.readlines()
+            if  (lines[0].startswith(self.SHEBANG) or
+                 not lines[0].startswith("#!")):
+                return scatter_file
+            else:
+                new_scatter = join(self.build_dir, ".link_script.sct")
+                if self.need_update(new_scatter, [scatter_file]):
+                    with open(new_scatter, "wb") as out:
+                        out.write(self.SHEBANG)
+                        out.write("\n")
+                        out.write("".join(lines[1:]))
+                return new_scatter
+
     @hook_tool
-    def link(self, output, objects, libraries, lib_dirs, mem_map):
-        map_file = splitext(output)[0] + ".map"
-        if len(lib_dirs):
-            args = ["-o", output, "--userlibpath", ",".join(lib_dirs), "--info=totals", "--map", "--list=%s" % map_file]
-        else:
-            args = ["-o", output, "--info=totals", "--map", "--list=%s" % map_file]
+    def link(self, output, objects, libraries, lib_dirs, scatter_file):
+        base, _ = splitext(output)
+        map_file = base + ".map"
+        args = ["-o", output, "--info=totals", "--map", "--list=%s" % map_file]
+        args.extend(objects)
+        args.extend(libraries)
+        if lib_dirs:
+            args.extend(["--userlibpath", ",".join(lib_dirs)])
+        if scatter_file:
+            new_scatter = self.correct_scatter_shebang(scatter_file)
+            args.extend(["--scatter", new_scatter])
 
-        args.extend(self.flags['ld'])
-
-        if mem_map:
-            args.extend(["--scatter", mem_map])
-
-        # Build linker command
-        cmd = self.ld + args + objects + libraries + self.sys_libs
-
-        # Call cmdline hook
-        cmd = self.hook.get_cmdline_linker(cmd)
+        cmd_pre = self.ld + args
+        cmd = self.hook.get_cmdline_linker(cmd_pre)
 
         if self.RESPONSE_FILES:
-            # Split link command to linker executable + response file
             cmd_linker = cmd[0]
             link_files = self.get_link_file(cmd[1:])
             cmd = [cmd_linker, '--via', link_files]
 
-        # Exec command
         self.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
@@ -210,21 +233,14 @@ class ARM(mbedToolchain):
             param = ['--via', self.get_arch_file(objects)]
         else:
             param = objects
-
-        # Exec command
         self.default_cmd([self.ar, '-r', lib_path] + param)
 
     @hook_tool
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
         bin_arg = {".bin": "--bin", ".hex": "--i32"}[fmt]
-        # Build binary command
         cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
-
-        # Call cmdline hook
         cmd = self.hook.get_cmdline_binary(cmd)
-
-        # Exec command
         self.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
@@ -248,6 +264,95 @@ class ARM(mbedToolchain):
 class ARM_STD(ARM):
     pass
 
-
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
+
+class ARMC6(ARM_STD):
+    SHEBANG = "#! armclang -E --target=arm-arm-none-eabi -x c"
+    @staticmethod
+    def check_executable():
+        return mbedToolchain.generic_check_executable("ARMC6", "armclang", 1)
+
+    def __init__(self, target, *args, **kwargs):
+        mbedToolchain.__init__(self, target, *args, **kwargs)
+
+        if "ARM" not in target.supported_toolchains:
+            raise NotSupportedException("ARM compiler support is required for ARMC6 support")
+
+        if target.core.lower().endswith("fd"):
+            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-2])
+            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-2])
+        elif target.core.lower().endswith("f"):
+            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-1])
+            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
+        else:
+            self.flags['common'].append("-mcpu=%s" % target.core.lower())
+            self.flags['ld'].append("--cpu=%s" % target.core.lower())
+
+        if target.core == "Cortex-M4F":
+            self.flags['common'].append("-mfpu=fpv4-sp-d16")
+            self.flags['common'].append("-mfloat-abi=hard")
+        elif target.core == "Cortex-M7F":
+            self.flags['common'].append("-mfpu=fpv5-sp-d16")
+            self.flags['common'].append("-mfloat-abi=softfp")
+        elif target.core == "Cortex-M7FD":
+            self.flags['common'].append("-mfpu=fpv5-d16")
+            self.flags['common'].append("-mfloat-abi=softfp")
+
+        asm_cpu = {
+            "Cortex-M0+": "Cortex-M0",
+            "Cortex-M4F": "Cortex-M4.fp",
+            "Cortex-M7F": "Cortex-M7.fp.sp",
+            "Cortex-M7FD": "Cortex-M7.fp.dp"}.get(target.core, target.core)
+
+        self.flags['asm'].append("--cpu=%s" % asm_cpu)
+
+        self.cc = ([join(TOOLCHAIN_PATHS["ARMC6"], "armclang")] +
+                   self.flags['common'] + self.flags['c'])
+        self.cppc = ([join(TOOLCHAIN_PATHS["ARMC6"], "armclang")] +
+                     self.flags['common'] + self.flags['cxx'])
+        self.asm = [join(TOOLCHAIN_PATHS["ARMC6"], "armasm")] + self.flags['asm']
+        self.ld = [join(TOOLCHAIN_PATHS["ARMC6"], "armlink")] + self.flags['ld']
+        self.ar = [join(TOOLCHAIN_PATHS["ARMC6"], "armar")]
+        self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
+
+
+    def parse_dependencies(self, dep_path):
+        return mbedToolchain.parse_dependencies(self, dep_path)
+
+    def is_not_supported_error(self, output):
+        return "#error [NOT_SUPPORTED]" in output
+
+    def parse_output(self, output):
+        pass
+
+    def get_config_option(self, config_header):
+        return ["-include", config_header]
+
+    def get_compile_options(self, defines, includes, for_asm=False):
+        opts = ['-D%s' % d for d in defines]
+        opts.extend(["-I%s" % i for i in includes])
+        if for_asm:
+            return ["--cpreproc",
+                    "--cpreproc_opts=%s" % ",".join(self.flags['common'] + opts)]
+        else:
+            config_header = self.get_config_header()
+            if config_header:
+                opts.extend(self.get_config_option(config_header))
+            return opts
+
+    @hook_tool
+    def assemble(self, source, object, includes):
+        cmd_pre = copy(self.asm)
+        cmd_pre.extend(self.get_compile_options(
+            self.get_symbols(True), includes, for_asm=True))
+        cmd_pre.extend(["-o", object, source])
+        return [self.hook.get_cmdline_assembler(cmd_pre)]
+
+    @hook_tool
+    def compile(self, cc, source, object, includes):
+        cmd = copy(cc)
+        cmd.extend(self.get_compile_options(self.get_symbols(), includes))
+        cmd.extend(["-o", object, source])
+        cmd = self.hook.get_cmdline_compiler(cmd)
+        return [cmd]

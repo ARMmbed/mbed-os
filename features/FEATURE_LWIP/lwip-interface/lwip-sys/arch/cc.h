@@ -51,7 +51,7 @@
 /* Use LWIP error codes */
 #define LWIP_PROVIDE_ERRNO
 
-#if defined(__arm__) && defined(__ARMCC_VERSION) 
+#if defined(__arm__) && defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 6010050)
     /* Keil uVision4 tools */
     #define PACK_STRUCT_BEGIN __packed
     #define PACK_STRUCT_STRUCT

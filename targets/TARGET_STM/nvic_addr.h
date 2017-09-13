@@ -23,7 +23,7 @@ extern "C" {
 #if defined(__ICCARM__)
     #pragma section=".intvec"
     #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)__section_begin(".intvec"))
-#elif defined(__CC_ARM)
+#elif defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t Load$$LR$$LR_IROM1$$Base[];
     #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)Load$$LR$$LR_IROM1$$Base)
 #elif defined(__GNUC__)

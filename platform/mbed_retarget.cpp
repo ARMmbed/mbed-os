@@ -34,7 +34,12 @@
 #include "platform/mbed_retarget.h"
 
 #if defined(__ARMCC_VERSION)
+#   if __ARMCC_VERSION >= 6010050
+#      include <arm_compat.h>
+#   endif
 #   include <rt_sys.h>
+#   include <rt_misc.h>
+#   include <stdint.h>
 #   define PREFIX(x)    _sys##x
 #   define OPEN_MAX     _SYS_OPEN
 #   ifdef __MICROLIB
@@ -334,6 +339,16 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 #endif
 }
 
+#if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+extern "C" void PREFIX(_exit)(int return_code) {
+    while(1) {}
+}
+
+extern "C" void _ttywrch(int ch) {
+    serial_putc(&stdio_uart, ch);
+}
+#endif
+
 #if defined(__ICCARM__)
 extern "C" size_t    __read (int        fh, unsigned char *buffer, size_t       length) {
 #else
@@ -497,6 +512,26 @@ extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
     }
     return size;
 }
+
+extern "C" char Image$$RW_IRAM1$$ZI$$Limit[];
+
+extern "C" MBED_WEAK __value_in_regs struct __initial_stackheap _mbed_user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
+{
+    uint32_t zi_limit = (uint32_t)Image$$RW_IRAM1$$ZI$$Limit;
+    uint32_t sp_limit = __current_sp();
+
+    zi_limit = (zi_limit + 7) & ~0x7;    // ensure zi_limit is 8-byte aligned
+
+    struct __initial_stackheap r;
+    r.heap_base = zi_limit;
+    r.heap_limit = sp_limit;
+    return r;
+}
+
+extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+    return _mbed_user_setup_stackheap(R0, R1, R2, R3);
+}
+
 #endif
 
 
