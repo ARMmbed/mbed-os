@@ -310,6 +310,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
         extra_verbose=extra_verbose, config=config, build_profile=build_profile,
         app_config=app_config)
     # The first path will give the name to the library
+    toolchain.RESPONSE_FILES = False
     if name is None:
         name = basename(normpath(abspath(src_paths[0])))
 
