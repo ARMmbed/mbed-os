@@ -17,43 +17,7 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_EVAL_ADICUP3029)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20004000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          112
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                26000000
-#endif
-#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
-#define MBED_CONF_APP_THREAD_STACK_SIZE 1024
-#endif
-
-#elif defined(TARGET_ADZS_U4050LF_EZKIT)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20048000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          112
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                26000000
-#endif
-#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
-#define MBED_CONF_APP_THREAD_STACK_SIZE 1024
-#endif
-
-#elif defined(TARGET_EV_COG_AD3029LZ)
+#if defined(TARGET_EV_COG_AD3029LZ)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20004000UL)
