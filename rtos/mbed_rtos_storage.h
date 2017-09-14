@@ -41,6 +41,7 @@ extern "C" {
  */
 
 #include "rtx_lib.h"
+#include "mbed_rtx_conf.h"
 
 typedef os_mutex_t mbed_rtos_storage_mutex_t;
 typedef os_semaphore_t mbed_rtos_storage_semaphore_t;

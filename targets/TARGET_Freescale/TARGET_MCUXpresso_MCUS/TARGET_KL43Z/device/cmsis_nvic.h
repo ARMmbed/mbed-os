@@ -39,7 +39,7 @@ extern uint32_t __VECTOR_RAM[];
 #endif
 
 /* Symbols defined by the linker script */
-#define NVIC_NUM_VECTORS        (16 + 240)        // CORE + MCU Peripherals
+#define NVIC_NUM_VECTORS        (16 + 32)        // CORE + MCU Peripherals
 #define NVIC_RAM_VECTOR_ADDRESS (__VECTOR_RAM)    // Vectors positioned at start of RAM
 
 #endif

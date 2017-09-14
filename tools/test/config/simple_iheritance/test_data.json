@@ -1,0 +1,25 @@
+{
+    "inherits_tree": {
+        "target.base1_1": "v_base1_1_f",
+        "target.base1_2": "v_base1_2_d1",
+        "target.base1_3": "v_base1_3_b1",
+        "target.derived1": "v_derived1_d1",
+        "target.derived2": "v_derived2_f",
+        "target.base2_1": "v_base2_1_f",
+        "target.base2_2": "v_base2_2_b2",
+        "target.f1_1": "v_f1_1_f_override",
+        "target.f1_2": "v_f1_2_f"
+    },
+    "first_base": {
+        "target.base1_1": "v_base1_1_b1",
+        "target.base1_2": "v_base1_2_b1",
+        "target.base1_3": "v_base1_3_b1"
+    },
+    "intermediate": {
+        "target.base1_1": "v_base1_1_d1",
+        "target.base1_2": "v_base1_2_d1",
+        "target.base1_3": "v_base1_3_b1",
+        "target.derived1": "v_derived1_d1",
+        "target.derived2": "v_derived2_d1"
+    }
+}

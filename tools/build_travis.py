@@ -130,6 +130,7 @@ build_list = (
 
     { "target": "NUMAKER_PFM_NUC472",   "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
     { "target": "NUMAKER_PFM_M453",     "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
+    { "target": "NUMAKER_PFM_M487",     "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
  )
 
 ################################################################################
@@ -264,6 +265,12 @@ linking_list = [
                }
      },
     {"target": "NUMAKER_PFM_M453",
+     "toolchains": "GCC_ARM",
+     "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+               "usb"  : ["USB_1", "USB_2" ,"USB_3"],
+               }
+     },
+    {"target": "NUMAKER_PFM_M487",
      "toolchains": "GCC_ARM",
      "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                "usb"  : ["USB_1", "USB_2" ,"USB_3"],

@@ -28,7 +28,7 @@
 #include "Queue.h"
 #include "MemoryPool.h"
 #include "cmsis_os2.h"
-#include "rtx_lib.h"
+#include "mbed_rtos_storage.h"
 #include "mbed_rtos1_types.h"
 
 #include "platform/NonCopyable.h"

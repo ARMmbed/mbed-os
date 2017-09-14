@@ -24,6 +24,9 @@
 
 #include "mbed_rtx.h"
 
+/** Any access to RTX5 specific data structures used in common code should be wrapped in ifdef MBED_OS_BACKEND_RTX5 */
+#define MBED_OS_BACKEND_RTX5
+
 /** The thread's stack size can be configured by the application, if not explicitly specified it'll default to 4K */
 #ifndef MBED_CONF_APP_THREAD_STACK_SIZE
 #define MBED_CONF_APP_THREAD_STACK_SIZE 4096
