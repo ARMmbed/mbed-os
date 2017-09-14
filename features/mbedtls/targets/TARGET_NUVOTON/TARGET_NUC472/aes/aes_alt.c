@@ -27,9 +27,12 @@
 #if defined(MBEDTLS_AES_ALT)
 
 #include <string.h>
+
 #include "NUC472_442.h"
 #include "mbed_toolchain.h"
 #include "mbed_assert.h"
+
+
 
 /* Implementation that should never be optimized out by the compiler */
 static void mbedtls_zeroize( void *v, size_t n )
@@ -37,7 +40,7 @@ static void mbedtls_zeroize( void *v, size_t n )
     volatile unsigned char *p = (unsigned char*)v;
     while( n-- ) *p++ = 0;
 }
-    
+
 extern volatile int  g_AES_done;
 
 // Must be a multiple of 16 bytes block size
@@ -58,15 +61,8 @@ static void swapInitVector(unsigned char iv[16])
     }
 }
 
-//volatile void CRYPTO_IRQHandler()
-//{
-//    if (AES_GET_INT_FLAG()) {
-//        g_AES_done = 1;
-//        AES_CLR_INT_FLAG();
-//    }
-//}
 
-// AES available channel 0~3
+/* AES available channel 0~3 */
 static unsigned char channel_flag[4]= {0x00,0x00,0x00,0x00}; // 0: idle, 1: busy
 static int channel_alloc()
 {
@@ -91,15 +87,11 @@ void mbedtls_aes_init( mbedtls_aes_context *ctx )
 {
     int i =-1;
 
-//  sw_mbedtls_aes_init(ctx);
-//  return;
-
     memset( ctx, 0, sizeof( mbedtls_aes_context ) );
 
     ctx->swapType = AES_IN_OUT_SWAP;
     while( (i = channel_alloc()) < 0 ) {
         mbed_assert_internal("No available AES channel", __FILE__, __LINE__);
-        //osDelay(300);
     }
     ctx->channel = i;
     memset(ctx->iv, 0, sizeof (ctx->iv));
@@ -121,14 +113,6 @@ void mbedtls_aes_free( mbedtls_aes_context *ctx )
     if( ctx == NULL )
         return;
 
-    /* Unlock protected registers */
-//    SYS_UnlockReg();
-//    CLK_DisableModuleClock(CRPT_MODULE);
-    /* Lock protected registers */
-//    SYS_LockReg();
-
-//    NVIC_DisableIRQ(CRPT_IRQn);
-//    AES_DISABLE_INT();
     channel_free(ctx->channel);
     mbedtls_zeroize( ctx, sizeof( mbedtls_aes_context ) );
 }
@@ -231,11 +215,8 @@ void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
 {
-
-
     ctx->encDec = 1;
     __nvt_aes_crypt(ctx, input, output, 16);
-
 }
 
 /*
@@ -245,12 +226,8 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
 {
-
-
     ctx->encDec = 0;
     __nvt_aes_crypt(ctx, input, output, 16);
-
-
 }
 
 /*
@@ -261,8 +238,6 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
                            const unsigned char input[16],
                            unsigned char output[16] )
 {
-
-
     ctx->opMode = AES_MODE_ECB;
     if( mode == MBEDTLS_AES_ENCRYPT )
         mbedtls_aes_encrypt( ctx, input, output );
@@ -287,6 +262,7 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
     unsigned char temp[16];
     int length = len;
     int blockChainLen;
+
     if( length % 16 )
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
 
@@ -316,7 +292,7 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
         length -= blockChainLen;
         input  += blockChainLen;
         output += blockChainLen;
-        if(length < MAX_DMA_CHAIN_SIZE ) blockChainLen = length;     // For last remainder block chain
+        if(length < MAX_DMA_CHAIN_SIZE ) blockChainLen = length;        // For last remainder block chain
 
     }
 
@@ -340,11 +316,12 @@ static int __nvt_aes_crypt_partial_block_cfb128( mbedtls_aes_context *ctx,
     int c;
     size_t n = *iv_off;
     unsigned char iv_tmp[16];
+
     if( mode == MBEDTLS_AES_DECRYPT ) {
         while( length-- ) {
             if( n == 0)
                 mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
-            else if( ctx->opMode == AES_MODE_CFB) {     // For previous cryption is CFB mode
+            else if( ctx->opMode == AES_MODE_CFB) { // For previous cryption is CFB mode
                 memcpy(iv_tmp, iv, n);
                 mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, ctx->prv_iv, iv );
                 memcpy(iv, iv_tmp, n);
@@ -436,7 +413,7 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
         length -= blockChainLen;
         input  += blockChainLen;
         output += blockChainLen;
-        if(length < MAX_DMA_CHAIN_SIZE ) blockChainLen = length;      // For last remainder block chain
+        if(length < MAX_DMA_CHAIN_SIZE ) blockChainLen = length;        // For last remainder block chain
     }
 
     *iv_off = remLen;

@@ -61,19 +61,6 @@ static void swapInitVector(unsigned char iv[16])
     }
 }
 
-/* IRQHandler: To share CRYPTO_IRQHandler() with TRNG & other crypto IPs
-               For ex:
-                    volatile void CRYPTO_IRQHandler()
-                    {
-                        ...
-                        if (AES_GET_INT_FLAG()) {
-                            g_AES_done = 1;
-                            AES_CLR_INT_FLAG();
-                        }
-                        ...
-                    }
-*/
-
 
 /* AES available channel 0~3 */
 static unsigned char channel_flag[4]= {0x00,0x00,0x00,0x00}; // 0: idle, 1: busy
