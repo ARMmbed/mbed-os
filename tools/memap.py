@@ -269,7 +269,7 @@ class MemapParser(object):
 
         else:
 
-            RE_OBJECT_ARMCC = r'(.+\.l)\((.+\.o)\)'
+            RE_OBJECT_ARMCC = r'(.+\.(l|ar))\((.+\.o)\)'
             test_re_obj_name = re.match(RE_OBJECT_ARMCC, line)
 
             if test_re_obj_name:
