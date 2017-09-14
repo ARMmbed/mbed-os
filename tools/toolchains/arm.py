@@ -49,6 +49,9 @@ class ARM(mbedToolchain):
                                extra_verbose=extra_verbose,
                                build_profile=build_profile)
 
+        if "ARM" not in target.supported_toolchains:
+            raise NotSupportedException("ARM compiler support is required for ARM build")
+
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
         elif target.core == "Cortex-M4F":
@@ -276,8 +279,8 @@ class ARMC6(ARM_STD):
     def __init__(self, target, *args, **kwargs):
         mbedToolchain.__init__(self, target, *args, **kwargs)
 
-        if "ARM" not in target.supported_toolchains:
-            raise NotSupportedException("ARM compiler support is required for ARMC6 support")
+        if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
+            raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
 
         if target.core.lower().endswith("fd"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-2])
