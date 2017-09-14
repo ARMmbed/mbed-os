@@ -225,7 +225,7 @@ class Arm(Makefile):
 
     def generate(self):
         if self.resources.linker_script:
-            new_script = self.toolchain.make_real_scatter(
+            new_script = self.toolchain.correct_scatter_shebang(
                 self.resources.linker_script)
             if new_script is not self.resources.linker_script:
                 self.resources.linker_script = new_script
