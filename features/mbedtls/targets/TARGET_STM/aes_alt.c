@@ -1,5 +1,5 @@
 /*
- *  Hardware aes collector for the STM32F4 family
+ *  Hardware aes collector for the STM32F4 F7 and L4 family
  *******************************************************************************
  * Copyright (c) 2017, STMicroelectronics
  *  SPDX-License-Identifier: Apache-2.0
@@ -130,15 +130,17 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
     /* allow multi-instance of CRYP use: restore context for CRYP hw module */
     ctx->hcryp_aes.Instance->CR = ctx->ctx_save_cr;
     ctx->hcryp_aes.Phase = HAL_CRYP_PHASE_READY;
+    ctx->hcryp_aes.Init.DataType = CRYP_DATATYPE_8B;
+    ctx->hcryp_aes.Init.pKey = ctx->aes_key;
 
     if(mode == MBEDTLS_AES_DECRYPT) { /* AES decryption */
-        ctx->hcryp_aes.Init.DataType = CRYP_DATATYPE_8B;
-        ctx->hcryp_aes.Init.pKey = ctx->aes_key;
-        mbedtls_aes_decrypt( ctx, input, output );
+        if (mbedtls_internal_aes_decrypt( ctx, input, output )){
+            return 1;
+        }
     } else { /* AES encryption */
-        ctx->hcryp_aes.Init.DataType = CRYP_DATATYPE_8B;
-        ctx->hcryp_aes.Init.pKey = ctx->aes_key;
-        mbedtls_aes_encrypt( ctx, input, output );
+        if (mbedtls_internal_aes_encrypt( ctx, input, output )) {
+            return 1;
+        }
     }
     /* allow multi-instance of CRYP use: save context for CRYP HW module CR */
     ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR;
@@ -243,12 +245,12 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
                     unsigned char *output )
 {
     int status = 0;
-    uint32_t *iv_ptr = (uint32_t *)&iv[0];
     if( length % 16 )
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
     ctx->hcryp_aes.Init.pInitVect = &iv[0];
     status |= st_cbc_restore_context(ctx);
 #if defined (TARGET_STM32L486xG)
+    uint32_t *iv_ptr = (uint32_t *)&iv[0];
     if( mode == MBEDTLS_AES_DECRYPT ) {
         status |= st_hal_cryp_cbc(ctx, CRYP_ALGOMODE_KEYDERIVATION_DECRYPT, length, iv, (uint8_t *)input, (uint8_t *)output);
         // update IV
@@ -387,24 +389,41 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
 }
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
 
-void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
+int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
 {
     if (HAL_CRYP_AESECB_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10) !=0) {
-        // error found to be returned
+        // error found
+        return 1;
     }
+    return 0;
 
+}
+
+int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
+                                  const unsigned char input[16],
+                                  unsigned char output[16] )
+{
+    if(HAL_CRYP_AESECB_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10)) {
+        // error found
+        return 1;
+    }
+    return 0;
+}
+
+void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
+                          const unsigned char input[16],
+                          unsigned char output[16] )
+{
+    mbedtls_internal_aes_encrypt( ctx, input, output );
 }
 
 void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
 {
-    if(HAL_CRYP_AESECB_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10)) {
-        // error found to be returned
-    }
+    mbedtls_internal_aes_decrypt( ctx, input, output );
 }
-
 
 #endif /*MBEDTLS_AES_ALT*/
