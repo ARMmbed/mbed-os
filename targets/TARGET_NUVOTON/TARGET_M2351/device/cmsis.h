@@ -21,7 +21,7 @@
 #include "cmsis_nvic.h"
 
 // Support linker-generated symbol as start of relocated vector table.
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 extern uint32_t Image$$ER_IRAMVEC$$ZI$$Base;
 #elif defined(__ICCARM__)
 
