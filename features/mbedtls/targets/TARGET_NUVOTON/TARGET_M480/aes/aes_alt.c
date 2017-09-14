@@ -61,39 +61,14 @@ static void swapInitVector(unsigned char iv[16])
     }
 }
 
-
-/* AES available channel 0~3 */
-static unsigned char channel_flag[4]= {0x00,0x00,0x00,0x00}; // 0: idle, 1: busy
-static int channel_alloc()
-{
-    int i;
-    for(i=0; i< (int)sizeof(channel_flag); i++) {
-        if( channel_flag[i] == 0x00 ) {
-            channel_flag[i] = 0x01;
-            return i;
-        }
-    }
-    return(-1);
-}
-
-static void channel_free(int i)
-{
-    if( i >=0 && i < (int)sizeof(channel_flag) )
-        channel_flag[i] = 0x00;
-}
-
-
 void mbedtls_aes_init( mbedtls_aes_context *ctx )
 {
-    int i =-1;
-
     memset( ctx, 0, sizeof( mbedtls_aes_context ) );
 
     ctx->swapType = AES_IN_OUT_SWAP;
-    while( (i = channel_alloc()) < 0 ) {
-        mbed_assert_internal("No available AES channel", __FILE__, __LINE__);
-    }
-    ctx->channel = i;
+    /* We support multiple contexts with context save & restore and so needs just one 
+     * H/W channel. Always use H/W channel #0. */
+    ctx->channel = 0;
     memset(ctx->iv, 0, sizeof (ctx->iv));
 
     /* Unlock protected registers */
@@ -108,12 +83,9 @@ void mbedtls_aes_init( mbedtls_aes_context *ctx )
 
 void mbedtls_aes_free( mbedtls_aes_context *ctx )
 {
-
-
     if( ctx == NULL )
         return;
 
-    channel_free(ctx->channel);
     mbedtls_zeroize( ctx, sizeof( mbedtls_aes_context ) );
 }
 
@@ -124,7 +96,6 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
                             unsigned int keybits )
 {
     unsigned int i;
-
 
     switch( keybits ) {
     case 128:
@@ -140,8 +111,6 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
         return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
     }
 
-
-
     // key swap
     for( i = 0; i < ( keybits >> 5 ); i++ ) {
         ctx->buf[i] = (*(key+i*4) << 24) |
@@ -149,8 +118,6 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
                       (*(key+2+i*4) << 8) |
                       (*(key+3+i*4) );
     }
-    AES_SetKey(ctx->channel, ctx->buf, ctx->keySize);
-
 
     return( 0 );
 }
@@ -163,13 +130,11 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx, const unsigned char *key,
 {
     int ret;
 
-
     /* Also checks keybits */
     if( ( ret = mbedtls_aes_setkey_enc( ctx, key, keybits ) ) != 0 )
         goto exit;
 
 exit:
-
     return( ret );
 }
 
@@ -192,6 +157,7 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
 
     AES_Open(ctx->channel, ctx->encDec, ctx->opMode, ctx->keySize, ctx->swapType);
     AES_SetInitVect(ctx->channel, ctx->iv);
+    AES_SetKey(ctx->channel, ctx->buf, ctx->keySize);
     /* AES DMA buffer requirements same as above */
     if ((((uint32_t) input) & 0x03) || ((((uint32_t) input) & 0x20000000) != 0x20000000)) {
         memcpy(au8InputData, input, dataSize);
@@ -214,6 +180,11 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
 
     if( pOut != output ) memcpy(output, au8OutputData, dataSize);
 
+    /* Save IV for next block */
+    ctx->iv[0] = CRPT->AES_FDBCK[0];
+    ctx->iv[1] = CRPT->AES_FDBCK[1];
+    ctx->iv[2] = CRPT->AES_FDBCK[2];
+    ctx->iv[3] = CRPT->AES_FDBCK[3];
 }
 
 /*
