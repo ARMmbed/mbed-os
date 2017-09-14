@@ -48,7 +48,7 @@ void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 
 /* Initialize segments */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
 extern void __main(void);
 #elif defined(__ICCARM__)
@@ -181,7 +181,7 @@ WEAK_ALIAS_FUNC(TRNG_IRQHandler, Default_Handler)        // 101:
 
 
 /* Vector table */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 __attribute__ ((section("RESET")))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
@@ -193,7 +193,7 @@ const uint32_t __vector_handlers[] = {
 #endif
 
     /* Configure Initial Stack Pointer, using linker-generated symbols */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
 #elif defined(__ICCARM__)
     //(uint32_t) __sfe("CSTACK"),
@@ -342,7 +342,7 @@ void Reset_Handler(void)
      */
     SystemInit();
     
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     __main();
     
 #elif defined(__ICCARM__)

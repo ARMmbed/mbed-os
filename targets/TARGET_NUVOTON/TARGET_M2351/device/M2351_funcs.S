@@ -1,4 +1,4 @@
-#if defined(__CC_ARM)
+#if defined(__CC_ARM)  || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
         AREA    |.text|, CODE, READONLY
 __PC        PROC
             EXPORT      __PC        
@@ -23,7 +23,7 @@ __PC
     BLX     lr
 
 
-#if defined(__CC_ARM)
+#if defined(__CC_ARM)  || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     ALIGN    
     END
 #elif defined(__GNUC__)                
