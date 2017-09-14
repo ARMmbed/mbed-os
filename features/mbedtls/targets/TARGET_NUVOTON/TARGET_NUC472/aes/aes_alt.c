@@ -181,18 +181,26 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     unsigned char* pIn;
     unsigned char* pOut;
 
+    /* AES DMA buffer requires to be:
+     *   1) Word-aligned
+     *   2) Located in 0x2xxxxxxx range
+     */
     MBED_ALIGN(4) uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE];
     MBED_ALIGN(4) uint8_t au8InputData[MAX_DMA_CHAIN_SIZE];
+    MBED_ASSERT(((((uint32_t) au8OutputData) & 0x03) == 0) && ((((uint32_t) au8OutputData) & 0x20000000) == 0x20000000));
+    MBED_ASSERT(((((uint32_t) au8InputData) & 0x03) == 0) && ((((uint32_t) au8InputData) & 0x20000000) == 0x20000000));
 
     AES_Open(ctx->channel, ctx->encDec, ctx->opMode, ctx->keySize, ctx->swapType);
     AES_SetInitVect(ctx->channel, ctx->iv);
-    if( ((uint32_t)input) & 0x03 ) {
+    /* AES DMA buffer requirements same as above */
+    if ((((uint32_t) input) & 0x03) || ((((uint32_t) input) & 0x20000000) != 0x20000000)) {
         memcpy(au8InputData, input, dataSize);
         pIn = au8InputData;
     } else {
         pIn = (unsigned char*)input;
     }
-    if( (((uint32_t)output) & 0x03) || (dataSize%4)) { // HW CFB output byte count must be multiple of word
+    /* AES DMA buffer requirements same as above */
+    if ((((uint32_t) output) & 0x03) || ((((uint32_t) output) & 0x20000000) != 0x20000000)) {
         pOut = au8OutputData;
     } else {
         pOut = output;
