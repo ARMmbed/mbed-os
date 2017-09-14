@@ -4224,7 +4224,7 @@
         "default_toolchain": "GCC_ARM",
         "extra_labels": ["NUVOTON", "M2351", "M2351K1AAEES"],
         "is_disk_virtual": true,
-        "supported_toolchains": ["GCC_ARM", "IAR"],
+        "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
         "inherits": ["Target"],
         "device_has": ["LOWPOWERTIMER", "RTC", "INTERRUPTIN","PORTIN", "PORTINOUT", "PORTOUT", "SERIAL","SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP"],
         "release_versions": ["5"]
