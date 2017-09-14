@@ -63,6 +63,10 @@ extern "C" {
  *
  * @note Synchronization level: Thread safe
  *
+ * @note On some platforms time can not be set to 0 since it is invalid value.
+ *       In such case when 0 value is passed to this function, then RTC time
+ *       value is set to 1.
+ *
  * Example:
  * @code
  * #include "mbed.h"
