@@ -167,8 +167,9 @@ class Uvision(Exporter):
         """Format toolchain flags for Uvision"""
         flags = copy.deepcopy(self.flags)
         # to be preprocessed with armcc
-        asm_flag_string = '--cpreproc --cpreproc_opts=-D__ASSERT_MSG,' + \
-                          ",".join(flags['asm_flags'])
+        asm_flag_string = (
+            '--cpreproc --cpreproc_opts=-D__ASSERT_MSG,' +
+            ",".join(filter(lambda f: f.startswith("-D"), flags['asm_flags'])))
         flags['asm_flags'] = asm_flag_string
         # All non-asm flags are in one template field
         c_flags = list(set(flags['c_flags'] + flags['cxx_flags'] +flags['common_flags']))
