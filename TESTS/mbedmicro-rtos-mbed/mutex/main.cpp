@@ -191,11 +191,12 @@ void test_dual_thread_lock_trylock_thread(Mutex *mutex)
 
 void test_dual_thread_lock_lock_thread(Mutex *mutex)
 {
-    uint32_t start = us_ticker_read();
+    Timer timer;
+    timer.start();
 
     osStatus stat = mutex->lock(TEST_DELAY);
     TEST_ASSERT_EQUAL(osErrorTimeout, stat);
-    TEST_ASSERT_UINT32_WITHIN(5000, TEST_DELAY*1000, us_ticker_read() - start);
+    TEST_ASSERT_UINT32_WITHIN(5000, TEST_DELAY*1000, timer.read_us());
 }
 
 /** Test dual thread lock
