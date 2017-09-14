@@ -3039,6 +3039,7 @@
 	"device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
 	"release_versions": ["2", "5"],
         "overrides": {"uart_hwfc": 0},
+	"macros_add": ["__FPU_PRESENT"],
 	"config": {
 	    "serial_console_speed": {
 		"help": "Default baud rate of serial console",
