@@ -20,11 +20,8 @@
  *
  *  This file is part of mbed TLS (https://tls.mbed.org)
  */
-
 #ifndef MBEDTLS_AES_ALT_H
 #define MBEDTLS_AES_ALT_H
-
-#include "mbedtls/aes.h"
 
 #if defined(MBEDTLS_AES_C)
 #if defined(MBEDTLS_AES_ALT)
