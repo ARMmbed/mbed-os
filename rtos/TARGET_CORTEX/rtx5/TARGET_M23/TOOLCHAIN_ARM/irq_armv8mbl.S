@@ -1,5 +1,5 @@
 ;/*
-; * Copyright (c) 2016 ARM Limited. All rights reserved.
+; * Copyright (c) 2016-2017 ARM Limited. All rights reserved.
 ; *
 ; * SPDX-License-Identifier: Apache-2.0
 ; *
@@ -27,7 +27,7 @@ I_T_RUN_OFS     EQU      28                     ; osInfo.thread.run offset
 TCB_SM_OFS      EQU      48                     ; TCB.stack_mem offset
 TCB_SP_OFS      EQU      56                     ; TCB.SP offset
 TCB_SF_OFS      EQU      34                     ; TCB.stack_frame offset
-TCB_TZM_OFS     EQU      60                     ; TCB.tz_memory offset
+TCB_TZM_OFS     EQU      64                     ; TCB.tz_memory offset
 
 
                 PRESERVE8
@@ -35,8 +35,8 @@ TCB_TZM_OFS     EQU      60                     ; TCB.tz_memory offset
 
 
                 AREA     |.constdata|, DATA, READONLY
-                EXPORT   os_irq_cm
-os_irq_cm       DCB      0                      ; Non weak library reference
+                EXPORT   irqRtxLib
+irqRtxLib       DCB      0                      ; Non weak library reference
 
 
                 AREA     |.text|, CODE, READONLY
@@ -44,8 +44,8 @@ os_irq_cm       DCB      0                      ; Non weak library reference
 
 SVC_Handler     PROC
                 EXPORT   SVC_Handler
-                IMPORT   os_UserSVC_Table
-                IMPORT   os_Info
+                IMPORT   osRtxUserSVC
+                IMPORT   osRtxInfo
 #ifdef __DOMAIN_NS
                 IMPORT   TZ_LoadContext_S
                 IMPORT   TZ_StoreContext_S
@@ -66,8 +66,8 @@ SVC_Handler     PROC
                 MOV      LR,R3                  ; Set EXC_RETURN
 
 SVC_Context
-                LDR      R3,=os_Info+I_T_RUN_OFS; Load address of os_Info.run
-                LDMIA    R3!,{R1,R2}            ; Load os_Info.thread.run: curr & next
+                LDR      R3,=osRtxInfo+I_T_RUN_OFS; Load address of osRtxInfo.run
+                LDMIA    R3!,{R1,R2}            ; Load osRtxInfo.thread.run: curr & next
                 CMP      R1,R2                  ; Check if thread switch is required
                 BEQ      SVC_Exit               ; Branch when threads are the same
 
@@ -102,7 +102,7 @@ SVC_ContextSave2
 
 SVC_ContextSwitch
                 SUBS     R3,R3,#8               ; Adjust address
-                STR      R2,[R3]                ; os_Info.thread.run: curr = next
+                STR      R2,[R3]                ; osRtxInfo.thread.run: curr = next
 
 SVC_ContextRestore
 #ifdef __DOMAIN_NS
@@ -150,7 +150,7 @@ SVC_Exit
 
 SVC_User
                 PUSH     {R4,LR}                ; Save registers
-                LDR      R2,=os_UserSVC_Table   ; Load address of SVC table
+                LDR      R2,=osRtxUserSVC       ; Load address of SVC table
                 LDR      R3,[R2]                ; Load SVC maximum number
                 CMP      R1,R3                  ; Check SVC number range
                 BHI      SVC_Done               ; Branch if out of range
@@ -172,10 +172,10 @@ SVC_Done
 
 PendSV_Handler  PROC
                 EXPORT   PendSV_Handler
-                IMPORT   os_PendSV_Handler
+                IMPORT   osRtxPendSV_Handler
 
                 PUSH     {R0,LR}                ; Save EXC_RETURN
-                BL       os_PendSV_Handler      ; Call os_PendSV_Handler
+                BL       osRtxPendSV_Handler    ; Call osRtxPendSV_Handler
                 POP      {R0,R1}                ; Restore EXC_RETURN
                 MOV      LR,R1                  ; Set EXC_RETURN
                 B        Sys_Context
@@ -186,10 +186,10 @@ PendSV_Handler  PROC
 
 SysTick_Handler PROC
                 EXPORT   SysTick_Handler
-                IMPORT   os_Tick_Handler
+                IMPORT   osRtxTick_Handler
 
                 PUSH     {R0,LR}                ; Save EXC_RETURN
-                BL       os_Tick_Handler        ; Call os_Tick_Handler
+                BL       osRtxTick_Handler      ; Call osRtxTick_Handler
                 POP      {R0,R1}                ; Restore EXC_RETURN
                 MOV      LR,R1                  ; Set EXC_RETURN
                 B        Sys_Context
@@ -200,14 +200,14 @@ SysTick_Handler PROC
 
 Sys_Context     PROC
                 EXPORT   Sys_Context
-                IMPORT   os_Info
+                IMPORT   osRtxInfo
 #ifdef __DOMAIN_NS
                 IMPORT   TZ_LoadContext_S
                 IMPORT   TZ_StoreContext_S
 #endif
 
-                LDR      R3,=os_Info+I_T_RUN_OFS; Load address of os_Info.run
-                LDM      R3!,{R1,R2}            ; Load os_Info.thread.run: curr & next
+                LDR      R3,=osRtxInfo+I_T_RUN_OFS; Load address of osRtxInfo.run
+                LDM      R3!,{R1,R2}            ; Load osRtxInfo.thread.run: curr & next
                 CMP      R1,R2                  ; Check if thread switch is required
                 BEQ      Sys_ContextExit        ; Branch when threads are the same
 
@@ -245,7 +245,7 @@ Sys_ContextSave2
 
 Sys_ContextSwitch
                 SUBS     R3,R3,#8               ; Adjust address
-                STR      R2,[R3]                ; os_Info.run: curr = next
+                STR      R2,[R3]                ; osRtxInfo.run: curr = next
 
 Sys_ContextRestore
 #ifdef __DOMAIN_NS
