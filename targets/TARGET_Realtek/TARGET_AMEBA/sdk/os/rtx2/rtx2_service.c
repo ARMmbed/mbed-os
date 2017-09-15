@@ -548,7 +548,7 @@ _func_exit_;
 
 static u32 _rtx2_get_current_time(void)
 {
-	return osKernelGetTickCount();
+	return osKernelGetSysTimerCount();
 }
 
 static u32 _rtx2_systime_to_ms(u32 systime)

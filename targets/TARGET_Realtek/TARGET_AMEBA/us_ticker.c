@@ -23,24 +23,33 @@
 #define SYS_TIM_ID      1   // the G-Timer ID for System
 #define APP_TIM_ID      6   // the G-Timer ID for Application
 
+#define TICK_TO_US(x)     (uint64_t)(((x)/2) * 61 + ((x)%2) * TIMER_TICK_US)
+
 static int us_ticker_inited = 0;
 static TIMER_ADAPTER TimerAdapter;
 
 extern HAL_TIMER_OP HalTimerOp;
 extern HAL_TIMER_OP_EXT HalTimerOpExt;
 
-VOID _us_ticker_irq_handler(IN  VOID *Data)
+VOID _us_ticker_irq_handler(void *Data)
 {
     us_ticker_irq_handler();
+    HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
 }
 
 void us_ticker_init(void) 
 {
     
-    if (us_ticker_inited) return;
+    if (us_ticker_inited){
+        return;
+    }
+    
     us_ticker_inited = 1;
     
-
+    HalTimerOp.HalTimerDis(SYS_TIM_ID);
+    HalTimerOpExt.HalTimerReLoad(SYS_TIM_ID, 0xFFFFFFFFUL);
+    HalTimerOp.HalTimerEn(SYS_TIM_ID);
+    
     // Initial a G-Timer
     TimerAdapter.IrqDis = 0;    // Enable Irq @ initial
     TimerAdapter.IrqHandle.IrqFun = (IRQ_FUN) _us_ticker_irq_handler;
@@ -52,50 +61,45 @@ void us_ticker_init(void)
     TimerAdapter.TimerLoadValueUs = 0xFFFFFFFF;
     TimerAdapter.TimerMode = USER_DEFINED;
 
-    HalTimerOp.HalTimerInit((VOID*) &TimerAdapter);
+    HalTimerOp.HalTimerInit((void *) &TimerAdapter);
 
     DBG_TIMER_INFO("%s: Timer_Id=%d\n", __FUNCTION__, APP_TIM_ID);
 }
 
-uint32_t us_ticker_read() 
+uint32_t us_ticker_read(void) 
 {
     uint32_t tick_cnt;
-    uint32_t ticks_125ms;
-    uint32_t ticks_remain;
-    uint64_t us_tick;
-
+    uint64_t tick_us;
+    
+    if (!us_ticker_inited) {
+        us_ticker_init();
+    }
+    
     tick_cnt = HalTimerOp.HalTimerReadCount(SYS_TIM_ID);
-    tick_cnt = 0xffffffff - tick_cnt;   // it's a down counter
-    ticks_125ms = tick_cnt/(GTIMER_CLK_HZ/8);  //use 125ms as a intermediate unit; 
-    ticks_remain = tick_cnt - (ticks_125ms*(GTIMER_CLK_HZ/8));  //calculate the remainder
-    us_tick = ticks_125ms * 125000;  //change unit to us, 125ms is 125000 us
-    us_tick += (ticks_remain * 1000000)/GTIMER_CLK_HZ;  //also use us as unit
+    tick_us = TICK_TO_US(0xFFFFFFFFUL - tick_cnt);
 
-    return ((uint32_t)us_tick);  //return ticker value in micro-seconds (us)
+    return ((uint32_t)tick_us);  //return ticker value in micro-seconds (us)
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) 
 {
-    uint32_t cur_time_us;
-    uint32_t time_dif;
+    uint32_t time_cur;
+    uint32_t time_cnt;
 
     HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
-    cur_time_us = us_ticker_read();
-    if ((uint32_t)timestamp > cur_time_us) {
-        time_dif = (uint32_t)timestamp - cur_time_us;
+    time_cur = us_ticker_read();
+    if (timestamp > time_cur + TIMER_TICK_US) {
+        time_cnt = timestamp - time_cur;
     } else {
         HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, 0xffffffff);
-        HalTimerOpExt.HalTimerIrqEn((u32)TimerAdapter.TimerId);
         HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
-        NVIC_SetPendingIRQ(TIMER2_7_IRQ);
+        us_ticker_fire_interrupt();
         return;
     }    
 
-    TimerAdapter.TimerLoadValueUs = time_dif;
-    HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, time_dif / TIMER_TICK_US);
-    HalTimerOpExt.HalTimerIrqEn((u32)TimerAdapter.TimerId);
+    TimerAdapter.TimerLoadValueUs = time_cnt / TIMER_TICK_US;
+    HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, TimerAdapter.TimerLoadValueUs);
     HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
-
 }
 
 void us_ticker_fire_interrupt(void)
