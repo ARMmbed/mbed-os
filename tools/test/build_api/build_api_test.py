@@ -20,10 +20,13 @@ from collections import namedtuple
 from mock import patch, MagicMock
 from tools.build_api import prepare_toolchain, build_project, build_library,\
     scan_resources
+from tools.toolchains import TOOLCHAINS
 
 """
 Tests for build_api.py
 """
+make_mock_target = namedtuple(
+    "Target", "init_hooks name features core supported_toolchains")
 
 class BuildApiTests(unittest.TestCase):
     """
@@ -82,9 +85,8 @@ class BuildApiTests(unittest.TestCase):
         :return:
         """
         app_config = "app_config"
-        mock_target = namedtuple("Target",
-                                 "init_hooks name features core")(lambda _, __ : None,
-                                                                  "Junk", [], "Cortex-M3")
+        mock_target = make_mock_target(lambda _, __ : None,
+                                       "Junk", [], "Cortex-M3", TOOLCHAINS)
         mock_config_init.return_value = namedtuple(
             "Config", "target has_regions name")(mock_target, False, None)
 
@@ -102,9 +104,8 @@ class BuildApiTests(unittest.TestCase):
         :param mock_config_init: mock of Config __init__
         :return:
         """
-        mock_target = namedtuple("Target",
-                                 "init_hooks name features core")(lambda _, __ : None,
-                                                                  "Junk", [], "Cortex-M3")
+        mock_target = make_mock_target(lambda _, __ : None,
+                                       "Junk", [], "Cortex-M3", TOOLCHAINS)
         mock_config_init.return_value = namedtuple(
             "Config", "target has_regions name")(mock_target, False, None)
 
