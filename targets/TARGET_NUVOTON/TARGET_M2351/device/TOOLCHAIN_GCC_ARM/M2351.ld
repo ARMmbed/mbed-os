@@ -7,7 +7,8 @@ StackSize = 0x800;
 MEMORY
 {
   VECTORS (rx)          : ORIGIN = 0x00000000, LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = 0x00000400, LENGTH = 0x00080000 - 0x00000400
+  FLASH (rx)            : ORIGIN = 0x00000400, LENGTH = 0x0003F0000 - 0x00000400
+  NSC_FLASH (rx)        : ORIGIN = 0x0003F000, LENGTH = 0x00080000 - 0x0003F000
   RAM_INTERN (rwx)      : ORIGIN = 0x20000000, LENGTH = 0x00018000 - 0x00000000
 }
 
@@ -55,6 +56,7 @@ SECTIONS
     } > VECTORS
 
     /* ensure that uvisor bss is at the beginning of memory */
+    
     .uvisor.bss (NOLOAD):
     {
         . = ALIGN(32);
@@ -86,7 +88,6 @@ SECTIONS
         __uvisor_main_start = .;
         *(.uvisor.main)
         __uvisor_main_end = .;
-
         *(.text*)
 
         KEEP(*(.init))
@@ -110,6 +111,14 @@ SECTIONS
 
         KEEP(*(.eh_frame*))
     } > FLASH
+
+    /* Veneer$$CMSE : */
+    .gnu.sgstubs :
+    {
+       __sgstubs_start = .;
+        *(.gnu.sgstubs.*)
+       __sgstubs_end = .;    
+    } > NSC_FLASH 
 
     .ARM.extab :
     {
@@ -183,7 +192,7 @@ SECTIONS
 
     } >RAM_INTERN AT>FLASH
 
-    /* uvisor configuration data */
+    /* uvisor configuration data */   
     .uvisor.secure :
     {
         . = ALIGN(32);
@@ -243,13 +252,15 @@ SECTIONS
         . += (ORIGIN(RAM_INTERN) + LENGTH(RAM_INTERN) - .);
         __HeapLimit = .;
     } > RAM_INTERN
+
     PROVIDE(__heap_size = SIZEOF(.heap));
     PROVIDE(__mbed_sbrk_start = ADDR(.heap));
     PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));
     
-    /* Provide physical memory boundaries for uVisor. */
+    /* Provide physical memory boundaries for uVisor. */    
     __uvisor_flash_start = ORIGIN(VECTORS);
     __uvisor_flash_end = ORIGIN(FLASH) + LENGTH(FLASH);
     __uvisor_sram_start = ORIGIN(RAM_INTERN);
     __uvisor_sram_end = ORIGIN(RAM_INTERN) + LENGTH(RAM_INTERN);
+    
 }
