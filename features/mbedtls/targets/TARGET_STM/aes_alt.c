@@ -1,5 +1,5 @@
 /*
- *  Hardware aes collector for the STM32F4 F7 and L4 family
+ *  Hardware aes implementation for STM32F4 STM32F7 and STM32L4 families
  *******************************************************************************
  * Copyright (c) 2017, STMicroelectronics
  *  SPDX-License-Identifier: Apache-2.0
@@ -135,11 +135,11 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
 
     if(mode == MBEDTLS_AES_DECRYPT) { /* AES decryption */
         if (mbedtls_internal_aes_decrypt( ctx, input, output )){
-            return 1;
+            return ST_ERR_AES_BUSY;
         }
     } else { /* AES encryption */
         if (mbedtls_internal_aes_encrypt( ctx, input, output )) {
-            return 1;
+            return ST_ERR_AES_BUSY;
         }
     }
     /* allow multi-instance of CRYP use: save context for CRYP HW module CR */
@@ -155,88 +155,47 @@ static int st_cbc_restore_context(mbedtls_aes_context *ctx){
     tickstart = HAL_GetTick();
     while((ctx->hcryp_aes.Instance->SR & AES_SR_BUSY) != 0){
         if ((HAL_GetTick() - tickstart) > ST_AES_TIMEOUT) {
-            return 1; // timeout: CRYP processor is busy
+            return ST_ERR_AES_BUSY; // timeout: CRYP processor is busy
         }
     }
     /* allow multi-instance of CRYP use: restore context for CRYP hw module */
     ctx->hcryp_aes.Instance->CR = ctx->ctx_save_cr;
     return 0;
 }
-static int st_cbc_save_context(mbedtls_aes_context *ctx){
-    uint32_t tickstart;
-    
-    tickstart = HAL_GetTick();
-    while((ctx->hcryp_aes.Instance->SR & AES_SR_BUSY) != 0){
-        if ((HAL_GetTick() - tickstart) > ST_AES_TIMEOUT) {
-            return 1; // timeout: CRYP processor is busy
-        }
-    }
-    /* allow multi-instance of CRYP use: save context for CRYP HW module CR */
-    ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR;
 
-    return 0;
-}
 static int st_hal_cryp_cbc( mbedtls_aes_context *ctx, uint32_t opmode, size_t length, 
                             unsigned char iv[16], uint8_t *input, uint8_t *output) 
 {
-    int status = 0;
     ctx->hcryp_aes.Init.pInitVect = &iv[0]; // used in process, not in the init
     /* At this moment only, we know we have CBC mode: Re-initialize AES
         IP with proper parameters and apply key and IV for multi context usecase */
     if (HAL_CRYP_DeInit(&ctx->hcryp_aes) != HAL_OK)
-        return HAL_ERROR;
+        return ST_ERR_AES_BUSY;
     ctx->hcryp_aes.Init.OperatingMode = opmode;
     ctx->hcryp_aes.Init.ChainingMode = CRYP_CHAINMODE_AES_CBC;
     ctx->hcryp_aes.Init.KeyWriteFlag = CRYP_KEY_WRITE_ENABLE;
     if (HAL_CRYP_Init(&ctx->hcryp_aes) != HAL_OK)
-        return HAL_ERROR;
+        return ST_ERR_AES_BUSY;
 
-    status =  HAL_CRYPEx_AES(&ctx->hcryp_aes, input, length, output, 10);
-
-    return status;
+    if(HAL_CRYPEx_AES(&ctx->hcryp_aes, input, length, output, 10) != 0)
+        return ST_ERR_AES_BUSY;
+    return 0;
 }
-#else
+#else /* STM32F4 and STM32F7 */
 static int st_cbc_restore_context(mbedtls_aes_context *ctx){
-    uint32_t tickstart;
-    tickstart = HAL_GetTick();
-    while((ctx->hcryp_aes.Instance->SR & (CRYP_SR_IFEM | CRYP_SR_OFNE | CRYP_SR_BUSY)) != CRYP_SR_IFEM){
-        if ((HAL_GetTick() - tickstart) > ST_AES_TIMEOUT) {
-            return 1; // timeout: CRYP processor is busy
-        }
-    }
-    ctx->hcryp_aes.Instance->CR &= ~CRYP_CR_CRYPEN;
-    /* save initvector for multi-instance use of CRYP */
-    ctx->hcryp_aes.Instance->IV1RR = ctx->save_iv[3];
-    ctx->hcryp_aes.Instance->IV1LR = ctx->save_iv[2];
-    ctx->hcryp_aes.Instance->IV0RR = ctx->save_iv[1];
-    ctx->hcryp_aes.Instance->IV0LR = ctx->save_iv[0];
-    ctx->hcryp_aes.Phase = HAL_CRYP_PHASE_READY;
     /* allow multi-instance of CRYP use: restore context for CRYP hw module */
     ctx->hcryp_aes.Instance->CR = ctx->ctx_save_cr;
+    /* Re-initialize AES processor with proper parameters
+       and (re-)apply key and IV for multi context usecases */
+    if (HAL_CRYP_DeInit(&ctx->hcryp_aes) != HAL_OK)
+        return ST_ERR_AES_BUSY;
+    if (HAL_CRYP_Init(&ctx->hcryp_aes) != HAL_OK)
+        return ST_ERR_AES_BUSY;
     return 0;
 }
-static int st_cbc_save_context(mbedtls_aes_context *ctx){
-    uint32_t tickstart;
-    tickstart = HAL_GetTick();
-    while((ctx->hcryp_aes.Instance->SR & (CRYP_SR_IFEM | CRYP_SR_OFNE | CRYP_SR_BUSY)) != CRYP_SR_IFEM){
-        if ((HAL_GetTick() - tickstart) > ST_AES_TIMEOUT) {
-            return 1; // timeout: CRYP processor is busy
-        }
-    }
-    /* allow multi-instance of CRYP use: save context for CRYP HW module CR */
-    ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR;
-    ctx->hcryp_aes.Instance->CR &= ~CRYP_CR_CRYPEN;
-    /* save initvector for multi-instance use of CRYP */
-    ctx->save_iv[3] = ctx->hcryp_aes.Instance->IV1RR;
-    ctx->save_iv[2] = ctx->hcryp_aes.Instance->IV1LR;
-    ctx->save_iv[1] = ctx->hcryp_aes.Instance->IV0RR;
-    ctx->save_iv[0] = ctx->hcryp_aes.Instance->IV0LR;
-    if ((ctx->ctx_save_cr & CRYP_CR_CRYPEN) == CRYP_CR_CRYPEN) {
-        ctx->hcryp_aes.Instance->CR &= CRYP_CR_CRYPEN;
-    }
-    return 0;
-}
+
 #endif /* TARGET_STM32L486xG */
+
 int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
                     int mode,
                     size_t length,
@@ -244,45 +203,66 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
                     const unsigned char *input,
                     unsigned char *output )
 {
-    int status = 0;
+    uint32_t tickstart;
+    uint32_t *iv_ptr = (uint32_t *)&iv[0];
     if( length % 16 )
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
     ctx->hcryp_aes.Init.pInitVect = &iv[0];
-    status |= st_cbc_restore_context(ctx);
+    if (st_cbc_restore_context(ctx) != 0)
+        return (ST_ERR_AES_BUSY);
+
 #if defined (TARGET_STM32L486xG)
-    uint32_t *iv_ptr = (uint32_t *)&iv[0];
+
     if( mode == MBEDTLS_AES_DECRYPT ) {
-        status |= st_hal_cryp_cbc(ctx, CRYP_ALGOMODE_KEYDERIVATION_DECRYPT, length, iv, (uint8_t *)input, (uint8_t *)output);
-        // update IV
-        uint32_t tickstart;
+        if (st_hal_cryp_cbc(ctx, CRYP_ALGOMODE_KEYDERIVATION_DECRYPT, length, iv, (uint8_t *)input, (uint8_t *)output) != 0)
+            return ST_ERR_AES_BUSY;
+        /* Save the internal IV vector for multi context purpose */
         tickstart = HAL_GetTick();
         while((ctx->hcryp_aes.Instance->SR & AES_SR_BUSY) != 0){
             if ((HAL_GetTick() - tickstart) > ST_AES_TIMEOUT) {
-                return 1; // timeout: CRYP processor is busy
+                return ST_ERR_AES_BUSY; // timeout: CRYP processor is busy
             }
         }
-        ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR;
+        ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR; // save here before overwritten
         ctx->hcryp_aes.Instance->CR &= ~AES_CR_EN;
         *iv_ptr++ = ctx->hcryp_aes.Instance->IVR3;
         *iv_ptr++ = ctx->hcryp_aes.Instance->IVR2;
         *iv_ptr++ = ctx->hcryp_aes.Instance->IVR1;
         *iv_ptr++ = ctx->hcryp_aes.Instance->IVR0;
-
     } else {
-        status |= st_hal_cryp_cbc(ctx, CRYP_ALGOMODE_ENCRYPT, length, iv, (uint8_t *)input, (uint8_t *)output);
-        memcpy( iv, output, 16 );
+        if (st_hal_cryp_cbc(ctx, CRYP_ALGOMODE_ENCRYPT, length, iv, (uint8_t *)input, (uint8_t *)output) != 0)
+            return ST_ERR_AES_BUSY;
+        memcpy( iv, output, 16 ); /* current output is the IV vector for the next call */
+        ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR;
     }
+
 #else
-    
-    if( mode == MBEDTLS_AES_DECRYPT ) {
-        status |= HAL_CRYP_AESCBC_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10);
-    } else {
-        status |= HAL_CRYP_AESCBC_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10);
-    }
-#endif
-    status |= st_cbc_save_context(ctx);
 
-    return( status );
+    if( mode == MBEDTLS_AES_DECRYPT ) {
+        if (HAL_CRYP_AESCBC_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10) != HAL_OK)
+            return ST_ERR_AES_BUSY;
+        /* Save the internal IV vector for multi context purpose */
+        tickstart = HAL_GetTick();
+        while((ctx->hcryp_aes.Instance->SR & (CRYP_SR_IFEM | CRYP_SR_OFNE | CRYP_SR_BUSY)) != CRYP_SR_IFEM){
+            if ((HAL_GetTick() - tickstart) > ST_AES_TIMEOUT) {
+                return ST_ERR_AES_BUSY; // timeout: CRYP processor is busy
+            }
+        }
+        ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR; // save here before overwritten
+        ctx->hcryp_aes.Instance->CR &= ~CRYP_CR_CRYPEN;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IV0LR;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IV0RR;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IV1LR;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IV1RR;
+    } else {
+        if (HAL_CRYP_AESCBC_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10) != HAL_OK)
+            return ST_ERR_AES_BUSY;
+        memcpy( iv, output, 16 ); /* current output is the IV vector for the next call */
+        ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR;
+    }
+
+#endif
+    return 0;
 }
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
 
@@ -301,7 +281,8 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
     if( mode == MBEDTLS_AES_DECRYPT ) {
         while( length-- ) {
             if( n == 0 )
-                mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
+                if (mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv ) != 0)
+                    return ST_ERR_AES_BUSY;
 
             c = *input++;
             *output++ = (unsigned char)( c ^ iv[n] );
@@ -312,7 +293,8 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
     } else {
         while( length-- ) {
             if( n == 0 )
-                mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
+                if (mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv ) != 0)
+                    return ST_ERR_AES_BUSY;
 
             iv[n] = *output++ = (unsigned char)( iv[n] ^ *input++ );
 
@@ -338,7 +320,8 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
 
     while( length-- ) {
         memcpy( ov, iv, 16 );
-        mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
+        if (mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv ) != 0)
+            return ST_ERR_AES_BUSY;
 
         if( mode == MBEDTLS_AES_DECRYPT )
             ov[16] = *input;
@@ -371,7 +354,8 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
     while( length-- )
     {
         if( n == 0 ) {
-            mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, nonce_counter, stream_block );
+            if (mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, nonce_counter, stream_block ) != 0)
+                return ST_ERR_AES_BUSY;
 
             for( i = 16; i > 0; i-- )
                 if( ++nonce_counter[i - 1] != 0 )
@@ -393,9 +377,9 @@ int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
 {
-    if (HAL_CRYP_AESECB_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10) !=0) {
+    if (HAL_CRYP_AESECB_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10) != HAL_OK) {
         // error found
-        return 1;
+        return ST_ERR_AES_BUSY;
     }
     return 0;
 
@@ -405,13 +389,14 @@ int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
                                   const unsigned char input[16],
                                   unsigned char output[16] )
 {
-    if(HAL_CRYP_AESECB_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10)) {
+    if(HAL_CRYP_AESECB_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10) != HAL_OK) {
         // error found
-        return 1;
+        return ST_ERR_AES_BUSY;
     }
     return 0;
 }
 
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
@@ -425,5 +410,5 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
 {
     mbedtls_internal_aes_decrypt( ctx, input, output );
 }
-
+#endif /* MBEDTLS_DEPRECATED_REMOVED */
 #endif /*MBEDTLS_AES_ALT*/
