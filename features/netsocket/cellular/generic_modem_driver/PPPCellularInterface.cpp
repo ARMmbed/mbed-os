@@ -141,7 +141,7 @@ static void CMT_URC(ATCmdParser *at)
 
 static bool set_atd(ATCmdParser *at)
 {
-    bool success = at->send("ATD*99***" CTX"#") && at->recv("CONNECT");
+    bool success = at->send("ATD*99***" CTX "#") && at->recv("CONNECT");
 
     return success;
 }
@@ -469,7 +469,7 @@ retry_without_dual_stack:
 #endif
     success = _at->send("AT"
                           "+FCLASS=0;" // set to connection (ATD) to data mode
-                          "+CGDCONT=" CTX",\"%s\",\"%s%s\"",
+                          "+CGDCONT=" CTX ",\"%s\",\"%s%s\"",
                           pdp_type, auth, _apn
                          )
                    && _at->recv("OK");
