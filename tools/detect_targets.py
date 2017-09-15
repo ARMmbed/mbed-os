@@ -102,7 +102,8 @@ def main():
         
 def get_interface_version(mount_point):
     """ Function returns interface version from the target mounted on the specified mount point
-            mount_point = mut['port']
+            Example of mount_point:
+                mount_point = mut['disk']
         @param mount_point Name of disk where platform is connected to host machine.
     """
     if get_module_avail('mbed_lstools'):
