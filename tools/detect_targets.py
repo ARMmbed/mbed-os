@@ -103,16 +103,20 @@ def main():
 def get_interface_version(mount_point):
     """ Function returns interface version from the target mounted on the specified mount point
     
-            mount_point can be acquired via the following:
-                muts = get_autodetected_MUTS_list()
-                for mut in muts.values():
-                    mount_point = mut['disk']
+        mount_point can be acquired via the following:
+            muts = get_autodetected_MUTS_list()
+            for mut in muts.values():
+                mount_point = mut['disk']
                     
         @param mount_point Name of disk where platform is connected to host machine.
     """
     if get_module_avail('mbed_lstools'):
         mbeds = mbed_lstools.create()
         details_txt = mbeds.get_details_txt(mount_point)
+        
+        if (details_txt is None):
+            details_txt = {}
+            
         
         if 'Interface Version' in details_txt:
             return details_txt['Interface Version']
