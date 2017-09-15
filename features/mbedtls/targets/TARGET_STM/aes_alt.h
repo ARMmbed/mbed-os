@@ -31,7 +31,8 @@
 extern "C" {
 #endif
 
-#define ST_AES_TIMEOUT    ((uint32_t) 3)
+#define ST_AES_TIMEOUT    ((uint32_t) 0xFF) /* 255 ms timeout for the crypto processor */
+#define ST_ERR_AES_BUSY   (-0x0023)      /* Crypto processor is busy, timeout occured */
 /**
  * \brief          AES context structure
  *
@@ -45,7 +46,6 @@ typedef struct
     unsigned char      aes_key[32]; /* Decryption key */
     CRYP_HandleTypeDef hcryp_aes;
     uint32_t           ctx_save_cr; /* save context for multi-instance */
-    uint32_t           save_iv[4];  /* save context for multi-instance */
 }
 mbedtls_aes_context;
 
