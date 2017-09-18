@@ -166,7 +166,7 @@ class MemapParser(object):
                 return '[lib]/' + object_name
 
             else:
-                print "Malformed input found when parsing GCC map: %s" % line
+                print "Unknown object name found in GCC map file: %s" % line
                 return '[misc]'
 
     def parse_section_gcc(self, line, prefixes):
@@ -188,9 +188,10 @@ class MemapParser(object):
 
         is_section = re.match(RE_STD_SECTION_GCC, line)
         if is_section:
-            o_name = self.parse_object_name_gcc(is_section.group(3), prefixes)
             o_size = int(is_section.group(2), 16)
-            return [o_name, o_size]
+            if o_size:
+                o_name = self.parse_object_name_gcc(is_section.group(3), prefixes)
+                return [o_name, o_size]
 
         return ["", 0]
 
