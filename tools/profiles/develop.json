@@ -31,7 +31,7 @@
         "asm": [],
         "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
         "cxx": ["--cpp", "--no_rtti", "--no_vla"],
-        "ld": []
+        "ld": ["--show_full_path"]
     },
     "uARM": {
         "common": ["-c", "--gnu", "-Otime", "--split_sections",
