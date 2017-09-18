@@ -222,6 +222,6 @@ static void lp_ticker_arm_cd(void)
     TIMER_EnableWakeup((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
     // Wait 2 cycles of engine clock to ensure previous CTL write action is finish
     wait_us(30 * 2);
-    timer3_base->CTL = ctl_timer3 | TIMER_CTL_TMR_EN_Msk;
+    timer3_base->CTL |= ctl_timer3 | TIMER_CTL_TMR_EN_Msk;
 }
 #endif
