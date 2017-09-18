@@ -240,13 +240,9 @@ class MemapParser(object):
             return line
 
         else:
-
-            test_re_obj_name = re.match(RE_OBJECT_ARMCC, line)
-
-            if test_re_obj_name:
-                object_name = test_re_obj_name.group(1) + '/' + \
-                              test_re_obj_name.group(2)
-
+            is_obj = re.match(RE_OBJECT_ARMCC, line)
+            if is_obj:
+                object_name = os.path.basename(is_obj.group(1)) + '/' + is_obj.group(3)
                 return '[lib]/' + object_name
             else:
                 print "Malformed input found when parsing ARMCC map: %s" % line
@@ -374,11 +370,20 @@ class MemapParser(object):
 
             # Start decoding the map file
             for line in infile:
-                object_name, object_size, section = self.parse_section_armcc(line)
-                if object_name is not "" and section is not "":
-                    self.module_add(object_name, object_size, section)
+                self.module_add(*self.parse_section_armcc(line))
 
-            self.rename_modules_from_fs(infile.name)
+        common_prefix = os.path.dirname(os.path.commonprefix([
+            o for o in self.modules.keys() if (o.endswith(".o") and o != "anon$$obj.o" and not o.startswith("[lib]"))]))
+        new_modules = {}
+        for name, stats in self.modules.items():
+            if name == "anon$$obj.o" or name.startswith("[lib]"):
+                new_modules[name] = stats
+            elif name.endswith(".o"):
+                new_modules[os.path.relpath(name, common_prefix)] = stats
+            else:
+                new_modules[name] = stats
+        self.modules = new_modules
+
 
 
     def check_new_library_iar(self, line):
@@ -449,9 +454,7 @@ class MemapParser(object):
                     break
 
             for line in infile:
-                name, size, section = self.parse_section_iar(line)
-                if size and name and section:
-                    self.module_add(name, size, section)
+                self.module_add(*self.parse_section_iar(line))
 
                 if line.startswith('*** MODULE SUMMARY'): # finish section
                     break
@@ -467,42 +470,9 @@ class MemapParser(object):
                 object_name = self.check_new_object_lib_iar(line)
 
                 if object_name and current_library:
+                    print("Replacing module", object_name, current_library)
                     temp = '[lib]' + '/'+ current_library + '/'+ object_name
                     self.module_replace(object_name, temp)
-
-    def _rename_from_path(self, path, to_find, to_update, skip):
-        for root, subdirs, obj_files in os.walk(path):
-            if os.path.basename(root) in skip:
-                subdirs[:] = []
-                continue
-            basename = os.path.relpath(root, path)
-            for filename in (to_find.intersection(set(obj_files))):
-                to_find.remove(filename)
-                to_update[os.path.join(basename, filename)] = self.modules[filename]
-
-    def rename_modules_from_fs(self, path):
-        """ Converts the current module list to use the path to a module instead
-        of the name in the map file
-
-        Positional arguments:
-        path - the path to a map file
-        """
-        new_modules = dict()
-        to_match = set(k for k in self.modules.keys() if not k.startswith("[lib]"))
-        for module, v in self.modules.items():
-            if module.startswith("[lib]"):
-                new_modules[module] = v
-        is_test = re.match(RE_IS_TEST, path)
-        if is_test:
-            self._rename_from_path(is_test.group(1), to_match, new_modules, set(["TESTS"]))
-            self._rename_from_path(os.path.dirname(path), to_match, new_modules, set())
-        else:
-            self._rename_from_path(os.path.dirname(path), to_match, new_modules, [])
-
-        for module in to_match:
-            new_modules[module] = self.modules[module]
-
-        self.modules = new_modules
 
 
     def reduce_depth(self, depth):
