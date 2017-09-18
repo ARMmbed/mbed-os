@@ -22,6 +22,7 @@ RE_IAR = re.compile(
 
 RE_IS_TEST = re.compile(r'^(.+)\/.*TESTS\/.+\.map$')
 
+RE_CMDLINE_FILE_IAR = re.compile(r'^#\s+(.+\.o)')
 RE_LIBRARY_IAR = re.compile(r'^(.+\.a)\:.+$')
 RE_OBJECT_LIBRARY_IAR = re.compile(r'^\s+(.+\.o)\s.*')
 
@@ -71,6 +72,10 @@ class MemapParser(object):
         self.subtotal = dict()
 
         self.misc_flash_mem = 0
+
+        # Modules passed to the linker on the command line
+        # this is a dict because modules are looked up by their basename
+        self.cmd_modules = {}
 
 
     def module_add(self, object_name, size, section):
@@ -286,7 +291,7 @@ class MemapParser(object):
         else:
             return ["", 0, ""]
 
-    def parse_object_name_iar(self, line):
+    def parse_object_name_iar(self, object_name):
         """ Parse object file
 
         Positional arguments:
@@ -294,10 +299,11 @@ class MemapParser(object):
         """
 
         # simple object (not library)
-        if line.endswith(".o"):
-            object_name = line
-            return object_name
-
+        if object_name.endswith(".o"):
+            try:
+                return self.cmd_modules[object_name]
+            except KeyError:
+                return object_name
         else:
             return '[misc]'
 
@@ -344,8 +350,7 @@ class MemapParser(object):
                 print "Malformed input found when parsing IAR map: %s" % line
 
             # lookup object in dictionary and return module name
-            temp = test_re_iar.group(5)
-            object_name = self.parse_object_name_iar(temp)
+            object_name = self.parse_object_name_iar(test_re_iar.group(5))
 
             return [object_name, size, section]
 
@@ -409,6 +414,25 @@ class MemapParser(object):
         else:
             return ""
 
+    def parse_iar_command_line(self, lines):
+        """Parse the files passed on the command line to the iar linker
+
+        Positional arguments:
+        lines -- an iterator over the lines within a file
+        """
+        for line in lines:
+            if line.startswith("*"):
+                break
+            is_cmdline_file = RE_CMDLINE_FILE_IAR.match(line)
+            if is_cmdline_file:
+                full_path = is_cmdline_file.group(1)
+                self.cmd_modules[os.path.basename(full_path)] = full_path
+
+        common_prefix = os.path.dirname(os.path.commonprefix(self.cmd_modules.values()))
+        self.cmd_modules = {s: os.path.relpath(f, common_prefix)
+                            for s, f in self.cmd_modules.items()}
+
+
     def parse_map_file_iar(self, file_desc):
         """ Main logic to decode IAR map files
 
@@ -416,27 +440,21 @@ class MemapParser(object):
         file_desc - a file like object to parse as an IAR map file
         """
 
-        # first round, search for objects
         with file_desc as infile:
-            # Search area to parse
+            self.parse_iar_command_line(infile)
+
             for line in infile:
                 if line.startswith('  Section  '):
                     break
 
-            # Start decoding the map file
             for line in infile:
-
-                [name, size, section] = self.parse_section_iar(line)
-
-                if size == 0 or name == "" or section == "":
-                    pass
-                else:
+                name, size, section = self.parse_section_iar(line)
+                if size and name and section:
                     self.module_add(name, size, section)
 
                 if line.startswith('*** MODULE SUMMARY'): # finish section
                     break
 
-            # Start decoding the map file
             current_library = ""
             for line in infile:
 
@@ -450,7 +468,6 @@ class MemapParser(object):
                 if object_name and current_library:
                     temp = '[lib]' + '/'+ current_library + '/'+ object_name
                     self.module_replace(object_name, temp)
-            self.rename_modules_from_fs(infile.name)
 
     def _rename_from_path(self, path, to_find, to_update, skip):
         for root, subdirs, obj_files in os.walk(path):
