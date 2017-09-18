@@ -121,14 +121,35 @@ static void update_present_time(const ticker_data_t *const ticker)
     uint64_t elapsed_ticks = (ticker_time - queue->tick_last_read) & queue->bitmask;
     queue->tick_last_read = ticker_time;
 
-    uint64_t us_x_ticks = elapsed_ticks * 1000000;
-    uint64_t elapsed_us = us_x_ticks / queue->frequency;
+    uint64_t elapsed_us;
+    if (1000000 == queue->frequency) {
+        // Optimized for 1MHz
 
-    // Update remainder
-    queue->tick_remainder += us_x_ticks - elapsed_us * queue->frequency;
-    if (queue->tick_remainder >= queue->frequency) {
-        elapsed_us += 1;
-        queue->tick_remainder -= queue->frequency;
+        elapsed_us = elapsed_ticks;
+    } else if (32768 == queue->frequency) {
+        // Optimized for 32KHz
+
+        uint64_t us_x_ticks = elapsed_ticks * 1000000;
+        elapsed_us = us_x_ticks >> 15;
+
+        // Update remainder
+        queue->tick_remainder += us_x_ticks - (elapsed_us << 15);
+        if (queue->tick_remainder >= queue->frequency) {
+            elapsed_us += 1;
+            queue->tick_remainder -= queue->frequency;
+        }
+    } else {
+        // General case
+
+        uint64_t us_x_ticks = elapsed_ticks * 1000000;
+        elapsed_us = us_x_ticks / queue->frequency;
+
+        // Update remainder
+        queue->tick_remainder += us_x_ticks - elapsed_us * queue->frequency;
+        if (queue->tick_remainder >= queue->frequency) {
+            elapsed_us += 1;
+            queue->tick_remainder -= queue->frequency;
+        }
     }
 
     // Update current time
@@ -146,9 +167,28 @@ static timestamp_t compute_tick(const ticker_data_t *const ticker, us_timestamp_
     timestamp_t delta = ticker->queue->max_delta;
     if (delta_us <=  ticker->queue->max_delta_us) {
         // Checking max_delta_us ensures the operation will not overflow
-        delta = delta_us * queue->frequency / 1000000;
-        if (delta > ticker->queue->max_delta) {
-            delta = ticker->queue->max_delta;
+
+        if (1000000 == queue->frequency) {
+            // Optimized for 1MHz
+
+            delta = delta_us;
+            if (delta > ticker->queue->max_delta) {
+                delta = ticker->queue->max_delta;
+            }
+        } else if (32768 == queue->frequency) {
+            // Optimized for 32KHz
+
+            delta = (delta_us << 15) / 1000000;
+            if (delta > ticker->queue->max_delta) {
+                delta = ticker->queue->max_delta;
+            }
+        } else {
+            // General case
+
+            delta = delta_us * queue->frequency / 1000000;
+            if (delta > ticker->queue->max_delta) {
+                delta = ticker->queue->max_delta;
+            }
         }
     }
     return (queue->tick_last_read + delta) & queue->bitmask;
