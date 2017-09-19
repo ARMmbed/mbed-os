@@ -27,10 +27,12 @@
 #if defined(MBEDTLS_AES_ALT)
 
 #include <string.h>
+#include <stdbool.h>
 
 #include "M480.h"
 #include "mbed_toolchain.h"
 #include "mbed_assert.h"
+#include "mbed_error.h"
 
 
 
@@ -59,6 +61,17 @@ static void swapInitVector(unsigned char iv[16])
                (((*piv) & 0xFF000000) >> 24);
         piv++;
     }
+}
+
+/* Check if buffer can be used for AES DMA. It requires to be:
+ *   1) Word-aligned
+ *   2) Located in 0x2xxxxxxx region
+ */
+static bool aes_dma_buff_compat(const void *buff)
+{
+    uint32_t buff_ = (uint32_t) buff;
+    
+    return (((buff_ & 0x03) == 0) && ((buff_ & 0x20000000) == 0x20000000));
 }
 
 void mbedtls_aes_init( mbedtls_aes_context *ctx )
@@ -144,12 +157,13 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
 
     /* AES DMA buffer requires to be:
      *   1) Word-aligned
-     *   2) Located in 0x2xxxxxxx range
+     *   2) Located in 0x2xxxxxxx region
      */
     MBED_ALIGN(4) uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE];
     MBED_ALIGN(4) uint8_t au8InputData[MAX_DMA_CHAIN_SIZE];
-    MBED_ASSERT(((((uint32_t) au8OutputData) & 0x03) == 0) && ((((uint32_t) au8OutputData) & 0x20000000) == 0x20000000));
-    MBED_ASSERT(((((uint32_t) au8InputData) & 0x03) == 0) && ((((uint32_t) au8InputData) & 0x20000000) == 0x20000000));
+    if ((! aes_dma_buff_compat(au8OutputData)) || (! aes_dma_buff_compat(au8InputData))) {
+        error("Buffer for AES alter. DMA requires to be word-aligned and located in 0x2xxxxxxx region.");
+    }
 
     /* We support multiple contexts with context save & restore and so needs just one 
      * H/W channel. Always use H/W channel #0. */
@@ -158,14 +172,17 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     AES_SetInitVect(0, ctx->iv);
     AES_SetKey(0, ctx->buf, ctx->keySize);
     /* AES DMA buffer requirements same as above */
-    if ((((uint32_t) input) & 0x03) || ((((uint32_t) input) & 0x20000000) != 0x20000000)) {
+    if (! aes_dma_buff_compat(input)) {
+        if (dataSize > MAX_DMA_CHAIN_SIZE) {
+            error("Internal AES alter. error. DMA buffer is too small.");
+        }
         memcpy(au8InputData, input, dataSize);
         pIn = au8InputData;
     } else {
         pIn = input;
     }
     /* AES DMA buffer requirements same as above */
-    if ((((uint32_t) output) & 0x03) || ((((uint32_t) output) & 0x20000000) != 0x20000000)) {
+    if (! aes_dma_buff_compat(output)) {
         pOut = au8OutputData;
     } else {
         pOut = output;
@@ -177,8 +194,13 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     AES_Start(0, CRYPTO_DMA_ONE_SHOT);
     while (!g_AES_done);
 
-    if( pOut != output ) memcpy(output, au8OutputData, dataSize);
-
+    if( pOut != output ) {
+        if (dataSize > MAX_DMA_CHAIN_SIZE) {
+            error("Internal AES alter. error. DMA buffer is too small.");
+        }
+        memcpy(output, au8OutputData, dataSize);
+    }
+    
     /* Save IV for next block */
     ctx->iv[0] = CRPT->AES_FDBCK[0];
     ctx->iv[1] = CRPT->AES_FDBCK[1];
@@ -244,13 +266,10 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
     if( length % 16 )
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
 
-    if( (((uint32_t)input) & 0x03) || (((uint32_t)output) & 0x03) ) {
-        blockChainLen = (( length > MAX_DMA_CHAIN_SIZE ) ?  MAX_DMA_CHAIN_SIZE : length );
-    } else {
-        blockChainLen = length;
-    }
 
     while( length > 0 ) {
+        blockChainLen = (length > MAX_DMA_CHAIN_SIZE) ? MAX_DMA_CHAIN_SIZE : length;
+        
         ctx->opMode = AES_MODE_CBC;
         swapInitVector(iv); // iv SWAP
         memcpy(ctx->iv, iv, 16);
@@ -268,8 +287,6 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
         length -= blockChainLen;
         input  += blockChainLen;
         output += blockChainLen;
-        if(length < MAX_DMA_CHAIN_SIZE ) blockChainLen = length;        // For last remainder block chain
-
     }
 
     return( 0 );
