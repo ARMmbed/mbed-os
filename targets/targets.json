@@ -631,6 +631,17 @@
         "detect_code": ["0603"],
         "release_versions": ["5"]
     },
+    "EV_COG_AD3029LZ": {
+        "inherits": ["Target"],
+        "core": "Cortex-M3",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "macros": ["__ADUCM3029__", "EV_COG_AD3029LZ"],
+        "extra_labels": ["Analog_Devices", "ADUCM302X", "ADUCM3029", "EV_COG_AD3029LZ", "FLASH_CMSIS_ALGO"],
+        "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
+        "device_name": "ADuCM3029",
+        "detect_code": ["0602"],
+        "release_versions": ["5"]
+    },
     "MTS_GAMBIT": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
