@@ -350,7 +350,11 @@ uint32_t osKernelGetSysTimerCount (void);
 /// Get the RTOS kernel system timer frequency.
 /// \return frequency of the system timer.
 uint32_t osKernelGetSysTimerFreq (void);
- 
+
+/// Check if it is safe to sleep.
+/// \return osOK if it is safe to sleep, otherwise osErrorTimeout.
+osStatus_t osKernelCanSleep (void);
+
  
 //  ==== Thread Management Functions ====
  
