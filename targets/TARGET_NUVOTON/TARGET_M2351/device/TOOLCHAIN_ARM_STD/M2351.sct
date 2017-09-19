@@ -1,3 +1,28 @@
+#if (__DOMAIN_NS == 1U)
+LR_IROM1 0x10040000 {
+  ER_IROM1 0x10040000 {  ; load address = execution address
+   *(RESET, +First)
+   *(InRoot$$Sections)
+   .ANY (+RO)
+  }
+    
+  ARM_LIB_STACK 0x30010000 EMPTY 0x800 {
+  }
+  
+  ER_IRAMVEC 0x30001800 EMPTY (4*(16 + 102)) {  ; Reserve for vectors
+  }
+  RW_IRAM1 AlignExpr(+0, 16) {  ; 16 byte-aligned
+   .ANY (+RW +ZI)
+  }
+  
+  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x30010000 + 0x10000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
+  }
+}
+
+ScatterAssert(LoadLimit(LR_IROM1) <= 0x10080000)    ; 256 KB APROM
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x30020000)   ; 64 KB SRAM
+
+#else
 
 LR_IROM1 0x00000000 {
   ER_IROM1 0x00000000 {  ; load address = execution address
@@ -5,11 +30,7 @@ LR_IROM1 0x00000000 {
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  
-  ;UVISOR AlignExpr(+0, 16) {  ; 16 byte-aligned
-  ;  uvisor-lib.a (+RW +ZI)
-  ;}
-  
+    
   ARM_LIB_STACK 0x20000000 EMPTY 0x800 {
   }
   
@@ -19,9 +40,16 @@ LR_IROM1 0x00000000 {
    .ANY (+RW +ZI)
   }
   
-  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x20000000 + 0x18000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
+  ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY (0x20000000 + 0x10000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) {
   }
 }
-ScatterAssert(LoadLimit(LR_IROM1) <= 0x00080000)    ; 512 KB APROM
-ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x20018000)   ; 96 KB SRAM
-
+LR_IROM2 0x3F000
+{
+    NSC_ROM +0 0x1000
+    {
+        *(Veneer$$CMSE)
+    }
+}
+ScatterAssert(LoadLimit(LR_IROM1) <= 0x00040000)    ; 256 KB APROM
+ScatterAssert(ImageLimit(ARM_LIB_HEAP) <= 0x20010000)   ; 64 KB SRAM
+#endif

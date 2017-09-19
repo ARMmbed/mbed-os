@@ -1,16 +1,29 @@
 /*
  * Nuvoton M2351 GCC linker script file
  */
-
+ 
 StackSize = 0x800;
+
+#if (__DOMAIN_NS == 1U)
+
+MEMORY
+{
+  VECTORS (rx)          : ORIGIN = 0x10040000, LENGTH = 0x00000400
+  FLASH (rx)            : ORIGIN = 0x10040400, LENGTH = 0x00040000 - 0x00000400
+  RAM_INTERN (rwx)      : ORIGIN = 0x30010000, LENGTH = 0x00010000 - 0x00000000
+}
+
+#else
 
 MEMORY
 {
   VECTORS (rx)          : ORIGIN = 0x00000000, LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = 0x00000400, LENGTH = 0x0003F0000 - 0x00000400
-  NSC_FLASH (rx)        : ORIGIN = 0x0003F000, LENGTH = 0x00080000 - 0x0003F000
-  RAM_INTERN (rwx)      : ORIGIN = 0x20000000, LENGTH = 0x00018000 - 0x00000000
+  FLASH (rx)            : ORIGIN = 0x00000400, LENGTH = 0x0003F000 - 0x00000400
+  NSC_FLASH (rx)        : ORIGIN = 0x0003F000, LENGTH = 0x00040000 - 0x0003F000
+  RAM_INTERN (rwx)      : ORIGIN = 0x20000000, LENGTH = 0x00010000 - 0x00000000
 }
+
+#endif
 
 /**
  * Must match cmsis_nvic.h
@@ -112,6 +125,7 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
+#if (__DOMAIN_NS != 1U)    
     /* Veneer$$CMSE : */
     .gnu.sgstubs :
     {
@@ -119,7 +133,7 @@ SECTIONS
         *(.gnu.sgstubs.*)
        __sgstubs_end = .;    
     } > NSC_FLASH 
-
+#endif
     .ARM.extab :
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
