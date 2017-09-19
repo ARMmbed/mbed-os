@@ -65,7 +65,7 @@ class Hook(object):
         _HOOKS.clear()
         self._cmdline_hooks = {}
         self.toolchain = toolchain
-        target.init_hooks(self, toolchain.__class__.__name__)
+        target.init_hooks(self, toolchain)
 
     # Hook various functions directly
     @staticmethod

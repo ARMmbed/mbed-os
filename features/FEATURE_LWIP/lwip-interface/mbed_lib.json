@@ -84,5 +84,10 @@
             "help": "Thread stack size for PPP",
             "value": 768
         }
+    },
+    "target_overrides": {
+        "REALTEK_RTL8195AM": {
+            "tcpip-thread-stacksize": 1600
+        }
     }
 }

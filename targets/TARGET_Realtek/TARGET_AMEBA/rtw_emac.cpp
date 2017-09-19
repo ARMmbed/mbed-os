@@ -218,10 +218,7 @@ emac_interface_t *wlan_emac_init_interface()
 
     if (_emac == NULL) {
         _emac = (emac_interface_t*) malloc(sizeof(emac_interface_t));
-    	if (_emac == NULL) {//new emac_interface_t fail
-        	printf("emac initialization failed\r\n");
-		return NULL;
-    	}
+        MBED_ASSERT(_emac);
         _emac->hw = NULL;
         memcpy((void*)&_emac->ops, &wlan_emac_interface, sizeof(wlan_emac_interface));
     }
