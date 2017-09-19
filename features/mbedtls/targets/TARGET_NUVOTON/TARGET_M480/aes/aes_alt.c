@@ -66,10 +66,6 @@ void mbedtls_aes_init( mbedtls_aes_context *ctx )
     memset( ctx, 0, sizeof( mbedtls_aes_context ) );
 
     ctx->swapType = AES_IN_OUT_SWAP;
-    /* We support multiple contexts with context save & restore and so needs just one 
-     * H/W channel. Always use H/W channel #0. */
-    ctx->channel = 0;
-    memset(ctx->iv, 0, sizeof (ctx->iv));
 
     /* Unlock protected registers */
     SYS_UnlockReg();
@@ -143,7 +139,7 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
                              const unsigned char input[16],
                              unsigned char output[16], int dataSize)
 {
-    unsigned char* pIn;
+    const unsigned char* pIn;
     unsigned char* pOut;
 
     /* AES DMA buffer requires to be:
@@ -155,15 +151,18 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     MBED_ASSERT(((((uint32_t) au8OutputData) & 0x03) == 0) && ((((uint32_t) au8OutputData) & 0x20000000) == 0x20000000));
     MBED_ASSERT(((((uint32_t) au8InputData) & 0x03) == 0) && ((((uint32_t) au8InputData) & 0x20000000) == 0x20000000));
 
-    AES_Open(ctx->channel, ctx->encDec, ctx->opMode, ctx->keySize, ctx->swapType);
-    AES_SetInitVect(ctx->channel, ctx->iv);
-    AES_SetKey(ctx->channel, ctx->buf, ctx->keySize);
+    /* We support multiple contexts with context save & restore and so needs just one 
+     * H/W channel. Always use H/W channel #0. */
+
+    AES_Open(0, ctx->encDec, ctx->opMode, ctx->keySize, ctx->swapType);
+    AES_SetInitVect(0, ctx->iv);
+    AES_SetKey(0, ctx->buf, ctx->keySize);
     /* AES DMA buffer requirements same as above */
     if ((((uint32_t) input) & 0x03) || ((((uint32_t) input) & 0x20000000) != 0x20000000)) {
         memcpy(au8InputData, input, dataSize);
         pIn = au8InputData;
     } else {
-        pIn = (unsigned char*)input;
+        pIn = input;
     }
     /* AES DMA buffer requirements same as above */
     if ((((uint32_t) output) & 0x03) || ((((uint32_t) output) & 0x20000000) != 0x20000000)) {
@@ -172,10 +171,10 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
         pOut = output;
     }
 
-    AES_SetDMATransfer(ctx->channel, (uint32_t)pIn, (uint32_t)pOut, dataSize);
+    AES_SetDMATransfer(0, (uint32_t)pIn, (uint32_t)pOut, dataSize);
 
     g_AES_done = 0;
-    AES_Start(ctx->channel, CRYPTO_DMA_ONE_SHOT);
+    AES_Start(0, CRYPTO_DMA_ONE_SHOT);
     while (!g_AES_done);
 
     if( pOut != output ) memcpy(output, au8OutputData, dataSize);
@@ -259,13 +258,11 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
         if( mode == MBEDTLS_AES_ENCRYPT ) {
             ctx->encDec = 1;
             __nvt_aes_crypt(ctx, input, output, blockChainLen);
-//                      if( blockChainLen == length ) break;        // finish last block chain but still need to prepare next iv for mbedtls_aes_self_test()
             memcpy( iv, output+blockChainLen-16, 16 );
         } else {
             memcpy( temp, input+blockChainLen-16, 16 );
             ctx->encDec = 0;
             __nvt_aes_crypt(ctx, input, output, blockChainLen);
-//                      if( blockChainLen == length ) break;        // finish last block chain but still need to prepare next iv for mbedtls_aes_self_test()
             memcpy( iv, temp, 16 );
         }
         length -= blockChainLen;

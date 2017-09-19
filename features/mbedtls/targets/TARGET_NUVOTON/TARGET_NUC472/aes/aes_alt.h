@@ -43,7 +43,6 @@ typedef struct {
     uint32_t keySize;
     uint32_t encDec;
     uint32_t opMode;
-    uint32_t channel;
     uint32_t swapType;
     uint32_t iv[4];
     unsigned char prv_iv[16];
