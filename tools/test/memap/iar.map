@@ -1,0 +1,86 @@
+###############################################################################
+#
+# IAR ELF Linker V7.80.1.28/LNX for ARM                   18/Sep/2017  14:26:09
+# Copyright 2007-2016 IAR Systems AB.
+#
+#    Output file  =  
+#        /common/path/project.elf
+#    Map file     =  
+#        /common/path/project.map
+#    Command line =  
+#        -f
+#        /common/path/.link_files.txt
+#        (-o
+#        --map=/common/path/project.map
+#        /common/path/project.elf
+#        /common/path/main.o
+#        /common/path/startup/startup.o
+#        /common/path/irqs/irqs.o
+#        /common/path/data/data.o
+#
+###############################################################################
+
+*******************************************************************************
+*** RUNTIME MODEL ATTRIBUTES
+***
+
+CppFlavor                     = *
+__CPP_Exceptions              = Disabled
+__CPP_Language                = C++
+__Heap_Handler                = DLMalloc
+__SystemLibrary               = DLib
+__dlib_dynamic_initialization = postponed
+__dlib_has_iterator_debugging = 0
+__dlib_jmp_buf_num_elements   = 8
+
+
+*******************************************************************************
+*** PLACEMENT SUMMARY
+***
+
+"A0":  place at 0x0001b000 { ro section .intvec };
+"P1":  place in [from 0x0001b0c0 to 0x0003ffff] { ro };
+"P2":  place in [from 0x20002ef8 to 0x20007fff] { rw, block HEAP, block CSTACK };
+do not initialize { section .noinit };
+initialize by copy { rw };
+ { section .intvec };
+
+  Section               Kind        Address    Size  Object
+  -------               ----        -------    ----  ------
+"A0":                                          0xc0
+  .intvec               ro code  0x0001b000    0xc0  startup.o [4]
+                               - 0x0001b0c0    0xc0
+
+"P1":                                         0x
+  .text                 ro code  0x0001c753    0x36  main.o [3]
+  .text                 ro code  0x0001cfff    0x98  irqs.o [5]
+  .text                 ro code  0x0001c778     0x8  __main.o [67]
+
+"P2", part 1 of 2:                             0x18
+  P2-1                           0x20002ef8    0x18  <Init block>
+    .data               inited   0x20002fa8    0x18  data.o [6]
+
+"P2", part 2 of 2:                            0x198
+  P2-2                           0x20005388   0x198  <Init block>
+    .bss                  zero   0x20002fa8   0x198  data.o [6]
+
+*******************************************************************************
+*** INIT TABLE
+***
+
+*******************************************************************************
+*** MODULE SUMMARY
+***
+
+d16M_tlf.a: [67]
+    __main.o                          8
+    ------------------------------------------------
+    Total:                            8
+
+    Linker created                             
+---------------------------------------------------
+    Grand Total:                      
+
+*******************************************************************************
+*** ENTRY LIST
+***
