@@ -1,13 +1,26 @@
 /*###ICF### Section handled by ICF editor, don't touch! ****/
 /*-Editor annotation file-*/
 /* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
+
+#if (__DOMAIN_NS == 1U)
+/*-Specials-*/
+define symbol __ICFEDIT_intvec_start__ = 0x10040000;
+/*-Memory Regions-*/
+define symbol __ICFEDIT_region_ROM_start__ = 0x10040000;
+define symbol __ICFEDIT_region_ROM_end__   = 0x10080000 - 1;
+define symbol __ICFEDIT_region_IRAM_start__ = 0x30010000;
+define symbol __ICFEDIT_region_IRAM_end__   = 0x30020000 - 1;
+#else
 /*-Specials-*/
 define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 /*-Memory Regions-*/
 define symbol __ICFEDIT_region_ROM_start__ = 0x00000000;
-define symbol __ICFEDIT_region_ROM_end__   = 0x00080000 - 1;
+define symbol __ICFEDIT_region_ROM_end__   = 0x0003F000 - 1;
+define symbol __ICFEDIT_region_NSCROM_start__ = 0x0003F000;
+define symbol __ICFEDIT_region_NSCROM_end__   = 0x00040000 - 1;
 define symbol __ICFEDIT_region_IRAM_start__ = 0x20000000;
-define symbol __ICFEDIT_region_IRAM_end__   = 0x20018000 - 1;
+define symbol __ICFEDIT_region_IRAM_end__   = 0x20010000 - 1;
+#endif
 /*-Sizes-*/
 define symbol __ICFEDIT_size_cstack__ = 0x800;
 define symbol __ICFEDIT_size_heap__   = 0x4000;
@@ -30,6 +43,9 @@ do not initialize  { section .noinit };
 place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
 
 place in ROM_region   { readonly };
+#if (__DOMAIN_NS != 1U)
+place at address mem:__ICFEDIT_region_NSCROM_start__ { readonly section Veneer$$CMSE };
+#endif
 place at start of IRAM_region   { block CSTACK };
 place in IRAM_region   { block IRAMVEC };
 place in IRAM_region   { readwrite };
