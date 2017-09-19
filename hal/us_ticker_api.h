@@ -27,10 +27,80 @@ extern "C" {
 #endif
 
 /**
- * \defgroup hal_UsTicker Microseconds Ticker Functions
+ * \defgroup hal_us_ticker Microsecond Ticker
+ * Low level interface to the microsecond ticker of a target
+ *
+ * # Defined behavior
+ * * Has a reported frequency between 250KHz and 8MHz
+ * * Has a counter that is at least 16 bits wide
+ * * All behavior defined by the @ref hal_ticker_shared "ticker specification"
+ *
+ * # Undefined behavior
+ * * See the @ref hal_ticker_shared "ticker specification"
+ *
+ * @see hal_us_ticker_tests
+ *
  * @{
  */
 
+/**
+ * \defgroup hal_us_ticker_tests Microsecond Ticker tests
+ * Tests to validate the proper implementation of the microsecond ticker
+ *
+ * To run the microsecond ticker hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-us_lp_ticker*,tests-mbed_hal-us_ticker*
+ *
+ * @see hal_ticker_tests
+ *
+ */
+
+/**
+ * \defgroup hal_ticker_shared Ticker Hal
+ * Low level interface to the ticker of a target
+ *
+ * # Defined behavior
+ * * The function ticker_init is safe to call repeatedly - Verified by test ::ticker_init_test
+ * * The function ticker_init resets the internal count and disables the ticker interrupt - Verified by test ::ticker_init_test
+ * * Ticker frequency is non-zero and counter is at least 8 bits - Verified by ::ticker_info_test
+ * * The ticker rolls over at (1 << bits) and continues counting starting from 0 - Verified by ::ticker_overflow_test
+ * * The ticker counts at the specified frequency +- 10% - Verified by ::ticker_frequency_test
+ * * The ticker increments by 1 each tick - Verified by ::ticker_increment_test
+ * * The ticker interrupt fires only when the ticker times increments to or past the value set by ticker_set_interrupt.
+ * Verified by ::ticker_interrupt_test and ::ticker_past_test
+ * * It is safe to call ticker_set_interrupt repeatedly before the handler is called - Verified by ::ticker_repeat_reschedule_test
+ * * The function ticker_fire_interrupt causes ticker_irq_handler to be called immediately from interrupt context -
+ * Verified by ::ticker_fire_now_test
+ * * The ticker operations ticker_read, ticker_clear_interrupt, ticker_set_interrupt and ticker_fire_interrupt
+ * take less than 20us to complete - Verified by ::ticker_speed_test
+ *
+ * # Undefined behavior
+ * * Calling any function other than ticker_init before the initialization of the ticker
+ * * Whether ticker_irq_handler is called a second time if the time wraps and matches the value set by ticker_set_interrupt again
+ * * Calling ticker_set_interrupt with a value that has more than the supported number of bits
+ *
+ * # Potential bugs
+ * * Drift due to reschedule - Verified by ::ticker_reschedule_test
+ * * Incorrect overflow handling of timers - Verified by ::ticker_overflow_test
+ * * Interrupting at a time of 0 - Verified by ::ticker_overflow_test
+ *
+ * @ingroup hal_us_ticker
+ * @ingroup hal_lp_ticker
+ */
+
+/**
+ * \defgroup hal_ticker_tests Ticker Tests
+ * Tests to validate the proper implementation of a ticker
+ *
+ * To run the ticker hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-us_lp_ticker*
+ *
+ * @ingroup hal_us_ticker
+ * @ingroup hal_lp_ticker
+ */
+
+ 
 typedef void (*ticker_irq_handler_type)(const ticker_data_t *const);
 
 /** Set ticker IRQ handler
@@ -47,7 +117,7 @@ ticker_irq_handler_type set_us_ticker_irq_handler(ticker_irq_handler_type ticker
 
 /** Get ticker's data
  *
- * @return The low power ticker data
+ * @return The microsecond ticker data
  */
 const ticker_data_t* get_us_ticker_data(void);
 
@@ -61,39 +131,130 @@ void us_ticker_irq_handler(void);
 
 /** Initialize the ticker
  *
+ * Initialize or re-initialize the ticker. This resets all the
+ * clocking and prescaler registers, along with disabling
+ * the compare interrupt.
+ *
+ * @note Initialization properties tested by ::ticker_init_test
+ *
+ * Pseudo Code:
+ * @code
+ * void us_ticker_init()
+ * {
+ *     // Enable clock gate so processor can read TIMER registers
+ *     POWER_CTRL |= POWER_CTRL_TIMER_Msk;
+ *
+ *     // Disable the timer and ensure it is powered down
+ *     TIMER_CTRL &= ~(TIMER_CTRL_ENABLE_Msk | TIMER_CTRL_COMPARE_ENABLE_Msk);
+ *
+ *     // Configure divisors
+ *     uint32_t prescale = SystemCoreClock / 1000000;
+ *     TIMER_PRESCALE = prescale - 1;
+ *     TIMER_CTRL |= TIMER_CTRL_ENABLE_Msk;
+ *
+ *     // Install the interrupt handler
+ *     NVIC_SetVector(TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
+ *     NVIC_EnableIRQ(TIMER_IRQn);
+ * }
+ * @endcode
  */
 void us_ticker_init(void);
 
-/** Read the current counter
+/** Read the current tick
  *
- * @return The current timer's counter value in microseconds
+ * Read the current counter value without performing frequency conversions.
+ * If no rollover has occurred, the seconds passed since ::us_ticker_init
+ * was called can be found by dividing the ticks returned by this function
+ * by the frequency returned by ::us_ticker_get_info.
+ *
+ * @return The current timer's counter value in ticks
+ *
+ * Pseudo Code:
+ * @code
+ * uint32_t us_ticker_read()
+ * {
+ *     return TIMER_COUNT;
+ * }
+ * @endcode
  */
 uint32_t us_ticker_read(void);
 
 /** Set interrupt for specified timestamp
  *
- * @param timestamp The time in microseconds to be set
+ * @param timestamp The time in ticks to be set
+ *
+ * @note no special handling needs to be done for times in the past
+ * as the common timer code will detect this and call
+ * ::us_ticker_fire_interrupt if this is the case
+ *
+ * @note calling this function with timestamp of more than the supported
+ * number of bits returned by ::us_ticker_get_info results in undefined
+ * behavior.
+ *
+ * Pseudo Code:
+ * @code
+ * void us_ticker_set_interrupt(timestamp_t timestamp)
+ * {
+ *     TIMER_COMPARE = timestamp;
+ *     TIMER_CTRL |= TIMER_CTRL_COMPARE_ENABLE_Msk;
+ * }
+ * @endcode
  */
 void us_ticker_set_interrupt(timestamp_t timestamp);
 
 /** Disable us ticker interrupt
  *
+ * Pseudo Code:
+ * @code
+ * void us_ticker_disable_interrupt(void)
+ * {
+ *     // Disable the compare interrupt
+ *     TIMER_CTRL &= ~TIMER_CTRL_COMPARE_ENABLE_Msk;
+ * }
+ * @endcode
  */
 void us_ticker_disable_interrupt(void);
 
 /** Clear us ticker interrupt
  *
+ * Pseudo Code:
+ * @code
+ * void us_ticker_clear_interrupt(void)
+ * {
+ *     // Write to the ICR (interrupt clear register) of the TIMER
+ *     TIMER_ICR = TIMER_ICR_COMPARE_Msk;
+ * }
+ * @endcode
  */
 void us_ticker_clear_interrupt(void);
 
 /** Set pending interrupt that should be fired right away.
  * 
  * The ticker should be initialized prior calling this function.
+ *
+ * Pseudo Code:
+ * @code
+ * void us_ticker_fire_interrupt(void)
+ * {
+ *     NVIC_SetPendingIRQ(TIMER_IRQn);
+ * }
+ * @endcode
  */
 void us_ticker_fire_interrupt(void);
 
 /** Get frequency and counter bits of this ticker.
  *
+ * Pseudo Code:
+ * @code
+ * const ticker_info_t* us_ticker_get_info()
+ * {
+ *     static const ticker_info_t info = {
+ *         1000000,    // 1 MHz
+ *         32          // 32 bit counter
+ *     };
+ *     return &info;
+ * }
+ * @endcode
  */
 const ticker_info_t* us_ticker_get_info(void);
 
