@@ -32,7 +32,7 @@ using namespace utest::v1;
 
 namespace {
     // Test connection information
-    const char *HTTP_SERVER_NAME = "developer.mbed.org";
+    const char *HTTP_SERVER_NAME = "os.mbed.com";
     const char *HTTP_SERVER_FILE_PATH = "/media/uploads/mbed_official/hello.txt";
     const int HTTP_SERVER_PORT = 80;
 #if defined(TARGET_VK_RZ_A1H)
