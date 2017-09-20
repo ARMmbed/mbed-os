@@ -34,3 +34,8 @@ def test_parse_iar():
     memap = MemapParser()
     memap.parse_map_file_iar(open(join(dirname(__file__), "iar.map")))
     assert memap.modules == PARSED_IAR_GCC_DATA
+
+def test_parse_gcc():
+    memap = MemapParser()
+    memap.parse_map_file_gcc(open(join(dirname(__file__), "gcc.map")))
+    assert memap.modules == PARSED_IAR_GCC_DATA
