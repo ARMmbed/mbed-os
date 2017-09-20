@@ -45,7 +45,6 @@ typedef struct {
     uint32_t opMode;
     uint32_t swapType;
     uint32_t iv[4];
-    unsigned char prv_iv[16];
     uint32_t buf[8];
 }
 mbedtls_aes_context;
