@@ -39,3 +39,23 @@ def test_parse_gcc():
     memap = MemapParser()
     memap.parse_map_file_gcc(open(join(dirname(__file__), "gcc.map")))
     assert memap.modules == PARSED_IAR_GCC_DATA
+
+
+def test_add_empty_module():
+    memap = MemapParser()
+    old_modules = deepcopy(memap.modules)
+    memap.module_add("", 8, ".data")
+    assert(old_modules == memap.modules)
+    memap.module_add("main.o", 0, ".text")
+    assert(old_modules == memap.modules)
+    memap.module_add("main.o", 8, "")
+    assert(old_modules == memap.modules)
+
+def test_add_full_module():
+    memap = MemapParser()
+    old_modules = deepcopy(memap.modules)
+    memap.module_add("main.o", 8, ".data")
+    assert(old_modules != memap.modules)
+    assert("main.o" in memap.modules)
+    assert(".data" in memap.modules["main.o"])
+    assert(memap.modules["main.o"][".data"] == 8)

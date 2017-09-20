@@ -27,7 +27,7 @@ RE_LIBRARY_IAR = re.compile(r'^(.+\.a)\:.+$')
 RE_OBJECT_LIBRARY_IAR = re.compile(r'^\s+(.+\.o)\s.*')
 
 RE_OBJECT_FILE_GCC = re.compile(r'^(.+\/.+\.o)$')
-RE_LIBRARY_OBJECT_GCC = re.compile(r'^.+\/(lib.+\.a)\((.+\.o)\)$')
+RE_LIBRARY_OBJECT_GCC = re.compile(r'^.+\/lib(.+\.a)\((.+\.o)\)$')
 RE_STD_SECTION_GCC = re.compile(r'^\s+.*0x(\w{8,16})\s+0x(\w+)\s(.+)$')
 RE_FILL_SECTION_GCC = re.compile(r'^\s*\*fill\*\s+0x(\w{8,16})\s+0x(\w+).*$')
 
@@ -219,7 +219,7 @@ class MemapParser(object):
                 next_section = self.check_new_section_gcc(line)
 
                 if next_section == "OUTPUT":
-                    return
+                    break
                 elif next_section:
                     current_section = next_section
 
@@ -227,6 +227,17 @@ class MemapParser(object):
 
                 self.module_add(object_name, object_size, current_section)
 
+        common_prefix = os.path.dirname(os.path.commonprefix([
+            o for o in self.modules.keys() if (o.endswith(".o") and not o.startswith("[lib]"))]))
+        new_modules = {}
+        for name, stats in self.modules.items():
+            if name.startswith("[lib]"):
+                new_modules[name] = stats
+            elif name.endswith(".o"):
+                new_modules[os.path.relpath(name, common_prefix)] = stats
+            else:
+                new_modules[name] = stats
+        self.modules = new_modules
 
     def parse_object_name_armcc(self, line):
         """ Parse object file
