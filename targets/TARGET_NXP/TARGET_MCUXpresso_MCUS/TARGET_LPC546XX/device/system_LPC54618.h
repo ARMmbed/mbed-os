@@ -1,7 +1,7 @@
 /*
 ** ###################################################################
-**     Processors:          LPC54608J512BD208
-**                          LPC54608J512ET180
+**     Processors:          LPC54618J512BD208
+**                          LPC54618J512ET180
 **
 **     Compilers:           Keil ARM C/C++ Compiler
 **                          GNU C Compiler
@@ -58,18 +58,18 @@
 */
 
 /*!
- * @file LPC54608
+ * @file LPC54618
  * @version 1.1
  * @date 2016-11-25
- * @brief Device specific configuration file for LPC54608 (header file)
+ * @brief Device specific configuration file for LPC54618 (header file)
  *
  * Provides a system configuration function and a global variable that contains
  * the system frequency. It configures the device and initializes the oscillator
  * (PLL) that is part of the microcontroller device.
  */
 
-#ifndef _SYSTEM_LPC54608_H_
-#define _SYSTEM_LPC54608_H_                      /**< Symbol preventing repeated inclusion */
+#ifndef _SYSTEM_LPC54618_H_
+#define _SYSTEM_LPC54618_H_                      /**< Symbol preventing repeated inclusion */
 
 #ifdef __cplusplus
 extern "C" {
@@ -118,4 +118,4 @@ void SystemCoreClockUpdate (void);
 }
 #endif
 
-#endif  /* _SYSTEM_LPC54608_H_ */
+#endif  /* _SYSTEM_LPC54618_H_ */

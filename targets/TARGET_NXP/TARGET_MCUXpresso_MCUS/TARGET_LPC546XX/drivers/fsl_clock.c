@@ -984,8 +984,13 @@ static uint32_t FindGreatestCommonDivisor(uint32_t m, uint32_t n)
     return m;
 }
 
-/* Set PLL output based on desired output rate */
-static pll_error_t CLOCK_GetPllConfig(
+/*
+ * Set PLL output based on desired output rate.
+ * In this function, the it calculates the PLL setting for output frequency from input clock
+ * frequency. The calculation would cost a few time. So it is not recommaned to use it frequently.
+ * the "pllctrl", "pllndec", "pllpdec", "pllmdec" would updated in this function.
+ */
+static pll_error_t CLOCK_GetPllConfigInternal(
     uint32_t finHz, uint32_t foutHz, pll_setup_t *pSetup)
 {
     uint32_t nDivOutHz, fccoHz, multFccoDiv;
@@ -1098,6 +1103,64 @@ static pll_error_t CLOCK_GetPllConfig(
     return kStatus_PLL_Success;
 }
 
+#if (defined(CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT) && CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT)
+/* Alloct the static buffer for cache. */
+pll_setup_t gPllSetupCacheStruct[CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT];
+uint32_t gFinHzCache[CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT] = {0};
+uint32_t gFoutHzCache[CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT] = {0};
+uint32_t gPllSetupCacheIdx = 0U;
+#endif /* CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT */
+
+/*
+ * Calculate the PLL setting values from input clock freq to output freq.
+ */
+static pll_error_t CLOCK_GetPllConfig(
+    uint32_t finHz, uint32_t foutHz, pll_setup_t *pSetup)
+{
+    pll_error_t retErr;
+#if (defined(CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT) && CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT)
+    uint32_t i;
+
+    for (i = 0U; i < CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT; i++)
+    {
+        if ( (finHz == gFinHzCache[i]) && (foutHz == gFoutHzCache[i]) )
+        {
+            /* Hit the target in cache buffer. */
+            pSetup->pllctrl = gPllSetupCacheStruct[i].pllctrl;
+            pSetup->pllndec = gPllSetupCacheStruct[i].pllndec;
+            pSetup->pllpdec = gPllSetupCacheStruct[i].pllpdec;
+            pSetup->pllmdec = gPllSetupCacheStruct[i].pllmdec;
+            retErr = kStatus_PLL_Success;
+        }
+    }
+
+    if (i < CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT)
+    {
+        return retErr;
+    }
+#endif /* CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT */
+
+    /* No cache or did not hit the cache. */
+    retErr = CLOCK_GetPllConfigInternal(finHz, foutHz, pSetup);
+
+#if (defined(CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT) && CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT)
+    if (kStatus_PLL_Success == retErr)
+    {
+        /* Cache the most recent calulation result into buffer. */
+        gFinHzCache[gPllSetupCacheIdx] = finHz;
+        gFoutHzCache[gPllSetupCacheIdx] = foutHz;
+    
+        gPllSetupCacheStruct[gPllSetupCacheIdx].pllctrl = pSetup->pllctrl;
+        gPllSetupCacheStruct[gPllSetupCacheIdx].pllndec = pSetup->pllndec;
+        gPllSetupCacheStruct[gPllSetupCacheIdx].pllpdec = pSetup->pllpdec;
+        gPllSetupCacheStruct[gPllSetupCacheIdx].pllmdec = pSetup->pllmdec;
+        /* Update the index for next available buffer. */
+        gPllSetupCacheIdx = (gPllSetupCacheIdx + 1U) % CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT;
+    }
+#endif /* CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT */
+
+    return retErr;
+}
 
 /* Update SYSTEM PLL rate variable */
 static void CLOCK_GetSystemPLLOutFromSetupUpdate(pll_setup_t *pSetup)

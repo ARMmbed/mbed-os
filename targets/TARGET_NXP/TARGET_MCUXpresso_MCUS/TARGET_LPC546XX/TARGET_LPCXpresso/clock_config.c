@@ -45,11 +45,11 @@
 /* TEXT BELOW IS USED AS SETTING FOR THE CLOCKS TOOL *****************************
 !!ClocksProfile
 product: Clocks v1.0
-processor: LPC54608J512
-package_id: LPC54608J512ET180
+processor: LPC54618J512
+package_id: LPC54618J512ET180
 mcu_data: ksdk2_0
 processor_version: 0.0.0
-board: LPCXpresso54608
+board: LPCXpresso54618
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR THE CLOCKS TOOL **/
 
 #include "fsl_power.h"

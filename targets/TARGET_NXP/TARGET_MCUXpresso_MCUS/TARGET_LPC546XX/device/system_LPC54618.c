@@ -1,7 +1,7 @@
 /*
 ** ###################################################################
-**     Processors:          LPC54608J512BD208
-**                          LPC54608J512ET180
+**     Processors:          LPC54618J512BD208
+**                          LPC54618J512ET180
 **
 **     Compilers:           Keil ARM C/C++ Compiler
 **                          GNU C Compiler
@@ -58,10 +58,10 @@
 */
 
 /*!
- * @file LPC54608
+ * @file LPC54618
  * @version 1.1
  * @date 2016-11-25
- * @brief Device specific configuration file for LPC54608 (implementation file)
+ * @brief Device specific configuration file for LPC54618 (implementation file)
  *
  * Provides a system configuration function and a global variable that contains
  * the system frequency. It configures the device and initializes the oscillator
