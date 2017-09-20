@@ -101,6 +101,7 @@ protected:
     us_timestamp_t _start;   // the start time of the latest slice
     us_timestamp_t _time;    // any accumulated time from previous slices
     const ticker_data_t *_ticker_data;
+    bool _lock_deepsleep;    // flag which indicates if deep-sleep should be disabled
 };
 
 } // namespace mbed
