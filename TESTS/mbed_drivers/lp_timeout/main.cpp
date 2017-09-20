@@ -59,7 +59,10 @@ void lp_timeout_1s_deepsleep(void)
      */
     timer.start();
     lpt.attach(&cb_done, 1);
-    deepsleep();
+    /* Make sure deepsleep is allowed, to go to deepsleep */
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
+    sleep();
     while (!complete);
 
     /* It takes longer to wake up from deep sleep */
@@ -75,6 +78,8 @@ void lp_timeout_1s_sleep(void)
 
     sleep_manager_lock_deep_sleep();
     lpt.attach(&cb_done, 1);
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    TEST_ASSERT_FALSE_MESSAGE(deep_sleep_allowed, "Deep sleep should be disallowed");
     sleep();
     while (!complete);
     sleep_manager_unlock_deep_sleep();
