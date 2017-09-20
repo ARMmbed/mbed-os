@@ -70,15 +70,7 @@ SECTIONS
         *rtl8195a_crypto.o (.text* .rodata*)
         *mbedtls*.o (.text* .rodata*)
         *libc.a: (.text* .rodata*)
-        *Ticker.o (.text*)
-        *Timeout.o (.text*)
-        *TimerEvent.o (.text*)
-        *mbed_ticker_api.o (.text*)
-        *mbed_critical.o (.text*)
-        *us_ticker.o (.text*)
-        
         *lib_peripheral_mbed_gcc.a: (.text*)
-        
     } > SRAM1
 
     .text.sram2 :

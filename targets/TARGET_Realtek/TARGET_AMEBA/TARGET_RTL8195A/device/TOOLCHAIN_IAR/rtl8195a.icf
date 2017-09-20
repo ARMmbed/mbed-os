@@ -213,13 +213,6 @@ define block MBEDTLS_TEXT with alignment = 8, fixed order{
 
 define block .sram1.text with fixed order   {  
                                                 block MBEDTLS_TEXT,
-                                                section .text* object Ticker.o,
-                                                section .text* object Timeout.o,
-                                                section .text* object TimerEvent.o,
-                                                section .text* object mbed_ticker_api.o,
-                                                section .text* object mbed_critical.o,
-                                                section .text* object us_ticker.o,
-                                                
                                                 section .text* object lib_peripheral_mbed_iar.a,
                                             };
 
