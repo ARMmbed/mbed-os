@@ -33,6 +33,7 @@
 #include "mbed_toolchain.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
+#include "nu_bitutil.h"
 
 
 
@@ -47,21 +48,6 @@ extern volatile int  g_AES_done;
 
 // Must be a multiple of 16 bytes block size
 #define MAX_DMA_CHAIN_SIZE (16*6)
-
-static void swapInitVector(unsigned char iv[16])
-{
-    unsigned int* piv;
-    int i;
-    // iv SWAP
-    piv = (unsigned int*)iv;
-    for( i=0; i< 4; i++) {
-        *piv = (((*piv) & 0x000000FF) << 24) |
-               (((*piv) & 0x0000FF00) << 8) |
-               (((*piv) & 0x00FF0000) >> 8) |
-               (((*piv) & 0xFF000000) >> 24);
-        piv++;
-    }
-}
 
 /* Check if buffer can be used for AES DMA. It requires to be:
  *   1) Word-aligned
@@ -271,8 +257,11 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
         blockChainLen = (length > MAX_DMA_CHAIN_SIZE) ? MAX_DMA_CHAIN_SIZE : length;
         
         ctx->opMode = AES_MODE_CBC;
-        swapInitVector(iv); // iv SWAP
-        memcpy(ctx->iv, iv, 16);
+        /* Fetch IV byte data in big-endian */
+        ctx->iv[0] = nu_get32_be(iv);
+        ctx->iv[1] = nu_get32_be(iv + 4);
+        ctx->iv[2] = nu_get32_be(iv + 8);
+        ctx->iv[3] = nu_get32_be(iv + 12);
 
         if( mode == MBEDTLS_AES_ENCRYPT ) {
             ctx->encDec = 1;
@@ -340,9 +329,12 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
         while (block_chain_len) {
             size_t block_chain_len2 = (block_chain_len > MAX_DMA_CHAIN_SIZE) ? MAX_DMA_CHAIN_SIZE : block_chain_len;
                 
-            memcpy(ctx->iv, iv, 16);
-            swapInitVector(ctx->iv); // iv SWAP
-                
+            /* Fetch IV byte data in big-endian */
+            ctx->iv[0] = nu_get32_be(iv);
+            ctx->iv[1] = nu_get32_be(iv + 4);
+            ctx->iv[2] = nu_get32_be(iv + 8);
+            ctx->iv[3] = nu_get32_be(iv + 12);
+            
             __nvt_aes_crypt(ctx, input, output, block_chain_len2);
                     
             input += block_chain_len2;
@@ -351,8 +343,11 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
                     
             /* NOTE: Buffers input/output could overlap. See ctx->iv rather than input/output
              *       for iv of next block cipher. */
-            memcpy(iv, ctx->iv, 16);
-            swapInitVector(iv);
+            /* Fetch IV byte data in big-endian */
+            ctx->iv[0] = nu_get32_be(iv);
+            ctx->iv[1] = nu_get32_be(iv + 4);
+            ctx->iv[2] = nu_get32_be(iv + 8);
+            ctx->iv[3] = nu_get32_be(iv + 12);
             
             block_chain_len -= block_chain_len2;
         }
