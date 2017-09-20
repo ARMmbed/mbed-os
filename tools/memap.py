@@ -20,8 +20,6 @@ RE_IAR = re.compile(
     r'^\s+(.+)\s+(zero|const|ro code|inited|uninit)\s'
     r'+0x(\w{8})\s+0x(\w+)\s+(.+)\s.+$')
 
-RE_IS_TEST = re.compile(r'^(.+)\/.*TESTS\/.+\.map$')
-
 RE_CMDLINE_FILE_IAR = re.compile(r'^#\s+(.+\.o)')
 RE_LIBRARY_IAR = re.compile(r'^(.+\.a)\:.+$')
 RE_OBJECT_LIBRARY_IAR = re.compile(r'^\s+(.+\.o)\s.*')
@@ -131,7 +129,7 @@ class MemapParser(object):
             return False         # everything else, means no change in section
 
 
-    def parse_object_name_gcc(self, line, prefixes):
+    def parse_object_name_gcc(self, line):
         """ Parse a path to object file
 
         Positional arguments:
@@ -148,11 +146,6 @@ class MemapParser(object):
             # corner case: certain objects are provided by the GCC toolchain
             if 'arm-none-eabi' in line:
                 return '[lib]/misc/' + object_name
-
-            for prefix in prefixes:
-                if object_name.startswith(prefix):
-                    return os.path.relpath(object_name, prefix)
-
             return object_name
 
         else:
@@ -169,7 +162,7 @@ class MemapParser(object):
                 print "Unknown object name found in GCC map file: %s" % line
                 return '[misc]'
 
-    def parse_section_gcc(self, line, prefixes):
+    def parse_section_gcc(self, line):
         """ Parse data from a section of gcc map file
 
         examples:
@@ -190,7 +183,7 @@ class MemapParser(object):
         if is_section:
             o_size = int(is_section.group(2), 16)
             if o_size:
-                o_name = self.parse_object_name_gcc(is_section.group(3), prefixes)
+                o_name = self.parse_object_name_gcc(is_section.group(3))
                 return [o_name, o_size]
 
         return ["", 0]
@@ -203,11 +196,6 @@ class MemapParser(object):
         """
 
         current_section = 'unknown'
-
-        prefixes = [os.path.abspath(os.path.dirname(file_desc.name))]
-        is_test = re.match(RE_IS_TEST, file_desc.name)
-        if is_test:
-            prefixes.append(os.path.abspath(is_test.group(1)))
 
         with file_desc as infile:
             for line in infile:
@@ -223,7 +211,7 @@ class MemapParser(object):
                 elif next_section:
                     current_section = next_section
 
-                object_name, object_size = self.parse_section_gcc(line, prefixes)
+                object_name, object_size = self.parse_section_gcc(line)
 
                 self.module_add(object_name, object_size, current_section)
 
