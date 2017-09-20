@@ -43,3 +43,4 @@ install:
   - pip install mock
   - pip install coverage
   - pip install coveralls
+  - pip install jsonschema
