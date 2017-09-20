@@ -54,11 +54,6 @@ struct port_s {
     __IO uint32_t *reg_out;
 };
 
-struct can_s {
-    CANName can;
-    int index;
-};
-
 #include "common_objects.h"
 
 #ifdef __cplusplus
