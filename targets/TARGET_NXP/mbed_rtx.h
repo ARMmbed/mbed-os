@@ -86,7 +86,7 @@
 #define INITIAL_SP              (0x20010000UL)
 #endif
 
-#elif defined(TARGET_LPC54608)
+#elif defined(TARGET_LPC546XX)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20028000UL)

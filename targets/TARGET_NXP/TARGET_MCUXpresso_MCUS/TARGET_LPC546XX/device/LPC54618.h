@@ -1,7 +1,7 @@
 /*
 ** ###################################################################
-**     Processors:          LPC54608J512BD208
-**                          LPC54608J512ET180
+**     Processors:          LPC54618J512BD208
+**                          LPC54618J512ET180
 **
 **     Compilers:           Keil ARM C/C++ Compiler
 **                          GNU C Compiler
@@ -13,7 +13,7 @@
 **     Build:               b170214
 **
 **     Abstract:
-**         CMSIS Peripheral Access Layer for LPC54608
+**         CMSIS Peripheral Access Layer for LPC54618
 **
 **     Copyright 1997-2016 Freescale Semiconductor, Inc.
 **     Copyright 2016-2017 NXP
@@ -56,16 +56,16 @@
 */
 
 /*!
- * @file LPC54608.h
+ * @file LPC54618.h
  * @version 1.1
  * @date 2016-11-25
- * @brief CMSIS Peripheral Access Layer for LPC54608
+ * @brief CMSIS Peripheral Access Layer for LPC54618
  *
- * CMSIS Peripheral Access Layer for LPC54608
+ * CMSIS Peripheral Access Layer for LPC54618
  */
 
-#ifndef _LPC54608_H_
-#define _LPC54608_H_                             /**< Symbol preventing repeated inclusion */
+#ifndef _LPC54618_H_
+#define _LPC54618_H_                             /**< Symbol preventing repeated inclusion */
 
 /** Memory map major version (memory maps with equal major version number are
  * compatible) */
@@ -181,7 +181,7 @@ typedef enum IRQn {
 #define __FPU_PRESENT                  1         /**< Defines if an FPU is present or not */
 
 #include "core_cm4.h"                  /* Core Peripheral Access Layer */
-#include "system_LPC54608.h"           /* Device specific configuration file */
+#include "system_LPC54618.h"           /* Device specific configuration file */
 
 /*!
  * @}
@@ -713,7 +713,8 @@ typedef struct {
 
 /** CAN - Register Layout Typedef */
 typedef struct {
-       uint8_t RESERVED_0[16];
+       uint8_t RESERVED_0[12];
+  __IO uint32_t DBTP;                              /**< Data Bit Timing Prescaler Register, offset: 0xC */
   __IO uint32_t TEST;                              /**< Test Register, offset: 0x10 */
        uint8_t RESERVED_1[4];
   __IO uint32_t CCCR;                              /**< CC Control Register, offset: 0x18 */
@@ -779,6 +780,23 @@ typedef struct {
  * @{
  */
 
+/*! @name DBTP - Data Bit Timing Prescaler Register */
+#define CAN_DBTP_DSJW_MASK                       (0xFU)
+#define CAN_DBTP_DSJW_SHIFT                      (0U)
+#define CAN_DBTP_DSJW(x)                         (((uint32_t)(((uint32_t)(x)) << CAN_DBTP_DSJW_SHIFT)) & CAN_DBTP_DSJW_MASK)
+#define CAN_DBTP_DTSEG2_MASK                     (0xF0U)
+#define CAN_DBTP_DTSEG2_SHIFT                    (4U)
+#define CAN_DBTP_DTSEG2(x)                       (((uint32_t)(((uint32_t)(x)) << CAN_DBTP_DTSEG2_SHIFT)) & CAN_DBTP_DTSEG2_MASK)
+#define CAN_DBTP_DTSEG1_MASK                     (0x1F00U)
+#define CAN_DBTP_DTSEG1_SHIFT                    (8U)
+#define CAN_DBTP_DTSEG1(x)                       (((uint32_t)(((uint32_t)(x)) << CAN_DBTP_DTSEG1_SHIFT)) & CAN_DBTP_DTSEG1_MASK)
+#define CAN_DBTP_DBRP_MASK                       (0x1F0000U)
+#define CAN_DBTP_DBRP_SHIFT                      (16U)
+#define CAN_DBTP_DBRP(x)                         (((uint32_t)(((uint32_t)(x)) << CAN_DBTP_DBRP_SHIFT)) & CAN_DBTP_DBRP_MASK)
+#define CAN_DBTP_TDC_MASK                        (0x800000U)
+#define CAN_DBTP_TDC_SHIFT                       (23U)
+#define CAN_DBTP_TDC(x)                          (((uint32_t)(((uint32_t)(x)) << CAN_DBTP_TDC_SHIFT)) & CAN_DBTP_TDC_MASK)
+
 /*! @name TEST - Test Register */
 #define CAN_TEST_LBCK_MASK                       (0x10U)
 #define CAN_TEST_LBCK_SHIFT                      (4U)
@@ -815,6 +833,12 @@ typedef struct {
 #define CAN_CCCR_TEST_MASK                       (0x80U)
 #define CAN_CCCR_TEST_SHIFT                      (7U)
 #define CAN_CCCR_TEST(x)                         (((uint32_t)(((uint32_t)(x)) << CAN_CCCR_TEST_SHIFT)) & CAN_CCCR_TEST_MASK)
+#define CAN_CCCR_FDOE_MASK                       (0x100U)
+#define CAN_CCCR_FDOE_SHIFT                      (8U)
+#define CAN_CCCR_FDOE(x)                         (((uint32_t)(((uint32_t)(x)) << CAN_CCCR_FDOE_SHIFT)) & CAN_CCCR_FDOE_MASK)
+#define CAN_CCCR_BRSE_MASK                       (0x200U)
+#define CAN_CCCR_BRSE_SHIFT                      (9U)
+#define CAN_CCCR_BRSE(x)                         (((uint32_t)(((uint32_t)(x)) << CAN_CCCR_BRSE_SHIFT)) & CAN_CCCR_BRSE_MASK)
 #define CAN_CCCR_PXHD_MASK                       (0x1000U)
 #define CAN_CCCR_PXHD_SHIFT                      (12U)
 #define CAN_CCCR_PXHD(x)                         (((uint32_t)(((uint32_t)(x)) << CAN_CCCR_PXHD_SHIFT)) & CAN_CCCR_PXHD_MASK)
@@ -824,6 +848,9 @@ typedef struct {
 #define CAN_CCCR_TXP_MASK                        (0x4000U)
 #define CAN_CCCR_TXP_SHIFT                       (14U)
 #define CAN_CCCR_TXP(x)                          (((uint32_t)(((uint32_t)(x)) << CAN_CCCR_TXP_SHIFT)) & CAN_CCCR_TXP_MASK)
+#define CAN_CCCR_NISO_MASK                       (0x8000U)
+#define CAN_CCCR_NISO_SHIFT                      (15U)
+#define CAN_CCCR_NISO(x)                         (((uint32_t)(((uint32_t)(x)) << CAN_CCCR_NISO_SHIFT)) & CAN_CCCR_NISO_MASK)
 
 /*! @name NBTP - Nominal Bit Timing and Prescaler Register */
 #define CAN_NBTP_NTSEG2_MASK                     (0x7FU)
@@ -898,6 +925,18 @@ typedef struct {
 #define CAN_PSR_BO_MASK                          (0x80U)
 #define CAN_PSR_BO_SHIFT                         (7U)
 #define CAN_PSR_BO(x)                            (((uint32_t)(((uint32_t)(x)) << CAN_PSR_BO_SHIFT)) & CAN_PSR_BO_MASK)
+#define CAN_PSR_DLEC_MASK                        (0x700U)
+#define CAN_PSR_DLEC_SHIFT                       (8U)
+#define CAN_PSR_DLEC(x)                          (((uint32_t)(((uint32_t)(x)) << CAN_PSR_DLEC_SHIFT)) & CAN_PSR_DLEC_MASK)
+#define CAN_PSR_RESI_MASK                        (0x800U)
+#define CAN_PSR_RESI_SHIFT                       (11U)
+#define CAN_PSR_RESI(x)                          (((uint32_t)(((uint32_t)(x)) << CAN_PSR_RESI_SHIFT)) & CAN_PSR_RESI_MASK)
+#define CAN_PSR_RBRS_MASK                        (0x1000U)
+#define CAN_PSR_RBRS_SHIFT                       (12U)
+#define CAN_PSR_RBRS(x)                          (((uint32_t)(((uint32_t)(x)) << CAN_PSR_RBRS_SHIFT)) & CAN_PSR_RBRS_MASK)
+#define CAN_PSR_RFDF_MASK                        (0x2000U)
+#define CAN_PSR_RFDF_SHIFT                       (13U)
+#define CAN_PSR_RFDF(x)                          (((uint32_t)(((uint32_t)(x)) << CAN_PSR_RFDF_SHIFT)) & CAN_PSR_RFDF_MASK)
 #define CAN_PSR_PXE_MASK                         (0x4000U)
 #define CAN_PSR_PXE_SHIFT                        (14U)
 #define CAN_PSR_PXE(x)                           (((uint32_t)(((uint32_t)(x)) << CAN_PSR_PXE_SHIFT)) & CAN_PSR_PXE_MASK)
@@ -12367,5 +12406,5 @@ typedef struct {
  */ /* end of group SDK_Compatibility_Symbols */
 
 
-#endif  /* _LPC54608_H_ */
+#endif  /* _LPC54618_H_ */
 

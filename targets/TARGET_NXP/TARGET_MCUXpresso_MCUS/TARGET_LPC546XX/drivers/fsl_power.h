@@ -231,15 +231,6 @@ void POWER_EnterDeepPowerDown(uint64_t exclude_from_pd);
 void POWER_SetVoltageForFreq(uint32_t freq);
 
 /*!
- * @brief Power Library API to choose normal regulation and set the voltage for the desired operating frequency.
- *
- * @param freq  - The desired frequency at which the part would like to operate, 
- *                note that the voltage and flash wait states should be set before changing frequency
- * @return none
- */
-void POWER_SetVoltageForFreq(uint32_t freq);
-
-/*!
  * @brief Power Library API to return the library version.
  *
  * @param none
