@@ -19,18 +19,9 @@ LR_IRAM 0x10007000 (0x70000 - 0x7000) {
 
   ER_IRAM +0 FIXED {
     *rtl8195a_crypto.o (+RO)
-    * (i.mbedtls*)
+    *(i.mbedtls*)
     *libc.a (+RO)
-    
-	*rtx_*.o (+RO)
-    *Ticker.o (+RO)
-    *Timeout.o (+RO)
-	*rtx_timer.o (+RO)
-    *TimerEvent.o (+RO)
-    *mbed_ticker_api.o (+RO)
-    *mbed_critical.o (+RO)
-    *us_ticker.o (+RO)
-    
+    *rtx_*.o (+RO)
     *lib_peripheral_mbed_arm.ar (+RO)
   }
 
