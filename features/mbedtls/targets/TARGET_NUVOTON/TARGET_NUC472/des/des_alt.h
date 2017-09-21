@@ -24,7 +24,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "des_alt_sw.h"
 
 #ifdef __cplusplus
 extern "C" {
