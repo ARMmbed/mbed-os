@@ -340,7 +340,7 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
     MBED_ALIGN(4) uint8_t dmabuf_in[MAXSIZE_DMABUF];
     MBED_ALIGN(4) uint8_t dmabuf_out[MAXSIZE_DMABUF];
 
-    while (rmn) {
+    while (rmn > 0) {
         uint32_t data_len = (rmn <= MAXSIZE_DMABUF) ? rmn : MAXSIZE_DMABUF;
 
         uint32_t ivh, ivl;
