@@ -16,6 +16,8 @@
 #ifndef MBEDTLS_SHA512_ALT_H
 #define MBEDTLS_SHA512_ALT_H
 
+#include "mbedtls/sha512.h"
+
 #if defined(MBEDTLS_SHA512_C)
 #if defined(MBEDTLS_SHA512_ALT)
 

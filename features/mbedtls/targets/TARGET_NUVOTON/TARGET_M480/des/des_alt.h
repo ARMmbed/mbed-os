@@ -17,6 +17,8 @@
 #ifndef MBEDTLS_DES_ALT_H
 #define MBEDTLS_DES_ALT_H
 
+#include "mbedtls/des.h"
+
 #if defined(MBEDTLS_DES_C)
 #if defined(MBEDTLS_DES_ALT)
 
