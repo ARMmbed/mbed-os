@@ -56,7 +56,7 @@ public:
 
     /** Check if the mail queue is empty
      *
-     * @return True if the mail queue is mail, false if not
+     * @return True if the mail queue is empty, false if not
      */
     bool empty() const {
         return _queue.empty();
