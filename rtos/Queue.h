@@ -64,6 +64,22 @@ public:
         osMessageQueueDelete(_id);
     }
 
+    /** Check if the queue is empty
+     *
+     * @return True if the queue is empty, false if not
+     */
+    bool empty() const {
+        return osMessageQueueGetCount(_id) == 0;
+    }
+
+    /** Check if the queue is full
+     *
+     * @return True if the queue is full, false if not
+     */
+    bool full() const {
+        return osMessageQueueGetSpace(_id) == 0;
+    }
+
     /** Put a message in a Queue.
       @param   data      message pointer.
       @param   millisec  timeout value or 0 in case of no time-out. (default: 0)
