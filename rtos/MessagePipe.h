@@ -72,15 +72,15 @@ public:
         return revents;
     }
 
-    /** Write the contents of a buffer to a file
+    /** Write messages from pipe.
      *
-     *  @param buffer   The buffer to write from
-     *  @param length   The number of bytes to write
+     *  @param buffer   The buffer that holds messages to write.
+     *  @param length   The number of bytes to write, must be aligned with message size
      *  @return         The number of bytes written, negative error on failure
      */
     virtual ssize_t write(const void* buffer, size_t length) {
         
-        if(length != sizeof(T)) {
+        if(length % sizeof(T) != 0) {
             return -EINVAL;
         }
 
@@ -88,27 +88,35 @@ public:
             return -EAGAIN;
         }
 
-        T * message = _mail.alloc(osWaitForever);
+        uint32_t messages_to_write_count = length / sizeof(T);
 
-        if(message == NULL) {
-            return -EIO;
+        uint32_t i = 0;
+
+        for(; i < messages_to_write_count; i++)
+        {
+            bool mail_was_empty = _mail.empty();
+
+            T * message = _mail.alloc(osWaitForever);
+
+            if(message == NULL) 
+            {
+                 break;
+            }
+             
+            *message = ((T *)buffer)[i];
+
+            _mail.put(message);
+
+              //notify on state change 
+            if(_mail.full() || mail_was_empty) {
+                wake();
+            }
         }
 
-        memcpy(message, buffer, sizeof(T));
-
-        bool mail_was_empty = _mail.empty();
-
-        _mail.put(message);
-
-        //notify on state change 
-        if(_mail.full() || mail_was_empty) {
-            wake();
-        }
-        
-        return sizeof(T);
+        return i * sizeof(T);
     }
 
-    /** Read the contents of a file into a buffer
+    /**  Read messages from pipe.
      *
      *  Follows POSIX semantics:
      *
@@ -116,13 +124,13 @@ public:
      *  * if no data is available, and blocking set, wait until data is available
      *  * If any data is available, call returns immediately
      *
-     *  @param buffer   The buffer to read in to
-     *  @param length   The number of bytes to read
+     *  @param buffer   The allocted buffer to read messages in to
+     *  @param length   The number of bytes to read, must be aligned with the message size
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
     virtual ssize_t read(void* buffer, size_t length) {
 
-        if(length != sizeof(T)) {
+        if(length % sizeof(T) != 0) {
             return -EINVAL;
         }
 
@@ -130,26 +138,31 @@ public:
             return -EAGAIN;
         }
 
-        bool mail_was_full = _mail.full();
+        uint32_t messages_to_read_count = length / sizeof(T);
 
-        osEvent mail_event = _mail.get();
+        uint32_t i = 0;
 
-        if(mail_event.status != osEventMail) {
-            return -EIO;
+        for(; i < messages_to_read_count; i++)
+        {
+            bool mail_was_full = _mail.full();
+
+            osEvent mail_event = _mail.get();
+
+            if(mail_event.status != osEventMail) {
+                break;
+            }
+
+            ((T *)buffer)[i] = *((T *) mail_event.value.p);
+
+            _mail.free((T *) mail_event.value.p);
+
+            //notify on state change 
+            if(_mail.empty() || mail_was_full) {
+                wake();
+            }
         }
 
-        T * message = (T *) mail_event.value.p;
-
-        memcpy(buffer, message, sizeof(T));
-
-        _mail.free(message);
-
-        //notify on state change 
-        if(_mail.empty() || mail_was_full) {
-            wake();
-        }
-
-        return sizeof(T);
+        return i * sizeof(T);
     }
 
     /** Close a file
