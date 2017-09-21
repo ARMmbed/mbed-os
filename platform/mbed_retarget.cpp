@@ -1008,6 +1008,16 @@ void *operator new[](std::size_t count)
     return buffer;
 }
 
+void *operator new(std::size_t count, const std::nothrow_t& tag)
+{
+    return malloc(count);
+}
+
+void *operator new[](std::size_t count, const std::nothrow_t& tag)
+{
+    return malloc(count);
+}
+
 void operator delete(void *ptr)
 {
     if (ptr != NULL) {
