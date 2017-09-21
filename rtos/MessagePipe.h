@@ -26,8 +26,7 @@
 #include <errno.h>
 
 #include "cmsis_os2.h"
-#include "MemoryPool.h"
-#include "EventFlags.h"
+#include "Mail.h"
 
 #include "platform/platform.h"
 #include "platform/mbed_critical.h"
