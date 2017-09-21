@@ -34,7 +34,7 @@
 #include "rtos/MemoryPool.h"
 #include "rtos/Queue.h"
 #include "rtos/EventFlags.h"
-
+#include "rtos/MessagePipe.h"
 using namespace rtos;
 
 /* Get mbed lib version number, as RTOS depends on mbed lib features
