@@ -23,11 +23,20 @@
 #include <stdlib.h>
 #include "cmsis.h"
 #include "trng_api.h"
+#include "mbed_error.h"
+#include "mbed_critical.h"
 
+static uint8_t users = 0;
 
 void trng_init(trng_t *obj)
 {
     uint32_t dummy;
+
+    /*  We're only supporting a single user of RNG */
+    if (core_util_atomic_incr_u8(&users, 1) > 1 ) {
+        error("Only 1 RNG instance supported\r\n");
+    }
+
 #if defined(TARGET_STM32L4)
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
@@ -57,6 +66,8 @@ void trng_free(trng_t *obj)
     HAL_RNG_DeInit(&obj->handle);
     /* RNG Peripheral clock disable - assume we're the only users of RNG  */
     __HAL_RCC_RNG_CLK_DISABLE();
+
+    users = 0;
 }
 
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
