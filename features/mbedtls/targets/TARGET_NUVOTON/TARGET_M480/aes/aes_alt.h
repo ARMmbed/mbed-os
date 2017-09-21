@@ -23,6 +23,8 @@
 #ifndef MBEDTLS_AES_ALT_H
 #define MBEDTLS_AES_ALT_H
 
+#include "mbedtls/aes.h"
+
 #if defined(MBEDTLS_AES_C)
 #if defined(MBEDTLS_AES_ALT)
 // Regular implementation

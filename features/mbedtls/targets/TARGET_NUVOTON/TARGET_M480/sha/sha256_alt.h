@@ -16,6 +16,8 @@
 #ifndef MBEDTLS_SHA256_ALT_H
 #define MBEDTLS_SHA256_ALT_H
 
+#include "mbedtls/sha256.h"
+
 #if defined(MBEDTLS_SHA256_C)
 #if defined(MBEDTLS_SHA256_ALT)
 
