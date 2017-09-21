@@ -34,9 +34,11 @@ extern "C" {
  * \brief          DES context structure
  */
 typedef struct {
-    int enc;                                            /*!<  0: dec, 1: enc    */
-    uint16_t keyopt;
-    uint8_t key[3][MBEDTLS_DES_KEY_SIZE];               /*!<  3DES keys         */
+    int enc;                                            /* 0: dec, 1: enc */
+    uint16_t keyopt;                                    /* 1: All three keys are independent.
+                                                         * 2: K1 and K2 are independent, and K3 = K1.
+                                                         * 3: All three keys are identical, i.e. K1 = K2 = K3. */
+    uint8_t key[3][MBEDTLS_DES_KEY_SIZE];               /* 3DES keys */
 }
 mbedtls_des_context;
 
