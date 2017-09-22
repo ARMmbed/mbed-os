@@ -25,7 +25,8 @@
 
 #if defined(TARGET_R5030)
 #ifndef INITIAL_SP
-#define INITIAL_SP              (0x01000000 + 0x05000 - 256)
+#define INITIAL_SP              (0x36000000)
+
 #endif
 #else
 #error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
