@@ -6,6 +6,12 @@ script:
     - PYTHONPATH=mbed-os python mbed-os/tools/make.py -t GCC_ARM -m K82F
           --source=. --build=BUILD/K82F/GCC_ARM -j0      
 
+      # Check that tests compile
+    - rm -rf main.cpp BUILD
+    - PYTHONPATH=mbed-os python mbed-os/tools/test.py -t GCC_ARM -m K82F
+          --source=. --build=BUILD/TESTS/K82F/GCC_ARM -j0
+          -n 'tests*'
+
       # Run littlefs functional tests
     - CFLAGS="-Wno-error=format" make -Clittlefs test
 
