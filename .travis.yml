@@ -31,6 +31,6 @@ install:
     - git clone https://github.com/armmbed/mbed-os.git
     - git clone https://github.com/armmbed/spiflash-driver.git
       # Install python dependencies
-    - sudo pip install -r mbed-os/requirements.txt
+    - pip install --user -r mbed-os/requirements.txt
       # Create main file for example
     - sed -n '/``` c++/,/```/{/```/d; p;}' README.md > main.cpp
