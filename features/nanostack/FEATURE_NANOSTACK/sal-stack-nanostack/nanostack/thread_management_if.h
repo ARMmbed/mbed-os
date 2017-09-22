@@ -85,6 +85,7 @@ typedef struct link_configuration {
 #define SECURITY_POLICY_ALL_ROUTERS_JOIN_ALLOWED                0x20       /**< Thread 1.x Routers are enabled when this is set. */
 #define SECURITY_POLICY_EXTERNAL_COMMISSIONER_ALLOWED           0x10       /**< This indicates that external Commissioner authentication is allowed using PSKc. */
 #define SECURITY_POLICY_BEACON_PAYLOAD_ENABLED                  0x08       /**< Thread 1.x Beacons are enabled when this is set. */
+#define SECURITY_POLICY_CCM_ENABLED                             0x04       /**< Thread Commercial Commissioning Mode is enabled when this bit is set. This is Thread 1.2 feature. */
 
 /*
  * Mandatory device information
@@ -263,8 +264,7 @@ int8_t thread_management_set_request_full_nwk_data(int8_t interface_id, bool ful
  * Get Thread request full network data.
  *
  * \param interface_id Network interface ID.
- * \param link_timeout [out] A pointer to the location for writing the flag value.
- * \param full_nwk_data Request full network data
+ * \param full_nwk_data [out] Request full network data
  *
  * \return 0, Get OK.
  * \return <0 Get Fail.
@@ -353,6 +353,38 @@ int thread_management_get_ml16_address(int8_t interface_id, uint8_t *address_ptr
  */
 int thread_management_get_commissioner_address(int8_t interface_id, uint8_t *address_ptr, uint16_t *port_ptr);
 
+/**
+ * Set device certificate.
+ *
+ * This function sets device certificates to be used with Thread CCM Autonomous Enrollment
+ *
+ * \param interface_id Network interface ID.
+ * \param device_certificate_ptr A pointer to the device certificate.
+ * \param device_certificate_len Length of device certificate.
+ * \param priv_key_ptr A private key
+ * \param priv_key_len Length of a private key
+ *
+ * \return 0, OK.
+ * \return <0 fail.
+ */
+int thread_management_device_certificate_set(int8_t interface_id, const unsigned char *device_certificate_ptr, uint16_t device_certificate_len, const unsigned char *priv_key_ptr, uint16_t priv_key_len);
+
+/**
+ * Set domain certificate.
+ *
+ * This function sets domain certificates to be used with Thread CCM Network Master Key (NMK) Provisioning
+ *
+ * \param interface_id Network interface ID.
+ * \param domain_certificate_ptr A pointer array to the domain certificate chain.
+ * \param domain_certificate_len An array of lengths of domain certificates in chain.
+ * \param priv_key_ptr A private key
+ * \param priv_key_len Length of a private key
+ * \param domain Thread domain string
+ *
+ * \return 0, OK.
+ * \return <0 fail.
+ */
+int thread_management_domain_certificate_set(int8_t interface_id, const unsigned char *domain_certificate_ptr, uint16_t domain_certificate_len, const unsigned char *priv_key_ptr, uint16_t priv_key_len);
 
 #ifdef __cplusplus
 }

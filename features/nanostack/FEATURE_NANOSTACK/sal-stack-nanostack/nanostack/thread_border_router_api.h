@@ -299,11 +299,9 @@ int thread_border_router_mdns_responder_start(int8_t interface_id, int8_t interf
 /**
  * Stop mDNS responder service
  *
- *
  * \return 0 on success
  * \return <0 in case of errors
  *
  */
 int thread_border_router_mdns_responder_stop(void);
-
 #endif /* THREAD_BORDER_ROUTER_API_H_ */

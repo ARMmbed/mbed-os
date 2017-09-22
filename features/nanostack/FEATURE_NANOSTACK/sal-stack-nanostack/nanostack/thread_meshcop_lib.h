@@ -143,8 +143,30 @@
 /** Timeout TLV. */
 #define MESHCOP_TLV_TIMEOUT                                58
 
+/** Thread domain name TLV. */
+#define MESHCOP_TLV_DOMAIN_NAME                            59
+
 /** Domain prefix TLV TLV.*/
 #define MESHCOP_TLV_DOMAIN_PREFIX                          60
+
+/** AE Steering Data TLV. */
+#define MESHCOP_TLV_AE_STEERING_DATA                       61
+
+/** NMKP Steering Data TLV. */
+#define MESHCOP_TLV_NMKP_STEERING_DATA                     62
+
+/** Commissioner Token TLV. */
+#define MESHCOP_TLV_COMM_TOKEN                             63
+
+/** Commissioner Signature TLV. */
+#define MESHCOP_TLV_COMM_SIGNATURE                         64
+
+/** NMKP Steering Data TLV. */
+#define MESHCOP_TLV_AE_PORT                                65
+
+/** NMKP Steering Data TLV. */
+#define MESHCOP_TLV_NMKP_PORT                              66
+
 
 /**
  * Write array TLV.
