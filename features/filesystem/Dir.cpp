@@ -43,8 +43,12 @@ int Dir::open(FileSystem *fs, const char *path)
         return -EINVAL;
     }
 
-    _fs = fs;
-    return _fs->dir_open(&_dir, path);
+    int err = fs->dir_open(&_dir, path);
+    if (!err) {
+        _fs = fs;
+    }
+
+    return err;
 }
 
 int Dir::close()
