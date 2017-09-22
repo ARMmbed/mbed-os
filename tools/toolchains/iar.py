@@ -16,7 +16,7 @@ limitations under the License.
 """
 import re
 from os import remove
-from os.path import join, splitext, exists
+from os.path import join, splitext, exists, dirname
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -66,6 +66,7 @@ class IAR(mbedToolchain):
         cxx_flags_cmd = [
             "--c++", "--no_rtti", "--no_exceptions"
         ]
+
         if target.core == "Cortex-M7FD":
             asm_flags_cmd += ["--fpu", "VFPv5"]
             c_flags_cmd.append("--fpu=VFPv5")
@@ -74,6 +75,12 @@ class IAR(mbedToolchain):
             c_flags_cmd.append("--fpu=VFPv5_sp")
         elif target.core == "Cortex-M23" or target.core == "Cortex-M33":
             self.flags["asm"] += ["--cmse"]
+            self.flags["common"] += ["--cmse"]
+
+        # Create Secure library
+        if target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
+            secure_file = join(build_dir, "cmse_lib.o")
+            self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
 
         IAR_BIN = join(TOOLCHAIN_PATHS['IAR'], "bin")
         main_cc = join(IAR_BIN, "iccarm")
@@ -187,6 +194,7 @@ class IAR(mbedToolchain):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
         cmd = self.ld + [ "-o", output, "--map=%s" % map_file] + objects + libraries
+
 
         if mem_map:
             cmd.extend(["--config", mem_map])
