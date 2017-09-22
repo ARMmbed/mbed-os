@@ -12,7 +12,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
 sys.path.insert(0, ROOT)
 
 from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES,\
-    Resources, TOOLCHAIN_PATHS
+    Resources, TOOLCHAIN_PATHS, mbedToolchain
 from tools.targets import TARGET_MAP
 
 def test_instantiation():
@@ -43,11 +43,15 @@ def test_toolchain_profile_c(profile, source_file):
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             toolchain.config = MagicMock(app_config_location=None)
+            for parameter in profile['c'] + profile['common']:
+                assert any(parameter in cmd for cmd in toolchain.cc), \
+                    "Toolchain %s did not propagate arg %s" % (toolchain.name,
+                                                            parameter)
             compile_command = toolchain.compile_command(to_compile,
                                                         to_compile + ".o", [])
             for parameter in profile['c'] + profile['common']:
                 assert any(parameter in cmd for cmd in compile_command), \
-                    "Toolchain %s did not propigate arg %s" % (toolchain.name,
+                    "Toolchain %s did not propagate arg %s" % (toolchain.name,
                                                             parameter)
 
 @given(fixed_dictionaries({
@@ -69,11 +73,15 @@ def test_toolchain_profile_cpp(profile, source_file):
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             toolchain.config = MagicMock(app_config_location=None)
+            for parameter in profile['cxx'] + profile['common']:
+                assert any(parameter in cmd for cmd in toolchain.cppc), \
+                    "Toolchain %s did not propagate arg %s" % (toolchain.name,
+                                                            parameter)
             compile_command = toolchain.compile_command(to_compile,
                                                         to_compile + ".o", [])
             for parameter in profile['cxx'] + profile['common']:
                 assert any(parameter in cmd for cmd in compile_command), \
-                    "Toolchain %s did not propigate arg %s" % (toolchain.name,
+                    "Toolchain %s did not propagate arg %s" % (toolchain.name,
                                                             parameter)
 
 @given(fixed_dictionaries({
@@ -94,14 +102,55 @@ def test_toolchain_profile_asm(profile, source_file):
             toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
+            for parameter in profile['asm']:
+                assert any(parameter in cmd for cmd in toolchain.asm), \
+                    "Toolchain %s did not propagate arg %s" % (toolchain.name,
+                                                               parameter)
             compile_command = toolchain.compile_command(to_compile,
                                                         to_compile + ".o", [])
             if not compile_command:
                 assert compile_command, to_compile
             for parameter in profile['asm']:
                 assert any(parameter in cmd for cmd in compile_command), \
-                    "Toolchain %s did not propigate arg %s" % (toolchain.name,
-                                                            parameter)
+                    "Toolchain %s did not propagate arg %s" % (toolchain.name,
+                                                               parameter)
+
+    for name, Class in  TOOLCHAIN_CLASSES.items():
+        CLS = Class(TARGET_MAP["K64F"])
+        assert name == CLS.name or name ==  LEGACY_TOOLCHAIN_NAMES[CLS.name]
+
+@given(fixed_dictionaries({
+    'common': lists(text()),
+    'c': lists(text()),
+    'cxx': lists(text()),
+    'asm': lists(text()),
+    'ld': lists(text(min_size=1))}),
+       lists(text(min_size=1, alphabet=ALPHABET), min_size=1))
+def test_toolchain_profile_ld(profile, source_file):
+    """Test that the appropriate profile parameters are passed to the
+    Linker"""
+    filename = deepcopy(source_file)
+    filename[-1] += ".o"
+    to_compile = os.path.join(*filename)
+    with patch('os.mkdir') as _mkdir,\
+         patch('tools.toolchains.mbedToolchain.default_cmd') as _dflt_cmd:
+        for _, tc_class in TOOLCHAIN_CLASSES.items():
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain.RESPONSE_FILES = False
+            toolchain.inc_md5 = ""
+            toolchain.build_dir = ""
+            for parameter in profile['ld']:
+                assert any(parameter in cmd for cmd in toolchain.ld), \
+                    "Toolchain %s did not propagate arg %s" % (toolchain.name,
+                                                               parameter)
+            toolchain.link(to_compile + ".elf", [to_compile], [], [], None)
+            compile_cmd = _dflt_cmd.call_args_list
+            if not compile_cmd:
+                assert compile_cmd, to_compile
+            for parameter in profile['ld']:
+                assert any(parameter in cmd[0][0] for cmd in compile_cmd), \
+                    "Toolchain %s did not propagate arg %s" % (toolchain.name,
+                                                               parameter)
 
     for name, Class in  TOOLCHAIN_CLASSES.items():
         CLS = Class(TARGET_MAP["K64F"])
