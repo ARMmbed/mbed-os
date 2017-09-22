@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include "ns_address.h"
 #include "coap_service_api_internal.h"
+#include "coap_security_handler.h"
 
 #define MAX_SECURE_SESSION_COUNT 3
 #define CLOSED_SECURE_SESSION_TIMEOUT 3600          // Seconds
@@ -34,16 +35,18 @@ struct internal_socket_s;
 
 typedef int send_to_socket_cb(int8_t socket_id, const uint8_t address[static 16], uint16_t port, const void *, int);
 typedef int receive_from_socket_cb(int8_t socket_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *, int);
-typedef int get_pw_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t *pw_ptr, uint8_t *pw_len);
+typedef int get_pw_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, coap_security_keys_t *security_ptr);
 typedef void security_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static 40]);
 
 typedef struct coap_conn_handler_s{
     struct internal_socket_s *socket;
 
+    coap_security_keys_t *security_keys;
     receive_from_socket_cb *_recv_cb;
     send_to_socket_cb *_send_cb;
     get_pw_cb *_get_password_cb;
     security_done_cb *_security_done_cb;
+
     int8_t socket_interface_selection;
     bool registered_to_multicast;
 } coap_conn_handler_t;

@@ -141,7 +141,7 @@ static int8_t virtual_socket_id_allocate()
     return new_virtual_socket_id;
 }
 
-static secure_session_t *secure_session_create(internal_socket_t *parent, const uint8_t *address_ptr, uint16_t port)
+static secure_session_t *secure_session_create(internal_socket_t *parent, const uint8_t *address_ptr, uint16_t port, SecureConnectionMode secure_mode)
 {
     if(!address_ptr){
         return NULL;
@@ -184,7 +184,7 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, const 
     memcpy(this->remote_host.address, address_ptr, 16);
     this->remote_host.identifier = port;
 
-    this->sec_handler = coap_security_create(parent->socket, this->timer.id, this, ECJPAKE,
+    this->sec_handler = coap_security_create(parent->socket, this->timer.id, this, secure_mode,
                                                &secure_session_sendto, &secure_session_recvfrom, &start_timer, &timer_status);
     if( !this->sec_handler ){
         ns_dyn_mem_free(this);
@@ -595,31 +595,34 @@ static void secure_recv_sckt_msg(void *cb_res)
 
         // Create session
         if (!session) {
-            session = secure_session_create(sock, src_address.address, src_address.identifier);
-        }
-        if (!session) {
-            tr_err("secure_recv_sckt_msg session creation failed - OOM");
-            return;
-        }
-        // Record the destination. We are not strict on local address - all
-        // session_find calls match only on remote address and port. But we
-        // record the last-used destination address to use it as the source of
-        // outgoing packets.
-        memcpy(session->local_address, dst_address, 16);
-        session->last_contact_time = coap_service_get_internal_timer_ticks();
-        // Start handshake
-        if (!coap_security_handler_is_started(session->sec_handler) ){
-            uint8_t *pw = ns_dyn_mem_alloc(64);
-            uint8_t pw_len;
-            if( sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->socket, src_address.address, src_address.identifier, pw, &pw_len)){
-                //TODO: get_password_cb should support certs and PSK also
-                coap_security_keys_t keys;
-                keys._priv = pw;
-                keys._priv_len = pw_len;
-                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, sock->timeout_min, sock->timeout_max);
+            coap_security_keys_t keys;
+            memset(&keys, 0, sizeof(coap_security_keys_t));
+
+            if (sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->socket, src_address.address, src_address.identifier, &keys)) {
+                session = secure_session_create(sock, src_address.address, src_address.identifier, keys.mode);
+                if (!session) {
+                    tr_err("secure_recv_sckt_msg session creation failed - OOM");
+                    ns_dyn_mem_free(keys._key);
+                    return;
+                }
                 //TODO: error handling
+            } else {
+                return;
             }
-            ns_dyn_mem_free(pw);
+
+            // Record the destination. We are not strict on local address - all
+            // session_find calls match only on remote address and port. But we
+            // record the last-used destination address to use it as the source of
+            // outgoing packets.
+            memcpy(session->local_address, dst_address, 16);
+
+            session->last_contact_time = coap_service_get_internal_timer_ticks();
+            // Start handshake
+            if (!coap_security_handler_is_started(session->sec_handler)) {
+                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, sock->timeout_min, sock->timeout_max);
+                ns_dyn_mem_free(keys._key);
+
+            }
         } else {
             //Continue handshake
             if (session->session_state == SECURE_SESSION_HANDSHAKE_ONGOING) {
@@ -703,34 +706,29 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
     }
 
     if (handler->socket->is_secure) {
+        coap_security_keys_t keys;
+        memset(&keys, 0, sizeof(coap_security_keys_t));
+
         secure_session_t *session = secure_session_find(sock, address, port);
         if (!session) {
-            session = secure_session_create(sock, address, port);
-        }
-        if (!session) {
-            tr_err("coap_connection_handler_virtual_recv session creation failed - OOM");
-            return -1;
+            if (sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->socket, address, port, &keys)) {
+                session = secure_session_create(sock, address, port, keys.mode);
+                if (!session) {
+                    tr_err("coap_connection_handler_virtual_recv session creation failed - OOM");
+                    ns_dyn_mem_free(keys._key);
+                    return -1;
+                }
+                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, handler->socket->timeout_min, handler->socket->timeout_max);
+                ns_dyn_mem_free(keys._key);
+                return 0;
+            } else {
+                return -1;
+            }
         }
 
         session->last_contact_time = coap_service_get_internal_timer_ticks();
 
-        if (!coap_security_handler_is_started(session->sec_handler)) {
-            uint8_t *pw = ns_dyn_mem_alloc(64);
-            uint8_t pw_len;
-            if (sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->socket, address, port, pw, &pw_len)) {
-                //TODO: get_password_cb should support certs and PSK also
-                coap_security_keys_t keys;
-                keys._priv = pw;
-                keys._priv_len = pw_len;
-                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, handler->socket->timeout_min, handler->socket->timeout_max);
-                //TODO: error handling
-                ns_dyn_mem_free(pw);
-                return 0;
-            } else {
-                ns_dyn_mem_free(pw);
-                return -1;
-            }
-        } else {
+        if (coap_security_handler_is_started(session->sec_handler)) {
             if (session->session_state == SECURE_SESSION_HANDSHAKE_ONGOING) {
                 int ret = coap_security_handler_continue_connecting(session->sec_handler);
                 if(ret == 0){
@@ -813,6 +811,9 @@ void connection_handler_destroy(coap_conn_handler_t *handler, bool multicast_gro
         if (multicast_group_leave) {
             coap_multicast_group_join_or_leave(handler->socket->socket, SOCKET_IPV6_LEAVE_GROUP, handler->socket_interface_selection);
         }
+        if (handler->security_keys) {
+            ns_dyn_mem_free(handler->security_keys);
+        }
        int_socket_delete(handler->socket);
        ns_dyn_mem_free(handler);
     }
@@ -873,30 +874,24 @@ int coap_connection_handler_send_data(coap_conn_handler_t *handler, const ns_add
         handler->socket->bypass_link_sec = bypass_link_sec;
         secure_session_t *session = secure_session_find(handler->socket, dest_addr->address, dest_addr->identifier);
         if (!session) {
-            session = secure_session_create(handler->socket, dest_addr->address, dest_addr->identifier);
+            coap_security_keys_t security_material;
+            memset(&security_material, 0, sizeof(coap_security_keys_t));
+
+            if (!handler->_get_password_cb || 0 != handler->_get_password_cb(handler->socket->socket, (uint8_t*)dest_addr->address, dest_addr->identifier, &security_material)) {
+                return -1;
+            }
+
+            session = secure_session_create(handler->socket, dest_addr->address, dest_addr->identifier, security_material.mode);
             if (!session) {
+                ns_dyn_mem_free(security_material._key);
                 return -1;
             }
             session->last_contact_time = coap_service_get_internal_timer_ticks();
-            uint8_t *pw = ns_dyn_mem_alloc(64);
-            if (!pw) {
-                //todo: free secure session?
-                return -1;
-            }
-            uint8_t pw_len;
-            if (handler->_get_password_cb && 0 == handler->_get_password_cb(handler->socket->socket, (uint8_t*)dest_addr->address, dest_addr->identifier, pw, &pw_len)) {
-                //TODO: get_password_cb should support certs and PSK also
-                coap_security_keys_t keys;
-                keys._priv = pw;
-                keys._priv_len = pw_len;
-                coap_security_handler_connect_non_blocking(session->sec_handler, false, DTLS, keys, handler->socket->timeout_min, handler->socket->timeout_max);
-                ns_dyn_mem_free(pw);
-                return -2;
-            } else {
-                //free secure session?
-                ns_dyn_mem_free(pw);
-                return -1;
-            }
+
+            coap_security_handler_connect_non_blocking(session->sec_handler, false, DTLS, security_material, handler->socket->timeout_min, handler->socket->timeout_max);
+            ns_dyn_mem_free(security_material._key);
+            return -2;
+
         } else if (session->session_state == SECURE_SESSION_OK) {
             if (coap_security_handler_send_message(session->sec_handler, data_ptr, data_len ) > 0 ) {
                 session->last_contact_time = coap_service_get_internal_timer_ticks();
