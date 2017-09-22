@@ -195,26 +195,6 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
     pwmout_config(obj);
 }
 
-int pwmout_allow_powerdown(void)
-{
-    uint32_t modinit_mask = pwm_modinit_mask;
-    while (modinit_mask) {
-        int pwm_idx = nu_ctz(modinit_mask);
-        const struct nu_modinit_s *modinit = pwm_modinit_tab + pwm_idx;
-        if (modinit->modname != NC) {
-            PWM_T *pwm_base = (PWM_T *) NU_MODBASE(modinit->modname);
-            uint32_t chn = NU_MODSUBINDEX(modinit->modname);
-            // Disallow entering power-down mode if PWM counter is enabled.
-            if ((pwm_base->CNTEN & (1 << chn)) && pwm_base->CMPDAT[chn]) {
-                return 0;
-            }
-        }
-        modinit_mask &= ~(1 << pwm_idx);
-    }
-    
-    return 1;
-}
-
 static void pwmout_config(pwmout_t* obj)
 {
     PWM_T *pwm_base = (PWM_T *) NU_MODBASE(obj->pwm);

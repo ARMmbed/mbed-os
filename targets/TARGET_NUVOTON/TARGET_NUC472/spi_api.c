@@ -469,25 +469,6 @@ uint8_t spi_active(spi_t *obj)
     return (spi_base->CTL & SPI_CTL_SPIEN_Msk);
 }
 
-int spi_allow_powerdown(void)
-{
-    uint32_t modinit_mask = spi_modinit_mask;
-    while (modinit_mask) {
-        int spi_idx = nu_ctz(modinit_mask);
-        const struct nu_modinit_s *modinit = spi_modinit_tab + spi_idx;
-        if (modinit->modname != NC) {
-            SPI_T *spi_base = (SPI_T *) NU_MODBASE(modinit->modname);
-            // Disallow entering power-down mode if SPI transfer is enabled.
-            if (spi_base->CTL & SPI_CTL_SPIEN_Msk) {
-                return 0;
-            }
-        }
-        modinit_mask &= ~(1 << spi_idx);
-    }
-    
-    return 1;
-}
-
 static int spi_writeable(spi_t * obj)
 {
     // Receive FIFO must not be full to avoid receive FIFO overflow on next transmit/receive
