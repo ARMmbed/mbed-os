@@ -93,6 +93,8 @@ class GCC(mbedToolchain):
 
         if target.core == "Cortex-M23" or target.core == "Cortex-M33":
             self.cpu.append("-mcmse")
+        elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
+             self.flags["ld"].append("-D__DOMAIN_NS=1")
 
         self.flags["common"] += self.cpu
 
