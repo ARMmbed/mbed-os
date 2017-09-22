@@ -120,9 +120,10 @@ typedef void fhss_data_tx_done(const fhss_api_t *api, bool waiting_ack, bool tx_
  * @brief Data TX or CCA failed callback.
  * @param api FHSS instance.
  * @param handle Handle of the data request.
+ * @param frame_type Frame type of packet (Frames types are defined by FHSS api).
  * @return true if frame has to be queued for retransmission, false otherwise.
  */
-typedef bool fhss_data_tx_fail(const fhss_api_t *api, uint8_t handle);
+typedef bool fhss_data_tx_fail(const fhss_api_t *api, uint8_t handle, int frame_type);
 
 /**
  * @brief Change synchronization state.

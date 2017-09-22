@@ -472,6 +472,36 @@ int8_t thread_test_joiner_router_joiner_port_set(uint16_t port);
  */
 int8_t thread_test_router_address_set(int8_t interface_id, uint16_t router_addr);
 
+/**
+ *\brief sends any MLE message to any destination.
+ *
+ * \param interface_id               Network Interface
+ * \param dst_address                destination address
+ * \param msg_id                     MLE message id
+ * \param write_src_addr             write short address of the device
+ * \param write_leader_data          write leader data
+ * \param write_network_data         write network data
+ * \param write_timestamp            write current timestamps*
+ * \param write_operational_set      write current operational datasets *
+ * \param write_challenge            add challenge to the message
+ * \param msg_ptr                    additional buffer addded to message
+ * \param msg_len                    length of the additional message
+ * \return 0,                        Command OK
+ * \return <0                        Command Fail
+ */
+int thread_test_mle_message_send(int8_t interface_id, uint8_t *dst_address, uint8_t msg_id, bool write_src_addr, bool write_leader_data, bool write_network_data, bool write_timestamp, bool write_operational_set, bool write_challenge, uint8_t *msg_ptr, uint8_t msg_len);
+
+
+/**
+ * \brief Set thread domain name.
+ *
+ * \param interface_id               Network Interface
+ * \param domain_name                Thread domain name string
+ *
+ * \return 0                         OK
+ * \return <0                        Failure
+ */
+int thread_test_domain_name_set(int8_t interface_id, char domain_name[16]);
 #ifdef __cplusplus
 }
 #endif

@@ -37,6 +37,18 @@
 int8_t arm_nwk_ipv6_frag_mru(uint16_t frag_mru);
 
 /**
+ * \brief Set the maximum number of entries for the neighbour cache and
+ * destination cache. Default value is 64 and minimum allowed value is 4.
+ *
+ * Note: This must be called before arm_nwk_interface_lowpan_init()
+ *
+ * \param max_entries The absolute maximum entries allowed in cache at any time.
+ * \return 0 Change OK.
+ * \return <0 Change invalid - unable to change the maximum for cache.
+ */
+int8_t arm_nwk_ipv6_max_cache_entries(uint16_t max_entries);
+
+/**
  * \brief Configure automatic flow label calculation.
  *
  * Enable or disable automatic generation of IPv6 flow labels for outgoing

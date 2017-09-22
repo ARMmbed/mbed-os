@@ -225,6 +225,28 @@ struct mac_api_s {
     uint16_t                    phyMTU;                         /**< Maximum Transmission Unit(MTU) used by MAC*/
 };
 
+/**
+ * \struct mac_statistics_t
+ * \brief MAC statistics structure.
+ */
+typedef struct mac_statistics_s {
+    uint16_t mac_tx_queue_size;         /**< MAC TX queue current size. */
+    uint16_t mac_tx_queue_peak;         /**< MAC TX queue peak size. */
+    uint32_t mac_rx_count;              /**< MAC RX packet count. */
+    uint32_t mac_tx_count;              /**< MAC TX packet count. */
+    uint32_t mac_bc_rx_count;           /**< MAC broadcast RX packet count. */
+    uint32_t mac_bc_tx_count;           /**< MAC broadcast TX packet count. */
+    uint32_t mac_beacon_rx_count;       /**< MAC Beacon RX packet count. */
+    uint32_t mac_beacon_tx_count;       /**< MAC Beacon TX packet count. */
+    uint32_t mac_rx_drop_count;         /**< MAC RX packet drop count. */
+    uint32_t mac_tx_bytes;              /**< MAC TX bytes count. */
+    uint32_t mac_rx_bytes;              /**< MAC RX bytes count. */
+    uint32_t mac_tx_failed_count;       /**< MAC TX failed count. */
+    uint32_t mac_retry_count;           /**< MAC TX retry count. */
+    uint32_t mac_cca_attempts_count;    /**< MAC CCA attempts count. */
+    uint32_t mac_failed_cca_count;      /**< MAC failed CCA count. */
+} mac_statistics_t;
+
 #ifdef __cplusplus
 }
 #endif

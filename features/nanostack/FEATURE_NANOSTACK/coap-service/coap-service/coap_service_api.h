@@ -309,6 +309,23 @@ extern int8_t coap_service_set_handshake_timeout(int8_t service_id, uint32_t min
  *-         0              For success
  */
 extern int8_t coap_service_set_duplicate_message_buffer(int8_t service_id, uint8_t size);
+
+/**
+ * \brief Set DTLS certificates
+ *
+ * Set DTLS certificates.
+ *
+ * \param service_id       Id number of the current service.
+ * \param cert             Pointer to certificate chain
+ * \param cert_len         Certificate length
+ * \param priv_key         pointer to private key
+ * \param priv_key_len     length of private key
+ *
+ * \return -1              For failure
+ *-         0              For success
+ */
+
+extern int8_t coap_service_certificate_set(int8_t service_id, const unsigned char *cert, uint16_t cert_len, const unsigned char *priv_key, uint8_t priv_key_len);
 #ifdef __cplusplus
 }
 #endif

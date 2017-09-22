@@ -252,7 +252,7 @@ static int recv_cb(int8_t socket_id, uint8_t src_address[static 16], uint16_t po
     return ret;
 }
 
-static int send_cb(int8_t socket_id, const uint8_t address[static 16], uint16_t port, const void *data_ptr, int data_len)
+static int virtual_send_cb(int8_t socket_id, const uint8_t address[static 16], uint16_t port, const void *data_ptr, int data_len)
 {
     coap_service_t *this = service_find_by_socket(socket_id);
     if (this && this->virtual_socket_send_cb) {
@@ -290,12 +290,34 @@ static void sec_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t p
     }
 }
 
-static int get_passwd_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t *pw_ptr, uint8_t *pw_len)
+static int get_passwd_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, coap_security_keys_t *security_ptr)
 {
+    uint8_t *pw_ptr = NULL;
+    uint8_t pw_len = 0;
     coap_service_t *this = service_find_by_socket(socket_id);
-    if (this && this->security_start_cb) {
-        return this->security_start_cb(this->service_id, address, port, pw_ptr, pw_len);
+
+    if (!this || !security_ptr) {
+        return -1;
     }
+
+    /* Certificates set */
+    if (this->conn_handler->security_keys) {
+        *security_ptr = *this->conn_handler->security_keys;
+        return 0;
+    }
+
+    pw_ptr = ns_dyn_mem_alloc(64);
+    if (!pw_ptr) {
+        return -1;
+    }
+
+    if (this->security_start_cb && !this->security_start_cb(this->service_id, address, port, pw_ptr, &pw_len)) {
+        security_ptr->mode = ECJPAKE;
+        security_ptr->_key = pw_ptr;
+        security_ptr->_key_len = pw_len;
+        return 0;
+    }
+
     return -1;
 }
 
@@ -326,7 +348,7 @@ int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_
         tasklet_id = eventOS_event_handler_create(&service_event_handler, ARM_LIB_TASKLET_INIT_EVENT);
     }
 
-    this->conn_handler = connection_handler_create(recv_cb, send_cb, get_passwd_cb, sec_done_cb);
+    this->conn_handler = connection_handler_create(recv_cb, virtual_send_cb, get_passwd_cb, sec_done_cb);
     if(!this->conn_handler){
         ns_dyn_mem_free(this);
         return -1;
@@ -530,4 +552,32 @@ uint16_t coap_service_id_find_by_socket(int8_t socket_id)
     coap_service_t *this = service_find_by_socket(socket_id);
 
     return this ? this->service_id:0;
+}
+
+int8_t coap_service_certificate_set(int8_t service_id, const unsigned char *cert, uint16_t cert_len, const unsigned char *priv_key, uint8_t priv_key_len)
+{
+    coap_service_t *this = service_find(service_id);
+    if (!this) {
+        return -1;
+    }
+
+    if (!this->conn_handler->security_keys) {
+        this->conn_handler->security_keys = ns_dyn_mem_alloc(sizeof(coap_security_keys_t));
+
+        if (!this->conn_handler->security_keys) {
+            return -1;
+        }
+    }
+
+    memset(this->conn_handler->security_keys, 0, sizeof(coap_security_keys_t));
+
+    this->conn_handler->security_keys->_cert = cert;
+    this->conn_handler->security_keys->_cert_len = cert_len;
+
+    this->conn_handler->security_keys->_priv_key = priv_key;
+    this->conn_handler->security_keys->_priv_key_len = priv_key_len;
+
+    this->conn_handler->security_keys->mode = CERTIFICATE;
+
+    return 0;
 }
