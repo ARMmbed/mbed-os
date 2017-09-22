@@ -92,5 +92,45 @@ void SystemInit (void)
 /* ToDo: add code to initialize the system
          do not use global variables because this function is called before
          reaching pre-main. RW section maybe overwritten afterwards.          */
-  SystemCoreClock = __SYSTEM_CLOCK;
+		 	 
+    uint32_t x = __get_xPSR();
+	
+	SystemCoreClock = __SYSTEM_CLOCK;
+
+    /* Check for interrupt context and reboot needed. */
+    if (x & 0x3f) {
+        /* Processor is in an interrupt context, reset the core by triggering
+         * the reset vector using the SYSRESETREQ bit in the AIRCR register */
+        x =  cortex_m7_scs->aircr;
+        x &= 0xffff;            			/* Mask out the top 16 bits */
+        x |= 0x05fa0000;        			/* Must write with this value for the write to take effect */
+        x |= 0x04;              			/* Set the SYSRESETREQ bit */
+        cortex_m7_scs->aircr  = x;        	/* Reset the core */ /* aircr: Application Interrupt/Reset Control Register */
+    }
+	
+    /* Release claim on any pins */  /* These registers are the both the method of claiming a PIO, The PIO’s are specified by five 32 bit registers */
+    PIO_FUNC0_BITCLR = 0xFFFFFFFF;
+    PIO_FUNC1_BITCLR = 0xFFFFFFFF;
+    PIO_FUNC2_BITCLR = 0xFFFFFFFF;
+    PIO_FUNC3_BITCLR = 0xFFFFFFFF;
+    PIO_FUNC4_BITCLR = 0xFFFFFFFF;
+
+	cortex_m7_scs->nvic_iser[0] = 0xFFFFFFFF; /* Disable all IRQ interrupts */ /* nvic_iser: Interupt Clear_Enable register */ 
+   
+    __set_PRIMASK(0);	/* Ensure interrupts are enabled */
+	
+	SystemAllowSleep(true);	/* Allow sleep */
+}
+
+
+void SystemAllowSleep(bool sleepAllowed)
+{
+    if (sleepAllowed) {
+        /* Set deep sleep, though not on exit */
+        cortex_m7_scs->scr |= SCB_SCR_SLEEPDEEP_Msk;
+        cortex_m7_scs->scr &= ~SCB_SCR_SLEEPONEXIT_Msk;
+    } else {
+        /* Unset deep sleep */
+        cortex_m7_scs->scr &= ~SCB_SCR_SLEEPDEEP_Msk;
+    }
 }

@@ -44,6 +44,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 
 extern uint32_t SystemCoreClock;     /*!< System Clock Frequency (Core Clock)  */
 
@@ -69,6 +70,19 @@ extern void SystemInit (void);
  *         retrieved from cpu registers.
  */
 extern void SystemCoreClockUpdate (void);
+
+/**
+ * Allow the system to go to sleep, shutting down clocks, etc.
+ * or not.  If the system is allowed to sleep it will awake
+ * and restore clocks automatically on an interrupt however
+ * there will be a 200 to 300 usecond delay.
+ *
+ * @param  sleepAllowed  if true then sleep is allowed.
+ * @return none
+ *
+ * @brief  Allow full sleep, or not.
+ */
+extern void SystemAllowSleep(bool sleepAllowed);
 
 #ifdef __cplusplus
 }
