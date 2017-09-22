@@ -51,13 +51,15 @@ extern volatile int  g_AES_done;
 
 /* Check if buffer can be used for AES DMA. It requires to be:
  *   1) Word-aligned
- *   2) Located in 0x2xxxxxxx region
+ *   2) Located in 0x20000000-0x2FFFFFFF region
  */
-static bool aes_dma_buff_compat(const void *buff)
+static bool aes_dma_buff_compat(const void *buff, unsigned buff_size)
 {
     uint32_t buff_ = (uint32_t) buff;
     
-    return (((buff_ & 0x03) == 0) && ((buff_ & 0x20000000) == 0x20000000));
+    return (((buff_ & 0x03) == 0) &&                    /* Word-aligned */
+        (((unsigned) buff_) >= 0x20000000) &&           /* 0x20000000-0x2FFFFFFF */
+        ((((unsigned) buff) + buff_size) <= 0x30000000));
 }
 
 void mbedtls_aes_init( mbedtls_aes_context *ctx )
@@ -147,8 +149,8 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
      */
     MBED_ALIGN(4) uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE];
     MBED_ALIGN(4) uint8_t au8InputData[MAX_DMA_CHAIN_SIZE];
-    if ((! aes_dma_buff_compat(au8OutputData)) || (! aes_dma_buff_compat(au8InputData))) {
-        error("Buffer for AES alter. DMA requires to be word-aligned and located in 0x2xxxxxxx region.");
+    if ((! aes_dma_buff_compat(au8OutputData, MAX_DMA_CHAIN_SIZE)) || (! aes_dma_buff_compat(au8InputData, MAX_DMA_CHAIN_SIZE))) {
+        error("Buffer for AES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
 
     /* We support multiple contexts with context save & restore and so needs just one 
@@ -158,7 +160,7 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     AES_SetInitVect(0, ctx->iv);
     AES_SetKey(0, ctx->buf, ctx->keySize);
     /* AES DMA buffer requirements same as above */
-    if (! aes_dma_buff_compat(input)) {
+    if (! aes_dma_buff_compat(input, dataSize)) {
         if (dataSize > MAX_DMA_CHAIN_SIZE) {
             error("Internal AES alter. error. DMA buffer is too small.");
         }
@@ -168,7 +170,7 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
         pIn = input;
     }
     /* AES DMA buffer requirements same as above */
-    if (! aes_dma_buff_compat(output)) {
+    if (! aes_dma_buff_compat(output, dataSize)) {
         pOut = au8OutputData;
     } else {
         pOut = output;
