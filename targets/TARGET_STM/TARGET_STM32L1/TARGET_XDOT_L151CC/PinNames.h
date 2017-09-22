@@ -170,6 +170,22 @@ typedef enum {
     SE_IO           = PB_10,
     SE_CLK          = PB_11,
 
+#ifdef TARGET_FF1705_L151CC
+    // Arduino Headers
+    A0  = PA_0,
+    A1  = PB_0,
+    D0  = PA_10,
+    D1  = PA_9,
+    D2  = PA_11,
+    D3  = PA_12,
+    D10 = PB_12,
+    D11 = PB_15,
+    D12 = PB_14,
+    D13 = PB_13,
+    D14 = I2C_SDA,
+    D15 = I2C_SCL,
+#endif
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
