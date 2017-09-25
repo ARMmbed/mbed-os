@@ -85,6 +85,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 
     n = GetSecNum(address); // Get Sector Number
 
+    core_util_critical_section_enter();
     IAP.cmd = 50;// Prepare Sector for Erase
     IAP.par[0] = n;// Start Sector
     IAP.par[1] = n;// End Sector
@@ -98,6 +99,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     IAP.par[1] = n;// End Sector
     IAP.par[2] = CCLK;// CCLK in kHz
     IAP_Call (&IAP.cmd, &IAP.stat);// Call IAP Command
+    core_util_critical_section_exit();
     if (IAP.stat) {
         return (1); // Command Failed
     }
@@ -106,18 +108,16 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 
 }
 
-/* IAP Call */
-typedef void (*IAP_Entry) (unsigned long *cmd, unsigned long *stat);
-#define IAP_Call ((IAP_Entry) 0x1FFF1FF1)
-
 int32_t flash_program_page(flash_t *obj, uint32_t address,
         const uint8_t *data, uint32_t size)
 {
     unsigned long n;
-    uint8_t *alignedData = 0;
+    // always malloc outside critical section
+    uint8_t *alignedData = malloc(size);
 
     n = GetSecNum(address); // Get Sector Number
 
+    core_util_critical_section_enter();
     IAP.cmd = 50;// Prepare Sector for Write
     IAP.par[0] = n;// Start Sector
     IAP.par[1] = n;// End Sector
@@ -132,7 +132,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
     if ((unsigned long)data%4==0) { // Word boundary
         IAP.par[1] = (unsigned long)data;// Source RAM Address
     } else {
-        alignedData = malloc(size);
         memcpy(alignedData,data,size);
         IAP.par[1] = (unsigned long)alignedData; // Source RAM Address
     }
@@ -140,6 +139,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
     IAP.par[2] = 1024; // Fixed Page Size
     IAP.par[3] = CCLK;// CCLK in kHz
     IAP_Call (&IAP.cmd, &IAP.stat);// Call IAP Command
+    core_util_critical_section_exit();
 
     if(alignedData !=0) { // We allocated our own memory
         free(alignedData);
