@@ -111,18 +111,18 @@ def get_interface_version(mount_point):
         @param mount_point Name of disk where platform is connected to host machine.
     """
     if get_module_avail('mbed_lstools'):
-        mbeds = mbed_lstools.create()
-        details_txt = mbeds.get_details_txt(mount_point)
-        
-        if (details_txt is None):
-            details_txt = {}
+        try :
+            mbeds = mbed_lstools.create()
+            details_txt = mbeds.get_details_txt(mount_point)    
             
-        
-        if 'Interface Version' in details_txt:
-            return details_txt['Interface Version']
-        
-        elif 'Version' in details_txt:
-            return details_txt['Version']
+            if 'Interface Version' in details_txt:
+                return details_txt['Interface Version']
+            
+            elif 'Version' in details_txt:
+                return details_txt['Version']
+            
+        except :
+            return 'unknown'
         
     return 'unknown'
 
