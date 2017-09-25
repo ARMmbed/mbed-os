@@ -18,7 +18,12 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-#define NVIC_NUM_VECTORS      (16 + 32)   // CORE + MCU Peripherals
+
+// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
+// MCU Peripherals: 45 vectors =  180 bytes from 0x40 to 0x6D
+// Total: 61 vectors = 244 bytes to be reserved in RAM
+
+#define NVIC_NUM_VECTORS      (16 + 45)   // CORE + MCU Peripherals
 #define NVIC_USER_IRQ_OFFSET  16
 
 #include "cmsis.h"
