@@ -1,6 +1,6 @@
 """
 mbed SDK
-Copyright (c) 2016 ARM Limited
+Copyright (c) 2017 ARM Limited
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@ limitations under the License.
 """
 
 import unittest
-from collections import namedtuple
-from mock import patch, MagicMock
 from tools.detect_targets import get_interface_version
 from tools.test_api import get_autodetected_MUTS_list
 
