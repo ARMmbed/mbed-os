@@ -223,8 +223,7 @@ class GCC(mbedToolchain):
         cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
         # Create Secure library
         if self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
-            secure_file = "cmse_lib.o"
-            secure_file = join(split(output)[0], secure_file)
+            secure_file = join(dirname(output), "cmse_lib.o")
             cmd.extend(["-Wl,--cmse-implib"])
             cmd.extend(["-Wl,--out-implib=%s" % secure_file])
 
@@ -248,7 +247,7 @@ class GCC(mbedToolchain):
         self.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
         if self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
-            print "Secure File: %s" %secure_file
+            self.info("Secure Library Object %s" %secure_file)
 
     @hook_tool
     def archive(self, objects, lib_path):
