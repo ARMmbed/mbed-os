@@ -108,10 +108,6 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 
 }
 
-/* IAP Call */
-typedef void (*IAP_Entry) (unsigned long *cmd, unsigned long *stat);
-#define IAP_Call ((IAP_Entry) 0x1FFF1FF1)
-
 int32_t flash_program_page(flash_t *obj, uint32_t address,
         const uint8_t *data, uint32_t size)
 {
