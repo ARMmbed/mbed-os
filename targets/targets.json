@@ -1701,7 +1701,22 @@
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "STM32F439ZI",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "config": {
+            "usb_tx": {
+                "help": "Value: D8(default) or D1",
+                "value": "D8"
+            },
+            "usb_rx": {
+                "help": "Value: D2(default) or D0",
+                "value": "D2"
+            },
+            "stdio_uart": {
+                "help": "Value: UART_1(default) or UART_3",
+                "value": "UART_1",
+                "macro_name": "STDIO_UART"
+            }
+        }
     },
     "UBLOX_C030": {
         "inherits": ["FAMILY_STM32"],
