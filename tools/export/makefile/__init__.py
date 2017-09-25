@@ -35,6 +35,8 @@ class Makefile(Exporter):
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 
+    PREPROCESS_ASM = False
+
     POST_BINARY_WHITELIST = set([
         "MCU_NRF51Code.binary_hook",
         "TEENSY3_1Code.binary_hook",
@@ -96,6 +98,7 @@ class Makefile(Exporter):
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,
             'user_library_flag': self.USER_LIBRARY_FLAG,
+            'needs_asm_preproc': self.PREPROCESS_ASM,
         }
 
         if hasattr(self.toolchain, "preproc"):
@@ -236,6 +239,7 @@ class Armc5(Arm):
     """ARM Compiler 5 (armcc) specific makefile target"""
     NAME = 'Make-ARMc5'
     TOOLCHAIN = "ARM"
+    PREPROCESS_ASM = True
 
 class Armc6(Arm):
     """ARM Compiler 6 (armclang) specific generic makefile target"""

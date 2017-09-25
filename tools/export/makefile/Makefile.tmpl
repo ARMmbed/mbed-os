@@ -97,20 +97,26 @@ all: $(PROJECT).bin $(PROJECT)-combined.hex size
 all: $(PROJECT).bin $(PROJECT).hex size
 {% endif %}
 
-.asm.o:
-	+@$(call MAKEDIR,$(dir $@))
-	+@echo "Assemble: $(notdir $<)"
-	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
-
 .s.o:
 	+@$(call MAKEDIR,$(dir $@))
 	+@echo "Assemble: $(notdir $<)"
+  {% if needs_asm_preproc %}
+	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -E -o $(@:.o=.E.s) $<
+	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $(@:.o=.E.s)
+  {% else %}
 	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+  {% endif %}
+
 
 .S.o:
 	+@$(call MAKEDIR,$(dir $@))
 	+@echo "Assemble: $(notdir $<)"
+  {% if needs_asm_preproc %}
+	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -E -o $(@:.o=.E.s) $<
+	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $(@:.o=.E.s)
+  {% else %}
 	@$(AS) -c $(ASM_FLAGS) $(INCLUDE_PATHS) -o $@ $<
+  {% endif %}
 
 .c.o:
 	+@$(call MAKEDIR,$(dir $@))
