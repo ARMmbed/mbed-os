@@ -17,14 +17,31 @@
 #ifndef MBED_CRYPTO_MISC_H
 #define MBED_CRYPTO_MISC_H
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* Init/Uninit crypto module */
 void crypto_init(void);
 void crypto_uninit(void);
+
 void crypto_zeroize(void *v, size_t n);
-int crypto_sha_acquire(void);
+
+/* Acquire/release ownership of AES H/W */
+/* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
+bool crypto_aes_acquire(void);
+void crypto_aes_release(void);
+
+/* Acquire/release ownership of DES H/W */
+/* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
+bool crypto_des_acquire(void);
+void crypto_des_release(void);
+
+/* Acquire/release ownership of SHA H/W */
+/* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
+bool crypto_sha_acquire(void);
 void crypto_sha_release(void);
 
 #ifdef __cplusplus

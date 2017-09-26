@@ -24,10 +24,18 @@
 #include "nu_bitutil.h"
 #include "crypto-misc.h"
 
-static int crypto_sha_avail = 1;
+/* Track if AES H/W is available */
+static uint16_t crypto_aes_avail = 1;
+/* Track if DES H/W is available */
+static uint16_t crypto_des_avail = 1;
+/* Track if SHA H/W is available */
+static uint16_t crypto_sha_avail = 1;
 
 /* Crypto (AES, DES, SHA, etc.) init counter. Crypto's keeps active as it is non-zero. */
 static uint16_t crypto_init_counter = 0U;
+
+static bool crypto_submodule_acquire(uint16_t *submodule_avail);
+static void crypto_submodule_release(uint16_t *submodule_avail);
 
 /* As crypto init counter changes from 0 to 1:
  *
@@ -84,20 +92,44 @@ void crypto_zeroize(void *v, size_t n)
     }
 }
 
-int crypto_sha_acquire(void)
+bool crypto_aes_acquire(void)
 {
-    if (crypto_sha_avail) {
-        crypto_sha_avail = 0;
-        return 1;
-    } else {
-        return 0;
-    }
+    return crypto_submodule_acquire(&crypto_aes_avail);
+}
 
+void crypto_aes_release(void)
+{
+    crypto_submodule_release(&crypto_aes_avail);
+}
+
+bool crypto_des_acquire(void)
+{
+    return crypto_submodule_acquire(&crypto_des_avail);
+}
+
+void crypto_des_release(void)
+{
+    crypto_submodule_release(&crypto_des_avail);
+}
+
+bool crypto_sha_acquire(void)
+{
+    return crypto_submodule_acquire(&crypto_sha_avail);
 }
 
 void crypto_sha_release(void)
 {
-    if (! crypto_sha_avail) {
-        crypto_sha_avail = 1;
-    }
+    crypto_submodule_release(&crypto_sha_avail);
+}
+
+static bool crypto_submodule_acquire(uint16_t *submodule_avail)
+{
+    uint16_t expectedCurrentValue = 1;
+    return core_util_atomic_cas_u16(submodule_avail, &expectedCurrentValue, 0);
+}
+
+static void crypto_submodule_release(uint16_t *submodule_avail)
+{
+    uint16_t expectedCurrentValue = 0;
+    while (! core_util_atomic_cas_u16(submodule_avail, &expectedCurrentValue, 1));
 }

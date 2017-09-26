@@ -327,6 +327,10 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
         error("Buffer for DES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
     
+    /* TODO: Change busy-wait to other means to release CPU */
+    /* Acquire ownership of DES H/W */
+    while (! crypto_des_acquire());
+    
     /* Init crypto module */
     crypto_init();
     
@@ -421,6 +425,9 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
 
     /* Uninit crypto module */
     crypto_uninit();
+    
+    /* Release ownership of DES H/W */
+    crypto_des_release();
     
     return 0;
 }
