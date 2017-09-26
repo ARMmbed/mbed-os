@@ -66,8 +66,6 @@ void mbedtls_aes_init( mbedtls_aes_context *ctx )
 {
     memset( ctx, 0, sizeof( mbedtls_aes_context ) );
 
-    ctx->swapType = AES_IN_OUT_SWAP;
-
     /* Unlock protected registers */
     SYS_UnlockReg();
     CLK_EnableModuleClock(CRPT_MODULE);
@@ -156,7 +154,8 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     /* We support multiple contexts with context save & restore and so needs just one 
      * H/W channel. Always use H/W channel #0. */
 
-    AES_Open(0, ctx->encDec, ctx->opMode, ctx->keySize, ctx->swapType);
+    /* AES_IN_OUT_SWAP: Let H/W know both input/output data are arranged in little-endian */
+    AES_Open(0, ctx->encDec, ctx->opMode, ctx->keySize, AES_IN_OUT_SWAP);
     AES_SetInitVect(0, ctx->iv);
     AES_SetKey(0, ctx->buf, ctx->keySize);
     /* AES DMA buffer requirements same as above */

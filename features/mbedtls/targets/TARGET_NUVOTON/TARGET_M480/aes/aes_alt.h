@@ -45,7 +45,6 @@ typedef struct {
     uint32_t keySize;       /* Key size: AES_KEY_SIZE_128/192/256 */
     uint32_t encDec;        /* 0: decrypt, 1: encrypt */
     uint32_t opMode;        /* AES_MODE_ECB/CBC/CFB */
-    uint32_t swapType;      /* Input/Output data endianness */
     uint32_t iv[4];         /* IV for next block cipher */
     uint32_t buf[8];        /* Cipher key */
 }
