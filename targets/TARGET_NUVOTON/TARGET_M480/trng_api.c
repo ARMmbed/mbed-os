@@ -21,6 +21,7 @@
 #include "cmsis.h"
 #include "us_ticker_api.h"
 #include "trng_api.h"
+#include "crypto-misc.h"
 
 /*
  * Get Random number generator.
@@ -63,23 +64,21 @@ static void trng_get(unsigned char *pConversionData)
 void trng_init(trng_t *obj)
 {
     (void)obj;
-    /* Unlock protected registers */
-    SYS_UnlockReg();
-    /* Enable IP clock */
-    CLK_EnableModuleClock(CRPT_MODULE);
-
-    /* Lock protected registers */
-    SYS_LockReg();
-
-    NVIC_EnableIRQ(CRPT_IRQn);
+    
+    /* Init crypto module */
+    crypto_init();
+    
     PRNG_ENABLE_INT();
 }
 
 void trng_free(trng_t *obj)
 {
     (void)obj;
+    
     PRNG_DISABLE_INT();
-    NVIC_DisableIRQ(CRPT_IRQn);
+    
+    /* Uninit crypto module */
+    crypto_uninit();
 }
 
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
