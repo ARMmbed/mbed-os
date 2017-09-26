@@ -20,9 +20,29 @@
 #if defined(MBEDTLS_DES_ALT)
 
 #include <string.h>
+#include <stdbool.h>
 #include "crypto-misc.h"
 #include "nu_bitutil.h"
 #include "mbed_toolchain.h"
+#include "mbed_error.h"
+
+// Must be a multiple of 64-bit block size
+#define MAXSIZE_DMABUF  (8 * 5)
+MBED_ALIGN(4) static uint8_t dmabuf_in[MAXSIZE_DMABUF];
+MBED_ALIGN(4) static uint8_t dmabuf_out[MAXSIZE_DMABUF];
+
+/* Check if buffer can be used for DES DMA. It requires to be:
+ *   1) Word-aligned
+ *   2) Located in 0x20000000-0x2FFFFFFF region
+ */
+static bool des_dma_buff_compat(const void *buff, unsigned buff_size)
+{
+    uint32_t buff_ = (uint32_t) buff;
+    
+    return (((buff_ & 0x03) == 0) &&                    /* Word-aligned */
+        (((unsigned) buff_) >= 0x20000000) &&           /* 0x20000000-0x2FFFFFFF */
+        ((((unsigned) buff) + buff_size) <= 0x30000000));
+}
 
 static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_SIZE], int enc, uint32_t tdes_opmode, size_t length,
                                unsigned char iv[8], const unsigned char *input, unsigned char *output);
@@ -301,6 +321,14 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
         return MBEDTLS_ERR_DES_INVALID_INPUT_LENGTH;
     }
 
+    /* DES DMA buffer requires to be:
+     *   1) Word-aligned
+     *   2) Located in 0x2xxxxxxx region
+     */
+    if ((! des_dma_buff_compat(dmabuf_in, MAXSIZE_DMABUF)) || (! des_dma_buff_compat(dmabuf_out, MAXSIZE_DMABUF))) {
+        error("Buffer for DES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
+    }
+    
     // NOTE: Don't call driver function TDES_Open in BSP because it doesn't support TDES_CTL[3KEYS] setting.
     CRPT->TDES_CTL = (0 << CRPT_TDES_CTL_CHANNEL_Pos) | (enc << CRPT_TDES_CTL_ENCRPT_Pos) |
                      tdes_opmode | (TDES_IN_OUT_WHL_SWAP << CRPT_TDES_CTL_BLKSWAP_Pos);
@@ -334,11 +362,6 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
     uint32_t rmn = length;
     const unsigned char *in_pos = input;
     unsigned char *out_pos = output;
-
-    // Must be a multiple of 64-bit block size
-#define MAXSIZE_DMABUF  (8 * 5)
-    MBED_ALIGN(4) uint8_t dmabuf_in[MAXSIZE_DMABUF];
-    MBED_ALIGN(4) uint8_t dmabuf_out[MAXSIZE_DMABUF];
 
     while (rmn > 0) {
         uint32_t data_len = (rmn <= MAXSIZE_DMABUF) ? rmn : MAXSIZE_DMABUF;
