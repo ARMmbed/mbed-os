@@ -67,7 +67,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     
     // initialization by assigment because IAR dosen't support variable initializer in declaration statement.
     adc_channel.config.config.resolution = NRF_ADC_CONFIG_RES_10BIT;
-    adc_channel.config.config.input      = NRF_ADC_CONFIG_SCALING_INPUT_FULL_SCALE;
+    adc_channel.config.config.input      = NRF_ADC_CONFIG_SCALING_INPUT_ONE_THIRD;
     adc_channel.config.config.reference  = NRF_ADC_CONFIG_REF_VBG;
     adc_channel.config.config.ain        = (obj->adc_pin);
     adc_channel.p_next = NULL;
