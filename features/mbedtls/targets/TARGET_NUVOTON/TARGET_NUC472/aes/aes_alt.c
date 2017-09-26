@@ -255,7 +255,6 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
                            const unsigned char *input,
                            unsigned char *output )
 {
-    unsigned char temp[16];
     int length = len;
     int blockChainLen;
 
@@ -263,31 +262,39 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
 
 
+    ctx->opMode = AES_MODE_CBC;
+    /* Fetch IV byte data in big-endian */
+    ctx->iv[0] = nu_get32_be(iv);
+    ctx->iv[1] = nu_get32_be(iv + 4);
+    ctx->iv[2] = nu_get32_be(iv + 8);
+    ctx->iv[3] = nu_get32_be(iv + 12);
+        
+    if( mode == MBEDTLS_AES_ENCRYPT ) {
+        ctx->encDec = 1;
+    }
+    else {
+        ctx->encDec = 0;
+    }
+    
     while( length > 0 ) {
         blockChainLen = (length > MAX_DMA_CHAIN_SIZE) ? MAX_DMA_CHAIN_SIZE : length;
-        
-        ctx->opMode = AES_MODE_CBC;
-        /* Fetch IV byte data in big-endian */
-        ctx->iv[0] = nu_get32_be(iv);
-        ctx->iv[1] = nu_get32_be(iv + 4);
-        ctx->iv[2] = nu_get32_be(iv + 8);
-        ctx->iv[3] = nu_get32_be(iv + 12);
 
         if( mode == MBEDTLS_AES_ENCRYPT ) {
-            ctx->encDec = 1;
             __nvt_aes_crypt(ctx, input, output, blockChainLen);
-            memcpy( iv, output+blockChainLen-16, 16 );
         } else {
-            memcpy( temp, input+blockChainLen-16, 16 );
-            ctx->encDec = 0;
             __nvt_aes_crypt(ctx, input, output, blockChainLen);
-            memcpy( iv, temp, 16 );
         }
         length -= blockChainLen;
         input  += blockChainLen;
         output += blockChainLen;
     }
 
+    /* Save IV for next block cipher */
+    nu_set32_be(iv, ctx->iv[0]);
+    nu_set32_be(iv + 4, ctx->iv[1]);
+    nu_set32_be(iv + 8, ctx->iv[2]);
+    nu_set32_be(iv + 12, ctx->iv[3]);
+    
     return( 0 );
 }
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
