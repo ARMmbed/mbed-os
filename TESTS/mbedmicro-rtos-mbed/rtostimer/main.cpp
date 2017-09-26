@@ -36,6 +36,19 @@ void timer_callback(void const *arg)
     sem->release();
 }
 
+/* In order to successfully run this test suite when compiled with --profile=debug
+ * error() has to be redefined as noop.
+ *
+ * RtosTimer calls RTX API which uses Event Recorder functionality. When compiled
+ * with MBED_TRAP_ERRORS_ENABLED=1 (set in debug profile) EvrRtxTimerError() calls error()
+ * which aborts test program.
+ */
+#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
+void error(const char* format, ...) {
+    (void) format;
+}
+#endif
+
 /** Test one-shot not restarted when elapsed
  *
  * Given a one-shot timer
