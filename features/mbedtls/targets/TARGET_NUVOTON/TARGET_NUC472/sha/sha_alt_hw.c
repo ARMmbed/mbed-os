@@ -39,6 +39,7 @@ void crypto_sha_getinternstate(unsigned char output[], size_t olen);
 
 void mbedtls_sha1_hw_init(crypto_sha_context *ctx)
 {
+    /* Init crypto module */
     crypto_init();
     memset(ctx, 0, sizeof(crypto_sha_context));
 }
@@ -49,6 +50,8 @@ void mbedtls_sha1_hw_free(crypto_sha_context *ctx)
         return;
     }
 
+    /* Uninit crypto module */
+    crypto_uninit();
     crypto_zeroize(ctx, sizeof(crypto_sha_context));
 }
 
@@ -113,6 +116,7 @@ void mbedtls_sha1_hw_process(crypto_sha_context *ctx, const unsigned char data[6
 
 void mbedtls_sha256_hw_init(crypto_sha_context *ctx)
 {
+    /* Init crypto module */
     crypto_init();
     memset(ctx, 0, sizeof(crypto_sha_context));
 }
@@ -123,6 +127,8 @@ void mbedtls_sha256_hw_free(crypto_sha_context *ctx)
         return;
     }
 
+    /* Uninit crypto module */
+    crypto_uninit();
     crypto_zeroize(ctx, sizeof(crypto_sha_context));
 }
 

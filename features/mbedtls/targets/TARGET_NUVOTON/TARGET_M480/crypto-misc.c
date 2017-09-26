@@ -17,21 +17,62 @@
 
 #include "cmsis.h"
 #include "mbed_assert.h"
+#include "mbed_critical.h"
+#include "mbed_error.h"
+#include <limits.h>
 #include "nu_modutil.h"
 #include "nu_bitutil.h"
 #include "crypto-misc.h"
 
-static int crypto_inited = 0;
 static int crypto_sha_avail = 1;
 
+/* Crypto (AES, DES, SHA, etc.) init counter. Crypto's keeps active as it is non-zero. */
+static uint16_t crypto_init_counter = 0U;
+
+/* As crypto init counter changes from 0 to 1:
+ *
+ * 1. Enable crypto clock
+ * 2. Enable crypto interrupt
+ */
 void crypto_init(void)
 {
-    if (crypto_inited) {
-        return;
+    core_util_critical_section_enter();
+    if (crypto_init_counter == USHRT_MAX) {
+        core_util_critical_section_exit();
+        error("Crypto clock enable counter would overflow (> USHRT_MAX)");
     }
-    crypto_inited = 1;
+    core_util_atomic_incr_u16(&crypto_init_counter, 1);
+    if (crypto_init_counter == 1) {
+        SYS_UnlockReg();    // Unlock protected register
+        CLK_EnableModuleClock(CRPT_MODULE);
+        SYS_LockReg();      // Lock protected register
+        
+        NVIC_EnableIRQ(CRPT_IRQn);
+    }
+    core_util_critical_section_exit();
+}
 
-    CLK_EnableModuleClock(CRPT_MODULE);
+/* As crypto init counter changes from 1 to 0:
+ *
+ * 1. Disable crypto interrupt 
+ * 2. Disable crypto clock
+ */
+void crypto_uninit(void)
+{
+    core_util_critical_section_enter();
+    if (crypto_init_counter == 0) {
+        core_util_critical_section_exit();
+        error("Crypto clock enable counter would underflow (< 0)");
+    }
+    core_util_atomic_decr_u16(&crypto_init_counter, 1);
+    if (crypto_init_counter == 0) {
+        NVIC_DisableIRQ(CRPT_IRQn);
+        
+        SYS_UnlockReg();    // Unlock protected register
+        CLK_DisableModuleClock(CRPT_MODULE);
+        SYS_LockReg();      // Lock protected register
+    }
+    core_util_critical_section_exit();
 }
 
 /* Implementation that should never be optimized out by the compiler */

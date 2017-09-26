@@ -49,7 +49,6 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
 
 void mbedtls_des_init(mbedtls_des_context *ctx)
 {
-    crypto_init();
     memset(ctx, 0, sizeof(mbedtls_des_context));
 }
 
@@ -64,7 +63,6 @@ void mbedtls_des_free( mbedtls_des_context *ctx )
 
 void mbedtls_des3_init( mbedtls_des3_context *ctx )
 {
-    crypto_init();
     memset(ctx, 0, sizeof(mbedtls_des3_context));
 }
 
@@ -329,6 +327,9 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
         error("Buffer for DES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
     
+    /* Init crypto module */
+    crypto_init();
+    
     // NOTE: Don't call driver function TDES_Open in BSP because it doesn't support TDES_CTL[3KEYS] setting.
     CRPT->TDES_CTL = (0 << CRPT_TDES_CTL_CHANNEL_Pos) | (enc << CRPT_TDES_CTL_ENCRPT_Pos) |
                      tdes_opmode | (TDES_IN_OUT_WHL_SWAP << CRPT_TDES_CTL_BLKSWAP_Pos);
@@ -418,6 +419,9 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
         }
     }
 
+    /* Uninit crypto module */
+    crypto_uninit();
+    
     return 0;
 }
 

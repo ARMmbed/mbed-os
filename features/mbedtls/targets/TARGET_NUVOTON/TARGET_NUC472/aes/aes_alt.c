@@ -34,8 +34,7 @@
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "nu_bitutil.h"
-
-
+#include "crypto-misc.h"
 
 /* Implementation that should never be optimized out by the compiler */
 static void mbedtls_zeroize( void *v, size_t n )
@@ -69,15 +68,6 @@ static bool aes_dma_buff_compat(const void *buff, unsigned buff_size)
 void mbedtls_aes_init( mbedtls_aes_context *ctx )
 {
     memset( ctx, 0, sizeof( mbedtls_aes_context ) );
-
-    /* Unlock protected registers */
-    SYS_UnlockReg();
-    CLK_EnableModuleClock(CRPT_MODULE);
-    /* Lock protected registers */
-    SYS_LockReg();
-
-    NVIC_EnableIRQ(CRPT_IRQn);
-    AES_ENABLE_INT();
 }
 
 void mbedtls_aes_free( mbedtls_aes_context *ctx )
@@ -153,6 +143,11 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
         error("Buffer for AES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
 
+    /* Init crypto module */
+    crypto_init();
+    /* Enable AES interrupt */
+    AES_ENABLE_INT();
+    
     /* We support multiple contexts with context save & restore and so needs just one 
      * H/W channel. Always use H/W channel #0. */
 
@@ -182,7 +177,7 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     g_AES_done = 0;
     AES_Start(0, CRYPTO_DMA_ONE_SHOT);
     while (!g_AES_done);
-
+    
     if( pOut != output ) {
         if (dataSize > MAX_DMA_CHAIN_SIZE) {
             error("Internal AES alter. error. DMA buffer is too small.");
@@ -195,6 +190,11 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     ctx->iv[1] = CRPT->AES_FDBCK1;
     ctx->iv[2] = CRPT->AES_FDBCK2;
     ctx->iv[3] = CRPT->AES_FDBCK3;
+    
+    /* Disable AES interrupt */
+    AES_DISABLE_INT();
+    /* Uninit crypto module */
+    crypto_uninit();
 }
 
 /*

@@ -22,6 +22,7 @@ extern "C" {
 #endif
 
 void crypto_init(void);
+void crypto_uninit(void);
 void crypto_zeroize(void *v, size_t n);
 int crypto_sha_acquire(void);
 void crypto_sha_release(void);
