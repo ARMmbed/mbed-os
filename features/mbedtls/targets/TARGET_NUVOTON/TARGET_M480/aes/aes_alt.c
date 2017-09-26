@@ -49,6 +49,10 @@ extern volatile int  g_AES_done;
 // Must be a multiple of 16 bytes block size
 #define MAX_DMA_CHAIN_SIZE (16*6)
 
+/* Backup buffer for DMA if user buffer doesn't meet requirements. */
+MBED_ALIGN(4) static uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE];
+MBED_ALIGN(4) static uint8_t au8InputData[MAX_DMA_CHAIN_SIZE];
+    
 /* Check if buffer can be used for AES DMA. It requires to be:
  *   1) Word-aligned
  *   2) Located in 0x20000000-0x2FFFFFFF region
@@ -145,8 +149,6 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
      *   1) Word-aligned
      *   2) Located in 0x2xxxxxxx region
      */
-    MBED_ALIGN(4) uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE];
-    MBED_ALIGN(4) uint8_t au8InputData[MAX_DMA_CHAIN_SIZE];
     if ((! aes_dma_buff_compat(au8OutputData, MAX_DMA_CHAIN_SIZE)) || (! aes_dma_buff_compat(au8InputData, MAX_DMA_CHAIN_SIZE))) {
         error("Buffer for AES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
