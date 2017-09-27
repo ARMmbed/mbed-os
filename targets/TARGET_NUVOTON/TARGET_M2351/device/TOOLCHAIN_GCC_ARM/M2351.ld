@@ -4,7 +4,7 @@
  
 StackSize = 0x800;
 
-#if (__DOMAIN_NS == 1U)
+#ifdef __DOMAIN_NS
 
 MEMORY
 {
@@ -125,7 +125,7 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-#if (__DOMAIN_NS != 1U)    
+#ifndef __DOMAIN_NS
     /* Veneer$$CMSE : */
     .gnu.sgstubs :
     {
