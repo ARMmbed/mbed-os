@@ -9,5 +9,5 @@
     "EXPAND_AS_DEFINED": "", 
     "SKIP_FUNCTION_MACROS": "NO",
     "FILE_PATTERNS": "*.h *.c *.cpp",
-    "EXCLUDE_PATTERNS": "*/tools/* */TESTS/* */targets/* */FEATURE_*/* */features/mbedtls/* */features/storage/* */features/unsupported/* */features/filesystem/* */BUILD/* */rtos/TARGET_CORTEX/rtx*/* */cmsis/* */features/FEATURES_* */features/frameworks/*/source/*"
+    "EXCLUDE_PATTERNS": "*/tools/* */targets/* */FEATURE_*/* */features/mbedtls/* */features/storage/* */features/unsupported/* */features/filesystem/* */BUILD/* */rtos/TARGET_CORTEX/rtx*/* */cmsis/* */features/FEATURES_* */features/frameworks/*/source/*"
 }
