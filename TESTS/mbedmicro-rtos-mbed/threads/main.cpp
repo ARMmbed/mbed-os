@@ -25,7 +25,11 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+#if defined(TARGET_NUCLEO_F070RB) || defined(TARGET_NUCLEO_F072RB)
 #define THREAD_STACK_SIZE 512
+#else
+#define THREAD_STACK_SIZE 768
+#endif
 
 using namespace utest::v1;
 
