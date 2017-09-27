@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -48,7 +48,7 @@ void LMEM_EnableCodeCache(LMEM_Type *base, bool enable)
         LMEM_CodeCacheInvalidateAll(base);
 
         /* Now enable the cache. */
-        base->PCCCR |= LMEM_PCCCR_ENCACHE_MASK | LMEM_PCCCR_ENWRBUF_MASK;
+        base->PCCCR |= LMEM_PCCCR_ENCACHE_MASK;
     }
     else
     {
@@ -56,7 +56,7 @@ void LMEM_EnableCodeCache(LMEM_Type *base, bool enable)
         LMEM_CodeCachePushAll(base);
 
         /* Now disable the cache. */
-        base->PCCCR &= ~(LMEM_PCCCR_ENCACHE_MASK | LMEM_PCCCR_ENWRBUF_MASK);
+        base->PCCCR &= ~LMEM_PCCCR_ENCACHE_MASK;
     }
 }
 
@@ -236,7 +236,7 @@ void LMEM_CodeCacheClearMultiLines(LMEM_Type *base, uint32_t address, uint32_t l
         }
     }
 }
-
+#if (!defined(FSL_FEATURE_LMEM_SUPPORT_ICACHE_DEMOTE_REMOVE)) || !FSL_FEATURE_LMEM_SUPPORT_ICACHE_DEMOTE_REMOVE
 status_t LMEM_CodeCacheDemoteRegion(LMEM_Type *base, lmem_cache_region_t region, lmem_cache_mode_t cacheMode)
 {
     uint32_t mode = base->PCCRMR;
@@ -255,6 +255,7 @@ status_t LMEM_CodeCacheDemoteRegion(LMEM_Type *base, lmem_cache_region_t region,
         return kStatus_Success;
     }
 }
+#endif /* FSL_FEATURE_LMEM_SUPPORT_ICACHE_DEMOTE_REMOVE */
 
 #if FSL_FEATURE_LMEM_HAS_SYSTEMBUS_CACHE
 void LMEM_EnableSystemCache(LMEM_Type *base, bool enable)
@@ -265,7 +266,7 @@ void LMEM_EnableSystemCache(LMEM_Type *base, bool enable)
         LMEM_SystemCacheInvalidateAll(base);
 
         /* Now enable the cache. */
-        base->PSCCR |= LMEM_PSCCR_ENCACHE_MASK | LMEM_PSCCR_ENWRBUF_MASK;
+        base->PSCCR |= LMEM_PSCCR_ENCACHE_MASK ;
     }
     else
     {
@@ -273,7 +274,7 @@ void LMEM_EnableSystemCache(LMEM_Type *base, bool enable)
         LMEM_SystemCachePushAll(base);
 
         /* Now disable the cache. */
-        base->PSCCR &= ~(LMEM_PSCCR_ENCACHE_MASK | LMEM_PSCCR_ENWRBUF_MASK);
+        base->PSCCR &= ~LMEM_PSCCR_ENCACHE_MASK;
     }
 }
 

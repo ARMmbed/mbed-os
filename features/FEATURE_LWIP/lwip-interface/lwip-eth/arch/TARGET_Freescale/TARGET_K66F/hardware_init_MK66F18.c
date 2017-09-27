@@ -39,7 +39,7 @@ void k66f_init_eth_hardware(void)
 
 #ifndef FEATURE_UVISOR
     /* Disable MPU only when uVisor is not around. */
-    MPU->CESR &= ~MPU_CESR_VLD_MASK;
+    SYSMPU->CESR &= ~SYSMPU_CESR_VLD_MASK;
 #endif/*FEATURE_UVISOR*/
 
     /* Ungate the port clock */
