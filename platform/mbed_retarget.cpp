@@ -126,6 +126,8 @@ static void init_serial() {
  *
  * @param error is a negative error code returned from an mbed function and
  *              will be negated to store a positive error code in errno
+ * @param filehandle_idx is the index of the filehandle to remove
+ *
  */
 static int handle_open_errors(int error, unsigned filehandle_idx) {
     errno = -error;
