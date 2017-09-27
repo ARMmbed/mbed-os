@@ -1,8 +1,6 @@
-python:
-    - "2.7"
-
 script:
       # Check that example compiles
+    - sed -n '/``` c++/,/```/{/```/d; p;}' README.md > main.cpp
     - PYTHONPATH=mbed-os python mbed-os/tools/make.py -t GCC_ARM -m K82F
           --source=. --build=BUILD/K82F/GCC_ARM -j0      
 
@@ -28,6 +26,19 @@ script:
     - CFLAGS="-Wno-error=format -DLFS_LOOKAHEAD=2047"
             make -Clittlefs test
 
+      # Self-host with littlefs-fuse for fuzz test
+    - make -C littlefs-fuse
+
+    - littlefs-fuse/lfs --format /dev/loop0
+    - littlefs-fuse/lfs /dev/loop0 mount
+
+    - ls mount
+    - mkdir mount/littlefs
+    - cp -r $(git ls-tree --name-only HEAD littlefs/) mount/littlefs
+    - cd mount/littlefs
+    - ls
+    - CFLAGS="-Wno-error=format" make -B test_dirs
+
 install:
       # Get arm-none-eabi-gcc
     - sudo add-apt-repository -y ppa:terry.guo/gcc-arm-embedded
@@ -38,5 +49,22 @@ install:
     - git clone https://github.com/armmbed/spiflash-driver.git
       # Install python dependencies
     - pip install --user -r mbed-os/requirements.txt
-      # Create main file for example
-    - sed -n '/``` c++/,/```/{/```/d; p;}' README.md > main.cpp
+      # Install littlefs-fuse and dependencies
+    - sudo apt-get install libfuse-dev
+    - git clone https://github.com/geky/littlefs-fuse
+      # Check versions
+    - fusermount -V
+    - arm-none-eabi-gcc --version
+    - python --version
+    - gcc --version
+
+before_script:
+      # Patch littlefs-fuse
+    - rm -rf littlefs-fuse/littlefs/*
+    - cp -r $(git ls-tree --name-only HEAD littlefs/) littlefs-fuse/littlefs
+    - echo '*' > littlefs-fuse/.mbedignore
+      # Create file-backed disk
+    - mkdir mount
+    - sudo chmod a+rw /dev/loop0
+    - dd if=/dev/zero bs=512 count=2048 of=disk
+    - losetup /dev/loop0 disk
