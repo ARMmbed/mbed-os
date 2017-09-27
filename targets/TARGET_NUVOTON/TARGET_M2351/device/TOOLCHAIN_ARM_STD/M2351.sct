@@ -1,4 +1,6 @@
-#if (__DOMAIN_NS == 1U)
+#! armcc -E
+
+#ifdef __DOMAIN_NS
 LR_IROM1 0x10040000 {
   ER_IROM1 0x10040000 {  ; load address = execution address
    *(RESET, +First)
