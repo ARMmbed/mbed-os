@@ -343,31 +343,31 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
             ctx->encDec = 1;
         }
                 
+        /* Fetch IV byte data in big-endian */
+        ctx->iv[0] = nu_get32_be(iv);
+        ctx->iv[1] = nu_get32_be(iv + 4);
+        ctx->iv[2] = nu_get32_be(iv + 8);
+        ctx->iv[3] = nu_get32_be(iv + 12);
+            
         while (block_chain_len) {
             size_t block_chain_len2 = (block_chain_len > MAX_DMA_CHAIN_SIZE) ? MAX_DMA_CHAIN_SIZE : block_chain_len;
-                
-            /* Fetch IV byte data in big-endian */
-            ctx->iv[0] = nu_get32_be(iv);
-            ctx->iv[1] = nu_get32_be(iv + 4);
-            ctx->iv[2] = nu_get32_be(iv + 8);
-            ctx->iv[3] = nu_get32_be(iv + 12);
-            
+
             __nvt_aes_crypt(ctx, input, output, block_chain_len2);
                     
             input += block_chain_len2;
             output += block_chain_len2;
             length -= block_chain_len2;
-                    
-            /* NOTE: Buffers input/output could overlap. See ctx->iv rather than input/output
-             *       for iv of next block cipher. */
-            /* Fetch IV byte data in big-endian */
-            ctx->iv[0] = nu_get32_be(iv);
-            ctx->iv[1] = nu_get32_be(iv + 4);
-            ctx->iv[2] = nu_get32_be(iv + 8);
-            ctx->iv[3] = nu_get32_be(iv + 12);
-            
+
             block_chain_len -= block_chain_len2;
         }
+        
+        /* NOTE: Buffers input/output could overlap. See ctx->iv rather than input/output
+         *       for iv of next block cipher. */
+        /* Fetch IV byte data in big-endian */
+        nu_set32_be(iv, ctx->iv[0]);
+        nu_set32_be(iv + 4, ctx->iv[1]);
+        nu_set32_be(iv + 8, ctx->iv[2]);
+        nu_set32_be(iv + 12, ctx->iv[3]);
     }
         
     /* Last incomplete block */
