@@ -36,6 +36,10 @@ int pwmout_allow_powerdown(void);
 /**
  * Enter Idle mode.
  */
+
+
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void hal_sleep(void)
 {
     struct sleep_s sleep_obj;
@@ -47,6 +51,7 @@ void hal_sleep(void)
 /**
  * Enter Power-down mode while no peripheral is active; otherwise, enter Idle mode.
  */
+__attribute__((cmse_nonsecure_entry))
 void hal_deepsleep(void)
 {
     struct sleep_s sleep_obj;
@@ -54,6 +59,7 @@ void hal_deepsleep(void)
     mbed_enter_sleep(&sleep_obj);
     mbed_exit_sleep(&sleep_obj);
 }
+#endif
 
 static void mbed_enter_sleep(struct sleep_s *obj)
 {

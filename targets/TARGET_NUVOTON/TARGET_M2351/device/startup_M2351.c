@@ -328,6 +328,7 @@ const uint32_t __vector_handlers[] = {
  */
 void Reset_Handler(void)
 {
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
     /* Disable register write-protection function */
     SYS_UnlockReg();
     
@@ -336,7 +337,8 @@ void Reset_Handler(void)
     
     /* Enable register write-protection function */
     SYS_LockReg();
-    
+#endif
+
     /**
      * SystemInit() must be called at the very start.
      */
