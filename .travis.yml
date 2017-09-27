@@ -21,4 +21,4 @@ install:
       # Get dependencies
     - git clone https://github.com/armmbed/mbed-os.git
       # Install python dependencies
-    - pip install -r mbed-os/requirements.txt
+    - pip install --user -r mbed-os/requirements.txt
