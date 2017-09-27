@@ -87,12 +87,9 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
         return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
     }
 
-    // key swap
+    /* Fetch key byte data in big-endian */
     for( i = 0; i < ( keybits >> 5 ); i++ ) {
-        ctx->keys[i] = (*(key+i*4) << 24) |
-                      (*(key+1+i*4) << 16) |
-                      (*(key+2+i*4) << 8) |
-                      (*(key+3+i*4) );
+        ctx->keys[i] = nu_get32_be(key + i * 4);
     }
 
     return( 0 );
