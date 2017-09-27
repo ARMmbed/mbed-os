@@ -44,6 +44,13 @@ void crypto_des_release(void);
 bool crypto_sha_acquire(void);
 void crypto_sha_release(void);
 
+/* Check if buffer can be used for crypto DMA. It requires to be:
+ *
+ * 1) Word-aligned
+ * 2) Located in 0x20000000-0x2FFFFFFF region
+ */
+bool crypto_dma_buff_compat(const void *buff, size_t buff_size);
+
 #ifdef __cplusplus
 }
 #endif

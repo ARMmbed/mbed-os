@@ -26,23 +26,14 @@
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
 
-// Must be a multiple of 64-bit block size
+/* DMA buffer
+ * 
+ * MAXSIZE_DMABUF must be a multiple of 64-bit block size.
+ * Its value is estimated to trade memory footprint off against performance. 
+ */
 #define MAXSIZE_DMABUF  (8 * 5)
 MBED_ALIGN(4) static uint8_t dmabuf_in[MAXSIZE_DMABUF];
 MBED_ALIGN(4) static uint8_t dmabuf_out[MAXSIZE_DMABUF];
-
-/* Check if buffer can be used for DES DMA. It requires to be:
- *   1) Word-aligned
- *   2) Located in 0x20000000-0x2FFFFFFF region
- */
-static bool des_dma_buff_compat(const void *buff, unsigned buff_size)
-{
-    uint32_t buff_ = (uint32_t) buff;
-    
-    return (((buff_ & 0x03) == 0) &&                    /* Word-aligned */
-        (((unsigned) buff_) >= 0x20000000) &&           /* 0x20000000-0x2FFFFFFF */
-        ((((unsigned) buff) + buff_size) <= 0x30000000));
-}
 
 static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_SIZE], int enc, uint32_t tdes_opmode, size_t length,
                                unsigned char iv[8], const unsigned char *input, unsigned char *output);
@@ -323,7 +314,7 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
      *   1) Word-aligned
      *   2) Located in 0x2xxxxxxx region
      */
-    if ((! des_dma_buff_compat(dmabuf_in, MAXSIZE_DMABUF)) || (! des_dma_buff_compat(dmabuf_out, MAXSIZE_DMABUF))) {
+    if ((! crypto_dma_buff_compat(dmabuf_in, MAXSIZE_DMABUF)) || (! crypto_dma_buff_compat(dmabuf_out, MAXSIZE_DMABUF))) {
         error("Buffer for DES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
     

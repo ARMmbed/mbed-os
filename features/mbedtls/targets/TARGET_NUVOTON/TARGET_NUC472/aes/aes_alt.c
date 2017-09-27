@@ -45,25 +45,14 @@ static void mbedtls_zeroize( void *v, size_t n )
 
 extern volatile int  g_AES_done;
 
-// Must be a multiple of 16 bytes block size
+/* DMA compatible backup buffer if user buffer doesn't meet requirements
+ * 
+ * MAX_DMA_CHAIN_SIZE must be a multiple of 16-byte block size.
+ * Its value is estimated to trade memory footprint off against performance. 
+ */
 #define MAX_DMA_CHAIN_SIZE (16*6)
-
-/* Backup buffer for DMA if user buffer doesn't meet requirements. */
 MBED_ALIGN(4) static uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE];
 MBED_ALIGN(4) static uint8_t au8InputData[MAX_DMA_CHAIN_SIZE];
-    
-/* Check if buffer can be used for AES DMA. It requires to be:
- *   1) Word-aligned
- *   2) Located in 0x20000000-0x2FFFFFFF region
- */
-static bool aes_dma_buff_compat(const void *buff, unsigned buff_size)
-{
-    uint32_t buff_ = (uint32_t) buff;
-    
-    return (((buff_ & 0x03) == 0) &&                    /* Word-aligned */
-        (((unsigned) buff_) >= 0x20000000) &&           /* 0x20000000-0x2FFFFFFF */
-        ((((unsigned) buff) + buff_size) <= 0x30000000));
-}
 
 void mbedtls_aes_init( mbedtls_aes_context *ctx )
 {
@@ -102,7 +91,7 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx, const unsigned char *key,
 
     // key swap
     for( i = 0; i < ( keybits >> 5 ); i++ ) {
-        ctx->buf[i] = (*(key+i*4) << 24) |
+        ctx->keys[i] = (*(key+i*4) << 24) |
                       (*(key+1+i*4) << 16) |
                       (*(key+2+i*4) << 8) |
                       (*(key+3+i*4) );
@@ -127,19 +116,29 @@ exit:
     return( ret );
 }
 
-
+/* Do AES encrypt/decrypt with H/W accelerator
+ *
+ * NOTE: As input/output buffer doesn't follow constraint of DMA buffer, static allocated 
+ *       DMA compatible buffer is used for DMA instead and this needs extra copy.
+ *
+ * NOTE: dataSize requires to be: 
+ *       1) Multiple of block size 16 
+ *       2) <= MAX_DMA_CHAIN_SIZE
+ */
 static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
-                             const unsigned char input[16],
-                             unsigned char output[16], int dataSize)
+                             const unsigned char *input,
+                             unsigned char *output, size_t dataSize)
 {
     const unsigned char* pIn;
     unsigned char* pOut;
 
+    MBED_ASSERT((dataSize % 16 == 0) && (dataSize <= MAX_DMA_CHAIN_SIZE));
+    
     /* AES DMA buffer requires to be:
      *   1) Word-aligned
      *   2) Located in 0x2xxxxxxx region
      */
-    if ((! aes_dma_buff_compat(au8OutputData, MAX_DMA_CHAIN_SIZE)) || (! aes_dma_buff_compat(au8InputData, MAX_DMA_CHAIN_SIZE))) {
+    if ((! crypto_dma_buff_compat(au8OutputData, MAX_DMA_CHAIN_SIZE)) || (! crypto_dma_buff_compat(au8InputData, MAX_DMA_CHAIN_SIZE))) {
         error("Buffer for AES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
 
@@ -158,19 +157,16 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     /* AES_IN_OUT_SWAP: Let H/W know both input/output data are arranged in little-endian */
     AES_Open(0, ctx->encDec, ctx->opMode, ctx->keySize, AES_IN_OUT_SWAP);
     AES_SetInitVect(0, ctx->iv);
-    AES_SetKey(0, ctx->buf, ctx->keySize);
+    AES_SetKey(0, ctx->keys, ctx->keySize);
     /* AES DMA buffer requirements same as above */
-    if (! aes_dma_buff_compat(input, dataSize)) {
-        if (dataSize > MAX_DMA_CHAIN_SIZE) {
-            error("Internal AES alter. error. DMA buffer is too small.");
-        }
+    if (! crypto_dma_buff_compat(input, dataSize)) {
         memcpy(au8InputData, input, dataSize);
         pIn = au8InputData;
     } else {
         pIn = input;
     }
     /* AES DMA buffer requirements same as above */
-    if (! aes_dma_buff_compat(output, dataSize)) {
+    if (! crypto_dma_buff_compat(output, dataSize)) {
         pOut = au8OutputData;
     } else {
         pOut = output;
@@ -183,9 +179,6 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     while (!g_AES_done);
     
     if( pOut != output ) {
-        if (dataSize > MAX_DMA_CHAIN_SIZE) {
-            error("Internal AES alter. error. DMA buffer is too small.");
-        }
         memcpy(output, au8OutputData, dataSize);
     }
     
@@ -311,12 +304,9 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
     int c;
     size_t n = *iv_off;
 
-    /* First incomplete block*/
+    /* First incomplete block */
     if (n % 16) {
-        size_t rmn = 16 - n;
-        rmn = (rmn > length) ? length : rmn;
-            
-        while( rmn -- ) {
+        while (n && length) {
             if (mode == MBEDTLS_AES_DECRYPT) {
                 c = *input++;
                 *output++ = (unsigned char)( c ^ iv[n] );
@@ -332,7 +322,7 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
     }
 
     /* Middle complete block(s) */
-    size_t block_chain_len = length / 16 * 16;
+    size_t block_chain_len = length - (length % 16);
         
     if (block_chain_len) {
         ctx->opMode = AES_MODE_CFB;
@@ -371,15 +361,10 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
     }
         
     /* Last incomplete block */
-    size_t last_block_len = length;
-        
-    if (last_block_len) {
+    if (length) {
         mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
-                    
-        size_t rmn = last_block_len;
-        rmn = (rmn > length) ? length : rmn;
             
-        while (rmn --) {
+        while (length --) {
             if (mode == MBEDTLS_AES_DECRYPT) {
                 c = *input++;
                 *output++ = (unsigned char)( c ^ iv[n] );
@@ -390,7 +375,6 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
             }
             
             n = ( n + 1 ) & 0x0F;
-            length --;
         }
     }
 

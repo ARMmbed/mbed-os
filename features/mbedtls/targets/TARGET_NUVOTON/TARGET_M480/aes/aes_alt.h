@@ -35,18 +35,13 @@ extern "C" {
 
 /**
  * \brief          AES context structure
- *
- * \note           buf is able to hold 32 extra bytes, which can be used:
- *                 - for alignment purposes if VIA padlock is used, and/or
- *                 - to simplify key expansion in the 256-bit case by
- *                 generating an extra round key
  */
 typedef struct {
     uint32_t keySize;       /* Key size: AES_KEY_SIZE_128/192/256 */
     uint32_t encDec;        /* 0: decrypt, 1: encrypt */
     uint32_t opMode;        /* AES_MODE_ECB/CBC/CFB */
     uint32_t iv[4];         /* IV for next block cipher */
-    uint32_t buf[8];        /* Cipher key */
+    uint32_t keys[8];       /* Cipher key */
 }
 mbedtls_aes_context;
 
