@@ -182,6 +182,8 @@ static const struct nu_modinit_s uart_modinit_tab[] = {
 
 extern void mbed_sdk_init(void);
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     // NOTE: With armcc, serial_init() gets called from _sys_open() timing of which is before main()/mbed_sdk_init().
@@ -248,6 +250,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     }
 }
 
+__attribute__((cmse_nonsecure_entry))
 void serial_free(serial_t *obj)
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->serial.uart, uart_modinit_tab);
@@ -296,6 +299,7 @@ void serial_free(serial_t *obj)
         uart_modinit_mask &= ~(1 << i);
     }
 }
+#endif
 
 void serial_baud(serial_t *obj, int baudrate) {
     // Flush Tx FIFO. Otherwise, output data may get lost on this change.

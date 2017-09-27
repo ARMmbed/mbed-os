@@ -109,7 +109,7 @@ void CLK_Idle(void)
   */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-#endif
+//#endif
 uint32_t CLK_GetHXTFreq(void)
 {
     if(CLK->PWRCTL & CLK_PWRCTL_HXTEN_Msk)
@@ -117,7 +117,7 @@ uint32_t CLK_GetHXTFreq(void)
     else
         return 0;
 }
-
+#endif
 /**
   * @brief      Get external low speed crystal clock frequency
   * @param      None
@@ -126,7 +126,7 @@ uint32_t CLK_GetHXTFreq(void)
   */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-#endif
+//#endif
 uint32_t CLK_GetLXTFreq(void)
 {
     if(CLK->PWRCTL & CLK_PWRCTL_LXTEN_Msk)
@@ -134,7 +134,7 @@ uint32_t CLK_GetLXTFreq(void)
     else
         return 0;
 }
-
+#endif
 /**
   * @brief      Get HCLK frequency
   * @param      None
@@ -143,13 +143,13 @@ uint32_t CLK_GetLXTFreq(void)
   */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-#endif
+//#endif
 uint32_t CLK_GetHCLKFreq(void)
 {
     SystemCoreClockUpdate();
     return SystemCoreClock;
 }
-
+#endif
 /**
   * @brief      Get PCLK0 frequency
   * @param      None
@@ -158,13 +158,13 @@ uint32_t CLK_GetHCLKFreq(void)
   */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-#endif
+//#endif
 uint32_t CLK_GetPCLK0Freq(void)
 {
     SystemCoreClockUpdate();
     return (SystemCoreClock >> ((CLK->CLKSEL0 & CLK_CLKSEL0_PCLK0SEL_Msk) >> CLK_CLKSEL0_PCLK0SEL_Pos));
 }
-
+#endif
 /**
   * @brief      Get PCLK1 frequency
   * @param      None
@@ -173,13 +173,13 @@ uint32_t CLK_GetPCLK0Freq(void)
   */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-#endif
+//#endif
 uint32_t CLK_GetPCLK1Freq(void)
 {
     SystemCoreClockUpdate();
     return (SystemCoreClock >> ((CLK->CLKSEL0 & CLK_CLKSEL0_PCLK1SEL_Msk) >> CLK_CLKSEL0_PCLK1SEL_Pos));
 }
-
+#endif
 /**
   * @brief      Get CPU frequency
   * @param      None
@@ -188,7 +188,7 @@ uint32_t CLK_GetPCLK1Freq(void)
   */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-#endif
+//#endif
 uint32_t CLK_GetCPUFreq(void)
 {
     uint32_t u32Freq, u32HclkSrc, u32HclkDiv;
@@ -241,7 +241,7 @@ uint32_t CLK_GetCPUFreq(void)
     
     return SystemCoreClock;    
 }
-
+#endif
 /**
   * @brief      Set HCLK frequency
   * @param[in]  u32Hclk is HCLK frequency. The range of u32Hclk is 24 MHz ~ 48 MHz.
@@ -943,7 +943,7 @@ void CLK_EnableSPDWKPin(uint32_t u32Port, uint32_t u32Pin, uint32_t u32TriggerTy
   */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-#endif
+//#endif
 uint32_t CLK_GetPLLClockFreq(void)
 {
     uint32_t u32PllFreq = 0, u32PllReg;
@@ -973,7 +973,7 @@ uint32_t CLK_GetPLLClockFreq(void)
 
     return u32PllFreq;
 }
-
+#endif
 /**
   * @brief      Get selected module clock source
   * @param[in]  u32ModuleIdx is module index.
@@ -1015,7 +1015,7 @@ uint32_t CLK_GetPLLClockFreq(void)
   */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-#endif
+//#endif
 uint32_t CLK_GetModuleClockSource(uint32_t u32ModuleIdx)
 {
     uint32_t u32sel = 0;
@@ -1042,7 +1042,7 @@ uint32_t CLK_GetModuleClockSource(uint32_t u32ModuleIdx)
     else
         return 0;
 }
-
+#endif
 /**
   * @brief      Get selected module clock divider number
   * @param[in]  u32ModuleIdx is module index.
@@ -1066,7 +1066,7 @@ uint32_t CLK_GetModuleClockSource(uint32_t u32ModuleIdx)
   */
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 __attribute__((cmse_nonsecure_entry))
-#endif
+//#endif
 uint32_t CLK_GetModuleClockDivider(uint32_t u32ModuleIdx)
 {
     uint32_t u32div = 0;
@@ -1082,7 +1082,7 @@ uint32_t CLK_GetModuleClockDivider(uint32_t u32ModuleIdx)
     else
         return 0;
 }
-
+#endif
 
 
 /*@}*/ /* end of group CLK_EXPORTED_FUNCTIONS */

@@ -164,6 +164,8 @@ void SYS_ResetCPU(void)
   * @return     None
   * @details    This function reset selected module.
   */
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void SYS_ResetModule(uint32_t u32ModuleIndex)
 {
     /* Generate reset signal to the corresponding module */
@@ -172,7 +174,7 @@ void SYS_ResetModule(uint32_t u32ModuleIndex)
     /* Release corresponding module from reset state */
     *(volatile uint32_t *)((uint32_t)&SYS->IPRST0 + (u32ModuleIndex >> 24))  &= ~(1 << (u32ModuleIndex & 0x00ffffff));
 }
-
+#endif
 
 /**
   * @brief      Enable and configure Brown-out detector function
