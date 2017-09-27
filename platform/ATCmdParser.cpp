@@ -399,7 +399,7 @@ bool ATCmdParser::process_oob()
 
         // Check for oob data
         struct oob *oob = _oobs;
-        while ( oob ) {
+        while (oob) {
             if (i == (int)oob->len && memcmp(
                     oob->prefix, _buffer, oob->len) == 0) {
                 debug_if(_dbg_on, "AT! %s\r\n", oob->prefix);
