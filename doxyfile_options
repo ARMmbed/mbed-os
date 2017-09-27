@@ -805,7 +805,7 @@ INPUT_ENCODING         = UTF-8
 # *.m, *.markdown, *.md, *.mm, *.dox, *.py, *.pyw, *.f90, *.f95, *.f03, *.f08,
 # *.f, *.for, *.tcl, *.vhd, *.vhdl, *.ucf and *.qsf.
 
-FILE_PATTERNS          = *.h
+FILE_PATTERNS          = *.h *.c *.cpp
 
 # The RECURSIVE tag can be used to specify whether or not subdirectories should
 # be searched for input files as well.
@@ -847,6 +847,7 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */features/storage/* \
                          */features/unsupported/* \
                          */features/filesystem/* \
+                         */features/frameworks/*/source/* \
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
