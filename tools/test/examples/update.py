@@ -268,10 +268,19 @@ def prepare_branch(src, dst):
     update_log.debug("Preparing branch: %s", dst)
 
     # Check if branch already exists or not.
-    cmd = ['git', 'branch']
+    # We can use the 'git branch -r' command. This returns all the remote branches for
+    # the current repo.
+    # The output consists of a list of lines of the form:
+    # origin/<branch>
+    # From these we need to extract just the branch names to a list and then check if 
+    # the specified dst exists in that list
+    branches = []
+    cmd = "git branch -r"
     _, output = run_cmd_with_output(cmd, exit_on_failure=True)
 
-    if not dst in output:
+    branches = [line.split('/')[1] for line in output.split('\n') if 'origin' in line and not '->' in line]
+  
+    if not dst in branches:
         
         # OOB branch does not exist thus create it, first ensuring we are on 
         # the src branch and then check it out
