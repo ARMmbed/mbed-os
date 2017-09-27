@@ -23,6 +23,14 @@
 extern "C" {
 #endif
 
+/* Flags to indicate crypto H/W operation has done
+ *
+ * Crypto driver would clear it before trigger and wait for it. 
+ * Crypto interrupt handler would set it on done or error.
+ */
+extern volatile int g_PRNG_done;
+extern volatile int g_AES_done;
+
 /* Init/Uninit crypto module */
 void crypto_init(void);
 void crypto_uninit(void);

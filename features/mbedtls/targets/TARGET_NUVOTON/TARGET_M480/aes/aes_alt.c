@@ -43,8 +43,6 @@ static void mbedtls_zeroize( void *v, size_t n )
     while( n-- ) *p++ = 0;
 }
 
-extern volatile int  g_AES_done;
-
 /* DMA compatible backup buffer if user buffer doesn't meet requirements
  * 
  * MAX_DMA_CHAIN_SIZE must be a multiple of 16-byte block size.

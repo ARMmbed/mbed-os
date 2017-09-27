@@ -34,25 +34,6 @@
 
 #define PRNG_KEY_SIZE  (0x20UL)
 
-static volatile int  g_PRNG_done;
-volatile int  g_AES_done;
-
-/* Implementation that should never be optimized out by the compiler */
-static void trng_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
-}
-
-void CRYPTO_IRQHandler()
-{
-    if (PRNG_GET_INT_FLAG()) {
-        g_PRNG_done = 1;
-        PRNG_CLR_INT_FLAG();
-    }  else if (AES_GET_INT_FLAG()) {
-        g_AES_done = 1;
-        AES_CLR_INT_FLAG();
-    }
-} 
-
 static void trng_get(unsigned char *pConversionData)
 {
     uint32_t *p32ConversionData;
@@ -102,7 +83,7 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
         trng_get(tmpBuff);
         memcpy(output, tmpBuff, length);
         cur_length += length;
-        trng_zeroize(tmpBuff, sizeof(tmpBuff));
+        crypto_zeroize(tmpBuff, sizeof(tmpBuff));
     }
     *output_length = cur_length;
     return 0;

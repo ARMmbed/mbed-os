@@ -24,6 +24,9 @@
 #include "nu_bitutil.h"
 #include "crypto-misc.h"
 
+volatile int g_PRNG_done;
+volatile int g_AES_done;
+
 /* Track if AES H/W is available */
 static uint16_t crypto_aes_avail = 1;
 /* Track if DES H/W is available */
@@ -141,4 +144,16 @@ static void crypto_submodule_release(uint16_t *submodule_avail)
 {
     uint16_t expectedCurrentValue = 0;
     while (! core_util_atomic_cas_u16(submodule_avail, &expectedCurrentValue, 1));
+}
+
+/* Crypto interrupt handler */
+void CRYPTO_IRQHandler()
+{
+    if (PRNG_GET_INT_FLAG()) {
+        g_PRNG_done = 1;
+        PRNG_CLR_INT_FLAG();
+    }  else if (AES_GET_INT_FLAG()) {
+        g_AES_done = 1;
+        AES_CLR_INT_FLAG();
+    }
 }
