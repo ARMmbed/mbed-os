@@ -289,7 +289,7 @@ public:
      */
     void abort();
     
-        /**
+    /**
     * Process out-of-band data
     *
     * Process out-of-band data in the receive buffer. This function
