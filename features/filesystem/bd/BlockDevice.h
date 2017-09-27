@@ -91,7 +91,26 @@ public:
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
      *  @return         0 on success, negative error code on failure
      */
-    virtual int erase(bd_addr_t addr, bd_size_t size) = 0;
+    virtual int erase(bd_addr_t addr, bd_size_t size)
+    {
+        return 0;
+    }
+
+    /** Mark blocks as no longer in use
+     *
+     *  This function provides a hint to the underlying block device that a region of blocks
+     *  is no longer in use and may be erased without side effects. Erase must still be called
+     *  before programming, but trimming allows flash-translation-layers to schedule erases when
+     *  the device is not busy.
+     *
+     *  @param addr     Address of block to mark as unused
+     *  @param size     Size to mark as unused in bytes, must be a multiple of erase block size
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int trim(bd_addr_t addr, bd_size_t size)
+    {
+        return 0;
+    }
 
     /** Get the size of a readable block
      *
@@ -111,7 +130,10 @@ public:
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size() const = 0;
+    virtual bd_size_t get_erase_size() const
+    {
+        return get_program_size();
+    }
 
     /** Get the total size of the underlying device
      *

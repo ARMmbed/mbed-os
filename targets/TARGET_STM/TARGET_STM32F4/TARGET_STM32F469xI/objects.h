@@ -54,11 +54,6 @@ struct port_s {
     __IO uint32_t *reg_out;
 };
 
-struct can_s {
-    CANName can;
-    int index;
-};
-
 struct trng_s {
     RNG_HandleTypeDef handle;
 };
