@@ -53,6 +53,7 @@ class Timer : private NonCopyable<Timer> {
 public:
     Timer();
     Timer(const ticker_data_t *data);
+    ~Timer();
 
     /** Start the timer
      */
