@@ -72,7 +72,7 @@ typedef enum {
     UART_2 = (int) NU_MODNAME(UART2_BASE, 2, 0),
     UART_3 = (int) NU_MODNAME(UART3_BASE, 3, 0),
     UART_4 = (int) NU_MODNAME(UART4_BASE, 4, 0),
-    UART_5 = (int) NU_MODNAME(UART5_BASE, 5, 0),
+    UART_5 = (int) NU_MODNAME((UART5_BASE + NS_OFFSET), 5, 0),  // UART 5 is the stdio, set as non-secure
     // NOTE: board-specific
     STDIO_UART  = UART_3
 } UARTName;
@@ -124,14 +124,14 @@ typedef enum {
 } PWMName;
 
 typedef enum {
-    TIMER_0  = (int) NU_MODNAME(TMR01_BASE, 0, 0),
-    TIMER_1  = (int) NU_MODNAME(TMR01_BASE + 0x100, 1, 0),
-    TIMER_2  = (int) NU_MODNAME(TMR23_BASE, 2, 0),
-    TIMER_3  = (int) NU_MODNAME(TMR23_BASE + 0x100, 3, 0),
+    TIMER_0  = (int) NU_MODNAME(TMR01_BASE + NS_OFFSET, 0, 0),
+    TIMER_1  = (int) NU_MODNAME(TMR01_BASE + NS_OFFSET + 0x100, 1, 0),
+    TIMER_2  = (int) NU_MODNAME(TMR23_BASE + NS_OFFSET, 2, 0),
+    TIMER_3  = (int) NU_MODNAME(TMR23_BASE + NS_OFFSET + 0x100, 3, 0),
 } TIMERName;
 
 typedef enum {
-    RTC_0 = (int) NU_MODNAME(RTC_BASE, 0, 0)
+    RTC_0 = (int) NU_MODNAME(RTC_BASE + NS_OFFSET, 0, 0)
 } RTCName;
 
 typedef enum {

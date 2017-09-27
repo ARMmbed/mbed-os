@@ -39,7 +39,7 @@ extern "C" {
 #define NU_PINNAME_BIND(PINNAME, modname)           NU_PINNAME_BIND_(NU_PINPORT(PINNAME), NU_PININDEX(PINNAME), modname)
 #define NU_PINNAME_BIND_(PORT, PIN, modname)        ((((unsigned int)(PORT)) << NU_PINPORT_Pos) | (((unsigned int)(PIN)) << NU_PININDEX_Pos) | (NU_MODINDEX(modname) << NU_PIN_MODINDEX_Pos) | NU_PIN_BIND_Msk)
 
-#define NU_PORT_BASE(port)                          ((GPIO_T *)(((uint32_t) GPIOA_BASE) + 0x40 * port))
+#define NU_PORT_BASE(port)                          ((GPIO_T *)(((uint32_t) (GPIOA_BASE  + NS_OFFSET)) + 0x40 * port))  // Set All GPIO as non-secure
 #define NU_MFP_POS(pin)                             ((pin % 8) * 4)
 #define NU_MFP_MSK(pin)                             (0xful << NU_MFP_POS(pin))
 

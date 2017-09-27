@@ -22,6 +22,9 @@
 /**
  * Configure pin multi-function
  */
+
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void pin_function(PinName pin, int data)
 {
     MBED_ASSERT(pin != (PinName)NC);
@@ -43,6 +46,7 @@ void pin_function(PinName pin, int data)
     //
     //}
 }
+#endif
 
 /**
  * Configure pin pull-up/pull-down

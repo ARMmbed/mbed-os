@@ -25,7 +25,8 @@ void mbed_sdk_init(void)
         return;
     }
     inited = 1;
-    
+
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)    
     /*---------------------------------------------------------------------------------------------------------*/
     /* Init System Clock                                                                                       */
     /*---------------------------------------------------------------------------------------------------------*/
@@ -63,4 +64,5 @@ void mbed_sdk_init(void)
 
     /* Lock protected registers */
     SYS_LockReg();
+#endif		
 }
