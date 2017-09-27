@@ -36,13 +36,9 @@ LR_IROM1 0x08000000 0x40000  {    ; load region size_region
    .ANY (+RO)
   }
 
-  RW_IRAM1 0x20000000 0x0000C000  { ; RW data 48k L4-SRAM1
-  .ANY (+RW +ZI)
-  }
-
   ; Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM
-  RW_IRAM2 (0x10000000+0x188) (0x04000-0x188)  {  ; RW data 16k L4-ECC-SRAM2 retained in standby
-   .ANY (+RW +ZI)
+  RW_IRAM1 (0x20000000+0x188) (0x00010000-0x188)  {
+  .ANY (+RW +ZI)
   }
 
 }
