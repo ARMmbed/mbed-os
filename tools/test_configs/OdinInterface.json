@@ -1,0 +1,27 @@
+{
+    "config": {
+        "header-file": {
+            "help" : "String for including your driver header file",
+            "value" : "\"OdinWiFiInterface.h\""
+        },
+        "object-construction" : {
+            "value" : "new OdinWiFiInterface()"
+        },
+        "connect-statement" : {
+            "help" : "Must use 'net' variable name",
+            "value" : "((OdinWiFiInterface *)net)->connect(WIFI_SSID, WIFI_PASSWORD)"
+        },
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"195.34.89.241\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "tcp-echo-prefix" : {
+            "help" : "Some servers send a prefix before echoed message",
+            "value" : "\"u-blox AG TCP/UDP test service\\n\""
+        }
+    }
+}

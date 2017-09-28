@@ -1,30 +1,30 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+/*
+ * Copyright (c) 2013-2017, ARM Limited, All Rights Reserved
+ * SPDX-License-Identifier: Apache-2.0
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !FEATURE_LWIP
-    #error [NOT_SUPPORTED] LWIP not supported for this target
-#endif
-#if DEVICE_EMAC
-    #error [NOT_SUPPORTED] Not supported for WiFi targets
-#endif
+
+ #ifndef MBED_CONF_APP_CONNECT_STATEMENT
+     #error [NOT_SUPPORTED] No network configuration found for this target.
+ #endif
+
 #ifndef MBED_EXTENDED_TESTS
     #error [NOT_SUPPORTED] Parallel pressure tests are not supported by default
 #endif
 
 #include "mbed.h"
-#include "EthernetInterface.h"
+#include MBED_CONF_APP_HEADER_FILE
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -52,6 +52,9 @@ using namespace utest::v1;
 #ifndef MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_DEBUG
 #define MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_DEBUG false
 #endif
+
+#define STRINGIZE(x) STRINGIZE2(x)
+#define STRINGIZE2(x) #x
 
 
 // Simple xorshift pseudorandom number generator
@@ -127,7 +130,7 @@ void generate_buffer(uint8_t **buffer, size_t *size, size_t min, size_t max) {
 
 
 // Global variables shared between pressure tests
-EthernetInterface net;
+NetworkInterface* net;
 SocketAddress tcp_addr;
 Timer timer;
 Mutex iomutex;
@@ -161,10 +164,12 @@ public:
         for (size_t size = MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN;
              size < MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX;
              size *= 2) {
-            int err = sock.open(&net);
+            int err = sock.open(net);
             TEST_ASSERT_EQUAL(0, err);
             err = sock.connect(tcp_addr);
             TEST_ASSERT_EQUAL(0, err);
+            sock.recv(buffer, sizeof(MBED_CONF_APP_TCP_ECHO_PREFIX));
+
             iomutex.lock();
             printf("TCP: %s:%d streaming %d bytes\r\n",
                 tcp_addr.get_ip_address(), tcp_addr.get_port(), size);
@@ -255,29 +260,14 @@ void test_tcp_packet_pressure_parallel() {
             MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_THREADS,
             buffer_subsize);
 
-    int err = net.connect();
+    net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+    int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
 
-    printf("MBED: TCPClient IP address is '%s'\n", net.get_ip_address());
-    printf("MBED: TCPClient waiting for server IP and port...\n");
+    printf("MBED: TCPClient IP address is '%s'\n", net->get_ip_address());
 
-    greentea_send_kv("target_ip", net.get_ip_address());
-
-    char recv_key[] = "host_port";
-    char ipbuf[60] = {0};
-    char portbuf[16] = {0};
-    unsigned int port = 0;
-
-    greentea_send_kv("host_ip", " ");
-    greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
-
-    greentea_send_kv("host_port", " ");
-    greentea_parse_kv(recv_key, portbuf, sizeof(recv_key), sizeof(ipbuf));
-    sscanf(portbuf, "%u", &port);
-
-    printf("MBED: Server IP address received: %s:%d \n", ipbuf, port);
-    tcp_addr.set_ip_address(ipbuf);
-    tcp_addr.set_port(port);
+    tcp_addr.set_ip_address(MBED_CONF_APP_ECHO_SERVER_ADDR);
+    tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 
     timer.start();
 
@@ -299,7 +289,7 @@ void test_tcp_packet_pressure_parallel() {
             8*(2*MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MAX -
             MBED_CFG_TCP_CLIENT_PACKET_PRESSURE_MIN) / (1000*timer.read()));
 
-    net.disconnect();
+    net->disconnect();
 }
 
 

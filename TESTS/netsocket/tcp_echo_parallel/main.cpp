@@ -1,27 +1,30 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+/*
+ * Copyright (c) 2013-2017, ARM Limited, All Rights Reserved
+ * SPDX-License-Identifier: Apache-2.0
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !FEATURE_LWIP
-    #error [NOT_SUPPORTED] LWIP not supported for this target
-#endif
-#if DEVICE_EMAC
-    #error [NOT_SUPPORTED] Not supported for WiFi targets
+
+ #ifndef MBED_CONF_APP_CONNECT_STATEMENT
+     #error [NOT_SUPPORTED] No network configuration found for this target.
+ #endif
+
+#ifndef MBED_EXTENDED_TESTS
+    #error [NOT_SUPPORTED] Parallel tests are not supported by default
 #endif
 
 #include "mbed.h"
-#include "EthernetInterface.h"
+#include MBED_CONF_APP_HEADER_FILE
 #include "TCPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -38,8 +41,11 @@ using namespace utest::v1;
 #define MBED_CFG_TCP_CLIENT_ECHO_THREADS 3
 #endif
 
+#define STRINGIZE(x) STRINGIZE2(x)
+#define STRINGIZE2(x) #x
 
-EthernetInterface net;
+
+NetworkInterface* net;
 SocketAddress tcp_addr;
 Mutex iomutex;
 
@@ -75,11 +81,15 @@ public:
     }
 
     void echo() {
-        int err = sock.open(&net);
+        int err = sock.open(net);
         TEST_ASSERT_EQUAL(0, err);
 
         err = sock.connect(tcp_addr);
         TEST_ASSERT_EQUAL(0, err);
+
+        //recv connection prefix message
+        sock.recv(rx_buffer, sizeof(MBED_CONF_APP_TCP_ECHO_PREFIX));
+        memset(rx_buffer, 0, sizeof(rx_buffer));
 
         iomutex.lock();
         printf("HTTP: Connected to %s:%d\r\n",
@@ -95,7 +105,7 @@ public:
         const int ret = sock.recv(rx_buffer, sizeof(rx_buffer));
         bool result = !memcmp(tx_buffer, rx_buffer, sizeof(tx_buffer));
         TEST_ASSERT_EQUAL(ret, sizeof(rx_buffer));
-        TEST_ASSERT(result);
+        TEST_ASSERT_EQUAL(true, result);
 
         err = sock.close();
         TEST_ASSERT_EQUAL(0, err);
@@ -104,30 +114,16 @@ public:
 
 Echo *echoers[MBED_CFG_TCP_CLIENT_ECHO_THREADS];
 
+
 void test_tcp_echo_parallel() {
-    int err = net.connect();
+    net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+    int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
 
-    printf("MBED: TCPClient IP address is '%s'\n", net.get_ip_address());
-    printf("MBED: TCPClient waiting for server IP and port...\n");
+    printf("MBED: TCPClient IP address is '%s'\n", net->get_ip_address());
 
-    greentea_send_kv("target_ip", net.get_ip_address());
-
-    char recv_key[] = "host_port";
-    char ipbuf[60] = {0};
-    char portbuf[16] = {0};
-    unsigned int port = 0;
-
-    greentea_send_kv("host_ip", " ");
-    greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
-
-    greentea_send_kv("host_port", " ");
-    greentea_parse_kv(recv_key, portbuf, sizeof(recv_key), sizeof(ipbuf));
-    sscanf(portbuf, "%u", &port);
-
-    printf("MBED: Server IP address received: %s:%d \n", ipbuf, port);
-    tcp_addr.set_ip_address(ipbuf);
-    tcp_addr.set_port(port);
+    tcp_addr.set_ip_address(MBED_CONF_APP_ECHO_SERVER_ADDR);
+    tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 
     // Startup echo threads in parallel
     for (int i = 0; i < MBED_CFG_TCP_CLIENT_ECHO_THREADS; i++) {
@@ -140,7 +136,7 @@ void test_tcp_echo_parallel() {
         delete echoers[i];
     }
 
-    net.disconnect();
+    net->disconnect();
 }
 
 // Test setup

@@ -1,27 +1,26 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+/*
+ * Copyright (c) 2013-2017, ARM Limited, All Rights Reserved
+ * SPDX-License-Identifier: Apache-2.0
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !FEATURE_LWIP
-    #error [NOT_SUPPORTED] LWIP not supported for this target
-#endif
-#if DEVICE_EMAC
-    #error [NOT_SUPPORTED] Not supported for WiFi targets
-#endif
+
+ #ifndef MBED_CONF_APP_CONNECT_STATEMENT
+     #error [NOT_SUPPORTED] No network configuration found for this target.
+ #endif
 
 #include "mbed.h"
-#include "EthernetInterface.h"
+#include MBED_CONF_APP_HEADER_FILE
 #include "UDPSocket.h"
 #include "greentea-client/test_env.h"
 #include "unity/unity.h"
@@ -46,19 +45,20 @@ using namespace utest::v1;
 #define MBED_CFG_UDP_DTLS_HANDSHAKE_TIMEOUT 1500
 #endif
 
+
 uint8_t buffer[MBED_CFG_UDP_DTLS_HANDSHAKE_BUFFER_SIZE] = {0};
 int udp_dtls_handshake_pattern[] = {MBED_CFG_UDP_DTLS_HANDSHAKE_PATTERN};
 const int udp_dtls_handshake_count = sizeof(udp_dtls_handshake_pattern) / sizeof(int);
 
 void test_udp_dtls_handshake() {
-    EthernetInterface eth;
-    int err = eth.connect();
+    NetworkInterface* net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+    int err =  MBED_CONF_APP_CONNECT_STATEMENT;
     TEST_ASSERT_EQUAL(0, err);
 
-    printf("MBED: UDPClient IP address is '%s'\n", eth.get_ip_address());
+    printf("MBED: UDPClient IP address is '%s'\n", net->get_ip_address());
     printf("MBED: UDPClient waiting for server IP and port...\n");
 
-    greentea_send_kv("target_ip", eth.get_ip_address());
+    greentea_send_kv("target_ip", net->get_ip_address());
 
     bool result = false;
 
@@ -95,7 +95,7 @@ void test_udp_dtls_handshake() {
     sock.set_timeout(MBED_CFG_UDP_DTLS_HANDSHAKE_TIMEOUT);
 
     for (int attempt = 0; attempt < MBED_CFG_UDP_DTLS_HANDSHAKE_RETRIES; attempt++) {
-        err = sock.open(&eth);
+        err = sock.open(net);
         TEST_ASSERT_EQUAL(0, err);
 
         for (int i = 0; i < udp_dtls_handshake_count; i++) {
@@ -143,8 +143,8 @@ void test_udp_dtls_handshake() {
         }
     }
 
-    eth.disconnect();
-    TEST_ASSERT(result);
+    net->disconnect();
+    TEST_ASSERT_EQUAL(true, result);
 }
 
 
