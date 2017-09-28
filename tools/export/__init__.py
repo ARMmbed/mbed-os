@@ -36,8 +36,10 @@ from tools.export import qtcreator
 from tools.targets import TARGET_NAMES
 
 EXPORTERS = {
-    'uvision5': uvision.Uvision,
-    'uvision': uvision.Uvision,
+    'uvision5-armc6': uvision.UvisionArmc6,
+    'uvision5-armc5': uvision.UvisionArmc5,
+    'uvision5': uvision.UvisionArmc5,
+    'uvision': uvision.UvisionArmc5,
     'lpcxpresso': lpcxpresso.LPCXpresso,
     'gcc_arm': makefile.GccArm,
     'make_gcc_arm': makefile.GccArm,
