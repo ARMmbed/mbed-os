@@ -160,6 +160,8 @@ public:
 
 private:
 
+    void wait_ms(uint32_t millisec);
+
     /** SerialBase lock override */
     virtual void lock(void);
 
