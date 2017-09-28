@@ -22,6 +22,10 @@
 
 namespace mbed {
 
+void Ticker::~Ticker() {
+    detach();
+}
+
 void Ticker::detach() {
     core_util_critical_section_enter();
     remove();
