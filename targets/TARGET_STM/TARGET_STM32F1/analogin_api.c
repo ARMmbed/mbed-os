@@ -33,6 +33,7 @@
 #include "mbed_wait_api.h"
 #include "cmsis.h"
 #include "pinmap.h"
+#include "mbed_error.h"
 #include "PeripheralPins.h"
 
 int adc_inited = 0;
@@ -93,7 +94,13 @@ void analogin_init(analogin_t *obj, PinName pin)
         obj->handle.Init.DiscontinuousConvMode = DISABLE;
         obj->handle.Init.NbrOfDiscConversion   = 0;
         obj->handle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-        HAL_ADC_Init(&obj->handle);
+
+        if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
+            error("Cannot initialize ADC\n");
+        }
+
+        // Calibrate ADC
+        HAL_ADCEx_Calibration_Start(&obj->handle);
     }
 }
 
