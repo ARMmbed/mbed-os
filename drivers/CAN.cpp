@@ -46,6 +46,11 @@ CAN::CAN(PinName rd, PinName td, int hz) : _can(), _irq() {
 
 CAN::~CAN() {
     // No lock needed in destructor
+
+    // Detaching interrupts releases the sleep lock if it was locked
+    for (int irq = 0; irq < IrqCnt; irq++) {
+        attach(NULL, (IrqType)irq);
+    }
     can_irq_free(&_can);
     can_free(&_can);
 }
