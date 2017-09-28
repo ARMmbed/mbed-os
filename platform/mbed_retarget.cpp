@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <time.h>
 #include "platform/platform.h"
 #include "platform/FilePath.h"
 #include "hal/serial_api.h"
+#include "hal/us_ticker_api.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_semihost_api.h"
 #include "platform/mbed_interface.h"
@@ -24,6 +26,7 @@
 #include "platform/mbed_error.h"
 #include "platform/mbed_stats.h"
 #include "platform/mbed_critical.h"
+#include "platform/PlatformMutex.h"
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -32,6 +35,8 @@
 #endif
 #include <errno.h>
 #include "platform/mbed_retarget.h"
+
+static SingletonPtr<PlatformMutex> _mutex;
 
 #if defined(__ARMCC_VERSION)
 #   if __ARMCC_VERSION >= 6010050
@@ -1030,3 +1035,23 @@ void operator delete[](void *ptr)
         free(ptr);
     }
 }
+
+/* @brief   standard c library clock() function.
+ *
+ * This function returns the number of clock ticks elapsed since the start of the program.
+ *
+ * @note Synchronization level: Thread safe
+ *
+ * @return
+ *  the number of clock ticks elapsed since the start of the program.
+ *
+ * */
+extern "C" clock_t clock()
+{
+    _mutex->lock();
+    clock_t t = us_ticker_read();
+    t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
+    _mutex->unlock();
+    return t;
+}
+
