@@ -76,6 +76,7 @@ public:
 #endif
     }
 
+    ~Ticker();
     /** Attach a function to be called by the Ticker, specifying the interval in seconds
      *
      *  @param func pointer to the function to be called
