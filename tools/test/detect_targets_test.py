@@ -21,6 +21,9 @@ from tools.detect_targets import get_interface_version
 
 
 class MbedLsToolsMock():
+    """
+    Mock of mbedls tools
+    """
     
     def __init__(self, type):
         self.interface_test_type = type
@@ -144,11 +147,12 @@ class DetectTargetsTest(unittest.TestCase):
     @patch("mbed_lstools.create", return_value=MbedLsToolsMock('details_invalid_none'))
     def test_interface_version_missing_mount_point(self, mbed_lstools_mock):
         """
-        Test that checks function returns correctly when no moint point is supplied.
+        Test that checks function returns correctly when no mount point is supplied.
         
         :param mbed_lstools_mock: Mocks Mbed LS tools with MbedLsToolsMock
         :return 
         """
+        
         interface_version = get_interface_version(self.missing_mount_point)
         assert interface_version == 'unknown'
 
