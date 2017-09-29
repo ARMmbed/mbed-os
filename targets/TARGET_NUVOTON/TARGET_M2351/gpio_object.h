@@ -22,6 +22,7 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
+#include "partition_M2351.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,8 +38,16 @@ static inline void gpio_write(gpio_t *obj, int value)
     MBED_ASSERT(obj->pin != (PinName)NC);    
     uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
-    
-    GPIO_PIN_DATA(port_index, pin_index) = value ? 1 : 0;
+#if defined (NVIC_INIT_ITNS0_VAL)
+    if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
+		{
+			GPIO_PIN_DATA_NS(port_index, pin_index) = value ? 1 : 0;
+		} else {
+			GPIO_PIN_DATA(port_index, pin_index) = value ? 1 : 0;
+		}
+#else
+        GPIO_PIN_DATA(port_index, pin_index) = value ? 1 : 0;
+#endif
 }
 
 static inline int gpio_read(gpio_t *obj)
@@ -46,8 +55,16 @@ static inline int gpio_read(gpio_t *obj)
     MBED_ASSERT(obj->pin != (PinName)NC);
     uint32_t pin_index = NU_PINNAME_TO_PIN(obj->pin);
     uint32_t port_index = NU_PINNAME_TO_PORT(obj->pin);
-    
-    return (GPIO_PIN_DATA(port_index, pin_index) ? 1 : 0);
+#if defined (NVIC_INIT_ITNS0_VAL)
+    if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
+		{    
+			return (GPIO_PIN_DATA_NS(port_index, pin_index) ? 1 : 0);			
+		} else {	
+			return (GPIO_PIN_DATA(port_index, pin_index) ? 1 : 0);
+		}	
+#else
+        return (GPIO_PIN_DATA(port_index, pin_index) ? 1 : 0);
+#endif
 }
 
 #ifdef __cplusplus
