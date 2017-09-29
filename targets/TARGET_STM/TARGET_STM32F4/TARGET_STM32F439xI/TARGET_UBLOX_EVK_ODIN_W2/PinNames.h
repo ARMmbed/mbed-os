@@ -57,7 +57,7 @@ typedef enum {
     PD_4  = 0x34, PD_5  = 0x35, PD_6  = 0x36, PD_7  = 0x37,
     PD_8  = 0x38, PD_9  = 0x39, PD_10 = 0x3A, PD_11 = 0x3B,
     PD_12 = 0x3C, PD_13 = 0x3D, PD_14 = 0x3E, PD_15 = 0x3F,
-    
+
     PE_0  = 0x40, PE_1  = 0x41, PE_2  = 0x42, PE_3  = 0x43,
     PE_4  = 0x44, PE_5  = 0x45, PE_6  = 0x46, PE_7  = 0x47,
     PE_8  = 0x48, PE_9  = 0x49, PE_10 = 0x4A, PE_11 = 0x4B,
@@ -80,100 +80,100 @@ typedef enum {
 
     // Module Pins
     // A
-    P_A5    = PC_2,   // UART-DTR
-    P_A6    = PF_2,   // Switch-0
-    P_A7    = PE_0,   // Red, Mode
-    P_A8    = PB_6,   // Green, Switch-1
-    P_A9    = PB_8,   // Blue
-    P_A10   = PA_11,  // UART-CTS
-    P_A11   = PA_9,   // UART-TXD
-    P_A12   = PA_12,  // UART-RTS
-    P_A13   = PA_10,  // UART-RXD
-    P_A14   = PD_9,   // GPIO-0
-    P_A15   = PD_8,   // GPIO-1
-    P_A16   = PD_11,  // GPIO-2
-    P_A17   = PD_12,  // GPIO-3
-    P_A18   = PA_3,   // UART-DSR
+    P_A5       = PC_2,   // UART-DTR
+    P_A6       = PF_2,   // Switch-0
+    P_A7       = PE_0,   // Red, Mode
+    P_A8       = PB_6,   // Green, Switch-1
+    P_A9       = PB_8,   // Blue
+    P_A10      = PA_11,  // UART-CTS
+    P_A11      = PA_9,   // UART-TXD
+    P_A12      = PA_12,  // UART-RTS
+    P_A13      = PA_10,  // UART-RXD
+    P_A14      = PD_9,   // GPIO-0
+    P_A15      = PD_8,   // GPIO-1
+    P_A16      = PD_11,  // GPIO-2
+    P_A17      = PD_12,  // GPIO-3
+    P_A18      = PA_3,   // UART-DSR
     // B
     // C
-    P_C5    = PG_4,   // SPI-IRQ
-    P_C6    = PE_13,  // SPI-MISO
-    P_C8    = PE_12,  // Res
-    P_C10   = PE_14,  // SPI-MOSI
-    P_C11   = PE_11,  // SPI-CS0
-    P_C12   = PE_9,   // Res
-    P_C13   = PF_6,   // GPIO-4
-    P_C14   = PC_1,   // RMII-MDC
-    P_C15   = PA_2,   // RMII-MDIO
-    P_C16   = PF_7,   // GPIO-7
-    P_C17   = PF_1,   // I2C-SCL
-    P_C18   = PF_0,   // I2C-SDA
+    P_C5       = PG_4,   // SPI-IRQ
+    P_C6       = PE_13,  // SPI-MISO
+    P_C8       = PE_12,  // Res
+    P_C10      = PE_14,  // SPI-MOSI
+    P_C11      = PE_11,  // SPI-CS0
+    P_C12      = PE_9,   // Res
+    P_C13      = PF_6,   // GPIO-4
+    P_C14      = PC_1,   // RMII-MDC
+    P_C15      = PA_2,   // RMII-MDIO
+    P_C16      = PF_7,   // GPIO-7
+    P_C17      = PF_1,   // I2C-SCL
+    P_C18      = PF_0,   // I2C-SDA
 	  // D
-    P_D1    = PB_12,  // RMII-TXD0
-    P_D2    = PB_13,  // RMII-TXD1
-    P_D3    = PB_11,  // RMII-TXEN
-    P_D4    = PA_7,   // RMII-CRSDV
-    P_D5    = PC_4,   // RMII-RXD0
-    P_D6    = PC_5,   // RMII-RXD1
-    P_D8    = PA_1,   // RMII-REFCLK
+    P_D1       = PB_12,  // RMII-TXD0
+    P_D2       = PB_13,  // RMII-TXD1
+    P_D3       = PB_11,  // RMII-TXEN
+    P_D4       = PA_7,   // RMII-CRSDV
+    P_D5       = PC_4,   // RMII-RXD0
+    P_D6       = PC_5,   // RMII-RXD1
+    P_D8       = PA_1,   // RMII-REFCLK
     // TP
-    P_TP5   = PB_4,   // NTRST
-    P_TP7   = PA_13,  // TMS  SWDIO
-    P_TP8   = PA_15,  // TDI
-    P_TP9   = PA_14,  // TCK  SWCLK
-    P_TP10  = PB_3,   // TDO 
-    //P_TP11,         // BOOT0 		
+    P_TP5      = PB_4,   // NTRST
+    P_TP7      = PA_13,  // TMS  SWDIO
+    P_TP8      = PA_15,  // TDI
+    P_TP9      = PA_14,  // TCK  SWCLK
+    P_TP10     = PB_3,   // TDO
+    //P_TP11,         // BOOT0
 
     // Board Pins
     // A0-A5
-    A0      = PF_6,  // AI4
-    A1      = PA_3,  // AI3
-    A2      = PC_2,  // AI12
-    A3      = PF_7,  // LPOCLK, not AI
-    A4      = PG_4,  // not AI
-    A5      = PE_0,  // not AI
+    A0         = PF_6,  // AI4
+    A1         = PA_3,  // AI3
+    A2         = PC_2,  // AI12
+    A3         = PF_7,  // LPOCLK, not AI
+    A4         = PG_4,  // not AI
+    A5         = PE_0,  // not AI
     // D0-D15
-    D0      = PD_9,   // UART3-RX
-    D1      = PD_8,   // UART3-TX
-    D2      = PA_10,  // UART1-RX
-    D3      = PA_11,  // CAN1-RX
-    D4      = PA_12,  // CAN1-TX
-    D5      = PB_8,
-    D6      = PD_11,  // UART3-CTS
-    D7      = PD_12,  // UART3-RTS
-    D8      = PA_9,   // UART1-TX
-    D9      = PE_9,   // SDCard-CS
-    D10     = PE_11,  // SSEL
-    D11     = PE_14,  // MOSI
-    D12     = PE_13,  // MISO
-    D13     = PE_12,  // SCK
-    D14     = PF_0,   // SDA
-    D15     = PF_1,   // SCL
+    D0         = PD_9,   // UART3-RX
+    D1         = PD_8,   // UART3-TX
+    D2         = PA_10,  // UART1-RX
+    D3         = PA_11,  // CAN1-RX
+    D4         = PA_12,  // CAN1-TX
+    D5         = PB_8,
+    D6         = PD_11,  // UART3-CTS
+    D7         = PD_12,  // UART3-RTS
+    D8         = PA_9,   // UART1-TX
+    D9         = PE_9,   // SDCard-CS
+    D10        = PE_11,  // SSEL
+    D11        = PE_14,  // MOSI
+    D12        = PE_13,  // MISO
+    D13        = PE_12,  // SCK
+    D14        = PF_0,   // SDA
+    D15        = PF_1,   // SCL
     // Internal
-    LED1    = PE_0,   // Red / Mode
-    LED2    = PB_6,   // Green / Switch-1
-    LED3    = PB_8,   // Blue
-    LED4    = D10,
-    SW0     = PF_2,   // Switch-0
-    SW1     = PB_6,   // Green / Switch-1
+    LED1       = PE_0,   // Red / Mode
+    LED2       = PB_6,   // Green / Switch-1
+    LED3       = PB_8,   // Blue
+    LED4       = D10,
+    LED_RED    = LED1,
+    LED_GREEN  = LED2,
+    LED_BLUE   = LED3,
+    SW0        = PF_2,   // Switch-0
+    SW1        = PB_6,   // Green / Switch-1
 
-    LED_RED   = LED1,
-    LED_GREEN = LED2,
-    LED_BLUE  = LED3,
 
     // Standardized button names
-    BUTTON1 = SW0,
-    BUTTON2 = SW1,
+    BUTTON1    = SW0,
+    BUTTON2    = SW1,
 
     // ST-Link
-    USBRX   = PA_10,
-    USBTX   = PA_9,
-    SWDIO   = PA_15, 
-    SWCLK   = PA_14, 
-    NTRST   = PB_4,  
+    USBRX      = PA_10,
+    USBTX      = PA_9,
+    SWDIO      = PA_15,
+    SWCLK      = PA_14,
+    NTRST      = PB_4,
 
     // Not connected
-    NC = (int)0xFFFFFFFF
+    NC    = (int)0xFFFFFFFF
 } PinName;
 
 #ifdef __cplusplus
