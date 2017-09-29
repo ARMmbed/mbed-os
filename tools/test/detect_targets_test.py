@@ -16,14 +16,59 @@ limitations under the License.
 """
 
 import unittest
+from mock import patch
 from tools.detect_targets import get_interface_version
-from tools.test_api import get_autodetected_MUTS_list
+
+
+class MbedLsToolsMock():
+    
+    def __init__(self, type):
+        self.interface_test_type = type
+    
+    def get_details_txt(self, mount_point):
+        return self.details_txt_types[self.interface_test_type];
+    
+    # Static details.txt types.
+    details_txt_types = {    
+        'details_valid_interface_version' : {
+            'Unique ID': '0226000029164e45002f0012706e0006f301000097969900',
+            'HIF ID': '97969900',
+            'Auto Reset': '0',
+            'Automation allowed': '0',
+            'Daplink Mode': 'Interface',
+            'Interface Version': '0240',
+            'Git SHA': 'c765cbb590f57598756683254ca38b211693ae5e',
+            'Local Mods': '0',
+            'USB Interfaces': 'MSD, CDC, HID',
+            'Interface CRC': '0x26764ebf'
+        },
+        'details_valid_version' : {
+            'Version': '0226',
+            'Build':   'Aug 24 2015 17:06:30',
+            'Git Commit SHA': '27a236b9fe39c674a703c5c89655fbd26b8e27e1',
+            'Git Local mods': 'Yes'
+        }, 
+        'details_missing_interface_version' : {
+            'Unique ID': '0226000033514e450044500585d4001de981000097969900',
+            'HIC ID': '97969900',
+            'Auto Reset': '0',
+            'Automation allowed': '0',
+            'Overflow detection': '0',
+            'Daplink Mode': 'Interface',
+            'Git SHA': 'b403a07e3696cee1e116d44cbdd64446e056ce38',
+            'Local Mods': '0',
+            'USB Interfaces': 'MSD, CDC, HID',
+            'Interface CRC': '0x4d98bf7e',
+            'Remount count': '0'
+        },
+        'details_invalid_none' : None
+    }
 
 """
 Tests for detect_targets.py
 """
 
-class DetectTargetsTests(unittest.TestCase):
+class DetectTargetsTest(unittest.TestCase):
     """
     Test cases for Detect Target functionality
     """
@@ -33,26 +78,9 @@ class DetectTargetsTests(unittest.TestCase):
         Called before each test case
 
         :return:
-        """
-        # Gather a valid mount point from the host machine
-        muts = get_autodetected_MUTS_list()
-        
-        count = 0
-        
-        for mut in muts.values():
-            
-            count += 1
-            self.valid_mount_point = mut['disk']
-            break
-        
-        # If no targets are found, there is no way to determine Host OS mount point.
-        # Function should handle failure gracefully regardless of a mount point being present.
-        # Therefore it is safe to assume a valid mount point.
-        if count is 0:
-            self.valid_mount_point = "D:"        
-        
-        self.invalid_mount_point = "23z/e\n"
+        """      
         self.missing_mount_point = None
+        self.mount_point = "D:"
 
     def tearDown(self):
         """
@@ -62,22 +90,67 @@ class DetectTargetsTests(unittest.TestCase):
         :return:
         """
         pass
-
-    def test_interface_version_valid_mount_point(self):
+    
+    @patch("mbed_lstools.create", return_value=MbedLsToolsMock('details_valid_interface_version'))
+    def test_interface_version_valid(self, mbed_lstools_mock):
+        """
+        Test that checks function returns correctly when given a valid Interface Version
         
-        interface_version = get_interface_version(self.valid_mount_point)
-        assert len(interface_version) > 0
+        :param mbed_lstools_mock: Mocks Mbed LS tools with MbedLsToolsMock
+        :return 
+        """
 
-    def test_interface_version_invalid_mount_point(self):
+        interface_version = get_interface_version(self.mount_point)
+        assert interface_version == '0240'
         
-        interface_version = get_interface_version(self.invalid_mount_point)
+    @patch("mbed_lstools.create", return_value=MbedLsToolsMock('details_valid_version'))
+    def test_version_valid(self, mbed_lstools_mock):
+        """
+        Test that checks function returns correctly when given a valid Version
+        
+        :param mbed_lstools_mock: Mocks Mbed LS tools with MbedLsToolsMock
+        :return 
+        """
+
+        interface_version = get_interface_version(self.mount_point)
+        assert interface_version == '0226'
+        
+    @patch("mbed_lstools.create", return_value=MbedLsToolsMock('details_missing_interface_version'))
+    def test_interface_version_missing_interface_version(self, mbed_lstools_mock):
+        """
+        Test that checks function returns correctly when DETAILS.txt is present
+        but an interface version is not listed.
+        
+        :param mbed_lstools_mock: Mocks Mbed LS tools with MbedLsToolsMock
+        :return 
+        """
+
+        interface_version = get_interface_version(self.mount_point)
         assert interface_version == 'unknown'
         
-    def test_interface_version_missing_mount_point(self):
+    @patch("mbed_lstools.create", return_value=MbedLsToolsMock('details_invalid_none'))
+    def test_version_none(self, mbed_lstools_mock):
+        """
+        Test that checks function returns correctly when a valid mount point is supplied
+        but DETAILS.txt is not present.
         
+        :param mbed_lstools_mock: Mocks Mbed LS tools with MbedLsToolsMock
+        :return 
+        """
+        
+        interface_version = get_interface_version(self.mount_point)
+        assert interface_version == 'unknown'
+    
+    @patch("mbed_lstools.create", return_value=MbedLsToolsMock('details_invalid_none'))
+    def test_interface_version_missing_mount_point(self, mbed_lstools_mock):
+        """
+        Test that checks function returns correctly when no moint point is supplied.
+        
+        :param mbed_lstools_mock: Mocks Mbed LS tools with MbedLsToolsMock
+        :return 
+        """
         interface_version = get_interface_version(self.missing_mount_point)
         assert interface_version == 'unknown'
-
 
 if __name__ == '__main__':
     unittest.main()

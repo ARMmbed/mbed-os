@@ -113,7 +113,7 @@ def get_interface_version(mount_point):
     if get_module_avail('mbed_lstools'):
         try :
             mbeds = mbed_lstools.create()
-            details_txt = mbeds.get_details_txt(mount_point)    
+            details_txt = mbeds.get_details_txt(mount_point)
             
             if 'Interface Version' in details_txt:
                 return details_txt['Interface Version']
