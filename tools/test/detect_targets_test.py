@@ -25,8 +25,8 @@ class MbedLsToolsMock():
     Mock of mbedls tools
     """
     
-    def __init__(self, type):
-        self.interface_test_type = type
+    def __init__(self, test_type):
+        self.interface_test_type = test_type
     
     def get_details_txt(self, mount_point):
         return self.details_txt_types[self.interface_test_type];
