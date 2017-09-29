@@ -31226,11 +31226,7 @@ typedef struct
 /* Peripheral and SRAM base address */
 #define SRAM_BASE            (0x20000000UL)                              /*!< (SRAM      ) Base Address */
 #define NS_OFFSET            (0x10000000UL)
-#if (__DOMAIN_NS == 1U)
-#define PERIPH_BASE          (0x40000000UL + NS_OFFSET)                              /*!< (Peripheral) Base Address */
-#else
 #define PERIPH_BASE          (0x40000000UL)                              /*!< (Peripheral) Base Address */
-#endif
 
 /* Peripheral memory map */
 #define AHBPERIPH_BASE       PERIPH_BASE

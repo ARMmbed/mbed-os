@@ -21,6 +21,7 @@
 #include "nu_miscutil.h"
 #include "mbed_critical.h"
 
+
 // us_ticker tick = us = timestamp
 #define US_PER_TICK             1
 #define US_PER_SEC              (1000 * 1000)
@@ -50,13 +51,15 @@ static volatile uint32_t cd_minor_us = 0;
 //       2. HXT: Less accurate and cannot pass mbed-drivers test.
 //       3. PCLK(HXT): Less accurate but can pass mbed-drivers test.
 // NOTE: TIMER_0 for normal counter, TIMER_1 for countdown.
+
 static const struct nu_modinit_s timer0hires_modinit = {TIMER_0, TMR0_MODULE, CLK_CLKSEL1_TMR0SEL_PCLK0, 0, TMR0_RST, TMR0_IRQn, (void *) tmr0_vec};
 static const struct nu_modinit_s timer1hires_modinit = {TIMER_1, TMR1_MODULE, CLK_CLKSEL1_TMR1SEL_PCLK0, 0, TMR1_RST, TMR1_IRQn, (void *) tmr1_vec};
 
 #define TMR_CMP_MIN         2
 #define TMR_CMP_MAX         0xFFFFFFu
 
-
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void us_ticker_init(void)
 {
     if (us_ticker_inited) {
@@ -100,7 +103,10 @@ void us_ticker_init(void)
     TIMER_Start((TIMER_T *) NU_MODBASE(timer0hires_modinit.modname));
 
 }
+#endif
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 uint32_t us_ticker_read()
 {
     if (! us_ticker_inited) {
@@ -138,17 +144,22 @@ uint32_t us_ticker_read()
     }
     while (0);
 }
+#endif
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void us_ticker_disable_interrupt(void)
 {
     TIMER_DisableInt((TIMER_T *) NU_MODBASE(timer1hires_modinit.modname));
 }
 
+__attribute__((cmse_nonsecure_entry))
 void us_ticker_clear_interrupt(void)
 {
     TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(timer1hires_modinit.modname));
 }
 
+__attribute__((cmse_nonsecure_entry))
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer1hires_modinit.modname));
@@ -158,6 +169,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     us_ticker_arm_cd();
 }
 
+__attribute__((cmse_nonsecure_entry))
 void us_ticker_fire_interrupt(void)
 {
     cd_major_minor_us = cd_minor_us = 0;
@@ -167,6 +179,7 @@ void us_ticker_fire_interrupt(void)
      */
     NVIC_SetPendingIRQ(timer1hires_modinit.irq_n);
 }
+#endif
 
 static void tmr0_vec(void)
 {

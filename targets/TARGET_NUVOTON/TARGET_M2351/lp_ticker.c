@@ -50,6 +50,8 @@ static const struct nu_modinit_s timer3_modinit = {TIMER_3, TMR3_MODULE, CLK_CLK
 #define TMR_CMP_MIN         2
 #define TMR_CMP_MAX         0xFFFFFFu
 
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__attribute__((cmse_nonsecure_entry))
 void lp_ticker_init(void)
 {
     if (lp_ticker_inited) {
@@ -104,6 +106,7 @@ void lp_ticker_init(void)
     // Schedule wakeup to match semantics of lp_ticker_get_compare_match()
     lp_ticker_set_interrupt(wakeup_tick);
 }
+#endif
 
 timestamp_t lp_ticker_read()
 {    

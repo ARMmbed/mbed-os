@@ -263,10 +263,9 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*);
+        . += (ORIGIN(RAM_INTERN) + LENGTH(RAM_INTERN) - .);        
         __HeapLimit = .;
     } > RAM_INTERN
-
-    __HeapLimit = ORIGIN(RAM_INTERN) + LENGTH(RAM_INTERN);    
     
     PROVIDE(__heap_size = SIZEOF(.heap));
     PROVIDE(__mbed_sbrk_start = ADDR(.heap));

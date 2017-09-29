@@ -18,6 +18,7 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "mbed_error.h"
+#include "partition_M2351.h"
 
 #if DEVICE_PORTIN || DEVICE_PORTOUT || DEVICE_PORTINOUT
 
@@ -79,7 +80,16 @@ void port_write(port_t *obj, int value)
     
     for (i = 0; i < GPIO_PIN_MAX; i++) {
         if (obj->mask & (1 << i)) {
+#if defined (NVIC_INIT_ITNS0_VAL)
+            if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
+            {        
+                GPIO_PIN_DATA_NS(port_index, i) = (value & obj->mask) ? 1 : 0;
+             } else {
+                GPIO_PIN_DATA(port_index, i) = (value & obj->mask) ? 1 : 0;
+             }
+#else
             GPIO_PIN_DATA(port_index, i) = (value & obj->mask) ? 1 : 0;
+#endif             
         }
     }
 }
@@ -92,7 +102,16 @@ int port_read(port_t *obj)
     
     for (i = 0; i < GPIO_PIN_MAX; i++) {
         if (obj->mask & (1 << i)) {
+#if defined (NVIC_INIT_ITNS0_VAL)
+            if( NVIC_INIT_ITNS0_VAL & (0x01 << (16 + port_index)) )
+            {         
+                value = value | (GPIO_PIN_DATA_NS(port_index, i) << i);
+            } else {
+                value = value | (GPIO_PIN_DATA(port_index, i) << i);
+            }
+#else
             value = value | (GPIO_PIN_DATA(port_index, i) << i);
+#endif
         }
     }
     
