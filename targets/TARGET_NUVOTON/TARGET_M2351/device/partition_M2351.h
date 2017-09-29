@@ -367,7 +367,7 @@
 
 //
 */
-#define NVIC_INIT_ITNS1_VAL      0x0F
+#define NVIC_INIT_ITNS1_VAL      0x0C
 
 /*
     Initialize ITNS 2 (Interrupts 0..31)
@@ -432,7 +432,7 @@
 */
 
 
-
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 /*
     max 128 SAU regions.
     SAU regions are defined in partition.h
@@ -539,7 +539,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
     /* repeat this for all possible ITNS elements */
 
 }
-
+#endif
 
 /*
 // <h> Peripheral Secure Attribution Configuration
@@ -584,7 +584,7 @@ __STATIC_INLINE void TZ_SAU_Setup(void)
 //   <o.26>  BPWM0      <0=> Secure <1=> Non-Secure
 //   <o.27>  BPWM1      <0=> Secure <1=> Non-Secure
 */
-#define SCU_INIT_PNSSET2_VAL      0x00000002
+#define SCU_INIT_PNSSET2_VAL      0x00020002
 /*
     PNSSET3
 */
