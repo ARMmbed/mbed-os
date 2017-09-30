@@ -51,10 +51,4 @@ performed on the device.
 #define CRP CRP_NONE
 #endif
 
-#if defined (__ICCARM__)
-    __root const long CRP_Key@APPLICATION_ADDR + 0x000002FC = CRP;
-#elif defined (__ARMCC_VERSION)
-    const long CRP_Key __attribute__((used)) __attribute__((at(APPLICATION_ADDR+0x000002FC))) = CRP;
-#elif defined (__GNUC__)
-    const long CRP_Key __attribute__((used)) __attribute__((section(".CRPSection"))) = CRP;
-#endif
+MBED_SECTION(".CRPSection") MBED_USED const long CRP_Key = CRP;
