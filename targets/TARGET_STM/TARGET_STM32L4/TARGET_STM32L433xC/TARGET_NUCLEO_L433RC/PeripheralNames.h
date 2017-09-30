@@ -47,26 +47,31 @@ typedef enum {
 typedef enum {
     UART_1 = (int)USART1_BASE,
     UART_2 = (int)USART2_BASE,
+    UART_3 = (int)USART3_BASE,
     LPUART_1 = (int)LPUART1_BASE
 } UARTName;
 
 #define STDIO_UART_TX  PA_2
-#define STDIO_UART_RX  PA_15
+#define STDIO_UART_RX  PA_3
 #define STDIO_UART     UART_2
 
 typedef enum {
     SPI_1 = (int)SPI1_BASE,
+    SPI_2 = (int)SPI2_BASE,
     SPI_3 = (int)SPI3_BASE
 } SPIName;
 
 typedef enum {
     I2C_1 = (int)I2C1_BASE,
+    I2C_2 = (int)I2C2_BASE,
     I2C_3 = (int)I2C3_BASE
 } I2CName;
 
 typedef enum {
     PWM_1  = (int)TIM1_BASE,
     PWM_2  = (int)TIM2_BASE,
+    PWM_6  = (int)TIM6_BASE,
+    PWM_7  = (int)TIM7_BASE,
     PWM_15 = (int)TIM15_BASE,
     PWM_16 = (int)TIM16_BASE,
 } PWMName;
