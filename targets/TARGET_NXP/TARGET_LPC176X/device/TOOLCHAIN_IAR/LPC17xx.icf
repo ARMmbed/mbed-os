@@ -19,8 +19,8 @@ define symbol __ICFEDIT_size_cstack__   = 0x1000;
 define symbol __ICFEDIT_size_heap__     = 0x2000;
 /**** End of ICF editor section. ###ICF###*/
 
-define symbol __CRP_start__   = 0x000002FC;
-define symbol __CRP_end__     = 0x000002FF;
+define symbol __CRP_start__   = MBED_APP_START + 0x000002FC;
+define symbol __CRP_end__     = MBED_APP_START + 0x000002FF;
 
 define symbol __RAM1_start__  = 0x2007C000;
 define symbol __RAM1_end__    = 0x20083FFF;
@@ -43,5 +43,5 @@ place in ROM_region   { readonly };
 place in RAM_region   { readwrite,
                         block HEAP, block CSTACK };
 
-place in CRP_region  	{ section .crp };
+place in CRP_region  	{ section .CRPSection };
 place in RAM1_region	{ section .ethusbram };
