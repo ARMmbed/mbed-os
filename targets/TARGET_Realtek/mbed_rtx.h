@@ -40,15 +40,5 @@
 #endif
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                PLATFORM_CLK
-#endif
-
 #endif
 #endif
