@@ -120,13 +120,13 @@ __vector_table
         DCD     0                                 ; Reserved
         DCD     I2C1_EV_IRQHandler                ; I2C1 Event
         DCD     I2C1_ER_IRQHandler                ; I2C1 Error
-        DCD     0                                 ; Reserved
-        DCD     0                                 ; Reserved
+        DCD     I2C2_EV_IRQHandler                ; I2C2 Event
+        DCD     I2C2_ER_IRQHandler                ; I2C2 Error
         DCD     SPI1_IRQHandler                   ; SPI1
-        DCD     0                                 ; Reserved
+        DCD     SPI2_IRQHandler                   ; SPI2
         DCD     USART1_IRQHandler                 ; USART1
         DCD     USART2_IRQHandler                 ; USART2
-        DCD     0                                 ; Reserved
+        DCD     USART3_IRQHandler                 ; USART3
         DCD     EXTI15_10_IRQHandler              ; External Line[15:10]
         DCD     RTC_Alarm_IRQHandler              ; RTC Alarm (A and B) through EXTI Line
         DCD     0                                 ; Reserved
@@ -136,7 +136,7 @@ __vector_table
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
         DCD     0                                 ; Reserved
-        DCD     0                                 ; Reserved
+        DCD     SDMMC1_IRQHandler                 ; SDMMC1
         DCD     0                                 ; Reserved
         DCD     SPI3_IRQHandler                   ; SPI3
         DCD     0                                 ; Reserved
@@ -165,7 +165,7 @@ __vector_table
         DCD     0                                 ; Reserved
         DCD     SWPMI1_IRQHandler                 ; Serial Wire Interface global interrupt
         DCD     TSC_IRQHandler                    ; Touch Sense Controller global interrupt
-        DCD     0                                 ; Reserved
+        DCD     LCD_IRQHandler                    ; LCD global interrupt
         DCD     0                                 ; Reserved
         DCD     RNG_IRQHandler                    ; RNG global interrupt
         DCD     FPU_IRQHandler                    ; FPU interrupt
@@ -384,10 +384,25 @@ I2C1_EV_IRQHandler
 I2C1_ER_IRQHandler
         B I2C1_ER_IRQHandler
 
+        PUBWEAK I2C2_EV_IRQHandler
+        SECTION .text:CODE:NOROOT:REORDER(1)
+I2C2_EV_IRQHandler
+        B I2C2_EV_IRQHandler
+
+        PUBWEAK I2C2_ER_IRQHandler
+        SECTION .text:CODE:NOROOT:REORDER(1)
+I2C2_ER_IRQHandler
+        B I2C2_ER_IRQHandler
+
         PUBWEAK SPI1_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 SPI1_IRQHandler
         B SPI1_IRQHandler
+
+        PUBWEAK SPI2_IRQHandler
+        SECTION .text:CODE:NOROOT:REORDER(1)
+SPI2_IRQHandler
+        B SPI2_IRQHandler
 
         PUBWEAK USART1_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
@@ -399,6 +414,11 @@ USART1_IRQHandler
 USART2_IRQHandler
         B USART2_IRQHandler
 
+        PUBWEAK USART3_IRQHandler
+        SECTION .text:CODE:NOROOT:REORDER(1)
+USART3_IRQHandler
+        B USART3_IRQHandler
+
         PUBWEAK EXTI15_10_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 EXTI15_10_IRQHandler
@@ -408,6 +428,11 @@ EXTI15_10_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 RTC_Alarm_IRQHandler
         B RTC_Alarm_IRQHandler
+
+        PUBWEAK SDMMC1_IRQHandler
+        SECTION .text:CODE:NOROOT:REORDER(1)
+SDMMC1_IRQHandler
+        B SDMMC1_IRQHandler
 
         PUBWEAK SPI3_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
@@ -513,6 +538,11 @@ SWPMI1_IRQHandler
        SECTION .text:CODE:NOROOT:REORDER(1)
 TSC_IRQHandler
        B TSC_IRQHandler
+
+       PUBWEAK LCD_IRQHandler
+       SECTION .text:CODE:NOROOT:REORDER(1)
+LCD_IRQHandler
+       B LCD_IRQHandler
 
         PUBWEAK RNG_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
