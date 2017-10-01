@@ -72,6 +72,7 @@ typedef enum {
   PB_14 = 0x1E,
   PB_15 = 0x1F,
 
+#ifndef STM32L433_48PINS // 48 pin versions don't have PC0-PC15 pins
   PC_0  = 0x20,
   PC_1  = 0x21,
   PC_2  = 0x22,
@@ -85,11 +86,48 @@ typedef enum {
   PC_10 = 0x2A,
   PC_11 = 0x2B,
   PC_12 = 0x2C,
+#endif
   PC_13 = 0x2D,
-
   PC_14 = 0x2E,
   PC_15 = 0x2F,
+
     
+#ifdef STM32L433_100PINS // LQFP100 or UFBGA100 versions
+  PD_0  = 0x30,
+  PD_1  = 0x31,
+  PD_2  = 0x32,
+  PD_3  = 0x33,
+  PD_4  = 0x34,
+  PD_5  = 0x35,
+  PD_6  = 0x36,
+  PD_7  = 0x37,
+  PD_8  = 0x38,
+  PD_9  = 0x39,
+  PD_10 = 0x3A,
+  PD_11 = 0x3B,
+  PD_12 = 0x3C,
+  PD_13 = 0x3D,
+  PD_14 = 0x3E,
+  PD_15 = 0x3F,
+    
+  PE_0  = 0x40,
+  PE_1  = 0x41,
+  PE_2  = 0x42,
+  PE_3  = 0x43,
+  PE_4  = 0x44,
+  PE_5  = 0x45,
+  PE_6  = 0x46,
+  PE_7  = 0x47,
+  PE_8  = 0x48,
+  PE_9  = 0x49,
+  PE_10 = 0x4A,
+  PE_11 = 0x4B,
+  PE_12 = 0x4C,
+  PE_13 = 0x4D,
+  PE_14 = 0x4E,
+  PE_15 = 0x4F,
+#endif
+
   PH_0  = 0x70,
   PH_1  = 0x71,
 
@@ -135,15 +173,15 @@ typedef enum {
   BUTTON1 = USER_BUTTON,
   SERIAL_TX   = PA_2,
   SERIAL_RX   = PA_3,
-  USBTX       = PA_2,
-  USBRX       = PA_3,
+  USBTX       = SERIAL_TX,
+  USBRX       = SERIAL_RX,
   I2C_SCL     = PB_8,
   I2C_SDA     = PB_7,
-  SPI_MOSI    = PB_15,
-  SPI_MISO    = PB_14,
-  SPI_SCK     = PB_13,
-  SPI_CS      = PA_11,
-  PWM_OUT     = PB_0,
+  SPI_MOSI    = D11,
+  SPI_MISO    = D12,
+  SPI_SCK     = D13,
+  SPI_CS      = D10,
+  PWM_OUT     = D9,
 
   //USB pins
   USB_DM = PA_11,
