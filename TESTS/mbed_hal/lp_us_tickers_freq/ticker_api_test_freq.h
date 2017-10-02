@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-/** \addtogroup hal_us_ticker_tests */
+/** \addtogroup hal_ticker_tests */
 /** @{*/
 
-#ifndef US_TICKER_API_TESTS_H
-#define US_TICKER_API_TESTS_H
+#ifndef TICKER_API_TEST_FREQ_H
+#define TICKER_API_TEST_FREQ_H
 
 #include "device.h"
 
@@ -27,11 +27,13 @@
 extern "C" {
 #endif
 
-
-/** Test that the ticker has the right frequency and number of bits
+/** Test that the ticker is operating at the frequency it specifies.
  *
+ * Given ticker is available.
+ * When ticker specifies its frequency.
+ * Then the specified frequency is valid.
  */
-void us_ticker_info_test(void);
+void ticker_frequency_test(void);
 
 
 /**@}*/
