@@ -38,13 +38,25 @@ extern "C" {
 #endif
 
 typedef enum {
+  ALT0 = 0x100,
+  ALT1 = 0x200,
+  ALT2 = 0x300,
+  ALT3 = 0x400
+} ALTx;
+
+typedef enum {
   PA_0  = 0x00,
   PA_1  = 0x01,
+  PA_1_ALT0 = PA_1|ALT0,
   PA_2  = 0x02,
+  PA_2_ALT0 = PA_2|ALT0,
   PA_3  = 0x03,
+  PA_3_ALT0 = PA_3|ALT0,
   PA_4  = 0x04,
+  PA_4_ALT0 = PA_4|ALT0,
   PA_5  = 0x05,
   PA_6  = 0x06,
+  PA_6_ALT0 = PA_6|ALT0,
   PA_7  = 0x07,
   PA_8  = 0x08,
   PA_9  = 0x09,
@@ -54,13 +66,18 @@ typedef enum {
   PA_13 = 0x0D,
   PA_14 = 0x0E,
   PA_15 = 0x0F,
+  PA_15_ALT0 = PA_15|ALT0,
 
   PB_0  = 0x10,
   PB_1  = 0x11,
+  PB_1_ALT0 = PB_1|ALT0,
   PB_2  = 0x12,
   PB_3  = 0x13,
+  PB_3_ALT0 = PB_3|ALT0,
   PB_4  = 0x14,
+  PB_4_ALT0 = PB_4|ALT0,
   PB_5  = 0x15,
+  PB_5_ALT0 = PB_5|ALT0,
   PB_6  = 0x16,
   PB_7  = 0x17,
   PB_8  = 0x18,
@@ -69,8 +86,11 @@ typedef enum {
   PB_11 = 0x1B,
   PB_12 = 0x1C,
   PB_13 = 0x1D,
+  PB_13_ALT0 = PB_13|ALT0,
   PB_14 = 0x1E,
+  PB_14_ALT0 = PB_14|ALT0,
   PB_15 = 0x1F,
+  PB_15_ALT0 = PB_15|ALT0,
 
 #ifndef STM32L433_48PINS // 48 pin versions don't have PC0-PC15 pins
   PC_0  = 0x20,
@@ -92,10 +112,10 @@ typedef enum {
   PC_15 = 0x2F,
 
     
-//#ifdef STM32L433_100PINS // LQFP100 or UFBGA100 versions
+  PD_2  = 0x32,
+#ifdef STM32L433_100PINS // LQFP100 or UFBGA100 versions
   PD_0  = 0x30,
   PD_1  = 0x31,
-  PD_2  = 0x32,
   PD_3  = 0x33,
   PD_4  = 0x34,
   PD_5  = 0x35,
@@ -126,7 +146,7 @@ typedef enum {
   PE_13 = 0x4D,
   PE_14 = 0x4E,
   PE_15 = 0x4F,
-//#endif
+#endif
 
   PH_0  = 0x70,
   PH_1  = 0x71,
