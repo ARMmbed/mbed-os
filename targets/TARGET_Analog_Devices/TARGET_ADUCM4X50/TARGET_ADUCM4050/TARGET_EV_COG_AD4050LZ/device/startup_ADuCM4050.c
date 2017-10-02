@@ -65,18 +65,6 @@ const uint32_t SECTION_PLACE(blank_checksum[],".checksum") =
     BLANKX60,BLANKX600
 };
 
-/*----------------------------------------------------------------------------
-  A relocated IVT is requested.  Provision for IVT relocation
-  to RAM during startup.  This allows for dynamic interrupt
-  vector patching required by RTOS.  Places the relocated IVT
-  at the start of RAM.  We need  (72 + 15 + 1)*4 = 352 bytes,
-  which address 0x20000000.
-*----------------------------------------------------------------------------*/
-#ifdef __ICCARM__
-void (*__Relocated___Vectors[NVIC_NUM_VECTORS])(void) @(NVIC_RAM_VECTOR_ADDRESS);
-#else
-void (*__Relocated___Vectors[NVIC_NUM_VECTORS])(void) __attribute__((at(NVIC_RAM_VECTOR_ADDRESS)));
-#endif /* __ICCARM__ */
 
 /*----------------------------------------------------------------------------
   External function Declaration
