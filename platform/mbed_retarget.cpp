@@ -1049,9 +1049,8 @@ void operator delete[](void *ptr)
 extern "C" clock_t clock()
 {
     _mutex->lock();
-    clock_t t = us_ticker_read();
+    clock_t t = ticker_read(get_us_ticker_data());
     t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
     _mutex->unlock();
     return t;
 }
-
