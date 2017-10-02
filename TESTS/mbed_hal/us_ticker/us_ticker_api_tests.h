@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-/** \addtogroup hal_lp_ticker_tests
- *  @{
- */
+/** \addtogroup hal_us_ticker_tests */
+/** @{*/
 
-#ifndef LP_TICKER_API_TESTS_H
-#define LP_TICKER_API_TESTS_H
+#ifndef US_TICKER_API_TESTS_H
+#define US_TICKER_API_TESTS_H
 
 #include "device.h"
 
@@ -28,16 +27,13 @@
 extern "C" {
 #endif
 
-
-/** Test that the ticker has the right frequency and number of bits
+/** Test that the ticker has the correct frequency and number of bits.
  *
+ * Given ticker is available.
+ * When ticker information data is obtained.
+ * Then ticker information indicate that frequency between 250KHz and 8MHz and the counter is at least 16 bits wide.
  */
-void lp_ticker_info_test(void);
-
-/** Test that the ticker operates in deep sleep mode
- *
- */
-void lp_ticker_deepsleep_test(void);
+void us_ticker_info_test(void);
 
 
 /**@}*/
