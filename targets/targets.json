@@ -1402,7 +1402,7 @@
         "device_name": "STM32L433RC",
         "bootloader_supported": true
     },
-    "NUCLEO_L433RC": {
+    "NUCLEO_L433RC_P": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
