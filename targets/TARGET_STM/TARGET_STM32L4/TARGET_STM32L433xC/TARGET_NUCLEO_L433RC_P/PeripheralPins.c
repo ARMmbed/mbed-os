@@ -92,7 +92,6 @@ __weak const PinMap PinMap_DAC[] = {
 
 //*** I2C ***
 
-
 __weak const PinMap PinMap_I2C_SDA[] = {
     {PA_10,      I2C_1,    STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
     {PB_4,       I2C_3,    STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)},
@@ -117,8 +116,7 @@ __weak const PinMap PinMap_I2C_SCL[] = {
 
 
 //*** PWM ***
-// TODO: Timers/PWM for the L433xx need to be reviewed/completed,
-//       Check for TIM6/TIM7 of the 433
+
 __weak const PinMap PinMap_PWM[] = {
     {PA_0,       PWM_2,    STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF1_TIM2, 1, 0)}, // TIM2_CH1
     {PA_1,       PWM_15,   STM_PIN_DATA_EXT(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF14_TIM15, 1, 1)}, // TIM15_CH1N
