@@ -191,7 +191,14 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
 
 void i2c_reset(i2c_t *obj)
 {
-    return;
+    ADI_I2C_RESULT      I2C_Return;
+    ADI_I2C_HANDLE      I2C_Handle = *obj->pI2C_Handle;
+
+    I2C_Return = adi_i2c_Reset(I2C_Handle);
+    if (I2C_Return) {
+        obj->error = I2C_EVENT_ERROR;
+        return;
+    }
 }
 
 
@@ -205,34 +212,5 @@ int i2c_byte_write(i2c_t *obj, int data)
 {
     return 0;
 }
-
-
-
-#if DEVICE_I2CSLAVE
-void i2c_slave_mode(i2c_t *obj, int enable_slave)
-{
-
-}
-
-int i2c_slave_receive(i2c_t *obj)
-{
-
-}
-
-int i2c_slave_read(i2c_t *obj, char *data, int length)
-{
-    return length;
-}
-
-int i2c_slave_write(i2c_t *obj, const char *data, int length)
-{
-    return length;
-}
-
-void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
-{
-
-}
-#endif  // #if DEVICE_I2CSLAVE
 
 #endif  // #if DEVICE_I2C
