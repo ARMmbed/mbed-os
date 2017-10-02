@@ -92,7 +92,7 @@ typedef enum {
   PC_15 = 0x2F,
 
     
-#ifdef STM32L433_100PINS // LQFP100 or UFBGA100 versions
+//#ifdef STM32L433_100PINS // LQFP100 or UFBGA100 versions
   PD_0  = 0x30,
   PD_1  = 0x31,
   PD_2  = 0x32,
@@ -126,7 +126,7 @@ typedef enum {
   PE_13 = 0x4D,
   PE_14 = 0x4E,
   PE_15 = 0x4F,
-#endif
+//T#endif
 
   PH_0  = 0x70,
   PH_1  = 0x71,
