@@ -302,44 +302,6 @@ void serial_break_clear(serial_t *obj)
     adi_uart_ForceTxBreak(hDevice[obj->index], false);
 }
 
-#if DEVICE_SERIAL_ASYNCH
-uint8_t serial_tx_active(serial_t *obj)
-{
-    return 0;
-}
-
-uint8_t serial_rx_active(serial_t *obj)
-{
-    return 0;
-}
-
-int serial_irq_handler_asynch(serial_t *obj)
-{
-    return 0;
-}
-
-
-
-int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
-{
-    return 0;
-}
-
-void serial_rx_asynch(serial_t *obj, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
-{
-
-}
-
-void serial_tx_abort_asynch(serial_t *obj)
-{
-
-}
-
-void serial_rx_abort_asynch(serial_t *obj)
-{
-
-}
-#endif
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
 
