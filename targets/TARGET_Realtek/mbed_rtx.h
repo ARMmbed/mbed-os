@@ -20,7 +20,7 @@
 
 #include "rtl8195a.h"
 
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) || (__ARMCC_VERSION >= 6010050))
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Base[];
     extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Length[];
     #define ISR_STACK_START     (unsigned char *)(Image$$ARM_LIB_STACK$$ZI$$Base)
@@ -33,8 +33,7 @@
     #define INITIAL_SP          (__StackTop)
 #endif
 
-
-#if defined(__CC_ARM) || defined(__GNUC__)
+#if defined(__GNUC__)
 #ifndef ISR_STACK_SIZE
 #define ISR_STACK_SIZE          (0x1000)
 #endif
