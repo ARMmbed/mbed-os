@@ -20,10 +20,10 @@
 
 
 // CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
-// MCU Peripherals: 45 vectors =  180 bytes from 0x40 to 0x6D
-// Total: 61 vectors = 244 bytes to be reserved in RAM
+// MCU Peripherals: 46 vectors =  184 bytes from 0x40 to 0xF8
+// Total: 62 vectors = 248 bytes to be reserved in RAM
 
-#define NVIC_NUM_VECTORS      (16 + 45)   // CORE + MCU Peripherals
+#define NVIC_NUM_VECTORS      (16 + 46)   // CORE + MCU Peripherals
 #define NVIC_USER_IRQ_OFFSET  16
 
 #include "cmsis.h"
