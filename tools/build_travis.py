@@ -54,7 +54,7 @@ build_list = (
     { "target": "NUCLEO_F411RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
     { "target": "NUCLEO_F412ZG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "NUCLEO_L432KC",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
-    { "target": "NUCLEO_L433RC",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+    { "target": "NUCLEO_L433RC_P",   "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "NUCLEO_L476RG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "NUCLEO_L011K4",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
     { "target": "NUCLEO_L031K6",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
