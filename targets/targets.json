@@ -1345,7 +1345,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32L432KC"
     },
-    "NUCLEO_L433RC": {
+    "NUCLEO_L433RC_P": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
