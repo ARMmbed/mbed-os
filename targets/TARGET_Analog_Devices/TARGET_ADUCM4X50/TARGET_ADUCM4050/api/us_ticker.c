@@ -171,23 +171,23 @@ static void calc_event_counts(uint32_t timestamp)
     uint64_t aa;
 
     calc_time = get_current_time();
-    offset = timestamp - calc_time;             // offset in useconds
+    offset = timestamp - calc_time; // offset in useconds
 
-    if (offset > 0xf0000000u)					// if offset is a really big number, assume that timer has already expired (i.e. negative)
+    if (offset > 0xf0000000u)       // if offset is a really big number, assume that timer has already expired (i.e. negative)
         offset = 0u;
 
-    if (offset > 10u) {							// it takes 10us to user timer routine after interrupt.  Offset timer to account for that.
+    if (offset > 10u) {             // it takes 10us to user timer routine after interrupt.  Offset timer to account for that.
         offset -= 10u;
     } else
         offset = 0u;
 
     aa = (uint64_t) offset;
-    aa *= 26u;									// convert from 1MHz to 26MHz clock. todo scale for other clock freqs
+    aa *= 26u;                      // convert from 1MHz to 26MHz clock. todo scale for other clock freqs
 
     blocks = aa >> 7;
-    blocks++;                                   // round
+    blocks++;                       // round
 
-    largecnt = blocks>>1;                       // communicate to event_timer() routine
+    largecnt = blocks>>1;           // communicate to event_timer() routine
 }
 
 static void event_timer()
