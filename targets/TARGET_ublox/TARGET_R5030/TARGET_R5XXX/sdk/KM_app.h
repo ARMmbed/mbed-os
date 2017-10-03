@@ -298,10 +298,9 @@ typedef struct {
   @{
 */
 
+
 /******************************************************************************/
-/*                                                                            */
-/*                        		Peripheral Base Addresses                     */
-/*                                                                            */
+/*                        Peripheral Base Addresses                           */
 /******************************************************************************/
 
 #define PERIPH_BASE            						(0x40000000U) 						/*!< Peripherals Base Address  */ 
@@ -309,12 +308,12 @@ typedef struct {
 
 /*!< Peripherals Base Addresses*/
 
-#define SYS_CONTROL_BASE    (PERIPH_BASE + 0x09000000U)			/* sys control interface base address             		*/ 
-#define POWER_CONTROL_BASE    (PERIPH_BASE + 0x09001000U)         /* power controller interface base address				*/ 
-#define SECURITY_BASE    (PERIPH_BASE + 0x09002000U)         /* security base address                            	*/ 
-#define DVS_CONTROL_BASE    (PERIPH_BASE + 0x09003000U)         /* dvs control interface base address               	*/ 
-#define USB_CONTROL_AND_SETUP_BASE    (PERIPH_BASE + 0x09004000U)         /* usb control and setup base address               	*/ 
-#define SF_AO_CONTROL_BASE    (PERIPH_BASE + 0x09005000U)         /* sf ao control registers base address             	*/ 
+#define SYS_CONTROL_BASE    (PERIPH_BASE + 0x09000000U)			/* sys control interface base address */ 
+#define POWER_CONTROL_BASE    (PERIPH_BASE + 0x09001000U)         /* power controller interface base address */ 
+#define SECURITY_BASE    (PERIPH_BASE + 0x09002000U)         /* security base address */ 
+#define DVS_CONTROL_BASE    (PERIPH_BASE + 0x09003000U)         /* dvs control interface base address */ 
+#define USB_CONTROL_AND_SETUP_BASE    (PERIPH_BASE + 0x09004000U)         /* usb control and setup base address */ 
+#define SF_AO_CONTROL_BASE    (PERIPH_BASE + 0x09005000U)         /* sf ao control registers base address */ 
 #define OSPI_CONTROL_BASE    (PERIPH_BASE + 0x09006000U)         /* ospi control interface base address              	*/ 
 #define WATCHDOG1_BASE    (PERIPH_BASE + 0x09007000U)         /* watchdog1 base address                           	*/ 
 #define TIMER_BASE    (PERIPH_BASE + 0x09008000U)         /* timer base address                               	*/ 
@@ -374,7 +373,7 @@ typedef struct {
 #define PIO    ((pio_s *) PIO_CONTROL_BASE)           		 				
 #define OTP    ((otp_ctrl_s *) OTP_CONTROL_BASE)         	  			
 #define GNSS_APPS_TIMING    ((km_gnss_apps_tim_s *) GNSS_APPS_TIMING_BASE)         	   
-#define TDR_ACCESS_GATEWAY    ((tdr_access_unit_apb_s *) TDR_ACCESS_GATEWAY_BASE)   	 
+#define TDR_ACCESS_GATEWAY    ((tdr_access_unit_s *) TDR_ACCESS_GATEWAY_BASE)   	 
   
 #define UART1    ((uart_s *) UART1_CONTROL_BASE)           
 #define UART2    ((uart_s *) UART2_CONTROL_BASE)         
@@ -407,11 +406,10 @@ typedef struct {
 /*@}*/ /* end of group KM_PeripheralDecl */
 
 
-/*****************************************************************************************************************/
-/*                                                                           									 */
-/*                        		 			SYSTEM CONTROL INTREFACE                            				 */
-/*                                                                            									 */
-/*****************************************************************************************************************/
+
+/******************************************************************************/
+/*                        System Control Intreface                            */
+/******************************************************************************/
 
 #define SYS_CPU_BOOT_VINIT_REGISTER    (*(volatile uint32_t *)(SYS_CONTROL_BASE + 0x000U))
 #define SYS_CPU_MDM_CONFIG_REGISTER    (*(volatile uint32_t *)(SYS_CONTROL_BASE + 0x004U))
@@ -464,6 +462,7 @@ typedef struct {
 #define SYS_FUNC_MBIST_DONE_2_REGISTER    (*(volatile uint32_t *)(SYS_CONTROL_BASE + 0x0C0U))
 #define SYS_RST_FUNC_MBIST_DISABLE_1_REGISTER    (*(volatile uint32_t *)(SYS_CONTROL_BASE + 0x0C4U))
 #define SYS_RST_FUNC_MBIST_DISABLE_2_REGISTER    (*(volatile uint32_t *)(SYS_CONTROL_BASE + 0x0C8U))
+#define SYS_RST_CTRL_STATUS_REGISTER    (*(volatile uint32_t *)(SYS_CONTROL_BASE + 0x0CCU))
 #define SYS_PLL1_FREQ_CONFIG_REGISTER    (*(volatile uint32_t *)(SYS_CONTROL_BASE + 0x400U))
 #define SYS_PLL1_PDIV1_CONFIG_REGISTER    (*(volatile uint32_t *)(SYS_CONTROL_BASE + 0x404U))
 #define SYS_PLL1_PDIV2_CONFIG_REGISTER    (*(volatile uint32_t *)(SYS_CONTROL_BASE + 0x408U))
@@ -519,11 +518,9 @@ typedef struct {
 #define SYS_CLK_ENABLE_LOCAL_CTRL_REGISTER    (*(volatile uint32_t *)(SYS_CONTROL_BASE + 0x548U))
 
 
-/*******************************************************************************************************************/
-/*                                                                           							   		   */
-/*                        		 			POWER CONTROLLER INTERFACE                      				   	   */
-/*                                                                            							   		   */
-/*******************************************************************************************************************/
+/******************************************************************************/
+/*                        Power Controller Interface                          */
+/******************************************************************************/
 
 #define PWR_TICKS_PD_START_REGISTER    (*(volatile uint32_t *)(POWER_CONTROL_BASE + 0x000U))
 #define PWR_TICKS_PD_SMALL_REGISTER    (*(volatile uint32_t *)(POWER_CONTROL_BASE + 0x004U))
@@ -623,11 +620,9 @@ typedef struct {
 #define PWR_CPU_BOOT_VINIT_REGISTER    (*(volatile uint32_t *)(POWER_CONTROL_BASE + 0xD00U))
 
 
-/*************************************************************************************************************/
-/*                                                                    					    				 */
-/*                        		 					SECURITY	  						  	  				 */
-/*                                                                    										 */
-/*************************************************************************************************************/
+/******************************************************************************/
+/*                                  Security                                  */
+/******************************************************************************/
 
 #define SEC_IDENTIFIER_REGISTER    (*volatile uint32_t *)(SECURITY_BASE + 0x000U))
 #define SEC_STATUS_REGISTER    (*volatile uint32_t *)(SECURITY_BASE + 0x004U))
@@ -648,11 +643,9 @@ typedef struct {
 #define SEC_PRIMECELL_COMPONENT_ID_3_REGISTER    (*volatile uint32_t *)(SECURITY_BASE + 0xFFCU))
 
 
-/*****************************************************************************************************************/
-/*                                                                           									 */
-/*                        		 				DVS CONTROL INTERFACE                            	  	 		 */
-/*                                                                            									 */
-/*****************************************************************************************************************/
+/******************************************************************************/
+/*                           DVS ControlInterface                             */
+/******************************************************************************/
 
 #define DVS_ITC_IT_FLAGS_REGISTER    (*(volatile uint32_t *)(DVS_CONTROL_BASE + 0x000U))
 #define DVS_ITC_IT_DEBUG_REGISTER    (*(volatile uint32_t *)(DVS_CONTROL_BASE + 0X004U))     
@@ -774,11 +767,9 @@ typedef struct {
 #define DVS_PD_MODEM3_RING_DEBUG_REGISTER    (*(volatile uint32_t *)(DVS_CONTROL_BASE + 0X52CU))
 
 
-/***************************************************************************************************************************/
-/*                                                                           											   */
-/*                        		 			USB CONTROL AND SETUP                            	  						   */
-/*                                                                            											   */
-/***************************************************************************************************************************/
+/******************************************************************************/
+/*                           USB Control and Setup                            */
+/******************************************************************************/
 
 #define USB_SETUP_CONFIG_REGISTER    (*(volatile uint32_t *)(USB_CONTROL_AND_SETUP_BASE + 0x000U))
 #define USB_SETUP_DP_DM_PHY_CTRL_REGISTER    (*(volatile uint32_t *)(USB_CONTROL_AND_SETUP_BASE + 0X010U))
@@ -792,11 +783,9 @@ typedef struct {
 #define USB_SETUP_DP_DM_PHY_EXTRA_RDBK2_REGISTER    (*(volatile uint32_t *)(USB_CONTROL_AND_SETUP_BASE + 0X040U))
 
 
-/*******************************************************************************************************************/
-/*                                                                           									   */
-/*                        		 				SF AO CONTROL INTERFACE                            	  			   */
-/*                                                                            									   */
-/*******************************************************************************************************************/
+/******************************************************************************/
+/*                           SF AO Control Interface                          */
+/******************************************************************************/
 
 #define SF_MAGIC_NUMBER_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x000U))
 #define SF_MEMORY_MARGIN_EN0_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x004U))
@@ -810,13 +799,17 @@ typedef struct {
 #define SF_PERIPHERAL_DMA_CONTROL_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x024U))
 #define SF_SDIO_CONTROL_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x028U))
 #define SF_RFFE_RESET_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x02CU))
+#define SF_OSPI_CTRL_S_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x030U))
+#define SF_OSPI_CTRL_C_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x034U))
+#define SF_OSPI_CTRL_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x038U))
+#define SF_RF_ANA_RST_ORIDE_S_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x03CU))
+#define SF_RF_ANA_RST_ORIDE_C_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x040U))
+#define SF_RF_ANA_RST_ORIDE_REGISTER    (*(volatile uint32_t *)(SF_AO_CONTROL_BASE + 0x044U))
 
 
-/******************************************************************************************************************/
-/*                                                                           									  */
-/*                        		 				OSPI CONTROL INTERFACE                           	  			  */
-/*                                                                            									  */
-/******************************************************************************************************************/
+/******************************************************************************/
+/*                            OSPI Control Interface                          */
+/******************************************************************************/
 
 #define OSPI_CONFIGURATION_REGISTER    (*(volatile uint32_t *)(OSPI_CONTROL_BASE + 0x000U))
 #define OSPI_DEVICE_READ_INSTRUCTION_CONFIGURATION_REGISTER    (*(volatile uint32_t *)(OSPI_CONTROL_BASE + 0x004U))
@@ -865,37 +858,32 @@ typedef struct {
 #define OSPI_MODULE_ID_REGISTER    (*(volatile uint32_t *)(OSPI_CONTROL_BASE + 0x0FCU))
 
 
-/***************************************************************************************************************/
-/*                                                                           								   */
-/*                        		 		  		WATCHDOG                            	  					   */
-/*                                                                            								   */
-/***************************************************************************************************************/
+/******************************************************************************/
+/*                                     Watchdog                               */
+/******************************************************************************/
 
-//--------------------------------------------- WATCHDOG 1 ----------------------------------------------------//
+//----------------------------------- WATCHDOG 1 ------------------------------------------//
 #define WATCHDOG1_OVERFLOW_MODE_REGISTER    (*(volatile uint32_t *)(WATCHDOG1_BASE + 0x000U))
 #define WATCHDOG1_CONTROL_MODE_REGISTER    (*(volatile uint32_t *)(WATCHDOG1_BASE + 0x004U))
 #define WATCHDOG1_CONTROL_REGISTER    (*(volatile uint32_t *)(WATCHDOG1_BASE + 0x008U))
 #define WATCHDOG1_STATUS_REGISTER    (*(volatile uint32_t *)(WATCHDOG1_BASE + 0x00CU))
 
-//--------------------------------------------- WATCHDOG 2 ----------------------------------------------------//
+//----------------------------------- WATCHDOG 2 ------------------------------------------//
 #define WATCHDOG2_OVERFLOW_MODE_REGISTER    (*(volatile uint32_t *)(WATCHDOG2_BASE + 0x000U))
 #define WATCHDOG2_CONTROL_MODE_REGISTER    (*(volatile uint32_t *)(WATCHDOG2_BASE + 0x004U))
 #define WATCHDOG2_CONTROL_REGISTER    (*(volatile uint32_t *)(WATCHDOG2_BASE + 0x008U))
 #define WATCHDOG2_STATUS_REGISTER    (*(volatile uint32_t *)(WATCHDOG2_BASE + 0x00CU))
 
-//--------------------------------------------- WATCHDOG 3 ----------------------------------------------------//
+//----------------------------------- WATCHDOG 3 ------------------------------------------//
 #define WATCHDOG3_OVERFLOW_MODE_REGISTER    (*(volatile uint32_t *)(WATCHDOG3_BASE + 0x000U))
 #define WATCHDOG3_CONTROL_MODE_REGISTER    (*(volatile uint32_t *)(WATCHDOG3_BASE + 0x004U))
 #define WATCHDOG3_CONTROL_REGISTER    (*(volatile uint32_t *)(WATCHDOG3_BASE + 0x008U))
 #define WATCHDOG3_STATUS_REGISTER    (*(volatile uint32_t *)(WATCHDOG3_BASE + 0x00CU))
 
 
-
-/***********************************************************************************************************/
-/*                                                                           							   */
-/*                        		 				TIMER                            	  					   */
-/*                                                                            							   */
-/***********************************************************************************************************/
+/******************************************************************************/
+/*                                     Timer                                  */
+/******************************************************************************/
 
 #define TIMER1_CTRL_REGISTER    (*(volatile uint32_t *)(TIMER_BASE + 0x000U))
 #define TIMER1_LOAD_REGISTER    (*(volatile uint32_t *)(TIMER_BASE + 0x004U))
@@ -908,13 +896,11 @@ typedef struct {
 #define TIMER2_STATUS_REGISTER    (*(volatile uint32_t *)(TIMER_BASE + 0x02CU))
 
 
-/******************************************************************************************************************/
-/*                                                                           								      */
-/*                        		 			  I2C CONTROL INTERFACE                            	  	      		  */
-/*                                                                            								      */
-/******************************************************************************************************************/
+/******************************************************************************/
+/*                                     I2C Control Interface                  */
+/******************************************************************************/
 
-//------------------------------------------------ I2C 1 ---------------------------------------------------------//
+//--------------------------------------- I2C 1 --------------------------------------//
 #define I2C1_CONTROL_SET_REGISTER    (*(volatile uint32_t *)(I2C1_CONTROL_BASE + 0x000U))
 #define I2C1_CONTROL_CLEAR_REGISTER    (*(volatile uint32_t *)(I2C1_CONTROL_BASE + 0x004U))
 #define I2C1_CONTROL_REGISTER    (*(volatile uint32_t *)(I2C1_CONTROL_BASE + 0x008U))
@@ -932,7 +918,7 @@ typedef struct {
 #define I2C1_TRANSMIT_DATA_BUFFER_REGISTER    (*(volatile uint32_t *)(I2C1_CONTROL_BASE + 0x080U))
 #define I2C1_RECEIVE_DATA_BUFFER_REGISTER    (*(volatile uint32_t *)(I2C1_CONTROL_BASE + 0x100U))
 
-//------------------------------------------------ I2C 2 ---------------------------------------------------------//
+//--------------------------------------- I2C 2 --------------------------------------//
 #define I2C2_CONTROL_SET_REGISTER    (*(volatile uint32_t *)(I2C2_CONTROL_BASE + 0x000U))
 #define I2C2_CONTROL_CLEAR_REGISTER    (*(volatile uint32_t *)(I2C2_CONTROL_BASE + 0x004U))
 #define I2C2_CONTROL_REGISTER    (*(volatile uint32_t *)(I2C2_CONTROL_BASE + 0x008U))
@@ -950,7 +936,7 @@ typedef struct {
 #define I2C2_TRANSMIT_DATA_BUFFER_REGISTER    (*(volatile uint32_t *)(I2C2_CONTROL_BASE + 0x080U))
 #define I2C2_RECEIVE_DATA_BUFFER_REGISTER    (*(volatile uint32_t *)(I2C2_CONTROL_BASE + 0x100U))
 
-//------------------------------------------------ I2C 3 ---------------------------------------------------------//
+//--------------------------------------- I2C 3 --------------------------------------//
 #define I2C3_CONTROL_SET_REGISTER    (*(volatile uint32_t *)(I2C3_CONTROL_BASE + 0x000U))
 #define I2C3_CONTROL_CLEAR_REGISTER    (*(volatile uint32_t *)(I2C3_CONTROL_BASE + 0x004U))
 #define I2C3_CONTROL_REGISTER    (*(volatile uint32_t *)(I2C3_CONTROL_BASE + 0x008U))
@@ -969,13 +955,11 @@ typedef struct {
 #define I2C3_RECEIVE_DATA_BUFFER_REGISTER    (*(volatile uint32_t *)(I2C3_CONTROL_BASE + 0x100U))
 
 
-/*********************************************************************************************************************/
-/*                                                                           										 */
-/*                        		 					PIO CONTROL INTERFACE                            	  			 */
-/*                                                                            										 */
-/*********************************************************************************************************************/
+/******************************************************************************/
+/*                                     PIO Control Interface                  */
+/******************************************************************************/
 
-//--------------------------------------------------- PIO 0 ---------------------------------------------------------//
+//------------------------------------- PIO 0 ----------------------------------------//
 #define PIO0_PIO_ENABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x000U))
 #define PIO0_PIO_DISABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x004U))
 #define PIO0_PIO_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x008U))
@@ -983,9 +967,9 @@ typedef struct {
 #define PIO0_OUTPUT_DISABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x014U))
 #define PIO0_OUTPUT_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x018U))
 #define PIO0_OUTPUT_DIRECTION_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x01CU))
-#define PIO0_FILTER_ENABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x020U))
-#define PIO0_FILTER_DISABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x024U))
-#define PIO0_FILTER_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x028U))
+#define PIO0_INPUT_FILTER_ENABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x020U))
+#define PIO0_INPUT_FILTER_DISABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x024U))
+#define PIO0_INPUT_FILTER_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x028U))
 #define PIO0_SET_OUTPUT_DATA_SODR_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x030U))
 #define PIO0_CLEAR_OUTPUT_DATA_CODR_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x034U))
 #define PIO0_OUTPUT_DATA_STATUS_ODSR_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x038U))
@@ -1092,8 +1076,7 @@ typedef struct {
 #define PIO0_ALTERNATIVE_PAD_CONFIGURATION_HOLD_DISABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x214U))
 #define PIO0_ALTERNATIVE_PAD_CONFIGURATION_HOLD_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x218U))
  
-//--------------------------------------------------- PIO 1 ---------------------------------------------------------//
-    
+//------------------------------------- PIO 1 ----------------------------------------//
 #define PIO1_PIO_ENABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x220U))
 #define PIO1_PIO_DISABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x224U))
 #define PIO1_PIO_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x228U))
@@ -1210,8 +1193,7 @@ typedef struct {
 #define PIO1_ALTERNATIVE_PAD_CONFIGURATION_HOLD_DISABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x434U))
 #define PIO1_ALTERNATIVE_PAD_CONFIGURATION_HOLD_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x438U))
    
-//--------------------------------------------------- PIO 2 ---------------------------------------------------------//
-    
+//------------------------------------- PIO 2 ----------------------------------------//
 #define PIO2_PIO_ENABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x440U))
 #define PIO2_PIO_DISABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x444U))
 #define PIO2_PIO_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x448U))
@@ -1327,9 +1309,8 @@ typedef struct {
 #define PIO2_ALTERNATIVE_PAD_CONFIGURATION_HOLD_ENABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x650U))
 #define PIO2_ALTERNATIVE_PAD_CONFIGURATION_HOLD_DISABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x654U))
 #define PIO2_ALTERNATIVE_PAD_CONFIGURATION_HOLD_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x658U))
-         
-//--------------------------------------------------- PIO 3 ---------------------------------------------------------//
-    
+   
+//------------------------------------- PIO 3 ----------------------------------------//
 #define PIO3_PIO_ENABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x660U))
 #define PIO3_PIO_DISABLE_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x664U))
 #define PIO3_PIO_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x668U))
@@ -1447,11 +1428,9 @@ typedef struct {
 #define PIO3_ALTERNATIVE_PAD_CONFIGURATION_HOLD_STATUS_REGISTER    (*(volatile uint32_t *)(PIO_CONTROL_BASE + 0x878U))
    
 
-/*************************************************************************************************************/
-/*                                                                           								 */
-/*                        		 				OTP CONTROL INTERFACE                            	  	 	 */
-/*                                                                            								 */
-/*************************************************************************************************************/
+/******************************************************************************/
+/*                                     OTP Control Interface                  */
+/******************************************************************************/
 
 #define OTP_CURRENT_STATUS_REGISTER    (*(volatile uint32_t *)(OTP_CONTROL_BASE + 0x000U))
 #define OTP_EXECUTE_COMMAND_SET_REGISTER    (*(volatile uint32_t *)(OTP_CONTROL_BASE + 0x004U))
@@ -1479,11 +1458,9 @@ typedef struct {
 #define OTP_PRIMECELL_COMPONENT_ID_3_REGISTER    (*(volatile uint32_t *)(OTP_CONTROL_BASE + 0xFFCU))
 
 
-/**********************************************************************************************************************/
-/*                                                                           										  */
-/*                        		 				GNSS APPLICATION TIMING                            	  				  */
-/*                                                                            										  */
-/**********************************************************************************************************************/
+/******************************************************************************/
+/*                             GNSS Application Timing                        */
+/******************************************************************************/
 
 #define GNSS_APP_CONTROL_ENABLE_REGISTER    (*(volatile uint32_t *)(GNSS_APPS_TIMING_BASE + 0x000U))
 #define GNSS_APP_CONTROL_DISABLE_REGISTER    (*(volatile uint32_t *)(GNSS_APPS_TIMING_BASE + 0x004U))
@@ -1508,24 +1485,20 @@ typedef struct {
 #define GNSS_APP_EDGE_COUNTER_REGISTER    (*(volatile uint32_t *)(GNSS_APPS_TIMING_BASE + 0x050U))
 
 
-/****************************************************************************************************************/
-/*                                                                           									*/
-/*                        		 			TDR ACCESS GATEWAY                            	  					*/
-/*                                                                            									*/
-/****************************************************************************************************************/
+/******************************************************************************/
+/*                               TDR Access Gateway                           */
+/******************************************************************************/
 
 #define TDR_CONTROL_REGISTER    (*(volatile uint32_t *)(TDR_ACCESS_GATEWAY_BASE + 0x000U))
 #define TDR_DATA_REGISTER    (*(volatile uint32_t *)(TDR_ACCESS_GATEWAY_BASE + 0x004U))
 #define TDR_WRITEKEY_REGISTER    (*(volatile uint32_t *)(TDR_ACCESS_GATEWAY_BASE + 0x008U))
 
 
-/*****************************************************************************************************************/
-/*                                                                           									 */
-/*                        		 		 USART CONTROL INTERFACE                            	  		 		 */
-/*                                                                            									 */
-/*****************************************************************************************************************/
+/******************************************************************************/
+/*                               USART Control Interface                      */
+/******************************************************************************/
 
-//------------------------------------------------ UART 1 -------------------------------------------------------//
+//---------------------------------------- UART 1 -----------------------------------------//
 #define UART1_CONTROL_CRS_REGISTER    (*(volatile uint32_t *)(UART1_CONTROL_BASE + 0x000U))
 #define UART1_CONTROL_CRC_REGISTER    (*(volatile uint32_t *)(UART1_CONTROL_BASE + 0x004U))
 #define UART1_CONTROL_CR_REGISTER    (*(volatile uint32_t *)(UART1_CONTROL_BASE + 0x008U))
@@ -1554,7 +1527,7 @@ typedef struct {
 #define UART1_RX_DMA_NEXT_FREE_BYTE_COUNT_NRXCNT_REGISTER    (*(volatile uint32_t *)(UART1_CONTROL_BASE + 0x21CU))
 #define UART1_RX_DMA_RX_DATA_BYTE_COMPARE_RXCMP_REGISTER    (*(volatile uint32_t *)(UART1_CONTROL_BASE + 0x220U))    
 
-//------------------------------------------------ UART 2 -------------------------------------------------------//
+//---------------------------------------- UART 2 -----------------------------------------//
 #define UART2_CONTROL_CRS_REGISTER    (*(volatile uint32_t *)(UART2_CONTROL_BASE + 0x000U))
 #define UART2_CONTROL_CRC_REGISTER    (*(volatile uint32_t *)(UART2_CONTROL_BASE + 0x004U))
 #define UART2_CONTROL_CR_REGISTER    (*(volatile uint32_t *)(UART2_CONTROL_BASE + 0x008U))
@@ -1584,13 +1557,11 @@ typedef struct {
 #define UART2_RX_DMA_RX_DATA_BYTE_COMPARE_RXCMP_REGISTER    (*(volatile uint32_t *)(UART2_CONTROL_BASE + 0x220U))    
 
 
-/******************************************************************************************************************/
-/*                                                                           									  */
-/*                        		 				SPI CONTROL INTERFACE                           	  			  */
-/*                                                                            									  */
-/******************************************************************************************************************/
+/******************************************************************************/
+/*                               SPI Control Interface                        */
+/******************************************************************************/
 
-//------------------------------------------------ SPI 1 ---------------------------------------------------------//
+//----------------------------------------- SPI 1 ----------------------------------------------//
 #define SPI1_CONTROL_SET_REGISTER    (*(volatile uint32_t *)(SPI1_CONTROL_BASE + 0x000U))
 #define SPI1_CONTROL_CLEAR_SET_REGISTER    (*(volatile uint32_t *)(SPI1_CONTROL_BASE + 0x004U))
 #define SPI1_CONTROL_REGISTER    (*(volatile uint32_t *)(SPI1_CONTROL_BASE + 0x008U))        
@@ -1620,7 +1591,7 @@ typedef struct {
 #define SPI1_RX_DMA_NEXT_BYTE_COUNT_REGISTER    (*(volatile uint32_t *)(SPI1_CONTROL_BASE + 0X21CU))
 #define SPI1_RX_DMA_RX_DATA_BYTE_COMPARE_REGISTER    (*(volatile uint32_t *)(SPI1_CONTROL_BASE + 0X220U))
 
-//------------------------------------------------ SPI 2 ---------------------------------------------------------//
+//----------------------------------------- SPI 2 ----------------------------------------------//
 #define SPI2_CONTROL_SET_REGISTER    (*(volatile uint32_t *)(SPI2_CONTROL_BASE + 0x000U))
 #define SPI2_CONTROL_CLEAR_SET_REGISTER    (*(volatile uint32_t *)(SPI2_CONTROL_BASE + 0x004U))
 #define SPI2_CONTROL_REGISTER    (*(volatile uint32_t *)(SPI2_CONTROL_BASE + 0x008U))        
@@ -1651,11 +1622,9 @@ typedef struct {
 #define SPI2_RX_DMA_RX_DATA_BYTE_COMPARE_REGISTER    (*(volatile uint32_t *)(SPI2_CONTROL_BASE + 0X220U))
 
 
-/*******************************************************************************************************************************/
-/*                                                                           											       */
-/*                        		 					I2S INTERFACE                           	  					   		   */
-/*                                                                            												   */
-/*******************************************************************************************************************************/
+/******************************************************************************/
+/*                                 I2S Interface                              */
+/******************************************************************************/
 
 #define I2S_CONTROL_REGISTER    (*(volatile uint32_t *)(I2S_BASE + 0x000U))
 #define I2S_FULL_DUPLEX_MODE_CONTROL_REGISTER    (*(volatile uint32_t *)(I2S_BASE + 0x004U))
@@ -1673,11 +1642,9 @@ typedef struct {
 #define I2S_TIME_DIVISION_MULTIPLEXING_FULL_DUPLEX_MODE_CHANNELS_DIRECTION_REGISTER   (*(volatile uint32_t *)(I2S_BASE + 0x034U))
 
 
-/***************************************************************************************************************/
-/*                                                                           								   */
-/*                        		 			  DISPLAY INTERFACE                           	  	   			   */
-/*                                                                            								   */
-/***************************************************************************************************************/
+/******************************************************************************/
+/*                               DisplaY Interface                            */
+/******************************************************************************/
 
 #define DISPLAY_FIFO_WRITE_SETTING_CS0_AND_A0_0_REGISTER    (*(volatile uint32_t *)(DISPLAY_BASE + 0x000U))
 #define DISPLAY_FIFO_WRITE_SETTING_CS0_AND_A0_1_REGISTER    (*(volatile uint32_t *)(DISPLAY_BASE + 0x004U))
@@ -1697,11 +1664,9 @@ typedef struct {
 #define DISPLAY_DISPLAY_STATUS_REG_REGISTER    (*(volatile uint32_t *)(DISPLAY_BASE + 0x03CU))
 
 
-/*****************************************************************************************************/
-/*                                                                           						 */
-/*                        		 			PWM INTERFACE                          	  				 */
-/*                                                                            						 */
-/*****************************************************************************************************/
+/******************************************************************************/
+/*                                PWM Interface                               */
+/******************************************************************************/
 
 #define PWM_LOAD_SHADOW_REGISTER    (*(volatile uint32_t *)(PWM_BASE + 0x000U))
 #define PWM_COUNTER_CONFIGURATION_REGISTER    (*(volatile uint32_t *)(PWM_BASE + 0x004U))        
@@ -1719,11 +1684,9 @@ typedef struct {
 #define PWM_NCO_FREQUENCY_3_OVERFLOW_REGISTER    (*(volatile uint32_t *)(PWM_BASE + 0x034U))
 		
 
-/*****************************************************************************************************/
-/*                                                                           						 */
-/*                        		 	SCU CONTROL REGISTERS                             	  			 */
-/*                                                                            						 */
-/*****************************************************************************************************/
+/******************************************************************************/
+/*                            SCU Control Registers                           */
+/******************************************************************************/
 
 #define TCU0_CTRL_REGISTER    (*(volatile uint32_t *)(SCU_CONTROL_BASE + 0x000U))
 #define TCU0_SLOW_SLEEP_SET_REGISTER    (*(volatile uint32_t *)(SCU_CONTROL_BASE + 0x008U))
@@ -1784,12 +1747,9 @@ typedef struct {
 #define TCU_COMPONENT_ID3_REGISTER    (*(volatile uint32_t *)(SCU_CONTROL_BASE + 0xFFCU))
 
 
-/*********************************************************************************************************************/
-/*                                                                           										 */
-/*                        		 			SDMA PL081 CONTROL                            	  						 */
-/*                                                                            										 */
-/*********************************************************************************************************************/
-
+/******************************************************************************/
+/*                          SDMA PL081 Control Registers                      */
+/******************************************************************************/
 
 #define DMAC_INTERRUPT_STATUS_REGISTER    (*(volatile uint32_t *)(SDMA_PL081_CONTROL_BASE + 0x000U))
 #define DMAC_INTERRUPT_TERMINAL_COUNT_STATUS_REGISTER    (*(volatile uint32_t *)(SDMA_PL081_CONTROL_BASE + 0x004U))
@@ -1820,11 +1780,9 @@ typedef struct {
 #define DMAC_COMPONENT_ID3_REGISTER    (*(volatile uint32_t *)(SDMA_PL081_CONTROL_BASE + 0xFFCU))
 
 
-/*************************************************************************************************************/
-/*                                                                           								 */
-/*                        		 		USB CONTROL INTERFACE                            	  				 */
-/*                                                                            								 */
-/*************************************************************************************************************/
+/******************************************************************************/
+/*                             USB Control Interface                          */
+/******************************************************************************/
 
 #define USB_EP0_REGISTER    (*(volatile uint32_t *)(USB_CONTROL_BASE + 0x000U))					       
 #define USB_LPM_REGISTER    (*(volatile uint32_t *)(USB_CONTROL_BASE + 0x004U))                         
@@ -1933,11 +1891,9 @@ typedef struct {
 #define USB_DMA_AXIM_CTRL1_REGISTER    (*(volatile uint32_t *)(USB_CONTROL_BASE + 0X45CU))
 
 
-/*******************************************************************************************************************/
-/*                                                                           									   */
-/*                        		 			PSRAM CONTROL INTERFACE                           	  			       */
-/*                                                                            									   */
-/*******************************************************************************************************************/
+/******************************************************************************/
+/*                            PSRAM Control Interface                         */
+/******************************************************************************/
 
 #define PSRAM_AXI_ID_PRIORITY_SELECTION_MASK_0_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x000U))
 #define PSRAM_AXI_ID_PRIORITY_SELECTION_MASK_1_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x004U))
@@ -1962,9 +1918,10 @@ typedef struct {
 #define PSRAM_FE_DEBUG_COMMAND_ADDR_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x204U))
 #define PSRAM_FE_DEBUG_COMMAND_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x208U))
 #define PSRAM_FE_DEBUG_FIFO_STATUS_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x20CU))
-#define PSRAM_FE_DEBUG_ARBITER_CNT _REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x210U))
-#define PSRAM_CONTROLLER_PHY_DEBUG _REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x214U))
-#define PSRAM_CONTROLLER_PHY_DEBUG_CNT _REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x218U))
+#define PSRAM_FE_DEBUG_ARBITER_CNT_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x210U))
+#define PSRAM_CONTROLLER_PHY_DEBUG_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x214U))
+#define PSRAM_CONTROLLER_PHY_DEBUG_CNT_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x218U))
+#define PSRAM_HW_OBSERVATION_CONTROL_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x21CU))
 #define PSRAM_BUS_CONFIGURATION_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x300U))
 #define PSRAM_REFRESH_CONFIGURATION_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x304U))
 #define PSRAM_DEVICE_IDENTIFICATION_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x308U))
@@ -1972,7 +1929,7 @@ typedef struct {
 #define PSRAM_BCR_READ_REQUEST_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x310U))
 #define PSRAM_RCR_WRITE_REQUEST_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x314U))
 #define PSRAM_RCR_READ_REQUEST_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x318U))
-#define PSRAM_DIDR_READ_REQUEST _REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x31CU))
+#define PSRAM_DIDR_READ_REQUEST_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x31CU))
 #define PSRAM_PHY_TX_DLL_CONFIGURATION_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x400U))
 #define PSRAM_PHY_RX_DLL_CONFIGURATION_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x404U))
 #define PSRAM_PHY_TX_DLL_MASTER_CONTROL_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x408U))
@@ -1997,14 +1954,13 @@ typedef struct {
 #define PSRAM_DFT_MEMORY_WRITE_DATA_POSITIVE_EDGE_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x514U))
 #define PSRAM_DFT_MEMORY_WRITE_DATA_NEGATIVE_EDGE_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x518U))
 #define PSRAM_DFT_MEMORY_READ_DATA_POSITIVE_EDGE_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x51CU))              
-#define PSRAM_DFT_MEMORY_READ_DATA_NEGATIVE_EDGE_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x520U))
+#define PSRAM_DFT_MEMORY_READ_DATA_NEGATIVE_EDGE_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x520U))         
+#define PSRAM_DFT_READ_CONFIGURATION_REGISTER    (*(volatile uint32_t *)(PSRAM_CONTROL_BASE + 0x524U))
 
 
-/************************************************************************************************************************/
-/*                                                                           											*/
-/*                        		 	ARM CRYPTOCELL 310 CONTROL INTERFACE                           	  					*/
-/*                                                                            											*/
-/************************************************************************************************************************/
+/******************************************************************************/
+/*                    ARM Cryptocell 310 Control Interface                    */
+/******************************************************************************/
 
 #define CRYPTO_MEMORY_MAP0_REGISTER    (*(volatile uint32_t *)(ARM_CRYPTOCELL_310_CONTROL_BASE + 0x000U))
 #define CRYPTO_MEMORY_MAP1_REGISTER    (*(volatile uint32_t *)(ARM_CRYPTOCELL_310_CONTROL_BASE + 0x004U))
@@ -2214,11 +2170,9 @@ typedef struct {
 #define CRYPTO_SRAM_DATA_READY_REGISTER    (*(volatile uint32_t *)(ARM_CRYPTOCELL_310_CONTROL_BASE + 0xF08U))
 
 
-/**************************************************************************************************************************************/
-/*                                                                           											    		  */
-/*                        		 							SDIO CONTROL INTERFACE                           	  					  */
-/*                                                                            														  */
-/**************************************************************************************************************************************/
+/******************************************************************************/
+/*                            SDIO Control Interface                          */
+/******************************************************************************/
 
 #define SDIO_HOST_HRS00_GENERAL_INFORMATION_REGISTER    (*(volatile uint32_t *)(SDIO_CONTROL_BASE + 0x000U))
 #define SDIO_HOST_HRS01_DEBOUNCE_SETTING_REGISTER    (*(volatile uint32_t *)(SDIO_CONTROL_BASE + 0x004U))
@@ -2288,11 +2242,9 @@ typedef struct {
 #define SDIO_HOST_CQRS23_COMMAND_RESPONSE_ARGUMENT_REGISTER    (*(volatile uint32_t *)(SDIO_CONTROL_BASE + 0x45CU))
 
 
-/********************************************************************************************************************************/
-/*                                                                           											    	*/
-/*                        		 				MAIN INTERCONNECT GPV                            	  							*/
-/*                                                                            													*/
-/********************************************************************************************************************************/
+/******************************************************************************/
+/*                              MAIN Interface GPV                            */
+/******************************************************************************/
 	
 #define MAIN_GPV_REMAP_REGISTER    (*(volatile uint32_t *)(MAIN_INTERCONNECT_GPV_BASE + 0x000U))
 #define MAIN_GPV_PERIPHERAL_ID4_REGISTER    (*(volatile uint32_t *)(MAIN_INTERCONNECT_GPV_BASE + 0X1FD0U))
