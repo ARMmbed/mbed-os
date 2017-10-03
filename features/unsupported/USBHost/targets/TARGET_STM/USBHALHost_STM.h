@@ -76,6 +76,12 @@ static gpio_t gpio_powerpin;
 #define USB_POWER_OFF 0
 #define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOG_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PG_6, USB_POWER_OFF);}
 
+// DISCOVERY boards
+#elif defined(TARGET_DISCO_F413ZH)
+#define USB_POWER_ON  0
+#define USB_POWER_OFF 1
+#define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOG_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PG_8, USB_POWER_OFF);}
+
 #elif defined(TARGET_DISCO_F429ZI)
 #define USB_POWER_ON  0
 #define USB_POWER_OFF 1
@@ -183,6 +189,7 @@ USBHALHost::USBHALHost()
     defined(TARGET_NUCLEO_F746ZG) || \
     defined(TARGET_NUCLEO_F756ZG) || \
     defined(TARGET_NUCLEO_F767ZI) || \
+    defined(TARGET_DISCO_F413ZH) || \
     defined(TARGET_DISCO_L475VG_IOT01A)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
