@@ -35,7 +35,9 @@ Timer::Timer(const ticker_data_t *data) : _running(), _start(), _time(), _ticker
 Timer::~Timer() {
     core_util_critical_section_enter();
     if (_running) {
-        sleep_manager_unlock_deep_sleep();
+        if(_lock_deepsleep) {
+            sleep_manager_unlock_deep_sleep();
+        }
     }
     _running = 0;
     core_util_critical_section_exit();
