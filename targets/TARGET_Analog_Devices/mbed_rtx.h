@@ -25,9 +25,6 @@
 #ifndef OS_CLOCK
 #define OS_CLOCK                26000000
 #endif
-#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
-#define MBED_CONF_APP_THREAD_STACK_SIZE 1024
-#endif
 
 #endif
 
