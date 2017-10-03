@@ -20,6 +20,18 @@
             "help": "Channel number of unsecure SSID",
             "value": 2
         },
+        "wifi-driver": {
+            "help": "Wifi driver to use, valid values are INTERNAL, WIFI_ESP8266 and X_NUCLEO_IDW01M1",
+            "value": "INTERNAL"
+        },
+        "wifi-tx": {
+            "help": "TX pin for serial connection to external device",
+            "value": "D1"
+        },
+        "wifi-rx": {
+            "help": "RX pin for serial connection to external device",
+            "value": "D0"
+        },
         "ap-mac-secure": {
             "help": "BSSID of secure AP in form of AA:BB:CC:DD:EE:FF",
             "value": "\"AA:AA:AA:AA:AA:AA\""

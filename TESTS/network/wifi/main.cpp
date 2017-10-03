@@ -4,6 +4,21 @@
 #include "utest.h"
 #include "wifi_tests.h"
 
+// Test for parameters
+#if !defined(MBED_CONF_APP_AP_MAC_SECURE)      || \
+    !defined(MBED_CONF_APP_AP_MAC_UNSECURE)    || \
+    !defined(MBED_CONF_APP_MAX_SCAN_SIZE)      || \
+    !defined(MBED_CONF_APP_WIFI_CH_SECURE)     || \
+    !defined(MBED_CONF_APP_WIFI_CH_UNSECURE)   || \
+    !defined(MBED_CONF_APP_WIFI_DRIVER)        || \
+    !defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
+    !defined(MBED_CONF_APP_WIFI_RX)            || \
+    !defined(MBED_CONF_APP_WIFI_SECURE_SSID)   || \
+    !defined(MBED_CONF_APP_WIFI_TX)            || \
+    !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+#error [NOT_SUPPORTED] Requires parameters from mbed_app.json
+#endif
+
 using namespace utest::v1;
 
 utest::v1::status_t test_setup(const size_t number_of_cases) {
