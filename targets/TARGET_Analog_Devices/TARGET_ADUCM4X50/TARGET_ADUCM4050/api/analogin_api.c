@@ -99,7 +99,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->hDevice = hDevice;
 
     /* Power up ADC */
-    adi_adc_PowerUp (hDevice, true);
+    adi_adc_PowerUp(hDevice, true);
 
     /* Set ADC reference */
     adi_adc_SetVrefSource(hDevice, ADI_ADC_VREF_SRC_INT_2_50_V);
@@ -113,7 +113,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 
     /* Start calibration */
-    adi_adc_StartCalibration (hDevice);
+    adi_adc_StartCalibration(hDevice);
 
     /* Wait until calibration is done */
     while (!bCalibrationDone) {
@@ -198,7 +198,7 @@ static uint32_t adi_pin2channel(PinName pin)
             break;
     }
 
-    return((uint32_t) activech);
+    return ((uint32_t)activech);
 }
 
 
