@@ -46,8 +46,8 @@
 ** ###################################################################
 */
 
-#ifndef _LPC54608_FEATURES_H_
-#define _LPC54608_FEATURES_H_
+#ifndef _LPC54618_FEATURES_H_
+#define _LPC54618_FEATURES_H_
 
 /* SOC module features */
 
@@ -133,7 +133,7 @@
 /* CAN module features */
 
 /* @brief Support CANFD or not */
-#define FSL_FEATURE_CAN_SUPPORT_CANFD (0)
+#define FSL_FEATURE_CAN_SUPPORT_CANFD (1)
 
 /* DMA module features */
 
@@ -227,5 +227,5 @@
 /* @brief Base address of the USB dedicated RAM */
 #define FSL_FEATURE_USBHSH_USB_RAM_BASE_ADDRESS (0x40100000)
 
-#endif /* _LPC54608_FEATURES_H_ */
+#endif /* _LPC54618_FEATURES_H_ */
 

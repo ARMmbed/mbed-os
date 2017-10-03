@@ -575,7 +575,7 @@ void I2S_DMACallback(dma_handle_t *handle, void *userData, bool transferDone, ui
     i2s_dma_handle_t *i2sHandle = privateHandle->handle;
     I2S_Type *base = privateHandle->base;
 
-    if (!transferDone || (i2sHandle->state == kI2S_DmaStateIdle))
+    if ((!transferDone) || (i2sHandle->state == kI2S_DmaStateIdle))
     {
         return;
     }

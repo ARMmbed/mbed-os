@@ -59,6 +59,18 @@
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL))
 #define FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL 0
 #endif
+
+/*!
+ * @brief User-defined the size of cache for CLOCK_PllGetConfig() function.
+ *
+ * Once define this MACRO to be non-zero value, CLOCK_PllGetConfig() function
+ * would cache the recent calulation and accelerate the execution to get the
+ * right settings.
+ */
+#ifndef CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT
+#define CLOCK_USR_CFG_PLL_CONFIG_CACHE_COUNT  2U
+#endif
+
 /*! @brief Clock ip name array for ROM. */
 #define ADC_CLOCKS \
     {              \
@@ -656,7 +668,7 @@ typedef enum _clock_attach_id
     kSYS_PLL_to_SDIO_CLK = MUX_A(CM_SDIOCLKSEL, 1),
     kUSB_PLL_to_SDIO_CLK = MUX_A(CM_SDIOCLKSEL, 2),
     kFRO_HF_to_SDIO_CLK = MUX_A(CM_SDIOCLKSEL, 3),
-    kAUDIO_PLL_to_SDIO_CLK = MUX_A(CM_SDIOCLKSEL, 3),
+    kAUDIO_PLL_to_SDIO_CLK = MUX_A(CM_SDIOCLKSEL, 4),
     kNONE_to_SDIO_CLK = MUX_A(CM_SDIOCLKSEL, 7),
 
     kMCLK_to_LCD_CLK = MUX_A(CM_LCDCLKSEL, 0),
