@@ -136,6 +136,7 @@ __Vectors       DCD     __initial_sp              ; Top of Stack
     DCD APP_CPU_APP_IRQ_PWRCTRL_WAKEUP_IRQHandler
     DCD APP_CPU_APP_IRQ_ETR_LIMITER_THRESHOLD_IRQHandler
     DCD APP_CPU_APP_IRQ_USB_WAKEUP_INT_IRQHandler
+    DCD APP_CPU_APP_IRQ_AC_PWR_ALERT_IRQHandler
 
 
 __Vectors_End
@@ -430,6 +431,11 @@ APP_CPU_APP_IRQ_ETR_LIMITER_THRESHOLD_IRQHandler\
 APP_CPU_APP_IRQ_USB_WAKEUP_INT_IRQHandler\
                 PROC
                 EXPORT  APP_CPU_APP_IRQ_USB_WAKEUP_INT_IRQHandler           [WEAK]
+                B       .
+                ENDP
+APP_CPU_APP_IRQ_AC_PWR_ALERT_IRQHandler\
+                PROC
+                EXPORT  APP_CPU_APP_IRQ_AC_PWR_ALERT_IRQHandler           [WEAK]
                 B       .
                 ENDP
 

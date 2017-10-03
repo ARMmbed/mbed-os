@@ -140,6 +140,7 @@ __isr_vector:
     .long    APP_CPU_APP_IRQ_PWRCTRL_WAKEUP_IRQHandler
     .long    APP_CPU_APP_IRQ_ETR_LIMITER_THRESHOLD_IRQHandler
     .long    APP_CPU_APP_IRQ_USB_WAKEUP_INT_IRQHandler
+    .long    APP_CPU_APP_IRQ_AC_PWR_ALERT_IRQHandler
 
     .size    __isr_vector, . - __isr_vector
 
@@ -358,5 +359,6 @@ Default_Handler:
     def_irq_handler APP_CPU_APP_IRQ_PWRCTRL_WAKEUP_IRQHandler
     def_irq_handler APP_CPU_APP_IRQ_ETR_LIMITER_THRESHOLD_IRQHandler
     def_irq_handler APP_CPU_APP_IRQ_USB_WAKEUP_INT_IRQHandler
+    def_irq_handler APP_CPU_APP_IRQ_AC_PWR_ALERT_IRQHandler
 
     .end
