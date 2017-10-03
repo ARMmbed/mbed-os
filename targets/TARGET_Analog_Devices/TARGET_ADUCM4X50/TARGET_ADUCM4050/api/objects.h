@@ -44,8 +44,8 @@
 #include "cmsis.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
-//#include "target_config.h"
 #include "gpio_object.h"
+#include "adi_rng.h"
 
 #include "adi_i2c.h"
 #include "adi_spi.h"
@@ -69,7 +69,7 @@ struct serial_s {
 };
 
 struct trng_s {
-    uint8_t dummy;
+    ADI_RNG_HANDLE  RNGhDevice;
 };
 
 #define BUILD_I2C_MI_DYNAMIC
