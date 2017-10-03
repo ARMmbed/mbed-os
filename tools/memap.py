@@ -469,7 +469,6 @@ class MemapParser(object):
                 object_name = self.check_new_object_lib_iar(line)
 
                 if object_name and current_library:
-                    print("Replacing module", object_name, current_library)
                     temp = '[lib]' + '/'+ current_library + '/'+ object_name
                     self.module_replace(object_name, temp)
 
