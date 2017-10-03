@@ -287,41 +287,6 @@ int spi_master_write(spi_t *obj, int value)
 }
 
 
-/** Check if a value is available to read
- *
- * @param[in] obj The SPI peripheral to check
- * @return non-zero if a value is available
- */
-int spi_slave_receive(spi_t *obj)
-{
-    return 0;
-}
-
-
-/** Get a received value out of the SPI receive buffer in slave mode
- *
- * Blocks until a value is available
- * @param[in] obj The SPI peripheral to read
- * @return The value received
- */
-int spi_slave_read(spi_t *obj)
-{
-    return 0;
-}
-
-
-/** Write a value to the SPI peripheral in slave mode
- *
- * Blocks until the SPI peripheral can be written to
- * @param[in] obj   The SPI peripheral to write
- * @param[in] value The value to write
- */
-void spi_slave_write(spi_t *obj, int value)
-{
-    return;
-}
-
-
 /** Write a block out in master mode and receive a value
  *
  *  The total number of bytes sent and recieved will be the maximum of
