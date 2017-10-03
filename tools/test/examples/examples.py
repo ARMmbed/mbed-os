@@ -55,7 +55,7 @@ def main():
                                     official_target_names, "MCU")),
                             default=official_target_names)
 
-    compile_cmd.add_argument("-p", "--profile",
+    compile_cmd.add_argument("--profile",
                              help=("build profile file"),
                              metavar="profile")
 
