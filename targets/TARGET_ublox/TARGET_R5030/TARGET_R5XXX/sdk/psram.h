@@ -74,8 +74,10 @@ struct psram_s {
    uint32_t psram_controller_phy_debug;
    /** PSRAM controller-phy internal counters at address offset 0x218, read-only */
    uint32_t psram_controller_phy_debug_cnt;
+   /** PSRAM HW observation control register at address offset 0x21C, read-write */
+   uint32_t psram_hwobs_control;
    /** Reserved space */
-   uint8_t fill2[228];
+   uint8_t fill2[224];
    /** PSRAM bus configuration registers (BCR) at address offset 0x300, read-write */
    uint32_t bcr;
    /** PSRAM refresh configuration register (RCR) at address offset 0x304, read-write */
@@ -146,6 +148,8 @@ struct psram_s {
    uint32_t dft_mem_read_data_pos;
    /** DFT PSRAM memory read data and pass/fail register (negative edge). Only used in sychronous DDR mode. at address offset 0x520, read-only */
    uint32_t dft_mem_read_data_neg;
+   /** DFT PSRAM read configuration register (in case the command request a CRE access) at address offset 0x524, read-only */
+   uint32_t dft_mem_read_data_cfg_regs;
 };
 
 /** bit field defines for psram_s#axi_id_prio_sel_mask0 */
@@ -193,6 +197,8 @@ struct psram_s {
 /** bit field defines for psram_s#axi_busy */
 #define PSRAM_AXI_BUSY_AXI_BUSY_OFFSET 0
 #define PSRAM_AXI_BUSY_AXI_BUSY_SIZE 1
+#define PSRAM_AXI_BUSY_DEFAULT_SLAVE_BUSY_OFFSET 1
+#define PSRAM_AXI_BUSY_DEFAULT_SLAVE_BUSY_SIZE 1
 
 /** bit field defines for psram_s#psram_addr_width */
 #define PSRAM_PSRAM_ADDR_WIDTH_PSRAM_ADDR_WIDTH_OFFSET 0
@@ -411,6 +417,10 @@ struct psram_s {
 #define PSRAM_PSRAM_CONTROLLER_PHY_DEBUG_CNT_PSRAM_SYNC_BURST_COUNTER_SIZE 7
 #define PSRAM_PSRAM_CONTROLLER_PHY_DEBUG_CNT_PSRAM_SYNC_LATENCY_COUNTER_OFFSET 16
 #define PSRAM_PSRAM_CONTROLLER_PHY_DEBUG_CNT_PSRAM_SYNC_LATENCY_COUNTER_SIZE 4
+
+/** bit field defines for psram_s#psram_hwobs_control */
+#define PSRAM_PSRAM_HWOBS_CONTROL_PSRAM_HWOBS_MUX_CONTROL_OFFSET 0
+#define PSRAM_PSRAM_HWOBS_CONTROL_PSRAM_HWOBS_MUX_CONTROL_SIZE 1
 
 /** bit field defines for psram_s#bcr */
 #define PSRAM_BCR_BURST_LENGTH_OFFSET 0
@@ -715,6 +725,10 @@ struct psram_s {
 #define PSRAM_DFT_MEM_READ_DATA_NEG_PSRAM_MEM_READ_DATA_NEG_SIZE 16
 #define PSRAM_DFT_MEM_READ_DATA_NEG_PSRAM_MEM_FAIL_NEG_OFFSET 16
 #define PSRAM_DFT_MEM_READ_DATA_NEG_PSRAM_MEM_FAIL_NEG_SIZE 1
+
+/** bit field defines for psram_s#dft_mem_read_data_cfg_regs */
+#define PSRAM_DFT_MEM_READ_DATA_CFG_REGS_PSRAM_MEM_READ_DATA_CFG_REGS_OFFSET 0
+#define PSRAM_DFT_MEM_READ_DATA_CFG_REGS_PSRAM_MEM_READ_DATA_CFG_REGS_SIZE 16
 
 /* EOF psram.h */
 #endif
