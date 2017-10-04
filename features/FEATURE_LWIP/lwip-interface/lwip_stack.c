@@ -34,6 +34,7 @@
 #include "lwip/mld6.h"
 #include "lwip/dns.h"
 #include "lwip/udp.h"
+#include "lwip_errno.h"
 #include "netif/lwip_ethernet.h"
 #include "emac_api.h"
 #include "ppp_lwip.h"
@@ -1081,6 +1082,25 @@ static nsapi_size_or_error_t mbed_lwip_socket_recvfrom(nsapi_stack_t *stack, nsa
     return recv;
 }
 
+static nsapi_error_t nsapi_addr_to_ip_addr(ip_addr_t *lwip_ip, nsapi_addr_t *nsapi_addr_ip) {
+    struct in_addr inet_addr_convert;
+    // nsapi_addr_t stores IP address in byte array
+    // Convert byte aray -> uint32_t for lwip inet IP representation
+    ip_addr_t multiaddr_ip;
+    if (!convert_mbed_addr_to_lwip(&multiaddr_ip, nsapi_addr_ip)) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    inet_addr_convert.s_addr = multiaddr_ip.addr;
+
+#if LWIP_IPV4
+    // LWIP inet IP representation (in_addr) to ip_addr_t, both structs containing
+    // uint32_t, this step just remaps the ip address for the igmp calls
+    lwip_ip->addr = inet_addr_convert.s_addr;
+#endif
+    return NSAPI_ERROR_OK;
+}
+
 static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t handle, int level, int optname, const void *optval, unsigned optlen)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
@@ -1123,6 +1143,35 @@ static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t h
                 ip_reset_option(s->conn->pcb.ip, SOF_REUSEADDR);
             }
             return 0;
+
+        case NSAPI_ADD_MEMBERSHIP:
+        case NSAPI_DROP_MEMBERSHIP: {
+#if LWIP_IPV4
+            if (optlen != sizeof(nsapi_ip_mreq_t)) {
+                return NSAPI_ERROR_UNSUPPORTED;
+            }
+
+            err_t igmp_err;
+            nsapi_ip_mreq_t *imr = optval;
+
+            ip_addr_t if_addr;
+            ip_addr_t multi_addr;
+
+            nsapi_addr_to_ip_addr(&multi_addr, &imr->imr_multiaddr);
+            nsapi_addr_to_ip_addr(&if_addr, &imr->imr_interface);
+
+            if (optname == NSAPI_ADD_MEMBERSHIP) {
+                igmp_err = igmp_joingroup(&if_addr, &multi_addr);
+            } else {
+                igmp_err = igmp_leavegroup(&if_addr, &multi_addr);
+            }
+            if (igmp_err != ERR_OK) {
+                return mbed_lwip_err_remap(EADDRNOTAVAIL);
+            }
+            return 0;
+#endif
+            return NSAPI_ERROR_UNSUPPORTED;
+         }
 
         default:
             return NSAPI_ERROR_UNSUPPORTED;

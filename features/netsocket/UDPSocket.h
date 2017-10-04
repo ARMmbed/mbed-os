@@ -56,6 +56,21 @@ public:
      */
     virtual ~UDPSocket();
 
+    /** Subscribes to an IP multicast group
+     *
+     * @param address   Multicast group IP address
+     * @return          Negative error code on failure
+     */
+    int join_multicast_group(const SocketAddress &address);
+
+    /** Leave an IP multicast group
+     *
+     * @param address   Multicast group IP address
+     * @return          Negative error code on failure
+     */
+    int leave_multicast_group(const SocketAddress &address);
+
+
     /** Send a packet over a UDP socket
      *
      *  Sends data to the specified address specified by either a domain name
@@ -115,6 +130,7 @@ public:
 protected:
     virtual nsapi_protocol_t get_proto();
     virtual void event();
+    int modify_multicast_group(const SocketAddress &address, nsapi_socket_option_t socketopt);
 
     volatile unsigned _pending;
     rtos::EventFlags _event_flag;
