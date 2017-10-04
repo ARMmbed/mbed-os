@@ -27,7 +27,7 @@
     "ARM": {
         "common": ["-c", "--gnu", "-Otime", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
-                   "--multibyte_chars", "-O3"],
+                   "--multibyte_chars", "-O2"],
         "asm": [],
         "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
         "cxx": ["--cpp", "--no_rtti", "--no_vla"],
@@ -36,7 +36,7 @@
     "uARM": {
         "common": ["-c", "--gnu", "-Otime", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
-                   "--multibyte_chars", "-O3", "-D__MICROLIB",
+                   "--multibyte_chars", "-O2", "-D__MICROLIB",
                    "--library_type=microlib", "-DMBED_RTOS_SINGLE_THREAD"],
         "asm": [],
         "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
