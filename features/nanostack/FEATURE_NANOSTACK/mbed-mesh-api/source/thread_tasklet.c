@@ -49,6 +49,38 @@
 
 #define INVALID_INTERFACE_ID        (-1)
 
+// Thread device configuration
+#ifndef MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE
+
+#ifdef FEATURE_THREAD_ROUTER
+
+#define MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE MESH_DEVICE_TYPE_THREAD_ROUTER
+
+#elif defined(FEATURE_THREAD_END_DEVICE) // FEATURE_THREAD_ROUTER
+
+#ifdef MBED_CONF_MBED_MESH_API_SLEEPY_DEVICE
+
+#if MBED_CONF_MBED_MESH_API_SLEEPY_DEVICE == 1
+#define MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE MESH_DEVICE_TYPE_THREAD_SLEEPY_END_DEVICE
+#else
+#define MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE MESH_DEVICE_TYPE_THREAD_MINIMAL_END_DEVICE
+#endif // MBED_CONF_MBED_MESH_API_SLEEPY_DEVICE == 1
+
+#else // MBED_CONF_MBED_MESH_API_SLEEPY_DEVICE
+
+#define MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE MESH_DEVICE_TYPE_THREAD_MINIMAL_END_DEVICE
+
+#endif // MBED_CONF_MBED_MESH_API_SLEEPY_DEVICE
+
+#else // FEATURE_THREAD_END_DEVICE
+
+// Default value to prevent compilation errors
+#define MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE MESH_DEVICE_TYPE_THREAD_ROUTER
+
+#endif // FEATURE_THREAD_END_DEVICE
+
+#endif // MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE
+
 /*
  * Thread tasklet states.
  */
@@ -75,7 +107,7 @@ typedef struct {
 
     /** Default network ID*/
     uint8_t networkid[16];
-    uint8_t extented_panid[8];    
+    uint8_t extented_panid[8];
 } thread_tasklet_data_str_t;
 
 
@@ -211,11 +243,11 @@ void read_link_configuration() {
 
     thread_tasklet_data_ptr->link_config.rfChannel = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_CHANNEL;
     TRACE_DETAIL("channel: %d", thread_tasklet_data_ptr->link_config.rfChannel);
-    
+
     // Mesh prefix
     const uint8_t mesh_local_prefix[] = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_ML_PREFIX;
     MBED_ASSERT(sizeof(mesh_local_prefix) == 8);
-    
+
     memcpy(thread_tasklet_data_ptr->link_config.mesh_local_ula_prefix, mesh_local_prefix, 8);
     TRACE_DETAIL("Mesh prefix: %s", trace_array(mesh_local_prefix, 8));
 
@@ -232,14 +264,14 @@ void read_link_configuration() {
     thread_tasklet_data_ptr->link_config.key_rotation = 3600;
     thread_tasklet_data_ptr->link_config.key_sequence = 0;
 
-    thread_tasklet_data_ptr->link_config.securityPolicy = MBED_CONF_MBED_MESH_API_THREAD_SECURITY_POLICY;    
-    
+    thread_tasklet_data_ptr->link_config.securityPolicy = MBED_CONF_MBED_MESH_API_THREAD_SECURITY_POLICY;
+
     // network name
     MBED_ASSERT(strlen(MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) > 0 && strlen(MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME) < 17);
     memcpy(thread_tasklet_data_ptr->link_config.name, MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME, strlen(MBED_CONF_MBED_MESH_API_THREAD_CONFIG_NETWORK_NAME));
-    
+
     thread_tasklet_data_ptr->link_config.timestamp = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_COMMISSIONING_DATASET_TIMESTAMP;
-    
+
     // extended pan-id
     const uint8_t extented_panid[] = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_EXTENDED_PANID;
     MBED_ASSERT(sizeof(extented_panid) == 8);
@@ -255,7 +287,6 @@ void thread_tasklet_configure_and_connect_to_network(void)
     int8_t status;
     link_configuration_s* temp_link_config=NULL;
 
-
     if (MBED_CONF_MBED_MESH_API_THREAD_DEVICE_TYPE == MESH_DEVICE_TYPE_THREAD_MINIMAL_END_DEVICE) {
             thread_tasklet_data_ptr->operating_mode = NET_6LOWPAN_HOST;
     }
@@ -269,13 +300,13 @@ void thread_tasklet_configure_and_connect_to_network(void)
         thread_tasklet_data_ptr->nwk_if_id,
         thread_tasklet_data_ptr->operating_mode,
         NET_6LOWPAN_THREAD);
-        
+
     thread_tasklet_data_ptr->channel_list.channel_page = (channel_page_e)MBED_CONF_MBED_MESH_API_THREAD_CONFIG_CHANNEL_PAGE;
     thread_tasklet_data_ptr->channel_list.channel_mask[0] = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_CHANNEL_MASK;
-    
+
     TRACE_DETAIL("channel page: %d", thread_tasklet_data_ptr->channel_list.channel_page);
     TRACE_DETAIL("channel mask: %d", (int)thread_tasklet_data_ptr->channel_list.channel_mask[0]);
-          
+
     // PSKd
     const char PSKd[] = MBED_CONF_MBED_MESH_API_THREAD_PSKD;
     MBED_ASSERT(sizeof(PSKd) > 5 && sizeof(PSKd) < 33);
@@ -284,13 +315,13 @@ void thread_tasklet_configure_and_connect_to_network(void)
     strcpy(dyn_buf, PSKd);
     ns_dyn_mem_free(device_configuration.PSKd_ptr);
     device_configuration.PSKd_ptr = (uint8_t*)dyn_buf;
-    device_configuration.PSKd_len = sizeof(PSKd) - 1;  
-    
+    device_configuration.PSKd_len = sizeof(PSKd) - 1;
+
     if (true == MBED_CONF_MBED_MESH_API_THREAD_USE_STATIC_LINK_CONFIG) {
         read_link_configuration();
         temp_link_config = &thread_tasklet_data_ptr->link_config;
     }
-    
+
     thread_management_node_init(thread_tasklet_data_ptr->nwk_if_id,
                            &thread_tasklet_data_ptr->channel_list,
                            &device_configuration,
@@ -455,4 +486,3 @@ int8_t thread_tasklet_data_poll_rate_set(uint32_t timeout)
 
     return status;
 }
-
