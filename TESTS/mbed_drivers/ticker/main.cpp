@@ -44,8 +44,8 @@ static const int total_ticks = 10;
 DigitalOut led1(LED1);
 DigitalOut led2(LED2);
 
-Ticker *ticker1;
-Ticker *ticker2;
+Ticker *volatile ticker1;
+Ticker *volatile ticker2;
 
 volatile int ticker_count = 0;
 volatile bool print_tick = false;
@@ -67,15 +67,21 @@ void ticker_callback_2_led(void) {
 
 void ticker_callback_1_switch_to_2(void) {
     ++callback_trigger_count;
-    ticker1->detach();
-    ticker1->attach_us(ticker_callback_2_switch_to_1, ONE_MILLI_SEC);
+    // If ticker is NULL then it is being or has been deleted
+    if (ticker1) {
+        ticker1->detach();
+        ticker1->attach_us(ticker_callback_2_switch_to_1, ONE_MILLI_SEC);
+    }
     ticker_callback_1_led();
 }
 
 void ticker_callback_2_switch_to_1(void) {
     ++callback_trigger_count;
-    ticker2->detach();
-    ticker2->attach_us(ticker_callback_1_switch_to_2, ONE_MILLI_SEC);
+    // If ticker is NULL then it is being or has been deleted
+    if (ticker2) {
+        ticker2->detach();
+        ticker2->attach_us(ticker_callback_1_switch_to_2, ONE_MILLI_SEC);
+    }
     ticker_callback_2_led();
 }
 
@@ -159,13 +165,19 @@ utest::v1::status_t two_ticker_case_setup_handler_t(const Case *const source, co
 }
 
 utest::v1::status_t one_ticker_case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed, const failure_t reason) {
-    delete ticker1;
+    Ticker *temp1 = ticker1;
+    ticker1 = NULL;
+    delete temp1;
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
 utest::v1::status_t two_ticker_case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed, const failure_t reason) {
-    delete ticker1;
-    delete ticker2;
+    Ticker *temp1 = ticker1;
+    Ticker *temp2 = ticker2;
+    ticker1 = NULL;
+    ticker2 = NULL;
+    delete temp1;
+    delete temp2;
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
