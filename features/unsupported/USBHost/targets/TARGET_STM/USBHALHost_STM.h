@@ -24,7 +24,7 @@
 //#define TARGET_DISCO_F746NG_HS
 #endif
 
-#if defined(TARGET_DISCO_F429ZI) || defined(TARGET_DISCO_F746NG_HS)
+#if defined(TARGET_DISCO_F429ZI) || defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
 #define USBHAL_IRQn  OTG_HS_IRQn
 #else
 #define USBHAL_IRQn  OTG_FS_IRQn
@@ -87,12 +87,22 @@ static gpio_t gpio_powerpin;
 #define USB_POWER_OFF 1
 #define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOC_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PC_4, USB_POWER_OFF);}
 
+#elif defined(TARGET_DISCO_F469NI)
+#define USB_POWER_ON  1
+#define USB_POWER_OFF 0
+#define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOB_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PB_2, USB_POWER_OFF);}
+
 #elif defined(TARGET_DISCO_F746NG_FS)
 #define USB_POWER_ON  0
 #define USB_POWER_OFF 1
 #define USB_POWERPIN_CONFIG {__HAL_RCC_GPIOD_CLK_ENABLE();gpio_init_out_ex(&gpio_powerpin, PD_5, USB_POWER_OFF);}
 
 #elif defined(TARGET_DISCO_F746NG_HS)
+#define USB_POWER_ON  0
+#define USB_POWER_OFF 1
+#define USB_POWERPIN_CONFIG {}
+
+#elif defined(TARGET_DISCO_F769NI)
 #define USB_POWER_ON  0
 #define USB_POWER_OFF 1
 #define USB_POWERPIN_CONFIG {}
@@ -136,7 +146,7 @@ USBHALHost::USBHALHost()
     hhcd = (HCD_HandleTypeDef *)usb_hcca;
     hhcd->pData = (void*)HALPriv;
 
-#if defined(TARGET_DISCO_F429ZI) || defined(TARGET_DISCO_F746NG_HS)
+#if defined(TARGET_DISCO_F429ZI) || defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
     hhcd->Instance = USB_OTG_HS;
     hhcd->Init.speed =  HCD_SPEED_HIGH;
     hhcd->Init.phy_itface = HCD_PHY_ULPI;
@@ -190,6 +200,7 @@ USBHALHost::USBHALHost()
     defined(TARGET_NUCLEO_F756ZG) || \
     defined(TARGET_NUCLEO_F767ZI) || \
     defined(TARGET_DISCO_F413ZH) || \
+    defined(TARGET_DISCO_F469NI) || \
     defined(TARGET_DISCO_L475VG_IOT01A)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
@@ -231,7 +242,26 @@ USBHALHost::USBHALHost()
     pin_function(PC_0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // STP
     pin_function(PH_4, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // NXT
     pin_function(PC_2, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // DIR
-    
+
+#elif defined(TARGET_DISCO_F769NI)
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
+    __HAL_RCC_GPIOI_CLK_ENABLE();
+    pin_function(PA_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // CLK
+    pin_function(PA_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D0
+    pin_function(PB_0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D1
+    pin_function(PB_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D2
+    pin_function(PB_5, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D3
+    pin_function(PB_10, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D4
+    pin_function(PB_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D5
+    pin_function(PB_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D6
+    pin_function(PB_13, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // D7
+    pin_function(PC_0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // STP
+    pin_function(PH_4, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // NXT
+    pin_function(PI_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_HS)); // DIR
+
 #elif defined(TARGET_DISCO_L476VG)
     __HAL_RCC_GPIOA_CLK_ENABLE();
     pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
@@ -249,7 +279,7 @@ USBHALHost::USBHALHost()
     // Enable clocks
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 
-#if defined(TARGET_DISCO_F429ZI) || defined(TARGET_DISCO_F746NG_HS)
+#if defined(TARGET_DISCO_F429ZI) || defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
     __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
 #else
