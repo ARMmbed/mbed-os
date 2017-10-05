@@ -380,3 +380,44 @@ void ATCmdParser::abort()
 {
     _aborted = true;
 }
+
+bool ATCmdParser::process_oob()
+{
+    if (!_fh->readable()) {
+        return false;
+    }
+
+    int i = 0;
+    while (true) {
+        // Receive next character
+        int c = getc();
+        if (c < 0) {
+            return false;
+        }
+        _buffer[i++] = c;
+        _buffer[i] = 0;
+
+        // Check for oob data
+        struct oob *oob = _oobs;
+        while (oob) {
+            if (i == (int)oob->len && memcmp(
+                    oob->prefix, _buffer, oob->len) == 0) {
+                debug_if(_dbg_on, "AT! %s\r\n", oob->prefix);
+                oob->cb();
+                return true;
+            }
+            oob = oob->next;
+        }
+        
+        // Clear the buffer when we hit a newline or ran out of space
+        // running out of space usually means we ran into binary data
+        if (i+1 >= _buffer_size ||
+            strcmp(&_buffer[i-_output_delim_size], _output_delimiter) == 0) {
+
+            debug_if(_dbg_on, "AT< %s", _buffer);
+            i = 0;
+        }
+    }
+}
+
+
