@@ -124,46 +124,36 @@ typedef enum {
     P_TP10     = PB_3,   // TDO
     //P_TP11,         // BOOT0
 
-    // Board Pins
-    // A0-A5
-    A0         = PF_6,  // AI4
-    A1         = PA_3,  // AI3
-    A2         = PC_2,  // AI12
-    A3         = PF_7,  // LPOCLK, not AI
-    A4         = PG_4,  // not AI
-    A5         = PE_0,  // not AI
-    // D0-D15
-    D0         = PD_9,   // UART3-RX
-    D1         = PD_8,   // UART3-TX
-    D2         = PA_10,  // UART1-RX
-    D3         = PA_11,  // CAN1-RX
-    D4         = PA_12,  // CAN1-TX
-    D5         = PB_8,
-    D6         = PD_11,  // UART3-CTS
-    D7         = PD_12,  // UART3-RTS
-    D8         = PA_9,   // UART1-TX
-    D9         = PE_9,   // SDCard-CS
-    D10        = PE_11,  // SSEL
-    D11        = PE_14,  // MOSI
-    D12        = PE_13,  // MISO
-    D13        = PE_12,  // SCK
-    D14        = PF_0,   // SDA
-    D15        = PF_1,   // SCL
     // Internal
-    LED1       = PE_0,   // Red / Mode
-    LED2       = PB_6,   // Green / Switch-1
-    LED3       = PB_8,   // Blue
-    LED4       = D10,
-    LED_RED    = LED1,
-    LED_GREEN  = LED2,
-    LED_BLUE   = LED3,
-    SW0        = PF_2,   // Switch-0
-    SW1        = PB_6,   // Green / Switch-1
-
+    LED1       = PD_9,
+    LED2       = PA_12,
+    LED3       = PD_8,
+    LED4       = PA_11,
+    LED5       = PC_2,
+    LED6       = PA_3,
+    LED7       = PF_6,
+    LED_RED    = PE_0,
+    LED_GREEN  = PB_6,
+    LED_BLUE   = PB_8,
+    SW1        = PF_2,
+    SW2        = PG_4,
 
     // Standardized button names
-    BUTTON1    = SW0,
-    BUTTON2    = SW1,
+    BUTTON1    = SW1,
+    BUTTON2    = SW2,
+    
+    I2C_SDA    = PF_0,
+    I2C_SCL    = PF_1,
+    SPI0_MOSI  = PE_14,
+    SPI0_MISO  = PE_13,
+    SPI0_SCK   = PE_12,
+    SPI0_CS    = PE_11,
+    SPI1_CS    = PE_9,
+    
+    SPI_MOSI   = SPI0_MOSI,
+    SPI_MISO   = SPI0_MISO,
+    SPI_SCK    = SPI0_SCK,
+    SPI_CS     = SPI0_CS,
 
     // ST-Link
     USBRX      = PA_10,
