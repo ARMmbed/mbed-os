@@ -454,6 +454,43 @@ void test_calloc()
     TEST_ASSERT_EQUAL(0, *mail);
 }
 
+/** Test mail empty
+
+    Given a mail of uint32_t data
+    before data is inserted the mail should be empty
+    after data is inserted the mail shouldn't be empty
+ */
+void test_mail_empty()
+{
+    Mail<mail_t, 1> m;
+
+    mail_t *mail = m->alloc();
+
+    TEST_ASSERT_EQUAL(true,  m.empty());
+
+    m.put(mail);
+
+    TEST_ASSERT_EQUAL(false, m.empty()));
+}
+
+/** Test mail empty
+
+    Given a mail of uint32_t data with size of 1
+    before data is inserted the mail shouldn't be full
+    after data is inserted the mail should be full
+ */
+void test_mail_full()
+{
+    Mail<mail_t, 1> m;
+
+    mail_t *mail = m->alloc();
+
+    TEST_ASSERT_EQUAL(false,  m.full());
+
+    m.put(mail);
+
+    TEST_ASSERT_EQUAL(true, m.full()));
+}
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
