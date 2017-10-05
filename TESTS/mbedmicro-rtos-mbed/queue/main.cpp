@@ -290,11 +290,9 @@ void test_queue_empty()
 
     TEST_ASSERT_EQUAL(true, q.empty());
 
-    stat = q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT, 1);
+    q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT, 1);
 
-    TEST_ASSERT_EQUAL(osOK, stat);
-
-    TEST_ASSERT_EQUAL(false, q.empty()));
+    TEST_ASSERT_EQUAL(false, q.empty());
 }
 
 /** Test queue empty
@@ -309,11 +307,9 @@ void test_queue_full()
 
     TEST_ASSERT_EQUAL(false, q.full());
 
-    stat = q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT, 1);
+    q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT, 1);
 
-    TEST_ASSERT_EQUAL(osOK, stat);
-
-    TEST_ASSERT_EQUAL(true, q.full()));
+    TEST_ASSERT_EQUAL(true, q.full());
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
