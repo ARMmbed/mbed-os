@@ -41,6 +41,10 @@
 
 #define OS_DYNAMIC_MEM_SIZE         0
 
+#if defined(OS_TICK_FREQ) && (OS_TICK_FREQ != 1000)
+#error "OS Tickrate must be 1000 for system timing"
+#endif
+
 #if defined (__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 /* ARM toolchain uses up to 8 static mutexes, any further mutexes will be allocated on the heap. */
 #define OS_MUTEX_OBJ_MEM            1
