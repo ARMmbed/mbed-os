@@ -44,15 +44,25 @@ extern uint8_t Image$$RW_DRAM2$$ZI$$Limit[];
 
 #elif defined (__ICCARM__)
 
-#pragma section=".ram.bss"
+#pragma section=".bss.sram"
+#pragma section=".bss.dtcm"
+#pragma section=".bss.dram"
 
-uint8_t *__bss_start__;
-uint8_t *__bss_end__;
+uint8_t *__bss_sram_start__;
+uint8_t *__bss_sram_end__;
+uint8_t *__bss_dtcm_start__;
+uint8_t *__bss_dtcm_end__;
+uint8_t *__bss_dram_start__;
+uint8_t *__bss_dram_end__;
 
 void __iar_data_init_app(void)
 {
-    __bss_start__ = (uint8_t *)__section_begin(".ram.bss");
-    __bss_end__   = (uint8_t *)__section_end(".ram.bss");
+    __bss_sram_start__ = (uint8_t *)__section_begin(".bss.sram");
+    __bss_sram_end__   = (uint8_t *)__section_end(".bss.sram");
+    __bss_dtcm_start__ = (uint8_t *)__section_begin(".bss.dtcm");
+    __bss_dtcm_end__   = (uint8_t *)__section_end(".bss.dtcm");
+    __bss_dram_start__ = (uint8_t *)__section_begin(".bss.dram");
+    __bss_dram_end__   = (uint8_t *)__section_end(".bss.dram");
 }
 
 #else
@@ -181,12 +191,10 @@ void PLAT_Init(void)
     // Clear RAM BSS
 #if defined (__ICCARM__)
     __iar_data_init_app();
-    __rtl_memset_v1_00((void *)__bss_start__, 0, __bss_end__ - __bss_start__);
-#else
+#endif
     __rtl_memset_v1_00((void *)__bss_sram_start__, 0, __bss_sram_end__ - __bss_sram_start__);
     __rtl_memset_v1_00((void *)__bss_dtcm_start__, 0, __bss_dtcm_end__ - __bss_dtcm_start__);
     __rtl_memset_v1_00((void *)__bss_dram_start__, 0, __bss_dram_end__ - __bss_dram_start__);
-#endif
 
     extern HAL_TIMER_OP_EXT HalTimerOpExt;
     __rtl_memset_v1_00((void *)&HalTimerOpExt, 0, sizeof(HalTimerOpExt));
