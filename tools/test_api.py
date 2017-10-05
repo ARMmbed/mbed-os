@@ -1644,10 +1644,9 @@ def detect_database_verbose(db_url):
 
 
 def get_module_avail(module_name):
-    """ This function returns True if module_name is already impored module
+    """ This function returns True if module_name is already imported module
     """
     return module_name in sys.modules.keys()
-
 
 def get_autodetected_MUTS_list(platform_name_filter=None):
     oldError = None
