@@ -1341,9 +1341,10 @@
             }
         },
         "detect_code": ["0770"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "CAN", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "CAN", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32L432KC"
+        "device_name": "STM32L432KC",
+        "bootloader_supported": true
     },
     "NUCLEO_L433RC_P": {
         "inherits": ["FAMILY_STM32"],
@@ -1360,7 +1361,8 @@
         "detect_code": ["0770"],
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "CAN", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32L433RC"
+        "device_name": "STM32L433RC",
+        "bootloader_supported": true
     },
     "NUCLEO_L476RG": {
         "inherits": ["FAMILY_STM32"],
