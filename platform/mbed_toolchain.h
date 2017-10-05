@@ -92,6 +92,26 @@
 #endif
 #endif
 
+/** MBED_USED
+ *  Inform the compiler that a static variable is to be retained in the object file, even if it is unreferenced.
+ *
+ *  @code
+ *  #include "mbed_toolchain.h"
+ *
+ *  MBED_USED int foo;
+ *
+ *  @endcode
+ */
+#ifndef MBED_USED
+#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#define MBED_USED __attribute__((used))
+#elif defined(__ICCARM__)
+#define MBED_USED __root
+#else
+#define MBED_USED
+#endif
+#endif
+
 /** MBED_WEAK
  *  Mark a function as being weak.
  *

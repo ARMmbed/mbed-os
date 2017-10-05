@@ -241,7 +241,8 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
-        "device_name": "LPC1768"
+        "device_name": "LPC1768",
+        "bootloader_supported": true
     },
     "ARCH_PRO": {
         "supported_form_factors": ["ARDUINO"],
@@ -253,7 +254,8 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
-        "device_name": "LPC1768"
+        "device_name": "LPC1768",
+        "bootloader_supported": true
     },
     "UBLOX_C027": {
         "supported_form_factors": ["ARDUINO"],
@@ -277,7 +279,8 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
-        "device_name": "LPC1768"
+        "device_name": "LPC1768",
+        "bootloader_supported": true
     },
     "XBED_LPC1768": {
         "inherits": ["LPCTarget"],
