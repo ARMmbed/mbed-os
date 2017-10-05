@@ -451,6 +451,7 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
 #if defined(__ARMCC_VERSION)
     int whence = SEEK_SET;
 #endif
+
     if (fh < 3) {
         errno = ESPIPE;
         return -1;
@@ -541,13 +542,21 @@ extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uin
 
 
 #if !defined(__ARMCC_VERSION) && !defined(__ICCARM__)
-extern "C" int _fstat(int fd, struct stat *st) {
-    if (fd < 3) {
+extern "C" int _fstat(int fh, struct stat *st) {
+    if (fh < 3) {
         st->st_mode = S_IFCHR;
         return  0;
     }
-    errno = EBADF;
-    return -1;
+
+    FileHandle* fhc = filehandles[fh-3];
+    if (fhc == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+
+    st->st_mode = fhc->isatty() ? S_IFCHR : S_IFREG;
+    st->st_size = fhc->size();
+    return 0;
 }
 #endif
 
