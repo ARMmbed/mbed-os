@@ -22,6 +22,7 @@
 #include "platform/NonCopyable.h"
 #include "platform/mbed_sleep.h"
 #include "hal/lp_ticker_api.h"
+#include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -113,12 +114,14 @@ public:
      *
      */
     void attach_us(Callback<void()> func, us_timestamp_t t) {
+        core_util_critical_section_enter();
         // lock only for the initial callback setup and this is not low power ticker
         if(!_function && _lock_deepsleep) {
             sleep_manager_lock_deep_sleep();
         }
         _function = func;
         setup(t);
+        core_util_critical_section_exit();
     }
 
     /** Attach a member function to be called by the Ticker, specifying the interval in micro-seconds
