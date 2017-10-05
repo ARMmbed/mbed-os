@@ -104,9 +104,10 @@ public:
         _full = false;
         core_util_critical_section_exit();
     }
-    
-    /** Returns the number of available transactions the buffer contains */
-    CounterType available() {
+
+    /** Get the number of elements currently stored in the circular_buffer */
+    CounterType size() const
+    {
         core_util_critical_section_enter();
         CounterType elements;
         if (!_full)
