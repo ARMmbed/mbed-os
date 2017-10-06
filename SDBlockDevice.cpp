@@ -147,13 +147,13 @@
 #include "mbed_debug.h"
 #include <errno.h>
 
-/* Required version: 5.5.4 and above */
+/* Required version: 5.6.1 and above */
 #ifdef MBED_MAJOR_VERSION
-#if (MBED_VERSION < MBED_ENCODE_VERSION(5,5,4))
+#if (MBED_VERSION < MBED_ENCODE_VERSION(5,6,1))
 #error "Incompatible mbed-os version detected! Required 5.5.4 and above"
 #endif
 #else
-#warning "mbed-os version 5.5.4 or above required"
+#warning "mbed-os version 5.6.1 or above required"
 #endif
 
 #define SD_COMMAND_TIMEOUT                       5000   /*!< Timeout in ms for response */
@@ -513,9 +513,17 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     return status;
 }
 
-int SDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
+bool SDBlockDevice::_is_valid_trim(bd_addr_t addr, bd_size_t size)
 {
-    if (!is_valid_erase(addr, size)) {
+    return (
+        addr % _erase_size == 0 &&
+        size % _erase_size == 0 &&
+        addr + size <= this->size());
+}
+
+int SDBlockDevice::trim(bd_addr_t addr, bd_size_t size)
+{
+    if (!_is_valid_trim(addr, size)) {
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
@@ -526,15 +534,7 @@ int SDBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     }
     int status = BD_ERROR_OK;
 
-    // Toss out erases that are too small, this is fine as the block device api
-    // doesn't garuntee the final state of erased bytes and a following program
-    // will still work fine.
-    if (size < _erase_size) {
-        _lock.unlock();
-        return status;
-    }
-
-    size -= _erase_size;
+    size -= _block_size;
     // SDSC Card (CCS=0) uses byte unit address
     // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
     if (SDCARD_V2HC == _card_type) {
@@ -564,11 +564,6 @@ bd_size_t SDBlockDevice::get_read_size() const
 }
 
 bd_size_t SDBlockDevice::get_program_size() const
-{
-    return _block_size;
-}
-
-bd_size_t SDBlockDevice::get_erase_size() const
 {
     return _block_size;
 }
