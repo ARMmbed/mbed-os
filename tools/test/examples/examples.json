@@ -74,8 +74,6 @@
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-LEDBlinker",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-LED",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-GAPButton",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-EddystoneService",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-EddystoneObserver",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Button",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-BatteryLevel"
       ],

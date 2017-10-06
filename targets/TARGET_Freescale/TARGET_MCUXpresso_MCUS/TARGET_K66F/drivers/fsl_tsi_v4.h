@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -37,7 +37,6 @@
  * @{
  */
 
-/*! @file */
 
 /*******************************************************************************
  * Definitions
@@ -45,9 +44,12 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief TSI driver version 2.0.0. */
-#define FSL_TSI_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+/*! @brief TSI driver version */
+#define FSL_TSI_DRIVER_VERSION (MAKE_VERSION(2, 1, 2))
 /*@}*/
+
+/*! @brief TSI status flags macro collection */
+#define ALL_FLAGS_MASK  (TSI_GENCS_EOSF_MASK | TSI_GENCS_OUTRGF_MASK)
 
 /*! @brief resistor bit shift in EXTCHRG bit-field */
 #define TSI_V4_EXTCHRG_RESISTOR_BIT_SHIFT TSI_GENCS_EXTCHRG_SHIFT
@@ -57,11 +59,11 @@
 
 /*! @brief macro of clearing the resistor bit in EXTCHRG bit-field */
 #define TSI_V4_EXTCHRG_RESISTOR_BIT_CLEAR \
-    ((uint32_t)((~TSI_GENCS_EXTCHRG_MASK) | (3U << TSI_V4_EXTCHRG_FILTER_BITS_SHIFT)))
+    ((uint32_t)((~(ALL_FLAGS_MASK | TSI_GENCS_EXTCHRG_MASK)) | (3U << TSI_V4_EXTCHRG_FILTER_BITS_SHIFT)))
 
 /*! @brief macro of clearing the filter bits in EXTCHRG bit-field */
 #define TSI_V4_EXTCHRG_FILTER_BITS_CLEAR \
-    ((uint32_t)((~TSI_GENCS_EXTCHRG_MASK) | (1U << TSI_V4_EXTCHRG_RESISTOR_BIT_SHIFT)))
+    ((uint32_t)((~(ALL_FLAGS_MASK | TSI_GENCS_EXTCHRG_MASK)) | (1U << TSI_V4_EXTCHRG_RESISTOR_BIT_SHIFT)))
 
 /*!
  * @brief TSI number of scan intervals for each electrode.
@@ -286,13 +288,11 @@ void TSI_Deinit(TSI_Type *base);
  * The user configure is set to these values:
  * @code
     userConfig->prescaler = kTSI_ElecOscPrescaler_2div;
-    userConfig->extchrg = kTSI_ExtOscChargeCurrent_4uA;
+    userConfig->extchrg = kTSI_ExtOscChargeCurrent_500nA;
     userConfig->refchrg = kTSI_RefOscChargeCurrent_4uA;
     userConfig->nscn = kTSI_ConsecutiveScansNumber_10time;
     userConfig->mode = kTSI_AnalogModeSel_Capacitive;
     userConfig->dvolt = kTSI_OscVolRailsOption_0;
-    userConfig->resistor = kTSI_SeriesResistance_32k;
-    userConfig->filter = kTSI_FilterBits_1;
     userConfig->thresh = 0U;
     userConfig->thresl = 0U;
    @endcode
@@ -308,13 +308,11 @@ void TSI_GetNormalModeDefaultConfig(tsi_config_t *userConfig);
  * The user configure is set to these values:
  * @code
     userConfig->prescaler = kTSI_ElecOscPrescaler_2div;
-    userConfig->extchrg = kTSI_ExtOscChargeCurrent_4uA;
+    userConfig->extchrg = kTSI_ExtOscChargeCurrent_500nA;
     userConfig->refchrg = kTSI_RefOscChargeCurrent_4uA;
     userConfig->nscn = kTSI_ConsecutiveScansNumber_10time;
     userConfig->mode = kTSI_AnalogModeSel_Capacitive;
     userConfig->dvolt = kTSI_OscVolRailsOption_0;
-    userConfig->resistor = kTSI_SeriesResistance_32k;
-    userConfig->filter = kTSI_FilterBits_1;
     userConfig->thresh = 400U;
     userConfig->thresl = 0U;
    @endcode
@@ -417,7 +415,7 @@ static inline bool TSI_IsScanInProgress(TSI_Type *base)
 */
 static inline void TSI_SetElectrodeOSCPrescaler(TSI_Type *base, tsi_electrode_osc_prescaler_t prescaler)
 {
-    base->GENCS = ((base->GENCS) & ~TSI_GENCS_PS_MASK) | (TSI_GENCS_PS(prescaler));
+    base->GENCS = (base->GENCS & ~(TSI_GENCS_PS_MASK | ALL_FLAGS_MASK)) | (TSI_GENCS_PS(prescaler));
 }
 
 /*!
@@ -429,7 +427,7 @@ static inline void TSI_SetElectrodeOSCPrescaler(TSI_Type *base, tsi_electrode_os
 */
 static inline void TSI_SetNumberOfScans(TSI_Type *base, tsi_n_consecutive_scans_t number)
 {
-    base->GENCS = ((base->GENCS) & ~TSI_GENCS_NSCN_MASK) | (TSI_GENCS_NSCN(number));
+    base->GENCS = (base->GENCS & ~(TSI_GENCS_NSCN_MASK | ALL_FLAGS_MASK)) | (TSI_GENCS_NSCN(number));
 }
 
 /*!
@@ -445,11 +443,11 @@ static inline void TSI_EnableModule(TSI_Type *base, bool enable)
 {
     if (enable)
     {
-        base->GENCS |= TSI_GENCS_TSIEN_MASK; /* Enable module */
+        base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) | TSI_GENCS_TSIEN_MASK;    /* Enable module */
     }
     else
     {
-        base->GENCS &= ~TSI_GENCS_TSIEN_MASK; /* Disable module */
+        base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) & (~TSI_GENCS_TSIEN_MASK); /* Disable module */
     }
 }
 
@@ -467,11 +465,11 @@ static inline void TSI_EnableLowPower(TSI_Type *base, bool enable)
 {
     if (enable)
     {
-        base->GENCS |= TSI_GENCS_STPE_MASK; /* Module enabled in low power stop modes */
+        base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) | TSI_GENCS_STPE_MASK;    /* Module enabled in low power stop modes */
     }
     else
     {
-        base->GENCS &= ~TSI_GENCS_STPE_MASK; /* Module disabled in low power stop modes */
+        base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) & (~TSI_GENCS_STPE_MASK); /* Module disabled in low power stop modes */
     }
 }
 
@@ -488,11 +486,11 @@ static inline void TSI_EnableHardwareTriggerScan(TSI_Type *base, bool enable)
 {
     if (enable)
     {
-        base->GENCS |= TSI_GENCS_STM_MASK; /* Enable hardware trigger scan */
+        base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) | TSI_GENCS_STM_MASK;    /* Enable hardware trigger scan */
     }
     else
     {
-        base->GENCS &= ~TSI_GENCS_STM_MASK; /* Enable software trigger scan */
+        base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) & (~TSI_GENCS_STM_MASK); /* Enable software trigger scan */
     }
 }
 
@@ -567,12 +565,12 @@ static inline void TSI_EnableEndOfScanDmaTransferOnly(TSI_Type *base, bool enabl
 {
     if (enable)
     {
-        base->GENCS |= TSI_GENCS_EOSDMEO_MASK; /* Enable End of Scan DMA transfer request only; */
+        base->GENCS = (base->GENCS & ~ALL_FLAGS_MASK) | TSI_GENCS_EOSDMEO_MASK; /* Enable End of Scan DMA transfer request only; */
     }
     else
     {
-        base->GENCS &=
-            ~TSI_GENCS_EOSDMEO_MASK; /* Both End-of-Scan and Out-of-Range can generate DMA transfer request. */
+        base->GENCS =
+            (base->GENCS & ~ALL_FLAGS_MASK) & (~TSI_GENCS_EOSDMEO_MASK); /* Both End-of-Scan and Out-of-Range can generate DMA transfer request. */
     }
 }
 #endif /* End of (FSL_FEATURE_TSI_HAS_END_OF_SCAN_DMA_ENABLE == 1)*/
@@ -625,7 +623,7 @@ static inline void TSI_SetHighThreshold(TSI_Type *base, uint16_t high_threshold)
 */
 static inline void TSI_SetAnalogMode(TSI_Type *base, tsi_analog_mode_t mode)
 {
-    base->GENCS = ((base->GENCS) & ~TSI_GENCS_MODE_MASK) | (TSI_GENCS_MODE(mode));
+    base->GENCS = (base->GENCS & ~(TSI_GENCS_MODE_MASK | ALL_FLAGS_MASK)) | (TSI_GENCS_MODE(mode));
 }
 
 /*!
@@ -648,7 +646,7 @@ static inline uint8_t TSI_GetNoiseModeResult(TSI_Type *base)
 */
 static inline void TSI_SetReferenceChargeCurrent(TSI_Type *base, tsi_reference_osc_charge_current_t current)
 {
-    base->GENCS = ((base->GENCS) & ~TSI_GENCS_REFCHRG_MASK) | (TSI_GENCS_REFCHRG(current));
+    base->GENCS = (base->GENCS & ~(TSI_GENCS_REFCHRG_MASK | ALL_FLAGS_MASK)) | (TSI_GENCS_REFCHRG(current));
 }
 
 /*!
@@ -660,7 +658,7 @@ static inline void TSI_SetReferenceChargeCurrent(TSI_Type *base, tsi_reference_o
 */
 static inline void TSI_SetElectrodeChargeCurrent(TSI_Type *base, tsi_external_osc_charge_current_t current)
 {
-    base->GENCS = ((base->GENCS) & ~TSI_GENCS_EXTCHRG_MASK) | (TSI_GENCS_EXTCHRG(current));
+    base->GENCS = (base->GENCS & ~(TSI_GENCS_EXTCHRG_MASK | ALL_FLAGS_MASK)) | (TSI_GENCS_EXTCHRG(current));
 }
 
 /*!
@@ -672,7 +670,7 @@ static inline void TSI_SetElectrodeChargeCurrent(TSI_Type *base, tsi_external_os
 */
 static inline void TSI_SetOscVoltageRails(TSI_Type *base, tsi_osc_voltage_rails_t dvolt)
 {
-    base->GENCS = ((base->GENCS) & ~TSI_GENCS_DVOLT_MASK) | (TSI_GENCS_DVOLT(dvolt));
+    base->GENCS = (base->GENCS & ~(TSI_GENCS_DVOLT_MASK | ALL_FLAGS_MASK)) | (TSI_GENCS_DVOLT(dvolt));
 }
 
 /*!

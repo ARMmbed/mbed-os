@@ -133,6 +133,16 @@ void SerialBase:: unlock() {
     // Stub
 }
 
+SerialBase::~SerialBase()
+{
+    // No lock needed in destructor
+
+    // Detaching interrupts releases the sleep lock if it was locked
+    for (int irq = 0; irq < IrqCnt; irq++) {
+        attach(NULL, (IrqType)irq);
+    }
+}
+
 #if DEVICE_SERIAL_FC
 void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2) {
     lock();

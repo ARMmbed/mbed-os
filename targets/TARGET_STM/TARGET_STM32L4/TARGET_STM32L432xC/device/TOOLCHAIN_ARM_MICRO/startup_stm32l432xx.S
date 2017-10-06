@@ -42,13 +42,13 @@
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
                 EXPORT  __initial_sp
 
-__initial_sp    EQU     0x2000C000 ; Top of RAM, L4-ECC-SRAM2 retained in standby
+__initial_sp    EQU     0x20010000 ; Top of RAM
 
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Heap_Size       EQU     0x0BA00 ; 46KB (48KB, -2*1KB for main thread and scheduler)
+Heap_Size       EQU     0x0F800 ; 62KB (64KB, -2*1KB for main thread and scheduler)
 
                 AREA    HEAP, NOINIT, READWRITE, ALIGN=3
                 EXPORT  __heap_base

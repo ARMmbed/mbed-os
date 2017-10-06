@@ -1063,33 +1063,54 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
   
   /* Disable the write protection for RTC registers */
   __HAL_RTC_WRITEPROTECTION_DISABLE(hrtc);
-  
-  __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
 
-  /* Get tick */
-  tickstart = HAL_GetTick();
-
-    /*Check RTC WUTWF flag is reset only when wake up timer enabled*/
+  /*Check RTC WUTWF flag is reset only when wake up timer enabled*/
   if((hrtc->Instance->CR & RTC_CR_WUTE) != RESET)
   {
-    /* Wait till RTC WUTWF flag is set and if Time out is reached exit */
-    while(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTWF) == RESET)
+    tickstart = HAL_GetTick();
+
+    /* Wait till RTC WUTWF flag is reset and if Time out is reached exit */
+    while(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTWF) == SET)
     {
       if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
       {
         /* Enable the write protection for RTC registers */
         __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
        
-        hrtc->State = HAL_RTC_STATE_TIMEOUT; 
-      
-        /* Process Unlocked */ 
+        hrtc->State = HAL_RTC_STATE_TIMEOUT;
+
+        /* Process Unlocked */
         __HAL_UNLOCK(hrtc);
-      
+
         return HAL_TIMEOUT;
       }  
     }
   }
-  
+  /* Disable the Wake-Up timer */
+  __HAL_RTC_WAKEUPTIMER_DISABLE(hrtc);
+
+  /* Clear flag Wake-Up */
+  __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(hrtc, RTC_FLAG_WUTF);
+
+  tickstart = HAL_GetTick();
+
+  /* Wait till RTC WUTWF flag is set and if Time out is reached exit */
+  while(__HAL_RTC_WAKEUPTIMER_GET_FLAG(hrtc, RTC_FLAG_WUTWF) == RESET)
+  {
+    if((HAL_GetTick() - tickstart ) > RTC_TIMEOUT_VALUE)
+    {
+      /* Enable the write protection for RTC registers */
+      __HAL_RTC_WRITEPROTECTION_ENABLE(hrtc);
+
+      hrtc->State = HAL_RTC_STATE_TIMEOUT;
+
+      /* Process Unlocked */
+      __HAL_UNLOCK(hrtc);
+
+      return HAL_TIMEOUT;
+    }
+  }
+
   /* Configure the Wakeup Timer counter */
   hrtc->Instance->WUTR = (uint32_t)WakeUpCounter;
 
@@ -1098,15 +1119,12 @@ HAL_StatusTypeDef HAL_RTCEx_SetWakeUpTimer_IT(RTC_HandleTypeDef *hrtc, uint32_t 
 
   /* Configure the clock source */
   hrtc->Instance->CR |= (uint32_t)WakeUpClock;
-  
+
   /* RTC WakeUpTimer Interrupt Configuration: EXTI configuration */
   __HAL_RTC_WAKEUPTIMER_EXTI_ENABLE_IT();
-  
-  EXTI->RTSR |= RTC_EXTI_LINE_WAKEUPTIMER_EVENT;
-  
-  /* Clear RTC Wake Up timer Flag */
-  __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(hrtc, RTC_FLAG_WUTF);
-  
+
+  __HAL_RTC_WAKEUPTIMER_EXTI_ENABLE_RISING_EDGE();
+
   /* Configure the Interrupt in the RTC_CR register */
   __HAL_RTC_WAKEUPTIMER_ENABLE_IT(hrtc,RTC_IT_WUT);
   

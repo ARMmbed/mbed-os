@@ -84,7 +84,7 @@ class IAR(mbedToolchain):
         self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
         self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
         
-        self.ld   = [join(IAR_BIN, "ilinkarm")]
+        self.ld   = [join(IAR_BIN, "ilinkarm")] + self.flags['ld']
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
 
@@ -186,7 +186,7 @@ class IAR(mbedToolchain):
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
-        cmd = self.ld + [ "-o", output, "--map=%s" % map_file] + objects + libraries + self.flags['ld']
+        cmd = self.ld + [ "-o", output, "--map=%s" % map_file] + objects + libraries
 
         if mem_map:
             cmd.extend(["--config", mem_map])

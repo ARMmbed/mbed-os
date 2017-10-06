@@ -141,6 +141,19 @@ public:
     }
 
     /**
+     * Flush sendBuffer, i.e., forcefully write its contents to the UART RX
+     * characteristic even if the buffer is not full.
+     */
+    void flush() {
+        if (ble.getGapState().connected) {
+            if (sendBufferIndex != 0) {
+                ble.gattServer().write(getRXCharacteristicHandle(), static_cast<const uint8_t *>(sendBuffer), sendBufferIndex);
+                sendBufferIndex = 0;
+            }
+        }
+    }
+
+    /**
      * Override for Stream::_putc().
      * @param  c
      *         This function writes the character c, cast to an unsigned char, to stream.

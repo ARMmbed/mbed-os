@@ -35,6 +35,6 @@
 // MCU Peripherals: 82 vectors = 328 bytes from 0x40 to 0x187
 // Total: 98 vectors = 392 bytes (0x188) to be reserved in RAM
 #define NVIC_NUM_VECTORS        98
-#define NVIC_RAM_VECTOR_ADDRESS 0x10000000    // Vectors positioned at start of SRAM2
+#define NVIC_RAM_VECTOR_ADDRESS SRAM1_BASE    // Vectors positioned at start of SRAM1
 
 #endif
