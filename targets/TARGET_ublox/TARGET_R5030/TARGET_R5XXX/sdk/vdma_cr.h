@@ -26,41 +26,6 @@
 #define VDMA_CR_COMPONENTID2 0x05
 #define VDMA_CR_COMPONENTID3 0xB1
 
-/** Channel Pending Registers
-*/
-struct vdma_cr_chp_s {
-   /** Channel Pending Source Address Register at address offset 0x000, read-write */
-   uint32_t src;
-   /** Channel Pending Destination Address Register at address offset 0x004, read-write */
-   uint32_t dst;
-   /** Channel Pending Size Register at address offset 0x008, read-write */
-   uint32_t size;
-   /** Channel Pending Configuration Register at address offset 0x00C, read-write */
-   uint32_t conf;
-};
-
-/** bit field defines for vdma_cr_chp_s#src */
-#define VDMA_CR_CHP_SRC_SRC_OFFSET 0
-#define VDMA_CR_CHP_SRC_SRC_SIZE 32
-
-/** bit field defines for vdma_cr_chp_s#dst */
-#define VDMA_CR_CHP_DST_DST_OFFSET 0
-#define VDMA_CR_CHP_DST_DST_SIZE 32
-
-/** bit field defines for vdma_cr_chp_s#size */
-#define VDMA_CR_CHP_SIZE_SIZE_OFFSET 0
-#define VDMA_CR_CHP_SIZE_SIZE_SIZE 32
-
-/** bit field defines for vdma_cr_chp_s#conf */
-#define VDMA_CR_CHP_CONF_SEV_O_ENABLE_OFFSET 0
-#define VDMA_CR_CHP_CONF_SEV_O_ENABLE_SIZE 1
-#define VDMA_CR_CHP_CONF_EVENTS_O_ENABLE_OFFSET 1
-#define VDMA_CR_CHP_CONF_EVENTS_O_ENABLE_SIZE 1
-#define VDMA_CR_CHP_CONF_DST_ADDR_SELECTOR_OFFSET 2
-#define VDMA_CR_CHP_CONF_DST_ADDR_SELECTOR_SIZE 1
-#define VDMA_CR_CHP_CONF_SRC_ADDR_SELECTOR_OFFSET 3
-#define VDMA_CR_CHP_CONF_SRC_ADDR_SELECTOR_SIZE 1
-
 /** Channel Running Registers
 */
 struct vdma_cr_chr_s {
@@ -95,6 +60,41 @@ struct vdma_cr_chr_s {
 #define VDMA_CR_CHR_CONF_DST_ADDR_SELECTOR_SIZE 1
 #define VDMA_CR_CHR_CONF_SRC_ADDR_SELECTOR_OFFSET 3
 #define VDMA_CR_CHR_CONF_SRC_ADDR_SELECTOR_SIZE 1
+
+/** Channel Pending Registers
+*/
+struct vdma_cr_chp_s {
+   /** Channel Pending Source Address Register at address offset 0x000, read-write */
+   uint32_t src;
+   /** Channel Pending Destination Address Register at address offset 0x004, read-write */
+   uint32_t dst;
+   /** Channel Pending Size Register at address offset 0x008, read-write */
+   uint32_t size;
+   /** Channel Pending Configuration Register at address offset 0x00C, read-write */
+   uint32_t conf;
+};
+
+/** bit field defines for vdma_cr_chp_s#src */
+#define VDMA_CR_CHP_SRC_SRC_OFFSET 0
+#define VDMA_CR_CHP_SRC_SRC_SIZE 32
+
+/** bit field defines for vdma_cr_chp_s#dst */
+#define VDMA_CR_CHP_DST_DST_OFFSET 0
+#define VDMA_CR_CHP_DST_DST_SIZE 32
+
+/** bit field defines for vdma_cr_chp_s#size */
+#define VDMA_CR_CHP_SIZE_SIZE_OFFSET 0
+#define VDMA_CR_CHP_SIZE_SIZE_SIZE 32
+
+/** bit field defines for vdma_cr_chp_s#conf */
+#define VDMA_CR_CHP_CONF_SEV_O_ENABLE_OFFSET 0
+#define VDMA_CR_CHP_CONF_SEV_O_ENABLE_SIZE 1
+#define VDMA_CR_CHP_CONF_EVENTS_O_ENABLE_OFFSET 1
+#define VDMA_CR_CHP_CONF_EVENTS_O_ENABLE_SIZE 1
+#define VDMA_CR_CHP_CONF_DST_ADDR_SELECTOR_OFFSET 2
+#define VDMA_CR_CHP_CONF_DST_ADDR_SELECTOR_SIZE 1
+#define VDMA_CR_CHP_CONF_SRC_ADDR_SELECTOR_OFFSET 3
+#define VDMA_CR_CHP_CONF_SRC_ADDR_SELECTOR_SIZE 1
 
 /** VDMA Control Registers.
 The Vector DMA Controller (VDMA) is used for memory to memory data transfers within the VSP memory system. The VDMA can transfer data to/from any memory, either private or shared, in the VSP memory system. Example use cases for the VDMA are:

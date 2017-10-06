@@ -12,7 +12,7 @@
 #include <stdint.h>
 
 /** km_sf HAL Spreadsheet version number */
-#define KM_SF_HAL_VERSION 3
+#define KM_SF_HAL_VERSION 5
 
 /** Klein Matterhorn Special Function Registers
 */
@@ -41,6 +41,18 @@ struct km_sf_s {
    uint32_t sdioctrl;
    /** Control for the RFFE Reset issued to the AC on POR or Watchdog Reset at address offset 0x02C, read-write */
    uint32_t rfferset;
+   /** OSPI Bug Fix Control for JIRA KM_CSD-880/881. OSPI IP does not support byte accesses in Octal DDR/DTR mode Enable at address offset 0x030, read-write */
+   uint32_t ospictrls;
+   /** OSPI Bug Fix Control for JIRA KM_CSD-880/881. OSPI IP does not support byte accesses in Octal DDR/DTR mode Disable at address offset 0x034, read-write */
+   uint32_t ospictrlc;
+   /** OSPI Bug Fix Control for JIRA KM_CSD-880/881. OSPI IP does not support byte accesses in Octal DDR/DTR mode at address offset 0x038, read-write */
+   uint32_t ospictrl;
+   /** RF Analog Reset Override. Functional override allowing control of resets when km_rf_dig_ccu is powered off or in reset Enable at address offset 0x03C, read-write */
+   uint32_t rfanarstorides;
+   /** RF Analog Reset Override. Functional override allowing control of resets when km_rf_dig_ccu is powered off or in reset Disable at address offset 0x040, read-write */
+   uint32_t rfanarstoridec;
+   /** RF Analog Reset Override. Functional override allowing control of resets when km_rf_dig_ccu is powered off or in reset at address offset 0x044, read-write */
+   uint32_t rfanarstoride;
 };
 
 /** bit field defines for km_sf_s#memmarg */
@@ -118,6 +130,96 @@ struct km_sf_s {
 /** bit field defines for km_sf_s#rfferset */
 #define KM_SF_RFFERSET_POLARITY_OFFSET 0
 #define KM_SF_RFFERSET_POLARITY_SIZE 1
+
+/** bit field defines for km_sf_s#ospictrls */
+#define KM_SF_OSPICTRLS_BYTERDCONVENABLE_OFFSET 0
+#define KM_SF_OSPICTRLS_BYTERDCONVENABLE_SIZE 1
+#define KM_SF_OSPICTRLS_BYTEWRHRESPENABLE_OFFSET 1
+#define KM_SF_OSPICTRLS_BYTEWRHRESPENABLE_SIZE 1
+#define KM_SF_OSPICTRLS_BYTERDHRESPENABLE_OFFSET 2
+#define KM_SF_OSPICTRLS_BYTERDHRESPENABLE_SIZE 1
+
+/** bit field defines for km_sf_s#ospictrlc */
+#define KM_SF_OSPICTRLC_BYTERDCONVENABLE_OFFSET 0
+#define KM_SF_OSPICTRLC_BYTERDCONVENABLE_SIZE 1
+#define KM_SF_OSPICTRLC_BYTEWRHRESPENABLE_OFFSET 1
+#define KM_SF_OSPICTRLC_BYTEWRHRESPENABLE_SIZE 1
+#define KM_SF_OSPICTRLC_BYTERDHRESPENABLE_OFFSET 2
+#define KM_SF_OSPICTRLC_BYTERDHRESPENABLE_SIZE 1
+
+/** bit field defines for km_sf_s#ospictrl */
+#define KM_SF_OSPICTRL_BYTERDCONVENABLE_OFFSET 0
+#define KM_SF_OSPICTRL_BYTERDCONVENABLE_SIZE 1
+#define KM_SF_OSPICTRL_BYTEWRHRESPENABLE_OFFSET 1
+#define KM_SF_OSPICTRL_BYTEWRHRESPENABLE_SIZE 1
+#define KM_SF_OSPICTRL_BYTERDHRESPENABLE_OFFSET 2
+#define KM_SF_OSPICTRL_BYTERDHRESPENABLE_SIZE 1
+
+/** bit field defines for km_sf_s#rfanarstorides */
+#define KM_SF_RFANARSTORIDES_VAL_OFFSET 0
+#define KM_SF_RFANARSTORIDES_VAL_SIZE 8
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDES_VAL_AUX_PRESETXARBI_VALUE 2
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDES_VAL_PLLRX_PRESETXARBI_VALUE 8
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDES_VAL_PLLRX_PLL_RESETN_VALUE 4
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDES_VAL_PLLTX_PRESETXARBI_VALUE 32
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDES_VAL_PLLTX_PLL_RESETN_VALUE 16
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDES_VAL_RX1_PRESETXARBI_VALUE 64
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDES_VAL_TX1_PRESETXARBI_VALUE 128
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDES_VAL_TX1_TXDFERESETXARBI_VALUE 1
+#define KM_SF_RFANARSTORIDES_ENABLE_OFFSET 8
+#define KM_SF_RFANARSTORIDES_ENABLE_SIZE 1
+
+/** bit field defines for km_sf_s#rfanarstoridec */
+#define KM_SF_RFANARSTORIDEC_VAL_OFFSET 0
+#define KM_SF_RFANARSTORIDEC_VAL_SIZE 8
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDEC_VAL_AUX_PRESETXARBI_VALUE 2
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDEC_VAL_PLLRX_PRESETXARBI_VALUE 8
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDEC_VAL_PLLRX_PLL_RESETN_VALUE 4
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDEC_VAL_PLLTX_PRESETXARBI_VALUE 32
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDEC_VAL_PLLTX_PLL_RESETN_VALUE 16
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDEC_VAL_RX1_PRESETXARBI_VALUE 64
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDEC_VAL_TX1_PRESETXARBI_VALUE 128
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDEC_VAL_TX1_TXDFERESETXARBI_VALUE 1
+#define KM_SF_RFANARSTORIDEC_ENABLE_OFFSET 8
+#define KM_SF_RFANARSTORIDEC_ENABLE_SIZE 1
+
+/** bit field defines for km_sf_s#rfanarstoride */
+#define KM_SF_RFANARSTORIDE_VAL_OFFSET 0
+#define KM_SF_RFANARSTORIDE_VAL_SIZE 8
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDE_VAL_AUX_PRESETXARBI_VALUE 2
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDE_VAL_PLLRX_PRESETXARBI_VALUE 8
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDE_VAL_PLLRX_PLL_RESETN_VALUE 4
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDE_VAL_PLLTX_PRESETXARBI_VALUE 32
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDE_VAL_PLLTX_PLL_RESETN_VALUE 16
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDE_VAL_RX1_PRESETXARBI_VALUE 64
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDE_VAL_TX1_PRESETXARBI_VALUE 128
+/** Bit position for this reset. Active Low */
+#define KM_SF_RFANARSTORIDE_VAL_TX1_TXDFERESETXARBI_VALUE 1
+#define KM_SF_RFANARSTORIDE_ENABLE_OFFSET 8
+#define KM_SF_RFANARSTORIDE_ENABLE_SIZE 1
 
 /* EOF km_sf.h */
 #endif

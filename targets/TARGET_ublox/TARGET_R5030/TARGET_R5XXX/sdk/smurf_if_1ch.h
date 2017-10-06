@@ -77,27 +77,27 @@ struct smurf_if_1ch_s {
 
 /** bit field defines for smurf_if_1ch_s#fltclear */
 #define SMURF_IF_1CH_FLTCLEAR_FLTCLEAR_OFFSET 0
-#define SMURF_IF_1CH_FLTCLEAR_FLTCLEAR_SIZE 1
+#define SMURF_IF_1CH_FLTCLEAR_FLTCLEAR_SIZE 2
 
 /** bit field defines for smurf_if_1ch_s#fltstatus */
 #define SMURF_IF_1CH_FLTSTATUS_FLTSTATUS_OFFSET 0
-#define SMURF_IF_1CH_FLTSTATUS_FLTSTATUS_SIZE 1
+#define SMURF_IF_1CH_FLTSTATUS_FLTSTATUS_SIZE 2
 
 /** bit field defines for smurf_if_1ch_s#fltrawstatus */
 #define SMURF_IF_1CH_FLTRAWSTATUS_FLTRAWSTATUS_OFFSET 0
-#define SMURF_IF_1CH_FLTRAWSTATUS_FLTRAWSTATUS_SIZE 1
+#define SMURF_IF_1CH_FLTRAWSTATUS_FLTRAWSTATUS_SIZE 2
 
 /** bit field defines for smurf_if_1ch_s#fltmaskclr */
 #define SMURF_IF_1CH_FLTMASKCLR_FLTMASKCLR_OFFSET 0
-#define SMURF_IF_1CH_FLTMASKCLR_FLTMASKCLR_SIZE 1
+#define SMURF_IF_1CH_FLTMASKCLR_FLTMASKCLR_SIZE 2
 
 /** bit field defines for smurf_if_1ch_s#fltmaskset */
 #define SMURF_IF_1CH_FLTMASKSET_FLTMASKSET_OFFSET 0
-#define SMURF_IF_1CH_FLTMASKSET_FLTMASKSET_SIZE 1
+#define SMURF_IF_1CH_FLTMASKSET_FLTMASKSET_SIZE 2
 
 /** bit field defines for smurf_if_1ch_s#fltmaskstatus */
 #define SMURF_IF_1CH_FLTMASKSTATUS_FLTMASKSTATUS_OFFSET 0
-#define SMURF_IF_1CH_FLTMASKSTATUS_FLTMASKSTATUS_SIZE 1
+#define SMURF_IF_1CH_FLTMASKSTATUS_FLTMASKSTATUS_SIZE 2
 
 /** bit field defines for smurf_if_1ch_s#peripheralid4 */
 #define SMURF_IF_1CH_PERIPHERALID4_PERIPHERALID4_OFFSET 0

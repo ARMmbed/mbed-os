@@ -145,7 +145,9 @@ enum APP_SS_IRQ_CFG {
    /** App M7 Int ETR Limiter Threshold */
    APP_SS_IRQ_CFG_APP_IRQ_ETR_LIMITER_THRESHOLD = 43,
    /** App M7 Int USB core wakeup request */
-   APP_SS_IRQ_CFG_APP_IRQ_USB_WAKEUP_INT = 44
+   APP_SS_IRQ_CFG_APP_IRQ_USB_WAKEUP_INT = 44,
+   /** App M7 Int Analog Companion Power Alert */
+   APP_SS_IRQ_CFG_APP_IRQ_AC_PWR_ALERT = 45
 };
 
 /** APP CPU Non-Maskable IRQ Connectivity Configuration */
@@ -308,10 +310,78 @@ enum OSPI_ONFI_GP_PAD_CONFIG {
    OSPI_ONFI_GP_PAD_CONFIG_ONFI_GP_CONFIG_ID_OSPI_OVERRIDE_CS = 28,
    /** OSPI CS Override Value */
    OSPI_ONFI_GP_PAD_CONFIG_ONFI_GP_CONFIG_ID_OSPI_CS_VAL = 29,
-   /** OSPI Unused */
-   OSPI_ONFI_GP_PAD_CONFIG_ONFI_GP_CONFIG_ID_UNUSED0 = 30,
+   /** OSPI Pad SEL18 */
+   OSPI_ONFI_GP_PAD_CONFIG_ONFI_GP_CONFIG_ID_SEL18 = 30,
    /** OSPI Unused */
    OSPI_ONFI_GP_PAD_CONFIG_ONFI_GP_CONFIG_ID_UNUSED1 = 31
+};
+
+/** PIO General Purpose Control Register Bit Assignments */
+enum PIO_GP_CONFIG {
+   /** PIO GP Assignment - SEL18_DISP */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_SEL18_DISP = 0,
+   /** PIO GP Assignment - UNUSED */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_UNUSED = 1,
+   /** PIO GP Assignment - SEL18_USIM */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_SEL18_USIM = 2,
+   /** PIO GP Assignment - SEL18_SDIO */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_SEL18_SDIO = 3,
+   /** PIO GP Assignment - SGP_USIM */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_SGP_USIM = 4,
+   /** PIO GP Assignment - SD_WP_POL */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_SD_WP_POL = 5,
+   /** PIO GP Assignment - SD_CDETECT_POL */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_SD_CDETECT_POL = 6,
+   /** PIO GP Assignment - USIM_DET_POL */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_USIM_DET_POL = 7,
+   /** PIO GP Assignment - USIM_DET_DEFAULT */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_USIM_DET_DEFAULT = 8,
+   /** PIO GP Assignment - USIM_DET_SRC */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_USIM_DET_SRC = 9,
+   /** PIO GP Assignment - PWRSCL_PU */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRSCL_PU = 10,
+   /** PIO GP Assignment - PWRSCL_MDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRSCL_MDRV = 11,
+   /** PIO GP Assignment - PWRSCL_LDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRSCL_LDRV = 12,
+   /** PIO GP Assignment - PWRSCL_SR */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRSCL_SR = 13,
+   /** PIO GP Assignment - PWRSCL_ST */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRSCL_ST = 14,
+   /** PIO GP Assignment - PWRSDA_PU */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRSDA_PU = 15,
+   /** PIO GP Assignment - PWRSDA_MDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRSDA_MDRV = 16,
+   /** PIO GP Assignment - PWRSDA_LDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRSDA_LDRV = 17,
+   /** PIO GP Assignment - LVDSCONTROL_MDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_LVDSCONTROL_MDRV = 18,
+   /** PIO GP Assignment - LVDSCONTROL_LDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_LVDSCONTROL_LDRV = 19,
+   /** PIO GP Assignment - LVDSCONTROL_SR */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_LVDSCONTROL_SR = 20,
+   /** PIO GP Assignment - REFCLKOUT_MDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_REFCLKOUT_MDRV = 21,
+   /** PIO GP Assignment - REFCLKOUT_LDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_REFCLKOUT_LDRV = 22,
+   /** PIO GP Assignment - REFCLKOUT_SR */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_REFCLKOUT_SR = 23,
+   /** PIO GP Assignment - PWRIDLE_MDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRIDLE_MDRV = 24,
+   /** PIO GP Assignment - PWRIDLE_LDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRIDLE_LDRV = 25,
+   /** PIO GP Assignment - PWRIDLE_SR */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_PWRIDLE_SR = 26,
+   /** PIO GP Assignment - TMS_SRATE */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_TMS_SRATE = 27,
+   /** PIO GP Assignment - TMS_MDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_TMS_MDRV = 28,
+   /** PIO GP Assignment - TMS_LDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_TMS_LDRV = 29,
+   /** PIO GP Assignment - TDO_MDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_TDO_MDRV = 30,
+   /** PIO GP Assignment - TDO_LDRV */
+   PIO_GP_CONFIG_PIO_GP_CONFIG_ID_TDO_LDRV = 31
 };
 
 /** PSRAM ONFI Pad General Purpose Control Register Bit Assignments */
@@ -1238,10 +1308,10 @@ enum RF_CPU_IRQ_CFG {
    RF_CPU_IRQ_CFG_SYN2_PLL_LOCK_INT = 27,
    /** PLL2 DigIF PLL Unlocked */
    RF_CPU_IRQ_CFG_SYN2_PLL_UNLOCK_INT = 28,
-   /** PLL1 DigIF Cal Done */
-   RF_CPU_IRQ_CFG_SYN1_PLL_CAL_DONE_INT = 29,
    /** PLL2 DigIF Cal Done */
-   RF_CPU_IRQ_CFG_SYN2_PLL_CAL_DONE_INT = 30,
+   RF_CPU_IRQ_CFG_SYN2_PLL_CAL_DONE_INT = 29,
+   /** PLL1 DigIF Cal Done */
+   RF_CPU_IRQ_CFG_SYN1_PLL_CAL_DONE_INT = 30,
    /** RF Timer 1 Interrupt */
    RF_CPU_IRQ_CFG_TIMER1_INT = 31,
    /** RF Timer 1 Overflow Interrupt */
@@ -1278,26 +1348,26 @@ enum RF_DIG_SCH_Q_DEPTH {
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_PLL1 = 1,
    /** RF Scheduler Q5 depth - PLL2 RX SYN */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_PLL2 = 1,
+   /** RF Scheduler Q6 depth - AUX */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_AUX = 4,
+   /** RF Scheduler Q6 depth - Master Load */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_MSTR = 4,
    /** RF Scheduler Q1 depth - TX2 (GO Only) */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_TX2 = 4,
    /** RF Scheduler Q0 depth - TX1 */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_TX1 = 4,
-   /** RF Scheduler Q6 depth - Master Load */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_MSTR = 4,
-   /** RF Scheduler Q6 depth - AUX */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_AUX = 4,
    /** RF Scheduler Q3 depth - RX2 (GO Only) */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RX2 = 8,
    /** RF Scheduler Q2 depth - RX1 */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RX1 = 8,
-   /** RF Scheduler Q14 depth - RFFE */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RFFE = 16,
+   /** RF Scheduler Q14 depth - GPIO */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_GPIO = 16,
    /** RF Scheduler Q13 depth - Clock */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_CLK = 16,
    /** RF Scheduler Q15 depth - CPU Interrupt */
    RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_CPU = 16,
-   /** RF Scheduler Q14 depth - GPIO */
-   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_GPIO = 16
+   /** RF Scheduler Q14 depth - RFFE */
+   RF_DIG_SCH_Q_DEPTH_RF_SCH_Q_DEPTH_RFFE = 16
 };
 
 /** RF Scheduler Queue IDs */
@@ -1314,16 +1384,16 @@ enum RF_DIG_SCH_Q_ID {
    RF_DIG_SCH_Q_ID_RF_SCH_Q_PLL1 = 4,
    /** RF Scheduler Q5 - PLL2 RX SYN */
    RF_DIG_SCH_Q_ID_RF_SCH_Q_PLL2 = 5,
-   /** RF Scheduler Q6 - AUX */
-   RF_DIG_SCH_Q_ID_RF_SCH_Q_AUX = 6,
    /** RF Scheduler Q6 - Master Load */
    RF_DIG_SCH_Q_ID_RF_SCH_Q_MSTR = 6,
+   /** RF Scheduler Q6 - AUX */
+   RF_DIG_SCH_Q_ID_RF_SCH_Q_AUX = 6,
    /** RF Scheduler Q13 - Clock */
    RF_DIG_SCH_Q_ID_RF_SCH_Q_CLK = 13,
-   /** RF Scheduler Q14 - RFFE */
-   RF_DIG_SCH_Q_ID_RF_SCH_Q_RFFE = 14,
    /** RF Scheduler Q14 - GPIO */
    RF_DIG_SCH_Q_ID_RF_SCH_Q_GPIO = 14,
+   /** RF Scheduler Q14 - RFFE */
+   RF_DIG_SCH_Q_ID_RF_SCH_Q_RFFE = 14,
    /** RF Scheduler Q15 - CPU Interrupt */
    RF_DIG_SCH_Q_ID_RF_SCH_Q_CPU = 15
 };
@@ -1384,10 +1454,10 @@ enum RF_DIG_SCH_Q_POS_GPIO_RFFE {
    RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO12 = 13,
    /** GPIO[13] */
    RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO13 = 14,
-   /** GPIO[14] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO14 = 15,
    /** GPIO[15] */
-   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO15 = 15
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO15 = 15,
+   /** GPIO[14] */
+   RF_DIG_SCH_Q_POS_GPIO_RFFE_Q14_GPIO14 = 15
 };
 
 /** RF Scheduler Queue 7 Bit Positions for Master Load */
@@ -1742,7 +1812,7 @@ static volatile struct km_gnss_apps_tim_s* const app_ss_km_gnss_apps_tim = (stru
 }
 #endif
 
-struct tdr_access_unit_apb_s;
+struct tdr_access_unit_s;
 #ifdef __cplusplus
 namespace device {
 #endif
@@ -1750,7 +1820,7 @@ namespace device {
  *Test Data Register Acccess Gateway->
  *TDR Access Unit register block
 */
-static volatile struct tdr_access_unit_apb_s* const app_ss_tdr_access_unit = (struct tdr_access_unit_apb_s*)(+0x4900D000);
+static volatile struct tdr_access_unit_s* const app_ss_tdr_access_unit = (struct tdr_access_unit_s*)(+0x4900D000);
 #ifdef __cplusplus
 }
 #endif

@@ -28,6 +28,115 @@
 #define RFDMA_COMPONENTID2 0x05
 #define RFDMA_COMPONENTID3 0xB1
 
+/** Receive channel command registers
+*/
+struct rfdma_rxc_s {
+   /** Channel command at address offset 0x000, write-only */
+   uint32_t comd;
+   /** Channel status at address offset 0x004, read-only */
+   uint32_t stat;
+   /** RF data shifter control at address offset 0x008, read-write */
+   uint32_t conf;
+   /** Reserved space \private at address offset 0x00C, read-only */
+   uint32_t fill0;
+};
+
+/** bit field defines for rfdma_rxc_s#comd */
+#define RFDMA_RXC_COMD_PENDING_SUSPEND_OFFSET 0
+#define RFDMA_RXC_COMD_PENDING_SUSPEND_SIZE 1
+#define RFDMA_RXC_COMD_PENDING_ABORT_OFFSET 1
+#define RFDMA_RXC_COMD_PENDING_ABORT_SIZE 1
+#define RFDMA_RXC_COMD_RUNNING_SUSPEND_OFFSET 2
+#define RFDMA_RXC_COMD_RUNNING_SUSPEND_SIZE 1
+#define RFDMA_RXC_COMD_RUNNING_ABORT_OFFSET 3
+#define RFDMA_RXC_COMD_RUNNING_ABORT_SIZE 1
+
+/** bit field defines for rfdma_rxc_s#stat */
+#define RFDMA_RXC_STAT_PENDING_SUSPENDED_OFFSET 0
+#define RFDMA_RXC_STAT_PENDING_SUSPENDED_SIZE 1
+#define RFDMA_RXC_STAT_PENDING_VALID_OFFSET 1
+#define RFDMA_RXC_STAT_PENDING_VALID_SIZE 1
+#define RFDMA_RXC_STAT_RUNNING_SUSPEND_OFFSET 2
+#define RFDMA_RXC_STAT_RUNNING_SUSPEND_SIZE 1
+#define RFDMA_RXC_STAT_RUNNING_VALID_OFFSET 3
+#define RFDMA_RXC_STAT_RUNNING_VALID_SIZE 1
+#define RFDMA_RXC_STAT_RUNNING_ABORT_BUSY_OFFSET 4
+#define RFDMA_RXC_STAT_RUNNING_ABORT_BUSY_SIZE 1
+#define RFDMA_RXC_STAT_FIFO_EMPTY_OFFSET 5
+#define RFDMA_RXC_STAT_FIFO_EMPTY_SIZE 1
+#define RFDMA_RXC_STAT_RUNNING_BUSY_OFFSET 16
+#define RFDMA_RXC_STAT_RUNNING_BUSY_SIZE 1
+
+/** bit field defines for rfdma_rxc_s#conf */
+#define RFDMA_RXC_CONF_SH_CNT_OFFSET 0
+#define RFDMA_RXC_CONF_SH_CNT_SIZE 3
+
+/** Receive channel pending registers
+*/
+struct rfdma_rxp_s {
+   /** Channel pending source address at address offset 0x000, read-write */
+   uint32_t addr;
+   /** Channel pending size in bytes at address offset 0x004, read-write */
+   uint32_t size;
+   /** Channel pending configuration.  A pending descriptor becomes valid when this register is written to. at address offset 0x008, read-write */
+   uint32_t conf;
+   /** Reserved space \private at address offset 0x00C, read-write */
+   uint32_t fill;
+};
+
+/** bit field defines for rfdma_rxp_s#addr */
+#define RFDMA_RXP_ADDR_ADDRESS_OFFSET 2
+#define RFDMA_RXP_ADDR_ADDRESS_SIZE 30
+
+/** bit field defines for rfdma_rxp_s#size */
+#define RFDMA_RXP_SIZE_SIZE_OFFSET 2
+#define RFDMA_RXP_SIZE_SIZE_SIZE 30
+
+/** bit field defines for rfdma_rxp_s#conf */
+#define RFDMA_RXP_CONF_SEV_O_ENABLE_OFFSET 0
+#define RFDMA_RXP_CONF_SEV_O_ENABLE_SIZE 1
+#define RFDMA_RXP_CONF_EVENTS_O_ENABLE_OFFSET 1
+#define RFDMA_RXP_CONF_EVENTS_O_ENABLE_SIZE 1
+#define RFDMA_RXP_CONF_LOOP_ENABLE_OFFSET 2
+#define RFDMA_RXP_CONF_LOOP_ENABLE_SIZE 1
+#define RFDMA_RXP_CONF_BLOCK_CNT_OFFSET 8
+#define RFDMA_RXP_CONF_BLOCK_CNT_SIZE 8
+#define RFDMA_RXP_CONF_LOOP_CNT_OFFSET 16
+#define RFDMA_RXP_CONF_LOOP_CNT_SIZE 16
+
+/** Receive channel running registers
+*/
+struct rfdma_rxr_s {
+   /** Channel running source address at address offset 0x000, read-only */
+   uint32_t addr;
+   /** Channel running size in bytes at address offset 0x004, read-only */
+   uint32_t size;
+   /** Channel running configuration at address offset 0x008, read-only */
+   uint32_t conf;
+   /** Reserved space \private at address offset 0x00C, read-only */
+   uint32_t fill;
+};
+
+/** bit field defines for rfdma_rxr_s#addr */
+#define RFDMA_RXR_ADDR_ADDRESS_OFFSET 2
+#define RFDMA_RXR_ADDR_ADDRESS_SIZE 30
+
+/** bit field defines for rfdma_rxr_s#size */
+#define RFDMA_RXR_SIZE_SIZE_OFFSET 2
+#define RFDMA_RXR_SIZE_SIZE_SIZE 30
+
+/** bit field defines for rfdma_rxr_s#conf */
+#define RFDMA_RXR_CONF_SEV_O_ENABLE_OFFSET 0
+#define RFDMA_RXR_CONF_SEV_O_ENABLE_SIZE 1
+#define RFDMA_RXR_CONF_EVENTS_O_ENABLE_OFFSET 1
+#define RFDMA_RXR_CONF_EVENTS_O_ENABLE_SIZE 1
+#define RFDMA_RXR_CONF_LOOP_ENABLE_OFFSET 2
+#define RFDMA_RXR_CONF_LOOP_ENABLE_SIZE 1
+#define RFDMA_RXR_CONF_BLOCK_CNT_OFFSET 8
+#define RFDMA_RXR_CONF_BLOCK_CNT_SIZE 8
+#define RFDMA_RXR_CONF_LOOP_CNT_OFFSET 16
+#define RFDMA_RXR_CONF_LOOP_CNT_SIZE 16
+
 /** Transmit channel command registers
 */
 struct rfdma_txc_s {
@@ -100,39 +209,6 @@ struct rfdma_txr_s {
 #define RFDMA_TXR_CONF_LOOP_CNT_OFFSET 16
 #define RFDMA_TXR_CONF_LOOP_CNT_SIZE 16
 
-/** Receive channel pending registers
-*/
-struct rfdma_rxp_s {
-   /** Channel pending source address at address offset 0x000, read-write */
-   uint32_t addr;
-   /** Channel pending size in bytes at address offset 0x004, read-write */
-   uint32_t size;
-   /** Channel pending configuration.  A pending descriptor becomes valid when this register is written to. at address offset 0x008, read-write */
-   uint32_t conf;
-   /** Reserved space \private at address offset 0x00C, read-write */
-   uint32_t fill;
-};
-
-/** bit field defines for rfdma_rxp_s#addr */
-#define RFDMA_RXP_ADDR_ADDRESS_OFFSET 2
-#define RFDMA_RXP_ADDR_ADDRESS_SIZE 30
-
-/** bit field defines for rfdma_rxp_s#size */
-#define RFDMA_RXP_SIZE_SIZE_OFFSET 2
-#define RFDMA_RXP_SIZE_SIZE_SIZE 30
-
-/** bit field defines for rfdma_rxp_s#conf */
-#define RFDMA_RXP_CONF_SEV_O_ENABLE_OFFSET 0
-#define RFDMA_RXP_CONF_SEV_O_ENABLE_SIZE 1
-#define RFDMA_RXP_CONF_EVENTS_O_ENABLE_OFFSET 1
-#define RFDMA_RXP_CONF_EVENTS_O_ENABLE_SIZE 1
-#define RFDMA_RXP_CONF_LOOP_ENABLE_OFFSET 2
-#define RFDMA_RXP_CONF_LOOP_ENABLE_SIZE 1
-#define RFDMA_RXP_CONF_BLOCK_CNT_OFFSET 8
-#define RFDMA_RXP_CONF_BLOCK_CNT_SIZE 8
-#define RFDMA_RXP_CONF_LOOP_CNT_OFFSET 16
-#define RFDMA_RXP_CONF_LOOP_CNT_SIZE 16
-
 /** Transmit channel pending registers
 */
 struct rfdma_txp_s {
@@ -165,82 +241,6 @@ struct rfdma_txp_s {
 #define RFDMA_TXP_CONF_BLOCK_CNT_SIZE 8
 #define RFDMA_TXP_CONF_LOOP_CNT_OFFSET 16
 #define RFDMA_TXP_CONF_LOOP_CNT_SIZE 16
-
-/** Receive channel running registers
-*/
-struct rfdma_rxr_s {
-   /** Channel running source address at address offset 0x000, read-only */
-   uint32_t addr;
-   /** Channel running size in bytes at address offset 0x004, read-only */
-   uint32_t size;
-   /** Channel running configuration at address offset 0x008, read-only */
-   uint32_t conf;
-   /** Reserved space \private at address offset 0x00C, read-only */
-   uint32_t fill;
-};
-
-/** bit field defines for rfdma_rxr_s#addr */
-#define RFDMA_RXR_ADDR_ADDRESS_OFFSET 2
-#define RFDMA_RXR_ADDR_ADDRESS_SIZE 30
-
-/** bit field defines for rfdma_rxr_s#size */
-#define RFDMA_RXR_SIZE_SIZE_OFFSET 2
-#define RFDMA_RXR_SIZE_SIZE_SIZE 30
-
-/** bit field defines for rfdma_rxr_s#conf */
-#define RFDMA_RXR_CONF_SEV_O_ENABLE_OFFSET 0
-#define RFDMA_RXR_CONF_SEV_O_ENABLE_SIZE 1
-#define RFDMA_RXR_CONF_EVENTS_O_ENABLE_OFFSET 1
-#define RFDMA_RXR_CONF_EVENTS_O_ENABLE_SIZE 1
-#define RFDMA_RXR_CONF_LOOP_ENABLE_OFFSET 2
-#define RFDMA_RXR_CONF_LOOP_ENABLE_SIZE 1
-#define RFDMA_RXR_CONF_BLOCK_CNT_OFFSET 8
-#define RFDMA_RXR_CONF_BLOCK_CNT_SIZE 8
-#define RFDMA_RXR_CONF_LOOP_CNT_OFFSET 16
-#define RFDMA_RXR_CONF_LOOP_CNT_SIZE 16
-
-/** Receive channel command registers
-*/
-struct rfdma_rxc_s {
-   /** Channel command at address offset 0x000, write-only */
-   uint32_t comd;
-   /** Channel status at address offset 0x004, read-only */
-   uint32_t stat;
-   /** RF data shifter control at address offset 0x008, read-write */
-   uint32_t conf;
-   /** Reserved space \private at address offset 0x00C, read-only */
-   uint32_t fill0;
-};
-
-/** bit field defines for rfdma_rxc_s#comd */
-#define RFDMA_RXC_COMD_PENDING_SUSPEND_OFFSET 0
-#define RFDMA_RXC_COMD_PENDING_SUSPEND_SIZE 1
-#define RFDMA_RXC_COMD_PENDING_ABORT_OFFSET 1
-#define RFDMA_RXC_COMD_PENDING_ABORT_SIZE 1
-#define RFDMA_RXC_COMD_RUNNING_SUSPEND_OFFSET 2
-#define RFDMA_RXC_COMD_RUNNING_SUSPEND_SIZE 1
-#define RFDMA_RXC_COMD_RUNNING_ABORT_OFFSET 3
-#define RFDMA_RXC_COMD_RUNNING_ABORT_SIZE 1
-
-/** bit field defines for rfdma_rxc_s#stat */
-#define RFDMA_RXC_STAT_PENDING_SUSPENDED_OFFSET 0
-#define RFDMA_RXC_STAT_PENDING_SUSPENDED_SIZE 1
-#define RFDMA_RXC_STAT_PENDING_VALID_OFFSET 1
-#define RFDMA_RXC_STAT_PENDING_VALID_SIZE 1
-#define RFDMA_RXC_STAT_RUNNING_SUSPEND_OFFSET 2
-#define RFDMA_RXC_STAT_RUNNING_SUSPEND_SIZE 1
-#define RFDMA_RXC_STAT_RUNNING_VALID_OFFSET 3
-#define RFDMA_RXC_STAT_RUNNING_VALID_SIZE 1
-#define RFDMA_RXC_STAT_RUNNING_ABORT_BUSY_OFFSET 4
-#define RFDMA_RXC_STAT_RUNNING_ABORT_BUSY_SIZE 1
-#define RFDMA_RXC_STAT_FIFO_EMPTY_OFFSET 5
-#define RFDMA_RXC_STAT_FIFO_EMPTY_SIZE 1
-#define RFDMA_RXC_STAT_RUNNING_BUSY_OFFSET 16
-#define RFDMA_RXC_STAT_RUNNING_BUSY_SIZE 1
-
-/** bit field defines for rfdma_rxc_s#conf */
-#define RFDMA_RXC_CONF_SH_CNT_OFFSET 0
-#define RFDMA_RXC_CONF_SH_CNT_SIZE 3
 
 /** RFDMA control registers
 */

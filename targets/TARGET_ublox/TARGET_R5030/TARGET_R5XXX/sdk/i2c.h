@@ -15,23 +15,23 @@
 /** Here comes the decription of this IP component
 */
 struct i2c_s {
-   /** Control register (set bit) at address offset 0x000, set on read */
+   /** Control register (set bit) at address offset 0x000, read-write */
    uint32_t crset;
-   /** Control register (clear bit) at address offset 0x004, clear on read */
+   /** Control register (clear bit) at address offset 0x004, read-write */
    uint32_t crclear;
    /** Control register at address offset 0x008, read-write */
    uint32_t cr;
    /** Reserved space */
    uint8_t fill0[4];
-   /** Interrupt enable register (set bit) at address offset 0x010, set on read */
+   /** Interrupt enable register (set bit) at address offset 0x010, read-write */
    uint32_t intenableset;
-   /** Interrupt enable register (clear bit) at address offset 0x014, clear on read */
+   /** Interrupt enable register (clear bit) at address offset 0x014, read-write */
    uint32_t intenableclear;
    /** Interrupt Enable Register at address offset 0x018, read-write */
    uint32_t intenable;
    /** Reserved space */
    uint8_t fill1[4];
-   /** Status Register at address offset 0x020, clear on read-write */
+   /** Status Register at address offset 0x020, read-write */
    uint32_t sr;
    /** Own Address Register at address offset 0x024, read-write */
    uint32_t oar;
@@ -58,12 +58,32 @@ struct i2c_s {
 };
 
 /** bit field defines for i2c_s#crset */
-#define I2C_CRSET_CRSET_OFFSET 0
-#define I2C_CRSET_CRSET_SIZE 32
+#define I2C_CRSET_ITE_OFFSET 0
+#define I2C_CRSET_ITE_SIZE 1
+#define I2C_CRSET_STOP_OFFSET 1
+#define I2C_CRSET_STOP_SIZE 1
+#define I2C_CRSET_ACK_OFFSET 2
+#define I2C_CRSET_ACK_SIZE 1
+#define I2C_CRSET_START_OFFSET 3
+#define I2C_CRSET_START_SIZE 1
+#define I2C_CRSET_GC_OFFSET 4
+#define I2C_CRSET_GC_SIZE 1
+#define I2C_CRSET_INSYN_OFFSET 5
+#define I2C_CRSET_INSYN_SIZE 1
 
 /** bit field defines for i2c_s#crclear */
-#define I2C_CRCLEAR_CRCLEAR_OFFSET 0
-#define I2C_CRCLEAR_CRCLEAR_SIZE 32
+#define I2C_CRCLEAR_ITE_OFFSET 0
+#define I2C_CRCLEAR_ITE_SIZE 1
+#define I2C_CRCLEAR_STOP_OFFSET 1
+#define I2C_CRCLEAR_STOP_SIZE 1
+#define I2C_CRCLEAR_ACK_OFFSET 2
+#define I2C_CRCLEAR_ACK_SIZE 1
+#define I2C_CRCLEAR_START_OFFSET 3
+#define I2C_CRCLEAR_START_SIZE 1
+#define I2C_CRCLEAR_GC_OFFSET 4
+#define I2C_CRCLEAR_GC_SIZE 1
+#define I2C_CRCLEAR_INSYN_OFFSET 5
+#define I2C_CRCLEAR_INSYN_SIZE 1
 
 /** bit field defines for i2c_s#cr */
 #define I2C_CR_ITE_OFFSET 0
@@ -80,12 +100,88 @@ struct i2c_s {
 #define I2C_CR_INSYN_SIZE 1
 
 /** bit field defines for i2c_s#intenableset */
-#define I2C_INTENABLESET_INTENABLESET_OFFSET 0
-#define I2C_INTENABLESET_INTENABLESET_SIZE 32
+#define I2C_INTENABLESET_SB_OFFSET 0
+#define I2C_INTENABLESET_SB_SIZE 1
+#define I2C_INTENABLESET_MSL_OFFSET 1
+#define I2C_INTENABLESET_MSL_SIZE 1
+#define I2C_INTENABLESET_ADSL_OFFSET 2
+#define I2C_INTENABLESET_ADSL_SIZE 1
+#define I2C_INTENABLESET_BTF_OFFSET 3
+#define I2C_INTENABLESET_BTF_SIZE 1
+#define I2C_INTENABLESET_BUSY_OFFSET 4
+#define I2C_INTENABLESET_BUSY_SIZE 1
+#define I2C_INTENABLESET_TRA_OFFSET 5
+#define I2C_INTENABLESET_TRA_SIZE 1
+#define I2C_INTENABLESET_ADD10_OFFSET 6
+#define I2C_INTENABLESET_ADD10_SIZE 1
+#define I2C_INTENABLESET_GC_OFFSET 7
+#define I2C_INTENABLESET_GC_SIZE 1
+#define I2C_INTENABLESET_BERR_OFFSET 8
+#define I2C_INTENABLESET_BERR_SIZE 1
+#define I2C_INTENABLESET_ARLO_OFFSET 9
+#define I2C_INTENABLESET_ARLO_SIZE 1
+#define I2C_INTENABLESET_STOPF_OFFSET 10
+#define I2C_INTENABLESET_STOPF_SIZE 1
+#define I2C_INTENABLESET_AF_OFFSET 11
+#define I2C_INTENABLESET_AF_SIZE 1
+#define I2C_INTENABLESET_ENDAD_OFFSET 12
+#define I2C_INTENABLESET_ENDAD_SIZE 1
+#define I2C_INTENABLESET_RXNOTEMPTY_OFFSET 13
+#define I2C_INTENABLESET_RXNOTEMPTY_SIZE 1
+#define I2C_INTENABLESET_RXHALFFULL_OFFSET 14
+#define I2C_INTENABLESET_RXHALFFULL_SIZE 1
+#define I2C_INTENABLESET_RXFULL_OFFSET 15
+#define I2C_INTENABLESET_RXFULL_SIZE 1
+#define I2C_INTENABLESET_TXEMPTY_OFFSET 16
+#define I2C_INTENABLESET_TXEMPTY_SIZE 1
+#define I2C_INTENABLESET_TXHALFFULL_OFFSET 17
+#define I2C_INTENABLESET_TXHALFFULL_SIZE 1
+#define I2C_INTENABLESET_TXFULL_OFFSET 18
+#define I2C_INTENABLESET_TXFULL_SIZE 1
+#define I2C_INTENABLESET_NRB_OFFSET 19
+#define I2C_INTENABLESET_NRB_SIZE 1
 
 /** bit field defines for i2c_s#intenableclear */
-#define I2C_INTENABLECLEAR_INTENABLECLEAR_OFFSET 0
-#define I2C_INTENABLECLEAR_INTENABLECLEAR_SIZE 32
+#define I2C_INTENABLECLEAR_SB_OFFSET 0
+#define I2C_INTENABLECLEAR_SB_SIZE 1
+#define I2C_INTENABLECLEAR_MSL_OFFSET 1
+#define I2C_INTENABLECLEAR_MSL_SIZE 1
+#define I2C_INTENABLECLEAR_ADSL_OFFSET 2
+#define I2C_INTENABLECLEAR_ADSL_SIZE 1
+#define I2C_INTENABLECLEAR_BTF_OFFSET 3
+#define I2C_INTENABLECLEAR_BTF_SIZE 1
+#define I2C_INTENABLECLEAR_BUSY_OFFSET 4
+#define I2C_INTENABLECLEAR_BUSY_SIZE 1
+#define I2C_INTENABLECLEAR_TRA_OFFSET 5
+#define I2C_INTENABLECLEAR_TRA_SIZE 1
+#define I2C_INTENABLECLEAR_ADD10_OFFSET 6
+#define I2C_INTENABLECLEAR_ADD10_SIZE 1
+#define I2C_INTENABLECLEAR_GC_OFFSET 7
+#define I2C_INTENABLECLEAR_GC_SIZE 1
+#define I2C_INTENABLECLEAR_BERR_OFFSET 8
+#define I2C_INTENABLECLEAR_BERR_SIZE 1
+#define I2C_INTENABLECLEAR_ARLO_OFFSET 9
+#define I2C_INTENABLECLEAR_ARLO_SIZE 1
+#define I2C_INTENABLECLEAR_STOPF_OFFSET 10
+#define I2C_INTENABLECLEAR_STOPF_SIZE 1
+#define I2C_INTENABLECLEAR_AF_OFFSET 11
+#define I2C_INTENABLECLEAR_AF_SIZE 1
+#define I2C_INTENABLECLEAR_ENDAD_OFFSET 12
+#define I2C_INTENABLECLEAR_ENDAD_SIZE 1
+#define I2C_INTENABLECLEAR_RXNOTEMPTY_OFFSET 13
+#define I2C_INTENABLECLEAR_RXNOTEMPTY_SIZE 1
+#define I2C_INTENABLECLEAR_RXHALFFULL_OFFSET 14
+#define I2C_INTENABLECLEAR_RXHALFFULL_SIZE 1
+#define I2C_INTENABLECLEAR_RXFULL_OFFSET 15
+#define I2C_INTENABLECLEAR_RXFULL_SIZE 1
+#define I2C_INTENABLECLEAR_TXEMPTY_OFFSET 16
+#define I2C_INTENABLECLEAR_TXEMPTY_SIZE 1
+#define I2C_INTENABLECLEAR_TXHALFFULL_OFFSET 17
+#define I2C_INTENABLECLEAR_TXHALFFULL_SIZE 1
+#define I2C_INTENABLECLEAR_TXFULL_OFFSET 18
+#define I2C_INTENABLECLEAR_TXFULL_SIZE 1
+#define I2C_INTENABLECLEAR_NRB_OFFSET 19
+#define I2C_INTENABLECLEAR_NRB_SIZE 1
 
 /** bit field defines for i2c_s#intenable */
 #define I2C_INTENABLE_SB_OFFSET 0

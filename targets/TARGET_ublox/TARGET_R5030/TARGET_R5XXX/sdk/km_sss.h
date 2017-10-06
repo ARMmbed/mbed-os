@@ -174,20 +174,20 @@ struct km_sss_s {
 #define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_PDPACC_VALUE 7
 /** PDP comprising (sparse input 62/129)  pdp_fft and norm  (re^2 + im^2) */
 #define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_PDPPROC_VALUE 6
-/**  */
-#define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_PDPSTALLXFER_VALUE 12
 /** Axi Transfer the PDP */
 #define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_PDPXFER_VALUE 11
 /** PSS including {pss_fft, coarse_chest, chest} */
 #define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_PSSPROC_VALUE 5
-/** SSS including {sss_load, sss_fft, sss_noise, sss_eq} */
-#define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_SSSPROC_VALUE 8
-/** Axi transfer the SSS (and Meta) */
-#define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_SSSXFER_VALUE 13
-/** Waiting for current contexts previous Transfer Event Flag to clear. */
-#define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_STALLXFER_VALUE 14
 /** Accumulate the SSS (and sss_meta) */
 #define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_SSSACC_VALUE 9
+/** SSS including {sss_load, sss_fft, sss_noise, sss_eq} */
+#define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_SSSPROC_VALUE 8
+/** Waiting for current contexts previous Transfer Event Flag to clear. */
+#define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_STALLXFER_VALUE 14
+/**  */
+#define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_PDPSTALLXFER_VALUE 12
+/** Axi transfer the SSS (and Meta) */
+#define KM_SSS_COMMANDSTATUS1_COMMANDSTATE_SSSXFER_VALUE 13
 #define KM_SSS_COMMANDSTATUS1_CONTEXTIDX_OFFSET 10
 #define KM_SSS_COMMANDSTATUS1_CONTEXTIDX_SIZE 4
 #define KM_SSS_COMMANDSTATUS1_CONTEXTSLOTHALF_OFFSET 14
