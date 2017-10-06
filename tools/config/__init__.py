@@ -30,6 +30,10 @@ from tools.arm_pack_manager import Cache
 from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
     generate_py_target, get_resolution_order
 
+# Heads Up Modification ##
+import custom_config
+##########################
+
 # Base class for all configuration exceptions
 class ConfigException(Exception):
     """Config system only exception. Makes it easier to distinguish config
@@ -371,6 +375,10 @@ class Config(object):
         # Nanostack configurations
         "LOWPAN_BORDER_ROUTER", "LOWPAN_HOST", "LOWPAN_ROUTER", "NANOSTACK_FULL", "THREAD_BORDER_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER", "ETHERNET_HOST"
         ]
+
+    # Heads Up Modification ############################################
+    __allowed_features = __allowed_features+custom_config.hu_features
+    ####################################################################
 
     def __init__(self, tgt, top_level_dirs=None, app_config=None):
         """Construct a mbed configuration

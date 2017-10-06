@@ -3057,6 +3057,35 @@
         "release_versions": ["2", "5"],
         "device_name": "nRF52832_xxAA"
     },
+        "HU_BOOTLOADER": {
+	"restrict_size": "0x20000",
+	"public": false,
+	"bootloader_supported": true
+    },
+    "HU_APPLICATION": {
+	"bootloader_img": "bootloader/boatloader.bin",
+	"public": false,
+	"bootloader_supported": true
+    },
+    "HU_DEVICES": {
+	"public": false
+    },
+    "HU_FAMILY_AIRBORNE": {
+	"inherits": ["HU_DEVICES"],
+	"public": false
+    },
+    "HU_FLYER": {
+	"inherits": ["HU_FAMILY_AIRBORNE", "NRF52_DK"],
+	"macros_remove": ["BOARD_PCA10040"],
+	"features": ["ALS"]
+    },
+    "HU_FLYER_BOOT": {
+	"inherits": ["HU_FLYER", "HU_BOOTLOADER"]
+	
+    },
+    "HU_FLYER_APP": {
+	"inherits": ["HU_FLYER", "HU_APPLICATION"]
+    },
     "UBLOX_EVA_NINA": {
         "inherits": ["MCU_NRF52"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
