@@ -1,3 +1,0 @@
-/opt/mbed/BUILD/mbed/.temp/TARGET_HEADSUP_AERO/TOOLCHAIN_GCC_ARM/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_KL27Z/device/TOOLCHAIN_GCC_ARM/startup_MKL27Z4.o: \
- /opt/mbed/targets/TARGET_Freescale/TARGET_MCUXpresso_MCUS/TARGET_KL27Z/device/TOOLCHAIN_GCC_ARM/startup_MKL27Z4.S \
- /opt/mbed/BUILD/mbed/.temp/TARGET_HEADSUP_AERO/TOOLCHAIN_GCC_ARM/mbed_config.h

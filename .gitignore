@@ -1,3 +1,8 @@
+/build_rel/
+/build_debug/
+/build_size/
+BUILD/
+
 *.py[cod]
 
 # Distribution dir
