@@ -1,0 +1,33 @@
+{
+    "HU_BOOTLOADER": {
+	"restrict_size": "0x20000",
+	"public": false,
+	"bootloader_supported": true
+    },
+    "HU_APPLICATION": {
+	"bootloader_img": "bootloader/boatloader.bin",
+	"public": false,
+	"bootloader_supported": true
+    },
+    "HU_DEVICES": {
+	"public": false
+    },
+    "HU_FAMILY_AIRBORNE": {
+	"inherits": ["HU_DEVICES"],
+	"public": false
+    },
+    "HU_FLYER": {
+	"inherits": ["HU_FAMILY_AIRBORNE", "NRF52_DK"],
+	"macros_remove": ["BOARD_PCA10040"],
+	"public": true
+    },
+    "HU_FLYER_BOOT": {
+	"inherits": ["HU_FLYER", "HU_BOOTLOADER"],
+	"public": true
+	
+    },
+    "HU_FLYER_APP": {
+	"inherits": ["HU_FLYER", "HU_APPLICATION"],
+	"public": true
+    }
+}
