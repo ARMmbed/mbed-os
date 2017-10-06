@@ -3077,7 +3077,7 @@
     "HU_FLYER": {
 	"inherits": ["HU_FAMILY_AIRBORNE", "NRF52_DK"],
 	"macros_remove": ["BOARD_PCA10040"],
-	"features": ["ALS"]
+	"features": ["ALS", "DOSIMETRY"]
     },
     "HU_FLYER_BOOT": {
 	"inherits": ["HU_FLYER", "HU_BOOTLOADER"]
