@@ -100,7 +100,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
 
 void us_ticker_fire_interrupt(void)
 {
-    uint32_t us_ticker_irqn1 = Timer_GetIRQn(TIMER1);
+    uint32_t us_ticker_irqn1 = Timer_GetIRQn(TIMER0);
     NVIC_SetPendingIRQ((IRQn_Type)us_ticker_irqn1);
 }
 

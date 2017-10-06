@@ -199,6 +199,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
 
 void us_ticker_fire_interrupt(void)
 {
+    us_ticker_int_counter = 0;
+    us_ticker_int_remainder = 0;
+
 #if defined(TARGET_KL43Z)
     NVIC_SetPendingIRQ(LPTMR0_IRQn);
 #else
