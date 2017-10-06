@@ -178,11 +178,11 @@ typedef enum {
     A0          = PA_3,
     A1          = PC_0,
     A2          = PC_3,
-    A3          = PC_1,
-    A4          = PC_4,
-    A5          = PC_5,
-    D0          = PG_9,
-    D1          = PG_14,
+    A3          = PD_11,
+    A4          = PD_12,
+    A5          = PD_13,
+    D0          = PC_5,
+    D1          = PC_14,
     D2          = PF_15,
     D3          = PE_13,
     D4          = PF_14,
@@ -204,6 +204,8 @@ typedef enum {
     LED3        = PB_14,
     LED4        = LED1,
     USER_BUTTON = PC_13,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
     SERIAL_TX   = PD_8, // Virtual Com Port
     SERIAL_RX   = PD_9, // Virtual Com Port
     USBTX       = SERIAL_TX, // Virtual Com Port
@@ -215,6 +217,10 @@ typedef enum {
     SPI_SCK     = D13,
     SPI_CS      = D10,
     PWM_OUT     = D9,
+
+    //USB pins
+    USB_DM = PA_11,
+    USB_DP = PA_12,
 
     // Not connected
     NC = (int)0xFFFFFFFF

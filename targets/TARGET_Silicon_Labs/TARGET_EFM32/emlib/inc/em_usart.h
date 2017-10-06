@@ -2,7 +2,7 @@
  * @file em_usart.h
  * @brief Universal synchronous/asynchronous receiver/transmitter (USART/UART)
  *   peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -86,7 +86,7 @@ extern "C" {
  *  @if DOXYDOC_P1_DEVICE
  *  @include em_usart_route_p1.c
  *  @note UART hardware flow control is not directly supported in hardware on
- *        @ref _SILICON_LABS_32B_PLATFORM_1 parts.
+ *        @ref _SILICON_LABS_32B_SERIES_0 parts.
  *  @endif
  *  @if DOXYDOC_P2_DEVICE
  *  @include em_usart_route_p2.c

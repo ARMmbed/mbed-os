@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 typedef enum {
+    NC    = (int)0xFFFFFFFF,
     GPIO0 = 0,
     GPIO1,
     GPIO2,
@@ -59,6 +60,8 @@ typedef enum {
     A1,
     A2,
     A3,
+    A4 = NC,
+    A5 = NC,
     UART1_TX = GPIO0,
     UART1_RX = GPIO1,
     UART2_TX = GPIO8,
@@ -125,8 +128,14 @@ typedef enum {
     LED_YELLOW  = GPIO6,
     LED_BLUE    = GPIO5,
     USER_BUTTON = GPIO7,  /*NEW connection on NCS36510-RF Rev 1.1 - Alias of SW1 */
+
     SW1 = GPIO7,  /*NEW connection on NCS36510-RF Rev 1.1 */
     SW2 = GPIO10,   /*NEW connection on NCS36510-RF Rev 1.1 */
+
+    // Standardized button names
+    BUTTON1 = SW1,
+    BUTTON2 = SW2,
+
     SERIAL_TX   = GPIO0,
     SERIAL_RX   = GPIO1,
     USBTX       = GPIO0,
@@ -146,8 +155,7 @@ typedef enum {
     D12         = GPIO16,
     D13         = GPIO14,
     D14         = GPIO3,
-    D15         = GPIO2,
-    NC          = (int)0xFFFFFFFF
+    D15         = GPIO2
 } PinName;
 
 typedef enum {

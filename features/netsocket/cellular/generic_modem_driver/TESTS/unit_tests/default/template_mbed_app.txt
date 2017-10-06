@@ -1,0 +1,69 @@
+{
+    "config": {
+        "platform": {
+            "help": "The platform for the cellular feature, e.g. UBLOX or MTS_DRAGONFLY",
+            "value": "UBLOX"
+        },
+        "max-retries": {
+	"help": "Network can be intermittent, number of retries before giving up",
+            "value": 3
+        },
+        "default-pin": {
+            "help": "The current value of the SIM PIN as a string",
+            "value": "\"1234\""
+        },
+        "apn": {
+            "help": "The APN string to use for this SIM/network, set to 0 if none",
+            "value": "\"internet\""
+        },
+        "username": {
+            "help": "The user name string to use for this APN, set to zero if none",
+            "value": 0
+        },
+        "password": {
+            "help": "The password string to use for this APN, set to 0 if none",
+            "value": 0
+        },
+        "echo-server": {
+            "help": "The URL string of the UDP/TCP echo server to use during testing",
+            "value": "\"echo.u-blox.com\""
+        },
+        "echo-udp-port": {
+            "help": "The port to connect to on echo-server for UDP testing",
+            "value": 7
+        },
+        "echo-tcp-port": {
+            "help": "The port to connect to on echo-server for TCP testing",
+            "value": 7
+        },
+        "ntp-server": {
+            "help": "The URL string of the NTP server to use during testing",
+            "value": "\"2.pool.ntp.org\""
+        },
+        "ntp-port": {
+            "help": "The port to connect to on ntp-server",
+            "value": 123
+        },
+        "udp-max-packet-size": {
+            "help": "The maximum UDP packet size to use",
+            "value": 508
+        },
+        "tcp-max-packet-size": {
+            "help": "The maximum TCP packet size to use",
+            "value": 1500
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "lwip.ipv4-enabled": true,
+            "lwip.ethernet-enabled": false,
+            "lwip.ppp-enabled": true,
+            "lwip.tcp-enabled": true,
+            "target.features_add": ["LWIP", "COMMON_PAL"],
+            "platform.stdio-convert-newlines": true,
+            "platform.stdio-baud-rate": 115200,
+            "platform.default-serial-baud-rate": 115200, 
+            "mbed-trace.enable": 1
+        }
+    }
+}

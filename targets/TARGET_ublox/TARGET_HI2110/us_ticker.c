@@ -226,6 +226,12 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     core_util_critical_section_exit();
 }
 
+void us_ticker_fire_interrupt(void)
+{
+    g_user_interrupt = true;
+    NVIC_SetPendingIRQ(Timer_IRQn);
+}
+
 void us_ticker_disable_interrupt(void)
 {
     /* Can't actually disable the interrupt here

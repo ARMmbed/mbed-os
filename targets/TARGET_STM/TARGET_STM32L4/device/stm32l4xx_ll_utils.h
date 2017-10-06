@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_utils.h
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Header file of UTILS LL module.
   @verbatim
   ==============================================================================
@@ -20,7 +20,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -75,7 +75,7 @@ extern "C" {
   */
 
 /* Max delay can be used in LL_mDelay */
-#define LL_MAX_DELAY                  (uint32_t)0xFFFFFFFFU
+#define LL_MAX_DELAY                  0xFFFFFFFFU
 
 /**
  * @brief Unique device ID register base address
@@ -119,13 +119,13 @@ typedef struct
                         @ref LL_RCC_PLL_ConfigDomain_SYS(). */
 
   uint32_t PLLN;   /*!< Multiplication factor for PLL VCO output clock.
-                        This parameter must be a number between Min_Data = 0x00 and Max_Data = 0x7F
+                        This parameter must be a number between Min_Data = 8 and Max_Data = 86
 
                         This feature can be modified afterwards using unitary function
                         @ref LL_RCC_PLL_ConfigDomain_SYS(). */
 
   uint32_t PLLR;   /*!< Division for the main system clock.
-                        This parameter must be a number between Min_Data = 0x00 and Max_Data = 0x7FFF
+                        This parameter can be a value of @ref RCC_LL_EC_PLLR_DIV
 
                         This feature can be modified afterwards using unitary function
                         @ref LL_RCC_PLL_ConfigDomain_SYS(). */
@@ -168,8 +168,8 @@ typedef struct
 /** @defgroup UTILS_EC_HSE_BYPASS HSE Bypass activation
   * @{
   */
-#define LL_UTILS_HSEBYPASS_OFF        (uint32_t)0x00000000U       /*!< HSE Bypass is not enabled                */
-#define LL_UTILS_HSEBYPASS_ON         (uint32_t)0x00000001U       /*!< HSE Bypass is enabled                    */
+#define LL_UTILS_HSEBYPASS_OFF        0x00000000U       /*!< HSE Bypass is not enabled                */
+#define LL_UTILS_HSEBYPASS_ON         0x00000001U       /*!< HSE Bypass is enabled                    */
 /**
   * @}
   */
@@ -177,17 +177,18 @@ typedef struct
 /** @defgroup UTILS_EC_PACKAGETYPE PACKAGE TYPE
   * @{
   */
-#define LL_UTILS_PACKAGETYPE_LQFP64         (uint32_t)0x00000000U /*!< LQFP64 package type                      */
-#define LL_UTILS_PACKAGETYPE_WLCSP64        (uint32_t)0x00000001U /*!< WLCSP64 package type                     */
-#define LL_UTILS_PACKAGETYPE_LQFP100        (uint32_t)0x00000002U /*!< LQFP100 package type                     */
-#define LL_UTILS_PACKAGETYPE_BGA132         (uint32_t)0x00000003U /*!< BGA132 package type                      */
-#define LL_UTILS_PACKAGETYPE_LQFP144_CSP72  (uint32_t)0x00000004U /*!< LQFP144, WLCSP81 or WLCSP72 package type */
-#define LL_UTILS_PACKAGETYPE_UFQFPN32       (uint32_t)0x00000008U /*!< UFQFPN32 package type                    */
-#define LL_UTILS_PACKAGETYPE_UFQFPN48       (uint32_t)0x0000000AU /*!< UFQFPN48 package type                    */
-#define LL_UTILS_PACKAGETYPE_LQFP48         (uint32_t)0x0000000BU /*!< LQFP48 package type                      */
-#define LL_UTILS_PACKAGETYPE_WLCSP49        (uint32_t)0x0000000CU /*!< WLCSP49 package type                     */
-#define LL_UTILS_PACKAGETYPE_UFBGA64        (uint32_t)0x0000000DU /*!< UFBGA64 package type                     */
-#define LL_UTILS_PACKAGETYPE_UFBGA100       (uint32_t)0x0000000EU /*!< UFBGA100 package type                    */
+#define LL_UTILS_PACKAGETYPE_LQFP64         0x00000000U /*!< LQFP64 package type                      */
+#define LL_UTILS_PACKAGETYPE_WLCSP64        0x00000001U /*!< WLCSP64 package type                     */
+#define LL_UTILS_PACKAGETYPE_LQFP100        0x00000002U /*!< LQFP100 package type                     */
+#define LL_UTILS_PACKAGETYPE_BGA132         0x00000003U /*!< BGA132 package type                      */
+#define LL_UTILS_PACKAGETYPE_LQFP144_CSP72  0x00000004U /*!< LQFP144, WLCSP81 or WLCSP72 package type */
+#define LL_UTILS_PACKAGETYPE_UFQFPN32       0x00000008U /*!< UFQFPN32 package type                    */
+#define LL_UTILS_PACKAGETYPE_UFQFPN48       0x0000000AU /*!< UFQFPN48 package type                    */
+#define LL_UTILS_PACKAGETYPE_LQFP48         0x0000000BU /*!< LQFP48 package type                      */
+#define LL_UTILS_PACKAGETYPE_WLCSP49        0x0000000CU /*!< WLCSP49 package type                     */
+#define LL_UTILS_PACKAGETYPE_UFBGA64        0x0000000DU /*!< UFBGA64 package type                     */
+#define LL_UTILS_PACKAGETYPE_UFBGA100       0x0000000EU /*!< UFBGA100 package type                    */
+#define LL_UTILS_PACKAGETYPE_UFBGA169       0x00000010U /*!< UFBGA169 package type                    */
 /**
   * @}
   */
@@ -258,12 +259,13 @@ __STATIC_INLINE uint32_t LL_GetFlashSize(void)
   *         @arg @ref LL_UTILS_PACKAGETYPE_WLCSP49 (*)
   *         @arg @ref LL_UTILS_PACKAGETYPE_UFBGA64 (*)
   *         @arg @ref LL_UTILS_PACKAGETYPE_UFBGA100 (*)
+  *         @arg @ref LL_UTILS_PACKAGETYPE_UFBGA169 (*)
   *
   *         (*) value not defined in all devices.
   */
 __STATIC_INLINE uint32_t LL_GetPackageType(void)
 {
-  return (uint8_t)(READ_REG(*((uint32_t *)PACKAGE_BASE_ADDRESS)) & (uint32_t)0x1FU);
+  return (uint8_t)(READ_REG(*((uint32_t *)PACKAGE_BASE_ADDRESS)) & 0x1FU);
 }
 
 /**

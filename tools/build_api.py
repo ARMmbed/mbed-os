@@ -17,12 +17,16 @@ limitations under the License.
 
 import re
 import tempfile
+import datetime
+import uuid
 from types import ListType
 from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
+from os.path import relpath
 from os import linesep, remove, makedirs
 from time import time
 from intelhex import IntelHex
+from json import load, dump
 
 from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
     ToolException, InvalidReleaseTargetException, intelhex_offset
@@ -102,6 +106,8 @@ def add_result_to_report(report, result):
     report - the report to append to
     result - the result to append
     """
+    result["date"] = datetime.datetime.utcnow().isoformat()
+    result["uuid"] = str(uuid.uuid1())
     target = result["target_name"]
     toolchain = result["toolchain_name"]
     id_name = result['id']
@@ -121,7 +127,7 @@ def get_config(src_paths, target, toolchain_name):
         src_paths = [src_paths]
 
     # Pass all params to the unified prepare_resources()
-    toolchain = prepare_toolchain(src_paths, target, toolchain_name)
+    toolchain = prepare_toolchain(src_paths, None, target, toolchain_name)
 
     # Scan src_path for config files
     resources = toolchain.scan_resources(src_paths[0])
@@ -145,6 +151,8 @@ def get_config(src_paths, target, toolchain_name):
 
         prev_features = features
     toolchain.config.validate_config()
+    if toolchain.config.has_regions:
+        _ = list(toolchain.config.regions)
 
     cfg, macros = toolchain.config.get_config_data()
     features = toolchain.config.get_features()
@@ -283,6 +291,8 @@ def add_regions_to_profile(profile, config, toolchain_class):
     config - the configuration object that owns the region
     toolchain_class - the class of the toolchain being used
     """
+    if not profile:
+        return
     regions = list(config.regions)
     for region in regions:
         for define in [(region.name.upper() + "_ADDR", region.start),
@@ -299,7 +309,7 @@ def add_regions_to_profile(profile, config, toolchain_class):
               % (region.name, region.size, region.start))
 
 
-def prepare_toolchain(src_paths, target, toolchain_name,
+def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
                       notify=None, silent=False, verbose=False,
                       extra_verbose=False, config=None,
@@ -308,7 +318,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
 
     Positional arguments:
     src_paths - the paths to source directories
-    target - ['LPC1768', 'LPC11U24', 'LPC2368', etc.]
+    target - ['LPC1768', 'LPC11U24', etc.]
     toolchain_name - ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
 
     Keyword arguments:
@@ -321,7 +331,7 @@ def prepare_toolchain(src_paths, target, toolchain_name,
     extra_verbose - even more output!
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
-    build_profile - a dict of flags that will be passed to the compiler
+    build_profile - a list of mergeable build profiles
     """
 
     # We need to remove all paths which are repeated to avoid
@@ -335,12 +345,17 @@ def prepare_toolchain(src_paths, target, toolchain_name,
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
     except KeyError:
         raise KeyError("Toolchain %s not supported" % toolchain_name)
-    if config.has_regions:
-        add_regions_to_profile(build_profile, config, cur_tc)
 
-    # Toolchain instance
-    toolchain = cur_tc(target, notify, macros, silent,
-                       extra_verbose=extra_verbose, build_profile=build_profile)
+    profile = {'c': [], 'cxx': [], 'common': [], 'asm': [], 'ld': []}
+    for contents in build_profile or []:
+        for key in profile:
+            profile[key].extend(contents[toolchain_name][key])
+
+    if config.has_regions:
+        add_regions_to_profile(profile, config, cur_tc)
+
+    toolchain = cur_tc(target, notify, macros, silent, build_dir=build_dir,
+                       extra_verbose=extra_verbose, build_profile=profile)
 
     toolchain.config = config
     toolchain.jobs = jobs
@@ -385,7 +400,7 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
         merged.tofile(output, format='bin')
 
 def scan_resources(src_paths, toolchain, dependencies_paths=None,
-                   inc_dirs=None, base_path=None):
+                   inc_dirs=None, base_path=None, collect_ignores=False):
     """ Scan resources using initialized toolcain
 
     Positional arguments
@@ -397,9 +412,11 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     """
 
     # Scan src_path
-    resources = toolchain.scan_resources(src_paths[0], base_path=base_path)
+    resources = toolchain.scan_resources(src_paths[0], base_path=base_path,
+                                         collect_ignores=collect_ignores)
     for path in src_paths[1:]:
-        resources.add(toolchain.scan_resources(path, base_path=base_path))
+        resources.add(toolchain.scan_resources(path, base_path=base_path,
+                                               collect_ignores=collect_ignores))
 
     # Scan dependency paths for include dirs
     if dependencies_paths is not None:
@@ -421,6 +438,18 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     # Set the toolchain's configuration data
     toolchain.set_config_data(toolchain.config.get_config_data())
 
+    if  (hasattr(toolchain.target, "release_versions") and
+            "5" not in toolchain.target.release_versions and
+            "rtos" in toolchain.config.lib_config_data):
+        if "Cortex-A" in toolchain.target.core:
+            raise NotSupportedException(
+                ("%s Will be supported in mbed OS 5.6. "
+                    "To use the %s, please checkout the mbed OS 5.4 release branch. "
+                    "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
+                    "for more information") % (toolchain.target.name, toolchain.target.name))
+        else:
+            raise NotSupportedException("Target does not support mbed OS 5")
+
     return resources
 
 def build_project(src_paths, build_path, target, toolchain_name,
@@ -429,7 +458,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                   macros=None, inc_dirs=None, jobs=1, silent=False,
                   report=None, properties=None, project_id=None,
                   project_description=None, extra_verbose=False, config=None,
-                  app_config=None, build_profile=None):
+                  app_config=None, build_profile=None, stats_depth=None):
     """ Build a project. A project may be a test or a user program.
 
     Positional arguments:
@@ -458,6 +487,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     config - a Config object to use instead of creating one
     app_config - location of a chosen mbed_app.json file
     build_profile - a dict of flags that will be passed to the compiler
+    stats_depth - depth level for memap to display file/dirs
     """
 
     # Convert src_path to a list if needed
@@ -468,21 +498,19 @@ def build_project(src_paths, build_path, target, toolchain_name,
         src_paths.extend(libraries_paths)
         inc_dirs.extend(map(dirname, libraries_paths))
 
-    # Build Directory
     if clean and exists(build_path):
         rmtree(build_path)
     mkdir(build_path)
 
-    # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
-        src_paths, target, toolchain_name, macros=macros, clean=clean,
-        jobs=jobs, notify=notify, silent=silent, verbose=verbose,
+        src_paths, build_path, target, toolchain_name, macros=macros,
+        clean=clean, jobs=jobs, notify=notify, silent=silent, verbose=verbose,
         extra_verbose=extra_verbose, config=config, app_config=app_config,
         build_profile=build_profile)
 
     # The first path will give the name to the library
-    if name is None:
-        name = basename(normpath(abspath(src_paths[0])))
+    name = (name or toolchain.config.name or
+            basename(normpath(abspath(src_paths[0]))))
     toolchain.info("Building project %s (%s, %s)" %
                    (name, toolchain.target.name, toolchain_name))
 
@@ -509,8 +537,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
             resources.linker_script = linker_script
 
         # Compile Sources
-        objects = toolchain.compile_sources(resources, build_path,
-                                            resources.inc_dirs)
+        objects = toolchain.compile_sources(resources, resources.inc_dirs)
         resources.objects.extend(objects)
 
         # Link Program
@@ -528,18 +555,18 @@ def build_project(src_paths, build_path, target, toolchain_name,
         memap_table = ''
         if memap_instance:
             # Write output to stdout in text (pretty table) format
-            memap_table = memap_instance.generate_output('table')
+            memap_table = memap_instance.generate_output('table', stats_depth)
 
             if not silent:
                 print memap_table
 
             # Write output to file in JSON format
             map_out = join(build_path, name + "_map.json")
-            memap_instance.generate_output('json', map_out)
+            memap_instance.generate_output('json', stats_depth, map_out)
 
             # Write output to file in CSV format for the CI
             map_csv = join(build_path, name + "_map.csv")
-            memap_instance.generate_output('csv-ci', map_csv)
+            memap_instance.generate_output('csv-ci', stats_depth, map_csv)
 
         resources.detect_duplicates(toolchain)
 
@@ -548,7 +575,10 @@ def build_project(src_paths, build_path, target, toolchain_name,
             cur_result["elapsed_time"] = end - start
             cur_result["output"] = toolchain.get_output() + memap_table
             cur_result["result"] = "OK"
-            cur_result["memory_usage"] = toolchain.map_outputs
+            cur_result["memory_usage"] = memap_instance.mem_report
+            cur_result["bin"] = res
+            cur_result["elf"] = splitext(res)[0] + ".elf"
+            cur_result.update(toolchain.report)
 
             add_result_to_report(report, cur_result)
 
@@ -629,9 +659,9 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
     # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
-        src_paths, target, toolchain_name, macros=macros, clean=clean,
-        jobs=jobs, notify=notify, silent=silent, verbose=verbose,
-        extra_verbose=extra_verbose, app_config=app_config,
+        src_paths, build_path, target, toolchain_name, macros=macros,
+        clean=clean, jobs=jobs, notify=notify, silent=silent,
+        verbose=verbose, extra_verbose=extra_verbose, app_config=app_config,
         build_profile=build_profile)
 
     # The first path will give the name to the library
@@ -650,6 +680,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
         prep_report(report, toolchain.target.name, toolchain_name, id_name)
         cur_result = create_result(toolchain.target.name, toolchain_name,
                                    id_name, description)
+        cur_result['type'] = 'library'
         if properties != None:
             prep_properties(properties, toolchain.target.name, toolchain_name,
                             vendor_label)
@@ -687,8 +718,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                                  resources=resources)
 
         # Compile Sources
-        objects = toolchain.compile_sources(resources, abspath(tmp_path),
-                                            resources.inc_dirs)
+        objects = toolchain.compile_sources(resources, resources.inc_dirs)
         resources.objects.extend(objects)
 
         if archive:
@@ -732,6 +762,10 @@ def build_library(src_paths, build_path, target, toolchain_name,
 ######################
 ### Legacy methods ###
 ######################
+
+def mbed2_obj_path(target_name, toolchain_name):
+    real_tc_name = TOOLCHAIN_CLASSES[toolchain_name].__name__
+    return join("TARGET_" + target_name, "TOOLCHAIN_" + real_tc_name)
 
 def build_lib(lib_id, target, toolchain_name, verbose=False,
               clean=False, macros=None, notify=None, jobs=1, silent=False,
@@ -809,19 +843,23 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
 
     try:
         # Toolchain instance
-        toolchain = TOOLCHAIN_CLASSES[toolchain_name](
-            target, macros=macros, notify=notify, silent=silent,
-            extra_verbose=extra_verbose, build_profile=build_profile)
-        toolchain.VERBOSE = verbose
-        toolchain.jobs = jobs
-        toolchain.build_all = clean
+        # Create the desired build directory structure
+        bin_path = join(build_path, mbed2_obj_path(target.name, toolchain_name))
+        mkdir(bin_path)
+        tmp_path = join(build_path, '.temp', mbed2_obj_path(target.name,
+                                                            toolchain_name))
+        mkdir(tmp_path)
+
+        toolchain = prepare_toolchain(
+            src_paths, tmp_path, target, toolchain_name, macros=macros,
+            notify=notify, silent=silent, extra_verbose=extra_verbose,
+            build_profile=build_profile, jobs=jobs, clean=clean)
 
         toolchain.info("Building library %s (%s, %s)" %
                        (name.upper(), target.name, toolchain_name))
 
         # Take into account the library configuration (MBED_CONFIG_FILE)
-        config = Config(target)
-        toolchain.config = config
+        config = toolchain.config
         config.add_config_files([MBED_CONFIG_FILE])
 
         # Scan Resources
@@ -852,11 +890,6 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
             config.load_resources(res)
         toolchain.set_config_data(toolchain.config.get_config_data())
 
-        # Create the desired build directory structure
-        bin_path = join(build_path, toolchain.obj_path)
-        mkdir(bin_path)
-        tmp_path = join(build_path, '.temp', toolchain.obj_path)
-        mkdir(tmp_path)
 
         # Copy Headers
         for resource in resources:
@@ -869,8 +902,7 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
         # Compile Sources
         objects = []
         for resource in resources:
-            objects.extend(toolchain.compile_sources(resource, tmp_path,
-                                                     dependencies_include_dir))
+            objects.extend(toolchain.compile_sources(resource, dependencies_include_dir))
 
         needed_update = toolchain.build_library(objects, bin_path, name)
 
@@ -954,27 +986,24 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         return False
 
     try:
-        # Toolchain
-        toolchain = TOOLCHAIN_CLASSES[toolchain_name](
-            target, macros=macros, notify=notify, silent=silent,
-            extra_verbose=extra_verbose, build_profile=build_profile)
-        toolchain.VERBOSE = verbose
-        toolchain.jobs = jobs
-        toolchain.build_all = clean
-
-        # Take into account the library configuration (MBED_CONFIG_FILE)
-        config = Config(target)
-        toolchain.config = config
-        config.add_config_files([MBED_CONFIG_FILE])
-        toolchain.set_config_data(toolchain.config.get_config_data())
-
         # Source and Build Paths
         build_target = join(MBED_LIBRARIES, "TARGET_" + target.name)
-        build_toolchain = join(build_target, "TOOLCHAIN_" + toolchain.name)
+        build_toolchain = join(MBED_LIBRARIES, mbed2_obj_path(target.name, toolchain_name))
         mkdir(build_toolchain)
 
-        tmp_path = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
+        # Toolchain
+        tmp_path = join(MBED_LIBRARIES, '.temp', mbed2_obj_path(target.name, toolchain_name))
         mkdir(tmp_path)
+
+        toolchain = prepare_toolchain(
+            [""], tmp_path, target, toolchain_name, macros=macros,verbose=verbose,
+            notify=notify, silent=silent, extra_verbose=extra_verbose,
+            build_profile=build_profile, jobs=jobs, clean=clean)
+
+        # Take into account the library configuration (MBED_CONFIG_FILE)
+        config = toolchain.config
+        config.add_config_files([MBED_CONFIG_FILE])
+        toolchain.set_config_data(toolchain.config.get_config_data())
 
         # CMSIS
         toolchain.info("Building library %s (%s, %s)" %
@@ -1015,7 +1044,7 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         toolchain.copy_files(hal_implementation.linker_script, build_toolchain)
         toolchain.copy_files(hal_implementation.bin_files, build_toolchain)
         incdirs = toolchain.scan_resources(build_target).inc_dirs
-        objects = toolchain.compile_sources(hal_implementation, tmp_path,
+        objects = toolchain.compile_sources(hal_implementation,
                                             library_incdirs + incdirs)
         toolchain.copy_files(objects, build_toolchain)
 
@@ -1024,18 +1053,19 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         for dir in [MBED_DRIVERS, MBED_PLATFORM, MBED_HAL]:
             mbed_resources += toolchain.scan_resources(dir)
 
-        objects = toolchain.compile_sources(mbed_resources, tmp_path,
+        objects = toolchain.compile_sources(mbed_resources,
                                             library_incdirs + incdirs)
 
         # A number of compiled files need to be copied as objects as opposed to
         # way the linker search for symbols in archives. These are:
-        #   - retarget.o: to make sure that the C standard lib symbols get
+        #   - mbed_retarget.o: to make sure that the C standard lib symbols get
         #                 overridden
-        #   - board.o: mbed_die is weak
+        #   - mbed_board.o: mbed_die is weak
         #   - mbed_overrides.o: this contains platform overrides of various
         #                       weak SDK functions
-        separate_names, separate_objects = ['retarget.o', 'board.o',
-                                            'mbed_overrides.o'], []
+        #   - mbed_main.o: this contains main redirection
+        separate_names, separate_objects = ['mbed_retarget.o', 'mbed_board.o',
+                                            'mbed_overrides.o', 'mbed_main.o', 'mbed_sdk_boot.o'], []
 
         for obj in objects:
             for name in separate_names:
@@ -1099,7 +1129,79 @@ def get_unique_supported_toolchains(release_targets=None):
                 if toolchain not in unique_supported_toolchains:
                     unique_supported_toolchains.append(toolchain)
 
+    if "ARM" in unique_supported_toolchains:
+        unique_supported_toolchains.append("ARMC6")
+
     return unique_supported_toolchains
+
+def mcu_toolchain_list(release_version='5'):
+    """  Shows list of toolchains
+
+    """
+
+    if isinstance(release_version, basestring):
+        # Force release_version to lowercase if it is a string
+        release_version = release_version.lower()
+    else:
+        # Otherwise default to printing all known targets and toolchains
+        release_version = 'all'
+
+
+    version_release_targets = {}
+    version_release_target_names = {}
+
+    for version in RELEASE_VERSIONS:
+        version_release_targets[version] = get_mbed_official_release(version)
+        version_release_target_names[version] = [x[0] for x in
+                                                 version_release_targets[
+                                                     version]]
+
+    if release_version in RELEASE_VERSIONS:
+        release_targets = version_release_targets[release_version]
+    else:
+        release_targets = None
+
+    unique_supported_toolchains = get_unique_supported_toolchains(
+        release_targets)
+    columns = ["mbed OS %s" % x for x in RELEASE_VERSIONS] + unique_supported_toolchains
+    return "\n".join(columns)
+
+
+def mcu_target_list(release_version='5'):
+    """  Shows target list
+
+    """
+
+    if isinstance(release_version, basestring):
+        # Force release_version to lowercase if it is a string
+        release_version = release_version.lower()
+    else:
+        # Otherwise default to printing all known targets and toolchains
+        release_version = 'all'
+
+
+    version_release_targets = {}
+    version_release_target_names = {}
+
+    for version in RELEASE_VERSIONS:
+        version_release_targets[version] = get_mbed_official_release(version)
+        version_release_target_names[version] = [x[0] for x in
+                                                 version_release_targets[
+                                                     version]]
+
+    if release_version in RELEASE_VERSIONS:
+        release_targets = version_release_targets[release_version]
+    else:
+        release_targets = None
+
+    target_names = []
+
+    if release_targets:
+        target_names = [x[0] for x in release_targets]
+    else:
+        target_names = TARGET_NAMES
+
+    return "\n".join(target_names)
 
 
 def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
@@ -1175,7 +1277,9 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
             row.append(text)
 
         for unique_toolchain in unique_supported_toolchains:
-            if unique_toolchain in TARGET_MAP[target].supported_toolchains:
+            if (unique_toolchain in TARGET_MAP[target].supported_toolchains or
+                (unique_toolchain == "ARMC6" and
+                 "ARM" in TARGET_MAP[target].supported_toolchains)):
                 text = "Supported"
                 perm_counter += 1
             else:
@@ -1203,283 +1307,6 @@ def get_target_supported_toolchains(target):
         else None
 
 
-def static_analysis_scan(target, toolchain_name, cppcheck_cmd,
-                         cppcheck_msg_format, verbose=False,
-                         clean=False, macros=None, notify=None, jobs=1,
-                         extra_verbose=False, build_profile=None):
-    """Perform static analysis on a target and toolchain combination
-
-    Positional arguments:
-    target - the target to fake the build for
-    toolchain_name - pretend you would compile with this toolchain
-    cppcheck_cmd - the command used to do static analysis
-    cppcheck_msg_format - the format of the check messages
-
-    Keyword arguments:
-    verbose - more printing!
-    clean - start from a clean slate
-    macros - extra macros to compile with
-    notify - the notification event handling function
-    jobs - number of commands to run at once
-    extra_verbose - even moar printing
-    build_profile - a dict of flags that will be passed to the compiler
-    """
-    # Toolchain
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, macros=macros,
-                                                  notify=notify,
-                                                  extra_verbose=extra_verbose,
-                                                  build_profile=build_profile)
-    toolchain.VERBOSE = verbose
-    toolchain.jobs = jobs
-    toolchain.build_all = clean
-
-    # Source and Build Paths
-    build_target = join(MBED_LIBRARIES, "TARGET_" + target.name)
-    build_toolchain = join(build_target, "TOOLCHAIN_" + toolchain.name)
-    mkdir(build_toolchain)
-
-    tmp_path = join(MBED_LIBRARIES, '.temp', toolchain.obj_path)
-    mkdir(tmp_path)
-
-    # CMSIS
-    toolchain.info("Static analysis for %s (%s, %s)" %
-                   ('CMSIS', target.name, toolchain_name))
-    cmsis_src = MBED_CMSIS_PATH
-    resources = toolchain.scan_resources(cmsis_src)
-
-    # Copy files before analysis
-    toolchain.copy_files(resources.headers, build_target)
-    toolchain.copy_files(resources.linker_script, build_toolchain)
-
-    # Gather include paths, c, cpp sources and macros to transfer to cppcheck
-    # command line
-    includes = ["-I%s"% i for i in resources.inc_dirs]
-    includes.append("-I%s"% str(build_target))
-    c_sources = " ".join(resources.c_sources)
-    cpp_sources = " ".join(resources.cpp_sources)
-    macros = ["-D%s"% s for s in toolchain.get_symbols() + toolchain.macros]
-
-    includes = [inc.strip() for inc in includes]
-    macros = [mac.strip() for mac in macros]
-
-    check_cmd = cppcheck_cmd
-    check_cmd += cppcheck_msg_format
-    check_cmd += includes
-    check_cmd += macros
-
-    # We need to pass some params via file to avoid "command line too long in
-    # some OSs"
-    tmp_file = tempfile.NamedTemporaryFile(delete=False)
-    tmp_file.writelines(line + '\n' for line in c_sources.split())
-    tmp_file.writelines(line + '\n' for line in cpp_sources.split())
-    tmp_file.close()
-    check_cmd += ["--file-list=%s"% tmp_file.name]
-
-    _stdout, _stderr, _ = run_cmd(check_cmd)
-    if verbose:
-        print _stdout
-    print _stderr
-
-    # =========================================================================
-
-    # MBED
-    toolchain.info("Static analysis for %s (%s, %s)" %
-                   ('MBED', target.name, toolchain_name))
-
-    # Common Headers
-    toolchain.copy_files([MBED_HEADER], MBED_LIBRARIES)
-    toolchain.copy_files(toolchain.scan_resources(MBED_DRIVERS).headers,
-                         MBED_LIBRARIES)
-    toolchain.copy_files(toolchain.scan_resources(MBED_PLATFORM).headers,
-                         MBED_LIBRARIES)
-    toolchain.copy_files(toolchain.scan_resources(MBED_HAL).headers,
-                         MBED_LIBRARIES)
-
-    # Target specific sources
-    hal_src = join(MBED_TARGETS_PATH, "hal")
-    hal_implementation = toolchain.scan_resources(hal_src)
-
-    # Copy files before analysis
-    toolchain.copy_files(hal_implementation.headers +
-                         hal_implementation.hex_files, build_target,
-                         resources=hal_implementation)
-    incdirs = toolchain.scan_resources(build_target)
-
-    target_includes = ["-I%s" % i for i in incdirs.inc_dirs]
-    target_includes.append("-I%s"% str(build_target))
-    target_includes.append("-I%s"% str(hal_src))
-    target_c_sources = " ".join(incdirs.c_sources)
-    target_cpp_sources = " ".join(incdirs.cpp_sources)
-    target_macros = ["-D%s"% s for s in
-                     toolchain.get_symbols() + toolchain.macros]
-
-    # Common Sources
-    mbed_resources = toolchain.scan_resources(MBED_COMMON)
-
-    # Gather include paths, c, cpp sources and macros to transfer to cppcheck
-    # command line
-    mbed_includes = ["-I%s" % i for i in mbed_resources.inc_dirs]
-    mbed_includes.append("-I%s"% str(build_target))
-    mbed_includes.append("-I%s"% str(MBED_DRIVERS))
-    mbed_includes.append("-I%s"% str(MBED_PLATFORM))
-    mbed_includes.append("-I%s"% str(MBED_HAL))
-    mbed_c_sources = " ".join(mbed_resources.c_sources)
-    mbed_cpp_sources = " ".join(mbed_resources.cpp_sources)
-
-    target_includes = [inc.strip() for inc in target_includes]
-    mbed_includes = [inc.strip() for inc in mbed_includes]
-    target_macros = [mac.strip() for mac in target_macros]
-
-    check_cmd = cppcheck_cmd
-    check_cmd += cppcheck_msg_format
-    check_cmd += target_includes
-    check_cmd += mbed_includes
-    check_cmd += target_macros
-
-    # We need to pass some parames via file to avoid "command line too long in
-    # some OSs"
-    tmp_file = tempfile.NamedTemporaryFile(delete=False)
-    tmp_file.writelines(line + '\n' for line in target_c_sources.split())
-    tmp_file.writelines(line + '\n' for line in target_cpp_sources.split())
-    tmp_file.writelines(line + '\n' for line in mbed_c_sources.split())
-    tmp_file.writelines(line + '\n' for line in mbed_cpp_sources.split())
-    tmp_file.close()
-    check_cmd += ["--file-list=%s"% tmp_file.name]
-
-    _stdout, _stderr, _ = run_cmd_ext(check_cmd)
-    if verbose:
-        print _stdout
-    print _stderr
-
-
-def static_analysis_scan_lib(lib_id, target, toolchain, cppcheck_cmd,
-                             cppcheck_msg_format, verbose=False,
-                             clean=False, macros=None, notify=None, jobs=1,
-                             extra_verbose=False, build_profile=None):
-    """Perform static analysis on a library as if it were to be compiled for a
-    particular target and toolchain combination
-    """
-    lib = Library(lib_id)
-    if lib.is_supported(target, toolchain):
-        static_analysis_scan_library(
-            lib.source_dir, lib.build_dir, target, toolchain, cppcheck_cmd,
-            cppcheck_msg_format, lib.dependencies, verbose=verbose,
-            clean=clean, macros=macros, notify=notify, jobs=jobs,
-            extra_verbose=extra_verbose, build_profile=build_profile)
-    else:
-        print('Library "%s" is not yet supported on target %s with toolchain %s'
-              % (lib_id, target.name, toolchain))
-
-
-def static_analysis_scan_library(src_paths, build_path, target, toolchain_name,
-                                 cppcheck_cmd, cppcheck_msg_format,
-                                 dependencies_paths=None,
-                                 name=None, clean=False, notify=None,
-                                 verbose=False, macros=None, jobs=1,
-                                 extra_verbose=False, build_profile=None):
-    """ Function scans library for statically detectable defects
-
-    Positional arguments:
-    src_paths - the list of library paths to scan
-    build_path - the location directory of result files
-    target - the target to fake the build for
-    toolchain_name - pretend you would compile with this toolchain
-    cppcheck_cmd - the command used to do static analysis
-    cppcheck_msg_format - the format of the check messages
-
-    Keyword arguments:
-    dependencies_paths - the paths to sources that this library depends on
-    name - the name of this library
-    clean - start from a clean slate
-    notify - the notification event handling function
-    verbose - more printing!
-    macros - extra macros to compile with
-    jobs - number of commands to run at once
-    extra_verbose - even moar printing
-    build_profile - a dict of flags that will be passed to the compiler
-    """
-    if type(src_paths) != ListType:
-        src_paths = [src_paths]
-
-    for src_path in src_paths:
-        if not exists(src_path):
-            raise Exception("The library source folder does not exist: %s",
-                            src_path)
-
-    # Toolchain instance
-    toolchain = TOOLCHAIN_CLASSES[toolchain_name](target, macros=macros,
-                                                  notify=notify,
-                                                  extra_verbose=extra_verbose,
-                                                  build_profile=build_profile)
-    toolchain.VERBOSE = verbose
-    toolchain.jobs = jobs
-
-    # The first path will give the name to the library
-    name = basename(src_paths[0])
-    toolchain.info("Static analysis for library %s (%s, %s)" %
-                   (name.upper(), target.name, toolchain_name))
-
-    # Scan Resources
-    resources = []
-    for src_path in src_paths:
-        resources.append(toolchain.scan_resources(src_path))
-
-    # Dependencies Include Paths
-    dependencies_include_dir = []
-    if dependencies_paths is not None:
-        for path in dependencies_paths:
-            lib_resources = toolchain.scan_resources(path)
-            dependencies_include_dir.extend(lib_resources.inc_dirs)
-
-    # Create the desired build directory structure
-    bin_path = join(build_path, toolchain.obj_path)
-    mkdir(bin_path)
-    tmp_path = join(build_path, '.temp', toolchain.obj_path)
-    mkdir(tmp_path)
-
-    # Gather include paths, c, cpp sources and macros to transfer to cppcheck
-    # command line
-    includes = ["-I%s" % i for i in dependencies_include_dir + src_paths]
-    c_sources = " "
-    cpp_sources = " "
-    macros = ['-D%s' % s for s in toolchain.get_symbols() + toolchain.macros]
-
-    # Copy Headers
-    for resource in resources:
-        toolchain.copy_files(resource.headers, build_path, resources=resource)
-        includes += ["-I%s" % i for i in resource.inc_dirs]
-        c_sources += " ".join(resource.c_sources) + " "
-        cpp_sources += " ".join(resource.cpp_sources) + " "
-
-    dependencies_include_dir.extend(
-        toolchain.scan_resources(build_path).inc_dirs)
-
-    includes = [inc.strip() for inc in includes]
-    macros = [mac.strip() for mac in macros]
-
-    check_cmd = cppcheck_cmd
-    check_cmd += cppcheck_msg_format
-    check_cmd += includes
-    check_cmd += macros
-
-    # We need to pass some parameters via file to avoid "command line too long
-    # in some OSs". A temporary file is created to store e.g. cppcheck list of
-    # files for command line
-    tmp_file = tempfile.NamedTemporaryFile(delete=False)
-    tmp_file.writelines(line + '\n' for line in c_sources.split())
-    tmp_file.writelines(line + '\n' for line in cpp_sources.split())
-    tmp_file.close()
-    check_cmd += ["--file-list=%s"% tmp_file.name]
-
-    # This will allow us to grab result from both stdio and stderr outputs (so
-    # we can show them) We assume static code analysis tool is outputting
-    # defects on STDERR
-    _stdout, _stderr, _ = run_cmd_ext(check_cmd)
-    if verbose:
-        print _stdout
-    print _stderr
-
-
 def print_build_results(result_list, build_name):
     """ Generate result string for build results
 
@@ -1503,7 +1330,7 @@ def print_build_memory_usage(report):
     """
     from prettytable import PrettyTable
     columns_text = ['name', 'target', 'toolchain']
-    columns_int = ['static_ram', 'stack', 'heap', 'total_ram', 'total_flash']
+    columns_int = ['static_ram', 'total_flash']
     table = PrettyTable(columns_text + columns_int)
 
     for col in columns_text:
@@ -1530,10 +1357,6 @@ def print_build_memory_usage(report):
                                 record['toolchain_name'],
                                 record['memory_usage'][-1]['summary'][
                                     'static_ram'],
-                                record['memory_usage'][-1]['summary']['stack'],
-                                record['memory_usage'][-1]['summary']['heap'],
-                                record['memory_usage'][-1]['summary'][
-                                    'total_ram'],
                                 record['memory_usage'][-1]['summary'][
                                     'total_flash'],
                             ]
@@ -1569,3 +1392,24 @@ def write_build_report(build_report, template_filename, filename):
         placeholder.write(template.render(
             failing_builds=build_report_failing,
             passing_builds=build_report_passing))
+
+
+def merge_build_data(filename, toolchain_report, app_type):
+    path_to_file = dirname(abspath(filename))
+    try:
+        build_data = load(open(filename))
+    except (IOError, ValueError):
+        build_data = {'builds': []}
+    for tgt in toolchain_report.values():
+        for tc in tgt.values():
+            for project in tc.values():
+                for build in project:
+                    try:
+                        build[0]['elf'] = relpath(build[0]['elf'], path_to_file)
+                        build[0]['bin'] = relpath(build[0]['bin'], path_to_file)
+                    except KeyError:
+                        pass
+                    if 'type' not in build[0]:
+                        build[0]['type'] = app_type
+                    build_data['builds'].append(build[0])
+    dump(build_data, open(filename, "wb"), indent=4, separators=(',', ': '))

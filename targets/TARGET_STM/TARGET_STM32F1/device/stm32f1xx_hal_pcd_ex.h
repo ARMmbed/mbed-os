@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_pcd_ex.h
   * @author  MCD Application Team
-  * @version V1.0.5
-  * @date    06-December-2016
+  * @version V1.1.0
+  * @date    14-April-2017
   * @brief   Header file of Extended PCD HAL module.
   ******************************************************************************
   * @attention

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_adc.c
  * @brief Analog to Digital Converter (ADC) Peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -62,7 +62,7 @@
 #define ADC_REF_VALID(ref)    ((ref) == ADC0)
 
 /** Max ADC clock */
-#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+#if defined( _SILICON_LABS_32B_SERIES_0 )
 #define ADC_MAX_CLOCK    13000000
 #else
 #define ADC_MAX_CLOCK    16000000
@@ -180,7 +180,7 @@
 #define DEVINFO_ADC0_OFFSET2XVDD_SHIFT _DEVINFO_ADC0CAL2_OFFSET2XVDD_SHIFT
 #endif
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
 #define FIX_ADC_TEMP_BIAS_EN
 #endif
 /** @endcond */
@@ -418,8 +418,8 @@ void ADC_Init(ADC_TypeDef *adc, const ADC_Init_TypeDef *init)
                      init->em2ClockConfig);
 #endif
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
-  /* Fix for errata ADC_EXXX */
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
+  /* A debugger can trigger the SCANUF interrupt on EFM32xG1 or EFR32xG1 */
   ADC_IntClear(adc, ADC_IFC_SCANUF);
 #endif
 }
@@ -750,9 +750,10 @@ void ADC_InitScan(ADC_TypeDef *adc, const ADC_InitScan_TypeDef *init)
 
   if (init->rep)
   {
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
-  /* Scan repeat mode does not work on platform 2 as described in errata  ADC_EXXX. */
-  EFM_ASSERT(false);
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
+    /* Scan repeat mode does not work on EFM32JG1, EFM32PG1 or EFR32xG1x devices.
+     * The errata is called ADC_E211 in the errata document. */
+    EFM_ASSERT(false);
 #endif
     tmp |= ADC_SCANCTRL_REP;
   }

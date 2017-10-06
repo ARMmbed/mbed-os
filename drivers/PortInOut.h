@@ -18,18 +18,18 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_PORTINOUT
+#if defined (DEVICE_PORTINOUT) || defined(DOXYGEN_ONLY)
 
 #include "hal/port_api.h"
 #include "platform/mbed_critical.h"
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A multiple pin digital in/out used to set/read multiple bi-directional pins
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
+ * @ingroup drivers
  */
 class PortInOut {
 public:
@@ -89,18 +89,23 @@ public:
     }
 
     /** A shorthand for write()
+     * \sa PortInOut::write()
      */
     PortInOut& operator= (int value) {
         write(value);
         return *this;
     }
 
+    /** A shorthand for write()
+     * \sa PortInOut::write()
+     */
     PortInOut& operator= (PortInOut& rhs) {
         write(rhs.read());
         return *this;
     }
 
     /** A shorthand for read()
+     * \sa PortInOut::read()
      */
     operator int() {
         return read();
@@ -115,5 +120,3 @@ private:
 #endif
 
 #endif
-
-/** @}*/

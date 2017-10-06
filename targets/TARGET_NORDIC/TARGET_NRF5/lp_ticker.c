@@ -35,6 +35,14 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
         LP_TICKER_CC_CHANNEL, LP_TICKER_INT_MASK);
 }
 
+void lp_ticker_fire_interrupt(void)
+{
+    uint32_t closest_safe_compare = common_rtc_32bit_ticks_get() + 2;
+
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, LP_TICKER_CC_CHANNEL, RTC_WRAP(closest_safe_compare));
+    nrf_rtc_event_enable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);
+}
+
 void lp_ticker_disable_interrupt(void)
 {
     nrf_rtc_event_disable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2016-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -29,6 +29,12 @@ struct virtual_data_req_s;
 
 typedef struct serial_mac_api_s serial_mac_api_t;
 
+/**
+ * Create serial MAC
+ * @param serial_driver_id PHY driver ID.
+ * @return Serial MAC callback structure on success.
+ * @return NULL on failure.
+ */
 extern serial_mac_api_t *serial_mac_create(int8_t serial_driver_id);
 
 /**
@@ -64,11 +70,14 @@ typedef int8_t serial_mac_api_initialize(serial_mac_api_t *api, data_indication 
  */
 typedef int8_t serial_mac_virtual_initialize(const serial_mac_api_t *api, int8_t driver_id);
 
+/**
+ * Serial MAC callback structure.
+ */
 struct serial_mac_api_s {
-    serial_mac_api_initialize   *mac_initialize;            //Inititilize data callback
-    serial_mac_virtual_initialize * virtual_initilize;      //Enable bridge to virtual driver
-    data_request                *data_request_cb;
-    data_indication             *data_ind_cb;
+    serial_mac_api_initialize   *mac_initialize;            /**< Inititilize data callback */
+    serial_mac_virtual_initialize * virtual_initilize;      /**< Enable bridge to virtual driver */
+    data_request                *data_request_cb;           /**< Data request callback */
+    data_indication             *data_ind_cb;               /**< Data indication callback */
 };
 
 #ifdef __cplusplus

@@ -44,7 +44,7 @@ void in_handler() {
 // D0 is used as USBRX for some NUCLEO64
 // D7 is not used for some NUCLEO32
 #define PIN_OUT     D2
-#define PIN_IN      D9
+#define PIN_IN      D3
 
 #elif defined(TARGET_DISCO_L053C8) || \
       defined(TARGET_DISCO_F334C8)

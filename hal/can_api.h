@@ -57,9 +57,10 @@ typedef void (*can_irq_handler)(uint32_t id, CanIrqType type);
 
 typedef struct can_s can_t;
 
-void          can_init     (can_t *obj, PinName rd, PinName td);
-void          can_free     (can_t *obj);
-int           can_frequency(can_t *obj, int hz);
+void          can_init      (can_t *obj, PinName rd, PinName td);
+void          can_init_freq (can_t *obj, PinName rd, PinName td, int hz);
+void          can_free      (can_t *obj);
+int           can_frequency (can_t *obj, int hz);
 
 void          can_irq_init (can_t *obj, can_irq_handler handler, uint32_t id);
 void          can_irq_free (can_t *obj);

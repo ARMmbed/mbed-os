@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -31,15 +31,15 @@
  * \brief Border router network data structure.
  */
 typedef struct thread_border_router_info_t {
-    unsigned            Prf: 2;               /**!< Prefix preference, 01 = High, 00 = Default, 11 = Low, 10 = Reserved. */
-    bool                P_preferred: 1;       /**!< Address is considered preferred address. */
-    bool                P_slaac: 1;           /**!< Allowed to configure a new address */
-    bool                P_dhcp: 1;            /**!< DHCPv6 server is available in the network. */
-    bool                P_configure: 1;       /**!< DHCPv6 agent provides other configuration. */
-    bool                P_default_route: 1;   /**!< This device provides the default route. */
-    bool                P_on_mesh: 1;         /**!< This prefix is considered to be on-mesh */
-    bool                P_nd_dns: 1;          /**!< this border router is able to provide DNS information */
-    bool                stableData: 1;        /**!< This data is stable and expected to be available at least 48h. */
+    unsigned            Prf: 2;               /**< Prefix preference, 01 = High, 00 = Default, 11 = Low, 10 = Reserved. */
+    bool                P_preferred: 1;       /**< Address is considered preferred address. */
+    bool                P_slaac: 1;           /**< Allowed to configure a new address */
+    bool                P_dhcp: 1;            /**< DHCPv6 server is available in the network. */
+    bool                P_configure: 1;       /**< DHCPv6 agent provides other configuration. */
+    bool                P_default_route: 1;   /**< This device provides the default route. */
+    bool                P_on_mesh: 1;         /**< This prefix is considered to be on-mesh */
+    bool                P_nd_dns: 1;          /**< this border router is able to provide DNS information */
+    bool                stableData: 1;        /**< This data is stable and expected to be available at least 48h. */
 } thread_border_router_info_t;
 
 /**
@@ -267,5 +267,43 @@ int thread_border_router_service_tlv_find(uint8_t* network_data_tlv, uint16_t ne
  */
 int thread_border_router_server_tlv_find(uint8_t* service_tlv, uint16_t service_tlv_length, uint8_t** server_tlv, bool* stable);
 
+/**
+ * Determine context ID from the Network Data TLV (under Prefix TLV) byte array.
+ *
+ * \param prefix_tlv [IN] Prefix TLV in byte array.
+ * \param prefix_tlv_length [IN] Length of the Prefix TLV byte array in bytes.
+ *
+ * \return The context ID value found
+ * \return -1 if error in input parameters.
+ * \return -2 if no context ID value found.
+ */
+int thread_border_router_prefix_context_id(uint8_t *prefix_tlv, uint16_t prefix_tlv_length);
+
+/**
+ * Start mDNS responder service. The responder will respond to DNS-SD queries and send announcement when
+ * Thread network data is updated.
+ *
+ * The mDNS responder can be closed by calling thread_border_router_mdns_responder_stop(). Closing the Thread
+ * network interface will stop the mDNS responder automatically.
+ *
+ * \param interface_id interface ID of the Thread network
+ * \param interface_id_mdns interface where mDNS messaging occurs
+ * \param service_name mDNS instance name
+ *
+ * \return 0 on success
+ * \return <0 in case of errors
+ *
+ */
+int thread_border_router_mdns_responder_start(int8_t interface_id, int8_t interface_id_mdns, const char *service_name);
+
+/**
+ * Stop mDNS responder service
+ *
+ *
+ * \return 0 on success
+ * \return <0 in case of errors
+ *
+ */
+int thread_border_router_mdns_responder_stop(void);
 
 #endif /* THREAD_BORDER_ROUTER_API_H_ */

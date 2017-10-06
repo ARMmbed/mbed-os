@@ -190,7 +190,7 @@ bd_size_t ChainingBlockDevice::get_erase_size() const
     return _erase_size;
 }
 
-bd_size_t ChainingBlockDevice::size()
+bd_size_t ChainingBlockDevice::size() const
 {
     return _size;
 }

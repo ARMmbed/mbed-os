@@ -21,7 +21,7 @@
 #include "ble/DiscoveredCharacteristic.h"
 #include "ble/CharacteristicDescriptorDiscovery.h"
 #include "ble/GattClient.h"
-#include "nrf_ble_gattc.h"
+#include "headers/nrf_ble_gattc.h"
 
 /**
  * @brief Manage the discovery of Characteristic descriptors

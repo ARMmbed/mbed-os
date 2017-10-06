@@ -28,8 +28,11 @@ void hal_sleep(void)
 void hal_deepsleep(void)
 {
 #if (defined(FSL_FEATURE_SOC_MCG_COUNT) && FSL_FEATURE_SOC_MCG_COUNT)
+#if defined(kMCG_ModePEE)
     mcg_mode_t mode = CLOCK_GetMode();
 #endif
+#endif
+
     SMC_SetPowerModeProtection(SMC, kSMC_AllowPowerModeAll);
 
     SMC_SetPowerModeVlps(SMC);

@@ -9,7 +9,7 @@ To manage Thread, include the following headers into your application:
 #include thread_management_api.h
 ```
 
-The subsequent sections describe API functionality for Thread. To understand the ideas behind Thread, read [ARM mbed Thread Stack Overview](thread_overview.md).
+The subsequent sections describe API functionality for Thread. To understand the ideas behind Thread, read [Introduction to mbed OS Thread](thread_intro.md).
 
 ## Thread Commissioning API
 

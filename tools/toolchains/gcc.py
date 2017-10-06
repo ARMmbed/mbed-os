@@ -15,7 +15,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import re
-from os.path import join, basename, splitext, dirname
+from os.path import join, basename, splitext, dirname, exists
+from distutils.spawn import find_executable
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -29,10 +30,11 @@ class GCC(mbedToolchain):
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
 
     def __init__(self, target,  notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None):
+                 silent=False, extra_verbose=False, build_profile=None,
+                 build_dir=None):
         mbedToolchain.__init__(self, target, notify, macros, silent,
                                extra_verbose=extra_verbose,
-                               build_profile=build_profile)
+                               build_profile=build_profile, build_dir=build_dir)
 
         tool_path=TOOLCHAIN_PATHS['GCC_ARM']
         # Add flags for current size setting
@@ -54,6 +56,10 @@ class GCC(mbedToolchain):
             cpu = "cortex-m7"
         elif target.core == "Cortex-M7FD":
             cpu = "cortex-m7"
+        elif target.core == "Cortex-M23-NS":
+            cpu = "cortex-m23"
+        elif target.core == "Cortex-M33-NS":
+            cpu = "cortex-m33"
         else:
             cpu = target.core.lower()
 
@@ -80,6 +86,14 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
+        if target.core.startswith("Cortex-M23"):
+            self.cpu.append("-march=armv8-m.base")
+        elif target.core.startswith("Cortex-M33"):
+            self.cpu.append("-march=armv8-m.main")
+
+        if target.core == "Cortex-M23" or target.core == "Cortex-M33":
+            self.cpu.append("-mcmse")
+
         self.flags["common"] += self.cpu
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
@@ -97,27 +111,6 @@ class GCC(mbedToolchain):
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
-
-    def parse_dependencies(self, dep_path):
-        dependencies = []
-        buff = open(dep_path).readlines()
-        buff[0] = re.sub('^(.*?)\: ', '', buff[0])
-        for line in buff:
-            file = line.replace('\\\n', '').strip()
-            if file:
-                # GCC might list more than one dependency on a single line, in this case
-                # the dependencies are separated by a space. However, a space might also
-                # indicate an actual space character in a dependency path, but in this case
-                # the space character is prefixed by a backslash.
-                # Temporary replace all '\ ' with a special char that is not used (\a in this
-                # case) to keep them from being interpreted by 'split' (they will be converted
-                # back later to a space char)
-                file = file.replace('\\ ', '\a')
-                if file.find(" ") == -1:
-                    dependencies.append((self.CHROOT if self.CHROOT else '') + file.replace('\a', ' '))
-                else:
-                    dependencies = dependencies + [(self.CHROOT if self.CHROOT else '') + f.replace('\a', ' ') for f in file.split(" ")]
-        return dependencies
 
     def is_not_supported_error(self, output):
         return "error: #error [NOT_SUPPORTED]" in output
@@ -259,7 +252,9 @@ class GCC(mbedToolchain):
     @hook_tool
     def binary(self, resources, elf, bin):
         # Build binary command
-        cmd = [self.elf2bin, "-O", "binary", elf, bin]
+        _, fmt = splitext(bin)
+        bin_arg = {'.bin': 'binary', '.hex': 'ihex'}[fmt]
+        cmd = [self.elf2bin, "-O", bin_arg, elf, bin]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_binary(cmd)
@@ -285,7 +280,15 @@ class GCC(mbedToolchain):
         """Returns True if the executable (arm-none-eabi-gcc) location
         specified by the user exists OR the executable can be found on the PATH.
         Returns False otherwise."""
-        return mbedToolchain.generic_check_executable("GCC_ARM", 'arm-none-eabi-gcc', 1)
+        if not TOOLCHAIN_PATHS['GCC_ARM'] or not exists(TOOLCHAIN_PATHS['GCC_ARM']):
+            if find_executable('arm-none-eabi-gcc'):
+                TOOLCHAIN_PATHS['GCC_ARM'] = ''
+                return True
+            else:
+                return False
+        else:
+            exec_name = join(TOOLCHAIN_PATHS['GCC_ARM'], 'arm-none-eabi-gcc')
+            return exists(exec_name) or exists(exec_name + '.exe')
 
 class GCC_ARM(GCC):
     pass

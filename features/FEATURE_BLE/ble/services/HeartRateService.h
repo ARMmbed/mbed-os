@@ -58,7 +58,7 @@ public:
         valueBytes(hrmCounter),
         hrmRate(GattCharacteristic::UUID_HEART_RATE_MEASUREMENT_CHAR, valueBytes.getPointer(),
                 valueBytes.getNumValueBytes(), HeartRateValueBytes::MAX_VALUE_BYTES,
-                GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY),
+                GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY),
         hrmLocation(GattCharacteristic::UUID_BODY_SENSOR_LOCATION_CHAR, &location),
         controlPoint(GattCharacteristic::UUID_HEART_RATE_CONTROL_POINT_CHAR, &controlPointValue) {
         setupService();
@@ -112,7 +112,7 @@ public:
      * controlPoint characteristic.
      *
      * @param[in] params
-     *     Information about the characterisitc being updated.
+     *     Information about the characteristic being updated.
      */
     virtual void onDataWritten(const GattWriteCallbackParams *params) {
         if (params->handle == controlPoint.getValueAttribute().getHandle()) {

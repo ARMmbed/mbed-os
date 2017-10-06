@@ -19,15 +19,15 @@
 #include "cmsis.h"
 #include "platform/CallChain.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 #include <string.h>
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** Use this singleton if you need to chain interrupt handlers.
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
  * Example (for LPC1768):
  * @code
@@ -52,10 +52,13 @@ namespace mbed {
  *     InterruptManager::get()->add_handler(handler, TIMER3_IRQn);
  * }
  * @endcode
+ * @ingroup drivers
  */
-class InterruptManager {
+class InterruptManager : private NonCopyable<InterruptManager> {
 public:
-    /** Return the only instance of this class
+    /** Get the instance of InterruptManager Class
+     *
+     *  @return the only instance of this class
      */
     static InterruptManager* get();
 
@@ -136,12 +139,6 @@ private:
     void lock();
     void unlock();
 
-    // We declare the copy contructor and the assignment operator, but we don't
-    // implement them. This way, if someone tries to copy/assign our instance,
-    // he will get an error at compile time.
-    InterruptManager(const InterruptManager&);
-    InterruptManager& operator =(const InterruptManager&);
-
     template<typename T>
     pFunctionPointer_t add_common(T *tptr, void (T::*mptr)(void), IRQn_Type irq, bool front=false) {
         _mutex.lock();
@@ -170,6 +167,3 @@ private:
 } // namespace mbed
 
 #endif
-
-
-/** @}*/

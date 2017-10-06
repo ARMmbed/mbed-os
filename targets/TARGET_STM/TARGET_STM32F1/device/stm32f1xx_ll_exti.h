@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_ll_exti.h
   * @author  MCD Application Team
-  * @version $VERSION$
-  * @date    $DATE$
+  * @version V1.1.0
+  * @date    14-April-2017
   * @brief   Header file of EXTI LL module.
   ******************************************************************************
   * @attention
@@ -167,10 +167,10 @@ typedef struct
 #define LL_EXTI_LINE_ALL_0_31          EXTI_IMR_IM            /*!< All Extended line not reserved*/
 
 
-#define LL_EXTI_LINE_ALL               ((uint32_t)0xFFFFFFFFU)  /*!< All Extended line */
+#define LL_EXTI_LINE_ALL               (0xFFFFFFFFU)  /*!< All Extended line */
 
 #if defined(USE_FULL_LL_DRIVER)
-#define LL_EXTI_LINE_NONE              ((uint32_t)0x00000000U)  /*!< None Extended line */
+#define LL_EXTI_LINE_NONE              (0x00000000U)  /*!< None Extended line */
 #endif /*USE_FULL_LL_DRIVER*/
 
 /**
@@ -181,9 +181,9 @@ typedef struct
 /** @defgroup EXTI_LL_EC_MODE Mode
   * @{
   */
-#define LL_EXTI_MODE_IT                 ((uint8_t)0x00U) /*!< Interrupt Mode */
-#define LL_EXTI_MODE_EVENT              ((uint8_t)0x01U) /*!< Event Mode */
-#define LL_EXTI_MODE_IT_EVENT           ((uint8_t)0x02U) /*!< Interrupt & Event Mode */
+#define LL_EXTI_MODE_IT                 ((uint8_t)0x00) /*!< Interrupt Mode */
+#define LL_EXTI_MODE_EVENT              ((uint8_t)0x01) /*!< Event Mode */
+#define LL_EXTI_MODE_IT_EVENT           ((uint8_t)0x02) /*!< Interrupt & Event Mode */
 /**
   * @}
   */
@@ -191,10 +191,10 @@ typedef struct
 /** @defgroup EXTI_LL_EC_TRIGGER Edge Trigger
   * @{
   */
-#define LL_EXTI_TRIGGER_NONE            ((uint8_t)0x00U) /*!< No Trigger Mode */
-#define LL_EXTI_TRIGGER_RISING          ((uint8_t)0x01U) /*!< Trigger Rising Mode */
-#define LL_EXTI_TRIGGER_FALLING         ((uint8_t)0x02U) /*!< Trigger Falling Mode */
-#define LL_EXTI_TRIGGER_RISING_FALLING  ((uint8_t)0x03U) /*!< Trigger Rising & Falling Mode */
+#define LL_EXTI_TRIGGER_NONE            ((uint8_t)0x00) /*!< No Trigger Mode */
+#define LL_EXTI_TRIGGER_RISING          ((uint8_t)0x01) /*!< Trigger Rising Mode */
+#define LL_EXTI_TRIGGER_FALLING         ((uint8_t)0x02) /*!< Trigger Falling Mode */
+#define LL_EXTI_TRIGGER_RISING_FALLING  ((uint8_t)0x03) /*!< Trigger Rising & Falling Mode */
 
 /**
   * @}

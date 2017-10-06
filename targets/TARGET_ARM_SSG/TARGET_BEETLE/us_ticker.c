@@ -91,20 +91,17 @@ uint32_t us_ticker_read() {
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
-    int32_t delta = 0;
-
     if (!us_ticker_inited)
         us_ticker_init();
-    delta = (int32_t)(timestamp - us_ticker_read());
-    /* Check if the event was in the past */
-    if (delta <= 0) {
-        /* This event was in the past */
-        Timer_SetInterrupt(TIMER0, 0);
-        return;
-    }
 
-    /* If the event was not in the past enable interrupt */
+    uint32_t delta = timestamp - us_ticker_read();
     Timer_SetInterrupt(TIMER0, delta);
+}
+
+void us_ticker_fire_interrupt(void)
+{
+    uint32_t us_ticker_irqn1 = Timer_GetIRQn(TIMER1);
+    NVIC_SetPendingIRQ((IRQn_Type)us_ticker_irqn1);
 }
 
 void us_ticker_disable_interrupt(void) {

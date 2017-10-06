@@ -15,8 +15,28 @@
  * limitations under the License.
  */
 
-#include "rt_TypeDef.h"
-#include "rt_Memory.h"
+#include "rtx_lib.h"
+
+/* uVisor uses rtx_memory instead of implementing its own dynamic,
+ * non-fixed-size memory allocator. To do this, uVisor creates multiple
+ * non-fixed-size allocator pools (one per page) and allocates memory from
+ * these pools. uVisor must manage the memory for these pools' control blocks,
+ * so it must know the size of these control blocks. */
+
+/* The following memory pool control block structs are copied from
+ * rtx_memory.c, so that uVisor can manage the memory for these control blocks
+ * within pages. */
+typedef struct mem_head_s {
+  uint32_t size;                // Memory Pool size
+  uint32_t used;                // Used Memory
+} mem_head_t;
+
+//  Memory Block Header structure
+typedef struct mem_block_s {
+  struct mem_block_s *next;     // Next Memory Block in list
+  uint32_t            info;     // Info: length = <31:2>:'00', type = <1:0>
+} mem_block_t;
+/* End copy */
 
 #include "secure_allocator.h"
 #include "uvisor-lib/uvisor-lib.h"
@@ -49,17 +69,29 @@ SecureAllocator secure_allocator_create_with_pool(
     /* Signal that this is non-page allocated memory. */
     allocator->table.page_size = bytes;
     allocator->table.page_count = 0;
-    /* The internal rt_Memory MEMP structure must be placed AFTER table.page_origins[0] !!! */
+    /* The internal rtx_Memory memory pool structure must be placed AFTER
+     * table.page_origins[0] !!! */
     size_t offset = OFFSETOF(SecureAllocatorInternal, table.page_origins) + sizeof(((UvisorPageTable) {0}).page_origins);
-    /* Create MEMP structure inside the memory. */
-    if (rt_init_mem(mem + offset, bytes - offset)) {
+    uintptr_t page_origin = (uintptr_t) mem + offset;
+
+    /* Align page_origin to a multiple of 8 (because RTX requries 8-byte
+     * alignment of the origin). */
+    page_origin = (page_origin + (0x8 - 1)) & -0x8;
+    offset = page_origin - (uintptr_t) mem;
+    size_t size = bytes - offset;
+    /* Align size to a multiple of 8 (because RTX requires 8-byte alignment of
+     * the size) */
+    size &= -0x8;
+
+    /* Create pool allocator structure inside the memory. */
+    if (!osRtxMemoryInit((void *) page_origin, size)) {
         /* Abort if failed. */
-        DPRINTF("secure_allocator_create_with_pool: MEMP allocator creation failed\n\n");
+        DPRINTF("secure_allocator_create_with_pool: pool allocator %p with offset %d creation failed (size %u bytes)\n\n", page_origin, offset, bytes - offset);
         return NULL;
     }
-    /* Remember the MEMP pointer though. */
-    allocator->table.page_origins[0] = mem + offset;
-    DPRINTF("secure_allocator_create_with_pool: Created MEMP allocator %p with offset %d\n\n", mem + offset, offset);
+    /* Remember the pool allocator pointer though. */
+    allocator->table.page_origins[0] = (void *) page_origin;
+    DPRINTF("secure_allocator_create_with_pool: Created pool allocator %p with offset %d\n\n", page_origin, offset);
     return allocator;
 }
 
@@ -68,9 +100,9 @@ SecureAllocator secure_allocator_create_with_pages(
     size_t maximum_malloc_size)
 {
     const uint32_t page_size = uvisor_get_page_size();
-    /* The rt_Memory allocator puts one MEMP structure at both the
+    /* The rtx_Memory allocator puts one pool allocator structure at both the
      * beginning and end of the memory pool. */
-    const size_t block_overhead = 2 * sizeof(MEMP);
+    const size_t block_overhead = 2 * sizeof(mem_block_t);
     const size_t page_size_with_overhead = page_size + block_overhead;
     /* Calculate the integer part of required the page count. */
     size_t page_count = size / page_size_with_overhead;
@@ -110,11 +142,15 @@ SecureAllocator secure_allocator_create_with_pages(
         return NULL;
     }
 
-    /* Initialize a MEMP structure in all pages. */
+    /* Initialize a memory pool structure in all pages. */
     for(size_t ii = 0; ii < page_count; ii++) {
         /* Add each page as a pool. */
-        rt_init_mem(allocator->table.page_origins[ii], page_size);
-        DPRINTF("secure_allocator_create_with_pages: Created MEMP allocator %p with offset %d\n", allocator->table.page_origins[ii], 0);
+        osStatus_t status = osRtxMemoryInit(allocator->table.page_origins[ii], page_size);
+        if (status == osOK) {
+          DPRINTF("secure_allocator_create_with_pages: Created memory pool allocator %p with offset %d page %u\n", allocator->table.page_origins[ii], 0, ii);
+        } else {
+          DPRINTF("secure_allocator_create_with_pages: Failed creating memory pool allocator %p with offset %d page %u\n", allocator->table.page_origins[ii], 0, ii);
+        }
     }
     DPRINTF("\n");
     /* Aaaand across the line. */
@@ -124,7 +160,7 @@ SecureAllocator secure_allocator_create_with_pages(
 int secure_allocator_destroy(
     SecureAllocator allocator)
 {
-    DPRINTF("secure_allocator_destroy: Destroying MEMP allocator at %p\n", table(allocator)->page_origins[0]);
+    DPRINTF("secure_allocator_destroy: Destroying memory pool allocator at %p\n", table(allocator)->page_origins[0]);
 
     /* Check if we are working on statically allocated memory. */
     SecureAllocatorInternal * alloc = (SecureAllocatorInternal * const) allocator;
@@ -153,7 +189,7 @@ void * secure_malloc(
     size_t index = 0;
     do {
         /* Search in this page. */
-        void * mem = rt_alloc_mem(table(allocator)->page_origins[index], size);
+        void * mem = osRtxMemoryAlloc(table(allocator)->page_origins[index], size, 0);
         /* Return if we found something. */
         if (mem) {
             DPRINTF("secure_malloc: Found %4uB in page %u at %p\n", size, index, mem);
@@ -167,6 +203,40 @@ void * secure_malloc(
     DPRINTF("secure_malloc: Out of memory in allocator %p \n", allocator);
     /* We found nothing. */
     return NULL;
+}
+
+void * secure_aligned_alloc(
+    SecureAllocator allocator,
+    size_t alignment,
+    size_t size)
+{
+    /* Alignment must be a power of two! */
+    if (alignment & ((1UL << ((31UL - __builtin_clz(alignment)) - 1)))) {
+        return NULL;
+    }
+    /* TODO: THIS IS A NAIVE IMPLEMENTATION, which wastes much memory. */
+    void * ptr = secure_malloc(allocator, size + alignment - 1);
+    if (ptr == NULL) {
+        return NULL;
+    }
+    return (void *) (((uint32_t) ptr + alignment - 1) & ~(alignment - 1));
+}
+
+void * secure_calloc(
+    SecureAllocator allocator,
+    size_t nmemb,
+    size_t size)
+{
+    if ((uint64_t) nmemb * size > SIZE_MAX) {
+        /* (size * nmemb) has overflowed. */
+        return NULL;
+    }
+    void * ptr = secure_malloc(allocator, size * nmemb);
+    if (ptr == NULL) {
+        return NULL;
+    }
+    memset(ptr, 0, size * nmemb);
+    return ptr;
 }
 
 void * secure_realloc(
@@ -187,7 +257,7 @@ void * secure_realloc(
     /* Passing NULL as ptr is legal, realloc acts as malloc then. */
     if (ptr) {
         /* Get the size of the ptr memory. */
-        size_t size = ((MEMP *) ((uint32_t) ptr - sizeof(MEMP)))->len;
+        size_t size = ((mem_block_t *) ((uint32_t) ptr - sizeof(mem_block_t)))->info & ~0x3;
         /* Copy the memory to the new location, min(new_size, size). */
         memcpy(new_ptr, ptr, new_size < size ? new_size : size);
         /* Free the previous memory. */
@@ -203,9 +273,9 @@ void secure_free(
     size_t index = 0;
     do {
         /* Search in this page. */
-        int ret = rt_free_mem(table(allocator)->page_origins[index], ptr);
+        int ret = osRtxMemoryFree(table(allocator)->page_origins[index], ptr);
         /* Return if free was successful. */
-        if (ret == 0) {
+        if (ret == 1) {
             DPRINTF("secure_free: Freed %p in page %u.\n", ptr, index);
             return;
         }

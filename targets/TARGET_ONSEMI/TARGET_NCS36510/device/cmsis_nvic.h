@@ -28,6 +28,6 @@
 *
 * @details
 */
-#include "NCS36510.h"
 
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+#define NVIC_NUM_VECTORS        (16 + 20)
+#define NVIC_RAM_VECTOR_ADDRESS 0x3FFF4000    // Vectors positioned at start of RAM

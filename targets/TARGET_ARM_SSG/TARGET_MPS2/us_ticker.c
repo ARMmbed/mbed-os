@@ -51,21 +51,22 @@ uint32_t return_value = 0;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
-int delta = 0;
     if (!us_ticker_inited)
         us_ticker_init();
-    delta = (int)(timestamp - us_ticker_read());
-    if (delta <= 0) {
-        // This event was in the past:
-        us_ticker_irq_handler();
-        return;
-    }
+
+     uint32_t delta = timestamp - us_ticker_read();
         // enable interrupt
     US_TICKER_TIMER1->TimerControl = 0x0; // disable timer
     US_TICKER_TIMER1->TimerControl = 0x62; // enable interrupt and set to 32 bit counter and set to periodic mode
     US_TICKER_TIMER1->TimerLoad = (delta)*25; //initialise the timer value
     US_TICKER_TIMER1->TimerControl |= 0x80; //enable timer
 }
+
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(US_TICKER_TIMER_IRQn);
+}
+
 
 void us_ticker_disable_interrupt(void) {
     

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2016 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -29,6 +29,8 @@
  *
  * \param interface_id Network Interface
  * \param prefix_ptr pointer DHCPv6 Server Given Prefix
+ * \param max_client_cnt Max number of clients
+ * \param stableData True if data is stable
  *
  * \return 0, Set OK
  * \return <0 Set Not OK

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_ll_system.h
   * @author  MCD Application Team
-  * @version $VERSION$
-  * @date    $DATE$
+  * @version V1.1.0
+  * @date    14-April-2017
   * @brief   Header file of SYSTEM LL module.
   @verbatim
   ==============================================================================
@@ -76,9 +76,6 @@ extern "C" {
   * @{
   */
 
-/* Defines used for position in the register */
-#define DBGMCU_REVID_POSITION         (uint32_t)POSITION_VAL(DBGMCU_IDCODE_REV_ID)
-
 /**
   * @}
   */
@@ -96,7 +93,7 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_TRACE DBGMCU TRACE Pin Assignment
   * @{
   */
-#define LL_DBGMCU_TRACE_NONE               (uint32_t)0x00000000U                           /*!< TRACE pins not assigned (default state) */
+#define LL_DBGMCU_TRACE_NONE               0x00000000U                                     /*!< TRACE pins not assigned (default state) */
 #define LL_DBGMCU_TRACE_ASYNCH             DBGMCU_CR_TRACE_IOEN                            /*!< TRACE pin assignment for Asynchronous Mode */
 #define LL_DBGMCU_TRACE_SYNCH_SIZE1        (DBGMCU_CR_TRACE_IOEN | DBGMCU_CR_TRACE_MODE_0) /*!< TRACE pin assignment for Synchronous Mode with a TRACEDATA size of 1 */
 #define LL_DBGMCU_TRACE_SYNCH_SIZE2        (DBGMCU_CR_TRACE_IOEN | DBGMCU_CR_TRACE_MODE_1) /*!< TRACE pin assignment for Synchronous Mode with a TRACEDATA size of 2 */
@@ -177,7 +174,7 @@ extern "C" {
   * @{
   */
 #if defined(FLASH_ACR_LATENCY)
-#define LL_FLASH_LATENCY_0                 ((uint32_t)0x00000000U) /*!< FLASH Zero Latency cycle */
+#define LL_FLASH_LATENCY_0                 0x00000000U             /*!< FLASH Zero Latency cycle */
 #define LL_FLASH_LATENCY_1                 FLASH_ACR_LATENCY_0     /*!< FLASH One Latency cycle */
 #define LL_FLASH_LATENCY_2                 FLASH_ACR_LATENCY_1     /*!< FLASH Two wait states */
 #else
@@ -231,7 +228,7 @@ __STATIC_INLINE uint32_t LL_DBGMCU_GetDeviceID(void)
   */
 __STATIC_INLINE uint32_t LL_DBGMCU_GetRevisionID(void)
 {
-  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_REVID_POSITION);
+  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_IDCODE_REV_ID_Pos);
 }
 
 /**

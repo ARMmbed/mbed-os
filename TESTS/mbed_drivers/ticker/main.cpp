@@ -14,13 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+/*
+ * Tests is to measure the accuracy of Ticker over a period of time
+ *
+ *
+ * 1) DUT would start to update callback_trigger_count every milli sec, in 2x callback we use 2 tickers
+ *    to update the count alternatively.
+ * 2) Host would query what is current count base_time, Device responds by the callback_trigger_count
+ * 3) Host after waiting for measurement stretch. It will query for device time again final_time.
+ * 4) Host computes the drift considering base_time, final_time, transport delay and measurement stretch
+ * 5) Finally host send the results back to device pass/fail based on tolerance.
+ * 6) More details on tests can be found in timing_drift_auto.py
+ */
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
+#include "unity/unity.h"
 
 using namespace utest::v1;
 
-static const int ONE_SECOND_MS = 1000;
+#define ONE_MILLI_SEC 1000
+volatile uint32_t callback_trigger_count = 0;
+static const int test_timeout = 240;
 static const int total_ticks = 10;
 
 DigitalOut led1(LED1);
@@ -32,53 +50,37 @@ Ticker *ticker2;
 volatile int ticker_count = 0;
 volatile bool print_tick = false;
 
-void send_kv_tick() {
-    if (ticker_count <= total_ticks) {
-        print_tick = true;
-    }
-}
+void ticker_callback_1_switch_to_2(void);
+void ticker_callback_2_switch_to_1(void);
 
 void ticker_callback_0(void) {
-    static int fast_ticker_count = 0;
-    if (fast_ticker_count >= ONE_SECOND_MS) {
-        send_kv_tick();
-        fast_ticker_count = 0;
-        led1 = !led1;
-    }
-    fast_ticker_count++;
+    ++callback_trigger_count;
 }
 
-void ticker_callback_1(void) {
+void ticker_callback_1_led(void) {
     led1 = !led1;
-    send_kv_tick();
 }
 
 void ticker_callback_2_led(void) {
     led2 = !led2;
 }
 
-void ticker_callback_2(void) {
-    ticker_callback_2_led();
-    send_kv_tick();
-}
-
-void ticker_callback_1_switch_to_2(void);
-void ticker_callback_2_switch_to_1(void);
-
 void ticker_callback_1_switch_to_2(void) {
+    ++callback_trigger_count;
     ticker1->detach();
-    ticker1->attach(ticker_callback_2_switch_to_1, 1.0);
-    ticker_callback_1();
+    ticker1->attach_us(ticker_callback_2_switch_to_1, ONE_MILLI_SEC);
+    ticker_callback_1_led();
 }
 
 void ticker_callback_2_switch_to_1(void) {
+    ++callback_trigger_count;
     ticker2->detach();
-    ticker2->attach(ticker_callback_1_switch_to_2, 1.0);
-    ticker_callback_2();
+    ticker2->attach_us(ticker_callback_1_switch_to_2, ONE_MILLI_SEC);
+    ticker_callback_2_led();
 }
 
 void wait_and_print() {
-    while(ticker_count <= total_ticks) {
+    while (ticker_count <= total_ticks) {
         if (print_tick) {
             print_tick = false;
             greentea_send_kv("tick", ticker_count++);
@@ -87,61 +89,94 @@ void wait_and_print() {
 }
 
 void test_case_1x_ticker() {
-    led1 = 0;
-    led2 = 0;
-    ticker_count = 0;
-    ticker1->attach_us(ticker_callback_0, ONE_SECOND_MS);
-    wait_and_print();
-}
 
-void test_case_2x_ticker() {
-    led1 = 0;
-    led2 = 0;
-    ticker_count = 0;
-    ticker1->attach(&ticker_callback_1, 1.0);
-    ticker2->attach(&ticker_callback_2_led, 2.0);
-    wait_and_print();
+    char _key[11] = { };
+    char _value[128] = { };
+    uint8_t results_size = 0;
+    int expected_key = 1;
+
+    greentea_send_kv("timing_drift_check_start", 0);
+    ticker1->attach_us(&ticker_callback_0, ONE_MILLI_SEC);
+
+    // wait for 1st signal from host
+    do {
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        expected_key = strcmp(_key, "base_time");
+    } while (expected_key);
+    greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
+
+    // wait for 2nd signal from host
+    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
+
+    //get the results from host
+    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
+
 }
 
 void test_case_2x_callbacks() {
+    char _key[11] = { };
+    char _value[128] = { };
+    uint8_t results_size = 0;
+    int expected_key =  1;
+
     led1 = 0;
     led2 = 0;
-    ticker_count = 0;
-    ticker1->attach(ticker_callback_1_switch_to_2, 1.0);
-    wait_and_print();
+    callback_trigger_count = 0;
+
+    greentea_send_kv("timing_drift_check_start", 0);
+    ticker1->attach_us(ticker_callback_1_switch_to_2, ONE_MILLI_SEC);
+
+    // wait for 1st signal from host
+    do {
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        expected_key = strcmp(_key, "base_time");
+    } while (expected_key);
+    greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
+
+    // wait for 2nd signal from host
+    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
+
+    //get the results from host
+    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
+
 }
 
 utest::v1::status_t one_ticker_case_setup_handler_t(const Case *const source, const size_t index_of_case) {
-  ticker1 = new Ticker();
-  return greentea_case_setup_handler(source, index_of_case);
+    ticker1 = new Ticker();
+    return greentea_case_setup_handler(source, index_of_case);
 }
 
 utest::v1::status_t two_ticker_case_setup_handler_t(const Case *const source, const size_t index_of_case) {
-  ticker1 = new Ticker();
-  ticker2 = new Ticker();
-  return greentea_case_setup_handler(source, index_of_case);
+    ticker1 = new Ticker();
+    ticker2 = new Ticker();
+    return greentea_case_setup_handler(source, index_of_case);
 }
 
 utest::v1::status_t one_ticker_case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed, const failure_t reason) {
-  delete ticker1;
-  return greentea_case_teardown_handler(source, passed, failed, reason);
+    delete ticker1;
+    return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
 utest::v1::status_t two_ticker_case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed, const failure_t reason) {
-  delete ticker1;
-  delete ticker2;
-  return greentea_case_teardown_handler(source, passed, failed, reason);
+    delete ticker1;
+    delete ticker2;
+    return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
 // Test cases
 Case cases[] = {
-    Case("Timers: 1x ticker", one_ticker_case_setup_handler_t, test_case_1x_ticker, one_ticker_case_teardown_handler_t),
-    Case("Timers: 2x tickers", two_ticker_case_setup_handler_t, test_case_2x_ticker, two_ticker_case_teardown_handler_t),
-    Case("Timers: 2x callbacks", two_ticker_case_setup_handler_t, test_case_2x_callbacks,two_ticker_case_teardown_handler_t),
+    Case("Timers: 1x ticker", one_ticker_case_setup_handler_t,test_case_1x_ticker, one_ticker_case_teardown_handler_t),
+    Case("Timers: 2x callbacks", two_ticker_case_setup_handler_t,test_case_2x_callbacks, two_ticker_case_teardown_handler_t),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP((total_ticks + 5) * 3, "timing_drift_auto");
+    GREENTEA_SETUP(test_timeout, "timing_drift_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 

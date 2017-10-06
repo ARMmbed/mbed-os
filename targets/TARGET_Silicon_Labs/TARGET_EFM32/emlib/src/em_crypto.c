@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_crypto.c
  * @brief Cryptography accelerator peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -1139,12 +1139,13 @@ void CRYPTO_AES_DecryptKey128(CRYPTO_TypeDef *  crypto,
   uint32_t       * _out = (uint32_t *) out;
   const uint32_t * _in  = (const uint32_t *) in;
 
+  /* Setup CRYPTO in AES-128 mode. */
+  crypto->CTRL = CRYPTO_CTRL_AES_AES128;
+  
   /* Load key */
   CRYPTO_BurstToCrypto(&crypto->KEYBUF, &_in[0]);
 
   /* Do dummy encryption to generate decrypt key */
-  crypto->CTRL = CRYPTO_CTRL_AES_AES128;
-  CRYPTO_IntClear(crypto, CRYPTO_IF_INSTRDONE);
   crypto->CMD  = CRYPTO_CMD_INSTR_AESENC;
 
   /* Save decryption key */
@@ -1176,12 +1177,14 @@ void CRYPTO_AES_DecryptKey256(CRYPTO_TypeDef *  crypto,
   uint32_t       * _out = (uint32_t *) out;
   const uint32_t * _in  = (const uint32_t *) in;
 
+  /* Setup CRYPTO in AES-256 mode. */
+  crypto->CTRL = CRYPTO_CTRL_AES_AES256;
+  
   /* Load key */
   CRYPTO_BurstToCrypto(&crypto->KEYBUF, &_in[0]);
   CRYPTO_BurstToCrypto(&crypto->KEYBUF, &_in[4]);
 
   /* Do dummy encryption to generate decrypt key */
-  crypto->CTRL = CRYPTO_CTRL_AES_AES256;
   crypto->CMD  = CRYPTO_CMD_INSTR_AESENC;
 
   /* Save decryption key */

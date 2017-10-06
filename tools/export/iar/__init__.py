@@ -10,34 +10,36 @@ from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, TargetNotSupportedException
 import json
 from tools.export.cmsis import DeviceCMSIS
+from tools.utils import NotSupportedException
 from multiprocessing import cpu_count
+
+
+def _supported(mcu, iar_targets):
+    if "IAR" not in mcu.supported_toolchains:
+        return False
+    if hasattr(mcu, 'device_name') and mcu.device_name in iar_targets:
+        return True
+    if mcu.name in iar_targets:
+        return True
+    return False
+
+
+_iar_defs = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), 'iar_definitions.json')
+
+with open(_iar_defs, 'r') as f:
+    _GUI_OPTIONS = json.load(f)
+
 
 class IAR(Exporter):
     NAME = 'iar'
     TOOLCHAIN = 'IAR'
 
-    #iar_definitions.json location
-    def_loc = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), '..', '..', '..',
-        'tools','export', 'iar', 'iar_definitions.json')
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return _supported(target, _GUI_OPTIONS.keys())
 
-    #create a dictionary of the definitions
-    with open(def_loc, 'r') as f:
-        IAR_DEFS = json.load(f)
-
-    def _iar_support(tgt, iar_targets):
-        if "IAR" not in tgt.supported_toolchains:
-            return False
-        if hasattr(tgt, 'device_name') and tgt.device_name in iar_targets:
-            return True
-        if tgt.name in iar_targets:
-            return True
-        return False
-
-    #supported targets have a name or device_name which maps to a definition
-    #in iar_definitions.json
-    TARGETS = [target for target, obj in TARGET_MAP.iteritems() if
-               _iar_support(obj, IAR_DEFS.keys())]
 
     def iar_groups(self, grouped_src):
         """Return a namedtuple of group info
@@ -67,7 +69,7 @@ class IAR(Exporter):
         tgt = TARGET_MAP[self.target]
         device_name = (tgt.device_name if hasattr(tgt, "device_name") else
                        tgt.name)
-        device_info = self.IAR_DEFS[device_name]
+        device_info = _GUI_OPTIONS[device_name]
         iar_defaults ={
             "OGChipSelectEditMenu": "",
             "CoreVariant": '',
@@ -78,6 +80,9 @@ class IAR(Exporter):
             "FPU2": 0,
             "NrRegs": 0,
             "NEON": '',
+            "CExtraOptionsCheck": 0,
+            "CExtraOptions": "",
+            "CMSISDAPJtagSpeedList": 0,
         }
 
         iar_defaults.update(device_info)
@@ -97,6 +102,8 @@ class IAR(Exporter):
 
     def generate(self):
         """Generate the .eww, .ewd, and .ewp files"""
+        if not self.resources.linker_script:
+            raise NotSupportedException("No linker script found.")
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
                self.resources.objects + self.resources.libraries
@@ -108,7 +115,7 @@ class IAR(Exporter):
         template = ["--vla", "--no_static_destruction"]
         # Flag invalid if set in template
         # Optimizations are also set in template
-        invalid_flag = lambda x: x in template or re.match("-O(\d|time|n)", x)
+        invalid_flag = lambda x: x in template or re.match("-O(\d|time|n|hz?)", x)
         flags['c_flags'] = [flag for flag in c_flags if not invalid_flag(flag)]
 
         try:
@@ -186,3 +193,5 @@ class IAR(Exporter):
             return -1
         else:
             return 0
+
+

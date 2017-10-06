@@ -18,6 +18,7 @@
 #define DIR_H
 
 #include "filesystem/FileSystem.h"
+#include "platform/DirHandle.h"
 
 namespace mbed {
 /** \addtogroup filesystem */
@@ -26,7 +27,7 @@ namespace mbed {
 
 /** Dir class
  */
-class Dir {
+class Dir : public DirHandle {
 public:
     /** Create an uninitialized directory
      *
@@ -57,13 +58,12 @@ public:
 
     /** Close a directory
      *
-     *  return          0 on success, negative error code on failure
+     *  @return         0 on success, negative error code on failure
      */
     virtual int close();
 
     /** Read the next directory entry
      *
-     *  @param path     The buffer to read the null terminated path name in to
      *  @param ent      The directory entry to fill out
      *  @return         1 on reading a filename, 0 at end of directory, negative error on failure
      */

@@ -68,15 +68,15 @@ protected:
     virtual void suspendStateChanged(unsigned int suspended){};
     virtual void SOF(int frameNumber){};
 
-#if defined(TARGET_NUMAKER_PFM_NUC472) || defined(TARGET_NUMAKER_PFM_M453)
-    // NUC472/M453 USB doesn't support configuration of the same EP number for IN/OUT simultaneously.
+#if defined(TARGET_NUC472) || defined(TARGET_M451)
+    // NUC472/M451 USB doesn't support configuration of the same EP number for IN/OUT simultaneously.
     virtual bool EP1_OUT_callback(){return false;};
     virtual bool EP2_IN_callback(){return false;};
     virtual bool EP3_OUT_callback(){return false;};
     virtual bool EP4_IN_callback(){return false;};
     virtual bool EP5_OUT_callback(){return false;};
     virtual bool EP6_IN_callback(){return false;};
-#if ! (defined(TARGET_NUMAKER_PFM_M453))
+#if ! (defined(TARGET_M451))
     virtual bool EP7_OUT_callback(){return false;};
     virtual bool EP8_IN_callback(){return false;};
     virtual bool EP9_OUT_callback(){return false;};
@@ -128,11 +128,11 @@ private:
 
 #if defined(TARGET_LPC11UXX) || defined(TARGET_LPC11U6X) || defined(TARGET_LPC1347) || defined(TARGET_LPC1549)
     bool (USBHAL::*epCallback[10 - 2])(void);
-#elif (defined(TARGET_STM32F4) && !defined(USB_STM_HAL)) || defined(TARGET_NUMAKER_PFM_M453)
+#elif (defined(TARGET_STM32F4) && !defined(USB_STM_HAL)) || defined(TARGET_M451)
     bool (USBHAL::*epCallback[8 - 2])(void);
-#elif defined(TARGET_STM32F4) || defined(TARGET_STM32F3) || defined (TARGET_STM32F2)|| defined(TARGET_STM32L4) || defined(TARGET_STM32F7)
+#elif defined(TARGET_STM)
     PCD_HandleTypeDef hpcd;
-#elif defined(TARGET_NUMAKER_PFM_NUC472)
+#elif defined(TARGET_NUC472) || defined(TARGET_M480)
     bool (USBHAL::*epCallback[14 - 2])(void);
 #else
     bool (USBHAL::*epCallback[32 - 2])(void);

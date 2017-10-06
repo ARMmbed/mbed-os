@@ -109,7 +109,7 @@ public:
      * @param[in] index
      *              The index of the characteristic.
      *
-     * @return A pointer to the characterisitic at index @p index.
+     * @return A pointer to the characteristic at index @p index.
      */
     GattCharacteristic *getCharacteristic(uint8_t index) {
         if (index >= _characteristicCount) {

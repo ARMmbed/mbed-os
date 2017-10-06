@@ -55,7 +55,7 @@ int FlashIAP::init()
     int ret = 0;
     _mutex->lock();
     if (flash_init(&_flash)) {
-        ret = -1; 
+        ret = -1;
     }
     _mutex->unlock();
     return ret;
@@ -66,7 +66,7 @@ int FlashIAP::deinit()
     int ret = 0;
     _mutex->lock();
     if (flash_free(&_flash)) {
-        ret = -1; 
+        ret = -1;
     }
     _mutex->unlock();
     return ret;
@@ -75,10 +75,11 @@ int FlashIAP::deinit()
 
 int FlashIAP::read(void *buffer, uint32_t addr, uint32_t size)
 {
+    int32_t ret = -1;
     _mutex->lock();
-    memcpy(buffer, (const void *)addr, size);
+    ret = flash_read(&_flash, addr, (uint8_t *) buffer, size);
     _mutex->unlock();
-    return 0;
+    return ret;
 }
 
 int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)

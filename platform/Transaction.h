@@ -21,9 +21,9 @@
 
 namespace mbed {
 /** \addtogroup platform */
-/** @{*/
 
 /** Transaction structure
+ * @ingroup platform
  */
 typedef struct {
     void *tx_buffer;           /**< Tx buffer */
@@ -37,7 +37,8 @@ typedef struct {
 
 /** Transaction class defines a transaction.
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
+ * @ingroup platform
  */
 template<typename Class>
 class Transaction {
@@ -75,5 +76,3 @@ private:
 }
 
 #endif
-
-/** @}*/

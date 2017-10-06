@@ -30,6 +30,59 @@ namespace utest {
 /** \addtogroup frameworks */
 /** @{*/
 namespace v1 {
+    /**
+     * POD data structure of the Case class.
+     * Unlike the Case class it can be used as a POD and be put in ROM.
+     *
+     * @warning Initialization of handlers with either default_handler or 
+     * ignore_handler helpers will prevent the object to be a POD. Prefer usage 
+     * of NULL in favor of ignore_handler or \verbatim <handler_type>(1) \endverbatim for default 
+     * handler.
+     *
+     * @see Case.
+     */
+    struct case_t
+    {
+        /**
+         * Textual description of the test case
+         */
+        const char *description;
+
+        /**
+         * Primitive test case handler
+         * This is called only if the case setup succeeded. It is followed by
+         * the test case teardown handler.
+         */
+        const case_handler_t handler;
+
+        /**
+         * @see case_control_handler_t
+         */
+        const case_control_handler_t control_handler;
+
+        /**
+         * @see case_call_count_handler_t
+         */
+        const case_call_count_handler_t repeat_count_handler;
+
+        /**
+         * Handler called before the execution of the case handler. It sets up
+         * the case environment.
+         */
+        const case_setup_handler_t setup_handler;
+
+        /**
+         * Handler called after the execution of the case handler. It cleans up
+         * the case environment.
+         */
+        const case_teardown_handler_t teardown_handler;
+
+        /**
+         * Handler called whenever a faillure occur; at any stage of the case
+         * execution (including setup and teardown).
+         */
+        const case_failure_handler_t failure_handler;
+    };
 
     /** Test case wrapper class.
      *
@@ -52,7 +105,7 @@ namespace v1 {
      * @note While you can specify an empty test case (ie. use `ignore_handler` for all callbacks),
      *       the harness will abort the test unconditionally.
      */
-    class Case
+    class Case : private case_t
     {
     public:
         // overloads for case_handler_t
@@ -111,18 +164,12 @@ namespace v1 {
         bool is_empty() const;
 
     private:
-        const char *description;
-
-        const case_handler_t handler;
-        const case_control_handler_t control_handler;
-        const case_call_count_handler_t repeat_count_handler;
-
-        const case_setup_handler_t setup_handler;
-        const case_teardown_handler_t teardown_handler;
-
-        const case_failure_handler_t failure_handler;
+        // IMPORTANT: No data members shall be declared inside this class.
+        // Data members shall be declared in case_t to preserve the layout
+        // and the compatibility between the two types.
 
         friend class Harness;
+        friend class Specification;
     };
 
 }   // namespace v1

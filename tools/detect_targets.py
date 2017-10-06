@@ -31,8 +31,13 @@ check_required_modules(['prettytable'])
 # Imports related to mbed build api
 from tools.build_api import mcu_toolchain_matrix
 from tools.test_api import get_autodetected_MUTS_list
+from tools.test_api import get_module_avail
 from argparse import ArgumentParser
 
+try:
+    import mbed_lstools
+except:
+    pass
 
 def main():
     """Entry Point"""
@@ -75,15 +80,17 @@ def main():
         count = 0
         for mut in muts.values():
             if re.match(mcu_filter, mut['mcu']):
+                interface_version = get_interface_version(mut['disk'])
                 print ""
-                print "[mbed] Detected %s, port %s, mounted %s" % \
-                    (mut['mcu'], mut['port'], mut['disk'])
+                print "[mbed] Detected %s, port %s, mounted %s, interface version %s:" % \
+                        (mut['mcu'], mut['port'], mut['disk'], interface_version)
+                                    
                 print "[mbed] Supported toolchains for %s" % mut['mcu']
                 print mcu_toolchain_matrix(platform_filter=mut['mcu'])
                 count += 1
 
         if count == 0:
-            print "[mbed] No mbed targets where detected on your system."
+            print "[mbed] No mbed targets were detected on your system."
 
     except KeyboardInterrupt:
         print "\n[CTRL+c] exit"
@@ -92,6 +99,32 @@ def main():
         traceback.print_exc(file=sys.stdout)
         print "[ERROR] %s" % str(exc)
         sys.exit(1)
+        
+def get_interface_version(mount_point):
+    """ Function returns interface version from the target mounted on the specified mount point
+    
+        mount_point can be acquired via the following:
+            muts = get_autodetected_MUTS_list()
+            for mut in muts.values():
+                mount_point = mut['disk']
+                    
+        @param mount_point Name of disk where platform is connected to host machine.
+    """
+    if get_module_avail('mbed_lstools'):
+        try :
+            mbeds = mbed_lstools.create()
+            details_txt = mbeds.get_details_txt(mount_point)
+            
+            if 'Interface Version' in details_txt:
+                return details_txt['Interface Version']
+            
+            elif 'Version' in details_txt:
+                return details_txt['Version']
+            
+        except :
+            return 'unknown'
+        
+    return 'unknown'
 
 if __name__ == '__main__':
     main()

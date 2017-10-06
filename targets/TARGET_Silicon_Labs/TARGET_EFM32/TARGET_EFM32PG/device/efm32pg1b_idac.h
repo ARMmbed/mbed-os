@@ -1,10 +1,10 @@
 /**************************************************************************//**
  * @file efm32pg1b_idac.h
  * @brief EFM32PG1B_IDAC register and bit field definitions
- * @version 5.0.0
+ * @version 5.1.2
  ******************************************************************************
  * @section License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -43,7 +43,7 @@ typedef struct
   __IOM uint32_t CTRL;          /**< Control Register  */
   __IOM uint32_t CURPROG;       /**< Current Programming Register  */
   uint32_t       RESERVED0[1];  /**< Reserved for future use **/
-  __IOM uint32_t DUTYCONFIG;    /**< Duty Cycle Configauration Register  */
+  __IOM uint32_t DUTYCONFIG;    /**< Duty Cycle Configuration Register  */
 
   uint32_t       RESERVED1[2];  /**< Reserved for future use **/
   __IM uint32_t  STATUS;        /**< Status Register  */
@@ -259,12 +259,7 @@ typedef struct
 
 /* Bit fields for IDAC IFS */
 #define _IDAC_IFS_RESETVALUE                           0x00000000UL                           /**< Default value for IDAC_IFS */
-#define _IDAC_IFS_MASK                                 0x00000003UL                           /**< Mask for IDAC_IFS */
-#define IDAC_IFS_CURSTABLE                             (0x1UL << 0)                           /**< Set CURSTABLE Interrupt Flag */
-#define _IDAC_IFS_CURSTABLE_SHIFT                      0                                      /**< Shift value for IDAC_CURSTABLE */
-#define _IDAC_IFS_CURSTABLE_MASK                       0x1UL                                  /**< Bit mask for IDAC_CURSTABLE */
-#define _IDAC_IFS_CURSTABLE_DEFAULT                    0x00000000UL                           /**< Mode DEFAULT for IDAC_IFS */
-#define IDAC_IFS_CURSTABLE_DEFAULT                     (_IDAC_IFS_CURSTABLE_DEFAULT << 0)     /**< Shifted mode DEFAULT for IDAC_IFS */
+#define _IDAC_IFS_MASK                                 0x00000002UL                           /**< Mask for IDAC_IFS */
 #define IDAC_IFS_APORTCONFLICT                         (0x1UL << 1)                           /**< Set APORTCONFLICT Interrupt Flag */
 #define _IDAC_IFS_APORTCONFLICT_SHIFT                  1                                      /**< Shift value for IDAC_APORTCONFLICT */
 #define _IDAC_IFS_APORTCONFLICT_MASK                   0x2UL                                  /**< Bit mask for IDAC_APORTCONFLICT */
@@ -273,12 +268,7 @@ typedef struct
 
 /* Bit fields for IDAC IFC */
 #define _IDAC_IFC_RESETVALUE                           0x00000000UL                           /**< Default value for IDAC_IFC */
-#define _IDAC_IFC_MASK                                 0x00000003UL                           /**< Mask for IDAC_IFC */
-#define IDAC_IFC_CURSTABLE                             (0x1UL << 0)                           /**< Clear CURSTABLE Interrupt Flag */
-#define _IDAC_IFC_CURSTABLE_SHIFT                      0                                      /**< Shift value for IDAC_CURSTABLE */
-#define _IDAC_IFC_CURSTABLE_MASK                       0x1UL                                  /**< Bit mask for IDAC_CURSTABLE */
-#define _IDAC_IFC_CURSTABLE_DEFAULT                    0x00000000UL                           /**< Mode DEFAULT for IDAC_IFC */
-#define IDAC_IFC_CURSTABLE_DEFAULT                     (_IDAC_IFC_CURSTABLE_DEFAULT << 0)     /**< Shifted mode DEFAULT for IDAC_IFC */
+#define _IDAC_IFC_MASK                                 0x00000002UL                           /**< Mask for IDAC_IFC */
 #define IDAC_IFC_APORTCONFLICT                         (0x1UL << 1)                           /**< Clear APORTCONFLICT Interrupt Flag */
 #define _IDAC_IFC_APORTCONFLICT_SHIFT                  1                                      /**< Shift value for IDAC_APORTCONFLICT */
 #define _IDAC_IFC_APORTCONFLICT_MASK                   0x2UL                                  /**< Bit mask for IDAC_APORTCONFLICT */
@@ -287,12 +277,7 @@ typedef struct
 
 /* Bit fields for IDAC IEN */
 #define _IDAC_IEN_RESETVALUE                           0x00000000UL                           /**< Default value for IDAC_IEN */
-#define _IDAC_IEN_MASK                                 0x00000003UL                           /**< Mask for IDAC_IEN */
-#define IDAC_IEN_CURSTABLE                             (0x1UL << 0)                           /**< CURSTABLE Interrupt Enable */
-#define _IDAC_IEN_CURSTABLE_SHIFT                      0                                      /**< Shift value for IDAC_CURSTABLE */
-#define _IDAC_IEN_CURSTABLE_MASK                       0x1UL                                  /**< Bit mask for IDAC_CURSTABLE */
-#define _IDAC_IEN_CURSTABLE_DEFAULT                    0x00000000UL                           /**< Mode DEFAULT for IDAC_IEN */
-#define IDAC_IEN_CURSTABLE_DEFAULT                     (_IDAC_IEN_CURSTABLE_DEFAULT << 0)     /**< Shifted mode DEFAULT for IDAC_IEN */
+#define _IDAC_IEN_MASK                                 0x00000002UL                           /**< Mask for IDAC_IEN */
 #define IDAC_IEN_APORTCONFLICT                         (0x1UL << 1)                           /**< APORTCONFLICT Interrupt Enable */
 #define _IDAC_IEN_APORTCONFLICT_SHIFT                  1                                      /**< Shift value for IDAC_APORTCONFLICT */
 #define _IDAC_IEN_APORTCONFLICT_MASK                   0x2UL                                  /**< Bit mask for IDAC_APORTCONFLICT */

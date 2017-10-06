@@ -26,7 +26,7 @@ extern "C" {
 
 #include "ns_types.h"
 
-/*
+/**
   * \brief function callback type for nd_data_request.
   *
   * \param inteface_id Network interface ID where request was made.

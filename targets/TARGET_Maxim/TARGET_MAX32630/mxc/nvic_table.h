@@ -43,46 +43,9 @@
 #ifndef _NVIC_TABLE_H
 #define _NVIC_TABLE_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+extern void (*ramVectorTable[MXC_IRQ_COUNT])(void);
 
-/**
- * @defgroup    mxc_nvic NVIC Functions
- * @ingroup 	sysconfig 
- * @brief 		Utility function for setting an IRQ handler dynamically 
- * @{
- */ 
-
-/**
- * @brief      Type alias for an IRQ handler. 
- * @details    Type alias for an IRQ handler function with prototype:. 
- * @code
- *      void irq_handler(void);
- * @endcode
- *                     
- */
-typedef void (*irq_fn)(void);
-
-/**
- * @brief      Set an IRQ hander function for an IRQ specified by @p irqn.
- * @details    If the IRQ table is in flash, this function will copy the IRQ table to RAM.
- *
- * @param      irqn         ARM external IRQ number, see #IRQn_Type
- * @param      irq_handler  Function to be called at IRQ context
- */
-int NVIC_SetVector(IRQn_Type irqn, irq_fn irq_handler);
-
-/**
- * @brief Copy NVIC vector table to RAM and set NVIC to RAM based table.
- *
- */
-void NVIC_SetRAM(void);
-
-/**@} end of group mxc_nvic */
-
-#ifdef __cplusplus
-}
-#endif
+#define NVIC_NUM_VECTORS        (MXC_IRQ_COUNT)
+#define NVIC_RAM_VECTOR_ADDRESS (ramVectorTable)    // Vectors positioned at start of RAM
 
 #endif /* _NVIC_TABLE_H */

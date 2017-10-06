@@ -170,6 +170,11 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     tc_start(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1);
 }
 
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(TICKER_COUNTER_IRQn1);
+}
+
 void us_ticker_disable_interrupt(void)
 {
     tc_stop(TICKER_COUNTER_uS, TICKER_COUNTER_CHANNEL1);

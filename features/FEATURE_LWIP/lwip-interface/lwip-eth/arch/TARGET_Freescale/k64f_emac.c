@@ -52,8 +52,7 @@ extern void k66f_init_eth_hardware(void);
 /* K64F EMAC driver data structure */
 struct k64f_enetdata {
   struct netif *netif;  /**< Reference back to LWIP parent netif */
-  sys_sem_t RxReadySem; /**< RX packet ready semaphore */
-  sys_sem_t TxCleanSem; /**< TX cleanup thread wakeup semaphore */
+  osThreadId_t thread; /**< Processing thread */
   sys_mutex_t TXLockMutex; /**< TX critical section mutex */
   sys_sem_t xTXDCountSem; /**< TX free buffer counting semaphore */
   uint8_t tx_consume_index, tx_produce_index; /**< TX buffers ring */
@@ -61,15 +60,24 @@ struct k64f_enetdata {
 
 static struct k64f_enetdata k64f_enetdata;
 
-/** \brief  Driver transmit and receive thread priorities
- *
- * Thread priorities for receive thread and TX cleanup thread. Alter
- * to prioritize receive or transmit bandwidth. In a heavily loaded
- * system or with LEIP_DEBUG enabled, the priorities might be better
- * the same. */
-#define RX_PRIORITY   (osPriorityNormal)
-#define TX_PRIORITY   (osPriorityNormal)
-#define PHY_PRIORITY  (osPriorityNormal)
+/* \brief Flags for worker thread */
+#define FLAG_TX  1
+#define FLAG_RX  2
+
+/** \brief  Driver thread priority */
+#define THREAD_PRIORITY (osPriorityNormal)
+
+#ifdef LWIP_DEBUG
+#define THREAD_STACKSIZE (DEFAULT_THREAD_STACKSIZE * 5)
+#else
+#define THREAD_STACKSIZE DEFAULT_THREAD_STACKSIZE
+#endif
+
+static void k64f_phy_task(void *data);
+static void packet_rx(struct k64f_enetdata *k64f_enet);
+static void packet_tx(struct k64f_enetdata *k64f_enet);
+
+#define PHY_TASK_PERIOD_MS      200
 
 /********************************************************************************
  * Buffer management
@@ -132,12 +140,12 @@ static void k64f_tx_reclaim(struct k64f_enetdata *k64f_enet)
  */
 void enet_mac_rx_isr()
 {
-  sys_sem_signal(&k64f_enetdata.RxReadySem);
+    osThreadFlagsSet(k64f_enetdata.thread, FLAG_RX);
 }
 
 void enet_mac_tx_isr()
 {
-  sys_sem_signal(&k64f_enetdata.TxCleanSem);
+    osThreadFlagsSet(k64f_enetdata.thread, FLAG_TX);
 }
 
 void ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event_t event, void *param)
@@ -461,26 +469,56 @@ void k64f_enetif_input(struct netif *netif, int idx)
   }
 }
 
+/** \brief  Worker thread.
+ *
+ * Woken by thread flags to receive packets or clean up transmit
+ *
+ *  \param[in] pvParameters pointer to the interface data
+ */
+static void emac_thread(void* pvParameters)
+{
+    struct k64f_enetdata *k64f_enet = pvParameters;
+
+    for (;;) {
+        uint32_t flags = osThreadFlagsWait(FLAG_RX|FLAG_TX, osFlagsWaitAny, PHY_TASK_PERIOD_MS);
+        if (flags == osFlagsErrorTimeout) {
+            // Rather than calling strictly every period, we call when idle
+            // for that period - hopefully good enough. We run this task
+            // from lwIP's thread rather than our RX/TX thread, as PHY reads can
+            // be slow, and we don't want them to interfere with data pumping.
+            // This is analogous to the way the PHY polling works in the Nanostack
+            // version of the driver
+            tcpip_callback_with_block(k64f_phy_task, k64f_enet->netif, 0);
+            continue;
+        }
+
+        LWIP_ASSERT("osThreadFlagsWait error", !(flags & osFlagsError));
+
+        if (flags & FLAG_RX) {
+            packet_rx(k64f_enet);
+        }
+
+        if (flags & FLAG_TX) {
+            packet_tx(k64f_enet);
+        }
+    }
+}
+
 /** \brief  Packet reception task
  *
  * This task is called when a packet is received. It will
  * pass the packet to the LWIP core.
  *
- *  \param[in] pvParameters pointer to the interface data
+ *  \param[in] k64f_enet pointer to the interface data
  */
-static void packet_rx(void* pvParameters) {
-  struct k64f_enetdata *k64f_enet = pvParameters;
-  int idx = 0;
-
-  while (1) {
-    /* Wait for receive task to wakeup */
-    sys_arch_sem_wait(&k64f_enet->RxReadySem, 0);
+static void packet_rx(struct k64f_enetdata *k64f_enet)
+{
+    static int idx = 0;
 
     while ((g_handle.rxBdCurrent->control & ENET_BUFFDESCRIPTOR_RX_EMPTY_MASK) == 0) {
-      k64f_enetif_input(k64f_enet->netif, idx);
-      idx = (idx + 1) % ENET_RX_RING_LEN;
+        k64f_enetif_input(k64f_enet->netif, idx);
+        idx = (idx + 1) % ENET_RX_RING_LEN;
     }
-  }
 }
 
 /** \brief  Transmit cleanup task
@@ -489,16 +527,11 @@ static void packet_rx(void* pvParameters) {
  * reclaims the pbuf and descriptor used for the packet once
  * the packet has been transferred.
  *
- *  \param[in] pvParameters pointer to the interface data
+ *  \param[in] k64f_enet pointer to the interface data
  */
-static void packet_tx(void* pvParameters) {
-  struct k64f_enetdata *k64f_enet = pvParameters;
-
-  while (1) {
-    /* Wait for transmit cleanup task to wakeup */
-    sys_arch_sem_wait(&k64f_enet->TxCleanSem, 0);
+static void packet_tx(struct k64f_enetdata *k64f_enet)
+{
     k64f_tx_reclaim(k64f_enet);
-  }
 }
 
 /** \brief  Low level output of a packet. Never call this from an
@@ -532,8 +565,8 @@ static err_t k64f_low_level_output(struct netif *netif, struct pbuf *p)
   }
 
   /* Check if a descriptor is available for the transfer. */
-  int32_t count = osSemaphoreWait(k64f_enet->xTXDCountSem.id, 0);
-  if (count < 1)
+  osStatus_t stat = osSemaphoreAcquire(k64f_enet->xTXDCountSem.id, 0);
+  if (stat != osOK)
     return ERR_BUF;
 
   /* Get exclusive access */
@@ -569,7 +602,6 @@ static err_t k64f_low_level_output(struct netif *netif, struct pbuf *p)
  * PHY task: monitor link
 *******************************************************************************/
 
-#define PHY_TASK_PERIOD_MS      200
 #define STATE_UNKNOWN           (-1)
 
 typedef struct {
@@ -578,7 +610,7 @@ typedef struct {
     phy_duplex_t duplex;
 } PHY_STATE;
 
-int phy_link_status() {
+int phy_link_status(void) {
     bool connection_status;
     uint32_t phyAddr = 0;
 
@@ -586,40 +618,40 @@ int phy_link_status() {
     return (int)connection_status;
 }
 
-static void k64f_phy_task(void *data) {
-  struct netif *netif = (struct netif*)data;
-  bool connection_status;
-  PHY_STATE crt_state = {STATE_UNKNOWN, (phy_speed_t)STATE_UNKNOWN, (phy_duplex_t)STATE_UNKNOWN};
-  PHY_STATE prev_state;
-  uint32_t phyAddr = 0;
-  uint32_t rcr = 0;
+static void k64f_phy_task(void *data)
+{
+    struct netif *netif = data;
 
-  prev_state = crt_state;
-  while (true) {
+    static PHY_STATE prev_state = {STATE_UNKNOWN, (phy_speed_t)STATE_UNKNOWN, (phy_duplex_t)STATE_UNKNOWN};
+
+    uint32_t phyAddr = 0;
+
     // Get current status
+    PHY_STATE crt_state;
+    bool connection_status;
     PHY_GetLinkStatus(ENET, phyAddr, &connection_status);
-    crt_state.connected = connection_status ? 1 : 0;
+    crt_state.connected = connection_status;
     // Get the actual PHY link speed
     PHY_GetLinkSpeedDuplex(ENET, phyAddr, &crt_state.speed, &crt_state.duplex);
 
     // Compare with previous state
     if (crt_state.connected != prev_state.connected) {
-      if (crt_state.connected)
-        tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, (void*) netif, 1);
-      else
-        tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, (void*) netif, 1);
+      // We're called from lwIP's tcpip thread, so can call link functions directly
+      if (crt_state.connected) {
+          netif_set_link_up(netif);
+      } else {
+          netif_set_link_down(netif);
+      }
     }
 
     if (crt_state.speed != prev_state.speed) {
-      rcr = ENET->RCR;
+      uint32_t rcr = ENET->RCR;
       rcr &= ~ENET_RCR_RMII_10T_MASK;
       rcr |= ENET_RCR_RMII_10T(!crt_state.speed);
       ENET->RCR = rcr;
     }
 
     prev_state = crt_state;
-    osDelay(PHY_TASK_PERIOD_MS);
-  }
 }
 
 /**
@@ -697,37 +729,22 @@ err_t eth_arch_enetif_init(struct netif *netif)
   netif->linkoutput = k64f_low_level_output;
 
   /* CMSIS-RTOS, start tasks */
-#ifdef CMSIS_OS_RTX
-  memset(k64f_enetdata.xTXDCountSem.data, 0, sizeof(k64f_enetdata.xTXDCountSem.data));
-  k64f_enetdata.xTXDCountSem.def.semaphore = k64f_enetdata.xTXDCountSem.data;
-#endif
-  k64f_enetdata.xTXDCountSem.id = osSemaphoreCreate(&k64f_enetdata.xTXDCountSem.def, ENET_TX_RING_LEN);
+  memset(&k64f_enetdata.xTXDCountSem.data, 0, sizeof(k64f_enetdata.xTXDCountSem.data));
+  k64f_enetdata.xTXDCountSem.attr.cb_mem = &k64f_enetdata.xTXDCountSem.data;
+  k64f_enetdata.xTXDCountSem.attr.cb_size = sizeof(k64f_enetdata.xTXDCountSem.data);
+  k64f_enetdata.xTXDCountSem.id = osSemaphoreNew(ENET_TX_RING_LEN, ENET_TX_RING_LEN, &k64f_enetdata.xTXDCountSem.attr);
 
   LWIP_ASSERT("xTXDCountSem creation error", (k64f_enetdata.xTXDCountSem.id != NULL));
 
   err = sys_mutex_new(&k64f_enetdata.TXLockMutex);
   LWIP_ASSERT("TXLockMutex creation error", (err == ERR_OK));
 
-  /* Packet receive task */
-  err = sys_sem_new(&k64f_enetdata.RxReadySem, 0);
-  LWIP_ASSERT("RxReadySem creation error", (err == ERR_OK));
-
-#ifdef LWIP_DEBUG
-  sys_thread_new("receive_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE*5, RX_PRIORITY);
-#else
-  sys_thread_new("receive_thread", packet_rx, netif->state, DEFAULT_THREAD_STACKSIZE, RX_PRIORITY);
-#endif
-
-  /* Transmit cleanup task */
-  err = sys_sem_new(&k64f_enetdata.TxCleanSem, 0);
-  LWIP_ASSERT("TxCleanSem creation error", (err == ERR_OK));
-  sys_thread_new("txclean_thread", packet_tx, netif->state, DEFAULT_THREAD_STACKSIZE, TX_PRIORITY);
-
-  /* PHY monitoring task */
-  sys_thread_new("phy_thread", k64f_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_PRIORITY);
-
   /* Allow the PHY task to detect the initial link state and set up the proper flags */
+  tcpip_callback_with_block(k64f_phy_task, netif, 1);
   osDelay(10);
+
+  /* Worker thread */
+  k64f_enetdata.thread = sys_thread_new("k64f_emac_thread", emac_thread, netif->state, THREAD_STACKSIZE, THREAD_PRIORITY)->id;
 
   return ERR_OK;
 }

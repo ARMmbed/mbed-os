@@ -211,6 +211,13 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     TIMER_IntEnable(US_TICKER_TIMER, TIMER_IEN_CC0);
 }
 
+void us_ticker_fire_interrupt(void)
+{
+    ticker_int_cnt = 0;
+    TIMER_IntSet(US_TICKER_TIMER, TIMER_IF_CC0);
+    NVIC_SetPendingIRQ(US_TICKER_TIMER_IRQ);
+}
+
 void us_ticker_disable_interrupt(void)
 {
     if((US_TICKER_TIMER->IEN & TIMER_IEN_CC0) != 0) {

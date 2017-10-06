@@ -4,8 +4,14 @@
 #include "lwip/tcpip.h"
 #include "lwip/ethip6.h"
 #include <string.h>
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "mbed_interface.h"
+
+// Check for LWIP having Ethernet enabled
+#if LWIP_ARP || LWIP_ETHERNET
+
+// Check for Ethernet HAL being present
+#ifdef ETH_SUCCESS
 
 #define RECV_TASK_PRI           (osPriorityHigh)
 #define PHY_TASK_PRI            (osPriorityLow)
@@ -52,6 +58,8 @@ static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p);
 static struct pbuf * _eth_arch_low_level_input(struct netif *netif);
 __weak uint8_t mbed_otp_mac_address(char *mac);
 void mbed_default_mac_address(char *mac);
+
+void _eth_config_mac(ETH_HandleTypeDef *heth);
 
 /**
  * Ethernet Rx Transfer completed callback
@@ -137,6 +145,9 @@ static void _eth_arch_low_level_init(struct netif *netif)
     /* device capabilities */
     /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
     netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
+
+    /* Configure MAC */
+    _eth_config_mac(&EthHandle);
 
     /* Enable MAC and DMA transmission and reception */
     HAL_ETH_Start(&EthHandle);
@@ -294,19 +305,19 @@ static struct pbuf * _eth_arch_low_level_input(struct netif *netif)
             memcpy((uint8_t*)((uint8_t*)q->payload + payloadoffset), (uint8_t*)((uint8_t*)buffer + bufferoffset), byteslefttocopy);
             bufferoffset = bufferoffset + byteslefttocopy;
         }
-
-        /* Release descriptors to DMA */
-        /* Point to first descriptor */
-        dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
-        /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
-        for (i = 0; i < EthHandle.RxFrameInfos.SegCount; i++) {
-            dmarxdesc->Status |= ETH_DMARXDESC_OWN;
-            dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
-        }
-
-        /* Clear Segment_Count */
-        EthHandle.RxFrameInfos.SegCount = 0;
     }
+
+    /* Release descriptors to DMA */
+    /* Point to first descriptor */
+    dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
+    /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
+    for (i = 0; i < EthHandle.RxFrameInfos.SegCount; i++) {
+        dmarxdesc->Status |= ETH_DMARXDESC_OWN;
+        dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
+    }
+
+    /* Clear Segment_Count */
+    EthHandle.RxFrameInfos.SegCount = 0;
 
     /* When Rx Buffer unavailable flag is set: clear it and resume reception */
     if ((EthHandle.Instance->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) {
@@ -451,8 +462,8 @@ err_t eth_arch_enetif_init(struct netif *netif)
     sys_mutex_new(&tx_lock_mutex);
 
     /* task */
-    sys_thread_new("_eth_arch_rx_task", _eth_arch_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
-    sys_thread_new("_eth_arch_phy_task", _eth_arch_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
+    sys_thread_new("stm32_emac_rx_thread", _eth_arch_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
+    sys_thread_new("stm32_emac_phy_thread", _eth_arch_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
 
     /* initialize the hardware */
     _eth_arch_low_level_init(netif);
@@ -512,3 +523,7 @@ void mbed_default_mac_address(char *mac) {
 
     return;
 }
+
+#endif //ETH_SUCCESS
+
+#endif // LWIP_ARP || LWIP_ETHERNET

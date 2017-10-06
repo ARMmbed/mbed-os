@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -51,13 +51,6 @@ typedef struct nwk_stats_t {
     uint32_t mac_tx_cca_cnt;        /**< MAC TX CCA count. */
     uint32_t mac_tx_failed_cca;     /**< MAC failed CCA count. */
     uint32_t mac_security_drop;     /**< MAC security packet drops count. */
-    /* FHSS stats */
-    int16_t fhss_drift_compensation;    /**< FHSS synchronization drift compensation (us/channel). */
-    uint8_t fhss_hop_count;             /**< FHSS hop count. */
-    int8_t fhss_synch_parent_rssi;      /**< FHSS synchronization parent RSSI. */
-    uint16_t fhss_synch_interval;       /**< FHSS synchronization interval (s). */
-    int16_t fhss_prev_avg_synch_fix;    /**< Average of 5 preceding synchronization fixes (us). Updated after every fifth synch fix.*/
-    uint32_t fhss_synch_lost;           /**< FHSS synchronization lost counter. */
     /* 6Lowpan */
     uint32_t ip_rx_count;           /**< IP RX packet count. */
     uint32_t ip_tx_count;           /**< IP TX packet count. */

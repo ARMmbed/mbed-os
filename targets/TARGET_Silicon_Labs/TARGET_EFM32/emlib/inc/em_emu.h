@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_emu.h
  * @brief Energy management unit (EMU) peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -151,15 +151,13 @@ typedef enum
 } EMU_EM4PinRetention_TypeDef;
 #endif
 
-
-#if defined( _EMU_PWRCFG_MASK )
-/** Power configurations */
+/** Power configurations. DCDC-to-DVDD is currently the only supported mode. */
 typedef enum
 {
   /** DCDC is connected to DVDD */
-  emuPowerConfig_DcdcToDvdd = EMU_PWRCFG_PWRCFG_DCDCTODVDD,
+  emuPowerConfig_DcdcToDvdd,
 } EMU_PowerConfig_TypeDef;
-#endif
+
 
 #if defined( _EMU_DCDCCTRL_MASK )
 /** DCDC operating modes */
@@ -174,6 +172,19 @@ typedef enum
   emuDcdcMode_LowPower = EMU_DCDCCTRL_DCDCMODE_LOWPOWER,
 #endif
 } EMU_DcdcMode_TypeDef;
+#endif
+
+#if defined( _EMU_DCDCCTRL_MASK )
+/** DCDC conduction modes */
+typedef enum
+{
+  /** DCDC Low-Noise Continuous Conduction Mode (CCM). EFR32 interference minimization
+      features are available in this mode. */
+  emuDcdcConductionMode_ContinuousLN,
+  /** DCDC Low-Noise Discontinuous Conduction Mode (DCM). This mode should be used for EFM32 or
+      when the EFR32 radio is not enabled. */
+  emuDcdcConductionMode_DiscontinuousLN,
+} EMU_DcdcConductionMode_TypeDef;
 #endif
 
 #if defined( _EMU_PWRCTRL_MASK )
@@ -194,7 +205,7 @@ typedef int16_t EMU_DcdcLnReverseCurrentControl_TypeDef;
 /** High efficiency mode. EMU_DCDCZDETCTRL_ZDETILIMSEL is "don't care". */
 #define emuDcdcLnHighEfficiency       -1
 
-/** Deprecated. Fast transient response mode. Specify a reverse current limit instead.  */
+/** Default reverse current for fast transient response mode (low noise).  */
 #define emuDcdcLnFastTransient         160
 #endif
 
@@ -258,7 +269,7 @@ typedef enum
 } EMU_VmonChannel_TypeDef;
 #endif /* EMU_STATUS_VMONRDY */
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
 /** Bias mode configurations */
 typedef enum
 {
@@ -268,56 +279,184 @@ typedef enum
 } EMU_BiasMode_TypeDef;
 #endif
 
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+/** Supported EM0/1 Voltage Scaling Levels */
+typedef enum
+{
+  /** High-performance voltage level. HF clock can be set to any frequency. */
+  emuVScaleEM01_HighPerformance = _EMU_STATUS_VSCALE_VSCALE2,
+  /** Low-power optimized voltage level. The HF clock must be limited
+      to @ref CMU_VSCALEEM01_LOWPOWER_VOLTAGE_CLOCK_MAX Hz at this voltage.
+      EM0/1 voltage scaling is applied when the core clock frequency is
+      changed from @ref CMU or when calling @ref EMU_EM01Init() when the HF
+      clock is already below the limit. */
+  emuVScaleEM01_LowPower        = _EMU_STATUS_VSCALE_VSCALE0,
+} EMU_VScaleEM01_TypeDef;
+#endif
+
+#if defined( _EMU_CTRL_EM23VSCALE_MASK )
+/** Supported EM2/3 Voltage Scaling Levels */
+typedef enum
+{
+  /** Fast-wakeup voltage level. */
+  emuVScaleEM23_FastWakeup      = _EMU_CTRL_EM23VSCALE_VSCALE2,
+  /** Low-power optimized voltage level. Using this voltage level in EM2 and 3
+      adds 20-25us to wakeup time if the EM0 and 1 voltage must be scaled
+      up to @ref emuVScaleEM01_HighPerformance on EM2 or 3 exit. */
+  emuVScaleEM23_LowPower        = _EMU_CTRL_EM23VSCALE_VSCALE0,
+} EMU_VScaleEM23_TypeDef;
+#endif
+
+#if defined( _EMU_CTRL_EM4HVSCALE_MASK )
+/** Supported EM4H Voltage Scaling Levels */
+typedef enum
+{
+  /** Fast-wakeup voltage level. */
+  emuVScaleEM4H_FastWakeup      = _EMU_CTRL_EM4HVSCALE_VSCALE2,
+  /** Low-power optimized voltage level. Using this voltage level in EM4H
+      adds 20-25us to wakeup time if the EM0 and 1 voltage must be scaled
+      up to @ref emuVScaleEM01_HighPerformance on EM4H exit. */
+  emuVScaleEM4H_LowPower        = _EMU_CTRL_EM4HVSCALE_VSCALE0,
+} EMU_VScaleEM4H_TypeDef;
+#endif
+
+#if defined(_EMU_EM23PERNORETAINCTRL_MASK)
+/** Peripheral EM2 and 3 retention control */
+typedef enum
+{
+  emuPeripheralRetention_LEUART0  = _EMU_EM23PERNORETAINCTRL_LEUART0DIS_MASK,       /* Select LEUART0 retention control  */
+  emuPeripheralRetention_CSEN     = _EMU_EM23PERNORETAINCTRL_CSENDIS_MASK,          /* Select CSEN retention control  */
+  emuPeripheralRetention_LESENSE0 = _EMU_EM23PERNORETAINCTRL_LESENSE0DIS_MASK,      /* Select LESENSE0 retention control  */
+  emuPeripheralRetention_LETIMER0 = _EMU_EM23PERNORETAINCTRL_LETIMER0DIS_MASK,      /* Select LETIMER0 retention control  */
+  emuPeripheralRetention_ADC0     = _EMU_EM23PERNORETAINCTRL_ADC0DIS_MASK,          /* Select ADC0 retention control  */
+  emuPeripheralRetention_IDAC0    = _EMU_EM23PERNORETAINCTRL_IDAC0DIS_MASK,         /* Select IDAC0 retention control  */
+  emuPeripheralRetention_VDAC0    = _EMU_EM23PERNORETAINCTRL_DAC0DIS_MASK,          /* Select DAC0 retention control  */
+  emuPeripheralRetention_I2C1     = _EMU_EM23PERNORETAINCTRL_I2C1DIS_MASK,          /* Select I2C1 retention control  */
+  emuPeripheralRetention_I2C0     = _EMU_EM23PERNORETAINCTRL_I2C0DIS_MASK,          /* Select I2C0 retention control  */
+  emuPeripheralRetention_ACMP1    = _EMU_EM23PERNORETAINCTRL_ACMP1DIS_MASK,         /* Select ACMP1 retention control  */
+  emuPeripheralRetention_ACMP0    = _EMU_EM23PERNORETAINCTRL_ACMP0DIS_MASK,         /* Select ACMP0 retention control  */
+#if defined( _EMU_EM23PERNORETAINCTRL_PCNT1DIS_MASK )
+  emuPeripheralRetention_PCNT2    = _EMU_EM23PERNORETAINCTRL_PCNT2DIS_MASK,         /* Select PCNT2 retention control  */
+  emuPeripheralRetention_PCNT1    = _EMU_EM23PERNORETAINCTRL_PCNT1DIS_MASK,         /* Select PCNT1 retention control  */
+#endif
+  emuPeripheralRetention_PCNT0    = _EMU_EM23PERNORETAINCTRL_PCNT0DIS_MASK,         /* Select PCNT0 retention control  */
+
+  emuPeripheralRetention_D1       = _EMU_EM23PERNORETAINCTRL_LETIMER0DIS_MASK
+                                        | _EMU_EM23PERNORETAINCTRL_PCNT0DIS_MASK
+                                        | _EMU_EM23PERNORETAINCTRL_ADC0DIS_MASK
+                                        | _EMU_EM23PERNORETAINCTRL_ACMP0DIS_MASK
+                                        | _EMU_EM23PERNORETAINCTRL_LESENSE0DIS_MASK,/* Select all peripherals in domain 1 */
+  emuPeripheralRetention_D2       = _EMU_EM23PERNORETAINCTRL_ACMP1DIS_MASK
+                                        | _EMU_EM23PERNORETAINCTRL_IDAC0DIS_MASK
+                                        | _EMU_EM23PERNORETAINCTRL_DAC0DIS_MASK
+                                        | _EMU_EM23PERNORETAINCTRL_CSENDIS_MASK
+                                        | _EMU_EM23PERNORETAINCTRL_LEUART0DIS_MASK
+#if defined( _EMU_EM23PERNORETAINCTRL_PCNT1DIS_MASK )
+                                        | _EMU_EM23PERNORETAINCTRL_PCNT1DIS_MASK
+                                        | _EMU_EM23PERNORETAINCTRL_PCNT2DIS_MASK
+#endif
+                                        | _EMU_EM23PERNORETAINCTRL_I2C0DIS_MASK
+                                        | _EMU_EM23PERNORETAINCTRL_I2C1DIS_MASK,    /* Select all peripherals in domain 2 */
+ emuPeripheralRetention_ALL       = emuPeripheralRetention_D1
+                                        | emuPeripheralRetention_D2,                /* Select all peripherals with retention control  */
+} EMU_PeripheralRetention_TypeDef;
+#endif
+
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
-/** Energy Mode 2 and 3 initialization structure  */
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+/** EM0 and 1 initialization structure. Voltage scaling is applied when
+    the core clock frequency is changed from @ref CMU. EM0 an 1 emuVScaleEM01_HighPerformance
+    is always enabled. */
 typedef struct
 {
-  bool em23VregFullEn;                  /**< Enable full VREG drive strength in EM2/3 */
+  bool  vScaleEM01LowPowerVoltageEnable;                 /**< EM0/1 low power voltage status */
+} EMU_EM01Init_TypeDef;
+#endif
+
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+/** Default initialization of EM0 and 1 configuration */
+#define EMU_EM01INIT_DEFAULT                                                                                    \
+{                                                                                                               \
+  false                                                  /** Do not scale down in EM0/1 */                      \
+}
+#endif
+
+/** EM2 and 3 initialization structure  */
+typedef struct
+{
+  bool                          em23VregFullEn;         /**< Enable full VREG drive strength in EM2/3 */
+#if defined( _EMU_CTRL_EM23VSCALE_MASK )
+  EMU_VScaleEM23_TypeDef        vScaleEM23Voltage;      /**< EM2/3 voltage scaling level */
+#endif
 } EMU_EM23Init_TypeDef;
 
 /** Default initialization of EM2 and 3 configuration */
-#define EMU_EM23INIT_DEFAULT    \
-{ false }                               /* Reduced voltage regulator drive strength in EM2 and EM3 */
-
+#if defined( _EMU_CTRL_EM4HVSCALE_MASK )
+#define EMU_EM23INIT_DEFAULT                                                                                    \
+{                                                                                                               \
+  false,                                                /* Reduced voltage regulator drive strength in EM2/3 */ \
+  emuVScaleEM23_FastWakeup,                             /* Do not scale down in EM2/3 */                        \
+}
+#else
+#define EMU_EM23INIT_DEFAULT                                                                                    \
+{                                                                                                               \
+  false,                                                /* Reduced voltage regulator drive strength in EM2/3 */ \
+}
+#endif
 
 #if defined( _EMU_EM4CONF_MASK ) || defined( _EMU_EM4CTRL_MASK )
-/** Energy Mode 4 initialization structure  */
+/** EM4 initialization structure  */
 typedef struct
 {
 #if defined( _EMU_EM4CONF_MASK )
-  /* Init parameters for platforms with EMU->EM4CONF register */
-  bool                  lockConfig;     /**< Lock configuration of regulator, BOD and oscillator */
-  bool                  buBodRstDis;    /**< When set, no reset will be asserted due to Brownout when in EM4 */
-  EMU_EM4Osc_TypeDef    osc;            /**< EM4 duty oscillator */
-  bool                  buRtcWakeup;    /**< Wake up on EM4 BURTC interrupt */
-  bool                  vreg;           /**< Enable EM4 voltage regulator */
-
+  /* Init parameters for platforms with EMU->EM4CONF register (Series 0) */
+  bool                        lockConfig;       /**< Lock configuration of regulator, BOD and oscillator */
+  bool                        buBodRstDis;      /**< When set, no reset will be asserted due to Brownout when in EM4 */
+  EMU_EM4Osc_TypeDef          osc;              /**< EM4 duty oscillator */
+  bool                        buRtcWakeup;      /**< Wake up on EM4 BURTC interrupt */
+  bool                        vreg;             /**< Enable EM4 voltage regulator */
 #elif defined( _EMU_EM4CTRL_MASK )
-  /* Init parameters for platforms with EMU->EM4CTRL register */
+  /* Init parameters for platforms with EMU->EM4CTRL register (Series 1) */
   bool                        retainLfxo;       /**< Disable the LFXO upon EM4 entry */
   bool                        retainLfrco;      /**< Disable the LFRCO upon EM4 entry */
   bool                        retainUlfrco;     /**< Disable the ULFRCO upon EM4 entry */
   EMU_EM4State_TypeDef        em4State;         /**< Hibernate or shutoff EM4 state */
   EMU_EM4PinRetention_TypeDef pinRetentionMode; /**< EM4 pin retention mode */
 #endif
+#if defined( _EMU_CTRL_EM4HVSCALE_MASK )
+  EMU_VScaleEM4H_TypeDef      vScaleEM4HVoltage;/**< EM4H voltage scaling level */
+#endif
 } EMU_EM4Init_TypeDef;
 #endif
 
-/** Default initialization of EM4 configuration */
 #if defined( _EMU_EM4CONF_MASK )
+/** Default initialization of EM4 configuration (Series 0) */
 #define EMU_EM4INIT_DEFAULT                                                                \
 {                                                                                          \
   false,                              /* Dont't lock configuration after it's been set */  \
-  false,                              /* No reset will be asserted due to Brownout when in EM4 */ \
+  false,                              /* No reset will be asserted due to BOD in EM4 */    \
   emuEM4Osc_ULFRCO,                   /* Use default ULFRCO oscillator  */                 \
   true,                               /* Wake up on EM4 BURTC interrupt */                 \
   true,                               /* Enable VREG */                                    \
 }
-#endif
-#if defined( _EMU_EM4CTRL_MASK )
+
+#elif defined( _EMU_CTRL_EM4HVSCALE_MASK )
+/** Default initialization of EM4 configuration (Series 1 with VSCALE) */
+#define EMU_EM4INIT_DEFAULT                                                                \
+{                                                                                          \
+  false,                             /* Retain LFXO configuration upon EM4 entry */        \
+  false,                             /* Retain LFRCO configuration upon EM4 entry */       \
+  false,                             /* Retain ULFRCO configuration upon EM4 entry */      \
+  emuEM4Shutoff,                     /* Use EM4 shutoff state */                           \
+  emuPinRetentionDisable,            /* Do not retain pins in EM4 */                       \
+  emuVScaleEM4H_FastWakeup,          /* Do not scale down in EM4H */                       \
+}
+
+#elif defined( _EMU_EM4CTRL_MASK )
+/** Default initialization of EM4 configuration (Series 1 without VSCALE) */
 #define EMU_EM4INIT_DEFAULT                                                                \
 {                                                                                          \
   false,                             /* Retain LFXO configuration upon EM4 entry */        \
@@ -380,7 +519,8 @@ typedef struct
 /** DCDC initialization structure */
 typedef struct
 {
-  EMU_PowerConfig_TypeDef powerConfig;                  /**< Device external power configuration */
+  EMU_PowerConfig_TypeDef powerConfig;                  /**< Device external power configuration.
+                                                             @ref emuPowerConfig_DcdcToDvdd is currently the only supported mode. */
   EMU_DcdcMode_TypeDef dcdcMode;                        /**< DCDC regulator operating mode in EM0/1 */
   uint16_t mVout;                                       /**< Target output voltage (mV) */
   uint16_t em01LoadCurrent_mA;                          /**< Estimated average load current in EM0/1 (mA).
@@ -407,26 +547,11 @@ typedef struct
 
 /** Default DCDC initialization */
 #if defined( _EFM_DEVICE )
-#if defined(_SILICON_LABS_32B_SERIES_1_CONFIG) && (_SILICON_LABS_32B_SERIES_1_CONFIG >= 2)
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80)
 #define EMU_DCDCINIT_DEFAULT                                                                                    \
 {                                                                                                               \
   emuPowerConfig_DcdcToDvdd,     /* DCDC to DVDD */                                                             \
-  emuDcdcMode_LowNoise,          /* Low-niose mode in EM0 (can be set to LowPower on EFM32PG revB0) */          \
-  1800,                          /* Nominal output voltage for DVDD mode, 1.8V  */                              \
-  5,                             /* Nominal EM0/1 load current of less than 5mA */                              \
-  10,                            /* Nominal EM2/3/4 load current less than 10uA  */                             \
-  200,                           /* Maximum average current of 200mA
-                                    (assume strong battery or other power source) */                            \
-  emuDcdcAnaPeripheralPower_DCDC,/* Select DCDC as analog power supply (lower power) */                         \
-  emuDcdcLnHighEfficiency,       /* Use high-efficiency mode */                                                 \
-  emuDcdcLnCompCtrl_4u7F,        /* 4.7uF DCDC capacitor */                                                     \
-}
-
-#else
-#define EMU_DCDCINIT_DEFAULT                                                                                    \
-{                                                                                                               \
-  emuPowerConfig_DcdcToDvdd,     /* DCDC to DVDD */                                                             \
-  emuDcdcMode_LowNoise,          /* Low-niose mode in EM0 (can be set to LowPower on EFM32PG revB0) */          \
+  emuDcdcMode_LowNoise,          /* Low-niose mode in EM0 */                                                    \
   1800,                          /* Nominal output voltage for DVDD mode, 1.8V  */                              \
   5,                             /* Nominal EM0/1 load current of less than 5mA */                              \
   10,                            /* Nominal EM2/3/4 load current less than 10uA  */                             \
@@ -435,26 +560,25 @@ typedef struct
   emuDcdcAnaPeripheralPower_DCDC,/* Select DCDC as analog power supply (lower power) */                         \
   emuDcdcLnHighEfficiency,       /* Use high-efficiency mode */                                                 \
   emuDcdcLnCompCtrl_1u0F,        /* 1uF DCDC capacitor */                                                       \
+}
+#else
+#define EMU_DCDCINIT_DEFAULT                                                                                    \
+{                                                                                                               \
+  emuPowerConfig_DcdcToDvdd,     /* DCDC to DVDD */                                                             \
+  emuDcdcMode_LowPower,          /* Low-power mode in EM0 */                                                    \
+  1800,                          /* Nominal output voltage for DVDD mode, 1.8V  */                              \
+  5,                             /* Nominal EM0/1 load current of less than 5mA */                              \
+  10,                            /* Nominal EM2/3/4 load current less than 10uA  */                             \
+  200,                           /* Maximum average current of 200mA
+                                    (assume strong battery or other power source) */                            \
+  emuDcdcAnaPeripheralPower_DCDC,/* Select DCDC as analog power supply (lower power) */                         \
+  emuDcdcLnHighEfficiency,       /* Use high-efficiency mode */                                                 \
+  emuDcdcLnCompCtrl_4u7F,        /* 4.7uF DCDC capacitor */                                                     \
 }
 #endif
 
 #else /* EFR32 device */
-#if defined(_SILICON_LABS_32B_SERIES_1_CONFIG) && (_SILICON_LABS_32B_SERIES_1_CONFIG >= 2)
-#define EMU_DCDCINIT_DEFAULT                                                                                    \
-{                                                                                                               \
-  emuPowerConfig_DcdcToDvdd,     /* DCDC to DVDD */                                                             \
-  emuDcdcMode_LowNoise,          /* Low-niose mode in EM0 */                                                    \
-  1800,                          /* Nominal output voltage for DVDD mode, 1.8V  */                              \
-  15,                            /* Nominal EM0/1 load current of less than 15mA */                             \
-  10,                            /* Nominal EM2/3/4 load current less than 10uA  */                             \
-  200,                           /* Maximum average current of 200mA
-                                    (assume strong battery or other power source) */                            \
-  emuDcdcAnaPeripheralPower_DCDC,/* Select DCDC as analog power supply (lower power) */                         \
-  160,                           /* Maximum reverse current of 160mA */                                         \
-  emuDcdcLnCompCtrl_4u7F,        /* 4.7uF DCDC capacitor */                                                     \
-}
-
-#else
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80)
 #define EMU_DCDCINIT_DEFAULT                                                                                    \
 {                                                                                                               \
   emuPowerConfig_DcdcToDvdd,     /* DCDC to DVDD */                                                             \
@@ -467,6 +591,20 @@ typedef struct
   emuDcdcAnaPeripheralPower_DCDC,/* Select DCDC as analog power supply (lower power) */                         \
   160,                           /* Maximum reverse current of 160mA */                                         \
   emuDcdcLnCompCtrl_1u0F,        /* 1uF DCDC capacitor */                                                       \
+}
+#else
+#define EMU_DCDCINIT_DEFAULT                                                                                    \
+{                                                                                                               \
+  emuPowerConfig_DcdcToDvdd,     /* DCDC to DVDD */                                                             \
+  emuDcdcMode_LowNoise,          /* Low-niose mode in EM0 */                                                    \
+  1800,                          /* Nominal output voltage for DVDD mode, 1.8V  */                              \
+  15,                            /* Nominal EM0/1 load current of less than 15mA */                             \
+  10,                            /* Nominal EM2/3/4 load current less than 10uA  */                             \
+  200,                           /* Maximum average current of 200mA
+                                    (assume strong battery or other power source) */                            \
+  emuDcdcAnaPeripheralPower_DCDC,/* Select DCDC as analog power supply (lower power) */                         \
+  160,                           /* Maximum reverse current of 160mA */                                         \
+  emuDcdcLnCompCtrl_4u7F,        /* 4.7uF DCDC capacitor */                                                     \
 }
 #endif
 #endif
@@ -522,6 +660,52 @@ typedef struct
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+void EMU_EM01Init(const EMU_EM01Init_TypeDef *em01Init);
+#endif
+void EMU_EM23Init(const EMU_EM23Init_TypeDef *em23Init);
+#if defined( _EMU_EM4CONF_MASK ) || defined( _EMU_EM4CTRL_MASK )
+void EMU_EM4Init(const EMU_EM4Init_TypeDef *em4Init);
+#endif
+void EMU_EnterEM2(bool restore);
+void EMU_EnterEM3(bool restore);
+void EMU_Restore(void);
+void EMU_EnterEM4(void);
+#if defined( _EMU_EM4CTRL_MASK )
+void EMU_EnterEM4H(void);
+void EMU_EnterEM4S(void);
+#endif
+void EMU_MemPwrDown(uint32_t blocks);
+void EMU_RamPowerDown(uint32_t start, uint32_t end);
+#if defined(_EMU_EM23PERNORETAINCTRL_MASK)
+void EMU_PeripheralRetention(EMU_PeripheralRetention_TypeDef periMask, bool enable);
+#endif
+void EMU_UpdateOscConfig(void);
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+void EMU_VScaleEM01ByClock(uint32_t clockFrequency, bool wait);
+void EMU_VScaleEM01(EMU_VScaleEM01_TypeDef voltage, bool wait);
+#endif
+#if defined( BU_PRESENT )
+void EMU_BUPDInit(const EMU_BUPDInit_TypeDef *bupdInit);
+void EMU_BUThresholdSet(EMU_BODMode_TypeDef mode, uint32_t value);
+void EMU_BUThresRangeSet(EMU_BODMode_TypeDef mode, uint32_t value);
+#endif
+#if defined( _EMU_DCDCCTRL_MASK )
+bool EMU_DCDCInit(const EMU_DCDCInit_TypeDef *dcdcInit);
+void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode);
+void EMU_DCDCConductionModeSet(EMU_DcdcConductionMode_TypeDef conductionMode, bool rcoDefaultSet);
+bool EMU_DCDCOutputVoltageSet(uint32_t mV, bool setLpVoltage, bool setLnVoltage);
+void EMU_DCDCOptimizeSlice(uint32_t mALoadCurrent);
+void EMU_DCDCLnRcoBandSet(EMU_DcdcLnRcoBand_TypeDef band);
+bool EMU_DCDCPowerOff(void);
+#endif
+#if defined( EMU_STATUS_VMONRDY )
+void EMU_VmonInit(const EMU_VmonInit_TypeDef *vmonInit);
+void EMU_VmonHystInit(const EMU_VmonHystInit_TypeDef *vmonInit);
+void EMU_VmonEnable(EMU_VmonChannel_TypeDef channel, bool enable);
+bool EMU_VmonChannelStatusGet(EMU_VmonChannel_TypeDef channel);
+#endif
+
 /***************************************************************************//**
  * @brief
  *   Enter energy mode 1 (EM1).
@@ -533,38 +717,35 @@ __STATIC_INLINE void EMU_EnterEM1(void)
   __WFI();
 }
 
-void EMU_EM23Init(EMU_EM23Init_TypeDef *em23Init);
-#if defined( _EMU_EM4CONF_MASK ) || defined( _EMU_EM4CTRL_MASK )
-void EMU_EM4Init(EMU_EM4Init_TypeDef *em4Init);
-#endif
-void EMU_EnterEM2(bool restore);
-void EMU_EnterEM3(bool restore);
-void EMU_EnterEM4(void);
-#if defined( _EMU_EM4CTRL_MASK )
-void EMU_EnterEM4H(void);
-void EMU_EnterEM4S(void);
-#endif
-void EMU_MemPwrDown(uint32_t blocks);
-void EMU_UpdateOscConfig(void);
-#if defined( BU_PRESENT )
-void EMU_BUPDInit(EMU_BUPDInit_TypeDef *bupdInit);
-void EMU_BUThresholdSet(EMU_BODMode_TypeDef mode, uint32_t value);
-void EMU_BUThresRangeSet(EMU_BODMode_TypeDef mode, uint32_t value);
-#endif
-#if defined( _EMU_DCDCCTRL_MASK )
-bool EMU_DCDCInit(EMU_DCDCInit_TypeDef *dcdcInit);
-void EMU_DCDCModeSet(EMU_DcdcMode_TypeDef dcdcMode);
-bool EMU_DCDCOutputVoltageSet(uint32_t mV, bool setLpVoltage, bool setLnVoltage);
-void EMU_DCDCOptimizeSlice(uint32_t mALoadCurrent);
-void EMU_DCDCLnRcoBandSet(EMU_DcdcLnRcoBand_TypeDef band);
-bool EMU_DCDCPowerOff(void);
-#endif
-#if defined( EMU_STATUS_VMONRDY )
-void EMU_VmonInit(EMU_VmonInit_TypeDef *vmonInit);
-void EMU_VmonHystInit(EMU_VmonHystInit_TypeDef *vmonInit);
-void EMU_VmonEnable(EMU_VmonChannel_TypeDef channel, bool enable);
-bool EMU_VmonChannelStatusGet(EMU_VmonChannel_TypeDef channel);
 
+#if defined( _EMU_STATUS_VSCALE_MASK )
+/***************************************************************************//**
+ * @brief
+ *   Wait for voltage scaling to complete
+ ******************************************************************************/
+__STATIC_INLINE void EMU_VScaleWait(void)
+{
+  while (BUS_RegBitRead(&EMU->STATUS, _EMU_STATUS_VSCALEBUSY_SHIFT));
+}
+#endif
+
+#if defined( _EMU_STATUS_VSCALE_MASK )
+/***************************************************************************//**
+ * @brief
+ *   Get current voltage scaling level
+ *
+ * @return
+ *    Current voltage scaling level
+ ******************************************************************************/
+__STATIC_INLINE EMU_VScaleEM01_TypeDef EMU_VScaleGet(void)
+{
+  EMU_VScaleWait();
+  return (EMU_VScaleEM01_TypeDef)((EMU->STATUS & _EMU_STATUS_VSCALE_MASK)
+                                  >> _EMU_STATUS_VSCALE_SHIFT);
+}
+#endif
+
+#if defined( _EMU_STATUS_VMONRDY_MASK )
 /***************************************************************************//**
  * @brief
  *   Get the status of the voltage monitor (VMON).
@@ -577,7 +758,7 @@ __STATIC_INLINE bool EMU_VmonStatusGet(void)
 {
   return BUS_RegBitRead(&EMU->STATUS, _EMU_STATUS_VMONRDY_SHIFT);
 }
-#endif /* EMU_STATUS_VMONRDY */
+#endif /* _EMU_STATUS_VMONRDY_MASK */
 
 #if defined( _EMU_IF_MASK )
 /***************************************************************************//**
@@ -805,7 +986,7 @@ __STATIC_INLINE void EMU_UnlatchPinRetention(void)
 }
 #endif
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2_GEN_1 )
+#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
 void EMU_SetBiasMode(EMU_BiasMode_TypeDef mode);
 #endif
 

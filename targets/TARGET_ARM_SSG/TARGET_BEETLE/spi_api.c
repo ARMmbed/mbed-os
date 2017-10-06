@@ -262,6 +262,21 @@ int spi_master_write(spi_t *obj, int value) {
     return data;
 }
 
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
+                           char *rx_buffer, int rx_length, char write_fill) {
+    int total = (tx_length > rx_length) ? tx_length : rx_length;
+
+    for (int i = 0; i < total; i++) {
+        char out = (i < tx_length) ? tx_buffer[i] : write_fill;
+        char in = spi_master_write(obj, out);
+        if (i < rx_length) {
+            rx_buffer[i] = in;
+        }
+    }
+
+    return total;
+}
+
 uint8_t spi_get_module(spi_t *obj) {
     return obj->spi->MID;
 }

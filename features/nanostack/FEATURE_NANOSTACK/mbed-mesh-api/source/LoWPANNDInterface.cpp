@@ -39,7 +39,8 @@ int LoWPANNDInterface::connect()
     // Release mutex before blocking
     nanostack_unlock();
 
-    int32_t count = connect_semaphore.wait(30000);
+    // wait connection for ever
+    int32_t count = connect_semaphore.wait(osWaitForever);
 
     if (count <= 0) {
         return NSAPI_ERROR_DHCP_FAILURE; // sort of...

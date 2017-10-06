@@ -185,13 +185,7 @@ static void lptmr_isr(void) {
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp) {
-    int delta = (int)((uint32_t)timestamp - us_ticker_read());
-    if (delta <= 0) {
-        // This event was in the past:
-        us_ticker_irq_handler();
-        return;
-    }
-    
+    uint32_t delta = timestamp - us_ticker_read();
     us_ticker_int_counter   = (uint32_t)(delta >> 16);
     us_ticker_int_remainder = (uint16_t)(0xFFFF & delta);
     if (us_ticker_int_counter > 0) {
@@ -201,4 +195,14 @@ void us_ticker_set_interrupt(timestamp_t timestamp) {
         lptmr_set(us_ticker_int_remainder);
         us_ticker_int_remainder = 0;
     }
+}
+
+void us_ticker_fire_interrupt(void)
+{
+#if defined(TARGET_KL43Z)
+    NVIC_SetPendingIRQ(LPTMR0_IRQn);
+#else
+    NVIC_SetPendingIRQ(LPTimer_IRQn);
+
+#endif
 }

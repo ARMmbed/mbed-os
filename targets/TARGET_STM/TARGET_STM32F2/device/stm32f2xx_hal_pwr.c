@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_pwr.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   PWR HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Power Controller (PWR) peripheral:
@@ -13,7 +13,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -63,10 +63,10 @@
 /** @defgroup PWR_PVD_Mode_Mask PWR PVD Mode Mask
   * @{
   */     
-#define PVD_MODE_IT               ((uint32_t)0x00010000U)
-#define PVD_MODE_EVT              ((uint32_t)0x00020000U)
-#define PVD_RISING_EDGE           ((uint32_t)0x00000001U)
-#define PVD_FALLING_EDGE          ((uint32_t)0x00000002U)
+#define PVD_MODE_IT               0x00010000U
+#define PVD_MODE_EVT              0x00020000U
+#define PVD_RISING_EDGE           0x00000001U
+#define PVD_FALLING_EDGE          0x00000002U
 /**
   * @}
   */
@@ -376,6 +376,9 @@ void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx)
   */
 void HAL_PWR_EnterSLEEPMode(uint32_t Regulator, uint8_t SLEEPEntry)
 {
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(Regulator);
+
   /* Check the parameters */
   assert_param(IS_PWR_REGULATOR(Regulator));
   assert_param(IS_PWR_SLEEP_ENTRY(SLEEPEntry));

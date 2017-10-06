@@ -173,7 +173,7 @@ void i2c_frequency(i2c_t *obj, int hz)
     int32_t baud_rate;
     int32_t tmp_baud;
     int32_t tmp_baud_hs;
-    enum status_code tmp_status_code;
+    enum status_code tmp_status_code = STATUS_OK;
 
     /* Sanity check arguments */
     MBED_ASSERT(obj);

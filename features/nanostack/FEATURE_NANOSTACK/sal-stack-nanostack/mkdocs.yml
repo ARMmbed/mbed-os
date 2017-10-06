@@ -11,10 +11,9 @@ pages:
 - ['02_N_arch.md', 'ARM mbed 6LoWPAN Stack Overview', 'Stack architecture']
 - ['03_N_usage.md', 'ARM mbed 6LoWPAN Stack Overview', 'Application usage']
 - ['04_N_networking.md', 'ARM mbed 6LoWPAN Stack Overview','Networking topology and protocols']
-- ['thread_overview.md', 'ARM mbed Thread Stack Overview', 'Thread Stack']
-- ['thread_dev_typ.md', 'ARM mbed Thread Stack Overview', 'Device Types & Roles']
-- ['thread_sec.md', 'ARM mbed Thread Stack Overview', 'Thread Security Fundamentals']
-- ['thread_comm.md', 'ARM mbed Thread Stack Overview', 'Thread Commissioning (Join Process)']
+- ['thread_intro.md', 'ARM mbed Thread Stack Overview', 'mbed OS Thread introduction']
+- ['thread_faq.md', 'ARM mbed Thread Stack Overview', 'Thread FAQ']
+- ['thread_commissioning.md', 'ARM mbed Thread Stack Overview', 'Commissioning in practise']
 - ['05_reference.md','API Reference Manual', 'API Reference - Synopsis']
 - ['api_changes_to_v5_0_0.md', 'API Reference Manual', 'API updates v.5.0.0']
 - ['api_changes_to_v4_0_0.md', 'API Reference Manual', 'API updates v.4.0.0']
@@ -25,6 +24,7 @@ pages:
 - ['08_API_events.md', 'API Reference Manual','Event-driven Scheduling Model & Eventing API']
 - ['09_API_network_def.md','API Reference Manual', 'Network Definition APIs']
 - ['12_API_network.md','API Reference Manual', 'Network Layer Control APIs']
+- ['17_API_load_balancer.md','API Reference Manual','Load balancing API']
 - ['10_API_timer.md','API Reference Manual', 'Library Timer API']
 - ['11_API_sockets.md','API Reference Manual', 'Socket API']
 - ['13_API_memory.md','API Reference Manual', 'Dynamic Memory API']
@@ -32,3 +32,8 @@ pages:
 - ['15_API_debug.md','API Reference Manual', 'Network Debug Statistics API']
 - ['thread_APIs.md','API Reference Manual', 'Thread Stack APIs']
 - ['16_API_porting.md','Porting a new platform to ARM mbed Networking Stack', 'Porting to the Stack']
+- ['18_warm_restart.md','Join the network fast','Warm restart feature']
+- ['mac_api.md','Stack MAC API','MAC API']
+
+
+copyright: © ARM Ltd. Copyright 2016 – ARM mbed IoT Device Platform

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_i2c.c
  * @brief Inter-integrated Circuit (I2C) Peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -77,9 +77,9 @@
 #define I2C_IF_ERRORS    (I2C_IF_BUSERR | I2C_IF_ARBLOST)
 
 /* Max I2C transmission rate constant  */
-#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+#if defined( _SILICON_LABS_32B_SERIES_0 )
 #define I2C_CR_MAX       4
-#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+#elif defined( _SILICON_LABS_32B_SERIES_1 )
 #define I2C_CR_MAX       8
 #else
 #warning "Max I2C transmission rate constant is not defined"
@@ -257,21 +257,21 @@ void I2C_BusFreqSet(I2C_TypeDef *i2c,
     switch(i2cMode)
     {
       case i2cClockHLRStandard:
-#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+#if defined( _SILICON_LABS_32B_SERIES_0 )
         minFreq = 4200000; break;
-#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+#elif defined( _SILICON_LABS_32B_SERIES_1 )
         minFreq = 2000000; break;
 #endif
       case i2cClockHLRAsymetric:
-#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+#if defined( _SILICON_LABS_32B_SERIES_0 )
         minFreq = 11000000; break;
-#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+#elif defined( _SILICON_LABS_32B_SERIES_1 )
         minFreq = 5000000; break;
 #endif
       case i2cClockHLRFast:
-#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+#if defined( _SILICON_LABS_32B_SERIES_0 )
         minFreq = 24400000; break;
-#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+#elif defined( _SILICON_LABS_32B_SERIES_1 )
         minFreq = 14000000; break;
 #endif
     }

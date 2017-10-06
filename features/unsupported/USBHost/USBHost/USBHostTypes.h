@@ -117,6 +117,8 @@ enum ENDPOINT_TYPE {
 
 #else
 
+#define TD_TIMEOUT_CTRL  100
+#define TD_TIMEOUT  2000
 #define  TD_SETUP           (uint32_t)(0)                  // Direction of Setup Packet
 #define  TD_IN              (uint32_t)(0x00100000)         // Direction In
 #define  TD_OUT             (uint32_t)(0x00080000)         // Direction Out
@@ -152,11 +154,13 @@ enum ENDPOINT_TYPE {
 #if defined(USBHOST_OTHER)
 
 typedef struct hcTd {
-	__IO uint32_t state;
+	__IO  uint32_t state;
 	__IO  uint8_t *  currBufPtr;    // Physical address of current buffer pointer
 	__IO  hcTd *     nextTD;         // Physical pointer to next Transfer Descriptor
 	__IO  uint32_t   size;        // size of buffer
 	void * ep;                      // ep address where a td is linked in
+	__IO  uint32_t retry;
+	__IO  uint32_t setup;
 } PACKED HCTD;
 // ----------- HostController EndPoint Descriptor -------------
 typedef struct hcEd {

@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_cmu.c
  * @brief Clock management unit (CMU) Peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -37,6 +37,7 @@
 #include "em_assert.h"
 #include "em_bus.h"
 #include "em_emu.h"
+#include "em_cmu.h"
 #include "em_system.h"
 #include "em_common.h"
 
@@ -60,12 +61,12 @@
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
 /** Maximum allowed core frequency when using 0 wait-states on flash access. */
 #define CMU_MAX_FREQ_0WS    26000000
 /** Maximum allowed core frequency when using 1 wait-states on flash access */
 #define CMU_MAX_FREQ_1WS    40000000
-#elif defined( _SILICON_LABS_32B_PLATFORM_1 )
+#elif defined( _SILICON_LABS_32B_SERIES_0 )
 /** Maximum allowed core frequency when using 0 wait-states on flash access. */
 #define CMU_MAX_FREQ_0WS    16000000
 /** Maximum allowed core frequency when using 1 wait-states on flash access */
@@ -76,19 +77,21 @@
 
 /** Maximum frequency for HFLE interface */
 #if defined( CMU_CTRL_HFLE )
-/** Maximum HFLE frequency for EFM32 and EZR32 Wonder Gecko. */
-#if defined( _EFM32_WONDER_FAMILY )       \
-    || defined( _EZR32_WONDER_FAMILY )
+/** Maximum HFLE frequency for series 0 EFM32 and EZR32 Wonder Gecko. */
+#if defined( _SILICON_LABS_32B_SERIES_0 )       \
+    && (defined( _EFM32_WONDER_FAMILY )         \
+        || defined( _EZR32_WONDER_FAMILY ))
 #define CMU_MAX_FREQ_HFLE                       24000000
-/** Maximum HFLE frequency for other platform 1 parts with maximum core clock
+/** Maximum HFLE frequency for other series 0 parts with maximum core clock
     higher than 32MHz. */
-#elif defined( _EFM32_GIANT_FAMILY )      \
-      || defined( _EFM32_LEOPARD_FAMILY ) \
-      || defined( _EZR32_LEOPARD_FAMILY )
+#elif defined( _SILICON_LABS_32B_SERIES_0 )     \
+      && (defined( _EFM32_GIANT_FAMILY )        \
+          || defined( _EFM32_LEOPARD_FAMILY )   \
+          || defined( _EZR32_LEOPARD_FAMILY ))
 #define CMU_MAX_FREQ_HFLE                       maxFreqHfle()
 #endif
 #elif defined( CMU_CTRL_WSHFLE )
-/** Maximum HFLE frequency for platform 2 parts */
+/** Maximum HFLE frequency for series 1 parts */
 #define CMU_MAX_FREQ_HFLE                       32000000
 #endif
 
@@ -112,9 +115,10 @@ static CMU_AUXHFRCOFreq_TypeDef auxHfrcoFreq = cmuAUXHFRCOFreq_19M0Hz;
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
-#if defined( _EFM32_GIANT_FAMILY )      \
-    || defined( _EFM32_LEOPARD_FAMILY ) \
-    || defined( _EZR32_LEOPARD_FAMILY )
+#if defined( _SILICON_LABS_32B_SERIES_0 )     \
+    && (defined( _EFM32_GIANT_FAMILY )        \
+        || defined( _EFM32_LEOPARD_FAMILY )   \
+        || defined( _EZR32_LEOPARD_FAMILY ))
 /***************************************************************************//**
  * @brief
  *   Return max allowed frequency for low energy peripherals.
@@ -235,7 +239,7 @@ static uint32_t auxClkGet(void)
   ret = auxHfrcoFreq;
 
 #elif defined( _CMU_AUXHFRCOCTRL_BAND_MASK )
-  /* All platform 1 families except EFM32G */
+  /* All series 0 families except EFM32G */
   switch(CMU->AUXHFRCOCTRL & _CMU_AUXHFRCOCTRL_BAND_MASK)
   {
     case CMU_AUXHFRCOCTRL_BAND_1MHZ:
@@ -584,6 +588,12 @@ static uint32_t lfClkGet(CMU_Clock_TypeDef lfClkBranch)
     case _CMU_LFACLKSEL_LFA_ULFRCO:
       ret = SystemULFRCOClockGet();
       break;
+
+#if defined( CMU_LFACLKSEL_LFA_PLFRCO )
+    case _CMU_LFACLKSEL_LFA_PLFRCO:
+      ret = SystemLFRCOClockGet();
+      break;
+#endif
 
 #if defined( _CMU_LFACLKSEL_LFA_HFCLKLE )
     case _CMU_LFACLKSEL_LFA_HFCLKLE:
@@ -1101,10 +1111,10 @@ uint32_t CMU_CalibrateCountGet(void)
  ******************************************************************************/
 CMU_ClkDiv_TypeDef CMU_ClockDivGet(CMU_Clock_TypeDef clock)
 {
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
   return 1 + (uint32_t)CMU_ClockPrescGet(clock);
 
-#elif defined( _SILICON_LABS_32B_PLATFORM_1 )
+#elif defined( _SILICON_LABS_32B_SERIES_0 )
   uint32_t           divReg;
   CMU_ClkDiv_TypeDef ret;
 
@@ -1233,10 +1243,10 @@ CMU_ClkDiv_TypeDef CMU_ClockDivGet(CMU_Clock_TypeDef clock)
  ******************************************************************************/
 void CMU_ClockDivSet(CMU_Clock_TypeDef clock, CMU_ClkDiv_TypeDef div)
 {
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
   CMU_ClockPrescSet(clock, (CMU_ClkPresc_TypeDef)(div - 1));
 
-#elif defined( _SILICON_LABS_32B_PLATFORM_1 )
+#elif defined( _SILICON_LABS_32B_SERIES_0 )
   uint32_t freq;
   uint32_t divReg;
 
@@ -1560,7 +1570,7 @@ uint32_t CMU_ClockFreqGet(CMU_Clock_TypeDef clock)
 #endif
       break;
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
 #if defined( CRYPTO_PRESENT )   \
     || defined( LDMA_PRESENT )  \
     || defined( GPCRC_PRESENT ) \
@@ -1584,7 +1594,7 @@ uint32_t CMU_ClockFreqGet(CMU_Clock_TypeDef clock)
       break;
 #endif
 
-#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+#if defined( _SILICON_LABS_32B_SERIES_0 )
 #if defined( AES_PRESENT )    \
     || defined( DMA_PRESENT ) \
     || defined( EBI_PRESENT ) \
@@ -1617,10 +1627,10 @@ uint32_t CMU_ClockFreqGet(CMU_Clock_TypeDef clock)
 #if defined( _CMU_LFACLKEN0_LETIMER0_MASK )
     case (CMU_LETIMER0_CLK_BRANCH << CMU_CLK_BRANCH_POS):
       ret = lfClkGet(cmuClock_LFA);
-#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+#if defined( _SILICON_LABS_32B_SERIES_0 )
       ret >>= (CMU->LFAPRESC0 & _CMU_LFAPRESC0_LETIMER0_MASK)
               >> _CMU_LFAPRESC0_LETIMER0_SHIFT;
-#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+#elif defined( _SILICON_LABS_32B_SERIES_1 )
       ret /= CMU_Log2ToDiv((CMU->LFAPRESC0 & _CMU_LFAPRESC0_LETIMER0_MASK)
                            >> _CMU_LFAPRESC0_LETIMER0_SHIFT);
 #endif
@@ -1659,10 +1669,10 @@ uint32_t CMU_ClockFreqGet(CMU_Clock_TypeDef clock)
 #if defined( _CMU_LFBCLKEN0_LEUART0_MASK )
     case (CMU_LEUART0_CLK_BRANCH << CMU_CLK_BRANCH_POS):
       ret = lfClkGet(cmuClock_LFB);
-#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+#if defined( _SILICON_LABS_32B_SERIES_0 )
       ret >>= (CMU->LFBPRESC0 & _CMU_LFBPRESC0_LEUART0_MASK)
               >> _CMU_LFBPRESC0_LEUART0_SHIFT;
-#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+#elif defined( _SILICON_LABS_32B_SERIES_1 )
       ret /= CMU_Log2ToDiv((CMU->LFBPRESC0 & _CMU_LFBPRESC0_LEUART0_MASK)
                            >> _CMU_LFBPRESC0_LEUART0_SHIFT);
 #endif
@@ -1672,17 +1682,25 @@ uint32_t CMU_ClockFreqGet(CMU_Clock_TypeDef clock)
 #if defined( _CMU_LFBCLKEN0_LEUART1_MASK )
     case (CMU_LEUART1_CLK_BRANCH << CMU_CLK_BRANCH_POS):
       ret = lfClkGet(cmuClock_LFB);
-#if defined( _SILICON_LABS_32B_PLATFORM_1 )
+#if defined( _SILICON_LABS_32B_SERIES_0 )
       ret >>= (CMU->LFBPRESC0 & _CMU_LFBPRESC0_LEUART1_MASK)
               >> _CMU_LFBPRESC0_LEUART1_SHIFT;
-#elif defined( _SILICON_LABS_32B_PLATFORM_2 )
+#elif defined( _SILICON_LABS_32B_SERIES_1 )
       ret /= CMU_Log2ToDiv((CMU->LFBPRESC0 & _CMU_LFBPRESC0_LEUART1_MASK)
                            >> _CMU_LFBPRESC0_LEUART1_SHIFT);
 #endif
       break;
 #endif
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _CMU_LFBCLKEN0_CSEN_MASK )
+    case (CMU_CSEN_LF_CLK_BRANCH << CMU_CLK_BRANCH_POS):
+      ret = lfClkGet(cmuClock_LFB);
+      ret /= CMU_Log2ToDiv(((CMU->LFBPRESC0 & _CMU_LFBPRESC0_CSEN_MASK)
+                            >> _CMU_LFBPRESC0_CSEN_SHIFT) + 4);
+      break;
+#endif
+
+#if defined( _SILICON_LABS_32B_SERIES_1 )
     case (CMU_LFE_CLK_BRANCH << CMU_CLK_BRANCH_POS):
       ret = lfClkGet(cmuClock_LFE);
       break;
@@ -1712,7 +1730,7 @@ uint32_t CMU_ClockFreqGet(CMU_Clock_TypeDef clock)
 }
 
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
 /***************************************************************************//**
  * @brief
  *   Get clock prescaler.
@@ -1809,6 +1827,15 @@ uint32_t CMU_ClockPrescGet(CMU_Clock_TypeDef clock)
           break;
 #endif
 
+#if defined( _CMU_LFBPRESC0_CSEN_MASK )
+        case cmuClock_CSEN_LF:
+          ret = (((CMU->LFBPRESC0 & _CMU_LFBPRESC0_CSEN_MASK)
+                 >> _CMU_LFBPRESC0_CSEN_SHIFT));
+          /* Convert the exponent to prescaler value. */
+          ret = CMU_Log2ToDiv(ret + 4) - 1U;
+          break;
+#endif
+
         default:
           EFM_ASSERT(0);
           ret = 0U;
@@ -1845,7 +1872,7 @@ uint32_t CMU_ClockPrescGet(CMU_Clock_TypeDef clock)
 #endif
 
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
 /***************************************************************************//**
  * @brief
  *   Set clock prescaler.
@@ -2044,6 +2071,22 @@ void CMU_ClockPrescSet(CMU_Clock_TypeDef clock, CMU_ClkPresc_TypeDef presc)
           break;
 #endif
 
+#if defined( _CMU_LFBPRESC0_CSEN_MASK )
+        case cmuClock_CSEN_LF:
+          EFM_ASSERT((presc <= 127U) && (presc >= 15U));
+
+          /* Convert prescaler value to DIV exponent scale.
+           * DIV16 is the lowest supported prescaler. */
+          presc = CMU_PrescToLog2(presc) - 4;
+
+          /* LF register about to be modified require sync. Busy check. */
+          syncReg(CMU_SYNCBUSY_LFBPRESC0);
+
+          CMU->LFBPRESC0 = (CMU->LFBPRESC0 & ~_CMU_LFBPRESC0_CSEN_MASK)
+                           | (presc << _CMU_LFBPRESC0_CSEN_SHIFT);
+          break;
+#endif
+
         default:
           EFM_ASSERT(0);
           break;
@@ -2089,7 +2132,7 @@ void CMU_ClockPrescSet(CMU_Clock_TypeDef clock, CMU_ClkPresc_TypeDef presc)
  *   @li #cmuClock_LFA
  *   @li #cmuClock_LFB @if _CMU_LFCLKSEL_LFAE_ULFRCO
  *   @li #cmuClock_LFC
- *   @endif            @if _SILICON_LABS_32B_PLATFORM_2
+ *   @endif            @if _SILICON_LABS_32B_SERIES_1
  *   @li #cmuClock_LFE
  *   @endif
  *   @li #cmuClock_DBG @if DOXYDOC_USB_PRESENT
@@ -2217,6 +2260,12 @@ CMU_Select_TypeDef CMU_ClockSelectGet(CMU_Clock_TypeDef clock)
           break;
 #endif
 
+#if defined( CMU_LFACLKSEL_LFA_PLFRCO )
+        case CMU_LFACLKSEL_LFA_PLFRCO:
+          ret = cmuSelect_PLFRCO;
+          break;
+#endif
+
         default:
           ret = cmuSelect_Disabled;
           break;
@@ -2282,6 +2331,12 @@ CMU_Select_TypeDef CMU_ClockSelectGet(CMU_Clock_TypeDef clock)
           ret = cmuSelect_HFCLKLE;
           break;
 
+#if defined( CMU_LFBCLKSEL_LFB_PLFRCO )
+        case CMU_LFBCLKSEL_LFB_PLFRCO:
+          ret = cmuSelect_PLFRCO;
+          break;
+#endif
+
         default:
           ret = cmuSelect_Disabled;
           break;
@@ -2328,6 +2383,12 @@ CMU_Select_TypeDef CMU_ClockSelectGet(CMU_Clock_TypeDef clock)
 #if defined ( _CMU_LFECLKSEL_LFE_HFCLKLE )
         case CMU_LFECLKSEL_LFE_HFCLKLE:
           ret = cmuSelect_HFCLKLE;
+          break;
+#endif
+
+#if defined( CMU_LFECLKSEL_LFE_PLFRCO )
+        case CMU_LFECLKSEL_LFE_PLFRCO:
+          ret = cmuSelect_PLFRCO;
           break;
 #endif
 
@@ -2436,7 +2497,7 @@ CMU_Select_TypeDef CMU_ClockSelectGet(CMU_Clock_TypeDef clock)
  *   @li #cmuClock_LFA
  *   @li #cmuClock_LFB @if _CMU_LFCLKSEL_LFAE_ULFRCO
  *   @li #cmuClock_LFC
- *   @endif            @if _SILICON_LABS_32B_PLATFORM_2
+ *   @endif            @if _SILICON_LABS_32B_SERIES_1
  *   @li #cmuClock_LFE
  *   @endif
  *   @li #cmuClock_DBG @if DOXYDOC_USB_PRESENT
@@ -2454,20 +2515,43 @@ CMU_Select_TypeDef CMU_ClockSelectGet(CMU_Clock_TypeDef clock)
  *   @li #cmuSelect_AUXHFRCO
  *   @li #cmuSelect_HFCLK @ifnot DOXYDOC_EFM32_GECKO_FAMILY
  *   @li #cmuSelect_ULFRCO
+ *   @li #cmuSelect_PLFRCO
  *   @endif
  ******************************************************************************/
 void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
 {
-  uint32_t        select = cmuOsc_HFRCO;
-  CMU_Osc_TypeDef osc    = cmuOsc_HFRCO;
-  uint32_t        freq;
-  uint32_t        tmp;
-  uint32_t        selRegId;
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
-  volatile uint32_t *selReg = NULL;
+  uint32_t              select = cmuOsc_HFRCO;
+  CMU_Osc_TypeDef       osc    = cmuOsc_HFRCO;
+  uint32_t              freq;
+  uint32_t              tmp;
+  uint32_t              selRegId;
+#if defined( _SILICON_LABS_32B_SERIES_1 )
+  volatile uint32_t     *selReg = NULL;
 #endif
 #if defined( CMU_LFCLKSEL_LFAE_ULFRCO )
-  uint32_t        lfExtended = 0;
+  uint32_t              lfExtended = 0;
+#endif
+
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+  uint32_t              vScaleFrequency = 0; /* Use default */
+
+  /* Start voltage upscaling before clock is set. */
+  if (clock == cmuClock_HF)
+  {
+    if (ref == cmuSelect_HFXO)
+    {
+      vScaleFrequency = SystemHFXOClockGet();
+    }
+    else if ((ref == cmuSelect_HFRCO)
+             && (CMU_HFRCOBandGet() > CMU_VSCALEEM01_LOWPOWER_VOLTAGE_CLOCK_MAX))
+    {
+      vScaleFrequency = CMU_HFRCOBandGet();
+    }
+    if (vScaleFrequency != 0)
+    {
+      EMU_VScaleEM01ByClock(vScaleFrequency, false);
+    }
+  }
 #endif
 
   selRegId = (clock >> CMU_SEL_REG_POS) & CMU_SEL_REG_MASK;
@@ -2478,18 +2562,18 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
       switch (ref)
       {
         case cmuSelect_LFXO:
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
           select = CMU_HFCLKSEL_HF_LFXO;
-#elif defined( _SILICON_LABS_32B_PLATFORM_1 )
+#elif defined( _SILICON_LABS_32B_SERIES_0 )
           select = CMU_CMD_HFCLKSEL_LFXO;
 #endif
           osc = cmuOsc_LFXO;
           break;
 
         case cmuSelect_LFRCO:
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
           select = CMU_HFCLKSEL_HF_LFRCO;
-#elif defined( _SILICON_LABS_32B_PLATFORM_1 )
+#elif defined( _SILICON_LABS_32B_SERIES_0 )
           select = CMU_CMD_HFCLKSEL_LFRCO;
 #endif
           osc = cmuOsc_LFRCO;
@@ -2523,9 +2607,9 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
           break;
 
         case cmuSelect_HFRCO:
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
           select = CMU_HFCLKSEL_HF_HFRCO;
-#elif defined( _SILICON_LABS_32B_PLATFORM_1 )
+#elif defined( _SILICON_LABS_32B_SERIES_0 )
           select = CMU_CMD_HFCLKSEL_HFRCO;
 #endif
           osc = cmuOsc_HFRCO;
@@ -2561,6 +2645,14 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
       /* Configure worst case wait states for flash access before selecting */
       flashWaitStateMax();
 
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+      /* Wait for voltage upscaling to complete before clock is set. */
+      if (vScaleFrequency != 0)
+      {
+        EMU_VScaleWait();
+      }
+#endif
+
       /* Switch to selected oscillator */
 #if defined( _CMU_HFCLKSEL_MASK )
       CMU->HFCLKSEL = select;
@@ -2573,18 +2665,24 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
       setHfLeConfig(CMU_ClockFreqGet(cmuClock_HFLE), CMU_MAX_FREQ_HFLE);
 #endif
 
-      /* Keep EMU module informed */
-      EMU_UpdateOscConfig();
-
       /* Update CMSIS core clock variable */
       /* (The function will update the global variable) */
       freq = SystemCoreClockGet();
 
       /* Optimize flash access wait state setting for currently selected core clk */
       flashWaitStateControl(freq);
+
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+      /* Keep EMU module informed on source HF clock frequency. This will apply voltage
+         downscaling after clock is set if downscaling is configured. */
+      if (vScaleFrequency == 0)
+      {
+        EMU_VScaleEM01ByClock(0, true);
+      }
+#endif
       break;
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
     case CMU_LFACLKSEL_REG:
       selReg = (selReg == NULL) ? &CMU->LFACLKSEL : selReg;
 #if !defined( _CMU_LFACLKSEL_LFA_HFCLKLE )
@@ -2633,6 +2731,14 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
           tmp = _CMU_LFACLKSEL_LFA_ULFRCO;
           break;
 
+#if defined( _CMU_STATUS_PLFRCOENS_MASK )
+        case cmuSelect_PLFRCO:
+          /* Ensure selected oscillator is enabled, waiting for it to stabilize */
+          CMU_OscillatorEnable(cmuOsc_PLFRCO, true, true);
+          tmp = _CMU_LFACLKSEL_LFA_PLFRCO;
+          break;
+#endif
+
         default:
           EFM_ASSERT(0);
           return;
@@ -2640,7 +2746,7 @@ void CMU_ClockSelectSet(CMU_Clock_TypeDef clock, CMU_Select_TypeDef ref)
       *selReg = tmp;
       break;
 
-#elif defined( _SILICON_LABS_32B_PLATFORM_1 )
+#elif defined( _SILICON_LABS_32B_SERIES_0 )
     case CMU_LFACLKSEL_REG:
     case CMU_LFBCLKSEL_REG:
       switch (ref)
@@ -3154,6 +3260,11 @@ void CMU_HFRCOBandSet(CMU_HFRCOFreq_TypeDef setFreq)
 
   /* Reduce HFLE frequency if possible. */
   setHfLeConfig(CMU_ClockFreqGet(cmuClock_HFLE), CMU_MAX_FREQ_HFLE);
+
+  /* Update voltage scaling */
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+  EMU_VScaleEM01ByClock(0, true);
+#endif
 }
 #endif /* _CMU_HFRCOCTRL_FREQRANGE_MASK */
 
@@ -3238,15 +3349,17 @@ void CMU_HFXOAutostartEnable(uint32_t userSel,
               | (enEM0EM1Start ? CMU_HFXOCTRL_AUTOSTARTEM0EM1 : 0)
               | (enEM0EM1StartSel ? CMU_HFXOCTRL_AUTOSTARTSELEM0EM1 : 0);
 
-  CMU->HFXOCTRL = hfxoCtrl;
-
   /* Set wait-states for HFXO if automatic start and select is configured. */
   if (userSel || enEM0EM1StartSel)
   {
     hfxoFreq = SystemHFXOClockGet();
     flashWaitStateControl(hfxoFreq);
-    setHfLeConfig(hfxoFreq, CMU_MAX_FREQ_HFLE);
+    setHfLeConfig(hfxoFreq, CMU_MAX_FREQ_HFLE);   
   }
+  
+  /* Update HFXOCTRL after wait-states are updated as HF may automatically switch 
+     to HFXO when automatic select is enabled . */
+  CMU->HFXOCTRL = hfxoCtrl;
 }
 #endif
 
@@ -3267,6 +3380,11 @@ void CMU_HFXOInit(const CMU_HFXOInit_TypeDef *hfxoInit)
 {
   /* Do not disable HFXO if it is currently selected as HF/Core clock */
   EFM_ASSERT(CMU_ClockSelectGet(cmuClock_HF) != cmuSelect_HFXO);
+
+  /* REGPWRSEL must be set to DVDD before the HFXO can be enabled. */
+#if defined( _EMU_PWRCTRL_REGPWRSEL_MASK )
+  EFM_ASSERT(EMU->PWRCTRL & EMU_PWRCTRL_REGPWRSEL_DVDD);
+#endif
 
   /* HFXO must be disabled before reconfiguration */
   CMU_OscillatorEnable(cmuOsc_HFXO, false, true);
@@ -3476,7 +3594,7 @@ void CMU_LFXOInit(const CMU_LFXOInit_TypeDef *lfxoInit)
 void CMU_OscillatorEnable(CMU_Osc_TypeDef osc, bool enable, bool wait)
 {
   uint32_t rdyBitPos;
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
   uint32_t ensBitPos;
 #endif
 #if defined( _CMU_STATUS_HFXOSHUNTOPTRDY_MASK )
@@ -3492,7 +3610,7 @@ void CMU_OscillatorEnable(CMU_Osc_TypeDef osc, bool enable, bool wait)
       enBit  = CMU_OSCENCMD_HFRCOEN;
       disBit = CMU_OSCENCMD_HFRCODIS;
       rdyBitPos = _CMU_STATUS_HFRCORDY_SHIFT;
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
       ensBitPos = _CMU_STATUS_HFRCOENS_SHIFT;
 #endif
       break;
@@ -3501,7 +3619,7 @@ void CMU_OscillatorEnable(CMU_Osc_TypeDef osc, bool enable, bool wait)
       enBit  = CMU_OSCENCMD_HFXOEN;
       disBit = CMU_OSCENCMD_HFXODIS;
       rdyBitPos = _CMU_STATUS_HFXORDY_SHIFT;
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
       ensBitPos = _CMU_STATUS_HFXOENS_SHIFT;
 #endif
       break;
@@ -3510,7 +3628,7 @@ void CMU_OscillatorEnable(CMU_Osc_TypeDef osc, bool enable, bool wait)
       enBit  = CMU_OSCENCMD_AUXHFRCOEN;
       disBit = CMU_OSCENCMD_AUXHFRCODIS;
       rdyBitPos = _CMU_STATUS_AUXHFRCORDY_SHIFT;
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
       ensBitPos = _CMU_STATUS_AUXHFRCOENS_SHIFT;
 #endif
       break;
@@ -3519,7 +3637,7 @@ void CMU_OscillatorEnable(CMU_Osc_TypeDef osc, bool enable, bool wait)
       enBit  = CMU_OSCENCMD_LFRCOEN;
       disBit = CMU_OSCENCMD_LFRCODIS;
       rdyBitPos = _CMU_STATUS_LFRCORDY_SHIFT;
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
       ensBitPos = _CMU_STATUS_LFRCOENS_SHIFT;
 #endif
       break;
@@ -3528,7 +3646,7 @@ void CMU_OscillatorEnable(CMU_Osc_TypeDef osc, bool enable, bool wait)
       enBit  = CMU_OSCENCMD_LFXOEN;
       disBit = CMU_OSCENCMD_LFXODIS;
       rdyBitPos = _CMU_STATUS_LFXORDY_SHIFT;
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
       ensBitPos = _CMU_STATUS_LFXOENS_SHIFT;
 #endif
       break;
@@ -3538,9 +3656,18 @@ void CMU_OscillatorEnable(CMU_Osc_TypeDef osc, bool enable, bool wait)
       enBit  = CMU_OSCENCMD_USHFRCOEN;
       disBit = CMU_OSCENCMD_USHFRCODIS;
       rdyBitPos = _CMU_STATUS_USHFRCORDY_SHIFT;
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
       ensBitPos = _CMU_STATUS_USHFRCOENS_SHIFT;
 #endif
+      break;
+#endif
+
+#if defined( _CMU_STATUS_PLFRCOENS_MASK )
+    case cmuOsc_PLFRCO:
+      enBit  = CMU_OSCENCMD_PLFRCOEN;
+      disBit = CMU_OSCENCMD_PLFRCODIS;
+      rdyBitPos = _CMU_STATUS_PLFRCORDY_SHIFT;
+      ensBitPos = _CMU_STATUS_PLFRCOENS_SHIFT;
       break;
 #endif
 
@@ -3576,7 +3703,7 @@ void CMU_OscillatorEnable(CMU_Osc_TypeDef osc, bool enable, bool wait)
 #endif
     CMU->OSCENCMD = enBit;
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
     /* Always wait for ENS to go high */
     while (!BUS_RegBitRead(&CMU->STATUS, ensBitPos))
     {
@@ -3618,16 +3745,13 @@ void CMU_OscillatorEnable(CMU_Osc_TypeDef osc, bool enable, bool wait)
   {
     CMU->OSCENCMD = disBit;
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
     /* Always wait for ENS to go low */
     while (BUS_RegBitRead(&CMU->STATUS, ensBitPos))
     {
     }
 #endif
   }
-
-  /* Keep EMU module informed */
-  EMU_UpdateOscConfig();
 }
 
 
@@ -3715,7 +3839,7 @@ void CMU_OscillatorTuningSet(CMU_Osc_TypeDef osc, uint32_t val)
       EFM_ASSERT(val <= (_CMU_LFRCOCTRL_TUNING_MASK
                          >> _CMU_LFRCOCTRL_TUNING_SHIFT));
       val &= (_CMU_LFRCOCTRL_TUNING_MASK >> _CMU_LFRCOCTRL_TUNING_SHIFT);
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
       while(BUS_RegBitRead(&CMU->SYNCBUSY, _CMU_SYNCBUSY_LFRCOBSY_SHIFT));
 #endif
       CMU->LFRCOCTRL = (CMU->LFRCOCTRL & ~(_CMU_LFRCOCTRL_TUNING_MASK))
@@ -3726,7 +3850,7 @@ void CMU_OscillatorTuningSet(CMU_Osc_TypeDef osc, uint32_t val)
       EFM_ASSERT(val <= (_CMU_HFRCOCTRL_TUNING_MASK
                          >> _CMU_HFRCOCTRL_TUNING_SHIFT));
       val &= (_CMU_HFRCOCTRL_TUNING_MASK >> _CMU_HFRCOCTRL_TUNING_SHIFT);
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
       while(BUS_RegBitRead(&CMU->SYNCBUSY, _CMU_SYNCBUSY_HFRCOBSY_SHIFT))
       {
       }
@@ -3739,7 +3863,7 @@ void CMU_OscillatorTuningSet(CMU_Osc_TypeDef osc, uint32_t val)
       EFM_ASSERT(val <= (_CMU_AUXHFRCOCTRL_TUNING_MASK
                          >> _CMU_AUXHFRCOCTRL_TUNING_SHIFT));
       val &= (_CMU_AUXHFRCOCTRL_TUNING_MASK >> _CMU_AUXHFRCOCTRL_TUNING_SHIFT);
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
       while(BUS_RegBitRead(&CMU->SYNCBUSY, _CMU_SYNCBUSY_AUXHFRCOBSY_SHIFT))
       {
       }

@@ -149,19 +149,15 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer1hires_modinit.modname));
     
-    int delta = (int) (timestamp - us_ticker_read());
-    if (delta > 0) {
-        cd_major_minor_us = delta * US_PER_TICK;
-        us_ticker_arm_cd();
-    }
-    else {
-        cd_major_minor_us = cd_minor_us = 0;
-        /**
-         * This event was in the past. Set the interrupt as pending, but don't process it here.
-         * This prevents a recurive loop under heavy load which can lead to a stack overflow.
-         */  
-        NVIC_SetPendingIRQ(timer1hires_modinit.irq_n);
-    }
+    uint32_t delta = timestamp - us_ticker_read();
+    cd_major_minor_us = delta * US_PER_TICK;
+    us_ticker_arm_cd();
+}
+
+void us_ticker_fire_interrupt(void)
+{
+    cd_major_minor_us = cd_minor_us = 0;
+    NVIC_SetPendingIRQ(timer1hires_modinit.irq_n);
 }
 
 static void tmr0_vec(void)

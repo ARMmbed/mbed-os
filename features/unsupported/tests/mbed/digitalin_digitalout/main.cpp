@@ -9,11 +9,12 @@ DigitalIn in(dp2);
 // port pin), D1 is used as USBTX
 DigitalOut out(D7);
 DigitalIn in(D2);
+
 #elif defined(TARGET_STM) && defined(TARGET_FF_ARDUINO)
 // TARGET_FF_ARDUINO cannot be used
 // D0 is used as USBRX for some NUCLEO64
 // D7 is not used for some NUCLEO32
-DigitalOut out(D9);
+DigitalOut out(D3);
 DigitalIn in(D2);
 
 #elif defined(TARGET_DISCO_L053C8) || \

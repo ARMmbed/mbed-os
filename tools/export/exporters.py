@@ -25,6 +25,18 @@ class ExporterTargetsProperty(object):
     def __get__(self, inst, cls):
         return self.func(cls)
 
+def deprecated_exporter(CLS):
+    old_init = CLS.__init__
+    old_name = CLS.NAME
+    def __init__(*args, **kwargs):
+        print("==================== DEPRECATION NOTICE ====================")
+        print("The exporter %s is no longer maintained, and deprecated." % old_name)
+        print("%s will be removed from mbed OS for the mbed OS 5.6 release." % old_name)
+        old_init(*args, **kwargs)
+    CLS.__init__ = __init__
+    CLS.NAME = "%s (DEPRECATED)" % old_name
+    return CLS
+
 class Exporter(object):
     """Exporter base class
 
@@ -36,7 +48,7 @@ class Exporter(object):
     TEMPLATE_DIR = dirname(__file__)
     DOT_IN_RELATIVE_PATH = False
     NAME = None
-    TARGETS = None
+    TARGETS = set()
     TOOLCHAIN = None
 
 
@@ -60,7 +72,11 @@ class Exporter(object):
         jinja_loader = FileSystemLoader(os.path.dirname(os.path.abspath(__file__)))
         self.jinja_environment = Environment(loader=jinja_loader)
         self.resources = resources
-        self.generated_files = [join(self.TEMPLATE_DIR,"GettingStarted.html")]
+        self.generated_files = []
+        self.static_files = (
+            join(self.TEMPLATE_DIR, "GettingStarted.html"),
+            join(self.TEMPLATE_DIR, ".mbed"),
+        )
         self.builder_files_dict = {}
         self.add_config()
 
@@ -89,7 +105,10 @@ class Exporter(object):
         config_header = self.toolchain.get_config_header()
         flags = {key + "_flags": copy.deepcopy(value) for key, value
                  in self.toolchain.flags.iteritems()}
-        asm_defines = ["-D" + symbol for symbol in self.toolchain.get_symbols(True)]
+        asm_defines = self.toolchain.get_compile_options(
+            self.toolchain.get_symbols(for_asm=True),
+            filter(None, self.resources.inc_dirs),
+            for_asm=True)
         c_defines = ["-D" + symbol for symbol in self.toolchain.get_symbols()]
         flags['asm_flags'] += asm_defines
         flags['c_flags'] += c_defines
@@ -176,3 +195,34 @@ class Exporter(object):
     def generate(self):
         """Generate an IDE/tool specific project file"""
         raise NotImplemented("Implement a generate function in Exporter child class")
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        """Query support for a particular target
+
+        NOTE: override this method if your exporter does not provide a static list of targets
+
+        Positional Arguments:
+        target_name - the name of the target.
+        """
+        target = TARGET_MAP[target_name]
+        return bool(set(target.resolution_order_names).intersection(set(cls.TARGETS))) \
+            and cls.TOOLCHAIN in target.supported_toolchains
+
+
+    @classmethod
+    def all_supported_targets(cls):
+        return [t for t in TARGET_MAP.keys() if cls.is_target_supported(t)]
+
+
+def apply_supported_whitelist(compiler, whitelist, target):
+    """Generate a list of supported targets for a given compiler and post-binary hook
+    white-list."""
+    if compiler not in target.supported_toolchains:
+        return False
+    if not hasattr(target, "post_binary_hook"):
+        return True
+    if target.post_binary_hook['function'] in whitelist:
+        return True
+    else:
+        return False

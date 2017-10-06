@@ -12,6 +12,7 @@ This chapter describes the functions of the network control layer. It contains t
 - [_RPL structures and definitions API_](#rpl-structures-and-definitions-api)
 - [_RPL root configuration API_](#rpl-root-configuration-api)
 - [_NET address retrieval API_](#net-address-retrieval-api)
+- [_IPv6 API_](#ipv6-api)
 - [_MLE router and host lifetime configuration API_](#mle-router-and-host-lifetime-configuration-api)
 - [_MLE neighbor limits configuration API_](#mle-neighbor-limits-configuration-api)
 - [_MLE token bucket configuration API_](#mle-token-bucket-configuration-api)
@@ -223,153 +224,121 @@ typedef enum
 
 ### Channel hopping mode
 
-Two hopping modes:
+There are two hopping modes:
 
-- Single channel (non-hopping)
-	* After the network scan, the node changes to the channel from which it found the best available network.
-- FHSS
+- Single channel (non-hopping).
+	* After the network scan, the node changes to the channel with the best available network.
+- FHSS.
 	* Frequency hopping mode.
 	* After the network scan, the node synchronizes to the best available network and starts continuous channel hopping using a predefined channel list.
 
 By default, the 6LoWPAN stack uses the single channel mode. 
 
-To enable the FHSS mode:
+To enable the FHSS mode, you need to create, configure and register a FHSS instance to the software MAC instance.
+
+To create a FHSS instance and set the basic configuration, use:
 
 ```
-int8_t arm_fhss_enable
+fhss_api_t *ns_fhss_create
 (
-	int8_t interface_id,
-	fhss_platform_functions_s *fhss_platform_functions,
-	const fhss_configuration_s *fhss_configuration
+	const fhss_configuration_t *fhss_configuration,
+	const fhss_timer_t *fhss_timer,
+	fhss_statistics_t *fhss_statistics
 )
 ```
 
-Parameter|Descripion
----------|----------
-`interface_id`|The network interface ID.
-`fhss_platform_functions`|A pointer to the platform functions structure.
-`fhss_configuration`|A pointer to the FHSS configuration structure.
-
-<dl>
-<dt>Return value</dt>
-<dd> 0 on success.</dd>
-<dd>-1 in case of invalid input parameters.</dd>
-<dd>-2 if no channels are available in the channel list.</dd>
-<dd>-3 if broadcast channels or tx slots are 0 in the bootstrap mode Border Router or RF access point.</dd>
-<dd>-4 if number of super frames does not work with TX slots in the bootstrap mode Border Router or RF access point.</dd>
-<dd>-5 if the FHSS tasklet creation fails.</dd>
-<dd>-6 if the PHY driver mode cannot be changed.</dd>
-<dd>-7 if the used bootstrap mode is not supported.</dd>
-<dd>-8 if FHSS is already enabled.</dd>
-<dd>-9 if memory allocation failed.</dd>
-</dl>
-
-To implement and define the FHSS platform functions, use the `fhss_platform_functions_s` structure:
-
-```
-typedef struct
-{
-    int (*fhss_timer_start)(uint32_t, void (*fhss_timer_callback)(int8_t, uint16_t), int8_t);
-    int (*fhss_timer_stop)(void);
-    uint32_t (*fhss_get_remaining_slots)(void);
-    int (*fhss_time_measure_start)(void);
-    uint32_t (*fhss_time_measure_read)(void);
-    int (*fhss_time_measure_stop)(void);
-    uint8_t fhss_resolution_divider;
-} fhss_platform_functions_s;
-```
+An application developer must implement the FHSS platform timer functions as described below. The FHSS timer uses 1us resolution if not reduced by the resolution divider.
 
 Member|Description
 ------|-----------
-`fhss_timer_start`|FHSS timer start platform function.
-`fhss_timer_stop`|FHSS timer stop platform function.
-`fhss_get_remaining_slots`|FHSS timer get remaining slots platform function.
-`fhss_time_measure_start`|FHSS time measure start platform function.
-`fhss_time_measure_read`|FHSS time measure read platform function.
-`fhss_time_measure_stop`|FHSS time measure stop platform function.
-`fhss_resolution_divider`|FHSS timer resolution divider.
+`fhss_timer_start` | FHSS timer start platform function.
+`fhss_timer_stop` | FHSS timer stop platform function.
+`fhss_get_remaining_slots` | FHSS timer get remaining slots platform function.
+`fhss_get_timestamp` | FHSS timer timestamp read.
+`fhss_resolution_divider` | FHSS timer resolution divider.
 
-FHSS configuration is always given from the border router using the `fhss_configuration_s` structure. The endpoint learns the configuration from the received synchronization message. In the initialization phase, the endpoint sets the FHSS configuration as NULL:
-
-```
-typedef struct fhss_configuration_s
-{
-    uint8_t fhss_number_of_bc_channels;
-    uint8_t fhss_number_of_tx_slots;
-    uint16_t fhss_superframe_length;
-    uint8_t fhss_number_of_superframes;
-    uint32_t fhss_beacon_send_interval;
-} fhss_configuration_s;
-```
+The  basic configuration for FHSS:
 
 Member|Description
 ------|-----------
-`fhss_number_of_bc_channels`|Number of broadcast channels.
-`fhss_number_of_tx_slots`|Number of TX slots per channel.
-`fhss_superframe_length`|Superframe dwell time (us).
-`fhss_number_of_superframes`|Number of superframes per channel.
-`fhss_beacon_send_interval`|Interval of sending synchronization messages. This configuration is currently disabled.
+`fhss_tuning_parameters` | Tuning parameters to enhance synchronization accuracy.
+`fhss_max_synch_interval` | Maximum interval for requesting synchronization info from a FHSS parent device.
+`fhss_number_of_channel_retries` | Number of channel retries.
+`channel_mask` | Channel mask.
 
-To disable the FHSS mode:
-
-```
-int8_t arm_fhss_disable
-(
-	int8_t interface_id,
-)
-```
+You can provide platform-specific tuning parameters:
 
 Parameter|Description
 ---------|-----------
-`interface_id`|The network interface ID.
+`tx_processing_delay` | Delay between data pushed to PHY TX function and TX started (contains CSMA-CA maximum random period).
+`rx_processing_delay` | Delay between TX done (by transmitter) and received data pushed to MAC (by receiver).
+`ack_processing_delay` | Delay between TX done (by transmitter) and ACK transmission started (by receiver).
 
-<dl>
-<dt>Return value</dt>
-<dd> 0 on success.</dd>
-<dd>-1 on fail.</dd>
-</dl>
-
-### FHSS tuning parameters
-
-When you have enabled FHSS, you can provide some platform-specific tuning parameters using the `arm_fhss_set_tuning_params` function:
+The FHSS synchronization configuration is always given from the border router using the `ns_fhss_configuration_set` function. The endpoint learns the configuration from the received synchronization message.
 
 ```
-int8_t arm_fhss_set_tuning_params
+int ns_fhss_configuration_set
 (
-	int8_t interface_id,
-	const fhss_platform_tuning_params_s *fhss_tuning_params
+	fhss_api_t *fhss_api,
+	const fhss_synch_configuration_t *fhss_synch_configuration
 )
 ```
-
-Parameter|Description
----------|-----------
-`interface_id`|The network interface ID.
-`fhss_tuning_params`|A pointer to the FHSS tuning parameters.
-
-<dl>
-<dt>Return value</dt>
-<dd> 0 on success.</dd>
-<dd>-1 on fail.</dd>
-</dl>
-
-The FHSS device provides the tuning parameters using the `fhss_platform_tuning_params_s` structure:
-
-```
-typedef struct
-{
-    uint32_t synch_tx_processing_time;
-    uint32_t synch_rx_processing_time;
-    uint32_t data_tx_processing_time;
-    uint32_t data_rx_processing_time;
-} fhss_platform_tuning_params_s;
-```
+Synchronization configuration:
 
 Member|Description
 ------|-----------
-`synch_tx_processing_time`|Processing delay between synch info written and TX start (us).
-`synch_rx_processing_time`|Processing delay between TX done and synch info read (us).
-`data_tx_processing_time`|Processing delay between data pushed to driver and transmission started (us).
-`data_rx_processing_time`|Processing delay between TX done and Ack TX start (us).
+`fhss_number_of_bc_channels` | Number of broadcast channels.
+`fhss_number_of_tx_slots` | Number of TX slots per channel.
+`fhss_superframe_length` | Superframe dwell time (us).
+`fhss_number_of_superframes` | Number of superframes per channel.
+
+To register the created FHSS instance to software MAC instance, use the `ns_sw_mac_fhss_register` function:
+```
+int ns_sw_mac_fhss_register
+(
+	struct mac_api_s *mac_api,
+	struct fhss_api *fhss_api
+)
+```
+
+FHSS implements the following API used by the higher layer (software MAC):
+
+Member|Description
+------|-----------
+`fhss_is_broadcast_channel` | Checks if the current channel is a broadcast channel.
+`fhss_use_broadcast_queue` | Checks if a broadcast queue must be used instead of a unicast queue.
+`fhss_tx_handle` | Set the destination channel and write synchronization info.
+`fhss_check_tx_conditions` | Check TX permission.
+`fhss_receive_frame` | Notification of received FHSS synch or synch request frame.
+`fhss_data_tx_done` | Data TX done callback.
+`fhss_data_tx_fail` | Data TX or CCA failed callback.
+`fhss_synch_state_set` | Change the synchronization state.
+`fhss_read_timestamp` | Read the timestamp.
+`fhss_get_retry_period` | Get the retransmission period.
+`fhss_init_callbacks` | Initialize MAC functions.
+
+
+The software MAC implements the following callbacks to serve requests from FHSS:
+
+Member|Description
+------|-----------
+`mac_read_tx_queue_size` | Read MAC TX queue size.
+`mac_read_mac_address` | Read MAC address.
+`mac_read_datarate` | Read PHY datarate.
+`mac_change_channel` | Change channel.
+`mac_send_fhss_frame` | Send FHSS frame.
+`mac_synch_lost_notification` | Send a notification when FHSS synchronization is lost.
+`mac_tx_poll` | Poll TX queue.
+`mac_broadcast_notify` | Broadcast channel notification from FHSS.
+`mac_read_coordinator_mac_address` | Read the coordinator MAC address.
+
+To disable FHSS, you can delete an instance using the `ns_fhss_delete` function.
+```
+int ns_fhss_delete
+(
+	fhss_api_t *fhss_api
+)
+```
 
 ### Beacon protocol ID filter
 
@@ -678,6 +647,8 @@ All configuration calls (such as channel selection) must be performed before cal
 
 ### IPv6 bootstrap configure
 
+#### IPv6 bootstrap configuration
+
 To configure the IPv6 bootstrap:
 
 ```
@@ -692,7 +663,7 @@ int8_t arm_nwk_interface_configure_ipv6_bootstrap_set
 Parameter|Description
 ---------|-----------
 `interface_id`|The network interface ID.
-`bootstrap_mode`|Values to start the bootstrap mode:<br>
+`bootstrap_mode`|Values to start the bootstrap mode.
 `NET_IPV6_BOOTSTRAP_STATIC`|The application defines the IPv6 prefix.
 `ipv6_prefix_pointer`|A pointer to a 64-bit IPv6 prefix.
 
@@ -704,9 +675,34 @@ Parameter|Description
 
 The `arm_nwk_interface_up()` function call starts the stack bootstrap process and performs neighbour discovery.
 
+
+#### Accept Router Advertisements 
+
+You can change the setting when an interface is created. If you change the setting you must do it before the bootstrap is started.
+
+```
+int8_t arm_nwk_interface_accept_ipv6_ra
+(
+	int8_t 			interface_id,
+	net_ipv6_accept_ra_e 	accept_ra
+)
+```
+
+Parameter|Description
+---------|-----------
+`interface_id`|The network interface ID.
+`accept_ra`|Router Advertisements handling mode:<br>`NET_IPV6_RA_ACCEPT_IF_AUTONOMOUS` Accept Router Advertisements when using autonomous IPv6 address allocation. Ignore when using a static address. This is the default value for the setting.<br>`NET_IPV6_RA_ACCEPT_ALWAYS` Accept Router Advertisements always, even when using static IPv6 address allocation.
+
+<dl>
+<dt>Return value</dt>
+<dd>>=0 Setting done.</dd>
+<dd><0 Failed (for example an invalid interface ID).</dd>
+</dl>
+
+
 ### Security mode for RF link layer
 
-To set a security mode for the link layer of a configured network interface:
+To set the security mode for the link layer of a configured network interface:
 
 ```
 int8_t arm_nwk_link_layer_security_mode
@@ -721,7 +717,7 @@ int8_t arm_nwk_link_layer_security_mode
 Parameter|Description
 ---------|-----------
 `interface_id`|The network interface ID.
-`mode`|Defines the security mode for the link layer:<br>`NET_SEC_MODE_NO_SECURITY`, security is disabled.<br>`NET_SEC_MODE_PSK_LINK_SECURITY`, security is enabled with selected mode and PSK key info.<br>`NET_SEC_MODE_PANA_LINK_SECURITY`, link layer keys are defined by the PANA authentication server.
+`mode`|Defines the security mode for the link layer:<br>`NET_SEC_MODE_NO_SECURITY`, security is disabled.<br>`NET_SEC_MODE_PSK_LINK_SECURITY`, security is enabled with selected mode and PSK key info.<br>`NET_SEC_MODE_PANA_LINK_SECURITY`, PANA authentication server defines the link layer keys.
 `sec_level`|Supported values are 1 to 7. This parameter is only checked when the mode is `NET_SEC_MODE_PSK_LINK_SECURITY`.
 `psk_key_info`|A pointer to PSK key material: key and key ID. This parameter is only checked when the mode is `NET_SEC_MODE_PSK_LINK_SECURITY`.
 
@@ -1897,7 +1893,7 @@ To set new parameters for a trickle multicast:
 void multicast_set_parameters
 (
 	uint8_t		i_min,
-	uint8_t		i_max,
+	uint8_t		i_doublings,
 	uint8_t		k,
 	uint8_t		timer_expirations,
 	uint8_t		window_expiration
@@ -1907,7 +1903,7 @@ void multicast_set_parameters
 Parameter|Description
 ---------|-----------
 `i_min`|The minimum trickle timer interval (50ms resolution), so: `Imin = i_min * 50ms`.
-`i_max`|The maximum trickle timer interval as number if doubling of minimum interval.
+`i_doublings`|The maximum trickle timer interval expressed as number of doublings of minimum interval.
 `k`|A redundancy constant.
 `timer_expirations`|Number if trickle timer expires before terminating the trickle process.
 `window_expiration`|Time window state is kept after the trickle process has ended in 50ms resolution.

@@ -88,7 +88,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         /* Single sample, absolute conversion, scale = 1 */
         obj->adcReg->CONTROL.WORD = ((0 << ADC_CONTROL_MODE_BIT_POS) |
                                      (1 << ADC_CONTROL_MEASTYPE_BIT_POS) |
-                                     (1 << ADC_CONTROL_INPUTSCALE_BIT_POS) |
+                                     (6 << ADC_CONTROL_INPUTSCALE_BIT_POS) |
                                      (((uint8_t)adc_pin) << ADC_CONTROL_MEAS_CH_BIT_POS));
 
         /* Prescaler enabled; set to 7 */

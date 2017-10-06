@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   Header file of IRDA HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -196,12 +196,12 @@ typedef struct
   * @brief    IRDA Error Code 
   * @{
   */ 
-#define HAL_IRDA_ERROR_NONE         ((uint32_t)0x00000000U)   /*!< No error            */
-#define HAL_IRDA_ERROR_PE           ((uint32_t)0x00000001U)   /*!< Parity error        */
-#define HAL_IRDA_ERROR_NE           ((uint32_t)0x00000002U)   /*!< Noise error         */
-#define HAL_IRDA_ERROR_FE           ((uint32_t)0x00000004U)   /*!< Frame error         */
-#define HAL_IRDA_ERROR_ORE          ((uint32_t)0x00000008U)   /*!< Overrun error       */
-#define HAL_IRDA_ERROR_DMA          ((uint32_t)0x00000010U)   /*!< DMA transfer error  */
+#define HAL_IRDA_ERROR_NONE         0x00000000U   /*!< No error            */
+#define HAL_IRDA_ERROR_PE           0x00000001U   /*!< Parity error        */
+#define HAL_IRDA_ERROR_NE           0x00000002U   /*!< Noise error         */
+#define HAL_IRDA_ERROR_FE           0x00000004U   /*!< Frame error         */
+#define HAL_IRDA_ERROR_ORE          0x00000008U   /*!< Overrun error       */
+#define HAL_IRDA_ERROR_DMA          0x00000010U   /*!< DMA transfer error  */
 /**
   * @}
   */
@@ -209,7 +209,7 @@ typedef struct
 /** @defgroup IRDA_Word_Length IRDA Word Length
   * @{
   */
-#define IRDA_WORDLENGTH_8B                  ((uint32_t)0x00000000U)
+#define IRDA_WORDLENGTH_8B                  0x00000000U
 #define IRDA_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)
 /**
   * @}
@@ -218,7 +218,7 @@ typedef struct
 /** @defgroup IRDA_Parity  IRDA Parity
   * @{
   */ 
-#define IRDA_PARITY_NONE                    ((uint32_t)0x00000000U)
+#define IRDA_PARITY_NONE                    0x00000000U
 #define IRDA_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE)
 #define IRDA_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS)) 
 /**
@@ -239,7 +239,7 @@ typedef struct
   * @{
   */
 #define IRDA_POWERMODE_LOWPOWER                  ((uint32_t)USART_CR3_IRLP)
-#define IRDA_POWERMODE_NORMAL                    ((uint32_t)0x00000000U)
+#define IRDA_POWERMODE_NORMAL                    0x00000000U
 /**
   * @}
   */
@@ -249,14 +249,14 @@ typedef struct
   *           - 0xXXXX  : Flag mask in the SR register
   * @{
   */
-#define IRDA_FLAG_TXE                       ((uint32_t)0x00000080U)
-#define IRDA_FLAG_TC                        ((uint32_t)0x00000040U)
-#define IRDA_FLAG_RXNE                      ((uint32_t)0x00000020U)
-#define IRDA_FLAG_IDLE                      ((uint32_t)0x00000010U)
-#define IRDA_FLAG_ORE                       ((uint32_t)0x00000008U)
-#define IRDA_FLAG_NE                        ((uint32_t)0x00000004U)
-#define IRDA_FLAG_FE                        ((uint32_t)0x00000002U)
-#define IRDA_FLAG_PE                        ((uint32_t)0x00000001U)
+#define IRDA_FLAG_TXE                       0x00000080U
+#define IRDA_FLAG_TC                        0x00000040U
+#define IRDA_FLAG_RXNE                      0x00000020U
+#define IRDA_FLAG_IDLE                      0x00000010U
+#define IRDA_FLAG_ORE                       0x00000008U
+#define IRDA_FLAG_NE                        0x00000004U
+#define IRDA_FLAG_FE                        0x00000002U
+#define IRDA_FLAG_PE                        0x00000001U
 /**
   * @}
   */
@@ -496,6 +496,13 @@ HAL_StatusTypeDef HAL_IRDA_Receive_DMA(IRDA_HandleTypeDef *hirda, uint8_t *pData
 HAL_StatusTypeDef HAL_IRDA_DMAPause(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_DMAResume(IRDA_HandleTypeDef *hirda);
 HAL_StatusTypeDef HAL_IRDA_DMAStop(IRDA_HandleTypeDef *hirda);
+/* Transfer Abort functions */
+HAL_StatusTypeDef HAL_IRDA_Abort(IRDA_HandleTypeDef *hirda);
+HAL_StatusTypeDef HAL_IRDA_AbortTransmit(IRDA_HandleTypeDef *hirda);
+HAL_StatusTypeDef HAL_IRDA_AbortReceive(IRDA_HandleTypeDef *hirda);
+HAL_StatusTypeDef HAL_IRDA_Abort_IT(IRDA_HandleTypeDef *hirda);
+HAL_StatusTypeDef HAL_IRDA_AbortTransmit_IT(IRDA_HandleTypeDef *hirda);
+HAL_StatusTypeDef HAL_IRDA_AbortReceive_IT(IRDA_HandleTypeDef *hirda);
 
 void HAL_IRDA_IRQHandler(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_TxCpltCallback(IRDA_HandleTypeDef *hirda);
@@ -503,6 +510,9 @@ void HAL_IRDA_RxCpltCallback(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_TxHalfCpltCallback(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_RxHalfCpltCallback(IRDA_HandleTypeDef *hirda);
 void HAL_IRDA_ErrorCallback(IRDA_HandleTypeDef *hirda);
+void HAL_IRDA_AbortCpltCallback(IRDA_HandleTypeDef *hirda);
+void HAL_IRDA_AbortTransmitCpltCallback(IRDA_HandleTypeDef *hirda);
+void HAL_IRDA_AbortReceiveCpltCallback(IRDA_HandleTypeDef *hirda);
 /**
   * @}
   */
@@ -550,7 +560,7 @@ uint32_t HAL_IRDA_GetError(IRDA_HandleTypeDef *hirda);
 #define IS_IRDA_PARITY(PARITY) (((PARITY) == IRDA_PARITY_NONE) || \
                                 ((PARITY) == IRDA_PARITY_EVEN) || \
                                 ((PARITY) == IRDA_PARITY_ODD))
-#define IS_IRDA_MODE(MODE) ((((MODE) & (uint32_t)0x0000FFF3U) == 0x00U) && ((MODE) != (uint32_t)0x00000000U))
+#define IS_IRDA_MODE(MODE) ((((MODE) & 0x0000FFF3U) == 0x00U) && ((MODE) != 0x00000000U))
 #define IS_IRDA_POWERMODE(MODE) (((MODE) == IRDA_POWERMODE_LOWPOWER) || \
                                  ((MODE) == IRDA_POWERMODE_NORMAL))
 #define IS_IRDA_BAUDRATE(BAUDRATE) ((BAUDRATE) < 115201U)

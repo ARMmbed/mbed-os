@@ -31,13 +31,16 @@
  * something that can be computed once and stored off or computed each time at
  * startup. It is PHY specific and provides sensitivity improvements so we
  * highly recommend using it. The IR calibration should only be run when the
- * radio is IDLE. The temperature dependent calibrations are used to
- * recalibrate the synth if the temperature falls below 0 or changes by a
- * certain amount while sitting in receive. We will do this automatically upon
- * entering the receive state so you may omit this calibration if you feel that
- * your stack will turn receive on and off frequently enough. If you do not
- * calibrate for temperature it's possible to miss receive packets due to drift
- * in the carrier frequency.
+ * radio is IDLE.
+ *
+ * The temperature dependent calibrations are used to recalibrate the synth if
+ * the temperature crosses 0C or the temperature delta since the last
+ * calibration exceeds 70C while sitting in receive. RAIL will run VCO
+ * calibration automatically upon entering receive state so the application can
+ * omit this calibration if the stack will re-enter receive with enough
+ * frequency to not hit this temperature delta.  If the application does not
+ * calibrate for temperature, it's possible to miss receive packets due to
+ * drift in the carrier frequency.
  */
 
 /**

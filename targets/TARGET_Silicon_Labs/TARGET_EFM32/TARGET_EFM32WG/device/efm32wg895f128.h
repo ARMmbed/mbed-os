@@ -2,10 +2,10 @@
  * @file efm32wg895f128.h
  * @brief CMSIS Cortex-M Peripheral Access Layer Header File
  *        for EFM32WG895F128
- * @version 5.0.0
+ * @version 5.1.2
  ******************************************************************************
  * @section License
- * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
+ * <b>Copyright 2017 Silicon Laboratories, Inc. http://www.silabs.com</b>
  ******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -123,12 +123,14 @@ typedef enum IRQn
 ******************************************************************************/
 
 /** Part family */
-#define _EFM32_WONDER_FAMILY            1 /**< Wonder Gecko EFM32WG MCU Family */
-#define _EFM_DEVICE                       /**< Silicon Labs EFM-type microcontroller */
-#define _SILICON_LABS_32B_SERIES_0        /**< Silicon Labs series number */
-#define _SILICON_LABS_32B_SERIES        0 /**< Silicon Labs series number */
-#define _SILICON_LABS_32B_PLATFORM_1      /**< Silicon Labs platform name */
-#define _SILICON_LABS_32B_PLATFORM      1 /**< Silicon Labs platform name */
+#define _EFM32_WONDER_FAMILY                    1  /**< Wonder Gecko EFM32WG MCU Family */
+#define _EFM_DEVICE                                /**< Silicon Labs EFM-type microcontroller */
+#define _SILICON_LABS_32B_SERIES_0                 /**< Silicon Labs series number */
+#define _SILICON_LABS_32B_SERIES                0  /**< Silicon Labs series number */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID       74 /** Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_GECKO_INTERNAL_SDID_74       /** Silicon Labs internal use only, may change any time */
+#define _SILICON_LABS_32B_PLATFORM_1               /**< @deprecated Silicon Labs platform name */
+#define _SILICON_LABS_32B_PLATFORM              1  /**< @deprecated Silicon Labs platform name */
 
 /* If part number is not defined as compiler option, define it */
 #if !defined(EFM32WG895F128)

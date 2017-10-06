@@ -42,8 +42,6 @@
 
 ADC_TypeDef * AdcHandle;
 
-static int adc_inited = 0;
-
 void analogin_init(analogin_t *obj, PinName pin)
 {
     // Get the peripheral name from the pin and assign it to the object
@@ -57,12 +55,8 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Save pin number for the read function
     obj->pin = pin;
 
-    // The ADC initialization is done once
-    if (adc_inited == 0) {
-        adc_inited = 1;
-
-        ADC_Init();
-    }
+    // The ADC initialization
+    ADC_Init();
 }
 
 static inline uint16_t adc_read(analogin_t *obj)

@@ -1,4 +1,5 @@
 #--- Inputs ----#
+MBED_TRACE_HOME = ../../../../../mbed-trace
 CPPUTEST_HOME = /usr
 CPPUTEST_USE_EXTENSIONS = Y
 CPPUTEST_USE_VPATH = Y
@@ -11,6 +12,7 @@ INCLUDE_DIRS =\
   ../../../..\
   ../../../../source\
   ../../../../mbed-client-libservice\
+  $(MBED_TRACE_HOME)\
   /usr/include\
   $(CPPUTEST_HOME)/include\
 

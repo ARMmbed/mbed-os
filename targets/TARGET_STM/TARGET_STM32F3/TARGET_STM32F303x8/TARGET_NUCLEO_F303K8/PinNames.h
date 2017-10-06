@@ -104,6 +104,8 @@ typedef enum {
     LED3        = PB_3,
     LED4        = PB_3,
     USER_BUTTON = 0x20, // no user button on the board
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
     SERIAL_TX   = PA_2,
     SERIAL_RX   = PA_15,
     USBTX       = PA_2,

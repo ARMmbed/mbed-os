@@ -47,6 +47,8 @@ I2C master(D14, D15); // I2C_SDA, I2C_SCL
 I2CSlave slave(PB_11, PB_10);
 #elif defined(TARGET_NUCLEO_F303RE)
 I2CSlave slave(D2, D8);
+#elif defined (TARGET_DISCO_L475VG_IOT01A)
+I2CSlave slave(A4, A5);
 #else
 I2CSlave slave(D3, D6);
 #endif

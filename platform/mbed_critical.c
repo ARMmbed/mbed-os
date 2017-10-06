@@ -23,8 +23,6 @@
 #include "platform/mbed_assert.h"
 #include "platform/mbed_toolchain.h"
 
-#define EXCLUSIVE_ACCESS (!defined (__CORTEX_M0) && !defined (__CORTEX_M0PLUS))
-
 static volatile uint32_t interrupt_enable_counter = 0;
 static volatile bool critical_interrupts_disabled = false;
 
@@ -34,6 +32,22 @@ bool core_util_are_interrupts_enabled(void)
     return ((__get_CPSR() & 0x80) == 0);
 #else
     return ((__get_PRIMASK() & 0x1) == 0);
+#endif
+}
+
+bool core_util_is_isr_active(void)
+{
+#if defined(__CORTEX_A9)
+    switch(__get_CPSR() & 0x1FU) {
+        case MODE_USR:
+        case MODE_SYS:
+            return false;
+        case MODE_SVC:
+        default:
+            return true;
+    }
+#else
+    return (__get_IPSR() != 0U);
 #endif
 }
 
@@ -87,7 +101,7 @@ MBED_WEAK void core_util_critical_section_exit(void)
     }
 }
 
-#if EXCLUSIVE_ACCESS
+#if __EXCLUSIVE_ACCESS
 
 /* Supress __ldrex and __strex deprecated warnings - "#3731-D: intrinsic is deprecated" */
 #if defined (__CC_ARM) 

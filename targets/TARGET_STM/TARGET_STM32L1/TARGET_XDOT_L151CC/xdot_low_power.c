@@ -30,6 +30,7 @@
 
 #include "xdot_low_power.h"
 #include "stdio.h"
+#include "mbed_debug.h"
 
 static uint32_t portA[6];
 static uint32_t portB[6];
@@ -218,19 +219,19 @@ void xdot_enter_stop_mode() {
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
-    RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_OscInitTypeDef HSERCC_OscInitStruct;
     /* Enable HSE and HSI48 oscillators and activate PLL with HSE as source */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI;
-    RCC_OscInitStruct.HSEState = RCC_HSE_ON; /* External 24 MHz xtal on OSC_IN/OSC_OUT */
-    RCC_OscInitStruct.HSIState = RCC_HSI_OFF;
+    HSERCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI;
+    HSERCC_OscInitStruct.HSEState = RCC_HSE_ON; /* External 24 MHz xtal on OSC_IN/OSC_OUT */
+    HSERCC_OscInitStruct.HSIState = RCC_HSI_OFF;
   // SYSCLK = 32 MHz ((24 MHz * 4) / 3)
   // USBCLK = 48 MHz ((24 MHz * 4) / 2) --> USB OK
-    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL4;
-    RCC_OscInitStruct.PLL.PLLDIV          = RCC_PLL_DIV3;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-        printf("OSC initialization failed - initiating soft reset\r\n");
+    HSERCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+    HSERCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
+    HSERCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL4;
+    HSERCC_OscInitStruct.PLL.PLLDIV          = RCC_PLL_DIV3;
+    if (HAL_RCC_OscConfig(&HSERCC_OscInitStruct) != HAL_OK) {
+        debug("OSC initialization failed - initiating soft reset\r\n");
         NVIC_SystemReset();
     }
 
@@ -241,8 +242,21 @@ void xdot_enter_stop_mode() {
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 32 MHz
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 32 MHz
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
-        printf("PLL initialization failed - initiating soft reset\r\n");
+        debug("PLL initialization failed - initiating soft reset\r\n");
         NVIC_SystemReset();
+    }
+
+    /* Enable the HSI for ADC peripherals */
+    RCC_OscInitTypeDef HSIRCC_OscInitStruct;
+    HAL_RCC_GetOscConfig(&HSIRCC_OscInitStruct);
+    if ( HSIRCC_OscInitStruct.HSIState != RCC_HSI_ON ) {
+        HSIRCC_OscInitStruct.HSIState = RCC_HSI_ON;
+        HSIRCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+        HSIRCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+        HAL_StatusTypeDef ret = HAL_RCC_OscConfig(&HSIRCC_OscInitStruct);
+        if ( ret != HAL_OK ) {
+            debug("HSI initialization failed - ADC will not function properly\r\n");
+        }
     }
 
     SystemCoreClockUpdate();

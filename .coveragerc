@@ -1,0 +1,9 @@
+[run]
+omit =
+     */usr/local/lib*
+     */tools/test/*
+
+[report]
+omit =
+     */usr/local/lib*
+     */tools/test/*

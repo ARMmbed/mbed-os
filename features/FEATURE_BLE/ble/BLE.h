@@ -798,7 +798,7 @@ public:
      * @param connectionParams
      *         Connection parameters.
      * @param scanParams
-     *          Paramters to use while scanning for the peer.
+     *          Parameters to use while scanning for the peer.
      * @return  BLE_ERROR_NONE if connection establishment procedure is started
      *     successfully. The onConnection callback (if set) is invoked upon
      *     a connection event.

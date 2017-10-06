@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_timer.h
  * @brief Timer/counter (TIMER) peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -59,32 +59,16 @@ extern "C" {
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
-
 /** Validation of TIMER register block pointer reference for assert statements. */
-#if (TIMER_COUNT == 1)
-#define TIMER_REF_VALID(ref)    ((ref) == TIMER0)
-#elif (TIMER_COUNT == 2)
-#define TIMER_REF_VALID(ref)    (((ref) == TIMER0) || ((ref) == TIMER1))
-#elif (TIMER_COUNT == 3)
-#define TIMER_REF_VALID(ref)    (((ref) == TIMER0)    \
-                                 || ((ref) == TIMER1) \
-                                 || ((ref) == TIMER2))
-#elif (TIMER_COUNT == 4)
-#define TIMER_REF_VALID(ref)    (((ref) == TIMER0)    \
-                                 || ((ref) == TIMER1) \
-                                 || ((ref) == TIMER2) \
-                                 || ((ref) == TIMER3))
-#else
-#error "Undefined number of timers."
-#endif
+#define TIMER_REF_VALID(ref)  TIMER_Valid(ref)
 
 /** Validation of TIMER compare/capture channel number */
-#if defined(_SILICON_LABS_32B_PLATFORM_1)
+#if defined(_SILICON_LABS_32B_SERIES_0)
 #define TIMER_CH_VALID(ch)    ((ch) < 3)
-#elif defined(_SILICON_LABS_32B_PLATFORM_2)
+#elif defined(_SILICON_LABS_32B_SERIES_1)
 #define TIMER_CH_VALID(ch)    ((ch) < 4)
 #else
-#error "Unknown platform. Undefined number of channels."
+#error "Unknown device. Undefined number of channels."
 #endif
 
 /** @endcond */
@@ -499,6 +483,66 @@ typedef struct
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
+
+/***************************************************************************//**
+ * @brief
+ *   Validate the TIMER register block pointer
+ *
+ * @param[in] ref
+ *   Pointer to TIMER peripheral register block.
+ *
+ * @return
+ *   true if ref points to a valid timer, false otherwise.
+ ******************************************************************************/
+__STATIC_INLINE bool TIMER_Valid(const TIMER_TypeDef *ref)
+{
+  return (ref == TIMER0)
+#if defined(TIMER1)
+         || (ref == TIMER1)
+#endif
+#if defined(TIMER2)
+         || (ref == TIMER2)
+#endif
+#if defined(TIMER3)
+         || (ref == TIMER3)
+#endif
+#if defined(WTIMER0)
+         || (ref == WTIMER0)
+#endif
+#if defined(WTIMER1)
+         || (ref == WTIMER1)
+#endif
+         ;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Get the Max count of the timer
+ *
+ * @param[in] timer
+ *   Pointer to TIMER peripheral register block.
+ *
+ * @return
+ *   The max count value of the timer. This is 0xFFFF for 16 bit timers
+ *   and 0xFFFFFFFF for 32 bit timers.
+ ******************************************************************************/
+__STATIC_INLINE uint32_t TIMER_MaxCount(const TIMER_TypeDef *ref)
+{
+#if defined(WTIMER_PRESENT)
+  if ((ref == WTIMER0)
+#if defined(WTIMER1)
+      || (ref == WTIMER1)
+#endif
+      )
+  {
+    return 0xFFFFFFFFUL;
+  }
+#else
+  (void) ref;
+#endif
+  return 0xFFFFUL;
+}
+
 /***************************************************************************//**
  * @brief
  *   Get capture value for compare/capture channel when operating in capture
@@ -542,6 +586,7 @@ __STATIC_INLINE void TIMER_CompareBufSet(TIMER_TypeDef *timer,
                                          unsigned int ch,
                                          uint32_t val)
 {
+  EFM_ASSERT(val <= TIMER_MaxCount(timer));
   timer->CC[ch].CCVB = val;
 }
 
@@ -564,6 +609,7 @@ __STATIC_INLINE void TIMER_CompareSet(TIMER_TypeDef *timer,
                                       unsigned int ch,
                                       uint32_t val)
 {
+  EFM_ASSERT(val <= TIMER_MaxCount(timer));
   timer->CC[ch].CCV = val;
 }
 
@@ -596,6 +642,7 @@ __STATIC_INLINE uint32_t TIMER_CounterGet(TIMER_TypeDef *timer)
  ******************************************************************************/
 __STATIC_INLINE void TIMER_CounterSet(TIMER_TypeDef *timer, uint32_t val)
 {
+  EFM_ASSERT(val <= TIMER_MaxCount(timer));
   timer->CNT = val;
 }
 
@@ -867,6 +914,7 @@ void TIMER_Reset(TIMER_TypeDef *timer);
  ******************************************************************************/
 __STATIC_INLINE void TIMER_TopBufSet(TIMER_TypeDef *timer, uint32_t val)
 {
+  EFM_ASSERT(val <= TIMER_MaxCount(timer));
   timer->TOPB = val;
 }
 
@@ -899,6 +947,7 @@ __STATIC_INLINE uint32_t TIMER_TopGet(TIMER_TypeDef *timer)
  ******************************************************************************/
 __STATIC_INLINE void TIMER_TopSet(TIMER_TypeDef *timer, uint32_t val)
 {
+  EFM_ASSERT(val <= TIMER_MaxCount(timer));
   timer->TOP = val;
 }
 
@@ -918,7 +967,6 @@ __STATIC_INLINE void TIMER_Unlock(TIMER_TypeDef *timer)
   timer->DTLOCK = TIMER_DTLOCK_LOCKKEY_UNLOCK;
 }
 #endif
-
 
 /** @} (end addtogroup TIMER) */
 /** @} (end addtogroup emlib) */

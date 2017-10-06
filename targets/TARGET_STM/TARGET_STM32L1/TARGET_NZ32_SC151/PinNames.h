@@ -104,6 +104,8 @@ typedef enum {
     LED3        = PB_2,
     LED4        = PB_2,
     USER_BUTTON = PC_3,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
 
 #if (MX_DEFAULT_SERIAL_PINS == 0)
     //Use B10/B11 as default serial port

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -17,21 +17,15 @@
  *
  * \section server-api Server NVM API
  *
- * PANA server security material is crypted always and if you change the border router RF module
- * decrypt does not work properly.
- *
  *  - pana_server_nvm_callback_set(),  Initialize PANA server NVM functionality.
- *  - pana_server_restore_from_nvm(), Load crypted PANA server base and security material from NVM.
- *  - pana_server_nvm_client_session_load(), Load crypted client session from NVM.
+ *  - pana_server_restore_from_nvm(), Load PANA server base and security material from NVM.
+ *  - pana_server_nvm_client_session_load(), Load client session from NVM.
  *
  * \section client-api Client NVM API
  *
  * nw_nvm.c use already this API and the application can just use net_nvm_api.h.
  *
  * - pana_client_nvm_callback_set(), Initialize PANA session NVM.
- * - net_read_persistent_data(), Read NWK ID & MAC 16-bit address.
- * - net_nvm_data_load(), Load PANA session, NWK-ID and short address to stack for re-use.
- * - net_pana_client_session_nvm_data_load(), Load saved PANA session with specific address or not.
  *
  */
 #ifndef PANA_NVM_API_H_
@@ -43,16 +37,34 @@
 extern "C" {
 #endif
 
+
+/**
+ * \brief Pana client and common data structure for get / Update callback's
+ *
+ * Client: [session address 16-bytes] + [session data 70-bytes] , Total 86 bytes
+ *
+ * Server: [offset 2-bytes] + [session address 16-bytes] + [session port 2-bytes] + [session id 4-bytes] + [session data 92-bytes], Total 116 bytes
+ */
+
+/**
+ * Size of Pana client session data without session address
+ */
 #define PANA_CLIENT_NVM_SESSION_BUF_SIZE 70
+/**
+ * Size of Pana client session data with session address
+ */
 #define PANA_CLIENT_NVM_SESSION_BUF_SIZE_WITH_ADDRESS 86
-#define NET_NVM_SESSION_BUF_SIZE_WITH_NET_PARAMS_AND_PANA 88
 
-#define PANA_SERVER_CLIENT_NVM_SESSION_UNCRYPTED_DATA_SIZE 20
-#define PANA_SERVER_CLIENT_NVM_SESSION_FULL_ENCRYPTED_DATA_SIZE 96
-#define PANA_SERVER_CLIENT_NVM_SESSION_SEQUENCY_STATE_ENCRYPTED_DATA_SIZE 33
-#define PANA_SERVER_CLIENT_NVM_SESSION_BUF_SIZE (PANA_SERVER_CLIENT_NVM_SESSION_UNCRYPTED_DATA_SIZE + PANA_SERVER_CLIENT_NVM_SESSION_FULL_ENCRYPTED_DATA_SIZE)
+/**
+ * Size of data for Server client Uodate and get callback
+ *
+ */
+#define PANA_SERVER_CLIENT_NVM_SESSION_BUF_SIZE 116
 
-
+/**
+ * Size of data for Server material update and restore operation
+ *
+ */
 #define PANA_SERVER_MATERIAL_BUF_SIZE 90
 /*!
  * \enum pana_nvm_update_process_t
@@ -61,7 +73,6 @@ extern "C" {
 typedef enum pana_nvm_update_process_t {
     PANA_SERVER_MATERIAL_UPDATE,                /**< PANA server security material update. */
     PANA_SERVER_CLIENT_SESSION_UPDATE,          /**< PANA client session update. */
-    PANA_SERVER_CLIENT_SESSION_SEQ_UPDATE,      /**< PANA client session sequence number update. */
     PANA_SERVER_CLIENT_SESSION_REMOVE_UPDATE,   /**< PANA client session remove. */
 } pana_nvm_update_process_t;
 
@@ -70,30 +81,104 @@ typedef enum pana_nvm_update_process_t {
  * \brief PANA client NVM update states.
  */
 typedef enum pana_client_nvm_update_process_t {
-    PANA_CLIENT_SESSION_UPDATE,     /**< PANA session information fully update.  */
-    PANA_CLIENT_SESSION_SEQ_UPDATE, /**< PANA key pull or push operation update REQ and RES sequence number. */
+    PANA_CLIENT_SESSION_UPDATE,          /**< PANA client session update. */
+    PANA_CLIENT_SESSION_REMOVE,   /**< PANA client session remove. */
 } pana_client_nvm_update_process_t;
+
+/*!
+ * \struct wpan_nvm_params_t
+ * \brief Network nvm parameters.
+ */
+typedef struct wpan_nvm_params {
+    uint16_t pan_id;     /**< WPAN Pan-id.  */
+    uint32_t mac_security_frame_counter; /**< Mac security counter. */
+    uint32_t mle_securit_counter; /**< MLE security counter. */
+} wpan_nvm_params_t;
+
+/**
+ * \brief NVM memory user callback for updated parameters
+ *
+ * \param parameters Updated wpan parameters
+ */
+typedef void wpan_params_updated(wpan_nvm_params_t *parameters);
+
+/**
+ * \brief NVM memory user for get parameter->pan_id network setup
+ *
+ * \param parameters Pointer for request parameters parameter->pan_id is configured for proper setup
+ *
+ * \return true when configure is loaded to buffer
+ * \return false when there is no proper data for current wpan
+ */
+typedef bool wpan_params_get(wpan_nvm_params_t *parameters);
+
+/**
+ * \brief Pana client session update callback
+ *
+ * \param pan_id define which pan session is
+ * \param process PANA_CLIENT_SESSION_UPDATE or PANA_CLIENT_SESSION_REMOVE
+ */
+typedef void pana_client_session_update_cb(uint16_t pan_id, pana_client_nvm_update_process_t process);
+
+/**
+ * \brief Pana client discover session from NVM user based on pan id
+ *
+ * \param pan_id define which pan session is
+ *
+ * \return true When Session is stored to behind given session buffer
+ * \return false NVM can't detect session for given pan id
+ */
+typedef bool pana_client_session_get_cb(uint16_t pan_id);
+
+/**
+ * \brief Pana server call this when it create /Update / delete client session or update Server material
+ *
+ * \param operation Pana server NVM update
+ *
+ * \return session offset . Requirement for operation PANA_SERVER_CLIENT_SESSION_UPDATE
+ */
+typedef uint16_t pana_server_update_cb(pana_nvm_update_process_t operation);
+
+/**
+ * \brief Pana server call this when discover client session from NVM for given address
+ *
+ * \param linklocal_address Link local address for sesion
+ *
+ * \return true When Session is stored to behind given session buffer
+ * \return false NVM can't detect session for given address
+ */
+typedef bool pana_server_session_get_cb(uint8_t *linklocal_address);
+
+/**
+ * \brief Pana server call this when discover client session from NVM for pana session
+ *
+ * \param session_id Pana session Id
+ *
+ * \return true When Session is stored to behind given session buffer
+ * \return false NVM can't detect session for given session id
+ */
+typedef bool pana_server_session_get_by_id_cb(uint32_t session_id);
 
 /* NVM API PART */
 /**
  * \brief PANA server NVM functionality initialization.
  *
- * \param passed_fptr A function pointer to NVM update process.
- * \param nvm_static_buffer A pointer to application allocated static memory, minimum size 115 bytes.
+ * \param update_cb A function pointer to NVM update process.
+ * \param nvm_get A function pointer for discover session data from NVM by link local address
+ * \param nvm_session_get A function pointer for discover session data from NVM by pana session id
+ * \param nvm_static_buffer A pointer to application allocated static memory, minimum size PANA_SERVER_CLIENT_NVM_SESSION_BUF_SIZE (116 bytes).
  *
- *
- * Reference callback function structure using EEPROM:
- * - nvm_static_buffer Application is allocated a static buffer.
  *
  * \return 0, Init OK.
  * \return -1, Null parameter detect.
  *
  */
-extern int8_t pana_server_nvm_callback_set(uint16_t (*passed_fptr)(pana_nvm_update_process_t), uint8_t *nvm_static_buffer);
+extern int8_t pana_server_nvm_callback_set(pana_server_update_cb *update_cb, pana_server_session_get_cb *nvm_get, pana_server_session_get_by_id_cb *nvm_session_get, uint8_t *nvm_static_buffer);
 /**
  * \brief PANA server base restore from NVM.
  *
- * \param nvm_data A pointer to encrypted PANA server base data.
+ * \param nvm_data A pointer to PANA server base data.
+ * \param interface_id Interface ID.
  *
  * \return 0, Restore OK.
  * \return -1, Memory allocation fail.
@@ -103,7 +188,7 @@ extern int8_t pana_server_restore_from_nvm(uint8_t *nvm_data, int8_t interface_i
 /**
  * \brief PANA client session load from NVM API.
  *
- * \param nvm_data A pointer to encrypted PANA client session.
+ * \param nvm_pointer A pointer  PANA client session.
  *
  * \return 0, Restore OK.
  * \return -1, Memory allocation fail.
@@ -114,59 +199,17 @@ extern int8_t pana_server_nvm_client_session_load(uint8_t *nvm_pointer);
 /**
  * \brief PANA client NVM functionality init.
  *
- * \param passed_fptr A function pointer to NVM update process.
- * \param nvm_static_buffer A pointer to application allocated static memory, minimum size 88 bytes.
+ * \param nvm_update A function pointer to NVM update process.
+ * \param nvm_get A function pointer for discover session from NVM for given Pan-id
+ * \param nvm_static_buffer A pointer to application allocated static memory, minimum size for session 86 bytes + 16-bit pan-id.
  *
- * Reference callback function structure using EEPROM:
- * - nvm_static_buffer Application allocated static buffer.
  *
  * \return 0, Init OK.
  * \return -1, Null parameter detect.
  *
  */
-extern int8_t pana_client_nvm_callback_set(void (*passed_fptr)(pana_client_nvm_update_process_t), uint8_t *nvm_static_buffer);
-/**
- * \brief Read network persistent data.
- *
- * \param data_buffer A pointer to location where the stack saves 18 bytes [NWK-ID 16bytes, Short Address 2bytes].
- *
- *
- * \return 0, Read OK.
- * \return -1, Null parameter detected.
- * \return -2 Bootstrap not ready yet.
- *
- * This function should call when network bootstrap is ready.
- *
- */
-extern int8_t net_read_persistent_data(uint8_t *data_buffer, int8_t interface_id);
-/**
- * \brief Load ZigBeeIP node persistent data to stack for re-use.
- *
- * \param data_buffer A pointer to data with 88 bytes [NWK-ID 16bytes, Short Address 2bytes, Pana 70 bytes].
- *
- *
- * \return 0, Read OK.
- * \return -1, Null parameter detected.
- * \return -2, Stack is active.
- * \return <-2 Memory allocation fail.
- *
- */
-extern int8_t net_nvm_data_load(uint8_t *data_buffer, int8_t interface_id);
+extern int8_t pana_client_nvm_callback_set(pana_client_session_update_cb *nvm_update, pana_client_session_get_cb *nvm_get,uint8_t *nvm_static_buffer);
 
-/**
- * \brief Load PANA client session data to the stack for re-use.
- *
- * \param data_buffer A pointer to data with encrypted PANA session 70 bytes.
- * \param session_address A pointer to a session-specific address. Give the address if you want to re-use the session with specific parent, otherwise give NULL.
- *
- *
- * \return 0, Read OK.
- * \return -1, Null parameter detected.
- * \return -2, Stack is active.
- * \return <-2 Memory allocation fail.
- *
- */
-extern int8_t net_pana_client_session_nvm_data_load(uint8_t *data_buffer, uint8_t *session_address, int8_t interface_id);
 /**
  * \brief Clean node persistent data and all PANA client sessions from the stack.
  *
@@ -178,6 +221,51 @@ extern int8_t net_pana_client_session_nvm_data_load(uint8_t *data_buffer, uint8_
  *
  */
 extern int8_t net_nvm_data_clean(int8_t interface_id);
+
+/**
+ * \brief Enable and init network NVM parameter automatic update.
+ *
+ * This function enables MAC and MLE protocol critical components update process to NVM memory user.
+ *
+ * \param interface_id Interface ID.
+ * \param nvm_update_cb Function pointer for update NVM
+ * \param nvm_get_cb Function for stack to request setup from NVM.
+ *
+ *
+ * \return 0, Init OK.
+ * \return -1, Unknown Interface.
+ * \return -2, Memory allocation fail.
+ *
+ */
+extern int8_t net_nvm_wpan_params_storage_enable(int8_t interface_id, wpan_params_updated *nvm_update_cb, wpan_params_get *nvm_get_cb);
+
+/**
+ * \brief Reset stored WPAN parameter's at interface .
+ *
+ * This function clean state at WPAN params at stack. Force Request from NVM
+ *
+ *\param interface_id Interface ID.
+ *
+ * \return 0, reset OK.
+ * \return -1, Unknown Interface.
+ *
+ */
+extern int8_t net_nvm_wpan_params_storage_reset(int8_t interface_id);
+
+
+/**
+ * \brief Disable stored WPAN parameter's to interface .
+ *
+ *
+ *\param interface_id Interface ID.
+ *
+ * \return 0, Disable OK.
+ * \return -1, Unknown Interface.
+ *
+ */
+extern int8_t net_nvm_wpan_params_storage_disable(int8_t interface_id);
+
+
 #ifdef __cplusplus
 }
 #endif

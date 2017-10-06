@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_cryp.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   Header file of CRYP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -180,42 +180,42 @@ typedef struct
 /** @defgroup CRYP_Key_Size CRYP Key Size
   * @{
   */
-#define CRYP_KEYSIZE_128B         ((uint32_t)0x00000000U)
+#define CRYP_KEYSIZE_128B         0x00000000U
 #define CRYP_KEYSIZE_192B         CRYP_CR_KEYSIZE_0
 #define CRYP_KEYSIZE_256B         CRYP_CR_KEYSIZE_1
-/**                                
+/**
   * @}
   */
 
 /** @defgroup CRYP_Data_Type CRYP Data Type
   * @{
   */
-#define CRYP_DATATYPE_32B         ((uint32_t)0x00000000U)
+#define CRYP_DATATYPE_32B         0x00000000U
 #define CRYP_DATATYPE_16B         CRYP_CR_DATATYPE_0
 #define CRYP_DATATYPE_8B          CRYP_CR_DATATYPE_1
 #define CRYP_DATATYPE_1B          CRYP_CR_DATATYPE
-/**                                
+/**
   * @}
   */
 
 /** @defgroup CRYP_Exported_Constants_Group3 CRYP CRYP_AlgoModeDirection
   * @{
   */
-#define CRYP_CR_ALGOMODE_DIRECTION         ((uint32_t)0x0008003CU)
-#define CRYP_CR_ALGOMODE_TDES_ECB_ENCRYPT  ((uint32_t)0x00000000U)
-#define CRYP_CR_ALGOMODE_TDES_ECB_DECRYPT  ((uint32_t)0x00000004U)
-#define CRYP_CR_ALGOMODE_TDES_CBC_ENCRYPT  ((uint32_t)0x00000008U)
-#define CRYP_CR_ALGOMODE_TDES_CBC_DECRYPT  ((uint32_t)0x0000000CU)
-#define CRYP_CR_ALGOMODE_DES_ECB_ENCRYPT   ((uint32_t)0x00000010U)
-#define CRYP_CR_ALGOMODE_DES_ECB_DECRYPT   ((uint32_t)0x00000014U)
-#define CRYP_CR_ALGOMODE_DES_CBC_ENCRYPT   ((uint32_t)0x00000018U)
-#define CRYP_CR_ALGOMODE_DES_CBC_DECRYPT   ((uint32_t)0x0000001CU)
-#define CRYP_CR_ALGOMODE_AES_ECB_ENCRYPT   ((uint32_t)0x00000020U)
-#define CRYP_CR_ALGOMODE_AES_ECB_DECRYPT   ((uint32_t)0x00000024U)
-#define CRYP_CR_ALGOMODE_AES_CBC_ENCRYPT   ((uint32_t)0x00000028U)
-#define CRYP_CR_ALGOMODE_AES_CBC_DECRYPT   ((uint32_t)0x0000002CU)
-#define CRYP_CR_ALGOMODE_AES_CTR_ENCRYPT   ((uint32_t)0x00000030U)
-#define CRYP_CR_ALGOMODE_AES_CTR_DECRYPT   ((uint32_t)0x00000034U)
+#define CRYP_CR_ALGOMODE_DIRECTION         0x0008003CU
+#define CRYP_CR_ALGOMODE_TDES_ECB_ENCRYPT  0x00000000U
+#define CRYP_CR_ALGOMODE_TDES_ECB_DECRYPT  0x00000004U
+#define CRYP_CR_ALGOMODE_TDES_CBC_ENCRYPT  0x00000008U
+#define CRYP_CR_ALGOMODE_TDES_CBC_DECRYPT  0x0000000CU
+#define CRYP_CR_ALGOMODE_DES_ECB_ENCRYPT   0x00000010U
+#define CRYP_CR_ALGOMODE_DES_ECB_DECRYPT   0x00000014U
+#define CRYP_CR_ALGOMODE_DES_CBC_ENCRYPT   0x00000018U
+#define CRYP_CR_ALGOMODE_DES_CBC_DECRYPT   0x0000001CU
+#define CRYP_CR_ALGOMODE_AES_ECB_ENCRYPT   0x00000020U
+#define CRYP_CR_ALGOMODE_AES_ECB_DECRYPT   0x00000024U
+#define CRYP_CR_ALGOMODE_AES_CBC_ENCRYPT   0x00000028U
+#define CRYP_CR_ALGOMODE_AES_CBC_DECRYPT   0x0000002CU
+#define CRYP_CR_ALGOMODE_AES_CTR_ENCRYPT   0x00000030U
+#define CRYP_CR_ALGOMODE_AES_CTR_DECRYPT   0x00000034U
 /**
   * @}
   */
@@ -232,17 +232,17 @@ typedef struct
 /** @defgroup CRYP_Exported_Constants_Group5 CRYP CRYP_Flags
   * @{
   */
-#define CRYP_FLAG_BUSY   ((uint32_t)0x00000010U)  /*!< The CRYP core is currently 
+#define CRYP_FLAG_BUSY   0x00000010U  /*!< The CRYP core is currently 
                                                        processing a block of data 
                                                        or a key preparation (for 
                                                        AES decryption). */
-#define CRYP_FLAG_IFEM   ((uint32_t)0x00000001U)  /*!< Input FIFO is empty */
-#define CRYP_FLAG_IFNF   ((uint32_t)0x00000002U)  /*!< Input FIFO is not Full */
-#define CRYP_FLAG_OFNE   ((uint32_t)0x00000004U)  /*!< Output FIFO is not empty */
-#define CRYP_FLAG_OFFU   ((uint32_t)0x00000008U)  /*!< Output FIFO is Full */
-#define CRYP_FLAG_OUTRIS ((uint32_t)0x01000002U)  /*!< Output FIFO service raw 
+#define CRYP_FLAG_IFEM   0x00000001U  /*!< Input FIFO is empty */
+#define CRYP_FLAG_IFNF   0x00000002U  /*!< Input FIFO is not Full */
+#define CRYP_FLAG_OFNE   0x00000004U  /*!< Output FIFO is not empty */
+#define CRYP_FLAG_OFFU   0x00000008U  /*!< Output FIFO is Full */
+#define CRYP_FLAG_OUTRIS 0x01000002U  /*!< Output FIFO service raw 
                                                       interrupt status */
-#define CRYP_FLAG_INRIS  ((uint32_t)0x01000001U)  /*!< Input FIFO service raw 
+#define CRYP_FLAG_INRIS  0x01000001U  /*!< Input FIFO service raw 
                                                        interrupt status */
 /**
   * @}
@@ -483,7 +483,7 @@ HAL_CRYP_STATETypeDef HAL_CRYP_GetState(CRYP_HandleTypeDef *hcryp);
 /** @defgroup CRYP_Private_Constants CRYP Private Constants
   * @{
   */
-#define CRYP_FLAG_MASK  ((uint32_t)0x0000001FU)
+#define CRYP_FLAG_MASK  0x0000001FU
 /**
   * @}
   */ 

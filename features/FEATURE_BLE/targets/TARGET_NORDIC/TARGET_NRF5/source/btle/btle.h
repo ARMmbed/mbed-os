@@ -24,7 +24,7 @@ extern "C" {
 #include "common/common.h"
 
 #include "ble_srv_common.h"
-#include "nrf_ble.h"
+#include "headers/nrf_ble.h"
 
 error_t     btle_init(void);
 

@@ -436,9 +436,9 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     // I2C configuration
     handle->Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-    handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
-    handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;
-    handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
+    handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
     handle->Init.OwnAddress1     = 0;
     handle->Init.OwnAddress2     = 0;
     HAL_I2C_Init(handle);
@@ -743,13 +743,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int count = I2C_ERROR_BUS_BUSY, ret = 0;
     uint32_t timeout = 0;
 
-    if((length == 0) || (data == 0)) {
-        if(HAL_I2C_IsDeviceReady(handle, address, 1, 10) == HAL_OK)
-            return 0;
-        else
-            return I2C_ERROR_BUS_BUSY;
-    }
-
     if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
         (obj_s->XferOperation == I2C_LAST_FRAME)) {
         if (stop)
@@ -801,13 +794,6 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     I2C_HandleTypeDef *handle = &(obj_s->handle);
     int count = I2C_ERROR_BUS_BUSY, ret = 0;
     uint32_t timeout = 0;
-
-    if((length == 0) || (data == 0)) {
-        if(HAL_I2C_IsDeviceReady(handle, address, 1, 10) == HAL_OK)
-            return 0;
-        else
-            return I2C_ERROR_BUS_BUSY;
-    }
 
     if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
         (obj_s->XferOperation == I2C_LAST_FRAME)) {
@@ -904,7 +890,10 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c){
 
 #if DEVICE_I2CSLAVE
     /*  restore slave address */
-    i2c_slave_address(obj, 0, address, 0);
+    if (address != 0) {
+        obj_s->slave = 1;
+        i2c_slave_address(obj, 0, address, 0);
+    }
 #endif
 
     /* Keep Set event flag */

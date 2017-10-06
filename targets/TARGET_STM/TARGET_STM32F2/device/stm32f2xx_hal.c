@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f2xx_hal.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -23,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -68,18 +68,18 @@
   * @{
   */
 /**
-  * @brief STM32F2xx HAL Driver version number V1.1.3
+  * @brief STM32F2xx HAL Driver version number V1.2.1
   */
-#define __STM32F2xx_HAL_VERSION_MAIN   (0x01U) /*!< [31:24] main version */
-#define __STM32F2xx_HAL_VERSION_SUB1   (0x01U) /*!< [23:16] sub1 version */
-#define __STM32F2xx_HAL_VERSION_SUB2   (0x03U) /*!< [15:8]  sub2 version */
-#define __STM32F2xx_HAL_VERSION_RC     (0x00U) /*!< [7:0]  release candidate */ 
+#define __STM32F2xx_HAL_VERSION_MAIN   0x01U /*!< [31:24] main version */
+#define __STM32F2xx_HAL_VERSION_SUB1   0x02U /*!< [23:16] sub1 version */
+#define __STM32F2xx_HAL_VERSION_SUB2   0x01U /*!< [15:8]  sub2 version */
+#define __STM32F2xx_HAL_VERSION_RC     0x00U /*!< [7:0]  release candidate */ 
 #define __STM32F2xx_HAL_VERSION         ((__STM32F2xx_HAL_VERSION_MAIN << 24U)\
                                         |(__STM32F2xx_HAL_VERSION_SUB1 << 16U)\
                                         |(__STM32F2xx_HAL_VERSION_SUB2 << 8U) \
                                         |(__STM32F2xx_HAL_VERSION_RC))
                                         
-#define IDCODE_DEVID_MASK    ((uint32_t)0x00000FFFU)
+#define IDCODE_DEVID_MASK    0x00000FFFU
 
 /* ------------ RCC registers bit address in the alias region ----------- */
 #define SYSCFG_OFFSET             (SYSCFG_BASE - PERIPH_BASE)
@@ -325,7 +325,7 @@ __weak uint32_t HAL_GetTick(void)
 }
 
 /**
-  * @brief This function provides accurate delay (in milliseconds) based 
+  * @brief This function provides minimum delay (in milliseconds) based 
   *        on variable incremented.
   * @note In the default implementation , SysTick timer is the source of time base.
   *       It is used to generate interrupts at regular time intervals where uwTick
@@ -337,9 +337,16 @@ __weak uint32_t HAL_GetTick(void)
   */
 __weak void HAL_Delay(__IO uint32_t Delay)
 {
-  uint32_t tickstart = 0U;
-  tickstart = HAL_GetTick();
-  while((HAL_GetTick() - tickstart) < Delay)
+  uint32_t tickstart = HAL_GetTick();
+  uint32_t wait = Delay;
+  
+  /* Add a period to guarantee minimum wait */
+  if (wait < HAL_MAX_DELAY)
+  {
+     wait++;
+  }
+  
+  while((HAL_GetTick() - tickstart) < wait)
   {
   }
 }
@@ -477,6 +484,18 @@ void HAL_EnableCompensationCell(void)
 void HAL_DisableCompensationCell(void)
 {
   *(__IO uint32_t *)CMPCR_CMP_PD_BB = (uint32_t)DISABLE;
+}
+
+/**
+  * @brief Return the unique device identifier (UID based on 96 bits)
+  * @param UID: pointer to 3 words array.
+  * @retval Device identifier
+  */
+void HAL_GetUID(uint32_t *UID)
+{
+  UID[0] = (uint32_t)(READ_REG(*((uint32_t *)UID_BASE)));
+  UID[1] = (uint32_t)(READ_REG(*((uint32_t *)(UID_BASE + 4U))));
+  UID[2] = (uint32_t)(READ_REG(*((uint32_t *)(UID_BASE + 8U))));
 }
 
 /**

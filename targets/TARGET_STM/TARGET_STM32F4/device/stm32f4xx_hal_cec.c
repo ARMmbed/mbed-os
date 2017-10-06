@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_cec.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    06-May-2016
+  * @version V1.7.1
+  * @date    14-April-2017
   * @brief   CEC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the High Definition Multimedia Interface 
@@ -24,31 +24,32 @@
     (#) Initialize the CEC low level resources by implementing the HAL_CEC_MspInit ()API:
         (##) Enable the CEC interface clock.
         (##) CEC pins configuration:
-            (+) Enable the clock for the CEC GPIOs.
-            (+) Configure these CEC pins as alternate function pull-up.
+            (+++) Enable the clock for the CEC GPIOs.
+            (+++) Configure these CEC pins as alternate function pull-up.
         (##) NVIC configuration if you need to use interrupt process (HAL_CEC_Transmit_IT()
              and HAL_CEC_Receive_IT() APIs):
-            (+) Configure the CEC interrupt priority.
-            (+) Enable the NVIC CEC IRQ handle.
-            (@) The specific CEC interrupts (Transmission complete interrupt, 
-                RXNE interrupt and Error Interrupts) will be managed using the macros
-                __HAL_CEC_ENABLE_IT() and __HAL_CEC_DISABLE_IT() inside the transmit 
-                and receive process.
+            (+++) Configure the CEC interrupt priority.
+            (+++) Enable the NVIC CEC IRQ handle.
+            (+++) The specific CEC interrupts (Transmission complete interrupt, 
+                  RXNE interrupt and Error Interrupts) will be managed using the macros
+                  __HAL_CEC_ENABLE_IT() and __HAL_CEC_DISABLE_IT() inside the transmit 
+                  and receive process.
 
     (#) Program the Signal Free Time (SFT) and SFT option, Tolerance, reception stop in
         in case of Bit Rising Error, Error-Bit generation conditions, device logical
         address and Listen mode in the hcec Init structure.
 
     (#) Initialize the CEC registers by calling the HAL_CEC_Init() API.
-        
-    (@) This API (HAL_CEC_Init()) configures also the low level Hardware GPIO, CLOCK, CORTEX...etc)
+   
+  [..]
+    (@) This API (HAL_CEC_Init()) configures also the low level Hardware (GPIO, CLOCK, CORTEX...)
         by calling the customed HAL_CEC_MspInit() API.
 
   @endverbatim
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -286,7 +287,7 @@ HAL_StatusTypeDef HAL_CEC_SetDeviceAddress(CEC_HandleTypeDef *hcec, uint16_t CEC
     
     if(CEC_OwnAddress != CEC_OWN_ADDRESS_NONE)
     {
-      hcec->Instance->CFGR |= ((uint32_t)CEC_OwnAddress<<16);
+      hcec->Instance->CFGR |= ((uint32_t)CEC_OwnAddress<<16U);
     }
     else
     {
@@ -378,7 +379,8 @@ HAL_StatusTypeDef HAL_CEC_SetDeviceAddress(CEC_HandleTypeDef *hcec, uint16_t CEC
 
 /**
   * @brief Send data in interrupt mode 
-  * @param hcec: CEC handle 
+  * @param hcec: CEC handle
+  * @param InitiatorAddress: Initiator logical address
   * @param DestinationAddress: destination logical address
   * @param pData: pointer to input byte data buffer
   * @param Size: amount of data to be sent in bytes (without counting the header).
@@ -448,6 +450,7 @@ uint32_t HAL_CEC_GetLastReceivedFrameSize(CEC_HandleTypeDef *hcec)
 /**
   * @brief Change Rx Buffer.
   * @param hcec: CEC handle
+  * @param Rxbuffer: Rx Buffer
   * @note  This function can be called only inside the HAL_CEC_RxCpltCallback() 
   * @retval Frame size
   */

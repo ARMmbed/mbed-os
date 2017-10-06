@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f2xx_ll_fsmc.c
   * @author  MCD Application Team
-  * @version V1.1.2
-  * @date    11-December-2015
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   FSMC Low Layer HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -44,7 +44,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -217,16 +217,16 @@ HAL_StatusTypeDef FSMC_NORSRAM_DeInit(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM
   /* FSMC_NORSRAM_BANK1 */
   if(Bank == FSMC_NORSRAM_BANK1)
   {
-    Device->BTCR[Bank] = 0x000030DB;    
+    Device->BTCR[Bank] = 0x000030DBU;    
   }
   /* FSMC_NORSRAM_BANK2, FSMC_NORSRAM_BANK3 or FSMC_NORSRAM_BANK4 */
   else
   {   
-    Device->BTCR[Bank] = 0x000030D2; 
+    Device->BTCR[Bank] = 0x000030D2U; 
   }
   
-  Device->BTCR[Bank + 1] = 0x0FFFFFFF;
-  ExDevice->BWTR[Bank]   = 0x0FFFFFFF;
+  Device->BTCR[Bank + 1U] = 0x0FFFFFFFU;
+  ExDevice->BWTR[Bank]   = 0x0FFFFFFFU;
    
   return HAL_OK;
 }
@@ -242,7 +242,7 @@ HAL_StatusTypeDef FSMC_NORSRAM_DeInit(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM
   */
 HAL_StatusTypeDef FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NORSRAM_TimingTypeDef *Timing, uint32_t Bank)
 {
-  uint32_t tmpr = 0;
+  uint32_t tmpr = 0U;
   
   /* Check the parameters */
   assert_param(IS_FSMC_ADDRESS_SETUP_TIME(Timing->AddressSetupTime));
@@ -263,14 +263,14 @@ HAL_StatusTypeDef FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NO
   
   /* Set FSMC_NORSRAM device timing parameters */  
   tmpr |= (uint32_t)(Timing->AddressSetupTime                 |\
-                    ((Timing->AddressHoldTime) << 4)          |\
-                    ((Timing->DataSetupTime) << 8)            |\
-                    ((Timing->BusTurnAroundDuration) << 16)   |\
-                    (((Timing->CLKDivision)-1) << 20)         |\
-                    (((Timing->DataLatency)-2) << 24)         |\
+                    ((Timing->AddressHoldTime) << 4U)          |\
+                    ((Timing->DataSetupTime) << 8U)            |\
+                    ((Timing->BusTurnAroundDuration) << 16U)   |\
+                    (((Timing->CLKDivision)-1U) << 20U)         |\
+                    (((Timing->DataLatency)-2U) << 24U)         |\
                     (Timing->AccessMode));
   
-  Device->BTCR[Bank + 1] = tmpr; 
+  Device->BTCR[Bank + 1U] = tmpr; 
   
   return HAL_OK;   
 }
@@ -285,7 +285,7 @@ HAL_StatusTypeDef FSMC_NORSRAM_Timing_Init(FSMC_NORSRAM_TypeDef *Device, FSMC_NO
   */
 HAL_StatusTypeDef  FSMC_NORSRAM_Extended_Timing_Init(FSMC_NORSRAM_EXTENDED_TypeDef *Device, FSMC_NORSRAM_TimingTypeDef *Timing, uint32_t Bank, uint32_t ExtendedMode)
 {
-  uint32_t tmpr = 0;
+  uint32_t tmpr = 0U;
   
   /* Set NORSRAM device timing register for write configuration, if extended mode is used */
   if(ExtendedMode == FSMC_EXTENDED_MODE_ENABLE)
@@ -305,16 +305,16 @@ HAL_StatusTypeDef  FSMC_NORSRAM_Extended_Timing_Init(FSMC_NORSRAM_EXTENDED_TypeD
                          FSMC_BWTR1_BUSTURN | FSMC_BWTR1_ACCMOD));
 
     tmpr |= (uint32_t)(Timing->AddressSetupTime                 |\
-                     ((Timing->AddressHoldTime) << 4)          |\
-                     ((Timing->DataSetupTime) << 8)            |\
-                     ((Timing->BusTurnAroundDuration) << 16)   |\
+                     ((Timing->AddressHoldTime) << 4U)          |\
+                     ((Timing->DataSetupTime) << 8U)            |\
+                     ((Timing->BusTurnAroundDuration) << 16U)   |\
                      (Timing->AccessMode));
     
     Device->BWTR[Bank] = tmpr; 
   }
   else                                        
   {
-    Device->BWTR[Bank] = 0x0FFFFFFF;
+    Device->BWTR[Bank] = 0x0FFFFFFFU;
   }   
   
   return HAL_OK;  
@@ -424,7 +424,7 @@ HAL_StatusTypeDef FSMC_NORSRAM_WriteOperation_Disable(FSMC_NORSRAM_TypeDef *Devi
   */
 HAL_StatusTypeDef FSMC_NAND_Init(FSMC_NAND_TypeDef *Device, FSMC_NAND_InitTypeDef *Init)
 {
-  uint32_t tmpr  = 0; 
+  uint32_t tmpr  = 0U; 
     
   /* Check the parameters */
   assert_param(IS_FSMC_NAND_BANK(Init->NandBank));
@@ -457,8 +457,8 @@ HAL_StatusTypeDef FSMC_NAND_Init(FSMC_NAND_TypeDef *Device, FSMC_NAND_InitTypeDe
                      Init->MemoryDataWidth            |\
                      Init->EccComputation             |\
                      Init->ECCPageSize                |\
-                     ((Init->TCLRSetupTime) << 9)     |\
-                     ((Init->TARSetupTime) << 13));   
+                     ((Init->TCLRSetupTime) << 9U)     |\
+                     ((Init->TARSetupTime) << 13U));   
   
   if(Init->NandBank == FSMC_NAND_BANK2)
   {
@@ -484,7 +484,7 @@ HAL_StatusTypeDef FSMC_NAND_Init(FSMC_NAND_TypeDef *Device, FSMC_NAND_InitTypeDe
   */
 HAL_StatusTypeDef FSMC_NAND_CommonSpace_Timing_Init(FSMC_NAND_TypeDef *Device, FSMC_NAND_PCC_TimingTypeDef *Timing, uint32_t Bank)
 {
-  uint32_t tmpr = 0;  
+  uint32_t tmpr = 0U;  
   
   /* Check the parameters */
   assert_param(IS_FSMC_SETUP_TIME(Timing->SetupTime));
@@ -509,10 +509,10 @@ HAL_StatusTypeDef FSMC_NAND_CommonSpace_Timing_Init(FSMC_NAND_TypeDef *Device, F
   
   /* Set FSMC_NAND device timing parameters */
   tmpr |= (uint32_t)(Timing->SetupTime                  |\
-                       ((Timing->WaitSetupTime) << 8)     |\
-                       ((Timing->HoldSetupTime) << 16)    |\
-                       ((Timing->HiZSetupTime) << 24)
-                       );
+                    ((Timing->WaitSetupTime) << 8U)     |\
+                    ((Timing->HoldSetupTime) << 16U)    |\
+                    ((Timing->HiZSetupTime) << 24U)
+                    );
                             
   if(Bank == FSMC_NAND_BANK2)
   {
@@ -538,7 +538,7 @@ HAL_StatusTypeDef FSMC_NAND_CommonSpace_Timing_Init(FSMC_NAND_TypeDef *Device, F
   */
 HAL_StatusTypeDef FSMC_NAND_AttributeSpace_Timing_Init(FSMC_NAND_TypeDef *Device, FSMC_NAND_PCC_TimingTypeDef *Timing, uint32_t Bank)
 {
-  uint32_t tmpr = 0;  
+  uint32_t tmpr = 0U;  
   
   /* Check the parameters */  
   assert_param(IS_FSMC_SETUP_TIME(Timing->SetupTime));
@@ -562,10 +562,10 @@ HAL_StatusTypeDef FSMC_NAND_AttributeSpace_Timing_Init(FSMC_NAND_TypeDef *Device
                        FSMC_PATT2_ATTHIZ2));
   
   /* Set FSMC_NAND device timing parameters */
-  tmpr |= (uint32_t)(Timing->SetupTime                  |\
-                       ((Timing->WaitSetupTime) << 8)     |\
-                       ((Timing->HoldSetupTime) << 16)    |\
-                       ((Timing->HiZSetupTime) << 24)
+  tmpr |= (uint32_t)(Timing->SetupTime                     |\
+                       ((Timing->WaitSetupTime) << 8U)     |\
+                       ((Timing->HoldSetupTime) << 16U)    |\
+                       ((Timing->HiZSetupTime) << 24U)
                        );
                        
   if(Bank == FSMC_NAND_BANK2)
@@ -597,19 +597,19 @@ HAL_StatusTypeDef FSMC_NAND_DeInit(FSMC_NAND_TypeDef *Device, uint32_t Bank)
   if(Bank == FSMC_NAND_BANK2)
   {
     /* Set the FSMC_NAND_BANK2 registers to their reset values */
-    Device->PCR2  = 0x00000018;
-    Device->SR2   = 0x00000040;
-    Device->PMEM2 = 0xFCFCFCFC;
-    Device->PATT2 = 0xFCFCFCFC;  
+    Device->PCR2  = 0x00000018U;
+    Device->SR2   = 0x00000040U;
+    Device->PMEM2 = 0xFCFCFCFCU;
+    Device->PATT2 = 0xFCFCFCFCU;  
   }
   /* FSMC_Bank3_NAND */  
   else
   {
     /* Set the FSMC_NAND_BANK3 registers to their reset values */
-    Device->PCR3  = 0x00000018;
-    Device->SR3   = 0x00000040;
-    Device->PMEM3 = 0xFCFCFCFC;
-    Device->PATT3 = 0xFCFCFCFC; 
+    Device->PCR3  = 0x00000018U;
+    Device->SR3   = 0x00000040U;
+    Device->PMEM3 = 0xFCFCFCFCU;
+    Device->PATT3 = 0xFCFCFCFCU; 
   }
   
   return HAL_OK;
@@ -685,7 +685,7 @@ HAL_StatusTypeDef FSMC_NAND_ECC_Disable(FSMC_NAND_TypeDef *Device, uint32_t Bank
   */
 HAL_StatusTypeDef FSMC_NAND_GetECC(FSMC_NAND_TypeDef *Device, uint32_t *ECCval, uint32_t Bank, uint32_t Timeout)
 {
-  uint32_t tickstart = 0;
+  uint32_t tickstart = 0U;
   
   /* Check the parameters */ 
   assert_param(IS_FSMC_NAND_DEVICE(Device)); 
@@ -700,7 +700,7 @@ HAL_StatusTypeDef FSMC_NAND_GetECC(FSMC_NAND_TypeDef *Device, uint32_t *ECCval, 
     /* Check for the Timeout */
     if(Timeout != HAL_MAX_DELAY)
     {
-      if((Timeout == 0)||((HAL_GetTick() - tickstart ) > Timeout))
+      if((Timeout == 0U)||((HAL_GetTick() - tickstart ) > Timeout))
       {
         return HAL_TIMEOUT;
       }
@@ -779,7 +779,7 @@ HAL_StatusTypeDef FSMC_NAND_GetECC(FSMC_NAND_TypeDef *Device, uint32_t *ECCval, 
   */
 HAL_StatusTypeDef FSMC_PCCARD_Init(FSMC_PCCARD_TypeDef *Device, FSMC_PCCARD_InitTypeDef *Init)
 {
-  uint32_t tmpr = 0;
+  uint32_t tmpr = 0U;
   
   /* Check the parameters */ 
   assert_param(IS_FSMC_WAIT_FEATURE(Init->Waitfeature));
@@ -796,8 +796,8 @@ HAL_StatusTypeDef FSMC_PCCARD_Init(FSMC_PCCARD_TypeDef *Device, FSMC_PCCARD_Init
   /* Set FSMC_PCCARD device control parameters */
   tmpr |= (uint32_t)(Init->Waitfeature               |\
                      FSMC_NAND_PCC_MEM_BUS_WIDTH_16  |\
-                     (Init->TCLRSetupTime << 9)      |\
-                     (Init->TARSetupTime << 13));
+                     (Init->TCLRSetupTime << 9U)      |\
+                     (Init->TARSetupTime << 13U));
   
   Device->PCR4 = tmpr;
   
@@ -813,7 +813,7 @@ HAL_StatusTypeDef FSMC_PCCARD_Init(FSMC_PCCARD_TypeDef *Device, FSMC_PCCARD_Init
   */
 HAL_StatusTypeDef FSMC_PCCARD_CommonSpace_Timing_Init(FSMC_PCCARD_TypeDef *Device, FSMC_NAND_PCC_TimingTypeDef *Timing)
 {
-  uint32_t tmpr = 0;
+  uint32_t tmpr = 0U;
   
   /* Check the parameters */
   assert_param(IS_FSMC_SETUP_TIME(Timing->SetupTime));
@@ -829,9 +829,9 @@ HAL_StatusTypeDef FSMC_PCCARD_CommonSpace_Timing_Init(FSMC_PCCARD_TypeDef *Devic
                        FSMC_PMEM4_MEMHIZ4));
   /* Set PCCARD timing parameters */
   tmpr |= (uint32_t)((Timing->SetupTime                 |\
-                    ((Timing->WaitSetupTime) << 8)     |\
-                    (Timing->HoldSetupTime) << 16)    |\
-                    ((Timing->HiZSetupTime) << 24));
+                    ((Timing->WaitSetupTime) << 8U)     |\
+                    (Timing->HoldSetupTime) << 16U)    |\
+                    ((Timing->HiZSetupTime) << 24U));
   
   Device->PMEM4 = tmpr;
   
@@ -847,7 +847,7 @@ HAL_StatusTypeDef FSMC_PCCARD_CommonSpace_Timing_Init(FSMC_PCCARD_TypeDef *Devic
   */
 HAL_StatusTypeDef FSMC_PCCARD_AttributeSpace_Timing_Init(FSMC_PCCARD_TypeDef *Device, FSMC_NAND_PCC_TimingTypeDef *Timing)
 {
-  uint32_t tmpr = 0;
+  uint32_t tmpr = 0U;
 
   /* Check the parameters */  
   assert_param(IS_FSMC_SETUP_TIME(Timing->SetupTime));
@@ -864,9 +864,9 @@ HAL_StatusTypeDef FSMC_PCCARD_AttributeSpace_Timing_Init(FSMC_PCCARD_TypeDef *De
   
   /* Set PCCARD timing parameters */
   tmpr |= (uint32_t)(Timing->SetupTime                |\
-                   ((Timing->WaitSetupTime) << 8)     |\
-                   ((Timing->HoldSetupTime) << 16)    |\
-                   ((Timing->HiZSetupTime) << 24));
+                   ((Timing->WaitSetupTime) << 8U)     |\
+                   ((Timing->HoldSetupTime) << 16U)    |\
+                   ((Timing->HiZSetupTime) << 24U));
   Device->PATT4 = tmpr; 
                                         
   return HAL_OK;
@@ -881,7 +881,7 @@ HAL_StatusTypeDef FSMC_PCCARD_AttributeSpace_Timing_Init(FSMC_PCCARD_TypeDef *De
   */
 HAL_StatusTypeDef FSMC_PCCARD_IOSpace_Timing_Init(FSMC_PCCARD_TypeDef *Device, FSMC_NAND_PCC_TimingTypeDef *Timing)
 {
-  uint32_t tmpr = 0;
+  uint32_t tmpr = 0U;
   
   /* Check the parameters */  
   assert_param(IS_FSMC_SETUP_TIME(Timing->SetupTime));
@@ -898,9 +898,9 @@ HAL_StatusTypeDef FSMC_PCCARD_IOSpace_Timing_Init(FSMC_PCCARD_TypeDef *Device, F
   
   /* Set FSMC_PCCARD device timing parameters */
   tmpr |= (uint32_t)(Timing->SetupTime                  |\
-                     ((Timing->WaitSetupTime) << 8)     |\
-                     ((Timing->HoldSetupTime) << 16)    |\
-                     ((Timing->HiZSetupTime) << 24));   
+                     ((Timing->WaitSetupTime) << 8U)     |\
+                     ((Timing->HoldSetupTime) << 16U)    |\
+                     ((Timing->HiZSetupTime) << 24U));   
   
   Device->PIO4 = tmpr;
   
@@ -918,11 +918,11 @@ HAL_StatusTypeDef FSMC_PCCARD_DeInit(FSMC_PCCARD_TypeDef *Device)
   __FSMC_PCCARD_DISABLE(Device);
   
   /* De-initialize the FSMC_PCCARD device */
-  Device->PCR4    = 0x00000018; 
-  Device->SR4     = 0x00000000;	
-  Device->PMEM4   = 0xFCFCFCFC;
-  Device->PATT4   = 0xFCFCFCFC;
-  Device->PIO4    = 0xFCFCFCFC;
+  Device->PCR4    = 0x00000018U; 
+  Device->SR4     = 0x00000000U;	
+  Device->PMEM4   = 0xFCFCFCFCU;
+  Device->PATT4   = 0xFCFCFCFCU;
+  Device->PIO4    = 0xFCFCFCFCU;
   
   return HAL_OK;
 }

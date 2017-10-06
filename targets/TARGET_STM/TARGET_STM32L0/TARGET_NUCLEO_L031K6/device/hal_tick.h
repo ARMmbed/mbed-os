@@ -40,11 +40,13 @@
 #endif
 
 #include "stm32l0xx.h"
+#include "stm32l0xx_ll_tim.h"
 #include "cmsis_nvic.h"
    
 #define TIM_MST      TIM21
 #define TIM_MST_IRQ  TIM21_IRQn
 #define TIM_MST_RCC  __TIM21_CLK_ENABLE()
+#define TIM_MST_DBGMCU_FREEZE  __HAL_DBGMCU_FREEZE_TIM21()
 
 #define TIM_MST_RESET_ON   __TIM21_FORCE_RESET()
 #define TIM_MST_RESET_OFF  __TIM21_RELEASE_RESET()

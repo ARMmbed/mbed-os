@@ -1,10 +1,16 @@
 /* Linker script for mbed LPC1768 */
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x00000000
+#endif
 
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 512K
+#endif
 /* Linker script to configure memory regions. */
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 512K
-  RAM (rwx) : ORIGIN = 0x100000C8, LENGTH = (32K - 0xC8)
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+  RAM (rwx) : ORIGIN = 0x100000C8, LENGTH = (32K - 0xC8 - 32)  /* topmost 32 bytes used by IAP functions */
 
   USB_RAM(rwx) : ORIGIN = 0x2007C000, LENGTH = 16K
   ETH_RAM(rwx) : ORIGIN = 0x20080000, LENGTH = 16K
@@ -43,6 +49,10 @@ SECTIONS
     .text :
     {
         KEEP(*(.isr_vector))
+        /* Code Read Protect data */
+        . = 0x000002FC ;
+        KEEP(*(.CRPSection))
+        /* End of Code Read Protect */
         *(.text*)
 
         KEEP(*(.init))
@@ -65,6 +75,8 @@ SECTIONS
         *(.rodata*)
 
         KEEP(*(.eh_frame*))
+		
+		
     } > FLASH
 
     .ARM.extab : 

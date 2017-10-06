@@ -30,6 +30,7 @@ namespace utest {
 /** @{*/
 namespace v1 {
 
+    /// repeat_t
     enum repeat_t {
         REPEAT_UNDECLR = 0,
         REPEAT_NONE    = 1,       ///< continue with the next test case
@@ -47,12 +48,14 @@ namespace v1 {
         REPEAT_HANDLER = REPEAT_CASE_ONLY | REPEAT_ON_VALIDATE              ///< repeat only the handler
     };
 
+    /// status_t
     enum status_t {
         STATUS_CONTINUE = -1,   ///< continues testing
         STATUS_IGNORE = -2,     ///< ignores failure and continues testing
         STATUS_ABORT = -3       ///< stops testing
     };
 
+    /// failure_reason_t
     enum failure_reason_t {
         REASON_NONE          = 0,           ///< No failure occurred
 
@@ -74,6 +77,7 @@ namespace v1 {
         REASON_IGNORE        = 0x8000       ///< The failure may be ignored
     };
 
+    /// location_t
     enum location_t {
         LOCATION_NONE = 0,      ///< No location information
         LOCATION_TEST_SETUP,    ///< A failure occurred in the test setup

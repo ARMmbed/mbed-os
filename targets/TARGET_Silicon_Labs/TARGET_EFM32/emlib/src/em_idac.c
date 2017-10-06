@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_idac.c
  * @brief Current Digital to Analog Converter (IDAC) peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -48,7 +48,8 @@
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /* Fix for errata IDAC_E101 - IDAC output current degradation */
-#if defined(_EFM32_ZERO_FAMILY) || defined(_EFM32_HAPPY_FAMILY)
+#if defined(_SILICON_LABS_32B_SERIES_0)  \
+    && (defined(_EFM32_ZERO_FAMILY) || defined(_EFM32_HAPPY_FAMILY))
 #define ERRATA_FIX_IDAC_E101_EN
 #endif
 /** @endcond */

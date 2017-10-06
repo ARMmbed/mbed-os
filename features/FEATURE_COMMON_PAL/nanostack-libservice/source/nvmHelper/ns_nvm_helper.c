@@ -5,8 +5,6 @@
 #include <string.h>
 #include <ns_types.h>
 #include <nsdynmemLIB.h>
-#define HAVE_DEBUG
-#include "ns_trace.h"
 #include "ns_list.h"
 #include "platform/arm_hal_nvm.h"
 #include "ns_nvm_helper.h"
@@ -93,7 +91,6 @@ int ns_nvm_key_delete(ns_nvm_callback *callback, const char *key_name, void *con
     if (!callback || !key_name) {
         return NS_NVM_ERROR;
     }
-    tr_debug("ns_nvm_key_delete() key=%s, ctx=%p", key_name, context);
     ns_nvm_request_t *ns_nvm_request_ptr = ns_nvm_create_request(callback, context, key_name, NULL, NULL, NS_NVM_KEY_DELETE);
     return ns_nvm_operation_start(ns_nvm_request_ptr);
 }
@@ -103,7 +100,6 @@ int ns_nvm_data_read(ns_nvm_callback *callback, const char *key_name, uint8_t *b
     if (!callback || !key_name || !buf || !buf_len) {
         return NS_NVM_ERROR;
     }
-    tr_debug("ns_nvm_data_read() key=%s, len=%d, ctx=%p", key_name, (int)*buf_len, context);
     ns_nvm_request_t *ns_nvm_request_ptr = ns_nvm_create_request(callback, context, key_name, buf, buf_len, NS_NVM_KEY_READ);
     return ns_nvm_operation_start(ns_nvm_request_ptr);
 }
@@ -113,7 +109,6 @@ int ns_nvm_data_write(ns_nvm_callback *callback, const char *key_name, uint8_t *
     if (!callback || !key_name || !buf || !buf_len) {
         return NS_NVM_ERROR;
     }
-    tr_debug("ns_nvm_data_write() key=%s, len=%d, ctx=%p", key_name, (int)*buf_len, context);
     ns_nvm_request_t *ns_nvm_request_ptr = ns_nvm_create_request(callback, context, key_name, buf, buf_len, NS_NVM_KEY_WRITE);
     return ns_nvm_operation_start(ns_nvm_request_ptr);
 }

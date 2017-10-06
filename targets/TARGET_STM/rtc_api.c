@@ -32,6 +32,7 @@
 #include "rtc_api.h"
 #include "rtc_api_hal.h"
 #include "mbed_error.h"
+#include "mbed_mktime.h"
 
 static RTC_HandleTypeDef RtcHandle;
 
@@ -83,7 +84,7 @@ void rtc_init(void)
         error("PeriphClkInitStruct RTC failed with LSE\n");
     }
 #else /* !RTC_LSI */
-    __PWR_CLK_ENABLE();
+    __HAL_RCC_PWR_CLK_ENABLE();
 
     // Reset Backup domain
     __HAL_RCC_BACKUPRESET_FORCE();
@@ -147,7 +148,7 @@ void rtc_free(void)
 {
 #if RTC_LSI
     // Enable Power clock
-    __PWR_CLK_ENABLE();
+    __HAL_RCC_PWR_CLK_ENABLE();
 
     // Enable access to Backup domain
     HAL_PWR_EnableBkUpAccess();
@@ -239,7 +240,7 @@ time_t rtc_read(void)
     timeinfo.tm_isdst  = -1;
 
     // Convert to timestamp
-    time_t t = mktime(&timeinfo);
+    time_t t = _rtc_mktime(&timeinfo);
 
     return t;
 }
@@ -252,20 +253,23 @@ void rtc_write(time_t t)
     RtcHandle.Instance = RTC;
 
     // Convert the time into a tm
-    struct tm *timeinfo = localtime(&t);
+    struct tm timeinfo;
+    if (_rtc_localtime(t, &timeinfo) == false) {
+        return;
+    }
 
     // Fill RTC structures
-    if (timeinfo->tm_wday == 0) {
+    if (timeinfo.tm_wday == 0) {
         dateStruct.WeekDay    = 7;
     } else {
-        dateStruct.WeekDay    = timeinfo->tm_wday;
+        dateStruct.WeekDay    = timeinfo.tm_wday;
     }
-    dateStruct.Month          = timeinfo->tm_mon + 1;
-    dateStruct.Date           = timeinfo->tm_mday;
-    dateStruct.Year           = timeinfo->tm_year - 68;
-    timeStruct.Hours          = timeinfo->tm_hour;
-    timeStruct.Minutes        = timeinfo->tm_min;
-    timeStruct.Seconds        = timeinfo->tm_sec;
+    dateStruct.Month          = timeinfo.tm_mon + 1;
+    dateStruct.Date           = timeinfo.tm_mday;
+    dateStruct.Year           = timeinfo.tm_year - 68;
+    timeStruct.Hours          = timeinfo.tm_hour;
+    timeStruct.Minutes        = timeinfo.tm_min;
+    timeStruct.Seconds        = timeinfo.tm_sec;
 
 #if !(TARGET_STM32F1)
     timeStruct.TimeFormat     = RTC_HOURFORMAT_24;

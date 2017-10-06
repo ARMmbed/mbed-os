@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -100,10 +100,21 @@ const void *coap_security_handler_keyblock(const coap_security_t *sec);
 NS_DUMMY_DEFINITIONS_OK
 
 /* Dummy definitions, including needed error codes */
+#ifndef MBEDTLS_ERR_SSL_TIMEOUT
 #define MBEDTLS_ERR_SSL_TIMEOUT (-1)
+#endif
+
+#ifndef MBEDTLS_ERR_SSL_WANT_READ
 #define MBEDTLS_ERR_SSL_WANT_READ (-2)
+#endif
+
+#ifndef MBEDTLS_ERR_SSL_WANT_WRITE
 #define MBEDTLS_ERR_SSL_WANT_WRITE (-3)
+#endif
+
+#ifndef MBEDTLS_ERR_SSL_UNEXPECTED_MESSAGE
 #define MBEDTLS_ERR_SSL_UNEXPECTED_MESSAGE (-4)
+#endif
 
 #define coap_security_create(socket_id, timer_id, handle, \
                              mode, send_cb, receive_cb, start_timer_cb, timer_status_cb) ((coap_security_t *) 0)

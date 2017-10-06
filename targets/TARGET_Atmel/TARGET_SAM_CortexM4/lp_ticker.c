@@ -86,15 +86,10 @@ uint32_t lp_ticker_read()
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     uint32_t cur_time;
-    int32_t delta;
+    uint32_t delta;
 
     cur_time = lp_ticker_read();
-    delta = (int32_t)((uint32_t)timestamp - cur_time);
-    if (delta < 0) {
-        /* Event already occurred in past */
-        lp_ticker_irq_handler();
-        return;
-    }
+    delta = timestamp - cur_time;
 
     uint16_t interruptat=0;
 
@@ -118,6 +113,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     tc_enable_interrupt(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2, TC_IDR_CPCS );
 
     tc_start(TICKER_COUNTER_lp, TICKER_COUNTER_CHANNEL2);
+}
+
+void lp_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(TICKER_COUNTER_IRQn2);
 }
 
 void lp_ticker_disable_interrupt(void)

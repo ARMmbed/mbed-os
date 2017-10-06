@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_ll_gpio.h
   * @author  MCD Application Team
-  * @version $VERSION$
-  * @date    $DATE$
+  * @version V1.1.0
+  * @date    14-April-2017
   * @brief   Header file of GPIO LL module.
   ******************************************************************************
   * @attention
@@ -127,28 +127,28 @@ typedef struct
 /** @defgroup GPIO_LL_EC_PIN PIN
   * @{
   */
-#define LL_GPIO_PIN_0         (GPIO_BSRR_BS0 << 8)  | 0x00000001U  /*!< Select pin 0 */
-#define LL_GPIO_PIN_1         (GPIO_BSRR_BS1 << 8)  | 0x00000002U  /*!< Select pin 1 */
-#define LL_GPIO_PIN_2         (GPIO_BSRR_BS2 << 8)  | 0x00000004U  /*!< Select pin 2 */
-#define LL_GPIO_PIN_3         (GPIO_BSRR_BS3 << 8)  | 0x00000008U  /*!< Select pin 3 */
-#define LL_GPIO_PIN_4         (GPIO_BSRR_BS4 << 8)  | 0x00000010U  /*!< Select pin 4 */
-#define LL_GPIO_PIN_5         (GPIO_BSRR_BS5 << 8)  | 0x00000020U  /*!< Select pin 5 */
-#define LL_GPIO_PIN_6         (GPIO_BSRR_BS6 << 8)  | 0x00000040U  /*!< Select pin 6 */
-#define LL_GPIO_PIN_7         (GPIO_BSRR_BS7 << 8)  | 0x00000080U  /*!< Select pin 7 */
-#define LL_GPIO_PIN_8         (GPIO_BSRR_BS8 << 8)  | 0x04000001U  /*!< Select pin 8 */
-#define LL_GPIO_PIN_9         (GPIO_BSRR_BS9 << 8)  | 0x04000002U  /*!< Select pin 9 */
-#define LL_GPIO_PIN_10        (GPIO_BSRR_BS10 << 8) | 0x04000004U  /*!< Select pin 10 */
-#define LL_GPIO_PIN_11        (GPIO_BSRR_BS11 << 8) | 0x04000008U  /*!< Select pin 11 */
-#define LL_GPIO_PIN_12        (GPIO_BSRR_BS12 << 8) | 0x04000010U  /*!< Select pin 12 */
-#define LL_GPIO_PIN_13        (GPIO_BSRR_BS13 << 8) | 0x04000020U  /*!< Select pin 13 */
-#define LL_GPIO_PIN_14        (GPIO_BSRR_BS14 << 8) | 0x04000040U  /*!< Select pin 14 */
-#define LL_GPIO_PIN_15        (GPIO_BSRR_BS15 << 8) | 0x04000080U  /*!< Select pin 15 */
-#define LL_GPIO_PIN_ALL       (LL_GPIO_PIN_0 | LL_GPIO_PIN_1  | LL_GPIO_PIN_2  | \
-                              LL_GPIO_PIN_3  | LL_GPIO_PIN_4  | LL_GPIO_PIN_5  | \
-                              LL_GPIO_PIN_6  | LL_GPIO_PIN_7  | LL_GPIO_PIN_8  | \
-                              LL_GPIO_PIN_9  | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | \
-                              LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 | \
-                              LL_GPIO_PIN_15) /*!< Select all pins */
+#define LL_GPIO_PIN_0                    (GPIO_BSRR_BS0 << 8)  | 0x00000001U  /*!< Select pin 0 */
+#define LL_GPIO_PIN_1                    (GPIO_BSRR_BS1 << 8)  | 0x00000002U  /*!< Select pin 1 */
+#define LL_GPIO_PIN_2                    (GPIO_BSRR_BS2 << 8)  | 0x00000004U  /*!< Select pin 2 */
+#define LL_GPIO_PIN_3                    (GPIO_BSRR_BS3 << 8)  | 0x00000008U  /*!< Select pin 3 */
+#define LL_GPIO_PIN_4                    (GPIO_BSRR_BS4 << 8)  | 0x00000010U  /*!< Select pin 4 */
+#define LL_GPIO_PIN_5                    (GPIO_BSRR_BS5 << 8)  | 0x00000020U  /*!< Select pin 5 */
+#define LL_GPIO_PIN_6                    (GPIO_BSRR_BS6 << 8)  | 0x00000040U  /*!< Select pin 6 */
+#define LL_GPIO_PIN_7                    (GPIO_BSRR_BS7 << 8)  | 0x00000080U  /*!< Select pin 7 */
+#define LL_GPIO_PIN_8                    (GPIO_BSRR_BS8 << 8)  | 0x04000001U  /*!< Select pin 8 */
+#define LL_GPIO_PIN_9                    (GPIO_BSRR_BS9 << 8)  | 0x04000002U  /*!< Select pin 9 */
+#define LL_GPIO_PIN_10                   (GPIO_BSRR_BS10 << 8) | 0x04000004U  /*!< Select pin 10 */
+#define LL_GPIO_PIN_11                   (GPIO_BSRR_BS11 << 8) | 0x04000008U  /*!< Select pin 11 */
+#define LL_GPIO_PIN_12                   (GPIO_BSRR_BS12 << 8) | 0x04000010U  /*!< Select pin 12 */
+#define LL_GPIO_PIN_13                   (GPIO_BSRR_BS13 << 8) | 0x04000020U  /*!< Select pin 13 */
+#define LL_GPIO_PIN_14                   (GPIO_BSRR_BS14 << 8) | 0x04000040U  /*!< Select pin 14 */
+#define LL_GPIO_PIN_15                   (GPIO_BSRR_BS15 << 8) | 0x04000080U  /*!< Select pin 15 */
+#define LL_GPIO_PIN_ALL                  (LL_GPIO_PIN_0  | LL_GPIO_PIN_1  | LL_GPIO_PIN_2  | \
+                                          LL_GPIO_PIN_3  | LL_GPIO_PIN_4  | LL_GPIO_PIN_5  | \
+                                          LL_GPIO_PIN_6  | LL_GPIO_PIN_7  | LL_GPIO_PIN_8  | \
+                                          LL_GPIO_PIN_9  | LL_GPIO_PIN_10 | LL_GPIO_PIN_11 | \
+                                          LL_GPIO_PIN_12 | LL_GPIO_PIN_13 | LL_GPIO_PIN_14 | \
+                                          LL_GPIO_PIN_15) /*!< Select all pins */
 /**
   * @}
   */
@@ -202,22 +202,22 @@ typedef struct
   * @{
   */
 
-#define LL_GPIO_AFIO_EVENTOUT_PIN_0      AFIO_EVCR_PIN_PX0  /*!< EVENTOUT on pin 0 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_1      AFIO_EVCR_PIN_PX1  /*!< EVENTOUT on pin 1 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_2      AFIO_EVCR_PIN_PX2  /*!< EVENTOUT on pin 2 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_3      AFIO_EVCR_PIN_PX3  /*!< EVENTOUT on pin 3 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_4      AFIO_EVCR_PIN_PX4  /*!< EVENTOUT on pin 4 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_5      AFIO_EVCR_PIN_PX5  /*!< EVENTOUT on pin 5 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_6      AFIO_EVCR_PIN_PX6  /*!< EVENTOUT on pin 6 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_7      AFIO_EVCR_PIN_PX7  /*!< EVENTOUT on pin 7 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_8      AFIO_EVCR_PIN_PX8  /*!< EVENTOUT on pin 8 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_9      AFIO_EVCR_PIN_PX9  /*!< EVENTOUT on pin 9 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_10     AFIO_EVCR_PIN_PX10 /*!< EVENTOUT on pin 10 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_11     AFIO_EVCR_PIN_PX11 /*!< EVENTOUT on pin 11 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_12     AFIO_EVCR_PIN_PX12 /*!< EVENTOUT on pin 12 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_13     AFIO_EVCR_PIN_PX13 /*!< EVENTOUT on pin 13 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_14     AFIO_EVCR_PIN_PX14 /*!< EVENTOUT on pin 14 */
-#define LL_GPIO_AFIO_EVENTOUT_PIN_15     AFIO_EVCR_PIN_PX15 /*!< EVENTOUT on pin 15 */
+#define LL_GPIO_AF_EVENTOUT_PIN_0        AFIO_EVCR_PIN_PX0   /*!< EVENTOUT on pin 0 */
+#define LL_GPIO_AF_EVENTOUT_PIN_1        AFIO_EVCR_PIN_PX1   /*!< EVENTOUT on pin 1 */
+#define LL_GPIO_AF_EVENTOUT_PIN_2        AFIO_EVCR_PIN_PX2   /*!< EVENTOUT on pin 2 */
+#define LL_GPIO_AF_EVENTOUT_PIN_3        AFIO_EVCR_PIN_PX3   /*!< EVENTOUT on pin 3 */
+#define LL_GPIO_AF_EVENTOUT_PIN_4        AFIO_EVCR_PIN_PX4   /*!< EVENTOUT on pin 4 */
+#define LL_GPIO_AF_EVENTOUT_PIN_5        AFIO_EVCR_PIN_PX5   /*!< EVENTOUT on pin 5 */
+#define LL_GPIO_AF_EVENTOUT_PIN_6        AFIO_EVCR_PIN_PX6   /*!< EVENTOUT on pin 6 */
+#define LL_GPIO_AF_EVENTOUT_PIN_7        AFIO_EVCR_PIN_PX7   /*!< EVENTOUT on pin 7 */
+#define LL_GPIO_AF_EVENTOUT_PIN_8        AFIO_EVCR_PIN_PX8   /*!< EVENTOUT on pin 8 */
+#define LL_GPIO_AF_EVENTOUT_PIN_9        AFIO_EVCR_PIN_PX9   /*!< EVENTOUT on pin 9 */
+#define LL_GPIO_AF_EVENTOUT_PIN_10       AFIO_EVCR_PIN_PX10  /*!< EVENTOUT on pin 10 */
+#define LL_GPIO_AF_EVENTOUT_PIN_11       AFIO_EVCR_PIN_PX11  /*!< EVENTOUT on pin 11 */
+#define LL_GPIO_AF_EVENTOUT_PIN_12       AFIO_EVCR_PIN_PX12  /*!< EVENTOUT on pin 12 */
+#define LL_GPIO_AF_EVENTOUT_PIN_13       AFIO_EVCR_PIN_PX13  /*!< EVENTOUT on pin 13 */
+#define LL_GPIO_AF_EVENTOUT_PIN_14       AFIO_EVCR_PIN_PX14  /*!< EVENTOUT on pin 14 */
+#define LL_GPIO_AF_EVENTOUT_PIN_15       AFIO_EVCR_PIN_PX15  /*!< EVENTOUT on pin 15 */
 
 /**
   * @}
@@ -227,11 +227,11 @@ typedef struct
   * @{
   */
 
-#define LL_GPIO_AFIO_EVENTOUT_PORT_A     AFIO_EVCR_PORT_PA /*!< EVENTOUT on port A */
-#define LL_GPIO_AFIO_EVENTOUT_PORT_B     AFIO_EVCR_PORT_PB /*!< EVENTOUT on port B */
-#define LL_GPIO_AFIO_EVENTOUT_PORT_C     AFIO_EVCR_PORT_PC /*!< EVENTOUT on port C */
-#define LL_GPIO_AFIO_EVENTOUT_PORT_D     AFIO_EVCR_PORT_PD /*!< EVENTOUT on port D */
-#define LL_GPIO_AFIO_EVENTOUT_PORT_E     AFIO_EVCR_PORT_PE /*!< EVENTOUT on port E */
+#define LL_GPIO_AF_EVENTOUT_PORT_A       AFIO_EVCR_PORT_PA  /*!< EVENTOUT on port A */
+#define LL_GPIO_AF_EVENTOUT_PORT_B       AFIO_EVCR_PORT_PB  /*!< EVENTOUT on port B */
+#define LL_GPIO_AF_EVENTOUT_PORT_C       AFIO_EVCR_PORT_PC  /*!< EVENTOUT on port C */
+#define LL_GPIO_AF_EVENTOUT_PORT_D       AFIO_EVCR_PORT_PD  /*!< EVENTOUT on port D */
+#define LL_GPIO_AF_EVENTOUT_PORT_E       AFIO_EVCR_PORT_PE  /*!< EVENTOUT on port E */
 
 /**
   * @}
@@ -240,13 +240,13 @@ typedef struct
 /** @defgroup GPIO_LL_EC_EXTI_PORT GPIO EXTI PORT
   * @{
   */
-#define LL_GPIO_AFIO_EXTI_PORTA               (uint32_t)0               /*!< EXTI PORT A */
-#define LL_GPIO_AFIO_EXTI_PORTB               (uint32_t)1               /*!< EXTI PORT B */
-#define LL_GPIO_AFIO_EXTI_PORTC               (uint32_t)2               /*!< EXTI PORT C */
-#define LL_GPIO_AFIO_EXTI_PORTD               (uint32_t)3               /*!< EXTI PORT D */
-#define LL_GPIO_AFIO_EXTI_PORTE               (uint32_t)4               /*!< EXTI PORT E */
-#define LL_GPIO_AFIO_EXTI_PORTF               (uint32_t)5               /*!< EXTI PORT F */
-#define LL_GPIO_AFIO_EXTI_PORTG               (uint32_t)6               /*!< EXTI PORT G */
+#define LL_GPIO_AF_EXTI_PORTA            (uint32_t)0   /*!< EXTI PORT A */
+#define LL_GPIO_AF_EXTI_PORTB            (uint32_t)1   /*!< EXTI PORT B */
+#define LL_GPIO_AF_EXTI_PORTC            (uint32_t)2   /*!< EXTI PORT C */
+#define LL_GPIO_AF_EXTI_PORTD            (uint32_t)3   /*!< EXTI PORT D */
+#define LL_GPIO_AF_EXTI_PORTE            (uint32_t)4   /*!< EXTI PORT E */
+#define LL_GPIO_AF_EXTI_PORTF            (uint32_t)5   /*!< EXTI PORT F */
+#define LL_GPIO_AF_EXTI_PORTG            (uint32_t)6   /*!< EXTI PORT G */
 /**
   * @}
   */
@@ -254,22 +254,22 @@ typedef struct
 /** @defgroup GPIO_LL_EC_EXTI_LINE GPIO EXTI LINE
   * @{
   */
-#define LL_GPIO_AFIO_EXTI_LINE0               (uint32_t)(0x000FU << 16 | 0)  /*!< EXTI_POSITION_0  | EXTICR[0] */
-#define LL_GPIO_AFIO_EXTI_LINE1               (uint32_t)(0x00F0U << 16 | 0)  /*!< EXTI_POSITION_4  | EXTICR[0] */
-#define LL_GPIO_AFIO_EXTI_LINE2               (uint32_t)(0x0F00U << 16 | 0)  /*!< EXTI_POSITION_8  | EXTICR[0] */
-#define LL_GPIO_AFIO_EXTI_LINE3               (uint32_t)(0xF000U << 16 | 0)  /*!< EXTI_POSITION_12 | EXTICR[0] */
-#define LL_GPIO_AFIO_EXTI_LINE4               (uint32_t)(0x000FU << 16 | 1)  /*!< EXTI_POSITION_0  | EXTICR[1] */
-#define LL_GPIO_AFIO_EXTI_LINE5               (uint32_t)(0x00F0U << 16 | 1)  /*!< EXTI_POSITION_4  | EXTICR[1] */
-#define LL_GPIO_AFIO_EXTI_LINE6               (uint32_t)(0x0F00U << 16 | 1)  /*!< EXTI_POSITION_8  | EXTICR[1] */
-#define LL_GPIO_AFIO_EXTI_LINE7               (uint32_t)(0xF000U << 16 | 1)  /*!< EXTI_POSITION_12 | EXTICR[1] */
-#define LL_GPIO_AFIO_EXTI_LINE8               (uint32_t)(0x000FU << 16 | 2)  /*!< EXTI_POSITION_0  | EXTICR[2] */
-#define LL_GPIO_AFIO_EXTI_LINE9               (uint32_t)(0x00F0U << 16 | 2)  /*!< EXTI_POSITION_4  | EXTICR[2] */
-#define LL_GPIO_AFIO_EXTI_LINE10              (uint32_t)(0x0F00U << 16 | 2)  /*!< EXTI_POSITION_8  | EXTICR[2] */
-#define LL_GPIO_AFIO_EXTI_LINE11              (uint32_t)(0xF000U << 16 | 2)  /*!< EXTI_POSITION_12 | EXTICR[2] */
-#define LL_GPIO_AFIO_EXTI_LINE12              (uint32_t)(0x000FU << 16 | 3)  /*!< EXTI_POSITION_0  | EXTICR[3] */
-#define LL_GPIO_AFIO_EXTI_LINE13              (uint32_t)(0x00F0U << 16 | 3)  /*!< EXTI_POSITION_4  | EXTICR[3] */
-#define LL_GPIO_AFIO_EXTI_LINE14              (uint32_t)(0x0F00U << 16 | 3)  /*!< EXTI_POSITION_8  | EXTICR[3] */
-#define LL_GPIO_AFIO_EXTI_LINE15              (uint32_t)(0xF000U << 16 | 3)  /*!< EXTI_POSITION_12 | EXTICR[3] */
+#define LL_GPIO_AF_EXTI_LINE0            (uint32_t)(0x000FU << 16 | 0)  /*!< EXTI_POSITION_0  | EXTICR[0] */
+#define LL_GPIO_AF_EXTI_LINE1            (uint32_t)(0x00F0U << 16 | 0)  /*!< EXTI_POSITION_4  | EXTICR[0] */
+#define LL_GPIO_AF_EXTI_LINE2            (uint32_t)(0x0F00U << 16 | 0)  /*!< EXTI_POSITION_8  | EXTICR[0] */
+#define LL_GPIO_AF_EXTI_LINE3            (uint32_t)(0xF000U << 16 | 0)  /*!< EXTI_POSITION_12 | EXTICR[0] */
+#define LL_GPIO_AF_EXTI_LINE4            (uint32_t)(0x000FU << 16 | 1)  /*!< EXTI_POSITION_0  | EXTICR[1] */
+#define LL_GPIO_AF_EXTI_LINE5            (uint32_t)(0x00F0U << 16 | 1)  /*!< EXTI_POSITION_4  | EXTICR[1] */
+#define LL_GPIO_AF_EXTI_LINE6            (uint32_t)(0x0F00U << 16 | 1)  /*!< EXTI_POSITION_8  | EXTICR[1] */
+#define LL_GPIO_AF_EXTI_LINE7            (uint32_t)(0xF000U << 16 | 1)  /*!< EXTI_POSITION_12 | EXTICR[1] */
+#define LL_GPIO_AF_EXTI_LINE8            (uint32_t)(0x000FU << 16 | 2)  /*!< EXTI_POSITION_0  | EXTICR[2] */
+#define LL_GPIO_AF_EXTI_LINE9            (uint32_t)(0x00F0U << 16 | 2)  /*!< EXTI_POSITION_4  | EXTICR[2] */
+#define LL_GPIO_AF_EXTI_LINE10           (uint32_t)(0x0F00U << 16 | 2)  /*!< EXTI_POSITION_8  | EXTICR[2] */
+#define LL_GPIO_AF_EXTI_LINE11           (uint32_t)(0xF000U << 16 | 2)  /*!< EXTI_POSITION_12 | EXTICR[2] */
+#define LL_GPIO_AF_EXTI_LINE12           (uint32_t)(0x000FU << 16 | 3)  /*!< EXTI_POSITION_0  | EXTICR[3] */
+#define LL_GPIO_AF_EXTI_LINE13           (uint32_t)(0x00F0U << 16 | 3)  /*!< EXTI_POSITION_4  | EXTICR[3] */
+#define LL_GPIO_AF_EXTI_LINE14           (uint32_t)(0x0F00U << 16 | 3)  /*!< EXTI_POSITION_8  | EXTICR[3] */
+#define LL_GPIO_AF_EXTI_LINE15           (uint32_t)(0xF000U << 16 | 3)  /*!< EXTI_POSITION_12 | EXTICR[3] */
 /**
   * @}
   */
@@ -888,269 +888,332 @@ __STATIC_INLINE void LL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint32_t PinMask)
   * @}
   */
 
-/** @defgroup GPIO_AFIO_AF_REMAPPING Alternate Function Remapping
+/** @defgroup GPIO_AF_REMAPPING Alternate Function Remapping
   * @brief This section propose definition to remap the alternate function to some other port/pins.
   * @{
   */
 
 /**
   * @brief  Enable the remapping of SPI1 alternate function NSS, SCK, MISO and MOSI.
-  * @rmtoll MAPR          SPI1_REMAP           LL_GPIO_AFIO_REMAP_SPI1_ENABLE
+  * @rmtoll MAPR          SPI1_REMAP           LL_GPIO_AF_EnableRemap_SPI1
   * @note   ENABLE: Remap (NSS/PA15, SCK/PB3, MISO/PB4, MOSI/PB5)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_SPI1_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_SPI1(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_SPI1_REMAP);
 }
 
 /**
   * @brief Disable the remapping of SPI1 alternate function NSS, SCK, MISO and MOSI.
-  * @rmtoll MAPR          SPI1_REMAP           LL_GPIO_AFIO_REMAP_SPI1_DISABLE
+  * @rmtoll MAPR          SPI1_REMAP           LL_GPIO_AF_DisableRemap_SPI1
   * @note  DISABLE: No remap (NSS/PA4,  SCK/PA5, MISO/PA6, MOSI/PA7)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_SPI1_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_SPI1(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_SPI1_REMAP);
 }
 
 /**
+  * @brief  Check if SPI1 has been remaped or not
+  * @rmtoll MAPR         SPI1_REMAP         LL_GPIO_AF_IsEnabledRemap_SPI1
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_SPI1(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_SPI1_REMAP) == (AFIO_MAPR_SPI1_REMAP));
+}
+
+/**
   * @brief Enable the remapping of I2C1 alternate function SCL and SDA.
-  * @rmtoll MAPR          I2C1_REMAP           LL_GPIO_AFIO_REMAP_I2C1_ENABLE
+  * @rmtoll MAPR          I2C1_REMAP           LL_GPIO_AF_EnableRemap_I2C1
   * @note  ENABLE: Remap     (SCL/PB8, SDA/PB9)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_I2C1_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_I2C1(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_I2C1_REMAP);
 }
 
 /**
   * @brief Disable the remapping of I2C1 alternate function SCL and SDA.
-  * @rmtoll MAPR          I2C1_REMAP           LL_GPIO_AFIO_REMAP_I2C1_DISABLE
+  * @rmtoll MAPR          I2C1_REMAP           LL_GPIO_AF_DisableRemap_I2C1
   * @note  DISABLE: No remap (SCL/PB6, SDA/PB7)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_I2C1_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_I2C1(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_I2C1_REMAP);
 }
 
 /**
+  * @brief  Check if I2C1 has been remaped or not
+  * @rmtoll MAPR         I2C1_REMAP         LL_GPIO_AF_IsEnabledRemap_I2C1
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_I2C1(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_I2C1_REMAP) == (AFIO_MAPR_I2C1_REMAP));
+}
+
+/**
   * @brief Enable the remapping of USART1 alternate function TX and RX.
-  * @rmtoll MAPR          USART1_REMAP           LL_GPIO_AFIO_REMAP_USART1_ENABLE
+  * @rmtoll MAPR          USART1_REMAP           LL_GPIO_AF_EnableRemap_USART1
   * @note  ENABLE: Remap     (TX/PB6, RX/PB7)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_USART1_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_USART1(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_USART1_REMAP);
 }
 
 /**
   * @brief Disable the remapping of USART1 alternate function TX and RX.
-  * @rmtoll MAPR          USART1_REMAP           LL_GPIO_AFIO_REMAP_USART1_DISABLE
+  * @rmtoll MAPR          USART1_REMAP           LL_GPIO_AF_DisableRemap_USART1
   * @note  DISABLE: No remap (TX/PA9, RX/PA10)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_USART1_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_USART1(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_USART1_REMAP);
 }
 
 /**
+  * @brief  Check if USART1 has been remaped or not
+  * @rmtoll MAPR         USART1_REMAP         LL_GPIO_AF_IsEnabledRemap_USART1
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_USART1(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_USART1_REMAP) == (AFIO_MAPR_USART1_REMAP));
+}
+
+/**
   * @brief Enable the remapping of USART2 alternate function CTS, RTS, CK, TX and RX.
-  * @rmtoll MAPR          USART2_REMAP           LL_GPIO_AFIO_REMAP_USART2_ENABLE
+  * @rmtoll MAPR          USART2_REMAP           LL_GPIO_AF_EnableRemap_USART2
   * @note  ENABLE: Remap     (CTS/PD3, RTS/PD4, TX/PD5, RX/PD6, CK/PD7)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_USART2_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_USART2(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_USART2_REMAP);
 }
 
 /**
   * @brief Disable the remapping of USART2 alternate function CTS, RTS, CK, TX and RX.
-  * @rmtoll MAPR          USART2_REMAP           LL_GPIO_AFIO_REMAP_USART2_DISABLE
+  * @rmtoll MAPR          USART2_REMAP           LL_GPIO_AF_DisableRemap_USART2
   * @note  DISABLE: No remap (CTS/PA0, RTS/PA1, TX/PA2, RX/PA3, CK/PA4)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_USART2_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_USART2(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_USART2_REMAP);
+}
+
+/**
+  * @brief  Check if USART2 has been remaped or not
+  * @rmtoll MAPR         USART2_REMAP         LL_GPIO_AF_IsEnabledRemap_USART2
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_USART2(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_USART2_REMAP) == (AFIO_MAPR_USART2_REMAP));
 }
 
 #if defined (AFIO_MAPR_USART3_REMAP)
 /**
   * @brief Enable the remapping of USART3 alternate function CTS, RTS, CK, TX and RX.
-  * @rmtoll MAPR          USART3_REMAP           LL_GPIO_AFIO_REMAP_USART3_ENABLE
+  * @rmtoll MAPR          USART3_REMAP           LL_GPIO_AF_EnableRemap_USART3
   * @note  ENABLE: Full remap     (TX/PD8,  RX/PD9,  CK/PD10, CTS/PD11, RTS/PD12)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_USART3_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_USART3(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_USART3_REMAP, AFIO_MAPR_USART3_REMAP_FULLREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_USART3_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_USART3_REMAP_FULLREMAP); 
 }
 
 /**
   * @brief Enable the remapping of USART3 alternate function CTS, RTS, CK, TX and RX.
-  * @rmtoll MAPR          USART3_REMAP           LL_GPIO_AFIO_REMAP_USART3_PARTIAL
+  * @rmtoll MAPR          USART3_REMAP           LL_GPIO_AF_RemapPartial_USART3
   * @note  PARTIAL: Partial remap (TX/PC10, RX/PC11, CK/PC12, CTS/PB13, RTS/PB14)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_USART3_PARTIAL(void)
+__STATIC_INLINE void LL_GPIO_AF_RemapPartial_USART3(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_USART3_REMAP, AFIO_MAPR_USART3_REMAP_PARTIALREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_USART3_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_USART3_REMAP_PARTIALREMAP); 
 }
 
 /**
   * @brief Disable the remapping of USART3 alternate function CTS, RTS, CK, TX and RX.
-  * @rmtoll MAPR          USART3_REMAP           LL_GPIO_AFIO_REMAP_USART3_DISABLE
+  * @rmtoll MAPR          USART3_REMAP           LL_GPIO_AF_DisableRemap_USART3
   * @note  DISABLE: No remap      (TX/PB10, RX/PB11, CK/PB12, CTS/PB13, RTS/PB14)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_USART3_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_USART3(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_USART3_REMAP, AFIO_MAPR_USART3_REMAP_NOREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_USART3_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_USART3_REMAP_NOREMAP); 
 }
 #endif
 
 /**
   * @brief Enable the remapping of TIM1 alternate function channels 1 to 4, 1N to 3N, external trigger (ETR) and Break input (BKIN)
-  * @rmtoll MAPR          TIM1_REMAP           LL_GPIO_AFIO_REMAP_TIM1_ENABLE
+  * @rmtoll MAPR          TIM1_REMAP           LL_GPIO_AF_EnableRemap_TIM1
   * @note  ENABLE: Full remap     (ETR/PE7,  CH1/PE9, CH2/PE11, CH3/PE13, CH4/PE14, BKIN/PE15, CH1N/PE8,  CH2N/PE10, CH3N/PE12)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM1_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM1(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_TIM1_REMAP, AFIO_MAPR_TIM1_REMAP_FULLREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM1_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM1_REMAP_FULLREMAP); 
 }
 
 /**
   * @brief Enable the remapping of TIM1 alternate function channels 1 to 4, 1N to 3N, external trigger (ETR) and Break input (BKIN)
-  * @rmtoll MAPR          TIM1_REMAP           LL_GPIO_AFIO_REMAP_TIM1_PARTIAL
+  * @rmtoll MAPR          TIM1_REMAP           LL_GPIO_AF_RemapPartial_TIM1
   * @note  PARTIAL: Partial remap (ETR/PA12, CH1/PA8, CH2/PA9,  CH3/PA10, CH4/PA11, BKIN/PA6,  CH1N/PA7,  CH2N/PB0,  CH3N/PB1)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM1_PARTIAL(void)
+__STATIC_INLINE void LL_GPIO_AF_RemapPartial_TIM1(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_TIM1_REMAP, AFIO_MAPR_TIM1_REMAP_PARTIALREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM1_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM1_REMAP_PARTIALREMAP); 
 }
 
 /**
   * @brief Disable the remapping of TIM1 alternate function channels 1 to 4, 1N to 3N, external trigger (ETR) and Break input (BKIN)
-  * @rmtoll MAPR          TIM1_REMAP           LL_GPIO_AFIO_REMAP_TIM1_DISABLE
+  * @rmtoll MAPR          TIM1_REMAP           LL_GPIO_AF_DisableRemap_TIM1
   * @note  DISABLE: No remap      (ETR/PA12, CH1/PA8, CH2/PA9,  CH3/PA10, CH4/PA11, BKIN/PB12, CH1N/PB13, CH2N/PB14, CH3N/PB15)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM1_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM1(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_TIM1_REMAP, AFIO_MAPR_TIM1_REMAP_NOREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM1_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM1_REMAP_NOREMAP); 
 }
 
 /**
   * @brief Enable the remapping of TIM2 alternate function channels 1 to 4 and external trigger (ETR)
-  * @rmtoll MAPR          TIM2_REMAP           LL_GPIO_AFIO_REMAP_TIM2_ENABLE
+  * @rmtoll MAPR          TIM2_REMAP           LL_GPIO_AF_EnableRemap_TIM2
   * @note  ENABLE: Full remap       (CH1/ETR/PA15, CH2/PB3, CH3/PB10, CH4/PB11)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM2_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM2(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP, AFIO_MAPR_TIM2_REMAP_FULLREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP_FULLREMAP); 
 }
 
 /**
   * @brief Enable the remapping of TIM2 alternate function channels 1 to 4 and external trigger (ETR)
-  * @rmtoll MAPR          TIM2_REMAP           LL_GPIO_AFIO_REMAP_TIM2_PARTIAL_2
+  * @rmtoll MAPR          TIM2_REMAP           LL_GPIO_AF_RemapPartial2_TIM2
   * @note  PARTIAL_2: Partial remap (CH1/ETR/PA0,  CH2/PA1, CH3/PB10, CH4/PB11)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM2_PARTIAL_2(void)
+__STATIC_INLINE void LL_GPIO_AF_RemapPartial2_TIM2(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP, AFIO_MAPR_TIM2_REMAP_PARTIALREMAP2);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP_PARTIALREMAP2); 
 }
 
 /**
   * @brief Enable the remapping of TIM2 alternate function channels 1 to 4 and external trigger (ETR)
-  * @rmtoll MAPR          TIM2_REMAP           LL_GPIO_AFIO_REMAP_TIM2_PARTIAL_1
+  * @rmtoll MAPR          TIM2_REMAP           LL_GPIO_AF_RemapPartial1_TIM2
   * @note  PARTIAL_1: Partial remap (CH1/ETR/PA15, CH2/PB3, CH3/PA2,  CH4/PA3)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM2_PARTIAL_1(void)
+__STATIC_INLINE void LL_GPIO_AF_RemapPartial1_TIM2(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP, AFIO_MAPR_TIM2_REMAP_PARTIALREMAP1);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP_PARTIALREMAP1); 
 }
 
 /**
   * @brief Disable the remapping of TIM2 alternate function channels 1 to 4 and external trigger (ETR)
-  * @rmtoll MAPR          TIM2_REMAP           LL_GPIO_AFIO_REMAP_TIM2_PARTIAL_1
+  * @rmtoll MAPR          TIM2_REMAP           LL_GPIO_AF_DisableRemap_TIM2
   * @note  DISABLE: No remap        (CH1/ETR/PA0,  CH2/PA1, CH3/PA2,  CH4/PA3)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM2_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM2(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP, AFIO_MAPR_TIM2_REMAP_NOREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM2_REMAP_NOREMAP); 
 }
 
 /**
   * @brief Enable the remapping of TIM3 alternate function channels 1 to 4
-  * @rmtoll MAPR          TIM3_REMAP           LL_GPIO_AFIO_REMAP_TIM3_ENABLE
+  * @rmtoll MAPR          TIM3_REMAP           LL_GPIO_AF_EnableRemap_TIM3
   * @note  ENABLE: Full remap     (CH1/PC6, CH2/PC7, CH3/PC8, CH4/PC9)
   * @note  TIM3_ETR on PE0 is not re-mapped.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM3_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM3(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_TIM3_REMAP, AFIO_MAPR_TIM3_REMAP_FULLREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM3_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM3_REMAP_FULLREMAP); 
 }
 
 /**
   * @brief Enable the remapping of TIM3 alternate function channels 1 to 4
-  * @rmtoll MAPR          TIM3_REMAP           LL_GPIO_AFIO_REMAP_TIM3_PARTIAL
+  * @rmtoll MAPR          TIM3_REMAP           LL_GPIO_AF_RemapPartial_TIM3
   * @note  PARTIAL: Partial remap (CH1/PB4, CH2/PB5, CH3/PB0, CH4/PB1)
   * @note  TIM3_ETR on PE0 is not re-mapped.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM3_PARTIAL(void)
+__STATIC_INLINE void LL_GPIO_AF_RemapPartial_TIM3(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_TIM3_REMAP, AFIO_MAPR_TIM3_REMAP_PARTIALREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM3_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM3_REMAP_PARTIALREMAP); 
 }
 
 /**
   * @brief Disable the remapping of TIM3 alternate function channels 1 to 4
-  * @rmtoll MAPR          TIM3_REMAP           LL_GPIO_AFIO_REMAP_TIM3_DISABLE
+  * @rmtoll MAPR          TIM3_REMAP           LL_GPIO_AF_DisableRemap_TIM3
   * @note  DISABLE: No remap      (CH1/PA6, CH2/PA7, CH3/PB0, CH4/PB1)
   * @note  TIM3_ETR on PE0 is not re-mapped.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM3_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM3(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_TIM3_REMAP, AFIO_MAPR_TIM3_REMAP_NOREMAP);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM3_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM3_REMAP_NOREMAP); 
 }
 
 #if defined(AFIO_MAPR_TIM4_REMAP)
 /**
   * @brief Enable the remapping of TIM4 alternate function channels 1 to 4.
-  * @rmtoll MAPR          TIM4_REMAP           LL_GPIO_AFIO_REMAP_TIM4_ENABLE
+  * @rmtoll MAPR          TIM4_REMAP           LL_GPIO_AF_EnableRemap_TIM4
   * @note  ENABLE: Full remap (TIM4_CH1/PD12, TIM4_CH2/PD13, TIM4_CH3/PD14, TIM4_CH4/PD15)
   * @note  TIM4_ETR on PE0 is not re-mapped.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM4_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM4(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM4_REMAP);
 }
 /**
   * @brief Disable the remapping of TIM4 alternate function channels 1 to 4.
-  * @rmtoll MAPR          TIM4_REMAP           LL_GPIO_AFIO_REMAP_TIM4_DISABLE
+  * @rmtoll MAPR          TIM4_REMAP           LL_GPIO_AF_DisableRemap_TIM4
   * @note  DISABLE: No remap  (TIM4_CH1/PB6,  TIM4_CH2/PB7,  TIM4_CH3/PB8,  TIM4_CH4/PB9)
   * @note  TIM4_ETR on PE0 is not re-mapped.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM4_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM4(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM4_REMAP);
+}
+
+/**
+  * @brief  Check if TIM4 has been remaped or not
+  * @rmtoll MAPR         TIM4_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM4
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM4(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_TIM4_REMAP) == (AFIO_MAPR_TIM4_REMAP));
 }
 #endif
 
@@ -1158,35 +1221,38 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM4_DISABLE(void)
 
 /**
   * @brief Enable or disable the remapping of CAN alternate function CAN_RX and CAN_TX in devices with a single CAN interface.
-  * @rmtoll MAPR          CAN_REMAP           LL_GPIO_AFIO_REMAP_CAN1_1
+  * @rmtoll MAPR          CAN_REMAP           LL_GPIO_AF_RemapPartial1_CAN1
   * @note  CASE 1: CAN_RX mapped to PA11, CAN_TX mapped to PA12
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_CAN1_1(void)
+__STATIC_INLINE void LL_GPIO_AF_RemapPartial1_CAN1(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_CAN_REMAP, AFIO_MAPR_CAN_REMAP_REMAP1);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_CAN_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_CAN_REMAP_REMAP1); 
 }
 
 /**
   * @brief Enable or disable the remapping of CAN alternate function CAN_RX and CAN_TX in devices with a single CAN interface.
-  * @rmtoll MAPR          CAN_REMAP           LL_GPIO_AFIO_REMAP_CAN1_2
+  * @rmtoll MAPR          CAN_REMAP           LL_GPIO_AF_RemapPartial2_CAN1
   * @note  CASE 2: CAN_RX mapped to PB8,  CAN_TX mapped to PB9 (not available on 36-pin package)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_CAN1_2(void)
+__STATIC_INLINE void LL_GPIO_AF_RemapPartial2_CAN1(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_CAN_REMAP, AFIO_MAPR_CAN_REMAP_REMAP2);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_CAN_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_CAN_REMAP_REMAP2); 
 }
 
 /**
   * @brief Enable or disable the remapping of CAN alternate function CAN_RX and CAN_TX in devices with a single CAN interface.
-  * @rmtoll MAPR          CAN_REMAP           LL_GPIO_AFIO_REMAP_CAN1_3
+  * @rmtoll MAPR          CAN_REMAP           LL_GPIO_AF_RemapPartial3_CAN1
   * @note  CASE 3: CAN_RX mapped to PD0,  CAN_TX mapped to PD1
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_CAN1_3(void)
+__STATIC_INLINE void LL_GPIO_AF_RemapPartial3_CAN1(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_CAN_REMAP, AFIO_MAPR_CAN_REMAP_REMAP3);
+  CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_CAN_REMAP);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_CAN_REMAP_REMAP3); 
 }
 #endif
 
@@ -1195,11 +1261,11 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_CAN1_3(void)
   *        (application running on internal 8 MHz RC) PD0 and PD1 can be mapped on OSC_IN and
   *        OSC_OUT. This is available only on 36, 48 and 64 pins packages (PD0 and PD1 are available
   *        on 100-pin and 144-pin packages, no need for remapping).
-  * @rmtoll MAPR          PD01_REMAP           LL_GPIO_AFIO_REMAP_PD01_ENABLE
+  * @rmtoll MAPR          PD01_REMAP           LL_GPIO_AF_EnableRemap_PD01
   * @note  ENABLE: PD0 remapped on OSC_IN, PD1 remapped on OSC_OUT.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_PD01_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_PD01(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_PD01_REMAP);
 }
@@ -1209,64 +1275,94 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_PD01_ENABLE(void)
   *        (application running on internal 8 MHz RC) PD0 and PD1 can be mapped on OSC_IN and
   *        OSC_OUT. This is available only on 36, 48 and 64 pins packages (PD0 and PD1 are available
   *        on 100-pin and 144-pin packages, no need for remapping).
-  * @rmtoll MAPR          PD01_REMAP           LL_GPIO_AFIO_REMAP_PD01_DISABLE
+  * @rmtoll MAPR          PD01_REMAP           LL_GPIO_AF_DisableRemap_PD01
   * @note  DISABLE: No remapping of PD0 and PD1
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_PD01_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_PD01(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_PD01_REMAP);
+}
+
+/**
+  * @brief  Check if PD01 has been remaped or not
+  * @rmtoll MAPR         PD01_REMAP         LL_GPIO_AF_IsEnabledRemap_PD01
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_PD01(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_PD01_REMAP) == (AFIO_MAPR_PD01_REMAP));
 }
 
 #if defined(AFIO_MAPR_TIM5CH4_IREMAP)
 /**
   * @brief Enable the remapping of TIM5CH4.
-  * @rmtoll MAPR          TIM5CH4_IREMAP           LL_GPIO_AFIO_REMAP_TIM5CH4_ENABLE
+  * @rmtoll MAPR          TIM5CH4_IREMAP           LL_GPIO_AF_EnableRemap_TIM5CH4
   * @note  ENABLE: LSI internal clock is connected to TIM5_CH4 input for calibration purpose.
   * @note  This function is available only in high density value line devices.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM5CH4_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM5CH4(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM5CH4_IREMAP);
 }
 
 /**
   * @brief Disable the remapping of TIM5CH4.
-  * @rmtoll MAPR          TIM5CH4_IREMAP           LL_GPIO_AFIO_REMAP_TIM5CH4_DISABLE
+  * @rmtoll MAPR          TIM5CH4_IREMAP           LL_GPIO_AF_DisableRemap_TIM5CH4
   * @note  DISABLE: TIM5_CH4 is connected to PA3
   * @note  This function is available only in high density value line devices.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM5CH4_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM5CH4(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM5CH4_IREMAP);
+}
+
+/**
+  * @brief  Check if TIM5CH4 has been remaped or not
+  * @rmtoll MAPR         TIM5CH4_IREMAP         LL_GPIO_AF_IsEnabledRemap_TIM5CH4
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM5CH4(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_TIM5CH4_IREMAP) == (AFIO_MAPR_TIM5CH4_IREMAP));
 }
 #endif
 
 #if defined(AFIO_MAPR_ETH_REMAP)
 /**
   * @brief Enable the remapping of Ethernet MAC connections with the PHY.
-  * @rmtoll MAPR          ETH_REMAP           LL_GPIO_AFIO_REMAP_ETH_ENABLE
+  * @rmtoll MAPR          ETH_REMAP           LL_GPIO_AF_EnableRemap_ETH
   * @note  ENABLE: Remap     (RX_DV-CRS_DV/PD8, RXD0/PD9, RXD1/PD10, RXD2/PD11, RXD3/PD12)
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ETH_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_ETH(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_ETH_REMAP);
 }
 
 /**
   * @brief Disable the remapping of Ethernet MAC connections with the PHY.
-  * @rmtoll MAPR          ETH_REMAP           LL_GPIO_AFIO_REMAP_ETH_DISABLE
+  * @rmtoll MAPR          ETH_REMAP           LL_GPIO_AF_DisableRemap_ETH
   * @note  DISABLE: No remap (RX_DV-CRS_DV/PA7, RXD0/PC4, RXD1/PC5,  RXD2/PB0,  RXD3/PB1)
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ETH_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_ETH(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_ETH_REMAP);
+}
+
+/**
+  * @brief  Check if ETH has been remaped or not
+  * @rmtoll MAPR         ETH_REMAP         LL_GPIO_AF_IsEnabledRemap_ETH
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_ETH(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_ETH_REMAP) == (AFIO_MAPR_ETH_REMAP));
 }
 #endif
 
@@ -1274,49 +1370,59 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_ETH_DISABLE(void)
 
 /**
   * @brief Enable the remapping of CAN2 alternate function CAN2_RX and CAN2_TX.
-  * @rmtoll MAPR          CAN2_REMAP           LL_GPIO_AFIO_REMAP_CAN2_ENABLE
+  * @rmtoll MAPR          CAN2_REMAP           LL_GPIO_AF_EnableRemap_CAN2
   * @note  ENABLE: Remap     (CAN2_RX/PB5,  CAN2_TX/PB6)
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_CAN2_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_CAN2(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_CAN2_REMAP);
 }
 /**
   * @brief Disable the remapping of CAN2 alternate function CAN2_RX and CAN2_TX.
-  * @rmtoll MAPR          CAN2_REMAP           LL_GPIO_AFIO_REMAP_CAN2_DISABLE
+  * @rmtoll MAPR          CAN2_REMAP           LL_GPIO_AF_DisableRemap_CAN2
   * @note  DISABLE: No remap (CAN2_RX/PB12, CAN2_TX/PB13)
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_CAN2_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_CAN2(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_CAN2_REMAP);
+}
+
+/**
+  * @brief  Check if CAN2 has been remaped or not
+  * @rmtoll MAPR         CAN2_REMAP         LL_GPIO_AF_IsEnabledRemap_CAN2
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_CAN2(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_CAN2_REMAP) == (AFIO_MAPR_CAN2_REMAP));
 }
 #endif
 
 #if defined(AFIO_MAPR_MII_RMII_SEL)
 /**
   * @brief Configures the Ethernet MAC internally for use with an external MII or RMII PHY.
-  * @rmtoll MAPR          MII_RMII_SEL           LL_GPIO_AFIO_REMAP_ETH_RMII
+  * @rmtoll MAPR          MII_RMII_SEL           LL_GPIO_AF_Select_ETH_RMII
   * @note  ETH_RMII: Configure Ethernet MAC for connection with an RMII PHY
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ETH_RMII(void)
+__STATIC_INLINE void LL_GPIO_AF_Select_ETH_RMII(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_MII_RMII_SEL);
 }
 
 /**
   * @brief Configures the Ethernet MAC internally for use with an external MII or RMII PHY.
-  * @rmtoll MAPR          MII_RMII_SEL           LL_GPIO_AFIO_REMAP_ETH_MII
+  * @rmtoll MAPR          MII_RMII_SEL           LL_GPIO_AF_Select_ETH_MII
   * @note  ETH_MII: Configure Ethernet MAC for connection with an MII PHY
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ETH_MII(void)
+__STATIC_INLINE void LL_GPIO_AF_Select_ETH_MII(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_MII_RMII_SEL);
 }
@@ -1325,48 +1431,68 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_ETH_MII(void)
 #if defined(AFIO_MAPR_ADC1_ETRGINJ_REMAP)
 /**
   * @brief Enable the remapping of ADC1_ETRGINJ (ADC 1 External trigger injected conversion).
-  * @rmtoll MAPR          ADC1_ETRGINJ_REMAP           LL_GPIO_AFIO_REMAP_ADC1_ETRGINJ_ENABLE
+  * @rmtoll MAPR          ADC1_ETRGINJ_REMAP           LL_GPIO_AF_EnableRemap_ADC1_ETRGINJ
   * @note  ENABLE: ADC1 External Event injected conversion is connected to TIM8 Channel4.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ADC1_ETRGINJ_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_ADC1_ETRGINJ(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_ADC1_ETRGINJ_REMAP);
 }
 
 /**
   * @brief Disable the remapping of ADC1_ETRGINJ (ADC 1 External trigger injected conversion).
-  * @rmtoll MAPR          ADC1_ETRGINJ_REMAP           LL_GPIO_AFIO_REMAP_ADC1_ETRGINJ_DISABLE
+  * @rmtoll MAPR          ADC1_ETRGINJ_REMAP           LL_GPIO_AF_DisableRemap_ADC1_ETRGINJ
   * @note  DISABLE: ADC1 External trigger injected conversion is connected to EXTI15
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ADC1_ETRGINJ_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_ADC1_ETRGINJ(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_ADC1_ETRGINJ_REMAP);
+}
+
+/**
+  * @brief  Check if ADC1_ETRGINJ has been remaped or not
+  * @rmtoll MAPR         ADC1_ETRGINJ_REMAP         LL_GPIO_AF_IsEnabledRemap_ADC1_ETRGINJ
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_ADC1_ETRGINJ(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_ADC1_ETRGINJ_REMAP) == (AFIO_MAPR_ADC1_ETRGINJ_REMAP));
 }
 #endif
 
 #if defined(AFIO_MAPR_ADC1_ETRGREG_REMAP)
 /**
   * @brief Enable the remapping of ADC1_ETRGREG (ADC 1 External trigger regular conversion).
-  * @rmtoll MAPR          ADC1_ETRGREG_REMAP           LL_GPIO_AFIO_REMAP_ADC1_ETRGREG_ENABLE
+  * @rmtoll MAPR          ADC1_ETRGREG_REMAP           LL_GPIO_AF_EnableRemap_ADC1_ETRGREG
   * @note  ENABLE: ADC1 External Event regular conversion is connected to TIM8 TRG0.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ADC1_ETRGREG_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_ADC1_ETRGREG(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_ADC1_ETRGREG_REMAP);
 }
 
 /**
   * @brief Disable the remapping of ADC1_ETRGREG (ADC 1 External trigger regular conversion).
-  * @rmtoll MAPR          ADC1_ETRGREG_REMAP           LL_GPIO_AFIO_REMAP_ADC1_ETRGREG_DISABLE
+  * @rmtoll MAPR          ADC1_ETRGREG_REMAP           LL_GPIO_AF_DisableRemap_ADC1_ETRGREG
   * @note  DISABLE: ADC1 External trigger regular conversion is connected to EXTI11
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ADC1_ETRGREG_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_ADC1_ETRGREG(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_ADC1_ETRGREG_REMAP);
+}
+
+/**
+  * @brief  Check if ADC1_ETRGREG has been remaped or not
+  * @rmtoll MAPR         ADC1_ETRGREG_REMAP         LL_GPIO_AF_IsEnabledRemap_ADC1_ETRGREG
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_ADC1_ETRGREG(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_ADC1_ETRGREG_REMAP) == (AFIO_MAPR_ADC1_ETRGREG_REMAP));
 }
 #endif
 
@@ -1374,24 +1500,34 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_ADC1_ETRGREG_DISABLE(void)
 
 /**
   * @brief Enable the remapping of ADC2_ETRGREG (ADC 2 External trigger injected conversion).
-  * @rmtoll MAPR          ADC2_ETRGINJ_REMAP           LL_GPIO_AFIO_REMAP_ADC2_ETRGINJ_ENABLE
+  * @rmtoll MAPR          ADC2_ETRGINJ_REMAP           LL_GPIO_AF_EnableRemap_ADC2_ETRGINJ
   * @note  ENABLE: ADC2 External Event injected conversion is connected to TIM8 Channel4.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ADC2_ETRGINJ_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_ADC2_ETRGINJ(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_ADC2_ETRGINJ_REMAP);
 }
 
 /**
   * @brief Disable the remapping of ADC2_ETRGREG (ADC 2 External trigger injected conversion).
-  * @rmtoll MAPR          ADC2_ETRGINJ_REMAP           LL_GPIO_AFIO_REMAP_ADC2_ETRGINJ_DISABLE
+  * @rmtoll MAPR          ADC2_ETRGINJ_REMAP           LL_GPIO_AF_DisableRemap_ADC2_ETRGINJ
   * @note  DISABLE: ADC2 External trigger injected conversion is connected to EXTI15
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ADC2_ETRGINJ_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_ADC2_ETRGINJ(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_ADC2_ETRGINJ_REMAP);
+}
+
+/**
+  * @brief  Check if ADC2_ETRGINJ has been remaped or not
+  * @rmtoll MAPR         ADC2_ETRGINJ_REMAP         LL_GPIO_AF_IsEnabledRemap_ADC2_ETRGINJ
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_ADC2_ETRGINJ(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_ADC2_ETRGINJ_REMAP) == (AFIO_MAPR_ADC2_ETRGINJ_REMAP));
 }
 #endif
 
@@ -1399,95 +1535,119 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_ADC2_ETRGINJ_DISABLE(void)
 
 /**
   * @brief Enable the remapping of ADC2_ETRGREG (ADC 2 External trigger regular conversion).
-  * @rmtoll MAPR          ADC2_ETRGREG_REMAP           LL_GPIO_AFIO_REMAP_ADC2_ETRGREG_ENABLE
+  * @rmtoll MAPR          ADC2_ETRGREG_REMAP           LL_GPIO_AF_EnableRemap_ADC2_ETRGREG
   * @note  ENABLE: ADC2 External Event regular conversion is connected to TIM8 TRG0.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ADC2_ETRGREG_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_ADC2_ETRGREG(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_ADC2_ETRGREG_REMAP);
 }
 
 /**
   * @brief Disable the remapping of ADC2_ETRGREG (ADC 2 External trigger regular conversion).
-  * @rmtoll MAPR          ADC2_ETRGREG_REMAP           LL_GPIO_AFIO_REMAP_ADC2_ETRGREG_DISABLE
+  * @rmtoll MAPR          ADC2_ETRGREG_REMAP           LL_GPIO_AF_DisableRemap_ADC2_ETRGREG
   * @note  DISABLE: ADC2 External trigger regular conversion is connected to EXTI11
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_ADC2_ETRGREG_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_ADC2_ETRGREG(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_ADC2_ETRGREG_REMAP);
+}
+
+/**
+  * @brief  Check if ADC2_ETRGREG has been remaped or not
+  * @rmtoll MAPR         ADC2_ETRGREG_REMAP         LL_GPIO_AF_IsEnabledRemap_ADC2_ETRGREG
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_ADC2_ETRGREG(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_ADC2_ETRGREG_REMAP) == (AFIO_MAPR_ADC2_ETRGREG_REMAP));
 }
 #endif
 
 /**
   * @brief Enable the Serial wire JTAG configuration
-  * @rmtoll MAPR          SWJ_CFG           LL_GPIO_AFIO_REMAP_SWJ_ENABLE
+  * @rmtoll MAPR          SWJ_CFG           LL_GPIO_AF_EnableRemap_SWJ
   * @note  ENABLE: Full SWJ (JTAG-DP + SW-DP): Reset State
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_SWJ_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_SWJ(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_SWJ_CFG, AFIO_MAPR_SWJ_CFG_RESET);
+  CLEAR_BIT(AFIO->MAPR,AFIO_MAPR_SWJ_CFG);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_RESET);  
 }
 
 /**
   * @brief Enable the Serial wire JTAG configuration
-  * @rmtoll MAPR          SWJ_CFG           LL_GPIO_AFIO_REMAP_SWJ_NONJTRST
+  * @rmtoll MAPR          SWJ_CFG           LL_GPIO_AF_Remap_SWJ_NONJTRST
   * @note  NONJTRST: Full SWJ (JTAG-DP + SW-DP) but without NJTRST
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_SWJ_NONJTRST(void)
+__STATIC_INLINE void LL_GPIO_AF_Remap_SWJ_NONJTRST(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_SWJ_CFG, AFIO_MAPR_SWJ_CFG_NOJNTRST);
+  CLEAR_BIT(AFIO->MAPR,AFIO_MAPR_SWJ_CFG);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_NOJNTRST);
 }
 
 /**
   * @brief Enable the Serial wire JTAG configuration
-  * @rmtoll MAPR          SWJ_CFG           LL_GPIO_AFIO_REMAP_SWJ_NOJTAG
+  * @rmtoll MAPR          SWJ_CFG           LL_GPIO_AF_Remap_SWJ_NOJTAG
   * @note  NOJTAG: JTAG-DP Disabled and SW-DP Enabled
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_SWJ_NOJTAG(void)
+__STATIC_INLINE void LL_GPIO_AF_Remap_SWJ_NOJTAG(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_SWJ_CFG, AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
+  CLEAR_BIT(AFIO->MAPR,AFIO_MAPR_SWJ_CFG);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_JTAGDISABLE);
 }
 
 /**
   * @brief Disable the Serial wire JTAG configuration
-  * @rmtoll MAPR          SWJ_CFG           LL_GPIO_AFIO_REMAP_SWJ_DISABLE
+  * @rmtoll MAPR          SWJ_CFG           LL_GPIO_AF_DisableRemap_SWJ
   * @note  DISABLE: JTAG-DP Disabled and SW-DP Disabled
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_SWJ_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_SWJ(void)
 {
-  MODIFY_REG(AFIO->MAPR, AFIO_MAPR_SWJ_CFG, AFIO_MAPR_SWJ_CFG_DISABLE);
+  CLEAR_BIT(AFIO->MAPR,AFIO_MAPR_SWJ_CFG);
+  SET_BIT(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_DISABLE);  
 }
 
 #if defined(AFIO_MAPR_SPI3_REMAP)
 
 /**
   * @brief Enable the remapping of SPI3 alternate functions SPI3_NSS/I2S3_WS, SPI3_SCK/I2S3_CK, SPI3_MISO, SPI3_MOSI/I2S3_SD.
-  * @rmtoll MAPR          SPI3_REMAP           LL_GPIO_AFIO_REMAP_SPI3_ENABLE
+  * @rmtoll MAPR          SPI3_REMAP           LL_GPIO_AF_EnableRemap_SPI3
   * @note  ENABLE: Remap     (SPI3_NSS-I2S3_WS/PA4,  SPI3_SCK-I2S3_CK/PC10, SPI3_MISO/PC11, SPI3_MOSI-I2S3_SD/PC12)
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_SPI3_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_SPI3(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_SPI3_REMAP);
 }
 
 /**
   * @brief Disable the remapping of SPI3 alternate functions SPI3_NSS/I2S3_WS, SPI3_SCK/I2S3_CK, SPI3_MISO, SPI3_MOSI/I2S3_SD.
-  * @rmtoll MAPR          SPI3_REMAP           LL_GPIO_AFIO_REMAP_SPI3_DISABLE
+  * @rmtoll MAPR          SPI3_REMAP           LL_GPIO_AF_DisableRemap_SPI3
   * @note  DISABLE: No remap (SPI3_NSS-I2S3_WS/PA15, SPI3_SCK-I2S3_CK/PB3,  SPI3_MISO/PB4,  SPI3_MOSI-I2S3_SD/PB5).
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_SPI3_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_SPI3(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_SPI3_REMAP);
+}
+
+/**
+  * @brief  Check if SPI3 has been remaped or not
+  * @rmtoll MAPR         SPI3_REMAP         LL_GPIO_AF_IsEnabledRemap_SPI3_REMAP
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_SPI3(void)
+{
+  return (READ_BIT(AFIO->MAPR, AFIO_MAPR_SPI3_REMAP) == (AFIO_MAPR_SPI3_REMAP));
 }
 #endif
 
@@ -1495,24 +1655,24 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_SPI3_DISABLE(void)
 
 /**
   * @brief Control of TIM2_ITR1 internal mapping.
-  * @rmtoll MAPR          TIM2ITR1_IREMAP           LL_GPIO_AFIO_TIM2ITR1_TO_USB
+  * @rmtoll MAPR          TIM2ITR1_IREMAP           LL_GPIO_AF_Remap_TIM2ITR1_TO_USB
   * @note  TO_USB: Connect USB OTG SOF (Start of Frame) output to TIM2_ITR1 for calibration purposes.
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_TIM2ITR1_TO_USB(void)
+__STATIC_INLINE void LL_GPIO_AF_Remap_TIM2ITR1_TO_USB(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_TIM2ITR1_IREMAP);
 }
 
 /**
   * @brief Control of TIM2_ITR1 internal mapping.
-  * @rmtoll MAPR          TIM2ITR1_IREMAP           LL_GPIO_AFIO_TIM2ITR1_TO_ETH
+  * @rmtoll MAPR          TIM2ITR1_IREMAP           LL_GPIO_AF_Remap_TIM2ITR1_TO_ETH
   * @note  TO_ETH: Connect TIM2_ITR1 internally to the Ethernet PTP output for calibration purposes.
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_TIM2ITR1_TO_ETH(void)
+__STATIC_INLINE void LL_GPIO_AF_Remap_TIM2ITR1_TO_ETH(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_TIM2ITR1_IREMAP);
 }
@@ -1522,24 +1682,24 @@ __STATIC_INLINE void LL_GPIO_AFIO_TIM2ITR1_TO_ETH(void)
 
 /**
   * @brief Enable the remapping of ADC2_ETRGREG (ADC 2 External trigger regular conversion).
-  * @rmtoll MAPR          PTP_PPS_REMAP           LL_GPIO_AFIO_ETH_PTP_PPS_ENABLE
+  * @rmtoll MAPR          PTP_PPS_REMAP           LL_GPIO_AF_EnableRemap_ETH_PTP_PPS
   * @note  ENABLE: PTP_PPS is output on PB5 pin.
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_ETH_PTP_PPS_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_ETH_PTP_PPS(void)
 {
   SET_BIT(AFIO->MAPR, AFIO_MAPR_PTP_PPS_REMAP);
 }
 
 /**
   * @brief Disable the remapping of ADC2_ETRGREG (ADC 2 External trigger regular conversion).
-  * @rmtoll MAPR          PTP_PPS_REMAP           LL_GPIO_AFIO_ETH_PTP_PPS_DISABLE
+  * @rmtoll MAPR          PTP_PPS_REMAP           LL_GPIO_AF_DisableRemap_ETH_PTP_PPS
   * @note  DISABLE: PTP_PPS not output on PB5 pin.
   * @note  This bit is available only in connectivity line devices and is reserved otherwise.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_ETH_PTP_PPS_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_ETH_PTP_PPS(void)
 {
   CLEAR_BIT(AFIO->MAPR, AFIO_MAPR_PTP_PPS_REMAP);
 }
@@ -1549,24 +1709,34 @@ __STATIC_INLINE void LL_GPIO_AFIO_ETH_PTP_PPS_DISABLE(void)
 
 /**
   * @brief Enable the remapping of TIM9_CH1 and TIM9_CH2.
-  * @rmtoll MAPR          TIM9_REMAP           LL_GPIO_AFIO_REMAP_TIM9_ENABLE
+  * @rmtoll MAPR2          TIM9_REMAP           LL_GPIO_AF_EnableRemap_TIM9
   * @note  ENABLE: Remap     (TIM9_CH1 on PE5 and TIM9_CH2 on PE6).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM9_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM9(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM9_REMAP);
 }
 
 /**
   * @brief Disable the remapping of TIM9_CH1 and TIM9_CH2.
-  * @rmtoll MAPR          TIM9_REMAP           LL_GPIO_AFIO_REMAP_TIM9_ENABLE
+  * @rmtoll MAPR2          TIM9_REMAP           LL_GPIO_AF_DisableRemap_TIM9
   * @note  DISABLE: No remap (TIM9_CH1 on PA2 and TIM9_CH2 on PA3).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM9_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM9(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM9_REMAP);
+}
+
+/**
+  * @brief  Check if TIM9_CH1 and TIM9_CH2 have been remaped or not
+  * @rmtoll MAPR2         TIM9_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM9
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM9(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM9_REMAP) == (AFIO_MAPR2_TIM9_REMAP));
 }
 #endif
 
@@ -1574,48 +1744,68 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM9_DISABLE(void)
 
 /**
   * @brief Enable the remapping of TIM10_CH1.
-  * @rmtoll MAPR          TIM10_REMAP           LL_GPIO_AFIO_REMAP_TIM10_ENABLE
+  * @rmtoll MAPR2          TIM10_REMAP           LL_GPIO_AF_EnableRemap_TIM10
   * @note  ENABLE: Remap     (TIM10_CH1 on PF6).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM10_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM10(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM10_REMAP);
 }
 
 /**
   * @brief Disable the remapping of TIM10_CH1.
-  * @rmtoll MAPR          TIM10_REMAP           LL_GPIO_AFIO_REMAP_TIM10_DISABLE
+  * @rmtoll MAPR2          TIM10_REMAP           LL_GPIO_AF_DisableRemap_TIM10
   * @note  DISABLE: No remap (TIM10_CH1 on PB8).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM10_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM10(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM10_REMAP);
+}
+
+/**
+  * @brief  Check if TIM10_CH1 has been remaped or not
+  * @rmtoll MAPR2         TIM10_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM10
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM10(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM10_REMAP) == (AFIO_MAPR2_TIM10_REMAP));
 }
 #endif
 
 #if defined(AFIO_MAPR2_TIM11_REMAP)
 /**
   * @brief Enable the remapping of TIM11_CH1.
-  * @rmtoll MAPR          TIM11_REMAP           LL_GPIO_AFIO_REMAP_TIM11_ENABLE
+  * @rmtoll MAPR2          TIM11_REMAP           LL_GPIO_AF_EnableRemap_TIM11
   * @note  ENABLE: Remap     (TIM11_CH1 on PF7).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM11_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM11(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM11_REMAP);
 }
 
 /**
   * @brief Disable the remapping of TIM11_CH1.
-  * @rmtoll MAPR          TIM11_REMAP           LL_GPIO_AFIO_REMAP_TIM11_DISABLE
+  * @rmtoll MAPR2          TIM11_REMAP           LL_GPIO_AF_DisableRemap_TIM11
   * @note  DISABLE: No remap (TIM11_CH1 on PB9).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM11_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM11(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM11_REMAP);
+}
+
+/**
+  * @brief  Check if TIM11_CH1 has been remaped or not
+  * @rmtoll MAPR2         TIM11_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM11
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM11(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM11_REMAP) == (AFIO_MAPR2_TIM11_REMAP));
 }
 #endif
 
@@ -1623,24 +1813,34 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM11_DISABLE(void)
 
 /**
   * @brief Enable the remapping of TIM13_CH1.
-  * @rmtoll MAPR          TIM13_REMAP           LL_GPIO_AFIO_REMAP_TIM13_ENABLE
+  * @rmtoll MAPR2          TIM13_REMAP           LL_GPIO_AF_EnableRemap_TIM13
   * @note  ENABLE: Remap     STM32F100:(TIM13_CH1 on PF8). Others:(TIM13_CH1 on PB0).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM13_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM13(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM13_REMAP);
 }
 
 /**
   * @brief Disable the remapping of TIM13_CH1.
-  * @rmtoll MAPR          TIM13_REMAP           LL_GPIO_AFIO_REMAP_TIM13_DISABLE
+  * @rmtoll MAPR2          TIM13_REMAP           LL_GPIO_AF_DisableRemap_TIM13
   * @note  DISABLE: No remap STM32F100:(TIM13_CH1 on PA6). Others:(TIM13_CH1 on PC8).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM13_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM13(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM13_REMAP);
+}
+
+/**
+  * @brief  Check if TIM13_CH1 has been remaped or not
+  * @rmtoll MAPR2         TIM13_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM13
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM13(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM13_REMAP) == (AFIO_MAPR2_TIM13_REMAP));
 }
 #endif
 
@@ -1648,24 +1848,34 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM13_DISABLE(void)
 
 /**
   * @brief Enable the remapping of TIM14_CH1.
-  * @rmtoll MAPR          TIM14_REMAP           LL_GPIO_AFIO_REMAP_TIM14_ENABLE
+  * @rmtoll MAPR2          TIM14_REMAP           LL_GPIO_AF_EnableRemap_TIM14
   * @note  ENABLE: Remap     STM32F100:(TIM14_CH1 on PB1). Others:(TIM14_CH1 on PF9).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM14_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM14(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM14_REMAP);
 }
 
 /**
   * @brief Disable the remapping of TIM14_CH1.
-  * @rmtoll MAPR          TIM14_REMAP           LL_GPIO_AFIO_REMAP_TIM14_DISABLE
+  * @rmtoll MAPR2          TIM14_REMAP           LL_GPIO_AF_DisableRemap_TIM14
   * @note  DISABLE: No remap STM32F100:(TIM14_CH1 on PC9). Others:(TIM14_CH1 on PA7).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM14_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM14(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM14_REMAP);
+}
+
+/**
+  * @brief  Check if TIM14_CH1 has been remaped or not
+  * @rmtoll MAPR2         TIM14_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM14
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM14(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM14_REMAP) == (AFIO_MAPR2_TIM14_REMAP));
 }
 #endif
 
@@ -1673,22 +1883,22 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM14_DISABLE(void)
 
 /**
   * @brief Controls the use of the optional FSMC_NADV signal.
-  * @rmtoll MAPR          FSMC_NADV           LL_GPIO_AFIO_FSMCNADV_DISCONNECTED
+  * @rmtoll MAPR2          FSMC_NADV           LL_GPIO_AF_Disconnect_FSMCNADV
   * @note  DISCONNECTED: The NADV signal is not connected. The I/O pin can be used by another peripheral.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_FSMCNADV_DISCONNECTED(void)
+__STATIC_INLINE void LL_GPIO_AF_Disconnect_FSMCNADV(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_FSMC_NADV_REMAP);
 }
 
 /**
   * @brief Controls the use of the optional FSMC_NADV signal.
-  * @rmtoll MAPR          FSMC_NADV           LL_GPIO_AFIO_FSMCNADV_CONNECTED
+  * @rmtoll MAPR2          FSMC_NADV           LL_GPIO_AF_Connect_FSMCNADV
   * @note  CONNECTED: The NADV signal is connected to the output (default).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_FSMCNADV_CONNECTED(void)
+__STATIC_INLINE void LL_GPIO_AF_Connect_FSMCNADV(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_FSMC_NADV_REMAP);
 }
@@ -1698,23 +1908,33 @@ __STATIC_INLINE void LL_GPIO_AFIO_FSMCNADV_CONNECTED(void)
 
 /**
   * @brief Enable the remapping of TIM15_CH1 and TIM15_CH2.
-  * @rmtoll MAPR          TIM15_REMAP           LL_GPIO_AFIO_REMAP_TIM15_ENABLE
+  * @rmtoll MAPR2          TIM15_REMAP           LL_GPIO_AF_EnableRemap_TIM15
   * @note  ENABLE: Remap     (TIM15_CH1 on PB14 and TIM15_CH2 on PB15).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM15_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM15(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM15_REMAP);
 }
 /**
   * @brief Disable the remapping of TIM15_CH1 and TIM15_CH2.
-  * @rmtoll MAPR          TIM15_REMAP           LL_GPIO_AFIO_REMAP_TIM15_DISABLE
+  * @rmtoll MAPR2          TIM15_REMAP           LL_GPIO_AF_DisableRemap_TIM15
   * @note  DISABLE: No remap (TIM15_CH1 on PA2  and TIM15_CH2 on PA3).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM15_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM15(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM15_REMAP);
+}
+
+/**
+  * @brief  Check if TIM15_CH1 has been remaped or not
+  * @rmtoll MAPR2         TIM15_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM15
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM15(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM15_REMAP) == (AFIO_MAPR2_TIM15_REMAP));
 }
 #endif
 
@@ -1722,24 +1942,34 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM15_DISABLE(void)
 
 /**
   * @brief Enable the remapping of TIM16_CH1.
-  * @rmtoll MAPR          TIM16_REMAP           LL_GPIO_AFIO_REMAP_TIM16_ENABLE
+  * @rmtoll MAPR2          TIM16_REMAP           LL_GPIO_AF_EnableRemap_TIM16
   * @note  ENABLE: Remap     (TIM16_CH1 on PA6).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM16_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM16(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM16_REMAP);
 }
 
 /**
   * @brief Disable the remapping of TIM16_CH1.
-  * @rmtoll MAPR          TIM16_REMAP           LL_GPIO_AFIO_REMAP_TIM16_DISABLE
+  * @rmtoll MAPR2          TIM16_REMAP           LL_GPIO_AF_DisableRemap_TIM16
   * @note  DISABLE: No remap (TIM16_CH1 on PB8).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM16_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM16(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM16_REMAP);
+}
+
+/**
+  * @brief  Check if TIM16_CH1 has been remaped or not
+  * @rmtoll MAPR2         TIM16_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM16
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM16(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM16_REMAP) == (AFIO_MAPR2_TIM16_REMAP));
 }
 #endif
 
@@ -1747,24 +1977,34 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM16_DISABLE(void)
 
 /**
   * @brief Enable the remapping of TIM17_CH1.
-  * @rmtoll MAPR          TIM17_REMAP           LL_GPIO_AFIO_REMAP_TIM17_ENABLE
+  * @rmtoll MAPR2          TIM17_REMAP           LL_GPIO_AF_EnableRemap_TIM17
   * @note  ENABLE: Remap     (TIM17_CH1 on PA7).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM17_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM17(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM17_REMAP);
 }
 
 /**
   * @brief Disable the remapping of TIM17_CH1.
-  * @rmtoll MAPR          TIM17_REMAP           LL_GPIO_AFIO_REMAP_TIM17_DISABLE
+  * @rmtoll MAPR2          TIM17_REMAP           LL_GPIO_AF_DisableRemap_TIM17
   * @note  DISABLE: No remap (TIM17_CH1 on PB9).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM17_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM17(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM17_REMAP);
+}
+
+/**
+  * @brief  Check if TIM17_CH1 has been remaped or not
+  * @rmtoll MAPR2         TIM17_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM17
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM17(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM17_REMAP) == (AFIO_MAPR2_TIM17_REMAP));
 }
 #endif
 
@@ -1772,24 +2012,34 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM17_DISABLE(void)
 
 /**
   * @brief Enable the remapping of CEC.
-  * @rmtoll MAPR          CEC_REMAP           LL_GPIO_AFIO_REMAP_CEC_ENABLE
+  * @rmtoll MAPR2          CEC_REMAP           LL_GPIO_AF_EnableRemap_CEC
   * @note  ENABLE: Remap     (CEC on PB10).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_CEC_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_CEC(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_CEC_REMAP);
 }
 
 /**
   * @brief Disable the remapping of CEC.
-  * @rmtoll MAPR          CEC_REMAP           LL_GPIO_AFIO_REMAP_CEC_DISABLE
+  * @rmtoll MAPR2          CEC_REMAP           LL_GPIO_AF_DisableRemap_CEC
   * @note  DISABLE: No remap (CEC on PB8).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_CEC_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_CEC(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_CEC_REMAP);
+}
+
+/**
+  * @brief  Check if CEC has been remaped or not
+  * @rmtoll MAPR2         CEC_REMAP         LL_GPIO_AF_IsEnabledRemap_CEC
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_CEC(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_CEC_REMAP) == (AFIO_MAPR2_CEC_REMAP));
 }
 #endif
 
@@ -1797,24 +2047,34 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_CEC_DISABLE(void)
 
 /**
   * @brief Controls the mapping of the TIM1_CH1 TIM1_CH2 DMA requests onto the DMA1 channels.
-  * @rmtoll MAPR          TIM1_DMA_REMAP           LL_GPIO_AFIO_REMAP_TIM1DMA_ENABLE
+  * @rmtoll MAPR2          TIM1_DMA_REMAP           LL_GPIO_AF_EnableRemap_TIM1DMA
   * @note  ENABLE: Remap (TIM1_CH1 DMA request/DMA1 Channel6, TIM1_CH2 DMA request/DMA1 Channel6)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM1DMA_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM1DMA(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM1_DMA_REMAP);
 }
 
 /**
   * @brief Controls the mapping of the TIM1_CH1 TIM1_CH2 DMA requests onto the DMA1 channels.
-  * @rmtoll MAPR          TIM1_DMA_REMAP           LL_GPIO_AFIO_REMAP_TIM1DMA_DISABLE
+  * @rmtoll MAPR2          TIM1_DMA_REMAP           LL_GPIO_AF_DisableRemap_TIM1DMA
   * @note  DISABLE: No remap (TIM1_CH1 DMA request/DMA1 Channel2, TIM1_CH2 DMA request/DMA1 Channel3).
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM1DMA_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM1DMA(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM1_DMA_REMAP);
+}
+
+/**
+  * @brief  Check if TIM1DMA has been remaped or not
+  * @rmtoll MAPR2         TIM1_DMA_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM1DMA
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM1DMA(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM1_DMA_REMAP) == (AFIO_MAPR2_TIM1_DMA_REMAP));
 }
 #endif
 
@@ -1822,24 +2082,34 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM1DMA_DISABLE(void)
 
 /**
   * @brief Controls the mapping of the TIM6_DAC1 and TIM7_DAC2 DMA requests onto the DMA1 channels.
-  * @rmtoll MAPR          TIM76_DAC_DMA_REMAP           LL_GPIO_AFIO_REMAP_TIM67DACDMA_ENABLE
+  * @rmtoll MAPR2          TIM76_DAC_DMA_REMAP           LL_GPIO_AF_EnableRemap_TIM67DACDMA
   * @note  ENABLE: Remap (TIM6_DAC1 DMA request/DMA1 Channel3, TIM7_DAC2 DMA request/DMA1 Channel4)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM67DACDMA_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM67DACDMA(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM67_DAC_DMA_REMAP);
 }
 
 /**
   * @brief Controls the mapping of the TIM6_DAC1 and TIM7_DAC2 DMA requests onto the DMA1 channels.
-  * @rmtoll MAPR          TIM76_DAC_DMA_REMAP           LL_GPIO_AFIO_REMAP_TIM67DACDMA_DISABLE
+  * @rmtoll MAPR2          TIM76_DAC_DMA_REMAP           LL_GPIO_AF_DisableRemap_TIM67DACDMA
   * @note  DISABLE: No remap (TIM6_DAC1 DMA request/DMA2 Channel3, TIM7_DAC2 DMA request/DMA2 Channel4)
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM67DACDMA_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM67DACDMA(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM67_DAC_DMA_REMAP);
+}
+
+/**
+  * @brief  Check if TIM67DACDMA has been remaped or not
+  * @rmtoll MAPR2         TIM76_DAC_DMA_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM67DACDMA
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM67DACDMA(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM67_DAC_DMA_REMAP) == (AFIO_MAPR2_TIM67_DAC_DMA_REMAP));
 }
 #endif
 
@@ -1847,26 +2117,36 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM67DACDMA_DISABLE(void)
 
 /**
   * @brief Enable the remapping of TIM12_CH1 and TIM12_CH2.
-  * @rmtoll MAPR          TIM12_REMAP           LL_GPIO_AFIO_REMAP_TIM12_ENABLE
+  * @rmtoll MAPR2          TIM12_REMAP           LL_GPIO_AF_EnableRemap_TIM12
   * @note  ENABLE: Remap     (TIM12_CH1 on PB12 and TIM12_CH2 on PB13).
   * @note  This bit is available only in high density value line devices.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM12_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_TIM12(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM12_REMAP);
 }
 
 /**
   * @brief Disable the remapping of TIM12_CH1 and TIM12_CH2.
-  * @rmtoll MAPR          TIM12_REMAP           LL_GPIO_AFIO_REMAP_TIM12_DISABLE
+  * @rmtoll MAPR2          TIM12_REMAP           LL_GPIO_AF_DisableRemap_TIM12
   * @note  DISABLE: No remap (TIM12_CH1 on PC4  and TIM12_CH2 on PC5).
   * @note  This bit is available only in high density value line devices.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM12_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_TIM12(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM12_REMAP);
+}
+
+/**
+  * @brief  Check if TIM12_CH1 has been remaped or not
+  * @rmtoll MAPR2         TIM12_REMAP         LL_GPIO_AF_IsEnabledRemap_TIM12
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_TIM12(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_TIM12_REMAP) == (AFIO_MAPR2_TIM12_REMAP));
 }
 #endif
 
@@ -1877,13 +2157,13 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_TIM12_DISABLE(void)
   *        This bit is set and cleared by software. It controls miscellaneous features.
   *        The DMA2 channel 5 interrupt position in the vector table.
   *        The timer selection for DAC trigger 3 (TSEL[2:0] = 011, for more details refer to the DAC_CR register).
-  * @rmtoll MAPR          MISC_REMAP           LL_GPIO_AFIO_REMAP_MISC_ENABLE
+  * @rmtoll MAPR2          MISC_REMAP           LL_GPIO_AF_EnableRemap_MISC
   * @note  ENABLE: DMA2 channel 5 interrupt is mapped separately at position 60 and TIM15 TRGO event is
   *        selected as DAC Trigger 3, TIM15 triggers TIM1/3.
   * @note  This bit is available only in high density value line devices.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_MISC_ENABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableRemap_MISC(void)
 {
   SET_BIT(AFIO->MAPR2, AFIO_MAPR2_MISC_REMAP);
 }
@@ -1893,15 +2173,25 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_MISC_ENABLE(void)
   *        This bit is set and cleared by software. It controls miscellaneous features.
   *        The DMA2 channel 5 interrupt position in the vector table.
   *        The timer selection for DAC trigger 3 (TSEL[2:0] = 011, for more details refer to the DAC_CR register).
-  * @rmtoll MAPR          MISC_REMAP           LL_GPIO_AFIO_REMAP_MISC_DISABLE
+  * @rmtoll MAPR2          MISC_REMAP           LL_GPIO_AF_DisableRemap_MISC
   * @note  DISABLE: DMA2 channel 5 interrupt is mapped with DMA2 channel 4 at position 59, TIM5 TRGO
   *        event is selected as DAC Trigger 3, TIM5 triggers TIM1/3.
   * @note  This bit is available only in high density value line devices.
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_REMAP_MISC_DISABLE(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableRemap_MISC(void)
 {
   CLEAR_BIT(AFIO->MAPR2, AFIO_MAPR2_MISC_REMAP);
+}
+
+/**
+  * @brief  Check if MISC has been remaped or not
+  * @rmtoll MAPR2         MISC_REMAP         LL_GPIO_AF_IsEnabledRemap_MISC
+  * @retval State of bit (1 or 0).
+  */
+__STATIC_INLINE uint32_t LL_GPIO_AF_IsEnabledRemap_MISC(void)
+{
+  return (READ_BIT(AFIO->MAPR2, AFIO_MAPR2_MISC_REMAP) == (AFIO_MAPR2_MISC_REMAP));
 }
 #endif
 
@@ -1909,61 +2199,61 @@ __STATIC_INLINE void LL_GPIO_AFIO_REMAP_MISC_DISABLE(void)
   * @}
   */
 
-/** @defgroup GPIO_AFIO_LL_EVENTOUT Output Event configuration
+/** @defgroup GPIO_AF_LL_EVENTOUT Output Event configuration
   * @brief This section propose definition to Configure EVENTOUT Cortex feature .
   * @{
   */
 
 /**
   * @brief  Configures the port and pin on which the EVENTOUT Cortex signal will be connected.
-  * @rmtoll EVCR          PORT           LL_GPIO_AFIO_ConfigEventout\n
-  *         EVCR          PIN            LL_GPIO_AFIO_ConfigEventout
+  * @rmtoll EVCR          PORT           LL_GPIO_AF_ConfigEventout\n
+  *         EVCR          PIN            LL_GPIO_AF_ConfigEventout
   * @param  LL_GPIO_PortSource This parameter can be one of the following values:
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PORT_A
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PORT_B
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PORT_C
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PORT_D
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PORT_E
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PORT_A
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PORT_B
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PORT_C
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PORT_D
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PORT_E
   * @param  LL_GPIO_PinSource This parameter can be one of the following values:
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_0
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_1
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_2
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_3
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_4
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_5
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_6
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_7
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_8
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_9
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_10
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_11
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_12
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_13
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_14
-  *      @arg @ref LL_GPIO_AFIO_EVENTOUT_PIN_15
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_0
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_1
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_2
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_3
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_4
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_5
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_6
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_7
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_8
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_9
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_10
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_11
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_12
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_13
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_14
+  *      @arg @ref LL_GPIO_AF_EVENTOUT_PIN_15
   * @retval None
 */
-__STATIC_INLINE void LL_GPIO_AFIO_ConfigEventout(uint32_t LL_GPIO_PortSource, uint32_t LL_GPIO_PinSource)
+__STATIC_INLINE void LL_GPIO_AF_ConfigEventout(uint32_t LL_GPIO_PortSource, uint32_t LL_GPIO_PinSource)
 {
   MODIFY_REG(AFIO->EVCR, (AFIO_EVCR_PORT) | (AFIO_EVCR_PIN), (LL_GPIO_PortSource) | (LL_GPIO_PinSource));
 }
 
 /**
   * @brief  Enables the Event Output.
-  * @rmtoll EVCR          EVOE           LL_GPIO_AFIO_EnableEventout
+  * @rmtoll EVCR          EVOE           LL_GPIO_AF_EnableEventout
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_EnableEventout(void)
+__STATIC_INLINE void LL_GPIO_AF_EnableEventout(void)
 {
   SET_BIT(AFIO->EVCR, AFIO_EVCR_EVOE);
 }
 
 /**
   * @brief  Disables the Event Output.
-  * @rmtoll EVCR          EVOE           LL_GPIO_AFIO_DisableEventout
+  * @rmtoll EVCR          EVOE           LL_GPIO_AF_DisableEventout
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_DisableEventout(void)
+__STATIC_INLINE void LL_GPIO_AF_DisableEventout(void)
 {
   CLEAR_BIT(AFIO->EVCR, AFIO_EVCR_EVOE);
 }
@@ -1971,82 +2261,82 @@ __STATIC_INLINE void LL_GPIO_AFIO_DisableEventout(void)
 /**
   * @}
   */
-/** @defgroup GPIO_AFIO_LL_EXTI EXTI external interrupt
+/** @defgroup GPIO_AF_LL_EXTI EXTI external interrupt
   * @brief This section Configure source input for the EXTI external interrupt .
   * @{
   */
 
 /**
   * @brief  Configure source input for the EXTI external interrupt.
-  * @rmtoll AFIO_EXTICR1      EXTIx         LL_GPIO_AFIO_SetEXTISource\n
-  *         AFIO_EXTICR2      EXTIx         LL_GPIO_AFIO_SetEXTISource\n
-  *         AFIO_EXTICR3      EXTIx         LL_GPIO_AFIO_SetEXTISource\n
-  *         AFIO_EXTICR4      EXTIx         LL_GPIO_AFIO_SetEXTISource
+  * @rmtoll AFIO_EXTICR1      EXTIx         LL_GPIO_AF_SetEXTISource\n
+  *         AFIO_EXTICR2      EXTIx         LL_GPIO_AF_SetEXTISource\n
+  *         AFIO_EXTICR3      EXTIx         LL_GPIO_AF_SetEXTISource\n
+  *         AFIO_EXTICR4      EXTIx         LL_GPIO_AF_SetEXTISource
   * @param  Port This parameter can be one of the following values:
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTA
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTB
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTC
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTD
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTE
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTF
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTG
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTA
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTB
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTC
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTD
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTE
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTF
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTG
   * @param  Line This parameter can be one of the following values:
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE0
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE1
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE2
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE3
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE4
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE5
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE6
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE7
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE8
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE9
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE10
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE11
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE12
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE13
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE14
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE15
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE0
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE1
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE2
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE3
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE4
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE5
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE6
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE7
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE8
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE9
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE10
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE11
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE12
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE13
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE14
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE15
   * @retval None
   */
-__STATIC_INLINE void LL_GPIO_AFIO_SetEXTISource(uint32_t Port, uint32_t Line)
+__STATIC_INLINE void LL_GPIO_AF_SetEXTISource(uint32_t Port, uint32_t Line)
 {
   MODIFY_REG(AFIO->EXTICR[Line & 0xFF], (Line >> 16), Port << POSITION_VAL((Line >> 16)));
 }
 
 /**
   * @brief  Get the configured defined for specific EXTI Line
-  * @rmtoll AFIO_EXTICR1      EXTIx         LL_GPIO_AFIO_GetEXTISource\n
-  *         AFIO_EXTICR2      EXTIx         LL_GPIO_AFIO_GetEXTISource\n
-  *         AFIO_EXTICR3      EXTIx         LL_GPIO_AFIO_GetEXTISource\n
-  *         AFIO_EXTICR4      EXTIx         LL_GPIO_AFIO_GetEXTISource
+  * @rmtoll AFIO_EXTICR1      EXTIx         LL_GPIO_AF_GetEXTISource\n
+  *         AFIO_EXTICR2      EXTIx         LL_GPIO_AF_GetEXTISource\n
+  *         AFIO_EXTICR3      EXTIx         LL_GPIO_AF_GetEXTISource\n
+  *         AFIO_EXTICR4      EXTIx         LL_GPIO_AF_GetEXTISource
   * @param  Line This parameter can be one of the following values:
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE0
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE1
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE2
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE3
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE4
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE5
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE6
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE7
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE8
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE9
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE10
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE11
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE12
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE13
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE14
-  *         @arg @ref LL_GPIO_AFIO_EXTI_LINE15
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE0
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE1
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE2
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE3
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE4
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE5
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE6
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE7
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE8
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE9
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE10
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE11
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE12
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE13
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE14
+  *         @arg @ref LL_GPIO_AF_EXTI_LINE15
   * @retval Returned value can be one of the following values:
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTA
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTB
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTC
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTD
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTE
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTF
-  *         @arg @ref LL_GPIO_AFIO_EXTI_PORTG
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTA
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTB
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTC
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTD
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTE
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTF
+  *         @arg @ref LL_GPIO_AF_EXTI_PORTG
   */
-__STATIC_INLINE uint32_t LL_GPIO_AFIO_GetEXTISource(uint32_t Line)
+__STATIC_INLINE uint32_t LL_GPIO_AF_GetEXTISource(uint32_t Line)
 {
   return (uint32_t)(READ_BIT(AFIO->EXTICR[Line & 0xFF], (Line >> 16)) >> POSITION_VAL(Line >> 16));
 }

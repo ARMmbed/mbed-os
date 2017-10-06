@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_hash.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   HASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the HASH peripheral:
@@ -68,7 +68,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -1228,7 +1228,7 @@ HAL_StatusTypeDef HAL_HASH_MD5_Finish(HASH_HandleTypeDef *hhash, uint8_t* pOutBu
   }
   
   /* Read the message digest */
-  HASH_GetDigest(pOutBuffer, 16U);
+  HASH_GetDigest(pOutBuffer, 16);
       
   /* Change HASH peripheral state */
   hhash->State = HAL_HASH_STATE_READY;
@@ -1281,7 +1281,7 @@ HAL_StatusTypeDef HAL_HASH_SHA1_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pI
   hhash->hdmain->XferErrorCallback = HASH_DMAError;
   
   /* Enable the DMA In DMA Stream */
-  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (Size%4 ? (Size+3)/4:Size/4));
+  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (Size%4U ? (Size+3U)/4U:Size/4U));
   
   /* Enable DMA requests */
   HASH->CR |= (HASH_CR_DMAE);
@@ -1642,7 +1642,7 @@ HAL_StatusTypeDef HAL_HMAC_SHA1_Start(HASH_HandleTypeDef *hhash, uint8_t *pInBuf
     }
   }
   /* Read the message digest */
-  HASH_GetDigest(pOutBuffer, 20U);
+  HASH_GetDigest(pOutBuffer, 20);
   
   /* Change the HASH state */
   hhash->State = HAL_HASH_STATE_READY;
@@ -1730,7 +1730,7 @@ HAL_StatusTypeDef HAL_HMAC_MD5_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pIn
   hhash->hdmain->XferErrorCallback = HASH_DMAError;
   
   /* Enable the DMA In DMA Stream */
-  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (hhash->Init.KeySize%4 ? (hhash->Init.KeySize+3)/4:hhash->Init.KeySize/4));
+  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (hhash->Init.KeySize%4U ? (hhash->Init.KeySize+3U)/4U:hhash->Init.KeySize/4U));
   /* Enable DMA requests */
   HASH->CR |= (HASH_CR_DMAE);
   
@@ -1797,7 +1797,7 @@ HAL_StatusTypeDef HAL_HMAC_SHA1_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pI
   hhash->hdmain->XferErrorCallback = HASH_DMAError;
   
   /* Enable the DMA In DMA Stream */
-  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (hhash->Init.KeySize%4 ? (hhash->Init.KeySize+3)/4:hhash->Init.KeySize/4));
+  HAL_DMA_Start_IT(hhash->hdmain, inputaddr, (uint32_t)&HASH->DIN, (hhash->Init.KeySize%4U ? (hhash->Init.KeySize+3U)/4U:hhash->Init.KeySize/4U));
   /* Enable DMA requests */
   HASH->CR |= (HASH_CR_DMAE);
   

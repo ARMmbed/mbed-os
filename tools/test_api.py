@@ -50,6 +50,7 @@ from tools.utils import NotSupportedException
 from tools.utils import construct_enum
 from tools.memap import MemapParser
 from tools.targets import TARGET_MAP
+import tools.test_configs as TestConfig
 from tools.test_db import BaseDBAccess
 from tools.build_api import build_project, build_mbed_libs, build_lib
 from tools.build_api import get_target_supported_toolchains
@@ -365,6 +366,7 @@ class SingleTestRunner(object):
             clean_mbed_libs_options = True if self.opts_goanna_for_mbed_sdk or clean or self.opts_clean else None
 
             profile = extract_profile(self.opts_parser, self.opts, toolchain)
+            stats_depth = self.opts.stats_depth or 2
 
 
             try:
@@ -481,22 +483,13 @@ class SingleTestRunner(object):
 
                 project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
                 try:
-                    path = build_project(test.source_dir,
-                                     join(build_dir, test_id),
-                                     T,
-                                     toolchain,
-                                     test.dependencies,
-                                     clean=clean_project_options,
-                                     verbose=self.opts_verbose,
-                                     name=project_name,
-                                     macros=MACROS,
-                                     inc_dirs=INC_DIRS,
-                                     jobs=self.opts_jobs,
-                                     report=build_report,
-                                     properties=build_properties,
-                                     project_id=test_id,
-                                     project_description=test.get_description(),
-                                     build_profile=profile)
+                    path = build_project(test.source_dir, join(build_dir, test_id), T,
+                        toolchain, test.dependencies, clean=clean_project_options,
+                        verbose=self.opts_verbose, name=project_name, macros=MACROS,
+                        inc_dirs=INC_DIRS, jobs=self.opts_jobs, report=build_report,
+                        properties=build_properties, project_id=test_id,
+                        project_description=test.get_description(),
+                        build_profile=profile, stats_depth=stats_depth)
 
                 except Exception, e:
                     project_name_str = project_name if project_name is not None else test_id
@@ -1651,10 +1644,9 @@ def detect_database_verbose(db_url):
 
 
 def get_module_avail(module_name):
-    """ This function returns True if module_name is already impored module
+    """ This function returns True if module_name is already imported module
     """
     return module_name in sys.modules.keys()
-
 
 def get_autodetected_MUTS_list(platform_name_filter=None):
     oldError = None
@@ -1987,6 +1979,12 @@ def get_default_test_options_parser():
                         default=False,
                         action="store_true",
                         help='Prints script version and exits')
+
+    parser.add_argument('--stats-depth',
+                        dest='stats_depth',
+                        default=2,
+                        type=int,
+                        help="Depth level for static memory report")
     return parser
 
 def test_path_to_name(path, base):
@@ -2001,6 +1999,19 @@ def test_path_to_name(path, base):
 
     return "-".join(name_parts).lower()
 
+def get_test_config(config_name, target_name):
+    """Finds the path to a test configuration file
+    config_name: path to a custom configuration file OR mbed OS interface "ethernet, wifi_odin, etc"
+    target_name: name of target to determing if mbed OS interface given is valid
+    returns path to config, boolean of whether it is a module or mbed OS interface
+    """
+    # If they passed in a full path
+    if exists(config_name):
+        # This is a module config
+        return config_name
+    # Otherwise find the path to configuration file based on mbed OS interface
+    return TestConfig.get_config_path(config_name, target_name)
+
 def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     """ Finds all tests in a directory recursively
     base_dir: path to the directory to scan for tests (ex. 'path/to/project')
@@ -2013,7 +2024,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     tests = {}
 
     # Prepare the toolchain
-    toolchain = prepare_toolchain([base_dir], target_name, toolchain_name,
+    toolchain = prepare_toolchain([base_dir], None, target_name, toolchain_name,
                                   silent=True, app_config=app_config)
 
     # Scan the directory for paths to probe for 'TESTS' folders
@@ -2038,7 +2049,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
                 if path_depth == 2:
                     test_group_directory_path, test_case_directory = os.path.split(d)
                     test_group_directory = os.path.basename(test_group_directory_path)
-                    
+
                     # Check to make sure discoverd folder is not in a host test directory
                     if test_case_directory != 'host_tests' and test_group_directory != 'host_tests':
                         test_name = test_path_to_name(d, base_dir)
@@ -2122,7 +2133,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 clean=False, notify=None, verbose=False, jobs=1, macros=None,
                 silent=False, report=None, properties=None,
                 continue_on_build_fail=False, app_config=None,
-                build_profile=None):
+                build_profile=None, stats_depth=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 
@@ -2158,7 +2169,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         src_path = base_source_paths + [test_path]
         bin_file = None
         test_case_folder_name = os.path.basename(test_path)
-        
+
         args = (src_path, test_build_path, target, toolchain_name)
         kwargs = {
             'jobs': 1,
@@ -2172,9 +2183,10 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'app_config': app_config,
             'build_profile': build_profile,
             'silent': True,
-            'toolchain_paths': TOOLCHAIN_PATHS
+            'toolchain_paths': TOOLCHAIN_PATHS,
+            'stats_depth': stats_depth
         }
-        
+
         results.append(p.apply_async(build_test_worker, args, kwargs))
 
     p.close()
@@ -2196,10 +2208,11 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                         results.remove(r)
 
                         # Take report from the kwargs and merge it into existing report
-                        report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
-                        for test_key in report_entry.keys():
-                            report[target_name][toolchain_name][test_key] = report_entry[test_key]
-                        
+                        if report:
+                            report_entry = worker_result['kwargs']['report'][target_name][toolchain_name]
+                            for test_key in report_entry.keys():
+                                report[target_name][toolchain_name][test_key] = report_entry[test_key]
+
                         # Set the overall result to a failure if a build failure occurred
                         if ('reason' in worker_result and
                             not worker_result['reason'] and
@@ -2222,7 +2235,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                             }
 
                             test_key = worker_result['kwargs']['project_id'].upper()
-                            print report[target_name][toolchain_name][test_key][0][0]['output'].rstrip()
+                            if report:
+                                print report[target_name][toolchain_name][test_key][0][0]['output'].rstrip()
                             print 'Image: %s\n' % bin_file
 
                     except:

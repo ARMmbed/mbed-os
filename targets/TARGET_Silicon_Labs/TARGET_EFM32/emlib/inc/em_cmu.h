@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_cmu.h
  * @brief Clock management unit (CMU) API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -130,10 +130,15 @@ extern "C" {
 #define CMU_LCDPRE_CLK_BRANCH      19
 #define CMU_LCD_CLK_BRANCH         20
 #define CMU_LESENSE_CLK_BRANCH     21
+#define CMU_CSEN_LF_CLK_BRANCH     22
 
 #define CMU_CLK_BRANCH_POS         17
 #define CMU_CLK_BRANCH_MASK        0x1f
 
+#if defined( _EMU_CMD_EM01VSCALE0_MASK )
+/* Max clock frequency for VSCALE voltages */
+#define CMU_VSCALEEM01_LOWPOWER_VOLTAGE_CLOCK_MAX     20000000
+#endif
 /** @endcond */
 
 /*******************************************************************************
@@ -161,7 +166,7 @@ extern "C" {
 /** Clock divider configuration */
 typedef uint32_t CMU_ClkDiv_TypeDef;
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
 /** Clockprescaler configuration */
 typedef uint32_t CMU_ClkPresc_TypeDef;
 #endif
@@ -853,7 +858,7 @@ typedef enum
                      | (CMU_NOSEL_REG << CMU_SEL_REG_POS)
                      | (CMU_LFBCLKEN0_EN_REG << CMU_EN_REG_POS)
                      | (_CMU_LFBCLKEN0_CSEN_SHIFT << CMU_EN_BIT_POS)
-                     | (CMU_LEUART0_CLK_BRANCH << CMU_CLK_BRANCH_POS),
+                     | (CMU_CSEN_LF_CLK_BRANCH << CMU_CLK_BRANCH_POS),
 #endif
 
 #if defined( CMU_LFBCLKEN0_LEUART1 )
@@ -938,7 +943,10 @@ typedef enum
   cmuOsc_USHFRCO,  /**< USB high frequency RC oscillator */
 #endif
 #if defined( CMU_LFCLKSEL_LFAE_ULFRCO ) || defined( CMU_LFACLKSEL_LFA_ULFRCO )
-  cmuOsc_ULFRCO    /**< Ultra low frequency RC oscillator. */
+  cmuOsc_ULFRCO,   /**< Ultra low frequency RC oscillator. */
+#endif
+#if defined( _CMU_STATUS_PLFRCOENS_MASK )
+  cmuOsc_PLFRCO,   /**< Precision Low Frequency Oscillator. */
 #endif
 } CMU_Osc_TypeDef;
 
@@ -953,24 +961,27 @@ typedef enum
 /** Selectable clock sources. */
 typedef enum
 {
-  cmuSelect_Error,      /**< Usage error. */
-  cmuSelect_Disabled,   /**< Clock selector disabled. */
-  cmuSelect_LFXO,       /**< Low frequency crystal oscillator. */
-  cmuSelect_LFRCO,      /**< Low frequency RC oscillator. */
-  cmuSelect_HFXO,       /**< High frequency crystal oscillator. */
-  cmuSelect_HFRCO,      /**< High frequency RC oscillator. */
-  cmuSelect_HFCLKLE,    /**< High frequency LE clock divided by 2 or 4. */
-  cmuSelect_AUXHFRCO,   /**< Auxilliary clock source can be used for debug clock */
-  cmuSelect_HFCLK,      /**< Divided HFCLK on Giant for debug clock, undivided on
-                             Tiny Gecko and for USBC (not used on Gecko) */
+  cmuSelect_Error,                      /**< Usage error. */
+  cmuSelect_Disabled,                   /**< Clock selector disabled. */
+  cmuSelect_LFXO,                       /**< Low frequency crystal oscillator. */
+  cmuSelect_LFRCO,                      /**< Low frequency RC oscillator. */
+  cmuSelect_HFXO,                       /**< High frequency crystal oscillator. */
+  cmuSelect_HFRCO,                      /**< High frequency RC oscillator. */
+  cmuSelect_HFCLKLE,                    /**< High frequency LE clock divided by 2 or 4. */
+  cmuSelect_AUXHFRCO,                   /**< Auxilliary clock source can be used for debug clock */
+  cmuSelect_HFCLK,                      /**< Divided HFCLK on Giant for debug clock, undivided on
+                                             Tiny Gecko and for USBC (not used on Gecko) */
 #if defined( CMU_STATUS_USHFRCOENS )
-  cmuSelect_USHFRCO,    /**< USB high frequency RC oscillator */
+  cmuSelect_USHFRCO,                    /**< USB high frequency RC oscillator */
 #endif
 #if defined( CMU_CMD_HFCLKSEL_USHFRCODIV2 )
-  cmuSelect_USHFRCODIV2,/**< USB high frequency RC oscillator */
+  cmuSelect_USHFRCODIV2,                /**< USB high frequency RC oscillator */
 #endif
 #if defined( CMU_LFCLKSEL_LFAE_ULFRCO ) || defined( CMU_LFACLKSEL_LFA_ULFRCO )
-  cmuSelect_ULFRCO,     /**< Ultra low frequency RC oscillator. */
+  cmuSelect_ULFRCO,                     /**< Ultra low frequency RC oscillator. */
+#endif
+#if defined( _CMU_STATUS_PLFRCOENS_MASK )
+  cmuSelect_PLFRCO,                     /**< Precision Low Frequency Oscillator. */
 #endif
 } CMU_Select_TypeDef;
 
@@ -1192,7 +1203,7 @@ CMU_ClkDiv_TypeDef    CMU_ClockDivGet(CMU_Clock_TypeDef clock);
 void                  CMU_ClockDivSet(CMU_Clock_TypeDef clock, CMU_ClkDiv_TypeDef div);
 uint32_t              CMU_ClockFreqGet(CMU_Clock_TypeDef clock);
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
 void                  CMU_ClockPrescSet(CMU_Clock_TypeDef clock, uint32_t presc);
 uint32_t              CMU_ClockPrescGet(CMU_Clock_TypeDef clock);
 #endif
@@ -1441,7 +1452,7 @@ __STATIC_INLINE uint32_t CMU_Log2ToDiv(uint32_t log2)
 }
 
 
-#if defined( _SILICON_LABS_32B_PLATFORM_2 )
+#if defined( _SILICON_LABS_32B_SERIES_1 )
 /***************************************************************************//**
  * @brief
  *   Convert prescaler dividend to logarithmic value. Only works for even

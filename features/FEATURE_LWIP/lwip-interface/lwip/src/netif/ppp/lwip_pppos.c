@@ -57,9 +57,9 @@ LWIP_MEMPOOL_DECLARE(PPPOS_PCB, MEMP_NUM_PPPOS_INTERFACES, sizeof(pppos_pcb), "P
 /* callbacks called from PPP core */
 static err_t pppos_write(ppp_pcb *ppp, void *ctx, struct pbuf *p);
 static err_t pppos_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *pb, u16_t protocol);
-static err_t pppos_connect(ppp_pcb *ppp, void *ctx);
+static void pppos_connect(ppp_pcb *ppp, void *ctx);
 #if PPP_SERVER
-static err_t pppos_listen(ppp_pcb *ppp, void *ctx);
+static void pppos_listen(ppp_pcb *ppp, void *ctx);
 #endif /* PPP_SERVER */
 static void pppos_disconnect(ppp_pcb *ppp, void *ctx);
 static err_t pppos_destroy(ppp_pcb *ppp, void *ctx);
@@ -298,7 +298,7 @@ pppos_netif_output(ppp_pcb *ppp, void *ctx, struct pbuf *pb, u16_t protocol)
   return err;
 }
 
-static err_t
+static void
 pppos_connect(ppp_pcb *ppp, void *ctx)
 {
   pppos_pcb *pppos = (pppos_pcb *)ctx;
@@ -327,11 +327,10 @@ pppos_connect(ppp_pcb *ppp, void *ctx)
    */
   PPPDEBUG(LOG_INFO, ("pppos_connect: unit %d: connecting\n", ppp->netif->num));
   ppp_start(ppp); /* notify upper layers */
-  return ERR_OK;
 }
 
 #if PPP_SERVER
-static err_t
+static void
 pppos_listen(ppp_pcb *ppp, void *ctx)
 {
   pppos_pcb *pppos = (pppos_pcb *)ctx;
@@ -360,7 +359,6 @@ pppos_listen(ppp_pcb *ppp, void *ctx)
    */
   PPPDEBUG(LOG_INFO, ("pppos_listen: unit %d: listening\n", ppp->netif->num));
   ppp_start(ppp); /* notify upper layers */
-  return ERR_OK;
 }
 #endif /* PPP_SERVER */
 

@@ -1,49 +1,82 @@
+/*###ICF### Section handled by ICF editor, don't touch! ****/
+/*-Editor annotation file-*/
+/* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_1.xml" */
+/*-Specials-*/
+define symbol __ICFEDIT_intvec_start__ = 0x00003000;
+/*-Memory Regions-*/
+define symbol __ICFEDIT_region_IROM1_start__ = 0x00003000;     /* FLASHA program start*/
+define symbol __ICFEDIT_region_IROM1_end__   = 0x00051FFF;     /* 316K = 320K - 4K(FIB table), FLASHA end */
+define symbol __ICFEDIT_region_IROM2_start__ = 0x00102000;
+define symbol __ICFEDIT_region_IROM2_end__   = 0x00151FFF;     /* 320K */
+define symbol __ICFEDIT_region_EROM1_start__ = 0x0;
+define symbol __ICFEDIT_region_EROM1_end__   = 0x0;
+define symbol __ICFEDIT_region_EROM2_start__ = 0x0;
+define symbol __ICFEDIT_region_EROM2_end__   = 0x0;
+define symbol __ICFEDIT_region_EROM3_start__ = 0x0;
+define symbol __ICFEDIT_region_EROM3_end__   = 0x0;
 
-/* The memory space denoting the maximum possible amount of addressable memory */
-define memory Mem with size = 4G;
+define symbol __ICFEDIT_region_IRAM1_start__ = 0x3FFFC000;       /* RAMA start                  */
+define symbol __ICFEDIT_region_IRAM1_end__   = 0x3FFFFFFF;       /* RAMA end                    */
+define symbol __ICFEDIT_region_IRAM2_start__ = 0x3FFF8000;       /* RAMB start                  */
+define symbol __ICFEDIT_region_IRAM2_end__   = 0x3FFFBFFF;       /* RAMB end                    */
+define symbol __ICFEDIT_region_IRAM3_start__ = 0x3FFF4000;       /* RAMC start                  */
+define symbol __ICFEDIT_region_IRAM3_end__   = 0x3FFF7FFF;       /* RAMC end                    */
+define symbol __ICFEDIT_region_ERAM1_start__ = 0x0;
+define symbol __ICFEDIT_region_ERAM1_end__   = 0x0;
+define symbol __ICFEDIT_region_ERAM2_start__ = 0x0;
+define symbol __ICFEDIT_region_ERAM2_end__   = 0x0;
+define symbol __ICFEDIT_region_ERAM3_start__ = 0x0;
+define symbol __ICFEDIT_region_ERAM3_end__   = 0x0;
 
-/* Memory regions in an address space */
-define region FLASHA = Mem:[from 0x00003000 size 0x4D000]; /* 308K = 320K - 4K(FIB table) - 8K(Persistent) */
-define region FLASHB = Mem:[from 0x00100000 size 0x50000];
-define region RAMA = Mem:[from 0x3FFFC000 size 0x4000];
-define region RAMB = Mem:[from 0x3FFF8000 size 0x4000];
-/* G2H ZPRO requires RAMC to be enabled */
-define region RAMC = Mem:[from 0x3FFF4000 size 0x4000];
-define region RAM_ALL = Mem:[from 0x3FFF4000 size 0xC000];
+/*-Sizes-*/
+define symbol __ICFEDIT_size_cstack__ = 0x200;
+define symbol __ICFEDIT_size_heap__   = 0x4000;
+/**** End of ICF editor section. ###ICF###*/
 
-/* Create a stack */
-define block CSTACK with size = 0x200, alignment = 8 { };
 
-/* No Heap is created for C library, all memory management should be handled by the application */
- define block HEAP with alignment = 8, size = 0x4000    { }; 
+define memory mem with size = 4G;
+define region FLASH_region   =   mem:[from __ICFEDIT_region_IROM1_start__ to __ICFEDIT_region_IROM1_end__]
+                              |  mem:[from __ICFEDIT_region_IROM2_start__ to __ICFEDIT_region_IROM2_end__];
 
-/* Handle initialization */
-do not initialize { section .noinit };
+define region RAM_VECTOR_region   =   mem:[from __ICFEDIT_region_IRAM3_start__  to __ICFEDIT_region_IRAM3_start__ + 0x90 - 1];
 
-/* Initialize RW sections, exclude zero-initialized sections */
-initialize by copy with packing = none  { readwrite };
+define region RAM_region    =   mem:[from __ICFEDIT_region_IRAM3_start__ + 0x90 to __ICFEDIT_region_IRAM3_end__]
+                              | mem:[from __ICFEDIT_region_IRAM2_start__ to __ICFEDIT_region_IRAM2_end__]
+                              | mem:[from __ICFEDIT_region_IRAM1_start__ to __ICFEDIT_region_IRAM1_end__ - __ICFEDIT_size_cstack__ ];
+
+define region CSTACK_region =   mem:[from __ICFEDIT_region_IRAM1_end__ - __ICFEDIT_size_cstack__ + 1 to __ICFEDIT_region_IRAM1_end__];
+
+
+/* Define overlays for MIB's, ths allows view of one MIB from a application level while
+ * MAC and PHY only know about their own MIB */
+define overlay MIBOVERLAY { section MIBSTARTSECTION };
+define overlay MIBOVERLAY { section MIBSECTION };
+
+define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
+define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+define block RAM_VECTORS  with alignment = 8, size = 0x90     { };
+
+initialize by copy { readwrite };
+
+if (isdefinedsymbol(__USE_DLIB_PERTHREAD))
+{
+  // Required in a multi-threaded application
+  initialize by copy with packing = none { section __DLIB_PERTHREAD };
+}
 
 /* Initialize the code in RAM, copied over from FLASH */
 initialize by copy with packing = none { readonly code section EXECINRAM };
-/*keep { readonly code section .EXECINRAM* } except { readonly code section EXECINRAM };*/
 
-/* Place startup code at a fixed address */
-place at start of FLASHA { readonly section .intvec, readonly section SWVERSION,readonly section FIBTABLE,readonly section .cstartup };
-
-/* Place code and data */
-
-/* Place constants and initializers in FLASHA: .rodata and .data_init */
-place in FLASHA { readonly };
-
-/* Place .data, .bss, and .noinit */
-/* and STACK */
-/* The relocatable exception table needs to be aligned at 0x0 or multiple of 0x100,
- * hence, place it as first block in RAM.
- */
-place at start of RAM_ALL  { section RAM_VECTORS };
-place in RAM_ALL           { readonly code section EXECINRAM };
-place at end of RAM_ALL    { block CSTACK };
+/*initialize by copy { readwrite };*/
+do not initialize  { section .noinit };
 
 
-place in RAM_ALL           { readwrite };
-place in RAM_ALL           { block HEAP };
+place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec, readonly section SWVERSION, readonly section FIBTABLE };
+
+place in FLASH_region { readonly section .cstartup, readonly };
+
+place at start of RAM_VECTOR_region {block RAM_VECTORS};
+
+place in RAM_region { readwrite, block HEAP, section XHEAP, readonly code section EXECINRAM, overlay MIBOVERLAY, readwrite section MIBENDSECTION};
+
+place at end of CSTACK_region    { block CSTACK };

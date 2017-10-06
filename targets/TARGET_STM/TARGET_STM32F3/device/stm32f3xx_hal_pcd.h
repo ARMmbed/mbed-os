@@ -232,7 +232,7 @@ typedef struct
   * @{
   */
 #define __HAL_PCD_GET_FLAG(__HANDLE__, __INTERRUPT__)      ((((__HANDLE__)->Instance->ISTR) & (__INTERRUPT__)) == (__INTERRUPT__))
-#define __HAL_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    ((((__HANDLE__)->Instance->ISTR) &= (uint16_t)(~(__INTERRUPT__))))
+#define __HAL_PCD_CLEAR_FLAG(__HANDLE__, __INTERRUPT__)    ((((__HANDLE__)->Instance->ISTR) = (uint16_t)(~(__INTERRUPT__)))) // MBED fix
 
 #define __HAL_USB_WAKEUP_EXTI_ENABLE_IT()                 EXTI->IMR |= USB_WAKEUP_EXTI_LINE
 #define __HAL_USB_WAKEUP_EXTI_DISABLE_IT()                EXTI->IMR &= ~(USB_WAKEUP_EXTI_LINE)
@@ -622,9 +622,9 @@ PCD_StateTypeDef HAL_PCD_GetState(PCD_HandleTypeDef *hpcd);
   * @retval None
   */
 #define PCD_CLEAR_RX_EP_CTR(USBx, bEpNum)   (PCD_SET_ENDPOINT((USBx), (bEpNum),\
-                                   PCD_GET_ENDPOINT((USBx), (bEpNum)) & 0x7FFFU & USB_EPREG_MASK))
+                                   ( PCD_GET_ENDPOINT((USBx), (bEpNum)) | USB_EP_CTR_TX ) & ~USB_EP_CTR_RX & USB_EPREG_MASK)) // MBED fix
 #define PCD_CLEAR_TX_EP_CTR(USBx, bEpNum)   (PCD_SET_ENDPOINT((USBx), (bEpNum),\
-                                   PCD_GET_ENDPOINT((USBx), (bEpNum)) & 0xFF7FU & USB_EPREG_MASK))
+                                   ( PCD_GET_ENDPOINT((USBx), (bEpNum)) | USB_EP_CTR_RX ) & ~USB_EP_CTR_TX & USB_EPREG_MASK)) // MBED fix
 
 /**
   * @brief  Toggles DTOG_RX / DTOG_TX bit in the endpoint register.

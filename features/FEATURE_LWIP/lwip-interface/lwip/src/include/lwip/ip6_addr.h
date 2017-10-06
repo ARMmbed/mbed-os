@@ -133,6 +133,10 @@ typedef struct ip6_addr ip6_addr_t;
 #define ip6_addr_netcmp(addr1, addr2) (((addr1)->addr[0] == (addr2)->addr[0]) && \
                                        ((addr1)->addr[1] == (addr2)->addr[1]))
 
+/* Exact-host comparison *after* ip6_addr_netcmp() succeeded, for efficiency. */
+#define ip6_addr_nethostcmp(addr1, addr2) (((addr1)->addr[2] == (addr2)->addr[2]) && \
+                                           ((addr1)->addr[3] == (addr2)->addr[3]))
+
 #define ip6_addr_cmp(addr1, addr2) (((addr1)->addr[0] == (addr2)->addr[0]) && \
                                     ((addr1)->addr[1] == (addr2)->addr[1]) && \
                                     ((addr1)->addr[2] == (addr2)->addr[2]) && \
@@ -159,7 +163,7 @@ typedef struct ip6_addr ip6_addr_t;
 
 #define ip6_addr_isuniquelocal(ip6addr) (((ip6addr)->addr[0] & PP_HTONL(0xfe000000UL)) == PP_HTONL(0xfc000000UL))
 
-#define ip6_addr_isipv6mappedipv4(ip6addr) (((ip6addr)->addr[0] == 0) && ((ip6addr)->addr[1] == 0) && (((ip6addr)->addr[2]) == PP_HTONL(0x0000FFFFUL)))
+#define ip6_addr_isipv4mappedipv6(ip6addr) (((ip6addr)->addr[0] == 0) && ((ip6addr)->addr[1] == 0) && (((ip6addr)->addr[2]) == PP_HTONL(0x0000FFFFUL)))
 
 #define ip6_addr_ismulticast(ip6addr) (((ip6addr)->addr[0] & PP_HTONL(0xff000000UL)) == PP_HTONL(0xff000000UL))
 #define ip6_addr_multicast_transient_flag(ip6addr)  ((ip6addr)->addr[0] & PP_HTONL(0x00100000UL))
@@ -234,6 +238,7 @@ typedef struct ip6_addr ip6_addr_t;
 #define IP6_ADDR_VALID        0x10 /* This bit marks an address as valid (preferred or deprecated) */
 #define IP6_ADDR_PREFERRED    0x30
 #define IP6_ADDR_DEPRECATED   0x10 /* Same as VALID (valid but not preferred) */
+#define IP6_ADDR_DUPLICATED   0x40 /* Failed DAD test, not valid */
 
 #define IP6_ADDR_TENTATIVE_COUNT_MASK 0x07 /* 1-7 probes sent */
 
@@ -242,6 +247,14 @@ typedef struct ip6_addr ip6_addr_t;
 #define ip6_addr_isvalid(addr_state) (addr_state & IP6_ADDR_VALID) /* Include valid, preferred, and deprecated. */
 #define ip6_addr_ispreferred(addr_state) (addr_state == IP6_ADDR_PREFERRED)
 #define ip6_addr_isdeprecated(addr_state) (addr_state == IP6_ADDR_DEPRECATED)
+#define ip6_addr_isduplicated(addr_state) (addr_state == IP6_ADDR_DUPLICATED)
+
+#if LWIP_IPV6_ADDRESS_LIFETIMES
+#define IP6_ADDR_LIFE_STATIC   (0)
+#define IP6_ADDR_LIFE_INFINITE (0xffffffffUL)
+#define ip6_addr_life_isstatic(addr_life) ((addr_life) == IP6_ADDR_LIFE_STATIC)
+#define ip6_addr_life_isinfinite(addr_life) ((addr_life) == IP6_ADDR_LIFE_INFINITE)
+#endif /* LWIP_IPV6_ADDRESS_LIFETIMES */
 
 #define ip6_addr_debug_print_parts(debug, a, b, c, d, e, f, g, h) \
   LWIP_DEBUGF(debug, ("%" X16_F ":%" X16_F ":%" X16_F ":%" X16_F ":%" X16_F ":%" X16_F ":%" X16_F ":%" X16_F, \

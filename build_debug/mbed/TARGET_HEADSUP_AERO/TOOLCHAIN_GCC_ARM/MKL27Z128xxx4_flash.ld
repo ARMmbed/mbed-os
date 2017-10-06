@@ -1,20 +1,22 @@
 /*
 ** ###################################################################
-**     Processors:          MKL27Z128VFM4
-**                          MKL27Z128VFT4
-**                          MKL27Z128VLH4
-**                          MKL27Z128VMP4
+**     Processors:          MKL27Z64VDA4
+**                          MKL27Z64VFM4
+**                          MKL27Z64VFT4
+**                          MKL27Z64VLH4
+**                          MKL27Z64VMP4
 **
 **     Compiler:            GNU C Compiler
-**     Reference manual:    KL27P64M48SF6RM, Rev.3, Aug 2014
-**     Version:             rev. 1.6, 2015-07-29
-**     Build:               b170214
+**     Reference manual:    KL27P64M48SF2RM, Rev. 1, Sep 2014
+**     Version:             rev. 1.4, 2014-09-22
+**     Build:               b151217
 **
 **     Abstract:
 **         Linker file for the GNU C Compiler
 **
-**     Copyright 2016 Freescale Semiconductor, Inc.
-**     Copyright 2016-2017 NXP
+**     Copyright (c) 2015 Freescale Semiconductor, Inc.
+**     All rights reserved.
+**
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -25,7 +27,7 @@
 **       list of conditions and the following disclaimer in the documentation and/or
 **       other materials provided with the distribution.
 **
-**     o Neither the name of the copyright holder nor the names of its
+**     o Neither the name of Freescale Semiconductor, Inc. nor the names of its
 **       contributors may be used to endorse or promote products derived from this
 **       software without specific prior written permission.
 **
@@ -40,14 +42,22 @@
 **     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 **     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **
-**     http:                 www.nxp.com
-**     mail:                 support@nxp.com
+**     http:                 www.freescale.com
+**     mail:                 support@freescale.com
 **
 ** ###################################################################
 */
 
 /* Entry Point */
 ENTRY(Reset_Handler)
+
+__ram_vector_table__ = 1;
+
+/* With the RTOS in use, this does not affect the main stack size. The size of
+ * the stack where main runs is determined via the RTOS. */
+__stack_size__ = 0x400;
+/* With the RTOS in use, this does not affect the main heap size. */
+__heap_size__ = 0x0;
 
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
@@ -58,8 +68,8 @@ MEMORY
 {
   m_interrupts          (RX)  : ORIGIN = 0x00000000, LENGTH = 0x00000200
   m_flash_config        (RX)  : ORIGIN = 0x00000400, LENGTH = 0x00000010
-  m_text                (RX)  : ORIGIN = 0x00000410, LENGTH = 0x0001FBF0
-  m_data                (RW)  : ORIGIN = 0x1FFFE000, LENGTH = 0x00008000
+  m_text                (RX)  : ORIGIN = 0x00000410, LENGTH = 0x0000FBF0
+  m_data                (RW)  : ORIGIN = 0x1FFFF000, LENGTH = 0x00004000
 }
 
 /* Define output sections */
@@ -210,6 +220,7 @@ SECTIONS
   text_end = ORIGIN(m_text) + LENGTH(m_text);
   ASSERT(__DATA_END <= text_end, "region m_text overflowed with text and data")
 
+  USB_RAM_GAP = DEFINED(__usb_ram_size__) ? __usb_ram_size__ : 0x800;
   /* Uninitialized data section */
   .bss :
   {
@@ -219,6 +230,9 @@ SECTIONS
     __bss_start__ = .;
     *(.bss)
     *(.bss*)
+    . = ALIGN(512);
+    USB_RAM_START = .;
+    . += USB_RAM_GAP;
     *(COMMON)
     . = ALIGN(4);
     __bss_end__ = .;
@@ -241,6 +255,17 @@ SECTIONS
     . = ALIGN(8);
     . += STACK_SIZE;
   } > m_data
+
+  m_usb_bdt USB_RAM_START (NOLOAD) :
+  {
+    *(m_usb_bdt)
+    USB_RAM_BDT_END = .;
+  }
+
+  m_usb_global USB_RAM_BDT_END (NOLOAD) :
+  {
+    *(m_usb_global)
+  }
 
   /* Initializes stack on the end of block */
   __StackTop   = ORIGIN(m_data) + LENGTH(m_data);

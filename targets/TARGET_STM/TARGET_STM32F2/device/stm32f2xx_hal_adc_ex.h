@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   Header file of ADC HAL extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -152,7 +152,7 @@ typedef struct
 /** @defgroup ADCEx_Common_mode ADC Common Mode
   * @{
   */ 
-#define ADC_MODE_INDEPENDENT                  ((uint32_t)0x00000000U)      
+#define ADC_MODE_INDEPENDENT                  0x00000000U      
 #define ADC_DUALMODE_REGSIMULT_INJECSIMULT    ((uint32_t)ADC_CCR_MULTI_0)
 #define ADC_DUALMODE_REGSIMULT_ALTERTRIG      ((uint32_t)ADC_CCR_MULTI_1)
 #define ADC_DUALMODE_INJECSIMULT              ((uint32_t)(ADC_CCR_MULTI_2 | ADC_CCR_MULTI_0))
@@ -172,7 +172,7 @@ typedef struct
 /** @defgroup ADCEx_Direct_memory_access_mode_for_multi_mode ADC Direct Memory Access Mode For Multi Mode
   * @{
   */ 
-#define ADC_DMAACCESSMODE_DISABLED  ((uint32_t)0x00000000U)     /*!< DMA mode disabled */
+#define ADC_DMAACCESSMODE_DISABLED  0x00000000U     /*!< DMA mode disabled */
 #define ADC_DMAACCESSMODE_1         ((uint32_t)ADC_CCR_DMA_0)  /*!< DMA mode 1 enabled (2 / 3 half-words one by one - 1 then 2 then 3)*/
 #define ADC_DMAACCESSMODE_2         ((uint32_t)ADC_CCR_DMA_1)  /*!< DMA mode 2 enabled (2 / 3 half-words by pairs - 2&1 then 1&3 then 3&2)*/
 #define ADC_DMAACCESSMODE_3         ((uint32_t)ADC_CCR_DMA)    /*!< DMA mode 3 enabled (2 / 3 bytes by pairs - 2&1 then 1&3 then 3&2) */
@@ -183,7 +183,7 @@ typedef struct
 /** @defgroup ADCEx_External_trigger_edge_Injected ADC External Trigger Edge Injected
   * @{
   */ 
-#define ADC_EXTERNALTRIGINJECCONVEDGE_NONE           ((uint32_t)0x00000000U)
+#define ADC_EXTERNALTRIGINJECCONVEDGE_NONE           0x00000000U
 #define ADC_EXTERNALTRIGINJECCONVEDGE_RISING         ((uint32_t)ADC_CR2_JEXTEN_0)
 #define ADC_EXTERNALTRIGINJECCONVEDGE_FALLING        ((uint32_t)ADC_CR2_JEXTEN_1)
 #define ADC_EXTERNALTRIGINJECCONVEDGE_RISINGFALLING  ((uint32_t)ADC_CR2_JEXTEN)
@@ -194,7 +194,7 @@ typedef struct
 /** @defgroup ADCEx_External_trigger_Source_Injected ADC External Trigger Source Injected
   * @{
   */ 
-#define ADC_EXTERNALTRIGINJECCONV_T1_CC4           ((uint32_t)0x00000000U)
+#define ADC_EXTERNALTRIGINJECCONV_T1_CC4           0x00000000U
 #define ADC_EXTERNALTRIGINJECCONV_T1_TRGO          ((uint32_t)ADC_CR2_JEXTSEL_0)
 #define ADC_EXTERNALTRIGINJECCONV_T2_CC1           ((uint32_t)ADC_CR2_JEXTSEL_1)
 #define ADC_EXTERNALTRIGINJECCONV_T2_TRGO          ((uint32_t)(ADC_CR2_JEXTSEL_1 | ADC_CR2_JEXTSEL_0))
@@ -218,10 +218,10 @@ typedef struct
 /** @defgroup ADCEx_injected_rank ADC Injected Rank
   * @{
   */ 
-#define ADC_INJECTED_RANK_1    ((uint32_t)0x00000001U)
-#define ADC_INJECTED_RANK_2    ((uint32_t)0x00000002U)
-#define ADC_INJECTED_RANK_3    ((uint32_t)0x00000003U)
-#define ADC_INJECTED_RANK_4    ((uint32_t)0x00000004U)
+#define ADC_INJECTED_RANK_1    0x00000001U
+#define ADC_INJECTED_RANK_2    0x00000002U
+#define ADC_INJECTED_RANK_3    0x00000003U
+#define ADC_INJECTED_RANK_4    0x00000004U
 /**
   * @}
   */
@@ -342,7 +342,7 @@ HAL_StatusTypeDef HAL_ADCEx_MultiModeConfigChannel(ADC_HandleTypeDef* hadc, ADC_
   * @brief  Set the selected injected Channel rank.
   * @param  _CHANNELNB_: Channel number.
   * @param  _RANKNB_: Rank number. 
-  * @param  _JSQR_JL_: Sequence length.     
+  * @param  _JSQR_JL_: Sequence length.
   * @retval None
   */
 #define   ADC_JSQR(_CHANNELNB_, _RANKNB_, _JSQR_JL_)  (((uint32_t)((uint16_t)(_CHANNELNB_))) << (5U * (uint8_t)(((_RANKNB_) + 3U) - (_JSQR_JL_))))

@@ -2250,6 +2250,13 @@ FRESULT find_volume (	/* FR_OK(0): successful, !=0: any error occurred */
 	if (disk_ioctl(fs->drv, GET_SECTOR_SIZE, &SS(fs)) != RES_OK
 		|| SS(fs) < _MIN_SS || SS(fs) > _MAX_SS) return FR_DISK_ERR;
 #endif
+#if _FS_HEAPBUF
+	if (!fs->win) {
+		fs->win = (BYTE*)ff_memalloc(SS(fs));	/* Allocate buffer to back window if necessary */
+		if (!fs->win)
+			return FR_NOT_ENOUGH_CORE;
+	}
+#endif
 	/* Find an FAT partition on the drive. Supports only generic partitioning, FDISK and SFD. */
 	bsect = 0;
 	fmt = check_fs(fs, bsect);					/* Load sector 0 and check if it is an FAT boot sector as SFD */
@@ -2423,12 +2430,18 @@ FRESULT f_mount (
 		if (!ff_del_syncobj(cfs->sobj)) return FR_INT_ERR;
 #endif
 		cfs->fs_type = 0;				/* Clear old fs object */
+#if _FS_HEAPBUF
+		ff_memfree(cfs->win);			/* Clean up window buffer */
+#endif
 	}
 
 	if (fs) {
 		fs->fs_type = 0;				/* Clear new fs object */
 #if _FS_REENTRANT						/* Create sync object for the new volume */
 		if (!ff_cre_syncobj((BYTE)vol, &fs->sobj)) return FR_INT_ERR;
+#endif
+#if _FS_HEAPBUF
+		fs->win = 0;					/* NULL buffer to prevent use of uninitialized buffer */
 #endif
 	}
 	FatFs[vol] = fs;					/* Register new fs object */
@@ -2570,6 +2583,11 @@ FRESULT f_open (
 #endif
 			fp->fs = dj.fs;	 					/* Validate file object */
 			fp->id = fp->fs->id;
+#if !_FS_TINY && _FS_HEAPBUF
+			fp->buf = (BYTE*)ff_memalloc(SS(dj.fs));	/* Allocate buffer if necessary */
+			if (!fp->buf)
+				return FR_NOT_ENOUGH_CORE;
+#endif
 		}
 	}
 
@@ -2892,6 +2910,9 @@ FRESULT f_close (
 				fp->fs = 0;				/* Invalidate file object */
 #if _FS_REENTRANT
 			unlock_fs(fs, FR_OK);		/* Unlock volume */
+#endif
+#if !_FS_TINY && _FS_HEAPBUF
+			ff_memfree(fp->buf);		/* Deallocate buffer */
 #endif
 		}
 	}
@@ -4113,6 +4134,13 @@ FRESULT f_mkfs (
 	if (disk_ioctl(pdrv, GET_SECTOR_SIZE, &SS(fs)) != RES_OK || SS(fs) > _MAX_SS || SS(fs) < _MIN_SS)
 		return FR_DISK_ERR;
 #endif
+#if _FS_HEAPBUF
+	if (!fs->win) {
+		fs->win = (BYTE*)ff_memalloc(SS(fs));	/* Allocate buffer to back window if necessary */
+		if (!fs->win)
+			return FR_NOT_ENOUGH_CORE;
+	}
+#endif
 	if (_MULTI_PARTITION && part) {
 		/* Get partition information from partition table in the MBR */
 		if (disk_read(pdrv, fs->win, 0, 1) != RES_OK) return FR_DISK_ERR;
@@ -4123,7 +4151,7 @@ FRESULT f_mkfs (
 		n_vol = LD_DWORD(tbl + 12);	/* Volume size */
 	} else {
 		/* Create a partition in this function */
-		if (disk_ioctl(pdrv, GET_SECTOR_COUNT, &n_vol) != RES_OK || n_vol < 128)
+		if (disk_ioctl(pdrv, GET_SECTOR_COUNT, &n_vol) != RES_OK || n_vol < ((sfd) ? 64 : 128))
 			return FR_DISK_ERR;
 		b_vol = (sfd) ? 0 : 63;		/* Volume start sector */
 		n_vol -= b_vol;				/* Volume size */

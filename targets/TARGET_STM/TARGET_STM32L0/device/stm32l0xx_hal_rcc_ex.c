@@ -271,7 +271,7 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
     __HAL_RCC_I2C1_CONFIG(PeriphClkInit->I2c1ClockSelection);
   }
 
-#if defined (STM32L071xx) || (STM32L072xx) || defined(STM32L073xx) || \
+#if defined (STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || \
     defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)
     /*------------------------------ I2C3 Configuration ------------------------*/ 
   if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_I2C3) == RCC_PERIPHCLK_I2C3)

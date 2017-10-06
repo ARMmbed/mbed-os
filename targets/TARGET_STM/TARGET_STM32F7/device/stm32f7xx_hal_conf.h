@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_conf.h
   * @author  MCD Application Team
-  * @version V1.1.2
-  * @date    23-September-2016 
+  * @version V1.2.2
+  * @date    14-April-2017
   * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -95,6 +95,8 @@
 #define HAL_DSI_MODULE_ENABLED
 #define HAL_JPEG_MODULE_ENABLED
 #define HAL_MDIOS_MODULE_ENABLED
+#define HAL_SMBUS_MODULE_ENABLED
+#define HAL_MMC_MODULE_ENABLED
 
 
 /* ########################## HSE/HSI Values adaptation ##################### */
@@ -103,12 +105,13 @@
   *        This value is used by the RCC HAL module to compute the system frequency
   *        (when HSE is used as system clock source, directly or through the PLL).
   */
-//#if !defined  (HSE_VALUE)
+#if !defined  (HSE_VALUE)
 #if defined(TARGET_DISCO_F746NG) || defined(TARGET_DISCO_F769NI)
   #define HSE_VALUE    25000000U /*!< Value of the External oscillator in Hz */
 #else
   #define HSE_VALUE    8000000U /*!< Default value of the External oscillator in Hz */
 #endif
+#endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
   #define HSE_STARTUP_TIMEOUT    200U   /*!< Time out for HSE start up, in ms */
@@ -427,18 +430,18 @@
  #include "stm32f7xx_hal_mdios.h"
 #endif /* HAL_MDIOS_MODULE_ENABLED */
 
+#ifdef HAL_SMBUS_MODULE_ENABLED
+ #include "stm32f7xx_hal_smbus.h"
+#endif /* HAL_SMBUS_MODULE_ENABLED */
+
+#ifdef HAL_MMC_MODULE_ENABLED
+ #include "stm32f7xx_hal_mmc.h"
+#endif /* HAL_MMC_MODULE_ENABLED */
+
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT
-/**
-  * @brief  The assert_param macro is used for function's parameters check.
-  * @param  expr: If expr is false, it calls assert_failed function
-  *         which reports the name of the source file and the source
-  *         line number of the call that failed.
-  *         If expr is true, it returns no value.
-  * @retval None
-  */
-  #include "mbed_assert.h"
-  #define assert_param(expr) MBED_ASSERT(expr)
+/* ALL MBED targets use same stm32_assert.h */
+#include "stm32_assert.h"
 #else
   #define assert_param(expr) ((void)0)
 #endif /* USE_FULL_ASSERT */

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_i2c.c
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   I2C LL module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -49,7 +49,7 @@
   * @{
   */
 
-#if defined (I2C1) || defined (I2C2) || defined (I2C3)
+#if defined (I2C1) || defined (I2C2) || defined (I2C3) || defined (I2C4)
 
 /** @defgroup I2C_LL I2C
   * @{
@@ -73,7 +73,7 @@
 
 #define IS_LL_I2C_DIGITAL_FILTER(__VALUE__)     ((__VALUE__) <= 0x0000000FU)
 
-#define IS_LL_I2C_OWN_ADDRESS1(__VALUE__)       ((__VALUE__) <= (uint32_t)0x000003FFU)
+#define IS_LL_I2C_OWN_ADDRESS1(__VALUE__)       ((__VALUE__) <= 0x000003FFU)
 
 #define IS_LL_I2C_TYPE_ACKNOWLEDGE(__VALUE__)   (((__VALUE__) == LL_I2C_ACK) || \
                                                  ((__VALUE__) == LL_I2C_NACK))
@@ -136,6 +136,16 @@ uint32_t LL_I2C_DeInit(I2C_TypeDef *I2Cx)
     /* Release reset of I2C clock */
     LL_APB1_GRP1_ReleaseReset(LL_APB1_GRP1_PERIPH_I2C3);
   }
+#if defined(I2C4)
+  else if (I2Cx == I2C4)
+  {
+    /* Force reset of I2C clock */
+    LL_APB1_GRP2_ForceReset(LL_APB1_GRP2_PERIPH_I2C4);
+
+    /* Release reset of I2C clock */
+    LL_APB1_GRP2_ReleaseReset(LL_APB1_GRP2_PERIPH_I2C4);
+  }
+#endif
   else
   {
     status = ERROR;
@@ -192,7 +202,12 @@ uint32_t LL_I2C_Init(I2C_TypeDef *I2Cx, LL_I2C_InitTypeDef *I2C_InitStruct)
    */
   LL_I2C_DisableOwnAddress1(I2Cx);
   LL_I2C_SetOwnAddress1(I2Cx, I2C_InitStruct->OwnAddress1, I2C_InitStruct->OwnAddrSize);
-  LL_I2C_EnableOwnAddress1(I2Cx);
+
+  /* OwnAdress1 == 0 is reserved for General Call address */
+  if (I2C_InitStruct->OwnAddress1 != 0U)
+  {
+    LL_I2C_EnableOwnAddress1(I2Cx);
+  }
 
   /*---------------------------- I2Cx MODE Configuration -----------------------
   * Configure I2Cx peripheral mode with parameter :
@@ -239,7 +254,7 @@ void LL_I2C_StructInit(LL_I2C_InitTypeDef *I2C_InitStruct)
   * @}
   */
 
-#endif /* I2C1 || I2C2 || I2C3 */
+#endif /* I2C1 || I2C2 || I2C3 || I2C4 */
 
 /**
   * @}

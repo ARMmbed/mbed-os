@@ -27,12 +27,12 @@ public:
      *  @return         Device driver ID or a negative error
      *                  code on failure
      */
-    int8_t phy_register() { return rf_register();}
+    virtual int8_t phy_register() { return rf_register();}
 
     /** Unregister this physical interface
      *
      */
-    void unregister() { rf_unregister(); }
+    virtual void unregister() { rf_unregister(); }
 };
 
 #endif /* NANOSTACK_RF_PHY_H_ */

@@ -16,11 +16,17 @@
 #ifndef NS_TIMER_H_
 #define NS_TIMER_H_
 
+#include "platform/eventloop_config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#ifndef NS_EXCLUDE_HIGHRES_TIMER
 extern int8_t ns_timer_sleep(void);
+#else
+#define ns_timer_sleep() ((int8_t) 0)
+#endif
 
 #ifdef __cplusplus
 }

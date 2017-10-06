@@ -22,7 +22,7 @@ This document is divided into following sections:
 
 * [6LoWPAN Quick Start Guide](quick_start_intro.md)
 * [ARM mbed IPv6/6LoWPAN Stack Overview](01_overview.md)
-* [ARM mbed Thread Stack Overview](thread_overview.md)
+* [ARM mbed Thread Stack Overview](thread_intro.md)
 * [API Reference Manual](05_reference.md)
 * [Porting ARM mbed Networking Stack](16_API_porting.md)
 

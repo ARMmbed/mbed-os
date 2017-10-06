@@ -32,7 +32,7 @@ public:
      *
      *  @return     0 on success, negative on failure
      */
-    virtual nsapi_error_t initialize(NanostackPhy *phy);
+    nsapi_error_t initialize(NanostackPhy *phy);
 
     /** Start the interface
      *

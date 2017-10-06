@@ -140,7 +140,7 @@ void us_ticker_init(void)
     cfg.compareCount = 0xFFFFFFFF;
     TMR32_Config(US_TIMER, &cfg);
 
-    NVIC_SetVector(US_TIMER_IRQn, tmr_handler);
+    NVIC_SetVector(US_TIMER_IRQn, (uint32_t)tmr_handler);
     NVIC_EnableIRQ(US_TIMER_IRQn);
     TMR32_EnableINT(US_TIMER);
 
@@ -226,6 +226,11 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     }
 
     TMR32_Start(US_TIMER);
+}
+
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(US_TIMER_IRQn);
 }
 
 //******************************************************************************

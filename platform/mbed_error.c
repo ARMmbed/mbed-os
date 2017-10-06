@@ -23,7 +23,16 @@
 #include <stdio.h>
 #endif
 
+static uint8_t error_in_progress = 0;
+
 WEAK void error(const char* format, ...) {
+
+    // Prevent recursion if error is called again
+    if (error_in_progress) {
+        return;
+    }
+    error_in_progress = 1;
+
 #ifndef NDEBUG
     va_list arg;
     va_start(arg, format);

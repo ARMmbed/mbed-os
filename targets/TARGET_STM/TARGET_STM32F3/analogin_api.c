@@ -36,7 +36,6 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 
-ADC_HandleTypeDef AdcHandle;
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
@@ -53,20 +52,29 @@ void analogin_init(analogin_t *obj, PinName pin)
     static int adc4_inited = 0;
 #endif
 
-    // Get the peripheral name from the pin and assign it to the object
-    obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT(obj->adc != (ADCName)NC);
+    uint32_t function = (uint32_t)NC;
 
-    // Get the pin function and assign the used channel to the object
-    uint32_t function = pinmap_function(pin, PinMap_ADC);
-    MBED_ASSERT(function != (uint32_t)NC);
-    obj->channel = STM_PIN_CHANNEL(function);
-
-    // Configure GPIO excepted for internal channels (Temperature, Vref, Vbat, ...)
-    // ADC Internal Channels "pins" are described in PinNames.h and must have a value >= 0xF0
-    if (pin < 0xF0) {
+    // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
+    //   are described in PinNames.h and PeripheralPins.c
+    //   Pin value must be between 0xF0 and 0xFF
+    if ((pin < 0xF0) || (pin >= 0x100)) {
+        // Normal channels
+        // Get the peripheral name from the pin and assign it to the object
+        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
+        // Get the functions (adc channel) from the pin and assign it to the object
+        function = pinmap_function(pin, PinMap_ADC);
+        // Configure GPIO
         pinmap_pinout(pin, PinMap_ADC);
+    } else {
+        // Internal channels
+        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC_Internal);
+        function = pinmap_function(pin, PinMap_ADC_Internal);
+        // No GPIO configuration for internal channels
     }
+    MBED_ASSERT(obj->handle.Instance != (ADC_TypeDef *)NC);
+    MBED_ASSERT(function != (uint32_t)NC);
+
+    obj->channel = STM_PIN_CHANNEL(function);
 
     // Save pin number for the read function
     obj->pin = pin;
@@ -74,56 +82,52 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Check if ADC is already initialized
     // Enable ADC clock
 #if defined(ADC1)
-    if ((obj->adc == ADC_1) && adc1_inited) return;
-    if (obj->adc == ADC_1) {
-        AdcHandle.State = HAL_ADC_STATE_RESET;
+    if (((ADCName)obj->handle.Instance == ADC_1) && adc1_inited) return;
+    if ((ADCName)obj->handle.Instance == ADC_1) {
         __ADC1_CLK_ENABLE();
         adc1_inited = 1;
     }
 #endif
 #if defined(ADC2)
-    if ((obj->adc == ADC_2) && adc2_inited) return;
-    if (obj->adc == ADC_2) {
-        AdcHandle.State = HAL_ADC_STATE_RESET;
+    if (((ADCName)obj->handle.Instance == ADC_2) && adc2_inited) return;
+    if ((ADCName)obj->handle.Instance == ADC_2) {
         __ADC2_CLK_ENABLE();
         adc2_inited = 1;
     }
 #endif
 #if defined(ADC3)
-    if ((obj->adc == ADC_3) && adc3_inited) return;
-    if (obj->adc == ADC_3) {
-        AdcHandle.State = HAL_ADC_STATE_RESET;
+    if (((ADCName)obj->handle.Instance == ADC_3) && adc3_inited) return;
+    if ((ADCName)obj->handle.Instance == ADC_3) {
         __ADC34_CLK_ENABLE();
         adc3_inited = 1;
     }
 #endif
 #if defined(ADC4)
-    if ((obj->adc == ADC_4) && adc4_inited) return;
-    if (obj->adc == ADC_4) {
-        AdcHandle.State = HAL_ADC_STATE_RESET;
+    if (((ADCName)obj->handle.Instance == ADC_4) && adc4_inited) return;
+    if ((ADCName)obj->handle.Instance == ADC_4) {
         __ADC34_CLK_ENABLE();
         adc4_inited = 1;
     }
 #endif
 
     // Configure ADC
-    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
-    AdcHandle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
-    AdcHandle.Init.Resolution            = ADC_RESOLUTION12b;
-    AdcHandle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    AdcHandle.Init.ScanConvMode          = DISABLE;
-    AdcHandle.Init.EOCSelection          = EOC_SINGLE_CONV;
-    AdcHandle.Init.LowPowerAutoWait      = DISABLE;
-    AdcHandle.Init.ContinuousConvMode    = DISABLE;
-    AdcHandle.Init.NbrOfConversion       = 1;
-    AdcHandle.Init.DiscontinuousConvMode = DISABLE;
-    AdcHandle.Init.NbrOfDiscConversion   = 0;
-    AdcHandle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
-    AdcHandle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    AdcHandle.Init.DMAContinuousRequests = DISABLE;
-    AdcHandle.Init.Overrun               = OVR_DATA_OVERWRITTEN;
+    obj->handle.State = HAL_ADC_STATE_RESET;
+    obj->handle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
+    obj->handle.Init.Resolution            = ADC_RESOLUTION12b;
+    obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    obj->handle.Init.ScanConvMode          = DISABLE;
+    obj->handle.Init.EOCSelection          = EOC_SINGLE_CONV;
+    obj->handle.Init.LowPowerAutoWait      = DISABLE;
+    obj->handle.Init.ContinuousConvMode    = DISABLE;
+    obj->handle.Init.NbrOfConversion       = 1;
+    obj->handle.Init.DiscontinuousConvMode = DISABLE;
+    obj->handle.Init.NbrOfDiscConversion   = 0;
+    obj->handle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
+    obj->handle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    obj->handle.Init.DMAContinuousRequests = DISABLE;
+    obj->handle.Init.Overrun               = OVR_DATA_OVERWRITTEN;
 
-    if (HAL_ADC_Init(&AdcHandle) != HAL_OK) {
+    if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
         error("Cannot initialize ADC");
     }
 }
@@ -131,8 +135,6 @@ void analogin_init(analogin_t *obj, PinName pin)
 static inline uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
-
-    AdcHandle.Instance = (ADC_TypeDef *)(obj->adc);
 
     // Configure ADC channel
     sConfig.Rank         = ADC_REGULAR_RANK_1;
@@ -200,13 +202,13 @@ static inline uint16_t adc_read(analogin_t *obj)
             return 0;
     }
 
-    HAL_ADC_ConfigChannel(&AdcHandle, &sConfig);
+    HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 
-    HAL_ADC_Start(&AdcHandle); // Start conversion
+    HAL_ADC_Start(&obj->handle); // Start conversion
 
     // Wait end of conversion and get value
-    if (HAL_ADC_PollForConversion(&AdcHandle, 10) == HAL_OK) {
-        return (HAL_ADC_GetValue(&AdcHandle));
+    if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
+        return (HAL_ADC_GetValue(&obj->handle));
     } else {
         return 0;
     }

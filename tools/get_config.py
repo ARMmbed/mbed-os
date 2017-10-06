@@ -26,6 +26,7 @@ sys.path.insert(0, ROOT)
 
 from tools.utils import args_error
 from tools.options import get_default_options_parser
+from tools.options import extract_mcus
 from tools.build_api import get_config
 from config import Config
 from utils import argparse_filestring_type
@@ -49,7 +50,7 @@ if __name__ == '__main__':
     # Target
     if options.mcu is None :
         args_error(parser, "argument -m/--mcu is required")
-    target = options.mcu[0]
+    target = extract_mcus(parser, options)[0]
 
     # Toolchain
     if options.tool is None:
@@ -66,7 +67,7 @@ if __name__ == '__main__':
         if params:
             print "Configuration parameters"
             print "------------------------"
-            for p in params:
+            for p in sorted(params):
                 for s in options.prefix:
                     if p.startswith(s):
                         print(str(params[p]) if not options.verbose else params[p].get_verbose_description())

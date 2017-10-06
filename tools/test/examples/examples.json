@@ -1,4 +1,17 @@
-{
+{ 
+  "update-config" : {
+      "help" : "Update each example repo with a version of mbed-os identified by the tag",
+      "via-fork" : {
+        "help" : "-f cmd line option. Update a fork",
+        "github-user" : "adbridge"          
+      },
+      "via-branch" : {
+        "help" : "-b cmd line option. Update dst branch, created from src branch",
+        "src-branch" : "mbed-os-5.5.0-rc1-oob",
+        "dst-branch" : "mbed-os-5.5.0-rc2-oob"    
+      },
+      "tag" : "mbed-os-5.5.0-rc2"
+  },
   "examples": [
     {
       "name": "mbed-os-example-blinky",
@@ -6,6 +19,7 @@
       "mbed": [
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-blinky"
       ],
+      "test-repo-source": "github",
       "features" : [],
       "targets" : [],
       "toolchains" : [],
@@ -23,6 +37,7 @@
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-hashing",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-authcrypt"
       ],
+      "test-repo-source": "mbed",
       "features" : [],
       "targets" : ["K64F", "NUCLEO_F429ZI"],
       "toolchains" : ["GCC_ARM", "ARM"],
@@ -37,6 +52,7 @@
       "mbed": [
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-mesh-minimal"
       ],
+      "test-repo-source": "github",
       "features" : [],
       "targets" : ["DISCO_F469NI", "DISCO_F746NG", "K64F", "K66F",
                    "NUCLEO_F429ZI", "NUCLEO_F439ZI", "NUCLEO_F746ZG",
@@ -58,11 +74,10 @@
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-LEDBlinker",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-LED",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-GAPButton",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-EddystoneService",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-EddystoneObserver",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Button",
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-BatteryLevel"
       ],
+      "test-repo-source": "mbed",
       "features" : ["BLE"],
       "targets" : ["NRF51_DK", "NRF52_DK", "K64F", "NUCLEO_F401RE"],
       "toolchains" : [],
@@ -77,6 +92,7 @@
       "mbed": [
           "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-client"
       ],
+      "test-repo-source": "github",
       "features" : ["LWIP"],
       "targets" : [],
       "toolchains" : [],
@@ -90,6 +106,7 @@
       "github":"https://github.com/ARMmbed/mbed-os-example-sockets",
       "mbed": [
       ],
+      "test-repo-source": "github",
       "features" : ["LWIP"],
       "targets" : [],
       "toolchains" : [],
@@ -103,6 +120,7 @@
       "github":"https://github.com/ARMmbed/mbed-os-example-wifi",
       "mbed": [
       ],
+      "test-repo-source": "github",
       "features" : [],
       "targets" : [],
       "toolchains" : [],
@@ -115,6 +133,7 @@
       "name": "mbed-os-example-uvisor",
       "github":"https://github.com/ARMmbed/mbed-os-example-uvisor",
       "mbed": [],
+      "test-repo-source": "github",
       "features" : [],
       "targets" : ["K64F"],
       "toolchains" : ["GCC_ARM"],
@@ -127,6 +146,7 @@
       "name": "mbed-os-example-uvisor-thread",
       "github":"https://github.com/ARMmbed/mbed-os-example-uvisor-thread",
       "mbed": [],
+      "test-repo-source": "github",
       "features" : [],
       "targets" : ["K64F"],
       "toolchains" : ["GCC_ARM"],
@@ -139,6 +159,7 @@
       "name": "mbed-os-example-uvisor-number-store",
       "github":"https://github.com/ARMmbed/mbed-os-example-uvisor-number-store",
       "mbed": [],
+      "test-repo-source": "github",
       "features" : [],
       "targets" : ["K64F"],
       "toolchains" : ["GCC_ARM"],
@@ -146,6 +167,62 @@
       "compile" : true,
       "export": true,
       "auto-update" : false
+    },
+    {
+      "name": "mbed-os-example-bootloader",
+      "github":"https://github.com/ARMmbed/mbed-os-example-bootloader",
+      "mbed": [
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-bootloader"
+      ],
+      "test-repo-source": "github",
+      "features" : [],
+      "targets" : ["K64F", "NUCLEO_F429ZI", "UBLOX_EVK_ODIN_W2"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-os-example-fat-filesystem",
+      "github":"https://github.com/ARMmbed/mbed-os-example-fat-filesystem",
+      "mbed": [
+          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-fat-filesystem"
+      ],
+      "test-repo-source": "github",
+      "features" : [],
+      "targets" : ["K64F"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "auto-update" : true
+    },
+    {
+      "name": "nanostack-border-router",
+      "github":"https://github.com/ARMmbed/nanostack-border-router",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features" : [],
+      "targets" : ["K64F", "K66F", "NUCLEO_F429ZI"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "auto-update" : false
+    },
+    {
+      "name": "mbed-os-example-cellular",
+      "github":"https://github.com/ARMmbed/mbed-os-example-cellular",
+      "mbed": [],
+      "test-repo-source": "github",
+      "features" : [],
+      "targets" : ["MTS_DRAGONFLY_F411RE"],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : true,
+      "export": true,
+      "auto-update" : true
     }
   ]
 }

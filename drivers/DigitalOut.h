@@ -22,11 +22,10 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A digital output, used for setting the state of a pin
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example:
  * @code
@@ -42,6 +41,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
+ * @ingroup drivers
  */
 class DigitalOut {
 
@@ -98,6 +98,7 @@ public:
     }
 
     /** A shorthand for write()
+     * \sa DigitalOut::write()
      */
     DigitalOut& operator= (int value) {
         // Underlying write is thread safe
@@ -105,6 +106,9 @@ public:
         return *this;
     }
 
+    /** A shorthand for write()
+     * \sa DigitalOut::write()
+     */
     DigitalOut& operator= (DigitalOut& rhs) {
         core_util_critical_section_enter();
         write(rhs.read());
@@ -113,6 +117,7 @@ public:
     }
 
     /** A shorthand for read()
+     * \sa DigitalOut::read()
      */
     operator int() {
         // Underlying call is thread safe
@@ -126,5 +131,3 @@ protected:
 } // namespace mbed
 
 #endif
-
-/** @}*/

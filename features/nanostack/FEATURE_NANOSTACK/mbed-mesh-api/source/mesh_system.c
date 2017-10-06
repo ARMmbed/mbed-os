@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <stdlib.h>
 #include "eventOS_scheduler.h"
 #include "eventOS_event.h"
 #include "net_interface.h"
@@ -21,15 +22,19 @@
 #include "randLIB.h"
 #include "platform/arm_hal_timer.h"
 #include "ns_hal_init.h"
-#include "include/static_config.h"
 #include "include/mesh_system.h"
+#include "mbed_assert.h"
 // For tracing we need to define flag, have include and define group
 #define HAVE_DEBUG 1
 #include "ns_trace.h"
 #define TRACE_GROUP  "m6-mesh-system"
 
 /* Heap for NanoStack */
-static uint8_t app_stack_heap[MBED_MESH_API_HEAP_SIZE + 1];
+#if !MBED_CONF_MBED_MESH_API_USE_MALLOC_FOR_HEAP
+static uint8_t app_stack_heap[MBED_CONF_MBED_MESH_API_HEAP_SIZE + 1];
+#else
+static uint8_t *app_stack_heap;
+#endif
 static bool mesh_initialized = false;
 
 /*
@@ -56,7 +61,11 @@ static void mesh_system_heap_error_handler(heap_fail_t event)
 void mesh_system_init(void)
 {
     if (mesh_initialized == false) {
-        ns_hal_init(app_stack_heap, MBED_MESH_API_HEAP_SIZE,
+#if MBED_CONF_MBED_MESH_API_USE_MALLOC_FOR_HEAP
+        app_stack_heap = malloc(MBED_CONF_MBED_MESH_API_HEAP_SIZE+1);
+        MBED_ASSERT(app_stack_heap);
+#endif
+        ns_hal_init(app_stack_heap, MBED_CONF_MBED_MESH_API_HEAP_SIZE,
                     mesh_system_heap_error_handler, NULL);
         eventOS_scheduler_mutex_wait();
         net_init_core();

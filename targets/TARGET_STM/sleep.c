@@ -34,23 +34,32 @@
 #include "sleep_api.h"
 #include "rtc_api_hal.h"
 #include "hal_tick.h"
+#include "mbed_critical.h"
 
 extern void HAL_SuspendTick(void);
 extern void HAL_ResumeTick(void);
 
 void hal_sleep(void)
 {
+    // Disable IRQs
+    core_util_critical_section_enter();
+
     // Stop HAL tick to avoid to exit sleep in 1ms
     HAL_SuspendTick();
     // Request to enter SLEEP mode
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-
     // Restart HAL tick
     HAL_ResumeTick();
+
+    // Enable IRQs
+    core_util_critical_section_exit();
 }
 
 void hal_deepsleep(void)
 {
+    // Disable IRQs
+    core_util_critical_section_enter();
+
     // Stop HAL tick
     HAL_SuspendTick();
     uint32_t EnterTimeUS = us_ticker_read();
@@ -81,6 +90,9 @@ void hal_deepsleep(void)
 
     // Restart HAL tick
     HAL_ResumeTick();
+
+    // Enable IRQs
+    core_util_critical_section_exit();
 
     // After wake-up from STOP reconfigure the PLL
     SetSysClock();

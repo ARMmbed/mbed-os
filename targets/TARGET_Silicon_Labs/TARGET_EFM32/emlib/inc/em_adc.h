@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_adc.h
  * @brief Analog to Digital Converter (ADC) peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -494,25 +494,26 @@ typedef enum
   adcPosSelAPORT4YCH30 = _ADC_SINGLECTRL_POSSEL_APORT4YCH30,
   adcPosSelAPORT4XCH31 = _ADC_SINGLECTRL_POSSEL_APORT4XCH31,
   adcPosSelAVDD        = _ADC_SINGLECTRL_POSSEL_AVDD,
-  adcPosSelBU          = _ADC_SINGLECTRL_POSSEL_BU,
-  adcPosSelAREG        = _ADC_SINGLECTRL_POSSEL_AREG,
-  adcPosSelVREGOUTPA   = _ADC_SINGLECTRL_POSSEL_VREGOUTPA,
-  adcPosSelPDBU        = _ADC_SINGLECTRL_POSSEL_PDBU,
-  adcPosSelIO0         = _ADC_SINGLECTRL_POSSEL_IO0,
-  adcPosSelIO1         = _ADC_SINGLECTRL_POSSEL_IO1,
-  adcPosSelVSP         = _ADC_SINGLECTRL_POSSEL_VSP,
+  adcPosSelDVDD        = _ADC_SINGLECTRL_POSSEL_AREG,
+  adcPosSelPAVDD       = _ADC_SINGLECTRL_POSSEL_VREGOUTPA,
+  adcPosSelDECOUPLE    = _ADC_SINGLECTRL_POSSEL_PDBU,
+  adcPosSelIOVDD       = _ADC_SINGLECTRL_POSSEL_IO0,
   adcPosSelOPA2        = _ADC_SINGLECTRL_POSSEL_OPA2,
   adcPosSelOPA3        = _ADC_SINGLECTRL_POSSEL_OPA3,
   adcPosSelTEMP        = _ADC_SINGLECTRL_POSSEL_TEMP,
   adcPosSelDAC0OUT0    = _ADC_SINGLECTRL_POSSEL_DAC0OUT0,
-  adcPosSelTESTP       = _ADC_SINGLECTRL_POSSEL_TESTP,
-  adcPosSelSP1         = _ADC_SINGLECTRL_POSSEL_SP1,
-  adcPosSelSP2         = _ADC_SINGLECTRL_POSSEL_SP2,
   adcPosSelDAC0OUT1    = _ADC_SINGLECTRL_POSSEL_DAC0OUT1,
   adcPosSelSUBLSB      = _ADC_SINGLECTRL_POSSEL_SUBLSB,
   adcPosSelDEFAULT     = _ADC_SINGLECTRL_POSSEL_DEFAULT,
   adcPosSelVSS         = _ADC_SINGLECTRL_POSSEL_VSS
 } ADC_PosSel_TypeDef;
+
+/* Map legacy or incorrectly named select enums to correct enums. */
+#define adcPosSelIO0            adcPosSelIOVDD
+#define adcPosSelVREGOUTPA      adcPosSelPAVDD
+#define adcPosSelAREG           adcPosSelDVDD
+#define adcPosSelPDBU           adcPosSelDECOUPLE
+
 #endif
 
 

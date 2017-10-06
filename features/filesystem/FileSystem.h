@@ -19,7 +19,10 @@
 
 #include "platform/platform.h"
 
-#include "drivers/FileBase.h"
+#include "platform/FileBase.h"
+#include "platform/FileHandle.h"
+#include "platform/DirHandle.h"
+#include "platform/FileSystemLike.h"
 #include "BlockDevice.h"
 
 namespace mbed {
@@ -31,17 +34,23 @@ namespace mbed {
 typedef void *fs_file_t;
 typedef void *fs_dir_t;
 
-/** A filesystem-like object is one that can be used to open files
- *  though it by fopen("/name/filename", flags)
+// Predeclared classes
+class Dir;
+class File;
+
+/** A filesystem object provides filesystem operations and file operations
+ *  for the File and Dir classes on a block device.
  *
- *  Implementations must define at least open (the default definitions
- *  of the rest of the functions just return error values).
+ *  Implementations must provide at minimum file operations and mount
+ *  operations for block devices.
  *
- * @Note Synchronization level: Set by subclass
+ * @note Synchronization level: Set by subclass
  */
-class FileSystem : public FileBase {
+class FileSystem : public FileSystemLike {
 public:
     /** FileSystem lifetime
+     *
+     *  @param name       Name to add filesystem to tree as
      */
     FileSystem(const char *name = NULL);
     virtual ~FileSystem() {}
@@ -59,12 +68,22 @@ public:
      */
     virtual int unmount() = 0;
 
+    /** Reformats a filesystem, results in an empty and mounted filesystem
+     *
+     *  @param bd       BlockDevice to reformat and mount. If NULL, the mounted
+     *                  block device will be used.
+     *                  Note: if mount fails, bd must be provided.
+     *                  Default: NULL
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int reformat(BlockDevice *bd = NULL);
+
     /** Remove a file from the filesystem.
      *
      *  @param path     The name of the file to remove.
      *  @return         0 on success, negative error code on failure
      */
-    virtual int remove(const char *path) = 0;
+    virtual int remove(const char *path);
 
     /** Rename a file in the filesystem.
      *
@@ -72,7 +91,7 @@ public:
      *  @param newpath  The name to rename it to
      *  @return         0 on success, negative error code on failure
      */
-    virtual int rename(const char *path, const char *newpath) = 0;
+    virtual int rename(const char *path, const char *newpath);
 
     /** Store information about the file in a stat structure
      *
@@ -80,7 +99,7 @@ public:
      *  @param st       The stat buffer to write to
      *  @return         0 on success, negative error code on failure
      */
-    virtual int stat(const char *path, struct stat *st) = 0;
+    virtual int stat(const char *path, struct stat *st);
 
     /** Create a directory in the filesystem.
      *
@@ -107,7 +126,7 @@ protected:
     /** Close a file
      *
      *  @param file     File handle
-     *  return          0 on success, negative error code on failure
+     *  @return         0 on success, negative error code on failure
      */
     virtual int file_close(fs_file_t file) = 0;
 
@@ -118,7 +137,7 @@ protected:
      *  @param size     The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
-    virtual ssize_t file_read(fs_file_t file, void *buffer, size_t len) = 0;
+    virtual ssize_t file_read(fs_file_t file, void *buffer, size_t size) = 0;
 
     /** Write the contents of a buffer to a file
      *
@@ -127,7 +146,7 @@ protected:
      *  @param size     The number of bytes to write 
      *  @return         The number of bytes written, negative error on failure
      */
-    virtual ssize_t file_write(fs_file_t file, const void *buffer, size_t len) = 0;
+    virtual ssize_t file_write(fs_file_t file, const void *buffer, size_t size) = 0;
 
     /** Flush any buffers associated with the file
      *
@@ -175,7 +194,7 @@ protected:
      *  @param file     File handle
      *  @return         Size of the file in bytes
      */
-    virtual size_t file_size(fs_file_t file);
+    virtual off_t file_size(fs_file_t file);
 
     /** Open a directory on the filesystem
      *
@@ -188,7 +207,7 @@ protected:
     /** Close a directory
      *
      *  @param dir      Dir handle
-     *  return          0 on success, negative error code on failure
+     *  @return         0 on success, negative error code on failure
      */
     virtual int dir_close(fs_dir_t dir);
 
@@ -227,6 +246,11 @@ protected:
      *  @return         Number of files in the directory
      */
     virtual size_t dir_size(fs_dir_t dir);
+
+protected:
+    // Hooks for FileSystemHandle
+    virtual int open(FileHandle **file, const char *path, int flags);
+    virtual int open(DirHandle **dir, const char *path);
 };
 
 

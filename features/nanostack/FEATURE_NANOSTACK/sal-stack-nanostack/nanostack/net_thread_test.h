@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -11,6 +11,14 @@
  * See the License for the specific language governing permissions and limitations under the License.
  *
  */
+
+#ifndef NET_THREAD_TEST_H_
+#define NET_THREAD_TEST_H_
+
+/* Prevent this file being inserted in public Doxygen generated file
+ * this is not part of our external API. */
+#ifndef DOXYGEN
+
 /**
  * \file net_thread_test.h
  * \brief Thread Library Test API.
@@ -21,8 +29,6 @@
  *
  */
 
-#ifndef NET_THREAD_TEST_H_
-#define NET_THREAD_TEST_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -346,6 +352,19 @@ int thread_test_partition_info_get(int8_t interface_id, uint32_t *partition_id, 
 int thread_test_partition_info_set(int8_t interface_id, uint32_t partition_id);
 
 /**
+ * \brief Get thread information.
+ *
+ * \param interface_id Network Interface
+ * \param short_addr own short address
+ * \param router_count amount of active routers in network
+ * \param network_stable stable network achieved no upgrade or downgrade pending
+ *
+ * \return 0, Set OK
+ * \return <0 Set Fail
+ */
+int8_t thread_test_thread_information_get(int8_t interface_id, uint16_t *short_addr, uint8_t *router_count, bool *network_stable);
+
+/**
  * \brief Get child count
  *
  * \param interface_id Network Interface
@@ -442,8 +461,20 @@ int8_t thread_test_router_id_request_send(int8_t interface_id, uint8_t status);
  */
 int8_t thread_test_joiner_router_joiner_port_set(uint16_t port);
 
+/**
+ *\brief set a router address to be requested. For a router, this address is sent
+ *\in address solicit request to leader and for leader this is the router address
+ *
+ * \param interface_id               Network Interface
+ * \param router_addr                Address requested
+ * \return 0,                        Command OK
+ * \return <0                        Command Fail
+ */
+int8_t thread_test_router_address_set(int8_t interface_id, uint16_t router_addr);
+
 #ifdef __cplusplus
 }
 #endif
 
+#endif /* DOXYGEN */
 #endif /* NET_THREAD_TEST_H_ */

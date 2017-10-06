@@ -22,6 +22,8 @@
 
 extern TIM_HandleTypeDef TimMasterHandle;
 
+extern void HAL_IncTick(void);
+
 volatile uint32_t PreviousVal = 0;
 
 void us_ticker_irq_handler(void);
@@ -45,7 +47,7 @@ void timer_irq_handler(void)
                 // Increment HAL variable
                 HAL_IncTick();
                 // Prepare next interrupt
-                __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_2, val + HAL_TICK_DELAY);
+                __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_2, val + HAL_TICK_DELAY);
                 PreviousVal = val;
 #if DEBUG_TICK > 0
                 HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
@@ -90,8 +92,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     if (RCC_ClkInitStruct.APB2CLKDivider == RCC_HCLK_DIV1) {
 #endif
         TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 us tick
-    }
-    else {
+    } else {
         TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq * 2) / 1000000) - 1; // 1 us tick
     }
 
@@ -100,7 +101,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 #if !TARGET_STM32L1
     TimMasterHandle.Init.RepetitionCounter = 0;
 #endif
-#ifdef TARGET_STM32F0
+#ifdef TIM_AUTORELOAD_PRELOAD_DISABLE
     TimMasterHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 #endif
     HAL_TIM_OC_Init(&TimMasterHandle);
@@ -114,11 +115,17 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     // Channel 2 for HAL tick
     HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_2);
     PreviousVal = __HAL_TIM_GetCounter(&TimMasterHandle);
-    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_2, PreviousVal + HAL_TICK_DELAY);
+    __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_2, PreviousVal + HAL_TICK_DELAY);
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 
+    // Freeze timer on stop/breakpoint
+    // Define the FREEZE_TIMER_ON_DEBUG macro in mbed_app.json for example
+#if !defined(NDEBUG) && defined(FREEZE_TIMER_ON_DEBUG) && defined(TIM_MST_DBGMCU_FREEZE)
+    TIM_MST_DBGMCU_FREEZE;
+#endif
+
 #if DEBUG_TICK > 0
-    __GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitTypeDef GPIO_InitStruct;
     GPIO_InitStruct.Pin = GPIO_PIN_6;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -130,15 +137,15 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     return HAL_OK;
 }
 
+/* NOTE: must be called with interrupts disabled! */
 void HAL_SuspendTick(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 }
 
+/* NOTE: must be called with interrupts disabled! */
 void HAL_ResumeTick(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 }
 

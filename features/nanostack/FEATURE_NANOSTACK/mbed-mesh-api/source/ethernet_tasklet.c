@@ -20,7 +20,6 @@
 #include "net_interface.h"
 #include "ip6string.h"  //ip6tos
 #include "nsdynmemLIB.h"
-#include "include/static_config.h"
 #include "include/mesh_system.h"
 #include "ns_event_loop.h"
 #include "mesh_interface_types.h"

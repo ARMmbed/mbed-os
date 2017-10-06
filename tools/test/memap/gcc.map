@@ -1,0 +1,25 @@
+Archive member included to satisfy reference by file (symbol)
+
+Linker script and memory map
+.text           0x000000000001b000    0x11a30
+ .Vectors       0x000000000001b000       0x98 /common/path/irqs/irqs.o
+                0x000000000001b168       0x36 /common/path/main.o
+                0x000000000001b168                count5(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
+                0x000000000001b200       0xc0 /common/path/startup/startup.o
+                0x000000000001b200                startup()
+                0x0000000000024020        0x8 /usr/lib/gcc/arm-none-eabi/7.1.0/../../../../arm-none-eabi/lib/armv6-m/libd16M_tlf.a(__main.o)
+
+.data           0x0000000020002ef8      0xac8 load address 0x000000000002ca38
+                0x0000000020002ef8                __data_start__ = .
+ *(vtable)
+ *(.data*)
+                0x0000000020002ef8       0x18 /common/path/data/data.o
+                0x0000000020002ef8                some_global_var
+
+.bss            0x0000000020003a80     0x2050 load address 0x000000000002d5c0
+                0x0000000020003a80                . = ALIGN (0x4)
+                0x0000000020003a80                __bss_start__ = .
+ *(.bss*)
+ .bss.completed.8574
+ .bss.counter   0x0000000020003c08      0x198 /common/path/data.o
+                0x0000000020003c08                some_zero_init_var

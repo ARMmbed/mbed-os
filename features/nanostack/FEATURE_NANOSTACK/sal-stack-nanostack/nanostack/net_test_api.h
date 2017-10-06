@@ -23,7 +23,7 @@
 #include "ns_types.h"
 
 /**
- * \brief Makes TCP protocol drop given number of packets from a particular state (TX side, tcp_down()).
+ * \brief Makes TCP protocol drop given number of packets from a particular state (TX side).
  *
  * Testing API for TCP retransmission mechanism after a packet is dropped in a particular state.
  *
@@ -35,7 +35,7 @@
 int8_t arm_nwk_test_tcp_drop_tx(int state, uint8_t count);
 
 /**
- * \brief Makes TCP protocol drop given number of packets from a particular state (RX side, tcp_up()).
+ * \brief Makes TCP protocol drop given number of packets from a particular state (RX side).
  *
  * Testing API for TCP to drop  received packets.
  *

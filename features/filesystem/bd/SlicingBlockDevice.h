@@ -44,6 +44,7 @@
  *
  *  // Create a block device that maps to the middle 32 blocks
  *  SlicingBlockDevice slice3(&mem, 16*512, -16*512);
+ * @endcode
  */
 class SlicingBlockDevice : public BlockDevice
 {
@@ -62,7 +63,7 @@ public:
      *  @param bd       Block device to back the SlicingBlockDevice
      *  @param start    Start block address to map to block 0, negative addresses
      *                  are calculated from the end of the underlying block device
-     *  @param stop     End block address to mark the end of the block device,
+     *  @param end      End block address to mark the end of the block device,
      *                  this block is not mapped, negative addresses are
      *                  calculated from the end of the underlying block device
      */
@@ -138,7 +139,7 @@ public:
      *
      *  @return         Size of the underlying device in bytes
      */
-    virtual bd_size_t size();
+    virtual bd_size_t size() const;
 
 protected:
     BlockDevice *_bd;

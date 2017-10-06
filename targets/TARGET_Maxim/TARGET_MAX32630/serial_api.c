@@ -180,6 +180,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 //******************************************************************************
 void uart_handler(serial_t *obj)
 {
+    // clear interrupts
+    volatile uint32_t flags = obj->uart->intfl;
+    obj->uart->intfl = flags;
+
     if (obj && obj->id) {
         irq_handler(obj->id, RxIrq);
     }
@@ -200,21 +204,24 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 //******************************************************************************
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
+    MBED_ASSERT(obj->index < MXC_CFG_UART_INSTANCES);
+    objs[obj->index] = obj;
+
     switch (obj->index) {
         case 0:
-            NVIC_SetVector(UART0_IRQn, uart0_handler);
+            NVIC_SetVector(UART0_IRQn, (uint32_t)uart0_handler);
             NVIC_EnableIRQ(UART0_IRQn);
             break;
         case 1:
-            NVIC_SetVector(UART1_IRQn, uart1_handler);
+            NVIC_SetVector(UART1_IRQn, (uint32_t)uart1_handler);
             NVIC_EnableIRQ(UART1_IRQn);
             break;
         case 2:
-            NVIC_SetVector(UART2_IRQn, uart2_handler);
+            NVIC_SetVector(UART2_IRQn, (uint32_t)uart2_handler);
             NVIC_EnableIRQ(UART2_IRQn);
             break;
         case 3:
-            NVIC_SetVector(UART3_IRQn, uart3_handler);
+            NVIC_SetVector(UART3_IRQn, (uint32_t)uart3_handler);
             NVIC_EnableIRQ(UART3_IRQn);
             break;
         default:

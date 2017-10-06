@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_letimer.c
  * @brief Low Energy Timer (LETIMER) Peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>

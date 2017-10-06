@@ -55,7 +55,7 @@ struct port_s {
 };
 
 struct analogin_s {
-    ADCName adc;
+    ADC_HandleTypeDef handle;
     PinName pin;
     uint8_t channel;
 };
@@ -63,6 +63,7 @@ struct analogin_s {
 struct dac_s {
     DACName dac;
     uint8_t channel;
+    DAC_HandleTypeDef handle;
 };
 
 struct serial_s {
@@ -128,16 +129,20 @@ struct i2c_s {
 struct pwmout_s {
     PWMName pwm;
     PinName pin;
+    uint32_t prescaler;
     uint32_t period;
     uint32_t pulse;
     uint8_t channel;
     uint8_t inverted;
 };
 
+#ifdef DEVICE_CAN
 struct can_s {
-    CANName can;
+    CAN_HandleTypeDef CanHandle;
     int index;
+    int hz;
 };
+#endif
 
 #define GPIO_IP_WITHOUT_BRR
 #include "gpio_object.h"

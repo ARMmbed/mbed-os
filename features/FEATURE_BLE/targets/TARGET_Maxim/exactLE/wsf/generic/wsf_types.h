@@ -44,7 +44,9 @@
 
 /* Integer data types */
 #if ((defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) && \
-    (__ICC8051__ == 0)) || defined(__CC_ARM) || defined(__IAR_SYSTEMS_ICC__)
+     (__ICC8051__ == 0)) || defined(__CC_ARM) || \
+     (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)) || \
+     defined(__IAR_SYSTEMS_ICC__)
 #include <stdint.h>
 #else
 typedef signed char int8_t;

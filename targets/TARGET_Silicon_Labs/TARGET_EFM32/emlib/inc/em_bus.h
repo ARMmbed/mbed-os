@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_bus.h
  * @brief RAM and peripheral bit-field set and clear API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -30,8 +30,8 @@
  *
  ******************************************************************************/
 
-#ifndef EM_BUS__
-#define EM_BUS__
+#ifndef EM_BUS_H
+#define EM_BUS_H
 
 #include "em_device.h"
 
@@ -46,9 +46,9 @@ extern "C" {
 
 /***************************************************************************//**
  * @addtogroup BUS
- * @brief BUS RAM and register bit/field read/write API
+ * @brief BUS register and RAM bit/field read/write API
  * @details
- *  API to perform bitbanded and masked accesses to SRAM and peripheral memory.
+ *  API to perform bit-band and field set/clear access to RAM and peripherals.
  * @{
  ******************************************************************************/
 
@@ -280,7 +280,10 @@ __STATIC_INLINE void BUS_RegMaskedClear(volatile uint32_t *addr,
  * @param[in] mask Peripheral register mask
  *
  * @param[in] val Peripheral register value. The value must be shifted to the
-                  correct bit position in the register.
+                  correct bit position in the register corresponding to the field
+                  defined by the mask parameter. The register value must be
+                  contained in the field defined by the mask parameter. This
+                  function is not performing masking of val internally.
  ******************************************************************************/
 __STATIC_INLINE void BUS_RegMaskedWrite(volatile uint32_t *addr,
                                         uint32_t mask,
@@ -326,4 +329,4 @@ __STATIC_INLINE uint32_t BUS_RegMaskedRead(volatile const uint32_t *addr,
 }
 #endif
 
-#endif /* EM_BUS__ */
+#endif /* EM_BUS_H */

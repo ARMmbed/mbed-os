@@ -1,4 +1,3 @@
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -16,13 +15,40 @@
  */
 
 #include "mbed.h"
+#include "filesystem/Dir.h"
+#include "filesystem/File.h"
 #include "filesystem/FileSystem.h"
 #include <errno.h>
 
 
 FileSystem::FileSystem(const char *name)
-    : FileBase(name, FileSystemPathType)
+    : FileSystemLike(name)
 {
+}
+
+int FileSystem::reformat(BlockDevice *bd)
+{
+    return -ENOSYS;
+}
+
+int FileSystem::remove(const char *path)
+{
+    return -ENOSYS;
+}
+
+int FileSystem::rename(const char *path, const char *newpath)
+{
+    return -ENOSYS;
+}
+
+int FileSystem::stat(const char *path, struct stat *st)
+{
+    return -ENOSYS;
+}
+
+int FileSystem::mkdir(const char *path, mode_t mode)
+{
+    return -ENOSYS;
 }
 
 int FileSystem::file_sync(fs_file_t file)
@@ -45,17 +71,12 @@ void FileSystem::file_rewind(fs_file_t file)
     file_seek(file, 0, SEEK_SET);
 }
 
-size_t FileSystem::file_size(fs_file_t file)
+off_t FileSystem::file_size(fs_file_t file)
 {
     off_t off = file_tell(file);
-    size_t size = file_seek(file, 0, SEEK_END);
+    off_t size = file_seek(file, 0, SEEK_END);
     file_seek(file, off, SEEK_SET);
     return size;
-}
-
-int FileSystem::mkdir(const char *path, mode_t mode)
-{
-    return -ENOSYS;
 }
 
 int FileSystem::dir_open(fs_dir_t *dir, const char *path)
@@ -109,3 +130,38 @@ size_t FileSystem::dir_size(fs_dir_t dir)
     return size;
 }
 
+// Internally used file wrapper that manages memory on close
+template <typename F>
+class Managed : public F {
+public:
+    virtual int close() {
+        int err = F::close();
+        delete this;
+        return err;
+    }
+};
+
+int FileSystem::open(FileHandle **file, const char *path, int flags)
+{
+    File *f = new Managed<File>;
+    int err = f->open(this, path, flags);
+    if (err) {
+        delete f;
+        return err;
+    }
+
+    *file = f;
+    return 0;
+}
+
+int FileSystem::open(DirHandle **dir, const char *path) {
+    Dir *d = new Managed<Dir>;
+    int err = d->open(this, path);
+    if (err) {
+        delete d;
+        return err;
+    }
+
+    *dir = d;
+    return 0;
+}

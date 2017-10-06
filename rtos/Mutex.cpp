@@ -22,35 +22,47 @@
 #include "rtos/Mutex.h"
 
 #include <string.h>
-#include "platform/mbed_error.h"
+#include "mbed_error.h"
+#include "mbed_assert.h"
 
 namespace rtos {
 
-Mutex::Mutex() {
-#ifdef CMSIS_OS_RTX
-    memset(_mutex_data, 0, sizeof(_mutex_data));
-    _osMutexDef.mutex = _mutex_data;
-#endif
-    _osMutexId = osMutexCreate(&_osMutexDef);
-    if (_osMutexId == NULL) {
-        error("Error initializing the mutex object\n");
-    }
+Mutex::Mutex()
+{
+    constructor();
+}
+
+Mutex::Mutex(const char *name)
+{
+    constructor(name);
+}
+
+void Mutex::constructor(const char *name)
+{
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    memset(&_attr, 0, sizeof(_attr));
+    _attr.name = name ? name : "aplication_unnamed_mutex";
+    _attr.cb_mem = &_obj_mem;
+    _attr.cb_size = sizeof(_obj_mem);
+    _attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
+    _id = osMutexNew(&_attr);
+    MBED_ASSERT(_id);
 }
 
 osStatus Mutex::lock(uint32_t millisec) {
-    return osMutexWait(_osMutexId, millisec);
+    return osMutexAcquire(_id, millisec);
 }
 
 bool Mutex::trylock() {
-    return (osMutexWait(_osMutexId, 0) == osOK);
+    return (osMutexAcquire(_id, 0) == osOK);
 }
 
 osStatus Mutex::unlock() {
-    return osMutexRelease(_osMutexId);
+    return osMutexRelease(_id);
 }
 
 Mutex::~Mutex() {
-    osMutexDelete(_osMutexId);
+    osMutexDelete(_id);
 }
 
 }

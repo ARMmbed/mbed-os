@@ -172,11 +172,40 @@ NS_INLINE uint_fast8_t common_count_bits(uint8_t byte);
 /*
  * Count leading zeros in a byte
  *
+ * \deprecated Use common_count_leading_zeros_8
+ *
  * \param byte byte to inspect
  *
  * \return number of leading zeros in byte (0-8)
  */
 NS_INLINE uint_fast8_t common_count_leading_zeros(uint8_t byte);
+
+/*
+ * Count leading zeros in a byte
+ *
+ * \param byte byte to inspect
+ *
+ * \return number of leading zeros in byte (0-8)
+ */
+NS_INLINE uint_fast8_t common_count_leading_zeros_8(uint8_t byte);
+
+/*
+ * Count leading zeros in a 16-bit value
+ *
+ * \param value value to inspect
+ *
+ * \return number of leading zeros in byte (0-16)
+ */
+NS_INLINE uint_fast8_t common_count_leading_zeros_16(uint16_t value);
+
+/*
+ * Count leading zeros in a 32-bit value
+ *
+ * \param value value to inspect
+ *
+ * \return number of leading zeros in byte (0-32)
+ */
+NS_INLINE uint_fast8_t common_count_leading_zeros_32(uint32_t value);
 
 /*
  * Compare 8-bit serial numbers
@@ -435,6 +464,11 @@ COMMON_FUNCTIONS_FN uint_fast8_t common_count_bits(uint8_t byte)
 
 COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros(uint8_t byte)
 {
+    return common_count_leading_zeros_8(byte);
+}
+
+COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_8(uint8_t byte)
+{
 #ifdef  __CC_ARM
     return byte ? __clz((unsigned int) byte << 24) : 8;
 #elif defined __GNUC__
@@ -453,6 +487,72 @@ COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros(uint8_t byte)
         cnt += 2;
     }
     if ((byte & 0x80) == 0) {
+        cnt += 1;
+    }
+
+    return cnt;
+#endif
+}
+
+COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_16(uint16_t value)
+{
+#ifdef  __CC_ARM
+    return value ? __clz((unsigned int) value << 16) : 16;
+#elif defined __GNUC__
+    return value ? __builtin_clz((unsigned int) value << 16) : 16;
+#else
+    uint_fast8_t cnt = 0;
+    if (value == 0) {
+        return 16;
+    }
+    if ((value & 0xFF00) == 0) {
+        value <<= 8;
+        cnt += 8;
+    }
+    if ((value & 0xF000) == 0) {
+        value <<= 4;
+        cnt += 4;
+    }
+    if ((value & 0xC000) == 0) {
+        value <<= 2;
+        cnt += 2;
+    }
+    if ((value & 0x8000) == 0) {
+        cnt += 1;
+    }
+
+    return cnt;
+#endif
+}
+
+COMMON_FUNCTIONS_FN uint_fast8_t common_count_leading_zeros_32(uint32_t value)
+{
+#ifdef  __CC_ARM
+    return __clz(value);
+#elif defined __GNUC__
+    return value ? __builtin_clz(value) : 32;
+#else
+    uint_fast8_t cnt = 0;
+    if (value == 0) {
+        return 32;
+    }
+    if ((value & 0xFFFF0000) == 0) {
+        value <<= 16;
+        cnt += 16;
+    }
+    if ((value & 0xFF000000) == 0) {
+        value <<= 8;
+        cnt += 8;
+    }
+    if ((value & 0xF0000000) == 0) {
+        value <<= 4;
+        cnt += 4;
+    }
+    if ((value & 0xC0000000) == 0) {
+        value <<= 2;
+        cnt += 2;
+    }
+    if ((value & 0x80000000) == 0) {
         cnt += 1;
     }
 

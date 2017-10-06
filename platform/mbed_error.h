@@ -19,7 +19,12 @@
 #ifndef MBED_ERROR_H
 #define MBED_ERROR_H
 
+
+
 /** To generate a fatal compile-time error, you can use the pre-processor #error directive.
+ *
+ * @param format    C string that contains data stream to be printed.
+ *                  Code snippets below show valid format.
  *
  * @code
  * #error "That shouldn't have happened!"
@@ -53,13 +58,14 @@
  * if(x >= 5) {
  *     error("expected x to be less than 5, but got %d", x);
  * }
- * #endcode
+ * @endcode
+ *
+ *
  */
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 void error(const char* format, ...);
 
 #ifdef __cplusplus

@@ -24,7 +24,6 @@
 
 #include "mbed.h"
 #include "flash_api.h"
-#include "flash_data.h"
 
 using namespace utest::v1;
 
@@ -49,10 +48,52 @@ static void erase_range(flash_t *flash, uint32_t addr, uint32_t size)
         TEST_ASSERT_NOT_EQUAL(0, sector_size);
         int32_t ret = flash_erase_sector(flash, addr);
         TEST_ASSERT_EQUAL_INT32(0, ret);
+        addr += sector_size;
         size = size > sector_size ? size - sector_size : 0;
     }
 }
+#ifdef __CC_ARM
+MBED_NOINLINE
+__asm static void delay_loop(uint32_t count)
+{
+1
+  SUBS a1, a1, #1
+  BCS  %BT1
+  BX   lr
+}
+#elif defined (__ICCARM__)
+MBED_NOINLINE
+static void delay_loop(uint32_t count)
+{
+  __asm volatile(
+    "loop: \n"
+    " SUBS %0, %0, #1 \n"
+    " BCS.n  loop\n"
+    : "+r" (count)
+    :
+    : "cc"
+  );
+}
+#elif  defined ( __GNUC__ ) ||  (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+MBED_NOINLINE
+static void delay_loop(uint32_t count)
+{
+  __asm__ volatile (
+    "%=:\n\t"
+#if defined(__thumb__) && !defined(__thumb2__) && !defined(__ARMCC_VERSION)
+    "SUB  %0, #1\n\t"
+#else
+    "SUBS %0, %0, #1\n\t"
+#endif
+    "BCS  %=b\n\t"
+    : "+l" (count)
+    :
+    : "cc"
+  );
+}
+#endif
 
+MBED_NOINLINE
 static int time_cpu_cycles(uint32_t cycles)
 {
     Timer timer;
@@ -60,9 +101,8 @@ static int time_cpu_cycles(uint32_t cycles)
 
     int timer_start = timer.read_us();
 
-    volatile uint32_t delay = (volatile uint32_t)cycles;
-    while (delay--);
-
+    uint32_t delay = cycles;
+    delay_loop(delay);
     int timer_end = timer.read_us();
 
     timer.stop();
@@ -108,7 +148,6 @@ void flash_mapping_alignment_test()
         TEST_ASSERT_EQUAL(0, sector_start % sector_size);
         // All address in a sector must return the same sector size
         TEST_ASSERT_EQUAL(sector_size, end_sector_size);
-
     }
 
     // Make sure unmapped flash is reported correctly
@@ -145,6 +184,7 @@ void flash_program_page_test()
 
     uint32_t test_size = flash_get_page_size(&test_flash);
     uint8_t *data = new uint8_t[test_size];
+    uint8_t *data_flashed = new uint8_t[test_size];
     for (uint32_t i = 0; i < test_size; i++) {
         data[i] = 0xCE;
     }
@@ -159,7 +199,9 @@ void flash_program_page_test()
 
     ret = flash_program_page(&test_flash, address, data, test_size);
     TEST_ASSERT_EQUAL_INT32(0, ret);
-    uint8_t *data_flashed = (uint8_t *)address;
+
+    ret = flash_read(&test_flash, address, data_flashed, test_size);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(data, data_flashed, test_size);
 
     // sector size might not be same as page size
@@ -173,11 +215,15 @@ void flash_program_page_test()
     }
     ret = flash_program_page(&test_flash, address, data, test_size);
     TEST_ASSERT_EQUAL_INT32(0, ret);
+
+    ret = flash_read(&test_flash, address, data_flashed, test_size);
+    TEST_ASSERT_EQUAL_INT32(0, ret);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(data, data_flashed, test_size);
 
     ret = flash_free(&test_flash);
     TEST_ASSERT_EQUAL_INT32(0, ret);
     delete[] data;
+    delete[] data_flashed;
 }
 
 // make sure programming works with an unaligned data buffer
@@ -190,6 +236,7 @@ void flash_buffer_alignment_test()
     const uint32_t page_size = flash_get_page_size(&test_flash);
     const uint32_t buf_size = page_size + 4;
     uint8_t *data = new uint8_t[buf_size];
+    uint8_t *data_flashed = new uint8_t[buf_size];
     for (uint32_t i = 0; i < buf_size; i++) {
         data[i] = i & 0xFF;
     }
@@ -205,13 +252,16 @@ void flash_buffer_alignment_test()
         const uint32_t addr = test_addr + i * page_size;
         ret = flash_program_page(&test_flash, addr, data + i, page_size);
         TEST_ASSERT_EQUAL_INT32(0, ret);
-        uint8_t *data_flashed = (uint8_t *)addr;
+
+        ret = flash_read(&test_flash, addr, data_flashed, page_size);
+        TEST_ASSERT_EQUAL_INT32(0, ret);
         TEST_ASSERT_EQUAL_UINT8_ARRAY(data + i, data_flashed, page_size);
     }
 
     ret = flash_free(&test_flash);
     TEST_ASSERT_EQUAL_INT32(0, ret);
     delete[] data;
+    delete[] data_flashed;
 }
 
 // check the execution speed at the start and end of the test to make sure

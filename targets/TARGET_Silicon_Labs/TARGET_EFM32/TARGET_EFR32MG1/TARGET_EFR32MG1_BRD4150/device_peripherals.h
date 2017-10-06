@@ -44,13 +44,14 @@
   _CMU_HFXOSTARTUPCTRL_CTUNE_DEFAULT,                                           \
   0x142,        /* Steady-state CTUNE for WSTK boards without load caps */      \
   _CMU_HFXOSTEADYSTATECTRL_REGISH_DEFAULT,                                      \
-  _CMU_HFXOSTARTUPCTRL_IBTRIMXOCORE_DEFAULT,                                    \
-  0x7,          /* Recommended steady-state XO core bias current */             \
+  0x20,         /* Matching errata fix in CHIP_Init() */                        \
+  0x7,          /* Recommended steady-state osc core bias current */            \
   0x6,          /* Recommended peak detection threshold */                      \
   _CMU_HFXOTIMEOUTCTRL_SHUNTOPTTIMEOUT_DEFAULT,                                 \
   0xA,          /* Recommended peak detection timeout  */                       \
-  _CMU_HFXOTIMEOUTCTRL_STEADYTIMEOUT_DEFAULT,                                   \
+  0x4,          /* Recommended steady timeout */                                \
   _CMU_HFXOTIMEOUTCTRL_STARTUPTIMEOUT_DEFAULT,                                  \
+  cmuOscMode_Crystal,                                                           \
 }
 #endif
 #endif

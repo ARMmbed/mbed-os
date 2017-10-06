@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_dma.h
  * @brief Direct memory access (DMA) API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -360,21 +360,21 @@ typedef struct
 void DMA_ActivateAuto(unsigned int channel,
                       bool primary,
                       void *dst,
-                      void *src,
+                      const void *src,
                       unsigned int nMinus1);
 void DMA_ActivateBasic(unsigned int channel,
                        bool primary,
                        bool useBurst,
                        void *dst,
-                       void *src,
+                       const void *src,
                        unsigned int nMinus1);
 void DMA_ActivatePingPong(unsigned int channel,
                           bool useBurst,
                           void *primDst,
-                          void *primSrc,
+                          const void *primSrc,
                           unsigned int primNMinus1,
                           void *altDst,
-                          void *altSrc,
+                          const void *altSrc,
                           unsigned int altNMinus1);
 void DMA_ActivateScatterGather(unsigned int channel,
                                bool useBurst,
@@ -446,7 +446,7 @@ void DMA_RefreshPingPong(unsigned int channel,
                          bool primary,
                          bool useBurst,
                          void *dst,
-                         void *src,
+                         const void *src,
                          unsigned int nMinus1,
                          bool last);
 void DMA_Reset(void);

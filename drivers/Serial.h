@@ -18,23 +18,23 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_SERIAL
+#if defined (DEVICE_SERIAL) || defined(DOXYGEN_ONLY)
 
 #include "Stream.h"
 #include "SerialBase.h"
 #include "PlatformMutex.h"
 #include "serial_api.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A serial port (UART) for communication with other serial devices
  *
  * Can be used for Full Duplex communication, or Simplex by specifying
  * one pin as NC (Not Connected)
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
  * Example:
  * @code
@@ -48,8 +48,9 @@ namespace mbed {
  *     pc.printf("Hello World\n");
  * }
  * @endcode
+ * @ingroup drivers
  */
-class Serial : public SerialBase, public Stream {
+class Serial : public SerialBase, public Stream, private NonCopyable<Serial> {
 
 public:
 #if DEVICE_SERIAL_ASYNCH
@@ -81,6 +82,23 @@ public:
      */
     Serial(PinName tx, PinName rx, int baud);
 
+    /* Stream gives us a FileHandle with non-functional poll()/readable()/writable. Pass through
+     * the calls from the SerialBase instead for backwards compatibility. This problem is
+     * part of why Stream and Serial should be deprecated.
+     */
+    bool readable()
+    {
+        return SerialBase::readable();
+    }
+    bool writable()
+    {
+        return SerialBase::writeable();
+    }
+    bool writeable()
+    {
+        return SerialBase::writeable();
+    }
+
 protected:
     virtual int _getc();
     virtual int _putc(int c);
@@ -95,5 +113,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

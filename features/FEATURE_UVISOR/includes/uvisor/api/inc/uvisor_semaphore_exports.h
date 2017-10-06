@@ -20,7 +20,7 @@
 #include "api/inc/uvisor_exports.h"
 
 /* This must be big enough for all operating systems uVisor runs on. */
-#define UVISOR_SEMAPHORE_INTERNAL_SIZE (16)
+#define UVISOR_SEMAPHORE_INTERNAL_SIZE (36)
 
 /* An opaque structure, that one knows the size of so that they can allocate
  * memory. */

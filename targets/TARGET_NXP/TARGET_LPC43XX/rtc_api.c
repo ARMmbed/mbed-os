@@ -16,6 +16,7 @@
  * Ported to NXP LPC43XX by Micromint USA <support@micromint.com>
  */
 #include "rtc_api.h"
+#include "mbed_mktime.h"
 
 // ensure rtc is running (unchanged if already running)
 
@@ -101,27 +102,30 @@ time_t rtc_read(void) {
     timeinfo.tm_year = LPC_RTC->TIME[RTC_TIMETYPE_YEAR] - 1900;
     
     // Convert to timestamp
-    time_t t = mktime(&timeinfo);
+    time_t t = _rtc_mktime(&timeinfo);
     
     return t;
 }
 
 void rtc_write(time_t t) {
     // Convert the time in to a tm
-    struct tm *timeinfo = localtime(&t);
+    struct tm timeinfo;
+    if (_rtc_localtime(t, &timeinfo) == false) {
+        return;
+    }
     
     // Pause clock, and clear counter register (clears us count)
     LPC_RTC->CCR |= 2;
     
     // Set the RTC
-    LPC_RTC->TIME[RTC_TIMETYPE_SECOND] = timeinfo->tm_sec;
-    LPC_RTC->TIME[RTC_TIMETYPE_MINUTE] = timeinfo->tm_min;
-    LPC_RTC->TIME[RTC_TIMETYPE_HOUR] = timeinfo->tm_hour;
-    LPC_RTC->TIME[RTC_TIMETYPE_DAYOFMONTH] = timeinfo->tm_mday;
-    LPC_RTC->TIME[RTC_TIMETYPE_DAYOFWEEK] = timeinfo->tm_wday;
-    LPC_RTC->TIME[RTC_TIMETYPE_DAYOFYEAR] = timeinfo->tm_yday;
-    LPC_RTC->TIME[RTC_TIMETYPE_MONTH] = timeinfo->tm_mon + 1;
-    LPC_RTC->TIME[RTC_TIMETYPE_YEAR] = timeinfo->tm_year + 1900;
+    LPC_RTC->TIME[RTC_TIMETYPE_SECOND] = timeinfo.tm_sec;
+    LPC_RTC->TIME[RTC_TIMETYPE_MINUTE] = timeinfo.tm_min;
+    LPC_RTC->TIME[RTC_TIMETYPE_HOUR] = timeinfo.tm_hour;
+    LPC_RTC->TIME[RTC_TIMETYPE_DAYOFMONTH] = timeinfo.tm_mday;
+    LPC_RTC->TIME[RTC_TIMETYPE_DAYOFWEEK] = timeinfo.tm_wday;
+    LPC_RTC->TIME[RTC_TIMETYPE_DAYOFYEAR] = timeinfo.tm_yday;
+    LPC_RTC->TIME[RTC_TIMETYPE_MONTH] = timeinfo.tm_mon + 1;
+    LPC_RTC->TIME[RTC_TIMETYPE_YEAR] = timeinfo.tm_year + 1900;
     
     // Restart clock
     LPC_RTC->CCR &= ~((uint32_t)2);

@@ -16,7 +16,7 @@
 #ifndef __BLE_IBEACON_H__
 #define __BLE_IBEACON_H__
 
-#include "core_cmInstr.h"
+#include "cmsis_compiler.h"
 #include "ble/BLE.h"
 
 /**

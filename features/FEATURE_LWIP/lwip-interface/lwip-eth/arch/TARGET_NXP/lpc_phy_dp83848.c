@@ -31,6 +31,8 @@
 #include "lpc_phy.h"
 #include "lpc17xx_emac.h"
 
+#if LWIP_ARP || LWIP_ETHERNET
+
 /** @defgroup dp83848_phy	PHY status and control for the DP83848.
  * @ingroup lwip_phy
  *
@@ -430,6 +432,8 @@ s32_t lpc_phy_sts_sm(struct netif *netif)
 
 	return changed;
 }
+
+#endif /* LWIP_ARP || LWIP_ETHERNET */
 
 /**
  * @}

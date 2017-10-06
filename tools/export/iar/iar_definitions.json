@@ -23,6 +23,9 @@
     "STM32L476RG": {
         "OGChipSelectEditMenu": "STM32L476RG\tST STM32L476RG"
     },
+    "STM32L486RG": {
+        "OGChipSelectEditMenu": "STM32L486RG\tST STM32L486RG"
+    },
     "STM32L011K4": {
         "OGChipSelectEditMenu": "STM32L011x4\tST STM32L011x4"
     },
@@ -35,14 +38,50 @@
     "STM32F070RB": {
         "OGChipSelectEditMenu": "STM32F070RB\tST STM32F070RB"
     },
+    "MK22DN512xxx5": {
+        "OGChipSelectEditMenu": "MK22DN512xxx5\tNXP MK22DN512xxx5"
+    },
+    "MK24FN1M0xxx12": {
+        "OGChipSelectEditMenu": "MK24FN1M0xxx12\tNXP MK24FN1M0xxx12"
+    },
     "MK64FN1M0xxx12": {
-        "OGChipSelectEditMenu": "MK64FN1M0xxx12\tFreescale MK64FN1M0xxx12"
+        "OGChipSelectEditMenu": "MK64FN1M0xxx12\tNXP MK64FN1M0xxx12"
+    },
+    "MK66FN2M0xxx18": {
+        "OGChipSelectEditMenu": "MK66FN2M0xxx18\tNXP MK66FN2M0xxx18"
+    },
+    "MK82FN256xxx15": {
+        "OGChipSelectEditMenu": "MK82FN256xxx15\tNXP MK82FN256xxx15"
+    },
+    "MKL27Z64xxx4": {
+        "OGChipSelectEditMenu": "MKL27Z64xxx4\tNXP MKL27Z64xxx4"
+    },
+    "MKL43Z256xxx4": {
+        "OGChipSelectEditMenu": "MKL43Z256xxx4\tNXP MKL43Z256xxx4"
+    },
+    "MKL82Z128xxx7": {
+        "OGChipSelectEditMenu": "MKL82Z128xxx7\tNXP MKL82Z128xxx7"
+    },
+    "MKW24D512xxx5": {
+        "OGChipSelectEditMenu": "MKW24D512xxx5\tNXP MKW24D512xxx5"
+    },
+    "MKW41Z512xxx4": {
+        "OGChipSelectEditMenu": "MKW41Z512xxx4\tNXP MKW41Z512xxx4"
+    },
+    "LPC54114J256BD64": {
+        "OGChipSelectEditMenu": "LPC54114J256_M4\tNXP LPC54114J256_M4"
+    },
+    "LPC54618J512ET180": {
+        "OGChipSelectEditMenu": "LPC54618J512\tNXP LPC54618J512"
     },
     "STM32F072RB": {
         "OGChipSelectEditMenu": "STM32F072RB\tST STM32F072RB"
     },
     "nRF51822_xxAA": {
-        "OGChipSelectEditMenu": "nRF51822-QFAA\tNordicSemi nRF51822-QFAA"
+        "OGChipSelectEditMenu": "nRF51822-QFAA\tNordicSemi nRF51822-QFAA",
+        "CExtraOptionsCheck": 1,
+        "CExtraOptions": "--drv_vector_table_base=0x0",
+        "CMSISDAPJtagSpeedList": 10
     },
     "EFM32GG990F1024": {
         "OGChipSelectEditMenu": "EFM32GG990F1024\tSiliconLaboratories EFM32GG990F1024"
@@ -71,6 +110,9 @@
     "STM32F446RE": {
         "OGChipSelectEditMenu": "STM32F446RE\tST STM32F446RE"
     },
+    "STM32L072CZ": {
+        "OGChipSelectEditMenu": "STM32L072CZ\tST STM32L072CZ"
+    },
     "STM32L073RZ": {
         "OGChipSelectEditMenu": "STM32L073RZ\tST STM32L073RZ"
     },
@@ -79,6 +121,13 @@
         "GBECoreSlave": 41,
         "CoreVariant": 41,
         "FPU2": 6,
+        "NrRegs": 1
+    },
+    "STM32F767ZI": {
+        "OGChipSelectEditMenu": "STM32F767ZI\tST STM32F767ZI",
+        "GBECoreSlave": 41,
+        "CoreVariant": 41,
+        "FPU2": 7,
         "NrRegs": 1
     },
     "MKL43Z256xxx4": {
@@ -163,7 +212,10 @@
         "OGChipSelectEditMenu": "STM32F407VG\tST STM32F407VG"
     },
     "nRF52832_xxAA":{
-        "OGChipSelectEditMenu": "nRF52832-xxAA\tNordicSemi nRF52832-xxAA"
+        "OGChipSelectEditMenu": "nRF52832-xxAA\tNordicSemi nRF52832-xxAA",
+        "CExtraOptionsCheck": 1,
+        "CExtraOptions": "--drv_vector_table_base=0x0",
+        "CMSISDAPJtagSpeedList": 10
     },
     "NCS36510":{
         "OGChipSelectEditMenu": "NCS36510\tONSemiconductor NCS36510"
@@ -173,5 +225,11 @@
     },
     "M453VG6AE": {
         "OGChipSelectEditMenu": "M451AE series\tNuvoton M451AE series (M451AE,M452AE,M453AE,M451MAE)"
+    },
+    "nRF52840_xxAA":{
+        "OGChipSelectEditMenu": "nRF52840_xxAA\tNordicSemi nRF52840_xxAA",
+        "CExtraOptionsCheck": 1,
+        "CExtraOptions": "--drv_vector_table_base=0x0",
+        "CMSISDAPJtagSpeedList": 10
     }
 }

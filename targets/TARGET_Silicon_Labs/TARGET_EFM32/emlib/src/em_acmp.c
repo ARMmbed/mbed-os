@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_acmp.c
  * @brief Analog Comparator (ACMP) Peripheral API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -230,6 +230,32 @@ void ACMP_Enable(ACMP_TypeDef *acmp)
   acmp->CTRL |= ACMP_CTRL_EN;
 }
 
+#if defined(_ACMP_EXTIFCTRL_MASK)
+/***************************************************************************//**
+ * @brief
+ *   Select and enable an external input.
+ *
+ * @details
+ *   This is used when an external module needs to take control of the ACMP
+ *   POSSEL field in order to configure the APORT input for the ACMP. Modules
+ *   like LESENSE use this to change the ACMP input during a scan sequence.
+ *
+ * @param[in] acmp
+ *   Pointer to ACMP peripheral register block.
+ *
+ * @param[in] aport
+ *   This parameter decides which APORT(s) the ACMP will use when it's being
+ *   controlled by an external module.
+ ******************************************************************************/
+void ACMP_ExternalInputSelect(ACMP_TypeDef *acmp, ACMP_ExternalInput_Typedef aport)
+{
+  acmp->EXTIFCTRL = (aport << _ACMP_EXTIFCTRL_APORTSEL_SHIFT)
+                    | ACMP_EXTIFCTRL_EN;
+  while (!(acmp->STATUS & ACMP_STATUS_EXTIFACT))
+    ;
+}
+#endif
+
 /***************************************************************************//**
  * @brief
  *   Reset ACMP to same state as after a HW reset.
@@ -351,7 +377,8 @@ void ACMP_Init(ACMP_TypeDef *acmp, const ACMP_Init_TypeDef *init)
   EFM_ASSERT(ACMP_REF_VALID(acmp));
 
   /* Make sure biasprog is within bounds */
-  EFM_ASSERT(init->biasProg < 16);
+  EFM_ASSERT(init->biasProg <=
+      (_ACMP_CTRL_BIASPROG_MASK >> _ACMP_CTRL_BIASPROG_SHIFT));
 
   /* Make sure the ACMP is disable since we might be changing the
    * ACMP power source */

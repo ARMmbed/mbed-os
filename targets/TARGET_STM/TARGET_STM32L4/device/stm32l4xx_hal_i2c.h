@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_i2c.h
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Header file of I2C HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -245,8 +245,8 @@ typedef struct __I2C_HandleTypeDef
 /** @defgroup I2C_XFEROPTIONS  I2C Sequential Transfer Options
   * @{
   */
-#define I2C_NO_OPTION_FRAME             (0xFFFF0000U)
 #define I2C_FIRST_FRAME                 ((uint32_t)I2C_SOFTEND_MODE)
+#define I2C_FIRST_AND_NEXT_FRAME        ((uint32_t)(I2C_RELOAD_MODE | I2C_SOFTEND_MODE))
 #define I2C_NEXT_FRAME                  ((uint32_t)(I2C_RELOAD_MODE | I2C_SOFTEND_MODE))
 #define I2C_FIRST_AND_LAST_FRAME        ((uint32_t)I2C_AUTOEND_MODE)
 #define I2C_LAST_FRAME                  ((uint32_t)I2C_AUTOEND_MODE)
@@ -314,7 +314,7 @@ typedef struct __I2C_HandleTypeDef
   * @}
   */
   
-/** @defgroup I2C_XferDirection I2C Transfer Direction
+/** @defgroup I2C_XFERDIRECTION I2C Transfer Direction Master Point of View
   * @{
   */
 #define I2C_DIRECTION_TRANSMIT          (0x00000000U)
@@ -658,6 +658,7 @@ uint32_t             HAL_I2C_GetError(I2C_HandleTypeDef *hi2c);
                                          ((REQUEST) == I2C_NO_STARTSTOP))
 
 #define IS_I2C_TRANSFER_OPTIONS_REQUEST(REQUEST)  (((REQUEST) == I2C_FIRST_FRAME)          || \
+                                                   ((REQUEST) == I2C_FIRST_AND_NEXT_FRAME) || \
                                                    ((REQUEST) == I2C_NEXT_FRAME)           || \
                                                    ((REQUEST) == I2C_FIRST_AND_LAST_FRAME) || \
                                                    ((REQUEST) == I2C_LAST_FRAME))

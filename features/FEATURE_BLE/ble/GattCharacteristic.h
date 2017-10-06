@@ -315,12 +315,17 @@ public:
      * @param[in]  hasVariableLen
      *             Whether the attribute's value length changes over time.
      *
-     * @note   The UUID value must be unique in the service and is normally >1.
+     * @note  The UUID value must be unique in the service and is normally >1.
      *
      * @note  If valuePtr == NULL, length == 0, and properties == READ
      *        for the value attribute of a characteristic, then that particular
      *        characteristic may be considered optional and dropped while
      *        instantiating the service with the underlying BLE stack.
+     *
+     * @note  A CCCD should not be allocated if either the notify or indicate
+     *        flag is set, as it is handled by the underlying BLE stack. In such
+     *        a case, the param descriptors could be empty and the param
+     *        numDescriptors equal to zero.
      */
     GattCharacteristic(const UUID    &uuid,
                        uint8_t       *valuePtr       = NULL,
@@ -390,7 +395,7 @@ public:
     /**
      * Set up callback that will be triggered before the GATT Client is allowed
      * to read this characteristic. The handler will determine the
-     * authorizaion reply for the read.
+     * authorization reply for the read.
      *
      * @param[in] callback
      *      Event handler being registered.
@@ -452,7 +457,8 @@ public:
      *         is granted.
      *
      * @note   To authorize or deny the read the params->authorizationReply field
-     *         should be set to true (authorize) or false (deny).
+     *         should be set to AUTH_CALLBACK_REPLY_SUCCESS (authorize) or any
+     *         of the AUTH_CALLBACK_REPLY_ATTERR_* values (deny).
      *
      * @note   If the read is approved and params->data is unchanged (NULL),
      *         the current characteristic value will be used.
@@ -502,7 +508,7 @@ public:
     }
 
     /**
-     * Get the characteristic's propertied. Refer to
+     * Get the characteristic's properties. Refer to
      * GattCharacteristic::Properties_t.
      *
      * @return The characteristic's properties.
@@ -543,7 +549,7 @@ public:
     /**
      * Check whether write authorization is enabled i.e. check whether a
      * write authorization callback was previously registered. Refer to
-     * GattCharacteristic::setReadAuthorizationCallback().
+     * GattCharacteristic::setWriteAuthorizationCallback().
      *
      * @return true if write authorization is enabled, false otherwise.
      */
@@ -584,6 +590,8 @@ private:
     SecurityManager::SecurityMode_t   _requiredSecurity;
     /**
      * The characteristic's descriptor attributes.
+     * This contains only CCCDs that has neither the notify nor the indicate
+     * flag set, as those are handled by the underlying BLE stack.
      */
     GattAttribute                   **_descriptors;
     /**
@@ -628,9 +636,9 @@ public:
      * @param[in] uuid
      *              The characteristic's UUID.
      * @param[in] valuePtr
-     *              Pointer to the characterisitic's initial value.
+     *              Pointer to the characteristic's initial value.
      * @param[in] additionalProperties
-     *              Additional characterisitic properties. By default, the
+     *              Additional characteristic properties. By default, the
      *              properties are set to
      *              Properties_t::BLE_GATT_CHAR_PROPERTIES_READ.
      * @param[in] descriptors
@@ -666,9 +674,9 @@ public:
      * @param[in] uuid
      *              The characteristic's UUID.
      * @param[in] valuePtr
-     *              Pointer to the characterisitic's initial value.
+     *              Pointer to the characteristic's initial value.
      * @param[in] additionalProperties
-     *              Additional characterisitic properties. By default, the
+     *              Additional characteristic properties. By default, the
      *              properties are set to
      *              Properties_t::BLE_GATT_CHAR_PROPERTIES_WRITE.
      * @param[in] descriptors
@@ -704,9 +712,9 @@ public:
      * @param[in] uuid
      *              The characteristic's UUID.
      * @param[in] valuePtr
-     *              Pointer to the characterisitic's initial value.
+     *              Pointer to the characteristic's initial value.
      * @param[in] additionalProperties
-     *              Additional characterisitic properties. By default, the
+     *              Additional characteristic properties. By default, the
      *              properties are set to
      *              Properties_t::BLE_GATT_CHAR_PROPERTIES_WRITE |
      *              Properties_t::BLE_GATT_CHAR_PROPERTIES_READ.
@@ -747,7 +755,7 @@ public:
      *              Pointer to an array of length NUM_ELEMENTS containing the
      *              characteristic's intitial value.
      * @param[in] additionalProperties
-     *              Additional characterisitic properties. By default, the
+     *              Additional characteristic properties. By default, the
      *              properties are set to
      *              Properties_t::BLE_GATT_CHAR_PROPERTIES_WRITE.
      * @param[in] descriptors
@@ -787,7 +795,7 @@ public:
      *              Pointer to an array of length NUM_ELEMENTS containing the
      *              characteristic's intitial value.
      * @param[in] additionalProperties
-     *              Additional characterisitic properties. By default, the
+     *              Additional characteristic properties. By default, the
      *              properties are set to
      *              Properties_t::BLE_GATT_CHAR_PROPERTIES_READ.
      * @param[in] descriptors
@@ -827,7 +835,7 @@ public:
      *              Pointer to an array of length NUM_ELEMENTS containing the
      *              characteristic's intitial value.
      * @param[in] additionalProperties
-     *              Additional characterisitic properties. By default, the
+     *              Additional characteristic properties. By default, the
      *              properties are set to
      *              Properties_t::BLE_GATT_CHAR_PROPERTIES_WRITE |
      *              Properties_t::BLE_GATT_CHAR_PROPERTIES_READ.

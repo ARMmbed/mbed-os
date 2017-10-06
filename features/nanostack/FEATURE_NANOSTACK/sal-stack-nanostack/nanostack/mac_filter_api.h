@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2016 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -48,6 +48,10 @@
 #define MAC_FILTER_API_H_
 
 #include "ns_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * \brief Start MAC level filter.
@@ -190,5 +194,9 @@ int_fast8_t mac_filter_add_short(int8_t interface_id, uint16_t mac16, int16_t lq
  * \return <0 Not OK.
  */
 int_fast8_t mac_filter_add_long(int8_t interface_id, uint8_t mac64[8], int16_t lqi_m, int16_t lqi_add, int16_t dbm_m, int16_t dbm_add);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MAC_FILTER_API_H_ */

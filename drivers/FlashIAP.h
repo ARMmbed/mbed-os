@@ -22,22 +22,23 @@
 #ifndef MBED_FLASHIAP_H
 #define MBED_FLASHIAP_H
 
-#ifdef DEVICE_FLASH
+#if defined (DEVICE_FLASH) || defined(DOXYGEN_ONLY)
 
 #include "flash_api.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
 
 /** \addtogroup drivers */
-/** @{*/
 
 /** Flash IAP driver. It invokes flash HAL functions.
  *
- * Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
+ * @ingroup drivers
  */
-class FlashIAP {
+class FlashIAP : private NonCopyable<FlashIAP> {
 public:
     FlashIAP();
     ~FlashIAP();
@@ -111,13 +112,14 @@ public:
 
     /** Get the program page size
      *
+     *  The page size defines the writable page size
      *  @return Size of a program page in bytes
      */
     uint32_t get_page_size() const;
 
 private:
 
-    /** Check if address and size are aligned to a sector
+    /* Check if address and size are aligned to a sector
      *
      *  @param addr Address of block to check for alignment
      *  @param size Size of block to check for alignment
@@ -134,5 +136,3 @@ private:
 #endif  /* DEVICE_FLASH */
 
 #endif  /* MBED_FLASHIAP_H */
-
-/** @}*/

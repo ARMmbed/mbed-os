@@ -14,48 +14,73 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+/*
+ * Tests is to measure the accuracy of Timeout over a period of time
+ *
+ *
+ * 1) DUT would start to update callback_trigger_count every milli sec
+ * 2) Host would query what is current count base_time, Device responds by the callback_trigger_count
+ * 3) Host after waiting for measurement stretch. It will query for device time again final_time.
+ * 4) Host computes the drift considering base_time, final_time, transport delay and measurement stretch
+ * 5) Finally host send the results back to device pass/fail based on tolerance.
+ * 6) More details on tests can be found in timing_drift_auto.py
+ *
+ */
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
+#include "unity/unity.h"
 
 using namespace utest::v1;
 
-Timeout timeout;
-DigitalOut led(LED1);
+#define PERIOD_US   10000
+
 volatile int ticker_count = 0;
-volatile bool print_tick = false;
-static const int total_ticks = 10;
-const int ONE_SECOND_US = 1000000;
+volatile uint32_t callback_trigger_count = 0;
+static const int test_timeout = 240;
+Timeout timeout;
 
-void send_kv_tick() {
-    if (ticker_count <= total_ticks) {
-        timeout.attach_us(send_kv_tick, ONE_SECOND_US);
-        print_tick = true;
-    }
+void set_incremeant_count() {
+    timeout.attach_us(set_incremeant_count, PERIOD_US);
+    ++callback_trigger_count;
 }
 
-void wait_and_print() {
-    while(ticker_count <= total_ticks) {
-        if (print_tick) {
-            print_tick = false;
-            greentea_send_kv("tick", ticker_count++);
-            led = !led;
-        }
-    }
+void test_case_timeout() {
+
+    char _key[11] = { };
+    char _value[128] = { };
+    int expected_key = 1;
+    uint8_t results_size = 0;
+
+    greentea_send_kv("timing_drift_check_start", 0);
+    timeout.attach_us(set_incremeant_count, PERIOD_US);
+
+    // wait for 1st signal from host
+    do {
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        expected_key = strcmp(_key, "base_time");
+    } while (expected_key);
+
+    greentea_send_kv(_key, callback_trigger_count * PERIOD_US);
+
+    // wait for 2nd signal from host
+    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    greentea_send_kv(_key, callback_trigger_count * PERIOD_US);
+
+    //get the results from host
+    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
 }
 
-void test_case_ticker() {
-    timeout.attach_us(send_kv_tick, ONE_SECOND_US);
-    wait_and_print();
-}
-
-// Test cases
-Case cases[] = {
-    Case("Timers: toggle on/off", test_case_ticker),
-};
+// Test casess
+Case cases[] = { Case("Timers: toggle on/off", test_case_timeout), };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(total_ticks + 5, "timing_drift_auto");
+    GREENTEA_SETUP(test_timeout, "timing_drift_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
@@ -64,4 +89,3 @@ Specification specification(greentea_test_setup, cases, greentea_test_teardown_h
 int main() {
     Harness::run(specification);
 }
-

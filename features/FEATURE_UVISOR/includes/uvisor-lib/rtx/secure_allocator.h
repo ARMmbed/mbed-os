@@ -70,6 +70,18 @@ void * secure_malloc(
     SecureAllocator allocator,
     size_t size);
 
+/** Drop-in for `aligned_alloc`. */
+void * secure_aligned_alloc(
+    SecureAllocator allocator,
+    size_t alignment,
+    size_t size);
+
+/** Drop-in for `calloc`. */
+void * secure_calloc(
+    SecureAllocator allocator,
+    size_t nmemb,
+    size_t size);
+
 /** Drop-in for `realloc`. */
 void * secure_realloc(
     SecureAllocator allocator,

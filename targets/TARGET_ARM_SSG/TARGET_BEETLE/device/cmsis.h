@@ -30,8 +30,6 @@
 #include "apb_dualtimer.h"
 /* APB Timer */
 #include "apb_timer.h"
-/* Cortex M3 SysTick Driver */
-#include "systick_timer.h"
 /* Flash Cache Driver */
 #include "fcache_api.h"
 /* Embedded Flash Driver */

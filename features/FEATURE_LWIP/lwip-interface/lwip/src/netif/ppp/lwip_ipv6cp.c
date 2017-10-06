@@ -473,6 +473,11 @@ static void ipv6cp_close(ppp_pcb *pcb, const char *reason) {
  * ipv6cp_lowerup - The lower layer is up.
  */
 static void ipv6cp_lowerup(ppp_pcb *pcb) {
+#if PPP_IPV4_SUPPORT && PPP_IPV6_SUPPORT
+    if (pcb->ipv6cp_disabled) {
+        return;
+    }
+#endif
     fsm_lowerup(&pcb->ipv6cp_fsm);
 }
 

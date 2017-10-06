@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017 ARM Limited. All Rights Reserved.
  */
 
 #include <string.h>
@@ -41,6 +41,10 @@ typedef struct internal_socket_s {
 
     ns_list_link_t link;
 } internal_socket_t;
+
+const uint8_t COAP_MULTICAST_ADDR_LINK_LOCAL[16] = { 0xff, 0x02, [15] = 0xfd }; // ff02::fd, COAP link-local multicast (rfc7390)
+const uint8_t COAP_MULTICAST_ADDR_ADMIN_LOCAL[16] = { 0xff, 0x03, [15] = 0xfd }; // ff02::fd, COAP admin-local multicast (rfc7390)
+const uint8_t COAP_MULTICAST_ADDR_SITE_LOCAL[16] = { 0xff, 0x05, [15] = 0xfd }; // ff05::fd, COAP site-local multicast (rfc7390)
 
 static NS_LIST_DEFINE(socket_list, internal_socket_t, link);
 
@@ -99,7 +103,6 @@ static secure_session_t *secure_session_find_by_timer_id(int8_t timer_id)
 
 static bool is_secure_session_valid(secure_session_t *session)
 {
-    secure_session_t *this = NULL;
     ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
         if (cur_ptr == session) {
             return true;
@@ -222,9 +225,32 @@ static secure_session_t *secure_session_find(internal_socket_t *parent, const ui
     return this;
 }
 
-static internal_socket_t *int_socket_create(uint16_t listen_port, bool use_ephemeral_port, bool is_secure, bool real_socket, bool bypassSec)
+static void coap_multicast_group_join_or_leave(int8_t socket_id, uint8_t opt_name, int8_t interface_id)
+{
+    ns_ipv6_mreq_t ns_ipv6_mreq;
+    int8_t ret_val;
+
+    // Join or leave COAP multicast groups
+    ns_ipv6_mreq.ipv6mr_interface = interface_id;
+
+    memcpy(ns_ipv6_mreq.ipv6mr_multiaddr, COAP_MULTICAST_ADDR_LINK_LOCAL, 16);
+    ret_val = socket_setsockopt(socket_id, SOCKET_IPPROTO_IPV6, opt_name, &ns_ipv6_mreq, sizeof(ns_ipv6_mreq));
+
+    memcpy(ns_ipv6_mreq.ipv6mr_multiaddr, COAP_MULTICAST_ADDR_ADMIN_LOCAL, 16);
+    ret_val |= socket_setsockopt(socket_id, SOCKET_IPPROTO_IPV6, opt_name, &ns_ipv6_mreq, sizeof(ns_ipv6_mreq));
+
+    memcpy(ns_ipv6_mreq.ipv6mr_multiaddr, COAP_MULTICAST_ADDR_SITE_LOCAL, 16);
+    ret_val |= socket_setsockopt(socket_id, SOCKET_IPPROTO_IPV6, opt_name, &ns_ipv6_mreq, sizeof(ns_ipv6_mreq));
+
+    if (ret_val) {
+        tr_error("Multicast group access failed, err=%d, name=%d", ret_val, opt_name);
+    }
+}
+
+static internal_socket_t *int_socket_create(uint16_t listen_port, bool use_ephemeral_port, bool is_secure, bool real_socket, bool bypassSec, int8_t socket_interface_selection, bool multicast_registration)
 {
     internal_socket_t *this = ns_dyn_mem_alloc(sizeof(internal_socket_t));
+
     if (!this) {
         return NULL;
     }
@@ -266,7 +292,14 @@ static internal_socket_t *int_socket_create(uint16_t listen_port, bool use_ephem
 
         // Set socket option to receive packet info
         socket_setsockopt(this->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_RECVPKTINFO, &(const bool) {1}, sizeof(bool));
+        if (socket_interface_selection > 0) {
+            // Interface selection requested as socket_interface_selection set
+            socket_setsockopt(this->socket, SOCKET_IPPROTO_IPV6, SOCKET_INTERFACE_SELECT, &socket_interface_selection, sizeof(socket_interface_selection));
+        }
 
+        if (multicast_registration) {
+            coap_multicast_group_join_or_leave(this->socket, SOCKET_IPV6_JOIN_GROUP, socket_interface_selection);
+        }
     } else {
         this->socket = virtual_socket_id_allocate();
     }
@@ -773,9 +806,13 @@ coap_conn_handler_t *connection_handler_create(receive_from_socket_cb *recv_from
 
     return handler;
 }
-void connection_handler_destroy(coap_conn_handler_t *handler)
+
+void connection_handler_destroy(coap_conn_handler_t *handler, bool multicast_group_leave)
 {
     if(handler){
+        if (multicast_group_leave) {
+            coap_multicast_group_join_or_leave(handler->socket->socket, SOCKET_IPV6_LEAVE_GROUP, handler->socket_interface_selection);
+        }
        int_socket_delete(handler->socket);
        ns_dyn_mem_free(handler);
     }
@@ -810,7 +847,7 @@ int coap_connection_handler_open_connection(coap_conn_handler_t *handler, uint16
 
     internal_socket_t *current = !use_ephemeral_port?int_socket_find(listen_port, is_secure, is_real_socket, bypassSec):NULL;
     if (!current) {
-        handler->socket = int_socket_create(listen_port, use_ephemeral_port, is_secure, is_real_socket, bypassSec);
+        handler->socket = int_socket_create(listen_port, use_ephemeral_port, is_secure, is_real_socket, bypassSec, handler->socket_interface_selection, handler->registered_to_multicast);
         if (!handler->socket) {
             return -1;
         }

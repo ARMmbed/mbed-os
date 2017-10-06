@@ -40,6 +40,8 @@ void analogout_init(dac_t *obj, PinName pin)
     DAC_Init(dac_bases[obj->dac], &dac_config);
 
     DAC_SetBufferValue(dac_bases[obj->dac], 0, 0);
+
+    DAC_Enable(dac_bases[obj->dac], true);
 }
 
 void analogout_free(dac_t *obj)

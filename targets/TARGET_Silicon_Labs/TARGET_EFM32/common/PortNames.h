@@ -46,13 +46,22 @@ typedef enum {
     PortE = gpioPortE, /**< Port E */
 #endif
 #if ( _GPIO_PORT_F_PIN_COUNT > 0 )
-    PortF = gpioPortF /**< Port F */
+    PortF = gpioPortF, /**< Port F */
 #endif
 #if defined( _GPIO_PORT_G_PIN_COUNT ) && ( _GPIO_PORT_G_PIN_COUNT > 0 )
-    PortG = gpioPortG /**< Port F */
+    PortG = gpioPortG, /**< Port G */
 #endif
 #if defined( _GPIO_PORT_H_PIN_COUNT ) && ( _GPIO_PORT_H_PIN_COUNT > 0 )
-    PortH = gpioPortH /**< Port F */
+    PortH = gpioPortH, /**< Port H */
+#endif
+#if defined( _GPIO_PORT_I_PIN_COUNT ) && ( _GPIO_PORT_I_PIN_COUNT > 0 )
+    PortI = gpioPortI, /**< Port I */
+#endif
+#if defined( _GPIO_PORT_J_PIN_COUNT ) && ( _GPIO_PORT_J_PIN_COUNT > 0 )
+    PortJ = gpioPortJ, /**< Port J */
+#endif
+#if defined( _GPIO_PORT_K_PIN_COUNT ) && ( _GPIO_PORT_K_PIN_COUNT > 0 )
+    PortK = gpioPortK, /**< Port K */
 #endif
 } PortName;
 

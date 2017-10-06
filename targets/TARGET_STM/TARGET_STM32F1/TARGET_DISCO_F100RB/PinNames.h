@@ -150,6 +150,8 @@ typedef enum {
     LED3        = PC_9,
     LED4        = PC_8,
     USER_BUTTON = PA_0,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
     USBTX       = PA_2,
     USBRX       = PA_3,
     I2C_SCL     = PB_6,

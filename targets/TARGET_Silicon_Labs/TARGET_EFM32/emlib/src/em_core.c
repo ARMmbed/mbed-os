@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_core.c
  * @brief Core interrupt handling API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -63,11 +63,13 @@
   blocking capabilities.
 
   @li <b>CRITICAL</b> section: Inside a critical sections all interrupts are
-      disabled (except for fault handlers). The PRIMASK register is used for
+      disabled (except for fault handlers). The PRIMASK register is always used for
       interrupt disable/enable.
-  @li <b>ATOMIC</b> section: Interrupts with priority equal to or lower than a
-      given level are disabled. The interrupt disable priority level is defined
-      at compile time. The BASEPRI register is used for interrupt disable/enable.
+  @li <b>ATOMIC</b> section: This type of section is configurable and the default 
+      method is to use PRIMASK. With BASEPRI configuration, interrupts with priority 
+      equal to or lower than a given configurable level are disabled. The interrupt 
+      disable priority level is defined at compile time. The BASEPRI register is not 
+      available for all architectures.
   @li <b>NVIC mask</b> section: Disable NVIC (external interrupts) on an
       individual manner.
 
@@ -535,7 +537,7 @@ void CORE_NvicDisableMask(const CORE_nvicMask_t *disable)
 
 /***************************************************************************//**
  * @brief
- *   Get current NVIC interrupt enable mask.
+ *   Set current NVIC interrupt enable mask.
  *
  * @param[out] enable
  *   Mask specifying which NVIC interrupts are currently enabled.
@@ -556,7 +558,7 @@ void CORE_NvicEnableMask(const CORE_nvicMask_t *enable)
  *   Mask specifying which NVIC interrupts to briefly enable.
  *
  * @note
- *   Usully used within a NVIC mask section.
+ *   Usually used within a NVIC mask section.
  ******************************************************************************/
 void CORE_YieldNvicMask(const CORE_nvicMask_t *enable)
 {

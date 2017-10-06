@@ -47,10 +47,6 @@
 */
 #define __ram_vector_table__            1
 
-/* Heap 1/4 of ram and stack 1/8 */
-#define __stack_size__       0x1000
-#define __heap_size__        0x2800
-
 #if (defined(__ram_vector_table__))
   #define __ram_vector_table_size__    0x00000200
 #else

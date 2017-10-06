@@ -106,6 +106,9 @@ typedef enum {
     // BTN Names
     BTN1 = P0_16,
     BTN2 = P0_1,
+    // Standardized button names
+    BUTTON1 = BTN1,
+    BUTTON2 = BTN2,
     
     // UART
     UART_TX = P0_19,

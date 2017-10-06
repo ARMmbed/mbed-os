@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_spi.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   Header file of SPI HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -165,13 +165,13 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_Error_Code SPI Error Code
   * @{
   */
-#define HAL_SPI_ERROR_NONE              ((uint32_t)0x00000000U)   /*!< No error             */
-#define HAL_SPI_ERROR_MODF              ((uint32_t)0x00000001U)   /*!< MODF error           */
-#define HAL_SPI_ERROR_CRC               ((uint32_t)0x00000002U)   /*!< CRC error            */
-#define HAL_SPI_ERROR_OVR               ((uint32_t)0x00000004U)   /*!< OVR error            */
-#define HAL_SPI_ERROR_FRE               ((uint32_t)0x00000008U)   /*!< FRE error            */
-#define HAL_SPI_ERROR_DMA               ((uint32_t)0x00000010U)   /*!< DMA transfer error   */
-#define HAL_SPI_ERROR_FLAG              ((uint32_t)0x00000020U)   /*!< Flag: RXNE,TXE, BSY  */
+#define HAL_SPI_ERROR_NONE              0x00000000U   /*!< No error             */
+#define HAL_SPI_ERROR_MODF              0x00000001U   /*!< MODF error           */
+#define HAL_SPI_ERROR_CRC               0x00000002U   /*!< CRC error            */
+#define HAL_SPI_ERROR_OVR               0x00000004U   /*!< OVR error            */
+#define HAL_SPI_ERROR_FRE               0x00000008U   /*!< FRE error            */
+#define HAL_SPI_ERROR_DMA               0x00000010U   /*!< DMA transfer error   */
+#define HAL_SPI_ERROR_FLAG              0x00000020U   /*!< Flag: RXNE,TXE, BSY  */
 /**
   * @}
   */
@@ -179,7 +179,7 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_Mode SPI Mode
   * @{
   */
-#define SPI_MODE_SLAVE                  ((uint32_t)0x00000000U)
+#define SPI_MODE_SLAVE                  0x00000000U
 #define SPI_MODE_MASTER                 (SPI_CR1_MSTR | SPI_CR1_SSI)
 /**
   * @}
@@ -188,7 +188,7 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_Direction SPI Direction Mode
   * @{
   */
-#define SPI_DIRECTION_2LINES           ((uint32_t)0x00000000U)
+#define SPI_DIRECTION_2LINES           0x00000000U
 #define SPI_DIRECTION_2LINES_RXONLY    SPI_CR1_RXONLY
 #define SPI_DIRECTION_1LINE            SPI_CR1_BIDIMODE
 /**
@@ -198,7 +198,7 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_Data_Size SPI Data Size
   * @{
   */
-#define SPI_DATASIZE_8BIT               ((uint32_t)0x00000000U)
+#define SPI_DATASIZE_8BIT               0x00000000U
 #define SPI_DATASIZE_16BIT              SPI_CR1_DFF
 /**
   * @}
@@ -207,7 +207,7 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_Clock_Polarity SPI Clock Polarity 
   * @{
   */
-#define SPI_POLARITY_LOW                ((uint32_t)0x00000000U)
+#define SPI_POLARITY_LOW                0x00000000U
 #define SPI_POLARITY_HIGH               SPI_CR1_CPOL
 /**
   * @}
@@ -216,7 +216,7 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_Clock_Phase SPI Clock Phase
   * @{
   */
-#define SPI_PHASE_1EDGE                 ((uint32_t)0x00000000U)
+#define SPI_PHASE_1EDGE                 0x00000000U
 #define SPI_PHASE_2EDGE                 SPI_CR1_CPHA
 /**
   * @}
@@ -226,8 +226,8 @@ typedef struct __SPI_HandleTypeDef
   * @{
   */
 #define SPI_NSS_SOFT                    SPI_CR1_SSM
-#define SPI_NSS_HARD_INPUT              ((uint32_t)0x00000000U)
-#define SPI_NSS_HARD_OUTPUT             ((uint32_t)0x00040000U)
+#define SPI_NSS_HARD_INPUT              0x00000000U
+#define SPI_NSS_HARD_OUTPUT             0x00040000U
 /**
   * @}
   */
@@ -235,14 +235,14 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_BaudRate_Prescaler SPI BaudRate Prescaler
   * @{
   */
-#define SPI_BAUDRATEPRESCALER_2         ((uint32_t)0x00000000U)
-#define SPI_BAUDRATEPRESCALER_4         ((uint32_t)0x00000008U)
-#define SPI_BAUDRATEPRESCALER_8         ((uint32_t)0x00000010U)
-#define SPI_BAUDRATEPRESCALER_16        ((uint32_t)0x00000018U)
-#define SPI_BAUDRATEPRESCALER_32        ((uint32_t)0x00000020U)
-#define SPI_BAUDRATEPRESCALER_64        ((uint32_t)0x00000028U)
-#define SPI_BAUDRATEPRESCALER_128       ((uint32_t)0x00000030U)
-#define SPI_BAUDRATEPRESCALER_256       ((uint32_t)0x00000038U)
+#define SPI_BAUDRATEPRESCALER_2         0x00000000U
+#define SPI_BAUDRATEPRESCALER_4         0x00000008U
+#define SPI_BAUDRATEPRESCALER_8         0x00000010U
+#define SPI_BAUDRATEPRESCALER_16        0x00000018U
+#define SPI_BAUDRATEPRESCALER_32        0x00000020U
+#define SPI_BAUDRATEPRESCALER_64        0x00000028U
+#define SPI_BAUDRATEPRESCALER_128       0x00000030U
+#define SPI_BAUDRATEPRESCALER_256       0x00000038U
 /**
   * @}
   */
@@ -250,7 +250,7 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_MSB_LSB_transmission SPI MSB LSB Transmission 
   * @{
   */
-#define SPI_FIRSTBIT_MSB                ((uint32_t)0x00000000U)
+#define SPI_FIRSTBIT_MSB                0x00000000U
 #define SPI_FIRSTBIT_LSB                SPI_CR1_LSBFIRST
 /**
   * @}
@@ -259,7 +259,7 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_TI_mode SPI TI Mode
   * @{
   */
-#define SPI_TIMODE_DISABLE             ((uint32_t)0x00000000U)
+#define SPI_TIMODE_DISABLE             0x00000000U
 #define SPI_TIMODE_ENABLE              SPI_CR2_FRF
 /**
   * @}
@@ -268,7 +268,7 @@ typedef struct __SPI_HandleTypeDef
 /** @defgroup SPI_CRC_Calculation SPI CRC Calculation
   * @{
   */
-#define SPI_CRCCALCULATION_DISABLE     ((uint32_t)0x00000000U)
+#define SPI_CRCCALCULATION_DISABLE     0x00000000U
 #define SPI_CRCCALCULATION_ENABLE      SPI_CR1_CRCEN
 /**
   * @}

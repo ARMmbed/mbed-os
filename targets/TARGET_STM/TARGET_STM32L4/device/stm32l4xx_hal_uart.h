@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Header file of UART HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -212,7 +212,8 @@ typedef enum
   HAL_UART_ERROR_NE        = 0x02,    /*!< Noise error         */
   HAL_UART_ERROR_FE        = 0x04,    /*!< frame error         */
   HAL_UART_ERROR_ORE       = 0x08,    /*!< Overrun error       */
-  HAL_UART_ERROR_DMA       = 0x10     /*!< DMA transfer error  */
+  HAL_UART_ERROR_DMA       = 0x10,    /*!< DMA transfer error  */
+  HAL_UART_ERROR_BUSY      = 0x20     /*!< Busy Error          */
 }HAL_UART_ErrorTypeDef;
 
 /**
@@ -243,13 +244,13 @@ typedef struct
 
   uint16_t                 TxXferSize;       /*!< UART Tx Transfer size              */
 
-  uint16_t                 TxXferCount;      /*!< UART Tx Transfer Counter           */
+  __IO uint16_t            TxXferCount;      /*!< UART Tx Transfer Counter           */
 
   uint8_t                  *pRxBuffPtr;      /*!< Pointer to UART Rx transfer Buffer */
 
   uint16_t                 RxXferSize;       /*!< UART Rx Transfer size              */
 
-  uint16_t                 RxXferCount;      /*!< UART Rx Transfer Counter           */
+  __IO uint16_t            RxXferCount;      /*!< UART Rx Transfer Counter           */
 
   uint16_t                 Mask;             /*!< UART Rx RDR register mask          */
 
@@ -612,7 +613,7 @@ typedef struct
 #define UART_FLAG_CMF                       ((uint32_t)0x00020000)              /*!< UART character match flag                 */
 #define UART_FLAG_BUSY                      ((uint32_t)0x00010000)              /*!< UART busy flag                            */
 #define UART_FLAG_ABRF                      ((uint32_t)0x00008000)              /*!< UART auto Baud rate flag                  */
-#define UART_FLAG_ABRE                      ((uint32_t)0x00004000)              /*!< UART uto Baud rate error                  */
+#define UART_FLAG_ABRE                      ((uint32_t)0x00004000)              /*!< UART auto Baud rate error                 */
 #define UART_FLAG_EOBF                      ((uint32_t)0x00001000)              /*!< UART end of block flag                    */
 #define UART_FLAG_RTOF                      ((uint32_t)0x00000800)              /*!< UART receiver timeout flag                */
 #define UART_FLAG_CTS                       ((uint32_t)0x00000400)              /*!< UART clear to send flag                   */
@@ -649,17 +650,7 @@ typedef struct
 #define UART_IT_CTS                         ((uint32_t)0x096A)                  /*!< UART CTS interruption                          */                
 #define UART_IT_CM                          ((uint32_t)0x112E)                  /*!< UART character match interruption              */                
 #define UART_IT_WUF                         ((uint32_t)0x1476)                  /*!< UART wake-up from stop mode interruption       */                
-                                                                                                     
-/*        Elements values convention: 000000000XXYYYYYb                                         
-              - YYYYY  : Interrupt source position in the XX register (5bits)                   
-              - XX  : Interrupt source register (2bits)
-                    - 01: CR1 register
-                    - 10: CR2 register
-                    - 11: CR3 register */
 #define UART_IT_ERR                         ((uint32_t)0x0060)                  /*!< UART error interruption         */   
-                                                                                  
-/*       Elements values convention: 0000ZZZZ00000000b                            
-             - ZZZZ  : Flag position in the ISR register(4bits) */                
 #define UART_IT_ORE                         ((uint32_t)0x0300)                  /*!< UART overrun error interruption */ 
 #define UART_IT_NE                          ((uint32_t)0x0200)                  /*!< UART noise error interruption   */ 
 #define UART_IT_FE                          ((uint32_t)0x0100)                  /*!< UART frame error interruption   */ 
@@ -886,6 +877,8 @@ typedef struct
   *            @arg @ref UART_CLEAR_TCF Transmission Complete Clear Flag
   *            @arg @ref UART_CLEAR_LBDF LIN Break Detection Clear Flag
   *            @arg @ref UART_CLEAR_CTSF CTS Interrupt Clear Flag
+  *            @arg @ref UART_CLEAR_RTOF Receiver Time Out Clear Flag
+  *            @arg @ref UART_CLEAR_EOBF End Of Block Clear Flag
   *            @arg @ref UART_CLEAR_CMF Character Match Clear Flag
   *            @arg @ref UART_CLEAR_WUF  Wake Up from stop mode Clear Flag
   * @retval None
@@ -1059,7 +1052,7 @@ typedef struct
 /**
   * @brief Ensure that UART frame number of stop bits is valid.
   * @param __STOPBITS__: UART frame number of stop bits. 
-  * @retval SET (__STOPBITS__ is valid) or RESET (__STOPBITS__ is invalid)  UART_STOPBITS_1_5
+  * @retval SET (__STOPBITS__ is valid) or RESET (__STOPBITS__ is invalid)
   */
 #define IS_UART_STOPBITS(__STOPBITS__) (((__STOPBITS__) == UART_STOPBITS_0_5) || \
                                         ((__STOPBITS__) == UART_STOPBITS_1)   || \
@@ -1357,12 +1350,23 @@ HAL_StatusTypeDef HAL_UART_Receive_DMA(UART_HandleTypeDef *huart, uint8_t *pData
 HAL_StatusTypeDef HAL_UART_DMAPause(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_DMAResume(UART_HandleTypeDef *huart);
 HAL_StatusTypeDef HAL_UART_DMAStop(UART_HandleTypeDef *huart);
+/* Transfer Abort functions */
+HAL_StatusTypeDef HAL_UART_Abort(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_UART_AbortTransmit(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_UART_AbortReceive(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_UART_Abort_IT(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_UART_AbortTransmit_IT(UART_HandleTypeDef *huart);
+HAL_StatusTypeDef HAL_UART_AbortReceive_IT(UART_HandleTypeDef *huart);
+
 void HAL_UART_IRQHandler(UART_HandleTypeDef *huart);
 void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart);
+void HAL_UART_AbortCpltCallback (UART_HandleTypeDef *huart);
+void HAL_UART_AbortTransmitCpltCallback (UART_HandleTypeDef *huart);
+void HAL_UART_AbortReceiveCpltCallback (UART_HandleTypeDef *huart);
 
 /**
   * @}

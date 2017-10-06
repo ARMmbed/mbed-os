@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file em_chip.h
  * @brief Chip Initialization API
- * @version 5.0.0
+ * @version 5.1.2
  *******************************************************************************
  * @section License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
@@ -49,7 +49,7 @@ extern "C" {
 
 /***************************************************************************//**
  * @addtogroup CHIP
- * @brief Chip Initialization API
+ * @brief Chip errata workarounds initialization API
  * @details
  *  API to initialize chip for errata workarounds.
  * @{
@@ -69,7 +69,7 @@ extern "C" {
  *****************************************************************************/
 __STATIC_INLINE void CHIP_Init(void)
 {
-#if defined(_EFM32_GECKO_FAMILY)
+#if defined(_SILICON_LABS_32B_SERIES_0) && defined(_EFM32_GECKO_FAMILY)
   uint32_t                    rev;
   SYSTEM_ChipRevision_TypeDef chipRev;
   volatile uint32_t           *reg;
@@ -161,26 +161,31 @@ __STATIC_INLINE void CHIP_Init(void)
   }
 #endif
 
-#if defined(_EFM32_GIANT_FAMILY)
-  uint32_t                    rev;
+#if defined(_SILICON_LABS_32B_SERIES_0) && defined(_EFM32_GIANT_FAMILY)
+
+  /****************************/
+  /* Fix for errata CMU_E113. */
+
+  uint8_t                     prodRev;
   SYSTEM_ChipRevision_TypeDef chipRev;
 
-  rev = *(volatile uint32_t *)(0x0FE081FC);
+  prodRev = SYSTEM_GetProdRev();
   SYSTEM_ChipRevisionGet(&chipRev);
 
-  if (((rev >> 24) > 15) && (chipRev.minor == 3))
+  if ((prodRev >= 16) && (chipRev.minor >= 3))
   {
     /* This fixes an issue with the LFXO on high temperatures. */
     *(volatile uint32_t*)0x400C80C0 =
-                      ( *(volatile uint32_t*)0x400C80C0 & ~(1<<6) ) | (1<<4);
+                      ( *(volatile uint32_t*)0x400C80C0 & ~(1 << 6) ) | (1 << 4);
   }
 #endif
 
-#if defined(_EFM32_HAPPY_FAMILY)
-  uint32_t rev;
-  rev = *(volatile uint32_t *)(0x0FE081FC);
+#if defined(_SILICON_LABS_32B_SERIES_0) && defined(_EFM32_HAPPY_FAMILY)
 
-  if ((rev >> 24) <= 129)
+  uint8_t prodRev;
+  prodRev = SYSTEM_GetProdRev();
+
+  if (prodRev <= 129)
   {
     /* This fixes a mistaken internal connection between PC0 and PC4 */
     /* This disables an internal pulldown on PC4 */
@@ -190,7 +195,7 @@ __STATIC_INLINE void CHIP_Init(void)
   }
 #endif
 
-#if defined(_SILICON_LABS_32B_PLATFORM_2_GEN_1)
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80)
 
   /****************************
   * Fixes for errata GPIO_E201 (slewrate) and
@@ -244,11 +249,33 @@ __STATIC_INLINE void CHIP_Init(void)
   }
 #endif
 
-#if defined(_SILICON_LABS_32B_PLATFORM_2_GEN_2)
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_84)
 
-  /* No fixes required. */
+  uint8_t prodRev = SYSTEM_GetProdRev();
 
+  /* EM2 current fixes for early samples */
+  if (prodRev == 0)
+  {
+    *(volatile uint32_t *)(EMU_BASE + 0x190)  = 0x0000ADE8UL;
+    *(volatile uint32_t *)(EMU_BASE + 0x198) |= (0x1 << 2);
+    *(volatile uint32_t *)(EMU_BASE + 0x190)  = 0x0;
+  }
+  if (prodRev < 2)
+  {
+    *(volatile uint32_t *)(EMU_BASE + 0x164) |= (0x1 << 13);
+  }
+
+  /* Set optimal LFRCOCTRL VREFUPDATE and enable duty cycling of vref */
+  CMU->LFRCOCTRL = (CMU->LFRCOCTRL & ~_CMU_LFRCOCTRL_VREFUPDATE_MASK)
+                    | CMU_LFRCOCTRL_VREFUPDATE_64CYCLES
+                    | CMU_LFRCOCTRL_ENVREF;
 #endif
+
+#if defined(_EFR_DEVICE) && (_SILICON_LABS_GECKO_INTERNAL_SDID >= 84)
+  MSC->CTRL |= 0x1 << 8;
+#endif
+
+
 }
 
 /** @} (end addtogroup CHIP) */

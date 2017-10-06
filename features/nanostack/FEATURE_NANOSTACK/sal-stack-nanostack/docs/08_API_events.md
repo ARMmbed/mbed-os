@@ -29,12 +29,12 @@ An application should register at least one event handler. The tasklets are then
 The following is a prototype of a tasklet:
 
 ```
-void tasklet (arm_event_s *)
+void tasklet (arm_event_t *)
 ```
 
 Parameter|Description
 ---------|-----------
-`arm_event_s`|A pointer to the event structure that contains the event information.
+`arm_event_t`|A pointer to the event structure that contains the event information.
 
 
 The most important event information is the event type. There are four main types of events that a tasklet may receive. _Table 3-2_ lists the event types.
@@ -43,7 +43,7 @@ The most important event information is the event type. There are four main type
 
 Event type|Description
 ----------|-----------
-`ARM_LIB_TASKLET_INIT_EVENT`|Can be used as an initialization event to a tasklet, when it is created. Initialization event will be called only once. 
+`ARM_LIB_TASKLET_INIT_EVENT`|Can be used as an initialization event to a tasklet, when it is created. The initialization event is called only once.
 `ARM_LIB_NWK_INTERFACE_EVENT`|These event types give information about networking bootstrap to the application layer.
 `ARM_LIB_SYSTEM_TIMER_EVENT`|These events are user-launched timer events. They are used for timing events on an application.
 `APPLICATION_EVENT`|These events are sent from another tasklet and they do not originate from the stack. These are used for communicating between tasklets.
@@ -54,7 +54,7 @@ The rest of the information is stored in the event structure received by the tas
 The following example shows the basic structure of an empty tasklet:
 
 ```
-void tasklet(arm_event_s *event)
+void tasklet(arm_event_t *event)
 {
 	switch(event->event_type) {
 	case ARM_LIB_TASKLET_INIT_EVENT:
@@ -84,7 +84,7 @@ To register a tasklet handler:
 ```
 int8_t eventOS_event_handler_create
 (
-	void (*tasklet_func_ptr)(arm_event_s*),
+	void (*tasklet_func_ptr)(arm_event_t*),
 	uint8_t init_event_type
 )
 ```
@@ -114,7 +114,7 @@ typedef struct arm_event_s
 	void *data_ptr;
 	arm_library_event_priority_e priority;
 	uint32_t event_data;
-} arm_event_s;
+} arm_event_t;
 ```
 
 Member|Description
@@ -124,7 +124,7 @@ Member|Description
 `event_type`|Represents the `typecast arm_library_event_type_e`.
 `event_id`|Timer ID, NWK interface ID or an application-specific ID.
 `data_ptr`|Application's ability to share a data pointer tasklet with a tasklet.
-`priority`|Task priority.
+`priority`|Event priority.
 `event_data`|Extra event data. Used in network events.
 
 ### Reference events
@@ -228,6 +228,7 @@ Name|Value
 ----|-----
 `receiver`|Tasklet ID for the selected tasklet.
 `sender`|Tasklet ID for the sender.
+`priority`|Relative delivery priority (low, medium or high)
 `event_type`|Developer-defined event type.
 `event_data`|Developer can give a 32-bit data value, if required.
 `event_id`|Developer-defined ID.
@@ -240,7 +241,7 @@ To send an event:
 ```
 int8_t eventOS_event_send
 (
-	arm_event_s *event
+	const arm_event_t *event
 )
 ```
 
@@ -259,14 +260,48 @@ An example of sending an event from interrupt:
 ```
 void xx_button_interrupt_handler(void)
 {
-	arm_event_s event = {0};
+	arm_event_t event = {0};
 	/*Example of sending event to the application.
 	event.event is user-defined event.
 	In this application S1_BUTTON event is sent when IRQD interrupt occurs */
 	event.receiver = main_tasklet_id
 	event.sender = main_tasklet_id;
+	event.priority = ARM_LIB_MED_PRIORITY_EVENT;
 	event.event_type = APPLICATION_EVENT;
 	event.event_id = S1_BUTTON;
 	eventOS_event_send(&event);
 }
 ```
+
+To end a user-allocated event, avoiding the possibility of memory
+allocation failure:
+
+```
+void eventOS_event_send_user_allocated
+(
+	arm_event_storage_t *event
+)
+```
+
+This sends an event, but without taking a copy of the event data. The event
+structure must remain valid until the event is delivered. See the
+documentation comments on the declaration for more details.
+
+To send periodic events or events after a timeout, refer to [Library Timer API](10_API_timer.md).
+
+### Cancelling an event
+
+To cancel and event or timer before it is executed, call `eventOS_cancel()`
+
+```
+void eventOS_cancel(arm_event_storage_t *event);
+```
+
+Queued events are removed from the event-loop queue and/or the timer queue.
+Passing a NULL pointer is allowed, and it does nothing.
+
+Event pointers are valid from the time they are queued until the event has stopped running or is cancelled. 
+Cancelling a currently running event is only useful when you want to stop scheduling it, provided that it is on a periodic timer; 
+it has no other effect.
+
+Cancelling an already cancelled or already run single-shot event is undefined behaviour.

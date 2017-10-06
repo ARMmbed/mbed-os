@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2017 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: LicenseRef-PBL
  *
@@ -150,10 +150,10 @@ typedef struct phy_device_channel_page_s
 
 /** Virtual data request */
 typedef struct virtual_data_req_s {
-    uint16_t parameter_length;
-    uint8_t *parameters;
-    uint16_t msduLength;
-    const uint8_t *msdu;
+    uint16_t parameter_length;      /**< Length of user specified header. Can be zero. */
+    uint8_t *parameters;            /**< Pointer to user specified header. Optional */
+    uint16_t msduLength;            /**< MSDU Length */
+    const uint8_t *msdu;            /**< MSDU */
 } virtual_data_req_t;
 
 /**
@@ -195,6 +195,33 @@ typedef int8_t arm_net_virtual_rx_fn(const uint8_t *data_ptr, uint16_t data_len,
  */
 typedef int8_t arm_net_virtual_tx_fn(const virtual_data_req_t *data_req,int8_t driver_id);
 
+/**
+ * @brief arm_net_virtual_config Configuration receive callback set by upper layer. Used to receive internal configuration parameters.
+ * @param driver_id Id of the driver to be used.
+ * @param data Pointer to received configuration data.
+ * @param length Length of the configuration data.
+ * @return 0 if success, error otherwise
+ */
+typedef int8_t arm_net_virtual_config_rx_fn(int8_t driver_id, const uint8_t *data, uint16_t length);
+
+/**
+ * @brief arm_net_virtual_config Configuration send callback set by upper layer. Used to send internal configuration parameters.
+ * @param driver_id Id of the driver to be used.
+ * @param data Pointer to sent configuration data.
+ * @param length Length of the configuration data.
+ * @return 0 if success, error otherwise
+ */
+typedef int8_t arm_net_virtual_config_tx_fn(int8_t driver_id, const uint8_t *data, uint16_t length);
+
+/**
+ * @brief arm_net_virtual_confirmation Confirmation receive callback set by upper layer. Used to receive MLME confirmation data.
+ * @param driver_id Id of the driver to be used.
+ * @param data Pointer to received confirmation data.
+ * @param length Length of the confirmation data.
+ * @return 0 if success, error otherwise
+ */
+typedef int8_t arm_net_virtual_confirmation_rx_fn(int8_t driver_id, const uint8_t *data, uint16_t length);
+
 /** Device driver structure */
 typedef struct phy_device_driver_s
 {
@@ -217,6 +244,9 @@ typedef struct phy_device_driver_s
     //Virtual upper data rx
     arm_net_virtual_rx_fn *arm_net_virtual_rx_cb;                   /**< Virtual RX callback. Initialized by \ref arm_net_phy_register(). */
     arm_net_virtual_tx_fn *arm_net_virtual_tx_cb;                   /**< Virtual TX callback. Initialized by \ref arm_net_phy_register(). */
+    arm_net_virtual_config_rx_fn *virtual_config_rx_cb;             /**< Virtual config receive callback. Initialized by \ref arm_net_phy_register(). */
+    arm_net_virtual_config_tx_fn *virtual_config_tx_cb;             /**< Virtual config send callback. Initialized by \ref arm_net_phy_register(). */
+    arm_net_virtual_confirmation_rx_fn *virtual_confirmation_rx_cb; /**< Virtual confirmation receive callback. Initialized by \ref arm_net_phy_register(). */
     uint16_t tunnel_type; /**< Tun driver type. */
 } phy_device_driver_s;
 

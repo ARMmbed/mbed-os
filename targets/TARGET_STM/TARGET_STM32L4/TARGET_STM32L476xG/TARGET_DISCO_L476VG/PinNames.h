@@ -142,6 +142,13 @@ typedef enum {
     JOYSTICK_UP = PA_3,
     JOYSTICK_DOWN = PA_5,
     USER_BUTTON = JOYSTICK_CENTER,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
+    BUTTON2 = JOYSTICK_LEFT,
+    BUTTON3 = JOYSTICK_RIGHT,
+    BUTTON4 = JOYSTICK_UP, 
+    BUTTON5 = JOYSTICK_DOWN,
+
     SERIAL_TX = PD_5,
     SERIAL_RX = PD_6,
     USBTX = PD_5,
@@ -154,6 +161,15 @@ typedef enum {
     SPI_SCK     = PA_5,
     SPI_CS      = PA_4,
     PWM_OUT     = PB_3,
+
+    //USB pins
+    USB_OTG_FS_SOF = PA_8,
+    USB_OTG_FS_VBUS = PA_9,
+    USB_OTG_FS_ID = PA_10,
+    USB_OTG_FS_DM = PA_11,
+    USB_OTG_FS_DP = PA_12,
+    USB_OTG_FS_NOE_ALT = PA_13,
+    USB_OTG_FS_NOE = PC_9,
 
     // Not connected
     NC = (int)0xFFFFFFFF

@@ -16,14 +16,19 @@ limitations under the License.
 """
 from os.path import splitext, basename
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, apply_supported_whitelist
+
+
+POST_BINARY_WHITELIST = set([
+    "TEENSY3_1Code.binary_hook",
+    "LPCTargetCode.lpc_patch",
+    "LPC4088Code.binary_hook"
+])
+
 
 class EmBitz(Exporter):
     NAME = 'EmBitz'
     TOOLCHAIN = 'GCC_ARM'
-
-    TARGETS = [target for target, obj in TARGET_MAP.iteritems()
-               if "GCC_ARM" in obj.supported_toolchains]
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 
@@ -34,6 +39,11 @@ class EmBitz(Exporter):
         'cpp_sources': 'cpp'
     }
 
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, POST_BINARY_WHITELIST, target)
 
     @staticmethod
     def _remove_symbols(sym_list):

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "rtc_api.h"
+#include "mbed_mktime.h"
 
 // ensure rtc is running (unchanged if already running)
 
@@ -87,25 +88,28 @@ time_t rtc_read(void) {
     timeinfo.tm_year = LPC_RTC->YEAR - 1900;
     
     // Convert to timestamp
-    time_t t = mktime(&timeinfo);
+    time_t t = _rtc_mktime(&timeinfo);
     
     return t;
 }
 
 void rtc_write(time_t t) {
     // Convert the time in to a tm
-    struct tm *timeinfo = localtime(&t);
+    struct tm timeinfo;
+    if (_rtc_localtime(t, &timeinfo) == false) {
+        return;
+    }
     
     // Pause clock, and clear counter register (clears us count)
     LPC_RTC->CCR |= 2;
     
     // Set the RTC
-    LPC_RTC->SEC = timeinfo->tm_sec;
-    LPC_RTC->MIN = timeinfo->tm_min;
-    LPC_RTC->HOUR = timeinfo->tm_hour;
-    LPC_RTC->DOM = timeinfo->tm_mday;
-    LPC_RTC->MONTH = timeinfo->tm_mon + 1;
-    LPC_RTC->YEAR = timeinfo->tm_year + 1900;
+    LPC_RTC->SEC = timeinfo.tm_sec;
+    LPC_RTC->MIN = timeinfo.tm_min;
+    LPC_RTC->HOUR = timeinfo.tm_hour;
+    LPC_RTC->DOM = timeinfo.tm_mday;
+    LPC_RTC->MONTH = timeinfo.tm_mon + 1;
+    LPC_RTC->YEAR = timeinfo.tm_year + 1900;
     
     // Restart clock
     LPC_RTC->CCR &= ~((uint32_t)2);

@@ -23,7 +23,7 @@ const struct nu_modinit_s *get_modinit(uint32_t modname, const struct nu_modinit
     MBED_ASSERT(modprop_tab != NULL);
     const struct nu_modinit_s *modprop_ind = modprop_tab;
     while (modprop_ind->modname != NC) {
-        if (modname == modprop_ind->modname) {
+        if ((int) modname == modprop_ind->modname) {
             return modprop_ind;
         }
         else {
