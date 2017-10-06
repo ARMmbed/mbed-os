@@ -85,6 +85,7 @@ The following versions of the mbed-os and sd-driver repositories are known to wo
 - {mbed-os, sd-driver} = {mbed-os-5.4.1, sd-driver-0.0.3-mbed-os-5.4.1}.
 - {mbed-os, sd-driver} = {mbed-os-5.5.1, sd-driver-0.1.0-mbed-os-5.5.1}.
 - {mbed-os, sd-driver} = {mbed-os-5.5.4, sd-driver-0.1.1-mbed-os-5.5.4}.
+- {mbed-os, sd-driver} = {mbed-os-5.6.1, sd-driver-0.1.2-mbed-os-5.6.1}.
 
 To find the latest compatible versions, use the following command to see the messages attached to the tags
 in the sd-driver repository:
@@ -95,6 +96,7 @@ in the sd-driver repository:
     sd-driver-0.0.2-mbed-os-5.4.0 Updated README.md to include worked exmaples and restructuring of information.
     sd-driver-0.0.3-mbed-os-5.4.1 Version compatible with mbed-os-5.4.1.
     sd-driver-0.1.1-mbed-os-5.5.4 Version compatible with mbed-os-5.5.4
+    sd-driver-0.1.2-mbed-os-5.6.1  Version compatible with mbed-os-5.6.1
 
 
 ### Known Issues With This Document
@@ -483,6 +485,7 @@ The build trace is quite extensive but on a successful build you should see the 
       <trace removed>
       * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-BASIC
       * K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-FOPEN
+      * K64F::GCC_ARM::SD-DRIVER-TESTS-BLOCK_DEVICE-BASIC
     
     Build skips:
       * K64F::GCC_ARM::MBED-OS-FEATURES-FEATURE_LWIP-TESTS-MBEDMICRO-NET-TCP_PACKET_PRESSURE
@@ -493,13 +496,13 @@ Notice the following tests in the sd-driver tree are listed above:
 
 - `K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-BASIC`
 - `K64F::GCC_ARM::SD-DRIVER-TESTS-FILESYSTEM-FOPEN`
-
+- `K64F::GCC_ARM::SD-DRIVER-TESTS-BLOCK_DEVICE-BASIC`
 
 The FAT32/SDCard test cases are at following locations in the source code tree:
 
     /d/demo_area/ex_app1/sd-driver/TESTS/filesystem/basic/basic.cpp
     /d/demo_area/ex_app1/sd-driver/TESTS/filesystem/fopen/fopen.cpp
-
+    /d/demo_area/ex_app1/sd-driver/TESTS/block_device/basic/basic.cpp
 
 #### <a name="settting-repos-to-compatible-versions"></a> Setting mbed-os/sd-driver Repositories To Compatible Versions
 
