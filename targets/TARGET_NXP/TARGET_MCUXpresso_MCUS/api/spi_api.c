@@ -68,7 +68,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     if (slave) {
         /* Slave config */
         SPI_SlaveGetDefaultConfig(&slave_config);
-        slave_config.dataWidth = (uint32_t)bits - 1;
+        slave_config.dataWidth = (spi_data_width_t)(bits - 1);
         slave_config.polarity = (mode & 0x2) ? kSPI_ClockPolarityActiveLow : kSPI_ClockPolarityActiveHigh;
         slave_config.phase = (mode & 0x1) ? kSPI_ClockPhaseSecondEdge : kSPI_ClockPhaseFirstEdge;
 
@@ -76,7 +76,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
     } else {
         /* Master config */
         SPI_MasterGetDefaultConfig(&master_config);
-        master_config.dataWidth = (uint32_t)bits - 1;
+        master_config.dataWidth = (spi_data_width_t)(bits - 1);
         master_config.polarity = (mode & 0x2) ? kSPI_ClockPolarityActiveLow : kSPI_ClockPolarityActiveHigh;
         master_config.phase = (mode & 0x1) ? kSPI_ClockPhaseSecondEdge : kSPI_ClockPhaseFirstEdge;
         master_config.direction = kSPI_MsbFirst;
@@ -154,7 +154,7 @@ int spi_master_write(spi_t *obj, int value)
     return rx_data & 0xffff;
 }
 
-int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, 
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
                            char *rx_buffer, int rx_length, char write_fill) {
     int total = (tx_length > rx_length) ? tx_length : rx_length;
 

@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <time.h>
 #include "platform/platform.h"
 #include "platform/FilePath.h"
 #include "hal/serial_api.h"
+#include "hal/us_ticker_api.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_semihost_api.h"
 #include "platform/mbed_interface.h"
@@ -24,6 +26,7 @@
 #include "platform/mbed_error.h"
 #include "platform/mbed_stats.h"
 #include "platform/mbed_critical.h"
+#include "platform/PlatformMutex.h"
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -32,6 +35,8 @@
 #endif
 #include <errno.h>
 #include "platform/mbed_retarget.h"
+
+static SingletonPtr<PlatformMutex> _mutex;
 
 #if defined(__ARMCC_VERSION)
 #   if __ARMCC_VERSION >= 6010050
@@ -446,6 +451,7 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
 #if defined(__ARMCC_VERSION)
     int whence = SEEK_SET;
 #endif
+
     if (fh < 3) {
         errno = ESPIPE;
         return -1;
@@ -536,13 +542,21 @@ extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uin
 
 
 #if !defined(__ARMCC_VERSION) && !defined(__ICCARM__)
-extern "C" int _fstat(int fd, struct stat *st) {
-    if (fd < 3) {
+extern "C" int _fstat(int fh, struct stat *st) {
+    if (fh < 3) {
         st->st_mode = S_IFCHR;
         return  0;
     }
-    errno = EBADF;
-    return -1;
+
+    FileHandle* fhc = filehandles[fh-3];
+    if (fhc == NULL) {
+        errno = EBADF;
+        return -1;
+    }
+
+    st->st_mode = fhc->isatty() ? S_IFCHR : S_IFREG;
+    st->st_size = fhc->size();
+    return 0;
 }
 #endif
 
@@ -1008,6 +1022,16 @@ void *operator new[](std::size_t count)
     return buffer;
 }
 
+void *operator new(std::size_t count, const std::nothrow_t& tag)
+{
+    return malloc(count);
+}
+
+void *operator new[](std::size_t count, const std::nothrow_t& tag)
+{
+    return malloc(count);
+}
+
 void operator delete(void *ptr)
 {
     if (ptr != NULL) {
@@ -1019,4 +1043,23 @@ void operator delete[](void *ptr)
     if (ptr != NULL) {
         free(ptr);
     }
+}
+
+/* @brief   standard c library clock() function.
+ *
+ * This function returns the number of clock ticks elapsed since the start of the program.
+ *
+ * @note Synchronization level: Thread safe
+ *
+ * @return
+ *  the number of clock ticks elapsed since the start of the program.
+ *
+ * */
+extern "C" clock_t clock()
+{
+    _mutex->lock();
+    clock_t t = ticker_read(get_us_ticker_data());
+    t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
+    _mutex->unlock();
+    return t;
 }

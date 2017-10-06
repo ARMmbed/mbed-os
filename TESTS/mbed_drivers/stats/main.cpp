@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#if !defined(MBED_HEAP_STATS_ENABLED) || !MBED_HEAP_STATS_ENABLED || defined(__ICCARM__)
+#if !defined(MBED_HEAP_STATS_ENABLED)
   #error [NOT_SUPPORTED] test not supported
 #endif
 

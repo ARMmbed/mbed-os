@@ -35,6 +35,7 @@
 **/
 
 #include "stm32f4xx.h"
+#include "mbed_debug.h"
 
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */
@@ -240,8 +241,6 @@ uint8_t SetSysClock_PLL_HSI(void)
 /******************************************************************************/
 void HardFault_Handler(void)
 {
-#if !defined(NDEBUG) || NDEBUG == 0
-    printf("Hard Fault\n");
-#endif
+    debug("Hard Fault\n");
     NVIC_SystemReset();
 }

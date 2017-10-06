@@ -263,6 +263,7 @@ timestamp_t ticker_read(const ticker_data_t *const ticker)
 
 us_timestamp_t ticker_read_us(const ticker_data_t *const ticker)
 {
+    initialize(ticker);
     update_present_time(ticker);
     return ticker->queue->present_time;
 }

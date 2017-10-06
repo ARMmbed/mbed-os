@@ -1,4 +1,4 @@
-/* Copyright (c) 2010-2011 mbed.org, MIT License
+/* Copyright (c) 2017 mbed.org, MIT License
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
 * and associated documentation files (the "Software"), to deal in the Software without
@@ -15,11 +15,13 @@
 * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
 /* TARGET NOT STM does not support this HAL */
 #ifndef TARGET_STM
 #define USBSTM_HAL_UNSUPPORTED
 #endif
-/* F4 famlily wihtout USB_STM_HAL use another HAL*/
+
+/* STM32F4 family without USB_STM_HAL use another HAL */
 #if defined(TARGET_STM) && defined(TARGET_STM32F4) && !defined(USB_STM_HAL)
 #define USBSTM_HAL_UNSUPPORTED
 #endif
@@ -27,15 +29,15 @@
 #ifndef USBSTM_HAL_UNSUPPORTED
 #include "USBHAL.h"
 #include "pinmap.h"
-/* mbed endpoint definition to hal definition   */
+
+#include "USBHAL_STM32.h"
+
+/* mbed endpoint definition to hal definition */
 #define EP_ADDR(ep) (((ep) >> 1)|((ep) & 1) << 7)
+
 /* from hal definition to mbed definition */
 #define ADDR_EPIN(ep) (((ep) << 1) | 1)
 #define ADDR_EPOUT(ep) (((ep) << 1))
-/* id to detect if rx buffer is used or not  */
-
-#include "USBHAL_STM_TARGET.h"
-
 
 /*  this call at device reception completion on a Out Enpoint  */
 void HAL_PCD_DataOutStageCallback(PCD_HandleTypeDef *hpcd, uint8_t epnum)
@@ -318,15 +320,12 @@ bool USBHAL::getEndpointStallState(uint8_t endpoint) {
 void USBHAL::remoteWakeup(void) {
 }
 
-
 void USBHAL::_usbisr(void) {
     instance->usbisr();
 }
 
-
 void USBHAL::usbisr(void) {
-
     HAL_PCD_IRQHandler(&instance->hpcd);
 }
-#endif
 
+#endif

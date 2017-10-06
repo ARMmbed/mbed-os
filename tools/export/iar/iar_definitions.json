@@ -23,6 +23,9 @@
     "STM32L476RG": {
         "OGChipSelectEditMenu": "STM32L476RG\tST STM32L476RG"
     },
+    "STM32L486RG": {
+        "OGChipSelectEditMenu": "STM32L486RG\tST STM32L486RG"
+    },
     "STM32L011K4": {
         "OGChipSelectEditMenu": "STM32L011x4\tST STM32L011x4"
     },
@@ -68,8 +71,8 @@
     "LPC54114J256BD64": {
         "OGChipSelectEditMenu": "LPC54114J256_M4\tNXP LPC54114J256_M4"
     },
-    "LPC54608J512ET180": {
-        "OGChipSelectEditMenu": "LPC54608J512\tNXP LPC54608J512"
+    "LPC54618J512ET180": {
+        "OGChipSelectEditMenu": "LPC54618J512\tNXP LPC54618J512"
     },
     "STM32F072RB": {
         "OGChipSelectEditMenu": "STM32F072RB\tST STM32F072RB"

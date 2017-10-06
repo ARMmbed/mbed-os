@@ -28,7 +28,7 @@
 #include "osdep_service.h"
 
 typedef struct _wifi_scan_hdl {
-    void *scan_sema;
+    _sema scan_sema;
     nsapi_size_t ap_num;
     nsapi_size_t scan_num;
     WiFiAccessPoint *ap_details;

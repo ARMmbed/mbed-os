@@ -15,10 +15,8 @@
  */
 #include "hal/rtc_api.h"
 
-#include <time.h>
 #include "platform/mbed_critical.h"
 #include "platform/mbed_rtc_time.h"
-#include "hal/us_ticker_api.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 
@@ -74,14 +72,6 @@ void set_time(time_t t) {
         _rtc_write(t);
     }
     _mutex->unlock();
-}
-
-clock_t clock() {
-    _mutex->lock();
-    clock_t t = us_ticker_read();
-    t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
-    _mutex->unlock();
-    return t;
 }
 
 void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void)) {

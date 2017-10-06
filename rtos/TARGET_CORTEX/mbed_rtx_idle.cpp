@@ -195,6 +195,14 @@ static void default_idle_hook(void)
     core_util_critical_section_exit();
 }
 
+#elif defined(FEATURE_UVISOR)
+
+static void default_idle_hook(void)
+{
+    /* uVisor can't sleep. See <https://github.com/ARMmbed/uvisor/issues/420>
+     * for details. */
+}
+
 #else
 
 static void default_idle_hook(void)

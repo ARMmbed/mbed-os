@@ -17,6 +17,7 @@
 #ifndef __GAP_H__
 #define __GAP_H__
 
+#include "BLETypes.h"
 #include "ble/BLEProtocol.h"
 #include "GapAdvertisingData.h"
 #include "GapAdvertisingParams.h"
@@ -171,7 +172,7 @@ public:
     /**
      * Type for connection handle.
      */
-    typedef uint16_t Handle_t;
+    typedef ble::connection_handle_t Handle_t;
 
     /**
      * Structure containing GAP connection parameters. When in peripheral role

@@ -377,11 +377,12 @@ void test_thread_stack_info() {
     then the thread sleeps for given amount of time
  */
 void test_thread_wait() {
-    uint32_t start = us_ticker_read();
+    Timer timer;
+    timer.start();
 
     Thread::wait(150);
 
-    TEST_ASSERT_UINT32_WITHIN(50000, 150000, us_ticker_read() - start);
+    TEST_ASSERT_UINT32_WITHIN(50000, 150000, timer.read_us());
 }
 
 /** Testing thread name
@@ -656,7 +657,7 @@ void test_thread_prio() {
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(15, "default_auto");
+    GREENTEA_SETUP(20, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 

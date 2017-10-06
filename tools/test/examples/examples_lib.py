@@ -169,7 +169,7 @@ def source_repos(config, examples):
 
                 subprocess.call(["mbed-cli", "import", repo_info['repo']])
 
-def clone_repos(config, examples):
+def clone_repos(config, examples , retry = 3):
     """ Clones each of the repos associated with the specific examples name from the
         json config file. Note if there is already a clone of the repo then it will first
         be removed to ensure a clean, up to date cloning.
@@ -185,8 +185,11 @@ def clone_repos(config, examples):
                 if os.path.exists(name):
                     print("'%s' example directory already exists. Deleting..." % name)
                     rmtree(name)
-
-                subprocess.call([repo_info['type'], "clone", repo_info['repo']])
+                for i in range(0, retry):
+                    if subprocess.call([repo_info['type'], "clone", repo_info['repo']]) == 0:
+                        break
+                else:
+                    print("ERROR : unable to clone the repo {}".format(name))
 
 def deploy_repos(config, examples):
     """ If the example directory exists as provided by the json config file,

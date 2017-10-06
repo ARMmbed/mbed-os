@@ -244,6 +244,15 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
         case GET_BLOCK_SIZE:
             *((DWORD*)buff) = 1; // default when not known
             return RES_OK;
+        case CTRL_TRIM:
+            if (_ffs[pdrv] == NULL) {
+                return RES_NOTRDY;
+            } else {
+                DWORD *sectors = (DWORD*)buff;
+                DWORD ssize = disk_get_sector_size(pdrv);
+                int err = _ffs[pdrv]->trim(sectors[0]*ssize, (sectors[1]-sectors[0]+1)*ssize);
+                return err ? RES_PARERR : RES_OK;
+            }
     }
 
     return RES_PARERR;

@@ -152,7 +152,8 @@ void test_timeout()
     Semaphore sem(0);
     osStatus res;
 
-    uint32_t start = us_ticker_read();
+    Timer timer;
+    timer.start();
     res = t.start(callback(timeout_thread, &sem));
     TEST_ASSERT_EQUAL(osOK, res);
     Thread::wait(SHORT_WAIT);
@@ -160,7 +161,7 @@ void test_timeout()
     TEST_ASSERT_EQUAL(Thread::WaitingSemaphore, t.get_state());
 
     t.join();
-    TEST_ASSERT_UINT32_WITHIN(5000, 30000, us_ticker_read() - start);
+    TEST_ASSERT_UINT32_WITHIN(5000, 30000, timer.read_us());
 }
 
 /** Test no timeouts
@@ -180,12 +181,13 @@ void test_no_timeout()
 {
     Semaphore sem(T);
 
-    uint32_t start = us_ticker_read();
+    Timer timer;
+    timer.start();
 
     int32_t cnt = sem.wait(0);
     TEST_ASSERT_EQUAL(T, cnt);
 
-    TEST_ASSERT_UINT32_WITHIN(5000, 0, us_ticker_read() - start);
+    TEST_ASSERT_UINT32_WITHIN(5000, 0, timer.read_us());
 }
 
 /** Test multiple tokens wait

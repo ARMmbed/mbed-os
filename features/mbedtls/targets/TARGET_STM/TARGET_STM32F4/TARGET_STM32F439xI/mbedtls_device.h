@@ -20,14 +20,14 @@
 #ifndef MBEDTLS_DEVICE_H
 #define MBEDTLS_DEVICE_H
 
-/* FIXME: Don't enable AES hardware acceleration until issue #4928 is fixed.
- * (https://github.com/ARMmbed/mbed-os/issues/4928) */
-/* #define MBEDTLS_AES_ALT */
+#define MBEDTLS_AES_ALT
 
-#define MBEDTLS_SHA256_ALT
+/* FIXME: Don't enable SHA1, SHA256 and MD5 hardware acceleration until issue
+ * #5079 is fixed. (https://github.com/ARMmbed/mbed-os/issues/5079) */
+/* #define MBEDTLS_SHA256_ALT */
 
-#define MBEDTLS_SHA1_ALT
+/* #define MBEDTLS_SHA1_ALT */
 
-#define MBEDTLS_MD5_ALT
+/* #define MBEDTLS_MD5_ALT */
 
 #endif /* MBEDTLS_DEVICE_H */

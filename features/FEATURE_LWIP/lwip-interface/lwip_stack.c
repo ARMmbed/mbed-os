@@ -790,6 +790,7 @@ static nsapi_error_t mbed_lwip_err_remap(err_t err) {
         case ERR_CLSD:
             return 0;
         case ERR_MEM:
+        case ERR_BUF:
             return NSAPI_ERROR_NO_MEMORY;
         case ERR_CONN:
         case ERR_RST:

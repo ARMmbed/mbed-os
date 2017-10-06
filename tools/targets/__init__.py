@@ -22,6 +22,7 @@ import shutil
 import inspect
 import sys
 from copy import copy
+from inspect import getmro
 from collections import namedtuple, Mapping
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
@@ -310,10 +311,14 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
             labels.append("UVISOR_UNSUPPORTED")
         return labels
 
-    def init_hooks(self, hook, toolchain_name):
+    def init_hooks(self, hook, toolchain):
         """Initialize the post-build hooks for a toolchain. For now, this
         function only allows "post binary" hooks (hooks that are executed
         after the binary image is extracted from the executable file)
+
+        Positional Arguments:
+        hook - the hook object to add post-binary-hooks to
+        toolchain - the toolchain object for inspection
         """
 
         # If there's no hook, simply return
@@ -329,7 +334,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
                 ("Invalid format for hook '%s' in target '%s'"
                  % (hook_data["function"], self.name)) +
                 " (must be 'class_name.function_name')")
-        class_name, function_name = temp[0], temp[1]
+        class_name, function_name = temp
         # "class_name" must refer to a class in this file, so check if the
         # class exists
         mdata = self.get_module_data()
@@ -349,10 +354,11 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
                 ("required by '%s' " % hook_data["function"]) +
                 ("in target '%s' " % self.name) +
                 ("not found in class '%s'" %  class_name))
-        # Check if the hook specification also has target restrictions
-        toolchain_restrictions = hook_data.get("toolchains", [])
+        # Check if the hook specification also has toolchain restrictions
+        toolchain_restrictions = set(hook_data.get("toolchains", []))
+        toolchain_labels = set(c.__name__ for c in getmro(toolchain.__class__))
         if toolchain_restrictions and \
-           (toolchain_name not in toolchain_restrictions):
+           not toolchain_labels.intersection(toolchain_restrictions):
             return
         # Finally, hook the requested function
         hook.hook_add_binary("post", getattr(cls, function_name))

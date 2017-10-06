@@ -135,11 +135,12 @@ void test_get_empty_no_timeout()
 void test_get_empty_timeout()
 {
     Queue<uint32_t, 1> q;
-    uint32_t start = us_ticker_read();
+    Timer timer;
+    timer.start();
 
     osEvent evt = q.get(50);
     TEST_ASSERT_EQUAL(osEventTimeout, evt.status);
-    TEST_ASSERT_UINT32_WITHIN(5000, 50000, us_ticker_read() - start);
+    TEST_ASSERT_UINT32_WITHIN(5000, 50000, timer.read_us());
 }
 
 /** Test get empty wait forever
@@ -157,12 +158,13 @@ void test_get_empty_wait_forever()
 
     t.start(callback(thread_put_uint_msg<TEST_TIMEOUT>, &q));
 
-    uint32_t start = us_ticker_read();
+    Timer timer;
+    timer.start();
 
     osEvent evt = q.get();
     TEST_ASSERT_EQUAL(osEventMessage, evt.status);
     TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
-    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, us_ticker_read() - start);
+    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
 }
 
 /** Test put full no timeout
@@ -195,11 +197,12 @@ void test_put_full_timeout()
     osStatus stat = q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT);
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    uint32_t start = us_ticker_read();
+    Timer timer;
+    timer.start();
 
     stat = q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT);
     TEST_ASSERT_EQUAL(osErrorTimeout, stat);
-    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, us_ticker_read() - start);
+    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
 }
 
 /** Test put full wait forever
@@ -220,10 +223,11 @@ void test_put_full_waitforever()
     osStatus stat = q.put((uint32_t*) TEST_UINT_MSG);
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    uint32_t start = us_ticker_read();
+    Timer timer;
+    timer.start();
     stat = q.put((uint32_t*) TEST_UINT_MSG, osWaitForever);
     TEST_ASSERT_EQUAL(osOK, stat);
-    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, us_ticker_read() - start);
+    TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
 
     t.join();
 }

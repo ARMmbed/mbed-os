@@ -1,6 +1,5 @@
 python:
   - "2.7"
-group: deprecated-2017Q3
 script:
   - mkdir BUILD
 # Assert that the Doxygen build produced no warnings.
@@ -36,10 +35,10 @@ before_install:
   - python --version
   - doxygen --version
 install:
-  - pip install -r requirements.txt
-  - pip install pytest
-  - pip install pylint
-  - pip install hypothesis
-  - pip install mock
-  - pip install coverage
-  - pip install coveralls
+  - pip install --user -r requirements.txt
+  - pip install --user pytest
+  - pip install --user pylint
+  - pip install --user hypothesis
+  - pip install --user mock
+  - pip install --user coverage
+  - pip install --user coveralls
