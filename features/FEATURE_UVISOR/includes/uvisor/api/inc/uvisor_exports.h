@@ -133,6 +133,12 @@
 #define UVISOR_MACRO_REGS_RETVAL(type, name) \
     register type name asm("r0");
 
+UVISOR_FORCEINLINE void uvisor_noreturn(void)
+{
+    volatile int var = 1;
+    while(var);
+}
+
 /* declare callee-saved input/output operands for gcc-style inline asm */
 /* note: this macro requires that a C variable having the same name of the
  *       corresponding callee-saved register is declared; these operands follow

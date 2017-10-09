@@ -17,6 +17,8 @@
 #ifndef __UVISOR_API_HALT_EXPORTS_H__
 #define __UVISOR_API_HALT_EXPORTS_H__
 
+#include "uvisor_exports.h"
+
 #define UVISOR_ERROR_INVALID_BOX_ID             (-2)
 #define UVISOR_ERROR_BUFFER_TOO_SMALL           (-3)
 #define UVISOR_ERROR_BOX_NAMESPACE_ANONYMOUS    (-4)
