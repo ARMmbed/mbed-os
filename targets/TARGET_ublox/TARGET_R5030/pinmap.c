@@ -79,11 +79,11 @@ static inline volatile uint32_t * func_reg (PinName pin)
 // 3: apps core
 static inline uint8_t get_owner(PinName pin)
 {
-    uint8_t pio_owner_shift = (pin & 0x0F) << 1;
+    /*uint8_t pio_owner_shift = (pin & 0x0F) << 1;
 
     volatile uint32_t * pio_owner_reg = (&PIO_OWNER0 + (pin >> 4));
 
-    return 0x03 & (*pio_owner_reg >> pio_owner_shift);
+    return 0x03 & (*pio_owner_reg >> pio_owner_shift);*/
 }
 
 /* ----------------------------------------------------------------
@@ -124,12 +124,12 @@ void pin_function(PinName pin, int function)
 
 void pin_mode(PinName pin, PinMode mode)
 {
-    MBED_ASSERT(pin != (PinName)NC);
+    /*MBED_ASSERT(pin != (PinName)NC);
 
     switch (mode) {
         case PullUp:
         {
-            MBED_ASSERT(false);  /* Not currently supported on HI2100 */
+            MBED_ASSERT(false);  // Not currently supported on HI2100 
         }
         break;
         case PullDown:
@@ -148,5 +148,5 @@ void pin_mode(PinName pin, PinMode mode)
         break;
         default:
         break;
-    }
+    }*/
 }
