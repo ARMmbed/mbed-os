@@ -49,8 +49,8 @@
  * ----------------------------------------------------------------*/
 
 /* Registers banks for the standard UARTs */
-#define UART1_REG (*(volatile uart_ctrl_t *) UART1_BASE)
-#define UART2_REG (*(volatile uart_ctrl_t *) UART2_BASE)
+#define UART1_REG (*(volatile uart_ctrl_t *) UART1_CONTROL_BASE)
+#define UART2_REG (*(volatile uart_ctrl_t *) UART2_CONTROL_BASE)
 
 /* Masks for the UART control bits in the reset and clock enable registers */
 #define UART0_CTRL  (1 << 3)
