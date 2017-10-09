@@ -88,18 +88,28 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     ADI_RNG_HANDLE RNGhDevice = obj->RNGhDevice;
     bool bRNGRdy;
     uint32_t nRandomNum, i;
+    ADI_RNG_RESULT result;
 
     for (i = 0; i < length; i++) {
         // Loop until the device has data to be read
         do {
-            adi_rng_GetRdyStatus(RNGhDevice, &bRNGRdy);
+            result = adi_rng_GetRdyStatus(RNGhDevice, &bRNGRdy);
+            if (result != ADI_RNG_SUCCESS)
+            {
+                return -1;
+            }
         } while (!bRNGRdy);
 
         // Read the RNG
-        adi_rng_GetRngData(RNGhDevice, &nRandomNum);
+        result = adi_rng_GetRngData(RNGhDevice, &nRandomNum);
+
+        if (result != ADI_RNG_SUCCESS)
+        {
+            return -1;
+        }
 
         // Save the output
-		output[i] = (uint8_t)nRandomNum;
+		output[i] = (uint8_t)(nRandomNum & 0xFF);
     }
 
     *output_length = length;

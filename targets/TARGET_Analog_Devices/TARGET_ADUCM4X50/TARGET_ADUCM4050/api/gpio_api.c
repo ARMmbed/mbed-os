@@ -71,13 +71,15 @@ void gpio_init(gpio_t *obj, PinName pin)
 {
     obj->pin = pin;
 
-    if (pin == (PinName)NC)
+    if (pin == (PinName)NC) {
         return;
+    }
 
     // Initialize the GPIO driver. This function
     // initializes the GPIO driver only once globally.
-    if (!gpio_initialized)
+    if (!gpio_initialized) {
         adi_gpio_Init(gpioMemory, ADI_GPIO_MEMORY_SIZE);
+    }
 
     pin_function(pin, MUX_FUNC_0);
 }
@@ -134,11 +136,12 @@ int gpio_read(gpio_t *obj)
     uint16_t Data;
 
     // check whether the pin is configured as input or output
-    if ((gpio_oen[port] >> pin_num) & 1)
+    if ((gpio_oen[port] >> pin_num) & 1) {
         Data = gpio_output_val[port] & (1 << pin_num);
-    else
+    } else {
         // otherwise call GetData
         adi_gpio_GetData((ADI_GPIO_PORT)port, (1 << pin_num), &Data);
+    }
 
     return ((((uint32_t)Data) >> pin_num) & 1);
 }

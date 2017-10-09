@@ -183,8 +183,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     uint32_t pin_num = pin & 0xFF;
 
     // check for valid pin and ID
-    if ((pin == NC) || (id == 0))
+    if ((pin == NC) || (id == 0)) {
         return -1;
+    }
 
     // make sure gpio driver has been initialized
     if (!gpio_initialized) {
@@ -193,8 +194,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     }
 
     // save the handler
-    if (handler)
+    if (handler) {
         irq_handler = handler;
+    }
 
     // disable the interrupt for the given pin
     disable_pin_interrupt((ADI_GPIO_PORT)port, pin_num);
@@ -242,16 +244,18 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     uint32_t port = obj->pinname >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pinname & 0xFF;
 
-    if (event == IRQ_NONE)
+    if (event == IRQ_NONE) {
         return;
+    }
 
     // read the current polarity register
     adi_gpio_GetGroupInterruptPolarity((ADI_GPIO_PORT)port,	1 << pin_num, &int_polarity_reg);
 
-    if (event == IRQ_RISE)
+    if (event == IRQ_RISE) {
         int_polarity_reg |= (1 << pin_num);
-    else
+    } else {
         int_polarity_reg &= ~(1 << pin_num);
+    }
 
     // set the polarity register
     adi_gpio_SetGroupInterruptPolarity((ADI_GPIO_PORT)port, int_polarity_reg);
@@ -259,10 +263,11 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     channel_ids[port][pin_num].event = event;
 
     // enable interrupt for this pin if enable flag is set
-    if (enable)
+    if (enable) {
         gpio_irq_enable(obj);
-    else
+    } else {
         gpio_irq_disable(obj);
+    }
 }
 
 /** Enable GPIO IRQ
@@ -275,8 +280,9 @@ void gpio_irq_enable(gpio_irq_t *obj)
     uint32_t port = obj->pinname >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pinname & 0xFF;
 
-    if (channel_ids[port][pin_num].event == IRQ_NONE)
+    if (channel_ids[port][pin_num].event == IRQ_NONE) {
         return;
+    }
 
     // Group all RISE interrupts in INTA and FALL interrupts in INTB
     if (channel_ids[port][pin_num].event == IRQ_RISE) {
@@ -302,14 +308,17 @@ void gpio_irq_disable(gpio_irq_t *obj)
     uint32_t port = obj->pinname >> GPIO_PORT_SHIFT;
     uint32_t pin_num = obj->pinname & 0xFF;
 
-    if (channel_ids[port][pin_num].event == IRQ_NONE)
+    if (channel_ids[port][pin_num].event == IRQ_NONE) {
         return;
+    }
 
     // Group all RISE interrupts in INTA and FALL interrupts in INTB
-    if (channel_ids[port][pin_num].event == IRQ_RISE)
+    if (channel_ids[port][pin_num].event == IRQ_RISE) {
         disable_pin_interrupt((ADI_GPIO_PORT)port, pin_num);
-    else if (channel_ids[port][pin_num].event == IRQ_FALL)
+    }
+    else if (channel_ids[port][pin_num].event == IRQ_FALL) {
         disable_pin_interrupt((ADI_GPIO_PORT)port, pin_num);
+    }
 
     channel_ids[port][pin_num].int_enable = 0;
 }
