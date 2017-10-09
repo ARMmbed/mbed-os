@@ -356,25 +356,6 @@ static int i2c_set_int(i2c_t *obj, int inten)
     return inten_back;
 }
 
-int i2c_allow_powerdown(void)
-{
-    uint32_t modinit_mask = i2c_modinit_mask;
-    while (modinit_mask) {
-        int i2c_idx = nu_ctz(modinit_mask);
-        const struct nu_modinit_s *modinit = i2c_modinit_tab + i2c_idx;
-        struct nu_i2c_var *var = (struct nu_i2c_var *) modinit->var;
-        if (var->obj) {
-            // Disallow entering power-down mode if I2C transfer is enabled.
-            if (i2c_active(var->obj)) {
-                return 0;
-            }
-        }
-        modinit_mask &= ~(1 << i2c_idx);
-    }
-    
-    return 1;
-}
-
 static int i2c_do_tran(i2c_t *obj, char *buf, int length, int read, int naklastdata)
 {
     if (! buf || ! length) {

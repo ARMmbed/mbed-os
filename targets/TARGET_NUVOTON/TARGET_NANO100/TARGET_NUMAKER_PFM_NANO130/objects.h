@@ -110,9 +110,6 @@ struct pwmout_s {
     uint32_t pulsewidth_us;
 };
 
-struct sleep_s {
-    int powerdown;
-};
 #ifdef __cplusplus
 }
 #endif
