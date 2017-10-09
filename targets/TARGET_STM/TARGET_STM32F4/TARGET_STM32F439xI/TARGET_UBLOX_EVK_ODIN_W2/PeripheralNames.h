@@ -57,9 +57,8 @@ typedef enum {
     UART_8 = (int)UART8_BASE
 } UARTName;
 
-#define STDIO_UART_TX  PA_9
-#define STDIO_UART_RX  PA_10
-#define STDIO_UART     UART_1
+#define STDIO_UART_TX  USBTX
+#define STDIO_UART_RX  USBRX
 
 typedef enum {
     SPI_1 = (int)SPI1_BASE,

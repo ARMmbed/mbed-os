@@ -166,8 +166,8 @@ typedef enum {
     BUTTON2    = SW1,
 
     // ST-Link
-    USBRX      = PA_10,
-    USBTX      = PA_9,
+    USBRX      = MBED_CONF_TARGET_USB_RX,
+    USBTX      = MBED_CONF_TARGET_USB_TX,
     SWDIO      = PA_15,
     SWCLK      = PA_14,
     NTRST      = PB_4,
