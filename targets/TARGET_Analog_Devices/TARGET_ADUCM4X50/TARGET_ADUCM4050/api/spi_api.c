@@ -305,7 +305,28 @@ int spi_master_write(spi_t *obj, int value)
  */
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, char write_fill)
 {
-    return 0;
+    ADI_SPI_TRANSCEIVER transceive;
+    ADI_SPI_HANDLE  SPI_Handle;
+    ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
+
+    transceive.pReceiver        = rx_buffer;
+    transceive.ReceiverBytes    = rx_length;    /* link transceive data size to the remaining count */
+    transceive.nRxIncrement     = 1;            /* auto increment buffer */
+    transceive.pTransmitter     = tx_buffer;    /* initialize data attributes */
+    transceive.TransmitterBytes = tx_length;    /* link transceive data size to the remaining count */
+    transceive.nTxIncrement     = 1;            /* auto increment buffer */
+
+    transceive.bDMA = false;
+    transceive.bRD_CTL = false;
+    SPI_Handle = *obj->pSPI_Handle;
+    SPI_Return = adi_spi_MasterReadWrite(SPI_Handle, &transceive);
+    if (SPI_Return) {
+        obj->error = SPI_EVENT_ERROR;
+        return -1;
+    }
+    else {
+        return((int)tx_length);
+    }
 }
 
 #endif

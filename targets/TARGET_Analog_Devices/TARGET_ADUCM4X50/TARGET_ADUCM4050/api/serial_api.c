@@ -53,16 +53,16 @@
 #include "PeripheralPins.h"
 #include "drivers/uart/adi_uart.h"
 #define ADI_UART_MEMORY_SIZE   (ADI_UART_BIDIR_MEMORY_SIZE)
-#define ADI_UART_NUM_DEVICES 2
+#define ADI_UART_NUM_DEVICES   2
 
-static ADI_UART_HANDLE          hDevice[ADI_UART_NUM_DEVICES];
+static ADI_UART_HANDLE hDevice[ADI_UART_NUM_DEVICES];
 static uint32_t UartDeviceMem[ADI_UART_NUM_DEVICES][(ADI_UART_MEMORY_SIZE + 3)/4];
 static uint32_t serial_irq_ids[ADI_UART_NUM_DEVICES] = {0};
 static uart_irq_handler irq_handler = NULL;
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
-int rxbuffer[2];
-int txbuffer[2];
+static int rxbuffer[2];
+static int txbuffer[2];
 
 static void uart_callback(void *pCBParam, uint32_t Event, void *pArg)
 {

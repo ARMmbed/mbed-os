@@ -110,13 +110,15 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
 int i2c_start(i2c_t *obj)
 {
-    return 0;
+    /* The Hardware does not support this feature. */
+    return -1;
 }
 
 
 int i2c_stop(i2c_t *obj)
 {
-    return 0;
+    /* The Hardware does not support this feature. */
+    return -1;
 }
 
 
@@ -204,13 +206,15 @@ void i2c_reset(i2c_t *obj)
 
 int i2c_byte_read(i2c_t *obj, int last)
 {
-    return 0;
+    /* The Hardware does not support this feature. */
+    return -1;
 }
 
 
 int i2c_byte_write(i2c_t *obj, int data)
 {
-    return 0;
+    /* The Hardware does not support this feature. */
+    return -1;
 }
 
 #endif  // #if DEVICE_I2C
