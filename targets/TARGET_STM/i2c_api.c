@@ -274,10 +274,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         obj_s->index = 0;
         __HAL_RCC_I2C1_CLK_ENABLE();
         // Configure I2C pins
-        pinmap_pinout(sda, PinMap_I2C_SDA);
-        pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrainPullUp);
-        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C1_EV_IRQn;
         obj_s->error_i2cIRQ = I2C1_ER_IRQn;
     }
@@ -287,11 +283,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if (obj_s->i2c == I2C_2) {
         obj_s->index = 1;
         __HAL_RCC_I2C2_CLK_ENABLE();
-        // Configure I2C pins
-        pinmap_pinout(sda, PinMap_I2C_SDA);
-        pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrainPullUp);
-        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C2_EV_IRQn;
         obj_s->error_i2cIRQ = I2C2_ER_IRQn;
     }
@@ -301,11 +292,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if (obj_s->i2c == I2C_3) {
         obj_s->index = 2;
         __HAL_RCC_I2C3_CLK_ENABLE();
-        // Configure I2C pins
-        pinmap_pinout(sda, PinMap_I2C_SDA);
-        pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrainPullUp);
-        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C3_EV_IRQn;
         obj_s->error_i2cIRQ = I2C3_ER_IRQn;
     }
@@ -315,11 +301,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if (obj_s->i2c == I2C_4) {
         obj_s->index = 3;
         __HAL_RCC_I2C4_CLK_ENABLE();
-        // Configure I2C pins
-        pinmap_pinout(sda, PinMap_I2C_SDA);
-        pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrainPullUp);
-        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C4_EV_IRQn;
         obj_s->error_i2cIRQ = I2C4_ER_IRQn;
     }
@@ -329,15 +310,16 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if (obj_s->i2c == FMPI2C_1) {
         obj_s->index = 4;
         __HAL_RCC_FMPI2C1_CLK_ENABLE();
-        // Configure I2C pins
-        pinmap_pinout(sda, PinMap_I2C_SDA);
-        pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrainPullUp);
-        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = FMPI2C1_EV_IRQn;
         obj_s->error_i2cIRQ = FMPI2C1_ER_IRQn;
     }
 #endif
+
+    // Configure I2C pins
+    pinmap_pinout(sda, PinMap_I2C_SDA);
+    pinmap_pinout(scl, PinMap_I2C_SCL);
+    pin_mode(sda, OpenDrainNoPull);
+    pin_mode(scl, OpenDrainNoPull);
 
     // I2C configuration
     // Default hz value used for timeout computation
