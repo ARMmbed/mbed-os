@@ -189,10 +189,11 @@ void set_clock_gating(peripheral_clk_t eClk, int enable)
     }
 
     // if enable, set the bit otherwise clear the bit
-    if (enable)
+    if (enable) {
         pADI_CLKG0_CLK->CTL5 |= flag;
-    else
+    } else {
         pADI_CLKG0_CLK->CTL5 &= (~flag);
+    }
 }
 
 
