@@ -88,7 +88,8 @@ void analogout_init(dac_t *obj, PinName pin)
     analogout_write_u16(obj, 0);
 }
 
-void analogout_free(dac_t *obj) {
+void analogout_free(dac_t *obj)
+{
     // Reset DAC and disable clock
     __HAL_RCC_DAC_FORCE_RESET();
     __HAL_RCC_DAC_RELEASE_RESET();
