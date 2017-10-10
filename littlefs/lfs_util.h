@@ -10,6 +10,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#ifdef __ICCARM__
+#include <intrinsics.h>
+#endif
 
 
 // Builtin functions
@@ -22,11 +25,19 @@ static inline uint32_t lfs_min(uint32_t a, uint32_t b) {
 }
 
 static inline uint32_t lfs_ctz(uint32_t a) {
+#ifdef __ICCARM__
+    return __CLZ(__REV(a));
+#else
     return __builtin_ctz(a);
+#endif
 }
 
 static inline uint32_t lfs_npw2(uint32_t a) {
+#ifdef __ICCARM__
+    return 32 - __CLZ(a-1);
+#else
     return 32 - __builtin_clz(a-1);
+#endif
 }
 
 static inline int lfs_scmp(uint32_t a, uint32_t b) {
