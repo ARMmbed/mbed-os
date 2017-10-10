@@ -72,6 +72,18 @@
             "help": "Maximum number of open UDPSocket instances allowed, including one used internally for DNS.  Each requires 84 bytes of pre-allocated RAM",
             "value": 4
         },
+        "pbuf-pool-size": {
+            "help": "Number of pbufs in pool - usually used for received packets, so this determines how much data can be buffered between reception and the application reading. If a driver uses PBUF_RAM for reception, less pool may be needed. Current default (used if null here) is set to 5 in lwipopts.h, unless overridden by target Ethernet drivers.",
+            "value": null
+        },
+        "pbuf-pool-bufsize": {
+            "help": "Size of pbufs in pool. If set to null, lwIP will base the size on the TCP MSS, which is 536 unless overridden by the target",
+            "value": null
+        },
+        "mem-size": {
+            "help": "Size of heap (bytes) - used for outgoing packets, and also used by some drivers for reception. Current default (used if null here) is set to 1600 in opt.h, unless overridden by target Ethernet drivers.",
+            "value": null
+        },
         "tcpip-thread-stacksize": {
             "help": "Stack size for lwip TCPIP thread",
             "value": 1200
