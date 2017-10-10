@@ -29,5 +29,9 @@ extern uint32_t Image$$ER_IRAMVEC$$ZI$$Base;
 extern uint32_t __start_vector_table__;
 #endif
 
+/* TZ_START_NS: Start address of non-secure application */
+#ifndef TZ_START_NS
+#define TZ_START_NS (0x10040000U)
+#endif
 
 #endif
