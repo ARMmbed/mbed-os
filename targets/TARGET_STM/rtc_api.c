@@ -64,6 +64,7 @@ void rtc_init(void)
     HAL_PWR_EnableBkUpAccess();
 
     RtcHandle.Instance = RTC;
+    RtcHandle.State = HAL_RTC_STATE_RESET;
 
 #if !RTC_LSI
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
