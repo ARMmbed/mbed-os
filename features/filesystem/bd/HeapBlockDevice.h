@@ -39,8 +39,8 @@
  *
  * int main() {
  *     bd.init();
- *     bd.program(block, 0);
- *     bd.read(block, 0);
+ *     bd.program(block, 0, bd.get_program_size());
+ *     bd.read(block, 0, bd.get_read_size());
  *     printf("%s", block);
  *     bd.deinit();
  * }
