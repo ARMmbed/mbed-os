@@ -80,6 +80,28 @@ typedef enum {
     PIN_FUNCTION_MAX_NUMBER
 } PinFunction;
 
+typedef enum {
+    UART_1 = (int)UART1_CONTROL_BASE,
+    UART_2 = (int)UART2_CONTROL_BASE
+} UARTName;
+
+typedef enum {
+    SPI_1 = (int)SPI1_CONTROL_BASE,
+    SPI_2 = (int)SPI2_CONTROL_BASE
+} SPIName;
+
+typedef enum {
+    I2C_1 = (int)I2C1_CONTROL_BASE,
+    I2C_2 = (int)I2C2_CONTROL_BASE,
+    I2C_3 = (int)I2C3_CONTROL_BASE
+} I2CName;
+
+typedef enum {
+    PWM_1  = 1,
+    PWM_2  = 2,
+    PWM_3  = 3
+} PWMName;
+
 #ifdef __cplusplus
 }
 #endif
