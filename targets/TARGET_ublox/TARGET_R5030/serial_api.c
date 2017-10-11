@@ -66,6 +66,42 @@
 #define NUM_UART_STOP_BITS_1 1
 #define NUM_UART_STOP_BITS_2 2
 
+/* uart reference frequency in Hz*/
+#define UART_REF_FREQ   (26000000UL)
+
+/** Macro generating the mask for a bitfield of \p n bits */
+#define DRIVER_BIT_SET(n)                      (1u<<(n))
+
+#define DRIVER_BITS_CLR(data, mask)            ((data) & ~(mask))
+#define DRIVER_BITS_SET(data, bits)            ((data) |  (bits))
+
+/** Macro generating the mask for a bitfield of \p n bits */
+#define DRIVER_BIT_MASK(n)                      (DRIVER_BIT_SET(n) - 1)
+
+/** Macro generating the mask for a bitfield defined as `name_OFFSET` and `name_SIZE` */
+#define DRIVER_BITFIELD_MASK_(name)             (DRIVER_BIT_MASK(name##_SIZE) << (name##_OFFSET))
+#define DRIVER_BITFIELD_MASK(name)              DRIVER_BITFIELD_MASK_(name)
+
+/** Extract bitfield defined as `name_OFFSET` and `name_SIZE` from \p data */
+#define DRIVER_BITFIELD_GET_(data, name)        (((data) >> name##_OFFSET) & DRIVER_BIT_MASK(name##_SIZE))
+#define DRIVER_BITFIELD_GET(data, name)         DRIVER_BITFIELD_GET_(data, name)
+
+/** Return \p data with bitfield defined as `name_OFFSET` and `name_SIZE` cleared */
+#define DRIVER_BITFIELD_CLR(data, name)         ((data) & ~DRIVER_BITFIELD_MASK(name))
+
+/** Return \p bitfield defined as `name_OFFSET` and `name_SIZE` set to \p value */
+#define DRIVER_BITFIELD_VAL_(name, value)       (((value) & DRIVER_BIT_MASK(name##_SIZE)) << name##_OFFSET)
+#define DRIVER_BITFIELD_VAL(name, value)        DRIVER_BITFIELD_VAL_(name, value)
+
+/** Return \p data with bitfield defined as `name_OFFSET` and `name_SIZE` set to \p value */
+#define DRIVER_BITFIELD_SET(data, name, value)  (DRIVER_BITFIELD_CLR(data, name) | DRIVER_BITFIELD_VAL(name, value))
+
+/** Return \p bitfield defined as `name_OFFSET` and `name_SIZE` set to \p name_ENUM_value */
+#define DRIVER_BITFIELD_ENUM_(name, enumValue)      DRIVER_BITFIELD_VAL(name, name##_ENUM_##enumValue)
+#define DRIVER_BITFIELD_ENUM(name, enumValue)       DRIVER_BITFIELD_ENUM_(name, enumValue)
+
+/** Return \p data with bitfield defined as `name_OFFSET` and `name_SIZE` set to \p name_ENUM_value */
+#define DRIVER_BITFIELD_SET_ENUM(data, name, enumValue)  DRIVER_BITFIELD_SET(data, name,  DRIVER_BITFIELD_ENUM(name, enumValue))
 /* ----------------------------------------------------------------
  * TYPES
  * ----------------------------------------------------------------*/
@@ -92,12 +128,27 @@ serial_t stdio_uart;
 /* ----------------------------------------------------------------
  * FUNCTION PROTOTYPES
  * ----------------------------------------------------------------*/
-
+uint32_t zeroBitNumFromLsb(uint32_t data);
 
 /* ----------------------------------------------------------------
  * NON-API FUNCTIONS
  * ----------------------------------------------------------------*/
-
+/* calculate the number of zero bits from LSB */
+uint32_t zeroBitNumFromLsb(uint32_t data)
+{
+    uint32_t zeroBitNum = 0;
+    for (uint32_t i = 0; i < 32; ++i) {
+        if ((data & 0x01) == 0) {
+          ++zeroBitNum;
+          data >>= 1;
+        }
+        else {
+            //find bit 1.
+            break;
+        }
+    }
+    return zeroBitNum;
+}
 
 /* ----------------------------------------------------------------
  * MBED API CALLS: SETUP FUNCTIONS
@@ -168,6 +219,88 @@ void serial_free(serial_t *obj)
 
 void serial_baud(serial_t *obj, int baudrate)
 {
+    /*          uart baudrate calculation formula
+    *   baudrate = (Pha * Fin) / OS * (Brdiv + 1) * 2^N
+    *
+    *   Pha: NCO phase accumulator value. Default is 0x80
+    *   Fin: Uart ref clock frequency. Default is 26MHz
+    *   OS: Oversampling rate. Default is 16
+    *   Brdiv: BR register counter reload value ref. HAL doxygen
+    *   N: Number of NCO bits i.e 8
+    *   baudrate = (Pha * Fin) / 16 * (Brdiv + 1) * 2^8
+    */    
+    
+    uint8_t nco_phase_acc_value = 0;
+    uint16_t baudrate_divider_value = 0;
+    uint32_t dividend = 0;
+    uint32_t divisor = 0;    
+    uint32_t pclk = UART_REF_FREQ;
+    uint32_t req_baudrate = (uint32_t)baudrate;   
+    const uint32_t nco_phase_acc_initial_shift_num = 7; 
+    const uint32_t os_nco_bits_multiplier_shift_num = 12;     
+    uint32_t pclk_shift_num = zeroBitNumFromLsb(pclk);
+    uint32_t baudrate_shift_num = zeroBitNumFromLsb(req_baudrate);
+	int32_t total_shift_num = 0; 
+           
+    pclk >>= pclk_shift_num;
+    req_baudrate >>= baudrate_shift_num;
+    
+    /* calculating baudrate divider*/
+    total_shift_num = (pclk_shift_num + nco_phase_acc_initial_shift_num - os_nco_bits_multiplier_shift_num - baudrate_shift_num);    
+    if (total_shift_num >= 0) {
+        dividend = pclk << total_shift_num;
+        divisor = req_baudrate;
+    }
+    else {
+        dividend = pclk;
+        divisor = req_baudrate << (0 - total_shift_num);  
+    }	
+    //printf("step 1 calculate baudrate_divider_value, reqBaudrate=%d, dividend=%d, divisor=%d, totalShiftNum=%d,\n", baudrate, dividend, divisor, total_shift_num);    
+    if (divisor != 0) {
+        baudrate_divider_value = (dividend + (divisor >> 1)) / divisor;         
+    }
+    else {
+        MBED_ASSERT(false);
+    }
+    
+    /* fine tune nco phase accumulator value*/
+    total_shift_num = baudrate_shift_num + os_nco_bits_multiplier_shift_num - pclk_shift_num;    
+    if (total_shift_num >= 0)
+    {
+        dividend = (req_baudrate * baudrate_divider_value) << total_shift_num;
+        divisor = pclk;
+    }
+    else
+    {
+        dividend = req_baudrate * baudrate_divider_value;
+        divisor = pclk << (0 - total_shift_num);
+    }
+    //printf("step 2 calculate ncoPhase, reqBaudrate=%d, dividend=%d, divisor=%d, totalShiftNum=%d,\n", baudrate, dividend, divisor, total_shift_num);
+    if (divisor != 0) {
+        nco_phase_acc_value = (dividend + (divisor >> 1)) / divisor; 
+    }
+    else {
+        MBED_ASSERT(false);
+    }
+    
+    MBED_ASSERT(!((baudrate_divider_value > DRIVER_BIT_MASK(UART_BR_BAUDRATE_SIZE)) || (nco_phase_acc_value > DRIVER_BIT_MASK(UART_NCO_NCO_PHASE_SIZE))));
+
+    /* disable baudrate generator (uart control clear reg) */
+    obj->reg_base->crc |= DRIVER_BITFIELD_MASK(UART_CRC_BR_EN);
+        
+    /* set baudrate divider value */
+	baudrate_divider_value--; /* the actual register value should minus 1 */
+    obj->reg_base->br = DRIVER_BITFIELD_SET(obj->reg_base->br, UART_BR_BAUDRATE, baudrate_divider_value);
+
+    /* set nco phase value */
+    obj->reg_base->nco = DRIVER_BITFIELD_SET(obj->reg_base->nco, UART_NCO_NCO_PHASE, nco_phase_acc_value);
+    
+    /* enable baudrate generator (uart control set reg) */
+    obj->reg_base->crs |= DRIVER_BITFIELD_MASK(UART_CRC_BR_EN);
+	
+	
+	
+	
     // bool switch_port_config = false;
     // bool format_set = obj->format_set;
     // uint8_t stop_bits = obj->format.stop_bits;
