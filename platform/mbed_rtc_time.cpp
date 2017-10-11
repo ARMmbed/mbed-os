@@ -44,7 +44,6 @@ time_t time(time_t *timer)
 #endif
 
 {
-    _mutex->lock();
     if (_rtc_isenabled != NULL) {
         if (!(_rtc_isenabled())) {
             set_time(0);
@@ -59,7 +58,6 @@ time_t time(time_t *timer)
     if (timer != NULL) {
         *timer = t;
     }
-    _mutex->unlock();
     return t;
 }
 
