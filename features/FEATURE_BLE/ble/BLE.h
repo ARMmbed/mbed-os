@@ -1560,6 +1560,7 @@ private:
     InstanceID_t     instanceID;
     BLEInstanceBase *transport; /* The device-specific backend */
     OnEventsToProcessCallback_t whenEventsToProcess;
+    bool event_signaled;
 };
 
 typedef BLE BLEDevice; /**< @deprecated This type alias is retained for the
