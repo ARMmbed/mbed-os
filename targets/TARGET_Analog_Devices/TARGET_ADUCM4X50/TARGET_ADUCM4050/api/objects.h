@@ -85,7 +85,7 @@ struct i2c_s {
 
 #define BUILD_SPI_MI_DYNAMIC
 struct spi_s {
-    uint32_t 		instance;
+    uint32_t        instance;
     uint32_t        error;
     ADI_SPI_HANDLE  *pSPI_Handle;
 #if defined(BUILD_SPI_MI_DYNAMIC)

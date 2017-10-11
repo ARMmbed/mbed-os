@@ -43,4 +43,5 @@
 #define     __C
 #include "adi_processor.h"
 #include "cmsis_nvic.h"
+#undef      __C
 #endif

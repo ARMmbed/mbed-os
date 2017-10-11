@@ -120,23 +120,13 @@ static int set_rtc_alarm_interrupt(ADI_RTC_HANDLE const hDevice, uint32_t nAlarm
  * Local RTC 1 ISR callback function.
  *
  */
-static void rtc1_Callback (void *pCBParam, uint32_t nEvent, void *EventArg)
+static void rtc1_Callback(void *pCBParam, uint32_t nEvent, void *EventArg)
 {
     /* process RTC interrupts (cleared by driver) */
     if (ADI_RTC_ALARM_INT & nEvent) {
         lp_ticker_irq_handler();
     }
 }
-
-
-/** Get low power ticker's data
- *
- * @return The low power ticker data
- */
-/*
-const ticker_data_t* get_lp_ticker_data()
-{
-}*/
 
 
 /* HAL lp ticker */

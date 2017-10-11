@@ -213,15 +213,24 @@ void spi_free(spi_t *obj)
  *   2  |  1   0
  *   3  |  1   1
  * @endcode
+
+    bool          phase;
+        true  : trailing-edge
+        false : leading-edge
+
+    bool          polarity;
+        true  : CPOL=1 (idle high) polarity
+        false : CPOL=0 (idle-low) polarity
  */
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     ADI_SPI_HANDLE  SPI_Handle;
     ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
-    bool_t          master;
+    bool            master;
 
     master = !((bool_t)slave);
     SPI_Handle = *obj->pSPI_Handle;
+
     SPI_Return = adi_spi_SetMasterMode(SPI_Handle, master);
     if (SPI_Return) {
         obj->error = SPI_EVENT_ERROR;
@@ -309,12 +318,12 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length, cha
     ADI_SPI_HANDLE  SPI_Handle;
     ADI_SPI_RESULT  SPI_Return = ADI_SPI_SUCCESS;
 
-    transceive.pReceiver        = rx_buffer;
-    transceive.ReceiverBytes    = rx_length;    /* link transceive data size to the remaining count */
-    transceive.nRxIncrement     = 1;            /* auto increment buffer */
-    transceive.pTransmitter     = tx_buffer;    /* initialize data attributes */
-    transceive.TransmitterBytes = tx_length;    /* link transceive data size to the remaining count */
-    transceive.nTxIncrement     = 1;            /* auto increment buffer */
+    transceive.pReceiver        = (uint8_t*)rx_buffer;
+    transceive.ReceiverBytes    = rx_length;            /* link transceive data size to the remaining count */
+    transceive.nRxIncrement     = 1;                    /* auto increment buffer */
+    transceive.pTransmitter     = (uint8_t*)tx_buffer;  /* initialize data attributes */
+    transceive.TransmitterBytes = tx_length;            /* link transceive data size to the remaining count */
+    transceive.nTxIncrement     = 1;                    /* auto increment buffer */
 
     transceive.bDMA = false;
     transceive.bRD_CTL = false;
