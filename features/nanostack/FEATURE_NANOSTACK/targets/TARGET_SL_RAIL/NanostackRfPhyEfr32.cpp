@@ -211,7 +211,6 @@ static void rf_thread_loop(const void *arg)
 
                 memoryFree(handle);
                 rx_queue[rx_queue_tail] = NULL;
-
                 rx_queue_tail = (rx_queue_tail + 1) % RF_QUEUE_SIZE;
             }
 
@@ -423,6 +422,8 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
             }
         }
 
+        platform_enter_critical();
+
         data_ptr[0] = data_length + 2;
         RAIL_RfIdleExt(RAIL_IDLE_ABORT , true);
         RAIL_TxDataLoad(&txData);
@@ -443,15 +444,18 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
           //Save packet number and sequence
           current_tx_handle = tx_handle;
           current_tx_sequence = data_ptr[3];
+          platform_exit_critical();
           return 0;
         } else {
           RAIL_RfIdle();
           RAIL_RxStart(channel);
           radio_state = RADIO_RX;
+          platform_exit_critical();
           return -1;
         }
     }
     //Should never get here...
+    platform_exit_critical();
     return -1;
 }
 
