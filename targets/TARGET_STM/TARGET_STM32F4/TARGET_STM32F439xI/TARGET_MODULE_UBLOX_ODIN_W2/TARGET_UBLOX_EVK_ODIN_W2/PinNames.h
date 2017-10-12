@@ -159,6 +159,19 @@ typedef enum {
     LED_BLUE   = LED3,
     SW0        = PF_2,   // Switch-0
     SW1        = PB_6,   // Green / Switch-1
+    
+    I2C_SCL     = D15,
+    I2C_SDA     = D14,
+    SPI0_MOSI    = D11,
+    SPI0_MISO    = D12,
+    SPI0_SCK     = D13,
+    SPI0_CS      = D10,
+    SPI1_CS      = D9,
+    
+    SPI_MOSI   = SPI0_MOSI,
+    SPI_MISO   = SPI0_MISO,
+    SPI_SCK    = SPI0_SCK,
+    SPI_CS     = SPI0_CS,
 
 
     // Standardized button names
