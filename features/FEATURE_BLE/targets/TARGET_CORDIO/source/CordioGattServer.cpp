@@ -16,7 +16,6 @@
 
 #include <algorithm>
 #include "CordioGattServer.h"
-#include "CordioGap.h"
 #include "mbed.h"
 #include "wsf_types.h"
 #include "att_api.h"
@@ -286,33 +285,63 @@ ble_error_t GattServer::read(Gap::Handle_t connectionHandle, GattAttribute::Hand
 
 ble_error_t GattServer::write(GattAttribute::Handle_t attributeHandle, const uint8_t buffer[], uint16_t len, bool localOnly)
 {
-    uint16_t connectionHandle = Gap::getInstance().getConnectionHandle();
+    // Check to see if this is a CCCD, if it is the case update the value for all
+    // connections
+    uint8_t idx;
+    for (idx = 0; idx < cccCnt; idx++) {
+        if (attributeHandle == cccSet[idx].handle) {
+            for (uint16_t conn_id = 0, conn_found = 0; (conn_found < DM_CONN_MAX) && (conn_id < 0x100); ++conn_id) {
+                if (DmConnInUse(conn_id) == true) {
+                    ++conn_found;
+                } else {
+                    continue;
+                }
 
+                AttsCccSet(conn_id, idx, *((uint16_t*)buffer));
+            }
+            return BLE_ERROR_NONE;
+        }
+    }
+
+    // write the value to the attribute handle
     if (AttsSetAttr(attributeHandle, len, (uint8_t*)buffer) != ATT_SUCCESS) {
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
-    if (!localOnly) {
-        if (connectionHandle != DM_CONN_ID_NONE) {
+    // return if the update does not have to be propagated to peers
+    if (localOnly) {
+        return BLE_ERROR_NONE;
+    }
 
-            // Check to see if this characteristic has a CCCD attribute
-            uint8_t idx;
-            for (idx = 0; idx < cccCnt; idx++) {
-                if (attributeHandle == cccHandles[idx]) {
-                    break;
-                }
+    // Check to see if this characteristic has a CCCD attribute
+    for (idx = 0; idx < cccCnt; idx++) {
+        if (attributeHandle == cccHandles[idx]) {
+            break;
+        }
+    }
+
+    // exit if the characteristic has no CCCD attribute
+    if (idx >= cccCnt) {
+        return BLE_ERROR_NONE;
+    }
+
+    // This characteristic has a CCCD attribute. Handle notifications and indications.
+    // for all connections
+
+    for (uint16_t conn_id = 0, conn_found = 0; (conn_found < DM_CONN_MAX) && (conn_id < 0x100); ++conn_id) {
+        if (DmConnInUse(conn_id) == true) {
+            ++conn_found;
+        } else {
+            uint16_t cccEnabled = AttsCccEnabled(conn_id, idx);
+            if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
+                AttsHandleValueNtf(conn_id, attributeHandle, len, (uint8_t*)buffer);
             }
-            if (idx < cccCnt) {
-                // This characteristic has a CCCD attribute. Handle notifications and indications.
-                uint16_t cccEnabled = AttsCccEnabled(connectionHandle, idx);
-                if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
-                    AttsHandleValueNtf(connectionHandle, attributeHandle, len, (uint8_t*)buffer);
-                }
-                if (cccEnabled & ATT_CLIENT_CFG_INDICATE) {
-                    AttsHandleValueInd(connectionHandle, attributeHandle, len, (uint8_t*)buffer);
-                }
+            if (cccEnabled & ATT_CLIENT_CFG_INDICATE) {
+                AttsHandleValueInd(conn_id, attributeHandle, len, (uint8_t*)buffer);
             }
         }
+
+        AttsCccSet(conn_id, idx, *((uint16_t*)buffer));
     }
 
     return BLE_ERROR_NONE;
@@ -332,26 +361,59 @@ ble_error_t GattServer::write(Gap::Handle_t connectionHandle, GattAttribute::Han
         }
     }
 
-    // This is not a CCCD. Use the non-connection specific update method.
-    return write(attributeHandle, buffer, len, localOnly);
+    // write the value to the attribute handle
+    if (AttsSetAttr(attributeHandle, len, (uint8_t*)buffer) != ATT_SUCCESS) {
+        return BLE_ERROR_PARAM_OUT_OF_RANGE;
+    }
+
+    // return if the update does not have to be propagated to peers
+    if (localOnly) {
+        return BLE_ERROR_NONE;
+    }
+
+    // Check to see if this characteristic has a CCCD attribute
+    for (idx = 0; idx < cccCnt; idx++) {
+        if (attributeHandle == cccHandles[idx]) {
+            break;
+        }
+    }
+
+    // exit if the characteristic has no CCCD attribute
+    if (idx >= cccCnt) {
+        return BLE_ERROR_NONE;
+    }
+
+    // This characteristic has a CCCD attribute. Handle notifications and indications.
+    uint16_t cccEnabled = AttsCccEnabled(connectionHandle, idx);
+    if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
+        AttsHandleValueNtf(connectionHandle, attributeHandle, len, (uint8_t*)buffer);
+    }
+    if (cccEnabled & ATT_CLIENT_CFG_INDICATE) {
+        AttsHandleValueInd(connectionHandle, attributeHandle, len, (uint8_t*)buffer);
+    }
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GattServer::areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP)
 {
-    uint16_t connectionHandle = Gap::getInstance().getConnectionHandle();
-
-    if (connectionHandle != DM_CONN_ID_NONE) {
-        uint8_t idx;
-        for (idx = 0; idx < cccCnt; idx++) {
-            if (characteristic.getValueHandle() == cccHandles[idx]) {
-                uint16_t cccValue = AttsCccGet(connectionHandle, idx);
-                if (cccValue & ATT_CLIENT_CFG_NOTIFY) {
-                    *enabledP = true;
+    for (size_t idx = 0; idx < cccCnt; idx++) {
+        if (characteristic.getValueHandle() == cccHandles[idx]) {
+            for (uint16_t conn_id = 0, conn_found = 0; (conn_found < DM_CONN_MAX) && (conn_id < 0x100); ++conn_id) {
+                if (DmConnInUse(conn_id) == true) {
+                    ++conn_found;
                 } else {
-                    *enabledP = false;
+                    continue;
                 }
-                return BLE_ERROR_NONE;
+
+                uint16_t cccValue = AttsCccGet(conn_id, idx);
+                if ((cccValue & ATT_CLIENT_CFG_NOTIFY) || (cccValue & ATT_CLIENT_CFG_INDICATE)) {
+                    *enabledP = true;
+                    return BLE_ERROR_NONE;
+                }
             }
+            *enabledP = false;
+            return BLE_ERROR_NONE;
         }
     }
 
@@ -365,7 +427,7 @@ ble_error_t GattServer::areUpdatesEnabled(Gap::Handle_t connectionHandle, const 
         for (idx = 0; idx < cccCnt; idx++) {
             if (characteristic.getValueHandle() == cccHandles[idx]) {
                 uint16_t cccValue = AttsCccGet(connectionHandle, idx);
-                if (cccValue & ATT_CLIENT_CFG_NOTIFY) {
+                if (cccValue & ATT_CLIENT_CFG_NOTIFY || (cccValue & ATT_CLIENT_CFG_INDICATE)) {
                     *enabledP = true;
                 } else {
                     *enabledP = false;
