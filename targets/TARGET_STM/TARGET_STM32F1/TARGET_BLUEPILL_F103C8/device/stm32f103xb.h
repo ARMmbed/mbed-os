@@ -10630,6 +10630,24 @@ typedef struct
   * @}
   */
 
+#define SC_USART                           USART3
+#define SC_USART_CLK_ENABLE()              __HAL_RCC_USART3_CLK_ENABLE()
+#define SC_USART_CLK_DISABLE();            __HAL_RCC_USART3_CLK_DISABLE()
+#define SC_USART_FORCE_RESET()             __HAL_RCC_USART3_FORCE_RESET()
+#define SC_USART_RELEASE_RESET()           __HAL_RCC_USART3_RELEASE_RESET()
+#define SC_USART_IRQn                      USART3_IRQn
+#define SC_USART_IRQHandler                USART3_IRQHandler
+
+#define SC_USART_TX_PIN                    GPIO_PIN_10                
+#define SC_USART_TX_GPIO_PORT              GPIOB                       
+#define SC_USART_TX_CLK_ENABLE()           __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define SC_USART_CK_PIN                    GPIO_PIN_12                
+#define SC_USART_CK_GPIO_PORT              GPIOB
+#define SC_USART_CK_CLK_ENABLE()           __HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define SC_RECEIVE_TIMEOUT  400  /* Direction to reader */
+#define SC_TRANSMIT_TIMEOUT 200  /* Direction to transmit */
 
 #ifdef __cplusplus
   }
