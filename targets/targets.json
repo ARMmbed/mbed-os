@@ -1725,18 +1725,21 @@
         "device_has_add": [],
         "device_name": "STM32F401VC"
     },
-    "UBLOX_EVK_ODIN_W2": {
+    "MODULE_UBLOX_ODIN_W2": {
         "inherits": ["FAMILY_STM32"],
-        "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "STM32F439xI"],
         "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
         "device_has_add": ["CAN", "EMAC", "TRNG", "FLASH"],
         "device_has_remove": ["RTC", "SLEEP"],
         "features": ["LWIP"],
-        "release_versions": ["5"],
         "device_name": "STM32F439ZI",
-        "bootloader_supported": true,
+        "bootloader_supported": true
+    },
+    "UBLOX_EVK_ODIN_W2": {
+        "inherits": ["MODULE_UBLOX_ODIN_W2"],
+        "supported_form_factors": ["ARDUINO"],
+        "release_versions": ["5"],
         "config": {
             "usb_tx": {
                 "help": "Value: D8(default) or D1",
@@ -1745,6 +1748,25 @@
             "usb_rx": {
                 "help": "Value: D2(default) or D0",
                 "value": "D2"
+            },
+            "stdio_uart": {
+                "help": "Value: UART_1(default) or UART_3",
+                "value": "UART_1",
+                "macro_name": "STDIO_UART"
+            }
+        }
+    },
+    "MBED_CONNECT_ODIN": {
+        "inherits": ["MODULE_UBLOX_ODIN_W2"],
+        "release_versions": ["5"],
+        "config": {
+            "usb_tx": {
+                "help": "Value: PA_9(default) or PD_8",
+                "value": "PA_9"
+            },
+            "usb_rx": {
+                "help": "Value: PA_10(default) or PD_9",
+                "value": "PA_10"
             },
             "stdio_uart": {
                 "help": "Value: UART_1(default) or UART_3",
