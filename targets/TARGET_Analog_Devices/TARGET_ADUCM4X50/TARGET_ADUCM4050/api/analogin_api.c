@@ -94,6 +94,22 @@ void analogin_init(analogin_t *obj, PinName pin)
     MBED_ASSERT(channel != 0xFFFFFFFF);
     obj->UserBuffer.nChannels = channel;
 
+    /* Set ACLK to CCLK/16 */
+    adi_pwr_SetClockDivider(ADI_CLOCK_ACLK,16);
+
+    /* Set default values for conversion and delay cycles. This sets up a sampling rate of
+       16kHz. The sampling frequency is worked out from the following:
+
+       if delay time > 0:
+            Fs = ACLK / [((14 + sampling time) * oversample factor) + (delay time + 2)]
+       if delay time = 0:
+            Fs = ACLK / ((14 + sampling time) * oversample factor)
+
+       The sampling (or acquisition) and delay times are in number of ACLK clock cycles.
+    */
+    obj->DelayCycles = 0;
+    obj->SampleCycles = 88;
+
     /* Open the ADC device */
     adi_adc_Open(ADC_DEV_NUM, DeviceMemory, sizeof(DeviceMemory), &hDevice);
     obj->hDevice = hDevice;
