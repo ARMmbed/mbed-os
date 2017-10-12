@@ -18,16 +18,24 @@
     },
     "HU_FLYER": {
 	"inherits": ["HU_FAMILY_AIRBORNE", "NRF52_DK"],
+	"features": ["ALS", "BATTERY_FUEL_GAUGE", "STC3115"],
 	"macros_remove": ["BOARD_PCA10040"],
+	"MERGE_SOFT_DEVICE": false,
 	"public": true
     },
     "HU_FLYER_BOOT": {
 	"inherits": ["HU_FLYER", "HU_BOOTLOADER"],
+	"MERGE_SOFT_DEVICE": true,
 	"public": true
 	
     },
     "HU_FLYER_APP": {
 	"inherits": ["HU_FLYER", "HU_APPLICATION"],
+	"public": true
+    },
+    "VALKYRIE": {
+	"inherits": ["HU_FLYER"],
+	"MERGE_SOFT_DEVICE": true,
 	"public": true
     }
 }

@@ -510,6 +510,7 @@ class MCU_NRF51Code(object):
         if t_self.target.MERGE_SOFT_DEVICE is True:
             t_self.debug("Merge SoftDevice file %s"
                          % softdevice_and_offset_entry['name'])
+            print("Merging Softdevice - %s" % softdevice_and_offset_entry['name'])
             sdh = IntelHex(sdf)
             binh.merge(sdh)
 

@@ -1,3 +1,3 @@
 hu_features = [
-    "ALS", "STC3115", "DOSIMETRY"
+    "ALS", "BATTERY_FUEL_GAUGE", "ADC_BATTERY", "STC3115", "DOSIMETRY"
 ]
