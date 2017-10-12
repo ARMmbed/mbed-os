@@ -3412,5 +3412,22 @@
         "device_name": "TMPM066FWUG",
         "detect_code": ["7011"],
         "release_versions": ["5"]
+    },
+    "SAKURAIO_EVB_01": {
+        "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": [],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
+        "release_versions": ["2"],
+        "device_name": "STM32F411RE"
     }
 }
