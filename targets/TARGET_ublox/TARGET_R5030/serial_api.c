@@ -240,7 +240,7 @@ void serial_baud(serial_t *obj, int baudrate)
     const uint32_t os_nco_bits_multiplier_shift_num = 12;     
     uint32_t pclk_shift_num = zeroBitNumFromLsb(pclk);
     uint32_t baudrate_shift_num = zeroBitNumFromLsb(req_baudrate);
-	int32_t total_shift_num = 0; 
+    int32_t total_shift_num = 0; 
            
     pclk >>= pclk_shift_num;
     req_baudrate >>= baudrate_shift_num;
