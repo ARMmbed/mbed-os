@@ -104,7 +104,10 @@ void lp_ticker_1s_deepsleep()
     lp_timer.reset();
     lp_timer.start();
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
-    deepsleep();
+    /* Make sure deepsleep is allowed, to go to deepsleep */
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
+    sleep();
     while (!complete);
     lp_timer.stop();
 
@@ -124,6 +127,8 @@ void lp_ticker_1s_sleep()
     sleep_manager_lock_deep_sleep();
     timer.reset();
     timer.start();
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    TEST_ASSERT_FALSE_MESSAGE(deep_sleep_allowed, "Deep sleep should be disallowed");
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
     sleep();
     while (!complete);
