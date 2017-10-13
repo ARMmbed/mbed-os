@@ -1138,7 +1138,8 @@
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F446RE"
+        "device_name": "STM32F446RE",
+        "bootloader_supported": true
     },
     "NUCLEO_F446ZE": {
         "inherits": ["FAMILY_STM32"],
