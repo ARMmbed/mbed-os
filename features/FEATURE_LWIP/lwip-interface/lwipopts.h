@@ -137,9 +137,24 @@
 #define LWIP_RAM_HEAP_POINTER       lwip_ram_heap
 
 // Number of pool pbufs.
-// Each requires 684 bytes of RAM.
+// Each requires 684 bytes of RAM (if MSS=536 and PBUF_POOL_BUFSIZE defaulting to be based on MSS)
+#ifdef MBED_CONF_LWIP_PBUF_POOL_SIZE
+#undef PBUF_POOL_SIZE
+#define PBUF_POOL_SIZE              MBED_CONF_LWIP_PBUF_POOL_SIZE
+#else
 #ifndef PBUF_POOL_SIZE
 #define PBUF_POOL_SIZE              5
+#endif
+#endif
+
+#ifdef MBED_CONF_LWIP_PBUF_POOL_BUFSIZE
+#undef PBUF_POOL_BUFSIZE
+#define PBUF_POOL_BUFSIZE           MBED_CONF_LWIP_PBUF_POOL_BUFSIZE
+#endif
+
+#ifdef MBED_CONF_LWIP_MEM_SIZE
+#undef MEM_SIZE
+#define MEM_SIZE                    MBED_CONF_LWIP_MEM_SIZE
 #endif
 
 // One tcp_pcb_listen is needed for each TCPServer.
