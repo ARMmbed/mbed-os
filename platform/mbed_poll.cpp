@@ -66,7 +66,7 @@ int poll(pollfh fhs[], unsigned nfhs, int timeout)
 #ifdef MBED_CONF_RTOS_PRESENT
         // TODO - proper blocking
         // wait for condition variable, wait queue whatever here
-        rtos::Thread::yield();
+        rtos::Thread::wait(1);
 #endif
     }
     return count;
