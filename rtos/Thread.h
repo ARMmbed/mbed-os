@@ -80,13 +80,14 @@ public:
       @param   stack_size     stack size (in bytes) requirements for the thread function. (default: OS_STACK_SIZE).
       @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).
       @param   name           name to be used for this thread. It has to stay allocated for the lifetime of the thread (default: NULL)
+      @param   tz_module      trustzone thread identifier (default: 0)
 
       @note You cannot call this function from ISR context.
     */
     Thread(osPriority priority=osPriorityNormal,
            uint32_t stack_size=OS_STACK_SIZE,
-           unsigned char *stack_mem=NULL, const char *name=NULL) {
-        constructor(priority, stack_size, stack_mem, name);
+           unsigned char *stack_mem=NULL, const char *name=NULL, uint32_t tz_module=0) {
+        constructor(priority, stack_size, stack_mem, name, tz_module);
     }
 
     /** Create a new thread, and start it executing the specified function.
@@ -408,12 +409,12 @@ private:
     void constructor(osPriority priority=osPriorityNormal,
                      uint32_t stack_size=OS_STACK_SIZE,
                      unsigned char *stack_mem=NULL,
-                     const char *name=NULL);
+                     const char *name=NULL, uint32_t tz_module=0);
     void constructor(mbed::Callback<void()> task,
                      osPriority priority=osPriorityNormal,
                      uint32_t stack_size=OS_STACK_SIZE,
                      unsigned char *stack_mem=NULL,
-                     const char *name=NULL);
+                     const char *name=NULL, uint32_t tz_module=0);
     static void _thunk(void * thread_ptr);
 
     mbed::Callback<void()>     _task;
