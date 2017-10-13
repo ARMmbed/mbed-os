@@ -296,13 +296,10 @@ int rtc_isenabled(void)
 
 static void RTC_IRQHandler(void)
 {
+    /*  Update HAL state */
     HAL_RTCEx_WakeUpTimerIRQHandler(&RtcHandle);
-}
-
-void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
-{
+    /* In case of registered handler, call it. */
     if (irq_handler) {
-        // Fire the user callback
         irq_handler();
     }
 }
