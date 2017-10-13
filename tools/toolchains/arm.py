@@ -49,9 +49,6 @@ class ARM(mbedToolchain):
                                extra_verbose=extra_verbose,
                                build_profile=build_profile)
 
-        if "ARM" not in target.supported_toolchains:
-            raise NotSupportedException("ARM compiler support is required for ARM build")
-
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
         elif target.core == "Cortex-M4F":
@@ -265,10 +262,26 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
-    pass
+    def __init__(self, target, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None,
+                 build_dir=None):
+        ARM.__init__(self, target, notify, macros, silent,
+                     build_dir=build_dir, extra_verbose=extra_verbose,
+                     build_profile=build_profile)
+        if "ARM" not in target.supported_toolchains:
+            raise NotSupportedException("ARM compiler support is required for ARM build")
+
 
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
+    def __init__(self, target, notify=None, macros=None,
+                 silent=False, extra_verbose=False, build_profile=None,
+                 build_dir=None):
+        ARM.__init__(self, target, notify, macros, silent,
+                     build_dir=build_dir, extra_verbose=extra_verbose,
+                     build_profile=build_profile)
+        if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
+            raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
 
 class ARMC6(ARM_STD):
     SHEBANG = "#! armclang -E --target=arm-arm-none-eabi -x c"
