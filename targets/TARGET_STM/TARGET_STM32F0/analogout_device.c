@@ -36,7 +36,7 @@
 #include "PeripheralPins.h"
 
 void analogout_init(dac_t *obj, PinName pin) {
-    DAC_ChannelConfTypeDef sConfig;
+    DAC_ChannelConfTypeDef sConfig = {0};
 
     // Get the peripheral name from the pin and assign it to the object
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
@@ -71,6 +71,8 @@ void analogout_init(dac_t *obj, PinName pin) {
 
     // Configure DAC
     obj->handle.Instance = (DAC_TypeDef *)(obj->dac);
+    obj->handle.State = HAL_DAC_STATE_RESET;
+
     if (HAL_DAC_Init(&obj->handle) != HAL_OK ) {
         error("HAL_DAC_Init failed");
     }
