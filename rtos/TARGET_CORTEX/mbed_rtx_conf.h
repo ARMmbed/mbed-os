@@ -60,6 +60,8 @@
 # define OS_PRIVILEGE_MODE           0
 #endif
 
+#define OS_SECURE_CALLABLE_THREAD    1
+
 #if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
 
 /* Number of process slots (threads may call secure library code) */
