@@ -17,6 +17,8 @@
 #ifndef MBED_PRINTF_H
 #define MBED_PRINTF_H
 
+#include <stdio.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

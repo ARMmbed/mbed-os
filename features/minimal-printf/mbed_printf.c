@@ -21,9 +21,45 @@
 #include <limits.h>
 #include <stdbool.h>
 
+/* module variable for keeping track of initialization */
+static bool not_initialized = true;
+
+/***************************/
+/* MBED                    */
+/***************************/
 #if TARGET_LIKE_MBED
+#include "hal/serial_api.h"
+
+#if DEVICE_SERIAL
+static int stdio_uart_inited = 0;
+static serial_t stdio_uart = { 0 };
+#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
+static char stdio_in_prev = 0;
+static char stdio_out_prev = 0;
+#endif
+#endif
+
+static void init_serial() 
+{
+    if (not_initialized)
+    {
+        not_initialized = false;
+
+#if DEVICE_SERIAL
+        serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
+#if MBED_CONF_PLATFORM_STDIO_BAUD_RATE
+        serial_baud(&stdio_uart, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
+#endif
+#endif
+    }
+}
+
 #define MBED_INITIALIZE_PRINT(x) { init_serial(); }
 #define MBED_PRINT_CHARACTER(x) { serial_putc(&stdio_uart, x); }
+
+/***************************/
+/* Linux                   */
+/***************************/
 #else
 #define MBED_INITIALIZE_PRINT(x) { ; }
 #define MBED_PRINT_CHARACTER(x) { printf("%c", x); }
@@ -35,9 +71,6 @@ static void mbed_minimal_formatted_string_unsigned_char(char* buffer, size_t len
 static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t length, int* result, void* value);
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, int character);
 static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, char* string);
-
-/* module variable for keeping track of initialization */
-static bool not_initialized = true;
 
 static void mbed_minimal_formatted_string_long_int(char* buffer, size_t length, int* result, long int value)
 {
@@ -321,11 +354,7 @@ static int mbed_minimal_formatted_string(char* buffer, size_t length, const char
 
 int mbed_printf(const char *format, ...)
 {
-    if (not_initialized)
-    {
-        not_initialized = false;
-        MBED_INITIALIZE_PRINT();
-    }
+    MBED_INITIALIZE_PRINT();
 
     va_list arguments;
     va_start(arguments, format);
@@ -337,11 +366,7 @@ int mbed_printf(const char *format, ...)
 
 int mbed_snprintf(char* buffer, size_t length, const char* format, ...)
 {
-    if (not_initialized)
-    {
-        not_initialized = false;
-        MBED_INITIALIZE_PRINT();
-    }
+    MBED_INITIALIZE_PRINT();
 
     va_list arguments;
     va_start(arguments, format);
