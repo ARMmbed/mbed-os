@@ -301,4 +301,5 @@ SECTIONS
     __uvisor_sram_end = ORIGIN(m_data) + LENGTH(m_data);
     __uvisor_public_sram_start = __uvisor_sram_start;
     __uvisor_public_sram_end = __uvisor_sram_end;
+    __uvisor_stack_limit = __StackLimit;
 }
