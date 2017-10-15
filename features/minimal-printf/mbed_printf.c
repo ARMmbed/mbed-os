@@ -31,12 +31,11 @@ static bool not_initialized = true;
 #include "hal/serial_api.h"
 
 #if DEVICE_SERIAL
-static int stdio_uart_inited = 0;
 static serial_t stdio_uart = { 0 };
-#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
-static char stdio_in_prev = 0;
-static char stdio_out_prev = 0;
-#endif
+//#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
+//static char stdio_in_prev = 0;
+//static char stdio_out_prev = 0;
+//#endif
 #endif
 
 static void init_serial() 
@@ -75,7 +74,7 @@ static void mbed_minimal_formatted_string_string(char* buffer, size_t length, in
 static void mbed_minimal_formatted_string_long_int(char* buffer, size_t length, int* result, long int value)
 {
     /* only continue if buffer can fit at least 1 characters */
-    if ((*result + 1) <= length)
+    if ((*result + 1) <= (int) length)
     {
         unsigned long int new_value = 0;
 
@@ -110,7 +109,7 @@ static void mbed_minimal_formatted_string_long_int(char* buffer, size_t length, 
 static void mbed_minimal_formatted_string_unsigned_long_int(char* buffer, size_t length, int* result, unsigned long int value)
 {
     /* only continue if buffer can fit at least 1 characters */
-    if ((*result + 1) <= length)
+    if ((*result + 1) <= (int) length)
     {
         /* treat 0 as a corner case */
         if (value == 0)
@@ -143,7 +142,7 @@ static void mbed_minimal_formatted_string_unsigned_long_int(char* buffer, size_t
             }
 
             /* write scratch pad to buffer or output */
-            for ( ; (*result < length) && (index > 0); index--)
+            for ( ; (*result < (int) length) && (index > 0); index--)
             {
                 if (buffer)
                 {
@@ -163,10 +162,10 @@ static void mbed_minimal_formatted_string_unsigned_long_int(char* buffer, size_t
 static void mbed_minimal_formatted_string_unsigned_char(char* buffer, size_t length, int* result, int value)
 {
     /* only continue if buffer can fit at least 2 characters */
-    if ((*result + 2) <= length)
+    if ((*result + 2) <= (int) length)
     {
-        char nibble_one = (value & 0xFF) >> 4;
-        char nibble_two = (value & 0x0F);
+        unsigned int nibble_one = (value & 0xFF) >> 4;
+        unsigned int nibble_two = (value & 0x0F);
 
         const char int2hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', 
                                    '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
@@ -216,7 +215,7 @@ static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t leng
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, int character)
 {
     /* only continue if the buffer can fit 1 character */
-    if ((*result + 1) <= length)
+    if ((*result + 1) <= (int) length)
     {
         if (buffer)
         {
@@ -234,7 +233,7 @@ static void mbed_minimal_formatted_string_character(char* buffer, size_t length,
 static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, char* string)
 {
     /* only continue if the buffer can fit at least 1 character */
-    if ((*result + 1) <= length)
+    if ((*result + 1) <= (int) length)
     {
         /* count characters in string */
         size_t remaining = length - *result;
