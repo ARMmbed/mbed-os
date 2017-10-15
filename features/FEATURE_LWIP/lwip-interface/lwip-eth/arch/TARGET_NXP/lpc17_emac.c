@@ -153,7 +153,7 @@ struct lpc_enetdata {
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
 #  endif
 #elif defined(TARGET_LPC17XX)
-#  if defined(TOOLCHAIN_GCC_ARM)
+#  if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_ARM)
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
 #  endif
 #endif
