@@ -24,7 +24,9 @@
 ; */
 
 
-                NAME    irq_armv8mbl.s
+#ifndef __DOMAIN_NS
+#define __DOMAIN_NS 0
+#endif
 
 I_T_RUN_OFS     EQU      28                     ; osRtxInfo.thread.run offset
 TCB_SM_OFS      EQU      48                     ; TCB.stack_mem offset
@@ -34,21 +36,23 @@ TCB_TZM_OFS     EQU      64                     ; TCB.tz_memory offset
 
 
                 PRESERVE8
-                SECTION .rodata:DATA:NOROOT(2)
 
 
+                SECTION  .rodata:DATA:NOROOT(2)
                 EXPORT   irqRtxLib
 irqRtxLib       DCB      0                      ; Non weak library reference
 
+
+                SECTION   .text:CODE:NOROOT(2)
+
                 THUMB
-                SECTION .text:CODE:NOROOT(2)
 
 
 SVC_Handler
                 EXPORT   SVC_Handler
                 IMPORT   osRtxUserSVC
                 IMPORT   osRtxInfo
-#ifdef __DOMAIN_NS
+#if (__DOMAIN_NS == 1)
                 IMPORT   TZ_LoadContext_S
                 IMPORT   TZ_StoreContext_S
 #endif
@@ -76,7 +80,7 @@ SVC_Context
                 CBZ      R1,SVC_ContextSwitch   ; Branch if running thread is deleted
 
 SVC_ContextSave
-#ifdef __DOMAIN_NS
+#if (__DOMAIN_NS == 1)
                 LDR      R0,[R1,#TCB_TZM_OFS]   ; Load TrustZone memory identifier
                 CBZ      R0,SVC_ContextSave1    ; Branch if there is no secure context
                 PUSH     {R1,R2,R3,R7}          ; Save registers
@@ -107,7 +111,7 @@ SVC_ContextSwitch
                 STR      R2,[R3]                ; osRtxInfo.thread.run: curr = next
 
 SVC_ContextRestore
-#ifdef __DOMAIN_NS
+#if (__DOMAIN_NS == 1)
                 LDR      R0,[R2,#TCB_TZM_OFS]   ; Load TrustZone memory identifier
                 CBZ      R0,SVC_ContextRestore1 ; Branch if there is no secure context
                 PUSH     {R2,R3}                ; Save registers
@@ -124,7 +128,7 @@ SVC_ContextRestore1
                 ORRS     R0,R1
                 MOV      LR,R0                  ; Set EXC_RETURN
 
-#ifdef __DOMAIN_NS
+#if (__DOMAIN_NS == 1)
                 LSLS     R0,R0,#25              ; Check domain of interrupted thread
                 BPL      SVC_ContextRestore2    ; Branch if non-secure
                 LDR      R0,[R2,#TCB_SP_OFS]    ; Load SP
@@ -191,10 +195,11 @@ SysTick_Handler
                 B        Sys_Context
 
 
+
 Sys_Context
                 EXPORT   Sys_Context
                 IMPORT   osRtxInfo
-#ifdef __DOMAIN_NS
+#if (__DOMAIN_NS == 1)
                 IMPORT   TZ_LoadContext_S
                 IMPORT   TZ_StoreContext_S
 #endif
@@ -204,9 +209,8 @@ Sys_Context
                 CMP      R1,R2                  ; Check if thread switch is required
                 BEQ      Sys_ContextExit        ; Branch when threads are the same
 
-
 Sys_ContextSave
-#ifdef __DOMAIN_NS
+#if (__DOMAIN_NS == 1)
                 LDR      R0,[R1,#TCB_TZM_OFS]   ; Load TrustZone memory identifier
                 CBZ      R0,Sys_ContextSave1    ; Branch if there is no secure context
                 PUSH     {R1,R2,R3,R7}          ; Save registers
@@ -214,9 +218,8 @@ Sys_ContextSave
                 BL       TZ_StoreContext_S      ; Store secure context
                 MOV      LR,R7                  ; Set EXC_RETURN
                 POP      {R1,R2,R3,R7}          ; Restore registers
-                MOV      R0,LR                  ; Get EXC_RETURN
-                LSLS     R0,R0,#25              ; Check domain of interrupted thread
-                BPL      Sys_ContextSave1       ; Branch if not secure
+                LSLS     R7,R7,#25              ; Check domain of interrupted thread
+                BMI      Sys_ContextSave1       ; Branch if secure
                 MRS      R0,PSP                 ; Get PSP
                 STR      R0,[R1,#TCB_SP_OFS]    ; Store SP
                 B        Sys_ContextSave2
@@ -243,7 +246,7 @@ Sys_ContextSwitch
                 STR      R2,[R3]                ; osRtxInfo.run: curr = next
 
 Sys_ContextRestore
-#ifdef __DOMAIN_NS
+#if (__DOMAIN_NS == 1)
                 LDR      R0,[R2,#TCB_TZM_OFS]   ; Load TrustZone memory identifier
                 CBZ      R0,Sys_ContextRestore1 ; Branch if there is no secure context
                 PUSH     {R2,R3}                ; Save registers
@@ -260,7 +263,7 @@ Sys_ContextRestore1
                 ORRS     R0,R1
                 MOV      LR,R0                  ; Set EXC_RETURN
 
-#ifdef __DOMAIN_NS
+#if (__DOMAIN_NS == 1)
                 LSLS     R0,R0,#25              ; Check domain of interrupted thread
                 BPL      Sys_ContextRestore2    ; Branch if non-secure
                 LDR      R0,[R2,#TCB_SP_OFS]    ; Load SP
@@ -285,5 +288,3 @@ Sys_ContextRestore2
 
 Sys_ContextExit
                 BX       LR                     ; Exit from handler
-
-                END
