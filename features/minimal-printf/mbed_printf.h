@@ -26,10 +26,10 @@ extern "C" {
 /**
  * Minimal printf
  *
- * Prints directly to stdio/UART without using malloc. 
- * Doesn't suppoet any modifiers. 
+ * Prints directly to stdio/UART without using malloc.
+ * Doesn't suppoet any modifiers.
  *
- * Supports: 
+ * Supports:
  *   %d: signed long int
  *   %u: unsigned long int
  *   %p: void* (e.g. 0x00123456)
@@ -41,10 +41,10 @@ int mbed_printf(const char *format, ...);
 /**
  * Minimal snprintf
  *
- * Prints directly to buffer without using malloc. 
- * Doesn't suppoet any modifiers. 
+ * Prints directly to buffer without using malloc.
+ * Doesn't suppoet any modifiers.
  *
- * Supports: 
+ * Supports:
  *   %d: signed long int
  *   %u: unsigned long int
  *   %p: void* (e.g. 0x00123456)
@@ -52,6 +52,36 @@ int mbed_printf(const char *format, ...);
  *   %X: unsigned char printed as hexadecimal number (e.g., FF)
  */
 int mbed_snprintf(char* buffer, size_t length, const char* format, ...);
+
+/**
+ * Minimal printf
+ *
+ * Prints directly to stdio/UART without using malloc.
+ * Doesn't suppoet any modifiers.
+ *
+ * Supports:
+ *   %d: signed long int
+ *   %u: unsigned long int
+ *   %p: void* (e.g. 0x00123456)
+ *   %s: string
+ *   %X: unsigned char printed as hexadecimal number (e.g., FF)
+ */
+int mbed_vprintf(const char* format, va_list arguments);
+
+/**
+ * Minimal snprintf
+ *
+ * Prints directly to buffer without using malloc.
+ * Doesn't suppoet any modifiers.
+ *
+ * Supports:
+ *   %d: signed long int
+ *   %u: unsigned long int
+ *   %p: void* (e.g. 0x00123456)
+ *   %s: string
+ *   %X: unsigned char printed as hexadecimal number (e.g., FF)
+ */
+int mbed_vsnprintf(char* buffer, size_t length, const char* format, va_list arguments);
 
 #ifdef __cplusplus
 }
