@@ -38,7 +38,7 @@ static inline uint32_t lfs_min(uint32_t a, uint32_t b) {
 
 static inline uint32_t lfs_ctz(uint32_t a) {
 #ifdef __ICCARM__
-    return __CLZ(__REV(a));
+    return __CLZ(__RBIT(a));
 #else
     return __builtin_ctz(a);
 #endif
