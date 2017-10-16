@@ -64,8 +64,13 @@ uint32_t TZ_InitContextSystem_S (void)
     ProcessStackFreeSlot = 0U;
 
     // Default process stack pointer and stack limit
+#if defined(__ICCARM__)
+    asm volatile("MSR     PSPLIM, %0" :: "r" ((uint32_t)ProcessStackMemory));
+    asm volatile("MSR     PSP, %0" :: "r" ((uint32_t)ProcessStackMemory));
+#else
     __set_PSPLIM ((uint32_t)ProcessStackMemory);
     __set_PSP ((uint32_t)ProcessStackMemory);
+#endif
 
     // Privileged Thread Mode using PSP
     __set_CONTROL(0x02U);
@@ -154,8 +159,13 @@ uint32_t TZ_LoadContext_S (TZ_MemoryId_t id)
     }
 
     // Setup process stack pointer and stack limit
+#if defined(__ICCARM__)
+    asm volatile("MSR     PSPLIM, %0" :: "r" ((uint32_t)ProcessStackInfo[slot].sp_limit));
+    asm volatile("MSR     PSP, %0" :: "r" ((uint32_t)ProcessStackInfo[slot].sp));
+#else
     __set_PSPLIM(ProcessStackInfo[slot].sp_limit);
     __set_PSP     (ProcessStackInfo[slot].sp);
+#endif
 
     return 1U;        // Success
 }
@@ -192,8 +202,13 @@ uint32_t TZ_StoreContext_S (TZ_MemoryId_t id)
     ProcessStackInfo[slot].sp = sp;
 
     // Default process stack pointer and stack limit
-    __set_PSPLIM((uint32_t)ProcessStackMemory);
-    __set_PSP     ((uint32_t)ProcessStackMemory);
+#if defined(__ICCARM__)
+    asm volatile("MSR     PSPLIM, %0" :: "r" ((uint32_t)ProcessStackMemory));
+    asm volatile("MSR     PSP, %0" :: "r" ((uint32_t)ProcessStackMemory));
+#else
+    __set_PSPLIM ((uint32_t)ProcessStackMemory);
+    __set_PSP ((uint32_t)ProcessStackMemory);
+#endif
 
     return 1U;        // Success
 }
