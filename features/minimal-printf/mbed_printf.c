@@ -38,7 +38,7 @@ static serial_t stdio_uart = { 0 };
 //#endif
 #endif
 
-static void init_serial() 
+static void init_serial()
 {
     if (not_initialized)
     {
@@ -60,6 +60,8 @@ static void init_serial()
 /* Linux                   */
 /***************************/
 #else
+#define MBED_CONF_MINIMAL_PRINTF_FLOATING_POINT 1
+#define MBED_CONF_MINIMAL_PRINTF_FLOATING_POINT_MAX_DECIMALS 10
 #define MBED_INITIALIZE_PRINT(x) { ; }
 #define MBED_PRINT_CHARACTER(x) { printf("%c", x); }
 #endif
@@ -71,10 +73,18 @@ static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t leng
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, int character);
 static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, char* string);
 
+#ifndef MBED_CONF_MINIMAL_PRINTF_FLOATING_POINT
+#define MBED_CONF_MINIMAL_PRINTF_FLOATING_POINT 0
+#endif
+
+#ifndef MBED_CONF_MINIMAL_PRINTF_FLOATING_POINT_MAX_DECIMALS
+#define MBED_CONF_MINIMAL_PRINTF_FLOATING_POINT_MAX_DECIMALS  0
+#endif
+
 static void mbed_minimal_formatted_string_long_int(char* buffer, size_t length, int* result, long int value)
 {
     /* only continue if buffer can fit at least 1 characters */
-    if ((*result + 1) <= (int) length)
+    if ((*result + 1) <= (long int) length)
     {
         unsigned long int new_value = 0;
 
@@ -109,7 +119,7 @@ static void mbed_minimal_formatted_string_long_int(char* buffer, size_t length, 
 static void mbed_minimal_formatted_string_unsigned_long_int(char* buffer, size_t length, int* result, unsigned long int value)
 {
     /* only continue if buffer can fit at least 1 characters */
-    if ((*result + 1) <= (int) length)
+    if ((*result + 1) <= (long int) length)
     {
         /* treat 0 as a corner case */
         if (value == 0)
@@ -127,6 +137,7 @@ static void mbed_minimal_formatted_string_unsigned_long_int(char* buffer, size_t
         }
         else
         {
+            /* allocate 3 digits per byte */
             char scratch[sizeof(unsigned long int) * 3] = { 0 };
 
             size_t index = 0;
@@ -142,7 +153,7 @@ static void mbed_minimal_formatted_string_unsigned_long_int(char* buffer, size_t
             }
 
             /* write scratch pad to buffer or output */
-            for ( ; (*result < (int) length) && (index > 0); index--)
+            for ( ; (*result < (long int) length) && (index > 0); index--)
             {
                 if (buffer)
                 {
@@ -162,12 +173,12 @@ static void mbed_minimal_formatted_string_unsigned_long_int(char* buffer, size_t
 static void mbed_minimal_formatted_string_unsigned_char(char* buffer, size_t length, int* result, int value)
 {
     /* only continue if buffer can fit at least 2 characters */
-    if ((*result + 2) <= (int) length)
+    if ((*result + 2) <= (long int) length)
     {
         unsigned int nibble_one = (value & 0xFF) >> 4;
         unsigned int nibble_two = (value & 0x0F);
 
-        const char int2hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7', 
+        const char int2hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
                                    '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
         if (buffer)
@@ -212,10 +223,47 @@ static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t leng
     }
 }
 
+#if MBED_CONF_MINIMAL_PRINTF_FLOATING_POINT
+static void mbed_minimal_formatted_string_double(char* buffer, size_t length, int* result, double value)
+{
+    /* only continue if buffer can fit at least 1 characters */
+    if ((*result + 1) <= (long int) length)
+    {
+        /* get integer part */
+        long int integer = value;
+
+        /* write integer part */
+        mbed_minimal_formatted_string_long_int(buffer, length, result, integer);
+
+        /* write decimal point */
+        mbed_minimal_formatted_string_character(buffer, length, result, '.');
+
+        /* get decimal part */
+        double precision = 1.0;
+
+        for (size_t index = 0; index < MBED_CONF_MINIMAL_PRINTF_FLOATING_POINT_MAX_DECIMALS; index++)
+        {
+            precision *= 10;
+        }
+
+        long int decimal = (value - integer) * precision;
+
+        /* take absolute value */
+        if (decimal < 0)
+        {
+            decimal = -1 * decimal;
+        }
+
+        /* write decimal part */
+        mbed_minimal_formatted_string_long_int(buffer, length, result, decimal);
+    }
+}
+#endif
+
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, int character)
 {
     /* only continue if the buffer can fit 1 character */
-    if ((*result + 1) <= (int) length)
+    if ((*result + 1) <= (long int) length)
     {
         if (buffer)
         {
@@ -233,7 +281,7 @@ static void mbed_minimal_formatted_string_character(char* buffer, size_t length,
 static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, char* string)
 {
     /* only continue if the buffer can fit at least 1 character */
-    if ((*result + 1) <= (int) length)
+    if ((*result + 1) <= (long int) length)
     {
         /* count characters in string */
         size_t remaining = length - *result;
@@ -251,7 +299,7 @@ static void mbed_minimal_formatted_string_string(char* buffer, size_t length, in
             for (size_t index = 0; index < string_length; index++)
             {
                 buffer[*result + index] = string[index];
-            }            
+            }
         }
         /* print string */
         else
@@ -282,63 +330,110 @@ static int mbed_minimal_formatted_string(char* buffer, size_t length, const char
     {
         /* format specifier begin */
         if (format[index] == '%')
-        {            
-            char next = format[index + 1];
+        {
+            size_t next_index = index + 1;
 
-            if (next == 'd')
+            /* while there is room in buffer and format string is not empty */
+            while ((next_index < length) && (format[next_index] != '\0') &&
+                    /* skip all size modifiers */
+                    (((format[next_index] >= '0') && (format[next_index] <= '9')) ||
+                     (format[next_index] == 'h') ||
+                     (format[next_index] == 'l') ||
+                     (format[next_index] == 'j') ||
+                     (format[next_index] == 'z') ||
+                     (format[next_index] == 't') ||
+                     (format[next_index] == 'L') ||
+                     (format[next_index] == '.')))
+            {
+                /* skip to next character */
+                next_index++;
+            }
+
+            /* read out character - this a supported format character, '\0', or a not suported character */
+            char next = format[next_index];
+
+            /* signed integer */
+            if ((next == 'd') || (next == 'i'))
             {
                 long int value = va_arg(arguments, long int);
-                index++;
+                index = next_index;
 
                 mbed_minimal_formatted_string_long_int(buffer, length, &result, value);
             }
+            /* unsigned integer */
             else if (next == 'u')
             {
                 unsigned long int value = va_arg(arguments, unsigned long int);
-                index++;
+                index = next_index;
 
                 mbed_minimal_formatted_string_unsigned_long_int(buffer, length, &result, value);
             }
-            else if (next == 'X')
+            /* treat both hexadecimeal modifiers the same */
+            else if ((next == 'x') || (next == 'X'))
             {
                 int value = va_arg(arguments, int);
-                index++;
+                index = next_index;
 
                 mbed_minimal_formatted_string_unsigned_char(buffer, length, &result, value);
             }
-            else if (next == 'p')
+#if MBED_CONF_MINIMAL_PRINTF_FLOATING_POINT
+            /* treat all floating points the same */
+            else if ((next == 'f') || (next == 'F') || (next == 'g') || (next == 'G'))
             {
-                void* value = va_arg(arguments, void*);
-                index++;
+                double value = va_arg(arguments, double);
+                index = next_index;
 
-                mbed_minimal_formatted_string_void_pointer(buffer, length, &result, value);
+                mbed_minimal_formatted_string_double(buffer, length, &result, value);
             }
+#endif
+            /* character */
             else if (next == 'c')
             {
                 int value = va_arg(arguments, int);
-                index++;
+                index = next_index;
 
                 mbed_minimal_formatted_string_character(buffer, length, &result, value);
             }
+            /* string */
             else if (next == 's')
             {
                 char* value = va_arg(arguments, char*);
-                index++;
+                index = next_index;
 
                 mbed_minimal_formatted_string_string(buffer, length, &result, value);
             }
-            else if (next == '\0')
+            /* pointer */
+            else if (next == 'p')
             {
-                mbed_minimal_formatted_string_character(buffer, length, &result, '%');
+                void* value = va_arg(arguments, void*);
+                index = next_index;
+
+                mbed_minimal_formatted_string_void_pointer(buffer, length, &result, value);
             }
-            else 
+            else
             {
-                mbed_minimal_formatted_string_character(buffer, length, &result, '%');                
+                /* write all characters between format beginning and unrecognied modifier */
+                while (index < next_index)
+                {
+                    mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);
+                    index++;
+                }
+
+                /* if this is not the end of the string, write unrecognized modifier */
+                if (next != '\0')
+                {
+                    mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);
+                }
+                else
+                {
+                    /* break out of for loop */
+                    break;
+                }
             }
         }
         else
         {
-            mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);                
+            mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);
         }
     }
 
@@ -357,10 +452,10 @@ int mbed_printf(const char *format, ...)
 
     va_list arguments;
     va_start(arguments, format);
-    int result = mbed_minimal_formatted_string(NULL, ULONG_MAX, format, arguments);
+    int result = mbed_minimal_formatted_string(NULL, LONG_MAX, format, arguments);
     va_end(arguments);
 
-    return result;    
+    return result;
 }
 
 int mbed_snprintf(char* buffer, size_t length, const char* format, ...)
@@ -372,5 +467,5 @@ int mbed_snprintf(char* buffer, size_t length, const char* format, ...)
     int result = mbed_minimal_formatted_string(buffer, length, format, arguments);
     va_end(arguments);
 
-    return result;    
+    return result;
 }

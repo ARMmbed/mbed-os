@@ -1,14 +1,37 @@
-# Minimal printf
+# Minimal printf and snprintf
 
-Prints directly to stdio/UART without using malloc. 
-Doesn't support any modifiers. 
+Library supports both printf and snprintf in 960 bytes of flash.
 
-Supports: 
-* %d: signed long int
-* %u: unsigned long int
-* %p: void* (e.g. 0x00123456)
-* %s: string
-* %X: unsigned char printed as hexadecimal number (e.g., FF)
+Prints directly to stdio/UART without using malloc. All flags, length, and precision modifiers are ignored. Floating point is disabled by default.
+
+Supports:
+* %d: signed long int.
+* %i: signed long int.
+* %u: unsigned long int.
+* %x: unsigned char printed as hexadecimal number (e.g., FF).
+* %X: unsigned char printed as hexadecimal number (e.g., FF).
+* %f: floating point (disabled by default).
+* %F: floating point (disabled by default).
+* %g: floating point (disabled by default).
+* %G: floating point (disabled by default).
+* %c: character.
+* %s: string.
+* %p: pointer (e.g. 0x00123456).
+
+## Enabling floating point and setting baud rate
+
+In mbed_app.json:
+
+```
+    "target_overrides": {
+        "*": {
+            "platform.stdio-baud-rate": 115200,
+            "minimal-printf.floating-point": true,
+            "minimal-printf.floating-point-max-decimals": 10
+        }
+    }
+```
+
 
 ## Size comparison
 
@@ -33,39 +56,107 @@ mbed-os/events/*
 #include "mbed_printf.h"
 #include <limits.h>
 
-int main() 
+int main()
 {
     char buffer[1000];
     int result;
 
+    double pi = 3.14159265359;
+
 #if 0
-    result = printf("hello world %d %u %X %p %s %% %\r\n", LONG_MAX, ULONG_MAX, UCHAR_MAX, buffer, "muh");
+    result = printf("hello world %d %u %X %p %s %2.5f %% %\r\n", LONG_MAX, ULONG_MAX, UCHAR_MAX, buffer, "muh", pi);
     printf("results: %d\r\n", result);
 
-    result = snprintf(buffer, 1000, "hello world %d %u %X %p %s %% %\r\n", LONG_MIN, 0, 0, buffer, "muh");
+    result = snprintf(buffer, 1000, "hello world %d %u %X %p %s %2.5f %% %\r\n", LONG_MIN, 0, 0, buffer, "muh", -1*pi);
     printf("%s\r\n", buffer);
 
     printf("results: %d\r\n", result);
 
 #else
-    result = mbed_printf("hello world %d %u %X %p %s %% %\r\n", LONG_MAX, ULONG_MAX, UCHAR_MAX, buffer, "muh");
+    result = mbed_printf("hello world %ld %llu %02X %p %s %2.5f %% %\r\n", LONG_MAX, ULONG_MAX, UCHAR_MAX, buffer, "muh", pi);
     mbed_printf("results: %d\r\n", result);
 
-    result = mbed_snprintf(buffer, 1000, "hello world %d %u %X %p %s %% %\r\n", LONG_MIN, 0, 0, buffer, "muh");
+    result = mbed_snprintf(buffer, 1000, "hello world %d %u %X %p %s %2.5f %% %\r\n", LONG_MIN, 0, 0, buffer, "muh", -1*pi);
     mbed_printf("%s\r\n", buffer);
-    
+
     mbed_printf("results: %d\r\n", result);
 #endif
 }
 ```
 
-### K64F standard printf
+
+### K64F GCC minimal printf without floating point
 
 ```
 +------------------------------------------+-------+-------+------+
 | Module                                   | .text | .data | .bss |
 +------------------------------------------+-------+-------+------+
-| [fill]                                   |    52 |     4 | 2071 |
+| [fill]                                   |    16 |     3 | 2102 |
+| [lib]/c.a/lib_a-init.o                   |    80 |     0 |    0 |
+| [lib]/c.a/lib_a-memcpy.o                 |   308 |     0 |    0 |
+| [lib]/c.a/lib_a-memset.o                 |   156 |     0 |    0 |
+| [lib]/misc/                              |   248 |     4 |   28 |
+| main.o                                   |   256 |     0 |    0 |
+| mbed-os/hal/mbed_gpio.o                  |    96 |     0 |    0 |
+| mbed-os/hal/mbed_pinmap_common.o         |   212 |     0 |    0 |
+| mbed-os/hal/mbed_ticker_api.o            |   214 |     0 |    0 |
+| mbed-os/hal/mbed_us_ticker_api.o         |    44 |     0 |   24 |
+| mbed-os/platform/mbed_board.o            |    90 |     0 |    0 |
+| mbed-os/platform/mbed_critical.o         |    56 |     0 |    5 |
+| mbed-os/platform/mbed_error.o            |    32 |     0 |    1 |
+| mbed-os/platform/mbed_retarget.o         |    20 |     0 |    0 |
+| mbed-os/platform/mbed_sdk_boot.o         |    74 |     0 |    0 |
+| mbed-os/platform/mbed_wait_api_no_rtos.o |    32 |     0 |    0 |
+| mbed-os/targets/TARGET_Freescale         |  4758 |    12 |  384 |
+| mbed-printf/mbed_printf.o                |   960 |     1 |  188 |
+| Subtotals                                |  7652 |    20 | 2732 |
++------------------------------------------+-------+-------+------+
+Total Static RAM memory (data + bss): 2752 bytes
+Total Flash memory (text + data): 7672 bytes
+```
+
+
+### K64F GCC minimal printf with floating point
+
+```
++------------------------------------------+-------+-------+------+
+| Module                                   | .text | .data | .bss |
++------------------------------------------+-------+-------+------+
+| [fill]                                   |    24 |     3 | 2102 |
+| [lib]/c.a/lib_a-init.o                   |    80 |     0 |    0 |
+| [lib]/c.a/lib_a-memcpy.o                 |   308 |     0 |    0 |
+| [lib]/c.a/lib_a-memset.o                 |   156 |     0 |    0 |
+| [lib]/gcc.a/_arm_addsubdf3.o             |   880 |     0 |    0 |
+| [lib]/gcc.a/_arm_fixdfsi.o               |    80 |     0 |    0 |
+| [lib]/gcc.a/_arm_muldivdf3.o             |  1060 |     0 |    0 |
+| [lib]/misc/                              |   248 |     4 |   28 |
+| main.o                                   |   256 |     0 |    0 |
+| mbed-os/hal/mbed_gpio.o                  |    96 |     0 |    0 |
+| mbed-os/hal/mbed_pinmap_common.o         |   212 |     0 |    0 |
+| mbed-os/hal/mbed_ticker_api.o            |   214 |     0 |    0 |
+| mbed-os/hal/mbed_us_ticker_api.o         |    44 |     0 |   24 |
+| mbed-os/platform/mbed_board.o            |    90 |     0 |    0 |
+| mbed-os/platform/mbed_critical.o         |    56 |     0 |    5 |
+| mbed-os/platform/mbed_error.o            |    32 |     0 |    1 |
+| mbed-os/platform/mbed_retarget.o         |    20 |     0 |    0 |
+| mbed-os/platform/mbed_sdk_boot.o         |    74 |     0 |    0 |
+| mbed-os/platform/mbed_wait_api_no_rtos.o |    32 |     0 |    0 |
+| mbed-os/targets/TARGET_Freescale         |  4758 |    12 |  384 |
+| mbed-printf/mbed_printf.o                |  1160 |     1 |  188 |
+| Subtotals                                |  9880 |    20 | 2732 |
++------------------------------------------+-------+-------+------+
+Total Static RAM memory (data + bss): 2752 bytes
+Total Flash memory (text + data): 9900 bytes
+```
+
+
+### K64F GCC standard printf
+
+```
++------------------------------------------+-------+-------+------+
+| Module                                   | .text | .data | .bss |
++------------------------------------------+-------+-------+------+
+| [fill]                                   |    62 |     4 | 2071 |
 | [lib]/c.a/lib_a-callocr.o                |    96 |     0 |    0 |
 | [lib]/c.a/lib_a-closer.o                 |    36 |     0 |    0 |
 | [lib]/c.a/lib_a-ctype_.o                 |   257 |     0 |    0 |
@@ -120,7 +211,7 @@ int main()
 | [lib]/gcc.a/_dvmd_tls.o                  |     4 |     0 |    0 |
 | [lib]/gcc.a/_udivmoddi4.o                |   732 |     0 |    0 |
 | [lib]/misc/                              |   248 |     4 |   28 |
-| main.o                                   |   169 |     0 |    0 |
+| main.o                                   |   215 |     0 |    0 |
 | mbed-os/hal/mbed_gpio.o                  |    96 |     0 |    0 |
 | mbed-os/hal/mbed_pinmap_common.o         |   212 |     0 |    0 |
 | mbed-os/hal/mbed_ticker_api.o            |   214 |     0 |    0 |
@@ -133,38 +224,8 @@ int main()
 | mbed-os/platform/mbed_sdk_boot.o         |    74 |     0 |    0 |
 | mbed-os/platform/mbed_wait_api_no_rtos.o |    32 |     0 |    0 |
 | mbed-os/targets/TARGET_Freescale         |  4834 |    12 |  384 |
-| Subtotals                                | 34882 |  2496 | 2868 |
+| Subtotals                                | 34938 |  2496 | 2868 |
 +------------------------------------------+-------+-------+------+
 Total Static RAM memory (data + bss): 5364 bytes
-Total Flash memory (text + data): 37378 bytes
-```
-
-### K64F minimal printf
-
-```
-+------------------------------------------+-------+-------+------+
-| Module                                   | .text | .data | .bss |
-+------------------------------------------+-------+-------+------+
-| [fill]                                   |    15 |     3 | 2102 |
-| [lib]/c.a/lib_a-init.o                   |    80 |     0 |    0 |
-| [lib]/c.a/lib_a-memcpy.o                 |   308 |     0 |    0 |
-| [lib]/c.a/lib_a-memset.o                 |   156 |     0 |    0 |
-| [lib]/misc/                              |   248 |     4 |   28 |
-| main.o                                   |   169 |     0 |    0 |
-| mbed-os/hal/mbed_gpio.o                  |    96 |     0 |    0 |
-| mbed-os/hal/mbed_pinmap_common.o         |   212 |     0 |    0 |
-| mbed-os/hal/mbed_ticker_api.o            |   214 |     0 |    0 |
-| mbed-os/hal/mbed_us_ticker_api.o         |    44 |     0 |   24 |
-| mbed-os/platform/mbed_board.o            |    90 |     0 |    0 |
-| mbed-os/platform/mbed_critical.o         |    56 |     0 |    5 |
-| mbed-os/platform/mbed_error.o            |    32 |     0 |    1 |
-| mbed-os/platform/mbed_retarget.o         |    20 |     0 |    0 |
-| mbed-os/platform/mbed_sdk_boot.o         |    74 |     0 |    0 |
-| mbed-os/platform/mbed_wait_api_no_rtos.o |    32 |     0 |    0 |
-| mbed-os/targets/TARGET_Freescale         |  4758 |    12 |  384 |
-| mbed-printf/mbed_printf.o                |   820 |     1 |  188 |
-| Subtotals                                |  7424 |    20 | 2732 |
-+------------------------------------------+-------+-------+------+
-Total Static RAM memory (data + bss): 2752 bytes
-Total Flash memory (text + data): 7444 bytes
+Total Flash memory (text + data): 37434 bytes
 ```
