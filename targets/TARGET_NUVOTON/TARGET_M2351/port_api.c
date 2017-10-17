@@ -44,8 +44,6 @@ void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
     port_dir(obj, dir);
 }
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__attribute__((cmse_nonsecure_entry))
 void port_dir(port_t *obj, PinDirection dir)
 {
     uint32_t i;
@@ -60,7 +58,6 @@ void port_dir(port_t *obj, PinDirection dir)
         }
     }
 }
-#endif
 
 void port_mode(port_t *obj, PinMode mode)
 {
