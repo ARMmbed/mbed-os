@@ -58,8 +58,8 @@
 #define UARTLP_CTRL (1 << 6)
 
 /* Convert number of data bits to register values */
-#define MIN_NUM_UART_DATA_BITS 5
-#define MAX_NUM_UART_DATA_BITS 8
+#define UART_DATA_BITS_7 7
+#define UART_DATA_BITS_8 8
 #define REGISTER_DATA_BITS(x) ((x) - MIN_NUM_UART_DATA_BITS)
 
 /* Number of stop bits */
@@ -102,6 +102,7 @@
 
 /** Return \p data with bitfield defined as `name_OFFSET` and `name_SIZE` set to \p name_ENUM_value */
 #define DRIVER_BITFIELD_SET_ENUM(data, name, enumValue)  DRIVER_BITFIELD_SET(data, name,  DRIVER_BITFIELD_ENUM(name, enumValue))
+
 /* ----------------------------------------------------------------
  * TYPES
  * ----------------------------------------------------------------*/
@@ -374,85 +375,56 @@ void serial_baud(serial_t *obj, int baudrate)
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
-{
-    // bool lp_also = false;
+{    
+    MBED_ASSERT((data_bits == UART_DATA_BITS_7) || (data_bits == UART_DATA_BITS_8));     
+    /* Uart_IP supports 0.5, 1, 1.5 and 2 stop bits however SerialBase Class only allows 1 or 2 stop bits*/
+    MBED_ASSERT((stop_bits == NUM_UART_STOP_BITS_1) || (stop_bits == NUM_UART_STOP_BITS_2));     
+    MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
 
-    // MBED_ASSERT(data_bits >= MIN_NUM_UART_DATA_BITS);
-    // MBED_ASSERT(data_bits <= MAX_NUM_UART_DATA_BITS);
-    // MBED_ASSERT(stop_bits >= NUM_UART_STOP_BITS_1);
-    // MBED_ASSERT(stop_bits <= NUM_UART_STOP_BITS_2);
-
-    // /* The LP UART is different to UARTs 0 and 1 so deal with it
-     // * explicitly when required */
-    // if (obj->config == SERIAL_CONFIG_UARTLP_RX_UART0_TX) {
-        // lp_also = true;
-    // }
-
-    // /* Disable UART while writing to control registers */
-    // obj->reg_base->UARTCR &= ~(1 << 0);
-
-    // /* Set data bits (bits 5 and 6 of the UART0/1 register, bits 18 and 19 of the LP UART register) */
-    // obj->reg_base->UARTLCR_H = (obj->reg_base->UARTLCR_H & ~(0x03 << 5)) | (REGISTER_DATA_BITS(data_bits) << 5);
-    // if (lp_also) {
-        // LP_UART_CTRL = (LP_UART_CTRL & ~(0x03 << 18)) | (REGISTER_DATA_BITS(data_bits) << 18);
-    // }
-    // obj->format.data_bits = (uint8_t) data_bits;
-
-    // /* Set stop bits (bit 7 of the UART0/1 register) (there is no such setting for the LP UART) */
-    // if (stop_bits == NUM_UART_STOP_BITS_1) {
-        // /* Clear 2-stop-bits bit */
-        // obj->reg_base->UARTLCR_H &= ~(1 << 7);
-    // } else {
-        // /* Set 2-stop-bits bit */
-        // obj->reg_base->UARTLCR_H |= 1 << 7;
-    // }
-    // obj->format.stop_bits = (uint8_t) stop_bits;
-
-    // /* Set parity */
-    // switch (parity) {
-        // case ParityNone:
-        // {
-            // /* Disable parity */
-            // obj->reg_base->UARTLCR_H &= ~0x02;
-            // if (lp_also)
-            // {
-                // LP_UART_CTRL &= ~(1 << 24);
-            // }
-        // }
-        // break;
-        // case ParityOdd:
-        // {
-            // /* Set even bit and enable parity */
-            // obj->reg_base->UARTLCR_H = (obj->reg_base->UARTLCR_H | (1 << 3)) | (1 << 2);
-            // if (lp_also)
-            // {
-                // LP_UART_CTRL |= (1 << 24) | (1 << 25);
-            // }
-        // }
-        // break;
-        // case ParityEven:
-        // {
-            // /* Clear even bit and enable parity */
-            // obj->reg_base->UARTLCR_H = (obj->reg_base->UARTLCR_H & ~(1 << 3)) | (1 << 2);
-            // if (lp_also)
-            // {
-                // LP_UART_CTRL &= ~(1 << 25);
-                // LP_UART_CTRL |= 1 << 24;
-            // }
-        // }
-        // break;
-        // default:
-        // {
-            // MBED_ASSERT(false);
-        // }
-        // break;
-    // }
-
-    // /* Enable the UART again */
-    // obj->reg_base->UARTCR |= 1 << 0;
-
-    // obj->format.parity = (uint8_t) parity;
-    // obj->format_set = true;
+    uint32_t register_value=0;
+    
+    /* disable uart */ 
+    register_value = (DRIVER_BITFIELD_MASK(UART_CRC_BR_EN) | DRIVER_BITFIELD_MASK(UART_CRC_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRC_TX_EN));
+    obj->reg_base->crc = register_value;
+    
+    /* read the existing value, change what is required and write once. This is done so that register access is only once not again and again */
+    register_value = obj->reg_base->cr;
+    
+    /* set uart_driver_mode */
+    if (parity == ParityNone) { /* Parity is disabled, set mode with parity disabled */        
+        if (data_bits == UART_DATA_BITS_7) {
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_MODE, UART_CR_MODE_7NP_VALUE);            
+        } else if (data_bits == UART_DATA_BITS_8) {
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_MODE, UART_CR_MODE_8NP_VALUE);            
+        }       
+    } else { /* Parity is enabled, set mode with parity enabled */        
+        if (data_bits == UART_DATA_BITS_7) {
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_MODE, UART_CR_MODE_7P_VALUE);             
+        } else if (data_bits == UART_DATA_BITS_8) {
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_MODE, UART_CR_MODE_8P_VALUE);            
+        } 
+                
+        if (parity == ParityEven) { /* Set reg field depending upon parity even or odd */
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_PARITYMODE, UART_CR_PARITYMODE_EVEN_VALUE);            
+        } else if (parity == ParityOdd) {
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_PARITYMODE, UART_CR_PARITYMODE_ODD_VALUE);            
+        }        
+    }
+    
+    /* set uart_stop_bits */
+    if (stop_bits == NUM_UART_STOP_BITS_1) {
+        register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_RX_STOPBITS, UART_CR_RX_STOPBITS_10_VALUE);      
+        register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_TX_STOPBITS, UART_CR_RX_STOPBITS_10_VALUE);   // macro UART_CR_TX_STOPBITS_10_VALUE is not defined in uart.h but since possible values for both UART_CR_RX_STOPBITS and UART_CR_TX_STOPBITS are the same so it is not necessary.   
+    } else if (stop_bits == NUM_UART_STOP_BITS_2) {
+        register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_RX_STOPBITS, UART_CR_RX_STOPBITS_20_VALUE);      
+        register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_TX_STOPBITS, UART_CR_RX_STOPBITS_20_VALUE);           
+    }
+             
+    /* enable uart */ 
+    register_value |= (DRIVER_BITFIELD_MASK(UART_CRS_BR_EN) | DRIVER_BITFIELD_MASK(UART_CRS_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRS_TX_EN));
+    
+    /* write final value to register */
+    obj->reg_base->cr = register_value;
 }
 
 /* ----------------------------------------------------------------
