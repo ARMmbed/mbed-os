@@ -97,6 +97,7 @@ class DeviceCMSIS():
         cpu = cpu.replace("Cortex-","ARMC")
         cpu = cpu.replace("+","P")
         cpu = cpu.replace("F","_FP")
+        cpu = cpu.replace("-NS", "")
         return cpu
 
 
