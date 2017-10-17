@@ -3,10 +3,6 @@
         "default_test_configuration": "NONE",
         "test_configurations": ["ODIN_WIFI", "ODIN_ETHERNET"]
     },
-    "K64F": {
-        "default_test_configuration": "ETHERNET",
-        "test_configurations": ["ETHERNET"]
-    },
     "REALTEK_RTL8195AM": {
         "default_test_configuration": "NONE",
         "test_configurations": ["REALTEK_WIFI"]
