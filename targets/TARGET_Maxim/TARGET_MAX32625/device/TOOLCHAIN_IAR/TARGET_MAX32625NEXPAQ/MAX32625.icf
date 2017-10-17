@@ -18,7 +18,7 @@ define region RAM_region      = mem:[from __region_RAM_start__   to __region_RAM
 define symbol __size_cstack__ = 0x5000;
 define symbol __size_heap__   = 0xA000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
-define block HEAP      with alignment = 8, size = __size_heap__     { };
+define block HEAP      with expanding size, minimum size = __size_heap__, alignment = 8    { };
 
 initialize by copy { readwrite };
 do not initialize  { section .noinit };
