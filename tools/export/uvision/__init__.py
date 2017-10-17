@@ -38,6 +38,7 @@ class DeviceUvision(DeviceCMSIS):
         cpu = self.core.replace("Cortex-", "C")
         cpu = cpu.replace("+", "")
         cpu = cpu.replace("F", "")
+        cpu = cpu.replace("-NS", "")
         cpu_flag = "p"+cpu
 
         # Locations found in Keil_v5/TOOLS.INI
@@ -231,15 +232,14 @@ class Uvision(Exporter):
             sct_path, dirname(sct_name))
         if ctx['linker_script'] != sct_path:
             self.generated_files.append(ctx['linker_script'])
-        core = ctx['device'].core
-        ctx['cputype'] = core.rstrip("FD")
-        if core.endswith("FD"):
+        ctx['cputype'] = ctx['device'].core.rstrip("FD").replace("-NS", "")
+        if ctx['device'].core.endswith("FD"):
             ctx['fpu_setting'] = 3
-        elif core.endswith("F"):
+        elif ctx['device'].core.endswith("F"):
             ctx['fpu_setting'] = 2
         else:
             ctx['fpu_setting'] = 1
-        ctx['fputype'] = self.format_fpu(core)
+        ctx['fputype'] = self.format_fpu(ctx['device'].core)
         ctx['armc6'] = int(self.TOOLCHAIN is 'ARMC6')
         ctx['toolchain_name'] = self.TOOLCHAIN_NAME
         ctx.update(self.format_flags())
