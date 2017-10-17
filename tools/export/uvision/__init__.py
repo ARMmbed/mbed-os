@@ -168,7 +168,7 @@ class Uvision(Exporter):
                                 self.resources.file_basepath[config_header])
         config_option = self.toolchain.get_config_option(config_header)
         c_flags = set(flags['c_flags'] + flags['cxx_flags'] +flags['common_flags'])
-        in_template = set(["--no_vla", "--cpp", "--c99"] + config_option)
+        in_template = set(["--no_vla", "--cpp", "--c99", "-MMD"] + config_option)
 
         invalid_flag = lambda x: (x in in_template or
                                   x.startswith("-O") or
@@ -181,7 +181,6 @@ class Uvision(Exporter):
         flags['c_flags'] += " ".join(config_option)
         flags['c_defines'] = " ".join(f[2:] for f in c_flags if is_define(f))
         flags['ld_flags'] = " ".join(set(flags['ld_flags']))
-        print(flags['c_flags'])
         return flags
 
     def format_src(self, srcs):
