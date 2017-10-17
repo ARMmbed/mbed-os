@@ -1,6 +1,7 @@
 from os.path import dirname, abspath, join
 
 from tools.utils import json_file_to_dict
+from tools.targets import TARGET_MAP
 
 CONFIG_DIR = dirname(abspath(__file__))
 CONFIG_MAP = json_file_to_dict(join(CONFIG_DIR, "config_paths.json"))
@@ -10,7 +11,10 @@ def get_valid_configs(target_name):
     if target_name in TARGET_CONFIGS:
         target_config = TARGET_CONFIGS[target_name]
     else:
-        return {}
+        if 'LWIP' in TARGET_MAP[target_name].features:
+            target_config = { "default_test_configuration": "ETHERNET", "test_configurations": ["ETHERNET"] }
+        else:
+            return {}
 
     config_dict = {}
     for attr in CONFIG_MAP:
@@ -31,5 +35,11 @@ def get_default_config(target_name):
         if config_name == "NONE":
             return None
         return join(CONFIG_DIR, CONFIG_MAP[config_name])
+    elif target_name in TARGET_MAP:
+        if 'LWIP' in TARGET_MAP[target_name].features:
+            config_name = "ETHERNET"
+            return join(CONFIG_DIR, CONFIG_MAP[config_name])
+        else:
+            return None
     else:
         return None
