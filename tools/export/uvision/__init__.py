@@ -1,5 +1,5 @@
 import os
-from os.path import sep, normpath, join, exists
+from os.path import sep, normpath, join, exists, relpath
 import ntpath
 import copy
 from collections import namedtuple
@@ -163,13 +163,16 @@ class Uvision(Exporter):
             ",".join(filter(lambda f: f.startswith("-D"), flags['asm_flags'])))
         flags['asm_flags'] = asm_flag_string
 
-        config_option = self.toolchain.get_config_option(
-            self.toolchain.get_config_header())
+        config_header = self.toolchain.get_config_header()
+        config_header = relpath(config_header,
+                                self.resources.file_basepath[config_header])
+        config_option = self.toolchain.get_config_option(config_header)
         c_flags = set(flags['c_flags'] + flags['cxx_flags'] +flags['common_flags'])
-        in_template = set(["--no_vla", "--cpp", "--c99", "-std=gnu99",
-                           "-std=g++98"] + config_option)
+        in_template = set(["--no_vla", "--cpp", "--c99"] + config_option)
 
-        invalid_flag = lambda x: x in in_template or x.startswith("-O")
+        invalid_flag = lambda x: (x in in_template or
+                                  x.startswith("-O") or
+                                  x.startswith("-std"))
         is_define = lambda s: s.startswith("-D")
 
         flags['c_flags'] = " ".join(f.replace('"','\\"') for f in c_flags
@@ -178,6 +181,7 @@ class Uvision(Exporter):
         flags['c_flags'] += " ".join(config_option)
         flags['c_defines'] = " ".join(f[2:] for f in c_flags if is_define(f))
         flags['ld_flags'] = " ".join(set(flags['ld_flags']))
+        print(flags['c_flags'])
         return flags
 
     def format_src(self, srcs):
