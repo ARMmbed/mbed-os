@@ -53,12 +53,15 @@ static const int delta_sys_clk_us = ((int) (TOLERANCE_FACTOR / (float)SystemCore
 #define DELTA_S  ((float)delta_sys_clk_us/US_PER_SEC)
 #define DELTA_MS  1
 
+#define TICKER_FREQ_1MHZ 1000000
+#define TICKER_BITS 32
+
 static Timer *p_timer = NULL;
 
 /* Global variable used to simulate passage of time
  * in case when timer which uses user ticker is tested.
  */
-static uint32_t curr_ticker_us_val;
+static uint32_t curr_ticker_ticks_val;
 
 /* User ticker interface function. */
 static void stub_interface_init()
@@ -71,7 +74,7 @@ static void stub_interface_init()
 static uint32_t stub_ticker_read(void)
 {
     /* Simulate elapsed time. */
-    return curr_ticker_us_val;
+    return curr_ticker_ticks_val;
 }
 
 /* User ticker interface function. */
@@ -98,6 +101,14 @@ static void stub_fire_interrupt(void)
     /* do nothing. */
 }
 
+ticker_info_t info =
+{ TICKER_FREQ_1MHZ, TICKER_BITS };
+
+const ticker_info_t * stub_get_info(void)
+{
+    return &info;
+}
+
 /* User ticker event queue. */
 static ticker_event_queue_t my_events = { 0 };
 
@@ -109,6 +120,7 @@ static const ticker_interface_t us_interface = {
     .clear_interrupt = stub_clear_interrupt,
     .set_interrupt = stub_set_interrupt,
     .fire_interrupt = stub_fire_interrupt,
+    .get_info = stub_get_info,
 };
 
 /* User ticker data structure. */
@@ -195,7 +207,7 @@ void test_timer_creation_os_ticker()
  * creation.
  *
  * Note: this function assumes that Timer uses user/fake ticker
- * which returns time value provided in curr_ticker_us_val
+ * which returns time value provided in curr_ticker_ticks_val
  * global variable.
  *
  * Given Timer has been successfully created.
@@ -206,7 +218,7 @@ void test_timer_creation_user_ticker()
 {
     /* For timer which is using user ticker simulate timer
      * creation time (irrelevant in case of os ticker). */
-    curr_ticker_us_val = 10000;
+    curr_ticker_ticks_val = 10000;
 
     /* Check results. */
     TEST_ASSERT_EQUAL_FLOAT(0, p_timer->read());
@@ -216,7 +228,7 @@ void test_timer_creation_user_ticker()
 
     /* Simulate that 10 ms has elapsed.
      * After that operation timer read routines should still return 0. */
-    curr_ticker_us_val += 10000;
+    curr_ticker_ticks_val += 10000;
 
     /* Check results. */
     TEST_ASSERT_EQUAL_FLOAT(0, p_timer->read());
@@ -229,7 +241,7 @@ void test_timer_creation_user_ticker()
  * read_high_resolution_us() functions returns valid values.
  *
  * Note: this function assumes that Timer uses user/fake ticker
- * which returns time value provided in curr_ticker_us_val
+ * which returns time value provided in curr_ticker_ticks_val
  * global variable.
  *
  * Given Timer has been successfully created and
@@ -241,13 +253,13 @@ void test_timer_creation_user_ticker()
 void test_timer_time_accumulation_user_ticker()
 {
     /* Simulate that current time is equal to 0 us. */
-    curr_ticker_us_val = 0;
+    curr_ticker_ticks_val = 0;
 
     /* Start the timer. */
     p_timer->start();
 
     /* -- Simulate that current time is equal to 1 us -- */
-    curr_ticker_us_val = 1;
+    curr_ticker_ticks_val = 1;
 
     /* Stop the timer. */
     p_timer->stop();
@@ -259,13 +271,13 @@ void test_timer_time_accumulation_user_ticker()
     TEST_ASSERT_EQUAL(1, p_timer->read_high_resolution_us());
 
     /* Simulate that 100 us has elapsed between stop and start. */
-    curr_ticker_us_val = 101;
+    curr_ticker_ticks_val = 101;
 
     /* Start the timer. */
     p_timer->start();
 
     /* -- Simulate that current time is equal to 225 us -- */
-    curr_ticker_us_val = 225;
+    curr_ticker_ticks_val = 225;
 
     /* Stop the timer. */
     p_timer->stop();
@@ -277,13 +289,13 @@ void test_timer_time_accumulation_user_ticker()
     TEST_ASSERT_EQUAL(125, p_timer->read_high_resolution_us());
 
     /* Simulate that 100 us has elapsed between stop and start. */
-    curr_ticker_us_val = 325;
+    curr_ticker_ticks_val = 325;
 
     /* Start the timer. */
     p_timer->start();
 
     /* -- Simulate that current time is equal to 1200 us -- */
-    curr_ticker_us_val = 1200;
+    curr_ticker_ticks_val = 1200;
 
     /* Stop the timer. */
     p_timer->stop();
@@ -295,13 +307,13 @@ void test_timer_time_accumulation_user_ticker()
     TEST_ASSERT_EQUAL(1000, p_timer->read_high_resolution_us());
 
     /* Simulate that 100 us has elapsed between stop and start. */
-    curr_ticker_us_val = 1300;
+    curr_ticker_ticks_val = 1300;
 
     /* Start the timer. */
     p_timer->start();
 
     /* -- Simulate that current time is equal to 125300 us -- */
-    curr_ticker_us_val = 125300;
+    curr_ticker_ticks_val = 125300;
 
     /* Stop the timer. */
     p_timer->stop();
@@ -313,13 +325,13 @@ void test_timer_time_accumulation_user_ticker()
     TEST_ASSERT_EQUAL(125000, p_timer->read_high_resolution_us());
 
     /* Simulate that 100 us has elapsed between stop and start. */
-    curr_ticker_us_val = 125400;
+    curr_ticker_ticks_val = 125400;
 
     /* Start the timer. */
     p_timer->start();
 
     /* -- Simulate that current time is equal to 1000400 us -- */
-    curr_ticker_us_val = 1000400;
+    curr_ticker_ticks_val = 1000400;
 
     /* Stop the timer. */
     p_timer->stop();
@@ -331,13 +343,13 @@ void test_timer_time_accumulation_user_ticker()
     TEST_ASSERT_EQUAL(1000000, p_timer->read_high_resolution_us());
 
     /* Simulate that 100 us has elapsed between stop and start. */
-    curr_ticker_us_val = 1000500;
+    curr_ticker_ticks_val = 1000500;
 
     /* Start the timer. */
     p_timer->start();
 
     /* -- Simulate that current time is equal to 125000500 us -- */
-    curr_ticker_us_val = 125000500;
+    curr_ticker_ticks_val = 125000500;
 
     /* Stop the timer. */
     p_timer->stop();
@@ -349,7 +361,7 @@ void test_timer_time_accumulation_user_ticker()
     TEST_ASSERT_EQUAL(125000000, p_timer->read_high_resolution_us());
 
     /* Simulate that 100 us has elapsed between stop and start. */
-    curr_ticker_us_val = 125000600;
+    curr_ticker_ticks_val = 125000600;
 
     /* Start the timer. */
     p_timer->start();
@@ -361,7 +373,7 @@ void test_timer_time_accumulation_user_ticker()
      * while timers are based on 32-bit signed int microsecond counters,
      * so timers can only count up to a maximum of 2^31-1 microseconds i.e.
      * 2147483647 us (about 35 minutes). */
-    curr_ticker_us_val = 2147484247;
+    curr_ticker_ticks_val = 2147484247;
 
     /* Stop the timer. */
     p_timer->stop();
@@ -531,13 +543,13 @@ void test_timer_reset_user_ticker()
 {
     /* For timer which is using user ticker simulate set current
      * time (irrelevant in case of os ticker). */
-    curr_ticker_us_val = 0;
+    curr_ticker_ticks_val = 0;
 
     /* First measure 10 ms delay. */
     p_timer->start();
 
     /* Simulate that 10 ms have elapsed. */
-    curr_ticker_us_val = 10000;
+    curr_ticker_ticks_val = 10000;
 
     /* Stop the timer. */
     p_timer->stop();
@@ -555,7 +567,7 @@ void test_timer_reset_user_ticker()
     p_timer->start();
 
     /* Simulate that 20 ms have elapsed. */
-    curr_ticker_us_val = 30000;
+    curr_ticker_ticks_val = 30000;
 
     /* Stop the timer. */
     p_timer->stop();
@@ -613,19 +625,19 @@ void test_timer_start_started_timer_user_ticker()
 {
     /* For timer which is using user ticker set current
      * time (irrelevant in case of os ticker). */
-    curr_ticker_us_val = 0;
+    curr_ticker_ticks_val = 0;
 
     /* Start the timer. */
     p_timer->start();
 
     /* Simulate that 10 ms have elapsed. */
-    curr_ticker_us_val = 10000;
+    curr_ticker_ticks_val = 10000;
 
     /* Now start timer again. */
     p_timer->start();
 
     /* Simulate that 20 ms have elapsed. */
-    curr_ticker_us_val = 30000;
+    curr_ticker_ticks_val = 30000;
 
     /* Stop the timer. */
     p_timer->stop();
@@ -674,13 +686,13 @@ void test_timer_float_operator_user_ticker()
 {
     /* For timer which is using user ticker set current
      * time (irrelevant in case of os ticker). */
-    curr_ticker_us_val = 0;
+    curr_ticker_ticks_val = 0;
 
     /* Start the timer. */
     p_timer->start();
 
     /* Simulate that 10 ms have elapsed. */
-    curr_ticker_us_val = 10000;
+    curr_ticker_ticks_val = 10000;
 
     /* Stop the timer. */
     p_timer->stop();
