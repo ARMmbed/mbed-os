@@ -3418,6 +3418,7 @@
     },
     "NUMAKER_PFM_M2351": {
         "core": "Cortex-M23",
+        "device_name": "M2351K1AAEES",
         "default_toolchain": "GCC_ARM",
         "extra_labels": ["NUVOTON", "M2351", "M2351K1AAEES"],
         "is_disk_virtual": true,
