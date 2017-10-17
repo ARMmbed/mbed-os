@@ -23,27 +23,36 @@
 #include <stdbool.h>
 #include "mbed.h"
 
+#if MBED_CONF_EVENTS_USE_LOWPOWER_TIMER_TICKER
+    #define AliasTimer      LowPowerTimer
+    #define AliasTicker     LowPowerTicker
+    #define AliasTimeout    LowPowerTimeout
+#else
+    #define AliasTimer      Timer
+    #define AliasTicker     Ticker
+    #define AliasTimeout    Timeout
+#endif
 
 // Ticker operations
 static bool equeue_tick_inited = false;
 static volatile unsigned equeue_minutes = 0;
 static unsigned equeue_timer[
-        (sizeof(Timer)+sizeof(unsigned)-1)/sizeof(unsigned)];
+        (sizeof(AliasTimer)+sizeof(unsigned)-1)/sizeof(unsigned)];
 static unsigned equeue_ticker[
-        (sizeof(Ticker)+sizeof(unsigned)-1)/sizeof(unsigned)];
+        (sizeof(AliasTicker)+sizeof(unsigned)-1)/sizeof(unsigned)];
 
 static void equeue_tick_update() {
-    equeue_minutes += reinterpret_cast<Timer*>(equeue_timer)->read_ms();
-    reinterpret_cast<Timer*>(equeue_timer)->reset();
+    equeue_minutes += reinterpret_cast<AliasTimer*>(equeue_timer)->read_ms();
+    reinterpret_cast<AliasTimer*>(equeue_timer)->reset();
 }
 
 static void equeue_tick_init() {
-    MBED_STATIC_ASSERT(sizeof(equeue_timer) >= sizeof(Timer),
+    MBED_STATIC_ASSERT(sizeof(equeue_timer) >= sizeof(AliasTimer),
             "The equeue_timer buffer must fit the class Timer");
-    MBED_STATIC_ASSERT(sizeof(equeue_ticker) >= sizeof(Ticker),
+    MBED_STATIC_ASSERT(sizeof(equeue_ticker) >= sizeof(AliasTicker),
             "The equeue_ticker buffer must fit the class Ticker");
-    Timer *timer = new (equeue_timer) Timer;
-    Ticker *ticker = new (equeue_ticker) Ticker;
+    AliasTimer *timer = new (equeue_timer) AliasTimer;
+    AliasTicker *ticker = new (equeue_ticker) AliasTicker;
 
     equeue_minutes = 0;
     timer->start();
@@ -62,7 +71,7 @@ unsigned equeue_tick() {
 
     do {
         minutes = equeue_minutes;
-        ms = reinterpret_cast<Timer*>(equeue_timer)->read_ms();
+        ms = reinterpret_cast<AliasTimer*>(equeue_timer)->read_ms();
     } while (minutes != equeue_minutes);
 
     return minutes + ms;
@@ -132,7 +141,7 @@ static void equeue_sema_timeout(equeue_sema_t *s) {
 
 bool equeue_sema_wait(equeue_sema_t *s, int ms) {
     int signal = 0;
-    Timeout timeout;
+    AliasTimeout timeout;
     if (ms == 0) {
         return false;
     } else if (ms > 0) {

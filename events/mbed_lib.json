@@ -21,6 +21,7 @@
         "shared-highprio-eventsize": {
             "help": "Event buffer size (bytes) for shared high-priority event queue",
             "value": 256
-        }
+        },
+        "use-lowpower-timer-ticker": 0
     }
 }
