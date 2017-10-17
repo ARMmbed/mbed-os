@@ -170,12 +170,15 @@ class Uvision(Exporter):
             flags['c_flags'] + flags['cxx_flags'] + flags['common_flags']
         )
         in_template = set(
-            ["--no_vla", "--cpp", "--c99", "-std=gnu99", "-std=g++98"] +
-            config_option 
+            ["--no_vla", "--cpp", "--c99"] + config_option
         )
 
         def valid_flag(x):
-            return x not in in_template or not x.startswith("-O")
+            return (
+                x not in in_template or
+                not x.startswith("-O") or
+                not x.startswith("-std")
+            )
 
         def is_define(s):
             return s.startswith("-D")
