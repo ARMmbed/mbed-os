@@ -25,7 +25,7 @@
  * A common namespace for types and constants used everywhere in BLE API.
  */
 namespace BLEProtocol {
-    /**<
+    /**
      * A simple container for the enumeration of address-types for Protocol addresses.
      *
      * Adding a struct to encapsulate the contained enumeration prevents
@@ -37,7 +37,7 @@ namespace BLEProtocol {
      * would allow the use of AliasedType::PUBLIC in code.
      */
     struct AddressType {
-        /**< Address-types for Protocol addresses. */
+        /** Address-types for Protocol addresses. */
         enum Type {
             PUBLIC = 0,
             RANDOM_STATIC,

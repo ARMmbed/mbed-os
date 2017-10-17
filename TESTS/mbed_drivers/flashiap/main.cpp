@@ -106,12 +106,16 @@ void flashiap_program_error_test()
     // unaligned address
     ret = flash_device.erase(address + 1, sector_size);
     TEST_ASSERT_EQUAL_INT32(-1, ret);
-    ret = flash_device.program(data, address + 1, page_size);
-    TEST_ASSERT_EQUAL_INT32(-1, ret);
+    if (flash_device.get_page_size() > 1) {
+        ret = flash_device.program(data, address + 1, page_size);
+        TEST_ASSERT_EQUAL_INT32(-1, ret);
+    }
 
-    // unaligned page size
-    ret = flash_device.program(data, address, page_size + 1);
-    TEST_ASSERT_EQUAL_INT32(-1, ret);
+    if (flash_device.get_page_size() > 1) {
+        // unaligned page size
+        ret = flash_device.program(data, address, page_size + 1);
+        TEST_ASSERT_EQUAL_INT32(-1, ret);
+    }
 
     delete[] data;
 

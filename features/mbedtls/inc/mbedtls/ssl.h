@@ -534,6 +534,7 @@ typedef struct mbedtls_ssl_config  mbedtls_ssl_config;
 /* Defined in ssl_internal.h */
 typedef struct mbedtls_ssl_transform mbedtls_ssl_transform;
 typedef struct mbedtls_ssl_handshake_params mbedtls_ssl_handshake_params;
+typedef struct mbedtls_ssl_sig_hash_set_t mbedtls_ssl_sig_hash_set_t;
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
 typedef struct mbedtls_ssl_key_cert mbedtls_ssl_key_cert;
 #endif
@@ -844,7 +845,9 @@ struct mbedtls_ssl_context
     size_t in_hslen;            /*!< current handshake message length,
                                      including the handshake header   */
     int nb_zero;                /*!< # of 0-length encrypted messages */
-    int record_read;            /*!< record is already present        */
+
+    int keep_current_message;   /*!< drop or reuse current message
+                                     on next call to record layer? */
 
     /*
      * Record layer (outgoing data)
@@ -1049,7 +1052,7 @@ void mbedtls_ssl_conf_authmode( mbedtls_ssl_config *conf, int authmode );
  *
  *                 If set, the verify callback is called for each
  *                 certificate in the chain. For implementation
- *                 information, please see \c x509parse_verify()
+ *                 information, please see \c mbedtls_x509_crt_verify()
  *
  * \param conf     SSL configuration
  * \param f_vrfy   verification function

@@ -70,6 +70,11 @@ public:
          * status of the discovery operation
          */
         ble_error_t status;
+
+        /**
+         * error code associated with the status if any.
+         */
+        uint8_t error_code;
     };
 
     /**

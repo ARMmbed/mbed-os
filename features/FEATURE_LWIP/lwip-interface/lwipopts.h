@@ -46,12 +46,19 @@
 #error "Either IPv4 or IPv6 must be enabled."
 #endif
 
-// On dual stack configuration how long wait for preferred stack
-// before selecting either IPv6 or IPv4
+// On dual stack configuration how long to wait for both or preferred stack
+// addresses before completing bring up.
 #if LWIP_IPV4 && LWIP_IPV6
-#define ADDR_TIMEOUT                MBED_CONF_LWIP_ADDR_TIMEOUT
+#if MBED_CONF_LWIP_ADDR_TIMEOUT_MODE
+#define BOTH_ADDR_TIMEOUT           MBED_CONF_LWIP_ADDR_TIMEOUT
+#define PREF_ADDR_TIMEOUT           0
 #else
-#define ADDR_TIMEOUT                0
+#define PREF_ADDR_TIMEOUT           MBED_CONF_LWIP_ADDR_TIMEOUT
+#define BOTH_ADDR_TIMEOUT           0
+#endif
+#else
+#define PREF_ADDR_TIMEOUT           0
+#define BOTH_ADDR_TIMEOUT           0
 #endif
 
 #define DHCP_TIMEOUT                60
@@ -69,10 +76,9 @@
 #error "Either IPv4 or IPv6 must be preferred."
 #endif
 
-#if defined(MBED_CONF_LWIP_DEBUG_ENABLED)
-#define LWIP_DEBUG                  MBED_CONF_LWIP_DEBUG_ENABLED
-#else
-#define LWIP_DEBUG                  0
+#undef  LWIP_DEBUG
+#if MBED_CONF_LWIP_DEBUG_ENABLED
+#define LWIP_DEBUG                  1
 #endif
 
 #if NO_SYS == 0
@@ -93,7 +99,7 @@
 #define MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE      1200
 #endif
 
-#if LWIP_DEBUG
+#ifdef LWIP_DEBUG
 #define TCPIP_THREAD_STACKSIZE      MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE*2
 #else
 #define TCPIP_THREAD_STACKSIZE      MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE
@@ -111,7 +117,7 @@
 #define MBED_CONF_LWIP_PPP_THREAD_STACKSIZE    768
 #endif
 
-#if LWIP_DEBUG
+#ifdef LWIP_DEBUG
 #define DEFAULT_THREAD_STACKSIZE    MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE*2
 #define PPP_THREAD_STACK_SIZE       MBED_CONF_LWIP_PPP_THREAD_STACKSIZE*2
 #else
@@ -131,9 +137,24 @@
 #define LWIP_RAM_HEAP_POINTER       lwip_ram_heap
 
 // Number of pool pbufs.
-// Each requires 684 bytes of RAM.
+// Each requires 684 bytes of RAM (if MSS=536 and PBUF_POOL_BUFSIZE defaulting to be based on MSS)
+#ifdef MBED_CONF_LWIP_PBUF_POOL_SIZE
+#undef PBUF_POOL_SIZE
+#define PBUF_POOL_SIZE              MBED_CONF_LWIP_PBUF_POOL_SIZE
+#else
 #ifndef PBUF_POOL_SIZE
 #define PBUF_POOL_SIZE              5
+#endif
+#endif
+
+#ifdef MBED_CONF_LWIP_PBUF_POOL_BUFSIZE
+#undef PBUF_POOL_BUFSIZE
+#define PBUF_POOL_BUFSIZE           MBED_CONF_LWIP_PBUF_POOL_BUFSIZE
+#endif
+
+#ifdef MBED_CONF_LWIP_MEM_SIZE
+#undef MEM_SIZE
+#define MEM_SIZE                    MBED_CONF_LWIP_MEM_SIZE
 #endif
 
 // One tcp_pcb_listen is needed for each TCPServer.
@@ -242,6 +263,7 @@
 #define AUTOIP_DEBUG                LWIP_DBG_OFF
 #define DNS_DEBUG                   LWIP_DBG_OFF
 #define IP6_DEBUG                   LWIP_DBG_OFF
+
 #if MBED_CONF_LWIP_ENABLE_PPP_TRACE
 #define PPP_DEBUG                   LWIP_DBG_ON
 #else
@@ -250,7 +272,7 @@
 #define ETHARP_DEBUG                LWIP_DBG_OFF
 #define UDP_LPC_EMAC                LWIP_DBG_OFF
 
-#if LWIP_DEBUG
+#ifdef LWIP_DEBUG
 #define MEMP_OVERFLOW_CHECK         1
 #define MEMP_SANITY_CHECK           1
 #define LWIP_DBG_TYPES_ON           LWIP_DBG_ON
@@ -259,6 +281,8 @@
 #define LWIP_NOASSERT               1
 #define LWIP_STATS                  0
 #endif
+
+#define TRACE_TO_ASCII_HEX_DUMP     0
 
 #define LWIP_PLATFORM_BYTESWAP      1
 
@@ -278,20 +302,25 @@
 // Note generic macro name used rather than MBED_CONF_LWIP_PPP_ENABLED
 // to allow users like PPPCellularInterface to detect that nsapi_ppp.h is available.
 #if NSAPI_PPP_AVAILABLE
-#define PPP_SUPPORT                 1
-#define CHAP_SUPPORT                1
-#define PPP_INPROC_IRQ_SAFE         1
+#define PPP_SUPPORT                    1
+#if MBED_CONF_LWIP_IPV6_ENABLED
+#define PPP_IPV6_SUPPORT               1
+// Disable DAD for PPP
+#define LWIP_IPV6_DUP_DETECT_ATTEMPTS  0
+#endif
+#define CHAP_SUPPORT                   1
+#define PPP_INPROC_IRQ_SAFE            1
 // Save RAM
-#define PAP_SUPPORT                 0
-#define VJ_SUPPORT                  0
-#define PRINTPKT_SUPPORT            0
+#define PAP_SUPPORT                    0
+#define VJ_SUPPORT                     0
+#define PRINTPKT_SUPPORT               0
 
 // Broadcast
-#define IP_SOF_BROADCAST            0
-#define IP_SOF_BROADCAST_RECV       0
+#define IP_SOF_BROADCAST               0
+#define IP_SOF_BROADCAST_RECV          0
 
-#define MAXNAMELEN                  64     /* max length of hostname or name for auth */
-#define MAXSECRETLEN                64
+#define MAXNAMELEN                     64     /* max length of hostname or name for auth */
+#define MAXSECRETLEN                   64
 #endif // NSAPI_PPP_AVAILABLE
 
 // Make sure we default these to off, so
@@ -309,7 +338,6 @@
 #define DNS_TABLE_SIZE                  2
 #define DNS_MAX_NAME_LENGTH             128
 
-#include <lwip/arch.h>
 #include "lwip_random.h"
 #include "lwip_tcp_isn.h"
 #define LWIP_HOOK_TCP_ISN lwip_hook_tcp_isn

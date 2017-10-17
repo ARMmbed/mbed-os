@@ -51,7 +51,7 @@
 /* Use LWIP error codes */
 #define LWIP_PROVIDE_ERRNO
 
-#if defined(__arm__) && defined(__ARMCC_VERSION) 
+#if defined(__arm__) && defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 6010050)
     /* Keil uVision4 tools */
     #define PACK_STRUCT_BEGIN __packed
     #define PACK_STRUCT_STRUCT
@@ -117,8 +117,66 @@ void assert_printf(char *msg, int line, char *file);
 #endif // MBED_CONF_LWIP_USE_MBED_TRACE
 #endif 
 
+#if TRACE_TO_ASCII_HEX_DUMP
+#define TRACE_TO_ASCII_HEX_DUMPF(prefix, len, data) trace_to_ascii_hex_dump(prefix, len, data)
+void trace_to_ascii_hex_dump(char* prefix, int len, char *data);
+#else
+#define TRACE_TO_ASCII_HEX_DUMPF(prefix, len, data) ((void)0)
+#endif
+
 #include "cmsis.h"
 #define LWIP_PLATFORM_HTONS(x)      __REV16(x)
 #define LWIP_PLATFORM_HTONL(x)      __REV(x)
+
+/* Define the memory area for the lwip's memory pools */
+#ifndef MEMP_SECTION
+#if defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
+#  if defined (__ICCARM__)
+#     define MEMP_SECTION
+#  elif defined(TOOLCHAIN_GCC_CR)
+#     define MEMP_SECTION __attribute__((section(".data.$RamPeriph32")))
+#  else
+#     define MEMP_SECTION __attribute__((section("AHBSRAM0"),aligned))
+#  endif
+#elif defined(TARGET_LPC1768)
+#  if defined (__ICCARM__)
+#     define MEMP_SECTION
+#  elif defined(TOOLCHAIN_GCC_CR)
+#     define MEMP_SECTION __attribute__((section(".data.$RamPeriph32")))
+#  else
+#     define MEMP_SECTION __attribute__((section("AHBSRAM1"),aligned))
+#  endif
+#endif
+#endif
+
+#ifdef MEMP_SECTION
+#define SET_MEMP_SECTION(name) extern uint8_t MEMP_SECTION name[]
+
+#if defined (__ICCARM__)
+#pragma default_variable_attributes = @ ".ethusbram"
+#endif
+SET_MEMP_SECTION(memp_memory_REASSDATA_base);
+SET_MEMP_SECTION(memp_memory_TCP_PCB_LISTEN_base);
+SET_MEMP_SECTION(memp_memory_PBUF_POOL_base);
+SET_MEMP_SECTION(memp_memory_NETCONN_base);
+SET_MEMP_SECTION(memp_memory_IGMP_GROUP_base);
+SET_MEMP_SECTION(memp_memory_UDP_PCB_base);
+SET_MEMP_SECTION(memp_memory_TCP_PCB_base);
+SET_MEMP_SECTION(memp_memory_FRAG_PBUF_base);
+SET_MEMP_SECTION(memp_memory_PBUF_base);
+SET_MEMP_SECTION(memp_memory_MLD6_GROUP_base);
+SET_MEMP_SECTION(memp_memory_IP6_REASSDATA_base);
+SET_MEMP_SECTION(memp_memory_NETBUF_base);
+SET_MEMP_SECTION(memp_memory_TCPIP_MSG_INPKT_base);
+SET_MEMP_SECTION(memp_memory_SYS_TIMEOUT_base);
+SET_MEMP_SECTION(memp_memory_TCP_SEG_base);
+SET_MEMP_SECTION(memp_memory_TCPIP_MSG_API_base);
+SET_MEMP_SECTION(memp_memory_PPP_PCB_base);
+SET_MEMP_SECTION(memp_memory_PPPOS_PCB_base);
+SET_MEMP_SECTION(memp_memory_PPP_PCB_base);
+#if defined (__ICCARM__)
+#pragma default_variable_attributes =
+#endif
+#endif
 
 #endif /* __CC_H__ */ 

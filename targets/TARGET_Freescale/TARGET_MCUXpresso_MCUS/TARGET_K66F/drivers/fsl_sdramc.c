@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -37,7 +37,6 @@
 /*! @brief Define macros for SDRAM driver. */
 #define SDRAMC_ONEMILLSEC_NANOSECONDS (1000000U)
 #define SDRAMC_ONESECOND_MILLISECONDS (1000U)
-#define SDRAMC_TIMEOUT_COUNT (0xFFFFU)
 
 /*******************************************************************************
  * Prototypes
@@ -53,8 +52,10 @@ static uint32_t SDRAMC_GetInstance(SDRAM_Type *base);
  * Variables
  ******************************************************************************/
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
 /*! @brief Pointers to SDRAMC clocks for each instance. */
-const clock_ip_name_t s_sdramClock[FSL_FEATURE_SOC_SDRAM_COUNT] = SDRAM_CLOCKS;
+static const clock_ip_name_t s_sdramClock[FSL_FEATURE_SOC_SDRAM_COUNT] = SDRAM_CLOCKS;
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
 /*! @brief Pointers to SDRAMC bases for each instance. */
 static SDRAM_Type *const s_sdramcBases[] = SDRAM_BASE_PTRS;
@@ -67,7 +68,7 @@ static uint32_t SDRAMC_GetInstance(SDRAM_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_SDRAM_COUNT; instance++)
+    for (instance = 0; instance < ARRAY_SIZE(s_sdramcBases); instance++)
     {
         if (s_sdramcBases[instance] == base)
         {
@@ -75,7 +76,7 @@ static uint32_t SDRAMC_GetInstance(SDRAM_Type *base)
         }
     }
 
-    assert(instance < FSL_FEATURE_SOC_SDRAM_COUNT);
+    assert(instance < ARRAY_SIZE(s_sdramcBases));
 
     return instance;
 }
@@ -92,8 +93,10 @@ void SDRAMC_Init(SDRAM_Type *base, sdramc_config_t *configure)
     uint32_t count;
     uint32_t index;
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Un-gate sdram controller clock. */
     CLOCK_EnableClock(s_sdramClock[SDRAMC_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 
     /* Initialize sdram Auto refresh timing. */
     count = refreshConfig->sdramRefreshRow * (refreshConfig->busClock_Hz / SDRAMC_ONESECOND_MILLISECONDS);
@@ -119,50 +122,23 @@ void SDRAMC_Deinit(SDRAM_Type *base)
     SDRAMC_EnableOperateValid(base, kSDRAMC_Block0, false);
     SDRAMC_EnableOperateValid(base, kSDRAMC_Block1, false);
 
+#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
     /* Disable SDRAM clock. */
     CLOCK_DisableClock(s_sdramClock[SDRAMC_GetInstance(base)]);
+#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
 }
 
-status_t SDRAMC_SendCommand(SDRAM_Type *base, sdramc_block_selection_t block, sdramc_command_t command)
+void SDRAMC_SendCommand(SDRAM_Type *base, sdramc_block_selection_t block, sdramc_command_t command)
 {
-    status_t result = kStatus_Success;
-    uint32_t count = SDRAMC_TIMEOUT_COUNT;
-
     switch (command)
     {
         /* Initiate mrs command. */
         case kSDRAMC_ImrsCommand:
             base->BLOCK[block].AC |= SDRAM_AC_IMRS_MASK;
-            while (count--)
-            {
-                if (!(base->BLOCK[block].AC & SDRAM_AC_IMRS_MASK))
-                {
-                    break;
-                }
-            }
-
-            if (!count)
-            {
-                /* Timeout the mrs command is unfinished. */
-                result = kStatus_Fail;
-            }
-            break;
+            break;            
         /* Initiate precharge command. */
         case kSDRAMC_PrechargeCommand:
             base->BLOCK[block].AC |= SDRAM_AC_IP_MASK;
-            while (count--)
-            {
-                if (!(base->BLOCK[block].AC & SDRAM_AC_IP_MASK))
-                {
-                    break;
-                }
-            }
-
-            /* Timeout the precharge command is unfinished. */
-            if (!count)
-            {
-                result = kStatus_Fail;
-            }
             break;
         /* Enable Auto refresh command. */
         case kSDRAMC_AutoRefreshEnableCommand:
@@ -183,5 +159,4 @@ status_t SDRAMC_SendCommand(SDRAM_Type *base, sdramc_block_selection_t block, sd
         default:
             break;
     }
-    return result;
 }

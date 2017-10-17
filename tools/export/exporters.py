@@ -105,7 +105,10 @@ class Exporter(object):
         config_header = self.toolchain.get_config_header()
         flags = {key + "_flags": copy.deepcopy(value) for key, value
                  in self.toolchain.flags.iteritems()}
-        asm_defines = ["-D" + symbol for symbol in self.toolchain.get_symbols(True)]
+        asm_defines = self.toolchain.get_compile_options(
+            self.toolchain.get_symbols(for_asm=True),
+            filter(None, self.resources.inc_dirs),
+            for_asm=True)
         c_defines = ["-D" + symbol for symbol in self.toolchain.get_symbols()]
         flags['asm_flags'] += asm_defines
         flags['c_flags'] += c_defines

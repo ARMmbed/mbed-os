@@ -15,6 +15,8 @@
  */
 
 #include "mbed.h"
+#include "filesystem/Dir.h"
+#include "filesystem/File.h"
 #include "filesystem/FileSystem.h"
 #include <errno.h>
 

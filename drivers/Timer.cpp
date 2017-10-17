@@ -17,20 +17,38 @@
 #include "hal/ticker_api.h"
 #include "hal/us_ticker_api.h"
 #include "platform/mbed_critical.h"
+#include "hal/lp_ticker_api.h"
 
 namespace mbed {
 
-Timer::Timer() : _running(), _start(), _time(), _ticker_data(get_us_ticker_data()) {
+Timer::Timer() : _running(), _start(), _time(), _ticker_data(get_us_ticker_data()), _lock_deepsleep(true) {
     reset();
 }
 
-Timer::Timer(const ticker_data_t *data) : _running(), _start(), _time(), _ticker_data(data) {
+Timer::Timer(const ticker_data_t *data) : _running(), _start(), _time(), _ticker_data(data), _lock_deepsleep(true) {
     reset();
+#if DEVICE_LOWPOWERTIMER
+    _lock_deepsleep = (data != get_lp_ticker_data());
+#endif
+}
+
+Timer::~Timer() {
+    core_util_critical_section_enter();
+    if (_running) {
+        if(_lock_deepsleep) {
+            sleep_manager_unlock_deep_sleep();
+        }
+    }
+    _running = 0;
+    core_util_critical_section_exit();
 }
 
 void Timer::start() {
     core_util_critical_section_enter();
     if (!_running) {
+        if(_lock_deepsleep) {
+            sleep_manager_lock_deep_sleep();
+        }
         _start = ticker_read_us(_ticker_data);
         _running = 1;
     }
@@ -40,6 +58,11 @@ void Timer::start() {
 void Timer::stop() {
     core_util_critical_section_enter();
     _time += slicetime();
+    if (_running) {
+        if(_lock_deepsleep) {
+            sleep_manager_unlock_deep_sleep();
+        }
+    }
     _running = 0;
     core_util_critical_section_exit();
 }

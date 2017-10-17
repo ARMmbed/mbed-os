@@ -133,6 +133,14 @@ struct dac_s {
 };
 #endif
 
+#if DEVICE_CAN
+struct can_s {
+    CAN_HandleTypeDef CanHandle;
+    int index;
+    int hz;
+};
+#endif
+
 #ifdef __cplusplus
 }
 #endif

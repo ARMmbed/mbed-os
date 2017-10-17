@@ -148,6 +148,12 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     // Enable timer
     HAL_TIM_Base_Start(&TimMasterHandle);
 
+    // Freeze timer on stop/breakpoint
+    // Define the FREEZE_TIMER_ON_DEBUG macro in mbed_app.json for example
+#if !defined(NDEBUG) && defined(FREEZE_TIMER_ON_DEBUG) && defined(TIM_MST_DBGMCU_FREEZE)
+    TIM_MST_DBGMCU_FREEZE;
+#endif
+
 #if DEBUG_TICK > 0
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitTypeDef GPIO_InitStruct;

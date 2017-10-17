@@ -29,6 +29,12 @@
 #define __romcall
 #define __longcall
 
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+
+#ifndef __longcall
+#define __longcall
+#endif
+
 #elif defined(__CC_ARM)
 
 #ifndef __longcall

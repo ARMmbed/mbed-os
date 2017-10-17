@@ -99,8 +99,8 @@ uint16_t analogin_read_u16(analogin_t *obj)
 
 float analogin_read(analogin_t *obj)
 {
-    /* Convert from a uint16 to a float between 0 and 1 by division by 0xFFFF */
-    return analogin_read_u16(obj) / (float) 0xFFFF;
+    /* Convert from a uint16 to a float between 0 and 1 by division by 0xFFF0 */
+    return analogin_read_u16(obj) / (float) 0xFFF0;
 }
 
 #endif

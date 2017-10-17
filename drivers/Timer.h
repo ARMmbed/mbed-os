@@ -19,6 +19,7 @@
 #include "platform/platform.h"
 #include "hal/ticker_api.h"
 #include "platform/NonCopyable.h"
+#include "platform/mbed_sleep.h"
 
 namespace mbed {
 /** \addtogroup drivers */
@@ -52,6 +53,7 @@ class Timer : private NonCopyable<Timer> {
 public:
     Timer();
     Timer(const ticker_data_t *data);
+    ~Timer();
 
     /** Start the timer
      */
@@ -99,6 +101,7 @@ protected:
     us_timestamp_t _start;   // the start time of the latest slice
     us_timestamp_t _time;    // any accumulated time from previous slices
     const ticker_data_t *_ticker_data;
+    bool _lock_deepsleep;    // flag which indicates if deep-sleep should be disabled
 };
 
 } // namespace mbed

@@ -24,8 +24,8 @@ nRF5xServiceDiscovery::launchCharacteristicDiscovery(Gap::Handle_t connectionHan
     characteristicDiscoveryStarted(connectionHandle);
 
     ble_gattc_handle_range_t handleRange = {
-        .start_handle = startHandle,
-        .end_handle   = endHandle
+        (uint16_t) startHandle,
+        (uint16_t) endHandle
     };
     uint32_t rc = sd_ble_gattc_characteristics_discover(connectionHandle, &handleRange);
     ble_error_t err = BLE_ERROR_NONE;
@@ -170,8 +170,8 @@ nRF5xServiceDiscovery::progressCharacteristicDiscovery(void)
 
     if (startHandle < endHandle) {
         ble_gattc_handle_range_t handleRange = {
-            .start_handle = startHandle,
-            .end_handle   = endHandle
+            (uint16_t) startHandle,
+            (uint16_t) endHandle
         };
         if (sd_ble_gattc_characteristics_discover(connHandle, &handleRange) != NRF_SUCCESS) {
             terminateCharacteristicDiscovery(BLE_ERROR_UNSPECIFIED);

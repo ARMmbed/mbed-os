@@ -72,7 +72,7 @@ extern "C" {
  *
  * @param[in]   section_name    Name of the section.
  */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
 #define NRF_SECTION_VARS_START_SYMBOL(section_name)         section_name ## $$Base
 
@@ -93,7 +93,7 @@ extern "C" {
  *
  * @param[in]   section_name    Name of the section.
  */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
 #define NRF_SECTION_VARS_END_SYMBOL(section_name)           section_name ## $$Limit
 
@@ -115,7 +115,7 @@ extern "C" {
  *
  * @param[in]   section_name    Name of the section.
  */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
 #define NRF_SECTION_VARS_LENGTH(section_name) \
     ((uint32_t)&NRF_SECTION_VARS_END_SYMBOL(section_name) - (uint32_t)&NRF_SECTION_VARS_START_SYMBOL(section_name))
@@ -137,7 +137,7 @@ extern "C" {
  *
  * param[in]    section_name    Name of the section.
  */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
 #define NRF_SECTION_VARS_START_ADDR(section_name)       (uint32_t)&NRF_SECTION_VARS_START_SYMBOL(section_name)
 
@@ -156,7 +156,7 @@ extern "C" {
  *
  * @param[in]   section_name    Name of the section.
  */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
 #define NRF_SECTION_VARS_END_ADDR(section_name)         (uint32_t)&NRF_SECTION_VARS_END_SYMBOL(section_name)
 
@@ -180,7 +180,7 @@ extern "C" {
  *
  * @warning The data type must be word aligned to prevent padding.
  */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
 #define NRF_SECTION_VARS_CREATE_SECTION(section_name, data_type)    \
     extern data_type * NRF_SECTION_VARS_START_SYMBOL(section_name); \
@@ -216,7 +216,7 @@ extern "C" {
  * @param[in]   section_name    Name of the section.
  * @param[in]   section_var     The variable to register in the given section.
  */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
 #define NRF_SECTION_VARS_REGISTER_VAR(section_name, section_var) \
     static section_var __attribute__ ((section(#section_name))) __attribute__((used))
@@ -246,7 +246,7 @@ extern "C" {
  * @param[in]   data_type       Data type of the variable.
  * @param[in]   section_name    Name of the section.
  */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
 #define NRF_SECTION_VARS_GET(i, data_type, section_name) \
     (data_type*)(NRF_SECTION_VARS_START_ADDR(section_name) + i * sizeof(data_type))

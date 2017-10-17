@@ -2197,6 +2197,17 @@
 #endif
 
 /**
+ * LWIP_IPV6_ADDRESS_LIFETIMES==1: Keep valid and preferred lifetimes for each
+ * IPv6 address. Required for LWIP_IPV6_AUTOCONFIG. May still be enabled
+ * otherwise, in which case the application may assign address lifetimes with
+ * the appropriate macros. Addresses with no lifetime are assumed to be static.
+ * If this option is disabled, all addresses are assumed to be static.
+ */
+#if !defined LWIP_IPV6_ADDRESS_LIFETIMES || defined __DOXYGEN__
+#define LWIP_IPV6_ADDRESS_LIFETIMES     (LWIP_IPV6_AUTOCONFIG)
+#endif
+
+/**
  * LWIP_IPV6_DUP_DETECT_ATTEMPTS=[0..7]: Number of duplicate address detection attempts.
  */
 #if !defined LWIP_IPV6_DUP_DETECT_ATTEMPTS || defined __DOXYGEN__

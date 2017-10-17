@@ -26,6 +26,7 @@ static const ticker_interface_t lp_interface = {
     .clear_interrupt = lp_ticker_clear_interrupt,
     .set_interrupt = lp_ticker_set_interrupt,
     .fire_interrupt = lp_ticker_fire_interrupt,
+    .get_info = lp_ticker_get_info,
 };
 
 static const ticker_data_t lp_data = {

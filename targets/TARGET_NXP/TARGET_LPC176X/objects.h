@@ -71,6 +71,10 @@ struct spi_s {
     LPC_SSP_TypeDef *spi;
 };
 
+struct flash_s {
+	/*  nothing to be stored for now */
+	uint32_t dummy;
+};
 #ifdef __cplusplus
 }
 #endif

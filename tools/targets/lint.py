@@ -82,7 +82,7 @@ DEVICE_HAS_ALLOWED = ["ANALOGIN", "ANALOGOUT", "CAN", "ETHERNET", "EMAC",
                       "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT",
                       "PWMOUT", "RTC", "TRNG","SERIAL", "SERIAL_ASYNCH",
                       "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE",
-                      "STORAGE"]
+                      "STORAGE", "STCLK_OFF_DURING_SLEEP"]
 def check_device_has(dict):
     for name in dict.get("device_has", []):
         if name not in DEVICE_HAS_ALLOWED:

@@ -56,6 +56,10 @@ class GCC(mbedToolchain):
             cpu = "cortex-m7"
         elif target.core == "Cortex-M7FD":
             cpu = "cortex-m7"
+        elif target.core == "Cortex-M23-NS":
+            cpu = "cortex-m23"
+        elif target.core == "Cortex-M33-NS":
+            cpu = "cortex-m33"
         else:
             cpu = target.core.lower()
 
@@ -82,6 +86,14 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
+        if target.core.startswith("Cortex-M23"):
+            self.cpu.append("-march=armv8-m.base")
+        elif target.core.startswith("Cortex-M33"):
+            self.cpu.append("-march=armv8-m.main")
+
+        if target.core == "Cortex-M23" or target.core == "Cortex-M33":
+            self.cpu.append("-mcmse")
+
         self.flags["common"] += self.cpu
 
         main_cc = join(tool_path, "arm-none-eabi-gcc")
@@ -99,27 +111,6 @@ class GCC(mbedToolchain):
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
-
-    def parse_dependencies(self, dep_path):
-        dependencies = []
-        buff = open(dep_path).readlines()
-        buff[0] = re.sub('^(.*?)\: ', '', buff[0])
-        for line in buff:
-            file = line.replace('\\\n', '').strip()
-            if file:
-                # GCC might list more than one dependency on a single line, in this case
-                # the dependencies are separated by a space. However, a space might also
-                # indicate an actual space character in a dependency path, but in this case
-                # the space character is prefixed by a backslash.
-                # Temporary replace all '\ ' with a special char that is not used (\a in this
-                # case) to keep them from being interpreted by 'split' (they will be converted
-                # back later to a space char)
-                file = file.replace('\\ ', '\a')
-                if file.find(" ") == -1:
-                    dependencies.append((self.CHROOT if self.CHROOT else '') + file.replace('\a', ' '))
-                else:
-                    dependencies = dependencies + [(self.CHROOT if self.CHROOT else '') + f.replace('\a', ' ') for f in file.split(" ")]
-        return dependencies
 
     def is_not_supported_error(self, output):
         return "error: #error [NOT_SUPPORTED]" in output

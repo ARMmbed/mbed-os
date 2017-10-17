@@ -252,6 +252,7 @@ private:
     const char *_uname;
     const char *_pwd;
     bool _debug_trace_on;
+    nsapi_ip_stack_t _stack;
     Callback<void(nsapi_error_t)> _connection_status_cb;
     void base_initialization();
     void setup_at_parser();

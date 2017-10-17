@@ -77,11 +77,19 @@
 /** Static Assertion Macro
  *
  * This macro works from both inside and outside function scope.
- *
- * FIXME This is currently not implemented. This issue is tracked at
- * https://github.com/ARMmbed/uvisor/issues/288
- */
-#define UVISOR_STATIC_ASSERT(cond, msg)
+ * The implementations differ due to compilation differences, C++ static_assert
+ * is known from C++11 (__cplusplus > 199711L) while mbed-os compiles with c++98,
+ * and C _Static_assert is known from GCC version 4.6.0. */ 
+#define GCC_VERSION (__GNUC__ * 10000 \
+                     + __GNUC_MINOR__ * 100 \
+                     + __GNUC_PATCHLEVEL__)
+#if (__cplusplus > 199711L)
+#define UVISOR_STATIC_ASSERT(cond, msg) static_assert(cond, #msg)
+#elif (!__cplusplus && GCC_VERSION > 40600)
+#define UVISOR_STATIC_ASSERT(cond, msg) _Static_assert(cond, #msg)
+#else
+#define UVISOR_STATIC_ASSERT(cond, msg) typedef char STATIC_ASSERT_##msg[(cond)?1:-1]
+#endif
 
 /* convert macro argument to string */
 /* note: this needs one level of indirection, accomplished with the helper macro

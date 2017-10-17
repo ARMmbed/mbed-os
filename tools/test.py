@@ -27,7 +27,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from tools.config import ConfigException
-from tools.test_api import test_path_to_name, find_tests, print_tests, build_tests, test_spec_from_test_builds
+from tools.test_api import test_path_to_name, find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
+import tools.test_configs as TestConfig
 from tools.options import get_default_options_parser, extract_profile, extract_mcus
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
@@ -84,6 +85,9 @@ if __name__ == '__main__':
         parser.add_argument("-n", "--names", dest="names", type=argparse_many(str),
                           default=None, help="Limit the tests to a comma separated list of names")
 
+        parser.add_argument("--test-config", dest="test_config", type=str,
+                          default=None, help="Test config for a module")
+
         parser.add_argument("--test-spec", dest="test_spec",
                           default=None, help="Destination path for a test spec file that can be used by the Greentea automated test tool")
 
@@ -133,10 +137,21 @@ if __name__ == '__main__':
                                "Currently set search path: %s"
                        % (toolchain, search_path))
 
+        # Assign config file. Precedence: test_config>app_config
+        # TODO: merge configs if both given
+        if options.test_config:
+            config = get_test_config(options.test_config, mcu)
+            if not config:
+                args_error(parser, "argument --test-config contains invalid path or identifier")
+        elif not options.app_config:
+            config = TestConfig.get_default_config(mcu)
+        else:
+            config = options.app_config
+
         # Find all tests in the relevant paths
         for path in all_paths:
             all_tests.update(find_tests(path, mcu, toolchain,
-                                        app_config=options.app_config))
+                                        app_config=config))
 
         # Filter tests by name if specified
         if options.names:
@@ -192,7 +207,7 @@ if __name__ == '__main__':
                               properties=build_properties, name="mbed-build",
                               macros=options.macros, verbose=options.verbose,
                               notify=notify, archive=False,
-                              app_config=options.app_config,
+                              app_config=config,
                               build_profile=profile)
 
                 library_build_success = True
@@ -220,7 +235,7 @@ if __name__ == '__main__':
                         notify=notify,
                         jobs=options.jobs,
                         continue_on_build_fail=options.continue_on_build_fail,
-                        app_config=options.app_config,
+                        app_config=config,
                         build_profile=profile,
                         stats_depth=options.stats_depth)
 

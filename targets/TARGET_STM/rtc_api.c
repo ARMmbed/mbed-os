@@ -57,13 +57,14 @@ static void RTC_IRQHandler(void);
 
 void rtc_init(void)
 {
-    RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
     // Enable access to Backup domain
     HAL_PWR_EnableBkUpAccess();
 
     RtcHandle.Instance = RTC;
+    RtcHandle.State = HAL_RTC_STATE_RESET;
 
 #if !RTC_LSI
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
@@ -162,7 +163,7 @@ void rtc_free(void)
 #endif
 
     // Disable LSI and LSE clocks
-    RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
@@ -217,8 +218,8 @@ It is then not a problem to not use shifts.
 
 time_t rtc_read(void)
 {
-    RTC_DateTypeDef dateStruct;
-    RTC_TimeTypeDef timeStruct;
+    RTC_DateTypeDef dateStruct = {0};
+    RTC_TimeTypeDef timeStruct = {0};
     struct tm timeinfo;
 
     RtcHandle.Instance = RTC;
@@ -247,8 +248,8 @@ time_t rtc_read(void)
 
 void rtc_write(time_t t)
 {
-    RTC_DateTypeDef dateStruct;
-    RTC_TimeTypeDef timeStruct;
+    RTC_DateTypeDef dateStruct = {0};
+    RTC_TimeTypeDef timeStruct = {0};
 
     RtcHandle.Instance = RTC;
 
@@ -295,13 +296,10 @@ int rtc_isenabled(void)
 
 static void RTC_IRQHandler(void)
 {
+    /*  Update HAL state */
     HAL_RTCEx_WakeUpTimerIRQHandler(&RtcHandle);
-}
-
-void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
-{
+    /* In case of registered handler, call it. */
     if (irq_handler) {
-        // Fire the user callback
         irq_handler();
     }
 }

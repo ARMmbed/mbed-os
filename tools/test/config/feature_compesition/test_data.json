@@ -1,0 +1,5 @@
+{
+    "test_target": {
+        "expected_features": ["IPV4", "STORAGE"]
+    }
+}
