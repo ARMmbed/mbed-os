@@ -16,6 +16,10 @@
 #include "drivers/SPI.h"
 #include "platform/mbed_critical.h"
 
+#if DEVICE_SPI_ASYNCH
+#include "platform/mbed_sleep.h"
+#endif
+
 #if DEVICE_SPI
 
 namespace mbed {
@@ -136,6 +140,7 @@ int SPI::transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_
 void SPI::abort_transfer()
 {
     spi_abort_asynch(&_spi);
+    sleep_manager_unlock_deep_sleep();
 #if TRANSACTION_QUEUE_SIZE_SPI
     dequeue_transaction();
 #endif
@@ -195,6 +200,7 @@ int SPI::queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, i
 
 void SPI::start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event)
 {
+    sleep_manager_lock_deep_sleep();
     _acquire();
     _callback = callback;
     _irq.callback(&SPI::irq_handler_asynch);
@@ -224,6 +230,7 @@ void SPI::irq_handler_asynch(void)
 {
     int event = spi_irq_handler_asynch(&_spi);
     if (_callback && (event & SPI_EVENT_ALL)) {
+        sleep_manager_unlock_deep_sleep();
         _callback.call(event & SPI_EVENT_ALL);
     }
 #if TRANSACTION_QUEUE_SIZE_SPI

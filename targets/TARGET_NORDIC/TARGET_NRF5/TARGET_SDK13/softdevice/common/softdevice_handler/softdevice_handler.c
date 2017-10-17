@@ -522,7 +522,7 @@ uint32_t softdevice_enable(ble_enable_params_t * p_ble_enable_params)
     uint32_t err_code;
     uint32_t app_ram_base;
 
-#if defined ( __CC_ARM )
+#if defined ( __CC_ARM ) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t Image$$RW_IRAM1$$Base;
     const volatile uint32_t ram_start = (uint32_t) &Image$$RW_IRAM1$$Base;
 #elif defined ( __ICCARM__ )

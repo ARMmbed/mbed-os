@@ -15,6 +15,9 @@ HISTORY
 
   ++ Bugfixes:
 
+  2017-01-11: David van Moolenbroek
+  * Lots of IPv6 related fixes and improvements
+
   2017-03-08
   * tcp: do not keep sending SYNs when getting ACKs
 

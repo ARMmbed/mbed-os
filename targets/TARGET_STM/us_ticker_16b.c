@@ -152,6 +152,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
      */
     uint32_t current_time = us_ticker_read();
     uint32_t delta = timestamp - current_time;
+    /* Note: The case of delta <= 0 is handled in MBED upper layer */
     oc_int_part = (delta - 1) >> 16;
     if ( ((delta - 1) & 0xFFFF) >= 0x8000 &&
          __HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET ) {
@@ -169,6 +170,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
 void us_ticker_fire_interrupt(void)
 {
+    /* When firing the event, the number of 16 bits counter wrap-ups (oc_int)
+     * must be re-initialized */
+    oc_int_part = 0;
     HAL_TIM_GenerateEvent(&TimMasterHandle, TIM_EVENTSOURCE_CC1);
 }
 

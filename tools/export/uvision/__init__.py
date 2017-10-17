@@ -167,11 +167,13 @@ class Uvision(Exporter):
         """Format toolchain flags for Uvision"""
         flags = copy.deepcopy(self.flags)
         # to be preprocessed with armcc
-        asm_flag_string = '--cpreproc --cpreproc_opts=-D__ASSERT_MSG,' + \
-                          ",".join(flags['asm_flags'])
+        asm_flag_string = (
+            '--cpreproc --cpreproc_opts=-D__ASSERT_MSG,' +
+            ",".join(filter(lambda f: f.startswith("-D"), flags['asm_flags'])))
         flags['asm_flags'] = asm_flag_string
         # All non-asm flags are in one template field
         c_flags = list(set(flags['c_flags'] + flags['cxx_flags'] +flags['common_flags']))
+        ld_flags = list(set(flags['ld_flags'] ))
         # These flags are in template to be set by user i n IDE
         template = ["--no_vla", "--cpp", "--c99"]
         # Flag is invalid if set in template
@@ -179,6 +181,7 @@ class Uvision(Exporter):
         invalid_flag = lambda x: x in template or re.match("-O(\d|time)", x) 
         flags['c_flags'] = [flag.replace('"','\\"') for flag in c_flags if not invalid_flag(flag)]
         flags['c_flags'] = " ".join(flags['c_flags'])
+        flags['ld_flags'] = " ".join(flags['ld_flags'])
         return flags
 
     def format_src(self, srcs):
@@ -214,10 +217,12 @@ class Uvision(Exporter):
             # UVFile tuples defined above
             'project_files': sorted(list(self.format_src(srcs).iteritems()),
                                     key=lambda (group, _): group.lower()),
-            'linker_script':self.resources.linker_script,
+            'linker_script':self.toolchain.correct_scatter_shebang(
+                self.resources.linker_script),
             'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),
         }
+        self.generated_files.append(ctx['linker_script'])
         core = ctx['device'].core
         ctx['cputype'] = core.rstrip("FD")
         if core.endswith("FD"):

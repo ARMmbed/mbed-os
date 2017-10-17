@@ -19,7 +19,7 @@ from tools.build_api import get_mbed_official_release
 from tools.targets import TARGET_MAP
 from tools.export import EXPORTERS
 
-SUPPORTED_TOOLCHAINS = ["ARM", "IAR", "GCC_ARM"]
+SUPPORTED_TOOLCHAINS = ["ARM", "IAR", "GCC_ARM", "ARMC6"]
 SUPPORTED_IDES = [exp for exp in EXPORTERS.keys() if exp != "cmsis" and exp != "zip"]
 
 
@@ -169,7 +169,7 @@ def source_repos(config, examples):
 
                 subprocess.call(["mbed-cli", "import", repo_info['repo']])
 
-def clone_repos(config, examples):
+def clone_repos(config, examples , retry = 3):
     """ Clones each of the repos associated with the specific examples name from the
         json config file. Note if there is already a clone of the repo then it will first
         be removed to ensure a clean, up to date cloning.
@@ -185,8 +185,11 @@ def clone_repos(config, examples):
                 if os.path.exists(name):
                     print("'%s' example directory already exists. Deleting..." % name)
                     rmtree(name)
-
-                subprocess.call([repo_info['type'], "clone", repo_info['repo']])
+                for i in range(0, retry):
+                    if subprocess.call([repo_info['type'], "clone", repo_info['repo']]) == 0:
+                        break
+                else:
+                    print("ERROR : unable to clone the repo {}".format(name))
 
 def deploy_repos(config, examples):
     """ If the example directory exists as provided by the json config file,
@@ -311,7 +314,7 @@ def export_repos(config, ides, targets, examples):
     return results
 
 
-def compile_repos(config, toolchains, targets, examples):
+def compile_repos(config, toolchains, targets, profile, examples):
     """Compiles combinations of example programs, targets and compile chains.
 
        The results are returned in a [key: value] dictionary format:
@@ -355,8 +358,14 @@ def compile_repos(config, toolchains, targets, examples):
                                                                 valid_choices(example['toolchains'], toolchains),
                                                                 example['features']):
                     print("Compiling %s for %s, %s" % (name, target, toolchain))
-                    proc = subprocess.Popen(["mbed-cli", "compile", "-t", toolchain,
-                                             "-m", target, "-v"])
+                    build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target, "-v"]
+
+                    if profile:
+                        build_command.append("--profile")
+                        build_command.append(profile)
+
+                    proc = subprocess.Popen(build_command)
+
                     proc.wait()
                     example_summary = "{} {} {}".format(name, target, toolchain)
                     if proc.returncode:

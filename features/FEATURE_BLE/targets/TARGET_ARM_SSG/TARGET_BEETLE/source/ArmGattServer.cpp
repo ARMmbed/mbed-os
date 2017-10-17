@@ -367,11 +367,11 @@ void ArmGattServer::attCback(attEvt_t *pEvt)
 uint8_t ArmGattServer::attsReadCback(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, attsAttr_t *pAttr)
 {
     GattReadCallbackParams cbParams = {
-        .connHandle = connId,
-        .handle     = handle,
-        .offset     = offset,
-        .len        = *pAttr->pLen,
-        .data       = pAttr->pValue
+        /* .connHandle = */ connId,
+        /* .handle     = */ handle,
+        /* .offset     = */ offset,
+        /* .len        = */ *pAttr->pLen,
+        /* .data       = */ pAttr->pValue
     };
     getInstance().handleDataReadEvent(&cbParams);
 
@@ -410,12 +410,12 @@ uint8_t ArmGattServer::attsWriteCback(dmConnId_t connId, uint16_t handle, uint8_
     }
 
     GattWriteCallbackParams cbParams = {
-        .connHandle = connId,
-        .handle     = handle,
-        .writeOp    = writeOp,
-        .offset     = offset,
-        .len        = len,
-        .data       = pValue
+        /* .connHandle = */ connId,
+        /* .handle     = */ handle,
+        /* .writeOp    = */ writeOp,
+        /* .offset     = */ offset,
+        /* .len        = */ len,
+        /* .data       = */ pValue
     };
     getInstance().handleDataWrittenEvent(&cbParams);
 

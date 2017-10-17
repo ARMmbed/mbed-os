@@ -207,26 +207,46 @@ extern "C" void * __wrap__memalign_r(struct _reent * r, size_t alignment, size_t
 
 
 /******************************************************************************/
-/* ARMCC memory allocation wrappers                                           */
+/* ARMCC / IAR memory allocation wrappers                                     */
 /******************************************************************************/
 
-#elif defined(TOOLCHAIN_ARM) // #if defined(TOOLCHAIN_GCC)
+#elif defined(TOOLCHAIN_ARM) || defined(__ICCARM__)
+
+#if defined(TOOLCHAIN_ARM)
+#define SUPER_MALLOC    $Super$$malloc
+#define SUB_MALLOC      $Sub$$malloc
+#define SUPER_REALLOC   $Super$$realloc
+#define SUB_REALLOC     $Sub$$realloc
+#define SUPER_CALLOC    $Super$$calloc
+#define SUB_CALLOC      $Sub$$calloc
+#define SUPER_FREE      $Super$$free
+#define SUB_FREE        $Sub$$free
+#elif defined(__ICCARM__)
+#define SUPER_MALLOC    $Super$$__iar_dlmalloc
+#define SUB_MALLOC      $Sub$$__iar_dlmalloc
+#define SUPER_REALLOC   $Super$$__iar_dlrealloc
+#define SUB_REALLOC     $Sub$$__iar_dlrealloc
+#define SUPER_CALLOC    $Super$$__iar_dlcalloc
+#define SUB_CALLOC      $Sub$$__iar_dlcalloc
+#define SUPER_FREE      $Super$$__iar_dlfree
+#define SUB_FREE        $Sub$$__iar_dlfree
+#endif
 
 /* Enable hooking of memory function only if tracing is also enabled */
 #if defined(MBED_MEM_TRACING_ENABLED) || defined(MBED_HEAP_STATS_ENABLED)
 
 extern "C" {
-    void *$Super$$malloc(size_t size);
-    void *$Super$$realloc(void *ptr, size_t size);
-    void *$Super$$calloc(size_t nmemb, size_t size);
-    void $Super$$free(void *ptr);
+    void *SUPER_MALLOC(size_t size);
+    void *SUPER_REALLOC(void *ptr, size_t size);
+    void *SUPER_CALLOC(size_t nmemb, size_t size);
+    void SUPER_FREE(void *ptr);
 }
 
-extern "C" void* $Sub$$malloc(size_t size) {
+extern "C" void* SUB_MALLOC(size_t size) {
     void *ptr = NULL;
 #ifdef MBED_HEAP_STATS_ENABLED
     malloc_stats_mutex->lock();
-    alloc_info_t *alloc_info = (alloc_info_t*)$Super$$malloc(size + sizeof(alloc_info_t));
+    alloc_info_t *alloc_info = (alloc_info_t*)SUPER_MALLOC(size + sizeof(alloc_info_t));
     if (alloc_info != NULL) {
         alloc_info->size = size;
         ptr = (void*)(alloc_info + 1);
@@ -241,7 +261,7 @@ extern "C" void* $Sub$$malloc(size_t size) {
     }
     malloc_stats_mutex->unlock();
 #else // #ifdef MBED_HEAP_STATS_ENABLED
-    ptr = $Super$$malloc(size);
+    ptr = SUPER_MALLOC(size);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
     mem_trace_mutex->lock();
@@ -251,7 +271,7 @@ extern "C" void* $Sub$$malloc(size_t size) {
     return ptr;
 }
 
-extern "C" void* $Sub$$realloc(void *ptr, size_t size) {
+extern "C" void* SUB_REALLOC(void *ptr, size_t size) {
     void *new_ptr = NULL;
 #ifdef MBED_HEAP_STATS_ENABLED
     // Note - no lock needed since malloc and free are thread safe
@@ -276,7 +296,7 @@ extern "C" void* $Sub$$realloc(void *ptr, size_t size) {
         free(ptr);
     }
 #else // #ifdef MBED_HEAP_STATS_ENABLED
-    new_ptr = $Super$$realloc(ptr, size);
+    new_ptr = SUPER_REALLOC(ptr, size);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
     mem_trace_mutex->lock();
@@ -286,7 +306,7 @@ extern "C" void* $Sub$$realloc(void *ptr, size_t size) {
     return new_ptr;
 }
 
-extern "C" void *$Sub$$calloc(size_t nmemb, size_t size) {
+extern "C" void *SUB_CALLOC(size_t nmemb, size_t size) {
     void *ptr = NULL;
 #ifdef MBED_HEAP_STATS_ENABLED
     // Note - no lock needed since malloc is thread safe
@@ -295,7 +315,7 @@ extern "C" void *$Sub$$calloc(size_t nmemb, size_t size) {
         memset(ptr, 0, nmemb * size);
     }
 #else // #ifdef MBED_HEAP_STATS_ENABLED
-    ptr = $Super$$calloc(nmemb, size);
+    ptr = SUPER_CALLOC(nmemb, size);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
     mem_trace_mutex->lock();
@@ -305,7 +325,7 @@ extern "C" void *$Sub$$calloc(size_t nmemb, size_t size) {
     return ptr;
 }
 
-extern "C" void $Sub$$free(void *ptr) {
+extern "C" void SUB_FREE(void *ptr) {
 #ifdef MBED_HEAP_STATS_ENABLED
     malloc_stats_mutex->lock();
     alloc_info_t *alloc_info = NULL;
@@ -314,10 +334,10 @@ extern "C" void $Sub$$free(void *ptr) {
         heap_stats.current_size -= alloc_info->size;
         heap_stats.alloc_cnt -= 1;
     }
-    $Super$$free((void*)alloc_info);
+    SUPER_FREE((void*)alloc_info);
     malloc_stats_mutex->unlock();
 #else // #ifdef MBED_HEAP_STATS_ENABLED
-    $Super$$free(ptr);
+    SUPER_FREE(ptr);
 #endif // #ifdef MBED_HEAP_STATS_ENABLED
 #ifdef MBED_MEM_TRACING_ENABLED
     mem_trace_mutex->lock();
@@ -332,15 +352,14 @@ extern "C" void $Sub$$free(void *ptr) {
 /* Allocation wrappers for other toolchains are not supported yet             */
 /******************************************************************************/
 
-#else // #if defined(TOOLCHAIN_GCC)
+#else
 
 #ifdef MBED_MEM_TRACING_ENABLED
-#warning Memory tracing is not supported with the current toolchain.
+#error Memory tracing is not supported with the current toolchain.
 #endif
 
 #ifdef MBED_HEAP_STATS_ENABLED
-#warning Heap statistics are not supported with the current toolchain.
+#error Heap statistics are not supported with the current toolchain.
 #endif
 
 #endif // #if defined(TOOLCHAIN_GCC)
-

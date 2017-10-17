@@ -164,7 +164,7 @@ static __INLINE void nrf_delay_us(uint32_t volatile number_of_us)
 {
 register uint32_t delay __ASM ("r0") = number_of_us;
 __ASM volatile (
-#ifdef NRF51
+#if defined(NRF51) && !defined(__ARMCC_VERSION)
         ".syntax unified\n"
 #endif
     "1:\n"
@@ -230,7 +230,7 @@ __ASM volatile (
     " NOP\n"
 #endif
     " BNE 1b\n"
-#ifdef NRF51
+#if defined(NRF51) && !defined(__ARMCC_VERSION)
     ".syntax divided\n"
 #endif
     : "+r" (delay));

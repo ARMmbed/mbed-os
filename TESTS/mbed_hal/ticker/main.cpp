@@ -29,7 +29,8 @@ using namespace utest::v1;
 
 #define MBED_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
 
-#define TIMESTAMP_MAX_DELTA MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA
+#define TIMESTAMP_MAX_DELTA_BITS(bits)  ((uint64_t)(0x7 << ((bits) - 4)))
+#define TIMESTAMP_MAX_DELTA TIMESTAMP_MAX_DELTA_BITS(32)
 
 struct ticker_interface_stub_t { 
     ticker_interface_t interface;
@@ -43,9 +44,11 @@ struct ticker_interface_stub_t {
     unsigned int clear_interrupt_call;
     unsigned int set_interrupt_call;
     unsigned int fire_interrupt_call;
+    unsigned int get_info_call;
 };
 
 static ticker_interface_stub_t interface_stub = { 0 };
+static ticker_info_t interface_info_stub = { 0 };
 
 static void ticker_interface_stub_init()
 {
@@ -81,6 +84,12 @@ static void ticker_interface_stub_fire_interrupt()
     ++interface_stub.fire_interrupt_call;
 }
 
+static const ticker_info_t *ticker_interface_stub_get_info()
+{
+    ++interface_stub.get_info_call;
+    return &interface_info_stub;
+}
+
 static void reset_ticker_interface_stub()
 {
     interface_stub.interface.init = ticker_interface_stub_init;
@@ -91,6 +100,7 @@ static void reset_ticker_interface_stub()
         ticker_interface_stub_clear_interrupt;
     interface_stub.interface.set_interrupt =ticker_interface_stub_set_interrupt;
     interface_stub.interface.fire_interrupt = ticker_interface_stub_fire_interrupt;
+    interface_stub.interface.get_info = ticker_interface_stub_get_info;
     interface_stub.initialized = false;
     interface_stub.interrupt_flag = false;
     interface_stub.timestamp = 0;
@@ -101,6 +111,9 @@ static void reset_ticker_interface_stub()
     interface_stub.clear_interrupt_call = 0;
     interface_stub.set_interrupt_call = 0;
     interface_stub.fire_interrupt_call = 0;
+
+    interface_info_stub.frequency = 1000000;
+    interface_info_stub.bits = 32;
 }
 
 // stub of the event queue 
@@ -115,6 +128,12 @@ static void reset_queue_stub()
 {
     queue_stub.event_handler = NULL;
     queue_stub.head = NULL,
+    queue_stub.tick_last_read = 0;
+    queue_stub.tick_remainder = 0;
+    queue_stub.frequency = 0;
+    queue_stub.bitmask = 0;
+    queue_stub.max_delta = 0;
+    queue_stub.max_delta_us = 0;
     queue_stub.present_time = 0;
     queue_stub.initialized = false;
 }
@@ -129,6 +148,34 @@ static void reset_ticker_stub()
 {
     reset_queue_stub();
     reset_ticker_interface_stub();
+}
+
+const uint32_t test_frequencies[] = {
+    1,
+    32768,      // 2^15
+    1000000,
+    0xFFFFFFFF  // 2^32 - 1
+};
+
+const uint32_t test_bitwidths[] = {
+    32,
+    31,
+    16,
+    8
+};
+
+template < void (F)(uint32_t a, uint32_t b)>
+static void test_over_frequency_and_width(void)
+{
+    for (unsigned int i = 0; i < MBED_ARRAY_SIZE(test_frequencies); i++) {
+        for (unsigned int j = 0; j < MBED_ARRAY_SIZE(test_bitwidths); j++) {
+            reset_ticker_stub();
+            interface_info_stub.frequency = test_frequencies[i];
+            interface_info_stub.bits = test_bitwidths[j];
+
+            F(test_frequencies[i], test_bitwidths[j]);
+        }
+    }
 }
 
 static utest::v1::status_t case_setup_handler(
@@ -175,8 +222,7 @@ static utest::v1::status_t greentea_failure_handler(
  * Then: 
  *   - The ticker interface should be initialized 
  *   - The queue handler should be set to the handler provided in parameter
- *   - The internal ticker timestamp should be synced with the counter in the 
- *     interface counter.
+ *   - The internal ticker timestamp should be zero
  *   - interrupt should be scheduled in current timestamp + 
  *     TIMESTAMP_MAX_DELTA
  *   - The queue should not contains any event
@@ -192,7 +238,7 @@ static void test_ticker_initialization()
 
     TEST_ASSERT_TRUE(interface_stub.initialized);
     TEST_ASSERT_EQUAL_PTR(dummy_handler, queue_stub.event_handler);
-    TEST_ASSERT_EQUAL_UINT64(interface_stub.timestamp, queue_stub.present_time);
+    TEST_ASSERT_EQUAL_UINT64(0, queue_stub.present_time);
     TEST_ASSERT_EQUAL(1, interface_stub.set_interrupt_call);
     TEST_ASSERT_EQUAL_UINT32(
         interface_stub.timestamp + TIMESTAMP_MAX_DELTA,
@@ -347,7 +393,7 @@ static void test_legacy_insert_event_outside_overflow_range()
 
     // test the beginning of the range
     ticker_event_t first_event = { 0 };
-    const timestamp_t timestamp_first_event = interface_stub.timestamp + 1; 
+    const timestamp_t timestamp_first_event = interface_stub.timestamp + 1;
     const uint32_t id_first_event = 0xAAAAAAAA;
 
     ticker_insert_event(
@@ -820,6 +866,7 @@ static void test_insert_event_us_outside_overflow_range()
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
     interface_stub.timestamp = 0xAAAAAAAA;
+    queue_stub.tick_last_read = interface_stub.timestamp;
     queue_stub.present_time = 10ULL << 32 | interface_stub.timestamp;
 
     // test the end of the range
@@ -881,6 +928,7 @@ static void test_insert_event_us_in_overflow_range()
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
     interface_stub.timestamp = 0xAAAAAAAA;
+    queue_stub.tick_last_read = interface_stub.timestamp;
     queue_stub.present_time = 10ULL << 32 | interface_stub.timestamp;
 
     // test the end of the range
@@ -944,6 +992,7 @@ static void test_insert_event_us_underflow()
     interface_stub.set_interrupt_call = 0;
 
     interface_stub.timestamp = 0xAAAAAAAA;
+    queue_stub.tick_last_read = interface_stub.timestamp;
     queue_stub.present_time = 10ULL << 32 | interface_stub.timestamp;
 
     // test the end of the range
@@ -979,6 +1028,7 @@ static void test_insert_event_us_head()
     ticker_set_handler(&ticker_stub, NULL);
     interface_stub.set_interrupt_call = 0;
     interface_stub.timestamp = 0xAAAAAAAA;
+    queue_stub.tick_last_read = interface_stub.timestamp;
     queue_stub.present_time = 10ULL << 32 | interface_stub.timestamp;
 
     const us_timestamp_t timestamps[] = { 
@@ -2003,6 +2053,8 @@ static uint32_t ticker_interface_stub_read_interrupt_time()
  */
 static void test_set_interrupt_past_time()
 {
+    ticker_set_handler(&ticker_stub, NULL);
+
     interface_stub.set_interrupt_call = 0;
     interface_stub.fire_interrupt_call = 0;
     interface_stub.timestamp = 0xFF;
@@ -2023,6 +2075,8 @@ static void test_set_interrupt_past_time()
  */
 static void test_set_interrupt_past_time_with_delay()
 {
+    ticker_set_handler(&ticker_stub, NULL);
+
     interface_stub.set_interrupt_call = 0;
     interface_stub.fire_interrupt_call = 0;
     interface_stub.timestamp = 0xFF;
@@ -2036,6 +2090,168 @@ static void test_set_interrupt_past_time_with_delay()
     ticker_insert_event(&ticker_stub, &event, event_timestamp, id_last_event);
     TEST_ASSERT_EQUAL(1, interface_stub.set_interrupt_call);
     TEST_ASSERT_EQUAL(1, interface_stub.fire_interrupt_call);
+}
+
+/**
+ * Convert ticks at a given frequency to time in microseconds
+ *
+ * Assert if there is a 64-bit overflow
+ */
+static uint64_t convert_to_us(uint64_t ticks, uint32_t frequency)
+{
+    uint64_t scaled_ticks = ticks * 1000000;
+    // Assert that there was not an overflow
+    TEST_ASSERT_EQUAL(ticks, scaled_ticks / 1000000);
+    return scaled_ticks / frequency;
+}
+
+/**
+ * Given an uninitialized ticker instance and an interface of a
+ * certain frequency and bit width.
+ * Then the time returned the ticker should match the cumulative time.
+ */
+void test_frequencies_and_masks(uint32_t frequency, uint32_t bits)
+{
+    const uint32_t bitmask = ((uint64_t)1 << bits) - 1;
+
+    ticker_set_handler(&ticker_stub, NULL);
+    uint64_t ticks = 0;
+
+    // Single tick
+    ticks += 1;
+    interface_stub.timestamp = ticks & bitmask;
+    TEST_ASSERT_EQUAL_UINT32(convert_to_us(ticks, frequency), ticker_read(&ticker_stub));
+    TEST_ASSERT_EQUAL_UINT64(convert_to_us(ticks, frequency), ticker_read_us(&ticker_stub));
+
+    // Run until the loop before 64-bit overflow (worst case with frequency=1hz, bits=32)
+    for (unsigned int k = 0; k < 4294; k++) {
+
+        // Largest value possible tick
+        ticks += ((uint64_t)1 << bits) - 1;
+        interface_stub.timestamp = ticks & bitmask;
+        TEST_ASSERT_EQUAL_UINT32(convert_to_us(ticks, frequency), ticker_read(&ticker_stub));
+        TEST_ASSERT_EQUAL_UINT64(convert_to_us(ticks, frequency), ticker_read_us(&ticker_stub));
+    }
+}
+
+/**
+ * Given an uninitialized ticker_data instance.
+ * When the ticker is initialized
+ * Then:
+ *   - The internal ticker timestamp should be zero
+ *   - interrupt should be scheduled in current (timestamp +
+ *          TIMESTAMP_MAX_DELTA_BITS(bitwidth)) % modval
+ *   - The queue should not contains any event
+ */
+static void test_ticker_max_value()
+{
+    for (int bitwidth = 8; bitwidth <= 32; bitwidth++) {
+        const uint64_t modval = 1ULL << bitwidth;
+
+        // setup of the stub
+        reset_ticker_stub();
+        interface_info_stub.bits = bitwidth;
+        interface_stub.timestamp = 0xBA;
+
+        ticker_set_handler(&ticker_stub, NULL);
+
+        TEST_ASSERT_EQUAL_UINT64(0, queue_stub.present_time);
+        TEST_ASSERT_EQUAL(1, interface_stub.set_interrupt_call);
+        TEST_ASSERT_EQUAL_UINT32(
+            (interface_stub.timestamp + TIMESTAMP_MAX_DELTA_BITS(bitwidth)) % modval,
+            interface_stub.interrupt_timestamp
+        );
+        TEST_ASSERT_EQUAL_PTR(NULL, queue_stub.head);
+        TEST_ASSERT_EQUAL(0, interface_stub.disable_interrupt_call);
+    }
+}
+
+/**
+ * Check that _ticker_match_interval_passed correctly detects matches
+ *
+ * Brute force test that _ticker_match_interval_passed returns the correct match value
+ * for all cominations of values within a small range.
+ */
+static void test_match_interval_passed()
+{
+
+    for (int modval = 1; modval <= 5; modval++) {
+        for (int prev = 0; prev < modval; prev++) {
+            for (int cur = 0; cur < modval; cur++) {
+                for (int match = 0; match < modval; match++) {
+                    uint32_t delta = (cur - prev) % modval;
+                    uint32_t delta_to_match = (match - prev) % modval;
+                    bool match_expected = false;
+                    if (delta_to_match) {
+                        match_expected = delta >= delta_to_match;
+                    }
+
+                    // Sanity checks
+                    if (prev == cur) {
+                        // No time has passed
+                        TEST_ASSERT_EQUAL(false, match_expected);
+                    } else if (match == prev) {
+                        // Match can't occur without an overflow occurring
+                        TEST_ASSERT_EQUAL(false, match_expected);
+                    } else if (cur == match) {
+                        // All other cases where cur == match a match should be expected
+                        TEST_ASSERT_EQUAL(true, match_expected);
+                    }
+
+                    // Actual test
+                    TEST_ASSERT_EQUAL(match_expected, _ticker_match_interval_passed(prev, cur, match));
+                }
+            }
+        }
+    }
+}
+
+typedef struct  {
+    timestamp_t prev;
+    timestamp_t cur;
+    timestamp_t match;
+    bool result;
+} match_interval_entry_t;
+
+/**
+ * Check that _ticker_match_interval_passed correctly detects matches
+ *
+ * Use a table of pre-computed values to check that _ticker_match_interval_passed
+ * returns the correct match value.
+ */
+static void test_match_interval_passed_table()
+{
+    static const match_interval_entry_t test_values[] = {
+          /* prev,       cur,        match,      result */
+            {0x00000000, 0x00000000, 0x00000000, false},
+            {0x00000000, 0x00000000, 0xffffffff, false},
+            {0x00000000, 0x00000000, 0x00000001, false},
+            {0x00000000, 0xffffffff, 0x00000000, false},
+            {0x00000000, 0x00000001, 0x00000000, false},
+            {0xffffffff, 0x00000000, 0x00000000, true},
+            {0x00000001, 0x00000000, 0x00000000, true},
+            {0x00005555, 0x00005555, 0x00005555, false},
+            {0x00005555, 0x00005555, 0x00005554, false},
+            {0x00005555, 0x00005555, 0x00005556, false},
+            {0x00005555, 0x00005554, 0x00005555, false},
+            {0x00005555, 0x00005556, 0x00005555, false},
+            {0x00005554, 0x00005555, 0x00005555, true},
+            {0x00005556, 0x00005555, 0x00005555, true},
+            {0xffffffff, 0xffffffff, 0xffffffff, false},
+            {0xffffffff, 0xffffffff, 0xfffffffe, false},
+            {0xffffffff, 0xffffffff, 0x00000000, false},
+            {0xffffffff, 0xfffffffe, 0xffffffff, false},
+            {0xffffffff, 0x00000000, 0xffffffff, false},
+            {0xfffffffe, 0xffffffff, 0xffffffff, true},
+            {0x00000000, 0xffffffff, 0xffffffff, true},
+    };
+    for (int i = 0; i < MBED_ARRAY_SIZE(test_values); i++) {
+        const uint32_t prev = test_values[i].prev;
+        const uint32_t cur = test_values[i].cur;
+        const uint32_t match = test_values[i].match;
+        const uint32_t result = test_values[i].result;
+        TEST_ASSERT_EQUAL(result, _ticker_match_interval_passed(prev, cur, match));
+    }
 }
 
 static const case_t cases[] = {
@@ -2130,12 +2346,28 @@ static const case_t cases[] = {
     MAKE_TEST_CASE(
         "test_set_interrupt_past_time_with_delay", 
         test_set_interrupt_past_time_with_delay
+    ),
+    MAKE_TEST_CASE(
+        "test_frequencies_and_masks",
+        test_over_frequency_and_width<test_frequencies_and_masks>
+    ),
+    MAKE_TEST_CASE(
+        "test_ticker_max_value",
+        test_ticker_max_value
+    ),
+    MAKE_TEST_CASE(
+        "test_match_interval_passed",
+        test_match_interval_passed
+    ),
+    MAKE_TEST_CASE(
+        "test_match_interval_passed_table",
+        test_match_interval_passed_table
     )
 };
 
 static utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(30, "default_auto");
+    GREENTEA_SETUP(60, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 

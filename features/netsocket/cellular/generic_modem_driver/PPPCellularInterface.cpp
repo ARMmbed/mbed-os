@@ -110,7 +110,7 @@ static bool set_CNMI(ATCmdParser *at)
     // New SMS indication configuration
     // set AT+CMTI=[mode, index] , 0 PDU mode, 1 text mode
     // Multiple URCs for SMS, i.e., CMT, CMTI, UCMT, CBMI, CDSI as DTE could be following any of these SMS formats
-    bool success = at->send("AT+CNMI=2,"CTX) && at->recv("OK");
+    bool success = at->send("AT+CNMI=2," CTX) && at->recv("OK");
     return success;
 }
 
@@ -141,7 +141,7 @@ static void CMT_URC(ATCmdParser *at)
 
 static bool set_atd(ATCmdParser *at)
 {
-    bool success = at->send("ATD*99***"CTX"#") && at->recv("CONNECT");
+    bool success = at->send("ATD*99***" CTX "#") && at->recv("CONNECT");
 
     return success;
 }
@@ -262,6 +262,7 @@ PPPCellularInterface::PPPCellularInterface(FileHandle *fh, bool debug)
     _pwd = NULL;
     _fh = fh;
     _debug_trace_on = debug;
+    _stack = DEFAULT_STACK;
     dev_info.reg_status_csd = CSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.reg_status_psd = PSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.ppp_connection_up = false;
@@ -451,21 +452,38 @@ nsapi_error_t PPPCellularInterface::setup_context_and_credentials()
         return NSAPI_ERROR_PARAMETER;
     }
 
-    bool try_ipv6 = false;
+#if NSAPI_PPP_IPV4_AVAILABLE && NSAPI_PPP_IPV6_AVAILABLE
+    const char ipv4v6_pdp_type[] = {"IPV4V6"};
+    const char ipv4_pdp_type[] = {"IP"};
+    const char *pdp_type = ipv4v6_pdp_type;
+    _stack = IPV4V6_STACK;
+#elif NSAPI_PPP_IPV6_AVAILABLE
+    const char pdp_type[] = {"IPV6"};
+#elif NSAPI_PPP_IPV4_AVAILABLE
+    const char pdp_type[] = {"IP"};
+#endif
     const char *auth = _uname && _pwd ? "CHAP:" : "";
 
-retry_without_ipv6:
+#if NSAPI_PPP_IPV4_AVAILABLE && NSAPI_PPP_IPV6_AVAILABLE
+retry_without_dual_stack:
+#endif
     success = _at->send("AT"
                           "+FCLASS=0;" // set to connection (ATD) to data mode
-                          "+CGDCONT="CTX",\"%s\",\"%s%s\"",
-                          try_ipv6 ? "IPV4V6" : "IP", auth, _apn
+                          "+CGDCONT=" CTX ",\"%s\",\"%s%s\"",
+                          pdp_type, auth, _apn
                          )
                    && _at->recv("OK");
 
-    if (!success && try_ipv6) {
-        try_ipv6 = false;
-        goto retry_without_ipv6;
+#if NSAPI_PPP_IPV4_AVAILABLE && NSAPI_PPP_IPV6_AVAILABLE
+    if (_stack == IPV4V6_STACK) {
+        if (!success) {
+            // fallback to ipv4
+            pdp_type = ipv4_pdp_type;
+            _stack = IPV4_STACK;
+            goto retry_without_dual_stack;
+        }
     }
+#endif
 
     if (!success) {
         _at->recv("OK");
@@ -540,17 +558,11 @@ nsapi_error_t PPPCellularInterface::connect()
     nsapi_error_t retcode;
     bool success;
     bool did_init = false;
+    const char *apn_config = NULL;
 
     if (dev_info.ppp_connection_up) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
-
-    const char *apn_config = NULL;
-#if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
-    if (!set_credentials_api_used) {
-        apn_config = apnconfig(dev_info.imsi);
-    }
-#endif
 
     do {
         retry_init:
@@ -586,6 +598,12 @@ nsapi_error_t PPPCellularInterface::connect()
                 return NSAPI_ERROR_NO_CONNECTION;
             }
 
+#if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
+            if (!apn_config) {
+                apn_config = apnconfig(dev_info.imsi);
+            }
+#endif
+
             /* Check if user want skip SIM pin checking on boot up */
             if (set_sim_pin_check_request) {
                 retcode = do_sim_pin_check(_at, _pin);
@@ -611,6 +629,7 @@ nsapi_error_t PPPCellularInterface::connect()
                 _apn = _APN_GET(apn_config);
                 _uname = _APN_GET(apn_config);
                 _pwd = _APN_GET(apn_config);
+                tr_info("Looked up APN %s.", _apn);
             }
 #endif
 
@@ -662,7 +681,7 @@ nsapi_error_t PPPCellularInterface::connect()
         /* Initialize PPP
          * mbed_ppp_init() is a blocking call, it will block until
          * connected, or timeout after 30 seconds*/
-        retcode = nsapi_ppp_connect(_fh, _connection_status_cb, _uname, _pwd);
+        retcode = nsapi_ppp_connect(_fh, _connection_status_cb, _uname, _pwd, _stack);
         if (retcode == NSAPI_ERROR_OK) {
             dev_info.ppp_connection_up = true;
         }

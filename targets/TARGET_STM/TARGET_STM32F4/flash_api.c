@@ -41,6 +41,16 @@ static uint32_t GetSectorSize(uint32_t Sector);
 
 int32_t flash_init(flash_t *obj)
 {
+    return 0;
+}
+
+int32_t flash_free(flash_t *obj)
+{
+    return 0;
+}
+
+static int32_t flash_unlock(void)
+{
     /* Allow Access to Flash control registers and user Falsh */
     if (HAL_FLASH_Unlock()) {
         return -1;
@@ -48,9 +58,10 @@ int32_t flash_init(flash_t *obj)
         return 0;
     }
 }
-int32_t flash_free(flash_t *obj)
+
+static int32_t flash_lock(void)
 {
-    /* Disable the Flash option control register access (recommended to protect 
+    /* Disable the Flash option control register access (recommended to protect
     the option Bytes against possible unwanted operations) */
     if (HAL_FLASH_Lock()) {
         return -1;
@@ -58,18 +69,23 @@ int32_t flash_free(flash_t *obj)
         return 0;
     }
 }
+
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
     /*Variable used for Erase procedure*/
     static FLASH_EraseInitTypeDef EraseInitStruct;
     uint32_t FirstSector;
     uint32_t SectorError = 0;
- 
-    if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
+    int32_t status = 0;
 
+    if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return -1;
     }
-   
+
+    if (flash_unlock() != HAL_OK) {
+        return -1;
+    }
+
     /* Get the 1st sector to erase */
     FirstSector = GetSector(address);
 
@@ -79,16 +95,23 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     EraseInitStruct.Sector = FirstSector;
     EraseInitStruct.NbSectors = 1;
     if(HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK){
-        return -1;
-    } else {
-        return 0;
+        status = -1;
     }
+
+    flash_lock();
+
+    return status;
 }
 
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
+    int32_t status = 0;
 
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
+        return -1;
+    }
+
+    if (flash_unlock() != HAL_OK) {
         return -1;
     }
 
@@ -105,16 +128,19 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     __HAL_FLASH_INSTRUCTION_CACHE_ENABLE();
     __HAL_FLASH_DATA_CACHE_ENABLE();
 
-    while (size > 0) {
+    while ((size > 0) && (status == 0)) {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, address, (uint64_t)*data) != HAL_OK) {
-            return -1;
+            status = -1;
         } else {
             size--;
             address++;
             data++;
         }
     }
-    return 0;
+
+    flash_lock();
+
+    return status;
 }
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
@@ -129,9 +155,10 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 
 uint32_t flash_get_page_size(const flash_t *obj)
 {
-    // not applicable for STM32F4
-    return (0x4000); // minimum sector size
+    // Flash of STM32F4 devices can be programed 1 byte at a time
+    return (1);
 }
+
 uint32_t flash_get_start_address(const flash_t *obj)
 {
     return FLASH_BASE;
@@ -151,7 +178,7 @@ static uint32_t GetSector(uint32_t address)
     uint32_t sector = 0; 
     uint32_t tmp = address - ADDR_FLASH_SECTOR_0;
     /* This function supports 1Mb and 2Mb flash sizes */
-#if defined(ADDR_FLASH_SECTOR_12)
+#if defined(ADDR_FLASH_SECTOR_16)
     if (address & 0x100000) { // handle 2nd bank
         sector = FLASH_SECTOR_12;
         tmp = address - ADDR_FLASH_SECTOR_12;
@@ -159,11 +186,19 @@ static uint32_t GetSector(uint32_t address)
 #endif
     if (address < ADDR_FLASH_SECTOR_4) { // 16k sectorsize
         sector += tmp >>14;
-    } else if (address < ADDR_FLASH_SECTOR_5) { //64k sector size
+    }
+#if defined(ADDR_FLASH_SECTOR_5)
+    else if (address < ADDR_FLASH_SECTOR_5) { //64k sector size
         sector += FLASH_SECTOR_4; 
     } else {
         sector += 4 + (tmp >>17);
     }
+#else
+    // In case ADDR_FLASH_SECTOR_5 is not defined, sector 4 is the last one.
+    else { //64k sector size
+        sector += FLASH_SECTOR_4; 
+    }
+#endif
     return sector;
 }
 
@@ -175,7 +210,7 @@ static uint32_t GetSector(uint32_t address)
 static uint32_t GetSectorSize(uint32_t Sector)
 {
     uint32_t sectorsize = 0x00;
-#if defined(FLASH_SECTOR_12)
+#if defined(FLASH_SECTOR_16)
     if((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || (Sector == FLASH_SECTOR_2) ||\
        (Sector == FLASH_SECTOR_3) || (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) ||\
        (Sector == FLASH_SECTOR_14) || (Sector == FLASH_SECTOR_15)) {

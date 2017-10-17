@@ -29,7 +29,7 @@ from tools.build_api import prepare_toolchain
 from tools.build_api import scan_resources
 from tools.toolchains import Resources
 from tools.export import lpcxpresso, ds5_5, iar, makefile
-from tools.export import embitz, coide, kds, simplicity, atmelstudio
+from tools.export import embitz, coide, kds, simplicity, atmelstudio, mcuxpresso
 from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt, vscode
 from tools.export import gnuarmeclipse
 from tools.export import qtcreator
@@ -42,6 +42,7 @@ EXPORTERS = {
     'gcc_arm': makefile.GccArm,
     'make_gcc_arm': makefile.GccArm,
     'make_armc5': makefile.Armc5,
+    'make_armc6': makefile.Armc6,
     'make_iar': makefile.IAR,
     'ds5_5': ds5_5.DS5_5,
     'iar': iar.IAR,
@@ -56,6 +57,7 @@ EXPORTERS = {
     'eclipse_iar'      : cdt.EclipseIAR,
     'eclipse_armc5'    : cdt.EclipseArmc5,
     'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
+    'mcuxpresso': mcuxpresso.MCUXpresso,
     'qtcreator': qtcreator.QtCreator,
     'vscode_gcc_arm' : vscode.VSCodeGcc,
     'vscode_iar' : vscode.VSCodeIAR,
@@ -308,6 +310,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
         extra_verbose=extra_verbose, config=config, build_profile=build_profile,
         app_config=app_config)
     # The first path will give the name to the library
+    toolchain.RESPONSE_FILES = False
     if name is None:
         name = basename(normpath(abspath(src_paths[0])))
 

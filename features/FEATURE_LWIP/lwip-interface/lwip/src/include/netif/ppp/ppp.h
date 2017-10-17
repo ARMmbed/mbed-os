@@ -336,6 +336,10 @@ struct ppp_pcb_s {
   unsigned int ipv6cp_is_up            :1; /* have called ip6cp_up() */
   unsigned int if6_up                  :1; /* True when the IPv6 interface is up. */
 #endif /* PPP_IPV6_SUPPORT */
+#if PPP_IPV4_SUPPORT && PPP_IPV6_SUPPORT
+  unsigned int ipcp_disabled           :1; /* disable ipcp */
+  unsigned int ipv6cp_disabled         :1; /* disable ipv6cp */
+#endif
   unsigned int lcp_echo_timer_running  :1; /* set if a timer is running */
 #if VJ_SUPPORT
   unsigned int vj_enabled              :1; /* Flag indicating VJ compression enabled. */

@@ -24,11 +24,6 @@
 #include "device.h"
 
 /**
- * Maximum delta (in us) between too interrupts.
- */
-#define MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA   0x70000000ULL
-
-/**
  * Legacy format representing a timestamp in us.
  * Given it is modeled as a 32 bit integer, this type can represent timestamp
  * up to 4294 seconds (71 minutes).
@@ -52,6 +47,14 @@ typedef struct ticker_event_s {
 
 typedef void (*ticker_event_handler)(uint32_t id);
 
+/** Information about the ticker implementation
+ */
+typedef struct {
+    uint32_t frequency;                           /**< Frequency in Hz this ticker runs at */
+    uint32_t bits;                                /**< Number of bits this ticker supports */
+} ticker_info_t;
+
+
 /** Ticker's interface structure - required API for a ticker
  */
 typedef struct {
@@ -61,6 +64,7 @@ typedef struct {
     void (*clear_interrupt)(void);                /**< Clear interrupt function */
     void (*set_interrupt)(timestamp_t timestamp); /**< Set interrupt function */
     void (*fire_interrupt)(void);                 /**< Fire interrupt right-away */
+    const ticker_info_t *(*get_info)(void);       /**< Return info about this ticker's implementation */
 } ticker_interface_t;
 
 /** Ticker's event queue structure
@@ -68,6 +72,12 @@ typedef struct {
 typedef struct {
     ticker_event_handler event_handler; /**< Event handler */
     ticker_event_t *head;               /**< A pointer to head */
+    uint32_t frequency;                 /**< Frequency of the timer in Hz */
+    uint32_t bitmask;                   /**< Mask to be applied to time values read */
+    uint32_t max_delta;                 /**< Largest delta in ticks that can be used when scheduling */
+    uint64_t max_delta_us;              /**< Largest delta in us that can be used when scheduling */
+    uint32_t tick_last_read;            /**< Last tick read */
+    uint64_t tick_remainder;            /**< Ticks that have not been added to base_time */
     us_timestamp_t present_time;        /**< Store the timestamp used for present time */
     bool initialized;                   /**< Indicate if the instance is initialized */
 } ticker_event_queue_t;
@@ -132,8 +142,9 @@ void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj,
  *
  * The event will be executed in timestamp - ticker_read_us() us.
  *
- * @warning If an event is inserted with a timestamp less than the current
- * timestamp then the event will **not** be inserted.
+ * @note If an event is inserted with a timestamp less than the current
+ * timestamp then the event will be scheduled immediately resulting in
+ * an instant call to event handler.
  *
  * @param ticker    The ticker object.
  * @param obj       The event object to be inserted to the queue
@@ -169,6 +180,19 @@ us_timestamp_t ticker_read_us(const ticker_data_t *const ticker);
  * @return 1 if timestamp is pending event, 0 if there's no event pending
  */
 int ticker_get_next_timestamp(const ticker_data_t *const ticker, timestamp_t *timestamp);
+
+/* Private functions
+ *
+ * @cond PRIVATE
+ *
+ */
+
+int _ticker_match_interval_passed(timestamp_t prev_tick, timestamp_t cur_tick, timestamp_t match_tick);
+
+/*
+ * @endcond PRIVATE
+ *
+ */
 
 /**@}*/
 

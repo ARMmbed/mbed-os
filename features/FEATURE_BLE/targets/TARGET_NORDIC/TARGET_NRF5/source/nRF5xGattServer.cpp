@@ -503,12 +503,12 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
     switch (eventType) {
         case GattServerEvents::GATT_EVENT_DATA_WRITTEN: {
             GattWriteCallbackParams cbParams = {
-                .connHandle = gattsEventP->conn_handle,
-                .handle     = handle_value,
-                .writeOp    = static_cast<GattWriteCallbackParams::WriteOp_t>(gattsEventP->params.write.op),
-                .offset     = gattsEventP->params.write.offset,
-                .len        = gattsEventP->params.write.len,
-                .data       = gattsEventP->params.write.data
+                /* .connHandle = */ gattsEventP->conn_handle,
+                /* .handle     = */ handle_value,
+                /* .writeOp    = */ static_cast<GattWriteCallbackParams::WriteOp_t>(gattsEventP->params.write.op),
+                /* .offset     = */ gattsEventP->params.write.offset,
+                /* .len        = */ gattsEventP->params.write.len,
+                /* .data       = */ gattsEventP->params.write.data
             };
             handleDataWrittenEvent(&cbParams);
             break;
@@ -539,7 +539,7 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     if (req->length == 0) {
                         req->attr_handle = input_req.handle;
                         req->offset = input_req.offset;
-                    } else { 
+                    } else {
                         // it should be the subsequent write
                         if ((req->offset + req->length) != input_req.offset) {
                             sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_invalid_offset_reply);
@@ -627,12 +627,12 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     sd_ble_gatts_rw_authorize_reply(conn_handle, &write_auth_succes_reply);
 
                     GattWriteCallbackParams writeParams = {
-                        .connHandle = conn_handle,
-                        .handle     = req->attr_handle,
-                        .writeOp    = static_cast<GattWriteCallbackParams::WriteOp_t>(input_req.op),
-                        .offset     = req->offset,
-                        .len        = req->length,
-                        .data       = req->data,
+                        /* .connHandle = */ conn_handle,
+                        /* .handle     = */ req->attr_handle,
+                        /* .writeOp    = */ static_cast<GattWriteCallbackParams::WriteOp_t>(input_req.op),
+                        /* .offset     = */ req->offset,
+                        /* .len        = */ req->length,
+                        /* .data       = */ req->data,
                     };
                     handleDataWrittenEvent(&writeParams);
                     releaseLongWriteRequest(conn_handle);
@@ -649,7 +649,7 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                                                                    * set to AUTH_CALLBACK_REPLY_SUCCESS if the client
                                                                    * request is to proceed. */
             };
-            
+
             ble_gatts_rw_authorize_reply_params_t reply = {
                 .type = BLE_GATTS_AUTHORIZE_TYPE_WRITE,
                 .params = {
@@ -662,12 +662,12 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
                     }
                 }
             };
-            
+
             if (reply.params.write.gatt_status != BLE_GATT_STATUS_SUCCESS)
             {
                 reply.params.write.update = 0;
             }
-            
+
             sd_ble_gatts_rw_authorize_reply(gattsEventP->conn_handle, &reply);
 
             /*
@@ -679,12 +679,12 @@ void nRF5xGattServer::hwCallback(ble_evt_t *p_ble_evt)
              */
             if (reply.params.write.gatt_status == BLE_GATT_STATUS_SUCCESS) {
                 GattWriteCallbackParams cbParams = {
-                    .connHandle = gattsEventP->conn_handle,
-                    .handle     = handle_value,
-                    .writeOp    = static_cast<GattWriteCallbackParams::WriteOp_t>(gattsEventP->params.authorize_request.request.write.op),
-                    .offset     = gattsEventP->params.authorize_request.request.write.offset,
-                    .len        = gattsEventP->params.authorize_request.request.write.len,
-                    .data       = gattsEventP->params.authorize_request.request.write.data,
+                    /* .connHandle = */ gattsEventP->conn_handle,
+                    /* .handle     = */ handle_value,
+                    /* .writeOp    = */ static_cast<GattWriteCallbackParams::WriteOp_t>(gattsEventP->params.authorize_request.request.write.op),
+                    /* .offset     = */ gattsEventP->params.authorize_request.request.write.offset,
+                    /* .len        = */ gattsEventP->params.authorize_request.request.write.len,
+                    /* .data       = */ gattsEventP->params.authorize_request.request.write.data,
                 };
                 handleDataWrittenEvent(&cbParams);
             }

@@ -206,6 +206,23 @@ typedef	    __kernel_ssize_t	SSIZE_T;
 
 #define _LONG_CALL_ROM_     _LONG_CALL_
 
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#define SECTION(_name) __attribute__ ((__section__(_name)))
+#define ALIGNMTO(_bound) __attribute__ ((aligned (_bound)))
+#define _PACKED_       __attribute__ ((packed))
+#ifdef CONFIG_RELEASE_BUILD_LIBRARIES
+#define _LONG_CALL_
+#define _LONG_CALL_ROM_
+#ifdef E_CUT_ROM_DOMAIN
+#undef _LONG_CALL_ROM_
+#define _LONG_CALL_ROM_
+#endif
+#else
+#define _LONG_CALL_
+#define _LONG_CALL_ROM_     _LONG_CALL_
+#endif
+#define _WEAK           __attribute__ ((weak))
+
 #else
 #define SECTION(_name) __attribute__ ((__section__(_name)))
 #define ALIGNMTO(_bound) __attribute__ ((aligned (_bound)))

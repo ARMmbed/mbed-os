@@ -837,10 +837,9 @@ EXCLUDE_SYMLINKS       = YES
 # exclude all test directories for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = */tools/* \
-                         */TESTS/* \
                          */targets/* \
                          */BUILD/* \
-                         */rtos/rtx* \
+                         */rtos/TARGET_CORTEX/rtx* \
                          */cmsis/* \
                          */FEATURE_* \
                          */features/mbedtls/* \

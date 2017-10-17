@@ -18,8 +18,11 @@
 #include "Timer.h"
 #include "mbed_assert.h"
 
+#define READ_FLAG           0x1u
+#define WRITE_FLAG          0x2u
+
 TCPSocket::TCPSocket()
-    : _pending(0), _read_sem(0), _write_sem(0),
+    : _pending(0), _event_flag(),
       _read_in_progress(false), _write_in_progress(false)
 {
 }
@@ -60,16 +63,15 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
         } else {
             blocking_connect_in_progress = true;
 
-            int32_t count;
+            uint32_t flag;
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
             _lock.unlock();
-            count = _write_sem.wait(_timeout);
+            flag = _event_flag.wait_any(WRITE_FLAG, _timeout);
             _lock.lock();
-
-            if (count < 1) {
-                // Semaphore wait timed out so break out and return
+            if (flag & osFlagsError) {
+                // Timeout break
                 break;
             }
         }
@@ -122,16 +124,16 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
         if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {
             break;
         } else {
-            int32_t count;
+            uint32_t flag;
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
             _lock.unlock();
-            count = _write_sem.wait(_timeout);
+            flag = _event_flag.wait_any(WRITE_FLAG, _timeout);
             _lock.lock();
 
-            if (count < 1) {
-                // Semaphore wait timed out so break out and return
+            if (flag & osFlagsError) {
+                // Timeout break
                 ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
             }
@@ -165,16 +167,16 @@ nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
         if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {
             break;
         } else {
-            int32_t count;
+            uint32_t flag;
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
             _lock.unlock();
-            count = _read_sem.wait(_timeout);
+            flag = _event_flag.wait_any(READ_FLAG, _timeout);
             _lock.lock();
 
-            if (count < 1) {
-                // Semaphore wait timed out so break out and return
+            if (flag & osFlagsError) {
+                // Timeout break
                 ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
             }
@@ -188,8 +190,7 @@ nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
 
 void TCPSocket::event()
 {
-    _write_sem.release();
-    _read_sem.release();
+    _event_flag.set(READ_FLAG|WRITE_FLAG);
 
     _pending += 1;
     if (_callback && _pending == 1) {

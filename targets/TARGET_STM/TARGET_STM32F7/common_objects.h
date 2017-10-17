@@ -127,6 +127,19 @@ struct dac_s {
     DAC_HandleTypeDef handle;
 };
 
+struct flash_s {
+    /*  nothing to be stored for now */
+    uint32_t dummy;
+};
+
+#if DEVICE_CAN
+struct can_s {
+    CAN_HandleTypeDef CanHandle;
+    int index;
+    int hz;
+};
+#endif
+
 #ifdef __cplusplus
 }
 #endif

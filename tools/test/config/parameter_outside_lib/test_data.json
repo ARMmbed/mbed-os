@@ -1,0 +1,5 @@
+{
+   "K64F": {
+        "exception_msg": "Invalid prefix 'lib2' for parameter name 'lib2.p1' in 'library:lib1[K64F]'"
+    }
+}

@@ -1,6 +1,26 @@
 {
     "name": "events",
     "config": {
-        "present": 1
+        "present": 1,
+        "shared-stacksize": {
+            "help": "Stack size (bytes) for shared event queue thread",
+            "value": 1024
+        },
+        "shared-eventsize": {
+            "help": "Event buffer size (bytes) for shared event queue",
+            "value": 256
+        },
+        "shared-dispatch-from-application": {
+            "help": "No thread created for shared event queue - application will call dispatch from another thread (eg dispatch_forever at end of main)",
+            "value": false
+        },
+        "shared-highprio-stacksize": {
+            "help": "Stack size (bytes) for shared high-priority event queue thread",
+            "value": 1024
+        },
+        "shared-highprio-eventsize": {
+            "help": "Event buffer size (bytes) for shared high-priority event queue",
+            "value": 256
+        }
     }
 }

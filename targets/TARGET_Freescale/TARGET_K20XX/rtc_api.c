@@ -29,14 +29,14 @@ static void init(void) {
 
 void rtc_init(void) {
     init();
-    
+
     // Enable the oscillator
 #if defined (TARGET_K20D50M)
     RTC->CR |= RTC_CR_OSCE_MASK;
 #else
     // Teensy3.1 requires 20pF MCU loading capacitors for 32KHz RTC oscillator
     /* RTC->CR: SC2P=0,SC4P=1,SC8P=0,SC16P=1,CLKO=0,OSCE=1,UM=0,SUP=0,SPE=0,SWR=0 */
-    RTC->CR |= RTC_CR_OSCE_MASK |RTC_CR_SC16P_MASK | RTC_CR_SC4P_MASK; 
+    RTC->CR |= RTC_CR_OSCE_MASK |RTC_CR_SC16P_MASK | RTC_CR_SC4P_MASK;
 #endif
 
     //Configure the TSR. default value: 1
@@ -77,11 +77,6 @@ time_t rtc_read(void) {
 void rtc_write(time_t t) {
     // disable counter
     RTC->SR &= ~RTC_SR_TCE_MASK;
-
-    // we do not write 0 into TSR
-    // to avoid invalid time
-    if (t == 0)
-        t = 1;
 
     // write seconds
     RTC->TSR = t;

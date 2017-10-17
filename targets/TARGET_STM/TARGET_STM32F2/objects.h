@@ -136,10 +136,13 @@ struct pwmout_s {
     uint8_t inverted;
 };
 
+#ifdef DEVICE_CAN
 struct can_s {
-    CANName can;
+    CAN_HandleTypeDef CanHandle;
     int index;
+    int hz;
 };
+#endif
 
 #define GPIO_IP_WITHOUT_BRR
 #include "gpio_object.h"

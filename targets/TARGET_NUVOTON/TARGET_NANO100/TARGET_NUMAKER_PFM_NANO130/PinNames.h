@@ -118,8 +118,8 @@ typedef enum {
     LED_GREEN = LED1,
     LED_YELLOW = LED2,
     // Button naming
-    SW2 = PE_5,
-    SW3 = PE_6,
+    SW1 = PE_5,
+    SW2 = PE_6,
     
 } PinName;
 

@@ -80,8 +80,6 @@ static uint32_t GetBank(uint32_t Addr)
  */
 int32_t flash_init(flash_t *obj)
 {
-    /* Unlock the Flash to enable the flash control register access *************/
-    HAL_FLASH_Unlock();
     return 0;
 }
 
@@ -92,10 +90,28 @@ int32_t flash_init(flash_t *obj)
  */
 int32_t flash_free(flash_t *obj)
 {
-    /* Lock the Flash to disable the flash control register access (recommended
-     * to protect the FLASH memory against possible unwanted operation) *********/
-    HAL_FLASH_Lock();
     return 0;
+}
+
+static int32_t flash_unlock(void)
+{
+    /* Allow Access to Flash control registers and user Falsh */
+    if (HAL_FLASH_Unlock()) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
+static int32_t flash_lock(void)
+{
+    /* Disable the Flash option control register access (recommended to protect
+    the option Bytes against possible unwanted operations) */
+    if (HAL_FLASH_Lock()) {
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 /** Erase one sector starting at defined address
@@ -110,9 +126,14 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     uint32_t FirstPage = 0, BankNumber = 0;
     uint32_t PAGEError = 0;
     FLASH_EraseInitTypeDef EraseInitStruct;
+    int32_t status = 0;
 
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
 
+        return -1;
+    }
+
+    if (flash_unlock() != HAL_OK) {
         return -1;
     }
 
@@ -135,10 +156,12 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
      DCRST and ICRST bits in the FLASH_CR register. */
 
     if (HAL_FLASHEx_Erase(&EraseInitStruct, &PAGEError) != HAL_OK) {
-        return -1;
-    } else {
-        return 0;
+        status = -1;
     }
+
+    flash_lock();
+
+    return status;
 }
 
 /** Program one page starting at defined address
@@ -156,6 +179,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
         const uint8_t *data, uint32_t size)
 {
     uint32_t StartAddress = 0;
+    int32_t status = 0;
 
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return -1;
@@ -166,6 +190,10 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
         return -1;
     }
 
+    if (flash_unlock() != HAL_OK) {
+        return -1;
+    }
+
     /* Program the user Flash area word by word */
     StartAddress = address;
 
@@ -173,34 +201,39 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
      *  parameters doesn't ensure  */
     if ((uint32_t) data % 4 != 0) {
         volatile uint64_t data64;
-        while (address < (StartAddress + size)) {
+        while ((address < (StartAddress + size)) && (status == 0)) {
             for (uint8_t i =0; i < 8; i++) {
                 *(((uint8_t *) &data64) + i) = *(data + i);
             }
 
-            if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, data64) == HAL_OK) {
+            if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, data64)
+                    == HAL_OK) {
                 address = address + 8;
                 data = data + 8;
             } else {
-                return -1;
+                status = -1;
             }
         }
     } else { /*  case where data is aligned, so let's avoid any copy */
-        while (address < (StartAddress + size)) {
-            if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, *((uint64_t*) data)) == HAL_OK) {
+        while ((address < (StartAddress + size)) && (status == 0)) {
+            if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address,
+                        *((uint64_t*) data))
+                    == HAL_OK) {
                 address = address + 8;
                 data = data + 8;
             } else {
-                return -1;
+                status = -1;
             }
         }
     }
 
-    return 0;
+    flash_lock();
+
+    return status;
 }
 
 /** Get sector size
- * 
+ *
  * @param obj The flash object
  * @param address The sector starting address
  * @return The size of a sector
@@ -221,8 +254,8 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address) {
  * @return The size of a page
  */
 uint32_t flash_get_page_size(const flash_t *obj) {
-    /*  considering 1 sector = 1 page */
-    return FLASH_PAGE_SIZE;
+    /*  Page size is the minimum programable size, which 8 bytes */
+    return 8;
 }
 
 /** Get start address for the flash region

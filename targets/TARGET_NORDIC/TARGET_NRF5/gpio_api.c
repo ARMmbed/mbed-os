@@ -151,7 +151,7 @@ static void gpio_apply_config(uint8_t pin)
                         cfg.pull = NRF_GPIO_PIN_NOPULL;
                     break;
                 }
-                nrf_drv_gpiote_in_init(pin, &cfg, NULL);
+                nrf_gpio_cfg_input(pin,cfg.pull);
             }
         }
         else {

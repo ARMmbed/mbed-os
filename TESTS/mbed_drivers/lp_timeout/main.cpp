@@ -23,7 +23,6 @@
 #include "greentea-client/test_env.h"
 
 #include "mbed.h"
-#include "us_ticker_api.h"
 
 using namespace utest::v1;
 
@@ -42,6 +41,7 @@ void cb_done() {
 void lp_timeout_1s_deepsleep(void)
 {
     complete = false;
+    LowPowerTimer timer;
 
     /*
      * Since deepsleep() may shut down the UART peripheral, we wait for 10ms
@@ -54,31 +54,37 @@ void lp_timeout_1s_deepsleep(void)
     wait_ms(10);
 
     /*
-     * We use here lp_ticker_read() instead of us_ticker_read() for start and
+     * We use here the low power timer instead of microsecond timer for start and
      * end because the microseconds timer might be disable during deepsleep.
      */
-    timestamp_t start = lp_ticker_read();
+    timer.start();
     lpt.attach(&cb_done, 1);
-    deepsleep();
+    /* Make sure deepsleep is allowed, to go to deepsleep */
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
+    sleep();
     while (!complete);
-    timestamp_t end = lp_ticker_read();
 
     /* It takes longer to wake up from deep sleep */
-    TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);
+    TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, timer.read_us());
     TEST_ASSERT_TRUE(complete);
 }
 
 void lp_timeout_1s_sleep(void)
 {
     complete = false;
+    Timer timer;
+    timer.start();
 
-    timestamp_t start = us_ticker_read();
+    sleep_manager_lock_deep_sleep();
     lpt.attach(&cb_done, 1);
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    TEST_ASSERT_FALSE_MESSAGE(deep_sleep_allowed, "Deep sleep should be disallowed");
     sleep();
     while (!complete);
-    timestamp_t end = us_ticker_read();
+    sleep_manager_unlock_deep_sleep();
 
-    TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);
+    TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, timer.read_us());
     TEST_ASSERT_TRUE(complete);
 }
 #endif /* DEVICE_SLEEP */
@@ -86,14 +92,14 @@ void lp_timeout_1s_sleep(void)
 void lp_timeout_us(uint32_t delay_us, uint32_t tolerance)
 {
     complete = false;
+    Timer timer;
+    timer.start();
 
-    timestamp_t start = us_ticker_read();
     lpt.attach_us(&cb_done, delay_us);
     while (!complete);
-    timestamp_t end = us_ticker_read();
 
     /* Using RTC which is less accurate */
-    TEST_ASSERT_UINT32_WITHIN(tolerance, delay_us, end - start);
+    TEST_ASSERT_UINT32_WITHIN(tolerance, delay_us, timer.read_us());
     TEST_ASSERT_TRUE(complete);
 }
 

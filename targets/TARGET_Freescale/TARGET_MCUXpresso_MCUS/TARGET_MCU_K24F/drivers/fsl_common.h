@@ -305,7 +305,7 @@ static inline void EnableGlobalIRQ(uint32_t primask)
  * @param irqHandler IRQ handler address
  * @return The old IRQ handler address
  */
-uint32_t InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler);
+void InstallIRQHandler(IRQn_Type irq, uint32_t irqHandler);
 
 #if (defined(FSL_FEATURE_SOC_SYSCON_COUNT) && (FSL_FEATURE_SOC_SYSCON_COUNT > 0))
 /*!

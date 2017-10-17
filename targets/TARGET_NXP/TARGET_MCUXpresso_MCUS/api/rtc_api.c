@@ -54,9 +54,6 @@ time_t rtc_read(void)
 
 void rtc_write(time_t t)
 {
-    if (t == 0) {
-        t = 1;
-    }
     RTC_StopTimer(RTC);
     RTC->COUNT = t;
     RTC_StartTimer(RTC);

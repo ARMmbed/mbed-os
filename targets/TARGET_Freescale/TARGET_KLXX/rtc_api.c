@@ -26,7 +26,7 @@ static void init(void) {
 
     // select RTC clock source
     SIM->SOPT1 &= ~SIM_SOPT1_OSC32KSEL_MASK;
-    
+
     // Enable external crystal source if clock source is 32KHz
     if (extosc_frequency()==32768) {
         SIM->SOPT1 |= SIM_SOPT1_OSC32KSEL(OSC32KCLK);
@@ -103,11 +103,6 @@ time_t rtc_read(void) {
 void rtc_write(time_t t) {
     // disable counter
     RTC->SR &= ~RTC_SR_TCE_MASK;
-
-    // we do not write 0 into TSR
-    // to avoid invalid time
-    if (t == 0)
-        t = 1;
 
     // write seconds
     RTC->TSR = t;

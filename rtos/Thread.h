@@ -26,7 +26,6 @@
 #include "cmsis_os2.h"
 #include "mbed_rtos1_types.h"
 #include "mbed_rtos_storage.h"
-#include "mbed_rtx_conf.h"
 #include "platform/Callback.h"
 #include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
@@ -247,7 +246,7 @@ public:
 
     /** Set the specified Thread Flags for the thread.
       @param   signals  specifies the signal flags of the thread that should be set.
-      @return  previous signal flags of the specified thread or osFlagsError in case of incorrect parameters.
+      @return  signal flags after setting or osFlagsError in case of incorrect parameters.
     */
     int32_t signal_set(int32_t signals);
 
@@ -306,7 +305,7 @@ public:
 
     /** Clears the specified Thread Flags of the currently running thread.
       @param   signals  specifies the signal flags of the thread that should be cleared.
-      @return  resultant signal flags of the specified thread or osFlagsError in case of incorrect parameters.
+      @return  signal flags before clearing or osFlagsError in case of incorrect parameters.
     */
     static int32_t signal_clr(int32_t signals);
 

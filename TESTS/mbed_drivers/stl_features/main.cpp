@@ -26,6 +26,7 @@
 #include <queue>
 #include <map>
 #include <math.h>
+#include <functional>
 
 using namespace utest::v1;
 

@@ -1,0 +1,12 @@
+{
+    "should_fail": {
+        "exception_msg": "Attempt to override undefined parameter 'base1_1' in 'target:second_base_target'"
+    },
+    "intermediate": {
+        "target.base1_1": "v_base1_1_d1",
+        "target.base1_2": "v_base1_2_d1",
+        "target.base1_3": "v_base1_3_b1",
+        "target.derived1": "v_derived1_d1",
+        "target.derived2": "v_derived2_d1"
+    }
+}

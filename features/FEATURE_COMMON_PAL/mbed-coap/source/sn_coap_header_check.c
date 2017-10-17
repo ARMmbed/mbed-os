@@ -29,6 +29,9 @@
 #include "mbed-coap/sn_coap_protocol.h"
 #include "sn_coap_header_internal.h"
 #include "sn_coap_protocol_internal.h"
+#include "mbed-trace/mbed_trace.h"
+
+#define TRACE_GROUP "coap"
 
 /**
  * \fn int8_t sn_coap_header_validity_check(sn_coap_hdr_s *src_coap_msg_ptr, coap_version_e coap_version)
@@ -56,6 +59,7 @@ int8_t sn_coap_header_validity_check(sn_coap_hdr_s *src_coap_msg_ptr, coap_versi
         case COAP_MSG_TYPE_RESET:
             break;      /* Ok cases */
         default:
+            tr_error("sn_coap_header_validity_check - unknown message type!");
             return -1;      /* Failed case */
     }
 
@@ -91,6 +95,7 @@ int8_t sn_coap_header_validity_check(sn_coap_hdr_s *src_coap_msg_ptr, coap_versi
         case COAP_MSG_CODE_RESPONSE_CONTINUE:
             break;      /* Ok cases */
         default:
+            tr_error("sn_coap_header_validity_check - unknown message code!");
             return -1;      /* Failed case */
     }
 

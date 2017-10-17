@@ -46,8 +46,7 @@ public:
 
 public:
     /**
-     *  @brief  Creates a new GattService using the specified 16-bit
-     *          UUID, value length, and properties.
+     *  @brief  Creates a new GattService using the specified UUID and characteristics.
      *
      *  @note   The UUID value must be unique and is normally >1.
      *
@@ -109,7 +108,7 @@ public:
      * @param[in] index
      *              The index of the characteristic.
      *
-     * @return A pointer to the characterisitic at index @p index.
+     * @return A pointer to the characteristic at index @p index.
      */
     GattCharacteristic *getCharacteristic(uint8_t index) {
         if (index >= _characteristicCount) {

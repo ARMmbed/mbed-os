@@ -20,6 +20,7 @@ from tools.utils import argparse_filestring_type, argparse_profile_filestring_ty
 from tools.utils import argparse_force_lowercase_type
 from tools.utils import argparse_force_uppercase_type
 from tools.utils import print_large_string
+from tools.utils import NotSupportedException
 from tools.options import extract_profile, list_profiles, extract_mcus
 
 def setup_project(ide, target, program=None, source_dir=None, build=None, export_path=None):
@@ -246,11 +247,13 @@ def main():
     profile = extract_profile(parser, options, toolchain_name, fallback="debug")
     if options.clean:
         rmtree(BUILD_DIR)
-    export(mcu, options.ide, build=options.build,
-           src=options.source_dir, macros=options.macros,
-           project_id=options.program, zip_proj=zip_proj,
-           build_profile=profile, app_config=options.app_config)
-
+    try:
+        export(mcu, options.ide, build=options.build,
+               src=options.source_dir, macros=options.macros,
+               project_id=options.program, zip_proj=zip_proj,
+               build_profile=profile, app_config=options.app_config)
+    except NotSupportedException as exc:
+        print "[ERROR] %s" % str(exc)
 
 if __name__ == "__main__":
     main()
