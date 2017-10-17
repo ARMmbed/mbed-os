@@ -10,11 +10,10 @@ TARGET_CONFIGS = json_file_to_dict(join(CONFIG_DIR, "target_configs.json"))
 def get_valid_configs(target_name):
     if target_name in TARGET_CONFIGS:
         target_config = TARGET_CONFIGS[target_name]
+    elif (target_name in TARGET_MAP and 'LWIP' in TARGET_MAP[target_name].features):
+        target_config = { "default_test_configuration": "ETHERNET", "test_configurations": ["ETHERNET"] }
     else:
-        if 'LWIP' in TARGET_MAP[target_name].features:
-            target_config = { "default_test_configuration": "ETHERNET", "test_configurations": ["ETHERNET"] }
-        else:
-            return {}
+        return {}
 
     config_dict = {}
     for attr in CONFIG_MAP:
@@ -35,11 +34,7 @@ def get_default_config(target_name):
         if config_name == "NONE":
             return None
         return join(CONFIG_DIR, CONFIG_MAP[config_name])
-    elif target_name in TARGET_MAP:
-        if 'LWIP' in TARGET_MAP[target_name].features:
-            config_name = "ETHERNET"
-            return join(CONFIG_DIR, CONFIG_MAP[config_name])
-        else:
-            return None
+    elif (target_name in TARGET_MAP and 'LWIP' in TARGET_MAP[target_name].features):
+        return join(CONFIG_DIR, CONFIG_MAP["ETHERNET"])
     else:
         return None
