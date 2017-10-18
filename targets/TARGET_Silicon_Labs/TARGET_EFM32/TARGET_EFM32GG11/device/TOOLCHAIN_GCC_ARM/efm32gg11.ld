@@ -25,8 +25,8 @@ MEMORY
 
 /* MBED: mbed needs to be able to dynamically set the interrupt vector table.
  * We make room for the table at the very beginning of RAM, i.e. at
- * 0x20000000. We need (16+68 * sizeof(uint32_t) = 336 bytes for EFM32PG */
-__vector_size = 0x150;
+ * 0x20000000. We need (16+70 * sizeof(uint32_t) = 344 bytes for EFM32GG11 */
+__vector_size = 0x158;
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.

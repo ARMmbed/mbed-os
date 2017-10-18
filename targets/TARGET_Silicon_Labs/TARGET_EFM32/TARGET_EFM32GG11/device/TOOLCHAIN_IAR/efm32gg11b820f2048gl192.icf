@@ -11,8 +11,8 @@ define symbol __ICFEDIT_intvec_start__ = MBED_APP_START;
 define symbol __ICFEDIT_region_ROM_start__   = MBED_APP_START;
 define symbol __ICFEDIT_region_ROM_end__     = MBED_APP_START + MBED_APP_SIZE - 1;
 define symbol __NVIC_start__                 = 0x20000000;
-define symbol __NVIC_end__                   = 0x2000014F;
-define symbol __ICFEDIT_region_RAM_start__   = 0x20000150;
+define symbol __NVIC_end__                   = 0x20000157;
+define symbol __ICFEDIT_region_RAM_start__   = 0x20000158;
 define symbol __ICFEDIT_region_RAM_end__     = 0x2007FFFF;
 /*-Sizes-*/
 /*Heap 1/4 of ram and stack 1/8*/

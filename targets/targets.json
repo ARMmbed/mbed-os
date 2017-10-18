@@ -2409,7 +2409,7 @@
         "inherits": ["EFM32"],
         "extra_labels_add": ["EFM32GG11", "2048K", "SL_CRYPTO"],
         "core": "Cortex-M4",
-        "macros": ["EFM32GG11B820F2048GL192", "TRANSACTION_QUEUE_SIZE_SPI=4"],
+        "macros": ["EFM32GG11B820F2048GL192", "TRANSACTION_QUEUE_SIZE_SPI=4", "MBEDTLS_CONFIG_HW_SUPPORT"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
         "release_versions": ["2", "5"],
         "device_name": "EFM32GG11B820F2048GL192",
@@ -2420,6 +2420,7 @@
         "inherits": ["EFM32GG11B820F2048GL192"],
         "progen": {"target": "efm32gg11-stk"},
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "features": ["LWIP"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
