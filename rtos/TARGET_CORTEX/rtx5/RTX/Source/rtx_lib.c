@@ -461,7 +461,7 @@ __attribute__((section(".rodata"))) =
   0U,
 #endif
   { &os_isr_queue[0], (uint16_t)(sizeof(os_isr_queue)/sizeof(void *)), 0U },
-  { 
+  {
     // Memory Pools (Variable Block Size)
 #if ((OS_THREAD_OBJ_MEM != 0) && (OS_THREAD_USER_STACK_SIZE != 0))
     &os_thread_stack[0], sizeof(os_thread_stack),
@@ -494,7 +494,7 @@ __attribute__((section(".rodata"))) =
 #endif
     &os_mpi_thread,
 #else
-    NULL, 
+    NULL,
     NULL,
 #endif
 #if (OS_TIMER_OBJ_MEM != 0)
@@ -577,7 +577,7 @@ __asm void os_cb_sections_wrapper (void) {
                 EXTERN  ||.bss.os.mempool.cb$$Limit||   [WEAK]
                 EXTERN  ||.bss.os.msgqueue.cb$$Base||   [WEAK]
                 EXTERN  ||.bss.os.msgqueue.cb$$Limit||  [WEAK]
-  
+
                 AREA    ||.rodata||, DATA, READONLY
                 EXPORT  os_cb_sections
 os_cb_sections
@@ -777,11 +777,12 @@ typedef void *mutex;
 //lint -e818 "Pointer 'm' could be declared as pointing to const"
 
 // Initialize mutex
+#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
+#endif
 int _mutex_initialize(mutex *m);
-int _mutex_initialize(mutex *m) {
+__WEAK int _mutex_initialize(mutex *m) {
   int result;
-
   *m = osMutexNew(NULL);
   if (*m != NULL) {
     result = 1;
@@ -793,8 +794,10 @@ int _mutex_initialize(mutex *m) {
 }
 
 // Acquire mutex
+#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-void _mutex_acquire(mutex *m);
+#endif
+__WEAK void _mutex_acquire(mutex *m);
 void _mutex_acquire(mutex *m) {
   if (os_kernel_is_active() != 0U) {
     (void)osMutexAcquire(*m, osWaitForever);
@@ -802,8 +805,10 @@ void _mutex_acquire(mutex *m) {
 }
 
 // Release mutex
+#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-void _mutex_release(mutex *m);
+#endif
+__WEAK void _mutex_release(mutex *m);
 void _mutex_release(mutex *m) {
   if (os_kernel_is_active() != 0U) {
     (void)osMutexRelease(*m);
@@ -811,8 +816,10 @@ void _mutex_release(mutex *m) {
 }
 
 // Free mutex
+#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-void _mutex_free(mutex *m);
+#endif
+__WEAK void _mutex_free(mutex *m);
 void _mutex_free(mutex *m) {
   (void)osMutexDelete(*m);
 }
