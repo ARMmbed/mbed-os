@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#ifndef __BLE_H__
-#define __BLE_H__
+#ifndef MBED_BLE_H__
+#define MBED_BLE_H__
 
 #include "blecommon.h"
 #include "Gap.h"
 #include "GattServer.h"
 #include "GattClient.h"
+#include "SecurityManager.h"
 
 #include "ble/FunctionPointerWithContext.h"
 
@@ -30,21 +31,162 @@
 #include "mbed_error.h"
 #endif
 
+#include "platform/mbed_toolchain.h"
+
 /* Forward declaration for the implementation class */
 class BLEInstanceBase;
 
 /**
- * The base class used to abstract away BLE-capable radio transceivers or SOCs,
- * so that the BLE API can work with any radio transparently.
+ * @addtogroup ble
+ * @{
+ */
+
+/**
+ * Abstract away BLE-capable radio transceivers or SOCs.
+ *
+ * Instances of this class have three responsabilities:
+ *   - Initialize the inner BLE subsystem.
+ *   - Signal user code that BLE events are available and an API to process them
+ *   - Manage access to the instances abstracting each BLE layer:
+ *        + GAP: Handle advertising and scan, as well as connection and
+ *          disconnection.
+ *        + GATTServer: API to construct and manage a GATT server which can be
+ *          accessed by connected peers.
+ *        + GATTClient: API to interract with a peer GATT server.
+ *        + SecurityManager: API to manage security.
+ *
+ * The user should not create BLE instances directly but rather access to the
+ * singleton(s) holding the BLE interfaces present in the system by using the
+ * static function Instance().
+ *
+ * @code
+ * #include "ble/BLE.h"
+ *
+ * BLE& ble_interface = BLE::Instance();
+ * @endcode
+ *
+ * Next, the signal handling / process mechanism should be setup. By design,
+ * mbed BLE does not impose to the user an event handling/processing mechanism
+ * however it expose APIs which allow an application to compose its own:
+ *   - onEventsToProcess() which register a callback that will be be called by
+ *     the BLE subsystem when there is an event ready to be processed.
+ *   - processEvents() which process all the events present in the BLE subsystem.
+ *
+ * It is common to bind BLE event mechanism with mbed EventQueue:
+ *
+ * @code
+ * #include <events/mbed_events.h>
+ * #include "ble/BLE.h"
+ *
+ * // declare the event queue which will be shared by the whole application.
+ * static EventQueue event_queue( 4 * EVENTS_EVENT_SIZE);
+ *
+ * // Function invoked when there is a BLE event available.
+ * // It put into the event queue the processing of the event(s)
+ * void schedule_ble_processing(BLE::OnEventsToProcessCallbackContext* context) {
+ *   event_queue.call(callback(&(context->ble), &BLE::processEvents));
+ * }
+ *
+ * int main()
+ * {
+ *   BLE &ble_interface = BLE::Instance();
+ *
+ *   // Bind event signaling to schedule_ble_processing
+ *   ble_interface.onEventsToProcess(schedule_ble_processing);
+ *
+ *   // Launch BLE initialisation
+ *
+ *   // Dispatch events in the event queue
+ *   event_queue.dispatch_forever();
+ *   return 0;
+ * }
+ * @endcode
+ *
+ * Once the event processing mechanism is in place the Bluetooth subsystem can
+ * be initialized with the init() function. That function accept in input a
+ * callback which will be invoked once the initialization process has finished.
+ *
+ * @code
+ * void on_ble_init_complete(BLE::InitializationCompleteCallbackContext *context)
+ * {
+ *   BLE& ble_interface = context->ble;
+ *   ble_error_t initialization_error = context->error;
+ *
+ *   if (initialization_error) {
+ *     // handle error
+ *     return;
+ *   }
+ *
+ *   // The BLE interface can be accessed now.
+ * }
+ *
+ * int main() {
+ *   BLE &ble_interface = BLE::Instance();
+ *   ble_interface.onEventsToProcess(schedule_ble_processing);
+ *
+ *   // Initialize the BLE interface
+ *   ble_interface.init(on_ble_init_complete);
+ *
+ *   event_queue.dispatch_forever();
+ *   return 0;
+ * }
+ * @endcode
  */
 class BLE
 {
 public:
-    typedef unsigned InstanceID_t; /**< The type returned by BLE::getInstanceID(). */
+    /**
+     * Opaque type used to store the ID of a BLE instance.
+     */
+    typedef unsigned InstanceID_t;
 
     /**
-     * Parameters provided to the callback registered by onEventsToProcess
-     * when there is events to process.
+     * The value of the BLE::InstanceID_t for the default BLE instance.
+     */
+    static const InstanceID_t DEFAULT_INSTANCE = 0;
+
+#ifndef YOTTA_CFG_BLE_INSTANCES_COUNT
+    /**
+     * The number of permitted BLE instances for the application.
+     */
+    static const InstanceID_t NUM_INSTANCES = 1;
+#else
+    /**
+     * The number of permitted BLE instances for the application.
+     */
+    static const InstanceID_t NUM_INSTANCES = YOTTA_CFG_BLE_INSTANCES_COUNT;
+#endif
+
+    /**
+     * Get a reference to the BLE singleton corresponding to a given interface.
+     *
+     * There is a static array of BLE singletons.
+     *
+     * @note Calling Instance() is preferred over constructing a BLE object
+     * directly, as it returns references to singletons.
+     *
+     * @param[in] id BLE Instance ID to get.
+     *
+     * @return A reference to a single object.
+     *
+     * @pre id shall be less than NUM_INSTANCES.
+     */
+    static BLE &Instance(InstanceID_t id = DEFAULT_INSTANCE);
+
+    /**
+     * Fetch the ID of a BLE instance.
+     *
+     * @return Instance id of this BLE instance.
+     */
+    InstanceID_t getInstanceID(void) const {
+        return instanceID;
+    }
+
+    /**
+     * Events to process event.
+     *
+     * Instances of OnEventsToProcessCallbackContext are passed to the event
+     * handler registered with onEventsToProcess().
      */
     struct OnEventsToProcessCallbackContext {
         /**
@@ -54,109 +196,151 @@ public:
     };
 
     /**
-     * Callback type used by the onEventsToProcess function.
+     * Events to process event handler
      */
-    typedef FunctionPointerWithContext<OnEventsToProcessCallbackContext*> OnEventsToProcessCallback_t;
+    typedef FunctionPointerWithContext<OnEventsToProcessCallbackContext*>
+        OnEventsToProcessCallback_t;
 
     /**
-     * The context provided to init-completion-callbacks (see init() below).
+     * Register a callback called when the BLE stack has pending  work.
      *
-     * @param  ble
-     *             A reference to the BLE instance being initialized.
-     * @param  error
-     *             Captures the result of initialization. It is set to
-     *             BLE_ERROR_NONE if initialization completed successfully. Else
-     *             the error value is implementation specific.
+     * By registering a callback, application code can know when event processing
+     * has to be scheduled.
+     *
+     * @param on_event_cb Callback invoked when there is new events to process.
+     */
+    void onEventsToProcess(const OnEventsToProcessCallback_t& on_event_cb);
+
+    /**
+     * Process ALL pending events living in the BLE stack and return once all
+     * events have been consumed.
+     *
+     * @note: this function is automatically called by the OS on mbed OS 3
+     * however it shall be explicitly called by user code on mbed OS classic and
+     * mbed OS 2.
+     */
+    void processEvents();
+
+    /**
+     * Initialization complete event.
+     *
+     * This event is generated at the end of the init() procedure and is passed
+     * to the completion callback passed to init().
      */
     struct InitializationCompleteCallbackContext {
-        BLE&        ble;   /**< Reference to the BLE object that has been initialized */
-        ble_error_t error; /**< Error status of the initialization. It is set to BLE_ERROR_NONE if initialization completed successfully. */
+        /**
+         * Reference to the BLE object that has been initialized
+         */
+        BLE& ble;
+
+        /**
+         * Error status of the initialization.
+         *
+         * That value is set to BLE_ERROR_NONE if initialization completed
+         * successfully or the appropriate error code otherwise.
+         * */
+        ble_error_t error;
     };
 
     /**
-     * The signature for function-pointer like callbacks for initialization-completion.
+     * Initialization complete event handler.
      *
      * @note There are two versions of init(). In addition to the simple
-     *     function-pointer, init() can also take a <Object, member> tuple as its
-     *     callback target. In case of the latter, the following declaration doesn't apply.
+     * function-pointer, init() can also take a <Object, member> tuple as its
+     * callback target. In case of the latter, the following declaration doesn't
+     * apply.
      */
-    typedef void (*InitializationCompleteCallback_t)(InitializationCompleteCallbackContext *context);
+    typedef void (*InitializationCompleteCallback_t)(
+        InitializationCompleteCallbackContext *context
+    );
 
     /**
-     * Initialize the BLE controller. This should be called before using
-     * anything else in the BLE API.
+     * Initialize the BLE controller/stack.
      *
      * init() hands control to the underlying BLE module to accomplish
      * initialization. This initialization may tacitly depend on other hardware
-     * setup (such as clocks or power-modes) that happens early on during
-     * system startup. It may not be safe to call init() from a global static
-     * context where ordering is compiler-specific and can't be guaranteed - it
-     * is safe to call BLE::init() from within main().
+     * setup (such as clocks or power-modes) that happens early on during system
+     * startup. It may not be safe to call init() from a global static context
+     * where ordering is compiler-specific and can't be guaranteed - it is safe
+     * to call BLE::init() from within main().
      *
-     * @param  initCompleteCallback
-     *           A callback for when initialization completes for a BLE
-     *           instance. This is an optional parameter; if no callback is
-     *           set up the application can still determine the status of
-     *           initialization using BLE::hasInitialized() (see below).
+     * @param[in] completion_cb A callback for when initialization completes for
+     * a BLE instance. This is an optional parameter; if no callback is set up
+     * the application can still determine the status of initialization using
+     * BLE::hasInitialized() (see below).
      *
-     * @return  BLE_ERROR_NONE if the initialization procedure was started
-     *     successfully.
+     * @return BLE_ERROR_NONE if the initialization procedure was started
+     * successfully.
      *
      * @note If init() returns BLE_ERROR_NONE, the underlying stack must invoke
-     *     the initialization completion callback at some point.
+     * the initialization completion callback at some point.
      *
-     * @note Nearly all BLE APIs would return
-     *     BLE_ERROR_INITIALIZATION_INCOMPLETE if used on an instance before the
-     *     corresponding transport is initialized.
+     * @note Nearly all BLE APIs would return BLE_ERROR_INITIALIZATION_INCOMPLETE
+     * if used on an instance before the corresponding transport is initialized.
      *
      * @note There are two versions of init(). In addition to the simple
-     *     function-pointer, init() can also take an <Object, member> tuple as its
-     *     callback target.
+     * function-pointer, init() can also take an <Object, member> pair as its
+     * callback target.
+     *
+     * @important This should be called before using anything else in the BLE
+     * API.
      */
-    ble_error_t init(InitializationCompleteCallback_t initCompleteCallback = NULL) {
-        FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback(initCompleteCallback);
+    ble_error_t init(InitializationCompleteCallback_t completion_cb = NULL) {
+        FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback(completion_cb);
         return initImplementation(callback);
     }
 
     /**
-     * An alternate declaration for init(). This one takes an <Object, member> tuple as its
-     * callback target.
+     * Initialize the BLE controller/stack.
+     *
+     * This is an alternate declaration for init(). This one takes an
+     * <Object, member> pair as its callback target.
+     *
+     * @param[in] object Object which will be used to invoke the completion callback.
+     * @param[in] completion_cb Member function pointer which will be invoked when
+     * initialization complete.
      */
     template<typename T>
-    ble_error_t init(T *object, void (T::*initCompleteCallback)(InitializationCompleteCallbackContext *context)) {
-        FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback(object, initCompleteCallback);
+    ble_error_t init(T *object, void (T::*completion_cb)(InitializationCompleteCallbackContext *context)) {
+        FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback(object, completion_cb);
         return initImplementation(callback);
     }
 
     /**
-     * @return true if initialization has completed for the underlying BLE
-     *     transport.
+     * Indicate if the BLE instance has been initialized.
      *
-     * The application can set up a callback to signal completion of
-     * initialization when using init(). Otherwise, this method can be used to
-     * poll the state of initialization.
+     * @return true if initialization has completed for the underlying BLE
+     * transport.
+     *
+     * @note The application should set up a callback to signal completion of
+     * initialization when using init().
      */
     bool hasInitialized(void) const;
 
     /**
-     * Purge the BLE stack of GATT and GAP state. init() must be called
-     * afterwards to re-instate services and GAP state. This API offers a way to
-     * repopulate the GATT database with new services and characteristics.
+     * Shutdown the underlying stack and reset state of this BLE instance.
+     *
+     * @return BLE_ERROR_NONE if the instance was shutdown without error or the
+     * appropriate error code.
+     *
+     * @important init() must be called afterwards to re-instate services and
+     * GAP state. This API offers a way to repopulate the GATT database with new
+     * services and characteristics.
      */
     ble_error_t shutdown(void);
 
     /**
      * This call allows the application to get the BLE stack version information.
      *
-     * @return  A pointer to a const string representing the version.
+     * @return A pointer to a const string representing the version.
      *
      * @note The string returned is owned by BLE API.
      */
     const char *getVersion(void);
 
     /**
-     * Accessor to Gap. All Gap related functionality requires
-     * going through this accessor.
+     * Accessor to Gap. All Gap related functionality requires going through
+     * this accessor.
      *
      * @return A reference to a Gap object associated to this BLE instance.
      */
@@ -180,13 +364,14 @@ public:
     /**
      * A const alternative to gattServer().
      *
-     * @return A const reference to a GattServer object associated to this BLE instance.
+     * @return A const reference to a GattServer object associated to this BLE
+     * instance.
      */
     const GattServer& gattServer() const;
 
     /**
-     * Accessors to GattClient. All GattClient related functionality requires going
-     * through this accessor.
+     * Accessors to GattClient. All GattClient related functionality requires
+     * going through this accessor.
      *
      * @return A reference to a GattClient object associated to this BLE instance.
      */
@@ -195,66 +380,34 @@ public:
     /**
      * A const alternative to gattClient().
      *
-     * @return A const reference to a GattClient object associated to this BLE instance.
+     * @return A const reference to a GattClient object associated to this BLE
+     * instance.
      */
     const GattClient& gattClient() const;
 
     /**
-     * Accessors to SecurityManager. All SecurityManager related functionality requires
-     * going through this accessor.
+     * Accessors to SecurityManager. All SecurityManager related functionality
+     * requires going through this accessor.
      *
-     * @return A reference to a SecurityManager object associated to this BLE instance.
+     * @return A reference to a SecurityManager object associated to this BLE
+     * instance.
      */
     SecurityManager& securityManager();
 
     /**
      * A const alternative to securityManager().
      *
-     * @return A const reference to a SecurityManager object associated to this BLE instance.
+     * @return A const reference to a SecurityManager object associated to this
+     * BLE instance.
      */
     const SecurityManager& securityManager() const;
 
-    /**
-     * Yield control to the BLE stack or to other tasks waiting for events. This
-     * is a sleep function that will return when there is an application-specific
-     * interrupt, but the MCU might wake up several times before
-     * returning (to service the stack). This is not always interchangeable with
-     * WFE().
+    /*
+     * Deprecation alert!
+     * All of the following are deprecated and may be dropped in a future
+     * release. Documentation should refer to alternative APIs.
      */
-    void waitForEvent(void);
-
 public:
-    /**
-     * The value of the BLE::InstanceID_t for the default BLE instance.
-     */
-    static const InstanceID_t DEFAULT_INSTANCE = 0;
-#ifndef YOTTA_CFG_BLE_INSTANCES_COUNT
-    /**
-     * The number of permitted BLE instances for the application.
-     */
-    static const InstanceID_t NUM_INSTANCES = 1;
-#else
-    /**
-     * The number of permitted BLE instances for the application.
-     */
-    static const InstanceID_t NUM_INSTANCES = YOTTA_CFG_BLE_INSTANCES_COUNT;
-#endif
-
-    /**
-     * Get a reference to the BLE singleton corresponding to a given interface.
-     * There is a static array of BLE singletons.
-     *
-     * @note Calling Instance() is preferred over constructing a BLE object
-     * directly, as it returns references to singletons.
-     *
-     * @param[in] id
-     *              Instance-ID. This should be less than NUM_INSTANCES
-     *              for the returned BLE singleton to be useful.
-     *
-     * @return A reference to a single object.
-     */
-    static BLE &Instance(InstanceID_t id = DEFAULT_INSTANCE);
-
     /**
      * Constructor for a handle to a BLE instance (the BLE stack). BLE handles
      * are thin wrappers around a transport object (that is, ptr. to
@@ -264,47 +417,54 @@ public:
      * Instance() method. If multiple BLE handles are constructed for the same
      * interface (using this constructor), they will share the same underlying
      * transport object.
+     *
+     * @deprecated Use the Instance() function instead of the constructor.
      */
+    MBED_DEPRECATED("Use BLE::Instance() instead of BLE constructor.")
     BLE(InstanceID_t instanceID = DEFAULT_INSTANCE);
 
     /**
-     * Fetch the ID of a BLE instance. Typically there would only be the DEFAULT_INSTANCE.
+     * Yield control to the BLE stack or to other tasks waiting for events. This
+     * is a sleep function that will return when there is an application-specific
+     * interrupt, but the MCU might wake up several times before returning (to
+     * service the stack). This is not always interchangeable with WFE().
+     *
+     * @deprecated This function block the CPU prefer to use the pair
+     * onEventsToProcess() and processEvents().
      */
-    InstanceID_t getInstanceID(void) const {
-        return instanceID;
-    }
+    MBED_DEPRECATED("Use BLE::processEvents() and BLE::onEventsToProcess().")
+    void waitForEvent(void);
 
-    /*
-     * Deprecation alert!
-     * All of the following are deprecated and may be dropped in a future
-     * release. Documentation should refer to alternative APIs.
-     */
-
-    /* GAP specific APIs. */
-public:
     /**
      * Set the BTLE MAC address and type.
+     *
      * @return BLE_ERROR_NONE on success.
      *
      * @deprecated You should use the parallel API from Gap directly, refer to
-     *             Gap::setAddress(). A former call to
-     *             ble.setAddress(...) should be replaced with
-     *             ble.gap().setAddress(...).
+     * Gap::setAddress(). A former call to ble.setAddress(...) should be
+     * replaced with ble.gap().setAddress(...).
      */
-    ble_error_t setAddress(BLEProtocol::AddressType_t type, const BLEProtocol::AddressBytes_t address) {
+    MBED_DEPRECATED("Use ble.gap().setAddress(...)")
+    ble_error_t setAddress(
+        BLEProtocol::AddressType_t type,
+        const BLEProtocol::AddressBytes_t address
+    ) {
         return gap().setAddress(type, address);
     }
 
     /**
      * Fetch the Bluetooth Low Energy MAC address and type.
+     *
      * @return BLE_ERROR_NONE on success.
      *
      * @deprecated You should use the parallel API from Gap directly, refer to
-     *             Gap::getAddress(). A former call to
-     *             ble.getAddress(...) should be replaced with
-     *             ble.gap().getAddress(...).
+     * Gap::getAddress(). A former call to ble.getAddress(...) should be
+     * replaced with ble.gap().getAddress(...).
      */
-    ble_error_t getAddress(BLEProtocol::AddressType_t *typeP, BLEProtocol::AddressBytes_t address) {
+    MBED_DEPRECATED("Use ble.gap().getAddress(...)")
+    ble_error_t getAddress(
+        BLEProtocol::AddressType_t *typeP, BLEProtocol::AddressBytes_t address
+    ) {
         return gap().getAddress(typeP, address);
     }
 
@@ -316,6 +476,7 @@ public:
      *             ble.setAdvertisingType(...) should be replaced with
      *             ble.gap().setAdvertisingType(...).
      */
+    MBED_DEPRECATED("Use ble.gap().setAdvertisingType(...)")
     void setAdvertisingType(GapAdvertisingParams::AdvertisingType advType) {
         gap().setAdvertisingType(advType);
     }
@@ -346,6 +507,7 @@ public:
      * no longer required as the new units are milliseconds. Any application
      * code depending on the old semantics needs to be updated accordingly.
      */
+    MBED_DEPRECATED("Use ble.gap().setAdvertisingInterval(...)")
     void setAdvertisingInterval(uint16_t interval) {
         gap().setAdvertisingInterval(interval);
     }
@@ -358,6 +520,7 @@ public:
      *             ble.getMinAdvertisingInterval(...) should be replaced with
      *             ble.gap().getMinAdvertisingInterval(...).
      */
+    MBED_DEPRECATED("Use ble.gap().getMinAdvertisingInterval(...)")
     uint16_t getMinAdvertisingInterval(void) const {
         return gap().getMinAdvertisingInterval();
     }
@@ -370,6 +533,7 @@ public:
      *             ble.getMinNonConnectableAdvertisingInterval(...) should be replaced with
      *             ble.gap().getMinNonConnectableAdvertisingInterval(...).
      */
+    MBED_DEPRECATED("Use ble.gap().getMinNonConnectableAdvertisingInterval(...)")
     uint16_t getMinNonConnectableAdvertisingInterval(void) const {
         return gap().getMinNonConnectableAdvertisingInterval();
     }
@@ -382,6 +546,7 @@ public:
      *             ble.getMaxAdvertisingInterval(...) should be replaced with
      *             ble.gap().getMaxAdvertisingInterval(...).
      */
+    MBED_DEPRECATED("Use ble.gap().getMaxAdvertisingInterval(...)")
     uint16_t getMaxAdvertisingInterval(void) const {
         return gap().getMaxAdvertisingInterval();
     }
@@ -396,6 +561,7 @@ public:
      *             ble.setAdvertisingTimeout(...) should be replaced with
      *             ble.gap().setAdvertisingTimeout(...).
      */
+    MBED_DEPRECATED("Use ble.gap().setAdvertisingTimeout(...)")
     void setAdvertisingTimeout(uint16_t timeout) {
         gap().setAdvertisingTimeout(timeout);
     }
@@ -411,6 +577,7 @@ public:
      *             ble.setAdvertisingParams(...) should be replaced with
      *             ble.gap().setAdvertisingParams(...).
      */
+    MBED_DEPRECATED("Use ble.gap().setAdvertisingParams(...)")
     void setAdvertisingParams(const GapAdvertisingParams &advParams) {
         gap().setAdvertisingParams(advParams);
     }
@@ -424,6 +591,7 @@ public:
      *             ble.getAdvertisingParams(...) should be replaced with
      *             ble.gap().getAdvertisingParams(...).
      */
+    MBED_DEPRECATED("Use ble.gap().getAdvertisingParams(...)")
     const GapAdvertisingParams &getAdvertisingParams(void) const {
         return gap().getAdvertisingParams();
     }
@@ -444,6 +612,7 @@ public:
      *             ble.accumulateAdvertisingPayload(flags) should be replaced with
      *             ble.gap().accumulateAdvertisingPayload(flags).
      */
+    MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayload(flags)")
     ble_error_t accumulateAdvertisingPayload(uint8_t flags) {
         return gap().accumulateAdvertisingPayload(flags);
     }
@@ -463,6 +632,7 @@ public:
      *             should be replaced with
      *             ble.gap().accumulateAdvertisingPayload(appearance).
      */
+    MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayload(appearance)")
     ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::Appearance app) {
         return gap().accumulateAdvertisingPayload(app);
     }
@@ -482,6 +652,7 @@ public:
      *             ble.accumulateAdvertisingPayloadTxPower(txPower) should be replaced with
      *             ble.gap().accumulateAdvertisingPayloadTxPower(txPower).
      */
+    MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayloadTxPower(...)")
     ble_error_t accumulateAdvertisingPayloadTxPower(int8_t power) {
         return gap().accumulateAdvertisingPayloadTxPower(power);
     }
@@ -501,6 +672,7 @@ public:
      *             A former call to ble.accumulateAdvertisingPayload(...) should
      *             be replaced with ble.gap().accumulateAdvertisingPayload(...).
      */
+    MBED_DEPRECATED("Use ble.gap().accumulateAdvertisingPayload(...)")
     ble_error_t accumulateAdvertisingPayload(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len) {
         return gap().accumulateAdvertisingPayload(type, data, len);
     }
@@ -515,6 +687,7 @@ public:
      *             ble.setAdvertisingData(...) should be replaced with
      *             ble.gap().setAdvertisingPayload(...).
      */
+    MBED_DEPRECATED("Use ble.gap().setAdvertisingData(...)")
     ble_error_t setAdvertisingData(const GapAdvertisingData &advData) {
         return gap().setAdvertisingPayload(advData);
     }
@@ -528,6 +701,7 @@ public:
      *             ble.getAdvertisingData(...) should be replaced with
      *             ble.gap().getAdvertisingPayload()(...).
      */
+    MBED_DEPRECATED("Use ble.gap().getAdvertisingData(...)")
     const GapAdvertisingData &getAdvertisingData(void) const {
         return gap().getAdvertisingPayload();
     }
@@ -542,6 +716,7 @@ public:
      *             ble.clearAdvertisingPayload(...) should be replaced with
      *             ble.gap().clearAdvertisingPayload(...).
      */
+    MBED_DEPRECATED("Use ble.gap().clearAdvertisingPayload(...)")
     void clearAdvertisingPayload(void) {
         gap().clearAdvertisingPayload();
     }
@@ -560,6 +735,7 @@ public:
      * @note The new APIs in Gap update the underlying advertisement payload
      * implicitly.
      */
+    MBED_DEPRECATED("Use ble.gap().setAdvertisingPayload(...)")
     ble_error_t setAdvertisingPayload(void) {
         return BLE_ERROR_NONE;
     }
@@ -577,6 +753,7 @@ public:
      *             ble.accumulateScanResponse(...) should be replaced with
      *             ble.gap().accumulateScanResponse(...).
      */
+    MBED_DEPRECATED("Use ble.gap().accumulateScanResponse(...)")
     ble_error_t accumulateScanResponse(GapAdvertisingData::DataType type, const uint8_t *data, uint8_t len) {
         return gap().accumulateScanResponse(type, data, len);
     }
@@ -590,6 +767,7 @@ public:
      *             ble.clearScanResponse(...) should be replaced with
      *             ble.gap().clearScanResponse(...).
      */
+    MBED_DEPRECATED("Use ble.gap().clearScanResponse(...)")
     void clearScanResponse(void) {
         gap().clearScanResponse();
     }
@@ -602,6 +780,7 @@ public:
      *             ble.startAdvertising(...) should be replaced with
      *             ble.gap().startAdvertising(...).
      */
+    MBED_DEPRECATED("Use ble.gap().startAdvertising(...)")
     ble_error_t startAdvertising(void) {
         return gap().startAdvertising();
     }
@@ -614,6 +793,7 @@ public:
      *             ble.stopAdvertising(...) should be replaced with
      *             ble.gap().stopAdvertising(...).
      */
+    MBED_DEPRECATED("Use ble.gap().stopAdvertising(...)")
     ble_error_t stopAdvertising(void) {
         return gap().stopAdvertising();
     }
@@ -647,6 +827,7 @@ public:
      *             ble.setScanParams(...) should be replaced with
      *             ble.gap().setScanParams(...).
      */
+    MBED_DEPRECATED("Use ble.gap().setScanParams(...)")
     ble_error_t setScanParams(uint16_t interval       = GapScanningParams::SCAN_INTERVAL_MAX,
                               uint16_t window         = GapScanningParams::SCAN_WINDOW_MAX,
                               uint16_t timeout        = 0,
@@ -674,6 +855,7 @@ public:
      *             ble.setScanInterval(interval) should be replaced with
      *             ble.gap().setScanInterval(interval).
      */
+    MBED_DEPRECATED("Use ble.gap().setScanInterval(...)")
     ble_error_t setScanInterval(uint16_t interval) {
         return gap().setScanInterval(interval);
     }
@@ -698,6 +880,7 @@ public:
      *             ble.setScanWindow(window) should be replaced with
      *             ble.gap().setScanWindow(window).
      */
+    MBED_DEPRECATED("Use ble.gap().setScanWindow(...)")
     ble_error_t setScanWindow(uint16_t window) {
         return gap().setScanWindow(window);
     }
@@ -724,6 +907,7 @@ public:
      *             ble.setScanTimeout(...) should be replaced with
      *             ble.gap().setScanTimeout(...).
      */
+    MBED_DEPRECATED("Use ble.gap().setScanTimeout(...)")
     ble_error_t setScanTimeout(uint16_t timeout) {
         return gap().setScanTimeout(timeout);
     }
@@ -742,6 +926,7 @@ public:
      *             ble.setActiveScan(...) should be replaced with
      *             ble.gap().setActiveScanning(...).
      */
+    MBED_DEPRECATED("Use ble.gap().setActiveScan(...)")
     void setActiveScan(bool activeScanning) {
         gap().setActiveScanning(activeScanning);
     }
@@ -760,6 +945,7 @@ public:
      *             ble.startScan(callback) should be replaced with
      *             ble.gap().startScan(callback).
      */
+    MBED_DEPRECATED("Use ble.gap().startScan(callback)")
     ble_error_t startScan(void (*callback)(const Gap::AdvertisementCallbackParams_t *params)) {
         return gap().startScan(callback);
     }
@@ -773,6 +959,7 @@ public:
      *             ble.gap().startScan(object, callback).
      */
     template<typename T>
+    MBED_DEPRECATED("Use ble.gap().startScan(object, callback)")
     ble_error_t startScan(T *object, void (T::*memberCallback)(const Gap::AdvertisementCallbackParams_t *params));
 
     /**
@@ -785,6 +972,7 @@ public:
      *             ble.stopScan() should be replaced with
      *             ble.gap().stopScan().
      */
+    MBED_DEPRECATED("Use ble.gap().stopScan()")
     ble_error_t stopScan(void) {
         return gap().stopScan();
     }
@@ -808,6 +996,7 @@ public:
      *             ble.connect(...) should be replaced with
      *             ble.gap().connect(...).
      */
+    MBED_DEPRECATED("Use ble.gap().connect(...)")
     ble_error_t connect(const BLEProtocol::AddressBytes_t  peerAddr,
                         BLEProtocol::AddressType_t         peerAddrType = BLEProtocol::AddressType::RANDOM_STATIC,
                         const Gap::ConnectionParams_t     *connectionParams = NULL,
@@ -824,6 +1013,7 @@ public:
      * @param[in] reason
      *              The reason for disconnection; sent back to the peer.
      */
+    MBED_DEPRECATED("Use ble.gap().disconnect(...)")
     ble_error_t disconnect(Gap::Handle_t connectionHandle, Gap::DisconnectionReason_t reason) {
         return gap().disconnect(connectionHandle, reason);
     }
@@ -845,6 +1035,7 @@ public:
      * works reliably only for stacks that are limited to a single
      * connection.
      */
+    MBED_DEPRECATED("Use ble.gap().disconnect(...)")
     ble_error_t disconnect(Gap::DisconnectionReason_t reason) {
         return gap().disconnect(reason);
     }
@@ -858,6 +1049,7 @@ public:
      *             ble.getGapState() should be replaced with
      *             ble.gap().getState().
      */
+    MBED_DEPRECATED("Use ble.gap().getGapState(...)")
     Gap::GapState_t getGapState(void) const {
         return gap().getState();
     }
@@ -879,6 +1071,7 @@ public:
      *             ble.getPreferredConnectionParams() should be replaced with
      *             ble.gap().getPreferredConnectionParams().
      */
+    MBED_DEPRECATED("Use ble.gap().getPreferredConnectionParams(...)")
     ble_error_t getPreferredConnectionParams(Gap::ConnectionParams_t *params) {
         return gap().getPreferredConnectionParams(params);
     }
@@ -896,6 +1089,7 @@ public:
      *             ble.setPreferredConnectionParams() should be replaced with
      *             ble.gap().setPreferredConnectionParams().
      */
+    MBED_DEPRECATED("Use ble.gap().setPreferredConnectionParams(...)")
     ble_error_t setPreferredConnectionParams(const Gap::ConnectionParams_t *params) {
         return gap().setPreferredConnectionParams(params);
     }
@@ -915,6 +1109,7 @@ public:
      *             ble.updateConnectionParams() should be replaced with
      *             ble.gap().updateConnectionParams().
      */
+    MBED_DEPRECATED("Use ble.gap().updateConnectionParams(...)")
     ble_error_t updateConnectionParams(Gap::Handle_t handle, const Gap::ConnectionParams_t *params) {
         return gap().updateConnectionParams(handle, params);
     }
@@ -929,6 +1124,7 @@ public:
      *             ble.setDeviceName() should be replaced with
      *             ble.gap().setDeviceName().
      */
+    MBED_DEPRECATED("Use ble.gap().setDeviceName(...)")
     ble_error_t setDeviceName(const uint8_t *deviceName) {
         return gap().setDeviceName(deviceName);
     }
@@ -956,6 +1152,7 @@ public:
      *             ble.getDeviceName() should be replaced with
      *             ble.gap().getDeviceName().
      */
+    MBED_DEPRECATED("Use ble.gap().getDeviceName(...)")
     ble_error_t getDeviceName(uint8_t *deviceName, unsigned *lengthP) {
         return gap().getDeviceName(deviceName, lengthP);
     }
@@ -970,6 +1167,7 @@ public:
      *             ble.setAppearance() should be replaced with
      *             ble.gap().setAppearance().
      */
+    MBED_DEPRECATED("Use ble.gap().setAppearance(...)")
     ble_error_t setAppearance(GapAdvertisingData::Appearance appearance) {
         return gap().setAppearance(appearance);
     }
@@ -984,6 +1182,7 @@ public:
      *             ble.getAppearance() should be replaced with
      *             ble.gap().getAppearance().
      */
+    MBED_DEPRECATED("Use ble.gap().getAppearance(...)")
     ble_error_t getAppearance(GapAdvertisingData::Appearance *appearanceP) {
         return gap().getAppearance(appearanceP);
     }
@@ -997,6 +1196,7 @@ public:
      *             ble.setTxPower() should be replaced with
      *             ble.gap().setTxPower().
      */
+    MBED_DEPRECATED("Use ble.gap().setTxPower(...)")
     ble_error_t setTxPower(int8_t txPower) {
         return gap().setTxPower(txPower);
     }
@@ -1014,6 +1214,7 @@ public:
      *             ble.getPermittedTxPowerValues() should be replaced with
      *             ble.gap().getPermittedTxPowerValues().
      */
+    MBED_DEPRECATED("Use ble.gap().getPermittedTxPowerValues(...)")
     void getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *countP) {
         gap().getPermittedTxPowerValues(valueArrayPP, countP);
     }
@@ -1027,6 +1228,7 @@ public:
      *             to ble.addService() should be replaced with
      *             ble.gattServer().addService().
      */
+    MBED_DEPRECATED("Use ble.gattServer().addService(...)")
     ble_error_t addService(GattService &service) {
         return gattServer().addService(service);
     }
@@ -1051,6 +1253,7 @@ public:
      *             to ble.readCharacteristicValue() should be replaced with
      *             ble.gattServer().read().
      */
+    MBED_DEPRECATED("Use ble.gattServer().read(...)")
     ble_error_t readCharacteristicValue(GattAttribute::Handle_t attributeHandle, uint8_t *buffer, uint16_t *lengthP) {
         return gattServer().read(attributeHandle, buffer, lengthP);
     }
@@ -1081,6 +1284,7 @@ public:
      *             A former call to ble.readCharacteristicValue() should be replaced with
      *             ble.gattServer().read().
      */
+    MBED_DEPRECATED("Use ble.gattServer().read(...)")
     ble_error_t readCharacteristicValue(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t *buffer, uint16_t *lengthP) {
         return gattServer().read(connectionHandle, attributeHandle, buffer, lengthP);
     }
@@ -1108,6 +1312,7 @@ public:
      *             A former call to ble.updateCharacteristicValue() should be replaced with
      *             ble.gattServer().write().
      */
+    MBED_DEPRECATED("Use ble.gattServer().write(...)")
     ble_error_t updateCharacteristicValue(GattAttribute::Handle_t  attributeHandle,
                                           const uint8_t           *value,
                                           uint16_t                 size,
@@ -1142,6 +1347,7 @@ public:
      *             A former call to ble.updateCharacteristicValue() should be replaced with
      *             ble.gattServer().write().
      */
+    MBED_DEPRECATED("Use ble.gattServer().write(...)")
     ble_error_t updateCharacteristicValue(Gap::Handle_t            connectionHandle,
                                           GattAttribute::Handle_t  attributeHandle,
                                           const uint8_t           *value,
@@ -1170,6 +1376,7 @@ public:
      *             call to ble.initializeSecurity(...) should be replaced with
      *             ble.securityManager().init(...).
      */
+    MBED_DEPRECATED("Use ble.gattServer().write(...)")
     ble_error_t initializeSecurity(bool                                      enableBonding = true,
                                    bool                                      requireMITM   = true,
                                    SecurityManager::SecurityIOCapabilities_t iocaps        = SecurityManager::IO_CAPS_NONE,
@@ -1190,6 +1397,7 @@ public:
      *             call to ble.getLinkSecurity(...) should be replaced with
      *             ble.securityManager().getLinkSecurity(...).
      */
+    MBED_DEPRECATED("ble.securityManager().getLinkSecurity(...)")
     ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, SecurityManager::LinkSecurityStatus_t *securityStatusP) {
         return securityManager().getLinkSecurity(connectionHandle, securityStatusP);
     }
@@ -1207,6 +1415,7 @@ public:
      *             call to ble.purgeAllBondingState() should be replaced with
      *             ble.securityManager().purgeAllBondingState().
      */
+    MBED_DEPRECATED("ble.securityManager().purgeAllBondingState(...)")
     ble_error_t purgeAllBondingState(void) {
         return securityManager().purgeAllBondingState();
     }
@@ -1220,6 +1429,7 @@ public:
      *             to ble.onTimeout(callback) should be replaced with
      *             ble.gap().onTimeout(callback).
      */
+    MBED_DEPRECATED("ble.gap().onTimeout(callback)")
     void onTimeout(Gap::TimeoutEventCallback_t timeoutCallback) {
         gap().onTimeout(timeoutCallback);
     }
@@ -1232,6 +1442,7 @@ public:
      *             to ble.onConnection(callback) should be replaced with
      *             ble.gap().onConnection(callback).
      */
+    MBED_DEPRECATED("ble.gap().onConnection(callback)")
     void onConnection(Gap::ConnectionEventCallback_t connectionCallback) {
         gap().onConnection(connectionCallback);
     }
@@ -1244,6 +1455,7 @@ public:
      *             to ble.onDisconnection(callback) should be replaced with
      *             ble.gap().onDisconnection(callback).
      */
+    MBED_DEPRECATED("ble.gap().onDisconnection(callback)")
     void onDisconnection(Gap::DisconnectionEventCallback_t disconnectionCallback) {
         gap().onDisconnection(disconnectionCallback);
     }
@@ -1258,6 +1470,7 @@ public:
      *             ble.gap().onDisconnection(callback).
      */
     template<typename T>
+    MBED_DEPRECATED("ble.gap().onDisconnection(callback)")
     void onDisconnection(T *tptr, void (T::*mptr)(const Gap::DisconnectionCallbackParams_t*)) {
         gap().onDisconnection(tptr, mptr);
     }
@@ -1283,6 +1496,7 @@ public:
      *             to ble.onRadioNotification(...) should be replaced with
      *             ble.gap().onRadioNotification(...).
      */
+    MBED_DEPRECATED("ble.gap().onRadioNotification(...)")
     void onRadioNotification(void (*callback)(bool)) {
         gap().onRadioNotification(callback);
     }
@@ -1303,6 +1517,7 @@ public:
      *             to ble.onDataSent(...) should be replaced with
      *             ble.gattServer().onDataSent(...).
      */
+    MBED_DEPRECATED("ble.gattServer().onDataSent(...)")
     void onDataSent(void (*callback)(unsigned count)) {
         gattServer().onDataSent(callback);
     }
@@ -1316,7 +1531,9 @@ public:
      *             to ble.onDataSent(...) should be replaced with
      *             ble.gattServer().onDataSent(...).
      */
-    template <typename T> void onDataSent(T * objPtr, void (T::*memberPtr)(unsigned count)) {
+    template <typename T>
+    MBED_DEPRECATED("ble.gattServer().onDataSent(...)")
+    void onDataSent(T * objPtr, void (T::*memberPtr)(unsigned count)) {
         gattServer().onDataSent(objPtr, memberPtr);
     }
 
@@ -1340,6 +1557,7 @@ public:
      *             to ble.onDataWritten(...) should be replaced with
      *             ble.gattServer().onDataWritten(...).
      */
+    MBED_DEPRECATED("ble.gattServer().onDataWritten(...)")
     void onDataWritten(void (*callback)(const GattWriteCallbackParams *eventDataP)) {
         gattServer().onDataWritten(callback);
     }
@@ -1353,7 +1571,9 @@ public:
      *             to ble.onDataWritten(...) should be replaced with
      *             ble.gattServer().onDataWritten(...).
      */
-    template <typename T> void onDataWritten(T * objPtr, void (T::*memberPtr)(const GattWriteCallbackParams *context)) {
+    template <typename T>
+    MBED_DEPRECATED("ble.gattServer().onDataWritten(...)")
+    void onDataWritten(T * objPtr, void (T::*memberPtr)(const GattWriteCallbackParams *context)) {
         gattServer().onDataWritten(objPtr, memberPtr);
     }
 
@@ -1381,6 +1601,7 @@ public:
      *             to ble.onDataRead(...) should be replaced with
      *             ble.gattServer().onDataRead(...).
      */
+    MBED_DEPRECATED("ble.gattServer().onDataRead(...)")
     ble_error_t onDataRead(void (*callback)(const GattReadCallbackParams *eventDataP)) {
         return gattServer().onDataRead(callback);
     }
@@ -1394,7 +1615,9 @@ public:
      *             to ble.onDataRead(...) should be replaced with
      *             ble.gattServer().onDataRead(...).
      */
-    template <typename T> ble_error_t onDataRead(T * objPtr, void (T::*memberPtr)(const GattReadCallbackParams *context)) {
+    template <typename T>
+    MBED_DEPRECATED("ble.gattServer().onDataRead(...)")
+    ble_error_t onDataRead(T * objPtr, void (T::*memberPtr)(const GattReadCallbackParams *context)) {
         return gattServer().onDataRead(objPtr, memberPtr);
     }
 
@@ -1407,6 +1630,7 @@ public:
      *             to ble.onUpdatesEnabled(callback) should be replaced with
      *             ble.gattServer().onUpdatesEnabled(callback).
      */
+    MBED_DEPRECATED("ble.gattServer().onUpdatesEnabled(...)")
     void onUpdatesEnabled(GattServer::EventCallback_t callback) {
         gattServer().onUpdatesEnabled(callback);
     }
@@ -1417,9 +1641,10 @@ public:
      *
      * @deprecated You should use the parallel API from GattServer directly, refer to
      *             GattServer::onUpdatesDisabled(). A former call
-     *             to ble.onUpdatesEnabled(callback) should be replaced with
-     *             ble.gattServer().onUpdatesEnabled(callback).
+     *             to ble.onUpdatesDisabled(callback) should be replaced with
+     *             ble.gattServer().onUpdatesDisabled(callback).
      */
+    MBED_DEPRECATED("ble.gattServer().onUpdatesDisabled(...)")
     void onUpdatesDisabled(GattServer::EventCallback_t callback) {
         gattServer().onUpdatesDisabled(callback);
     }
@@ -1433,6 +1658,7 @@ public:
      *             to ble.onConfirmationReceived(callback) should be replaced with
      *             ble.gattServer().onConfirmationReceived(callback).
      */
+    MBED_DEPRECATED("ble.gattServer().onConfirmationReceived(...)")
     void onConfirmationReceived(GattServer::EventCallback_t callback) {
         gattServer().onConfirmationReceived(callback);
     }
@@ -1449,6 +1675,7 @@ public:
      *             call to ble.onSecuritySetupInitiated(callback) should be replaced with
      *             ble.securityManager().onSecuritySetupInitiated(callback).
      */
+    MBED_DEPRECATED("ble.securityManager().onSecuritySetupInitiated(callback)")
     void onSecuritySetupInitiated(SecurityManager::SecuritySetupInitiatedCallback_t callback) {
         securityManager().onSecuritySetupInitiated(callback);
     }
@@ -1464,6 +1691,7 @@ public:
      *             call to ble.onSecuritySetupCompleted(callback) should be replaced with
      *             ble.securityManager().onSecuritySetupCompleted(callback).
      */
+    MBED_DEPRECATED("ble.securityManager().onSecuritySetupCompleted(callback)")
     void onSecuritySetupCompleted(SecurityManager::SecuritySetupCompletedCallback_t callback) {
         securityManager().onSecuritySetupCompleted(callback);
     }
@@ -1481,6 +1709,7 @@ public:
      *             call to ble.onLinkSecured(callback) should be replaced with
      *             ble.securityManager().onLinkSecured(callback).
      */
+    MBED_DEPRECATED("ble.securityManager().onLinkSecured(callback)")
     void onLinkSecured(SecurityManager::LinkSecuredCallback_t callback) {
         securityManager().onLinkSecured(callback);
     }
@@ -1494,6 +1723,7 @@ public:
      *             call to ble.onSecurityContextStored(callback) should be replaced with
      *             ble.securityManager().onSecurityContextStored(callback).
      */
+    MBED_DEPRECATED("ble.securityManager().onSecurityContextStored(callback)")
     void onSecurityContextStored(SecurityManager::HandleSpecificEvent_t callback) {
         securityManager().onSecurityContextStored(callback);
     }
@@ -1510,37 +1740,20 @@ public:
      *             call to ble.onPasskeyDisplay(callback) should be replaced with
      *             ble.securityManager().onPasskeyDisplay(callback).
      */
+    MBED_DEPRECATED("ble.securityManager().onPasskeyDisplay(callback)")
     void onPasskeyDisplay(SecurityManager::PasskeyDisplayCallback_t callback) {
         return securityManager().onPasskeyDisplay(callback);
     }
 
-    /**
-     * Process ALL pending events living in the BLE stack .
-     * Return once all events have been consumed.
-     * This function is called by user in their while loop (mbed Classic)
-     * or automatically by Minar (mbed OS) when BLE event processing is scheduled.
-     * Internally, this function will call BLEInstanceBase::processEvent.
-     */
-    void processEvents();
-
-    /**
-     * Register a hook which will be called every time the BLE stack has pending
-     * work.
-     * By registering a callback, user code can know when event processing has to be
-     * scheduled.
-     * Callback format is void (*)(BLE& ble);
-     */
-    void onEventsToProcess(const OnEventsToProcessCallback_t& callback);
-
 private:
-
     friend class BLEInstanceBase;
 
     /**
-     * This function allow the BLE stack to signal that their is work to do and
+     * This function allow the BLE stack to signal that there is work to do and
      * event processing should be done (BLE::processEvent()).
-     * This function should be called by the port of BLE_API, it shouldn't be
-     * accessible to end users.
+     *
+     * @note This function should be called by the port of BLE_API, it is not
+     * meant to be used by end users.
      */
     void signalEventsToProcess();
 
@@ -1550,20 +1763,33 @@ private:
      * The implementation is separated into a private method because it isn't
      * suitable to be included in the header.
      */
-    ble_error_t initImplementation(FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback);
+    ble_error_t initImplementation(
+        FunctionPointerWithContext<InitializationCompleteCallbackContext *> callback
+    );
 
 private:
+    // Prevent copy construction and copy assignment of BLE.
     BLE(const BLE&);
     BLE &operator=(const BLE &);
 
 private:
-    InstanceID_t     instanceID;
+    InstanceID_t instanceID;
     BLEInstanceBase *transport; /* The device-specific backend */
     OnEventsToProcessCallback_t whenEventsToProcess;
 };
 
-typedef BLE BLEDevice; /**< @deprecated This type alias is retained for the
-                        * sake of compatibility with older
-                        * code. Will be dropped at some point soon.*/
+/**
+ * @deprecated This type alias is retained for the sake of compatibility with
+ * older code. Will be dropped at some point.
+ */
+typedef BLE BLEDevice;
 
-#endif /* ifndef __BLE_H__ */
+/**
+ * @namespace ble Entry namespace for all %BLE API definitions.
+ */
+
+/**
+ * @}
+ */
+
+#endif /* ifndef MBED_BLE_H__ */
