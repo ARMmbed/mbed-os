@@ -58,7 +58,7 @@ public:
         // Ensure SysTick has the correct priority as it is still used
         // to trigger software interrupts on each tick. The period does
         // not matter since it will never start counting.
-        SysTick_Setup(16);
+        OS_Tick_Setup(osRtxConfig.tick_freq, OS_TICK_HANDLER);
 #endif
     };
 
@@ -138,39 +138,55 @@ protected:
 static RtosTimer *os_timer;
 static uint64_t os_timer_data[sizeof(RtosTimer) / 8];
 
-/// Setup System Timer.
-int32_t osRtxSysTimerSetup (void)
+/// Enable System Timer.
+int32_t OS_Tick_Enable (void)
 {
     // Do not use SingletonPtr since this relies on the RTOS
     if (NULL == os_timer) {
         os_timer = new (os_timer_data) RtosTimer();
     }
-    return -1;
-}
 
-/// Enable System Timer.
-void osRtxSysTimerEnable (void)
-{
     // set to fire interrupt on next tick
     os_timer->schedule_tick();
+
+    return 0;
 }
 
 /// Disable System Timer.
-void osRtxSysTimerDisable (void)
+int32_t OS_Tick_Disable (void)
 {
     os_timer->cancel_tick();
+
+    return 0;
 }
 
 /// Acknowledge System Timer IRQ.
-void osRtxSysTimerAckIRQ (void)
+int32_t OS_Tick_AcknowledgeIRQ (void)
 {
     os_timer->schedule_tick();
+
+    return 0;
 }
 
 /// Get System Timer count.
-uint32_t osRtxSysTimerGetCount (void)
+uint32_t OS_Tick_GetCount (void)
 {
     return os_timer->get_time() & 0xFFFFFFFF;
+}
+
+// Get OS Tick IRQ number.
+int32_t  OS_Tick_GetIRQn (void) {
+  return -1;
+}
+
+// Get OS Tick overflow status.
+uint32_t OS_Tick_GetOverflow (void) {
+  return 0;
+}
+
+// Get OS Tick interval.
+uint32_t OS_Tick_GetInterval (void) {
+  return 1000;
 }
 
 static void default_idle_hook(void)
