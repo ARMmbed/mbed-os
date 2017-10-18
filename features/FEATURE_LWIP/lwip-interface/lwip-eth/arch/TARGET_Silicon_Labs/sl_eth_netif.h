@@ -18,17 +18,4 @@
 /** Timeout in milliseconds for polling the PHY link status */
 #define SL_ETH_LINK_POLL_PERIOD_MS    (500)
 
-// -----------------------------------------------------------------------------
-// Function signatures
-// -----------------------------------------------------------------------------
-#if defined(__cplusplus)
-extern "C" {
-#endif
-
-int phy_link_status(void);
-
-#if defined(__cplusplus)
-}
-#endif
-
 #endif

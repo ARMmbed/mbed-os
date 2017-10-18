@@ -32,10 +32,9 @@
 typedef struct {
   struct netif *netif;
   osThreadId_t thread;
-  sys_mutex_t  tx_bd_mutex;
-  sys_sem_t    tx_bd_free_sem;
+  sys_sem_t    tx_sem;
   uint8_t      phy_addr;
-  uint8_t      tx_idx, rx_idx;
+  uint8_t      rx_idx;
 } sl_eth_inst_data_t;
 
 typedef struct {
@@ -157,7 +156,6 @@ static void sl_eth_data_init(void) {
     }
   }
 
-  sl_eth_inst.tx_idx = 0;
   sl_eth_inst.rx_idx = 0;
 
   /* Set BD list address in DMA */
@@ -316,34 +314,30 @@ static void sl_eth_read_phy(uint8_t phy_addr, uint8_t reg_addr, uint16_t *data) 
  *  \return ERR_OK if the packet could be sent or an err_t value if the packet couldn't be sent
  */
 static err_t sl_eth_output(struct netif *netif, struct pbuf *p) {
-  size_t num_bufs = 1, num_free = 0, i;
+  size_t num_bufs = 1, i;
   struct pbuf * pnext = p;
   /* Figure out how many buffers the pbuf consists of */
-  if(sl_eth_tx_pbufs[sl_eth_inst.tx_idx] != (struct pbuf*)NULL) {
-    return ERR_BUF;
-  }
-
   while(pnext->next != (struct pbuf*)NULL) {
     num_bufs++;
     pnext = pnext->next;
   }
 
-  for(i = 0; i < SL_ETH_NUM_TX_BD; i++) {
-    if(sl_eth_tx_pbufs[i] == (struct pbuf*)NULL) {
-      num_free++;
-    }
+  if(num_bufs >= SL_ETH_NUM_TX_BD) {
+    return ERR_BUF;
   }
 
-  if(num_bufs >= num_free) {
-    return ERR_BUF;
+  /* Wait for previous packet to finish transmitting */
+  osStatus_t stat = osSemaphoreAcquire(((sl_eth_inst_data_t*)netif->state)->tx_sem.id, 100);
+  if (stat != osOK) {
+    return ERR_IF;
   }
 
   /* Set up TX descriptors with pbufs, keep track of pbuf reference */
   for(i = 0; i < num_bufs; i++) {
-    sl_eth_tx_pbufs[sl_eth_inst.tx_idx] = p;
+    sl_eth_tx_pbufs[i] = p;
 
     uint32_t statusword = p->len & 0x3FFF;
-    if(sl_eth_inst.tx_idx == (SL_ETH_NUM_TX_BD-1)) {
+    if(i == (SL_ETH_NUM_TX_BD-1)) {
       /* Mark as last BD in list */
       statusword |= (0x1 << 30);
     }
@@ -352,15 +346,15 @@ static err_t sl_eth_output(struct netif *netif, struct pbuf *p) {
       statusword |= (0x1 << 15);
     }
 
-    sl_eth_tx_bds[sl_eth_inst.tx_idx].tx_addr = (uint32_t)p->payload;
-    sl_eth_tx_bds[sl_eth_inst.tx_idx].status = statusword;
+    sl_eth_tx_bds[i].tx_addr = (uint32_t)p->payload;
+    sl_eth_tx_bds[i].status = statusword;
 
     pbuf_ref(p);
-    sl_eth_inst.tx_idx = (sl_eth_inst.tx_idx + 1) % SL_ETH_NUM_TX_BD;
     p = p->next;
   }
 
   /* (Re-)Kick off ETH TX */
+  ETH->TXQPTR = (uint32_t)sl_eth_tx_bds;
   ETH->NETWORKCTRL |= ETH_NETWORKCTRL_TXSTRT;
   return ERR_OK;
 }
@@ -369,38 +363,16 @@ static err_t sl_eth_output(struct netif *netif, struct pbuf *p) {
  *          resources associated with that packet.
  */
 static void sl_eth_tx_done_cb(struct netif *netif) {
-  /* Correlate pbuf pointers with owned flag in TX BD chain to find completed
-   * packets. A completed packet's pbuf is free'd and reset such that there's
-   * room again for the next packet(s). */
+  /* Free the pbuf's */
   for(size_t i = 0; i < SL_ETH_NUM_TX_BD; i++) {
-    if(sl_eth_tx_bds[i].status & (0x1 << 31)) {
-      /* DMA has relinquished control over this packet */
-      struct pbuf* p = sl_eth_tx_pbufs[i];
-      if(p != (struct pbuf*)NULL) {
-        pbuf_free(p);
-        sl_eth_tx_pbufs[i] = (struct pbuf*)NULL;
-      }
-
-      if(sl_eth_tx_bds[i].status & (0x1 << 15)) {
-        /* reached last descriptor in this chain */
-        continue;
-      } else {
-        /* need to free all subsequent buffers until we find the one marked
-         * as last */
-        for(size_t j = 0; j < SL_ETH_NUM_TX_BD; j++) {
-          struct pbuf* p = sl_eth_tx_pbufs[(i+j)%SL_ETH_NUM_TX_BD];
-          if(p != (struct pbuf*)NULL) {
-            pbuf_free(p);
-            sl_eth_tx_pbufs[(i+j)%SL_ETH_NUM_TX_BD] = (struct pbuf*)NULL;
-          }
-          if(sl_eth_tx_bds[(i+j)%SL_ETH_NUM_TX_BD].status & (0x1 << 15)) {
-            /* reached last descriptor in this chain */
-            break;
-          }
-        }
-      }
+    if(sl_eth_tx_pbufs[i] != NULL) {
+      pbuf_free(sl_eth_tx_pbufs[i]);
+      sl_eth_tx_pbufs[i] = NULL;
     }
   }
+
+  /* Signal TX thread(s) we're ready to start TX'ing */
+  osSemaphoreRelease(((sl_eth_inst_data_t*)netif->state)->tx_sem.id);
 }
 
 /** \brief  Low level input of a packet. Shouldn't call directly from ISR.
@@ -680,7 +652,13 @@ err_t eth_arch_enetif_init(struct netif *netif)
   ETH->IFCR |= _ETH_IFCR_MASK;
   ETH->RXSTATUS = 0xFFFFFFFF;
   ETH->TXSTATUS = 0xFFFFFFFF;
-  ETH->IENS = ETH_IENS_RXCMPLT | ETH_IENS_TXCMPLT | ETH_IENS_MNGMNTDONE;
+  ETH->IENS = ETH_IENS_RXCMPLT |
+              ETH_IENS_TXCMPLT |
+              ETH_IENS_TXUNDERRUN |
+              ETH_IENS_RTRYLMTORLATECOL |
+              ETH_IENS_TXUSEDBITREAD |
+              ETH_IENS_AMBAERR |
+              ETH_IENS_MNGMNTDONE;
 
   ETH->NETWORKCFG |= ETH_NETWORKCFG_FCSREMOVE |
                      ETH_NETWORKCFG_UNICASTHASHEN |
@@ -729,15 +707,12 @@ err_t eth_arch_enetif_init(struct netif *netif)
   netif->linkoutput = sl_eth_output;
 
   /* CMSIS-RTOS, start tasks */
-  memset(&sl_eth_inst.tx_bd_free_sem.data, 0, sizeof(sl_eth_inst.tx_bd_free_sem.data));
-  sl_eth_inst.tx_bd_free_sem.attr.cb_mem = &sl_eth_inst.tx_bd_free_sem.data;
-  sl_eth_inst.tx_bd_free_sem.attr.cb_size = sizeof(sl_eth_inst.tx_bd_free_sem.data);
-  sl_eth_inst.tx_bd_free_sem.id = osSemaphoreNew(SL_ETH_NUM_TX_BD, SL_ETH_NUM_TX_BD, &sl_eth_inst.tx_bd_free_sem.attr);
+  memset(&sl_eth_inst.tx_sem.data, 0, sizeof(sl_eth_inst.tx_sem.data));
+  sl_eth_inst.tx_sem.attr.cb_mem = &sl_eth_inst.tx_sem.data;
+  sl_eth_inst.tx_sem.attr.cb_size = sizeof(sl_eth_inst.tx_sem.data);
+  sl_eth_inst.tx_sem.id = osSemaphoreNew(1, 1, &sl_eth_inst.tx_sem.attr);
 
-  LWIP_ASSERT("tx_bd_free_sem creation error", (sl_eth_inst.tx_bd_free_sem.id != NULL));
-
-  err = sys_mutex_new(&sl_eth_inst.tx_bd_mutex);
-  LWIP_ASSERT("tx_bd_mutex creation error", (err == ERR_OK));
+  LWIP_ASSERT("tx_sem creation error", (sl_eth_inst.tx_sem.id != NULL));
 
   /* Allow the PHY task to detect the initial link state and set up the proper flags */
   tcpip_callback_with_block(sl_eth_link_state_poll, netif, 1);
@@ -792,14 +767,19 @@ void eth_arch_disable_interrupts(void) {
 void ETH_IRQHandler(void) {
   uint32_t int_clr = 0;
   uint32_t int_status = ETH->IFCR;
+  uint32_t txdone_mask = ETH_IFCR_TXCMPLT |
+                         ETH_IFCR_TXUNDERRUN |
+                         ETH_IFCR_RTRYLMTORLATECOL |
+                         ETH_IFCR_TXUSEDBITREAD |
+                         ETH_IFCR_AMBAERR;
 
   if(int_status & ETH_IFCR_RXCMPLT) {
     osThreadFlagsSet(sl_eth_inst.thread, FLAG_RX);
     int_clr |= ETH_IFCR_RXCMPLT;
   }
-  if(int_status & ETH_IFCR_TXCMPLT) {
+  if(int_status & txdone_mask) {
     osThreadFlagsSet(sl_eth_inst.thread, FLAG_TX);
-    int_clr |= ETH_IFCR_TXCMPLT;
+    int_clr |= txdone_mask;
   }
 
   int_clr |= ETH_IFCR_MNGMNTDONE;
