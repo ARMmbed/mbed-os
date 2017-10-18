@@ -22,6 +22,9 @@
             "help": "Event buffer size (bytes) for shared high-priority event queue",
             "value": 256
         },
-        "use-lowpower-timer-ticker": 0
+        "use-lowpower-timer-ticker": {
+            "help": "Enable use of low power timer and ticker classes. May reduce the accuracy of the event queue.",
+            "value": 0
+        }
     }
 }
