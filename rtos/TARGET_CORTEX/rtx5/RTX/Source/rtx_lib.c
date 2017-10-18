@@ -595,9 +595,11 @@ void *__user_perthread_libspace (void) {
 typedef void *mutex;
 
 // Initialize mutex
+#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
+#endif
 int _mutex_initialize(mutex *m);
-int _mutex_initialize(mutex *m) {
+__WEAK int _mutex_initialize(mutex *m) {
   *m = osMutexNew(NULL);
   if (*m == NULL) {
     osRtxErrorNotify(osRtxErrorClibMutex, m);
