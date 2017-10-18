@@ -138,7 +138,7 @@ void page_allocator_init(void * const heap_start, void * const heap_end, const u
     g_page_map_shift -= (g_page_head_end_rounded - (uint32_t) g_page_heap_end) / g_page_size;
 
     DPRINTF(
-        "page heap: [0x%08x, 0x%08x] %ukB -> %u %ukB pages\r\n",
+        "page heap: [0x%08x, 0x%08x] %ukB -> %u %ukB pages\n",
             (unsigned int) g_page_heap_start,
             (unsigned int) g_page_heap_end,
             (unsigned int) (g_page_count_free * g_page_size / 1024),
