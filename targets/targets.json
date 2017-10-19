@@ -1368,6 +1368,24 @@
         "device_name": "STM32L476RG",
         "bootloader_supported": true
     },
+    "SILICA_SENSOR_NODE": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "default_toolchain": "GCC_ARM",
+        "extra_labels_add": ["STM32L4", "STM32L476xG", "STM32L476JG"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "detect_code": ["0766"],
+        "macros_add": ["USBHOST_OTHER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "release_versions": ["5"],
+        "device_name": "STM32L476JG"
+    },
     "NUCLEO_L486RG": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
