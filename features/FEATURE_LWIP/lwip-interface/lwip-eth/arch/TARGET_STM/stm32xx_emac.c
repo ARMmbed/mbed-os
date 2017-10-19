@@ -95,9 +95,6 @@ void ETH_IRQHandler(void)
  */
 static void _eth_arch_low_level_init(struct netif *netif)
 {
-    uint32_t regvalue = 0;
-    HAL_StatusTypeDef hal_eth_init_status;
-
     /* Init ETH */
     uint8_t MACAddr[6];
     EthHandle.Instance = ETH;
@@ -119,7 +116,7 @@ static void _eth_arch_low_level_init(struct netif *netif)
     EthHandle.Init.RxMode = ETH_RXINTERRUPT_MODE;
     EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
     EthHandle.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
-    hal_eth_init_status = HAL_ETH_Init(&EthHandle);
+    HAL_ETH_Init(&EthHandle);
 
     /* Initialize Tx Descriptors list: Chain Mode */
     HAL_ETH_DMATxDescListInit(&EthHandle, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
