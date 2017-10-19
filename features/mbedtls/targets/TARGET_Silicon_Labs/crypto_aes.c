@@ -31,13 +31,11 @@
  */
 
 #include "mbedtls/aes.h"
-
-#if defined(MBEDTLS_AES_C)
-#if defined(MBEDTLS_AES_ALT)
-
 #include "em_device.h"
 
 #if defined(CRYPTO_PRESENT)
+#if defined(MBEDTLS_AES_C)
+#if defined(MBEDTLS_AES_ALT)
 
 #include "crypto_management.h"
 #include "em_crypto.h"
@@ -45,7 +43,7 @@
 #include <string.h>
 
 __STATIC_INLINE void CRYPTO_DataReadUnaligned(volatile uint32_t * reg,
-                                               const uint8_t * val)
+                                              uint8_t * const val)
 {
   /* Check data is 32bit aligned, if not, read into temporary buffer and
      then move to user buffer. */
@@ -53,16 +51,16 @@ __STATIC_INLINE void CRYPTO_DataReadUnaligned(volatile uint32_t * reg,
   {
     uint32_t temp[4];
     CRYPTO_DataRead(reg, temp);
-    memcpy((void*)val, temp, 16);
+    memcpy(val, temp, 16);
   }
   else
   {
-    CRYPTO_DataRead(reg, (uint32_t*)val);
+    CRYPTO_DataRead(reg, (uint32_t* const)val);
   }
 }
 
 __STATIC_INLINE void CRYPTO_DataWriteUnaligned(volatile uint32_t * reg,
-                                               const uint8_t * val)
+                                               uint8_t * const val)
 {
   /* Check data is 32bit aligned, if not move to temporary buffer before
      writing.*/
@@ -74,7 +72,7 @@ __STATIC_INLINE void CRYPTO_DataWriteUnaligned(volatile uint32_t * reg,
   }
   else
   {
-    CRYPTO_DataWrite(reg, (uint32_t*)val);
+    CRYPTO_DataWrite(reg, (uint32_t* const)val);
   }
 }
 
@@ -113,8 +111,6 @@ int mbedtls_aes_setkey_enc( mbedtls_aes_context *ctx,
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
     }
 
-    memset( ctx, 0, sizeof( mbedtls_aes_context ) );
-
     if ( ( 128UL != keybits ) && ( 256UL != keybits ) ) {
         /* Unsupported key size */
         return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
@@ -138,8 +134,6 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx,
     if( ctx == NULL || key == NULL ) {
         return ( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
     }
-
-    memset( ctx, 0, sizeof( mbedtls_aes_context ) );
 
     if ( ( 128UL != keybits ) && ( 256UL != keybits ) ) {
         /* Unsupported key size */
@@ -172,6 +166,26 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx,
 /* TODO: underneath these, we should swap out the em_crypto-provided library
  * functions with in-place implemented functions, to get much shorter
  * critical sections */
+
+/*
+ * AES-ECB block encryption
+ */
+int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
+                                   const unsigned char input[16],
+                                   unsigned char output[16] )
+{
+    return mbedtls_aes_crypt_ecb(ctx, MBEDTLS_AES_ENCRYPT, input, output);
+}
+
+/*
+ * AES-ECB block decryption
+ */
+int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
+                                   const unsigned char input[16],
+                                   unsigned char output[16] )
+{
+    return mbedtls_aes_crypt_ecb(ctx, MBEDTLS_AES_DECRYPT, input, output);
+}
 
 /*
  * AES-ECB block encryption/decryption
@@ -538,8 +552,6 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
 }
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
 
-#endif /* CRYPTO_PRESENT */
-
 #endif /* MBEDTLS_AES_ALT */
-
 #endif /* MBEDTLS_AES_C */
+#endif /* CRYPTO_PRESENT */
