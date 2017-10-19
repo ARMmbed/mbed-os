@@ -649,10 +649,11 @@
         "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0311"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "MK66FN2M0xxx18"
+        "device_name": "MK66FN2M0xxx18",
+        "bootloader_supported": true
     },
     "K82F": {
         "supported_form_factors": ["ARDUINO"],
