@@ -19,13 +19,11 @@
  */
 
 #include "mbedtls/aes.h"
-
-#if defined(MBEDTLS_AES_C)
-#if defined(MBEDTLS_AES_ALT)
-
 #include "em_device.h"
 
 #if defined(AES_PRESENT) && (AES_COUNT == 1)
+#if defined(MBEDTLS_AES_C)
+#if defined(MBEDTLS_AES_ALT)
 #include "em_aes.h"
 #include "em_cmu.h"
 #include "em_bus.h"
@@ -143,51 +141,21 @@ int mbedtls_aes_setkey_dec( mbedtls_aes_context *ctx,
 /*
  * AES-ECB block encryption
  */
-void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
-                          const unsigned char input[16],
-                          unsigned char output[16] )
+int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
+                                   const unsigned char input[16],
+                                   unsigned char output[16] )
 {
-    switch ( ctx->keybits )
-    {
-        case 128:
-            aes_lock();
-            AES_ECB128( output, input, 16, ctx->key, true );
-            aes_unlock();
-            break;
-        case 256:
-            aes_lock();
-            AES_ECB256( output, input, 16, ctx->key, true );
-            aes_unlock();
-            break;
-        default:
-            // Error
-            break;
-    }
+    return mbedtls_aes_crypt_ecb(ctx, MBEDTLS_AES_ENCRYPT, input, output);
 }
 
 /*
  * AES-ECB block decryption
  */
-void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
-                          const unsigned char input[16],
-                          unsigned char output[16] )
+int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
+                                   const unsigned char input[16],
+                                   unsigned char output[16] )
 {
-    switch ( ctx->keybits )
-    {
-        case 128:
-            aes_lock();
-            AES_ECB128( output, input, 16, ctx->key, false );
-            aes_unlock();
-            break;
-        case 256:
-            aes_lock();
-            AES_ECB256( output, input, 16, ctx->key, false );
-            aes_unlock();
-            break;
-        default:
-            // Error
-            break;
-    }
+    return mbedtls_aes_crypt_ecb(ctx, MBEDTLS_AES_DECRYPT, input, output);
 }
 
 /*
@@ -299,9 +267,9 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
                               const unsigned char *input,
                               unsigned char *output )
 {
-    size_t n = iv_off ? *iv_off : 0;
+    size_t n = ( iv_off != NULL ) ? *iv_off : 0;
 
-    if ( n || ( length & 0xf ) )
+    if ( ( n > 0 ) || ( length & 0xf ) )
     {
         // IV offset or length not aligned to block size
         int c;
@@ -410,7 +378,7 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
 /*
  * AES-CTR Nonce update function
  */
-void aes_ctr_update_nonce( uint8_t *nonce_counter )
+static void aes_ctr_update_nonce( uint8_t *nonce_counter )
 {
     for( size_t i = 16; i > 0; i-- )
         if( ++nonce_counter[i - 1] != 0 )
@@ -428,9 +396,9 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
                            const unsigned char *input,
                            unsigned char *output )
 {
-    size_t n = nc_off ? *nc_off : 0;
+    size_t n = ( nc_off != NULL ) ? *nc_off : 0;
 
-    if ( n || ( length & 0xf ) || ctx->keybits == 192 )
+    if ( ( n > 0 ) || ( length & 0xf ) )
     {
         // IV offset or length not aligned to block size
         int c, i;
@@ -493,6 +461,6 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
 }
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
 
-#endif /* AES_PRESENT && (AES_COUNT == 1) */
 #endif /* MBEDTLS_AES_ALT */
 #endif /* MBEDTLS_AES_C */
+#endif /* AES_PRESENT && (AES_COUNT == 1) */
