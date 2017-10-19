@@ -34,6 +34,8 @@
 
 #if defined(MBEDTLS_SHA1_ALT)
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

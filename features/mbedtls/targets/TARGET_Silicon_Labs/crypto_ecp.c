@@ -48,28 +48,22 @@
 #include MBEDTLS_CONFIG_FILE
 #endif
 
-#if defined( MBEDTLS_ECP_C )
-#if defined( MBEDTLS_ECP_INTERNAL_ALT )
 #include "em_device.h"
 
 #if defined( CRYPTO_PRESENT )
 
+#if defined( MBEDTLS_ECP_C )
+#if defined( MBEDTLS_ECP_INTERNAL_ALT )
+
 #include "mbedtls/ecp.h"
 #include "mbedtls/ecp_internal.h"
+#include "mbedtls/platform.h"
 #include "em_crypto.h"
 #include "em_core.h"
 #include "crypto_management.h"
 
 #include <stdbool.h>
 #include <string.h>
-
-#if defined(MBEDTLS_PLATFORM_C)
-#include "mbedtls/platform.h"
-#else
-#include <stdlib.h>
-#define mbedtls_calloc     calloc
-#define mbedtls_free       free
-#endif
 
 /** ECC big integer type. */
 #define ECC_BIGINT_SIZE_IN_BITS        (256)
@@ -394,7 +388,7 @@ static void mbedtls_mpi_div_mod(CRYPTO_TypeDef *crypto,
  * @brief
  *   Enable CRYPTO by setting up control registers for given ecc curve.
  ******************************************************************************/
-int mbedtls_ecp_device_init( CRYPTO_TypeDef *device, const mbedtls_ecp_group *grp)
+static int crypto_device_init( CRYPTO_TypeDef *device, const mbedtls_ecp_group *grp)
 {
     int             ret = 0;
 
@@ -641,8 +635,6 @@ void mbedtls_internal_ecp_free( const mbedtls_ecp_group *grp )
     (void) grp;
 }
 
-#if defined(ECP_SHORTWEIERSTRASS)
-
 #if defined(MBEDTLS_ECP_RANDOMIZE_JAC_ALT)
 /**
  * \brief           Randomize jacobian coordinates:
@@ -686,7 +678,7 @@ int mbedtls_internal_ecp_randomize_jac( const mbedtls_ecp_group *grp,
     }
 
     crypto = crypto_management_acquire();
-    mbedtls_ecp_device_init(crypto, grp);
+    crypto_device_init(crypto, grp);
 
     CORE_ENTER_CRITICAL();
     CRYPTO_DDataWrite(&crypto->DDATA1, l);
@@ -781,7 +773,7 @@ int mbedtls_internal_ecp_add_mixed( const mbedtls_ecp_group *grp,
     CORE_DECLARE_IRQ_STATE;
     CRYPTO_TypeDef *crypto = crypto_management_acquire();
 
-    mbedtls_ecp_device_init(crypto, grp);
+    crypto_device_init(crypto, grp);
 
     /*
       STEP 1:
@@ -1138,7 +1130,7 @@ int mbedtls_internal_ecp_double_jac( const mbedtls_ecp_group *grp,
     CORE_DECLARE_IRQ_STATE;
     CRYPTO_TypeDef *crypto = crypto_management_acquire();
 
-    mbedtls_ecp_device_init(crypto, grp);
+    crypto_device_init(crypto, grp);
 
     ecc_bigint_t _2YY;
     /*
@@ -1491,7 +1483,7 @@ int mbedtls_internal_ecp_normalize_jac_many( const mbedtls_ecp_group *grp,
     MPI_TO_BIGINT( cc[0], &T[0]->Z );
 
     CRYPTO_TypeDef *crypto = crypto_management_acquire();
-    mbedtls_ecp_device_init(crypto, grp);
+    crypto_device_init(crypto, grp);
 
     for( i = 1; i < t_len; i++ )
     {
@@ -1633,7 +1625,7 @@ int mbedtls_internal_ecp_normalize_jac( const mbedtls_ecp_group *grp,
     CORE_DECLARE_IRQ_STATE;
     CRYPTO_TypeDef *crypto = crypto_management_acquire();
 
-    mbedtls_ecp_device_init(crypto, grp);
+    crypto_device_init(crypto, grp);
 
     ecc_bigint_t    one;
     ecc_bigint_t    Z;
@@ -1723,10 +1715,8 @@ int mbedtls_internal_ecp_normalize_jac( const mbedtls_ecp_group *grp,
 }
 #endif
 
-#endif /* ECP_SHORTWEIERSTRASS */
-
-#endif /* #if defined( CRYPTO_PRESENT ) */
-
 #endif /* #if defined( MBEDTLS_ECP_INTERNAL_ALT ) */
 
 #endif /* #if defined( MBEDTLS_ECP_C ) */
+
+#endif /* #if defined( CRYPTO_PRESENT ) */
