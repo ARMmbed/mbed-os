@@ -83,6 +83,13 @@ void core_util_critical_section_enter(void);
 void core_util_critical_section_exit(void);
 
 /**
+ * Determine if we are currently in a critical section
+ *
+ * @return true if in a critical section, false otherwise.
+ */
+bool core_util_in_critical_section(void);
+
+/**
  * Atomic compare and set. It compares the contents of a memory location to a
  * given value and, only if they are the same, modifies the contents of that
  * memory location to a given new value. This is done as a single atomic
