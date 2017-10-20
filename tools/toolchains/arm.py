@@ -33,6 +33,8 @@ class ARM(mbedToolchain):
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
     SHEBANG = "#! armcc -E"
+    SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
+                       "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD"]
 
     @staticmethod
     def check_executable():
@@ -48,6 +50,9 @@ class ARM(mbedToolchain):
                                build_dir=build_dir,
                                extra_verbose=extra_verbose,
                                build_profile=build_profile)
+        if target.core not in self.SUPPORTED_CORES:
+            raise NotSupportedException(
+                "this compiler does not support the core %s" % target.core)
 
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
@@ -285,12 +290,19 @@ class ARM_MICRO(ARM):
 
 class ARMC6(ARM_STD):
     SHEBANG = "#! armclang -E --target=arm-arm-none-eabi -x c"
+    SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
+                       "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
+                       "Cortex-M23", "Cortex-M23-NS", "Cortex-M33",
+                       "CortexM33-NS"]
     @staticmethod
     def check_executable():
         return mbedToolchain.generic_check_executable("ARMC6", "armclang", 1)
 
     def __init__(self, target, *args, **kwargs):
         mbedToolchain.__init__(self, target, *args, **kwargs)
+        if target.core not in self.SUPPORTED_CORES:
+            raise NotSupportedException(
+                "this compiler does not support the core %s" % target.core)
 
         if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
