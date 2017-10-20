@@ -572,32 +572,6 @@ extern "C"
             (((q63_t) (x >> 32) * y)));
   }
 
-/*
-  #if defined (ARM_MATH_CM0_FAMILY) && defined ( __CC_ARM   )
-  #define __CLZ __clz
-  #endif
- */
-/* note: function can be removed when all toolchain support __CLZ for Cortex-M0 */
-#if defined (ARM_MATH_CM0_FAMILY) && ((defined (__ICCARM__))  )
-  CMSIS_INLINE __STATIC_INLINE uint32_t __CLZ(
-  q31_t data);
-
-  CMSIS_INLINE __STATIC_INLINE uint32_t __CLZ(
-  q31_t data)
-  {
-    uint32_t count = 0;
-    uint32_t mask = 0x80000000;
-
-    while ((data & mask) == 0)
-    {
-      count += 1u;
-      mask = mask >> 1u;
-    }
-
-    return (count);
-  }
-#endif
-
   /**
    * @brief Function to Calculates 1/in (reciprocal) value of Q31 Data type.
    */
@@ -704,7 +678,7 @@ extern "C"
   /*
    * @brief C custom defined intrinisic function for only M0 processors
    */
-#if defined(ARM_MATH_CM0_FAMILY)
+#if defined(ARM_MATH_CM0_FAMILY) && !defined ( __ICCARM__ )
   CMSIS_INLINE __STATIC_INLINE q31_t __SSAT(
   q31_t x,
   uint32_t y)
