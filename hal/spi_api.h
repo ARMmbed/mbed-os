@@ -103,6 +103,28 @@ void spi_format(spi_t *obj, int bits, int mode, int slave);
  */
 void spi_frequency(spi_t *obj, int hz);
 
+/** Set spacing between bytes for block transfers
+ *
+ * Actual spacing may differ:
+ * - A target may be totally unable to space bytes during block transfers, in which
+ *   case this will return 0.
+ * - If the target does not have a DMA-based block write implementation, but
+ *   implements block transfers using byte-at-a-time PIO, then effectively the bytes
+ *   will always be widely-spaced due to the time taken to program the SPI peripheral
+ *   for each byte. In this case, this call should return an appropriately large
+ *   value to represent that, eg 1000 (= 1 microsecond).
+ * - Clock dividers may limit the available spacing granularity, in which case
+ *   the device should round up and return the actual spacing.
+ *
+ * Callers should check the return value, and if it is lower than required, take
+ * alternative action, such as lowering the clock frequency or using non-block writes.
+ *
+ * @param[in,out] obj         The SPI object to configure
+ * @param[in]     spacing_ns  The desired extra inter-byte spacing in nanoseconds
+ * @return        Actual inter-byte spacing
+ */
+int spi_block_write_spacing(spi_t *obj, int spacing_ns);
+
 /**@}*/
 /**
  * \defgroup SynchSPI Synchronous SPI Hardware Abstraction Layer

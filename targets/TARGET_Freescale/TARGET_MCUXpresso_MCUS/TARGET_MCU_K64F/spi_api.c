@@ -104,6 +104,11 @@ void spi_frequency(spi_t *obj, int hz)
     DSPI_MasterSetDelayTimes(spi_address[obj->spi.instance], kDSPI_Ctar0, kDSPI_LastSckToPcs, busClock, 500000000 / hz);
 }
 
+int spi_block_write_spacing(spi_t *obj, int spacing_ns) {
+    uint32_t busClock = CLOCK_GetFreq(spi_clocks[obj->spi.instance]);
+    return DSPI_MasterSetDelayTimes(spi_address[obj->spi.instance], kDSPI_Ctar0, kDSPI_PcsToSck, busClock, spacing_ns);
+}
+
 static inline int spi_readable(spi_t * obj)
 {
     return (DSPI_GetStatusFlags(spi_address[obj->spi.instance]) & kDSPI_RxFifoDrainRequestFlag);

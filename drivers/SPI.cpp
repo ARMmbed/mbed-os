@@ -37,6 +37,8 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
         _bits(8),
         _mode(0),
         _hz(1000000),
+        _spacing_ns(0),
+        _spacing_ns_actual(0),
         _write_fill(SPI_FILL_CHAR) {
     // No lock needed in the constructor
 
@@ -73,6 +75,22 @@ void SPI::frequency(int hz) {
     unlock();
 }
 
+int SPI::write_spacing(int ns) {
+    lock();
+    _spacing_ns = ns;
+    // If changing while you are the owner than just
+    // update spacing, but if owner is changed then everything should be
+    // updated which is done by acquire.
+    if (_owner == this) {
+        _spacing_ns_actual = spi_block_write_spacing(&_spi, _spacing_ns);
+    } else {
+        _acquire();
+    }
+    ns = _spacing_ns_actual;
+    unlock();
+    return ns;
+}
+
 SPI* SPI::_owner = NULL;
 SingletonPtr<PlatformMutex> SPI::_mutex;
 
@@ -92,6 +110,7 @@ void SPI::_acquire() {
      if (_owner != this) {
         spi_format(&_spi, _bits, _mode, 0);
         spi_frequency(&_spi, _hz);
+        _spacing_ns_actual = spi_block_write_spacing(&_spi, _spacing_ns);
         _owner = this;
     }
 }
