@@ -26,14 +26,14 @@ extern "C" {
 #endif
     /** Alternative stdio initialization interface function
      *
-     * @pararm fh   The file handle of the stdio operation
+     * @param fh    The file handle of the stdio operation
      *              (0 = stdin, 1 = stdout, 2 = stderr)
      */
     void retarget_stdio_init_alt(unsigned int fh);
     
     /** Alternative stdio write interface function
      *
-     * @pararm fh      The file handle of the stdio operation
+     * @param fh       The file handle of the stdio operation
      * @param buffer   The buffer containing the data to write
      * @param length   The length of the valid data in the buffer
      *
@@ -47,7 +47,7 @@ extern "C" {
      *  This shall be a blocking function not returning before at least one
      *  character has been read.
      *
-     * @pararm fh      The file handle of the stdio operation
+     * @param fh       The file handle of the stdio operation
      * @param buffer   The buffer for the read data
      * @param length   The size of the buffer
      *
