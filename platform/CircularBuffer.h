@@ -106,19 +106,20 @@ public:
     }
 
     /** Get the number of elements currently stored in the circular_buffer */
-    CounterType size() const
-    {
+    CounterType size() const {
         core_util_critical_section_enter();
         CounterType elements;
-        if (!_full)
-        {
-            if (_head < _tail)
+        if (!_full) {
+            if (_head < _tail) {
                 elements = BufferSize + _head - _tail;
-            else
+            }
+            else {
                 elements = _head - _tail;
+            }
         }
-        else
+        else {
             elements = BufferSize;
+        }
         core_util_critical_section_exit();
         return elements;
     }
