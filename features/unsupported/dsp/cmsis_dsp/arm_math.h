@@ -659,47 +659,6 @@ extern "C"
     return (signBits + 1);
   }
 
-
-  /*
-   * @brief C custom defined intrinisic function for only M0 processors
-   */
-#if defined(ARM_MATH_CM0_FAMILY)
-  static __INLINE q31_t __SSAT(
-  q31_t x,
-  uint32_t y)
-  {
-    int32_t posMax, negMin;
-    uint32_t i;
-
-    posMax = 1;
-    for (i = 0; i < (y - 1); i++)
-    {
-      posMax = posMax * 2;
-    }
-
-    if(x > 0)
-    {
-      posMax = (posMax - 1);
-
-      if(x > posMax)
-      {
-        x = posMax;
-      }
-    }
-    else
-    {
-      negMin = -posMax;
-
-      if(x < negMin)
-      {
-        x = negMin;
-      }
-    }
-    return (x);
-  }
-#endif /* end of ARM_MATH_CM0_FAMILY */
-
-
   /*
    * @brief C custom defined intrinsic function for M3 and M0 processors
    */
