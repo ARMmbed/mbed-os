@@ -1,5 +1,5 @@
 import os
-from os.path import sep, normpath, join, exists
+from os.path import sep, normpath, join, exists, relpath
 import ntpath
 import copy
 from collections import namedtuple
@@ -37,6 +37,7 @@ class DeviceUvision(DeviceCMSIS):
         cpu = self.core.replace("Cortex-", "C")
         cpu = cpu.replace("+", "")
         cpu = cpu.replace("F", "")
+        cpu = cpu.replace("-NS", "")
         cpu_flag = "p"+cpu
 
         # Locations found in Keil_v5/TOOLS.INI
@@ -117,8 +118,6 @@ class Uvision(Exporter):
     project file (.uvprojx).
     The needed information can be viewed in uvision.tmpl
     """
-    NAME = 'uvision5'
-    TOOLCHAIN = 'ARM'
 
     POST_BINARY_WHITELIST = set([
         "MCU_NRF51Code.binary_hook",
@@ -130,12 +129,6 @@ class Uvision(Exporter):
         "NCS36510TargetCode.ncs36510_addfib"
     ])
 
-    @classmethod
-    def is_target_supported(cls, target_name):
-        target = TARGET_MAP[target_name]
-        return apply_supported_whitelist(
-            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target) and\
-            DeviceCMSIS.check_supported(target_name)
 
     #File associations within .uvprojx file
     file_types = {'.cpp': 8, '.c': 1, '.s': 2,
@@ -166,22 +159,29 @@ class Uvision(Exporter):
     def format_flags(self):
         """Format toolchain flags for Uvision"""
         flags = copy.deepcopy(self.flags)
-        # to be preprocessed with armcc
         asm_flag_string = (
             '--cpreproc --cpreproc_opts=-D__ASSERT_MSG,' +
             ",".join(filter(lambda f: f.startswith("-D"), flags['asm_flags'])))
         flags['asm_flags'] = asm_flag_string
-        # All non-asm flags are in one template field
-        c_flags = list(set(flags['c_flags'] + flags['cxx_flags'] +flags['common_flags']))
-        ld_flags = list(set(flags['ld_flags'] ))
-        # These flags are in template to be set by user i n IDE
-        template = ["--no_vla", "--cpp", "--c99"]
-        # Flag is invalid if set in template
-        # Optimizations are also set in the template
-        invalid_flag = lambda x: x in template or re.match("-O(\d|time)", x) 
-        flags['c_flags'] = [flag.replace('"','\\"') for flag in c_flags if not invalid_flag(flag)]
-        flags['c_flags'] = " ".join(flags['c_flags'])
-        flags['ld_flags'] = " ".join(flags['ld_flags'])
+
+        config_header = self.toolchain.get_config_header()
+        config_header = relpath(config_header,
+                                self.resources.file_basepath[config_header])
+        config_option = self.toolchain.get_config_option(config_header)
+        c_flags = set(flags['c_flags'] + flags['cxx_flags'] +flags['common_flags'])
+        in_template = set(["--no_vla", "--cpp", "--c99", "-MMD"] + config_option)
+
+        invalid_flag = lambda x: (x in in_template or
+                                  x.startswith("-O") or
+                                  x.startswith("-std"))
+        is_define = lambda s: s.startswith("-D")
+
+        flags['c_flags'] = " ".join(f.replace('"','\\"') for f in c_flags
+                                    if (not invalid_flag(f) and not is_define(f)))
+        flags['c_flags'] += " "
+        flags['c_flags'] += " ".join(config_option)
+        flags['c_defines'] = " ".join(f[2:] for f in c_flags if is_define(f))
+        flags['ld_flags'] = " ".join(set(flags['ld_flags']))
         return flags
 
     def format_src(self, srcs):
@@ -223,15 +223,16 @@ class Uvision(Exporter):
             'device': DeviceUvision(self.target),
         }
         self.generated_files.append(ctx['linker_script'])
-        core = ctx['device'].core
-        ctx['cputype'] = core.rstrip("FD")
-        if core.endswith("FD"):
+        ctx['cputype'] = ctx['device'].core.rstrip("FD").replace("-NS", "")
+        if ctx['device'].core.endswith("FD"):
             ctx['fpu_setting'] = 3
-        elif core.endswith("F"):
+        elif ctx['device'].core.endswith("F"):
             ctx['fpu_setting'] = 2
         else:
             ctx['fpu_setting'] = 1
-        ctx['fputype'] = self.format_fpu(core)
+        ctx['fputype'] = self.format_fpu(ctx['device'].core)
+        ctx['armc6'] = int(self.TOOLCHAIN is 'ARMC6')
+        ctx['toolchain_name'] = self.TOOLCHAIN_NAME
         ctx.update(self.format_flags())
         self.gen_file('uvision/uvision.tmpl', ctx, self.project_name+".uvprojx")
         self.gen_file('uvision/uvision_debug.tmpl', ctx, self.project_name + ".uvoptx")
@@ -269,3 +270,29 @@ class Uvision(Exporter):
             return -1
         else:
             return 0
+
+class UvisionArmc5(Uvision):
+    NAME = 'uvision5-armc5'
+    TOOLCHAIN = 'ARM'
+    TOOLCHAIN_NAME = ''
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target) and\
+            DeviceCMSIS.check_supported(target_name)
+
+class UvisionArmc6(Uvision):
+    NAME = 'uvision5-armc6'
+    TOOLCHAIN = 'ARMC6'
+    TOOLCHAIN_NAME = '6070000::V6.7::.\ARMCLANG'
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return (apply_supported_whitelist(
+            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target) or
+                apply_supported_whitelist(
+            'ARM', Uvision.POST_BINARY_WHITELIST, target)) and\
+            DeviceCMSIS.check_supported(target_name)

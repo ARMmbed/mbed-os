@@ -17,7 +17,7 @@
 #ifndef NU_BIT_UTIL_H
 #define NU_BIT_UTIL_H
 
-#if defined(__ICCARM__) && defined(TARGET_M0)
+#if defined(__ICCARM__) && ( defined(__CORTEX_M0) || defined(__CORTEX_M0P) || defined(__CORTEX_M23))
 #include <arm_math.h>
 #endif
 #include "cmsis.h"

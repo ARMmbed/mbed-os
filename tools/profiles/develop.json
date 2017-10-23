@@ -5,7 +5,7 @@
                    "-fmessage-length=0", "-fno-exceptions", "-fno-builtin",
                    "-ffunction-sections", "-fdata-sections", "-funsigned-char",
                    "-MMD", "-fno-delete-null-pointer-checks",
-                   "-fomit-frame-pointer", "-Os"],
+                   "-fomit-frame-pointer", "-O0", "-g3", "-gdwarf-2"],
         "asm": ["-x", "assembler-with-cpp"],
         "c": ["-std=gnu99"],
         "cxx": ["-std=gnu++98", "-fno-rtti", "-Wvla"],
@@ -15,7 +15,7 @@
                "-Wl,-n"]
     },
     "ARMC6": {
-        "common": ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-Os",
+        "common": ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-g", "-O0",
                    "-Wno-armcc-pragma-push-pop", "-Wno-armcc-pragma-anon-unions",
                    "-DMULADDC_CANNOT_USE_R7", "-fdata-sections",
                    "-fno-exceptions", "-MMD"],
@@ -45,8 +45,8 @@
     },
     "IAR": {
         "common": [
-            "--no_wrap_diagnostics", "-e",
-            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Oh"],
+            "--no_wrap_diagnostics",  "-e",
+            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-On", "-r"],
         "asm": [],
         "c": ["--vla"],
         "cxx": ["--guard_calls", "--no_static_destruction"],

@@ -25,6 +25,29 @@
  */
 #if !defined(MBED_CONF_RTOS_PRESENT)
 
+#if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
+/* call_non_secure_rtos is function for v8 architecture to switch to non-secure
+ * reset handler. Called by secure application main.
+ */
+typedef void (*non_secure_call) (void) __attribute__((cmse_nonsecure_call));
+void call_non_secure_rtos(void)
+{
+#ifdef TZ_START_NS
+    non_secure_call ns_reset_handler;
+
+    /* Set non-secure main stack (MSP_NS) */
+#if defined(__ICCARM__)
+    asm volatile("MSR     SP_NS, %0" :: "r" (*((uint32_t *)(TZ_START_NS))));
+#else
+    __TZ_set_MSP_NS(*((uint32_t *)(TZ_START_NS)));
+#endif
+    /* Get non-secure reset handler */
+    ns_reset_handler = (non_secure_call)(*((uint32_t *)((TZ_START_NS) + 4U)));
+    /* Start non-secure state software application */
+    ns_reset_handler();
+#endif
+}
+#endif
 /* mbed_main is a function that is called before main()
  * mbed_sdk_init() is also a function that is called before main(), but unlike
  * mbed_main(), it is not meant for user code, but for the SDK itself to perform
@@ -32,7 +55,9 @@
  */
 MBED_WEAK void mbed_main(void) 
 {
-
+#if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
+    call_non_secure_rtos();
+#endif
 }
 
 /* This function can be implemented by the target to perform higher level target initialization
