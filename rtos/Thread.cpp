@@ -35,7 +35,7 @@ extern "C" void thread_terminate_hook(osThreadId_t id)
 namespace rtos {
 
 void Thread::constructor(osPriority priority,
-        uint32_t stack_size, unsigned char *stack_mem, const char *name) {
+        uint32_t stack_size, unsigned char *stack_mem, const char *name, uint32_t tz_module) {
     _tid = 0;
     _dynamic_stack = (stack_mem == NULL);
     _finished = false;
@@ -45,11 +45,12 @@ void Thread::constructor(osPriority priority,
     _attr.stack_size = stack_size;
     _attr.name = name ? name : "application_unnamed_thread";
     _attr.stack_mem = (uint32_t*)stack_mem;
+    _attr.tz_module = tz_module;
 }
 
 void Thread::constructor(Callback<void()> task,
-        osPriority priority, uint32_t stack_size, unsigned char *stack_mem, const char *name) {
-    constructor(priority, stack_size, stack_mem, name);
+        osPriority priority, uint32_t stack_size, unsigned char *stack_mem, const char *name, uint32_t tz_module) {
+    constructor(priority, stack_size, stack_mem, name, tz_module);
 
     switch (start(task)) {
         case osErrorResource:
