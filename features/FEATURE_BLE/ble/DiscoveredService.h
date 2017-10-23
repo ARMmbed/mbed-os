@@ -14,106 +14,168 @@
  * limitations under the License.
  */
 
-#ifndef __DISCOVERED_SERVICE_H__
-#define __DISCOVERED_SERVICE_H__
+#ifndef MBED_DISCOVERED_SERVICE_H__
+#define MBED_DISCOVERED_SERVICE_H__
 
 #include "UUID.h"
 #include "GattAttribute.h"
 
-/**@brief Type for holding information about the service and the characteristics found during
- *        the discovery process.
+/**
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ * @addtogroup client
+ * @{
+ */
+
+/**
+ * Representation of a GATT service discovered.
+ *
+ * GATT Services are discovered on distant GATT servers by the discovery
+ * procedure which can be initiated by calling
+ * GattClient::launchServiceDiscovery() or GattClient::discoverServices() . The
+ * discovery process will pass instances of this class to the callback handling
+ * service discovered.
+ *
+ * Discovered services are characterized by the UUID of the service discovered
+ * and the range of the GATT attributes belonging to the service.
+ *
+ * The UUID can be queried by calling getUUID() while the begining of the
+ * attribute range can be obtained via getStartHandle() and the end of the
+ * attribute range with a call to getEndHandle().
+ *
+ * The characteristics composing the service may be discovered by the function
+ * GattClient::launchServiceDiscovery().
  */
 class DiscoveredService {
-public:
-    /**
-     * Set information about the discovered service.
-     *
-     * @param[in] uuidIn
-     *              The UUID of the discovered service.
-     * @param[in] startHandleIn
-     *              The start handle of the discovered service in the peer's
-     *              ATT table.
-     * @param[in] endHandleIn
-     *              The end handle of the discovered service in the peer's
-     *              ATT table.
-     */
-    void setup(UUID uuidIn, GattAttribute::Handle_t startHandleIn, GattAttribute::Handle_t endHandleIn) {
-        uuid        = uuidIn;
-        startHandle = startHandleIn;
-        endHandle   = endHandleIn;
-    }
-
-    /**
-     * Set the start and end handle of the discovered service.
-     * @param[in] startHandleIn
-     *              The start handle of the discovered service in the peer's
-     *              ATT table.
-     * @param[in] endHandleIn
-     *              The end handle of the discovered service in the peer's
-     *              ATT table.
-     */
-    void setup(GattAttribute::Handle_t startHandleIn, GattAttribute::Handle_t endHandleIn) {
-        startHandle = startHandleIn;
-        endHandle   = endHandleIn;
-    }
-
-    /**
-     * Set the long UUID of the discovered service.
-     *
-     * @param[in] longUUID
-     *              The long UUID of the discovered service.
-     * @param[in] order
-     *              The byte ordering of @p longUUID.
-     */
-    void setupLongUUID(UUID::LongUUIDBytes_t longUUID, UUID::ByteOrder_t order = UUID::MSB) {
-         uuid.setupLong(longUUID, order);
-    }
-
 public:
     /**
      * Get the UUID of the discovered service.
      *
      * @return A reference to the UUID of the discovered service.
      */
-    const UUID &getUUID(void) const {
+    const UUID &getUUID(void) const
+    {
         return uuid;
     }
 
     /**
-     * Get the start handle of the discovered service in the peer's ATT table.
+     * Get the start handle of the discovered service in the peer's GATT server.
      *
      * @return A reference to the start handle.
      */
-    const GattAttribute::Handle_t& getStartHandle(void) const {
+    const GattAttribute::Handle_t& getStartHandle(void) const
+    {
         return startHandle;
     }
 
     /**
-     * Get the end handle of the discovered service in the peer's ATT table.
+     * Get the end handle of the discovered service in the peer's GATT server.
      *
      * @return A reference to the end handle.
      */
-    const GattAttribute::Handle_t& getEndHandle(void) const {
+    const GattAttribute::Handle_t& getEndHandle(void) const
+    {
         return endHandle;
     }
 
 public:
     /**
      * Construct a DiscoveredService instance.
+     *
+     * @important This API is not meant to be used publicly it is meant to be
+     * used by internal APIs of mbed BLE.
      */
-    DiscoveredService() : uuid(UUID::ShortUUIDBytes_t(0)),
-                          startHandle(GattAttribute::INVALID_HANDLE),
-                          endHandle(GattAttribute::INVALID_HANDLE) {
-        /* empty */
+    DiscoveredService() :
+        uuid(UUID::ShortUUIDBytes_t(0)),
+        startHandle(GattAttribute::INVALID_HANDLE),
+        endHandle(GattAttribute::INVALID_HANDLE) {
     }
+
+    /**
+     * Set information about the discovered service.
+     *
+     * @important This API is not meant to be used publicly it is meant to be
+     * used by internal APIs of mbed BLE.
+     *
+     * @param[in] uuidIn The UUID of the discovered service.
+     * @param[in] startHandleIn The start handle of the discovered service in
+     * the peer's GATT server.
+     * @param[in] endHandleIn The end handle of the discovered service in the
+     * peer's GATT server.
+     */
+    void setup(
+        UUID uuidIn,
+        GattAttribute::Handle_t startHandleIn,
+        GattAttribute::Handle_t endHandleIn
+    ) {
+        uuid = uuidIn;
+        startHandle = startHandleIn;
+        endHandle = endHandleIn;
+    }
+
+    /**
+     * Set the start and end handle of the discovered service.
+     *
+     * @important This API is not meant to be used publicly it is meant to be
+     * used by internal APIs of mbed BLE.
+     *
+     * @param[in] startHandleIn The start handle of the discovered service in
+     * the peer's GATT server.
+     * @param[in] endHandleIn The end handle of the discovered service in the
+     * peer's GATT server.
+     */
+    void setup(
+        GattAttribute::Handle_t startHandleIn,
+        GattAttribute::Handle_t endHandleIn
+    ) {
+        startHandle = startHandleIn;
+        endHandle = endHandleIn;
+    }
+
+    /**
+     * Set the long UUID of the discovered service.
+     *
+     * @important This API is not meant to be used publicly it is meant to be
+     * used by internal APIs of mbed BLE.
+     *
+     * @param[in] longUUID The bytes composing the long UUID of this discovered
+     * service.
+     * @param[in] order The byte ordering of @p longUUID.
+     */
+    void setupLongUUID(
+        UUID::LongUUIDBytes_t longUUID,
+        UUID::ByteOrder_t order = UUID::MSB
+    ) {
+         uuid.setupLong(longUUID, order);
+    }
+
 
 private:
     DiscoveredService(const DiscoveredService &);
 
 private:
-    UUID                    uuid;        /**< UUID of the service.  */
-    GattAttribute::Handle_t startHandle; /**< Service Handle Range. */
-    GattAttribute::Handle_t endHandle;   /**< Service Handle Range. */
+    /**
+     * UUID of the service.
+     */
+    UUID uuid;
+
+    /**
+     * Begining of the Service Handle Range.
+     */
+    GattAttribute::Handle_t startHandle;
+
+    /**
+     * Service Handle Range.
+     */
+    GattAttribute::Handle_t endHandle;
 };
 
-#endif /*__DISCOVERED_SERVICE_H__*/
+/**
+ * @}
+ * @}
+ * @}
+ */
+
+#endif /* MBED_DISCOVERED_SERVICE_H__ */
