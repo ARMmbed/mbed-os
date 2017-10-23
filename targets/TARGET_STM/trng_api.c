@@ -23,19 +23,20 @@
 #include <stdlib.h>
 #include "cmsis.h"
 #include "trng_api.h"
+#include "mbed_error.h"
+#include "mbed_critical.h"
 
-/** trng_get_byte
- *  @brief Get one byte of entropy from the RNG, assuming it is up and running.
- *  @param obj TRNG obj
- *  @param pointer to the hardware generated random byte.
- */
-static void trng_get_byte(trng_t *obj, unsigned char *byte )
-{
-    *byte = (unsigned char)HAL_RNG_GetRandomNumber(&obj->handle);
-}
+static uint8_t users = 0;
 
 void trng_init(trng_t *obj)
 {
+    uint32_t dummy;
+
+    /*  We're only supporting a single user of RNG */
+    if (core_util_atomic_incr_u8(&users, 1) > 1 ) {
+        error("Only 1 RNG instance supported\r\n");
+    }
+
 #if defined(TARGET_STM32L4)
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
@@ -50,11 +51,13 @@ void trng_init(trng_t *obj)
 
     /* Initialize RNG instance */
     obj->handle.Instance = RNG;
+    obj->handle.State = HAL_RNG_STATE_RESET;
+    obj->handle.Lock = HAL_UNLOCKED;
+
     HAL_RNG_Init(&obj->handle);
 
     /* first random number generated after setting the RNGEN bit should not be used */
-    HAL_RNG_GetRandomNumber(&obj->handle);
-
+    HAL_RNG_GenerateRandomNumber(&obj->handle, &dummy);
 }
 
 void trng_free(trng_t *obj)
@@ -63,23 +66,32 @@ void trng_free(trng_t *obj)
     HAL_RNG_DeInit(&obj->handle);
     /* RNG Peripheral clock disable - assume we're the only users of RNG  */
     __HAL_RCC_RNG_CLK_DISABLE();
+
+    users = 0;
 }
 
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
-    int ret;
+    int ret = 0;
+    volatile uint8_t random[4];
+    *output_length = 0;
 
     /* Get Random byte */
-    for( uint32_t i = 0; i < length; i++ ){
-        trng_get_byte(obj, output + i );
+    while ((*output_length < length) && (ret ==0)) {
+        if ( HAL_RNG_GenerateRandomNumber(&obj->handle, (uint32_t *)random ) != HAL_OK) {
+                ret = -1;
+        } else {
+            for (uint8_t i =0; (i < 4) && (*output_length < length) ; i++) {
+                *output++ = random[i];
+                *output_length += 1;
+                random[i] = 0;
+            }
+        }
     }
 
-    *output_length = length;
     /* Just be extra sure that we didn't do it wrong */
     if( ( __HAL_RNG_GET_FLAG(&obj->handle, (RNG_FLAG_CECS | RNG_FLAG_SECS)) ) != 0 ) {
         ret = -1;
-    } else {
-        ret = 0;
     }
 
     return( ret );
