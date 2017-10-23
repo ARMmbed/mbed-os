@@ -141,7 +141,7 @@ timestamp_t lp_ticker_read()
         while (minor_clks == 0 || minor_clks == TMR2_CLK_PER_TMR2_INT);
 
         // Add power-down compensation
-        return ((uint64_t) major_minor_clks * US_PER_SEC / TMR3_CLK_PER_SEC / US_PER_TICK);
+        return ((uint64_t) major_minor_clks * US_PER_SEC / TMR2_CLK_PER_SEC / US_PER_TICK);
     }
     while (0);
 }
@@ -222,6 +222,6 @@ static void lp_ticker_arm_cd(void)
     TIMER_EnableWakeup((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
     // Wait 2 cycles of engine clock to ensure previous CTL write action is finish
     wait_us(30 * 2);
-    timer3_base->CTL = ctl_timer3 | TIMER_CTL_TMR_EN_Msk;
+    timer3_base->CTL |= ctl_timer3 | TIMER_CTL_TMR_EN_Msk;
 }
 #endif

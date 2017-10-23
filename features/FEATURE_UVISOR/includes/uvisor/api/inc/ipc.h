@@ -51,10 +51,12 @@ UVISOR_EXTERN int ipc_waitforall(uint32_t wait_tokens, uint32_t * done_tokens, u
 
 /** Asynchronously send an IPC message
  *
- * @note The memory used for sending the message (pointed to by msg) must be
- * valid until after the send is complete.
+ * @note The memory used for receiving the message (pointed to by msg) and the
+ * IPC descriptor (pointed to by desc) must be valid until after the send is
+ * complete. In addition, each IPC message should use its own IPC descriptor.
+ * Reusing an IPC descriptor will lead to unpredictable behaviours.
  *
- * @param[in]  desc   an IPC descriptor for the message
+ * @param[inout]  desc   an IPC descriptor for the message
  * @param[in]  msg    the message to send
  *
  * @return     0 on success, non-zero error code otherwise
@@ -63,8 +65,10 @@ UVISOR_EXTERN int ipc_send(uvisor_ipc_desc_t * desc, const void * msg);
 
 /** Asynchronously receive an IPC message
  *
- * @note The memory used for receiving the message (pointed to by msg) must be
- * valid until after the receive is complete.
+ * @note The memory used for receiving the message (pointed to by msg) and the
+ * IPC descriptor (pointed to by desc) must be valid until after the receive is
+ * complete. In addition, each IPC message should use its own IPC descriptor.
+ * Reusing an IPC descriptor will lead to unpredictable behaviours.
  *
  * @param[inout] desc   an IPC descriptor for the message
  * @param[out]   msg    the memory to copy the message to

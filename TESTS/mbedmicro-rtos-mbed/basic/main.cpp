@@ -14,49 +14,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-/*
- * Tests is to measure the accuracy of Thread::wait() over a period of time
- *
- *
- * 1) DUT would start to update callback_trigger_count every milli sec
- * 2) Host would query what is current count base_time, Device responds by the callback_trigger_count
- * 3) Host after waiting for measurement stretch. It will query for device time again final_time.
- * 4) Host computes the drift considering base_time, final_time, transport delay and measurement stretch
- * 5) Finally host send the results back to device pass/fail based on tolerance.
- * 6) More details on tests can be found in timing_drift_auto.py
- *
- */
-
 #include "mbed.h"
 #include "greentea-client/test_env.h"
-#include "rtos.h"
+#include "utest/utest.h"
 #include "unity/unity.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
 #error [NOT_SUPPORTED] test not supported
 #endif
 
-#define TEST_STACK_SIZE 1024
+using utest::v1::Case;
+
+#define TEST_STACK_SIZE 256
 #define ONE_MILLI_SEC 1000
 
-volatile uint32_t callback_trigger_count = 0;
+volatile uint32_t elapsed_time_ms = 0;
+static const int test_timeout = 40;
 
-static const int test_timeout = 240;
-bool test_result = false;
 
-void update_tick_thread() {
+void update_tick_thread(Mutex *mutex)
+{
     while (true) {
         Thread::wait(1);
-        ++callback_trigger_count;
+        mutex->lock();
+        ++elapsed_time_ms;
+        mutex->unlock();
     }
 }
 
-void gt_comm_wait_thread() {
+
+/** Tests is to measure the accuracy of Thread::wait() over a period of time
+
+    Given
+        a thread updating elapsed_time_ms every milli sec
+        and host script for time measurement accuracy check (More details on tests can be found in timing_drift_auto.py)
+    When host query what is current count base_time
+    Then Device responds by the elapsed_time_ms
+    When host query what is current count final_time
+    Then Device responds by the elapsed_time_ms
+    When host computes the drift considering base_time, final_time, transport delay and measurement stretch
+    Then host send the results back to device pass/fail based on tolerance
+ */
+void test(void)
+{
     char _key[11] = { };
     char _value[128] = { };
     int expected_key = 1;
+    Mutex mutex;
+    uint32_t elapsed_time;
+
+    Thread tick_thread(osPriorityHigh, TEST_STACK_SIZE);
+    tick_thread.start(callback(update_tick_thread, &mutex));
 
     greentea_send_kv("timing_drift_check_start", 0);
 
@@ -65,28 +73,41 @@ void gt_comm_wait_thread() {
         greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
         expected_key = strcmp(_key, "base_time");
     } while (expected_key);
-    greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
+
+    mutex.lock();
+    elapsed_time = elapsed_time_ms;
+    mutex.unlock();
+    // send base_time
+    greentea_send_kv(_key, elapsed_time * ONE_MILLI_SEC);
 
     // wait for 2nd signal from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
-    greentea_send_kv(_key, callback_trigger_count * ONE_MILLI_SEC);
+
+    mutex.lock();
+    elapsed_time = elapsed_time_ms;
+    mutex.unlock();
+    // send final_time
+    greentea_send_kv(_key, elapsed_time * ONE_MILLI_SEC);
 
     //get the results from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 
-    if (strcmp("pass", _key) == 0) {
-        test_result = true;
-    }
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
 }
 
-int main() {
+Case cases[] = {
+    Case("Test Thread::wait accuracy", test)
+};
+
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(test_timeout, "timing_drift_auto");
-    Thread tick_thread(osPriorityHigh, TEST_STACK_SIZE);
-    Thread gt_conn_thread(osPriorityNormal, TEST_STACK_SIZE);
+    return utest::v1::greentea_test_setup_handler(number_of_cases);
+}
 
-    tick_thread.start(update_tick_thread);
-    gt_conn_thread.start(gt_comm_wait_thread);
-    gt_conn_thread.join();
+utest::v1::Specification specification(greentea_test_setup, cases);
 
-    GREENTEA_TESTSUITE_RESULT(test_result);
+int main()
+{
+    utest::v1::Harness::run(specification);
 }

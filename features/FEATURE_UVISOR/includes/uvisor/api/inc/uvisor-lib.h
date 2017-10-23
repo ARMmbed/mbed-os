@@ -28,7 +28,6 @@
 #include "api/inc/api.h"
 #include "api/inc/box_config.h"
 #include "api/inc/box_id.h"
-#include "api/inc/debug.h"
 #include "api/inc/disabled.h"
 #include "api/inc/error.h"
 #include "api/inc/interrupts.h"

@@ -241,7 +241,8 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
-        "device_name": "LPC1768"
+        "device_name": "LPC1768",
+        "bootloader_supported": true
     },
     "ARCH_PRO": {
         "supported_form_factors": ["ARDUINO"],
@@ -253,7 +254,8 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
-        "device_name": "LPC1768"
+        "device_name": "LPC1768",
+        "bootloader_supported": true
     },
     "UBLOX_C027": {
         "supported_form_factors": ["ARDUINO"],
@@ -277,7 +279,8 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
-        "device_name": "LPC1768"
+        "device_name": "LPC1768",
+        "bootloader_supported": true
     },
     "XBED_LPC1768": {
         "inherits": ["LPCTarget"],
@@ -646,10 +649,11 @@
         "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0311"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "MK66FN2M0xxx18"
+        "device_name": "MK66FN2M0xxx18",
+        "bootloader_supported": true
     },
     "K82F": {
         "supported_form_factors": ["ARDUINO"],
@@ -1135,7 +1139,8 @@
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F446RE"
+        "device_name": "STM32F446RE",
+        "bootloader_supported": true
     },
     "NUCLEO_F446ZE": {
         "inherits": ["FAMILY_STM32"],
@@ -1363,6 +1368,24 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32L476RG",
         "bootloader_supported": true
+    },
+    "SILICA_SENSOR_NODE": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "default_toolchain": "GCC_ARM",
+        "extra_labels_add": ["STM32L4", "STM32L476xG", "STM32L476JG"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "detect_code": ["0766"],
+        "macros_add": ["USBHOST_OTHER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "release_versions": ["5"],
+        "device_name": "STM32L476JG"
     },
     "NUCLEO_L486RG": {
         "inherits": ["FAMILY_STM32"],
@@ -1701,7 +1724,22 @@
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "STM32F439ZI",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "config": {
+            "usb_tx": {
+                "help": "Value: D8(default) or D1",
+                "value": "D8"
+            },
+            "usb_rx": {
+                "help": "Value: D2(default) or D0",
+                "value": "D2"
+            },
+            "stdio_uart": {
+                "help": "Value: UART_1(default) or UART_3",
+                "value": "UART_1",
+                "macro_name": "STDIO_UART"
+            }
+        }
     },
     "UBLOX_C030": {
         "inherits": ["FAMILY_STM32"],
@@ -1721,7 +1759,7 @@
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
-        "macros_add": ["RTC_LSI=1", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "RTC_LSI=1", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
         "device_has_add": ["ANALOGOUT", "SERIAL_FC", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "public": false,
@@ -3007,6 +3045,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_TICKLESS"],
+        "device_has": ["STCLK_OFF_DURING_SLEEP"],
         "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832", "NRF5", "SDK11", "NRF52_COMMON"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
@@ -3044,14 +3083,14 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
         "device_name": "nRF52832_xxAA"
     },
     "UBLOX_EVA_NINA": {
         "inherits": ["MCU_NRF52"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
         "overrides": {"uart_hwfc": 0},
         "device_name": "nRF52832_xxAA"
@@ -3060,7 +3099,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
         "device_name": "nRF52832_xxAA"
     },
@@ -3068,7 +3107,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52"],
         "macros_add": ["BOARD_PCA10040", "NRF52_PAN_12", "NRF52_PAN_15", "NRF52_PAN_58", "NRF52_PAN_55", "NRF52_PAN_54", "NRF52_PAN_31", "NRF52_PAN_30", "NRF52_PAN_51", "NRF52_PAN_36", "NRF52_PAN_53", "S132", "CONFIG_GPIO_AS_PINRESET", "BLE_STACK_SUPPORT_REQD", "SWI_DISABLE0", "NRF52_PAN_20", "NRF52_PAN_64", "NRF52_PAN_62", "NRF52_PAN_63"],
-        "device_has": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "device_has_add": ["ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
         "release_versions": ["2", "5"],
         "overrides": {"lf_clock_src": "NRF_LF_SRC_RC"},
         "config": {
@@ -3087,6 +3126,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": ["TARGET_NRF52840", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S140", "NRF_SD_BLE_API_VERSION=5", "NRF52840_XXAA", "NRF_DFU_SETTINGS_VERSION=1", "NRF_SD_BLE_API_VERSION=5", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "device_has": ["STCLK_OFF_DURING_SLEEP"],	    
         "extra_labels": ["NORDIC", "MCU_NRF52840", "NRF5", "SDK13", "NRF52_COMMON"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
@@ -3125,7 +3165,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
         "macros_add": ["BOARD_PCA10056", "CONFIG_GPIO_AS_PINRESET", "SWI_DISABLE0", "NRF52_ERRATA_20"],
-        "device_has": ["FLASH", "ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "TRNG"],
+        "device_has_add": ["FLASH", "ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name": "nRF52840_xxAA"
     },
@@ -3244,6 +3284,24 @@
         "extra_labels": ["NUVOTON", "NANO100", "NANO130KE3BN"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
+        "config": {
+            "gpio-irq-debounce-enable": {
+                "help": "Enable GPIO IRQ debounce",
+                "value": 0
+            },
+            "gpio-irq-debounce-enable-list": {
+                "help": "Comma separated pin list to enable GPIO IRQ debounce",
+                "value": "NC"
+            },
+            "gpio-irq-debounce-clock-source": {
+                "help": "Select GPIO IRQ debounce clock source: GPIO_DBCLKSRC_HCLK or GPIO_DBCLKSRC_IRC10K",
+                "value": "GPIO_DBCLKSRC_IRC10K"
+            },
+            "gpio-irq-debounce-sample-rate": {
+                "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCLKSEL_1, GPIO_DBCLKSEL_2, GPIO_DBCLKSEL_4, ..., or GPIO_DBCLKSEL_32768",
+                "value": "GPIO_DBCLKSEL_16"
+            }
+        },
         "inherits": ["Target"],
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],

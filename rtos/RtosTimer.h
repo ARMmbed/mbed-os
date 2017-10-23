@@ -131,13 +131,21 @@ public:
     }
 
     /** Stop the timer.
-      @return  status code that indicates the execution status of the function.
+      @return  status code that indicates the execution status of the function:
+          @a osOK the timer has been stopped.
+          @a osErrorISR @a stop cannot be called from interrupt service routines.
+          @a osErrorParameter internal error.
+          @a osErrorResource the timer is not running.
     */
     osStatus stop(void);
 
-    /** Start the timer.
-      @param   millisec  time delay value of the timer.
-      @return  status code that indicates the execution status of the function.
+    /** Start or restart the timer.
+      @param   millisec  non-zero value of the timer.
+      @return  status code that indicates the execution status of the function:
+          @a osOK the timer has been started or restarted.
+          @a osErrorISR @a start cannot be called from interrupt service routines.
+          @a osErrorParameter internal error or incorrect parameter value.
+          @a osErrorResource internal error (the timer is in an invalid timer state).
     */
     osStatus start(uint32_t millisec);
 

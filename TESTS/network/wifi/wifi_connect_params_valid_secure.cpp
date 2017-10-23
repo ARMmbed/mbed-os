@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited, All Rights Reserved
+ * Copyright (c) 2017, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,19 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __UVISOR_API_DEBUG_H__
-#define __UVISOR_API_DEBUG_H__
 
-#include "api/inc/debug_exports.h"
-#include "api/inc/uvisor_exports.h"
+#include "mbed.h"
+#include "greentea-client/test_env.h"
+#include "unity.h"
+#include "utest.h"
+#include "wifi_tests.h"
 
-UVISOR_EXTERN_C_BEGIN
+using namespace utest::v1;
 
-static UVISOR_FORCEINLINE void uvisor_debug_init(const TUvisorDebugDriver * const driver)
+void wifi_connect_params_valid_secure(void)
 {
-    uvisor_api.debug_init(driver);
+    WiFiInterface *wifi = get_interface();
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA2));
 }
-
-UVISOR_EXTERN_C_END
-
-#endif /* __UVISOR_API_DEBUG_H__ */

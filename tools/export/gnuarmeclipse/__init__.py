@@ -244,7 +244,7 @@ class GNUARMEclipse(Exporter):
             opts['ld']['system_libraries'] = self.system_libraries
             opts['ld']['script'] = join(id.capitalize(),
                                         "linker-script-%s.ld" % id)
-            opts['cpp_cmd'] = " ".join(toolchain.preproc)
+            opts['cpp_cmd'] = '"{}"'.format(toolchain.preproc[0]) + " " + " ".join(toolchain.preproc[1:])
 
             # Unique IDs used in multiple places.
             # Those used only once are implemented with {{u.id}}.
