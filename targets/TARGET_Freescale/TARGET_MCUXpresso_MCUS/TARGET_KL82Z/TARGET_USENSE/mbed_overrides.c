@@ -46,7 +46,7 @@ void NMI_Handler(void)
     gpio_init_in(&gpio, PTA4);
 }
 
-#ifdef DEVICE_RTC
+#if DEVICE_RTC || DEVICE_LOWPOWERTIMER
 // Enable the RTC oscillator if available on the board
 void rtc_setup_oscillator(RTC_Type *base)
 {
