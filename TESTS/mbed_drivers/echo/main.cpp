@@ -26,13 +26,18 @@ using namespace utest::v1;
 // Echo server (echo payload to host)
 template<int N>
 void test_case_echo_server_x() {
-    char _key[10] = {};
+    char _key[11] = {};
     char _value[128] = {};
     const int echo_count = N;
+    const char _key_const[] = "echo_count";
+    int expected_key = 1;
 
+    greentea_send_kv(_key_const, echo_count);
     // Handshake with host
-    greentea_send_kv("echo_count", echo_count);
-    greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+    do {
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+        expected_key = strcmp(_key_const, _key);
+    } while (expected_key);
     TEST_ASSERT_EQUAL_INT(echo_count, atoi(_value));
 
     for (int i=0; i < echo_count; ++i) {
@@ -48,12 +53,10 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 
 Case cases[] = {
     Case("Echo server: x16", test_case_echo_server_x<16>, greentea_failure_handler),
-    Case("Echo server: x32", test_case_echo_server_x<32>, greentea_failure_handler),
-    Case("Echo server: x64", test_case_echo_server_x<64>, greentea_failure_handler),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(180, "echo");
+    GREENTEA_SETUP(30, "echo");
     return greentea_test_setup_handler(number_of_cases);
 }
 

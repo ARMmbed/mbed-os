@@ -130,6 +130,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
         error("Cannot initialize ADC");
     }
+
+    // Calibrate ADC
+    HAL_ADCEx_Calibration_Start(&obj->handle, ADC_SINGLE_ENDED);
 }
 
 static inline uint16_t adc_read(analogin_t *obj)

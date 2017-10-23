@@ -505,24 +505,6 @@ uint8_t spi_active(spi_t *obj)
     return SPI_IS_BUSY(spi_base);
 }
 
-int spi_allow_powerdown(void)
-{
-    uint32_t modinit_mask = spi_modinit_mask;
-    while (modinit_mask) {
-        int spi_idx = nu_ctz(modinit_mask);
-        const struct nu_modinit_s *modinit = spi_modinit_tab + spi_idx;
-        if (modinit->modname != NC) {
-            SPI_T *spi_base = (SPI_T *) NU_MODBASE(modinit->modname);
-            if (SPI_IS_BUSY(spi_base)) {
-                return 0;
-            }
-        }
-        modinit_mask &= ~(1 << spi_idx);
-    }
-    
-    return 1;
-}
-
 void SPI0_IRQHandler(void)
 {
     spi_irq(spi0_var.obj);

@@ -17,6 +17,7 @@
 #include <stddef.h>
 #include "hal/ticker_api.h"
 #include "platform/mbed_critical.h"
+#include "mbed_assert.h"
 
 static void schedule_interrupt(const ticker_data_t *const ticker);
 static void update_present_time(const ticker_data_t *const ticker);
@@ -33,9 +34,31 @@ static void initialize(const ticker_data_t *ticker)
     }
 
     ticker->interface->init();
-    
+
+    const ticker_info_t *info = ticker->interface->get_info();
+    uint32_t frequency = info->frequency;
+    if (info->frequency == 0) {
+        MBED_ASSERT(0);
+        frequency = 1000000;
+    }
+
+    uint32_t bits = info->bits;
+    if ((info->bits > 32) || (info->bits < 4)) {
+        MBED_ASSERT(0);
+        bits = 32;
+    }
+    uint32_t max_delta = 0x7 << (bits - 4); // 7/16th
+    uint64_t max_delta_us =
+            ((uint64_t)max_delta * 1000000 + frequency - 1) / frequency;
+
     ticker->queue->event_handler = NULL;
     ticker->queue->head = NULL;
+    ticker->queue->tick_last_read = ticker->interface->read();
+    ticker->queue->tick_remainder = 0;
+    ticker->queue->frequency = frequency;
+    ticker->queue->bitmask = ((uint64_t)1 << bits) - 1;
+    ticker->queue->max_delta = max_delta;
+    ticker->queue->max_delta_us = max_delta_us;
     ticker->queue->present_time = 0;
     ticker->queue->initialized = true;
     
@@ -86,53 +109,143 @@ static us_timestamp_t convert_timestamp(us_timestamp_t ref, timestamp_t timestam
  * Update the present timestamp value of a ticker.
  */
 static void update_present_time(const ticker_data_t *const ticker)
-{ 
-    ticker->queue->present_time = convert_timestamp(
-        ticker->queue->present_time, 
-        ticker->interface->read()
-    );
+{
+
+    ticker_event_queue_t *queue = ticker->queue;
+    uint32_t ticker_time = ticker->interface->read();
+    if (ticker_time == ticker->queue->tick_last_read) {
+        // No work to do
+        return;
+    }
+
+    uint64_t elapsed_ticks = (ticker_time - queue->tick_last_read) & queue->bitmask;
+    queue->tick_last_read = ticker_time;
+
+    uint64_t elapsed_us;
+    if (1000000 == queue->frequency) {
+        // Optimized for 1MHz
+
+        elapsed_us = elapsed_ticks;
+    } else if (32768 == queue->frequency) {
+        // Optimized for 32KHz
+
+        uint64_t us_x_ticks = elapsed_ticks * 1000000;
+        elapsed_us = us_x_ticks >> 15;
+
+        // Update remainder
+        queue->tick_remainder += us_x_ticks - (elapsed_us << 15);
+        if (queue->tick_remainder >= queue->frequency) {
+            elapsed_us += 1;
+            queue->tick_remainder -= queue->frequency;
+        }
+    } else {
+        // General case
+
+        uint64_t us_x_ticks = elapsed_ticks * 1000000;
+        elapsed_us = us_x_ticks / queue->frequency;
+
+        // Update remainder
+        queue->tick_remainder += us_x_ticks - elapsed_us * queue->frequency;
+        if (queue->tick_remainder >= queue->frequency) {
+            elapsed_us += 1;
+            queue->tick_remainder -= queue->frequency;
+        }
+    }
+
+    // Update current time
+    queue->present_time += elapsed_us;
+}
+
+/**
+ * Given the absolute timestamp compute the hal tick timestamp.
+ */
+static timestamp_t compute_tick(const ticker_data_t *const ticker, us_timestamp_t timestamp)
+{
+    ticker_event_queue_t *queue = ticker->queue;
+    us_timestamp_t delta_us = timestamp - queue->present_time;
+
+    timestamp_t delta = ticker->queue->max_delta;
+    if (delta_us <=  ticker->queue->max_delta_us) {
+        // Checking max_delta_us ensures the operation will not overflow
+
+        if (1000000 == queue->frequency) {
+            // Optimized for 1MHz
+
+            delta = delta_us;
+            if (delta > ticker->queue->max_delta) {
+                delta = ticker->queue->max_delta;
+            }
+        } else if (32768 == queue->frequency) {
+            // Optimized for 32KHz
+
+            delta = (delta_us << 15) / 1000000;
+            if (delta > ticker->queue->max_delta) {
+                delta = ticker->queue->max_delta;
+            }
+        } else {
+            // General case
+
+            delta = delta_us * queue->frequency / 1000000;
+            if (delta > ticker->queue->max_delta) {
+                delta = ticker->queue->max_delta;
+            }
+        }
+    }
+    return (queue->tick_last_read + delta) & queue->bitmask;
+}
+
+/**
+ * Return 1 if the tick has incremented to or past match_tick, otherwise 0.
+ */
+int _ticker_match_interval_passed(timestamp_t prev_tick, timestamp_t cur_tick, timestamp_t match_tick)
+{
+    if (match_tick > prev_tick) {
+        return (cur_tick >= match_tick) || (cur_tick < prev_tick);
+    } else {
+        return (cur_tick < prev_tick) && (cur_tick >= match_tick);
+    }
 }
 
 /**
  * Compute the time when the interrupt has to be triggered and schedule it.  
  * 
  * If there is no event in the queue or the next event to execute is in more 
- * than MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA us from now then the ticker 
- * irq will be scheduled in MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA us.
- * Otherwise the irq will be scheduled to happen when the running counter reach 
- * the timestamp of the first event in the queue.
+ * than ticker.queue.max_delta ticks from now then the ticker irq will be
+ * scheduled in ticker.queue.max_delta ticks. Otherwise the irq will be
+ * scheduled to happen when the running counter reach the timestamp of the
+ * first event in the queue.
  * 
  * @note If there is no event in the queue then the interrupt is scheduled to 
- * in MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA. This is necessary to keep track 
+ * in ticker.queue.max_delta. This is necessary to keep track
  * of the timer overflow.
  */
 static void schedule_interrupt(const ticker_data_t *const ticker)
 {
+    ticker_event_queue_t *queue = ticker->queue;
     update_present_time(ticker);
-    uint32_t relative_timeout = MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA;
 
     if (ticker->queue->head) {
         us_timestamp_t present = ticker->queue->present_time;
-        us_timestamp_t next_event_timestamp = ticker->queue->head->timestamp;
+        us_timestamp_t match_time = ticker->queue->head->timestamp;
 
         // if the event at the head of the queue is in the past then schedule
         // it immediately.
-        if (next_event_timestamp <= present) {
+        if (match_time <= present) {
             ticker->interface->fire_interrupt();
             return;
-        } else if ((next_event_timestamp - present) < MBED_TICKER_INTERRUPT_TIMESTAMP_MAX_DELTA) {
-            relative_timeout = next_event_timestamp - present;
         }
-    } 
 
-    us_timestamp_t new_match_time = ticker->queue->present_time + relative_timeout;
-    ticker->interface->set_interrupt(new_match_time);
-    // there could be a delay, reread the time, check if it was set in the past
-    // As result, if it is already in the past, we fire it immediately
-    update_present_time(ticker);
-    us_timestamp_t present = ticker->queue->present_time;
-    if (present >= new_match_time) {
-        ticker->interface->fire_interrupt();
+        timestamp_t match_tick = compute_tick(ticker, match_time);
+        ticker->interface->set_interrupt(match_tick);
+        timestamp_t cur_tick = ticker->interface->read();
+
+        if (_ticker_match_interval_passed(queue->tick_last_read, cur_tick, match_tick)) {
+            ticker->interface->fire_interrupt();
+        }
+    } else {
+        uint32_t match_tick =
+                (queue->tick_last_read + queue->max_delta) & queue->bitmask;
+        ticker->interface->set_interrupt(match_tick);
     }
 }
 

@@ -75,6 +75,8 @@ void analogout_init(dac_t *obj, PinName pin) {
 
     // Configure DAC
     obj->handle.Instance = DAC;
+    obj->handle.State = HAL_DAC_STATE_RESET;
+
     if (HAL_DAC_Init(&obj->handle) != HAL_OK ) {
         error("HAL_DAC_Init failed");
     }

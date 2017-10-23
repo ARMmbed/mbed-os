@@ -78,6 +78,11 @@ void us_ticker_clear_interrupt(void);
  */
 void us_ticker_fire_interrupt(void);
 
+/** Get frequency and counter bits of this ticker.
+ *
+ */
+const ticker_info_t* us_ticker_get_info(void);
+
 /**@}*/
 
 #ifdef __cplusplus

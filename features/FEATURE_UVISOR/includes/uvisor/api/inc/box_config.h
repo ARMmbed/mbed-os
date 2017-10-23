@@ -18,6 +18,7 @@
 #define __UVISOR_API_BOX_CONFIG_H__
 
 #include "api/inc/uvisor_exports.h"
+#include "api/inc/debug_exports.h"
 #include "api/inc/page_allocator_exports.h"
 #include "api/inc/rpc_exports.h"
 #include <stddef.h>
@@ -168,5 +169,23 @@ UVISOR_EXTERN void const * const public_box_cfg_ptr;
     static const uint32_t __uvisor_box_heapsize = heap_size;
 
 #define __uvisor_ctx (((UvisorBoxIndex *) __uvisor_ps)->bss.address_of.context)
+
+
+/* Use this macro after calling the box configuration macro, in order to register your box as a debug box.
+ * It will create a valid debug driver struct with the halt_error_func parameter as its halt_error() function */
+#define UVISOR_DEBUG_DRIVER(box_name, halt_error_func) \
+        UVISOR_EXTERN TUvisorDebugDriver const __uvisor_debug_driver; \
+        TUvisorDebugDriver const __uvisor_debug_driver = { \
+            UVISOR_DEBUG_BOX_MAGIC, \
+            UVISOR_DEBUG_BOX_VERSION, \
+            &box_name ## _cfg, \
+            halt_error_func \
+        };
+
+/* Use this macro after calling the box configuration macro, in order to
+ * register the public box as a debug box. */
+#define UVISOR_PUBLIC_BOX_DEBUG_DRIVER(halt_error_func) \
+        UVISOR_DEBUG_DRIVER(public_box, halt_error_func)
+
 
 #endif /* __UVISOR_API_BOX_CONFIG_H__ */
