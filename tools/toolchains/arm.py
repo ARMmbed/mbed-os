@@ -49,7 +49,7 @@ class ARM(mbedToolchain):
                                extra_verbose=extra_verbose,
                                build_profile=build_profile)
 
-        if "ARM" not in target.supported_toolchains:
+        if "ARM" not in target.supported_toolchains and "uARM" not in target.supported_toolchains:
             raise NotSupportedException("ARM compiler support is required for ARM build")
 
         if target.core == "Cortex-M0+":
