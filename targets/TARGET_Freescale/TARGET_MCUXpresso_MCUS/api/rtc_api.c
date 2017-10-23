@@ -15,7 +15,7 @@
  */
 #include "rtc_api.h"
 
-#if DEVICE_RTC
+#if DEVICE_RTC || DEVICE_LOWPOWERTIMER
 
 #include "pinmap.h"
 #include "fsl_rtc.h"
