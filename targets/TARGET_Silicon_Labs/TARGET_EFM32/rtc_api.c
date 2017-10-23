@@ -22,7 +22,7 @@
  ******************************************************************************/
 
 #include "device.h"
-#if DEVICE_RTC
+#if DEVICE_RTC || DEVICE_LOWPOWERTIMER
 
 #include "rtc_api.h"
 #include "rtc_api_HAL.h"
