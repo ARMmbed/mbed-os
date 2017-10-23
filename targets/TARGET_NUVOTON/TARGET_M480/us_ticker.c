@@ -146,17 +146,10 @@ void us_ticker_clear_interrupt(void)
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer1hires_modinit.modname));
-
-    int delta = (int) (timestamp - us_ticker_read());
-    if (delta > 0) {
-        cd_major_minor_us = delta * US_PER_TICK;
-        us_ticker_arm_cd();
-    } else {
-        // NOTE: With us_ticker_fire_interrupt() introduced, upper layer would handle past event case.
-        //       This code fragment gets redundant, but it is still kept here for backward-compatible.
-        void us_ticker_fire_interrupt(void);
-        us_ticker_fire_interrupt();
-    }
+    
+    uint32_t delta = timestamp - us_ticker_read();
+    cd_major_minor_us = delta * US_PER_TICK;
+    us_ticker_arm_cd();
 }
 
 void us_ticker_fire_interrupt(void)
