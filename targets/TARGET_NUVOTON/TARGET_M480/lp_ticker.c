@@ -144,21 +144,13 @@ timestamp_t lp_ticker_read()
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t now = lp_ticker_read();
+    uint32_t delta = timestamp - lp_ticker_read();
     wakeup_tick = timestamp;
-
+    
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
-
-    int delta = (int) (timestamp - now);
-    if (delta > 0) {
-        cd_major_minor_clks = (uint64_t) delta * US_PER_TICK * TMR3_CLK_PER_SEC / US_PER_SEC;
-        lp_ticker_arm_cd();
-    } else {
-        // NOTE: With lp_ticker_fire_interrupt() introduced, upper layer would handle past event case.
-        //       This code fragment gets redundant, but it is still kept here for backward-compatible.
-        void lp_ticker_fire_interrupt(void);
-        lp_ticker_fire_interrupt();
-    }
+    
+    cd_major_minor_clks = (uint64_t) delta * US_PER_TICK * TMR3_CLK_PER_SEC / US_PER_SEC;
+    lp_ticker_arm_cd();
 }
 
 void lp_ticker_fire_interrupt(void)
