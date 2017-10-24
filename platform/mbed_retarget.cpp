@@ -252,7 +252,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
             /* The first part of the filename (between first 2 '/') is not a
              * registered mount point in the namespace.
              */
-            return handle_open_errors(-ENOENT, fh_i);
+            return handle_open_errors(-ENODEV, fh_i);
         }
 
         if (path.isFile()) {
@@ -260,7 +260,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
         } else {
             FileSystemHandle *fs = path.fileSystem();
             if (fs == NULL) {
-                return handle_open_errors(-ENOENT, fh_i);
+                return handle_open_errors(-ENODEV, fh_i);
             }
             int posix_mode = openmode_to_posix(openmode);
             int err = fs->open(&res, path.fileName(), posix_mode);
@@ -565,7 +565,7 @@ extern "C" int remove(const char *path) {
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
     if (fs == NULL) {
-        errno = ENOENT;
+        errno = ENODEV;
         return -1;
     }
 
@@ -585,7 +585,7 @@ extern "C" int rename(const char *oldname, const char *newname) {
     FileSystemHandle *fsNew = fpNew.fileSystem();
 
     if (fsOld == NULL) {
-        errno = ENOENT;
+        errno = ENODEV;
         return -1;
     }
 
@@ -625,7 +625,7 @@ extern "C" DIR *opendir(const char *path) {
     FilePath fp(path);
     FileSystemHandle* fs = fp.fileSystem();
     if (fs == NULL) {
-        errno = ENOENT;
+        errno = ENODEV;
         return NULL;
     }
 
@@ -677,7 +677,10 @@ extern "C" void seekdir(DIR *dir, off_t off) {
 extern "C" int mkdir(const char *path, mode_t mode) {
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
-    if (fs == NULL) return -1;
+    if (fs == NULL) {
+        errno = ENODEV;
+        return -1;
+    }
 
     int err = fs->mkdir(fp.fileName(), mode);
     if (err < 0) {
@@ -691,7 +694,10 @@ extern "C" int mkdir(const char *path, mode_t mode) {
 extern "C" int stat(const char *path, struct stat *st) {
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
-    if (fs == NULL) return -1;
+    if (fs == NULL) {
+        errno = ENODEV;
+        return -1;
+    }
 
     int err = fs->stat(fp.fileName(), st);
     if (err < 0) {
