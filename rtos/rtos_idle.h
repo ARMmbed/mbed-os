@@ -31,7 +31,17 @@
 extern "C" {
 #endif
 
+/**
+ * \defgroup rtos_Idle Idle hook function
+ * @{
+ */
+/** 
+ @note
+ Sets the hook function called by idle task
+ @param fptr Hook function pointer.
+ */
 void rtos_attach_idle_hook(void (*fptr)(void));
+/** @}*/
 
 #ifdef __cplusplus
 }
@@ -40,3 +50,4 @@ void rtos_attach_idle_hook(void (*fptr)(void));
 #endif
 
 /** @}*/
+

@@ -34,7 +34,11 @@
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
-
+/**
+ * \defgroup rtos_EventFlags EventFlags class
+ * @{
+ */
+ 
 /** The Queue class allow to control, send, receive, or wait for messages.
  A message can be a integer or pointer value  to a certain type T that is send
  to a thread or interrupt service routine.
@@ -119,8 +123,9 @@ private:
     char                          _queue_mem[queue_sz * (sizeof(T*) + sizeof(mbed_rtos_storage_message_t))];
     mbed_rtos_storage_msg_queue_t _obj_mem;
 };
+/** @}*/
+/** @}*/
 
 }
 #endif
 
-/** @}*/

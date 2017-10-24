@@ -39,6 +39,13 @@
 
 namespace mbed {
 
+/** \addtogroup drivers */
+
+/** Class providing buffered UART communication functionality using separate circular buffer for send and receive channels
+ *  
+ * @ingroup drivers
+ */
+
 class UARTSerial : private SerialBase, public FileHandle, private NonCopyable<UARTSerial> {
 
 public:

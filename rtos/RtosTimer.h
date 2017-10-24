@@ -33,7 +33,11 @@
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
-
+/**
+ * \defgroup rtos_RtosTimer RtosTimer class
+ * @{
+ */
+ 
 /** The RtosTimer class allow creating and and controlling of timer functions in the system.
  A timer function is called when a time period expires whereby both on-shot and
  periodic timers are possible. A timer can be started, restarted, or stopped.
@@ -161,9 +165,11 @@ private:
     mbed_rtos_storage_timer_t _obj_mem;
     mbed::Callback<void()> _function;
 };
+/** @}*/
+/** @}*/
 
 }
 
 #endif
 
-/** @}*/
+

@@ -58,13 +58,21 @@ typedef unsigned int  gid_t;    ///< Group ID
 
 #endif
 
+/** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_retarget Retarget functions
+ * @{
+ */
 
 /* DIR declarations must also be here */
 #if __cplusplus
 namespace mbed {
+    
 class FileHandle;
 class DirHandle;
 std::FILE *mbed_fdopen(FileHandle *fh, const char *mode);
+
 }
 typedef mbed::DirHandle DIR;
 #else
@@ -437,5 +445,9 @@ enum {
     DT_LNK,     ///< This is a symbolic link.
     DT_SOCK,    ///< This is a UNIX domain socket.
 };
+
+/**@}*/
+
+/**@}*/
 
 #endif /* RETARGET_H */

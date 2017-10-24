@@ -1,6 +1,11 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_toolchain Toolchain functions
+ * @{
+ */
+ 
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -381,4 +386,5 @@ typedef int FILEHANDLE;
 
 #endif
 
+/** @}*/
 /** @}*/
