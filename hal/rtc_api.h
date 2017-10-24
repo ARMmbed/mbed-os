@@ -21,8 +21,6 @@
 
 #include "device.h"
 
-#if DEVICE_RTC
-
 #include <time.h>
 
 #ifdef __cplusplus
@@ -68,8 +66,6 @@ void rtc_write(time_t t);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif
 
 #endif
