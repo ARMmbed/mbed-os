@@ -22,7 +22,17 @@
 #include <string.h>
 
 namespace mbed {
+
+
+typedef Callback<void()> *pFunctionPointer_t;
+class CallChainLink;
+
 /** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_CallChain CallChain class
+ * @{
+ */
 
 /** Group one or more functions in an instance of a CallChain, then call them in
  * sequence using CallChain::call(). Used mostly by the interrupt chaining code,
@@ -60,12 +70,7 @@ namespace mbed {
  *     chain.call();
  * }
  * @endcode
- * @ingroup platform
  */
-
-typedef Callback<void()> *pFunctionPointer_t;
-class CallChainLink;
-
 class CallChain : private NonCopyable<CallChain> {
 public:
     /** Create an empty chain
@@ -182,6 +187,10 @@ public:
 private:
     CallChainLink *_chain;
 };
+
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 

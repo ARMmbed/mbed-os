@@ -23,14 +23,17 @@
 
 namespace mbed {
 /** \addtogroup platform */
-
-
-/* Class FileLike
+/** @{*/
+/**
+ * \defgroup platform_FileLike FileLike class
+ * @{
+ */
+/** Class FileLike
+ *
  *  A file-like object is one that can be opened with fopen by
  *  fopen("/name", mode).
  *
  *  @note Synchronization level: Set by subclass
- *  @ingroup platform
  */
 class FileLike : public FileHandle, public FileBase, private NonCopyable<FileLike> {
 public:
@@ -42,6 +45,9 @@ public:
     virtual ~FileLike() {}
 };
 
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 

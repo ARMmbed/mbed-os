@@ -1,6 +1,11 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_sleep Sleep functions
+ * @{
+ */
+ 
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2017 ARM Limited
  *
@@ -168,4 +173,5 @@ __INLINE static void deepsleep(void)
 
 #endif
 
+/** @}*/
 /** @}*/

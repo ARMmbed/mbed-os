@@ -24,6 +24,15 @@
 #include <cstdarg>
 #include "Callback.h"
 
+namespace mbed {
+
+/** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_ATCmdParser ATCmdParser class
+ * @{
+ */
+
 /**
  * Parser class for parsing AT commands
  *
@@ -42,8 +51,6 @@
  * at.recv("OK");
  * @endcode
  */
-
-namespace mbed {
 
 class ATCmdParser : private NonCopyable<ATCmdParser>
 {
@@ -299,6 +306,11 @@ public:
     */
     bool process_oob(void);
 };
+
+/**@}*/
+
+/**@}*/
+
 } //namespace mbed
 
 #endif //MBED_ATCMDPARSER_H

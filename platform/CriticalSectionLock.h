@@ -22,6 +22,13 @@
 
 namespace mbed {
 
+/** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_CriticalSectionLock CriticalSectionLock functions
+ * @{
+ */
+
 /** RAII object for disabling, then restoring, interrupt state
   * Usage:
   * @code
@@ -65,6 +72,9 @@ public:
     }
 };
 
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 
