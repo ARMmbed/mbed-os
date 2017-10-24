@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __SERVICE_DISOVERY_H__
-#define __SERVICE_DISOVERY_H__
+#ifndef MBED_BLE_SERVICE_DISOVERY_H__
+#define MBED_BLE_SERVICE_DISOVERY_H__
 
 #include "UUID.h"
 #include "Gap.h"
@@ -24,34 +24,59 @@
 class DiscoveredService;
 class DiscoveredCharacteristic;
 
+/**
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ * @addtogroup client
+ * @{
+ */
+
+/**
+ * Host callback types needed by the service discovery procedure.
+ *
+ * This class is also an interface which may be used in vendor port to model
+ * the service discovery process. This interface shall not be used in user code.
+ *
+ * @important Implementing this interface is not a requirement for the
+ * implementation of the service discover process.
+ */
 class ServiceDiscovery {
 public:
-    /*
-     * Exposed application callback types.
+    /**
+     * Service discovered event handler.
+     *
+     * The callback shall accepts a pointer to a DiscoveredService as parameter.
+     *
+     * @important The argument passed to the callback may not persist after the
+     * callback invocation therefore the callbacks must make a shallow copy
+     * of the DiscoveredService passed as parameter to access its value beyond
+     * the callback scope.
      */
+    typedef FunctionPointerWithContext<const DiscoveredService *>
+        ServiceCallback_t;
 
     /**
-     * Callback type for when a matching service is found during service-
-     * discovery. The receiving function is passed in a pointer to a
-     * DiscoveredService object, which will remain valid for the lifetime of the
-     * callback. Memory for this object is owned by the BLE_API eventing
-     * framework. The application can safely make a persistent shallow-copy of
-     * this object to work with the service beyond the callback.
+     * Characteristic discovered event handler.
+     *
+     * The callback shall accepts a pointer to a DiscoveredCharacteristic as
+     * parameter.
+     *
+     * @important The argument passed to the callback may not persist after the
+     * callback invocation therefore the callbacks must make a shallow copy
+     * of the DiscoveredCharacteristic passed as parameter to access its value
+     * beyond the callback scope.
      */
-    typedef FunctionPointerWithContext<const DiscoveredService *> ServiceCallback_t;
+    typedef FunctionPointerWithContext<const DiscoveredCharacteristic *>
+        CharacteristicCallback_t;
 
     /**
-     * Callback type for when a matching characteristic is found during service-
-     * discovery. The receiving function is passed in a pointer to a
-     * DiscoveredCharacteristic object, which will remain valid for the lifetime
-     * of the callback. Memory for this object is owned by the BLE_API eventing
-     * framework. The application can safely make a persistent shallow-copy of
-     * this object to work with the characteristic beyond the callback.
-     */
-    typedef FunctionPointerWithContext<const DiscoveredCharacteristic *> CharacteristicCallback_t;
-
-    /**
-     * Callback type for when serviceDiscovery terminates.
+     * Service discovery ended event.
+     *
+     * The callback shall accepts a connection handle as parameter. This
+     * parameter is used to identify on which connection the service discovery
+     * process ended.
      */
     typedef FunctionPointerWithContext<Gap::Handle_t> TerminationCallback_t;
 
@@ -180,4 +205,10 @@ protected:
     CharacteristicCallback_t characteristicCallback;
 };
 
-#endif /* ifndef __SERVICE_DISOVERY_H__ */
+/**
+ * @}
+ * @}
+ * @}
+ */
+
+#endif /* ifndef MBED_BLE_SERVICE_DISOVERY_H__ */
