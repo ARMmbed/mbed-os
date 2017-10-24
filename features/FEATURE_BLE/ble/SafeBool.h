@@ -19,10 +19,23 @@
 
 /* Safe bool idiom, see : http://www.artima.com/cppsource/safebool.html */
 
+/**
+ * @file
+ * @addtogroup ble
+ * @{
+ * @addtogroup common
+ * @{
+ */
+
+/**
+ *  Private namespace used to host details of the SafeBool implementation.
+ */
 namespace SafeBool_ {
 /**
- * @brief Base class for all intances of SafeBool.
- * This base class reduces instantiation of trueTag function.
+ * Base class of all SafeBool instances.
+ *
+ * This non template base class exists to reduces the number of instantiation of
+ * the trueTag function.
  */
 class base {
   template<typename>
@@ -40,7 +53,7 @@ protected:
     void invalidTag() const;
 
     /**
-     * Member function which indicate true value.
+     * Special member function which indicate a true value.
      */
     void trueTag() const {}
 };
@@ -49,9 +62,14 @@ protected:
 }
 
 /**
- * @brief template class SafeBool use CRTP to made boolean conversion easy and correct.
- * Derived class should implement the function bool toBool() const to make this work. Inheritance
- * should be public.
+ * Safe conversion of objects in boolean context.
+ *
+ * Classes wanting to evaluation of their instances in boolean context must
+ * derive publicly from this class rather than implementing the easy to misuse
+ * operator bool().
+ *
+ * Descendant classes must implement the function bool toBool() const to enable
+ * the safe conversion in boolean context.
  *
  * @tparam T Type of the derived class
  *
@@ -61,7 +79,7 @@ protected:
  * public:
  *
  *      // boolean conversion
- *      bool toBool() {
+ *      bool toBool() const {
  *
  *      }
  * };
@@ -87,17 +105,17 @@ protected:
  * if(a == b) {
  *
  * }
- *
- *
  * @endcode
  */
 template <typename T>
 class SafeBool : public SafeBool_::base {
 public:
     /**
-     * Bool operator implementation, derived class has to provide bool toBool() const function.
+     * Bool operator implementation, derived class must provide a bool
+     * toBool() const function.
      */
-    operator BoolType_t() const {
+    operator BoolType_t() const
+    {
         return (static_cast<const T*>(this))->toBool()
             ? &SafeBool<T>::trueTag : 0;
     }
@@ -105,20 +123,32 @@ public:
 
 /**
  * Avoid conversion to bool between different classes.
+ *
+ * @important Will generate a compile time error if instantiated.
  */
 template <typename T, typename U>
-void operator==(const SafeBool<T>& lhs,const SafeBool<U>& rhs) {
+void operator==(const SafeBool<T>& lhs,const SafeBool<U>& rhs)
+{
     lhs.invalidTag();
     // return false;
 }
 
 /**
  * Avoid conversion to bool between different classes.
+ *
+ * @important Will generate a compile time error if instantiated.
  */
 template <typename T,typename U>
-void operator!=(const SafeBool<T>& lhs,const SafeBool<U>& rhs) {
+void operator!=(const SafeBool<T>& lhs,const SafeBool<U>& rhs)
+{
     lhs.invalidTag();
     // return false;
 }
+
+/**
+ * @}
+ * @}
+ */
+
 
 #endif /* BLE_API_SAFE_BOOL_H_ */
