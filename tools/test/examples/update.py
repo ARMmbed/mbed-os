@@ -456,7 +456,7 @@ def check_update_status(examples, github, tag):
             sys.exit(1)
 
         # Create the full repository filter component
-        org_str = ''.join(['repo:', 'ARMmbed/', example['name']])
+        org_str = ''.join(['repo:ARMmbed/', example['name']])
         filt = ' '.join([org_str, 'is:pr', tag])        
         merged = False
 
