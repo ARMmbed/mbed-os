@@ -32,7 +32,11 @@
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
-
+/**
+ * \defgroup rtos_Mutex Mutex class
+ * @{
+ */
+ 
 /** The Mutex class is used to synchronize the execution of threads.
  This is for example used to protect access to a shared resource.
 
@@ -85,8 +89,9 @@ private:
     osMutexAttr_t             _attr;
     mbed_rtos_storage_mutex_t _obj_mem;
 };
-
+/** @}*/
+/** @}*/
 }
 #endif
 
-/** @}*/
+

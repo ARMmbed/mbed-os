@@ -1,6 +1,4 @@
 
-/** \addtogroup platform */
-/** @{*/
 /*
  * Copyright (c) 2015-2016, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
@@ -29,6 +27,12 @@
 extern "C" {
 #endif
 
+/** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_critical critical section function
+ * @{
+ */
 
 /** Determine the current interrupts enabled state
   *
@@ -363,8 +367,11 @@ void *core_util_atomic_decr_ptr(void **valuePtr, ptrdiff_t delta);
 #ifdef __cplusplus
 } // extern "C"
 #endif
+/**@}*/
 
+/**@}*/
 
 #endif // __MBED_UTIL_CRITICAL_H__
 
-/** @}*/
+
+

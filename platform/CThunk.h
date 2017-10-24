@@ -1,6 +1,10 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_CThunk CThunk class
+ * @{
+ */
 /* General C++ Object Thunking class
  *
  * - allows direct callbacks to non-static C++ class functions
@@ -73,13 +77,11 @@
 
 /* IRQ/Exception compatible thunk entry function */
 typedef void (*CThunkEntry)(void);
-/** @}*/
 
 /**
  * Class for created a pointer with data bound to it
  *
  * @note Synchronization level: Not protected
- * @ingroup platform
  */
 template<class T>
 class CThunk
@@ -242,6 +244,10 @@ class CThunk
             __DSB();
         }
 };
+
+/**@}*/
+
+/**@}*/
 
 #endif/*__CTHUNK_H__*/
 

@@ -38,7 +38,11 @@ using namespace rtos;
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
-
+/**
+ * \defgroup rtos_Mail Mail class
+ * @{
+ */
+ 
 /** The Mail class allow to control, send, receive, or wait for mail.
  A mail is a memory block that is send to a thread or interrupt service routine.
   @tparam  T         data type of a single message element.
@@ -119,9 +123,12 @@ private:
     MemoryPool<T, queue_sz> _pool;
 };
 
+/** @}*/
+/** @}*/
+
 }
 
 #endif
 
 
-/** @}*/
+

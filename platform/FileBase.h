@@ -27,19 +27,22 @@ typedef int FILEHANDLE;
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
-
+    
 typedef enum {
     FilePathType,
     FileSystemPathType
 } PathType;
-/** @}*/
 
+/** \addtogroup platform */
+/** @{*/
 /**
- * @class FileBase
- * @ingroup platform
+ * \defgroup platform_FileBase FileBase class
+ * @{
  */
+/** Class FileBase
+ *
+ */
+ 
 class FileBase : private NonCopyable<FileBase> {
 public:
     FileBase(const char *name, PathType t);
@@ -61,6 +64,10 @@ private:
     const char * const _name;
     const PathType _path_type;
 };
+
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 

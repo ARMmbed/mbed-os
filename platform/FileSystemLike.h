@@ -25,6 +25,11 @@
 
 namespace mbed {
 /** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_FileSystemLike FileSystemLike functions
+ * @{
+ */
 
 
 /** A filesystem-like object is one that can be used to open file-like
@@ -34,7 +39,6 @@ namespace mbed {
  *  of the rest of the functions just return error values).
  *
  * @note Synchronization level: Set by subclass
- * @ingroup platform
  */
 class FileSystemLike : public FileSystemHandle, public FileBase, private NonCopyable<FileSystemLike> {
 public:
@@ -79,6 +83,9 @@ public:
     }
 };
 
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 
