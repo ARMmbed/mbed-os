@@ -33,8 +33,11 @@ extern "C" {
   * This function is called directly by core_util_critical_section_enter on
   * first entrance to a critical section.
   *
-  * The default behavior of this function is to save the current state of
-  * interrupts before disabling them.
+  * There is a default implementation of this function which will save the
+  * current state of interrupts before disabling them. This implementation can
+  * be found in mbed_critical_section_api.c. This behaviour is can be overridden
+  * on a per platform basis by providing a different implementation within the
+  * correct targets directory.
   *
   * The function is only called once per critical section by
   * core_util_critical_section_enter. When implementing this function for a
@@ -49,8 +52,11 @@ void hal_critical_section_enter(void);
   * This function is called directly by core_util_critical_section_exit on the
   * final exit from a critical section.
   *
-  * The default behavior of this function is to restore the state of interrupts
-  * as they were prior to entering this critical section.
+  * There is a default implementation of this function, it will restore the
+  * state of the interrupts as they were prior to entering this critical
+  * section, this implementation can be found in mbed_critical_section_api.c.
+  * This behavior is overridable by providing a different function
+  * implementation within the correct targets directory.
   *
   * This function is only called once per critical section. When implemented
   * for a specific platform it must restore any state that was saved upon

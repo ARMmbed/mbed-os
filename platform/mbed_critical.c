@@ -61,10 +61,10 @@ void core_util_critical_section_enter(void)
 // FIXME
 #ifdef FEATURE_UVISOR
     #warning "core_util_critical_section_enter needs fixing to work from unprivileged code"
-#endif /* FEATURE_UVISOR */
-
+#else
     // If the reentrancy counter overflows something has gone badly wrong.
     MBED_ASSERT(critical_section_reentrancy_counter < UINT32_MAX);
+#endif /* FEATURE_UVISOR */
 
     if (critical_section_reentrancy_counter == 0) {
         hal_critical_section_enter();
