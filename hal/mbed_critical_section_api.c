@@ -36,30 +36,17 @@ MBED_WEAK void hal_critical_section_enter(void)
 {
     critical_interrupts_enabled = are_interrupts_enabled();
 
-#ifndef FEATURE_UVISOR
-    // If we are in a nested critical section and interrupts are still enabled
-    // something has gone wrong.
-    MBED_ASSERT(!are_interrupts_enabled());
-#else
-    #warning "core_util_critical_section_enter needs fixing to work from unprivileged code"
-#endif /* FEATURE_UVISOR */
-
     __disable_irq();
 }
 
 
 MBED_WEAK void hal_critical_section_exit()
 {
-// FIXME
-#ifndef FEATURE_UVISOR
     // Interrupts must be disabled on invoking an exit from a critical section
     MBED_ASSERT(!are_interrupts_enabled());
-#else
-    #warning "core_util_critical_section_exit needs fixing to work from unprivileged code"
-#endif /* FEATURE_UVISOR */
 
     // Restore the IRQs to their state prior to entering the critical section
     if (critical_interrupts_enabled == true) {
-      __enable_irq();
+        __enable_irq();
     }
 }
