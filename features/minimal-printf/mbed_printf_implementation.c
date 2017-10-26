@@ -22,6 +22,10 @@
 /* MBED                    */
 /***************************/
 #if TARGET_LIKE_MBED
+/*
+ Serial initialization and new line replacement is a direct copy from mbed_retarget.cpp
+ If the static modifier were to be removed, this part of the code would not be necessary.
+*/
 #include "hal/serial_api.h"
 
 #if DEVICE_SERIAL
@@ -56,8 +60,10 @@ static void init_serial()
 /* Linux                   */
 /***************************/
 #else
+/* Linux implementation is for debug only */
 #define MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT 1
-#define MBED_CONF_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS 16
+#define MBED_CONF_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS 6
+#define MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT 1
 #define MBED_INITIALIZE_PRINT(x) { ; }
 #define MBED_PRINT_CHARACTER(x) { printf("%c", x); }
 #endif
@@ -67,13 +73,18 @@ static void init_serial()
 #endif
 
 #ifndef MBED_CONF_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS
-#define MBED_CONF_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS 16
+#define MBED_CONF_MINIMAL_PRINTF_SET_FLOATING_POINT_MAX_DECIMALS 6
 #endif
 
 #ifndef MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
 #define MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT 1
 #endif
 
+/**
+ * Check architecture and choose storage data type.
+ * On 32 bit machines, the default storage type is 32 bit wide
+ * unless 64 bit integers are enabled in the configuration.
+ */
 #if INTPTR_MAX == INT32_MAX
 #define MBED_SIGNED_NATIVE_TYPE int32_t
 #define MBED_UNSIGNED_NATIVE_TYPE uint32_t
@@ -94,6 +105,9 @@ static void init_serial()
 #error unsupported architecture
 #endif
 
+/**
+ * Enum for storing width modifier.
+ */
 typedef enum {
     LENGTH_NONE,
     LENGTH_HH,
@@ -106,14 +120,24 @@ typedef enum {
     LENGTH_CAPITAL_L
 } length_t;
 
+/**
+ * Prototypes
+ */
 static void mbed_minimal_formatted_string_signed(char* buffer, size_t length, int* result, MBED_SIGNED_STORAGE value);
 static void mbed_minimal_formatted_string_unsigned(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value);
 static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value);
-
 static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t length, int* result, void* value);
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, char character);
 static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, char* string);
 
+/**
+ * @brief      Print signed integer.
+ *
+ * @param      buffer  The buffer to store output (NULL for stdout).
+ * @param[in]  length  The length of the buffer.
+ * @param      result  The current output location.
+ * @param[in]  value   The value to be printed.
+ */
 static void mbed_minimal_formatted_string_signed(char* buffer, size_t length, int* result, MBED_SIGNED_STORAGE value)
 {
     /* only continue if buffer can fit at least 1 characters */
@@ -136,8 +160,8 @@ static void mbed_minimal_formatted_string_signed(char* buffer, size_t length, in
 
             *result += 1;
 
-            /* get absolute value */
-            new_value = (-1 * value);
+            /* get absolute value using two's complement */
+            new_value = ~((MBED_UNSIGNED_STORAGE) value) + 1;
         }
         else
         {
@@ -149,6 +173,14 @@ static void mbed_minimal_formatted_string_signed(char* buffer, size_t length, in
     }
 }
 
+/**
+ * @brief      Print unsigned integer.
+ *
+ * @param      buffer  The buffer to store output (NULL for stdout).
+ * @param[in]  length  The length of the buffer.
+ * @param      result  The current output location.
+ * @param[in]  value   The value to be printed.
+ */
 static void mbed_minimal_formatted_string_unsigned(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value)
 {
     /* only continue if buffer can fit at least 1 characters */
@@ -203,6 +235,14 @@ static void mbed_minimal_formatted_string_unsigned(char* buffer, size_t length, 
     }
 }
 
+/**
+ * @brief      Print hexadecimal.
+ *
+ * @param      buffer  The buffer to store output (NULL for stdout).
+ * @param[in]  length  The length of the buffer.
+ * @param      result  The current output location.
+ * @param[in]  value   The value to be printed.
+ */
 static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t length, int* result, MBED_UNSIGNED_STORAGE value)
 {
     bool print_leading_zero = false;
@@ -210,10 +250,13 @@ static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t lengt
     /* only continue each loop if buffer can fit at least 2 characters */
     for (ssize_t index = 7; (((size_t)(*result + 2) <= length)) && (index >= 0); index--)
     {
+        /* get most significant byte */
         uint8_t output = value >> (8 * index);
 
+        /* only print leading zeros when set */
         if (print_leading_zero || (output != 0) || (index == 0))
         {
+            /* print zeroes after the first non-zero byte */
             print_leading_zero = true;
 
             unsigned int nibble_one = (output >> 4);
@@ -222,6 +265,7 @@ static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t lengt
             const char int2hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
                                        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
+            /* write to buffer or stdout */
             if (buffer)
             {
                 buffer[*result] = int2hex[nibble_one];
@@ -238,11 +282,20 @@ static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t lengt
     }
 }
 
+/**
+ * @brief      Print pointer.
+ *
+ * @param      buffer  The buffer to store output (NULL for stdout).
+ * @param[in]  length  The length of the buffer.
+ * @param      result  The current output location.
+ * @param[in]  value   The pointer to be printed.
+ */
 static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t length, int* result, void* value)
 {
     /* only continue if buffer can fit '0x' and twice the size of a void* */
     if ((*result + 2 + 2 * sizeof(void*)) <= length)
     {
+        /* write leading 0x */
         if (buffer)
         {
             buffer[*result] = '0';
@@ -256,18 +309,27 @@ static void mbed_minimal_formatted_string_void_pointer(char* buffer, size_t leng
 
         *result += 2;
 
+        /* write rest as a regular hexadecimal number */
         mbed_minimal_formatted_string_hexadecimal(buffer, length, result, (ptrdiff_t) value);
     }
 }
 
 #if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
+/**
+ * @brief      Write double.
+ *
+ * @param      buffer  The buffer to store output (NULL for stdout).
+ * @param[in]  length  The length of the buffer.
+ * @param      result  The current output location.
+ * @param[in]  value   The value to be printed.
+ */
 static void mbed_minimal_formatted_string_double(char* buffer, size_t length, int* result, double value)
 {
     /* only continue if buffer can fit at least 1 characters */
     if ((size_t)(*result + 1) <= length)
     {
         /* get integer part */
-        long int integer = value;
+        MBED_SIGNED_STORAGE integer = value;
 
         /* write integer part */
         mbed_minimal_formatted_string_signed(buffer, length, result, integer);
@@ -283,12 +345,27 @@ static void mbed_minimal_formatted_string_double(char* buffer, size_t length, in
             precision *= 10;
         }
 
-        long int decimal = (value - integer) * precision;
+        value = (value - integer) * precision;
 
-        /* take absolute value */
-        if (decimal < 0)
+        /* convert to unsigned integer */
+        MBED_UNSIGNED_STORAGE decimal = 0;
+
+        if (value < 0)
         {
-            decimal = -1 * decimal;
+            MBED_SIGNED_STORAGE temp = value;
+            decimal = ~((MBED_UNSIGNED_STORAGE) temp) + 1;
+        }
+        else
+        {
+            decimal = value;
+        }
+
+        /* round up or down */
+        value -= decimal;
+
+        if (!((value > -0.5) && (value < 0.5)))
+        {
+            decimal++;
         }
 
         /* write decimal part */
@@ -297,26 +374,39 @@ static void mbed_minimal_formatted_string_double(char* buffer, size_t length, in
 }
 #endif
 
+/**
+ * @brief      Print character.
+ *
+ * @param      buffer  The buffer to store output (NULL for stdout).
+ * @param[in]  length  The length of the buffer.
+ * @param      result  The current output location.
+ * @param[in]  value   The character to be printed.
+ */
 static void mbed_minimal_formatted_string_character(char* buffer, size_t length, int* result, char character)
 {
     /* only continue if the buffer can fit 1 character */
     if ((size_t)(*result + 1) <= length)
     {
+        /* write character */
         if (buffer)
         {
             buffer[*result] = character;
         }
         else
         {
+            /* convert \n to \r\n if enabled in platform configuration */
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
             if (character == '\n' && mbed_stdio_out_prev != '\r')
             {
                 MBED_PRINT_CHARACTER('\r');
                 *result += 1;
             }
+
+            /* cache character */
             mbed_stdio_out_prev = character;
 #endif
 
+            /* write character to stdout */
             MBED_PRINT_CHARACTER(character);
         }
 
@@ -324,10 +414,18 @@ static void mbed_minimal_formatted_string_character(char* buffer, size_t length,
     }
 }
 
+/**
+ * @brief      Print string.
+ *
+ * @param      buffer  The buffer to store output (NULL for stdout).
+ * @param[in]  length  The length of the buffer.
+ * @param      result  The current output location.
+ * @param[in]  value   The string to be printed.
+ */
 static void mbed_minimal_formatted_string_string(char* buffer, size_t length, int* result, char* string)
 {
     /* only continue if the buffer can fit at least 1 character */
-    if ((*result + 1) <= (long int) length)
+    if ((size_t)(*result + 1) <= length)
     {
         /* count characters in string */
         size_t remaining = length - *result;
@@ -361,8 +459,19 @@ static void mbed_minimal_formatted_string_string(char* buffer, size_t length, in
     }
 }
 
+/**
+ * @brief      Parse formatted string and invoke write handlers based on type.
+ *
+ * @param      buffer     The buffer to write to, write to stdout if NULL.
+ * @param[in]  length     The length of the buffer.
+ * @param[in]  format     The formatted string.
+ * @param[in]  arguments  The va_list arguments.
+ *
+ * @return     Number of characters written.
+ */
 int mbed_minimal_formatted_string(char* buffer, size_t length, const char* format, va_list arguments)
 {
+    /* initialize output if needed */
     MBED_INITIALIZE_PRINT();
 
     int result = 0;
@@ -394,6 +503,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                 next_index++;
             }
 
+            /* look for length modifier, default to NONE */
             length_t length_modifier = LENGTH_NONE;
 
             /* look for two character length modifier */
@@ -450,7 +560,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                 }
             }
 
-            /* read out character - this a supported format character, '\0', or a not suported character */
+            /* read out character - this is a supported format character, '\0', or a not suported character */
             char next = format[next_index];
 
             /* signed integer */
@@ -459,18 +569,22 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                 MBED_SIGNED_STORAGE value = 0;
 
 #if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
+                /* if 64 bit is enabled and the integer types are larger than the native type */
                 if (((length_modifier == LENGTH_LL)   && (sizeof(long long int) > sizeof(MBED_SIGNED_NATIVE_TYPE))) ||
                     ((length_modifier == LENGTH_L)    && (sizeof(long int)      > sizeof(MBED_SIGNED_NATIVE_TYPE))) ||
                     ((length_modifier == LENGTH_NONE) && (sizeof(int)           > sizeof(MBED_SIGNED_NATIVE_TYPE))))
                 {
+                    /* use 64 bit storage type for readout */
                     value = va_arg(arguments, MBED_SIGNED_STORAGE);
                 }
                 else
 #endif
                 {
+                    /* use native storage type (which can be 32 or 64 bit) */
                     value = va_arg(arguments, MBED_SIGNED_NATIVE_TYPE);
                 }
 
+                /* constrict value based on lenght modifier */
                 switch (length_modifier)
                 {
                     case LENGTH_NONE:
@@ -511,18 +625,22 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                 MBED_UNSIGNED_STORAGE value = 0;
 
 #if MBED_CONF_MINIMAL_PRINTF_ENABLE_64_BIT
+                /* if 64 bit is enabled and the integer types are larger than the native type */
                 if (((length_modifier == LENGTH_LL)   && (sizeof(unsigned long long int) > sizeof(MBED_UNSIGNED_NATIVE_TYPE))) ||
                     ((length_modifier == LENGTH_L)    && (sizeof(unsigned long int)      > sizeof(MBED_UNSIGNED_NATIVE_TYPE))) ||
                     ((length_modifier == LENGTH_NONE) && (sizeof(unsigned int)           > sizeof(MBED_UNSIGNED_NATIVE_TYPE))))
                 {
+                    /* use 64 bit storage type for readout */
                     value = va_arg(arguments, MBED_UNSIGNED_STORAGE);
                 }
                 else
 #endif
                 {
+                    /* use native storage type (which can be 32 or 64 bit) */
                     value = va_arg(arguments, MBED_UNSIGNED_NATIVE_TYPE);
                 }
 
+                /* constrict value based on lenght modifier */
                 switch (length_modifier)
                 {
                     case LENGTH_NONE:
@@ -555,6 +673,7 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
 
                 index = next_index;
 
+                /* write unsigned or hexadecimal */
                 if (next == 'u')
                 {
                     mbed_minimal_formatted_string_unsigned(buffer, length, &result, value);
@@ -620,7 +739,9 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
             }
         }
         else
+        /* not a format specifier */
         {
+            /* write normal character */
             mbed_minimal_formatted_string_character(buffer, length, &result, format[index]);
         }
     }

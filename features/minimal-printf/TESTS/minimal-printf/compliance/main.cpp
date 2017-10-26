@@ -229,7 +229,7 @@ static control_t test_printf_x(const size_t call_count)
     TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     result_minimal = mbed_printf("lX: %lX\r\n", 0);
-    result_baseline = printf("lX: %lX\r\n", 0);
+    result_baseline = printf("lX: %lX\r\n", 0UL);
     TEST_ASSERT_EQUAL_INT(8, result_minimal);
 
     result_minimal = mbed_printf("lX: %lX\r\n", ULONG_MAX);
@@ -267,11 +267,6 @@ static control_t test_printf_x(const size_t call_count)
     result_minimal = mbed_printf("tX: %tX\r\n", UINTPTR_MAX);
     result_baseline = printf("tX: %tX\r\n", UINTPTR_MAX);
     TEST_ASSERT_EQUAL_INT(22, result_minimal);
-
-//    result_minimal = mbed_snprintf(buffer_minimal, 1000, "hello world %d %u %X %p %s %2.5f %% %\r\n", LONG_MIN, 0, 0, buffer, "muh", -1*pi);
-//    mbed_printf("%s\r\n", buffer);
-
-//    mbed_printf("results: %d\r\n", result);
 
     return CaseNext;
 }
@@ -562,10 +557,60 @@ static control_t test_snprintf_x(const size_t call_count)
     TEST_ASSERT_EQUAL_STRING("tX: FFFFFFFFFFFFFFFF\r\n", buffer_minimal);
     TEST_ASSERT_EQUAL_INT(22, result_minimal);
 
-//    result_minimal = mbed_snprintf(buffer_minimal, 1000, "hello world %d %u %X %p %s %2.5f %% %\r\n", LONG_MIN, 0, 0, buffer, "muh", -1*pi);
-//    mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "%s\r\n", buffer);
+    return CaseNext;
+}
 
-//    mbed_printf("results: %d\r\n", result);
+static control_t test_printf_f(const size_t call_count)
+{
+    int result_baseline;
+    int result_minimal;
+
+    /*************************************************************************/
+    /*************************************************************************/
+
+    double pi = 3.14159265359;
+
+    result_minimal = mbed_printf("f: %f\r\n", -1 * pi);
+    result_baseline = printf("f: %f\r\n", -1 * pi);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_printf("f: %f\r\n", 0);
+    result_baseline = printf("f: %f\r\n", 0);
+    TEST_ASSERT_EQUAL_INT(8, result_minimal);
+
+    result_minimal = mbed_printf("f: %f\r\n", pi);
+    result_baseline = printf("f: %f\r\n", pi);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    return CaseNext;
+}
+
+static control_t test_snprintf_f(const size_t call_count)
+{
+    char buffer_baseline[100];
+    char buffer_minimal[100];
+    int result_baseline;
+    int result_minimal;
+
+    /*************************************************************************/
+    /*************************************************************************/
+
+    double pi = 3.14159265359;
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %f\r\n", -1 * pi);
+    result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "f: %f\r\n", -1 * pi);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %f\r\n", 0);
+    result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "f: %f\r\n", 0);
+    TEST_ASSERT_EQUAL_STRING("f: 0.0\r\n", buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(8, result_minimal);
+
+    result_minimal = mbed_snprintf(buffer_minimal, sizeof(buffer_minimal), "f: %f\r\n", pi);
+    result_baseline = snprintf(buffer_baseline, sizeof(buffer_baseline), "f: %f\r\n", pi);
+    TEST_ASSERT_EQUAL_STRING(buffer_baseline, buffer_minimal);
+    TEST_ASSERT_EQUAL_INT(result_baseline, result_minimal);
 
     return CaseNext;
 }
@@ -578,11 +623,15 @@ utest::v1::status_t greentea_setup(const size_t number_of_cases)
 
 Case cases[] = {
     Case("printf %d", test_printf_d),
-    Case("printf %u", test_printf_u),
-    Case("printf %x", test_printf_x),
     Case("snprintf %d", test_snprintf_d),
+    Case("printf %u", test_printf_u),
     Case("snprintf %u", test_snprintf_u),
+    Case("printf %x", test_printf_x),
     Case("snprintf %x", test_snprintf_x),
+#if MBED_CONF_MINIMAL_PRINTF_ENABLE_FLOATING_POINT
+    Case("printf %f", test_printf_f),
+    Case("snprintf %f", test_snprintf_f),
+#endif
 };
 
 Specification specification(greentea_setup, cases, greentea_test_teardown_handler);
