@@ -57,7 +57,6 @@ static int32_t flash_lock(void)
 
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
-    uint32_t FirstPage = 0;
     uint32_t PAGEError = 0;
     FLASH_EraseInitTypeDef EraseInitStruct;
     int32_t status = 0;
