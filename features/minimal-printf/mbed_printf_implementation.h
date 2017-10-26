@@ -16,9 +16,5 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-//#include <limits.h>
-//#include <stdbool.h>
-//#include <inttypes.h>
-//#include <stddef.h>
 
 int mbed_minimal_formatted_string(char* buffer, size_t length, const char* format, va_list arguments);
