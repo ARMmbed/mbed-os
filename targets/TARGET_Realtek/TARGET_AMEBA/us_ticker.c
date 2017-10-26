@@ -21,7 +21,7 @@
 
 #define TICK_READ_FROM_CPU  0   // 1: read tick from CPU, 0: read tick from G-Timer
 #define SYS_TIM_ID          1   // the G-Timer ID for System
-#define APP_TIM_ID          6   // the G-Timer ID for Application
+#define APP_TIM_ID          2   // the G-Timer ID for Application
 
 /*
  * For RTL8195AM, clock source is 32k
