@@ -21,7 +21,7 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
-#define NUM_THREADS         5
+#define NUM_THREADS         3
 
 #if defined(__CORTEX_A9)
 #define THREAD_STACK_SIZE   DEFAULT_STACK_SIZE
@@ -55,8 +55,8 @@ void task_using_malloc(void)
 int main()
 {
     Thread *thread_list[NUM_THREADS];
-    int test_time = 15;
-    GREENTEA_SETUP(20, "default_auto");
+    int test_time = 30;
+    GREENTEA_SETUP(40, "default_auto");
 
     // Allocate threads for the test
     for (int i = 0; i < NUM_THREADS; i++) {

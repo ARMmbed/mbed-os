@@ -25,7 +25,11 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+#if defined(TARGET_NUCLEO_F070RB) || defined(TARGET_NUCLEO_F072RB)
+#define THREAD_STACK_SIZE 512
+#else
 #define THREAD_STACK_SIZE 768
+#endif
 
 using namespace utest::v1;
 
@@ -272,7 +276,7 @@ void signal_wait_multibit_tout()
 template <int S, void (*F)()>
 void test_thread_signal()
 {
-    Thread t_wait;
+    Thread t_wait(osPriorityNormal, THREAD_STACK_SIZE);
 
     t_wait.start(callback(F));
 
@@ -308,7 +312,7 @@ void signal_clr()
  */
 void test_thread_signal_clr()
 {
-    Thread t_wait;
+    Thread t_wait(osPriorityNormal, THREAD_STACK_SIZE);
 
     t_wait.start(callback(signal_clr));
 
@@ -413,7 +417,7 @@ void test_deleted_thread()
  */
 void test_deleted()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     TEST_ASSERT_EQUAL(Thread::Deleted, t.get_state());
 
@@ -436,7 +440,7 @@ void test_delay_thread()
  */
 void test_delay()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     t.start(callback(test_delay_thread));
 
@@ -461,7 +465,7 @@ void test_signal_thread()
  */
 void test_signal()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     t.start(callback(test_signal_thread));
 
@@ -485,7 +489,7 @@ void test_evt_flag_thread(osEventFlagsId_t evtflg)
  */
 void test_evt_flag()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     mbed_rtos_storage_event_flags_t evtflg_mem;
     osEventFlagsAttr_t evtflg_attr;
     osEventFlagsId_t evtflg;
@@ -517,7 +521,7 @@ void test_mutex_thread(Mutex *mutex)
  */
 void test_mutex()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Mutex mutex;
 
     mutex.lock();
@@ -544,7 +548,7 @@ void test_semaphore_thread(Semaphore *sem)
  */
 void test_semaphore()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Semaphore sem;
 
     t.start(callback(test_semaphore_thread, &sem));
@@ -569,7 +573,7 @@ void test_msg_get_thread(Queue<int32_t, 1> *queue)
  */
 void test_msg_get()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<int32_t, 1> queue;
 
     t.start(callback(test_msg_get_thread, &queue));
@@ -595,7 +599,7 @@ void test_msg_put_thread(Queue<int32_t, 1> *queue)
  */
 void test_msg_put()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<int32_t, 1> queue;
 
     queue.put((int32_t *)0xE1EE7);
@@ -643,7 +647,7 @@ void test_thread_ext_stack() {
     then priority is changed and can be retrieved using @a get_priority
  */
 void test_thread_prio() {
-    Thread t(osPriorityNormal);
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     t.start(callback(thread_wait_signal));
 
     TEST_ASSERT_EQUAL(osPriorityNormal, t.get_priority());
@@ -667,23 +671,23 @@ utest::v1::status_t test_setup(const size_t number_of_cases) {
 // macros don't play nicely with the templates (extra comma).
 static const case_t cases[] = {
     {"Testing single thread", test_single_thread<increment>, DEFAULT_HANDLERS},
-    {"Testing parallel threads", test_parallel_threads<3, increment> , DEFAULT_HANDLERS},
+    {"Testing parallel threads", test_parallel_threads<2, increment> , DEFAULT_HANDLERS},
     {"Testing serial threads", test_serial_threads<10, increment> , DEFAULT_HANDLERS},
 
     {"Testing single thread with yield", test_single_thread<increment_with_yield>, DEFAULT_HANDLERS},
-    {"Testing parallel threads with yield", test_parallel_threads<3, increment_with_yield>, DEFAULT_HANDLERS},
+    {"Testing parallel threads with yield", test_parallel_threads<2, increment_with_yield>, DEFAULT_HANDLERS},
     {"Testing serial threads with yield", test_serial_threads<10, increment_with_yield>, DEFAULT_HANDLERS},
 
     {"Testing single thread with wait", test_single_thread<increment_with_wait>, DEFAULT_HANDLERS},
-    {"Testing parallel threads with wait", test_parallel_threads<3, increment_with_wait>, DEFAULT_HANDLERS},
+    {"Testing parallel threads with wait", test_parallel_threads<2, increment_with_wait>, DEFAULT_HANDLERS},
     {"Testing serial threads with wait", test_serial_threads<10, increment_with_wait>, DEFAULT_HANDLERS},
 
     {"Testing single thread with child", test_single_thread<increment_with_child>, DEFAULT_HANDLERS},
-    {"Testing parallel threads with child", test_parallel_threads<3, increment_with_child>, DEFAULT_HANDLERS},
+    {"Testing parallel threads with child", test_parallel_threads<1, increment_with_child>, DEFAULT_HANDLERS},
     {"Testing serial threads with child", test_serial_threads<10, increment_with_child>, DEFAULT_HANDLERS},
 
     {"Testing single thread with murder", test_single_thread<increment_with_murder>, DEFAULT_HANDLERS},
-    {"Testing parallel threads with murder", test_parallel_threads<3, increment_with_murder>, DEFAULT_HANDLERS},
+    {"Testing parallel threads with murder", test_parallel_threads<1, increment_with_murder>, DEFAULT_HANDLERS},
     {"Testing serial threads with murder", test_serial_threads<10, increment_with_murder>, DEFAULT_HANDLERS},
 
     {"Testing thread self terminate", test_self_terminate, DEFAULT_HANDLERS},
