@@ -63,6 +63,12 @@
  * @{
  */
 
+#if defined(TARGET_LPC1768) || defined(TARGET_LPC1769)
+/** \brief Group LPC17xx processors into one definition
+ */
+#define TARGET_LPC17XX
+#endif
+
 #if NO_SYS == 0
 /** \brief  Driver transmit and receive thread priorities
  *
@@ -146,7 +152,7 @@ struct lpc_enetdata {
 #  else
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
 #  endif
-#elif defined(TARGET_LPC1768)
+#elif defined(TARGET_LPC17XX)
 #  if defined(TOOLCHAIN_GCC_ARM)
 #     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
 #  endif
@@ -370,7 +376,7 @@ static struct pbuf *lpc_low_level_input(struct netif *netif)
     			LWIP_DEBUGF(UDP_LPC_EMAC | LWIP_DBG_TRACE,
                     ("lpc_low_level_input: Packet index %"U32_F" dropped for OOM\n",
     				idx));
-			
+
 #ifdef LOCK_RX_THREAD
 #if NO_SYS == 0
         		sys_mutex_unlock(&lpc_enetif->TXLockMutex);
@@ -428,7 +434,7 @@ void lpc_enetif_input(struct netif *netif)
  */
 static s32_t lpc_packet_addr_notsafe(void *addr) {
 	/* Check for legal address ranges */
-#if defined(TARGET_LPC1768)
+#if defined(TARGET_LPC17XX)
 	if ((((u32_t) addr >= 0x2007C000) && ((u32_t) addr < 0x20083FFF))) {
 #elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
 	if ((((u32_t) addr >= 0x20000000) && ((u32_t) addr < 0x20007FFF))) {
@@ -790,7 +796,7 @@ static err_t low_level_init(struct netif *netif)
 	/* Enable MII clocking */
 	LPC_SC->PCONP |= CLKPWR_PCONP_PCENET;
 
-#if defined(TARGET_LPC1768)
+#if defined(TARGET_LPC17XX)
 	LPC_PINCON->PINSEL2 = 0x50150105;                  /* Enable P1 Ethernet Pins. */
 	LPC_PINCON->PINSEL3 = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000005;
 #elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
