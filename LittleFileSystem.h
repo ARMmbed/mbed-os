@@ -65,7 +65,7 @@ public:
             lfs_size_t lookahead=MBED_LFS_LOOKAHEAD);
     virtual ~LittleFileSystem();
     
-    /** Formats a logical drive, FDISK partitioning rule.
+    /** Formats a block device with the LittleFileSystem
      *
      *  The block device to format should be mounted when this function is called.
      *
@@ -106,6 +106,18 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual int unmount();
+
+    /** Reformats a filesystem, results in an empty and mounted filesystem
+     *
+     *  @param bd
+     *      BlockDevice to reformat and mount. If NULL, the mounted
+     *      block device will be used.
+     *      Note: if mount fails, bd must be provided.
+     *      Default: NULL
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int reformat(BlockDevice *bd);
 
     /** Remove a file from the filesystem.
      *

@@ -223,6 +223,31 @@ int LittleFileSystem::format(BlockDevice *bd,
     return 0;
 }
 
+int LittleFileSystem::reformat(BlockDevice *bd) {
+    if (_bd) {
+        if (!bd) {
+            bd = _bd;
+        }
+
+        int err = unmount();
+        if (err) {
+            return err;
+        }
+    }
+
+    if (!bd) {
+        return -ENODEV;
+    }
+
+    int err = LittleFileSystem::format(bd,
+            _read_size, _prog_size, _block_size, _lookahead);
+    if (err) {
+        return err;
+    }
+
+    return mount(bd);
+}
+
 int LittleFileSystem::remove(const char *filename) {
     int err = lfs_remove(&_lfs, filename);
     return lfs_toerror(err);
