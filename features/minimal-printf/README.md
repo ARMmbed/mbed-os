@@ -1,15 +1,15 @@
 # Minimal printf and snprintf
 
-Library supports both printf and snprintf in 960 bytes of flash.
+Library supports both printf and snprintf in 1252 bytes of flash.
 
-Prints directly to stdio/UART without using malloc. All flags, length, and precision modifiers are ignored. Floating point is disabled by default.
+Prints directly to stdio/UART without using malloc. All flags and precision modifiers are ignored. Floating point is disabled by default.
 
 Supports:
-* %d: signed long int.
-* %i: signed long int.
-* %u: unsigned long int.
-* %x: unsigned char printed as hexadecimal number (e.g., FF).
-* %X: unsigned char printed as hexadecimal number (e.g., FF).
+* %d: signed integer [h, hh, (none), l, ll, z, j, t].
+* %i: signed integer [h, hh, (none), l, ll, z, j, t].
+* %u: unsigned integer [h, hh, (none), l, ll, z, j, t].
+* %x: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., FF).
+* %X: unsigned integer [h, hh, (none), l, ll, z, j, t], printed as hexadecimal number (e.g., FF).
 * %f: floating point (disabled by default).
 * %F: floating point (disabled by default).
 * %g: floating point (disabled by default).
