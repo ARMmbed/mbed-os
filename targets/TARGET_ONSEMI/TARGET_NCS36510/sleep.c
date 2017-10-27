@@ -7,11 +7,11 @@
  * $Rev:  0.1 $
  * $Date: 01-21-2016 $
  ******************************************************************************
- * Copyright 2016 Semiconductor Components Industries LLC (d/b/a “ON Semiconductor”).
+ * Copyright 2016 Semiconductor Components Industries LLC (d/b/a â€œON Semiconductorâ€).
  * All rights reserved.  This software and/or documentation is licensed by ON Semiconductor
  * under limited terms and conditions.  The terms and conditions pertaining to the software
  * and/or documentation are available at http://www.onsemi.com/site/pdf/ONSEMI_T&C.pdf
- * (“ON Semiconductor Standard Terms and Conditions of Sale, Section 8 Software”) and
+ * (â€œON Semiconductor Standard Terms and Conditions of Sale, Section 8 Softwareâ€) and
  * if applicable the software license agreement.  Do not use this software and/or
  * documentation unless you have carefully read and you agree to the limited terms and
  * conditions.  By using this software and/or documentation, you agree to the limited
@@ -57,21 +57,23 @@ void fncs36510_sleep(void)
 
 void fncs36510_deepsleep(void)
 {
-    /** Set SLEEPDEEP (SCR) and unset COMA to select deep sleep mode */
+	/** Set SLEEPDEEP (SCR) and unset COMA to select deep sleep mode */
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
     PMUREG->CONTROL.BITS.ENCOMA = DISABLE;
 
     /** Enter into deep sleep mode */
     __ISB();
     __WFI();
-    __NOP();
-    __NOP();
 
     /** Wait for the external 32MHz to be power-ed up & running
      * Re-power down the 32MHz internal osc
      */
     while (!CLOCKREG->CSR.BITS.XTAL32M);
     PMUREG->CONTROL.BITS.INT32M = 1;
+
+    // After waking from interrupt, wait for flash banks to be powered up and ready
+    // TODO: Later need to make sure this still works well for a dual stack or dual FLASH application
+    while ((FLASHREG->STATUS.BITS.FLASH_A_BUSY == 1));
 }
 
 void fncs36510_coma(void)
