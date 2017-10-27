@@ -22,8 +22,10 @@
  * limitations under the License.
  */
 
-#if defined ( __ICCARM__ )
- #pragma system_include  /* treat file as system include file for MISRA check */
+#if   defined ( __ICCARM__ )
+  #pragma system_include         /* treat file as system include file for MISRA check */
+#elif defined (__clang__)
+  #pragma clang system_header   /* treat file as system include file */
 #endif
 
 #ifdef __cplusplus
@@ -1354,8 +1356,8 @@ __STATIC_INLINE uint32_t GIC_GetGroup(IRQn_Type IRQn)
 */
 __STATIC_INLINE void GIC_DistInit(void)
 {
-  IRQn_Type i;
-  uint32_t num_irq = 0;
+  uint32_t i;
+  uint32_t num_irq = 0U;
   uint32_t priority_field;
 
   //A reset sets all bits in the IGROUPRs corresponding to the SPIs to 0,
@@ -1364,26 +1366,24 @@ __STATIC_INLINE void GIC_DistInit(void)
   //Disable interrupt forwarding
   GIC_DisableDistributor();
   //Get the maximum number of interrupts that the GIC supports
-  num_irq = 32 * ((GIC_DistributorInfo() & 0x1f) + 1);
+  num_irq = 32U * ((GIC_DistributorInfo() & 0x1FU) + 1U);
 
   /* Priority level is implementation defined.
    To determine the number of priority bits implemented write 0xFF to an IPRIORITYR
    priority field and read back the value stored.*/
-  GIC_SetPriority((IRQn_Type)0, 0xff);
-  priority_field = GIC_GetPriority((IRQn_Type)0);
+  GIC_SetPriority((IRQn_Type)0U, 0xFFU);
+  priority_field = GIC_GetPriority((IRQn_Type)0U);
 
-  for (i = (IRQn_Type)32; i < num_irq; i++)
+  for (i = 32U; i < num_irq; i++)
   {
       //Disable the SPI interrupt
-      GIC_DisableIRQ(i);
-      if (i > 15) {
-        //Set level-sensitive (and N-N model)
-        GIC_SetConfiguration(i, 0);
-      }
+      GIC_DisableIRQ((IRQn_Type)i);
+      //Set level-sensitive (and N-N model)
+      GIC_SetConfiguration((IRQn_Type)i, 0U);
       //Set priority
-      GIC_SetPriority(i, priority_field/2);
+      GIC_SetPriority((IRQn_Type)i, priority_field/2U);
       //Set target list to CPU0
-      GIC_SetTarget(i, 1);
+      GIC_SetTarget((IRQn_Type)i, 1U);
   }
   //Enable distributor
   GIC_EnableDistributor();
@@ -1393,7 +1393,7 @@ __STATIC_INLINE void GIC_DistInit(void)
 */
 __STATIC_INLINE void GIC_CPUInterfaceInit(void)
 {
-  IRQn_Type i;
+  uint32_t i;
   uint32_t priority_field;
 
   //A reset sets all bits in the IGROUPRs corresponding to the SPIs to 0,
@@ -1405,27 +1405,27 @@ __STATIC_INLINE void GIC_CPUInterfaceInit(void)
   /* Priority level is implementation defined.
    To determine the number of priority bits implemented write 0xFF to an IPRIORITYR
    priority field and read back the value stored.*/
-  GIC_SetPriority((IRQn_Type)0, 0xff);
-  priority_field = GIC_GetPriority((IRQn_Type)0);
+  GIC_SetPriority((IRQn_Type)0U, 0xFFU);
+  priority_field = GIC_GetPriority((IRQn_Type)0U);
 
   //SGI and PPI
-  for (i = (IRQn_Type)0; i < 32; i++)
+  for (i = 0U; i < 32U; i++)
   {
-    if(i > 15) {
+    if(i > 15U) {
       //Set level-sensitive (and N-N model) for PPI
-      GIC_SetConfiguration(i, 0U);
+      GIC_SetConfiguration((IRQn_Type)i, 0U);
     }
     //Disable SGI and PPI interrupts
-    GIC_DisableIRQ(i);
+    GIC_DisableIRQ((IRQn_Type)i);
     //Set priority
-    GIC_SetPriority(i, priority_field/2);
+    GIC_SetPriority((IRQn_Type)i, priority_field/2U);
   }
   //Enable interface
   GIC_EnableInterface();
   //Set binary point to 0
-  GIC_SetBinaryPoint(0);
+  GIC_SetBinaryPoint(0U);
   //Set priority mask
-  GIC_SetInterfacePriorityMask(0xff);
+  GIC_SetInterfacePriorityMask(0xFFU);
 }
 
 /** \brief Initialize and enable the GIC
@@ -1477,9 +1477,34 @@ __STATIC_INLINE void PL1_SetLoadValue(uint32_t value)
 /** \brief Get the current counter value.
 * \return Current counter value.
 */
-__STATIC_INLINE uint32_t PL1_GetCurrentValue()
+__STATIC_INLINE uint32_t PL1_GetCurrentValue(void)
 {
   return(__get_CNTP_TVAL());
+}
+
+/** \brief Get the current physical counter value.
+* \return Current physical counter value.
+*/
+__STATIC_INLINE uint64_t PL1_GetCurrentPhysicalValue(void)
+{
+  return(__get_CNTPCT());
+}
+
+/** \brief Set the physical compare value.
+* \param [in] value New physical timer compare value.
+*/
+__STATIC_INLINE void PL1_SetPhysicalCompareValue(uint64_t value)
+{
+  __set_CNTP_CVAL(value);
+  __ISB();
+}
+
+/** \brief Get the physical compare value.
+* \return Physical compare value.
+*/
+__STATIC_INLINE uint64_t PL1_GetPhysicalCompareValue(void)
+{
+  return(__get_CNTP_CVAL());
 }
 
 /** \brief Configure the timer by setting the control value.
@@ -1494,7 +1519,7 @@ __STATIC_INLINE void PL1_SetControl(uint32_t value)
 /** \brief Get the control value.
 * \return Control value.
 */
-__STATIC_INLINE uint32_t PL1_GetControl()
+__STATIC_INLINE uint32_t PL1_GetControl(void)
 {
   return(__get_CNTP_CTL());
 }
