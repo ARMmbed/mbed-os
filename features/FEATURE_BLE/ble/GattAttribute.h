@@ -21,6 +21,15 @@
 #include "BLETypes.h"
 
 /**
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ * @addtogroup server
+ * @{
+ */
+
+/**
  * Instances of this class encapsulate the data that belongs to a Bluetooth Low
  * Energy attribute.
  */
@@ -171,5 +180,11 @@ private:
     GattAttribute(const GattAttribute &);
     GattAttribute& operator=(const GattAttribute &);
 };
+
+/**
+ * @}
+ * @}
+ * @}
+ */
 
 #endif /* ifndef __GATT_ATTRIBUTE_H__ */
