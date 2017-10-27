@@ -134,6 +134,7 @@
 
 /**
   \brief   Reverse byte order (32 bit)
+  \details Reverses the byte order in unsigned integer value. For example, 0x12345678 becomes 0x78563412.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
@@ -141,6 +142,7 @@
 
 /**
   \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order within each halfword of a word. For example, 0x12345678 becomes 0x34127856.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
@@ -153,12 +155,13 @@ __attribute__((section(".rev16_text"))) __STATIC_INLINE __ASM uint32_t __REV16(u
 #endif
 
 /**
-  \brief   Reverse byte order in signed short value
+  \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order in a 16-bit value and returns the signed 16-bit result. For example, 0x0080 becomes 0x8000.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
 #ifndef __NO_EMBEDDED_ASM
-__attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(int32_t value)
+__attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int16_t __REVSH(int16_t value)
 {
   revsh r0, r0
   bx lr
@@ -351,14 +354,16 @@ __STATIC_INLINE void __set_CPSR(uint32_t cpsr)
 /** \brief  Get Mode
     \return                Processor Mode
  */
-__STATIC_INLINE uint32_t __get_mode(void) {
+__STATIC_INLINE uint32_t __get_mode(void)
+{
   return (__get_CPSR() & 0x1FU);
 }
 
 /** \brief  Set Mode
     \param [in]    mode  Mode value to set
  */
-__STATIC_INLINE __ASM void __set_mode(uint32_t mode) {
+__STATIC_INLINE __ASM void __set_mode(uint32_t mode)
+{
   MOV  r1, lr
   MSR  CPSR_C, r0
   BX   r1
@@ -443,15 +448,30 @@ __STATIC_INLINE void __set_FPEXC(uint32_t fpexc)
  * Include common core functions to access Coprocessor 15 registers
  */
  
-#define __get_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); Rt = tmp; } while(0)
-#define __set_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); tmp = Rt; } while(0)
+#define __get_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); (Rt) = tmp; } while(0)
+#define __set_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); tmp = (Rt); } while(0)
+#define __get_CP64(cp, op1, Rt, CRm) \
+  do { \
+    uint32_t ltmp, htmp; \
+    __ASM volatile("MRRC p" # cp ", " # op1 ", ltmp, htmp, c" # CRm); \
+    (Rt) = ((((uint64_t)htmp) << 32U) | ((uint64_t)ltmp)); \
+  } while(0)
+
+#define __set_CP64(cp, op1, Rt, CRm) \
+  do { \
+    const uint64_t tmp = (Rt); \
+    const uint32_t ltmp = (uint32_t)(tmp); \
+    const uint32_t htmp = (uint32_t)(tmp >> 32U); \
+    __ASM volatile("MCRR p" # cp ", " # op1 ", ltmp, htmp, c" # CRm); \
+  } while(0)
 
 #include "cmsis_cp15.h"
 
 /** \brief  Clean and Invalidate the entire data or unified cache
  * \param [in] op 0 - invalidate, 1 - clean, otherwise - invalidate and clean
  */
-__STATIC_INLINE __ASM void __L1C_CleanInvalidateCache(uint32_t op) {
+__STATIC_INLINE __ASM void __L1C_CleanInvalidateCache(uint32_t op)
+{
         ARM
 
         PUSH    {R4-R11}
@@ -510,7 +530,8 @@ Finished
 
   Critical section, called from undef handler, so systick is disabled
  */
-__STATIC_INLINE __ASM void __FPU_Enable(void) {
+__STATIC_INLINE __ASM void __FPU_Enable(void)
+{
         ARM
 
         //Permit access to VFP/NEON, registers by modifying CPACR
@@ -528,7 +549,7 @@ __STATIC_INLINE __ASM void __FPU_Enable(void) {
 
         //Initialise VFP/NEON registers to 0
         MOV     R2,#0
-  IF {TARGET_FEATURE_EXTENSION_REGISTER_COUNT} >= 16
+
         //Initialise D16 registers to 0
         VMOV    D0, R2,R2
         VMOV    D1, R2,R2
@@ -546,7 +567,7 @@ __STATIC_INLINE __ASM void __FPU_Enable(void) {
         VMOV    D13,R2,R2
         VMOV    D14,R2,R2
         VMOV    D15,R2,R2
-  ENDIF
+
   IF {TARGET_FEATURE_EXTENSION_REGISTER_COUNT} == 32
         //Initialise D32 registers to 0
         VMOV    D16,R2,R2

@@ -393,11 +393,11 @@ osRtxContextSave:
                 STMDB   R3!, {R2,R12}               // Push FPSCR, maintain 8-byte alignment
 
                 VSTMDB  R3!, {D0-D15}               // Save D0-D15
-                #if __ARM_NEON == 1
+                #if     __ARM_NEON == 1
                 VSTMDB  R3!, {D16-D31}              // Save D16-D31
                 #endif
                 LDRB    R2, [R0, #TCB_SP_FRAME]
-                #if __ARM_NEON == 1
+                #if     __ARM_NEON == 1
                 ORR     R2, R2, #4                  // NEON state
                 #else
                 ORR     R2, R2, #2                  // VFP state

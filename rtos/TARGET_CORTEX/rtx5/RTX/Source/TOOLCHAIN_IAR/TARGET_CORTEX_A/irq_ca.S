@@ -371,11 +371,11 @@ osRtxContextSave
                 STMDB   R3!, {R2,R12}               ; Push FPSCR, maintain 8-byte alignment
 
                 VSTMDB  R3!, {D0-D15}               ; Save D0-D15
-                #ifdef __ARM_ADVANCED_SIMD__
+                #ifdef  __ARM_ADVANCED_SIMD__
                 VSTMDB  R3!, {D16-D31}              ; Save D16-D31
                 #endif
                 LDRB    R2, [R0, #TCB_SP_FRAME]
-                #ifdef __ARM_ADVANCED_SIMD__
+                #ifdef  __ARM_ADVANCED_SIMD__
                 ORR     R2, R2, #4                  ; NEON state
                 #else
                 ORR     R2, R2, #2                  ; VFP state
@@ -397,7 +397,7 @@ osRtxContextRestore
                 MCR     p15, 0, R2, c1, c0, 2       ; Write CPACR
                 BEQ     osRtxContextRestore1        ; No VFP
                 ISB                                 ; Only sync if we enabled VFP, otherwise we will context switch before next VFP instruction anyway
-                #ifdef __ARM_ADVANCED_SIMD__
+                #ifdef  __ARM_ADVANCED_SIMD__
                 VLDMIA  R3!, {D16-D31}              ; Restore D16-D31
                 #endif
                 VLDMIA  R3!, {D0-D15}               ; Restore D0-D15
