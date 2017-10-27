@@ -1,3 +1,10 @@
+
+// Suppress deprecation warnings since this whole
+// class is deprecated already
+#include "mbed_toolchain.h"
+#undef MBED_DEPRECATED_SINCE
+#define MBED_DEPRECATED_SINCE(...)
+
 #include "platform/CallChain.h"
 #include "cmsis.h"
 #include "platform/mbed_critical.h"
