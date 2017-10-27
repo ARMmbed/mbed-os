@@ -157,7 +157,7 @@ __STATIC_FORCEINLINE  void __DMB(void)
 
 /**
   \brief   Reverse byte order (32 bit)
-  \details Reverses the byte order in integer value.
+  \details Reverses the byte order in unsigned integer value. For example, 0x12345678 becomes 0x78563412.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
@@ -169,12 +169,13 @@ __STATIC_FORCEINLINE  uint32_t __REV(uint32_t value)
   uint32_t result;
 
   __ASM volatile ("rev %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
-  return(result);
+  return result;
 #endif
 }
 
 /**
   \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order within each halfword of a word. For example, 0x12345678 becomes 0x34127856.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
@@ -188,20 +189,20 @@ __attribute__((section(".rev16_text"))) __STATIC_INLINE uint32_t __REV16(uint32_
 #endif
 
 /**
-  \brief   Reverse byte order in signed short value
-  \details Reverses the byte order in a signed short value with sign extension to integer.
+  \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order in a 16-bit value and returns the signed 16-bit result. For example, 0x0080 becomes 0x8000.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
-__STATIC_FORCEINLINE  int32_t __REVSH(int32_t value)
+__STATIC_FORCEINLINE  int16_t __REVSH(int16_t value)
 {
 #if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8)
-  return (short)__builtin_bswap16(value);
+  return (int16_t)__builtin_bswap16(value);
 #else
-  int32_t result;
+  int16_t result;
 
   __ASM volatile ("revsh %0, %1" : __CMSIS_GCC_OUT_REG (result) : __CMSIS_GCC_USE_REG (value) );
-  return(result);
+  return result;
 #endif
 }
 
@@ -214,8 +215,13 @@ __STATIC_FORCEINLINE  int32_t __REVSH(int32_t value)
  */
 __STATIC_FORCEINLINE  uint32_t __ROR(uint32_t op1, uint32_t op2)
 {
+  op2 %= 32U;
+  if (op2 == 0U) {
+    return op1;
+  }
   return (op1 >> op2) | (op1 << (32U - op2));
 }
+
 
 /**
   \brief   Breakpoint
@@ -239,7 +245,7 @@ __STATIC_FORCEINLINE  uint32_t __RBIT(uint32_t value)
      (defined (__ARM_ARCH_8M_MAIN__ ) && (__ARM_ARCH_8M_MAIN__ == 1))    )
    __ASM volatile ("rbit %0, %1" : "=r" (result) : "r" (value) );
 #else
-  int32_t s = (4 /*sizeof(v)*/ * 8) - 1; /* extra shift needed at end */
+  int32_t s = (4U /*sizeof(v)*/ * 8U) - 1U; /* extra shift needed at end */
 
   result = value;                      /* r will be reversed bits of v; first get LSB of v */
   for (value >>= 1U; value; value >>= 1U)
@@ -250,7 +256,7 @@ __STATIC_FORCEINLINE  uint32_t __RBIT(uint32_t value)
   }
   result <<= s;                        /* shift when v's highest bits are zero */
 #endif
-  return(result);
+  return result;
 }
 
 /**
@@ -496,14 +502,16 @@ __ASM volatile ("MSR cpsr, %0" : : "r" (cpsr) : "memory");
 /** \brief  Get Mode
     \return                Processor Mode
  */
-__STATIC_FORCEINLINE uint32_t __get_mode(void) {
+__STATIC_FORCEINLINE uint32_t __get_mode(void)
+{
     return (__get_CPSR() & 0x1FU);
 }
 
 /** \brief  Set Mode
     \param [in]    mode  Mode value to set
  */
-__STATIC_FORCEINLINE void __set_mode(uint32_t mode) {
+__STATIC_FORCEINLINE void __set_mode(uint32_t mode)
+{
   __ASM volatile("MSR  cpsr_c, %0" : : "r" (mode) : "memory");
 }
 
@@ -585,6 +593,8 @@ __STATIC_FORCEINLINE void __set_FPEXC(uint32_t fpexc)
 
 #define __get_CP(cp, op1, Rt, CRn, CRm, op2) __ASM volatile("MRC p" # cp ", " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : "=r" (Rt) : : "memory" )
 #define __set_CP(cp, op1, Rt, CRn, CRm, op2) __ASM volatile("MCR p" # cp ", " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : : "r" (Rt) : "memory" )
+#define __get_CP64(cp, op1, Rt, CRm) __ASM volatile("MRRC p" # cp ", " # op1 ", %Q0, %R0, c" # CRm  : "=r" (Rt) : : "memory" )
+#define __set_CP64(cp, op1, Rt, CRm) __ASM volatile("MCRR p" # cp ", " # op1 ", %Q0, %R0, c" # CRm  : : "r" (Rt) : "memory" )
 
 #include "cmsis_cp15.h"
 
@@ -621,8 +631,10 @@ __STATIC_INLINE void __L1C_MaintainDCacheSetWay(uint32_t level, uint32_t maint)
   log2_linesize = (ccsidr & 0x00000007) + 2 + 2;
   log2_num_ways = log2_up(num_ways);
   shift_way = 32 - log2_num_ways;
-  for(int way = num_ways-1; way >= 0; way--) {
-    for(int set = num_sets-1; set >= 0; set--) {
+  for(int way = num_ways-1; way >= 0; way--)
+  {
+    for(int set = num_sets-1; set >= 0; set--)
+    {
       Dummy = (level << 1) | (set << log2_linesize) | (way << shift_way);
       switch (maint)
       {
@@ -648,7 +660,8 @@ __STATIC_INLINE void __L1C_MaintainDCacheSetWay(uint32_t level, uint32_t maint)
 
   Generic mechanism for cleaning/invalidating the entire data or unified cache to the point of coherency
  */
-__STATIC_INLINE void __L1C_CleanInvalidateCache(uint32_t op) {
+__STATIC_INLINE void __L1C_CleanInvalidateCache(uint32_t op)
+{
   register volatile uint32_t clidr;
   uint32_t cache_type;
   clidr =  __get_CLIDR();
@@ -667,26 +680,26 @@ __STATIC_INLINE void __L1C_CleanInvalidateCache(uint32_t op) {
 
   Critical section, called from undef handler, so systick is disabled
  */
-__STATIC_INLINE void __FPU_Enable(void) {
+__STATIC_INLINE void __FPU_Enable(void)
+{
   __ASM volatile(
-        //Permit access to VFP/NEON, registers by modifying CPACR
+    //Permit access to VFP/NEON, registers by modifying CPACR
     "        MRC     p15,0,R1,c1,c0,2  \n"
     "        ORR     R1,R1,#0x00F00000 \n"
     "        MCR     p15,0,R1,c1,c0,2  \n"
 
-        //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
+    //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
     "        ISB                       \n"
 
-        //Enable VFP/NEON
+    //Enable VFP/NEON
     "        VMRS    R1,FPEXC          \n"
     "        ORR     R1,R1,#0x40000000 \n"
     "        VMSR    FPEXC,R1          \n"
 
-        //Initialise VFP/NEON registers to 0
+    //Initialise VFP/NEON registers to 0
     "        MOV     R2,#0             \n"
 
-#if TARGET_FEATURE_EXTENSION_REGISTER_COUNT >= 16
-        //Initialise D16 registers to 0
+    //Initialise D16 registers to 0
     "        VMOV    D0, R2,R2         \n"
     "        VMOV    D1, R2,R2         \n"
     "        VMOV    D2, R2,R2         \n"
@@ -703,10 +716,9 @@ __STATIC_INLINE void __FPU_Enable(void) {
     "        VMOV    D13,R2,R2         \n"
     "        VMOV    D14,R2,R2         \n"
     "        VMOV    D15,R2,R2         \n"
-#endif
 
-#if TARGET_FEATURE_EXTENSION_REGISTER_COUNT == 32
-        //Initialise D32 registers to 0
+#if __ARM_NEON == 1
+    //Initialise D32 registers to 0
     "        VMOV    D16,R2,R2         \n"
     "        VMOV    D17,R2,R2         \n"
     "        VMOV    D18,R2,R2         \n"
@@ -724,7 +736,8 @@ __STATIC_INLINE void __FPU_Enable(void) {
     "        VMOV    D30,R2,R2         \n"
     "        VMOV    D31,R2,R2         \n"
 #endif
-        //Initialise FPSCR to a known state
+
+    //Initialise FPSCR to a known state
     "        VMRS    R2,FPSCR          \n"
     "        LDR     R3,=0x00086060    \n" //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
     "        AND     R2,R2,R3          \n"
