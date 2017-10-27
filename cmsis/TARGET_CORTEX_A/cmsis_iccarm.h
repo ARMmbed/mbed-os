@@ -123,7 +123,8 @@
 #ifndef __UNALIGNED_UINT16_READ
   #pragma language=save
   #pragma language=extended
-  __IAR_FT uint16_t __iar_uint16_read(void const *ptr) {
+  __IAR_FT uint16_t __iar_uint16_read(void const *ptr)
+  {
     return *(__packed uint16_t*)(ptr);
   }
   #pragma language=restore
@@ -134,7 +135,8 @@
 #ifndef __UNALIGNED_UINT16_WRITE
   #pragma language=save
   #pragma language=extended
-  __IAR_FT void __iar_uint16_write(void const *ptr, uint16_t val) {
+  __IAR_FT void __iar_uint16_write(void const *ptr, uint16_t val)
+  {
     *(__packed uint16_t*)(ptr) = val;;
   }
   #pragma language=restore
@@ -144,7 +146,8 @@
 #ifndef __UNALIGNED_UINT32_READ
   #pragma language=save
   #pragma language=extended
-  __IAR_FT uint32_t __iar_uint32_read(void const *ptr) {
+  __IAR_FT uint32_t __iar_uint32_read(void const *ptr)
+  {
     return *(__packed uint32_t*)(ptr);
   }
   #pragma language=restore
@@ -154,7 +157,8 @@
 #ifndef __UNALIGNED_UINT32_WRITE
   #pragma language=save
   #pragma language=extended
-  __IAR_FT void __iar_uint32_write(void const *ptr, uint32_t val) {
+  __IAR_FT void __iar_uint32_write(void const *ptr, uint32_t val)
+  {
     *(__packed uint32_t*)(ptr) = val;;
   }
   #pragma language=restore
@@ -238,24 +242,27 @@
   #define __set_FPEXC(VALUE) 		(__arm_wsr("FPEXC", VALUE))
 
   #define __get_CP(cp, op1, RT, CRn, CRm, op2) \
-    (RT = __arm_rsr("p" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2))
+    ((RT) = __arm_rsr("p" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2))
 
   #define __set_CP(cp, op1, RT, CRn, CRm, op2) \
-    (__arm_wsr("p" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2, RT))
+    (__arm_wsr("p" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2, (RT)))
+
+  #define __get_CP64(cp, op1, RT, CRm) \
+    ((RT) = __arm_rsr("p" # cp ":" # op1 ":c" # CRm))
+
+  #define __set_CP64(cp, op1, RT, CRm) \
+    (__arm_wsr("p" # cp ":" # op1 ":c" # CRm, (RT)))
 
   #include "cmsis_cp15.h"
 
-  #define __NOP    __iar_builtin_no_operation
+  #define __NOP     __iar_builtin_no_operation
 
-  __IAR_FT uint8_t __CLZ(uint32_t val) {
-    return __iar_builtin_CLZ(val);
-  }
+  #define __CLZ     __iar_builtin_CLZ
+  #define __CLREX   __iar_builtin_CLREX
 
-  #define __CLREX __iar_builtin_CLREX
-
-  #define __DMB   __iar_builtin_DMB
-  #define __DSB   __iar_builtin_DSB
-  #define __ISB   __iar_builtin_ISB
+  #define __DMB     __iar_builtin_DMB
+  #define __DSB     __iar_builtin_DSB
+  #define __ISB     __iar_builtin_ISB
 
   #define __LDREXB  __iar_builtin_LDREXB
   #define __LDREXH  __iar_builtin_LDREXH
@@ -265,8 +272,9 @@
   #define __REV     __iar_builtin_REV
   #define __REV16   __iar_builtin_REV16
 
-  __IAR_FT int32_t __REVSH(int32_t val) {
-    return __iar_builtin_REVSH((int16_t)val);
+  __IAR_FT int16_t __REVSH(int16_t val)
+  {
+    return (int16_t) __iar_builtin_REVSH(val);
   }
 
   #define __ROR     __iar_builtin_ROR
@@ -354,6 +362,10 @@
   #define __get_FPSCR __cmsis_iar_get_FPSR_not_active
   #endif
 
+  #ifdef __INTRINSICS_INCLUDED
+  #error intrinsics.h is already included previously!
+  #endif
+  
   #include <intrinsics.h>
 
   #if !__FPU_PRESENT
@@ -376,23 +388,27 @@
     __ASM volatile("MSR  cpsr_c, %0" : : "r" (mode) : "memory");
   }
 
-  __IAR_FT uint32_t __LDREXW(uint32_t volatile *ptr) {
+  __IAR_FT uint32_t __LDREXW(uint32_t volatile *ptr)
+  {
     return __LDREX((unsigned long *)ptr);
   }
 
-  __IAR_FT uint32_t __STREXW(uint32_t value, uint32_t volatile *ptr) {
+  __IAR_FT uint32_t __STREXW(uint32_t value, uint32_t volatile *ptr)
+  {
     return __STREX(value, (unsigned long *)ptr);
   }
 
 
-  __IAR_FT uint32_t __RRX(uint32_t value) {
+  __IAR_FT uint32_t __RRX(uint32_t value)
+  {
     uint32_t result;
     __ASM("RRX      %0, %1" : "=r"(result) : "r" (value) : "cc");
     return(result);
   }
 
 
-  __IAR_FT uint32_t __ROR(uint32_t op1, uint32_t op2) {
+  __IAR_FT uint32_t __ROR(uint32_t op1, uint32_t op2)
+  {
     return (op1 >> op2) | (op1 << ((sizeof(op1)*8)-op2));
   }
 
@@ -418,7 +434,11 @@
   #define __get_CP(cp, op1, Rt, CRn, CRm, op2) \
     __ASM volatile("MRC p" # cp ", " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : "=r" (Rt) : : "memory" )
   #define __set_CP(cp, op1, Rt, CRn, CRm, op2) \
-      __ASM volatile("MCR p" # cp ", " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : : "r" (Rt) : "memory" )
+    __ASM volatile("MCR p" # cp ", " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : : "r" (Rt) : "memory" )
+  #define __get_CP64(cp, op1, Rt, CRm) \
+    __ASM volatile("MRRC p" # cp ", " # op1 ", %Q0, %R0, c" # CRm  : "=r" (Rt) : : "memory" )
+  #define __set_CP64(cp, op1, Rt, CRm) \
+    __ASM volatile("MCRR p" # cp ", " # op1 ", %Q0, %R0, c" # CRm  : : "r" (Rt) : "memory" )
 
   #include "cmsis_cp15.h"
 
@@ -517,24 +537,23 @@ __STATIC_INLINE
 void __FPU_Enable(void)
 {
   __ASM volatile(
-	    //Permit access to VFP/NEON, registers by modifying CPACR
+    //Permit access to VFP/NEON, registers by modifying CPACR
     "        MRC     p15,0,R1,c1,c0,2  \n"
     "        ORR     R1,R1,#0x00F00000 \n"
     "        MCR     p15,0,R1,c1,c0,2  \n"
 
-	    //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
+    //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
     "        ISB                       \n"
 
-	    //Enable VFP/NEON
+    //Enable VFP/NEON
     "        VMRS    R1,FPEXC          \n"
     "        ORR     R1,R1,#0x40000000 \n"
     "        VMSR    FPEXC,R1          \n"
 
-	    //Initialise VFP/NEON registers to 0
+    //Initialise VFP/NEON registers to 0
     "        MOV     R2,#0             \n"
 
-#if TARGET_FEATURE_EXTENSION_REGISTER_COUNT >= 16
-	    //Initialise D16 registers to 0
+    //Initialise D16 registers to 0
     "        VMOV    D0, R2,R2         \n"
     "        VMOV    D1, R2,R2         \n"
     "        VMOV    D2, R2,R2         \n"
@@ -551,10 +570,9 @@ void __FPU_Enable(void)
     "        VMOV    D13,R2,R2         \n"
     "        VMOV    D14,R2,R2         \n"
     "        VMOV    D15,R2,R2         \n"
-#endif
 
-#if TARGET_FEATURE_EXTENSION_REGISTER_COUNT == 32
-	    //Initialise D32 registers to 0
+#ifdef __ARM_ADVANCED_SIMD__
+    //Initialise D32 registers to 0
     "        VMOV    D16,R2,R2         \n"
     "        VMOV    D17,R2,R2         \n"
     "        VMOV    D18,R2,R2         \n"
@@ -571,12 +589,12 @@ void __FPU_Enable(void)
     "        VMOV    D29,R2,R2         \n"
     "        VMOV    D30,R2,R2         \n"
     "        VMOV    D31,R2,R2         \n"
-    ".endif                            \n"
 #endif
-	    //Initialise FPSCR to a known state
+
+    //Initialise FPSCR to a known state
     "        VMRS    R2,FPSCR          \n"
     "        MOV32   R3,#0x00086060    \n" //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
-	"        AND     R2,R2,R3          \n"
+    "        AND     R2,R2,R3          \n"
     "        VMSR    FPSCR,R2          \n");
 }
 
