@@ -18,6 +18,16 @@ Supports:
 * %s: string.
 * %p: pointer (e.g. 0x00123456).
 
+To replace the standard implementations of the printf functions with the ones in this library:
+
+* Add the library to your project.
+* Compile with mbed-cli using one of the custom profiles in the `profiles/` subdirectory. For
+  example, to compile in release mode:
+
+```
+$ mbed compile -t <toolchain> -m <target> --profile mbed-printf/profiles/release.json
+```
+
 ## Enabling floating point, 64 bit integers, new line conversion, and setting baud rate
 
 In mbed_app.json:
