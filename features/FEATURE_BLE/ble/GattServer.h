@@ -24,6 +24,15 @@
 #include "GattCallbackParamTypes.h"
 #include "CallChainOfFunctionPointersWithContext.h"
 
+/**
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ * @addtogroup server
+ * @{
+ */
+
 class GattServer {
 public:
     /**
@@ -685,5 +694,11 @@ private:
     GattServer(const GattServer &);
     GattServer& operator=(const GattServer &);
 };
+
+/**
+ * @}
+ * @}
+ * @}
+ */
 
 #endif /* ifndef __GATT_SERVER_H__ */

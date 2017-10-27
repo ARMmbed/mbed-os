@@ -23,6 +23,15 @@
 #include "GattCallbackParamTypes.h"
 #include "FunctionPointerWithContext.h"
 
+/**
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ * @addtogroup server
+ * @{
+ */
+
 class GattCharacteristic {
 public:
     enum {
@@ -859,5 +868,11 @@ public:
         /* empty */
     }
 };
+
+/**
+ * @}
+ * @}
+ * @}
+ */
 
 #endif /* ifndef __GATT_CHARACTERISTIC_H__ */
