@@ -47,7 +47,7 @@ void mbed_assert_internal(const char *expr, const char *file, int line);
  *  Declare runtime assertions: results in runtime error if condition is false
  *
  *  @note
- *  Use of MBED_ASSERT is limited debug builds only.
+ *  Use of MBED_ASSERT is limited to Debug and Develop builds.
  *
  *  @code
  *
