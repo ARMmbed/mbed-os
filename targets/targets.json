@@ -618,7 +618,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "macros": ["__ADUCM4050__", "EV_COG_AD4050LZ"],
         "extra_labels": ["Analog_Devices", "ADUCM4X50", "ADUCM4050", "EV_COG_AD4050LZ", "FLASH_CMSIS_ALGO"],
-        "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "LOWPOWERTIMER", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
+        "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
         "device_name": "ADuCM4050",
         "detect_code": ["0603"],
         "release_versions": ["5"]
