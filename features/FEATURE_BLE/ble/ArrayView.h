@@ -37,15 +37,15 @@ namespace ble {
  * Immutable view to an array.
  *
  * Array views encapsulate the pointer to an array and its size into a single
- * object however it does not manage the lifetime of the array viewed.
- * Instances of ArrayView can be used to replace the traditional pair of pointer
+ * object; however, it does not manage the lifetime of the array viewed.
+ * You can use instances of ArrayView to replace the traditional pair of pointer
  * and size arguments in function calls.
  *
- * The size member function can be used to query the number of elements present
- * in the array and overloads of the subscript operator allow code using
+ * You can use the size member function to query the number of elements present
+ * in the array, and overloads of the subscript operator allow code using
  * this object to access to the content of the array viewed.
  *
- * @note ArrayView instances can be created easily with the help of the function
+ * @note You can create ArrayView instances with the help of the function
  * template make_ArrayView() and make_const_ArrayView().
  *
  * @tparam T type of objects held by the array.
@@ -56,7 +56,7 @@ struct ArrayView {
     /**
      * Construct a view to an empty array.
      *
-     * @post a call to size() will return 0 and data() will return NULL.
+     * @post a call to size() will return 0, and data() will return NULL.
      */
     ArrayView() : _array(0), _size(0) { }
 
@@ -79,7 +79,7 @@ struct ArrayView {
      *
      * @tparam Size Number of elements of T presents in the array.
      *
-     * @post a call to size() will return Size and data() will return
+     * @post a call to size() will return Size, and data() will return
      * a pointer to elements.
      */
     template<size_t Size>
@@ -172,7 +172,7 @@ struct ArrayView {
      * @param lhs Left hand side of the binary operation.
      * @param rhs Right hand side of the binary operation.
      *
-     * @return True if arrays in input does not have the same size or the same
+     * @return True if arrays in input do not have the same size or the same
      * content and false otherwise.
      */
     friend bool operator!=(const ArrayView& lhs, const ArrayView& rhs)
@@ -196,7 +196,7 @@ private:
  *
  * @return The ArrayView to elements.
  *
- * @note This helper avoid the typing of template parameter when ArrayView are
+ * @note This helper avoids the typing of template parameter when ArrayView is
  * created 'inline'.
  */
 template<typename T, size_t Size>
@@ -215,7 +215,7 @@ ArrayView<T> make_ArrayView(T (&elements)[Size])
  *
  * @return The ArrayView to array_ptr with a size of array_size.
  *
- * @note This helper avoid the typing of template parameter when ArrayView are
+ * @note This helper avoids the typing of template parameter when ArrayView is
  * created 'inline'.
  */
 template<typename T>
@@ -233,7 +233,7 @@ ArrayView<T> make_ArrayView(T* array_ptr, size_t array_size)
  * @param elements The array viewed.
  * @return The ArrayView to elements.
  *
- * @note This helper avoid the typing of template parameter when ArrayView are
+ * @note This helper avoids the typing of template parameter when ArrayView is
  * created 'inline'.
  */
 template<typename T, size_t Size>
@@ -252,7 +252,7 @@ ArrayView<const T> make_const_ArrayView(T (&elements)[Size])
  *
  * @return The ArrayView to array_ptr with a size of array_size.
  *
- * @note This helper avoid the typing of template parameter when ArrayView are
+ * @note This helper avoids the typing of template parameter when ArrayView is
  * created 'inline'.
  */
 template<typename T>
