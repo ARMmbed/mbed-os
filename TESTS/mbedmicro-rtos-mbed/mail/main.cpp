@@ -25,7 +25,7 @@
 
 using namespace utest::v1;
 
-#define THREAD_STACK_SIZE   384 /* larger stack cause out of memory on some 16kB RAM boards in multi thread test*/
+#define THREAD_STACK_SIZE   320 /* larger stack cause out of heap memory on some 16kB RAM boards in multi thread test*/
 #define QUEUE_SIZE          16
 #define THREAD_1_ID         1
 #define THREAD_2_ID         2
