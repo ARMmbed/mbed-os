@@ -202,7 +202,7 @@ public:
         OnEventsToProcessCallback_t;
 
     /**
-     * Register a callback called when the BLE stack has pending  work.
+     * Register a callback called when the BLE stack has pending work.
      *
      * By registering a callback, application code can know when event processing
      * has to be scheduled.

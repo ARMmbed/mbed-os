@@ -32,8 +32,8 @@
  * received a write response.
  *
  * @important The fields offset, len and data are only populated by the
- * GattServer when it receive a write request. Those fields shall not be used
- * by callbacks attached to the GattClient.
+ * GattServer when it has received a write request. Those fields shall not be
+ * used by callbacks attached to the GattClient.
  *
  * @important The fields status and error_code are only populated by the
  * GattClient when it has received a write response. Those fields shall not be

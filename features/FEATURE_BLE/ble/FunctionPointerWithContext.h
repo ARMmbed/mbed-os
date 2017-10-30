@@ -36,12 +36,12 @@
  * different even if conceptually they are very similar: Both primitives can be
  * copied, called and produce a result.
  *
- * To solve incompatibilities this class addapt freestanding and member function
+ * To solve incompatibilities this class adapt freestanding and member function
  * to a common interface. The interface chosen is similar to the freestanding
  * function pointers interface:
  *    - Copyable
  *    - Nullable
- *    - Callable .
+ *    - Callable
  *
  * This class also offers a mechanism to chain other instances to it. When an
  * instance is called, all the instances being part of the chain are called.
@@ -312,9 +312,9 @@ private:
 /**
  * Factory of adapted member function pointers.
  *
- * This factory eliminate the need to invoke the qualified constructor of
+ * This factory eliminates the need to invoke the qualified constructor of
  * FunctionPointerWithContext by using automatic type deduction of function
- * templates
+ * templates.
  *
  * @code
  *

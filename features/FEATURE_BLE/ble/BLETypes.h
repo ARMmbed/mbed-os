@@ -30,7 +30,7 @@
 namespace ble {
 
 /**
- * Opaque reference to a connection
+ * Opaque reference to a connection.
  *
  * Internally a connection handle is an unsigned integer capable of holding a
  * pointer.
@@ -67,7 +67,7 @@ struct attribute_handle_range_t {
      * Equal operator for attribute_handle_range_t.
      *
      * @param[in] lhs Left hand side of the expression.
-     * @param[in] rhs Left hand side of the expression.
+     * @param[in] rhs Right hand side of the expression.
      *
      * @return true if lhs is equal to rhs and false otherwise.
      */
@@ -81,7 +81,7 @@ struct attribute_handle_range_t {
      * Not equal operator for attribute_handle_range_t.
      *
      * @param[in] lhs Left hand side of the expression.
-     * @param[in] rhs Left hand side of the expression.
+     * @param[in] rhs Right hand side of the expression.
      *
      * @return true if lhs is not equal to rhs and false otherwise.
      */

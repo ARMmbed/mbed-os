@@ -34,7 +34,7 @@
  *
  * GATT Services are discovered on distant GATT servers by the discovery
  * procedure which can be initiated by calling
- * GattClient::launchServiceDiscovery() or GattClient::discoverServices() . The
+ * GattClient::launchServiceDiscovery() or GattClient::discoverServices(). The
  * discovery process will pass instances of this class to the callback handling
  * service discovered.
  *

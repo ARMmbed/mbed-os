@@ -100,7 +100,7 @@ public:
     /**
      * Characteristic descriptor discovered event handler.
      *
-     * As parameter it expect a pointer to a DiscoveryCallbackParams_t instance.
+     * As parameter it expects a pointer to a DiscoveryCallbackParams_t instance.
      *
      * @note The object passed in parameter will remain valid for the lifetime
      * of the callback. Memory for this object is owned by the BLE_API eventing
@@ -117,7 +117,7 @@ public:
     /**
      * Handler of Characteristic descriptor discovery ended event.
      *
-     * As parameter it expect a pointer to a TerminationCallbackParams_t instance.
+     * As parameter it expects a pointer to a TerminationCallbackParams_t instance.
      *
      * @note The object passed in parameter will remain valid for the lifetime
      * of the callback. Memory for this object is owned by the BLE_API eventing
