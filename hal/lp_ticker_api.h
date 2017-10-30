@@ -34,9 +34,9 @@ extern "C" {
  * Low level interface to the low power ticker of a target
  *
  * # Defined behavior
- * * Has a reported frequency between 8KHz and 64KHz - verified by lp_ticker_info_test
- * * Has a counter that is at least 12 bits wide - verified by lp_ticker_info_test
- * * Continues operating in deep sleep mode - verified by lp_ticker_sleep_test
+ * * Has a reported frequency between 8KHz and 64KHz - verified by ::lp_ticker_info_test
+ * * Has a counter that is at least 12 bits wide - verified by ::lp_ticker_info_test
+ * * Continues operating in deep sleep mode - verified by ::lp_ticker_deepsleep_test
  * * All behavior defined by the @ref hal_ticker_shared "ticker specification"
  *
  * # Undefined behavior
@@ -65,7 +65,7 @@ typedef void (*ticker_irq_handler_type)(const ticker_data_t *const);
  *
  * @return previous ticker IRQ handler
  *
- * @note by default IRQ handler is set to ticker_irq_handler()
+ * @note by default IRQ handler is set to ::ticker_irq_handler
  * @note this function is primarily for testing purposes and it's not required part of HAL implementation
  *
  */
@@ -114,7 +114,7 @@ void lp_ticker_init(void);
 
 /** Read the current tick
  *
- * If no rollover has occurred, the seconds passed since ::lp_ticker_init
+ * If no rollover has occurred, the seconds passed since lp_ticker_init()
  * was called can be found by dividing the ticks returned by this function
  * by the frequency returned by ::lp_ticker_get_info.
  *
@@ -147,7 +147,7 @@ uint32_t lp_ticker_read(void);
  *
  * @note no special handling needs to be done for times in the past
  * as the common timer code will detect this and call
- * ::lp_ticker_fire_interrupt if this is the case
+ * lp_ticker_fire_interrupt() if this is the case
  *
  * @note calling this function with timestamp of more than the supported
  * number of bits returned by ::lp_ticker_get_info results in undefined
