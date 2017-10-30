@@ -146,7 +146,11 @@ USBHALHost::USBHALHost()
     hhcd = (HCD_HandleTypeDef *)usb_hcca;
     hhcd->pData = (void*)HALPriv;
 
-#if defined(TARGET_DISCO_F429ZI) || defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
+#if defined(TARGET_DISCO_F429ZI)
+    hhcd->Instance = USB_OTG_HS;
+    hhcd->Init.speed =  HCD_SPEED_HIGH;
+    hhcd->Init.phy_itface = HCD_PHY_EMBEDDED;
+#elif defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
     hhcd->Instance = USB_OTG_HS;
     hhcd->Init.speed =  HCD_SPEED_HIGH;
     hhcd->Init.phy_itface = HCD_PHY_ULPI;
@@ -214,8 +218,6 @@ USBHALHost::USBHALHost()
     pin_function(PB_15, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF12_OTG_HS_FS)); // DP
     //pin_function(PB_12, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF12_OTG_HS_FS)); // ID
     pin_function(PB_13, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0)); // VBUS
-    //gpio_t pin_vbus;
-    //gpio_init_in(&pin_vbus, PB_13);
 
 #elif defined(TARGET_DISCO_F746NG_FS)
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -279,7 +281,9 @@ USBHALHost::USBHALHost()
     // Enable clocks
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 
-#if defined(TARGET_DISCO_F429ZI) || defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
+#if defined(TARGET_DISCO_F429ZI)
+    __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
+#elif defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
     __HAL_RCC_USB_OTG_HS_ULPI_CLK_ENABLE();
     __HAL_RCC_USB_OTG_HS_CLK_ENABLE();
 #else
