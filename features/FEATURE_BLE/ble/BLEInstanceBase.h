@@ -40,10 +40,10 @@ class GattClient;
  * Private interface used to implement the BLE class.
  *
  * The BLE class delegates all its abstract operations to an instance of this
- * abstract class which shall be implemented by every vendor port of mbed BLE.
+ * abstract class, which every vendor port of Mbed BLE shall implement.
  *
- * Vendor port shall also define an implementation of the freestanding function
- * createBLEInstance(). This singleton function is used by BLE API to gain
+ * The vendor port shall also define an implementation of the freestanding function
+ * createBLEInstance(). The BLE API uses this singleton function to gain
  * access to a concrete implementation of this class defined in the vendor port.
  *
  * @important This class is part of the porting API and is not meant to be used
@@ -76,12 +76,12 @@ public:
     /**
      * Signal to BLE that events needing processing are available.
      *
-     * This function shall be called by the vendor port whenever there is events
+     * The vendor port shall call this function whenever there are events
      * ready to be processed in the internal stack or BLE subsystem. As a result
      * of this call, the callback registered by the end user via
      * BLE::onEventsToProcess will be invoked.
      *
-     * @param[in] id: Identifier of the BLE instance which does have events to
+     * @param[in] id: Identifier of the BLE instance, which does have events to
      * ready to be processed.
      */
     void signalEventsToProcess(BLE::InstanceID_t id);
@@ -95,19 +95,19 @@ public:
      *
      * @param[in] instanceID Identifier of the BLE instance requesting
      * initialization.
-     * @param[in] initCallback Callback which shall be invoke by the vendor port
+     * @param[in] initCallback Callback which the vendor port shall invoke
      * when the initialization completes.
      *
      * This is an optional parameter set to NULL when not supplied.
      *
-     * @return BLE_ERROR_NONE if the initialization procedure was started
+     * @return BLE_ERROR_NONE if the initialization procedure started
      * successfully.
      *
      * @post initCallback shall be invoked upon completion of the initialization
      * process.
      *
-     * @post hasInitialized() shall return false until the initialization
-     * complete and it shall return true after succesful completion of the
+     * @post hasInitialized() shall return false until the initialization is
+     * complete, and it shall return true after succesful completion of the
      * initialization process.
      *
      * @see BLE::init()
@@ -133,19 +133,19 @@ public:
      * Shutdown the vendor BLE subsystem.
      *
      * This operation includes purging the stack of GATT and GAP state and
-     * clearing all state from other BLE components such as the SecurityManager.
+     * clearing all state from other BLE components, such as the SecurityManager.
      * Clearing all states may be realized by a call to Gap::reset(),
      * GattClient::reset(), GattServer::reset() and SecurityManager::reset().
      *
-     * BLE::init() must be called afterwards to re-instantiate services and GAP
+     * BLE::init() must be called afterward to reinstantiate services and GAP
      * state.
      *
      * @return BLE_ERROR_NONE if the underlying stack and all other services of
-     * the BLE API were shutdown correctly.
+     * the BLE API were shut down correctly.
      *
      * @post hasInitialized() shall return false.
      *
-     * @note This function is invoked by BLE::shutdown() .
+     * @note This function is invoked by BLE::shutdown().
      *
      * @see BLE::shutdown() BLE::init() BLE::hasInitialized() Gap::reset()
      * GattClient::reset() GattServer::reset() SecurityManager::reset() .
@@ -234,8 +234,8 @@ public:
     virtual const SecurityManager &getSecurityManager(void) const = 0;
 
     /**
-     * Process pending events present in the vendor subsystem then put the MCU
-     * to sleep until it gets woken up by an external source.
+     * Process pending events present in the vendor subsystem; then, put the MCU
+     * to sleep until an external source wakes it up.
      *
      * @important This function is deprecated in the BLE class. It will be
      * removed from this interface once it is removed from BLE.
@@ -255,10 +255,10 @@ private:
  * Return the instance of the vendor implementation of BLEInstanceBase.
  *
  * @important Contrary to its name, this function does not return a new instance
- * at each call. It rather act like an accessor to a singleton.
+ * at each call. It rather acts like an accessor to a singleton.
  *
- * @important An implementation for this function must be provided by the vendor
- * library, otherwise there will be a linker error.
+ * @important The vendor library must provide an implementation for this function
+ * library. Otherwise, there will be a linker error.
  */
 extern BLEInstanceBase *createBLEInstance(void);
 
