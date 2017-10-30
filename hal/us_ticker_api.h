@@ -31,8 +31,8 @@ extern "C" {
  * Low level interface to the microsecond ticker of a target
  *
  * # Defined behavior
- * * Has a reported frequency between 250KHz and 8MHz
- * * Has a counter that is at least 16 bits wide
+ * * Has a reported frequency between 250KHz and 8MHz - Verified by test ::us_ticker_info_test
+ * * Has a counter that is at least 16 bits wide - Verified by test ::us_ticker_info_test
  * * All behavior defined by the @ref hal_ticker_shared "ticker specification"
  *
  * # Undefined behavior
@@ -80,9 +80,10 @@ extern "C" {
  * * Calling ticker_set_interrupt with a value that has more than the supported number of bits
  *
  * # Potential bugs
- * * Drift due to reschedule - Verified by ::ticker_reschedule_test
+ * * Drift due to reschedule - Verified by ::ticker_repeat_reschedule_test
  * * Incorrect overflow handling of timers - Verified by ::ticker_overflow_test
  * * Interrupting at a time of 0 - Verified by ::ticker_overflow_test
+ * * Interrupt triggered more than once - Verified by ::ticker_interrupt_test
  *
  * @ingroup hal_us_ticker
  * @ingroup hal_lp_ticker
@@ -109,7 +110,7 @@ typedef void (*ticker_irq_handler_type)(const ticker_data_t *const);
  *
  * @return previous ticker IRQ handler
  *
- * @note by default IRQ handler is set to ticker_irq_handler()
+ * @note by default IRQ handler is set to ::ticker_irq_handler
  * @note this function is primarily for testing purposes and it's not required part of HAL implementation
  *
  */
@@ -163,7 +164,7 @@ void us_ticker_init(void);
 /** Read the current tick
  *
  * Read the current counter value without performing frequency conversions.
- * If no rollover has occurred, the seconds passed since ::us_ticker_init
+ * If no rollover has occurred, the seconds passed since us_ticker_init()
  * was called can be found by dividing the ticks returned by this function
  * by the frequency returned by ::us_ticker_get_info.
  *
@@ -185,7 +186,7 @@ uint32_t us_ticker_read(void);
  *
  * @note no special handling needs to be done for times in the past
  * as the common timer code will detect this and call
- * ::us_ticker_fire_interrupt if this is the case
+ * us_ticker_fire_interrupt() if this is the case
  *
  * @note calling this function with timestamp of more than the supported
  * number of bits returned by ::us_ticker_get_info results in undefined
