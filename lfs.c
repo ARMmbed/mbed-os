@@ -373,8 +373,8 @@ static int lfs_dir_alloc(lfs_t *lfs, lfs_dir_t *dir) {
     // set defaults
     dir->d.rev += 1;
     dir->d.size = sizeof(dir->d)+4;
-    dir->d.tail[0] = -1;
-    dir->d.tail[1] = -1;
+    dir->d.tail[0] = 0xffffffff;
+    dir->d.tail[1] = 0xffffffff;
     dir->off = sizeof(dir->d);
 
     // don't write out yet, let caller take care of that
@@ -455,88 +455,91 @@ static int lfs_dir_commit(lfs_t *lfs, lfs_dir_t *dir,
     bool relocated = false;
 
     while (true) {
-        int err = lfs_bd_erase(lfs, dir->pair[0]);
-        if (err) {
-            if (err == LFS_ERR_CORRUPT) {
-                goto relocate;
+        if (true) {
+            int err = lfs_bd_erase(lfs, dir->pair[0]);
+            if (err) {
+                if (err == LFS_ERR_CORRUPT) {
+                    goto relocate;
+                }
+                return err;
             }
-            return err;
-        }
 
-        uint32_t crc = 0xffffffff;
-        lfs_crc(&crc, &dir->d, sizeof(dir->d));
-        err = lfs_bd_prog(lfs, dir->pair[0], 0, &dir->d, sizeof(dir->d));
-        if (err) {
-            if (err == LFS_ERR_CORRUPT) {
-                goto relocate;
+            uint32_t crc = 0xffffffff;
+            lfs_crc(&crc, &dir->d, sizeof(dir->d));
+            err = lfs_bd_prog(lfs, dir->pair[0], 0, &dir->d, sizeof(dir->d));
+            if (err) {
+                if (err == LFS_ERR_CORRUPT) {
+                    goto relocate;
+                }
+                return err;
             }
-            return err;
-        }
 
-        int i = 0;
-        lfs_off_t oldoff = sizeof(dir->d);
-        lfs_off_t newoff = sizeof(dir->d);
-        while (newoff < (0x7fffffff & dir->d.size)-4) {
-            if (i < count && regions[i].oldoff == oldoff) {
-                lfs_crc(&crc, regions[i].newdata, regions[i].newlen);
-                int err = lfs_bd_prog(lfs, dir->pair[0],
-                        newoff, regions[i].newdata, regions[i].newlen);
-                if (err) {
-                    if (err == LFS_ERR_CORRUPT) {
-                        goto relocate;
+            int i = 0;
+            lfs_off_t oldoff = sizeof(dir->d);
+            lfs_off_t newoff = sizeof(dir->d);
+            while (newoff < (0x7fffffff & dir->d.size)-4) {
+                if (i < count && regions[i].oldoff == oldoff) {
+                    lfs_crc(&crc, regions[i].newdata, regions[i].newlen);
+                    int err = lfs_bd_prog(lfs, dir->pair[0],
+                            newoff, regions[i].newdata, regions[i].newlen);
+                    if (err) {
+                        if (err == LFS_ERR_CORRUPT) {
+                            goto relocate;
+                        }
+                        return err;
                     }
-                    return err;
-                }
 
-                oldoff += regions[i].oldlen;
-                newoff += regions[i].newlen;
-                i += 1;
-            } else {
-                uint8_t data;
-                int err = lfs_bd_read(lfs, oldpair[1], oldoff, &data, 1);
-                if (err) {
-                    return err;
-                }
-
-                lfs_crc(&crc, &data, 1);
-                err = lfs_bd_prog(lfs, dir->pair[0], newoff, &data, 1);
-                if (err) {
-                    if (err == LFS_ERR_CORRUPT) {
-                        goto relocate;
+                    oldoff += regions[i].oldlen;
+                    newoff += regions[i].newlen;
+                    i += 1;
+                } else {
+                    uint8_t data;
+                    int err = lfs_bd_read(lfs, oldpair[1], oldoff, &data, 1);
+                    if (err) {
+                        return err;
                     }
-                    return err;
+
+                    lfs_crc(&crc, &data, 1);
+                    err = lfs_bd_prog(lfs, dir->pair[0], newoff, &data, 1);
+                    if (err) {
+                        if (err == LFS_ERR_CORRUPT) {
+                            goto relocate;
+                        }
+                        return err;
+                    }
+
+                    oldoff += 1;
+                    newoff += 1;
                 }
-
-                oldoff += 1;
-                newoff += 1;
             }
-        }
 
-        err = lfs_bd_prog(lfs, dir->pair[0], newoff, &crc, 4);
-        if (err) {
-            if (err == LFS_ERR_CORRUPT) {
-                goto relocate;
+            err = lfs_bd_prog(lfs, dir->pair[0], newoff, &crc, 4);
+            if (err) {
+                if (err == LFS_ERR_CORRUPT) {
+                    goto relocate;
+                }
+                return err;
             }
-            return err;
-        }
 
-        err = lfs_bd_sync(lfs);
-        if (err) {
-            if (err == LFS_ERR_CORRUPT) {
-                goto relocate;
+            err = lfs_bd_sync(lfs);
+            if (err) {
+                if (err == LFS_ERR_CORRUPT) {
+                    goto relocate;
+                }
+                return err;
             }
-            return err;
-        }
 
-        // successful commit, check checksum to make sure
-        crc = 0xffffffff;
-        err = lfs_bd_crc(lfs, dir->pair[0], 0, 0x7fffffff & dir->d.size, &crc);
-        if (err) {
-            return err;
-        }
+            // successful commit, check checksum to make sure
+            crc = 0xffffffff;
+            err = lfs_bd_crc(lfs, dir->pair[0], 0,
+                    0x7fffffff & dir->d.size, &crc);
+            if (err) {
+                return err;
+            }
 
-        if (crc == 0) {
-            break;
+            if (crc == 0) {
+                break;
+            }
         }
 
 relocate:
@@ -554,7 +557,7 @@ relocate:
         }
 
         // relocate half of pair
-        err = lfs_alloc(lfs, &dir->pair[0]);
+        int err = lfs_alloc(lfs, &dir->pair[0]);
         if (err) {
             return err;
         }
@@ -791,8 +794,6 @@ static int lfs_dir_find(lfs_t *lfs, lfs_dir_t *dir,
             return err;
         }
     }
-
-    return 0;
 }
 
 
@@ -1003,30 +1004,31 @@ int lfs_dir_rewind(lfs_t *lfs, lfs_dir_t *dir) {
 
 
 /// File index list operations ///
-static int lfs_index(lfs_t *lfs, lfs_off_t *off) {
-    lfs_off_t i = 0;
-
-    while (*off >= lfs->cfg->block_size) {
-        i += 1;
-        *off -= lfs->cfg->block_size;
-        *off += 4*(lfs_ctz(i) + 1);
+static int lfs_ctz_index(lfs_t *lfs, lfs_off_t *off) {
+    lfs_off_t size = *off;
+    lfs_off_t b = lfs->cfg->block_size - 2*4;
+    lfs_off_t i = size / b;
+    if (i == 0) {
+        return 0;
     }
 
+    i = (size - 4*(lfs_popc(i-1)+2)) / b;
+    *off = size - b*i - 4*lfs_popc(i);
     return i;
 }
 
-static int lfs_index_find(lfs_t *lfs,
+static int lfs_ctz_find(lfs_t *lfs,
         lfs_cache_t *rcache, const lfs_cache_t *pcache,
         lfs_block_t head, lfs_size_t size,
         lfs_size_t pos, lfs_block_t *block, lfs_off_t *off) {
     if (size == 0) {
-        *block = -1;
+        *block = 0xffffffff;
         *off = 0;
         return 0;
     }
 
-    lfs_off_t current = lfs_index(lfs, &(lfs_off_t){size-1});
-    lfs_off_t target = lfs_index(lfs, &pos);
+    lfs_off_t current = lfs_ctz_index(lfs, &(lfs_off_t){size-1});
+    lfs_off_t target = lfs_ctz_index(lfs, &pos);
 
     while (current > target) {
         lfs_size_t skip = lfs_min(
@@ -1047,64 +1049,20 @@ static int lfs_index_find(lfs_t *lfs,
     return 0;
 }
 
-static int lfs_index_extend(lfs_t *lfs,
+static int lfs_ctz_extend(lfs_t *lfs,
         lfs_cache_t *rcache, lfs_cache_t *pcache,
         lfs_block_t head, lfs_size_t size,
         lfs_off_t *block, lfs_block_t *off) {
     while (true) {
-        // go ahead and grab a block
-        int err = lfs_alloc(lfs, block);
-        if (err) {
-            return err;
-        }
-        assert(*block >= 2 && *block <= lfs->cfg->block_count);
-
-        err = lfs_bd_erase(lfs, *block);
-        if (err) {
-            if (err == LFS_ERR_CORRUPT) {
-                goto relocate;
+        if (true) {
+            // go ahead and grab a block
+            int err = lfs_alloc(lfs, block);
+            if (err) {
+                return err;
             }
-            return err;
-        }
+            assert(*block >= 2 && *block <= lfs->cfg->block_count);
 
-        if (size == 0) {
-            *off = 0;
-            return 0;
-        }
-
-        size -= 1;
-        lfs_off_t index = lfs_index(lfs, &size);
-        size += 1;
-
-        // just copy out the last block if it is incomplete
-        if (size != lfs->cfg->block_size) {
-            for (lfs_off_t i = 0; i < size; i++) {
-                uint8_t data;
-                int err = lfs_cache_read(lfs, rcache, NULL, head, i, &data, 1);
-                if (err) {
-                    return err;
-                }
-
-                err = lfs_cache_prog(lfs, pcache, rcache, *block, i, &data, 1);
-                if (err) {
-                    if (err == LFS_ERR_CORRUPT) {
-                        goto relocate;
-                    }
-                    return err;
-                }
-            }
-
-            *off = size;
-            return 0;
-        }
-
-        // append block
-        index += 1;
-        lfs_size_t skips = lfs_ctz(index) + 1;
-
-        for (lfs_off_t i = 0; i < skips; i++) {
-            int err = lfs_cache_prog(lfs, pcache, rcache,
-                    *block, 4*i, &head, 4);
+            err = lfs_bd_erase(lfs, *block);
             if (err) {
                 if (err == LFS_ERR_CORRUPT) {
                     goto relocate;
@@ -1112,18 +1070,67 @@ static int lfs_index_extend(lfs_t *lfs,
                 return err;
             }
 
-            if (i != skips-1) {
-                err = lfs_cache_read(lfs, rcache, NULL, head, 4*i, &head, 4);
-                if (err) {
-                    return err;
-                }
+            if (size == 0) {
+                *off = 0;
+                return 0;
             }
 
-            assert(head >= 2 && head <= lfs->cfg->block_count);
-        }
+            size -= 1;
+            lfs_off_t index = lfs_ctz_index(lfs, &size);
+            size += 1;
 
-        *off = 4*skips;
-        return 0;
+            // just copy out the last block if it is incomplete
+            if (size != lfs->cfg->block_size) {
+                for (lfs_off_t i = 0; i < size; i++) {
+                    uint8_t data;
+                    int err = lfs_cache_read(lfs, rcache, NULL,
+                            head, i, &data, 1);
+                    if (err) {
+                        return err;
+                    }
+
+                    err = lfs_cache_prog(lfs, pcache, rcache,
+                            *block, i, &data, 1);
+                    if (err) {
+                        if (err == LFS_ERR_CORRUPT) {
+                            goto relocate;
+                        }
+                        return err;
+                    }
+                }
+
+                *off = size;
+                return 0;
+            }
+
+            // append block
+            index += 1;
+            lfs_size_t skips = lfs_ctz(index) + 1;
+
+            for (lfs_off_t i = 0; i < skips; i++) {
+                int err = lfs_cache_prog(lfs, pcache, rcache,
+                        *block, 4*i, &head, 4);
+                if (err) {
+                    if (err == LFS_ERR_CORRUPT) {
+                        goto relocate;
+                    }
+                    return err;
+                }
+
+                if (i != skips-1) {
+                    err = lfs_cache_read(lfs, rcache, NULL,
+                            head, 4*i, &head, 4);
+                    if (err) {
+                        return err;
+                    }
+                }
+
+                assert(head >= 2 && head <= lfs->cfg->block_count);
+            }
+
+            *off = 4*skips;
+            return 0;
+        }
 
 relocate:
         LFS_DEBUG("Bad block at %d", *block);
@@ -1133,7 +1140,7 @@ relocate:
     }
 }
 
-static int lfs_index_traverse(lfs_t *lfs,
+static int lfs_ctz_traverse(lfs_t *lfs,
         lfs_cache_t *rcache, const lfs_cache_t *pcache,
         lfs_block_t head, lfs_size_t size,
         int (*cb)(void*, lfs_block_t), void *data) {
@@ -1141,7 +1148,7 @@ static int lfs_index_traverse(lfs_t *lfs,
         return 0;
     }
 
-    lfs_off_t index = lfs_index(lfs, &(lfs_off_t){size-1});
+    lfs_off_t index = lfs_ctz_index(lfs, &(lfs_off_t){size-1});
 
     while (true) {
         int err = cb(data, head);
@@ -1160,8 +1167,6 @@ static int lfs_index_traverse(lfs_t *lfs,
 
         index -= 1;
     }
-
-    return 0;
 }
 
 
@@ -1199,7 +1204,7 @@ int lfs_file_open(lfs_t *lfs, lfs_file_t *file,
         entry.d.elen = sizeof(entry.d) - 4;
         entry.d.alen = 0;
         entry.d.nlen = strlen(path);
-        entry.d.u.file.head = -1;
+        entry.d.u.file.head = 0xffffffff;
         entry.d.u.file.size = 0;
         err = lfs_dir_append(lfs, &cwd, &entry, path);
         if (err) {
@@ -1221,7 +1226,7 @@ int lfs_file_open(lfs_t *lfs, lfs_file_t *file,
     file->pos = 0;
 
     if (flags & LFS_O_TRUNC) {
-        file->head = -1;
+        file->head = 0xffffffff;
         file->size = 0;
     }
 
@@ -1455,7 +1460,7 @@ lfs_ssize_t lfs_file_read(lfs_t *lfs, lfs_file_t *file,
         // check if we need a new block
         if (!(file->flags & LFS_F_READING) ||
                 file->off == lfs->cfg->block_size) {
-            int err = lfs_index_find(lfs, &file->cache, NULL,
+            int err = lfs_ctz_find(lfs, &file->cache, NULL,
                     file->head, file->size,
                     file->pos, &file->block, &file->off);
             if (err) {
@@ -1522,7 +1527,7 @@ lfs_ssize_t lfs_file_write(lfs_t *lfs, lfs_file_t *file,
                 file->off == lfs->cfg->block_size) {
             if (!(file->flags & LFS_F_WRITING) && file->pos > 0) {
                 // find out which block we're extending from
-                int err = lfs_index_find(lfs, &file->cache, NULL,
+                int err = lfs_ctz_find(lfs, &file->cache, NULL,
                         file->head, file->size,
                         file->pos-1, &file->block, &file->off);
                 if (err) {
@@ -1535,7 +1540,7 @@ lfs_ssize_t lfs_file_write(lfs_t *lfs, lfs_file_t *file,
 
             // extend file with new blocks
             lfs_alloc_ack(lfs);
-            int err = lfs_index_extend(lfs, &lfs->rcache, &file->cache,
+            int err = lfs_ctz_extend(lfs, &lfs->rcache, &file->cache,
                     file->block, file->pos,
                     &file->block, &file->off);
             if (err) {
@@ -1588,13 +1593,13 @@ lfs_soff_t lfs_file_seek(lfs_t *lfs, lfs_file_t *file,
     if (whence == LFS_SEEK_SET) {
         file->pos = off;
     } else if (whence == LFS_SEEK_CUR) {
-        if (-off > file->pos) {
+        if ((lfs_off_t)-off > file->pos) {
             return LFS_ERR_INVAL;
         }
 
         file->pos = file->pos + off;
     } else if (whence == LFS_SEEK_END) {
-        if (-off > file->size) {
+        if ((lfs_off_t)-off > file->size) {
             return LFS_ERR_INVAL;
         }
 
@@ -2070,7 +2075,7 @@ int lfs_traverse(lfs_t *lfs, int (*cb)(void*, lfs_block_t), void *data) {
 
             dir.off += lfs_entry_size(&entry);
             if ((0x70 & entry.d.type) == (0x70 & LFS_TYPE_REG)) {
-                int err = lfs_index_traverse(lfs, &lfs->rcache, NULL,
+                int err = lfs_ctz_traverse(lfs, &lfs->rcache, NULL,
                         entry.d.u.file.head, entry.d.u.file.size, cb, data);
                 if (err) {
                     return err;
@@ -2089,7 +2094,7 @@ int lfs_traverse(lfs_t *lfs, int (*cb)(void*, lfs_block_t), void *data) {
     // iterate over any open files
     for (lfs_file_t *f = lfs->files; f; f = f->next) {
         if (f->flags & LFS_F_DIRTY) {
-            int err = lfs_index_traverse(lfs, &lfs->rcache, &f->cache,
+            int err = lfs_ctz_traverse(lfs, &lfs->rcache, &f->cache,
                     f->head, f->size, cb, data);
             if (err) {
                 return err;
@@ -2097,7 +2102,7 @@ int lfs_traverse(lfs_t *lfs, int (*cb)(void*, lfs_block_t), void *data) {
         }
 
         if (f->flags & LFS_F_WRITING) {
-            int err = lfs_index_traverse(lfs, &lfs->rcache, &f->cache,
+            int err = lfs_ctz_traverse(lfs, &lfs->rcache, &f->cache,
                     f->block, f->pos, cb, data);
             if (err) {
                 return err;
