@@ -1572,7 +1572,6 @@ from tools.settings import ARM_PATH, ARMC6_PATH, GCC_ARM_PATH, IAR_PATH
 
 TOOLCHAIN_PATHS = {
     'ARM': ARM_PATH,
-    'uARM': ARM_PATH,
     'ARMC6': ARMC6_PATH,
     'GCC_ARM': GCC_ARM_PATH,
     'IAR': IAR_PATH
@@ -1583,9 +1582,7 @@ from tools.toolchains.gcc import GCC_ARM
 from tools.toolchains.iar import IAR
 
 TOOLCHAIN_CLASSES = {
-    'ARM': ARM_STD,
-    'uARM': ARM_MICRO,
-    'ARMC6': ARMC6,
+    'ARM': ARMC6,
     'GCC_ARM': GCC_ARM,
     'IAR': IAR
 }

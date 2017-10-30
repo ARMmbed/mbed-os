@@ -296,7 +296,8 @@ class ARMC6(ARM_STD):
                        "CortexM33-NS"]
     @staticmethod
     def check_executable():
-        return mbedToolchain.generic_check_executable("ARMC6", "armclang", 1)
+        return(mbedToolchain.generic_check_executable("ARMC6", "armclang", 1) or
+               mbedToolchain.generic_check_executable("ARM", "armclang", 1))
 
     def __init__(self, target, *args, **kwargs):
         mbedToolchain.__init__(self, target, *args, **kwargs)

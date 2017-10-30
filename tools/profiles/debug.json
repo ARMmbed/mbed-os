@@ -15,7 +15,7 @@
                "-Wl,--wrap,_calloc_r", "-Wl,--wrap,exit", "-Wl,--wrap,atexit",
                "-Wl,-n"]
     },
-    "ARMC6": {
+    "ARM": {
         "common": ["-c", "--target=arm-arm-none-eabi", "-mthumb", "-g", "-O0",
                    "-Wno-armcc-pragma-push-pop", "-Wno-armcc-pragma-anon-unions",
                    "-DMULADDC_CANNOT_USE_R7", "-fdata-sections",
@@ -25,27 +25,6 @@
         "cxx": ["-fno-rtti", "-std=gnu++98"],
         "ld": ["--verbose", "--remove", "--legacyalign", "--no_strict_wchar_size",
                "--no_strict_enum_size"]
-    },
-    "ARM": {
-        "common": ["-c", "--gnu", "-Otime", "--split_sections",
-                   "--apcs=interwork", "--brief_diagnostics", "--restrict",
-                   "--multibyte_chars", "-O0", "-g", "-DMBED_DEBUG",
-                   "-DMBED_TRAP_ERRORS_ENABLED=1"],
-        "asm": [],
-        "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
-        "cxx": ["--cpp", "--no_rtti", "--no_vla"],
-        "ld": ["--show_full_path"]
-    },
-    "uARM": {
-        "common": ["-c", "--gnu", "-Otime", "--split_sections",
-                   "--apcs=interwork", "--brief_diagnostics", "--restrict",
-                   "--multibyte_chars", "-O0", "-D__MICROLIB", "-g",
-                   "--library_type=microlib", "-DMBED_RTOS_SINGLE_THREAD", "-DMBED_DEBUG",
-                   "-DMBED_TRAP_ERRORS_ENABLED=1"],
-        "asm": [],
-        "c": ["--md", "--no_depend_system_headers", "--c99", "-D__ASSERT_MSG"],
-        "cxx": ["--cpp", "--no_rtti", "--no_vla"],
-        "ld": ["--library_type=microlib"]
     },
     "IAR": {
         "common": [
