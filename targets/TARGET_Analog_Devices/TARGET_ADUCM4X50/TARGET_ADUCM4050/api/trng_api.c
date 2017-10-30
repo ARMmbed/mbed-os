@@ -110,6 +110,9 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 
         // Save the output
 		output[i] = (uint8_t)(nRandomNum & 0xFF);
+        
+        // Clear the nRandomNum variable for security purposes
+        nRandomNum = 0;
     }
 
     *output_length = length;
