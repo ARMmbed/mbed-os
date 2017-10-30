@@ -58,13 +58,50 @@
 #define UARTLP_CTRL (1 << 6)
 
 /* Convert number of data bits to register values */
-#define MIN_NUM_UART_DATA_BITS 5
-#define MAX_NUM_UART_DATA_BITS 8
+#define UART_DATA_BITS_7 7
+#define UART_DATA_BITS_8 8
 #define REGISTER_DATA_BITS(x) ((x) - MIN_NUM_UART_DATA_BITS)
 
 /* Number of stop bits */
 #define NUM_UART_STOP_BITS_1 1
 #define NUM_UART_STOP_BITS_2 2
+
+/* uart reference frequency in Hz*/
+#define UART_REF_FREQ   (26000000UL)
+
+/** Macro generating the mask for a bitfield of \p n bits */
+#define DRIVER_BIT_SET(n)                      (1u<<(n))
+
+#define DRIVER_BITS_CLR(data, mask)            ((data) & ~(mask))
+#define DRIVER_BITS_SET(data, bits)            ((data) |  (bits))
+
+/** Macro generating the mask for a bitfield of \p n bits */
+#define DRIVER_BIT_MASK(n)                      (DRIVER_BIT_SET(n) - 1)
+
+/** Macro generating the mask for a bitfield defined as `name_OFFSET` and `name_SIZE` */
+#define DRIVER_BITFIELD_MASK_(name)             (DRIVER_BIT_MASK(name##_SIZE) << (name##_OFFSET))
+#define DRIVER_BITFIELD_MASK(name)              DRIVER_BITFIELD_MASK_(name)
+
+/** Extract bitfield defined as `name_OFFSET` and `name_SIZE` from \p data */
+#define DRIVER_BITFIELD_GET_(data, name)        (((data) >> name##_OFFSET) & DRIVER_BIT_MASK(name##_SIZE))
+#define DRIVER_BITFIELD_GET(data, name)         DRIVER_BITFIELD_GET_(data, name)
+
+/** Return \p data with bitfield defined as `name_OFFSET` and `name_SIZE` cleared */
+#define DRIVER_BITFIELD_CLR(data, name)         ((data) & ~DRIVER_BITFIELD_MASK(name))
+
+/** Return \p bitfield defined as `name_OFFSET` and `name_SIZE` set to \p value */
+#define DRIVER_BITFIELD_VAL_(name, value)       (((value) & DRIVER_BIT_MASK(name##_SIZE)) << name##_OFFSET)
+#define DRIVER_BITFIELD_VAL(name, value)        DRIVER_BITFIELD_VAL_(name, value)
+
+/** Return \p data with bitfield defined as `name_OFFSET` and `name_SIZE` set to \p value */
+#define DRIVER_BITFIELD_SET(data, name, value)  (DRIVER_BITFIELD_CLR(data, name) | DRIVER_BITFIELD_VAL(name, value))
+
+/** Return \p bitfield defined as `name_OFFSET` and `name_SIZE` set to \p name_ENUM_value */
+#define DRIVER_BITFIELD_ENUM_(name, enumValue)      DRIVER_BITFIELD_VAL(name, name##_ENUM_##enumValue)
+#define DRIVER_BITFIELD_ENUM(name, enumValue)       DRIVER_BITFIELD_ENUM_(name, enumValue)
+
+/** Return \p data with bitfield defined as `name_OFFSET` and `name_SIZE` set to \p name_ENUM_value */
+#define DRIVER_BITFIELD_SET_ENUM(data, name, enumValue)  DRIVER_BITFIELD_SET(data, name,  DRIVER_BITFIELD_ENUM(name, enumValue))
 
 /* ----------------------------------------------------------------
  * TYPES
@@ -81,9 +118,9 @@ typedef enum {
  * GLOBAL VARIABLES
  * ----------------------------------------------------------------*/
 
-/* The IRQ configuration variables, set up and named by mbed */
-static uint32_t serial_irq_ids[NUM_IRQ_IDS] = {0};
-static uart_irq_handler irq_handler = NULL;
+// /* The IRQ configuration variables, set up and named by mbed */
+// static uint32_t serial_irq_ids[NUM_IRQ_IDS] = {0};
+// static uart_irq_handler irq_handler = NULL;
 
 /* RTX needs these */
 int stdio_uart_inited = 0;
@@ -92,317 +129,26 @@ serial_t stdio_uart;
 /* ----------------------------------------------------------------
  * FUNCTION PROTOTYPES
  * ----------------------------------------------------------------*/
-
-static void init_config(serial_t *obj);
-static void deinit_config(serial_t *obj);
-static void set_baud(serial_t *obj, uint32_t baud_rate);
-static void irq_enable(serial_t *obj);
-static void irq_disable(serial_t *obj);
+uint32_t zeroBitNumFromLsb(uint32_t data);
 
 /* ----------------------------------------------------------------
  * NON-API FUNCTIONS
  * ----------------------------------------------------------------*/
-
-/* Initialise the given serial config by setting the pin functions
- * and then resetting the relevant HW */
-static void init_config(serial_t *obj)
+/* calculate the number of zero bits from LSB */
+uint32_t zeroBitNumFromLsb(uint32_t data)
 {
-    // uint32_t x;
-
-    // switch (obj->config) {
-        // case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        // {
-            // pin_function(obj->rx_pin, PIN_FUNCTION_LP_UART);
-            // pin_function(obj->tx_pin, PIN_FUNCTION_UART0_TXD);
-            // CLKEN_REG_BITSET = UARTLP_CTRL | UART0_CTRL;
-            // obj->reg_base = &UART1_REG;
-            // obj->index = IRQ_UART_ID_0_AND_LP;
-            // /* Reset the LPUART and UART0 HW */
-            // /* NOTE: RESET_REG_BITTOG doesn't have the desired
-             // * effect, need to use BITSET and then BITCLR */
-            // RESET_REG_BITSET |= 1ul << 6;
-            // RESET_REG_BITCLR |= 1ul << 6;
-            // RESET_REG_BITSET |= 1ul << 3;
-            // RESET_REG_BITCLR |= 1ul << 3;
-        // }
-        // break;
-        // case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        // {
-            // pin_function(obj->rx_pin, PIN_FUNCTION_UART0_RXD);
-            // pin_function(obj->tx_pin, PIN_FUNCTION_UART0_TXD);
-            // CLKEN_REG_BITSET = UART0_CTRL;
-            // obj->reg_base = &UART1_REG;
-            // obj->index = IRQ_UART_ID_0_AND_LP;
-            // /* Reset the UART0 HW */
-            // RESET_REG_BITSET |= 1ul << 3;
-            // RESET_REG_BITCLR |= 1ul << 3;
-        // }
-        // break;
-        // case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        // {
-            // pin_function(obj->rx_pin, PIN_FUNCTION_UART1_RXD);
-            // pin_function(obj->tx_pin, PIN_FUNCTION_UART1_TXD);
-            // CLKEN_REG_BITSET = UART1_CTRL;
-            // obj->reg_base = &UART2_REG;
-            // obj->index = IRQ_UART_ID_1;
-            // /* Reset the UART1 HW */
-            // RESET_REG_BITSET |= 1ul << 4;
-            // RESET_REG_BITCLR |= 1ul << 4;
-        // }
-        // break;
-        // default:
-        // {
-            // MBED_ASSERT(false);
-        // }
-        // break;
-    // }
-
-    // /* Tickle the UART control register to make sure it is updated */
-    // x = obj->reg_base->UARTLCR_H;
-    // obj->reg_base->UARTLCR_H = x;
-
-    // /* Set the FIFO. The meaning of the three FIFO interrupt-level
-     // * bits are as follows:
-     // *
-     // * 0 = 1/8 full
-     // * 1 = 1/4 full
-     // * 2 = 1/2 full
-     // * 3 = 3/4 full
-     // * 4 = 7/8 full
-     // *
-     // * Set up the Rx FIFO to be used fully (but we will also set
-     // * a timeout to get immediate notice) and also the Tx FIFO
-     // * to be fully used. */
-     // obj->reg_base->UARTIFLS = (obj->reg_base->UARTIFLS & ~(0x07 << 0)) | (4 << 0);
-     // obj->reg_base->UARTIFLS = (obj->reg_base->UARTIFLS & ~(0x07 << 3)) | (4 << 3);
-     // obj->reg_base->UARTLCR_H |= 1 << 4;
-
-    // /* Enable for Tx and Rx (TODO: add CTS when we add flow control) */
-    // obj->reg_base->UARTCR |= (1 << 8) | (1 << 9);
-
-    // /* Now enable it */
-    // obj->reg_base->UARTCR |= 1 << 0;
-
-    // obj->format_set = false;
-    // obj->baud_rate = 0;
-    // obj->irq_rx_setting = IRQ_NOT_SET;
-    // obj->irq_tx_setting = IRQ_NOT_SET;
-}
-
-/* Release a serial port */
-static void deinit_config(serial_t *obj)
-{
-    // pin_function(obj->rx_pin, PIN_FUNCTION_UNCLAIMED);
-    // pin_function(obj->tx_pin, PIN_FUNCTION_UNCLAIMED);
-
-    // /* Disable UART */
-    // obj->reg_base->UARTCR &= ~(1 << 0);
-
-    // /* Flush transmit FIFO */
-    // obj->reg_base->UARTLCR_H = 0;
-
-    // /* Disable everything */
-    // obj->reg_base->UARTCR = 0;
-
-    // switch (obj->config) {
-        // case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        // {
-            // CLKEN_REG_BITCLR = UARTLP_CTRL | UART0_CTRL;
-            // LP_UART_CTRL &= ~(0xF << 20); /* Disable all LP interrupts */
-        // }
-        // break;
-        // case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        // {
-            // CLKEN_REG_BITCLR = UART0_CTRL;
-        // }
-        // break;
-        // case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        // {
-            // CLKEN_REG_BITCLR = UART1_CTRL;
-        // }
-        // break;
-        // default:
-        // {
-            // MBED_ASSERT(false);
-        // }
-        // break;
-    // }
-
-    // obj->config = MAX_NUM_SERIAL_CONFIGS;
-    // obj->reg_base = NULL;
-}
-
-/* Set the baud rate for either of the two (non-LP) UARTS */
-static void set_baud(serial_t *obj, uint32_t baud_rate)
-{
-    // uint32_t baud_rate_divider_i;
-    // uint32_t baud_rate_divider_f;
-    // uint32_t remainder;
-    // uint32_t core_clock;
-    // uint32_t x;
-
-    // /* Baud rate divider calculation:
-     // *
-     // * The integer part is: clock / (16 * baud)
-     // *
-     // * The fractional part is:  round (decimal_part * 64),
-     // * ...where decimal part is, for example, 0.085
-     // *
-     // * decimal_part is: remainder / (16 * baud),
-     // * ...where: remainder = core_clock % (baud * 16),
-     // *
-     // * So the fractional part becomes:
-     // * round (decimal_part * 64) = round (remainder * 64 / (16 * baud)) = round (remainder * 4 / baud)
-     // */
-
-    // /* Get the mean clock frequency */
-    // core_clock = (CLK_FREQ_HIGHTARGET >> 1) + (CLK_FREQ_LOWTARGET >> 1);
-    // /* Work out the actual clock frequency */
-    // core_clock = (core_clock * CLOCKS_REFERENCE_CLOCK_FREQ) / (((CLK_FREQ_NREFCLKS + 1) & 0xFFFF) * (CLK_GATE_SYS & 0xFF));
-    // baud_rate_divider_i = core_clock / (baud_rate << 4);
-    // remainder = core_clock % (baud_rate << 4);
-    // baud_rate_divider_f = ((remainder << 3) / baud_rate) >> 1;
-    // /* Round it */
-    // baud_rate_divider_f += ((remainder << 3) / baud_rate) & 1;
-
-    // /* Disable UART while writing to control registers */
-    // obj->reg_base->UARTCR &= ~(1 << 0);
-
-    // obj->reg_base->UARTIBRD = baud_rate_divider_i;
-    // obj->reg_base->UARTFBRD = baud_rate_divider_f;
-
-    // /* Make IBRD and FBRD update */
-    // x = obj->reg_base->UARTLCR_H;
-    // obj->reg_base->UARTLCR_H = x;
-
-    // /* Now enable the UART again */
-    // obj->reg_base->UARTCR |= 1 << 0;
-}
-
-/* Set the NVIC bits */
-static void irq_enable(serial_t *obj)
-{
-    switch (obj->config) {
-        case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        {
-            NVIC_EnableIRQ(APP_CPU_APP_IRQ_UART1_INT_IRQn);
-            //NVIC_EnableIRQ(LPUART_IRQn);
+    uint32_t zeroBitNum = 0;
+    for (uint32_t i = 0; i < 32; ++i) {
+        if ((data & 0x01) == 0) {
+          ++zeroBitNum;
+          data >>= 1;
         }
-        break;
-        case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        {
-            NVIC_EnableIRQ(APP_CPU_APP_IRQ_UART1_INT_IRQn);
-        }
-        break;
-        case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        {
-            NVIC_EnableIRQ(APP_CPU_APP_IRQ_UART2_INT_IRQn);
-        }
-        break;
-        default:
-        {
-            MBED_ASSERT(false);
-        }
-        break;
-    }
-}
-
-/* Unset the NVIC bits */
-static void irq_disable(serial_t *obj)
-{
-    switch (obj->config) {
-        case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        {
-            NVIC_DisableIRQ(APP_CPU_APP_IRQ_UART1_INT_IRQn);
-            //NVIC_DisableIRQ(LPUART_IRQn);
-        }
-        break;
-        case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        {
-            NVIC_DisableIRQ(APP_CPU_APP_IRQ_UART1_INT_IRQn);
-        }
-        break;
-        case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        {
-            NVIC_DisableIRQ(APP_CPU_APP_IRQ_UART2_INT_IRQn);
-        }
-        break;
-        default:
-        {
-            MBED_ASSERT(false);
-        }
-        break;
-    }
-}
-
-/* UART0 IRQ */
-void IRQ7_UART0_Handler()
-{
-    uint32_t id = serial_irq_ids[IRQ_UART_ID_0_AND_LP];
-
-    /* Check Rx and Rx Timeout bit */
-    if (UART1_REG.UARTMIS & ((1 << 4) | (1 << 6))) {
-        if (id != 0) {
-            irq_handler(id, RxIrq);
-            /* Reading the character clears the interrupt,
-             * no way to protect against another arriving
-             * while processing one */
+        else {
+            //find bit 1.
+            break;
         }
     }
-    /* Check Tx bit */
-    if (UART1_REG.UARTMIS & (1 << 5)) {
-        if (id != 0) {
-            irq_handler(id, TxIrq);
-        }
-        /* Not sure what clears the interrupt so clear it explicitly */
-        NVIC_ClearPendingIRQ(APP_CPU_APP_IRQ_UART2_INT_IRQn);
-    }
-}
-
-/* UART1 IRQ */
-void IRQ8_UART1_Handler()
-{
-    uint32_t id = serial_irq_ids[IRQ_UART_ID_1];
-
-    /* Check Rx and Rx Timeout bit */
-    if (UART2_REG.UARTMIS & ((1 << 4) | (1 << 6))) {
-        if (id != 0) {
-            irq_handler(id, RxIrq);
-        }
-        /* Reading the character clears the interrupt,
-         * no way to protect against another arriving
-         * while processing one */
-    }
-    /* Check Tx bit */
-    if (UART2_REG.UARTMIS & (1 << 5)) {
-        if (id != 0) {
-            irq_handler(id, TxIrq);
-        }
-        /* Not sure what clears the interrupt so clear it explicitly */
-        NVIC_ClearPendingIRQ(APP_CPU_APP_IRQ_UART2_INT_IRQn);
-    }
-}
-
-/* LP UART IRQ, receive only */
-void IRQ16_LPUART_Handler()
-{
-    // uint32_t id = serial_irq_ids[IRQ_UART_ID_0_AND_LP];
-
-    // if (id != 0) {
-        // irq_handler(id, RxIrq);
-
-        // /* Another character might have arrived while
-         // * we are processing the last, so
-         // * check status bits 8 to 10 again and pend
-         // * interrupt if there's something there */
-        // if (((LP_UART_STATUS >> 8) & 0x07) != 0) {
-
-        	// TODO IDentify LPUART
-            // NVIC_SetPendingIRQ(LPUART_IRQn);
-        // } else {
-            // LP_UART_CTRL |= 1 << 27; /* Clear the interrupt */
-        // }
-    // }
+    return zeroBitNum;
 }
 
 /* ----------------------------------------------------------------
@@ -462,18 +208,100 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
 void serial_free(serial_t *obj)
 {
-    if (obj->tx_pin == UART0_TX) {
-        stdio_uart_inited = 0;
-    }
+    // if (obj->tx_pin == UART0_TX) {
+        // stdio_uart_inited = 0;
+    // }
 
-    serial_irq_ids[obj->index] = 0;
+    // serial_irq_ids[obj->index] = 0;
 
-    /* Release the port HW */
-    deinit_config(obj);
+    // /* Release the port HW */
+    // deinit_config(obj);
 }
 
 void serial_baud(serial_t *obj, int baudrate)
 {
+    /*          uart baudrate calculation formula
+    *   baudrate = (Pha * Fin) / OS * (Brdiv + 1) * 2^N
+    *
+    *   Pha: NCO phase accumulator value. Default is 0x80
+    *   Fin: Uart ref clock frequency. Default is 26MHz
+    *   OS: Oversampling rate. Default is 16
+    *   Brdiv: BR register counter reload value ref. HAL doxygen
+    *   N: Number of NCO bits i.e 8
+    *   baudrate = (Pha * Fin) / 16 * (Brdiv + 1) * 2^8
+    */    
+    
+    uint8_t nco_phase_acc_value = 0;
+    uint16_t baudrate_divider_value = 0;
+    uint32_t dividend = 0;
+    uint32_t divisor = 0;    
+    uint32_t pclk = UART_REF_FREQ;
+    uint32_t req_baudrate = (uint32_t)baudrate;   
+    const uint32_t nco_phase_acc_initial_shift_num = 7; 
+    const uint32_t os_nco_bits_multiplier_shift_num = 12;     
+    uint32_t pclk_shift_num = zeroBitNumFromLsb(pclk);
+    uint32_t baudrate_shift_num = zeroBitNumFromLsb(req_baudrate);
+    int32_t total_shift_num = 0; 
+           
+    pclk >>= pclk_shift_num;
+    req_baudrate >>= baudrate_shift_num;
+    
+    /* calculating baudrate divider*/
+    total_shift_num = (pclk_shift_num + nco_phase_acc_initial_shift_num - os_nco_bits_multiplier_shift_num - baudrate_shift_num);    
+    if (total_shift_num >= 0) {
+        dividend = pclk << total_shift_num;
+        divisor = req_baudrate;
+    }
+    else {
+        dividend = pclk;
+        divisor = req_baudrate << (0 - total_shift_num);  
+    }	
+    //printf("step 1 calculate baudrate_divider_value, reqBaudrate=%d, dividend=%d, divisor=%d, totalShiftNum=%d,\n", baudrate, dividend, divisor, total_shift_num);    
+    if (divisor != 0) {
+        baudrate_divider_value = (dividend + (divisor >> 1)) / divisor;         
+    }
+    else {
+        MBED_ASSERT(false);
+    }
+    
+    /* fine tune nco phase accumulator value*/
+    total_shift_num = baudrate_shift_num + os_nco_bits_multiplier_shift_num - pclk_shift_num;    
+    if (total_shift_num >= 0)
+    {
+        dividend = (req_baudrate * baudrate_divider_value) << total_shift_num;
+        divisor = pclk;
+    }
+    else
+    {
+        dividend = req_baudrate * baudrate_divider_value;
+        divisor = pclk << (0 - total_shift_num);
+    }
+    //printf("step 2 calculate ncoPhase, reqBaudrate=%d, dividend=%d, divisor=%d, totalShiftNum=%d,\n", baudrate, dividend, divisor, total_shift_num);
+    if (divisor != 0) {
+        nco_phase_acc_value = (dividend + (divisor >> 1)) / divisor; 
+    }
+    else {
+        MBED_ASSERT(false);
+    }
+    
+    MBED_ASSERT(!((baudrate_divider_value > DRIVER_BIT_MASK(UART_BR_BAUDRATE_SIZE)) || (nco_phase_acc_value > DRIVER_BIT_MASK(UART_NCO_NCO_PHASE_SIZE))));
+
+    /* disable baudrate generator (uart control clear reg) */
+    obj->reg_base->crc |= DRIVER_BITFIELD_MASK(UART_CRC_BR_EN);
+        
+    /* set baudrate divider value */
+	baudrate_divider_value--; /* the actual register value should minus 1 */
+    obj->reg_base->br = DRIVER_BITFIELD_SET(obj->reg_base->br, UART_BR_BAUDRATE, baudrate_divider_value);
+
+    /* set nco phase value */
+    obj->reg_base->nco = DRIVER_BITFIELD_SET(obj->reg_base->nco, UART_NCO_NCO_PHASE, nco_phase_acc_value);
+    
+    /* enable baudrate generator (uart control set reg) */
+    obj->reg_base->crs |= DRIVER_BITFIELD_MASK(UART_CRC_BR_EN);
+	
+	
+	
+	
     // bool switch_port_config = false;
     // bool format_set = obj->format_set;
     // uint8_t stop_bits = obj->format.stop_bits;
@@ -547,85 +375,56 @@ void serial_baud(serial_t *obj, int baudrate)
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
-{
-    // bool lp_also = false;
+{    
+    MBED_ASSERT((data_bits == UART_DATA_BITS_7) || (data_bits == UART_DATA_BITS_8));     
+    /* Uart_IP supports 0.5, 1, 1.5 and 2 stop bits however SerialBase Class only allows 1 or 2 stop bits*/
+    MBED_ASSERT((stop_bits == NUM_UART_STOP_BITS_1) || (stop_bits == NUM_UART_STOP_BITS_2));     
+    MBED_ASSERT((parity == ParityNone) || (parity == ParityOdd) || (parity == ParityEven));
 
-    // MBED_ASSERT(data_bits >= MIN_NUM_UART_DATA_BITS);
-    // MBED_ASSERT(data_bits <= MAX_NUM_UART_DATA_BITS);
-    // MBED_ASSERT(stop_bits >= NUM_UART_STOP_BITS_1);
-    // MBED_ASSERT(stop_bits <= NUM_UART_STOP_BITS_2);
-
-    // /* The LP UART is different to UARTs 0 and 1 so deal with it
-     // * explicitly when required */
-    // if (obj->config == SERIAL_CONFIG_UARTLP_RX_UART0_TX) {
-        // lp_also = true;
-    // }
-
-    // /* Disable UART while writing to control registers */
-    // obj->reg_base->UARTCR &= ~(1 << 0);
-
-    // /* Set data bits (bits 5 and 6 of the UART0/1 register, bits 18 and 19 of the LP UART register) */
-    // obj->reg_base->UARTLCR_H = (obj->reg_base->UARTLCR_H & ~(0x03 << 5)) | (REGISTER_DATA_BITS(data_bits) << 5);
-    // if (lp_also) {
-        // LP_UART_CTRL = (LP_UART_CTRL & ~(0x03 << 18)) | (REGISTER_DATA_BITS(data_bits) << 18);
-    // }
-    // obj->format.data_bits = (uint8_t) data_bits;
-
-    // /* Set stop bits (bit 7 of the UART0/1 register) (there is no such setting for the LP UART) */
-    // if (stop_bits == NUM_UART_STOP_BITS_1) {
-        // /* Clear 2-stop-bits bit */
-        // obj->reg_base->UARTLCR_H &= ~(1 << 7);
-    // } else {
-        // /* Set 2-stop-bits bit */
-        // obj->reg_base->UARTLCR_H |= 1 << 7;
-    // }
-    // obj->format.stop_bits = (uint8_t) stop_bits;
-
-    // /* Set parity */
-    // switch (parity) {
-        // case ParityNone:
-        // {
-            // /* Disable parity */
-            // obj->reg_base->UARTLCR_H &= ~0x02;
-            // if (lp_also)
-            // {
-                // LP_UART_CTRL &= ~(1 << 24);
-            // }
-        // }
-        // break;
-        // case ParityOdd:
-        // {
-            // /* Set even bit and enable parity */
-            // obj->reg_base->UARTLCR_H = (obj->reg_base->UARTLCR_H | (1 << 3)) | (1 << 2);
-            // if (lp_also)
-            // {
-                // LP_UART_CTRL |= (1 << 24) | (1 << 25);
-            // }
-        // }
-        // break;
-        // case ParityEven:
-        // {
-            // /* Clear even bit and enable parity */
-            // obj->reg_base->UARTLCR_H = (obj->reg_base->UARTLCR_H & ~(1 << 3)) | (1 << 2);
-            // if (lp_also)
-            // {
-                // LP_UART_CTRL &= ~(1 << 25);
-                // LP_UART_CTRL |= 1 << 24;
-            // }
-        // }
-        // break;
-        // default:
-        // {
-            // MBED_ASSERT(false);
-        // }
-        // break;
-    // }
-
-    // /* Enable the UART again */
-    // obj->reg_base->UARTCR |= 1 << 0;
-
-    // obj->format.parity = (uint8_t) parity;
-    // obj->format_set = true;
+    uint32_t register_value=0;
+    
+    /* disable uart */ 
+    register_value = (DRIVER_BITFIELD_MASK(UART_CRC_BR_EN) | DRIVER_BITFIELD_MASK(UART_CRC_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRC_TX_EN));
+    obj->reg_base->crc = register_value;
+    
+    /* read the existing value, change what is required and write once. This is done so that register access is only once not again and again */
+    register_value = obj->reg_base->cr;
+    
+    /* set uart_driver_mode */
+    if (parity == ParityNone) { /* Parity is disabled, set mode with parity disabled */        
+        if (data_bits == UART_DATA_BITS_7) {
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_MODE, UART_CR_MODE_7NP_VALUE);            
+        } else if (data_bits == UART_DATA_BITS_8) {
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_MODE, UART_CR_MODE_8NP_VALUE);            
+        }       
+    } else { /* Parity is enabled, set mode with parity enabled */        
+        if (data_bits == UART_DATA_BITS_7) {
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_MODE, UART_CR_MODE_7P_VALUE);             
+        } else if (data_bits == UART_DATA_BITS_8) {
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_MODE, UART_CR_MODE_8P_VALUE);            
+        } 
+                
+        if (parity == ParityEven) { /* Set reg field depending upon parity even or odd */
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_PARITYMODE, UART_CR_PARITYMODE_EVEN_VALUE);            
+        } else if (parity == ParityOdd) {
+            register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_PARITYMODE, UART_CR_PARITYMODE_ODD_VALUE);            
+        }        
+    }
+    
+    /* set uart_stop_bits */
+    if (stop_bits == NUM_UART_STOP_BITS_1) {
+        register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_RX_STOPBITS, UART_CR_RX_STOPBITS_10_VALUE);      
+        register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_TX_STOPBITS, UART_CR_RX_STOPBITS_10_VALUE);   // macro UART_CR_TX_STOPBITS_10_VALUE is not defined in uart.h but since possible values for both UART_CR_RX_STOPBITS and UART_CR_TX_STOPBITS are the same so it is not necessary.   
+    } else if (stop_bits == NUM_UART_STOP_BITS_2) {
+        register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_RX_STOPBITS, UART_CR_RX_STOPBITS_20_VALUE);      
+        register_value = DRIVER_BITFIELD_SET(register_value, UART_CR_TX_STOPBITS, UART_CR_RX_STOPBITS_20_VALUE);           
+    }
+             
+    /* enable uart */ 
+    register_value |= (DRIVER_BITFIELD_MASK(UART_CRS_BR_EN) | DRIVER_BITFIELD_MASK(UART_CRS_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRS_TX_EN));
+    
+    /* write final value to register */
+    obj->reg_base->cr = register_value;
 }
 
 /* ----------------------------------------------------------------
@@ -634,8 +433,8 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
-    irq_handler = handler;
-    serial_irq_ids[obj->index] = id;
+    // irq_handler = handler;
+    // serial_irq_ids[obj->index] = id;
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
@@ -746,16 +545,16 @@ int serial_getc(serial_t *obj)
         // break;
     // }
 
-    // return (int) data;
+     return 0;
 }
 
 void serial_putc(serial_t *obj, int c)
 {
-    /* Block until there is room to write */
-    while (!serial_writable(obj)) {}
+    // /* Block until there is room to write */
+    // while (!serial_writable(obj)) {}
 
-    /* Write the data */
-    obj->reg_base->UARTDR = (uint8_t) c;
+    // /* Write the data */
+    // obj->reg_base->UARTDR = (uint8_t) c;
 }
 
 int serial_readable(serial_t *obj)
@@ -786,36 +585,36 @@ int serial_readable(serial_t *obj)
         // break;
     // }
 
-    // return (int) readable;
+    return 0;
 }
 
 int serial_writable(serial_t *obj)
 {
     /* Check the "UART TX FIFO full" bit:
      * only if this is 0 can we transmit  */
-    return (obj->reg_base->UARTFR & (1 << 5)) != (1 << 5);
+    return 0;
 }
 
 void serial_break_set(serial_t *obj)
 {
-    /* Disable UART while writing to control registers */
-    obj->reg_base->UARTCR &= ~(1 << 0);
+    // /* Disable UART while writing to control registers */
+    // obj->reg_base->UARTCR &= ~(1 << 0);
 
-    /* Set bit 1 of the line control register */
-    obj->reg_base->UARTLCR_H |= 1 << 0;
+    // /* Set bit 1 of the line control register */
+    // obj->reg_base->UARTLCR_H |= 1 << 0;
 
-    /* Enable the UART again */
-    obj->reg_base->UARTCR |= 1 << 0;
+    // /* Enable the UART again */
+    // obj->reg_base->UARTCR |= 1 << 0;
 }
 
 void serial_break_clear(serial_t *obj)
 {
-    /* Disable UART while writing to control registers */
-    obj->reg_base->UARTCR &= ~(1 << 0);
+    // /* Disable UART while writing to control registers */
+    // obj->reg_base->UARTCR &= ~(1 << 0);
 
-    /* Clear bit 1 of the line control register */
-    obj->reg_base->UARTLCR_H &= ~(1 << 0);
+    // /* Clear bit 1 of the line control register */
+    // obj->reg_base->UARTLCR_H &= ~(1 << 0);
 
-    /* Enable the UART again */
-    obj->reg_base->UARTCR |= 1 << 0;
+    // /* Enable the UART again */
+    // obj->reg_base->UARTCR |= 1 << 0;
 }

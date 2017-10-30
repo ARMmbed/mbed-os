@@ -48,26 +48,11 @@ struct gpio_irq_s {
     uint32_t ch;   /* Corresponds to the interrupt pin */
 };
 
-struct serial_s {
-    SerialConfig config;
-    PinName rx_pin;
-    PinName tx_pin;
-
-    //  add it once serial is being done
-    volatile uart_ctrl_t *reg_base;
-     /*
-     *
-     */
-    uint8_t index;
-    uint32_t baud_rate;
-    bool format_set; /* If true then the struct that follows is populated */
-    struct {
-        uint8_t stop_bits;
-        uint8_t data_bits;
-        uint8_t parity;
-    } format;
-    irq_setting_t irq_rx_setting;
-    irq_setting_t irq_tx_setting;
+struct serial_s {     
+    volatile struct uart_s *reg_base;
+    uint8_t index; /* IRQ index number. Might get removed later, unsure at this stage */
+    irq_setting_t irq_rx_setting; /* used in serial_irq_set if IRQ has been set or not. Might get removed later, unsure at this stage */
+    irq_setting_t irq_tx_setting;		
 };
 
 #include "gpio_object.h"
