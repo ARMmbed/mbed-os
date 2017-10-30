@@ -53,7 +53,7 @@
  *
  * @code
  *
- * Gap& gap;
+ * Gap &gap;
  *
  * static const uint8_t device_name[] = "HRM";
  *

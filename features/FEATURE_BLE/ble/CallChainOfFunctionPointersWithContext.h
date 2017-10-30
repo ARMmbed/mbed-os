@@ -72,7 +72,7 @@
  * }
  * @endcode
  *
- * @note memory allocation is used to add new function like object into the
+ * @note memory allocation is used to add new function like objects into the
  * call chain.
  *
  * @tparam ContextType Type of the parameter accepted by the callbacks hosted
@@ -270,11 +270,11 @@ public:
      * @code
      * CallChainOfFunctionPointersWithContext<void *> chain;
      *
-     * if (chain) {
+     * if (!chain) {
      *   // Do something if the chain is empty.
      * }
      *
-     * if (!chain) {
+     * if (chain) {
      *   // Do something if the chain is not empty.
      * }
      * @endcode

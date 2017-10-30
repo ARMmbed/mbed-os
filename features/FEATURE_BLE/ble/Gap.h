@@ -43,12 +43,12 @@ class GapAdvertisingData;
 /**
  * Define device discovery, connection and link management procedures.
  *
- * - Device discovery: A device can advertise nearby peer of its existence,
+ * - Device discovery: A device can advertise nearby peers of its existence,
  * identity and capabilities. Similarly a device can scan its environment to
- * find advertising peers. The informations acquired during the scan help to
+ * find advertising peers. The information acquired during the scan helps to
  * identify peers and understand their use. A scanner may acquire more information
- * about an advertising peer by sending a scan request. If the peer accept scan
- * request it may reply with additional information about its state.
+ * about an advertising peer by sending a scan request. If the peer accepts scan
+ * requests it may reply with additional information about its state.
  *
  * - Connection: A bluetooth device can establish a connection to a connectable
  * advertising peer. Once the connection is established both devices can
@@ -75,12 +75,12 @@ class GapAdvertisingData;
  *
  * @par Advertising
  *
- * Advertising consist of broadcasting at a regular interval a small amount of
+ * Advertising consists of broadcasting at a regular interval a small amount of
  * data containing valuable informations about the device. These packets may be
  * scanned by peer devices listening on BLE advertising channels.
  *
- * Scanner may also request additional information from a device advertising by
- * sending a scan request. If the broadcaster accept scan request it can reply
+ * Scanners may also request additional information from a device advertising by
+ * sending a scan request. If the broadcaster accepts scan requests it can reply
  * with a scan response packet containing additional information.
  *
  * @code
@@ -192,7 +192,7 @@ class GapAdvertisingData;
  * }
  *
  * // register connection event handler which will be invoked whether the device
- * // act as a central or a peripheral
+ * // acts as a central or a peripheral
  * gap.onConnection(when_connected);
  * @endcode
  *
@@ -515,7 +515,7 @@ public:
          * connection.
          *
          * It shall be greater than or equal to minConnectionInterval. This
-         * value is in unit of 1,25ms and shall be in the range [0x0006 : 0x0C80].
+         * value is in unit of 1.25ms and shall be in the range [0x0006 : 0x0C80].
          */
         uint16_t maxConnectionInterval;
 
@@ -549,7 +549,7 @@ public:
      *
      * @note broadcaster and scanner roles are not expressed in BLE API.
      *
-     * @important A device can fullfill concurrently different roles.
+     * @important A device can fullfil different roles concurrently.
      */
     enum Role_t {
         /**
@@ -1101,7 +1101,7 @@ public:
      * Update connection parameters of an existing connection.
      *
      * In the central role this will initiate a Link Layer connection parameter
-     * update procedure. In the peripheral role,  this will send the corresponding
+     * update procedure. In the peripheral role, this will send the corresponding
      * L2CAP request and wait for the central to perform the procedure.
      *
      * @param[in] handle Connection Handle.
@@ -1263,7 +1263,7 @@ public:
      *
      * @param[in,out] whitelist Define the whitelist instance which will be used
      * to store the whitelist requested. In input memory shall be provisioned by
-     * the caller. .
+     * the caller.
      *
      * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
      * copied into the supplied reference.
@@ -1485,7 +1485,7 @@ public:
      * A call to this function is equivalent to:
      *
      * @code
-     * Gap& gap;
+     * Gap &gap;
      *
      * GapAdvertisingData payload = gap.getAdvertisingPayload();
      * payload.addFlags(flags);
@@ -1519,7 +1519,7 @@ public:
      * A call to this function is equivalent to:
      *
      * @code
-     * Gap& gap;
+     * Gap &gap;
      *
      * GapAdvertisingData payload = gap.getAdvertisingPayload();
      * payload.addAppearance(app);
@@ -1553,7 +1553,7 @@ public:
      * A call to this function is equivalent to:
      *
      * @code
-     * Gap& gap;
+     * Gap &gap;
      *
      * GapAdvertisingData payload = gap.getAdvertisingPayload();
      * payload.addTxPower(power);
@@ -1587,7 +1587,7 @@ public:
      * A call to this function is equivalent to:
      *
      * @code
-     * Gap& gap;
+     * Gap &gap;
      *
      * GapAdvertisingData payload = gap.getAdvertisingPayload();
      * payload.addData(type, data, len);
@@ -1630,7 +1630,7 @@ public:
      * A call to this function is equivalent to:
      *
      * @code
-     * Gap& gap;
+     * Gap &gap;
      *
      * GapAdvertisingData payload = gap.getAdvertisingPayload();
      * payload.updateData(type, data, len);
@@ -1784,8 +1784,8 @@ public:
     /**
      * Set the interval parameter used during scanning procedures.
      *
-     * @param[in] interval interval in ms between the start of two consecutive
-     * scan window.That value shall be greater or equal to the scan window value.
+     * @param[in] interval Interval in ms between the start of two consecutive
+     * scan windows. That value shall be greater or equal to the scan window value.
      * The maximum allowed value is 10.24ms.
      *
      * @return BLE_ERROR_NONE if the scan interval was correctly set.

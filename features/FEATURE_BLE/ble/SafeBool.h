@@ -64,8 +64,8 @@ protected:
 /**
  * Safe conversion of objects in boolean context.
  *
- * Classes wanting to evaluation of their instances in boolean context must
- * derive publicly from this class rather than implementing the easy to misuse
+ * Classes wanting evaluation of their instances in boolean context must derive
+ * publicly from this class rather than implementing the easy to misuse
  * operator bool().
  *
  * Descendant classes must implement the function bool toBool() const to enable

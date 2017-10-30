@@ -62,10 +62,10 @@ static uint8_t char2int(char c)
  *     0000xxxx-0000-1000-8000-00805F9B34FB where xxxx is the 16 bit UUID.
  *     Values of those UUIDs are defined by the Bluetooth body. The short
  *     representation save bandwidth during protocol transactions.
- *   - 128 bits UUIDs: Complete representation of an UUID. They are comonly used
- *     for user defined UUID.
+ *   - 128 bits UUIDs: Complete representation of an UUID. They are commonly
+ *     used for user defined UUID.
  *
- * This class act as an addapter over these two kind of UUIDs to allow
+ * This class act as an adapter over these two kind of UUIDs to allow
  * indiscriminate usage of both forms in mbed BLE APIs .
  *
  * @note 32 bits UUID representation is not supported at the current moment.
@@ -132,14 +132,13 @@ public:
 public:
 
     /**
-     * construct a 128-bit UUID from a string.
+     * Construct a 128-bit UUID from a string.
      *
      * @param[in] stringUUID Human readable representation of the UUID following
      * the format XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX.
      *
      * @note Upper and lower case are supported.
-     * @note Hyphens are optional and the string must at most includes up to four
-     * of them.
+     * @note Hyphens are optional. The string must include at most four hyphens.
      *
      * @note Internally the UUID is stored in the little endian order as a 16
      * byte array.
@@ -212,7 +211,7 @@ public:
      * @param[in] _shortUUID 16 bit part of the standard UUID.
      *              The short UUID value.
      *
-     * @note User defined UUID are comonly named vendor-specific UUIDs accross
+     * @note User defined UUID are commonly named vendor-specific UUIDs across
      * the Bluetooth literature.
      */
     UUID(ShortUUIDBytes_t _shortUUID) :
@@ -346,7 +345,7 @@ public:
      *
      * @param[in] other The UUID compared to this.
      *
-     * @return true if both UUIDs are equal and false otherwise.
+     * @return true if both UUIDs are not equal and false otherwise.
      */
     bool operator!= (const UUID &other) const
     {

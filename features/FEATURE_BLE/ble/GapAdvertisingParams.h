@@ -35,7 +35,7 @@
  *   - Time interval between advertisement. It can be set at construction time,
  *     updated by setInterval() and obtained from getInterval().
  *   - Duration of the advertising process. As others it can be set at
- *     construction time, modified by setTimeout() retrieved by getTimeout().
+ *     construction time, modified by setTimeout() and retrieved by getTimeout().
  */
 class GapAdvertisingParams {
 public:

@@ -89,8 +89,8 @@ public:
     /**
      * Start the initialization of the vendor BLE subsystem.
      *
-     * Call to this function is initiated by BLE::init, instanceID identify the
-     * BLE instance which issue that call while the initCallback is used to
+     * Calls to this function are initiated by BLE::init, instanceID identify
+     * the BLE instance which issue that call while the initCallback is used to
      * signal asynchronously the completion of the initialization process.
      *
      * @param[in] instanceID Identifier of the BLE instance requesting
@@ -166,7 +166,8 @@ public:
     /**
      * Accessor to the vendor implementation of the Gap interface.
      *
-     * @return A reference to a Gap object associated to this BLE instance.
+     * @return A reference to a Gap object associated to this BLEInstanceBase
+     * instance.
      *
      * @see BLE::gap() Gap
      */
@@ -254,7 +255,7 @@ private:
  * Return the instance of the vendor implementation of BLEInstanceBase.
  *
  * @important Contrary to its name, this function does not return a new instance
- * at eachcall. It rather act like an accessor to a singleton.
+ * at each call. It rather act like an accessor to a singleton.
  *
  * @important An implementation for this function must be provided by the vendor
  * library, otherwise there will be a linker error.

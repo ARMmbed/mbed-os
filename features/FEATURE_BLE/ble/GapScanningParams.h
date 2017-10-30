@@ -29,9 +29,9 @@
  *
  * The scan procedure is defined by four distinct parameters:
  *    - Scan window: Period during which the scanner listen to advertising
- *      channels. That value shall be in the 2.5ms to 10.24s. this value can be
- *      set at construction time, updated by calling setWindow() and retrieved
- *      by invoking getWindow().
+ *      channels. That value shall be in the range 2.5ms to 10.24s. This value
+ *      can be set at construction time, updated by calling setWindow() and
+ *      retrieved by invoking getWindow().
  *
  *    - Scan interval: interval between the start of two consecutive scan window.
  *      That value shall be greater or equal to the scan window value. The
@@ -47,8 +47,8 @@
  *      or connectable advertiser. Advertisers may respond to the scan request
  *      by a scan response containing the scan response payload. If not set then
  *      the scanner does not send any request. This flag is set at construction
- *      time, may be updated with the help of setActiveScanning() and get by
- *      getActiveScanning().
+ *      time, may be updated with the help of setActiveScanning() and retrieved
+ *      by getActiveScanning().
  *
  * @note If the scan windows duration is equal to the scan interval then the
  * device should listen continuously during the scan procedure.

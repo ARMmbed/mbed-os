@@ -43,7 +43,7 @@
  * A GATT server host a fixed set of services. These services are a logical
  * composition of Characteristic which may be discovered, read, written or also
  * broadcast their state to a connected client. These characteristics may also
- * contain meta informations named characteristic descriptor. A characteristic
+ * contain meta information named characteristic descriptors. A characteristic
  * descriptor may be used to indicate the unit used for a characteristic value,
  * describe in a textual form the characterisic purpose or allow a client to
  * register for notification of updates of the characteristic value.
@@ -62,8 +62,8 @@
  * (acquired during discovery) a client can read or write the value of a given
  * characteristic.
  *
- * mbed BLE abstract most read/write operation to offer a user a single API which
- * can be use to read or write characteristics values. Application code do not
+ * mbed BLE abstract most read and write operation to offer a single API which
+ * can be used to read or write characteristics values. Application code does not
  * have to handle the fragmentation/reassembly process necessary if the attribute
  * value to transported cannot fit in a single data packet.
  *
@@ -73,7 +73,7 @@
  * register to notification or indication from the characteristic. When the
  * characteristic value is updated by the server, the server can forward the
  * new value to the registered clients. The notification/indication mechanism
- * prevents polling from the client and therefore minimize the transactons
+ * prevents polling from the client and therefore minimize the transactions
  * involved between a client and a server.
  *
  * Registration is made by writing the Client Characteristic Configuration
@@ -112,7 +112,7 @@ public:
         /**
          * Write command.
          *
-         * It is is used to request the server to write the value of an attribute.
+         * It is used to request the server to write the value of an attribute.
          * The server does not acknowledge the status of the operation.
          */
         GATT_OP_WRITE_CMD = 0x02,
@@ -199,14 +199,14 @@ public:
      * @param[in] cc Characteristic discovered event handler invoked when a
      * matching characteristic has been found. This parameter may be NULL.
      * @param[in] matchingServiceUUID UUID of the service the caller is
-     * interrested in. If a service discovered match this filter then @p sc is
-     * invoked with it. The special value BLE_UUID_UNKNOWN act is a wildcard
+     * interested in. If a service discovered matches this filter then @p sc is
+     * invoked with it. The special value BLE_UUID_UNKNOWN act as a wildcard
      * which can be used to discover all services present on the peer GATT
      * server.
      * @param[in] matchingCharacteristicUUIDIn UUID of the characteristic the
-     * caller is interrested in. If a characteristic discovered match this
+     * caller is interested in. If a characteristic discovered matches this
      * filter then @p cc is  invoked with it. The special value BLE_UUID_UNKNOWN
-     * act is a wildcard  which can be used to discover all services present on
+     * act as a wildcard which can be used to discover all services present on
      * the peer GATT server.
      *
      * @par Discovery procedure implementation detail
@@ -265,7 +265,7 @@ public:
      * @param[in] callback Service discovered event handler invoked when a
      * matching service has been discovered. This parameter may be NULL.
      * @param[in] matchingServiceUUID UUID of the service the caller is
-     * interrested in. If a service discovered match this filter then @p sc is
+     * interested in. If a service discovered match this filter then @p sc is
      * invoked with it. The special value BLE_UUID_UNKNOWN act is a wildcard
      * which can be used to discover all services present on the peer GATT
      * server.
@@ -346,7 +346,7 @@ public:
     /**
      * Terminate all ongoing service discovery procedures.
      *
-     * It result in an invocation of the service discovery termination handler
+     * It results in an invocation of the service discovery termination handler
      * registered with onServiceDiscoveryTermination().
      */
     virtual void terminateServiceDiscovery(void)
@@ -358,9 +358,9 @@ public:
     /**
      * Initiate the read procedure of an attribute handle.
      *
-     * Once the attribute value has been read in its entirety the process issue
-     * an attribute read event and pass it to all events handlers registered by
-     * onDataRead.
+     * Once the attribute value has been read in its entirety the process issues
+     * an attribute read event and passes it to all events handlers registered
+     * by onDataRead.
      *
      * @param[in] connHandle Handle of the connection used to send the read
      * request.
@@ -381,8 +381,8 @@ public:
      *
      * While the attribute data in the response are MTU - 1 long:
      *   - Concat the response to the value containing the previous responses.
-     *   - Increment the value of the offset by MTU - 1 .
-     *   - send a read blob request with the updated offset.
+     *   - Increment the value of the offset by MTU - 1.
+     *   - Send a read blob request with the updated offset.
      *
      * Finally concat the last response with the value containing all the
      * previous responses and forward that value to the event handlers.
@@ -409,7 +409,7 @@ public:
      * is reported to the event handlers registered via onDataWritten().
      *
      * @param[in] cmd Type of the write procedure used. If GATT_OP_WRITE_CMD
-     * is set then value length shall be not be greater than the size of the mtu
+     * is set then value length shall not be greater than the size of the mtu
      * of connHandle minus three.
      * @param[in] connHandle Handle of the connection used to send the write
      * request or command.
@@ -423,17 +423,17 @@ public:
      *
      * If the operation is a write command then an implementation shall use the
      * GATT write without response procedure and an error shall be returned if
-     * the data buffer to write is larger than the size of the .
+     * the data buffer to write is larger than the size of the MTU - 3.
      *
      * If the operation is a write command and the size of the data buffer to
      * write is less than than the size of the MTU - 3 then the ATT write request
      * procedure shall be used and the response shall be reported to the handlers
      * listening for write response.
      *
-     * Otherwise the data buffer to write shall be divided in chunk with a
+     * Otherwise the data buffer to write shall be divided in chunks with a
      * maximum size of MTU - 5. Those chunks shall be sent sequentially to the
      * peer in ATT prepare write requests. If an error response is received
-     * during the process, the procedure shall ends immediately, the prepared
+     * during the process, the procedure shall end immediately, the prepared
      * write discarded and an error shall be reported to the application handlers.
      * Once all the chunks have been sent, the transaction shall be completed
      * by sending an execute write request to the peer. The peer response shall
@@ -559,12 +559,12 @@ public:
      * Initiate the descriptor discovery procedure for a given characteristic.
      *
      * When a descriptor is discovered the discovered descriptor is forwarded
-     * to @p discoveryCallback. After the discovery of all the descriptor, the
+     * to @p discoveryCallback. After the discovery of all the descriptors, the
      * procedure ends and send a descriptor discovery termination event to @p
      * termination callback.
      *
      * Application code may monitor the discovery process by querying its status
-     * with isCharacteristicDescriptorDiscoveryActive(). It can also ends the
+     * with isCharacteristicDescriptorDiscoveryActive(). It can also end the
      * discovery process by calling terminateCharacteristicDescriptorDiscovery().
      *
      * @param[in] characteristic The characteristic owning the descriptors to
@@ -575,7 +575,7 @@ public:
      * event of the procedure.
      *
      * @return BLE_ERROR_NONE if the characteristic descriptor discovery
-     * procedureis has been launched successfully otherwise an appropriate error.
+     * procedure has been launched successfully otherwise an appropriate error.
      */
     virtual ble_error_t discoverCharacteristicDescriptors(
         const DiscoveredCharacteristic& characteristic,
