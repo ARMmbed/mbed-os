@@ -44,15 +44,15 @@ class BLEInstanceBase;
 /**
  * Abstract away BLE-capable radio transceivers or SOCs.
  *
- * Instances of this class have three responsabilities:
+ * Instances of this class have three responsibilities:
  *   - Initialize the inner BLE subsystem.
- *   - Signal user code that BLE events are available and an API to process them
+ *   - Signal user code that BLE events are available and an API to process them.
  *   - Manage access to the instances abstracting each BLE layer:
  *        + GAP: Handle advertising and scan, as well as connection and
  *          disconnection.
- *        + GATTServer: API to construct and manage a GATT server which can be
- *          accessed by connected peers.
- *        + GATTClient: API to interract with a peer GATT server.
+ *        + GATTServer: API to construct and manage a GATT server, which connected peers can
+ *          access.
+ *        + GATTClient: API to interact with a peer GATT server.
  *        + SecurityManager: API to manage security.
  *
  * The user should not create BLE instances directly but rather access to the
@@ -65,20 +65,20 @@ class BLEInstanceBase;
  * BLE& ble_interface = BLE::Instance();
  * @endcode
  *
- * Next, the signal handling / process mechanism should be setup. By design,
- * mbed BLE does not impose to the user an event handling/processing mechanism
- * however it expose APIs which allow an application to compose its own:
- *   - onEventsToProcess() which register a callback that will be be called by
- *     the BLE subsystem when there is an event ready to be processed.
- *   - processEvents() which process all the events present in the BLE subsystem.
+ * Next, the signal handling/process mechanism should be set up. By design,
+ * Mbed BLE does not impose to the user an event handling/processing mechanism;
+ * however, it exposes APIs, which allows an application to compose its own:
+ *   - onEventsToProcess(), whichs register a callback that 
+ *     the BLE subsystem will call when there is an event ready to be processed.
+ *   - processEvents(), which processes all the events present in the BLE subsystem.
  *
- * It is common to bind BLE event mechanism with mbed EventQueue:
+ * It is common to bind BLE event mechanism with Mbed EventQueue:
  *
  * @code
  * #include <events/mbed_events.h>
  * #include "ble/BLE.h"
  *
- * // declare the event queue which will be shared by the whole application.
+ * // declare the event queue, which the whole application will share.
  * static EventQueue event_queue( 4 * EVENTS_EVENT_SIZE);
  *
  * // Function invoked when there is a BLE event available.
@@ -102,9 +102,9 @@ class BLEInstanceBase;
  * }
  * @endcode
  *
- * Once the event processing mechanism is in place the Bluetooth subsystem can
- * be initialized with the init() function. That function accept in input a
- * callback which will be invoked once the initialization process has finished.
+ * Once the event processing mechanism is in place, the Bluetooth subsystem can
+ * be initialized with the init() function. That function accepts in input a
+ * callback, which will be invoked once the initialization process has finished.
  *
  * @code
  * void on_ble_init_complete(BLE::InitializationCompleteCallbackContext *context)
@@ -163,7 +163,7 @@ public:
      * There is a static array of BLE singletons.
      *
      * @note Calling Instance() is preferred over constructing a BLE object
-     * directly, as it returns references to singletons.
+     * directly because it returns references to singletons.
      *
      * @param[in] id BLE Instance ID to get.
      *
@@ -207,7 +207,7 @@ public:
      * By registering a callback, application code can know when event processing
      * has to be scheduled.
      *
-     * @param on_event_cb Callback invoked when there is new events to process.
+     * @param on_event_cb Callback invoked when there are new events to process.
      */
     void onEventsToProcess(const OnEventsToProcessCallback_t& on_event_cb);
 
@@ -245,8 +245,8 @@ public:
     /**
      * Initialization complete event handler.
      *
-     * @note There are two versions of init(). In addition to the simple
-     * function-pointer, init() can also take a <Object, member> tuple as its
+     * @note There are two versions of init(). In addition to the
+     * function-pointer, init() can also take an <Object, member> tuple as its
      * callback target. In case of the latter, the following declaration doesn't
      * apply.
      */
@@ -265,11 +265,11 @@ public:
      * to call BLE::init() from within main().
      *
      * @param[in] completion_cb A callback for when initialization completes for
-     * a BLE instance. This is an optional parameter; if no callback is set up
+     * a BLE instance. This is an optional parameter; if no callback is set up,
      * the application can still determine the status of initialization using
      * BLE::hasInitialized() (see below).
      *
-     * @return BLE_ERROR_NONE if the initialization procedure was started
+     * @return BLE_ERROR_NONE if the initialization procedure started
      * successfully.
      *
      * @note If init() returns BLE_ERROR_NONE, the underlying stack must invoke
@@ -278,7 +278,7 @@ public:
      * @note Nearly all BLE APIs would return BLE_ERROR_INITIALIZATION_INCOMPLETE
      * if used on an instance before the corresponding transport is initialized.
      *
-     * @note There are two versions of init(). In addition to the simple
+     * @note There are two versions of init(). In addition to the
      * function-pointer, init() can also take an <Object, member> pair as its
      * callback target.
      *
@@ -296,9 +296,9 @@ public:
      * This is an alternate declaration for init(). This one takes an
      * <Object, member> pair as its callback target.
      *
-     * @param[in] object Object which will be used to invoke the completion callback.
-     * @param[in] completion_cb Member function pointer which will be invoked when
-     * initialization complete.
+     * @param[in] object Object, which will be used to invoke the completion callback.
+     * @param[in] completion_cb Member function pointer, which will be invoked when
+     * initialization is complete.
      */
     template<typename T>
     ble_error_t init(T *object, void (T::*completion_cb)(InitializationCompleteCallbackContext *context)) {
@@ -318,12 +318,12 @@ public:
     bool hasInitialized(void) const;
 
     /**
-     * Shutdown the underlying stack and reset state of this BLE instance.
+     * Shut down the underlying stack, and reset state of this BLE instance.
      *
-     * @return BLE_ERROR_NONE if the instance was shutdown without error or the
+     * @return BLE_ERROR_NONE if the instance was shut down without error or the
      * appropriate error code.
      *
-     * @important init() must be called afterwards to re-instate services and
+     * @important init() must be called afterward to reinstate services and
      * GAP state. This API offers a way to repopulate the GATT database with new
      * services and characteristics.
      */
@@ -334,12 +334,12 @@ public:
      *
      * @return A pointer to a const string representing the version.
      *
-     * @note The string returned is owned by BLE API.
+     * @note The BLE API owns the string returned.
      */
     const char *getVersion(void);
 
     /**
-     * Accessor to Gap. All Gap related functionality requires going through
+     * Accessor to Gap. All Gap-related functionality requires going through
      * this accessor.
      *
      * @return A reference to a Gap object associated to this BLE instance.
@@ -386,7 +386,7 @@ public:
     const GattClient& gattClient() const;
 
     /**
-     * Accessors to SecurityManager. All SecurityManager related functionality
+     * Accessors to SecurityManager. All SecurityManager-related functionality
      * requires going through this accessor.
      *
      * @return A reference to a SecurityManager object associated to this BLE
@@ -415,7 +415,7 @@ public:
      *
      * It is better to create BLE objects as singletons accessed through the
      * Instance() method. If multiple BLE handles are constructed for the same
-     * interface (using this constructor), they will share the same underlying
+     * interface (using this constructor), they share the same underlying
      * transport object.
      *
      * @deprecated Use the Instance() function instead of the constructor.
@@ -425,7 +425,7 @@ public:
 
     /**
      * Yield control to the BLE stack or to other tasks waiting for events. This
-     * is a sleep function that will return when there is an application-specific
+     * is a sleep function that returns when there is an application-specific
      * interrupt, but the MCU might wake up several times before returning (to
      * service the stack). This is not always interchangeable with WFE().
      *
@@ -457,7 +457,7 @@ public:
      *
      * @return BLE_ERROR_NONE on success.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      * Gap::getAddress(). A former call to ble.getAddress(...) should be
      * replaced with ble.gap().getAddress(...).
      */
@@ -471,7 +471,7 @@ public:
     /**
      * Set the GAP advertising mode to use for this device.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setAdvertisingType(). A former call to
      *             ble.setAdvertisingType(...) should be replaced with
      *             ble.gap().setAdvertisingType(...).
@@ -493,10 +493,10 @@ public:
      *              to ADV_CONNECTABLE_DIRECTED.
      *
      * @note Decreasing this value allows central devices to detect a
-     * peripheral faster, at the expense of more power being used by the radio
+     * peripheral faster at the expense of more power being used by the radio
      * due to the higher data transmit rate.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setAdvertisingInterval(). A former call to
      *             ble.setAdvertisingInterval(...) should be replaced with
      *             ble.gap().setAdvertisingInterval(...).
@@ -526,7 +526,7 @@ public:
     }
 
     /**
-     * @return Minimum Advertising interval in milliseconds for non-connectible mode.
+     * @return Minimum Advertising interval in milliseconds for nonconnectible mode.
      *
      * @deprecated You should use the parallel API from Gap directly, refer to
      *             Gap::MinNonConnectableAdvertisingInterval(). A former call to
@@ -556,7 +556,7 @@ public:
      *              Advertising timeout (in seconds) between 0x1 and 0x3FFF (1
      *              and 16383). Use 0 to disable the advertising timeout.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setAdvertisingTimeout(). A former call to
      *             ble.setAdvertisingTimeout(...) should be replaced with
      *             ble.gap().setAdvertisingTimeout(...).
@@ -572,7 +572,7 @@ public:
      * directly; there are other APIs to tweak advertisement parameters
      * individually (see above).
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setAdvertisingParams(). A former call to
      *             ble.setAdvertisingParams(...) should be replaced with
      *             ble.gap().setAdvertisingParams(...).
@@ -586,7 +586,7 @@ public:
      * @return  Read back advertising parameters. Useful for storing and
      *          restoring parameters rapidly.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::getAdvertisingParams(). A former call to
      *             ble.getAdvertisingParams(...) should be replaced with
      *             ble.gap().getAdvertisingParams(...).
@@ -626,7 +626,7 @@ public:
      * @param[in] app
      *              The appearance of the peripheral.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::accumulateAdvertisingPayload(GapAdvertisingData::Appearance).
      *             A former call to ble.accumulateAdvertisingPayload(appearance)
      *             should be replaced with
@@ -647,7 +647,7 @@ public:
      *              The max transmit power to be used by the controller. This
      *              is only a hint.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::accumulateAdvertisingPayloadTxPower(). A former call to
      *             ble.accumulateAdvertisingPayloadTxPower(txPower) should be replaced with
      *             ble.gap().accumulateAdvertisingPayloadTxPower(txPower).
@@ -678,7 +678,7 @@ public:
     }
 
     /**
-     * Setup a particular, user-constructed advertisement payload for the
+     * Set up a particular, user-constructed advertisement payload for the
      * underlying stack. It would be uncommon for this API to be used directly;
      * there are other APIs to build an advertisement payload (see above).
      *
@@ -711,7 +711,7 @@ public:
      * accumulateAdvertisingPayload(). This automatically propagates the re-
      * initialized advertising payload to the underlying stack.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::clearAdvertisingPayload(). A former call to
      *             ble.clearAdvertisingPayload(...) should be replaced with
      *             ble.gap().clearAdvertisingPayload(...).
@@ -724,7 +724,7 @@ public:
     /**
      * Dynamically reset the accumulated advertising
      * payload and scanResponse. The application must clear and re-
-     * accumulates a new advertising payload (and scanResponse) before using this
+     * accumulate a new advertising payload (and scanResponse) before using this
      * API.
      *
      * @return BLE_ERROR_NONE when the advertising payload is set successfully.
@@ -748,7 +748,7 @@ public:
      * @param[in] data Data bytes.
      * @param[in] len  Data length.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::accumulateScanResponse(). A former call to
      *             ble.accumulateScanResponse(...) should be replaced with
      *             ble.gap().accumulateScanResponse(...).
@@ -762,7 +762,7 @@ public:
      * Reset any scan response prepared from prior calls to
      * accumulateScanResponse().
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::clearScanResponse(). A former call to
      *             ble.clearScanResponse(...) should be replaced with
      *             ble.gap().clearScanResponse(...).
@@ -775,7 +775,7 @@ public:
     /**
      * Start advertising.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::startAdvertising(). A former call to
      *             ble.startAdvertising(...) should be replaced with
      *             ble.gap().startAdvertising(...).
@@ -788,7 +788,7 @@ public:
     /**
      * Stop advertising.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::stopAdvertising(). A former call to
      *             ble.stopAdvertising(...) should be replaced with
      *             ble.gap().stopAdvertising(...).
@@ -822,7 +822,7 @@ public:
      *
      * @note The scan interval and window are recommendations to the BLE stack.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setScanParams(). A former call to
      *             ble.setScanParams(...) should be replaced with
      *             ble.gap().setScanParams(...).
@@ -850,7 +850,7 @@ public:
      * Once the scanning parameters have been configured, scanning can be
      * enabled by using startScan().
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setScanInterval(). A former call to
      *             ble.setScanInterval(interval) should be replaced with
      *             ble.gap().setScanInterval(interval).
@@ -875,7 +875,7 @@ public:
      * Once the scanning parameters have been configured, scanning can be
      * enabled by using startScan().
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setScanWindow(). A former call to
      *             ble.setScanWindow(window) should be replaced with
      *             ble.gap().setScanWindow(window).
@@ -902,7 +902,7 @@ public:
      *
      * @note The scan interval and window are recommendations to the BLE stack.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setScanTimeout(). A former call to
      *             ble.setScanTimeout(...) should be replaced with
      *             ble.gap().setScanTimeout(...).
@@ -967,7 +967,7 @@ public:
      *
      * @retval BLE_ERROR_NONE if successfully stopped scanning procedure.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::stopScan(). A former call to
      *             ble.stopScan() should be replaced with
      *             ble.gap().stopScan().
@@ -991,7 +991,7 @@ public:
      *     successfully. The onConnection callback (if set) is invoked upon
      *     a connection event.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::connect(). A former call to
      *             ble.connect(...) should be replaced with
      *             ble.gap().connect(...).
@@ -1026,7 +1026,7 @@ public:
      * @param  reason
      *           The reason for disconnection; sent back to the peer.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::disconnect(). A former call to
      *             ble.disconnect(reason) should be replaced with
      *             ble.gap().disconnect(reason).
@@ -1044,7 +1044,7 @@ public:
      * Returns the current Gap state of the device using a bitmask that
      * describes whether the device is advertising or connected.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::getState(). A former call to
      *             ble.getGapState() should be replaced with
      *             ble.gap().getState().
@@ -1060,13 +1060,13 @@ public:
      * choice of the connection parameters is eventually up to the central.
      *
      * @param[out] params
-     *               The structure where the parameters will be stored. Memory
-     *               for this is owned by the caller.
+     *               The structure where the parameters will be stored. The caller owns memory
+     *               for this.
      *
      * @return BLE_ERROR_NONE if the parameters were successfully filled into
      * the given structure pointed to by params.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::getPreferredConnectionParams(). A former call to
      *             ble.getPreferredConnectionParams() should be replaced with
      *             ble.gap().getPreferredConnectionParams().
@@ -1084,7 +1084,7 @@ public:
      * @param[in] params
      *               The structure containing the desired parameters.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setPreferredConnectionParams(). A former call to
      *             ble.setPreferredConnectionParams() should be replaced with
      *             ble.gap().setPreferredConnectionParams().
@@ -1104,7 +1104,7 @@ public:
      *              Pointer to desired connection parameters. If NULL is provided on a peripheral role,
      *              the parameters in the PPCP characteristic of the GAP service will be used instead.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::updateConnectionParams(). A former call to
      *             ble.updateConnectionParams() should be replaced with
      *             ble.gap().updateConnectionParams().
@@ -1119,7 +1119,7 @@ public:
      * @param[in] deviceName
      *              The new value for the device-name. This is a UTF-8 encoded, <b>NULL-terminated</b> string.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setDeviceName(). A former call to
      *             ble.setDeviceName() should be replaced with
      *             ble.gap().setDeviceName().
@@ -1134,7 +1134,7 @@ public:
      * @param[out]    deviceName
      *                  Pointer to an empty buffer where the UTF-8 *non NULL-
      *                  terminated* string will be placed. Set this
-     *                  value to NULL in order to obtain the deviceName-length
+     *                  value to NULL to obtain the deviceName-length
      *                  from the 'length' parameter.
      *
      * @param[in,out] lengthP
@@ -1143,11 +1143,11 @@ public:
      *                     null terminator).
      *
      * @note If the device name is longer than the size of the supplied buffer,
-     *     length will return the complete device name length, and not the
+     *     the length will return the complete device name length and not the
      *     number of bytes actually returned in deviceName. The application may
      *     use this information to retry with a suitable buffer size.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::getDeviceName(). A former call to
      *             ble.getDeviceName() should be replaced with
      *             ble.gap().getDeviceName().
@@ -1162,7 +1162,7 @@ public:
      * @param[in] appearance
      *              The new value for the device-appearance.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setAppearance(). A former call to
      *             ble.setAppearance() should be replaced with
      *             ble.gap().setAppearance().
@@ -1191,7 +1191,7 @@ public:
      * Set the radio's transmit power.
      * @param[in] txPower Radio transmit power in dBm.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::setTxPower(). A former call to
      *             ble.setTxPower() should be replaced with
      *             ble.gap().setTxPower().
@@ -1307,7 +1307,7 @@ public:
      *
      * @return BLE_ERROR_NONE if we have successfully set the value of the attribute.
      *
-     * @deprecated You should use the parallel API from GattServer directly, refer to
+     * @deprecated You should use the parallel API from GattServer directly and refer to
      *             GattServer::write(GattAttribute::Handle_t,const uint8_t,uint16_t,bool).
      *             A former call to ble.updateCharacteristicValue() should be replaced with
      *             ble.gattServer().write().
@@ -1342,7 +1342,7 @@ public:
      *
      * @return BLE_ERROR_NONE if we have successfully set the value of the attribute.
      *
-     * @deprecated You should use the parallel API from GattServer directly, refer to
+     * @deprecated You should use the parallel API from GattServer directly and refer to
      *             GattServer::write(Gap::Handle_t,GattAttribute::Handle_t,const uint8_t,uint16_t,bool).
      *             A former call to ble.updateCharacteristicValue() should be replaced with
      *             ble.gattServer().write().
@@ -1410,7 +1410,7 @@ public:
      * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization or
      *                                    application registration.
      *
-     * @deprecated You should use the parallel API from SecurityManager directly, refer to
+     * @deprecated You should use the parallel API from SecurityManager directly and refer to
      *             SecurityManager::purgeAllBondingState(). A former
      *             call to ble.purgeAllBondingState() should be replaced with
      *             ble.securityManager().purgeAllBondingState().
@@ -1424,7 +1424,7 @@ public:
      * Set up a callback for timeout events. Refer to Gap::TimeoutSource_t for
      * possible event types.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::onTimeout(). A former call
      *             to ble.onTimeout(callback) should be replaced with
      *             ble.gap().onTimeout(callback).
@@ -1450,7 +1450,7 @@ public:
     /**
      * Append to a chain of callbacks to be invoked upon GAP disconnection.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::onDisconnection(). A former call
      *             to ble.onDisconnection(callback) should be replaced with
      *             ble.gap().onDisconnection(callback).
@@ -1461,10 +1461,10 @@ public:
     }
 
     /**
-     * The same as onDisconnection(), but allows an object reference and member function
+     * The same as onDisconnection() but allows an object reference and member function
      * to be added to the chain of callbacks.
      *
-     * @deprecated You should use the parallel API from Gap directly, refer to
+     * @deprecated You should use the parallel API from Gap directly and refer to
      *             Gap::onDisconnection(). A former call
      *             to ble.onDisconnection(callback) should be replaced with
      *             ble.gap().onDisconnection(callback).
@@ -1512,7 +1512,7 @@ public:
      * @note It is also possible to set up a callback into a member function of
      * some object.
      *
-     * @deprecated You should use the parallel API from GattServer directly, refer to
+     * @deprecated You should use the parallel API from GattServer directly and refer to
      *             GattServer::onDataSent(). A former call
      *             to ble.onDataSent(...) should be replaced with
      *             ble.gattServer().onDataSent(...).
@@ -1523,10 +1523,10 @@ public:
     }
 
     /**
-     * The same as onDataSent(), but allows an object reference and member function
+     * The same as onDataSent() but allows an object reference and member function
      * to be added to the chain of callbacks.
      *
-     * @deprecated You should use the parallel API from GattServer directly, refer to
+     * @deprecated You should use the parallel API from GattServer directly and refer to
      *             GattServer::onDataSent(). A former call
      *             to ble.onDataSent(...) should be replaced with
      *             ble.gattServer().onDataSent(...).
@@ -1552,7 +1552,7 @@ public:
      * @note It is also possible to set up a callback into a member function of
      * some object.
      *
-     * @deprecated You should use the parallel API from GattServer directly, refer to
+     * @deprecated You should use the parallel API from GattServer directly and refer to
      *             GattServer::onDataWritten(). A former call
      *             to ble.onDataWritten(...) should be replaced with
      *             ble.gattServer().onDataWritten(...).
@@ -1563,7 +1563,7 @@ public:
     }
 
     /**
-     * The same as onDataWritten(), but allows an object reference and member function
+     * The same as onDataWritten() but allows an object reference and member function
      * to be added to the chain of callbacks.
      *
      * @deprecated You should use the parallel API from GattServer directly, refer to
@@ -1596,7 +1596,7 @@ public:
      * @return BLE_ERROR_NOT_IMPLEMENTED if this functionality isn't available;
      *         else BLE_ERROR_NONE.
      *
-     * @deprecated You should use the parallel API from GattServer directly, refer to
+     * @deprecated You should use the parallel API from GattServer directly and refer to
      *             GattServer::onDataRead(). A former call
      *             to ble.onDataRead(...) should be replaced with
      *             ble.gattServer().onDataRead(...).
@@ -1607,10 +1607,10 @@ public:
     }
 
     /**
-     * The same as onDataRead(), but allows an object reference and member function
+     * The same as onDataRead() but allows an object reference and member function
      * to be added to the chain of callbacks.
      *
-     * @deprecated You should use the parallel API from GattServer directly, refer to
+     * @deprecated You should use the parallel API from GattServer directly and refer to
      *             GattServer::onDataRead(). A former call
      *             to ble.onDataRead(...) should be replaced with
      *             ble.gattServer().onDataRead(...).
@@ -1625,7 +1625,7 @@ public:
      * Set up a callback for when notifications or indications are enabled for a
      * characteristic on the local GattServer.
      *
-     * @deprecated You should use the parallel API from GattServer directly, refer to
+     * @deprecated You should use the parallel API from GattServer directly and refer to
      *             GattServer::onUpdatesEnabled(). A former call
      *             to ble.onUpdatesEnabled(callback) should be replaced with
      *             ble.gattServer().onUpdatesEnabled(callback).
@@ -1639,7 +1639,7 @@ public:
      * Set up a callback for when notifications or indications are disabled for a
      * characteristic on the local GattServer.
      *
-     * @deprecated You should use the parallel API from GattServer directly, refer to
+     * @deprecated You should use the parallel API from GattServer directly and refer to
      *             GattServer::onUpdatesDisabled(). A former call
      *             to ble.onUpdatesDisabled(callback) should be replaced with
      *             ble.gattServer().onUpdatesDisabled(callback).
@@ -1653,7 +1653,7 @@ public:
      * Set up a callback for when the GATT server receives a response for an
      * indication event sent previously.
      *
-     * @deprecated You should use the parallel API from GattServer directly, refer to
+     * @deprecated You should use the parallel API from GattServer directly and refer to
      *             GattServer::onConfirmationReceived(). A former call
      *             to ble.onConfirmationReceived(callback) should be replaced with
      *             ble.gattServer().onConfirmationReceived(callback).
@@ -1667,10 +1667,10 @@ public:
      * Set up a callback for when the security setup procedure (key generation
      * and exchange) for a link has started. This will be skipped for bonded
      * devices. The callback is passed in parameters received from the peer's
-     * security request: bool allowBonding, bool requireMITM, and
+     * security request: bool allowBonding, bool requireMITM and
      * SecurityIOCapabilities_t.
      *
-     * @deprecated You should use the parallel API from SecurityManager directly, refer to
+     * @deprecated You should use the parallel API from SecurityManager directly and refer to
      *             SecurityManager::onSecuritySetupInitiated(). A former
      *             call to ble.onSecuritySetupInitiated(callback) should be replaced with
      *             ble.securityManager().onSecuritySetupInitiated(callback).
@@ -1686,7 +1686,7 @@ public:
      * devices. The callback is passed in the success/failure status of the
      * security setup procedure.
      *
-     * @deprecated You should use the parallel API from SecurityManager directly, refer to
+     * @deprecated You should use the parallel API from SecurityManager directly and refer to
      *             SecurityManager::onSecuritySetupCompleted(). A former
      *             call to ble.onSecuritySetupCompleted(callback) should be replaced with
      *             ble.securityManager().onSecuritySetupCompleted(callback).
@@ -1704,7 +1704,7 @@ public:
      * or both sides. The callback is passed in a SecurityManager::SecurityMode_t according
      * to the level of security in effect for the secured link.
      *
-     * @deprecated You should use the parallel API from SecurityManager directly, refer to
+     * @deprecated You should use the parallel API from SecurityManager directly and refer to
      *             SecurityManager::onLinkSecured(). A former
      *             call to ble.onLinkSecured(callback) should be replaced with
      *             ble.securityManager().onLinkSecured(callback).
@@ -1718,7 +1718,7 @@ public:
      * Set up a callback for successful bonding, meaning that link-specific security
      * context is stored persistently for a peer device.
      *
-     * @deprecated You should use the parallel API from SecurityManager directly, refer to
+     * @deprecated You should use the parallel API from SecurityManager directly and refer to
      *             SecurityManager::onSecurityContextStored(). A former
      *             call to ble.onSecurityContextStored(callback) should be replaced with
      *             ble.securityManager().onSecurityContextStored(callback).
@@ -1731,11 +1731,11 @@ public:
     /**
      * Set up a callback for when the passkey needs to be displayed on a
      * peripheral with DISPLAY capability. This happens when security is
-     * configured to prevent Man-In-The-Middle attacks, and the peers need to exchange
+     * configured to prevent man-in-the-middle attacks, and the peers need to exchange
      * a passkey (or PIN) to authenticate the connection
      * attempt.
      *
-     * @deprecated You should use the parallel API from SecurityManager directly, refer to
+     * @deprecated You should use the parallel API from SecurityManager directly and refer to
      *             SecurityManager::onPasskeyDisplay(). A former
      *             call to ble.onPasskeyDisplay(callback) should be replaced with
      *             ble.securityManager().onPasskeyDisplay(callback).
@@ -1749,10 +1749,10 @@ private:
     friend class BLEInstanceBase;
 
     /**
-     * This function allow the BLE stack to signal that there is work to do and
+     * This function allows the BLE stack to signal that there is work to do and
      * event processing should be done (BLE::processEvent()).
      *
-     * @note This function should be called by the port of BLE_API, it is not
+     * @note This function should be called by the port of BLE_API. It is not
      * meant to be used by end users.
      */
     void signalEventsToProcess();
@@ -1780,7 +1780,7 @@ private:
 
 /**
  * @deprecated This type alias is retained for the sake of compatibility with
- * older code. Will be dropped at some point.
+ * older code. This will be dropped at some point.
  */
 typedef BLE BLEDevice;
 
