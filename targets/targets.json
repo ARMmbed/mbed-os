@@ -1595,6 +1595,7 @@
             }
         },
         "detect_code": ["0815"],
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],

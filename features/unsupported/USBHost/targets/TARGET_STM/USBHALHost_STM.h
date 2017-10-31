@@ -19,9 +19,11 @@
 #define USBHALHOST_STM_H
 
 #if defined(TARGET_DISCO_F746NG)
-// Select only one line
+#if (MBED_CONF_TARGET_USB_SPEED == 1) // Defined in json configuration file
+#define TARGET_DISCO_F746NG_HS
+#else
 #define TARGET_DISCO_F746NG_FS
-//#define TARGET_DISCO_F746NG_HS
+#endif
 #endif
 
 #if defined(TARGET_DISCO_F429ZI) || defined(TARGET_DISCO_F746NG_HS) || defined(TARGET_DISCO_F769NI)
@@ -136,7 +138,7 @@ void usb_vbus( uint8_t state)
 USBHALHost::USBHALHost()
 {
     instHost = this;
-    HCD_HandleTypeDef *hhcd;
+    HCD_HandleTypeDef *hhcd = {0};
     USBHALHost_Private_t *HALPriv = new(USBHALHost_Private_t);
 
     memset(HALPriv, 0, sizeof(USBHALHost_Private_t));
