@@ -18,9 +18,9 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
+#include "mbed_critical.h"
+#include "cmsis_os2.h"
 
-#define TICK_READ_FROM_CPU  0   // 1: read tick from CPU, 0: read tick from G-Timer
-#define SYS_TIM_ID          1   // the G-Timer ID for System
 #define APP_TIM_ID          2   // the G-Timer ID for Application
 
 /*
@@ -33,9 +33,7 @@
  *
  * Define the following macros to convert between TICK and US.
  */
-#define MS_TO_TICK(x)       (uint64_t)(((x)*327) / 10)
-#define US_TO_TICK(x)       (uint64_t)(((x)*32) / 1000)
-#define TICK_TO_US(x)       (uint64_t)(((x)/2) * 61 + ((x)%2) * TIMER_TICK_US)
+#define TICK_TO_US(x)       (uint64_t)((x) * 1000)
 
 static int us_ticker_inited = 0;
 static TIMER_ADAPTER TimerAdapter;
@@ -56,11 +54,6 @@ void us_ticker_init(void)
 
     us_ticker_inited = 1;
 
-    // Reload and restart sys-timer
-    HalTimerOp.HalTimerDis(SYS_TIM_ID);
-    HalTimerOpExt.HalTimerReLoad(SYS_TIM_ID, 0xFFFFFFFFUL);
-    HalTimerOp.HalTimerEn(SYS_TIM_ID);
-
     // Initial a app-timer
     TimerAdapter.IrqDis = 0;    // Enable Irq @ initial
     TimerAdapter.IrqHandle.IrqFun = (IRQ_FUN) _us_ticker_irq_handler;
@@ -73,49 +66,47 @@ void us_ticker_init(void)
     TimerAdapter.TimerMode = USER_DEFINED;
 
     HalTimerOp.HalTimerInit((void *) &TimerAdapter);
-
-    DBG_TIMER_INFO("%s: Timer_Id=%d\n", __FUNCTION__, APP_TIM_ID);
 }
 
 uint32_t us_ticker_read(void)
 {
     uint32_t tick_cnt;
-    uint64_t tick_us;
 
     if (!us_ticker_inited) {
         us_ticker_init();
     }
 
-    tick_cnt = HalTimerOp.HalTimerReadCount(SYS_TIM_ID);
-    tick_us = TICK_TO_US(0xFFFFFFFFUL - tick_cnt);
-
-    return ((uint32_t)tick_us);  //return ticker value in micro-seconds (us)
+    tick_cnt = osKernelGetTickCount();
+    return (uint32_t) TICK_TO_US(tick_cnt);
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     uint32_t time_cur;
-    uint32_t time_cnt;
 
-    HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
     time_cur = us_ticker_read();
     if (timestamp > time_cur + TIMER_TICK_US) {
-        time_cnt = timestamp - time_cur;
+        TimerAdapter.TimerLoadValueUs = timestamp - time_cur;
     } else {
-        HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, 0xffffffff);
-        HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
-        us_ticker_fire_interrupt();
-        return;
+        TimerAdapter.TimerLoadValueUs = TIMER_TICK_US;
     }
 
-    TimerAdapter.TimerLoadValueUs = MAX(MS_TO_TICK(time_cnt/1000) + US_TO_TICK(time_cnt%1000), 1);
+    core_util_critical_section_enter();
+    HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
     HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, TimerAdapter.TimerLoadValueUs);
     HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
+    core_util_critical_section_exit();
 }
 
 void us_ticker_fire_interrupt(void)
 {
-    NVIC_SetPendingIRQ(TIMER2_7_IRQ);
+    TimerAdapter.TimerLoadValueUs = TIMER_TICK_US;
+
+    core_util_critical_section_enter();
+    HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
+    HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, TimerAdapter.TimerLoadValueUs);
+    HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
+    core_util_critical_section_exit();
 }
 
 void us_ticker_disable_interrupt(void)
@@ -125,5 +116,4 @@ void us_ticker_disable_interrupt(void)
 
 void us_ticker_clear_interrupt(void)
 {
-    HalTimerOp.HalTimerIrqClear((u32)TimerAdapter.TimerId);
 }
