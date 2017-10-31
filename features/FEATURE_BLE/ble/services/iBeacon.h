@@ -25,7 +25,7 @@
  * @par Purpose
  *
  * iBeacons are Bluetooth Low Energy (BLE) devices advertising an identification
- * number generally used to identify the location of devices or physical objects
+ * number generally used to determine the location of devices or physical objects
  * nearby a mobile phone user.
  *
  * iOS scans for iBeacon devices in a background task and will notify Apps
@@ -41,18 +41,18 @@
  * Location information is hierarchically structured. A UUID specific to the
  * application and its deployment is used to identify a region. That region
  * usually identify an organization. The region is divided into subregions
- * identified by a major ID. The subregion may contain related points of
- * interrest. Finally specific points of interrest within a subregion are
- * distinguished by a minor ID.
+ * identified by a major ID. The subregion contains related points of interrest
+ * which are are distinguished by a minor ID.
  *
  * As an example a city willing to improve tourists experience can deploy a fleet
  * of iBeacons in relevant touristic locations it operates. The UUID may
- * identify a place managed by the city. The major ID would identify the place
- * it can be something such as a museum, an historic monument or a metro station.
- * The minor ID would locate a specific spot within the city place. It can be a
- * piece of art, a ticket dispenser or a relevant point of interrest. Each
- * iBeacon device is physically attached to the spot it identify and advertise
- * those three location information.
+ * identify a place managed by the city. The major ID would identify the place;
+ * it can be a museum, an historic monument, a metro station, ... The minor ID
+ * would locate a specific spot within a specific city place. It can be a
+ * piece of art, a ticket dispenser or a relevant point of interrest.
+ *
+ * Each iBeacon device is physically attached to the spot it locate and advertise
+ * the triplet UUID, major ID and minor ID.
  *
  * @par Proximity
  *
@@ -61,18 +61,20 @@
  * proximity to a given beacon:
  *   - Immediate: The beacon is less than one meter away from the user.
  *   - Near: The beacon is one to three meter away from the user.
- *   - Far: The application is not near the device, distance highly depends on
+ *   - Far: The user is not near the beacon; the distance highly depends on
  *     the physical environment.
  *
- * Ideally beacons should be calibrated at there deployment location because the
- * surrounding environment affect the strength of the advertised signal.
+ * Ideally beacons should be calibrated at their deployment location because the
+ * surrounding environment affects the strength of the advertised signal.
  *
  * @par Usage
  *
- * Mbed OS applications can use this class to set up a device to broadcast
+ * Mbed OS applications can use this class to configure a device to broadcast
  * advertising packets mimicking an iBeacon. The construction will automatically
  * create the payload identifying the beacon and register it as part of the
  * advertising payload of the device.
+ *
+ * Beacon configuration and advertising start is let to the user.
  *
  * @important If you are interested in manufacturing iBeacons, you must obtain a
  * license from Apple. More information at https://developer.apple.com/ibeacon/.
