@@ -22,6 +22,10 @@
 #include "mbed.h"
 #include "LittleFileSystem.h"
 #include "errno.h"
+extern "C" {
+#include "lfs.h"
+#include "lfs_util.h"
+}
 
 
 ////// Conversion functions //////
@@ -124,9 +128,11 @@ LittleFileSystem::~LittleFileSystem() {
 
 int LittleFileSystem::mount(BlockDevice *bd) {
     _mutex.lock();
+    LFS_INFO("mount(%p)", bd);
     _bd = bd;
     int err = _bd->init();
     if (err) {
+        LFS_INFO("mount -> %d", err);
         _mutex.unlock();
         return err;
     }
@@ -156,21 +162,25 @@ int LittleFileSystem::mount(BlockDevice *bd) {
     }
 
     err = lfs_mount(&_lfs, &_config);
+    LFS_INFO("mount -> %d", lfs_toerror(err));
     _mutex.unlock();
     return lfs_toerror(err);
 }
 
 int LittleFileSystem::unmount() {
     _mutex.lock();
+    LFS_INFO("unmount()", "");
     if (_bd) {
         int err = lfs_unmount(&_lfs);
         if (err) {
+            LFS_INFO("unmount -> %d", lfs_toerror(err));
             _mutex.unlock();
             return lfs_toerror(err);
         }
 
         err = _bd->deinit();
         if (err) {
+            LFS_INFO("unmount -> %d", err);
             _mutex.unlock();
             return err;
         }
@@ -178,6 +188,7 @@ int LittleFileSystem::unmount() {
         _bd = NULL;
     }
     
+    LFS_INFO("unmount -> %d", 0);
     _mutex.unlock();
     return 0;
 }
@@ -185,8 +196,11 @@ int LittleFileSystem::unmount() {
 int LittleFileSystem::format(BlockDevice *bd,
         lfs_size_t read_size, lfs_size_t prog_size,
         lfs_size_t block_size, lfs_size_t lookahead) {
+    LFS_INFO("format(%p, %d, %d, %d, %d)",
+            bd, read_size, prog_size, block_size, lookahead);
     int err = bd->init();
     if (err) {
+        LFS_INFO("format -> %d", err);
         return err;
     }
 
@@ -219,19 +233,23 @@ int LittleFileSystem::format(BlockDevice *bd,
 
     err = lfs_format(&_lfs, &_config);
     if (err) {
+        LFS_INFO("format -> %d", lfs_toerror(err));
         return lfs_toerror(err);
     }
 
     err = bd->deinit();
     if (err) {
+        LFS_INFO("format -> %d", err);
         return err;
     }
 
+    LFS_INFO("format -> %d", 0);
     return 0;
 }
 
 int LittleFileSystem::reformat(BlockDevice *bd) {
     _mutex.lock();
+    LFS_INFO("reformat(%p)", bd);
     if (_bd) {
         if (!bd) {
             bd = _bd;
@@ -239,12 +257,14 @@ int LittleFileSystem::reformat(BlockDevice *bd) {
 
         int err = unmount();
         if (err) {
+            LFS_INFO("reformat -> %d", err);
             _mutex.unlock();
             return err;
         }
     }
 
     if (!bd) {
+        LFS_INFO("reformat -> %d", -ENODEV);
         _mutex.unlock();
         return -ENODEV;
     }
@@ -252,37 +272,46 @@ int LittleFileSystem::reformat(BlockDevice *bd) {
     int err = LittleFileSystem::format(bd,
             _read_size, _prog_size, _block_size, _lookahead);
     if (err) {
+        LFS_INFO("reformat -> %d", err);
         _mutex.unlock();
         return err;
     }
 
     err = mount(bd);
     if (err) {
+        LFS_INFO("reformat -> %d", err);
         _mutex.unlock();
         return err;
     }
 
+    LFS_INFO("reformat -> %d", 0);
     _mutex.unlock();
     return 0;
 }
 
 int LittleFileSystem::remove(const char *filename) {
     _mutex.lock();
+    LFS_INFO("remove(\"%s\")", filename);
     int err = lfs_remove(&_lfs, filename);
+    LFS_INFO("remove -> %d", lfs_toerror(err));
     _mutex.unlock();
     return lfs_toerror(err);
 }
 
 int LittleFileSystem::rename(const char *oldname, const char *newname) {
     _mutex.lock();
+    LFS_INFO("rename(\"%s\", \"%s\")", oldname, newname);
     int err = lfs_rename(&_lfs, oldname, newname);
+    LFS_INFO("rename -> %d", lfs_toerror(err));
     _mutex.unlock();
     return lfs_toerror(err);
 }
 
 int LittleFileSystem::mkdir(const char *name, mode_t mode) {
     _mutex.lock();
+    LFS_INFO("mkdir(\"%s\", 0x%x)", name, mode);
     int err = lfs_mkdir(&_lfs, name);
+    LFS_INFO("mkdir -> %d", lfs_toerror(err));
     _mutex.unlock();
     return lfs_toerror(err);
 }
@@ -290,7 +319,9 @@ int LittleFileSystem::mkdir(const char *name, mode_t mode) {
 int LittleFileSystem::stat(const char *name, struct stat *st) {
     struct lfs_info info;
     _mutex.lock();
+    LFS_INFO("stat(\"%s\", %p)", name, st);
     int err = lfs_stat(&_lfs, name, &info);
+    LFS_INFO("stat -> %d", lfs_toerror(err));
     _mutex.unlock();
     st->st_size = info.size;
     st->st_mode = lfs_tomode(info.type);
@@ -303,7 +334,9 @@ int LittleFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
     lfs_file_t *f = new lfs_file_t;
     *file = f;
     _mutex.lock();
+    LFS_INFO("file_open(%p, \"%s\", 0x%x)", *file, path, flags);
     int err = lfs_file_open(&_lfs, f, path, lfs_fromflags(flags));
+    LFS_INFO("file_open -> %d", lfs_toerror(err));
     _mutex.unlock();
     return lfs_toerror(err);
 }
@@ -311,7 +344,9 @@ int LittleFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
 int LittleFileSystem::file_close(fs_file_t file) {
     lfs_file_t *f = (lfs_file_t *)file;
     _mutex.lock();
+    LFS_INFO("file_close(%p)", file);
     int err = lfs_file_close(&_lfs, f);
+    LFS_INFO("file_close -> %d", lfs_toerror(err));
     _mutex.unlock();
     delete f;
     return lfs_toerror(err);
@@ -320,7 +355,9 @@ int LittleFileSystem::file_close(fs_file_t file) {
 ssize_t LittleFileSystem::file_read(fs_file_t file, void *buffer, size_t len) {
     lfs_file_t *f = (lfs_file_t *)file;
     _mutex.lock();
+    LFS_INFO("file_read(%p, %p, %d)", file, buffer, len);
     lfs_ssize_t res = lfs_file_read(&_lfs, f, buffer, len);
+    LFS_INFO("file_read -> %d", lfs_toerror(res));
     _mutex.unlock();
     return lfs_toerror(res);
 }
@@ -328,7 +365,9 @@ ssize_t LittleFileSystem::file_read(fs_file_t file, void *buffer, size_t len) {
 ssize_t LittleFileSystem::file_write(fs_file_t file, const void *buffer, size_t len) {
     lfs_file_t *f = (lfs_file_t *)file;
     _mutex.lock();
+    LFS_INFO("file_write(%p, %p, %d)", file, buffer, len);
     lfs_ssize_t res = lfs_file_write(&_lfs, f, buffer, len);
+    LFS_INFO("file_write -> %d", lfs_toerror(res));
     _mutex.unlock();
     return lfs_toerror(res);
 }
@@ -336,7 +375,9 @@ ssize_t LittleFileSystem::file_write(fs_file_t file, const void *buffer, size_t 
 int LittleFileSystem::file_sync(fs_file_t file) {
     lfs_file_t *f = (lfs_file_t *)file;
     _mutex.lock();
+    LFS_INFO("file_sync(%p)", file);
     int err = lfs_file_sync(&_lfs, f);
+    LFS_INFO("file_sync -> %d", lfs_toerror(err));
     _mutex.unlock();
     return lfs_toerror(err);
 }
@@ -344,7 +385,9 @@ int LittleFileSystem::file_sync(fs_file_t file) {
 off_t LittleFileSystem::file_seek(fs_file_t file, off_t offset, int whence) {
     lfs_file_t *f = (lfs_file_t *)file;
     _mutex.lock();
+    LFS_INFO("file_seek(%p, %d, %d)", file, offset, whence);
     off_t res = lfs_file_seek(&_lfs, f, offset, lfs_fromwhence(whence));
+    LFS_INFO("file_seek -> %d", lfs_toerror(res));
     _mutex.unlock();
     return lfs_toerror(res);
 }
@@ -352,7 +395,9 @@ off_t LittleFileSystem::file_seek(fs_file_t file, off_t offset, int whence) {
 off_t LittleFileSystem::file_tell(fs_file_t file) {
     lfs_file_t *f = (lfs_file_t *)file;
     _mutex.lock();
+    LFS_INFO("file_tell(%p)", file);
     off_t res = lfs_file_tell(&_lfs, f);
+    LFS_INFO("file_tell -> %d", lfs_toerror(res));
     _mutex.unlock();
     return lfs_toerror(res);
 }
@@ -360,7 +405,9 @@ off_t LittleFileSystem::file_tell(fs_file_t file) {
 off_t LittleFileSystem::file_size(fs_file_t file) {
     lfs_file_t *f = (lfs_file_t *)file;
     _mutex.lock();
+    LFS_INFO("file_size(%p)", file);
     off_t res = lfs_file_size(&_lfs, f);
+    LFS_INFO("file_size -> %d", lfs_toerror(res));
     _mutex.unlock();
     return lfs_toerror(res);
 }
@@ -371,7 +418,9 @@ int LittleFileSystem::dir_open(fs_dir_t *dir, const char *path) {
     lfs_dir_t *d = new lfs_dir_t;
     *dir = d;
     _mutex.lock();
+    LFS_INFO("dir_open(%p, \"%s\")", *dir, path);
     int err = lfs_dir_open(&_lfs, d, path);
+    LFS_INFO("dir_open -> %d", lfs_toerror(err));
     _mutex.unlock();
     return lfs_toerror(err);
 }
@@ -379,7 +428,9 @@ int LittleFileSystem::dir_open(fs_dir_t *dir, const char *path) {
 int LittleFileSystem::dir_close(fs_dir_t dir) {
     lfs_dir_t *d = (lfs_dir_t *)dir;
     _mutex.lock();
+    LFS_INFO("dir_close(%p)", dir);
     int err = lfs_dir_close(&_lfs, d);
+    LFS_INFO("dir_close -> %d", lfs_toerror(err));
     _mutex.unlock();
     delete d;
     return lfs_toerror(err);
@@ -389,7 +440,9 @@ ssize_t LittleFileSystem::dir_read(fs_dir_t dir, struct dirent *ent) {
     lfs_dir_t *d = (lfs_dir_t *)dir;
     struct lfs_info info;
     _mutex.lock();
+    LFS_INFO("dir_read(%p, %p)", dir, ent);
     int res = lfs_dir_read(&_lfs, d, &info);
+    LFS_INFO("dir_read -> %d", lfs_toerror(res));
     _mutex.unlock();
     if (res == 1) {
         ent->d_type = lfs_totype(info.type);
@@ -401,14 +454,18 @@ ssize_t LittleFileSystem::dir_read(fs_dir_t dir, struct dirent *ent) {
 void LittleFileSystem::dir_seek(fs_dir_t dir, off_t offset) {
     lfs_dir_t *d = (lfs_dir_t *)dir;
     _mutex.lock();
+    LFS_INFO("dir_seek(%p, %d)", dir, offset);
     lfs_dir_seek(&_lfs, d, offset);
+    LFS_INFO("dir_seek -> void", "");
     _mutex.unlock();
 }
 
 off_t LittleFileSystem::dir_tell(fs_dir_t dir) {
     lfs_dir_t *d = (lfs_dir_t *)dir;
     _mutex.lock();
+    LFS_INFO("dir_tell(%p)", dir);
     lfs_soff_t res = lfs_dir_tell(&_lfs, d);
+    LFS_INFO("dir_tell -> %d", lfs_toerror(res));
     _mutex.unlock();
     return lfs_toerror(res);
 }
@@ -416,7 +473,9 @@ off_t LittleFileSystem::dir_tell(fs_dir_t dir) {
 void LittleFileSystem::dir_rewind(fs_dir_t dir) {
     lfs_dir_t *d = (lfs_dir_t *)dir;
     _mutex.lock();
+    LFS_INFO("dir_rewind(%p)", dir);
     lfs_dir_rewind(&_lfs, d);
+    LFS_INFO("dir_rewind -> void", "");
     _mutex.unlock();
 }
 
