@@ -109,8 +109,8 @@
 
 /* Enum to identify the interrupt to the UART handler */
 typedef enum {
-    IRQ_UART_ID_0_AND_LP,
     IRQ_UART_ID_1,
+    IRQ_UART_ID_2,
     NUM_IRQ_IDS
 } irq_uart_id_t;
 
@@ -119,8 +119,8 @@ typedef enum {
  * ----------------------------------------------------------------*/
 
 // /* The IRQ configuration variables, set up and named by mbed */
-// static uint32_t serial_irq_ids[NUM_IRQ_IDS] = {0};
-// static uart_irq_handler irq_handler = NULL;
+ static uint32_t serial_irq_ids[NUM_IRQ_IDS] = {0};
+ static uart_irq_handler irq_handler = NULL;
 
 /* RTX needs these */
 int stdio_uart_inited = 0;
@@ -130,7 +130,9 @@ serial_t stdio_uart;
  * FUNCTION PROTOTYPES
  * ----------------------------------------------------------------*/
 uint32_t zeroBitNumFromLsb(uint32_t data);
-
+static void irq_enable(serial_t *obj);
+static void irq_disable(serial_t *obj);
+    
 /* ----------------------------------------------------------------
  * NON-API FUNCTIONS
  * ----------------------------------------------------------------*/
@@ -157,65 +159,55 @@ uint32_t zeroBitNumFromLsb(uint32_t data)
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
-    //uint32_t clock = CLK_FREQ_DIG_CLKS;
+    obj->rx_pin = rx;
+    obj->tx_pin = tx;
+        
+    if (tx == UART1_TX) {        
+        pin_function(rx, PIN_FUNCTION_UART1_RXD);
+        pin_function(tx, PIN_FUNCTION_UART1_TXD);
+        obj->reg_base = app_ss_app_uart1;
+        obj->index = IRQ_UART_ID_1;
+        
+    } else if (tx == UART2_TX) {    
+        pin_function(rx, PIN_FUNCTION_UART2_RXD);
+        pin_function(tx, PIN_FUNCTION_UART2_TXD);
+        obj->reg_base = app_ss_app_uart2;
+        obj->index = IRQ_UART_ID_2;
+    }
+    else {
+        MBED_ASSERT(false);
+    }
+    
+    /* flush FIFOs and disable interrupts */
+    obj->reg_base->tffr = 0x0; 
+    obj->reg_base->rffr = 0x0; 
+    obj->reg_base->imrc = 0xFFFFFFF;
+    //obj->reg_base->imrs = 0x201; //enable tx shift register empty and rx not empty interrupts 
+    
+    serial_baud(obj, 9600);
+    serial_format(obj, 8, ParityNone, 1);
+    
+    if (tx == UART1_TX) {        
+        /* The UART1 pins are the stdio pins */
+        stdio_uart_inited = 1;
+        stdio_uart = *obj;
+    }        
 
-    /* There are two and a half UARTs on the chip. The normal
-     * configuration is to use the LP_UART for Rx and UART0 for
-     * Tx.  This gives maximal power saving in that the chip can
-     * wake up on receipt of data. However, this only works if the
-     * data rate is 9600 because that's the only data rate that
-     * the 32 kHz (i.e. RTC) clock driving the LP UART can support.
-     *
-     * So, if the data rate is 9600, use the LP_UART/UART0
-     * combination, otherwise use UART0 for both Rx and Tx.  However,
-     * we don't know the data rate at this point so assume LP_UART
-     * (as this works at the default baud rate) and we can change
-     * our minds later.
-     *
-     * There is another serial port, UART1, which is normally used
-     * by the modem processor to send out debug.  We only initialise
-     * that here if the Tx pin is UART1_TX. */
-
-    /* Wait for the clock to be stable */
-    // while ((clock < CLK_FREQ_LOWTARGET) || (clock > CLK_FREQ_HIGHTARGET)) {
-        // clock = CLK_FREQ_DIG_CLKS;
-    // }
-
-    // if (tx == UART1_TX) {
-        // /* Use UART1 for Rx and Tx */
-        // obj->config = SERIAL_CONFIG_UART1_RX_UART1_TX;
-    // } else {
-        // /* Use LP_UART for Rx, UART0 for Tx */
-        // obj->config = SERIAL_CONFIG_UARTLP_RX_UART0_TX;
-    // }
-
-    // obj->rx_pin = rx;
-    // obj->tx_pin = tx;
-    // init_config(obj);
-
-    // /* TODO: set rx pin Pull mode ? */
-
-    // /* set default baud rate and format */
-    // serial_baud(obj, 9600);
-    // serial_format(obj, 8, ParityNone, 1);
-
-    // if (tx == UART0_TX) {
-        // /* The UART0 pins are the stdio pins */
-        // stdio_uart_inited = 1;
-        // stdio_uart = *obj;
-    // }
 }
 
 void serial_free(serial_t *obj)
 {
-    // if (obj->tx_pin == UART0_TX) {
-        // stdio_uart_inited = 0;
-    // }
-
-    // serial_irq_ids[obj->index] = 0;
-
-    // /* Release the port HW */
-    // deinit_config(obj);
+    if (obj->tx_pin == UART1_TX) {
+        stdio_uart_inited = 0;
+    }
+    serial_irq_ids[obj->index] = 0;
+    
+    /* Release the port HW */
+    pin_function(obj->rx_pin, PIN_FUNCTION_UNCLAIMED);
+    pin_function(obj->tx_pin, PIN_FUNCTION_UNCLAIMED);    
+    obj->reg_base->crc = 0xFFFFFFFF; //clear everything
+    obj->reg_base->imrc = 0xFFFFFFFF; //disable all interrupts
+    obj->reg_base = NULL;
 }
 
 void serial_baud(serial_t *obj, int baudrate)
@@ -284,7 +276,7 @@ void serial_baud(serial_t *obj, int baudrate)
         MBED_ASSERT(false);
     }
     
-    MBED_ASSERT(!((baudrate_divider_value > DRIVER_BIT_MASK(UART_BR_BAUDRATE_SIZE)) || (nco_phase_acc_value > DRIVER_BIT_MASK(UART_NCO_NCO_PHASE_SIZE))));
+    //MBED_ASSERT(!((baudrate_divider_value > DRIVER_BIT_MASK(UART_BR_BAUDRATE_SIZE)) || (nco_phase_acc_value > DRIVER_BIT_MASK(UART_NCO_NCO_PHASE_SIZE))));
 
     /* disable baudrate generator (uart control clear reg) */
     obj->reg_base->crc |= DRIVER_BITFIELD_MASK(UART_CRC_BR_EN);
@@ -298,80 +290,6 @@ void serial_baud(serial_t *obj, int baudrate)
     
     /* enable baudrate generator (uart control set reg) */
     obj->reg_base->crs |= DRIVER_BITFIELD_MASK(UART_CRC_BR_EN);
-	
-	
-	
-	
-    // bool switch_port_config = false;
-    // bool format_set = obj->format_set;
-    // uint8_t stop_bits = obj->format.stop_bits;
-    // uint8_t data_bits = obj->format.data_bits;
-    // SerialParity parity = (SerialParity) obj->format.parity;
-    // irq_setting_t irq_rx_setting = obj->irq_rx_setting;
-    // irq_setting_t irq_tx_setting = obj->irq_tx_setting;
-
-    // if ((obj->config == SERIAL_CONFIG_UARTLP_RX_UART0_TX) && (baudrate != 9600)) {
-        // /* If we were on LP UART but the baud rate is not 9600 then
-         // * switch to the standard UART (as the LP UART can't go any higher
-         // * because it's clocked from 32 kHz) */
-        // deinit_config(obj);
-        // obj->config = SERIAL_CONFIG_UART0_RX_UART0_TX;
-        // init_config(obj);
-        // switch_port_config = true;
-    // } else if ((obj->config == SERIAL_CONFIG_UART0_RX_UART0_TX) && (baudrate == 9600)) {
-        // /* If we were on UART0 but the baud rate is 9600 then switch to the
-         // * LP UART for receive */
-        // deinit_config(obj);
-        // obj->config = SERIAL_CONFIG_UARTLP_RX_UART0_TX;
-        // init_config(obj);
-        // switch_port_config = true;
-    // }
-
-    // /* Disable UART while writing to control registers */
-    // obj->reg_base->UARTCR &= ~(1 << 0);
-
-    // if (switch_port_config) {
-        // /* If the port was switched, switch the port configuration also */
-        // if (format_set) {
-            // /* This serial port has been previously set up so switch the
-             // * settings across to this new configuration */
-            // serial_format(obj, data_bits, parity, stop_bits);
-        // }
-        // if (irq_rx_setting != IRQ_NOT_SET) {
-            // /* Do the same for Rx interrupts, if they were set */
-            // serial_irq_set(obj, RxIrq, (irq_rx_setting == IRQ_ON));
-        // }
-        // if (irq_tx_setting != IRQ_NOT_SET) {
-            // /* Do the same for Tx interrupts, if they were set */
-            // serial_irq_set(obj, TxIrq, (irq_tx_setting == IRQ_ON));
-        // }
-    // }
-
-    // switch (obj->config) {
-        // case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        // {
-            // /* Set LP UART to 9600 (numerator 75 (0x4B), denominator 256 (00 == 256)) */
-            // LP_UART_CTRL = (LP_UART_CTRL & ~0xFFFF) | 0x004B;
-            // set_baud(obj, baudrate);
-        // }
-        // break;
-        // case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        // case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        // {
-            // set_baud(obj, baudrate);
-        // }
-        // break;
-        // default:
-        // {
-            // MBED_ASSERT(false);
-        // }
-        // break;
-    // }
-
-    // /* Enable the UART again */
-    // obj->reg_base->UARTCR |= 1 << 0;
-
-    // obj->baud_rate = baudrate;
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
@@ -433,85 +351,160 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 {
-    // irq_handler = handler;
-    // serial_irq_ids[obj->index] = id;
+    irq_handler = handler;
+    serial_irq_ids[obj->index] = id;
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
-    // bool lp_also = false;
+    /* TODO: does uart tx/rx and baudrate generator need to be disabled? */
+    obj->reg_base->crc = (DRIVER_BITFIELD_MASK(UART_CRC_BR_EN) | DRIVER_BITFIELD_MASK(UART_CRC_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRC_TX_EN));
 
-    // if (obj->config == SERIAL_CONFIG_UARTLP_RX_UART0_TX) {
-        // lp_also = true;
-    // }
+    if (enable) {
+        switch (irq) {
+           case RxIrq:
+            {
+                /* rx fifo not empty interrupt enable */
+                obj->reg_base->imrs = 0x01;
+                obj->irq_rx_setting = IRQ_ON;
+                irq_enable(obj);
+            }
+            break;
+            case TxIrq:
+            {
+                /* tx shift register empty interrupt enable */
+                obj->reg_base->imrs = 0x200;
+                obj->irq_tx_setting = IRQ_ON;
+                irq_enable(obj);
+            }
+            break;
+            default:
+            {
+                MBED_ASSERT(false);
+            }
+            break;
+        }
+    } else {
+        switch (irq) {
+            case RxIrq:
+            {
+                /* rx fifo not empty interrupt disable */
+                obj->reg_base->imrc = 0x01;
+                obj->irq_rx_setting = IRQ_OFF;
+            }
+            break;
+            case TxIrq:
+            {
+                /* tx shift register empty interrupt disable */
+                obj->reg_base->imrc = 0x200;
+                obj->irq_tx_setting = IRQ_OFF;
+            }
+            break;
+            default:
+            {
+                MBED_ASSERT(false);
+            }
+            break;
+        }
+         if ((obj->irq_rx_setting == IRQ_OFF) && (obj->irq_tx_setting == IRQ_OFF)) {
+            irq_disable(obj);
+        }
+    }
+     /* Enable the UART again */
+    obj->reg_base->crs = (DRIVER_BITFIELD_MASK(UART_CRC_BR_EN) | DRIVER_BITFIELD_MASK(UART_CRC_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRC_TX_EN));
+}
 
-    // /* Disable UART while writing to control registers */
-    // obj->reg_base->UARTCR &= ~(1 << 0);
 
-    // if (enable) {
-        // switch (irq) {
-            // case RxIrq:
-            // {
-                // /* Bit 4 for Rx and bit 6 for Rx Timeout */
-                // obj->reg_base->UARTIMSC |= (1 << 4) | (1 << 6);
-                // if (lp_also)
-                // {
-                    // /* "Word Received" IRQ */
-                    // LP_UART_CTRL |= 1 << 23;
-                // }
-                // obj->irq_rx_setting = IRQ_ON;
-                // irq_enable(obj);
-            // }
-            // break;
-            // case TxIrq:
-            // {
-                // /* Bit 5 */
-                // obj->reg_base->UARTIMSC |= 1 << 5;
-                // obj->irq_tx_setting = IRQ_ON;
-                // irq_enable(obj);
-            // }
-            // break;
-            // default:
-            // {
-                // MBED_ASSERT(false);
-            // }
-            // break;
-        // }
-    // } else {
-        // switch (irq) {
-            // case RxIrq:
-            // {
-                // /* Bit 4  for Rx and bit 6 for Rx Timeout */
-                // obj->reg_base->UARTIMSC &= ~((1 << 4) | (1 << 6));
-                // if (lp_also)
-                // {
-                    // /* "Word Received" IRQ */
-                    // LP_UART_CTRL &= ~(1 << 23);
-                // }
-                // obj->irq_rx_setting = IRQ_OFF;
-            // }
-            // break;
-            // case TxIrq:
-            // {
-                // /* Bit 5 */
-                // obj->reg_base->UARTIMSC &= ~(1 << 5);
-                // obj->irq_tx_setting = IRQ_OFF;
-            // }
-            // break;
-            // default:
-            // {
-                // MBED_ASSERT(false);
-            // }
-            // break;
-        // }
+/* Set the NVIC bits */
+static void irq_enable(serial_t *obj)
+{
+    switch (obj->tx_pin) {
+        case UART1_TX:
+        {
+            NVIC_EnableIRQ(APP_CPU_APP_IRQ_UART1_INT_IRQn);
+        }
+        break;
+        case UART2_TX:
+        {
+            NVIC_EnableIRQ(APP_CPU_APP_IRQ_UART2_INT_IRQn);
+        }
+        break;
+        default:
+        {
+            MBED_ASSERT(false);
+        }
+        break;
+    }
+}
 
-        // if ((obj->irq_rx_setting == IRQ_OFF) && (obj->irq_tx_setting == IRQ_OFF)) {
-            // irq_disable(obj);
-        // }
-    // }
+/* Unset the NVIC bits */
+static void irq_disable(serial_t *obj)
+{
+    switch (obj->tx_pin) {
+        case UART1_TX:
+        {
+            NVIC_DisableIRQ(APP_CPU_APP_IRQ_UART1_INT_IRQn);
+        }
+        break;
+        case UART2_TX:
+        {
+            NVIC_DisableIRQ(APP_CPU_APP_IRQ_UART1_INT_IRQn);
+        }
+        break;
+        default:
+        {
+            MBED_ASSERT(false);
+        }
+        break;
+    }
+}
 
-    // /* Enable the UART again */
-    // obj->reg_base->UARTCR |= 1 << 0;
+
+
+/* UART1 IRQ */
+void APP_CPU_APP_IRQ_UART1_INT_IRQHandler()
+{
+    uint32_t id = serial_irq_ids[IRQ_UART_ID_1];
+
+    /* Check Rx interrupt */
+    if (app_ss_app_uart1->imr & (1 << 0) ) {
+        if (id != 0) {
+            irq_handler(id, RxIrq);
+            /* TODO: does the interrupt clear on its own?? */
+        }
+    }
+    /* Check Tx bit */
+    if (app_ss_app_uart1->imr & (1 << 9)) {
+        if (id != 0) {
+            irq_handler(id, TxIrq);
+            /* TODO: does the interrupt clear on its own?? */
+        }
+        /* Not sure what clears the interrupt so clear it explicitly */
+        NVIC_ClearPendingIRQ(APP_CPU_APP_IRQ_UART1_INT_IRQn);
+    }
+}
+
+/* UART2 IRQ */
+void APP_CPU_APP_IRQ_UART2_INT_IRQHandler()
+{
+    uint32_t id = serial_irq_ids[IRQ_UART_ID_2];
+
+    /* Check Rx interrupt */
+    if (app_ss_app_uart2->imr & (1 << 0) ) {
+        if (id != 0) {
+            irq_handler(id, RxIrq);
+            /* TODO: does the interrupt clear on its own?? */
+        }
+    }
+    /* Check Tx bit */
+    if (app_ss_app_uart2->imr & (1 << 9)) {
+        if (id != 0) {
+            irq_handler(id, TxIrq);
+            /* TODO: does the interrupt clear on its own?? */
+        }
+        /* Not sure what clears the interrupt so clear it explicitly */
+        NVIC_ClearPendingIRQ(APP_CPU_APP_IRQ_UART2_INT_IRQn);
+    }
 }
 
 /* ----------------------------------------------------------------
@@ -520,79 +513,41 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
 int serial_getc(serial_t *obj)
 {
-    // uint8_t data = 0;
+    uint8_t data = 0;
 
-    // /* Block until there is data to read */
-    // while (!serial_readable(obj)) {}
-
-    // /* Read the data */
-    // switch (obj->config) {
-        // case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        // {
-            // data = (uint8_t) LP_UART_DATA;
-        // }
-        // break;
-        // case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        // case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        // {
-            // data = (uint8_t) obj->reg_base->UARTDR;
-        // }
-        // break;
-        // default:
-        // {
-            // MBED_ASSERT(false);
-        // }
-        // break;
-    // }
-
-     return 0;
+    /* Block until there is data to read */
+    while (!serial_readable(obj)) {}        
+    data = (uint8_t) obj->reg_base->rhr;
+        
+    return (int)data;
 }
 
 void serial_putc(serial_t *obj, int c)
 {
-    // /* Block until there is room to write */
-    // while (!serial_writable(obj)) {}
+    /* Block until there is room to write */
+    while (!serial_writable(obj)) {}
 
-    // /* Write the data */
-    // obj->reg_base->UARTDR = (uint8_t) c;
+    /* Write the data */
+    obj->reg_base->thr = (uint8_t) c;
 }
 
 int serial_readable(serial_t *obj)
 {
-    // bool readable = false;
-
-    // switch (obj->config) {
-        // case SERIAL_CONFIG_UARTLP_RX_UART0_TX:
-        // {
-            // /* Check the status register, bits 8 to 10 indicate
-             // * the number of Rx bytes (make sure it's the status
-             // * register not the data register as a read from that
-             // * register would clear the Rx interrupt) */
-            // readable = (((LP_UART_STATUS >> 8) & 0x07) != 0);
-        // }
-        // break;
-        // case SERIAL_CONFIG_UART0_RX_UART0_TX:
-        // case SERIAL_CONFIG_UART1_RX_UART1_TX:
-        // {
-            // /* Check the Rx FIFO Empty bit */
-            // readable = ((obj->reg_base->UARTFR & (1 << 4)) != (1 << 4));
-        // }
-        // break;
-        // default:
-        // {
-            // MBED_ASSERT(false);
-        // }
-        // break;
-    // }
-
-    return 0;
+    if (DRIVER_BITFIELD_GET(obj->reg_base->rwcr, UART_RWCR_NONE) != 0) {
+       return true;
+    } else {    
+       return false;
+    }
 }
 
 int serial_writable(serial_t *obj)
-{
-    /* Check the "UART TX FIFO full" bit:
-     * only if this is 0 can we transmit  */
-    return 0;
+{    
+    /* only if this is 0 can we transmit  */
+    if (DRIVER_BITFIELD_GET(obj->reg_base->twcr, UART_TWCR_NONE) == 0) {
+       return true;
+    } else {    
+       return false;
+    }
 }
 
 void serial_break_set(serial_t *obj)
