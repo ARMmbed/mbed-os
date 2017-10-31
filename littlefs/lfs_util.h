@@ -37,23 +37,47 @@ static inline uint32_t lfs_min(uint32_t a, uint32_t b) {
 }
 
 static inline uint32_t lfs_ctz(uint32_t a) {
-#ifdef __ICCARM__
+#if defined(__GNUC__) || defined(__CC_ARM)
+    return __builtin_ctz(a);
+#elif defined(__ICCARM__)
     return __CLZ(__RBIT(a));
 #else
-    return __builtin_ctz(a);
+    uint32_t r = 32;
+    a &= -a;
+    if (a) r -= 1;
+    if (a & 0x0000ffff) r -= 16;
+    if (a & 0x00ff00ff) r -= 8;
+    if (a & 0x0f0f0f0f) r -= 4;
+    if (a & 0x33333333) r -= 2;
+    if (a & 0x55555555) r -= 1;
+    return r;
 #endif
 }
 
 static inline uint32_t lfs_npw2(uint32_t a) {
-#ifdef __ICCARM__
+#if defined(__GNUC__) || defined(__CC_ARM)
+    return 32 - __builtin_clz(a-1);
+#elif defined(__ICCARM__)
     return 32 - __CLZ(a-1);
 #else
-    return 32 - __builtin_clz(a-1);
+    uint32_t r = 0;
+    uint32_t s;
+    s = (a > 0xffff) << 4; a >>= s; r |= s;
+    s = (a > 0xff  ) << 3; a >>= s; r |= s;
+    s = (a > 0xf   ) << 2; a >>= s; r |= s;
+    s = (a > 0x3   ) << 1; a >>= s; r |= s;
+    return r | (a >> 1);
 #endif
 }
 
 static inline uint32_t lfs_popc(uint32_t a) {
+#if defined(__GNUC__) || defined(__CC_ARM)
     return __builtin_popcount(a);
+#else
+    a = a - ((a >> 1) & 0x55555555);
+    a = (a & 0x33333333) + ((a >> 2) & 0x33333333);
+    return (((a + (a >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24;
+#endif
 }
 
 static inline int lfs_scmp(uint32_t a, uint32_t b) {

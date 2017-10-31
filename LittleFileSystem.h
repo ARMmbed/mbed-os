@@ -24,6 +24,7 @@
 
 #include "FileSystem.h"
 #include "BlockDevice.h"
+#include "PlatformMutex.h"
 extern "C" {
 #include "lfs.h"
 }
@@ -273,6 +274,9 @@ private:
     const lfs_size_t _prog_size;
     const lfs_size_t _block_size;
     const lfs_size_t _lookahead;
+
+    // thread-safe locking
+    PlatformMutex _mutex;
 };
 
 
