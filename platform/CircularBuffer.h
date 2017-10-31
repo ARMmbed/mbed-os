@@ -112,12 +112,10 @@ public:
         if (!_full) {
             if (_head < _tail) {
                 elements = BufferSize + _head - _tail;
-            }
-            else {
+            } else {
                 elements = _head - _tail;
             }
-        }
-        else {
+        } else {
             elements = BufferSize;
         }
         core_util_critical_section_exit();
