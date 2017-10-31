@@ -448,7 +448,7 @@ static void irq_disable(serial_t *obj)
         break;
         case UART2_TX:
         {
-            NVIC_DisableIRQ(APP_CPU_APP_IRQ_UART1_INT_IRQn);
+            NVIC_DisableIRQ(APP_CPU_APP_IRQ_UART2_INT_IRQn);
         }
         break;
         default:
