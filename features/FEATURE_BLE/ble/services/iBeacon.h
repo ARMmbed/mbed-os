@@ -26,22 +26,22 @@
  *
  * iBeacons are Bluetooth Low Energy (BLE) devices advertising an identification
  * number generally used to determine the location of devices or physical objects
- * nearby a mobile phone user.
+ * near to a mobile phone user.
  *
  * iOS scans for iBeacon devices in a background task and will notify Apps
  * subscribed to a specific region when the area is entered or left. Apps may
  * use this information to display context-aware content to users.
  *
  * As an example a museum can deploy an apps which inform the user when one of
- * its exhibition is enterred then display specific information about exposed
+ * its exhibition is entered then display specific information about exposed
  * pieces of art when the user is sufficiently close to them.
  *
  * @par Positioning
  *
  * Location information is hierarchically structured. A UUID specific to the
  * application and its deployment is used to identify a region. That region
- * usually identify an organization. The region is divided into subregions
- * identified by a major ID. The subregion contains related points of interrest
+ * usually identifies an organization. The region is divided into subregions
+ * identified by a major ID. The subregion contains related points of interest
  * which are are distinguished by a minor ID.
  *
  * As an example a city willing to improve tourists experience can deploy a fleet
@@ -49,14 +49,14 @@
  * identify a place managed by the city. The major ID would identify the place;
  * it can be a museum, an historic monument, a metro station, ... The minor ID
  * would locate a specific spot within a specific city place. It can be a
- * piece of art, a ticket dispenser or a relevant point of interrest.
+ * piece of art, a ticket dispenser or a relevant point of interest.
  *
- * Each iBeacon device is physically attached to the spot it locate and advertise
- * the triplet UUID, major ID and minor ID.
+ * Each iBeacon device is physically attached to the spot it locates and
+ * advertises the triplet UUID, major ID and minor ID.
  *
  * @par Proximity
  *
- * The beacon advertise the signal strength measured by an iOS device at a
+ * The beacon advertises the signal strength measured by an iOS device at a
  * distance of one meter. This information is used by iOS to approximate the
  * proximity to a given beacon:
  *   - Immediate: The beacon is less than one meter away from the user.
@@ -74,7 +74,7 @@
  * create the payload identifying the beacon and register it as part of the
  * advertising payload of the device.
  *
- * Beacon configuration and advertising start is let to the user.
+ * Beacon configuration and advertising commencement is left to the user.
  *
  * @important If you are interested in manufacturing iBeacons, you must obtain a
  * license from Apple. More information at https://developer.apple.com/ibeacon/.
