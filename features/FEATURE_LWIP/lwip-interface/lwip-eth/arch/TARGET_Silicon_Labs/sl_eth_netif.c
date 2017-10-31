@@ -52,17 +52,17 @@
 // Datatypes
 // -----------------------------------------------------------------------------
 typedef struct {
-      struct netif *netif;      /** Context pointer to lwip driver instance */
-      osThreadId_t thread;      /** Ethernet driver thread */
-      sys_sem_t    tx_sem;      /** Semaphore protecting the TX state. 
-                                  * Not a mutex since we're posting from IRQ */
-      uint8_t      phy_addr;    /** (R)MII address where the PHY is residing */
-      uint8_t      rx_idx;      /** Index in RX queue for next packet to read */
+    struct netif *netif;      /** Context pointer to lwip driver instance */
+    osThreadId_t thread;      /** Ethernet driver thread */
+    sys_sem_t    tx_sem;      /** Semaphore protecting the TX state. 
+                                * Not a mutex since we're posting from IRQ */
+    uint8_t      phy_addr;    /** (R)MII address where the PHY is residing */
+    uint8_t      rx_idx;      /** Index in RX queue for next packet to read */
 } sl_eth_inst_data_t;
 
 typedef struct {
-  uint32_t addr;
-  uint32_t status;
+    uint32_t addr;
+    uint32_t status;
 } sl_eth_bd_t;
 
 #define FLAG_TX  1
