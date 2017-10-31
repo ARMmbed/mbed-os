@@ -107,9 +107,9 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
  *                 size (16 bytes)
  *
  * \note           Upon exit, the content of the IV is updated so that you can
- *                 call the function same function again on the following
- *                 block(s) of data and get the same result as if it was
- *                 encrypted in one call. This allows a "streaming" usage.
+ *                 call the same function again on the following block(s) of
+ *                 data and get the same result as if it was encrypted in one
+ *                 call. This allows a "streaming" usage.
  *                 If on the other hand you need to retain the contents of the
  *                 IV, you should either save it manually or use the cipher
  *                 module instead.
