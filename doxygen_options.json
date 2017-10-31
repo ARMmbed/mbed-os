@@ -1,4 +1,5 @@
 {
+    "PROJECT_NAME": "Mbed OS Reference",
     "ENABLE_PREPROCESSING": "YES",
     "MACRO_EXPANSION": "YES",
     "EXPAND_ONLY_PREDEF": "NO",
