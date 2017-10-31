@@ -44,7 +44,7 @@
  * identified by a major ID. The subregion contains related points of interest
  * which a minor ID distinguishes.
  *
- * As an exampl,e a city willing to improve tourists' experience can deploy a fleet
+ * As an example, a city willing to improve tourist's experience can deploy a fleet
  * of iBeacons in relevant touristic locations it operates. The UUID may
  * identify a place managed by the city. The major ID would identify the place;
  * it can be a museum, a historic monument, a metro station and so on. The minor ID
