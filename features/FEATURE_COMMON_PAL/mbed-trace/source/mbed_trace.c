@@ -177,6 +177,16 @@ int mbed_trace_init(void)
     if (m_trace.filters_include == NULL) {
         m_trace.filters_include = MBED_TRACE_MEM_ALLOC(m_trace.filters_length);
     }
+    
+    if (m_trace.line == NULL ||
+        m_trace.tmp_data == NULL ||
+        m_trace.filters_exclude == NULL  ||
+        m_trace.filters_include == NULL) {
+    //memory allocation fail
+    mbed_trace_free();
+    return -1;
+}
+
 #else
     m_trace.filters_exclude = trace_filters_exclude;
     m_trace.filters_include = trace_filters_include;
@@ -184,14 +194,7 @@ int mbed_trace_init(void)
     m_trace.tmp_data = trace_tmp_data;
 #endif
 
-    if (m_trace.line == NULL ||
-            m_trace.tmp_data == NULL ||
-            m_trace.filters_exclude == NULL  ||
-            m_trace.filters_include == NULL) {
-        //memory allocation fail
-        mbed_trace_free();
-        return -1;
-    }
+
     memset(m_trace.tmp_data, 0, m_trace.tmp_data_length);
     memset(m_trace.filters_exclude, 0, m_trace.filters_length);
     memset(m_trace.filters_include, 0, m_trace.filters_length);
