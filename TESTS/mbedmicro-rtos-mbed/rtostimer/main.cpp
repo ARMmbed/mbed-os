@@ -23,7 +23,7 @@ using namespace utest::v1;
 
 #define TEST_DELAY_MS 50
 #define TEST_DELAY2_MS 30
-#define TEST_DELAY_MS_DELTA 1
+#define TEST_DELAY_MS_DELTA 5
 #define TEST_RESTART_DELAY_MS 10
 
 #if TEST_RESTART_DELAY_MS >= TEST_DELAY_MS
@@ -71,12 +71,12 @@ void test_oneshot_not_restarted()
     t.start();
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    int32_t slots = sem.wait(TEST_DELAY_MS + 1);
+    int32_t slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
     t.stop();
     TEST_ASSERT_EQUAL(1, slots);
     TEST_ASSERT_INT_WITHIN(TEST_DELAY_MS_DELTA * 1000, TEST_DELAY_MS * 1000, t.read_us());
 
-    slots = sem.wait(TEST_DELAY_MS + 1);
+    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
     TEST_ASSERT_EQUAL(0, slots);
 
     stat = timer.stop();
@@ -105,12 +105,12 @@ void test_periodic_repeats()
     t.start();
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    int32_t slots = sem.wait(TEST_DELAY_MS + 1);
+    int32_t slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
     int t1 = t.read_us();
     TEST_ASSERT_EQUAL(1, slots);
     TEST_ASSERT_INT_WITHIN(TEST_DELAY_MS_DELTA * 1000, TEST_DELAY_MS * 1000, t1);
 
-    slots = sem.wait(TEST_DELAY_MS + 1);
+    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
     t.stop();
     TEST_ASSERT_EQUAL(1, slots);
     TEST_ASSERT_INT_WITHIN(TEST_DELAY_MS_DELTA * 1000, TEST_DELAY_MS * 1000, t.read_us() - t1);
@@ -118,7 +118,7 @@ void test_periodic_repeats()
     stat = timer.stop();
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    slots = sem.wait(TEST_DELAY_MS + 1);
+    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
     TEST_ASSERT_EQUAL(0, slots);
 
     stat = timer.stop();
@@ -153,7 +153,7 @@ void test_restart()
     stat = timer.start(TEST_DELAY_MS);
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    slots = sem.wait(TEST_DELAY_MS + 1);
+    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
     t.stop();
     TEST_ASSERT_EQUAL(1, slots);
     TEST_ASSERT_INT_WITHIN(TEST_DELAY_MS_DELTA * 1000, (TEST_DELAY_MS + TEST_RESTART_DELAY_MS) * 1000, t.read_us());
@@ -183,7 +183,7 @@ void test_start_again()
     stat = timer.start(TEST_DELAY_MS);
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    int32_t slots = sem.wait(TEST_DELAY_MS + 1);
+    int32_t slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
     TEST_ASSERT_EQUAL(1, slots);
 
     stat = timer.stop();
@@ -192,7 +192,7 @@ void test_start_again()
     stat = timer.start(TEST_DELAY_MS);
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    slots = sem.wait(TEST_DELAY_MS + 1);
+    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
     TEST_ASSERT_EQUAL(1, slots);
 
     stat = timer.stop();
@@ -227,7 +227,7 @@ void test_restart_updates_delay()
     t.start();
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    slots = sem.wait(TEST_DELAY2_MS + 1);
+    slots = sem.wait(TEST_DELAY2_MS + TEST_DELAY_MS_DELTA);
     t.stop();
     TEST_ASSERT_EQUAL(1, slots);
     TEST_ASSERT_INT_WITHIN(TEST_DELAY_MS_DELTA * 1000, TEST_DELAY2_MS * 1000, t.read_us());
@@ -273,7 +273,7 @@ void test_stop()
     stat = timer.stop();
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    slots = sem.wait(TEST_DELAY_MS + 1);
+    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
     TEST_ASSERT_EQUAL(0, slots);
 
     stat = timer.stop();
@@ -337,7 +337,7 @@ void test_isr_calls_fail()
     Ticker ticker;
     ticker.attach(mbed::callback(timer_isr_call, (void const *) &timer), (float) TEST_DELAY_MS / 1000.0);
 
-    wait_ms(TEST_DELAY_MS + 1);
+    wait_ms(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
