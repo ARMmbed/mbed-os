@@ -18,6 +18,7 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
+#include "mbed_critical.h"
 #include "cmsis_os2.h"
 
 #define APP_TIM_ID          2   // the G-Timer ID for Application
@@ -90,18 +91,22 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         TimerAdapter.TimerLoadValueUs = TIMER_TICK_US;
     }
 
+    core_util_critical_section_enter();
     HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
     HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, TimerAdapter.TimerLoadValueUs);
     HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
+    core_util_critical_section_exit();
 }
 
 void us_ticker_fire_interrupt(void)
 {
     TimerAdapter.TimerLoadValueUs = TIMER_TICK_US;
 
+    core_util_critical_section_enter();
     HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
     HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, TimerAdapter.TimerLoadValueUs);
     HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
+    core_util_critical_section_exit();
 }
 
 void us_ticker_disable_interrupt(void)
