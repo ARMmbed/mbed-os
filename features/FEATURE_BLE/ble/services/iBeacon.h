@@ -26,14 +26,14 @@
  *
  * iBeacons are Bluetooth Low Energy (BLE) devices advertising an identification
  * number generally used to determine the location of devices or physical objects
- * near to a mobile phone user.
+ * near a mobile phone user.
  *
- * iOS scans for iBeacon devices in a background task and will notify Apps
+ * iOS scans for iBeacon devices in a background task and notifies Apps
  * subscribed to a specific region when the area is entered or left. Apps may
  * use this information to display context-aware content to users.
  *
- * As an example a museum can deploy an apps which inform the user when one of
- * its exhibition is entered then display specific information about exposed
+ * As an example, a museum can deploy an app that informs the user when one of
+ * its exhibitions is entered and then displays specific information about exposed
  * pieces of art when the user is sufficiently close to them.
  *
  * @par Positioning
@@ -42,12 +42,12 @@
  * application and its deployment is used to identify a region. That region
  * usually identifies an organization. The region is divided into subregions
  * identified by a major ID. The subregion contains related points of interest
- * which are are distinguished by a minor ID.
+ * which a minor ID distinguishes.
  *
- * As an example a city willing to improve tourists experience can deploy a fleet
+ * As an exampl,e a city willing to improve tourists' experience can deploy a fleet
  * of iBeacons in relevant touristic locations it operates. The UUID may
  * identify a place managed by the city. The major ID would identify the place;
- * it can be a museum, an historic monument, a metro station, ... The minor ID
+ * it can be a museum, a historic monument, a metro station and so on. The minor ID
  * would locate a specific spot within a specific city place. It can be a
  * piece of art, a ticket dispenser or a relevant point of interest.
  *
@@ -57,21 +57,21 @@
  * @par Proximity
  *
  * The beacon advertises the signal strength measured by an iOS device at a
- * distance of one meter. This information is used by iOS to approximate the
+ * distance of one meter. iOS uses this information to approximate the
  * proximity to a given beacon:
  *   - Immediate: The beacon is less than one meter away from the user.
- *   - Near: The beacon is one to three meter away from the user.
+ *   - Near: The beacon is one to three meters away from the user.
  *   - Far: The user is not near the beacon; the distance highly depends on
  *     the physical environment.
  *
- * Ideally beacons should be calibrated at their deployment location because the
+ * Ideally, beacons should be calibrated at their deployment location because the
  * surrounding environment affects the strength of the advertised signal.
  *
  * @par Usage
  *
  * Mbed OS applications can use this class to configure a device to broadcast
- * advertising packets mimicking an iBeacon. The construction will automatically
- * create the payload identifying the beacon and register it as part of the
+ * advertising packets mimicking an iBeacon. The construction automatically
+ * creates the payload identifying the beacon and registers it as part of the
  * advertising payload of the device.
  *
  * Beacon configuration and advertising commencement is left to the user.
@@ -145,16 +145,16 @@ public:
          *
          * @param[in] uuid Beacon network ID. iBeacon operators use this value
          * to group their iBeacons into a single network, a single region and
-         * identify their organization amongst others.
+         * identify their organization among others.
          *
          * @param[in] majNum Beacon major group ID. iBeacon exploitants may use
          * this field to divide the region into subregions, their network into
-         * sub networks.
+         * subnetworks.
          *
          * @param[in] minNum Identifier of the Beacon in its subregion.
          *
          * @param[in] transmitPower Measured transmit power of the beacon at 1
-         * meter. This parameter is used by scanners to approximate the distance
+         * meter. Scanners use this parameter to approximate the distance
          * to the beacon.
          *
          * @param[in] companyIDIn ID of the beacon manufacturer.
@@ -180,20 +180,20 @@ public:
     /**
      * Construct an iBeacon::Payload and register it into Gap.
      *
-     * @param[in] _ble The ble interface to configure with the iBeacon payload.
+     * @param[in] _ble The BLE interface to configure with the iBeacon payload.
      *
      * @param[in] uuid Beacon network ID. iBeacon operators use this value
      * to group their iBeacons into a single network, a single region and
-     * identify their organization amongst others.
+     * identify their organization among others.
      *
      * @param[in] majNum Beacon major group ID. iBeacon exploitants may use
      * this field to divide the region into subregions, their network into
-     * sub networks.
+     * subnetworks.
      *
      * @param[in] minNum Identifier of the Beacon in its subregion.
      *
      * @param[in] txP Measured transmit power of the beacon at 1
-     * meter. This parameter is used by scanners to approximate the distance
+     * meter. Scanners use this parameter to approximate the distance
      * to the beacon.
      *
      * @param[in] compID ID of the beacon manufacturer.
