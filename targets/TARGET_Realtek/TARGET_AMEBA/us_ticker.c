@@ -18,8 +18,8 @@
 #include <stddef.h>
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
+#include "cmsis_os2.h"
 
-#define SYS_TIM_ID          1   // the G-Timer ID for System
 #define APP_TIM_ID          2   // the G-Timer ID for Application
 
 /*
@@ -32,7 +32,7 @@
  *
  * Define the following macros to convert between TICK and US.
  */
-#define TICK_TO_US(x)       (uint64_t)(((x)/2) * 61 + ((x)%2) * TIMER_TICK_US)
+#define TICK_TO_US(x)       (uint64_t)((x) * 1000)
 
 static int us_ticker_inited = 0;
 static TIMER_ADAPTER TimerAdapter;
@@ -53,11 +53,6 @@ void us_ticker_init(void)
 
     us_ticker_inited = 1;
 
-    // Reload and restart sys-timer
-    HalTimerOp.HalTimerDis(SYS_TIM_ID);
-    HalTimerOpExt.HalTimerReLoad(SYS_TIM_ID, 0xFFFFFFFFUL);
-    HalTimerOp.HalTimerEn(SYS_TIM_ID);
-
     // Initial a app-timer
     TimerAdapter.IrqDis = 0;    // Enable Irq @ initial
     TimerAdapter.IrqHandle.IrqFun = (IRQ_FUN) _us_ticker_irq_handler;
@@ -75,16 +70,13 @@ void us_ticker_init(void)
 uint32_t us_ticker_read(void)
 {
     uint32_t tick_cnt;
-    uint64_t tick_us;
 
     if (!us_ticker_inited) {
         us_ticker_init();
     }
 
-    tick_cnt = HalTimerOp.HalTimerReadCount(SYS_TIM_ID);
-    tick_us = TICK_TO_US(0xFFFFFFFFUL - tick_cnt);
-
-    return ((uint32_t)tick_us);  //return ticker value in micro-seconds (us)
+    tick_cnt = osKernelGetTickCount();
+    return (uint32_t) TICK_TO_US(tick_cnt);
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
