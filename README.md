@@ -1,3 +1,9 @@
+# Goal
+To port mbed OS to the Raspberry Pi
+Steps
+Port Mbed Hal the underlying subsystem
+https://github.com/ARMmbed/mbed-hal
+Build mbed os ontop of Hal
 # ARM mbed OS
  
 mbed OS is an open-source embedded operating system designed for the "things" in the Internet of Things (IoT). mbed OS includes the features you need to develop a connected product using an ARM Cortex-M microcontroller.
