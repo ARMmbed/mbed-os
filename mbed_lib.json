@@ -3,11 +3,11 @@
     "config": {
         "base-address": {
             "help": "Base address for the block device on the external flash.",
-            "value": null
+            "value": "0xFFFFFFFF"
         },
         "size": {
             "help": "Memory allocated for block device.",
-            "value": null
+            "value": "0"
         }
     },
     "target_overrides": {
