@@ -17,6 +17,8 @@
 #ifndef MBED_FLASHIAP_BLOCK_DEVICE_H
 #define MBED_FLASHIAP_BLOCK_DEVICE_H
 
+#ifdef DEVICE_FLASH
+
 #include "BlockDevice.h"
 #include <mbed.h>
 
@@ -121,4 +123,5 @@ private:
     bd_size_t _size;
 };
 
+#endif /* DEVICE_FLASH */
 #endif /* MBED_FLASHIAP_BLOCK_DEVICE_H */

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifdef DEVICE_FLASH
+
 #include "FlashIAPBlockDevice.h"
 
 #include "mbed.h"
@@ -155,3 +157,5 @@ bd_size_t FlashIAPBlockDevice::size() const
 
     return _size;
 }
+
+#endif /* DEVICE_FLASH */
