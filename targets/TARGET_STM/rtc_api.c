@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#if DEVICE_RTC
+#if DEVICE_RTC || DEVICE_LOWPOWERTIMER
 
 #include "rtc_api.h"
 #include "rtc_api_hal.h"
@@ -292,8 +292,6 @@ int rtc_isenabled(void)
 #endif /* TARGET_STM32F1 */
 }
 
-#if DEVICE_LOWPOWERTIMER
-
 static void RTC_IRQHandler(void)
 {
     /*  Update HAL state */
@@ -333,6 +331,5 @@ void rtc_synchronize(void)
 {
     HAL_RTC_WaitForSynchro(&RtcHandle);
 }
-#endif /* DEVICE_LOWPOWERTIMER */
 
-#endif /* DEVICE_RTC */
+#endif /* DEVICE_RTC || DEVICE_LOWPOWERTIMER */
