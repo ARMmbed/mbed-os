@@ -103,6 +103,20 @@
 /** Return \p data with bitfield defined as `name_OFFSET` and `name_SIZE` set to \p name_ENUM_value */
 #define DRIVER_BITFIELD_SET_ENUM(data, name, enumValue)  DRIVER_BITFIELD_SET(data, name,  DRIVER_BITFIELD_ENUM(name, enumValue))
 
+/* PIO macros */
+#define PIO_CHANNEL_SUB_32_MASK       (0x1F)
+#define PIO_CHANNEL_OVER_32_SHIFT     (5)
+
+#define Uart1RXDxSIO_CHANNEL    (42)
+#define Uart1TXDxSIO_CHANNEL    (43)
+#define UART1CTSxSIO_CHANNEL    (44)
+#define Uart1RTSxSIO_CHANNEL    (45)
+
+#define Uart2RXDxSIO_CHANNEL    (46)
+#define Uart2TXDxSIO_CHANNEL    (47)
+#define Uart2CTSxSIO_CHANNEL    (48)
+#define Uart2RTSxSIO_CHANNEL    (49)
+
 /* ----------------------------------------------------------------
  * TYPES
  * ----------------------------------------------------------------*/
@@ -129,15 +143,16 @@ serial_t stdio_uart;
 /* ----------------------------------------------------------------
  * FUNCTION PROTOTYPES
  * ----------------------------------------------------------------*/
-uint32_t zeroBitNumFromLsb(uint32_t data);
+static uint32_t zeroBitNumFromLsb(uint32_t data);
 static void irq_enable(serial_t *obj);
 static void irq_disable(serial_t *obj);
-    
+static void config_pio_channel(uint8_t channel);
+ 
 /* ----------------------------------------------------------------
  * NON-API FUNCTIONS
  * ----------------------------------------------------------------*/
 /* calculate the number of zero bits from LSB */
-uint32_t zeroBitNumFromLsb(uint32_t data)
+static uint32_t zeroBitNumFromLsb(uint32_t data)
 {
     uint32_t zeroBitNum = 0;
     for (uint32_t i = 0; i < 32; ++i) {
@@ -153,24 +168,50 @@ uint32_t zeroBitNumFromLsb(uint32_t data)
     return zeroBitNum;
 }
 
+/* setup pio channels and mux for Uart pins */
+static void config_pio_channel(uint8_t channel)
+{
+    struct pio_s *p_thisChRegBase;
+    uint8_t channelOffset;
+    
+    channelOffset = channel & PIO_CHANNEL_SUB_32_MASK;
+    
+    if( (channel >> PIO_CHANNEL_OVER_32_SHIFT) == 0){
+      
+        p_thisChRegBase = (struct pio_s *)PIO_CONTROL_BASE;
+    }
+    else{ 
+          
+        p_thisChRegBase = (struct pio_s *)(PIO_CONTROL_BASE + 0x220);
+    }          
+
+    p_thisChRegBase->pio_pdr_0 |= (1 << channelOffset);    
+    p_thisChRegBase->pio_asr_0 |= (1 << channelOffset);
+    p_thisChRegBase->pio_percpdr_0 |= (1 << channelOffset);    
+    p_thisChRegBase->pio_odr_0  |= (1 << channelOffset);
+    p_thisChRegBase->pio_iner_0 |= (1 << channelOffset);
+    p_thisChRegBase->pio_pldr_0 |= (1 << channelOffset);
+    p_thisChRegBase->pio_phdr_0 |= (1 << channelOffset);    
+    
+}
 /* ----------------------------------------------------------------
  * MBED API CALLS: SETUP FUNCTIONS
  * ----------------------------------------------------------------*/
 
 void serial_init(serial_t *obj, PinName tx, PinName rx)
-{
+{    
     obj->rx_pin = rx;
     obj->tx_pin = tx;
         
-    if (tx == UART1_TX) {        
-        pin_function(rx, PIN_FUNCTION_UART1_RXD);
-        pin_function(tx, PIN_FUNCTION_UART1_TXD);
+    if (tx == UART1_TX) {               
+        config_pio_channel(Uart1RXDxSIO_CHANNEL);
+        config_pio_channel(Uart1TXDxSIO_CHANNEL);
         obj->reg_base = app_ss_app_uart1;
         obj->index = IRQ_UART_ID_1;
         
     } else if (tx == UART2_TX) {    
-        pin_function(rx, PIN_FUNCTION_UART2_RXD);
-        pin_function(tx, PIN_FUNCTION_UART2_TXD);
+        config_pio_channel(Uart2RXDxSIO_CHANNEL);
+        config_pio_channel(Uart2TXDxSIO_CHANNEL);
         obj->reg_base = app_ss_app_uart2;
         obj->index = IRQ_UART_ID_2;
     }
