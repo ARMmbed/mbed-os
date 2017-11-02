@@ -46,7 +46,8 @@ static sys_mutex_t tx_lock_mutex;
 /* function */
 static void _eth_arch_rx_task(void *arg);
 static void _eth_arch_phy_task(void *arg);
-#if defined (TARGET_NUCLEO_F767ZI)
+#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
+    || defined (STM32F779xx)
 static void _rmii_watchdog(void *arg);
 #endif
 
@@ -375,9 +376,10 @@ static void _eth_arch_phy_task(void *arg)
     }
 }
 
-#if defined (TARGET_NUCLEO_F767ZI)
+#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
+    || defined (STM32F779xx)
 /**
- * workaround for the ETH RMII bug in STM32F769 Cut1.0
+ * workaround for the ETH RMII bug in STM32F76x and STM32F77x revA
  *
  * \param[in] netif the lwip network interface structure
  */
@@ -497,7 +499,8 @@ err_t eth_arch_enetif_init(struct netif *netif)
     /* initialize the hardware */
     _eth_arch_low_level_init(netif);
 
-#if defined (TARGET_NUCLEO_F767ZI)
+#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
+    || defined (STM32F779xx)
     sys_thread_new("stm32_rmii_watchdog", _rmii_watchdog, netif, DEFAULT_THREAD_STACKSIZE, osPriorityLow);
 #endif
 
