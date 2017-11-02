@@ -135,6 +135,7 @@ typedef enum {
 // /* The IRQ configuration variables, set up and named by mbed */
  static uint32_t serial_irq_ids[NUM_IRQ_IDS] = {0};
  static uart_irq_handler irq_handler = NULL;
+ static uint8_t serial_channel[2]={0x00};
 
 /* RTX needs these */
 int stdio_uart_inited = 0;
@@ -146,8 +147,10 @@ serial_t stdio_uart;
 static uint32_t zeroBitNumFromLsb(uint32_t data);
 static void irq_enable(serial_t *obj);
 static void irq_disable(serial_t *obj);
+
+/* TODO: the following two non-api functions are for the sake of testing only, once pinnames and pinmaps are implemented, it will be replaced */
 static void config_pio_channel(uint8_t channel);
- 
+static void disable_pio_channel(uint8_t channel);
 /* ----------------------------------------------------------------
  * NON-API FUNCTIONS
  * ----------------------------------------------------------------*/
@@ -168,31 +171,45 @@ static uint32_t zeroBitNumFromLsb(uint32_t data)
     return zeroBitNum;
 }
 
+/* TODO: the following two non-api functions are for the sake of testing only, once pinnames and pinmaps are implemented, it will be replaced */
 /* setup pio channels and mux for Uart pins */
 static void config_pio_channel(uint8_t channel)
 {
-    struct pio_s *p_thisChRegBase;
-    uint8_t channelOffset;
+    struct pio_s *pio_channel_regbase;
+    uint8_t channel_offset_in_reg;
     
-    channelOffset = channel & PIO_CHANNEL_SUB_32_MASK;
+    channel_offset_in_reg = channel & PIO_CHANNEL_SUB_32_MASK;
     
-    if( (channel >> PIO_CHANNEL_OVER_32_SHIFT) == 0){
-      
-        p_thisChRegBase = (struct pio_s *)PIO_CONTROL_BASE;
-    }
-    else{ 
-          
-        p_thisChRegBase = (struct pio_s *)(PIO_CONTROL_BASE + 0x220);
+    if( (channel >> PIO_CHANNEL_OVER_32_SHIFT) == 0) {      
+        pio_channel_regbase = (struct pio_s *)PIO_CONTROL_BASE;
+    } else {          
+        pio_channel_regbase = (struct pio_s *)(PIO_CONTROL_BASE + 0x220);
     }          
 
-    p_thisChRegBase->pio_pdr_0 |= (1 << channelOffset);    
-    p_thisChRegBase->pio_asr_0 |= (1 << channelOffset);
-    p_thisChRegBase->pio_percpdr_0 |= (1 << channelOffset);    
-    p_thisChRegBase->pio_odr_0  |= (1 << channelOffset);
-    p_thisChRegBase->pio_iner_0 |= (1 << channelOffset);
-    p_thisChRegBase->pio_pldr_0 |= (1 << channelOffset);
-    p_thisChRegBase->pio_phdr_0 |= (1 << channelOffset);    
+    pio_channel_regbase->pio_pdr_0 |= (1 << channel_offset_in_reg);     //pio disable 
+    pio_channel_regbase->pio_asr_0 |= (1 << channel_offset_in_reg);     //mux0 enable
+    pio_channel_regbase->pio_percpdr_0 |= (1 << channel_offset_in_reg); //periph pullup/down disable 
+    pio_channel_regbase->pio_odr_0  |= (1 << channel_offset_in_reg);    //pad config: output driver disable
+    pio_channel_regbase->pio_iner_0 |= (1 << channel_offset_in_reg);    //pad config: receiver enable
+    pio_channel_regbase->pio_pldr_0 |= (1 << channel_offset_in_reg);    //pad config: pulldown disabled
+    pio_channel_regbase->pio_phdr_0 |= (1 << channel_offset_in_reg);    //pad config: pullup disabled
+    pio_channel_regbase->pio_per_0  |= (1 << channel_offset_in_reg);    //pio enable
     
+}
+static void disable_pio_channel(uint8_t channel)
+{
+    MBED_ASSERT(channel != 0);
+    struct pio_s *pio_channel_regbase;
+    uint8_t channel_offset_in_reg;
+    
+    channel_offset_in_reg = channel & PIO_CHANNEL_SUB_32_MASK;
+    
+    if( (channel >> PIO_CHANNEL_OVER_32_SHIFT) == 0) {      
+        pio_channel_regbase = (struct pio_s *)PIO_CONTROL_BASE;
+    } else {          
+        pio_channel_regbase = (struct pio_s *)(PIO_CONTROL_BASE + 0x220);
+    }          
+    pio_channel_regbase->pio_pdr_0 |= (1 << channel_offset_in_reg);     //pio disable     
 }
 /* ----------------------------------------------------------------
  * MBED API CALLS: SETUP FUNCTIONS
@@ -203,15 +220,19 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     obj->rx_pin = rx;
     obj->tx_pin = tx;
         
-    if (tx == UART1_TX) {               
-        config_pio_channel(Uart1RXDxSIO_CHANNEL);
-        config_pio_channel(Uart1TXDxSIO_CHANNEL);
+    if (tx == UART1_TX) {
+        serial_channel[0]=Uart1TXDxSIO_CHANNEL;
+        serial_channel[1]=Uart1RXDxSIO_CHANNEL;
+        config_pio_channel(serial_channel[0]);
+        config_pio_channel(serial_channel[1]);
         obj->reg_base = app_ss_app_uart1;
         obj->index = IRQ_UART_ID_1;
         
     } else if (tx == UART2_TX) {    
-        config_pio_channel(Uart2RXDxSIO_CHANNEL);
-        config_pio_channel(Uart2TXDxSIO_CHANNEL);
+        serial_channel[0]=Uart2TXDxSIO_CHANNEL;
+        serial_channel[1]=Uart2RXDxSIO_CHANNEL;
+        config_pio_channel(serial_channel[0]);
+        config_pio_channel(serial_channel[1]);
         obj->reg_base = app_ss_app_uart2;
         obj->index = IRQ_UART_ID_2;
     }
@@ -244,8 +265,10 @@ void serial_free(serial_t *obj)
     serial_irq_ids[obj->index] = 0;
     
     /* Release the port HW */
-    pin_function(obj->rx_pin, PIN_FUNCTION_UNCLAIMED);
-    pin_function(obj->tx_pin, PIN_FUNCTION_UNCLAIMED);    
+//    pin_function(obj->rx_pin, PIN_FUNCTION_UNCLAIMED); //pinnames and pinmap not yet implemented
+//    pin_function(obj->tx_pin, PIN_FUNCTION_UNCLAIMED);
+    disable_pio_channel(serial_channel[0]);
+    disable_pio_channel(serial_channel[1]);     
     obj->reg_base->crc = 0xFFFFFFFF; //clear everything
     obj->reg_base->imrc = 0xFFFFFFFF; //disable all interrupts
     obj->reg_base = NULL;
