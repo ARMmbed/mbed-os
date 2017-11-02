@@ -1606,7 +1606,8 @@
         "macros_add": ["USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32L475VG"
+        "device_name": "STM32L475VG",
+        "bootloader_supported": true
     },
     "DISCO_L476VG": {
         "inherits": ["FAMILY_STM32"],
