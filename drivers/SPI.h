@@ -110,6 +110,27 @@ public:
      */
     void frequency(int hz = 1000000);
 
+    /** Set spacing between bytes for multi-byte transfers
+     *
+     * Actual spacing may differ:
+     * - A target may be totally unable to space bytes during block transfers, in which
+     *   case this will return 0.
+     * - If the target does not have a DMA-based bulk write implementation, but
+     *   implements bulk transfers using byte-at-a-time PIO, then effectively the bytes
+     *   will always be widely-spaced due to the time taken to program the SPI peripheral
+     *   for each byte. In this case, this call should return an appropriately large
+     *   value to represent that, eg 1000 (= 1 microsecond).
+     * - Clock dividers may limit the available spacing granularity, in which case
+     *   the device should round up and return the actual spacing.
+     *
+     * Callers should check the return value, and if it is lower than required, take
+     * alternative action, such as lowering the clock frequency or using single-byte writes.
+     *
+     * @param ns  The desired extra inter-byte spacing in nanoseconds
+     * @return Actual inter-byte spacing
+     */
+    int write_spacing(int ns);
+
     /** Write to the SPI Slave and return the response
      *
      *  @param value Data to be sent to the SPI slave
@@ -282,6 +303,8 @@ protected:
     int _bits;
     int _mode;
     int _hz;
+    int _spacing_ns;
+    int _spacing_ns_actual;
     char _write_fill;
 
 private:
