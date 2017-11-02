@@ -1,8 +1,5 @@
-
-/** \addtogroup rtos */
-/** @{*/
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2012 ARM Limited
+ * Copyright (c) 2017 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,28 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef RTOS_H
-#define RTOS_H
+#ifndef KERNEL_H
+#define KERNEL_H
 
-#include "mbed_rtos_storage.h"
-#include "rtos/Kernel.h"
-#include "rtos/Thread.h"
-#include "rtos/Mutex.h"
-#include "rtos/RtosTimer.h"
-#include "rtos/Semaphore.h"
-#include "rtos/Mail.h"
-#include "rtos/MemoryPool.h"
-#include "rtos/Queue.h"
-#include "rtos/EventFlags.h"
-#include "rtos/ConditionVariable.h"
+#include <stdint.h>
 
-using namespace rtos;
+namespace rtos {
+/** \addtogroup rtos */
+/** @{*/
 
-/* Get mbed lib version number, as RTOS depends on mbed lib features
-   like mbed_error, Callback and others.
-*/
-#include "mbed.h"
+/** Functions in the Kernel namespace control RTOS kernel information. */
+namespace Kernel {
 
+/** Read the current RTOS kernel millisecond tick count.
+     The tick count corresponds to the tick count used by the RTOS for timing
+     purposes. It increments monotonically from 0 at boot, hence effectively
+     never wraps. If the underlying RTOS only provides a 32-bit tick count,
+     this method expands it to 64 bits.
+     @return  RTOS kernel current tick count
+     @note mbed OS always uses millisecond RTOS ticks, and this could only wrap
+           after half a billion years
+     @note You cannot call this function from ISR context.
+ */
+uint64_t get_ms_count();
+
+} // namespace Kernel
+
+} // namespace rtos
 #endif
 
 /** @}*/
