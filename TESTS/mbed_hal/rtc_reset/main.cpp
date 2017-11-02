@@ -71,6 +71,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
     }
 }
 
+/* Test that software reset doesn't stop RTC from counting. */
 void rtc_reset_test()
 {
     GREENTEA_SETUP(60, "rtc_reset");
