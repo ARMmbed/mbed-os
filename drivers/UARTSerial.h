@@ -164,6 +164,42 @@ public:
      */
     void set_baud(int baud);
 
+    // Expose private SerialBase::Parity as UARTSerial::Parity
+    using SerialBase::Parity;
+    // In C++11, we wouldn't need to also have using directives for each value
+    using SerialBase::None;
+    using SerialBase::Odd;
+    using SerialBase::Even;
+    using SerialBase::Forced1;
+    using SerialBase::Forced0;
+
+    /** Set the transmission format used by the serial port
+     *
+     *  @param bits The number of bits in a word (5-8; default = 8)
+     *  @param parity The parity used (None, Odd, Even, Forced1, Forced0; default = None)
+     *  @param stop_bits The number of stop bits (1 or 2; default = 1)
+     */
+    void set_format(int bits=8, Parity parity=UARTSerial::None, int stop_bits=1);
+
+#if DEVICE_SERIAL_FC
+    // For now use the base enum - but in future we may have extra options
+    // such as XON/XOFF or manual GPIO RTSCTS.
+    using SerialBase::Flow;
+    // In C++11, we wouldn't need to also have using directives for each value
+    using SerialBase::Disabled;
+    using SerialBase::RTS;
+    using SerialBase::CTS;
+    using SerialBase::RTSCTS;
+
+    /** Set the flow control type on the serial port
+     *
+     *  @param type the flow control type (Disabled, RTS, CTS, RTSCTS)
+     *  @param flow1 the first flow control pin (RTS for RTS or RTSCTS, CTS for CTS)
+     *  @param flow2 the second flow control pin (CTS for RTSCTS)
+     */
+    void set_flow_control(Flow type, PinName flow1=NC, PinName flow2=NC);
+#endif
+
 private:
 
     void wait_ms(uint32_t millisec);
@@ -192,6 +228,7 @@ private:
 
     bool _blocking;
     bool _tx_irq_enabled;
+    bool _rx_irq_enabled;
     InterruptIn *_dcd_irq;
 
     /** Device Hanged up
