@@ -43,6 +43,7 @@
 #include <stdlib.h>
 #include <adi_rng.h>
 #include <adi_pwr.h>
+#include "adi_rng_def.h"
 #include "cmsis.h"
 #include "trng_api.h"
 
@@ -86,36 +87,47 @@ void trng_free(trng_t *obj)
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     ADI_RNG_HANDLE RNGhDevice = obj->RNGhDevice;
-    bool bRNGRdy;
-    uint32_t nRandomNum, i;
+    bool bRNGRdy, bStuck;
+    uint32_t i;
+    volatile uint32_t nRandomNum;
     ADI_RNG_RESULT result;
+    ADI_RNG_DEV_TYPE *pDevice = (ADI_RNG_DEV_TYPE*)RNGhDevice;
 
     for (i = 0; i < length; i++) {
         // Loop until the device has data to be read
         do {
             result = adi_rng_GetRdyStatus(RNGhDevice, &bRNGRdy);
-            if (result != ADI_RNG_SUCCESS)
-            {
+            if (result != ADI_RNG_SUCCESS) {
                 return -1;
             }
         } while (!bRNGRdy);
 
-        // Read the RNG
-        result = adi_rng_GetRngData(RNGhDevice, &nRandomNum);
+        // Check the STUCK bit to make sure the oscillator output isn't stuck
+        result = adi_rng_GetStuckStatus(RNGhDevice, &bStuck);
 
-        if (result != ADI_RNG_SUCCESS)
-        {
+        // If the stuck bit is set, this means there may be a problem with RNG hardware,
+        // exit with an error
+        if ( (result != ADI_RNG_SUCCESS) || ((result == ADI_RNG_SUCCESS) && (bStuck)) ) {
+            // Clear the STUCK bit by writing a 1 to it
+            pDevice->pRNG->STAT |= BITM_RNG_STAT_STUCK;
+            return -1;
+        }
+
+        // Read the RNG
+        result = adi_rng_GetRngData(RNGhDevice, (uint32_t*)(&nRandomNum));
+
+        if (result != ADI_RNG_SUCCESS) {
             return -1;
         }
 
         // Save the output
 		output[i] = (uint8_t)(nRandomNum & 0xFF);
-        
-        // Clear the nRandomNum variable for security purposes
-        nRandomNum = 0;
     }
 
     *output_length = length;
+
+    // Clear nRandomNum on the stack before exiting
+    nRandomNum = 0;
 
     return 0;
 }
