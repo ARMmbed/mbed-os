@@ -19,6 +19,7 @@
 #define MBED_CRITICALSECTIONLOCK_H
 
 #include "platform/mbed_critical.h"
+#include "platform/mbed_assert.h"
 
 namespace mbed {
 
@@ -41,18 +42,40 @@ namespace mbed {
   *     }
   *     // interrupts will be restored to their previous state
   * }
+  * void f() {
+  *     CriticalSectionLock cs(false);
+  *     // some code here
+  *
+  *     cs.lock();
+  *        // Code in this block will run with interrupts disabled
+  *     cs.unlock();
+  *     // interrupts will be restored to their previous state
+  *
+  *     cs.lock();
+  *        // Code in this block will run with interrupts disabled
+  *     cs.unlock();
+  *     // interrupts will be restored to their previous state
+  * }
   * @endcode
   */
 class CriticalSectionLock {
 public:
-    CriticalSectionLock() 
+    /** Create and initialize a CriticalSectionLock object.
+     * @param lock  critical section lock state after initialization
+     */
+    CriticalSectionLock(bool lock = true) : _locked(false)
     {
-        core_util_critical_section_enter();
+        if (lock) {
+            core_util_critical_section_enter();
+            _locked = true;
+        }
     }
 
     ~CriticalSectionLock() 
     {
-        core_util_critical_section_exit();
+        if (_locked) {
+            core_util_critical_section_exit();
+        }
     }
 
     /** Mark the start of a critical section
@@ -60,7 +83,11 @@ public:
      */
     void lock()
     {
-        core_util_critical_section_enter();
+        MBED_ASSERT(false == _locked);
+        if (!_locked) {
+            core_util_critical_section_enter();
+            _locked = true;
+        }
     }
 
     /** Mark the end of a critical section
@@ -68,8 +95,15 @@ public:
      */
     void unlock()
     {
-        core_util_critical_section_exit();
+        MBED_ASSERT(true == _locked);
+        if (_locked) {
+            core_util_critical_section_exit();
+            _locked = false;
+        }
     }
+
+private:
+    bool _locked;
 };
 
 /**@}*/
