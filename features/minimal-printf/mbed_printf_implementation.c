@@ -248,7 +248,7 @@ static void mbed_minimal_formatted_string_hexadecimal(char* buffer, size_t lengt
     bool print_leading_zero = false;
 
     /* only continue each loop if buffer can fit at least 2 characters */
-    for (ssize_t index = 7; (((size_t)(*result + 2) <= length)) && (index >= 0); index--)
+    for (int index = 7; (((size_t)(*result + 2) <= length)) && (index >= 0); index--)
     {
         /* get most significant byte */
         uint8_t output = value >> (8 * index);
@@ -604,9 +604,6 @@ int mbed_minimal_formatted_string(char* buffer, size_t length, const char* forma
                         break;
                     case LENGTH_J:
                         value = (intmax_t) value;
-                        break;
-                    case LENGTH_Z:
-                        value = (ssize_t) value;
                         break;
                     case LENGTH_T:
                         value = (ptrdiff_t) value;
