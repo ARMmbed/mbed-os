@@ -1,6 +1,3 @@
-
-/** \addtogroup hal */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -16,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/** \addtogroup hal */
+/** @{*/
+
 #ifndef MBED_RTC_API_H
 #define MBED_RTC_API_H
 
@@ -33,16 +34,20 @@ extern "C" {
  * The RTC hal provides a low level interface to the Real Time Counter (RTC) of a
  * target.
  *
- * # Defined behavior
- * * The function ::rtc_init is safe to call repeatedly - Verified by test ::rtc_init_test
- * * RTC accuracy is at least 10% - Not verified
- * * Init/free doesn't stop RTC from counting - Verified by test ::rtc_persist_test
- * * Software reset doesn't stop RTC from counting - Verified by ::rtc_reset_test
- * * Sleep modes don't stop RTC from counting - Verified by ::rtc_sleep_test
- * * Shutdown mode doesn't stop RTC from counting - Not verified
+ * # Defined behaviour
+ * * The function ::rtc_init is safe to call repeatedly - Verified by test ::rtc_init_test.
+ * * RTC accuracy is at least 10% - Verified by test ::rtc_accuracy_test.
+ * * Init/free doesn't stop RTC from counting - Verified by test ::rtc_persist_test.
+ * * Software reset doesn't stop RTC from counting - Verified by test ::rtc_reset_test.
+ * * Sleep modes don't stop RTC from counting - Verified by test ::rtc_sleep_test.
+ * * Shutdown mode doesn't stop RTC from counting - Not verified.
+ * * The functions ::rtc_write/::rtc_read provides availability to set/get RTC time
+ * - Verified by test ::rtc_write_read_test.
+ * * The functions ::rtc_isenabled returns 1 if the RTC is counting and the time has been set,
+ * 0 otherwise - Verified by test ::rtc_enabled_test.
  *
- * # Undefined behavior
- * * Calling any function other than ::rtc_init before the initialization of the RTC
+ * # Undefined behaviour
+ * * Calling any function other than ::rtc_init before the initialisation of the RTC
  *
  * # Potential bugs
  * * Incorrect overflow handling - Verified by ::rtc_range_test
@@ -71,7 +76,7 @@ extern "C" {
  *
  * @note This function is safe to call repeatedly - Tested by ::rtc_init_test
  *
- * Pseudo Code:
+ * Example Implementation Pseudo Code:
  * @code
  * void rtc_init()
  * {
@@ -97,7 +102,7 @@ void rtc_init(void);
  *
  * @note This function does not stop the RTC from counting - Tested by ::rtc_persist_test
  *
- * Pseudo Code:
+ * Example Implementation Pseudo Code:
  * @code
  * void rtc_free()
  * {
@@ -113,7 +118,7 @@ void rtc_free(void);
  * @retval 0 The time reported by the RTC is not valid
  * @retval 1 The time has been set the RTC is counting
  *
- * Pseudo Code:
+ * Example Implementation Pseudo Code:
  * @code
  * int rtc_isenabled()
  * {
@@ -160,7 +165,7 @@ time_t rtc_read(void);
  *
  * @param t The current time to be set in seconds.
  *
- * Pseudo Code:
+ * Example Implementation Pseudo Code:
  * @code
  * void rtc_write(time_t t)
  * {
