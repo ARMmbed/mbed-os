@@ -21,18 +21,55 @@
 
 using namespace utest::v1;
 
-#define TEST_DELAY_MS 50
-#define TEST_DELAY2_MS 30
-#define TEST_DELAY_MS_DELTA 5
-#define TEST_RESTART_DELAY_MS 10
+#define DELAY_MS 50
+#define DELTA_MS 5
+#define RESTART_DELAY_MS 10
+#define DELAY2_MS 30
 
-#if TEST_RESTART_DELAY_MS >= TEST_DELAY_MS
-#error invalid TEST_RESTART_DELAY_MS value
+#if RESTART_DELAY_MS >= DELAY_MS
+#error invalid RESTART_DELAY_MS value
 #endif
 
-void timer_callback(void const *arg)
+class Stopwatch: public Timer {
+private:
+    Semaphore _sem;
+
+public:
+    Stopwatch() :
+            Timer(), _sem(1)
+    {
+    }
+
+    ~Stopwatch()
+    {
+    }
+
+    void start(void)
+    {
+        _sem.wait(0);
+        Timer::start();
+    }
+
+    void stop(void)
+    {
+        Timer::stop();
+        _sem.release();
+    }
+
+    int32_t wait_until_stopped(uint32_t millisec = osWaitForever)
+    {
+        core_util_critical_section_enter();
+        int running = _running;
+        core_util_critical_section_exit();
+        if (!running) {
+            return 1;
+        }
+        return _sem.wait(millisec);
+    }
+};
+
+void sem_callback(Semaphore *sem)
 {
-    Semaphore *sem = (Semaphore *) arg;
     sem->release();
 }
 
@@ -44,14 +81,15 @@ void timer_callback(void const *arg)
  * which aborts test program.
  */
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
-void error(const char* format, ...) {
+void error(const char* format, ...)
+{
     (void) format;
 }
 #endif
 
 /** Test one-shot not restarted when elapsed
  *
- * Given a one-shot timer
+ * Given a one-shot RtosTimer
  * When the timer is started
  *     and given time elapses
  * Then timer stops
@@ -60,32 +98,27 @@ void error(const char* format, ...) {
  */
 void test_oneshot_not_restarted()
 {
-    Semaphore sem(1);
-    RtosTimer timer(mbed::callback(timer_callback, (void const *) &sem), osTimerOnce);
-    osStatus stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    Stopwatch stopwatch;
+    RtosTimer rtostimer(mbed::callback(&stopwatch, &Stopwatch::stop), osTimerOnce);
 
-    Timer t;
-    sem.wait(0);
-    stat = timer.start(TEST_DELAY_MS);
-    t.start();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    stopwatch.start();
+    osStatus status = rtostimer.start(DELAY_MS);
+    TEST_ASSERT_EQUAL(osOK, status);
 
-    int32_t slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
-    t.stop();
+    int32_t slots = stopwatch.wait_until_stopped();
     TEST_ASSERT_EQUAL(1, slots);
-    TEST_ASSERT_INT_WITHIN(TEST_DELAY_MS_DELTA * 1000, TEST_DELAY_MS * 1000, t.read_us());
+    TEST_ASSERT_INT_WITHIN(DELTA_MS, DELAY_MS, stopwatch.read_ms());
+    stopwatch.start();
 
-    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
+    slots = stopwatch.wait_until_stopped(DELAY_MS + DELTA_MS);
     TEST_ASSERT_EQUAL(0, slots);
-
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osErrorResource, status);
 }
 
 /** Test periodic repeats continuously
  *
- * Given a periodic timer
+ * Given a periodic RtosTimer
  * When timer is started
  *     and given time elapses
  * Then timer repeats its operation
@@ -94,77 +127,37 @@ void test_oneshot_not_restarted()
  */
 void test_periodic_repeats()
 {
-    Semaphore sem(1);
-    RtosTimer timer(mbed::callback(timer_callback, (void const *) &sem), osTimerPeriodic);
-    osStatus stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    Stopwatch stopwatch;
+    RtosTimer rtostimer(mbed::callback(&stopwatch, &Stopwatch::stop), osTimerPeriodic);
 
-    Timer t;
-    sem.wait(0);
-    stat = timer.start(TEST_DELAY_MS);
-    t.start();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    stopwatch.start();
+    osStatus status = rtostimer.start(DELAY_MS);
+    TEST_ASSERT_EQUAL(osOK, status);
 
-    int32_t slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
-    int t1 = t.read_us();
+    int32_t slots = stopwatch.wait_until_stopped();
+    int t1 = stopwatch.read_ms();
+    stopwatch.reset();
+    stopwatch.start();
     TEST_ASSERT_EQUAL(1, slots);
-    TEST_ASSERT_INT_WITHIN(TEST_DELAY_MS_DELTA * 1000, TEST_DELAY_MS * 1000, t1);
+    TEST_ASSERT_INT_WITHIN(DELTA_MS, DELAY_MS, t1);
 
-    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
-    t.stop();
+    slots = stopwatch.wait_until_stopped();
     TEST_ASSERT_EQUAL(1, slots);
-    TEST_ASSERT_INT_WITHIN(TEST_DELAY_MS_DELTA * 1000, TEST_DELAY_MS * 1000, t.read_us() - t1);
+    TEST_ASSERT_INT_WITHIN(DELTA_MS, DELAY_MS, stopwatch.read_ms());
+    stopwatch.start();
 
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osOK, status);
 
-    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
+    slots = stopwatch.wait_until_stopped(DELAY_MS + DELTA_MS);
     TEST_ASSERT_EQUAL(0, slots);
-
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
-}
-
-/** Test timer can be restarted
- *
- * Given a one-shot timer
- * When the timer is started
- *     and @a start is called again before given time elapses
- *     and given time elapses
- * Then timer stops
- *     and elapsed time is greater than original delay
- */
-void test_restart()
-{
-    Semaphore sem(1);
-    RtosTimer timer(mbed::callback(timer_callback, (void const *) &sem), osTimerOnce);
-    osStatus stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
-
-    Timer t;
-    sem.wait(0);
-    stat = timer.start(TEST_DELAY_MS);
-    t.start();
-    TEST_ASSERT_EQUAL(osOK, stat);
-
-    int32_t slots = sem.wait(TEST_RESTART_DELAY_MS);
-    TEST_ASSERT_EQUAL(0, slots);
-
-    stat = timer.start(TEST_DELAY_MS);
-    TEST_ASSERT_EQUAL(osOK, stat);
-
-    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
-    t.stop();
-    TEST_ASSERT_EQUAL(1, slots);
-    TEST_ASSERT_INT_WITHIN(TEST_DELAY_MS_DELTA * 1000, (TEST_DELAY_MS + TEST_RESTART_DELAY_MS) * 1000, t.read_us());
-
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osErrorResource, status);
 }
 
 /** Test timer can be started again
  *
- * Given a one-shot timer
+ * Given a one-shot Rtosimer
  * When the timer is started
  *     and given time elapses
  * Then timer stops
@@ -174,34 +167,31 @@ void test_restart()
  */
 void test_start_again()
 {
-    Semaphore sem(1);
-    RtosTimer timer(mbed::callback(timer_callback, (void const *) &sem), osTimerOnce);
-    osStatus stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    Semaphore sem(0, 1);
+    RtosTimer rtostimer(mbed::callback(sem_callback, &sem), osTimerOnce);
 
-    sem.wait(0);
-    stat = timer.start(TEST_DELAY_MS);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    osStatus status = rtostimer.start(DELAY_MS);
+    TEST_ASSERT_EQUAL(osOK, status);
 
-    int32_t slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
+    int32_t slots = sem.wait(DELAY_MS + DELTA_MS);
     TEST_ASSERT_EQUAL(1, slots);
 
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osErrorResource, status);
 
-    stat = timer.start(TEST_DELAY_MS);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    status = rtostimer.start(DELAY_MS);
+    TEST_ASSERT_EQUAL(osOK, status);
 
-    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
+    slots = sem.wait(DELAY_MS + DELTA_MS);
     TEST_ASSERT_EQUAL(1, slots);
 
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osErrorResource, status);
 }
 
 /** Test timer restart updates delay
  *
- * Given a one-shot timer
+ * Given a one-shot RtosTimer
  * When the timer is started
  *     and @a start is called again with a different delay before given time elapses
  *     and updated delay elapses
@@ -210,134 +200,127 @@ void test_start_again()
  */
 void test_restart_updates_delay()
 {
-    Semaphore sem(1);
-    RtosTimer timer(mbed::callback(timer_callback, (void const *) &sem), osTimerOnce);
-    osStatus stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    Stopwatch stopwatch;
+    RtosTimer rtostimer(mbed::callback(&stopwatch, &Stopwatch::stop), osTimerOnce);
 
-    sem.wait(0);
-    stat = timer.start(TEST_DELAY_MS);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    stopwatch.start();
+    osStatus status = rtostimer.start(DELAY_MS);
+    TEST_ASSERT_EQUAL(osOK, status);
 
-    int32_t slots = sem.wait(TEST_RESTART_DELAY_MS);
+    int32_t slots = stopwatch.wait_until_stopped(RESTART_DELAY_MS);
     TEST_ASSERT_EQUAL(0, slots);
 
-    Timer t;
-    stat = timer.start(TEST_DELAY2_MS);
-    t.start();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    stopwatch.reset();
+    stopwatch.start();
+    status = rtostimer.start(DELAY2_MS);
+    TEST_ASSERT_EQUAL(osOK, status);
 
-    slots = sem.wait(TEST_DELAY2_MS + TEST_DELAY_MS_DELTA);
-    t.stop();
+    slots = stopwatch.wait_until_stopped();
     TEST_ASSERT_EQUAL(1, slots);
-    TEST_ASSERT_INT_WITHIN(TEST_DELAY_MS_DELTA * 1000, TEST_DELAY2_MS * 1000, t.read_us());
+    TEST_ASSERT_INT_WITHIN(DELTA_MS, DELAY2_MS, stopwatch.read_ms());
 
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osErrorResource, status);
 }
 
 /** Test timer is created in stopped state
  *
- * Given a one-shot timer
+ * Given a one-shot RtosTimer
  * When the timer has not been started
  * Then the timer is stopped
  */
 void test_created_stopped()
 {
-    RtosTimer timer(mbed::callback(timer_callback, (void const *) NULL), osTimerOnce);
-    osStatus stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    RtosTimer rtostimer(mbed::callback(sem_callback, (Semaphore *) NULL), osTimerOnce);
+    osStatus status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osErrorResource, status);
 }
 
 /** Test one-shot can be stopped
  *
- * Given a one-shot timer
+ * Given a one-shot RtosTimer
  * When the timer is started
  *     and timer is stopped while still running
  * Then timer stops operation
  */
 void test_stop()
 {
-    Semaphore sem(1);
-    RtosTimer timer(mbed::callback(timer_callback, (void const *) &sem), osTimerOnce);
-    osStatus stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    Semaphore sem(0, 1);
+    RtosTimer rtostimer(mbed::callback(sem_callback, &sem), osTimerOnce);
 
-    sem.wait(0);
-    stat = timer.start(TEST_DELAY_MS);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    osStatus status = rtostimer.start(DELAY_MS);
+    TEST_ASSERT_EQUAL(osOK, status);
 
-    int32_t slots = sem.wait(TEST_RESTART_DELAY_MS);
+    int32_t slots = sem.wait(RESTART_DELAY_MS);
     TEST_ASSERT_EQUAL(0, slots);
 
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osOK, status);
 
-    slots = sem.wait(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
+    slots = sem.wait(DELAY_MS + DELTA_MS);
     TEST_ASSERT_EQUAL(0, slots);
 
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osErrorResource, status);
 }
 
 /** Test timer started with infinite delay
  *
- * Given a one-shot timer
+ * Given a one-shot RtosTimer
  * When the timer is started with @a osWaitForever delay
  * Then @a start return status is @a osOK
  */
 void test_wait_forever()
 {
-    RtosTimer timer(mbed::callback(timer_callback, (void const *) NULL), osTimerOnce);
+    RtosTimer rtostimer(mbed::callback(sem_callback, (Semaphore *) NULL), osTimerOnce);
 
-    osStatus stat = timer.start(osWaitForever);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    osStatus status = rtostimer.start(osWaitForever);
+    TEST_ASSERT_EQUAL(osOK, status);
 
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osOK, status);
 }
 
 /** Test timer started with zero delay
  *
- * Given a one-shot timer
+ * Given a one-shot RtosTimer
  * When the timer is started with 0 delay
  * Then @a start return status is @a osErrorParameter
  */
 void test_no_wait()
 {
-    RtosTimer timer(mbed::callback(timer_callback, (void const *) NULL), osTimerOnce);
+    RtosTimer rtostimer(mbed::callback(sem_callback, (Semaphore *) NULL), osTimerOnce);
 
-    osStatus stat = timer.start(0);
-    TEST_ASSERT_EQUAL(osErrorParameter, stat);
+    osStatus status = rtostimer.start(0);
+    TEST_ASSERT_EQUAL(osErrorParameter, status);
 
-    stat = timer.stop();
-    TEST_ASSERT_EQUAL(osErrorResource, stat);
+    status = rtostimer.stop();
+    TEST_ASSERT_EQUAL(osErrorResource, status);
 }
 
-void timer_isr_call(void const *arg)
+void rtostimer_isr_call(RtosTimer *rtostimer)
 {
-    RtosTimer *timer = (RtosTimer *) arg;
-    osStatus stat = timer->start(TEST_DELAY_MS);
-    TEST_ASSERT_EQUAL(osErrorISR, stat);
+    osStatus status = rtostimer->start(DELAY_MS);
+    TEST_ASSERT_EQUAL(osErrorISR, status);
 
-    stat = timer->stop();
-    TEST_ASSERT_EQUAL(osErrorISR, stat);
+    status = rtostimer->stop();
+    TEST_ASSERT_EQUAL(osErrorISR, status);
 }
 
 /** Test timer method calls from an ISR fail
  *
- * Given a one-shot timer
+ * Given a one-shot RtosTimer
  * When a timer method is called from an ISR
  * Then method return status is @a osErrorISR
  */
 void test_isr_calls_fail()
 {
-    RtosTimer timer(mbed::callback(timer_callback, (void const *) NULL), osTimerOnce);
+    RtosTimer rtostimer(mbed::callback(sem_callback, (Semaphore *) NULL), osTimerOnce);
 
     Ticker ticker;
-    ticker.attach(mbed::callback(timer_isr_call, (void const *) &timer), (float) TEST_DELAY_MS / 1000.0);
+    ticker.attach(mbed::callback(rtostimer_isr_call, &rtostimer), (float) DELAY_MS / 1000.0);
 
-    wait_ms(TEST_DELAY_MS + TEST_DELAY_MS_DELTA);
+    wait_ms(DELAY_MS + DELTA_MS);
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -347,16 +330,15 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Test one-shot not restarted when elapsed", test_oneshot_not_restarted),
-    Case("Test periodic repeats continuously", test_periodic_repeats),
-    Case("Test timer can be restarted while running", test_restart),
-    Case("Test stopped timer can be started again", test_start_again),
-    Case("Test restart changes timeout", test_restart_updates_delay),
-    Case("Test can be stopped", test_stop),
-    Case("Test timer is created in stopped state", test_created_stopped),
-    Case("Test timer started with infinite delay", test_wait_forever),
-    Case("Test timer started with zero delay", test_no_wait),
-    Case("Test calls from ISR fail", test_isr_calls_fail)
+    Case("One-shot not restarted when elapsed", test_oneshot_not_restarted),
+    Case("Periodic repeats continuously", test_periodic_repeats),
+    Case("Stopped timer can be started again", test_start_again),
+    Case("Restart changes timeout", test_restart_updates_delay),
+    Case("Timer can be stopped", test_stop),
+    Case("Timer is created in stopped state", test_created_stopped),
+    Case("Timer started with infinite delay", test_wait_forever),
+    Case("Timer started with zero delay", test_no_wait),
+    Case("Calls from ISR fail", test_isr_calls_fail)
 };
 
 Specification specification(test_setup, cases);
