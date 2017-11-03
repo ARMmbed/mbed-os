@@ -71,7 +71,6 @@ private:
     void constructor(int32_t count, uint16_t max_count);
 
     osSemaphoreId_t               _id;
-    osSemaphoreAttr_t             _attr;
     mbed_rtos_storage_semaphore_t _obj_mem;
 };
 

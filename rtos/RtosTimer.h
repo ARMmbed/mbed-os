@@ -157,7 +157,6 @@ private:
     void constructor(mbed::Callback<void()> func, os_timer_type type);
 
     osTimerId_t _id;
-    osTimerAttr_t _attr;
     mbed_rtos_storage_timer_t _obj_mem;
     mbed::Callback<void()> _function;
 };

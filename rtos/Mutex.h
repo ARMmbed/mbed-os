@@ -82,7 +82,6 @@ private:
     void constructor(const char *name = NULL);
 
     osMutexId_t               _id;
-    osMutexAttr_t             _attr;
     mbed_rtos_storage_mutex_t _obj_mem;
 };
 
