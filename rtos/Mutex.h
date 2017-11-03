@@ -92,7 +92,6 @@ private:
     friend class ConditionVariable;
 
     osMutexId_t               _id;
-    osMutexAttr_t             _attr;
     mbed_rtos_storage_mutex_t _obj_mem;
     uint32_t                  _count;
 };
