@@ -3396,6 +3396,10 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32L496ZG"
     },
+    "NUCLEO_L496ZG_P": {
+        "inherits": ["NUCLEO_L496ZG"],
+        "detect_code": ["0828"]
+        },
     "VBLUNO52": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52"],
