@@ -90,7 +90,6 @@ private:
     void constructor(const char *name = NULL);
     uint32_t wait(uint32_t flags, uint32_t opt, uint32_t timeout, bool clear);
     osEventFlagsId_t                _id;
-    osEventFlagsAttr_t              _attr;
     mbed_rtos_storage_event_flags_t _obj_mem;
 };
 

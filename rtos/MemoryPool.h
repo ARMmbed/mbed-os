@@ -50,12 +50,12 @@ public:
     MemoryPool() {
         memset(_pool_mem, 0, sizeof(_pool_mem));
         memset(&_obj_mem, 0, sizeof(_obj_mem));
-        memset(&_attr, 0, sizeof(_attr));
-        _attr.mp_mem = _pool_mem;
-        _attr.mp_size = sizeof(_pool_mem);
-        _attr.cb_mem = &_obj_mem;
-        _attr.cb_size = sizeof(_obj_mem);
-        _id = osMemoryPoolNew(pool_sz, sizeof(T), &_attr);
+        osMemoryPoolAttr_t attr = { 0 };
+        attr.mp_mem = _pool_mem;
+        attr.mp_size = sizeof(_pool_mem);
+        attr.cb_mem = &_obj_mem;
+        attr.cb_size = sizeof(_obj_mem);
+        _id = osMemoryPoolNew(pool_sz, sizeof(T), &attr);
         MBED_ASSERT(_id);
     }
 
@@ -95,7 +95,6 @@ public:
 
 private:
     osMemoryPoolId_t             _id;
-    osMemoryPoolAttr_t           _attr;
     /* osMemoryPoolNew requires that pool block size is a multiple of 4 bytes. */
     char                         _pool_mem[((sizeof(T) + 3) & ~3) * pool_sz];
     mbed_rtos_storage_mem_pool_t _obj_mem;
