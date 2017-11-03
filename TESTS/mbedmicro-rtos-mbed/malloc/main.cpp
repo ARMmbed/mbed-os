@@ -56,7 +56,7 @@ int main()
 {
     // static stack for threads to reduce heap usage on devices with small RAM
     // and eliminate run out of heap memory problem
-    MBED_ALIGN(8) uint8_t stack[THREAD_STACK_SIZE * NUM_THREADS];
+    uint8_t stack[NUM_THREADS][THREAD_STACK_SIZE];
 
     Thread *thread_list[NUM_THREADS];
     int test_time = 15;
@@ -64,7 +64,7 @@ int main()
 
     // Allocate threads for the test
     for (int i = 0; i < NUM_THREADS; i++) {
-        thread_list[i] = new Thread(osPriorityNormal, THREAD_STACK_SIZE, stack + i * THREAD_STACK_SIZE);
+        thread_list[i] = new Thread(osPriorityNormal, THREAD_STACK_SIZE, stack[i]);
         if (NULL == thread_list[i]) {
             allocation_failure = true;
         } else {
