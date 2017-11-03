@@ -642,7 +642,8 @@
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "default_lib": "std",
         "release_versions": ["2", "5"],
-        "device_name": "MK64FN1M0xxx12"
+        "device_name": "MK64FN1M0xxx12",
+        "bootloader_supported": true
     },
     "K66F": {
         "supported_form_factors": ["ARDUINO"],
