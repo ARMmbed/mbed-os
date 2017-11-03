@@ -606,8 +606,8 @@ int serial_readable(serial_t *obj)
 
 int serial_writable(serial_t *obj)
 {    
-    /* only if this is 0 can we transmit  */
-    if (DRIVER_BITFIELD_GET(obj->reg_base->twcr, UART_TWCR_NONE) == 0) {
+    /* only if this is 2 can we transmit */
+    if (DRIVER_BITFIELD_GET(obj->reg_base->twcr, UART_TWCR_NONE) == 2) {
        return true;
     } else {    
        return false;
