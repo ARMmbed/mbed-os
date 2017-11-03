@@ -50,6 +50,8 @@ struct gpio_irq_s {
 
 struct serial_s {     
     volatile struct uart_s *reg_base;
+    PinName rx_pin;
+    PinName tx_pin;
     uint8_t index; /* IRQ index number. Might get removed later, unsure at this stage */
     irq_setting_t irq_rx_setting; /* used in serial_irq_set if IRQ has been set or not. Might get removed later, unsure at this stage */
     irq_setting_t irq_tx_setting;		
