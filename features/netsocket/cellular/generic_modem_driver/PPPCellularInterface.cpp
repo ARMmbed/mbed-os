@@ -58,7 +58,6 @@ static bool set_sim_pin_check_request;
 static bool change_pin;
 static device_info dev_info;
 
-
 static void parser_abort(ATCmdParser *at)
 {
     at->abort();
@@ -317,7 +316,6 @@ void PPPCellularInterface::ppp_status_cb(ConnectionStatusType status)
         _connection_status_cb(_connect_status);
     }
 }
-
 
 /**
  * Public API. Sets up the flag for the driver to enable or disable SIM pin check
@@ -578,7 +576,6 @@ nsapi_error_t PPPCellularInterface::connect()
         return NSAPI_ERROR_IS_CONNECTED;
     }
 
-
     do {
         retry_init:
 
@@ -618,7 +615,6 @@ nsapi_error_t PPPCellularInterface::connect()
                 apn_config = apnconfig(dev_info.imsi);
             }
 #endif
-
 
             /* Check if user want skip SIM pin checking on boot up */
             if (set_sim_pin_check_request) {

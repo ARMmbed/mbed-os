@@ -225,7 +225,6 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
     if (connection_status_cb) {
         connection_status_cb(NetworkInterface::down);
     }
-
 }
 
 static void handle_modem_hangup()

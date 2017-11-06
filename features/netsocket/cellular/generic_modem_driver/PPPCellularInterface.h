@@ -165,7 +165,6 @@ public:
      *  the lookup table then the driver tries to resort to default APN settings.
      *
      *  Preferred method is to setup APN using 'set_credentials()' API.
-     *
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t connect();
@@ -353,7 +352,6 @@ protected:
      * @return true if registration is successful
      */
     bool nwk_registration(uint8_t nwk_type=PACKET_SWITCHED);
-
 
 };
 
