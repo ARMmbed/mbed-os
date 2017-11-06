@@ -21,23 +21,15 @@
 #include "mbed.h"
 #include "mbed_mktime.h"
 
-// Limit the test range to 1935 for IAR only. From the IAR C/C++ Development Guide:
-// "The 32-bit interface supports years from 1900 up to 2035 and uses a 32-bit integer
-// for time_t."
-#ifdef __ICCARM__
-#define LOCALTIME_MAX       2082758400      // 1st of january 2036 at 00:00:00
-#define MKTIME_YR_MAX       136
-#else
-#define LOCALTIME_MAX       INT_MAX
-#define MKTIME_YR_MAX       137
-#endif
+#define LAST_VALID_YEAR 206
 
 using namespace utest::v1;
 
-/* 
- * regular is_leap_year, see platform/mbed_mktime.c for the optimized version
- */
-bool is_leap_year(int year) {
+static rtc_leap_year_support_t rtc_leap_year_support;
+
+/*  Regular is_leap_year, see platform/mbed_mktime.c for the optimised version. */
+bool is_leap_year(int year)
+{
     year = 1900 + year;
     if (year % 4) {
         return false;
@@ -49,212 +41,173 @@ bool is_leap_year(int year) {
     return true;
 }
 
-/*
- * Test the optimized version of _rtc_is_leap_year against the generic version.
+/* Test the optimised version of _rtc_is_leap_year() against the generic version.
+ *
+ * Note: This test case is designed for both types of RTC devices:
+ *       - RTC devices which handle correctly leap years in whole range (1970 - 2106).
+ *       - RTC devices which does not handle correctly leap years in whole range (1970 - 2106).
+ *         This RTC devices uses simpler leap year detection and incorrectly treat 2100 as a leap year.
+ *       rtc_leap_year_support variable specifies which device is tested.
+ *
+ * Given is year in valid range.
+ * When _rtc_is_leap_year() function is called.
+ * Then _rtc_is_leap_year() returns true if given year is a leap year; false otherwise.
  */
-void test_is_leap_year() { 
-    for (int i = 70; i < 138; ++i) { 
+void test_is_leap_year()
+{
+    for (int i = 70; i <= LAST_VALID_YEAR; ++i) {
         bool expected = is_leap_year(i);
-        bool actual_value = _rtc_is_leap_year(i);
 
-        if (expected != actual_value) { 
-            printf ("leap year failed with i = %d\r\n", i);
+        /* Add exception for year 2100. */
+        if (rtc_leap_year_support == RTC_4_YEAR_LEAP_YEAR_SUPPORT && i == 200) {
+            expected = true;
+        }
+
+        bool actual_value = _rtc_is_leap_year(i, rtc_leap_year_support);
+
+        if (expected != actual_value) {
+            printf("Leap year failed with i = %d\r\n", i);
         }
         TEST_ASSERT_EQUAL(expected, actual_value);
     }
 }
 
-struct tm make_time_info(int year, int month, int day, int hours, int minutes, int seconds) { 
-    struct tm timeinfo = {
-            seconds,    // tm_sec
-            minutes,    // tm_min
-            hours,      // tm_hour
-            day,        // tm_mday
-            month,      // tm_mon
-            year,       // tm_year
-            0,          // tm_wday
-            0,          // tm_yday
-            0,          // tm_isdst
-    };
-    return timeinfo;
-}
+/* Structure to test border values for _rtc_maketime(). */
+typedef struct
+{
+    struct tm timeinfo;
+    time_t exp_seconds;  // if result is false then exp_seconds is irrelevant
+    bool result;
+} test_mk_time_struct;
 
-/*
- * test out of range values for _rtc_mktime.
- * The function operates from the 1st of january 1970 at 00:00:00 to the 19th 
- * of january 2038 at 03:14:07.
+/* Array which contains data to test boundary values for the RTC devices which handles correctly leap years in
+ * whole range (1970 - 2106).
+ * Expected range: the 1st of January 1970 at 00:00:00 (seconds: 0) to the 7th of February 2106 at 06:28:15 (seconds: UINT_MAX).
  */
-void test_mk_time_out_of_range() { 
-    tm invalid_lower_bound = make_time_info(
-        69,
-        11,
-        31,
-        23,
-        59,
-        59
-    );    
+test_mk_time_struct test_mk_time_arr_full[] = {
+    {{ 0, 0, 0, 1, 0, 70, 0, 0, 0 },      (time_t) 0, true},          // valid lower bound - the 1st of January 1970 at 00:00:00
+    {{ 59, 59, 23, 31, 11, 59, 0, 0, 0 }, (time_t) 0, false },        // invalid lower bound - the 31st of December 1969 at 23:59:59
 
-    tm valid_lower_bound = make_time_info(
-        70,
-        0,
-        1,
-        0,
-        0,
-        0
-    );
+    {{ 15, 28, 6, 7, 1, 206, 0, 0, 0 }, (time_t)(UINT_MAX), true },   // valid upper bound - the 7th of February 2106 at 06:28:15
+    {{ 16, 28, 6, 7, 1, 206, 0, 0, 0 }, (time_t) 0, false },          // invalid upper bound - the 7th of February 2106 at 06:28:16
+};
 
-    tm valid_upper_bound = make_time_info(
-        138,
-        0,
-        19,
-        3,
-        14,
-        7
-    );
-
-    tm invalid_upper_bound = make_time_info(
-        138,
-        0,
-        19,
-        3,
-        14,
-        8
-    );
-
-    TEST_ASSERT_EQUAL_INT(((time_t) -1), _rtc_mktime(&invalid_lower_bound));
-    TEST_ASSERT_EQUAL_INT(((time_t) 0), _rtc_mktime(&valid_lower_bound));
-    TEST_ASSERT_EQUAL_INT(((time_t) INT_MAX), _rtc_mktime(&valid_upper_bound));
-    TEST_ASSERT_EQUAL_INT(((time_t) -1), _rtc_mktime(&invalid_upper_bound));
-}
-
-/* 
- * test mktime over a large set of values 
+/* Array which contains data to test boundary values for the RTC devices which does not handle correctly leap years in
+ * whole range (1970 - 2106). On this platforms we will be one day off after 28.02.2100 since 2100 year will be
+ * incorrectly treated as a leap year.
+ * Expected range: the 1st of January 1970 at 00:00:00 (seconds: 0) to the 6th of February 2106 at 06:28:15 (seconds: UINT_MAX).
  */
-void test_mk_time() { 
-    for (size_t year = 70; year < MKTIME_YR_MAX; ++year) {
-        for (size_t month = 0; month < 12; ++month) { 
-            for (size_t day = 1; day < 32; ++day) {
-                if (month == 1 && is_leap_year(year) && day == 29) { 
-                    break;
-                } else if(month == 1 && !is_leap_year(year) && day == 28) {
-                    break;
-                } else if (
-                    day == 31 && 
-                    (month == 3 || month == 5 || month == 8 || month == 10)
-                ) {
-                    break;
-                }
+test_mk_time_struct test_mk_time_arr_partial[] = {
+    {{ 0, 0, 0, 1, 0, 70, 0, 0, 0 },      (time_t) 0, true},          // valid lower bound - the 1st of January 1970 at 00:00:00
+    {{ 59, 59, 23, 31, 11, 59, 0, 0, 0 }, (time_t) 0, false },        // invalid lower bound - the 31st of December 1969 at 23:59:59
 
-                for (size_t hour = 0; hour < 24; ++hour) {  
-                    tm time_info = make_time_info(
-                        year,
-                        month,
-                        day,
-                        hour,
-                        hour % 2 ? 59 : 0,
-                        hour % 2 ? 59 : 0
-                    );
+    {{ 15, 28, 6, 6, 1, 206, 0, 0, 0 }, (time_t)(UINT_MAX), true },   // valid upper bound - the 6th of February 2106 at 06:28:15
+    {{ 16, 28, 6, 6, 1, 206, 0, 0, 0 }, (time_t) 0, false },          // invalid upper bound - the 6th of February 2106 at 06:28:16
+};
 
-                    time_t expected = mktime(&time_info);
-                    time_t actual_value = _rtc_mktime(&time_info);
+/* Test boundary values for _rtc_maketime().
+ *
+ * Note: This test case is designed for both types of RTC devices:
+ *       - RTC devices which handle correctly leap years in whole range (1970 - 2106).
+ *       - RTC devices which does not handle correctly leap years in whole range (1970 - 2106).
+ *         This RTC devices uses simpler leap year detection and incorrectly treat 2100 as a leap year.
+ *       rtc_leap_year_support variable specifies which device is tested.
+ *
+ * Given is boundary calendar time.
+ * When _rtc_maketime() function is called to convert the calendar time into timestamp.
+ * Then if given calendar time is valid function returns true and conversion result, otherwise returns false.
+ */
+void test_mk_time_boundary()
+{
+    test_mk_time_struct *pTestCases;
 
-                    char msg[128] = "";
-                    if (expected != actual_value) { 
-                        snprintf(
-                            msg, sizeof(msg), 
-                            "year = %d, month = %d, day = %d, diff = %ld", 
-                            year, month, day, expected - actual_value
-                        );
-                    }
+    /* Select array with test cases. */
+    if (rtc_leap_year_support == RTC_FULL_LEAP_YEAR_SUPPORT) {
+        pTestCases = test_mk_time_arr_full;
+    } else {
+        pTestCases = test_mk_time_arr_partial;
+    }
 
-                    TEST_ASSERT_EQUAL_UINT32_MESSAGE(expected, actual_value, msg);
-                }
-            }
+    for (int i = 0; i < (sizeof(test_mk_time_arr_full) / (sizeof(test_mk_time_struct))); i++) {
+        time_t seconds;
+        bool result = _rtc_maketime(&pTestCases[i].timeinfo, &seconds, rtc_leap_year_support);
+
+        TEST_ASSERT_EQUAL(pTestCases[i].result, result);
+
+        /* If the result is false, then we have conversion error - skip checking seconds. */
+        if (pTestCases[i].result) {
+            TEST_ASSERT_EQUAL_UINT32(pTestCases[i].exp_seconds, seconds);
         }
     }
 }
 
-/* 
- * test value out of range for localtime
+/* Test _rtc_maketime() function - call with invalid parameters.
+ *
+ * Given is _rtc_maketime() function.
+ * When _rtc_maketime() function is called with invalid parameter.
+ * Then _rtc_maketime() function returns false.
  */
-void test_local_time_limit() {
-    struct tm dummy_value; 
-    TEST_ASSERT_FALSE(_rtc_localtime((time_t) -1, &dummy_value));
-    TEST_ASSERT_FALSE(_rtc_localtime((time_t) INT_MIN, &dummy_value));
+void test_mk_time_invalid_param()
+{
+    time_t seconds;
+    struct tm timeinfo;
+
+    TEST_ASSERT_EQUAL(false, _rtc_maketime(NULL, &seconds, RTC_FULL_LEAP_YEAR_SUPPORT ));
+    TEST_ASSERT_EQUAL(false, _rtc_maketime(NULL, &seconds, RTC_4_YEAR_LEAP_YEAR_SUPPORT ));
+    TEST_ASSERT_EQUAL(false, _rtc_maketime(&timeinfo, NULL, RTC_FULL_LEAP_YEAR_SUPPORT ));
+    TEST_ASSERT_EQUAL(false, _rtc_maketime(&timeinfo, NULL, RTC_4_YEAR_LEAP_YEAR_SUPPORT ));
 }
 
-/* 
- * test _rtc_localtime over a large set of values.
+/* Test _rtc_localtime() function - call with invalid parameters.
+ *
+ * Given is _rtc_localtime() function.
+ * When _rtc_localtime() function is called with invalid parameter.
+ * Then _rtc_localtime() function returns false.
  */
-void test_local_time() { 
-    for (uint32_t i = 0; i < LOCALTIME_MAX; i += 3451) {
-        time_t copy = (time_t) i;
-        struct tm* expected = localtime(&copy);
-        struct tm actual_value; 
-        bool result = _rtc_localtime((time_t) i, &actual_value);
-
-        if (
-            expected->tm_sec != actual_value.tm_sec || 
-            expected->tm_min != actual_value.tm_min ||
-            expected->tm_hour != actual_value.tm_hour || 
-            expected->tm_mday != actual_value.tm_mday ||
-            expected->tm_mon != actual_value.tm_mon || 
-            expected->tm_year != actual_value.tm_year || 
-            expected->tm_wday != actual_value.tm_wday || 
-            expected->tm_yday != actual_value.tm_yday ||
-            result == false
-        ) { 
-            printf("error: i = %lu\r\n", i);
-        }
-
-        TEST_ASSERT_TRUE(result);
-        TEST_ASSERT_EQUAL_UINT32_MESSAGE(
-            expected->tm_sec, actual_value.tm_sec, "invalid seconds"
-        );
-        TEST_ASSERT_EQUAL_UINT32_MESSAGE(
-            expected->tm_min, actual_value.tm_min, "invalid minutes"
-        );
-        TEST_ASSERT_EQUAL_UINT32_MESSAGE(
-            expected->tm_hour, actual_value.tm_hour, "invalid hours"
-        );
-        TEST_ASSERT_EQUAL_UINT32_MESSAGE(
-            expected->tm_mday, actual_value.tm_mday, "invalid day"
-        );
-        TEST_ASSERT_EQUAL_UINT32_MESSAGE(
-            expected->tm_mon, actual_value.tm_mon, "invalid month"
-        );
-        TEST_ASSERT_EQUAL_UINT32_MESSAGE(
-            expected->tm_year, actual_value.tm_year, "invalid year"
-        );
-        TEST_ASSERT_EQUAL_UINT32_MESSAGE(
-            expected->tm_wday, actual_value.tm_wday, "invalid weekday"
-        );
-        TEST_ASSERT_EQUAL_UINT32_MESSAGE(
-            expected->tm_yday, actual_value.tm_yday, "invalid year day"
-        );
-    }
+void test_local_time_invalid_param()
+{
+    TEST_ASSERT_EQUAL(false, _rtc_localtime(1, NULL, RTC_FULL_LEAP_YEAR_SUPPORT ));
+    TEST_ASSERT_EQUAL(false, _rtc_localtime(1, NULL, RTC_4_YEAR_LEAP_YEAR_SUPPORT ));
 }
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
-    greentea_case_failure_abort_handler(source, reason);
-    return STATUS_CONTINUE;
+utest::v1::status_t teardown_handler_t(const Case * const source, const size_t passed, const size_t failed,
+        const failure_t reason)
+{
+    return greentea_case_teardown_handler(source, passed, failed, reason);
+}
+
+utest::v1::status_t full_leap_year_case_setup_handler_t(const Case * const source, const size_t index_of_case)
+{
+    rtc_leap_year_support = RTC_FULL_LEAP_YEAR_SUPPORT;
+
+    return greentea_case_setup_handler(source, index_of_case);
+}
+
+utest::v1::status_t partial_leap_year_case_setup_handler_t(const Case * const source, const size_t index_of_case)
+{
+    rtc_leap_year_support = RTC_4_YEAR_LEAP_YEAR_SUPPORT;
+
+    return greentea_case_setup_handler(source, index_of_case);
 }
 
 Case cases[] = {
-    Case("test is leap year", test_is_leap_year, greentea_failure_handler),
-    Case("test mk time out of range values", test_mk_time_out_of_range, greentea_failure_handler),
-    Case("mk time", test_mk_time, greentea_failure_handler),
-    Case("test local time", test_local_time, greentea_failure_handler),
-    Case("test local time limits", test_local_time_limit, greentea_failure_handler),
+  Case("test is leap year - RTC leap years full support", full_leap_year_case_setup_handler_t, test_is_leap_year, teardown_handler_t),
+  Case("test is leap year - RTC leap years partial support", partial_leap_year_case_setup_handler_t, test_is_leap_year, teardown_handler_t),
+  Case("test make time boundary values - RTC leap years full support", full_leap_year_case_setup_handler_t, test_mk_time_boundary, teardown_handler_t),
+  Case("test make time boundary values - RTC leap years partial support", partial_leap_year_case_setup_handler_t, test_mk_time_boundary, teardown_handler_t),
+  Case("test make time - invalid param", test_mk_time_invalid_param, teardown_handler_t),
+  Case("test local time - invalid param", test_local_time_invalid_param, teardown_handler_t),
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(1200, "default_auto");
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
+    GREENTEA_SETUP(20, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     return Harness::run(specification);
 }
