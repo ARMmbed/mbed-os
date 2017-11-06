@@ -68,7 +68,7 @@ class BLEInstanceBase;
  * Next, the signal handling/process mechanism should be set up. By design,
  * Mbed BLE does not impose to the user an event handling/processing mechanism;
  * however, it exposes APIs, which allows an application to compose its own:
- *   - onEventsToProcess(), whichs register a callback that 
+ *   - onEventsToProcess(), whichs register a callback that
  *     the BLE subsystem will call when there is an event ready to be processed.
  *   - processEvents(), which processes all the events present in the BLE subsystem.
  *
@@ -215,9 +215,7 @@ public:
      * Process ALL pending events living in the BLE stack and return once all
      * events have been consumed.
      *
-     * @note: this function is automatically called by the OS on mbed OS 3
-     * however it shall be explicitly called by user code on mbed OS classic and
-     * mbed OS 2.
+     * @see onEventsToProcess()
      */
     void processEvents();
 
@@ -424,10 +422,12 @@ public:
     BLE(InstanceID_t instanceID = DEFAULT_INSTANCE);
 
     /**
-     * Yield control to the BLE stack or to other tasks waiting for events. This
-     * is a sleep function that returns when there is an application-specific
-     * interrupt, but the MCU might wake up several times before returning (to
-     * service the stack). This is not always interchangeable with WFE().
+     * Yield control to the BLE stack or to other tasks waiting for events.
+     *
+     * This is a sleep function that returns when there is an application-specific
+     * interrupt. This is not interchangeable with WFE() considering that the
+     * MCU might wake up several times to service the stack before returning
+     * control to the caller.
      *
      * @deprecated This function block the CPU prefer to use the pair
      * onEventsToProcess() and processEvents().
