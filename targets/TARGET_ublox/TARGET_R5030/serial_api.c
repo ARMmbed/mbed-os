@@ -343,7 +343,7 @@ void serial_baud(serial_t *obj, int baudrate)
     //MBED_ASSERT(!((baudrate_divider_value > DRIVER_BIT_MASK(UART_BR_BAUDRATE_SIZE)) || (nco_phase_acc_value > DRIVER_BIT_MASK(UART_NCO_NCO_PHASE_SIZE))));
 
     /* disable baudrate generator (uart control clear reg) */
-    obj->reg_base->crc |= DRIVER_BITFIELD_MASK(UART_CRC_BR_EN);
+    //obj->reg_base->crc |= DRIVER_BITFIELD_MASK(UART_CRC_BR_EN); //it clears whole register to 0x00, probably a bug in UART
         
     /* set baudrate divider value */
 	baudrate_divider_value--; /* the actual register value should minus 1 */
@@ -366,7 +366,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     uint32_t register_value=0;
     
     /* disable uart */ 
-    register_value = (DRIVER_BITFIELD_MASK(UART_CRC_BR_EN) | DRIVER_BITFIELD_MASK(UART_CRC_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRC_TX_EN));
+    register_value = (/*DRIVER_BITFIELD_MASK(UART_CRC_BR_EN) |*/ DRIVER_BITFIELD_MASK(UART_CRC_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRC_TX_EN));
     obj->reg_base->crc = register_value;
     
     /* read the existing value, change what is required and write once. This is done so that register access is only once not again and again */
@@ -422,7 +422,7 @@ void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id)
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 {
     /* TODO: does uart tx/rx and baudrate generator need to be disabled? */
-    obj->reg_base->crc = (DRIVER_BITFIELD_MASK(UART_CRC_BR_EN) | DRIVER_BITFIELD_MASK(UART_CRC_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRC_TX_EN));
+    obj->reg_base->crc = (/*DRIVER_BITFIELD_MASK(UART_CRC_BR_EN) | */DRIVER_BITFIELD_MASK(UART_CRC_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRC_TX_EN));
 
     if (enable) {
         switch (irq) {
