@@ -136,13 +136,13 @@ public:
      *
      *  @param status_cb The callback for status changes
      */
-    virtual void register_status_callback(mbed::Callback<void(ConnectionStatusType)> status_cb) = 0;
+    virtual void register_status_callback(mbed::Callback<void(ConnectionStatusType)> status_cb);
 
     /** Get the connection status
      *
      *  @return         The connection status according to ConnectionStatusType
      */
-    virtual ConnectionStatusType get_connection_status() = 0;
+    virtual ConnectionStatusType get_connection_status();
 
     /** Set blocking status of connect()
      *
