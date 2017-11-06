@@ -54,17 +54,22 @@ void task_using_malloc(void)
 
 int main()
 {
+    // static stack for threads to reduce heap usage on devices with small RAM
+    // and eliminate run out of heap memory problem
+    MBED_ALIGN(8) uint8_t stack[THREAD_STACK_SIZE * NUM_THREADS];
+
     Thread *thread_list[NUM_THREADS];
     int test_time = 15;
     GREENTEA_SETUP(20, "default_auto");
 
     // Allocate threads for the test
     for (int i = 0; i < NUM_THREADS; i++) {
-        thread_list[i] = new Thread(osPriorityNormal, THREAD_STACK_SIZE);
+        thread_list[i] = new Thread(osPriorityNormal, THREAD_STACK_SIZE, stack + i * THREAD_STACK_SIZE);
         if (NULL == thread_list[i]) {
             allocation_failure = true;
+        } else {
+            thread_list[i]->start(task_using_malloc);
         }
-        thread_list[i]->start(task_using_malloc);
     }
 
     // Give the test time to run
