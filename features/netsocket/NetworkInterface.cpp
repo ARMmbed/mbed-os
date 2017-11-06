@@ -65,3 +65,17 @@ nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address)
     return get_stack()->add_dns_server(address);
 }
 
+void NetworkInterface::register_status_callback(mbed::Callback<void(ConnectionStatusType)> status_cb)
+{
+}
+
+NetworkInterface::ConnectionStatusType NetworkInterface::get_connection_status()
+{
+    return undefined;
+}
+
+nsapi_error_t NetworkInterface::set_blocking(bool blocking)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+

@@ -85,7 +85,6 @@ typedef struct {
     char imei[15+1];    //!< International Mobile Equipment Identity
     char meid[18+1];    //!< Mobile Equipment IDentifier
     int flags;
-    bool ppp_connection_up;
     radio_access_nwk_type rat;
     nwk_registration_status_csd reg_status_csd;
     nwk_registration_status_psd reg_status_psd;
@@ -166,7 +165,7 @@ public:
      *  the lookup table then the driver tries to resort to default APN settings.
      *
      *  Preferred method is to setup APN using 'set_credentials()' API.
-
+     *
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t connect();
@@ -231,17 +230,32 @@ public:
      */
     virtual const char *get_gateway();
 
-    /** Get notified if the connection gets lost
-     *
-     *  @param cb         user defined callback
-     */
-    void connection_status_cb(Callback<void(nsapi_error_t)> cb);
 
     /** Turn modem debug traces on
      *
      *  @param on         set true to enable debug traces
      */
     void modem_debug_on(bool on);
+
+    /** PPP connection status callback
+     *
+     *  @param status   connection status of the link
+     */
+    virtual void ppp_status_cb(ConnectionStatusType status);
+
+    /** Register callback for status reporting
+     *
+     *  @param status_cb The callback for status changes
+     *  @return          The connection status according to ConnectionStatusType
+     */
+    typedef NetworkInterface::ConnectionStatusType ConnectionStatusType;
+    virtual void register_status_callback(Callback<void(ConnectionStatusType)> status_cb);
+
+    /** Get the connection status
+     *
+     *  @return         The connection status according to ConnectionStatusType
+     */
+    virtual ConnectionStatusType get_connection_status();
 
 private:
     FileHandle *_fh;
@@ -253,7 +267,9 @@ private:
     const char *_pwd;
     bool _debug_trace_on;
     nsapi_ip_stack_t _stack;
-    Callback<void(nsapi_error_t)> _connection_status_cb;
+    Callback<void(ConnectionStatusType)> _ppp_cb;
+    Callback<void(ConnectionStatusType)> _connection_status_cb;
+    ConnectionStatusType _connect_status;
     void base_initialization();
     void setup_at_parser();
     void shutdown_at_parser();
@@ -337,6 +353,7 @@ protected:
      * @return true if registration is successful
      */
     bool nwk_registration(uint8_t nwk_type=PACKET_SWITCHED);
+
 
 };
 

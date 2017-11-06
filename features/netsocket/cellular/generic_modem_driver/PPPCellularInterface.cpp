@@ -58,6 +58,7 @@ static bool set_sim_pin_check_request;
 static bool change_pin;
 static device_info dev_info;
 
+
 static void parser_abort(ATCmdParser *at)
 {
     at->abort();
@@ -263,9 +264,11 @@ PPPCellularInterface::PPPCellularInterface(FileHandle *fh, bool debug)
     _fh = fh;
     _debug_trace_on = debug;
     _stack = DEFAULT_STACK;
+    _connection_status_cb = NULL;
+    _ppp_cb = Callback<void(ConnectionStatusType)>(this, &PPPCellularInterface::ppp_status_cb);
+    _connect_status = down;
     dev_info.reg_status_csd = CSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.reg_status_psd = PSD_NOT_REGISTERED_NOT_SEARCHING;
-    dev_info.ppp_connection_up = false;
 }
 
 
@@ -304,10 +307,17 @@ void PPPCellularInterface::modem_debug_on(bool on)
     _debug_trace_on = on;
 }
 
-void PPPCellularInterface::connection_status_cb(Callback<void(nsapi_error_t)> cb)
+void PPPCellularInterface::ppp_status_cb(ConnectionStatusType status)
 {
-    _connection_status_cb = cb;
+    ConnectionStatusType previous_status = _connect_status;
+
+    _connect_status = status;
+
+    if (_connection_status_cb && previous_status != _connect_status) {
+        _connection_status_cb(_connect_status);
+    }
 }
+
 
 /**
  * Public API. Sets up the flag for the driver to enable or disable SIM pin check
@@ -398,7 +408,11 @@ bool PPPCellularInterface::nwk_registration(uint8_t nwk_type)
 
 bool PPPCellularInterface::is_connected()
 {
-    return dev_info.ppp_connection_up;
+    if (_connect_status == down) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 // Get the SIM card going.
@@ -560,9 +574,10 @@ nsapi_error_t PPPCellularInterface::connect()
     bool did_init = false;
     const char *apn_config = NULL;
 
-    if (dev_info.ppp_connection_up) {
+    if (_connect_status != down) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
+
 
     do {
         retry_init:
@@ -603,6 +618,7 @@ nsapi_error_t PPPCellularInterface::connect()
                 apn_config = apnconfig(dev_info.imsi);
             }
 #endif
+
 
             /* Check if user want skip SIM pin checking on boot up */
             if (set_sim_pin_check_request) {
@@ -681,12 +697,9 @@ nsapi_error_t PPPCellularInterface::connect()
         /* Initialize PPP
          * mbed_ppp_init() is a blocking call, it will block until
          * connected, or timeout after 30 seconds*/
-        retcode = nsapi_ppp_connect(_fh, _connection_status_cb, _uname, _pwd, _stack);
-        if (retcode == NSAPI_ERROR_OK) {
-            dev_info.ppp_connection_up = true;
-        }
+        retcode = nsapi_ppp_connect(_fh, _ppp_cb, _uname, _pwd, _stack);
 
-    }while(!dev_info.ppp_connection_up && apn_config && *apn_config);
+    } while (_connect_status == down && apn_config && *apn_config);
 
     return retcode;
 }
@@ -701,7 +714,6 @@ nsapi_error_t PPPCellularInterface::disconnect()
 {
     nsapi_error_t ret = nsapi_ppp_disconnect(_fh);
     if (ret == NSAPI_ERROR_OK) {
-        dev_info.ppp_connection_up = false;
         return NSAPI_ERROR_OK;
     }
 
@@ -796,5 +808,18 @@ NetworkStack *PPPCellularInterface::get_stack()
 {
     return nsapi_ppp_get_stack();
 }
+
+
+void PPPCellularInterface::register_status_callback(
+    Callback<void(NetworkInterface::ConnectionStatusType)> status_cb)
+{
+    _connection_status_cb = status_cb;
+}
+
+NetworkInterface::ConnectionStatusType PPPCellularInterface::get_connection_status()
+{
+    return _connect_status;
+}
+
 
 #endif // NSAPI_PPP_AVAILABLE
