@@ -62,6 +62,25 @@ public:
      * */
     void mesh_network_handler(mesh_connection_status_t status);
 
+    /** Register callback for status reporting
+     *
+     *  @param status_cb The callback for status changes
+     */
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+
+    /** Get the connection status
+     *
+     *  @return         The connection status according to ConnectionStatusType
+     */
+    virtual nsapi_connection_status_t get_connection_status() const;
+
+    /** Set blocking status of connect() which by default should be blocking
+     *
+     *  @param blocking true if connect is blocking
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t set_blocking(bool blocking);
+
 protected:
     MeshInterfaceNanostack();
     MeshInterfaceNanostack(NanostackPhy *phy);
@@ -86,6 +105,10 @@ protected:
     char ip_addr_str[40];
     char mac_addr_str[24];
     Semaphore connect_semaphore;
+
+    Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    nsapi_connection_status_t _connect_status;
+    bool _blocking;
 };
 
 #endif /* MESHINTERFACENANOSTACK_H */

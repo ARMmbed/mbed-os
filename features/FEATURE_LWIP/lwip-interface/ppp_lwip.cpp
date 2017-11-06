@@ -59,7 +59,7 @@ static bool ppp_active = false;
 static const char *login;
 static const char *pwd;
 static sys_sem_t ppp_close_sem;
-static Callback<void(nsapi_error_t)> connection_status_cb;
+static Callback<void(nsapi_event_t, intptr_t)> connection_status_cb;
 
 static EventQueue *prepare_event_queue()
 {
@@ -207,8 +207,10 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
     }
 
     if (err_code == PPPERR_NONE) {
-        /* suppress generating a callback event for connection up
-         * Because connect() call is blocking, why wait for a callback */
+        /* status changes have to be reported */
+        if (connection_status_cb) {
+            connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_GLOBAL_UP);
+        }
         return;
     }
 
@@ -221,7 +223,7 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
 
     /* Alright, PPP interface is down, we need to notify upper layer */
     if (connection_status_cb) {
-        connection_status_cb(mapped_err_code);
+        connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
     }
 }
 
@@ -351,7 +353,13 @@ nsapi_error_t nsapi_ppp_error_code()
     return connect_error_code;
 }
 
-nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_error_t)> cb, const char *uname, const char *password, const nsapi_ip_stack_t stack)
+nsapi_error_t nsapi_ppp_set_blocking(bool blocking)
+{
+    mbed_lwip_set_blocking(blocking);
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t, intptr_t)> cb, const char *uname, const char *password, const nsapi_ip_stack_t stack)
 {
     if (my_stream) {
         return NSAPI_ERROR_PARAMETER;
