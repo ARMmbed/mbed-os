@@ -19,7 +19,6 @@
 
 #include "mbedtls/des.h"
 
-#if defined(MBEDTLS_DES_C)
 #if defined(MBEDTLS_DES_ALT)
 
 #include <stddef.h>
@@ -271,6 +270,5 @@ void mbedtls_des_setkey( uint32_t SK[32],
 #endif
 
 #endif /* MBEDTLS_DES_ALT */
-#endif /* MBEDTLS_DES_C */
 
 #endif /* des_alt.h */

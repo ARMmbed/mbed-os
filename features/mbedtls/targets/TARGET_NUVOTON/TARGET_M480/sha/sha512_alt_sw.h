@@ -23,7 +23,6 @@
 #ifndef MBEDTLS_SHA512_ALT_SW_H
 #define MBEDTLS_SHA512_ALT_SW_H
 
-#if defined(MBEDTLS_SHA512_C)
 #if defined(MBEDTLS_SHA512_ALT)
 
 #include <stddef.h>
@@ -101,6 +100,5 @@ void mbedtls_sha512_sw_process( mbedtls_sha512_sw_context *ctx, const unsigned c
 #endif
 
 #endif /* MBEDTLS_SHA512_ALT */
-#endif /* MBEDTLS_SHA512_C */
 
 #endif /* sha512_alt_sw.h */
