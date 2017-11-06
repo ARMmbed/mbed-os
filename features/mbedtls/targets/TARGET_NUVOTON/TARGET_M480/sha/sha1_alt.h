@@ -18,7 +18,6 @@
 
 #include "mbedtls/sha1.h"
 
-#if defined(MBEDTLS_SHA1_C)
 #if defined(MBEDTLS_SHA1_ALT)
 
 #include "sha_alt_hw.h"
@@ -95,6 +94,5 @@ void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[6
 #endif
 
 #endif /* MBEDTLS_SHA1_ALT */
-#endif /* MBEDTLS_SHA1_C */
 
 #endif /* sha1_alt.h */

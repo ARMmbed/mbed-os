@@ -25,7 +25,6 @@
 
 #include "mbedtls/aes.h"
 
-#if defined(MBEDTLS_AES_C)
 #if defined(MBEDTLS_AES_ALT)
 // Regular implementation
 //
@@ -259,6 +258,5 @@ void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
 
 
 #endif /* MBEDTLS_AES_ALT */
-#endif /* MBEDTLS_AES_C */
 
 #endif /* aes_alt.h */

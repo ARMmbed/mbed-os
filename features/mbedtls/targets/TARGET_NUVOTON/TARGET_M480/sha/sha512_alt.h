@@ -18,7 +18,6 @@
 
 #include "mbedtls/sha512.h"
 
-#if defined(MBEDTLS_SHA512_C)
 #if defined(MBEDTLS_SHA512_ALT)
 
 #include "sha_alt_hw.h"
@@ -97,6 +96,5 @@ void mbedtls_sha512_process( mbedtls_sha512_context *ctx, const unsigned char da
 #endif
 
 #endif /* MBEDTLS_SHA512_ALT */
-#endif /* MBEDTLS_SHA512_C */
 
 #endif /* sha512_alt.h */

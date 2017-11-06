@@ -23,7 +23,6 @@
 #ifndef MBEDTLS_SHA256_ALT_SW_H
 #define MBEDTLS_SHA256_ALT_SW_H
 
-#if defined(MBEDTLS_SHA256_C)
 #if defined(MBEDTLS_SHA256_ALT)
 
 #include <stddef.h>
@@ -101,6 +100,5 @@ void mbedtls_sha256_sw_process( mbedtls_sha256_sw_context *ctx, const unsigned c
 #endif
 
 #endif /* MBEDTLS_SHA256_ALT */
-#endif /* MBEDTLS_SHA256_C */
 
 #endif /* sha256_alt_sw.h */

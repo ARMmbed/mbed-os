@@ -25,7 +25,6 @@
 
 #include "mbedtls/sha256.h"
 
-#if defined(MBEDTLS_SHA1_C)
 #if defined(MBEDTLS_SHA1_ALT)
 
 #include <stddef.h>
@@ -100,6 +99,5 @@ void mbedtls_sha1_sw_process( mbedtls_sha1_sw_context *ctx, const unsigned char 
 #endif
 
 #endif /* MBEDTLS_SHA1_ALT */
-#endif /* MBEDTLS_SHA1_C */
 
 #endif /* sha1_alt_sw.h */
