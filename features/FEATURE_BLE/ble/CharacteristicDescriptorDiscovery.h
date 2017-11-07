@@ -30,12 +30,12 @@ class DiscoveredCharacteristicDescriptor;               // forward declaration
  */
 
 /**
- * Definitions of events and event handlers used by the characteristic descriptor
- * discovery procedure.
+ * Definitions of events and event handlers that the characteristic descriptor
+ * discovery procedure uses.
  *
- * This class act like a namespace for characteristic descriptor discovery
- * types. Like ServiceDiscovery it provides callbacks and callbacks parameters
- * types related to the characteristic descriptor discovery process but contrary
+ * This class acts like a namespace for characteristic descriptor discovery
+ * types. Like ServiceDiscovery, it provides callbacks and callbacks parameters
+ * types related to the characteristic descriptor discovery process, but contrary
  * to the ServiceDiscovery class, it does not force the porter to use a specific
  * interface for the characteristic descriptor discovery process.
  */
@@ -100,12 +100,12 @@ public:
     /**
      * Characteristic descriptor discovered event handler.
      *
-     * As parameter it expects a pointer to a DiscoveryCallbackParams_t instance.
+     * As a parameter, it expects a pointer to a DiscoveryCallbackParams_t instance.
      *
      * @note The object passed in parameter will remain valid for the lifetime
-     * of the callback. Memory for this object is owned by the BLE_API eventing
-     * framework. The application can safely make a persistent shallow-copy of
-     * this object in order to work with the service beyond the callback.
+     * of the callback. The BLE_API eventing framework owns memory for this
+     * object. The application can safely make a persistent shallow-copy of
+     * this object to work with the service beyond the callback.
      *
      * @see DiscoveryCallbackParams_t
      * GattClient::discoverCharacteristicDescriptors
@@ -117,12 +117,12 @@ public:
     /**
      * Handler of Characteristic descriptor discovery ended event.
      *
-     * As parameter it expects a pointer to a TerminationCallbackParams_t instance.
+     * As a parameter, it expects a pointer to a TerminationCallbackParams_t instance.
      *
      * @note The object passed in parameter will remain valid for the lifetime
-     * of the callback. Memory for this object is owned by the BLE_API eventing
-     * framework. The application can safely make a persistent shallow-copy of
-     * this object in order to work with the service beyond the callback.
+     * of the callback. The BLE_API eventing framework owns the memory for this
+     * object. The application can safely make a persistent shallow-copy of
+     * this object to work with the service beyond the callback.
      *
      * @see TerminationCallbackParams_t
      * GattClient::discoverCharacteristicDescriptors
