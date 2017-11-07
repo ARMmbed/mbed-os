@@ -32,17 +32,17 @@
 /**
  * Representation of a GATT service discovered.
  *
- * GATT Services are discovered on distant GATT servers by the discovery
- * procedure which can be initiated by calling
+ * The discovery procedure discovers GATT Services are discovered on distant
+ * GATT servers, which can be initiated by calling
  * GattClient::launchServiceDiscovery() or GattClient::discoverServices(). The
- * discovery process will pass instances of this class to the callback handling
+ * discovery process passes instances of this class to the callback handling
  * service discovered.
  *
  * Discovered services are characterized by the UUID of the service discovered
  * and the range of the GATT attributes belonging to the service.
  *
  * The UUID can be queried by calling getUUID() while the begining of the
- * attribute range can be obtained via getStartHandle() and the end of the
+ * attribute range can be obtained through getStartHandle() and the end of the
  * attribute range with a call to getEndHandle().
  *
  * The characteristics composing the service may be discovered by the function
@@ -84,8 +84,8 @@ public:
     /**
      * Construct a DiscoveredService instance.
      *
-     * @important This API is not meant to be used publicly it is meant to be
-     * used by internal APIs of mbed BLE.
+     * @important This API is not meant to be used publicly. It is meant to be
+     * used by internal APIs of Mbed BLE.
      */
     DiscoveredService() :
         uuid(UUID::ShortUUIDBytes_t(0)),
@@ -96,8 +96,8 @@ public:
     /**
      * Set information about the discovered service.
      *
-     * @important This API is not meant to be used publicly it is meant to be
-     * used by internal APIs of mbed BLE.
+     * @important This API is not meant to be used publicly. It is meant to be
+     * used by internal APIs of Mbed BLE.
      *
      * @param[in] uuidIn The UUID of the discovered service.
      * @param[in] startHandleIn The start handle of the discovered service in
@@ -118,8 +118,8 @@ public:
     /**
      * Set the start and end handle of the discovered service.
      *
-     * @important This API is not meant to be used publicly it is meant to be
-     * used by internal APIs of mbed BLE.
+     * @important This API is not meant to be used publicly. It is meant to be
+     * used by internal APIs of Mbed BLE.
      *
      * @param[in] startHandleIn The start handle of the discovered service in
      * the peer's GATT server.
@@ -137,8 +137,8 @@ public:
     /**
      * Set the long UUID of the discovered service.
      *
-     * @important This API is not meant to be used publicly it is meant to be
-     * used by internal APIs of mbed BLE.
+     * @important This API is not meant to be used publicly. It is meant to be
+     * used by internal APIs of Mbed BLE.
      *
      * @param[in] longUUID The bytes composing the long UUID of this discovered
      * service.
