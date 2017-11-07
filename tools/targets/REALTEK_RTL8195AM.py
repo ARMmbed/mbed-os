@@ -100,7 +100,7 @@ def find_symbol(toolchain, mapfile, symbol):
     HEX = '0x0{,8}(?P<addr>[0-9A-Fa-f]{8})'
     if toolchain == "GCC_ARM":
         SYM = re.compile(r'^\s+' + HEX + r'\s+' + symbol + '\r?$')
-    elif toolchain in ["ARM_STD", "ARM", "ARM_MICRO"]:
+    elif toolchain in ("ARM_STD", "ARM", "ARM_MICRO", "ARMC6"):
         SYM = re.compile(r'^\s+' + HEX + r'\s+0x[0-9A-Fa-f]{8}\s+Code.*\s+i\.' + symbol + r'\s+.*$')
     elif toolchain == "IAR":
         SYM = re.compile(r'^' + symbol + r'\s+' + HEX + '\s+.*$')
@@ -155,7 +155,9 @@ def parse_load_segment_armcc(image_elf):
     (offset, addr, size) = (0, 0, 0)
     segment_list = []
     in_segment = False
-    cmd = os.path.join(TOOLCHAIN_PATHS['ARM'], 'bin', 'fromelf')
+    cmd = os.path.join(TOOLCHAIN_PATHS['ARMC6'], 'fromelf')
+    if not os.path.exists(cmd):
+        cmd = os.path.join(TOOLCHAIN_PATHS['ARM'], 'bin', 'fromelf')
     cmd = '"' + cmd + '"' + ' --text -v --only=none ' + image_elf
     for line in subprocess.check_output(cmd, shell=True, universal_newlines=True).split("\n"):
         if line == "":
@@ -227,7 +229,7 @@ def parse_load_segment_iar(image_elf):
 def parse_load_segment(toolchain, image_elf):
     if toolchain == "GCC_ARM":
         return parse_load_segment_gcc(image_elf)
-    elif toolchain in ["ARM_STD", "ARM", "ARM_MICRO"]:
+    elif toolchain in ("ARM_STD", "ARM", "ARM_MICRO", "ARMC6"):
         return parse_load_segment_armcc(image_elf)
     elif toolchain == "IAR":
         return parse_load_segment_iar(image_elf)
