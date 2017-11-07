@@ -27,13 +27,13 @@
 /**
  * Parameters defining the scan process.
  *
- * The scan procedure is defined by four distinct parameters:
- *    - Scan window: Period during which the scanner listen to advertising
- *      channels. That value shall be in the range 2.5ms to 10.24s. This value
+ * Four distinct parameters define the scan procedure:
+ *    - Scan window: Period during which the scanner listens to advertising
+ *      channels. That value is in the range of 2.5ms to 10.24s. This value
  *      can be set at construction time, updated by calling setWindow() and
  *      retrieved by invoking getWindow().
  *
- *    - Scan interval: interval between the start of two consecutive scan window.
+ *    - Scan interval: Interval between the start of two consecutive scan windows.
  *      That value shall be greater or equal to the scan window value. The
  *      maximum allowed value is 10.24ms. The scan interval value can be set at
  *      construction time, updated with a call to setInterval() and queried by a
@@ -43,15 +43,15 @@
  *      construction time, updated with setTimeout() and obtained from
  *      getTimeout().
  *
- *    - Active scanning: If set then the scanner sends scan requests to scanable
+ *    - Active scanning: If set, then the scanner sends scan requests to a scannable
  *      or connectable advertiser. Advertisers may respond to the scan request
- *      by a scan response containing the scan response payload. If not set then
+ *      by a scan response containing the scan response payload. If not set, then
  *      the scanner does not send any request. This flag is set at construction
  *      time, may be updated with the help of setActiveScanning() and retrieved
  *      by getActiveScanning().
  *
- * @note If the scan windows duration is equal to the scan interval then the
- * device should listen continuously during the scan procedure.
+ * @note If the scan window's duration is equal to the scan interval, then the
+ * device listens continuously during the scan procedure.
  */
 class GapScanningParams {
 public:
@@ -90,18 +90,18 @@ public:
      * Construct an instance of GapScanningParams.
      *
      * @param[in] interval Milliseconds interval between the start of two
-     * consecutive scan window. The value passed shall be between the scan
+     * consecutive scan windows. The value passed is between the scan
      * window value and 10.24 seconds.
      *
-     * @param[in] window Milliseconds period during which the device should
-     * listen to advertising channels. The value of the scan window shall be in
-     * the range 2.5ms to 10.24s.
+     * @param[in] window Milliseconds period during which the device
+     * listens to advertising channels. The value of the scan window is in
+     * the range of 2.5ms to 10.24s.
      *
      * @param[in] timeout Duration in seconds of the scan procedure. The special
      * value 0 may be used when the scan procedure is not time bounded.
      *
-     * @param[in] activeScanning If true then the scanner sends scan requests to
-     * to scanable or connectable advertiser. Advertisers may respond to the
+     * @param[in] activeScanning If true, then the scanner sends scan requests to
+     * to scannable or connectable advertiser. Advertisers may respond to the
      * scan request by a scan response containing the scan response payload. If
      * false, the scanner does not send any request.
      *
@@ -161,7 +161,7 @@ public:
     /**
      * Update the active scanning flag.
      *
-     * @param[in] activeScanning Mew boolean value of active scanning.
+     * @param[in] activeScanning New boolean value of active scanning.
      */
     void setActiveScanning(bool activeScanning);
 
