@@ -31,24 +31,24 @@
 /**
  * Function like object adapter over freestanding and member functions.
  *
- * Freestanding and member functions are two very distinct types in C++, one is
- * not convertible into the other and the call syntax between those two is very
- * different even if conceptually they are very similar: Both primitives can be
+ * Freestanding and member functions are two distinct types in C++. One is
+ * not convertible into the other, and the call syntax between the two is
+ * different even if conceptually they are similar: Both primitives can be
  * copied, called and produce a result.
  *
- * To solve incompatibilities this class adapt freestanding and member function
+ * To solve incompatibilities, this class adapts freestanding and member functions
  * to a common interface. The interface chosen is similar to the freestanding
  * function pointers interface:
- *    - Copyable
- *    - Nullable
- *    - Callable
+ *    - Copyable.
+ *    - Nullable.
+ *    - Callable.
  *
  * This class also offers a mechanism to chain other instances to it. When an
  * instance is called, all the instances being part of the chain are called.
  *
  * @important freestanding or member function adapted must accept a single
- * argument and this argument shall be a pointer to ContextType. Adapted
- * primitives shall not return anything.
+ * argument, and this argument is a pointer to ContextType. Adapted
+ * primitives do not return anything.
  *
  * @tparam ContextType Type of the argument pointee.
  */
@@ -72,10 +72,10 @@ public:
     }
 
     /**
-     * Create a FunctionPointerWithContext from a pointer to member function
-     * and the instance which shall be used to call it.
+     * Create a FunctionPointerWithContext from a pointer to a member function
+     * and the instance which is used to call it.
      *
-     * @param[in] object Pointer to the instance which will be used to invoke @p
+     * @param[in] object Pointer to the instance which is used to invoke @p
      * member.
      * @param[in] Pointer to the member function to adapt.
      */
@@ -113,7 +113,7 @@ public:
     /**
      * Adapt a freestanding function.
      *
-     * Previous content adapted is discarded while it is replace by @p function.
+     * Previous content adapted is discarded while @p function replaces it.
      *
      * @note This function is equivalent to a call to the copy assignment
      * operator.
@@ -129,13 +129,13 @@ public:
     /**
      * Adapt a pointer to member function and the instance to use to call it.
      *
-     * Previous content adapted is discarded while it is replace by the
-     * adaptation of the pair @p object and @p member.
+     * Previous content adapted is discarded while the adaptation
+     * of the pair @p object and @p member replaces it.
      *
      * @note This function is equivalent to a call to the copy assignment
      * operator.
      *
-     * @param[in] object Pointer to the instance used to invoke @p member.
+     * @param[in] object Pointer to the instance is used to invoke @p member.
      * @param[in] function Pointer to the member function to adapt.
      */
     template<typename T>
@@ -185,7 +185,7 @@ public:
     /**
      * Indicate if a callable object is being adapted.
      *
-     * @note implementation of safe bool operator
+     * @note implementation of safe bool operator.
      *
      * @return true if the content of the instance can be invoked and false
      * otherwise.
@@ -199,7 +199,7 @@ public:
      * Set a FunctionPointer instance as the next element in the chain of
      * callable objects.
      *
-     * @note Invoking call() on the head FunctionPointer will invoke all
+     * @note Invoking call() on the head FunctionPointer invokes all
      * chained callbacks.
      *
      * @note Refer to CallChainOfFunctionPointerWithContext as an alternative.
@@ -279,7 +279,7 @@ private:
         /*
          * Forward declaration of a class and a member function to this class.
          * Because the compiler doesn't know anything about the forwarded member
-         * function, it will always use the biggest size and the biggest alignment
+         * function, it always uses the biggest size and the biggest alignment
          * that a member function can take for objects of type UndefinedMemberFunction.
          */
         class UndefinedClass;
