@@ -68,16 +68,16 @@ void hal_deepsleep(void)
 #if TARGET_STM32L4
     int pwrClockEnabled = __HAL_RCC_PWR_IS_CLK_ENABLED();
     int lowPowerModeEnabled = PWR->CR1 & PWR_CR1_LPR;
-    
+
     if (!pwrClockEnabled) {
         __HAL_RCC_PWR_CLK_ENABLE();
     }
     if (lowPowerModeEnabled) {
         HAL_PWREx_DisableLowPowerRunMode();
     }
-    
+
     HAL_PWREx_EnterSTOP2Mode(PWR_STOPENTRY_WFI);
-    
+
     if (lowPowerModeEnabled) {
         HAL_PWREx_EnableLowPowerRunMode();
     }
@@ -101,8 +101,15 @@ void hal_deepsleep(void)
     TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_SET_COUNTER(&TimMasterHandle, EnterTimeUS);
 
-#if DEVICE_LOWPOWERTIMER
-    rtc_synchronize();
+#if DEVICE_RTC
+    /* Wait for RTC RSF bit synchro if RTC is configured */
+#if (TARGET_STM32F2) || (TARGET_STM32F4) || (TARGET_STM32F7)
+    if (READ_BIT(RCC->BDCR, RCC_BDCR_RTCSEL)) {
+#else /* (TARGET_STM32F2) || (TARGET_STM32F4) || (TARGET_STM32F7) */
+    if (__HAL_RCC_GET_RTC_SOURCE()) {
+#endif  /* (TARGET_STM32F2) || (TARGET_STM32F4) || (TARGET_STM32F7) */
+        rtc_synchronize();
+    }
 #endif
 }
 
