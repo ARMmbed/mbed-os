@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
 *******************************************************************************
-* Copyright (c) 2016, STMicroelectronics
+* Copyright (c) 2017, STMicroelectronics
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,12 @@
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#if RTC_LSI
+#define RTC_CLOCK LSI_VALUE
+#else
+#define RTC_CLOCK LSE_VALUE
 #endif
 
 /** Read the subsecond register.
