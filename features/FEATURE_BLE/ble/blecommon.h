@@ -134,8 +134,8 @@ enum {
 /**
  * Error codes for the BLE API.
  *
- * The value 0 means that no error was reported therefore it allows a user of
- * the API to cleanly test for errors.
+ * The value 0 means that no error was reported; therefore, it allows an API
+ * user to cleanly test for errors.
  *
  * @code
  * ble_error_t error = some_ble_api_function();
@@ -182,7 +182,7 @@ enum ble_error_t {
     BLE_ERROR_INVALID_STATE = 6,
 
     /**
-     * Out of memory
+     * Out of memory.
      */
     BLE_ERROR_NO_MEM = 7,
 
@@ -207,7 +207,7 @@ enum ble_error_t {
     BLE_ERROR_UNSPECIFIED = 11,
 
     /**
-     * The platform-specific stack failed
+     * The platform-specific stack failed.
      */
     BLE_ERROR_INTERNAL_STACK_FAILURE = 12,
 };
