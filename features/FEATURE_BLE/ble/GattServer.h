@@ -99,7 +99,7 @@ protected:
     }
 
     /*
-     * The following functions are meant to be overridden in the platform-specific sub-class.
+     * The following functions are meant to be overridden in the platform-specific subclass.
      */
 public:
 
@@ -129,7 +129,7 @@ public:
      * @param[in,out] lengthP
      *                  Length of the buffer being supplied. If the attribute
      *                  value is longer than the size of the supplied buffer,
-     *                  this variable will hold upon return the total attribute value length
+     *                  this variable holds upon return the total attribute value length
      *                  (excluding offset). The application may use this
      *                  information to allocate a suitable buffer size.
      *
@@ -156,7 +156,7 @@ public:
      * @param[in,out] lengthP
      *                  Length of the buffer being supplied. If the attribute
      *                  value is longer than the size of the supplied buffer,
-     *                  this variable will hold upon return the total attribute value length
+     *                  this variable holds upon return the total attribute value length
      *                  (excluding offset). The application may use this
      *                  information to allocate a suitable buffer size.
      *
@@ -287,12 +287,12 @@ public:
     }
 
     /*
-     * APIs with non-virtual implementations.
+     * APIs with nonvirtual implementations.
      */
 public:
     /**
      * Add a callback for the GATT event DATA_SENT (which is triggered when
-     * updates are sent out by GATT in the form of notifications).
+     * GATT sends updates in the form of notifications).
      *
      * @param[in] callback
      *              Event handler being registered.
@@ -309,7 +309,7 @@ public:
     }
 
     /**
-     * Same as GattServer::onDataSent(), but allows the possibility to add an object
+     * Same as GattServer::onDataSent() but it allows the possibility to add an object
      * reference and member function as handler for DATA_SENT event
      * callbacks.
      *
@@ -359,8 +359,8 @@ public:
     }
 
     /**
-     * Same as GattServer::onDataWritten(), but allows the possibility to add an object
-     * reference and member function as handler for data written event
+     * Same as GattServer::onDataWritten() but it allows the possibility to add an object
+     * reference and member function as a handler for data written event
      * callbacks.
      *
      * @param[in] objPtr
@@ -389,8 +389,8 @@ public:
     }
 
     /**
-     * Setup a callback to be invoked on the peripheral when an attribute is
-     * being read by a remote client.
+     * Set up a callback to be invoked on the peripheral when a remote client is
+     * reading an attribute.
      *
      * @param[in] callback
      *              Event handler being registered.
@@ -422,7 +422,7 @@ public:
     }
 
     /**
-     * Same as GattServer::onDataRead(), but allows the possibility to add an object
+     * Same as GattServer::onDataRead() but it allows the possibility to add an object
      * reference and member function as handler for data read event
      * callbacks.
      *
@@ -457,8 +457,8 @@ public:
     }
 
     /**
-     * Setup a callback to be invoked to notify the user application that the
-     * GattServer instance is about to shutdown (possibly as a result of a call
+     * Set up a callback to be invoked to notify the user application that the
+     * GattServer instance is about to shut down (possibly as a result of a call
      * to BLE::shutdown()).
      *
      * @param[in] callback
@@ -466,7 +466,7 @@ public:
      *
      * @note  It is possible to chain together multiple onShutdown callbacks
      * (potentially from different modules of an application) to be notified
-     * before the GattServer is shutdown.
+     * before the GattServer is shut down.
      *
      * @note  It is also possible to set up a callback into a member function of
      * some object.
@@ -478,7 +478,7 @@ public:
     }
 
     /**
-     * Same as GattServer::onShutdown(), but allows the possibility to add an object
+     * Same as GattServer::onShutdown() but it allows the possibility to add an object
      * reference and member function as handler for shutdown event
      * callbacks.
      *
@@ -616,13 +616,13 @@ protected:
 public:
     /**
      * Notify all registered onShutdown callbacks that the GattServer is
-     * about to be shutdown and clear all GattServer state of the
+     * about to be shut down and clear all GattServer state of the
      * associated object.
      *
      * This function is meant to be overridden in the platform-specific
-     * sub-class. Nevertheless, the sub-class is only expected to reset its
-     * state and not the data held in GattServer members. This shall be achieved
-     * by a call to GattServer::reset() from the sub-class' reset()
+     * subclass. Nevertheless, the subclass only resets its
+     * state and not the data held in GattServer members. This is achieved
+     * by a call to GattServer::reset() from the subclass' reset()
      * implementation.
      *
      * @return BLE_ERROR_NONE on success.
