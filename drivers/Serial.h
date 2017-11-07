@@ -98,6 +98,8 @@ public:
     {
         return SerialBase::writeable();
     }
+    virtual int getc();
+    virtual int putc(int c);
 
 protected:
     virtual int _getc();
