@@ -56,7 +56,7 @@ void SerialBase::format(int bits, Parity parity, int stop_bits) {
 int SerialBase::readable() {
     lock();
     int ret = 0;
-	ret = serial_readable(&_serial);
+    ret = serial_readable(&_serial);
     unlock();
     return ret;
 }
@@ -65,7 +65,7 @@ int SerialBase::readable() {
 int SerialBase::writeable() {
     lock();
     int ret = 0;
-	ret = serial_writable(&_serial);
+    ret = serial_writable(&_serial);
     unlock();
     return ret;
 }

@@ -57,7 +57,7 @@ int Serial::putc(int c) {
 	}
 	else
 	{
-		return _base_putc(c);
+        return _base_putc(c);
 	}
 }
 
