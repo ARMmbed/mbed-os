@@ -49,6 +49,7 @@ typedef enum qspi_bus_width {
 /** Address size
  */
 typedef enum qspi_address_size {
+    QSPI_CFG_ADDR_SIZE_NONE,
     QSPI_CFG_ADDR_SIZE_8,
     QSPI_CFG_ADDR_SIZE_16,
     QSPI_CFG_ADDR_SIZE_24,
@@ -58,6 +59,7 @@ typedef enum qspi_address_size {
 /** Alternative size
  */
 typedef enum qspi_alt_size {
+    QSPI_CFG_ALT_SIZE_NONE,
     QSPI_CFG_ALT_SIZE_8,
     QSPI_CFG_ALT_SIZE_16,
     QSPI_CFG_ALT_SIZE_24,
@@ -71,12 +73,12 @@ typedef enum qspi_alt_size {
 typedef struct qspi_command {
     struct instruction {
         qspi_bus_width_t bus_width; /**< Bus width for the instruction >*/
-        uint8_t value;  /**< Instruction, 0 - disabled, non-zero defined value used >*/
+        uint8_t value;  /**< Instruction value >*/
     };
     struct address {
         qspi_bus_width_t bus_width; /**< Bus width for the address >*/
         qspi_address_size_t size; /**< Address size >*/
-        uint32_t value; /**< Address, 0 - disabled, non-zero defined value used >*/
+        uint32_t value; /**< Address value >*/
     };
     struct alt {
         qspi_bus_width_t bus_width; /**< Bus width for alternative  >*/
