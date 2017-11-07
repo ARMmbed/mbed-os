@@ -33,19 +33,12 @@
 
 #include <stdint.h>
 #include "rtc_api.h"
+#include "ticker_api.h"
+#include "lp_ticker_api.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*
- * Extend rtc_api.h
- */
-
-/** Set the given function as handler of wakeup timer event.
- *
- * @param handler    The function to set as handler
- */
-void rtc_set_irq_handler(uint32_t handler);
 
 /** Read the subsecond register.
  *
