@@ -28,13 +28,13 @@
  * Parameters defining the advertising process.
  *
  * Advertising parameters are a triplet of three value:
- *   - The Advertising mode which is modeled after AdvertisingType_t. It defines
- *     if the device is connectable, scanable, ... This value can be set at
+ *   - The Advertising mode modeled after AdvertisingType_t. It defines
+ *     if the device is connectable and scannable. This value can be set at
  *     construction time, updated with setAdvertisingType() and queried by
  *     getAdvertisingType().
  *   - Time interval between advertisement. It can be set at construction time,
  *     updated by setInterval() and obtained from getInterval().
- *   - Duration of the advertising process. As others it can be set at
+ *   - Duration of the advertising process. As others, it can be set at
  *     construction time, modified by setTimeout() and retrieved by getTimeout().
  */
 class GapAdvertisingParams {
@@ -49,7 +49,7 @@ public:
     static const unsigned GAP_ADV_PARAMS_INTERVAL_MIN = 0x0020;
 
     /**
-     * Minimum Advertising interval for scannable and non-connectable
+     * Minimum Advertising interval for scannable and nonconnectable
      * undirected events in 625us units.
      *
      * @note Equal to 100ms.
@@ -84,7 +84,7 @@ public:
         ADV_CONNECTABLE_UNDIRECTED,
 
         /**
-         * Device is connectable and expect connection from a specific peer.
+         * Device is connectable and expects connection from a specific peer.
          *
          * @see Vol 3, Part C, Section 9.3.3 and Vol 6, Part B, Section 2.3.1.2.
          */
@@ -108,7 +108,7 @@ public:
     /**
      * Alias for GapAdvertisingParams::AdvertisingType_t.
      *
-     * @deprecated  This type alias will be dropped in future releases.
+     * @deprecated  Future releases will drop this type alias.
      */
     typedef enum AdvertisingType_t AdvertisingType;
 
@@ -122,7 +122,7 @@ public:
      * @param[in] timeout Duration in seconds of the advertising process. A
      * value of 0 indicate that there is no timeout of the advertising process.
      *
-     * @note If value in input are out of range they will be normalized.
+     * @note If value in input are out of range, they will be normalized.
      */
     GapAdvertisingParams(
         AdvertisingType_t advType  = ADV_CONNECTABLE_UNDIRECTED,
@@ -273,7 +273,7 @@ private:
     AdvertisingType_t _advType;
 
     /**
-     * The advertising interval in ADV duration units (i.e. 0.625ms).
+     * The advertising interval in ADV duration units (in other words, 0.625ms).
      */
     uint16_t _interval;
 
