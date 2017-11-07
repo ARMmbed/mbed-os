@@ -143,7 +143,7 @@ private:
     /**
      * Handle of the service declaration attribute in the ATT table.
      *
-     * @note This handle is generally assigned by the underlying BLE stack when the
+     * @note The underlying BLE stack generally assigns this handle when the
      *       service is added to the ATT table.
      */
     uint16_t             _handle;
