@@ -30,7 +30,7 @@
 /**
  * Function like object hosting a list of FunctionPointerWithContext.
  *
- * Upon call each FunctionPointerWithContext instance present in the object will
+ * Upon call, each FunctionPointerWithContext instance present in the object will
  * be called in sequence with the initial parameters.
  *
  * It can be seen as a variation of the observer pattern this object being the
@@ -83,7 +83,7 @@ class CallChainOfFunctionPointersWithContext :
     public SafeBool<CallChainOfFunctionPointersWithContext<ContextType> > {
 public:
     /**
-     * Alias of the FunctionPointerWithContext type this object can store
+     * Alias of the FunctionPointerWithContext type this object can store.
      */
     typedef FunctionPointerWithContext<ContextType> *pFunctionPointerWithContext_t;
 
@@ -148,8 +148,8 @@ public:
      *
      * @return true if a function pointer has been detached and false otherwise.
      *
-     * @note It is safe to remove a function pointer while the chain is
-     * being traversed by call(ContextType).
+     * @note It is safe to remove a function pointer while
+     * call(ContextType) is traversing the chain.
      */
     bool detach(const FunctionPointerWithContext<ContextType> &toDetach)
     {
@@ -261,7 +261,7 @@ public:
     }
 
     /**
-     * Test if the calchain is emtpy or not.
+     * Test if the callchain is empty or not.
      *
      * @return true if the callchain is not empty and false otherwise.
      *
@@ -317,7 +317,7 @@ private:
      * removed during the call() operation.
      *
      * @note It has to be mutable to accomodate the const version of call(). The
-     * iterator doesn't leak outside the object therefore it remains seen as
+     * iterator doesn't leak outside the object; therefore, it remains seen as
      * const from an external standpoint.
      */
     mutable pFunctionPointerWithContext_t currentCalled;
