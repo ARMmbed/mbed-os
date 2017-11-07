@@ -43,10 +43,15 @@ static void mbedtls_zeroize( void *v, size_t n )
     while( n-- ) *p++ = 0;
 }
 
-/* DMA compatible backup buffer if user buffer doesn't meet requirements
+/* AES DMA compatible backup buffer if user buffer doesn't meet requirements
  * 
- * MAX_DMA_CHAIN_SIZE must be a multiple of 16-byte block size.
- * Its value is estimated to trade memory footprint off against performance. 
+ * AES DMA buffer location requires to be:
+ * (1) Word-aligned
+ * (2) Located in 0x2xxxxxxx region. Check linker files to ensure global variables are placed in this region.
+ *
+ * AES DMA buffer size MAX_DMA_CHAIN_SIZE must be a multiple of 16-byte block size.
+ * Its value is estimated to trade memory footprint off against performance.
+ *
  */
 #define MAX_DMA_CHAIN_SIZE (16*6)
 MBED_ALIGN(4) static uint8_t au8OutputData[MAX_DMA_CHAIN_SIZE];
@@ -133,7 +138,8 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
      *   1) Word-aligned
      *   2) Located in 0x2xxxxxxx region
      */
-    if ((! crypto_dma_buff_compat(au8OutputData, MAX_DMA_CHAIN_SIZE)) || (! crypto_dma_buff_compat(au8InputData, MAX_DMA_CHAIN_SIZE))) {
+    if ((! crypto_dma_buff_compat(au8OutputData, MAX_DMA_CHAIN_SIZE)) ||
+        (! crypto_dma_buff_compat(au8InputData, MAX_DMA_CHAIN_SIZE))) {
         error("Buffer for AES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
 
