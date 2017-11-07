@@ -1091,3 +1091,8 @@ MBED_WEAK const ticker_info_t* lp_ticker_get_info()
     };
     return &info;
 }
+
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#include <vector>
+template class std::__1::__vector_base_common<1>;
+#endif
