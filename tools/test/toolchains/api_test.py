@@ -15,13 +15,6 @@ from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES,\
     Resources, TOOLCHAIN_PATHS, mbedToolchain
 from tools.targets import TARGET_MAP
 
-def test_instantiation():
-    """Test that all exported toolchain may be instantiated"""
-    for name, tc_class in  TOOLCHAIN_CLASSES.items():
-        cls = tc_class(TARGET_MAP["K64F"])
-        assert name == cls.name or\
-            name == LEGACY_TOOLCHAIN_NAMES[cls.name]
-
 ALPHABET = [char for char in printable if char not in [u'.', u'/']]
 
 @given(fixed_dictionaries({
@@ -115,10 +108,6 @@ def test_toolchain_profile_asm(profile, source_file):
                     "Toolchain %s did not propagate arg %s" % (toolchain.name,
                                                                parameter)
 
-    for name, Class in  TOOLCHAIN_CLASSES.items():
-        CLS = Class(TARGET_MAP["K64F"])
-        assert name == CLS.name or name ==  LEGACY_TOOLCHAIN_NAMES[CLS.name]
-
 @given(fixed_dictionaries({
     'common': lists(text()),
     'c': lists(text()),
@@ -151,10 +140,6 @@ def test_toolchain_profile_ld(profile, source_file):
                 assert any(parameter in cmd[0][0] for cmd in compile_cmd), \
                     "Toolchain %s did not propagate arg %s" % (toolchain.name,
                                                                parameter)
-
-    for name, Class in  TOOLCHAIN_CLASSES.items():
-        CLS = Class(TARGET_MAP["K64F"])
-        assert name == CLS.name or name ==  LEGACY_TOOLCHAIN_NAMES[CLS.name]
 
 
 @given(lists(text(alphabet=ALPHABET, min_size=1), min_size=1))
