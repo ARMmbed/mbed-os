@@ -26,10 +26,15 @@
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
 
-/* DMA buffer
+/* DES DMA compatible buffer requirements
  * 
- * MAXSIZE_DMABUF must be a multiple of 64-bit block size.
- * Its value is estimated to trade memory footprint off against performance. 
+ * DES DMA buffer location requires to be:
+ * (1) Word-aligned
+ * (2) Located in 0x2xxxxxxx region. Check linker files to ensure global variables are placed in this region.
+ * 
+ * DES DMA buffer size MAXSIZE_DMABUF must be a multiple of 64-bit block size.
+ * Its value is estimated to trade memory footprint off against performance.
+ *
  */
 #define MAXSIZE_DMABUF  (8 * 5)
 MBED_ALIGN(4) static uint8_t dmabuf_in[MAXSIZE_DMABUF];
@@ -314,7 +319,8 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
      *   1) Word-aligned
      *   2) Located in 0x2xxxxxxx region
      */
-    if ((! crypto_dma_buff_compat(dmabuf_in, MAXSIZE_DMABUF)) || (! crypto_dma_buff_compat(dmabuf_out, MAXSIZE_DMABUF))) {
+    if ((! crypto_dma_buff_compat(dmabuf_in, MAXSIZE_DMABUF)) ||
+        (! crypto_dma_buff_compat(dmabuf_out, MAXSIZE_DMABUF))) {
         error("Buffer for DES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
     
