@@ -17,7 +17,7 @@
 #ifndef BLE_API_SAFE_BOOL_H_
 #define BLE_API_SAFE_BOOL_H_
 
-/* Safe bool idiom, see : http://www.artima.com/cppsource/safebool.html */
+/* Safe bool idiom, see: http://www.artima.com/cppsource/safebool.html */
 
 /**
  * @file
@@ -34,7 +34,7 @@ namespace SafeBool_ {
 /**
  * Base class of all SafeBool instances.
  *
- * This non template base class exists to reduces the number of instantiation of
+ * This nontemplate base class exists to reduce the number of instantiation of
  * the trueTag function.
  */
 class base {
@@ -43,17 +43,17 @@ class base {
 
 protected:
     /**
-     * The bool type is a pointer to method which can be used in boolean context.
+     * The bool type is a pointer to method that can be used in boolean context.
      */
     typedef void (base::*BoolType_t)() const;
 
     /**
-     * Non implemented call, use to disallow conversion between unrelated types.
+     * Nonimplemented call, use to disallow conversion between unrelated types.
      */
     void invalidTag() const;
 
     /**
-     * Special member function which indicate a true value.
+     * Special member function that indicates a true value.
      */
     void trueTag() const {}
 };
