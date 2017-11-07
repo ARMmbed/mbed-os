@@ -54,21 +54,21 @@ static uint8_t char2int(char c)
 /**
  * Representation of a Universally Unique Identifier (UUID).
  *
- * UUIDs are 128 bits wide number used to identify data type and elements in
+ * UUIDs are 128-bit wide numbers used to identify data type and elements in
  * many layers of the Bluetooth specification.
  *
  * Two representations of UUIDS exist:
- *   - 16 bits UUIDs: Shortened representation of the 128 bit UUID
+ *   - 16-bit UUIDs: Shortened representation of the 128 bit UUID
  *     0000xxxx-0000-1000-8000-00805F9B34FB where xxxx is the 16 bit UUID.
  *     Values of those UUIDs are defined by the Bluetooth body. The short
- *     representation save bandwidth during protocol transactions.
- *   - 128 bits UUIDs: Complete representation of an UUID. They are commonly
+ *     representation saves bandwidth during protocol transactions.
+ *   - 128-bit UUIDs: Complete representation of a UUID. They are commonly
  *     used for user defined UUID.
  *
- * This class act as an adapter over these two kind of UUIDs to allow
- * indiscriminate usage of both forms in mbed BLE APIs .
+ * This class acts as an adapter over these two kinds of UUIDs to allow
+ * indiscriminate use of both forms in Mbed BLE APIs.
  *
- * @note 32 bits UUID representation is not supported at the current moment.
+ * @note 32-bit UUID representation is not supported currently.
  */
 class UUID {
 public:
@@ -91,16 +91,16 @@ public:
     /**
      * Enumeration of byte ordering.
      *
-     * It is used to construct 128 byte UUIDs.
+     * It is used to construct 128-byte UUIDs.
      */
     typedef enum {
         /**
-         * Most-significant byte first (at the smallest address).
+         * Most significant byte first (at the smallest address).
          */
         MSB,
 
         /**
-         * Least-significant byte first (at the smallest address).
+         * Least significant byte first (at the smallest address).
          */
         LSB
     } ByteOrder_t;
@@ -140,8 +140,8 @@ public:
      * @note Upper and lower case are supported.
      * @note Hyphens are optional. The string must include at most four hyphens.
      *
-     * @note Internally the UUID is stored in the little endian order as a 16
-     * byte array.
+     * @note Internally, the UUID is stored in the little endian order as a
+     * 16-byte array.
      */
     UUID(const char* stringUUID) :
         type(UUID_TYPE_LONG),
@@ -154,8 +154,8 @@ public:
         uint8_t tempUUID[LENGTH_OF_LONG_UUID];
 
         /*
-         * Iterate through string, abort if NULL is encountered prematurely.
-         * Ignore upto four hyphens.
+         * Iterate through string; abort if NULL is encountered prematurely.
+         * Ignore up to four hyphens.
          */
         for (size_t index = 0; (index < MAX_UUID_STRING_LENGTH) && (baseIndex < LENGTH_OF_LONG_UUID); index++) {
             if (stringUUID[index] == '\0') {
@@ -189,7 +189,7 @@ public:
     }
 
     /**
-     * Construct a new UUID from a 128-bits representation.
+     * Construct a new UUID from a 128-bit representation.
      *
      * @param[in] longUUID The 128-bit (16-byte) of the UUID value.
      * @param[in] order Bytes order of @p longUUID.
@@ -201,17 +201,17 @@ public:
     /**
      * Creates a new 16-bit UUID.
      *
-     * 16 bit wide UUIDs are defined by the Bluetoth standard body and are the
-     * shortened version of the UUID 0000xxxx-0000-1000-8000-00805F9B34FB where
-     * xxxx represent is the value of the 16 bit UUID.
+     * The Bluetooth standard body defines 16-bit wide UUIDs. They are the
+     * shortened version of the UUID 0000xxxx-0000-1000-8000-00805F9B34FB, where
+     * xxxx is the value of the 16-bit UUID.
      *
-     * @important 16 bit UUIDs shall not be used in user defined data type or
+     * @important 16-bit UUIDs are not used in user defined data type or
      * user defined element ID.
      *
-     * @param[in] _shortUUID 16 bit part of the standard UUID.
+     * @param[in] _shortUUID 16-bit part of the standard UUID.
      *              The short UUID value.
      *
-     * @note User defined UUID are commonly named vendor-specific UUIDs across
+     * @note User defined UUIDs are commonly named vendor-specific UUIDs across
      * the Bluetooth literature.
      */
     UUID(ShortUUIDBytes_t _shortUUID) :
@@ -246,9 +246,9 @@ public:
     }
 
     /**
-     * Replace existing value with a 128 bit UUID.
+     * Replace existing value with a 128-bit UUID.
      *
-     * @param[in] longUUID New 16 byte wide UUID value.
+     * @param[in] longUUID New 16-byte wide UUID value.
      * @param[in] order Byte ordering of @p longUUID.
      */
     void setupLong(const LongUUIDBytes_t longUUID, ByteOrder_t order = UUID::MSB)
@@ -270,8 +270,8 @@ public:
     /**
      * Return the internal type of the UUID.
      *
-     * @return UUID_TYPE_SHORT if the UUID is 16 bit wide.
-     * @return UUID_TYPE_LONG if the UUID is 128 bit wide.
+     * @return UUID_TYPE_SHORT if the UUID is 16-bit wide.
+     * @return UUID_TYPE_LONG if the UUID is 128-bit wide.
      */
     UUID_Type_t shortOrLong(void) const
     {
@@ -281,8 +281,8 @@ public:
     /**
      * Get a pointer to the UUID value based on the current UUID type.
      *
-     * @return A pointer to an uint16_t object if the UUID is 16 bit long.
-     * @return A pointer to an array of 16 bytes if the UUID is 128 bit long.
+     * @return A pointer to an uint16_t object if the UUID is 16 bits long.
+     * @return A pointer to an array of 16 bytes if the UUID is 128 bits long.
      */
     const uint8_t *getBaseUUID(void) const
     {
@@ -296,7 +296,7 @@ public:
     /**
      * Get the uint16_t value of the UUID.
      *
-     * @important This function shall not be used on long UUIDs.
+     * @important This function is not used on long UUIDs.
      *
      * @return The value of the shortened UUID.
      */
