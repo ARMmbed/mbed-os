@@ -8,7 +8,7 @@
         "test_configurations": ["ETHERNET"]
     },
     "REALTEK_RTL8195AM": {
-        "default_test_configuration": "REALTEK_WIFI",
+        "default_test_configuration": "NONE",
         "test_configurations": ["REALTEK_WIFI"]
     }
 }
