@@ -35,21 +35,21 @@
  * GAP advertising data builder.
  *
  * Advertising data are used by broadcaster or peripheral to advertise state
- * about the device. This class offers function to add and update states present
+ * about the device. This class offers the function to add and update states present
  * in an advertisement payload.
  *
- * After construction the advertising payload contained in instance of
- * GapAdvertisingData is empty. Adding new states also named fields can be
- * achieved by invoking the function addData() while updating existing state
- * involve calling the function updateData().
+ * After construction, the advertising payload contained in the instance of
+ * GapAdvertisingData is empty. Adding new states and named fields can be
+ * achieved by invoking the function addData(), and updating existing state
+ * involves calling the function updateData().
  *
  * Fields present in the payload can be retrieved by a call to the function
  * findField.
  *
  * This class includes shorthand for the most common fields:
- *   - FLAGS: addFlags()
- *   - APPEARANCE: addAppearance()
- *   - TX_POWER_LEVEL: addTxPower()
+ *   - FLAGS: addFlags().
+ *   - APPEARANCE: addAppearance().
+ *   - TX_POWER_LEVEL: addTxPower().
  *
  * @code
  *
@@ -79,16 +79,16 @@
  * @endcode
  *
  * @note See Bluetooth Specification 4.0 (Vol. 3), Part C, Sections 11 and 18
- * for further information on Advertising and Scan Response data.
+ * for further information on advertising and scan response data.
  *
  * @par Advertising and Scan Response Payloads
- * Advertising data and Scan Response data are organized around a set of
+ * Advertising data and scan response data are organized around a set of
  * data types called 'AD types' in Bluetooth 4.0 (see the Bluetooth Core
  * Specification v4.0, Vol. 3, Part C, Sections 11 and 18).
  *
  * @par
- * Each AD type has its own standardized assigned number, as defined
- * by the Bluetooth SIG:
+ * Each AD type has its own standardized assigned number, as
+ * the Bluetooth SIG defines:
  * https://www.bluetooth.org/en-us/specification/assigned-numbers/generic-access-profile.
  *
  * @par
@@ -97,7 +97,7 @@
  *
  * @par
  * Before the AD Types and their payload (if any) can be inserted into
- * the Advertising or Scan Response frames, they need to be formatted as
+ * the advertising or scan response frames, they need to be formatted as
  * follows:
  *
  * @li @c Record length (1 byte).
@@ -106,9 +106,9 @@
  *
  * @par
  * This class takes care of properly formatting the payload, performs
- * some basic checks on the payload length, and tries to avoid common
- * errors like adding an exclusive AD field twice in the Advertising
- * or Scan Response payload.
+ * some basic checks on the payload length and tries to avoid common
+ * errors such as adding an exclusive AD field twice in the advertising
+ * or scan response payload.
  */
 class GapAdvertisingData
 {
@@ -116,7 +116,7 @@ public:
     /*!
      * List of standard Advertising Data types.
      *
-     * These AD types are used to describe the capabilities of the peripheral,
+     * These AD types are used to describe the capabilities of the peripheral
      * and are inserted inside the advertising or scan response payloads.
      *
      * @par Source
@@ -186,7 +186,7 @@ public:
         SLAVE_CONNECTION_INTERVAL_RANGE = 0x12,
 
         /**
-         * List of 128 bit service UUIDs the device is looking for.
+         * List of 128-bit service UUIDs the device is looking for.
          */
         LIST_128BIT_SOLICITATION_IDS = 0x15,
 
@@ -215,15 +215,15 @@ public:
     /**
      * Alias for GapAdvertisingData::DataType_t.
      *
-     * @deprecated This type alias will be dropped in future releases.
+     * @deprecated Future releases will drop this type alias.
      */
     typedef enum DataType_t DataType;
 
     /**
      *  Enumeration of allowed flags for DataType_t::FLAGS.
      *
-     *  @note DataType_t::FLAGS may contain several flags assembled by the
-     * bitwise and operator (ex.LE_GENERAL_DISCOVERABLE & BREDR_NOT_SUPPORTED).
+     *  @note DataType_t::FLAGS may contain several flags that the bitwise
+     * and operator (ex.LE_GENERAL_DISCOVERABLE & BREDR_NOT_SUPPORTED) assembled.
      *
      *  @par Source
      *
@@ -242,7 +242,7 @@ public:
 
         /**
          * Peripheral device is LE only and does not support Bluetooth Enhanced
-         * DataRate
+         * DataRate.
          */
         BREDR_NOT_SUPPORTED = 0x04,
 
@@ -261,7 +261,7 @@ public:
     /**
      * Alias for GapAdvertisingData::Flags_t.
      *
-     * @deprecated  This type alias will be dropped in future releases.
+     * @deprecated  Future releases will drop this type alias.
      */
     typedef enum Flags_t Flags;
 
@@ -338,7 +338,7 @@ public:
         GENERIC_MEDIA_PLAYER = 640,
 
         /**
-         * Generic Barcode Scanner.
+         * Generic Bar Code Scanner.
          */
         GENERIC_BARCODE_SCANNER = 704,
 
@@ -418,7 +418,7 @@ public:
         DIGITAL_PEN = 967,
 
         /**
-         * Barcode Scanner.
+         * Bar Code Scanner.
          */
         BARCODE_SCANNER = 968,
 
@@ -527,7 +527,7 @@ public:
     /**
      * Alias for GapAdvertisingData::Appearance_t.
      *
-     * @deprecated This type alias will be dropped in future releases.
+     * @deprecated Future releases will drop this type alias.
      */
     typedef enum Appearance_t Appearance;
 
@@ -557,7 +557,7 @@ public:
      * @note When the specified data type is INCOMPLETE_LIST_16BIT_SERVICE_IDS,
      * COMPLETE_LIST_16BIT_SERVICE_IDS, INCOMPLETE_LIST_32BIT_SERVICE_IDS,
      * COMPLETE_LIST_32BIT_SERVICE_IDS, INCOMPLETE_LIST_128BIT_SERVICE_IDS,
-     * COMPLETE_LIST_128BIT_SERVICE_IDS or LIST_128BIT_SOLICITATION_IDS the
+     * COMPLETE_LIST_128BIT_SERVICE_IDS or LIST_128BIT_SOLICITATION_IDS, the
      * supplied value is appended to the values present in the payload.
      */
     ble_error_t addData(DataType_t advDataType, const uint8_t *payload, uint8_t len)
@@ -566,10 +566,10 @@ public:
         uint8_t* field = findField(advDataType);
 
         if (field) {
-            /* Field type already exist, either add to field or replace */
+            /* Field type already exists, either add to field or replace */
             return addField(advDataType, payload, len, field);
         } else {
-            /* Field doesn't exists, insert new */
+            /* Field doesn't exist, insert new */
             return appendField(advDataType, payload, len);
         }
     }
@@ -592,10 +592,10 @@ public:
         uint8_t* field = findField(advDataType);
 
         if (field) {
-            /* Field type already exist, replace field contents */
+            /* Field type already exists, replace field contents */
             return updateField(advDataType, payload, len, field);
         } else {
-            /* field doesn't exists, return an error */
+            /* field doesn't exist, return an error */
             return BLE_ERROR_UNSPECIFIED;
         }
     }
@@ -688,7 +688,7 @@ public:
     /**
      * Get the appearance set.
      *
-     * If no value has been set this function returns GENERIC_TAG.
+     * If no value has been set, this function returns GENERIC_TAG.
      *
      * @return The appearance value set for this device.
      */
@@ -739,7 +739,7 @@ private:
      */
     ble_error_t appendField(DataType advDataType, const uint8_t *payload, uint8_t len)
     {
-        /* Make sure we don't exceed the 31 byte payload limit */
+        /* Make sure we don't exceed the 31-byte payload limit */
         if (_payloadLen + len + 2 > GAP_ADVERTISING_DATA_MAX_PAYLOAD) {
             return BLE_ERROR_BUFFER_OVERFLOW;
         }
@@ -788,7 +788,7 @@ private:
      * @note When the specified AD type is INCOMPLETE_LIST_16BIT_SERVICE_IDS,
      * COMPLETE_LIST_16BIT_SERVICE_IDS, INCOMPLETE_LIST_32BIT_SERVICE_IDS,
      * COMPLETE_LIST_32BIT_SERVICE_IDS, INCOMPLETE_LIST_128BIT_SERVICE_IDS,
-     * COMPLETE_LIST_128BIT_SERVICE_IDS or LIST_128BIT_SOLICITATION_IDS the
+     * COMPLETE_LIST_128BIT_SERVICE_IDS or LIST_128BIT_SOLICITATION_IDS, the
      * supplied value is appended to the values previously added to the
      * payload.
      *
@@ -803,7 +803,7 @@ private:
         ble_error_t result = BLE_ERROR_BUFFER_OVERFLOW;
 
         switch(advDataType) {
-            /* These fields will have the new data appended if there is sufficient space */
+            /* These fields have the new data appended if there is sufficient space. */
             case INCOMPLETE_LIST_16BIT_SERVICE_IDS:
             case COMPLETE_LIST_16BIT_SERVICE_IDS:
             case INCOMPLETE_LIST_32BIT_SERVICE_IDS:
@@ -839,7 +839,7 @@ private:
 
                 break;
             }
-            /* These fields will be overwritten with the new value */
+            /* These fields are overwritten with the new value */
             default: {
                 result = updateField(advDataType, payload, len, field);
 
@@ -900,7 +900,7 @@ private:
     }
 
     /**
-     * Advertising data buffer
+     * Advertising data buffer.
      */
     uint8_t _payload[GAP_ADVERTISING_DATA_MAX_PAYLOAD];
 
