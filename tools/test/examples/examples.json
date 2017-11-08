@@ -7,17 +7,17 @@
       },
       "via-branch" : {
         "help" : "-b cmd line option. Update dst branch, created from src branch",
-        "src-branch" : "mbed-os-5.5.0-rc1-oob",
-        "dst-branch" : "mbed-os-5.5.0-rc2-oob"    
+        "src-branch" : "mbed-os-5.6.0-oob2",
+        "dst-branch" : "mbed-os-5.6.0-oob2"    
       },
-      "tag" : "mbed-os-5.5.0-rc2"
+      "tag" : "mbed-os-5.6.2"
   },
   "examples": [
     {
       "name": "mbed-os-example-blinky",
       "github": "https://github.com/ARMmbed/mbed-os-example-blinky",
       "mbed": [
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-blinky"
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-blinky"
       ],
       "test-repo-source": "github",
       "features" : [],
@@ -32,10 +32,10 @@
       "name": "mbed-os-example-tls",
       "github": "https://github.com/ARMmbed/mbed-os-example-tls",
       "mbed": [
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-benchmark",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-tls-client",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-hashing",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-tls-authcrypt"
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-benchmark",
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-tls-client",
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-hashing",
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-tls-authcrypt"
       ],
       "test-repo-source": "mbed",
       "features" : [],
@@ -50,7 +50,7 @@
       "name": "mbed-os-example-mesh-minimal",
       "github":"https://github.com/ARMmbed/mbed-os-example-mesh-minimal",
       "mbed": [
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-mesh-minimal"
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-mesh-minimal"
       ],
       "test-repo-source": "github",
       "features" : [],
@@ -68,14 +68,14 @@
       "name": "mbed-os-example-ble",
       "github":"https://github.com/ARMmbed/mbed-os-example-ble",
       "mbed": [
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Beacon",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-HeartRate",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Thermometer",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-LEDBlinker",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-LED",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-GAPButton",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-Button",
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-ble-BatteryLevel"
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-Beacon",
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-HeartRate",
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-Thermometer",
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-LEDBlinker",
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-LED",
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-GAPButton",
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-Button",
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-ble-BatteryLevel"
       ],
       "test-repo-source": "mbed",
       "features" : ["BLE"],
@@ -90,8 +90,21 @@
       "name": "mbed-os-example-client",
       "github":"https://github.com/ARMmbed/mbed-os-example-client",
       "mbed": [
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-client"
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-client"
       ],
+      "test-repo-source": "github",
+      "features" : ["LWIP"],
+      "targets" : [],
+      "toolchains" : [],
+      "exporters": [],
+      "compile" : false,
+      "export": false,
+      "auto-update" : true
+    },
+    {
+      "name": "mbed-cloud-client-example-internal",
+      "github":"https://github.com/ARMmbed/mbed-cloud-client-example-internal",
+      "mbed": [],
       "test-repo-source": "github",
       "features" : ["LWIP"],
       "targets" : [],
@@ -172,7 +185,7 @@
       "name": "mbed-os-example-bootloader",
       "github":"https://github.com/ARMmbed/mbed-os-example-bootloader",
       "mbed": [
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-bootloader"
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-bootloader"
       ],
       "test-repo-source": "github",
       "features" : [],
@@ -187,7 +200,7 @@
       "name": "mbed-os-example-fat-filesystem",
       "github":"https://github.com/ARMmbed/mbed-os-example-fat-filesystem",
       "mbed": [
-          "https://developer.mbed.org/teams/mbed-os-examples/code/mbed-os-example-fat-filesystem"
+          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-fat-filesystem"
       ],
       "test-repo-source": "github",
       "features" : [],

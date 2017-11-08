@@ -282,6 +282,40 @@ void test_msg_prio()
     TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
 }
 
+/** Test queue empty
+
+    Given a queue of uint32_t data
+    before data is inserted the queue should be empty
+    after data is inserted the queue shouldn't be empty
+ */
+void test_queue_empty()
+{
+    Queue<uint32_t, 1> q;
+
+    TEST_ASSERT_EQUAL(true, q.empty());
+
+    q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT, 1);
+
+    TEST_ASSERT_EQUAL(false, q.empty());
+}
+
+/** Test queue empty
+
+    Given a queue of uint32_t data with size of 1
+    before data is inserted the queue shouldn't be full
+    after data is inserted the queue should be full
+ */
+void test_queue_full()
+{
+    Queue<uint32_t, 1> q;
+
+    TEST_ASSERT_EQUAL(false, q.full());
+
+    q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT, 1);
+
+    TEST_ASSERT_EQUAL(true, q.full());
+}
+
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(5, "default_auto");
@@ -299,7 +333,9 @@ Case cases[] = {
     Case("Test put full timeout", test_put_full_timeout),
     Case("Test put full wait forever", test_put_full_waitforever),
     Case("Test message ordering", test_msg_order),
-    Case("Test message priority", test_msg_prio)
+    Case("Test message priority", test_msg_prio),
+    Case("Test queue empty", test_queue_empty),
+    Case("Test queue full", test_queue_full)
 };
 
 Specification specification(test_setup, cases);

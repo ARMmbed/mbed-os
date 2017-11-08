@@ -32,6 +32,7 @@ UARTSerial::UARTSerial(PinName tx, PinName rx, int baud) :
         SerialBase(tx, rx, baud),
         _blocking(true),
         _tx_irq_enabled(false),
+        _rx_irq_enabled(true),
         _dcd_irq(NULL)
 {
     /* Attatch IRQ routines to the serial device. */
@@ -67,6 +68,22 @@ void UARTSerial::set_data_carrier_detect(PinName dcd_pin, bool active_high)
         }
     }
 }
+
+void UARTSerial::set_format(int bits, Parity parity, int stop_bits)
+{
+    api_lock();
+    SerialBase::format(bits, parity, stop_bits);
+    api_unlock();
+}
+
+#if DEVICE_SERIAL_FC
+void UARTSerial::set_flow_control(Flow type, PinName flow1, PinName flow2)
+{
+    api_lock();
+    SerialBase::set_flow_control(type, flow1, flow2);
+    api_unlock();
+}
+#endif
 
 int UARTSerial::close()
 {
@@ -176,6 +193,16 @@ ssize_t UARTSerial::read(void* buffer, size_t length)
         data_read++;
     }
 
+    core_util_critical_section_enter();
+    if (!_rx_irq_enabled) {
+        UARTSerial::rx_irq();               // only read from hardware in one place
+        if (!_rxbuf.full()) {
+            SerialBase::attach(callback(this, &UARTSerial::rx_irq), RxIrq);
+            _rx_irq_enabled = true;
+        }
+    }
+    core_util_critical_section_exit();
+
     api_unlock();
 
     return data_read;
@@ -243,13 +270,14 @@ void UARTSerial::rx_irq(void)
 
     /* Fill in the receive buffer if the peripheral is readable
      * and receive buffer is not full. */
-    while (SerialBase::readable()) {
+    while (!_rxbuf.full() && SerialBase::readable()) {
         char data = SerialBase::_base_getc();
-        if (!_rxbuf.full()) {
-            _rxbuf.push(data);
-        } else {
-            /* Drop - can we report in some way? */
-        }
+        _rxbuf.push(data);
+    }
+
+    if (_rx_irq_enabled && _rxbuf.full()) {
+        SerialBase::attach(NULL, RxIrq);
+        _rx_irq_enabled = false;
     }
 
     /* Report the File handler that data is ready to be read from the buffer. */
