@@ -145,7 +145,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
-    
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return MBED_FLASH_INVALID_SIZE;
     }
@@ -165,7 +164,7 @@ uint32_t flash_get_start_address(const flash_t *obj)
 }
 uint32_t flash_get_size(const flash_t *obj)
 {
-    return FLASH_SIZE;    
+    return FLASH_SIZE;
 }
 
 /**
@@ -175,7 +174,7 @@ uint32_t flash_get_size(const flash_t *obj)
   */
 static uint32_t GetSector(uint32_t address)
 {
-    uint32_t sector = 0; 
+    uint32_t sector = 0;
     uint32_t tmp = address - ADDR_FLASH_SECTOR_0;
     /* This function supports 1Mb and 2Mb flash sizes */
 #if defined(ADDR_FLASH_SECTOR_16)
@@ -191,14 +190,14 @@ static uint32_t GetSector(uint32_t address)
     }
 #if defined(ADDR_FLASH_SECTOR_5)
     else if (address < ADDR_FLASH_SECTOR_5) { //64k sector size
-        sector += FLASH_SECTOR_4; 
+        sector += FLASH_SECTOR_4;
     } else {
         sector += 4 + (tmp >>17);
     }
 #else
     // In case ADDR_FLASH_SECTOR_5 is not defined, sector 4 is the last one.
     else { //64k sector size
-        sector += FLASH_SECTOR_4; 
+        sector += FLASH_SECTOR_4;
     }
 #endif
     return sector;
@@ -227,7 +226,7 @@ if((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || (Sector == FLASH_
         sectorsize = 64 * 1024;
     } else {
         sectorsize = 128 * 1024;
-    }  
+    }
     return sectorsize;
 }
 
