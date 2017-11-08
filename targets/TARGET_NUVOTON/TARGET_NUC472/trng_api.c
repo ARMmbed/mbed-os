@@ -82,18 +82,23 @@ void trng_free(trng_t *obj)
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     (void)obj;
-
+    unsigned char tmpBuff[32];
+        
     *output_length = 0;
     if (length < 32) {
-        unsigned char tmpBuff[32];
         trng_get(tmpBuff);
         memcpy(output, &tmpBuff, length);
         *output_length = length;
     } else {
-        for (int i = 0; i < (length/32); i++) {
+        for (unsigned i = 0; i < (length/32); i++) {
             trng_get(output);
             *output_length += 32;
             output += 32;
+        }     
+        if( length > *output_length ) {
+            trng_get(tmpBuff);
+            memcpy(output, &tmpBuff, (length - *output_length));
+            *output_length = length;
         }
     }
 
