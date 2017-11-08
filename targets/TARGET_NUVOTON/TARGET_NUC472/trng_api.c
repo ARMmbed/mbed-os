@@ -33,6 +33,11 @@
 static volatile int  g_PRNG_done;
 volatile int  g_AES_done;
 
+/* Implementation that should never be optimized out by the compiler */
+static void trng_zeroize( void *v, size_t n ) {
+    volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
+}
+
 void CRYPTO_IRQHandler()
 {
     if (PRNG_GET_INT_FLAG()) {
@@ -85,21 +90,17 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
     unsigned char tmpBuff[32];
         
     *output_length = 0;
-    if (length < 32) {
+    
+    for (unsigned i = 0; i < (length/32); i++) {
+        trng_get(output);
+        *output_length += 32;
+        output += 32;
+    }     
+    if( length > *output_length ) {
+        trng_zeroize(tmpBuff, sizeof(tmpBuff));
         trng_get(tmpBuff);
-        memcpy(output, &tmpBuff, length);
+        memcpy(output, &tmpBuff, (length - *output_length));
         *output_length = length;
-    } else {
-        for (unsigned i = 0; i < (length/32); i++) {
-            trng_get(output);
-            *output_length += 32;
-            output += 32;
-        }     
-        if( length > *output_length ) {
-            trng_get(tmpBuff);
-            memcpy(output, &tmpBuff, (length - *output_length));
-            *output_length = length;
-        }
     }
 
     return 0;
