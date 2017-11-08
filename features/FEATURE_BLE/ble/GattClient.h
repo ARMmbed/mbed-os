@@ -36,20 +36,20 @@
  */
 
 /**
- * Define procedures required for interracting with a distant GATT server.
+ * Define procedures required for interacting with a distant GATT server.
  *
  * @par Discovery procedures
  *
- * A GATT server host a fixed set of services. These services are a logical
- * composition of Characteristic which may be discovered, read, written or also
+ * A GATT server hosts a fixed set of services. These services are a logical
+ * composition of characteristics that may be discovered, read, written or also
  * broadcast their state to a connected client. These characteristics may also
- * contain meta information named characteristic descriptors. A characteristic
+ * contain metainformation named characteristic descriptors. A characteristic
  * descriptor may be used to indicate the unit used for a characteristic value,
  * describe in a textual form the characterisic purpose or allow a client to
  * register for notification of updates of the characteristic value.
  *
- * Prior to any interaction with server characteristic, a GATT client should
- * discover the layout of the services and characteristics present on the
+ * Prior to any interaction with server characteristic, a GATT client
+ * discovers the layout of the services and characteristics present on the
  * server.
  *
  * The layout of the descriptors of a characteristic may also be issued to
@@ -57,28 +57,28 @@
  *
  * @par Attribute manipulation
  *
- * As a result of the discovery process the client can start interracting with
+ * As a result of the discovery process, the client can start interacting with
  * the characteristic discovered. Depending on the characteristic properties
- * (acquired during discovery) a client can read or write the value of a given
+ * (acquired during discovery), a client can read or write the value of a given
  * characteristic.
  *
- * mbed BLE abstract most read and write operation to offer a single API which
+ * Mbed BLE abstracts most read and write operations to offer a single API that
  * can be used to read or write characteristics values. Application code does not
  * have to handle the fragmentation/reassembly process necessary if the attribute
  * value to transported cannot fit in a single data packet.
  *
  * @par Server Initiated events
  *
- * If a characteristic has the notify or indicate property set then a client may
- * register to notification or indication from the characteristic. When the
- * characteristic value is updated by the server, the server can forward the
+ * If a characteristic has to notify or indicate a property set; then, a client may
+ * register to a notification or indication from the characteristic. When the
+ * server updates the characteristic value, the server can forward the
  * new value to the registered clients. The notification/indication mechanism
  * prevents polling from the client and therefore minimize the transactions
  * involved between a client and a server.
  *
  * Registration is made by writing the Client Characteristic Configuration
- * Descriptor which shall be present in the characteristic if the notify or
- * indicate properties are set. That descriptor shall be discovered by the client
+ * Descriptor, which is present in the characteristic if the notify or
+ * indicate properties are set. The client discovers that descriptor
  * if it intends to register to server initiated events.
  */
 class GattClient {
@@ -169,7 +169,7 @@ public:
 
     /*
      * The following functions are meant to be overridden in the platform
-     * specific sub-class.
+     * specific subclass.
      */
 public:
 
@@ -179,17 +179,17 @@ public:
      * Launch the service and characteristic discovery procedure of a GATT server
      * peer.
      *
-     * The procedure will invoke application callbacks for matching services or
+     * The procedure invokes application callbacks for matching services or
      * characteristics. The process ends after all the services and
      * characteristics present on the distant GATT server have been discovered.
      * Termination callbacks registered with onServiceDiscoveryTermination() are
      * invoked to notify the application of the termination of the procedure.
      *
      * Application code can track the status of the procedure by invoking the
-     * function isServiceDiscoveryActive() which will return true if the
+     * function isServiceDiscoveryActive(), which returns true if the
      * procedure is ongoing.
      *
-     * At any point application code can terminate prematurely the discovery
+     * At any point, application code can prematurely terminate the discovery
      * procedure by calling terminateServiceDiscovery().
      *
      * @param[in] connectionHandle Handle of the connection with the peer GATT
@@ -199,14 +199,14 @@ public:
      * @param[in] cc Characteristic discovered event handler invoked when a
      * matching characteristic has been found. This parameter may be NULL.
      * @param[in] matchingServiceUUID UUID of the service the caller is
-     * interested in. If a service discovered matches this filter then @p sc is
-     * invoked with it. The special value BLE_UUID_UNKNOWN act as a wildcard
+     * interested in. If a service discovered matches this filter, then @p sc is
+     * invoked with it. The special value BLE_UUID_UNKNOWN acts as a wildcard,
      * which can be used to discover all services present on the peer GATT
      * server.
      * @param[in] matchingCharacteristicUUIDIn UUID of the characteristic the
      * caller is interested in. If a characteristic discovered matches this
-     * filter then @p cc is  invoked with it. The special value BLE_UUID_UNKNOWN
-     * act as a wildcard which can be used to discover all services present on
+     * filter, then @p cc is  invoked with it. The special value BLE_UUID_UNKNOWN
+     * acts as a wildcard, which can be used to discover all services present on
      * the peer GATT server.
      *
      * @par Discovery procedure implementation detail
@@ -214,12 +214,12 @@ public:
      * It is recommended to implement several strategies based on the
      * combination of callbacks and filters passed in input to efficiently
      * realize the discovery procedure:
-     * - If @p sc and @p cc are NULL then it is not necessay to initiate any
-     * discovery and the termination handlers can be invoked immediately.
-     * - If @p matchingServiceUUID is set then the GATT discover services by
-     * service UUID procedure should be used otherwise the GATT discover primary
-     * services procedure should be used..
-     * - If @p cc is NULL then the discovery process should end after the discovery
+     * - If @p sc and @p cc are NULL, then it is not necessay to initiate any
+     * discovery, and the termination handlers can be invoked immediately.
+     * - If @p matchingServiceUUID is set, then the GATT discover services by
+     * service UUID procedure should be used; otherwise, the GATT discover primary
+     * services procedure should be used.
+     * - If @p cc is NULL, then the discovery process should end after the discovery
      * of the services.
      *
      * @return BLE_ERROR_NONE if the discovery procedure has been successfully
@@ -247,17 +247,17 @@ public:
     /**
      * Launch the service discovery procedure of a GATT server peer.
      *
-     * The procedure will invoke the application callback for matching services.
+     * The procedure invokes the application callback for matching services.
      * The process ends after all the services present on the distant GATT
      * server have been discovered.
      * Termination callbacks registered with onServiceDiscoveryTermination() are
      * invoked to notify the application of the termination of the procedure.
      *
      * Application code can track the status of the procedure by invoking the
-     * function isServiceDiscoveryActive() which will return true if the
+     * function isServiceDiscoveryActive(), which returns true if the
      * procedure is ongoing.
      *
-     * At any point application code can terminate prematurely the discovery
+     * At any point, application code can prematurely terminate the discovery
      * procedure by calling terminateServiceDiscovery().
      *
      * @param[in] connectionHandle Handle of the connection with the peer GATT
@@ -265,8 +265,8 @@ public:
      * @param[in] callback Service discovered event handler invoked when a
      * matching service has been discovered. This parameter may be NULL.
      * @param[in] matchingServiceUUID UUID of the service the caller is
-     * interested in. If a service discovered match this filter then @p sc is
-     * invoked with it. The special value BLE_UUID_UNKNOWN act is a wildcard
+     * interested in. If a service discovered matches this filter, then @p sc is
+     * invoked with it. The special value BLE_UUID_UNKNOWN act is a wildcard,
      * which can be used to discover all services present on the peer GATT
      * server.
      *
@@ -279,7 +279,7 @@ public:
         const UUID &matchingServiceUUID = UUID::ShortUUIDBytes_t(BLE_UUID_UNKNOWN)
     ) {
         /* We take advantage of the property
-         * that providing NULL for the characteristic callback will result in
+         * that providing NULL for the characteristic callback results in
          * characteristic discovery being skipped for each matching
          * service. This allows for an inexpensive method to discover only
          * services. Porters are free to override this. */
@@ -298,10 +298,10 @@ public:
      * invoked to notify the application of the termination of the procedure.
      *
      * Application code can track the status of the procedure by invoking the
-     * function isServiceDiscoveryActive() which will return true if the
+     * function isServiceDiscoveryActive(), which returns true if the
      * procedure is ongoing.
      *
-     * At any point application code can terminate prematurely the discovery
+     * At any point, application code can prematurely terminate the discovery
      * procedure by calling terminateServiceDiscovery().
      *
      * @param[in] connectionHandle Handle of the connection with the peer GATT
@@ -358,7 +358,7 @@ public:
     /**
      * Initiate the read procedure of an attribute handle.
      *
-     * Once the attribute value has been read in its entirety the process issues
+     * Once the attribute value has been read in its entirety, the process issues
      * an attribute read event and passes it to all events handlers registered
      * by onDataRead.
      *
@@ -368,7 +368,7 @@ public:
      * @param[in] offset The offset from the start of the attribute value to be
      * read.
      *
-     * @return BLE_ERROR_NONE if read procedure was successfully started.
+     * @return BLE_ERROR_NONE if read procedure successfully started.
      *
      * @par Implementation notes:
      *
@@ -376,7 +376,7 @@ public:
      * GATT requests to the peer. The following algorithm may be used to
      * implement the process:
      *
-     * If the offset is equal to 0 then send a read request otherwise send a
+     * If the offset is equal to 0, then send a read request; otherwise, send a
      * read blob request at the specified offset.
      *
      * While the attribute data in the response are MTU - 1 long:
@@ -384,7 +384,7 @@ public:
      *   - Increment the value of the offset by MTU - 1.
      *   - Send a read blob request with the updated offset.
      *
-     * Finally concat the last response with the value containing all the
+     * Finally, concat the last response with the value containing all the
      * previous responses and forward that value to the event handlers.
      */
     virtual ble_error_t read(
@@ -405,11 +405,11 @@ public:
     /**
      * Initiate a write procedure on an attribute value.
      *
-     * If @p cmd is equal to GATT_OP_WRITE_REQ then the status of the operation
-     * is reported to the event handlers registered via onDataWritten().
+     * If @p cmd is equal to GATT_OP_WRITE_REQ, then the status of the operation
+     * is reported to the event handlers registered through onDataWritten().
      *
      * @param[in] cmd Type of the write procedure used. If GATT_OP_WRITE_CMD
-     * is set then value length shall not be greater than the size of the mtu
+     * is set, then value length is not greater than the size of the mtu
      * of connHandle minus three.
      * @param[in] connHandle Handle of the connection used to send the write
      * request or command.
@@ -417,27 +417,27 @@ public:
      * @param[in] length Number of bytes present in @p value.
      * @param[in] value Data buffer to write to attributeHandle.
      *
-     * @return BLE_ERROR_NONE if the write procedure was successfully started.
+     * @return BLE_ERROR_NONE if the write procedure successfully started.
      *
      * @par Implementation notes:
      *
-     * If the operation is a write command then an implementation shall use the
-     * GATT write without response procedure and an error shall be returned if
+     * If the operation is a write command, then an implementation uses the
+     * GATT write without response procedure and an error is returned if
      * the data buffer to write is larger than the size of the MTU - 3.
      *
      * If the operation is a write command and the size of the data buffer to
-     * write is less than than the size of the MTU - 3 then the ATT write request
-     * procedure shall be used and the response shall be reported to the handlers
+     * write is less than than the size of the MTU - 3, then the ATT write request
+     * procedure is used, and the response is reported to the handlers
      * listening for write response.
      *
-     * Otherwise the data buffer to write shall be divided in chunks with a
-     * maximum size of MTU - 5. Those chunks shall be sent sequentially to the
+     * Otherwise, the data buffer to write is divided in chunks with a
+     * maximum size of MTU - 5. Those chunks are sent sequentially to the
      * peer in ATT prepare write requests. If an error response is received
-     * during the process, the procedure shall end immediately, the prepared
-     * write discarded and an error shall be reported to the application handlers.
-     * Once all the chunks have been sent, the transaction shall be completed
-     * by sending an execute write request to the peer. The peer response shall
-     * be forwarded to the application handlers.
+     * during the process, the procedure ends immediately, the prepared
+     * write is discarded and an error is reported to the application handlers.
+     * Once all the chunks have been sent, the transaction is completed
+     * by sending an execute write request to the peer. The peer response is
+     * forwarded to the application handlers.
      */
     virtual ble_error_t write(
         GattClient::WriteOp_t cmd,
@@ -612,8 +612,8 @@ public:
     /**
      * @brief Terminate an ongoing characteristic descriptor discovery procedure.
      *
-     * If the procedure is active then it shall end and the termination handler
-     * associated with the procedure shall be called.
+     * If the procedure is active, then it ends, and the termination handler
+     * associated with the procedure is called.
      *
      * @param[in] characteristic The characteristic containing the descriptors
      * being discovered.
@@ -642,8 +642,8 @@ public:
     /**
      * Register a shutdown event handler.
      *
-     * The registered handler will be invoked when the GattClient instance is
-     * about to be shutdown.
+     * The registered handler is invoked when the GattClient instance is
+     * about to be shut down.
      *
      * @param[in] callback Event handler to invoke when a shutdown event is
      * available.
@@ -661,10 +661,10 @@ public:
     /**
      * Register a shutdown event handler.
      *
-     * The registered handler will be invoked when the GattClient instance is
-     * about to be shutdown.
+     * The registered handler is invoked when the GattClient instance is
+     * about to be shut down.
      *
-     * @param[in] objPtr Instance which will be used to invoke @p memberPtr.
+     * @param[in] objPtr Instance that will be used to invoke @p memberPtr.
      * @param[in] memberPtr Event handler to invoke when a shutdown event is
      * available.
      */
@@ -705,24 +705,23 @@ public:
     /**
      * Reset the state of the GattClient instance.
      *
-     * Prior to any state modification shutdown event handlers shall be notified
-     * that the GattClient instance is about to be shutdown. Then running
-     * procedures shall be ended. Finally the state of the instance shall be
-     * reset.
+     * Prior to any state modification, shutdown event handlers are notified
+     * that the GattClient instance is about to be shut down. Then, running
+     * procedures end. Finally, the state of the instance is reset.
      *
      * @par implementation note
      *
      * This function is meant to be overridden in the platform-specific
-     * sub-class. Nevertheless, the sub-class is only expected to reset its
-     * state and not the data held in GattClient members. This shall be achieved
-     * by a call to GattClient::reset() from the sub-class' reset()
+     * subclass. Nevertheless, the subclass only resets its
+     * state and not the data held in GattClient members. This is achieved
+     * by a call to GattClient::reset() from the subclass' reset()
      * implementation.
      *
      * @return BLE_ERROR_NONE on success.
      */
     virtual ble_error_t reset(void)
     {
-        /* Notify that the instance is about to shutdown */
+        /* Notify that the instance is about to shut down. */
         shutdownCallChain.call(this);
         shutdownCallChain.clear();
 
@@ -769,7 +768,7 @@ public:
     }
 
     /**
-     * Forward an Handle Value Notification or Indication event to all registered
+     * Forward a handle value notification or indication event to all registered
      * handlers.
      *
      * @important This function is meant to be called from the vendor
