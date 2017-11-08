@@ -103,8 +103,6 @@ void lp_ticker_init(void)
 
     // Schedule wakeup to match semantics of lp_ticker_get_compare_match()
     lp_ticker_set_interrupt(wakeup_tick);
-
-
 }
 
 timestamp_t lp_ticker_read()
@@ -146,9 +144,9 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     uint32_t delta = timestamp - lp_ticker_read();
     wakeup_tick = timestamp;
-    
+
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
-    
+
     cd_major_minor_clks = (uint64_t) delta * US_PER_TICK * TMR3_CLK_PER_SEC / US_PER_SEC;
     lp_ticker_arm_cd();
 }
