@@ -101,7 +101,7 @@ typedef enum qspi_status {
 
 /** Initialize QSPI peripheral. 
  *
- * It should initialize QSPI pins (io0-io3, sclk and ssel), set frequency and SPI mode. The clock for the peripheral should be enabled
+ * It should initialize QSPI pins (io0-io3, sclk and ssel), set frequency, clock polarity and phase mode. The clock for the peripheral should be enabled
  * 
  * @param obj QSPI object
  * @param io0 Data pin 0
@@ -111,7 +111,7 @@ typedef enum qspi_status {
  * @param sclk The clock pin
  * @param ssel The chip select pin
  * @param hz The bus frequency
- * @param mode SPI mode
+ * @param mode Clock polarity and phase mode (0 - 3)
  * @return QSPI_STATUS_OK if initialisation successfully executed
            QSPI_STATUS_INVALID_PARAMETER if invalid parameter found
            QSPI_STATUS_ERROR otherwise
