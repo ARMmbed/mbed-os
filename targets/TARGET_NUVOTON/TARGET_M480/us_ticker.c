@@ -146,7 +146,7 @@ void us_ticker_clear_interrupt(void)
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer1hires_modinit.modname));
-    
+
     uint32_t delta = timestamp - us_ticker_read();
     cd_major_minor_us = delta * US_PER_TICK;
     us_ticker_arm_cd();
