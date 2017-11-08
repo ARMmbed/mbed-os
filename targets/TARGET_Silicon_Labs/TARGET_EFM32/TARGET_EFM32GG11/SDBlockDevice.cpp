@@ -550,6 +550,10 @@ int SDBlockDevice::_cmd(uint32_t cmd, uint32_t arg, uint16_t blkcnt, bool read) 
             SDIO->IFCR = INT_ERR_ENABLE;
             return flags;
         }
+        if(flags & SDIO_IFCR_DMAINT) {
+            // Don't care about the boundary
+            SDIO->SDMASYSADDR = SDIO->SDMASYSADDR;
+        }
         if(cmd == 21 || cmd == 19) {
             if(flags & SDIO_IFCR_BFRRDRDY) {
                 SDIO->IFCR = SDIO_IFCR_BFRRDRDY;
