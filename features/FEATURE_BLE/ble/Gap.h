@@ -27,7 +27,7 @@
 #include "FunctionPointerWithContext.h"
 #include "platform/mbed_toolchain.h"
 
-/* Forward declarations for classes that will only be used for pointers or
+/* Forward declarations for classes that are only used for pointers or
    references. */
 class GapAdvertisingParams;
 class GapScanningParams;
@@ -44,17 +44,16 @@ class GapAdvertisingData;
  * Define device discovery, connection and link management procedures.
  *
  * - Device discovery: A device can advertise nearby peers of its existence,
- * identity and capabilities. Similarly a device can scan its environment to
+ * identity and capabilities. Similarly, a device can scan its environment to
  * find advertising peers. The information acquired during the scan helps to
  * identify peers and understand their use. A scanner may acquire more information
  * about an advertising peer by sending a scan request. If the peer accepts scan
- * requests it may reply with additional information about its state.
+ * requests, it may reply with additional information about its state.
  *
  * - Connection: A bluetooth device can establish a connection to a connectable
- * advertising peer. Once the connection is established both devices can
+ * advertising peer. Once the connection is established, both devices can
  * communicate using the GATT protocol. The GATT protocol allows connected
- * devices to expose a set of states which can be discovered, read and written
- * by the other peer.
+ * devices to expose a set of states that the other peer can discover, read and write.
  *
  * - Link Management: Connected devices may drop the connection and may adjust
  * connection parameters according to the power envelop needed for their
@@ -64,7 +63,7 @@ class GapAdvertisingData;
  *
  * Instance of a Gap class for a given BLE device should be accessed using
  * BLE::gap(). The reference returned remains valid until the BLE instance
- * shutdown (see BLE::shutdown()).
+ * shut down (see BLE::shutdown()).
  *
  * @code
  * // assuming ble_device has been initialized
@@ -80,7 +79,7 @@ class GapAdvertisingData;
  * scanned by peer devices listening on BLE advertising channels.
  *
  * Scanners may also request additional information from a device advertising by
- * sending a scan request. If the broadcaster accepts scan requests it can reply
+ * sending a scan request. If the broadcaster accepts scan requests, it can reply
  * with a scan response packet containing additional information.
  *
  * @code
@@ -124,10 +123,10 @@ class GapAdvertisingData;
  *
  * @par Scanning
  *
- * Scanning consist of listening for peer advertising packets. From a scan a
+ * Scanning consist of listening for peer advertising packets. From a scan, a
  * device can identify devices available in its environment.
  *
- * If the device scans actively then it will send scan request to scanable
+ * If the device scans actively, then it will send scan request to scannable
  * advertisers and collect their scan response.
  *
  * @code
@@ -165,7 +164,7 @@ class GapAdvertisingData;
  *      100, // interval between two scan window in ms
  *      50,  // scan window: period during which the device listen for advertising packets.
  *      0,   // the scan process never ends
- *      true // the device sends scan request to scanable peers.
+ *      true // the device sends scan request to scannable peers.
  * );
  *
  * // start the scan procedure
@@ -174,13 +173,13 @@ class GapAdvertisingData;
  *
  * @par Connection event handling
  *
- * Device advertising connectable packets may be connected by a peer. The
+ * A peer may connect device advertising connectable packets. The
  * advertising procedure ends as soon as the device is connected.
  *
- * A device accepting a connection request from a peer is named a peripheral
- * while the device initiating the connection is named a central.
+ * A device accepting a connection request from a peer is named a peripheral,
+ * and the device initiating the connection is named a central.
  *
- * Peripheral and Central received a connection event when the connection is
+ * Peripheral and central receive a connection event when the connection is
  * effective.
  *
  * @code
@@ -188,10 +187,10 @@ class GapAdvertisingData;
  *
  * // handle connection event
  * void when_connected(const ConnectionCallbackParams_t *connection_event) {
- *    // If this callback is enterred then the connection to a peer is effective.
+ *    // If this callback is entered, then the connection to a peer is effective.
  * }
  *
- * // register connection event handler which will be invoked whether the device
+ * // register connection event handler, which will be invoked whether the device
  * // acts as a central or a peripheral
  * gap.onConnection(when_connected);
  * @endcode
@@ -249,7 +248,7 @@ class GapAdvertisingData;
  *      100, // interval between two scan window in ms
  *      50,  // scan window: period during which the device listen for advertising packets.
  *      0,   // the scan process never ends
- *      true // the device sends scan request to scanable peers.
+ *      true // the device sends scan request to scannable peers.
  * );
  *
  * // start the scan procedure
@@ -258,11 +257,11 @@ class GapAdvertisingData;
  *
  * @par disconnection
  *
- * A disconnection is initiated by the application code when it calls the
+ * The application code initiates a disconnection when it calls the
  * disconnect(Handle_t, DisconnectionReason_t) function.
  *
  * Disconnection may also be initiated by the remote peer or the local
- * controller/stack. To catch all disconnection events application code may
+ * controller/stack. To catch all disconnection events, application code may
  * set up an handler taking care of disconnection events by calling
  * onDisconnection().
  */
@@ -291,7 +290,7 @@ public:
      *
      * @deprecated Use BLEProtocol::AddressType_t instead. The following
      * constants have been left in their deprecated state to transparently
-     * support existing applications which may have used Gap::ADDR_TYPE_*.
+     * support existing applications that may have used Gap::ADDR_TYPE_*.
      */
     enum DeprecatedAddressType_t {
         ADDR_TYPE_PUBLIC = BLEProtocol::AddressType::PUBLIC,
@@ -348,7 +347,7 @@ public:
     /**
      * Enumeration of disconnection reasons.
      *
-     * @important There might be a missmatch between the disconnection reason
+     * @important There might be a mismatch between the disconnection reason
      * passed to disconnect() and the disconnection event generated locally
      * because the disconnection reason passed to disconnect() is the
      * disconnection reason to be transmitted to the peer.
@@ -377,8 +376,8 @@ public:
         REMOTE_DEV_TERMINATION_DUE_TO_POWER_OFF = 0x15,
 
         /**
-         * Indicate that the connection was terminated by the local user or the
-         * internal Bluetooth subsystem.
+         * Indicate that the local user or the internal
+         * Bluetooth subsystem terminated the connection.
          *
          * @important shall not be used as a reason in disconnect().
          */
@@ -429,7 +428,7 @@ public:
         SCAN_POLICY_IGNORE_WHITELIST = 0,
 
         /**
-         * The whitelist is used to filter incomming advertising.
+         * The whitelist is used to filter incoming advertising.
          */
         SCAN_POLICY_FILTER_ALL_ADV = 1,
     };
@@ -453,7 +452,7 @@ public:
     };
 
     /**
-     * Representation of a Whitelist of addresses.
+     * Representation of a whitelist of addresses.
      */
     struct Whitelist_t {
         /**
@@ -462,7 +461,7 @@ public:
         BLEProtocol::Address_t *addresses;
 
         /**
-         * Number addresses in this whitelist
+         * Number addresses in this whitelist.
          */
         uint8_t size;
 
@@ -477,12 +476,12 @@ public:
      */
     struct GapState_t {
         /**
-         * If set the device is currently advertising.
+         * If set, the device is currently advertising.
          */
         unsigned advertising : 1;
 
         /**
-         * If set the device is connected to at least one other peer.
+         * If set, the device is connected to at least one other peer.
          */
         unsigned connected : 1;
     };
@@ -491,7 +490,7 @@ public:
      * Opaque value type representing a connection handle.
      *
      * It is used to identify to refer to a specific connection across Gap,
-     * GattClient and GattEvent API
+     * GattClient and GattEvent API.
      *
      * @note instances are generated by in the connection callback.
      */
@@ -506,7 +505,7 @@ public:
          * connection.
          *
          * It shall be less than or equal to maxConnectionInterval. This value,
-         * in units of 1.25ms, shall be included in the range [0x0006 : 0x0C80].
+         * in units of 1.25ms, is included in the range [0x0006 : 0x0C80].
          */
         uint16_t minConnectionInterval;
 
@@ -515,7 +514,7 @@ public:
          * connection.
          *
          * It shall be greater than or equal to minConnectionInterval. This
-         * value is in unit of 1.25ms and shall be in the range [0x0006 : 0x0C80].
+         * value is in unit of 1.25ms and is in the range [0x0006 : 0x0C80].
          */
         uint16_t maxConnectionInterval;
 
@@ -533,10 +532,10 @@ public:
          * Time after which the connection is considered lost if the device
          * didn't receive a packet from its peer.
          *
-         * It shall be larger than:
+         * It is larger than:
          *        (1 + slaveLatency) * maxConnectionInterval * 2
          *
-         * This value shall be in the range [0x000A : 0x0C80] and is in unit of
+         * This value is in the range [0x000A : 0x0C80] and is in unit of
          * 10 ms.
          *
          * @note maxConnectionInterval is in ms in the formulae above.
@@ -547,16 +546,16 @@ public:
     /**
      * Enumeration of GAP roles.
      *
-     * @note broadcaster and scanner roles are not expressed in BLE API.
+     * @note The BLE API does not express the broadcaster and scanner roles.
      *
-     * @important A device can fullfil different roles concurrently.
+     * @important A device can fulfill different roles concurrently.
      */
     enum Role_t {
         /**
          * Peripheral Role.
          *
          * The device can advertise and it can be connected by a central. It
-         * will act as a slave when connected.
+         * acts as a slave when connected.
          *
          * @note A peripheral is a broadcaster.
          */
@@ -566,7 +565,7 @@ public:
          * Central Role.
          *
          * The device can scan and initiate connection to peripherals. It
-         * will act as the master when a connection is established.
+         * acts as the master when a connection is established.
          *
          * @note A central is a scanner.
          */
@@ -576,12 +575,12 @@ public:
     /**
      * Representation of a scanned advertising packet.
      *
-     * Instances of this type will be passed to the callback registered in
-     * startScan()
+     * Instances of this type are passed to the callback registered in
+     * startScan().
      */
     struct AdvertisementCallbackParams_t {
         /**
-         * BLE address of the device which has advertised the packet.
+         * BLE address of the device that has advertised the packet.
          */
         BLEProtocol::AddressBytes_t peerAddr;
 
@@ -624,8 +623,8 @@ public:
      *
      * It contains all the information related to a newly established connection.
      *
-     * Instances of this structure are passed to handlers registered by
-     * Gap::onConnection() when a connection is established.
+     * Instances of this structure are passed to handlers that
+     * Gap::onConnection() registers when a connection is established.
      */
     struct ConnectionCallbackParams_t {
         /**
@@ -639,12 +638,12 @@ public:
         Role_t role;
 
         /**
-         * Type of the address used by the peer.
+         * Type of the address the peer uses.
          */
         BLEProtocol::AddressType_t peerAddrType;
 
         /**
-         * Address of the peer,
+         * Address of the peer.
          */
         BLEProtocol::AddressBytes_t peerAddr;
 
@@ -659,7 +658,7 @@ public:
         BLEProtocol::AddressBytes_t ownAddr;
 
         /**
-         * Connection parameters
+         * Connection parameters.
          */
         const ConnectionParams_t   *connectionParams;
 
@@ -675,7 +674,7 @@ public:
          * @param[in] connectionParamsIn Value to assign to connectionParams.
          *
          * @note Constructor is not meant to be called by user code.
-         * ConnectionCallbackParams_t are generated by BLE API vendor code.
+         * The BLE API vendor code generates ConnectionCallbackParams_t.
          */
         ConnectionCallbackParams_t(
             Handle_t handleIn,
@@ -701,15 +700,15 @@ public:
     /**
      * Disconnection event.
      *
-     * Instances of this event will be passed to callbacks registered with
+     * Instances of this event are passed to callbacks registered with
      * Gap::onDisconnection() when a connection ends.
      *
      * @note Constructor is not meant to be called by user code.
-     * ConnectionCallbackParams_t are generated by BLE API vendor code.
+     * The BLE API vendor code generates ConnectionCallbackParams_t.
      */
     struct DisconnectionCallbackParams_t {
         /**
-         * ID of the connection which has ended.
+         * ID of the connection that has ended.
          */
         Handle_t handle;
 
@@ -822,23 +821,23 @@ public:
         GapShutdownCallbackChain_t;
 
     /*
-     * The following functions are meant to be overridden in the platform-specific sub-class.
+     * The following functions are meant to be overridden in the platform-specific subclass.
      */
 public:
     /**
      * Set the device MAC address and type.
      *
-     * The address set will be used in subsequent GAP operations: scanning,
+     * The address set is used in subsequent GAP operations: scanning,
      * advertising and connection initiation.
      *
      * @param[in] type Type of the address to set.
-     * @param[in] address Value of the address to set. It shall be ordered in
-     * little endian. This parameter will not be considered if the address type
+     * @param[in] address Value of the address to set. It is ordered in
+     * little endian. This parameter is not considered if the address type
      * is RANDOM_PRIVATE_RESOLVABLE or RANDOM_PRIVATE_NON_RESOLVABLE. For those
-     * type of address, the address is generated by BLE API itself.
+     * types of address, the BLE API itself generates the address.
      *
      * @note Some implementation may refuse to set a new PUBLIC address.
-     * @note Random static address set shall not change.
+     * @note Random static address set does not change.
      *
      * @return BLE_ERROR_NONE on success.
      */
@@ -877,7 +876,7 @@ public:
     }
 
     /**
-     * Get the minimum advertising interval in milliseconds which can be used
+     * Get the minimum advertising interval in milliseconds, which can be used
      * for connectable advertising types.
      *
      * @return Minimum Advertising interval in milliseconds for connectable
@@ -891,11 +890,11 @@ public:
     }
 
     /**
-     * Get the minimum advertising interval in milliseconds for which can be
-     * used for non connectable advertising type.
+     * Get the minimum advertising interval in milliseconds, which can be
+     * used for nonconnectable advertising type.
      *
      * @return Minimum Advertising interval in milliseconds for scannable
-     * undirected and non-connectable undirected event types.
+     * undirected and nonconnectable undirected event types.
      */
     virtual uint16_t getMinNonConnectableAdvertisingInterval(void) const
     {
@@ -922,7 +921,7 @@ public:
      * @note The current advertising parameters remain in effect.
      *
      * @retval BLE_ERROR_NONE if the advertising procedure has been successfully
-     * stopped .
+     * stopped.
      */
     virtual ble_error_t stopAdvertising(void)
     {
@@ -948,8 +947,8 @@ public:
     /**
      * Initiate a connection to a peer.
      *
-     * Once the connection is established a ConnectionCallbackParams_t event is
-     * emitted to handlers which has been registered with onConnection().
+     * Once the connection is established, a ConnectionCallbackParams_t event is
+     * emitted to handlers that have been registered with onConnection().
      *
      * @param[in] peerAddr MAC address of the peer. It must be in LSB format.
      * @param[in] peerAddrType Address type of the peer.
@@ -957,7 +956,7 @@ public:
      * @param[in] scanParams Scan parameters used to find the peer.
      *
      * @return BLE_ERROR_NONE if connection establishment procedure is started
-     * successfully. The connectionCallChain (if set) will be invoked upon
+     * successfully. The connectionCallChain (if set) is invoked upon
      * a connection event.
      */
     virtual ble_error_t connect(
@@ -988,7 +987,7 @@ public:
      *      const ConnectionParams_t *connectionParams,
      *      const GapScanningParams *scanParams
      * )
-     * to maintain backward compatibility for change from Gap::AddressType_t to
+     * to maintain backward compatibility for changes from Gap::AddressType_t to
      * BLEProtocol::AddressType_t.
      */
     MBED_DEPRECATED("Gap::DeprecatedAddressType_t is deprecated, use BLEProtocol::AddressType_t instead")
@@ -1011,13 +1010,13 @@ public:
      * Initiate a disconnection procedure.
      *
      * Once the disconnection procedure has completed a
-     * DisconnectionCallbackParams_t event is emitted to handlers which has been
-     * registered with onDisconnection().
+     * DisconnectionCallbackParams_t, the event is emitted to handlers that
+     * have been registered with onDisconnection().
      *
      * @param[in] reason Reason of the disconnection transmitted to the peer.
      * @param[in] connectionHandle Handle of the connection to end.
      *
-     * @return  BLE_ERROR_NONE if the disconnection procedure was successfully
+     * @return  BLE_ERROR_NONE if the disconnection procedure successfully
      * started.
      */
     virtual ble_error_t disconnect(
@@ -1058,7 +1057,7 @@ public:
      * Returned the preferred connection parameters exposed in the GATT Generic
      * Access Service.
      *
-     * @param[out] params Structure where the parameters will be stored.
+     * @param[out] params Structure where the parameters are stored.
      *
      * @return BLE_ERROR_NONE if the parameters were successfully filled into
      * @p params.
@@ -1100,9 +1099,9 @@ public:
     /**
      * Update connection parameters of an existing connection.
      *
-     * In the central role this will initiate a Link Layer connection parameter
-     * update procedure. In the peripheral role, this will send the corresponding
-     * L2CAP request and wait for the central to perform the procedure.
+     * In the central role, this initiates a Link Layer connection parameter
+     * update procedure. In the peripheral role, this sends the corresponding
+     * L2CAP request and waits for the central to perform the procedure.
      *
      * @param[in] handle Connection Handle.
      * @param[in] params Pointer to desired connection parameters.
@@ -1144,21 +1143,21 @@ public:
      * Get the value of the device name characteristic in the Generic Access
      * Service.
      *
-     * To obtain the length of the deviceName value, this function shall be
+     * To obtain the length of the deviceName value, this function is
      * invoked with the @p deviceName parameter set to NULL.
      *
      * @param[out] deviceName Pointer to an empty buffer where the UTF-8
-     * <b>non NULL-terminated<b> string will be placed.
+     * <b>non NULL-terminated<b> string is placed.
      *
      * @param[in,out] lengthP Length of the @p deviceName buffer. If the device
-     * name is successfully copied then this value is replace by the length of
-     * the device name string (excluding the null terminator).
+     * name is successfully copied, then the length of the device name
+     * string (excluding the null terminator) replaces this value.
      *
      * @return BLE_ERROR_NONE if the device name was fetched correctly from the
      * underlying BLE stack.
      *
      * @note If the device name is longer than the size of the supplied buffer,
-     * length will return the complete device name length, and not the number of
+     * length returns the complete device name length and not the number of
      * bytes actually returned in deviceName. The application may use this
      * information to retry with a suitable buffer size.
      */
@@ -1249,7 +1248,7 @@ public:
      *
      * @return Maximum size of the whitelist.
      *
-     * @note If using mbed OS the size of the whitelist can be configured by
+     * @note If using Mbed OS, you can configure the size of the whitelist by
      * setting the YOTTA_CFG_WHITELIST_MAX_SIZE macro in your yotta config file.
      */
     virtual uint8_t getMaxWhitelistSize(void) const
@@ -1258,12 +1257,11 @@ public:
     }
 
     /**
-     * Get the internal whitelist to be used by the Link Layer when scanning,
+     * Get the Link Layer to use the internal whitelist when scanning,
      * advertising or initiating a connection depending on the filter policies.
      *
-     * @param[in,out] whitelist Define the whitelist instance which will be used
-     * to store the whitelist requested. In input memory shall be provisioned by
-     * the caller.
+     * @param[in,out] whitelist Define the whitelist instance which is used
+     * to store the whitelist requested. In input, the caller provisions memory.
      *
      * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
      * copied into the supplied reference.
@@ -1286,12 +1284,12 @@ public:
      * populated with the addresses in the given whitelist.
      *
      * @note The whitelist must not contain addresses of type @ref
-     * BLEProtocol::AddressType_t::RANDOM_PRIVATE_NON_RESOLVABLE, this will
-     * result in a @ref BLE_ERROR_INVALID_PARAM since the remote peer might
-     * change its private address at any time and it is not possible to resolve
+     * BLEProtocol::AddressType_t::RANDOM_PRIVATE_NON_RESOLVABLE. This
+     * results in a @ref BLE_ERROR_INVALID_PARAM because the remote peer might
+     * change its private address at any time, and it is not possible to resolve
      * it.
      *
-     * @note If the input whitelist is larger than @ref getMaxWhitelistSize()
+     * @note If the input whitelist is larger than @ref getMaxWhitelistSize(),
      * then @ref BLE_ERROR_PARAM_OUT_OF_RANGE is returned.
      */
     virtual ble_error_t setWhitelist(const Whitelist_t &whitelist)
@@ -1394,7 +1392,7 @@ protected:
     }
 
     /*
-     * APIs with non-virtual implementations.
+     * APIs with nonvirtual implementations.
      */
 public:
     /**
@@ -1429,8 +1427,8 @@ public:
      * This field must be set to 0 if connectionMode is equal
      * to ADV_CONNECTABLE_DIRECTED.
      *
-     * @note  Decreasing this value will allow central devices to detect a
-     * peripheral faster, at the expense of more power being used by the radio
+     * @note  Decreasing this value allows central devices to detect a
+     * peripheral faster, at the expense of the radio using more power
      * due to the higher data transmit rate.
      */
     void setAdvertisingInterval(uint16_t interval)
@@ -1595,7 +1593,7 @@ public:
      * @endcode
      *
      * @param[in] type Identity of the field being added.
-     * @param[in] data Buffer containing the value of the field..
+     * @param[in] data Buffer containing the value of the field.
      * @param[in] len Length of the data buffer.
      *
      * @return BLE_ERROR_NONE if the advertisement payload was updated based on
@@ -1642,7 +1640,7 @@ public:
      * @param[in] data data buffer containing the new value of the field.
      * @param[in] len Length of the data buffer.
      *
-     * @note If advertisements are enabled, then the update will take effect
+     * @note If advertisements are enabled, then the update takes effect
      * immediately.
      *
      * @return BLE_ERROR_NONE if the advertisement payload was updated based on
@@ -1735,29 +1733,29 @@ public:
     /**
      * Set the parameters used during a scan procedure.
      *
-     * @param[in] interval in ms between the start of two consecutive scan window.
-     * That value shall be greater or equal to the scan window value. The
+     * @param[in] interval in ms between the start of two consecutive scan windows.
+     * That value is greater or equal to the scan window value. The
      * maximum allowed value is 10.24ms.
      *
-     * @param[in] window Period in ms during which the scanner listen to
-     * advertising channels. That value shall be in the range 2.5ms to 10.24s.
+     * @param[in] window Period in ms during which the scanner listens to
+     * advertising channels. That value is in the range 2.5ms to 10.24s.
      *
      * @param[in] timeout Duration in seconds of the scan procedure if any. The
      * special value 0 disable specific duration of the scan procedure.
      *
-     * @param[in] activeScanning If set to true then the scanner sends scan
-     * requests to scanable or connectable advertiser. If set to false then the
+     * @param[in] activeScanning If set to true, then the scanner sends scan
+     * requests to a scannable or connectable advertiser. If set to false, then the
      * scanner does not send any request during the scan procedure.
      *
      * @return BLE_ERROR_NONE if the scan parameters were correctly set.
      *
      * @note The scanning window divided by the interval determines the duty
      * cycle for scanning. For example, if the interval is 100ms and the window
-     * is 10ms then the controller will scan for 10 percent of the time.
+     * is 10ms, then the controller scans for 10 percent of the time.
      *
-     * @note If the interval and the window are set to the same value then the
-     * device scan continuously during the scan procedure. The scanning
-     * frequency is changed at every interval.
+     * @note If the interval and the window are set to the same value, then the
+     * device scans continuously during the scan procedure. The scanning
+     * frequency changes at every interval.
      *
      * @note Once the scanning parameters have been configured, scanning can be
      * enabled by using startScan().
@@ -1785,7 +1783,7 @@ public:
      * Set the interval parameter used during scanning procedures.
      *
      * @param[in] interval Interval in ms between the start of two consecutive
-     * scan windows. That value shall be greater or equal to the scan window value.
+     * scan windows. That value is greater or equal to the scan window value.
      * The maximum allowed value is 10.24ms.
      *
      * @return BLE_ERROR_NONE if the scan interval was correctly set.
@@ -1798,13 +1796,13 @@ public:
     /**
      * Set the window parameter used during scanning procedures.
      *
-     * @param[in] window Period in ms during which the scanner listen to
-     * advertising channels. That value shall be in the range 2.5ms to 10.24s.
+     * @param[in] window Period in ms during which the scanner listens to
+     * advertising channels. That value is in the range 2.5ms to 10.24s.
      *
      * @return BLE_ERROR_NONE if the scan window was correctly set.
      *
-     * @note If scanning is already active, the updated value of scanWindow will
-     * be propagated to the underlying BLE stack.
+     * @note If scanning is already active, the updated value of scanWindow
+     * is propagated to the underlying BLE stack.
      */
     ble_error_t setScanWindow(uint16_t window)
     {
@@ -1825,12 +1823,12 @@ public:
      * Set the timeout parameter used during scanning procedures.
      *
      * @param[in] timeout Duration in seconds of the scan procedure if any. The
-     * special value 0 disable specific duration of the scan procedure.
+     * special value 0 disables specific duration of the scan procedure.
      *
      * @return BLE_ERROR_NONE if the scan timeout was correctly set.
      *
      * @note If scanning is already active, the updated value of scanTimeout
-     * will be propagated to the underlying BLE stack.
+     * is propagated to the underlying BLE stack.
      */
     ble_error_t setScanTimeout(uint16_t timeout)
     {
@@ -1850,13 +1848,13 @@ public:
     /**
      * Enable or disable active scanning.
      *
-     * @param[in] activeScanning If set to true then the scanner sends scan
-     * requests to scanable or connectable advertiser. If set to false then the
+     * @param[in] activeScanning If set to true, then the scanner sends scan
+     * requests to a scannable or connectable advertiser. If set to false then the
      * scanner does not send any request during the scan procedure.
      *
      * @return BLE_ERROR_NONE if active scanning was successfully set.
      *
-     * @note If scanning is already in progress, then active-scanning will be
+     * @note If scanning is already in progress, then active scanning is
      * enabled for the underlying BLE stack.
      */
     ble_error_t setActiveScanning(bool activeScanning)
@@ -1874,16 +1872,16 @@ public:
     /**
      * Start the scanning procedure.
      *
-     * Packets received during the scan procedure will be forwarded to the
+     * Packets received during the scan procedure are forwarded to the
      * scan packet handler passed as argument to this function.
      *
      * @param[in] callback Advertisement packet event handler. Upon reception
-     * of an advertising packet, the packet will be forwarded to @p callback.
+     * of an advertising packet, the packet is forwarded to @p callback.
      *
      * @return BLE_ERROR_NONE if the device successfully started the scan
      *         procedure.
      *
-     * @note The parameters used by the procedure are be defined by setScanParams().
+     * @note The parameters used by the procedure are defined by setScanParams().
      */
     ble_error_t startScan(
         void (*callback)(const AdvertisementCallbackParams_t *params)
@@ -1902,19 +1900,19 @@ public:
     /**
      * Start the scanning procedure.
      *
-     * Packets received during the scan procedure will be forwarded to the
+     * Packets received during the scan procedure are forwarded to the
      * scan packet handler passed as argument to this function.
      *
      * @param[in] object Instance used to invoke @p callbackMember.
      *
      * @param[in] callbackMember Advertisement packet event handler. Upon
-     * reception of an advertising packet, the packet will be forwarded to @p
+     * reception of an advertising packet, the packet is forwarded to @p
      * callback invoked from @p object.
      *
      * @return BLE_ERROR_NONE if the device successfully started the scan
      * procedure.
      *
-     * @note The parameters used by the procedure are be defined by setScanParams().
+     * @note The parameters used by the procedure are defined by setScanParams().
      */
     template<typename T>
     ble_error_t startScan(
@@ -1935,14 +1933,14 @@ public:
     /**
      * Enable radio-notification events.
      *
-     * Radio Notification is a feature that notify the application when the
+     * Radio Notification is a feature that notifies the application when the
      * radio is in use.
      *
      * The ACTIVE signal is sent before the radio event starts. The nACTIVE
-     * signal is sent at the end of the radio event. These signals can be used
-     * by the application programmer to synchronize application logic with radio
+     * signal is sent at the end of the radio event. The application programmer can
+     * use these signals to synchronize application logic with radio
      * activity. For example, the ACTIVE signal can be used to shut off external
-     * devices, to manage peak current drawn during periods when the radio is on,
+     * devices, to manage peak current drawn during periods when the radio is on
      * or to trigger sensor data collection for transmission in the Radio Event.
      *
      * @return BLE_ERROR_NONE on successful initialization, otherwise an error code.
@@ -1958,7 +1956,7 @@ private:
     /**
      * Set the advertising data and scan response in the vendor subsytem.
      *
-     * @param[in] advData Advertising data to set
+     * @param[in] advData Advertising data to set.
      * @param[in] scanResponse Scan response to set.
      *
      * @return BLE_ERROR_NONE if the advertising data was set successfully.
@@ -1975,7 +1973,7 @@ private:
      *
      * @param[in] Advertising parameters to use.
      *
-     * @return BLE_ERROR_NONE if the advertising procedure was successfully
+     * @return BLE_ERROR_NONE if the advertising procedure successfully
      * started.
      *
      * @note Must be implemented in vendor port.
@@ -2032,9 +2030,9 @@ public:
     /**
      * Get the callchain of registered timeout event handlers.
      *
-     * @note To register callbacks use onTimeout().add(callback).
+     * @note To register callbacks, use onTimeout().add(callback).
      *
-     * @note To unregister callbacks use onTimeout().detach(callback).
+     * @note To unregister callbacks, use onTimeout().detach(callback).
      *
      * @return A reference to the timeout event callbacks chain.
      */
@@ -2072,9 +2070,9 @@ public:
     /**
      * Get the callchain of registered connection event handlers.
      *
-     * @note To register callbacks use onConnection().add(callback).
+     * @note To register callbacks, use onConnection().add(callback).
      *
-     * @note To unregister callbacks use onConnection().detach(callback).
+     * @note To unregister callbacks, use onConnection().detach(callback).
      *
      * @return A reference to the connection event callbacks chain.
      */
@@ -2131,10 +2129,10 @@ public:
      * radio is in use.
      *
      * The ACTIVE signal is sent before the radio event starts. The nACTIVE
-     * signal is sent at the end of the radio event. These signals can be used
-     * by the application programmer to synchronize application logic with radio
+     * signal is sent at the end of the radio event. The application programmer can
+     * use these signals to synchronize application logic with radio
      * activity. For example, the ACTIVE signal can be used to shut off external
-     * devices, to manage peak current drawn during periods when the radio is on,
+     * devices, to manage peak current drawn during periods when the radio is on
      * or to trigger sensor data collection for transmission in the Radio Event.
      *
      * @param[in] callback Application handler to be invoked in response to a
@@ -2161,12 +2159,12 @@ public:
     /**
      * Register a Gap shutdown event handler.
      *
-     * The handler will be called when the Gap instance is about to shutdown.
+     * The handler is called when the Gap instance is about to shut down.
      * It is usually issued after a call to BLE::shutdown().
      *
      * @param[in] callback Shutdown event handler to register.
      *
-     * @note To unregister an shutdown event handler use
+     * @note To unregister a shutdown event handler, use
      * onShutdown().detach(callback).
      */
     void onShutdown(const GapShutdownCallback_t& callback)
@@ -2189,9 +2187,9 @@ public:
     /**
      * Access the callchain of shutdown event handler.
      *
-     * @note To register callbacks use onShutdown().add(callback).
+     * @note To register callbacks, use onShutdown().add(callback).
      *
-     * @note To unregister callbacks use onShutdown().detach(callback).
+     * @note To unregister callbacks, use onShutdown().detach(callback).
      *
      * @return A reference to the shutdown event callback chain.
      */
@@ -2204,24 +2202,24 @@ public:
     /**
      * Reset the Gap instance.
      *
-     * Reset process starts by notifying all registered shutdown event handler
-     * that the Gap instance is about to be shutdown then it clear all Gap state
-     * of the associated object then clean the state present in the vendor
+     * Reset process starts by notifying all registered shutdown event handlers
+     * that the Gap instance is about to be shut down. Then, it clears all Gap state
+     * of the associated object and then cleans the state present in the vendor
      * implementation.
      *
      * This function is meant to be overridden in the platform-specific
-     * sub-class. Nevertheless, the sub-class is only expected to reset its
-     * state and not the data held in Gap members. This shall be achieved by a
-     * call to Gap::reset() from the sub-class' reset() implementation.
+     * subclass. Nevertheless, the subclass only resets its
+     * state and not the data held in Gap members. This is achieved by a
+     * call to Gap::reset() from the subclass' reset() implementation.
      *
      * @return BLE_ERROR_NONE on success.
      *
-     * @note Currently a call to reset() does not reset the advertising and
+     * @note Currently, a call to reset() does not reset the advertising and
      * scan parameters to default values.
      */
     virtual ble_error_t reset(void)
     {
-        /* Notify that the instance is about to shutdown */
+        /* Notify that the instance is about to shut down */
         shutdownCallChain.call(this);
         shutdownCallChain.clear();
 
@@ -2280,9 +2278,9 @@ public:
      * @param[in] role Role of this BLE device in the connection.
      * @param[in] peerAddrType Address type of the connected peer.
      * @param[in] peerAddr Address of the connected peer.
-     * @param[in] ownAddrType Address type used by this device for this
+     * @param[in] ownAddrType Address type this device uses for this
      * connection.
-     * @param[in] ownAddr Address used by this device for this connection.
+     * @param[in] ownAddr Address this device uses for this connection.
      * @param[in] connectionParams Parameters of the connection.
      */
     void processConnectionEvent(
@@ -2339,9 +2337,9 @@ public:
      * @important This function is meant to be called from the BLE stack specific
      * implementation when a disconnection event occurs.
      *
-     * @param[in] peerAddr Address of the peer which has emitted the packet.
+     * @param[in] peerAddr Address of the peer that has emitted the packet.
      * @param[in] rssi Value of the RSSI measured for the received packet.
-     * @param[in] isScanReponse If true then the packet is a response to a scan
+     * @param[in] isScanReponse If true, then the packet is a response to a scan
      * request.
      * @param[in] type Advertising type of the packet.
      * @param[in] advertisingDataLen Length of the advertisement data received.
