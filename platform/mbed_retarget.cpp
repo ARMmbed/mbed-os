@@ -1022,6 +1022,53 @@ extern "C" void __cxa_guard_abort(int *guard_object_p)
 
 #endif
 
+#if defined(MBED_MEM_TRACING_ENABLED) && (defined(__CC_ARM) || defined(__ICCARM__))
+
+// If the memory tracing is enabled, the wrappers in mbed_alloc_wrappers.cpp
+// provide the implementation for these. Note: this needs to use the wrappers
+// instead of malloc()/free() as the caller address would point to wrappers,
+// not the caller of "new" or "delete".
+extern "C" void* malloc_wrapper(size_t size, const void* caller);
+extern "C" void free_wrapper(void *ptr, const void* caller);
+    
+void *operator new(std::size_t count)
+{
+    void *buffer = malloc_wrapper(count, MBED_CALLER_ADDR());
+    if (NULL == buffer) {
+        error("Operator new out of memory\r\n");
+    }
+    return buffer;
+}
+
+void *operator new[](std::size_t count)
+{
+    void *buffer = malloc_wrapper(count, MBED_CALLER_ADDR());
+    if (NULL == buffer) {
+        error("Operator new[] out of memory\r\n");
+    }
+    return buffer;
+}
+
+void *operator new(std::size_t count, const std::nothrow_t& tag)
+{
+    return malloc_wrapper(count, MBED_CALLER_ADDR());
+}
+
+void *operator new[](std::size_t count, const std::nothrow_t& tag)
+{
+    return malloc_wrapper(count, MBED_CALLER_ADDR());
+}
+
+void operator delete(void *ptr)
+{
+    free_wrapper(ptr, MBED_CALLER_ADDR());
+}
+void operator delete[](void *ptr)
+{
+    free_wrapper(ptr, MBED_CALLER_ADDR());
+}
+
+#else
 void *operator new(std::size_t count)
 {
     void *buffer = malloc(count);
@@ -1058,6 +1105,8 @@ void operator delete[](void *ptr)
 {
     free(ptr);
 }
+
+#endif
 
 /* @brief   standard c library clock() function.
  *
