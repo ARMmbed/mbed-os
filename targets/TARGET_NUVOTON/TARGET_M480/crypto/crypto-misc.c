@@ -125,13 +125,13 @@ void crypto_sha_release(void)
     crypto_submodule_release(&crypto_sha_avail);
 }
 
-bool crypto_dma_buff_compat(const void *buff, size_t buff_size)
+bool crypto_dma_buff_compat(const void *buff, size_t buff_size, size_t size_aligned_to)
 {
     uint32_t buff_ = (uint32_t) buff;
-    
-    return (((buff_ & 0x03) == 0) &&                    /* Word-aligned */
-        (buff_ >= 0x20000000) &&                        /* 0x20000000-0x2FFFFFFF */
-        ((buff_ + buff_size) <= 0x30000000));
+
+    return (((buff_ & 0x03) == 0) &&                                        /* Word-aligned buffer base address */
+        ((buff_size & (size_aligned_to - 1)) == 0) &&                       /* Crypto submodule dependent buffer size alignment */
+        (((buff_ >> 28) == 0x2) && (buff_size <= (0x30000000 - buff_))));   /* 0x20000000-0x2FFFFFFF */
 }
 
 static bool crypto_submodule_acquire(uint16_t *submodule_avail)

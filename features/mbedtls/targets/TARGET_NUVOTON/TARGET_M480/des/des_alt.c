@@ -315,12 +315,13 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
         return MBEDTLS_ERR_DES_INVALID_INPUT_LENGTH;
     }
 
-    /* DES DMA buffer requires to be:
-     *   1) Word-aligned
-     *   2) Located in 0x2xxxxxxx region
+    /* DES DMA buffer has the following requirements:
+     * (1) Word-aligned buffer base address
+     * (2) 8-byte aligned buffer size
+     * (3) Located in 0x20000000-0x2FFFFFFF region
      */
-    if ((! crypto_dma_buff_compat(dmabuf_in, MAXSIZE_DMABUF)) ||
-        (! crypto_dma_buff_compat(dmabuf_out, MAXSIZE_DMABUF))) {
+    if ((! crypto_dma_buff_compat(dmabuf_in, MAXSIZE_DMABUF, 8)) ||
+        (! crypto_dma_buff_compat(dmabuf_out, MAXSIZE_DMABUF, 8))) {
         error("Buffer for DES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
     

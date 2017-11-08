@@ -52,12 +52,12 @@ void crypto_des_release(void);
 bool crypto_sha_acquire(void);
 void crypto_sha_release(void);
 
-/* Check if buffer can be used for crypto DMA. It requires to be:
- *
- * 1) Word-aligned
- * 2) Located in 0x20000000-0x2FFFFFFF region
+/* Check if buffer can be used for crypto DMA. It has the following requirements:
+ * (1) Word-aligned buffer base address
+ * (2) Crypto submodule (AES, DES, SHA, etc.) dependent buffer size alignment. Must be 2 power.
+ * (3) Located in 0x20000000-0x2FFFFFFF region
  */
-bool crypto_dma_buff_compat(const void *buff, size_t buff_size);
+bool crypto_dma_buff_compat(const void *buff, size_t buff_size, size_t size_aligned_to);
 
 #ifdef __cplusplus
 }

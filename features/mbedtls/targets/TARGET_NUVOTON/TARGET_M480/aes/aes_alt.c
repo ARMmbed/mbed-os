@@ -134,12 +134,13 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
 
     MBED_ASSERT((dataSize % 16 == 0) && (dataSize <= MAX_DMA_CHAIN_SIZE));
     
-    /* AES DMA buffer requires to be:
-     *   1) Word-aligned
-     *   2) Located in 0x2xxxxxxx region
+    /* AES DMA buffer has the following requirements:
+     * (1) Word-aligned buffer base address
+     * (2) 16-byte aligned buffer size
+     * (3) Located in 0x20000000-0x2FFFFFFF region
      */
-    if ((! crypto_dma_buff_compat(au8OutputData, MAX_DMA_CHAIN_SIZE)) ||
-        (! crypto_dma_buff_compat(au8InputData, MAX_DMA_CHAIN_SIZE))) {
+    if ((! crypto_dma_buff_compat(au8OutputData, MAX_DMA_CHAIN_SIZE, 16)) ||
+        (! crypto_dma_buff_compat(au8InputData, MAX_DMA_CHAIN_SIZE, 16))) {
         error("Buffer for AES alter. DMA requires to be word-aligned and located in 0x20000000-0x2FFFFFFF region.");
     }
 
@@ -160,14 +161,14 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     AES_SetInitVect(0, ctx->iv);
     AES_SetKey(0, ctx->keys, ctx->keySize);
     /* AES DMA buffer requirements same as above */
-    if (! crypto_dma_buff_compat(input, dataSize)) {
+    if (! crypto_dma_buff_compat(input, dataSize, 16)) {
         memcpy(au8InputData, input, dataSize);
         pIn = au8InputData;
     } else {
         pIn = input;
     }
     /* AES DMA buffer requirements same as above */
-    if (! crypto_dma_buff_compat(output, dataSize)) {
+    if (! crypto_dma_buff_compat(output, dataSize, 16)) {
         pOut = au8OutputData;
     } else {
         pOut = output;
