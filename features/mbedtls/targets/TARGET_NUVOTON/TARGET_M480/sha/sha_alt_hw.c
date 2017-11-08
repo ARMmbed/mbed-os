@@ -50,6 +50,8 @@ void mbedtls_sha1_hw_free(crypto_sha_context *ctx)
         return;
     }
 
+    CRPT->HMAC_CTL |= CRPT_HMAC_CTL_STOP_Msk;
+
     /* Uninit crypto module */
     crypto_uninit();
     crypto_zeroize(ctx, sizeof(crypto_sha_context));
@@ -91,8 +93,6 @@ void mbedtls_sha1_hw_finish(crypto_sha_context *ctx, unsigned char output[20])
         crypto_sha_update_nobuf(ctx, ctx->buffer, ctx->buffer_left, 1);
         ctx->buffer_left = 0;
         crypto_sha_getinternstate(output, 20);
-
-        CRPT->HMAC_CTL |= CRPT_HMAC_CTL_STOP_Msk;
     } else {
         mbedtls_sha1_sw_context ctx_sw;
 
@@ -101,6 +101,8 @@ void mbedtls_sha1_hw_finish(crypto_sha_context *ctx, unsigned char output[20])
         mbedtls_sha1_sw_finish(&ctx_sw, output);
         mbedtls_sha1_sw_free(&ctx_sw);
     }
+    
+    CRPT->HMAC_CTL |= CRPT_HMAC_CTL_STOP_Msk;
 }
 
 void mbedtls_sha1_hw_process(crypto_sha_context *ctx, const unsigned char data[64])
@@ -126,6 +128,8 @@ void mbedtls_sha256_hw_free(crypto_sha_context *ctx)
     if (ctx == NULL) {
         return;
     }
+
+    CRPT->HMAC_CTL |= CRPT_HMAC_CTL_STOP_Msk;
 
     /* Uninit crypto module */
     crypto_uninit();
@@ -169,8 +173,6 @@ void mbedtls_sha256_hw_finish(crypto_sha_context *ctx, unsigned char output[32])
         crypto_sha_update_nobuf(ctx, ctx->buffer, ctx->buffer_left, 1);
         ctx->buffer_left = 0;
         crypto_sha_getinternstate(output, ctx->is224_384 ? 28 : 32);
-
-        CRPT->HMAC_CTL |= CRPT_HMAC_CTL_STOP_Msk;
     } else {
         mbedtls_sha256_sw_context ctx_sw;
 
@@ -179,6 +181,8 @@ void mbedtls_sha256_hw_finish(crypto_sha_context *ctx, unsigned char output[32])
         mbedtls_sha256_sw_finish(&ctx_sw, output);
         mbedtls_sha256_sw_free(&ctx_sw);
     }
+    
+    CRPT->HMAC_CTL |= CRPT_HMAC_CTL_STOP_Msk;
 }
 
 void mbedtls_sha256_hw_process(crypto_sha_context *ctx, const unsigned char data[64])
@@ -206,6 +210,8 @@ void mbedtls_sha512_hw_free(crypto_sha_context *ctx)
         return;
     }
 
+    CRPT->HMAC_CTL |= CRPT_HMAC_CTL_STOP_Msk;
+    
     /* Uninit crypto module */
     crypto_uninit();
     crypto_zeroize(ctx, sizeof(crypto_sha_context));
@@ -248,8 +254,6 @@ void mbedtls_sha512_hw_finish(crypto_sha_context *ctx, unsigned char output[64])
         crypto_sha_update_nobuf(ctx, ctx->buffer, ctx->buffer_left, 1);
         ctx->buffer_left = 0;
         crypto_sha_getinternstate(output, ctx->is224_384 ? 48 : 64);
-
-        CRPT->HMAC_CTL |= CRPT_HMAC_CTL_STOP_Msk;
     } else {
         mbedtls_sha512_sw_context ctx_sw;
 
@@ -258,6 +262,8 @@ void mbedtls_sha512_hw_finish(crypto_sha_context *ctx, unsigned char output[64])
         mbedtls_sha512_sw_finish(&ctx_sw, output);
         mbedtls_sha512_sw_free(&ctx_sw);
     }
+    
+    CRPT->HMAC_CTL |= CRPT_HMAC_CTL_STOP_Msk;
 }
 
 void mbedtls_sha512_hw_process(crypto_sha_context *ctx, const unsigned char data[128])
