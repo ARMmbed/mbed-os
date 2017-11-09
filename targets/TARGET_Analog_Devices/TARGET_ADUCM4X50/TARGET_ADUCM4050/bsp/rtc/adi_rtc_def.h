@@ -1,7 +1,7 @@
 /*!
  *****************************************************************************
  * @file:    adi_rtc_def.h
- * @brief:   RTC def file 
+ * @brief:   RTC def file
  * @version: $Revision: 33205 $
  * @date:    $Date: 2016-01-11 05:46:07 -0500 (Mon, 11 Jan 2016) $
  *-----------------------------------------------------------------------------
@@ -46,10 +46,12 @@
  *****************************************************************************/
 
 #ifndef ADI_RTC_DEF_H__
-#define ADI_RTC_DEF_H__ 
+#define ADI_RTC_DEF_H__
+
+#include <drivers/rtc/adi_rtc.h>
 
 /*! \cond PRIVATE */
-#define ADI_RTC_NUM_INSTANCE 2u 
+#define ADI_RTC_NUM_INSTANCE 2u
 
 
 
@@ -100,23 +102,23 @@
 #else
     /* pause on pending writes to CR to avoid data loss */
 #define  PEND_BEFORE_WRITE(reg,mask)
-#define  SYNC_AFTER_WRITE(reg,mask)        
+#define  SYNC_AFTER_WRITE(reg,mask)
 #endif
 
-/* 
+/*
  * The following is used for static configuration
  */
 typedef struct
 {
-    uint16_t    CR0;             /*!< CR0 16 bit control register-0 value */  
+    uint16_t    CR0;             /*!< CR0 16 bit control register-0 value */
     uint16_t    CR1;             /*!< CR1 16 bit control register-1 value */
     uint16_t    CNT0;            /*!< CNT0 16 bit count register value */
     uint16_t    CNT1;            /*!< CNT1 16 bit count register value */
-   
+
     uint16_t    ALM0;            /*!< ALM0 16 bit integer part of alarm value */
     uint16_t    ALM1;            /*!< ALM1 16 bit integer part of alarm value */
     uint16_t    ALM2;            /*!< ALM2 16 bit integer part of alarm value */
-    uint16_t    TRIM;              /*!< 16 bit trim register value */    
+    uint16_t    TRIM;              /*!< 16 bit trim register value */
     uint16_t    CR2IC;           /*!< CR2IC 16 bit control (which controls the input capture ) register-2 value */
     uint16_t    CR3SS;           /*!< CR3SS 16 bit control ( Controls enabling sensor strobe /IRQ etc )register-3 value */
     uint16_t    CR4SS;           /*!< CR4SS 16 bit control ( controls Auto reload  and mask for sensor strobe  ) register-4 value */
@@ -134,7 +136,7 @@ typedef struct
 typedef struct _ADI_RTC_DEVICE_INFO
 {
     volatile ADI_RTC_TypeDef  *pRTCRegs;   /* Base address of the  SPORT registers */
-    const IRQn_Type            eIRQn;      /* IRQn */   
+    const IRQn_Type            eIRQn;      /* IRQn */
     ADI_RTC_HANDLE             hDevice;    /* RTC handle */
 }ADI_RTC_DEVICE_INFO;
 
@@ -146,10 +148,10 @@ typedef struct _ADI_RTC_DEVICE
     ADI_CALLBACK              pfCallback;  /*  Function pointer for callback function. */
 
     void                     *pCBParam;    /*  Parameter to callback function. */
-    IRQn_Type                eIRQn;        /* IRQn */       
+    IRQn_Type                eIRQn;        /* IRQn */
     uint32_t  cbWatch;
     ADI_RTC_DEVICE_INFO     *pDeviceInfo;  /*  Parameter to callback function. */
-    
+
 } ADI_RTC_DEVICE;
 
 
@@ -158,6 +160,6 @@ static void rtc_init(ADI_RTC_DEVICE *pDevice,ADI_RTC_CONFIG *pConfig);
 #ifdef ADI_DEBUG
 static ADI_RTC_RESULT ValidateHandle( ADI_RTC_DEVICE *pInDevice);
 #endif
-/*! \endcond */    
+/*! \endcond */
 #endif /* ADI_RTC_DEF_H__ */
 

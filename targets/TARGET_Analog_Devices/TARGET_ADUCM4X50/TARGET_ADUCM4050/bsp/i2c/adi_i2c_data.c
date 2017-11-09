@@ -49,9 +49,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
  /*! \cond PRIVATE */
 
+#include <adi_processor.h>
 #include "adi_i2c_def.h"
 #include "adi_i2c_config.h"
-
 
 /* Stores the information about the specific device */
 static ADI_I2C_DEVICE_INFO i2c_device_info [ADI_I2C_NUM_INSTANCES] =
