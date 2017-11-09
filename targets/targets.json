@@ -711,6 +711,12 @@
         "release_versions": ["2", "5"],
         "device_name" : "LPC54618J512ET180"
     },
+    "FF_LPC546XX": {
+        "inherits": ["LPC546XX"],
+        "extra_labels_remove" : ["LPCXpresso"],
+        "supported_form_factors": [""],
+        "detect_code": ["8081"]
+    },
     "NUCLEO_F030R8": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
