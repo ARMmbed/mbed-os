@@ -78,7 +78,7 @@ uint32_t SysTimer::get_tick()
 
 uint32_t SysTimer::update_tick()
 {
-    uint64_t new_tick = ticker_read_us(_ticker_data) * OS_TICK_FREQ / 1000000;
+    uint64_t new_tick = (ticker_read_us(_ticker_data) - _start_time) * OS_TICK_FREQ / 1000000;
     if (new_tick > _tick) {
         // Don't update to the current tick. Instead, update to the
         // previous tick and let the SysTick handler increment it
