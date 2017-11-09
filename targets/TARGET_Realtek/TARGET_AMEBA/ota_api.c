@@ -19,27 +19,10 @@
 #include "mbed_wait_api.h"
 
 #include "rtl8195a.h"
+#include "ota_api.h"
 #include "flash_ext.h"
 
-#define FLASH_TOP           0x200000
-#define FLASH_SECTOR_SIZE   0x1000
-#define FLASH_SECTOR_MASK   ~(FLASH_SECTOR_SIZE - 1)
-#define OTA_REGION1         0x0b000
-#define OTA_REGION2         0xc0000
-#define TAG_OFS             0xc
-#define VER_OFS             0x10
-
-#define TAG_DOWNLOAD        0x81950001
-#define TAG_VERIFIED        0x81950003
-
 static flash_t flash_obj;
-
-typedef struct imginfo_s {
-    uint32_t base;
-    uint32_t tag;
-    uint64_t ver;
-} imginfo_t;
-
 
 void OTA_GetImageInfo(imginfo_t *info)
 {
