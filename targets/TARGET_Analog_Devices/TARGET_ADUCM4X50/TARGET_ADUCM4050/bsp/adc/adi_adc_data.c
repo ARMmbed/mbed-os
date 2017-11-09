@@ -3,6 +3,7 @@
 
 #include <drivers/adc/adi_adc.h>
 #include <drivers/dma/adi_dma.h>
+#include <adi_processor.h>
 #include "adi_adc_def.h"
 
 /*! \cond PRIVATE */

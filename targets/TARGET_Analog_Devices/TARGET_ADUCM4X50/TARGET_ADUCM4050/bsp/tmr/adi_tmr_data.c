@@ -46,18 +46,17 @@ POSSIBILITY OF SUCH DAMAGE.
 #ifndef ADI_TMR_DATA
 #define ADI_TMR_DATA
 
-
+#include <adi_processor.h>
 #include <stdlib.h>
 #include <adi_tmr_config.h>
 #include <drivers/tmr/adi_tmr.h>
 
-
 /* CTL register static configuration */
-static uint16_t aTimerCtlConfig[] = 
+static uint16_t aTimerCtlConfig[] =
 {
     (TMR0_CFG_COUNT_UP              << BITP_TMR_RGB_CTL_UP)      |
     (TMR0_CFG_MODE                  << BITP_TMR_RGB_CTL_MODE)    |
-    (TMR0_CFG_PRESCALE_FACTOR       << BITP_TMR_RGB_CTL_PRE)     |       
+    (TMR0_CFG_PRESCALE_FACTOR       << BITP_TMR_RGB_CTL_PRE)     |
     (TMR0_CFG_CLOCK_SOURCE          << BITP_TMR_RGB_CTL_CLK)     |
     (TMR0_CFG_ENABLE_RELOADING      << BITP_TMR_RGB_CTL_RLD)     |
     (TMR0_CFG_ENABLE_SYNC_BYPASS    << BITP_TMR_RGB_CTL_SYNCBYP) |
@@ -66,7 +65,7 @@ static uint16_t aTimerCtlConfig[] =
 
     (TMR1_CFG_COUNT_UP              << BITP_TMR_RGB_CTL_UP)      |
     (TMR1_CFG_MODE                  << BITP_TMR_RGB_CTL_MODE)    |
-    (TMR1_CFG_PRESCALE_FACTOR       << BITP_TMR_RGB_CTL_PRE)     |       
+    (TMR1_CFG_PRESCALE_FACTOR       << BITP_TMR_RGB_CTL_PRE)     |
     (TMR1_CFG_CLOCK_SOURCE          << BITP_TMR_RGB_CTL_CLK)     |
     (TMR1_CFG_ENABLE_RELOADING      << BITP_TMR_RGB_CTL_RLD)     |
     (TMR1_CFG_ENABLE_SYNC_BYPASS    << BITP_TMR_RGB_CTL_SYNCBYP) |
@@ -75,7 +74,7 @@ static uint16_t aTimerCtlConfig[] =
 
     (TMR2_CFG_COUNT_UP              << BITP_TMR_RGB_CTL_UP)      |
     (TMR2_CFG_MODE                  << BITP_TMR_RGB_CTL_MODE)    |
-    (TMR2_CFG_PRESCALE_FACTOR       << BITP_TMR_RGB_CTL_PRE)     |       
+    (TMR2_CFG_PRESCALE_FACTOR       << BITP_TMR_RGB_CTL_PRE)     |
     (TMR2_CFG_CLOCK_SOURCE          << BITP_TMR_RGB_CTL_CLK)     |
     (TMR2_CFG_ENABLE_RELOADING      << BITP_TMR_RGB_CTL_RLD)     |
     (TMR2_CFG_ENABLE_SYNC_BYPASS    << BITP_TMR_RGB_CTL_SYNCBYP) |
@@ -84,16 +83,16 @@ static uint16_t aTimerCtlConfig[] =
 
     (TMR3_CFG_COUNT_UP              << BITP_TMR_RGB_CTL_UP)      |
     (TMR3_CFG_MODE                  << BITP_TMR_RGB_CTL_MODE)    |
-    (TMR3_CFG_PRESCALE_FACTOR       << BITP_TMR_RGB_CTL_PRE)     |       
+    (TMR3_CFG_PRESCALE_FACTOR       << BITP_TMR_RGB_CTL_PRE)     |
     (TMR3_CFG_CLOCK_SOURCE          << BITP_TMR_RGB_CTL_CLK)     |
     (TMR3_CFG_ENABLE_RELOADING      << BITP_TMR_RGB_CTL_RLD)     |
     (TMR3_CFG_ENABLE_SYNC_BYPASS    << BITP_TMR_RGB_CTL_SYNCBYP) |
     (TMR3_CFG_ENABLE_PRESCALE_RESET << BITP_TMR_RGB_CTL_RSTEN)   |
-    (TMR3_CFG_ENABLE_EVENT_CAPTURE  << BITP_TMR_RGB_CTL_EVTEN),      
+    (TMR3_CFG_ENABLE_EVENT_CAPTURE  << BITP_TMR_RGB_CTL_EVTEN),
 };
 
 /* LOAD register static configuration */
-static uint16_t aTimerLoadConfig[] = 
+static uint16_t aTimerLoadConfig[] =
 {
     TMR0_CFG_LOAD_VALUE,
     TMR1_CFG_LOAD_VALUE,
@@ -102,7 +101,7 @@ static uint16_t aTimerLoadConfig[] =
 };
 
 /* Asynchronous LOAD static configuraton */
-static uint16_t aTimerALoadConfig[] = 
+static uint16_t aTimerALoadConfig[] =
 {
     TMR0_CFG_ASYNC_LOAD_VALUE,
     TMR1_CFG_ASYNC_LOAD_VALUE,
@@ -135,10 +134,10 @@ static uint16_t aTimerPwmCtlConfig[] =
   (TMR3_CFG_PWM0_MATCH_VALUE << BITP_TMR_RGB_PWM0CTL_MATCH),
 
   (TMR3_CFG_PWM1_IDLE_STATE  << BITP_TMR_RGB_PWM1CTL_IDLESTATE) |
-  (TMR3_CFG_PWM1_MATCH_VALUE << BITP_TMR_RGB_PWM1CTL_MATCH),        
+  (TMR3_CFG_PWM1_MATCH_VALUE << BITP_TMR_RGB_PWM1CTL_MATCH),
 
   (TMR3_CFG_PWM2_IDLE_STATE  << BITP_TMR_RGB_PWM2CTL_IDLESTATE) |
-  (TMR3_CFG_PWM2_MATCH_VALUE << BITP_TMR_RGB_PWM2CTL_MATCH),     
+  (TMR3_CFG_PWM2_MATCH_VALUE << BITP_TMR_RGB_PWM2CTL_MATCH),
 };
 
 /* PWM MATCH static configuration */
