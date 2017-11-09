@@ -92,10 +92,10 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
         output += 32;
     }     
     if( length > *output_length ) {
-        trng_zeroize(tmpBuff, sizeof(tmpBuff));
         trng_get(tmpBuff);
         memcpy(output, &tmpBuff, (length - *output_length));
         *output_length = length;
+        trng_zeroize(tmpBuff, sizeof(tmpBuff));
     }
 
     return 0;
