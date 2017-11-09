@@ -2870,6 +2870,7 @@
     },
 	"TB_SENSE_12": {
         "inherits": ["EFR32MG12P332F1024GL125"],
+        "device_name": "EFR32MG12P332F1024GL125",
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "forced_reset_timeout": 5,
         "config": {
