@@ -186,14 +186,14 @@ static void config_pio_channel(uint8_t channel)
         pio_channel_regbase = (struct pio_s *)(PIO_CONTROL_BASE + 0x220);
     }          
 
-    pio_channel_regbase->pio_pdr_0 |= (1 << channel_offset_in_reg);     //pio disable 
+    pio_channel_regbase->pio_pdr_0 = (1 << channel_offset_in_reg);     //pio disable
     pio_channel_regbase->pio_asr_0 |= (1 << channel_offset_in_reg);     //mux0 enable
-    pio_channel_regbase->pio_percpdr_0 |= (1 << channel_offset_in_reg); //periph pullup/down disable 
-    pio_channel_regbase->pio_odr_0  |= (1 << channel_offset_in_reg);    //pad config: output driver disable
-    pio_channel_regbase->pio_iner_0 |= (1 << channel_offset_in_reg);    //pad config: receiver enable
-    pio_channel_regbase->pio_pldr_0 |= (1 << channel_offset_in_reg);    //pad config: pulldown disabled
-    pio_channel_regbase->pio_phdr_0 |= (1 << channel_offset_in_reg);    //pad config: pullup disabled
-    pio_channel_regbase->pio_per_0  |= (1 << channel_offset_in_reg);    //pio enable
+    pio_channel_regbase->pio_percpdr_0 = (1 << channel_offset_in_reg); //periph pullup/down disable
+    pio_channel_regbase->pio_odr_0  = (1 << channel_offset_in_reg);    //pad config: output driver disable
+    pio_channel_regbase->pio_iner_0 = (1 << channel_offset_in_reg);    //pad config: receiver enable
+    pio_channel_regbase->pio_pldr_0 = (1 << channel_offset_in_reg);    //pad config: pulldown disabled
+    pio_channel_regbase->pio_phdr_0 = (1 << channel_offset_in_reg);    //pad config: pullup disabled
+    pio_channel_regbase->pio_per_0  = (1 << channel_offset_in_reg);    //pio enable
     
 }
 static void disable_pio_channel(uint8_t channel)
@@ -209,7 +209,7 @@ static void disable_pio_channel(uint8_t channel)
     } else {          
         pio_channel_regbase = (struct pio_s *)(PIO_CONTROL_BASE + 0x220);
     }          
-    pio_channel_regbase->pio_pdr_0 |= (1 << channel_offset_in_reg);     //pio disable     
+    pio_channel_regbase->pio_pdr_0 = (1 << channel_offset_in_reg);     //pio disable
 }
 /* ----------------------------------------------------------------
  * MBED API CALLS: SETUP FUNCTIONS
@@ -343,8 +343,12 @@ void serial_baud(serial_t *obj, int baudrate)
     //MBED_ASSERT(!((baudrate_divider_value > DRIVER_BIT_MASK(UART_BR_BAUDRATE_SIZE)) || (nco_phase_acc_value > DRIVER_BIT_MASK(UART_NCO_NCO_PHASE_SIZE))));
 
     /* disable baudrate generator (uart control clear reg) */
-    //obj->reg_base->crc |= DRIVER_BITFIELD_MASK(UART_CRC_BR_EN); //it clears whole register to 0x00, probably a bug in UART
+    obj->reg_base->crc = DRIVER_BITFIELD_MASK(UART_CRC_BR_EN);
         
+	/* disable DMA as we are using FIFO */
+    obj->reg_base->crc = DRIVER_BITFIELD_MASK(UART_CRC_CR_RXDMA_EN);
+    obj->reg_base->crc = DRIVER_BITFIELD_MASK(UART_CRC_CR_TXDMA_EN);
+	
     /* set baudrate divider value */
 	baudrate_divider_value--; /* the actual register value should minus 1 */
     obj->reg_base->br = DRIVER_BITFIELD_SET(obj->reg_base->br, UART_BR_BAUDRATE, baudrate_divider_value);
@@ -353,7 +357,7 @@ void serial_baud(serial_t *obj, int baudrate)
     obj->reg_base->nco = DRIVER_BITFIELD_SET(obj->reg_base->nco, UART_NCO_NCO_PHASE, nco_phase_acc_value);
     
     /* enable baudrate generator (uart control set reg) */
-    obj->reg_base->crs |= DRIVER_BITFIELD_MASK(UART_CRC_BR_EN);
+    obj->reg_base->crs = DRIVER_BITFIELD_MASK(UART_CRC_BR_EN);
 }
 
 void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_bits)
@@ -366,7 +370,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     uint32_t register_value=0;
     
     /* disable uart */ 
-    register_value = (/*DRIVER_BITFIELD_MASK(UART_CRC_BR_EN) |*/ DRIVER_BITFIELD_MASK(UART_CRC_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRC_TX_EN));
+    register_value = (DRIVER_BITFIELD_MASK(UART_CRC_BR_EN) | DRIVER_BITFIELD_MASK(UART_CRC_RX_EN) | DRIVER_BITFIELD_MASK(UART_CRC_TX_EN));
     obj->reg_base->crc = register_value;
     
     /* read the existing value, change what is required and write once. This is done so that register access is only once not again and again */
