@@ -36,10 +36,10 @@ Semaphore::Semaphore(int32_t count, uint16_t max_count) {
 
 void Semaphore::constructor(int32_t count, uint16_t max_count) {
     memset(&_obj_mem, 0, sizeof(_obj_mem));
-    memset(&_attr, 0, sizeof(_attr));
-    _attr.cb_mem = &_obj_mem;
-    _attr.cb_size = sizeof(_obj_mem);
-    _id = osSemaphoreNew(max_count, count, &_attr);
+    osSemaphoreAttr_t attr = { 0 };
+    attr.cb_mem = &_obj_mem;
+    attr.cb_size = sizeof(_obj_mem);
+    _id = osSemaphoreNew(max_count, count, &attr);
     MBED_ASSERT(_id != NULL);
 }
 

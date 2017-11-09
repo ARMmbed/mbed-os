@@ -51,12 +51,12 @@ public:
     /** Create and initialize a message Queue. */
     Queue() {
         memset(&_obj_mem, 0, sizeof(_obj_mem));
-        memset(&_attr, 0, sizeof(_attr));
-        _attr.mq_mem = _queue_mem;
-        _attr.mq_size = sizeof(_queue_mem);
-        _attr.cb_mem = &_obj_mem;
-        _attr.cb_size = sizeof(_obj_mem);
-        _id = osMessageQueueNew(queue_sz, sizeof(T*), &_attr);
+        osMessageQueueAttr_t attr = { 0 };
+        attr.mq_mem = _queue_mem;
+        attr.mq_size = sizeof(_queue_mem);
+        attr.cb_mem = &_obj_mem;
+        attr.cb_size = sizeof(_obj_mem);
+        _id = osMessageQueueNew(queue_sz, sizeof(T*), &attr);
         MBED_ASSERT(_id);
     }
 
@@ -131,7 +131,6 @@ public:
 
 private:
     osMessageQueueId_t            _id;
-    osMessageQueueAttr_t          _attr;
     char                          _queue_mem[queue_sz * (sizeof(T*) + sizeof(mbed_rtos_storage_message_t))];
     mbed_rtos_storage_msg_queue_t _obj_mem;
 };
