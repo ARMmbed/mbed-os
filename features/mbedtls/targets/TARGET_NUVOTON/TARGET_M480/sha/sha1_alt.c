@@ -51,6 +51,21 @@ void mbedtls_sha1_free(mbedtls_sha1_context *ctx)
 void mbedtls_sha1_clone(mbedtls_sha1_context *dst,
                         const mbedtls_sha1_context *src)
 {
+    // If dst is H/W context, we need to change it to S/W context first before cloning to.
+    while (dst->ishw) {
+        mbedtls_sha1_free(dst);
+        // We just want S/W context, so we lock SHA H/W resource if it is available.
+        if (crypto_sha_acquire()) {
+            mbedtls_sha1_init(dst);
+            crypto_sha_release();
+        }
+        else {
+            mbedtls_sha1_init(dst);
+        }
+        
+        // We still have potential to get H/W context due to race condition. Retry if need be.
+    }
+
     if (src->ishw) {
         // Clone S/W ctx from H/W ctx
         dst->ishw = 0;
