@@ -66,6 +66,8 @@ void fncs36510_deepsleep(void)
     __WFI();
     __NOP();
     __NOP();
+    __NOP();
+    __NOP();
 
     /** Wait for the external 32MHz to be power-ed up & running
      * Re-power down the 32MHz internal osc
