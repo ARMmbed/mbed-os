@@ -27,29 +27,29 @@
  *
  * The battery service exposes the charge level of the battery of the device.
  * This information is exposed as a percentage from 0% to 100%; a value of 0%
- * represents a fully discharged battery while a value of 100% represents a
+ * represents a fully discharged battery, and a value of 100% represents a
  * fully charged battery.
  *
- * Clients can read the current charge level and subscribe for server initiated
- * updates of the charge level. The server delivers these updates to subscribed
+ * Clients can read the current charge level and subscribe to server initiated
+ * updates of the charge level. The server delivers these updates to the subscribed
  * client in a notification packet.
  *
- * The subscription mechanism is usefull to save power; it avoids unecessary data
- * traffic between the client and the server which may be induced by polling the
+ * The subscription mechanism is useful to save power; it avoids unecessary data
+ * traffic between the client and the server, which may be induced by polling the
  * battery level characteristic value.
  *
  * @par usage
  *
- * When this class is instantiated it adds a Battery service in the GattServer.
+ * When this class is instantiated, it adds a battery service in the GattServer.
  *
  * The application code can use the function updateBatteryLevel() to update the
- * charge level exposed by the service and notify subscribed client that the
+ * charge level that the service exposes and to notify the subscribed client that the
  * value changed.
  *
- * @note Specification of the Battery service can be found here:
+ * @note You can find specification of the battery service here:
  * https://www.bluetooth.com/specifications/gatt
  *
- * @important Multiple instances of this Battery service are not supported.
+ * @important Multiple instances of this battery service are not supported.
  */
 class BatteryService {
 public:
@@ -86,11 +86,11 @@ public:
     }
 
     /**
-     * Update the battery charge level exposed by the service.
+     * Update the battery charge level that the service exposes.
      *
-     * The server will send a notification of the new value to clients that have
-     * subscribed to the battery level characteristic updates and clients
-     * reading the charge level after the update will obtain the updated value.
+     * The server sends a notification of the new value to clients that have
+     * subscribed to the battery level characteristic updates, and clients
+     * reading the charge level after the update obtain the updated value.
      *
      * @param newLevel Charge level of the battery. It is a percentage of the
      * remaining charge between 0% and 100%.
@@ -113,7 +113,7 @@ protected:
     /**
      * Reference to the underlying BLE instance that this object is attached to.
      *
-     * The services and characteristics will be registered in the GattServer of
+     * The services and characteristics are registered in the GattServer of
      * this BLE instance.
      */
     BLE &ble;
@@ -124,7 +124,7 @@ protected:
     uint8_t batteryLevel;
 
     /**
-     * The GATT characteristic which expose the charge level.
+     * The GATT characteristic, which exposes the charge level.
      */
     ReadOnlyGattCharacteristic<uint8_t> batteryLevelCharacteristic;
 };
