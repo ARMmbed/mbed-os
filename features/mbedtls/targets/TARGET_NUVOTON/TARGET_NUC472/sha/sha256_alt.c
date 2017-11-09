@@ -23,15 +23,26 @@
 #include "nu_bitutil.h"
 #include "string.h"
 
-void mbedtls_sha256_init(mbedtls_sha256_context *ctx)
+/* Choose SHA S/W or H/W context and initialize it
+ * 
+ * try_hw:
+ *   0: Initialize S/W context
+ *   1: Try acquiring SHA H/W resource first and initialize its H/W context if successful. If failed, initialize S/W context.
+ */
+static void mbedtls_sha256_init_internal(mbedtls_sha256_context *ctx, int try_hw)
 {
-    if (crypto_sha_acquire()) {
+    if (try_hw && crypto_sha_acquire()) {
         ctx->ishw = 1;
         mbedtls_sha256_hw_init(&ctx->hw_ctx);
     } else {
         ctx->ishw = 0;
         mbedtls_sha256_sw_init(&ctx->sw_ctx);
     }
+}
+
+void mbedtls_sha256_init(mbedtls_sha256_context *ctx)
+{
+    mbedtls_sha256_init_internal(ctx, 1);
 }
 
 void mbedtls_sha256_free(mbedtls_sha256_context *ctx)
@@ -52,18 +63,10 @@ void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
                           const mbedtls_sha256_context *src)
 {
     // If dst is H/W context, we need to change it to S/W context first before cloning to.
-    while (dst->ishw) {
+    if (dst->ishw) {
         mbedtls_sha256_free(dst);
-        // We just want S/W context, so we lock SHA H/W resource if it is available.
-        if (crypto_sha_acquire()) {
-            mbedtls_sha256_init(dst);
-            crypto_sha_release();
-        }
-        else {
-            mbedtls_sha256_init(dst);
-        }
-        
-        // We still have potential to get H/W context due to race condition. Retry if need be.
+        // Force S/W context
+        mbedtls_sha256_init_internal(dst, 0);
     }
     
     if (src->ishw) {
