@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 #define FLASH_PAGE_SIZE 256
-#define FLASH_SIZE        0x100000
+#define FLASH_SIZE        0x200000
 #define FLASH_OFS_START   0x0
 #define FLASH_OFS_END     (FLASH_OFS_START + FLASH_SIZE)
 
