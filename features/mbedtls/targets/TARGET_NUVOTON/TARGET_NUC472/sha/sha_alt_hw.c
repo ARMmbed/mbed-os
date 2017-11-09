@@ -24,6 +24,7 @@
 
 #include "nu_bitutil.h"
 #include "mbed_assert.h"
+#include "mbed_error.h"
 #include "crypto-misc.h"
 
 #include <string.h>
@@ -312,6 +313,10 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
 
 void crypto_sha_getinternstate(unsigned char output[], size_t olen)
 {
+    if (olen & 0x3) {
+        error("Internal error in SHA alter. SHA internal state size requires to be a multiple of 4 bytes.");
+    }
+    
     uint32_t *in_pos = (uint32_t *) &CRPT->SHA_DGST0;
     unsigned char *out_pos = output;
     uint32_t rmn = olen;
