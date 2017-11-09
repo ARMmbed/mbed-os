@@ -266,6 +266,15 @@ typedef enum {
     SPI_CS      = D10,
     PWM_OUT     = D9,
 
+    USB_OTG_FS_SOF = PA_8,
+    USB_OTG_FS_VBUS = PA_9,
+    USB_OTG_FS_ID = PA_10,
+    USB_OTG_FS_DM = PA_11,
+    USB_OTG_FS_DP = PA_12,
+    USB_OTG_FS_NOE_ALT = PA_13,
+    USB_OTG_FS_SOF_ALT = PA_14,
+    USB_OTG_FS_NOE = PC_9,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
