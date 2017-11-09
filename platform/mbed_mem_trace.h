@@ -1,6 +1,7 @@
 
 /** \addtogroup platform */
 /** @{*/
+
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2016 ARM Limited
  *
@@ -34,6 +35,11 @@ enum {
     MBED_MEM_TRACE_CALLOC,
     MBED_MEM_TRACE_FREE
 };
+
+/**
+ * \defgroup platform_mem_trace mem_trace functions
+ * @{
+ */
 
 /* Prefix for the output of the default tracer */
 #define MBED_MEM_DEFAULT_TRACER_PREFIX  "#"
@@ -132,6 +138,8 @@ void mbed_mem_trace_free(void *ptr, void *caller);
  *   0x602f with the 'ptr' argument equal to 0x20003240.
  */
 void mbed_mem_trace_default_callback(uint8_t op, void *res, void *caller, ...);
+
+/** @}*/
 
 #ifdef __cplusplus
 }

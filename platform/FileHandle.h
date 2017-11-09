@@ -26,6 +26,11 @@ typedef int FILEHANDLE;
 
 namespace mbed {
 /** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_FileHandle FileHandle functions
+ * @{
+ */
 
 
 /** Class FileHandle
@@ -36,7 +41,6 @@ namespace mbed {
  *
  *  @note to create a file, @see File
  *  @note Synchronization level: Set by subclass
- *  @ingroup platform
  */
 class FileHandle : private NonCopyable<FileHandle> {
 public:
@@ -253,6 +257,11 @@ public:
 */
 
 std::FILE *fdopen(FileHandle *fh, const char *mode);
+
+/**@}*/
+
+/**@}*/
+
 
 } // namespace mbed
 

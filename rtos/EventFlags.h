@@ -32,7 +32,11 @@
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
-
+/**
+ * \defgroup rtos_EventFlags EventFlags class
+ * @{
+ */
+ 
 /** The EventFlags class is used to signal or wait for an arbitrary event or events.
  @note 
  EventFlags support 31 flags so the MSB flag is ignored, it is used to return an error code (@a osFlagsError)
@@ -93,7 +97,9 @@ private:
     mbed_rtos_storage_event_flags_t _obj_mem;
 };
 
+/** @}*/
+/** @}*/
+
 }
 #endif
 
-/** @}*/

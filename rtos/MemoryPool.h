@@ -33,7 +33,11 @@
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
-
+/**
+ * \defgroup rtos_MemoryPool MemoryPool class
+ * @{
+ */
+ 
 /** Define and manage fixed-size memory pools of objects of a given type.
   @tparam  T         data type of a single object (element).
   @tparam  queue_sz  maximum number of objects (elements) in the memory pool.
@@ -99,8 +103,10 @@ private:
     char                         _pool_mem[((sizeof(T) + 3) & ~3) * pool_sz];
     mbed_rtos_storage_mem_pool_t _obj_mem;
 };
+/** @}*/
+/** @}*/
 
 }
 #endif
 
-/** @}*/
+

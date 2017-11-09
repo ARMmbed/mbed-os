@@ -27,7 +27,11 @@ namespace mbed {
 class FileHandle;
 
 /** \addtogroup platform */
-
+/** @{*/
+/**
+ * \defgroup platform_poll poll functions
+ * @{
+ */
 
 struct pollfh {
     FileHandle *fh;
@@ -46,6 +50,10 @@ struct pollfh {
  * @return number of file handles selected (for which revents is non-zero). 0 if timed out with nothing selected. -1 for error.
  */
 int poll(pollfh fhs[], unsigned nfhs, int timeout);
+
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 
