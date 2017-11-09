@@ -1,7 +1,7 @@
 /*
  *****************************************************************************
  * @file:    adi_spi_data.c
- * @brief:   Data declaration for SPORT Device Driver 
+ * @brief:   Data declaration for SPORT Device Driver
  *****************************************************************************
 
 Copyright (c) 2016 Analog Devices, Inc.
@@ -49,6 +49,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
  /*! \cond PRIVATE */
 
+#include <adi_processor.h>
 #include "adi_spi_def.h"
 #include "adi_spi_config.h"
 #include <drivers/dma/adi_dma.h>
@@ -109,7 +110,7 @@ static const ADI_SPI_CFG_TYPE gSPICfg[ADI_SPI_NUM_INSTANCES] =
 
        /**** SPI_DIV buad rate selection register *** */
        (((((ADI_CFG_SYSTEM_CLOCK_HZ / (ADI_SPI0_CFG_BIT_RATE)) >>1u)-1u))\
-                                        << BITP_SPI_DIV_VALUE           ) 
+                                        << BITP_SPI_DIV_VALUE           )
     },
   /* Initialize SPI1 Instance configuration. */
   {
@@ -131,7 +132,7 @@ static const ADI_SPI_CFG_TYPE gSPICfg[ADI_SPI_NUM_INSTANCES] =
 
        /**** SPI_DIV buad rate selection register *** */
        (((((ADI_CFG_SYSTEM_CLOCK_HZ / (ADI_SPI1_CFG_BIT_RATE)) >>1u)-1u))\
-                                        << BITP_SPI_DIV_VALUE           ) 
+                                        << BITP_SPI_DIV_VALUE           )
     },
   /* Initialize SPI2 Instance configuration. */
   {
@@ -153,7 +154,7 @@ static const ADI_SPI_CFG_TYPE gSPICfg[ADI_SPI_NUM_INSTANCES] =
 
        /**** SPI_DIV buad rate selection register *** */
        (((((ADI_CFG_SYSTEM_CLOCK_HZ / (ADI_SPI2_CFG_BIT_RATE)) >>1u)-1u))\
-                                        << BITP_SPI_DIV_VALUE           ) 
+                                        << BITP_SPI_DIV_VALUE           )
     }
 };
 

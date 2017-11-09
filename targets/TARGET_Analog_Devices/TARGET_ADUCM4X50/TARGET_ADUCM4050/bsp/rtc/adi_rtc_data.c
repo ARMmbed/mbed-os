@@ -50,7 +50,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define ADI_RTC_DATA_C_
 
 #include <stdlib.h>
+#include <adi_processor.h>
 #include "adi_rtc_def.h"
+
 
 static ADI_RTC_DEVICE_INFO aRTCDeviceInfo[ADI_RTC_NUM_INSTANCE] =
 {
@@ -100,7 +102,7 @@ static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
    0,     /* CR7SSS */
    0,     /* GPMUX0 */
    0     /* GPMUX1 */
-   
+
   },
   /* RTC-1 */
   {
@@ -137,7 +139,7 @@ static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
    RTC1_CFG_TRIM_INTERVAL                    << BITP_RTC_TRM_IVL         |
    RTC1_CFG_TRIM_OPERATION                   << BITP_RTC_TRM_ADD         |
    RTC1_CFG_TRIM_VALUE                       << BITP_RTC_TRM_VALUE,
-   
+
    /* CR2IC */
    RTC1_CFG_IC0_ENABLE                       <<  BITP_RTC_CR2IC_IC0EN    |
    RTC1_CFG_IC2_ENABLE                       <<  BITP_RTC_CR2IC_IC2EN    |
@@ -152,7 +154,7 @@ static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
    RTC1_CFG_IC3_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC3LH    |
    RTC1_CFG_IC4_EDGE_POLARITY                <<  BITP_RTC_CR2IC_IC4LH    |
    RTC1_CFG_IC_OVER_WRITE_ENABLE             <<  BITP_RTC_CR2IC_ICOWUSEN,
-  
+
    /* CR3SS */
    RTC1_CFG_SS1_ENABLE                       <<  BITP_RTC_CR3SS_SS1EN    |
    RTC1_CFG_SS2_ENABLE                       <<  BITP_RTC_CR3SS_SS2EN    |
@@ -172,16 +174,16 @@ static ADI_RTC_CONFIG aRTCConfig[ADI_RTC_NUM_INSTANCE] =
 
    /* SSMSK */
    RTC1_CFG_SS1_MASK_VALUE,
-   
+
    /* SS1 */
    RTC1_CFG_SS1_AUTO_RELOAD_VALUE,
-   
+
    0,      /* CR5SSS */                      /* TODO: Add the following to the static configuration macros */
    0,      /* CR6SSS */
    0,      /* CR7SSS */
    0x4688, /* GPMUX0 */
    0x01F5, /* GPMUX1 */
-   
+
   }
 
 };

@@ -50,9 +50,9 @@ POSSIBILITY OF SUCH DAMAGE.
 
  /*! \cond PRIVATE */
 
+#include <adi_processor.h>
 #include "adi_flash_def.h"
 #include "adi_flash_config.h"
-
 
 /* Stores the information about the specific device */
 static ADI_FEE_DEVICE_INFO fee_device_info [ADI_FEE_NUM_INSTANCES] =
