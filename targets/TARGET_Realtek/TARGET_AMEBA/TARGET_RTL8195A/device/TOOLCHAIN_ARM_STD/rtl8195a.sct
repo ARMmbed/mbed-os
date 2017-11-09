@@ -22,12 +22,10 @@ LR_IRAM 0x10007000 (0x70000 - 0x7000) {
     *(i.mbedtls*)
     *libc.a (+RO)
     *rtx_*.o (+RO)
-    ;*lib_peripheral_mbed_arm.ar (+RO)
   }
 
   RW_IRAM1 +0 UNINIT FIXED {
     *rtl8195a_crypto.o(+RW)
-    ;*mbedtls*.o(+RW)
     *libc.a (+RW)
     *(.sdram.data*)
     *lib_peripheral_mbed_arm.ar (+RW)
@@ -35,7 +33,6 @@ LR_IRAM 0x10007000 (0x70000 - 0x7000) {
 
   RW_IRAM2 +0 UNINIT FIXED {
     *rtl8195a_crypto.o(+ZI, COMMON)
-    ;*mbedtls*.o(+ZI, COMMON)
     *libc.a (+ZI, COMMON)
     *(.bss.thread_stack_main)
     *lib_peripheral_mbed_arm.ar (+ZI, COMMON)
