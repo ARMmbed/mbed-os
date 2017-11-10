@@ -100,7 +100,7 @@ public:
      */
     void updateBatteryLevel(uint8_t newLevel)
     {
-        MBED_ASSERT(level <= 100);
+        MBED_ASSERT(newLevel <= 100);
         batteryLevel = newLevel;
         ble.gattServer().write(
             batteryLevelCharacteristic.getValueHandle(),
