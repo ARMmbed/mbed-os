@@ -83,21 +83,20 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 {
     (void)obj;
     unsigned char tmpBuff[32];
-    
-    *output_length = 0;
+    size_t cur_length = 0;
     
     for (unsigned i = 0; i < (length/32); i++) {
         trng_get(output);
-        *output_length += 32;
+        cur_length += 32;
         output += 32;
     }     
-    if( length > *output_length ) {
+    if( length > cur_length ) {
         trng_get(tmpBuff);
-        memcpy(output, &tmpBuff, (length - *output_length));
-        *output_length = length;
+        memcpy(output, &tmpBuff, (length - cur_length));
+        cur_length = length;
         trng_zeroize(tmpBuff, sizeof(tmpBuff));
     }
-
+    *output_length = cur_length;
     return 0;
 }
 
