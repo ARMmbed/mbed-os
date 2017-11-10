@@ -738,6 +738,7 @@
     "FF_LPC546XX": {
         "inherits": ["LPC546XX"],
         "extra_labels_remove" : ["LPCXpresso"],
+        "features_remove": ["LWIP"],
         "supported_form_factors": [""],
         "detect_code": ["8081"]
     },
