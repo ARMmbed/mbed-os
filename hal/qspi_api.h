@@ -71,24 +71,24 @@ typedef enum qspi_alt_size {
  * Defines a frame format
  */
 typedef struct qspi_command {
-    struct instruction {
+    struct {
         qspi_bus_width_t bus_width; /**< Bus width for the instruction >*/
         uint8_t value;  /**< Instruction value >*/
-    };
-    struct address {
+    } instruction;
+    struct {
         qspi_bus_width_t bus_width; /**< Bus width for the address >*/
         qspi_address_size_t size; /**< Address size >*/
         uint32_t value; /**< Address value >*/
-    };
-    struct alt {
+    }  address;
+    struct {
         qspi_bus_width_t bus_width; /**< Bus width for alternative  >*/
         qspi_alt_size_t size; /**< Alternative size >*/
         uint32_t value; /**< Alternative, 0 - disabled, non-zero defined value used >*/
-    };
+    } alt;
     uint8_t dummy_count; /**< Dummy cycles count >*/
-    struct data {
+    struct {
         qspi_bus_width_t bus_width; /**< Bus width for data >*/
-    };
+    } data;
 } qspi_command_t;
 
 /** QSPI return status
