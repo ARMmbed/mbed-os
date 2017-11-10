@@ -131,7 +131,7 @@ static Deferred<const char*> fat_path_prefix(int id, const char *path)
 ////// Disk operations //////
 
 // Global access to block device from FAT driver
-static BlockDevice *_ffs[_VOLUMES] = {0};
+static BlockDevice *_ffs[FF_VOLUMES] = {0};
 static SingletonPtr<PlatformMutex> _ffs_mutex;
 
 
@@ -167,7 +167,7 @@ static WORD disk_get_sector_size(BYTE pdrv)
         ssize = 512;
     }
 
-    MBED_ASSERT(ssize >= _MIN_SS && ssize <= _MAX_SS);
+    MBED_ASSERT(ssize >= FF_MIN_SS && ssize <= FF_MAX_SS);
     MBED_ASSERT(_ffs[pdrv]->get_read_size() <= _ffs[pdrv]->get_erase_size());
     MBED_ASSERT(_ffs[pdrv]->get_program_size() <= _ffs[pdrv]->get_erase_size());
     return ssize;
@@ -287,7 +287,7 @@ int FATFileSystem::mount(BlockDevice *bd, bool mount) {
         return -EINVAL;
     }
 
-    for (int i = 0; i < _VOLUMES; i++) {
+    for (int i = 0; i < FF_VOLUMES; i++) {
         if (!_ffs[i]) {
             _id = i;
             _ffs[_id] = bd;
@@ -331,7 +331,7 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size) {
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     fs.lock();
-    FRESULT res = f_mkfs(fs._fsid, 1, cluster_size);
+    FRESULT res = f_mkfs(fs._fsid, FM_ANY, cluster_size, NULL, 0);
     fs.unlock();
     if (res != FR_OK) {
         return fat_error_remap(res);
@@ -467,12 +467,17 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
     } else {
         openmode = FA_READ;
     }
+
     if (flags & O_CREAT) {
         if (flags & O_TRUNC) {
             openmode |= FA_CREATE_ALWAYS;
         } else {
             openmode |= FA_OPEN_ALWAYS;
         }
+    }
+
+    if (flags & O_APPEND) {
+        openmode |= FA_OPEN_APPEND;
     }
 
     lock();
@@ -485,9 +490,6 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
         return fat_error_remap(res);
     }
 
-    if (flags & O_APPEND) {
-        f_lseek(fh, fh->fsize);
-    }
     unlock();
 
     *file = fh;
@@ -555,9 +557,9 @@ off_t FATFileSystem::file_seek(fs_file_t file, off_t offset, int whence) {
 
     lock();
     if (whence == SEEK_END) {
-        offset += fh->fsize;
+        offset += f_size(fh);
     } else if(whence==SEEK_CUR) {
-        offset += fh->fptr;
+        offset += f_tell(fh);
     }
 
     FRESULT res = f_lseek(fh, offset);
@@ -576,7 +578,7 @@ off_t FATFileSystem::file_tell(fs_file_t file) {
     FIL *fh = static_cast<FIL*>(file);
 
     lock();
-    off_t res = fh->fptr;
+    off_t res = f_tell(fh);
     unlock();
 
     return res;
@@ -586,7 +588,7 @@ off_t FATFileSystem::file_size(fs_file_t file) {
     FIL *fh = static_cast<FIL*>(file);
 
     lock();
-    off_t res = fh->fsize;
+    off_t res = f_size(fh);
     unlock();
 
     return res;
@@ -627,11 +629,6 @@ ssize_t FATFileSystem::dir_read(fs_dir_t dir, struct dirent *ent) {
     FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
     FILINFO finfo;
 
-#if _USE_LFN
-    finfo.lfname = ent->d_name;
-    finfo.lfsize = NAME_MAX;
-#endif // _USE_LFN
-
     lock();
     FRESULT res = f_readdir(dh, &finfo);
     unlock();
@@ -644,13 +641,13 @@ ssize_t FATFileSystem::dir_read(fs_dir_t dir, struct dirent *ent) {
 
     ent->d_type = (finfo.fattrib & AM_DIR) ? DT_DIR : DT_REG;
 
-#if _USE_LFN
+#if FF_USE_LFN
     if (ent->d_name[0] == 0) {
         // No long filename so use short filename.
-        strncpy(ent->d_name, finfo.fname, NAME_MAX);
+        strncpy(ent->d_name, finfo.fname, FF_LFN_BUF);
     }
 #else
-    strncpy(end->d_name, finfo.fname, len);
+    strncpy(ent->d_name, finfo.fname, FF_SFN_BUF);
 #endif
 
     return 1;
@@ -660,17 +657,14 @@ void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset) {
     FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
 
     lock();
-    if (offset < dh->index) {
+
+    if (offset < dh->dptr) {
         f_rewinddir(dh);
     }
-    while (dh->index < offset) {
+    while (dh->dptr < offset) {
         FILINFO finfo;
         FRESULT res;
-#if _USE_LFN
-        char lfname[NAME_MAX];
-        finfo.lfname = lfname;
-        finfo.lfsize = NAME_MAX;
-#endif // _USE_LFN
+
         res = f_readdir(dh, &finfo);
         if (res != FR_OK) {
             break;
@@ -685,7 +679,7 @@ off_t FATFileSystem::dir_tell(fs_dir_t dir) {
     FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
 
     lock();
-    off_t offset = dh->index;
+    off_t offset = dh->dptr;
     unlock();
 
     return offset;
