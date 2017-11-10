@@ -18,22 +18,25 @@ RAM2_VER = 0x8195FFFF00000000
 RAM2_TAG = 0x81950001
 RAM2_SHA = '0'
 
-def write_fixed_width_string(value, width, output):
-        # cut string to list & reverse
-        line = [value[i:i+2] for i in range(0, len(value), 2)]
-        output.write("".join([chr(long(b, 16)) for b in line]))
+def format_number(number, width):
+    # convert to string
+    line = format(number, '0%dx' % (width))
+    if len(line) > width:
+        print "[ERROR] 0x%s cannot fit in width %d" % (line, width)
+        sys.exit(-1)
+    # cut string to list & reverse
+    line = [line[i:i+2] for i in range(0, len(line), 2)]
+    line.reverse()
+    return binascii.a2b_hex("".join(line))
 
-def write_fixed_width_value(value, width, output):
-        # convert to string
-        line = format(value, '0%dx' % (width))
-        if len(line) > width:
-            print "[ERROR] value 0x%s cannot fit width %d" % (line, width)
-            sys.exit(-1)
-        # cut string to list & reverse
-        line = [line[i:i+2] for i in range(0, len(line), 2)]
-        line.reverse()
-        # convert to write buffer
-        output.write("".join([chr(long(b, 16)) for b in line]))
+def format_string(string):
+    return binascii.a2b_hex(string)
+
+def write_number(value, width, output):
+    output.write(format_number(value, width))
+
+def write_string(value, width, output):
+    output.write(format_string(value))
 
 def append_image_file(image, output):
     input = open(image, "rb")
@@ -69,27 +72,27 @@ def prepend(image, entry, segment, image_ram2, image_ota):
     # parse input arguments
     output = open(image_ram2, "wb")
 
-    write_fixed_width_value(os.stat(image).st_size, 8, output)
-    write_fixed_width_value(int(entry), 8, output)
-    write_fixed_width_value(int(segment), 8, output)
+    write_number(os.stat(image).st_size, 8, output)
+    write_number(int(entry), 8, output)
+    write_number(int(segment), 8, output)
 
     RAM2_SHA = sha256_checksum(image)
-    write_fixed_width_value(RAM2_TAG, 8, output)
-    write_fixed_width_value(get_version_by_time(), 16, output)
-    write_fixed_width_string(RAM2_SHA, 64, output)
-    write_fixed_width_value(RAM2_RSVD, 8, output)
+    write_number(RAM2_TAG, 8, output)
+    write_number(get_version_by_time(), 16, output)
+    write_string(RAM2_SHA, 64, output)
+    write_number(RAM2_RSVD, 8, output)
 
     append_image_file(image, output)
     output.close()
 
     ota = open(image_ota, "wb")
-    write_fixed_width_value(os.stat(image).st_size, 8, ota)
-    write_fixed_width_value(int(entry), 8, ota)
-    write_fixed_width_value(int(segment), 8, ota)
-    write_fixed_width_value(0xFFFFFFFF, 8, ota)
-    write_fixed_width_value(get_version_by_time(), 16, ota)
-    write_fixed_width_string(RAM2_SHA, 64, ota)
-    write_fixed_width_value(RAM2_RSVD, 8, ota)
+    write_number(os.stat(image).st_size, 8, ota)
+    write_number(int(entry), 8, ota)
+    write_number(int(segment), 8, ota)
+    write_number(0xFFFFFFFF, 8, ota)
+    write_number(get_version_by_time(), 16, ota)
+    write_string(RAM2_SHA, 64, ota)
+    write_number(RAM2_RSVD, 8, ota)
 
     append_image_file(image, ota)
     ota.close()
@@ -218,8 +221,6 @@ def parse_load_segment_iar(image_elf):
             offset = int(segment[2][2:], 16)
             addr   = int(segment[3][2:], 16)
             size   = int(segment[5][2:], 16)
-            if addr < 0x10007000:
-                continue
             if addr != 0 and size != 0:
                 segment_list.append((offset, addr, size))
     return segment_list
@@ -240,14 +241,14 @@ def write_load_segment(image_elf, image_bin, segment):
     for (offset, addr, size) in segment:
         file_elf.seek(offset)
         # write image header - size & addr
-        write_fixed_width_value(addr, 8, file_bin)
-        write_fixed_width_value(size, 8, file_bin)
+        write_number(addr, 8, file_bin)
+        write_number(size, 8, file_bin)
         # write load segment
         file_bin.write(file_elf.read(size))
         delta = size % 4
         if delta != 0:
             padding = 4 - delta
-            write_fixed_width_value(0x0, padding * 2, file_bin)
+            write_number(0x0, padding * 2, file_bin)
     file_bin.close()
     file_elf.close()
 
