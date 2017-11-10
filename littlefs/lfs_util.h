@@ -98,7 +98,7 @@ void lfs_crc(uint32_t *crc, const void *buffer, size_t size);
 #define MBED_LFS_ENABLE_ERROR true
 #endif
 
-#if MBED_LFS_ENABLE_INFO == true
+#if MBED_LFS_ENABLE_INFO
 #define LFS_INFO(fmt, ...)  printf("lfs info: " fmt "\n", __VA_ARGS__)
 #elif !defined(MBED_LFS_ENABLE_INFO)
 #define LFS_INFO(fmt, ...)  debug("lfs info: " fmt "\n", __VA_ARGS__)
@@ -106,7 +106,7 @@ void lfs_crc(uint32_t *crc, const void *buffer, size_t size);
 #define LFS_INFO(fmt, ...)
 #endif
 
-#if MBED_LFS_ENABLE_DEBUG == true
+#if MBED_LFS_ENABLE_DEBUG
 #define LFS_DEBUG(fmt, ...)  printf("lfs debug: " fmt "\n", __VA_ARGS__)
 #elif !defined(MBED_LFS_ENABLE_DEBUG)
 #define LFS_DEBUG(fmt, ...)  debug("lfs debug: " fmt "\n", __VA_ARGS__)
@@ -114,7 +114,7 @@ void lfs_crc(uint32_t *crc, const void *buffer, size_t size);
 #define LFS_DEBUG(fmt, ...)
 #endif
 
-#if MBED_LFS_ENABLE_WARN == true
+#if MBED_LFS_ENABLE_WARN
 #define LFS_WARN(fmt, ...)  printf("lfs warn: " fmt "\n", __VA_ARGS__)
 #elif !defined(MBED_LFS_ENABLE_WARN)
 #define LFS_WARN(fmt, ...)  debug("lfs warn: " fmt "\n", __VA_ARGS__)
@@ -122,7 +122,7 @@ void lfs_crc(uint32_t *crc, const void *buffer, size_t size);
 #define LFS_WARN(fmt, ...)
 #endif
 
-#if MBED_LFS_ENABLE_ERROR == true
+#if MBED_LFS_ENABLE_ERROR
 #define LFS_ERROR(fmt, ...)  printf("lfs error: " fmt "\n", __VA_ARGS__)
 #elif !defined(MBED_LFS_ENABLE_ERROR)
 #define LFS_ERROR(fmt, ...)  debug("lfs error: " fmt "\n", __VA_ARGS__)

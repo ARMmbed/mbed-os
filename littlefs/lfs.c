@@ -2027,7 +2027,7 @@ int lfs_mount(lfs_t *lfs, const struct lfs_config *cfg) {
     }
 
     if (superblock.d.version > (0x00010001 | 0x0000ffff)) {
-        LFS_ERROR("Invalid version %ld.%ld\n",
+        LFS_ERROR("Invalid version %ld.%ld",
                 0xffff & (superblock.d.version >> 16),
                 0xffff & (superblock.d.version >> 0));
         return LFS_ERR_INVAL;
@@ -2343,14 +2343,14 @@ int lfs_deorphan(lfs_t *lfs) {
                 }
 
                 if (moved) {
-                    LFS_DEBUG("Found move %d %d",
+                    LFS_DEBUG("Found move %ld %ld",
                             entry.d.u.dir[0], entry.d.u.dir[1]);
                     int err = lfs_dir_remove(lfs, &cwd, &entry);
                     if (err) {
                         return err;
                     }
                 } else {
-                    LFS_DEBUG("Found partial move %d %d",
+                    LFS_DEBUG("Found partial move %ld %ld",
                             entry.d.u.dir[0], entry.d.u.dir[1]);
                     entry.d.type &= ~0x80;
                     int err = lfs_dir_update(lfs, &cwd, &entry, NULL);

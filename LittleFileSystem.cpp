@@ -169,7 +169,7 @@ int LittleFileSystem::mount(BlockDevice *bd) {
 
 int LittleFileSystem::unmount() {
     _mutex.lock();
-    LFS_INFO("unmount()", "");
+    LFS_INFO("unmount(%s)", "");
     if (_bd) {
         int err = lfs_unmount(&_lfs);
         if (err) {
@@ -196,7 +196,7 @@ int LittleFileSystem::unmount() {
 int LittleFileSystem::format(BlockDevice *bd,
         lfs_size_t read_size, lfs_size_t prog_size,
         lfs_size_t block_size, lfs_size_t lookahead) {
-    LFS_INFO("format(%p, %d, %d, %d, %d)",
+    LFS_INFO("format(%p, %ld, %ld, %ld, %ld)",
             bd, read_size, prog_size, block_size, lookahead);
     int err = bd->init();
     if (err) {
@@ -309,7 +309,7 @@ int LittleFileSystem::rename(const char *oldname, const char *newname) {
 
 int LittleFileSystem::mkdir(const char *name, mode_t mode) {
     _mutex.lock();
-    LFS_INFO("mkdir(\"%s\", 0x%x)", name, mode);
+    LFS_INFO("mkdir(\"%s\", 0x%lx)", name, mode);
     int err = lfs_mkdir(&_lfs, name);
     LFS_INFO("mkdir -> %d", lfs_toerror(err));
     _mutex.unlock();
@@ -385,7 +385,7 @@ int LittleFileSystem::file_sync(fs_file_t file) {
 off_t LittleFileSystem::file_seek(fs_file_t file, off_t offset, int whence) {
     lfs_file_t *f = (lfs_file_t *)file;
     _mutex.lock();
-    LFS_INFO("file_seek(%p, %d, %d)", file, offset, whence);
+    LFS_INFO("file_seek(%p, %ld, %d)", file, offset, whence);
     off_t res = lfs_file_seek(&_lfs, f, offset, lfs_fromwhence(whence));
     LFS_INFO("file_seek -> %d", lfs_toerror(res));
     _mutex.unlock();
@@ -454,9 +454,9 @@ ssize_t LittleFileSystem::dir_read(fs_dir_t dir, struct dirent *ent) {
 void LittleFileSystem::dir_seek(fs_dir_t dir, off_t offset) {
     lfs_dir_t *d = (lfs_dir_t *)dir;
     _mutex.lock();
-    LFS_INFO("dir_seek(%p, %d)", dir, offset);
+    LFS_INFO("dir_seek(%p, %ld)", dir, offset);
     lfs_dir_seek(&_lfs, d, offset);
-    LFS_INFO("dir_seek -> void", "");
+    LFS_INFO("dir_seek -> %s", "void");
     _mutex.unlock();
 }
 
@@ -475,7 +475,7 @@ void LittleFileSystem::dir_rewind(fs_dir_t dir) {
     _mutex.lock();
     LFS_INFO("dir_rewind(%p)", dir);
     lfs_dir_rewind(&_lfs, d);
-    LFS_INFO("dir_rewind -> void", "");
+    LFS_INFO("dir_rewind -> %s", "void");
     _mutex.unlock();
 }
 
