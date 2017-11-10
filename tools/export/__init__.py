@@ -33,6 +33,7 @@ from tools.export import embitz, coide, kds, simplicity, atmelstudio, mcuxpresso
 from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt, vscode
 from tools.export import gnuarmeclipse
 from tools.export import qtcreator
+from tools.export import cmake
 from tools.export import nb
 from tools.targets import TARGET_NAMES
 
@@ -63,7 +64,8 @@ EXPORTERS = {
     'qtcreator': qtcreator.QtCreator,
     'vscode_gcc_arm' : vscode.VSCodeGcc,
     'vscode_iar' : vscode.VSCodeIAR,
-    'vscode_armc5' : vscode.VSCodeArmc5
+    'vscode_armc5' : vscode.VSCodeArmc5,
+    'cmake_gcc_arm': cmake.GccArm
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
