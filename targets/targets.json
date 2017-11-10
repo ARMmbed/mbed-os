@@ -3731,7 +3731,8 @@
             "SPI_ASYNCH",
             "STCLK_OFF_DURING_SLEEP",
             "TRNG",
-            "USTICKER"
+            "USTICKER",
+            "QSPI"
         ],
         "extra_labels": [
             "NORDIC",
