@@ -2748,6 +2748,136 @@
 
 // </e>
 
+// <e> QSPI_ENABLED - nrf_drv_qspi - QSPI peripheral driver.
+//==========================================================
+#ifndef QSPI_ENABLED
+#define QSPI_ENABLED 1
+#endif
+#if  QSPI_ENABLED
+// <o> QSPI_CONFIG_SCK_DELAY - tSHSL, tWHSL and tSHWL in number of 16 MHz periods (62.5 ns).  <0-255>
+
+
+#ifndef QSPI_CONFIG_SCK_DELAY
+#define QSPI_CONFIG_SCK_DELAY 1
+#endif
+
+// <o> QSPI_CONFIG_READOC  - Number of data lines and opcode used for reading.
+
+// <0=> FastRead
+// <1=> Read2O
+// <2=> Read2IO
+// <3=> Read4O
+// <4=> Read4IO
+
+#ifndef QSPI_CONFIG_READOC
+#define QSPI_CONFIG_READOC 4
+#endif
+
+// <o> QSPI_CONFIG_WRITEOC  - Number of data lines and opcode used for writing.
+
+// <0=> PP
+// <1=> PP2O
+// <2=> PP4O
+// <3=> PP4IO
+
+#ifndef QSPI_CONFIG_WRITEOC
+#define QSPI_CONFIG_WRITEOC 3
+#endif
+
+// <o> QSPI_CONFIG_ADDRMODE  - Addressing mode.
+
+// <0=> 24bit
+// <1=> 32bit
+
+#ifndef QSPI_CONFIG_ADDRMODE
+#define QSPI_CONFIG_ADDRMODE 0
+#endif
+
+// <o> QSPI_CONFIG_MODE  - SPI mode.
+
+// <0=> Mode 0
+// <1=> Mode 1
+
+#ifndef QSPI_CONFIG_MODE
+#define QSPI_CONFIG_MODE 0
+#endif
+
+// <o> QSPI_CONFIG_FREQUENCY  - Frequency divider.
+
+// <0=> 32MHz/1
+// <1=> 32MHz/2
+// <2=> 32MHz/3
+// <3=> 32MHz/4
+// <4=> 32MHz/5
+// <5=> 32MHz/6
+// <6=> 32MHz/7
+// <7=> 32MHz/8
+// <8=> 32MHz/9
+// <9=> 32MHz/10
+// <10=> 32MHz/11
+// <11=> 32MHz/12
+// <12=> 32MHz/13
+// <13=> 32MHz/14
+// <14=> 32MHz/15
+// <15=> 32MHz/16
+
+#ifndef QSPI_CONFIG_FREQUENCY
+#define QSPI_CONFIG_FREQUENCY 1
+#endif
+
+// <s> QSPI_PIN_SCK - SCK pin value.
+#ifndef QSPI_PIN_SCK
+#define QSPI_PIN_SCK NRF_QSPI_PIN_NOT_CONNECTED
+#endif
+
+// <s> QSPI_PIN_CSN - CSN pin value.
+#ifndef QSPI_PIN_CSN
+#define QSPI_PIN_CSN NRF_QSPI_PIN_NOT_CONNECTED
+#endif
+
+// <s> QSPI_PIN_IO0 - IO0 pin value.
+#ifndef QSPI_PIN_IO0
+#define QSPI_PIN_IO0 NRF_QSPI_PIN_NOT_CONNECTED
+#endif
+
+// <s> QSPI_PIN_IO1 - IO1 pin value.
+#ifndef QSPI_PIN_IO1
+#define QSPI_PIN_IO1 NRF_QSPI_PIN_NOT_CONNECTED
+#endif
+
+// <s> QSPI_PIN_IO2 - IO2 pin value.
+#ifndef QSPI_PIN_IO2
+#define QSPI_PIN_IO2 NRF_QSPI_PIN_NOT_CONNECTED
+#endif
+
+// <s> QSPI_PIN_IO3 - IO3 pin value.
+#ifndef QSPI_PIN_IO3
+#define QSPI_PIN_IO3 NRF_QSPI_PIN_NOT_CONNECTED
+#endif
+
+// <o> QSPI_CONFIG_IRQ_PRIORITY  - Interrupt priority
+
+
+// <i> Priorities 0,2 (nRF51) and 0,1,4,5 (nRF52) are reserved for SoftDevice
+// <0=> 0 (highest)
+// <1=> 1
+// <2=> 2
+// <3=> 3
+// <4=> 4
+// <5=> 5
+// <6=> 6
+// <7=> 7
+
+#ifndef QSPI_CONFIG_IRQ_PRIORITY
+#define QSPI_CONFIG_IRQ_PRIORITY 7
+#endif
+
+#endif //QSPI_ENABLED
+
+// </e>
+
+// </e>
+
 // <e> TIMER_ENABLED - nrf_drv_timer - TIMER periperal driver
 //==========================================================
 #ifndef TIMER_ENABLED
