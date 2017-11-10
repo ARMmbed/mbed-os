@@ -156,7 +156,7 @@ int LittleFileSystem::mount(BlockDevice *bd) {
         _config.block_size = _block_size;
     }
     _config.block_count = bd->size() / _config.block_size;
-    _config.lookahead = _config.block_count - _config.block_count % 32;
+    _config.lookahead = 32 * ((_config.block_count+31)/32);
     if (_config.lookahead > _lookahead) {
         _config.lookahead = _lookahead;
     }
@@ -226,7 +226,7 @@ int LittleFileSystem::format(BlockDevice *bd,
         _config.block_size = block_size;
     }
     _config.block_count = bd->size() / _config.block_size;
-    _config.lookahead = _config.block_count - _config.block_count % 32;
+    _config.lookahead = 32 * ((_config.block_count+31)/32);
     if (_config.lookahead > lookahead) {
         _config.lookahead = lookahead;
     }

@@ -23,7 +23,7 @@ script:
             make -Clittlefs test
     - CFLAGS="-Wno-error=format -DLFS_BLOCK_COUNT=1023"
             make -Clittlefs test
-    - CFLAGS="-Wno-error=format -DLFS_LOOKAHEAD=2047"
+    - CFLAGS="-Wno-error=format -DLFS_LOOKAHEAD=2048"
             make -Clittlefs test
 
       # Self-host with littlefs-fuse for fuzz test
