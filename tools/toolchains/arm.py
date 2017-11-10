@@ -310,16 +310,12 @@ class ARMC6(ARM_STD):
 
         if target.core.lower().endswith("fd"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-2])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-2])
         elif target.core.lower().endswith("f"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-1])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
         elif target.core.lower().endswith("ns"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-3])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-3])
         else:
             self.flags['common'].append("-mcpu=%s" % target.core.lower())
-            self.flags['ld'].append("--cpu=%s" % target.core.lower())
 
         if target.core == "Cortex-M4F":
             self.flags['common'].append("-mfpu=fpv4-sp-d16")
@@ -347,6 +343,7 @@ class ARMC6(ARM_STD):
             "Cortex-M33-NS": "Cortex-M33" }.get(target.core, target.core)
 
         self.flags['asm'].append("--cpu=%s" % asm_cpu)
+        self.flags['ld'].append("--cpu=%s" % asm_cpu)
 
         self.cc = ([join(TOOLCHAIN_PATHS["ARMC6"], "armclang")] +
                    self.flags['common'] + self.flags['c'])
