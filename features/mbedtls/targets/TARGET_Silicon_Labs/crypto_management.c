@@ -22,6 +22,13 @@
 #include "em_bus.h"
 
 #if defined( CRYPTO_PRESENT )
+
+/* Conversion macro for compatibility with the 5.3.x release of the Gecko SDK */
+#if defined( MBEDTLS_CRYPTO_DEVICE_PREEMPTION )
+#warning "MBEDTLS_CRYPTO_DEVICE_PREEMPTION is deprecated, please define " \
+         "CRYPTO_DEVICE_PREEMPTION instead."
+#endif
+
 #if defined( MBEDTLS_THREADING_C )
 #include "mbedtls/threading.h"
 static mbedtls_threading_mutex_t    crypto_locks[CRYPTO_COUNT];
@@ -29,7 +36,7 @@ static volatile bool                crypto_locks_initialized = false;
 static unsigned int                 acquire_count = 0U;
 #endif /* MBEDTLS_THREADING_C */
 
-#if defined( MBEDTLS_CRYPTO_DEVICE_PREEMPTION )
+#if defined( CRYPTO_DEVICE_PREEMPTION )
 /** Preemptable context of CRYPTO hardware module. */
 typedef struct
 {
@@ -52,7 +59,7 @@ typedef struct
 static crypto_context_t preemption_context;
 static bool             is_preempted = false;
 static CORE_DECLARE_IRQ_STATE;
-#endif /* MBEDTLS_CRYPTO_DEVICE_PREEMPTION */
+#endif /* CRYPTO_DEVICE_PREEMPTION */
 
 typedef enum
 {
@@ -106,9 +113,9 @@ static inline int crypto_management_index_by_device( CRYPTO_TypeDef *device )
 }
 
 /* Use bitband for clock enable/disable operations, such that they are atomic */
-#define CRYPTO_CLOCK_ENABLE(clk)  BUS_RegBitWrite(&(CMU->HFBUSCLKEN0), clk, 1)
-#define CRYPTO_CLOCK_DISABLE(clk) BUS_RegBitWrite(&(CMU->HFBUSCLKEN0), clk, 0)
-#define CRYPTO_CLOCK_ENABLED(clk) BUS_RegBitRead(&(CMU->HFBUSCLKEN0), clk)
+#define CRYPTO_CLOCK_ENABLE(clk)  BUS_RegBitWrite(&(CMU->HFBUSCLKEN0), (clk), 1)
+#define CRYPTO_CLOCK_DISABLE(clk) BUS_RegBitWrite(&(CMU->HFBUSCLKEN0), (clk), 0)
+#define CRYPTO_CLOCK_ENABLED(clk) BUS_RegBitRead(&(CMU->HFBUSCLKEN0), (clk))
 
 /* Get ownership of an available crypto device */
 CRYPTO_TypeDef *crypto_management_acquire( void )
@@ -130,6 +137,9 @@ CRYPTO_TypeDef *crypto_management_acquire( void )
         CORE_EXIT_CRITICAL();
     }
 
+/* Wrapping this in SL_THREADING_ALT pending non-blocking mutex in official
+ * threading API. */
+#if defined( SL_THREADING_ALT )
     /* Try to take an available crypto instance */
     unsigned int devno = 0;
     for ( ; devno < CRYPTO_COUNT; devno++ ) {
@@ -138,6 +148,7 @@ CRYPTO_TypeDef *crypto_management_acquire( void )
             break;
         }
     }
+#endif // SL_THREADING_ALT
 
     /* If no device immediately available, do naieve round-robin */
     if ( device == NULL ) {
@@ -213,7 +224,7 @@ void crypto_management_release( CRYPTO_TypeDef *device )
 /* Acquire a device with preemption. NOT thread-safe! */
 CRYPTO_TypeDef *crypto_management_acquire_preemption( uint32_t regmask )
 {
-#if defined( MBEDTLS_CRYPTO_DEVICE_PREEMPTION )
+#if defined( CRYPTO_DEVICE_PREEMPTION )
     CRYPTO_TypeDef *device = NULL;
     /* Turn off interrupts */
     CORE_ENTER_CRITICAL();
@@ -309,7 +320,7 @@ void crypto_management_release_preemption( CRYPTO_TypeDef *device )
     if ( crypto_management_index_by_device( device ) < 0 ) {
         return;
     }
-#if defined( MBEDTLS_CRYPTO_DEVICE_PREEMPTION )
+#if defined( CRYPTO_DEVICE_PREEMPTION )
 
     if ( is_preempted ) {
         /* If we preempted something, put their context back */

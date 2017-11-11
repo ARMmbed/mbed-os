@@ -51,6 +51,8 @@
 #include "em_assert.h"
 #include <string.h>
 
+#define CRYPTO_SHA_BLOCK_SIZE (64)
+
 #if defined(MBEDTLS_SHA1_C)
 static const uint32_t init_state_sha1[8] =
 {
@@ -173,10 +175,10 @@ static void crypto_sha_update_state( uint32_t state[8],
 
     /* Load the data block(s) */
     for ( size_t i = 0; i < blocks; i++ ) {
-        if ((uint32_t)(&data[i*64]) & 0x3)
+        if ((uint32_t)(&data[i*CRYPTO_SHA_BLOCK_SIZE]) & 0x3)
         {
-            uint32_t temp[16];
-            memcpy(temp, &data[i*64], 64);
+            uint32_t temp[CRYPTO_SHA_BLOCK_SIZE/sizeof(uint32_t)];
+            memcpy(temp, &data[i*CRYPTO_SHA_BLOCK_SIZE], CRYPTO_SHA_BLOCK_SIZE);
             CORE_ENTER_CRITICAL();
             CRYPTO_QDataWrite(&crypto->QDATA1BIG, temp);
             CORE_EXIT_CRITICAL();
@@ -184,7 +186,8 @@ static void crypto_sha_update_state( uint32_t state[8],
         else
         {
             CORE_ENTER_CRITICAL();
-            CRYPTO_QDataWrite(&crypto->QDATA1BIG, (uint32_t*) &data[i*64]);
+            CRYPTO_QDataWrite(&crypto->QDATA1BIG,
+                              (uint32_t*) &data[i*CRYPTO_SHA_BLOCK_SIZE]);
             CORE_EXIT_CRITICAL();
         }
 
@@ -238,14 +241,15 @@ void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 )
 
     if ( is224 != 0 ) {
         ctx->is224 = true;
-        memcpy(ctx->state, init_state_sha224, 32);
+        memcpy(ctx->state, init_state_sha224, sizeof(ctx->state));
     } else {
         ctx->is224 = false;
-        memcpy(ctx->state, init_state_sha256, 32);
+        memcpy(ctx->state, init_state_sha256, sizeof(ctx->state));
     }
 }
 
-void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[64] )
+void mbedtls_sha256_process( mbedtls_sha256_context *ctx,
+                             const unsigned char data[64] )
 {
     crypto_sha_update_state( ctx->state, data, 1, CRYPTO_SHA2 );
 }
@@ -253,8 +257,9 @@ void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char da
 /*
  * SHA-256 process buffer
  */
-void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *input,
-                    size_t ilen )
+void mbedtls_sha256_update( mbedtls_sha256_context *ctx,
+                            const unsigned char *input,
+                            size_t ilen )
 {
     size_t fill;
     uint32_t left;
@@ -296,7 +301,8 @@ void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *in
 /*
  * SHA-256 final digest
  */
-void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[32] )
+void mbedtls_sha256_finish( mbedtls_sha256_context *ctx,
+                            unsigned char output[32] )
 {
     uint32_t        last, padn;
     uint32_t        high, low;
