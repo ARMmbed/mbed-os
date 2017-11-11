@@ -17,8 +17,8 @@
  *  limitations under the License.
  */
 
-#ifndef MBEDTLS_CRYPTO_MANAGEMENT_H
-#define MBEDTLS_CRYPTO_MANAGEMENT_H
+#ifndef CRYPTO_MANAGEMENT_H
+#define CRYPTO_MANAGEMENT_H
 
 /***************************************************************************//**
  * \addtogroup sl_crypto
@@ -125,4 +125,4 @@ void crypto_management_release_preemption( CRYPTO_TypeDef *device );
 /** \} (end addtogroup sl_crypto_management) */
 /** \} (end addtogroup sl_crypto) */
 
-#endif /* MBEDTLS_CRYPTO_MANAGEMENT_H */
+#endif /* CRYPTO_MANAGEMENT_H */

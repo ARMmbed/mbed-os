@@ -69,13 +69,13 @@
 #define ECC_BIGINT_SIZE_IN_BITS        (256)
 #define ECC_BIGINT_SIZE_IN_BYTES       (ECC_BIGINT_SIZE_IN_BITS/8)
 #define ECC_BIGINT_SIZE_IN_32BIT_WORDS (ECC_BIGINT_SIZE_IN_BYTES/sizeof(uint32_t))
-#define EC_BIGINT_COPY(X, Y) memcpy(X, Y, sizeof(ecc_bigint_t));
+#define EC_BIGINT_COPY(X, Y) memcpy((X), (Y), sizeof(ecc_bigint_t));
 typedef uint32_t ecc_bigint_t[ECC_BIGINT_SIZE_IN_32BIT_WORDS];
 
-#define SLCL_ECP_CHK(f) do { if( ( ret = f ) != 0 ) goto cleanup; } while( 0 )
+#define SLCL_ECP_CHK(f) do { if( ( ret = (f) ) != 0 ) goto cleanup; } while( 0 )
 
 #if defined(MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT) || defined(MBEDTLS_ECP_NORMALIZE_JAC_ALT)
-#define MPI_TO_BIGINT(bigint, mpi) mpitobigint(bigint, mpi);
+#define MPI_TO_BIGINT(bigint, mpi) mpitobigint((bigint), (mpi));
 
 /***************************************************************************//**
  * @brief
@@ -85,14 +85,17 @@ __STATIC_INLINE void mpitobigint( ecc_bigint_t bigint, const mbedtls_mpi* mpi )
 {
     uint32_t* bi = bigint;
 
-    if ( mpi->n < 8 )
+    if ( mpi->n < ECC_BIGINT_SIZE_IN_32BIT_WORDS )
     {
       memcpy(bigint, mpi->p, mpi->n * sizeof(uint32_t));
-      memset(&bi[mpi->n], 0, sizeof(ecc_bigint_t) - mpi->n * sizeof(uint32_t));
+      memset(&bi[mpi->n],
+             0,
+             ECC_BIGINT_SIZE_IN_BYTES - ( mpi->n * sizeof(uint32_t) ) );
     }
     else
     {
-      memcpy(bigint, mpi->p, 8 * sizeof(uint32_t));
+      /* mpi has more room than bigint, so only store up to sizeof(bigint) */
+      memcpy(bigint, mpi->p, ECC_BIGINT_SIZE_IN_BYTES);
     }
 }
 
@@ -137,11 +140,11 @@ __STATIC_INLINE bool crypto_ddata0_is_zero(CRYPTO_TypeDef* crypto,
  *
  * @return N/A
  ******************************************************************************/
-static void mbedtls_mpi_div_mod(CRYPTO_TypeDef *crypto,
-                                ecc_bigint_t   X,
-                                ecc_bigint_t   Y,
-                                ecc_bigint_t   N,
-                                ecc_bigint_t   R)
+static void crypto_mpi_div_mod(CRYPTO_TypeDef *crypto,
+                               ecc_bigint_t   X,
+                               ecc_bigint_t   Y,
+                               ecc_bigint_t   N,
+                               ecc_bigint_t   R)
 {
     uint32_t            D[9];
     uint32_t            status_reg;
@@ -381,7 +384,7 @@ static void mbedtls_mpi_div_mod(CRYPTO_TypeDef *crypto,
         CORE_EXIT_CRITICAL();
     }
     return;
-} /* mbedtls_mpi_div_mod  */
+} /* crypto_mpi_div_mod  */
 #endif /* MBEDTLS_ECP_NORMALIZE_JAC_MANY_ALT || MBEDTLS_ECP_NORMALIZE_JAC_ALT */
 
 /***************************************************************************//**
@@ -1509,7 +1512,7 @@ int mbedtls_internal_ecp_normalize_jac_many( const mbedtls_ecp_group *grp,
     /*
      * u = 1 / (Z_0 * ... * Z_n) mod P
      */
-    mbedtls_mpi_div_mod(crypto, one, cc[t_len-1], modulus, uu);
+    crypto_mpi_div_mod(crypto, one, cc[t_len-1], modulus, uu);
 
     for( i = t_len - 1; ; i-- )
     {
@@ -1638,7 +1641,7 @@ int mbedtls_internal_ecp_normalize_jac( const mbedtls_ecp_group *grp,
     MPI_TO_BIGINT( Z, &pt->Z );
     MPI_TO_BIGINT( modulus, &grp->P );
 
-    mbedtls_mpi_div_mod(crypto, one, Z, modulus, Z_inv);
+    crypto_mpi_div_mod(crypto, one, Z, modulus, Z_inv);
 
     /*
 
