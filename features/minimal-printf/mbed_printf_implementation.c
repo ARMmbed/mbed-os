@@ -16,7 +16,7 @@
 
 #include "mbed_printf_implementation.h"
 
-
+#include <stdbool.h>
 
 /***************************/
 /* MBED                    */
