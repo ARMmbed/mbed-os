@@ -43,8 +43,7 @@
 
 #include "rtl8195a_compiler.h"
 #include "rtl8195a_platform.h"
-
-
+#include "rtl8195a_crypto.h"
 
 #define REG32(reg)      (*(volatile uint32_t *)(reg))
 #define REG16(reg)      (*(volatile uint16_t *)(reg))

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <stdio.h>
 #include <string.h>
 
 #include "mbed_wait_api.h"
@@ -24,61 +23,105 @@
 
 static flash_t flash_obj;
 
-void OTA_GetImageInfo(imginfo_t *info)
+void OTA_ReadHeader(uint32_t base, imginfo_t *img)
 {
-    uint32_t ver_hi, ver_lo;
+    uint32_t epoch_hi, epoch_lo;
 
-    flash_ext_read_word(&flash_obj, info->base + TAG_OFS, &info->tag);
-    flash_ext_read_word(&flash_obj, info->base + VER_OFS, &ver_lo);
-    flash_ext_read_word(&flash_obj, info->base + VER_OFS + 4, &ver_hi);
-
-    if (info->tag == TAG_DOWNLOAD) {
-        info->ver = ((uint64_t)ver_hi << 32) | (uint64_t) ver_lo;
-    } else {
-        info->ver = 0;
-    }
-}
-
-uint32_t OTA_GetBase(void)
-{
-    static uint32_t ota_base = 0;
-    imginfo_t region1, region2;
-
-    if (ota_base == OTA_REGION1 || ota_base == OTA_REGION2) {
-        return ota_base;
+    if (base != OTA_REGION1_BASE || base != OTA_REGION2_BASE) {
+        return;
     }
 
-    region1.base = OTA_REGION1;
-    region2.base = OTA_REGION2;
+    flash_ext_read_word(&flash_obj, base + OTA_TAG_OFS, &img->tag);
+    flash_ext_read_word(&flash_obj, base + OTA_VER_OFS, &img->ver);
+    flash_ext_read_word(&flash_obj, base + OTA_EPOCH_OFS, &epoch_hi);
+    flash_ext_read_word(&flash_obj, base + OTA_EPOCH_OFS + 4, &epoch_lo);
+    img->timestamp = ((uint64_t)epoch_hi << 32) | (uint64_t) epoch_lo;
 
-    OTA_GetImageInfo(&region1);
-    OTA_GetImageInfo(&region2);
-
-    if (region1.ver >= region2.ver) {
-        ota_base = region2.base;
-    } else {
-        ota_base = region1.base;
-    }
-    return ota_base;
+    flash_ext_read_word(&flash_obj, base + OTA_SIZE_OFS, &img->size);
+    flash_ext_stream_read(&flash_obj, base + OTA_HASH_OFS, 32, img->hash);
+    flash_ext_stream_read(&flash_obj, base + OTA_CAMPAIGN_OFS, 16, img->campaign);
+    flash_ext_read_word(&flash_obj, base + OTA_CRC32_OFS, &img->crc32);
 }
 
-uint32_t OTA_MarkUpdateDone(void)
+bool OTA_CheckHeader(imginfo_t *img)
 {
-    uint32_t addr = OTA_GetBase() + TAG_OFS;
+    uint8_t *msg;
+    uint32_t crc;
 
-    return flash_ext_write_word(&flash_obj, addr, TAG_DOWNLOAD);
+    msg = (uint8_t *)img;
+    crc = crc32_get(msg, OTA_CRC32_LEN);
+    if (crc != img->crc32) {
+        return false;
+    }
+
+    if ((img->tag & OTA_TAG_CHIP_MSK) != (OTA_TAG_ID & OTA_TAG_CHIP_MSK)) {
+        return false;
+    }
+
+    return true;
 }
 
-uint32_t OTA_UpdateImage(uint32_t offset, uint32_t len, uint8_t *data)
+void OTA_GetImageInfo(uint32_t base, imginfo_t *img)
+{
+    OTA_ReadHeader(base, img);
+
+    if (!OTA_CheckHeader(img)) {
+        img->timestamp = 0;
+        img->valid = false;
+    }
+
+    img->valid = true;
+}
+
+uint32_t OTA_GetUpdateBase(void)
+{
+    imginfo_t img1, img2;
+
+    OTA_GetImageInfo(OTA_REGION1_BASE, &img1);
+    OTA_GetImageInfo(OTA_REGION2_BASE, &img2);
+
+    if (img1.valid && img2.valid) {
+        if (img1.timestamp < img2.timestamp) {
+            return OTA_REGION1_BASE;
+        } else {
+            return OTA_REGION2_BASE;
+        }
+    }
+
+    if (img1.valid) {
+        return OTA_REGION2_BASE;
+    }
+
+    return OTA_REGION1_BASE;
+}
+
+uint32_t OTA_UpateHeader(uint32_t base, imginfo_t *img)
+{
+    flash_ext_write_word(&flash_obj, base + OTA_TAG_OFS, img->tag);
+    flash_ext_write_word(&flash_obj, base + OTA_VER_OFS, img->ver);
+    flash_ext_write_word(&flash_obj, base + OTA_EPOCH_OFS, img->timestamp >> 32);
+    flash_ext_write_word(&flash_obj, base + OTA_EPOCH_OFS + 4, (img->timestamp << 32) >> 32); 
+
+    flash_ext_write_word(&flash_obj, base + OTA_SIZE_OFS, img->size);
+    flash_ext_stream_write(&flash_obj, base + OTA_HASH_OFS, 32, img->hash);
+    flash_ext_stream_write(&flash_obj, base + OTA_CAMPAIGN_OFS, 16, img->campaign);
+    flash_ext_write_word(&flash_obj, base + OTA_CRC32_OFS, img->crc32);
+
+    return 0;
+}
+
+uint32_t OTA_UpdateImage(uint32_t base, uint32_t offset, uint32_t len, uint8_t *data)
 {
     uint32_t addr, start, end, count, shift;
     uint8_t *pdata = data;
     uint8_t buf[FLASH_SECTOR_SIZE];
 
-    start = OTA_GetBase() + offset;
+    start = base + offset;
     end = start + len;
 
-    if (data == NULL || start > FLASH_TOP || end > FLASH_TOP) {
+    if (data == NULL ||
+        base != OTA_REGION1_BASE || base != OTA_REGION2_BASE ||
+        start > FLASH_TOP || end > FLASH_TOP) {
         return 0;
     }
 
@@ -96,7 +139,6 @@ uint32_t OTA_UpdateImage(uint32_t offset, uint32_t len, uint8_t *data)
     }
 
     while (addr < end) {
-        printf("OTA: update addr=0x%lx, len=%ld\r\n", addr, len);
         count = MIN(FLASH_SECTOR_SIZE, end - addr);
         flash_ext_erase_sector(&flash_obj, addr);
         flash_ext_stream_write(&flash_obj, addr, count, pdata);
@@ -106,19 +148,20 @@ uint32_t OTA_UpdateImage(uint32_t offset, uint32_t len, uint8_t *data)
     return len;
 }
 
-uint32_t OTA_ReadImage(uint32_t offset, uint32_t len, uint8_t *data)
+uint32_t OTA_ReadImage(uint32_t base, uint32_t offset, uint32_t len, uint8_t *data)
 {
-    uint32_t addr, endaddr;
+    uint32_t start, end;
 
-    addr = OTA_GetBase() + offset;
-    endaddr = addr + len;
+    start = base + offset;
+    end = start + len;
 
-    if (data == NULL || addr > FLASH_TOP || endaddr > FLASH_TOP) {
+    if (data == NULL ||
+        base != OTA_REGION1_BASE || base != OTA_REGION2_BASE ||
+        start > FLASH_TOP || end > FLASH_TOP) {
         return 0;
     }
 
-    printf("OTA: read addr=0x%lx\r\n", addr);
-    return flash_ext_stream_read(&flash_obj, addr, len, data);
+    return flash_ext_stream_read(&flash_obj, start, len, data);
 }
 
 void OTA_ResetTarget(void)
@@ -126,11 +169,7 @@ void OTA_ResetTarget(void)
     __RTK_CTRL_WRITE32(0x14, 0x00000021);
     wait(1);
 
-    // write SCB->AIRCR
-    HAL_WRITE32(0xE000ED00, 0x0C,
-                (0x5FA << 16) |                               // VECTKEY
-                (HAL_READ32(0xE000ED00, 0x0C) & (7 << 8)) | // PRIGROUP
-                (1 << 2));                                    // SYSRESETREQ
+    NVIC_SystemReset();
 
     // not reached
     while (1);
