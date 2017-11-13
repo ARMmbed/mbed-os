@@ -110,7 +110,7 @@
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
-	"default_lib": "small",
+        "default_lib": "small",
         "device_name": "LPC11U34FBD48/311"
     },
     "MICRONFCBOARD": {
@@ -619,6 +619,17 @@
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
         "bootloader_supported": true
+    },
+    "EV_COG_AD4050LZ": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "macros": ["__ADUCM4050__", "EV_COG_AD4050LZ"],
+        "extra_labels": ["Analog_Devices", "ADUCM4X50", "ADUCM4050", "EV_COG_AD4050LZ", "FLASH_CMSIS_ALGO"],
+        "device_has": ["SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "RTC", "SPI", "I2C", "FLASH", "ANALOGIN"],
+        "device_name": "ADuCM4050",
+        "detect_code": ["0603"],
+        "release_versions": ["5"]
     },
     "MTS_GAMBIT": {
         "inherits": ["Target"],
@@ -2880,7 +2891,7 @@
             }
         }
     },
-	"EFR32MG12P332F1024GL125": {
+    "EFR32MG12P332F1024GL125": {
         "inherits": ["EFM32"],
         "extra_labels_add": ["EFR32MG12", "1024K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
@@ -2890,7 +2901,7 @@
         "public": false,
         "bootloader_supported": true
     },
-	"TB_SENSE_12": {
+    "TB_SENSE_12": {
         "inherits": ["EFR32MG12P332F1024GL125"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "forced_reset_timeout": 5,
