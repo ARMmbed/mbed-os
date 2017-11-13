@@ -24,11 +24,11 @@
  *
  * @purpose
  *
- * The heart rate service is used by fitness applications to exposes the heart
- * beat per minute measured by an heart rate sensor.
+ * Fitness applications use the heart rate service to expose the heart
+ * beat per minute measured by a heart rate sensor.
  *
  * Clients can read the intended location of the sensor and the last heart rate
- * value measured. Additionally clients can subscribe to server initiated
+ * value measured. Additionally, clients can subscribe to server initiated
  * updates of the heart rate value measured by the sensor. The service delivers
  * these updates to the subscribed client in a notification packet.
  *
@@ -38,7 +38,7 @@
  *
  * @par usage
  *
- * When this class is instantiated, it adds an heart rate service in the GattServer.
+ * When this class is instantiated, it adds a heart rate service in the GattServer.
  * The service contains the location of the sensor and the initial value measured
  * by the sensor.
  *
@@ -99,14 +99,14 @@ public:
 
 public:
     /**
-     * Construct and initialize an heart rate service.
+     * Construct and initialize a heart rate service.
      *
      * The construction process adds a GATT heart rate service in @p _ble
      * GattServer, sets the value of the heart rate measurement characteristic
      * to @p hrmCounter and the value of the body sensor location characteristic
      * to @p location.
      *
-     * @param[in] _ble BLE device which will host the heart rate service.
+     * @param[in] _ble BLE device that hosts the heart rate service.
      * @param[in] hrmCounter Heart beats per minute measured by the heart rate
      * sensor.
      * @param[in] location Intended location of the heart rate sensor.
