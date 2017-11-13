@@ -128,7 +128,6 @@ define block .text.mbedtls {
 define block .text.sram {
     readonly object rtl8195a_crypto.o,
     readonly object vector_table_M.o,
-    readonly object lib_peripheral_mbed_iar.a,
     section .text.sram*,
 };
 

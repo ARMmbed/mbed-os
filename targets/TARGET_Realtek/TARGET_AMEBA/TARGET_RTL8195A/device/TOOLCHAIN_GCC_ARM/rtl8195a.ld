@@ -70,7 +70,6 @@ SECTIONS
         *rtl8195a_crypto.o (.text* .rodata*)
         *mbedtls*.o (.text* .rodata*)
         *libc.a: (.text* .rodata*)
-        *lib_peripheral_mbed_gcc.a: (.text*)
     } > SRAM1
 
     .text.sram2 :
