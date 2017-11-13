@@ -64,7 +64,7 @@
 #define SWI5_IRQHandler         SWI5_EGU5_IRQHandler
 
 #define UART0_IRQn              UARTE0_UART0_IRQn
-#define UART1_IRQn              UARTE1_UART1_IRQn
+#define UART1_IRQn              UARTE1_IRQn
 #define SPI0_TWI0_IRQn          SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn
 #define SPI1_TWI1_IRQn          SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn
 #define ADC_IRQn                SAADC_IRQn

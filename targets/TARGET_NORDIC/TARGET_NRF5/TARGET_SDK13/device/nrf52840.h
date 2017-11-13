@@ -119,8 +119,7 @@ typedef enum {
   QSPI_IRQn                     =  41,              /*!<  41  QSPI                                                             */
   CRYPTOCELL_IRQn               =  42,              /*!<  42  CRYPTOCELL                                                       */
   SPIM3_IRQn                    =  43,              /*!<  43  SPIM3                                                            */
-  PWM3_IRQn                     =  45,              /*!<  45  PWM3
-  UARTE1_UART1_IRQn             =  46               /*!<   2  UARTE0_UART0                                                         */
+  PWM3_IRQn                     =  45              /*!<  45  PWM3                                                      */
 } IRQn_Type;
 
 
