@@ -25,7 +25,7 @@
         "ld": ["--legacyalign", "--no_strict_wchar_size", "--no_strict_enum_size"]
     },
     "ARM": {
-        "common": ["-c", "--gnu", "-Otime", "--split_sections",
+        "common": ["-c", "--gnu", "-Ospace", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
                    "--multibyte_chars", "-O3"],
         "asm": [],
@@ -34,7 +34,7 @@
         "ld": ["--show_full_path"]
     },
     "uARM": {
-        "common": ["-c", "--gnu", "-Otime", "--split_sections",
+        "common": ["-c", "--gnu", "-Ospace", "--split_sections",
                    "--apcs=interwork", "--brief_diagnostics", "--restrict",
                    "--multibyte_chars", "-O3", "-D__MICROLIB",
                    "--library_type=microlib", "-DMBED_RTOS_SINGLE_THREAD"],
@@ -46,7 +46,7 @@
     "IAR": {
         "common": [
             "--no_wrap_diagnostics", "-e",
-            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Oh"],
+            "--diag_suppress=Pa050,Pa084,Pa093,Pa082", "-Ohz"],
         "asm": [],
         "c": ["--vla"],
         "cxx": ["--guard_calls", "--no_static_destruction"],
