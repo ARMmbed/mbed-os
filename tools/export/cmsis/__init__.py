@@ -2,13 +2,13 @@ import os
 from os.path import sep, join, exists
 from itertools import groupby
 from xml.etree.ElementTree import Element, tostring
-import ntpath
 import re
 import json
 
 from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, TargetNotSupportedException
+from tools.utils import split_path
 
 class fileCMSIS():
     """CMSIS file class.
@@ -37,7 +37,8 @@ class DeviceCMSIS():
         if not target_info:
             raise TargetNotSupportedException("Target not supported in CMSIS pack")
         self.url = target_info['pdsc_file']
-        self.pack_url, self.pack_id = ntpath.split(self.url)
+        self.pdsc_url, self.pdsc_id, _ = split_path(self.url)
+        self.pack_url, self.pack_id, _ = split_path(target_info['pack_file'])
         self.dname = target_info["_cpu_name"]
         self.core = target_info["_core"]
         self.dfpu = target_info['processor']['fpu']
