@@ -25,6 +25,9 @@
 /*
  * Get Random number generator.
  */
+
+#define PRNG_KEY_SIZE  (0x20UL)
+
 static volatile int  g_PRNG_done;
 volatile int  g_AES_done;
 
@@ -82,18 +85,19 @@ void trng_free(trng_t *obj)
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     (void)obj;
-    unsigned char tmpBuff[32];
+    unsigned char tmpBuff[PRNG_KEY_SIZE];
     size_t cur_length = 0;
     
-    for (unsigned i = 0; i < (length/32); i++) {
+    while (length >= sizeof(tmpBuff)) {
         trng_get(output);
-        cur_length += 32;
-        output += 32;
-    }     
-    if( length > cur_length ) {
+        output += sizeof(tmpBuff);
+        cur_length += sizeof(tmpBuff);
+        length -= sizeof(tmpBuff);
+    }
+    if (length > 0) {
         trng_get(tmpBuff);
-        memcpy(output, &tmpBuff, (length - cur_length));
-        cur_length = length;
+        memcpy(output, tmpBuff, length);
+        cur_length += length;
         trng_zeroize(tmpBuff, sizeof(tmpBuff));
     }
     *output_length = cur_length;
