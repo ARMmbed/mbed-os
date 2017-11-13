@@ -30,6 +30,7 @@ void crypto_uninit(void);
 /* Clear buffer to zero
  * Implementation that should never be optimized out by the compiler */
 void crypto_zeroize(void *v, size_t n);
+void crypto_zeroize32(uint32_t *v, size_t n);
 
 /* Acquire/release ownership of AES H/W */
 /* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
@@ -45,6 +46,11 @@ void crypto_des_release(void);
 /* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
 bool crypto_sha_acquire(void);
 void crypto_sha_release(void);
+
+/* Acquire/release ownership of ECC H/W */
+/* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
+bool crypto_ecc_acquire(void);
+void crypto_ecc_release(void);
 
 /* Flow control between crypto/xxx start and crypto/xxx ISR 
  *
@@ -67,6 +73,8 @@ void crypto_aes_prestart(void);
 bool crypto_aes_wait(void);
 void crypto_des_prestart(void);
 bool crypto_des_wait(void);
+void crypto_ecc_prestart(void);
+bool crypto_ecc_wait(void);
 
 
 /* Check if buffer can be used for crypto DMA. It has the following requirements:
