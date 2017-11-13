@@ -1,6 +1,10 @@
-import os, json, stat, sys, shutil, errno, subprocess, logging, re
+import os
+import json
+import sys
+import subprocess
+import logging
 import argparse
-from os.path import dirname, abspath, basename, join
+from os.path import dirname, abspath, join
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), "../.."))
@@ -21,7 +25,7 @@ def del_file(name):
                 result.append(os.path.join(root, name))
     for file in result:
         os.remove(file)
-        rel_log.debug("Deleted: %s", os.path.relpath(file, ROOT));
+        rel_log.debug("Deleted: %s", os.path.relpath(file, ROOT))
 
 def copy_folder(src, dest):
     """ Copy contents of folder in mbed-os listed path
@@ -75,16 +79,15 @@ def get_curr_sha(repo_path):
     sha - last commit SHA
     """
     cwd = os.getcwd()
-    sha = None
     os.chdir(abspath(repo_path))
 
     cmd = "git log --pretty=format:%h -n 1"
-    ret, sha = run_cmd_with_output(cmd, exit_on_failure=True)
+    _, sha = run_cmd_with_output(cmd, exit_on_failure=True)
 
     os.chdir(cwd)
     return sha
 
-def check_branch(name):
+def branch_exists(name):
     """ Check if branch already exists in mbed-os local repository.
     It will not verify if branch is present in remote repository.
     Args:
@@ -92,7 +95,7 @@ def check_branch(name):
     Returns:
     True - If branch is already present
     """
-    branches = []
+
     cmd = "git branch"
     _, output = run_cmd_with_output(cmd, exit_on_failure=False)
     if name in output:
@@ -120,16 +123,15 @@ def get_last_cherry_pick_sha(branch):
     cmd = "git checkout " + branch
     run_cmd_with_output(cmd, exit_on_failure=False)
 
-    SHA = None
+    sha = None
     get_commit = "git log -n 1"
     _, output = run_cmd_with_output(get_commit, exit_on_failure=True)
     lines = output.split('\n')
     for line in lines:
         if 'cherry picked from' in line:
-            SHA = line.split(' ')[-1]
-            SHA = SHA[:-1]
-    return SHA
-    #for words in output.split('\n') if 'origin' in line and not '->' in line]
+            sha = line.split(' ')[-1]
+            return sha[:-1]
+    return sha
 
 if __name__ == "__main__":
 
@@ -138,7 +140,7 @@ if __name__ == "__main__":
     parser.add_argument('-l', '--log-level',
                         help="Level for providing logging output",
                         default='INFO')
-    parser.add_argument('-r',   '--repo-path',
+    parser.add_argument('-r', '--repo-path',
                         help="Git Repository to be imported",
                         default=None,
                         required=True)
@@ -153,13 +155,13 @@ if __name__ == "__main__":
     logging.basicConfig(level=level)
     rel_log = logging.getLogger("Importer")
 
-    if (args.repo_path is None) or (args.config_file is None) :
+    if (args.repo_path is None) or (args.config_file is None):
         rel_log.error("Repository path and config file required as input. Use \"--help\" for more info.")
         exit(1)
 
     json_file = os.path.abspath(args.config_file)
     if not os.path.isfile(json_file):
-        rel_log.error("%s not found." , args.config_file)
+        rel_log.error("%s not found.", args.config_file)
         exit(1)
 
     repo = os.path.abspath(args.repo_path)
@@ -178,14 +180,14 @@ if __name__ == "__main__":
 
     # Read configuration data
     with open(json_file, 'r') as config:
-            json_data = json.load(config)
+        json_data = json.load(config)
 
     '''
     Check if branch exists already, in case branch is present
     we will skip all file transfer and merge operations and will
     jump to cherry-pick
     '''
-    if check_branch(branch):
+    if branch_exists(branch):
         rel_log.info("Branch present = %s", branch)
     else:
         data_files = json_data["files"]
@@ -193,11 +195,11 @@ if __name__ == "__main__":
 
         ## Remove all files listed in .json from mbed-os repo to avoid duplications
         for file in data_files:
-            src_file =  file['src_file']
+            src_file = file['src_file']
             del_file(os.path.basename(src_file))
 
         for folder in data_folders:
-            dest_folder =  folder['dest_folder']
+            dest_folder = folder['dest_folder']
             delete_dir_files(dest_folder)
             rel_log.debug("Deleted = %s", folder)
 
@@ -205,21 +207,21 @@ if __name__ == "__main__":
 
         ## Copy all the CMSIS files listed in json file to mbed-os
         for file in data_files:
-            repo_file =  os.path.join(repo, file['src_file'])
-            mbed_path =  os.path.join(ROOT, file['dest_file'])
+            repo_file = os.path.join(repo, file['src_file'])
+            mbed_path = os.path.join(ROOT, file['dest_file'])
             mkdir(os.path.dirname(mbed_path))
             copy_file(repo_file, mbed_path)
             rel_log.debug("Copied = %s", mbed_path)
 
         for folder in data_folders:
-            repo_folder =  os.path.join(repo, folder['src_folder'])
-            mbed_path =  os.path.join(ROOT, folder['dest_folder'])
+            repo_folder = os.path.join(repo, folder['src_folder'])
+            mbed_path = os.path.join(ROOT, folder['dest_folder'])
             copy_folder(repo_folder, mbed_path)
             rel_log.debug("Copied = %s", mbed_path)
 
         ## Create new branch with all changes
         create_branch = "git checkout -b "+ branch
-        run_cmd_with_output(create_branch, exit_on_failure=False)
+        run_cmd_with_output(create_branch, exit_on_failure=True)
         rel_log.info("Branch created = %s", branch)
 
         add_files = "git add -A"
