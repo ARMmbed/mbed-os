@@ -39,13 +39,13 @@ extern uint32_t SystemCoreClock;
  *   DELTA = TOLERANCE_FACTOR / SystemCoreClock * US_FACTOR
  *
  *   e.g.
- *   For K64F          DELTA = (15000 / 120000000) * 1000000 = 125[us]
- *   For NUCLEO_F070RB DELTA = (15000 /  48000000) * 1000000 = 312[us]
- *   For NRF51_DK      DELTA = (15000 /  16000000) * 1000000 = 937[us]
+ *   For K64F          DELTA = (30000 / 120000000) * 1000000 = 250[us]
+ *   For NUCLEO_F070RB DELTA = (30000 /  48000000) * 1000000 = 625[us]
+ *   For NRF51_DK      DELTA = (30000 /  16000000) * 1000000 = 1875[us]
  */
 #define US_PER_SEC       1000000
 #define US_PER_MSEC      1000
-#define TOLERANCE_FACTOR 15000.0f
+#define TOLERANCE_FACTOR 30000.0f
 #define US_FACTOR        1000000.0f
 
 static const int delta_sys_clk_us = ((int) (TOLERANCE_FACTOR / (float)SystemCoreClock * US_FACTOR));
