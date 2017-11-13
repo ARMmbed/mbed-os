@@ -78,9 +78,9 @@ void test_lptimer_creation()
 
     /* Check results. */
     TEST_ASSERT_EQUAL_FLOAT(0, lp_timer.read());
-    TEST_ASSERT_EQUAL(0, lp_timer.read_ms());
-    TEST_ASSERT_EQUAL(0, lp_timer.read_us());
-    TEST_ASSERT_EQUAL(0, lp_timer.read_high_resolution_us());
+    TEST_ASSERT_EQUAL_INT32(0, lp_timer.read_ms());
+    TEST_ASSERT_EQUAL_INT32(0, lp_timer.read_us());
+    TEST_ASSERT_EQUAL_UINT64(0, lp_timer.read_high_resolution_us());
 
     /* Wait 10 ms.
      * After that operation timer read routines should still return 0. */
@@ -88,9 +88,9 @@ void test_lptimer_creation()
 
     /* Check results. */
     TEST_ASSERT_EQUAL_FLOAT(0, lp_timer.read());
-    TEST_ASSERT_EQUAL(0, lp_timer.read_ms());
-    TEST_ASSERT_EQUAL(0, lp_timer.read_us());
-    TEST_ASSERT_EQUAL(0, lp_timer.read_high_resolution_us());
+    TEST_ASSERT_EQUAL_INT32(0, lp_timer.read_ms());
+    TEST_ASSERT_EQUAL_INT32(0, lp_timer.read_us());
+    TEST_ASSERT_EQUAL_UINT64(0, lp_timer.read_high_resolution_us());
 }
 
 /* This test verifies if read(), read_us(), read_ms(),
@@ -182,7 +182,7 @@ void test_lptimer_time_accumulation()
     /* Stop the timer. */
     lp_timer.stop();
 
-    /* Check results - totally 5060 ms have elapsed. */
+    /* Check results - totally 1060 ms have elapsed. */
     TEST_ASSERT_FLOAT_WITHIN(DELTA_S(4), 1.060f, lp_timer.read());
     TEST_ASSERT_INT32_WITHIN(DELTA_MS(4), 1060, lp_timer.read_ms());
     TEST_ASSERT_INT32_WITHIN(DELTA_US(4), 1060000, lp_timer.read_us());
