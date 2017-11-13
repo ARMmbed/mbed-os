@@ -111,18 +111,26 @@ void ConditionVariable::_add_wait_list(Waiter * waiter)
 
 void ConditionVariable::_remove_wait_list(Waiter * waiter)
 {
-    // Remove this element from the start of the list
+    // Remove this element from the list
     Waiter * next = waiter->next;
-    if (waiter == _wait_list) {
-        _wait_list = next;
-    }
-    if (next != NULL) {
-        next = waiter->prev;
-    }
     Waiter * prev = waiter->prev;
-    if (prev != NULL) {
-        prev = waiter->next;
+    if (waiter == _wait_list) {
+        // First element - change head pointer
+        _wait_list = next;
+    } else {
+        // Non-first element - change previous's next pointer
+        prev->next = next;
     }
+    if (next == NULL) {
+        // Last element - change tail pointer, unless now empty
+        if (_wait_list) {
+            _wait_list->prev = prev;
+        }
+    } else {
+        // Non-last element - change next's previous pointer
+        next->prev = prev;
+    }
+
     waiter->next = NULL;
     waiter->prev = NULL;
     waiter->in_list = false;
