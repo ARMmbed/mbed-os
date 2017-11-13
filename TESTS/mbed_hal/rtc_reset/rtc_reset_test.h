@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/** \addtogroup hal_rtc_tests
+ *  @{
+ */
+
 #ifndef MBED_RTC_TEST_H
 #define MBED_RTC_TEST_H
 
@@ -22,8 +27,12 @@
 extern "C" {
 #endif
 
-/** Test that the RTC does not stop counting after a software reset
- * \ingroup hal_rtc_tests
+/** Test that the RTC does not stop counting after a software reset.
+ *
+ * Given board provides RTC.
+ * When software reset is performed.
+ * Then the RTC does not stop counting.
+ *
  */
 void rtc_reset_test();
 
