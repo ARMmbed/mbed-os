@@ -25,7 +25,26 @@ extern "C" {
 
 #ifdef DEVICE_CAN
 
-#define CAN_NUM 2 // Number of CAN peripherals present in the STM32 serie (1 or 2)
+#if defined(STM32F767xx)
+
+#define CAN_NUM 3
+
+#define CAN3_IRQ_RX_IRQN        CAN3_RX0_IRQn
+#define CAN3_IRQ_RX_VECT        CAN3_RX0_IRQHandler
+#define CAN3_IRQ_TX_IRQN        CAN3_TX_IRQn
+#define CAN3_IRQ_TX_VECT        CAN3_TX_IRQHandler
+#define CAN3_IRQ_ERROR_IRQN     CAN3_SCE_IRQn
+#define CAN3_IRQ_ERROR_VECT     CAN3_SCE_IRQHandler
+#define CAN3_IRQ_PASSIVE_IRQN   CAN3_SCE_IRQn
+#define CAN3_IRQ_PASSIVE_VECT   CAN3_SCE_IRQHandler
+#define CAN3_IRQ_BUS_IRQN       CAN3_SCE_IRQn
+#define CAN3_IRQ_BUS_VECT       CAN3_SCE_IRQHandler
+
+#else
+
+#define CAN_NUM 2
+
+#endif
 
 #define CAN1_IRQ_RX_IRQN        CAN1_RX0_IRQn
 #define CAN1_IRQ_RX_VECT        CAN1_RX0_IRQHandler
