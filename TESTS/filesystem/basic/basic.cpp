@@ -90,7 +90,7 @@ using namespace utest::v1;
  *      },
  *      <<< lines removed >>>
  */
-#if defined(DEVICE_SPI) && defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED)
+#if defined(DEVICE_SPI) && ( defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) || (MBED_CONF_SD_FSFAT_SDCARD_INSTALLED))
 
 #define FSFAT_BASIC_TEST_00      fsfat_basic_test_00
 #define FSFAT_BASIC_TEST_01      fsfat_basic_test_01
@@ -897,7 +897,7 @@ static control_t fsfat_basic_test_dummy()
     return CaseNext;
 }
 
-#endif  /* defined(DEVICE_SPI) && defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) */
+#endif
 
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
