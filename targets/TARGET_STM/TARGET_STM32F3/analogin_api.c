@@ -36,22 +36,9 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 
-
 void analogin_init(analogin_t *obj, PinName pin)
 {
-#if defined(ADC1)
-    static int adc1_inited = 0;
-#endif
-#if defined(ADC2)
-    static int adc2_inited = 0;
-#endif
-#if defined(ADC3)
-    static int adc3_inited = 0;
-#endif
-#if defined(ADC4)
-    static int adc4_inited = 0;
-#endif
-
+    static int adc_calibrated = 0;
     uint32_t function = (uint32_t)NC;
 
     // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
@@ -60,14 +47,14 @@ void analogin_init(analogin_t *obj, PinName pin)
     if ((pin < 0xF0) || (pin >= 0x100)) {
         // Normal channels
         // Get the peripheral name from the pin and assign it to the object
-        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
+        obj->handle.Instance = (ADC_TypeDef *)pinmap_peripheral(pin, PinMap_ADC);
         // Get the functions (adc channel) from the pin and assign it to the object
         function = pinmap_function(pin, PinMap_ADC);
         // Configure GPIO
         pinmap_pinout(pin, PinMap_ADC);
     } else {
         // Internal channels
-        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC_Internal);
+        obj->handle.Instance = (ADC_TypeDef *)pinmap_peripheral(pin, PinMap_ADC_Internal);
         function = pinmap_function(pin, PinMap_ADC_Internal);
         // No GPIO configuration for internal channels
     }
@@ -79,41 +66,10 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Save pin number for the read function
     obj->pin = pin;
 
-    // Check if ADC is already initialized
-    // Enable ADC clock
-#if defined(ADC1)
-    if (((ADCName)obj->handle.Instance == ADC_1) && adc1_inited) return;
-    if ((ADCName)obj->handle.Instance == ADC_1) {
-        __ADC1_CLK_ENABLE();
-        adc1_inited = 1;
-    }
-#endif
-#if defined(ADC2)
-    if (((ADCName)obj->handle.Instance == ADC_2) && adc2_inited) return;
-    if ((ADCName)obj->handle.Instance == ADC_2) {
-        __ADC2_CLK_ENABLE();
-        adc2_inited = 1;
-    }
-#endif
-#if defined(ADC3)
-    if (((ADCName)obj->handle.Instance == ADC_3) && adc3_inited) return;
-    if ((ADCName)obj->handle.Instance == ADC_3) {
-        __ADC34_CLK_ENABLE();
-        adc3_inited = 1;
-    }
-#endif
-#if defined(ADC4)
-    if (((ADCName)obj->handle.Instance == ADC_4) && adc4_inited) return;
-    if ((ADCName)obj->handle.Instance == ADC_4) {
-        __ADC34_CLK_ENABLE();
-        adc4_inited = 1;
-    }
-#endif
-
-    // Configure ADC
+    // Configure ADC object structures
     obj->handle.State = HAL_ADC_STATE_RESET;
-    obj->handle.Init.ClockPrescaler        = ADC_CLOCKPRESCALER_PCLK_DIV2;
-    obj->handle.Init.Resolution            = ADC_RESOLUTION12b;
+    obj->handle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;
+    obj->handle.Init.Resolution            = ADC_RESOLUTION_12B;
     obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     obj->handle.Init.ScanConvMode          = DISABLE;
     obj->handle.Init.EOCSelection          = EOC_SINGLE_CONV;
@@ -127,12 +83,36 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->handle.Init.DMAContinuousRequests = DISABLE;
     obj->handle.Init.Overrun               = OVR_DATA_OVERWRITTEN;
 
+#if defined(ADC1)
+    if ((ADCName)obj->handle.Instance == ADC_1) {
+        __HAL_RCC_ADC1_CLK_ENABLE();
+    }
+#endif
+#if defined(ADC2)
+    if ((ADCName)obj->handle.Instance == ADC_2) {
+        __HAL_RCC_ADC2_CLK_ENABLE();
+    }
+#endif
+#if defined(ADC3)
+    if ((ADCName)obj->handle.Instance == ADC_3) {
+        __HAL_RCC_ADC34_CLK_ENABLE();
+    }
+#endif
+#if defined(ADC4)
+    if ((ADCName)obj->handle.Instance == ADC_4) {
+        __HAL_RCC_ADC34_CLK_ENABLE();
+    }
+#endif
+
     if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
         error("Cannot initialize ADC");
     }
 
-    // Calibrate ADC
-    HAL_ADCEx_Calibration_Start(&obj->handle, ADC_SINGLE_ENDED);
+    // ADC calibration is done only once
+    if (adc_calibrated == 0) {
+        adc_calibrated = 1;
+        HAL_ADCEx_Calibration_Start(&obj->handle, ADC_SINGLE_ENDED);
+    }
 }
 
 static inline uint16_t adc_read(analogin_t *obj)
@@ -211,7 +191,7 @@ static inline uint16_t adc_read(analogin_t *obj)
 
     // Wait end of conversion and get value
     if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
-        return (HAL_ADC_GetValue(&obj->handle));
+        return (uint16_t)HAL_ADC_GetValue(&obj->handle);
     } else {
         return 0;
     }
