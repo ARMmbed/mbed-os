@@ -8,26 +8,26 @@
  * @version  V1
  * @date     18. November 2016
  *
- * @note     Generated with SVDConv V2.81d 
+ * @note     Generated with SVDConv V2.81d
  *           from CMSIS SVD File 'nrf52840.svd' Version 1,
  *
  * @par      Copyright (c) 2016, Nordic Semiconductor ASA
  *           All rights reserved.
- *           
+ *
  *           Redistribution and use in source and binary forms, with or without
  *           modification, are permitted provided that the following conditions are met:
- *           
+ *
  *           * Redistributions of source code must retain the above copyright notice, this
  *           list of conditions and the following disclaimer.
- *           
+ *
  *           * Redistributions in binary form must reproduce the above copyright notice,
  *           this list of conditions and the following disclaimer in the documentation
  *           and/or other materials provided with the distribution.
- *           
+ *
  *           * Neither the name of Nordic Semiconductor ASA nor the names of its
  *           contributors may be used to endorse or promote products derived from
  *           this software without specific prior written permission.
- *           
+ *
  *           THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  *           AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  *           IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -38,7 +38,7 @@
  *           CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
  *           OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  *           OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *           
+ *
  *
  *******************************************************************************************************/
 
@@ -119,7 +119,8 @@ typedef enum {
   QSPI_IRQn                     =  41,              /*!<  41  QSPI                                                             */
   CRYPTOCELL_IRQn               =  42,              /*!<  42  CRYPTOCELL                                                       */
   SPIM3_IRQn                    =  43,              /*!<  43  SPIM3                                                            */
-  PWM3_IRQn                     =  45               /*!<  45  PWM3                                                             */
+  PWM3_IRQn                     =  45,              /*!<  45  PWM3
+  UARTE1_UART1_IRQn             =  46               /*!<   2  UARTE0_UART0                                                         */
 } IRQn_Type;
 
 
@@ -1883,7 +1884,7 @@ typedef struct {                                    /*!< NVMC Structure         
   __I  uint32_t  READY;                             /*!< Ready flag                                                            */
   __I  uint32_t  RESERVED1[64];
   __IO uint32_t  CONFIG;                            /*!< Configuration register                                                */
-  
+
   union {
     __IO uint32_t  ERASEPCR1;                       /*!< Deprecated register - Register for erasing a page in Code area.
                                                          Equivalent to ERASEPAGE.                                              */
@@ -2318,6 +2319,7 @@ typedef struct {                                    /*!< CRYPTOCELL Structure   
 #define NRF_FPU_BASE                    0x40026000UL
 #define NRF_USBD_BASE                   0x40027000UL
 #define NRF_UARTE1_BASE                 0x40028000UL
+#define NRF_UART1_BASE                 0x40028000UL
 #define NRF_QSPI_BASE                   0x40029000UL
 #define NRF_SPIM3_BASE                  0x4002B000UL
 #define NRF_PWM3_BASE                   0x4002D000UL
@@ -2396,6 +2398,7 @@ typedef struct {                                    /*!< CRYPTOCELL Structure   
 #define NRF_FPU                         ((NRF_FPU_Type            *) NRF_FPU_BASE)
 #define NRF_USBD                        ((NRF_USBD_Type           *) NRF_USBD_BASE)
 #define NRF_UARTE1                      ((NRF_UARTE_Type          *) NRF_UARTE1_BASE)
+#define NRF_UART1                       ((NRF_UARTE_Type          *) NRF_UART1_BASE)
 #define NRF_QSPI                        ((NRF_QSPI_Type           *) NRF_QSPI_BASE)
 #define NRF_SPIM3                       ((NRF_SPIM_Type           *) NRF_SPIM3_BASE)
 #define NRF_PWM3                        ((NRF_PWM_Type            *) NRF_PWM3_BASE)
@@ -2414,4 +2417,3 @@ typedef struct {                                    /*!< CRYPTOCELL Structure   
 
 
 #endif  /* nrf52840_H */
-

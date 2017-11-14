@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #include "serial_api.h"
@@ -49,12 +49,16 @@
 #include "nrf_gpio.h"
 #include "sdk_config.h"
 
-#define UART_INSTANCE_COUNT 1
-#define UART_INSTANCE       NRF_UART0
-#define UART_IRQn           UART0_IRQn
-#define UART_IRQ_HANDLER    UART0_IRQHandler
-#define UART_INSTANCE_ID    0
-#define UART_CB uart_cb[UART_INSTANCE_ID]
+#define UART_INSTANCE_COUNT 2
+
+static uint32_t serial_irq_ids[UART_INSTANCE_COUNT] = {0};
+static uart_irq_handler irq_handler;
+
+//#define UART_INSTANCE       NRF_UART0
+//#define UART_IRQn           UART0_IRQn
+//#define UART_IRQ_HANDLER    UART0_IRQHandler
+//#define UART_INSTANCE_ID    0
+//#define UART_CB uart_cb[UART_INSTANCE_ID]
 
 #define UART_DEFAULT_BAUDRATE   UART_DEFAULT_CONFIG_BAUDRATE
 #define UART_DEFAULT_PARITY     UART_DEFAULT_CONFIG_PARITY
@@ -259,7 +263,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     NVIC_SetVector(UART0_IRQn, (uint32_t) UART0_IRQHandler);
 
-    
+
     UART_CB.pseltxd =
         (tx == NC) ? NRF_UART_PSEL_DISCONNECTED : (uint32_t)tx;
     UART_CB.pselrxd =
@@ -330,7 +334,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
             internal_set_hwfc(FlowControlRTSCTS,
                 (PinName) UART_CB.pselrts, (PinName) UART_CB.pselcts);
         }
-        
+
         nrf_uart_enable(UART_INSTANCE);
 
         UART_CB.initialized = true;
@@ -555,9 +559,9 @@ static void internal_set_hwfc(FlowControl type,
     if (UART_CB.pselcts != NRF_UART_PSEL_DISCONNECTED) {
         nrf_gpio_cfg_input(UART_CB.pselcts, NRF_GPIO_PIN_NOPULL);
     }
-    
+
     UART_CB.hwfc = (nrf_uart_hwfc_t)((type == FlowControlNone)? NRF_UART_HWFC_DISABLED  : UART_DEFAULT_CONFIG_HWFC);
-    
+
     nrf_uart_configure(UART_INSTANCE, UART_CB.parity, UART_CB.hwfc);
     nrf_uart_hwfc_pins_set(UART_INSTANCE, UART_CB.pselrts, UART_CB.pselcts);
 }
@@ -566,7 +570,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type,
                              PinName rxflow, PinName txflow)
 {
     (void)obj;
-    
+
     nrf_uart_disable(UART_INSTANCE);
     internal_set_hwfc(type, rxflow, txflow);
     nrf_uart_enable(UART_INSTANCE);

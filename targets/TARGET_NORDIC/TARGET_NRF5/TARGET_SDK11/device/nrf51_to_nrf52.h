@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2015 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 
@@ -51,6 +51,7 @@
 /* IRQ */
 /* Several peripherals have been added to several indexes. Names of IRQ handlers and IRQ numbers have changed. */
 #define UART0_IRQHandler        UARTE0_UART0_IRQHandler
+#define UART1_IRQHandler        UARTE1_UART1_IRQHandler
 #define SPI0_TWI0_IRQHandler    SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler
 #define SPI1_TWI1_IRQHandler    SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler
 #define ADC_IRQHandler          SAADC_IRQHandler
@@ -63,6 +64,7 @@
 #define SWI5_IRQHandler         SWI5_EGU5_IRQHandler
 
 #define UART0_IRQn              UARTE0_UART0_IRQn
+#define UART1_IRQn              UARTE1_UART1_IRQn
 #define SPI0_TWI0_IRQn          SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn
 #define SPI1_TWI1_IRQn          SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn
 #define ADC_IRQn                SAADC_IRQn
@@ -941,4 +943,3 @@
 /*lint --flb "Leave library region" */
 
 #endif /* NRF51_TO_NRF52_H */
-
