@@ -79,8 +79,6 @@
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 
-int num_serial = 0;
-
 typedef struct {
     bool                initialized;
     uint32_t            irq_context;
@@ -118,6 +116,7 @@ typedef struct {
 } uart_ctlblock_t;
 
 static uart_ctlblock_t uart_cb[UART_INSTANCE_COUNT];
+static uint32_t uart_used[UART_INSTANCE_COUNT] = {0};
 
 static void internal_set_hwfc(serial_t *obj, FlowControl type,
                              PinName rxflow, PinName txflow);
@@ -260,12 +259,11 @@ void uart1_irq(void) { uart_irq(NRF_UART1, 1); }
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
-    if(num_serial == 0) {
+    if(uart_used[0] == 0) {
         obj->serial.uart = NRF_UART0;
         obj->serial.instance = 0;
         obj->serial.IRQn = UART0_IRQn;
         NVIC_SetVector(UART0_IRQn, (uint32_t) uart0_irq);
-        num_serial++;
     }
     else {
         obj->serial.uart = NRF_UART1;
@@ -273,6 +271,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
         obj->serial.IRQn = UART1_IRQn;
         NVIC_SetVector(UART1_IRQn, (uint32_t) uart1_irq);
     }
+    uart_used[obj->serial.instance] = 1;
         
     uart_ctlblock_t* UART_CB = &uart_cb[obj->serial.instance]; 
 
@@ -372,10 +371,10 @@ void serial_free(serial_t *obj)
         nrf_drv_common_irq_disable(obj->serial.IRQn);
         UART_CB->initialized = false;
 
-        // There is only one UART instance, thus at this point the stdio UART
-        // can no longer be initialized.
-        stdio_uart_inited = 0;
+        if(&stdio_uart == &(obj->serial)) 
+            stdio_uart_inited = 0;
     }
+    uart_used[obj->serial.instance] = 0;
 }
 
 void serial_baud(serial_t *obj, int baudrate)
