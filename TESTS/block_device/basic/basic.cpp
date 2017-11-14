@@ -111,7 +111,7 @@ void test_read_write() {
         // Write, sync, and read the block
         printf("test  %0*llx:%llu...\n", addrwidth, block, block_size);
 
-        err = sd.erase(block, block_size);
+        err = sd.trim(block, block_size);
         TEST_ASSERT_EQUAL(0, err);
 
         err = sd.program(write_block, block, block_size);
