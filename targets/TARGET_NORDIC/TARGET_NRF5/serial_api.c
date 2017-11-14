@@ -51,15 +51,6 @@
 
 #define UART_INSTANCE_COUNT 2
 
-static uint32_t serial_irq_ids[UART_INSTANCE_COUNT] = {0};
-static uart_irq_handler irq_handler;
-
-//#define UART_INSTANCE       NRF_UART0
-//#define UART_IRQn           UART0_IRQn
-#define UART_IRQ_HANDLER    UART0_IRQHandler
-//#define UART_INSTANCE_ID    0
-//#define UART_CB_GLOB uart_cb[UART_INSTANCE_ID]
-
 #define UART_DEFAULT_BAUDRATE   UART_DEFAULT_CONFIG_BAUDRATE
 #define UART_DEFAULT_PARITY     UART_DEFAULT_CONFIG_PARITY
 
@@ -87,8 +78,6 @@ static uart_irq_handler irq_handler;
 // Required by "retarget.cpp".
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
-
-serial_t* global_obj;
 
 int num_serial = 0;
 
@@ -135,39 +124,39 @@ static void internal_set_hwfc(serial_t *obj, FlowControl type,
 
 
 #if DEVICE_SERIAL_ASYNCH
-static void end_asynch_rx(serial_t *obj)
+static void end_asynch_rx(NRF_UART_Type *uart, int index)
 {
-    uart_ctlblock_t* UART_CB = &uart_cb[obj->serial.instance]; 
+    uart_ctlblock_t* UART_CB = &uart_cb[index]; 
     // If RX interrupt is activated for synchronous operations,
     // don't disable it, just stop handling it here.
     if (!(UART_CB->irq_enabled & UART_IRQ_RX)) {
-        nrf_uart_int_disable(obj->serial.uart, NRF_UART_INT_MASK_RXDRDY);
+        nrf_uart_int_disable(uart, NRF_UART_INT_MASK_RXDRDY);
     }
     UART_CB->rx_active = false;
 }
-static void end_asynch_tx(serial_t *obj)
+static void end_asynch_tx(NRF_UART_Type *uart, int index)
 {
-    uart_ctlblock_t* UART_CB = &uart_cb[obj->serial.instance]; 
+    uart_ctlblock_t* UART_CB = &uart_cb[index]; 
     // If TX interrupt is activated for synchronous operations,
     // don't disable it, just stop handling it here.
     if (!(UART_CB->irq_enabled & UART_IRQ_TX)) {
-        nrf_uart_int_disable(obj->serial.uart, NRF_UART_INT_MASK_TXDRDY);
+        nrf_uart_int_disable(uart, NRF_UART_INT_MASK_TXDRDY);
     }
     UART_CB->tx_active = false;
 }
 #endif // DEVICE_SERIAL_ASYNCH
 
-void UART_IRQ_HANDLER(void)
+void uart_irq(NRF_UART_Type *uart, int index)
 {
-    uart_ctlblock_t* UART_CB = &uart_cb[global_obj->serial.instance]; 
-    if (nrf_uart_int_enable_check(global_obj->serial.uart, NRF_UART_INT_MASK_RXDRDY) &&
-        nrf_uart_event_check(global_obj->serial.uart, NRF_UART_EVENT_RXDRDY)) {
+    uart_ctlblock_t* UART_CB = &uart_cb[index]; 
+    if (nrf_uart_int_enable_check(uart, NRF_UART_INT_MASK_RXDRDY) &&
+        nrf_uart_event_check(uart, NRF_UART_EVENT_RXDRDY)) {
 
     #if DEVICE_SERIAL_ASYNCH
         if (UART_CB->rx_active) {
-            nrf_uart_event_clear(global_obj->serial.uart, NRF_UART_EVENT_RXDRDY);
+            nrf_uart_event_clear(uart, NRF_UART_EVENT_RXDRDY);
 
-            uint8_t rx_data = nrf_uart_rxd_get(global_obj->serial.uart);
+            uint8_t rx_data = nrf_uart_rxd_get(uart);
             UART_CB->rx_buffer[UART_CB->rx_pos] = rx_data;
 
             bool end_rx = false;
@@ -186,7 +175,7 @@ void UART_IRQ_HANDLER(void)
                 end_rx = true;
             }
             if (end_rx) {
-                end_asynch_rx(global_obj);
+                end_asynch_rx(uart, index);
 
                 if (UART_CB->rx_asynch_handler) {
                     // Use local variable to make it possible to start a next
@@ -205,16 +194,16 @@ void UART_IRQ_HANDLER(void)
         }
     }
 
-    if (nrf_uart_int_enable_check(global_obj->serial.uart, NRF_UART_INT_MASK_TXDRDY) &&
-        nrf_uart_event_check(global_obj->serial.uart, NRF_UART_EVENT_TXDRDY)) {
+    if (nrf_uart_int_enable_check(uart, NRF_UART_INT_MASK_TXDRDY) &&
+        nrf_uart_event_check(uart, NRF_UART_EVENT_TXDRDY)) {
 
     #if DEVICE_SERIAL_ASYNCH
         if (UART_CB->tx_active) {
             if (UART_CB->tx_pos < UART_CB->tx_length) {
                 // When there is still something to send, clear the TXDRDY event
                 // and put next byte to transmitter.
-                nrf_uart_event_clear(global_obj->serial.uart, NRF_UART_EVENT_TXDRDY);
-                nrf_uart_txd_set(global_obj->serial.uart,
+                nrf_uart_event_clear(uart, NRF_UART_EVENT_TXDRDY);
+                nrf_uart_txd_set(uart,
                     UART_CB->tx_buffer[UART_CB->tx_pos]);
                 UART_CB->tx_pos++;
             }
@@ -224,7 +213,7 @@ void UART_IRQ_HANDLER(void)
                 // complete can be indicated.
                 // Don't clear the TXDRDY event, it needs to remain set for the
                 // 'serial_writable' function to work properly.
-                end_asynch_tx(global_obj);
+                end_asynch_tx(uart, index);
 
                 UART_CB->events_occured |= SERIAL_EVENT_TX_COMPLETE;
                 if (UART_CB->tx_asynch_handler) {
@@ -245,10 +234,10 @@ void UART_IRQ_HANDLER(void)
     }
 
 #if DEVICE_SERIAL_ASYNCH
-    if (nrf_uart_event_check(global_obj->serial.uart, NRF_UART_EVENT_ERROR)) {
-        nrf_uart_event_clear(global_obj->serial.uart, NRF_UART_EVENT_ERROR);
+    if (nrf_uart_event_check(uart, NRF_UART_EVENT_ERROR)) {
+        nrf_uart_event_clear(uart, NRF_UART_EVENT_ERROR);
 
-        uint8_t errorsrc = nrf_uart_errorsrc_get_and_clear(global_obj->serial.uart);
+        uint8_t errorsrc = nrf_uart_errorsrc_get_and_clear(uart);
         if (UART_CB->rx_asynch_handler) {
             UART_CB->events_occured |= SERIAL_EVENT_ERROR;
             if (errorsrc & NRF_UART_ERROR_PARITY_MASK) {
@@ -266,24 +255,24 @@ void UART_IRQ_HANDLER(void)
 #endif // DEVICE_SERIAL_ASYNCH
 }
 
+void uart0_irq(void) { uart_irq(NRF_UART0, 0); }
+void uart1_irq(void) { uart_irq(NRF_UART1, 1); }
+
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     if(num_serial == 0) {
         obj->serial.uart = NRF_UART0;
         obj->serial.instance = 0;
         obj->serial.IRQn = UART0_IRQn;
-        global_obj = obj;
-        NVIC_SetVector(UART0_IRQn, (uint32_t) UART0_IRQHandler);
+        NVIC_SetVector(UART0_IRQn, (uint32_t) uart0_irq);
         num_serial++;
     }
-    /**
     else {
         obj->serial.uart = NRF_UART1;
         obj->serial.instance = 1;
         obj->serial.IRQn = UART1_IRQn;
-        NVIC_SetVector(UART1_IRQn, (uint32_t) UART1_IRQHandler);
+        NVIC_SetVector(UART1_IRQn, (uint32_t) uart1_irq);
     }
-    */
         
     uart_ctlblock_t* UART_CB = &uart_cb[obj->serial.instance]; 
 
@@ -675,14 +664,14 @@ int serial_irq_handler_asynch(serial_t *obj)
 void serial_tx_abort_asynch(serial_t *obj)
 {
     uart_ctlblock_t* UART_CB = &uart_cb[obj->serial.instance]; 
-    end_asynch_tx(obj);
+    end_asynch_tx(obj->serial.uart, obj->serial.instance);
     UART_CB->tx_asynch_handler = NULL;
 }
 
 void serial_rx_abort_asynch(serial_t *obj)
 {
     uart_ctlblock_t* UART_CB = &uart_cb[obj->serial.instance]; 
-    end_asynch_rx(obj);
+    end_asynch_rx(obj->serial.uart, obj->serial.instance);
     UART_CB->rx_asynch_handler = NULL;
 }
 
