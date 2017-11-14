@@ -75,8 +75,8 @@ using namespace utest::v1;
  *      },
  *  	<<< lines removed >>>
  */
-#if defined(DEVICE_SPI) && defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED)
-
+ 
+#if defined(DEVICE_SPI) && ( defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) || (MBED_CONF_SD_FSFAT_SDCARD_INSTALLED))
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 #define FSFAT_FOPEN_TEST_MOUNT_PT_NAME      "sd"
 #define FSFAT_FOPEN_TEST_MOUNT_PT_PATH      "/"FSFAT_FOPEN_TEST_MOUNT_PT_NAME
@@ -1490,7 +1490,7 @@ static control_t fsfat_fopen_test_dummy()
     return CaseNext;
 }
 
-#endif  /* defined(DEVICE_SPI) && defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) */
+#endif
 
 
 /// @cond FSFAT_DOXYGEN_DISABLE
