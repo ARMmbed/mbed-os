@@ -330,6 +330,20 @@
 #endif
 #endif
 
+/**
+ * Macro expanding to a string literal of the enclosing function name.
+ *
+ * The string returned takes into account language specificity and yield human
+ * readable content.
+ *
+ * As an example, if the macro is used within a C++ function then the string
+ * literal containing the function name will contain the complete signature of
+ * the function - including template parameters - and namespace qualifications.
+ */
+#ifndef MBED_PRETTY_FUNCTION
+#define MBED_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#endif
+
 #ifndef MBED_PRINTF
 #if defined(__GNUC__) || defined(__CC_ARM)
 #define MBED_PRINTF(format_idx, first_param_idx) __attribute__ ((__format__(__printf__, format_idx, first_param_idx)))
