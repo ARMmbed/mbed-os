@@ -49,7 +49,11 @@
 #include "nrf_gpio.h"
 #include "sdk_config.h"
 
+#if defined(NRF52840_XXAA)
 #define UART_INSTANCE_COUNT 2
+#else
+#define UART_INSTANCE_COUNT 1
+#endif
 
 #define UART_DEFAULT_BAUDRATE   UART_DEFAULT_CONFIG_BAUDRATE
 #define UART_DEFAULT_PARITY     UART_DEFAULT_CONFIG_PARITY
@@ -255,21 +259,25 @@ void uart_irq(NRF_UART_Type *uart, int index)
 }
 
 void uart0_irq(void) { uart_irq(NRF_UART0, 0); }
+#if defined(NRF52840_XXAA)
 void uart1_irq(void) { uart_irq(NRF_UART1, 1); }
+#endif
 
 void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
-    if(uart_used[0] == 0) {
+    if(uart_used[0] == 0 || UART_INSTANCE_COUNT == 1) {
         obj->serial.uart = NRF_UART0;
         obj->serial.instance = 0;
         obj->serial.IRQn = UART0_IRQn;
         NVIC_SetVector(UART0_IRQn, (uint32_t) uart0_irq);
     }
     else {
+#if defined(NRF52840_XXAA)
         obj->serial.uart = NRF_UART1;
         obj->serial.instance = 1;
         obj->serial.IRQn = UART1_IRQn;
         NVIC_SetVector(UART1_IRQn, (uint32_t) uart1_irq);
+#endif
     }
     uart_used[obj->serial.instance] = 1;
         
