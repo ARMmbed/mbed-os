@@ -1,5 +1,6 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2016 u-blox
+/*
+ * PackageLicenseDeclared: Apache-2.0
+ * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +15,29 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifndef MBED_CMSIS_NVIC_H
+#define MBED_CMSIS_NVIC_H
 
-#if defined(TARGET_HI2110)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x01000000 + 0x05000 - 256)
-#endif
+
+// CORE: 16 vectors = 64 bytes from 0x00 to 0x3F
+// MCU Peripherals: 46 vectors =  184 bytes from 0x40 to 0xF8
+// Total: 62 vectors = 248 bytes to be reserved in RAM
+
+#define NVIC_NUM_VECTORS      (16 + 46)   // CORE + MCU Peripherals
+#define NVIC_USER_IRQ_OFFSET  16
+
+#include "cmsis.h"
+
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#if defined(TARGET_R5030)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20000000 + 0x100000)
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
+uint32_t NVIC_GetVector(IRQn_Type IRQn);
 
-#endif
-#else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
+#ifdef __cplusplus
+}
 #endif
 
-#endif  // MBED_MBED_RTX_H
+#endif
