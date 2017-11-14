@@ -180,18 +180,4 @@ static inline uint16_t adc_read(analogin_t *obj)
     }
 }
 
-uint16_t analogin_read_u16(analogin_t *obj)
-{
-    uint16_t value = adc_read(obj);
-    // 12-bit to 16-bit conversion
-    value = ((value << 4) & (uint16_t)0xFFF0) | ((value >> 8) & (uint16_t)0x000F);
-    return value;
-}
-
-float analogin_read(analogin_t *obj)
-{
-    uint16_t value = adc_read(obj);
-    return (float)value * (1.0f / (float)0xFFF); // 12 bits range
-}
-
 #endif
