@@ -101,7 +101,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 }
 
-static inline uint16_t adc_read(analogin_t *obj)
+uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
 

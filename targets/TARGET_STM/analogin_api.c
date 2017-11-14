@@ -29,6 +29,8 @@
 
 #if DEVICE_ANALOGIN
 
+uint16_t adc_read(analogin_t *obj);
+
 uint16_t analogin_read_u16(analogin_t *obj)
 {
     uint16_t value = adc_read(obj);

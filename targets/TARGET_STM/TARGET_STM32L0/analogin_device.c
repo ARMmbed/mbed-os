@@ -100,7 +100,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     __HAL_ADC_ENABLE(&obj->handle);
 }
 
-static inline uint16_t adc_read(analogin_t *obj)
+uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
 
