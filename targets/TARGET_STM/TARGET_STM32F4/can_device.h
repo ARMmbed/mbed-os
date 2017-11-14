@@ -17,7 +17,7 @@
 #define MBED_CAN_DEVICE_H
 
 #include "cmsis.h"
-#include "stm32f4xx_hal.h"
+#include "stm32f4xx.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,9 +25,9 @@ extern "C" {
 
 #ifdef DEVICE_CAN
 
-#if defined(STM32F413xx)
+#if defined(CAN3_BASE)
 
-#define CAN_NUM 3
+#define CAN_NUM 3 // Number of CAN peripherals present in the STM32 serie
 
 #define CAN3_IRQ_RX_IRQN        CAN3_RX0_IRQn
 #define CAN3_IRQ_RX_VECT        CAN3_RX0_IRQHandler
@@ -42,7 +42,7 @@ extern "C" {
 
 #else
 
-#define CAN_NUM 2
+#define CAN_NUM 2 // Number of CAN peripherals present in the STM32 serie
 
 #endif
 
