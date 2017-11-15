@@ -165,6 +165,10 @@ typedef enum {
     LED3    = p15,
     LED4    = p16,
 
+    LED_RED   = p13,
+    LED_GREEN = p14,
+    LED_BLUE  = p15,
+
     BUTTON1 = p11,
     BUTTON2 = p12,
     BUTTON3 = p24,
