@@ -92,6 +92,80 @@ void test_notify_all()
     t2.join();
 }
 
+
+class TestConditionVariable : public ConditionVariable {
+
+public:
+    static void test_linked_list(void)
+    {
+        Waiter *list = NULL;
+        Waiter w1;
+        Waiter w2;
+        Waiter w3;
+        Waiter w4;
+
+        TEST_ASSERT_EQUAL(0, validate_and_get_size(&list));
+
+        // Add 4 nodes
+        _add_wait_list(&list, &w1);
+        TEST_ASSERT_EQUAL(1, validate_and_get_size(&list));
+        _add_wait_list(&list, &w2);
+        TEST_ASSERT_EQUAL(2, validate_and_get_size(&list));
+        _add_wait_list(&list, &w3);
+        TEST_ASSERT_EQUAL(3, validate_and_get_size(&list));
+        _add_wait_list(&list, &w4);
+        TEST_ASSERT_EQUAL(4, validate_and_get_size(&list));
+
+        // Remove a middle node
+        _remove_wait_list(&list, &w2);
+        TEST_ASSERT_EQUAL(3, validate_and_get_size(&list));
+
+        // Remove front node
+        _remove_wait_list(&list, &w1);
+        TEST_ASSERT_EQUAL(2, validate_and_get_size(&list));
+
+        // remove back node
+        _remove_wait_list(&list, &w4);
+        TEST_ASSERT_EQUAL(1, validate_and_get_size(&list));
+
+        // remove last node
+        _remove_wait_list(&list, &w3);
+        TEST_ASSERT_EQUAL(0, validate_and_get_size(&list));
+
+        TEST_ASSERT_EQUAL_PTR(NULL, list);
+    }
+
+    /**
+     * Validate the linked list an return the number of elements
+     *
+     * If this list is invalid then this function asserts and does not
+     * return.
+     *
+     * Every node in a valid linked list has the properties:
+     * 1. node->prev->next == node
+     * 2. node->next->prev == node
+     */
+    static int validate_and_get_size(Waiter **list)
+    {
+        Waiter *first = *list;
+        if (NULL == first) {
+            // List is empty
+            return 0;
+        }
+
+        int size = 0;
+        Waiter *current = first;
+        do {
+            TEST_ASSERT_EQUAL_PTR(current, current->prev->next);
+            TEST_ASSERT_EQUAL_PTR(current, current->next->prev);
+            current = current->next;
+            size++;
+        } while (current != first);
+        return size;
+    }
+
+};
+
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(10, "default_auto");
@@ -101,6 +175,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("Test notify one", test_notify_one),
     Case("Test notify all", test_notify_all),
+    Case("Test linked list", TestConditionVariable::test_linked_list),
 };
 
 Specification specification(test_setup, cases);
