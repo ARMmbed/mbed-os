@@ -11,31 +11,27 @@ SET(CMAKE_CROSSCOMPILING TRUE)
 SET(CMAKE_C_COMPILER_WORKS TRUE)
 SET(CMAKE_CXX_COMPILER_WORKS TRUE)
 
-SET(CMAKE_ASM_COMPILER_INIT   "{{asm}}")
-SET(CMAKE_C_COMPILER_INIT     "{{cc}}")
-SET(CMAKE_CXX_COMPILER_INIT   "{{cxx}}")
-SET(CMAKE_CXX_LINK_EXECUTABLE "{{ld}}")
-
-{% if pp -%}
-SET(PREPROC "{{pp}}")
-{%- endif %}
+SET(CMAKE_ASM_COMPILER_INIT    "{{asm}}")
+SET(CMAKE_C_COMPILER_INIT      "{{cc}}")
+SET(CMAKE_CXX_COMPILER_INIT    "{{cxx}}")
+SET(ELF2BIN                    "{{elf2bin}}")
 {% if hex_files %}
 SET(SREC_CAT "srec_cat")
 {%- endif %}
 
 # here starts the project
-PROJECT({{name}} C CXX ASM)
+PROJECT(cmake-{{name}} C CXX ASM)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
+
+SET(LD_SYS_LIBS "{%- block sys_libs -%} -Wl,--start-group {{ld_sys_libs|join(" ")}} {{libraries|join(" ")}} -Wl,--end-group {%- endblock -%}")
 
 SET(CMAKE_C_FLAGS "{{cc_flags}} -include mbed_config.h")
 SET(CMAKE_CXX_FLAGS "{{cxx_flags}}  -include mbed_config.h")
 SET(CMAKE_ASM_FLAGS "{{asm_flags}}  -include mbed_config.h")
-SET(CMAKE_LINKER_FLAGS "{{ld_flags}}")
-
-SET(LD_SYS_LIBS "{{ld_sys_libs|join(" ")}}")
-SET(ELF2BIN {{elf2bin}})
-
-SET(CMAKE_EXE_LINKER_FLAGS "{{ld_flags}} {{link_script_option}} ${LD_SYS_LIBS}")
+SET(CMAKE_CXX_LINK_FLAGS "{{ld_flags}}")
+{% if pp -%}
+SET(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_INK_FLAGS} {{link_script_option}} ${CMAKE_BINARY_DIR}/{{name}}.link_script.ld ${LD_SYS_LIBS}")
+{%- endif %}
 
 ADD_DEFINITIONS(
   {% for d in symbols %}-D{{d}}
@@ -44,20 +40,28 @@ INCLUDE_DIRECTORIES(
   {% for p in include_paths %}{{p}}
   {% endfor %})
 
-{% for libname,libsrcs in libs.items() %}
+{% for libname,libsrcs in dependencies.items() %}
 # target for library "{{libname}}"
-ADD_LIBRARY({{libname}} STATIC EXCLUDE_FROM_ALL
+ADD_LIBRARY({{libname}} STATIC
   {% for libsrc in libsrcs %}{{libsrc}}
   {% endfor %})
 {% endfor %}
 
 # executable {{name}}
-ADD_EXECUTABLE({{name}} EXCLUDE_FROM_ALL
+ADD_EXECUTABLE({{name}}.elf
   {% for src in sources %}{{src}}
   {% endfor %})
-TARGET_LINK_LIBRARIES({{name}}
-  {% for libname in libs %}{{libname}}
+TARGET_LINK_LIBRARIES({{name}}.elf
+  {% for libname in dependencies %}{{libname}}
   {% endfor %})
+
+{% if pp -%}
+add_custom_command(TARGET {{name}}.elf PRE_LINK
+                   COMMAND "{{pp}}" {{pp_flags}} {{linker_script}} -o ${CMAKE_CURRENT_BINARY_DIR}/{{name}}.link_script.ld
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                   BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/{{name}}.link_script.ld"
+                   )
+{%- endif %}
 
 ##########################################################################
 # mbed-cli specific targets
@@ -80,8 +84,7 @@ ELSE()
 ENDIF()
 
 # optional custom target to build via mbed-cli
-MESSAGE(STATUS "Creating target 01-{{name}} for mbed compilation...")
-ADD_CUSTOM_TARGET(01-{{name}} ALL
+ADD_CUSTOM_TARGET(mbed-cli-build EXCLUDE_FROM_ALL
         COMMAND ${CMAKE_COMMAND} -E echo "mbed compile --build BUILD/${CMAKE_BUILD_TYPE} ${MBED_BUILD_PROFILE}"
         COMMAND mbed compile --build BUILD/${CMAKE_BUILD_TYPE} --profile ${MBED_BUILD_PROFILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
