@@ -80,4 +80,10 @@ extern const PinMap PinMap_CAN_RD[];
 extern const PinMap PinMap_CAN_TD[];
 #endif
 
+#ifdef DEVICE_QSPI
+extern const PinMap PinMap_QSPI_DATA[];
+extern const PinMap PinMap_QSPI_SCLK[];
+extern const PinMap PinMap_QSPI_SSEL[];
+#endif
+
 #endif
