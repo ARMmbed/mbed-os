@@ -25,7 +25,7 @@ extern "C" {
 
 #ifdef DEVICE_CAN
 
-#if defined(CAN3_BASE)
+#if defined(CAN3_BASE) && defined(CAN_3)
 
 #define CAN_NUM 3 // Number of CAN peripherals present in the STM32 serie
 
