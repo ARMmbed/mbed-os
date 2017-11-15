@@ -22,7 +22,8 @@ from subprocess import Popen, PIPE
 
 from jinja2.exceptions import TemplateNotFound
 
-from tools.export.exporters import Exporter
+from tools.export.exporters import Exporter, apply_supported_whitelist
+from tools.targets import TARGET_MAP
 from tools.utils import NotSupportedException
 
 
@@ -37,35 +38,55 @@ class CMake(Exporter):
 
     PREPROCESS_ASM = False
 
+    POST_BINARY_WHITELIST = set([
+        "MCU_NRF51Code.binary_hook",
+        "TEENSY3_1Code.binary_hook",
+        "LPCTargetCode.lpc_patch",
+        "LPC4088Code.binary_hook"
+    ])
+
     @classmethod
     def is_target_supported(cls, target_name):
-        return True
+        target = TARGET_MAP[target_name]
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
 
     def generate(self):
         """Generate the CMakefiles.txt
         """
         self.resources.win_to_unix()
 
-        sources = set(self.resources.c_sources + \
-                      self.resources.cpp_sources + \
-                      self.resources.s_sources + \
-                      self.resources.headers)
+        # get all source files including headers, adding headers allows IDEs to detect which files
+        # belong to the project, otherwise headers may be greyed out and not work with inspection
+        # (that is true for CLion and definitely for Visual Code)
+        allSourceFiles = set(self.resources.c_sources +
+                             self.resources.cpp_sources +
+                             self.resources.s_sources +
+                             self.resources.headers)
 
-        libnames = [l[:-4] for l in self.resources.lib_refs]
-        libs = {re.sub(r'^[.]/', '', l): sorted([f for f in sources if f.startswith(l)]) for l in libnames}
-        libs = {k: v for k, v in libs.items() if len(v) != 0}
-        srcs = sorted([f for f in sources if f not in [item for sublist in libs.values() for item in sublist]])
+        # create a list of dependencies (mbed add ...)
+        dependencies = [l[:-4] for l in self.resources.lib_refs]
+        # separate the individual dependency source files into a map with the dep name as key and an array if files
+        depSources = {re.sub(r'^[.]/', '', l):
+                          sorted([f for f in allSourceFiles if f.startswith(l)]) for l in dependencies}
+        # delete dependencies that have no source files (may happen if a sub-dependency is ignored by .mbedignore)
+        depSources = {k: v for k, v in depSources.items() if len(v) != 0}
 
-        libraries = [self.prepare_lib(basename(lib)) for lib
-                     in self.resources.libraries]
-        sys_libs = [self.prepare_sys_lib(lib) for lib
-                    in self.toolchain.sys_libs]
+        # remove all source files that ended up being part of one of the dependencies
+        # we flatten the list of source files from all dependencies and
+        # then only add file to srcs if its not in that list
+        # (basically srcs = allSourcefiles - flatten(depSources.values())
+        srcs = [f for f in allSourceFiles if f not in [item for sublist in depSources.values() for item in sublist]]
+
+        # additional libraries
+        libraries = [self.prepare_lib(basename(lib)) for lib in self.resources.libraries]
+        sys_libs = [self.prepare_sys_lib(lib) for lib in self.toolchain.sys_libs]
 
         ctx = {
             'name': self.project_name,
             'target': self.target,
             'sources': srcs,
-            'libs': libs,
+            'dependencies': depSources,
             'libraries': libraries,
             'ld_sys_libs': sys_libs,
             'include_paths': sorted(list(set(self.resources.inc_dirs))),
@@ -74,14 +95,15 @@ class CMake(Exporter):
             'hex_files': self.resources.hex_files,
             'ar': basename(self.toolchain.ar),
             'cc': basename(self.toolchain.cc[0]),
-            'cc_flags': " ".join(self.toolchain.cc[1:]),
+            'cc_flags': " ".join(flag for flag in self.toolchain.cc[1:] if not flag == "-c"),
             'cxx': basename(self.toolchain.cppc[0]),
-            'cxx_flags': " ".join(self.toolchain.cppc[1:]),
+            'cxx_flags': " ".join(flag for flag in self.toolchain.cppc[1:] if not flag == "-c"),
             'asm': basename(self.toolchain.asm[0]),
-            'asm_flags': " ".join(self.toolchain.asm[1:]),
-            'symbols': self.toolchain.get_symbols(),
+            'asm_flags': " ".join(flag for flag in self.toolchain.asm[1:] if not flag == "-c"),
+            'symbols': sorted(self.toolchain.get_symbols()),
             'ld': basename(self.toolchain.ld[0]),
-            'ld_flags': " ".join(self.toolchain.ld[1:]),
+            # fix the missing underscore '_' (see
+            'ld_flags': re.sub("--wrap,_(?!_)", "--wrap,__", " ".join(self.toolchain.ld[1:])),
             'elf2bin': basename(self.toolchain.elf2bin),
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,
@@ -90,21 +112,17 @@ class CMake(Exporter):
         }
 
         if hasattr(self.toolchain, "preproc"):
-            ctx['pp'] = " ".join(["\'" + part + "\'" for part
-                                  in ([basename(self.toolchain.preproc[0])] +
-                                      self.toolchain.preproc[1:] +
-                                      self.toolchain.ld[1:])])
+            ctx['pp'] = basename(self.toolchain.preproc[0])
+            ctx['pp_flags'] = " ".join(self.toolchain.preproc[1:] +
+                                       self.toolchain.ld[1:])
         else:
             ctx['pp'] = None
+            ctx['pp_flags'] = None
 
-        for templatefile in ['cmake/%s.tmpl' % self.TEMPLATE]:
-            try:
-                self.gen_file(templatefile, ctx, 'CMakeLists.txt')
-                break
-            except TemplateNotFound:
-                pass
-        else:
-            raise NotSupportedException("This make tool is in development")
+        try:
+            self.gen_file('cmake/%s.tmpl' % self.TEMPLATE, ctx, 'CMakeLists.txt')
+        except TemplateNotFound:
+            pass
 
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
@@ -167,7 +185,6 @@ class GccArm(CMake):
     @staticmethod
     def prepare_sys_lib(libname):
         return "-l" + libname
-
 
 # class Arm(CMake):
 #     """ARM Compiler generic cmake target"""
