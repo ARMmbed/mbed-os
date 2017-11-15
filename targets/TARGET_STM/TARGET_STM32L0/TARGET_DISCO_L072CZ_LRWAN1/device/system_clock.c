@@ -200,11 +200,9 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     // Output clock on MCO1 pin(PA8) for debugging purpose
     if (bypass == 0) { // Xtal used
         HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_2); // 16 MHz
-        //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_2); // 4 MHz
     }
     else { // External clock used
         HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_4); // 8 MHz
-        //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSE, RCC_MCODIV_4); // 2 MHz
     }
 #endif
 
@@ -278,7 +276,6 @@ uint8_t SetSysClock_PLL_HSI(void)
 #ifdef DEBUG_MCO
     // Output clock on MCO1 pin(PA8) for debugging purpose
     HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_SYSCLK, RCC_MCODIV_1); // 32 MHz (not precise due to HSI not calibrated)
-    //HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1); // 16 MHz (not precise due to HSI not calibrated)
 #endif
 
     return 1; // OK
