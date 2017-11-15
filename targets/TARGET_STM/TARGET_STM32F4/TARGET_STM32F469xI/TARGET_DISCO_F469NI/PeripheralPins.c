@@ -388,3 +388,24 @@ MBED_WEAK const PinMap PinMap_CAN_TD[] = {
     {PH_13,      CAN_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF9_CAN1)}, // Connected to D21
     {NC, NC, 0}
 };
+
+
+const PinMap PinMap_QSPI_DATA[] = {
+    {PF_6,  0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF9_QSPI)},
+    {PF_7,  0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF9_QSPI)},
+    {PF_8, 0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF10_QSPI)},
+    {PF_9,  0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF10_QSPI)},
+
+    {NC,    NC,    0}
+};
+
+const PinMap PinMap_QSPI_SCLK[] = {
+    {PF_10,  0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF9_QSPI)},
+    {NC,    NC,    0}
+};
+
+const PinMap PinMap_QSPI_SSEL[] = {
+    {PB_6,  0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)},
+    {NC,    NC,    0}
+};
+
