@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_assert.c
  * @brief Assert API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -72,8 +72,7 @@ void assertEFM(const char *file, int line)
   (void)file;  /* Unused parameter */
   (void)line;  /* Unused parameter */
 
-  while (true)
-  {
+  while (true) {
   }
 }
 #endif /* DEBUG_EFM */

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
  * @brief General Purpose Cyclic Redundancy Check (GPCRC) API.
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -99,8 +99,7 @@ extern "C" {
  ******************************************************************************/
 
 /** CRC initialization structure. */
-typedef struct
-{
+typedef struct {
   /**
    * CRC polynomial value. The GPCRC support either a fixed 32-bit polynomial
    * or a user configurable 16 bit polynomial. The fixed 32-bit polynomial
@@ -159,16 +158,16 @@ typedef struct
 } GPCRC_Init_TypeDef;
 
 /** Default configuration for GPCRC_Init_TypeDef structure. */
-#define GPCRC_INIT_DEFAULT                                             \
-{                                                                      \
-  0x04C11DB7UL,          /* CRC32 Polynomial value. */                 \
-  0x00000000UL,          /* Initialization value. */                   \
-  false,                 /* Byte order is normal. */                   \
-  false,                 /* Bit order is not reversed on output. */    \
-  false,                 /* Disable byte mode. */                      \
-  false,                 /* Disable automatic init on data read. */    \
-  true,                  /* Enable GPCRC. */                           \
-}
+#define GPCRC_INIT_DEFAULT                                          \
+  {                                                                 \
+    0x04C11DB7UL,        /* CRC32 Polynomial value. */              \
+    0x00000000UL,        /* Initialization value. */                \
+    false,               /* Byte order is normal. */                \
+    false,               /* Bit order is not reversed on output. */ \
+    false,               /* Disable byte mode. */                   \
+    false,               /* Disable automatic init on data read. */ \
+    true,                /* Enable GPCRC. */                        \
+  }
 
 /*******************************************************************************
  ******************************   PROTOTYPES   *********************************

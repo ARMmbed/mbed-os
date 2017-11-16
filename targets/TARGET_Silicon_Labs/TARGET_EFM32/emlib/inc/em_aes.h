@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_aes.h
  * @brief Advanced encryption standard (AES) accelerator peripheral API.
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -126,7 +126,7 @@ void AES_CBC128(uint8_t *out,
                 const uint8_t *iv,
                 bool encrypt);
 
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 void AES_CBC256(uint8_t *out,
                 const uint8_t *in,
                 unsigned int len,
@@ -142,7 +142,7 @@ void AES_CFB128(uint8_t *out,
                 const uint8_t *iv,
                 bool encrypt);
 
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 void AES_CFB256(uint8_t *out,
                 const uint8_t *in,
                 unsigned int len,
@@ -158,7 +158,7 @@ void AES_CTR128(uint8_t *out,
                 uint8_t *ctr,
                 AES_CtrFuncPtr_TypeDef ctrFunc);
 
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 void AES_CTR256(uint8_t *out,
                 const uint8_t *in,
                 unsigned int len,
@@ -171,7 +171,7 @@ void AES_CTRUpdate32Bit(uint8_t *ctr);
 
 void AES_DecryptKey128(uint8_t *out, const uint8_t *in);
 
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 void AES_DecryptKey256(uint8_t *out, const uint8_t *in);
 #endif
 
@@ -181,7 +181,7 @@ void AES_ECB128(uint8_t *out,
                 const uint8_t *key,
                 bool encrypt);
 
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 void AES_ECB256(uint8_t *out,
                 const uint8_t *in,
                 unsigned int len,
@@ -202,7 +202,6 @@ __STATIC_INLINE void AES_IntClear(uint32_t flags)
   AES->IFC = flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Disable one or more AES interrupts.
@@ -215,7 +214,6 @@ __STATIC_INLINE void AES_IntDisable(uint32_t flags)
 {
   AES->IEN &= ~(flags);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -235,7 +233,6 @@ __STATIC_INLINE void AES_IntEnable(uint32_t flags)
   AES->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get pending AES interrupt flags.
@@ -251,7 +248,6 @@ __STATIC_INLINE uint32_t AES_IntGet(void)
 {
   return AES->IF;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -275,7 +271,6 @@ __STATIC_INLINE uint32_t AES_IntGetEnabled(void)
   return AES->IF & ien;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set one or more pending AES interrupts from SW.
@@ -289,21 +284,19 @@ __STATIC_INLINE void AES_IntSet(uint32_t flags)
   AES->IFS = flags;
 }
 
-
 void AES_OFB128(uint8_t *out,
                 const uint8_t *in,
                 unsigned int len,
                 const uint8_t *key,
                 const uint8_t *iv);
 
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 void AES_OFB256(uint8_t *out,
                 const uint8_t *in,
                 unsigned int len,
                 const uint8_t *key,
                 const uint8_t *iv);
 #endif
-
 
 /** @} (end addtogroup AES) */
 /** @} (end addtogroup emlib) */
@@ -314,5 +307,3 @@ void AES_OFB256(uint8_t *out,
 
 #endif /* defined(AES_COUNT) && (AES_COUNT > 0) */
 #endif /* EM_AES_H */
-
-

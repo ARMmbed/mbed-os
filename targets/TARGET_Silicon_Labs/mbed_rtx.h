@@ -26,6 +26,12 @@
 #define INITIAL_SP              (0x20020000UL)
 #endif
 
+#elif defined(TARGET_EFM32GG11_STK3701)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20080000UL)
+#endif
+
 #elif defined(TARGET_EFM32HG_STK3400)
 
 #ifndef INITIAL_SP
