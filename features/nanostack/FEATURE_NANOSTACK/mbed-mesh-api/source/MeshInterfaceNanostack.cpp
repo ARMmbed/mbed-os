@@ -17,6 +17,8 @@
 #include "MeshInterfaceNanostack.h"
 #include "NanostackInterface.h"
 #include "mesh_system.h"
+#include "net_interface.h"
+
 
 MeshInterfaceNanostack::MeshInterfaceNanostack()
     : phy(NULL), _network_interface_id(-1), _device_id(-1), eui64(),
@@ -52,10 +54,16 @@ void MeshInterfaceNanostack::mesh_network_handler(mesh_connection_status_t statu
 
     nanostack_unlock();
 
+
     ConnectionStatusType previous_status = _connect_status;
 
     if (status == MESH_CONNECTED) {
-        _connect_status = GLOBAL_UP;
+        uint8_t temp_ipv6[16];
+        if (arm_net_address_get(_network_interface_id, ADDR_IPV6_GP, temp_ipv6)) {
+            _connect_status = GLOBAL_UP;
+        } else {
+            _connect_status = LOCAL_UP;
+        }
     } else {
         _connect_status = DISCONNECTED;
     }
