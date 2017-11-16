@@ -20,6 +20,8 @@
 #include "nsapi.h"
 #include "emac_api.h"
 #include "lwip/opt.h"
+#include "nsapi_types.h"
+#include "netif.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,8 +30,13 @@ extern "C" {
 // drivers attach through these.
 nsapi_error_t mbed_lwip_init(emac_interface_t *emac);
 nsapi_error_t mbed_lwip_emac_init(emac_interface_t *emac);
+void mbed_lwip_netif_status_irq(struct netif *lwip_netif);
+ConnectionStatusType mbed_lwip_netif_status_check(void);
 nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw);
-nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack);
+nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, 
+    const nsapi_ip_stack_t stack);
+nsapi_error_t mbed_lwip_bringup_3(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, 
+    const nsapi_ip_stack_t stack, netif_status_callback_fn status_cb);
 nsapi_error_t mbed_lwip_bringdown(void);
 nsapi_error_t mbed_lwip_bringdown_2(bool ppp);
 

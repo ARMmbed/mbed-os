@@ -452,7 +452,7 @@ static sys_sem_t lwip_netif_has_pref_addr;
 static sys_sem_t lwip_netif_has_both_addr;
 #endif
 
-static void mbed_lwip_netif_status_irq(struct netif *lwip_netif)
+void mbed_lwip_netif_status_irq(struct netif *lwip_netif)
 {
     if (netif_is_up(lwip_netif)) {
         if (!(lwip_has_addr_state & HAS_ANY_ADDR) && mbed_lwip_get_ip_addr(true, lwip_netif)) {
@@ -473,6 +473,16 @@ static void mbed_lwip_netif_status_irq(struct netif *lwip_netif)
 #endif
     }
 }
+
+ConnectionStatusType mbed_lwip_netif_status_check(void)
+{
+    if (netif_is_up(&lwip_netif)) {
+        return GLOBAL_UP;
+    } else {
+        return DISCONNECTED;
+    }
+}
+
 
 #if LWIP_ETHERNET
 static void mbed_lwip_set_mac_address(struct netif *netif)
@@ -637,10 +647,18 @@ nsapi_error_t mbed_lwip_init(emac_interface_t *emac)
 // Backwards compatibility with people using DEVICE_EMAC
 nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw)
 {
-    return mbed_lwip_bringup_2(dhcp, false, ip, netmask, gw, DEFAULT_STACK);
+    return mbed_lwip_bringup_3(dhcp, false, ip, netmask, gw, DEFAULT_STACK, NULL);
 }
 
-nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack)
+//another layer of backwards compatibility
+nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, 
+    const nsapi_ip_stack_t stack)
+{
+    return mbed_lwip_bringup_3(dhcp, ppp, ip, netmask, gw, stack, NULL);
+}
+
+nsapi_error_t mbed_lwip_bringup_3(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, 
+    const nsapi_ip_stack_t stack, netif_status_callback_fn status_cb)
 {
     // Check if we've already connected
     if (lwip_connected) {
@@ -676,7 +694,12 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
 
     netif_set_default(&lwip_netif);
     netif_set_link_callback(&lwip_netif, mbed_lwip_netif_link_irq);
-    netif_set_status_callback(&lwip_netif, mbed_lwip_netif_status_irq);
+    if (status_cb) {
+        netif_set_status_callback(&lwip_netif, status_cb);
+    } else {
+        netif_set_status_callback(&lwip_netif, mbed_lwip_netif_status_irq);
+    }
+
 
 #if LWIP_IPV6
     if (stack != IPV4_STACK) {

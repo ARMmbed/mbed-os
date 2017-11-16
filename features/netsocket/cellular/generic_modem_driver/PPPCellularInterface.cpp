@@ -264,8 +264,8 @@ PPPCellularInterface::PPPCellularInterface(FileHandle *fh, bool debug)
     _debug_trace_on = debug;
     _stack = DEFAULT_STACK;
     _connection_status_cb = NULL;
-    _ppp_cb = Callback<void(ConnectionStatusType)>(this, &PPPCellularInterface::ppp_status_cb);
-    _connect_status = down;
+    _ppp_cb = Callback<void(ConnectionStatusType, int)>(this, &PPPCellularInterface::ppp_status_cb);
+    _connect_status = DISCONNECTED;
     dev_info.reg_status_csd = CSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.reg_status_psd = PSD_NOT_REGISTERED_NOT_SEARCHING;
 }
@@ -306,14 +306,14 @@ void PPPCellularInterface::modem_debug_on(bool on)
     _debug_trace_on = on;
 }
 
-void PPPCellularInterface::ppp_status_cb(ConnectionStatusType status)
+void PPPCellularInterface::ppp_status_cb(ConnectionStatusType status, int parameter)
 {
     ConnectionStatusType previous_status = _connect_status;
 
     _connect_status = status;
 
     if (_connection_status_cb && previous_status != _connect_status) {
-        _connection_status_cb(_connect_status);
+        _connection_status_cb(_connect_status, parameter);
     }
 }
 
@@ -406,7 +406,7 @@ bool PPPCellularInterface::nwk_registration(uint8_t nwk_type)
 
 bool PPPCellularInterface::is_connected()
 {
-    if (_connect_status == down) {
+    if (_connect_status == DISCONNECTED) {
         return false;
     } else {
         return true;
@@ -572,7 +572,7 @@ nsapi_error_t PPPCellularInterface::connect()
     bool did_init = false;
     const char *apn_config = NULL;
 
-    if (_connect_status != down) {
+    if (_connect_status != DISCONNECTED) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
 
@@ -694,8 +694,7 @@ nsapi_error_t PPPCellularInterface::connect()
          * mbed_ppp_init() is a blocking call, it will block until
          * connected, or timeout after 30 seconds*/
         retcode = nsapi_ppp_connect(_fh, _ppp_cb, _uname, _pwd, _stack);
-
-    } while (_connect_status == down && apn_config && *apn_config);
+    } while (_connect_status == DISCONNECTED && apn_config && *apn_config);
 
     return retcode;
 }
@@ -807,12 +806,12 @@ NetworkStack *PPPCellularInterface::get_stack()
 
 
 void PPPCellularInterface::register_status_callback(
-    Callback<void(NetworkInterface::ConnectionStatusType)> status_cb)
+    Callback<void(ConnectionStatusType, int)> status_cb)
 {
     _connection_status_cb = status_cb;
 }
 
-NetworkInterface::ConnectionStatusType PPPCellularInterface::get_connection_status()
+ConnectionStatusType PPPCellularInterface::get_connection_status()
 {
     return _connect_status;
 }

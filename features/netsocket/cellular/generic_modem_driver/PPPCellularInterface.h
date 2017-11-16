@@ -240,15 +240,14 @@ public:
      *
      *  @param status   connection status of the link
      */
-    virtual void ppp_status_cb(ConnectionStatusType status);
+    virtual void ppp_status_cb(ConnectionStatusType, int);
 
     /** Register callback for status reporting
      *
      *  @param status_cb The callback for status changes
      *  @return          The connection status according to ConnectionStatusType
      */
-    typedef NetworkInterface::ConnectionStatusType ConnectionStatusType;
-    virtual void register_status_callback(Callback<void(ConnectionStatusType)> status_cb);
+    virtual void register_status_callback(Callback<void(ConnectionStatusType, int)> status_cb);
 
     /** Get the connection status
      *
@@ -266,8 +265,8 @@ private:
     const char *_pwd;
     bool _debug_trace_on;
     nsapi_ip_stack_t _stack;
-    Callback<void(ConnectionStatusType)> _ppp_cb;
-    Callback<void(ConnectionStatusType)> _connection_status_cb;
+    Callback<void(ConnectionStatusType, int)> _ppp_cb;
+    Callback<void(ConnectionStatusType, int)> _connection_status_cb;
     ConnectionStatusType _connect_status;
     void base_initialization();
     void setup_at_parser();

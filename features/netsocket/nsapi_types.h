@@ -56,6 +56,14 @@ enum nsapi_error {
     NSAPI_ERROR_ADDRESS_IN_USE      = -3018,     /*!< Address already in use */
 };
 
+ typedef enum  {
+    DISCONNECTED, 
+    LOCAL_UP, 
+    GLOBAL_UP, 
+    UNDEFINED
+} ConnectionStatusType;
+
+
 /** Type used to represent error codes
  *
  *  This is a separate type from enum nsapi_error to avoid breaking

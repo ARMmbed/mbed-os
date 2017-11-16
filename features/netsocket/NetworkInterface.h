@@ -33,9 +33,7 @@ class NetworkStack;
 class NetworkInterface {
 public:
 
-    enum ConnectionStatusType {
-        down, local_up, global_up, undefined
-    };
+
 
     virtual ~NetworkInterface() {};
 
@@ -136,7 +134,7 @@ public:
      *
      *  @param status_cb The callback for status changes
      */
-    virtual void register_status_callback(mbed::Callback<void(ConnectionStatusType)> status_cb);
+    virtual void register_status_callback(mbed::Callback<void(ConnectionStatusType, int)> status_cb);
 
     /** Get the connection status
      *

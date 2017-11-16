@@ -19,10 +19,15 @@
 
 
 /* Interface implementation */
-EthernetInterface::EthernetInterface()
-    : _dhcp(true), _ip_address(), _netmask(), _gateway()
+EthernetInterface::EthernetInterface() : 
+    _dhcp(true), 
+    _ip_address(), 
+    _netmask(), 
+    _gateway()
 {
 }
+Callback<void(ConnectionStatusType, int)> EthernetInterface::_connection_status_cb = NULL;
+ConnectionStatusType EthernetInterface::_connect_status = DISCONNECTED;
 
 nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
@@ -46,11 +51,12 @@ nsapi_error_t EthernetInterface::set_dhcp(bool dhcp)
 
 nsapi_error_t EthernetInterface::connect()
 {
-    return mbed_lwip_bringup_2(_dhcp, false,
+    return mbed_lwip_bringup_3(_dhcp, false,
             _ip_address[0] ? _ip_address : 0,
             _netmask[0] ? _netmask : 0,
             _gateway[0] ? _gateway : 0,
-            DEFAULT_STACK);
+            DEFAULT_STACK, 
+            netif_status_irq);
 }
 
 nsapi_error_t EthernetInterface::disconnect()
@@ -94,3 +100,28 @@ NetworkStack *EthernetInterface::get_stack()
 {
     return nsapi_create_stack(&lwip_stack);
 }
+
+void EthernetInterface::register_status_callback(
+    Callback<void(ConnectionStatusType, int)> status_cb)
+{
+    _connection_status_cb = status_cb;
+}
+
+ConnectionStatusType EthernetInterface::get_connection_status()
+{
+    return _connect_status;
+}
+
+void EthernetInterface::netif_status_irq(struct netif *lwip_netif)
+{
+    mbed_lwip_netif_status_irq(lwip_netif);
+
+    ConnectionStatusType previous_status = _connect_status;
+    _connect_status = mbed_lwip_netif_status_check();
+
+    if (_connection_status_cb && _connect_status != previous_status) {
+        _connection_status_cb(_connect_status, 0);
+    }
+}
+
+

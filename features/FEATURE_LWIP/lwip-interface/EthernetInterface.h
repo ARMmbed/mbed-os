@@ -100,6 +100,18 @@ public:
      */
     virtual const char *get_gateway();
 
+    /** Register callback for status reporting
+     *
+     *  @param status_cb The callback for status changes
+     */
+    virtual void register_status_callback(mbed::Callback<void(ConnectionStatusType, int)> status_cb);
+
+    /** Get the connection status
+     *
+     *  @return         The connection status according to ConnectionStatusType
+     */
+    virtual ConnectionStatusType get_connection_status();
+
 protected:
     /** Provide access to the underlying stack
      *
@@ -111,6 +123,12 @@ protected:
     char _ip_address[IPADDR_STRLEN_MAX];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
+
+
+    static Callback<void(ConnectionStatusType, int)> _connection_status_cb;
+    static void netif_status_irq(struct netif *);
+    static ConnectionStatusType _connect_status;
+
 };
 
 
