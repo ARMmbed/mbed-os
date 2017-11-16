@@ -20,10 +20,22 @@
 #include "FunctionPointerWithContext.h"
 #include "SafeBool.h"
 
+/**
+ * @addtogroup ble
+ * @{
+ * @addtogroup common
+ * @{
+ */
 
-/** Group one or more functions in an instance of a CallChainOfFunctionPointersWithContext, then call them in
- * sequence using CallChainOfFunctionPointersWithContext::call(). Used mostly by the interrupt chaining code,
- * but can be used for other purposes.
+/**
+ * Function like object hosting a list of FunctionPointerWithContext.
+ *
+ * Upon call, each FunctionPointerWithContext instance present in the object will
+ * be called in sequence with the initial parameters.
+ *
+ * It can be seen as a variation of the observer pattern this object being the
+ * observable, instances of the FunctionPointerWithContext being the observable
+ * and the notify/update operation being the function call.
  *
  * Example:
  * @code
@@ -51,81 +63,96 @@
  *     chain.add(second);
  *     chain.add_front(first);
  *     chain.add(&test, &Test::f);
+ *
+ *     // will print:
+ *     // 'second' function.
+ *     // 'first' function.
+ *     // A::f (class member).
  *     chain.call();
  * }
  * @endcode
+ *
+ * @note memory allocation is used to add new function like objects into the
+ * call chain.
+ *
+ * @tparam ContextType Type of the parameter accepted by the callbacks hosted
+ * in the object.
  */
 template <typename ContextType>
-class CallChainOfFunctionPointersWithContext : public SafeBool<CallChainOfFunctionPointersWithContext<ContextType> > {
+class CallChainOfFunctionPointersWithContext :
+    public SafeBool<CallChainOfFunctionPointersWithContext<ContextType> > {
 public:
     /**
-     * The type of each callback in the callchain.
+     * Alias of the FunctionPointerWithContext type this object can store.
      */
     typedef FunctionPointerWithContext<ContextType> *pFunctionPointerWithContext_t;
 
 public:
     /**
-     * Create an empty chain.
+     * Create an empty callchain.
      */
-    CallChainOfFunctionPointersWithContext() : chainHead(NULL) {
-        /* empty */
-    }
+    CallChainOfFunctionPointersWithContext() : chainHead(NULL) { }
 
-    virtual ~CallChainOfFunctionPointersWithContext() {
+    /**
+     * Destruction of the callchain.
+     */
+    virtual ~CallChainOfFunctionPointersWithContext()
+    {
         clear();
     }
 
     /**
-     * Add a function at the front of the chain.
+     * Add a function pointer at the front of the chain.
      *
-     * @param[in]  function
-     *              A pointer to a void function.
+     * @param[in] function A pointer to a void function.
      *
-     * @return  The function object created for @p function.
+     * @return The FunctionPointerWithContext object created from @p function.
      */
-    pFunctionPointerWithContext_t add(void (*function)(ContextType context)) {
+    pFunctionPointerWithContext_t add(void (*function)(ContextType context))
+    {
         return common_add(new FunctionPointerWithContext<ContextType>(function));
     }
 
     /**
-     * Add a function at the front of the chain.
+     * Add a member function bound to its instance at the front of the chain.
      *
-     * @param[in] tptr
-     *              Pointer to the object to call the member function on.
-     * @param[in] mptr
-     *              Pointer to the member function to be called.
+     * @param[in] tptr Pointer to the object to call the member function on.
+     * @param[in] mptr Pointer to the member function to be called.
      *
-     * @return  The function object created for @p tptr and @p mptr.
+     * @return The FunctionPointerWithContext object created from @p tptr and
+     * @p mptr.
      */
     template<typename T>
-    pFunctionPointerWithContext_t add(T *tptr, void (T::*mptr)(ContextType context)) {
+    pFunctionPointerWithContext_t add(T *tptr, void (T::*mptr)(ContextType context))
+    {
         return common_add(new FunctionPointerWithContext<ContextType>(tptr, mptr));
     }
 
     /**
-     * Add a function at the front of the chain.
+     * Add a FunctionPointerWithContext at the front of the chain.
      *
-     * @param[in] func
-     *              The FunctionPointerWithContext to add.
+     * @param[in] func The FunctionPointerWithContext to add.
      *
      * @return  The function object created for @p func.
      */
-    pFunctionPointerWithContext_t add(const FunctionPointerWithContext<ContextType>& func) {
+    pFunctionPointerWithContext_t add(const FunctionPointerWithContext<ContextType> &func)
+    {
         return common_add(new FunctionPointerWithContext<ContextType>(func));
     }
 
     /**
      * Detach a function pointer from a callchain.
      *
-     * @param[in] toDetach
-     *              FunctionPointerWithContext to detach from this callchain.
+     * @param[in] toDetach FunctionPointerWithContext instance to detach from
+     * this callchain.
      *
      * @return true if a function pointer has been detached and false otherwise.
      *
-     * @note It is safe to remove a function pointer while the chain is
-     *       traversed by call(ContextType).
+     * @note It is safe to remove a function pointer while
+     * call(ContextType) is traversing the chain.
      */
-    bool detach(const FunctionPointerWithContext<ContextType>& toDetach) {
+    bool detach(const FunctionPointerWithContext<ContextType> &toDetach)
+    {
         pFunctionPointerWithContext_t current = chainHead;
         pFunctionPointerWithContext_t previous = NULL;
 
@@ -154,9 +181,10 @@ public:
     }
 
     /**
-     * Clear the call chain (remove all functions in the chain).
+     * Remove all functions registered in the chain.
      */
-    void clear(void) {
+    void clear(void)
+    {
         pFunctionPointerWithContext_t fptr = chainHead;
         while (fptr) {
             pFunctionPointerWithContext_t deadPtr = fptr;
@@ -172,21 +200,28 @@ public:
      *
      * @return true if the callchain is not empty and false otherwise.
      */
-    bool hasCallbacksAttached(void) const {
+    bool hasCallbacksAttached(void) const
+    {
         return (chainHead != NULL);
     }
 
     /**
-     * Call all the functions in the chain in sequence.
+     * Call sequentially each member of the chain.
+     *
+     * @param[in] context Parameter to pass to the functions called.
      */
-    void call(ContextType context) {
+    void call(ContextType context)
+    {
         ((const CallChainOfFunctionPointersWithContext*) this)->call(context);
     }
 
     /**
-     * Same as call() above, but const.
+     * Call sequentially each member of the chain.
+     *
+     * @param[in] context Parameter to pass to the functions called.
      */
-    void call(ContextType context) const {
+    void call(ContextType context) const
+    {
         currentCalled = chainHead;
 
         while(currentCalled) {
@@ -201,7 +236,10 @@ public:
     }
 
     /**
-     * Same as call(), but with function call operator.
+     * Call sequentially each member of the chain.
+     *
+     * @param[in] context Parameter to pass to the functions called.
+     *
      * @code
      *
      * void first(bool);
@@ -217,16 +255,33 @@ public:
      *
      * @endcode
      */
-    void operator()(ContextType context) const {
+    void operator()(ContextType context) const
+    {
         call(context);
     }
 
     /**
-     * Bool conversion operation.
+     * Test if the callchain is empty or not.
      *
      * @return true if the callchain is not empty and false otherwise.
+     *
+     * @note used by SafeBool to offer a safe boolean conversion.
+     *
+     * @code
+     * CallChainOfFunctionPointersWithContext<void *> chain;
+     *
+     * if (!chain) {
+     *   // Do something if the chain is empty.
+     * }
+     *
+     * if (chain) {
+     *   // Do something if the chain is not empty.
+     * }
+     * @endcode
+     *
      */
-    bool toBool() const {
+    bool toBool() const
+    {
         return chainHead != NULL;
     }
 
@@ -236,7 +291,8 @@ private:
      *
      * @return A pointer to the head of the callchain.
      */
-    pFunctionPointerWithContext_t common_add(pFunctionPointerWithContext_t pf) {
+    pFunctionPointerWithContext_t common_add(pFunctionPointerWithContext_t pf)
+    {
         if (chainHead == NULL) {
             chainHead = pf;
         } else {
@@ -249,23 +305,37 @@ private:
 
 private:
     /**
-     * A pointer to the first callback in the callchain or NULL if the callchain is empty.
+     * Pointer to the first callback of the callchain or NULL if the callchain
+     * is empty.
      */
     pFunctionPointerWithContext_t chainHead;
 
     /**
-     * Iterator during a function call, this has to be mutable because the call function is const.
+     * Pointer to the function being called.
      *
-     * @note Mutable is the correct behaviour here, the iterator never leaks outside the object.
-     *       so the object can still be seen as logically const even if it is modified.
+     * It is used to maintain the data structure integrity if a function is
+     * removed during the call() operation.
+     *
+     * @note It has to be mutable to accomodate the const version of call(). The
+     * iterator doesn't leak outside the object; therefore, it remains seen as
+     * const from an external standpoint.
      */
     mutable pFunctionPointerWithContext_t currentCalled;
 
 
     /* Disallow copy constructor and assignment operators. */
 private:
-    CallChainOfFunctionPointersWithContext(const CallChainOfFunctionPointersWithContext &);
-    CallChainOfFunctionPointersWithContext & operator = (const CallChainOfFunctionPointersWithContext &);
+    CallChainOfFunctionPointersWithContext(
+        const CallChainOfFunctionPointersWithContext&
+    );
+    CallChainOfFunctionPointersWithContext &operator=(
+        const CallChainOfFunctionPointersWithContext&
+    );
 };
+
+/**
+ * @}
+ * @}
+ */
 
 #endif

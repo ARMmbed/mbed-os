@@ -23,6 +23,15 @@
 #include "GattCallbackParamTypes.h"
 #include "FunctionPointerWithContext.h"
 
+/**
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ * @addtogroup server
+ * @{
+ */
+
 class GattCharacteristic {
 public:
     enum {
@@ -291,14 +300,14 @@ public:
 
     /**
      * @brief  Creates a new GattCharacteristic using the specified 16-bit
-     *         UUID, value length, and properties.
+     *         UUID, value length and properties.
      *
      * @param[in]  uuid
      *             The UUID to use for this characteristic.
      * @param[in]  valuePtr
      *             The memory holding the initial value. The value is copied
      *             into the stack when the enclosing service is added, and
-     *             is thereafter maintained internally by the stack.
+     *             the stack thereafter maintained it internally.
      * @param[in]  len
      *             The length in bytes of this characteristic's value.
      * @param[in]  maxLen
@@ -307,8 +316,8 @@ public:
      *             The 8-bit field containing the characteristic's properties.
      * @param[in]  descriptors
      *             A pointer to an array of descriptors to be included within
-     *             this characteristic. The memory for the descriptor array is
-     *             owned by the caller, and should remain valid at least until
+     *             this characteristic. The caller owns the memory for the descriptor
+     *             array, which remains valid at least until
      *             the enclosing service is added to the GATT table.
      * @param[in]  numDescriptors
      *             The number of descriptors in the previous array.
@@ -323,7 +332,7 @@ public:
      *        instantiating the service with the underlying BLE stack.
      *
      * @note  A CCCD should not be allocated if either the notify or indicate
-     *        flag is set, as it is handled by the underlying BLE stack. In such
+     *        flag is set because the underlying BLE stack handles it. In such
      *        a case, the param descriptors could be empty and the param
      *        numDescriptors equal to zero.
      */
@@ -363,7 +372,7 @@ public:
 public:
     /**
      * Set up callback that will be triggered before the GATT Client is allowed
-     * to write this characteristic. The handler will determine the
+     * to write this characteristic. The handler determines the
      * authorization reply for the write.
      *
      * @param[in] callback
@@ -375,7 +384,7 @@ public:
     }
 
     /**
-     * Same as GattCharacrteristic::setWriteAuthorizationCallback(), but allows
+     * Same as GattCharacrteristic::setWriteAuthorizationCallback(), but it allows
      * the possibility to add an object reference and member function as
      * handler for connection event callbacks.
      *
@@ -394,7 +403,7 @@ public:
 
     /**
      * Set up callback that will be triggered before the GATT Client is allowed
-     * to read this characteristic. The handler will determine the
+     * to read this characteristic. The handler determines the
      * authorization reply for the read.
      *
      * @param[in] callback
@@ -406,7 +415,7 @@ public:
     }
 
     /**
-     * Same as GattCharacrteristic::setReadAuthorizationCallback(), but allows
+     * Same as GattCharacrteristic::setReadAuthorizationCallback(), but it allows
      * the possibility to add an object reference and member function as
      * handler for connection event callbacks.
      *
@@ -456,12 +465,12 @@ public:
      * @return A GattAuthCallbackReply_t value indicating whether authorization
      *         is granted.
      *
-     * @note   To authorize or deny the read the params->authorizationReply field
+     * @note   To authorize or deny the read, the params->authorizationReply field
      *         should be set to AUTH_CALLBACK_REPLY_SUCCESS (authorize) or any
      *         of the AUTH_CALLBACK_REPLY_ATTERR_* values (deny).
      *
      * @note   If the read is approved and params->data is unchanged (NULL),
-     *         the current characteristic value will be used.
+     *         the current characteristic value is used.
      *
      * @note   If the read is approved, a new value can be provided by setting
      *         the params->data pointer and params->len fields.
@@ -500,8 +509,7 @@ public:
      *
      * @return The value attribute handle.
      *
-     * @note The attribute handle is typically assigned by the underlying BLE
-     *       stack.
+     * @note The underlying BLE stack typically assigns the attribute handle.
      */
     GattAttribute::Handle_t getValueHandle(void) const {
         return getValueAttribute().getHandle();
@@ -536,7 +544,7 @@ public:
     }
 
     /**
-     * Check whether read authorization is enabled i.e. check whether a
+     * Check whether read authorization is enabled. In other words, check whether a
      * read authorization callback was previously registered. Refer to
      * GattCharacteristic::setReadAuthorizationCallback().
      *
@@ -547,7 +555,7 @@ public:
     }
 
     /**
-     * Check whether write authorization is enabled i.e. check whether a
+     * Check whether write authorization is enabled. In other words, check whether a
      * write authorization callback was previously registered. Refer to
      * GattCharacteristic::setWriteAuthorizationCallback().
      *
@@ -591,7 +599,7 @@ private:
     /**
      * The characteristic's descriptor attributes.
      * This contains only CCCDs that has neither the notify nor the indicate
-     * flag set, as those are handled by the underlying BLE stack.
+     * flag set, as the underlying BLE stack handles those.
      */
     GattAttribute                   **_descriptors;
     /**
@@ -600,12 +608,12 @@ private:
     uint8_t                           _descriptorCount;
 
     /**
-     * Whether read authorization is enabled i.e. whether there is a registered
+     * Whether read authorization is enabled - in other words, whether there is a registered
      * callback to determine read authorization reply.
      */
     bool enabledReadAuthorization;
     /**
-     * Whether write authorization is enabled i.e. whether there is a registered
+     * Whether write authorization is enabled - in other words, whether there is a registered
      * callback to determine write authorization reply.
      */
     bool enabledWriteAuthorization;
@@ -687,7 +695,7 @@ public:
      *
      * @note Instances of WriteOnlyGattCharacteristic have variable length
      *       attribute value with maximum size equal to sizeof(T). For a fixed length
-     *       alternative use GattCharacteristic directly.
+     *       alternative, use GattCharacteristic directly.
      */
     WriteOnlyGattCharacteristic<T>(const UUID     &uuid,
                                    T              *valuePtr,
@@ -726,7 +734,7 @@ public:
      *
      * @note Instances of ReadWriteGattCharacteristic have variable length
      *       attribute value with maximum size equal to sizeof(T). For a fixed length
-     *       alternative use GattCharacteristic directly.
+     *       alternative, use GattCharacteristic directly.
      */
     ReadWriteGattCharacteristic<T>(const UUID    &uuid,
                                    T             *valuePtr,
@@ -766,7 +774,7 @@ public:
      *
      * @note Instances of WriteOnlyGattCharacteristic have variable length
      *       attribute value with maximum size equal to sizeof(T) * NUM_ELEMENTS.
-     *       For a fixed length alternative use GattCharacteristic directly.
+     *       For a fixed length alternative, use GattCharacteristic directly.
      */
     WriteOnlyArrayGattCharacteristic<T, NUM_ELEMENTS>(const          UUID &uuid,
                                                       T              valuePtr[NUM_ELEMENTS],
@@ -806,7 +814,7 @@ public:
      *
      * @note Instances of ReadOnlyGattCharacteristic have fixed length
      *       attribute value that equals sizeof(T) * NUM_ELEMENTS.
-     *       For a variable length alternative use GattCharacteristic directly.
+     *       For a variable length alternative, use GattCharacteristic directly.
      */
     ReadOnlyArrayGattCharacteristic<T, NUM_ELEMENTS>(const UUID    &uuid,
                                                      T              valuePtr[NUM_ELEMENTS],
@@ -847,7 +855,7 @@ public:
      *
      * @note Instances of ReadWriteGattCharacteristic have variable length
      *       attribute value with maximum size equal to sizeof(T) * NUM_ELEMENTS.
-     *       For a fixed length alternative use GattCharacteristic directly.
+     *       For a fixed length alternative, use GattCharacteristic directly.
      */
     ReadWriteArrayGattCharacteristic<T, NUM_ELEMENTS>(const UUID    &uuid,
                                                       T              valuePtr[NUM_ELEMENTS],
@@ -859,5 +867,11 @@ public:
         /* empty */
     }
 };
+
+/**
+ * @}
+ * @}
+ * @}
+ */
 
 #endif /* ifndef __GATT_CHARACTERISTIC_H__ */

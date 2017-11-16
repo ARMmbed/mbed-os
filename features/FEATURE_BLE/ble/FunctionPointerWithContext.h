@@ -20,8 +20,37 @@
 #include <string.h>
 #include "SafeBool.h"
 
-/** A class for storing and calling a pointer to a static or member void function
- *  that takes a context.
+/**
+ * @file
+ * @addtogroup ble
+ * @{
+ * @addtogroup common
+ * @{
+ */
+
+/**
+ * Function like object adapter over freestanding and member functions.
+ *
+ * Freestanding and member functions are two distinct types in C++. One is
+ * not convertible into the other, and the call syntax between the two is
+ * different even if conceptually they are similar: Both primitives can be
+ * copied, called and produce a result.
+ *
+ * To solve incompatibilities, this class adapts freestanding and member functions
+ * to a common interface. The interface chosen is similar to the freestanding
+ * function pointers interface:
+ *    - Copyable.
+ *    - Nullable.
+ *    - Callable.
+ *
+ * This class also offers a mechanism to chain other instances to it. When an
+ * instance is called, all the instances being part of the chain are called.
+ *
+ * @important freestanding or member function adapted must accept a single
+ * argument, and this argument is a pointer to ContextType. Adapted
+ * primitives do not return anything.
+ *
+ * @tparam ContextType Type of the argument pointee.
  */
 template <typename ContextType>
 class FunctionPointerWithContext : public SafeBool<FunctionPointerWithContext<ContextType> > {
@@ -30,111 +59,201 @@ public:
     typedef const FunctionPointerWithContext<ContextType> *cpFunctionPointerWithContext_t;
     typedef void (*pvoidfcontext_t)(ContextType context);
 
-    /** Create a FunctionPointerWithContext, attaching a static function.
+    /**
+     * Create a FunctionPointerWithContext from a pointer to a freestanding
+     * function.
      *
-     *  @param function The void static function to attach (default is none).
+     *  @param[in] function The freestanding function to attach.
      */
     FunctionPointerWithContext(void (*function)(ContextType context) = NULL) :
-        _memberFunctionAndPointer(), _caller(NULL), _next(NULL) {
+        _memberFunctionAndPointer(), _caller(NULL), _next(NULL)
+    {
         attach(function);
     }
 
-    /** Create a FunctionPointerWithContext, attaching a member function.
+    /**
+     * Create a FunctionPointerWithContext from a pointer to a member function
+     * and the instance which is used to call it.
      *
-     *  @param object The object pointer to invoke the member function on (the "this" pointer).
-     *  @param function The address of the void member function to attach.
+     * @param[in] object Pointer to the instance which is used to invoke @p
+     * member.
+     * @param[in] Pointer to the member function to adapt.
      */
     template<typename T>
     FunctionPointerWithContext(T *object, void (T::*member)(ContextType context)) :
-        _memberFunctionAndPointer(), _caller(NULL), _next(NULL) {
+        _memberFunctionAndPointer(), _caller(NULL), _next(NULL)
+    {
         attach(object, member);
     }
 
-    FunctionPointerWithContext(const FunctionPointerWithContext& that) : 
-        _memberFunctionAndPointer(that._memberFunctionAndPointer), _caller(that._caller), _next(NULL) {
+    /**
+     * Copy construction.
+     *
+     * @param[in] that The FunctionPointerWithContext instance used to create
+     * this.
+     */
+    FunctionPointerWithContext(const FunctionPointerWithContext &that) :
+        _memberFunctionAndPointer(that._memberFunctionAndPointer),
+        _caller(that._caller), _next(NULL) {
     }
 
-    FunctionPointerWithContext& operator=(const FunctionPointerWithContext& that) {
+    /**
+     * Copy assignment.
+     *
+     * @param[in] that The FunctionPointerWithContext instance copied into this.
+     */
+    FunctionPointerWithContext &operator=(const FunctionPointerWithContext &that)
+    {
         _memberFunctionAndPointer = that._memberFunctionAndPointer;
-        _caller = that._caller; 
+        _caller = that._caller;
         _next = NULL;
         return *this;
     }
 
-    /** Attach a static function.
+    /**
+     * Adapt a freestanding function.
      *
-     *  @param function The void static function to attach (default is none).
+     * Previous content adapted is discarded while @p function replaces it.
+     *
+     * @note This function is equivalent to a call to the copy assignment
+     * operator.
+     *
+     * @param[in] function The freestanding function to attach.
      */
-    void attach(void (*function)(ContextType context) = NULL) {
+    void attach(void (*function)(ContextType context) = NULL)
+    {
         _function = function;
         _caller = functioncaller;
     }
 
-    /** Attach a member function.
+    /**
+     * Adapt a pointer to member function and the instance to use to call it.
      *
-     *  @param object The object pointer to invoke the member function on (the "this" pointer).
-     *  @param function The address of the void member function to attach.
+     * Previous content adapted is discarded while the adaptation
+     * of the pair @p object and @p member replaces it.
+     *
+     * @note This function is equivalent to a call to the copy assignment
+     * operator.
+     *
+     * @param[in] object Pointer to the instance is used to invoke @p member.
+     * @param[in] function Pointer to the member function to adapt.
      */
     template<typename T>
-    void attach(T *object, void (T::*member)(ContextType context)) {
+    void attach(T *object, void (T::*member)(ContextType context))
+    {
         _memberFunctionAndPointer._object = static_cast<void *>(object);
-        memcpy(_memberFunctionAndPointer._memberFunction, (char*) &member, sizeof(member));
+        memcpy(
+            _memberFunctionAndPointer._memberFunction,
+            (char*) &member,
+            sizeof(member)
+        );
         _caller = &FunctionPointerWithContext::membercaller<T>;
     }
 
-    /** Call the attached static or member function; if there are chained
-     *  FunctionPointers their callbacks are invoked as well.
-     *  @Note: All chained callbacks stack up, so hopefully there won't be too
-     *  many FunctionPointers in a chain. */
-    void call(ContextType context) const {
+    /**
+     * Call the adapted function and functions chained to the instance.
+     *
+     * @param[in] context parameter to pass to chain of adapted functions.
+     */
+    void call(ContextType context) const
+    {
         _caller(this, context);
     }
 
     /**
-     * @brief Same as above
+     * Call the adapted function and functions chained to the instance.
+     *
+     * @param[in] context parameter to pass to chain of adapted functions.
      */
-    void operator()(ContextType context) const {
-        call(context);
+    void call(ContextType context)
+    {
+        ((const FunctionPointerWithContext*)  this)->call(context);
     }
 
-    /** Same as above, workaround for mbed os FunctionPointer implementation. */
-    void call(ContextType context) {
-        ((const FunctionPointerWithContext*)  this)->call(context);
+    /**
+     * Call the adapted function and functions chained to the instance.
+     *
+     * @param[in] context parameter to pass to chain of adapted functions.
+     */
+    void operator()(ContextType context) const
+    {
+        call(context);
     }
 
     typedef void (FunctionPointerWithContext::*bool_type)() const;
 
-    /** 
-     * implementation of safe bool operator
+    /**
+     * Indicate if a callable object is being adapted.
+     *
+     * @note implementation of safe bool operator.
+     *
+     * @return true if the content of the instance can be invoked and false
+     * otherwise.
      */
-    bool toBool() const {
+    bool toBool() const
+    {
         return (_function || _memberFunctionAndPointer._object);
     }
 
     /**
-     * Set up an external FunctionPointer as a next in the chain of related
-     * callbacks. Invoking call() on the head FunctionPointer will invoke all
+     * Set a FunctionPointer instance as the next element in the chain of
+     * callable objects.
+     *
+     * @note Invoking call() on the head FunctionPointer invokes all
      * chained callbacks.
      *
-     * Refer to 'CallChain' as an alternative.
+     * @note Refer to CallChainOfFunctionPointerWithContext as an alternative.
+     *
+     * @param next The instance to set as the next element in the chain of
+     * callable objects.
      */
-    void chainAsNext(pFunctionPointerWithContext_t next) {
+    void chainAsNext(pFunctionPointerWithContext_t next)
+    {
         _next = next;
     }
 
-    pFunctionPointerWithContext_t getNext(void) const {
+    /**
+     * Access the next element in the call chain.
+     *
+     * If there is no next element in the chain, this function returns NULL.
+     *
+     * @return A pointer to the next FunctionPointerWithContext instance in the
+     * chain.
+     */
+    pFunctionPointerWithContext_t getNext(void) const
+    {
         return _next;
     }
 
-    pvoidfcontext_t get_function() const {
+    /**
+     * Access the next element in the call chain.
+     *
+     * If there is no next element in the chain, this function returns NULL.
+     *
+     * @return A pointer to the next FunctionPointerWithContext instance in the
+     * chain.
+     */
+    pvoidfcontext_t get_function() const
+    {
         return (pvoidfcontext_t)_function;
     }
 
-    friend bool operator==(const FunctionPointerWithContext& lhs, const FunctionPointerWithContext& rhs) {
+    /**
+     * Equal to operator between two FunctionPointerWithContext instances.
+     *
+     * @param[in] lhs Left hand side of the expression.
+     * @param[in] rhs Right hand side of the expression.
+     *
+     * @return true if lhs and rhs adapt the same object and false otherwise.
+     */
+    friend bool operator==(
+        const FunctionPointerWithContext &lhs,
+        const FunctionPointerWithContext &rhs
+    ) {
         return rhs._caller == lhs._caller &&
                memcmp(
-                   &rhs._memberFunctionAndPointer, 
-                   &lhs._memberFunctionAndPointer, 
+                   &rhs._memberFunctionAndPointer,
+                   &lhs._memberFunctionAndPointer,
                    sizeof(rhs._memberFunctionAndPointer)
                ) == 0;
     }
@@ -160,7 +279,7 @@ private:
         /*
          * Forward declaration of a class and a member function to this class.
          * Because the compiler doesn't know anything about the forwarded member
-         * function, it will always use the biggest size and the biggest alignment
+         * function, it always uses the biggest size and the biggest alignment
          * that a member function can take for objects of type UndefinedMemberFunction.
          */
         class UndefinedClass;
@@ -191,22 +310,53 @@ private:
 };
 
 /**
- * @brief Create a new FunctionPointerWithContext which bind an instance and a  
- * a member function together.
- * @details This little helper is a just here to eliminate the need to write the
- * FunctionPointerWithContext type each time you want to create one by kicking 
- * automatic type deduction of function templates. With this function, it is easy 
- * to write only one entry point for functions which expect a FunctionPointer 
- * in parameters.
- * 
- * @param object to bound with member function
- * @param member The member function called
- * @return a new FunctionPointerWithContext
+ * Factory of adapted member function pointers.
+ *
+ * This factory eliminates the need to invoke the qualified constructor of
+ * FunctionPointerWithContext by using automatic type deduction of function
+ * templates.
+ *
+ * @code
+ *
+ * struct ReadHandler {
+ *   void on_data_read(const GattReadCallbackParams*);
+ * };
+ *
+ * ReadHandler read_handler;
+ *
+ * GattClient& client;
+ *
+ * client.onDataRead(
+ *    makeFunctionPointer(&read_handler, &ReadHandler::on_data_read)
+ * );
+ *
+ * // instead of
+ *
+ * client.onDataRead(
+ *    FunctionPointerWithContext<const GattReadCallbackParams*>(
+ *        &read_handler,
+ *        &ReadHandler::on_data_read
+ *    )
+ * );
+ * @endcode
+ *
+ *
+ * @param[in] object Instance to bound with @p member.
+ * @param member The member being adapted.
+ *
+ * @return Adaptation of the parameters in a FunctionPointerWithContext instance.
  */
 template<typename T, typename ContextType>
-FunctionPointerWithContext<ContextType> makeFunctionPointer(T *object, void (T::*member)(ContextType context)) 
-{
+FunctionPointerWithContext<ContextType> makeFunctionPointer(
+    T *object,
+    void (T::*member)(ContextType context)
+) {
     return FunctionPointerWithContext<ContextType>(object, member);
 }
+
+/**
+ * @}
+ * @}
+ */
 
 #endif // ifndef MBED_FUNCTIONPOINTER_WITH_CONTEXT_H

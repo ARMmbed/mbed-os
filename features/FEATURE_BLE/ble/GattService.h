@@ -20,6 +20,15 @@
 #include "UUID.h"
 #include "GattCharacteristic.h"
 
+/**
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ * @addtogroup server
+ * @{
+ */
+
 class GattService {
 public:
     enum {
@@ -134,10 +143,17 @@ private:
     /**
      * Handle of the service declaration attribute in the ATT table.
      *
-     * @note This handle is generally assigned by the underlying BLE stack when the
+     * @note The underlying BLE stack generally assigns this handle when the
      *       service is added to the ATT table.
      */
     uint16_t             _handle;
 };
+
+/**
+ * @}
+ * @}
+ * @}
+ */
+
 
 #endif /* ifndef __GATT_SERVICE_H__ */
