@@ -27,7 +27,7 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; STM32L073RZ: 192KB FLASH (0x30000) + 20KB RAM (0x5000)
+; STM32L072CZ: 192KB FLASH (0x30000) + 20KB RAM (0x5000)
 LR_IROM1 0x08000000 0x30000  {    ; load region size_region
 
   ER_IROM1 0x08000000 0x30000  {  ; load address = execution address
