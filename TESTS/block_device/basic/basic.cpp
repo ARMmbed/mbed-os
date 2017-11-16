@@ -71,7 +71,7 @@ void test_read_write() {
     int err = sd.init();
     TEST_ASSERT_EQUAL(0, err);
 
-    err = sd.frequency(25000000);
+    err = sd.frequency(8000000);
     TEST_ASSERT_EQUAL(0, err);
 
     for (unsigned a = 0; a < sizeof(ATTRS)/sizeof(ATTRS[0]); a++) {

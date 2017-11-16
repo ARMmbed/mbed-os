@@ -150,6 +150,12 @@
              "SPI_MISO": "PTE1",
              "SPI_CLK":  "PTE2",
              "SPI_CS":   "PTE4"
+        },
+        "TB_SENSE_12": {
+             "SPI_MOSI": "PC6",
+             "SPI_MISO": "PC7",
+             "SPI_CLK": "PC8",
+             "SPI_CS": "PC9"
         }
     }
 }
