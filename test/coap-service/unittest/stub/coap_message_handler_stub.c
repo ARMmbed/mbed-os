@@ -70,3 +70,8 @@ int8_t coap_message_handler_exec(coap_msg_handler_t *handle, uint32_t current_ti
     return coap_message_handler_stub.int8_value;
 }
 
+int8_t coap_message_handler_response_send_by_msg_id(coap_msg_handler_t *handle, int8_t service_id, uint8_t options, uint16_t msg_id, sn_coap_msg_code_e message_code,
+        sn_coap_content_format_e content_type, const uint8_t *payload_ptr,uint16_t payload_len)
+{
+    return coap_message_handler_stub.int8_value;
+}

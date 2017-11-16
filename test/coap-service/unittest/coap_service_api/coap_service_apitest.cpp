@@ -75,3 +75,32 @@ TEST(coap_service_api, test_conn_handler_callbacks)
     CHECK(test_conn_handler_callbacks());
 }
 
+TEST(coap_service_api, test_certificate_set)
+{
+    CHECK(test_certificate_set());
+}
+
+TEST(coap_service_api, test_handshake_timeout_set)
+{
+    CHECK(test_handshake_timeout_set());
+}
+
+TEST(coap_service_api, test_coap_duplcate_msg_buffer_set)
+{
+    CHECK(test_coap_duplcate_msg_buffer_set());
+}
+
+TEST(coap_service_api, test_coap_service_get_internal_timer_ticks)
+{
+    CHECK(test_coap_service_get_internal_timer_ticks())
+}
+
+TEST(coap_service_api, test_coap_service_if_find_by_socket)
+{
+    CHECK(test_coap_service_if_find_by_socket())
+}
+
+TEST(coap_service_api, test_coap_service_handshake_limit_set)
+{
+    CHECK(test_coap_service_handshake_limit_set())
+}
