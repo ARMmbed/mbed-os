@@ -1559,7 +1559,6 @@
         "core": "Cortex-M0+",
         "extra_labels_add": ["STM32L0", "STM32L072CZ", "STM32L072xx"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
-        "macros": ["RTC_LSI=1"],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
