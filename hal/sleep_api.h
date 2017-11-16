@@ -27,6 +27,42 @@
 extern "C" {
 #endif
 
+/**
+ * \defgroup hal_sleep sleep hal requirements
+ * Low level interface to the sleep mode of a target.
+ *
+ * # Defined behaviour
+ *
+ * * Sleep mode
+ *   * wake-up time should be less than 10 us - Verified by sleep_usticker_test().
+ *   * the processor can be woken up by any internal peripheral interrupt  - Verified by sleep_usticker_test().
+ *   * all peripherals operate as in run mode - not verified.
+ *   * the processor can be woken up by external pin interrupt - not verified.
+ * * Deep sleep
+ *   * the wake-up time should be less than 10 ms - Verified by deepsleep_lpticker_test().
+ *   * lp ticker should wake up a target from this mode - Verified by deepsleep_lpticker_test().
+ *   * RTC should wake up a target from this mode - not verified.
+ *   * an external interrupt on a pin should wake up a target from this mode - not verified.
+ *   * a watchdog timer should wake up a target from this mode - not verified.
+ *   * High-speed clocks are turned off - Verified by deepsleep_high_speed_clocks_turned_off_test().
+ *   * RTC keeps time - Verified by rtc_sleep_test().
+ *
+ * # Undefined behaviour
+ *
+ * * peripherals aside from RTC, GPIO and lp ticker result in undefined behaviour in deep sleep.
+ * @{
+ */
+
+/**
+ * \defgroup hal_sleep_tests sleep hal tests
+ * The sleep HAL tests ensure driver conformance to defined behaviour.
+ *
+ * To run the sleep hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-sleep*
+ *
+ */
+
 /** Send the microcontroller to sleep
  *
  * The processor is setup ready for sleep, and sent to sleep. In this mode, the
@@ -53,6 +89,8 @@ void hal_sleep(void);
  */
 void hal_deepsleep(void);
 
+/**@}*/
+
 #ifdef __cplusplus
 }
 #endif
@@ -61,4 +99,4 @@ void hal_deepsleep(void);
 
 #endif
 
-/** @}*/
+/**@}*/
