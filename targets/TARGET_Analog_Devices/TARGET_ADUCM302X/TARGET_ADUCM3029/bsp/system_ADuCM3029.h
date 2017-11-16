@@ -112,6 +112,7 @@ extern void SystemCoreClockUpdate(void);
 void adi_system_EnableCache(bool bEnable);
 uint32_t  adi_system_EnableRetention(ADI_SRAM_BANK eBank, bool bEnable);
 void adi_system_EnableISRAM(bool bEnable);
+extern uint32_t SystemCoreClock;
 
 #ifdef __cplusplus
 }
