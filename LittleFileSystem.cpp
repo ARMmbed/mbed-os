@@ -332,12 +332,16 @@ int LittleFileSystem::stat(const char *name, struct stat *st) {
 ////// File operations //////
 int LittleFileSystem::file_open(fs_file_t *file, const char *path, int flags) {
     lfs_file_t *f = new lfs_file_t;
-    *file = f;
     _mutex.lock();
     LFS_INFO("file_open(%p, \"%s\", 0x%x)", *file, path, flags);
     int err = lfs_file_open(&_lfs, f, path, lfs_fromflags(flags));
     LFS_INFO("file_open -> %d", lfs_toerror(err));
     _mutex.unlock();
+    if (!err) {
+        *file = f;
+    } else {
+        delete f;
+    }
     return lfs_toerror(err);
 }
 
@@ -416,12 +420,16 @@ off_t LittleFileSystem::file_size(fs_file_t file) {
 ////// Dir operations //////
 int LittleFileSystem::dir_open(fs_dir_t *dir, const char *path) {
     lfs_dir_t *d = new lfs_dir_t;
-    *dir = d;
     _mutex.lock();
     LFS_INFO("dir_open(%p, \"%s\")", *dir, path);
     int err = lfs_dir_open(&_lfs, d, path);
     LFS_INFO("dir_open -> %d", lfs_toerror(err));
     _mutex.unlock();
+    if (!err) {
+        *dir = d;
+    } else {
+        delete d;
+    }
     return lfs_toerror(err);
 }
 
