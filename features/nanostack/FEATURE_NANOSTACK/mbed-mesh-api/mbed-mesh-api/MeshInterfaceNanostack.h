@@ -66,13 +66,13 @@ public:
      *
      *  @param status_cb The callback for status changes
      */
-    virtual void register_status_callback(mbed::Callback<void(ConnectionStatusType, int)> status_cb);
+    virtual void register_status_callback(mbed::Callback<void(connection_status_t, int)> status_cb);
 
     /** Get the connection status
      *
      *  @return         The connection status according to ConnectionStatusType
      */
-    virtual ConnectionStatusType get_connection_status();
+    virtual connection_status_t get_connection_status();
 
 
 protected:
@@ -100,8 +100,8 @@ protected:
     char mac_addr_str[24];
     Semaphore connect_semaphore;
 
-    Callback<void(ConnectionStatusType, int)> _connection_status_cb;
-    ConnectionStatusType _connect_status;
+    Callback<void(connection_status_t, int)> _connection_status_cb;
+    connection_status_t _connect_status;
 };
 
 #endif /* MESHINTERFACENANOSTACK_H */

@@ -474,7 +474,7 @@ void mbed_lwip_netif_status_irq(struct netif *lwip_netif)
     }
 }
 
-ConnectionStatusType mbed_lwip_netif_status_check(void)
+connection_status_t mbed_lwip_netif_status_check(void)
 {
     if (netif_is_up(&lwip_netif)) {
         return GLOBAL_UP;

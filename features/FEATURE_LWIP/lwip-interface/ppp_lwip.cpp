@@ -59,7 +59,7 @@ static bool ppp_active = false;
 static const char *login;
 static const char *pwd;
 static sys_sem_t ppp_close_sem;
-static Callback<void(ConnectionStatusType, int)> connection_status_cb;
+static Callback<void(connection_status_t, int)> connection_status_cb;
 
 static EventQueue *prepare_event_queue()
 {
@@ -353,7 +353,7 @@ nsapi_error_t nsapi_ppp_error_code()
     return connect_error_code;
 }
 
-nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(ConnectionStatusType, int)> cb, const char *uname, const char *password, const nsapi_ip_stack_t stack)
+nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(connection_status_t, int)> cb, const char *uname, const char *password, const nsapi_ip_stack_t stack)
 {
     if (my_stream) {
         return NSAPI_ERROR_PARAMETER;

@@ -55,7 +55,7 @@ void MeshInterfaceNanostack::mesh_network_handler(mesh_connection_status_t statu
     nanostack_unlock();
 
 
-    ConnectionStatusType previous_status = _connect_status;
+    connection_status_t previous_status = _connect_status;
 
     if (status == MESH_CONNECTED) {
         uint8_t temp_ipv6[16];
@@ -115,13 +115,13 @@ const char *MeshInterfaceNanostack::get_mac_address()
     return mac_addr_str;
 }
 
-ConnectionStatusType MeshInterfaceNanostack::get_connection_status()
+connection_status_t MeshInterfaceNanostack::get_connection_status()
 {
     return _connect_status;
 }
 
 void MeshInterfaceNanostack::register_status_callback(
-    Callback<void(ConnectionStatusType, int)> status_cb)
+    Callback<void(connection_status_t, int)> status_cb)
 {
     _connection_status_cb = status_cb;
 }

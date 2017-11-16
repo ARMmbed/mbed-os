@@ -264,7 +264,7 @@ PPPCellularInterface::PPPCellularInterface(FileHandle *fh, bool debug)
     _debug_trace_on = debug;
     _stack = DEFAULT_STACK;
     _connection_status_cb = NULL;
-    _ppp_cb = Callback<void(ConnectionStatusType, int)>(this, &PPPCellularInterface::ppp_status_cb);
+    _ppp_cb = Callback<void(connection_status_t, int)>(this, &PPPCellularInterface::ppp_status_cb);
     _connect_status = DISCONNECTED;
     dev_info.reg_status_csd = CSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.reg_status_psd = PSD_NOT_REGISTERED_NOT_SEARCHING;
@@ -306,9 +306,9 @@ void PPPCellularInterface::modem_debug_on(bool on)
     _debug_trace_on = on;
 }
 
-void PPPCellularInterface::ppp_status_cb(ConnectionStatusType status, int parameter)
+void PPPCellularInterface::ppp_status_cb(connection_status_t status, int parameter)
 {
-    ConnectionStatusType previous_status = _connect_status;
+    connection_status_t previous_status = _connect_status;
 
     _connect_status = status;
 
@@ -806,12 +806,12 @@ NetworkStack *PPPCellularInterface::get_stack()
 
 
 void PPPCellularInterface::register_status_callback(
-    Callback<void(ConnectionStatusType, int)> status_cb)
+    Callback<void(connection_status_t, int)> status_cb)
 {
     _connection_status_cb = status_cb;
 }
 
-ConnectionStatusType PPPCellularInterface::get_connection_status()
+connection_status_t PPPCellularInterface::get_connection_status()
 {
     return _connect_status;
 }

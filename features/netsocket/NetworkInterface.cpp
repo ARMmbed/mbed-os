@@ -65,11 +65,11 @@ nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address)
     return get_stack()->add_dns_server(address);
 }
 
-void NetworkInterface::register_status_callback(mbed::Callback<void(ConnectionStatusType, int)> status_cb)
+void NetworkInterface::register_status_callback(mbed::Callback<void(connection_status_t, int)> status_cb)
 {
 }
 
-ConnectionStatusType NetworkInterface::get_connection_status()
+connection_status_t NetworkInterface::get_connection_status()
 {
     return UNDEFINED;
 }
