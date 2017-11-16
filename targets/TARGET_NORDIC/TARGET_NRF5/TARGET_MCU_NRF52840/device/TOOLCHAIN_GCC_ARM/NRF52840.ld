@@ -16,8 +16,8 @@
 
 /* Linker script to configure memory regions. */
 
-#if !defined(MBED_APP_START)\
-  #define MBED_APP_START 0x21000\
+#if !defined(MBED_APP_START)
+#define MBED_APP_START 0x21000
 #endif
 
 MEMORY
