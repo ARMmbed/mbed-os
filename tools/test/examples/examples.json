@@ -102,19 +102,6 @@
       "auto-update" : true
     },
     {
-      "name": "mbed-cloud-client-example-internal",
-      "github":"https://github.com/ARMmbed/mbed-cloud-client-example-internal",
-      "mbed": [],
-      "test-repo-source": "github",
-      "features" : ["LWIP"],
-      "targets" : [],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : false,
-      "export": false,
-      "auto-update" : true
-    },
-    {
       "name": "mbed-os-example-sockets",
       "github":"https://github.com/ARMmbed/mbed-os-example-sockets",
       "mbed": [
