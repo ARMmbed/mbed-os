@@ -121,6 +121,8 @@ void randLIB_add_seed(uint64_t seed)
     if (state[1] == 0 && state[0] == 0) {
         state[0] = 1;
     }
+#else
+    (void)seed;
 #endif
 }
 
