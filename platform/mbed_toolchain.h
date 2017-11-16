@@ -5,7 +5,7 @@
  * \defgroup platform_toolchain Toolchain functions
  * @{
  */
- 
+
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -63,7 +63,7 @@
  *
  *  @note
  *  IAR does not support alignment greater than word size on the stack
- *  
+ *
  *  @code
  *  #include "mbed_toolchain.h"
  *
@@ -125,16 +125,16 @@
  *  should contain a regular function declaration to insure the function is emitted.
  *  A function marked weak will not be emitted if an alternative non-weak
  *  implementation is defined.
- *  
+ *
  *  @note
  *  Weak functions are not friendly to making code re-usable, as they can only
  *  be overridden once (and if they are multiply overridden the linker will emit
  *  no warning). You should not normally use weak symbols as part of the API to
  *  re-usable modules.
- *  
+ *
  *  @code
  *  #include "mbed_toolchain.h"
- *  
+ *
  *  MBED_WEAK void foo() {
  *      // a weak implementation of foo that can be overriden by a definition
  *      // without  __weak
@@ -173,9 +173,9 @@
  *
  *  @code
  *  #include "mbed_toolchain.h"
- *  
+ *
  *  MBED_NOINLINE void foo() {
- *  
+ *
  *  }
  *  @endcode
  */
@@ -195,9 +195,9 @@
  *
  *  @code
  *  #include "mbed_toolchain.h"
- *  
+ *
  *  MBED_FORCEINLINE void foo() {
- *  
+ *
  *  }
  *  @endcode
  */
@@ -216,7 +216,7 @@
  *
  *  @code
  *  #include "mbed_toolchain.h"
- *  
+ *
  *  MBED_NORETURN void foo() {
  *      // must never return
  *      while (1) {}
@@ -266,7 +266,7 @@
  *
  *  @code
  *  #include "mbed_toolchain.h"
- *  
+ *
  *  MBED_DEPRECATED("don't foo any more, bar instead")
  *  void foo(int arg);
  *  @endcode
@@ -328,6 +328,20 @@
 #else
 #error "Missing MBED_SECTION directive"
 #endif
+#endif
+
+/**
+ * Macro expanding to a string literal of the enclosing function name.
+ *
+ * The string returned takes into account language specificity and yield human
+ * readable content.
+ *
+ * As an example, if the macro is used within a C++ function then the string
+ * literal containing the function name will contain the complete signature of
+ * the function - including template parameters - and namespace qualifications.
+ */
+#ifndef MBED_PRETTY_FUNCTION
+#define MBED_PRETTY_FUNCTION __PRETTY_FUNCTION__
 #endif
 
 #ifndef MBED_PRINTF
