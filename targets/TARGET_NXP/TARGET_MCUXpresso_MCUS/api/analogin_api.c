@@ -38,6 +38,14 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
     adc_config_t adc_config;
+    uint32_t reg;
+    uint32_t pin_number = pin & 0x1F;
+    uint8_t port_number = pin / 32;
+
+    /* Clear the PDEN_ADC0 bit in the PDRUNCFG0 */
+    reg = IOCON->PIO[port_number][pin_number] & ~IOCON_PIO_DIGIMODE_MASK;
+    reg &= ~(1UL << SYSCON_PDRUNCFG_PDEN_ADC0_SHIFT);
+    IOCON->PIO[port_number][pin_number] = reg;
 
     ADC_ClockPower_Configuration();
 
@@ -69,6 +77,7 @@ uint16_t analogin_read_u16(analogin_t *obj)
     adcConvSeqConfigStruct.interruptMode = kADC_InterruptForEachSequence;
 
     ADC_SetConvSeqAConfig(adc_addrs[instance], &adcConvSeqConfigStruct);
+    ADC_EnableConvSeqA(adc_addrs[instance], true);
     ADC_DoSoftwareTriggerConvSeqA(adc_addrs[instance]);
 
     /* Wait for the converter to be done. */
