@@ -21,6 +21,18 @@
 	"features": ["ALS", "BATTERY_FUEL_GAUGE", "STC3115", "TLC59711", "M25PX16", "BLE"],
 	"macros_remove": ["BOARD_PCA10040"],
 	"macros_add": ["ENABLE_SWO"],
+	"config": {
+	    "mbed_app_start": {
+		"help": "Application start address is program flash",
+		"value": "0x2C000",
+		"macro_name": "MBED_APP_START"
+	    },
+	    "mbed_app_size": {
+		"help": "Maximum application size",
+		"value": "0x4000",
+		"macro_name": "MBED_APP_SIZE"
+	    }
+	},
 	"MERGE_SOFT_DEVICE": true,
 	"public": true
     },

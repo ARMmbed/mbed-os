@@ -16,9 +16,21 @@
 
 /* Linker script to configure memory regions. */
 
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Heads Up Modifications to allow configurable application locations
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x1C000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x64000
+#endif
+
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x1C000, LENGTH = 0x64000
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx) :  ORIGIN = 0x20002ef8, LENGTH = 0xd108
 }
 
