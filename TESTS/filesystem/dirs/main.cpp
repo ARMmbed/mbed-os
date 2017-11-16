@@ -260,18 +260,12 @@ void test_multi_block_directory() {
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].open(&fs, "cactus");
         TEST_ASSERT_EQUAL(0, res);
-        res = dir[0].read(&ent);
-        TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, ".");
-        TEST_ASSERT_EQUAL(0, res);
-        res = ent.d_type;
-        TEST_ASSERT_EQUAL(DT_DIR, res);
-        res = dir[0].read(&ent);
-        TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, "..");
-        TEST_ASSERT_EQUAL(0, res);
-        res = ent.d_type;
-        TEST_ASSERT_EQUAL(DT_DIR, res);
+
+#if (MBED_TEST_FILESYSTEM != FATFileSystem)
+        char *dir_list[] = {".", ".."};
+        dir_file_check(dir_list, (sizeof(dir_list)/sizeof(dir_list[0])));
+#endif
+
         for (int i = 0; i < 128; i++) {
             sprintf((char*)buffer, "test%d", i);
             res = dir[0].read(&ent);
@@ -308,18 +302,12 @@ void test_directory_remove() {
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].open(&fs, "potato");
         TEST_ASSERT_EQUAL(0, res);
-        res = dir[0].read(&ent);
-        TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, ".");
-        TEST_ASSERT_EQUAL(0, res);
-        res = ent.d_type;
-        TEST_ASSERT_EQUAL(DT_DIR, res);
-        res = dir[0].read(&ent);
-        TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, "..");
-        TEST_ASSERT_EQUAL(0, res);
-        res = ent.d_type;
-        TEST_ASSERT_EQUAL(DT_DIR, res);
+
+#if (MBED_TEST_FILESYSTEM != FATFileSystem)
+        char *dir_list[] = {".", ".."};
+        dir_file_check(dir_list, (sizeof(dir_list)/sizeof(dir_list[0])));
+#endif
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].close();
