@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include "cmsis_os.h"
 #include "rtos/Mutex.h"
+#include "rtos/Semaphore.h"
 
 #include "platform/NonCopyable.h"
 
@@ -192,9 +193,17 @@ public:
 
     ~ConditionVariable();
 
-private:
-    void _add_wait_list(Waiter * waiter);
-    void _remove_wait_list(Waiter * waiter);
+protected:
+    struct Waiter {
+        Waiter();
+        Semaphore sem;
+        Waiter *prev;
+        Waiter *next;
+        bool in_list;
+    };
+
+    static void _add_wait_list(Waiter **wait_list, Waiter *waiter);
+    static void _remove_wait_list(Waiter **wait_list, Waiter *waiter);
     Mutex &_mutex;
     Waiter *_wait_list;
 };
