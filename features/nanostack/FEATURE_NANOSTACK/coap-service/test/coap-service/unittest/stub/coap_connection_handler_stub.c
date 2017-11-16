@@ -22,7 +22,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
 
 coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *, int),
                                                  int (*send_cb)(int8_t socket_id, uint8_t const address[static 16], uint16_t port, const void *, int),
-                                                 int (*pw_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t *pw_ptr, uint8_t *pw_len),
+                                                 int (*pw_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, coap_security_keys_t *security_ptr),
                                                  void(*done_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static KEY_BLOCK_LEN]) )
 {
     thread_conn_handler_stub.send_to_sock_cb = send_cb;
@@ -57,6 +57,11 @@ bool coap_connection_handler_socket_belongs_to(coap_conn_handler_t *handler, int
 }
 
 int8_t coap_connection_handler_set_timeout(coap_conn_handler_t *handler, uint32_t min, uint32_t max)
+{
+    return 0;
+}
+
+int8_t coap_connection_handler_handshake_limits_set(uint8_t handshakes_limit, uint8_t connections_limit)
 {
     return 0;
 }

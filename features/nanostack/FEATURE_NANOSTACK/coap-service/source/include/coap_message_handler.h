@@ -59,6 +59,7 @@ typedef struct coap_transaction {
     int8_t service_id;
     uint8_t options;
     uint8_t *data_ptr;
+    sn_coap_msg_type_e req_msg_type;
     bool client_request: 1;
 
     coap_message_handler_response_recv *resp_cb;
@@ -92,5 +93,8 @@ extern int8_t coap_message_handler_exec(coap_msg_handler_t *handle, uint32_t cur
 extern void transaction_delete(coap_transaction_t *this);
 
 extern void transactions_delete_all(uint8_t *address_ptr, uint16_t port);
+
+extern int8_t coap_message_handler_response_send_by_msg_id(coap_msg_handler_t *handle, int8_t service_id, uint8_t options, uint16_t msg_id, sn_coap_msg_code_e message_code,
+        sn_coap_content_format_e content_type, const uint8_t *payload_ptr,uint16_t payload_len);
 
 #endif

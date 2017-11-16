@@ -119,6 +119,7 @@ bool test_coap_message_handler_coap_msg_process()
 {
     uint8_t buf[16];
     memset(&buf, 1, 16);
+    /*Handler is null*/
     if( -1 != coap_message_handler_coap_msg_process(NULL, 0, buf, 22, ns_in6addr_any, NULL, 0, NULL))
         return false;
 
@@ -128,12 +129,14 @@ bool test_coap_message_handler_coap_msg_process()
     coap_msg_handler_t *handle = coap_message_handler_init(&own_alloc, &own_free, &coap_tx_function);
 
     sn_coap_protocol_stub.expectedHeader = NULL;
+    /* Coap parse returns null */
     if( -1 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
         return false;
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
     memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
     sn_coap_protocol_stub.expectedHeader->coap_status = 66;
+    /* Coap library responds */
     if( -1 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
         return false;
 
@@ -142,12 +145,17 @@ bool test_coap_message_handler_coap_msg_process()
     sn_coap_protocol_stub.expectedHeader->coap_status = COAP_STATUS_OK;
     sn_coap_protocol_stub.expectedHeader->msg_code = 1;
     retValue = 0;
+    /* request received */
     if( 0 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
         return false;
 
+    sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
+    memset(sn_coap_protocol_stub.expectedHeader, 0, sizeof(sn_coap_hdr_s));
+    sn_coap_protocol_stub.expectedHeader->coap_status = COAP_STATUS_OK;
+    sn_coap_protocol_stub.expectedHeader->msg_code = 1;
     nsdynmemlib_stub.returnCounter = 1;
     retValue = -1;
-    if( -1 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
+    if( 0 != coap_message_handler_coap_msg_process(handle, 0, buf, 22, ns_in6addr_any, NULL, 0, process_cb))
         return false;
 
     sn_coap_protocol_stub.expectedHeader = (sn_coap_hdr_s *)malloc(sizeof(sn_coap_hdr_s));
@@ -310,7 +318,7 @@ bool test_coap_message_handler_response_send()
     if( 0 != coap_message_handler_response_send(handle, 2, 0, header, 1,3,NULL, 0))
         return false;
 
-//    free(header);
+    free(header);
     free(sn_coap_protocol_stub.expectedCoap);
     sn_coap_protocol_stub.expectedCoap = NULL;
     coap_message_handler_destroy(handle);
