@@ -268,10 +268,10 @@ void rtc_write(time_t t)
 
     // Change the RTC current date/time
     if (HAL_RTC_SetDate(&RtcHandle, &dateStruct, RTC_FORMAT_BIN) != HAL_OK) {
-        printf("HAL_RTC_SetDate error\n");
+        error("HAL_RTC_SetDate error\n");
     }
     if (HAL_RTC_SetTime(&RtcHandle, &timeStruct, RTC_FORMAT_BIN) != HAL_OK) {
-        printf("HAL_RTC_SetTime error\n");
+        error("HAL_RTC_SetTime error\n");
     }
 }
 
