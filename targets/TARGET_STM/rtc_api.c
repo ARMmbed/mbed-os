@@ -55,7 +55,12 @@ void rtc_init(void)
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
     // Enable access to Backup domain
+    __HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWR_EnableBkUpAccess();
+
+    if (rtc_isenabled()) {
+        return;
+    }
 
 #if !RTC_LSI /* => LSE */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
@@ -76,12 +81,7 @@ void rtc_init(void)
         error("PeriphClkInitStruct RTC failed with LSE\n");
     }
 
-    if (rtc_isenabled()) return;
 #else /*  => RTC_LSI */
-    if (rtc_isenabled()) return;
-
-    __HAL_RCC_PWR_CLK_ENABLE();
-
     // Reset Backup domain
     __HAL_RCC_BACKUPRESET_FORCE();
     __HAL_RCC_BACKUPRESET_RELEASE();
