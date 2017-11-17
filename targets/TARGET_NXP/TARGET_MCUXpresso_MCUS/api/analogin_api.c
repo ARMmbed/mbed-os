@@ -42,9 +42,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     uint32_t pin_number = pin & 0x1F;
     uint8_t port_number = pin / 32;
 
-    /* Clear the PDEN_ADC0 bit in the PDRUNCFG0 */
+    /* Clear the DIGIMODE bit */
     reg = IOCON->PIO[port_number][pin_number] & ~IOCON_PIO_DIGIMODE_MASK;
-    reg &= ~(1UL << SYSCON_PDRUNCFG_PDEN_ADC0_SHIFT);
+    reg &= ~(1UL << IOCON_PIO_DIGIMODE_SHIFT);
     IOCON->PIO[port_number][pin_number] = reg;
 
     ADC_ClockPower_Configuration();
