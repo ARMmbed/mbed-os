@@ -1505,7 +1505,7 @@
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F407", "STM32F407xG", "STM32F407VG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
-        "macros_add": ["USB_STM_HAL"],
+        "macros_add": ["RTC_LSI=1", "USB_STM_HAL"],
         "device_has_add": ["ANALOGOUT"],
         "device_name": "STM32F407VG"
     },
@@ -3191,7 +3191,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": ["TARGET_NRF52840", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S140", "NRF_SD_BLE_API_VERSION=5", "NRF52840_XXAA", "NRF_DFU_SETTINGS_VERSION=1", "NRF_SD_BLE_API_VERSION=5", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has": ["STCLK_OFF_DURING_SLEEP"],	    
+        "device_has": ["STCLK_OFF_DURING_SLEEP"],
         "extra_labels": ["NORDIC", "MCU_NRF52840", "NRF5", "SDK13", "NRF52_COMMON"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
