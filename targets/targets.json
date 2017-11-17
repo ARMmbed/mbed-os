@@ -1525,7 +1525,7 @@
                 "macro_name": "CLOCK_SOURCE_USB"
             }
         },
-        "macros_add": ["RTC_LSI=1", "USBHOST_OTHER"],
+        "macros_add": ["RTC_LSI=1", "USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F429ZI"
