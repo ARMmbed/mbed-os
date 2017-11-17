@@ -63,6 +63,7 @@ bool find_substring(const char *first, const char *last, const char *s_first, co
 }
 
 void get_data(TCPSocket* sock){
+    sock->sigio(NULL);
     bool result = false;
     // Server will respond with HTTP GET's success code
     const int ret = sock->recv(buffer, sizeof(buffer) - 1);
@@ -103,11 +104,7 @@ void prep_buffer() {
 }
 
 void test_socket_attach() {
-    // Dispatch event queue
-    Thread eventThread;
-    EventQueue queue(4*EVENTS_EVENT_SIZE);
-    eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
-
+    EventQueue *queue = mbed_event_queue();
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
 
     TCPSocket sock(net);
@@ -117,7 +114,7 @@ void test_socket_attach() {
 
         prep_buffer();
         // Attach a sigio function that adds function to event queue
-        sock.sigio(queue.event(get_data, &sock));
+        sock.sigio(queue->event(get_data, &sock));
         // Send GET command
         sock.send(buffer, strlen(buffer));
         // wait for recv data
@@ -137,11 +134,7 @@ void cb_pass() {
 }
 
 void test_socket_detach() {
-    // Dispatch event queue
-    Thread eventThread;
-    EventQueue queue(4*EVENTS_EVENT_SIZE);
-    eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
-
+    EventQueue *queue = mbed_event_queue();
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
 
     TCPSocket sock(net);
@@ -151,7 +144,7 @@ void test_socket_detach() {
 
         prep_buffer();
         // Attach a sigio function that adds function to event queue
-        sock.sigio(queue.event(cb_fail));
+        sock.sigio(queue->event(cb_fail));
         // Detach function
         sock.sigio(NULL);
         // Send GET command
@@ -164,11 +157,7 @@ void test_socket_detach() {
 }
 
 void test_socket_reattach() {
-    // Dispatch event queue
-    Thread eventThread;
-    EventQueue queue(4*EVENTS_EVENT_SIZE);
-    eventThread.start(callback(&queue, &EventQueue::dispatch_forever));
-
+    EventQueue *queue = mbed_event_queue();
     printf("TCP client IP Address is %s\r\n", net->get_ip_address());
 
     TCPSocket sock(net);
@@ -178,9 +167,9 @@ void test_socket_reattach() {
 
         prep_buffer();
         // Attach a sigio function that adds function to event queue
-        sock.sigio(queue.event(cb_fail));
+        sock.sigio(queue->event(cb_fail));
         // Override previous attach
-        sock.sigio(queue.event(cb_pass));
+        sock.sigio(queue->event(cb_pass));
         // Send GET command
         sock.send(buffer, strlen(buffer));
         recvd.wait();
