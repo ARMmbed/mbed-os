@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __GATT_ATTRIBUTE_H__
-#define __GATT_ATTRIBUTE_H__
+#ifndef MBED_GATT_ATTRIBUTE_H__
+#define MBED_GATT_ATTRIBUTE_H__
 
 #include "UUID.h"
 #include "BLETypes.h"
@@ -30,67 +30,116 @@
  */
 
 /**
- * Instances of this class encapsulate the data that belongs to a Bluetooth Low
- * Energy attribute.
+ * Representation of a GattServer attribute.
+ *
+ * Attributes are the building block of GATT servers: services are attributes,
+ * characteristics are groups of attributes and characteristic descriptors are
+ * attributes too.
+ *
+ * @par Typed values
+ *
+ * Attributes are typed values composed of a type and its associated value. The
+ * attribute type identifies the attribute purpose and is modelled by a UUID
+ * read by the client during the discovery of the gatt server. The value of the
+ * attribute is an array of bytes; its length may be fixed or variable.
+ *
+ * As an example a primary service is declared by an attribute with the type
+ * 0x2800 and the value of the attribute is the UUID of the service.
+ *
+ * @par Attribute Access
+ *
+ * The GATT server is an array of attributes were each of the attributes is
+ * identified within the array by a unique index. That index is called the
+ * attribute handle and clients use it to access to attributes within the server.
+ *
+ * @note Attributes do not contain information related to their permissions,
+ * grouping or semantic. Higher level specifications define these concepts.
  */
 class GattAttribute {
 public:
     /**
-     * Type for the handle or ID of the attribute in the ATT table. These are
-     * unique, and the underlying BLE stack usually generates them.
+     * Representation of an attribute handle.
+     *
+     * Each attribute in a GattServer have a unique handle that can be used by
+     * clients to identify the attribute. The underlying BLE stack usually
+     * generates and assign handles to attributes.
      */
     typedef ble::attribute_handle_t Handle_t;
+
     /**
-     * Define the value of an invalid attribute handle.
+     * Invalid attribute handle.
      */
     static const Handle_t INVALID_HANDLE = 0x0000;
 
 public:
     /**
-     *  @brief  Creates a new GattAttribute using the specified
-     *          UUID, value length, and inital value.
+     * Construct an attribute.
      *
-     *  @param[in]  uuid
-     *              The UUID to use for this attribute.
-     *  @param[in]  valuePtr
-     *              The memory holding the initial value.
-     *  @param[in]  len
-     *              The length in bytes of this attribute's value.
-     *  @param[in]  maxLen
-     *              The max length in bytes of this attribute's value.
-     *  @param[in]  hasVariableLen
-     *              Whether the attribute's value length changes over time.
+     * Application code use attributes to model characteristic descriptors and
+     * characteristics values.
      *
-     *  @section EXAMPLE
+     * @param[in] uuid The type of the attribute.
+     * @param[in] valuePtr Pointer to the memory buffer which contains the
+     * initial value of the attribute. The constructor does not make a copy of
+     * the attribute buffer; as a consequence the memory buffer must remain
+     * valid during the lifetime of the attribute.
+     * @param[in] len The length in bytes of this attribute's value.
+     * @param[in] maxLen The length in bytes of the memory buffer containing the
+     * attribute value. It must be greater than or equal to @p len.
+     * @param[in] hasVariableLen Flag that indicate if the attribute's value
+     * length can changes over time.
      *
-     *  @code
+     * @par Example
      *
-     *  // UUID = 0x2A19, Min length 2, Max len = 2
-     *  GattAttribute attr = GattAttribute(0x2A19, &someValue, 2, 2);
-     *
-     *  @endcode
+     * @code
+     * // declare a value of 2 bytes within a 10 bytes buffer
+     * const uint8_t attribute_value[10] = { 10, 50 };
+     * GattAttribute attr = GattAttribute(
+     *    0x2A19, // attribute type
+     *    attribute_value,
+     *    2, // length of the current value
+     *    sizeof(attribute_value), // length of the buffer containing the value
+     *    true // variable length
+     * );
+     * @endcode
      */
-    GattAttribute(const UUID &uuid, uint8_t *valuePtr = NULL, uint16_t len = 0, uint16_t maxLen = 0, bool hasVariableLen = true) :
-        _uuid(uuid), _valuePtr(valuePtr), _lenMax(maxLen), _len(len), _hasVariableLen(hasVariableLen), _handle() {
-        /* Empty */
+    GattAttribute(
+        const UUID &uuid,
+        uint8_t *valuePtr = NULL,
+        uint16_t len = 0,
+        uint16_t maxLen = 0,
+        bool hasVariableLen = true
+    ) : _uuid(uuid),
+        _valuePtr(valuePtr),
+        _lenMax(maxLen),
+        _len(len),
+        _hasVariableLen(hasVariableLen),
+        _handle() {
     }
 
 public:
     /**
      * Get the attribute's handle in the ATT table.
      *
+     * @note The attribute's handle is set by the GattServer when services are
+     * inserted.
+     *
      * @return The attribute's handle.
      */
-    Handle_t getHandle(void) const {
+    Handle_t getHandle(void) const
+    {
         return _handle;
     }
 
     /**
-     * The UUID of the characteristic that this attribute belongs to.
+     * Get the UUID of the attribute.
      *
-     * @return The characteristic's UUID.
+     * The UUID identifies the type of the attribute.
+     *
+     * @return The attribute.
      */
-    const UUID &getUUID(void) const {
+    const UUID &getUUID(void) const
+    {
         return _uuid;
     }
 
@@ -99,7 +148,8 @@ public:
      *
      * @return The current length of the attribute value.
      */
-    uint16_t getLength(void) const {
+    uint16_t getLength(void) const
+    {
         return _len;
     }
 
@@ -108,26 +158,33 @@ public:
      *
      * The maximum length of the attribute value.
      */
-    uint16_t getMaxLength(void) const {
+    uint16_t getMaxLength(void) const
+    {
         return _lenMax;
     }
 
     /**
      * Get a pointer to the current length of the attribute value.
      *
+     * @important note Do not use this function.
+     *
      * @return A pointer to the current length of the attribute value.
      */
-    uint16_t *getLengthPtr(void) {
+    uint16_t *getLengthPtr(void)
+    {
         return &_len;
     }
 
     /**
      * Set the attribute handle.
      *
-     * @param[in] id
-     *              The new attribute handle.
+     * @important This function is used internally by the GattServer and must
+     * not be used by application code.
+     *
+     * @param[in] id The new attribute handle.
      */
-    void setHandle(Handle_t id) {
+    void setHandle(Handle_t id)
+    {
         _handle = id;
     }
 
@@ -136,16 +193,19 @@ public:
      *
      * @return A pointer to the attribute value.
      */
-    uint8_t *getValuePtr(void) {
+    uint8_t *getValuePtr(void)
+    {
         return _valuePtr;
     }
 
     /**
      * Check whether the length of the attribute's value can change over time.
      *
-     * @return true if the attribute has variable length, false otherwise.
+     * @return true if the attribute value has a variable length and false
+     * otherwise.
      */
-    bool hasVariableLength(void) const {
+    bool hasVariableLength(void) const
+    {
         return _hasVariableLen;
     }
 
@@ -153,27 +213,32 @@ private:
     /**
      * Characteristic's UUID.
      */
-    UUID      _uuid;
+    UUID _uuid;
+
     /**
      * Pointer to the attribute's value.
      */
-    uint8_t  *_valuePtr;
+    uint8_t *_valuePtr;
+
     /**
-     * Maximum length of the value pointed to by GattAttribute::_valuePtr.
+     * Length in byte of the buffer containing the attribute value.
      */
-    uint16_t  _lenMax;
+    uint16_t _lenMax;
+
     /**
      * Current length of the value pointed to by GattAttribute::_valuePtr.
      */
-    uint16_t  _len;
+    uint16_t _len;
+
     /**
      * Whether the length of the value can change over time.
      */
-    bool      _hasVariableLen;
+    bool _hasVariableLen;
+
     /**
      * The attribute's handle in the ATT table.
      */
-    Handle_t  _handle;
+    Handle_t _handle;
 
 private:
     /* Disallow copy and assignment. */
@@ -187,4 +252,4 @@ private:
  * @}
  */
 
-#endif /* ifndef __GATT_ATTRIBUTE_H__ */
+#endif /* ifndef MBED_GATT_ATTRIBUTE_H__ */
