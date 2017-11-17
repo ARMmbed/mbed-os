@@ -22,7 +22,6 @@
 
 - ['LFS_TYPE_([A-Z]+)', 'DT_\1']
 - ['LFS_SEEK_([A-Z]+)', 'SEEK_\1']
-- ['LFS_ERR_EXISTS', '-EEXIST']
 - ['LFS_ERR_([A-Z]+)', '-E\1']
 - ['lfs_(s?)size_t', '\1size_t']
 - ['lfs_soff_t', 'off_t']

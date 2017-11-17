@@ -34,7 +34,7 @@ static int lfs_toerror(int err) {
         case LFS_ERR_OK:        return 0;
         case LFS_ERR_IO:        return -EIO;
         case LFS_ERR_NOENT:     return -ENOENT;
-        case LFS_ERR_EXISTS:    return -EEXIST;
+        case LFS_ERR_EXIST:     return -EEXIST;
         case LFS_ERR_NOTDIR:    return -ENOTDIR;
         case LFS_ERR_ISDIR:     return -EISDIR;
         case LFS_ERR_INVAL:     return -EINVAL;

@@ -11,20 +11,20 @@ script:
           -n 'tests*'
 
       # Run littlefs functional tests
-    - CFLAGS="-Wno-error=format" make -Clittlefs test
+    - CFLAGS="-Wno-error=format" make -Clittlefs test QUIET=1
 
       # Run littlefs functional tests with different configurations
       # Note: r/w size of 64 is default in mbed
     - CFLAGS="-Wno-error=format -DLFS_READ_SIZE=64 -DLFS_PROG_SIZE=64"
-            make -Clittlefs test
+            make -Clittlefs test QUIET=1
     - CFLAGS="-Wno-error=format -DLFS_READ_SIZE=1 -DLFS_PROG_SIZE=1"
-            make -Clittlefs test
+            make -Clittlefs test QUIET=1
     - CFLAGS="-Wno-error=format -DLFS_READ_SIZE=512 -DLFS_PROG_SIZE=512"
-            make -Clittlefs test
+            make -Clittlefs test QUIET=1
     - CFLAGS="-Wno-error=format -DLFS_BLOCK_COUNT=1023"
-            make -Clittlefs test
+            make -Clittlefs test QUIET=1
     - CFLAGS="-Wno-error=format -DLFS_LOOKAHEAD=2048"
-            make -Clittlefs test
+            make -Clittlefs test QUIET=1
 
       # Self-host with littlefs-fuse for fuzz test
     - make -C littlefs-fuse
@@ -37,7 +37,7 @@ script:
     - cp -r $(git ls-tree --name-only HEAD littlefs/) mount/littlefs
     - cd mount/littlefs
     - ls
-    - CFLAGS="-Wno-error=format" make -B test_dirs
+    - CFLAGS="-Wno-error=format" make -B test_dirs QUIET=1
 
 install:
       # Get arm-none-eabi-gcc

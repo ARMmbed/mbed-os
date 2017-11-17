@@ -45,7 +45,7 @@ enum lfs_error {
     LFS_ERR_IO      = -5,   // Error during device operation
     LFS_ERR_CORRUPT = -52,  // Corrupted
     LFS_ERR_NOENT   = -2,   // No directory entry
-    LFS_ERR_EXISTS  = -17,  // Entry already exists
+    LFS_ERR_EXIST   = -17,  // Entry already exists
     LFS_ERR_NOTDIR  = -20,  // Entry is not a dir
     LFS_ERR_ISDIR   = -21,  // Entry is a dir
     LFS_ERR_INVAL   = -22,  // Invalid parameter
@@ -75,6 +75,7 @@ enum lfs_open_flags {
     LFS_F_DIRTY   = 0x10000, // File does not match storage
     LFS_F_WRITING = 0x20000, // File has been written since last flush
     LFS_F_READING = 0x40000, // File has been read since last flush
+    LFS_F_ERRED   = 0x80000, // An error occured during write
 };
 
 // File seek flags
