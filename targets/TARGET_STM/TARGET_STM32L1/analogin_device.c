@@ -35,10 +35,11 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
+#include <stdbool.h>
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    static int adc_hsi_inited = 0;
+    static bool adc_hsi_inited = false;
     RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t function = (uint32_t)NC;
 
@@ -92,8 +93,8 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 
     // This section is done only once
-    if (adc_hsi_inited == 0) {
-        adc_hsi_inited = 1;
+    if (!adc_hsi_inited) {
+        adc_hsi_inited = true;
         // Enable the HSI (to clock the ADC)
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
         RCC_OscInitStruct.HSIState       = RCC_HSI_ON;

@@ -35,10 +35,11 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
+#include <stdbool.h>
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    static int adc_calibrated = 0;
+    static bool adc_calibrated = false;
     RCC_PeriphCLKInitTypeDef  PeriphClkInit;
     uint32_t function = (uint32_t)NC;
 
@@ -85,8 +86,8 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 
     // This section is done only once
-    if (adc_calibrated == 0) {
-        adc_calibrated = 1;
+    if (!adc_calibrated) {
+        adc_calibrated = true;
         // Configure ADC clock prescaler
         // Caution: On STM32F1, ADC clock frequency max is 14 MHz (refer to device datasheet).
         // Therefore, ADC clock prescaler must be configured in function
