@@ -79,7 +79,7 @@ using namespace utest::v1;
 #if defined(DEVICE_SPI) && ( defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) || (MBED_CONF_SD_FSFAT_SDCARD_INSTALLED))
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 #define FSFAT_FOPEN_TEST_MOUNT_PT_NAME      "sd"
-#define FSFAT_FOPEN_TEST_MOUNT_PT_PATH      "/"FSFAT_FOPEN_TEST_MOUNT_PT_NAME
+#define FSFAT_FOPEN_TEST_MOUNT_PT_PATH      "/" FSFAT_FOPEN_TEST_MOUNT_PT_NAME
 #define FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1    64
 #define FSFAT_FOPEN_TEST_FILEPATH_MAX_DEPTH 20
 static const char *sd_badfile_path = "/sd/badfile.txt";
