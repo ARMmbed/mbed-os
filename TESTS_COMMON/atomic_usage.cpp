@@ -49,10 +49,28 @@
 #include <errno.h>
 
 #include "ObservingBlockDevice.h"
-#include "LittleFileSystem.h"
 #include "ExhaustibleBlockDevice.h"
+#include "FileSystem.h"
 
 #include "atomic_usage.h"
+
+// test configuration
+#ifndef MBED_TEST_FILESYSTEM
+#define MBED_TEST_FILESYSTEM LittleFileSystem
+#endif
+
+#ifndef MBED_TEST_FILESYSTEM_DECL
+#define MBED_TEST_FILESYSTEM_DECL MBED_TEST_FILESYSTEM fs("fs")
+#endif
+
+
+// declarations
+#define STRINGIZE(x) STRINGIZE2(x)
+#define STRINGIZE2(x) #x
+#define INCLUDE(x) STRINGIZE(x.h)
+
+#include INCLUDE(MBED_TEST_FILESYSTEM)
+
 
 #define DEBUG(...)
 #define DEBUG_CHECK(...)
@@ -71,8 +89,8 @@
 
 using namespace utest::v1;
 
-typedef void (*test_function_t)(LittleFileSystem *fs);
-typedef bool (*test_function_bool_t)(LittleFileSystem *fs);
+typedef void (*test_function_t)(FileSystem *fs);
+typedef bool (*test_function_bool_t)(FileSystem *fs);
 
 struct TestEntry {
     const char *name;
@@ -181,7 +199,7 @@ static const int FILE_RENAME_LEN = strlen(FILE_RENAME_CONTENTS);
  *
  * Create file FILE_RENAME_A with contents FILE_RENAME_CONTENTS.
  */
-static void setup_file_rename(LittleFileSystem *fs)
+static void setup_file_rename(FileSystem *fs)
 {
     DEBUG("setup_file_rename()\n");
 
@@ -199,7 +217,7 @@ static void setup_file_rename(LittleFileSystem *fs)
 /**
  * Change the file name to either FILE_RENAME_A or FILE_RENAME_B
  */
-static bool perform_file_rename(LittleFileSystem *fs)
+static bool perform_file_rename(FileSystem *fs)
 {
     DEBUG("perform_file_rename()\n");
 
@@ -231,7 +249,7 @@ static bool perform_file_rename(LittleFileSystem *fs)
  * - File FILE_RENAME_B exists with contents and FILE_RENAME_A does not
  *
  */
-static void check_file_rename(LittleFileSystem *fs)
+static void check_file_rename(FileSystem *fs)
 {
 
     int files = 0;
@@ -269,7 +287,7 @@ static const char  FILE_RENAME_REPLACE_FMT[] = "file replace count: %lu\n";
  *
  * Create an write an initial count of 0 to the file.
  */
-static void setup_file_rename_replace(LittleFileSystem *fs)
+static void setup_file_rename_replace(FileSystem *fs)
 {
     DEBUG("setup_file_rename_replace()\n");
     File file;
@@ -293,7 +311,7 @@ static void setup_file_rename_replace(LittleFileSystem *fs)
 /**
  * Atomically increment the count in FILE_RENAME_REPLACE using a rename
  */
-bool perform_file_rename_replace(LittleFileSystem *fs)
+bool perform_file_rename_replace(FileSystem *fs)
 {
     DEBUG("perform_file_rename_replace()\n");
     File file;
@@ -351,7 +369,7 @@ bool perform_file_rename_replace(LittleFileSystem *fs)
  * Allowed states:
  * - FILE_RENAME_REPLACE exists with valid contents
  */
-static void check_file_rename_replace(LittleFileSystem *fs)
+static void check_file_rename_replace(FileSystem *fs)
 {
     DEBUG_CHECK("check_file_rename_replace()\n");
     File file;
@@ -374,7 +392,7 @@ static const char DIRECTORY_RENAME_B[] = "dir_b";
 /**
  * Create DIRECTORY_RENAME_A with initial contents
  */
-static void setup_directory_rename(LittleFileSystem *fs)
+static void setup_directory_rename(FileSystem *fs)
 {
     DEBUG("setup_directory_rename()\n");
 
@@ -385,7 +403,7 @@ static void setup_directory_rename(LittleFileSystem *fs)
 /*
  * Change the directory name from either DIRECTORY_RENAME_A or DIRECTORY_RENAME_B to the other
  */
-static bool perform_directory_rename(LittleFileSystem *fs)
+static bool perform_directory_rename(FileSystem *fs)
 {
     DEBUG("perform_directory_rename()\n");
 
@@ -413,7 +431,7 @@ static bool perform_directory_rename(LittleFileSystem *fs)
  * - DIRECTORY_RENAME_A exists with valid contents and DIRECTORY_RENAME_B does not exist
  * - DIRECTORY_RENAME_B exists with valid contents and DIRECTORY_RENAME_A does not exist
  */
-static void check_directory_rename(LittleFileSystem *fs)
+static void check_directory_rename(FileSystem *fs)
 {
     DEBUG_CHECK("check_directory_rename()\n");
 
@@ -445,7 +463,7 @@ static const uint32_t BLOCK_SIZE = 512;
  * File contains three blocks of data each which start
  * with a count.
  */
-static void setup_file_change_contents(LittleFileSystem *fs)
+static void setup_file_change_contents(FileSystem *fs)
 {
     DEBUG("setup_file_change_contents()\n");
 
@@ -468,7 +486,7 @@ static void setup_file_change_contents(LittleFileSystem *fs)
  * Read in the current counts, increment them and then write them
  * back in non-sequential order.
  */
-static bool perform_file_change_contents(LittleFileSystem *fs)
+static bool perform_file_change_contents(FileSystem *fs)
 {
     DEBUG("perform_file_change_contents()\n");
     File file;
@@ -527,7 +545,7 @@ static bool perform_file_change_contents(LittleFileSystem *fs)
  * Allowed states:
  * - CHANGE_CONTENTS_NAME exists and contains 3 counts which are in order
  */
-static void check_file_change_contents(LittleFileSystem *fs)
+static void check_file_change_contents(FileSystem *fs)
 {
     DEBUG_CHECK("check_file_change_contents()\n");
     File file;
@@ -561,7 +579,7 @@ static const char  FILE_SETUP_COMPLETE_FMT[] = "Test version: %lu\n";
 
 static bool format_required(BlockDevice *bd)
 {
-    LittleFileSystem fs("fs");
+    MBED_TEST_FILESYSTEM_DECL;
 
     if (fs.mount(bd) != 0) {
         return true;
@@ -599,7 +617,7 @@ static bool format_required(BlockDevice *bd)
 
 static void format(BlockDevice *bd)
 {
-    LittleFileSystem fs("fs");
+    MBED_TEST_FILESYSTEM_DECL;
 
     int res = fs.format(bd);
     TEST_ASSERT_EQUAL_OR_EXIT(0, res);
@@ -619,7 +637,7 @@ static void format(BlockDevice *bd)
     TEST_ASSERT_OR_EXIT(size >= 0);
 }
 
-static int64_t get_cycle_count(LittleFileSystem *fs)
+static int64_t get_cycle_count(FileSystem *fs)
 {
     File file;
 
@@ -647,7 +665,7 @@ bool setup_atomic_operations(BlockDevice *bd, bool force_rebuild)
 
 int64_t perform_atomic_operations(BlockDevice *bd)
 {
-    LittleFileSystem fs("fs");
+    MBED_TEST_FILESYSTEM_DECL;
     bool out_of_space = false;
 
     fs.mount(bd);
@@ -669,7 +687,7 @@ int64_t perform_atomic_operations(BlockDevice *bd)
 
 void check_atomic_operations(BlockDevice *bd)
 {
-    LittleFileSystem fs("fs");
+    MBED_TEST_FILESYSTEM_DECL;
     fs.mount(bd);
 
     for (size_t i = 0; i < ARRAY_LENGTH(atomic_test_entries); i++) {

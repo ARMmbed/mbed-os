@@ -17,8 +17,7 @@ using namespace utest::v1;
 #endif
 
 #ifndef MBED_TEST_BLOCKDEVICE
-#define MBED_TEST_BLOCKDEVICE SPIFBlockDevice
-#define MBED_TEST_BLOCKDEVICE_DECL SPIFBlockDevice bd(PTE2, PTE4, PTE1, PTE5)
+#error [NOT_SUPPORTED] Non-volatile block device required
 #endif
 
 #ifndef MBED_TEST_BLOCKDEVICE_DECL

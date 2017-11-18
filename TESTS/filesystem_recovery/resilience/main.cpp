@@ -27,13 +27,34 @@
 
 #include "atomic_usage.h"
 #include "ObservingBlockDevice.h"
-#include "LittleFileSystem.h"
-
 
 using namespace utest::v1;
 
-#define TEST_CYCLES     10
-#define TEST_BD_SIZE    (16 * 1024)
+// test configuration
+#ifndef MBED_TEST_BLOCKDEVICE
+#define MBED_TEST_BLOCKDEVICE HeapBlockDevice
+#define MBED_TEST_BLOCKDEVICE_DECL MBED_TEST_BLOCKDEVICE bd(MBED_TEST_BLOCK_COUNT*512, 1, 1, 512)
+#endif
+
+#ifndef MBED_TEST_BLOCKDEVICE_DECL
+#define MBED_TEST_BLOCKDEVICE_DECL MBED_TEST_BLOCKDEVICE bd
+#endif
+
+#ifndef MBED_TEST_BLOCK_COUNT
+#define MBED_TEST_BLOCK_COUNT 64
+#endif
+
+#ifndef MBED_TEST_CYCLES
+#define MBED_TEST_CYCLES 10
+#endif
+
+// declarations
+#define STRINGIZE(x) STRINGIZE2(x)
+#define STRINGIZE2(x) #x
+#define INCLUDE(x) STRINGIZE(x.h)
+
+#include INCLUDE(MBED_TEST_BLOCKDEVICE)
+
 
 /**
  * Check that the filesystem is valid after every change
@@ -44,18 +65,25 @@ using namespace utest::v1;
  */
 void test_resilience()
 {
-    HeapBlockDevice bd(TEST_BD_SIZE);
+    MBED_TEST_BLOCKDEVICE_DECL;
+
+    // bring up to get block size
+    bd.init();
+    bd_size_t block_size = bd.get_erase_size();
+    bd.deinit();
+
+    SlicingBlockDevice slice(&bd, 0, MBED_TEST_BLOCK_COUNT*block_size);
 
     // Setup the test
-    setup_atomic_operations(&bd, true);
+    setup_atomic_operations(&slice, true);
 
     // Run check on every write operation
-    ObservingBlockDevice observer(&bd);
+    ObservingBlockDevice observer(&slice);
     observer.attach(check_atomic_operations);
 
     // Perform operations
-    printf("Performing %i operations on flash\n", TEST_CYCLES);
-    for (int i = 1; i <= TEST_CYCLES; i++) {
+    printf("Performing %i operations on flash\n", MBED_TEST_CYCLES);
+    for (int i = 1; i <= MBED_TEST_CYCLES; i++) {
         int64_t ret = perform_atomic_operations(&observer);
         TEST_ASSERT_EQUAL(i, ret);
     }
@@ -68,7 +96,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(20, "default_auto");
+    GREENTEA_SETUP(120, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 

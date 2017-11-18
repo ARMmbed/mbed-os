@@ -31,16 +31,24 @@
 
 #include <string.h>
 
-
 using namespace utest::v1;
 
+
+// test configuration
 #ifndef MBED_TEST_BLOCKDEVICE
-#define MBED_TEST_BLOCKDEVICE SPIFBlockDevice
-#define MBED_TEST_BLOCKDEVICE_DECL SPIFBlockDevice bd(PTE2, PTE4, PTE1, PTE5)
+#error [NOT_SUPPORTED] Non-volatile block device required for resilience_functional tests
 #endif
 
 #ifndef MBED_TEST_BLOCKDEVICE_DECL
 #define MBED_TEST_BLOCKDEVICE_DECL MBED_TEST_BLOCKDEVICE bd
+#endif
+
+#ifndef MBED_TEST_BLOCK_COUNT
+#define MBED_TEST_BLOCK_COUNT 64
+#endif
+
+#ifndef MBED_TEST_CYCLES
+#define MBED_TEST_CYCLES 10
 #endif
 
 // declarations
@@ -94,7 +102,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
 
 int main()
 {
-    GREENTEA_SETUP(60, "unexpected_reset");
+    GREENTEA_SETUP(120, "unexpected_reset");
 
     static char _key[10 + 1] = {};
     static char _value[128 + 1] = {};

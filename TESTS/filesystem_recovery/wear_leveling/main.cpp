@@ -27,19 +27,50 @@
 
 #include "atomic_usage.h"
 #include "ExhaustibleBlockDevice.h"
-#include "LittleFileSystem.h"
+#include "SlicingBlockDevice.h"
 
 using namespace utest::v1;
 
-#define ERASE_CYCLES    20
-#define TEST_BD_SIZE    (8 * 1024)
+// test configuration
+#ifndef MBED_TEST_BLOCKDEVICE
+#define MBED_TEST_BLOCKDEVICE HeapBlockDevice
+#define MBED_TEST_BLOCKDEVICE_DECL MBED_TEST_BLOCKDEVICE bd(MBED_TEST_BLOCK_COUNT*512, 1, 1, 512)
+#endif
 
-static uint32_t test_wear_leveling_size(uint32_t bd_size)
+#ifndef MBED_TEST_BLOCKDEVICE_DECL
+#define MBED_TEST_BLOCKDEVICE_DECL MBED_TEST_BLOCKDEVICE bd
+#endif
+
+#ifndef MBED_TEST_BLOCK_COUNT
+#define MBED_TEST_BLOCK_COUNT 64
+#endif
+
+#ifndef MBED_TEST_ERASE_CYCLES
+#define MBED_TEST_ERASE_CYCLES 100
+#endif
+
+// declarations
+#define STRINGIZE(x) STRINGIZE2(x)
+#define STRINGIZE2(x) #x
+#define INCLUDE(x) STRINGIZE(x.h)
+
+#include INCLUDE(MBED_TEST_BLOCKDEVICE)
+
+
+static uint32_t test_wear_leveling_size(uint32_t block_count)
 {
-    HeapBlockDevice hbd(bd_size, 1, 1, 512);
-    ExhaustibleBlockDevice ebd(&hbd, ERASE_CYCLES);
+    MBED_TEST_BLOCKDEVICE_DECL;
 
-    printf("Testing size %lu\n", bd_size);
+    // bring up to get block size
+    bd.init();
+    bd_size_t block_size = bd.get_erase_size();
+    bd.deinit();
+
+    SlicingBlockDevice slice(&bd, 0, block_count*block_size);
+    ExhaustibleBlockDevice ebd(&slice, MBED_TEST_ERASE_CYCLES);
+
+    printf("Testing size %llu bytes (%lux%llu) blocks\n",
+        block_count*block_size, block_count, block_size);
     setup_atomic_operations(&ebd, true);
 
     int64_t cycles = 0;
@@ -70,8 +101,8 @@ static uint32_t test_wear_leveling_size(uint32_t bd_size)
  */
 void test_wear_leveling()
 {
-    uint32_t cycles_1 = test_wear_leveling_size(TEST_BD_SIZE * 1);
-    uint32_t cycles_2 = test_wear_leveling_size(TEST_BD_SIZE * 2);
+    uint32_t cycles_1 = test_wear_leveling_size(MBED_TEST_BLOCK_COUNT / 2);
+    uint32_t cycles_2 = test_wear_leveling_size(MBED_TEST_BLOCK_COUNT / 1);
     TEST_ASSERT(cycles_2 > cycles_1 * 2);
 }
 
@@ -81,7 +112,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(60, "default_auto");
+    GREENTEA_SETUP(120, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
