@@ -575,7 +575,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
             cur_result["elapsed_time"] = end - start
             cur_result["output"] = toolchain.get_output() + memap_table
             cur_result["result"] = "OK"
-            cur_result["memory_usage"] = memap_instance.mem_report
+            cur_result["memory_usage"] = (memap_instance.mem_report
+                                          if memap_instance is not None else None)
             cur_result["bin"] = res
             cur_result["elf"] = splitext(res)[0] + ".elf"
             cur_result.update(toolchain.report)
