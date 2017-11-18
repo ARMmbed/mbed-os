@@ -28,15 +28,16 @@
 /* We can get the following standard types from sys/types for gcc, but we
  * need to define the types ourselves for the other compilers that normally
  * target embedded systems */
-#if defined(__ARMCC_VERSION) || defined(__ICCARM__)
 typedef signed   int  ssize_t;  ///< Signed size type, usually encodes negative errors
 typedef signed   long off_t;    ///< Offset in a data stream
+#if defined(__ARMCC_VERSION) || !defined(__GNUC__)
 typedef unsigned int  mode_t;   ///< Mode for opening files
 typedef unsigned int  dev_t;    ///< Device ID type
 typedef unsigned long ino_t;    ///< File serial number
 typedef unsigned int  nlink_t;  ///< Number of links to a file
 typedef unsigned int  uid_t;    ///< User ID
 typedef unsigned int  gid_t;    ///< Group ID
+#endif
 
 #define O_RDONLY 0      ///< Open for reading
 #define O_WRONLY 1      ///< Open for writing
@@ -45,18 +46,11 @@ typedef unsigned int  gid_t;    ///< Group ID
 #define O_TRUNC  0x0400 ///< Truncate file to zero length
 #define O_EXCL   0x0800 ///< Fail if file exists
 #define O_APPEND 0x0008 ///< Set file offset to end of file prior to each write
+#define O_BINARY 0x8000 ///< Open file in binary mode
 
 #define NAME_MAX 255    ///< Maximum size of a name in a file path
 
 #include <time.h>
-
-#else
-
-#include <sys/fcntl.h>
-#include <sys/types.h>
-#include <sys/syslimits.h>
-
-#endif
 
 /** \addtogroup platform */
 /** @{*/
@@ -94,7 +88,6 @@ extern "C" {
 #endif
 
 
-#if defined(__ARMCC_VERSION) || defined(__ICCARM__)
 /* The intent of this section is to unify the errno error values to match
  * the POSIX definitions for the GCC_ARM, ARMCC and IAR compilers. This is
  * necessary because the ARMCC/IAR errno.h, or sys/stat.h are missing some
@@ -365,9 +358,7 @@ extern "C" {
 #define EOWNERDEAD      130     /* Owner died */
 #undef  ENOTRECOVERABLE
 #define ENOTRECOVERABLE 131     /* State not recoverable */
-#endif
 
-#if defined(__ARMCC_VERSION) || defined(__ICCARM__)
 /* Missing stat.h defines.
  * The following are sys/stat.h definitions not currently present in the ARMCC
  * errno.h. Note, ARMCC errno.h defines some symbol values differing from
@@ -423,8 +414,6 @@ struct stat {
     time_t    st_mtime;   ///< Time of last data modification
     time_t    st_ctime;   ///< Time of last status change
 };
-
-#endif /* defined(__ARMCC_VERSION) || defined(__ICCARM__) */
 
 
 /* The following are dirent.h definitions are declared here to garuntee
