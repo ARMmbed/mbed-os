@@ -73,10 +73,9 @@ class CMake(Exporter):
         depSources = {k: v for k, v in depSources.items() if len(v) != 0}
 
         # remove all source files that ended up being part of one of the dependencies
-        # we flatten the list of source files from all dependencies and
-        # then only add file to srcs if its not in that list
-        # (basically srcs = allSourcefiles - flatten(depSources.values())
-        srcs = [f for f in allSourceFiles if f not in [item for sublist in depSources.values() for item in sublist]]
+        srcs = allSourceFiles
+        for dep in depSources.values():
+            srcs.difference_update(dep)
 
         # additional libraries
         libraries = [self.prepare_lib(basename(lib)) for lib in self.resources.libraries]
@@ -85,7 +84,7 @@ class CMake(Exporter):
         ctx = {
             'name': self.project_name,
             'target': self.target,
-            'sources': srcs,
+            'sources': sorted(srcs),
             'dependencies': depSources,
             'libraries': libraries,
             'ld_sys_libs': sys_libs,
