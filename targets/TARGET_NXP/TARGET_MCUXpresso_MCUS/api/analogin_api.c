@@ -44,7 +44,6 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     /* Clear the DIGIMODE bit */
     reg = IOCON->PIO[port_number][pin_number] & ~IOCON_PIO_DIGIMODE_MASK;
-    reg &= ~(1UL << IOCON_PIO_DIGIMODE_SHIFT);
     IOCON->PIO[port_number][pin_number] = reg;
 
     ADC_ClockPower_Configuration();
