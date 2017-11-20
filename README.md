@@ -1,4 +1,4 @@
-## mbed wrapper for the [little filesystem](https://github.com/geky/littlefs)
+## mbed wrapper for the little filesystem
 
 This is the mbed wrapper for [littlefs](https://github.com/geky/littlefs),
 a little fail-safe filesystem designed for embedded systems.
@@ -12,34 +12,17 @@ a little fail-safe filesystem designed for embedded systems.
    | | |
 ```
 
-The littlefs comes with the following features:
+**Bounded RAM/ROM** - The littlefs is designed to work with a limited amount
+of memory. Recursion is avoided and dynamic memory is limited to configurable
+buffers that can be provided statically.
 
-- **Power-loss resilient** - The littlefs is designed to handle random power
-  failures and has strong copy-on-write guaruntees. During all filesystem
-  operations, the storage on disk is always kept in a valid state. When
-  updating a file, the original file will remain unmodified until the file is
-  closed, or sync is called.
+**Power-loss resilient** - The littlefs is designed for systems that may have
+random power failures. The littlefs has strong copy-on-write guaruntees and
+storage on disk is always kept in a valid state.
 
-- **Error detection** - While the littlefs does not implement static wear
-  leveling, the littlefs detects write error and uses a limited form of dynamic
-  wear leveling to work around blocks that go bad during the lifetime of the
-  filesystem.
-
-- **Low RAM/ROM usage** - The littlefs is designed to work in a limited amount
-  of memory, recursion is avoided, and dynamic memory is limited to
-  configurable buffers that can be provided statically.
-
-The littlefs also comes with the following limitations:
-
-- **Not portable to host OSs** - While the littlefs can use an SD card, no
-  littlefs driver has been ported to host OSs such as Linux or Windows. If
-  you need to support host OSs consider using the [FATFileSystem](https://github.com/ARMmbed/mbed-os/blob/mbed-os-5.5/features/filesystem/fat/FATFileSystem.h)
-  found in mbed OS.
-
-- **No static wear leveling** - While the littlefs does extend the lifetime
-  of storage through a form of dynamic wear leveling, the littlefs does not
-  evict static blocks. If you need to maximize the longevity of the underlying
-  storage consider using the [SPIFFileSystem](https://github.com/armmbed/mbed-spiffs).
+**Wear leveling** - Since the most common form of embedded storage is erodible
+flash memories, littlefs provides a form of dynamic wear leveling for systems
+that can not fit a full flash translation layer.
 
 ## Usage
 
@@ -95,3 +78,27 @@ int main() {
     printf("boot_count: %ld\n", boot_count);
 }
 ```
+
+## Reference material
+
+[DESIGN.md](littlefs/DESIGN.md) - DESIGN.md contains a fully detailed dive into
+how littlefs actually works. I would encourage you to read it since the
+solutions and tradeoffs at work here are quite interesting.
+
+[SPEC.md](littlefs/SPEC.md) - SPEC.md contains the on-disk specification of
+littlefs with all the nitty-gritty details. Can be useful for developing
+tooling.
+
+## Related projects
+
+[littlefs](https://github.com/geky/littlefs) - Where the core of littlefs
+currently lives.
+
+[littlefs-fuse](https://github.com/geky/littlefs-fuse) - A [FUSE](https://github.com/libfuse/libfuse)
+wrapper for littlefs. The project allows you to mount littlefs directly in a
+Linux machine. Can be useful for debugging littlefs if you have an SD card
+handy.
+
+[littlefs-js](https://github.com/geky/littlefs-js) - A javascript wrapper for
+littlefs. I'm not sure why you would want this, but it is handy for demos.
+You can see it in action [here](http://littlefs.geky.net/demo.html).
