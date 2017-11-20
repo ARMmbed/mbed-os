@@ -1497,7 +1497,8 @@
             "STORAGE",
             "TRNG",
             "FLASH",
-            "USBDEVICE"
+            "USBDEVICE",
+            "WATCHDOG"
         ],
         "features": ["STORAGE"],
         "release_versions": ["2", "5"],
