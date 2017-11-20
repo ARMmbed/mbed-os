@@ -1517,7 +1517,8 @@
             "STDIO_MESSAGES",
             "TRNG",
             "FLASH",
-            "USBDEVICE"
+            "USBDEVICE",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
