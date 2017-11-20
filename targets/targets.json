@@ -1392,7 +1392,8 @@
             "STDIO_MESSAGES",
             "STORAGE",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "features": ["STORAGE"],
         "release_versions": ["2", "5"],
