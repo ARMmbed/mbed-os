@@ -32,8 +32,10 @@
 #include "lwip/tcp.h"
 #include "lwip/ip.h"
 #include "lwip/mld6.h"
+#include "lwip/igmp.h"
 #include "lwip/dns.h"
 #include "lwip/udp.h"
+#include "lwip_errno.h"
 #include "netif/lwip_ethernet.h"
 #include "emac_api.h"
 #include "ppp_lwip.h"
@@ -46,6 +48,10 @@ static nsapi_error_t mbed_lwip_err_remap(err_t err);
     #define MBED_NETIF_INIT_FN eth_arch_enetif_init
 #endif
 
+#ifndef LWIP_SOCKET_MAX_MEMBERSHIPS
+    #define LWIP_SOCKET_MAX_MEMBERSHIPS 4
+#endif
+
 /* Static arena of sockets */
 static struct lwip_socket {
     bool in_use;
@@ -56,12 +62,38 @@ static struct lwip_socket {
 
     void (*cb)(void *);
     void *data;
+
+    // Track multicast addresses subscribed to by this socket
+    nsapi_ip_mreq_t *multicast_memberships;
+    uint32_t         multicast_memberships_count;
+    uint32_t         multicast_memberships_registry;
+
 } lwip_arena[MEMP_NUM_NETCONN];
 
 static bool lwip_inited = false;
 static bool lwip_connected = false;
 static bool netif_inited = false;
 static bool netif_is_ppp = false;
+
+static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t handle, int level, int optname, const void *optval, unsigned optlen);
+
+static inline uint32_t next_registered_multicast_member(const struct lwip_socket *s, uint32_t index) {
+    while (!(s->multicast_memberships_registry & (0x0001 << index))) { index++; }
+    return index;
+}
+
+static inline uint32_t next_free_multicast_member(const struct lwip_socket *s, uint32_t index) {
+    while ((s->multicast_memberships_registry & (0x0001 << index))) { index++; }
+    return index;
+}
+
+static inline void set_multicast_member_registry_bit(struct lwip_socket *s, uint32_t index) {
+    s->multicast_memberships_registry |= (0x0001 << index);
+}
+
+static inline void clear_multicast_member_registry_bit(struct lwip_socket *s, uint32_t index) {
+    s->multicast_memberships_registry &= ~(0x0001 << index);
+}
 
 static struct lwip_socket *mbed_lwip_arena_alloc(void)
 {
@@ -84,6 +116,18 @@ static struct lwip_socket *mbed_lwip_arena_alloc(void)
 static void mbed_lwip_arena_dealloc(struct lwip_socket *s)
 {
     s->in_use = false;
+
+    while (s->multicast_memberships_count > 0) {
+        uint32_t index = 0;
+        index = next_registered_multicast_member(s, index);
+
+        mbed_lwip_setsockopt(NULL, s, NSAPI_SOCKET, NSAPI_DROP_MEMBERSHIP, &s->multicast_memberships[index],
+            sizeof(s->multicast_memberships[index]));
+        index++;
+    }
+
+    free(s->multicast_memberships);
+    s->multicast_memberships = NULL;
 }
 
 static void mbed_lwip_socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t len)
@@ -1083,6 +1127,24 @@ static nsapi_size_or_error_t mbed_lwip_socket_recvfrom(nsapi_stack_t *stack, nsa
     return recv;
 }
 
+static int32_t find_multicast_member(const struct lwip_socket *s, const nsapi_ip_mreq_t *imr) {
+    uint32_t count = 0;
+    uint32_t index = 0;
+    // Set upper limit on while loop, should break out when the membership pair is found
+    while (count < s->multicast_memberships_count) {
+        index = next_registered_multicast_member(s, index);
+
+        if (memcmp(&s->multicast_memberships[index].imr_multiaddr, &imr->imr_multiaddr, sizeof(nsapi_addr_t)) == 0 &&
+           memcmp(&s->multicast_memberships[index].imr_interface, &imr->imr_interface, sizeof(nsapi_addr_t)) == 0) {
+            return index;
+        }
+        count++;
+        index++;
+    }
+
+    return -1;
+}
+
 static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t handle, int level, int optname, const void *optval, unsigned optlen)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
@@ -1125,6 +1187,103 @@ static nsapi_error_t mbed_lwip_setsockopt(nsapi_stack_t *stack, nsapi_socket_t h
                 ip_reset_option(s->conn->pcb.ip, SOF_REUSEADDR);
             }
             return 0;
+
+        case NSAPI_ADD_MEMBERSHIP:
+        case NSAPI_DROP_MEMBERSHIP: {
+            if (optlen != sizeof(nsapi_ip_mreq_t)) {
+                return NSAPI_ERROR_PARAMETER;
+            }
+            err_t igmp_err;
+            const nsapi_ip_mreq_t *imr = optval;
+
+            /* Check interface address type matches group, or is unspecified */
+            if (imr->imr_interface.version != NSAPI_UNSPEC && imr->imr_interface.version != imr->imr_multiaddr.version) {
+                return NSAPI_ERROR_PARAMETER;
+            }
+
+            ip_addr_t if_addr;
+            ip_addr_t multi_addr;
+
+            /* Convert the group address */
+            if (!convert_mbed_addr_to_lwip(&multi_addr, &imr->imr_multiaddr)) {
+                return NSAPI_ERROR_PARAMETER;
+            }
+
+            /* Convert the interface address, or make sure it's the correct sort of "any" */
+            if (imr->imr_interface.version != NSAPI_UNSPEC) {
+                if (!convert_mbed_addr_to_lwip(&if_addr, &imr->imr_interface)) {
+                    return NSAPI_ERROR_PARAMETER;
+                }
+            } else {
+                ip_addr_set_any(IP_IS_V6(&if_addr), &if_addr);
+            }
+
+            igmp_err = ERR_USE; // Maps to NSAPI_ERROR_UNSUPPORTED
+            int32_t member_pair_index = find_multicast_member(s, imr);
+
+            if (optname == NSAPI_ADD_MEMBERSHIP) {
+                if (!s->multicast_memberships) {
+                    // First multicast join on this socket, allocate space for membership tracking
+                    s->multicast_memberships = malloc(sizeof(nsapi_ip_mreq_t) * LWIP_SOCKET_MAX_MEMBERSHIPS);
+                    if (!s->multicast_memberships) {
+                        return NSAPI_ERROR_NO_MEMORY;
+                    }
+                } else if(s->multicast_memberships_count == LWIP_SOCKET_MAX_MEMBERSHIPS) {
+                    return NSAPI_ERROR_NO_MEMORY;
+                }
+
+                if (member_pair_index != -1) {
+                    return NSAPI_ERROR_ADDRESS_IN_USE;
+                }
+
+                member_pair_index = next_free_multicast_member(s, 0);
+
+                sys_prot_t prot = sys_arch_protect();
+
+                #if LWIP_IPV4
+                if (IP_IS_V4(&if_addr)) {
+                    igmp_err = igmp_joingroup(ip_2_ip4(&if_addr), ip_2_ip4(&multi_addr));
+                }
+                #endif
+                #if LWIP_IPV6
+                if (IP_IS_V6(&if_addr)) {
+                    igmp_err = mld6_joingroup(ip_2_ip6(&if_addr), ip_2_ip6(&multi_addr));
+                }
+                #endif
+
+                sys_arch_unprotect(prot);
+
+                if (igmp_err == ERR_OK) {
+                    set_multicast_member_registry_bit(s, member_pair_index);
+                    s->multicast_memberships[member_pair_index] = *imr;
+                    s->multicast_memberships_count++;
+                }
+            } else {
+                if (member_pair_index == -1) {
+                    return NSAPI_ERROR_NO_ADDRESS;
+                }
+
+                clear_multicast_member_registry_bit(s, member_pair_index);
+                s->multicast_memberships_count--;
+
+                sys_prot_t prot = sys_arch_protect();
+
+                #if LWIP_IPV4
+                if (IP_IS_V4(&if_addr)) {
+                    igmp_err = igmp_leavegroup(ip_2_ip4(&if_addr), ip_2_ip4(&multi_addr));
+                }
+                #endif
+                #if LWIP_IPV6
+                if (IP_IS_V6(&if_addr)) {
+                    igmp_err = mld6_leavegroup(ip_2_ip6(&if_addr), ip_2_ip6(&multi_addr));
+                }
+                #endif
+
+                sys_arch_unprotect(prot);
+            }
+
+            return mbed_lwip_err_remap(igmp_err);
+         }
 
         default:
             return NSAPI_ERROR_UNSUPPORTED;
