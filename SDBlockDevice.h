@@ -27,7 +27,7 @@
 
 #include "BlockDevice.h"
 #include "mbed.h"
-
+#include "platform/PlatformMutex.h"
 
 /** Access an SD Card using SPI
  *
@@ -217,7 +217,15 @@ private:
     void _select();
     void _deselect();
 
-    mutable Mutex _lock;
+    virtual void lock() {
+        _mutex.lock();
+    }
+
+    virtual void unlock() {
+        _mutex.unlock();
+    }
+
+    PlatformMutex _mutex;
     uint32_t _block_size;
     uint32_t _erase_size;
     bool _is_initialized;

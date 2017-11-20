@@ -242,7 +242,7 @@
 #define SPI_READ_ERROR_OFR       (0x1 << 3)  /*!< Out of Range */
 
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz)
-    : _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
+    : _sectors(0), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0)
 {
     _cs = 1;
     _card_type = SDCARD_NONE;
@@ -253,6 +253,7 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
 
     // Only HC block size is supported.
     _block_size = BLOCK_SIZE_HC;
+    _erase_size = BLOCK_SIZE_HC;
 }
 
 SDBlockDevice::~SDBlockDevice()
@@ -346,44 +347,45 @@ int SDBlockDevice::_initialise_card()
 
 int SDBlockDevice::init()
 {
-    _lock.lock();
+    lock();
     int err = _initialise_card();
     _is_initialized = (err == BD_ERROR_OK);
     if (!_is_initialized) {
         debug_if(SD_DBG, "Fail to initialize card\n");
-        _lock.unlock();
+        unlock();
         return err;
     }
     debug_if(SD_DBG, "init card = %d\n", _is_initialized);
     _sectors = _sd_sectors();
     // CMD9 failed
     if (0 == _sectors) {
-        _lock.unlock();
+        unlock();
         return BD_ERROR_DEVICE_ERROR;
     }
 
     // Set block length to 512 (CMD16)
     if (_cmd(CMD16_SET_BLOCKLEN, _block_size) != 0) {
         debug_if(SD_DBG, "Set %d-byte block timed out\n", _block_size);
-        _lock.unlock();
+        unlock();
         return BD_ERROR_DEVICE_ERROR;
     }
 
     // Set SCK for data transfer
     err = _freq();
     if (err) {
-        _lock.unlock();
+        unlock();
         return err;
     }
-    _lock.unlock();
+    unlock();
     return BD_ERROR_OK;
 }
 
 int SDBlockDevice::deinit()
 {
-    _lock.lock();
+    lock();
     _is_initialized = false;
-    _lock.unlock();
+    _sectors = 0;
+    unlock();
     return 0;
 }
 
@@ -394,9 +396,9 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
-    _lock.lock();
+    lock();
     if (!_is_initialized) {
-        _lock.unlock();
+        unlock();
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
 
@@ -417,7 +419,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     if (blockCnt == 1) {
         // Single block write command
         if (BD_ERROR_OK != (status = _cmd(CMD24_WRITE_BLOCK, addr))) {
-            _lock.unlock();
+            unlock();
             return status;
         }
 
@@ -435,7 +437,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
         // Multiple block write command
         if (BD_ERROR_OK != (status = _cmd(CMD25_WRITE_MULTIPLE_BLOCK, addr))) {
-            _lock.unlock();
+            unlock();
             return status;
         }
 
@@ -457,7 +459,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     }
 
     _deselect();
-    _lock.unlock();
+    unlock();
     return status;
 }
 
@@ -467,9 +469,9 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
-    _lock.lock();
+    lock();
     if (!_is_initialized) {
-        _lock.unlock();
+        unlock();
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
@@ -490,7 +492,7 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
         status = _cmd(CMD17_READ_SINGLE_BLOCK, addr);
     }
     if (BD_ERROR_OK != status) {
-        _lock.unlock();
+        unlock();
         return status;
     }
 
@@ -509,7 +511,7 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
     if (size > _block_size) {
         status = _cmd(CMD12_STOP_TRANSMISSION, 0x0);
     }
-    _lock.unlock();
+    unlock();
     return status;
 }
 
@@ -527,9 +529,9 @@ int SDBlockDevice::trim(bd_addr_t addr, bd_size_t size)
         return SD_BLOCK_DEVICE_ERROR_PARAMETER;
     }
 
-    _lock.lock();
+    lock();
     if (!_is_initialized) {
-        _lock.unlock();
+        unlock();
         return SD_BLOCK_DEVICE_ERROR_NO_INIT;
     }
     int status = BD_ERROR_OK;
@@ -544,17 +546,17 @@ int SDBlockDevice::trim(bd_addr_t addr, bd_size_t size)
 
     // Start lba sent in start command
     if (BD_ERROR_OK != (status = _cmd(CMD32_ERASE_WR_BLK_START_ADDR, addr))) {
-        _lock.unlock();
+        unlock();
         return status;
     }
 
     // End lba = addr+size sent in end addr command
     if (BD_ERROR_OK != (status = _cmd(CMD33_ERASE_WR_BLK_END_ADDR, addr+size))) {
-        _lock.unlock();
+        unlock();
         return status;
     }
     status = _cmd(CMD38_ERASE, 0x0);
-    _lock.unlock();
+    unlock();
     return status;
 }
 
@@ -570,13 +572,7 @@ bd_size_t SDBlockDevice::get_program_size() const
 
 bd_size_t SDBlockDevice::size() const
 {
-    bd_size_t sectors = 0;
-    _lock.lock();
-    if (_is_initialized) {
-    	sectors = _sectors;
-    }
-    _lock.unlock();
-    return _block_size*sectors;
+    return _block_size*_sectors;
 }
 
 void SDBlockDevice::debug(bool dbg)
@@ -586,10 +582,10 @@ void SDBlockDevice::debug(bool dbg)
 
 int SDBlockDevice::frequency(uint64_t freq)
 {
-    _lock.lock();
+    lock();
     _transfer_sck = freq;
     int err = _freq();
-    _lock.unlock();
+    unlock();
     return err;
 }
 
