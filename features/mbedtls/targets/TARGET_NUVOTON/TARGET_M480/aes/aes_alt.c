@@ -274,11 +274,8 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
     while( length > 0 ) {
         blockChainLen = (length > MAX_DMA_CHAIN_SIZE) ? MAX_DMA_CHAIN_SIZE : length;
 
-        if( mode == MBEDTLS_AES_ENCRYPT ) {
-            __nvt_aes_crypt(ctx, input, output, blockChainLen);
-        } else {
-            __nvt_aes_crypt(ctx, input, output, blockChainLen);
-        }
+        __nvt_aes_crypt(ctx, input, output, blockChainLen);
+        
         length -= blockChainLen;
         input  += blockChainLen;
         output += blockChainLen;
