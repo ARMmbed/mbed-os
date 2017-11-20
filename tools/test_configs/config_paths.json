@@ -1,5 +1,6 @@
 {
     "ETHERNET" : "EthernetInterface.json",
     "ODIN_WIFI" : "OdinInterface.json",
-    "ODIN_ETHERNET" : "Odin_EthernetInterface.json"
+    "ODIN_ETHERNET" : "Odin_EthernetInterface.json",
+    "REALTEK_WIFI" : "RealtekInterface.json"	
 }

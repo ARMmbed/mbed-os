@@ -23,6 +23,11 @@
 
 namespace mbed {
 /** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_DirHandle DirHandle functions
+ * @{
+ */
 
 
 /** Represents a directory stream. Objects of this type are returned
@@ -40,7 +45,6 @@ namespace mbed {
  *
  *  @note to create a directory, @see Dir
  *  @note Synchronization level: Set by subclass
- *  @ingroup platform
  */
 class DirHandle : private NonCopyable<DirHandle> {
 public:
@@ -142,7 +146,9 @@ public:
     virtual void seekdir(off_t location) { seek(location); }
 };
 
+/**@}*/
 
+/**@}*/
 } // namespace mbed
 
 #endif /* MBED_DIRHANDLE_H */

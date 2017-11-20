@@ -190,10 +190,10 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
 
     // Select PLL clock as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers
     RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 80 MHz or 48 MHz
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 80 MHz or 48 MHz
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           // 80 MHz or 48 MHz
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 80 MHz or 48 MHz
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; // 80 MHz
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;         // 80 MHz
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           /* 80 MHz */
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           // 80 MHz
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
         return 0; // FAIL
     }
@@ -216,6 +216,13 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     RCC_OscInitStruct.MSIState       = RCC_MSI_OFF;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
+
+    /* Select HSI as clock source for LPUART1 */
+    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+    RCC_PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_HSI;
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
+        return 0; // FAIL
+    }
 
     // Output clock on MCO1 pin(PA8) for debugging purpose
 #if DEBUG_MCO == 2
@@ -289,6 +296,13 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // No PLL update
     HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
+    /* Select HSI as clock source for LPUART1 */
+    RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+    RCC_PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_HSI;
+    if (HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit) != HAL_OK) {
+        return 0; // FAIL
+    }
+
     // Output clock on MCO1 pin(PA8) for debugging purpose
 #if DEBUG_MCO == 3
     HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1); // 16 MHz
@@ -322,7 +336,6 @@ uint8_t SetSysClock_PLL_MSI(void)
     RCC_OscInitStruct.MSIState             = RCC_MSI_ON;
     RCC_OscInitStruct.HSEState             = RCC_HSE_OFF;
     RCC_OscInitStruct.HSIState             = RCC_HSI_OFF;
-
     RCC_OscInitStruct.MSICalibrationValue = RCC_MSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_11; /* 48 MHz */
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
@@ -342,11 +355,6 @@ uint8_t SetSysClock_PLL_MSI(void)
     PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_MSI; /* 48 MHz */
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
-    /* Select LSE as clock source for LPUART1 */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-    PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
-    HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-
     // Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 clocks dividers
     RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK; /* 80 MHz */
@@ -354,6 +362,13 @@ uint8_t SetSysClock_PLL_MSI(void)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;           /* 80 MHz */
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;           /* 80 MHz */
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK) {
+        return 0; // FAIL
+    }
+
+    /* Select LSE as clock source for LPUART1 */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+    PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         return 0; // FAIL
     }
 
