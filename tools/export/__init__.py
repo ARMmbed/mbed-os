@@ -58,7 +58,6 @@ EXPORTERS = {
     'eclipse_iar'      : cdt.EclipseIAR,
     'eclipse_armc5'    : cdt.EclipseArmc5,
     'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
-    #'netbeans':     nb.Netbeans,
     'mcuxpresso': mcuxpresso.MCUXpresso,
     'qtcreator': qtcreator.QtCreator,
     'vscode_gcc_arm' : vscode.VSCodeGcc,
