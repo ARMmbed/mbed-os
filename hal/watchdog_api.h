@@ -21,6 +21,10 @@
 
 #if DEVICE_WATCHDOG
 
+#if !(DEVICE_RESET_REASON)
+  #error "Watchdog feature depends on reset reason API also being implemented"
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
