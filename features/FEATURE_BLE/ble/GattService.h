@@ -59,7 +59,7 @@ public:
         UUID_CURRENT_TIME_SERVICE = 0x1805,
 
         /**
-         * UUID of the Cycling Speed and Carence (CSC) service.
+         * UUID of the Cycling Speed and Cadence (CSC) service.
          */
         UUID_CYCLING_SPEED_AND_CADENCE = 0x1816,
 
@@ -119,7 +119,7 @@ public:
         UUID_REFERENCE_TIME_UPDATE_SERVICE = 0x1806,
 
         /**
-         * UUID od the Running Speed and Cadence (RSC) service.
+         * UUID of the Running Speed and Cadence (RSC) service.
          */
         UUID_RUNNING_SPEED_AND_CADENCE = 0x1814,
 
@@ -144,7 +144,7 @@ public:
      * @param[in] numCharacteristics The number of characteristics.
      *
      * @important The characteristics of the service must remain valid while the
-     * GattServer use the service.
+     * GattServer uses the service.
      */
     GattService(
         const UUID &uuid,
