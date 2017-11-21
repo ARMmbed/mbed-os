@@ -32,10 +32,10 @@
 static void mbedtls_sha512_init_internal(mbedtls_sha512_context *ctx, int try_hw)
 {
     if (try_hw && crypto_sha_acquire()) {
-        ctx->ishw = 1;
+        ctx->active_ctx = &ctx->hw_ctx;
         mbedtls_sha512_hw_init(&ctx->hw_ctx);
     } else {
-        ctx->ishw = 0;
+        ctx->active_ctx = &ctx->sw_ctx;
         mbedtls_sha512_sw_init(&ctx->sw_ctx);
     }
 }
@@ -51,27 +51,27 @@ void mbedtls_sha512_free(mbedtls_sha512_context *ctx)
         return;
     }
 
-    if (ctx->ishw) {
+    if (ctx->active_ctx == &ctx->hw_ctx) {
         mbedtls_sha512_hw_free(&ctx->hw_ctx);
         crypto_sha_release();
-    } else {
+    } else if (ctx->active_ctx == &ctx->sw_ctx) {
         mbedtls_sha512_sw_free(&ctx->sw_ctx);
     }
+    ctx->active_ctx = NULL;
 }
 
 void mbedtls_sha512_clone(mbedtls_sha512_context *dst,
                           const mbedtls_sha512_context *src)
 {
     // If dst is H/W context, we need to change it to S/W context first before cloning to.
-    if (dst->ishw) {
+    if (dst->active_ctx == &dst->hw_ctx) {
         mbedtls_sha512_free(dst);
         // Force S/W context
         mbedtls_sha512_init_internal(dst, 0);
     }
     
-    if (src->ishw) {
+    if (src->active_ctx == &src->hw_ctx) {
         // Clone S/W ctx from H/W ctx
-        dst->ishw = 0;
         dst->sw_ctx.total[0] = src->hw_ctx.total;
         dst->sw_ctx.total[1] = 0;
         {
@@ -91,7 +91,7 @@ void mbedtls_sha512_clone(mbedtls_sha512_context *dst,
         if (src->hw_ctx.buffer_left == src->hw_ctx.blocksize) {
             mbedtls_sha512_sw_process(&dst->sw_ctx, dst->sw_ctx.buffer);
         }
-    } else {
+    } else if (src->active_ctx == &src->sw_ctx) {
         // Clone S/W ctx from S/W ctx
         dst->sw_ctx = src->sw_ctx;
     }
@@ -102,9 +102,9 @@ void mbedtls_sha512_clone(mbedtls_sha512_context *dst,
  */
 void mbedtls_sha512_starts(mbedtls_sha512_context *ctx, int is384)
 {
-    if (ctx->ishw) {
+    if (ctx->active_ctx == &ctx->hw_ctx) {
         mbedtls_sha512_hw_starts(&ctx->hw_ctx, is384);
-    } else {
+    } else if (ctx->active_ctx == &ctx->sw_ctx) {
         mbedtls_sha512_sw_starts(&ctx->sw_ctx, is384);
     }
 }
@@ -114,9 +114,9 @@ void mbedtls_sha512_starts(mbedtls_sha512_context *ctx, int is384)
  */
 void mbedtls_sha512_update(mbedtls_sha512_context *ctx, const unsigned char *input, size_t ilen)
 {
-    if (ctx->ishw) {
+    if (ctx->active_ctx == &ctx->hw_ctx) {
         mbedtls_sha512_hw_update(&ctx->hw_ctx, input, ilen);
-    } else {
+    } else if (ctx->active_ctx == &ctx->sw_ctx) {
         mbedtls_sha512_sw_update(&ctx->sw_ctx, input, ilen);
     }
 }
@@ -126,18 +126,18 @@ void mbedtls_sha512_update(mbedtls_sha512_context *ctx, const unsigned char *inp
  */
 void mbedtls_sha512_finish(mbedtls_sha512_context *ctx, unsigned char output[64])
 {
-    if (ctx->ishw) {
+    if (ctx->active_ctx == &ctx->hw_ctx) {
         mbedtls_sha512_hw_finish(&ctx->hw_ctx, output);
-    } else {
+    } else if (ctx->active_ctx == &ctx->sw_ctx) {
         mbedtls_sha512_sw_finish(&ctx->sw_ctx, output);
     }
 }
 
 void mbedtls_sha512_process(mbedtls_sha512_context *ctx, const unsigned char data[128])
 {
-    if (ctx->ishw) {
+    if (ctx->active_ctx == &ctx->hw_ctx) {
         mbedtls_sha512_hw_process(&ctx->hw_ctx, data);
-    } else {
+    } else if (ctx->active_ctx == &ctx->sw_ctx) {
         mbedtls_sha512_sw_process(&ctx->sw_ctx, data);
     }
 }
