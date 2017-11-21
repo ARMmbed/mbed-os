@@ -62,10 +62,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma diag_suppress=Pm008,Pm093
 #endif /* __ICCARM__ */
 
-#if defined (__CC_ARM)
-#pragma anon_unions
-#endif /* __CC_ARM */
-
 #define __ADI_NO_DECL_STRUCT_ADI_CRYPT_CFG_t__
 
 #include <sys/ADuCM302x_typedefs.h>
