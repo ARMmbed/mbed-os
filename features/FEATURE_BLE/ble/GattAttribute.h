@@ -34,23 +34,23 @@
  *
  * Attributes are the building block of GATT servers: services are attributes,
  * characteristics are groups of attributes and characteristic descriptors are
- * attributes too.
+ * attributes, too.
  *
  * @par Typed values
  *
  * Attributes are typed values composed of a type and its associated value. The
- * attribute type identifies the attribute purpose and is modelled by a UUID
- * read by the client during the discovery of the gatt server. The value of the
+ * attribute type identifies the attribute purpose. A UUID read by the client
+ * during the discovery of the GATT server models the attribute type. The value of the
  * attribute is an array of bytes; its length may be fixed or variable.
  *
- * As an example a primary service is declared by an attribute with the type
- * 0x2800 and the value of the attribute is the UUID of the service.
+ * As an example, a primary service is declared by an attribute with the type
+ * 0x2800, and the value of the attribute is the UUID of the service.
  *
  * @par Attribute Access
  *
- * The GATT server is an array of attributes were each of the attributes is
- * identified within the array by a unique index. That index is called the
- * attribute handle and clients use it to access to attributes within the server.
+ * The GATT server is an array of attributes in which a unique index identifies
+ * each of the attributes within the array. That index is called the attribute
+ * handle, and clients use it to access to attributes within the server.
  *
  * @note Attributes do not contain information related to their permissions,
  * grouping or semantic. Higher level specifications define these concepts.
@@ -60,9 +60,9 @@ public:
     /**
      * Representation of an attribute handle.
      *
-     * Each attribute in a GattServer have a unique handle that can be used by
-     * clients to identify the attribute. The underlying BLE stack usually
-     * generates and assign handles to attributes.
+     * Each attribute in a GattServer has a unique handle that clients can use
+     * to identify the attribute. The underlying BLE stack usually
+     * generates and assigns handles to attributes.
      */
     typedef ble::attribute_handle_t Handle_t;
 
@@ -75,19 +75,19 @@ public:
     /**
      * Construct an attribute.
      *
-     * Application code use attributes to model characteristic descriptors and
+     * Application code uses attributes to model characteristic descriptors and
      * characteristics values.
      *
      * @param[in] uuid The type of the attribute.
-     * @param[in] valuePtr Pointer to the memory buffer which contains the
+     * @param[in] valuePtr Pointer to the memory buffer, which contains the
      * initial value of the attribute. The constructor does not make a copy of
-     * the attribute buffer; as a consequence the memory buffer must remain
+     * the attribute buffer; as a consequence, the memory buffer must remain
      * valid during the lifetime of the attribute.
      * @param[in] len The length in bytes of this attribute's value.
      * @param[in] maxLen The length in bytes of the memory buffer containing the
      * attribute value. It must be greater than or equal to @p len.
-     * @param[in] hasVariableLen Flag that indicate if the attribute's value
-     * length can changes over time.
+     * @param[in] hasVariableLen Flag that indicates whether the attribute's value
+     * length can change throughout time.
      *
      * @par Example
      *
@@ -121,7 +121,7 @@ public:
     /**
      * Get the attribute's handle in the ATT table.
      *
-     * @note The attribute's handle is set by the GattServer when services are
+     * @note The GattServer sets the attribute's handle when services are
      * inserted.
      *
      * @return The attribute's handle.
@@ -178,8 +178,8 @@ public:
     /**
      * Set the attribute handle.
      *
-     * @important This function is used internally by the GattServer and must
-     * not be used by application code.
+     * @important The GattServer uses this function internally.
+     * Application code must not use it.
      *
      * @param[in] id The new attribute handle.
      */
@@ -199,7 +199,7 @@ public:
     }
 
     /**
-     * Check whether the length of the attribute's value can change over time.
+     * Check whether the length of the attribute's value can change throughout time.
      *
      * @return true if the attribute value has a variable length and false
      * otherwise.
@@ -231,7 +231,7 @@ private:
     uint16_t _len;
 
     /**
-     * Whether the length of the value can change over time.
+     * Whether the length of the value can change throughout time.
      */
     bool _hasVariableLen;
 
