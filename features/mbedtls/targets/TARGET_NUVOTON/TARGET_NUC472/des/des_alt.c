@@ -332,7 +332,9 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
     /* Init crypto module */
     crypto_init();
     
-    // NOTE: Don't call driver function TDES_Open in BSP because it doesn't support TDES_CTL[3KEYS] setting.
+    /* NOTE: Don't call driver function TDES_Open in BSP because we don't want its internal multiple context (channel) support.
+     *       Multiple context (channel) support has done in the upper layer.
+     */
     CRPT->TDES_CTL = (0 << CRPT_TDES_CTL_CHANNEL_Pos) | (enc << CRPT_TDES_CTL_ENCRPT_Pos) |
                      tdes_opmode | (TDES_IN_OUT_WHL_SWAP << CRPT_TDES_CTL_BLKSWAP_Pos);
 
@@ -345,8 +347,10 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
         CRPT->TDES_CTL &= ~CRPT_TDES_CTL_3KEYS_Msk;
     }
 
-    // Set DES/TDES keys
-    // NOTE: Don't call driver function TDES_SetKey in BSP because it doesn't support endian swap.
+    /* Set DES/TDES keys
+     * 
+     * NOTE: TDES_SetKey in BSP is not used because we need to make up an extra 2-dimension array to pass keys.
+     */
     uint32_t val;
     volatile uint32_t *tdes_key = (uint32_t *) ((uint32_t) &CRPT->TDES0_KEY1H + (0x40 * 0));
     val = nu_get32_be(key[0] + 0);
@@ -378,8 +382,10 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
 
         TDES_SetDMATransfer(0, (uint32_t) dmabuf_in, (uint32_t) dmabuf_out, data_len);
 
-        // Start enc/dec.
-        // NOTE: Don't call driver function TDES_Start in BSP because it will override TDES_CTL[3KEYS] setting.
+        /* Start enc/dec.
+         *
+         * NOTE: Don't call driver function TDES_Start in BSP because of the multiple context (channel) reason as above.
+         */
         CRPT->TDES_CTL |= CRPT_TDES_CTL_START_Msk | (CRYPTO_DMA_ONE_SHOT << CRPT_TDES_CTL_DMALAST_Pos);
         while (CRPT->TDES_STS & CRPT_TDES_STS_BUSY_Msk);
 
