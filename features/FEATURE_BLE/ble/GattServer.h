@@ -36,52 +36,52 @@
 /**
  * Construct and operates a GATT server.
  *
- * A Gatt server is a collection of GattService; these services contains
- * characteristics that may be read or written by a peer connected to the device.
- * These characteristics may also emits updates to subscribed clients when their
- * value change.
+ * A Gatt server is a collection of GattService; these services contain
+ * characteristics that a peer connected to the device may read or write.
+ * These characteristics may also emit updates to subscribed clients when their
+ * values change.
  *
  * @p Server Layout
  *
- * Application code can add GattService object to the server with the help of
+ * Application code can add a GattService object to the server with the help of
  * the function addService(). That function registers all the GattCharacteristic
- * enclosed in the service as well as all the characteristics descriptors (see
- * GattAttribute) these characteristics contain. Service registration assign
+ * enclosed in the service, as well as all the characteristics descriptors (see
+ * GattAttribute) these characteristics contain. Service registration assigns
  * a unique handle to the various attributes being part of the service; this
  * handle should be used for subsequent read or write of these components.
  *
- * There is no primitives defined to remove a single service; however a call to
- * the function reset() will remove all services previously registered in the
+ * There are no primitives defined to remove a single service; however, a call to
+ * the function reset() removes all services previously registered in the
  * GattServer.
  *
  * @p Characteristic and attributes access
  *
  * Values of the characteristic and the characteristic descriptor present in the
- * GattServer must be accessed via the handle assigned to them when the service
+ * GattServer must be accessed through the handle assigned to them when the service
  * has been registered; the GattServer class offers several flavors of read()
- * and write() function that retrieve or mutate an attribute value.
+ * and write() functions that retrieve or mutate an attribute value.
  *
  * Application code can query if a client has subscribed to a given
  * characteristic's value update by invoking the function areUpdatesEnabled().
  *
  * @p Events
  *
- * The GattServer allows application code to register several event handler that
+ * The GattServer allows application code to register several event handlers that
  * can be used to monitor client and server activities:
- *   - onDataSent(): Register an event handler that will be called when a
+ *   - onDataSent(): Register an event handler that is called when a
  *     characteristic value update has been sent to a client.
- *   - onDataWriten(): Register an event handler that will be called when a
+ *   - onDataWriten(): Register an event handler that is called when a
  *     client has written an attribute of the server.
- *   - onDataRead(): Register an event handler that will be called when a
+ *   - onDataRead(): Register an event handler that is called when a
  *     client has read an attribute of the server.
- *   - onUpdatesEnabled: Register an event handler that will be called when a
+ *   - onUpdatesEnabled: Register an event handler that is called when a
  *     client subscribes to updates of a characteristic.
- *   - onUpdatesDisabled: Register an event handler that will be called when a
+ *   - onUpdatesDisabled: Register an event handler that is called when a
  *     client unsubscribes from updates of a characteristic.
- *   - onConfimationReceived: Register an event handler that will be called
- *     when a client acknowledge a characteristic value notification.
+ *   - onConfimationReceived: Register an event handler that is called
+ *     when a client acknowledges a characteristic value notification.
  *
- * @note The term characteristic value update is used to represents
+ * @note The term characteristic value update is used to represent
  * Characteristic Value Notification and Characteristic Value Indication when
  * the nature of the server initiated is not relevant.
  */
@@ -152,7 +152,7 @@ public:
         GattServerShutdownCallbackChain_t;
 
     /**
-     * Event handler that handle subscription to characteristic updates,
+     * Event handler that handles subscription to characteristic updates,
      * unsubscription from characteristic updates and notification confirmation.
      *
      * @see onUpdatesEnabled() onUpdateDisabled() onConfirmationReceived()
@@ -187,11 +187,11 @@ public:
      * followed by the characteristic declarations (including characteristic
      * descriptors) present in @p service.
      *
-     * The process assign a unique attribute handle to all the elements added
+     * The process assigns a unique attribute handle to all the elements added
      * into the attribute table. This handle is an ID that must be used for
      * subsequent interractions with the elements.
      *
-     * @note Their is no mirror function that removes a single service.
+     * @note There is no mirror function that removes a single service.
      * Application code can remove all the registered services by calling
      * reset().
      *
@@ -199,7 +199,7 @@ public:
      * within the GattServer must remain reachable until reset() is called.
      *
      * @param[in] service The service to be added; attribute handle of services,
-     * characteristic and characteristic descriptors will be updated by the
+     * characteristic and characteristic descriptors are updated by the
      * process.
      *
      * @return BLE_ERROR_NONE if the service was successfully added.
@@ -288,9 +288,9 @@ public:
      * @param[in] value A pointer to a buffer holding the new value.
      * @param[in] size Size in bytes of the new value (in bytes).
      * @param[in] localOnly If this flag is false and the attribute handle
-     * written is a characteristic value then the server sends an update
+     * written is a characteristic value, then the server sends an update
      * containing the new value to all clients that have subscribed to the
-     * characteristic's notifications or indications. Otherwise the update does
+     * characteristic's notifications or indications. Otherwise, the update does
      * not generate a single server initiated event.
      *
      * @return BLE_ERROR_NONE if the attribute value has been successfully
@@ -325,10 +325,10 @@ public:
      * @param[in] value A pointer to a buffer holding the new value.
      * @param[in] size Size of the new value (in bytes).
      * @param[in] localOnly If this flag is false and the attribute handle
-     * written is a characteristic value then the server sends an update
+     * written is a characteristic value, then the server sends an update
      * containing the new value to the client identified by the parameter
      * @p connectionHandle if it is subscribed to the characteristic's
-     * notifications or indications. Otherwise the update does not generate a
+     * notifications or indications. Otherwise, the update does not generate a
      * single server initiated event.
      *
      * @return BLE_ERROR_NONE if the attribute value has been successfully
@@ -359,7 +359,7 @@ public:
      *
      * @param[in] characteristic The characteristic.
      * @param[out] enabledP Upon return, *enabledP is true if updates are
-     * enabled for a connected client; otherwise *enabledP is false.
+     * enabled for a connected client; otherwise, *enabledP is false.
      *
      * @return BLE_ERROR_NONE if the connection and handle are found. False
      * otherwise.
@@ -385,7 +385,7 @@ public:
      * @param[in] characteristic The characteristic.
      * @param[out] enabledP Upon return, *enabledP is true if the client
      * identified by @p connectionHandle has subscribed to notifications or
-     * indications of @p characteristic; otherwise *enabledP is false.
+     * indications of @p characteristic; otherwise, *enabledP is false.
      *
      * @return BLE_ERROR_NONE if the connection and handle are found. False
      * otherwise.
@@ -443,7 +443,7 @@ public:
      * Add an event handler that monitors emission of characteristic value
      * updates.
      *
-     * @param[in] objPtr Pointer to the instance that will be used to invoke the
+     * @param[in] objPtr Pointer to the instance that is used to invoke the
      * event handler.
      * @param[in] memberPtr Event handler being registered. It is a member
      * function.
@@ -465,8 +465,8 @@ public:
     }
 
     /**
-     * Set an event handler that will be called after an attribute has been
-     * written by a connected peer.
+     * Set an event handler that is called after 
+     * a connected peer has written an attribute.
      *
      * @param[in] callback The event handler being registered.
      *
@@ -479,10 +479,10 @@ public:
     }
 
     /**
-     * Set an event handler that will be called after an attribute has been
-     * written by a connected peer.
+     * Set an event handler that is called after
+     * a connected peer has written an attribute.
      *
-     * @param[in] objPtr Pointer to the instance that will be used to invoke the
+     * @param[in] objPtr Pointer to the instance that is used to invoke the
      * event handler (@p memberPtr).
      * @param[in] memberPtr Event handler being registered. It is a member
      * function.
@@ -542,7 +542,7 @@ public:
     /**
      * Set an event handler that monitors attribute reads from connected clients.
      *
-     * @param[in] objPtr Pointer to the instance that will be used to invoke the
+     * @param[in] objPtr Pointer to the instance that is used to invoke the
      * event handler (@p memberPtr).
      * @param[in] memberPtr Event handler being registered. It is a member
      * function.
@@ -579,8 +579,8 @@ public:
     /**
      * Set an event handler that monitors shutdown or reset of the GattServer.
      *
-     * The event handler will be invoked when the GattServer instance is about
-     * to be shut down. This can result of a call to reset() or BLE::reset().
+     * The event handler is invoked when the GattServer instance is about
+     * to be shut down. This can result in a call to reset() or BLE::reset().
      *
      * @param[in] callback Event handler being registered.
      *
@@ -597,10 +597,10 @@ public:
     /**
      * Set an event handler that monitors shutdown or reset of the GattServer.
      *
-     * The event handler will be invoked when the GattServer instance is about
+     * The event handler is invoked when the GattServer instance is about
      * to be shut down. This can result of a call to reset() or BLE::reset().
      *
-     * @param[in] objPtr Pointer to the instance that will be used to invoke the
+     * @param[in] objPtr Pointer to the instance that is used to invoke the
      * event handler (@p memberPtr).
      * @param[in] memberPtr Event handler being registered. It is a member
      * function.
@@ -650,9 +650,9 @@ public:
     }
 
     /**
-     * Set up an event handler that monitors notification acknowledgement.
+     * Set up an event handler that monitors notification acknowledgment.
      *
-     * The event handler is called when a client send a confirmation that it has
+     * The event handler is called when a client sends a confirmation that it has
      * correctly received a notification from the server.
      *
      * @param[in] callback Event handler being registered.
@@ -669,7 +669,7 @@ protected:
      * of a data written event.
      *
      * @important Vendor implementation must invoke this function after one of
-     * the GattServer attribute has been written.
+     * the GattServer attributes has been written.
      *
      * @param[in] params The data written parameters passed to the registered
      * handlers.
@@ -684,7 +684,7 @@ protected:
      * of a data read event.
      *
      * @important Vendor implementation must invoke this function after one of
-     * the GattServer attribute has been read.
+     * the GattServer attributes has been read.
      *
      * @param[in] params The data read parameters passed to the registered
      * handlers.
@@ -699,7 +699,7 @@ protected:
      * of updates enabled, updates disabled or confirmation received events.
      *
      * @important Vendor implementation must invoke this function when a client
-     * subscribe to characteristic updates, unsubscribe from characteristic
+     * subscribes to characteristic updates, unsubscribes from characteristic
      * updates or a notification confirmation has been received.
      *
      * @param[in] type The type of event that occurred.
@@ -750,7 +750,7 @@ public:
      * Shut down the GattServer instance.
      *
      * This function notifies all event handlers listening for shutdown events
-     * that the GattServer is about to be shut down; then it clear all
+     * that the GattServer is about to be shut down; then it clears all
      * GattServer state.
      *
      * @note This function is meant to be overridden in the platform-specific
