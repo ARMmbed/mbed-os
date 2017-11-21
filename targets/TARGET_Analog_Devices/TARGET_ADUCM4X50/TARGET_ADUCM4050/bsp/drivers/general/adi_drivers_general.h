@@ -82,10 +82,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   #define ADI_ALIGNED_ATTRIBUTE(num)
   #define ADI_ALIGNED_PRAGMA(num) PRAGMA(data_alignment=num) 
   #define ADI_UNUSED_ATTRIBUTE
-#elif defined (__CC_ARM)
+#elif defined (__ARMCC_VERSION)
   /* Keil uses a decorator which is placed in the same position as pragmas */
   #define ADI_ALIGNED_ATTRIBUTE(num)
-  #define ADI_ALIGNED_PRAGMA(num) __align(##num)
+  #define ADI_ALIGNED_PRAGMA(num) __attribute__((aligned(num)))
   #define ADI_UNUSED_ATTRIBUTE ATTRIBUTE(unused)
 #else
 #error "Toolchain not supported"
