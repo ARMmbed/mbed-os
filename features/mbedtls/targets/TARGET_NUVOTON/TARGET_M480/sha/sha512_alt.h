@@ -33,7 +33,7 @@ struct mbedtls_sha512_context_s;
  * \brief          SHA-512 context structure
  */
 typedef struct mbedtls_sha512_context_s {
-    int ishw;
+    void *active_ctx;
     crypto_sha_context hw_ctx;
     mbedtls_sha512_sw_context sw_ctx;
 }

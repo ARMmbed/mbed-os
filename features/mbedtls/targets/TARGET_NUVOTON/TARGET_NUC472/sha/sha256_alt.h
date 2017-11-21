@@ -33,7 +33,7 @@ struct mbedtls_sha256_context_s;
  * \brief          SHA-256 context structure
  */
 typedef struct mbedtls_sha256_context_s {
-    int ishw;
+    void *active_ctx;
     crypto_sha_context hw_ctx;
     mbedtls_sha256_sw_context sw_ctx;
 }
