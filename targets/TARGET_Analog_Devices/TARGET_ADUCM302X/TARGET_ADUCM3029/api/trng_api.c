@@ -54,7 +54,8 @@
 #define TRNG_CNT_VAL    4095
 #define TRNG_PRESCALER  2
 
-/* RNG Device memory */
+/* RNG Device memory is the instance of ADI_RNG_DEV_DATA_TYPE 
+   that requires 4 byte alignment */
 static uint32_t RngDevMem[(ADI_RNG_MEMORY_SIZE + 3)/4];
 
 void trng_init(trng_t *obj)
