@@ -24,6 +24,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBED_CONF_APP_WIFI_SECURE_SSID) && defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+
 void wifi_scan(void)
 {
     WiFiInterface *wifi = get_interface();
@@ -65,3 +67,4 @@ void wifi_scan(void)
     TEST_ASSERT_TRUE(unsecure_found);
 }
 
+#endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID) && defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)

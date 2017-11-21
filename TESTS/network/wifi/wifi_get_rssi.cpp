@@ -23,6 +23,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+
 void wifi_get_rssi(void)
 {
     WiFiInterface *wifi = get_interface();
@@ -36,3 +38,4 @@ void wifi_get_rssi(void)
     TEST_ASSERT_INT8_WITHIN(-35, -65, wifi->get_rssi()); // -30 ... -100
 }
 
+#endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
