@@ -39,25 +39,25 @@
  *
  * @par Type
  *
- * The type of the value defines the purpose of the characteristic and is
- * represented by a UUID. Standard characteristic types may be consulted at
- * https://www.bluetooth.com/specifications/gatt/characteristics .
+ * The type of the value defines the purpose of the characteristic, and a
+ * UUID represents it. Standard characteristic types may be consulted at
+ * https://www.bluetooth.com/specifications/gatt/characteristics
  *
  * @par Supported operations
- * A set of properties define what client operations are supported by the
- * characteristic. See GattServer::Properties_t .
+ * A set of properties define what client operations the characteristic
+ * supports. See GattServer::Properties_t
  *
  * @par Descriptors
  *
- * Additional information such as the unit of the characteristic value, a
- * description string or a client control point can be added to the
+ * Additional information, such as the unit of the characteristic value, a
+ * description string or a client control point, can be added to the
  * characteristic.
  *
  * See BLUETOOTH SPECIFICATION Version 4.2 [Vol 3, Part G] - 3.3.1.1
  *
- * One of the most important type of descriptor is the Client Characteristic
+ * One of the most important types of descriptor is the Client Characteristic
  * Configuration Descriptor (CCCD) that must be present if the characteristic
- * properties allows a client to subscribe to updates of the characteristic
+ * properties allow a client to subscribe to updates of the characteristic
  * value.
  *
  * @par Characteristic breakdown
@@ -66,16 +66,16 @@
  *   - Characteristic declaration: It contains the properties of the
  *     characteristic, its type and the handle of its value.
  *   - Characteristic value: The value of the characteristic.
- *   - Descriptors: Each descriptor is stored in a single GATT attribute.
+ *   - Descriptors: A single GATT attribute stores each descriptor.
  *
  * When the GattService containing the characteristic is registered in the
  * GattServer, a unique attribute handle is assigned to the various attributes
- * of the characteristic. This handle is used by clients to interact with the
- * characteristic and is used locally in GattServer APIs.
+ * of the characteristic. Clients use this handle to interact with the
+ * characteristic. This handle is used locally in GattServer APIs.
  *
  *
  *
-
+ *
  *
  *
  *
@@ -83,10 +83,10 @@
  * Representation of a GattServer characteristic.
  *
  * A characteristic is a typed value used in a service. It contains a set of
- * properties which define client operations supported by the characteristic.
- * A characteristic may also includes descriptors; a descriptor exposes meta
- * information associated to a characteristic such as the unit of its value, its
- * human readable name or a control point attribute that allow client to
+ * properties that define client operations supported by the characteristic.
+ * A characteristic may also include descriptors; a descriptor exposes
+ * metainformation associated to a characteristic, such as the unit of its value, 
+ * its human readable name or a control point attribute that allows the client to
  * subscribe to the characteristic notifications.
  *
  * The GattCharacteristic class allows application code to construct
@@ -130,25 +130,25 @@ public:
         UUID_ALERT_CATEGORY_ID_BIT_MASK_CHAR = 0x2A42,
 
         /**
-         * Control point of the Immediate Alert service that allows client to
+         * Control point of the Immediate Alert service that allows the client to
          * command the server to alert to a given level.
          */
         UUID_ALERT_LEVEL_CHAR = 0x2A06,
 
         /**
-         * Control point of the Alert Notification service that allows client
+         * Control point of the Alert Notification service that allows the client
          * finely tune the notification configuration.
          */
         UUID_ALERT_NOTIFICATION_CONTROL_POINT_CHAR = 0x2A44,
 
         /**
-         * Part of the Alert Notification service which exposes the count of
+         * Part of the Alert Notification service, which exposes the count of
          * unread alert events existing in the server.
          */
         UUID_ALERT_STATUS_CHAR = 0x2A3F,
 
         /**
-         * Characteristic of the Battery service which exposes the current
+         * Characteristic of the Battery service, which exposes the current
          * battery level as a percentage.
          */
         UUID_BATTERY_LEVEL_CHAR = 0x2A19,
@@ -161,7 +161,7 @@ public:
 
         /**
          * Characteristic of the Blood Pressure service that exposes the
-         * measurement  of the blood sensor.
+         * measurement of the blood sensor.
          */
         UUID_BLOOD_PRESSURE_MEASUREMENT_CHAR = 0x2A35,
 
@@ -218,7 +218,7 @@ public:
         UUID_EXACT_TIME_256_CHAR = 0x2A0C,
 
         /**
-         * Characteristic of the Device Information Service that contains an
+         * Characteristic of the Device Information Service that contains a
          * UTF8 string representing the firmware revision for the firmware within
          * the device.
          */
@@ -243,7 +243,7 @@ public:
         UUID_GLUCOSE_MEASUREMENT_CONTEXT_CHAR = 0x2A34,
 
         /**
-         * Characteristic of the Device Information Service that contains an
+         * Characteristic of the Device Information Service that contains a
          * UTF8 string representing the hardware revision of the device.
          */
         UUID_HARDWARE_REVISION_STRING_CHAR = 0x2A27,
@@ -255,7 +255,7 @@ public:
         UUID_HEART_RATE_CONTROL_POINT_CHAR = 0x2A39,
 
         /**
-         * Characteristic of the Heart Rate that send heart rate measurements to
+         * Characteristic of the Heart Rate that sends heart rate measurements to
          * registered clients.
          */
         UUID_HEART_RATE_MEASUREMENT_CHAR = 0x2A37,
@@ -271,26 +271,26 @@ public:
         UUID_HID_INFORMATION_CHAR = 0x2A4A,
 
         /**
-         * Characteristic of the Environmental Sensing service which exposes
+         * Characteristic of the Environmental Sensing service, which exposes
          * humidity measurements.
          */
         UUID_HUMIDITY_CHAR = 0x2A6F,
 
         /**
-         * Characteristic of the Device Information Service which exposes
+         * Characteristic of the Device Information Service, which exposes
          * various regulatory or certification compliance items to which the
          * device claims adherence.
          */
         UUID_IEEE_REGULATORY_CERTIFICATION_DATA_LIST_CHAR = 0x2A2A,
 
         /**
-         * Characteristic of the Blood Pressure service which exposes intermediate
+         * Characteristic of the Blood Pressure service, which exposes intermediate
          * cuff pressure measurements.
          */
         UUID_INTERMEDIATE_CUFF_PRESSURE_CHAR = 0x2A36,
 
         /**
-         * Characteristic of the Health Thermometer service that sens intermediate
+         * Characteristic of the Health Thermometer service that sends intermediate
          * temperature values while the measurement is in progress.
          */
         UUID_INTERMEDIATE_TEMPERATURE_CHAR = 0x2A1E,
@@ -302,7 +302,7 @@ public:
         UUID_LOCAL_TIME_INFORMATION_CHAR = 0x2A0F,
 
         /**
-         * Characteristic of the Device Information Service that contains an
+         * Characteristic of the Device Information Service that contains a
          * UTF8 string representing the manufacturer name of the device.
          */
         UUID_MANUFACTURER_NAME_STRING_CHAR = 0x2A29,
@@ -314,7 +314,7 @@ public:
         UUID_MEASUREMENT_INTERVAL_CHAR = 0x2A21,
 
         /**
-         * Characteristic of the Device Information Service that contains an
+         * Characteristic of the Device Information Service that contains a
          * UTF8 string representing the model number of the device assigned by
          * the vendor.
          */
@@ -340,7 +340,7 @@ public:
         UUID_PNP_ID_CHAR = 0x2A50,
 
         /**
-         * Characteristic of the Environmental Sensing Service that expose the
+         * Characteristic of the Environmental Sensing Service that exposes the
          * pressure measured.
          */
         UUID_PRESSURE_CHAR = 0x2A6D,
@@ -351,8 +351,8 @@ public:
         UUID_PROTOCOL_MODE_CHAR = 0x2A4E,
 
         /**
-         * This control point is used by Pulse Oxymeter, Glucose and Continuous
-         * Glucose Monitoring services to provide basic management of the patient
+         * Pulse Oxymeter, Glucose and Continuous Glucose Monitoring services
+         * use this control point to provide basic management of the patient
          * record database.
          */
         UUID_RECORD_ACCESS_CONTROL_POINT_CHAR = 0x2A52,
@@ -387,20 +387,20 @@ public:
         UUID_RINGER_SETTING_CHAR = 0x2A41,
 
         /**
-         * Characteristic of the Scan Parameter service that store client's
-         * the scan parameters (scan interval and scan window).
+         * Characteristic of the Scan Parameter service that stores the client's
+         * scan parameters (scan interval and scan window).
          */
         UUID_SCAN_INTERVAL_WINDOW_CHAR = 0x2A4F,
 
         /**
-         * Characteristic of the Scan Parameter service that send a notification
+         * Characteristic of the Scan Parameter service that sends a notification
          * to a client when the server requires its latest scan parameters.
          */
         UUID_SCAN_REFRESH_CHAR = 0x2A31,
 
         /**
-         * Characteristic of the Device Information Service that contains an
-         * UTF-8 string representing the serial number of the device.
+         * Characteristic of the Device Information Service that contains a
+         * UTF8 string representing the serial number of the device.
          */
         UUID_SERIAL_NUMBER_STRING_CHAR = 0x2A25,
 
@@ -411,13 +411,13 @@ public:
         UUID_SOFTWARE_REVISION_STRING_CHAR = 0x2A28,
 
         /**
-         * Characteristic of the Alert Notification Service that notify to
-         * subscribed client the count of new alerts for a given category.
+         * Characteristic of the Alert Notification Service that notifies the
+         * count of new alerts for a given category to a subscribed client.
          */
         UUID_SUPPORTED_NEW_ALERT_CATEGORY_CHAR = 0x2A47,
 
         /**
-         * Characteristic of the Alert Notification service which exposes
+         * Characteristic of the Alert Notification service, which exposes
          * categories of unread alert supported by the server.
          */
         UUID_SUPPORTED_UNREAD_ALERT_CATEGORY_CHAR = 0x2A48,
@@ -443,8 +443,8 @@ public:
         UUID_TEMPERATURE_MEASUREMENT_CHAR = 0x2A1C,
 
         /**
-         * Characteristic of the Health Thermometer service that describes the
-         * where the measurement should take place.
+         * Characteristic of the Health Thermometer service that describes
+         * where the measurement takes place.
          */
         UUID_TEMPERATURE_TYPE_CHAR = 0x2A1D,
 
@@ -459,7 +459,7 @@ public:
         UUID_TIME_SOURCE_CHAR = 0x2A13,
 
         /**
-         * Characteristic of the Reference Time service that allow clients to
+         * Characteristic of the Reference Time service that allows clients to
          * control time update.
          */
         UUID_TIME_UPDATE_CONTROL_POINT_CHAR = 0x2A16,
@@ -482,7 +482,7 @@ public:
         UUID_TIME_ZONE_CHAR = 0x2A0E,
 
         /**
-         * Characteristic of the TX Power service that expose the current
+         * Characteristic of the TX Power service that exposes the current
          * transmission power in dBm.
          */
         UUID_TX_POWER_LEVEL_CHAR = 0x2A07,
@@ -516,7 +516,7 @@ public:
      * Unit type of a characteristic value.
      *
      * These unit types are used to describe what the raw numeric data in a
-     * characteristic actually represents. A server can exposes that information
+     * characteristic actually represents. A server can expose that information
      * to its clients by adding a Characteristic Presentation Format descriptor
      * to relevant characteristics.
      *
@@ -530,7 +530,7 @@ public:
         BLE_GATT_UNIT_NONE = 0x2700,
 
         /**
-         * Length, metre.
+         * Length, meter.
          */
         BLE_GATT_UNIT_LENGTH_METRE = 0x2701,
 
@@ -565,67 +565,67 @@ public:
         BLE_GATT_UNIT_LUMINOUS_INTENSITY_CANDELA = 0x2707,
 
         /**
-         * Area, square metres.
+         * Area, square meters.
          */
         BLE_GATT_UNIT_AREA_SQUARE_METRES = 0x2710,
 
         /**
-         * Volume, cubic metres.
+         * Volume, cubic meters.
          */
         BLE_GATT_UNIT_VOLUME_CUBIC_METRES = 0x2711,
 
         /**
-         * Velocity, metres per second.
+         * Velocity, meters per second.
          */
         BLE_GATT_UNIT_VELOCITY_METRES_PER_SECOND = 0x2712,
 
         /**
-         * Acceleration, metres per second squared.
+         * Acceleration, meters per second squared.
          */
         BLE_GATT_UNIT_ACCELERATION_METRES_PER_SECOND_SQUARED = 0x2713,
 
         /**
-         * Wave number reciprocal, metre.
+         * Wave number reciprocal, meter.
          */
         BLE_GATT_UNIT_WAVENUMBER_RECIPROCAL_METRE = 0x2714,
 
         /**
-         * Density, kilogram per cubic metre.
+         * Density, kilogram per cubic meter.
          */
         BLE_GATT_UNIT_DENSITY_KILOGRAM_PER_CUBIC_METRE = 0x2715,
 
         /**
-         * Surface density (kilogram per square metre).
+         * Surface density (kilogram per square meter).
          */
         BLE_GATT_UNIT_SURFACE_DENSITY_KILOGRAM_PER_SQUARE_METRE = 0x2716,
 
         /**
-         * Specific volume (cubic metre per kilogram).
+         * Specific volume (cubic meter per kilogram).
          */
         BLE_GATT_UNIT_SPECIFIC_VOLUME_CUBIC_METRE_PER_KILOGRAM = 0x2717,
 
         /**
-         * Current density (ampere per square metre).
+         * Current density (ampere per square meter).
          */
         BLE_GATT_UNIT_CURRENT_DENSITY_AMPERE_PER_SQUARE_METRE = 0x2718,
 
         /**
-         * Magnetic field strength, ampere per metre.
+         * Magnetic field strength, ampere per meter.
          */
         BLE_GATT_UNIT_MAGNETIC_FIELD_STRENGTH_AMPERE_PER_METRE = 0x2719,
 
         /**
-         * Amount concentration (mole per cubic metre).
+         * Amount concentration (mole per cubic meter).
          */
         BLE_GATT_UNIT_AMOUNT_CONCENTRATION_MOLE_PER_CUBIC_METRE = 0x271A,
 
         /**
-         * Mass concentration (kilogram per cubic metre).
+         * Mass concentration (kilogram per cubic meter).
          */
         BLE_GATT_UNIT_MASS_CONCENTRATION_KILOGRAM_PER_CUBIC_METRE = 0x271B,
 
         /**
-         * Luminance (candela per square metre).
+         * Luminance (candela per square meter).
          */
         BLE_GATT_UNIT_LUMINANCE_CANDELA_PER_SQUARE_METRE = 0x271C,
 
@@ -685,187 +685,187 @@ public:
         BLE_GATT_UNIT_ELECTRIC_POTENTIAL_DIFFERENCE_VOLT = 0x2728,
 
         /**
-         * Capacitance (farad).
+         * Capacitance, farad.
          */
         BLE_GATT_UNIT_CAPACITANCE_FARAD = 0x2729,
 
         /**
-         * Electric resistance (ohm).
+         * Electric resistance, ohm.
          */
         BLE_GATT_UNIT_ELECTRIC_RESISTANCE_OHM = 0x272A,
 
         /**
-         * Electric conductance (siemens).
+         * Electric conductance, siemens.
          */
         BLE_GATT_UNIT_ELECTRIC_CONDUCTANCE_SIEMENS = 0x272B,
 
         /**
-         * Magnetic flux (weber).
+         * Magnetic flux, weber.
          */
         BLE_GATT_UNIT_MAGNETIC_FLEX_WEBER = 0x272C,
 
         /**
-         * Magnetic flux density (tesla).
+         * Magnetic flux density, tesla.
          */
         BLE_GATT_UNIT_MAGNETIC_FLEX_DENSITY_TESLA = 0x272D,
 
         /**
-         * Inductance (henry).
+         * Inductance, henry.
          */
         BLE_GATT_UNIT_INDUCTANCE_HENRY = 0x272E,
 
         /**
-         * Celsius temperature (degree Celsius).
+         * Celsius temperature, degree Celsius.
          */
         BLE_GATT_UNIT_THERMODYNAMIC_TEMPERATURE_DEGREE_CELSIUS = 0x272F,
 
         /**
-         * Luminous flux (lumen).
+         * Luminous flux, lumen.
          */
         BLE_GATT_UNIT_LUMINOUS_FLUX_LUMEN = 0x2730,
 
         /**
-         * Illuminance (lux).
+         * Illuminance, lux.
          */
         BLE_GATT_UNIT_ILLUMINANCE_LUX = 0x2731,
 
         /**
-         * Activity referred to a radionuclide (becquerel).
+         * Activity referred to a radionuclide, becquerel.
          */
         BLE_GATT_UNIT_ACTIVITY_REFERRED_TO_A_RADIONUCLIDE_BECQUEREL = 0x2732,
 
         /**
-         * Absorbed dose (gray).
+         * Absorbed dose, gray.
          */
         BLE_GATT_UNIT_ABSORBED_DOSE_GRAY = 0x2733,
 
         /**
-         * Dose equivalent (sievert).
+         * Dose equivalent, sievert.
          */
         BLE_GATT_UNIT_DOSE_EQUIVALENT_SIEVERT = 0x2734,
 
         /**
-         * Catalytic activity (katal).
+         * Catalytic activity, katal.
          */
         BLE_GATT_UNIT_CATALYTIC_ACTIVITY_KATAL = 0x2735,
 
         /**
-         * Dynamic viscosity (pascal second).
+         * Dynamic viscosity, pascal second.
          */
         BLE_GATT_UNIT_DYNAMIC_VISCOSITY_PASCAL_SECOND = 0x2740,
 
         /**
-         * Moment of force (newton metre).
+         * Moment of force, newton meter.
          */
         BLE_GATT_UNIT_MOMENT_OF_FORCE_NEWTON_METRE = 0x2741,
 
         /**
-         * Surface tension (newton per metre).
+         * Surface tension, newton per meter.
          */
         BLE_GATT_UNIT_SURFACE_TENSION_NEWTON_PER_METRE = 0x2742,
 
         /**
-         * Angular velocity (radian per second).
+         * Angular velocity, radian per second.
          */
         BLE_GATT_UNIT_ANGULAR_VELOCITY_RADIAN_PER_SECOND = 0x2743,
 
         /**
-         * Angular acceleration (radian per second squared).
+         * Angular acceleration, radian per second squared.
          */
         BLE_GATT_UNIT_ANGULAR_ACCELERATION_RADIAN_PER_SECOND_SQUARED = 0x2744,
 
         /**
-         * Heat flux density (watt per square metre).
+         * Heat flux density, watt per square meter.
          */
         BLE_GATT_UNIT_HEAT_FLUX_DENSITY_WATT_PER_SQUARE_METRE = 0x2745,
 
         /**
-         * Heat capacity (joule per kelvin).
+         * Heat capacity, joule per kelvin.
          */
         BLE_GATT_UNIT_HEAT_CAPACITY_JOULE_PER_KELVIN = 0x2746,
 
         /**
-         * Specific heat capacity (joule per kilogram kelvin).
+         * Specific heat capacity, joule per kilogram kelvin.
          */
         BLE_GATT_UNIT_SPECIFIC_HEAT_CAPACITY_JOULE_PER_KILOGRAM_KELVIN = 0x2747,
 
         /**
-         * Specific energy (joule per kilogram).
+         * Specific energy, joule per kilogram.
          */
         BLE_GATT_UNIT_SPECIFIC_ENERGY_JOULE_PER_KILOGRAM = 0x2748,
 
         /**
-         * Thermal conductivity (watt per metre kelvin).
+         * Thermal conductivity, watt per meter kelvin.
          */
         BLE_GATT_UNIT_THERMAL_CONDUCTIVITY_WATT_PER_METRE_KELVIN = 0x2749,
 
         /**
-         * Energy density (joule per cubic metre).
+         * Energy density, joule per cubic meter.
          */
         BLE_GATT_UNIT_ENERGY_DENSITY_JOULE_PER_CUBIC_METRE = 0x274A,
 
         /**
-         * Electric field strength (volt per metre).
+         * Electric field strength, volt per meter.
          */
         BLE_GATT_UNIT_ELECTRIC_FIELD_STRENGTH_VOLT_PER_METRE = 0x274B,
 
         /**
-         * Electric charge density (coulomb per cubic metre).
+         * Electric charge density, coulomb per cubic meter.
          */
         BLE_GATT_UNIT_ELECTRIC_CHARGE_DENSITY_COULOMB_PER_CUBIC_METRE = 0x274C,
 
         /**
-         * Surface charge density (coulomb per square metre).
+         * Surface charge density, coulomb per square meter.
          */
         BLE_GATT_UNIT_SURFACE_CHARGE_DENSITY_COULOMB_PER_SQUARE_METRE = 0x274D,
 
         /**
-         * Electric flux density (coulomb per square metre).
+         * Electric flux density, coulomb per square meter.
          */
         BLE_GATT_UNIT_ELECTRIC_FLUX_DENSITY_COULOMB_PER_SQUARE_METRE = 0x274E,
 
         /**
-         * Permittivity (farad per metre).
+         * Permittivity, farad per meter.
          */
         BLE_GATT_UNIT_PERMITTIVITY_FARAD_PER_METRE = 0x274F,
 
         /**
-         * Permeability (henry per metre).
+         * Permeability, henry per meter.
          */
         BLE_GATT_UNIT_PERMEABILITY_HENRY_PER_METRE = 0x2750,
 
         /**
-         * Molar energy (joule per mole).
+         * Molar energy, joule per mole.
          */
         BLE_GATT_UNIT_MOLAR_ENERGY_JOULE_PER_MOLE = 0x2751,
 
         /**
-         * Molar entropy (joule per mole kelvin).
+         * Molar entropy, joule per mole kelvin.
          */
         BLE_GATT_UNIT_MOLAR_ENTROPY_JOULE_PER_MOLE_KELVIN = 0x2752,
 
         /**
-         * Exposure (coulomb per kilogram).
+         * Exposure, coulomb per kilogram.
          */
         BLE_GATT_UNIT_EXPOSURE_COULOMB_PER_KILOGRAM = 0x2753,
 
         /**
-         * Absorbed dose rate (gray per second).
+         * Absorbed dose rate, gray per second.
          */
         BLE_GATT_UNIT_ABSORBED_DOSE_RATE_GRAY_PER_SECOND = 0x2754,
 
         /**
-         * Radiant intensity (watt per steradian).
+         * Radiant intensity, watt per steradian.
          */
         BLE_GATT_UNIT_RADIANT_INTENSITY_WATT_PER_STERADIAN = 0x2755,
 
         /**
-         * Radiance (watt per square metre steradian).
+         * Radiance, watt per square meter steradian.
          */
         BLE_GATT_UNIT_RADIANCE_WATT_PER_SQUARE_METRE_STERADIAN = 0x2756,
 
         /**
-         * Catalytic activity concentration (katal per cubic metre).
+         * Catalytic activity concentration, katal per cubic meter.
          */
         BLE_GATT_UNIT_CATALYTIC_ACTIVITY_CONCENTRATION_KATAL_PER_CUBIC_METRE = 0x2757,
 
@@ -885,32 +885,32 @@ public:
         BLE_GATT_UNIT_TIME_DAY = 0x2762,
 
         /**
-         * Plane angle (degree).
+         * Plane angle, degree.
          */
         BLE_GATT_UNIT_PLANE_ANGLE_DEGREE = 0x2763,
 
         /**
-         * Plane angle (minute).
+         * Plane angle, minute.
          */
         BLE_GATT_UNIT_PLANE_ANGLE_MINUTE = 0x2764,
 
         /**
-         * Plane angle (seconds).
+         * Plane angle, seconds.
          */
         BLE_GATT_UNIT_PLANE_ANGLE_SECOND = 0x2765,
 
         /**
-         * Area (hectare).
+         * Area, hectare.
          */
         BLE_GATT_UNIT_AREA_HECTARE = 0x2766,
 
         /**
-         * Volume (litre).
+         * Volume, liter.
          */
         BLE_GATT_UNIT_VOLUME_LITRE = 0x2767,
 
         /**
-         * Mass (tonne).
+         * Mass, ton.
          */
         BLE_GATT_UNIT_MASS_TONNE = 0x2768,
 
@@ -920,37 +920,37 @@ public:
         BLE_GATT_UNIT_PRESSURE_BAR = 0x2780,
 
         /**
-         * Pressure, millimetre of mercury.
+         * Pressure, millimeter of mercury.
          */
         BLE_GATT_UNIT_PRESSURE_MILLIMETRE_OF_MERCURY = 0x2781,
 
         /**
-         * Length (ngstrm).
+         * Length, ngstrm.
          */
         BLE_GATT_UNIT_LENGTH_ANGSTROM = 0x2782,
 
         /**
-         * Length (nautical mile).
+         * Length, nautical mile.
          */
         BLE_GATT_UNIT_LENGTH_NAUTICAL_MILE = 0x2783,
 
         /**
-         * Area (barn).
+         * Area, barn.
          */
         BLE_GATT_UNIT_AREA_BARN = 0x2784,
 
         /**
-         * Velocity (knot).
+         * Velocity, knot.
          */
         BLE_GATT_UNIT_VELOCITY_KNOT = 0x2785,
 
         /**
-         * Logarithmic radio quantity (neper).
+         * Logarithmic radio quantity, neper.
          */
         BLE_GATT_UNIT_LOGARITHMIC_RADIO_QUANTITY_NEPER = 0x2786,
 
         /**
-         * Logarithmic radio quantity (bel).
+         * Logarithmic radio quantity, bel.
          */
         BLE_GATT_UNIT_LOGARITHMIC_RADIO_QUANTITY_BEL = 0x2787,
 
@@ -980,12 +980,12 @@ public:
         BLE_GATT_UNIT_LENGTH_MILE = 0x27A4,
 
         /**
-         * Pressure (pound-force per square inch).
+         * Pressure, pound-force per square inch.
          */
         BLE_GATT_UNIT_PRESSURE_POUND_FORCE_PER_SQUARE_INCH = 0x27A5,
 
         /**
-         * Velocity, kilometre per hour.
+         * Velocity, kilometer per hour.
          */
         BLE_GATT_UNIT_VELOCITY_KILOMETRE_PER_HOUR = 0x27A6,
 
@@ -1015,7 +1015,7 @@ public:
         BLE_GATT_UNIT_ENERGY_KILOWATT_HOUR = 0x27AB,
 
         /**
-         * Thermodynamic temperature (degree Fahrenheit).
+         * Thermodynamic temperature, degree Fahrenheit.
          */
         BLE_GATT_UNIT_THERMODYNAMIC_TEMPERATURE_DEGREE_FAHRENHEIT = 0x27AC,
 
@@ -1030,22 +1030,22 @@ public:
         BLE_GATT_UNIT_PER_MILLE = 0x27AE,
 
         /**
-         * Period (beats per minute)
+         * Period, beats per minute.
          */
         BLE_GATT_UNIT_PERIOD_BEATS_PER_MINUTE = 0x27AF,
 
         /**
-         * Electric charge (ampere hours)
+         * Electric charge, ampere hours.
          */
         BLE_GATT_UNIT_ELECTRIC_CHARGE_AMPERE_HOURS = 0x27B0,
 
         /**
-         * Mass density (milligram per decilitre).
+         * Mass density, milligram per deciliter.
          */
         BLE_GATT_UNIT_MASS_DENSITY_MILLIGRAM_PER_DECILITRE = 0x27B1,
 
         /**
-         * Mass density (millimole per litre).
+         * Mass density, millimole per liter.
          */
         BLE_GATT_UNIT_MASS_DENSITY_MILLIMOLE_PER_LITRE = 0x27B2,
 
@@ -1060,12 +1060,12 @@ public:
         BLE_GATT_UNIT_TIME_MONTH = 0x27B4,
 
         /**
-         * Concentration (count per cubic metre).
+         * Concentration, count per cubic meter.
          */
         BLE_GATT_UNIT_CONCENTRATION_COUNT_PER_CUBIC_METRE = 0x27B5,
 
         /**
-         * Irradiance (watt per square metre).
+         * Irradiance, watt per square meter.
          */
         BLE_GATT_UNIT_IRRADIANCE_WATT_PER_SQUARE_METRE = 0x27B6
     };
@@ -1074,7 +1074,7 @@ public:
      * Presentation format of a characteristic.
      *
      * It determines how the value of a characteristic is formatted. A server
-     * can exposes that information to its clients by adding a Characteristic
+     * can expose that information to its clients by adding a Characteristic
      * Presentation Format descriptor to relevant characteristics.
      *
      * @note See Bluetooth Specification 4.0 (Vol. 3), Part G, Section 3.3.3.5.2.
@@ -1206,12 +1206,12 @@ public:
         BLE_GATT_FORMAT_DUINT16 = 0x18,
 
         /**
-         * UTF-8 string.
+         * UTF8 string.
          */
         BLE_GATT_FORMAT_UTF8S = 0x19,
 
         /**
-         * UTF-16 string.
+         * UTF16 string.
          */
         BLE_GATT_FORMAT_UTF16S = 0x1A,
 
@@ -1272,8 +1272,8 @@ public:
         BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES = 0x40,
 
         /**
-         * Additional characteristic properties are defined in the Characteristic
-         * Extended Properties descriptor
+         * The Characteristic Extended Properties descriptor
+         * defines additional characteristic properties.
          */
         BLE_GATT_CHAR_PROPERTIES_EXTENDED_PROPERTIES = 0x80
 
@@ -1282,7 +1282,7 @@ public:
     /**
      * Value of a Characteristic Presentation Format descriptor.
      *
-     * Characteristic Presentation Format descriptor express the format of a
+     * Characteristic Presentation Format descriptor expresses the format of a
      * characteristic value.
      *
      * @note See Bluetooth Specification 4.0 (Vol. 3), Part G, Section 3.3.3.5.
@@ -1304,7 +1304,7 @@ public:
         /**
          * Unit of the characteristic value.
          *
-         * It is an UUID from Bluetooth Assigned Numbers.
+         * It is a UUID from Bluetooth Assigned Numbers.
          */
         uint16_t gatt_unit;
 
@@ -1333,7 +1333,7 @@ public:
      * @param[in] uuid The UUID of this characteristic.
      * @param[in] valuePtr Memory buffer holding the initial value. The value is
      * copied into the Bluetooth subsytem when the enclosing service is added.
-     * Thereafter the stack maintains it internally.
+     * Thereafter, the stack maintains it internally.
      * @param[in] len The length in bytes of this characteristic's value.
      * @param[in] maxLen The capacity in bytes of the characteristic value
      * buffer.
@@ -1341,15 +1341,15 @@ public:
      * properties.
      * @param[in] descriptors A pointer to an array of descriptors to be included
      * within this characteristic. The caller owns the memory for the descriptor
-     * array, which must remains valid at least until the enclosing service is
+     * array, which must remain valid at least until the enclosing service is
      * added to the GATT table.
      * @param[in] numDescriptors The number of descriptors presents in @p
      * descriptors array.
      * @param[in] hasVariableLen Flag that indicates if the attribute's value
-     * length can change over time.
+     * length can change throughout time.
      *
-     * @note If valuePtr is NULL, length is equal to 0, and the characteristic
-     * is readable then that particular characteristic may be considered
+     * @note If valuePtr is NULL, length is equal to 0 and the characteristic
+     * is readable, then that particular characteristic may be considered
      * optional and dropped while instantiating the service with the underlying
      * BLE stack.
      *
@@ -1397,7 +1397,7 @@ public:
     /**
      * Register a callback handling client's write requests or commands.
      *
-     * The callback registered will be invoked when client attempts to write the
+     * The callback registered is invoked when the client attempts to write the
      * characteristic value; the event handler can accept or reject the write
      * request with the appropriate error code.
      *
@@ -1413,14 +1413,14 @@ public:
     /**
      * Register a callback handling client's write requests or commands.
      *
-     * The callback registered will be invoked when client attempts to write the
+     * The callback registered is invoked when the client attempts to write the
      * characteristic value; the event handler can accept or reject the write
      * request with the appropriate error code.
      *
      * @param[in] object Pointer to the object of a class defining the event
      * handler (@p member). It must remain valid for the lifetime of the
      * GattCharacteristic.
-     * @param[in] member The member function which handles the write event.
+     * @param[in] member The member function that handles the write event.
      */
     template <typename T>
     void setWriteAuthorizationCallback(
@@ -1434,7 +1434,7 @@ public:
     /**
      * Register the read requests event handler.
      *
-     * The callback registered will be invoked when client attempts to read the
+     * The callback registered is invoked when the client attempts to read the
      * characteristic value; the event handler can accept or reject the read
      * request with the appropriate error code. It can also set specific outgoing
      * data.
@@ -1451,7 +1451,7 @@ public:
     /**
      * Register the read requests event handler.
      *
-     * The callback registered will be invoked when client attempts to read the
+     * The callback registered is invoked when the client attempts to read the
      * characteristic value; the event handler can accept or reject the read
      * request with the appropriate error code. It can also set specific outgoing
      * data.
@@ -1459,7 +1459,7 @@ public:
      * @param[in] object Pointer to the object of a class defining the event
      * handler (@p member). It must remain valid for the lifetime of the
      * GattCharacteristic.
-     * @param[in] member The member function which handles the read event.
+     * @param[in] member The member function that handles the read event.
      */
     template <typename T>
     void setReadAuthorizationCallback(
@@ -1473,7 +1473,7 @@ public:
     /**
      * Invoke the write authorization callback.
      *
-     * This function is an helper that calls the registered write handler to
+     * This function is a helper that calls the registered write handler to
      * determine the authorization reply for a write request.
      *
      * @important This function is not meant to be called by user code.
@@ -1499,7 +1499,7 @@ public:
     /**
      * Invoke the read authorization callback.
      *
-     * This function is an helper that calls the registered read handler to
+     * This function is a helper that calls the registered read handler to
      * determine the authorization reply for a read request.
      *
      * @important This function is not meant to be called by user code.
@@ -1511,11 +1511,11 @@ public:
      * @return A GattAuthCallbackReply_t value indicating whether authorization
      * is granted.
      *
-     * @note If the read request is approved and params->data remains NULL then
+     * @note If the read request is approved and params->data remains NULL, then
      * the current characteristic value is used in the read response payload.
      *
-     * @note If the read is approved an outgoing value can be specified directly
-     * by the event handler with the help of the fields
+     * @note If the read is approved, the event handler can specify an outgoing
+     * value directly with the help of the fields
      * GattReadAuthCallbackParams::data and GattReadAuthCallbackParams::len.
      */
     GattAuthCallbackReply_t authorizeRead(GattReadAuthCallbackParams *params)
@@ -1600,7 +1600,7 @@ public:
      * Check whether read authorization is enabled.
      *
      * Read authorization is enabled when a read authorization event handler is
-     * setup.
+     * set up.
      *
      * @return true if read authorization is enabled and false otherwise.
      */
@@ -1613,7 +1613,7 @@ public:
      * Check whether write authorization is enabled.
      *
      * Write authorization is enabled when a write authorization event handler is
-     * setup.
+     * set up.
      *
      * @return true if write authorization is enabled, false otherwise.
      */
@@ -1715,7 +1715,7 @@ public:
      * descriptors.
      *
      * @note Instances of ReadOnlyGattCharacteristic have a fixed length
-     * attribute value that equals sizeof(T). For a variable length alternative
+     * attribute value that equals sizeof(T). For a variable length alternative,
      * use GattCharacteristic directly.
      */
     ReadOnlyGattCharacteristic<T>(
