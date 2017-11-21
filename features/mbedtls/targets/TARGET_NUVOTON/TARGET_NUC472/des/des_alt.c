@@ -311,10 +311,34 @@ int mbedtls_des3_crypt_cbc( mbedtls_des3_context *ctx,
 static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_SIZE], int enc, uint32_t tdes_opmode, size_t length,
                                unsigned char iv[8], const unsigned char *input, unsigned char *output)
 {
+    if ((keyopt < 1) || (keyopt > 3)) {
+        error("Key option in DES alter. requires to be 1/2/3.");
+    }
+    
+    if (key == NULL) {
+        error("Meet null key pointer in DES alter.");
+    }
+    
+    if ((enc != 0) && (enc != 1)) {
+        error("Enc/dec flag in DES alter. requires to be 0/1.");
+    }
+    
+    if ((tdes_opmode < DES_MODE_ECB) || (tdes_opmode > DES_MODE_CTR)) {
+        error("Block cipher mode of operations in DES alter. requires to be ECB/CBC/CFB/OFB/CTR.");
+    }
+    
     if (length % 8) {
         return MBEDTLS_ERR_DES_INVALID_INPUT_LENGTH;
     }
 
+    if (iv == NULL) {
+        error("Meet null IV pointer in DES alter.");
+    }
+    
+    if (input == NULL || output == NULL) {
+        error("Meet null input/output pointer in DES alter.");
+    }
+    
     /* DES DMA buffer has the following requirements:
      * (1) Word-aligned buffer base address
      * (2) 8-byte aligned buffer size
