@@ -23,7 +23,7 @@
 MeshInterfaceNanostack::MeshInterfaceNanostack()
     : phy(NULL), _network_interface_id(-1), _device_id(-1), eui64(),
       ip_addr_str(), mac_addr_str(), connect_semaphore(0), 
-      _connection_status_cb(NULL), _connect_status(DISCONNECTED)
+      _connection_status_cb(NULL), _connect_status(NSAPI_STATUS_DISCONNECTED)
 {
     // Nothing to do
 }
@@ -55,17 +55,17 @@ void MeshInterfaceNanostack::mesh_network_handler(mesh_connection_status_t statu
     nanostack_unlock();
 
 
-    connection_status_t previous_status = _connect_status;
+    nsapi_connection_status_t previous_status = _connect_status;
 
     if (status == MESH_CONNECTED) {
         uint8_t temp_ipv6[16];
         if (arm_net_address_get(_network_interface_id, ADDR_IPV6_GP, temp_ipv6)) {
-            _connect_status = GLOBAL_UP;
+            _connect_status = NSAPI_STATUS_GLOBAL_UP;
         } else {
-            _connect_status = LOCAL_UP;
+            _connect_status = NSAPI_STATUS_LOCAL_UP;
         }
     } else {
-        _connect_status = DISCONNECTED;
+        _connect_status = NSAPI_STATUS_DISCONNECTED;
     }
 
     if (_connection_status_cb && _connect_status != previous_status) {
@@ -115,13 +115,13 @@ const char *MeshInterfaceNanostack::get_mac_address()
     return mac_addr_str;
 }
 
-connection_status_t MeshInterfaceNanostack::get_connection_status()
+nsapi_connection_status_t MeshInterfaceNanostack::get_connection_status()
 {
     return _connect_status;
 }
 
-void MeshInterfaceNanostack::register_status_callback(
-    Callback<void(connection_status_t, int)> status_cb)
+void MeshInterfaceNanostack::attach(
+    Callback<void(nsapi_connection_status_t, int)> status_cb)
 {
     _connection_status_cb = status_cb;
 }

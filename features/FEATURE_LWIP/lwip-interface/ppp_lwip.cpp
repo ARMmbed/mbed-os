@@ -59,7 +59,7 @@ static bool ppp_active = false;
 static const char *login;
 static const char *pwd;
 static sys_sem_t ppp_close_sem;
-static Callback<void(connection_status_t, int)> connection_status_cb;
+static Callback<void(nsapi_connection_status_t, int)> connection_status_cb;
 
 static EventQueue *prepare_event_queue()
 {
@@ -209,7 +209,7 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
     if (err_code == PPPERR_NONE) {
         /* status changes have to be reported */
         if (connection_status_cb) {
-            connection_status_cb(GLOBAL_UP, 0);
+            connection_status_cb(NSAPI_STATUS_GLOBAL_UP, 0);
         }
         return;
     }
@@ -223,7 +223,7 @@ static void ppp_link_status(ppp_pcb *pcb, int err_code, void *ctx)
 
     /* Alright, PPP interface is down, we need to notify upper layer */
     if (connection_status_cb) {
-        connection_status_cb(DISCONNECTED, 0);
+        connection_status_cb(NSAPI_STATUS_DISCONNECTED, 0);
     }
 }
 
@@ -353,7 +353,7 @@ nsapi_error_t nsapi_ppp_error_code()
     return connect_error_code;
 }
 
-nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(connection_status_t, int)> cb, const char *uname, const char *password, const nsapi_ip_stack_t stack)
+nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_connection_status_t, int)> cb, const char *uname, const char *password, const nsapi_ip_stack_t stack)
 {
     if (my_stream) {
         return NSAPI_ERROR_PARAMETER;

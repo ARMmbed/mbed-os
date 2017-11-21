@@ -240,20 +240,20 @@ public:
      *
      *  @param status   connection status of the link
      */
-    virtual void ppp_status_cb(connection_status_t, int);
+    virtual void ppp_status_cb(nsapi_connection_status_t, int);
 
     /** Register callback for status reporting
      *
      *  @param status_cb The callback for status changes
-     *  @return          The connection status according to connection_status_t
+     *  @return          The connection status according to nsapi_connection_status_t
      */
-    virtual void register_status_callback(Callback<void(connection_status_t, int)> status_cb);
+    virtual void attach(Callback<void(nsapi_connection_status_t, int)> status_cb);
 
     /** Get the connection status
      *
-     *  @return         The connection status according to connection_status_t
+     *  @return         The connection status according to nsapi_connection_status_t
      */
-    virtual connection_status_t get_connection_status();
+    virtual nsapi_connection_status_t get_connection_status();
 
 private:
     FileHandle *_fh;
@@ -265,9 +265,9 @@ private:
     const char *_pwd;
     bool _debug_trace_on;
     nsapi_ip_stack_t _stack;
-    Callback<void(connection_status_t, int)> _ppp_cb;
-    Callback<void(connection_status_t, int)> _connection_status_cb;
-    connection_status_t _connect_status;
+    Callback<void(nsapi_connection_status_t, int)> _ppp_cb;
+    Callback<void(nsapi_connection_status_t, int)> _connection_status_cb;
+    nsapi_connection_status_t _connect_status;
     void base_initialization();
     void setup_at_parser();
     void shutdown_at_parser();

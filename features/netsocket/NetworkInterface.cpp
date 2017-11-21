@@ -65,13 +65,13 @@ nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address)
     return get_stack()->add_dns_server(address);
 }
 
-void NetworkInterface::register_status_callback(mbed::Callback<void(connection_status_t, int)> status_cb)
+void NetworkInterface::attach(mbed::Callback<void(nsapi_connection_status_t, int)> status_cb)
 {
 }
 
-connection_status_t NetworkInterface::get_connection_status()
+nsapi_connection_status_t NetworkInterface::get_connection_status()
 {
-    return UNDEFINED;
+    return NSAPI_STATUS_UNDEFINED;
 }
 
 nsapi_error_t NetworkInterface::set_blocking(bool blocking)

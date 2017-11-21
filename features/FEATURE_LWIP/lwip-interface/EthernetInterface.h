@@ -104,13 +104,13 @@ public:
      *
      *  @param status_cb The callback for status changes
      */
-    virtual void register_status_callback(mbed::Callback<void(connection_status_t, int)> status_cb);
+    virtual void attach(mbed::Callback<void(nsapi_connection_status_t, int)> status_cb);
 
     /** Get the connection status
      *
-     *  @return         The connection status according to connection_status_t
+     *  @return         The connection status according to nsapi_connection_status_t
      */
-    virtual connection_status_t get_connection_status();
+    virtual nsapi_connection_status_t get_connection_status();
 
 protected:
     /** Provide access to the underlying stack
@@ -125,9 +125,9 @@ protected:
     char _gateway[NSAPI_IPv4_SIZE];
 
 
-    static Callback<void(connection_status_t, int)> _connection_status_cb;
+    static Callback<void(nsapi_connection_status_t, int)> _connection_status_cb;
     static void netif_status_irq(struct netif *);
-    static connection_status_t _connect_status;
+    static nsapi_connection_status_t _connect_status;
 
 };
 

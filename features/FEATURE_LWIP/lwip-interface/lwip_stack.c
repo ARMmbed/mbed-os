@@ -474,12 +474,12 @@ void mbed_lwip_netif_status_irq(struct netif *lwip_netif)
     }
 }
 
-connection_status_t mbed_lwip_netif_status_check(void)
+nsapi_connection_status_t mbed_lwip_netif_status_check(void)
 {
     if (netif_is_up(&lwip_netif)) {
-        return GLOBAL_UP;
+        return NSAPI_STATUS_GLOBAL_UP;
     } else {
-        return DISCONNECTED;
+        return NSAPI_STATUS_DISCONNECTED;
     }
 }
 
