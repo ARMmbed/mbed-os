@@ -323,8 +323,8 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
         error("Enc/dec flag in DES alter. requires to be 0/1.");
     }
     
-    if ((tdes_opmode < DES_MODE_ECB) || (tdes_opmode > DES_MODE_CTR)) {
-        error("Block cipher mode of operations in DES alter. requires to be ECB/CBC/CFB/OFB/CTR.");
+    if (tdes_opmode & ~(CRPT_TDES_CTL_TMODE_Msk | CRPT_TDES_CTL_OPMODE_Msk)) {
+        error("Invalid TMODE/OPMODE in DES alter.");
     }
     
     if (length % 8) {
