@@ -32,7 +32,14 @@
 #define MBED_SERIAL_API_HAL_H
 
 #include "serial_api.h"
+#include <string.h>
+#include "mbed_assert.h"
+#include "mbed_debug.h"
+#include "mbed_error.h"
 
+// #include "cmsis.h"
+// #include "pinmap.h"
+#include "PeripheralPins.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,14 +54,12 @@ extern "C" {
     #define SERIAL_S(obj) (obj)
 #endif
 
-extern UART_HandleTypeDef uart_handlers[];
-
 
 /** Initialize and configure the UART peripheral
  *
  * @param obj       The serial object containing the configuration
  */
-void init_uart(serial_t *obj);
+HAL_StatusTypeDef init_uart(serial_t *obj);
 
 #ifdef __cplusplus
 }
