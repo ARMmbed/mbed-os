@@ -45,7 +45,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
 #include <stdint.h>
-#ifdef __CC_ARM
+#ifdef __ARMCC_VERSION
 #include <rt_misc.h>
 #endif
 #include <cmsis.h>
@@ -61,8 +61,8 @@ extern void SramInit(void);
 /*----------------------------------------------------------------------------
   Checksum options
  *----------------------------------------------------------------------------*/
- #if defined (__CC_ARM)
-__attribute__ ((at(0x000001A0u)))
+#if defined (__ARMCC_VERSION)
+__attribute__((section(".ARM.__at_0x000001A0")))
 #elif defined( __ICCARM__)
 __root
 #endif /* __ICCARM__ */
@@ -151,7 +151,7 @@ const pFunc SECTION_PLACE(IVT_NAME[104],VECTOR_SECTION) =
 /*----------------------------------------------------------------------------
 * Initialize .bss and .data for GNU
 *----------------------------------------------------------------------------*/
-#if defined( __GNUC__) && !defined (__CC_ARM)
+#if defined( __GNUC__) && !defined (__ARMCC_VERSION)
 void zero_bss(void)
 {
     uint32_t *pSrc, *pDest;
@@ -248,7 +248,7 @@ void Reset_Handler(void)
        may reside in DSRAM bank B. */
     SramInit();
 
-#if defined(__GNUC__) && !defined (__CC_ARM)
+#if defined(__GNUC__) && !defined (__ARMCC_VERSION)
     /* Clear the bss section for GCC build only */
     zero_bss();
 #endif
@@ -263,7 +263,7 @@ void Reset_Handler(void)
 /*----------------------------------------------------------------------------
   Default Handler for Exceptions / Interrupts
  *----------------------------------------------------------------------------*/
-#if defined(__CC_ARM) || defined (__GNUC__)
+#if defined(__ARMCC_VERSION) || defined (__GNUC__)
 void Default_Handler(void)
 {
     while(1);
