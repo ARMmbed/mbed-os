@@ -45,6 +45,10 @@ SysTimer::SysTimer() :
         TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0)
 {
     _start_time = ticker_read_us(_ticker_data);
+}
+
+void SysTimer::setup_irq()
+{
 #if (defined(NO_SYSTICK))
     NVIC_SetVector(mbed_get_m0_tick_irqn(), (uint32_t)SysTick_Handler);
     NVIC_SetPriority(mbed_get_m0_tick_irqn(), 0xFF); /* RTOS requires lowest priority */
@@ -96,14 +100,24 @@ SysTimer::~SysTimer()
 {
 }
 
-void SysTimer::handler()
+void SysTimer::set_irq_pending()
 {
 #if (defined(NO_SYSTICK))
     NVIC_SetPendingIRQ(mbed_get_m0_tick_irqn());
 #else
     SCB->ICSR = SCB_ICSR_PENDSTSET_Msk;
 #endif
+}
+
+void SysTimer::increment_tick()
+{
     _tick++;
+}
+
+void SysTimer::handler()
+{
+    set_irq_pending();
+    increment_tick();
 }
 
 }

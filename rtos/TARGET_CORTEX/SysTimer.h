@@ -52,6 +52,11 @@ public:
     virtual ~SysTimer();
 
     /**
+     * Enable an IRQ/SysTick with the correct priority.
+     */
+    static void setup_irq();
+
+    /**
      * Schedule an os tick to fire
      *
      * @param delta Tick to fire at relative to current tick
@@ -92,6 +97,8 @@ public:
 
 protected:
     virtual void handler();
+    void increment_tick();
+    static void set_irq_pending();
     us_timestamp_t _start_time;
     uint64_t _tick;
 };

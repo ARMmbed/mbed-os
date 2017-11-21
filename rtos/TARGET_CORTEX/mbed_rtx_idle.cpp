@@ -47,6 +47,7 @@ int32_t OS_Tick_Enable (void)
     // Do not use SingletonPtr since this relies on the RTOS
     if (NULL == os_timer) {
         os_timer = new (os_timer_data) rtos::internal::SysTimer();
+        os_timer->setup_irq();
     }
 
     // set to fire interrupt on next tick
