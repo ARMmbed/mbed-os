@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __GATT_SERVER_H__
-#define __GATT_SERVER_H__
+#ifndef MBED_GATT_SERVER_H__
+#define MBED_GATT_SERVER_H__
 
 #include "Gap.h"
 #include "GattService.h"
@@ -33,52 +33,129 @@
  * @{
  */
 
+/**
+ * Construct and operates a GATT server.
+ *
+ * A Gatt server is a collection of GattService; these services contains
+ * characteristics that may be read or written by a peer connected to the device.
+ * These characteristics may also emits updates to subscribed clients when their
+ * value change.
+ *
+ * @p Server Layout
+ *
+ * Application code can add GattService object to the server with the help of
+ * the function addService(). That function registers all the GattCharacteristic
+ * enclosed in the service as well as all the characteristics descriptors (see
+ * GattAttribute) these characteristics contain. Service registration assign
+ * a unique handle to the various attributes being part of the service; this
+ * handle should be used for subsequent read or write of these components.
+ *
+ * There is no primitives defined to remove a single service; however a call to
+ * the function reset() will remove all services previously registered in the
+ * GattServer.
+ *
+ * @p Characteristic and attributes access
+ *
+ * Values of the characteristic and the characteristic descriptor present in the
+ * GattServer must be accessed via the handle assigned to them when the service
+ * has been registered; the GattServer class offers several flavors of read()
+ * and write() function that retrieve or mutate an attribute value.
+ *
+ * Application code can query if a client has subscribed to a given
+ * characteristic's value update by invoking the function areUpdatesEnabled().
+ *
+ * @p Events
+ *
+ * The GattServer allows application code to register several event handler that
+ * can be used to monitor client and server activities:
+ *   - onDataSent(): Register an event handler that will be called when a
+ *     characteristic value update has been sent to a client.
+ *   - onDataWriten(): Register an event handler that will be called when a
+ *     client has written an attribute of the server.
+ *   - onDataRead(): Register an event handler that will be called when a
+ *     client has read an attribute of the server.
+ *   - onUpdatesEnabled: Register an event handler that will be called when a
+ *     client subscribes to updates of a characteristic.
+ *   - onUpdatesDisabled: Register an event handler that will be called when a
+ *     client unsubscribes from updates of a characteristic.
+ *   - onConfimationReceived: Register an event handler that will be called
+ *     when a client acknowledge a characteristic value notification.
+ *
+ * @note The term characteristic value update is used to represents
+ * Characteristic Value Notification and Characteristic Value Indication when
+ * the nature of the server initiated is not relevant.
+ */
 class GattServer {
 public:
     /**
-     * Type for the registered callbacks added to the data sent callchain.
-     * Refer to GattServer::onDataSent().
+     * Event handler invoked when the server has sent data to a client.
+     *
+     * @see onDataSent().
      */
     typedef FunctionPointerWithContext<unsigned> DataSentCallback_t;
-    /**
-     * Type for the data sent event callchain. Refer to GattServer::onDataSent().
-     */
-    typedef CallChainOfFunctionPointersWithContext<unsigned> DataSentCallbackChain_t;
 
     /**
-     * Type for the registered callbacks added to the data written callchain.
-     * Refer to GattServer::onDataWritten().
+     * Callchain of DataSentCallback_t objects.
+     *
+     * @see onDataSent().
      */
-    typedef FunctionPointerWithContext<const GattWriteCallbackParams*> DataWrittenCallback_t;
-    /**
-     * Type for the data written event callchain. Refer to GattServer::onDataWritten().
-     */
-    typedef CallChainOfFunctionPointersWithContext<const GattWriteCallbackParams*> DataWrittenCallbackChain_t;
+    typedef CallChainOfFunctionPointersWithContext<unsigned>
+        DataSentCallbackChain_t;
 
     /**
-     * Type for the registered callbacks added to the data read callchain.
-     * Refer to GattServer::onDataRead().
+     * Event handler invoked when the client has written an attribute of the
+     * server.
+     *
+     * @see onDataWritten().
      */
-    typedef FunctionPointerWithContext<const GattReadCallbackParams*> DataReadCallback_t;
-    /**
-     * Type for the data read event callchain. Refer to GattServer::onDataRead().
-     */
-    typedef CallChainOfFunctionPointersWithContext<const GattReadCallbackParams *> DataReadCallbackChain_t;
+    typedef FunctionPointerWithContext<const GattWriteCallbackParams*>
+        DataWrittenCallback_t;
 
     /**
-     * Type for the registered callbacks added to the shutdown callchain.
-     * Refer to GattServer::onShutdown().
+     * Callchain of DataWrittenCallback_t objects.
+     *
+     * @see onDataWritten().
      */
-    typedef FunctionPointerWithContext<const GattServer *> GattServerShutdownCallback_t;
-    /**
-     * Type for the shutdown event callchain. Refer to GattServer::onShutdown().
-     */
-    typedef CallChainOfFunctionPointersWithContext<const GattServer *> GattServerShutdownCallbackChain_t;
+    typedef CallChainOfFunctionPointersWithContext<const GattWriteCallbackParams*>
+        DataWrittenCallbackChain_t;
 
     /**
-     * Type for the registered callback for various events. Refer to
-     * GattServer::onUpdatesEnabled(), GattServer::onUpdateDisabled() and
-     * GattServer::onConfirmationReceived().
+     * Event handler invoked when the client has read an attribute of the server.
+     *
+     * @see onDataRead().
+     */
+    typedef FunctionPointerWithContext<const GattReadCallbackParams*>
+        DataReadCallback_t;
+
+    /**
+     * Callchain of DataReadCallback_t.
+     *
+     * @see onDataRead().
+     */
+    typedef CallChainOfFunctionPointersWithContext<const GattReadCallbackParams*>
+        DataReadCallbackChain_t;
+
+    /**
+     * Event handler invoked when the GattServer is reset.
+     *
+     * @see onShutdown() reset()
+     */
+    typedef FunctionPointerWithContext<const GattServer *>
+        GattServerShutdownCallback_t;
+
+    /**
+     * Callchain of GattServerShutdownCallback_t.
+     *
+     * @see onShutdown() reset()
+     */
+    typedef CallChainOfFunctionPointersWithContext<const GattServer*>
+        GattServerShutdownCallbackChain_t;
+
+    /**
+     * Event handler that handle subscription to characteristic updates,
+     * unsubscription from characteristic updates and notification confirmation.
+     *
+     * @see onUpdatesEnabled() onUpdateDisabled() onConfirmationReceived()
      */
     typedef FunctionPointerWithContext<GattAttribute::Handle_t> EventCallback_t;
 
@@ -95,138 +172,175 @@ protected:
         updatesEnabledCallback(NULL),
         updatesDisabledCallback(NULL),
         confirmationReceivedCallback(NULL) {
-        /* empty */
     }
 
     /*
-     * The following functions are meant to be overridden in the platform-specific subclass.
+     * The following functions are meant to be overridden in the platform
+     * specific subclass.
      */
 public:
 
     /**
-     * Add a service declaration to the local server ATT table. Also add the
-     * characteristics contained within.
+     * Add a service declaration to the local attribute server table.
      *
-     * @param[in] service
-     *              The service to be added.
+     * This functions inserts a service declaration in the attribute table
+     * followed by the characteristic declarations (including characteristic
+     * descriptors) present in @p service.
+     *
+     * The process assign a unique attribute handle to all the elements added
+     * into the attribute table. This handle is an ID that must be used for
+     * subsequent interractions with the elements.
+     *
+     * @note Their is no mirror function that removes a single service.
+     * Application code can remove all the registered services by calling
+     * reset().
+     *
+     * @important Service, characteristics and descriptors objects registered
+     * within the GattServer must remain reachable until reset() is called.
+     *
+     * @param[in] service The service to be added; attribute handle of services,
+     * characteristic and characteristic descriptors will be updated by the
+     * process.
      *
      * @return BLE_ERROR_NONE if the service was successfully added.
      */
-    virtual ble_error_t addService(GattService &service) {
+    virtual ble_error_t addService(GattService &service)
+    {
         /* Avoid compiler warnings about unused variables. */
         (void)service;
 
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if this capability is supported. */
+        /* Requesting action from porters: override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /**
-     * Read the value of a characteristic from the local GATT server.
+     * Read the value of an attribute present in the local GATT server.
      *
-     * @param[in]     attributeHandle
-     *                  Attribute handle for the value attribute of the characteristic.
-     * @param[out]    buffer
-     *                  A buffer to hold the value being read.
-     * @param[in,out] lengthP
-     *                  Length of the buffer being supplied. If the attribute
-     *                  value is longer than the size of the supplied buffer,
-     *                  this variable holds upon return the total attribute value length
-     *                  (excluding offset). The application may use this
-     *                  information to allocate a suitable buffer size.
+     * @param[in] attributeHandle Handle of the attribute to read.
+     * @param[out] buffer A buffer to hold the value being read.
+     * @param[in,out] lengthP Length of the buffer being supplied. If the
+     * attribute value is longer than the size of the supplied buffer, this
+     * variable holds upon return the total attribute value length (excluding
+     * offset). The application may use this information to allocate a suitable
+     * buffer size.
      *
      * @return BLE_ERROR_NONE if a value was read successfully into the buffer.
+     *
+     * @important read(Gap::Handle_t, GattAttribute::Handle_t, uint8_t *, uint16_t *)
+     * must be used to read Client Characteristic Configuration Descriptor (CCCD)
+     * because the value of this type of attribute depends on the connection.
      */
-    virtual ble_error_t read(GattAttribute::Handle_t attributeHandle, uint8_t buffer[], uint16_t *lengthP) {
+    virtual ble_error_t read(
+        GattAttribute::Handle_t attributeHandle,
+        uint8_t buffer[],
+        uint16_t *lengthP
+    ) {
         /* Avoid compiler warnings about unused variables. */
         (void)attributeHandle;
         (void)buffer;
         (void)lengthP;
 
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if this capability is supported. */
+        /* Requesting action from porters: override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /**
-     * Read the value of a characteristic from the local GATT server.
+     * Read the value of an attribute present in the local GATT server.
      *
-     * @param[in]     connectionHandle
-     *                  Connection handle.
-     * @param[in]     attributeHandle
-     *                  Attribute handle for the value attribute of the characteristic.
-     * @param[out]    buffer
-     *                  A buffer to hold the value being read.
-     * @param[in,out] lengthP
-     *                  Length of the buffer being supplied. If the attribute
-     *                  value is longer than the size of the supplied buffer,
-     *                  this variable holds upon return the total attribute value length
-     *                  (excluding offset). The application may use this
-     *                  information to allocate a suitable buffer size.
+     * The connection handle allows application code to read the value of a
+     * Client Characteristic Configuration Descriptor for a given connection.
+     *
+     * @param[in] connectionHandle Connection handle.
+     * @param[in] attributeHandle Attribute handle for the value attribute of
+     * the characteristic.
+     * @param[out] buffer A buffer to hold the value being read.
+     * @param[in,out] lengthP Length of the buffer being supplied. If the
+     * attribute value is longer than the size of the supplied buffer, this
+     * variable holds upon return the total attribute value length (excluding
+     * offset). The application may use this information to allocate a suitable
+     * buffer size.
      *
      * @return BLE_ERROR_NONE if a value was read successfully into the buffer.
-     *
-     * @note This API is a version of the above, with an additional connection handle
-     *     parameter to allow fetches for connection-specific multivalued
-     *     attributes (such as the CCCDs).
      */
-    virtual ble_error_t read(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, uint8_t *buffer, uint16_t *lengthP) {
+    virtual ble_error_t read(
+        Gap::Handle_t connectionHandle,
+        GattAttribute::Handle_t attributeHandle,
+        uint8_t *buffer,
+        uint16_t *lengthP
+    ) {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)attributeHandle;
         (void)buffer;
         (void)lengthP;
 
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if this capability is supported. */
+        /* Requesting action from porters: override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /**
-     * Update the value of a characteristic on the local GATT server.
+     * Update the value of an attribute present in the local GATT server.
      *
-     * @param[in] attributeHandle
-     *              Handle for the value attribute of the characteristic.
-     * @param[in] value
-     *              A pointer to a buffer holding the new value.
-     * @param[in] size
-     *              Size of the new value (in bytes).
-     * @param[in] localOnly
-     *              Should this update be kept on the local
-     *              GATT server regardless of the state of the
-     *              notify/indicate flag in the CCCD for this
-     *              Characteristic? If set to true, no notification
-     *              or indication is generated.
+     * @param[in] attributeHandle Handle of the attribute to write.
+     * @param[in] value A pointer to a buffer holding the new value.
+     * @param[in] size Size in bytes of the new value (in bytes).
+     * @param[in] localOnly If this flag is false and the attribute handle
+     * written is a characteristic value then the server sends an update
+     * containing the new value to all clients that have subscribed to the
+     * characteristic's notifications or indications. Otherwise the update does
+     * not generate a single server initiated event.
      *
-     * @return BLE_ERROR_NONE if we have successfully set the value of the attribute.
+     * @return BLE_ERROR_NONE if the attribute value has been successfully
+     * updated.
      */
-    virtual ble_error_t write(GattAttribute::Handle_t attributeHandle, const uint8_t *value, uint16_t size, bool localOnly = false) {
+    virtual ble_error_t write(
+        GattAttribute::Handle_t attributeHandle,
+        const uint8_t *value,
+        uint16_t size,
+        bool localOnly = false
+    ) {
         /* Avoid compiler warnings about unused variables. */
         (void)attributeHandle;
         (void)value;
         (void)size;
         (void)localOnly;
 
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if this capability is supported. */
+        /* Requesting action from porters: override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /**
-     * Update the value of a characteristic on the local GATT server. A version
-     * of the same as the above, with a connection handle parameter to allow updates
-     * for connection-specific multivalued attributes (such as the CCCDs).
+     * Update the value of an attribute present in the local GATT server.
      *
-     * @param[in] connectionHandle
-     *              Connection handle.
-     * @param[in] attributeHandle
-     *              Handle for the value attribute of the characteristic.
-     * @param[in] value
-     *              A pointer to a buffer holding the new value.
-     * @param[in] size
-     *              Size of the new value (in bytes).
-     * @param[in] localOnly
-     *              Should this update be kept on the local
-     *              GattServer regardless of the state of the
-     *              notify/indicate flag in the CCCD for this
-     *              Characteristic? If set to true, no notification
-     *              or indication is generated.
+     * The connection handle parameter allows application code to direct
+     * notification or indication resulting from the update to a specific client.
      *
-     * @return BLE_ERROR_NONE if we have successfully set the value of the attribute.
+     * @param[in] connectionHandle Connection handle.
+     * @param[in] attributeHandle Handle for the value attribute of the
+     * characteristic.
+     * @param[in] value A pointer to a buffer holding the new value.
+     * @param[in] size Size of the new value (in bytes).
+     * @param[in] localOnly If this flag is false and the attribute handle
+     * written is a characteristic value then the server sends an update
+     * containing the new value to the client identified by the parameter
+     * @p connectionHandle if it is subscribed to the characteristic's
+     * notifications or indications. Otherwise the update does not generate a
+     * single server initiated event.
+     *
+     * @return BLE_ERROR_NONE if the attribute value has been successfully
+     * updated.
      */
-    virtual ble_error_t write(Gap::Handle_t connectionHandle, GattAttribute::Handle_t attributeHandle, const uint8_t *value, uint16_t size, bool localOnly = false) {
+    virtual ble_error_t write(
+        Gap::Handle_t connectionHandle,
+        GattAttribute::Handle_t attributeHandle,
+        const uint8_t *value,
+        uint16_t size,
+        bool localOnly = false
+    ) {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)attributeHandle;
@@ -234,56 +348,77 @@ public:
         (void)size;
         (void)localOnly;
 
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if this capability is supported. */
+        /* Requesting action from porters: override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /**
-     * Determine the updates-enabled status (notification or indication) for the current connection from a characteristic's CCCD.
+     * Determine if one of the connected clients has subscribed to notifications
+     * or indications of the characteristic in input.
      *
-     * @param[in]   characteristic
-     *                The characteristic.
-     * @param[out]  enabledP
-     *                Upon return, *enabledP is true if updates are enabled, else false.
+     * @param[in] characteristic The characteristic.
+     * @param[out] enabledP Upon return, *enabledP is true if updates are
+     * enabled for a connected client; otherwise *enabledP is false.
      *
-     * @return BLE_ERROR_NONE if the connection and handle are found. False otherwise.
+     * @return BLE_ERROR_NONE if the connection and handle are found. False
+     * otherwise.
      */
-    virtual ble_error_t areUpdatesEnabled(const GattCharacteristic &characteristic, bool *enabledP) {
+    virtual ble_error_t areUpdatesEnabled(
+        const GattCharacteristic &characteristic,
+        bool *enabledP
+    ) {
         /* Avoid compiler warnings about unused variables. */
         (void)characteristic;
         (void)enabledP;
 
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if this capability is supported. */
+        /* Requesting action from porters: override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /**
-     * Determine the connection-specific updates-enabled status (notification or indication) from a characteristic's CCCD.
+     * Determine if an identified client has subscribed to notifications or
+     * indications of a given characteristic.
      *
-     * @param[in]   connectionHandle
-     *                The connection handle.
-     * @param[in]  characteristic
-     *                The characteristic.
-     * @param[out]  enabledP
-     *                Upon return, *enabledP is true if updates are enabled, else false.
+     * @param[in] connectionHandle The connection handle.
+     * @param[in] characteristic The characteristic.
+     * @param[out] enabledP Upon return, *enabledP is true if the client
+     * identified by @p connectionHandle has subscribed to notifications or
+     * indications of @p characteristic; otherwise *enabledP is false.
      *
-     * @return BLE_ERROR_NONE if the connection and handle are found. False otherwise.
+     * @return BLE_ERROR_NONE if the connection and handle are found. False
+     * otherwise.
      */
-    virtual ble_error_t areUpdatesEnabled(Gap::Handle_t connectionHandle, const GattCharacteristic &characteristic, bool *enabledP) {
+    virtual ble_error_t areUpdatesEnabled(
+        Gap::Handle_t connectionHandle,
+        const GattCharacteristic &characteristic,
+        bool *enabledP
+    ) {
         /* Avoid compiler warnings about unused variables. */
         (void)connectionHandle;
         (void)characteristic;
         (void)enabledP;
 
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if this capability is supported. */
+        /* Requesting action from porters: override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /**
-     * A virtual function to allow underlying stacks to indicate if they support
-     * onDataRead(). It should be overridden to return true as applicable.
+     * Indicate if the underlying stack emit events when an attribute is read by
+     * a client.
      *
-     * @return true if onDataRead is supported, false otherwise.
+     * @important This function should be overridden to return true if
+     * applicable.
+     *
+     * @return true if onDataRead is supported; false otherwise.
      */
-    virtual bool isOnDataReadAvailable() const {
-        return false; /* Requesting action from porters: override this API if this capability is supported. */
+    virtual bool isOnDataReadAvailable() const
+    {
+        /* Requesting action from porters: override this API if this capability
+           is supported. */
+        return false;
     }
 
     /*
@@ -291,128 +426,111 @@ public:
      */
 public:
     /**
-     * Add a callback for the GATT event DATA_SENT (which is triggered when
-     * GATT sends updates in the form of notifications).
+     * Add an event handler that monitors emission of characteristic value
+     * updates.
      *
-     * @param[in] callback
-     *              Event handler being registered.
+     * @param[in] callback Event handler being registered.
      *
      * @note It is possible to chain together multiple onDataSent callbacks
-     *       (potentially from different modules of an application) to receive updates
-     *       to characteristics.
-     *
-     * @note It is also possible to set up a callback into a member function of
-     *       some object.
+     * (potentially from different modules of an application).
      */
-    void onDataSent(const DataSentCallback_t& callback) {
+    void onDataSent(const DataSentCallback_t &callback)
+    {
         dataSentCallChain.add(callback);
     }
 
     /**
-     * Same as GattServer::onDataSent() but it allows the possibility to add an object
-     * reference and member function as handler for DATA_SENT event
-     * callbacks.
+     * Add an event handler that monitors emission of characteristic value
+     * updates.
      *
-     * @param[in] objPtr
-     *              Pointer to the object of a class defining the member callback
-     *              function (@p memberPtr).
-     * @param[in] memberPtr
-     *              The member callback (within the context of an object) to be
-     *              invoked.
+     * @param[in] objPtr Pointer to the instance that will be used to invoke the
+     * event handler.
+     * @param[in] memberPtr Event handler being registered. It is a member
+     * function.
      */
     template <typename T>
-    void onDataSent(T *objPtr, void (T::*memberPtr)(unsigned count)) {
+    void onDataSent(T *objPtr, void (T::*memberPtr)(unsigned count))
+    {
         dataSentCallChain.add(objPtr, memberPtr);
     }
 
     /**
-     * @brief Provide access to the callchain of DATA_SENT event callbacks.
+     * Access the callchain of data sent event handlers.
      *
      * @return A reference to the DATA_SENT event callback chain.
      */
-    DataSentCallbackChain_t& onDataSent() {
+    DataSentCallbackChain_t &onDataSent()
+    {
         return dataSentCallChain;
     }
 
     /**
-     * Set up a callback for when an attribute has its value updated by or at the
-     * connected peer. For a peripheral, this callback is triggered when the local
-     * GATT server has an attribute updated by a write command from the peer.
-     * For a central, this callback is triggered when a response is received for
-     * a write request.
+     * Set an event handler that will be called after an attribute has been
+     * written by a connected peer.
      *
-     * @param[in] callback
-     *              Event handler being registered.
+     * @param[in] callback The event handler being registered.
      *
-     * @note  It is possible to chain together multiple onDataWritten callbacks
-     * (potentially from different modules of an application) to receive updates
-     * to characteristics. Many services, such as DFU and UART, add their own
-     * onDataWritten callbacks behind the scenes to trap interesting events.
-     *
-     * @note  It is also possible to set up a callback into a member function of
-     * some object.
-     *
-     * @note It is possible to unregister a callback using onDataWritten().detach(callback)
+     * @important It is possible to set multiple event handlers. Registered
+     * handlers may be removed with onDataWritten().detach(callback).
      */
-    void onDataWritten(const DataWrittenCallback_t& callback) {
+    void onDataWritten(const DataWrittenCallback_t &callback)
+    {
         dataWrittenCallChain.add(callback);
     }
 
     /**
-     * Same as GattServer::onDataWritten() but it allows the possibility to add an object
-     * reference and member function as a handler for data written event
-     * callbacks.
+     * Set an event handler that will be called after an attribute has been
+     * written by a connected peer.
      *
-     * @param[in] objPtr
-     *              Pointer to the object of a class defining the member callback
-     *              function (@p memberPtr).
-     * @param[in] memberPtr
-     *              The member callback (within the context of an object) to be
-     *              invoked.
+     * @param[in] objPtr Pointer to the instance that will be used to invoke the
+     * event handler (@p memberPtr).
+     * @param[in] memberPtr Event handler being registered. It is a member
+     * function.
      */
     template <typename T>
-    void onDataWritten(T *objPtr, void (T::*memberPtr)(const GattWriteCallbackParams *context)) {
+    void onDataWritten(
+        T *objPtr,
+        void (T::*memberPtr)(const GattWriteCallbackParams *context)
+    ) {
         dataWrittenCallChain.add(objPtr, memberPtr);
     }
 
     /**
-     * @brief Provide access to the callchain of data written event callbacks.
+     * Access the callchain of data written event handlers.
      *
      * @return A reference to the data written event callbacks chain.
      *
-     * @note It is possible to register callbacks using onDataWritten().add(callback).
+     * @note It is possible to register callbacks using
+     * onDataWritten().add(callback).
      *
-     * @note It is possible to unregister callbacks using onDataWritten().detach(callback).
+     * @note It is possible to unregister callbacks using
+     * onDataWritten().detach(callback).
      */
-    DataWrittenCallbackChain_t& onDataWritten() {
+    DataWrittenCallbackChain_t &onDataWritten()
+    {
         return dataWrittenCallChain;
     }
 
     /**
-     * Set up a callback to be invoked on the peripheral when a remote client is
-     * reading an attribute.
+     * Set an event handler that monitors attribute reads from connected clients.
      *
-     * @param[in] callback
-     *              Event handler being registered.
+     * @param[in] callback Event handler being registered.
      *
      * @return BLE_ERROR_NOT_IMPLEMENTED if this functionality isn't available;
-     *         else BLE_ERROR_NONE.
+     * else BLE_ERROR_NONE.
      *
      * @note  This functionality may not be available on all underlying stacks.
-     * You could use GattCharacteristic::setReadAuthorizationCallback() as an
-     * alternative. Refer to isOnDataReadAvailable().
+     * Application code may work around that limitation by monitoring read
+     * requests instead of read events.
      *
-     * @note  It is possible to chain together multiple onDataRead callbacks
-     * (potentially from different modules of an application) to receive updates
-     * to characteristics. Services may add their own onDataRead callbacks
-     * behind the scenes to trap interesting events.
+     * @see GattCharacteristic::setReadAuthorizationCallback()
+     * @see isOnDataReadAvailable().
      *
-     * @note  It is also possible to set up a callback into a member function of
-     * some object.
-     *
-     * @note It is possible to unregister a callback using onDataRead().detach(callback).
+     * @important It is possible to set multiple event handlers. Registered
+     * handlers may be removed with onDataRead().detach(callback).
      */
-    ble_error_t onDataRead(const DataReadCallback_t& callback) {
+    ble_error_t onDataRead(const DataReadCallback_t &callback)
+    {
         if (!isOnDataReadAvailable()) {
             return BLE_ERROR_NOT_IMPLEMENTED;
         }
@@ -422,19 +540,18 @@ public:
     }
 
     /**
-     * Same as GattServer::onDataRead() but it allows the possibility to add an object
-     * reference and member function as handler for data read event
-     * callbacks.
+     * Set an event handler that monitors attribute reads from connected clients.
      *
-     * @param[in] objPtr
-     *              Pointer to the object of a class defining the member callback
-     *              function (@p memberPtr).
-     * @param[in] memberPtr
-     *              The member callback (within the context of an object) to be
-     *              invoked.
+     * @param[in] objPtr Pointer to the instance that will be used to invoke the
+     * event handler (@p memberPtr).
+     * @param[in] memberPtr Event handler being registered. It is a member
+     * function.
      */
     template <typename T>
-    ble_error_t onDataRead(T *objPtr, void (T::*memberPtr)(const GattReadCallbackParams *context)) {
+    ble_error_t onDataRead(
+        T *objPtr,
+        void (T::*memberPtr)(const GattReadCallbackParams *context)
+    ) {
         if (!isOnDataReadAvailable()) {
             return BLE_ERROR_NOT_IMPLEMENTED;
         }
@@ -444,99 +561,104 @@ public:
     }
 
     /**
-     * @brief Provide access to the callchain of data read event callbacks.
+     * Access the callchain of data read event handlers.
      *
      * @return A reference to the data read event callbacks chain.
      *
-     * @note It is possible to register callbacks using onDataRead().add(callback).
+     * @note It is possible to register callbacks using
+     * onDataRead().add(callback).
      *
-     * @note It is possible to unregister callbacks using onDataRead().detach(callback).
+     * @note It is possible to unregister callbacks using
+     * onDataRead().detach(callback).
      */
-    DataReadCallbackChain_t& onDataRead() {
+    DataReadCallbackChain_t &onDataRead()
+    {
         return dataReadCallChain;
     }
 
     /**
-     * Set up a callback to be invoked to notify the user application that the
-     * GattServer instance is about to shut down (possibly as a result of a call
-     * to BLE::shutdown()).
+     * Set an event handler that monitors shutdown or reset of the GattServer.
      *
-     * @param[in] callback
-     *              Event handler being registered.
+     * The event handler will be invoked when the GattServer instance is about
+     * to be shut down. This can result of a call to reset() or BLE::reset().
      *
-     * @note  It is possible to chain together multiple onShutdown callbacks
-     * (potentially from different modules of an application) to be notified
-     * before the GattServer is shut down.
+     * @param[in] callback Event handler being registered.
      *
-     * @note  It is also possible to set up a callback into a member function of
-     * some object.
+     * @note It is possible to set up multiple shutdown event handlers.
      *
-     * @note It is possible to unregister a callback using onShutdown().detach(callback)
+     * @note It is possible to unregister a callback using
+     * onShutdown().detach(callback)
      */
-    void onShutdown(const GattServerShutdownCallback_t& callback) {
+    void onShutdown(const GattServerShutdownCallback_t &callback)
+    {
         shutdownCallChain.add(callback);
     }
 
     /**
-     * Same as GattServer::onShutdown() but it allows the possibility to add an object
-     * reference and member function as handler for shutdown event
-     * callbacks.
+     * Set an event handler that monitors shutdown or reset of the GattServer.
      *
-     * @param[in] objPtr
-     *              Pointer to the object of a class defining the member callback
-     *              function (@p memberPtr).
-     * @param[in] memberPtr
-     *              The member callback (within the context of an object) to be
-     *              invoked.
+     * The event handler will be invoked when the GattServer instance is about
+     * to be shut down. This can result of a call to reset() or BLE::reset().
+     *
+     * @param[in] objPtr Pointer to the instance that will be used to invoke the
+     * event handler (@p memberPtr).
+     * @param[in] memberPtr Event handler being registered. It is a member
+     * function.
      */
     template <typename T>
-    void onShutdown(T *objPtr, void (T::*memberPtr)(const GattServer *)) {
+    void onShutdown(T *objPtr, void (T::*memberPtr)(const GattServer *))
+    {
         shutdownCallChain.add(objPtr, memberPtr);
     }
 
     /**
-     * @brief Provide access to the callchain of shutdown event callbacks.
+     * Access the callchain of shutdown event handlers.
      *
      * @return A reference to the shutdown event callbacks chain.
      *
-     * @note It is possible to register callbacks using onShutdown().add(callback).
+     * @note It is possible to register callbacks using
+     * onShutdown().add(callback).
      *
-     * @note It is possible to unregister callbacks using onShutdown().detach(callback).
+     * @note It is possible to unregister callbacks using
+     * onShutdown().detach(callback).
      */
-    GattServerShutdownCallbackChain_t& onShutdown() {
+    GattServerShutdownCallbackChain_t& onShutdown()
+    {
         return shutdownCallChain;
     }
 
     /**
-     * Set up a callback for when notifications or indications are enabled for a
-     * characteristic on the local GATT server.
+     * Set up an event handler that monitors subscription to characteristic
+     * updates.
      *
-     * @param[in] callback
-     *              Event handler being registered.
+     * @param[in] callback Event handler being registered.
      */
-    void onUpdatesEnabled(EventCallback_t callback) {
+    void onUpdatesEnabled(EventCallback_t callback)
+    {
         updatesEnabledCallback = callback;
     }
 
     /**
-     * Set up a callback for when notifications or indications are disabled for a
-     * characteristic on the local GATT server.
+     * Set up an event handler that monitors unsubscription from characteristic
+     * updates.
      *
-     * @param[in] callback
-     *              Event handler being registered.
+     * @param[in] callback Event handler being registered.
      */
-    void onUpdatesDisabled(EventCallback_t callback) {
+    void onUpdatesDisabled(EventCallback_t callback)
+    {
         updatesDisabledCallback = callback;
     }
 
     /**
-     * Set up a callback for when the GATT server receives a response for an
-     * indication event sent previously.
+     * Set up an event handler that monitors notification acknowledgement.
      *
-     * @param[in] callback
-     *              Event handler being registered.
+     * The event handler is called when a client send a confirmation that it has
+     * correctly received a notification from the server.
+     *
+     * @param[in] callback Event handler being registered.
      */
-    void onConfirmationReceived(EventCallback_t callback) {
+    void onConfirmationReceived(EventCallback_t callback)
+    {
         confirmationReceivedCallback = callback;
     }
 
@@ -544,42 +666,50 @@ public:
 protected:
     /**
      * Helper function that notifies all registered handlers of an occurrence
-     * of a data written event. This function is meant to be called from the
-     * BLE stack specific implementation when a data written event occurs.
+     * of a data written event.
      *
-     * @param[in] params
-     *              The data written parameters passed to the registered
-     *              handlers.
+     * @important Vendor implementation must invoke this function after one of
+     * the GattServer attribute has been written.
+     *
+     * @param[in] params The data written parameters passed to the registered
+     * handlers.
      */
-    void handleDataWrittenEvent(const GattWriteCallbackParams *params) {
+    void handleDataWrittenEvent(const GattWriteCallbackParams *params)
+    {
         dataWrittenCallChain.call(params);
     }
 
     /**
      * Helper function that notifies all registered handlers of an occurrence
-     * of a data read event. This function is meant to be called from the
-     * BLE stack specific implementation when a data read event occurs.
+     * of a data read event.
      *
-     * @param[in] params
-     *              The data read parameters passed to the registered
-     *              handlers.
+     * @important Vendor implementation must invoke this function after one of
+     * the GattServer attribute has been read.
+     *
+     * @param[in] params The data read parameters passed to the registered
+     * handlers.
      */
-    void handleDataReadEvent(const GattReadCallbackParams *params) {
+    void handleDataReadEvent(const GattReadCallbackParams *params)
+    {
         dataReadCallChain.call(params);
     }
 
     /**
      * Helper function that notifies the registered handler of an occurrence
-     * of updates enabled, updates disabled and confirmation received events.
-     * This function is meant to be called from the BLE stack specific
-     * implementation when any of these events occurs.
+     * of updates enabled, updates disabled or confirmation received events.
      *
-     * @param[in] type
-     *              The type of event that occurred.
-     * @param[in] attributeHandle
-     *              The handle of the attribute that was modified.
+     * @important Vendor implementation must invoke this function when a client
+     * subscribe to characteristic updates, unsubscribe from characteristic
+     * updates or a notification confirmation has been received.
+     *
+     * @param[in] type The type of event that occurred.
+     * @param[in] attributeHandle The handle of the attribute concerned by the
+     * event.
      */
-    void handleEvent(GattServerEvents::gattEvent_e type, GattAttribute::Handle_t attributeHandle) {
+    void handleEvent(
+        GattServerEvents::gattEvent_e type,
+        GattAttribute::Handle_t attributeHandle
+    ) {
         switch (type) {
             case GattServerEvents::GATT_EVENT_UPDATES_ENABLED:
                 if (updatesEnabledCallback) {
@@ -603,31 +733,33 @@ protected:
 
     /**
      * Helper function that notifies all registered handlers of an occurrence
-     * of a data sent event. This function is meant to be called from the
-     * BLE stack specific implementation when a data sent event occurs.
+     * of a data sent event.
      *
-     * @param[in] count
-     *              Number of packets sent.
+     * @important Vendor implementation must invoke this function after the
+     * emission of a notification or an indication.
+     *
+     * @param[in] count Number of packets sent.
      */
-    void handleDataSentEvent(unsigned count) {
+    void handleDataSentEvent(unsigned count)
+    {
         dataSentCallChain.call(count);
     }
 
 public:
     /**
-     * Notify all registered onShutdown callbacks that the GattServer is
-     * about to be shut down and clear all GattServer state of the
-     * associated object.
+     * Shut down the GattServer instance.
      *
-     * This function is meant to be overridden in the platform-specific
-     * subclass. Nevertheless, the subclass only resets its
-     * state and not the data held in GattServer members. This is achieved
-     * by a call to GattServer::reset() from the subclass' reset()
-     * implementation.
+     * This function notifies all event handlers listening for shutdown events
+     * that the GattServer is about to be shut down; then it clear all
+     * GattServer state.
+     *
+     * @note This function is meant to be overridden in the platform-specific
+     * subclass. Overides must call the parent function before any cleanup.
      *
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t reset(void) {
+    virtual ble_error_t reset(void)
+    {
         /* Notify that the instance is about to shutdown */
         shutdownCallChain.call(this);
         shutdownCallChain.clear();
@@ -650,6 +782,7 @@ protected:
      * The total number of services added to the ATT table.
      */
     uint8_t serviceCount;
+
     /**
      * The total number of characteristics added to the ATT table.
      */
@@ -660,34 +793,40 @@ private:
      * Callchain containing all registered callback handlers for data sent
      * events.
      */
-    DataSentCallbackChain_t           dataSentCallChain;
+    DataSentCallbackChain_t dataSentCallChain;
+
     /**
      * Callchain containing all registered callback handlers for data written
      * events.
      */
-    DataWrittenCallbackChain_t        dataWrittenCallChain;
+    DataWrittenCallbackChain_t dataWrittenCallChain;
+
     /**
      * Callchain containing all registered callback handlers for data read
      * events.
      */
-    DataReadCallbackChain_t           dataReadCallChain;
+    DataReadCallbackChain_t dataReadCallChain;
+
     /**
      * Callchain containing all registered callback handlers for shutdown
      * events.
      */
     GattServerShutdownCallbackChain_t shutdownCallChain;
+
     /**
      * The registered callback handler for updates enabled events.
      */
-    EventCallback_t                   updatesEnabledCallback;
+    EventCallback_t updatesEnabledCallback;
+
     /**
      * The registered callback handler for updates disabled events.
      */
-    EventCallback_t                   updatesDisabledCallback;
+    EventCallback_t updatesDisabledCallback;
+
     /**
      * The registered callback handler for confirmation received events.
      */
-    EventCallback_t                   confirmationReceivedCallback;
+    EventCallback_t confirmationReceivedCallback;
 
 private:
     /* Disallow copy and assignment. */
@@ -701,4 +840,4 @@ private:
  * @}
  */
 
-#endif /* ifndef __GATT_SERVER_H__ */
+#endif /* ifndef MBED_GATT_SERVER_H__ */
