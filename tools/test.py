@@ -145,6 +145,8 @@ if __name__ == '__main__':
                 args_error(parser, "argument --test-config contains invalid path or identifier")
         elif not options.app_config:
             config = TestConfig.get_default_config(mcu)
+            if os.path.exists(os.path.abspath(os.path.join("mbed_app.json", ".."))):
+                config = "mbed_app.json"
         else:
             config = options.app_config
 
