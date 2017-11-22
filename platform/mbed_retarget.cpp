@@ -63,7 +63,6 @@ static SingletonPtr<PlatformMutex> _mutex;
 #   define STDERR_FILENO    2
 
 #else
-#   include <sys/stat.h>
 #   include <sys/syslimits.h>
 #   define PREFIX(x)    x
 #endif
