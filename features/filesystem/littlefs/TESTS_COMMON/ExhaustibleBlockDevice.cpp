@@ -15,6 +15,7 @@
  */
 
 #include "ExhaustibleBlockDevice.h"
+#include "mbed.h"
 
 
 ExhaustibleBlockDevice::ExhaustibleBlockDevice(BlockDevice *bd, uint32_t erase_cycles)

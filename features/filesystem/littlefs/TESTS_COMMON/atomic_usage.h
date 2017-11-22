@@ -23,7 +23,6 @@
 #define MBED_ATOMIC_USAGE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
 
 /**
  * Setup the given block device to test littlefs atomic operations

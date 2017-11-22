@@ -23,7 +23,6 @@
 #define MBED_EXHAUSTIBLE_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
 
 
 /** Heap backed block device which simulates failures

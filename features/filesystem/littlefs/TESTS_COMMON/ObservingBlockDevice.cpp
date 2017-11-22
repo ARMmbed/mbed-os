@@ -22,6 +22,7 @@
 
 #include "ObservingBlockDevice.h"
 #include "ReadOnlyBlockDevice.h"
+#include "mbed.h"
 
 
 ObservingBlockDevice::ObservingBlockDevice(BlockDevice *bd)

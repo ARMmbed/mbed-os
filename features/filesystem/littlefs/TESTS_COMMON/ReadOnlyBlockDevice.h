@@ -22,11 +22,8 @@
 #ifndef MBED_READ_ONLY_BLOCK_DEVICE_H
 #define MBED_READ_ONLY_BLOCK_DEVICE_H
 
-#include "FileSystem.h"
 #include "BlockDevice.h"
 #include "PlatformMutex.h"
-
-using namespace mbed;
 
 
 class ReadOnlyBlockDevice : public BlockDevice

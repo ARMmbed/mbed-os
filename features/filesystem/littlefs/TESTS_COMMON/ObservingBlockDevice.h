@@ -22,11 +22,9 @@
 #ifndef MBED_OBSERVING_BLOCK_DEVICE_H
 #define MBED_OBSERVING_BLOCK_DEVICE_H
 
-#include "FileSystem.h"
 #include "BlockDevice.h"
 #include "PlatformMutex.h"
-
-using namespace mbed;
+#include "Callback.h"
 
 
 class ObservingBlockDevice : public BlockDevice
@@ -44,7 +42,7 @@ public:
      *
      *  @param cb       Function to call on filesystem change (erase or program)
      */
-    void attach(Callback<void(BlockDevice *)> cb);
+    void attach(mbed::Callback<void(BlockDevice *)> cb);
 
     /** Initialize a block device
      *
@@ -114,7 +112,7 @@ public:
 
 private:
     BlockDevice *_bd;
-    Callback<void(BlockDevice *)> _change;
+    mbed::Callback<void(BlockDevice *)> _change;
 };
 
 
