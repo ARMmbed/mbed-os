@@ -35,15 +35,14 @@ public:
 
     /** Lifetime of the block device
      *
-     * @param size      Size of the Block Device in bytes
-     * @param block     Block size in bytes
+     * @param bd        Block device to observe
      */
     ObservingBlockDevice(BlockDevice *bd);
     virtual ~ObservingBlockDevice();
 
     /** Attach a callback which is called on change
      *
-     *  @param cb   Function to call on filesystem change (erase or program)
+     *  @param cb       Function to call on filesystem change (erase or program)
      */
     void attach(Callback<void(BlockDevice *)> cb);
 

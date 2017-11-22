@@ -45,7 +45,7 @@ bool setup_atomic_operations(BlockDevice *bd, bool force_rebuild);
  * Mount the block device as a littlefs filesystem and a series of
  * atomic operations on it. Since the operations performed are atomic
  * the file system will always be in a well defined state. The block
- * device must have been setup by calling ::setup_atomic_operations.
+ * device must have been setup by calling setup_atomic_operations.
  *
  * @param bd Block device to perform the operations on
  * @return -1 if flash is exhausted, otherwise the cycle count on the fs

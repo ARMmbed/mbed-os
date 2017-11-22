@@ -35,8 +35,7 @@ public:
 
     /** Lifetime of the block device
      *
-     * @param size      Size of the Block Device in bytes
-     * @param block     Block size in bytes
+     * @param bd        Block device to wrap as read only
      */
     ReadOnlyBlockDevice(BlockDevice *bd);
     virtual ~ReadOnlyBlockDevice();
