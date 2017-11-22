@@ -25,15 +25,16 @@ extern "C" {
 #endif
 
 typedef enum {
-  RESET_REASON_POWER_ON  = (1 << 0), /**< Set when power is initially applied to the board. The power-on-reset circuit causes a POWER_ON reset when this occurs */
-  RESET_REASON_PIN_RESET = (1 << 1), /**< Set when a reset is triggered by the hardware pin on the board */
-  RESET_REASON_BROWN_OUT = (1 << 2), /**< Triggered when the voltage drops below the low voltage detect (LVD) threshold the system will be held in a reset until the voltage rises above the threshold */
-  RESET_REASON_SOFTWARE  = (1 << 3), /**< Set during software reset, typically triggered by writing the SYSRESETREQ bit in the Application Interrupt and Reset Control register */
-  RESET_REASON_WATCHDOG  = (1 << 4), /**< Set when a running watchdog timer fails to be refreshed */
-  RESET_REASON_LOCKUP    = (1 << 5), /**< Set when the core is locked because of an unrecoverable exception */
-  RESET_REASON_MULTIPLE  = (1 << 6), /**< Set if multiple reset reasons are set within the board. Occurs when the reset reason registers aren't cleared between resets */
-  RESET_REASON_PLATFORM  = (1 << 7), /**< Platform specific reset reason not captured in this enum */
-  RESET_REASON_UNKNOWN   = (1 << 8)  /**< Unknown or unreadable reset reason **/
+  RESET_REASON_POWER_ON,       /**< Set when power is initially applied to the board. The power-on-reset circuit causes a POWER_ON reset when this occurs */
+  RESET_REASON_PIN_RESET,      /**< Set when a reset is triggered by the hardware pin on the board */
+  RESET_REASON_BROWN_OUT,      /**< Triggered when the voltage drops below the low voltage detect (LVD) threshold the system will be held in a reset until the voltage rises above the threshold */
+  RESET_REASON_SOFTWARE,       /**< Set during software reset, typically triggered by writing the SYSRESETREQ bit in the Application Interrupt and Reset Control register */
+  RESET_REASON_WATCHDOG,       /**< Set when a running watchdog timer fails to be refreshed */
+  RESET_REASON_LOCKUP,         /**< Set when the core is locked because of an unrecoverable exception */
+  RESET_REASON_WAKE_LOW_POWER, /**< Set when waking from deep sleep mode */
+  RESET_REASON_MULTIPLE,       /**< Set if multiple reset reasons are set within the board. Occurs when the reset reason registers aren't cleared between resets */
+  RESET_REASON_PLATFORM,       /**< Platform specific reset reason not captured in this enum */
+  RESET_REASON_UNKNOWN         /**< Unknown or unreadable reset reason **/
 } reset_reason_t;
 
 /**
@@ -48,7 +49,7 @@ typedef enum {
  */
   reset_reason_t hal_reset_reason_get(void);
 
-  /**
+/**
  * Clear the reset reason from registers
  *
  * Reset the value of the reset status registers, the reset reason will persist

@@ -7,6 +7,15 @@ reset_reason_t hal_reset_reason_get(void)
     const uint32_t reset_sources =
         RCM_GetPreviousResetSources(RCM) & kRCM_SourceAll;
 
+    // Low power mode is exited via the RESET pin. Therefore, when this reset is
+    // triggered both the PIN and WAKEUP will have bits set, so check this flag
+    // first.
+#if (defined(FSL_FEATURE_RCM_HAS_WAKEUP) && FSL_FEATURE_RCM_HAS_WAKEUP)
+    if ((reset_sources & kRCM_SourceWakeup) != 0) {
+        return RESET_REASON_PLATFORM;
+    }
+#endif
+
     // Check POR flag first. During a POR reset there will be two reset sources
     // set: POR and LVD. As during the power on phase the low voltage detector
     // circuit will detect a low voltage while the voltage is initially ramping
@@ -40,12 +49,6 @@ reset_reason_t hal_reset_reason_get(void)
 
 #if (defined(FSL_FEATURE_RCM_HAS_LOL) && FSL_FEATURE_RCM_HAS_LOL)
     if ((reset_sources & kRCM_SourceLol) != 0) {
-        return RESET_REASON_PLATFORM;
-    }
-#endif
-
-#if (defined(FSL_FEATURE_RCM_HAS_WAKEUP) && FSL_FEATURE_RCM_HAS_WAKEUP)
-    if ((reset_sources & kRCM_SourceWakeup) != 0) {
         return RESET_REASON_PLATFORM;
     }
 #endif
