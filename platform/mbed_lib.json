@@ -1,6 +1,10 @@
 {
     "name": "platform",
     "config": {
+        "stdio-enable": {
+            "help": "Enable stdin/stdout on serial",
+            "value": true
+        },
         "stdio-convert-newlines": {
             "help": "Enable conversion to standard newlines on stdin/stdout",
             "value": false
@@ -20,7 +24,10 @@
             "help": "Default baud rate for a Serial or RawSerial instance (if not specified in the constructor)",
             "value": 9600
         },
-
+        "swo-enable": {
+            "help": "Enable stdout on SWO",
+            "value": false
+        },
         "force-non-copyable-error": {
             "help": "Force compile time error when a NonCopyable object is copied",
             "value": false
