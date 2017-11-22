@@ -3139,7 +3139,7 @@
             },
             "uart_hwfc": {
                 "help": "Value: 1 for enable, 0 for disable",
-                "value": 1,
+                "value": 0,
                 "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
             }
         }
@@ -3191,7 +3191,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": ["TARGET_NRF52840", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S140", "NRF_SD_BLE_API_VERSION=5", "NRF52840_XXAA", "NRF_DFU_SETTINGS_VERSION=1", "NRF_SD_BLE_API_VERSION=5", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_TICKLESS"],
-        "device_has": ["STCLK_OFF_DURING_SLEEP"],	    
+        "device_has": ["STCLK_OFF_DURING_SLEEP"],
         "extra_labels": ["NORDIC", "MCU_NRF52840", "NRF5", "SDK13", "NRF52_COMMON"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
@@ -3221,7 +3221,7 @@
             },
             "uart_hwfc": {
                 "help": "Value: 1 for enable, 0 for disable",
-                "value": 1,
+                "value": 0,
                 "macro_name": "MBED_CONF_NORDIC_UART_HWFC"
             }
         }
