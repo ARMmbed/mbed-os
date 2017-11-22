@@ -491,9 +491,11 @@ static IRQn_Type serial_get_irq_n(serial_t *obj)
             irq_n = USART2_IRQn;
             break;
 
+#if defined(UART3_BASE)
         case 2:
             irq_n = USART3_IRQn;
             break;
+#endif
 #if defined(UART4_BASE)
         case 3:
             irq_n = UART4_IRQn;
