@@ -223,11 +223,11 @@ static bool perform_file_rename(FileSystem *fs)
 
     struct stat st;
     int res = fs->stat(FILE_RENAME_A, &st);
-    const char *src = (0 == res) ? FILE_RENAME_A : FILE_RENAME_B;
-    const char *dst = (0 == res) ? FILE_RENAME_B : FILE_RENAME_A;
+    const char *src = (res == 0) ? FILE_RENAME_A : FILE_RENAME_B;
+    const char *dst = (res == 0) ? FILE_RENAME_B : FILE_RENAME_A;
 
     DEBUG("  stat result  %i\n", res);
-    TEST_ASSERT_OR_EXIT((res == -ENOENT) || (0 == res));
+    TEST_ASSERT_OR_EXIT((res == -ENOENT) || (res == 0));
 
     DEBUG("  Renaming %s to %s\n", src, dst);
     res = fs->rename(src, dst);
@@ -258,7 +258,7 @@ static void check_file_rename(FileSystem *fs)
 
     for (int i = 0; i < 2; i++) {
         File file;
-        if (0 == file.open(fs, filenames[i], O_RDONLY)) {
+        if (file.open(fs, filenames[i], O_RDONLY) == 0) {
             uint8_t buf[BUFFER_SIZE];
             files++;
             memset(buf, 0, sizeof(buf));
@@ -409,11 +409,11 @@ static bool perform_directory_rename(FileSystem *fs)
 
     struct stat st;
     int res = fs->stat(DIRECTORY_RENAME_A, &st);
-    const char *src = (0 == res) ? DIRECTORY_RENAME_A : DIRECTORY_RENAME_B;
-    const char *dst = (0 == res) ? DIRECTORY_RENAME_B : DIRECTORY_RENAME_A;
+    const char *src = (res == 0) ? DIRECTORY_RENAME_A : DIRECTORY_RENAME_B;
+    const char *dst = (res == 0) ? DIRECTORY_RENAME_B : DIRECTORY_RENAME_A;
 
     DEBUG("  stat result  %i\n", res);
-    TEST_ASSERT_OR_EXIT((res == -ENOENT) || (0 == res));
+    TEST_ASSERT_OR_EXIT((res == -ENOENT) || (res == 0));
 
     DEBUG("  Renaming %s to %s\n", src, dst);
     res = fs->rename(src, dst);
@@ -444,8 +444,8 @@ static void check_directory_rename(FileSystem *fs)
     for (size_t i = 0; i < ARRAY_LENGTH(directory_names); i++) {
         Dir dir;
         int res = dir.open(fs, directory_names[i]);
-        TEST_ASSERT_OR_EXIT((-ENOENT == res) || (0 == res));
-        if (0 == res) {
+        TEST_ASSERT_OR_EXIT((res == -ENOENT) || (res == 0));
+        if (res == 0) {
             directories++;
         }
     }

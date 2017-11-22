@@ -1,3 +1,18 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2017 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -66,7 +81,8 @@ uint8_t wbuffer[MBED_TEST_BUFFER];
 
 // tests
 
-void test_directory_tests() {
+void test_directory_tests()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -79,7 +95,8 @@ void test_directory_tests() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_root_directory() {
+void test_root_directory()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -98,7 +115,8 @@ void test_root_directory() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_directory_creation() {
+void test_directory_creation()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -115,7 +133,8 @@ void test_directory_creation() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_file_creation() {
+void test_file_creation()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -134,7 +153,8 @@ void test_file_creation() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_directory_iteration() {
+void test_directory_iteration()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -179,7 +199,8 @@ void test_directory_iteration() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_directory_failures() {
+void test_directory_failures()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -204,7 +225,8 @@ void test_directory_failures() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_nested_directories() {
+void test_nested_directories()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -268,7 +290,8 @@ void test_nested_directories() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_multi_block_directory() {
+void test_multi_block_directory()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -322,7 +345,8 @@ void test_multi_block_directory() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_directory_remove() {
+void test_directory_remove()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -432,7 +456,8 @@ void test_directory_remove() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_directory_rename() {
+void test_directory_rename()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -632,7 +657,8 @@ void test_directory_rename() {
 
 
 // test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(MBED_TEST_TIMEOUT, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -652,6 +678,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
