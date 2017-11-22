@@ -189,8 +189,8 @@ private:
     uint32_t _go_idle_state();
     int _initialise_card();
 
-    uint32_t _sectors;
-    uint32_t _sd_sectors();
+    bd_size_t _sectors;
+    bd_size_t _sd_sectors();
 
     bool _is_valid_trim(bd_addr_t addr, bd_size_t size);
 
@@ -226,8 +226,8 @@ private:
     }
 
     PlatformMutex _mutex;
-    uint32_t _block_size;
-    uint32_t _erase_size;
+    bd_size_t _block_size;
+    bd_size_t _erase_size;
     bool _is_initialized;
     bool _dbg;
 };

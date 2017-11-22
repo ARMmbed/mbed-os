@@ -882,7 +882,7 @@ static uint32_t ext_bits(unsigned char *data, int msb, int lsb) {
     return bits;
 }
 
-uint32_t SDBlockDevice::_sd_sectors() {
+bd_size_t SDBlockDevice::_sd_sectors() {
     uint32_t c_size, c_size_mult, read_bl_len;
     uint32_t block_len, mult, blocknr;
     uint32_t hc_c_size;
