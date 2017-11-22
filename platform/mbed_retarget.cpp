@@ -942,7 +942,11 @@ extern "C" WEAK void __iar_file_Mtxdst(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxlock(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxunlock(__iar_Rmtx *mutex) {}
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
-extern "C" WEAK void *__aeabi_read_tp (void) { return NULL ;}
+#pragma section="__iar_tls$$DATA"
+extern "C" WEAK void *__aeabi_read_tp (void) {
+  // Thread Local storage is not supported, using main thread memory for errno
+  return __section_begin("__iar_tls$$DATA");
+}
 #endif
 #elif defined(__CC_ARM)
 // Do nothing
