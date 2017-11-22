@@ -49,7 +49,7 @@ class UnexpectedResetTest(BaseHostTest):
             except StopIteration:
                 self._error = True
 
-        for resp in ("start", "read", "format_done", "soft_reset_dut_complete"):
+        for resp in ("start", "read", "format_done", "reset_complete"):
             self.register_callback(resp, run_gen)
 
     def teardown(self):
@@ -86,7 +86,7 @@ class UnexpectedResetTest(BaseHostTest):
             # Wait for start token
             key, value, time = yield
             self.log("Key from yield: %s" % key)
-            if key != "soft_reset_dut_complete":
+            if key != "reset_complete":
                 return
 
 
