@@ -356,39 +356,40 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
     /* Init crypto module */
     crypto_init();
     
-    /* NOTE: Don't call driver function TDES_Open in BSP because we don't want its internal multiple context (channel) support.
-     *       Multiple context (channel) support has done in the upper layer.
+    /* Configure TDES_CTL register
+     *
+     * BSP TDES driver supports multiple channels. Just use channel #0.
+     *
+     * Relationship of keying option and TDES H/W mode configuration
+     * 1: All three keys are independent                    ==> TDES 3-key mode (TMODE=1, 3KEYS=1)
+     * 2: K1 and K2 are independent, and K3 = K1            ==> TDES 2-key mode (TMODE=1, 3KEYS=0)
+     * 3: All three keys are identical, i.e. K1 = K2 = K3   ==> DES mode (TMODE=0)
+     *
+     * tdes_opmode is combination of TMODE/OPMODE, but TDES_Open I/F requires TMODE/OPMODE to be separate.
+     * We need to divide tdes_opmode to TMODE and OPMODE.
+     *
+     * TDES_IN_OUT_WHL_SWAP lets TDES H/W know input/output data are arranged in below for DMA transfer:
+     * 1. BE for byte sequence in word
+     * 2. BE for word sequence in double-word
      */
-    CRPT->TDES_CTL = (0 << CRPT_TDES_CTL_CHANNEL_Pos) | (enc << CRPT_TDES_CTL_ENCRPT_Pos) |
-                     tdes_opmode | (TDES_IN_OUT_WHL_SWAP << CRPT_TDES_CTL_BLKSWAP_Pos);
+    TDES_Open(0,                                                // Channel number (0~4) 
+            enc,                                                // 0: decode, 1: encode
+            (tdes_opmode & CRPT_TDES_CTL_TMODE_Msk) ? 1 : 0,    // 0: DES, 1: TDES 
+            (keyopt == 1) ? 1 : 0,                              // 0: TDES 2-key mode, 1: TDES 3-key mode
+            tdes_opmode & CRPT_TDES_CTL_OPMODE_Msk,             // ECB/CBC/CFB/OFB/CTR
+            TDES_IN_OUT_WHL_SWAP);                              // TDES_NO_SWAP~TDES_IN_OUT_WHL_SWAP
 
-    // Keying option 1: All three keys are independent.
-    // Keying option 2: K1 and K2 are independent, and K3 = K1.
-    // Keying option 3: All three keys are identical, i.e. K1 = K2 = K3.
-    if (keyopt == 1) {
-        CRPT->TDES_CTL |= CRPT_TDES_CTL_3KEYS_Msk;
-    } else {
-        CRPT->TDES_CTL &= ~CRPT_TDES_CTL_3KEYS_Msk;
+    /* Set DES/TDES keys 
+     *
+     * TDES_SetKey requires 3x2 word array. Change 3x8 byte array to 3x2 word array.
+     */
+    unsigned i;
+    uint32_t keys3x2[3][2];
+    for (i = 0; i < 3; i ++ ) {
+        keys3x2[i][0] = nu_get32_be(key[i] + 0);
+        keys3x2[i][1] = nu_get32_be(key[i] + 4);
     }
-
-    /* Set DES/TDES keys
-     * 
-     * NOTE: TDES_SetKey in BSP is not used because we need to make up an extra 2-dimension array to pass keys.
-     */
-    uint32_t val;
-    volatile uint32_t *tdes_key = (uint32_t *) ((uint32_t) &CRPT->TDES0_KEY1H + (0x40 * 0));
-    val = nu_get32_be(key[0] + 0);
-    *tdes_key ++ = val;
-    val = nu_get32_be(key[0] + 4);
-    *tdes_key ++ = val;
-    val = nu_get32_be(key[1] + 0);
-    *tdes_key ++ = val;
-    val = nu_get32_be(key[1] + 4);
-    *tdes_key ++ = val;
-    val = nu_get32_be(key[2] + 0);
-    *tdes_key ++ = val;
-    val = nu_get32_be(key[2] + 4);
-    *tdes_key ++ = val;
+    TDES_SetKey(0, keys3x2);
 
     uint32_t rmn = length;
     const unsigned char *in_pos = input;
@@ -406,11 +407,8 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
 
         TDES_SetDMATransfer(0, (uint32_t) dmabuf_in, (uint32_t) dmabuf_out, data_len);
 
-        /* Start enc/dec.
-         *
-         * NOTE: Don't call driver function TDES_Start in BSP because of the multiple context (channel) reason as above.
-         */
-        CRPT->TDES_CTL |= CRPT_TDES_CTL_START_Msk | (CRYPTO_DMA_ONE_SHOT << CRPT_TDES_CTL_DMALAST_Pos);
+        /* Start enc/dec */
+        TDES_Start(0, CRYPTO_DMA_ONE_SHOT);
         while (CRPT->TDES_STS & CRPT_TDES_STS_BUSY_Msk);
 
         memcpy(out_pos, dmabuf_out, data_len);
