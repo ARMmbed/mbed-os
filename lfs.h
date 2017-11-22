@@ -207,6 +207,7 @@ typedef struct lfs_file {
 } lfs_file_t;
 
 typedef struct lfs_dir {
+    struct lfs_dir *next;
     lfs_block_t pair[2];
     lfs_off_t off;
 
@@ -249,6 +250,7 @@ typedef struct lfs {
 
     lfs_block_t root[2];
     lfs_file_t *files;
+    lfs_dir_t *dirs;
 
     lfs_cache_t rcache;
     lfs_cache_t pcache;
@@ -444,9 +446,6 @@ int lfs_traverse(lfs_t *lfs, int (*cb)(void*, lfs_block_t), void *data);
 //
 // Returns a negative error code on failure.
 int lfs_deorphan(lfs_t *lfs);
-
-// TODO doc
-int lfs_deduplicate(lfs_t *lfs);
 
 
 #endif
