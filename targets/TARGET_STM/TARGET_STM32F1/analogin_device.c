@@ -35,11 +35,11 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
-
-int adc_inited = 0;
+#include <stdbool.h>
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
+    static bool adc_calibrated = false;
     RCC_PeriphCLKInitTypeDef  PeriphClkInit;
     uint32_t function = (uint32_t)NC;
 
@@ -49,14 +49,14 @@ void analogin_init(analogin_t *obj, PinName pin)
     if ((pin < 0xF0) || (pin >= 0x100)) {
         // Normal channels
         // Get the peripheral name from the pin and assign it to the object
-        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
+        obj->handle.Instance = (ADC_TypeDef *)pinmap_peripheral(pin, PinMap_ADC);
         // Get the functions (adc channel) from the pin and assign it to the object
         function = pinmap_function(pin, PinMap_ADC);
         // Configure GPIO
         pinmap_pinout(pin, PinMap_ADC);
     } else {
         // Internal channels
-        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC_Internal);
+        obj->handle.Instance = (ADC_TypeDef *)pinmap_peripheral(pin, PinMap_ADC_Internal);
         function = pinmap_function(pin, PinMap_ADC_Internal);
         // No GPIO configuration for internal channels
     }
@@ -68,13 +68,26 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Save pin number for the read function
     obj->pin = pin;
 
-    // The ADC initialization is done once
-    if (adc_inited == 0) {
-        adc_inited = 1;
+    // Enable ADC clock
+    __HAL_RCC_ADC1_CLK_ENABLE();
 
-        // Enable ADC clock
-        __HAL_RCC_ADC1_CLK_ENABLE();
+    // Configure ADC object structures
+    obj->handle.State = HAL_ADC_STATE_RESET;
+    obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    obj->handle.Init.ScanConvMode          = DISABLE;
+    obj->handle.Init.ContinuousConvMode    = DISABLE;
+    obj->handle.Init.NbrOfConversion       = 1;
+    obj->handle.Init.DiscontinuousConvMode = DISABLE;
+    obj->handle.Init.NbrOfDiscConversion   = 0;
+    obj->handle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
 
+    if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
+        error("Cannot initialize ADC");
+    }
+
+    // This section is done only once
+    if (!adc_calibrated) {
+        adc_calibrated = true;
         // Configure ADC clock prescaler
         // Caution: On STM32F1, ADC clock frequency max is 14 MHz (refer to device datasheet).
         // Therefore, ADC clock prescaler must be configured in function
@@ -84,29 +97,14 @@ void analogin_init(analogin_t *obj, PinName pin)
         PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
         PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
         HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
-
-        // Configure ADC
-        obj->handle.State = HAL_ADC_STATE_RESET;
-        obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-        obj->handle.Init.ScanConvMode          = DISABLE;
-        obj->handle.Init.ContinuousConvMode    = DISABLE;
-        obj->handle.Init.NbrOfConversion       = 1;
-        obj->handle.Init.DiscontinuousConvMode = DISABLE;
-        obj->handle.Init.NbrOfDiscConversion   = 0;
-        obj->handle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-
-        if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
-            error("Cannot initialize ADC\n");
-        }
-
-        // Calibrate ADC
+        // Calibration
         HAL_ADCEx_Calibration_Start(&obj->handle);
     }
 }
 
-static inline uint16_t adc_read(analogin_t *obj)
+uint16_t adc_read(analogin_t *obj)
 {
-    ADC_ChannelConfTypeDef sConfig;
+    ADC_ChannelConfTypeDef sConfig = {0};
 
     // Configure ADC channel
     sConfig.Rank         = 1;
@@ -177,24 +175,10 @@ static inline uint16_t adc_read(analogin_t *obj)
 
     // Wait end of conversion and get value
     if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
-        return (HAL_ADC_GetValue(&obj->handle));
+        return (uint16_t)HAL_ADC_GetValue(&obj->handle);
     } else {
         return 0;
     }
-}
-
-uint16_t analogin_read_u16(analogin_t *obj)
-{
-    uint16_t value = adc_read(obj);
-    // 12-bit to 16-bit conversion
-    value = ((value << 4) & (uint16_t)0xFFF0) | ((value >> 8) & (uint16_t)0x000F);
-    return value;
-}
-
-float analogin_read(analogin_t *obj)
-{
-    uint16_t value = adc_read(obj);
-    return (float)value * (1.0f / (float)0xFFF); // 12 bits range
 }
 
 #endif

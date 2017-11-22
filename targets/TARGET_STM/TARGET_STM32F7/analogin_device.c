@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2015, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,6 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 
-int adc_inited = 0;
-
 void analogin_init(analogin_t *obj, PinName pin)
 {
     uint32_t function = (uint32_t)NC;
@@ -48,14 +46,14 @@ void analogin_init(analogin_t *obj, PinName pin)
     if ((pin < 0xF0) || (pin >= 0x100)) {
         // Normal channels
         // Get the peripheral name from the pin and assign it to the object
-        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
+        obj->handle.Instance = (ADC_TypeDef *)pinmap_peripheral(pin, PinMap_ADC);
         // Get the functions (adc channel) from the pin and assign it to the object
         function = pinmap_function(pin, PinMap_ADC);
         // Configure GPIO
         pinmap_pinout(pin, PinMap_ADC);
     } else {
         // Internal channels
-        obj->handle.Instance = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC_Internal);
+        obj->handle.Instance = (ADC_TypeDef *)pinmap_peripheral(pin, PinMap_ADC_Internal);
         function = pinmap_function(pin, PinMap_ADC_Internal);
         // No GPIO configuration for internal channels
     }
@@ -67,49 +65,54 @@ void analogin_init(analogin_t *obj, PinName pin)
     // Save pin number for the read function
     obj->pin = pin;
 
-    // The ADC initialization is done once
-    if (adc_inited == 0) {
-        adc_inited = 1;
+    // Configure ADC object structures
+    obj->handle.State = HAL_ADC_STATE_RESET;
+    obj->handle.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
+    obj->handle.Init.Resolution            = ADC_RESOLUTION_12B;
+    obj->handle.Init.ScanConvMode          = DISABLE;
+    obj->handle.Init.ContinuousConvMode    = DISABLE;
+    obj->handle.Init.DiscontinuousConvMode = DISABLE;
+    obj->handle.Init.NbrOfDiscConversion   = 0;
+    obj->handle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    obj->handle.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T1_CC1;
+    obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    obj->handle.Init.NbrOfConversion       = 1;
+    obj->handle.Init.DMAContinuousRequests = DISABLE;
+    obj->handle.Init.EOCSelection          = DISABLE;
 
-        // Enable ADC clock
-        __HAL_RCC_ADC_CLK_ENABLE();
-        __HAL_RCC_ADC_CONFIG(RCC_ADCCLKSOURCE_SYSCLK);
+#if defined(ADC1)
+    if ((ADCName)obj->handle.Instance == ADC_1) {
+        __HAL_RCC_ADC1_CLK_ENABLE();
+    }
+#endif
+#if defined(ADC2)
+    if ((ADCName)obj->handle.Instance == ADC_2) {
+        __HAL_RCC_ADC2_CLK_ENABLE();
+    }
+#endif
+#if defined(ADC3)
+    if ((ADCName)obj->handle.Instance == ADC_3) {
+        __HAL_RCC_ADC3_CLK_ENABLE();
+    }
+#endif
 
-        obj->handle.State = HAL_ADC_STATE_RESET;
-        // Configure ADC
-        obj->handle.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV2;          // Asynchronous clock mode, input ADC clock
-        obj->handle.Init.Resolution            = ADC_RESOLUTION_12B;
-        obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-        obj->handle.Init.ScanConvMode          = DISABLE;                       // Sequencer disabled (ADC conversion on only 1 channel: channel set on rank 1)
-        obj->handle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;           // On STM32L1xx ADC, overrun detection is enabled only if EOC selection is set to each conversion (or transfer by DMA enabled, this is not the case in this example).
-        obj->handle.Init.LowPowerAutoWait      = DISABLE;
-        obj->handle.Init.ContinuousConvMode    = DISABLE;                       // Continuous mode disabled to have only 1 conversion at each conversion trig
-        obj->handle.Init.NbrOfConversion       = 1;                             // Parameter discarded because sequencer is disabled
-        obj->handle.Init.DiscontinuousConvMode = DISABLE;                       // Parameter discarded because sequencer is disabled
-        obj->handle.Init.NbrOfDiscConversion   = 1;                             // Parameter discarded because sequencer is disabled
-        obj->handle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;            // Software start to trig the 1st conversion manually, without external event
-        obj->handle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-        obj->handle.Init.DMAContinuousRequests = DISABLE;
-        obj->handle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;      // DR register is overwritten with the last conversion result in case of overrun
-        obj->handle.Init.OversamplingMode      = DISABLE;                       // No oversampling
-
-        if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
-            error("Cannot initialize ADC\n");
-        }
-
-        // Calibrate ADC
-        HAL_ADCEx_Calibration_Start(&obj->handle, ADC_SINGLE_ENDED);
+    if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
+        error("Cannot initialize ADC");
     }
 }
 
-static inline uint16_t adc_read(analogin_t *obj)
+uint16_t adc_read(analogin_t *obj)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
 
     // Configure ADC channel
+    sConfig.Rank         = 1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+    sConfig.Offset       = 0;
+
     switch (obj->channel) {
         case 0:
-            sConfig.Channel = ADC_CHANNEL_VREFINT;
+            sConfig.Channel = ADC_CHANNEL_0;
             break;
         case 1:
             sConfig.Channel = ADC_CHANNEL_1;
@@ -157,10 +160,10 @@ static inline uint16_t adc_read(analogin_t *obj)
             sConfig.Channel = ADC_CHANNEL_15;
             break;
         case 16:
-            sConfig.Channel = ADC_CHANNEL_16;
+            sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
             break;
         case 17:
-            sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+            sConfig.Channel = ADC_CHANNEL_VREFINT;
             break;
         case 18:
             sConfig.Channel = ADC_CHANNEL_VBAT;
@@ -169,36 +172,16 @@ static inline uint16_t adc_read(analogin_t *obj)
             return 0;
     }
 
-    sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_47CYCLES_5;
-    sConfig.SingleDiff   = ADC_SINGLE_ENDED;
-    sConfig.OffsetNumber = ADC_OFFSET_NONE;
-    sConfig.Offset       = 0;
-
     HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 
     HAL_ADC_Start(&obj->handle); // Start conversion
 
     // Wait end of conversion and get value
     if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
-        return (HAL_ADC_GetValue(&obj->handle));
+        return (uint16_t)HAL_ADC_GetValue(&obj->handle);
     } else {
         return 0;
     }
-}
-
-uint16_t analogin_read_u16(analogin_t *obj)
-{
-    uint16_t value = adc_read(obj);
-    // 12-bit to 16-bit conversion
-    value = ((value << 4) & (uint16_t)0xFFF0) | ((value >> 8) & (uint16_t)0x000F);
-    return value;
-}
-
-float analogin_read(analogin_t *obj)
-{
-    uint16_t value = adc_read(obj);
-    return (float)value * (1.0f / (float)0xFFF); // 12 bits range
 }
 
 #endif
