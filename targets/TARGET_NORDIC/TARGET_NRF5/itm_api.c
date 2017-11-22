@@ -19,7 +19,6 @@
 #include "hal/itm_api.h"
 
 #include "nrf.h"
-#include "system_nrf52.h"
 #include "nrf5x_lf_clk_helper.h"
 
 void itm_init(void)
