@@ -52,7 +52,7 @@ using namespace utest::v1;
 #endif
 
 #ifndef MBED_TEST_TIMEOUT
-#define MBED_TEST_TIMEOUT 120
+#define MBED_TEST_TIMEOUT 480
 #endif
 
 

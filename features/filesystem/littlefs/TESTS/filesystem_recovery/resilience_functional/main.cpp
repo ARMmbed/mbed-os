@@ -44,6 +44,10 @@ using namespace utest::v1;
 #define MBED_TEST_CYCLES 10
 #endif
 
+#ifndef MBED_TEST_TIMEOUT
+#define MBED_TEST_TIMEOUT 480
+#endif
+
 // declarations
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
@@ -95,7 +99,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
 
 int main()
 {
-    GREENTEA_SETUP(120, "unexpected_reset");
+    GREENTEA_SETUP(MBED_TEST_TIMEOUT, "unexpected_reset");
 
     static char _key[10 + 1] = {};
     static char _value[128 + 1] = {};

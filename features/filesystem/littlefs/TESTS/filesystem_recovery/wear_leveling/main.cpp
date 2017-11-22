@@ -42,6 +42,10 @@ using namespace utest::v1;
 #define MBED_TEST_ERASE_CYCLES 100
 #endif
 
+#ifndef MBED_TEST_TIMEOUT
+#define MBED_TEST_TIMEOUT 480
+#endif
+
 // declarations
 #define STRINGIZE(x) STRINGIZE2(x)
 #define STRINGIZE2(x) #x
@@ -105,7 +109,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(120, "default_auto");
+    GREENTEA_SETUP(MBED_TEST_TIMEOUT, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
