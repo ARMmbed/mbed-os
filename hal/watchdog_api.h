@@ -41,12 +41,11 @@
  * to the user specified reset value.
  *
  * The watchdog timer supports a second mode of operation called windowed mode.
- * When configured in this mode by setting enable_window to true, the timer
- * watchdog will enable a restriction on the kick. If the watchdog timer too
+ * When configured in this mode by setting enable_window to true, the watchdog
+ * will enable a restriction on the kick. If the watchdog timer is kicked too
  * soon after it has last been refreshed a system reset occurs. The earliest
  * time in milliseconds the timer can be kicked without triggering a reset is
  * specified by window_ms.
- *
  */
 
 typedef struct
@@ -74,10 +73,9 @@ typedef struct
    */
   uint32_t window_ms;
   /**
-   * Configures the watchdog timer to run while the core is in sleep mode. By
-   * default when the system is put into the sleep the watchdog timer is paused.
-   * Enabling this setting causes the timer to countdown during this time. This
-   * flag is disabled by default.
+   * Configures the watchdog behaviour while the system is in sleep mode. When
+   * this flag is enabled the watchdog timer runs normally while the system is
+   * in sleep mode, when disabled the watchdog is paused during this time.
    */
   bool enable_sleep;
 } watchdog_config_t;

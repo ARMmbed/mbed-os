@@ -71,8 +71,10 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
   cfg.enableUpdate = true;
   cfg.enableInterrupt = false;
   cfg.enableWindowMode = config->enable_window;
+#if PLATFORM_SUPPORTS_SLEEP
   cfg.workMode.enableWait = config->enable_sleep;
-  cfg.workMode.enableStop = true;
+#endif
+  cfg.workMode.enableStop = false;
   cfg.workMode.enableDebug = false;
 
   const uint32_t prescaler = calculate_prescaler_value(config->timeout_ms);
