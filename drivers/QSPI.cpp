@@ -36,7 +36,7 @@ QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, Pin
     _address_width = QSPI_CFG_BUS_SINGLE;
     _address_size = QSPI_CFG_ADDR_SIZE_24;
     _alt_width = QSPI_CFG_BUS_SINGLE;
-    _alt_size = QSPI_CFG_ALT_SIZE_NONE;
+    _alt_size = QSPI_CFG_ALT_SIZE_8;
     _data_width = QSPI_CFG_BUS_SINGLE;
     _num_dummy_cycles = 0;
     _mode = 0;
@@ -253,8 +253,9 @@ void QSPI::_build_qspi_command(int instruction, int address, int alt)
     _qspi_command.instruction.bus_width = _inst_width;
     if (instruction != -1) {
         _qspi_command.instruction.value = instruction;
+        _qspi_command.instruction.disabled = false;
     } else {
-        _qspi_command.instruction.value = 0;
+        _qspi_command.instruction.disabled = true;
     }
 
     //Set up address phase parameters
@@ -262,8 +263,9 @@ void QSPI::_build_qspi_command(int instruction, int address, int alt)
     _qspi_command.address.size = _address_size;
     if (address != -1) {
         _qspi_command.address.value = address;
+        _qspi_command.address.disabled = false;
     } else {
-        _qspi_command.address.size = QSPI_CFG_ADDR_SIZE_NONE;
+        _qspi_command.address.disabled = true;
     }
 
     //Set up alt phase parameters
@@ -271,9 +273,9 @@ void QSPI::_build_qspi_command(int instruction, int address, int alt)
     _qspi_command.alt.size = _alt_size;
     if (alt != -1) {
         _qspi_command.alt.value = alt; 
+        _qspi_command.alt.disabled = false;
     } else {
-        //In the case alt phase is absent, set the alt size to be NONE
-        _qspi_command.alt.size = QSPI_CFG_ALT_SIZE_NONE;
+        _qspi_command.alt.disabled = true;
     }
     
     _qspi_command.dummy_count = _num_dummy_cycles;
