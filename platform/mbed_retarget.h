@@ -21,6 +21,8 @@
 
 #if __cplusplus
 #include <cstdio>
+#else
+#include <stdio.h>
 #endif //__cplusplus
 #include <stdint.h>
 #include <stddef.h>
@@ -67,9 +69,9 @@ namespace mbed {
 
 class FileHandle;
 class DirHandle;
-std::FILE *mbed_fdopen(FileHandle *fh, const char *mode);
 
 }
+
 typedef mbed::DirHandle DIR;
 #else
 typedef struct Dir DIR;
@@ -440,10 +442,18 @@ struct pollfd {
     short revents;
 };
 
+/* POSIX-compatible I/O functions */
 #if __cplusplus
 extern "C" {
 #endif
     int open(const char *path, int oflag, ...);
+#ifndef __IAR_SYSTEMS_ICC__ /* IAR provides fdopen itself */
+#if __cplusplus
+    std::FILE* fdopen(int fildes, const char *mode);
+#else
+    FILE* fdopen(int fildes, const char *mode);
+#endif
+#endif
     ssize_t write(int fildes, const void *buf, size_t nbyte);
     ssize_t read(int fildes, void *buf, size_t nbyte);
     off_t lseek(int fildes, off_t offset, int whence);
@@ -462,8 +472,41 @@ extern "C" {
     void seekdir(DIR*, long);
     int mkdir(const char *name, mode_t n);
 #if __cplusplus
-};
-#endif
+}; // extern "C"
+
+namespace mbed {
+
+/** This call is an analogue to POSIX fdopen().
+ *
+ *  It associates a C stream to an already-opened FileHandle, to allow you to
+ *  use C printf/scanf/fwrite etc. The provided FileHandle must remain open -
+ *  it will be closed by the C library when fclose(FILE) is called.
+ *
+ *  The net effect is fdopen(bind_to_fd(fh), mode), with error handling.
+ *
+ *  @param fh       a pointer to an opened FileHandle
+ *  @param mode     operation upon the file descriptor, e.g., "w+"
+ *
+ *  @returns        a pointer to FILE
+ */
+std::FILE* fdopen(mbed::FileHandle *fh, const char *mode);
+
+/** Bind an mbed FileHandle to a POSIX file descriptor
+ *
+ * This is similar to fdopen, but only operating at the POSIX layer - it
+ * associates a POSIX integer file descriptor with a FileHandle, to allow you
+ * to use POSIX read/write calls etc. The provided FileHandle must remain open -
+ * it will be closed when close(int) is called.
+ *
+ *  @param fh       a pointer to an opened FileHandle
+ *
+ *  @return         an integer file descriptor, or negative if no descriptors available
+ */
+int bind_to_fd(mbed::FileHandle *fh);
+
+} // namespace mbed
+
+#endif // __cplusplus
 
 /**@}*/
 

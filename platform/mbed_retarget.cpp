@@ -33,9 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
-#endif
 #include <errno.h>
 #include "platform/mbed_retarget.h"
 
@@ -95,6 +93,8 @@ static FileHandle *filehandles[OPEN_MAX];
 static SingletonPtr<PlatformMutex> filehandle_mutex;
 
 namespace mbed {
+void mbed_set_unbuffered_stream(std::FILE *_file);
+
 void remove_filehandle(FileHandle *file) {
     filehandle_mutex->lock();
     /* Remove all open filehandles for this */
@@ -175,6 +175,86 @@ static inline int openflags_to_posix(int openflags) {
     return posix;
 }
 
+static int reserve_filehandle() {
+    // find the first empty slot in filehandles, after the slots reserved for stdin/stdout/stderr
+    filehandle_mutex->lock();
+    int fh_i;
+    for (fh_i = 3; fh_i < OPEN_MAX; fh_i++) {
+        /* Take a next free filehandle slot available. */
+        if (filehandles[fh_i] == NULL) break;
+    }
+    if (fh_i >= OPEN_MAX) {
+        /* Too many file handles have been opened */
+        errno = EMFILE;
+        filehandle_mutex->unlock();
+        return -1;
+    }
+    filehandles[fh_i] = (FileHandle*)FILE_HANDLE_RESERVED;
+    filehandle_mutex->unlock();
+
+    return fh_i;
+}
+
+int mbed::bind_to_fd(FileHandle *fh) {
+    int fh_i = reserve_filehandle();
+    if (fh_i < 0) {
+        return fh_i;
+    }
+
+    filehandles[fh_i] = fh;
+
+    return fh_i;
+}
+
+static int unbind_from_fd(int fd, FileHandle *fh) {
+    if (filehandles[fd] == fh) {
+        filehandles[fd] = NULL;
+        return 0;
+    } else {
+        errno = EBADF;
+        return -1;
+    }
+}
+
+#ifndef __IAR_SYSTEMS_ICC__
+/* IAR provides fdopen itself */
+extern "C" std::FILE* fdopen(int fildes, const char *mode)
+{
+    // This is to avoid scanf and the bloat it brings.
+    char buf[1 + sizeof fildes]; /* @(integer) */
+    MBED_STATIC_ASSERT(sizeof buf == 5, "Integers should be 4 bytes.");
+    buf[0] = '@';
+    memcpy(buf + 1, &fildes, sizeof fildes);
+
+    std::FILE *stream = std::fopen(buf, mode);
+    /* newlib-nano doesn't appear to ever call _isatty itself, so
+     * happily fully buffers an interactive stream. Deal with that here.
+     */
+    if (stream && isatty(fildes)) {
+        mbed_set_unbuffered_stream(stream);
+    }
+    return stream;
+}
+#endif
+
+namespace mbed {
+std::FILE *fdopen(FileHandle *fh, const char *mode)
+{
+    // First reserve the integer file descriptor
+    int fd = bind_to_fd(fh);
+    if (!fd) {
+        return NULL;
+    }
+    // Then bind that to the C stream. If successful, C library
+    // takes ownership and responsibility to close.
+    std::FILE *stream = ::fdopen(fd, mode);
+    if (!stream) {
+        unbind_from_fd(fd, fh);
+    }
+    return stream;
+}
+}
+
 /* @brief 	standard c library fopen() retargeting function.
  *
  * This function is invoked by the standard c library retargeting to handle fopen()
@@ -187,11 +267,7 @@ static inline int openflags_to_posix(int openflags) {
  *
  * */
 extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags) {
-    return open(name, openflags_to_posix(openflags));
-}
-
-extern "C" int open(const char *name, int oflag, ...) {
-    #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
+#if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
 #if !defined(MBED_CONF_RTOS_PRESENT)
     // valid only for mbed 2
     // for ulib, this is invoked after RAM init, prior c++
@@ -210,7 +286,7 @@ extern "C" int open(const char *name, int oflag, ...) {
     // This is the workaround that the microlib author suggested us
     static int n = 0;
     if (!std::strcmp(name, ":tt")) return n++;
-    #else
+#else
     /* Use the posix convention that stdin,out,err are filehandles 0,1,2.
      */
     if (std::strcmp(name, __stdin_name) == 0) {
@@ -223,54 +299,44 @@ extern "C" int open(const char *name, int oflag, ...) {
         init_serial();
         return 2;
     }
-    #endif
+#endif
+#ifndef __IAR_SYSTEMS_ICC__
+    /* FILENAME: "@(integer)" gives an already-allocated descriptor */
+    if (name[0] == '@') {
+        int fd;
+        memcpy(&fd, name + 1, sizeof fd);
+        return fd;
+    }
+#endif
+    return open(name, openflags_to_posix(openflags));
+}
 
-    // find the first empty slot in filehandles, after the slots reserved for stdin/stdout/stderr
-    filehandle_mutex->lock();
-    unsigned int fh_i;
-    for (fh_i = 3; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
-    	/* Take a next free filehandle slot available. */
-        if (filehandles[fh_i] == NULL) break;
+extern "C" int open(const char *name, int oflag, ...) {
+    int fh_i = reserve_filehandle();
+    if (fh_i < 0) {
+        return fh_i;
     }
-    if (fh_i >= sizeof(filehandles)/sizeof(*filehandles)) {
-        /* Too many file handles have been opened */
-        errno = EMFILE;
-        filehandle_mutex->unlock();
-        return -1;
-    }
-    filehandles[fh_i] = (FileHandle*)FILE_HANDLE_RESERVED;
-    filehandle_mutex->unlock();
 
     FileHandle *res = NULL;
+    FilePath path(name);
 
-    /* FILENAME: ":(pointer)" describes a FileHandle* */
-    if (name[0] == ':') {
-        void *p;
-        memcpy(&p, name + 1, sizeof(p));
-        res = (FileHandle*)p;
+    if (!path.exists()) {
+        /* The first part of the filename (between first 2 '/') is not a
+         * registered mount point in the namespace.
+         */
+        return handle_open_errors(-ENODEV, fh_i);
+    }
 
-    /* FILENAME: "/file_system/file_name" */
+    if (path.isFile()) {
+        res = path.file();
     } else {
-        FilePath path(name);
-
-        if (!path.exists()) {
-            /* The first part of the filename (between first 2 '/') is not a
-             * registered mount point in the namespace.
-             */
+        FileSystemHandle *fs = path.fileSystem();
+        if (fs == NULL) {
             return handle_open_errors(-ENODEV, fh_i);
         }
-
-        if (path.isFile()) {
-            res = path.file();
-        } else {
-            FileSystemHandle *fs = path.fileSystem();
-            if (fs == NULL) {
-                return handle_open_errors(-ENODEV, fh_i);
-            }
-            int err = fs->open(&res, path.fileName(), oflag);
-            if (err) {
-                return handle_open_errors(err, fh_i);
-            }
+        int err = fs->open(&res, path.fileName(), oflag);
+        if (err) {
+            return handle_open_errors(err, fh_i);
         }
     }
 
@@ -958,28 +1024,6 @@ void mbed_set_unbuffered_stream(std::FILE *_file) {
 #else
     setbuf(_file, NULL);
 #endif
-}
-
-/* Applications are expected to use fdopen()
- * not this function directly. This code had to live here because FILE and FileHandle
- * processes are all linked together here.
- */
-std::FILE *mbed_fdopen(FileHandle *fh, const char *mode)
-{
-    // This is to avoid scanf(buf, ":%.4s", fh) and the bloat it brings.
-    char buf[1 + sizeof(fh)]; /* :(pointer) */
-    MBED_STATIC_ASSERT(sizeof(buf) == 5, "Pointers should be 4 bytes.");
-    buf[0] = ':';
-    memcpy(buf + 1, &fh, sizeof(fh));
-
-    std::FILE *stream = std::fopen(buf, mode);
-    /* newlib-nano doesn't appear to ever call _isatty itself, so
-     * happily fully buffers an interactive stream. Deal with that here.
-     */
-    if (stream && fh->isatty()) {
-        mbed_set_unbuffered_stream(stream);
-    }
-    return stream;
 }
 
 int mbed_getc(std::FILE *_file){
