@@ -45,8 +45,8 @@
 extern "C" {
 #endif
 
-#define STDIO_UART_TX     TX_PIN_NUMBER
-#define STDIO_UART_RX     RX_PIN_NUMBER
+#define STDIO_UART_TX     USBTX
+#define STDIO_UART_RX     USBRX
 #define STDIO_UART        UART_0
 
 typedef enum
