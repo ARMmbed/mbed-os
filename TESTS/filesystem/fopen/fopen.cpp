@@ -40,14 +40,6 @@
  * consistent values for all toolchains */
 #include "platform/mbed_retarget.h"
 
-/* This is needed for stat() test, but is not available on ARMCC.
- * The following checks whether GCC_ARM compiler is being used because:
- * - both the ARMCC compiler and the GCC_ARM compile define __GNUC__.
- * - only the ARMCC compiler defines __ARMCC_VERSION.
- * - hence if __ARMCC_VERSION is not defined and __GNUC__ is defined, it must be GCC_ARM. */
-#if ! defined(__ARMCC_VERSION) && defined(__GNUC__)
-#include <sys/stat.h>
-#endif
 using namespace utest::v1;
 
 /// @cond FSFAT_DOXYGEN_DISABLE
@@ -79,7 +71,7 @@ using namespace utest::v1;
 #if defined(DEVICE_SPI) && ( defined(MBED_CONF_APP_FSFAT_SDCARD_INSTALLED) || (MBED_CONF_SD_FSFAT_SDCARD_INSTALLED))
 static char fsfat_fopen_utest_msg_g[FSFAT_UTEST_MSG_BUF_SIZE];
 #define FSFAT_FOPEN_TEST_MOUNT_PT_NAME      "sd"
-#define FSFAT_FOPEN_TEST_MOUNT_PT_PATH      "/"FSFAT_FOPEN_TEST_MOUNT_PT_NAME
+#define FSFAT_FOPEN_TEST_MOUNT_PT_PATH      "/" FSFAT_FOPEN_TEST_MOUNT_PT_NAME
 #define FSFAT_FOPEN_TEST_WORK_BUF_SIZE_1    64
 #define FSFAT_FOPEN_TEST_FILEPATH_MAX_DEPTH 20
 static const char *sd_badfile_path = "/sd/badfile.txt";
