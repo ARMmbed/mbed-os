@@ -141,16 +141,6 @@ qspi_status_t qspi_free(qspi_t *obj);
  */
 qspi_status_t qspi_frequency(qspi_t *obj, int hz);
 
-/** Send only QSPI command
- *
- * @param obj QSPI object
- * @param command QSPI command
- * @return QSPI_STATUS_OK if command was sent without any error
-           QSPI_STATUS_INVALID_PARAMETER if invalid parameter found
-           QSPI_STATUS_ERROR otherwise
- */
-qspi_status_t qspi_write_command(qspi_t *obj, const qspi_command_t *command);
-
 /** Send a command and block of data
  *
  * @param obj QSPI object
@@ -162,6 +152,22 @@ qspi_status_t qspi_write_command(qspi_t *obj, const qspi_command_t *command);
            QSPI_STATUS_ERROR otherwise
  */
 qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void *data, size_t *length);
+
+/** Send a command (and optionally data) and get the response. Can be used to send/receive device specific commands.
+ *
+ * @param obj QSPI object
+ * @param command QSPI command
+ * @param tx_data TX buffer
+ * @param tx_length pointer to variable holding TX buffer length
+ * @param rx_data TX buffer
+ * @param rx_length pointer to variable holding TX buffer length
+ * @return QSPI_STATUS_OK if the data has been succesfully sent
+           QSPI_STATUS_INVALID_PARAMETER if invalid parameter found
+           QSPI_STATUS_ERROR otherwise
+ */
+
+qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size); 
+
 
 /** Receive a command and block of data
  *
