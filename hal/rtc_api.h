@@ -96,7 +96,8 @@ void rtc_init(void);
 
 /** Deinitialize RTC
  *
- * Powerdown the RTC in preparation for sleep, powerdown or reset.
+ * Powerdown the RTC in preparation for sleep, powerdown or reset. That should only
+ * affect the CPU domain and not the time keeping logic.
  * After this function is called no other RTC functions should be called
  * except for ::rtc_init.
  *
