@@ -49,6 +49,9 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
         case QSPI_CFG_BUS_QUAD:
             st_command->InstructionMode = QSPI_INSTRUCTION_4_LINES;
             break;
+        default:
+            st_command->InstructionMode = QSPI_INSTRUCTION_NONE;
+            break;
     }
 
     st_command->Instruction = command->instruction.value;
@@ -69,7 +72,7 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
             st_command->AddressMode = QSPI_ADDRESS_4_LINES;
             break;
         default:
-            st_command->AddressMode = QSPI_ADDRESS_1_LINE;
+            st_command->AddressMode = QSPI_ADDRESS_NONE;
             break;
     }
 
@@ -88,7 +91,7 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
             st_command->AlternateByteMode = QSPI_ALTERNATE_BYTES_4_LINES;
             break;
         default:
-            st_command->AlternateByteMode = QSPI_ALTERNATE_BYTES_1_LINE;
+            st_command->AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
             break;
     }
 
@@ -107,7 +110,7 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
             st_command->DataMode = QSPI_DATA_4_LINES;
             break;
         default:
-            st_command->DataMode = QSPI_DATA_1_LINE;
+            st_command->DataMode = QSPI_DATA_NONE;
             break;
     }
 }
@@ -161,8 +164,6 @@ qspi_status_t qspi_free(qspi_t *obj)
 qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 {
     qspi_status_t status = QSPI_STATUS_OK;
-
-    // TODO calculate prescalers properly, needs some work
 
     // HCLK drives QSPI 
     int div = HAL_RCC_GetHCLKFreq() / hz;
