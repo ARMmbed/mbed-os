@@ -94,11 +94,6 @@ ret_code_t nrf_drv_qspi_init(nrf_drv_qspi_config_t const * p_config,
                              nrf_drv_qspi_handler_t        handler,
                              void *                        p_context)
 {
-    if (m_cb.state != NRF_DRV_STATE_UNINITIALIZED)
-    {
-        return NRF_ERROR_INVALID_STATE;
-    }
-
     if (!qspi_pins_configure(&p_config->pins))
     {
         return NRF_ERROR_INVALID_PARAM;
