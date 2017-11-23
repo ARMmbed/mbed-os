@@ -26,5 +26,22 @@ using namespace utest::v1;
 void wifi_connect_params_valid_secure(void)
 {
     WiFiInterface *wifi = get_interface();
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA2));
+
+    if(wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA2) == NSAPI_ERROR_OK) {
+        TEST_PASS();
+    }
+
+    if(wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA_WPA2) == NSAPI_ERROR_OK) {
+        TEST_PASS();
+    }
+
+    if(wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA) == NSAPI_ERROR_OK) {
+        TEST_PASS();
+    }
+
+    if(wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WEP) == NSAPI_ERROR_OK) {
+        TEST_PASS();
+    }
+
+    TEST_FAIL();
 }

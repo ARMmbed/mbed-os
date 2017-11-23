@@ -33,6 +33,6 @@ void wifi_get_rssi(void)
 
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
 
-    TEST_ASSERT_INT8_WITHIN(-35, -65, wifi->get_rssi()); // -30 ... -100
+    TEST_ASSERT_INT8_WITHIN(-10, -100, wifi->get_rssi());
 }
 
