@@ -48,6 +48,7 @@ MBED_CONFIG_FILE = join(ROOT, "platform/mbed_lib.json")
 
 # Tests
 TEST_DIR = join(LIB_DIR, "tests")
+BARE_METAL_TEST_DIR = join(ROOT, "bare_metal_tests")
 HOST_TESTS = join(ROOT, "tools", "host_tests")
 
 # mbed RPC

@@ -2,16 +2,12 @@
 
 """
 Travis-CI build script
-
 mbed SDK
 Copyright (c) 2011-2013 ARM Limited
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -187,25 +183,25 @@ linking_list = [
     "NXP": (
             {"target": "LPC1768",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_15", "MBED_16", "MBED_17"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_15", "MBED_16", "MBED_17", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "K64F",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "K22F",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "KL43Z",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
@@ -216,99 +212,99 @@ linking_list = [
         "STM": (
             {"target": "NUCLEO_F446RE",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "NUCLEO_F446ZE",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "NUCLEO_F401RE",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"], 
                      }
             },
             {"target": "NUCLEO_F411RE",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "NUCLEO_F412ZG",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                      }
             },
             {"target": "NUCLEO_F429ZI",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "NUCLEO_F207ZG",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "NUCLEO_F746ZG",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "NUCLEO_F767ZI",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "NUCLEO_L476RG",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                      }
             },
             {"target": "DISCO_F429ZI",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                      }
             },
             {"target": "DISCO_F407VG",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
              {"target": "DISCO_F413ZH",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        }
              },
             {"target": "NUCLEO_F303ZE",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                      }
             },
             {"target": "DISCO_L475VG_IOT01A",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "DISCO_L476VG",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "DISCO_L072CZ_LRWAN1",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                       }
             },
         )
@@ -317,19 +313,19 @@ linking_list = [
         "NUVOTON": (
             {"target": "NUMAKER_PFM_NUC472",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "NUMAKER_PFM_M453",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              },
             {"target": "NUMAKER_PFM_M487",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              }
@@ -341,7 +337,7 @@ linking_list = [
             {
              "target": "RZ_A1H",
              "toolchains": "GCC_ARM",
-             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16", "BARE_METAL_UART"],
                       }
             },
         )
