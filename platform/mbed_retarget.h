@@ -54,6 +54,10 @@ typedef unsigned int  gid_t;    ///< Group ID
 
 #define NAME_MAX 255    ///< Maximum size of a name in a file path
 
+#define STDIN_FILENO  0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
+
 #include <time.h>
 
 /** \addtogroup platform */
@@ -69,6 +73,46 @@ namespace mbed {
 
 class FileHandle;
 class DirHandle;
+
+/** Targets may implement this to change stdin, stdout, stderr.
+ *
+ * If the application hasn't provided mbed_override_console, this is called
+ * to give the target a chance to specify a FileHandle for the console.
+ *
+ * If this is not provided or returns NULL, the console will be:
+ *   - UARTSerial if configuration option "platform.stdio-buffered-serial" is
+ *     true and the target has DEVICE_SERIAL;
+ *   - Raw HAL serial via serial_getc and serial_putc if
+ *     "platform.stdio-buffered-serial" is false and the target has DEVICE_SERIAL;
+ *   - stdout/stderr will be a sink and stdin will input a stream of 0s if the
+ *     target does not have DEVICE_SERIAL.
+ *
+ * @param fd file descriptor - STDIN_FILENO, STDOUT_FILENO or STDERR_FILENO
+ * @return  pointer to FileHandle to override normal stream otherwise NULL
+ */
+FileHandle* mbed_target_override_console(int fd);
+
+/** Applications may implement this to change stdin, stdout, stderr.
+ *
+ * This hook gives the application a chance to specify a custom FileHandle
+ * for the console.
+ *
+ * If this is not provided or returns NULL, the console will be specified
+ * by mbed_target_override_console, else will default to serial - see
+ * mbed_target_override_console for more details.
+ *
+ * Example:
+ * @code
+ * FileHandle* mbed::mbed_override_console(int) {
+ *     static UARTSerial my_serial(D0, D1);
+ *     return &my_serial;
+ * }
+ * @endcode
+
+ * @param fd file descriptor - STDIN_FILENO, STDOUT_FILENO or STDERR_FILENO
+ * @return  pointer to FileHandle to override normal stream otherwise NULL
+ */
+FileHandle* mbed_override_console(int fd);
 
 }
 

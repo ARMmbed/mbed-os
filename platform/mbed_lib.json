@@ -2,7 +2,17 @@
     "name": "platform",
     "config": {
         "stdio-convert-newlines": {
-            "help": "Enable conversion to standard newlines on stdin/stdout",
+            "help": "Enable conversion to standard newlines on stdin/stdout/stderr",
+            "value": false
+        },
+
+        "stdio-convert-tty-newlines": {
+            "help": "Enable conversion to standard newlines on any tty FILE stream",
+            "value": false
+        },
+
+        "stdio-buffered-serial": {
+            "help": "Use UARTSerial driver to obtain buffered serial I/O on stdin/stdout/stderr. If false, unbuffered serial_getc and serial_putc are used directly.",
             "value": false
         },
 
