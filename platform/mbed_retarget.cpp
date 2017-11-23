@@ -90,7 +90,6 @@ uint32_t mbed_heap_size = 0;
 /* newlib has the filehandle field in the FILE struct as a short, so
  * we can't just return a Filehandle* from _open and instead have to
  * put it in a filehandles array and return the index into that array
- * (or rather index+3, as filehandles 0-2 are stdin/out/err).
  */
 static FileHandle *filehandles[OPEN_MAX];
 static SingletonPtr<PlatformMutex> filehandle_mutex;
@@ -226,10 +225,10 @@ extern "C" int open(const char *name, int oflag, ...) {
     }
     #endif
 
-    // find the first empty slot in filehandles
+    // find the first empty slot in filehandles, after the slots reserved for stdin/stdout/stderr
     filehandle_mutex->lock();
     unsigned int fh_i;
-    for (fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
+    for (fh_i = 3; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
     	/* Take a next free filehandle slot available. */
         if (filehandles[fh_i] == NULL) break;
     }
@@ -277,7 +276,7 @@ extern "C" int open(const char *name, int oflag, ...) {
 
     filehandles[fh_i] = res;
 
-    return fh_i + 3; // +3 as filehandles 0-2 are stdin/out/err
+    return fh_i;
 }
 
 extern "C" int PREFIX(_close)(FILEHANDLE fh) {
@@ -285,10 +284,8 @@ extern "C" int PREFIX(_close)(FILEHANDLE fh) {
 }
 
 extern "C" int close(int fh) {
-    if (fh < 3) return 0;
-
-    FileHandle* fhc = filehandles[fh-3];
-    filehandles[fh-3] = NULL;
+    FileHandle* fhc = filehandles[fh];
+    filehandles[fh] = NULL;
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -330,7 +327,8 @@ extern "C" ssize_t write(int fh, const void *buf, size_t length) {
     }
 #endif
 
-    if (fh < 3) {
+    FileHandle* fhc = filehandles[fh];
+    if (fhc == NULL && fh < 3) {
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
@@ -349,7 +347,6 @@ extern "C" ssize_t write(int fh, const void *buf, size_t length) {
 #endif
         n = length;
     } else {
-        FileHandle* fhc = filehandles[fh-3];
         if (fhc == NULL) {
             errno = EBADF;
             return -1;
@@ -404,7 +401,8 @@ extern "C" ssize_t read(int fh, void *buf, size_t length) {
     }
 #endif
 
-    if (fh < 3) {
+    FileHandle* fhc = filehandles[fh];
+    if (fhc == NULL && fh < 3) {
         // only read a character at a time from stdin
 #if DEVICE_SERIAL
         if (!stdio_uart_inited) init_serial();
@@ -433,7 +431,6 @@ extern "C" ssize_t read(int fh, void *buf, size_t length) {
 #endif
         n = 1;
     } else {
-        FileHandle* fhc = filehandles[fh-3];
         if (fhc == NULL) {
             errno = EBADF;
             return -1;
@@ -457,11 +454,11 @@ extern "C" int _isatty(FILEHANDLE fh)
 }
 
 extern "C" int isatty(int fh) {
-    /* stdin, stdout and stderr should be tty */
-    if (fh < 3) return 1;
-
-    FileHandle* fhc = filehandles[fh-3];
+    FileHandle* fhc = filehandles[fh];
     if (fhc == NULL) {
+        /* stdin, stdout and stderr should be tty */
+        if (fh < 3) return 1;
+
         errno = EBADF;
         return 0;
     }
@@ -498,12 +495,12 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
 }
 
 extern "C" off_t lseek(int fh, off_t offset, int whence) {
-    if (fh < 3) {
+    FileHandle* fhc = filehandles[fh];
+    if (fhc == NULL && fh < 3) {
         errno = ESPIPE;
         return -1;
     }
 
-    FileHandle* fhc = filehandles[fh-3];
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -524,9 +521,7 @@ extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
 #endif
 
 extern "C" int fsync(int fh) {
-    if (fh < 3) return 0;
-
-    FileHandle* fhc = filehandles[fh-3];
+    FileHandle* fhc = filehandles[fh];
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -543,12 +538,12 @@ extern "C" int fsync(int fh) {
 
 #ifdef __ARMCC_VERSION
 extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
-    if (fh < 3) {
+    FileHandle* fhc = filehandles[fh];
+    if (fhc == NULL && fh < 3) {
         errno = EINVAL;
         return -1;
     }
 
-    FileHandle* fhc = filehandles[fh-3];
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -595,12 +590,12 @@ extern "C" int _fstat(int fh, struct stat *st) {
 #endif
 
 extern "C" int fstat(int fh, struct stat *st) {
-    if (fh < 3) {
+    FileHandle* fhc = filehandles[fh];
+    if (fhc == NULL && fh < 3) {
         st->st_mode = S_IFCHR;
         return  0;
     }
 
-    FileHandle* fhc = filehandles[fh-3];
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -622,11 +617,7 @@ extern "C" int poll(struct pollfd fds[], nfds_t nfds, int timeout)
     for (nfds_t n = 0; n < nfds; n++) {
         // Underlying FileHandle poll returns POLLNVAL if given NULL, so
         // we don't need to take special action.
-        if (fds[n].fd < 3) {
-            fhs[n].fh = NULL; // poll won't work on stdin/err/out yet
-        } else {
-            fhs[n].fh = filehandles[fds[n].fd - 3];
-        }
+        fhs[n].fh = filehandles[fds[n].fd];
         fhs[n].events = fds[n].events;
     }
     int ret = poll(fhs, nfds, timeout);
