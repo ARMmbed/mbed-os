@@ -94,6 +94,11 @@ HalTimerReadCountRtl8195a_Patch(
     IN  u32 TimerId
 );
 
+VOID 
+HalTimerSync(
+    IN u32 TimerId
+);
+
 VOID
 HalTimerIrqEnRtl8195a(
     IN  u32 TimerId

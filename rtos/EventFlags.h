@@ -32,7 +32,11 @@
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
-
+/**
+ * \defgroup rtos_EventFlags EventFlags class
+ * @{
+ */
+ 
 /** The EventFlags class is used to signal or wait for an arbitrary event or events.
  @note 
  EventFlags support 31 flags so the MSB flag is ignored, it is used to return an error code (@a osFlagsError)
@@ -90,11 +94,12 @@ private:
     void constructor(const char *name = NULL);
     uint32_t wait(uint32_t flags, uint32_t opt, uint32_t timeout, bool clear);
     osEventFlagsId_t                _id;
-    osEventFlagsAttr_t              _attr;
     mbed_rtos_storage_event_flags_t _obj_mem;
 };
+
+/** @}*/
+/** @}*/
 
 }
 #endif
 
-/** @}*/

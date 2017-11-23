@@ -46,6 +46,10 @@ static sys_mutex_t tx_lock_mutex;
 /* function */
 static void _eth_arch_rx_task(void *arg);
 static void _eth_arch_phy_task(void *arg);
+#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
+    || defined (STM32F779xx)
+static void _rmii_watchdog(void *arg);
+#endif
 
 #if LWIP_IPV4
 static err_t _eth_arch_netif_output_ipv4(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr);
@@ -95,9 +99,6 @@ void ETH_IRQHandler(void)
  */
 static void _eth_arch_low_level_init(struct netif *netif)
 {
-    uint32_t regvalue = 0;
-    HAL_StatusTypeDef hal_eth_init_status;
-
     /* Init ETH */
     uint8_t MACAddr[6];
     EthHandle.Instance = ETH;
@@ -119,7 +120,7 @@ static void _eth_arch_low_level_init(struct netif *netif)
     EthHandle.Init.RxMode = ETH_RXINTERRUPT_MODE;
     EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
     EthHandle.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
-    hal_eth_init_status = HAL_ETH_Init(&EthHandle);
+    HAL_ETH_Init(&EthHandle);
 
     /* Initialize Tx Descriptors list: Chain Mode */
     HAL_ETH_DMATxDescListInit(&EthHandle, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
@@ -375,6 +376,36 @@ static void _eth_arch_phy_task(void *arg)
     }
 }
 
+#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
+    || defined (STM32F779xx)
+/**
+ * workaround for the ETH RMII bug in STM32F76x and STM32F77x revA
+ *
+ * \param[in] netif the lwip network interface structure
+ */
+static void _rmii_watchdog(void *arg)
+{
+    while(1) {
+        /* some good packets are received */
+        if (EthHandle.Instance->MMCRGUFCR > 0) {
+            /* RMII Init is OK - would need service to terminate or suspend
+             * the thread */
+            while(1) {
+                /*  don't do anything anymore */
+                osDelay(0xFFFFFFFF);
+            }
+        } else if (EthHandle.Instance->MMCRFCECR > 10) {
+            /* ETH received too many packets with CRC errors, resetting RMII */
+            SYSCFG->PMC &= ~SYSCFG_PMC_MII_RMII_SEL;
+            SYSCFG->PMC |= SYSCFG_PMC_MII_RMII_SEL;
+            EthHandle.Instance->MMCCR |= ETH_MMCCR_CR;
+        } else {
+            osDelay(100);
+        }
+    }
+}
+#endif
+
 /**
  * This function is the ethernet IPv4 packet send function. It calls
  * etharp_output after checking link status.
@@ -467,6 +498,11 @@ err_t eth_arch_enetif_init(struct netif *netif)
 
     /* initialize the hardware */
     _eth_arch_low_level_init(netif);
+
+#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
+    || defined (STM32F779xx)
+    sys_thread_new("stm32_rmii_watchdog", _rmii_watchdog, netif, DEFAULT_THREAD_STACKSIZE, osPriorityLow);
+#endif
 
     return ERR_OK;
 }

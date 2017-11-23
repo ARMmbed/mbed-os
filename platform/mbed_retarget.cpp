@@ -63,7 +63,6 @@ static SingletonPtr<PlatformMutex> _mutex;
 #   define STDERR_FILENO    2
 
 #else
-#   include <sys/stat.h>
 #   include <sys/syslimits.h>
 #   define PREFIX(x)    x
 #endif
@@ -254,7 +253,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
             /* The first part of the filename (between first 2 '/') is not a
              * registered mount point in the namespace.
              */
-            return handle_open_errors(-ENOENT, fh_i);
+            return handle_open_errors(-ENODEV, fh_i);
         }
 
         if (path.isFile()) {
@@ -262,7 +261,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
         } else {
             FileSystemHandle *fs = path.fileSystem();
             if (fs == NULL) {
-                return handle_open_errors(-ENOENT, fh_i);
+                return handle_open_errors(-ENODEV, fh_i);
             }
             int posix_mode = openmode_to_posix(openmode);
             int err = fs->open(&res, path.fileName(), posix_mode);
@@ -567,7 +566,7 @@ extern "C" int remove(const char *path) {
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
     if (fs == NULL) {
-        errno = ENOENT;
+        errno = ENODEV;
         return -1;
     }
 
@@ -587,7 +586,7 @@ extern "C" int rename(const char *oldname, const char *newname) {
     FileSystemHandle *fsNew = fpNew.fileSystem();
 
     if (fsOld == NULL) {
-        errno = ENOENT;
+        errno = ENODEV;
         return -1;
     }
 
@@ -627,7 +626,7 @@ extern "C" DIR *opendir(const char *path) {
     FilePath fp(path);
     FileSystemHandle* fs = fp.fileSystem();
     if (fs == NULL) {
-        errno = ENOENT;
+        errno = ENODEV;
         return NULL;
     }
 
@@ -679,7 +678,10 @@ extern "C" void seekdir(DIR *dir, off_t off) {
 extern "C" int mkdir(const char *path, mode_t mode) {
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
-    if (fs == NULL) return -1;
+    if (fs == NULL) {
+        errno = ENODEV;
+        return -1;
+    }
 
     int err = fs->mkdir(fp.fileName(), mode);
     if (err < 0) {
@@ -693,7 +695,10 @@ extern "C" int mkdir(const char *path, mode_t mode) {
 extern "C" int stat(const char *path, struct stat *st) {
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
-    if (fs == NULL) return -1;
+    if (fs == NULL) {
+        errno = ENODEV;
+        return -1;
+    }
 
     int err = fs->stat(fp.fileName(), st);
     if (err < 0) {
@@ -936,7 +941,11 @@ extern "C" WEAK void __iar_file_Mtxdst(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxlock(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxunlock(__iar_Rmtx *mutex) {}
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
-extern "C" WEAK void *__aeabi_read_tp (void) { return NULL ;}
+#pragma section="__iar_tls$$DATA"
+extern "C" WEAK void *__aeabi_read_tp (void) {
+  // Thread Local storage is not supported, using main thread memory for errno
+  return __section_begin("__iar_tls$$DATA");
+}
 #endif
 #elif defined(__CC_ARM)
 // Do nothing

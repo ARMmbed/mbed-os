@@ -1,5 +1,10 @@
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_preprocessor preprocessor macros
+ * @{
+ */
+
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -50,4 +55,5 @@
 
 #endif
 
+/** @}*/
 /** @}*/

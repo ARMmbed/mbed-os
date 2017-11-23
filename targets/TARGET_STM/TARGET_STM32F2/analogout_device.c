@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "mbed_assert.h"
 #include "analogout_api.h"
 
 #if DEVICE_ANALOGOUT
@@ -32,19 +33,20 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
-#include "stm32f2xx_hal.h"
 #include "PeripheralPins.h"
 
 void analogout_init(dac_t *obj, PinName pin)
 {
-    DAC_ChannelConfTypeDef sConfig;
+    DAC_ChannelConfTypeDef sConfig = {0};
 
-    // Get the peripheral name (DAC_1, ...) from the pin and assign it to the object
+    // Get the peripheral name from the pin and assign it to the object
     obj->dac = (DACName)pinmap_peripheral(pin, PinMap_DAC);
-    // Get the functions (dac channel) from the pin and assign it to the object
+    MBED_ASSERT(obj->dac != (DACName)NC);
+
+    // Get the pin function and assign the used channel to the object
     uint32_t function = pinmap_function(pin, PinMap_DAC);
     MBED_ASSERT(function != (uint32_t)NC);
-    // Save the channel for the write and read functions
+
     switch (STM_PIN_CHANNEL(function)) {
         case 1:
             obj->channel = DAC_CHANNEL_1;
@@ -59,18 +61,19 @@ void analogout_init(dac_t *obj, PinName pin)
             break;
     }
 
-    if (obj->dac == (DACName)NC) {
-        error("DAC pin mapping failed");
-    }
-
     // Configure GPIO
     pinmap_pinout(pin, PinMap_DAC);
 
-    __GPIOA_CLK_ENABLE();
+    // Save the pin for future use
+    obj->pin = pin;
 
-    __DAC_CLK_ENABLE();
+    // Enable DAC clock
+    __HAL_RCC_DAC_CLK_ENABLE();
 
-    obj->handle.Instance = DAC;
+    // Configure DAC
+    obj->handle.Instance = (DAC_TypeDef *)(obj->dac);
+    obj->handle.State = HAL_DAC_STATE_RESET;
+
     if (HAL_DAC_Init(&obj->handle) != HAL_OK ) {
         error("HAL_DAC_Init failed");
     }
@@ -87,8 +90,13 @@ void analogout_init(dac_t *obj, PinName pin)
 
 void analogout_free(dac_t *obj)
 {
+    // Reset DAC and disable clock
+    __HAL_RCC_DAC_FORCE_RESET();
+    __HAL_RCC_DAC_RELEASE_RESET();
+    __HAL_RCC_DAC_CLK_DISABLE();
+
+    // Configure GPIO
+    pin_function(obj->pin, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
 }
-
-
 
 #endif // DEVICE_ANALOGOUT

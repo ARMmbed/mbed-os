@@ -31,10 +31,10 @@ namespace rtos {
 void RtosTimer::constructor(mbed::Callback<void()> func, os_timer_type type) {
     _function = func;
     memset(&_obj_mem, 0, sizeof(_obj_mem));
-    memset(&_attr, 0, sizeof(_attr));
-    _attr.cb_mem = &_obj_mem;
-    _attr.cb_size = sizeof(_obj_mem);
-    _id = osTimerNew((void (*)(void *))Callback<void()>::thunk, type, &_function, &_attr);
+    osTimerAttr_t attr = { 0 };
+    attr.cb_mem = &_obj_mem;
+    attr.cb_size = sizeof(_obj_mem);
+    _id = osTimerNew((void (*)(void *))Callback<void()>::thunk, type, &_function, &attr);
     MBED_ASSERT(_id);
 }
 

@@ -254,6 +254,16 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'NUCLEO-L486RG',
             'mcuId': 'STM32L486RGTx'
         },
+        'NUCLEO_L496ZG':
+        {
+            'name': 'NUCLEO-L496ZG',
+            'mcuId': 'STM32L496ZGTx'
+        },        
+        'NUCLEO_L496ZG_P':
+        {
+            'name': 'NUCLEO-L496ZG',
+            'mcuId': 'STM32L496ZGTx'
+        },
     }
 
     TARGETS = BOARDS.keys()

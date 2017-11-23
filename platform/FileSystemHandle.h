@@ -24,8 +24,12 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_FileSystemHandle FileSystemHandle functions
+ * @{
+ */
 
 
 /** A filesystem-like object is one that can be used to open file-like
@@ -91,7 +95,9 @@ public:
      */
     virtual int mkdir(const char *path, mode_t mode);
 };
+/**@}*/
 
+/**@}*/
 
 } // namespace mbed
 

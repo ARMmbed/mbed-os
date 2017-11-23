@@ -1,4 +1,7 @@
 {
+    "STM32L496ZG": {
+        "OGChipSelectEditMenu": "STM32L496ZG\tST STM32L496ZG"
+    },
     "STM32L476VG": {
         "OGChipSelectEditMenu": "STM32L476VG\tST STM32L476VG"
     },
@@ -25,6 +28,9 @@
     },
     "STM32L486RG": {
         "OGChipSelectEditMenu": "STM32L486RG\tST STM32L486RG"
+    },
+    "STM32L476JG": {
+        "OGChipSelectEditMenu": "STM32L476JG\tST STM32L476JG"
     },
     "STM32L011K4": {
         "OGChipSelectEditMenu": "STM32L011x4\tST STM32L011x4"
@@ -106,6 +112,9 @@
     },
     "LPC1768": {
         "OGChipSelectEditMenu": "LPC1768\tNXP LPC1768"
+    },
+    "LPC1769": {
+        "OGChipSelectEditMenu": "LPC1769\tNXP LPC1769"
     },
     "STM32F446RE": {
         "OGChipSelectEditMenu": "STM32F446RE\tST STM32F446RE"
@@ -231,5 +240,10 @@
         "CExtraOptionsCheck": 1,
         "CExtraOptions": "--drv_vector_table_base=0x0",
         "CMSISDAPJtagSpeedList": 10
+    },
+    "TMPM066FWUG":{
+        "OGChipSelectEditMenu": "TMPM066FWUG\tToshiba TMPM066FWUG",
+        "GFPUCoreSlave": 21,
+        "GBECoreSlave": 21
     }
 }

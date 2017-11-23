@@ -1,6 +1,10 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_CThunk CThunk class
+ * @{
+ */
 /* General C++ Object Thunking class
  *
  * - allows direct callbacks to non-static C++ class functions
@@ -73,13 +77,11 @@
 
 /* IRQ/Exception compatible thunk entry function */
 typedef void (*CThunkEntry)(void);
-/** @}*/
 
 /**
  * Class for created a pointer with data bound to it
  *
  * @note Synchronization level: Not protected
- * @ingroup platform
  */
 template<class T>
 class CThunk
@@ -220,15 +222,15 @@ class CThunk
                 uint32_t start_addr = (uint32_t)&m_thunk & 0xFFFFFFE0;
                 uint32_t end_addr   = (uint32_t)&m_thunk + sizeof(m_thunk);
                 uint32_t addr;
-                
+
                 /* Data cache clean and invalid */
                 for (addr = start_addr; addr < end_addr; addr += 0x20) {
-                    __v7_clean_inv_dcache_mva((void *)addr);
+                    L1C_CleanInvalidateDCacheMVA((void *)addr);
                 }
                 /* Instruction cache invalid */
-                __v7_inv_icache_all();
-                __ca9u_inv_tlb_all();
-                __v7_inv_btac();
+                L1C_InvalidateICacheAll();
+                MMU_InvalidateTLB();
+                L1C_InvalidateBTAC();
             }
 #endif
 #if defined(__CORTEX_M7)
@@ -242,6 +244,10 @@ class CThunk
             __DSB();
         }
 };
+
+/**@}*/
+
+/**@}*/
 
 #endif/*__CTHUNK_H__*/
 

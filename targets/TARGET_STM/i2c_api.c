@@ -725,8 +725,10 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int count = I2C_ERROR_BUS_BUSY, ret = 0;
     uint32_t timeout = 0;
 
-    if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
-        (obj_s->XferOperation == I2C_LAST_FRAME)) {
+    // Trick to remove compiler warning "left and right operands are identical" in some cases
+    uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
+    uint32_t op2 = I2C_LAST_FRAME;
+    if ((obj_s->XferOperation == op1) || (obj_s->XferOperation == op2)) {
         if (stop)
             obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
         else
@@ -777,8 +779,10 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     int count = I2C_ERROR_BUS_BUSY, ret = 0;
     uint32_t timeout = 0;
 
-    if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
-        (obj_s->XferOperation == I2C_LAST_FRAME)) {
+    // Trick to remove compiler warning "left and right operands are identical" in some cases
+    uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
+    uint32_t op2 = I2C_LAST_FRAME;
+    if ((obj_s->XferOperation == op1) || (obj_s->XferOperation == op2)) {
         if (stop)
             obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
         else
@@ -1065,8 +1069,10 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
 
     /* Set operation step depending if stop sending required or not */
     if ((tx_length && !rx_length) || (!tx_length && rx_length)) {
-        if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
-            (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        // Trick to remove compiler warning "left and right operands are identical" in some cases
+        uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
+        uint32_t op2 = I2C_LAST_FRAME;
+        if ((obj_s->XferOperation == op1) || (obj_s->XferOperation == op2)) {
             if (stop)
                 obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
             else
@@ -1088,8 +1094,10 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     }
     else if (tx_length && rx_length) {
         /* Two steps operation, don't modify XferOperation, keep it for next step */
-        if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
-            (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        // Trick to remove compiler warning "left and right operands are identical" in some cases
+        uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
+        uint32_t op2 = I2C_LAST_FRAME;
+        if ((obj_s->XferOperation == op1) || (obj_s->XferOperation == op2)) {
                 HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t*)tx, tx_length, I2C_FIRST_FRAME);
         } else if ((obj_s->XferOperation == I2C_FIRST_FRAME) ||
             (obj_s->XferOperation == I2C_NEXT_FRAME)) {

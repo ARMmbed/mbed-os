@@ -130,6 +130,9 @@ ble_error_t ArmGattServer::addService(GattService &service)
         currAtt->pLen = p_char->getValueAttribute().getLengthPtr();
         currAtt->maxLen = p_char->getValueAttribute().getMaxLength();
         currAtt->settings = ATTS_SET_WRITE_CBACK | ATTS_SET_READ_CBACK;
+        if (p_char->getValueAttribute().hasVariableLength()) {
+            currAtt->settings |= ATTS_SET_VARIABLE_LEN;
+        }
         if (p_char->getValueAttribute().getUUID().shortOrLong() == UUID::UUID_TYPE_LONG) {
             currAtt->settings |= ATTS_SET_UUID_128;
         }

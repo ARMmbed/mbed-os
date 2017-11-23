@@ -33,7 +33,11 @@
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
-
+/**
+ * \defgroup rtos_RtosTimer RtosTimer class
+ * @{
+ */
+ 
 /** The RtosTimer class allow creating and and controlling of timer functions in the system.
  A timer function is called when a time period expires whereby both on-shot and
  periodic timers are possible. A timer can be started, restarted, or stopped.
@@ -131,13 +135,21 @@ public:
     }
 
     /** Stop the timer.
-      @return  status code that indicates the execution status of the function.
+      @return  status code that indicates the execution status of the function:
+          @a osOK the timer has been stopped.
+          @a osErrorISR @a stop cannot be called from interrupt service routines.
+          @a osErrorParameter internal error.
+          @a osErrorResource the timer is not running.
     */
     osStatus stop(void);
 
-    /** Start the timer.
-      @param   millisec  time delay value of the timer.
-      @return  status code that indicates the execution status of the function.
+    /** Start or restart the timer.
+      @param   millisec  non-zero value of the timer.
+      @return  status code that indicates the execution status of the function:
+          @a osOK the timer has been started or restarted.
+          @a osErrorISR @a start cannot be called from interrupt service routines.
+          @a osErrorParameter internal error or incorrect parameter value.
+          @a osErrorResource internal error (the timer is in an invalid timer state).
     */
     osStatus start(uint32_t millisec);
 
@@ -149,13 +161,14 @@ private:
     void constructor(mbed::Callback<void()> func, os_timer_type type);
 
     osTimerId_t _id;
-    osTimerAttr_t _attr;
     mbed_rtos_storage_timer_t _obj_mem;
     mbed::Callback<void()> _function;
 };
+/** @}*/
+/** @}*/
 
 }
 
 #endif
 
-/** @}*/
+
