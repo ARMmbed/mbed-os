@@ -18,13 +18,12 @@
 #ifndef USBHAL_IP_OTGFSHS_H
 #define USBHAL_IP_OTGFSHS_H
 
-//==================================================================
-// This board has both USB OTG FS and HS connectors.
-// Select one line only.
-//==================================================================
 #if defined(TARGET_DISCO_F746NG)
-//#define TARGET_DISCO_F746NG_OTG_FS
+#if (MBED_CONF_TARGET_USB_SPEED == 1) // Defined in json configuration file
 #define TARGET_DISCO_F746NG_OTG_HS
+#else
+#define TARGET_DISCO_F746NG_OTG_FS
+#endif
 #endif
 
 #if defined(TARGET_DISCO_F429ZI) || \
