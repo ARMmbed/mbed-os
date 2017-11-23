@@ -384,8 +384,32 @@ void serial_baud(serial_t *obj, int baudrate)
 
     obj_s->baudrate = baudrate;
     if (init_uart(obj) != HAL_OK) {
-        debug("Cannot initialize UART with baud rate %u\n", baudrate);
+
+#if defined(LPUART1_BASE)
         /* Note that LPUART clock source must be in the range [3 x baud rate, 4096 x baud rate], check Ref Manual */
+        if (obj_s->uart == LPUART_1) {
+            /* Try to change LPUART clock source */
+            RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+            if (baudrate == 9600) {
+                PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+                PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
+                HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+                if (init_uart(obj) == HAL_OK){
+                    return;
+                }
+            }
+            else {
+                PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+                PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_SYSCLK;
+                HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+                if (init_uart(obj) == HAL_OK){
+                    return;
+                }
+            }
+        }
+#endif /* LPUART1_BASE */
+
+        debug("Cannot initialize UART with baud rate %u\n", baudrate);
     }
 }
 
