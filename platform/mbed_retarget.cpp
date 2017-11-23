@@ -26,6 +26,7 @@
 #include "platform/mbed_error.h"
 #include "platform/mbed_stats.h"
 #include "platform/mbed_critical.h"
+#include "platform/mbed_poll.h"
 #include "platform/PlatformMutex.h"
 #include "us_ticker_api.h"
 #include "lp_ticker_api.h"
@@ -140,35 +141,35 @@ static int handle_open_errors(int error, unsigned filehandle_idx) {
     return -1;
 }
 
-static inline int openmode_to_posix(int openmode) {
-    int posix = openmode;
+static inline int openflags_to_posix(int openflags) {
+    int posix = openflags;
 #ifdef __ARMCC_VERSION
-    if (openmode & OPEN_PLUS) {
+    if (openflags & OPEN_PLUS) {
         posix = O_RDWR;
-    } else if(openmode & OPEN_W) {
+    } else if(openflags & OPEN_W) {
         posix = O_WRONLY;
-    } else if(openmode & OPEN_A) {
+    } else if(openflags & OPEN_A) {
         posix = O_WRONLY|O_APPEND;
     } else {
         posix = O_RDONLY;
     }
     /* a, w, a+, w+ all create if file does not already exist */
-    if (openmode & (OPEN_A|OPEN_W)) {
+    if (openflags & (OPEN_A|OPEN_W)) {
         posix |= O_CREAT;
     }
     /* w and w+ truncate */
-    if (openmode & OPEN_W) {
+    if (openflags & OPEN_W) {
         posix |= O_TRUNC;
     }
 #elif defined(__ICCARM__)
-    switch (openmode & _LLIO_RDWRMASK) {
+    switch (openflags & _LLIO_RDWRMASK) {
         case _LLIO_RDONLY: posix = O_RDONLY; break;
         case _LLIO_WRONLY: posix = O_WRONLY; break;
         case _LLIO_RDWR  : posix = O_RDWR  ; break;
     }
-    if (openmode & _LLIO_CREAT ) posix |= O_CREAT;
-    if (openmode & _LLIO_APPEND) posix |= O_APPEND;
-    if (openmode & _LLIO_TRUNC ) posix |= O_TRUNC;
+    if (openflags & _LLIO_CREAT ) posix |= O_CREAT;
+    if (openflags & _LLIO_APPEND) posix |= O_APPEND;
+    if (openflags & _LLIO_TRUNC ) posix |= O_TRUNC;
 #elif defined(TOOLCHAIN_GCC)
     posix &= ~O_BINARY;
 #endif
@@ -186,7 +187,11 @@ static inline int openmode_to_posix(int openmode) {
  *	 EMFILE		the maximum number of open files was exceeded.
  *
  * */
-extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
+extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags) {
+    return open(name, openflags_to_posix(openflags));
+}
+
+extern "C" int open(const char *name, int oflag, ...) {
     #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
 #if !defined(MBED_CONF_RTOS_PRESENT)
     // valid only for mbed 2
@@ -263,8 +268,7 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
             if (fs == NULL) {
                 return handle_open_errors(-ENODEV, fh_i);
             }
-            int posix_mode = openmode_to_posix(openmode);
-            int err = fs->open(&res, path.fileName(), posix_mode);
+            int err = fs->open(&res, path.fileName(), oflag);
             if (err) {
                 return handle_open_errors(err, fh_i);
             }
@@ -277,6 +281,10 @@ extern "C" FILEHANDLE PREFIX(_open)(const char* name, int openmode) {
 }
 
 extern "C" int PREFIX(_close)(FILEHANDLE fh) {
+    return close(fh);
+}
+
+extern "C" int close(int fh) {
     if (fh < 3) return 0;
 
     FileHandle* fhc = filehandles[fh-3];
@@ -300,6 +308,20 @@ extern "C" size_t    __write (int        fh, const unsigned char *buffer, size_t
 #else
 extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsigned int length, int mode) {
 #endif
+    ssize_t written = write(fh, buffer, length);
+#ifdef __ARMCC_VERSION
+    if (written >= 0) {
+        return (ssize_t)length - written;
+    } else {
+        return written;
+    }
+#else
+    return written;
+#endif
+}
+
+extern "C" ssize_t write(int fh, const void *buf, size_t length) {
+    const unsigned char *buffer = static_cast<const unsigned char *>(buf);
     int n; // n is the number of bytes written
 
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
@@ -338,11 +360,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
             errno = -n;
         }
     }
-#ifdef __ARMCC_VERSION
-    return length-n;
-#else
     return n;
-#endif
 }
 
 #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
@@ -362,6 +380,22 @@ extern "C" size_t    __read (int        fh, unsigned char *buffer, size_t       
 #else
 extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int length, int mode) {
 #endif
+    ssize_t bytes_read = read(fh, buffer, length);
+#ifdef __ARMCC_VERSION
+    if (bytes_read < 0) {
+        return -1;
+    } else if (bytes_read == 0) {
+        return 0x80000000 | length; // weird EOF indication
+    } else {
+        return (ssize_t)length - bytes_read;
+    }
+#else
+    return bytes_read;
+#endif
+}
+
+extern "C" ssize_t read(int fh, void *buf, size_t length) {
+    unsigned char *buffer = static_cast<unsigned char *>(buf);
     int n; // n is the number of bytes read
 
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
@@ -410,13 +444,8 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
             errno = -n;
         }
     }
-#ifdef __ARMCC_VERSION
-    return length-n;
-#else
     return n;
-#endif
 }
-
 
 #ifdef __ARMCC_VERSION
 extern "C" int PREFIX(_istty)(FILEHANDLE fh)
@@ -424,6 +453,10 @@ extern "C" int PREFIX(_istty)(FILEHANDLE fh)
 extern "C" int _isatty(FILEHANDLE fh)
 #endif
 {
+    return isatty(fh);
+}
+
+extern "C" int isatty(int fh) {
     /* stdin, stdout and stderr should be tty */
     if (fh < 3) return 1;
 
@@ -455,6 +488,16 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
     int whence = SEEK_SET;
 #endif
 
+    off_t off = lseek(fh, offset, whence);
+    // Assuming INT_MAX = LONG_MAX, so we don't care about prototype difference
+    if (off > INT_MAX) {
+        errno = EOVERFLOW;
+        return -1;
+    }
+    return off;
+}
+
+extern "C" off_t lseek(int fh, off_t offset, int whence) {
     if (fh < 3) {
         errno = ESPIPE;
         return -1;
@@ -471,16 +514,16 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
         errno = -off;
         return -1;
     }
-    // Assuming INT_MAX = LONG_MAX, so we don't care about prototype difference
-    if (off > INT_MAX) {
-        errno = EOVERFLOW;
-        return -1;
-    }
     return off;
 }
 
 #ifdef __ARMCC_VERSION
 extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
+    return fsync(fh);
+}
+#endif
+
+extern "C" int fsync(int fh) {
     if (fh < 3) return 0;
 
     FileHandle* fhc = filehandles[fh-3];
@@ -498,6 +541,7 @@ extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
     }
 }
 
+#ifdef __ARMCC_VERSION
 extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
     if (fh < 3) {
         errno = EINVAL;
@@ -546,6 +590,11 @@ extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uin
 
 #if !defined(__ARMCC_VERSION) && !defined(__ICCARM__)
 extern "C" int _fstat(int fh, struct stat *st) {
+    return fstat(fh, st);
+}
+#endif
+
+extern "C" int fstat(int fh, struct stat *st) {
     if (fh < 3) {
         st->st_mode = S_IFCHR;
         return  0;
@@ -561,7 +610,31 @@ extern "C" int _fstat(int fh, struct stat *st) {
     st->st_size = fhc->size();
     return 0;
 }
-#endif
+
+extern "C" int poll(struct pollfd fds[], nfds_t nfds, int timeout)
+{
+    if (nfds > OPEN_MAX) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    struct mbed::pollfh fhs[OPEN_MAX];
+    for (nfds_t n = 0; n < nfds; n++) {
+        // Underlying FileHandle poll returns POLLNVAL if given NULL, so
+        // we don't need to take special action.
+        if (fds[n].fd < 3) {
+            fhs[n].fh = NULL; // poll won't work on stdin/err/out yet
+        } else {
+            fhs[n].fh = filehandles[fds[n].fd - 3];
+        }
+        fhs[n].events = fds[n].events;
+    }
+    int ret = poll(fhs, nfds, timeout);
+    for (nfds_t n = 0; n < nfds; n++) {
+        fds[n].revents = fhs[n].revents;
+    }
+    return ret;
+}
 
 namespace std {
 extern "C" int remove(const char *path) {
