@@ -415,6 +415,14 @@ struct stat {
     time_t    st_ctime;   ///< Time of last status change
 };
 
+#if __cplusplus
+extern "C" {
+#endif
+    int stat(const char *path, struct stat *st);
+#if __cplusplus
+};
+#endif
+
 
 /* The following are dirent.h definitions are declared here to garuntee
  * consistency where structure may be different with different toolchains
