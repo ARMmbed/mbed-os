@@ -91,11 +91,11 @@ struct trng_s {
 
 #if DEVICE_QSPI
 
-// #include "nrf_drv_qspi.h"
+#include "nrf_drv_qspi.h"
 
 struct qspi_s {
     uint32_t placeholder;
-    // nrf_drv_qspi_config_t config;
+    nrf_drv_qspi_config_t config;
 };
 
 #endif
