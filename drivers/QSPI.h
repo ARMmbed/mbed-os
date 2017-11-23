@@ -83,9 +83,9 @@ public:
      *
      *  @param inst_width Bus width used by instruction phase(Valid values are 1,2,4)
      *  @param address_width Bus width used by address phase(Valid values are 1,2,4)
-     *  @param address_size Size in bits used by address phase(Valid values are NONE,8,16,24,32)
+     *  @param address_size Size in bits used by address phase(Valid values are 8,16,24,32)
      *  @param alt_width Bus width used by alt phase(Valid values are 1,2,4)
-     *  @param alt_size Size in bits used by alt phase(Valid values are NONE,8,16,24,32)
+     *  @param alt_size Size in bits used by alt phase(Valid values are 8,16,24,32)
      *  @param data_width Bus width used by data phase(Valid values are 1,2,4)
      *  @param dummy_cycles Number of dummy clock cycles to be used after alt phase
      *  @param mode Mode specifies the SPI mode(Mode=0 uses CPOL=0, CPHA=0, Mode=1 uses CPOL=1, CPHA=1)
