@@ -772,10 +772,15 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            }
+            },
+            "rtc_lsi": {
+                "help": "Use internal low speed clock (default clock is LSE)",
+                "value": "1",
+                "macro_name": "RTC_LSI"
+             }
         },
         "detect_code": ["0791"],
-        "macros_add": ["RTC_LSI=1", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["SERIAL_FC"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -792,10 +797,15 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            }
+            },
+            "rtc_lsi": {
+                "help": "Use internal low speed clock (default clock is LSE)",
+                "value": "1",
+                "macro_name": "RTC_LSI"
+             }
         },
         "detect_code": ["0785"],
-        "macros_add": ["RTC_LSI=1", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CAN", "SERIAL_FC"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -924,13 +934,17 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F3", "STM32F303x8", "STM32F303K8"],
-        "macros_add": ["RTC_LSI=1"],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            }
+            },
+            "rtc_lsi": {
+                "help": "Use internal low speed clock (default clock is LSE)",
+                "value": "1",
+                "macro_name": "RTC_LSI"
+             }
         },
         "detect_code": ["0775"],
         "default_lib": "small",
@@ -1004,7 +1018,7 @@
         },
         "detect_code": ["0720"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
+        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "LOWPOWERTIMER"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F401RE"
     },
@@ -1488,13 +1502,17 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F3", "STM32F334x8","STM32F334C8"],
-        "macros_add": ["RTC_LSI=1"],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            }
+            },
+            "rtc_lsi": {
+                "help": "Use internal low speed clock (default clock is LSE)",
+                "value": "1",
+                "macro_name": "RTC_LSI"
+             }
         },
         "detect_code": ["0810"],
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
@@ -1525,9 +1543,14 @@
                 "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
                 "value": "1",
                 "macro_name": "CLOCK_SOURCE_USB"
-            }
+            },
+            "rtc_lsi": {
+                "help": "Use internal low speed clock (default clock is LSE)",
+                "value": "1",
+                "macro_name": "RTC_LSI"
+             }
         },
-        "macros_add": ["RTC_LSI=1", "USB_STM_HAL", "USBHOST_OTHER"],
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F429ZI",
@@ -1555,13 +1578,17 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M0+",
         "extra_labels_add": ["STM32L0", "STM32L053x8", "STM32L053C8"],
-        "macros": ["RTC_LSI=1"],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            }
+            },
+            "rtc_lsi": {
+                "help": "Use internal low speed clock (default clock is LSE)",
+                "value": "1",
+                "macro_name": "RTC_LSI"
+             }
         },
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
