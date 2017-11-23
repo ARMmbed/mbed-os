@@ -405,7 +405,7 @@ const PinMap PinMap_QSPI_SCLK[] = {
 };
 
 const PinMap PinMap_QSPI_SSEL[] = {
-    {PB_6,  0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF5_SPI2)},
+    {PB_6,  0, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF10_QSPI)},
     {NC,    NC,    0}
 };
 
