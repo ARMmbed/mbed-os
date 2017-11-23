@@ -176,7 +176,7 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
     if (HAL_QSPI_Init(&obj->handle) != HAL_OK) {
         status = QSPI_STATUS_ERROR;
     }
-    return QSPI_STATUS_OK;
+    return status;
 }
 
 qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void *data, size_t *length)
