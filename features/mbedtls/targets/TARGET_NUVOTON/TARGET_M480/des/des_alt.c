@@ -407,6 +407,14 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
 
         TDES_SetDMATransfer(0, (uint32_t) dmabuf_in, (uint32_t) dmabuf_out, data_len);
 
+        /* Ensure memory accesses above are completed before DMA is started
+         *
+         * Replacing __DSB() with __DMB() is also OK in this case.
+         *
+         * Refer to "multi-master systems" section with DMA in:
+         * https://static.docs.arm.com/dai0321/a/DAI0321A_programming_guide_memory_barriers_for_m_profile.pdf
+         */
+        __DSB();
         /* Start enc/dec */
         TDES_Start(0, CRYPTO_DMA_ONE_SHOT);
         while (CRPT->TDES_STS & CRPT_TDES_STS_BUSY_Msk);
