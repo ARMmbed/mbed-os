@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_timer.c
  * @brief Timer/counter (TIMER) Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -51,7 +51,6 @@
  * @{
  ******************************************************************************/
 
-
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
@@ -78,8 +77,7 @@ void TIMER_Init(TIMER_TypeDef *timer, const TIMER_Init_TypeDef *init)
   EFM_ASSERT(TIMER_REF_VALID(timer));
 
   /* Stop timer if specified to be disabled (dosn't hurt if already stopped) */
-  if (!(init->enable))
-  {
+  if (!(init->enable)) {
     timer->CMD = TIMER_CMD_STOP;
   }
 
@@ -103,12 +101,10 @@ void TIMER_Init(TIMER_TypeDef *timer, const TIMER_Init_TypeDef *init)
                 | (init->sync                   ?   TIMER_CTRL_SYNC      : 0);
 
   /* Start timer if specified to be enabled (dosn't hurt if already started) */
-  if (init->enable)
-  {
+  if (init->enable) {
     timer->CMD = TIMER_CMD_START;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -148,7 +144,6 @@ void TIMER_InitCC(TIMER_TypeDef *timer,
     | (init->outInvert           ?   TIMER_CC_CTRL_OUTINV      : 0);
 }
 
-
 #if defined(_TIMER_DTCTRL_MASK)
 /***************************************************************************//**
  * @brief
@@ -165,7 +160,7 @@ void TIMER_InitDTI(TIMER_TypeDef *timer, const TIMER_InitDTI_TypeDef *init)
   EFM_ASSERT(TIMER0 == timer);
 
   /* Make sure the DTI unit is disabled while initializing. */
-  TIMER_EnableDTI (timer, false);
+  TIMER_EnableDTI(timer, false);
 
   /* Setup the DTCTRL register.
      The enable bit will be set at the end of the function if specified. */
@@ -199,10 +194,9 @@ void TIMER_InitDTI(TIMER_TypeDef *timer, const TIMER_InitDTI_TypeDef *init)
   TIMER_ClearDTIFault(timer, TIMER_GetDTIFault(timer));
 
   /* Enable/disable before returning. */
-  TIMER_EnableDTI (timer, init->enable);
+  TIMER_EnableDTI(timer, init->enable);
 }
 #endif
-
 
 /***************************************************************************//**
  * @brief
@@ -234,8 +228,7 @@ void TIMER_Reset(TIMER_TypeDef *timer)
   /* Do not reset route register, setting should be done independently */
   /* (Note: ROUTE register may be locked by DTLOCK register.) */
 
-  for (i = 0; TIMER_CH_VALID(i); i++)
-  {
+  for (i = 0; TIMER_CH_VALID(i); i++) {
     timer->CC[i].CTRL = _TIMER_CC_CTRL_RESETVALUE;
     timer->CC[i].CCV  = _TIMER_CC_CCV_RESETVALUE;
     timer->CC[i].CCVB = _TIMER_CC_CCVB_RESETVALUE;
@@ -254,7 +247,6 @@ void TIMER_Reset(TIMER_TypeDef *timer)
   timer->DTFAULTC = _TIMER_DTFAULTC_MASK;
 #endif
 }
-
 
 /** @} (end addtogroup TIMER) */
 /** @} (end addtogroup emlib) */

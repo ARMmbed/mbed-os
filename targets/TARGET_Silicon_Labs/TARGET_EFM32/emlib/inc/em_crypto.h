@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_crypto.h
  * @brief Cryptography accelerator peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -187,37 +187,46 @@ extern "C" {
  * @{
  ******************************************************************************/
 
- /*******************************************************************************
+/*******************************************************************************
  ******************************   DEFINES    ***********************************
  ******************************************************************************/
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+/** Default CRYPTO instance for deprecated AES functions. */
+#if !defined(DEFAULT_CRYPTO)
+#if defined(CRYPTO)
+#define DEFAULT_CRYPTO CRYPTO
+#elif defined(CRYPTO0)
+#define DEFAULT_CRYPTO CRYPTO0
+#endif
+#endif
+
 /** Data sizes used by CRYPTO operations. */
 #define CRYPTO_DATA_SIZE_IN_BITS           (128)
-#define CRYPTO_DATA_SIZE_IN_BYTES          (CRYPTO_DATA_SIZE_IN_BITS/8)
-#define CRYPTO_DATA_SIZE_IN_32BIT_WORDS    (CRYPTO_DATA_SIZE_IN_BYTES/sizeof(uint32_t))
+#define CRYPTO_DATA_SIZE_IN_BYTES          (CRYPTO_DATA_SIZE_IN_BITS / 8)
+#define CRYPTO_DATA_SIZE_IN_32BIT_WORDS    (CRYPTO_DATA_SIZE_IN_BYTES / sizeof(uint32_t))
 
 #define CRYPTO_KEYBUF_SIZE_IN_BITS         (256)
-#define CRYPTO_KEYBUF_SIZE_IN_BYTES        (CRYPTO_DDATA_SIZE_IN_BITS/8)
-#define CRYPTO_KEYBUF_SIZE_IN_32BIT_WORDS  (CRYPTO_DDATA_SIZE_IN_BYTES/sizeof(uint32_t))
+#define CRYPTO_KEYBUF_SIZE_IN_BYTES        (CRYPTO_DDATA_SIZE_IN_BITS / 8)
+#define CRYPTO_KEYBUF_SIZE_IN_32BIT_WORDS  (CRYPTO_DDATA_SIZE_IN_BYTES / sizeof(uint32_t))
 
 #define CRYPTO_DDATA_SIZE_IN_BITS          (256)
-#define CRYPTO_DDATA_SIZE_IN_BYTES         (CRYPTO_DDATA_SIZE_IN_BITS/8)
-#define CRYPTO_DDATA_SIZE_IN_32BIT_WORDS   (CRYPTO_DDATA_SIZE_IN_BYTES/sizeof(uint32_t))
+#define CRYPTO_DDATA_SIZE_IN_BYTES         (CRYPTO_DDATA_SIZE_IN_BITS / 8)
+#define CRYPTO_DDATA_SIZE_IN_32BIT_WORDS   (CRYPTO_DDATA_SIZE_IN_BYTES / sizeof(uint32_t))
 
 #define CRYPTO_QDATA_SIZE_IN_BITS          (512)
-#define CRYPTO_QDATA_SIZE_IN_BYTES         (CRYPTO_QDATA_SIZE_IN_BITS/8)
-#define CRYPTO_QDATA_SIZE_IN_32BIT_WORDS   (CRYPTO_QDATA_SIZE_IN_BYTES/sizeof(uint32_t))
+#define CRYPTO_QDATA_SIZE_IN_BYTES         (CRYPTO_QDATA_SIZE_IN_BITS / 8)
+#define CRYPTO_QDATA_SIZE_IN_32BIT_WORDS   (CRYPTO_QDATA_SIZE_IN_BYTES / sizeof(uint32_t))
 
 #define CRYPTO_DATA260_SIZE_IN_32BIT_WORDS (9)
 
 /** SHA-1 digest sizes */
 #define CRYPTO_SHA1_DIGEST_SIZE_IN_BITS    (160)
-#define CRYPTO_SHA1_DIGEST_SIZE_IN_BYTES   (CRYPTO_SHA1_DIGEST_SIZE_IN_BITS/8)
+#define CRYPTO_SHA1_DIGEST_SIZE_IN_BYTES   (CRYPTO_SHA1_DIGEST_SIZE_IN_BITS / 8)
 
 /** SHA-256 digest sizes */
 #define CRYPTO_SHA256_DIGEST_SIZE_IN_BITS  (256)
-#define CRYPTO_SHA256_DIGEST_SIZE_IN_BYTES (CRYPTO_SHA256_DIGEST_SIZE_IN_BITS/8)
+#define CRYPTO_SHA256_DIGEST_SIZE_IN_BYTES (CRYPTO_SHA256_DIGEST_SIZE_IN_BITS / 8)
 
 /**
  * Read and write all 260 bits of DDATA0 when in 260 bit mode.
@@ -233,89 +242,89 @@ extern "C" {
  * Use these macros in order for faster execution than the function API.
  */
 #define CRYPTO_SEQ_LOAD_1(crypto, a1) { \
-    crypto->SEQ0 =  a1 |  (CRYPTO_CMD_INSTR_END<<8);}
+    crypto->SEQ0 =  a1 |  (CRYPTO_CMD_INSTR_END << 8); }
 #define CRYPTO_SEQ_LOAD_2(crypto, a1, a2) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (CRYPTO_CMD_INSTR_END<<16);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (CRYPTO_CMD_INSTR_END << 16); }
 #define CRYPTO_SEQ_LOAD_3(crypto, a1, a2, a3) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) | (CRYPTO_CMD_INSTR_END<<24);}
-#define CRYPTO_SEQ_LOAD_4(crypto, a1, a2, a3, a4) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  CRYPTO_CMD_INSTR_END;}
-#define CRYPTO_SEQ_LOAD_5(crypto, a1, a2, a3, a4, a5) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (CRYPTO_CMD_INSTR_END<<8);}
-#define CRYPTO_SEQ_LOAD_6(crypto, a1, a2, a3, a4, a5, a6) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (CRYPTO_CMD_INSTR_END<<16);}
-#define CRYPTO_SEQ_LOAD_7(crypto, a1, a2, a3, a4, a5, a6, a7) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (CRYPTO_CMD_INSTR_END<<24);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) | (CRYPTO_CMD_INSTR_END << 24); }
+#define CRYPTO_SEQ_LOAD_4(crypto, a1, a2, a3, a4) {              \
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24); \
+    crypto->SEQ1 =  CRYPTO_CMD_INSTR_END; }
+#define CRYPTO_SEQ_LOAD_5(crypto, a1, a2, a3, a4, a5) {          \
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24); \
+    crypto->SEQ1 =  a5 |  (CRYPTO_CMD_INSTR_END << 8); }
+#define CRYPTO_SEQ_LOAD_6(crypto, a1, a2, a3, a4, a5, a6) {      \
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24); \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (CRYPTO_CMD_INSTR_END << 16); }
+#define CRYPTO_SEQ_LOAD_7(crypto, a1, a2, a3, a4, a5, a6, a7) {  \
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24); \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (CRYPTO_CMD_INSTR_END << 24); }
 #define CRYPTO_SEQ_LOAD_8(crypto, a1, a2, a3, a4, a5, a6, a7, a8) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  CRYPTO_CMD_INSTR_END;}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);    \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);    \
+    crypto->SEQ2 =  CRYPTO_CMD_INSTR_END; }
 #define CRYPTO_SEQ_LOAD_9(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (CRYPTO_CMD_INSTR_END<<8);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);        \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);        \
+    crypto->SEQ2 =  a9 | (CRYPTO_CMD_INSTR_END << 8); }
 #define CRYPTO_SEQ_LOAD_10(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (CRYPTO_CMD_INSTR_END<<16);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);              \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);              \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (CRYPTO_CMD_INSTR_END << 16); }
 #define CRYPTO_SEQ_LOAD_11(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (CRYPTO_CMD_INSTR_END<<24);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                   \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                   \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (CRYPTO_CMD_INSTR_END << 24); }
 #define CRYPTO_SEQ_LOAD_12(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = CRYPTO_CMD_INSTR_END;}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                        \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                        \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                        \
+    crypto->SEQ3 = CRYPTO_CMD_INSTR_END; }
 #define CRYPTO_SEQ_LOAD_13(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (CRYPTO_CMD_INSTR_END<<8);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                             \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                             \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                             \
+    crypto->SEQ3 = a13 | (CRYPTO_CMD_INSTR_END << 8); }
 #define CRYPTO_SEQ_LOAD_14(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (CRYPTO_CMD_INSTR_END<<16);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                  \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                  \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                  \
+    crypto->SEQ3 = a13 | (a14 << 8) | (CRYPTO_CMD_INSTR_END << 16); }
 #define CRYPTO_SEQ_LOAD_15(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (CRYPTO_CMD_INSTR_END<<24);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                       \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                       \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                       \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (CRYPTO_CMD_INSTR_END << 24); }
 #define CRYPTO_SEQ_LOAD_16(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (a16<<24);              \
-    crypto->SEQ4 = CRYPTO_CMD_INSTR_END;}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                            \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                            \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                            \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (a16 << 24);                                            \
+    crypto->SEQ4 = CRYPTO_CMD_INSTR_END; }
 #define CRYPTO_SEQ_LOAD_17(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (a16<<24);              \
-    crypto->SEQ4 = a17 | (CRYPTO_CMD_INSTR_END<<8);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                                 \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                                 \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                                 \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (a16 << 24);                                                 \
+    crypto->SEQ4 = a17 | (CRYPTO_CMD_INSTR_END << 8); }
 #define CRYPTO_SEQ_LOAD_18(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (a16<<24);              \
-    crypto->SEQ4 = a17 | (a18<<8) | (CRYPTO_CMD_INSTR_END<<16);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                                      \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                                      \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                                      \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (a16 << 24);                                                      \
+    crypto->SEQ4 = a17 | (a18 << 8) | (CRYPTO_CMD_INSTR_END << 16); }
 #define CRYPTO_SEQ_LOAD_19(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (a16<<24);              \
-    crypto->SEQ4 = a17 | (a18<<8) | (a19<<16) | (CRYPTO_CMD_INSTR_END<<24);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                                           \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                                           \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                                           \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (a16 << 24);                                                           \
+    crypto->SEQ4 = a17 | (a18 << 8) | (a19 << 16) | (CRYPTO_CMD_INSTR_END << 24); }
 #define CRYPTO_SEQ_LOAD_20(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (a16<<24);              \
-    crypto->SEQ4 = a17 | (a18<<8) | (a19<<16) | (a20<<24);}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                                                \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                                                \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                                                \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (a16 << 24);                                                                \
+    crypto->SEQ4 = a17 | (a18 << 8) | (a19 << 16) | (a20 << 24); }
 /** @endcond */
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
@@ -324,91 +333,91 @@ extern "C" {
  * 1-20). E.g. @ref CRYPTO_EXECUTE_19.
  * Use these macros in order for faster execution than the function API.
  */
-#define CRYPTO_EXECUTE_1(crypto, a1) {                                          \
-    crypto->SEQ0 = a1 | (CRYPTO_CMD_INSTR_EXEC<<8);                    }
-#define CRYPTO_EXECUTE_2(crypto, a1, a2) {                                      \
-    crypto->SEQ0 = a1 | (a2<<8) | (CRYPTO_CMD_INSTR_EXEC<<16);         }
-#define CRYPTO_EXECUTE_3(crypto, a1, a2, a3) {                                  \
-    crypto->SEQ0 = a1 | (a2<<8) | (a3<<16) | (CRYPTO_CMD_INSTR_EXEC<<24); }
-#define CRYPTO_EXECUTE_4(crypto, a1, a2, a3, a4) {                              \
-    crypto->SEQ0 = a1 | (a2<<8) | (a3<<16) | (a4<<24);                  \
+#define CRYPTO_EXECUTE_1(crypto, a1) { \
+    crypto->SEQ0 = a1 | (CRYPTO_CMD_INSTR_EXEC << 8);                    }
+#define CRYPTO_EXECUTE_2(crypto, a1, a2) { \
+    crypto->SEQ0 = a1 | (a2 << 8) | (CRYPTO_CMD_INSTR_EXEC << 16);         }
+#define CRYPTO_EXECUTE_3(crypto, a1, a2, a3) { \
+    crypto->SEQ0 = a1 | (a2 << 8) | (a3 << 16) | (CRYPTO_CMD_INSTR_EXEC << 24); }
+#define CRYPTO_EXECUTE_4(crypto, a1, a2, a3, a4) {           \
+    crypto->SEQ0 = a1 | (a2 << 8) | (a3 << 16) | (a4 << 24); \
     crypto->SEQ1 = CRYPTO_CMD_INSTR_EXEC;                              }
-#define CRYPTO_EXECUTE_5(crypto, a1, a2, a3, a4, a5) {                          \
-    crypto->SEQ0 = a1 | (a2<<8) | (a3<<16) | (a4<<24);                  \
-    crypto->SEQ1 = a5 | (CRYPTO_CMD_INSTR_EXEC<<8);                    }
-#define CRYPTO_EXECUTE_6(crypto, a1, a2, a3, a4, a5, a6) {                      \
-    crypto->SEQ0 = a1 | (a2<<8) | (a3<<16) | (a4<<24);                  \
-    crypto->SEQ1 = a5 | (a6<<8) | (CRYPTO_CMD_INSTR_EXEC<<16);         }
-#define CRYPTO_EXECUTE_7(crypto, a1, a2, a3, a4, a5, a6, a7) {                  \
-    crypto->SEQ0 = a1 | (a2<<8) | (a3<<16) | (a4<<24);                  \
-    crypto->SEQ1 = a5 | (a6<<8) | (a7<<16) | (CRYPTO_CMD_INSTR_EXEC<<24); }
-#define CRYPTO_EXECUTE_8(crypto, a1, a2, a3, a4, a5, a6, a7, a8) {              \
-    crypto->SEQ0 = a1 | (a2<<8) | (a3<<16) | (a4<<24);                  \
-    crypto->SEQ1 = a5 | (a6<<8) | (a7<<16) | (a8<<24);                  \
+#define CRYPTO_EXECUTE_5(crypto, a1, a2, a3, a4, a5) {       \
+    crypto->SEQ0 = a1 | (a2 << 8) | (a3 << 16) | (a4 << 24); \
+    crypto->SEQ1 = a5 | (CRYPTO_CMD_INSTR_EXEC << 8);                    }
+#define CRYPTO_EXECUTE_6(crypto, a1, a2, a3, a4, a5, a6) {   \
+    crypto->SEQ0 = a1 | (a2 << 8) | (a3 << 16) | (a4 << 24); \
+    crypto->SEQ1 = a5 | (a6 << 8) | (CRYPTO_CMD_INSTR_EXEC << 16);         }
+#define CRYPTO_EXECUTE_7(crypto, a1, a2, a3, a4, a5, a6, a7) { \
+    crypto->SEQ0 = a1 | (a2 << 8) | (a3 << 16) | (a4 << 24);   \
+    crypto->SEQ1 = a5 | (a6 << 8) | (a7 << 16) | (CRYPTO_CMD_INSTR_EXEC << 24); }
+#define CRYPTO_EXECUTE_8(crypto, a1, a2, a3, a4, a5, a6, a7, a8) { \
+    crypto->SEQ0 = a1 | (a2 << 8) | (a3 << 16) | (a4 << 24);       \
+    crypto->SEQ1 = a5 | (a6 << 8) | (a7 << 16) | (a8 << 24);       \
     crypto->SEQ2 = CRYPTO_CMD_INSTR_EXEC;                              }
-#define CRYPTO_EXECUTE_9(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9) {          \
-    crypto->SEQ0 = a1 | (a2<<8) | (a3<<16) | (a4<<24);                  \
-    crypto->SEQ1 = a5 | (a6<<8) | (a7<<16) | (a8<<24);                  \
-    crypto->SEQ2 = a9 | (CRYPTO_CMD_INSTR_EXEC<<8);                    }
-#define CRYPTO_EXECUTE_10(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) {    \
-    crypto->SEQ0 = a1 | (a2<<8) | (a3<<16) | (a4<<24);                  \
-    crypto->SEQ1 = a5 | (a6<<8) | (a7<<16) | (a8<<24);                  \
-    crypto->SEQ2 = a9 | (a10<<8) | (CRYPTO_CMD_INSTR_EXEC<<16);        }
+#define CRYPTO_EXECUTE_9(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9) { \
+    crypto->SEQ0 = a1 | (a2 << 8) | (a3 << 16) | (a4 << 24);           \
+    crypto->SEQ1 = a5 | (a6 << 8) | (a7 << 16) | (a8 << 24);           \
+    crypto->SEQ2 = a9 | (CRYPTO_CMD_INSTR_EXEC << 8);                    }
+#define CRYPTO_EXECUTE_10(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) { \
+    crypto->SEQ0 = a1 | (a2 << 8) | (a3 << 16) | (a4 << 24);                 \
+    crypto->SEQ1 = a5 | (a6 << 8) | (a7 << 16) | (a8 << 24);                 \
+    crypto->SEQ2 = a9 | (a10 << 8) | (CRYPTO_CMD_INSTR_EXEC << 16);        }
 #define CRYPTO_EXECUTE_11(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11) { \
-    crypto->SEQ0 = a1 | (a2<<8) | (a3<<16) | (a4<<24);                  \
-    crypto->SEQ1 = a5 | (a6<<8) | (a7<<16) | (a8<<24);                  \
-    crypto->SEQ2 = a9 | (a10<<8) | (a11<<16) | (CRYPTO_CMD_INSTR_EXEC<<24); }
+    crypto->SEQ0 = a1 | (a2 << 8) | (a3 << 16) | (a4 << 24);                      \
+    crypto->SEQ1 = a5 | (a6 << 8) | (a7 << 16) | (a8 << 24);                      \
+    crypto->SEQ2 = a9 | (a10 << 8) | (a11 << 16) | (CRYPTO_CMD_INSTR_EXEC << 24); }
 #define CRYPTO_EXECUTE_12(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12) { \
-    crypto->SEQ0 = a1 |  (a2<<8) |  (a3<<16) | (a4<<24);                \
-    crypto->SEQ1 = a5 |  (a6<<8) |  (a7<<16) | (a8<<24);                \
-    crypto->SEQ2 = a9 | (a10<<8) | (a11<<16) | (a12<<24);               \
+    crypto->SEQ0 = a1 |  (a2 << 8) |  (a3 << 16) | (a4 << 24);                         \
+    crypto->SEQ1 = a5 |  (a6 << 8) |  (a7 << 16) | (a8 << 24);                         \
+    crypto->SEQ2 = a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                        \
     crypto->SEQ3 = CRYPTO_CMD_INSTR_EXEC;                              }
 #define CRYPTO_EXECUTE_13(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13) { \
-    crypto->SEQ0 = a1  | (a2<<8)  | (a3<<16)  | (a4<<24);               \
-    crypto->SEQ1 = a5  | (a6<<8)  | (a7<<16)  | (a8<<24);               \
-    crypto->SEQ2 = a9  | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (CRYPTO_CMD_INSTR_EXEC<<8);                   }
+    crypto->SEQ0 = a1  | (a2 << 8)  | (a3 << 16)  | (a4 << 24);                             \
+    crypto->SEQ1 = a5  | (a6 << 8)  | (a7 << 16)  | (a8 << 24);                             \
+    crypto->SEQ2 = a9  | (a10 << 8) | (a11 << 16) | (a12 << 24);                            \
+    crypto->SEQ3 = a13 | (CRYPTO_CMD_INSTR_EXEC << 8);                   }
 #define CRYPTO_EXECUTE_14(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14) { \
-    crypto->SEQ0 = a1 | (a2<<8) | (a3<<16) | (a4<<24);                  \
-    crypto->SEQ1 = a5 | (a6<<8) | (a7<<16) | (a8<<24);                  \
-    crypto->SEQ2 = a9 | (a10<<8) | (a11<<16) | (a12<<24);               \
-    crypto->SEQ3 = a13 | (a14<<8) | (CRYPTO_CMD_INSTR_EXEC<<16);       }
+    crypto->SEQ0 = a1 | (a2 << 8) | (a3 << 16) | (a4 << 24);                                     \
+    crypto->SEQ1 = a5 | (a6 << 8) | (a7 << 16) | (a8 << 24);                                     \
+    crypto->SEQ2 = a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                  \
+    crypto->SEQ3 = a13 | (a14 << 8) | (CRYPTO_CMD_INSTR_EXEC << 16);       }
 #define CRYPTO_EXECUTE_15(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (CRYPTO_CMD_INSTR_EXEC<<24); }
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                      \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                      \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                      \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (CRYPTO_CMD_INSTR_EXEC << 24); }
 #define CRYPTO_EXECUTE_16(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (a16<<24);              \
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                           \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                           \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                           \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (a16 << 24);                                           \
     crypto->SEQ4 = CRYPTO_CMD_INSTR_EXEC;                              }
 #define CRYPTO_EXECUTE_17(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) | (a4<<24);               \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) | (a8<<24);               \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (a16<<24);              \
-    crypto->SEQ4 = a17 | (CRYPTO_CMD_INSTR_EXEC<<8);                   }
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) | (a4 << 24);                                                 \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) | (a8 << 24);                                                 \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                                \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (a16 << 24);                                                \
+    crypto->SEQ4 = a17 | (CRYPTO_CMD_INSTR_EXEC << 8);                   }
 #define CRYPTO_EXECUTE_18(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (a16<<24);              \
-    crypto->SEQ4 = a17 | (a18<<8) | (CRYPTO_CMD_INSTR_EXEC<<16);       }
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                                     \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                                     \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                                     \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (a16 << 24);                                                     \
+    crypto->SEQ4 = a17 | (a18 << 8) | (CRYPTO_CMD_INSTR_EXEC << 16);       }
 #define CRYPTO_EXECUTE_19(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (a16<<24);              \
-    crypto->SEQ4 = a17 | (a18<<8) | (a19<<16) | (CRYPTO_CMD_INSTR_EXEC<<24); }
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                                          \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                                          \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                                          \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (a16 << 24);                                                          \
+    crypto->SEQ4 = a17 | (a18 << 8) | (a19 << 16) | (CRYPTO_CMD_INSTR_EXEC << 24); }
 #define CRYPTO_EXECUTE_20(crypto, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16, a17, a18, a19, a20) { \
-    crypto->SEQ0 =  a1 |  (a2<<8) |  (a3<<16) |  (a4<<24);              \
-    crypto->SEQ1 =  a5 |  (a6<<8) |  (a7<<16) |  (a8<<24);              \
-    crypto->SEQ2 =  a9 | (a10<<8) | (a11<<16) | (a12<<24);              \
-    crypto->SEQ3 = a13 | (a14<<8) | (a15<<16) | (a16<<24);              \
-    crypto->SEQ4 = a17 | (a18<<8) | (a19<<16) | (a20<<24);              \
-    CRYPTO_InstructionSequenceExecute();}
+    crypto->SEQ0 =  a1 |  (a2 << 8) |  (a3 << 16) |  (a4 << 24);                                                               \
+    crypto->SEQ1 =  a5 |  (a6 << 8) |  (a7 << 16) |  (a8 << 24);                                                               \
+    crypto->SEQ2 =  a9 | (a10 << 8) | (a11 << 16) | (a12 << 24);                                                               \
+    crypto->SEQ3 = a13 | (a14 << 8) | (a15 << 16) | (a16 << 24);                                                               \
+    crypto->SEQ4 = a17 | (a18 << 8) | (a19 << 16) | (a20 << 24);                                                               \
+    CRYPTO_InstructionSequenceExecute(); }
 /** @endcond */
 
 /*******************************************************************************
@@ -478,8 +487,7 @@ typedef volatile uint32_t* CRYPTO_DDataReg_TypeDef;
 typedef volatile uint32_t* CRYPTO_QDataReg_TypeDef;
 
 /** CRYPTO modulus identifiers. */
-typedef enum
-{
+typedef enum {
   cryptoModulusBin256        = CRYPTO_WAC_MODULUS_BIN256,       /**< Generic 256 bit modulus 2^256 */
   cryptoModulusBin128        = CRYPTO_WAC_MODULUS_BIN128,       /**< Generic 128 bit modulus 2^128 */
   cryptoModulusGcmBin128     = CRYPTO_WAC_MODULUS_GCMBIN128,    /**< GCM 128 bit modulus = 2^128 + 2^7 + 2^2 + 2 + 1 */
@@ -498,8 +506,7 @@ typedef enum
 } CRYPTO_ModulusId_TypeDef;
 
 /** CRYPTO multiplication widths for wide arithmetic operations. */
-typedef enum
-{
+typedef enum {
   cryptoMulOperand256Bits     = CRYPTO_WAC_MULWIDTH_MUL256, /**< 256 bits operands */
   cryptoMulOperand128Bits     = CRYPTO_WAC_MULWIDTH_MUL128, /**< 128 bits operands */
   cryptoMulOperandModulusBits = CRYPTO_WAC_MULWIDTH_MULMOD  /**< MUL operand width
@@ -508,16 +515,14 @@ typedef enum
 } CRYPTO_MulOperandWidth_TypeDef;
 
 /** CRYPTO result widths for MUL operations. */
-typedef enum
-{
+typedef enum {
   cryptoResult128Bits = CRYPTO_WAC_RESULTWIDTH_128BIT, /**< Multiplication result width is 128 bits*/
   cryptoResult256Bits = CRYPTO_WAC_RESULTWIDTH_256BIT, /**< Multiplication result width is 256 bits*/
   cryptoResult260Bits = CRYPTO_WAC_RESULTWIDTH_260BIT  /**< Multiplication result width is 260 bits*/
 } CRYPTO_ResultWidth_TypeDef;
 
 /** CRYPTO result widths for MUL operations. */
-typedef enum
-{
+typedef enum {
   cryptoInc1byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH1, /**< inc width is 1 byte*/
   cryptoInc2byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH2, /**< inc width is 2 byte*/
   cryptoInc3byte = CRYPTO_CTRL_INCWIDTH_INCWIDTH3, /**< inc width is 3 byte*/
@@ -525,8 +530,7 @@ typedef enum
 } CRYPTO_IncWidth_TypeDef;
 
 /** CRYPTO key width. */
-typedef enum
-{
+typedef enum {
   cryptoKey128Bits = 8,     /**< Key width is 128 bits*/
   cryptoKey256Bits = 16,    /**< Key width is 256 bits*/
 } CRYPTO_KeyWidth_TypeDef;
@@ -549,14 +553,14 @@ typedef uint8_t CRYPTO_InstructionSequence_TypeDef[CRYPTO_MAX_SEQUENCE_INSTRUCTI
     initialize the instruction sequence with this default value set, and fill
     in the desired operations from step 1. The first END instruction marks
     the end of the sequence. */
-#define CRYPTO_INSTRUCTIONSEQUENSE_DEFAULT                             \
-  {CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
-   CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
-   CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
-   CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
-   CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
-   CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
-   CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END}
+#define CRYPTO_INSTRUCTIONSEQUENSE_DEFAULT                            \
+  { CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
+    CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
+    CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
+    CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
+    CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
+    CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END, \
+    CRYPTO_CMD_INSTR_END, CRYPTO_CMD_INSTR_END }
 
 /** SHA-1 Digest type. */
 typedef uint8_t CRYPTO_SHA1_Digest_TypeDef[CRYPTO_SHA1_DIGEST_SIZE_IN_BYTES];
@@ -861,15 +865,12 @@ __STATIC_INLINE void CRYPTO_KeyBufWrite(CRYPTO_TypeDef          *crypto,
                                         CRYPTO_KeyBuf_TypeDef    val,
                                         CRYPTO_KeyWidth_TypeDef  keyWidth)
 {
-  if (keyWidth == cryptoKey256Bits)
-  {
+  if (keyWidth == cryptoKey256Bits) {
     /* Set AES-256 mode */
     BUS_RegBitWrite(&crypto->CTRL, _CRYPTO_CTRL_AES_SHIFT, _CRYPTO_CTRL_AES_AES256);
     /* Load key in KEYBUF register (= DDATA4) */
     CRYPTO_DDataWrite(&crypto->DDATA4, (uint32_t *)val);
-  }
-  else
-  {
+  } else {
     /* Set AES-128 mode */
     BUS_RegBitWrite(&crypto->CTRL, _CRYPTO_CTRL_AES_SHIFT, _CRYPTO_CTRL_AES_AES128);
     CRYPTO_BurstToCrypto(&crypto->KEYBUF, &val[0]);
@@ -915,7 +916,7 @@ __STATIC_INLINE void CRYPTO_KeyBuf128Write(CRYPTO_TypeDef *crypto,
 __STATIC_INLINE bool CRYPTO_CarryIsSet(CRYPTO_TypeDef *crypto)
 {
   return (crypto->DSTATUS & _CRYPTO_DSTATUS_CARRY_MASK)
-    >> _CRYPTO_DSTATUS_CARRY_SHIFT;
+         >> _CRYPTO_DSTATUS_CARRY_SHIFT;
 }
 
 /***************************************************************************//**
@@ -935,7 +936,7 @@ __STATIC_INLINE bool CRYPTO_CarryIsSet(CRYPTO_TypeDef *crypto)
 __STATIC_INLINE uint8_t CRYPTO_DData0_4LSBitsRead(CRYPTO_TypeDef *crypto)
 {
   return (crypto->DSTATUS & _CRYPTO_DSTATUS_DDATA0LSBS_MASK)
-    >> _CRYPTO_DSTATUS_DDATA0LSBS_SHIFT;
+         >> _CRYPTO_DSTATUS_DDATA0LSBS_SHIFT;
 }
 
 /***************************************************************************//**
@@ -959,7 +960,7 @@ __STATIC_INLINE void CRYPTO_DData0Read260(CRYPTO_TypeDef *crypto,
 {
   CRYPTO_DDataRead(&crypto->DDATA0, val);
   val[8] = (crypto->DSTATUS & _CRYPTO_DSTATUS_DDATA0MSBS_MASK)
-        >> _CRYPTO_DSTATUS_DDATA0MSBS_SHIFT;
+           >> _CRYPTO_DSTATUS_DDATA0MSBS_SHIFT;
 }
 
 /***************************************************************************//**
@@ -1004,7 +1005,7 @@ __STATIC_INLINE void CRYPTO_DData0Write260(CRYPTO_TypeDef *crypto,
 __STATIC_INLINE bool CRYPTO_DData1_MSBitRead(CRYPTO_TypeDef *crypto)
 {
   return (crypto->DSTATUS & _CRYPTO_DSTATUS_DDATA1MSB_MASK)
-    >> _CRYPTO_DSTATUS_DDATA1MSB_SHIFT;
+         >> _CRYPTO_DSTATUS_DDATA1MSB_SHIFT;
 }
 
 /***************************************************************************//**
@@ -1336,13 +1337,13 @@ __STATIC_INLINE void CRYPTO_IntSet(CRYPTO_TypeDef *crypto, uint32_t flags)
  *   @ref CRYPTO_AES_CBC128 instead.
  ******************************************************************************/
 __STATIC_INLINE void AES_CBC128(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
-                       bool encrypt)
+                                const uint8_t * in,
+                                unsigned int len,
+                                const uint8_t * key,
+                                const uint8_t * iv,
+                                bool encrypt)
 {
-  CRYPTO_AES_CBC128(CRYPTO, out, in, len, key, iv, encrypt);
+  CRYPTO_AES_CBC128(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
 }
 
 /***************************************************************************//**
@@ -1355,13 +1356,13 @@ __STATIC_INLINE void AES_CBC128(uint8_t * out,
  *   @ref CRYPTO_AES_CBC256 instead.
  ******************************************************************************/
 __STATIC_INLINE void AES_CBC256(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
-                       bool encrypt)
+                                const uint8_t * in,
+                                unsigned int len,
+                                const uint8_t * key,
+                                const uint8_t * iv,
+                                bool encrypt)
 {
-  CRYPTO_AES_CBC256(CRYPTO, out, in, len, key, iv, encrypt);
+  CRYPTO_AES_CBC256(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
 }
 
 /***************************************************************************//**
@@ -1373,13 +1374,13 @@ __STATIC_INLINE void AES_CBC256(uint8_t * out,
  *   @ref CRYPTO_AES_CFB128 instead.
  ******************************************************************************/
 __STATIC_INLINE void AES_CFB128(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
-                       bool encrypt)
+                                const uint8_t * in,
+                                unsigned int len,
+                                const uint8_t * key,
+                                const uint8_t * iv,
+                                bool encrypt)
 {
-  CRYPTO_AES_CFB128(CRYPTO, out, in, len, key, iv, encrypt);
+  CRYPTO_AES_CFB128(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
 }
 
 /***************************************************************************//**
@@ -1391,13 +1392,13 @@ __STATIC_INLINE void AES_CFB128(uint8_t * out,
  *   @ref CRYPTO_AES_CFB256 instead.
  ******************************************************************************/
 __STATIC_INLINE void AES_CFB256(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       const uint8_t * iv,
-                       bool encrypt)
+                                const uint8_t * in,
+                                unsigned int len,
+                                const uint8_t * key,
+                                const uint8_t * iv,
+                                bool encrypt)
 {
-  CRYPTO_AES_CFB256(CRYPTO, out, in, len, key, iv, encrypt);
+  CRYPTO_AES_CFB256(DEFAULT_CRYPTO, out, in, len, key, iv, encrypt);
 }
 
 /***************************************************************************//**
@@ -1409,13 +1410,13 @@ __STATIC_INLINE void AES_CFB256(uint8_t * out,
  *   @ref CRYPTO_AES_CTR128 instead.
  ******************************************************************************/
 __STATIC_INLINE void AES_CTR128(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       uint8_t * ctr,
-                       CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc)
+                                const uint8_t * in,
+                                unsigned int len,
+                                const uint8_t * key,
+                                uint8_t * ctr,
+                                CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc)
 {
-  CRYPTO_AES_CTR128(CRYPTO, out, in, len, key, ctr, ctrFunc);
+  CRYPTO_AES_CTR128(DEFAULT_CRYPTO, out, in, len, key, ctr, ctrFunc);
 }
 
 /***************************************************************************//**
@@ -1427,13 +1428,13 @@ __STATIC_INLINE void AES_CTR128(uint8_t * out,
  *   @ref CRYPTO_AES_CTR256 instead.
  ******************************************************************************/
 __STATIC_INLINE void AES_CTR256(uint8_t * out,
-                       const uint8_t * in,
-                       unsigned int len,
-                       const uint8_t * key,
-                       uint8_t * ctr,
-                       CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc)
+                                const uint8_t * in,
+                                unsigned int len,
+                                const uint8_t * key,
+                                uint8_t * ctr,
+                                CRYPTO_AES_CtrFuncPtr_TypeDef ctrFunc)
 {
-  CRYPTO_AES_CTR256(CRYPTO, out, in, len, key, ctr, ctrFunc);
+  CRYPTO_AES_CTR256(DEFAULT_CRYPTO, out, in, len, key, ctr, ctrFunc);
 }
 
 /***************************************************************************//**
@@ -1460,7 +1461,7 @@ __STATIC_INLINE void AES_CTRUpdate32Bit(uint8_t * ctr)
  ******************************************************************************/
 __STATIC_INLINE void AES_DecryptKey128(uint8_t * out, const uint8_t * in)
 {
-  CRYPTO_AES_DecryptKey128(CRYPTO, out, in);
+  CRYPTO_AES_DecryptKey128(DEFAULT_CRYPTO, out, in);
 }
 
 /***************************************************************************//**
@@ -1474,7 +1475,7 @@ __STATIC_INLINE void AES_DecryptKey128(uint8_t * out, const uint8_t * in)
  ******************************************************************************/
 __STATIC_INLINE void AES_DecryptKey256(uint8_t * out, const uint8_t * in)
 {
-  CRYPTO_AES_DecryptKey256(CRYPTO, out, in);
+  CRYPTO_AES_DecryptKey256(DEFAULT_CRYPTO, out, in);
 }
 
 /***************************************************************************//**
@@ -1492,7 +1493,7 @@ __STATIC_INLINE void AES_ECB128(uint8_t * out,
                                 const uint8_t * key,
                                 bool encrypt)
 {
-  CRYPTO_AES_ECB128(CRYPTO, out, in, len, key, encrypt);
+  CRYPTO_AES_ECB128(DEFAULT_CRYPTO, out, in, len, key, encrypt);
 }
 
 /***************************************************************************//**
@@ -1510,7 +1511,7 @@ __STATIC_INLINE void AES_ECB256(uint8_t * out,
                                 const uint8_t * key,
                                 bool encrypt)
 {
-  CRYPTO_AES_ECB256(CRYPTO, out, in, len, key, encrypt);
+  CRYPTO_AES_ECB256(DEFAULT_CRYPTO, out, in, len, key, encrypt);
 }
 
 /***************************************************************************//**
@@ -1527,7 +1528,7 @@ __STATIC_INLINE void AES_OFB128(uint8_t * out,
                                 const uint8_t * key,
                                 const uint8_t * iv)
 {
-  CRYPTO_AES_OFB128(CRYPTO, out, in, len, key, iv);
+  CRYPTO_AES_OFB128(DEFAULT_CRYPTO, out, in, len, key, iv);
 }
 
 /***************************************************************************//**
@@ -1544,7 +1545,7 @@ __STATIC_INLINE void AES_OFB256(uint8_t * out,
                                 const uint8_t * key,
                                 const uint8_t * iv)
 {
-  CRYPTO_AES_OFB256(CRYPTO, out, in, len, key, iv);
+  CRYPTO_AES_OFB256(DEFAULT_CRYPTO, out, in, len, key, iv);
 }
 
 #ifdef __cplusplus

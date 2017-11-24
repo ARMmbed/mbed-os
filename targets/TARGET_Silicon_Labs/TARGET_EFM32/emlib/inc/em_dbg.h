@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_dbg.h
  * @brief Debug (DBG) API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -30,14 +30,13 @@
  *
  ******************************************************************************/
 
-
 #ifndef EM_DBG_H
 #define EM_DBG_H
 
 #include <stdbool.h>
 #include "em_device.h"
 
-#if defined( CoreDebug_DHCSR_C_DEBUGEN_Msk )
+#if defined(CoreDebug_DHCSR_C_DEBUGEN_Msk)
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,7 +56,7 @@ extern "C" {
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
-#if defined( GPIO_ROUTE_SWCLKPEN ) || defined( GPIO_ROUTEPEN_SWCLKTCKPEN )
+#if defined(GPIO_ROUTE_SWCLKPEN) || defined(GPIO_ROUTEPEN_SWCLKTCKPEN)
 /***************************************************************************//**
  * @brief
  *   Check if a debugger is connected (and debug session activated)
@@ -76,8 +75,7 @@ __STATIC_INLINE bool DBG_Connected(void)
 }
 #endif
 
-
-#if defined( GPIO_ROUTE_SWOPEN ) || defined( GPIO_ROUTEPEN_SWVPEN )
+#if defined(GPIO_ROUTE_SWOPEN) || defined(GPIO_ROUTEPEN_SWVPEN)
 void DBG_SWOEnable(unsigned int location);
 #endif
 

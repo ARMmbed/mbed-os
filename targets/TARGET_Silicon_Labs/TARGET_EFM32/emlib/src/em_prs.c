@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_prs.c
  * @brief Peripheral Reflex System (PRS) Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -83,7 +83,7 @@ void PRS_SourceSignalSet(unsigned int ch,
                      | (uint32_t)edge;
 }
 
-#if defined( PRS_CH_CTRL_ASYNC )
+#if defined(PRS_CH_CTRL_ASYNC)
 /***************************************************************************//**
  * @brief
  *   Set source and asynchronous signal to be used for a channel.
