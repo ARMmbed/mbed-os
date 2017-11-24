@@ -29,7 +29,6 @@
 #include "pinmap.h"
 
 #include "em_gpio.h"
-#include "em_int.h"
 #include "em_cmu.h"
 #include "sleep_api.h"
 #include "sleepmodes.h"
