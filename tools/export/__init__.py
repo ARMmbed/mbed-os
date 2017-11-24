@@ -58,14 +58,12 @@ EXPORTERS = {
     'eclipse_iar'      : cdt.EclipseIAR,
     'eclipse_armc5'    : cdt.EclipseArmc5,
     'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
+    'netbeans':     nb.GNUARMNetbeans,
     'mcuxpresso': mcuxpresso.MCUXpresso,
     'qtcreator': qtcreator.QtCreator,
     'vscode_gcc_arm' : vscode.VSCodeGcc,
     'vscode_iar' : vscode.VSCodeIAR,
-    'vscode_armc5' : vscode.VSCodeArmc5,
-    'netbeans_gcc_arm'  : nb.NetbeansGcc,
-    'netbeans_iar'      : nb.NetbeansIAR,
-    'netbeans_armc5'    : nb.NetbeansArmc5
+    'vscode_armc5' : vscode.VSCodeArmc5
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """
