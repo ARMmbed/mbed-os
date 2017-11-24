@@ -37,7 +37,10 @@ extern "C" {
  * 
  * @return Number of uid bytes
  * 
- * @note Shall be used to get the needed size of the byte buffer
+ * @note
+ *  Shall be used by the driver to get the needed size of the byte buffer.
+ *  Target implementation must return a value higher than 0 or the driver will assert.
+ * 
  */
 int cpu_uid_get_length(void);
 

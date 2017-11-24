@@ -26,6 +26,7 @@ const char CpuUid::_hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8',
 CpuUid::CpuUid() : _data(NULL)
 {
     _size = cpu_uid_get_length();
+    MBED_ASSERT(_size > 0);
     if (0 < _size)
     {
         _data = new uint8_t[_size];
