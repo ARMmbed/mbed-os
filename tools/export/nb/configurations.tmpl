@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configurationDescriptor version="100">
     <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
-
-
         <logicalFolder name="HeaderFiles"
                        displayName="Header Files"
                        projectFiles="true">
             {% for header in headers_folder -%}
             {{ header }}
             {% endfor %}
+        </logicalFolder>
+        <logicalFolder name="LinkerScript"
+                       displayName="Linker Files"
+                       projectFiles="true">
+            <itemPath>{{ linker_script }}</itemPath>
         </logicalFolder>
         <logicalFolder name="ResourceFiles"
                        displayName="Resource Files"
@@ -20,6 +23,10 @@
             {% for source in sources_folder -%}
             {{ source }}
             {% endfor %}
+        </logicalFolder>
+        <logicalFolder name="OtherFiles"
+                       displayName="Other Files"
+                       projectFiles="true">
         </logicalFolder>
         <logicalFolder name="TestFiles"
                        displayName="Test Files"
@@ -33,9 +40,15 @@
             <itemPath>Makefile</itemPath>
         </logicalFolder>
     </logicalFolder>
+    <sourceFolderFilter>^(nbproject)$</sourceFolderFilter>
+    <sourceRootList>
+        <Elem>.</Elem>
+    </sourceRootList>
     <projectmakefile>Makefile</projectmakefile>
     <confs>
-        <conf name="Debug" type="1">
+        {% for id in options -%}
+        {% set opts = options[id] %}
+        <conf name="{{opts['id']}}" type="1">
             <toolsSet>
                 <compilerSet>default</compilerSet>
                 <dependencyChecking>true</dependencyChecking>
@@ -43,37 +56,53 @@
             </toolsSet>
             <compileType>
                 <cTool>
+                    <standard>{{ c_std }}</standard>
                     <incDir>
-                        {% for include in include_paths -%}
-                        <pElem>{{ include }}</pElem>
-                        {% endfor %}
+                        {% for inc_dir in include_paths -%}{% if inc_dir -%}
+                        <pElem>{{ inc_dir }}</pElem>
+                        {% endif -%}
+                        {% endfor -%}
                     </incDir>
-                    <commandLine>
-                        {% for flag in c_flags -%}
-                        {{ flag }}
-                        {% endfor %}
+                    <incFile>
+                        {% for inc_file in forced_includes -%}
+                        <pElem>{{ inc_file }}</pElem>
+                        {% endfor -%}
+                    </incFile>
+                    <commandLine>{%- for flag in c_flags -%}{{ flag+" "}}{%- endfor -%}
+                        {%- for item in opts['common'] -%}{{ item+" "}}{%- endfor -%}
                     </commandLine>
                     <preprocessorList>
+                        {% for item in opts['defines'] -%}
+                        <Elem>{{ item }}</Elem>
+                        {% endfor -%}
                         {% for symbol in c_symbols -%}
                         <Elem>{{ symbol }}</Elem>
-                        {% endfor %}
+                        {% endfor -%}
                     </preprocessorList>
                 </cTool>
                 <ccTool>
+                    <standard>{{ cpp_std }}</standard>
                     <incDir>
-                        {% for include in include_paths -%}
-                        <pElem>{{ include }}</pElem>
-                        {% endfor %}
+                        {% for inc_dir in include_paths -%}{% if inc_dir -%}
+                        <pElem>{{ inc_dir }}</pElem>
+                        {% endif -%}
+                        {% endfor -%}
                     </incDir>
-                    <commandLine>
-                        {% for flag in cxx_flags -%}
-                        {{ flag }}
-                        {% endfor %}
+                    <incFile>
+                        {% for inc_file in forced_includes -%}
+                        <pElem>{{ inc_file }}</pElem>
+                        {% endfor -%}
+                    </incFile>
+                    <commandLine>{%- for flag in cxx_flags -%}{{ flag+" "}}{%- endfor -%}
+                        {%- for item in opts['common'] -%}{{ item+" "}}{%- endfor -%}
                     </commandLine>
                     <preprocessorList>
+                        {% for item in opts['defines'] -%}
+                        <Elem>{{ item }}</Elem>
+                        {% endfor -%}
                         {% for symbol in c_symbols -%}
                         <Elem>{{ symbol }}</Elem>
-                        {% endfor %}
+                        {% endfor -%}
                     </preprocessorList>
                 </ccTool>
                 <fortranCompilerTool>
@@ -82,124 +111,57 @@
                 <asmTool>
                     <developmentMode>5</developmentMode>
                     <incDir>
-                        {% for include in include_paths -%}
-                        <pElem>{{ include }}</pElem>
-                        {% endfor %}
+                        {% for inc_dir in include_paths -%}{% if inc_dir -%}
+                        <pElem>{{ inc_dir }}</pElem>
+                        {% endif -%}
+                        {% endfor -%}
                     </incDir>
-                    <commandLine>
-                        {% for flag in asm_flags -%}
-                        {{ flag }}
-                        {% endfor %}
+                    <incFile>
+                        {% for inc_file in forced_includes -%}
+                        <pElem>{{ inc_file }}</pElem>
+                        {% endfor -%}
+                    </incFile>
+                    <commandLine>{%- for flag in asm_flags -%}{{ flag+" "}}{%- endfor -%}
+                        {%- for item in opts['common'] -%}{{ item+" "}}{%- endfor -%}
                     </commandLine>
                     <preprocessorList>
                         {% for symbol in asm_symbols -%}
                         <Elem>{{ symbol }}</Elem>
-                        {% endfor %}
+                        {% endfor -%}
                     </preprocessorList>
                 </asmTool>
                 <linkerTool>
-                    <commandLine>
-                        {% for flag in ld_flags -%}
-                        {{ flag }}
-                        {% endfor %}
-                    </commandLine>
+                    <commandlineTool>arm-none-eabi-gcc</commandlineTool>
+                    <commandLine>{%- for symbol in opts['ld'] -%}{{ symbol+" "}}{%- endfor -%}</commandLine>
                 </linkerTool>
-
             </compileType>
             {% for h in headers -%}
             <item path="{{h}}" ex="false" tool="3" flavor2="0">
             </item>
-            {% endfor %}
-            {% for s in sources -%}
-            <item path="{{s}}" ex="false" tool="1" flavor2="0">
-            </item>
-            {% endfor %}
-
-            <item path="main.cpp" ex="false" tool="1" flavor2="0">
-            </item>
-        </conf>
-        <conf name="Release" type="1">
-            <toolsSet>
-                <compilerSet>default</compilerSet>
-                <dependencyChecking>true</dependencyChecking>
-                <rebuildPropChanged>false</rebuildPropChanged>
-            </toolsSet>
-            <compileType>
-                {% for h in headers -%}
-                <item path="{{h}}" ex="false" tool="3" flavor2="0">
-                </item>
-                {% endfor %}
-                {% for s in sources -%}
-                <item path="{{s}}" ex="false" tool="1" flavor2="0">
-                </item>
-                {% endfor %}
-                <cTool>
-                    <developmentMode>5</developmentMode>
-                    <incDir>
-                        {% for include in include_paths -%}
-                        <pElem>{{ include }}</pElem>
-                        {% endfor %}
-                    </incDir>
-                    <commandLine>
-                        {% for flag in c_flags -%}
-                        {{ flag }}
-                        {% endfor %}
-                    </commandLine>
-                    <preprocessorList>
-                        {% for symbol in c_symbols -%}
-                        <Elem>{{ symbol }}</Elem>
-                        {% endfor %}
-                    </preprocessorList>
+            {% endfor -%}
+            {% for s in c_sources -%}
+            <item path="{{s}}" ex="false" tool="0" flavor2="3">
+                <cTool flags="1">
                 </cTool>
-                <ccTool>
-                    <developmentMode>5</developmentMode>
-                    <incDir>
-                        {% for include in include_paths -%}
-                        <pElem>{{ include }}</pElem>
-                        {% endfor %}
-                    </incDir>
-                    <commandLine>
-                        {% for flag in cxx_flags -%}
-                        {{ flag }}
-                        {% endfor %}
-                    </commandLine>
-                    <preprocessorList>
-                        {% for symbol in c_symbols -%}
-                        <Elem>{{ symbol }}</Elem>
-                        {% endfor %}
-                    </preprocessorList>
+            </item>
+            {% endfor -%}
+            {% for s in cpp_sources -%}
+            <item path="{{s}}" ex="false" tool="1" flavor2="0">
+                <ccTool flags="0">
                 </ccTool>
-                <fortranCompilerTool>
-                    <developmentMode>5</developmentMode>
-                </fortranCompilerTool>
-                <asmTool>
-                    <developmentMode>5</developmentMode>
-                    <incDir>
-                        {% for include in include_paths -%}
-                        <pElem>{{ include }}</pElem>
-                        {% endfor %}
-                    </incDir>
-                    <commandLine>
-                        {% for flag in asm_flags -%}
-                        {{ flag }}
-                        {% endfor %}
-                    </commandLine>
-                    <preprocessorList>
-                        {% for symbol in asm_symbols -%}
-                        <Elem>{{ symbol }}</Elem>
-                        {% endfor %}
-                    </preprocessorList>
-                </asmTool>
-                <linkerTool>
-                    <commandLine>
-                        {% for flag in ld_flags -%}
-                        {{ flag }}
-                        {% endfor %}
-                    </commandLine>
-                </linkerTool>
-            </compileType>
-            <item path="main.cpp" ex="false" tool="1" flavor2="0">
+            </item>
+            {% endfor -%}
+            {% for s in s_sources -%}
+            <item path="{{s}}" ex="false" tool="0" flavor2="0">
+            </item>
+            {% endfor -%}
+            <item path="{{linker_script }}" ex="false" tool="3" flavor2="0">
+            </item>
+            <item path="/nbproject/private/c_standard_headers_indexer.c" ex="true" tool="0" flavor2="0">
+            </item>
+            <item path="/nbproject/private/c_standard_headers_indexer.cpp" ex="true" tool="1" flavor2="0">
             </item>
         </conf>
+        {% endfor -%}
     </confs>
 </configurationDescriptor>
