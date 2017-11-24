@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
- #ifndef MBED_CONF_APP_CONNECT_STATEMENT
-     #error [NOT_SUPPORTED] No network configuration found for this target.
- #endif
+#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+    #error [NOT_SUPPORTED] No network configuration found for this target.
+#endif
 
 #include "mbed.h"
 #include MBED_CONF_APP_HEADER_FILE
@@ -35,7 +35,6 @@ using namespace utest::v1;
 namespace {
     char tx_buffer[MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
     char rx_buffer[MBED_CFG_TCP_CLIENT_ECHO_BUFFER_SIZE] = {0};
-    const char ASCII_MAX = '~' - ' ';
 }
 
 void prep_buffer(char *tx_buffer, size_t tx_size) {
@@ -60,15 +59,35 @@ void test_tcp_echo() {
 
     TCPSocket sock(net);
 
+#if defined(MBED_CONF_APP_ECHO_SERVER_ADDR) && defined(MBED_CONF_APP_ECHO_SERVER_PORT)
+    printf("TCP: Connect to %s:%d\r\n", MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_PORT);
     SocketAddress tcp_addr(MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_PORT);
+#else /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
+    char recv_key[] = "host_port";
+    char ipbuf[60] = {0};
+    char portbuf[16] = {0};
+    unsigned int port = 0;
+
+    greentea_send_kv("target_ip", net->get_ip_address());
+    greentea_send_kv("host_ip", " ");
+    greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
+
+    greentea_send_kv("host_port", " ");
+    greentea_parse_kv(recv_key, portbuf, sizeof(recv_key), sizeof(ipbuf));
+    sscanf(portbuf, "%u", &port);
+
+    printf("TCP: Connect to %s:%d\r\n", ipbuf, port);
+    SocketAddress tcp_addr(ipbuf, port);
+#endif /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
 
     if (sock.connect(tcp_addr) == 0) {
-        printf("HTTP: Connected to %s:%d\r\n", MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_PORT);
         printf("tx_buffer buffer size: %u\r\n", sizeof(tx_buffer));
         printf("rx_buffer buffer size: %u\r\n", sizeof(rx_buffer));
 
         prep_buffer(tx_buffer, sizeof(tx_buffer));
+#if defined(MBED_CONF_APP_TCP_ECHO_PREFIX)
         sock.recv(rx_buffer, sizeof(MBED_CONF_APP_TCP_ECHO_PREFIX));
+#endif /* MBED_CONF_APP_TCP_ECHO_PREFIX */
         const int ret = sock.send(tx_buffer, sizeof(tx_buffer));
         if (ret >= 0) {
             printf("sent %d bytes - %.*s  \n", ret, ret, tx_buffer);
@@ -96,16 +115,7 @@ void test_tcp_echo() {
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
-    char uuid[48] = {0};
     GREENTEA_SETUP(240, "tcp_echo");
-
-    // create mac address based on uuid
-    uint64_t mac = 0;
-    for (int i = 0; i < sizeof(uuid); i++) {
-        mac += uuid[i];
-    }
-    //mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
-
     return verbose_test_setup_handler(number_of_cases);
 }
 
