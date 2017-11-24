@@ -26,6 +26,7 @@
 #if DEVICE_SPI
 
 #include "mbed_assert.h"
+#include "mbed_sleep.h"
 #include "PeripheralPins.h"
 #include "pinmap.h"
 #include "pinmap_function.h"
@@ -39,11 +40,8 @@
 #include "em_cmu.h"
 #include "em_dma.h"
 #include "sleep_api.h"
-#include "sleepmodes.h"
 
 static uint16_t fill_word = SPI_FILL_WORD;
-
-#define SPI_LEAST_ACTIVE_SLEEPMODE EM1
 
 static inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj)
 {
@@ -1188,7 +1186,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     spi_enable_event(obj, event, true);
 
     // Set the sleep mode
-    blockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
+    sleep_manager_lock_deep_sleep();
 
     /* And kick off the transfer */
     spi_master_transfer_dma(obj, tx, rx, tx_length, rx_length, (void*)handler, hint);
@@ -1244,7 +1242,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
 
         /* Wait transmit to complete, before user code is indicated*/
         while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
-        unblockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
+        sleep_manager_unlock_deep_sleep();
         /* return to CPP land to say we're finished */
         return SPI_EVENT_COMPLETE;
     } else {
@@ -1262,7 +1260,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
             /* disable interrupts */
             spi_enable_interrupt(obj, (uint32_t)NULL, false);
 
-            unblockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
+            sleep_manager_unlock_deep_sleep();
             /* Return the event back to userland */
             return event;
         }
@@ -1370,7 +1368,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
 
         /* Wait for transmit to complete, before user code is indicated */
         while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
-        unblockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
+        sleep_manager_unlock_deep_sleep();
 
         /* return to CPP land to say we're finished */
         return SPI_EVENT_COMPLETE;
@@ -1391,7 +1389,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
 
             /* Wait for transmit to complete, before user code is indicated */
             while(!(obj->spi.spi->STATUS & USART_STATUS_TXC));
-            unblockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
+            sleep_manager_unlock_deep_sleep();
 
             /* Return the event back to userland */
             return event;
@@ -1433,7 +1431,7 @@ void spi_abort_asynch(spi_t *obj)
     }
 
     // Release sleep mode block
-    unblockSleepMode(SPI_LEAST_ACTIVE_SLEEPMODE);
+    sleep_manager_unlock_deep_sleep();
 }
 
 #endif
