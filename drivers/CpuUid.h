@@ -87,6 +87,8 @@ public:
 private:
     uint8_t * _data;
     int _size;
+    
+    static const char _hexChars[16];
 };
 
 } // namespace mbed

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#include <cstdio>
 #include "hal/cpu_uid_api.h"
 #include "drivers/CpuUid.h"
 
 #if DEVICE_CPUUID
 
 namespace mbed {
+
+const char CpuUid::_hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 CpuUid::CpuUid() : _data(NULL)
 {
@@ -43,12 +44,11 @@ CpuUid::~CpuUid()
 CpuUid::operator std::string()
 {
     std::string str;
-    char buf[3];
     
     for (int i = 0; i < _size; ++i)
     {
-        snprintf(buf, 3, "%.2X", _data[i]);
-        str += buf;
+        str += _hexChars[_data[i] >> 4];
+        str += _hexChars[_data[i] & 0x0F];
     }
 
     return str;
