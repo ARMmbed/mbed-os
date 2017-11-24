@@ -197,10 +197,6 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
         status = QSPI_STATUS_ERROR;
     }
 
-    if (QSPI_AutoPollingMemReady(&obj->handle, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        status = QSPI_STATUS_ERROR;
-    }
-
     return status;
 }
 
@@ -218,10 +214,6 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
     }
 
     if (HAL_QSPI_Receive(&obj->handle, data, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        status = QSPI_STATUS_ERROR;
-    }
-
-    if (QSPI_AutoPollingMemReady(&obj->handle, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
         status = QSPI_STATUS_ERROR;
     }
 
