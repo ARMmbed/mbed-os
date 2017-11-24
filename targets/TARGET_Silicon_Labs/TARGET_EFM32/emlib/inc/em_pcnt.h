@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_pcnt.h
  * @brief Pulse Counter (PCNT) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -72,14 +72,12 @@ extern "C" {
 #define PCNT2_CNT_SIZE    (8)   /* PCNT2 counter is  8 bits. */
 #endif
 
-
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
 
 /** Mode selection. */
-typedef enum
-{
+typedef enum {
   /** Disable pulse counter. */
   pcntModeDisable   = _PCNT_CTRL_MODE_DISABLE,
 
@@ -104,13 +102,11 @@ typedef enum
 #endif
 } PCNT_Mode_TypeDef;
 
-
 #if defined(_PCNT_CTRL_CNTEV_MASK)
 /** Counter event selection.
  *  Note: unshifted values are being used for enumeration because multiple
  *  configuration structure members use this type definition. */
-typedef enum
-{
+typedef enum {
   /** Counts up on up-count and down on down-count events. */
   pcntCntEventBoth = _PCNT_CTRL_CNTEV_BOTH,
 
@@ -125,11 +121,9 @@ typedef enum
 } PCNT_CntEvent_TypeDef;
 #endif
 
-
 #if defined(_PCNT_INPUT_MASK)
 /** PRS sources for @p s0PRS and @p s1PRS. */
-typedef enum
-{
+typedef enum {
   pcntPRSCh0 = 0,     /**< PRS channel 0. */
   pcntPRSCh1 = 1,     /**< PRS channel 1. */
   pcntPRSCh2 = 2,     /**< PRS channel 2. */
@@ -160,23 +154,19 @@ typedef enum
 #endif
 } PCNT_PRSSel_TypeDef;
 
-
 /** PRS inputs of PCNT. */
-typedef enum
-{
+typedef enum {
   pcntPRSInputS0 = 0, /** PRS input 0. */
   pcntPRSInputS1 = 1  /** PRS input 1. */
 } PCNT_PRSInput_TypeDef;
 #endif
-
 
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
 /** Init structure. */
-typedef struct
-{
+typedef struct {
   /** Mode to operate in. */
   PCNT_Mode_TypeDef     mode;
 
@@ -235,37 +225,36 @@ typedef struct
 #if !defined(PCNT_CTRL_HYST)
 /** Default config for PCNT init structure. */
 #define PCNT_INIT_DEFAULT                                                         \
-{                                                                                 \
-  pcntModeDisable,                          /* Disabled by default. */            \
-  _PCNT_CNT_RESETVALUE,                     /* Default counter HW reset value. */ \
-  _PCNT_TOP_RESETVALUE,                     /* Default counter HW reset value. */ \
-  false,                                    /* Use positive edge. */              \
-  false,                                    /* Up-counting. */                    \
-  false                                     /* Filter disabled. */                \
-}
+  {                                                                               \
+    pcntModeDisable,                        /* Disabled by default. */            \
+    _PCNT_CNT_RESETVALUE,                   /* Default counter HW reset value. */ \
+    _PCNT_TOP_RESETVALUE,                   /* Default counter HW reset value. */ \
+    false,                                  /* Use positive edge. */              \
+    false,                                  /* Up-counting. */                    \
+    false                                   /* Filter disabled. */                \
+  }
 #else
 /** Default config for PCNT init structure. */
 #define PCNT_INIT_DEFAULT                                                                      \
-{                                                                                              \
-  pcntModeDisable,                          /* Disabled by default. */                         \
-  _PCNT_CNT_RESETVALUE,                     /* Default counter HW reset value. */              \
-  _PCNT_TOP_RESETVALUE,                     /* Default counter HW reset value. */              \
-  false,                                    /* Use positive edge. */                           \
-  false,                                    /* Up-counting. */                                 \
-  false,                                    /* Filter disabled. */                             \
-  false,                                    /* Hysteresis disabled. */                         \
-  true,                                     /* Counter direction is given by CNTDIR. */        \
-  pcntCntEventUp,                           /* Regular counter counts up on upcount events. */ \
-  pcntCntEventNone,                         /* Auxiliary counter doesn't respond to events. */ \
-  pcntPRSCh0,                               /* PRS channel 0 selected as S0IN. */              \
-  pcntPRSCh0                                /* PRS channel 0 selected as S1IN. */              \
-}
+  {                                                                                            \
+    pcntModeDisable,                        /* Disabled by default. */                         \
+    _PCNT_CNT_RESETVALUE,                   /* Default counter HW reset value. */              \
+    _PCNT_TOP_RESETVALUE,                   /* Default counter HW reset value. */              \
+    false,                                  /* Use positive edge. */                           \
+    false,                                  /* Up-counting. */                                 \
+    false,                                  /* Filter disabled. */                             \
+    false,                                  /* Hysteresis disabled. */                         \
+    true,                                   /* Counter direction is given by CNTDIR. */        \
+    pcntCntEventUp,                         /* Regular counter counts up on upcount events. */ \
+    pcntCntEventNone,                       /* Auxiliary counter doesn't respond to events. */ \
+    pcntPRSCh0,                             /* PRS channel 0 selected as S0IN. */              \
+    pcntPRSCh0                              /* PRS channel 0 selected as S1IN. */              \
+  }
 #endif
 
 #if defined(PCNT_OVSCFG_FILTLEN_DEFAULT)
 /** Filter initialization structure */
-typedef struct
-{
+typedef struct {
   /** Used only in OVSINGLE and OVSQUAD1X-4X modes. To use this, enable the filter through
    *  setting filter to true during PCNT_Init(). Filter length = (filtLen + 5) LFACLK cycles. */
   uint8_t               filtLen;
@@ -278,18 +267,17 @@ typedef struct
 
 /** Default config for PCNT init structure. */
 #if defined(PCNT_OVSCFG_FILTLEN_DEFAULT)
-#define PCNT_FILTER_DEFAULT                                                                     \
-{                                                                                               \
-  0,                                        /* Default length is 5 LFACLK cycles */             \
-  false                                     /* No flutter removal */                            \
-}
+#define PCNT_FILTER_DEFAULT                                                         \
+  {                                                                                 \
+    0,                                      /* Default length is 5 LFACLK cycles */ \
+    false                                   /* No flutter removal */                \
+  }
 #endif
 
 #if defined(PCNT_CTRL_TCCMODE_DEFAULT)
 
 /** Modes for Triggered Compare and Clear module */
-typedef enum
-{
+typedef enum {
   /** Triggered compare and clear not enabled. */
   tccModeDisabled       = _PCNT_CTRL_TCCMODE_DISABLED,
 
@@ -301,8 +289,7 @@ typedef enum
 } PCNT_TCCMode_TypeDef;
 
 /** Prescaler values for LFA compare and clear events. Only has effect when TCC mode is LFA. */
-typedef enum
-{
+typedef enum {
   /** Compare and clear event each LFA cycle. */
   tccPrescDiv1          = _PCNT_CTRL_TCCPRESC_DIV1,
 
@@ -317,8 +304,7 @@ typedef enum
 } PCNT_TCCPresc_Typedef;
 
 /** Compare modes for TCC module */
-typedef enum
-{
+typedef enum {
   /** Compare match if PCNT_CNT is less than, or equal to PCNT_TOP. */
   tccCompLTOE           = _PCNT_CTRL_TCCCOMP_LTOE,
 
@@ -331,8 +317,7 @@ typedef enum
 } PCNT_TCCComp_Typedef;
 
 /** TCC initialization structure */
-typedef struct
-{
+typedef struct {
   /** Mode to operate in. */
   PCNT_TCCMode_TypeDef      mode;
 
@@ -355,15 +340,15 @@ typedef struct
   bool                      prsGateEnable;
 } PCNT_TCC_TypeDef;
 
-#define PCNT_TCC_DEFAULT                                                                            \
-{                                                                                                   \
-  tccModeDisabled,                              /* Disabled by default */                           \
-  tccPrescDiv1,                                 /* Do not prescale LFA clock in LFA mode */         \
-  tccCompLTOE,                                  /* Clear when CNT <= TOP */                         \
-  pcntPRSCh0,                                   /* Select PRS channel 0 as input to TCC */          \
-  false,                                        /* PRS polarity is rising edge, and gate when 1 */  \
-  false                                         /* Do not gate the PCNT counter input */            \
-}
+#define PCNT_TCC_DEFAULT                                                                           \
+  {                                                                                                \
+    tccModeDisabled,                            /* Disabled by default */                          \
+    tccPrescDiv1,                               /* Do not prescale LFA clock in LFA mode */        \
+    tccCompLTOE,                                /* Clear when CNT <= TOP */                        \
+    pcntPRSCh0,                                 /* Select PRS channel 0 as input to TCC */         \
+    false,                                      /* PRS polarity is rising edge, and gate when 1 */ \
+    false                                       /* Do not gate the PCNT counter input */           \
+  }
 
 #endif
 /* defined(PCNT_CTRL_TCCMODE_DEFAULT) */
@@ -546,7 +531,6 @@ __STATIC_INLINE uint32_t PCNT_IntGet(PCNT_TypeDef *pcnt)
 __STATIC_INLINE uint32_t PCNT_IntGetEnabled(PCNT_TypeDef *pcnt)
 {
   uint32_t ien;
-
 
   /* Store pcnt->IEN in temporary variable in order to define explicit order
    * of volatile accesses. */

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_int.h
  * @brief Interrupt enable/disable unit API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -78,8 +78,7 @@ extern "C" {
 __STATIC_INLINE uint32_t INT_Disable(void)
 {
   __disable_irq();
-  if (INT_LockCnt < UINT32_MAX)
-  {
+  if (INT_LockCnt < UINT32_MAX) {
     INT_LockCnt++;
   }
 
@@ -106,18 +105,14 @@ __STATIC_INLINE uint32_t INT_Enable(void)
 {
   uint32_t retVal;
 
-  if (INT_LockCnt > 0)
-  {
+  if (INT_LockCnt > 0) {
     INT_LockCnt--;
     retVal = INT_LockCnt;
-    if (retVal == 0)
-    {
+    if (retVal == 0) {
       __enable_irq();
     }
     return retVal;
-  }
-  else
-  {
+  } else {
     return 0;
   }
 }

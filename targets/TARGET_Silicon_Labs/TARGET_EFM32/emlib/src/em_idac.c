@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_idac.c
  * @brief Current Digital to Analog Converter (IDAC) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -48,8 +48,8 @@
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /* Fix for errata IDAC_E101 - IDAC output current degradation */
-#if defined(_SILICON_LABS_32B_SERIES_0)  \
-    && (defined(_EFM32_ZERO_FAMILY) || defined(_EFM32_HAPPY_FAMILY))
+#if defined(_SILICON_LABS_32B_SERIES_0) \
+  && (defined(_EFM32_ZERO_FAMILY) || defined(_EFM32_HAPPY_FAMILY))
 #define ERRATA_FIX_IDAC_E101_EN
 #endif
 /** @endcond */
@@ -57,7 +57,6 @@
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-
 
 /***************************************************************************//**
  * @brief
@@ -86,26 +85,22 @@ void IDAC_Init(IDAC_TypeDef *idac, const IDAC_Init_TypeDef *init)
 
   tmp |= init->outMode;
 
-  if (init->enable)
-  {
+  if (init->enable) {
     tmp |= IDAC_CTRL_EN;
   }
-  if (init->prsEnable)
-  {
+  if (init->prsEnable) {
 #if defined(_IDAC_CTRL_OUTENPRS_MASK)
     tmp |= IDAC_CTRL_OUTENPRS;
 #else
     tmp |= IDAC_CTRL_APORTOUTENPRS;
 #endif
   }
-  if (init->sinkEnable)
-  {
+  if (init->sinkEnable) {
     tmp |= IDAC_CTRL_CURSINK;
   }
 
   idac->CTRL = tmp;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -122,7 +117,6 @@ void IDAC_Enable(IDAC_TypeDef *idac, bool enable)
   EFM_ASSERT(IDAC_REF_VALID(idac));
   BUS_RegBitWrite(&idac->CTRL, _IDAC_CTRL_EN_SHIFT, enable);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -144,8 +138,8 @@ void IDAC_Reset(IDAC_TypeDef *idac)
   idac->CTRL = _IDAC_CTRL_RESETVALUE | IDAC_CTRL_EN;
 
   /* Set lowest current (50 nA) */
-  idac->CURPROG = IDAC_CURPROG_RANGESEL_RANGE0 |
-                  (0x0 << _IDAC_CURPROG_STEPSEL_SHIFT);
+  idac->CURPROG = IDAC_CURPROG_RANGESEL_RANGE0
+                  | (0x0 << _IDAC_CURPROG_STEPSEL_SHIFT);
 
   /* Enable duty-cycling for all energy modes */
   idac->DUTYCONFIG = IDAC_DUTYCONFIG_DUTYCYCLEEN;
@@ -154,11 +148,10 @@ void IDAC_Reset(IDAC_TypeDef *idac)
   idac->CURPROG    = _IDAC_CURPROG_RESETVALUE;
   idac->DUTYCONFIG = _IDAC_DUTYCONFIG_RESETVALUE;
 #endif
-#if defined ( _IDAC_CAL_MASK )
+#if defined (_IDAC_CAL_MASK)
   idac->CAL        = _IDAC_CAL_RESETVALUE;
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -175,7 +168,6 @@ void IDAC_MinimalOutputTransitionMode(IDAC_TypeDef *idac, bool enable)
   EFM_ASSERT(IDAC_REF_VALID(idac));
   BUS_RegBitWrite(&idac->CTRL, _IDAC_CTRL_MINOUTTRANS_SHIFT, enable);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -196,7 +188,7 @@ void IDAC_MinimalOutputTransitionMode(IDAC_TypeDef *idac, bool enable)
 void IDAC_RangeSet(IDAC_TypeDef *idac, const IDAC_Range_TypeDef range)
 {
   uint32_t tmp;
-#if defined( _IDAC_CURPROG_TUNING_MASK )
+#if defined(_IDAC_CURPROG_TUNING_MASK)
   uint32_t diCal0;
   uint32_t diCal1;
 #endif
@@ -205,11 +197,10 @@ void IDAC_RangeSet(IDAC_TypeDef *idac, const IDAC_Range_TypeDef range)
   EFM_ASSERT(((uint32_t)range >> _IDAC_CURPROG_RANGESEL_SHIFT)
              <= (_IDAC_CURPROG_RANGESEL_MASK >> _IDAC_CURPROG_RANGESEL_SHIFT));
 
-#if defined ( _IDAC_CAL_MASK )
+#if defined (_IDAC_CAL_MASK)
 
   /* Load proper calibration data depending on selected range */
-  switch ((IDAC_Range_TypeDef)range)
-  {
+  switch ((IDAC_Range_TypeDef)range) {
     case idacCurrentRange0:
       idac->CAL = (DEVINFO->IDAC0CAL0 & _DEVINFO_IDAC0CAL0_RANGE0_MASK)
                   >> _DEVINFO_IDAC0CAL0_RANGE0_SHIFT;
@@ -231,7 +222,7 @@ void IDAC_RangeSet(IDAC_TypeDef *idac, const IDAC_Range_TypeDef range)
   tmp  = idac->CURPROG & ~_IDAC_CURPROG_RANGESEL_MASK;
   tmp |= (uint32_t)range;
 
-#elif defined( _IDAC_CURPROG_TUNING_MASK )
+#elif defined(_IDAC_CURPROG_TUNING_MASK)
 
   /* Load calibration data depending on selected range and sink/source mode */
   /* TUNING (calibration) field in CURPROG register. */
@@ -241,10 +232,8 @@ void IDAC_RangeSet(IDAC_TypeDef *idac, const IDAC_Range_TypeDef range)
 
   tmp = idac->CURPROG & ~(_IDAC_CURPROG_TUNING_MASK
                           | _IDAC_CURPROG_RANGESEL_MASK);
-  if (idac->CTRL & IDAC_CTRL_CURSINK)
-  {
-    switch (range)
-    {
+  if (idac->CTRL & IDAC_CTRL_CURSINK) {
+    switch (range) {
       case idacCurrentRange0:
         tmp |= ((diCal1 & _DEVINFO_IDAC0CAL1_SINKRANGE0TUNING_MASK)
                 >> _DEVINFO_IDAC0CAL1_SINKRANGE0TUNING_SHIFT)
@@ -269,11 +258,8 @@ void IDAC_RangeSet(IDAC_TypeDef *idac, const IDAC_Range_TypeDef range)
                << _IDAC_CURPROG_TUNING_SHIFT;
         break;
     }
-  }
-  else
-  {
-    switch (range)
-    {
+  } else {
+    switch (range) {
       case idacCurrentRange0:
         tmp |= ((diCal0 & _DEVINFO_IDAC0CAL0_SOURCERANGE0TUNING_MASK)
                 >> _DEVINFO_IDAC0CAL0_SOURCERANGE0TUNING_SHIFT)
@@ -309,7 +295,6 @@ void IDAC_RangeSet(IDAC_TypeDef *idac, const IDAC_Range_TypeDef range)
   idac->CURPROG = tmp;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set the current step of the IDAC output.
@@ -333,7 +318,6 @@ void IDAC_StepSet(IDAC_TypeDef *idac, const uint32_t step)
   idac->CURPROG = tmp;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Enable/disable the IDAC OUT pin.
@@ -353,7 +337,6 @@ void IDAC_OutEnable(IDAC_TypeDef *idac, bool enable)
   BUS_RegBitWrite(&idac->CTRL, _IDAC_CTRL_APORTOUTEN_SHIFT, enable);
 #endif
 }
-
 
 /** @} (end addtogroup IDAC) */
 /** @} (end addtogroup emlib) */
