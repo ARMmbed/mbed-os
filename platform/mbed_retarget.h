@@ -30,7 +30,7 @@
  * target embedded systems */
 typedef signed   int  ssize_t;  ///< Signed size type, usually encodes negative errors
 typedef signed   long off_t;    ///< Offset in a data stream
-#if defined(__ARMCC_VERSION) || !defined(__GNUC__)
+#if defined(__ARMCC_VERSION) || !defined(__GNUC__) || defined(__clang__)
 typedef unsigned int  mode_t;   ///< Mode for opening files
 typedef unsigned int  dev_t;    ///< Device ID type
 typedef unsigned long ino_t;    ///< File serial number

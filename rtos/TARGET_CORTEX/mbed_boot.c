@@ -484,7 +484,13 @@ osMutexAttr_t             env_mutex_attr;
 
 int __wrap_main(void) {
     mbed_main();
-    return __real_main();
+    return
+#if defined(__clang__)
+        0
+#else
+        __real_main()
+#endif
+        ;
 }
 
 void pre_main(void)
@@ -507,7 +513,9 @@ void pre_main(void)
     env_mutex_attr.cb_mem = &env_mutex_obj;
     env_mutex_id = osMutexNew(&env_mutex_attr);
 
+#if !defined(__clang__)
     __libc_init_array();
+#endif
 
     main(0, NULL);
 }
