@@ -18,11 +18,11 @@
 #include <string.h>
 
 #include "mbed.h"
+#include "mbed_sleep.h"
 #include "ns_types.h"
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
 #include "mbed_toolchain.h"
-#include "sleepmodes.h"
 
 #include "mbed-trace/mbed_trace.h"
 #define  TRACE_GROUP  "SLRF"
@@ -482,7 +482,7 @@ static void rf_device_unregister(void)
 {
     arm_net_phy_unregister(rf_radio_driver_id);
     if(sleep_blocked) {
-        unblockSleepMode(EM1);
+        sleep_manager_unlock_deep_sleep();
         sleep_blocked = false;
     }
 }
@@ -580,7 +580,7 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
             RAIL_Idle(gRailHandle, RAIL_IDLE_FORCE_SHUTDOWN_CLEAR_FLAGS, true);
             radio_state = RADIO_IDLE;
             if(sleep_blocked) {
-                unblockSleepMode(EM1);
+                sleep_manager_unlock_deep_sleep();
                 sleep_blocked = false;
             }
             break;
@@ -589,7 +589,7 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
             RAIL_Idle(gRailHandle, RAIL_IDLE_FORCE_SHUTDOWN_CLEAR_FLAGS, true);
             radio_state = RADIO_IDLE;
             if(sleep_blocked) {
-                unblockSleepMode(EM1);
+                sleep_manager_unlock_deep_sleep();
                 sleep_blocked = false;
             }
             break;
@@ -602,7 +602,7 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
                 radio_state = RADIO_RX;
                 if(!sleep_blocked) {
                     /* RX can only happen in EM0/1*/
-                    blockSleepMode(EM1);
+                    sleep_manager_lock_deep_sleep();
                     sleep_blocked = true;
                 }
             } else {
@@ -623,7 +623,7 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
                 radio_state = RADIO_RX;
                 if(!sleep_blocked) {
                     /* RX can only happen in EM0/1*/
-                    blockSleepMode(EM1);
+                    sleep_manager_lock_deep_sleep();
                     sleep_blocked = true;
                 }
             } else {
