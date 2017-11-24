@@ -33,7 +33,7 @@
 #include "serial_api_hal.h"
 
 #if defined (TARGET_STM32F031K6)
-    #define UART_NUM (1
+    #define UART_NUM (1)
 #elif defined (TARGET_STM32F030R8) || defined (TARGET_STM32F051R8) || defined (TARGET_STM32F042K6)
     #define UART_NUM (2)
 #elif defined (TARGET_STM32F070RB) || defined (TARGET_STM32F072RB)
