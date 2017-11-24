@@ -40,10 +40,8 @@
     #define UART_NUM (6)
 #elif defined (TARGET_STM32F429xI) || defined (TARGET_STM32F439xI) || defined (TARGET_STM32F437xG) || defined (TARGET_STM32F469xI)
     #define UART_NUM (8)
-#elif defined (TARGET_STM32F413xH)
-    #define UART_NUM (10)
 #else
-    #define UART_NUM (10) // max value
+    #define UART_NUM (10) // max value // TARGET_STM32F413xH
 #endif
 
 uint32_t serial_irq_ids[UART_NUM] = {0};

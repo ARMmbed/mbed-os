@@ -37,8 +37,6 @@
 #include "mbed_debug.h"
 #include "mbed_error.h"
 
-// #include "cmsis.h"
-// #include "pinmap.h"
 #include "PeripheralPins.h"
 
 #ifdef __cplusplus
