@@ -1068,7 +1068,53 @@ void operator delete[](void *ptr)
     free_wrapper(ptr, MBED_CALLER_ADDR());
 }
 
+#elif defined(MBED_MEM_TRACING_ENABLED) && defined(__GNUC__)
+
+#include <reent.h>
+
+extern "C" void* malloc_wrapper(struct _reent * r, size_t size, void * caller);
+extern "C" void free_wrapper(struct _reent * r, void * ptr, void * caller);
+
+void *operator new(std::size_t count)
+{
+    void *buffer = malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
+    if (NULL == buffer) {
+        error("Operator new out of memory\r\n");
+    }
+    return buffer;
+}
+
+void *operator new[](std::size_t count)
+{
+    void *buffer = malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
+    if (NULL == buffer) {
+        error("Operator new[] out of memory\r\n");
+    }
+    return buffer;
+}
+
+void *operator new(std::size_t count, const std::nothrow_t& tag)
+{
+    return malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
+}
+
+void *operator new[](std::size_t count, const std::nothrow_t& tag)
+{
+    return malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
+}
+
+void operator delete(void *ptr)
+{
+    free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
+}
+
+void operator delete[](void *ptr)
+{
+    free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
+}
+
 #else
+
 void *operator new(std::size_t count)
 {
     void *buffer = malloc(count);
