@@ -214,7 +214,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     if(pwmout_all_inactive()) {
         PWM_TIMER->ROUTE |= pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT;
     } else {
-        MBED_ASSERT(PWM_TIMER->ROUTE & _TIMER_ROUTE_LOCATION_MASK == pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT);
+        MBED_ASSERT((PWM_TIMER->ROUTE & _TIMER_ROUTE_LOCATION_MASK) == pinmap_find_function(pin,PinMap_PWM) << _TIMER_ROUTE_LOCATION_SHIFT);
     }
 #endif
 
@@ -230,14 +230,14 @@ void pwmout_free(pwmout_t *obj)
     } else {
         //This channel was disabled already
     }
-    
+
     pwmout_enable_pins(obj, false);
-    
+
     if(pwmout_all_inactive()) {
         //Stop timer
         PWM_TIMER->CMD = TIMER_CMD_STOP;
         while(PWM_TIMER->STATUS & TIMER_STATUS_RUNNING);
-        
+
         //Disable clock
         CMU_ClockEnable(PWM_TIMER_CLOCK, false);
     }

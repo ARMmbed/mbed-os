@@ -150,7 +150,7 @@ void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs
     SPIName spi_ctrl = (SPIName) pinmap_merge(spi_clk, spi_cs);
 
     obj->spi.spi = (USART_TypeDef *) pinmap_merge(spi_data, spi_ctrl);
-    MBED_ASSERT((int) obj->spi.spi != NC);
+    MBED_ASSERT((unsigned int) obj->spi.spi != NC);
 
     if (cs != NC) { /* Slave mode */
         obj->spi.master = false;
@@ -1306,7 +1306,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
                     rx_pointer = ((uint16_t *)obj->rx_buff.buffer) + obj->rx_buff.pos;
                 } else {
                     rx_pointer = ((uint8_t *)obj->rx_buff.buffer) + obj->rx_buff.pos;
-                }                
+                }
             }
             uint32_t rx_length = obj->rx_buff.length - obj->rx_buff.pos;
 

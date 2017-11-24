@@ -93,10 +93,17 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
     (void)obj;
     (void)address;
 
+#if FLASH_BASE > 0
     if (address < FLASH_BASE || address >= FLASH_BASE + FLASH_SIZE) {
         // Address outside of flash -- invalid sector
         return MBED_FLASH_INVALID_SIZE;
     }
+#else
+    if (address >= FLASH_BASE + FLASH_SIZE) {
+        // Address outside of flash -- invalid sector
+        return MBED_FLASH_INVALID_SIZE;
+    }
+#endif
 
     return FLASH_PAGE_SIZE;
 }

@@ -99,11 +99,11 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     I2CName i2c_sda = (I2CName) pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName) pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->i2c.i2c = (I2C_TypeDef*) pinmap_merge(i2c_sda, i2c_scl);
-    MBED_ASSERT(((int) obj->i2c.i2c) != NC);
-    
+    MBED_ASSERT(((unsigned int) obj->i2c.i2c) != NC);
+
     /* You need both SDA and SCL for I2C, so configuring one of them to NC is illegal */
-    MBED_ASSERT((uint32_t)sda != (uint32_t)NC);
-    MBED_ASSERT((uint32_t)scl != (uint32_t)NC);
+    MBED_ASSERT((unsigned int)sda != NC);
+    MBED_ASSERT((unsigned int)scl != NC);
 
     /* Enable clock for the peripheral */
     CMU_ClockEnable(i2c_get_clock(obj), true);
@@ -116,9 +116,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     /* Enable pins at correct location */
 #ifdef I2C_ROUTE_SDAPEN
     /* Find common location in pinmap */
-    int loc_sda = pin_location(sda, PinMap_I2C_SDA);
-    int loc_scl = pin_location(scl, PinMap_I2C_SCL);
-    int loc = pinmap_merge(loc_sda, loc_scl);
+    unsigned int loc_sda = pin_location(sda, PinMap_I2C_SDA);
+    unsigned int loc_scl = pin_location(scl, PinMap_I2C_SCL);
+    unsigned int loc = pinmap_merge(loc_sda, loc_scl);
     MBED_ASSERT(loc != NC);
     /* Set location */
     obj->i2c.location = I2C_ROUTE_SDAPEN | I2C_ROUTE_SCLPEN | (loc << _I2C_ROUTE_LOCATION_SHIFT);
