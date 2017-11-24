@@ -40,18 +40,11 @@ using namespace utest::v1;
 namespace {
     char tx_buffer[MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE] = {0};
     char rx_buffer[MBED_CFG_UDP_CLIENT_ECHO_BUFFER_SIZE] = {0};
-    const char ASCII_MAX = '~' - ' ';
     const int ECHO_LOOPS = 16;
-    char uuid[48] = {0};
 }
 
-void prep_buffer(char *uuid, char *tx_buffer, size_t tx_size) {
+void prep_buffer(char *tx_buffer, size_t tx_size) {
     size_t i = 0;
-
-    memcpy(tx_buffer, uuid, strlen(uuid));
-    i += strlen(uuid);
-
-    tx_buffer[i++] = ' ';
 
     for (; i<tx_size; ++i) {
         tx_buffer[i] = (rand() % 10) + '0';
@@ -76,11 +69,29 @@ void test_udp_echo() {
     sock.open(net);
     sock.set_timeout(MBED_CFG_UDP_CLIENT_ECHO_TIMEOUT);
 
+#if defined(MBED_CONF_APP_ECHO_SERVER_ADDR) && defined(MBED_CONF_APP_ECHO_SERVER_PORT)
     SocketAddress udp_addr(MBED_CONF_APP_ECHO_SERVER_ADDR, MBED_CONF_APP_ECHO_SERVER_PORT);
+#else /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
+    char recv_key[] = "host_port";
+    char ipbuf[60] = {0};
+    char portbuf[16] = {0};
+    unsigned int port = 0;
+
+    greentea_send_kv("target_ip", net->get_ip_address());
+    greentea_send_kv("host_ip", " ");
+    greentea_parse_kv(recv_key, ipbuf, sizeof(recv_key), sizeof(ipbuf));
+
+    greentea_send_kv("host_port", " ");
+    greentea_parse_kv(recv_key, portbuf, sizeof(recv_key), sizeof(ipbuf));
+    sscanf(portbuf, "%u", &port);
+
+    printf("MBED: UDP Server IP address received: %s:%d \n", ipbuf, port);
+    SocketAddress udp_addr(ipbuf, port);
+#endif /* MBED_CONF_APP_ECHO_SERVER_ADDR && MBED_CONF_APP_ECHO_SERVER_PORT */
 
     int success = 0;
     for (int i = 0; success < ECHO_LOOPS; i++) {
-        prep_buffer(uuid, tx_buffer, sizeof(tx_buffer));
+        prep_buffer(tx_buffer, sizeof(tx_buffer));
         const int ret = sock.sendto(udp_addr, tx_buffer, sizeof(tx_buffer));
         if (ret >= 0) {
             printf("[%02d] sent %d bytes - %.*s  \n", i, ret, ret, tx_buffer);
@@ -127,14 +138,6 @@ void test_udp_echo() {
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
     GREENTEA_SETUP(240, "udp_echo");
-
-    // create mac address based on uuid
-    uint64_t mac = 0;
-    for (int i = 0; i < sizeof(uuid); i++) {
-        mac += uuid[i];
-    }
-    //mbed_set_mac_address((const char*)mac, /*coerce control bits*/ 1);
-
     return verbose_test_setup_handler(number_of_cases);
 }
 
