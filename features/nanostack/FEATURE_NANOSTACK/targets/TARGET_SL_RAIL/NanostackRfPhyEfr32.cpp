@@ -22,6 +22,7 @@
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
 #include "mbed_toolchain.h"
+#include "sleepmodes.h"
 
 #include "mbed-trace/mbed_trace.h"
 #define  TRACE_GROUP  "SLRF"
@@ -227,6 +228,7 @@ static const RAIL_IEEE802154_Config_t config = {
 };
 
 static volatile siliconlabs_modem_state_t radio_state = RADIO_UNINIT;
+static volatile bool sleep_blocked = false;
 static volatile int8_t channel = -1;
 static volatile uint8_t current_tx_handle = 0;
 static volatile uint8_t current_tx_sequence = 0;
@@ -255,7 +257,7 @@ static RAIL_Config_t railCfg = { // Must never be const
 
 static void rf_thread_loop(const void *arg)
 {
-    SL_DEBUG_PRINT("rf_thread_loop: starting (id: %d)\n", rf_thread_id);
+    SL_DEBUG_PRINT("rf_thread_loop: starting (id: %d)\n", (int)rf_thread_id);
     for (;;) {
         osEvent event = osSignalWait(0, osWaitForever);
 
@@ -321,7 +323,7 @@ static void rf_thread_loop(const void *arg)
         } else if(event.value.signals & SL_QUEUE_FULL) {
             SL_DEBUG_PRINT("rf_thread_loop: SL_QUEUE_FULL signal received (packet dropped)\n");
         } else {
-            SL_DEBUG_PRINT("rf_thread_loop unhandled event status: %d value: %d\n", event.status, event.value.signals);
+            SL_DEBUG_PRINT("rf_thread_loop unhandled event status: %d value: %d\n", event.status, (int)event.value.signals);
         }
 
         platform_exit_critical();
@@ -479,6 +481,10 @@ static int8_t rf_device_register(void)
 static void rf_device_unregister(void)
 {
     arm_net_phy_unregister(rf_radio_driver_id);
+    if(sleep_blocked) {
+        unblockSleepMode(EM1);
+        sleep_blocked = false;
+    }
 }
 
 /*
@@ -573,11 +579,19 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
         case PHY_INTERFACE_RESET:
             RAIL_Idle(gRailHandle, RAIL_IDLE_FORCE_SHUTDOWN_CLEAR_FLAGS, true);
             radio_state = RADIO_IDLE;
+            if(sleep_blocked) {
+                unblockSleepMode(EM1);
+                sleep_blocked = false;
+            }
             break;
         /* Disable PHY Interface driver */
         case PHY_INTERFACE_DOWN:
             RAIL_Idle(gRailHandle, RAIL_IDLE_FORCE_SHUTDOWN_CLEAR_FLAGS, true);
             radio_state = RADIO_IDLE;
+            if(sleep_blocked) {
+                unblockSleepMode(EM1);
+                sleep_blocked = false;
+            }
             break;
         /* Enable RX */
         case PHY_INTERFACE_UP:
@@ -586,6 +600,11 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
                 RAIL_IEEE802154_SetPromiscuousMode(gRailHandle, false);
                 RAIL_StartRx(gRailHandle, channel, NULL);
                 radio_state = RADIO_RX;
+                if(!sleep_blocked) {
+                    /* RX can only happen in EM0/1*/
+                    blockSleepMode(EM1);
+                    sleep_blocked = true;
+                }
             } else {
                 ret_val = -1;
             }
@@ -602,6 +621,11 @@ static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_
                 RAIL_IEEE802154_SetPromiscuousMode(gRailHandle, true);
                 RAIL_StartRx(gRailHandle, channel, NULL);
                 radio_state = RADIO_RX;
+                if(!sleep_blocked) {
+                    /* RX can only happen in EM0/1*/
+                    blockSleepMode(EM1);
+                    sleep_blocked = true;
+                }
             } else {
                 ret_val = -1;
             }
