@@ -530,7 +530,7 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
         data_ptr[0] = data_length + 2;
 
         RAIL_Idle(gRailHandle, RAIL_IDLE_ABORT, true);
-        RAIL_WriteTxFifo(gRailHandle, data_ptr, data_length + 1, false);
+        RAIL_WriteTxFifo(gRailHandle, data_ptr, data_length + 1, true);
         radio_state = RADIO_TX;
 
         RAIL_TxOptions_t txOpt = RAIL_TX_OPTIONS_DEFAULT;
