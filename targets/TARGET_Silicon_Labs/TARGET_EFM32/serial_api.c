@@ -78,7 +78,7 @@ static uint32_t serial_irq_ids[MODULES_SIZE_SERIAL] = { 0 };
 /* Interrupt handler from mbed common */
 static uart_irq_handler irq_handler;
 /* Keep track of incoming DMA IRQ's */
-static bool serial_dma_irq_fired[DMACTRL_CH_CNT] = { false };
+static bool serial_dma_irq_fired[DMA_CHAN_COUNT] = { false };
 
 /* Serial interface on USBTX/USBRX retargets stdio */
 int stdio_uart_inited = 0;
@@ -119,6 +119,18 @@ static void usart1_tx_irq() { uart_irq(USART_1, TxIrq); USART_IntClear((USART_Ty
 #ifdef USART2
 static void usart2_rx_irq() { uart_irq(USART_2, RxIrq); }
 static void usart2_tx_irq() { uart_irq(USART_2, TxIrq); USART_IntClear((USART_TypeDef*)USART_2, USART_IFC_TXC);}
+#endif
+#ifdef USART3
+static void usart3_rx_irq() { uart_irq(USART_3, RxIrq); }
+static void usart3_tx_irq() { uart_irq(USART_3, TxIrq); USART_IntClear((USART_TypeDef*)USART_3, USART_IFC_TXC);}
+#endif
+#ifdef USART4
+static void usart4_rx_irq() { uart_irq(USART_4, RxIrq); }
+static void usart4_tx_irq() { uart_irq(USART_4, TxIrq); USART_IntClear((USART_TypeDef*)USART_4, USART_IFC_TXC);}
+#endif
+#ifdef USART5
+static void usart5_rx_irq() { uart_irq(USART_5, RxIrq); }
+static void usart5_tx_irq() { uart_irq(USART_5, TxIrq); USART_IntClear((USART_TypeDef*)USART_5, USART_IFC_TXC);}
 #endif
 #ifdef LEUART0
 static void leuart0_irq()
@@ -250,6 +262,18 @@ static inline uint8_t serial_pointer_get_index(uint32_t serial_ptr)
     if (serial_ptr == USART_2) return index;
     index++;
 #endif
+#ifdef USART3
+    if (serial_ptr == USART_3) return index;
+    index++;
+#endif
+#ifdef USART4
+    if (serial_ptr == USART_4) return index;
+    index++;
+#endif
+#ifdef USART5
+    if (serial_ptr == USART_5) return index;
+    index++;
+#endif
 #ifdef LEUART0
     if (serial_ptr == LEUART_0) return index;
     index++;
@@ -301,6 +325,18 @@ static inline IRQn_Type serial_get_rx_irq_index(serial_t *obj)
         case USART_2:
             return USART2_RX_IRQn;
 #endif
+#ifdef USART3
+        case USART_3:
+            return USART3_RX_IRQn;
+#endif
+#ifdef USART4
+        case USART_4:
+            return USART4_RX_IRQn;
+#endif
+#ifdef USART5
+        case USART_5:
+            return USART5_RX_IRQn;
+#endif
 #ifdef LEUART0
         case LEUART_0:
             return LEUART0_IRQn;
@@ -344,6 +380,18 @@ static inline IRQn_Type serial_get_tx_irq_index(serial_t *obj)
         case USART_2:
             return USART2_TX_IRQn;
 #endif
+#ifdef USART3
+        case USART_3:
+            return USART3_TX_IRQn;
+#endif
+#ifdef USART4
+        case USART_4:
+            return USART4_TX_IRQn;
+#endif
+#ifdef USART5
+        case USART_5:
+            return USART5_TX_IRQn;
+#endif
 #ifdef LEUART0
         case LEUART_0:
             return LEUART0_IRQn;
@@ -386,6 +434,18 @@ inline CMU_Clock_TypeDef serial_get_clock(serial_t *obj)
 #ifdef USART2
         case USART_2:
             return cmuClock_USART2;
+#endif
+#ifdef USART3
+        case USART_3:
+            return cmuClock_USART3;
+#endif
+#ifdef USART4
+        case USART_4:
+            return cmuClock_USART4;
+#endif
+#ifdef USART5
+        case USART_5:
+            return cmuClock_USART5;
 #endif
 #ifdef LEUART0
         case LEUART_0:
@@ -466,6 +526,27 @@ void serial_preinit(serial_t *obj, PinName tx, PinName rx)
             NVIC_SetPriority(USART2_TX_IRQn, 1);
             break;
 #endif
+#ifdef USART3
+        case USART_3:
+            NVIC_SetVector(USART3_RX_IRQn, (uint32_t) &usart3_rx_irq);
+            NVIC_SetVector(USART3_TX_IRQn, (uint32_t) &usart3_tx_irq);
+            NVIC_SetPriority(USART3_TX_IRQn, 1);
+            break;
+#endif
+#ifdef USART4
+        case USART_4:
+            NVIC_SetVector(USART4_RX_IRQn, (uint32_t) &usart4_rx_irq);
+            NVIC_SetVector(USART4_TX_IRQn, (uint32_t) &usart4_tx_irq);
+            NVIC_SetPriority(USART4_TX_IRQn, 1);
+            break;
+#endif
+#ifdef USART5
+        case USART_5:
+            NVIC_SetVector(USART5_RX_IRQn, (uint32_t) &usart5_rx_irq);
+            NVIC_SetVector(USART5_TX_IRQn, (uint32_t) &usart5_tx_irq);
+            NVIC_SetPriority(USART5_TX_IRQn, 1);
+            break;
+#endif
 #ifdef LEUART0
         case LEUART_0:
             NVIC_SetVector(LEUART0_IRQn, (uint32_t) &leuart0_irq);
@@ -519,13 +600,13 @@ static void serial_set_route(serial_t *obj)
             obj->serial.periph.leuart->ROUTE &= ~LEUART_ROUTE_RXPEN;
         }
 #else
-        if(obj->serial.location_tx != NC) {
+        if(obj->serial.location_tx != (uint32_t)NC) {
             obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.periph.leuart->ROUTELOC0 & (~_LEUART_ROUTELOC0_TXLOC_MASK)) | (obj->serial.location_tx << _LEUART_ROUTELOC0_TXLOC_SHIFT);
             obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_TXPEN_MASK)) | LEUART_ROUTEPEN_TXPEN;
         } else {
             obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_TXPEN_MASK));
         }
-        if(obj->serial.location_rx != NC) {
+        if(obj->serial.location_rx != (uint32_t)NC) {
             obj->serial.periph.leuart->ROUTELOC0 = (obj->serial.periph.leuart->ROUTELOC0 & (~_LEUART_ROUTELOC0_RXLOC_MASK)) | (obj->serial.location_rx << _LEUART_ROUTELOC0_RXLOC_SHIFT);
             obj->serial.periph.leuart->ROUTEPEN  = (obj->serial.periph.leuart->ROUTEPEN & (~_LEUART_ROUTEPEN_RXPEN_MASK)) | LEUART_ROUTEPEN_RXPEN;
         } else {
@@ -548,13 +629,13 @@ static void serial_set_route(serial_t *obj)
             obj->serial.periph.uart->ROUTE &= ~USART_ROUTE_RXPEN;
         }
 #else
-        if(obj->serial.location_tx != NC) {
+        if(obj->serial.location_tx != (uint32_t)NC) {
             obj->serial.periph.uart->ROUTELOC0 = (obj->serial.periph.uart->ROUTELOC0 & (~_USART_ROUTELOC0_TXLOC_MASK)) | (obj->serial.location_tx << _USART_ROUTELOC0_TXLOC_SHIFT);
             obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_TXPEN_MASK)) | USART_ROUTEPEN_TXPEN;
         } else {
             obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_TXPEN_MASK));
         }
-        if(obj->serial.location_rx != NC) {
+        if(obj->serial.location_rx != (uint32_t)NC) {
             obj->serial.periph.uart->ROUTELOC0 = (obj->serial.periph.uart->ROUTELOC0 & (~_USART_ROUTELOC0_RXLOC_MASK)) | (obj->serial.location_rx << _USART_ROUTELOC0_RXLOC_SHIFT);
             obj->serial.periph.uart->ROUTEPEN  = (obj->serial.periph.uart->ROUTEPEN & (~_USART_ROUTEPEN_RXPEN_MASK)) | USART_ROUTEPEN_RXPEN;
         } else {
@@ -1174,6 +1255,21 @@ static void serial_dmaSetupChannel(serial_t *obj, bool tx_nrx)
                 channelConfig.select = DMAREQ_USART2_TXBL;
                 break;
 #endif
+#ifdef USART3
+            case USART_3:
+                channelConfig.select = DMAREQ_USART3_TXBL;
+                break;
+#endif
+#ifdef USART4
+            case USART_4:
+                channelConfig.select = DMAREQ_USART4_TXBL;
+                break;
+#endif
+#ifdef USART5
+            case USART_5:
+                channelConfig.select = DMAREQ_USART5_TXBL;
+                break;
+#endif
 #ifdef LEUART0
             case LEUART_0:
                 channelConfig.select = DMAREQ_LEUART0_TXBL;
@@ -1217,6 +1313,21 @@ static void serial_dmaSetupChannel(serial_t *obj, bool tx_nrx)
 #ifdef USART2
             case USART_2:
                 channelConfig.select = DMAREQ_USART2_RXDATAV;
+                break;
+#endif
+#ifdef USART3
+            case USART_3:
+                channelConfig.select = DMAREQ_USART3_RXDATAV;
+                break;
+#endif
+#ifdef USART4
+            case USART_4:
+                channelConfig.select = DMAREQ_USART4_RXDATAV;
+                break;
+#endif
+#ifdef USART5
+            case USART_5:
+                channelConfig.select = DMAREQ_USART5_RXDATAV;
                 break;
 #endif
 #ifdef LEUART0
@@ -1450,6 +1561,34 @@ static void serial_dmaActivate(serial_t *obj, void* cb, void* buffer, int length
             case USART_1:
                 dma_periph = ldmaPeripheralSignal_USART1_RXDATAV;
                 source_addr = &USART1->RXDATA;
+                obj->serial.periph.uart->CMD = USART_CMD_RXEN | USART_CMD_CLEARRX;
+                break;
+#endif
+#ifdef USART2
+            case USART_2:
+                dma_periph = ldmaPeripheralSignal_USART2_RXDATAV;
+                source_addr = &USART2->RXDATA;
+                obj->serial.periph.uart->CMD = USART_CMD_RXEN | USART_CMD_CLEARRX;
+                break;
+#endif
+#ifdef USART3
+            case USART_3:
+                dma_periph = ldmaPeripheralSignal_USART3_RXDATAV;
+                source_addr = &USART3->RXDATA;
+                obj->serial.periph.uart->CMD = USART_CMD_RXEN | USART_CMD_CLEARRX;
+                break;
+#endif
+#ifdef USART4
+            case USART_4:
+                dma_periph = ldmaPeripheralSignal_USART4_RXDATAV;
+                source_addr = &USART4->RXDATA;
+                obj->serial.periph.uart->CMD = USART_CMD_RXEN | USART_CMD_CLEARRX;
+                break;
+#endif
+#ifdef USART5
+            case USART_5:
+                dma_periph = ldmaPeripheralSignal_USART5_RXDATAV;
+                source_addr = &USART5->RXDATA;
                 obj->serial.periph.uart->CMD = USART_CMD_RXEN | USART_CMD_CLEARRX;
                 break;
 #endif
