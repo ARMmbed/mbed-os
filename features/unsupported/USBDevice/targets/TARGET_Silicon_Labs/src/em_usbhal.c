@@ -199,9 +199,7 @@ USB_Status_TypeDef USBDHAL_CoreInit( uint32_t totalRxFifoSize,
                  USB_GUSBCFG_FORCEDEVMODE;
 #endif
 
-  INT_Enable();
   USBTIMER_DelayMs( 50 );
-  INT_Disable();
 
   /* Set device speed */
   USB->DCFG = ( USB->DCFG & ~_USB_DCFG_DEVSPD_MASK ) | 3; /* Full speed PHY */
@@ -649,9 +647,7 @@ USB_Status_TypeDef USBHHAL_CoreInit( uint32_t rxFifoSize,
                    ~(GUSBCFG_WO_BITMASK | USB_GUSBCFG_FORCEDEVMODE )  ) |
                  USB_GUSBCFG_FORCEHSTMODE;
 
-  INT_Enable();
   USBTIMER_DelayMs( 100 );
-  INT_Disable();
 
   /* Set 48 MHz PHY clock, FS/LS mode */
   USB->HCFG = ( USB->HCFG & ~_USB_HCFG_FSLSPCLKSEL_MASK ) |

@@ -45,8 +45,6 @@
 #define EFM32_WEAK                 SL_WEAK
 #define EFM32_ATTRIBUTE_SECTION(X) SL_ATTRIBUTE_SECTION(X)
 
-#include "em_int.h"
-
 #if defined( USB_USE_PRINTF )
 #include <stdio.h>
 #endif
