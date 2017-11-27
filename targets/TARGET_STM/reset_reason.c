@@ -51,6 +51,13 @@ reset_reason_t hal_reset_reason_get(void)
     return RESET_REASON_UNKNOWN;
 }
 
+
+uint32_t hal_reset_reason_get_raw(void)
+{
+    return RCC->CSR;
+}
+
+
 void hal_reset_reason_clear(void)
 {
     __HAL_RCC_CLEAR_RESET_FLAGS();
