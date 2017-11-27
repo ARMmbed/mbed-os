@@ -49,6 +49,11 @@ MKDIR=mkdir
 CP=cp
 CCADMIN=CCadmin
 
+BUILDDIR = BUILD
+PLATFORM = {{target}}
+ELF2BIN = 'arm-none-eabi-objcopy'
+TARGET = ${CND_DISTDIR}/${CONF}/${CND_PLATFORM}/{{name}}
+
 
 # build
 build: .build-post
@@ -58,7 +63,10 @@ build: .build-post
 
 .build-post: .build-impl
 # Add your post 'build' code here...
-
+	$(ELF2BIN) -O binary ${TARGET}.elf ${TARGET}.bin
+	+@echo "===== bin file ready to flash: $(TARGET).bin ====="
+	$(ELF2BIN) -O ihex ${TARGET}.elf ${TARGET}.hex
+	cp ${TARGET}.* ${CND_BUILDDIR}/${CONF}/${CND_PLATFORM}
 
 # clean
 clean: .clean-post
@@ -126,3 +134,6 @@ include nbproject/Makefile-impl.mk
 
 # include project make variables
 include nbproject/Makefile-variables.mk
+
+CND_BUILDDIR = ${BUILDDIR}
+CND_PLATFORM = ${PLATFORM}

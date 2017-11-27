@@ -28,6 +28,10 @@ class GNUARMNetbeans(Exporter):
         return apply_supported_whitelist(
             cls.TOOLCHAIN, POST_BINARY_WHITELIST, target)
 
+    @staticmethod
+    def prepare_sys_lib(libname):
+        return "-l" + libname
+
     def toolchain_flags(self, toolchain):
         """Returns a dictionary of toolchain flags.
         Keys of the dictionary are:
@@ -207,11 +211,19 @@ class GNUARMNetbeans(Exporter):
         sources = [self.filter_dot(field) for field in sources]
         include_paths = [self.filter_dot(field) for field in self.resources.inc_dirs]
 
+        sys_libs = [self.prepare_sys_lib(lib) for lib
+                    in self.toolchain.sys_libs]
+        preproc = " ".join([part for part
+                            in ([basename(self.toolchain.preproc[0])] +
+                                self.toolchain.preproc[1:] +
+                                self.toolchain.ld[1:])])
+
         if 'nbproject' in include_paths:
             include_paths.remove('nbproject')
 
         jinja_ctx = {
             'name': self.project_name,
+            'target': self.toolchain.target.name,
             'elf_location': join('BUILD', self.project_name) + '.elf',
             'c_symbols': self.toolchain.get_symbols(),
             'asm_symbols': self.toolchain.get_symbols(True),
@@ -233,6 +245,8 @@ class GNUARMNetbeans(Exporter):
             'c_std': self.get_netbeans_c_std(c_std),
             'cpp_std': self.get_netbeans_cpp_std(cpp_std),
             'linker_script': self.ld_script,
+            'linker_libs': sys_libs,
+            'pp_cmd': preproc
         }
         return jinja_ctx
 
