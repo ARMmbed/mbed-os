@@ -48,6 +48,9 @@ const uint8_t COAP_MULTICAST_ADDR_SITE_LOCAL[16] = { 0xff, 0x05, [15] = 0xfd }; 
 
 static NS_LIST_DEFINE(socket_list, internal_socket_t, link);
 
+static uint8_t max_handshakes = MAX_ONGOING_HANDSHAKES;
+static uint8_t max_sessions = MAX_SECURE_SESSION_COUNT;
+
 static void timer_cb(void* param);
 
 static void recv_sckt_msg(void *cb_res);
@@ -141,13 +144,14 @@ static int8_t virtual_socket_id_allocate()
     return new_virtual_socket_id;
 }
 
-static secure_session_t *secure_session_create(internal_socket_t *parent, const uint8_t *address_ptr, uint16_t port)
+static secure_session_t *secure_session_create(internal_socket_t *parent, const uint8_t *address_ptr, uint16_t port, SecureConnectionMode secure_mode)
 {
+    uint8_t handshakes = 0;
     if(!address_ptr){
         return NULL;
     }
 
-    if(MAX_SECURE_SESSION_COUNT <= ns_list_count(&secure_session_list)){
+    if(max_sessions <= ns_list_count(&secure_session_list)){
         // Seek & destroy oldest session where close notify have been sent
         secure_session_t *to_be_removed = NULL;
         ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
@@ -162,6 +166,16 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, const 
         }
 
         secure_session_delete(to_be_removed);
+    }
+
+    // Count for ongoing handshakes
+    ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
+        if(cur_ptr->session_state == SECURE_SESSION_HANDSHAKE_ONGOING){
+            handshakes++;
+        }
+    }
+    if(handshakes >= max_handshakes) {
+        return NULL;
     }
 
     secure_session_t *this = ns_dyn_mem_alloc(sizeof(secure_session_t));
@@ -179,12 +193,13 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, const 
         }
         timer_id++;
     }
+    this->last_contact_time = coap_service_get_internal_timer_ticks();
     this->timer.id = timer_id;
     this->remote_host.type = ADDRESS_IPV6;
     memcpy(this->remote_host.address, address_ptr, 16);
     this->remote_host.identifier = port;
 
-    this->sec_handler = coap_security_create(parent->socket, this->timer.id, this, ECJPAKE,
+    this->sec_handler = coap_security_create(parent->socket, this->timer.id, this, secure_mode,
                                                &secure_session_sendto, &secure_session_recvfrom, &start_timer, &timer_status);
     if( !this->sec_handler ){
         ns_dyn_mem_free(this);
@@ -595,31 +610,34 @@ static void secure_recv_sckt_msg(void *cb_res)
 
         // Create session
         if (!session) {
-            session = secure_session_create(sock, src_address.address, src_address.identifier);
-        }
-        if (!session) {
-            tr_err("secure_recv_sckt_msg session creation failed - OOM");
-            return;
-        }
-        // Record the destination. We are not strict on local address - all
-        // session_find calls match only on remote address and port. But we
-        // record the last-used destination address to use it as the source of
-        // outgoing packets.
-        memcpy(session->local_address, dst_address, 16);
-        session->last_contact_time = coap_service_get_internal_timer_ticks();
-        // Start handshake
-        if (!coap_security_handler_is_started(session->sec_handler) ){
-            uint8_t *pw = ns_dyn_mem_alloc(64);
-            uint8_t pw_len;
-            if( sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->socket, src_address.address, src_address.identifier, pw, &pw_len)){
-                //TODO: get_password_cb should support certs and PSK also
-                coap_security_keys_t keys;
-                keys._priv = pw;
-                keys._priv_len = pw_len;
-                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, sock->timeout_min, sock->timeout_max);
+            coap_security_keys_t keys;
+            memset(&keys, 0, sizeof(coap_security_keys_t));
+
+            if (sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->socket, src_address.address, src_address.identifier, &keys)) {
+                session = secure_session_create(sock, src_address.address, src_address.identifier, keys.mode);
+                if (!session) {
+                    tr_err("secure_recv_sckt_msg session creation failed - OOM");
+                    ns_dyn_mem_free(keys._key);
+                    return;
+                }
                 //TODO: error handling
+            } else {
+                return;
             }
-            ns_dyn_mem_free(pw);
+
+            // Record the destination. We are not strict on local address - all
+            // session_find calls match only on remote address and port. But we
+            // record the last-used destination address to use it as the source of
+            // outgoing packets.
+            memcpy(session->local_address, dst_address, 16);
+
+            session->last_contact_time = coap_service_get_internal_timer_ticks();
+            // Start handshake
+            if (!coap_security_handler_is_started(session->sec_handler)) {
+                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, sock->timeout_min, sock->timeout_max);
+                ns_dyn_mem_free(keys._key);
+
+            }
         } else {
             //Continue handshake
             if (session->session_state == SECURE_SESSION_HANDSHAKE_ONGOING) {
@@ -703,34 +721,29 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
     }
 
     if (handler->socket->is_secure) {
+        coap_security_keys_t keys;
+        memset(&keys, 0, sizeof(coap_security_keys_t));
+
         secure_session_t *session = secure_session_find(sock, address, port);
         if (!session) {
-            session = secure_session_create(sock, address, port);
-        }
-        if (!session) {
-            tr_err("coap_connection_handler_virtual_recv session creation failed - OOM");
-            return -1;
+            if (sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->socket, address, port, &keys)) {
+                session = secure_session_create(sock, address, port, keys.mode);
+                if (!session) {
+                    tr_err("coap_connection_handler_virtual_recv session creation failed - OOM");
+                    ns_dyn_mem_free(keys._key);
+                    return -1;
+                }
+                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, handler->socket->timeout_min, handler->socket->timeout_max);
+                ns_dyn_mem_free(keys._key);
+                return 0;
+            } else {
+                return -1;
+            }
         }
 
         session->last_contact_time = coap_service_get_internal_timer_ticks();
 
-        if (!coap_security_handler_is_started(session->sec_handler)) {
-            uint8_t *pw = ns_dyn_mem_alloc(64);
-            uint8_t pw_len;
-            if (sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->socket, address, port, pw, &pw_len)) {
-                //TODO: get_password_cb should support certs and PSK also
-                coap_security_keys_t keys;
-                keys._priv = pw;
-                keys._priv_len = pw_len;
-                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, handler->socket->timeout_min, handler->socket->timeout_max);
-                //TODO: error handling
-                ns_dyn_mem_free(pw);
-                return 0;
-            } else {
-                ns_dyn_mem_free(pw);
-                return -1;
-            }
-        } else {
+        if (coap_security_handler_is_started(session->sec_handler)) {
             if (session->session_state == SECURE_SESSION_HANDSHAKE_ONGOING) {
                 int ret = coap_security_handler_continue_connecting(session->sec_handler);
                 if(ret == 0){
@@ -813,6 +826,9 @@ void connection_handler_destroy(coap_conn_handler_t *handler, bool multicast_gro
         if (multicast_group_leave) {
             coap_multicast_group_join_or_leave(handler->socket->socket, SOCKET_IPV6_LEAVE_GROUP, handler->socket_interface_selection);
         }
+        if (handler->security_keys) {
+            ns_dyn_mem_free(handler->security_keys);
+        }
        int_socket_delete(handler->socket);
        ns_dyn_mem_free(handler);
     }
@@ -869,56 +885,59 @@ int coap_connection_handler_send_data(coap_conn_handler_t *handler, const ns_add
     if (!handler || !handler->socket || !dest_addr) {
         return -1;
     }
+
+    /* Secure send */
     if (handler->socket->is_secure) {
         handler->socket->bypass_link_sec = bypass_link_sec;
         secure_session_t *session = secure_session_find(handler->socket, dest_addr->address, dest_addr->identifier);
         if (!session) {
-            session = secure_session_create(handler->socket, dest_addr->address, dest_addr->identifier);
-            if (!session) {
+            coap_security_keys_t security_material;
+            int ret_val = 0;
+
+            memset(&security_material, 0, sizeof(coap_security_keys_t));
+
+            if (!handler->_get_password_cb || 0 != handler->_get_password_cb(handler->socket->socket, (uint8_t*)dest_addr->address, dest_addr->identifier, &security_material)) {
                 return -1;
             }
-            session->last_contact_time = coap_service_get_internal_timer_ticks();
-            uint8_t *pw = ns_dyn_mem_alloc(64);
-            if (!pw) {
-                //todo: free secure session?
-                return -1;
+
+            session = secure_session_create(handler->socket, dest_addr->address, dest_addr->identifier, security_material.mode);
+            if (!session || (0 > coap_security_handler_connect_non_blocking(session->sec_handler, false, DTLS, security_material, handler->socket->timeout_min, handler->socket->timeout_max))) {
+                ret_val = -1;
             }
-            uint8_t pw_len;
-            if (handler->_get_password_cb && 0 == handler->_get_password_cb(handler->socket->socket, (uint8_t*)dest_addr->address, dest_addr->identifier, pw, &pw_len)) {
-                //TODO: get_password_cb should support certs and PSK also
-                coap_security_keys_t keys;
-                keys._priv = pw;
-                keys._priv_len = pw_len;
-                coap_security_handler_connect_non_blocking(session->sec_handler, false, DTLS, keys, handler->socket->timeout_min, handler->socket->timeout_max);
-                ns_dyn_mem_free(pw);
-                return -2;
-            } else {
-                //free secure session?
-                ns_dyn_mem_free(pw);
-                return -1;
-            }
+
+            ns_dyn_mem_free(security_material._key);
+            return ret_val;
+
         } else if (session->session_state == SECURE_SESSION_OK) {
-            if (coap_security_handler_send_message(session->sec_handler, data_ptr, data_len ) > 0 ) {
-                session->last_contact_time = coap_service_get_internal_timer_ticks();
-                return 0;
+            session->last_contact_time = coap_service_get_internal_timer_ticks();
+            if (0 > coap_security_handler_send_message(session->sec_handler, data_ptr, data_len )) {
+                return -1;
             }
         }
-        return -1;
-    }else{
+    /* Unsecure */
+    } else {
+        /* Virtual socket */
         if (!handler->socket->real_socket && handler->_send_cb) {
-            return handler->_send_cb((int8_t)handler->socket->socket, dest_addr->address, dest_addr->identifier, data_ptr, data_len);
-        }
-        int opt_name = SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
-        int8_t securityLinkLayer = 1;
-        if (bypass_link_sec) {
-            securityLinkLayer = 0;
-        }
+            if (handler->_send_cb((int8_t)handler->socket->socket, dest_addr->address, dest_addr->identifier, data_ptr, data_len) < 0) {
+                return -1;
+            }
+        } else {
+            int opt_name = SOCKET_IPV6_PREFER_SRC_6LOWPAN_SHORT;
+            int8_t securityLinkLayer = 1;
+            if (bypass_link_sec) {
+                securityLinkLayer = 0;
+            }
 
-        socket_setsockopt(handler->socket->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_ADDR_PREFERENCES, &opt_name, sizeof(int));
-        socket_setsockopt(handler->socket->socket, SOCKET_IPPROTO_IPV6, SOCKET_LINK_LAYER_SECURITY, &securityLinkLayer, sizeof(int8_t));
+            socket_setsockopt(handler->socket->socket, SOCKET_IPPROTO_IPV6, SOCKET_IPV6_ADDR_PREFERENCES, &opt_name, sizeof(int));
+            socket_setsockopt(handler->socket->socket, SOCKET_IPPROTO_IPV6, SOCKET_LINK_LAYER_SECURITY, &securityLinkLayer, sizeof(int8_t));
 
-        return send_to_real_socket(handler->socket->socket, dest_addr, src_address, data_ptr, data_len);
+            if (0 > send_to_real_socket(handler->socket->socket, dest_addr, src_address, data_ptr, data_len)) {
+                return -1;
+            }
+        }
     }
+
+    return 1;
 }
 
 bool coap_connection_handler_socket_belongs_to(coap_conn_handler_t *handler, int8_t socket_id)
@@ -944,20 +963,33 @@ int8_t coap_connection_handler_set_timeout(coap_conn_handler_t *handler, uint32_
     return 0;
 }
 
+int8_t coap_connection_handler_handshake_limits_set(uint8_t handshakes_limit, uint8_t connections_limit)
+{
+    if (!handshakes_limit || !connections_limit) {
+        return -1;
+    }
+    max_handshakes = handshakes_limit;
+    max_sessions = connections_limit;
+
+    return 0;
+}
+
 /* No need to call every second - call rather like every minute (SECURE_SESSION_CLEAN_INTERVAL sets this) */
 void coap_connection_handler_exec(uint32_t time)
 {
     if(ns_list_count(&secure_session_list)){
         // Seek & destroy old sessions where close notify have been sent
         ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
-            if(cur_ptr->session_state == SECURE_SESSION_CLOSED ||
-                    cur_ptr->session_state == SECURE_SESSION_HANDSHAKE_ONGOING){
+            if(cur_ptr->session_state == SECURE_SESSION_CLOSED) {
                 if((cur_ptr->last_contact_time +  CLOSED_SECURE_SESSION_TIMEOUT) <= time){
                     secure_session_delete(cur_ptr);
                 }
-            }
-            if(cur_ptr->session_state == SECURE_SESSION_OK){
+            } else if(cur_ptr->session_state == SECURE_SESSION_OK){
                 if((cur_ptr->last_contact_time +  OPEN_SECURE_SESSION_TIMEOUT) <= time){
+                    secure_session_delete(cur_ptr);
+                }
+            } else if(cur_ptr->session_state == SECURE_SESSION_HANDSHAKE_ONGOING){
+                if((cur_ptr->last_contact_time +  ONGOING_HANDSHAKE_TIMEOUT) <= time){
                     secure_session_delete(cur_ptr);
                 }
             }

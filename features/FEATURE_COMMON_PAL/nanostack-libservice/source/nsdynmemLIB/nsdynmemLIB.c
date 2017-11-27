@@ -46,7 +46,7 @@ struct ns_mem_book {
 static ns_mem_book_t *default_book; // heap pointer for original "ns_" API use
 
 // size of a hole_t in our word units
-#define HOLE_T_SIZE ((sizeof(hole_t) + sizeof(ns_mem_word_size_t) - 1) / sizeof(ns_mem_word_size_t))
+#define HOLE_T_SIZE ((ns_mem_word_size_t) ((sizeof(hole_t) + sizeof(ns_mem_word_size_t) - 1) / sizeof(ns_mem_word_size_t)))
 
 static NS_INLINE hole_t *hole_from_block_start(ns_mem_word_size_t *start)
 {
@@ -334,8 +334,8 @@ static void ns_mem_free_and_merge_with_adjacent_blocks(ns_mem_book_t *book, ns_m
 
     if (start != book->heap_main) {
         if (*(start - 1) < 0) {
-            int *block_end = start - 1;
-            size_t block_size = 1 + (-*block_end) + 1;
+            ns_mem_word_size_t *block_end = start - 1;
+            ns_mem_word_size_t block_size = 1 + (-*block_end) + 1;
             merged_data_size += block_size;
             start -= block_size;
             if (*start != *block_end) {
@@ -349,8 +349,8 @@ static void ns_mem_free_and_merge_with_adjacent_blocks(ns_mem_book_t *book, ns_m
 
     if (end != book->heap_main_end) {
         if (*(end + 1) < 0) {
-            int *block_start = end + 1;
-            size_t block_size = 1 + (-*block_start) + 1;
+            ns_mem_word_size_t *block_start = end + 1;
+            ns_mem_word_size_t block_size = 1 + (-*block_start) + 1;
             merged_data_size += block_size;
             end += block_size;
             if (*end != *block_start) {

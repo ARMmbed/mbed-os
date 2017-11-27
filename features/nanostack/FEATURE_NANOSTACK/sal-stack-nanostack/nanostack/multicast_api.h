@@ -1,15 +1,18 @@
 /*
- * Copyright (c) 2012-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2012-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
- * SPDX-License-Identifier: LicenseRef-PBL
- *
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.mbed.com/licenses/PBL-1.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * See the License for the specific language governing permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 #ifndef MULTICAST_API_H_
 #define MULTICAST_API_H_
@@ -251,11 +254,34 @@ int8_t multicast_mpl_domain_unsubscribe(int8_t interface_id,
                                         const uint8_t address[16]);
 
 /**
+ * \brief Set interface's master multicast forwarding control
+ *
+ * Multicast forwarding can occur between interfaces with multicast forwarding
+ * enabled, according to forwarding records and scope rules controlled by the
+ * functions below.
+ *
+ * If this call disables forwarding on the current proxying upstream interface,
+ * proxying is disabled, and would need to be manually re-enabled later.
+ *
+ * Multicast forwarding state for an interface - forwarding records and scope level - are
+ * retained even if its master forwarding switch is disabled, enabling the upkeep of backup
+ * information.
+ *
+ * By default this flag is enabled.
+ *
+ * \param interface_id interface id
+ * \param enable Enable / Disable multicast forwarding
+ *
+ * \return 0 for success, negative on failure
+ */
+int8_t multicast_fwd_set_forwarding(int8_t interface_id, bool enable);
+
+/**
  * \brief Add multicast forwarding record to an interface
  *
  * This adds a group to the forwarding list on the specified interface.
- * Received multicast packets sent to the specified group will be forwarded onto
- * the specified interface from other interfaces, if IP forwarding is enabled on
+ * Received multicast packets for the specified group will be forwarded onto
+ * the specified interface from other interfaces, if multicast forwarding is enabled on
  * both incoming and outgoing interfaces, subject to a Reverse Path Forwarding
  * check on the source address, and usual scope rules.
  *
@@ -288,7 +314,7 @@ int8_t multicast_fwd_remove(int8_t interface_id, const uint8_t group[16]);
  * \brief Set full multicast forwarding
  *
  * If enabled, all multicast packets of specified scope or greater will be
- * forwarded onto the specified interface from other interfaces, if IP
+ * forwarded onto the specified interface from other interfaces, if multicast
  * forwarding is enabled on both incoming and outgoing interfaces, subject to a
  * Reverse Path Forwarding check on the source address.
  *
@@ -297,6 +323,8 @@ int8_t multicast_fwd_remove(int8_t interface_id, const uint8_t group[16]);
  *
  * This functionality is disabled by setting min_scope to 0x10 or greater (so
  * no packets can match).
+ *
+ * By default this is set to 0x5 (site-local) for all interfaces.
  *
  * \param interface_id interface id
  * \param min_scope minimum IPv6 scope value for forwarding (see RFC 4291)
@@ -310,8 +338,10 @@ int8_t multicast_fwd_full_for_scope(int8_t interface_id, uint_fast8_t min_scope)
  *
  * This sets the upstream interface for MLD proxying. If set, the stack will
  * report group membership on that interface according to the forwarding lists
- * of the other interfaces (ie it will send MLD reports or equivalent on that
- * upstream interface).
+ * of the other interfaces with multicast forwarding enabled (ie it will send
+ * MLD reports or equivalent on that upstream interface).
+ *
+ * Multicast forwarding must be enabled on the upstream interface.
  *
  * \param interface_id interface id, or -1 to disable
  *
