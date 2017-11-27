@@ -22,6 +22,8 @@
 
 #include "reset_reason_api.h"
 
+#include <stdint.h>
+
 namespace mbed {
 /** \addtogroup platform */
 /** @{*/
@@ -43,6 +45,23 @@ namespace mbed {
  *  @endcode
  */
 reset_reason_t mbed_reset_reason_get(void);
+
+
+/** Get the platform specific reason code for the last system reset.
+ *
+ * Platform specific reasons that are not covered by the reset_reason_t enum
+ * will cause the mbed_reset_reason_get function to return RESET_REASON_PLATFORM
+ * In order to get the actual reason the register value must be fetched directly
+ * using this function and interpreted in a platform specific manner.
+ *
+ * Example:
+ * @code
+ * if (mbed_reset_reason_get() == RESET_REASON_PLATFORM) {
+ *   const uint32_t platform_reason = mbed_reset_reason_get_raw();
+ * }
+ * @endcode
+ */
+uint32_t mbed_reset_reason_get_raw(void);
 
 /**@}*/
 /**@}*/
