@@ -1757,6 +1757,7 @@
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
+            "RESET_REASON",
             "PWMOUT",
             "SERIAL",
             "SLEEP",
