@@ -85,7 +85,7 @@
  * A characteristic is a typed value used in a service. It contains a set of
  * properties that define client operations supported by the characteristic.
  * A characteristic may also include descriptors; a descriptor exposes
- * metainformation associated to a characteristic, such as the unit of its value, 
+ * metainformation associated to a characteristic, such as the unit of its value,
  * its human readable name or a control point attribute that allows the client to
  * subscribe to the characteristic notifications.
  *
@@ -1632,7 +1632,7 @@ public:
      */
     GattAttribute *getDescriptor(uint8_t index)
     {
-        if (index = _descriptorCount) {
+        if (index >= _descriptorCount) {
             return NULL;
         }
 
