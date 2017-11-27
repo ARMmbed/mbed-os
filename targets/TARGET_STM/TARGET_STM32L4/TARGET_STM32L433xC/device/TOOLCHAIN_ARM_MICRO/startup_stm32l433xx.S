@@ -119,13 +119,13 @@ __Vectors       DCD     __initial_sp               ; Top of Stack
                 DCD     0                                 ; Reserved
                 DCD     I2C1_EV_IRQHandler                ; I2C1 Event
                 DCD     I2C1_ER_IRQHandler                ; I2C1 Error
-                DCD     0                                 ; Reserved
-                DCD     0                                 ; Reserved
+                DCD     I2C2_EV_IRQHandler                ; I2C2 Event
+                DCD     I2C2_ER_IRQHandler                ; I2C2 Error
                 DCD     SPI1_IRQHandler                   ; SPI1
-                DCD     0                                 ; Reserved
+                DCD     SPI2_IRQHandler                   ; SPI2
                 DCD     USART1_IRQHandler                 ; USART1
                 DCD     USART2_IRQHandler                 ; USART2
-                DCD     0                                 ; Reserved
+                DCD     USART3_IRQHandler                 ; USART3
                 DCD     EXTI15_10_IRQHandler              ; External Line[15:10]
                 DCD     RTC_Alarm_IRQHandler              ; RTC Alarm (A and B) through EXTI Line
                 DCD     0                                 ; Reserved
@@ -135,7 +135,7 @@ __Vectors       DCD     __initial_sp               ; Top of Stack
                 DCD     0                                 ; Reserved
                 DCD     0                                 ; Reserved
                 DCD     0                                 ; Reserved
-                DCD     0                                 ; Reserved
+                DCD     SDMMC1_IRQHandler                 ; SDMMC1
                 DCD     0                                 ; Reserved
                 DCD     SPI3_IRQHandler                   ; SPI3
                 DCD     0                                 ; Reserved
@@ -164,7 +164,7 @@ __Vectors       DCD     __initial_sp               ; Top of Stack
                 DCD     0                                 ; Reserved
                 DCD     SWPMI1_IRQHandler                 ; Serial Wire Interface 1 global interrupt
                 DCD     TSC_IRQHandler                    ; Touch Sense Controller global interrupt
-                DCD     0                                 ; Reserved
+                DCD     LCD_IRQHandler                    ; LCD global interrupt
                 DCD     0                                 ; Reserved
                 DCD     RNG_IRQHandler                    ; RNG global interrupt
                 DCD     FPU_IRQHandler                    ; FPU
@@ -265,11 +265,16 @@ Default_Handler PROC
         EXPORT     TIM2_IRQHandler                   [WEAK]
         EXPORT     I2C1_EV_IRQHandler                [WEAK]
         EXPORT     I2C1_ER_IRQHandler                [WEAK]
+        EXPORT     I2C2_EV_IRQHandler                [WEAK]
+        EXPORT     I2C2_ER_IRQHandler                [WEAK]
         EXPORT     SPI1_IRQHandler                   [WEAK]
+        EXPORT     SPI2_IRQHandler                   [WEAK]
         EXPORT     USART1_IRQHandler                 [WEAK]
         EXPORT     USART2_IRQHandler                 [WEAK]
+        EXPORT     USART3_IRQHandler                 [WEAK]
         EXPORT     EXTI15_10_IRQHandler              [WEAK]
         EXPORT     RTC_Alarm_IRQHandler              [WEAK]
+        EXPORT     SDMMC1_IRQHandler                 [WEAK]
         EXPORT     SPI3_IRQHandler                   [WEAK]
         EXPORT     TIM6_DAC_IRQHandler               [WEAK]
         EXPORT     TIM7_IRQHandler                   [WEAK]
@@ -291,6 +296,7 @@ Default_Handler PROC
         EXPORT     SAI1_IRQHandler                   [WEAK]
         EXPORT     SWPMI1_IRQHandler                 [WEAK]
         EXPORT     TSC_IRQHandler                    [WEAK]
+        EXPORT     LCD_IRQHandler                    [WEAK]
         EXPORT     RNG_IRQHandler                    [WEAK]
         EXPORT     FPU_IRQHandler                    [WEAK]
         EXPORT     CRS_IRQHandler                    [WEAK]
@@ -326,11 +332,16 @@ TIM1_CC_IRQHandler
 TIM2_IRQHandler
 I2C1_EV_IRQHandler
 I2C1_ER_IRQHandler
+I2C2_EV_IRQHandler
+I2C2_ER_IRQHandler
 SPI1_IRQHandler
+SPI2_IRQHandler
 USART1_IRQHandler
 USART2_IRQHandler
+USART3_IRQHandler
 EXTI15_10_IRQHandler
 RTC_Alarm_IRQHandler
+SDMMC1_IRQHandler
 SPI3_IRQHandler
 TIM6_DAC_IRQHandler
 TIM7_IRQHandler
@@ -352,6 +363,7 @@ I2C3_ER_IRQHandler
 SAI1_IRQHandler
 SWPMI1_IRQHandler
 TSC_IRQHandler
+LCD_IRQHandler
 RNG_IRQHandler
 FPU_IRQHandler
 CRS_IRQHandler
