@@ -1,0 +1,78 @@
+{
+    "name": "lora",
+    "config": {
+        "phy": {
+            "help": ["Select LoRa PHY layer. See README.md for more information. Default: 0 = LORA_PHY_EU868",
+            "                                                                             1 = LORA_PHY_AS923",
+            "                                                                             2 = LORA_PHY_AU915",
+            "                                                                             3 = LORA_PHY_CN470",
+            "                                                                             4 = LORA_PHY_CN779",
+            "                                                                             5 = LORA_PHY_EU433",
+            "                                                                             6 = LORA_PHY_IN865",
+            "                                                                             7 = LORA_PHY_KR920",
+            "                                                                             8 = LORA_PHY_US915",
+            "                                                                             9 = LORA_PHY_US915_HYBRID"],
+            "value": "0"
+        },
+        "over-the-air-activation": {
+            "help": "When set to 1 the application uses the Over-the-Air activation procedure, default: true",
+            "value": true
+        },
+        "nb-trials": {
+            "help": "Indicates how many times join can be tried, default: 8",
+            "value": 8
+        },
+        "device-eui": {
+            "help": "Mote device IEEE EUI",
+            "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
+        },
+        "application-eui": {
+            "help": "Application IEEE EUI",
+            "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
+        },
+        "application-key": {
+            "help": "AES encryption/decryption cipher application key",
+            "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
+        },
+        "network-id": {
+            "help": "Current network ID",
+            "value": 0
+        },
+        "device-address": {
+            "help": "Device address on the network",
+            "value": "0x00000000"
+        },
+        "nwkskey": {
+            "help": "AES encryption/decryption cipher network session key",
+            "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
+        },
+        "appskey": {
+            "help": "AES encryption/decryption cipher application session key",
+            "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
+        },
+        "app-port": {
+            "help": "LoRaWAN application port, default: 15",
+            "value": 15
+        },
+        "tx-max-size": {
+            "help": "User application data buffer maximum size, default: 64, MAX: 255",
+            "value": 64
+        },
+        "adr-on": {
+            "help": "LoRaWAN Adaptive Data Rate, default: 1",
+            "value": 1
+        },
+        "public-network": {
+            "help": "LoRaWAN will connect to a public network or private network, true = public network",
+            "value": true
+        },
+        "duty-cycle-on": {
+        	"help": "Enables/disables duty cycling. NOTE: Disable only for testing. Mandatory in many regions.",
+        	"value": true
+        },
+        "lbt-on": {
+        	"help": "Enables/disables LBT. NOTE: Disable only for testing. Mandatory in many regions/sub-bands.",
+        	"value": true
+        }
+    }
+}
