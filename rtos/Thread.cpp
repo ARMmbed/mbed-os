@@ -131,7 +131,7 @@ osStatus Thread::terminate() {
         _finished = true;
         // if local_id == 0 Thread was not started in first place
         // and does not have to be terminated
-        if(local_id != 0) {
+        if (local_id != 0) {
             ret = osThreadTerminate(local_id);
         }
     }
