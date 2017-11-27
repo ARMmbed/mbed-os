@@ -39,7 +39,7 @@ static inline uint32_t lfs_min(uint32_t a, uint32_t b) {
 static inline uint32_t lfs_ctz(uint32_t a) {
 #if defined(__GNUC__) || defined(__CC_ARM)
     return __builtin_ctz(a);
-#elif defined(__ICCARM__)
+#elif defined(__ICCARM__) && defined(__CLZ)
     return __CLZ(__RBIT(a));
 #else
     uint32_t r = 32;
@@ -57,7 +57,7 @@ static inline uint32_t lfs_ctz(uint32_t a) {
 static inline uint32_t lfs_npw2(uint32_t a) {
 #if defined(__GNUC__) || defined(__CC_ARM)
     return 32 - __builtin_clz(a-1);
-#elif defined(__ICCARM__)
+#elif defined(__ICCARM__) && defined(__CLZ)
     return 32 - __CLZ(a-1);
 #else
     uint32_t r = 0;
