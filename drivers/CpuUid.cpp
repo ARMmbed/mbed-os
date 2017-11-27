@@ -26,9 +26,10 @@ const char CpuUid::_hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8',
 CpuUid::CpuUid() : _data(NULL)
 {
     _size = cpu_uid_get_length();
+#ifdef MBED_ASSERT
     MBED_ASSERT(_size > 0);
-    if (0 < _size)
-    {
+#endif
+    if (0 < _size) {
         _data = new uint8_t[_size];
         cpu_uid_get_uid(_data);
     }
@@ -36,8 +37,7 @@ CpuUid::CpuUid() : _data(NULL)
 
 CpuUid::~CpuUid()
 {
-    if (_data)
-    {
+    if (_data) {
         delete _data;
     }
 }
@@ -46,8 +46,7 @@ CpuUid::operator std::string()
 {
     std::string str;
     
-    for (int i = 0; i < _size; ++i)
-    {
+    for (int i = 0; i < _size; ++i) {
         str += _hexChars[_data[i] >> 4];
         str += _hexChars[_data[i] & 0x0F];
     }
@@ -55,12 +54,11 @@ CpuUid::operator std::string()
     return str;
 }
 
-CpuUid::operator CpuUidArray()
+CpuUid::operator cpu_uid_array_t()
 {
-    CpuUidArray array;
+    cpu_uid_array_t array;
     
-    for (int i = 0; i < _size; ++i)
-    {
+    for (int i = 0; i < _size; ++i) {
         array.push_back(_data[i]);
     }
     
@@ -69,8 +67,7 @@ CpuUid::operator CpuUidArray()
 
 uint8_t CpuUid::operator[](int x)
 {
-    if (x >= 0 && x < _size)
-    {
+    if (x >= 0 && x < _size) {
         return _data[x];
     }
     

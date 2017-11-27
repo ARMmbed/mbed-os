@@ -32,11 +32,10 @@ namespace mbed {
  * @ingroup drivers
  */
 class CpuUid {
-
 public:
     /** CPU UID array typedef
      */
-    typedef std::vector<uint8_t> CpuUidArray;
+    typedef std::vector<uint8_t> cpu_uid_array_t;
     
     /** CpuUid constructor
      */
@@ -50,13 +49,19 @@ public:
      * 
      * @return Size of device's CPU UID in bytes
      */
-    int size() { return _size; }
+    int size()
+    {
+        return _size;
+    }
     
     /** Get CPU UID data pointer
      * 
      * @return Pointer to uid data buffer
      */
-    const uint8_t* data() { return _data; }
+    const uint8_t *data()
+    {
+        return _data;
+    }
     
     /** Overload operator for std::string
      * 
@@ -64,17 +69,20 @@ public:
      */
     operator std::string();
     
-    /** Overload operator for CpuUidArray
+    /** Overload operator for cpu_uid_array_t
      * 
-     * @return CpuUidArray object containing the CPU UID
+     * @return cpu_uid_array_t object containing the CPU UID
      */
-    operator CpuUidArray();
+    operator cpu_uid_array_t();
     
     /** Overload operator for byte pointer
      * 
      * @return Pointer to uid data buffer
      */
-    operator const uint8_t*() { return _data; }
+    operator const uint8_t*()
+    {
+        return _data;
+    }
 
     /** Overload operator for array subscript
      * 
@@ -85,7 +93,7 @@ public:
     uint8_t operator[](int x);
     
 private:
-    uint8_t * _data;
+    uint8_t *_data;
     int _size;
     
     static const char _hexChars[16];
