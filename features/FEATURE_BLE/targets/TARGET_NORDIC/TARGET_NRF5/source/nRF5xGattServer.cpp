@@ -106,6 +106,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
             return BLE_ERROR_NO_MEM;
         }
         GattCharacteristic *p_char = service.getCharacteristic(i);
+        GattAttribute *p_description_descriptor = NULL;
 
         /* Skip any incompletely defined, read-only characteristics. */
         if ((p_char->getValueAttribute().getValuePtr() == NULL) &&
@@ -124,6 +125,7 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
         for (uint8_t j = 0; j < p_char->getDescriptorCount(); j++) {
             GattAttribute *p_desc = p_char->getDescriptor(j);
             if (p_desc->getUUID() == BLE_UUID_DESCRIPTOR_CHAR_USER_DESC) {
+                p_description_descriptor = p_desc;
                 userDescriptionDescriptorValuePtr = p_desc->getValuePtr();
                 userDescriptionDescriptorValueLen = p_desc->getLength();
             }
@@ -148,6 +150,11 @@ ble_error_t nRF5xGattServer::addService(GattService &service)
         /* Update the characteristic handle */
         p_characteristics[characteristicCount] = p_char;
         p_char->getValueAttribute().setHandle(nrfCharacteristicHandles[characteristicCount].value_handle);
+        if (p_description_descriptor) {
+            p_description_descriptor->setHandle(
+                nrfCharacteristicHandles[characteristicCount].user_desc_handle
+            );
+        }
         characteristicCount++;
 
         /* Add optional descriptors if any */
