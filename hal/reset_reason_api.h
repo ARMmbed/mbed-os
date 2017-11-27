@@ -20,6 +20,8 @@
 
 #if DEVICE_RESET_REASON
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -39,8 +41,7 @@ typedef enum {
   RESET_REASON_UNKNOWN         /**< Unknown or unreadable reset reason **/
 } reset_reason_t;
 
-/**
- * Fetch the reset reason for the last system reset
+/** Fetch the reset reason for the last system reset
  *
  * Note: Some platforms contain reset reason registers that persist through
  * system resets. If the registers haven't been cleared before calling this
@@ -51,8 +52,16 @@ typedef enum {
  */
 reset_reason_t hal_reset_reason_get(void);
 
-/**
- * Clear the reset reason from registers
+
+/** Fetch the raw platform specific reset reason register value
+ *
+ * @return value containing the reset reason register for the given platform.
+ *         If the platform contains reset reasons across multiple registers they
+ *         will be concatenated here.
+ */
+uint32_t hal_reset_reason_get_raw(void);
+
+/** Clear the reset reason from registers
  *
  * Reset the value of the reset status registers, the reset reason will persist
  * between system resets on certain platforms so the registers should be cleared
