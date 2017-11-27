@@ -1872,7 +1872,8 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "WATCHDOG"
         ]
     },
     "MIMXRT1050_EVK": {
