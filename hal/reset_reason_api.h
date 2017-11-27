@@ -32,6 +32,8 @@ typedef enum {
   RESET_REASON_WATCHDOG,       /**< Set when a running watchdog timer fails to be refreshed */
   RESET_REASON_LOCKUP,         /**< Set when the core is locked because of an unrecoverable exception */
   RESET_REASON_WAKE_LOW_POWER, /**< Set when waking from deep sleep mode */
+  RESET_REASON_ACCESS_ERROR,   /**< Umbrella value that encompasses any access related reset */
+  RESET_REASON_BOOT_ERROR,     /**< Umbrella value that encompasses any boot related reset */
   RESET_REASON_MULTIPLE,       /**< Set if multiple reset reasons are set within the board. Occurs when the reset reason registers aren't cleared between resets */
   RESET_REASON_PLATFORM,       /**< Platform specific reset reason not captured in this enum */
   RESET_REASON_UNKNOWN         /**< Unknown or unreadable reset reason **/
@@ -47,7 +49,7 @@ typedef enum {
  *
  * @return enum containing the last reset reason for the board.
  */
-  reset_reason_t hal_reset_reason_get(void);
+reset_reason_t hal_reset_reason_get(void);
 
 /**
  * Clear the reset reason from registers
@@ -57,7 +59,7 @@ typedef enum {
  * before the system resets. Failing to do so may make it difficult to determine
  * the cause of any subsequent system resets.
  */
-  void hal_reset_reason_clear(void);
+void hal_reset_reason_clear(void);
 
 /**@}*/
 
