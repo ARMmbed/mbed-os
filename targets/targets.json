@@ -1594,7 +1594,7 @@
                 "macro_name": "CLOCK_SOURCE"
             },
             "usb_speed": {
-                "help": "Select the USB connector (0=FullSpeed, 1=HighSpeed))",
+                "help": "Select the USB speed/connector (0=FullSpeed, 1=HighSpeed)",
                 "value": "1"
             }
         },
