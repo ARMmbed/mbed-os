@@ -88,9 +88,9 @@ public:
      *  The socket must be connected to a remote host. Returns the number of
      *  bytes sent from the buffer.
      *
-     *  By default, send blocks until data is sent. If socket is set to
-     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
-     *  immediately.
+     *  By default, send blocks until all data is sent. If socket is set to
+     *  non-blocking or times out, a partial amount can be written.
+     *  NSAPI_ERROR_WOULD_BLOCK is returned if no data was written.
      *
      *  @param data     Buffer of data to send to the host
      *  @param size     Size of the buffer in bytes
@@ -104,9 +104,9 @@ public:
      *  The socket must be connected to a remote host. Returns the number of
      *  bytes received into the buffer.
      *
-     *  By default, recv blocks until data is sent. If socket is set to
-     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
-     *  immediately.
+     *  By default, recv blocks until some data is received. If socket is set to
+     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK can be returned to
+     *  indicate no data.
      *
      *  @param data     Destination buffer for data received from the host
      *  @param size     Size of the buffer in bytes
