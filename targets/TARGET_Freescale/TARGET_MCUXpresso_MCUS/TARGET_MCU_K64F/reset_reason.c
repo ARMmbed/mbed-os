@@ -74,6 +74,13 @@ reset_reason_t hal_reset_reason_get(void)
     return RESET_REASON_UNKNOWN;
 }
 
+
+uint32_t hal_reset_reason_get_raw(void)
+{
+    return (RCM_GetPreviousResetSources(RCM) & kRCM_SourceAll);
+}
+
+
 void hal_reset_reason_clear(void)
 {
 #if (defined(FSL_FEATURE_RCM_HAS_SSRS) && FSL_FEATURE_RCM_HAS_SSRS)
