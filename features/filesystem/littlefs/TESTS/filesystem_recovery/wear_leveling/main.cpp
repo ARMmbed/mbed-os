@@ -25,13 +25,12 @@
 using namespace utest::v1;
 
 // test configuration
-#ifndef MBED_TEST_BLOCKDEVICE
-#define MBED_TEST_BLOCKDEVICE HeapBlockDevice
-#define MBED_TEST_BLOCKDEVICE_DECL MBED_TEST_BLOCKDEVICE bd(MBED_TEST_BLOCK_COUNT*512, 1, 1, 512)
+#ifndef MBED_TEST_SIM_BLOCKDEVICE
+#error [NOT_SUPPORTED] Simulation block device required for wear leveling tests
 #endif
 
-#ifndef MBED_TEST_BLOCKDEVICE_DECL
-#define MBED_TEST_BLOCKDEVICE_DECL MBED_TEST_BLOCKDEVICE bd
+#ifndef MBED_TEST_SIM_BLOCKDEVICE_DECL
+#define MBED_TEST_SIM_BLOCKDEVICE_DECL MBED_TEST_SIM_BLOCKDEVICE bd(MBED_TEST_BLOCK_COUNT*512, 1, 1, 512)
 #endif
 
 #ifndef MBED_TEST_BLOCK_COUNT
@@ -51,12 +50,12 @@ using namespace utest::v1;
 #define STRINGIZE2(x) #x
 #define INCLUDE(x) STRINGIZE(x.h)
 
-#include INCLUDE(MBED_TEST_BLOCKDEVICE)
+#include INCLUDE(MBED_TEST_SIM_BLOCKDEVICE)
 
 
 static uint32_t test_wear_leveling_size(uint32_t block_count)
 {
-    MBED_TEST_BLOCKDEVICE_DECL;
+    MBED_TEST_SIM_BLOCKDEVICE_DECL;
 
     // bring up to get block size
     bd.init();

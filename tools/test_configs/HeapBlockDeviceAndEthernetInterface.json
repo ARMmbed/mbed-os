@@ -2,14 +2,14 @@
     "config": {
         "header-file": {
             "help" : "String for including your driver header file",
-            "value" : "\"OdinWiFiInterface.h\""
+            "value" : "\"EthernetInterface.h\""
         },
         "object-construction" : {
-            "value" : "new OdinWiFiInterface()"
+            "value" : "new EthernetInterface()"
         },
         "connect-statement" : {
             "help" : "Must use 'net' variable name",
-            "value" : "((OdinWiFiInterface *)net)->connect(WIFI_SSID, WIFI_PASSWORD)"
+            "value" : "((EthernetInterface *)net)->connect()"
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",

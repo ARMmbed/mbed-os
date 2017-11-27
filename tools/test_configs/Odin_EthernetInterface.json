@@ -22,6 +22,11 @@
         "tcp-echo-prefix" : {
             "help" : "Some servers send a prefix before echoed message",
             "value" : "\"u-blox AG TCP/UDP test service\\n\""
+        },
+        "sim-blockdevice": {
+            "help": "Simulated block device, requires sufficient heap",
+            "macro_name": "MBED_TEST_SIM_BLOCKDEVICE",
+            "value": "HeapBlockDevice"
         }
     },
      "target_overrides": {
