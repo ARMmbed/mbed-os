@@ -15,6 +15,7 @@
  */
 
 #include "hal/cpu_uid_api.h"
+#include "platform/mbed_assert.h"
 #include "drivers/CpuUid.h"
 
 #if DEVICE_CPUUID
