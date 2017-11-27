@@ -131,8 +131,10 @@
                     </preprocessorList>
                 </asmTool>
                 <linkerTool>
+                    <output>${CND_DISTDIR}/${CND_CONF}/{{target}}/{{name}}.elf</output>
+                    <additionalDep>${CND_BUILDDIR}/${CND_CONF}/{{target}}/.link_script.ld</additionalDep>
                     <commandlineTool>arm-none-eabi-gcc</commandlineTool>
-                    <commandLine>{%- for symbol in opts['ld'] -%}{{ symbol+" "}}{%- endfor -%}</commandLine>
+                    <commandLine>-T ${CND_BUILDDIR}/${CND_CONF}/{{target}}/.link_script.ld {%- for symbol in opts['ld'] -%}{{" "+symbol}}{%- endfor -%} {%- for item in linker_libs -%}{{" "+item}}{%- endfor -%} </commandLine>
                 </linkerTool>
             </compileType>
             {% for h in headers -%}
@@ -156,6 +158,11 @@
             </item>
             {% endfor -%}
             <item path="{{linker_script }}" ex="false" tool="3" flavor2="0">
+                <customTool>
+                    <customToolCommandline>{{pp_cmd}} -o $@ $&lt;</customToolCommandline>
+                    <customToolDescription>Create ELF File using Link Script</customToolDescription>
+                    <customToolOutputs>${CND_BUILDDIR}/${CND_CONF}/{{target}}/.link_script.ld</customToolOutputs>
+                </customTool>
             </item>
             <item path="/nbproject/private/c_standard_headers_indexer.c" ex="true" tool="0" flavor2="0">
             </item>
