@@ -23,8 +23,22 @@
 #include "platform/mbed_assert.h"
 #include "platform/mbed_toolchain.h"
 
-static volatile uint32_t interrupt_enable_counter = 0;
-static volatile bool critical_interrupts_disabled = false;
+// if __EXCLUSIVE_ACCESS rtx macro not defined, we need to get this via own-set architecture macros
+#ifndef __EXCLUSIVE_ACCESS
+#ifndef MBED_EXCLUSIVE_ACCESS
+#if ((__ARM_ARCH_7M__      == 1U) || \
+    (__ARM_ARCH_7EM__     == 1U) || \
+    (__ARM_ARCH_8M_BASE__ == 1U) || \
+    (__ARM_ARCH_8M_MAIN__ == 1U)) || \
+    (__ARM_ARCH_7A__ == 1U)
+#define MBED_EXCLUSIVE_ACCESS      1U
+#else
+#define MBED_EXCLUSIVE_ACCESS      0U
+#endif
+#endif
+#endif
+
+static volatile uint32_t critical_section_reentrancy_counter = 0;
 
 bool core_util_are_interrupts_enabled(void)
 {
@@ -101,7 +115,7 @@ MBED_WEAK void core_util_critical_section_exit(void)
     }
 }
 
-#if __EXCLUSIVE_ACCESS
+#if MBED_EXCLUSIVE_ACCESS
 
 /* Supress __ldrex and __strex deprecated warnings - "#3731-D: intrinsic is deprecated" */
 #if defined (__CC_ARM) 
