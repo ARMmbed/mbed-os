@@ -253,8 +253,6 @@ class GNUARMNetbeans(Exporter):
     def generate(self):
         """Generate Makefile, configurations.xml & project.xml Netbeans project file
         """
-        # super(Netbeans, self).generate()
-
         jinja_ctx = self.create_jinja_ctx()
 
         print
