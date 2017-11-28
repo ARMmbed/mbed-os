@@ -277,9 +277,9 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
 
     can->sTxMailBox[transmitmailbox].TIR &= CAN_TI0R_TXRQ;
     if (!(msg.format)) {
-      can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 21) | msg.type);
+      can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 21) | (msg.type << 1));
     } else {
-      can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | msg.type);
+      can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | (msg.type << 1));
     }
 
     /* Set up the DLC */
