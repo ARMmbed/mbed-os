@@ -48,6 +48,18 @@ bool test_eventOS_callbacks();
 
 bool test_conn_handler_callbacks();
 
+bool test_certificate_set();
+
+bool test_handshake_timeout_set();
+
+bool test_coap_duplcate_msg_buffer_set();
+
+bool test_coap_service_get_internal_timer_ticks();
+
+bool test_coap_service_if_find_by_socket();
+
+bool test_coap_service_handshake_limit_set();
+
 
 #ifdef __cplusplus
 }

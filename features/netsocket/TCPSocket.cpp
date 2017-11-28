@@ -105,7 +105,9 @@ nsapi_error_t TCPSocket::connect(const char *host, uint16_t port)
 nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
 {
     _lock.lock();
+    const uint8_t *data_ptr = static_cast<const uint8_t *>(data);
     nsapi_size_or_error_t ret;
+    nsapi_size_t written = 0;
 
     // If this assert is hit then there are two threads
     // performing a send at the same time which is undefined
@@ -113,6 +115,9 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
     MBED_ASSERT(!_write_in_progress);
     _write_in_progress = true;
 
+    // Unlike recv, we should write the whole thing if blocking. POSIX only
+    // allows partial as a side-effect of signal handling; it normally tries to
+    // write everything if blocking. Without signals we can always write all.
     while (true) {
         if (!_socket) {
             ret = NSAPI_ERROR_NO_SOCKET;
@@ -120,10 +125,16 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
         }
 
         _pending = 0;
-        ret = _stack->socket_send(_socket, data, size);
-        if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {
+        ret = _stack->socket_send(_socket, data_ptr + written, size - written);
+        if (ret >= 0) {
+            written += ret;
+            if (written >= size) {
+                break;
+            }
+        }
+        if (_timeout == 0) {
             break;
-        } else {
+        } else if (ret == NSAPI_ERROR_WOULD_BLOCK) {
             uint32_t flag;
 
             // Release lock before blocking so other threads
@@ -134,15 +145,22 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
 
             if (flag & osFlagsError) {
                 // Timeout break
-                ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
             }
+        } else if (ret < 0) {
+            break;
         }
     }
 
     _write_in_progress = false;
     _lock.unlock();
-    return ret;
+    if (ret <= 0 && ret != NSAPI_ERROR_WOULD_BLOCK) {
+        return ret;
+    } else if (written == 0) {
+        return NSAPI_ERROR_WOULD_BLOCK;
+    } else {
+        return written;
+    }
 }
 
 nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)

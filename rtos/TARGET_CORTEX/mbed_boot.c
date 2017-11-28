@@ -168,6 +168,7 @@
 #include "cmsis_os2.h"
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
+#include "mbed_critical.h"
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
 #include <DLib_Threads.h>
 #endif
@@ -423,6 +424,7 @@ void __rt_entry (void) {
 }
 
 typedef void *mutex;
+mutex _static_mutexes[OS_MUTEX_NUM] = {NULL};
 
 /* ARM toolchain requires dynamically created mutexes to enforce thread safety. There's
    up to 8 static mutexes, protecting atexit, signalinit, stdin, stdout, stderr, stream_list,
@@ -441,9 +443,23 @@ int _mutex_initialize(mutex *m)
     attr.name = "ARM toolchain mutex";
     attr.attr_bits = osMutexRecursive | osMutexPrioInherit | osMutexRobust;
 
-    *m = osMutexNew(&attr);
-    if (*m != NULL) {
-        return 1;
+    mutex *slot = NULL;
+    core_util_critical_section_enter();
+    for (int i = 0; i < OS_MUTEX_NUM; i++) {
+        if (_static_mutexes[i] == NULL) {
+            _static_mutexes[i] = (mutex)-1; // dummy value to reserve slot
+            slot = &_static_mutexes[i];
+            break;
+        }
+    }
+    core_util_critical_section_exit();
+
+    if (slot != NULL) {
+        *m = osMutexNew(&attr);
+        *slot = *m;
+        if (*m != NULL) {
+            return 1;
+        }
     }
 
     /* Mutex pool exhausted, try using HEAP */
@@ -461,6 +477,28 @@ int _mutex_initialize(mutex *m)
     }
 
     return 1;
+}
+
+void _mutex_free(mutex *m) {
+    mutex *slot = NULL;
+    core_util_critical_section_enter();
+    for (int i = 0; i < OS_MUTEX_NUM; i++) {
+        if (_static_mutexes[i] == *m) {
+            slot = &_static_mutexes[i];
+            break;
+        }
+    }
+    core_util_critical_section_exit();
+
+    osMutexDelete(*m);
+
+    // if no slot reserved for mutex, must have been dynamically allocated
+    if (!slot) {
+        free(m);
+    } else {
+        *slot = NULL;
+    }
+
 }
 
 #endif /* ARMC */

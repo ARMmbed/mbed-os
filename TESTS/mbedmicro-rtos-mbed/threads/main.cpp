@@ -25,13 +25,21 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
-#define THREAD_STACK_SIZE 768
+#define THREAD_STACK_SIZE 512
+#define PARALLEL_THREAD_STACK_SIZE 384
+#define CHILD_THREAD_STACK_SIZE 384
 
 using namespace utest::v1;
 
 // The counter type used accross all the tests
 // It is internall ysynchronized so read
 typedef SynchronizedIntegral<int> counter_t;
+
+template<osPriority P, uint32_t S>
+class ParallelThread : public Thread {
+public:
+    ParallelThread() : Thread(P, S) { }
+};
 
 // Tasks with different functions to test on threads
 void increment(counter_t* counter) {
@@ -49,9 +57,10 @@ void increment_with_wait(counter_t* counter) {
 }
 
 void increment_with_child(counter_t* counter) {
-    Thread child(osPriorityNormal, THREAD_STACK_SIZE/2);
-    child.start(callback(increment, counter));
-    child.join();
+    Thread *child = new Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
+    child->start(callback(increment, counter));
+    child->join();
+    delete child;
 }
 
 void increment_with_murder(counter_t* counter) {
@@ -59,9 +68,10 @@ void increment_with_murder(counter_t* counter) {
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
         LockGuard lock(counter->internal_mutex());
-        Thread child(osPriorityNormal, THREAD_STACK_SIZE);
-        child.start(callback(increment, counter));
-        child.terminate();
+        Thread *child = new Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
+        child->start(callback(increment, counter));
+        child->terminate();
+        delete child;
     }
 
     (*counter)++;
@@ -147,16 +157,14 @@ void test_single_thread() {
 template <int N, void (*F)(counter_t *)>
 void test_parallel_threads() {
     counter_t counter(0);
-    Thread *threads[N];
+    ParallelThread<osPriorityNormal, PARALLEL_THREAD_STACK_SIZE> threads[N];
 
     for (int i = 0; i < N; i++) {
-        threads[i] = new Thread(osPriorityNormal, THREAD_STACK_SIZE);
-        threads[i]->start(callback(F, &counter));
+        threads[i].start(callback(F, &counter));
     }
 
     for (int i = 0; i < N; i++) {
-        threads[i]->join();
-        delete threads[i];
+        threads[i].join();
     }
 
     TEST_ASSERT_EQUAL(counter, N);
@@ -272,7 +280,7 @@ void signal_wait_multibit_tout()
 template <int S, void (*F)()>
 void test_thread_signal()
 {
-    Thread t_wait;
+    Thread t_wait(osPriorityNormal, THREAD_STACK_SIZE);
 
     t_wait.start(callback(F));
 
@@ -308,7 +316,7 @@ void signal_clr()
  */
 void test_thread_signal_clr()
 {
-    Thread t_wait;
+    Thread t_wait(osPriorityNormal, THREAD_STACK_SIZE);
 
     t_wait.start(callback(signal_clr));
 
@@ -413,7 +421,7 @@ void test_deleted_thread()
  */
 void test_deleted()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     TEST_ASSERT_EQUAL(Thread::Deleted, t.get_state());
 
@@ -436,7 +444,7 @@ void test_delay_thread()
  */
 void test_delay()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     t.start(callback(test_delay_thread));
 
@@ -461,7 +469,7 @@ void test_signal_thread()
  */
 void test_signal()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     t.start(callback(test_signal_thread));
 
@@ -485,7 +493,7 @@ void test_evt_flag_thread(osEventFlagsId_t evtflg)
  */
 void test_evt_flag()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     mbed_rtos_storage_event_flags_t evtflg_mem;
     osEventFlagsAttr_t evtflg_attr;
     osEventFlagsId_t evtflg;
@@ -517,7 +525,7 @@ void test_mutex_thread(Mutex *mutex)
  */
 void test_mutex()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Mutex mutex;
 
     mutex.lock();
@@ -544,7 +552,7 @@ void test_semaphore_thread(Semaphore *sem)
  */
 void test_semaphore()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Semaphore sem;
 
     t.start(callback(test_semaphore_thread, &sem));
@@ -569,7 +577,7 @@ void test_msg_get_thread(Queue<int32_t, 1> *queue)
  */
 void test_msg_get()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<int32_t, 1> queue;
 
     t.start(callback(test_msg_get_thread, &queue));
@@ -595,7 +603,7 @@ void test_msg_put_thread(Queue<int32_t, 1> *queue)
  */
 void test_msg_put()
 {
-    Thread t;
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<int32_t, 1> queue;
 
     queue.put((int32_t *)0xE1EE7);
@@ -643,7 +651,7 @@ void test_thread_ext_stack() {
     then priority is changed and can be retrieved using @a get_priority
  */
 void test_thread_prio() {
-    Thread t(osPriorityNormal);
+    Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     t.start(callback(thread_wait_signal));
 
     TEST_ASSERT_EQUAL(osPriorityNormal, t.get_priority());
@@ -679,11 +687,11 @@ static const case_t cases[] = {
     {"Testing serial threads with wait", test_serial_threads<10, increment_with_wait>, DEFAULT_HANDLERS},
 
     {"Testing single thread with child", test_single_thread<increment_with_child>, DEFAULT_HANDLERS},
-    {"Testing parallel threads with child", test_parallel_threads<3, increment_with_child>, DEFAULT_HANDLERS},
+    {"Testing parallel threads with child", test_parallel_threads<2, increment_with_child>, DEFAULT_HANDLERS},
     {"Testing serial threads with child", test_serial_threads<10, increment_with_child>, DEFAULT_HANDLERS},
 
     {"Testing single thread with murder", test_single_thread<increment_with_murder>, DEFAULT_HANDLERS},
-    {"Testing parallel threads with murder", test_parallel_threads<3, increment_with_murder>, DEFAULT_HANDLERS},
+    {"Testing parallel threads with murder", test_parallel_threads<2, increment_with_murder>, DEFAULT_HANDLERS},
     {"Testing serial threads with murder", test_serial_threads<10, increment_with_murder>, DEFAULT_HANDLERS},
 
     {"Testing thread self terminate", test_self_terminate, DEFAULT_HANDLERS},
@@ -710,6 +718,7 @@ static const case_t cases[] = {
 
     {"Testing thread with external stack memory", test_thread_ext_stack, DEFAULT_HANDLERS},
     {"Testing thread priority ops", test_thread_prio, DEFAULT_HANDLERS}
+
 };
 
 Specification specification(test_setup, cases);

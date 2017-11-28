@@ -1,15 +1,18 @@
 /*
- * Copyright (c) 2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
- * SPDX-License-Identifier: LicenseRef-PBL
- *
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.mbed.com/licenses/PBL-1.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * See the License for the specific language governing permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /**
@@ -35,6 +38,18 @@
  * \return <0 Change invalid - unable to set the specified MRU.
  */
 int8_t arm_nwk_ipv6_frag_mru(uint16_t frag_mru);
+
+/**
+ * \brief Set the maximum number of entries for the neighbour cache and
+ * destination cache. Default value is 64 and minimum allowed value is 4.
+ *
+ * Note: This must be called before arm_nwk_interface_lowpan_init()
+ *
+ * \param max_entries The absolute maximum entries allowed in cache at any time.
+ * \return 0 Change OK.
+ * \return <0 Change invalid - unable to change the maximum for cache.
+ */
+int8_t arm_nwk_ipv6_max_cache_entries(uint16_t max_entries);
 
 /**
  * \brief Configure automatic flow label calculation.

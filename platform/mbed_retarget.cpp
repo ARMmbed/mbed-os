@@ -1049,15 +1049,11 @@ void *operator new[](std::size_t count, const std::nothrow_t& tag)
 
 void operator delete(void *ptr)
 {
-    if (ptr != NULL) {
-        free(ptr);
-    }
+    free(ptr);
 }
 void operator delete[](void *ptr)
 {
-    if (ptr != NULL) {
-        free(ptr);
-    }
+    free(ptr);
 }
 
 /* @brief   standard c library clock() function.
