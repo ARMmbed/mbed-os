@@ -35,6 +35,10 @@ COAPSERVICE_DIR := ../coap-service
 override CFLAGS += -I$(COAPSERVICE_DIR)/coap-service/
 override CFLAGS += -I$(COAPSERVICE_DIR)/source/include/
 
+ifeq (Linux,$(shell uname))
+override CFLAGS += -DHAVE_DEBUG
+endif
+
 LIB = libcoap-service.a
 
 SRCS := \
