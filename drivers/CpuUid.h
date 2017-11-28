@@ -16,12 +16,12 @@
 #ifndef MBED_CPUUID_H
 #define MBED_CPUUID_H
 
-#include <string>
-#include <vector>
 #include "platform/platform.h"
 
 #if defined(DEVICE_CPUUID) || defined(DOXYGEN_ONLY)
 
+#include <string>
+#include <vector>
 
 namespace mbed {
 /** \addtogroup drivers */
