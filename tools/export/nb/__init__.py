@@ -309,17 +309,14 @@ class GNUARMNetbeans(Exporter):
         output = []
         prev_dir = ''
         folder_count = 1
-        for idx, item in enumerate(file_list):
+        dir_depth = 0
+        for item in (file_list):
             cur_dir = os.path.dirname(item)
             dir_temp = os.path.normpath(cur_dir)
             prev_dir_temp = os.path.normpath(prev_dir)
             dir_list = dir_temp.split(os.sep)
             prev_dir_list = prev_dir_temp.split(os.sep)
             dir_depth = len(dir_list)
-
-            # print 'PREV_DIR: ' + str(prev_dir_list)
-
-            # print 'CURR_DIR: ' + str(dir_list)
 
             # Current File is in Directory: Compare the given dir with previous Dir
             if cur_dir and prev_dir != cur_dir:
@@ -331,8 +328,6 @@ class GNUARMNetbeans(Exporter):
 
                 # calculate difference between matched and length
                 diff = dir_depth - len(matched)
-
-                # print 'MATCHED:  ' + str(matched)
 
                 # if previous dir was not root
                 if prev_dir != '':
@@ -364,10 +359,10 @@ class GNUARMNetbeans(Exporter):
             # Save the Current Dir
             prev_dir = cur_dir
             output.append('<itemPath>' + str(item) + '</itemPath>')
-            # if last iteration close all open tags
-            if idx == len(file_list) - 1 and cur_dir != '':
-                for i in range(0, len(dir_list)):
-                    output.append('</logicalFolder>')
+
+        if cur_dir != '':
+            # close all open tags
+            output.append('</logicalFolder>' * dir_depth)
 
         return output
 
