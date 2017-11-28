@@ -43,6 +43,17 @@ typedef enum {
 
 /** Fetch the reset reason for the last system reset
  *
+ * This function must return the contents of the system reset reason registers
+ * cast to an appropriate platform independent reset reason. If multiple reset
+ * reasons are set this function should return RESET_REASON_MULTIPLE. If the
+ * reset reason does not match any existing platform independent value this
+ * function should return RESET_REASON_PLATFORM. If no reset reason can be
+ * determined this function should return RESET_REASON_UNKNOWN.
+ *
+ * This function is not idempotent, there is no guarantee that the system
+ * reset reason will not be cleared between calls to this function altering the
+ * return value between calls.
+ *
  * Note: Some platforms contain reset reason registers that persist through
  * system resets. If the registers haven't been cleared before calling this
  * function multiple reasons may be set within the registers. If multiple reset
@@ -54,6 +65,15 @@ reset_reason_t hal_reset_reason_get(void);
 
 
 /** Fetch the raw platform specific reset reason register value
+ *
+ * This function must return the raw contents of the system reset reason
+ * registers cast to a uint32_t value. If the platform contains reset reasons
+ * that span multiple registers/addresses the value should be concatenated into
+ * the return type.
+ *
+ * This function is not idempotent, there is no guarantee that the system
+ * reset reason will not be cleared between calls to this function altering the
+ * return value between calls.
  *
  * @return value containing the reset reason register for the given platform.
  *         If the platform contains reset reasons across multiple registers they
