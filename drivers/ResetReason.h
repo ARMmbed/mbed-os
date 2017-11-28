@@ -40,7 +40,7 @@ public:
      *  const reset_reason_t reason = ResetReason::get();
      *
      *  if (reason == RESET_REASON_WATCHDOG) {
-     *      std::cout << "Watchdog reset" << std::endl;
+     *      printf("Watchdog reset\n");
      *      rollback();
      *  }
      *  @endcode
