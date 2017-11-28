@@ -199,8 +199,10 @@ int32_t fsfat_filepath_remove_all(char* filepath)
     pos = fpathbuf + strlen(fpathbuf);
     while (pos != fpathbuf) {
         /* If the remaining file path is the mount point path then finish as the mount point cannot be removed */
-        if (strlen(fpathbuf) == strlen(FSFAT_FOPEN_TEST_MOUNT_PT_PATH) && strncmp(fpathbuf, FSFAT_FOPEN_TEST_MOUNT_PT_PATH, strlen(fpathbuf)) == 0) {
-            break;
+        if (strlen(fpathbuf) == strlen(FSFAT_FOPEN_TEST_MOUNT_PT_PATH)) {
+            if( strncmp(fpathbuf, FSFAT_FOPEN_TEST_MOUNT_PT_PATH, strlen(fpathbuf)) == 0) {
+                break;
+            }
         }
         ret = remove(fpathbuf);
         pos = strrchr(fpathbuf, '/');
@@ -1091,15 +1093,6 @@ control_t fsfat_fopen_test_12(const size_t call_count)
     pos = strrchr(buf, '/');
     *pos = '\0';
     dir = opendir(buf);
-
-    dp = readdir(dir);
-    TEST_ASSERT_MESSAGE(dp != 0, "Error: readdir() failed\n");
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected object name (name=%s, expected=%s).\n", __func__, dp->d_name, ".");
-    TEST_ASSERT_MESSAGE(strncmp(dp->d_name, ".", strlen(".")) == 0, fsfat_fopen_utest_msg_g);
-    dp = readdir(dir);
-    TEST_ASSERT_MESSAGE(dp != 0, "Error: readdir() failed\n");
-    FSFAT_TEST_UTEST_MESSAGE(fsfat_fopen_utest_msg_g, FSFAT_UTEST_MSG_BUF_SIZE, "%s:Error: unexpected object name (name=%s, expected=%s).\n", __func__, dp->d_name, "..");
-    TEST_ASSERT_MESSAGE(strncmp(dp->d_name, "..", strlen("..")) == 0, fsfat_fopen_utest_msg_g);
 
     while ((dp = readdir(dir)) != NULL) {
         FSFAT_DBGLOG("%s: filename: \"%s\"\n", __func__, dp->d_name);
