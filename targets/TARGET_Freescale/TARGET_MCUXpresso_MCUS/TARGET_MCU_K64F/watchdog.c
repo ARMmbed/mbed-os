@@ -7,12 +7,12 @@
 // Platform specific watchdog definitions
 #define LPO_CLOCK_FREQUENCY 1000
 #define MAX_PRESCALER       8
-#define MAX_TIMEOUT         0xFFFFFFFF
+#define MAX_TIMEOUT         0xFFFFFFFFULL
 
 // Number of decrements in the timeout register per millisecond
 #define TICKS_PER_MS (LPO_CLOCK_FREQUENCY / 1000)
 // Maximum timeout that can be specified in milliseconds
-#define MAX_TIMEOUT_MS ((MAX_TIMEOUT / TICKS_PER_MS) * MAX_PRESCALER)
+const uint64_t max_timeout_ms = ((MAX_TIMEOUT / TICKS_PER_MS) * MAX_PRESCALER);
 
 // Maximum supported watchdog timeout for given prescaler value
 #define CALCULATE_MAX_TIMEOUT_MS(scale) \
@@ -28,11 +28,11 @@
 
 static uint32_t calculate_prescaler_value(const uint32_t timeout_ms)
 {
-  if (timeout_ms > MAX_TIMEOUT_MS) {
+  if (timeout_ms > max_timeout_ms) {
     return 0;
   }
 
-  for (uint32_t scale = 1; scale < MAX_PRESCALER; ++scale) {
+  for (uint32_t scale = 1; scale <= MAX_PRESCALER; ++scale) {
     if (timeout_ms < CALCULATE_MAX_TIMEOUT_MS(scale)) {
       return scale;
     }
@@ -49,11 +49,15 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
     return WATCHDOG_STATUS_INVALID_ARGUMENT;
   }
 
-  if (config->timeout_ms > MAX_TIMEOUT_MS) {
+  if (config->timeout_ms == 0) {
     return WATCHDOG_STATUS_INVALID_ARGUMENT;
   }
 
-  if (config->window_ms > MAX_TIMEOUT_MS) {
+  if (config->timeout_ms > max_timeout_ms) {
+    return WATCHDOG_STATUS_INVALID_ARGUMENT;
+  }
+
+  if (config->window_ms > max_timeout_ms) {
     return WATCHDOG_STATUS_INVALID_ARGUMENT;
   }
 
@@ -114,12 +118,15 @@ uint32_t hal_watchdog_get_reload_value(void)
   return ((timeout / TICKS_PER_MS) * (prescaler + 1));
 }
 
-bool hal_watchdog_caused_last_reset(void)
-{
-  return (hal_reset_reason_get() == RESET_REASON_WATCHDOG);
-}
 
-uint32_t hal_watchdog_get_max_timeout(void)
+watchdog_features_t hal_watchdog_get_max_timeout(void)
 {
-  return MAX_TIMEOUT_MS;
+  watchdog_features_t features;
+  features.max_timeout = max_timeout_ms;
+  features.max_timeout_window_mode = max_timeout_ms;
+  features.update_config = true;
+  features.disable_watchdog = true;
+  features.pause_during_sleep = true;
+
+  return features;
 }
