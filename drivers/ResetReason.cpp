@@ -14,30 +14,31 @@
  * limitations under the License.
  */
 
-#include "mbed_reset_reason.h"
+#include "ResetReason.h"
 
-#if DEVICE_RESET_REASON
+#ifdef DEVICE_RESET_REASON
 
 namespace mbed {
 
-reset_reason_t mbed_reset_reason_get(void)
+reset_reason_t ResetReason::get()
 {
-  // Store the reason statically so it can be accessed after the first call to
-  // this function resets it.
-  const static reset_reason_t reason = hal_reset_reason_get();
+    // Store the reason statically so it can be accessed after the first call to
+    // this function resets it.
+    const static reset_reason_t reason = hal_reset_reason_get();
 
-  // Call get raw to cache the reset reason before clearing the registers.
-  hal_reset_reason_get_raw();
-  hal_reset_reason_clear();
+    // Call get raw to cache the reset reason before clearing the registers.
+    ResetReason::get_raw();
 
-  return reason;
+    hal_reset_reason_clear();
+
+    return reason;
 }
 
-uint32_t mbed_reset_reason_get_raw(void)
+uint32_t ResetReason::get_raw()
 {
-  const static uint32_t reason = hal_reset_reason_get_raw();
+    const static uint32_t reason = hal_reset_reason_get_raw();
 
-  return reason;
+    return reason;
 }
 
 } // namespace mbed
