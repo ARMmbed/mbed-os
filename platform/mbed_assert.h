@@ -48,6 +48,7 @@ void mbed_assert_internal(const char *expr, const char *file, int line);
  *
  *  @note
  *  Use of MBED_ASSERT is limited to Debug and Develop builds.
+ *  The expression will be also evaluated on Release, but the condition will have no effect
  *
  *  @code
  *
@@ -57,15 +58,22 @@ void mbed_assert_internal(const char *expr, const char *file, int line);
  *  @endcode
  */
 #ifdef NDEBUG
-#define MBED_ASSERT(expr) ((void)0)
+
+#define MBED_ASSERT(expr)                                \
+do {                                                     \
+    if (!(expr)) {                                       \
+    }                                                    \
+} while (0)
 
 #else
+
 #define MBED_ASSERT(expr)                                \
 do {                                                     \
     if (!(expr)) {                                       \
         mbed_assert_internal(#expr, __FILE__, __LINE__); \
     }                                                    \
 } while (0)
+
 #endif
 
 
