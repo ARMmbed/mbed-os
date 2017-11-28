@@ -295,12 +295,6 @@ class GNUARMNetbeans(Exporter):
         file_names = [join(tools_path, "profiles", fn) for fn in os.listdir(
             join(tools_path, "profiles")) if fn.endswith(".json")]
 
-        # print file_names
-
-        # profile_names = [basename(fn).replace(".json", "")
-        #                 for fn in file_names]
-        # print profile_names
-
         profiles = {}
 
         for fn in file_names:
