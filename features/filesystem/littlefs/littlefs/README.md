@@ -12,16 +12,16 @@ A little fail-safe filesystem designed for embedded systems.
 ```
 
 **Bounded RAM/ROM** - The littlefs is designed to work with a limited amount
-of memory. Recursion is avoided and dynamic memory is limited to configurable
+of memory. Recursion is avoided, and dynamic memory is limited to configurable
 buffers that can be provided statically.
 
 **Power-loss resilient** - The littlefs is designed for systems that may have
-random power failures. The littlefs has strong copy-on-write guaruntees and
+random power failures. The littlefs has strong copy-on-write guaruntees, and
 storage on disk is always kept in a valid state.
 
-**Wear leveling** - Since the most common form of embedded storage is erodible
+**Wear leveling** - Because the most common form of embedded storage is erodible
 flash memories, littlefs provides a form of dynamic wear leveling for systems
-that can not fit a full flash translation layer.
+that cannot fit a full flash translation layer.
 
 ## Example
 
@@ -93,20 +93,20 @@ can be cound in the comments in [lfs.h](lfs.h).
 As you may have noticed, littlefs takes in a configuration structure that
 defines how the filesystem operates. The configuration struct provides the
 filesystem with the block device operations and dimensions, tweakable
-parameters that tradeoff memory usage for performance, and optional
+parameters that trade memory usage for performance and optional
 static buffers if the user wants to avoid dynamic memory.
 
-The state of the littlefs is stored in the `lfs_t` type which is left up
+The state of the littlefs is stored in the `lfs_t` type, which is left up
 to the user to allocate, allowing multiple filesystems to be in use
 simultaneously. With the `lfs_t` and configuration struct, a user can
 format a block device or mount the filesystem.
 
-Once mounted, the littlefs provides a full set of posix-like file and
+Once mounted, the littlefs provides a full set of POSIX-like file and
 directory functions, with the deviation that the allocation of filesystem
 structures must be provided by the user.
 
-All posix operations, such as remove and rename, are atomic, even in event
-of power-loss. Additionally, no file updates are actually commited to the
+All POSIX operations, such as remove and rename, are atomic, even in the event
+of power loss. Additionally, no file updates are actually committed to the
 filesystem until sync or close is called on the file.
 
 ## Other notes
@@ -116,24 +116,24 @@ can be either one of those found in the `enum lfs_error` in [lfs.h](lfs.h),
 or an error returned by the user's block device operations.
 
 It should also be noted that the current implementation of littlefs doesn't
-really do anything to insure that the data written to disk is machine portable.
+really do anything to ensure that the data written to disk is machine portable.
 This is fine as long as all of the involved machines share endianness
 (little-endian) and don't have strange padding requirements.
 
 ## Reference material
 
 [DESIGN.md](DESIGN.md) - DESIGN.md contains a fully detailed dive into how
-littlefs actually works. I would encourage you to read it since the
+littlefs actually works. We would encourage you to read it because the
 solutions and tradeoffs at work here are quite interesting.
 
 [SPEC.md](SPEC.md) - SPEC.md contains the on-disk specification of littlefs
-with all the nitty-gritty details. Can be useful for developing tooling.
+with all the nitty-gritty details. This can be useful for developing tooling.
 
 ## Testing
 
-The littlefs comes with a test suite designed to run on a pc using the
+The littlefs comes with a test suite designed to run on a PC using the
 [emulated block device](emubd/lfs_emubd.h) found in the emubd directory.
-The tests assume a linux environment and can be started with make:
+The tests assume a Linux environment and can be started with make:
 
 ``` bash
 make test
@@ -142,15 +142,15 @@ make test
 ## Related projects
 
 [mbed-littlefs](https://github.com/armmbed/mbed-littlefs) - The easiest way to
-get started with littlefs is to jump into [mbed](https://os.mbed.com/), which
+get started with littlefs is to jump into [Mbed](https://os.mbed.com/), which
 already has block device drivers for most forms of embedded storage. The
-mbed-littlefs provides the mbed wrapper for littlefs.
+mbed-littlefs provides the Mbed wrapper for littlefs.
 
 [littlefs-fuse](https://github.com/geky/littlefs-fuse) - A [FUSE](https://github.com/libfuse/libfuse)
 wrapper for littlefs. The project allows you to mount littlefs directly in a
 Linux machine. Can be useful for debugging littlefs if you have an SD card
 handy.
 
-[littlefs-js](https://github.com/geky/littlefs-js) - A javascript wrapper for
+[littlefs-js](https://github.com/geky/littlefs-js) - A JavaScript wrapper for
 littlefs. I'm not sure why you would want this, but it is handy for demos.
 You can see it in action [here](http://littlefs.geky.net/demo.html).

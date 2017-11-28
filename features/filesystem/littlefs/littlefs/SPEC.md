@@ -3,8 +3,8 @@
 This is the technical specification of the little filesystem. This document
 covers the technical details of how the littlefs is stored on disk for
 introspection and tooling development. This document assumes you are
-familiar with the design of the littlefs, for more info on how littlefs
-works check out [DESIGN.md](DESIGN.md).
+familiar with the design of the littlefs. For more information on how littlefs
+works, check out [DESIGN.md](DESIGN.md).
 
 ```
    | | |     .---._____
@@ -17,23 +17,23 @@ works check out [DESIGN.md](DESIGN.md).
 
 ## Some important details
 
-- The littlefs is a block-based filesystem. This is, the disk is divided into
+- The littlefs is a block-based filesystem. The disk is divided into
   an array of evenly sized blocks that are used as the logical unit of storage
   in littlefs. Block pointers are stored in 32 bits.
 
-- There is no explicit free-list stored on disk, the littlefs only knows what
+- There is no explicit free-list stored on disk. The littlefs only knows what
   is in use in the filesystem.
 
 - The littlefs uses the value of 0xffffffff to represent a null block-pointer.
 
 - All values in littlefs are stored in little-endian byte order.
 
-## Directories / Metadata pairs
+## Directories/Metadata pairs
 
 Metadata pairs form the backbone of the littlefs and provide a system for
 atomic updates. Even the superblock is stored in a metadata pair.
 
-As their name suggests, a metadata pair is stored in two blocks, with one block
+As its name suggests, a metadata pair is stored in two blocks, with one block
 acting as a redundant backup in case the other is corrupted. These two blocks
 could be anywhere in the disk and may not be next to each other, so any
 pointers to directory pairs need to be stored as two block pointers.
@@ -50,7 +50,7 @@ Here's the layout of metadata blocks on disk:
 
 **Revision count** - Incremented every update, only the uncorrupted
 metadata-block with the most recent revision count contains the valid metadata.
-Comparison between revision counts must use sequence comparison since the
+Comparison between revision counts must use sequence comparison because the
 revision counts may overflow.
 
 **Dir size** - Size in bytes of the contents in the current metadata block,
@@ -61,12 +61,12 @@ next metadata-pair pointed to by the tail pointer.
 **Tail pointer** - Pointer to the next metadata-pair in the filesystem.
 A null pair-pointer (0xffffffff, 0xffffffff) indicates the end of the list.
 If the highest bit in the dir size is set, this points to the next
-metadata-pair in the current directory, otherwise it points to an arbitrary
+metadata-pair in the current directory. Otherwise, it points to an arbitrary
 metadata-pair. Starting with the superblock, the tail-pointers form a
 linked-list containing all metadata-pairs in the filesystem.
 
 **CRC** - 32 bit CRC used to detect corruption from power-lost, from block
-end-of-life, or just from noise on the storage bus. The CRC is appended to
+end-of-life or just from noise on the storage bus. The CRC is appended to
 the end of each metadata-block. The littlefs uses the standard CRC-32, which
 uses a polynomial of 0x04c11db7, initialized with 0xffffffff.
 
@@ -90,9 +90,9 @@ Here's an example of a simple directory stored on disk:
 ```
 
 A note about the tail pointer linked-list: Normally, this linked-list is
-threaded through the entire filesystem. However, after power-loss this
+threaded through the entire filesystem. However, after power loss, this
 linked-list may become out of sync with the rest of the filesystem.
-- The linked-list may contain a directory that has actually been removed
+- The linked-list may contain a directory that has actually been removed.
 - The linked-list may contain a metadata pair that has not been updated after
   a block in the pair has gone bad.
 
@@ -104,7 +104,7 @@ if littlefs is mounted read-only.
 
 Each metadata block contains a series of entries that follow a standard
 layout. An entry contains the type of the entry, along with a section for
-entry-specific data, attributes, and a name.
+entry-specific data, attributes and a name.
 
 Here's the layout of entries on disk:
 
@@ -119,9 +119,9 @@ Here's the layout of entries on disk:
 | 0x4+e+a | name length bytes      | entry name                 |
 
 **Entry type** - Type of the entry, currently this is limited to the following:
-- 0x11 - file entry
-- 0x22 - directory entry
-- 0x2e - superblock entry
+- 0x11 - file entry.
+- 0x22 - directory entry.
+- 0x2e - superblock entry.
 
 Additionally, the type is broken into two 4 bit nibbles, with the upper nibble
 specifying the type's data structure used when scanning the filesystem. The
@@ -134,17 +134,17 @@ filesystem. If the entry exists elsewhere, this entry must be treated as
 though it does not exist.
 
 **Entry length** - Length in bytes of the entry-specific data. This does
-not include the entry type size, attributes, or name. The full size in bytes
-of the entry is 4 + entry length + attribute length + name length.
+not include the entry type size, attributes or name. The full size in bytes
+of the entry is 4 plus entry length plus attribute length plus name length.
 
-**Attribute length** - Length of system-specific attributes in bytes. Since
-attributes are system specific, there is not much garuntee on the values in
+**Attribute length** - Length of system-specific attributes in bytes. Because
+attributes are system specific, there is not much guarantee on the values in
 this section, and systems are expected to work even when it is empty. See the
 [attributes](#entry-attributes) section for more details.
 
 **Name length** - Length of the entry name. Entry names are stored as utf8,
-although most systems will probably only support ascii. Entry names can not
-contain '/' and can not be '.' or '..' as these are a part of the syntax of
+though most systems will probably only support ascii. Entry names can not
+contain '/' and can not be '.' or '..' because these are a part of the syntax of
 filesystem paths.
 
 Here's an example of a simple entry stored on disk:
@@ -166,9 +166,9 @@ The superblock is the anchor for the littlefs. The superblock is stored as
 a metadata pair containing a single superblock entry. It is through the
 superblock that littlefs can access the rest of the filesystem.
 
-The superblock can always be found in blocks 0 and 1, however fetching the
+The superblock can always be found in blocks 0 and 1; however, fetching the
 superblock requires knowing the block size. The block size can be guessed by
-searching the beginning of disk for the string "littlefs", although currently
+searching the beginning of disk for the string "littlefs", though currently,
 the filesystems relies on the user providing the correct block size.
 
 The superblock is the most valuable block in the filesystem. It is updated
@@ -200,8 +200,8 @@ Here's the layout of the superblock entry:
 **Version** - The littlefs version encoded as a 32 bit value. The upper 16 bits
 encodes the major version, which is incremented when a breaking-change is
 introduced in the filesystem specification. The lower 16 bits encodes the
-minor version, which is incremented when a backwards-compatible change is
-introduced. Non-standard Attribute changes do not change the version. This
+minor version, which is incremented when a backward-compatible change is
+introduced. Nonstandard Attribute changes do not change the version. This
 specification describes version 1.1 (0x00010001), which is the first version
 of littlefs.
 
@@ -315,27 +315,27 @@ Here's an example of a file entry:
 
 ## Entry attributes
 
-Each dir entry can have up to 256 bytes of system-specific attributes. Since
+Each dir entry can have up to 256 bytes of system-specific attributes. Because
 these attributes are system-specific, they may not be portable between
 different systems. For this reason, all attributes must be optional. A minimal
 littlefs driver must be able to get away with supporting no attributes at all.
 
 For some level of portability, littlefs has a simple scheme for attributes.
-Each attribute is prefixes with an 8-bit type that indicates what the attribute
+Each attribute is prefixed with an 8-bit type that indicates what the attribute
 is. The length of attributes may also be determined from this type. Attributes
-in an entry should be sorted based on portability, since attribute parsing
+in an entry should be sorted based on portability because attribute parsing
 will end when it hits the first attribute it does not understand.
 
 Each system should choose a 4-bit value to prefix all attribute types with to
 avoid conflicts with other systems. Additionally, littlefs drivers that support
-attributes should provide a "ignore attributes" flag to users in case attribute
+attributes should provide an "ignore attributes" flag to users in case attribute
 conflicts do occur.
 
 Attribute types prefixes with 0x0 and 0xf are currently reserved for future
 standard attributes. Standard attributes will be added to this document in
 that case.
 
-Here's an example of non-standard time attribute:
+Here's an example of nonstandard time attribute:
 ```
 (8 bits)  attribute type  = time       (0xc1)
 (72 bits) time in seconds = 1506286115 (0x0059c81a23)
@@ -343,7 +343,7 @@ Here's an example of non-standard time attribute:
 00000000: c1 23 1a c8 59 00                                .#..Y.
 ```
 
-Here's an example of non-standard permissions attribute:
+Here's an example of nonstandard permissions attribute:
 ```
 (8 bits)  attribute type  = permissions (0xc2)
 (16 bits) permission bits = rw-rw-r--   (0x01b4)

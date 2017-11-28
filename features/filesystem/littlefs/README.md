@@ -1,4 +1,4 @@
-## mbed wrapper for the little filesystem
+## Mbed wrapper for the little filesystem
 
 This is the mbed wrapper for [littlefs](https://github.com/geky/littlefs),
 a little fail-safe filesystem designed for embedded systems.
@@ -13,20 +13,20 @@ a little fail-safe filesystem designed for embedded systems.
 ```
 
 **Bounded RAM/ROM** - The littlefs is designed to work with a limited amount
-of memory. Recursion is avoided and dynamic memory is limited to configurable
+of memory. Recursion is avoided, and dynamic memory is limited to configurable
 buffers that can be provided statically.
 
 **Power-loss resilient** - The littlefs is designed for systems that may have
-random power failures. The littlefs has strong copy-on-write guaruntees and
+random power failures. The littlefs has strong copy-on-write guarantees, and
 storage on disk is always kept in a valid state.
 
-**Wear leveling** - Since the most common form of embedded storage is erodible
+**Wear leveling** - Because the most common form of embedded storage is erodible
 flash memories, littlefs provides a form of dynamic wear leveling for systems
-that can not fit a full flash translation layer.
+that cannot fit a full flash translation layer.
 
 ## Usage
 
-If you are already using a filesystem in mbed, adopting the littlefs should
+If you are already using a filesystem in Mbed, adopting the littlefs should
 just require a name change to use the [LittleFileSystem](LittleFileSystem.h)
 class.
 
@@ -82,11 +82,11 @@ int main() {
 ## Reference material
 
 [DESIGN.md](littlefs/DESIGN.md) - DESIGN.md contains a fully detailed dive into
-how littlefs actually works. I would encourage you to read it since the
+how littlefs actually works. We encourage you to read it because the
 solutions and tradeoffs at work here are quite interesting.
 
 [SPEC.md](littlefs/SPEC.md) - SPEC.md contains the on-disk specification of
-littlefs with all the nitty-gritty details. Can be useful for developing
+littlefs with all the nitty-gritty details. This can be useful for developing
 tooling.
 
 ## Related projects
@@ -96,9 +96,9 @@ currently lives.
 
 [littlefs-fuse](https://github.com/geky/littlefs-fuse) - A [FUSE](https://github.com/libfuse/libfuse)
 wrapper for littlefs. The project allows you to mount littlefs directly in a
-Linux machine. Can be useful for debugging littlefs if you have an SD card
+Linux machine. This can be useful for debugging littlefs if you have an SD card
 handy.
 
-[littlefs-js](https://github.com/geky/littlefs-js) - A javascript wrapper for
+[littlefs-js](https://github.com/geky/littlefs-js) - A JavaScript wrapper for
 littlefs. I'm not sure why you would want this, but it is handy for demos.
 You can see it in action [here](http://littlefs.geky.net/demo.html).
