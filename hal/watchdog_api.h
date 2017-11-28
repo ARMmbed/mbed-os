@@ -21,10 +21,6 @@
 
 #if DEVICE_WATCHDOG
 
-#if !(DEVICE_RESET_REASON)
-  #error "Watchdog feature depends on reset reason API also being implemented"
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -53,7 +49,10 @@ typedef struct
   /**
   * Refresh value for the watchdog in milliseconds. The maximum value of this
   * setting is platform dependent, to find the maximum value for the current
-  * platform call hal_watchdog_get_max_timeout(void)
+  * platform call hal_watchdog_get_features() and check the timeout value
+  * member. The minimum valid value for this setting is 1, attempting to
+  * initialise the watchdog with a timeout of 0ms will return
+  * WATCHDOG_STATUS_INVALID_ARGUMENT.
   */
   uint32_t timeout_ms;
   /**
@@ -79,6 +78,36 @@ typedef struct
    */
   bool enable_sleep;
 } watchdog_config_t;
+
+
+typedef struct
+{
+  /**
+   * Maximum timeout value for the watchdog in milliseconds.
+   */
+  uint32_t max_timeout;
+  /**
+   * Maximum timeout value for the watchdog in milliseconds during window
+   * operation mode
+   */
+  uint32_t max_timeout_window_mode;
+  /**
+   * Watchdog timer supports window mode operation
+   */
+  bool window_mode;
+  /**
+   * Watchdog configuration can be updated after the watchdog has been started
+   */
+  bool update_config;
+  /**
+   * Watchdog can be stopped after it is started without a reset
+   */
+  bool disable_watchdog;
+  /**
+   * Watchdog can be paused while the core is in sleep mode
+   */
+  bool pause_during_sleep;
+} watchdog_features_t;
 
 
 typedef enum {
@@ -143,18 +172,12 @@ watchdog_status_t hal_watchdog_stop(void);
  */
 uint32_t hal_watchdog_get_reload_value(void);
 
-/** Checks if the last system reset was caused by a watchdog timer.
+/** Get information on the current platforms supported watchdog functionality
  *
- * @return True if last reset was triggered by a watchdog, False if not.
+ * @return watchdog_feature_t indicating supported watchdog features on the
+ *         current platform
  */
-bool hal_watchdog_caused_last_reset(void);
-
-/** Get the maximum refresh value for the current platform in milliseconds
- *
- * @return Maximum refresh value supported by the watchdog for the current
- *         platform in milliseconds
- */
-uint32_t hal_watchdog_get_max_timeout(void);
+watchdog_features_t hal_watchdog_get_platform_features(void);
 
 /**@}*/
 
