@@ -25,17 +25,21 @@
 #include "platform/mbed_toolchain.h"
 
 // if __EXCLUSIVE_ACCESS rtx macro not defined, we need to get this via own-set architecture macros
-#ifndef __EXCLUSIVE_ACCESS
 #ifndef MBED_EXCLUSIVE_ACCESS
+#ifndef __EXCLUSIVE_ACCESS
 #if ((__ARM_ARCH_7M__      == 1U) || \
     (__ARM_ARCH_7EM__     == 1U) || \
     (__ARM_ARCH_8M_BASE__ == 1U) || \
     (__ARM_ARCH_8M_MAIN__ == 1U)) || \
     (__ARM_ARCH_7A__ == 1U)
 #define MBED_EXCLUSIVE_ACCESS      1U
-#else
+#elif (__ARM_ARCH_6M__ == 1U)
 #define MBED_EXCLUSIVE_ACCESS      0U
+#else
+#error "Unknown architecture for exclusive access"
 #endif
+#else 
+#define MBED_EXCLUSIVE_ACCESS __EXCLUSIVE_ACCESS
 #endif
 #endif
 
