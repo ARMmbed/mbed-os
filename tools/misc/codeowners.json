@@ -1,0 +1,73 @@
+{
+    "git_account" : "ARMmbed",
+    "repository" : "mbed-os",
+    "default" : "mbed-os-maintainers",
+    "owner_list" : {    
+        "platform" : ["SenRamakri", "c1728p9", "geky"],
+
+        "TESTS/mbed_functional" : ["SenRamakri", "c1728p9", "geky"],
+
+        "events" : ["mbed-os-maintainers"],
+        "TESTS/events" : ["mbed-os-maintainers"],
+
+        "drivers" : ["bulislaw", "c1728p9", "pan-", "scartmell-arm", "SenRamakri"],
+        "TESTS/mbed_drivers" : ["bulislaw", "c1728p9", "pan-", "scartmell-arm", "SenRamakri"],
+
+        "tools" : ["theotherjimmy"],
+
+        "rtos" : ["bulislaw", "c1728p9", "pan-", "scartmell-arm"],
+        "TESTS/mbedmicro-rtos-mbed" : ["bulislaw", "c1728p9", "pan-", "scartmell-arm"],
+
+        "hal" : ["bulislaw", "c1728p9", "pan-", "scartmell-arm"],
+        "TESTS/mbed_hal" : ["bulislaw", "c1728p9", "pan-", "scartmell-arm"],
+
+        "features/FEATURE_BLE" : ["pan-"],
+
+        "features/FEATURE_COMMON_PAL" : ["avolinski"],
+        
+        "features/FEATURE_LWIP" : ["SeppoTakalo", "kjbracey-arm"],
+        "features/netsocket" : ["SeppoTakalo", "kjbracey-arm"], 
+        "features/nanostack" : ["SeppoTakalo", "kjbracey-arm"],
+        "TESTS/netsocket" : ["SeppoTakalo", "kjbracey-arm"],
+        "TESTS/network" : ["SeppoTakalo", "kjbracey-arm"],
+
+        "features/filesystem" : ["geky", "deepikabhavnani"], 
+        "features/storage" : ["geky", "deepikabhavnani"],
+
+        "features/mbedtls" : ["hanno-arm", "RonEld", "mazimkhan"],
+        "TESTS/mbedtls" : ["hanno-arm", "RonEld", "mazimkhan"],
+
+        "targets/TARGET_Analog_Devices" : ["ARMmbed/team-analogdevices"],
+
+        "targets/TARGET_ARM_SSG" : ["ARMmbed/team-arm-ipg-oss"],
+        
+        "targets/TARGET_Freescale" : ["ARMmbed/team-nxp"],
+        "targets/TARGET_NXP" : ["ARMmbed/team-nxp"],
+        
+        "targets/TARGET_Maxim" : ["ARMmbed/team-maximintegrated"],
+
+        "targets/TARGET_NORDIC" : ["ARMmbed/team-nordic"],
+
+        "targets/TARGET_NUVOTON" : ["ARMmbed/team-nuvoton"],
+
+        "targets/TARGET_ONSEMI" : ["ARMmbed/team-onsemi"],
+
+        "targets/TARGET_Realtek" :  ["ARMmbed/team-realtek"],
+
+        "targets/TARGET_RENESAS" : ["ARMmbed/team-renesas"],
+
+        "targets/TARGET_Silicon_Labs" : ["ARMmbed/team-silabs"],
+
+        "targets/TARGET_STM" : ["ARMmbed/team-st-mcd"],
+
+        "targets/TARGET_TOSHIBA" : ["ganesh-ramachandran"],
+
+        "targets/TARGET_ublox" : ["ARMmbed/team-nuvoton"],
+
+        "targets/TARGET_WIZNET" : ["khj098765"],
+        
+        "mbed.h" : ["mbed-os-maintainers"],
+        "targets/targets.json" : ["mbed-os-maintainers"],
+        "features/unsupported" : ["mbed-os-maintainers"]
+    }
+}
