@@ -116,7 +116,7 @@ void core_util_critical_section_exit(void)
 #pragma diag_suppress 3731
 #endif
 
-bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
+bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
 {
     do {
         uint8_t currentValue = __LDREXB(ptr);
@@ -129,7 +129,7 @@ bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_
     return true;
 }
 
-bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue)
+bool core_util_atomic_cas_u16(volatile uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue)
 {
     do {
         uint16_t currentValue = __LDREXH(ptr);
@@ -143,7 +143,7 @@ bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uin
 }
 
 
-bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue)
+bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue)
 {
     do {
         uint32_t currentValue = __LDREXW(ptr);
@@ -156,7 +156,7 @@ bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uin
     return true;
 }
 
-uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta)
+uint8_t core_util_atomic_incr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
     uint8_t newValue;
     do {
@@ -165,7 +165,7 @@ uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta)
     return newValue;
 }
 
-uint16_t core_util_atomic_incr_u16(uint16_t *valuePtr, uint16_t delta)
+uint16_t core_util_atomic_incr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 {
     uint16_t newValue;
     do {
@@ -174,7 +174,7 @@ uint16_t core_util_atomic_incr_u16(uint16_t *valuePtr, uint16_t delta)
     return newValue;
 }
 
-uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta)
+uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 {
     uint32_t newValue;
     do {
@@ -184,7 +184,7 @@ uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta)
 }
 
 
-uint8_t core_util_atomic_decr_u8(uint8_t *valuePtr, uint8_t delta)
+uint8_t core_util_atomic_decr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
     uint8_t newValue;
     do {
@@ -193,7 +193,7 @@ uint8_t core_util_atomic_decr_u8(uint8_t *valuePtr, uint8_t delta)
     return newValue;
 }
 
-uint16_t core_util_atomic_decr_u16(uint16_t *valuePtr, uint16_t delta)
+uint16_t core_util_atomic_decr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 {
     uint16_t newValue;
     do {
@@ -202,7 +202,7 @@ uint16_t core_util_atomic_decr_u16(uint16_t *valuePtr, uint16_t delta)
     return newValue;
 }
 
-uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta)
+uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 {
     uint32_t newValue;
     do {
@@ -213,7 +213,7 @@ uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta)
 
 #else
 
-bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
+bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
 {
     bool success;
     uint8_t currentValue;
@@ -230,7 +230,7 @@ bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_
     return success;
 }
 
-bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue)
+bool core_util_atomic_cas_u16(volatile uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue)
 {
     bool success;
     uint16_t currentValue;
@@ -248,7 +248,7 @@ bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uin
 }
 
 
-bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue)
+bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue)
 {
     bool success;
     uint32_t currentValue;
@@ -266,7 +266,7 @@ bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uin
 }
 
 
-uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta)
+uint8_t core_util_atomic_incr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
     uint8_t newValue;
     core_util_critical_section_enter();
@@ -276,7 +276,7 @@ uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta)
     return newValue;
 }
 
-uint16_t core_util_atomic_incr_u16(uint16_t *valuePtr, uint16_t delta)
+uint16_t core_util_atomic_incr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 {
     uint16_t newValue;
     core_util_critical_section_enter();
@@ -286,7 +286,7 @@ uint16_t core_util_atomic_incr_u16(uint16_t *valuePtr, uint16_t delta)
     return newValue;
 }
 
-uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta)
+uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 {
     uint32_t newValue;
     core_util_critical_section_enter();
@@ -297,7 +297,7 @@ uint32_t core_util_atomic_incr_u32(uint32_t *valuePtr, uint32_t delta)
 }
 
 
-uint8_t core_util_atomic_decr_u8(uint8_t *valuePtr, uint8_t delta)
+uint8_t core_util_atomic_decr_u8(volatile uint8_t *valuePtr, uint8_t delta)
 {
     uint8_t newValue;
     core_util_critical_section_enter();
@@ -307,7 +307,7 @@ uint8_t core_util_atomic_decr_u8(uint8_t *valuePtr, uint8_t delta)
     return newValue;
 }
 
-uint16_t core_util_atomic_decr_u16(uint16_t *valuePtr, uint16_t delta)
+uint16_t core_util_atomic_decr_u16(volatile uint16_t *valuePtr, uint16_t delta)
 {
     uint16_t newValue;
     core_util_critical_section_enter();
@@ -317,7 +317,7 @@ uint16_t core_util_atomic_decr_u16(uint16_t *valuePtr, uint16_t delta)
     return newValue;
 }
 
-uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta)
+uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 {
     uint32_t newValue;
     core_util_critical_section_enter();
@@ -330,18 +330,18 @@ uint32_t core_util_atomic_decr_u32(uint32_t *valuePtr, uint32_t delta)
 #endif
 
 
-bool core_util_atomic_cas_ptr(void **ptr, void **expectedCurrentValue, void *desiredValue) {
+bool core_util_atomic_cas_ptr(void * volatile *ptr, void **expectedCurrentValue, void *desiredValue) {
     return core_util_atomic_cas_u32(
-            (uint32_t *)ptr,
+            (volatile uint32_t *)ptr,
             (uint32_t *)expectedCurrentValue,
             (uint32_t)desiredValue);
 }
 
-void *core_util_atomic_incr_ptr(void **valuePtr, ptrdiff_t delta) {
-    return (void *)core_util_atomic_incr_u32((uint32_t *)valuePtr, (uint32_t)delta);
+void *core_util_atomic_incr_ptr(void * volatile *valuePtr, ptrdiff_t delta) {
+    return (void *)core_util_atomic_incr_u32((volatile uint32_t *)valuePtr, (uint32_t)delta);
 }
 
-void *core_util_atomic_decr_ptr(void **valuePtr, ptrdiff_t delta) {
-    return (void *)core_util_atomic_decr_u32((uint32_t *)valuePtr, (uint32_t)delta);
+void *core_util_atomic_decr_ptr(void * volatile *valuePtr, ptrdiff_t delta) {
+    return (void *)core_util_atomic_decr_u32((volatile uint32_t *)valuePtr, (uint32_t)delta);
 }
 
