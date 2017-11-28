@@ -8,12 +8,13 @@
 // Platform specific watchdog definitions
 #define LPO_CLOCK_FREQUENCY 40000
 #define MAX_PRESCALER       256
-#define MAX_TIMEOUT         0xFFF
+#define MAX_TIMEOUT         0xFFFULL
 
 // Number of decrements in the timeout register per millisecond
 #define TICKS_PER_MS (LPO_CLOCK_FREQUENCY / 1000)
 // Maximum timeout that can be specified in milliseconds
-#define MAX_TIMEOUT_MS ((MAX_TIMEOUT / TICKS_PER_MS) * MAX_PRESCALER)
+const uint64_t max_timeout_ms = ((MAX_TIMEOUT / TICKS_PER_MS) * MAX_PRESCALER);
+
 // Maximum supported watchdog timeout for given prescaler value
 #define CALCULATE_MAX_TIMEOUT_MS(scale) \
    ((MAX_TIMEOUT / TICKS_PER_MS) * scale)
@@ -41,6 +42,10 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
 {
     // Validate the input parameters
     if (config == NULL) {
+        return WATCHDOG_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (config->timeout_ms == 0) {
         return WATCHDOG_STATUS_INVALID_ARGUMENT;
     }
 
@@ -103,14 +108,14 @@ uint32_t hal_watchdog_get_reload_value(void)
     return ((timeout / TICKS_PER_MS) * prescaler);
 }
 
-
-bool hal_watchdog_caused_last_reset(void)
+watchdog_features_t hal_watchdog_get_max_timeout(void)
 {
-    return (hal_reset_reason_get() == RESET_REASON_WATCHDOG);
-}
+    watchdog_features_t features;
+    features.max_timeout = max_timeout_ms;
+    features.max_timeout_window_mode = max_timeout_ms;
+    features.update_config = true;
+    features.disable_watchdog = false;
+    features.pause_during_sleep = true;
 
-
-uint32_t hal_watchdog_get_max_timeout(void)
-{
-    return MAX_TIMEOUT_MS;
+    return features;
 }
