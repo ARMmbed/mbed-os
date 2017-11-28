@@ -17,6 +17,10 @@
 #include "clock_config.h"
 #include "fsl_emc.h"
 #include "fsl_power.h"
+#include "fsl_flashiap.h"
+
+#define CRC16
+#include "crc.h"
 
 /*******************************************************************************
  * Definitions
@@ -36,6 +40,18 @@
 #define SDRAM_RAS_NCLK (2u)
 #define SDRAM_MODEREG_VALUE (0x23u)
 #define SDRAM_DEV_MEMORYMAP (0x09u) /* 128Mbits (8M*16, 4banks, 12 rows, 9 columns)*/
+
+uint32_t FLASHIAP_ReadUid(uint32_t *addr)
+{
+    uint32_t command[5], result[5];
+
+    command[0] = kIapCmd_FLASHIAP_ReadUid;
+    iap_entry(command, result);
+
+    memcpy(addr, &result[1], (sizeof(uint32_t) * 4));
+
+    return result[0];
+}
 
 // called before main
 void mbed_sdk_init()
@@ -57,6 +73,38 @@ void rtc_setup_oscillator(void)
 {
     /* Enable the RTC 32K Oscillator */
     SYSCON->RTCOSCCTRL |= SYSCON_RTCOSCCTRL_EN_MASK;
+}
+
+// Provide ethernet devices with a semi-unique MAC address from the UUID
+void mbed_mac_address(char *mac)
+{
+    uint16_t MAC[3];                        // 3 16 bits words for the MAC
+    uint32_t UID[4];
+
+    // get UID via ISP commands
+    FLASHIAP_ReadUid(UID);
+
+    // generate three CRC16's using different slices of the UUID
+    MAC[0] = crcSlow((const uint8_t *)UID, 8);  // most significant half-word
+    MAC[1] = crcSlow((const uint8_t *)UID, 12);
+    MAC[2] = crcSlow((const uint8_t *)UID, 16); // least significant half word
+
+    // The network stack expects an array of 6 bytes
+    // so we copy, and shift and copy from the half-word array to the byte array
+    mac[0] = MAC[0] >> 8;
+    mac[1] = MAC[0];
+    mac[2] = MAC[1] >> 8;
+    mac[3] = MAC[1];
+    mac[4] = MAC[2] >> 8;
+    mac[5] = MAC[2];
+
+    // We want to force bits [1:0] of the most significant byte [0]
+    // to be "10"
+    // http://en.wikipedia.org/wiki/MAC_address
+
+    mac[0] |= 0x02; // force bit 1 to a "1" = "Locally Administered"
+    mac[0] &= 0xFE; // force bit 0 to a "0" = Unicast
+
 }
 
 void ADC_ClockPower_Configuration(void)

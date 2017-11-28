@@ -731,12 +731,14 @@
         "inherits": ["Target"],
         "detect_code": ["1056"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name" : "LPC54618J512ET180"
     },
     "FF_LPC546XX": {
         "inherits": ["LPC546XX"],
         "extra_labels_remove" : ["LPCXpresso"],
+        "features_remove": ["LWIP"],
         "supported_form_factors": [""],
         "detect_code": ["8081"]
     },
