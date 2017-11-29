@@ -27,6 +27,9 @@
 
 #define ONE_MHZ     1000000
 
+namespace mbed {
+    
+// Config/Mode Defines    
 /** QSPI Bus width Enum
  */
 typedef enum qspi_config_bus_width {
@@ -61,9 +64,8 @@ typedef enum qspi_return_status {
     QSPI_ERROR = -1, /**< Generic error >*/
     QSPI_INVALID_PARAMETER = -2, /**< The parameter is invalid >*/
     QSPI_SUCCESS = 0, /**< Function executed sucessfully  >*/
-} qspi_return_status_t;
-
-namespace mbed {
+} qspi_return_status_t;    
+    
 /** \addtogroup drivers */
 
 /** A QSPI Driver, used for communicating with QSPI slave devices
@@ -100,7 +102,7 @@ namespace mbed {
 class QSPI : private NonCopyable<QSPI> {
 
 public:
-
+    
     /** Create a QSPI master connected to the specified pins
      *
      *  io0-io3 is used to specify the Pins used for Quad SPI mode
