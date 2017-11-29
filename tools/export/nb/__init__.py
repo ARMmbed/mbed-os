@@ -213,10 +213,9 @@ class GNUARMNetbeans(Exporter):
 
         sys_libs = [self.prepare_sys_lib(lib) for lib
                     in self.toolchain.sys_libs]
-        preproc = " ".join([part for part
-                            in ([basename(self.toolchain.preproc[0])] +
+        preproc = " ".join([basename(self.toolchain.preproc[0])] +
                                 self.toolchain.preproc[1:] +
-                                self.toolchain.ld[1:])])
+                                self.toolchain.ld[1:])
 
         if 'nbproject' in include_paths:
             include_paths.remove('nbproject')
