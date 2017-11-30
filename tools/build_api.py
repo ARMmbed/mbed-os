@@ -372,6 +372,10 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
     destination - file name to write all regions to
     padding - bytes to fill gapps with
     """
+
+    for r in region_list:
+        print(r)
+    
     merged = IntelHex()
 
     print("Merging Regions:")
@@ -383,6 +387,7 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
             print("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
             part_size = (part.maxaddr() - part.minaddr()) + 1
+            print("Part size: %s" % part_size)
             if part_size > region.size:
                 raise ToolException("Contents of region %s does not fit"
                                     % region.name)

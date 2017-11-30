@@ -64,7 +64,12 @@ static void powerdown_scb(uint32_t vtor)
 
     // SCB->CPUID   - Read only CPU ID register
     SCB->ICSR = SCB_ICSR_PENDSVCLR_Msk | SCB_ICSR_PENDSTCLR_Msk;
+
+    /***** HEADS UP MODIFICATION ******/
+    // Prevent the vector table from being relocated
+    #if !defined(TARGET_HU_FLYER)
     SCB->VTOR = vtor;
+    #endif
     SCB->AIRCR = 0x05FA | 0x0000;
     SCB->SCR = 0x00000000;
     // SCB->CCR     - Implementation defined value

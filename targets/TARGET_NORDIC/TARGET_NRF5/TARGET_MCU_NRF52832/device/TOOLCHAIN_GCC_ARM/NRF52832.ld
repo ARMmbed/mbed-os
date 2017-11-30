@@ -18,6 +18,7 @@
 
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Heads Up Modifications to allow configurable application locations
+Also modified to allow UICR to be written to using the section attribute
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
 #if !defined(MBED_APP_START)
@@ -28,10 +29,17 @@ Heads Up Modifications to allow configurable application locations
   #define MBED_APP_SIZE 0x64000
 #endif
 
+/*
+ * UICR -> User Information Configuration Registers
+ * UICR_AP -> UICR Access Port Protect (has a couple other functions)
+ */
+
 MEMORY
 {
   FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx) :  ORIGIN = 0x20002ef8, LENGTH = 0xd108
+  UICR (rw) :  ORIGIN = 0x10001014, LENGTH = 0x8
+  UICR_AP (rw) : ORIGIN = 0x10001200, LENGTH = 0x10
 }
 
 
@@ -199,4 +207,21 @@ SECTIONS
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
     __StackLimit = __StackTop - SIZEOF(.stack);
     PROVIDE(__stack = __StackTop);
+
+    /* Heads Up Modification
+       Creates a memory section for the UICR registers
+       This allows them to be programmed with a
+       .hex file at the factory
+    */
+    .uicr :
+    {
+	KEEP(*(.uicr))
+    } > UICR
+
+    .uicr_ap :
+    {
+	KEEP(*(.uicr_ap))
+    } > UICR_AP
+
+
 }
