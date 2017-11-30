@@ -1,5 +1,6 @@
-/* Nanostack implementation of NetworkSocketAPI
- * Copyright (c) 2016 ARM Limited
+/*
+ * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/* Nanostack implementation of NetworkSocketAPI */
 
 #include "mbed.h"
 #include "rtos.h"
