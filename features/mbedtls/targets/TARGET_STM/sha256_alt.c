@@ -198,6 +198,18 @@ void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[32
             }
         }
     }
+    /* The following test can happen when the input is empty, and mbedtls_sha256_update has never been called */
+    if(ctx->hhash_sha256.Phase == HAL_HASH_PHASE_READY) {
+        if (ctx->is224 == 0) {
+            /* Select the SHA256 mode and reset the HASH processor core, so that the HASH will be ready to compute
+           the message digest of a new message */
+            HASH->CR |= HASH_ALGOSELECTION_SHA256 | HASH_CR_INIT;
+        } else {
+            /* Select the SHA224 mode and reset the HASH processor core, so that the HASH will be ready to compute
+           the message digest of a new message */
+            HASH->CR |= HASH_ALGOSELECTION_SHA224 | HASH_CR_INIT;
+        }
+    }
     mbedtls_zeroize(ctx->sbuf, ST_SHA256_BLOCK_SIZE);
     ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();

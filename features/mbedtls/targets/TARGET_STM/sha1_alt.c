@@ -174,6 +174,12 @@ void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] )
             return; // Return error code here
         }
     }
+    /* The following test can happen when the input is empty, and mbedtls_sha1_update has never been called */
+    if(ctx->hhash_sha1.Phase == HAL_HASH_PHASE_READY) {
+        /* Select the SHA1 mode and reset the HASH processor core, so that the HASH will be ready to compute
+           the message digest of a new message */
+        HASH->CR |= HASH_ALGOSELECTION_SHA1 | HASH_CR_INIT;
+    }
     mbedtls_zeroize(ctx->sbuf, ST_SHA1_BLOCK_SIZE);
     ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();
