@@ -141,11 +141,6 @@ make test
 
 ## Related projects
 
-[mbed-littlefs](https://github.com/armmbed/mbed-littlefs) - The easiest way to
-get started with littlefs is to jump into [Mbed](https://os.mbed.com/), which
-already has block device drivers for most forms of embedded storage. The
-mbed-littlefs provides the Mbed wrapper for littlefs.
-
 [littlefs-fuse](https://github.com/geky/littlefs-fuse) - A [FUSE](https://github.com/libfuse/libfuse)
 wrapper for littlefs. The project allows you to mount littlefs directly in a
 Linux machine. Can be useful for debugging littlefs if you have an SD card

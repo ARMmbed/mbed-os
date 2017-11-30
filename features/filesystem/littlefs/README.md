@@ -1,7 +1,7 @@
-## Mbed wrapper for the little filesystem
+## Mbed OS API for the little filesystem
 
-This is the mbed wrapper for [littlefs](https://github.com/geky/littlefs),
-a little fail-safe filesystem designed for embedded systems.
+This is the Mbed OS API for littlefs, a little fail-safe filesystem
+designed for embedded systems.
 
 ```
    | | |     .---._____
