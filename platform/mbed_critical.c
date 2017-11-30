@@ -110,39 +110,42 @@ MBED_WEAK void core_util_critical_section_exit(void)
 
 bool core_util_atomic_cas_u8(uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
 {
-    uint8_t currentValue = __LDREXB((volatile uint8_t*)ptr);
-    if (currentValue != *expectedCurrentValue) {
-        *expectedCurrentValue = currentValue;
-        __CLREX();
-        return false;
-    }
-
-    return !__STREXB(desiredValue, (volatile uint8_t*)ptr);
+    do {
+        uint8_t currentValue = __LDREXB((volatile uint8_t*)ptr);
+        if (currentValue != *expectedCurrentValue) {
+            *expectedCurrentValue = currentValue;
+            __CLREX();
+            return false;
+        }
+    } while (__STREXB(desiredValue, (volatile uint8_t*)ptr));
+    return true;
 }
 
 bool core_util_atomic_cas_u16(uint16_t *ptr, uint16_t *expectedCurrentValue, uint16_t desiredValue)
 {
-    uint16_t currentValue = __LDREXH((volatile uint16_t*)ptr);
-    if (currentValue != *expectedCurrentValue) {
-        *expectedCurrentValue = currentValue;
-        __CLREX();
-        return false;
-    }
-
-    return !__STREXH(desiredValue, (volatile uint16_t*)ptr);
+    do {
+        uint16_t currentValue = __LDREXH((volatile uint16_t*)ptr);
+        if (currentValue != *expectedCurrentValue) {
+            *expectedCurrentValue = currentValue;
+            __CLREX();
+            return false;
+        }
+    } while (__STREXH(desiredValue, (volatile uint16_t*)ptr));
+    return true;
 }
 
 
 bool core_util_atomic_cas_u32(uint32_t *ptr, uint32_t *expectedCurrentValue, uint32_t desiredValue)
 {
-    uint32_t currentValue = __LDREXW((volatile uint32_t*)ptr);
-    if (currentValue != *expectedCurrentValue) {
-        *expectedCurrentValue = currentValue;
-        __CLREX();
-        return false;
-    }
-
-    return !__STREXW(desiredValue, (volatile uint32_t*)ptr);
+    do {
+        uint32_t currentValue = __LDREXW((volatile uint32_t*)ptr);
+        if (currentValue != *expectedCurrentValue) {
+            *expectedCurrentValue = currentValue;
+            __CLREX();
+            return false;
+        }
+    } while (__STREXW(desiredValue, (volatile uint32_t*)ptr));
+    return true;
 }
 
 uint8_t core_util_atomic_incr_u8(uint8_t *valuePtr, uint8_t delta)
