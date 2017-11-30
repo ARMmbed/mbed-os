@@ -54,7 +54,14 @@
 #define TRNG_CNT_VAL    4095
 #define TRNG_PRESCALER  2
 
-/* RNG Device memory */
+/*******************************************************************************
+   RNG Device memory is the instance of ADI_RNG_DEV_DATA_TYPE that contains
+   pointers and requires 4 byte alignment. The use of uint8_t may cause memory
+   access fault for some compilers which are not configured to handle unaligned
+   accesses to SRAM. The size in uint8_t for RngDevMem is ADI_RNG_MEMORY_SIZE.
+   The size in uint32_t for RngDevMem is recalculated to be
+   (ADI_RNG_MEMORY_SIZE + 3)/4.
+ *******************************************************************************/
 static uint32_t RngDevMem[(ADI_RNG_MEMORY_SIZE + 3)/4];
 
 void trng_init(trng_t *obj)
