@@ -175,6 +175,12 @@ void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] )
             return; // Return error code here
         }
     }
+    /* The following test can happen when the input is empty, and mbedtls_md5_update has never been called */
+    if(ctx->hhash_md5.Phase == HAL_HASH_PHASE_READY) {
+        /* Select the MD5 mode and reset the HASH processor core, so that the HASH will be ready to compute
+            the message digest of a new message */
+        HASH->CR |= HASH_ALGOSELECTION_MD5 | HASH_CR_INIT;
+    }
     mbedtls_zeroize( ctx->sbuf, ST_MD5_BLOCK_SIZE);
     ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();
