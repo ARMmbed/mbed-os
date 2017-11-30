@@ -94,17 +94,18 @@ public:
     nsapi_size_or_error_t sendto(const SocketAddress &address,
             const void *data, nsapi_size_t size);
 
-    /** Receive a packet over a UDP socket
+    /** Receive a datagram over a UDP socket
      *
-     *  Receives data and stores the source address in address if address
-     *  is not NULL. Returns the number of bytes received into the buffer.
+     *  Receives a datagram and stores the source address in address if address
+     *  is not NULL. Returns the number of bytes written into the buffer. If the
+     *  datagram is larger than the buffer, the excess data is silently discarded.
      *
-     *  By default, recvfrom blocks until data is sent. If socket is set to
-     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
-     *  immediately.
+     *  By default, recvfrom blocks until a datagram is received. If socket is set to
+     *  non-blocking or times out with no datagram, NSAPI_ERROR_WOULD_BLOCK
+     *  is returned.
      *
      *  @param address  Destination for the source address or NULL
-     *  @param data     Destination buffer for data received from the host
+     *  @param data     Destination buffer for datagram received from the host
      *  @param size     Size of the buffer in bytes
      *  @return         Number of received bytes on success, negative error
      *                  code on failure
