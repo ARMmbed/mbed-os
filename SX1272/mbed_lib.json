@@ -1,0 +1,13 @@
+{
+    "name": "sx1272-lora-driver",
+    "config": {
+        "spi-frequency": {
+        	"help": "SPI frequency, Default: 8 MHz",
+        	"value": 8000000
+        },
+        "buffer-size": {
+        	"help": "Max. buffer size the radio can handle, Default: 256 B",
+        	"value": 256
+        }
+    }
+}
