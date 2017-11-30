@@ -1528,7 +1528,8 @@
         "macros_add": ["RTC_LSI=1", "USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F429ZI"
+        "device_name": "STM32F429ZI",
+        "bootloader_supported": true
     },
     "DISCO_F469NI": {
         "inherits": ["FAMILY_STM32"],
