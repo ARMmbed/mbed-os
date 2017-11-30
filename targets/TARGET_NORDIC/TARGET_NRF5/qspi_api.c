@@ -100,11 +100,31 @@ qspi_status_t qspi_prepare_command(qspi_t *obj, const qspi_command_t *command, b
             } else {
                 config.prot_if.readoc = NRF_QSPI_READOC_READ4IO;
             }
+        // 1-1-2
+        } else if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
+            command->address.bus_width == QSPI_CFG_BUS_SINGLE &&
+            command->data.bus_width == QSPI_CFG_BUS_DUAL) {
+            // 1-1-2
+            if (write) {
+                config.prot_if.writeoc = NRF_QSPI_WRITEOC_PP2O;
+            } else {
+                config.prot_if.readoc = NRF_QSPI_READOC_READ2O;
+            }
+        // 1-2-2
+        } else if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
+            command->address.bus_width == QSPI_CFG_BUS_DUAL &&
+            command->data.bus_width == QSPI_CFG_BUS_DUAL) {
+            // 1-2-2
+            if (write) {
+                //Currently NRF52840 does not define PP2IO, so use PP2O for 1-2-2 mode
+                config.prot_if.writeoc = NRF_QSPI_WRITEOC_PP2O;
+            } else {
+                config.prot_if.readoc = NRF_QSPI_READOC_READ2IO;
+            }
         }
     }    
     
     qspi_status_t ret = QSPI_STATUS_OK;
-
     // supporting only 24 or 32 bit address
     if (command->address.size == QSPI_CFG_ADDR_SIZE_24) {
         config.prot_if.addrmode = NRF_QSPI_ADDRMODE_24BIT;
