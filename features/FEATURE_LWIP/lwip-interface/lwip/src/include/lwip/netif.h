@@ -48,6 +48,7 @@
 #include "lwip/def.h"
 #include "lwip/pbuf.h"
 #include "lwip/stats.h"
+#include "nsapi_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -196,6 +197,9 @@ typedef err_t (*netif_output_ip6_fn)(struct netif *netif, struct pbuf *p,
 typedef err_t (*netif_linkoutput_fn)(struct netif *netif, struct pbuf *p);
 /** Function prototype for netif status- or link-callback functions. */
 typedef void (*netif_status_callback_fn)(struct netif *netif);
+/** Function prototype for netif client status callback functions. */
+typedef void (*netif_client_status_callback_fn)(void* ethernet_if_ptr, 
+    nsapi_event_t reason, intptr_t parameter);
 #if LWIP_IPV4 && LWIP_IGMP
 /** Function prototype for netif igmp_mac_filter functions */
 typedef err_t (*netif_igmp_mac_filter_fn)(struct netif *netif,
@@ -271,6 +275,16 @@ struct netif {
   /** This function is called when the netif state is set to up or down
    */
   netif_status_callback_fn status_callback;
+  /** This is a pointer to an Ethernet IF, whose callback will be called in case
+   *  of network connection status changes
+   */
+  void *status_cb_handle;
+  /** This function is called when the netif state is set to up or down
+   */
+  netif_client_status_callback_fn client_callback;
+  /** The blocking status of the if
+   */
+  u8_t blocking;  
 #endif /* LWIP_NETIF_STATUS_CALLBACK */
 #if LWIP_NETIF_LINK_CALLBACK
   /** This function is called when the netif link is set to up or down

@@ -56,6 +56,7 @@ enum nsapi_error {
     NSAPI_ERROR_ADDRESS_IN_USE      = -3018,     /*!< Address already in use */
 };
 
+
 /** Enum of connection status types
  *
  *  Valid error codes have negative values.
@@ -68,6 +69,18 @@ enum nsapi_error {
     NSAPI_STATUS_DISCONNECTED       = 2,        /*!< no connection to network */
     NSAPI_STATUS_UNDEFINED          = -3001     /*!< error situation */
 } nsapi_connection_status_t;
+
+
+/** Enum of event types
+ *
+ *  Valid error codes have negative values.
+ *
+ *  @enum nsapi_event
+ */
+ typedef enum nsapi_event {
+    NSAPI_EVENT_CONNECTION_STATUS_CHANGE    = 0,        /*!< network connection status has changed */
+    NSAPI_EVENT_UNDEFINED                   = -3001     /*!< error situation */
+} nsapi_event_t;
 
 
 /** Type used to represent error codes

@@ -43,10 +43,12 @@ int ThreadInterface::connect()
     // -routers will create new network and get local connectivity
     // -end devices will get connectivity once attached to existing network
     // -devices without network settings gets connectivity once commissioned and attached to network
-    int32_t count = connect_semaphore.wait(osWaitForever);
+    if (_blocking) {
+        int32_t count = connect_semaphore.wait(osWaitForever);
 
-    if (count <= 0) {
-        return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        if (count <= 0) {
+            return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        }
     }
     return 0;
 }

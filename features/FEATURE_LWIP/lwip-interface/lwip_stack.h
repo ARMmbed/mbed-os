@@ -20,7 +20,6 @@
 #include "nsapi.h"
 #include "emac_api.h"
 #include "lwip/opt.h"
-#include "nsapi_types.h"
 #include "netif.h"
 #ifdef __cplusplus
 extern "C" {
@@ -35,11 +34,11 @@ nsapi_connection_status_t mbed_lwip_netif_status_check(void);
 nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw);
 nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, 
     const nsapi_ip_stack_t stack);
-nsapi_error_t mbed_lwip_bringup_3(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, 
-    const nsapi_ip_stack_t stack, netif_status_callback_fn status_cb);
+typedef netif_client_status_callback_fn mbed_lwip_client_callback;
+void mbed_lwip_attach(mbed_lwip_client_callback status_cb, void *status_cb_handle);
+void mbed_lwip_set_blocking(u8_t blocking);
 nsapi_error_t mbed_lwip_bringdown(void);
 nsapi_error_t mbed_lwip_bringdown_2(bool ppp);
-
 const char *mbed_lwip_get_mac_address(void);
 char *mbed_lwip_get_ip_address(char *buf, nsapi_size_t buflen);
 char *mbed_lwip_get_netmask(char *buf, nsapi_size_t buflen);

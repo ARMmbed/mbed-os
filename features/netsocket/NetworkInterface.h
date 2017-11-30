@@ -134,15 +134,15 @@ public:
      *
      *  @param status_cb The callback for status changes
      */
-    virtual void attach(mbed::Callback<void(nsapi_connection_status_t, int)> status_cb);
+    virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
     /** Get the connection status
      *
      *  @return         The connection status according to ConnectionStatusType
      */
-    virtual nsapi_connection_status_t get_connection_status();
+    virtual nsapi_connection_status_t get_connection_status() const;
 
-    /** Set blocking status of connect()
+    /** Set blocking status of connect() which by default should be blocking
      *
      *  @param blocking true if connect is blocking
      *  @return         0 on success, negative error code on failure

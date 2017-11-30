@@ -264,8 +264,9 @@ PPPCellularInterface::PPPCellularInterface(FileHandle *fh, bool debug)
     _debug_trace_on = debug;
     _stack = DEFAULT_STACK;
     _connection_status_cb = NULL;
-    _ppp_cb = Callback<void(nsapi_connection_status_t, int)>(this, &PPPCellularInterface::ppp_status_cb);
     _connect_status = NSAPI_STATUS_DISCONNECTED;
+    _nonblocking_status = NSAPI_ERROR_OK;
+    _connect_is_blocking = true;
     dev_info.reg_status_csd = CSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.reg_status_psd = PSD_NOT_REGISTERED_NOT_SEARCHING;
 }
@@ -306,14 +307,13 @@ void PPPCellularInterface::modem_debug_on(bool on)
     _debug_trace_on = on;
 }
 
-void PPPCellularInterface::ppp_status_cb(nsapi_connection_status_t status, int parameter)
+void PPPCellularInterface::ppp_status_cb(nsapi_event_t event, intptr_t parameter)
 {
-    nsapi_connection_status_t previous_status = _connect_status;
+    _connect_status = (nsapi_connection_status_t)parameter;
+    _nonblocking_status = NSAPI_ERROR_OK;
 
-    _connect_status = status;
-
-    if (_connection_status_cb && previous_status != _connect_status) {
-        _connection_status_cb(_connect_status, parameter);
+    if (_connection_status_cb) {
+        _connection_status_cb(event, parameter);
     }
 }
 
@@ -406,11 +406,7 @@ bool PPPCellularInterface::nwk_registration(uint8_t nwk_type)
 
 bool PPPCellularInterface::is_connected()
 {
-    if (_connect_status == NSAPI_STATUS_DISCONNECTED) {
-        return false;
-    } else {
-        return true;
-    }
+    return _connect_status != NSAPI_STATUS_DISCONNECTED;
 }
 
 // Get the SIM card going.
@@ -572,9 +568,11 @@ nsapi_error_t PPPCellularInterface::connect()
     bool did_init = false;
     const char *apn_config = NULL;
 
-    if (_connect_status != NSAPI_STATUS_DISCONNECTED) {
+    if (_connect_status == NSAPI_STATUS_GLOBAL_UP || _connect_status == NSAPI_STATUS_LOCAL_UP) {
         return NSAPI_ERROR_IS_CONNECTED;
-    }
+    } else if (_nonblocking_status == NSAPI_ERROR_IN_PROGRESS) {
+        return NSAPI_ERROR_IN_PROGRESS;
+    } 
 
     do {
         retry_init:
@@ -693,8 +691,13 @@ nsapi_error_t PPPCellularInterface::connect()
         /* Initialize PPP
          * mbed_ppp_init() is a blocking call, it will block until
          * connected, or timeout after 30 seconds*/
-        retcode = nsapi_ppp_connect(_fh, _ppp_cb, _uname, _pwd, _stack);
-    } while (_connect_status == NSAPI_STATUS_DISCONNECTED && apn_config && *apn_config);
+        retcode = nsapi_ppp_connect(_fh, callback(this, &PPPCellularInterface::ppp_status_cb), _uname, _pwd, _stack);
+    } while ((_connect_status == NSAPI_STATUS_DISCONNECTED && _connect_is_blocking) &&
+            apn_config && *apn_config);
+
+    if (_connect_status == NSAPI_STATUS_DISCONNECTED && !_connect_is_blocking) {
+        _nonblocking_status = NSAPI_ERROR_IN_PROGRESS;
+    }
 
     return retcode;
 }
@@ -806,15 +809,21 @@ NetworkStack *PPPCellularInterface::get_stack()
 
 
 void PPPCellularInterface::attach(
-    Callback<void(nsapi_connection_status_t, int)> status_cb)
+    Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     _connection_status_cb = status_cb;
 }
 
-nsapi_connection_status_t PPPCellularInterface::get_connection_status()
+nsapi_connection_status_t PPPCellularInterface::get_connection_status() const
 {
     return _connect_status;
 }
+
+nsapi_error_t PPPCellularInterface::set_blocking(bool blocking)
+{
+    return nsapi_ppp_set_blocking(blocking);
+}
+
 
 
 #endif // NSAPI_PPP_AVAILABLE
