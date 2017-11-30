@@ -7,33 +7,46 @@ RTL8195A elf2bin script
 import sys, array, struct, os, re, subprocess
 import hashlib
 import shutil
+import time
+import binascii
 
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.toolchains import TOOLCHAIN_PATHS
-from datetime import datetime
 
 # Constant Variables
-RAM2_RSVD = 0x00000000
-RAM2_VER = 0x8195FFFF00000000
-RAM2_TAG = 0x81950001
-RAM2_SHA = '0'
+TAG = 0x81950001
+VER = 0x81950001
+CAMPAIGN = binascii.hexlify('FFFFFFFFFFFFFFFF')
 
-def write_fixed_width_string(value, width, output):
-        # cut string to list & reverse
-        line = [value[i:i+2] for i in range(0, len(value), 2)]
-        output.write("".join([chr(long(b, 16)) for b in line]))
+RAM2_HEADER = {
+    'tag': 0,
+    'ver': 0,
+    'timestamp': 0,
+    'size': 72,
+    'hash': 'FF',
+    'campaign': 'FF',
+    'crc32': 0xFFFFFFFF,
+}
 
-def write_fixed_width_value(value, width, output):
-        # convert to string
-        line = format(value, '0%dx' % (width))
-        if len(line) > width:
-            print "[ERROR] value 0x%s cannot fit width %d" % (line, width)
-            sys.exit(-1)
-        # cut string to list & reverse
-        line = [line[i:i+2] for i in range(0, len(line), 2)]
-        line.reverse()
-        # convert to write buffer
-        output.write("".join([chr(long(b, 16)) for b in line]))
+def format_number(number, width):
+    # convert to string
+    line = format(number, '0%dx' % (width))
+    if len(line) > width:
+        print "[ERROR] 0x%s cannot fit in width %d" % (line, width)
+        sys.exit(-1)
+    # cut string to list & reverse
+    line = [line[i:i+2] for i in range(0, len(line), 2)]
+    line.reverse()
+    return binascii.a2b_hex("".join(line))
+
+def format_string(string):
+    return binascii.a2b_hex(string)
+
+def write_number(value, width, output):
+    output.write(format_number(value, width))
+
+def write_string(value, width, output):
+    output.write(format_string(value))
 
 def append_image_file(image, output):
     input = open(image, "rb")
@@ -50,6 +63,9 @@ def write_padding_bytes(output_name, size):
     output.write('\377' * padcount)
     output.close()
 
+def crc32_checksum(string):
+    return binascii.crc32(string) & 0xFFFFFFFF
+
 def sha256_checksum(filename, block_size=65536):
     sha256 = hashlib.sha256()
     with open(filename, 'rb') as f:
@@ -57,42 +73,9 @@ def sha256_checksum(filename, block_size=65536):
             sha256.update(block)
     return sha256.hexdigest()
 
-def get_version_by_time():
-    secs = int((datetime.now()-datetime(2016,11,1)).total_seconds())
-    return RAM2_VER + secs
-
-# ----------------------------
-#       main function
-# ----------------------------
-def prepend(image, entry, segment, image_ram2, image_ota):
-
-    # parse input arguments
-    output = open(image_ram2, "wb")
-
-    write_fixed_width_value(os.stat(image).st_size, 8, output)
-    write_fixed_width_value(int(entry), 8, output)
-    write_fixed_width_value(int(segment), 8, output)
-
-    RAM2_SHA = sha256_checksum(image)
-    write_fixed_width_value(RAM2_TAG, 8, output)
-    write_fixed_width_value(get_version_by_time(), 16, output)
-    write_fixed_width_string(RAM2_SHA, 64, output)
-    write_fixed_width_value(RAM2_RSVD, 8, output)
-
-    append_image_file(image, output)
-    output.close()
-
-    ota = open(image_ota, "wb")
-    write_fixed_width_value(os.stat(image).st_size, 8, ota)
-    write_fixed_width_value(int(entry), 8, ota)
-    write_fixed_width_value(int(segment), 8, ota)
-    write_fixed_width_value(0xFFFFFFFF, 8, ota)
-    write_fixed_width_value(get_version_by_time(), 16, ota)
-    write_fixed_width_string(RAM2_SHA, 64, ota)
-    write_fixed_width_value(RAM2_RSVD, 8, ota)
-
-    append_image_file(image, ota)
-    ota.close()
+def epoch_timestamp():
+    epoch = int(time.time())
+    return epoch
 
 def find_symbol(toolchain, mapfile, symbol):
     ret = None
@@ -218,8 +201,6 @@ def parse_load_segment_iar(image_elf):
             offset = int(segment[2][2:], 16)
             addr   = int(segment[3][2:], 16)
             size   = int(segment[5][2:], 16)
-            if addr < 0x10007000:
-                continue
             if addr != 0 and size != 0:
                 segment_list.append((offset, addr, size))
     return segment_list
@@ -234,47 +215,71 @@ def parse_load_segment(toolchain, image_elf):
     else:
         return []
 
-def write_load_segment(image_elf, image_bin, segment):
+def create_payload(image_elf, ram2_bin, entry, segment):
     file_elf = open(image_elf, "rb")
-    file_bin = open(image_bin, "wb")
+    file_bin = open(ram2_bin, "wb")
+
+    write_number(int(entry), 8, file_bin)
+    write_number(int(len(segment)), 8, file_bin)
+    write_number(0xFFFFFFFF, 8, file_bin)
+    write_number(0xFFFFFFFF, 8, file_bin)
+
     for (offset, addr, size) in segment:
         file_elf.seek(offset)
         # write image header - size & addr
-        write_fixed_width_value(addr, 8, file_bin)
-        write_fixed_width_value(size, 8, file_bin)
+        write_number(addr, 8, file_bin)
+        write_number(size, 8, file_bin)
         # write load segment
         file_bin.write(file_elf.read(size))
         delta = size % 4
         if delta != 0:
             padding = 4 - delta
-            write_fixed_width_value(0x0, padding * 2, file_bin)
+            write_number(0x0, padding * 2, file_bin)
     file_bin.close()
     file_elf.close()
 
-# ----------------------------
-#       main function
-# ----------------------------
-def rtl8195a_elf2bin(t_self, image_elf, image_bin):
+def create_daplink(image_bin, ram1_bin, ram2_bin):
+
     # remove target binary file/path
     if os.path.isfile(image_bin):
         os.remove(image_bin)
     else:
         shutil.rmtree(image_bin)
 
-    segment = parse_load_segment(t_self.name, image_elf)
-    write_load_segment(image_elf, image_bin, segment)
+    RAM2_HEADER['tag'] = format_number(TAG, 8)
+    RAM2_HEADER['ver'] = format_number(VER, 8)
+    RAM2_HEADER['timestamp'] = format_number(epoch_timestamp(), 16)
+    RAM2_HEADER['size'] = format_number(os.stat(ram2_bin).st_size + 72, 8)
+    RAM2_HEADER['hash'] = format_string(sha256_checksum(ram2_bin))
+    RAM2_HEADER['campaign'] = format_string(CAMPAIGN)
+
+    output = open(image_bin, "wb")
+    append_image_file(ram1_bin, output)
+
+    line = ""
+    for key in ['tag', 'ver', 'timestamp', 'size', 'hash', 'campaign']:
+        line += RAM2_HEADER[key]
+        output.write(RAM2_HEADER[key])
+
+    RAM2_HEADER['crc32'] = format_number(crc32_checksum(line), 8)
+
+    output.write(RAM2_HEADER['crc32'])
+    append_image_file(ram2_bin, output)
+    output.close()
+
+# ----------------------------
+#       main function
+# ----------------------------
+def rtl8195a_elf2bin(t_self, image_elf, image_bin):
 
     image_name = os.path.splitext(image_elf)[0]
     image_map = image_name + '.map'
 
-    ram2_ent = find_symbol(t_self.name, image_map, "PLAT_Start")
     ram1_bin = os.path.join(TOOLS_BOOTLOADERS, "REALTEK_RTL8195AM", "ram_1.bin")
-    ram2_bin = image_name + '-ram_2.bin'
-    ota_bin = image_name + '-ota.bin'
-    prepend(image_bin, ram2_ent, len(segment), ram2_bin, ota_bin)
+    ram2_bin = image_name + '-payload.bin'
 
-    # write output file
-    output = open(image_bin, "wb")
-    append_image_file(ram1_bin, output)
-    append_image_file(ram2_bin, output)
-    output.close()
+    entry = find_symbol(t_self.name, image_map, "PLAT_Start")
+    segment = parse_load_segment(t_self.name, image_elf)
+
+    create_payload(image_elf, ram2_bin, entry, segment)
+    create_daplink(image_bin, ram1_bin, ram2_bin)
