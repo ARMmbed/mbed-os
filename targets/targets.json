@@ -1595,6 +1595,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "usb_speed": {
+                "help": "Select the USB speed/connector (0=FullSpeed, 1=HighSpeed)",
+                "value": "1"
             }
         },
         "detect_code": ["0815"],
