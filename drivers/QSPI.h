@@ -29,43 +29,6 @@
 
 namespace mbed {
     
-// Config/Mode Defines    
-/** QSPI Bus width Enum
- */
-typedef enum qspi_config_bus_width {
-    QSPI_BUS_SINGLE,
-    QSPI_BUS_DUAL,
-    QSPI_BUS_QUAD,
-} qspi_config_bus_width_t;
-
-/** Address size Enum
- */
-typedef enum qspi_config_address_size {
-    QSPI_ADDR_SIZE_NONE,
-    QSPI_ADDR_SIZE_8,
-    QSPI_ADDR_SIZE_16,
-    QSPI_ADDR_SIZE_24,
-    QSPI_ADDR_SIZE_32,
-} qspi_config_address_size_t;
-
-/** Alternative size Enum
- */
-typedef enum qspi_config_alt_size {
-    QSPI_ALT_SIZE_NONE,
-    QSPI_ALT_SIZE_8,
-    QSPI_ALT_SIZE_16,
-    QSPI_ALT_SIZE_24,
-    QSPI_ALT_SIZE_32,
-} qspi_config_alt_size_t;
-
-/** QSPI Driver Return Status Enum
- */
-typedef enum qspi_return_status {
-    QSPI_ERROR = -1, /**< Generic error >*/
-    QSPI_INVALID_PARAMETER = -2, /**< The parameter is invalid >*/
-    QSPI_SUCCESS = 0, /**< Function executed sucessfully  >*/
-} qspi_return_status_t;    
-    
 /** \addtogroup drivers */
 
 /** A QSPI Driver, used for communicating with QSPI slave devices
@@ -128,12 +91,12 @@ public:
      *  @param mode Mode specifies the SPI mode(Mode=0 uses CPOL=0, CPHA=0, Mode=1 uses CPOL=1, CPHA=1)
      *
      */
-    qspi_return_status_t configure_format(qspi_config_bus_width_t inst_width, 
-                   qspi_config_bus_width_t address_width, 
-                   qspi_config_address_size_t address_size,
-                   qspi_config_bus_width_t alt_width, 
-                   qspi_config_alt_size_t alt_size,   
-                   qspi_config_bus_width_t data_width,                             
+    qspi_status_t configure_format(qspi_bus_width_t inst_width, 
+                   qspi_bus_width_t address_width, 
+                   qspi_address_size_t address_size,
+                   qspi_bus_width_t alt_width, 
+                   qspi_alt_size_t alt_size,   
+                   qspi_bus_width_t data_width,                             
                    int dummy_cycles,
                    int mode);
 
@@ -141,16 +104,16 @@ public:
      *
      *  This function must be called before doing any operation on the QSPI bus to initialize the interface
      */
-    qspi_return_status_t initialize();
+    qspi_status_t initialize();
                    
                    
     /** Set the qspi bus clock frequency
      *
      *  @param hz SCLK frequency in hz (default = 1MHz)
      *  @returns
-     *    Returns QSPI_SUCCESS on successful, fails if the interface is already init-ed
+     *    Returns QSPI_STATUS_SUCCESS on successful, fails if the interface is already init-ed
      */
-    qspi_return_status_t set_frequency(int hz = ONE_MHZ);
+    qspi_status_t set_frequency(int hz = ONE_MHZ);
 
     /** Read from QSPI peripheral with the preset read_instruction and alt_value
      *
@@ -159,9 +122,9 @@ public:
      *  @param rx_length Pointer to a variable containing the length of rx_buffer, and on return this variable will be updated with the actual number of bytes read
      *
      *  @returns
-     *    Returns QSPI_SUCCESS on successful reads and QSPI_ERROR on failed reads.
+     *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_return_status_t read(unsigned int address, char *rx_buffer, size_t *rx_length);   
+    qspi_status_t read(unsigned int address, char *rx_buffer, size_t *rx_length);   
                           
     /** Write to QSPI peripheral with the preset write_instruction and alt_value
      *
@@ -170,9 +133,9 @@ public:
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
      *
      *  @returns
-     *    Returns QSPI_SUCCESS on successful reads and QSPI_ERROR on failed reads.
+     *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_return_status_t write(unsigned int address, const char *tx_buffer, size_t *tx_length);
+    qspi_status_t write(unsigned int address, const char *tx_buffer, size_t *tx_length);
     
     /** Read from QSPI peripheral using custom read instruction, alt values
      *
@@ -183,9 +146,9 @@ public:
      *  @param rx_length Pointer to a variable containing the length of rx_buffer, and on return this variable will be updated with the actual number of bytes read
      *
      *  @returns
-     *    Returns QSPI_SUCCESS on successful reads and QSPI_ERROR on failed reads.
+     *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_return_status_t read(unsigned int instruction, unsigned int address, unsigned int alt, char *rx_buffer, size_t *rx_length);
+    qspi_status_t read(unsigned int instruction, unsigned int address, unsigned int alt, char *rx_buffer, size_t *rx_length);
     
     /** Write to QSPI peripheral using custom write instruction, alt values
      *
@@ -196,9 +159,9 @@ public:
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
      *
      *  @returns
-     *    Returns QSPI_SUCCESS on successful reads and QSPI_ERROR on failed reads.
+     *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_return_status_t write(unsigned int instruction, unsigned int address, unsigned int alt, const char *tx_buffer, size_t *tx_length);
+    qspi_status_t write(unsigned int instruction, unsigned int address, unsigned int alt, const char *tx_buffer, size_t *tx_length);
     
     /** Perform a transaction to write to an address(a control register) and get the status results
      *
@@ -209,9 +172,9 @@ public:
      *  @param rx_length Pointer to a variable containing the length of rx_buffer, and on return this variable will be updated with the actual number of bytes read
      *
      *  @returns
-     *    Returns QSPI_SUCCESS on successful reads and QSPI_ERROR on failed reads.
+     *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_return_status_t command_transfer(unsigned int instruction, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
+    qspi_status_t command_transfer(unsigned int instruction, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
         
     /** Acquire exclusive access to this SPI bus
      */
