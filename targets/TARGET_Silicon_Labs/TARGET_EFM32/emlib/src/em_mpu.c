@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_mpu.c
  * @brief Memory Protection Unit (MPU) Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -34,12 +34,10 @@
 #if defined(__MPU_PRESENT) && (__MPU_PRESENT == 1)
 #include "em_assert.h"
 
-
 /***************************************************************************//**
  * @addtogroup emlib
  * @{
  ******************************************************************************/
-
 
 /***************************************************************************//**
  * @addtogroup MPU
@@ -69,11 +67,9 @@
  * @{
  ******************************************************************************/
 
-
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
-
 
 /***************************************************************************//**
  * @brief
@@ -90,13 +86,12 @@
  ******************************************************************************/
 void MPU_ConfigureRegion(const MPU_RegionInit_TypeDef *init)
 {
-  EFM_ASSERT(init->regionNo < ((MPU->TYPE & MPU_TYPE_DREGION_Msk) >>
-                                MPU_TYPE_DREGION_Pos));
+  EFM_ASSERT(init->regionNo < ((MPU->TYPE & MPU_TYPE_DREGION_Msk)
+                               >> MPU_TYPE_DREGION_Pos));
 
   MPU->RNR = init->regionNo;
 
-  if (init->regionEnable)
-  {
+  if (init->regionEnable) {
     EFM_ASSERT(!(init->baseAddress & ~MPU_RBAR_ADDR_Msk));
     EFM_ASSERT(init->tex <= 0x7);
 
@@ -110,14 +105,11 @@ void MPU_ConfigureRegion(const MPU_RegionInit_TypeDef *init)
                 | (init->srd                   << MPU_RASR_SRD_Pos)
                 | (init->size                  << MPU_RASR_SIZE_Pos)
                 | (1                           << MPU_RASR_ENABLE_Pos);
-  }
-  else
-  {
+  } else {
     MPU->RBAR = 0;
     MPU->RASR = 0;
   }
 }
-
 
 /** @} (end addtogroup CMU) */
 /** @} (end addtogroup emlib) */

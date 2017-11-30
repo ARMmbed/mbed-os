@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_mpu.h
  * @brief Memory protection unit (MPU) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -71,8 +71,7 @@ extern "C" {
 /**
  * Size of an MPU region.
  */
-typedef enum
-{
+typedef enum {
   mpuRegionSize32b   = 4,        /**< 32   byte region size. */
   mpuRegionSize64b   = 5,        /**< 64   byte region size. */
   mpuRegionSize128b  = 6,        /**< 128  byte region size. */
@@ -106,8 +105,7 @@ typedef enum
 /**
  * MPU region access permission attributes.
  */
-typedef enum
-{
+typedef enum {
   mpuRegionNoAccess     = 0,  /**< No access what so ever.                   */
   mpuRegionApPRw        = 1,  /**< Priviledged state R/W only.               */
   mpuRegionApPRwURo     = 2,  /**< Priviledged state R/W, User state R only. */
@@ -116,19 +114,17 @@ typedef enum
   mpuRegionApPRo_URo    = 6   /**< R only in Priviledged and User state.     */
 } MPU_RegionAp_TypeDef;
 
-
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
 /** MPU Region init structure. */
-typedef struct
-{
+typedef struct {
   bool                   regionEnable;     /**< MPU region enable.                */
   uint8_t                regionNo;         /**< MPU region number.                */
   uint32_t               baseAddress;      /**< Region baseaddress.               */
   MPU_RegionSize_TypeDef size;             /**< Memory region size.               */
-  MPU_RegionAp_TypeDef   accessPermission; /**< Memory access permissions.   */
+  MPU_RegionAp_TypeDef   accessPermission; /**< Memory access permissions.        */
   bool                   disableExec;      /**< Disable execution.                */
   bool                   shareable;        /**< Memory shareable attribute.       */
   bool                   cacheable;        /**< Memory cacheable attribute.       */
@@ -138,63 +134,58 @@ typedef struct
 } MPU_RegionInit_TypeDef;
 
 /** Default configuration of MPU region init structure for flash memory.     */
-#define MPU_INIT_FLASH_DEFAULT                                \
-{                                                             \
-  true,                   /* Enable MPU region.            */ \
-  0,                      /* MPU Region number.            */ \
-  FLASH_MEM_BASE,         /* Flash base address.           */ \
-  mpuRegionSize1Mb,       /* Size - Set to max. */            \
-  mpuRegionApFullAccess,  /* Access permissions.           */ \
-  false,                  /* Execution allowed.            */ \
-  false,                  /* Not shareable.                */ \
-  true,                   /* Cacheable.                    */ \
-  false,                  /* Not bufferable.               */ \
-  0,                      /* No subregions.                */ \
-  0                       /* No TEX attributes.            */ \
-}
-
+#define MPU_INIT_FLASH_DEFAULT                                 \
+  {                                                            \
+    true,                  /* Enable MPU region.            */ \
+    0,                     /* MPU Region number.            */ \
+    FLASH_MEM_BASE,        /* Flash base address.           */ \
+    mpuRegionSize1Mb,      /* Size - Set to max.            */ \
+    mpuRegionApFullAccess, /* Access permissions.           */ \
+    false,                 /* Execution allowed.            */ \
+    false,                 /* Not shareable.                */ \
+    true,                  /* Cacheable.                    */ \
+    false,                 /* Not bufferable.               */ \
+    0,                     /* No subregions.                */ \
+    0                      /* No TEX attributes.            */ \
+  }
 
 /** Default configuration of MPU region init structure for sram memory.      */
-#define MPU_INIT_SRAM_DEFAULT                                 \
-{                                                             \
-  true,                   /* Enable MPU region.            */ \
-  1,                      /* MPU Region number.            */ \
-  RAM_MEM_BASE,           /* SRAM base address.            */ \
-  mpuRegionSize128Kb,     /* Size - Set to max. */            \
-  mpuRegionApFullAccess,  /* Access permissions.           */ \
-  false,                  /* Execution allowed.            */ \
-  true,                   /* Shareable.                    */ \
-  true,                   /* Cacheable.                    */ \
-  false,                  /* Not bufferable.               */ \
-  0,                      /* No subregions.                */ \
-  0                       /* No TEX attributes.            */ \
-}
-
+#define MPU_INIT_SRAM_DEFAULT                                  \
+  {                                                            \
+    true,                  /* Enable MPU region.            */ \
+    1,                     /* MPU Region number.            */ \
+    RAM_MEM_BASE,          /* SRAM base address.            */ \
+    mpuRegionSize128Kb,    /* Size - Set to max. */            \
+    mpuRegionApFullAccess, /* Access permissions.           */ \
+    false,                 /* Execution allowed.            */ \
+    true,                  /* Shareable.                    */ \
+    true,                  /* Cacheable.                    */ \
+    false,                 /* Not bufferable.               */ \
+    0,                     /* No subregions.                */ \
+    0                      /* No TEX attributes.            */ \
+  }
 
 /** Default configuration of MPU region init structure for onchip peripherals.*/
-#define MPU_INIT_PERIPHERAL_DEFAULT                           \
-{                                                             \
-  true,                   /* Enable MPU region.            */ \
-  0,                      /* MPU Region number.            */ \
-  0,                      /* Region base address.          */ \
-  mpuRegionSize32b,       /* Size - Set to minimum         */ \
-  mpuRegionApFullAccess,  /* Access permissions.           */ \
-  true,                   /* Execution not allowed.        */ \
-  true,                   /* Shareable.                    */ \
-  false,                  /* Not cacheable.                */ \
-  true,                   /* Bufferable.                   */ \
-  0,                      /* No subregions.                */ \
-  0                       /* No TEX attributes.            */ \
-}
-
+#define MPU_INIT_PERIPHERAL_DEFAULT                            \
+  {                                                            \
+    true,                  /* Enable MPU region.            */ \
+    0,                     /* MPU Region number.            */ \
+    0,                     /* Region base address.          */ \
+    mpuRegionSize32b,      /* Size - Set to minimum         */ \
+    mpuRegionApFullAccess, /* Access permissions.           */ \
+    true,                  /* Execution not allowed.        */ \
+    true,                  /* Shareable.                    */ \
+    false,                 /* Not cacheable.                */ \
+    true,                  /* Bufferable.                   */ \
+    0,                     /* No subregions.                */ \
+    0                      /* No TEX attributes.            */ \
+  }
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
-
 void MPU_ConfigureRegion(const MPU_RegionInit_TypeDef *init);
-
 
 /***************************************************************************//**
  * @brief
@@ -204,10 +195,11 @@ void MPU_ConfigureRegion(const MPU_RegionInit_TypeDef *init);
  ******************************************************************************/
 __STATIC_INLINE void MPU_Disable(void)
 {
+#if defined(SCB_SHCSR_MEMFAULTENA_Msk)
   SCB->SHCSR &= ~SCB_SHCSR_MEMFAULTENA_Msk;      /* Disable fault exceptions */
+#endif
   MPU->CTRL  &= ~MPU_CTRL_ENABLE_Msk;            /* Disable the MPU */
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -225,9 +217,10 @@ __STATIC_INLINE void MPU_Enable(uint32_t flags)
                          | MPU_CTRL_ENABLE_Msk)));
 
   MPU->CTRL   = flags | MPU_CTRL_ENABLE_Msk;     /* Enable the MPU */
+#if defined(SCB_SHCSR_MEMFAULTENA_Msk)
   SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk;       /* Enable fault exceptions */
+#endif
 }
-
 
 /** @} (end addtogroup MPU) */
 /** @} (end addtogroup emlib) */

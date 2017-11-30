@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_lesense.c
  * @brief Low Energy Sensor (LESENSE) Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -79,7 +79,6 @@
  **************************   LOCAL FUNCTIONS   ********************************
  ******************************************************************************/
 
-
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
@@ -124,8 +123,7 @@ void LESENSE_Init(const LESENSE_Init_TypeDef * init, bool reqReset)
 #endif
 
   /* Reset LESENSE registers if requested. */
-  if (reqReset)
-  {
+  if (reqReset) {
     LESENSE_Reset();
   }
 
@@ -166,27 +164,32 @@ void LESENSE_Init(const LESENSE_Init_TypeDef * init, bool reqReset)
    * Set DAC0 and DAC1 data source, conversion mode, output mode. Set DAC
    * prescaler and reference. Set ACMP0 and ACMP1 control mode. Set ACMP and DAC
    * duty cycle (warm up) mode. */
-  LESENSE->PERCTRL =
-    ((uint32_t)init->perCtrl.dacCh0Data       << _LESENSE_PERCTRL_DACCH0DATA_SHIFT)
-    | ((uint32_t)init->perCtrl.dacCh1Data     << _LESENSE_PERCTRL_DACCH1DATA_SHIFT)
-#if defined(_LESENSE_PERCTRL_DACCH0CONV_MASK)
-    | ((uint32_t)init->perCtrl.dacCh0ConvMode << _LESENSE_PERCTRL_DACCH0CONV_SHIFT)
-    | ((uint32_t)init->perCtrl.dacCh0OutMode  << _LESENSE_PERCTRL_DACCH0OUT_SHIFT)
-    | ((uint32_t)init->perCtrl.dacCh1ConvMode << _LESENSE_PERCTRL_DACCH1CONV_SHIFT)
-    | ((uint32_t)init->perCtrl.dacCh1OutMode  << _LESENSE_PERCTRL_DACCH1OUT_SHIFT)
-    | ((uint32_t)init->perCtrl.dacPresc       << _LESENSE_PERCTRL_DACPRESC_SHIFT)
-    | (uint32_t)init->perCtrl.dacRef
+  LESENSE->PERCTRL = 0
+#if defined(_LESENSE_PERCTRL_DACCH0EN_MASK)
+                     | ((uint32_t)init->perCtrl.dacCh0En       << _LESENSE_PERCTRL_DACCH0EN_SHIFT)
+                     | ((uint32_t)init->perCtrl.dacCh1En       << _LESENSE_PERCTRL_DACCH1EN_SHIFT)
 #endif
-    | ((uint32_t)init->perCtrl.acmp0Mode      << _LESENSE_PERCTRL_ACMP0MODE_SHIFT)
-    | ((uint32_t)init->perCtrl.acmp1Mode      << _LESENSE_PERCTRL_ACMP1MODE_SHIFT)
-#if defined(_LESENSE_PERCTRL_ACMP0INV_MASK)
-    | ((uint32_t)init->coreCtrl.invACMP0      << _LESENSE_PERCTRL_ACMP0INV_SHIFT)
-    | ((uint32_t)init->coreCtrl.invACMP1      << _LESENSE_PERCTRL_ACMP1INV_SHIFT)
+                     | ((uint32_t)init->perCtrl.dacCh0Data     << _LESENSE_PERCTRL_DACCH0DATA_SHIFT)
+                     | ((uint32_t)init->perCtrl.dacCh1Data     << _LESENSE_PERCTRL_DACCH1DATA_SHIFT)
+#if defined(_LESENSE_PERCTRL_DACCH0CONV_MASK)
+                     | ((uint32_t)init->perCtrl.dacCh0ConvMode << _LESENSE_PERCTRL_DACCH0CONV_SHIFT)
+                     | ((uint32_t)init->perCtrl.dacCh0OutMode  << _LESENSE_PERCTRL_DACCH0OUT_SHIFT)
+                     | ((uint32_t)init->perCtrl.dacCh1ConvMode << _LESENSE_PERCTRL_DACCH1CONV_SHIFT)
+                     | ((uint32_t)init->perCtrl.dacCh1OutMode  << _LESENSE_PERCTRL_DACCH1OUT_SHIFT)
+                     | ((uint32_t)init->perCtrl.dacPresc       << _LESENSE_PERCTRL_DACPRESC_SHIFT)
+                     | (uint32_t)init->perCtrl.dacRef
 #endif
 #if defined(_LESENSE_PERCTRL_DACCONVTRIG_MASK)
-    | ((uint32_t)init->perCtrl.dacScan        << _LESENSE_PERCTRL_DACCONVTRIG_SHIFT)
+                     | ((uint32_t)init->perCtrl.dacStartupHalf << _LESENSE_PERCTRL_DACSTARTUP_SHIFT)
+                     | ((uint32_t)init->perCtrl.dacScan        << _LESENSE_PERCTRL_DACCONVTRIG_SHIFT)
 #endif
-    | (uint32_t)init->perCtrl.warmupMode;
+                     | ((uint32_t)init->perCtrl.acmp0Mode      << _LESENSE_PERCTRL_ACMP0MODE_SHIFT)
+                     | ((uint32_t)init->perCtrl.acmp1Mode      << _LESENSE_PERCTRL_ACMP1MODE_SHIFT)
+#if defined(_LESENSE_PERCTRL_ACMP0INV_MASK)
+                     | ((uint32_t)init->coreCtrl.invACMP0      << _LESENSE_PERCTRL_ACMP0INV_SHIFT)
+                     | ((uint32_t)init->coreCtrl.invACMP1      << _LESENSE_PERCTRL_ACMP1INV_SHIFT)
+#endif
+                     | (uint32_t)init->perCtrl.warmupMode;
 
   /* LESENSE decoder general control configuration.
    * Set decoder input source, select PRS input for decoder bits.
@@ -216,7 +219,6 @@ void LESENSE_Init(const LESENSE_Init_TypeDef * init, bool reqReset)
   /* LESENSE bias control configuration. */
   LESENSE->BIASCTRL = (uint32_t)init->coreCtrl.biasMode;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -252,11 +254,9 @@ uint32_t LESENSE_ScanFreqSet(uint32_t refFreq, uint32_t scanFreq)
   uint32_t pcTop   = 63UL; /* Period counter top value (max. 63). */
   uint32_t calcScanFreq;   /* Variable for testing the calculation algorithm. */
 
-
   /* If refFreq is set to 0, the currently configured reference clock is
    * assumed. */
-  if (!refFreq)
-  {
+  if (!refFreq) {
     refFreq = CMU_ClockFreqGet(cmuClock_LESENSE);
   }
 
@@ -272,8 +272,7 @@ uint32_t LESENSE_ScanFreqSet(uint32_t refFreq, uint32_t scanFreq)
    * biggest possible resolution for setting scan frequency.
    * Maximum number of calculation cycles is 7 (value of lesenseClkDiv_128). */
   while ((refFreq / ((uint32_t)scanFreq * clkDiv) > (pcTop + 1UL))
-         && (pcPresc < lesenseClkDiv_128))
-  {
+         && (pcPresc < lesenseClkDiv_128)) {
     ++pcPresc;
     clkDiv = (uint32_t)1UL << pcPresc;
   }
@@ -298,7 +297,6 @@ uint32_t LESENSE_ScanFreqSet(uint32_t refFreq, uint32_t scanFreq)
 
   return calcScanFreq;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -331,7 +329,6 @@ void LESENSE_ScanModeSet(LESENSE_ScanMode_TypeDef scanMode,
 {
   uint32_t tmp; /* temporary storage of the CTRL register value */
 
-
   /* Save the CTRL register value to tmp.
    * Please be aware the effects of the non-atomic Read-Modify-Write cycle! */
   tmp = LESENSE->CTRL & ~(_LESENSE_CTRL_SCANMODE_MASK);
@@ -343,12 +340,10 @@ void LESENSE_ScanModeSet(LESENSE_ScanMode_TypeDef scanMode,
   LESENSE->CTRL = tmp;
 
   /* Start sensor scanning if requested. */
-  if (start)
-  {
+  if (start) {
     LESENSE_ScanStart();
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -372,7 +367,6 @@ void LESENSE_StartDelaySet(uint8_t startDelay)
 {
   uint32_t tmp; /* temporary storage of the TIMCTRL register value */
 
-
   /* Sanity check of startDelay. */
   EFM_ASSERT(startDelay < 4U);
 
@@ -385,7 +379,6 @@ void LESENSE_StartDelaySet(uint8_t startDelay)
   /* Write the new value to the TIMCTRL register. */
   LESENSE->TIMCTRL = tmp;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -416,10 +409,8 @@ void LESENSE_ClkDivSet(LESENSE_ChClk_TypeDef clk,
 {
   uint32_t tmp;
 
-
   /* Select clock to prescale */
-  switch (clk)
-  {
+  switch (clk) {
     case lesenseClkHF:
       /* Sanity check of clock divisor for HF clock. */
       EFM_ASSERT((uint32_t)clkDiv <= lesenseClkDiv_8);
@@ -451,7 +442,6 @@ void LESENSE_ClkDivSet(LESENSE_ChClk_TypeDef clk,
   }
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Configure all (16) LESENSE sensor channels.
@@ -478,13 +468,11 @@ void LESENSE_ChannelAllConfig(const LESENSE_ChAll_TypeDef * confChAll)
   uint32_t i;
 
   /* Iterate through all the 16 channels */
-  for (i = 0U; i < LESENSE_NUM_CHANNELS; ++i)
-  {
+  for (i = 0U; i < LESENSE_NUM_CHANNELS; ++i) {
     /* Configure scan channels. */
     LESENSE_ChannelConfig(&confChAll->Ch[i], i);
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -513,7 +501,6 @@ void LESENSE_ChannelConfig(const LESENSE_ChDesc_TypeDef * confCh,
 {
   uint32_t tmp; /* Service variable. */
 
-
   /* Sanity check of configuration parameters */
   EFM_ASSERT(chIdx < LESENSE_NUM_CHANNELS);
   EFM_ASSERT(confCh->exTime      <= (_LESENSE_CH_TIMING_EXTIME_MASK >> _LESENSE_CH_TIMING_EXTIME_SHIFT));
@@ -527,8 +514,7 @@ void LESENSE_ChannelConfig(const LESENSE_ChDesc_TypeDef * confCh,
    * configuration parameters, check the parameter description of acmpThres for
    * for more details! */
   EFM_ASSERT(confCh->acmpThres < 4096U);
-  if (confCh->chPinExMode == lesenseChPinExDACOut)
-  {
+  if (confCh->chPinExMode == lesenseChPinExDACOut) {
     EFM_ASSERT((0x1 << chIdx) & DACOUT_SUPPORT);
   }
 
@@ -563,25 +549,25 @@ void LESENSE_ChannelConfig(const LESENSE_ChDesc_TypeDef * confCh,
    * alternate excitation usage and interrupt mode on scan channel chIdx in
    * LESENSE_CHchIdx_INTERACT. */
   LESENSE->CH[chIdx].INTERACT =
-        ((uint32_t)confCh->exClk       << _LESENSE_CH_INTERACT_EXCLK_SHIFT)
-        | ((uint32_t)confCh->sampleClk << _LESENSE_CH_INTERACT_SAMPLECLK_SHIFT)
-        | (uint32_t)confCh->sampleMode
-        | (uint32_t)confCh->intMode
-        | (uint32_t)confCh->chPinExMode
-        | ((uint32_t)confCh->useAltEx  << _LESENSE_CH_INTERACT_ALTEX_SHIFT);
+    ((uint32_t)confCh->exClk       << _LESENSE_CH_INTERACT_EXCLK_SHIFT)
+    | ((uint32_t)confCh->sampleClk << _LESENSE_CH_INTERACT_SAMPLECLK_SHIFT)
+    | (uint32_t)confCh->sampleMode
+    | (uint32_t)confCh->intMode
+    | (uint32_t)confCh->chPinExMode
+    | ((uint32_t)confCh->useAltEx  << _LESENSE_CH_INTERACT_ALTEX_SHIFT);
 
   /* Configure channel specific counter comparison mode, optional result
    * forwarding to decoder, optional counter value storing and optional result
    * inverting on scan channel chIdx in LESENSE_CHchIdx_EVAL. */
   LESENSE->CH[chIdx].EVAL =
-        (uint32_t)confCh->compMode
-        | ((uint32_t)confCh->shiftRes    << _LESENSE_CH_EVAL_DECODE_SHIFT)
-        | ((uint32_t)confCh->storeCntRes << _LESENSE_CH_EVAL_STRSAMPLE_SHIFT)
-        | ((uint32_t)confCh->invRes      << _LESENSE_CH_EVAL_SCANRESINV_SHIFT)
+    (uint32_t)confCh->compMode
+    | ((uint32_t)confCh->shiftRes    << _LESENSE_CH_EVAL_DECODE_SHIFT)
+    | ((uint32_t)confCh->storeCntRes << _LESENSE_CH_EVAL_STRSAMPLE_SHIFT)
+    | ((uint32_t)confCh->invRes      << _LESENSE_CH_EVAL_SCANRESINV_SHIFT)
 #if defined(_LESENSE_CH_EVAL_MODE_MASK)
-        | ((uint32_t)confCh->evalMode    << _LESENSE_CH_EVAL_MODE_SHIFT)
+    | ((uint32_t)confCh->evalMode    << _LESENSE_CH_EVAL_MODE_SHIFT)
 #endif
-        ;
+  ;
 
   /* Configure analog comparator (ACMP) threshold and decision threshold for
    * counter separately with the function provided for that. */
@@ -598,7 +584,6 @@ void LESENSE_ChannelConfig(const LESENSE_ChDesc_TypeDef * confCh,
   /* Enable/disable scan channel chIdx. */
   BUS_RegBitWrite(&LESENSE->CHEN, chIdx, confCh->enaScanCh);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -622,7 +607,6 @@ void LESENSE_AltExConfig(const LESENSE_ConfAltEx_TypeDef * confAltEx)
   uint32_t i;
   uint32_t tmp;
 
-
   /* Configure alternate excitation mapping.
    * Atomic read-modify-write using BUS_RegBitWrite function in order to
    * support reconfiguration during LESENSE operation. */
@@ -630,12 +614,10 @@ void LESENSE_AltExConfig(const LESENSE_ConfAltEx_TypeDef * confAltEx)
                   _LESENSE_CTRL_ALTEXMAP_SHIFT,
                   confAltEx->altExMap);
 
-  switch (confAltEx->altExMap)
-  {
+  switch (confAltEx->altExMap) {
     case lesenseAltExMapALTEX:
       /* Iterate through the 8 possible alternate excitation pin descriptors. */
-      for (i = 0U; i < 8U; ++i)
-      {
+      for (i = 0U; i < 8U; ++i) {
         /* Enable/disable alternate excitation pin i.
          * Atomic read-modify-write using BUS_RegBitWrite function in order to
          * support reconfiguration during LESENSE operation. */
@@ -663,8 +645,7 @@ void LESENSE_AltExConfig(const LESENSE_ConfAltEx_TypeDef * confAltEx)
     case lesenseAltExMapCH:
 #endif
       /* Iterate through all the 16 alternate excitation channels */
-      for (i = 0U; i < 16U; ++i)
-      {
+      for (i = 0U; i < 16U; ++i) {
         /* Enable/disable alternate ACMP excitation channel pin i. */
         /* Atomic read-modify-write using BUS_RegBitWrite function in order to
          * support reconfiguration during LESENSE operation. */
@@ -679,7 +660,6 @@ void LESENSE_AltExConfig(const LESENSE_ConfAltEx_TypeDef * confAltEx)
       break;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -719,7 +699,6 @@ void LESENSE_ChannelEnable(uint8_t chIdx,
   BUS_RegBitWrite(&LESENSE->CHEN, chIdx, enaScanCh);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Enable/disable LESENSE scan channel and the pin assigned to it.
@@ -749,7 +728,6 @@ void LESENSE_ChannelEnableMask(uint16_t chMask, uint16_t pinMask)
   /* Enable/disable all channel pins at once according to the mask. */
   GENERIC_LESENSE_ROUTE = pinMask;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -795,11 +773,10 @@ void LESENSE_ChannelTimingSet(uint8_t chIdx,
   /* Channel specific timing configuration on scan channel chIdx.
    * Setting excitation time, sampling delay, measurement delay. */
   LESENSE->CH[chIdx].TIMING =
-              ((uint32_t)exTime        << _LESENSE_CH_TIMING_EXTIME_SHIFT)
-              | ((uint32_t)sampleDelay << _LESENSE_CH_TIMING_SAMPLEDLY_SHIFT)
-              | ((uint32_t)measDelay   << _LESENSE_CH_TIMING_MEASUREDLY_SHIFT);
+    ((uint32_t)exTime        << _LESENSE_CH_TIMING_EXTIME_SHIFT)
+    | ((uint32_t)sampleDelay << _LESENSE_CH_TIMING_SAMPLEDLY_SHIFT)
+    | ((uint32_t)measDelay   << _LESENSE_CH_TIMING_MEASUREDLY_SHIFT);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -839,7 +816,6 @@ void LESENSE_ChannelThresSet(uint8_t chIdx,
                              uint16_t cntThres)
 {
   uint32_t tmp; /* temporary storage */
-
 
   /* Sanity check for acmpThres only, cntThres is 16bit value. */
   EFM_ASSERT(acmpThres < 4096U);
@@ -1001,13 +977,11 @@ void LESENSE_DecoderStateAllConfig(const LESENSE_DecStAll_TypeDef * confDecStAll
   uint32_t i;
 
   /* Iterate through all the 16 or 32 decoder states. */
-  for (i = 0U; i < LESENSE_NUM_DECODER_STATES; ++i)
-  {
+  for (i = 0U; i < LESENSE_NUM_DECODER_STATES; ++i) {
     /* Configure decoder state i. */
     LESENSE_DecoderStateConfig(&confDecStAll->St[i], i);
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -1052,13 +1026,12 @@ void LESENSE_DecoderStateConfig(const LESENSE_DecStDesc_TypeDef * confDecSt,
    * Setting sensor compare value, sensor mask, next state index, transition
    * action and interrupt flag option configurations. */
   LESENSE->ST[decSt].TCONFB =
-  (uint32_t)confDecSt->confB.prsAct
+    (uint32_t)confDecSt->confB.prsAct
     | ((uint32_t)confDecSt->confB.compMask  << _LESENSE_ST_TCONFB_MASK_SHIFT)
     | ((uint32_t)confDecSt->confB.compVal   << _LESENSE_ST_TCONFB_COMP_SHIFT)
     | ((uint32_t)confDecSt->confB.nextState << _LESENSE_ST_TCONFB_NEXTSTATE_SHIFT)
     | ((uint32_t)confDecSt->confB.setInt    << _LESENSE_ST_TCONFB_SETIF_SHIFT);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -1082,7 +1055,6 @@ void LESENSE_DecoderStateSet(uint32_t decSt)
 
   LESENSE->DECSTATE = decSt & _LESENSE_DECSTATE_DECSTATE_MASK;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -1149,7 +1121,6 @@ void LESENSE_ScanStart(void)
     ;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Stop scanning of sensors.
@@ -1182,7 +1153,6 @@ void LESENSE_ScanStop(void)
     ;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Start LESENSE decoder.
@@ -1212,7 +1182,6 @@ void LESENSE_DecoderStart(void)
     ;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Clear result buffer.
@@ -1240,7 +1209,6 @@ void LESENSE_ResultBufferClear(void)
   while (LESENSE_SYNCBUSY_CMD & LESENSE->SYNCBUSY)
     ;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -1297,16 +1265,14 @@ void LESENSE_Reset(void)
 #endif
 
   /* Reset all channel configuration registers */
-  for (i = 0U; i < LESENSE_NUM_CHANNELS; ++i)
-  {
+  for (i = 0U; i < LESENSE_NUM_CHANNELS; ++i) {
     LESENSE->CH[i].TIMING   = _LESENSE_CH_TIMING_RESETVALUE;
     LESENSE->CH[i].INTERACT = _LESENSE_CH_INTERACT_RESETVALUE;
     LESENSE->CH[i].EVAL     = _LESENSE_CH_EVAL_RESETVALUE;
   }
 
   /* Reset all decoder state configuration registers */
-  for (i = 0U; i < LESENSE_NUM_DECODER_STATES; ++i)
-  {
+  for (i = 0U; i < LESENSE_NUM_DECODER_STATES; ++i) {
     LESENSE->ST[i].TCONFA = _LESENSE_ST_TCONFA_RESETVALUE;
     LESENSE->ST[i].TCONFB = _LESENSE_ST_TCONFB_RESETVALUE;
   }
@@ -1316,7 +1282,6 @@ void LESENSE_Reset(void)
   while (LESENSE_SYNCBUSY_CMD & LESENSE->SYNCBUSY)
     ;
 }
-
 
 /** @} (end addtogroup LESENSE) */
 /** @} (end addtogroup emlib) */

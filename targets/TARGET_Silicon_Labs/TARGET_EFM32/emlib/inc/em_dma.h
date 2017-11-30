@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_dma.h
  * @brief Direct memory access (DMA) API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -34,7 +34,7 @@
 #define EM_DMA_H
 
 #include "em_device.h"
-#if defined( DMA_PRESENT )
+#if defined(DMA_PRESENT)
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -61,27 +61,22 @@ extern "C" {
  * Amount source/destination address should be incremented for each data
  * transfer.
  */
-typedef enum
-{
+typedef enum {
   dmaDataInc1    = _DMA_CTRL_SRC_INC_BYTE,     /**< Increment address 1 byte. */
   dmaDataInc2    = _DMA_CTRL_SRC_INC_HALFWORD, /**< Increment address 2 bytes. */
   dmaDataInc4    = _DMA_CTRL_SRC_INC_WORD,     /**< Increment address 4 bytes. */
   dmaDataIncNone = _DMA_CTRL_SRC_INC_NONE      /**< Do not increment address. */
 } DMA_DataInc_TypeDef;
 
-
 /** Data sizes (in number of bytes) to be read/written by DMA transfer. */
-typedef enum
-{
+typedef enum {
   dmaDataSize1 = _DMA_CTRL_SRC_SIZE_BYTE,     /**< 1 byte DMA transfer size. */
   dmaDataSize2 = _DMA_CTRL_SRC_SIZE_HALFWORD, /**< 2 byte DMA transfer size. */
   dmaDataSize4 = _DMA_CTRL_SRC_SIZE_WORD      /**< 4 byte DMA transfer size. */
 } DMA_DataSize_TypeDef;
 
-
 /** Type of DMA transfer. */
-typedef enum
-{
+typedef enum {
   /** Basic DMA cycle. */
   dmaCycleCtrlBasic            = _DMA_CTRL_CYCLE_CTRL_BASIC,
   /** Auto-request DMA cycle. */
@@ -94,10 +89,8 @@ typedef enum
   dmaCycleCtrlPerScatterGather = _DMA_CTRL_CYCLE_CTRL_PER_SCATTER_GATHER
 } DMA_CycleCtrl_TypeDef;
 
-
 /** Number of transfers before controller does new arbitration. */
-typedef enum
-{
+typedef enum {
   dmaArbitrate1    = _DMA_CTRL_R_POWER_1,    /**< Arbitrate after 1 DMA transfer. */
   dmaArbitrate2    = _DMA_CTRL_R_POWER_2,    /**< Arbitrate after 2 DMA transfers. */
   dmaArbitrate4    = _DMA_CTRL_R_POWER_4,    /**< Arbitrate after 4 DMA transfers. */
@@ -110,7 +103,6 @@ typedef enum
   dmaArbitrate512  = _DMA_CTRL_R_POWER_512,  /**< Arbitrate after 512 DMA transfers. */
   dmaArbitrate1024 = _DMA_CTRL_R_POWER_1024  /**< Arbitrate after 1024 DMA transfers. */
 } DMA_ArbiterConfig_TypeDef;
-
 
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
@@ -134,7 +126,6 @@ typedef enum
  */
 typedef void (*DMA_FuncPtr_TypeDef)(unsigned int channel, bool primary, void *user);
 
-
 /**
  * @brief
  *   Callback structure that can be used to define DMA complete actions.
@@ -145,8 +136,7 @@ typedef void (*DMA_FuncPtr_TypeDef)(unsigned int channel, bool primary, void *us
  *   handled by one common callback, using the provided 'primary' parameter
  *   with the callback function.
  */
-typedef struct
-{
+typedef struct {
   /**
    * Pointer to callback function to invoke when DMA transfer cycle done.
    * Notice that this function is invoked in interrupt context, and therefore
@@ -165,10 +155,8 @@ typedef struct
   uint8_t             primary;
 } DMA_CB_TypeDef;
 
-
 /** Configuration structure for a channel. */
-typedef struct
-{
+typedef struct {
   /**
    * Select if channel priority is in the high or default priority group
    * with respect to arbitration. Within a priority group, lower numbered
@@ -208,13 +196,11 @@ typedef struct
   DMA_CB_TypeDef *cb;
 } DMA_CfgChannel_TypeDef;
 
-
 /**
  * Configuration structure for primary or alternate descriptor
  * (not used for scatter-gather DMA cycles).
  */
-typedef struct
-{
+typedef struct {
   /** Destination increment size for each DMA transfer */
   DMA_DataInc_TypeDef       dstInc;
 
@@ -242,13 +228,11 @@ typedef struct
   uint8_t hprot;
 } DMA_CfgDescr_TypeDef;
 
-
-#if defined( _DMA_LOOP0_MASK ) && defined( _DMA_LOOP1_MASK )
+#if defined(_DMA_LOOP0_MASK) && defined(_DMA_LOOP1_MASK)
 /**
  * Configuration structure for loop mode
  */
-typedef struct
-{
+typedef struct {
   /** Enable repeated loop */
   bool      enable;
   /** Width of transfer, reload value for nMinus1 */
@@ -256,13 +240,11 @@ typedef struct
 } DMA_CfgLoop_TypeDef;
 #endif
 
-
-#if defined( _DMA_RECT0_MASK )
+#if defined(_DMA_RECT0_MASK)
 /**
  * Configuration structure for rectangular copy
  */
-typedef struct
-{
+typedef struct {
   /** DMA channel destination stride (width of destination image, distance between lines) */
   uint16_t dstStride;
   /** DMA channel source stride (width of source image, distance between lines) */
@@ -272,10 +254,8 @@ typedef struct
 } DMA_CfgRect_TypeDef;
 #endif
 
-
 /** Configuration structure for alternate scatter-gather descriptor. */
-typedef struct
-{
+typedef struct {
   /** Pointer to location to transfer data from. */
   void                      *src;
 
@@ -320,10 +300,8 @@ typedef struct
   bool    peripheral;
 } DMA_CfgDescrSGAlt_TypeDef;
 
-
 /** DMA init structure */
-typedef struct
-{
+typedef struct {
   /**
    * HPROT signal state when accessing the primary/alternate
    * descriptors. Normally set to 0 if protection is not an issue.
@@ -351,7 +329,6 @@ typedef struct
    */
   DMA_DESCRIPTOR_TypeDef *controlBlock;
 } DMA_Init_TypeDef;
-
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -384,15 +361,15 @@ void DMA_CfgChannel(unsigned int channel, DMA_CfgChannel_TypeDef *cfg);
 void DMA_CfgDescr(unsigned int channel,
                   bool primary,
                   DMA_CfgDescr_TypeDef *cfg);
-#if defined( _DMA_LOOP0_MASK ) && defined( _DMA_LOOP1_MASK )
+#if defined(_DMA_LOOP0_MASK) && defined(_DMA_LOOP1_MASK)
 void DMA_CfgLoop(unsigned int channel, DMA_CfgLoop_TypeDef *cfg);
 #endif
 
-#if defined( _DMA_RECT0_MASK )
+#if defined(_DMA_RECT0_MASK)
 void DMA_CfgRect(unsigned int channel, DMA_CfgRect_TypeDef *cfg);
 #endif
 
-#if defined( _DMA_LOOP0_MASK ) && defined( _DMA_LOOP1_MASK )
+#if defined(_DMA_LOOP0_MASK) && defined(_DMA_LOOP1_MASK)
 /***************************************************************************//**
  * @brief
  *   Clear Loop configuration for channel
@@ -403,8 +380,7 @@ void DMA_CfgRect(unsigned int channel, DMA_CfgRect_TypeDef *cfg);
 __STATIC_INLINE void DMA_ResetLoop(unsigned int channel)
 {
   /* Clean loop copy operation */
-  switch(channel)
-  {
+  switch (channel) {
     case 0:
       DMA->LOOP0 = _DMA_LOOP0_RESETVALUE;
       break;
@@ -417,8 +393,7 @@ __STATIC_INLINE void DMA_ResetLoop(unsigned int channel)
 }
 #endif
 
-
-#if defined( _DMA_RECT0_MASK )
+#if defined(_DMA_RECT0_MASK)
 /***************************************************************************//**
  * @brief
  *   Clear Rect/2D DMA configuration for channel
@@ -464,7 +439,6 @@ __STATIC_INLINE void DMA_IntClear(uint32_t flags)
   DMA->IFC = flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Disable one or more DMA interrupts.
@@ -477,7 +451,6 @@ __STATIC_INLINE void DMA_IntDisable(uint32_t flags)
 {
   DMA->IEN &= ~flags;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -497,7 +470,6 @@ __STATIC_INLINE void DMA_IntEnable(uint32_t flags)
   DMA->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get pending DMA interrupt flags.
@@ -513,7 +485,6 @@ __STATIC_INLINE uint32_t DMA_IntGet(void)
 {
   return DMA->IF;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -536,7 +507,6 @@ __STATIC_INLINE uint32_t DMA_IntGetEnabled(void)
   ien = DMA->IEN;
   return DMA->IF & ien;
 }
-
 
 /***************************************************************************//**
  * @brief

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_aes.c
  * @brief Advanced Encryption Standard (AES) accelerator peripheral API.
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -141,21 +141,18 @@ void AES_CBC128(uint8_t *out,
   /* Number of blocks to process */
   len /= AES_BLOCKSIZE;
 
-  #if defined( AES_CTRL_KEYBUFEN )
-  if (key)
-  {
+  #if defined(AES_CTRL_KEYBUFEN)
+  if (key) {
     /* Load key into high key for key buffer usage */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->KEYHA = __REV(_key[i]);
     }
   }
   #endif
 
-  if (encrypt)
-  {
+  if (encrypt) {
     /* Enable encryption with auto start using XOR */
-    #if defined( AES_CTRL_KEYBUFEN )
+    #if defined(AES_CTRL_KEYBUFEN)
     AES->CTRL = AES_CTRL_KEYBUFEN | AES_CTRL_XORSTART;
     #else
     AES->CTRL = AES_CTRL_XORSTART;
@@ -163,25 +160,21 @@ void AES_CBC128(uint8_t *out,
 
     /* Load initialization vector, since writing to DATA, it will */
     /* not trigger encryption. */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->DATA = __REV(_iv[i]);
     }
 
     /* Encrypt data */
-    while (len--)
-    {
-      #if !defined( AES_CTRL_KEYBUFEN )
+    while (len--) {
+      #if !defined(AES_CTRL_KEYBUFEN)
       /* Load key */
-      for (i = 3; i >= 0; i--)
-      {
+      for (i = 3; i >= 0; i--) {
         AES->KEYLA = __REV(_key[i]);
       }
       #endif
 
       /* Load data and trigger encryption */
-      for (i = 3; i >= 0; i--)
-      {
+      for (i = 3; i >= 0; i--) {
         AES->XORDATA = __REV(_in[i]);
       }
       _in += 4;
@@ -191,42 +184,35 @@ void AES_CBC128(uint8_t *out,
         ;
 
       /* Save encrypted data */
-      for (i = 3; i >= 0; i--)
-      {
+      for (i = 3; i >= 0; i--) {
         _out[i] = __REV(AES->DATA);
       }
       _out += 4;
     }
-  }
-  else
-  {
+  } else {
     /* Select decryption mode */
-    #if defined( AES_CTRL_KEYBUFEN )
+    #if defined(AES_CTRL_KEYBUFEN)
     AES->CTRL = AES_CTRL_DECRYPT | AES_CTRL_KEYBUFEN | AES_CTRL_DATASTART;
     #else
     AES->CTRL = AES_CTRL_DECRYPT | AES_CTRL_DATASTART;
     #endif
 
     /* Copy init vector to previous buffer to avoid special handling */
-    for (i = 0; i < 4; i++)
-    {
+    for (i = 0; i < 4; i++) {
       prev[i] = _iv[i];
     }
 
     /* Decrypt data */
-    while (len--)
-    {
-      #if !defined( AES_CTRL_KEYBUFEN )
+    while (len--) {
+      #if !defined(AES_CTRL_KEYBUFEN)
       /* Load key */
-      for (i = 3; i >= 0; i--)
-      {
+      for (i = 3; i >= 0; i--) {
         AES->KEYLA = __REV(_key[i]);
       }
       #endif
 
       /* Load data and trigger decryption */
-      for (i = 3; i >= 0; i--)
-      {
+      for (i = 3; i >= 0; i--) {
         AES->DATA = __REV(_in[i]);
       }
 
@@ -236,8 +222,7 @@ void AES_CBC128(uint8_t *out,
 
       /* In order to avoid additional buffer, we use HW directly for XOR and buffer */
       /* (Writing to XORDATA will not trigger encoding, triggering enabled on DATA.) */
-      for (i = 3; i >= 0; i--)
-      {
+      for (i = 3; i >= 0; i--) {
         AES->XORDATA = __REV(prev[i]);
         prev[i]      = _in[i];
       }
@@ -245,8 +230,7 @@ void AES_CBC128(uint8_t *out,
 
       /* Then fetch decrypted data, we have to do it in a separate loop */
       /* due to internal auto-shifting of words */
-      for (i = 3; i >= 0; i--)
-      {
+      for (i = 3; i >= 0; i--) {
         _out[i] = __REV(AES->DATA);
       }
       _out += 4;
@@ -254,8 +238,7 @@ void AES_CBC128(uint8_t *out,
   }
 }
 
-
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 /***************************************************************************//**
  * @brief
  *   Cipher-block chaining (CBC) cipher mode encryption/decryption, 256 bit key.
@@ -307,24 +290,20 @@ void AES_CBC256(uint8_t *out,
   /* Number of blocks to process */
   len /= AES_BLOCKSIZE;
 
-  if (encrypt)
-  {
+  if (encrypt) {
     /* Enable encryption with auto start using XOR */
     AES->CTRL = AES_CTRL_AES256 | AES_CTRL_XORSTART;
 
     /* Load initialization vector, since writing to DATA, it will */
     /* not trigger encryption. */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->DATA = __REV(_iv[i]);
     }
 
     /* Encrypt data */
-    while (len--)
-    {
+    while (len--) {
       /* Load key and data and trigger encryption */
-      for (i = 3, j = 7; i >= 0; i--, j--)
-      {
+      for (i = 3, j = 7; i >= 0; i--, j--) {
         AES->KEYLA = __REV(_key[j]);
         AES->KEYHA = __REV(_key[i]);
         /* Write data last, since will trigger encryption on last iteration */
@@ -337,30 +316,24 @@ void AES_CBC256(uint8_t *out,
         ;
 
       /* Save encrypted data */
-      for (i = 3; i >= 0; i--)
-      {
+      for (i = 3; i >= 0; i--) {
         _out[i] = __REV(AES->DATA);
       }
       _out += 4;
     }
-  }
-  else
-  {
+  } else {
     /* Select decryption mode */
     AES->CTRL = AES_CTRL_AES256 | AES_CTRL_DECRYPT | AES_CTRL_DATASTART;
 
     /* Copy init vector to previous buffer to avoid special handling */
-    for (i = 0; i < 4; i++)
-    {
+    for (i = 0; i < 4; i++) {
       prev[i] = _iv[i];
     }
 
     /* Decrypt data */
-    while (len--)
-    {
+    while (len--) {
       /* Load key and data and trigger decryption */
-      for (i = 3, j = 7; i >= 0; i--, j--)
-      {
+      for (i = 3, j = 7; i >= 0; i--, j--) {
         AES->KEYLA = __REV(_key[j]);
         AES->KEYHA = __REV(_key[i]);
         /* Write data last, since will trigger encryption on last iteration */
@@ -372,8 +345,7 @@ void AES_CBC256(uint8_t *out,
         ;
 
       /* In order to avoid additional buffer, we use HW directly for XOR and buffer */
-      for (i = 3; i >= 0; i--)
-      {
+      for (i = 3; i >= 0; i--) {
         AES->XORDATA = __REV(prev[i]);
         prev[i]      = _in[i];
       }
@@ -381,8 +353,7 @@ void AES_CBC256(uint8_t *out,
 
       /* Then fetch decrypted data, we have to do it in a separate loop */
       /* due to internal auto-shifting of words */
-      for (i = 3; i >= 0; i--)
-      {
+      for (i = 3; i >= 0; i--) {
         _out[i] = __REV(AES->DATA);
       }
       _out += 4;
@@ -390,7 +361,6 @@ void AES_CBC256(uint8_t *out,
   }
 }
 #endif
-
 
 /***************************************************************************//**
  * @brief
@@ -467,16 +437,15 @@ void AES_CFB128(uint8_t *out,
 
   EFM_ASSERT(!(len % AES_BLOCKSIZE));
 
-  #if defined( AES_CTRL_KEYBUFEN )
+  #if defined(AES_CTRL_KEYBUFEN)
   AES->CTRL = AES_CTRL_KEYBUFEN | AES_CTRL_DATASTART;
   #else
   AES->CTRL = AES_CTRL_DATASTART;
   #endif
 
-  #if defined( AES_CTRL_KEYBUFEN )
+  #if defined(AES_CTRL_KEYBUFEN)
   /* Load key into high key for key buffer usage */
-  for (i = 3; i >= 0; i--)
-  {
+  for (i = 3; i >= 0; i--) {
     AES->KEYHA = __REV(_key[i]);
   }
   #endif
@@ -484,32 +453,25 @@ void AES_CFB128(uint8_t *out,
   /* Encrypt/decrypt data */
   data = _iv;
   len /= AES_BLOCKSIZE;
-  while (len--)
-  {
-    #if !defined( AES_CTRL_KEYBUFEN )
+  while (len--) {
+    #if !defined(AES_CTRL_KEYBUFEN)
     /* Load key */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->KEYLA = __REV(_key[i]);
     }
     #endif
 
     /* Load data and trigger encryption */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->DATA = __REV(data[i]);
     }
 
     /* Do some required processing before waiting for completion */
-    if (encrypt)
-    {
+    if (encrypt) {
       data = _out;
-    }
-    else
-    {
+    } else {
       /* Must copy current ciphertext block since it may be overwritten */
-      for (i = 0; i < 4; i++)
-      {
+      for (i = 0; i < 4; i++) {
         tmp[i] = _in[i];
       }
       data = tmp;
@@ -520,8 +482,7 @@ void AES_CFB128(uint8_t *out,
       ;
 
     /* Save encrypted/decrypted data */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       _out[i] = __REV(AES->DATA) ^ _in[i];
     }
     _out += 4;
@@ -529,8 +490,7 @@ void AES_CFB128(uint8_t *out,
   }
 }
 
-
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 /***************************************************************************//**
  * @brief
  *   Cipher feedback (CFB) cipher mode encryption/decryption, 256 bit key.
@@ -583,11 +543,9 @@ void AES_CFB256(uint8_t *out,
   /* Encrypt/decrypt data */
   data = _iv;
   len /= AES_BLOCKSIZE;
-  while (len--)
-  {
+  while (len--) {
     /* Load key and block to be encrypted/decrypted */
-    for (i = 3, j = 7; i >= 0; i--, j--)
-    {
+    for (i = 3, j = 7; i >= 0; i--, j--) {
       AES->KEYLA = __REV(_key[j]);
       AES->KEYHA = __REV(_key[i]);
       /* Write data last, since will trigger encryption on last iteration */
@@ -595,15 +553,11 @@ void AES_CFB256(uint8_t *out,
     }
 
     /* Do some required processing before waiting for completion */
-    if (encrypt)
-    {
+    if (encrypt) {
       data = _out;
-    }
-    else
-    {
+    } else {
       /* Must copy current ciphertext block since it may be overwritten */
-      for (i = 0; i < 4; i++)
-      {
+      for (i = 0; i < 4; i++) {
         tmp[i] = _in[i];
       }
       data = tmp;
@@ -613,8 +567,7 @@ void AES_CFB256(uint8_t *out,
       ;
 
     /* Save encrypted/decrypted data */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       _out[i] = __REV(AES->DATA) ^ _in[i];
     }
     _out += 4;
@@ -622,7 +575,6 @@ void AES_CFB256(uint8_t *out,
   }
 }
 #endif
-
 
 /***************************************************************************//**
  * @brief
@@ -700,18 +652,16 @@ void AES_CTR128(uint8_t *out,
   EFM_ASSERT(!(len % AES_BLOCKSIZE));
   EFM_ASSERT(ctrFunc);
 
-  #if defined( AES_CTRL_KEYBUFEN )
+  #if defined(AES_CTRL_KEYBUFEN)
   AES->CTRL = AES_CTRL_KEYBUFEN | AES_CTRL_DATASTART;
   #else
   AES->CTRL = AES_CTRL_DATASTART;
   #endif
 
-  #if defined( AES_CTRL_KEYBUFEN )
-  if (key)
-  {
+  #if defined(AES_CTRL_KEYBUFEN)
+  if (key) {
     /* Load key into high key for key buffer usage */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->KEYHA = __REV(_key[i]);
     }
   }
@@ -719,19 +669,16 @@ void AES_CTR128(uint8_t *out,
 
   /* Encrypt/decrypt data */
   len /= AES_BLOCKSIZE;
-  while (len--)
-  {
-    #if !defined( AES_CTRL_KEYBUFEN )
+  while (len--) {
+    #if !defined(AES_CTRL_KEYBUFEN)
     /* Load key */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->KEYLA = __REV(_key[i]);
     }
     #endif
 
     /* Load ctr to be encrypted/decrypted */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->DATA = __REV(_ctr[i]);
     }
     /* Increment ctr for next use */
@@ -742,8 +689,7 @@ void AES_CTR128(uint8_t *out,
       ;
 
     /* Save encrypted/decrypted data */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       _out[i] = __REV(AES->DATA) ^ _in[i];
     }
     _out += 4;
@@ -751,8 +697,7 @@ void AES_CTR128(uint8_t *out,
   }
 }
 
-
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 /***************************************************************************//**
  * @brief
  *   Counter (CTR) cipher mode encryption/decryption, 256 bit key.
@@ -804,11 +749,9 @@ void AES_CTR256(uint8_t *out,
 
   /* Encrypt/decrypt data */
   len /= AES_BLOCKSIZE;
-  while (len--)
-  {
+  while (len--) {
     /* Load key and block to be encrypted/decrypted */
-    for (i = 3, j = 7; i >= 0; i--, j--)
-    {
+    for (i = 3, j = 7; i >= 0; i--, j--) {
       AES->KEYLA = __REV(_key[j]);
       AES->KEYHA = __REV(_key[i]);
       /* Write data last, since will trigger encryption on last iteration */
@@ -822,8 +765,7 @@ void AES_CTR256(uint8_t *out,
       ;
 
     /* Save encrypted/decrypted data */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       _out[i] = __REV(AES->DATA) ^ _in[i];
     }
     _out += 4;
@@ -831,7 +773,6 @@ void AES_CTR256(uint8_t *out,
   }
 }
 #endif
-
 
 /***************************************************************************//**
  * @brief
@@ -853,7 +794,6 @@ void AES_CTRUpdate32Bit(uint8_t *ctr)
 
   _ctr[3] = __REV(__REV(_ctr[3]) + 1);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -877,8 +817,7 @@ void AES_DecryptKey128(uint8_t *out, const uint8_t *in)
   const uint32_t *_in  = (const uint32_t *)in;
 
   /* Load key */
-  for (i = 3; i >= 0; i--)
-  {
+  for (i = 3; i >= 0; i--) {
     AES->KEYLA = __REV(_in[i]);
   }
 
@@ -892,14 +831,12 @@ void AES_DecryptKey128(uint8_t *out, const uint8_t *in)
     ;
 
   /* Save decryption key */
-  for (i = 3; i >= 0; i--)
-  {
+  for (i = 3; i >= 0; i--) {
     _out[i] = __REV(AES->KEYLA);
   }
 }
 
-
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 /***************************************************************************//**
  * @brief
  *   Generate 256 bit decryption key from 256 bit encryption key. The decryption
@@ -923,8 +860,7 @@ void AES_DecryptKey256(uint8_t *out, const uint8_t *in)
   const uint32_t *_in  = (const uint32_t *)in;
 
   /* Load key */
-  for (i = 3, j = 7; i >= 0; i--, j--)
-  {
+  for (i = 3, j = 7; i >= 0; i--, j--) {
     AES->KEYLA = __REV(_in[j]);
     AES->KEYHA = __REV(_in[i]);
   }
@@ -938,14 +874,12 @@ void AES_DecryptKey256(uint8_t *out, const uint8_t *in)
     ;
 
   /* Save decryption key */
-  for (i = 3, j = 7; i >= 0; i--, j--)
-  {
+  for (i = 3, j = 7; i >= 0; i--, j--) {
     _out[j] = __REV(AES->KEYLA);
     _out[i] = __REV(AES->KEYHA);
   }
 }
 #endif
-
 
 /***************************************************************************//**
  * @brief
@@ -1011,27 +945,23 @@ void AES_ECB128(uint8_t *out,
 
   EFM_ASSERT(!(len % AES_BLOCKSIZE));
 
-  #if defined( AES_CTRL_KEYBUFEN )
+  #if defined(AES_CTRL_KEYBUFEN)
   /* Load key into high key for key buffer usage */
-  for (i = 3; i >= 0; i--)
-  {
+  for (i = 3; i >= 0; i--) {
     AES->KEYHA = __REV(_key[i]);
   }
   #endif
 
-  if (encrypt)
-  {
+  if (encrypt) {
     /* Select encryption mode */
-    #if defined( AES_CTRL_KEYBUFEN )
+    #if defined(AES_CTRL_KEYBUFEN)
     AES->CTRL = AES_CTRL_KEYBUFEN | AES_CTRL_DATASTART;
     #else
     AES->CTRL = AES_CTRL_DATASTART;
     #endif
-  }
-  else
-  {
+  } else {
     /* Select decryption mode */
-    #if defined( AES_CTRL_KEYBUFEN )
+    #if defined(AES_CTRL_KEYBUFEN)
     AES->CTRL = AES_CTRL_DECRYPT | AES_CTRL_KEYBUFEN | AES_CTRL_DATASTART;
     #else
     AES->CTRL = AES_CTRL_DECRYPT | AES_CTRL_DATASTART;
@@ -1040,19 +970,16 @@ void AES_ECB128(uint8_t *out,
 
   /* Encrypt/decrypt data */
   len /= AES_BLOCKSIZE;
-  while (len--)
-  {
-    #if !defined( AES_CTRL_KEYBUFEN )
+  while (len--) {
+    #if !defined(AES_CTRL_KEYBUFEN)
     /* Load key */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->KEYLA = __REV(_key[i]);
     }
     #endif
 
     /* Load block to be encrypted/decrypted */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->DATA = __REV(_in[i]);
     }
     _in += 4;
@@ -1062,16 +989,14 @@ void AES_ECB128(uint8_t *out,
       ;
 
     /* Save encrypted/decrypted data */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       _out[i] = __REV(AES->DATA);
     }
     _out += 4;
   }
 }
 
-
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 /***************************************************************************//**
  * @brief
  *   Electronic Codebook (ECB) cipher mode encryption/decryption, 256 bit key.
@@ -1113,24 +1038,19 @@ void AES_ECB256(uint8_t *out,
 
   EFM_ASSERT(!(len % AES_BLOCKSIZE));
 
-  if (encrypt)
-  {
+  if (encrypt) {
     /* Select encryption mode */
     AES->CTRL = AES_CTRL_AES256 | AES_CTRL_DATASTART;
-  }
-  else
-  {
+  } else {
     /* Select decryption mode */
     AES->CTRL = AES_CTRL_DECRYPT | AES_CTRL_AES256 | AES_CTRL_DATASTART;
   }
 
   /* Encrypt/decrypt data */
   len /= AES_BLOCKSIZE;
-  while (len--)
-  {
+  while (len--) {
     /* Load key and block to be encrypted/decrypted */
-    for (i = 3, j = 7; i >= 0; i--, j--)
-    {
+    for (i = 3, j = 7; i >= 0; i--, j--) {
       AES->KEYLA = __REV(_key[j]);
       AES->KEYHA = __REV(_key[i]);
       /* Write data last, since will trigger encryption on last iteration */
@@ -1143,15 +1063,13 @@ void AES_ECB256(uint8_t *out,
       ;
 
     /* Save encrypted/decrypted data */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       _out[i] = __REV(AES->DATA);
     }
     _out += 4;
   }
 }
 #endif
-
 
 /***************************************************************************//**
  * @brief
@@ -1225,7 +1143,7 @@ void AES_OFB128(uint8_t *out,
   EFM_ASSERT(!(len % AES_BLOCKSIZE));
 
   /* Select encryption mode, trigger explicitly by command */
-  #if defined( AES_CTRL_KEYBUFEN )
+  #if defined(AES_CTRL_KEYBUFEN)
   AES->CTRL = AES_CTRL_KEYBUFEN;
   #else
   AES->CTRL = 0;
@@ -1233,9 +1151,8 @@ void AES_OFB128(uint8_t *out,
 
   /* Load key into high key for key buffer usage */
   /* Load initialization vector */
-  for (i = 3; i >= 0; i--)
-  {
-    #if defined( AES_CTRL_KEYBUFEN )
+  for (i = 3; i >= 0; i--) {
+    #if defined(AES_CTRL_KEYBUFEN)
     AES->KEYHA = __REV(_key[i]);
     #endif
     AES->DATA  = __REV(_iv[i]);
@@ -1243,12 +1160,10 @@ void AES_OFB128(uint8_t *out,
 
   /* Encrypt/decrypt data */
   len /= AES_BLOCKSIZE;
-  while (len--)
-  {
-    #if !defined( AES_CTRL_KEYBUFEN )
+  while (len--) {
+    #if !defined(AES_CTRL_KEYBUFEN)
     /* Load key */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       AES->KEYLA = __REV(_key[i]);
     }
     #endif
@@ -1260,8 +1175,7 @@ void AES_OFB128(uint8_t *out,
       ;
 
     /* Save encrypted/decrypted data */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       _out[i] = __REV(AES->DATA) ^ _in[i];
     }
     _out += 4;
@@ -1269,8 +1183,7 @@ void AES_OFB128(uint8_t *out,
   }
 }
 
-
-#if defined( AES_CTRL_AES256 )
+#if defined(AES_CTRL_AES256)
 /***************************************************************************//**
  * @brief
  *   Output feedback (OFB) cipher mode encryption/decryption, 256 bit key.
@@ -1315,18 +1228,15 @@ void AES_OFB256(uint8_t *out,
   AES->CTRL = AES_CTRL_AES256;
 
   /* Load initialization vector */
-  for (i = 3; i >= 0; i--)
-  {
+  for (i = 3; i >= 0; i--) {
     AES->DATA = __REV(_iv[i]);
   }
 
   /* Encrypt/decrypt data */
   len /= AES_BLOCKSIZE;
-  while (len--)
-  {
+  while (len--) {
     /* Load key */
-    for (i = 3, j = 7; i >= 0; i--, j--)
-    {
+    for (i = 3, j = 7; i >= 0; i--, j--) {
       AES->KEYLA = __REV(_key[j]);
       AES->KEYHA = __REV(_key[i]);
     }
@@ -1338,8 +1248,7 @@ void AES_OFB256(uint8_t *out,
       ;
 
     /* Save encrypted/decrypted data */
-    for (i = 3; i >= 0; i--)
-    {
+    for (i = 3; i >= 0; i--) {
       _out[i] = __REV(AES->DATA) ^ _in[i];
     }
     _out += 4;
@@ -1347,7 +1256,6 @@ void AES_OFB256(uint8_t *out,
   }
 }
 #endif
-
 
 /** @} (end addtogroup AES) */
 /** @} (end addtogroup emlib) */

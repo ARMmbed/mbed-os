@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_vcmp.h
  * @brief Voltage Comparator (VCMP) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -58,8 +58,7 @@ extern "C" {
  ******************************************************************************/
 
 /** Warm-up Time in High Frequency Peripheral Clock cycles */
-typedef enum
-{
+typedef enum {
   /** 4 cycles */
   vcmpWarmTime4Cycles   = _VCMP_CTRL_WARMTIME_4CYCLES,
   /** 8 cycles */
@@ -79,8 +78,7 @@ typedef enum
 } VCMP_WarmTime_TypeDef;
 
 /** Hyseresis configuration */
-typedef enum
-{
+typedef enum {
   /** Normal operation, no hysteresis */
   vcmpHystNone,
   /** Digital output will not toggle until positive edge is at least
@@ -93,8 +91,7 @@ typedef enum
  ******************************************************************************/
 
 /** VCMP Initialization structure */
-typedef struct
-{
+typedef struct {
   /** If set to true, will reduce by half the bias current */
   bool                    halfBias;
   /** BIAS current configuration, depends on halfBias setting,
@@ -121,18 +118,18 @@ typedef struct
 
 /** Default VCMP initialization structure */
 #define VCMP_INIT_DEFAULT                                                \
-{                                                                        \
-  true,                /** Half Bias enabled */                          \
-  0x7,                 /** Bias curernt 0.7 uA when half bias enabled */ \
-  false,               /** Falling edge sense not enabled */             \
-  false,               /** Rising edge sense not enabled */              \
-  vcmpWarmTime4Cycles, /** 4 clock cycles warm-up time */                \
-  vcmpHystNone,        /** No hysteresis */                              \
-  0,                   /** 0 in digital ouput when inactive */           \
-  true,                /** Do not use low power reference */             \
-  39,                  /** Trigger level just below 3V */                \
-  true,                /** Enable after init */                          \
-}
+  {                                                                      \
+    true,              /** Half Bias enabled */                          \
+    0x7,               /** Bias curernt 0.7 uA when half bias enabled */ \
+    false,             /** Falling edge sense not enabled */             \
+    false,             /** Rising edge sense not enabled */              \
+    vcmpWarmTime4Cycles, /** 4 clock cycles warm-up time */              \
+    vcmpHystNone,      /** No hysteresis */                              \
+    0,                 /** 0 in digital ouput when inactive */           \
+    true,              /** Do not use low power reference */             \
+    39,                /** Trigger level just below 3V */                \
+    true,              /** Enable after init */                          \
+  }
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -151,7 +148,6 @@ __STATIC_INLINE void VCMP_Enable(void)
   VCMP->CTRL |= VCMP_CTRL_EN;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Disable Voltage Comparator
@@ -160,7 +156,6 @@ __STATIC_INLINE void VCMP_Disable(void)
 {
   VCMP->CTRL &= ~VCMP_CTRL_EN;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -177,7 +172,6 @@ __STATIC_INLINE uint32_t VCMP_VoltageToLevel(float v)
   return (uint32_t)((v - (float)1.667) / (float)0.034);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Returns true, if Voltage Comparator indicated VDD < trigger level, else
@@ -185,16 +179,12 @@ __STATIC_INLINE uint32_t VCMP_VoltageToLevel(float v)
  ******************************************************************************/
 __STATIC_INLINE bool VCMP_VDDLower(void)
 {
-  if (VCMP->STATUS & VCMP_STATUS_VCMPOUT)
-  {
+  if (VCMP->STATUS & VCMP_STATUS_VCMPOUT) {
     return false;
-  }
-  else
-  {
+  } else {
     return true;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -203,16 +193,12 @@ __STATIC_INLINE bool VCMP_VDDLower(void)
  ******************************************************************************/
 __STATIC_INLINE bool VCMP_VDDHigher(void)
 {
-  if (VCMP->STATUS & VCMP_STATUS_VCMPOUT)
-  {
+  if (VCMP->STATUS & VCMP_STATUS_VCMPOUT) {
     return true;
-  }
-  else
-  {
+  } else {
     return false;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -220,16 +206,12 @@ __STATIC_INLINE bool VCMP_VDDHigher(void)
  ******************************************************************************/
 __STATIC_INLINE bool VCMP_Ready(void)
 {
-  if (VCMP->STATUS & VCMP_STATUS_VCMPACT)
-  {
+  if (VCMP->STATUS & VCMP_STATUS_VCMPACT) {
     return true;
-  }
-  else
-  {
+  } else {
     return false;
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -245,7 +227,6 @@ __STATIC_INLINE void VCMP_IntClear(uint32_t flags)
   VCMP->IFC = flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set one or more pending VCMP interrupts from SW.
@@ -259,7 +240,6 @@ __STATIC_INLINE void VCMP_IntSet(uint32_t flags)
 {
   VCMP->IFS = flags;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -275,7 +255,6 @@ __STATIC_INLINE void VCMP_IntDisable(uint32_t flags)
   VCMP->IEN &= ~flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Enable one or more VCMP interrupts
@@ -289,7 +268,6 @@ __STATIC_INLINE void VCMP_IntEnable(uint32_t flags)
 {
   VCMP->IEN |= flags;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -306,7 +284,6 @@ __STATIC_INLINE uint32_t VCMP_IntGet(void)
 {
   return VCMP->IF;
 }
-
 
 /***************************************************************************//**
  * @brief

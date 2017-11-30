@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_vdac.h
  * @brief Digital to Analog Converter (VDAC) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -43,7 +43,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 /***************************************************************************//**
  * @addtogroup emlib
@@ -103,8 +102,7 @@ extern "C" {
  ******************************************************************************/
 
 /** Channel refresh period. */
-typedef enum
-{
+typedef enum {
   vdacRefresh8  = _VDAC_CTRL_REFRESHPERIOD_8CYCLES,  /**< Refresh every 8 clock cycles. */
   vdacRefresh16 = _VDAC_CTRL_REFRESHPERIOD_16CYCLES, /**< Refresh every 16 clock cycles. */
   vdacRefresh32 = _VDAC_CTRL_REFRESHPERIOD_32CYCLES, /**< Refresh every 32 clock cycles. */
@@ -112,8 +110,7 @@ typedef enum
 } VDAC_Refresh_TypeDef;
 
 /** Reference voltage for VDAC. */
-typedef enum
-{
+typedef enum {
   vdacRef1V25Ln = _VDAC_CTRL_REFSEL_1V25LN, /**< Internal low noise 1.25 V bandgap reference. */
   vdacRef2V5Ln  = _VDAC_CTRL_REFSEL_2V5LN,  /**< Internal low noise 2.5 V bandgap reference. */
   vdacRef1V25   = _VDAC_CTRL_REFSEL_1V25,   /**< Internal 1.25 V bandgap reference. */
@@ -123,25 +120,31 @@ typedef enum
 } VDAC_Ref_TypeDef;
 
 /** Peripheral Reflex System signal used to trig VDAC channel conversion. */
-typedef enum
-{
-  vdacPrsSelCh0 =  _VDAC_CH0CTRL_PRSSEL_PRSCH0 , /**< PRS ch 0 triggers conversion. */
-  vdacPrsSelCh1 =  _VDAC_CH0CTRL_PRSSEL_PRSCH1 , /**< PRS ch 1 triggers conversion. */
-  vdacPrsSelCh2 =  _VDAC_CH0CTRL_PRSSEL_PRSCH2 , /**< PRS ch 2 triggers conversion. */
-  vdacPrsSelCh3 =  _VDAC_CH0CTRL_PRSSEL_PRSCH3 , /**< PRS ch 3 triggers conversion. */
-  vdacPrsSelCh4 =  _VDAC_CH0CTRL_PRSSEL_PRSCH4 , /**< PRS ch 4 triggers conversion. */
-  vdacPrsSelCh5 =  _VDAC_CH0CTRL_PRSSEL_PRSCH5 , /**< PRS ch 5 triggers conversion. */
-  vdacPrsSelCh6 =  _VDAC_CH0CTRL_PRSSEL_PRSCH6 , /**< PRS ch 6 triggers conversion. */
-  vdacPrsSelCh7 =  _VDAC_CH0CTRL_PRSSEL_PRSCH7 , /**< PRS ch 7 triggers conversion. */
-  vdacPrsSelCh8 =  _VDAC_CH0CTRL_PRSSEL_PRSCH8 , /**< PRS ch 8 triggers conversion. */
-  vdacPrsSelCh9 =  _VDAC_CH0CTRL_PRSSEL_PRSCH9 , /**< PRS ch 9 triggers conversion. */
+typedef enum {
+  vdacPrsSelCh0 =  _VDAC_CH0CTRL_PRSSEL_PRSCH0,  /**< PRS ch 0 triggers conversion. */
+  vdacPrsSelCh1 =  _VDAC_CH0CTRL_PRSSEL_PRSCH1,  /**< PRS ch 1 triggers conversion. */
+  vdacPrsSelCh2 =  _VDAC_CH0CTRL_PRSSEL_PRSCH2,  /**< PRS ch 2 triggers conversion. */
+  vdacPrsSelCh3 =  _VDAC_CH0CTRL_PRSSEL_PRSCH3,  /**< PRS ch 3 triggers conversion. */
+  vdacPrsSelCh4 =  _VDAC_CH0CTRL_PRSSEL_PRSCH4,  /**< PRS ch 4 triggers conversion. */
+  vdacPrsSelCh5 =  _VDAC_CH0CTRL_PRSSEL_PRSCH5,  /**< PRS ch 5 triggers conversion. */
+  vdacPrsSelCh6 =  _VDAC_CH0CTRL_PRSSEL_PRSCH6,  /**< PRS ch 6 triggers conversion. */
+  vdacPrsSelCh7 =  _VDAC_CH0CTRL_PRSSEL_PRSCH7,  /**< PRS ch 7 triggers conversion. */
+#if defined(_VDAC_CH0CTRL_PRSSEL_PRSCH8)
+  vdacPrsSelCh8 =  _VDAC_CH0CTRL_PRSSEL_PRSCH8,  /**< PRS ch 8 triggers conversion. */
+#endif
+#if defined(_VDAC_CH0CTRL_PRSSEL_PRSCH9)
+  vdacPrsSelCh9 =  _VDAC_CH0CTRL_PRSSEL_PRSCH9,  /**< PRS ch 9 triggers conversion. */
+#endif
+#if defined(_VDAC_CH0CTRL_PRSSEL_PRSCH10)
   vdacPrsSelCh10 = _VDAC_CH0CTRL_PRSSEL_PRSCH10, /**< PRS ch 10 triggers conversion. */
+#endif
+#if defined(_VDAC_CH0CTRL_PRSSEL_PRSCH11)
   vdacPrsSelCh11 = _VDAC_CH0CTRL_PRSSEL_PRSCH11, /**< PRS ch 11 triggers conversion. */
+#endif
 } VDAC_PrsSel_TypeDef;
 
 /** Channel conversion trigger mode. */
-typedef enum
-{
+typedef enum {
   vdacTrigModeSw        = _VDAC_CH0CTRL_TRIGMODE_SW,        /**< Channel is triggered by CHnDATA or COMBDATA write. */
   vdacTrigModePrs       = _VDAC_CH0CTRL_TRIGMODE_PRS,       /**< Channel is triggered by PRS input. */
   vdacTrigModeRefresh   = _VDAC_CH0CTRL_TRIGMODE_REFRESH,   /**< Channel is triggered by Refresh timer. */
@@ -155,8 +158,7 @@ typedef enum
  ******************************************************************************/
 
 /** VDAC init structure, common for both channels. */
-typedef struct
-{
+typedef struct {
   /** Select between main and alternate output path calibration values. */
   bool                  mainCalibration;
 
@@ -190,23 +192,22 @@ typedef struct
 } VDAC_Init_TypeDef;
 
 /** Default config for VDAC init structure. */
-#define VDAC_INIT_DEFAULT                                                 \
-{                                                                         \
-  true,                   /* Use main output path calibration values. */  \
-  false,                  /* Use synchronous clock mode. */               \
-  false,                  /* Turn off between sample off conversions.*/   \
-  vdacRefresh8,           /* Refresh every 8th cycle. */                  \
-  0,                      /* No prescaling. */                            \
-  vdacRef1V25Ln,          /* 1.25V internal low noise reference. */       \
-  false,                  /* Do not reset prescaler on CH 0 start. */     \
-  false,                  /* VDAC output enable always on. */             \
-  false,                  /* Disable sine mode. */                        \
-  false                   /* Single ended mode. */                        \
-}
+#define VDAC_INIT_DEFAULT                                                \
+  {                                                                      \
+    true,                 /* Use main output path calibration values. */ \
+    false,                /* Use synchronous clock mode. */              \
+    false,                /* Turn off between sample off conversions.*/  \
+    vdacRefresh8,         /* Refresh every 8th cycle. */                 \
+    0,                    /* No prescaling. */                           \
+    vdacRef1V25Ln,        /* 1.25V internal low noise reference. */      \
+    false,                /* Do not reset prescaler on CH 0 start. */    \
+    false,                /* VDAC output enable always on. */            \
+    false,                /* Disable sine mode. */                       \
+    false                 /* Single ended mode. */                       \
+  }
 
 /** VDAC channel init structure. */
-typedef struct
-{
+typedef struct {
   /** Enable channel. */
   bool                  enable;
 
@@ -227,14 +228,14 @@ typedef struct
 } VDAC_InitChannel_TypeDef;
 
 /** Default config for VDAC channel init structure. */
-#define VDAC_INITCHANNEL_DEFAULT                                              \
-{                                                                             \
-  false,              /* Leave channel disabled when init done. */            \
-  vdacPrsSelCh0,      /* PRS CH 0 triggers conversion. */                     \
-  false,              /* Treat PRS channel as a synchronous signal. */        \
-  vdacTrigModeSw,     /* Conversion trigged by CH0DATA or COMBDATA write. */  \
-  false,              /* Channel conversion set to continous. */              \
-}
+#define VDAC_INITCHANNEL_DEFAULT                                             \
+  {                                                                          \
+    false,            /* Leave channel disabled when init done. */           \
+    vdacPrsSelCh0,    /* PRS CH 0 triggers conversion. */                    \
+    false,            /* Treat PRS channel as a synchronous signal. */       \
+    vdacTrigModeSw,   /* Conversion trigged by CH0DATA or COMBDATA write. */ \
+    false,            /* Channel conversion set to continous. */             \
+  }
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -266,7 +267,7 @@ void VDAC_InitChannel(VDAC_TypeDef *vdac,
 __STATIC_INLINE void VDAC_Channel0OutputSet(VDAC_TypeDef *vdac,
                                             uint32_t value)
 {
-  EFM_ASSERT(value<=_VDAC_CH0DATA_MASK);
+  EFM_ASSERT(value <= _VDAC_CH0DATA_MASK);
   vdac->CH0DATA = value;
 }
 
@@ -287,7 +288,7 @@ __STATIC_INLINE void VDAC_Channel0OutputSet(VDAC_TypeDef *vdac,
 __STATIC_INLINE void VDAC_Channel1OutputSet(VDAC_TypeDef *vdac,
                                             uint32_t value)
 {
-  EFM_ASSERT(value<=_VDAC_CH1DATA_MASK);
+  EFM_ASSERT(value <= _VDAC_CH1DATA_MASK);
   vdac->CH1DATA = value;
 }
 
