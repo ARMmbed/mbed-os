@@ -26,10 +26,10 @@ Socket::Socket()
 
 nsapi_error_t Socket::open(NetworkStack *stack)
 {
-    _lock.lock();
+    lock();
 
     if (_stack != NULL || stack == NULL) {
-        _lock.unlock();
+        unlock();
         return NSAPI_ERROR_PARAMETER;
     }
     _stack = stack;
@@ -37,7 +37,7 @@ nsapi_error_t Socket::open(NetworkStack *stack)
     nsapi_socket_t socket;
     nsapi_error_t err = _stack->socket_open(&socket, get_proto());
     if (err) {
-        _lock.unlock();
+        unlock();
         return err;
     }
 
@@ -45,13 +45,13 @@ nsapi_error_t Socket::open(NetworkStack *stack)
     _event = callback(this, &Socket::event);
     _stack->socket_attach(_socket, Callback<void()>::thunk, &_event);
 
-    _lock.unlock();
+    unlock();
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t Socket::close()
 {
-    _lock.lock();
+    lock();
 
     nsapi_error_t ret = NSAPI_ERROR_OK;
     if (_socket) {
@@ -66,7 +66,7 @@ nsapi_error_t Socket::close()
     // on this socket
     event();
 
-    _lock.unlock();
+    unlock();
     return ret;
 }
 
@@ -108,7 +108,7 @@ nsapi_error_t Socket::bind(const char *address, uint16_t port)
 
 nsapi_error_t Socket::bind(const SocketAddress &address)
 {
-    _lock.lock();
+    lock();
     nsapi_error_t ret;
 
     if (!_socket) {
@@ -117,7 +117,7 @@ nsapi_error_t Socket::bind(const SocketAddress &address)
         ret = _stack->socket_bind(_socket, address);
     }
 
-    _lock.unlock();
+    unlock();
     return ret;
 }
 
@@ -129,7 +129,7 @@ void Socket::set_blocking(bool blocking)
 
 void Socket::set_timeout(int timeout)
 {
-    _lock.lock();
+    lock();
 
     if (timeout >= 0) {
         _timeout = (uint32_t)timeout;
@@ -137,12 +137,12 @@ void Socket::set_timeout(int timeout)
         _timeout = osWaitForever;
     }
 
-    _lock.unlock();
+    unlock();
 }
 
 nsapi_error_t Socket::setsockopt(int level, int optname, const void *optval, unsigned optlen)
 {
-    _lock.lock();
+    lock();
     nsapi_error_t ret;
 
     if (!_socket) {
@@ -151,13 +151,13 @@ nsapi_error_t Socket::setsockopt(int level, int optname, const void *optval, uns
         ret = _stack->setsockopt(_socket, level, optname, optval, optlen);
     }
 
-    _lock.unlock();
+    unlock();
     return ret;
 }
 
 nsapi_error_t Socket::getsockopt(int level, int optname, void *optval, unsigned *optlen)
 {
-    _lock.lock();
+    lock();
     nsapi_error_t ret;
 
     if (!_socket) {
@@ -166,19 +166,31 @@ nsapi_error_t Socket::getsockopt(int level, int optname, void *optval, unsigned 
         ret = _stack->getsockopt(_socket, level, optname, optval, optlen);
     }
 
-    _lock.unlock();
+    unlock();
     return ret;
 
 }
 
 void Socket::sigio(Callback<void()> callback)
 {
-    _lock.lock();
+    lock();
     _callback = callback;
-    _lock.unlock();
+    unlock();
 }
 
 void Socket::attach(Callback<void()> callback)
 {
     sigio(callback);
+}
+
+void Socket::lock()
+{
+    osStatus ret = _mutex.lock();
+    MBED_ASSERT(osOK == ret);
+}
+
+void Socket::unlock()
+{
+    osStatus ret = _mutex.unlock();
+    MBED_ASSERT(osOK == ret);
 }

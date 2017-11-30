@@ -224,7 +224,17 @@ protected:
     uint32_t _timeout;
     mbed::Callback<void()> _event;
     mbed::Callback<void()> _callback;
-    rtos::Mutex _lock;
+    rtos::Mutex _mutex;
+
+    /**
+     * Acquire exclusive access to this socket object
+     */
+    void lock();
+
+    /**
+     * Release exclusive access to this socket object
+     */
+    void unlock();
 };
 
 

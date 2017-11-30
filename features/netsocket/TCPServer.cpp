@@ -34,7 +34,7 @@ nsapi_protocol_t TCPServer::get_proto()
 
 nsapi_error_t TCPServer::listen(int backlog)
 {
-    _lock.lock();
+    lock();
     nsapi_error_t ret;
 
     if (!_socket) {
@@ -43,13 +43,13 @@ nsapi_error_t TCPServer::listen(int backlog)
         ret = _stack->socket_listen(_socket, backlog);
     }
 
-    _lock.unlock();
+    unlock();
     return ret;
 }
 
 nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
 {
-    _lock.lock();
+    lock();
     nsapi_error_t ret;
 
     while (true) {
@@ -63,7 +63,7 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
         ret = _stack->socket_accept(_socket, &socket, address);
 
         if (0 == ret) {
-            connection->_lock.lock();
+            connection->lock();
 
             if (connection->_socket) {
                 connection->close();
@@ -74,7 +74,7 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
             connection->_event = Callback<void()>(connection, &TCPSocket::event);
             _stack->socket_attach(socket, &Callback<void()>::thunk, &connection->_event);
 
-            connection->_lock.unlock();
+            connection->unlock();
             break;
         } else if (NSAPI_ERROR_WOULD_BLOCK != ret) {
             break;
@@ -83,9 +83,9 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
-            _lock.unlock();
+            unlock();
             count = _accept_sem.wait(_timeout);
-            _lock.lock();
+            lock();
 
             if (count < 1) {
                 // Semaphore wait timed out so break out and return
@@ -95,7 +95,7 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
         }
     }
 
-    _lock.unlock();
+    unlock();
     return ret;
 }
 
