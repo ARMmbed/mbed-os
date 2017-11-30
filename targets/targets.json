@@ -3527,5 +3527,15 @@
         "device_name": "TMPM066FWUG",
         "detect_code": ["7011"],
         "release_versions": ["5"]
+    },
+    "WUNDERBAR": {
+        "inherits": ["MCU_K24F1M"],
+        "release_versions": ["5"],
+        "OUTPUT_EXT": "hex"
+    },
+    "WUNDERBAR_APP_BIN": {
+        "inherits": ["WUNDERBAR"],
+        "OUTPUT_EXT": "bin",
+        "bootloader_supported": true
     }
 }
