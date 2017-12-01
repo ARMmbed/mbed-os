@@ -16,6 +16,7 @@
 
 #include "hal/cpu_uid_api.h"
 #include "platform/mbed_assert.h"
+#include "platform/CriticalSectionLock.h"
 #include "drivers/CpuUid.h"
 
 #if DEVICE_CPUUID
@@ -35,13 +36,10 @@ CpuUid::CpuUid()
     populate_uid_buf();
 }
 
-CpuUid::~CpuUid()
-{
-}
-
 void CpuUid::populate_uid_buf()
 {
     if (_uidptr == NULL) {
+        CriticalSectionLock lock;
         cpu_uid_get_uid(_uidbuf);
         _uidptr = _uidbuf;
     }
@@ -50,6 +48,7 @@ void CpuUid::populate_uid_buf()
 void CpuUid::populate_str_buf()
 {
     if (_strptr == NULL) {
+        CriticalSectionLock lock;
 #ifdef MBED_CPU_UID_STR_SIZE_MAX
         cpu_uid_get_str(_strbuf);
         _strptr = _strbuf;

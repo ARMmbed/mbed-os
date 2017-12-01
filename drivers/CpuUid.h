@@ -26,9 +26,6 @@
 #define CPU_UID_STRING_BUFFER_SIZE (MBED_CPU_UID_SIZE * 2 + 1)
 #endif
 
-#include <string>
-#include <vector>
-
 namespace mbed {
 /** \addtogroup drivers */
 
@@ -43,10 +40,6 @@ public:
      */
     CpuUid();
     
-    /** CpuUid destructor
-     */
-    virtual ~CpuUid();    
-
     /** Get size of CPU UID in bytes
      * 
      * @return Size of device's CPU UID in bytes
