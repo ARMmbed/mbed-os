@@ -128,8 +128,7 @@ qspi_status_t QSPI::write(unsigned int address, const char *tx_buffer, size_t *t
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR; 
     
-    if(_initialized)
-    {
+    if(_initialized) {
         if( (tx_length != NULL) && (tx_buffer != NULL) ) {
             if(*tx_length != 0) {
                 lock();
@@ -177,8 +176,7 @@ qspi_status_t QSPI::write(unsigned int instruction, unsigned int address, unsign
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR; 
     
-    if(_initialized)
-    {
+    if(_initialized) {
         if( (tx_length != NULL) && (tx_buffer != NULL) ) {
             if(*tx_length != 0) {
                 lock();
@@ -202,8 +200,7 @@ qspi_status_t QSPI::command_transfer(unsigned int instruction, const char *tx_bu
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR; 
     
-    if(_initialized)
-    {
+    if(_initialized) {
         lock();
         if(true == _acquire()) {
             qspi_command_t *qspi_cmd = _build_qspi_command(instruction, -1, -1); //We just need the command
