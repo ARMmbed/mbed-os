@@ -1,44 +1,163 @@
-python:
-  - "2.7"
-script:
-  - mkdir BUILD
-# Assert that the Doxygen build produced no warnings.
-# The strange command below asserts that the Doxygen command had an
-# output of zero length
-  - |
-    doxygen doxyfile_options 2>&1 | tee BUILD/doxygen.out && [ ! -s BUILD/doxygen.out ]
-# Assert that all binary libraries are named correctly
-# The strange command below asserts that there are exactly 0 libraries that do
-# not start with lib
-  - |
-    find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" | tee BUILD/badlibs | sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
-# Assert that all assebler files are named correctly
-# The strange command below asserts that there are exactly 0 libraries that do
-# end with .s
-  - |
-    find  -name "*.s" | tee BUILD/badasm | sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
-  - make -C events/equeue test clean
-  - PYTHONPATH=. coverage run -a -m pytest tools/test
-  - python2 tools/test/pylint.py
-  - coverage run -a tools/project.py -S
-  - python2 tools/build_travis.py
-  - coverage html
-after_success:
-  - coveralls
+
+env:
+  global:
+    - >
+      STATUS=$'curl -so/dev/null --user $MBED_BOT --request POST
+      https://api.github.com/repos/$TRAVIS_REPO_SLUG/statuses/${TRAVIS_PULL_REQUEST_SHA:-$TRAVIS_COMMIT}
+      --data @- << DATA\n{
+      "state": "$0",
+      "description": "$1",
+      "context": "travis-ci/$NAME",
+      "target_url": "https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
+      }\nDATA'
+
 before_install:
+  - bash -c "$STATUS" pending "Local $NAME testing is in progress"
+  # Make sure pipefail
+  - set -o pipefail
+  # Setup ppa to make sure arm-none-eabi-gcc is correct version
   - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
   - sudo add-apt-repository -y ppa:libreoffice/libreoffice-4-2
   - sudo apt-get update -qq
-  - sudo apt-get install -qq gcc-arm-embedded doxygen --force-yes
-  # Print versions we use
-  - arm-none-eabi-gcc --version
-  - python --version
-  - doxygen --version
-install:
-  - pip install --user -r requirements.txt
-  - pip install --user pytest
-  - pip install --user pylint
-  - pip install --user hypothesis
-  - pip install --user mock
-  - pip install --user coverage
-  - pip install --user coveralls
+
+after_success:
+  - bash -c "$STATUS" success "Local $NAME testing has passed"
+
+after_failure:
+  - bash -c "$STATUS" failure "Local $NAME testing has failed"
+
+matrix:
+  include:
+    - python: '2.7'
+      env:
+        - NAME=tools
+      install:
+        # Install dependencies
+        - sudo apt-get install gcc-arm-embedded doxygen
+        - pip install --user -r requirements.txt
+        - pip install --user pytest
+        - pip install --user pylint
+        - pip install --user hypothesis
+        - pip install --user mock
+        - pip install --user coverage
+        - pip install --user coveralls
+        # Print versions we use
+        - arm-none-eabi-gcc --version
+        - python --version
+        - doxygen --version
+      before_script:
+        # Create BUILD directory for tests
+        - mkdir BUILD
+      script:
+        # Assert that the Doxygen build produced no warnings.
+        # The strange command below asserts that the Doxygen command had an
+        # output of zero length
+        - |
+          doxygen doxyfile_options 2>&1 | tee BUILD/doxygen.out && [ ! -s BUILD/doxygen.out ]
+        # Assert that all binary libraries are named correctly
+        # The strange command below asserts that there are exactly 0 libraries that do
+        # not start with lib
+        - |
+          find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" | tee BUILD/badlibs | sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
+        # Assert that all assebler files are named correctly
+        # The strange command below asserts that there are exactly 0 libraries that do
+        # end with .s
+        - |
+          find  -name "*.s" | tee BUILD/badasm | sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
+        # Run local testing on tools
+        # Note: These take ~40 minutes to run
+        - PYTHONPATH=. coverage run -a -m pytest tools/test
+        - python2 tools/test/pylint.py
+        - coverage run -a tools/project.py -S | sed -n '/^Total/p'
+        # - python2 -u tools/build_travis.py | sed -n '/^Executing/p'
+        - coverage html
+      after_success:
+        # Coverage for tools
+        - coveralls
+        # Report success since we have overridden default behaviour
+        - bash -c "$STATUS" success "Local $NAME testing has passed"
+
+    - python: '2.7'
+      env:
+        - NAME=events
+        - EVENTS=events
+      install:
+        # Install dependencies
+        - sudo apt-get install gcc-arm-embedded
+        - pip install --user -r requirements.txt
+        # Print versions we use
+        - arm-none-eabi-gcc --version
+        - gcc --version
+        - python --version
+      script:
+        # Check that example compiles
+        - sed -n '/``` cpp/,/```/{/```$/Q;/```/d;p;}' $EVENTS/README.md > main.cpp
+        - python tools/make.py -t GCC_ARM -m K64F --source=. --build=BUILD/K64F/GCC_ARM -j0
+        # Run local equeue tests
+        - make -C $EVENTS/equeue test
+
+    - python: '2.7'
+      env:
+        - NAME=littlefs
+        - LITTLEFS=features/filesystem/littlefs
+      install:
+        # Install dependencies
+        - sudo apt-get install gcc-arm-embedded fuse libfuse-dev
+        - pip install --user -r requirements.txt
+        - git clone https://github.com/armmbed/spiflash-driver.git
+        # Print versions
+        - arm-none-eabi-gcc --version
+        - gcc --version
+        - python --version
+        - fusermount --version
+      before_script:
+        # Setup and patch littlefs-fuse
+        - git clone https://github.com/geky/littlefs-fuse littlefs_fuse
+        - echo '*' > littlefs_fuse/.mbedignore
+        - rm -rf littlefs_fuse/littlefs/*
+        - cp -r $(git ls-tree --name-only HEAD $LITTLEFS/littlefs/) littlefs_fuse/littlefs
+        # Create file-backed disk
+        - mkdir MOUNT
+        - sudo chmod a+rw /dev/loop0
+        - dd if=/dev/zero bs=512 count=2048 of=DISK
+        - losetup /dev/loop0 DISK
+      script:
+        # Check that example compiles
+        - sed -n '/``` c++/,/```/{/```/d;p;}' $LITTLEFS/README.md > main.cpp
+        - python tools/make.py -t GCC_ARM -m K82F --source=. --build=BUILD/K82F/GCC_ARM -j0
+        # Run local littlefs tests
+        - CFLAGS="-Wno-format" make -C$LITTLEFS/littlefs test QUIET=1
+        # Run local littlefs tests with set of variations
+        - CFLAGS="-Wno-format -DLFS_READ_SIZE=64 -DLFS_PROG_SIZE=64" make -C$LITTLEFS/littlefs test QUIET=1
+        - CFLAGS="-Wno-format -DLFS_READ_SIZE=1 -DLFS_PROG_SIZE=1" make -C$LITTLEFS/littlefs test QUIET=1
+        - CFLAGS="-Wno-format -DLFS_READ_SIZE=512 -DLFS_PROG_SIZE=512" make -C$LITTLEFS/littlefs test QUIET=1
+        - CFLAGS="-Wno-format -DLFS_BLOCK_COUNT=1023" make -C$LITTLEFS/littlefs test QUIET=1
+        - CFLAGS="-Wno-format -DLFS_LOOKAHEAD=2048" make -C$LITTLEFS/littlefs test QUIET=1
+        # Self-hosting littlefs fuzz test with littlefs-fuse
+        - make -Clittlefs_fuse
+        - littlefs_fuse/lfs --format /dev/loop0
+        - littlefs_fuse/lfs /dev/loop0 MOUNT
+        - ls MOUNT
+        - mkdir MOUNT/littlefs
+        - cp -r $(git ls-tree --name-only HEAD $LITTLEFS/littlefs/) MOUNT/littlefs
+        - ls MOUNT/littlefs
+        - CFLAGS="-Wno-format" make -CMOUNT/littlefs -B test_dirs QUIET=1
+
+    - python: '2.7'
+      env:
+        - NAME=mbed2
+      install:
+        # Install dependencies
+        - sudo apt-get install gcc-arm-embedded
+        - pip install --user -r requirements.txt
+        # Print versions we use
+        - arm-none-eabi-gcc --version
+        - python --version
+      before_script:
+        # Create BUILD directory for tests
+        - mkdir BUILD
+      script:
+        # Run local mbed 2 testing
+        # Note: These take ~40 minutes to run
+        - python2 -u tools/build_travis.py | sed -n '/^Executing/p'
+
