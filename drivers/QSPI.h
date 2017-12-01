@@ -204,6 +204,7 @@ protected:
     int _num_dummy_cycles; //Number of dummy cycles to be used
     int _hz; //Bus Frequency
     int _mode; //SPI mode
+    bool _initialized;
     PinName _qspi_io0, _qspi_io1, _qspi_io2, _qspi_io3, _qspi_clk, _qspi_cs; //IO lines, clock and chip select
     
 private:
@@ -211,6 +212,7 @@ private:
      * Implemented in order to avoid duplicate locking and boost performance
      */
     bool _acquire(void);
+    bool _initialize();
 
     /* 
      * This function builds the qspi command struct to be send to Hal
