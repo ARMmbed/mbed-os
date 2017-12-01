@@ -2,6 +2,7 @@ from os.path import dirname, abspath, join, exists
 
 from tools.utils import json_file_to_dict
 from tools.targets import TARGET_MAP
+from tools.config import Config
 
 CONFIG_DIR = dirname(abspath(__file__))
 CONFIG_MAP = json_file_to_dict(join(CONFIG_DIR, "config_paths.json"))
@@ -34,8 +35,8 @@ def get_default_config(source_dir, target_name):
         if config_name == "NONE":
             return None
         return join(CONFIG_DIR, CONFIG_MAP[config_name])
-    elif any(exists(join(dir or ".", "mbed_app.json")) for dir in source_dir):
-        config = None
+    elif Config.find_app_config(source_dir):
+        return None
     elif (target_name in TARGET_MAP and 'LWIP' in TARGET_MAP[target_name].features):
         return join(CONFIG_DIR, CONFIG_MAP["ETHERNET"])
     else:
