@@ -62,7 +62,7 @@ enum RFThreadSignal {
     SL_QUEUE_FULL       = (1 << 11),
 
     // ACK pend flag can be signalled in addition to RX_DONE
-    SL_ACK_PEND         = (1 << 31),
+    SL_ACK_PEND         = (1 << 30),
 };
 
 /*  Adaptor thread definitions */
