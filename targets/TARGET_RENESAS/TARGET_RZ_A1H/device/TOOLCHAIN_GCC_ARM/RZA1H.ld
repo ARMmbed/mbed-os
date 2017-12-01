@@ -7,7 +7,7 @@ MEMORY
   BOOT_LOADER (rx) : ORIGIN = 0x18000000, LENGTH = 0x00004000 
   SFLASH (rx) : ORIGIN = 0x18004000, LENGTH = 0x07FFC000 
   L_TTB (rw)  : ORIGIN = 0x20000000, LENGTH = 0x00004000 
-  RAM (rwx) : ORIGIN = 0x20020000, LENGTH = 0x00700000
+  RAM (rwx) : ORIGIN = 0x20020000, LENGTH = 0x008E0000
   RAM_NC (rwx) : ORIGIN = 0x20900000, LENGTH = 0x00100000
 }
 
@@ -51,7 +51,6 @@ SECTIONS
 
         Image$$VECTORS$$Base = .;
         * (RESET)
-        Image$$VECTORS$$Limit = .;
         . += 0x00000400;
 
         KEEP(*(.isr_vector))
@@ -74,6 +73,7 @@ SECTIONS
         *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
         *(SORT(.dtors.*))
         *(.dtors)
+        Image$$VECTORS$$Limit = .;
 
         Image$$RO_DATA$$Base = .;
         *(.rodata*)
@@ -163,33 +163,41 @@ SECTIONS
 
     } > RAM
 
-    
-    .bss ALIGN(0x400):
+    .bss ALIGN(0x10):
     {
-        Image$$ZI_DATA$$Base = .;
+        Image$$RW_IRAM1$$Base = .;
         __bss_start__ = .;
         *(.bss*)
         *(COMMON)
         __bss_end__ = .;
-        Image$$ZI_DATA$$Limit = .;
+        Image$$RW_IRAM1$$Limit = .;
     } > RAM
 
-    
     .heap :
     {
         __end__ = .;
         end = __end__;
         *(.heap*)
-        __HeapLimit = .;
     } > RAM
 
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
      * values to stack symbols later */
-    .stack_dummy :
+    .stack_dummy (COPY):
     {
-        *(.stack)
+        *(.stack*)
     } > RAM
+
+    /* Set stack top to end of RAM, and stack limit move down by
+     * size of stack_dummy section */
+    __StackTop = ORIGIN(RAM) + LENGTH(RAM);
+    _estack = __StackTop;
+    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __HeapLimit = __StackLimit;
+    PROVIDE(__stack = __StackTop);
+
+    /* Check if data + heap + stack exceeds RAM limit */
+    ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 
     __etext2 = __etext + SIZEOF(.data);
     .nc_data : AT (__etext2)
@@ -213,15 +221,4 @@ SECTIONS
         __nc_bss_end = .;
         Image$$ZI_DATA_NC$$Limit = .;
     } > RAM_NC
-
-    /* Set stack top to end of RAM, and stack limit move down by
-     * size of stack_dummy section */
-    __StackTop = ORIGIN(RAM) + LENGTH(RAM);
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
-    PROVIDE(__stack = __StackTop);
-    
-    /* Check if data + heap + stack exceeds RAM limit */
-    ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
-
-
 }

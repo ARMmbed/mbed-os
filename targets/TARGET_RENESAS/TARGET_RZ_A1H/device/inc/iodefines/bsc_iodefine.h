@@ -18,22 +18,61 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : bsc_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef BSC_IODEFINE_H
 #define BSC_IODEFINE_H
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_bsc
-{                                                          /* BSC              */
+#define BSC     (*(struct st_bsc     *)0x3FFFC000uL) /* BSC */
+
+
+#define BSCCMNCR (BSC.CMNCR)
+#define BSCCS0BCR (BSC.CS0BCR)
+#define BSCCS1BCR (BSC.CS1BCR)
+#define BSCCS2BCR (BSC.CS2BCR)
+#define BSCCS3BCR (BSC.CS3BCR)
+#define BSCCS4BCR (BSC.CS4BCR)
+#define BSCCS5BCR (BSC.CS5BCR)
+#define BSCCS0WCR (BSC.CS0WCR)
+#define BSCCS1WCR (BSC.CS1WCR)
+#define BSCCS2WCR (BSC.CS2WCR)
+#define BSCCS3WCR (BSC.CS3WCR)
+#define BSCCS4WCR (BSC.CS4WCR)
+#define BSCCS5WCR (BSC.CS5WCR)
+#define BSCSDCR (BSC.SDCR)
+#define BSCRTCSR (BSC.RTCSR)
+#define BSCRTCNT (BSC.RTCNT)
+#define BSCRTCOR (BSC.RTCOR)
+#define BSCTOSCOR0 (BSC.TOSCOR0)
+#define BSCTOSCOR1 (BSC.TOSCOR1)
+#define BSCTOSCOR2 (BSC.TOSCOR2)
+#define BSCTOSCOR3 (BSC.TOSCOR3)
+#define BSCTOSCOR4 (BSC.TOSCOR4)
+#define BSCTOSCOR5 (BSC.TOSCOR5)
+#define BSCTOSTR (BSC.TOSTR)
+#define BSCTOENR (BSC.TOENR)
+
+#define BSC_CSnBCR_COUNT (6)
+#define BSC_CSnWCR_COUNT (6)
+#define BSC_TOSCORn_COUNT (6)
+
+
+typedef struct st_bsc
+{
+                                                           /* BSC              */
     volatile uint32_t  CMNCR;                                  /*  CMNCR           */
-#define BSC_CSnBCR_COUNT 6
+
+/* #define BSC_CSnBCR_COUNT (6) */
     volatile uint32_t  CS0BCR;                                 /*  CS0BCR          */
     volatile uint32_t  CS1BCR;                                 /*  CS1BCR          */
     volatile uint32_t  CS2BCR;                                 /*  CS2BCR          */
@@ -41,7 +80,8 @@ struct st_bsc
     volatile uint32_t  CS4BCR;                                 /*  CS4BCR          */
     volatile uint32_t  CS5BCR;                                 /*  CS5BCR          */
     volatile uint8_t   dummy4[12];                             /*                  */
-#define BSC_CSnWCR_COUNT 6
+
+/* #define BSC_CSnWCR_COUNT (6) */
     volatile uint32_t  CS0WCR;                                 /*  CS0WCR          */
     volatile uint32_t  CS1WCR;                                 /*  CS1WCR          */
     volatile uint32_t  CS2WCR;                                 /*  CS2WCR          */
@@ -54,7 +94,8 @@ struct st_bsc
     volatile uint32_t  RTCNT;                                  /*  RTCNT           */
     volatile uint32_t  RTCOR;                                  /*  RTCOR           */
     volatile uint8_t   dummy6[4];                              /*                  */
-#define BSC_TOSCORn_COUNT 6
+
+/* #define BSC_TOSCORn_COUNT (6) */
     volatile uint32_t  TOSCOR0;                                /*  TOSCOR0         */
     volatile uint32_t  TOSCOR1;                                /*  TOSCOR1         */
     volatile uint32_t  TOSCOR2;                                /*  TOSCOR2         */
@@ -64,36 +105,11 @@ struct st_bsc
     volatile uint8_t   dummy7[8];                              /*                  */
     volatile uint32_t  TOSTR;                                  /*  TOSTR           */
     volatile uint32_t  TOENR;                                  /*  TOENR           */
-};
+} r_io_bsc_t;
 
 
-#define BSC     (*(struct st_bsc     *)0x3FFFC000uL) /* BSC */
-
-
-#define BSCCMNCR BSC.CMNCR
-#define BSCCS0BCR BSC.CS0BCR
-#define BSCCS1BCR BSC.CS1BCR
-#define BSCCS2BCR BSC.CS2BCR
-#define BSCCS3BCR BSC.CS3BCR
-#define BSCCS4BCR BSC.CS4BCR
-#define BSCCS5BCR BSC.CS5BCR
-#define BSCCS0WCR BSC.CS0WCR
-#define BSCCS1WCR BSC.CS1WCR
-#define BSCCS2WCR BSC.CS2WCR
-#define BSCCS3WCR BSC.CS3WCR
-#define BSCCS4WCR BSC.CS4WCR
-#define BSCCS5WCR BSC.CS5WCR
-#define BSCSDCR BSC.SDCR
-#define BSCRTCSR BSC.RTCSR
-#define BSCRTCNT BSC.RTCNT
-#define BSCRTCOR BSC.RTCOR
-#define BSCTOSCOR0 BSC.TOSCOR0
-#define BSCTOSCOR1 BSC.TOSCOR1
-#define BSCTOSCOR2 BSC.TOSCOR2
-#define BSCTOSCOR3 BSC.TOSCOR3
-#define BSCTOSCOR4 BSC.TOSCOR4
-#define BSCTOSCOR5 BSC.TOSCOR5
-#define BSCTOSTR BSC.TOSTR
-#define BSCTOENR BSC.TOENR
 /* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif
