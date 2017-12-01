@@ -30,7 +30,7 @@ from tools.config import ConfigException
 from tools.test_api import test_path_to_name, find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
 import tools.test_configs as TestConfig
 from tools.options import get_default_options_parser, extract_profile, extract_mcus
-from tools.build_api import build_project, build_library, get_config
+from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
 from tools.build_api import merge_build_data
 from tools.targets import TARGET_MAP
@@ -142,7 +142,7 @@ if __name__ == '__main__':
         if options.test_config:
             config = get_test_config(options.test_config, mcu)
             if not config:
-                args_error(parser, "argument --test-csonfig contains invalid path or identifier")
+                args_error(parser, "argument --test-config contains invalid path or identifier")
         elif not options.app_config:
             config = TestConfig.get_default_config(options.source_dir, mcu)
         else:
