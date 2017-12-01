@@ -43,24 +43,15 @@
 #include "nrf.h"
 #include "cpu_uid_api.h"
 
-#define UID_LENGTH      8
 #define UID_WORDS       2
-
-int cpu_uid_get_length(void)
-{
-    return UID_LENGTH;
-}
 
 void cpu_uid_get_uid(uint8_t *uid)
 {
     int pos = 0;
 
-    for (int i = (UID_WORDS-1); i >= 0; --i)
-    {
-        for (int j = 3; j >= 0; --j)
-        {
-            uid[pos] = (uint8_t)((NRF_FICR->DEVICEID[i] >> (j*8)) & 0xFF);
-            ++pos;
+    for (int i = (UID_WORDS-1); i >= 0; --i) {
+        for (int j = 3; j >= 0; --j) {
+            uid[pos++] = (uint8_t)((NRF_FICR->DEVICEID[i] >> (j*8)) & 0xFF);
         }
     }
 }

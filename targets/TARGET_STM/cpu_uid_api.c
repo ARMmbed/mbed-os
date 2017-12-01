@@ -31,6 +31,7 @@
 
 #if DEVICE_CPUUID
 
+#include <string.h>
 #if defined(TARGET_STM32F0)
 #include "stm32f0xx_ll_utils.h"
 #elif defined(TARGET_STM32F1)
@@ -54,14 +55,11 @@
 #endif
 #include "cpu_uid_api.h"
 
-#define UID_LENGTH      12
 #define UID_WORDS       3
 
-
-int cpu_uid_get_length(void)
-{
-    return UID_LENGTH;
-}
+#ifdef MBED_CPU_UID_STR_SIZE_MAX
+static int cpu_uid_itoa(int value, char *sp, int radix);
+#endif
 
 void cpu_uid_get_uid(uint8_t *uid)
 {
@@ -72,14 +70,82 @@ void cpu_uid_get_uid(uint8_t *uid)
     uid_buf[1] = LL_GetUID_Word1();
     uid_buf[2] = LL_GetUID_Word2();
     
-    for (int i = (UID_WORDS-1); i >= 0; --i)
-    {
-        for (int j = 3; j >= 0; --j)
-        {
-            uid[pos] = (uint8_t)((uid_buf[i] >> (j*8)) & 0xFF);
-            ++pos;
+    for (int i = (UID_WORDS-1); i >= 0; --i) {
+        for (int j = 3; j >= 0; --j) {
+            uid[pos++] = (uint8_t)((uid_buf[i] >> (j*8)) & 0xFF);
         }
     }
 }
+
+#ifdef MBED_CPU_UID_STR_SIZE_MAX
+void cpu_uid_get_str(char *str)
+{
+    char buffer[16];
+    char lot_number[8];
+    uint8_t wafer_number;
+    uint16_t x, y;
+    uint32_t uid_buf[UID_WORDS];
+
+    uid_buf[0] = LL_GetUID_Word0();
+    uid_buf[1] = LL_GetUID_Word1();
+    uid_buf[2] = LL_GetUID_Word2();
+
+    lot_number[0] = (uid_buf[2] >> 24) & 0x000000FF;
+    lot_number[1] = (uid_buf[2] >> 16) & 0x000000FF;
+    lot_number[2] = (uid_buf[2] >> 8) & 0x000000FF;
+    lot_number[3] = uid_buf[2] & 0x000000FF;
+    lot_number[4] = (uid_buf[1] >> 24) & 0x000000FF;
+    lot_number[5] = (uid_buf[1] >> 16) & 0x000000FF;
+    lot_number[6] = (uid_buf[1] >> 8) & 0x000000FF;
+    lot_number[7] = '\0';
+    
+    wafer_number = uid_buf[1] & 0x000000FF;
+    
+    x = (uid_buf[0] >> 16) & 0x0000FFFF;
+    y = uid_buf[0] & 0x0000FFFF;
+    
+    // make a string in format "Lot xxxxxxx Wafer xxx X=xxxxx Y=xxxxx" - max 38 chars including terminating zero
+    strcpy(str, "Lot ");
+    strcat(str, lot_number);
+    strcat(str, " Wafer ");
+    cpu_uid_itoa(wafer_number, buffer, 10);
+    strcat(str, buffer);
+    strcat(str, " X=");
+    cpu_uid_itoa(x, buffer, 10);
+    strcat(str, buffer);
+    strcat(str, " Y=");
+    cpu_uid_itoa(y, buffer, 10);
+    strcat(str, buffer);
+}
+
+int cpu_uid_itoa(int value, char *sp, int radix)
+{
+    char tmp[16];// be careful with the length of the buffer
+    char *tp = tmp;
+    int i;
+    unsigned v = value;
+
+    while (v || tp == tmp) {
+        i = v % radix;
+        v /= radix; // v/=radix uses less CPU clocks than v=v/radix does
+        if (i < 10) {
+          *tp++ = i+'0';
+        }
+        else {
+          *tp++ = i + 'a' - 10;
+        }
+    }
+
+    int len = tp - tmp;
+
+    while (tp > tmp) {
+        *sp++ = *--tp;
+    }
+    *sp = '\0';
+
+    return len;
+}
+
+#endif
 
 #endif

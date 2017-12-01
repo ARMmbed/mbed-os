@@ -20,6 +20,12 @@
 
 #if defined(DEVICE_CPUUID) || defined(DOXYGEN_ONLY)
 
+#ifdef MBED_CPU_UID_STR_SIZE_MAX
+#define CPU_UID_STRING_BUFFER_SIZE  MBED_CPU_UID_STR_SIZE_MAX
+#else
+#define CPU_UID_STRING_BUFFER_SIZE (MBED_CPU_UID_SIZE * 2 + 1)
+#endif
+
 #include <string>
 #include <vector>
 
@@ -33,10 +39,6 @@ namespace mbed {
  */
 class CpuUid {
 public:
-    /** CPU UID array typedef
-     */
-    typedef std::vector<uint8_t> cpu_uid_array_t;
-    
     /** CpuUid constructor
      */
     CpuUid();
@@ -51,7 +53,7 @@ public:
      */
     int size()
     {
-        return _size;
+        return MBED_CPU_UID_SIZE;
     }
     
     /** Get CPU UID data pointer
@@ -60,20 +62,26 @@ public:
      */
     const uint8_t *data()
     {
-        return _data;
+        populate_uid_buf();
+        return _uidptr;
     }
     
-    /** Overload operator for std::string
+    /** Get CPU UID vendor string
      * 
-     * @return string object containing the CPU UID in uppercase hex letters in ascii format
-     */
-    operator std::string();
-    
-    /** Overload operator for cpu_uid_array_t
+     * @return Pointer to zero terminated uid vendor string
      * 
-     * @return cpu_uid_array_t object containing the CPU UID
+     * @note
+     * If vendor did not define MBED_CPU_UID_STR_SIZE_MAX, CpuUid driver will
+     * assume the HAL interface function cpu_uid_get_str() is not implemented
+     * on the target, and instead the driver will construct just an ASCII
+     * string out of the uid byte buffer contents.
+     * 
      */
-    operator cpu_uid_array_t();
+    const char *c_str()
+    {
+        populate_str_buf();
+        return _strptr;
+    }
     
     /** Overload operator for byte pointer
      * 
@@ -81,7 +89,14 @@ public:
      */
     operator const uint8_t*()
     {
-        return _data;
+        populate_uid_buf();
+        return _uidptr;
+    }
+    
+    operator const char*()
+    {
+        populate_str_buf();
+        return _strptr;
     }
 
     /** Overload operator for array subscript
@@ -90,13 +105,27 @@ public:
      * 
      * @return Byte located at index x
      */
-    uint8_t operator[](int x);
+    uint8_t operator[](int x)
+    {
+        if (x >= 0 && x < MBED_CPU_UID_SIZE) {
+            populate_uid_buf();
+            return _uidptr[x];
+        }
+
+        return 0x00;
+    }
     
 private:
-    uint8_t *_data;
-    int _size;
+    void populate_uid_buf();
+    void populate_str_buf();
     
+    static uint8_t _uidbuf[MBED_CPU_UID_SIZE];
+    static uint8_t* _uidptr;
+    static char _strbuf[CPU_UID_STRING_BUFFER_SIZE];
+    static char* _strptr;
+#ifndef MBED_CPU_UID_STR_SIZE_MAX
     static const char _hexChars[16];
+#endif
 };
 
 } // namespace mbed

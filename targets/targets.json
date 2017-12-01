@@ -705,7 +705,7 @@
         "public": false,
         "extra_labels": ["STM"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
-        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2", "MBED_CPU_UID_SIZE=12", "MBED_CPU_UID_STR_SIZE_MAX=38"],
         "config": {
             "lse_available": {
                 "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
@@ -2590,7 +2590,7 @@
     "EFM32": {
         "inherits": ["Target"],
         "extra_labels": ["Silicon_Labs", "EFM32"],
-        "macros": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "MBED_CPU_UID_SIZE=8"],
         "public": false
     },
     "EFM32GG990F1024": {
@@ -3212,7 +3212,8 @@
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
             "NO_SYSTICK",
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "MBED_CPU_UID_SIZE=8"
         ],
         "MERGE_BOOTLOADER": false,
         "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822_UNIFIED", "NRF5", "SDK11"],
@@ -3270,7 +3271,7 @@
     "MCU_NRF52": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_TICKLESS"],
+        "macros": ["NRF52", "TARGET_NRF52832", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S132", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"", "MBED_TICKLESS", "MBED_CPU_UID_SIZE=8"],
         "device_has": ["STCLK_OFF_DURING_SLEEP", "CPUUID"],
         "extra_labels": ["NORDIC", "MCU_NRF52", "MCU_NRF52832", "NRF5", "SDK11", "NRF52_COMMON"],
         "OUTPUT_EXT": "hex",

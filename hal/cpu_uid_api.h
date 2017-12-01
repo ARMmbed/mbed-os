@@ -23,6 +23,14 @@
 
 #if DEVICE_CPUUID
 
+#ifndef MBED_CPU_UID_SIZE
+#error "CPU UID Vendor implementation must define macro MBED_CPU_UID_SIZE with the uid size in bytes!"
+#endif
+
+#ifndef MBED_CPU_UID_STR_SIZE_MAX
+#warning "CPU UID max vendor string length not defined! cpu_uid_get_str() HAL interface is disabled!"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,25 +40,26 @@ extern "C" {
  * @{
  */
 
-
-/** Get length of CPU UID in bytes
- * 
- * @return Number of uid bytes
- * 
- * @note
- *  Shall be used by the driver to get the needed size of the byte buffer.
- *  Target implementation must return a value higher than 0 or the driver will assert.
- * 
- */
-int cpu_uid_get_length(void);
-
 /** Get CPU UID data bytes
  * 
- * @param uid Byte buffer for uid. Must at least be of size obtained by call to cpu_uid_get_length()
+ * @param uid Byte buffer for uid. Must be of size MBED_CPU_UID_SIZE
  *
  */
 void cpu_uid_get_uid(uint8_t *uid);
 
+#ifdef MBED_CPU_UID_STR_SIZE_MAX
+/** Get UID vendor string
+ * 
+ * @param str Character buffer for vendor specific UID string. Must be of size MBED_CPU_UID_STR_SIZE_MAX
+ * 
+ * @note
+ * Implementing this function on target side can be used to provide a vendor specific
+ * string describing the contents of the UID.
+ * The string length including terminating zero character must not exceed MBED_CPU_UID_STR_SIZE_MAX bytes!
+ * 
+ */
+void cpu_uid_get_str(char *str);
+#endif
 
 /**@}*/
 

@@ -28,22 +28,14 @@
 #include "em_system.h"
 #include "cpu_uid_api.h"
 
-#define UID_LENGTH      8
-
-int cpu_uid_get_length(void)
-{
-    return UID_LENGTH;
-}
 
 void cpu_uid_get_uid(uint8_t *uid)
 {
     int pos = 0;
     uint64_t tempuid = SYSTEM_GetUnique();
 
-    for (int i = (UID_LENGTH-1); i >= 0; --i)
-    {
-        uid[pos] = (uint8_t)((tempuid >> (i*8)) & 0xFF);
-        ++pos;
+    for (int i = (MBED_CPU_UID_SIZE - 1); i >= 0; --i) {
+        uid[pos++] = (uint8_t)((tempuid >> (i*8)) & 0xFF);
     }
 }
 

@@ -22,59 +22,50 @@
 
 namespace mbed {
 
+uint8_t CpuUid::_uidbuf[MBED_CPU_UID_SIZE] = {0};
+uint8_t* CpuUid::_uidptr = NULL;
+char CpuUid::_strbuf[CPU_UID_STRING_BUFFER_SIZE] = {'\0'};
+char* CpuUid::_strptr = NULL;
+#ifndef MBED_CPU_UID_STR_SIZE_MAX
 const char CpuUid::_hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-CpuUid::CpuUid() : _data(NULL)
-{
-    _size = cpu_uid_get_length();
-#ifdef MBED_ASSERT
-    MBED_ASSERT(_size > 0);
 #endif
-    if (0 < _size) {
-        _data = new uint8_t[_size];
-        cpu_uid_get_uid(_data);
-    }
+
+CpuUid::CpuUid()
+{
+    populate_uid_buf();
 }
 
 CpuUid::~CpuUid()
 {
-    if (_data) {
-        delete _data;
+}
+
+void CpuUid::populate_uid_buf()
+{
+    if (_uidptr == NULL) {
+        cpu_uid_get_uid(_uidbuf);
+        _uidptr = _uidbuf;
     }
 }
 
-CpuUid::operator std::string()
+void CpuUid::populate_str_buf()
 {
-    std::string str;
-    
-    for (int i = 0; i < _size; ++i) {
-        str += _hexChars[_data[i] >> 4];
-        str += _hexChars[_data[i] & 0x0F];
+    if (_strptr == NULL) {
+#ifdef MBED_CPU_UID_STR_SIZE_MAX
+        cpu_uid_get_str(_strbuf);
+        _strptr = _strbuf;
+#else
+        int pos = 0;
+        populate_uid_buf();
+        for (int i = 0; i < MBED_CPU_UID_SIZE; ++i) {
+            _strbuf[pos++] = _hexChars[_uidptr[i] >> 4];
+            _strbuf[pos++] = _hexChars[_uidptr[i] & 0x0F];
+        }
+        _strbuf[pos] = '\0';
+        _strptr = _strbuf;
+#endif
     }
-
-    return str;
 }
 
-CpuUid::operator cpu_uid_array_t()
-{
-    cpu_uid_array_t array;
-    
-    for (int i = 0; i < _size; ++i) {
-        array.push_back(_data[i]);
-    }
-    
-    return array;
-}    
-
-uint8_t CpuUid::operator[](int x)
-{
-    if (x >= 0 && x < _size) {
-        return _data[x];
-    }
-    
-    return 0x00;
-}
-    
 } // namespace mbed
 
 #endif
