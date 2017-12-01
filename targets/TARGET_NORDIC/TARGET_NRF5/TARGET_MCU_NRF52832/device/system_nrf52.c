@@ -69,6 +69,36 @@ void SystemCoreClockUpdate(void)
     SystemCoreClock = __SYSTEM_CLOCK_64M;
 }
 
+#if defined(ENABLE_SWO)
+void InitSwoOutput(void)
+{
+    uint32_t StimulusRegs;
+    static const uint32_t _ITMPort = 0;
+
+    // Enable access to SWO registers
+    ITM->LAR = 0xC5ACCE55;
+
+    // Initially disable ITM and stimulus port
+    // To make sure that nothing is transferred via SWO
+    // when changing the SWO prescaler etc.
+    StimulusRegs = ITM->TER;
+    StimulusRegs &= ~(1 << _ITMPort);
+    ITM->TER = StimulusRegs; // Disable ITM stimulus port
+    ITM->TCR = 0; // Disable ITM
+
+    // Initialize SWO (prescaler, etc.)
+    TPI->SPPR = 0x00000002; // Select NRZ mode
+    TPI->ACPR = 0; // prescaler
+    ITM->TPR = 0x00000000;
+    DWT->CTRL = 0x400003FE;
+    TPI->FFCR = 0x00000100;
+
+    // Enable ITM and stimulus port
+    ITM->TCR = 0x1000D; // Enable ITM
+    ITM->TER = StimulusRegs | (1 << _ITMPort); // Enable ITM stimulus port
+}
+#endif // #if defined(ENABLE_SWO)
+
 void SystemInit(void)
 {
     /* Workaround for Errata 16 "System: RAM may be corrupt on wakeup from CPU IDLE" found at the Errata document
@@ -181,7 +211,13 @@ void SystemInit(void)
     #if defined (ENABLE_SWO)
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
         NRF_CLOCK->TRACECONFIG |= CLOCK_TRACECONFIG_TRACEMUX_Serial << CLOCK_TRACECONFIG_TRACEMUX_Pos;
+        /* set SWO clock speed to 4 MHz */
+        NRF_CLOCK->TRACECONFIG = (NRF_CLOCK->TRACECONFIG & ~CLOCK_TRACECONFIG_TRACEPORTSPEED_Msk) | (CLOCK_TRACECONFIG_TRACEPORTSPEED_4MHz << CLOCK_TRACECONFIG_TRACEPORTSPEED_Pos);
+
         NRF_P0->PIN_CNF[18] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+
+        // Initialize SWO output
+        InitSwoOutput();
     #endif
 
     /* Enable Trace functionality. If ENABLE_TRACE is not defined, TRACE pins will be used as GPIOs (see Product

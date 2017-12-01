@@ -9,24 +9,22 @@
             "help": "Enable conversion to standard newlines on stdin/stdout",
             "value": false
         },
-
         "stdio-baud-rate": {
             "help": "Baud rate for stdio",
             "value": 9600
         },
-
         "stdio-flush-at-exit": {
             "help": "Enable or disable the flush of standard I/O's at exit.",
             "value": true
         },
-
         "default-serial-baud-rate": {
             "help": "Default baud rate for a Serial or RawSerial instance (if not specified in the constructor)",
             "value": 9600
         },
         "swo-enable": {
             "help": "Enable stdout on SWO",
-            "value": false
+            "value": false,
+            "macro_name": "ENABLE_SWO"
         },
         "force-non-copyable-error": {
             "help": "Force compile time error when a NonCopyable object is copied",
@@ -42,3 +40,4 @@
         }
     }
 }
+ 

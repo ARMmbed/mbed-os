@@ -107,12 +107,9 @@ void remove_filehandle(FileHandle *file) {
 }
 }
 
-#if defined(DEVICE_ITM) && MBED_CONF_PLATFORM_SWO_ENABLE
-#include "hal/itm_api.h"
-#define MACRO_ITM_INIT      itm_init
+#if defined(DEVICE_ITM) && ENABLE_SWO
 #define MACRO_ITM_PUTC      ITM_SendChar
 #else
-#define MACRO_ITM_INIT(X)
 #define MACRO_ITM_PUTC(X)
 #endif
 
@@ -136,7 +133,6 @@ static char stdio_out_prev;
 #endif
 
 static void init_serial() {
-    MACRO_ITM_INIT();
 #if DEVICE_SERIAL
     if (stdio_uart_inited) return;
     serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
