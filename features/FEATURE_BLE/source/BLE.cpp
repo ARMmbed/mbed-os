@@ -47,8 +47,7 @@ static const char* error_strings[] = {
     "BLE_ERROR_INTERNAL_STACK_FAILURE: The platform-specific stack failed"
 };
 
-const char*
-BLE::errorToString(ble_error_t error)
+const char* BLE::errorToString(ble_error_t error)
 {
     if (error > BLE_ERROR_INTERNAL_STACK_FAILURE) {
         return "Illegal error code";
