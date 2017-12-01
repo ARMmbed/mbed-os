@@ -65,7 +65,7 @@ public:
      * @brief   Update humidity characteristic.
      * @param   newHumidityVal New humidity measurement.
      */
-    void updateHumidity(HumidityType_t newHumidityVal)
+    void updateHumidity(float newHumidityVal)
     {
         humidity = (HumidityType_t) (newHumidityVal * 100);
         ble.gattServer().write(humidityCharacteristic.getValueHandle(), (uint8_t *) &humidity, sizeof(HumidityType_t));
@@ -75,7 +75,7 @@ public:
      * @brief   Update pressure characteristic.
      * @param   newPressureVal New pressure measurement.
      */
-    void updatePressure(PressureType_t newPressureVal)
+    void updatePressure(float newPressureVal)
     {
         pressure = (PressureType_t) (newPressureVal * 10);
         ble.gattServer().write(pressureCharacteristic.getValueHandle(), (uint8_t *) &pressure, sizeof(PressureType_t));
