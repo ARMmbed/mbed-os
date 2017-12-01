@@ -42,7 +42,7 @@
 
 /*  CMSIS CA definitions */
 #define __CA_CMSIS_VERSION_MAIN  (1U)                                      /*!< \brief [31:16] CMSIS-Core(A) main version   */
-#define __CA_CMSIS_VERSION_SUB   (0U)                                      /*!< \brief [15:0]  CMSIS-Core(A) sub version    */
+#define __CA_CMSIS_VERSION_SUB   (1U)                                      /*!< \brief [15:0]  CMSIS-Core(A) sub version    */
 #define __CA_CMSIS_VERSION       ((__CA_CMSIS_VERSION_MAIN << 16U) | \
                                    __CA_CMSIS_VERSION_SUB          )       /*!< \brief CMSIS-Core(A) version number         */
 
@@ -1780,6 +1780,21 @@ typedef struct RegionStruct {
                                    region.g_t = GLOBAL; \
                                    region.inner_norm_t = WB_WA; \
                                    region.outer_norm_t = WB_WA; \
+                                   region.mem_t = NORMAL; \
+                                   region.sec_t = SECURE; \
+                                   region.xn_t = EXECUTE; \
+                                   region.priv_t = RW; \
+                                   region.user_t = RW; \
+                                   region.sh_t = NON_SHARED; \
+                                   MMU_GetSectionDescriptor(&descriptor_l1, region);
+
+//Sect_Normal_NC. Outer & inner non-cacheable, non-shareable, executable, rw, domain 0
+#define section_normal_nc(descriptor_l1, region)     region.rg_t = SECTION; \
+                                   region.domain = 0x0; \
+                                   region.e_t = ECC_DISABLED; \
+                                   region.g_t = GLOBAL; \
+                                   region.inner_norm_t = NON_CACHEABLE; \
+                                   region.outer_norm_t = NON_CACHEABLE; \
                                    region.mem_t = NORMAL; \
                                    region.sec_t = SECURE; \
                                    region.xn_t = EXECUTE; \
