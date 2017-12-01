@@ -9,5 +9,10 @@
             "help": "Define event-loop thread stack size.",
             "value": 6144
         }
+        ,
+        "event-loop-dispatch-from-application": {
+            "help": "Application is responsible of message dispatch loop. Else launch a separate thread for event-loop.",
+            "value": false
+        }
     }
 }
