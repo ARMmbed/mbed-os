@@ -400,6 +400,8 @@ public:
      */
     const SecurityManager& securityManager() const;
 
+    static const char* errorToString(ble_error_t error);
+
     /*
      * Deprecation alert!
      * All of the following are deprecated and may be dropped in a future
