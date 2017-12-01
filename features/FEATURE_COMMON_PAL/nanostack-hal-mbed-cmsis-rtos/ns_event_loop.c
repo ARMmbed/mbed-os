@@ -14,6 +14,9 @@
 
 #define TRACE_GROUP "evlp"
 
+
+#if !MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
+
 static void event_loop_thread(void *arg);
 
 static uint64_t event_thread_stk[MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_THREAD_STACK_SIZE/8];
@@ -26,6 +29,8 @@ static const osThreadAttr_t event_thread_attr = {
     .cb_mem = &event_thread_tcb,
     .cb_size = sizeof event_thread_tcb,
 };
+#endif
+
 static osThreadId_t event_thread_id;
 static mbed_rtos_storage_mutex_t event_mutex;
 static const osMutexAttr_t event_mutex_attr = {
@@ -78,18 +83,32 @@ void eventOS_scheduler_idle(void)
     eventOS_scheduler_mutex_wait();
 }
 
+#if !MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
 static void event_loop_thread(void *arg)
 {
     (void)arg;
     eventOS_scheduler_mutex_wait();
     eventOS_scheduler_run(); //Does not return
 }
+#endif
 
-void ns_event_loop_thread_create(void)
+// This is used to initialize the lock used by event loop even
+// if it is not ran in a separate thread.
+void ns_event_loop_init(void)
 {
     event_mutex_id = osMutexNew(&event_mutex_attr);
     MBED_ASSERT(event_mutex_id != NULL);
 
+#if MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
+    // The thread id of the current thread is stored so it can be used to signal
+    // the waiting thread from other threads or from a interrupt.
+    event_thread_id = osThreadGetId();
+#endif
+}
+
+#if !MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
+void ns_event_loop_thread_create(void)
+{
     event_thread_id = osThreadNew(event_loop_thread, NULL, &event_thread_attr);
     MBED_ASSERT(event_thread_id != NULL);
 }
@@ -97,3 +116,4 @@ void ns_event_loop_thread_create(void)
 void ns_event_loop_thread_start(void)
 {
 }
+#endif

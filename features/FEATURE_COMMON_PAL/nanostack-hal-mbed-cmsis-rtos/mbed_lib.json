@@ -13,5 +13,10 @@
             "help": "Make critical section API usable from interrupt context. Else a mutex is used as locking primitive.",
             "value": false
         }
+        ,
+        "event-loop-dispatch-from-application": {
+            "help": "Application is responsible of message dispatch loop. Else launch a separate thread for event-loop.",
+            "value": false
+        }
     }
 }
