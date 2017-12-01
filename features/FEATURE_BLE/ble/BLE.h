@@ -400,6 +400,13 @@ public:
      */
     const SecurityManager& securityManager() const;
 
+    /**
+     * Translate error code into a printable string.
+     *
+     * @param[in] error Error code returned by BLE functions.
+     *
+     * @return A pointer to a const string describing the error.
+     */
     static const char* errorToString(ble_error_t error);
 
     /*
