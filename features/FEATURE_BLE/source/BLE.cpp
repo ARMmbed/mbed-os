@@ -40,18 +40,18 @@ static const char* error_strings[] = {
     "BLE_STACK_BUSY: The stack is busy",
     "BLE_ERROR_INVALID_STATE: Invalid state",
     "BLE_ERROR_NO_MEM: Out of Memory",
-    "BLE_ERROR_OPERATION_NOT_PERMITTED",
-    "BLE_ERROR_INITIALIZATION_INCOMPLETE",
-    "BLE_ERROR_ALREADY_INITIALIZED",
+    "BLE_ERROR_OPERATION_NOT_PERMITTED: The operation requested is not permitted",
+    "BLE_ERROR_INITIALIZATION_INCOMPLETE: The BLE subsystem has not completed its initialisation",
+    "BLE_ERROR_ALREADY_INITIALIZED: The BLE system has already been initialised",
     "BLE_ERROR_UNSPECIFIED: Unknown error",
-    "BLE_ERROR_INTERNAL_STACK_FAILURE: internal stack failure"
+    "BLE_ERROR_INTERNAL_STACK_FAILURE: The platform-specific stack failed"
 };
 
 const char*
 BLE::errorToString(ble_error_t error)
 {
     if (error > BLE_ERROR_INTERNAL_STACK_FAILURE) {
-        return "illegal error code";
+        return "Illegal error code";
     }
     return error_strings[error];
 }
