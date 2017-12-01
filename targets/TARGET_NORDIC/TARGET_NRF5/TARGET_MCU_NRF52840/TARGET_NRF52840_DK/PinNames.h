@@ -165,6 +165,10 @@ typedef enum {
     LED3    = p15,
     LED4    = p16,
 
+    LED_RED   = p13,
+    LED_GREEN = p14,
+    LED_BLUE  = p15,
+
     BUTTON1 = p11,
     BUTTON2 = p12,
     BUTTON3 = p24,
@@ -178,6 +182,9 @@ typedef enum {
     // mBed interface Pins
     USBTX = TX_PIN_NUMBER,
     USBRX = RX_PIN_NUMBER,
+
+    STDIO_UART_TX = USBTX,
+    STDIO_UART_RX = USBRX,
 
     SPI_PSELMOSI0 = P1_13,
     SPI_PSELMISO0 = P1_14,
