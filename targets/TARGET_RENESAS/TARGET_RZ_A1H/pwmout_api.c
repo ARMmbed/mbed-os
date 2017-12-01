@@ -268,10 +268,10 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
         obj->pwm = pwm;
         if (((uint32_t)PORT[obj->pwm] & 0x00000010) == 0x00000010) {
             obj->ch  = 2;
-            PWMPWPR_2_BYTE_L = 0x00;
+            PWMPWPR_2 = 0x00;
         } else {
             obj->ch  = 1;
-            PWMPWPR_1_BYTE_L = 0x00;
+            PWMPWPR_1 = 0x00;
         }
 
         // Wire pinout
@@ -493,7 +493,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
 
         if (obj->ch == 2) {
             wk_last_cycle    = PWMPWCYR_2 & 0x03ff;
-            PWMPWCR_2_BYTE_L = 0xc0 | wk_cks;
+            PWMPWCR_2        = 0xc0 | wk_cks;
             PWMPWCYR_2       = (uint16_t)wk_cycle;
 
             // Set duty again
@@ -503,13 +503,13 @@ void pwmout_period_us(pwmout_t* obj, int us) {
             set_duty_again(&PWMPWBFR_2G, wk_last_cycle, wk_cycle);
 
             // Counter Start
-            PWMPWCR_2_BYTE_L |= 0x08;
+            PWMPWCR_2 |= 0x08;
 
             // Save for future use
             period_ch2 = us;
         } else {
             wk_last_cycle    = PWMPWCYR_1 & 0x03ff;
-            PWMPWCR_1_BYTE_L = 0xc0 | wk_cks;
+            PWMPWCR_1        = 0xc0 | wk_cks;
             PWMPWCYR_1       = (uint16_t)wk_cycle;
 
             // Set duty again
@@ -519,7 +519,7 @@ void pwmout_period_us(pwmout_t* obj, int us) {
             set_duty_again(&PWMPWBFR_1G, wk_last_cycle, wk_cycle);
 
             // Counter Start
-            PWMPWCR_1_BYTE_L |= 0x08;
+            PWMPWCR_1 |= 0x08;
 
             // Save for future use
             period_ch1 = us;
