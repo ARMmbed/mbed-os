@@ -33,7 +33,6 @@ Includes   <System Includes> , "Project Includes"
 #include "MBRZA1H.h"
 #include "wdt_iodefine.h"
 #include "nvic_wrapper.h"
-#include "gic.h"
 
 /******************************************************************************
 Typedef definitions
@@ -71,7 +70,7 @@ void NVIC_SetPriorityGrouping(uint32_t PriorityGroup)
 
 uint32_t NVIC_GetPriorityGrouping(void)
 {
-    return GIC_GetBinaryPoint(0);
+    return GIC_GetBinaryPoint();
 }
 
 
