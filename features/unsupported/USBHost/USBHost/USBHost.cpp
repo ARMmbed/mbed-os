@@ -312,7 +312,7 @@ USBHost::USBHost() : usbThread(osPriorityNormal, USB_THREAD_STACK)
     }
 #endif
 
-    usbThread.start(this, &USBHost::usb_process);
+    usbThread.start(callback(this, &USBHost::usb_process));
 }
 
 USBHost::Lock::Lock(USBHost* pHost) : m_pHost(pHost)
