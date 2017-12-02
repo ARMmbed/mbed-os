@@ -88,11 +88,14 @@ void USBHost::usb_process()
                         /*  check that hub is connected to root port  */
                         if (usb_msg->hub_parent) {
                             /*  a hub device must be present */
+#if MAX_HUB_NB
+
                             for (k = 0; k < MAX_HUB_NB; k++) {
                                 if ((&hubs[k] == usb_msg->hub_parent) && (hub_in_use[k])) {
                                     hub_unplugged=false;
                                 }
                             }
+#endif
                         } else {
                             hub_unplugged = false;
                         }
