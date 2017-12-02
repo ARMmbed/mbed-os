@@ -89,7 +89,7 @@ public:
     template<typename T>
     inline void attach(T* tptr, void (T::*mptr)(void)) {
         if((mptr != NULL) && (tptr != NULL)) {
-            rx.attach(tptr, mptr);
+            rx = callback(tptr, mptr);
         }
     }
 
@@ -100,7 +100,7 @@ public:
      */
     inline void attach(void (*fptr)(void)) {
         if(fptr != NULL) {
-            rx.attach(fptr);
+            rx = fptr;
         }
     }
 
