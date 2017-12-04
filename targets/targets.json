@@ -706,6 +706,12 @@
         "extra_labels": ["STM"],
         "supported_toolchains": ["ARM", "uARM", "IAR", "GCC_ARM"],
         "macros": ["TRANSACTION_QUEUE_SIZE_SPI=2"],
+        "config": {
+            "lse_available": {
+                "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
+                "value": "1"
+            }
+        },
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"]
     },
     "LPC54114": {
@@ -772,14 +778,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "rtc_lsi": {
-                "help": "Use internal low speed clock (default clock is LSE)",
-                "value": "1",
-                "macro_name": "RTC_LSI"
-             }
+            }
         },
         "detect_code": ["0791"],
+        "overrides": {"lse_available": 0},
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["SERIAL_FC"],
         "default_lib": "small",
@@ -797,14 +799,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "rtc_lsi": {
-                "help": "Use internal low speed clock (default clock is LSE)",
-                "value": "1",
-                "macro_name": "RTC_LSI"
-             }
+            }
         },
         "detect_code": ["0785"],
+        "overrides": {"lse_available": 0},
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CAN", "SERIAL_FC"],
         "default_lib": "small",
@@ -939,13 +937,9 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "rtc_lsi": {
-                "help": "Use internal low speed clock (default clock is LSE)",
-                "value": "1",
-                "macro_name": "RTC_LSI"
-             }
+            }
         },
+        "overrides": {"lse_available": 0},
         "detect_code": ["0775"],
         "default_lib": "small",
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC"],
@@ -1493,7 +1487,7 @@
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F3", "STM32F303", "STM32F303xC", "STM32F303VC"],
-        "macros_add": ["RTC_LSI=1"],
+        "overrides": {"lse_available": 0},
         "supported_toolchains": ["GCC_ARM"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC"],
         "device_name": "STM32F303VC"
@@ -1507,13 +1501,9 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "rtc_lsi": {
-                "help": "Use internal low speed clock (default clock is LSE)",
-                "value": "1",
-                "macro_name": "RTC_LSI"
-             }
+            }
         },
+        "overrides": {"lse_available": 0},
         "detect_code": ["0810"],
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
         "default_lib": "small",
@@ -1525,7 +1515,8 @@
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F407", "STM32F407xG", "STM32F407VG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
-        "macros_add": ["RTC_LSI=1", "USB_STM_HAL"],
+        "macros_add": ["USB_STM_HAL"],
+        "overrides": {"lse_available": 0},
         "device_has_add": ["ANALOGOUT"],
         "device_name": "STM32F407VG"
     },
@@ -1543,13 +1534,9 @@
                 "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
                 "value": "1",
                 "macro_name": "CLOCK_SOURCE_USB"
-            },
-            "rtc_lsi": {
-                "help": "Use internal low speed clock (default clock is LSE)",
-                "value": "1",
-                "macro_name": "RTC_LSI"
-             }
+            }
         },
+        "overrides": {"lse_available": 0},
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
@@ -1583,13 +1570,9 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "rtc_lsi": {
-                "help": "Use internal low speed clock (default clock is LSE)",
-                "value": "1",
-                "macro_name": "RTC_LSI"
-             }
+            }
         },
+        "overrides": {"lse_available": 0},
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -1728,7 +1711,8 @@
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
-        "macros_add": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000", "RTC_LSI=1"],
+        "overrides": {"lse_available": 0},
+        "macros_add": ["HSE_VALUE=26000000", "VECT_TAB_OFFSET=0x08010000"],
         "post_binary_hook": {
             "function": "MTSCode.combine_bins_mts_dragonfly",
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
@@ -1764,7 +1748,7 @@
         "core": "Cortex-M3",
         "default_toolchain": "uARM",
         "extra_labels_add": ["STM32L1", "STM32L152RC"],
-        "macros": ["RTC_LSI=1"],
+        "overrides": {"lse_available": 0},
         "detect_code": ["4100"],
         "device_has_add": ["ANALOGOUT"],
         "default_lib": "small",
@@ -1848,7 +1832,8 @@
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "RTC_LSI=1", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
+        "overrides": {"lse_available": 0},
         "device_has_add": ["ANALOGOUT", "SERIAL_FC", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "public": false,
@@ -1869,7 +1854,7 @@
         "default_toolchain": "uARM",
         "program_cycle_s": 1.5,
         "extra_labels_add": ["STM32L1", "STM32L151RC"],
-        "macros": ["RTC_LSI=1"],
+        "overrides": {"lse_available": 0},
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "device_has_add": ["ANALOGOUT"],
         "default_lib": "small",

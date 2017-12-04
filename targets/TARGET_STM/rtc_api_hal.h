@@ -40,10 +40,10 @@
 extern "C" {
 #endif
 
-#if RTC_LSI
-#define RTC_CLOCK LSI_VALUE
-#else
+#if MBED_CONF_TARGET_LSE_AVAILABLE
 #define RTC_CLOCK LSE_VALUE
+#else
+#define RTC_CLOCK LSI_VALUE
 #endif
 
 /** Read the subsecond register.
