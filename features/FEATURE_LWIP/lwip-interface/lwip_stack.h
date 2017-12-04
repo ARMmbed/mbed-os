@@ -29,14 +29,13 @@ extern "C" {
 // drivers attach through these.
 nsapi_error_t mbed_lwip_init(emac_interface_t *emac);
 nsapi_error_t mbed_lwip_emac_init(emac_interface_t *emac);
-void mbed_lwip_netif_status_irq(struct netif *lwip_netif);
 nsapi_connection_status_t mbed_lwip_netif_status_check(void);
 nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, const char *gw);
 nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, 
     const nsapi_ip_stack_t stack);
-typedef netif_client_status_callback_fn mbed_lwip_client_callback;
+typedef void (*mbed_lwip_client_callback)(void *ethernet_if_ptr, nsapi_event_t reason, intptr_t parameter);
 void mbed_lwip_attach(mbed_lwip_client_callback status_cb, void *status_cb_handle);
-void mbed_lwip_set_blocking(u8_t blocking);
+void mbed_lwip_set_blocking(bool blocking);
 nsapi_error_t mbed_lwip_bringdown(void);
 nsapi_error_t mbed_lwip_bringdown_2(bool ppp);
 const char *mbed_lwip_get_mac_address(void);

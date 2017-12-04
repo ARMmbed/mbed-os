@@ -265,7 +265,6 @@ PPPCellularInterface::PPPCellularInterface(FileHandle *fh, bool debug)
     _stack = DEFAULT_STACK;
     _connection_status_cb = NULL;
     _connect_status = NSAPI_STATUS_DISCONNECTED;
-    _nonblocking_status = NSAPI_ERROR_OK;
     _connect_is_blocking = true;
     dev_info.reg_status_csd = CSD_NOT_REGISTERED_NOT_SEARCHING;
     dev_info.reg_status_psd = PSD_NOT_REGISTERED_NOT_SEARCHING;
@@ -310,7 +309,6 @@ void PPPCellularInterface::modem_debug_on(bool on)
 void PPPCellularInterface::ppp_status_cb(nsapi_event_t event, intptr_t parameter)
 {
     _connect_status = (nsapi_connection_status_t)parameter;
-    _nonblocking_status = NSAPI_ERROR_OK;
 
     if (_connection_status_cb) {
         _connection_status_cb(event, parameter);
@@ -406,7 +404,11 @@ bool PPPCellularInterface::nwk_registration(uint8_t nwk_type)
 
 bool PPPCellularInterface::is_connected()
 {
-    return _connect_status != NSAPI_STATUS_DISCONNECTED;
+    if (_connect_status == NSAPI_STATUS_GLOBAL_UP || _connect_status == NSAPI_STATUS_LOCAL_UP) {
+        return true;
+    } else {
+        return false;
+    } 
 }
 
 // Get the SIM card going.
@@ -570,12 +572,20 @@ nsapi_error_t PPPCellularInterface::connect()
 
     if (_connect_status == NSAPI_STATUS_GLOBAL_UP || _connect_status == NSAPI_STATUS_LOCAL_UP) {
         return NSAPI_ERROR_IS_CONNECTED;
-    } else if (_nonblocking_status == NSAPI_ERROR_IN_PROGRESS) {
+    } else if (_connect_status == NSAPI_STATUS_CONNECTING) {
         return NSAPI_ERROR_IN_PROGRESS;
     } 
 
+    _connect_status = NSAPI_STATUS_CONNECTING;
+    if (_connection_status_cb) {
+        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
+    }
+
     do {
         retry_init:
+
+        
+        retcode = NSAPI_ERROR_OK;
 
         /* setup AT parser */
         setup_at_parser();
@@ -588,12 +598,13 @@ nsapi_error_t PPPCellularInterface::connect()
             enable_hup(false);
 
             if (!power_up()) {
-                return NSAPI_ERROR_DEVICE_ERROR;
+                retcode = NSAPI_ERROR_DEVICE_ERROR;
+                break;
             }
 
             retcode = initialize_sim_card();
             if (retcode != NSAPI_ERROR_OK) {
-                return retcode;
+                break;
             }
 
             success = nwk_registration(PACKET_SWITCHED) //perform network registration
@@ -605,7 +616,8 @@ nsapi_error_t PPPCellularInterface::connect()
             && set_CNMI(_at);//set new SMS indication
 
             if (!success) {
-                return NSAPI_ERROR_NO_CONNECTION;
+                retcode = NSAPI_ERROR_NO_CONNECTION;
+                break;
             }
 
 #if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
@@ -618,7 +630,7 @@ nsapi_error_t PPPCellularInterface::connect()
             if (set_sim_pin_check_request) {
                 retcode = do_sim_pin_check(_at, _pin);
                 if (retcode != NSAPI_ERROR_OK) {
-                    return retcode;
+                    break;
                 }
                 /* set this request to false, as it is unnecessary to repeat in case of retry */
                 set_sim_pin_check_request = false;
@@ -628,7 +640,7 @@ nsapi_error_t PPPCellularInterface::connect()
             if (change_pin) {
                 retcode = do_change_sim_pin(_at, _pin, _new_pin);
                 if (retcode != NSAPI_ERROR_OK) {
-                    return retcode;
+                    break;
                 }
                 /* set this request to false, as it is unnecessary to repeat in case of retry */
                 change_pin = false;
@@ -646,12 +658,13 @@ nsapi_error_t PPPCellularInterface::connect()
             //sets up APN and IP protocol for external PDP context
             retcode = setup_context_and_credentials();
             if (retcode != NSAPI_ERROR_OK) {
-                return retcode;
+                break;
             }
 
             if (!success) {
                 shutdown_at_parser();
-                return NSAPI_ERROR_NO_CONNECTION;
+                retcode = NSAPI_ERROR_NO_CONNECTION;
+                break;
             }
 
             initialized = true;
@@ -678,7 +691,8 @@ nsapi_error_t PPPCellularInterface::connect()
             /* shutdown AT parser before notifying application of the failure */
             shutdown_at_parser();
 
-            return NSAPI_ERROR_NO_CONNECTION;
+            retcode = NSAPI_ERROR_NO_CONNECTION;
+            break;
         }
 
         /* This is the success case.
@@ -692,12 +706,17 @@ nsapi_error_t PPPCellularInterface::connect()
          * mbed_ppp_init() is a blocking call, it will block until
          * connected, or timeout after 30 seconds*/
         retcode = nsapi_ppp_connect(_fh, callback(this, &PPPCellularInterface::ppp_status_cb), _uname, _pwd, _stack);
-    } while ((_connect_status == NSAPI_STATUS_DISCONNECTED && _connect_is_blocking) &&
+    } while ((_connect_status == NSAPI_STATUS_CONNECTING && _connect_is_blocking) &&
             apn_config && *apn_config);
 
-    if (_connect_status == NSAPI_STATUS_DISCONNECTED && !_connect_is_blocking) {
-        _nonblocking_status = NSAPI_ERROR_IN_PROGRESS;
+
+    if (retcode != NSAPI_ERROR_OK) {
+        _connect_status = NSAPI_STATUS_DISCONNECTED;
+        if (_connection_status_cb) {
+            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+        }
     }
+
 
     return retcode;
 }

@@ -24,10 +24,9 @@ EthernetInterface::EthernetInterface() :
     _ip_address(), 
     _netmask(), 
     _gateway(),
+    _connection_status_cb(NULL),
     _connect_status(NSAPI_STATUS_DISCONNECTED)
 {
-    set_blocking(true);
-    attach(NULL);
 }
 
 

@@ -43,10 +43,18 @@ int ThreadInterface::connect()
     // -routers will create new network and get local connectivity
     // -end devices will get connectivity once attached to existing network
     // -devices without network settings gets connectivity once commissioned and attached to network
+    _connect_status = NSAPI_STATUS_CONNECTING;
+    if (_connection_status_cb) {
+        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
+    }
     if (_blocking) {
         int32_t count = connect_semaphore.wait(osWaitForever);
 
         if (count <= 0) {
+            _connect_status = NSAPI_STATUS_DISCONNECTED;
+            if (_connection_status_cb) {
+                _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+            }
             return NSAPI_ERROR_DHCP_FAILURE; // sort of...
         }
     }

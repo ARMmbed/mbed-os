@@ -268,7 +268,6 @@ private:
     Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
     nsapi_connection_status_t _connect_status;
     bool _connect_is_blocking;
-    nsapi_error_t _nonblocking_status; 
     void base_initialization();
     void setup_at_parser();
     void shutdown_at_parser();
