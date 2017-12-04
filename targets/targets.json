@@ -2302,7 +2302,7 @@
         },
         "detect_code": ["0720"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "MPU"],
+        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "MPU", "LOWPOWERTIMER", "WATCHDOG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F401RE"
     },
@@ -2352,7 +2352,8 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F410RB"
@@ -2376,7 +2377,7 @@
             }
         },
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "MPU"],
+        "device_has_add": ["SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "MPU", "WATCHDOG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE",
         "bootloader_supported": true
@@ -2401,7 +2402,8 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F412ZG",
@@ -2527,7 +2529,8 @@
             "TRNG",
             "FLASH",
             "QSPI",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "bootloader_supported": true,
         "release_versions": ["2", "5"],
@@ -2621,7 +2624,8 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "detect_code": ["0796"],
         "release_versions": ["2", "5"],
@@ -2672,7 +2676,8 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG",
         ],
         "detect_code": ["0797"],
         "release_versions": ["2", "5"],
@@ -2702,7 +2707,8 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446RE",
@@ -2728,7 +2734,8 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446ZE"
@@ -2745,7 +2752,8 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446VE"
@@ -3826,7 +3834,7 @@
             "function": "MTSCode.combine_bins_mts_dragonfly",
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
         },
-        "device_has_add": ["MPU"],
+        "device_has_add": ["MPU", "WATCHDOG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE"
     },
@@ -4016,6 +4024,7 @@
             "EMAC",
             "TRNG",
             "FLASH",
+            "WATCHDOG",
             "WIFI",
             "SERIAL_FC",
             "SERIAL"
@@ -4111,7 +4120,8 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "public": false,
         "device_name": "STM32F437VG",
