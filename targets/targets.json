@@ -4081,7 +4081,9 @@
         },
         "device_has_add": ["MPU"],
         "device_has_remove": [
-            "SERIAL_FC"
+            "SERIAL_FC",
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F411RE"
