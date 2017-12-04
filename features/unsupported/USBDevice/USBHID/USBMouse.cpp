@@ -103,10 +103,10 @@ bool USBMouse::release(uint8_t button_) {
 }
 
 
-uint8_t * USBMouse::reportDesc() {
+const uint8_t * USBMouse::reportDesc() {
 
     if (mouse_type == REL_MOUSE) {
-        static uint8_t reportDescriptor[] = {
+        static const uint8_t reportDescriptor[] = {
             USAGE_PAGE(1),      0x01,       // Genric Desktop
             USAGE(1),           0x02,       // Mouse
             COLLECTION(1),      0x01,       // Application
@@ -141,7 +141,7 @@ uint8_t * USBMouse::reportDesc() {
         reportLength = sizeof(reportDescriptor);
         return reportDescriptor;
     } else if (mouse_type == ABS_MOUSE) {
-        static uint8_t reportDescriptor[] = {
+        static const uint8_t reportDescriptor[] = {
             USAGE_PAGE(1), 0x01,           // Generic Desktop
             USAGE(1), 0x02,                // Mouse
             COLLECTION(1), 0x01,           // Application
@@ -192,8 +192,8 @@ uint8_t * USBMouse::reportDesc() {
                                + (1 * HID_DESCRIPTOR_LENGTH) \
                                + (2 * ENDPOINT_DESCRIPTOR_LENGTH))
 
-uint8_t * USBMouse::configurationDesc() {
-    static uint8_t configurationDescriptor[] = {
+const uint8_t * USBMouse::configurationDesc() {
+    uint8_t configurationDescriptorTemp[] = {
         CONFIGURATION_DESCRIPTOR_LENGTH,    // bLength
         CONFIGURATION_DESCRIPTOR,           // bDescriptorType
         LSB(TOTAL_DESCRIPTOR_LENGTH),       // wTotalLength (LSB)
@@ -240,5 +240,7 @@ uint8_t * USBMouse::configurationDesc() {
         MSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (MSB)
         1,                                  // bInterval (milliseconds)
     };
+    MBED_ASSERT(sizeof(configurationDescriptorTemp) == sizeof(configurationDescriptor));
+    memcpy(configurationDescriptor, configurationDescriptorTemp, sizeof(configurationDescriptor));
     return configurationDescriptor;
 }
