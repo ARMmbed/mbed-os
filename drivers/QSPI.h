@@ -201,7 +201,7 @@ protected:
     qspi_alt_size_t _alt_size;
     qspi_bus_width_t _data_width; //Bus width for Data phase
     qspi_command_t _qspi_command; //QSPI Hal command struct
-    int _num_dummy_cycles; //Number of dummy cycles to be used
+    unsigned int _num_dummy_cycles; //Number of dummy cycles to be used
     int _hz; //Bus Frequency
     int _mode; //SPI mode
     bool _initialized;
