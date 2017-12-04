@@ -4283,6 +4283,7 @@
             "EMAC",
             "TRNG",
             "FLASH",
+            "WATCHDOG",
             "WIFI",
             "SERIAL"
         ],
