@@ -216,21 +216,21 @@ protected:
     *
     * @returns pointer to the string product descriptor
     */
-    virtual uint8_t * stringIproductDesc();
+    virtual const uint8_t * stringIproductDesc();
 
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
-    virtual uint8_t * stringIinterfaceDesc();
+    virtual const uint8_t * stringIinterfaceDesc();
 
     /*
     * Get configuration descriptor
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual uint8_t * configurationDesc();
+    virtual const uint8_t * configurationDesc();
 
     /*
      * Called by USBDevice layer. Set interface/alternate of the device.
@@ -269,6 +269,20 @@ protected:
     virtual bool EPISO_IN_callback();
 
 private:
+
+    /*
+    * Call to rebuild the configuration descriptor
+    *
+    * This function should be called on creation or when any
+    * value that is part of the configuration descriptor
+    * changes.
+    * @note This function uses ~200 bytes of stack so
+    * make sure your stack is big enough for it.
+    */
+    void _build_configurationDesc();
+
+    // configuration descriptor
+    uint8_t configDescriptor[183];
 
     // stream available ?
     volatile bool available;
