@@ -19,13 +19,6 @@ const uint64_t max_timeout_ms = ((MAX_TIMEOUT / TICKS_PER_MS) * MAX_PRESCALER);
   ((MAX_TIMEOUT / TICKS_PER_MS) * scale)
 
 
-#if defined(FSL_FEATURE_WDOG_HAS_WAITEN) && FSL_FEATURE_WDOG_HAS_WAITEN
-  #define PLATFORM_SUPPORTS_SLEEP true
-#else
-  #define PLATFORM_SUPPORTS_SLEEP false
-#endif
-
-
 static uint32_t calculate_prescaler_value(const uint32_t timeout_ms)
 {
   if (timeout_ms > max_timeout_ms) {
@@ -57,27 +50,15 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
     return WATCHDOG_STATUS_INVALID_ARGUMENT;
   }
 
-  if (config->window_ms > max_timeout_ms) {
-    return WATCHDOG_STATUS_INVALID_ARGUMENT;
-  }
-
-  if (config->window_ms > config->timeout_ms) {
-    return WATCHDOG_STATUS_INVALID_ARGUMENT;
-  }
-
-  if (config->enable_sleep && !PLATFORM_SUPPORTS_SLEEP) {
-    return WATCHDOG_STATUS_NOT_SUPPORTED;
-  }
 
   wdog_config_t cfg;
   cfg.enableWdog = true;
   cfg.clockSource = kWDOG_LpoClockSource;
+  cfg.windowValue = 0;
   cfg.enableUpdate = true;
   cfg.enableInterrupt = false;
-  cfg.enableWindowMode = config->enable_window;
-#if PLATFORM_SUPPORTS_SLEEP
-  cfg.workMode.enableWait = config->enable_sleep;
-#endif
+  cfg.enableWindowMode = false;
+  cfg.workMode.enableWait = true;
   cfg.workMode.enableStop = false;
   cfg.workMode.enableDebug = false;
 
@@ -89,7 +70,6 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
 
   cfg.prescaler    = (wdog_clock_prescaler_t)(prescaler - 1);
   cfg.timeoutValue = (TICKS_PER_MS * config->timeout_ms) / prescaler;
-  cfg.windowValue  = (TICKS_PER_MS * config->window_ms) / prescaler;
 
   WDOG_Init(WDOG, &cfg);
 
@@ -119,14 +99,12 @@ uint32_t hal_watchdog_get_reload_value(void)
 }
 
 
-watchdog_features_t hal_watchdog_get_max_timeout(void)
+watchdog_features_t hal_watchdog_get_platform_features(void)
 {
   watchdog_features_t features;
   features.max_timeout = max_timeout_ms;
-  features.max_timeout_window_mode = max_timeout_ms;
   features.update_config = true;
   features.disable_watchdog = true;
-  features.pause_during_sleep = true;
 
   return features;
 }
