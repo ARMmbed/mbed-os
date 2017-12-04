@@ -52,8 +52,6 @@ qspi_status_t QSPI::configure_format(qspi_bus_width_t inst_width, qspi_bus_width
 {
     qspi_status_t ret_status = QSPI_STATUS_OK; 
     
-    if(dummy_cycles < 0) 
-        return QSPI_STATUS_INVALID_PARAMETER;                         
     if(mode != 0 && mode != 1) 
         return QSPI_STATUS_INVALID_PARAMETER;                            
     
@@ -119,7 +117,7 @@ qspi_status_t QSPI::read(unsigned int address, char *rx_buffer, size_t *rx_lengt
         } else {
             ret_status = QSPI_STATUS_INVALID_PARAMETER; 
         }
-    } //if(_initialized)
+    }
     
     return ret_status;
 }
@@ -143,7 +141,7 @@ qspi_status_t QSPI::write(unsigned int address, const char *tx_buffer, size_t *t
         } else {
             ret_status = QSPI_STATUS_INVALID_PARAMETER; 
         }
-    } //if(_initialized)
+    }
     
     return ret_status;
 }
@@ -167,7 +165,7 @@ qspi_status_t QSPI::read(unsigned int instruction, unsigned int address, unsigne
         } else {
             ret_status = QSPI_STATUS_INVALID_PARAMETER; 
         }
-    } //if(_initialized)
+    }
     
     return ret_status;
 }
@@ -191,7 +189,7 @@ qspi_status_t QSPI::write(unsigned int instruction, unsigned int address, unsign
         } else {
             ret_status = QSPI_STATUS_INVALID_PARAMETER; 
         }
-    } //if(_initialized)
+    }
     
     return ret_status;
 }
@@ -205,12 +203,11 @@ qspi_status_t QSPI::command_transfer(unsigned int instruction, const char *tx_bu
         if(true == _acquire()) {
             qspi_command_t *qspi_cmd = _build_qspi_command(instruction, -1, -1); //We just need the command
             if(QSPI_STATUS_OK == qspi_command_transfer(&_qspi, qspi_cmd, (const void *)tx_buffer, tx_length, (void *)rx_buffer, rx_length)) {
-                //We got error status, return 0
                 ret_status = QSPI_STATUS_OK; 
             }
         } 
         unlock();
-    } //if(_initialized)
+    }
     
     return ret_status;
 }
@@ -280,7 +277,6 @@ qspi_command_t *QSPI::_build_qspi_command(int instruction, int address, int alt)
         _qspi_command.alt.value = 0; 
     }
     
-    //Set up dummy cycle count
     _qspi_command.dummy_count = _num_dummy_cycles;
     
     //Set up bus width for data phase
