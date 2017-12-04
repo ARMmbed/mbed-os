@@ -4089,7 +4089,6 @@
             "toolchains": ["GCC_ARM", "ARM_STD", "ARM_MICRO", "IAR"]
         },
         "device_has_add": ["MPU", "WATCHDOG"],
-        "device_has_add": ["MPU"],
         "device_has_remove": [
             "SERIAL_FC"
         ],
@@ -4293,6 +4292,7 @@
             "EMAC",
             "TRNG",
             "FLASH",
+            "WATCHDOG",
             "WIFI",
             "SERIAL"
         ],

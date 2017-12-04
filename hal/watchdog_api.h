@@ -40,6 +40,7 @@
  * wraps. To prevent the system reset the timer must be continually
  * kicked/refreshed by calling hal_watchdog_kick which will reset the countdown
  * to the user specified reset value.
+<<<<<<< HEAD
  *
  * The Watchdog timer must continue to operate in low power modes. It
  * must count down and trigger a reset from within both sleep and deep sleep
