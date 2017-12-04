@@ -1,32 +1,35 @@
-# ARM mbed OS
- 
-mbed OS is an open-source embedded operating system designed for the "things" in the Internet of Things (IoT). mbed OS includes the features you need to develop a connected product using an ARM Cortex-M microcontroller.
- 
-mbed OS provides a platform that includes:
- - Security foundations.
- - Cloud management services.
- - Drivers for sensors, I/O devices and connectivity.
+[![Mbed OS][mbed-os-logo]][mbed-os-link]
 
-mbed OS is modular, configurable software that you can customize it to your device and to reduce memory requirements by excluding unused software.
+[![Build status release][mbed-travis-release-svg]][mbed-travis-release] 
+[![Build status master][mbed-travis-master-svg]][mbed-travis-master] 
+[![Tools coverage status][mbed-coveralls-tools-svg]][mbed-coveralls-tools] 
+[![PR progress][mbed-waffle-svg]][mbed-waffle] 
 
- 
+[mbed-os-logo]: logo.png
+[mbed-os-link]: https://www.mbed.com/en/platform/mbed-os/
+[mbed-travis-master]: https://travis-ci.org/ARMmbed/mbed-os
+[mbed-travis-master-svg]: https://travis-ci.org/ARMmbed/mbed-os.svg?branch=master
+[mbed-travis-release]: https://travis-ci.org/ARMmbed/mbed-os/branches
+[mbed-travis-release-svg]: https://travis-ci.org/ARMmbed/mbed-os.svg?branch=latest
+[mbed-coveralls-tools]: https://coveralls.io/github/ARMmbed/mbed-os?branch=master
+[mbed-coveralls-tools-svg]: https://coveralls.io/repos/github/ARMmbed/mbed-os/badge.svg?branch=master
+[mbed-waffle]: https://waffle.io/ARMmbed/mbed-os
+[mbed-waffle-svg]: https://badge.waffle.io/ARMmbed/mbed-os.svg?columns=all
+
+Arm Mbed OS is an open source embedded operating system designed specifically for the "things" in the Internet of Things. It includes all the features you need to develop a connected product based on an Arm Cortex-M microcontroller, including security, connectivity, an RTOS, and drivers for sensors and I/O devices.
+
+Mbed OS provides a platform that includes:
+* Security foundations.
+* Cloud management services.
+* Drivers for sensors, I/O devices and connectivity. 
+
 ## Release Notes
-
-The [Release Notes](https://docs.mbed.com/docs/mbed-os-release-notes/en/latest/) detail the current release and previous versions.
-
-## Continuous Integration Status
-
-We run continuous integration on all of our branches and pull requests to verify the stability of mbed OS. The following are the Travis CI indicators for mbed OS.
-
- - Master branch [![Master Branch CI Badge](https://travis-ci.org/ARMmbed/mbed-os.svg?branch=master)](https://travis-ci.org/ARMmbed/mbed-os)
- - Latest release [![Latest Tag CI Badge](https://travis-ci.org/ARMmbed/mbed-os.svg?branch=latest)](https://travis-ci.org/ARMmbed/mbed-os/branches)
-
-Tools coverage [![Coverage Status](https://coveralls.io/repos/github/ARMmbed/mbed-os/badge.svg?branch=master)](https://coveralls.io/github/ARMmbed/mbed-os?branch=master)
+The [release notes](https://os.mbed.com/releases) detail the current release and you can also find information about previous versions.
 
 ## Getting Started for Developers
  
-You need [mbed CLI](https://github.com/ARMmbed/mbed-cli) to build mbed OS. For more details, read the [mbed OS Handbook](https://docs.mbed.com/docs/mbed-os-handbook/en/latest/).
+We have a [developer webiste](https://os.mbed.com) for asking questions, engaging with others, finding information on boards and components, using an online IDE and compiler, reading the documentation and learning about what's new and what's coming next in Mbed OS.
 
 ## Getting Started for Contributors
  
-We have a [Contributing and Publishing Guide](https://docs.mbed.com/docs/mbed-os-handbook/en/latest/cont/contributing/) in the mbed OS Handbook.
+We also have a [contributing and publishing guide](https://os.mbed.com/contributing/) that covers licensing, contributor agreements and style guidelines.
