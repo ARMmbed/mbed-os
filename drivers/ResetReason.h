@@ -1,5 +1,3 @@
-/** \addtogroup hal */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
  *
@@ -25,10 +23,11 @@
 namespace mbed
 {
 /** \addtogroup drivers */
-/** @{*/
-/**
- * \defgroup reset_reason reset reason functions
- * @{
+/** ResetReason API. When the system is restarted, the reason for the restart is
+ * contained in the system registers at boot time in a platform specific manner,
+ * this API provides a generic method of fetching the reason for the restart.
+ *
+ * @ingroup drivers
  */
 class ResetReason
 {
@@ -58,20 +57,14 @@ public:
      * Example:
      * @code
      * if (ResetReason::get() == RESET_REASON_PLATFORM) {
-     *   const uint32_t platform_reason = ResetReason::get_raw();
+     *     const uint32_t platform_reason = ResetReason::get_raw();
      * }
      * @endcode
      */
     static uint32_t get_raw();
 };
 
-
-/**@}*/
-/**@}*/
-
 } // namespace mbed
-
-/**@}*/
 
 #endif // DEVICE_RESET_REASON
 #endif // MBED_RESET_REASON_H
