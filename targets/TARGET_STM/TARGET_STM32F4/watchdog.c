@@ -2,8 +2,11 @@
 
 #include "reset_reason_api.h"
 
+#ifdef DEVICE_WATCHDOG
+
 #include "device.h"
 
+#include <stdbool.h>
 
 // Platform specific watchdog definitions
 #define LPO_CLOCK_FREQUENCY 40000
@@ -22,7 +25,7 @@ const uint64_t max_timeout_ms = ((MAX_TIMEOUT / TICKS_PER_MS) * MAX_PRESCALER);
 
 static uint32_t calculate_prescaler_value(const uint32_t timeout_ms)
 {
-    if (timeout_ms > MAX_TIMEOUT_MS) {
+    if (timeout_ms > max_timeout_ms) {
         return 0;
     }
 
@@ -49,22 +52,9 @@ watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
         return WATCHDOG_STATUS_INVALID_ARGUMENT;
     }
 
-    if (config->timeout_ms > MAX_TIMEOUT_MS) {
+    if (config->timeout_ms > max_timeout_ms) {
         return WATCHDOG_STATUS_INVALID_ARGUMENT;
     }
-
-    if (config->window_ms > MAX_TIMEOUT_MS) {
-        return WATCHDOG_STATUS_INVALID_ARGUMENT;
-    }
-
-    if (config->window_ms > config->timeout_ms) {
-        return WATCHDOG_STATUS_INVALID_ARGUMENT;
-    }
-
-    if (config->enable_sleep == false) {
-        return WATCHDOG_STATUS_NOT_SUPPORTED;
-    }
-
 
     const uint32_t prescaler = calculate_prescaler_value(config->timeout_ms);
 
@@ -108,14 +98,15 @@ uint32_t hal_watchdog_get_reload_value(void)
     return ((timeout / TICKS_PER_MS) * prescaler);
 }
 
-watchdog_features_t hal_watchdog_get_max_timeout(void)
+
+watchdog_features_t hal_watchdog_get_platform_features(void)
 {
     watchdog_features_t features;
     features.max_timeout = max_timeout_ms;
-    features.max_timeout_window_mode = max_timeout_ms;
     features.update_config = true;
     features.disable_watchdog = false;
-    features.pause_during_sleep = true;
 
     return features;
 }
+
+#endif // DEVICE_WATCHDOG
