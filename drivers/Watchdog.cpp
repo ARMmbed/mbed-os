@@ -20,19 +20,10 @@
 namespace mbed
 {
 
-watchdog_status_t Watchdog::start(const uint32_t timeout, const bool enable_sleep)
-{
-    return start(timeout, 0, enable_sleep);
-}
-
-
-watchdog_status_t Watchdog::start(const uint32_t timeout, const uint32_t window, const bool enable_sleep)
+watchdog_status_t Watchdog::start(const uint32_t timeout)
 {
     watchdog_config_t config;
-    config.timeout_ms    = timeout;
-    config.window_ms     = window;
-    config.enable_window = (window != 0);
-    config.enable_sleep  = enable_sleep;
+    config.timeout_ms = timeout;
 
     return hal_watchdog_init(&config);
 }
