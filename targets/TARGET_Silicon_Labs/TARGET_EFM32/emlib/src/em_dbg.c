@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_dbg.c
  * @brief Debug (DBG) Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -32,7 +32,7 @@
 
 #include "em_dbg.h"
 
-#if defined( CoreDebug_DHCSR_C_DEBUGEN_Msk )
+#if defined(CoreDebug_DHCSR_C_DEBUGEN_Msk)
 
 #include "em_assert.h"
 #include "em_cmu.h"
@@ -57,7 +57,7 @@
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 
-#if defined( GPIO_ROUTE_SWOPEN ) || defined( GPIO_ROUTEPEN_SWVPEN )
+#if defined(GPIO_ROUTE_SWOPEN) || defined(GPIO_ROUTEPEN_SWVPEN)
 /***************************************************************************//**
  * @brief
  *   Enable Serial Wire Output (SWO) pin.
@@ -96,10 +96,10 @@ void DBG_SWOEnable(unsigned int location)
 
   EFM_ASSERT(location < AFCHANLOC_MAX);
 
-#if defined ( AF_DBG_SWO_PORT )
+#if defined (AF_DBG_SWO_PORT)
   port = AF_DBG_SWO_PORT(location);
   pin  = AF_DBG_SWO_PIN(location);
-#elif defined (AF_DBG_SWV_PORT )
+#elif defined (AF_DBG_SWV_PORT)
   port = AF_DBG_SWV_PORT(location);
   pin  = AF_DBG_SWV_PIN(location);
 #else
@@ -107,8 +107,7 @@ void DBG_SWOEnable(unsigned int location)
 #endif
 
   /* Port/pin location not defined for device? */
-  if ((pin < 0) || (port < 0))
-  {
+  if ((pin < 0) || (port < 0)) {
     EFM_ASSERT(0);
     return;
   }

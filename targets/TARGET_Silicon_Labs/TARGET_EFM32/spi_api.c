@@ -60,6 +60,18 @@ static inline CMU_Clock_TypeDef spi_get_clock_tree(spi_t *obj)
         case SPI_2:
             return cmuClock_USART2;
 #endif
+#ifdef USART3
+        case SPI_3:
+            return cmuClock_USART3;
+#endif
+#ifdef USART4
+        case SPI_4:
+            return cmuClock_USART4;
+#endif
+#ifdef USART5
+        case SPI_5:
+            return cmuClock_USART5;
+#endif
         default:
             error("Spi module not available.. Out of bound access.");
             return cmuClock_HFPER;
@@ -83,6 +95,21 @@ static inline uint8_t spi_get_index(spi_t *obj)
 #ifdef USART2
         case SPI_2:
             index = 2;
+            break;
+#endif
+#ifdef USART3
+        case SPI_3:
+            index = 3;
+            break;
+#endif
+#ifdef USART4
+        case SPI_4:
+            index = 4;
+            break;
+#endif
+#ifdef USART5
+        case SPI_5:
+            index = 5;
             break;
 #endif
         default:
@@ -123,7 +150,7 @@ void spi_preinit(spi_t *obj, PinName mosi, PinName miso, PinName clk, PinName cs
     SPIName spi_ctrl = (SPIName) pinmap_merge(spi_clk, spi_cs);
 
     obj->spi.spi = (USART_TypeDef *) pinmap_merge(spi_data, spi_ctrl);
-    MBED_ASSERT((int) obj->spi.spi != NC);
+    MBED_ASSERT((unsigned int) obj->spi.spi != NC);
 
     if (cs != NC) { /* Slave mode */
         obj->spi.master = false;
@@ -285,6 +312,21 @@ void spi_enable_interrupt(spi_t *obj, uint32_t handler, uint8_t enable)
 #ifdef USART2
         case USART_2:
             IRQvector = USART2_RX_IRQn;
+            break;
+#endif
+#ifdef USART3
+        case USART_3:
+            IRQvector = USART3_RX_IRQn;
+            break;
+#endif
+#ifdef USART4
+        case USART_4:
+            IRQvector = USART4_RX_IRQn;
+            break;
+#endif
+#ifdef USART5
+        case USART_5:
+            IRQvector = USART5_RX_IRQn;
             break;
 #endif
         default:
@@ -771,6 +813,24 @@ static void spi_master_dma_channel_setup(spi_t *obj, void* callback)
             txChnlCfg.select = DMAREQ_USART2_TXEMPTY;
             break;
 #endif
+#ifdef USART3
+        case SPI_3:
+            rxChnlCfg.select = DMAREQ_USART3_RXDATAV;
+            txChnlCfg.select = DMAREQ_USART3_TXEMPTY;
+            break;
+#endif
+#ifdef USART4
+        case SPI_4:
+            rxChnlCfg.select = DMAREQ_USART4_RXDATAV;
+            txChnlCfg.select = DMAREQ_USART4_TXEMPTY;
+            break;
+#endif
+#ifdef USART5
+        case SPI_5:
+            rxChnlCfg.select = DMAREQ_USART5_RXDATAV;
+            txChnlCfg.select = DMAREQ_USART5_TXEMPTY;
+            break;
+#endif
         default:
             error("Spi module not available.. Out of bound access.");
             break;
@@ -799,12 +859,36 @@ static void spi_activate_dma(spi_t *obj, void* rxdata, const void* txdata, int t
         /* Select RX source address. 9 bit frame length requires to use extended register.
            10 bit and larger frame requires to use RXDOUBLE register. */
         switch((int)obj->spi.spi) {
+#ifdef USART0
             case USART_0:
                 dma_periph = ldmaPeripheralSignal_USART0_RXDATAV;
                 break;
+#endif
+#ifdef USART1
             case USART_1:
                 dma_periph = ldmaPeripheralSignal_USART1_RXDATAV;
                 break;
+#endif
+#ifdef USART2
+            case USART_2:
+                dma_periph = ldmaPeripheralSignal_USART2_RXDATAV;
+                break;
+#endif
+#ifdef USART3
+            case USART_3:
+                dma_periph = ldmaPeripheralSignal_USART3_RXDATAV;
+                break;
+#endif
+#ifdef USART4
+            case USART_4:
+                dma_periph = ldmaPeripheralSignal_USART4_RXDATAV;
+                break;
+#endif
+#ifdef USART5
+            case USART_5:
+                dma_periph = ldmaPeripheralSignal_USART5_RXDATAV;
+                break;
+#endif
             default:
                 EFM_ASSERT(0);
                 while(1);
@@ -1222,7 +1306,7 @@ uint32_t spi_irq_handler_asynch(spi_t* obj)
                     rx_pointer = ((uint16_t *)obj->rx_buff.buffer) + obj->rx_buff.pos;
                 } else {
                     rx_pointer = ((uint8_t *)obj->rx_buff.buffer) + obj->rx_buff.pos;
-                }                
+                }
             }
             uint32_t rx_length = obj->rx_buff.length - obj->rx_buff.pos;
 

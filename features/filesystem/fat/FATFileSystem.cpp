@@ -660,7 +660,24 @@ void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset) {
     FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
 
     lock();
-    dh->index = offset;
+    if (offset < dh->index) {
+        f_rewinddir(dh);
+    }
+    while (dh->index < offset) {
+        FILINFO finfo;
+        FRESULT res;
+#if _USE_LFN
+        char lfname[NAME_MAX];
+        finfo.lfname = lfname;
+        finfo.lfsize = NAME_MAX;
+#endif // _USE_LFN
+        res = f_readdir(dh, &finfo);
+        if (res != FR_OK) {
+            break;
+        } else if (finfo.fname[0] == 0) {
+            break;
+        }
+    }
     unlock();
 }
 
@@ -678,7 +695,7 @@ void FATFileSystem::dir_rewind(fs_dir_t dir) {
     FATFS_DIR *dh = static_cast<FATFS_DIR*>(dir);
 
     lock();
-    dh->index = 0;
+    f_rewinddir(dh);
     unlock();
 }
 

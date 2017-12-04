@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_vdac.c
  * @brief Digital to Analog Converter (VDAC) Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -83,28 +83,19 @@ void VDAC_Enable(VDAC_TypeDef *vdac, unsigned int ch, bool enable)
   EFM_ASSERT(VDAC_REF_VALID(vdac));
   EFM_ASSERT(VDAC_CH_VALID(ch));
 
-  if (ch == 0)
-  {
-    if (enable)
-    {
+  if (ch == 0) {
+    if (enable) {
       vdac->CMD = VDAC_CMD_CH0EN;
-    }
-    else
-    {
+    } else {
       vdac->CMD = VDAC_CMD_CH0DIS;
-      while (vdac->STATUS & VDAC_STATUS_CH0ENS);
+      while (vdac->STATUS & VDAC_STATUS_CH0ENS) ;
     }
-  }
-  else
-  {
-    if (enable)
-    {
+  } else {
+    if (enable) {
       vdac->CMD = VDAC_CMD_CH1EN;
-    }
-    else
-    {
+    } else {
       vdac->CMD = VDAC_CMD_CH1DIS;
-      while (vdac->STATUS & VDAC_STATUS_CH1ENS);
+      while (vdac->STATUS & VDAC_STATUS_CH1ENS) ;
     }
   }
 }
@@ -138,25 +129,21 @@ void VDAC_Init(VDAC_TypeDef *vdac, const VDAC_Init_TypeDef *init)
 
   /* Make sure both channels are disabled. */
   vdac->CMD = VDAC_CMD_CH0DIS | VDAC_CMD_CH1DIS;
-  while (vdac->STATUS & (VDAC_STATUS_CH0ENS | VDAC_STATUS_CH1ENS));
+  while (vdac->STATUS & (VDAC_STATUS_CH0ENS | VDAC_STATUS_CH1ENS)) ;
 
   /* Get OFFSETTRIM calibration value. */
   cal = ((DEVINFO->VDAC0CH1CAL & _DEVINFO_VDAC0CH1CAL_OFFSETTRIM_MASK)
          >> _DEVINFO_VDAC0CH1CAL_OFFSETTRIM_SHIFT)
         << _VDAC_CAL_OFFSETTRIM_SHIFT;
 
-  if (init->mainCalibration)
-  {
+  if (init->mainCalibration) {
     calData = &DEVINFO->VDAC0MAINCAL;
-  }
-  else
-  {
+  } else {
     calData = &DEVINFO->VDAC0ALTCAL;
   }
 
   /* Get correct GAINERRTRIM calibration value. */
-  switch (init->reference)
-  {
+  switch (init->reference) {
     case vdacRef1V25Ln:
       tmp = (*calData & _DEVINFO_VDAC0MAINCAL_GAINERRTRIM1V25LN_MASK)
             >> _DEVINFO_VDAC0MAINCAL_GAINERRTRIM1V25LN_SHIFT;
@@ -188,8 +175,7 @@ void VDAC_Init(VDAC_TypeDef *vdac, const VDAC_Init_TypeDef *init)
   cal |= tmp << _VDAC_CAL_GAINERRTRIM_SHIFT;
 
   /* Get GAINERRTRIMCH1 calibration value. */
-  switch (init->reference)
-  {
+  switch (init->reference) {
     case vdacRef1V25Ln:
     case vdacRef1V25:
     case vdacRefAvdd:
@@ -249,48 +235,36 @@ void VDAC_InitChannel(VDAC_TypeDef *vdac,
   /* Make sure both channels are disabled. */
   vdacStatus = vdac->STATUS;
   vdac->CMD = VDAC_CMD_CH0DIS | VDAC_CMD_CH1DIS;
-  while (vdac->STATUS & (VDAC_STATUS_CH0ENS | VDAC_STATUS_CH1ENS));
+  while (vdac->STATUS & (VDAC_STATUS_CH0ENS | VDAC_STATUS_CH1ENS)) ;
 
   vdacChCtrl = ((uint32_t)init->prsSel          << _VDAC_CH0CTRL_PRSSEL_SHIFT)
                | ((uint32_t)init->prsAsync      << _VDAC_CH0CTRL_PRSASYNC_SHIFT)
                | ((uint32_t)init->trigMode      << _VDAC_CH0CTRL_TRIGMODE_SHIFT)
                | ((uint32_t)init->sampleOffMode << _VDAC_CH0CTRL_CONVMODE_SHIFT);
 
-  if (ch == 0)
-  {
+  if (ch == 0) {
     vdac->CH0CTRL = vdacChCtrl;
-  }
-  else
-  {
+  } else {
     vdac->CH1CTRL = vdacChCtrl;
   }
 
   /* Check if the channel must be enabled. */
-  if (init->enable)
-  {
-    if (ch == 0)
-    {
+  if (init->enable) {
+    if (ch == 0) {
       vdac->CMD = VDAC_CMD_CH0EN;
-    }
-    else
-    {
+    } else {
       vdac->CMD = VDAC_CMD_CH1EN;
     }
   }
 
   /* Check if the other channel had to be turned off above
    * and needs to be turned on again. */
-  if (ch == 0)
-  {
-    if (vdacStatus & VDAC_STATUS_CH1ENS)
-    {
+  if (ch == 0) {
+    if (vdacStatus & VDAC_STATUS_CH1ENS) {
       vdac->CMD = VDAC_CMD_CH1EN;
     }
-  }
-  else
-  {
-    if (vdacStatus & VDAC_STATUS_CH0ENS)
-    {
+  } else {
+    if (vdacStatus & VDAC_STATUS_CH0ENS) {
       vdac->CMD = VDAC_CMD_CH0EN;
     }
   }
@@ -317,8 +291,7 @@ void VDAC_ChannelOutputSet(VDAC_TypeDef *vdac,
                            unsigned int channel,
                            uint32_t value)
 {
-  switch(channel)
-  {
+  switch (channel) {
     case 0:
       VDAC_Channel0OutputSet(vdac, value);
       break;
@@ -368,23 +341,16 @@ uint32_t VDAC_PrescaleCalc(uint32_t vdacFreq, bool syncMode, uint32_t hfperFreq)
   uint32_t ret, refFreq;
 
   /* Make sure selected VDAC clock is below max value */
-  if (vdacFreq > VDAC_MAX_CLOCK)
-  {
+  if (vdacFreq > VDAC_MAX_CLOCK) {
     vdacFreq = VDAC_MAX_CLOCK;
   }
 
-  if (!syncMode)
-  {
+  if (!syncMode) {
     refFreq = VDAC_INTERNAL_CLOCK_FREQ;
-  }
-  else
-  {
-    if (hfperFreq)
-    {
+  } else {
+    if (hfperFreq) {
       refFreq = hfperFreq;
-    }
-    else
-    {
+    } else {
       refFreq = CMU_ClockFreqGet(cmuClock_HFPER);
     }
   }
@@ -392,18 +358,15 @@ uint32_t VDAC_PrescaleCalc(uint32_t vdacFreq, bool syncMode, uint32_t hfperFreq)
   /* Iterate in order to determine best prescale value. Start with lowest */
   /* prescaler value in order to get the first equal or less VDAC         */
   /* frequency value. */
-  for (ret = 0; ret <= _VDAC_CTRL_PRESC_MASK >> _VDAC_CTRL_PRESC_SHIFT; ret++)
-  {
-    if ((refFreq / (ret + 1)) <= vdacFreq)
-    {
+  for (ret = 0; ret <= _VDAC_CTRL_PRESC_MASK >> _VDAC_CTRL_PRESC_SHIFT; ret++) {
+    if ((refFreq / (ret + 1)) <= vdacFreq) {
       break;
     }
   }
 
   /* If ret is higher than the max prescaler value, make sure to return
      the max value. */
-  if (ret > (_VDAC_CTRL_PRESC_MASK >> _VDAC_CTRL_PRESC_SHIFT))
-  {
+  if (ret > (_VDAC_CTRL_PRESC_MASK >> _VDAC_CTRL_PRESC_SHIFT)) {
     ret = _VDAC_CTRL_PRESC_MASK >> _VDAC_CTRL_PRESC_SHIFT;
   }
 
@@ -421,7 +384,7 @@ void VDAC_Reset(VDAC_TypeDef *vdac)
 {
   /* Disable channels, before resetting other registers. */
   vdac->CMD     = VDAC_CMD_CH0DIS | VDAC_CMD_CH1DIS;
-  while (vdac->STATUS & (VDAC_STATUS_CH0ENS | VDAC_STATUS_CH1ENS));
+  while (vdac->STATUS & (VDAC_STATUS_CH0ENS | VDAC_STATUS_CH1ENS)) ;
   vdac->CH0CTRL = _VDAC_CH0CTRL_RESETVALUE;
   vdac->CH1CTRL = _VDAC_CH1CTRL_RESETVALUE;
   vdac->CH0DATA = _VDAC_CH0DATA_RESETVALUE;

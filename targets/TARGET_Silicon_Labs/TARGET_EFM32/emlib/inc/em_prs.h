@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_prs.h
  * @brief Peripheral Reflex System (PRS) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -55,8 +55,7 @@ extern "C" {
  ******************************************************************************/
 
 /** Edge detection type. */
-typedef enum
-{
+typedef enum {
   prsEdgeOff  = PRS_CH_CTRL_EDSEL_OFF,      /**< Leave signal as is. */
   prsEdgePos  = PRS_CH_CTRL_EDSEL_POSEDGE,  /**< Generate pules on positive edge. */
   prsEdgeNeg  = PRS_CH_CTRL_EDSEL_NEGEDGE,  /**< Generate pules on negative edge. */
@@ -88,7 +87,6 @@ __STATIC_INLINE void PRS_LevelSet(uint32_t level, uint32_t mask)
   PRS->SWLEVEL = (PRS->SWLEVEL & ~mask) | (level & mask);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Trigger a high pulse (one HFPERCLK) for one or more channels.
@@ -113,7 +111,7 @@ void PRS_SourceSignalSet(unsigned int ch,
                          uint32_t signal,
                          PRS_Edge_TypeDef edge);
 
-#if defined( PRS_CH_CTRL_ASYNC )
+#if defined(PRS_CH_CTRL_ASYNC)
 void PRS_SourceAsyncSignalSet(unsigned int ch,
                               uint32_t source,
                               uint32_t signal);

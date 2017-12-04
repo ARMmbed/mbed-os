@@ -731,12 +731,14 @@
         "inherits": ["Target"],
         "detect_code": ["1056"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name" : "LPC54618J512ET180"
     },
     "FF_LPC546XX": {
         "inherits": ["LPC546XX"],
         "extra_labels_remove" : ["LPCXpresso"],
+        "features_remove": ["LWIP"],
         "supported_form_factors": [""],
         "detect_code": ["8081"]
     },
@@ -1379,7 +1381,7 @@
             }
         },
         "detect_code": ["0770"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "CAN", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L432KC"
     },
@@ -1505,7 +1507,7 @@
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32F4", "STM32F407", "STM32F407xG", "STM32F407VG"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
-        "macros_add": ["USB_STM_HAL"],
+        "macros_add": ["RTC_LSI=1", "USB_STM_HAL"],
         "device_has_add": ["ANALOGOUT"],
         "device_name": "STM32F407VG"
     },
@@ -1525,10 +1527,11 @@
                 "macro_name": "CLOCK_SOURCE_USB"
             }
         },
-        "macros_add": ["RTC_LSI=1", "USBHOST_OTHER"],
+        "macros_add": ["RTC_LSI=1", "USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F429ZI"
+        "device_name": "STM32F429ZI",
+        "bootloader_supported": true
     },
     "DISCO_F469NI": {
         "inherits": ["FAMILY_STM32"],
@@ -1570,7 +1573,6 @@
         "core": "Cortex-M0+",
         "extra_labels_add": ["STM32L0", "STM32L072CZ", "STM32L072xx"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
-        "macros": ["RTC_LSI=1"],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
@@ -1593,6 +1595,10 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
+            },
+            "usb_speed": {
+                "help": "Select the USB speed/connector (0=FullSpeed, 1=HighSpeed)",
+                "value": "1"
             }
         },
         "detect_code": ["0815"],
@@ -2761,7 +2767,7 @@
     },
     "EFR32MG1P132F256GM48": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFR32MG1", "256K", "SL_RAIL", "SL_CRYPTO"],
+        "extra_labels_add": ["EFR32MG1", "EFR32_1", "256K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
         "macros_add": ["EFR32MG1P132F256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -2772,7 +2778,7 @@
     },
     "EFR32MG1P233F256GM48": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFR32MG1", "256K", "SL_RAIL", "SL_CRYPTO"],
+        "extra_labels_add": ["EFR32MG1", "EFR32_1", "256K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
         "macros_add": ["EFR32MG1P233F256GM48", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -2914,7 +2920,7 @@
     },
     "EFR32MG12P332F1024GL125": {
         "inherits": ["EFM32"],
-        "extra_labels_add": ["EFR32MG12", "1024K", "SL_RAIL", "SL_CRYPTO"],
+        "extra_labels_add": ["EFR32MG12", "EFR32_12", "1024K", "SL_RAIL", "SL_CRYPTO"],
         "core": "Cortex-M4F",
         "macros_add": ["EFR32MG12P332F1024GL125", "TRANSACTION_QUEUE_SIZE_SPI=4"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM", "IAR"],
@@ -3192,7 +3198,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": ["TARGET_NRF52840", "BLE_STACK_SUPPORT_REQD", "SOFTDEVICE_PRESENT", "S140", "NRF_SD_BLE_API_VERSION=5", "NRF52840_XXAA", "NRF_DFU_SETTINGS_VERSION=1", "NRF_SD_BLE_API_VERSION=5", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has": ["STCLK_OFF_DURING_SLEEP"],	    
+        "device_has": ["STCLK_OFF_DURING_SLEEP"],
         "extra_labels": ["NORDIC", "MCU_NRF52840", "NRF5", "SDK13", "NRF52_COMMON"],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
@@ -3521,5 +3527,22 @@
         "device_name": "TMPM066FWUG",
         "detect_code": ["7011"],
         "release_versions": ["5"]
+    },
+    "SAKURAIO_EVB_01": {
+        "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": [],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32F4", "STM32F411xE", "STM32F411RE"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
+        "release_versions": ["2"],
+        "device_name": "STM32F411RE"
     }
 }
