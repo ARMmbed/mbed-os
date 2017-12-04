@@ -62,8 +62,8 @@ void rtc_init(void)
         return;
     }
 
-#if !RTC_LSI /* => LSE */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+#if MBED_CONF_TARGET_LSE_AVAILABLE
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
@@ -80,14 +80,13 @@ void rtc_init(void)
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         error("PeriphClkInitStruct RTC failed with LSE\n");
     }
-
-#else /*  => RTC_LSI */
+#else /*  MBED_CONF_TARGET_LSE_AVAILABLE */
     // Reset Backup domain
     __HAL_RCC_BACKUPRESET_FORCE();
     __HAL_RCC_BACKUPRESET_RELEASE();
 
     // Enable LSI clock
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
     RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
@@ -103,7 +102,7 @@ void rtc_init(void)
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
         error("PeriphClkInitStruct RTC failed with LSI\n");
     }
-#endif /* !RTC_LSI */
+#endif /* MBED_CONF_TARGET_LSE_AVAILABLE */
 
     // Enable RTC
     __HAL_RCC_RTC_ENABLE();
@@ -135,7 +134,7 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
-#if RTC_LSI
+#if !MBED_CONF_TARGET_LSE_AVAILABLE
     // Enable Power clock
     __HAL_RCC_PWR_CLK_ENABLE();
 
