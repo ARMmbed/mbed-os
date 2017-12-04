@@ -217,7 +217,7 @@ private:
     /* 
      * This function builds the qspi command struct to be send to Hal
      */
-    inline qspi_command_t *_build_qspi_command(int instruction, int address, int alt);
+    inline void _build_qspi_command(int instruction, int address, int alt);
 };
 
 } // namespace mbed
