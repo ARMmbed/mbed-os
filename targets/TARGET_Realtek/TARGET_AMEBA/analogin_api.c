@@ -29,13 +29,8 @@ extern u32 ConfigDebugErr;
 extern u32 ConfigDebuginfo;
 
 
-<<<<<<< HEAD
-void analogin_init (analogin_t *obj, PinName pin){
-
-=======
 void analogin_init (analogin_t *obj, PinName pin)
 {
->>>>>>> upstream/master
     uint32_t adc_idx;
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_USERCB_ADPT    pSalADCUserCBAdpt   = NULL;
@@ -76,10 +71,6 @@ void analogin_init (analogin_t *obj, PinName pin)
 
     /* To backup user config first */
     //_memcpy(pHalADCInitDataTmp, &(obj->HalADCInitData), sizeof(HAL_ADC_INIT_DAT));
-<<<<<<< HEAD
-
-=======
->>>>>>> upstream/master
     
     pSalADCMngtAdpt->pHalInitDat        = &(obj->HalADCInitData);
     pSalADCMngtAdpt->pHalOp             = &(obj->HalADCOp);
@@ -122,18 +113,10 @@ void analogin_init (analogin_t *obj, PinName pin)
 
     /* Load user setting */
     if ((pHalADCInitDataTmp->ADCEndian == ADC_DATA_ENDIAN_LITTLE) || (pHalADCInitDataTmp->ADCEndian == ADC_DATA_ENDIAN_BIG)) {
-<<<<<<< HEAD
-        DBG_8195A("K\n");
-=======
->>>>>>> upstream/master
         pSalADCHND->pInitDat->ADCEndian = pHalADCInitDataTmp->ADCEndian;
     }
     
     if ((pHalADCInitDataTmp->ADCAudioEn != ADC_FEATURE_DISABLED) && (pHalADCInitDataTmp->ADCAudioEn < 2)) {
-<<<<<<< HEAD
-        DBG_8195A("O\n");
-=======
->>>>>>> upstream/master
         pSalADCHND->pInitDat->ADCAudioEn = pHalADCInitDataTmp->ADCAudioEn;
     }
     
@@ -143,12 +126,8 @@ void analogin_init (analogin_t *obj, PinName pin)
     RtkADCInit(pSalADCHND); 
 }
 
-<<<<<<< HEAD
-float analogin_read(analogin_t *obj){
-=======
 float analogin_read(analogin_t *obj)
 {
->>>>>>> upstream/master
     float value;
     uint32_t AnaloginTmp[2]      = {0,0};
     uint32_t AnaloginDatMsk      = 0xFFFF;
@@ -177,12 +156,8 @@ float analogin_read(analogin_t *obj)
     return (float)value;
 }
 
-<<<<<<< HEAD
-uint16_t analogin_read_u16(analogin_t *obj){
-=======
 uint16_t analogin_read_u16(analogin_t *obj)
 {
->>>>>>> upstream/master
     uint32_t AnaloginTmp[2]      = {0,0};
     uint32_t AnaloginDatMsk      = 0xFFFF;
     uint8_t  AnaloginIdx         = 0;
@@ -202,19 +177,11 @@ uint16_t analogin_read_u16(analogin_t *obj)
     AnalogDat = (AnalogDat>>((u32)(16*(AnaloginIdx&0x01))));
 
     return (uint16_t)AnalogDat;
-<<<<<<< HEAD
-    
-}
-
-
-void  analogin_deinit(analogin_t *obj){
-=======
 }
 
 
 void  analogin_deinit(analogin_t *obj)
 {
->>>>>>> upstream/master
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_HND            pSalADCHND          = NULL;
     

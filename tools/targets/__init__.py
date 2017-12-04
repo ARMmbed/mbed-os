@@ -533,11 +533,7 @@ class RTL8195ACode:
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
-<<<<<<< HEAD
-        rtl8195a_elf2bin(t_self.name, elf, binf)
-=======
         rtl8195a_elf2bin(t_self, elf, binf)
->>>>>>> upstream/master
 ################################################################################
 
 # Instantiate all public targets

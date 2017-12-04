@@ -28,21 +28,11 @@
 #include "hal_diag.h"
 #include "hal_spi_flash.h"
 #include "rtl8195a_spi_flash.h"
-<<<<<<< HEAD
-//#include "hal_timer.h"
-=======
->>>>>>> upstream/master
 #include "hal_util.h"
 #include "hal_efuse.h"
 #include "hal_soc_ps_monitor.h"
 #include "diag.h"
-<<<<<<< HEAD
-//#include "hal_common.h"
-//#include "hal_soc_ps_monitor.h"
-
-=======
 #include "system_8195a.h"
->>>>>>> upstream/master
 
 // from RDC team
 #ifdef CONFIG_MBED_ENABLED
@@ -53,12 +43,7 @@
 
 #include "rtl8195a_compiler.h"
 #include "rtl8195a_platform.h"
-<<<<<<< HEAD
-
-
-=======
 #include "rtl8195a_crypto.h"
->>>>>>> upstream/master
 
 #define REG32(reg)      (*(volatile uint32_t *)(reg))
 #define REG16(reg)      (*(volatile uint16_t *)(reg))
@@ -164,10 +149,6 @@ __##name##_Disable(void)                                         \
 #include "rtl8195a_clk.h"
 #include "rtl8195a_misc.h"
 #include "rtl8195a_sdio.h"
-<<<<<<< HEAD
-//#include "rtl8195a_luart.h"
-=======
->>>>>>> upstream/master
 
 #endif
 
@@ -217,13 +198,6 @@ __##name##_Disable(void)                                         \
 #include "rtl8195a_i2c.h"
 #endif
 
-<<<<<<< HEAD
-//#ifdef CONFIG_PCM_EN
-//#include "hal_pcm.h"
-//#include "rtl8195a_pcm.h"
-//#endif
-=======
->>>>>>> upstream/master
 
 #ifdef CONFIG_PWM_EN
 #include "hal_pwm.h"

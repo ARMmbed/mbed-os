@@ -18,11 +18,7 @@
 
 #if defined (__ICCARM__)
 #ifndef STRINGIFY
-<<<<<<< HEAD
-#define STRINGIFY(s) #s
-=======
 #define STRINGIFY(a) #a
->>>>>>> upstream/master
 #endif
 #ifndef SECTION
 #define SECTION(_name)      _Pragma( STRINGIFY(location=##_name##))
@@ -33,15 +29,12 @@
 #define __romcall
 #define __longcall
 
-<<<<<<< HEAD
-=======
 #elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 
 #ifndef __longcall
 #define __longcall
 #endif
 
->>>>>>> upstream/master
 #elif defined(__CC_ARM)
 
 #ifndef __longcall

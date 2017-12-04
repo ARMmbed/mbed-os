@@ -20,15 +20,12 @@
 #include <wifi/wifi_ind.h>
 #include <osdep_service.h>
 
-<<<<<<< HEAD
-=======
 extern u32 GlobalDebugEnable;
 #define WIFI_UTIL_MSG(...)     do {\
     if (GlobalDebugEnable) \
         printf("\r" __VA_ARGS__);\
 }while(0)
 
->>>>>>> upstream/master
 int iw_ioctl(const char *ifname, unsigned long request, struct iwreq *pwrq)
 {
     memcpy(pwrq->ifr_name, ifname, 5);
@@ -45,11 +42,7 @@ int wext_get_ssid(const char *ifname, __u8 *ssid)
     iwr.u.essid.length = 32;
 
     if (iw_ioctl(ifname, SIOCGIWESSID, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCGIWESSID] ssid = NULL, not connected"); //do not use perror
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCGIWESSID] ssid = NULL, not connected"); //do not use perror
->>>>>>> upstream/master
         ret = -1;
     } else {
         ret = iwr.u.essid.length;
@@ -78,11 +71,7 @@ int wext_set_ssid(const char *ifname, const __u8 *ssid, __u16 ssid_len)
     iwr.u.essid.flags = (ssid_len != 0);
 
     if (iw_ioctl(ifname, SIOCSIWESSID, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWESSID] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWESSID] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -103,11 +92,7 @@ int wext_set_bssid(const char *ifname, const __u8 *bssid)
     }
 
     if (iw_ioctl(ifname, SIOCSIWAP, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWAP] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWAP] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -129,11 +114,7 @@ int wext_set_auth_param(const char *ifname, __u16 idx, __u32 value)
     iwr.u.param.value = value;
 
     if (iw_ioctl(ifname, SIOCSIWAUTH, &iwr) < 0) {
-<<<<<<< HEAD
-		printf("\n\rWEXT: SIOCSIWAUTH(param %d value 0x%x) failed)", idx, value);
-=======
 		WIFI_UTIL_MSG("\n\rWEXT: SIOCSIWAUTH(param %d value 0x%x) failed)", idx, value);
->>>>>>> upstream/master
     }
 
     return ret;
@@ -187,11 +168,7 @@ int wext_set_key_ext(const char *ifname, __u16 alg, const __u8 *addr, int key_id
 
     if (iw_ioctl(ifname, SIOCSIWENCODEEXT, &iwr) < 0) {
         ret = -2;
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWENCODEEXT] set key fail");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWENCODEEXT] set key fail");
->>>>>>> upstream/master
     }
 
     rtw_free(ext);
@@ -213,11 +190,7 @@ int wext_get_enc_ext(const char *ifname, __u16 *alg, __u8 *key_idx, __u8 *passph
     iwr.u.encoding.pointer = ext;
 
     if (iw_ioctl(ifname, SIOCGIWENCODEEXT, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCGIWENCODEEXT] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCGIWENCODEEXT] error");
->>>>>>> upstream/master
         ret = -1;
 	}
 	else
@@ -246,11 +219,7 @@ int wext_set_passphrase(const char *ifname, const __u8 *passphrase, __u16 passph
     iwr.u.passphrase.flags = (passphrase_len != 0);
 
     if (iw_ioctl(ifname, SIOCSIWPRIVPASSPHRASE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWESSID+0x1f] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWESSID+0x1f] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -266,11 +235,7 @@ int wext_get_passphrase(const char *ifname, __u8 *passphrase)
     iwr.u.passphrase.pointer = (void *) passphrase;
 
     if (iw_ioctl(ifname, SIOCGIWPRIVPASSPHRASE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCGIWPRIVPASSPHRASE] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCGIWPRIVPASSPHRASE] error");
->>>>>>> upstream/master
         ret = -1;
     }
     else {
@@ -333,11 +298,7 @@ int wext_enable_powersave(const char *ifname, __u8 ips_mode, __u8 lps_mode)
     iwr.u.data.length = pindex;
 
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWPRIVAPESSID] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWPRIVAPESSID] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -375,11 +336,7 @@ int wext_disable_powersave(const char *ifname)
     iwr.u.data.length = pindex;
 
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWPRIVAPESSID] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWPRIVAPESSID] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -416,11 +373,7 @@ int wext_set_tdma_param(const char *ifname, __u8 slot_period, __u8 rfon_period_l
     iwr.u.data.length = pindex;
 
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWPRIVAPESSID] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWPRIVAPESSID] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -453,11 +406,7 @@ int wext_set_lps_dtim(const char *ifname, __u8 lps_dtim)
     iwr.u.data.length = pindex;
 
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWPRIVAPESSID] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWPRIVAPESSID] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -491,11 +440,7 @@ int wext_get_lps_dtim(const char *ifname, __u8 *lps_dtim)
     iwr.u.data.length = pindex;
 
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWPRIVAPESSID] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWPRIVAPESSID] error");
->>>>>>> upstream/master
         ret = -1;
         goto exit;
     }
@@ -504,11 +449,7 @@ int wext_get_lps_dtim(const char *ifname, __u8 *lps_dtim)
     if((para[0]==3)&&(para[1]==1))
         *lps_dtim = para[2];
     else
-<<<<<<< HEAD
-        printf("\n\r%s error", __func__);
-=======
         WIFI_UTIL_MSG("\n\r%s error", __func__);
->>>>>>> upstream/master
 
 exit:
     rtw_free(para);
@@ -557,11 +498,7 @@ int wext_set_tos_value(const char *ifname, __u8 *tos_value)
     iwr.u.data.length = cmd_len + 4;
 
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rwext_set_tos_value():ioctl[SIOCDEVPRIVATE] error");
-=======
         WIFI_UTIL_MSG("\n\rwext_set_tos_value():ioctl[SIOCDEVPRIVATE] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -587,11 +524,7 @@ int wext_get_tx_power(const char *ifname, __u8 *poweridx)
     iwr.u.data.pointer = para;
     iwr.u.data.length = cmd_len + 20;
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rwext_get_tx_power():ioctl[SIOCDEVPRIVATE] error");
-=======
         WIFI_UTIL_MSG("\n\rwext_get_tx_power():ioctl[SIOCDEVPRIVATE] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -650,11 +583,7 @@ int wext_set_mode(const char *ifname, int mode)
     memset(&iwr, 0, sizeof(iwr));
     iwr.u.mode = mode;
     if (iw_ioctl(ifname, SIOCSIWMODE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWMODE] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWMODE] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -669,11 +598,7 @@ int wext_get_mode(const char *ifname, int *mode)
     memset(&iwr, 0, sizeof(iwr));
 
     if (iw_ioctl(ifname, SIOCGIWMODE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCGIWMODE] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCGIWMODE] error");
->>>>>>> upstream/master
         ret = -1;
     }
     else
@@ -693,11 +618,7 @@ int wext_set_ap_ssid(const char *ifname, const __u8 *ssid, __u16 ssid_len)
     iwr.u.essid.flags = (ssid_len != 0);
 
     if (iw_ioctl(ifname, SIOCSIWPRIVAPESSID, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWPRIVAPESSID] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWPRIVAPESSID] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -714,11 +635,7 @@ int wext_set_country(const char *ifname, rtw_country_code_t country_code)
     iwr.u.param.value = country_code;
 
     if (iw_ioctl(ifname, SIOCSIWPRIVCOUNTRY, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWPRIVCOUNTRY] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWPRIVCOUNTRY] error");
->>>>>>> upstream/master
         ret = -1;
     }
     return ret;
@@ -732,11 +649,7 @@ int wext_get_rssi(const char *ifname, int *rssi)
     memset(&iwr, 0, sizeof(iwr));
 
     if (iw_ioctl(ifname, SIOCGIWSENS, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCGIWSENS] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCGIWSENS] error");
->>>>>>> upstream/master
         ret = -1;
     } else {
         *rssi = 0 - iwr.u.sens.value;
@@ -768,11 +681,7 @@ int wext_set_pscan_channel(const char *ifname, __u8 *ch, __u8 *pscan_config, __u
     iwr.u.data.pointer = para;
     iwr.u.data.length = (length + length + 1) + 12;
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rwext_set_pscan_channel():ioctl[SIOCDEVPRIVATE] error");
-=======
         WIFI_UTIL_MSG("\n\rwext_set_pscan_channel():ioctl[SIOCDEVPRIVATE] error");
->>>>>>> upstream/master
         ret = -1;
     }
     rtw_free(para);
@@ -789,11 +698,7 @@ int wext_set_channel(const char *ifname, __u8 ch)
     iwr.u.freq.i = ch;
 
     if (iw_ioctl(ifname, SIOCSIWFREQ, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWFREQ] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWFREQ] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -808,11 +713,7 @@ int wext_get_channel(const char *ifname, __u8 *ch)
     memset(&iwr, 0, sizeof(iwr));
 
     if (iw_ioctl(ifname, SIOCGIWFREQ, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCGIWFREQ] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCGIWFREQ] error");
->>>>>>> upstream/master
         ret = -1;
     }
     else
@@ -859,11 +760,7 @@ int wext_set_scan(const char *ifname, char *buf, __u16 buf_len, __u16 flags)
     iwr.u.data.flags = flags;
     iwr.u.data.length = buf_len;
     if (iw_ioctl(ifname, SIOCSIWSCAN, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWSCAN] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWSCAN] error");
->>>>>>> upstream/master
         ret = -1;
     }
     return ret;
@@ -877,11 +774,7 @@ int wext_get_scan(const char *ifname, char *buf, __u16 buf_len)
     iwr.u.data.pointer = buf;
     iwr.u.data.length = buf_len;
     if (iw_ioctl(ifname, SIOCGIWSCAN, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCGIWSCAN] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCGIWSCAN] error");
->>>>>>> upstream/master
         ret = -1;
     }else
         ret = iwr.u.data.flags;
@@ -899,11 +792,7 @@ int wext_private_command_with_retval(const char *ifname, char *cmd, char *ret_bu
         buf_size = strlen(cmd) + 1;    // 1 : '\0'
     buf = (char*)rtw_malloc(buf_size);
     if(!buf){
-<<<<<<< HEAD
-        printf("\n\rWEXT: Can't malloc memory");
-=======
         WIFI_UTIL_MSG("\n\rWEXT: Can't malloc memory");
->>>>>>> upstream/master
         return -1;
     }
     memset(buf, 0, buf_size);
@@ -914,11 +803,7 @@ int wext_private_command_with_retval(const char *ifname, char *cmd, char *ret_bu
     iwr.u.data.flags = 0;
 
     if ((ret = iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr)) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCDEVPRIVATE] error. ret=%d\n", ret);
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCDEVPRIVATE] error. ret=%d\n", ret);
->>>>>>> upstream/master
     }
     if(ret_buf){
         if(ret_len > iwr.u.data.length)
@@ -951,11 +836,7 @@ int wext_private_command(const char *ifname, char *cmd, int show_msg)
         buf_size = strlen(cmd) + 1;    // 1 : '\0'
     buf = (char*)rtw_malloc(buf_size);
     if (!buf) {
-<<<<<<< HEAD
-        printf("\n\rWEXT: Can't malloc memory");
-=======
         WIFI_UTIL_MSG("\n\rWEXT: Can't malloc memory");
->>>>>>> upstream/master
         return -1;
     }
     memset(buf, 0, buf_size);
@@ -966,21 +847,12 @@ int wext_private_command(const char *ifname, char *cmd, int show_msg)
     iwr.u.data.flags = 0;
 
     if ((ret = iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr)) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCDEVPRIVATE] error. ret=%d\n", ret);
-    }
-    if (show_msg && iwr.u.data.length) {
-        if(iwr.u.data.length > buf_size)
-            printf("\n\rWEXT: Malloc memory is not enough");
-        printf("\n\rPrivate Message: %s", (char *) iwr.u.data.pointer);
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCDEVPRIVATE] error. ret=%d\n", ret);
     }
     if (show_msg && iwr.u.data.length) {
         if(iwr.u.data.length > buf_size)
             WIFI_UTIL_MSG("\n\rWEXT: Malloc memory is not enough");
         WIFI_UTIL_MSG("\n\rPrivate Message: %s", (char *) iwr.u.data.pointer);
->>>>>>> upstream/master
     }
     rtw_free(buf);
     return ret;
@@ -1058,11 +930,7 @@ int wext_send_eapol(const char *ifname, char *buf, __u16 buf_len, __u16 flags)
     iwr.u.data.length = buf_len;
     iwr.u.data.flags = flags;
     if (iw_ioctl(ifname, SIOCSIWEAPOLSEND, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWEAPOLSEND] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWEAPOLSEND] error");
->>>>>>> upstream/master
         ret = -1;
     }
     return ret;
@@ -1078,11 +946,7 @@ int wext_send_mgnt(const char *ifname, char *buf, __u16 buf_len, __u16 flags)
     iwr.u.data.length = buf_len;
     iwr.u.data.flags = flags;
     if (iw_ioctl(ifname, SIOCSIWMGNTSEND, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWMGNTSEND] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWMGNTSEND] error");
->>>>>>> upstream/master
         ret = -1;
     }
     return ret;
@@ -1098,11 +962,7 @@ int wext_set_gen_ie(const char *ifname, char *buf, __u16 buf_len, __u16 flags)
     iwr.u.data.length = buf_len;
     iwr.u.data.flags = flags;
     if (iw_ioctl(ifname, SIOCSIWGENIE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rioctl[SIOCSIWGENIE] error");
-=======
         WIFI_UTIL_MSG("\n\rioctl[SIOCSIWGENIE] error");
->>>>>>> upstream/master
         ret = -1;
     }
     return ret;
@@ -1130,11 +990,7 @@ int wext_set_autoreconnect(const char *ifname, __u8 mode, __u8 retry_times, __u1
     iwr.u.data.pointer = para;
     iwr.u.data.length = (4) + cmd_len;
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rwext_set_autoreconnect():ioctl[SIOCDEVPRIVATE] error");
-=======
         WIFI_UTIL_MSG("\n\rwext_set_autoreconnect():ioctl[SIOCDEVPRIVATE] error");
->>>>>>> upstream/master
         ret = -1;
     }
     rtw_free(para);
@@ -1158,11 +1014,7 @@ int wext_get_autoreconnect(const char *ifname, __u8 *mode)
     iwr.u.data.pointer = para;
     iwr.u.data.length = cmd_len;
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rwext_get_autoreconnect():ioctl[SIOCDEVPRIVATE] error");
-=======
         WIFI_UTIL_MSG("\n\rwext_get_autoreconnect():ioctl[SIOCDEVPRIVATE] error");
->>>>>>> upstream/master
         ret = -1;
     }
 	*mode = *(__u8 *)(iwr.u.data.pointer);
@@ -1191,11 +1043,7 @@ int wext_add_custom_ie(const char *ifname, void *cus_ie, int ie_num)
 	__u8 *para = NULL;
     int cmd_len = 0;
     if(ie_num <= 0 || !cus_ie){
-<<<<<<< HEAD
-        printf("\n\rwext_add_custom_ie():wrong parameter");
-=======
         WIFI_UTIL_MSG("\n\rwext_add_custom_ie():wrong parameter");
->>>>>>> upstream/master
         ret = -1;
         return ret;
     }
@@ -1214,11 +1062,7 @@ int wext_add_custom_ie(const char *ifname, void *cus_ie, int ie_num)
     iwr.u.data.pointer = para;
     iwr.u.data.length = (4)* 2 + cmd_len;// 2 input
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rwext_add_custom_ie():ioctl[SIOCDEVPRIVATE] error");
-=======
         WIFI_UTIL_MSG("\n\rwext_add_custom_ie():ioctl[SIOCDEVPRIVATE] error");
->>>>>>> upstream/master
         ret = -1;
     }
     rtw_free(para);
@@ -1233,11 +1077,7 @@ int wext_update_custom_ie(const char *ifname, void * cus_ie, int ie_index)
 	__u8 *para = NULL;
     int cmd_len = 0;
     if(ie_index <= 0 || !cus_ie){
-<<<<<<< HEAD
-        printf("\n\rwext_update_custom_ie():wrong parameter");
-=======
         WIFI_UTIL_MSG("\n\rwext_update_custom_ie():wrong parameter");
->>>>>>> upstream/master
         ret = -1;
         return ret;
     }
@@ -1256,11 +1096,7 @@ int wext_update_custom_ie(const char *ifname, void * cus_ie, int ie_index)
     iwr.u.data.pointer = para;
     iwr.u.data.length = (4)* 2 + cmd_len;// 2 input
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rwext_update_custom_ie():ioctl[SIOCDEVPRIVATE] error");
-=======
         WIFI_UTIL_MSG("\n\rwext_update_custom_ie():ioctl[SIOCDEVPRIVATE] error");
->>>>>>> upstream/master
         ret = -1;
     }
     rtw_free(para);
@@ -1285,11 +1121,7 @@ int wext_del_custom_ie(const char *ifname)
     iwr.u.data.pointer = para;
     iwr.u.data.length = cmd_len;
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rwext_del_custom_ie():ioctl[SIOCDEVPRIVATE] error");
-=======
         WIFI_UTIL_MSG("\n\rwext_del_custom_ie():ioctl[SIOCDEVPRIVATE] error");
->>>>>>> upstream/master
         ret = -1;
     }
     rtw_free(para);
@@ -1322,11 +1154,7 @@ int wext_enable_forwarding(const char *ifname)
     iwr.u.essid.length = cmd_len + 1;
 
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rwext_enable_forwarding(): ioctl[SIOCDEVPRIVATE] error");
-=======
         WIFI_UTIL_MSG("\n\rwext_enable_forwarding(): ioctl[SIOCDEVPRIVATE] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -1354,11 +1182,7 @@ int wext_disable_forwarding(const char *ifname)
     iwr.u.essid.length = cmd_len + 1;
 
     if (iw_ioctl(ifname, SIOCDEVPRIVATE, &iwr) < 0) {
-<<<<<<< HEAD
-        printf("\n\rwext_disable_forwarding(): ioctl[SIOCDEVPRIVATE] error");
-=======
         WIFI_UTIL_MSG("\n\rwext_disable_forwarding(): ioctl[SIOCDEVPRIVATE] error");
->>>>>>> upstream/master
         ret = -1;
     }
 
@@ -1442,11 +1266,7 @@ int wext_init_mac_filter(void)
 
     mf_list_head = (struct list_head *)rtw_malloc(sizeof(struct list_head));
     if(mf_list_head == NULL){
-<<<<<<< HEAD
-        printf("\n\r[ERROR] %s : can't allocate mf_list_head",__func__);
-=======
         WIFI_UTIL_MSG("\n\r[ERROR] %s : can't allocate mf_list_head",__func__);
->>>>>>> upstream/master
         return -1;
     }
 
@@ -1484,11 +1304,7 @@ int wext_add_mac_filter(unsigned char* hwaddr)
 	rtw_mac_filter_list_t *mf_list_new;
     mf_list_new = (rtw_mac_filter_list_t *)rtw_malloc(sizeof(rtw_mac_filter_list_t));
     if(mf_list_new == NULL){
-<<<<<<< HEAD
-        printf("\n\r[ERROR] %s : can't allocate mf_list_new",__func__);
-=======
         WIFI_UTIL_MSG("\n\r[ERROR] %s : can't allocate mf_list_new",__func__);
->>>>>>> upstream/master
         return -1;
     }
     memcpy(mf_list_new->mac_addr,hwaddr,6);

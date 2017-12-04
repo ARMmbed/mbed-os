@@ -28,13 +28,6 @@ void spi_tx_done_callback(VOID *obj);
 void spi_rx_done_callback(VOID *obj);
 void spi_bus_tx_done_callback(VOID *obj);
 
-<<<<<<< HEAD
-#ifdef CONFIG_GDMA_EN
-HAL_GDMA_OP SpiGdmaOp;
-#endif
-
-=======
->>>>>>> upstream/master
 
 //TODO: Load default Setting: It should be loaded from external setting file.
 extern const DW_SSI_DEFAULT_SETTING SpiDefaultSetting;
@@ -248,8 +241,6 @@ int spi_master_write (spi_t *obj, int value)
     return ssi_read(obj);
 }
 
-<<<<<<< HEAD
-=======
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
                            char *rx_buffer, int rx_length, char write_fill)
 {
@@ -266,7 +257,6 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
     return total;
 }
 
->>>>>>> upstream/master
 int spi_slave_receive (spi_t *obj)
 {
     PHAL_SSI_ADAPTOR pHalSsiAdaptor;

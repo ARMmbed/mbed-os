@@ -1,24 +1,4 @@
 /******************************************************************************
-<<<<<<< HEAD
- *
- * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
- *
- *
- ******************************************************************************/
-=======
  * Copyright (c) 2013-2016 Realtek Semiconductor Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +14,6 @@
  * limitations under the License.
  ******************************************************************************/
  
->>>>>>> upstream/master
 #ifndef __BASIC_TYPES_H__
 #define __BASIC_TYPES_H__
 
@@ -84,16 +63,6 @@ typedef signed long long        __int64_t;
 typedef unsigned long long      __uint64_t;
 #endif
 
-<<<<<<< HEAD
-#define s8                      int8_t
-#define u8                      uint8_t
-#define s16                     int16_t
-#define u16                     uint16_t
-#define s32                     int32_t
-#define u32                     uint32_t
-#define s64                     int64_t
-#define u64                     uint64_t
-=======
 typedef int8_t s8;
 typedef uint8_t u8;
 typedef int16_t s16;
@@ -102,7 +71,6 @@ typedef int32_t s32;
 typedef uint32_t u32;
 typedef int64_t s64;
 typedef uint64_t u64;
->>>>>>> upstream/master
 
 #ifdef CONFIG_MBED_ENABLED
 #ifndef BOOL
@@ -223,11 +191,7 @@ typedef	    __kernel_ssize_t	SSIZE_T;
 #endif
 
 #if defined (__ICCARM__)
-<<<<<<< HEAD
-#define STRINGIFY(s) #s
-=======
 #define STRINGIFY(a) #a
->>>>>>> upstream/master
 #define SECTION(_name) _Pragma( STRINGIFY(location=_name))
 #define ALIGNMTO(_bound) _Pragma( STRINGIFY(data_alignment=_bound))
 #define _PACKED_       __packed
@@ -242,8 +206,6 @@ typedef	    __kernel_ssize_t	SSIZE_T;
 
 #define _LONG_CALL_ROM_     _LONG_CALL_
 
-<<<<<<< HEAD
-=======
 #elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 #define SECTION(_name) __attribute__ ((__section__(_name)))
 #define ALIGNMTO(_bound) __attribute__ ((aligned (_bound)))
@@ -261,7 +223,6 @@ typedef	    __kernel_ssize_t	SSIZE_T;
 #endif
 #define _WEAK           __attribute__ ((weak))
 
->>>>>>> upstream/master
 #else
 #define SECTION(_name) __attribute__ ((__section__(_name)))
 #define ALIGNMTO(_bound) __attribute__ ((aligned (_bound)))

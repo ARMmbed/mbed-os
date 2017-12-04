@@ -554,11 +554,7 @@ HAL_Status HalSsiDmaRecvMultiBlockRtl8195a_V04(VOID * Adapter, u8 * pRxData, u32
 
 #endif
 
-<<<<<<< HEAD
-#ifdef CONFIG_GDMA_EN
-=======
 #if CONFIG_GDMA_EN
->>>>>>> upstream/master
 VOID HalSsiTxGdmaLoadDefRtl8195a(VOID *Adapter);
 VOID HalSsiRxGdmaLoadDefRtl8195a(VOID *Adapter);
 VOID HalSsiDmaInitRtl8195a(VOID *Adapter);

@@ -1,24 +1,4 @@
 /******************************************************************************
-<<<<<<< HEAD
- *
- * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
- *
- *
- ******************************************************************************/
-=======
  * Copyright (c) 2013-2016 Realtek Semiconductor Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,7 +15,6 @@
  ******************************************************************************/
 
 
->>>>>>> upstream/master
 #ifndef WLANCONFIG_H
 #define WLANCONFIG_H
 
@@ -128,11 +107,7 @@
 
 #if defined(CONFIG_PLATFORM_AMEBA_X)
 	#if !defined(CONFIG_PLATFORM_8711B)
-<<<<<<< HEAD
-		#define CONFIG_USE_TCM_HEAP 0					/* USE TCM HEAP */
-=======
 		#define CONFIG_USE_TCM_HEAP 1					/* USE TCM HEAP */
->>>>>>> upstream/master
 	#endif
 	#define CONFIG_RECV_TASKLET_THREAD
 	#define CONFIG_XMIT_TASKLET_THREAD

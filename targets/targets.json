@@ -3411,26 +3411,17 @@
         "core": "Cortex-M3",
         "default_toolchain": "GCC_ARM",
         "inherits": ["Target"],
-<<<<<<< HEAD
-        "extra_labels": ["Realtek", "AMEBA", "RTL8195A"],
-        "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS"],
-        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "TRNG", "EMAC"],
-=======
         "detect_code": ["4600"],
         "extra_labels": ["Realtek", "AMEBA", "RTL8195A"],
         "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "TRNG", "EMAC", "FLASH"],
->>>>>>> upstream/master
         "features": ["LWIP"],
         "post_binary_hook": {
             "function": "RTL8195ACode.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
         "release_versions": ["5"]
-<<<<<<< HEAD
-=======
     },
     "VBLUNO51_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
@@ -3553,6 +3544,5 @@
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2"],
         "device_name": "STM32F411RE"
->>>>>>> upstream/master
     }
 }

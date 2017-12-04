@@ -15,11 +15,7 @@
 #define _RTL8195A_TIMER_H_
 
 
-<<<<<<< HEAD
-#define TIMER_TICK_US               31
-=======
 #define TIMER_TICK_US               32
->>>>>>> upstream/master
 
 #define TIMER_LOAD_COUNT_OFF        0x00
 #define TIMER_CURRENT_VAL_OFF       0x04
@@ -98,14 +94,11 @@ HalTimerReadCountRtl8195a_Patch(
     IN  u32 TimerId
 );
 
-<<<<<<< HEAD
-=======
 VOID 
 HalTimerSync(
     IN u32 TimerId
 );
 
->>>>>>> upstream/master
 VOID
 HalTimerIrqEnRtl8195a(
     IN  u32 TimerId

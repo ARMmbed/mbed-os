@@ -74,11 +74,7 @@ static void wlan_set_hwaddr(emac_interface_t *emac, uint8_t *addr)
 
 static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
 {
-<<<<<<< HEAD
-    struct eth_drv_sg sg_list[MAX_ETH_DRV_SG];
-=======
     struct eth_drv_sg * sg_list=0;
->>>>>>> upstream/master
     int sg_len = 0;
     int tot_len;
     struct pbuf *p;
@@ -88,13 +84,10 @@ static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
         return false;
     }
 
-<<<<<<< HEAD
-=======
     sg_list = (struct eth_drv_sg *)malloc(sizeof(struct eth_drv_sg)*MAX_ETH_DRV_SG);
     if(sg_list == 0){//malloc fail
         return false;
     }
->>>>>>> upstream/master
     emac_stack_mem_ref(emac, buf);
 
     p = (struct pbuf *)buf;
@@ -112,10 +105,7 @@ static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
     }
 
     emac_stack_mem_free(emac, buf);
-<<<<<<< HEAD
-=======
     free(sg_list);
->>>>>>> upstream/master
     return ret;
 }
 
@@ -227,12 +217,8 @@ emac_interface_t *wlan_emac_init_interface()
 {
 
     if (_emac == NULL) {
-<<<<<<< HEAD
-        _emac = new emac_interface_t();
-=======
         _emac = (emac_interface_t*) malloc(sizeof(emac_interface_t));
         MBED_ASSERT(_emac);
->>>>>>> upstream/master
         _emac->hw = NULL;
         memcpy((void*)&_emac->ops, &wlan_emac_interface, sizeof(wlan_emac_interface));
     }

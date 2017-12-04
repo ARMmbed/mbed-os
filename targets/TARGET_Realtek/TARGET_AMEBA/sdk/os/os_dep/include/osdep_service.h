@@ -1,24 +1,3 @@
-<<<<<<< HEAD
-/******************************************************************************
- *
- * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of version 2 of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
- *
- *
- ******************************************************************************/
-=======
 /* mbed Microcontroller Library
  * Copyright (c) 2013-2016 Realtek Semiconductor Corp.
  *
@@ -35,7 +14,6 @@
  * limitations under the License.
  */
  
->>>>>>> upstream/master
 #ifndef __OSDEP_SERVICE_H_
 #define __OSDEP_SERVICE_H_
 
@@ -54,11 +32,7 @@ extern "C" {
 
 #if defined(CONFIG_PLATFORM_8195A)
 	#ifndef CONFIG_USE_TCM_HEAP
-<<<<<<< HEAD
-	#define CONFIG_USE_TCM_HEAP 0					/* USE TCM HEAP */
-=======
 	#define CONFIG_USE_TCM_HEAP 1					/* USE TCM HEAP */
->>>>>>> upstream/master
 	#endif
 	#define USE_MUTEX_FOR_SPINLOCK	1
 #endif
@@ -130,11 +104,7 @@ extern "C" {
 #elif defined( PLATFORM_ECOS)
 #include "ecos/ecos_service.h"
 #elif defined(PLATFORM_CMSIS_RTOS)
-<<<<<<< HEAD
-#include "rtx_service.h"
-=======
 #include "rtx2_service.h"
->>>>>>> upstream/master
 #endif
 
 #define RTW_MAX_DELAY			0xFFFFFFFF
