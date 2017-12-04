@@ -37,9 +37,9 @@ extern "C" {
 #endif
 
 typedef struct {
-    PinName pin:8;
-    PinMode mode:6;
-    PinDirection dir:2;
+    PinName pin;
+    PinMode mode;
+    PinDirection dir;
 } gpio_t;
 
 #if DEVICE_ANALOGIN
@@ -59,6 +59,7 @@ struct dac_s {
 #if DEVICE_I2C
 struct i2c_s {
     I2C_TypeDef *i2c;
+    uint32_t location;
 #if DEVICE_I2C_ASYNCH
     uint32_t events;
     I2C_TransferSeq_TypeDef xfer;
@@ -84,9 +85,9 @@ struct pwmout_s {
 
 #if DEVICE_INTERRUPTIN
 struct gpio_irq_s {
-    PinName pin:8; // Pin number 4 least significant bits, port number 4 most significant bits
-    uint32_t risingEdge:1;
-    uint32_t fallingEdge:1;
+    PinName pin;
+    uint8_t risingEdge;
+    uint8_t fallingEdge;
 };
 #endif
 
@@ -116,7 +117,8 @@ struct serial_s {
 #if DEVICE_SPI
 struct spi_s {
     USART_TypeDef *spi;
-    int location;
+    uint32_t location;
+    uint32_t route;
     uint8_t bits;
     uint8_t master;
 #if DEVICE_SPI_ASYNCH
@@ -145,6 +147,17 @@ typedef enum {
 } sleepstate_enum;
 #endif
 
+#if DEVICE_FLASH
+struct flash_s {
+    MSC_TypeDef *msc;
+};
+#endif
+
+#if DEVICE_TRNG
+struct trng_s {
+    TRNG_TypeDef *instance;
+};
+#endif
 
 #ifdef __cplusplus
 }

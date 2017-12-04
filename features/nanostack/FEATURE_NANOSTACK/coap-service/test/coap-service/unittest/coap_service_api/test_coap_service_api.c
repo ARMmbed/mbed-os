@@ -1,5 +1,18 @@
 /*
- * Copyright (c) 2015 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 #include "test_coap_service_api.h"
 #include <string.h>
@@ -10,14 +23,15 @@
 #include "eventOS_event_stub.h"
 #include "eventOS_event.h"
 #include "net_interface.h"
+#include "coap_service_api.c"
 
-int sec_done_cb(int8_t service_id, uint8_t address[static 16], uint8_t keyblock[static 40]){
+int sec_done_cb_test(int8_t service_id, uint8_t address[static 16], uint8_t keyblock[static 40]){
     return 2;
 }
 
 int sec_start_cb(int8_t service_id, uint8_t address[static 16], uint16_t port, uint8_t* pw, uint8_t *pw_len)
 {
-    return 2;
+    return 0;
 }
 
 int request_recv_cb(int8_t service_id, uint8_t source_address[static 16], uint16_t source_port, sn_coap_hdr_s *request_ptr)
@@ -215,6 +229,13 @@ bool test_coap_service_request_send()
     return true;
 }
 
+bool test_coap_service_request_delete()
+{
+    if( 0 != coap_service_request_delete(NULL,0))
+        return false;
+    return true;
+}
+
 bool test_coap_service_response_send()
 {
     uint8_t buf[16];
@@ -277,6 +298,7 @@ bool test_coap_callbacks()
 
     free( coap_message_handler_stub.coap_ptr );
     coap_message_handler_stub.coap_ptr = NULL;
+    coap_service_handle = NULL;
 
     free( thread_conn_handler_stub.handler_obj );
     thread_conn_handler_stub.handler_obj = NULL;
@@ -315,7 +337,7 @@ bool test_conn_handler_callbacks()
     thread_conn_handler_stub.handler_obj = (coap_conn_handler_t*)malloc(sizeof(coap_conn_handler_t));
     memset(thread_conn_handler_stub.handler_obj, 0, sizeof(coap_conn_handler_t));
     nsdynmemlib_stub.returnCounter = 1;
-    if( 1 != coap_service_initialize(1, 2, COAP_SERVICE_OPTIONS_SECURE_BYPASS, &sec_start_cb, &sec_done_cb ))
+    if( 1 != coap_service_initialize(1, 2, COAP_SERVICE_OPTIONS_SECURE_BYPASS, &sec_start_cb, &sec_done_cb_test ))
         return false;
 
     if( thread_conn_handler_stub.send_to_sock_cb ){
@@ -382,11 +404,15 @@ bool test_conn_handler_callbacks()
     }
 
     if(thread_conn_handler_stub.get_passwd_cb){
+        coap_security_keys_t security_ptr;
+        memset(&security_ptr, 0, sizeof(coap_security_keys_t));
+        nsdynmemlib_stub.returnCounter = 1;
         thread_conn_handler_stub.bool_value = true;
-        if( 2 != thread_conn_handler_stub.get_passwd_cb(1, buf, 12, NULL, 0))
+        if( 0 != thread_conn_handler_stub.get_passwd_cb(1, buf, 12, &security_ptr))
             return false;
+        free(security_ptr._key);
         thread_conn_handler_stub.bool_value = false;
-        if( -1 != thread_conn_handler_stub.get_passwd_cb(1, buf, 12, NULL, 0))
+        if( -1 != thread_conn_handler_stub.get_passwd_cb(1, buf, 12, NULL))
             return false;
     }
 
@@ -413,6 +439,153 @@ bool test_conn_handler_callbacks()
     coap_service_delete(1);
     free( thread_conn_handler_stub.handler_obj );
     thread_conn_handler_stub.handler_obj = NULL;
+
+    return true;
+}
+
+bool test_certificate_set()
+{
+    /* Service not found, return failure */
+    if (-1 != coap_service_certificate_set(1, NULL, 0, NULL, 0)) {
+        return false;
+    }
+
+    /* Init service */
+    thread_conn_handler_stub.handler_obj = (coap_conn_handler_t*)malloc(sizeof(coap_conn_handler_t));
+    memset(thread_conn_handler_stub.handler_obj, 0, sizeof(coap_conn_handler_t));
+
+    nsdynmemlib_stub.returnCounter = 1;
+    if( 1 != coap_service_initialize(1, 2, 0, NULL, NULL ))
+        return false;
+
+    /* Allocation fails */
+    if (-1 != coap_service_certificate_set(1, NULL, 0, NULL, 0)) {
+        return false;
+    }
+
+    /* All OK */
+    nsdynmemlib_stub.returnCounter = 1;
+    if (0 != coap_service_certificate_set(1, NULL, 0, NULL, 0)) {
+        return false;
+    }
+
+    /* Teardown */
+    coap_service_delete(1);
+    free(thread_conn_handler_stub.handler_obj->security_keys);
+    free(thread_conn_handler_stub.handler_obj);
+
+    return true;
+}
+
+bool test_handshake_timeout_set()
+{
+    /* Service not found, return failure */
+    if (-1 != coap_service_set_handshake_timeout(1, 0, 0)) {
+        return false;
+    }
+
+    /* Init service */
+    thread_conn_handler_stub.handler_obj = (coap_conn_handler_t*)malloc(sizeof(coap_conn_handler_t));
+    memset(thread_conn_handler_stub.handler_obj, 0, sizeof(coap_conn_handler_t));
+
+    nsdynmemlib_stub.returnCounter = 1;
+    if( 1 != coap_service_initialize(1, 2, 0, NULL, NULL ))
+        return false;
+
+    /* All OK */
+    nsdynmemlib_stub.returnCounter = 1;
+    if (0 != coap_service_set_handshake_timeout(1, 0, 0)) {
+        return false;
+    }
+
+    /* Teardown */
+    coap_service_delete(1);
+    free(thread_conn_handler_stub.handler_obj->security_keys);
+    free(thread_conn_handler_stub.handler_obj);
+
+    return true;
+}
+
+bool test_coap_duplcate_msg_buffer_set()
+{
+    bool ret = true;
+    /* no coap handle - return failure */
+    if (-1 != coap_service_set_duplicate_message_buffer(0, 0)) {
+        return false;
+    }
+
+    /* Init service */
+    thread_conn_handler_stub.handler_obj = (coap_conn_handler_t*)malloc(sizeof(coap_conn_handler_t));
+    memset(thread_conn_handler_stub.handler_obj, 0, sizeof(coap_conn_handler_t));
+    coap_message_handler_stub.coap_ptr = (coap_msg_handler_t *)malloc(sizeof(coap_msg_handler_t));
+    memset(coap_message_handler_stub.coap_ptr, 0, sizeof(coap_msg_handler_t));
+
+    nsdynmemlib_stub.returnCounter = 1;
+    if( 1 != coap_service_initialize(1, 2, 0, NULL, NULL ))
+        ret = false;
+
+    /* All OK */
+    if(0 != coap_service_set_duplicate_message_buffer(0, 0)) {
+        ret = false;
+    }
+
+    /* Teardown */
+    coap_service_delete(1);
+    free(coap_message_handler_stub.coap_ptr);
+    coap_message_handler_stub.coap_ptr = NULL;
+    coap_service_handle = NULL;
+    free(thread_conn_handler_stub.handler_obj);
+    thread_conn_handler_stub.handler_obj = NULL;
+
+    return ret;
+}
+
+bool test_coap_service_get_internal_timer_ticks()
+{
+    coap_service_get_internal_timer_ticks();
+    return true;
+}
+
+bool test_coap_service_if_find_by_socket()
+{
+    /* No service ID - return failure */
+    if (0 != coap_service_id_find_by_socket(1)) {
+        return false;
+    }
+
+    /* Init service */
+    thread_conn_handler_stub.handler_obj = (coap_conn_handler_t*)malloc(sizeof(coap_conn_handler_t));
+    memset(thread_conn_handler_stub.handler_obj, 0, sizeof(coap_conn_handler_t));
+
+    nsdynmemlib_stub.returnCounter = 1;
+    thread_conn_handler_stub.bool_value = 0;
+    if( 1 != coap_service_initialize(1, 2, 0, NULL, NULL ))
+        return false;
+
+    /* No matching service ID - return false */
+    if(0 != coap_service_id_find_by_socket(1)) {
+        return false;
+    }
+
+    thread_conn_handler_stub.bool_value = 1;
+    /* All OK */
+    if(1 != coap_service_id_find_by_socket(1)) {
+        return false;
+    }
+
+    /* Teardown */
+    coap_service_delete(1);
+    free(thread_conn_handler_stub.handler_obj);
+    thread_conn_handler_stub.handler_obj = NULL;
+
+    return true;
+}
+
+bool test_coap_service_handshake_limit_set()
+{
+    if (0 != coap_service_handshake_limits_set(2, 2)) {
+        return false;
+    }
 
     return true;
 }

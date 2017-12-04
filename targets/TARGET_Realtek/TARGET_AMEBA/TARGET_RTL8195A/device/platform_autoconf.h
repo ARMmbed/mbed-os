@@ -73,7 +73,11 @@
 #define CONFIG_WDG 1
 #undef  CONFIG_WDG_NON
 #define CONFIG_WDG_NORMAL 1
+<<<<<<< HEAD
 #define CONFIG_GDMA_EN 1
+=======
+#define CONFIG_GDMA_EN 0
+>>>>>>> upstream/master
 #define CONFIG_GDMA_NORMAL 1
 #undef  CONFIG_GDMA_TEST
 #define CONFIG_GDMA_MODULE 1
@@ -186,7 +190,11 @@
 #define CONFIG_UART_LOG_HISTORY 1
 #undef  CONFIG_CONSOLE_NORMALL_MODE
 #define CONFIG_CONSOLE_VERIFY_MODE 1
+<<<<<<< HEAD
 #define CONFIG_DEBUG_LOG 1
+=======
+#undef  CONFIG_DEBUG_LOG
+>>>>>>> upstream/master
 #define CONFIG_DEBUG_ERR_MSG 1
 #undef  CONFIG_DEBUG_WARN_MSG
 #undef  CONFIG_DEBUG_INFO_MSG

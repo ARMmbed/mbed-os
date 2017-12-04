@@ -118,6 +118,25 @@ int spi_master_write(spi_t *obj, int value)
     return rx_data & 0xffff;
 }
 
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
+                           char *rx_buffer, int rx_length, char write_fill) {
+    int total = (tx_length > rx_length) ? tx_length : rx_length;
+
+    // Default write is done in each and every call, in future can create HAL API instead
+    DSPI_SetDummyData(spi_address[obj->instance], write_fill);
+
+    DSPI_MasterTransferBlocking(spi_address[obj->instance], &(dspi_transfer_t){
+          .txData = (uint8_t *)tx_buffer,
+          .rxData = (uint8_t *)rx_buffer,
+          .dataSize = total,
+          .configFlags = kDSPI_MasterCtar0 | kDSPI_MasterPcs0 | kDSPI_MasterPcsContinuous,
+    });
+
+    DSPI_ClearStatusFlags(spi_address[obj->instance], kDSPI_RxFifoDrainRequestFlag | kDSPI_EndOfQueueFlag);
+
+    return total;
+}
+
 int spi_slave_receive(spi_t *obj)
 {
     return spi_readable(obj);

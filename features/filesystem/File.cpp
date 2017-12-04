@@ -104,7 +104,7 @@ void File::rewind()
     return _fs->file_rewind(_file);
 }
 
-size_t File::size()
+off_t File::size()
 {
     MBED_ASSERT(_fs);
     return _fs->file_size(_file);

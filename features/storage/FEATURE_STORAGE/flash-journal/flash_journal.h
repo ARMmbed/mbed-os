@@ -23,6 +23,7 @@ extern "C" {
 #endif // __cplusplus
 
 #include "storage_abstraction/Driver_Storage.h"
+#include "mbed_toolchain.h"                     /* required for MBED_DEPRECATED_SINCE */
 
 /**
  * General return codes. All Flash-Journal APIs return an int32_t to allow for
@@ -288,6 +289,8 @@ typedef struct FlashJournal_t {
  *     }
  * \endcode
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.5", "FlashJournal is deprecated. "
+                      "Use a BlockDevice or filesystem instead")
 static inline int32_t FlashJournal_initialize(FlashJournal_t           *journal,
                                               ARM_DRIVER_STORAGE       *mtd,
                                               const FlashJournal_Ops_t *ops,
@@ -332,6 +335,8 @@ static inline int32_t FlashJournal_initialize(FlashJournal_t           *journal,
  *     }
  * \endcode
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.5", "FlashJournal is deprecated. "
+                      "Use a BlockDevice or filesystem instead")
 static inline FlashJournal_Status_t FlashJournal_getInfo(FlashJournal_t *journal, FlashJournal_Info_t *info)
 {
     return journal->ops.getInfo(journal, info);
@@ -411,6 +416,8 @@ static inline FlashJournal_Status_t FlashJournal_getInfo(FlashJournal_t *journal
  *     }
  * \endcode
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.5", "FlashJournal is deprecated. "
+                      "Use a BlockDevice or filesystem instead")
 static inline int32_t FlashJournal_read(FlashJournal_t *journal, void *blob, size_t n)
 {
     return journal->ops.read(journal, blob, n);
@@ -493,6 +500,8 @@ static inline int32_t FlashJournal_read(FlashJournal_t *journal, void *blob, siz
  *     }
  * \endcode
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.5", "FlashJournal is deprecated. "
+                      "Use a BlockDevice or filesystem instead")
 static inline int32_t FlashJournal_readFrom(struct FlashJournal_t *journal, size_t offset, void *blob, size_t n)
 {
     return journal->ops.readFrom(journal, offset, blob, n);
@@ -605,6 +614,8 @@ static inline int32_t FlashJournal_readFrom(struct FlashJournal_t *journal, size
  *     }
  * \endcode
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.5", "FlashJournal is deprecated. "
+                      "Use a BlockDevice or filesystem instead")
 static inline int32_t FlashJournal_log(FlashJournal_t *journal, const void *blob, size_t n)
 {
     return journal->ops.log(journal, blob, n);
@@ -669,6 +680,8 @@ static inline int32_t FlashJournal_log(FlashJournal_t *journal, const void *blob
  *     by an operation other than a commit, that operation will very likely
  *     return an error code.
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.5", "FlashJournal is deprecated. "
+                      "Use a BlockDevice or filesystem instead")
 static inline int32_t FlashJournal_commit(FlashJournal_t *journal)
 {
     return journal->ops.commit(journal);
@@ -728,6 +741,8 @@ static inline int32_t FlashJournal_commit(FlashJournal_t *journal)
  *     }
  * \endcode
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.5", "FlashJournal is deprecated. "
+                      "Use a BlockDevice or filesystem instead")
 static inline int32_t FlashJournal_reset(FlashJournal_t *journal)
 {
     return journal->ops.reset(journal);

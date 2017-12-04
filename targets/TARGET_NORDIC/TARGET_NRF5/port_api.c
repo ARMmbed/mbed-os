@@ -38,22 +38,41 @@
 
 #include "port_api.h"
 #include "pinmap.h"
-#include "gpio_api.h"
+
+#if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832)
+    #define GPIO_REG_LIST  {NRF_GPIO}
+#endif
+
+static NRF_GPIO_Type * const m_ports[] = GPIO_REG_LIST;
+
+#if defined(TARGET_MCU_NRF51822)
+    static const uint32_t m_gpio_pin_count[] = {31};
+#elif defined(TARGET_MCU_NRF52832)
+    static const uint32_t m_gpio_pin_count[] = {32};
+#elif defined(TARGET_MCU_NRF52840)
+    static const uint32_t m_gpio_pin_count[] = {32, 16};
+#else
+    #error not recognized gpio count for mcu
+#endif
+
+#define GPIO_PORT_COUNT (sizeof(m_gpio_pin_count)/sizeof(m_gpio_pin_count[0]))
+
 
 PinName port_pin(PortName port, int pin_n)
 {
-    (void) port;
-    return (PinName)(pin_n);
+#if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832)
+    return (PinName)pin_n;
+#else    
+    return (PinName)NRF_GPIO_PIN_MAP(port, pin_n);
+#endif
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)
 {
+    MBED_ASSERT((uint32_t)port < GPIO_PORT_COUNT);
+    
     obj->port = port;
     obj->mask = mask;
-
-    obj->reg_out = &NRF_GPIO->OUT;
-    obj->reg_in  = &NRF_GPIO->IN;
-    obj->reg_cnf = NRF_GPIO->PIN_CNF;
 
     port_dir(obj, dir);
 }
@@ -71,38 +90,45 @@ void port_mode(port_t *obj, PinMode mode)
 
 void port_dir(port_t *obj, PinDirection dir)
 {
-    int i;
+    uint32_t i;
+    
+    volatile uint32_t *reg_cnf = (volatile uint32_t*) m_ports[obj->port]->PIN_CNF;
+
     switch (dir) {
-    case PIN_INPUT:
-        for (i = 0; i<31; i++) {
-            if (obj->mask & (1 << i)) {
-                obj->reg_cnf[i] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
-                                    | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
-                                    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-                                    | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
+        case PIN_INPUT:
+
+            for (i = 0; i < m_gpio_pin_count[obj->port]; i++) {
+                if (obj->mask & (1 << i)) {
+                    reg_cnf[i] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                                 | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                                 | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                 | (GPIO_PIN_CNF_DIR_Input << GPIO_PIN_CNF_DIR_Pos);
+                }
             }
-        }
-        break;
-    case PIN_OUTPUT:
-        for (i = 0; i<31; i++) {
-            if (obj->mask & (1 << i)) {
-                obj->reg_cnf[i] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
-                                    | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
-                                    | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
-                                    | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
-                                    | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+            break;
+
+        case PIN_OUTPUT:
+
+            for (i = 0; i < m_gpio_pin_count[obj->port]; i++) {
+                if (obj->mask & (1 << i)) {
+                    reg_cnf[i] = (GPIO_PIN_CNF_SENSE_Disabled << GPIO_PIN_CNF_SENSE_Pos)
+                                 | (GPIO_PIN_CNF_DRIVE_S0S1 << GPIO_PIN_CNF_DRIVE_Pos)
+                                 | (GPIO_PIN_CNF_PULL_Disabled << GPIO_PIN_CNF_PULL_Pos)
+                                 | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos)
+                                 | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
+                }
             }
-        }
-        break;
+            break;
     }
 }
 
 void port_write(port_t *obj, int value)
 {
-    *obj->reg_out = value;
+    m_ports[obj->port]->OUTSET = value & obj->mask;
+    m_ports[obj->port]->OUTCLR = (~value) & obj->mask;
 }
 
 int port_read(port_t *obj)
 {
-    return (*obj->reg_in);
+    return ((m_ports[obj->port]->IN) & obj->mask);
 }

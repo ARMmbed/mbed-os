@@ -24,32 +24,30 @@
 #include <string.h>
 
 #include "mbed.h"
-#include "cmsis_os.h"
 #include "platform/mbed_error.h"
 
 namespace rtos {
 
 void RtosTimer::constructor(mbed::Callback<void()> func, os_timer_type type) {
-#ifdef CMSIS_OS_RTX
-    _timer.ptimer = (void (*)(const void *))Callback<void()>::thunk;
-
-    memset(_timer_data, 0, sizeof(_timer_data));
-    _timer.timer = _timer_data;
-#endif
     _function = func;
-    _timer_id = osTimerCreate(&_timer, type, &_function);
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    osTimerAttr_t attr = { 0 };
+    attr.cb_mem = &_obj_mem;
+    attr.cb_size = sizeof(_obj_mem);
+    _id = osTimerNew((void (*)(void *))Callback<void()>::thunk, type, &_function, &attr);
+    MBED_ASSERT(_id);
 }
 
 osStatus RtosTimer::start(uint32_t millisec) {
-    return osTimerStart(_timer_id, millisec);
+    return osTimerStart(_id, millisec);
 }
 
 osStatus RtosTimer::stop(void) {
-    return osTimerStop(_timer_id);
+    return osTimerStop(_id);
 }
 
 RtosTimer::~RtosTimer() {
-    osTimerDelete(_timer_id);
+    osTimerDelete(_id);
 }
 
 }

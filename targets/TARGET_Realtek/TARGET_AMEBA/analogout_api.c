@@ -34,7 +34,12 @@
  *   \para dac_t *: obj
  *   \para PinName: pin
  */
+<<<<<<< HEAD
 void analogout_init(dac_t *obj, PinName pin) {
+=======
+void analogout_init(dac_t *obj, PinName pin)
+{
+>>>>>>> upstream/master
     uint32_t dac_idx;
     uint32_t DacTemp;
     PHAL_DAC_INIT_DAT   pHalDacInitData = (PHAL_DAC_INIT_DAT)&(obj->DACpara);
@@ -81,7 +86,11 @@ void analogout_init(dac_t *obj, PinName pin) {
     
     pHalDacInitData->DACEn  = DAC_ENABLE;
     HalDACEnableRtl8195a(pHalDacInitData);
+<<<<<<< HEAD
     osDelay(10);
+=======
+    osDelay(6); //hardware needs some time to get ready
+>>>>>>> upstream/master
 }
 
 /** \brief analogout_free:\n
@@ -90,7 +99,12 @@ void analogout_init(dac_t *obj, PinName pin) {
  *   This function is mainly to free a DAC channel.
  *   \para dac_t *: obj
  */
+<<<<<<< HEAD
 void analogout_free(dac_t *obj) {
+=======
+void analogout_free(dac_t *obj)
+{
+>>>>>>> upstream/master
     PHAL_DAC_INIT_DAT   pHalDacInitData = (PHAL_DAC_INIT_DAT)&(obj->DACpara);
 
     HalDACPinMuxDeInit(pHalDacInitData);
@@ -110,7 +124,12 @@ void analogout_free(dac_t *obj) {
  *   \para dac_t *  : obj
  *   \para float      : value
  */
+<<<<<<< HEAD
 void analogout_write(dac_t *obj, float value) {
+=======
+void analogout_write(dac_t *obj, float value)
+{
+>>>>>>> upstream/master
     uint32_t    dactemp;
     uint16_t    dacnegtemp;
     PHAL_DAC_INIT_DAT   pHalDacInitData = (PHAL_DAC_INIT_DAT)&(obj->DACpara);
@@ -149,7 +168,12 @@ void analogout_write(dac_t *obj, float value) {
  *   \para dac_t *  : obj
  *   \para float      : value
  */
+<<<<<<< HEAD
 void analogout_write_u16(dac_t *obj, uint16_t value) {
+=======
+void analogout_write_u16(dac_t *obj, uint16_t value)
+{
+>>>>>>> upstream/master
     uint32_t    dactemp;
     PHAL_DAC_INIT_DAT   pHalDacInitData = (PHAL_DAC_INIT_DAT)&(obj->DACpara);
     
@@ -165,7 +189,12 @@ void analogout_write_u16(dac_t *obj, uint16_t value) {
  *   It always returns a fixed value of 0.0;
  *   \para dac_t *  : obj
  */
+<<<<<<< HEAD
 float analogout_read(dac_t *obj) {
+=======
+float analogout_read(dac_t *obj)
+{
+>>>>>>> upstream/master
     return (float)0.0;
 }
 
@@ -176,7 +205,12 @@ float analogout_read(dac_t *obj) {
  *   It always returns a fixed value of 0xFFFF;
  *   \para dac_t *  : obj
  */
+<<<<<<< HEAD
 uint16_t analogout_read_u16(dac_t *obj) {
+=======
+uint16_t analogout_read_u16(dac_t *obj)
+{
+>>>>>>> upstream/master
     return (uint16_t)0xFFFF;
 }
 

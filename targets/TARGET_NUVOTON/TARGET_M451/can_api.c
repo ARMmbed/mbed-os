@@ -42,8 +42,8 @@
 };
 
  
- void can_init(can_t *obj, PinName rd, PinName td)
- {
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
+{
     uint32_t can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
     uint32_t can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     obj->can = (CANName)pinmap_merge(can_td, can_rd);
@@ -69,12 +69,18 @@
     PA0 = 0x00;
     PA1 = 0x00;   
 
-    CAN_Open((CAN_T *)NU_MODBASE(obj->can), 500000, CAN_NORMAL_MODE);
+    CAN_Open((CAN_T *)NU_MODBASE(obj->can), hz, CAN_NORMAL_MODE);
     
     can_filter(obj, 0, 0, CANStandard, 0);
  }
- 
- 
+
+
+void can_init(can_t *obj, PinName rd, PinName td)
+{
+    can_init_freq(obj, rd, td, 500000);
+}
+
+
 void can_free(can_t *obj)
 {
 

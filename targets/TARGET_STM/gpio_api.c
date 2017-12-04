@@ -41,34 +41,34 @@ GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx) {
     switch (port_idx) {
         case PortA:
             gpio_add = GPIOA_BASE;
-            __GPIOA_CLK_ENABLE();
+            __HAL_RCC_GPIOA_CLK_ENABLE();
             break;
         case PortB:
             gpio_add = GPIOB_BASE;
-            __GPIOB_CLK_ENABLE();
+            __HAL_RCC_GPIOB_CLK_ENABLE();
             break;
 #if defined(GPIOC_BASE)
         case PortC:
             gpio_add = GPIOC_BASE;
-            __GPIOC_CLK_ENABLE();
+            __HAL_RCC_GPIOC_CLK_ENABLE();
             break;
 #endif
 #if defined GPIOD_BASE
         case PortD:
             gpio_add = GPIOD_BASE;
-            __GPIOD_CLK_ENABLE();
+            __HAL_RCC_GPIOD_CLK_ENABLE();
             break;
 #endif
 #if defined GPIOE_BASE
         case PortE:
             gpio_add = GPIOE_BASE;
-            __GPIOE_CLK_ENABLE();
+            __HAL_RCC_GPIOE_CLK_ENABLE();
             break;
 #endif
 #if defined GPIOF_BASE
         case PortF:
             gpio_add = GPIOF_BASE;
-            __GPIOF_CLK_ENABLE();
+            __HAL_RCC_GPIOF_CLK_ENABLE();
             break;
 #endif
 #if defined GPIOG_BASE
@@ -78,31 +78,31 @@ GPIO_TypeDef *Set_GPIO_Clock(uint32_t port_idx) {
             HAL_PWREx_EnableVddIO2();
 #endif
             gpio_add = GPIOG_BASE;
-            __GPIOG_CLK_ENABLE();
+            __HAL_RCC_GPIOG_CLK_ENABLE();
             break;
 #endif
 #if defined GPIOH_BASE
         case PortH:
             gpio_add = GPIOH_BASE;
-            __GPIOH_CLK_ENABLE();
+            __HAL_RCC_GPIOH_CLK_ENABLE();
             break;
 #endif
 #if defined GPIOI_BASE
         case PortI:
             gpio_add = GPIOI_BASE;
-            __GPIOI_CLK_ENABLE();
+            __HAL_RCC_GPIOI_CLK_ENABLE();
             break;
 #endif
 #if defined GPIOJ_BASE
         case PortJ:
             gpio_add = GPIOJ_BASE;
-            __GPIOJ_CLK_ENABLE();
+            __HAL_RCC_GPIOJ_CLK_ENABLE();
             break;
 #endif
 #if defined GPIOK_BASE
         case PortK:
             gpio_add = GPIOK_BASE;
-            __GPIOK_CLK_ENABLE();
+            __HAL_RCC_GPIOK_CLK_ENABLE();
             break;
 #endif
         default:

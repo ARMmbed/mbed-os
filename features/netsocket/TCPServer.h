@@ -1,6 +1,4 @@
 
-/** \addtogroup netsocket */
-/** @{*/
 /* TCPServer
  * Copyright (c) 2015 ARM Limited
  *
@@ -28,7 +26,8 @@
 
 
 /** TCP socket server
-  */
+ *  @addtogroup netsocket
+ */
 class TCPServer : public Socket {
 public:
     /** Create an uninitialized socket
@@ -78,9 +77,9 @@ public:
      *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
      *  immediately.
      *
-     *  @param socket   TCPSocket instance that will handle the incoming connection.
-     *  @param address  Destination for the remote address or NULL
-     *  @return         0 on success, negative error code on failure
+     *  @param connection TCPSocket instance that will handle the incoming connection.
+     *  @param address    Destination for the remote address or NULL
+     *  @return           0 on success, negative error code on failure
      */
     nsapi_error_t accept(TCPSocket *connection, SocketAddress *address = NULL);
 
@@ -94,5 +93,3 @@ protected:
 
 
 #endif
-
-/** @}*/

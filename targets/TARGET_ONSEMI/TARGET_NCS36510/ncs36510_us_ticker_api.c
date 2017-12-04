@@ -28,7 +28,7 @@
 */
 
 #include <stddef.h>
-#include "timer.h"
+#include "timer_ncs36510.h"
 
 #define US_TIMER  TIMER0
 #define US_TICKER TIMER1
@@ -38,7 +38,7 @@ static int us_ticker_inited = 0;
 static void us_timer_init(void);
 
 static uint32_t us_ticker_target = 0;
-static volatile uint32_t msb_counter = 0;
+static volatile uint16_t msb_counter = 0;
 
 void us_ticker_init(void)
 {
@@ -55,7 +55,6 @@ void us_ticker_init(void)
  * which is why a software timer is required to get 32-bit word length.
  ******************************************************************************/
 /* TODO - Need some sort of load value/prescale calculation for non-32MHz clock */
-/* TODO - Add msb_counter rollover protection at 16 bits count? */
 /* TODO - How is overflow handled? */
 
 /* Timer 0 for free running time */
@@ -108,26 +107,31 @@ static void us_timer_init(void)
 /* Reads 32 bit timer's current value (16 bit s/w timer | 16 bit h/w timer) */
 uint32_t us_ticker_read()
 {
-    uint32_t retval, tim0cval;
 
     if (!us_ticker_inited) {
         us_timer_init();
     }
 
+    NVIC_DisableIRQ(Tim0_IRQn);
+    uint32_t retval, tim0cval;
     /* Get the current tick from the hw and sw timers */
     tim0cval = TIM0REG->VALUE;         /* read current time */
     retval = (0xFFFF - tim0cval);      /* subtract down count */
 
-    NVIC_DisableIRQ(Tim0_IRQn);
     if (TIM0REG->CONTROL.BITS.INT) {
-        TIM0REG->CLEAR = 0;
-        msb_counter++;
-        tim0cval = TIM0REG->VALUE;    /* read current time again after interrupt */
-        retval = (0xFFFF - tim0cval);
+        us_timer_isr(); /* handle ISR again */
+        NVIC_ClearPendingIRQ(Tim0_IRQn);
+        retval = (0xFFFF - TIM0REG->VALUE);
     }
     retval |= msb_counter << 16;      /* add software bits */
     NVIC_EnableIRQ(Tim0_IRQn);
     return retval;
+}
+
+void us_ticker_fire_interrupt(void)
+{
+    us_ticker_target = 0;
+    NVIC_SetPendingIRQ(Tim1_IRQn);
 }
 
 /*******************************************************************************
@@ -168,25 +172,21 @@ extern void us_ticker_isr(void)
     /* Clear IRQ flag */
     TIM1REG->CLEAR = 0;
 
-    int32_t delta = us_ticker_target - us_ticker_read();
-    if (delta <= 0) {
-        TIM1REG->CONTROL.BITS.ENABLE = False;
-        us_ticker_irq_handler();
+    if (us_ticker_target > 0) {
+        --us_ticker_target;
+        ticker_set(0xFFFF);
     } else {
-        // Clamp at max value of timer
-        if (delta > 0xFFFF) {
-            delta = 0xFFFF;
-        }
-
-        ticker_set(delta);
+        us_ticker_irq_handler();
     }
 }
 
 /* Set timer 1 ticker interrupt */
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    us_ticker_target = (uint32_t)timestamp;
-    int32_t delta = us_ticker_target - us_ticker_read();
+    int32_t delta = timestamp - us_ticker_read();
+    // we got 16 bit timer, use upper 16bit as a simple counter how many times
+    // we need to schedule full range ticker count
+    us_ticker_target = (uint32_t)delta >> 16;
 
     if (delta <= 0) {
         /* This event was in the past */
@@ -200,10 +200,6 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
         return;
     }
 
-    // Clamp at max value of timer
-    if (delta > 0xFFFF) {
-        delta = 0xFFFF;
-    }
-
-    ticker_set(delta);
+    // we set the full reminder of 16 bit, the next ISR will do the upper part
+    ticker_set(delta & 0xFFFF);
 }

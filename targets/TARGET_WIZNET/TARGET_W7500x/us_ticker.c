@@ -96,12 +96,6 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     dev = (int32_t)(timestamp - us_ticker_read());
     dev = dev * ((GetSystemClock() / 1000000) / 16);     
 
-    if(dev <= 0)
-    {
-        us_ticker_irq_handler();
-        return;
-    }
-    
     DUALTIMER_ClockEnable(TIMER_0);
     DUALTIMER_Stop(TIMER_0);
     
@@ -121,6 +115,11 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     DUALTIMER_Start(TIMER_0);
     
 
+}
+
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(TIMER_IRQn);
 }
 
 void us_ticker_disable_interrupt(void)

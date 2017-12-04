@@ -556,7 +556,7 @@ static void can4_bus_err_irq(void) {
     can_err_irq(CAN_4, IRQ_BUS);
 }
 
-void can_init(can_t *obj, PinName rd, PinName td) {
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
     __IO uint32_t *dmy_ctr;
 
     /* determine the CAN to use */
@@ -590,6 +590,13 @@ void can_init(can_t *obj, PinName rd, PinName td) {
     /* pin out the can pins */
     pinmap_pinout(rd, PinMap_CAN_RD);
     pinmap_pinout(td, PinMap_CAN_TD);
+
+    /* set can frequency */
+    can_frequency(obj, hz);
+}
+
+void can_init(can_t *obj, PinName rd, PinName td) {
+    can_init_freq(obj, rd, td, 100000);
 }
 
 void can_free(can_t *obj) {
@@ -647,17 +654,17 @@ int can_write(can_t *obj, CAN_Message msg, int cc) {
         __NOP();
     }
     
-    if (((msg.format == CANStandard) && (msg.id <= 0x07FF)) || ((msg.format == CANExtended) && (msg.id <= 0x03FFFF))) {
+    if (((msg.format == CANStandard) && (msg.id <= 0x07FF)) || ((msg.format == CANExtended) && (msg.id <= 0x1FFFFFFF))) {
         /* send/receive FIFO buffer isn't full */
         dmy_cfsts = CFSTS_TBL[obj->ch][CAN_SEND];
         if ((*dmy_cfsts & 0x02) != 0x02) {
-            /* set format, frame type and send/receive FIFO buffer ID(b10-0 or b28-11) */
+            /* set format, frame type and send/receive FIFO buffer ID(b10-0 or b28-0) */
             dmy_cfid = CFID_TBL[obj->ch][CAN_SEND];
             *dmy_cfid = ((msg.format << 31) | (msg.type << 30));
             if (msg.format == CANStandard) {
                 *dmy_cfid |= (msg.id & 0x07FF);
             } else {
-                *dmy_cfid |= ((msg.id & 0x03FFFF) << 11);
+                *dmy_cfid |= (msg.id & 0x1FFFFFFF);
             }
             /* set length */
             dmy_cfptr = CFPTR_TBL[obj->ch][CAN_SEND];
@@ -696,14 +703,14 @@ int can_read(can_t *obj, CAN_Message *msg, int handle) {
     /* send/receive FIFO buffer isn't empty */
     dmy_cfsts = CFSTS_TBL[obj->ch][CAN_RECV];
     while ((*dmy_cfsts & 0x01) != 0x01) {
-        /* get format, frame type and send/receive FIFO buffer ID(b10-0 or b28-11) */
+        /* get format, frame type and send/receive FIFO buffer ID(b10-0 or b28-0) */
         dmy_cfid = CFID_TBL[obj->ch][CAN_RECV];
         msg->format = (CANFormat)(*dmy_cfid >> 31);
-        msg->type = (CANType)(*dmy_cfid >> 30);
+        msg->type = (CANType)((*dmy_cfid >> 30) & 0x1);
         if (msg->format == CANStandard) {
             msg->id = (*dmy_cfid & 0x07FF);
         } else {
-            msg->id = ((*dmy_cfid >> 11) & 0x03FFFF);
+            msg->id = (*dmy_cfid & 0x1FFFFFFF);
         }
         /* get length */
         dmy_cfptr = CFPTR_TBL[obj->ch][CAN_RECV];
@@ -823,7 +830,7 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
     int retval = 0;
     
     if ((format == CANStandard) || (format == CANExtended)) {
-        if (((format == CANStandard) && (id <= 0x07FF)) || ((format == CANExtended) && (id <= 0x03FFFF))) {
+        if (((format == CANStandard) && (id <= 0x07FF)) || ((format == CANExtended) && (id <= 0x1FFFFFFF))) {
             /* set Global Reset mode and Channel Reset mode */
             can_set_global_mode(GL_RESET);
             can_set_channel_mode(obj->ch, CH_RESET);
@@ -834,11 +841,11 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
             /* set IDE format */
             *dmy_gaflid = (format << 31);
             if (format == CANExtended) {
-                /* set receive rule ID for bit28-11 */
-                *dmy_gaflid |= (id << 11);
+                /* set receive rule ID for bit28-0 */
+                *dmy_gaflid |= (id & 0x1FFFFFFF);
             } else {
                 /* set receive rule ID for bit10-0 */
-                *dmy_gaflid |= id;
+                *dmy_gaflid |= (id & 0x07FF);
             }
             /* set ID mask bit */
             *dmy_gaflm = (0xC0000000 | mask);
@@ -981,6 +988,7 @@ static void can_set_frequency(can_t *obj, int f) {
     uint8_t brp = 0;
     uint8_t tseg1 = 0;
     uint8_t tseg2 = 0;
+    uint8_t sjw = 0;
     
     /* set clkc */
     if (RZ_A1_IsClockMode0() == false) {
@@ -1003,9 +1011,10 @@ static void can_set_frequency(can_t *obj, int f) {
     /* calculate TSEG1 bit and TSEG2 bit */
     tseg1 = (tq - 1) * 0.666666667;
     tseg2 = (tq - 1) - tseg1;
+    sjw = (tseg2 > 4)? 4 : tseg2;
     /* set RSCAN0CmCFG register */
     dmy_cfg = CFG_MATCH[obj->ch];
-    *dmy_cfg = ((tseg2 - 1) << 20) | ((tseg1 - 1) << 16) | brp;
+    *dmy_cfg = ((sjw - 1) << 24) | ((tseg2 - 1) << 20) | ((tseg1 - 1) << 16) | brp;
 }
 
 static void can_set_global_mode(int mode) {

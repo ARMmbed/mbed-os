@@ -605,7 +605,8 @@ void ppp_print_string(const u_char *p, int len, void (*printer) (void *, const c
  * ppp_logit - does the hard work for fatal et al.
  */
 static void ppp_logit(int level, const char *fmt, va_list args) {
-    char buf[1024];
+
+    char buf[256];
 
     ppp_vslprintf(buf, sizeof(buf), fmt, args);
     ppp_log_write(level, buf);
@@ -726,6 +727,7 @@ void ppp_dump_packet(ppp_pcb *pcb, const char *tag, unsigned char *p, int len) {
 	    return;
     }
 
+    TRACE_TO_ASCII_HEX_DUMPF("PPP>", len, (char *) p);
     ppp_dbglog("%s %P", tag, p, len);
 }
 #endif /* PRINTPKT_SUPPORT */

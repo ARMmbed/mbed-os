@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef __BLE_DEVICE_INSTANCE_BASE__
-#define __BLE_DEVICE_INSTANCE_BASE__
+/**
+ * @file
+ */
+
+#ifndef MBED_BLE_DEVICE_INSTANCE_BASE__
+#define MBED_BLE_DEVICE_INSTANCE_BASE__
 
 #include "Gap.h"
 #include "ble/SecurityManager.h"
@@ -26,16 +30,33 @@ class GattServer;
 class GattClient;
 
 /**
- *  The interface for the transport object to be created by the target library's
- *  createBLEInstance().
+ * @addtogroup ble
+ * @{
+ * @addtogroup porting
+ * @{
+ */
+
+/**
+ * Private interface used to implement the BLE class.
  *
- * @note This class is part of the interface of BLE API with the implementation;
- *       therefore, it is meant to be used only by porters rather than normal
- *       BLE API users.
+ * The BLE class delegates all its abstract operations to an instance of this
+ * abstract class, which every vendor port of Mbed BLE shall implement.
+ *
+ * The vendor port shall also define an implementation of the freestanding function
+ * createBLEInstance(). The BLE API uses this singleton function to gain
+ * access to a concrete implementation of this class defined in the vendor port.
+ *
+ * @important This class is part of the porting API and is not meant to be used
+ * by end users of BLE API.
+ *
+ * @see BLE
  */
 class BLEInstanceBase
 {
 public:
+    /**
+     * Base constructor.
+     */
     BLEInstanceBase() {}
 
     /**
@@ -44,133 +65,206 @@ public:
     virtual ~BLEInstanceBase();
 
     /**
-     * Initialize the underlying BLE stack. This should be called before
-     * anything else in the BLE API.
+     * Process ALL pending events living in the vendor BLE subsystem.
      *
-     * @param[in] instanceID
-     *              The ID of the instance to initialize.
-     * @param[in] initCallback
-     *              A callback for when initialization completes for a BLE
-     *              instance. This is an optional parameter set to NULL when not
-     *              supplied.
+     * Return once all pending events have been consumed.
      *
-     * @return BLE_ERROR_NONE if the initialization procedure was started
-     *         successfully.
-     */
-    virtual ble_error_t            init(BLE::InstanceID_t instanceID,
-                                        FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext *> initCallback) = 0;
-
-    /**
-     * Check whether the underlying stack has already been initialized,
-     * possible with a call to init().
-     *
-     * @return true if the initialization has completed for the underlying BLE
-     *         stack.
-     */
-    virtual bool                   hasInitialized(void) const = 0;
-
-    /**
-     * Shutdown the underlying BLE stack. This includes purging the stack of
-     * GATT and GAP state and clearing all state from other BLE components
-     * such as the SecurityManager. init() must be called afterwards to
-     * re-instantiate services and GAP state.
-     *
-     * @return BLE_ERROR_NONE if the underlying stack and all other services of
-     *         the BLE API were shutdown correctly.
-     */
-    virtual ble_error_t            shutdown(void)             = 0;
-
-    /**
-     * Fetches a string representation of the underlying BLE stack's version.
-     *
-     * @return A pointer to the string representation of the underlying
-     *         BLE stack's version.
-     */
-    virtual const char *           getVersion(void)           = 0;
-
-    /**
-     * Accessor to Gap. This function is used by BLE::gap().
-     *
-     * @return A reference to a Gap object associated to this BLE instance.
-     */
-    virtual Gap&                   getGap()                   = 0;
-
-    /**
-     * A const alternative to getGap().
-     *
-     * @return A const reference to a Gap object associated to this BLE instance.
-     */
-    virtual const Gap&             getGap() const             = 0;
-
-    /**
-     * Accessor to GattServer. This function is used by BLE::gattServer().
-     *
-     * @return A reference to a GattServer object associated to this BLE instance.
-     */
-    virtual GattServer&            getGattServer()            = 0;
-
-    /**
-     * A const alternative to getGattServer().
-     *
-     * @return A const reference to a GattServer object associated to this BLE instance.
-     */
-    virtual const GattServer&      getGattServer() const      = 0;
-
-    /**
-     * Accessors to GattClient. This function is used by BLE::gattClient().
-     *
-     * @return A reference to a GattClient object associated to this BLE instance.
-     */
-    virtual GattClient&            getGattClient()            = 0;
-
-    /**
-     * Accessors to SecurityManager. This function is used by BLE::securityManager().
-     *
-     * @return A reference to a SecurityManager object associated to this BLE instance.
-     */
-    virtual SecurityManager&       getSecurityManager()       = 0;
-
-    /**
-     * A const alternative to getSecurityManager().
-     *
-     * @return A const reference to a SecurityManager object associated to this BLE instance.
-     */
-    virtual const SecurityManager& getSecurityManager() const = 0;
-
-    /**
-     * Yield control to the BLE stack or to other tasks waiting for events.
-     * refer to BLE::waitForEvent().
-     */
-    virtual void                   waitForEvent(void)         = 0;
-
-    /**
-     * Process ALL pending events living in the BLE stack .
-     * Return once all events have been consumed.
+     * @see BLE::processEvents()
      */
     virtual void processEvents() = 0;
 
     /**
-     * This function allow the BLE stack to signal that their is work to do and
-     * event processing should be done (BLE::processEvent()).
-     * @param id: The ID of the BLE instance which does have events to process.
+     * Signal to BLE that events needing processing are available.
+     *
+     * The vendor port shall call this function whenever there are events
+     * ready to be processed in the internal stack or BLE subsystem. As a result
+     * of this call, the callback registered by the end user via
+     * BLE::onEventsToProcess will be invoked.
+     *
+     * @param[in] id: Identifier of the BLE instance, which does have events to
+     * ready to be processed.
      */
     void signalEventsToProcess(BLE::InstanceID_t id);
+
+    /**
+     * Start the initialization of the vendor BLE subsystem.
+     *
+     * Calls to this function are initiated by BLE::init, instanceID identify
+     * the BLE instance which issue that call while the initCallback is used to
+     * signal asynchronously the completion of the initialization process.
+     *
+     * @param[in] instanceID Identifier of the BLE instance requesting
+     * initialization.
+     * @param[in] initCallback Callback which the vendor port shall invoke
+     * when the initialization completes.
+     *
+     * This is an optional parameter set to NULL when not supplied.
+     *
+     * @return BLE_ERROR_NONE if the initialization procedure started
+     * successfully.
+     *
+     * @post initCallback shall be invoked upon completion of the initialization
+     * process.
+     *
+     * @post hasInitialized() shall return false until the initialization is
+     * complete, and it shall return true after succesful completion of the
+     * initialization process.
+     *
+     * @see BLE::init()
+     */
+    virtual ble_error_t init(
+        BLE::InstanceID_t instanceID,
+        FunctionPointerWithContext<BLE::InitializationCompleteCallbackContext*> initCallback
+    ) = 0;
+
+    /**
+     * Check whether the vendor BLE subsystem has been initialized or not.
+     *
+     * @return true if the initialization has completed for the vendor BLE
+     * subsystem.
+     *
+     * @note this function is invoked by BLE::hasInitialized()
+     *
+     * @see BLE::init() BLE::hasInitialized()
+     */
+    virtual bool hasInitialized(void) const = 0;
+
+    /**
+     * Shutdown the vendor BLE subsystem.
+     *
+     * This operation includes purging the stack of GATT and GAP state and
+     * clearing all state from other BLE components, such as the SecurityManager.
+     * Clearing all states may be realized by a call to Gap::reset(),
+     * GattClient::reset(), GattServer::reset() and SecurityManager::reset().
+     *
+     * BLE::init() must be called afterward to reinstantiate services and GAP
+     * state.
+     *
+     * @return BLE_ERROR_NONE if the underlying stack and all other services of
+     * the BLE API were shut down correctly.
+     *
+     * @post hasInitialized() shall return false.
+     *
+     * @note This function is invoked by BLE::shutdown().
+     *
+     * @see BLE::shutdown() BLE::init() BLE::hasInitialized() Gap::reset()
+     * GattClient::reset() GattServer::reset() SecurityManager::reset() .
+     */
+    virtual ble_error_t shutdown(void) = 0;
+
+    /**
+     * Fetches a NULL terminated string representation of the underlying BLE
+     * vendor subsystem.
+     *
+     * @return A pointer to the NULL terminated string representation of the
+     * underlying BLE stack's version.
+     *
+     * @see BLE::getVersion()
+     */
+    virtual const char *getVersion(void) = 0;
+
+    /**
+     * Accessor to the vendor implementation of the Gap interface.
+     *
+     * @return A reference to a Gap object associated to this BLEInstanceBase
+     * instance.
+     *
+     * @see BLE::gap() Gap
+     */
+    virtual Gap &getGap(void) = 0;
+
+    /**
+     * Const alternative to getGap().
+     *
+     * @return A const reference to a Gap object associated to this
+     * BLEInstanceBase instance.
+     *
+     * @see BLE::gap() Gap
+     */
+    virtual const Gap &getGap(void) const = 0;
+
+    /**
+     * Accessor to the vendor implementation of the GattServer interface.
+     *
+     * @return A reference to a GattServer object associated to this
+     * BLEInstanceBase instance.
+     *
+     * @see BLE::gattServer() GattServer
+     */
+    virtual GattServer &getGattServer(void) = 0;
+
+    /**
+     * A const alternative to getGattServer().
+     *
+     * @return A const reference to a GattServer object associated to this
+     * BLEInstanceBase instance.
+     *
+     * @see BLE::gattServer() GattServer
+     */
+    virtual const GattServer &getGattServer(void) const = 0;
+
+    /**
+     * Accessor to the vendor implementation of the GattClient interface.
+     *
+     * @return A reference to a GattClient object associated to this
+     * BLEInstanceBase instance.
+     *
+     * @see BLE::gattClient() GattClient
+     */
+    virtual GattClient &getGattClient(void) = 0;
+
+    /**
+     * Accessor to the vendor implementation of the SecurityManager interface.
+     *
+     * @return A reference to a SecurityManager object associated to this
+     * BLEInstanceBase instance.
+     *
+     * @see BLE::securityManager() SecurityManager
+     */
+    virtual SecurityManager &getSecurityManager(void) = 0;
+
+    /**
+     * A const alternative to getSecurityManager().
+     *
+     * @return A const reference to a SecurityManager object associated to this
+     * BLEInstancebase instance.
+     *
+     * @see BLE::securityManager() SecurityManager
+     */
+    virtual const SecurityManager &getSecurityManager(void) const = 0;
+
+    /**
+     * Process pending events present in the vendor subsystem; then, put the MCU
+     * to sleep until an external source wakes it up.
+     *
+     * @important This function is deprecated in the BLE class. It will be
+     * removed from this interface once it is removed from BLE.
+     *
+     * @see BLE::waitForEvent() BLE::processEvents()
+     */
+    virtual void waitForEvent(void) = 0;
 
 private:
     // this class is not a value type.
     // prohibit copy construction and copy assignement
     BLEInstanceBase(const BLEInstanceBase&);
-    BLEInstanceBase& operator=(const BLEInstanceBase&);
+    BLEInstanceBase &operator=(const BLEInstanceBase&);
 };
 
 /**
- * BLE uses composition to hide an interface object encapsulating the
- * backend transport.
+ * Return the instance of the vendor implementation of BLEInstanceBase.
  *
- * The following API is used to create the singleton interface object. An
- * implementation for this function must be provided by the device-specific
- * library, otherwise there will be a linker error.
+ * @important Contrary to its name, this function does not return a new instance
+ * at each call. It rather acts like an accessor to a singleton.
+ *
+ * @important The vendor library must provide an implementation for this function
+ * library. Otherwise, there will be a linker error.
  */
 extern BLEInstanceBase *createBLEInstance(void);
 
-#endif // ifndef __BLE_DEVICE_INSTANCE_BASE__
+/**
+ * @}
+ * @}
+ */
+
+#endif // ifndef MBED_BLE_DEVICE_INSTANCE_BASE__

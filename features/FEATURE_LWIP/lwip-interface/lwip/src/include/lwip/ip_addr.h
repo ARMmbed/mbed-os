@@ -222,14 +222,14 @@ int ipaddr_aton(const char *cp, ip_addr_t *addr);
 #define IPADDR_STRLEN_MAX   IP6ADDR_STRLEN_MAX
 
 /** @ingroup ipaddr */
-#define ip4_2_ipv6_mapped_ipv4(ip6addr, ip4addr) do { \
+#define ip4_2_ipv4_mapped_ipv6(ip6addr, ip4addr) do { \
   (ip6addr)->addr[3] = (ip4addr)->addr; \
   (ip6addr)->addr[2] = PP_HTONL(0x0000FFFFUL); \
   (ip6addr)->addr[1] = 0; \
   (ip6addr)->addr[0] = 0; } while(0);
 
 /** @ingroup ipaddr */
-#define unmap_ipv6_mapped_ipv4(ip4addr, ip6addr) \
+#define unmap_ipv4_mapped_ipv6(ip4addr, ip6addr) \
   (ip4addr)->addr = (ip6addr)->addr[3];
 
 #define IP46_ADDR_ANY(type) (((type) == IPADDR_TYPE_V6)? IP6_ADDR_ANY : IP4_ADDR_ANY)

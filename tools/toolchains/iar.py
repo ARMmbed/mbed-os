@@ -45,29 +45,19 @@ class IAR(mbedToolchain):
                                build_profile=build_profile)
         if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
             cpuchoice = "Cortex-M7"
+        elif target.core.startswith("Cortex-M23"):
+            cpuchoice = "8-M.baseline"
+        elif target.core.startswith("Cortex-M33"):
+            cpuchoice = "8-M.mainline"
         else:
             cpuchoice = target.core
 
         # flags_cmd are used only by our scripts, the project files have them already defined,
         # using this flags results in the errors (duplication)
         # asm accepts --cpu Core or --fpu FPU, not like c/c++ --cpu=Core
-        if target.core == "Cortex-M4F":
-          asm_flags_cmd = [
-              "--cpu", "Cortex-M4F"
-          ]
-        else:
-          asm_flags_cmd = [
-              "--cpu", cpuchoice
-          ]
+        asm_flags_cmd = ["--cpu", cpuchoice]
         # custom c flags
-        if target.core == "Cortex-M4F":
-          c_flags_cmd = [
-              "--cpu", "Cortex-M4F"
-          ]
-        else:
-          c_flags_cmd = [
-              "--cpu", cpuchoice
-          ]
+        c_flags_cmd = ["--cpu", cpuchoice]
 
         c_flags_cmd.extend([
             "--thumb", "--dlib_config", "DLib_Config_Full.h"
@@ -82,6 +72,8 @@ class IAR(mbedToolchain):
         elif target.core == "Cortex-M7F":
             asm_flags_cmd += ["--fpu", "VFPv5_sp"]
             c_flags_cmd.append("--fpu=VFPv5_sp")
+        elif target.core == "Cortex-M23" or target.core == "Cortex-M33":
+            self.flags["asm"] += ["--cmse"]
 
         IAR_BIN = join(TOOLCHAIN_PATHS['IAR'], "bin")
         main_cc = join(IAR_BIN, "iccarm")
@@ -92,7 +84,11 @@ class IAR(mbedToolchain):
         self.cc += self.flags["common"] + c_flags_cmd + self.flags["c"]
         self.cppc += self.flags["common"] + c_flags_cmd + cxx_flags_cmd + self.flags["cxx"]
         
+<<<<<<< HEAD
         self.ld   = [join(IAR_BIN, "ilinkarm")]
+=======
+        self.ld   = [join(IAR_BIN, "ilinkarm")] + self.flags['ld']
+>>>>>>> upstream/master
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
 
@@ -145,15 +141,16 @@ class IAR(mbedToolchain):
 
     def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines]
+        if for_asm :
+            return opts
         if self.RESPONSE_FILES:
             opts += ['-f', self.get_inc_file(includes)]
         else:
             opts += ["-I%s" % i for i in includes]
 
-        if not for_asm:
-            config_header = self.get_config_header()
-            if config_header is not None:
-                opts = opts + self.get_config_option(config_header)
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
@@ -193,7 +190,7 @@ class IAR(mbedToolchain):
     def link(self, output, objects, libraries, lib_dirs, mem_map):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
-        cmd = self.ld + [ "-o", output, "--map=%s" % map_file] + objects + libraries + self.flags['ld']
+        cmd = self.ld + [ "-o", output, "--map=%s" % map_file] + objects + libraries
 
         if mem_map:
             cmd.extend(["--config", mem_map])

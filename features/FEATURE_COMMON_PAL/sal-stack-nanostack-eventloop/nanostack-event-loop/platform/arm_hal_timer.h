@@ -21,6 +21,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifndef NS_EXCLUDE_HIGHRES_TIMER
 /**
  * \brief This function perform timer init.
  */
@@ -55,6 +57,8 @@ extern void platform_timer_disable(void);
  * \return 50us time slot remaining
  */
 extern uint16_t platform_timer_get_remaining_slots(void);
+
+#endif // NS_EXCLUDE_HIGHRES_TIMER
 
 #ifdef NS_EVENTLOOP_USE_TICK_TIMER
 /**

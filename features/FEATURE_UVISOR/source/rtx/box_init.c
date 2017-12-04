@@ -18,23 +18,30 @@
 #include "api/inc/pool_queue_exports.h"
 #include "api/inc/rpc_exports.h"
 #include "api/inc/uvisor_semaphore.h"
+#include "api/inc/box_config.h"
 #include "mbed_interface.h"
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* Register the OS with uVisor */
 extern void SVC_Handler(void);
 extern void PendSV_Handler(void);
 extern void SysTick_Handler(void);
-extern uint32_t rt_suspend(void);
+extern int32_t svcRtxKernelLock(void);
 
-UVISOR_SET_PRIV_SYS_HOOKS(SVC_Handler, PendSV_Handler, SysTick_Handler, rt_suspend, __uvisor_semaphore_post);
+UVISOR_SET_PRIV_SYS_HOOKS(SVC_Handler, PendSV_Handler, SysTick_Handler, svcRtxKernelLock, __uvisor_semaphore_post);
 
 extern RtxBoxIndex * const __uvisor_ps;
 
 void __uvisor_initialize_rpc_queues(void)
 {
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+    // TODO Initialize RPC queues on ARMv8-M (via uvisor_start).
+    return;
+#endif
+
     UvisorBoxIndex * const index = &__uvisor_ps->index;
 
     uvisor_pool_slot_t i;
@@ -48,23 +55,14 @@ void __uvisor_initialize_rpc_queues(void)
                                &rpc_outgoing_msg_queue->pool,
                                rpc_outgoing_msg_queue->messages,
                                sizeof(*rpc_outgoing_msg_queue->messages),
-                               UVISOR_RPC_OUTGOING_MESSAGE_SLOTS,
-                               UVISOR_POOL_QUEUE_BLOCKING)) {
+                               UVISOR_RPC_OUTGOING_MESSAGE_SLOTS)) {
         uvisor_error(USER_NOT_ALLOWED);
     }
 
     /* Initialize all the result semaphores. */
     for (i = 0; i < UVISOR_RPC_OUTGOING_MESSAGE_SLOTS; i++) {
         UvisorSemaphore * semaphore = &rpc_outgoing_msg_queue->messages[i].semaphore;
-        if (__uvisor_semaphore_init(semaphore, 1)) {
-            uvisor_error(USER_NOT_ALLOWED);
-        }
-
-        /* Semaphores are created with their value initialized to count. We
-         * want the semaphore to start at zero. Decrement the semaphore, so it
-         * starts with a value of zero. This will allow the first pend to
-         * block. */
-        if (__uvisor_semaphore_pend(semaphore, 0)) {
+        if (__uvisor_semaphore_init(semaphore, 1, 0)) {
             uvisor_error(USER_NOT_ALLOWED);
         }
     }
@@ -74,8 +72,7 @@ void __uvisor_initialize_rpc_queues(void)
                                &rpc_incoming_msg_queue->pool,
                                rpc_incoming_msg_queue->messages,
                                sizeof(*rpc_incoming_msg_queue->messages),
-                               UVISOR_RPC_INCOMING_MESSAGE_SLOTS,
-                               UVISOR_POOL_QUEUE_NON_BLOCKING)) {
+                               UVISOR_RPC_INCOMING_MESSAGE_SLOTS)) {
         uvisor_error(USER_NOT_ALLOWED);
     }
     /* This is a double init of the pool. We need a function that just inits
@@ -84,8 +81,7 @@ void __uvisor_initialize_rpc_queues(void)
                                &rpc_incoming_msg_queue->pool,
                                rpc_incoming_msg_queue->messages,
                                sizeof(*rpc_incoming_msg_queue->messages),
-                               UVISOR_RPC_INCOMING_MESSAGE_SLOTS,
-                               UVISOR_POOL_QUEUE_NON_BLOCKING)) {
+                               UVISOR_RPC_INCOMING_MESSAGE_SLOTS)) {
         uvisor_error(USER_NOT_ALLOWED);
     }
 
@@ -94,23 +90,14 @@ void __uvisor_initialize_rpc_queues(void)
                                &rpc_fn_group_queue->pool,
                                rpc_fn_group_queue->fn_groups,
                                sizeof(*rpc_fn_group_queue->fn_groups),
-                               UVISOR_RPC_FN_GROUP_SLOTS,
-                               UVISOR_POOL_QUEUE_BLOCKING)) {
+                               UVISOR_RPC_FN_GROUP_SLOTS)) {
         uvisor_error(USER_NOT_ALLOWED);
     }
 
     /* Initialize all the function group semaphores. */
     for (i = 0; i < UVISOR_RPC_FN_GROUP_SLOTS; i++) {
         UvisorSemaphore * semaphore = &rpc_fn_group_queue->fn_groups[i].semaphore;
-        if (__uvisor_semaphore_init(semaphore, 1)) {
-            uvisor_error(USER_NOT_ALLOWED);
-        }
-
-        /* Semaphores are created with their value initialized to count. We
-         * want the semaphore to start at zero. Decrement the semaphore, so it
-         * starts with a value of zero. This will allow the first pend to
-         * block. */
-        if (__uvisor_semaphore_pend(semaphore, 0)) {
+        if (__uvisor_semaphore_init(semaphore, 1, 0)) {
             uvisor_error(USER_NOT_ALLOWED);
         }
     }
@@ -120,35 +107,41 @@ void __uvisor_initialize_rpc_queues(void)
  * create box main threads for the box. */
 void __uvisor_lib_box_init(void * lib_config)
 {
-    osThreadId thread_id;
-    osThreadDef_t * flash_thread_def = lib_config;
-    osThreadDef_t thread_def;
+    osThreadId_t thread_id;
+    uvisor_box_main_t * box_main = lib_config;
+    osThreadAttr_t thread_attr = { 0 };
 
     __uvisor_initialize_rpc_queues();
 
-    /* Copy thread definition from flash to RAM. The thread definition is most
-     * likely in flash, so we need to copy it to box-local RAM before we can
-     * modify it. */
-    memcpy(&thread_def, flash_thread_def, sizeof(thread_def));
+    thread_attr.name = "uvisor_box_main_thread";
+    thread_attr.priority = box_main->priority;
+    thread_attr.stack_size = box_main->stack_size;
 
     /* Note that the box main thread stack is separate from the box stack. This
      * is because the thread must be created to use a different stack than the
      * stack osCreateThread() is called from, as context information is saved
      * to the thread stack by the call to osCreateThread(). */
-    /* Allocate memory for the main thread from the process heap (which is
-     * private to the process). This memory is never freed, even if the box's
-     * main thread exits. */
-    thread_def.stack_pointer = malloc_p(thread_def.stacksize);
-
-    if (thread_def.stack_pointer == NULL) {
-        /* No process heap memory available */
-        mbed_die();
+    /* Allocate memory for the main thread from the box heap. This memory is
+     * never freed, even if the box's main thread exits. */
+    thread_attr.stack_mem = malloc(thread_attr.stack_size);
+    if (thread_attr.stack_mem == NULL) {
+        /* No process heap memory available for thread stack */
+        uvisor_error(USER_NOT_ALLOWED);
     }
 
-    thread_id = osThreadCreate(&thread_def, NULL);
+    /* Allocate memory for the main thread control block from the box heap.
+     * This memory is never freed, even if the box's main thread exits. */
+    thread_attr.cb_size = sizeof(osRtxThread_t);
+    thread_attr.cb_mem = malloc(thread_attr.cb_size);
+    if (thread_attr.cb_mem == NULL) {
+        /* No process heap memory available for thread control block. */
+        uvisor_error(USER_NOT_ALLOWED);
+    }
+
+    thread_id = osThreadNew((osThreadFunc_t) box_main->function, NULL, &thread_attr);
 
     if (thread_id == NULL) {
         /* Failed to create thread */
-        mbed_die();
+        uvisor_error(USER_NOT_ALLOWED);
     }
 }

@@ -1,6 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2017-2017 ARM Limited
  *
@@ -16,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef MBED_APPLICATION_H
 #define MBED_APPLICATION_H
 
 #include<stdint.h>
 
-#define MBED_APPLICATION_SUPPORT (defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__CORTEX_M7))
+#if defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__CORTEX_M7)
+#define MBED_APPLICATION_SUPPORT 1
+#else
+#define MBED_APPLICATION_SUPPORT 0
+#endif
+
 #if MBED_APPLICATION_SUPPORT
 #ifdef __cplusplus
 extern "C" {
@@ -47,4 +50,3 @@ void mbed_start_application(uintptr_t address);
 
 #endif
 
-/** @}*/

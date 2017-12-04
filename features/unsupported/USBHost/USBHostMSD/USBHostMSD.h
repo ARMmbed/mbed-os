@@ -23,24 +23,26 @@
 
 #include "USBHost.h"
 #include "FATFileSystem.h"
+#include "BlockDevice.h"
 
 /**
  * A class to communicate a USB flash disk
  */
-class USBHostMSD : public IUSBEnumerator, public FATFileSystem {
+class USBHostMSD : public IUSBEnumerator, public BlockDevice
+{
 public:
     /**
-    * Constructor
-    *
-    * @param rootdir mount name
-    */
-    USBHostMSD(const char * rootdir);
+     * Constructor
+     *
+     * @param rootdir mount name
+     */
+    USBHostMSD();
 
     /**
-    * Check if a MSD device is connected
-    *
-    * @return true if a MSD device is connected
-    */
+     * Check if a MSD device is connected
+     *
+     * @return true if a MSD device is connected
+     */
     bool connected();
 
     /**
@@ -49,6 +51,20 @@ public:
      * @return true if connection was successful
      */
     bool connect();
+    virtual int init();
+    virtual int deinit()
+    {
+        return BD_ERROR_OK;
+    };
+    virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int erase(bd_addr_t addr, bd_size_t size);
+    virtual bd_size_t get_read_size() const;
+    virtual bd_size_t get_program_size() const;
+    virtual bd_size_t get_erase_size() const;
+    virtual bd_size_t size() const;
+
+
 
 protected:
     //From IUSBEnumerator
@@ -56,13 +72,6 @@ protected:
     virtual bool parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol); //Must return true if the interface should be parsed
     virtual bool useEndpoint(uint8_t intf_nb, ENDPOINT_TYPE type, ENDPOINT_DIRECTION dir); //Must return true if the endpoint will be used
 
-    // From FATFileSystem
-    virtual int disk_initialize();
-    virtual int disk_status() {return 0;};
-    virtual int disk_read(uint8_t* buffer, uint32_t sector, uint32_t count);
-    virtual int disk_write(const uint8_t* buffer, uint32_t sector, uint32_t count);
-    virtual int disk_sync() {return 0;};
-    virtual uint32_t disk_sectors();
 
 private:
     USBHost * host;
@@ -110,7 +119,7 @@ private:
     bool msd_device_found;
     bool disk_init;
 
-    void init();
+    void init_usb();
 
 };
 

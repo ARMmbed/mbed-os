@@ -37,7 +37,7 @@ TEST(dynmem, init)
     mem_stat_t info;
     reset_heap_error();
     ns_dyn_mem_init(heap, size, &heap_fail_callback, &info);
-    CHECK(info.heap_sector_size >= (size-4));
+    CHECK(info.heap_sector_size >= (size-64));
     CHECK(!heap_have_failed());
     CHECK(ns_dyn_mem_get_mem_stat() == &info);
     free(heap);
@@ -50,7 +50,7 @@ TEST(dynmem, different_sizes)
         mem_stat_t info;
         uint8_t *heap = (uint8_t*)malloc(size);
         ns_dyn_mem_init(heap, size, &heap_fail_callback, &info);
-        CHECK(info.heap_sector_size >= (size-4));
+        CHECK(info.heap_sector_size >= (size-64));
         CHECK(!heap_have_failed());
         CHECK(ns_dyn_mem_alloc(10));
         free(heap);
@@ -68,7 +68,7 @@ TEST(dynmem, diff_alignment)
     for (int i=0; i<16; i++) {
         ptr++; size--;
         ns_dyn_mem_init(ptr, size, &heap_fail_callback, &info);
-        CHECK(info.heap_sector_size >= (size-4));
+        CHECK(info.heap_sector_size >= (size-64));
         CHECK(!heap_have_failed());
     }
     free(heap);
@@ -137,7 +137,7 @@ TEST(dynmem, ns_dyn_mem_temporary_alloc)
 }
 
 TEST(dynmem, test_both_allocs_with_hole_usage) {
-    uint16_t size = 48;
+    uint16_t size = 112;
     mem_stat_t info;
     void *p[size];
     uint8_t *heap = (uint8_t*)malloc(size);
@@ -273,7 +273,7 @@ TEST(dynmem, diff_sizes)
     ns_dyn_mem_init(heap, size, &heap_fail_callback, &info);
     CHECK(!heap_have_failed());
     int i;
-    for (i=1; i<(size-8); i++) {
+    for (i=1; i<(size-64); i++) {
         p = ns_dyn_mem_temporary_alloc(i);
         CHECK(p);
         ns_dyn_mem_free(p);
@@ -384,7 +384,6 @@ TEST(dynmem, free_on_empty_heap)
     free(heap);
 }
 
-
 TEST(dynmem, not_negative_stats)
 {
     uint16_t size = 1000;
@@ -414,7 +413,7 @@ TEST(dynmem, not_negative_stats)
 }
 
 TEST(dynmem, test_invalid_pointer_freed) {
-    uint16_t size = 28;
+    uint16_t size = 92;
     uint8_t *heap = (uint8_t*)malloc(size);
     CHECK(NULL != heap);
     reset_heap_error();
@@ -429,9 +428,51 @@ TEST(dynmem, test_invalid_pointer_freed) {
     free(heap);
 }
 
+TEST(dynmem, test_merge_corrupted_previous_block) {
+    uint16_t size = 1000;
+    uint8_t *heap = (uint8_t*)malloc(size);
+    uint8_t *p;
+    CHECK(NULL != heap);
+    reset_heap_error();
+    ns_dyn_mem_init(heap, size, &heap_fail_callback, NULL);
+    CHECK(!heap_have_failed());
+
+    int *ptr = (int *)ns_dyn_mem_alloc(4);
+    int *ptr2 = (int *)ns_dyn_mem_alloc(4);
+    ns_dyn_mem_free(ptr);
+    ptr = ptr2 - 2;
+    *ptr = -2;
+    ns_dyn_mem_free(ptr2);
+
+    CHECK(NS_DYN_MEM_HEAP_SECTOR_CORRUPTED == current_heap_error);
+
+    free(heap);
+}
+
+TEST(dynmem, test_free_corrupted_next_block) {
+    uint16_t size = 1000;
+    uint8_t *heap = (uint8_t*)malloc(size);
+    uint8_t *p;
+    CHECK(NULL != heap);
+    reset_heap_error();
+    ns_dyn_mem_init(heap, size, &heap_fail_callback, NULL);
+    CHECK(!heap_have_failed());
+
+    int *ptr = (int *)ns_dyn_mem_temporary_alloc(4);
+    int *ptr2 = (int *)ns_dyn_mem_temporary_alloc(4);
+    ns_dyn_mem_free(ptr);
+    ptr = ptr2 + 2;
+    *ptr = -2;
+    ns_dyn_mem_free(ptr2);
+
+    CHECK(NS_DYN_MEM_HEAP_SECTOR_CORRUPTED == current_heap_error);
+
+    free(heap);
+}
+
 //NOTE! This test must be last!
 TEST(dynmem, uninitialized_test){
-    ns_dyn_mem_alloc(4);
-    uint8_t buf[1];
-    ns_dyn_mem_free(&buf);
+    void *p = ns_dyn_mem_alloc(4);
+    ns_dyn_mem_free(p);
+    CHECK(p == NULL);
 }

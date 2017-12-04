@@ -1,15 +1,17 @@
+if (!isdefinedsymbol(MBED_APP_START)) { define symbol MBED_APP_START = 0x00000000; }
+if (!isdefinedsymbol(MBED_APP_SIZE)) { define symbol MBED_APP_SIZE = 0x80000; }
 /*###ICF### Section handled by ICF editor, don't touch! ****/
 /*-Editor annotation file-*/
 /* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
 /*-Specials-*/
-define symbol __ICFEDIT_intvec_start__ = 0x00000000;
+define symbol __ICFEDIT_intvec_start__ = MBED_APP_START;
 /*-Memory Regions-*/
-define symbol __ICFEDIT_region_ROM_start__   = 0x00000000;
-define symbol __ICFEDIT_region_ROM_end__     = 0x0007FFFF;
+define symbol __ICFEDIT_region_ROM_start__   = MBED_APP_START;
+define symbol __ICFEDIT_region_ROM_end__     = MBED_APP_START + MBED_APP_SIZE - 1;
 define symbol __ICFEDIT_region_NVIC_start__   = 0x10000000;
 define symbol __ICFEDIT_region_NVIC_end__   = 0x100000C7;
 define symbol __ICFEDIT_region_RAM_start__   = 0x100000C8;
-define symbol __ICFEDIT_region_RAM_end__     = 0x10007FDF;
+define symbol __ICFEDIT_region_RAM_end__     = 0x10007FE0;
 
 /*-Sizes-*/
 /*Heap 1/4 of ram and stack 1/8*/
@@ -17,8 +19,8 @@ define symbol __ICFEDIT_size_cstack__   = 0x1000;
 define symbol __ICFEDIT_size_heap__     = 0x2000;
 /**** End of ICF editor section. ###ICF###*/
 
-define symbol __CRP_start__   = 0x000002FC;
-define symbol __CRP_end__     = 0x000002FF;
+define symbol __CRP_start__   = MBED_APP_START + 0x000002FC;
+define symbol __CRP_end__     = MBED_APP_START + 0x000002FF;
 
 define symbol __RAM1_start__  = 0x2007C000;
 define symbol __RAM1_end__    = 0x20083FFF;
@@ -41,5 +43,5 @@ place in ROM_region   { readonly };
 place in RAM_region   { readwrite,
                         block HEAP, block CSTACK };
 
-place in CRP_region  	{ section .crp };
+place in CRP_region  	{ section .CRPSection };
 place in RAM1_region	{ section .ethusbram };

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_spi_ex.c
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Extended SPI HAL module driver.
   *          This file provides firmware functions to manage the following
   *          SPI peripheral extended functionalities :
@@ -12,7 +12,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -72,8 +72,8 @@
   */
 
 /** @defgroup SPIEx_Exported_Functions_Group1 IO operation functions
- *  @brief   Data transfers functions
- *
+  *  @brief   Data transfers functions
+  *
 @verbatim
   ==============================================================================
                       ##### IO operation functions #####
@@ -98,13 +98,13 @@
 HAL_StatusTypeDef HAL_SPIEx_FlushRxFifo(SPI_HandleTypeDef *hspi)
 {
   __IO uint32_t tmpreg;
-  uint8_t  count = 0;
-  while((hspi->Instance->SR & SPI_FLAG_FRLVL) !=  SPI_FRLVL_EMPTY)
+  uint8_t  count = 0U;
+  while ((hspi->Instance->SR & SPI_FLAG_FRLVL) !=  SPI_FRLVL_EMPTY)
   {
     count++;
     tmpreg = hspi->Instance->DR;
     UNUSED(tmpreg); /* To avoid GCC warning */
-    if(count == SPI_FIFO_SIZE)
+    if (count == SPI_FIFO_SIZE)
     {
       return HAL_TIMEOUT;
     }

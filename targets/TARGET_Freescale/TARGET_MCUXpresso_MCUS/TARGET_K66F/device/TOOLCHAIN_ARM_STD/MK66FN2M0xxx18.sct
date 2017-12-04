@@ -7,14 +7,13 @@
 **     Compiler:            Keil ARM C/C++ Compiler
 **     Reference manual:    K66P144M180SF5RMV2, Rev. 1, Mar 2015
 **     Version:             rev. 3.0, 2015-03-25
-**     Build:               b160406
+**     Build:               b170214
 **
 **     Abstract:
 **         Linker file for the Keil ARM C/C++ Compiler
 **
-**     Copyright (c) 2016 Freescale Semiconductor, Inc.
-**     All rights reserved.
-**
+**     Copyright 2016 Freescale Semiconductor, Inc.
+**     Copyright 2016-2017 NXP
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -25,7 +24,7 @@
 **       list of conditions and the following disclaimer in the documentation and/or
 **       other materials provided with the distribution.
 **
-**     o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+**     o Neither the name of the copyright holder nor the names of its
 **       contributors may be used to endorse or promote products derived from this
 **       software without specific prior written permission.
 **
@@ -40,16 +39,12 @@
 **     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 **     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **
-**     http:                 www.freescale.com
-**     mail:                 support@freescale.com
+**     http:                 www.nxp.com
+**     mail:                 support@nxp.com
 **
 ** ###################################################################
 */
 #define __ram_vector_table__            1
-
-/* Heap 1/4 of ram and stack 1/8 */
-#define __stack_size__       0x8000
-#define __heap_size__        0x10000
 
 #if (defined(__ram_vector_table__))
   #define __ram_vector_table_size__    0x00000400
@@ -57,14 +52,22 @@
   #define __ram_vector_table_size__    0x00000000
 #endif
 
-#define m_interrupts_start             0x00000000
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x200000
+#endif
+
+#define m_interrupts_start             MBED_APP_START
 #define m_interrupts_size              0x00000400
 
-#define m_flash_config_start           0x00000400
+#define m_flash_config_start           MBED_APP_START + 0x400
 #define m_flash_config_size            0x00000010
 
-#define m_text_start                   0x00000410
-#define m_text_size                    0x001FFBF0
+#define m_text_start                   MBED_APP_START + 0x410
+#define m_text_size                    MBED_APP_SIZE - 0x410
 
 #define m_interrupts_ram_start         0x1FFF0000
 #define m_interrupts_ram_size          __ram_vector_table_size__

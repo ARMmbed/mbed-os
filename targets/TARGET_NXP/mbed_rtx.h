@@ -22,15 +22,6 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                48000000
-#endif
 
 #elif defined(TARGET_LPC11U24)        \
      || defined(TARGET_LPC11U35_401)  \
@@ -40,29 +31,11 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                48000000
-#endif
 
 #elif defined(TARGET_LPC1114)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10001000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                48000000
 #endif
 
 #elif defined(TARGET_LPC1347)
@@ -70,79 +43,17 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                72000000
-#endif
 
 #elif defined(TARGET_LPC1549)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x02009000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                72000000
-#endif
 
-#elif defined(TARGET_LPC1768)
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC1769)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                96000000
-#endif
-
-#elif defined(TARGET_LPC2368)
-
-/* FIXME: INITIAL_SP is undefined for this target */
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                96000000
-#endif
-#ifndef OS_SCHEDULERSTKSIZE
-#define OS_SCHEDULERSTKSIZE    (136*2)
-#endif
-
-#elif defined(TARGET_LPC2460)
-
-extern unsigned char            __usr_stack_top__[];
-#ifndef INITIAL_SP
-#define INITIAL_SP              (__usr_stack_top__)
-#endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                72000000
-#endif
-#ifndef OS_SCHEDULERSTKSIZE
-#define OS_SCHEDULERSTKSIZE     (136*2)
 #endif
 
 #elif defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
@@ -150,27 +61,11 @@ extern unsigned char            __usr_stack_top__[];
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10010000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                120000000
-#endif
 
 #elif defined(TARGET_LPC4330) || defined(TARGET_LPC4337)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10008000UL)
-#endif
-#define OS_TASKCNT              14
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                204000000
 #endif
 
 #elif defined(TARGET_LPC812)
@@ -178,29 +73,23 @@ extern unsigned char            __usr_stack_top__[];
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10001000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                36000000
-#endif
 
 #elif defined(TARGET_LPC824) || defined(TARGET_SSCI824)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x10002000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
+
+#elif defined(TARGET_LPC54114_M4)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20010000UL)
 #endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                30000000
+
+#elif defined(TARGET_LPC546XX)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20028000UL)
 #endif
 
 #endif

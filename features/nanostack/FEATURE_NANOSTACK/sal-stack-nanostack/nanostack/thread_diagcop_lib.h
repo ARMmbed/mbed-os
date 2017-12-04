@@ -1,15 +1,30 @@
 /*
- * Copyright (c) 2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: BSD-3-Clause
  *
- * SPDX-License-Identifier: LicenseRef-PBL
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the
+ *    names of its contributors may be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and limitations under the License.
- *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 
@@ -40,7 +55,7 @@
 #define DIAGCOP_TLV_SUPPLY_VOLTAGE                          15  /**< Can not reset*/
 #define DIAGCOP_TLV_CHILD_TABLE                             16  /**< Can not reset*/
 #define DIAGCOP_TLV_CHANNEL_PAGES                           17  /**< Can not reset*/
-#define DIAGCOP_TLV_TYPE_LIST                               18
+#define DIAGCOP_TLV_TYPE_LIST                               18  /**< List type*/
 
 /**
  * \brief Write array TLV.
@@ -99,7 +114,7 @@
  * \param ptr Message buffer.
  * \param length Length of the message buffer to validate message.
  * \param type Type of TLV searched.
- * \param result_ptr Pointer value is given as result if length is positive. Can be NULL which only searches for the length.
+ * \param result Pointer value is given as result if length is positive. Can be NULL which only searches for the length.
  * \return The length of the TLV data found
  * \return 0 if TLV is empty or no TLV found.
  * \return negative value indicates corrupted message.
@@ -112,7 +127,7 @@
  * \param ptr pointer TLV message array.
  * \param length length of TLV message array.
  * \param type Type of TLV.
- * \param data_ptr pointer to variable where the value is read.
+ * \param data pointer to variable where the value is read.
  * \return pointer length of TLV 1 if success. 0 means TLV not found or does not have any data.
  * Any other value indicates that TLV is not as expected.
  */
@@ -124,7 +139,7 @@
  * \param ptr pointer TLV message array.
  * \param length length of TLV message array.
  * \param type Type of TLV.
- * \param data_ptr pointer to variable where the value is read.
+ * \param data pointer to variable where the value is read.
  * \return pointer length of TLV 2 if success. 0 means TLV not found or does not have any data.
  * Any other value indicates that TLV is not as expected.
  */
@@ -136,7 +151,7 @@
  * \param ptr pointer TLV message array.
  * \param length length of TLV message array.
  * \param type Type of TLV.
- * \param data_ptr pointer to variable where the value is read.
+ * \param data pointer to variable where the value is read.
  * \return pointer length of TLV 4 if success. 0 means TLV not found or does not have any data.
  * Any other value indicates that TLV is not as expected.
  */
@@ -148,7 +163,7 @@
  * \param ptr pointer TLV message array.
  * \param length length of TLV message array.
  * \param type Type of TLV.
- * \param data_ptr pointer to variable where the value is read.
+ * \param data pointer to variable where the value is read.
  * \return pointer length of TLV 4 if success. 0 means TLV not found or does not have any data.
  * Any other value indicates that TLV is not as expected.
  */

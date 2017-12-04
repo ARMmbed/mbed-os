@@ -136,7 +136,11 @@ typedef uint32_t *PSSI_DBG_TYPE_LIST;
     IRQ_HANDLE TxGdmaIrqHandle;
 }SSI_DMA_CONFIG, *PSSI_DMA_CONFIG;
 
+<<<<<<< HEAD
 #ifdef CONFIG_GDMA_EN
+=======
+#if CONFIG_GDMA_EN
+>>>>>>> upstream/master
 typedef struct _HAL_SSI_DMA_MULTIBLK_ {
     volatile GDMA_CH_LLI_ELE GdmaChLli[16];
     struct GDMA_CH_LLI Lli[16];
@@ -191,7 +195,11 @@ typedef struct _HAL_SSI_ADAPTOR_ {
     u8 HaveTxChannel;
     u8 HaveRxChannel;
     u8 DefaultRxThresholdLevel;
+<<<<<<< HEAD
     #ifdef CONFIG_GDMA_EN
+=======
+    #if CONFIG_GDMA_EN
+>>>>>>> upstream/master
     SSI_DMA_MULTIBLK DmaTxMultiBlk, DmaRxMultiBlk;
     #endif
     u32 ReservedDummy;
@@ -278,7 +286,11 @@ struct spi_s {
     u32 dma_en;
     volatile u32 state;
     u8 sclk;
+<<<<<<< HEAD
 #ifdef CONFIG_GDMA_EN    
+=======
+#if CONFIG_GDMA_EN    
+>>>>>>> upstream/master
     HAL_GDMA_ADAPTER spi_gdma_adp_tx;
     HAL_GDMA_ADAPTER spi_gdma_adp_rx;
 #endif    
@@ -304,7 +316,11 @@ HAL_Status HalSsiTimeout(u32 StartCount, u32 TimeoutCnt);
 HAL_Status HalSsiStopRecv(VOID * Data);
 HAL_Status HalSsiSetFormat(VOID * Data);
 VOID HalSsiClearFIFO(VOID * Data);
+<<<<<<< HEAD
 #ifdef CONFIG_GDMA_EN    
+=======
+#if CONFIG_GDMA_EN    
+>>>>>>> upstream/master
 HAL_Status HalSsiTxGdmaInit(PHAL_SSI_OP pHalSsiOp, PHAL_SSI_ADAPTOR pHalSsiAdapter);
 VOID HalSsiTxGdmaDeInit(PHAL_SSI_ADAPTOR pHalSsiAdapter);
 HAL_Status HalSsiRxGdmaInit(PHAL_SSI_OP pHalSsiOp, PHAL_SSI_ADAPTOR pHalSsiAdapter);

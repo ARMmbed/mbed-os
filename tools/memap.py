@@ -8,18 +8,29 @@ import re
 import csv
 import json
 import argparse
+from copy import deepcopy
 from prettytable import PrettyTable
 
 from utils import argparse_filestring_type, \
     argparse_lowercase_hyphen_type, argparse_uppercase_type
-
-DEBUG = False
 
 RE_ARMCC = re.compile(
     r'^\s+0x(\w{8})\s+0x(\w{8})\s+(\w+)\s+(\w+)\s+(\d+)\s+[*]?.+\s+(.+)$')
 RE_IAR = re.compile(
     r'^\s+(.+)\s+(zero|const|ro code|inited|uninit)\s'
     r'+0x(\w{8})\s+0x(\w+)\s+(.+)\s.+$')
+
+RE_CMDLINE_FILE_IAR = re.compile(r'^#\s+(.+\.o)')
+RE_LIBRARY_IAR = re.compile(r'^(.+\.a)\:.+$')
+RE_OBJECT_LIBRARY_IAR = re.compile(r'^\s+(.+\.o)\s.*')
+
+RE_OBJECT_FILE_GCC = re.compile(r'^(.+\/.+\.o)$')
+RE_LIBRARY_OBJECT_GCC = re.compile(r'^.+\/lib(.+\.a)\((.+\.o)\)$')
+RE_STD_SECTION_GCC = re.compile(r'^\s+.*0x(\w{8,16})\s+0x(\w+)\s(.+)$')
+RE_FILL_SECTION_GCC = re.compile(r'^\s*\*fill\*\s+0x(\w{8,16})\s+0x(\w+).*$')
+
+RE_OBJECT_ARMCC = re.compile(r'(.+\.(l|ar))\((.+\.o)\)')
+
 
 class MemapParser(object):
     """An object that represents parsed results, parses the memory map files,
@@ -38,21 +49,17 @@ class MemapParser(object):
     # sections to print info (generic for all toolchains)
     sections = ('.text', '.data', '.bss', '.heap', '.stack')
 
-    def __init__(self, detailed_misc=False):
+    def __init__(self):
         """ General initialization
         """
-        # 
-        self.detailed_misc = detailed_misc
-        
+
         # list of all modules and their sections
-        self.modules = dict()
+        self.modules = dict()       # full list - doesn't change with depth
+        self.short_modules = dict() # short version with specific depth
 
         # sections must be defined in this order to take irrelevant out
         self.all_sections = self.sections + self.other_sections + \
                             self.misc_flash_sections + ('unknown', 'OUTPUT')
-
-        # list of all object files and mappting to module names
-        self.object_to_module = dict()
 
         # Memory report (sections + summary)
         self.mem_report = []
@@ -62,23 +69,46 @@ class MemapParser(object):
 
         self.subtotal = dict()
 
-    def module_add(self, module_name, size, section):
+        self.misc_flash_mem = 0
+
+        # Modules passed to the linker on the command line
+        # this is a dict because modules are looked up by their basename
+        self.cmd_modules = {}
+
+
+    def module_add(self, object_name, size, section):
         """ Adds a module / section to the list
 
         Positional arguments:
-        module_name - name of the module to add
+        object_name - name of the entry to add
         size - the size of the module being added
         section - the section the module contributes to
         """
 
-        if module_name in self.modules:
-            self.modules[module_name][section] += size
-        else:
-            temp_dic = dict()
-            for section_idx in self.all_sections:
-                temp_dic[section_idx] = 0
-            temp_dic[section] = size
-            self.modules[module_name] = temp_dic
+        if not object_name or not size or not section:
+            return
+
+        if object_name in self.modules:
+            self.modules[object_name].setdefault(section, 0)
+            self.modules[object_name][section] += size
+            return
+
+        obj_split = os.sep + os.path.basename(object_name)
+        for module_path, contents in self.modules.items():
+            if module_path.endswith(obj_split) or module_path == object_name:
+                contents.setdefault(section, 0)
+                contents[section] += size
+                return
+
+        new_module = {section: size}
+        self.modules[object_name] = new_module
+
+    def module_replace(self, old_object, new_object):
+        """ Replaces an object name with a new one
+        """
+        if old_object in self.modules:
+            self.modules[new_object] = self.modules[old_object]
+            del self.modules[old_object]
 
     def check_new_section_gcc(self, line):
         """ Check whether a new section in a map file has been detected (only
@@ -98,44 +128,39 @@ class MemapParser(object):
         else:
             return False         # everything else, means no change in section
 
-    
-    def path_object_to_module_name(self, txt):
-        """ Parse a path to object file to extract it's module and object data
+
+    def parse_object_name_gcc(self, line):
+        """ Parse a path to object file
 
         Positional arguments:
         txt - the path to parse the object and module name from
         """
 
-        txt = txt.replace('\\', '/')
-        rex_mbed_os_name = r'^.+mbed-os\/(.+)\/(.+\.o)$'
-        test_rex_mbed_os_name = re.match(rex_mbed_os_name, txt)
+        line = line.replace('\\', '/')
+        test_re_mbed_os_name = re.match(RE_OBJECT_FILE_GCC, line)
 
-        if test_rex_mbed_os_name:
+        if test_re_mbed_os_name:
 
-            object_name = test_rex_mbed_os_name.group(2)
-            data = test_rex_mbed_os_name.group(1).split('/')
-            ndata = len(data)
+            object_name = test_re_mbed_os_name.group(1)
 
-            if ndata == 1:
-                module_name = data[0]
+            # corner case: certain objects are provided by the GCC toolchain
+            if 'arm-none-eabi' in line:
+                return '[lib]/misc/' + object_name
+            return object_name
+
+        else:
+
+            test_re_obj_name = re.match(RE_LIBRARY_OBJECT_GCC, line)
+
+            if test_re_obj_name:
+                object_name = test_re_obj_name.group(1) + '/' + \
+                              test_re_obj_name.group(2)
+
+                return '[lib]/' + object_name
+
             else:
-                module_name = data[0] + '/' + data[1]
-
-            if self.detailed_misc:
-                return [module_name + '/' + object_name, object_name]
-            else:
-                return [module_name, object_name]
-            
-        elif self.detailed_misc:           
-            rex_obj_name = r'^.+\/(.+\.o\)*)$'
-            test_rex_obj_name = re.match(rex_obj_name, txt)
-            if test_rex_obj_name:
-                object_name = test_rex_obj_name.group(1)
-                return ['Misc/' + object_name, ""]        
-                
-            return ['Misc', ""]
-        else: 
-            return ['Misc', ""]
+                print "Unknown object name found in GCC map file: %s" % line
+                return '[misc]'
 
     def parse_section_gcc(self, line):
         """ Parse data from a section of gcc map file
@@ -147,36 +172,21 @@ class MemapParser(object):
         Positional arguments:
         line - the line to parse a section from
         """
-        rex_address_len_name = re.compile(
-            r'^\s+.*0x(\w{8,16})\s+0x(\w+)\s(.+)$')
 
-        test_address_len_name = re.match(rex_address_len_name, line)
+        is_fill = re.match(RE_FILL_SECTION_GCC, line)
+        if is_fill:
+            o_name = '[fill]'
+            o_size = int(is_fill.group(2), 16)
+            return [o_name, o_size]
 
-        if test_address_len_name:
+        is_section = re.match(RE_STD_SECTION_GCC, line)
+        if is_section:
+            o_size = int(is_section.group(2), 16)
+            if o_size:
+                o_name = self.parse_object_name_gcc(is_section.group(3))
+                return [o_name, o_size]
 
-            if int(test_address_len_name.group(2), 16) == 0: # size == 0
-                return ["", 0] # no valid entry
-            else:
-                m_name, _ = self.path_object_to_module_name(
-                    test_address_len_name.group(3))
-                m_size = int(test_address_len_name.group(2), 16)
-                return [m_name, m_size]
-
-        else: # special corner case for *fill* sections
-            #  example
-            # *fill*         0x0000abe4        0x4
-            rex_address_len = r'^\s+\*fill\*\s+0x(\w{8,16})\s+0x(\w+).*$'
-            test_address_len = re.match(rex_address_len, line)
-
-            if test_address_len:
-                if int(test_address_len.group(2), 16) == 0: # size == 0
-                    return ["", 0] # no valid entry
-                else:
-                    m_name = 'Fill'
-                    m_size = int(test_address_len.group(2), 16)
-                    return [m_name, m_size]
-            else:
-                return ["", 0] # no valid entry
+        return ["", 0]
 
     def parse_map_file_gcc(self, file_desc):
         """ Main logic to decode gcc map files
@@ -188,35 +198,56 @@ class MemapParser(object):
         current_section = 'unknown'
 
         with file_desc as infile:
-
-            # Search area to parse
             for line in infile:
                 if line.startswith('Linker script and memory map'):
                     current_section = "unknown"
                     break
 
-            # Start decoding the map file
             for line in infile:
+                next_section = self.check_new_section_gcc(line)
 
-                change_section = self.check_new_section_gcc(line)
-
-                if change_section == "OUTPUT": # finish parsing file: exit
+                if next_section == "OUTPUT":
                     break
-                elif change_section != False:
-                    current_section = change_section
+                elif next_section:
+                    current_section = next_section
 
-                [module_name, module_size] = self.parse_section_gcc(line)
+                object_name, object_size = self.parse_section_gcc(line)
 
-                if module_size == 0 or module_name == "":
-                    pass
-                else:
-                    self.module_add(module_name, module_size, current_section)
+                self.module_add(object_name, object_size, current_section)
 
-                if DEBUG:
-                    print "Line: %s" % line,
-                    print "Module: %s\tSection: %s\tSize: %s" % \
-                        (module_name, current_section, module_size)
-                    raw_input("----------")
+        common_prefix = os.path.dirname(os.path.commonprefix([
+            o for o in self.modules.keys() if (o.endswith(".o") and not o.startswith("[lib]"))]))
+        new_modules = {}
+        for name, stats in self.modules.items():
+            if name.startswith("[lib]"):
+                new_modules[name] = stats
+            elif name.endswith(".o"):
+                new_modules[os.path.relpath(name, common_prefix)] = stats
+            else:
+                new_modules[name] = stats
+        self.modules = new_modules
+
+    def parse_object_name_armcc(self, line):
+        """ Parse object file
+
+        Positional arguments:
+        line - the line containing the object or library
+        """
+
+        # simple object (not library)
+        if line[-2] == '.' and line[-1] == 'o':
+            return line
+
+        else:
+            is_obj = re.match(RE_OBJECT_ARMCC, line)
+            if is_obj:
+                object_name = os.path.basename(is_obj.group(1)) + '/' + is_obj.group(3)
+                return '[lib]/' + object_name
+            else:
+                print "Malformed input found when parsing ARMCC map: %s" % line
+                return '[misc]'
+
+
 
     def parse_section_armcc(self, line):
         """ Parse data from an armcc map file
@@ -230,34 +261,48 @@ class MemapParser(object):
         line - the line to parse the section data from
         """
 
-        test_rex_armcc = re.match(RE_ARMCC, line)
+        test_re_armcc = re.match(RE_ARMCC, line)
 
-        if test_rex_armcc:
+        if test_re_armcc:
 
-            size = int(test_rex_armcc.group(2), 16)
+            size = int(test_re_armcc.group(2), 16)
 
-            if test_rex_armcc.group(4) == 'RO':
+            if test_re_armcc.group(4) == 'RO':
                 section = '.text'
             else:
-                if test_rex_armcc.group(3) == 'Data':
+                if test_re_armcc.group(3) == 'Data':
                     section = '.data'
-                elif test_rex_armcc.group(3) == 'Zero':
+                elif test_re_armcc.group(3) == 'Zero':
                     section = '.bss'
                 else:
-                    print "BUG armcc map parser"
-                    raw_input()
+                    print "Malformed input found when parsing armcc map: %s" %\
+                          line
 
-            # lookup object in dictionary and return module name
-            object_name = test_rex_armcc.group(6)
-            if object_name in self.object_to_module:
-                module_name = self.object_to_module[object_name]
-            else:
-                module_name = 'Misc'
+            # check name of object or library
+            object_name = self.parse_object_name_armcc(\
+                test_re_armcc.group(6))
 
-            return [module_name, size, section]
+            return [object_name, size, section]
 
         else:
-            return ["", 0, ""] # no valid entry
+            return ["", 0, ""]
+
+    def parse_object_name_iar(self, object_name):
+        """ Parse object file
+
+        Positional arguments:
+        line - the line containing the object or library
+        """
+
+        # simple object (not library)
+        if object_name.endswith(".o"):
+            try:
+                return self.cmd_modules[object_name]
+            except KeyError:
+                return object_name
+        else:
+            return '[misc]'
+
 
     def parse_section_iar(self, line):
         """ Parse data from an IAR map file
@@ -277,38 +322,33 @@ class MemapParser(object):
         line - the line to parse section data from
         """
 
-        test_rex_iar = re.match(RE_IAR, line)
+        test_re_iar = re.match(RE_IAR, line)
 
-        if test_rex_iar:
+        if test_re_iar:
 
-            size = int(test_rex_iar.group(4), 16)
+            size = int(test_re_iar.group(4), 16)
 
-            if test_rex_iar.group(2) == 'const' or \
-               test_rex_iar.group(2) == 'ro code':
+            if (test_re_iar.group(2) == 'const' or
+                test_re_iar.group(2) == 'ro code'):
                 section = '.text'
-            elif test_rex_iar.group(2) == 'zero' or \
-            test_rex_iar.group(2) == 'uninit':
-                if test_rex_iar.group(1)[0:4] == 'HEAP':
+            elif (test_re_iar.group(2) == 'zero' or
+                  test_re_iar.group(2) == 'uninit'):
+                if test_re_iar.group(1)[0:4] == 'HEAP':
                     section = '.heap'
-                elif test_rex_iar.group(1)[0:6] == 'CSTACK':
+                elif test_re_iar.group(1)[0:6] == 'CSTACK':
                     section = '.stack'
                 else:
                     section = '.bss' #  default section
 
-            elif test_rex_iar.group(2) == 'inited':
+            elif test_re_iar.group(2) == 'inited':
                 section = '.data'
             else:
-                print "BUG IAR map parser"
-                raw_input()
+                print "Malformed input found when parsing IAR map: %s" % line
 
             # lookup object in dictionary and return module name
-            object_name = test_rex_iar.group(5)
-            if object_name in self.object_to_module:
-                module_name = self.object_to_module[object_name]
-            else:
-                module_name = 'Misc'
+            object_name = self.parse_object_name_iar(test_re_iar.group(5))
 
-            return [module_name, size, section]
+            return [object_name, size, section]
 
         else:
             return ["", 0, ""] # no valid entry
@@ -329,13 +369,74 @@ class MemapParser(object):
 
             # Start decoding the map file
             for line in infile:
+                self.module_add(*self.parse_section_armcc(line))
 
-                [name, size, section] = self.parse_section_armcc(line)
+        common_prefix = os.path.dirname(os.path.commonprefix([
+            o for o in self.modules.keys() if (o.endswith(".o") and o != "anon$$obj.o" and not o.startswith("[lib]"))]))
+        new_modules = {}
+        for name, stats in self.modules.items():
+            if name == "anon$$obj.o" or name.startswith("[lib]"):
+                new_modules[name] = stats
+            elif name.endswith(".o"):
+                new_modules[os.path.relpath(name, common_prefix)] = stats
+            else:
+                new_modules[name] = stats
+        self.modules = new_modules
 
-                if size == 0 or name == "" or section == "":
-                    pass
-                else:
-                    self.module_add(name, size, section)
+
+
+    def check_new_library_iar(self, line):
+        """
+        Searches for libraries and returns name. Example:
+        m7M_tls.a: [43]
+
+        """
+
+
+        test_address_line = re.match(RE_LIBRARY_IAR, line)
+
+        if test_address_line:
+            return test_address_line.group(1)
+        else:
+            return ""
+
+    def check_new_object_lib_iar(self, line):
+        """
+        Searches for objects within a library section and returns name. Example:
+        rt7M_tl.a: [44]
+            ABImemclr4.o                 6
+            ABImemcpy_unaligned.o      118
+            ABImemset48.o               50
+            I64DivMod.o                238
+            I64DivZer.o                  2
+
+        """
+
+        test_address_line = re.match(RE_OBJECT_LIBRARY_IAR, line)
+
+        if test_address_line:
+            return test_address_line.group(1)
+        else:
+            return ""
+
+    def parse_iar_command_line(self, lines):
+        """Parse the files passed on the command line to the iar linker
+
+        Positional arguments:
+        lines -- an iterator over the lines within a file
+        """
+        for line in lines:
+            if line.startswith("*"):
+                break
+            is_cmdline_file = RE_CMDLINE_FILE_IAR.match(line)
+            if is_cmdline_file:
+                full_path = is_cmdline_file.group(1)
+                self.cmd_modules[os.path.basename(full_path)] = full_path
+
+        common_prefix = os.path.dirname(os.path.commonprefix(self.cmd_modules.values()))
+        self.cmd_modules = {s: os.path.relpath(f, common_prefix)
+                            for s, f in self.cmd_modules.items()}
+
 
     def parse_map_file_iar(self, file_desc):
         """ Main logic to decode IAR map files
@@ -345,61 +446,65 @@ class MemapParser(object):
         """
 
         with file_desc as infile:
+            self.parse_iar_command_line(infile)
 
-            # Search area to parse
             for line in infile:
                 if line.startswith('  Section  '):
                     break
 
-            # Start decoding the map file
+            for line in infile:
+                self.module_add(*self.parse_section_iar(line))
+
+                if line.startswith('*** MODULE SUMMARY'): # finish section
+                    break
+
+            current_library = ""
             for line in infile:
 
-                [name, size, section] = self.parse_section_iar(line)
+                library = self.check_new_library_iar(line)
 
-                if size == 0 or name == "" or section == "":
-                    pass
-                else:
-                    self.module_add(name, size, section)
+                if library:
+                    current_library = library
 
-    def search_objects(self, path):
-        """ Searches for object files and creates mapping: object --> module
+                object_name = self.check_new_object_lib_iar(line)
 
-        Positional arguments:
-        path - the path to an object file
+                if object_name and current_library:
+                    temp = '[lib]' + '/'+ current_library + '/'+ object_name
+                    self.module_replace(object_name, temp)
+
+
+    def reduce_depth(self, depth):
         """
+        populates the short_modules attribute with a truncated module list
 
-        path = path.replace('\\', '/')
+        (1) depth = 1:
+        main.o
+        mbed-os
 
-        # check location of map file
-        rex = r'^(.+)' + r'\/(.+\.map)$'
-        test_rex = re.match(rex, path)
+        (2) depth = 2:
+        main.o
+        mbed-os/test.o
+        mbed-os/drivers
 
-        if test_rex:
-            search_path = test_rex.group(1) + '/mbed-os/'
+        """
+        if depth == 0 or depth == None:
+            self.short_modules = deepcopy(self.modules)
         else:
-            print "Warning: this doesn't look like an mbed project"
-            return
+            self.short_modules = dict()
+            for module_name, v in self.modules.items():
+                split_name = module_name.split('/')
+                if split_name[0] == '':
+                    split_name = split_name[1:]
+                new_name = "/".join(split_name[:depth])
+                self.short_modules.setdefault(new_name, {})
+                for section_idx, value in v.items():
+                    self.short_modules[new_name].setdefault(section_idx, 0)
+                    self.short_modules[new_name][section_idx] += self.modules[module_name][section_idx]
 
-        for root, _, obj_files in os.walk(search_path):
-            for obj_file in obj_files:
-                if obj_file.endswith(".o"):
-                    module_name, object_name = self.path_object_to_module_name(
-                        os.path.join(root, obj_file))
-
-                    if object_name in self.object_to_module:
-                        if DEBUG:
-                            print "WARNING: multiple usages of object file: %s"\
-                                % object_name
-                            print "    Current: %s" % \
-                                self.object_to_module[object_name]
-                            print "    New:     %s" % module_name
-                            print " "
-                    else:
-                        self.object_to_module.update({object_name:module_name})
 
     export_formats = ["json", "csv-ci", "table"]
 
-    def generate_output(self, export_format, file_output=None):
+    def generate_output(self, export_format, depth, file_output=None):
         """ Generates summary of memory map data
 
         Positional arguments:
@@ -407,9 +512,13 @@ class MemapParser(object):
 
         Keyword arguments:
         file_desc - descriptor (either stdout or file)
+        depth - directory depth on report
 
         Returns: generated string for the 'table' format, otherwise None
         """
+
+        self.reduce_depth(depth)
+        self.compute_report()
 
         try:
             if file_output:
@@ -452,28 +561,13 @@ class MemapParser(object):
 
         csv_module_section = []
         csv_sizes = []
-        for i in sorted(self.modules):
+        for i in sorted(self.short_modules):
             for k in self.print_sections:
                 csv_module_section += [i+k]
-                csv_sizes += [self.modules[i][k]]
+                csv_sizes += [self.short_modules[i][k]]
 
         csv_module_section += ['static_ram']
         csv_sizes += [self.mem_summary['static_ram']]
-
-        csv_module_section += ['heap']
-        if self.mem_summary['heap'] == 0:
-            csv_sizes += ['unknown']
-        else:
-            csv_sizes += [self.mem_summary['heap']]
-
-        csv_module_section += ['stack']
-        if self.mem_summary['stack'] == 0:
-            csv_sizes += ['unknown']
-        else:
-            csv_sizes += [self.mem_summary['stack']]
-
-        csv_module_section += ['total_ram']
-        csv_sizes += [self.mem_summary['total_ram']]
 
         csv_module_section += ['total_flash']
         csv_sizes += [self.mem_summary['total_flash']]
@@ -485,9 +579,6 @@ class MemapParser(object):
 
     def generate_table(self, file_desc):
         """Generate a table from a memoy map
-
-        Positional arguments:
-        file_desc - the file to write out the final report to
 
         Returns: string of the generated table
         """
@@ -503,11 +594,11 @@ class MemapParser(object):
         for i in list(self.print_sections):
             table.align[i] = 'r'
 
-        for i in sorted(self.modules):
+        for i in sorted(self.short_modules):
             row = [i]
 
             for k in self.print_sections:
-                row.append(self.modules[i][k])
+                row.append(self.short_modules[i][k])
 
             table.add_row(row)
 
@@ -520,23 +611,9 @@ class MemapParser(object):
         output = table.get_string()
         output += '\n'
 
-        if self.mem_summary['heap'] == 0:
-            output += "Allocated Heap: unknown\n"
-        else:
-            output += "Allocated Heap: %s bytes\n" % \
-                        str(self.mem_summary['heap'])
-
-        if self.mem_summary['stack'] == 0:
-            output += "Allocated Stack: unknown\n"
-        else:
-            output += "Allocated Stack: %s bytes\n" % \
-                        str(self.mem_summary['stack'])
-
         output += "Total Static RAM memory (data + bss): %s bytes\n" % \
                         str(self.mem_summary['static_ram'])
-        output += "Total RAM memory (data + bss + heap + stack): %s bytes\n" % \
-                        str(self.mem_summary['total_ram'])
-        output += "Total Flash memory (text + data + misc): %s bytes\n" % \
+        output += "Total Flash memory (text + data): %s bytes\n" % \
                         str(self.mem_summary['total_flash'])
 
         return output
@@ -544,36 +621,27 @@ class MemapParser(object):
     toolchains = ["ARM", "ARM_STD", "ARM_MICRO", "GCC_ARM", "GCC_CR", "IAR"]
 
     def compute_report(self):
+        """ Generates summary of memory usage for main areas
+        """
         for k in self.sections:
             self.subtotal[k] = 0
 
-        for i in sorted(self.modules):
+        for i in self.short_modules:
             for k in self.sections:
-                self.subtotal[k] += self.modules[i][k]
-
-        # Calculate misc flash sections
-        self.misc_flash_mem = 0
-        for i in self.modules:
-            for k in self.misc_flash_sections:
-                if self.modules[i][k]:
-                    self.misc_flash_mem += self.modules[i][k]
+                self.short_modules[i].setdefault(k, 0)
+                self.subtotal[k] += self.short_modules[i][k]
 
         self.mem_summary = {
             'static_ram': (self.subtotal['.data'] + self.subtotal['.bss']),
-            'heap': (self.subtotal['.heap']),
-            'stack': (self.subtotal['.stack']),
-            'total_ram': (self.subtotal['.data'] + self.subtotal['.bss'] +
-                          self.subtotal['.heap']+self.subtotal['.stack']),
-            'total_flash': (self.subtotal['.text'] + self.subtotal['.data'] +
-                            self.misc_flash_mem),
+            'total_flash': (self.subtotal['.text'] + self.subtotal['.data']),
         }
 
         self.mem_report = []
-        for i in sorted(self.modules):
+        for i in sorted(self.short_modules):
             self.mem_report.append({
                 "module":i,
                 "size":{
-                    k:self.modules[i][k] for k in self.print_sections
+                    k: self.short_modules[i][k] for k in self.print_sections
                 }
             })
 
@@ -592,20 +660,15 @@ class MemapParser(object):
         result = True
         try:
             with open(mapfile, 'r') as file_input:
-                if toolchain == "ARM" or toolchain == "ARM_STD" or\
-                   toolchain == "ARM_MICRO":
-                    self.search_objects(os.path.abspath(mapfile))
+                if toolchain in ("ARM", "ARM_STD", "ARM_MICRO", "ARMC6"):
                     self.parse_map_file_armcc(file_input)
                 elif toolchain == "GCC_ARM" or toolchain == "GCC_CR":
                     self.parse_map_file_gcc(file_input)
                 elif toolchain == "IAR":
-                    self.search_objects(os.path.abspath(mapfile))
                     self.parse_map_file_iar(file_input)
                 else:
                     result = False
-            
-            self.compute_report()
-        
+
         except IOError as error:
             print "I/O error({0}): {1}".format(error.errno, error.strerror)
             result = False
@@ -614,7 +677,7 @@ class MemapParser(object):
 def main():
     """Entry Point"""
 
-    version = '0.3.12'
+    version = '0.4.0'
 
     # Parser handling
     parser = argparse.ArgumentParser(
@@ -632,6 +695,10 @@ def main():
         type=argparse_uppercase_type(MemapParser.toolchains, "toolchain"))
 
     parser.add_argument(
+        '-d', '--depth', dest='depth', type=int,
+        help='specify directory depth level to display report', required=False)
+
+    parser.add_argument(
         '-o', '--output', help='output file name', required=False)
 
     parser.add_argument(
@@ -642,31 +709,34 @@ def main():
         ", ".join(MemapParser.export_formats))
 
     parser.add_argument('-v', '--version', action='version', version=version)
-    
-    parser.add_argument('-d', '--detailed', action='store_true', help='Displays the elements in "Misc" in a detailed fashion', required=False)
 
     # Parse/run command
     if len(sys.argv) <= 1:
         parser.print_help()
         sys.exit(1)
 
-
     args = parser.parse_args()
 
     # Create memap object
-    memap = MemapParser(detailed_misc=args.detailed)
+    memap = MemapParser()
 
     # Parse and decode a map file
     if args.file and args.toolchain:
         if memap.parse(args.file, args.toolchain) is False:
             sys.exit(0)
 
+    if args.depth is None:
+        depth = 2  # default depth level
+    else:
+        depth = args.depth
+
     returned_string = None
     # Write output in file
     if args.output != None:
-        returned_string = memap.generate_output(args.export, args.output)
+        returned_string = memap.generate_output(args.export, \
+            depth, args.output)
     else: # Write output in screen
-        returned_string = memap.generate_output(args.export)
+        returned_string = memap.generate_output(args.export, depth)
 
     if args.export == 'table' and returned_string:
         print returned_string

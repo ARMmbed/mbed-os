@@ -4,8 +4,14 @@
 #include "lwip/tcpip.h"
 #include "lwip/ethip6.h"
 #include <string.h>
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
 #include "mbed_interface.h"
+
+// Check for LWIP having Ethernet enabled
+#if LWIP_ARP || LWIP_ETHERNET
+
+// Check for Ethernet HAL being present
+#ifdef ETH_SUCCESS
 
 #define RECV_TASK_PRI           (osPriorityHigh)
 #define PHY_TASK_PRI            (osPriorityLow)
@@ -40,6 +46,10 @@ static sys_mutex_t tx_lock_mutex;
 /* function */
 static void _eth_arch_rx_task(void *arg);
 static void _eth_arch_phy_task(void *arg);
+#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
+    || defined (STM32F779xx)
+static void _rmii_watchdog(void *arg);
+#endif
 
 #if LWIP_IPV4
 static err_t _eth_arch_netif_output_ipv4(struct netif *netif, struct pbuf *q, const ip4_addr_t *ipaddr);
@@ -52,6 +62,8 @@ static err_t _eth_arch_low_level_output(struct netif *netif, struct pbuf *p);
 static struct pbuf * _eth_arch_low_level_input(struct netif *netif);
 __weak uint8_t mbed_otp_mac_address(char *mac);
 void mbed_default_mac_address(char *mac);
+
+void _eth_config_mac(ETH_HandleTypeDef *heth);
 
 /**
  * Ethernet Rx Transfer completed callback
@@ -87,9 +99,6 @@ void ETH_IRQHandler(void)
  */
 static void _eth_arch_low_level_init(struct netif *netif)
 {
-    uint32_t regvalue = 0;
-    HAL_StatusTypeDef hal_eth_init_status;
-
     /* Init ETH */
     uint8_t MACAddr[6];
     EthHandle.Instance = ETH;
@@ -111,7 +120,7 @@ static void _eth_arch_low_level_init(struct netif *netif)
     EthHandle.Init.RxMode = ETH_RXINTERRUPT_MODE;
     EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
     EthHandle.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
-    hal_eth_init_status = HAL_ETH_Init(&EthHandle);
+    HAL_ETH_Init(&EthHandle);
 
     /* Initialize Tx Descriptors list: Chain Mode */
     HAL_ETH_DMATxDescListInit(&EthHandle, DMATxDscrTab, &Tx_Buff[0][0], ETH_TXBUFNB);
@@ -137,6 +146,9 @@ static void _eth_arch_low_level_init(struct netif *netif)
     /* device capabilities */
     /* don't set NETIF_FLAG_ETHARP if this device is not an ethernet one */
     netif->flags |= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
+
+    /* Configure MAC */
+    _eth_config_mac(&EthHandle);
 
     /* Enable MAC and DMA transmission and reception */
     HAL_ETH_Start(&EthHandle);
@@ -294,19 +306,19 @@ static struct pbuf * _eth_arch_low_level_input(struct netif *netif)
             memcpy((uint8_t*)((uint8_t*)q->payload + payloadoffset), (uint8_t*)((uint8_t*)buffer + bufferoffset), byteslefttocopy);
             bufferoffset = bufferoffset + byteslefttocopy;
         }
-
-        /* Release descriptors to DMA */
-        /* Point to first descriptor */
-        dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
-        /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
-        for (i = 0; i < EthHandle.RxFrameInfos.SegCount; i++) {
-            dmarxdesc->Status |= ETH_DMARXDESC_OWN;
-            dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
-        }
-
-        /* Clear Segment_Count */
-        EthHandle.RxFrameInfos.SegCount = 0;
     }
+
+    /* Release descriptors to DMA */
+    /* Point to first descriptor */
+    dmarxdesc = EthHandle.RxFrameInfos.FSRxDesc;
+    /* Set Own bit in Rx descriptors: gives the buffers back to DMA */
+    for (i = 0; i < EthHandle.RxFrameInfos.SegCount; i++) {
+        dmarxdesc->Status |= ETH_DMARXDESC_OWN;
+        dmarxdesc = (ETH_DMADescTypeDef*)(dmarxdesc->Buffer2NextDescAddr);
+    }
+
+    /* Clear Segment_Count */
+    EthHandle.RxFrameInfos.SegCount = 0;
 
     /* When Rx Buffer unavailable flag is set: clear it and resume reception */
     if ((EthHandle.Instance->DMASR & ETH_DMASR_RBUS) != (uint32_t)RESET) {
@@ -363,6 +375,36 @@ static void _eth_arch_phy_task(void *arg)
         osDelay(PHY_TASK_WAIT);
     }
 }
+
+#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
+    || defined (STM32F779xx)
+/**
+ * workaround for the ETH RMII bug in STM32F76x and STM32F77x revA
+ *
+ * \param[in] netif the lwip network interface structure
+ */
+static void _rmii_watchdog(void *arg)
+{
+    while(1) {
+        /* some good packets are received */
+        if (EthHandle.Instance->MMCRGUFCR > 0) {
+            /* RMII Init is OK - would need service to terminate or suspend
+             * the thread */
+            while(1) {
+                /*  don't do anything anymore */
+                osDelay(0xFFFFFFFF);
+            }
+        } else if (EthHandle.Instance->MMCRFCECR > 10) {
+            /* ETH received too many packets with CRC errors, resetting RMII */
+            SYSCFG->PMC &= ~SYSCFG_PMC_MII_RMII_SEL;
+            SYSCFG->PMC |= SYSCFG_PMC_MII_RMII_SEL;
+            EthHandle.Instance->MMCCR |= ETH_MMCCR_CR;
+        } else {
+            osDelay(100);
+        }
+    }
+}
+#endif
 
 /**
  * This function is the ethernet IPv4 packet send function. It calls
@@ -451,11 +493,16 @@ err_t eth_arch_enetif_init(struct netif *netif)
     sys_mutex_new(&tx_lock_mutex);
 
     /* task */
-    sys_thread_new("_eth_arch_rx_task", _eth_arch_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
-    sys_thread_new("_eth_arch_phy_task", _eth_arch_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
+    sys_thread_new("stm32_emac_rx_thread", _eth_arch_rx_task, netif, DEFAULT_THREAD_STACKSIZE, RECV_TASK_PRI);
+    sys_thread_new("stm32_emac_phy_thread", _eth_arch_phy_task, netif, DEFAULT_THREAD_STACKSIZE, PHY_TASK_PRI);
 
     /* initialize the hardware */
     _eth_arch_low_level_init(netif);
+
+#if defined (STM32F767xx) || defined (STM32F769xx) || defined (STM32F777xx)\
+    || defined (STM32F779xx)
+    sys_thread_new("stm32_rmii_watchdog", _rmii_watchdog, netif, DEFAULT_THREAD_STACKSIZE, osPriorityLow);
+#endif
 
     return ERR_OK;
 }
@@ -512,3 +559,7 @@ void mbed_default_mac_address(char *mac) {
 
     return;
 }
+
+#endif //ETH_SUCCESS
+
+#endif // LWIP_ARP || LWIP_ETHERNET

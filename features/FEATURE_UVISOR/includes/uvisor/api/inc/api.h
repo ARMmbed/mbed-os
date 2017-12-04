@@ -19,11 +19,12 @@
 
 #include "rt_OsEventObserver.h"
 #include "api/inc/uvisor_exports.h"
-#include "api/inc/unvic_exports.h"
+#include "api/inc/virq_exports.h"
 #include "api/inc/debug_exports.h"
 #include "api/inc/halt_exports.h"
 #include "api/inc/pool_queue_exports.h"
 #include "api/inc/page_allocator_exports.h"
+#include "api/inc/uvisor_spinlock_exports.h"
 #include <stdint.h>
 
 #define UVISOR_API_MAGIC 0x5C9411B4
@@ -32,12 +33,17 @@
 UVISOR_EXTERN_C_BEGIN
 
 extern void uvisor_init(void);
+/* This method is an api method which initializes the g_semihosting_magic variable.
+ * This function will only work if called in privileged mode or from secure code,
+ * it is only intended to be called by debugger after reset.
+ */
+void debug_semihosting_enable(void);
 
 typedef struct {
     uint32_t magic;
     uint32_t (*get_version)(uint32_t);
 
-    void (*init)(void);
+    void (*init)(uint32_t caller);
 
     void     (*irq_enable)(uint32_t irqn);
     void     (*irq_disable)(uint32_t irqn);
@@ -57,19 +63,33 @@ typedef struct {
     int (*page_free)(const UvisorPageTable * const table);
 
     int (*box_namespace)(int box_id, char *box_namespace, size_t length);
+    int (*box_id_for_namespace)(int * const box_id, const char * const box_namespace);
 
-    void (*debug_init)(const TUvisorDebugDriver * const driver);
     void (*error)(THaltUserError reason);
+    void (*start)(void);
     void (*vmpu_mem_invalidate)(void);
 
-    int                (*pool_init)(uvisor_pool_t *, void *, size_t, size_t, int);
-    int                (*pool_queue_init)(uvisor_pool_queue_t *, uvisor_pool_t *, void *, size_t, size_t, int);
-    uvisor_pool_slot_t (*pool_allocate)(uvisor_pool_t *, uint32_t);
-    void               (*pool_queue_enqueue)(uvisor_pool_queue_t *, uvisor_pool_slot_t);
+    int                (*pool_init)(uvisor_pool_t *, void *, size_t, size_t);
+    int                (*pool_queue_init)(uvisor_pool_queue_t *, uvisor_pool_t *, void *, size_t, size_t);
+    uvisor_pool_slot_t (*pool_allocate)(uvisor_pool_t *);
+    uvisor_pool_slot_t (*pool_try_allocate)(uvisor_pool_t *);
+    uvisor_pool_slot_t (*pool_queue_enqueue)(uvisor_pool_queue_t *, uvisor_pool_slot_t);
+    uvisor_pool_slot_t (*pool_queue_try_enqueue)(uvisor_pool_queue_t *, uvisor_pool_slot_t);
     uvisor_pool_slot_t (*pool_free)(uvisor_pool_t *, uvisor_pool_slot_t);
+    uvisor_pool_slot_t (*pool_try_free)(uvisor_pool_t *, uvisor_pool_slot_t);
     uvisor_pool_slot_t (*pool_queue_dequeue)(uvisor_pool_queue_t *, uvisor_pool_slot_t);
+    uvisor_pool_slot_t (*pool_queue_try_dequeue)(uvisor_pool_queue_t *, uvisor_pool_slot_t);
     uvisor_pool_slot_t (*pool_queue_dequeue_first)(uvisor_pool_queue_t *);
+    uvisor_pool_slot_t (*pool_queue_try_dequeue_first)(uvisor_pool_queue_t *);
     uvisor_pool_slot_t (*pool_queue_find_first)(uvisor_pool_queue_t *, TQueryFN_Ptr, void *);
+    uvisor_pool_slot_t (*pool_queue_try_find_first)(uvisor_pool_queue_t *, TQueryFN_Ptr, void *);
+
+    void (*spin_init)(UvisorSpinlock * spinlock);
+    bool (*spin_trylock)(UvisorSpinlock * spinlock);
+    void (*spin_lock)(UvisorSpinlock * spinlock);
+    void (*spin_unlock)(UvisorSpinlock * spinlock);
+
+    void (*debug_semihosting_enable)(void);
 
     OsEventObserver os_event_observer;
 } UVISOR_PACKED UvisorApi;

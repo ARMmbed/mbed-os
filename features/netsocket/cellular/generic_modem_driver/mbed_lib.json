@@ -1,0 +1,9 @@
+{
+	"name": "ppp-cell-iface", 
+		"config": {
+			"baud-rate": 115200,
+			"apn-lookup": false,
+			"at-parser-buffer-size": 256,
+			"at-parser-timeout": 8000
+	}
+}

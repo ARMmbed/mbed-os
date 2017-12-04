@@ -18,7 +18,6 @@
 #define __UVISOR_API_VMPU_EXPORTS_H__
 
 #include "api/inc/uvisor_exports.h"
-#include "api/inc/pool_queue_exports.h"
 #include <stdint.h>
 
 /* The maximum box namespace length is 37 so that it is exactly big enough for
@@ -116,7 +115,7 @@
 #define UVISOR_REGION_ROUND_DOWN(x) ((x) & ~((1UL << UVISOR_REGION_BITS(x)) - 1))
 #define UVISOR_REGION_ROUND_UP(x)   (1UL << UVISOR_REGION_BITS(x))
 #define UVISOR_STACK_SIZE_ROUND(x)  UVISOR_REGION_ROUND_UP(x)
-#elif defined(ARCH_MPU_KINETIS)
+#elif defined(ARCH_MPU_ARMv8M) || defined(ARCH_MPU_KINETIS)
 #define UVISOR_REGION_ROUND_DOWN(x) UVISOR_ROUND32_DOWN(x)
 #define UVISOR_REGION_ROUND_UP(x)   UVISOR_ROUND32_UP(x)
 #define UVISOR_STACK_SIZE_ROUND(x)  UVISOR_REGION_ROUND_UP((x) + (UVISOR_STACK_BAND_SIZE * 2))
@@ -157,7 +156,9 @@ typedef struct {
 typedef struct uvisor_bss_sections_t {
     uint32_t index;
     uint32_t context;
+    uint32_t newlib_reent;
     uint32_t rpc;
+    uint32_t ipc;
     uint32_t heap;
 } UVISOR_PACKED UvisorBssSections;
 
@@ -241,7 +242,8 @@ typedef struct {
 #if defined(UVISOR_PRESENT) && UVISOR_PRESENT == 1
 static UVISOR_FORCEINLINE int vmpu_bits(uint32_t size)
 {
-    return 32 - __builtin_clz(size);
+    /* If size is 0, the result of __builtin_clz is undefined */
+    return (0 == size) ? 0: 32 - __builtin_clz(size);
 }
 #endif /* defined(UVISOR_PRESENT) && UVISOR_PRESENT == 1 */
 

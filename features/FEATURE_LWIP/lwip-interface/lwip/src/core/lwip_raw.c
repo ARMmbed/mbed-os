@@ -209,7 +209,7 @@ raw_input(struct pbuf *p, struct netif *inp)
 err_t
 raw_bind(struct raw_pcb *pcb, const ip_addr_t *ipaddr)
 {
-  if ((pcb == NULL) || (ipaddr == NULL) || !IP_ADDR_PCB_VERSION_MATCH(pcb, ipaddr)) {
+  if ((pcb == NULL) || (ipaddr == NULL)) {
     return ERR_VAL;
   }
   ip_addr_set_ipaddr(&pcb->local_ip, ipaddr);
@@ -233,7 +233,7 @@ raw_bind(struct raw_pcb *pcb, const ip_addr_t *ipaddr)
 err_t
 raw_connect(struct raw_pcb *pcb, const ip_addr_t *ipaddr)
 {
-  if ((pcb == NULL) || (ipaddr == NULL) || !IP_ADDR_PCB_VERSION_MATCH(pcb, ipaddr)) {
+  if ((pcb == NULL) || (ipaddr == NULL)) {
     return ERR_VAL;
   }
   ip_addr_set_ipaddr(&pcb->remote_ip, ipaddr);

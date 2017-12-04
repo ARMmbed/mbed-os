@@ -415,8 +415,7 @@ int can_config_txmsgobj(can_t *obj) {
     return 1;
 }
 
-
-void can_init(can_t *obj, PinName rd, PinName td) {
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
     // Enable power and clock
     LPC_SYSCON->SYSAHBCLKCTRL1 |= (1UL << 7);
     LPC_SYSCON->PRESETCTRL1    |= (1UL << 7);
@@ -430,7 +429,7 @@ void can_init(can_t *obj, PinName rd, PinName td) {
     LPC_SWM->PINASSIGN[6] &= ~(0x00FFFF00L);
     LPC_SWM->PINASSIGN[6] |= (rd << 16) | (td << 8);
 
-    can_frequency(obj, 100000);
+    can_frequency(obj, hz);
 
     // Resume operation
     LPC_C_CAN0->CANCNTL &= ~(1UL << 0);
@@ -440,6 +439,10 @@ void can_init(can_t *obj, PinName rd, PinName td) {
     can_config_rxmsgobj(obj);
     // Initialize TX message object
     can_config_txmsgobj(obj);
+}
+
+void can_init(can_t *obj, PinName rd, PinName td) {
+    can_init_freq(obj, rd, td, 100000);
 }
 
 void can_free(can_t *obj) {

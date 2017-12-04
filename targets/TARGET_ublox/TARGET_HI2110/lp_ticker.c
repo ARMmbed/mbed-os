@@ -323,6 +323,14 @@ void lp_ticker_set_interrupt(timestamp_t time)
     core_util_critical_section_exit();
 }
 
+void lp_ticker_fire_interrupt(void)
+{
+    // user interrupt only set, this will invoke from ISR routine directly lp handler
+    g_user_interrupt_pending = false;
+    g_user_interrupt_set = true;
+    NVIC_SetPendingIRQ(RTC_IRQn);
+}
+
 void lp_ticker_disable_interrupt(void)
 {
     /* Can't disable interrupts as we need them to manage

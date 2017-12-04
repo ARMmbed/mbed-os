@@ -23,6 +23,7 @@ import json
 from time import sleep
 from shutil import copy
 from os.path import join, abspath, dirname
+from json import load, dump
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -32,22 +33,21 @@ from tools.utils import args_error
 from tools.utils import NotSupportedException
 from tools.paths import BUILD_DIR
 from tools.paths import MBED_LIBRARIES
-from tools.paths import RTOS_LIBRARIES
 from tools.paths import RPC_LIBRARY
-from tools.paths import ETH_LIBRARY
-from tools.paths import USB_HOST_LIBRARIES, USB_LIBRARIES
+from tools.paths import USB_LIBRARIES
 from tools.paths import DSP_LIBRARIES
-from tools.paths import UBLOX_LIBRARY
 from tools.tests import TESTS, Test, TEST_MAP
 from tools.tests import TEST_MBED_LIB
 from tools.tests import test_known, test_name_known
 from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
+from tools.options import extract_mcus
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import mcu_toolchain_list
 from tools.build_api import mcu_target_list
+from tools.build_api import merge_build_data
 from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
@@ -58,51 +58,66 @@ if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser(add_app_config=True)
     group = parser.add_mutually_exclusive_group(required=False)
-    group.add_argument("-p",
-                      type=argparse_many(test_known),
-                      dest="program",
-                      help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
+    group.add_argument(
+        "-p",
+        type=argparse_many(test_known),
+        dest="program",
+        help="The index of the desired test program: [0-%d]" % (len(TESTS)-1))
 
-    group.add_argument("-n",
-                       type=argparse_many(test_name_known),
-                      dest="program",
-                      help="The name of the desired test program")
+    group.add_argument(
+        "-n",
+        type=argparse_many(test_name_known),
+        dest="program",
+        help="The name of the desired test program")
 
-    parser.add_argument("-j", "--jobs",
-                      type=int,
-                      dest="jobs",
-                      default=0,
-                      help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
+    parser.add_argument(
+        "-j", "--jobs",
+        type=int,
+        dest="jobs",
+        default=0,
+        help="Number of concurrent jobs. Default: 0/auto (based on host machine's number of CPUs)")
 
-    parser.add_argument("-v", "--verbose",
-                      action="store_true",
-                      dest="verbose",
-                      default=False,
-                      help="Verbose diagnostic output")
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        dest="verbose",
+        default=False,
+        help="Verbose diagnostic output")
 
-    parser.add_argument("--silent",
-                      action="store_true",
-                      dest="silent",
-                      default=False,
-                      help="Silent diagnostic output (no copy, compile notification)")
+    parser.add_argument(
+        "--silent",
+        action="store_true",
+        dest="silent",
+        default=False,
+        help="Silent diagnostic output (no copy, compile notification)")
 
-    parser.add_argument("-D",
-                      action="append",
-                      dest="macros",
-                      help="Add a macro definition")
+    parser.add_argument(
+        "-D",
+        action="append",
+        dest="macros",
+        help="Add a macro definition")
 
-    group.add_argument("-S", "--supported-toolchains",
-                      dest="supported_toolchains",
-                      default=False,
-                      const="matrix",
-                      choices=["matrix", "toolchains", "targets"],
-                      nargs="?",
-                      help="Displays supported matrix of MCUs and toolchains")
+    group.add_argument(
+        "-S", "--supported-toolchains",
+        dest="supported_toolchains",
+        default=False,
+        const="matrix",
+        choices=["matrix", "toolchains", "targets"],
+        nargs="?",
+        help="Displays supported matrix of MCUs and toolchains")
 
-    parser.add_argument('-f', '--filter',
-                      dest='general_filter_regex',
-                      default=None,
-                      help='For some commands you can use filter to filter out results')
+    parser.add_argument(
+        '-f', '--filter',
+        dest='general_filter_regex',
+        default=None,
+        help='For some commands you can use filter to filter out results')
+
+    parser.add_argument(
+        "--stats-depth",
+        type=int,
+        dest="stats_depth",
+        default=2,
+        help="Depth level for static memory report")
 
     # Local run
     parser.add_argument("--automated", action="store_true", dest="automated",
@@ -133,25 +148,10 @@ if __name__ == '__main__':
                       default=False, help="List available tests in order and exit")
 
     # Ideally, all the tests with a single "main" thread can be run with, or
-    # without the rtos, eth, usb_host, usb, dsp, ublox
-    parser.add_argument("--rtos",
-                      action="store_true", dest="rtos",
-                      default=False, help="Link with RTOS library")
-
+    # without the usb, dsp
     parser.add_argument("--rpc",
                       action="store_true", dest="rpc",
                       default=False, help="Link with RPC library")
-
-    parser.add_argument("--eth",
-                      action="store_true", dest="eth",
-                      default=False,
-                      help="Link with Ethernet library")
-
-    parser.add_argument("--usb_host",
-                      action="store_true",
-                      dest="usb_host",
-                      default=False,
-                      help="Link with USB Host library")
 
     parser.add_argument("--usb",
                       action="store_true",
@@ -165,17 +165,16 @@ if __name__ == '__main__':
                       default=False,
                       help="Link with DSP library")
 
-    parser.add_argument("--ublox",
-                      action="store_true",
-                      dest="ublox",
-                      default=False,
-                      help="Link with U-Blox library")
-
     parser.add_argument("--testlib",
                       action="store_true",
                       dest="testlib",
                       default=False,
                       help="Link with mbed test library")
+
+    parser.add_argument("--build-data",
+                        dest="build_data",
+                        default=None,
+                        help="Dump build_data to this file")
 
     # Specify a different linker script
     parser.add_argument("-l", "--linker", dest="linker_script",
@@ -217,7 +216,7 @@ if __name__ == '__main__':
     # Target
     if options.mcu is None :
         args_error(parser, "argument -m/--mcu is required")
-    mcu = options.mcu[0]
+    mcu = extract_mcus(parser, options)[0]
 
     # Toolchain
     if options.tool is None:
@@ -249,6 +248,7 @@ if __name__ == '__main__':
                            %(toolchain,search_path))
 
     # Test
+    build_data_blob = {} if options.build_data else None
     for test_no in p:
         test = Test(test_no)
         if options.automated is not None:    test.automated = options.automated
@@ -263,13 +263,9 @@ if __name__ == '__main__':
             sys.exit()
 
         # Linking with extra libraries
-        if options.rtos:     test.dependencies.append(RTOS_LIBRARIES)
         if options.rpc:      test.dependencies.append(RPC_LIBRARY)
-        if options.eth:      test.dependencies.append(ETH_LIBRARY)
-        if options.usb_host: test.dependencies.append(USB_HOST_LIBRARIES)
         if options.usb:      test.dependencies.append(USB_LIBRARIES)
         if options.dsp:      test.dependencies.append(DSP_LIBRARIES)
-        if options.ublox:    test.dependencies.append(UBLOX_LIBRARY)
         if options.testlib:  test.dependencies.append(TEST_MBED_LIB)
 
         build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
@@ -287,6 +283,7 @@ if __name__ == '__main__':
                                      clean=options.clean,
                                      verbose=options.verbose,
                                      notify=notify,
+                                     report=build_data_blob,
                                      silent=options.silent,
                                      macros=options.macros,
                                      jobs=options.jobs,
@@ -295,7 +292,8 @@ if __name__ == '__main__':
                                      inc_dirs=[dirname(MBED_LIBRARIES)],
                                      build_profile=extract_profile(parser,
                                                                    options,
-                                                                   toolchain))
+                                                                   toolchain),
+                                     stats_depth=options.stats_depth)
             print 'Image: %s'% bin_file
 
             if options.disk:
@@ -332,13 +330,15 @@ if __name__ == '__main__':
 
         except KeyboardInterrupt, e:
             print "\n[CTRL+c] exit"
-        except NotSupportedException, e:
-            print "\nNot supported for selected target"
+        except NotSupportedException as e:
+            print "\nCould not compile for %s: %s" % (mcu, str(e))
         except Exception,e:
             if options.verbose:
                 import traceback
                 traceback.print_exc(file=sys.stdout)
             else:
                 print "[ERROR] %s" % str(e)
-            
+
             sys.exit(1)
+    if options.build_data:
+        merge_build_data(options.build_data, build_data_blob, "application")

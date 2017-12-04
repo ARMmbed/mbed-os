@@ -69,7 +69,7 @@ __STATIC_INLINE int mxc_get_lock(uint32_t *lock, uint32_t value)
     do {
 
         // Return if the lock is taken by a different thread
-        if(__LDREXW((volatile unsigned long *)lock) != 0) {
+        if(__LDREXW((volatile uint32_t *)lock) != 0) {
             return E_BUSY;
         }
 

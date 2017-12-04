@@ -20,7 +20,7 @@
 #include <stddef.h>
 
 #include "ble/blecommon.h"
-#include "nrf_ble.h" /* nordic ble */
+#include "headers/nrf_ble.h" /* nordic ble */
 #include "ble/Gap.h"
 #include "ble/GattServer.h"
 
@@ -132,6 +132,15 @@ private:
      * Release all pending write requests.
      */
     void releaseAllWriteRequests();
+
+    /**
+     * Query if updates of a characteristics are enabled for a given connection.
+     */
+    ble_error_t areUpdatesEnabled(
+        Gap::Handle_t connectionHandle,
+        GattAttribute::Handle_t valueHandle,
+        bool *enabledP
+    );
 
 private:
     GattCharacteristic       *p_characteristics[BLE_TOTAL_CHARACTERISTICS];

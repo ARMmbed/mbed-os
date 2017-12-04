@@ -1,15 +1,18 @@
 /*
- * Copyright (c) 2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
- * SPDX-License-Identifier: LicenseRef-PBL
- *
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.mbed.com/licenses/PBL-1.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * See the License for the specific language governing permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /**
@@ -50,6 +53,10 @@ typedef struct mac_api_s mac_api_t;
  * \return mac_api_t Ownership of newly created object
  */
 
+/*!
+ * \enum mlme_primitive
+ * \brief Enum for MLME primitive types.
+ */
 typedef enum {
     MLME_ASSOCIATE,
     MLME_DISASSOCIATE,
@@ -68,14 +75,21 @@ typedef enum {
     MLME_POLL
 } mlme_primitive;
 
-
+/**
+ * \struct mac_description_storage_size_t
+ * \brief Container for MAC storage sizes.
+ */
 typedef struct mac_description_storage_size_s {
-    uint8_t device_decription_table_size;   /** MAC Device description list size */
-    uint8_t key_description_table_size;     /** MAC Key description list size */
-    uint8_t key_lookup_size;                /** Key description key lookup list size */
-    uint8_t key_usage_size;                 /** Key description key usage list size */
+    uint8_t device_decription_table_size;   /**< MAC Device description list size */
+    uint8_t key_description_table_size;     /**< MAC Key description list size */
+    uint8_t key_lookup_size;                /**< Key description key lookup list size */
+    uint8_t key_usage_size;                 /**< Key description key usage list size */
 } mac_description_storage_size_t;
 
+/*!
+ * \enum mac_extended_address_type
+ * \brief Enum for MAC extended address types.
+ */
 typedef enum mac_extended_address_type {
     MAC_EXTENDED_READ_ONLY, /** EUID64 which is unique */
     MAC_EXTENDED_DYNAMIC /** Configured MAC 64-bit address to RAM and Radio */
@@ -194,25 +208,47 @@ typedef int8_t mac_api_initialize(mac_api_t *api, mcps_data_confirm *data_conf_c
  * Then MAC is operated by Upper layer by calling MLME or MCPS primitive functions.
  */
 struct mac_api_s {
-    mac_api_initialize          *mac_initialize;
+    mac_api_initialize          *mac_initialize;                /**< MAC initialize function to use */
     //External MAC callbacks
-    mlme_request                *mlme_req;
-    mcps_data_request           *mcps_data_req;
-    mcps_purge_request          *mcps_purge_req;
+    mlme_request                *mlme_req;                      /**< MAC MLME request function to use */
+    mcps_data_request           *mcps_data_req;                 /**< MAC MCPS data request function to use */
+    mcps_purge_request          *mcps_purge_req;                /**< MAC MCPS purge request function to use */
 
     //Upper layer callbacksMLME_ASSOCIATE
-    mcps_data_confirm           *data_conf_cb;
-    mcps_data_indication        *data_ind_cb;
-    mcps_purge_confirm          *purge_conf_cb;
-    mlme_confirm                *mlme_conf_cb;
-    mlme_indication             *mlme_ind_cb;
-    mac_ext_mac64_address_set   *mac64_set;
-    mac_ext_mac64_address_get   *mac64_get;
-    mac_storage_decription_sizes_get *mac_storage_sizes_get;
+    mcps_data_confirm           *data_conf_cb;                  /**< MAC MCPS data confirm callback function */
+    mcps_data_indication        *data_ind_cb;                   /**< MAC MCPS data indication callback function */
+    mcps_purge_confirm          *purge_conf_cb;                 /**< MAC MCPS purge confirm callback function */
+    mlme_confirm                *mlme_conf_cb;                  /**< MAC MLME confirm callback function */
+    mlme_indication             *mlme_ind_cb;                   /**< MAC MLME indication callback function */
+    mac_ext_mac64_address_set   *mac64_set;                     /**< MAC extension function to set mac64 address */
+    mac_ext_mac64_address_get   *mac64_get;                     /**< MAC extension function to get mac64 address */
+    mac_storage_decription_sizes_get *mac_storage_sizes_get;    /**< Getter function to query data storage sizes from MAC */
 
-    int8_t                      parent_id;
-    uint16_t                    phyMTU;
+    int8_t                      parent_id;                      /**< Upper layer id */
+    uint16_t                    phyMTU;                         /**< Maximum Transmission Unit(MTU) used by MAC*/
 };
+
+/**
+ * \struct mac_statistics_t
+ * \brief MAC statistics structure.
+ */
+typedef struct mac_statistics_s {
+    uint16_t mac_tx_queue_size;         /**< MAC TX queue current size. */
+    uint16_t mac_tx_queue_peak;         /**< MAC TX queue peak size. */
+    uint32_t mac_rx_count;              /**< MAC RX packet count. */
+    uint32_t mac_tx_count;              /**< MAC TX packet count. */
+    uint32_t mac_bc_rx_count;           /**< MAC broadcast RX packet count. */
+    uint32_t mac_bc_tx_count;           /**< MAC broadcast TX packet count. */
+    uint32_t mac_beacon_rx_count;       /**< MAC Beacon RX packet count. */
+    uint32_t mac_beacon_tx_count;       /**< MAC Beacon TX packet count. */
+    uint32_t mac_rx_drop_count;         /**< MAC RX packet drop count. */
+    uint32_t mac_tx_bytes;              /**< MAC TX bytes count. */
+    uint32_t mac_rx_bytes;              /**< MAC RX bytes count. */
+    uint32_t mac_tx_failed_count;       /**< MAC TX failed count. */
+    uint32_t mac_retry_count;           /**< MAC TX retry count. */
+    uint32_t mac_cca_attempts_count;    /**< MAC CCA attempts count. */
+    uint32_t mac_failed_cca_count;      /**< MAC failed CCA count. */
+} mac_statistics_t;
 
 #ifdef __cplusplus
 }

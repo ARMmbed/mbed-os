@@ -40,10 +40,10 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     /* Init structure */
     obj->adc = (ADC_TypeDef *) pinmap_peripheral(pin, PinMap_ADC);
-    MBED_ASSERT((int) obj->adc != NC);
+    MBED_ASSERT((unsigned int) obj->adc != NC);
 
     obj->channel = pin_location(pin, PinMap_ADC);
-    MBED_ASSERT((int) obj->channel != NC);
+    MBED_ASSERT((unsigned int) obj->channel != NC);
 
     /* Only initialize the ADC once */
     if (!adc_initialized) {
@@ -99,8 +99,8 @@ uint16_t analogin_read_u16(analogin_t *obj)
 
 float analogin_read(analogin_t *obj)
 {
-    /* Convert from a uint16 to a float between 0 and 1 by division by 0xFFFF */
-    return analogin_read_u16(obj) / (float) 0xFFFF;
+    /* Convert from a uint16 to a float between 0 and 1 by division by 0xFFF0 */
+    return analogin_read_u16(obj) / (float) 0xFFF0;
 }
 
 #endif

@@ -57,33 +57,39 @@ int HeapBlockDevice::init()
 
 int HeapBlockDevice::deinit()
 {
-    // Heapory is lazily cleaned up in destructor to allow
+    MBED_ASSERT(_blocks != NULL);
+    // Memory is lazily cleaned up in destructor to allow
     // data to live across de/reinitialization
     return BD_ERROR_OK;
 }
 
 bd_size_t HeapBlockDevice::get_read_size() const
 {
+    MBED_ASSERT(_blocks != NULL);
     return _read_size;
 }
 
 bd_size_t HeapBlockDevice::get_program_size() const
 {
+    MBED_ASSERT(_blocks != NULL);
     return _program_size;
 }
 
 bd_size_t HeapBlockDevice::get_erase_size() const
 {
+    MBED_ASSERT(_blocks != NULL);
     return _erase_size;
 }
 
 bd_size_t HeapBlockDevice::size() const
 {
+    MBED_ASSERT(_blocks != NULL);
     return _count * _erase_size;
 }
 
 int HeapBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
+    MBED_ASSERT(_blocks != NULL);
     MBED_ASSERT(is_valid_read(addr, size));
     uint8_t *buffer = static_cast<uint8_t*>(b);
 
@@ -107,6 +113,7 @@ int HeapBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 
 int HeapBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
+    MBED_ASSERT(_blocks != NULL);
     MBED_ASSERT(is_valid_program(addr, size));
     const uint8_t *buffer = static_cast<const uint8_t*>(b);
 
@@ -133,6 +140,7 @@ int HeapBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
 int HeapBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
+    MBED_ASSERT(_blocks != NULL);
     MBED_ASSERT(is_valid_erase(addr, size));
     // TODO assert on programming unerased blocks
 

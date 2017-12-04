@@ -1,31 +1,25 @@
 ARM IPV6/6LoWPAN stack.
 =======================
 
-This repository contains the ARM IPv6/6LoWPAN Stack for mbed OS.
+This repository contains the ARM IPv6/6LoWPAN/Thread Stack for mbed OS.
 
-The documentation is hosted in http://docs.mbed.com/projects/arm-ipv66lowpan-stack/
+![](docs/img/thread_certified.png)
 
-On mbed OS, the preferred usage is through [mbed Mesh API](https://github.com/ARMmbed/mbed-mesh-api) that provides the required wrappers between the socket abstraction layer and this stack.
+mbed OS is now a Thread Certified Component. Using IPv6 with 6LoWPAN as the foundation, Thread technology provides a low-power, self-healing mesh network designed for the home.
 
-To see, how the 6LoWPAN Stack works, check the example application [mbed-client-example-6lowpan](https://github.com/ARMmbed/mbed-client-example-6lowpan).
+The documentation is hosted in [here](https://os.mbed.com/docs/v5.6/tutorials/6lowpan-mesh.html).
 
-You can find he known limitations here: [sal-iface-6lowpan](https://github.com/ARMmbed/sal-iface-6lowpan).
+On mbed OS, usage is through [mbed Mesh API](https://os.mbed.com/docs/v5.6/reference/mesh.html) and [Socket API](https://os.mbed.com/docs/v5.6/reference/network-socket.html).
 
-## Changes in Nanostack 4.0:
+To see, how the 6LoWPAN Stack works, check the example application [mbed-os-example-mesh-minimal](https://github.com/ARMmbed/mbed-os-example-mesh-minimal).
 
-### New APIs:
+## License
 
-- MLE router and host lifetime configuration API
-- MLE neighbor limits configuration API
-- MLE token bucket configuration API
-- API for adding/deleting routes
-- FHSS API
+The software is partially provided under a Apache 2.0 license and partially BSD-3-Clause as described below.
 
-### Other changes:
+This project also contains code from other projects as listed below. The original license text is included in those source files.
 
-- Function `arm_nwk_6lowpan_link_scan_paramameter_set()` renamed to `arm_nwk_6lowpan_link_scan_parameter_set()` (due to misspelling)
-- Channel mask settings API changed
-- The parameters of function `cca_start()` changed
-
-For instructions on updating your modules, see https://docs.mbed.com/docs/arm-ipv66lowpan-stack/en/latest/api_changes_to_v4_0_0/index.html.
-
+* Public header files are provided under Apache 2.0 license.
+* Source code excluding Thread protocol, is provided under Apache 2.0
+* Source code implementing Thread protocol is provided under BSD-3-Clause
+* mDNS library is from FNET project and provided under Apache 2.0 license.

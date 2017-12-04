@@ -244,6 +244,21 @@ int spi_master_write(spi_t *obj, int value)
     return value2;
 }
 
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
+                           char *rx_buffer, int rx_length, char write_fill) {
+    int total = (tx_length > rx_length) ? tx_length : rx_length;
+
+    for (int i = 0; i < total; i++) {
+        char out = (i < tx_length) ? tx_buffer[i] : write_fill;
+        char in = spi_master_write(obj, out);
+        if (i < rx_length) {
+            rx_buffer[i] = in;
+        }
+    }
+
+    return total;
+}
+
 #if DEVICE_SPISLAVE
 int spi_slave_receive(spi_t *obj)
 {
@@ -454,25 +469,6 @@ uint8_t spi_active(spi_t *obj)
     return (spi_base->CTL & SPI_CTL_SPIEN_Msk);
 }
 
-int spi_allow_powerdown(void)
-{
-    uint32_t modinit_mask = spi_modinit_mask;
-    while (modinit_mask) {
-        int spi_idx = nu_ctz(modinit_mask);
-        const struct nu_modinit_s *modinit = spi_modinit_tab + spi_idx;
-        if (modinit->modname != NC) {
-            SPI_T *spi_base = (SPI_T *) NU_MODBASE(modinit->modname);
-            // Disallow entering power-down mode if SPI transfer is enabled.
-            if (spi_base->CTL & SPI_CTL_SPIEN_Msk) {
-                return 0;
-            }
-        }
-        modinit_mask &= ~(1 << spi_idx);
-    }
-    
-    return 1;
-}
-
 static int spi_writeable(spi_t * obj)
 {
     // Receive FIFO must not be full to avoid receive FIFO overflow on next transmit/receive
@@ -551,7 +547,7 @@ static uint32_t spi_event_check(spi_t *obj)
     // Receive Time-Out
     if (spi_base->STATUS & SPI_STATUS_RXTOIF_Msk) {
         spi_base->STATUS = SPI_STATUS_RXTOIF_Msk;
-        //event |= SPI_EVENT_ERROR;
+        // Not using this IF. Just clear it.
     }
     // Transmit FIFO Under-Run
     if (spi_base->STATUS & SPI_STATUS_TXUFIF_Msk) {

@@ -16,10 +16,4 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_RZ_A1H) || defined(TARGET_VK_RZ_A1H)
-#ifndef OS_CLOCK
-#define OS_CLOCK         12000000
-#endif
-#endif
-
 #endif  // MBED_MBED_RTX_H

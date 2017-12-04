@@ -17,19 +17,11 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_NUMAKER_PFM_NUC472)
+#include <stdint.h>
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                84000000
-#endif
+#if defined(TARGET_NUVOTON)
 
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
     extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Length[];
     extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
@@ -53,42 +45,6 @@
     #error "no toolchain defined"
 #endif
 
-#elif defined(TARGET_NUMAKER_PFM_M453)
-
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                72000000
-#endif
-
-#if defined(__CC_ARM)
-    extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Base[];
-    extern uint32_t               Image$$ARM_LIB_HEAP$$ZI$$Length[];
-    extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
-    extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
-    #define HEAP_START            ((unsigned char*) Image$$ARM_LIB_HEAP$$ZI$$Base)
-    #define HEAP_SIZE             ((uint32_t) Image$$ARM_LIB_HEAP$$ZI$$Length)
-    #define ISR_STACK_START       ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
-    #define ISR_STACK_SIZE        ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
-#elif defined(__GNUC__)
-    extern uint32_t               __StackTop[];
-    extern uint32_t               __StackLimit[];
-    extern uint32_t               __end__[];
-    extern uint32_t               __HeapLimit[];
-    #define HEAP_START            ((unsigned char*)__end__)
-    #define HEAP_SIZE             ((uint32_t)((uint32_t)__HeapLimit - (uint32_t)HEAP_START))
-    #define ISR_STACK_START       ((unsigned char*)__StackLimit)
-    #define ISR_STACK_SIZE        ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
-#elif defined(__ICCARM__)
-    /* No region declarations needed */
-#else
-    #error "no toolchain defined"
-#endif
-
-#endif
+#endif  // TARGET_NUVOTON
 
 #endif  // MBED_MBED_RTX_H

@@ -5,7 +5,7 @@
 MEMORY {
     VECTORS (rx)          : ORIGIN = 0x00003000, LENGTH = 0x00000090
         FLASH (rx)            : ORIGIN = 0x00003090, LENGTH = 320K - 4K - 0x90
-        RAM (rwx)             : ORIGIN = 0x3FFF4000, LENGTH = 48K
+        RAM (rwx)             : ORIGIN = 0x3FFF4090, LENGTH = 48K - 0x90 /* 8_byte_aligned(35 vectors * 4 bytes each) = 0x90 */
     }
 
     /* Linker script to place sections and symbol values. Should be used together

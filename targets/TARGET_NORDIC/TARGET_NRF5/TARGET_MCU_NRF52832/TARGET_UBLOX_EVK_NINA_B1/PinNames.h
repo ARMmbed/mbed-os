@@ -77,7 +77,7 @@ typedef enum {
     LED1 = NINA_B1_GPIO_1, // Red
     LED2 = NINA_B1_GPIO_7, // Green/SW1
     LED3 = NINA_B1_GPIO_8, // Blue
-    LED4 = NC,
+    LED4 = NINA_B1_GPIO_8,
     SW1 = NINA_B1_GPIO_7,
     SW2 = NINA_B1_GPIO_18,
     D0 = NINA_B1_GPIO_23,

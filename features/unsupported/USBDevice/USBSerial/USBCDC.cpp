@@ -38,6 +38,10 @@ USBCDC::USBCDC(uint16_t vendor_id, uint16_t product_id, uint16_t product_release
     USBDevice::connect(connect_blocking);
 }
 
+void USBCDC::USBCallback_busReset(void) {
+    terminal_connected = false;
+};
+
 bool USBCDC::USBCallback_request(void) {
     /* Called in ISR context */
 

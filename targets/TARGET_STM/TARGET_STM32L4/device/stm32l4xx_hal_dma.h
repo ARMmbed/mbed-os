@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_dma.h
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   Header file of DMA HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -121,9 +121,9 @@ typedef enum
 {
   HAL_DMA_XFER_CPLT_CB_ID          = 0x00,    /*!< Full transfer     */
   HAL_DMA_XFER_HALFCPLT_CB_ID      = 0x01,    /*!< Half transfer     */
-  HAL_DMA_XFER_ERROR_CB_ID         = 0x02,    /*!< Error             */
-  HAL_DMA_XFER_ABORT_CB_ID         = 0x03,    /*!< Abort             */
-  HAL_DMA_XFER_ALL_CB_ID           = 0x04     /*!< All               */
+  HAL_DMA_XFER_ERROR_CB_ID         = 0x02,    /*!< Error             */ 
+  HAL_DMA_XFER_ABORT_CB_ID         = 0x03,    /*!< Abort             */ 
+  HAL_DMA_XFER_ALL_CB_ID           = 0x04     /*!< All               */ 
     
 }HAL_DMA_CallbackIDTypeDef;
 
@@ -169,11 +169,11 @@ typedef struct __DMA_HandleTypeDef
 /** @defgroup DMA_Error_Code DMA Error Code
   * @{
   */
-#define HAL_DMA_ERROR_NONE          ((uint32_t)0x00000000)    /*!< No error             */
-#define HAL_DMA_ERROR_TE            ((uint32_t)0x00000001)    /*!< Transfer error       */
-#define HAL_DMA_ERROR_NO_XFER       ((uint32_t)0x00000004)    /*!< no ongoing transfer  */
-#define HAL_DMA_ERROR_TIMEOUT       ((uint32_t)0x00000020)    /*!< Timeout error        */
-#define HAL_DMA_ERROR_NOT_SUPPORTED ((uint32_t)0x00000100)    /*!< Not supported mode   */
+#define HAL_DMA_ERROR_NONE          ((uint32_t)0x00000000)    /*!< No error                              */
+#define HAL_DMA_ERROR_TE            ((uint32_t)0x00000001)    /*!< Transfer error                        */
+#define HAL_DMA_ERROR_NO_XFER       ((uint32_t)0x00000004)    /*!< no ongoing transfer                   */
+#define HAL_DMA_ERROR_TIMEOUT       ((uint32_t)0x00000020)    /*!< Timeout error                         */
+#define HAL_DMA_ERROR_NOT_SUPPORTED ((uint32_t)0x00000100)    /*!< Not supported mode                    */     
 /**
   * @}
   */
@@ -189,7 +189,6 @@ typedef struct __DMA_HandleTypeDef
 #define DMA_REQUEST_5                     ((uint32_t)0x00000005)
 #define DMA_REQUEST_6                     ((uint32_t)0x00000006)
 #define DMA_REQUEST_7                     ((uint32_t)0x00000007)
-
 /**
   * @}
   */
@@ -200,7 +199,6 @@ typedef struct __DMA_HandleTypeDef
 #define DMA_PERIPH_TO_MEMORY         ((uint32_t)0x00000000)        /*!< Peripheral to memory direction */
 #define DMA_MEMORY_TO_PERIPH         ((uint32_t)DMA_CCR_DIR)       /*!< Memory to peripheral direction */
 #define DMA_MEMORY_TO_MEMORY         ((uint32_t)DMA_CCR_MEM2MEM)   /*!< Memory to memory direction     */
-
 /**
   * @}
   */
@@ -450,7 +448,7 @@ typedef struct __DMA_HandleTypeDef
   * @retval None
   */
 #define __HAL_DMA_CLEAR_FLAG(__HANDLE__, __FLAG__) (((uint32_t)((__HANDLE__)->Instance) > ((uint32_t)DMA1_Channel7))? \
- (DMA2->IFCR |= (__FLAG__)) : (DMA1->IFCR |= (__FLAG__)))
+ (DMA2->IFCR = (__FLAG__)) : (DMA1->IFCR = (__FLAG__)))
 
 /**
   * @brief  Enable the specified DMA Channel interrupts.

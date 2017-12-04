@@ -1,0 +1,8 @@
+
+void {test_name}() {{
+    int res = bd.init();
+    TEST_ASSERT_EQUAL(0, res);
+{test}
+    res = bd.deinit();
+    TEST_ASSERT_EQUAL(0, res);
+}}

@@ -16,14 +16,11 @@ limitations under the License.
 """
 from os.path import splitext, basename
 from tools.targets import TARGET_MAP
-from tools.export.exporters import Exporter, filter_supported
+from tools.export.exporters import Exporter
 from tools.export.makefile import GccArm
 
 class QtCreator(GccArm):
     NAME = 'QtCreator'
-    TOOLCHAIN = 'GCC_ARM'
-
-    TARGETS = filter_supported("GCC_ARM", set())
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 

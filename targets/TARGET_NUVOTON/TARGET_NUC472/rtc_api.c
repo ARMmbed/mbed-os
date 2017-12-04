@@ -22,34 +22,37 @@
 #include "mbed_error.h"
 #include "nu_modutil.h"
 #include "nu_miscutil.h"
+#include "mbed_mktime.h"
 
 #define YEAR0       1900
 //#define EPOCH_YR    1970
-static int rtc_inited = 0;
 
 static const struct nu_modinit_s rtc_modinit = {RTC_0, RTC_MODULE, 0, 0, 0, RTC_IRQn, NULL};
 
 void rtc_init(void)
 {
-    if (rtc_inited) {
+    if (rtc_isenabled()) {
         return;
     }
-    rtc_inited = 1;
-    
-    // Enable IP clock
-    CLK_EnableModuleClock(rtc_modinit.clkidx);
     
     RTC_Open(NULL);
 }
 
 void rtc_free(void)
 {
-    // FIXME
+    // N/A
 }
 
 int rtc_isenabled(void)
 {
-    return rtc_inited;
+    // NOTE: To access (RTC) registers, clock must be enabled first.
+    if (! (CLK->APBCLK0 & CLK_APBCLK0_RTCCKEN_Msk)) {
+        // Enable IP clock
+        CLK_EnableModuleClock(rtc_modinit.clkidx);
+    }
+    
+    // NOTE: Check RTC Init Active flag to support crossing reset cycle.
+    return !! (RTC->INIT & RTC_INIT_INIT_Active_Msk);
 }
 
 /*
@@ -67,7 +70,9 @@ int rtc_isenabled(void)
 
 time_t rtc_read(void)
 {
-    if (! rtc_inited) {
+    // NOTE: After boot, RTC time registers are not synced immediately, about 1 sec latency.
+    //       RTC time got (through RTC_GetDateAndTime()) in this sec would be last-synced and incorrect.
+    if (! rtc_isenabled()) {
         rtc_init();
     }
     
@@ -82,34 +87,40 @@ time_t rtc_read(void)
     timeinfo.tm_mday = rtc_datetime.u32Day;
     timeinfo.tm_wday = rtc_datetime.u32DayOfWeek;
     timeinfo.tm_hour = rtc_datetime.u32Hour;
+    if (rtc_datetime.u32TimeScale == RTC_CLOCK_12 && rtc_datetime.u32AmPm == RTC_PM) {
+        timeinfo.tm_hour += 12;
+    }
     timeinfo.tm_min  = rtc_datetime.u32Minute;
     timeinfo.tm_sec  = rtc_datetime.u32Second;
 
     // Convert to timestamp
-    time_t t = mktime(&timeinfo);
+    time_t t = _rtc_mktime(&timeinfo);
 
     return t;
 }
 
 void rtc_write(time_t t)
 {
-    if (! rtc_inited) {
+    if (! rtc_isenabled()) {
         rtc_init();
     }
     
     // Convert timestamp to struct tm
-    struct tm *timeinfo = localtime(&t);
+    struct tm timeinfo;
+    if (_rtc_localtime(t, &timeinfo) == false) {
+        return;
+    }
 
     S_RTC_TIME_DATA_T rtc_datetime;
     
     // Convert S_RTC_TIME_DATA_T to struct tm
-    rtc_datetime.u32Year        = timeinfo->tm_year + YEAR0;
-    rtc_datetime.u32Month       = timeinfo->tm_mon + 1;
-    rtc_datetime.u32Day         = timeinfo->tm_mday;
-    rtc_datetime.u32DayOfWeek   = timeinfo->tm_wday;
-    rtc_datetime.u32Hour        = timeinfo->tm_hour;
-    rtc_datetime.u32Minute      = timeinfo->tm_min;
-    rtc_datetime.u32Second      = timeinfo->tm_sec;
+    rtc_datetime.u32Year        = timeinfo.tm_year + YEAR0;
+    rtc_datetime.u32Month       = timeinfo.tm_mon + 1;
+    rtc_datetime.u32Day         = timeinfo.tm_mday;
+    rtc_datetime.u32DayOfWeek   = timeinfo.tm_wday;
+    rtc_datetime.u32Hour        = timeinfo.tm_hour;
+    rtc_datetime.u32Minute      = timeinfo.tm_min;
+    rtc_datetime.u32Second      = timeinfo.tm_sec;
     rtc_datetime.u32TimeScale   = RTC_CLOCK_24;
     
     // NOTE: Timing issue with write to RTC registers. This delay is empirical, not rational.

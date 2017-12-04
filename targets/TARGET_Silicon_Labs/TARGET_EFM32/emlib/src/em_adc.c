@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_adc.c
  * @brief Analog to Digital Converter (ADC) Peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -31,7 +31,7 @@
  ******************************************************************************/
 
 #include "em_adc.h"
-#if defined( ADC_COUNT ) && ( ADC_COUNT > 0 )
+#if defined(ADC_COUNT) && (ADC_COUNT > 0)
 
 #include "em_assert.h"
 #include "em_cmu.h"
@@ -59,10 +59,14 @@
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
 /** Validation of ADC register block pointer reference for assert statements. */
+#if (ADC_COUNT == 1)
 #define ADC_REF_VALID(ref)    ((ref) == ADC0)
+#elif (ADC_COUNT == 2)
+#define ADC_REF_VALID(ref)    (((ref) == ADC0) || ((ref) == ADC1))
+#endif
 
 /** Max ADC clock */
-#if defined( _SILICON_LABS_32B_SERIES_0 )
+#if defined(_SILICON_LABS_32B_SERIES_0)
 #define ADC_MAX_CLOCK    13000000
 #else
 #define ADC_MAX_CLOCK    16000000
@@ -72,119 +76,119 @@
 #define ADC_MIN_CLOCK    32000
 
 /** Helper defines for selecting ADC calibration and DEVINFO register fields. */
-#if defined( _DEVINFO_ADC0CAL0_1V25_GAIN_MASK )
+#if defined(_DEVINFO_ADC0CAL0_1V25_GAIN_MASK)
 #define DEVINFO_ADC0_GAIN1V25_MASK _DEVINFO_ADC0CAL0_1V25_GAIN_MASK
-#elif defined( _DEVINFO_ADC0CAL0_GAIN1V25_MASK )
+#elif defined(_DEVINFO_ADC0CAL0_GAIN1V25_MASK)
 #define DEVINFO_ADC0_GAIN1V25_MASK _DEVINFO_ADC0CAL0_GAIN1V25_MASK
 #endif
 
-#if defined( _DEVINFO_ADC0CAL0_1V25_GAIN_SHIFT )
+#if defined(_DEVINFO_ADC0CAL0_1V25_GAIN_SHIFT)
 #define DEVINFO_ADC0_GAIN1V25_SHIFT _DEVINFO_ADC0CAL0_1V25_GAIN_SHIFT
-#elif defined( _DEVINFO_ADC0CAL0_GAIN1V25_SHIFT )
+#elif defined(_DEVINFO_ADC0CAL0_GAIN1V25_SHIFT)
 #define DEVINFO_ADC0_GAIN1V25_SHIFT _DEVINFO_ADC0CAL0_GAIN1V25_SHIFT
 #endif
 
-#if defined( _DEVINFO_ADC0CAL0_1V25_OFFSET_MASK )
+#if defined(_DEVINFO_ADC0CAL0_1V25_OFFSET_MASK)
 #define DEVINFO_ADC0_OFFSET1V25_MASK _DEVINFO_ADC0CAL0_1V25_OFFSET_MASK
-#elif defined( _DEVINFO_ADC0CAL0_OFFSET1V25_MASK )
+#elif defined(_DEVINFO_ADC0CAL0_OFFSET1V25_MASK)
 #define DEVINFO_ADC0_OFFSET1V25_MASK _DEVINFO_ADC0CAL0_OFFSET1V25_MASK
 #endif
 
-#if defined( _DEVINFO_ADC0CAL0_1V25_OFFSET_SHIFT )
+#if defined(_DEVINFO_ADC0CAL0_1V25_OFFSET_SHIFT)
 #define DEVINFO_ADC0_OFFSET1V25_SHIFT _DEVINFO_ADC0CAL0_1V25_OFFSET_SHIFT
-#elif defined( _DEVINFO_ADC0CAL0_OFFSET1V25_SHIFT )
+#elif defined(_DEVINFO_ADC0CAL0_OFFSET1V25_SHIFT)
 #define DEVINFO_ADC0_OFFSET1V25_SHIFT _DEVINFO_ADC0CAL0_OFFSET1V25_SHIFT
 #endif
 
-#if defined( _DEVINFO_ADC0CAL0_2V5_GAIN_MASK )
+#if defined(_DEVINFO_ADC0CAL0_2V5_GAIN_MASK)
 #define DEVINFO_ADC0_GAIN2V5_MASK _DEVINFO_ADC0CAL0_2V5_GAIN_MASK
-#elif defined( _DEVINFO_ADC0CAL0_GAIN2V5_MASK )
+#elif defined(_DEVINFO_ADC0CAL0_GAIN2V5_MASK)
 #define DEVINFO_ADC0_GAIN2V5_MASK _DEVINFO_ADC0CAL0_GAIN2V5_MASK
 #endif
 
-#if defined( _DEVINFO_ADC0CAL0_2V5_GAIN_SHIFT )
+#if defined(_DEVINFO_ADC0CAL0_2V5_GAIN_SHIFT)
 #define DEVINFO_ADC0_GAIN2V5_SHIFT _DEVINFO_ADC0CAL0_2V5_GAIN_SHIFT
-#elif defined( _DEVINFO_ADC0CAL0_GAIN2V5_SHIFT )
+#elif defined(_DEVINFO_ADC0CAL0_GAIN2V5_SHIFT)
 #define DEVINFO_ADC0_GAIN2V5_SHIFT _DEVINFO_ADC0CAL0_GAIN2V5_SHIFT
 #endif
 
-#if defined( _DEVINFO_ADC0CAL0_2V5_OFFSET_MASK )
+#if defined(_DEVINFO_ADC0CAL0_2V5_OFFSET_MASK)
 #define DEVINFO_ADC0_OFFSET2V5_MASK _DEVINFO_ADC0CAL0_2V5_OFFSET_MASK
-#elif defined( _DEVINFO_ADC0CAL0_OFFSET2V5_MASK )
+#elif defined(_DEVINFO_ADC0CAL0_OFFSET2V5_MASK)
 #define DEVINFO_ADC0_OFFSET2V5_MASK _DEVINFO_ADC0CAL0_OFFSET2V5_MASK
 #endif
 
-#if defined( _DEVINFO_ADC0CAL0_2V5_OFFSET_SHIFT )
+#if defined(_DEVINFO_ADC0CAL0_2V5_OFFSET_SHIFT)
 #define DEVINFO_ADC0_OFFSET2V5_SHIFT _DEVINFO_ADC0CAL0_2V5_OFFSET_SHIFT
-#elif defined( _DEVINFO_ADC0CAL0_OFFSET2V5_SHIFT )
+#elif defined(_DEVINFO_ADC0CAL0_OFFSET2V5_SHIFT)
 #define DEVINFO_ADC0_OFFSET2V5_SHIFT _DEVINFO_ADC0CAL0_OFFSET2V5_SHIFT
 #endif
 
-#if defined( _DEVINFO_ADC0CAL1_VDD_GAIN_MASK )
+#if defined(_DEVINFO_ADC0CAL1_VDD_GAIN_MASK)
 #define DEVINFO_ADC0_GAINVDD_MASK _DEVINFO_ADC0CAL1_VDD_GAIN_MASK
-#elif defined( _DEVINFO_ADC0CAL1_GAINVDD_MASK )
+#elif defined(_DEVINFO_ADC0CAL1_GAINVDD_MASK)
 #define DEVINFO_ADC0_GAINVDD_MASK _DEVINFO_ADC0CAL1_GAINVDD_MASK
 #endif
 
-#if defined( _DEVINFO_ADC0CAL1_VDD_GAIN_SHIFT )
+#if defined(_DEVINFO_ADC0CAL1_VDD_GAIN_SHIFT)
 #define DEVINFO_ADC0_GAINVDD_SHIFT _DEVINFO_ADC0CAL1_VDD_GAIN_SHIFT
-#elif defined( _DEVINFO_ADC0CAL1_GAINVDD_SHIFT )
+#elif defined(_DEVINFO_ADC0CAL1_GAINVDD_SHIFT)
 #define DEVINFO_ADC0_GAINVDD_SHIFT _DEVINFO_ADC0CAL1_GAINVDD_SHIFT
 #endif
 
-#if defined( _DEVINFO_ADC0CAL1_VDD_OFFSET_MASK )
+#if defined(_DEVINFO_ADC0CAL1_VDD_OFFSET_MASK)
 #define DEVINFO_ADC0_OFFSETVDD_MASK _DEVINFO_ADC0CAL1_VDD_OFFSET_MASK
-#elif defined( _DEVINFO_ADC0CAL1_OFFSETVDD_MASK )
+#elif defined(_DEVINFO_ADC0CAL1_OFFSETVDD_MASK)
 #define DEVINFO_ADC0_OFFSETVDD_MASK _DEVINFO_ADC0CAL1_OFFSETVDD_MASK
 #endif
 
-#if defined( _DEVINFO_ADC0CAL1_VDD_OFFSET_SHIFT )
+#if defined(_DEVINFO_ADC0CAL1_VDD_OFFSET_SHIFT)
 #define DEVINFO_ADC0_OFFSETVDD_SHIFT _DEVINFO_ADC0CAL1_VDD_OFFSET_SHIFT
-#elif defined( _DEVINFO_ADC0CAL1_OFFSETVDD_SHIFT )
+#elif defined(_DEVINFO_ADC0CAL1_OFFSETVDD_SHIFT)
 #define DEVINFO_ADC0_OFFSETVDD_SHIFT _DEVINFO_ADC0CAL1_OFFSETVDD_SHIFT
 #endif
 
-#if defined( _DEVINFO_ADC0CAL1_5VDIFF_GAIN_MASK )
+#if defined(_DEVINFO_ADC0CAL1_5VDIFF_GAIN_MASK)
 #define DEVINFO_ADC0_GAIN5VDIFF_MASK _DEVINFO_ADC0CAL1_5VDIFF_GAIN_MASK
-#elif defined( _DEVINFO_ADC0CAL1_GAIN5VDIFF_MASK )
+#elif defined(_DEVINFO_ADC0CAL1_GAIN5VDIFF_MASK)
 #define DEVINFO_ADC0_GAIN5VDIFF_MASK _DEVINFO_ADC0CAL1_GAIN5VDIFF_MASK
 #endif
 
-#if defined( _DEVINFO_ADC0CAL1_5VDIFF_GAIN_SHIFT )
+#if defined(_DEVINFO_ADC0CAL1_5VDIFF_GAIN_SHIFT)
 #define DEVINFO_ADC0_GAIN5VDIFF_SHIFT _DEVINFO_ADC0CAL1_5VDIFF_GAIN_SHIFT
-#elif defined( _DEVINFO_ADC0CAL1_GAIN5VDIFF_SHIFT )
+#elif defined(_DEVINFO_ADC0CAL1_GAIN5VDIFF_SHIFT)
 #define DEVINFO_ADC0_GAIN5VDIFF_SHIFT _DEVINFO_ADC0CAL1_GAIN5VDIFF_SHIFT
 #endif
 
-#if defined( _DEVINFO_ADC0CAL1_5VDIFF_OFFSET_MASK )
+#if defined(_DEVINFO_ADC0CAL1_5VDIFF_OFFSET_MASK)
 #define DEVINFO_ADC0_OFFSET5VDIFF_MASK _DEVINFO_ADC0CAL1_5VDIFF_OFFSET_MASK
-#elif defined( _DEVINFO_ADC0CAL1_OFFSET5VDIFF_MASK )
+#elif defined(_DEVINFO_ADC0CAL1_OFFSET5VDIFF_MASK)
 #define DEVINFO_ADC0_OFFSET5VDIFF_MASK _DEVINFO_ADC0CAL1_OFFSET5VDIFF_MASK
 #endif
 
-#if defined( _DEVINFO_ADC0CAL1_5VDIFF_OFFSET_SHIFT )
+#if defined(_DEVINFO_ADC0CAL1_5VDIFF_OFFSET_SHIFT)
 #define DEVINFO_ADC0_OFFSET5VDIFF_SHIFT _DEVINFO_ADC0CAL1_5VDIFF_OFFSET_SHIFT
-#elif defined( _DEVINFO_ADC0CAL1_OFFSET5VDIFF_SHIFT )
+#elif defined(_DEVINFO_ADC0CAL1_OFFSET5VDIFF_SHIFT)
 #define DEVINFO_ADC0_OFFSET5VDIFF_SHIFT _DEVINFO_ADC0CAL1_OFFSET5VDIFF_SHIFT
 #endif
 
-#if defined( _DEVINFO_ADC0CAL2_2XVDDVSS_OFFSET_MASK )
+#if defined(_DEVINFO_ADC0CAL2_2XVDDVSS_OFFSET_MASK)
 #define DEVINFO_ADC0_OFFSET2XVDD_MASK _DEVINFO_ADC0CAL2_2XVDDVSS_OFFSET_MASK
-#elif defined( _DEVINFO_ADC0CAL2_OFFSET2XVDD_MASK )
+#elif defined(_DEVINFO_ADC0CAL2_OFFSET2XVDD_MASK)
 #define DEVINFO_ADC0_OFFSET2XVDD_MASK _DEVINFO_ADC0CAL2_OFFSET2XVDD_MASK
 #endif
 
-#if defined( _DEVINFO_ADC0CAL2_2XVDDVSS_OFFSET_SHIFT )
+#if defined(_DEVINFO_ADC0CAL2_2XVDDVSS_OFFSET_SHIFT)
 #define DEVINFO_ADC0_OFFSET2XVDD_SHIFT _DEVINFO_ADC0CAL2_2XVDDVSS_OFFSET_SHIFT
-#elif defined( _DEVINFO_ADC0CAL2_OFFSET2XVDD_SHIFT )
+#elif defined(_DEVINFO_ADC0CAL2_OFFSET2XVDD_SHIFT)
 #define DEVINFO_ADC0_OFFSET2XVDD_SHIFT _DEVINFO_ADC0CAL2_OFFSET2XVDD_SHIFT
 #endif
 
-#if defined( _SILICON_LABS_32B_SERIES_1 )
+#if defined(_SILICON_LABS_32B_SERIES_1)
 #define FIX_ADC_TEMP_BIAS_EN
 #endif
-/** @endcond */
 
+/** @endcond */
 
 /*******************************************************************************
  ***************************   LOCAL FUNCTIONS   *******************************
@@ -220,21 +224,19 @@ static void ADC_LoadDevinfoCal(ADC_TypeDef *adc,
   uint32_t newCal;
   uint32_t mask;
   uint32_t shift;
+  __IM uint32_t * diCalReg;
 
-  if (setScanCal)
-  {
+  if (setScanCal) {
     shift = _ADC_CAL_SCANOFFSET_SHIFT;
     mask  = ~(_ADC_CAL_SCANOFFSET_MASK
-#if defined( _ADC_CAL_SCANOFFSETINV_MASK )
+#if defined(_ADC_CAL_SCANOFFSETINV_MASK)
               | _ADC_CAL_SCANOFFSETINV_MASK
 #endif
               | _ADC_CAL_SCANGAIN_MASK);
-  }
-  else
-  {
+  } else {
     shift = _ADC_CAL_SINGLEOFFSET_SHIFT;
     mask  = ~(_ADC_CAL_SINGLEOFFSET_MASK
-#if defined( _ADC_CAL_SINGLEOFFSETINV_MASK )
+#if defined(_ADC_CAL_SINGLEOFFSETINV_MASK)
               | _ADC_CAL_SINGLEOFFSETINV_MASK
 #endif
               | _ADC_CAL_SINGLEGAIN_MASK);
@@ -243,59 +245,70 @@ static void ADC_LoadDevinfoCal(ADC_TypeDef *adc,
   calReg = adc->CAL & mask;
   newCal = 0;
 
-  switch (ref)
-  {
+  if (adc == ADC0) {
+    diCalReg = &DEVINFO->ADC0CAL0;
+  }
+#if defined(ADC1)
+  else if (adc == ADC1) {
+    diCalReg = &DEVINFO->ADC1CAL0;
+  }
+#endif
+  else {
+    return;
+  }
+
+  switch (ref) {
     case adcRef1V25:
-      newCal |= ((DEVINFO->ADC0CAL0 & DEVINFO_ADC0_GAIN1V25_MASK)
+      newCal |= ((diCalReg[0] & DEVINFO_ADC0_GAIN1V25_MASK)
                  >> DEVINFO_ADC0_GAIN1V25_SHIFT)
                 << _ADC_CAL_SINGLEGAIN_SHIFT;
-      newCal |= ((DEVINFO->ADC0CAL0 & DEVINFO_ADC0_OFFSET1V25_MASK)
+      newCal |= ((diCalReg[0] & DEVINFO_ADC0_OFFSET1V25_MASK)
                  >> DEVINFO_ADC0_OFFSET1V25_SHIFT)
                 << _ADC_CAL_SINGLEOFFSET_SHIFT;
-#if defined( _ADC_CAL_SINGLEOFFSETINV_MASK )
-      newCal |= ((DEVINFO->ADC0CAL0 & _DEVINFO_ADC0CAL0_NEGSEOFFSET1V25_MASK)
+#if defined(_ADC_CAL_SINGLEOFFSETINV_MASK)
+      newCal |= ((diCalReg[0] & _DEVINFO_ADC0CAL0_NEGSEOFFSET1V25_MASK)
                  >> _DEVINFO_ADC0CAL0_NEGSEOFFSET1V25_SHIFT)
                 << _ADC_CAL_SINGLEOFFSETINV_SHIFT;
 #endif
       break;
 
     case adcRef2V5:
-      newCal |= ((DEVINFO->ADC0CAL0 & DEVINFO_ADC0_GAIN2V5_MASK)
+      newCal |= ((diCalReg[0] & DEVINFO_ADC0_GAIN2V5_MASK)
                  >> DEVINFO_ADC0_GAIN2V5_SHIFT)
                 << _ADC_CAL_SINGLEGAIN_SHIFT;
-      newCal |= ((DEVINFO->ADC0CAL0 & DEVINFO_ADC0_OFFSET2V5_MASK)
+      newCal |= ((diCalReg[0] & DEVINFO_ADC0_OFFSET2V5_MASK)
                  >> DEVINFO_ADC0_OFFSET2V5_SHIFT)
                 << _ADC_CAL_SINGLEOFFSET_SHIFT;
-#if defined( _ADC_CAL_SINGLEOFFSETINV_MASK )
-      newCal |= ((DEVINFO->ADC0CAL0 & _DEVINFO_ADC0CAL0_NEGSEOFFSET2V5_MASK)
+#if defined(_ADC_CAL_SINGLEOFFSETINV_MASK)
+      newCal |= ((diCalReg[0] & _DEVINFO_ADC0CAL0_NEGSEOFFSET2V5_MASK)
                  >> _DEVINFO_ADC0CAL0_NEGSEOFFSET2V5_SHIFT)
                 << _ADC_CAL_SINGLEOFFSETINV_SHIFT;
 #endif
       break;
 
     case adcRefVDD:
-      newCal |= ((DEVINFO->ADC0CAL1 & DEVINFO_ADC0_GAINVDD_MASK)
+      newCal |= ((diCalReg[1] & DEVINFO_ADC0_GAINVDD_MASK)
                  >> DEVINFO_ADC0_GAINVDD_SHIFT)
                 << _ADC_CAL_SINGLEGAIN_SHIFT;
-      newCal |= ((DEVINFO->ADC0CAL1 & DEVINFO_ADC0_OFFSETVDD_MASK)
+      newCal |= ((diCalReg[1] & DEVINFO_ADC0_OFFSETVDD_MASK)
                  >> DEVINFO_ADC0_OFFSETVDD_SHIFT)
-                 << _ADC_CAL_SINGLEOFFSET_SHIFT;
-#if defined( _ADC_CAL_SINGLEOFFSETINV_MASK )
-      newCal |= ((DEVINFO->ADC0CAL1 & _DEVINFO_ADC0CAL1_NEGSEOFFSETVDD_MASK)
+                << _ADC_CAL_SINGLEOFFSET_SHIFT;
+#if defined(_ADC_CAL_SINGLEOFFSETINV_MASK)
+      newCal |= ((diCalReg[1] & _DEVINFO_ADC0CAL1_NEGSEOFFSETVDD_MASK)
                  >> _DEVINFO_ADC0CAL1_NEGSEOFFSETVDD_SHIFT)
                 << _ADC_CAL_SINGLEOFFSETINV_SHIFT;
 #endif
       break;
 
     case adcRef5VDIFF:
-      newCal |= ((DEVINFO->ADC0CAL1 & DEVINFO_ADC0_GAIN5VDIFF_MASK)
+      newCal |= ((diCalReg[1] & DEVINFO_ADC0_GAIN5VDIFF_MASK)
                  >> DEVINFO_ADC0_GAIN5VDIFF_SHIFT)
                 << _ADC_CAL_SINGLEGAIN_SHIFT;
-      newCal |= ((DEVINFO->ADC0CAL1 & DEVINFO_ADC0_OFFSET5VDIFF_MASK)
+      newCal |= ((diCalReg[1] & DEVINFO_ADC0_OFFSET5VDIFF_MASK)
                  >> DEVINFO_ADC0_OFFSET5VDIFF_SHIFT)
                 << _ADC_CAL_SINGLEOFFSET_SHIFT;
-#if defined( _ADC_CAL_SINGLEOFFSETINV_MASK )
-      newCal |= ((DEVINFO->ADC0CAL1 & _DEVINFO_ADC0CAL1_NEGSEOFFSET5VDIFF_MASK)
+#if defined(_ADC_CAL_SINGLEOFFSETINV_MASK)
+      newCal |= ((diCalReg[1] & _DEVINFO_ADC0CAL1_NEGSEOFFSET5VDIFF_MASK)
                  >> _DEVINFO_ADC0CAL1_NEGSEOFFSET5VDIFF_SHIFT)
                 << _ADC_CAL_SINGLEOFFSETINV_SHIFT;
 #endif
@@ -303,25 +316,25 @@ static void ADC_LoadDevinfoCal(ADC_TypeDef *adc,
 
     case adcRef2xVDD:
       /* There is no gain calibration for this reference */
-      newCal |= ((DEVINFO->ADC0CAL2 & DEVINFO_ADC0_OFFSET2XVDD_MASK)
+      newCal |= ((diCalReg[2] & DEVINFO_ADC0_OFFSET2XVDD_MASK)
                  >> DEVINFO_ADC0_OFFSET2XVDD_SHIFT)
                 << _ADC_CAL_SINGLEOFFSET_SHIFT;
-#if defined( _ADC_CAL_SINGLEOFFSETINV_MASK )
-      newCal |= ((DEVINFO->ADC0CAL2 & _DEVINFO_ADC0CAL2_NEGSEOFFSET2XVDD_MASK)
+#if defined(_ADC_CAL_SINGLEOFFSETINV_MASK)
+      newCal |= ((diCalReg[2] & _DEVINFO_ADC0CAL2_NEGSEOFFSET2XVDD_MASK)
                  >> _DEVINFO_ADC0CAL2_NEGSEOFFSET2XVDD_SHIFT)
                 << _ADC_CAL_SINGLEOFFSETINV_SHIFT;
 #endif
       break;
 
-#if defined( _ADC_SINGLECTRLX_VREFSEL_VDDXWATT )
+#if defined(_ADC_SINGLECTRLX_VREFSEL_VDDXWATT)
     case adcRefVddxAtt:
-      newCal |= ((DEVINFO->ADC0CAL1 & DEVINFO_ADC0_GAINVDD_MASK)
+      newCal |= ((diCalReg[1] & DEVINFO_ADC0_GAINVDD_MASK)
                  >> DEVINFO_ADC0_GAINVDD_SHIFT)
                 << _ADC_CAL_SINGLEGAIN_SHIFT;
-      newCal |= ((DEVINFO->ADC0CAL1 & DEVINFO_ADC0_OFFSETVDD_MASK)
+      newCal |= ((diCalReg[1] & DEVINFO_ADC0_OFFSETVDD_MASK)
                  >> DEVINFO_ADC0_OFFSETVDD_SHIFT)
                 << _ADC_CAL_SINGLEOFFSET_SHIFT;
-      newCal |= ((DEVINFO->ADC0CAL1 & _DEVINFO_ADC0CAL1_NEGSEOFFSETVDD_MASK)
+      newCal |= ((diCalReg[1] & _DEVINFO_ADC0CAL1_NEGSEOFFSETVDD_MASK)
                  >> _DEVINFO_ADC0CAL1_NEGSEOFFSETVDD_SHIFT)
                 << _ADC_CAL_SINGLEOFFSETINV_SHIFT;
       break;
@@ -375,13 +388,10 @@ void ADC_Init(ADC_TypeDef *adc, const ADC_Init_TypeDef *init)
 
   EFM_ASSERT(ADC_REF_VALID(adc));
 
-  if (presc == 0)
-  {
+  if (presc == 0) {
     /* Assume maximum ADC clock for prescaler 0 */
     presc = ADC_PrescaleCalc(ADC_MAX_CLOCK, 0);
-  }
-  else
-  {
+  } else {
     /* Check prescaler bounds against ADC_MAX_CLOCK and ADC_MIN_CLOCK */
 #if defined(_ADC_CTRL_ADCCLKMODE_MASK)
     if (ADC0->CTRL & ADC_CTRL_ADCCLKMODE_SYNC)
@@ -397,35 +407,33 @@ void ADC_Init(ADC_TypeDef *adc, const ADC_Init_TypeDef *init)
 
   tmp = ((uint32_t)(init->ovsRateSel) << _ADC_CTRL_OVSRSEL_SHIFT)
         | (((uint32_t)(init->timebase) << _ADC_CTRL_TIMEBASE_SHIFT)
-          & _ADC_CTRL_TIMEBASE_MASK)
+           & _ADC_CTRL_TIMEBASE_MASK)
         | (((uint32_t)(presc) << _ADC_CTRL_PRESC_SHIFT)
-          & _ADC_CTRL_PRESC_MASK)
-#if defined ( _ADC_CTRL_LPFMODE_MASK )
+           & _ADC_CTRL_PRESC_MASK)
+#if defined (_ADC_CTRL_LPFMODE_MASK)
         | ((uint32_t)(init->lpfMode) << _ADC_CTRL_LPFMODE_SHIFT)
 #endif
         | ((uint32_t)(init->warmUpMode) << _ADC_CTRL_WARMUPMODE_SHIFT);
 
-  if (init->tailgate)
-  {
+  if (init->tailgate) {
     tmp |= ADC_CTRL_TAILGATE;
   }
   adc->CTRL = tmp;
 
   /* Set ADC EM2 clock configuration */
-#if defined( _ADC_CTRL_ADCCLKMODE_MASK )
+#if defined(_ADC_CTRL_ADCCLKMODE_MASK)
   BUS_RegMaskedWrite(&ADC0->CTRL,
                      _ADC_CTRL_ADCCLKMODE_MASK | _ADC_CTRL_ASYNCCLKEN_MASK,
                      init->em2ClockConfig);
 #endif
 
-#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80)
   /* A debugger can trigger the SCANUF interrupt on EFM32xG1 or EFR32xG1 */
   ADC_IntClear(adc, ADC_IFC_SCANUF);
 #endif
 }
 
-
-#if defined( _ADC_SCANINPUTSEL_MASK )
+#if defined(_ADC_SCANINPUTSEL_MASK)
 /***************************************************************************//**
  * @brief
  *   Clear ADC scan input configuration.
@@ -444,7 +452,6 @@ void ADC_ScanInputClear(ADC_InitScan_TypeDef *scanInit)
   /* Default alternative negative inputs */
   scanInit->scanInputConfig.scanNegSel = _ADC_SCANNEGSEL_RESETVALUE;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -487,17 +494,12 @@ uint32_t ADC_ScanSingleEndedInputAdd(ADC_InitScan_TypeDef *scanInit,
   currentSel = (scanInit->scanInputConfig.scanInputSel >> (inputGroup * 8)) & 0xFF;
 
   /* If none selected */
-  if (currentSel == ADC_SCANINPUTSEL_GROUP_NONE)
-  {
+  if (currentSel == ADC_SCANINPUTSEL_GROUP_NONE) {
     scanInit->scanInputConfig.scanInputSel &= ~(0xFF << (inputGroup * 8));
     scanInit->scanInputConfig.scanInputSel |= (newSel << (inputGroup * 8));
-  }
-  else if (currentSel == newSel)
-  {
+  } else if (currentSel == newSel) {
     /* Ok, but do nothing.  */
-  }
-  else
-  {
+  } else {
     /* Invalid channel range. A range is already selected for this group. */
     EFM_ASSERT(false);
   }
@@ -508,7 +510,6 @@ uint32_t ADC_ScanSingleEndedInputAdd(ADC_InitScan_TypeDef *scanInit,
   scanInit->scanInputConfig.scanInputEn |= 0x1 << scanId;
   return scanId;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -557,67 +558,47 @@ uint32_t ADC_ScanDifferentialInputAdd(ADC_InitScan_TypeDef *scanInit,
   scanInit->diff = true;
 
   /* Set negative ADC input, unless the default is selected. */
-  if (negInput != adcScanNegInputDefault)
-  {
-    if (scanId == 0)
-    {
+  if (negInput != adcScanNegInputDefault) {
+    if (scanId == 0) {
       negInputRegMask  = _ADC_SCANNEGSEL_INPUT0NEGSEL_MASK;
       negInputRegShift = _ADC_SCANNEGSEL_INPUT0NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 0);
-    }
-    else if (scanId == 2)
-    {
+    } else if (scanId == 2) {
       negInputRegMask  = _ADC_SCANNEGSEL_INPUT2NEGSEL_MASK;
       negInputRegShift = _ADC_SCANNEGSEL_INPUT2NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 0);
-    }
-    else if (scanId == 4)
-    {
+    } else if (scanId == 4) {
       negInputRegMask  = _ADC_SCANNEGSEL_INPUT4NEGSEL_MASK;
       negInputRegShift = _ADC_SCANNEGSEL_INPUT4NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 0);
-    }
-    else if (scanId == 6)
-    {
+    } else if (scanId == 6) {
       negInputRegMask  = _ADC_SCANNEGSEL_INPUT6NEGSEL_MASK;
       negInputRegShift = _ADC_SCANNEGSEL_INPUT6NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 0);
-    }
-    else if (scanId == 9)
-    {
+    } else if (scanId == 9) {
       negInputRegMask  = _ADC_SCANNEGSEL_INPUT9NEGSEL_MASK;
       negInputRegShift = _ADC_SCANNEGSEL_INPUT9NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 1);
-    }
-    else if (scanId == 11)
-    {
+    } else if (scanId == 11) {
       negInputRegMask  = _ADC_SCANNEGSEL_INPUT11NEGSEL_MASK;
       negInputRegShift = _ADC_SCANNEGSEL_INPUT11NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 1);
-    }
-    else if (scanId == 13)
-    {
+    } else if (scanId == 13) {
       negInputRegMask  = _ADC_SCANNEGSEL_INPUT13NEGSEL_MASK;
       negInputRegShift = _ADC_SCANNEGSEL_INPUT13NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 1);
-    }
-    else if (scanId == 15)
-    {
+    } else if (scanId == 15) {
       negInputRegMask  = _ADC_SCANNEGSEL_INPUT15NEGSEL_MASK;
       negInputRegShift = _ADC_SCANNEGSEL_INPUT15NEGSEL_SHIFT;
       EFM_ASSERT(inputGroup == 1);
-    }
-    else
-    {
+    } else {
       /* There is not negative input option for this positive input (negInput is posInput + 1). */
       EFM_ASSERT(false);
     }
 
     /* Find ADC_SCANNEGSEL_CHxNSEL value for positive input 0, 2, 4 and 6 */
-    if (inputGroup == 0)
-    {
-      switch (negInput)
-      {
+    if (inputGroup == 0) {
+      switch (negInput) {
         case adcScanNegInput1:
           negInputRegVal = _ADC_SCANNEGSEL_INPUT0NEGSEL_INPUT1;
           break;
@@ -639,12 +620,9 @@ uint32_t ADC_ScanDifferentialInputAdd(ADC_InitScan_TypeDef *scanInit,
           EFM_ASSERT(false);
           break;
       }
-    }
-    else if (inputGroup == 1)
-    {
+    } else if (inputGroup == 1) {
       /* Find ADC_SCANNEGSEL_CHxNSEL value for positive input 9, 11, 13 and 15 */
-      switch (negInput)
-      {
+      switch (negInput) {
         case adcScanNegInput8:
           negInputRegVal = _ADC_SCANNEGSEL_INPUT9NEGSEL_INPUT8;
           break;
@@ -666,9 +644,7 @@ uint32_t ADC_ScanDifferentialInputAdd(ADC_InitScan_TypeDef *scanInit,
           EFM_ASSERT(false);
           break;
       }
-    }
-    else
-    {
+    } else {
       /* No alternative negative input for input group > 1 */
       EFM_ASSERT(false);
     }
@@ -680,7 +656,6 @@ uint32_t ADC_ScanDifferentialInputAdd(ADC_InitScan_TypeDef *scanInit,
   return scanId;
 }
 #endif
-
 
 /***************************************************************************//**
  * @brief
@@ -720,37 +695,34 @@ void ADC_InitScan(ADC_TypeDef *adc, const ADC_InitScan_TypeDef *init)
   ADC_LoadDevinfoCal(adc, init->reference, true);
 
   tmp = 0
-#if defined ( _ADC_SCANCTRL_PRSSEL_MASK )
+#if defined (_ADC_SCANCTRL_PRSSEL_MASK)
         | (init->prsSel << _ADC_SCANCTRL_PRSSEL_SHIFT)
 #endif
         | (init->acqTime << _ADC_SCANCTRL_AT_SHIFT)
-#if defined ( _ADC_SCANCTRL_INPUTMASK_MASK )
+#if defined (_ADC_SCANCTRL_INPUTMASK_MASK)
         | init->input
 #endif
         | (init->resolution << _ADC_SCANCTRL_RES_SHIFT);
 
-  if (init->prsEnable)
-  {
+  if (init->prsEnable) {
     tmp |= ADC_SCANCTRL_PRSEN;
   }
 
-  if (init->leftAdjust)
-  {
+  if (init->leftAdjust) {
     tmp |= ADC_SCANCTRL_ADJ_LEFT;
   }
 
-#if defined( _ADC_SCANCTRL_INPUTMASK_MASK )
+#if defined(_ADC_SCANCTRL_INPUTMASK_MASK)
   if (init->diff)
-#elif defined( _ADC_SCANINPUTSEL_MASK )
+#elif defined(_ADC_SCANINPUTSEL_MASK)
   if (init->diff)
 #endif
   {
     tmp |= ADC_SCANCTRL_DIFF;
   }
 
-  if (init->rep)
-  {
-#if defined( _SILICON_LABS_GECKO_INTERNAL_SDID_80 )
+  if (init->rep) {
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_80)
     /* Scan repeat mode does not work on EFM32JG1, EFM32PG1 or EFR32xG1x devices.
      * The errata is called ADC_E211 in the errata document. */
     EFM_ASSERT(false);
@@ -759,52 +731,47 @@ void ADC_InitScan(ADC_TypeDef *adc, const ADC_InitScan_TypeDef *init)
   }
 
   /* Set scan reference. Check if reference configuraion is extended to SCANCTRLX. */
-#if defined ( _ADC_SCANCTRLX_VREFSEL_MASK )
-  if (init->reference & ADC_CTRLX_VREFSEL_REG)
-  {
+#if defined (_ADC_SCANCTRLX_VREFSEL_MASK)
+  if (init->reference & ADC_CTRLX_VREFSEL_REG) {
     /* Select extension register */
     tmp |= ADC_SCANCTRL_REF_CONF;
-  }
-  else
-  {
+  } else {
     tmp |= init->reference << _ADC_SCANCTRL_REF_SHIFT;
   }
 #else
   tmp |= init->reference << _ADC_SCANCTRL_REF_SHIFT;
 #endif
 
-#if defined( _ADC_SCANCTRL_INPUTMASK_MASK )
+#if defined(_ADC_SCANCTRL_INPUTMASK_MASK)
   tmp |= init->input;
 #endif
 
   adc->SCANCTRL = tmp;
 
   /* Update SINGLECTRLX for reference select and PRS select */
-#if defined ( _ADC_SCANCTRLX_MASK )
+#if defined (_ADC_SCANCTRLX_MASK)
   tmp = adc->SCANCTRLX & ~(_ADC_SCANCTRLX_VREFSEL_MASK
-                         | _ADC_SCANCTRLX_PRSSEL_MASK
-                         | _ADC_SCANCTRLX_FIFOOFACT_MASK);
-  if (init->reference & ADC_CTRLX_VREFSEL_REG)
-  {
+                           | _ADC_SCANCTRLX_PRSSEL_MASK
+                           | _ADC_SCANCTRLX_FIFOOFACT_MASK);
+  if (init->reference & ADC_CTRLX_VREFSEL_REG) {
     tmp |= (init->reference & ~ADC_CTRLX_VREFSEL_REG) << _ADC_SCANCTRLX_VREFSEL_SHIFT;
   }
 
   tmp |= init->prsSel << _ADC_SCANCTRLX_PRSSEL_SHIFT;
 
-  if (init->fifoOverwrite)
-  {
+  if (init->fifoOverwrite) {
     tmp |= ADC_SCANCTRLX_FIFOOFACT_OVERWRITE;
   }
 
   adc->SCANCTRLX = tmp;
 #endif
 
-#if defined( _ADC_CTRL_SCANDMAWU_MASK )
+#if defined(_ADC_CTRL_SCANDMAWU_MASK)
   BUS_RegBitWrite(&adc->CTRL, _ADC_CTRL_SCANDMAWU_SHIFT, init->scanDmaEm2Wu);
 #endif
 
   /* Write scan input configuration */
-#if defined( _ADC_SCANINPUTSEL_MASK )
+#if defined(_ADC_SCANINPUTSEL_MASK)
   /* Check for valid scan input configuration. Use @ref ADC_ScanInputClear()
      @ref ADC_ScanSingleEndedInputAdd() and @ref ADC_ScanDifferentialInputAdd() to set
      scan input configuration.  */
@@ -815,13 +782,12 @@ void ADC_InitScan(ADC_TypeDef *adc, const ADC_InitScan_TypeDef *init)
 #endif
 
   /* Assert for any APORT bus conflicts programming errors */
-#if defined( _ADC_BUSCONFLICT_MASK )
+#if defined(_ADC_BUSCONFLICT_MASK)
   tmp = adc->BUSREQ;
   EFM_ASSERT(!(tmp & adc->BUSCONFLICT));
   EFM_ASSERT(!(adc->STATUS & _ADC_STATUS_PROGERR_MASK));
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -864,62 +830,54 @@ void ADC_InitSingle(ADC_TypeDef *adc, const ADC_InitSingle_TypeDef *init)
   ADC_LoadDevinfoCal(adc, init->reference, false);
 
   tmp = 0
-#if defined( _ADC_SINGLECTRL_PRSSEL_MASK )
+#if defined(_ADC_SINGLECTRL_PRSSEL_MASK)
         | (init->prsSel << _ADC_SINGLECTRL_PRSSEL_SHIFT)
 #endif
         | (init->acqTime << _ADC_SINGLECTRL_AT_SHIFT)
-#if defined( _ADC_SINGLECTRL_INPUTSEL_MASK )
+#if defined(_ADC_SINGLECTRL_INPUTSEL_MASK)
         | (init->input << _ADC_SINGLECTRL_INPUTSEL_SHIFT)
 #endif
-#if defined( _ADC_SINGLECTRL_POSSEL_MASK )
+#if defined(_ADC_SINGLECTRL_POSSEL_MASK)
         | (init->posSel << _ADC_SINGLECTRL_POSSEL_SHIFT)
 #endif
-#if defined( _ADC_SINGLECTRL_NEGSEL_MASK )
+#if defined(_ADC_SINGLECTRL_NEGSEL_MASK)
         | (init->negSel << _ADC_SINGLECTRL_NEGSEL_SHIFT)
 #endif
         | ((uint32_t)(init->resolution) << _ADC_SINGLECTRL_RES_SHIFT);
 
-  if (init->prsEnable)
-  {
+  if (init->prsEnable) {
     tmp |= ADC_SINGLECTRL_PRSEN;
   }
 
-  if (init->leftAdjust)
-  {
+  if (init->leftAdjust) {
     tmp |= ADC_SINGLECTRL_ADJ_LEFT;
   }
 
-  if (init->diff)
-  {
+  if (init->diff) {
     tmp |= ADC_SINGLECTRL_DIFF;
   }
 
-  if (init->rep)
-  {
+  if (init->rep) {
     tmp |= ADC_SINGLECTRL_REP;
   }
 
-#if defined( _ADC_SINGLECTRL_POSSEL_TEMP )
+#if defined(_ADC_SINGLECTRL_POSSEL_TEMP)
   /* Force at least 8 cycle acquisition time when reading internal temperature
    * sensor with 1.25V reference */
   if ((init->posSel == adcPosSelTEMP)
-       && (init->reference == adcRef1V25)
-       && (init->acqTime < adcAcqTime8))
-  {
+      && (init->reference == adcRef1V25)
+      && (init->acqTime < adcAcqTime8)) {
     tmp = (tmp & ~_ADC_SINGLECTRL_AT_MASK)
-           | (adcAcqTime8 << _ADC_SINGLECTRL_AT_SHIFT);
+          | (adcAcqTime8 << _ADC_SINGLECTRL_AT_SHIFT);
   }
 #endif
 
   /* Set single reference. Check if reference configuraion is extended to SINGLECTRLX. */
-#if defined ( _ADC_SINGLECTRLX_MASK )
-  if (init->reference & ADC_CTRLX_VREFSEL_REG)
-  {
+#if defined (_ADC_SINGLECTRLX_MASK)
+  if (init->reference & ADC_CTRLX_VREFSEL_REG) {
     /* Select extension register */
     tmp |= ADC_SINGLECTRL_REF_CONF;
-  }
-  else
-  {
+  } else {
     tmp |= (init->reference << _ADC_SINGLECTRL_REF_SHIFT);
   }
 #else
@@ -928,19 +886,17 @@ void ADC_InitSingle(ADC_TypeDef *adc, const ADC_InitSingle_TypeDef *init)
   adc->SINGLECTRL = tmp;
 
   /* Update SINGLECTRLX for reference select and PRS select */
-#if defined ( _ADC_SINGLECTRLX_VREFSEL_MASK )
-  tmp = adc->SINGLECTRLX & (_ADC_SINGLECTRLX_VREFSEL_MASK
-                          | _ADC_SINGLECTRLX_PRSSEL_MASK
-                          | _ADC_SINGLECTRLX_FIFOOFACT_MASK);
-  if (init->reference & ADC_CTRLX_VREFSEL_REG)
-  {
+#if defined (_ADC_SINGLECTRLX_VREFSEL_MASK)
+  tmp = adc->SINGLECTRLX & ~(_ADC_SINGLECTRLX_VREFSEL_MASK
+                             | _ADC_SINGLECTRLX_PRSSEL_MASK
+                             | _ADC_SINGLECTRLX_FIFOOFACT_MASK);
+  if (init->reference & ADC_CTRLX_VREFSEL_REG) {
     tmp |= ((init->reference & ~ADC_CTRLX_VREFSEL_REG) << _ADC_SINGLECTRLX_VREFSEL_SHIFT);
   }
 
   tmp |= ((init->prsSel << _ADC_SINGLECTRLX_PRSSEL_SHIFT));
 
-  if (init->fifoOverwrite)
-  {
+  if (init->fifoOverwrite) {
     tmp |= ADC_SINGLECTRLX_FIFOOFACT_OVERWRITE;
   }
 
@@ -948,34 +904,30 @@ void ADC_InitSingle(ADC_TypeDef *adc, const ADC_InitSingle_TypeDef *init)
 #endif
 
   /* Set DMA availability in EM2 */
-#if defined( _ADC_CTRL_SINGLEDMAWU_MASK )
+#if defined(_ADC_CTRL_SINGLEDMAWU_MASK)
   BUS_RegBitWrite(&adc->CTRL, _ADC_CTRL_SINGLEDMAWU_SHIFT, init->singleDmaEm2Wu);
 #endif
 
-#if defined( _ADC_BIASPROG_GPBIASACC_MASK ) && defined( FIX_ADC_TEMP_BIAS_EN )
-  if (init->posSel == adcPosSelTEMP)
-  {
+#if defined(_ADC_BIASPROG_GPBIASACC_MASK) && defined(FIX_ADC_TEMP_BIAS_EN)
+  if (init->posSel == adcPosSelTEMP) {
     /* ADC should always use low accuracy setting when reading the internal
      * temperature sensor on platform 2 generation 1 devices. Using high
      * accuracy setting can introduce a glitch. */
     BUS_RegBitWrite(&adc->BIASPROG, _ADC_BIASPROG_GPBIASACC_SHIFT, 1);
-  }
-  else
-  {
+  } else {
     BUS_RegBitWrite(&adc->BIASPROG, _ADC_BIASPROG_GPBIASACC_SHIFT, 0);
   }
 #endif
 
   /* Assert for any APORT bus conflicts programming errors */
-#if defined( _ADC_BUSCONFLICT_MASK )
+#if defined(_ADC_BUSCONFLICT_MASK)
   tmp = adc->BUSREQ;
   EFM_ASSERT(!(tmp & adc->BUSCONFLICT));
   EFM_ASSERT(!(adc->STATUS & _ADC_STATUS_PROGERR_MASK));
 #endif
 }
 
-
-#if defined( _ADC_SCANDATAX_MASK )
+#if defined(_ADC_SCANDATAX_MASK)
 /***************************************************************************//**
  * @brief
  *   Get scan result and scan select ID.
@@ -1004,7 +956,6 @@ uint32_t ADC_DataIdScanGet(ADC_TypeDef *adc, uint32_t *scanId)
 }
 #endif
 
-
 /***************************************************************************//**
  * @brief
  *   Calculate prescaler value used to determine ADC clock.
@@ -1027,30 +978,24 @@ uint8_t ADC_PrescaleCalc(uint32_t adcFreq, uint32_t hfperFreq)
   uint32_t ret;
 
   /* Make sure selected ADC clock is within valid range */
-  if (adcFreq > ADC_MAX_CLOCK)
-  {
+  if (adcFreq > ADC_MAX_CLOCK) {
     adcFreq = ADC_MAX_CLOCK;
-  }
-  else if (adcFreq < ADC_MIN_CLOCK)
-  {
+  } else if (adcFreq < ADC_MIN_CLOCK) {
     adcFreq = ADC_MIN_CLOCK;
   }
 
   /* Use current HFPER frequency? */
-  if (!hfperFreq)
-  {
+  if (!hfperFreq) {
     hfperFreq = CMU_ClockFreqGet(cmuClock_HFPER);
   }
 
   ret = (hfperFreq + adcFreq - 1) / adcFreq;
-  if (ret)
-  {
+  if (ret) {
     ret--;
   }
 
   return (uint8_t)ret;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -1068,29 +1013,29 @@ void ADC_Reset(ADC_TypeDef *adc)
   /* Stop conversions, before resetting other registers. */
   adc->CMD          = ADC_CMD_SINGLESTOP | ADC_CMD_SCANSTOP;
   adc->SINGLECTRL   = _ADC_SINGLECTRL_RESETVALUE;
-#if defined( _ADC_SINGLECTRLX_MASK )
+#if defined(_ADC_SINGLECTRLX_MASK)
   adc->SINGLECTRLX  = _ADC_SINGLECTRLX_RESETVALUE;
 #endif
   adc->SCANCTRL     = _ADC_SCANCTRL_RESETVALUE;
-#if defined( _ADC_SCANCTRLX_MASK )
+#if defined(_ADC_SCANCTRLX_MASK)
   adc->SCANCTRLX    = _ADC_SCANCTRLX_RESETVALUE;
 #endif
   adc->CTRL         = _ADC_CTRL_RESETVALUE;
   adc->IEN          = _ADC_IEN_RESETVALUE;
   adc->IFC          = _ADC_IFC_MASK;
   adc->BIASPROG     = _ADC_BIASPROG_RESETVALUE;
-#if defined( _ADC_SCANMASK_MASK )
+#if defined(_ADC_SCANMASK_MASK)
   adc->SCANMASK     = _ADC_SCANMASK_RESETVALUE;
 #endif
-#if defined( _ADC_SCANINPUTSEL_MASK )
+#if defined(_ADC_SCANINPUTSEL_MASK)
   adc->SCANINPUTSEL = _ADC_SCANINPUTSEL_RESETVALUE;
 #endif
-#if defined( _ADC_SCANNEGSEL_MASK )
+#if defined(_ADC_SCANNEGSEL_MASK)
   adc->SCANNEGSEL   = _ADC_SCANNEGSEL_RESETVALUE;
 #endif
 
   /* Clear data FIFOs */
-#if defined( _ADC_SINGLEFIFOCLEAR_MASK )
+#if defined(_ADC_SINGLEFIFOCLEAR_MASK)
   adc->SINGLEFIFOCLEAR |= ADC_SINGLEFIFOCLEAR_SINGLEFIFOCLEAR;
   adc->SCANFIFOCLEAR   |= ADC_SCANFIFOCLEAR_SCANFIFOCLEAR;
 #endif
@@ -1099,11 +1044,10 @@ void ADC_Reset(ADC_TypeDef *adc)
   ADC_LoadDevinfoCal(adc, adcRef1V25, false);
   ADC_LoadDevinfoCal(adc, adcRef1V25, true);
 
-#if defined( _ADC_SCANINPUTSEL_MASK )
+#if defined(_ADC_SCANINPUTSEL_MASK)
   /* Do not reset route register, setting should be done independently */
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -1117,24 +1061,22 @@ void ADC_Reset(ADC_TypeDef *adc)
  ******************************************************************************/
 uint8_t ADC_TimebaseCalc(uint32_t hfperFreq)
 {
-  if (!hfperFreq)
-  {
+  if (!hfperFreq) {
     hfperFreq = CMU_ClockFreqGet(cmuClock_HFPER);
 
     /* Just in case, make sure we get non-zero freq for below calculation */
-    if (!hfperFreq)
-    {
+    if (!hfperFreq) {
       hfperFreq = 1;
     }
   }
-#if defined( _EFM32_GIANT_FAMILY ) || defined( _EFM32_WONDER_FAMILY )
+#if defined(_SILICON_LABS_32B_SERIES_0) \
+  && (defined(_EFM32_GIANT_FAMILY) || defined(_EFM32_WONDER_FAMILY))
   /* Handle errata on Giant Gecko, max TIMEBASE is 5 bits wide or max 0x1F */
   /* cycles. This will give a warmp up time of e.g. 0.645us, not the       */
   /* required 1us when operating at 48MHz. One must also increase acqTime  */
   /* to compensate for the missing clock cycles, adding up to 1us in total.*/
   /* See reference manual for details. */
-  if ( hfperFreq > 32000000 )
-  {
+  if ( hfperFreq > 32000000 ) {
     hfperFreq = 32000000;
   }
 #endif
@@ -1145,7 +1087,6 @@ uint8_t ADC_TimebaseCalc(uint32_t hfperFreq)
   /* Return timebase value (N+1 format) */
   return (uint8_t)(hfperFreq - 1);
 }
-
 
 /** @} (end addtogroup ADC) */
 /** @} (end addtogroup emlib) */

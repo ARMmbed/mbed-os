@@ -32,6 +32,7 @@
 #include "rtc_api.h"
 #include "rtc_api_hal.h"
 #include "mbed_error.h"
+#include "mbed_mktime.h"
 
 static RTC_HandleTypeDef RtcHandle;
 
@@ -56,13 +57,14 @@ static void RTC_IRQHandler(void);
 
 void rtc_init(void)
 {
-    RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
 
     // Enable access to Backup domain
     HAL_PWR_EnableBkUpAccess();
 
     RtcHandle.Instance = RTC;
+    RtcHandle.State = HAL_RTC_STATE_RESET;
 
 #if !RTC_LSI
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
@@ -83,7 +85,7 @@ void rtc_init(void)
         error("PeriphClkInitStruct RTC failed with LSE\n");
     }
 #else /* !RTC_LSI */
-    __PWR_CLK_ENABLE();
+    __HAL_RCC_PWR_CLK_ENABLE();
 
     // Reset Backup domain
     __HAL_RCC_BACKUPRESET_FORCE();
@@ -147,7 +149,7 @@ void rtc_free(void)
 {
 #if RTC_LSI
     // Enable Power clock
-    __PWR_CLK_ENABLE();
+    __HAL_RCC_PWR_CLK_ENABLE();
 
     // Enable access to Backup domain
     HAL_PWR_EnableBkUpAccess();
@@ -161,7 +163,7 @@ void rtc_free(void)
 #endif
 
     // Disable LSI and LSE clocks
-    RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
@@ -216,8 +218,8 @@ It is then not a problem to not use shifts.
 
 time_t rtc_read(void)
 {
-    RTC_DateTypeDef dateStruct;
-    RTC_TimeTypeDef timeStruct;
+    RTC_DateTypeDef dateStruct = {0};
+    RTC_TimeTypeDef timeStruct = {0};
     struct tm timeinfo;
 
     RtcHandle.Instance = RTC;
@@ -239,33 +241,36 @@ time_t rtc_read(void)
     timeinfo.tm_isdst  = -1;
 
     // Convert to timestamp
-    time_t t = mktime(&timeinfo);
+    time_t t = _rtc_mktime(&timeinfo);
 
     return t;
 }
 
 void rtc_write(time_t t)
 {
-    RTC_DateTypeDef dateStruct;
-    RTC_TimeTypeDef timeStruct;
+    RTC_DateTypeDef dateStruct = {0};
+    RTC_TimeTypeDef timeStruct = {0};
 
     RtcHandle.Instance = RTC;
 
     // Convert the time into a tm
-    struct tm *timeinfo = localtime(&t);
+    struct tm timeinfo;
+    if (_rtc_localtime(t, &timeinfo) == false) {
+        return;
+    }
 
     // Fill RTC structures
-    if (timeinfo->tm_wday == 0) {
+    if (timeinfo.tm_wday == 0) {
         dateStruct.WeekDay    = 7;
     } else {
-        dateStruct.WeekDay    = timeinfo->tm_wday;
+        dateStruct.WeekDay    = timeinfo.tm_wday;
     }
-    dateStruct.Month          = timeinfo->tm_mon + 1;
-    dateStruct.Date           = timeinfo->tm_mday;
-    dateStruct.Year           = timeinfo->tm_year - 68;
-    timeStruct.Hours          = timeinfo->tm_hour;
-    timeStruct.Minutes        = timeinfo->tm_min;
-    timeStruct.Seconds        = timeinfo->tm_sec;
+    dateStruct.Month          = timeinfo.tm_mon + 1;
+    dateStruct.Date           = timeinfo.tm_mday;
+    dateStruct.Year           = timeinfo.tm_year - 68;
+    timeStruct.Hours          = timeinfo.tm_hour;
+    timeStruct.Minutes        = timeinfo.tm_min;
+    timeStruct.Seconds        = timeinfo.tm_sec;
 
 #if !(TARGET_STM32F1)
     timeStruct.TimeFormat     = RTC_HOURFORMAT_24;
@@ -291,13 +296,10 @@ int rtc_isenabled(void)
 
 static void RTC_IRQHandler(void)
 {
+    /*  Update HAL state */
     HAL_RTCEx_WakeUpTimerIRQHandler(&RtcHandle);
-}
-
-void HAL_RTCEx_WakeUpTimerEventCallback(RTC_HandleTypeDef *hrtc)
-{
+    /* In case of registered handler, call it. */
     if (irq_handler) {
-        // Fire the user callback
         irq_handler();
     }
 }

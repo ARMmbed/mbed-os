@@ -1,12 +1,24 @@
-/*
- * Copyright (c) 2016 ARM Limited. All rights reserved.
- */
+// ----------------------------------------------------------------------------
+// Copyright 2016-2017 ARM Ltd.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// ----------------------------------------------------------------------------
 
 #include <string.h>
 #include <ns_types.h>
 #include <nsdynmemLIB.h>
-#define HAVE_DEBUG
-#include "ns_trace.h"
 #include "ns_list.h"
 #include "platform/arm_hal_nvm.h"
 #include "ns_nvm_helper.h"
@@ -93,7 +105,6 @@ int ns_nvm_key_delete(ns_nvm_callback *callback, const char *key_name, void *con
     if (!callback || !key_name) {
         return NS_NVM_ERROR;
     }
-    tr_debug("ns_nvm_key_delete() key=%s, ctx=%p", key_name, context);
     ns_nvm_request_t *ns_nvm_request_ptr = ns_nvm_create_request(callback, context, key_name, NULL, NULL, NS_NVM_KEY_DELETE);
     return ns_nvm_operation_start(ns_nvm_request_ptr);
 }
@@ -103,7 +114,6 @@ int ns_nvm_data_read(ns_nvm_callback *callback, const char *key_name, uint8_t *b
     if (!callback || !key_name || !buf || !buf_len) {
         return NS_NVM_ERROR;
     }
-    tr_debug("ns_nvm_data_read() key=%s, len=%d, ctx=%p", key_name, (int)*buf_len, context);
     ns_nvm_request_t *ns_nvm_request_ptr = ns_nvm_create_request(callback, context, key_name, buf, buf_len, NS_NVM_KEY_READ);
     return ns_nvm_operation_start(ns_nvm_request_ptr);
 }
@@ -113,7 +123,6 @@ int ns_nvm_data_write(ns_nvm_callback *callback, const char *key_name, uint8_t *
     if (!callback || !key_name || !buf || !buf_len) {
         return NS_NVM_ERROR;
     }
-    tr_debug("ns_nvm_data_write() key=%s, len=%d, ctx=%p", key_name, (int)*buf_len, context);
     ns_nvm_request_t *ns_nvm_request_ptr = ns_nvm_create_request(callback, context, key_name, buf, buf_len, NS_NVM_KEY_WRITE);
     return ns_nvm_operation_start(ns_nvm_request_ptr);
 }

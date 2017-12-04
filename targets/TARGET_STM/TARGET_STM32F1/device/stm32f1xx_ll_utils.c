@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_ll_utils.c
   * @author  MCD Application Team
-  * @version $VERSION$
-  * @date    $DATE$
+  * @version V1.1.0
+  * @date    14-April-2017
   * @brief   UTILS LL module driver.
   ******************************************************************************
   * @attention
@@ -128,7 +128,7 @@
                                           || ((__VALUE__) == LL_RCC_PLL_MUL_16))
 #endif /* RCC_CFGR_PLLMULL6_5 */
 
-#if defined(RCC_PREDIV1_DIV_2_16_SUPPORT)
+#if defined(RCC_CFGR2_PREDIV1)
 #define IS_LL_UTILS_PREDIV_VALUE(__VALUE__) (((__VALUE__) == LL_RCC_PREDIV_DIV_1)  || ((__VALUE__) == LL_RCC_PREDIV_DIV_2)   || \
                                              ((__VALUE__) == LL_RCC_PREDIV_DIV_3)  || ((__VALUE__) == LL_RCC_PREDIV_DIV_4)   || \
                                              ((__VALUE__) == LL_RCC_PREDIV_DIV_5)  || ((__VALUE__) == LL_RCC_PREDIV_DIV_6)   || \
@@ -475,13 +475,13 @@ static uint32_t UTILS_GetPLLOutputFrequency(uint32_t PLL_InputFrequency, LL_UTIL
   assert_param(IS_LL_UTILS_PLLMUL_VALUE(UTILS_PLLInitStruct->PLLMul));
 
   /* Check different PLL parameters according to RM                          */
-#if defined(RCC_PLLSRC_PREDIV1_SUPPORT)
-  pllfreq = __LL_RCC_CALC_PLLCLK_FREQ(PLL_InputFrequency, UTILS_PLLInitStruct->PLLMul, UTILS_PLLInitStruct->PLLDiv);
-#elif defined (RCC_PREDIV1_DIV_2_16_SUPPORT)
+#if defined (RCC_CFGR2_PREDIV1)
   pllfreq = __LL_RCC_CALC_PLLCLK_FREQ(PLL_InputFrequency / (UTILS_PLLInitStruct->Prediv + 1U), UTILS_PLLInitStruct->PLLMul);
+#elif defined(RCC_CFGR2_PREDIV1SRC)
+  pllfreq = __LL_RCC_CALC_PLLCLK_FREQ(PLL_InputFrequency, UTILS_PLLInitStruct->PLLMul, UTILS_PLLInitStruct->PLLDiv);
 #else
   pllfreq = __LL_RCC_CALC_PLLCLK_FREQ(PLL_InputFrequency / ((UTILS_PLLInitStruct->Prediv >> RCC_CFGR_PLLXTPRE_Pos) + 1U), UTILS_PLLInitStruct->PLLMul);
-#endif /*RCC_PLLSRC_PREDIV1_SUPPORT*/
+#endif /*RCC_CFGR2_PREDIV1SRC*/
   assert_param(IS_LL_UTILS_PLL_FREQUENCY(pllfreq));
 
   return pllfreq;
@@ -512,14 +512,14 @@ static ErrorStatus UTILS_PLL_IsBusy(void)
   }
 #endif /* RCC_PLL2_SUPPORT */
 
-#if defined(RCC_PLL3_SUPPORT)
-  /* Check if PLL3  is busy*/
-  if (LL_RCC_PLL3_IsReady() != 0U)
+#if defined(RCC_PLLI2S_SUPPORT)
+  /* Check if PLLI2S  is busy*/
+  if (LL_RCC_PLLI2S_IsReady() != 0U)
   {
-    /* PLL3 configuration cannot be modified */
+    /* PLLI2S configuration cannot be modified */
     status = ERROR;
   }
-#endif /* RCC_PLL3_SUPPORT */
+#endif /* RCC_PLLI2S_SUPPORT */
 
   return status;
 }
@@ -536,14 +536,18 @@ static ErrorStatus UTILS_PLL_IsBusy(void)
 static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct)
 {
   ErrorStatus status = SUCCESS;
+#if defined(FLASH_ACR_LATENCY)
   uint32_t sysclk_frequency_current = 0U;
+#endif /* FLASH_ACR_LATENCY */
 
   assert_param(IS_LL_UTILS_SYSCLK_DIV(UTILS_ClkInitStruct->AHBCLKDivider));
   assert_param(IS_LL_UTILS_APB1_DIV(UTILS_ClkInitStruct->APB1CLKDivider));
   assert_param(IS_LL_UTILS_APB2_DIV(UTILS_ClkInitStruct->APB2CLKDivider));
 
+#if defined(FLASH_ACR_LATENCY)
   /* Calculate current SYSCLK frequency */
-  sysclk_frequency_current = (SystemCoreClock << AHBPrescTable[(UTILS_ClkInitStruct->AHBCLKDivider & RCC_CFGR_HPRE) >>  RCC_POSITION_HPRE]);
+  sysclk_frequency_current = (SystemCoreClock << AHBPrescTable[LL_RCC_GetAHBPrescaler() >> RCC_CFGR_HPRE_Pos]);
+#endif /* FLASH_ACR_LATENCY */
 
   /* Increasing the number of wait states because of higher CPU frequency */
 #if defined (FLASH_ACR_LATENCY)

@@ -34,20 +34,9 @@
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-#include "cmsis.h"
+extern void (*ramVectorTable[MXC_IRQ_COUNT])(void);
 
-#define NVIC_NUM_VECTORS      MXC_IRQ_COUNT
-#define NVIC_USER_IRQ_OFFSET  16
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
-}
-#endif
+#define NVIC_NUM_VECTORS        (MXC_IRQ_COUNT)
+#define NVIC_RAM_VECTOR_ADDRESS (ramVectorTable)    // Vectors positioned at start of RAM
 
 #endif /* MBED_CMSIS_NVIC_H */

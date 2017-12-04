@@ -17,6 +17,7 @@
 #include "eventOS_event_timer.h"
 #include "nsdynmemLIB.h"
 #include "ns_list.h"
+#include "timer_sys.h"
 
 #define STARTUP_EVENT 0
 #define TIMER_EVENT 1
@@ -25,11 +26,9 @@
 struct timeout_entry_t {
     void (*callback)(void *);
     void *arg;
-    uint8_t event_id;
-    ns_list_link_t link;
+    arm_event_storage_t *event;
 };
 
-static NS_LIST_HEAD(timeout_t, link) timeout_list = NS_LIST_INIT(timeout_list);
 static int8_t timeout_tasklet_id = -1;
 
 static void timeout_tasklet(arm_event_s *event)
@@ -38,31 +37,29 @@ static void timeout_tasklet(arm_event_s *event)
         return;
     }
 
-    timeout_t *found = NULL;
-    ns_list_foreach_safe(timeout_t, cur, &timeout_list) {
-        if (cur->event_id == event->event_id) {
-            found = cur;
-            ns_list_remove(&timeout_list, cur);
-            break;
-        }
-    }
+    timeout_t *t = event->data_ptr;
+    arm_event_storage_t *storage = t->event;
+    sys_timer_struct_s *timer = NS_CONTAINER_OF(storage, sys_timer_struct_s, event);
 
-    if (found) {
-        found->callback(found->arg);
-        ns_dyn_mem_free(found);
+    t->callback(t->arg);
+
+
+    // Check if this was periodic timer
+    if (timer->period == 0) {
+        ns_dyn_mem_free(event->data_ptr);
     }
 }
 
-timeout_t *eventOS_timeout_ms(void (*callback)(void *), uint32_t ms, void *arg)
+static timeout_t *eventOS_timeout_at_(void (*callback)(void *), void *arg, uint32_t at, uint32_t period)
 {
-    uint16_t count;
-    uint8_t index;
-    timeout_t *e = ns_dyn_mem_alloc(sizeof(timeout_t));
-    if (!e) {
+    arm_event_storage_t *storage;
+
+    timeout_t *timeout = ns_dyn_mem_alloc(sizeof(timeout_t));
+    if (!timeout) {
         return NULL;
     }
-    e->callback = callback;
-    e->arg = arg;
+    timeout->callback = callback;
+    timeout->arg = arg;
 
     // Start timeout taskled if it is not running
     if (-1 == timeout_tasklet_id) {
@@ -73,37 +70,46 @@ timeout_t *eventOS_timeout_ms(void (*callback)(void *), uint32_t ms, void *arg)
         }
     }
 
-    // Check that we still have indexes left. We have only 8bit timer id.
-    count = ns_list_count(&timeout_list);
-    if (count >= UINT8_MAX) { // Too big list, timer_id is uint8_t
-        goto FAIL;
-    }
+    arm_event_t event = {
+        .receiver   = timeout_tasklet_id,
+        .sender     = timeout_tasklet_id,
+        .event_type = TIMER_EVENT,
+        .event_id   = TIMER_EVENT,
+        .data_ptr   = timeout
+    };
 
-    // Find next free index
-    index = 0;
-AGAIN:
-    ns_list_foreach(timeout_t, cur, &timeout_list) {
-        if (cur->event_id == index) { // This index was used
-            index++; // Check next one.
-            goto AGAIN; // Start checking from begining of the list, indexes are not in order
-        }
-    }
-    e->event_id = index;
-    ns_list_add_to_end(&timeout_list, e);
-    eventOS_event_timer_request(index, TIMER_EVENT, timeout_tasklet_id, ms);
-    return e;
+    if (period)
+        storage = eventOS_event_timer_request_every(&event, period);
+    else
+        storage = eventOS_event_timer_request_at(&event, at);
+
+    timeout->event = storage;
+    if (storage)
+        return timeout;
 FAIL:
-    ns_dyn_mem_free(e);
+    ns_dyn_mem_free(timeout);
     return NULL;
+}
+
+timeout_t *eventOS_timeout_ms(void (*callback)(void *), uint32_t ms, void *arg)
+{
+    return eventOS_timeout_at_(callback, arg, eventOS_event_timer_ms_to_ticks(ms)+eventOS_event_timer_ticks(), 0);
+}
+
+timeout_t *eventOS_timeout_every_ms(void (*callback)(void *), uint32_t every, void *arg)
+{
+    return eventOS_timeout_at_(callback, arg, 0, eventOS_event_timer_ms_to_ticks(every));
 }
 
 void eventOS_timeout_cancel(timeout_t *t)
 {
-    ns_list_foreach_safe(timeout_t, cur, &timeout_list) {
-        if (t == cur) {
-            ns_list_remove(&timeout_list, cur);
-            eventOS_event_timer_cancel(cur->event_id, timeout_tasklet_id);
-            ns_dyn_mem_free(cur);
-        }
+    if (!t)
+        return;
+
+    eventOS_cancel(t->event);
+
+    // Defer the freeing until returning from the callback
+    if (t->event->state != ARM_LIB_EVENT_RUNNING) {
+        ns_dyn_mem_free(t);
     }
 }

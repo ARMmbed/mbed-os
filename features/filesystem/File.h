@@ -124,7 +124,7 @@ public:
      *
      *  @return         Size of the file in bytes
      */
-    virtual size_t size();
+    virtual off_t size();
 
 private:
     FileSystem *_fs;

@@ -18,11 +18,12 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_I2C
+#if defined (DEVICE_I2C) || defined(DOXYGEN_ONLY)
 
 #include "hal/i2c_api.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 #if DEVICE_I2C_ASYNCH
 #include "platform/CThunk.h"
@@ -32,11 +33,10 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** An I2C Master, used for communicating with I2C slave devices
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
  * Example:
  * @code
@@ -52,8 +52,9 @@ namespace mbed {
  *     i2c.read(address, data, 2);
  * }
  * @endcode
+ * @ingroup drivers
  */
-class I2C {
+class I2C : private NonCopyable<I2C> {
 
 public:
     enum RxStatus {
@@ -158,6 +159,8 @@ public:
 
     /** Start non-blocking I2C transfer.
      *
+     * This function locks the deep sleep until any event has occured
+     * 
      * @param address   8/10 bit I2c slave address
      * @param tx_buffer The TX buffer with data to be transfered
      * @param tx_length The length of TX buffer in bytes
@@ -194,5 +197,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

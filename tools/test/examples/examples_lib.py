@@ -1,8 +1,8 @@
 """ Import and bulid a bunch of example programs
 
-    This library includes functions that are shared between the examples.py and 
+    This library includes functions that are shared between the examples.py and
     the update.py modules.
-    
+
  """
 import os
 from os.path import dirname, abspath, basename
@@ -19,7 +19,7 @@ from tools.build_api import get_mbed_official_release
 from tools.targets import TARGET_MAP
 from tools.export import EXPORTERS
 
-SUPPORTED_TOOLCHAINS = ["ARM", "IAR", "GCC_ARM"]
+SUPPORTED_TOOLCHAINS = ["ARM", "IAR", "GCC_ARM", "ARMC6"]
 SUPPORTED_IDES = [exp for exp in EXPORTERS.keys() if exp != "cmsis" and exp != "zip"]
 
 
@@ -115,7 +115,7 @@ def target_cross_ide(allowed_targets, allowed_ides, features=[], toolchains=[]):
     """
     for target in allowed_targets:
         for ide in allowed_ides:
-            if (target in EXPORTERS[ide].TARGETS and
+            if (EXPORTERS[ide].is_target_supported(target) and
                 (not toolchains or EXPORTERS[ide].TOOLCHAIN in toolchains) and
                 all(feature in TARGET_MAP[target].features
                     for feature in features)):
@@ -123,20 +123,19 @@ def target_cross_ide(allowed_targets, allowed_ides, features=[], toolchains=[]):
 
 
 def get_repo_list(example):
-    """ Returns a list of all the repos associated with the specific example in the json
-        config file.
-        If there are repos listed under the mbed section then these will be returned as a 
-        list. If not then the github single repo with be returned. 
-        NOTE: This does not currently deal with multiple examples underneath a github 
+    """ Returns a list of all the repos and their types associated with the
+        specific example in the json config file.
+        If the key 'test-repo-source' is set to 'mbed', then it will return the
+        mbed section as a list. Otherwise, it will return the single github repo.
+        NOTE: This does not currently deal with multiple examples underneath a github
         sourced exampe repo.
 
     Args:
     example - Example for which the repo list is requested
-    repos - The list of repos and types contained within that example in the json file
 
     """
     repos = []
-    if len(example['mbed']) > 0:
+    if example['test-repo-source'] == 'mbed':
         for repo in example['mbed']:
             repos.append({
                 'repo': repo,
@@ -156,7 +155,7 @@ def source_repos(config, examples):
         there is already a clone of the repo then it will first be removed to
         ensure a clean, up to date cloning.
     Args:
-    config - the json object imported from the file. 
+    config - the json object imported from the file.
 
     """
     print("\nImporting example repos....\n")
@@ -170,7 +169,7 @@ def source_repos(config, examples):
 
                 subprocess.call(["mbed-cli", "import", repo_info['repo']])
 
-def clone_repos(config, examples):
+def clone_repos(config, examples , retry = 3):
     """ Clones each of the repos associated with the specific examples name from the
         json config file. Note if there is already a clone of the repo then it will first
         be removed to ensure a clean, up to date cloning.
@@ -186,8 +185,11 @@ def clone_repos(config, examples):
                 if os.path.exists(name):
                     print("'%s' example directory already exists. Deleting..." % name)
                     rmtree(name)
-
-                subprocess.call([repo_info['type'], "clone", repo_info['repo']])
+                for i in range(0, retry):
+                    if subprocess.call([repo_info['type'], "clone", repo_info['repo']]) == 0:
+                        break
+                else:
+                    print("ERROR : unable to clone the repo {}".format(name))
 
 def deploy_repos(config, examples):
     """ If the example directory exists as provided by the json config file,
@@ -214,7 +216,7 @@ def get_num_failures(results, export=False):
     Args:
     results - results summary of the compilation stage. See compile_repos() for
               details of the format.
-    num_failures 
+    num_failures
 
     """
     num_failures = 0
@@ -290,7 +292,7 @@ def export_repos(config, ides, targets, examples):
                         status("SUCCESS exporting")
                         status("Building")
                         try:
-                            if EXPORTERS[ide].build(example_project_name):
+                            if EXPORTERS[ide].build(example_project_name, cleanup=False):
                                 status("FAILURE building")
                                 build_failures.append(example_name)
                             else:
@@ -312,25 +314,25 @@ def export_repos(config, ides, targets, examples):
     return results
 
 
-def compile_repos(config, toolchains, targets, examples):
+def compile_repos(config, toolchains, targets, profile, examples):
     """Compiles combinations of example programs, targets and compile chains.
-       
+
        The results are returned in a [key: value] dictionary format:
        Where key = The example name from the json config file
              value = a list containing: pass_status, successes, and failures
-             
+
              where pass_status = The overall pass status for the compilation of the full
                                  set of example programs comprising the example suite.
                                  True if all examples pass, false otherwise
-                   successes = list of passing examples. 
+                   successes = list of passing examples.
                    failures = list of failing examples.
-                   
+
                    Both successes and failures contain the example name, target and compile chain
 
     Args:
-    config - the json object imported from the file. 
+    config - the json object imported from the file.
     toolchains - List of toolchains to compile for.
-    results - results of the compilation stage. 
+    results - results of the compilation stage.
 
     """
     results = {}
@@ -349,15 +351,21 @@ def compile_repos(config, toolchains, targets, examples):
             for repo_info in get_repo_list(example):
                 name = basename(repo_info['repo'])
                 os.chdir(name)
-                
-                # Check that the target, toolchain and features combinations are valid and return a 
+
+                # Check that the target, toolchain and features combinations are valid and return a
                 # list of valid combinations to work through
                 for target, toolchain in target_cross_toolchain(valid_choices(example['targets'], targets),
                                                                 valid_choices(example['toolchains'], toolchains),
                                                                 example['features']):
                     print("Compiling %s for %s, %s" % (name, target, toolchain))
-                    proc = subprocess.Popen(["mbed-cli", "compile", "-t", toolchain,
-                                             "-m", target, "--silent"])
+                    build_command = ["mbed-cli", "compile", "-t", toolchain, "-m", target, "-v"]
+
+                    if profile:
+                        build_command.append("--profile")
+                        build_command.append(profile)
+
+                    proc = subprocess.Popen(build_command)
+
                     proc.wait()
                     example_summary = "{} {} {}".format(name, target, toolchain)
                     if proc.returncode:
@@ -365,7 +373,7 @@ def compile_repos(config, toolchains, targets, examples):
                     else:
                         successes.append(example_summary)
                 os.chdir("..")
-            
+
             # If there are any compilation failures for the example 'set' then the overall status is fail.
             if len(failures) > 0:
                 pass_status = False
@@ -378,14 +386,14 @@ def compile_repos(config, toolchains, targets, examples):
 
 
 def update_mbedos_version(config, tag, examples):
-    """ For each example repo identified in the config json object, update the version of 
+    """ For each example repo identified in the config json object, update the version of
         mbed-os to that specified by the supplied GitHub tag. This function assumes that each
         example repo has already been cloned.
-        
+
     Args:
-    config - the json object imported from the file. 
+    config - the json object imported from the file.
     tag - GitHub tag corresponding to a version of mbed-os to upgrade to.
-    
+
     """
     print("Updating mbed-os in examples to version %s\n" % tag)
     for example in config['examples']:
@@ -397,4 +405,3 @@ def update_mbedos_version(config, tag, examples):
             os.chdir(update_dir)
             subprocess.call(["mbed-cli", "update", tag, "--clean"])
             os.chdir("../..")
-

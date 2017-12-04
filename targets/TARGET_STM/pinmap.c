@@ -72,14 +72,17 @@ void pin_function(PinName pin, int data)
     GPIO_TypeDef *gpio = Set_GPIO_Clock(port);
 
     /*  Set default speed to high.
-     *  This is done before other settings on purpose:
      *  For most families there are dedicated registers so it is
      *  not so important, register can be set at any time.
-     *  But for families like F1, speed only applies to output. so we set
-     *  it here, and then if input is selected, this setting might be
-     *  overriden by the input one.
+     *  But for families like F1, speed only applies to output.
      */
+#if defined (TARGET_STM32F1)
+if (mode == STM_PIN_OUTPUT) {
+#endif
     LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_HIGH);
+#if defined (TARGET_STM32F1)
+}
+#endif
 
     switch (mode) {
         case STM_PIN_INPUT:

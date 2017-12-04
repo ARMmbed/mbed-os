@@ -20,7 +20,8 @@ from tools.utils import argparse_filestring_type, argparse_profile_filestring_ty
 from tools.utils import argparse_force_lowercase_type
 from tools.utils import argparse_force_uppercase_type
 from tools.utils import print_large_string
-from tools.options import extract_profile, list_profiles
+from tools.utils import NotSupportedException
+from tools.options import extract_profile, list_profiles, extract_mcus
 
 def setup_project(ide, target, program=None, source_dir=None, build=None, export_path=None):
     """Generate a name, if not provided, and find dependencies
@@ -66,7 +67,8 @@ def setup_project(ide, target, program=None, source_dir=None, build=None, export
 
 
 def export(target, ide, build=None, src=None, macros=None, project_id=None,
-           zip_proj=False, build_profile=None, export_path=None, silent=False):
+           zip_proj=False, build_profile=None, export_path=None, silent=False,
+           app_config=None):
     """Do an export of a project.
 
     Positional arguments:
@@ -90,7 +92,8 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
 
     return export_project(src, project_dir, target, ide, name=name,
                           macros=macros, libraries_paths=lib, zip_proj=zip_name,
-                          build_profile=build_profile, silent=silent)
+                          build_profile=build_profile, silent=silent,
+                          app_config=app_config)
 
 
 def main():
@@ -105,7 +108,7 @@ def main():
 
     parser.add_argument("-m", "--mcu",
                         metavar="MCU",
-                        type=argparse_force_uppercase_type(targetnames, "MCU"),
+                        type=str.upper,
                         help="generate project for the given MCU ({})".format(
                             ', '.join(targetnames)))
 
@@ -180,6 +183,9 @@ def main():
                         dest="update_packs",
                         action="store_true",
                         default=False)
+    parser.add_argument("--app-config",
+                        dest="app_config",
+                        default=None)
 
     options = parser.parse_args()
 
@@ -230,23 +236,24 @@ def main():
         if exists(EXPORT_DIR):
             rmtree(EXPORT_DIR)
 
-    for mcu in options.mcu:
-        zip_proj = not bool(options.source_dir)
+    zip_proj = not bool(options.source_dir)
 
     if (options.program is None) and (not options.source_dir):
         args_error(parser, "one of -p, -n, or --source is required")
-        # Export to selected toolchain
     exporter, toolchain_name = get_exporter_toolchain(options.ide)
-    if options.mcu not in exporter.TARGETS:
-        args_error(parser, "%s not supported by %s"%(options.mcu,options.ide))
+    mcu = extract_mcus(parser, options)[0]
+    if not exporter.is_target_supported(mcu):
+        args_error(parser, "%s not supported by %s"%(mcu,options.ide))
     profile = extract_profile(parser, options, toolchain_name, fallback="debug")
     if options.clean:
         rmtree(BUILD_DIR)
-    export(options.mcu, options.ide, build=options.build,
-           src=options.source_dir, macros=options.macros,
-           project_id=options.program, zip_proj=zip_proj,
-           build_profile=profile)
-
+    try:
+        export(mcu, options.ide, build=options.build,
+               src=options.source_dir, macros=options.macros,
+               project_id=options.program, zip_proj=zip_proj,
+               build_profile=profile, app_config=options.app_config)
+    except NotSupportedException as exc:
+        print "[ERROR] %s" % str(exc)
 
 if __name__ == "__main__":
     main()

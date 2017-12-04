@@ -1,15 +1,30 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: BSD-3-Clause
  *
- * SPDX-License-Identifier: LicenseRef-PBL
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the
+ *    names of its contributors may be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and limitations under the License.
- *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 /**
@@ -35,8 +50,9 @@ extern "C" {
 /*
  * Current protocol version of the Thread implementation.
  */
-#define THREAD_BEACON_PROTOCOL_ID       3
-#define THREAD_BEACON_PROTOCOL_VERSION  1
+#define THREAD_BEACON_PROTOCOL_ID       3   /**< Beacon Protocol ID */
+#define THREAD_BEACON_PROTOCOL_VERSION  1   /**< Beacon Protocol version */
+
 /**
  * Thread network configuration.
  *
@@ -63,8 +79,8 @@ typedef struct link_configuration {
     uint8_t extended_random_mac[8]; /**< Extended random mac which is generated during commissioning*/
     uint8_t channel_mask[8]; /**< channel page and mask only supported is page 0*/
     uint8_t channel_page;/**< channel page supported pages 0*/
-    char *PSKc_ptr; /**< Commissioning credentials @TODO think if we need the actual credentials*/
-    uint8_t PSKc_len;
+    char *PSKc_ptr; /**< Commissioning credentials.  TODO! think if we need the actual credentials*/
+    uint8_t PSKc_len; /**< Length of PSKc */
     uint16_t key_rotation; /**< Key rotation time in hours*/
     uint32_t key_sequence; /**< Key sequence counter */
     uint16_t panId; /**< network id*/
@@ -93,7 +109,7 @@ typedef struct link_configuration {
 typedef struct {
     uint8_t eui64[8];/**< eui64 of the device. This field is used to identify device when joining to network Mandatory*/
     uint8_t *PSKd_ptr;/**< Device credentials used to authenticate device to commissioner Mandatory  length 6-32*/
-    uint8_t PSKd_len;
+    uint8_t PSKd_len;/**< Length of PSKd_ptr*/
     char *provisioning_uri_ptr;/**< Provisioning url max 64 bytes*/
     char *vendor_name_ptr;/**< Vendor name optional max 32 bytes*/
     char *vendor_model_ptr;/**< Vendor model optional max 32 bytes*/
@@ -108,7 +124,7 @@ typedef struct {
  * Initialize Thread stack to node mode.
  *
  * If static configuration is given and new one is updated by commissioner
- * it will override current setup. it is save to always give this as
+ * it will override current setup. it is safe to always give this as
  * default configuration.
  *
  * \param interface_id Network interface ID.
@@ -154,7 +170,6 @@ typedef enum {
  * \return 0, Set OK.
  * \return <0 Set fail.
  */
-
 int thread_management_device_type_set(int8_t interface_id, thread_device_type_e device_type);
 
 /**
@@ -206,7 +221,7 @@ int thread_management_link_configuration_delete(int8_t interface_id);
  *
  * \param interface_id Network interface ID.
  *
- * \return Pointer to link configuration.
+ * \return Pointer to Device configuration.
  * \return NULL Failure.
  */
 device_configuration_s *thread_management_device_configuration_get(int8_t interface_id);
@@ -227,10 +242,10 @@ int thread_management_max_child_count(
     uint8_t maxChildCount);
 
 /**
- * Get Thread device link timeout.
+ * Set Thread device link timeout.
  *
  * \param interface_id Network interface ID.
- * \link_timeout New timeout value in seconds.
+ * \param link_timeout New timeout value in seconds.
  *
  * \return 0, Set OK.
  * \return <0 Set Fail.
@@ -238,10 +253,10 @@ int thread_management_max_child_count(
 int8_t thread_management_set_link_timeout(int8_t interface_id, uint32_t link_timeout);
 
 /**
- * Set link timeout for Thread device.
+ * Get link timeout from Thread device.
  *
  * \param interface_id Network interface ID.
- * \link_timeout[out] A pointer to the location for writing the timeout.
+ * \param link_timeout [out] A pointer to the location for writing the timeout.
  *
  * \return 0, Get OK
  * \return <0 Get Fail
@@ -263,7 +278,7 @@ int8_t thread_management_set_request_full_nwk_data(int8_t interface_id, bool ful
  * Get Thread request full network data.
  *
  * \param interface_id Network interface ID.
- * \link_timeout[out] A pointer to the location for writing the flag value.
+ * \param full_nwk_data [out] Request full network data
  *
  * \return 0, Get OK.
  * \return <0 Get Fail.
@@ -352,6 +367,37 @@ int thread_management_get_ml16_address(int8_t interface_id, uint8_t *address_ptr
  */
 int thread_management_get_commissioner_address(int8_t interface_id, uint8_t *address_ptr, uint16_t *port_ptr);
 
+/**
+ * Set device certificate.
+ *
+ * This function sets device certificate
+ *
+ * \param interface_id Network interface ID.
+ * \param device_certificate_ptr A pointer to the device certificate.
+ * \param device_certificate_len Length of device certificate.
+ * \param priv_key_ptr A private key
+ * \param priv_key_len Length of a private key
+ *
+ * \return 0, OK.
+ * \return <0 fail.
+ */
+int thread_management_device_certificate_set(int8_t interface_id, const unsigned char *device_certificate_ptr, uint16_t device_certificate_len, const unsigned char *priv_key_ptr, uint16_t priv_key_len);
+
+/**
+ * Set network certificate.
+ *
+ * This function sets network certificate
+ *
+ * \param interface_id Network interface ID.
+ * \param network_certificate_ptr A pointer array to the network certificate chain.
+ * \param network_certificate_len An array of lengths of network certificates in chain.
+ * \param priv_key_ptr A private key
+ * \param priv_key_len Length of a private key
+ *
+ * \return 0, OK.
+ * \return <0 fail.
+ */
+int thread_management_network_certificate_set(int8_t interface_id, const unsigned char *network_certificate_ptr, uint16_t network_certificate_len, const unsigned char *priv_key_ptr, uint16_t priv_key_len);
 
 #ifdef __cplusplus
 }

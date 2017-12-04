@@ -23,18 +23,20 @@
 
 #include "mbed.h"
 #include "rtos/rtos_idle.h"
+#include "mbed_assert.h"
 
-// rt_tid2ptcb is an internal function which we exposed to get TCB for thread id
-#undef NULL  //Workaround for conflicting macros in rt_TypeDef.h and stdio.h
-#include "rt_TypeDef.h"
+#define ALIGN_UP(pos, align) ((pos) % (align) ? (pos) +  ((align) - (pos) % (align)) : (pos))
+MBED_STATIC_ASSERT(ALIGN_UP(0, 8) == 0, "ALIGN_UP macro error");
+MBED_STATIC_ASSERT(ALIGN_UP(1, 8) == 8, "ALIGN_UP macro error");
 
-extern "C" P_TCB rt_tid2ptcb(osThreadId thread_id);
+#define ALIGN_DOWN(pos, align) ((pos) - ((pos) % (align)))
+MBED_STATIC_ASSERT(ALIGN_DOWN(7, 8) == 0, "ALIGN_DOWN macro error");
+MBED_STATIC_ASSERT(ALIGN_DOWN(8, 8) == 8, "ALIGN_DOWN macro error");
 
-
-static void (*terminate_hook)(osThreadId id) = 0;
-extern "C" void thread_terminate_hook(osThreadId id)
+static void (*terminate_hook)(osThreadId_t id) = 0;
+extern "C" void thread_terminate_hook(osThreadId_t id)
 {
-    if (terminate_hook != (void (*)(osThreadId))NULL) {
+    if (terminate_hook != (void (*)(osThreadId_t))NULL) {
         terminate_hook(id);
     }
 }
@@ -42,21 +44,27 @@ extern "C" void thread_terminate_hook(osThreadId id)
 namespace rtos {
 
 void Thread::constructor(osPriority priority,
-        uint32_t stack_size, unsigned char *stack_pointer) {
-    _tid = 0;
-    _finished = false;
-    _dynamic_stack = (stack_pointer == NULL);
+        uint32_t stack_size, unsigned char *stack_mem, const char *name) {
 
-#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    _thread_def.tpriority = priority;
-    _thread_def.stacksize = stack_size;
-    _thread_def.stack_pointer = (uint32_t*)stack_pointer;
-#endif
+    const uintptr_t unaligned_mem = reinterpret_cast<uintptr_t>(stack_mem);
+    const uintptr_t aligned_mem = ALIGN_UP(unaligned_mem, 8);
+    const uint32_t offset = aligned_mem - unaligned_mem;
+    const uint32_t aligned_size = ALIGN_DOWN(stack_size - offset, 8);
+
+    _tid = 0;
+    _dynamic_stack = (stack_mem == NULL);
+    _finished = false;
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    memset(&_attr, 0, sizeof(_attr));
+    _attr.priority = priority;
+    _attr.stack_size = aligned_size;
+    _attr.name = name ? name : "application_unnamed_thread";
+    _attr.stack_mem = reinterpret_cast<uint32_t*>(aligned_mem);
 }
 
 void Thread::constructor(Callback<void()> task,
-        osPriority priority, uint32_t stack_size, unsigned char *stack_pointer) {
-    constructor(priority, stack_size, stack_pointer);
+        osPriority priority, uint32_t stack_size, unsigned char *stack_mem, const char *name) {
+    constructor(priority, stack_size, stack_mem, name);
 
     switch (start(task)) {
         case osErrorResource:
@@ -80,24 +88,25 @@ osStatus Thread::start(Callback<void()> task) {
         return osErrorParameter;
     }
 
-#if defined(__MBED_CMSIS_RTOS_CA9) || defined(__MBED_CMSIS_RTOS_CM)
-    _thread_def.pthread = Thread::_thunk;
-    if (_thread_def.stack_pointer == NULL) {
-        _thread_def.stack_pointer = new uint32_t[_thread_def.stacksize/sizeof(uint32_t)];
-        MBED_ASSERT(_thread_def.stack_pointer != NULL);
+    if (_attr.stack_mem == NULL) {
+        _attr.stack_mem = new uint32_t[_attr.stack_size/sizeof(uint32_t)];
+        MBED_ASSERT(_attr.stack_mem != NULL);
     }
 
     //Fill the stack with a magic word for maximum usage checking
-    for (uint32_t i = 0; i < (_thread_def.stacksize / sizeof(uint32_t)); i++) {
-        _thread_def.stack_pointer[i] = 0xE25A2EA5;
+    for (uint32_t i = 0; i < (_attr.stack_size / sizeof(uint32_t)); i++) {
+        ((uint32_t *)_attr.stack_mem)[i] = 0xE25A2EA5;
     }
-#endif
+
+    memset(&_obj_mem, 0, sizeof(_obj_mem));
+    _attr.cb_size = sizeof(_obj_mem);
+    _attr.cb_mem = &_obj_mem;
     _task = task;
-    _tid = osThreadCreate(&_thread_def, this);
+    _tid = osThreadNew(Thread::_thunk, this, &_attr);
     if (_tid == NULL) {
         if (_dynamic_stack) {
-            delete[] (_thread_def.stack_pointer);
-            _thread_def.stack_pointer = (uint32_t*)NULL;
+            delete[] (uint32_t *)(_attr.stack_mem);
+            _attr.stack_mem = (uint32_t*)NULL;
         }
         _mutex.unlock();
         _join_sem.release();
@@ -109,19 +118,19 @@ osStatus Thread::start(Callback<void()> task) {
 }
 
 osStatus Thread::terminate() {
-    osStatus ret;
+    osStatus_t ret = osOK;
     _mutex.lock();
 
     // Set the Thread's tid to NULL and
     // release the semaphore before terminating
     // since this thread could be terminating itself
-    osThreadId local_id = _tid;
+    osThreadId_t local_id = _tid;
     _join_sem.release();
-    _tid = (osThreadId)NULL;
-    _finished = true;
-
-    ret = osThreadTerminate(local_id);
-
+    _tid = (osThreadId_t)NULL;
+    if (!_finished) {
+        _finished = true;
+        ret = osThreadTerminate(local_id);
+    }
     _mutex.unlock();
     return ret;
 }
@@ -129,7 +138,7 @@ osStatus Thread::terminate() {
 osStatus Thread::join() {
     int32_t ret = _join_sem.wait();
     if (ret < 0) {
-        return osErrorOS;
+        return osError;
     }
 
     // The semaphore has been released so this thread is being
@@ -145,7 +154,7 @@ osStatus Thread::join() {
 }
 
 osStatus Thread::set_priority(osPriority priority) {
-    osStatus ret;
+    osStatus_t ret;
     _mutex.lock();
 
     ret = osThreadSetPriority(_tid, priority);
@@ -155,7 +164,7 @@ osStatus Thread::set_priority(osPriority priority) {
 }
 
 osPriority Thread::get_priority() {
-    osPriority ret;
+    osPriority_t ret;
     _mutex.lock();
 
     ret = osThreadGetPriority(_tid);
@@ -164,176 +173,176 @@ osPriority Thread::get_priority() {
     return ret;
 }
 
-int32_t Thread::signal_set(int32_t signals) {
-    // osSignalSet is thread safe as long as the underlying
-    // thread does not get terminated or return from main
-    return osSignalSet(_tid, signals);
-}
-
-int32_t Thread::signal_clr(int32_t signals) {
-    // osSignalClear is thread safe as long as the underlying
-    // thread does not get terminated or return from main
-    return osSignalClear(_tid, signals);
+int32_t Thread::signal_set(int32_t flags) {
+    return osThreadFlagsSet(_tid, flags);
 }
 
 Thread::State Thread::get_state() {
-#if !defined(__MBED_CMSIS_RTOS_CA9) && !defined(__MBED_CMSIS_RTOS_CM)
-#ifdef CMSIS_OS_RTX
-    State status;
+    uint8_t state = osThreadTerminated;
+
     _mutex.lock();
 
     if (_tid != NULL) {
-        status = (State)_thread_def.tcb.state;
-    } else if (_finished) {
-        status = Deleted;
-    } else {
-        status = Inactive;
-    }
-
-    _mutex.unlock();
-    return status;
-#endif
+#if defined(MBED_OS_BACKEND_RTX5)
+        state = _obj_mem.state;
 #else
-    State status = Deleted;
-    _mutex.lock();
-
-    if (_tid != NULL) {
-        status = (State)osThreadGetState(_tid);
+        state = osThreadGetState(_tid);
+#endif
     }
 
     _mutex.unlock();
-    return status;
+
+    State user_state;
+
+    switch(state) {
+        case osThreadInactive:
+            user_state = Inactive;
+            break;
+        case osThreadReady:
+            user_state = Ready;
+            break;
+        case osThreadRunning:
+            user_state = Running;
+            break;
+#if defined(MBED_OS_BACKEND_RTX5)
+        case osRtxThreadWaitingDelay:
+            user_state = WaitingDelay;
+            break;
+        case osRtxThreadWaitingJoin:
+            user_state = WaitingJoin;
+            break;
+        case osRtxThreadWaitingThreadFlags:
+            user_state = WaitingThreadFlag;
+            break;
+        case osRtxThreadWaitingEventFlags:
+            user_state = WaitingEventFlag;
+            break;
+        case osRtxThreadWaitingMutex:
+            user_state = WaitingMutex;
+            break;
+        case osRtxThreadWaitingSemaphore:
+            user_state = WaitingSemaphore;
+            break;
+        case osRtxThreadWaitingMemoryPool:
+            user_state = WaitingMemoryPool;
+            break;
+        case osRtxThreadWaitingMessageGet:
+            user_state = WaitingMessageGet;
+            break;
+        case osRtxThreadWaitingMessagePut:
+            user_state = WaitingMessagePut;
+            break;
 #endif
+        case osThreadTerminated:
+        default:
+            user_state = Deleted;
+            break;
+    }
+
+    return user_state;
 }
 
 uint32_t Thread::stack_size() {
-#ifndef __MBED_CMSIS_RTOS_CA9
-#if defined(CMSIS_OS_RTX) && !defined(__MBED_CMSIS_RTOS_CM)
     uint32_t size = 0;
     _mutex.lock();
 
     if (_tid != NULL) {
-        size = _thread_def.tcb.priv_stack;
+        size = osThreadGetStackSize(_tid);
     }
 
     _mutex.unlock();
     return size;
-#else
-    uint32_t size = 0;
-    _mutex.lock();
-
-    if (_tid != NULL) {
-        P_TCB tcb = rt_tid2ptcb(_tid);
-        size = tcb->priv_stack;
-    }
-
-    _mutex.unlock();
-    return size;
-#endif
-#else
-    return 0;
-#endif
 }
 
 uint32_t Thread::free_stack() {
-#ifndef __MBED_CMSIS_RTOS_CA9
-#if defined(CMSIS_OS_RTX) && !defined(__MBED_CMSIS_RTOS_CM)
     uint32_t size = 0;
     _mutex.lock();
 
+#if defined(MBED_OS_BACKEND_RTX5)
     if (_tid != NULL) {
-        uint32_t bottom = (uint32_t)_thread_def.tcb.stack;
-        size = _thread_def.tcb.tsk_stack - bottom;
+        os_thread_t *thread = (os_thread_t *)_tid;
+        size = (uint32_t)thread->sp - (uint32_t)thread->stack_mem;
     }
+#endif
 
     _mutex.unlock();
     return size;
-#else
-    uint32_t size = 0;
-    _mutex.lock();
-
-    if (_tid != NULL) {
-        P_TCB tcb = rt_tid2ptcb(_tid);
-        uint32_t bottom = (uint32_t)tcb->stack;
-        size = tcb->tsk_stack - bottom;
-    }
-
-    _mutex.unlock();
-    return size;
-#endif
-#else
-    return 0;
-#endif
 }
 
 uint32_t Thread::used_stack() {
-#ifndef __MBED_CMSIS_RTOS_CA9
-#if defined(CMSIS_OS_RTX) && !defined(__MBED_CMSIS_RTOS_CM)
     uint32_t size = 0;
     _mutex.lock();
 
+#if defined(MBED_OS_BACKEND_RTX5)
     if (_tid != NULL) {
-        uint32_t top = (uint32_t)_thread_def.tcb.stack + _thread_def.tcb.priv_stack;
-        size = top - _thread_def.tcb.tsk_stack;
+        os_thread_t *thread = (os_thread_t *)_tid;
+        size = ((uint32_t)thread->stack_mem + thread->stack_size) - thread->sp;
     }
+#endif
 
     _mutex.unlock();
     return size;
-#else
-    uint32_t size = 0;
-    _mutex.lock();
-
-    if (_tid != NULL) {
-        P_TCB tcb = rt_tid2ptcb(_tid);
-        uint32_t top = (uint32_t)tcb->stack + tcb->priv_stack;
-        size =  top - tcb->tsk_stack;
-    }
-
-    _mutex.unlock();
-    return size;
-#endif
-#else
-    return 0;
-#endif
 }
 
 uint32_t Thread::max_stack() {
-#ifndef __MBED_CMSIS_RTOS_CA9
-#if defined(CMSIS_OS_RTX) && !defined(__MBED_CMSIS_RTOS_CM)
     uint32_t size = 0;
     _mutex.lock();
 
     if (_tid != NULL) {
+#if defined(MBED_OS_BACKEND_RTX5)
+        os_thread_t *thread = (os_thread_t *)_tid;
         uint32_t high_mark = 0;
-        while (_thread_def.tcb.stack[high_mark] == 0xE25A2EA5)
+        while (((uint32_t *)(thread->stack_mem))[high_mark] == 0xE25A2EA5)
             high_mark++;
-        size = _thread_def.tcb.priv_stack - (high_mark * 4);
+        size = thread->stack_size - (high_mark * sizeof(uint32_t));
+#else
+        size = osThreadGetStackSize(_tid) - osThreadGetStackSpace(_tid);
+#endif
     }
 
     _mutex.unlock();
     return size;
-#else
-    uint32_t size = 0;
-    _mutex.lock();
+}
 
-    if (_tid != NULL) {
-        P_TCB tcb = rt_tid2ptcb(_tid);
-        uint32_t high_mark = 0;
-        while (tcb->stack[high_mark] == 0xE25A2EA5)
-            high_mark++;
-        size = tcb->priv_stack - (high_mark * 4);
-    }
+const char *Thread::get_name() {
+    return _attr.name;
+}
 
-    _mutex.unlock();
-    return size;
-#endif
-#else
-    return 0;
-#endif
+int32_t Thread::signal_clr(int32_t flags) {
+    return osThreadFlagsClear(flags);
 }
 
 osEvent Thread::signal_wait(int32_t signals, uint32_t millisec) {
-    return osSignalWait(signals, millisec);
+    uint32_t res;
+    osEvent evt;
+    uint32_t options = osFlagsWaitAll;
+    if (signals == 0) {
+        options = osFlagsWaitAny;
+        signals = 0x7FFFFFFF;
+    }
+    res = osThreadFlagsWait(signals, options, millisec);
+    if (res & osFlagsError) {
+        switch (res) {
+            case osFlagsErrorISR:
+                evt.status = osErrorISR;
+                break;
+            case osFlagsErrorResource:
+                evt.status = osOK;
+                break;
+            case osFlagsErrorTimeout:
+                evt.status = (osStatus)osEventTimeout;
+                break;
+            case osFlagsErrorParameter:
+            default:
+                evt.status = (osStatus)osErrorValue;
+                break;
+        }
+    } else {
+        evt.status = (osStatus)osEventSignal;
+        evt.value.signals = res;
+    }
+
+    return evt;
 }
 
 osStatus Thread::wait(uint32_t millisec) {
@@ -352,22 +361,20 @@ void Thread::attach_idle_hook(void (*fptr)(void)) {
     rtos_attach_idle_hook(fptr);
 }
 
-void Thread::attach_terminate_hook(void (*fptr)(osThreadId id)) {
+void Thread::attach_terminate_hook(void (*fptr)(osThreadId_t id)) {
     terminate_hook = fptr;
 }
 
 Thread::~Thread() {
     // terminate is thread safe
     terminate();
-#ifdef __MBED_CMSIS_RTOS_CM
     if (_dynamic_stack) {
-        delete[] (_thread_def.stack_pointer);
-        _thread_def.stack_pointer = (uint32_t*)NULL;
+        delete[] (uint32_t*)(_attr.stack_mem);
+        _attr.stack_mem = (uint32_t*)NULL;
     }
-#endif
 }
 
-void Thread::_thunk(const void * thread_ptr)
+void Thread::_thunk(void * thread_ptr)
 {
     Thread *t = (Thread*)thread_ptr;
     t->_task();

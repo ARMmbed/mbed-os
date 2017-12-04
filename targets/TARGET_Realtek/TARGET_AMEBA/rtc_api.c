@@ -19,10 +19,15 @@
 #if DEVICE_RTC
 #include <time.h>
 #include "timer_api.h"      // software-RTC: use a g-timer for the tick of the RTC
+<<<<<<< HEAD
+=======
+#include "mbed_mktime.h"
+>>>>>>> upstream/master
 
 #define SW_RTC_TIMER_ID        TIMER4
 
 static gtimer_t sw_rtc;
+<<<<<<< HEAD
 static struct tm rtc_timeinfo;
 static int sw_rtc_en=0;
 
@@ -67,6 +72,14 @@ void sw_rtc_tick_handler(uint32_t id)
             }                                           // - day
         }                                               // - hour
     }                                     
+=======
+static int sw_rtc_en=0;
+static time_t rtc_time;
+
+void sw_rtc_tick_handler(uint32_t id)
+{
+    rtc_time++;
+>>>>>>> upstream/master
 }
 
 void rtc_init(void)
@@ -92,16 +105,21 @@ int rtc_isenabled(void)
 
 time_t rtc_read(void)
 {
+<<<<<<< HEAD
     time_t t;
     
     // Convert to timestamp
     t = mktime(&rtc_timeinfo);
 
     return t;
+=======
+    return rtc_time;
+>>>>>>> upstream/master
 }
 
 void rtc_write(time_t t)
 {
+<<<<<<< HEAD
     // Convert the time in to a tm
     struct tm *timeinfo = localtime(&t);
 
@@ -121,6 +139,12 @@ void rtc_write(time_t t)
     rtc_timeinfo.tm_yday = timeinfo->tm_yday;
     rtc_timeinfo.tm_mon = timeinfo->tm_mon;
     rtc_timeinfo.tm_year = timeinfo->tm_year;
+=======
+    gtimer_stop(&sw_rtc);
+
+    // Set the RTC
+    rtc_time = t;
+>>>>>>> upstream/master
 
     gtimer_start(&sw_rtc);    
 }

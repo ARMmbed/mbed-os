@@ -43,21 +43,22 @@
  *  // contains 96 blocks of size 512 bytes
  *  BlockDevice *bds[] = {&mem1, &mem2};
  *  ChainingBlockDevice chainmem(bds);
+ *  @endcode
  */
 class ChainingBlockDevice : public BlockDevice
 {
 public:
     /** Lifetime of the memory block device
      *
-     *  @param bds      Array of block devices to chain with sequential block addresses
-     *  @param count    Number of block devices to chain
+     *  @param bds         Array of block devices to chain with sequential block addresses
+     *  @param bd_count    Number of block devices to chain
      *  @note All block devices must have the same block size
      */
     ChainingBlockDevice(BlockDevice **bds, size_t bd_count);
 
     /** Lifetime of the memory block device
      *
-     *  @param bds      Array of block devices to chain with sequential block addresses
+     *  @param bds          Array of block devices to chain with sequential block addresses
      *  @note All block devices must have the same block size
      */
     template <size_t Size>
@@ -69,8 +70,6 @@ public:
 
     /** Lifetime of the memory block device
      *
-     *  @param bds      Array of block devices to chain with sequential block addresses
-     *  @note All block devices must have the same block size
      */
     virtual ~ChainingBlockDevice() {}
 

@@ -18,6 +18,7 @@
 #include "cmsis.h"
 #include "sysclk.h"
 #include "rtc.h"
+#include "mbed_mktime.h"
 
 static int rtc_inited = 0;
 
@@ -70,7 +71,7 @@ time_t rtc_read(void)
     timeinfo.tm_year = (ul_year - 1900);
 
     /* Convert to timestamp */
-    time_t t = mktime(&timeinfo);
+    time_t t = _rtc_mktime(&timeinfo);
     return t;
 }
 
@@ -80,17 +81,20 @@ void rtc_write(time_t t)
         /* Initialize the RTC is not yet initialized */
         rtc_init();
     }
-    struct tm *timeinfo = localtime(&t);
+    struct tm timeinfo;
+    if (_rtc_localtime(t, &timeinfo) == false) {
+        return;
+    }
     uint32_t ul_hour, ul_minute, ul_second;
     uint32_t ul_year, ul_month, ul_day, ul_week;
 
-    ul_second = timeinfo->tm_sec;
-    ul_minute = timeinfo->tm_min;
-    ul_hour = timeinfo->tm_hour;
-    ul_day = timeinfo->tm_mday;
-    ul_week = timeinfo->tm_wday;
-    ul_month = timeinfo->tm_mon;
-    ul_year = timeinfo->tm_year;
+    ul_second = timeinfo.tm_sec;
+    ul_minute = timeinfo.tm_min;
+    ul_hour = timeinfo.tm_hour;
+    ul_day = timeinfo.tm_mday;
+    ul_week = timeinfo.tm_wday;
+    ul_month = timeinfo.tm_mon;
+    ul_year = timeinfo.tm_year;
 
     /* Set the RTC  */
     rtc_set_time(RTC, ul_hour, ul_minute, ul_second);

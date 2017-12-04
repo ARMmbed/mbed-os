@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include "rtl8195a.h"
+<<<<<<< HEAD
 #include "system_8195a.h"
 #if   defined ( __CC_ARM )                                            /* ARM Compiler 4/5 */
 extern uint8_t Image$$RW_IRAM1$$ZI$$Base[];
@@ -49,12 +50,64 @@ extern uint8_t __image1_bss_start__[];
 extern uint8_t __image1_bss_end__[];
 extern uint8_t __image2_entry_func__[];
 extern uint8_t __image2_validate_code__[];
+=======
+
+#if defined(__CC_ARM) || \
+    (defined (__ARMCC_VERSION) && __ARMCC_VERSION >= 6010050)
+
+extern uint8_t Image$$RW_IRAM2$$ZI$$Base[];
+extern uint8_t Image$$RW_IRAM2$$ZI$$Limit[];
+extern uint8_t Image$$TCM_OVERLAY$$ZI$$Base[];
+extern uint8_t Image$$TCM_OVERLAY$$ZI$$Limit[];
+extern uint8_t Image$$RW_DRAM2$$ZI$$Base[];
+extern uint8_t Image$$RW_DRAM2$$ZI$$Limit[];
+#define __bss_sram_start__ Image$$RW_IRAM2$$ZI$$Base
+#define __bss_sram_end__   Image$$RW_IRAM2$$ZI$$Limit
+#define __bss_dtcm_start__ Image$$TCM_OVERLAY$$ZI$$Base
+#define __bss_dtcm_end__   Image$$TCM_OVERLAY$$ZI$$Limit
+#define __bss_dram_start__ Image$$RW_DRAM2$$ZI$$Base
+#define __bss_dram_end__   Image$$RW_DRAM2$$ZI$$Limit
+
+#elif defined (__ICCARM__)
+
+#pragma section=".bss.sram"
+#pragma section=".bss.dtcm"
+#pragma section=".bss.dram"
+
+uint8_t *__bss_sram_start__;
+uint8_t *__bss_sram_end__;
+uint8_t *__bss_dtcm_start__;
+uint8_t *__bss_dtcm_end__;
+uint8_t *__bss_dram_start__;
+uint8_t *__bss_dram_end__;
+
+void __iar_data_init_app(void)
+{
+    __bss_sram_start__ = (uint8_t *)__section_begin(".bss.sram");
+    __bss_sram_end__   = (uint8_t *)__section_end(".bss.sram");
+    __bss_dtcm_start__ = (uint8_t *)__section_begin(".bss.dtcm");
+    __bss_dtcm_end__   = (uint8_t *)__section_end(".bss.dtcm");
+    __bss_dram_start__ = (uint8_t *)__section_begin(".bss.dram");
+    __bss_dram_end__   = (uint8_t *)__section_end(".bss.dram");
+}
+
+#else
+
+extern uint8_t __bss_sram_start__[];
+extern uint8_t __bss_sram_end__[];
+extern uint8_t __bss_dtcm_start__[];
+extern uint8_t __bss_dtcm_end__[];
+extern uint8_t __bss_dram_start__[];
+extern uint8_t __bss_dram_end__[];
+
+>>>>>>> upstream/master
 #endif
 
 extern VECTOR_Func NewVectorTable[];
 extern void SystemCoreClockUpdate(void);
 extern void PLAT_Start(void);
 extern void PLAT_Main(void);
+<<<<<<< HEAD
 extern HAL_TIMER_OP HalTimerOp;
  
 IMAGE2_START_RAM_FUN_SECTION const RAM_START_FUNCTION gImage2EntryFun0 = {
@@ -66,6 +119,16 @@ IMAGE1_VALID_PATTEN_SECTION const uint8_t RAM_IMG1_VALID_PATTEN[] = {
 };
 
 IMAGE2_VALID_PATTEN_SECTION const uint8_t RAM_IMG2_VALID_PATTEN[20] = {
+=======
+
+IMAGE2_START_RAM_FUN_SECTION
+const RAM_START_FUNCTION gImage2EntryFun0 = {
+    PLAT_Start
+};
+
+IMAGE2_VALID_PATTEN_SECTION
+const uint8_t IMAGE2_SIGNATURE[20] = {
+>>>>>>> upstream/master
     'R', 'T', 'K', 'W', 'i', 'n', 0x0, 0xff,
     (FW_VERSION&0xff), ((FW_VERSION >> 8)&0xff),
     (FW_SUBVERSION&0xff), ((FW_SUBVERSION >> 8)&0xff),
@@ -93,7 +156,11 @@ void TRAP_NMIHandler(void)
 #endif
 }
 
+<<<<<<< HEAD
 #if defined ( __ICCARM__ )
+=======
+#if defined (__ICCARM__)
+>>>>>>> upstream/master
 void __TRAP_HardFaultHandler_Patch(uint32_t addr)
 {
     uint32_t cfsr;
@@ -118,9 +185,15 @@ void __TRAP_HardFaultHandler_Patch(uint32_t addr)
              * Otherwise it will keep hitting MemMange Fault on the same assembly code.
              *
              * To step to next command, we need parse the assembly code to check if
+<<<<<<< HEAD
 	     * it is 16-bit or 32-bit command.
              * Ref: ARM Architecture Reference Manual (ARMv7-A and ARMv7-R edition),
 	     * Chapter A6 - Thumb Instruction Set Encoding
+=======
+         * it is 16-bit or 32-bit command.
+             * Ref: ARM Architecture Reference Manual (ARMv7-A and ARMv7-R edition),
+         * Chapter A6 - Thumb Instruction Set Encoding
+>>>>>>> upstream/master
              *
              * However, the fault assembly code (Ex. LDR or ADR) is not actually executed,
              * So the register value is un-predictable.
@@ -154,6 +227,7 @@ void TRAP_HardFaultHandler_Patch(void)
 }
 #endif
 
+<<<<<<< HEAD
 // Override original Interrupt Vector Table
 INFRA_START_SECTION void TRAP_OverrideTable(uint32_t stackp)
 {
@@ -170,16 +244,52 @@ INFRA_START_SECTION void PLAT_Init(void)
     uint32_t val;
 
     //Set SPS lower voltage
+=======
+extern _LONG_CALL_ void * __rtl_memset_v1_00(void * m , int c , size_t n);
+// Image2 Entry Function
+void PLAT_Init(void)
+{
+    uint32_t val;
+
+    // Overwrite vector table
+    NewVectorTable[2] = (VECTOR_Func) TRAP_NMIHandler;
+#if defined ( __ICCARM__ )
+    NewVectorTable[3] = (VECTOR_Func) TRAP_HardFaultHandler_Patch;
+#endif
+
+    // Clear RAM BSS
+#if defined (__ICCARM__)
+    __iar_data_init_app();
+#endif
+    __rtl_memset_v1_00((void *)__bss_sram_start__, 0, __bss_sram_end__ - __bss_sram_start__);
+    __rtl_memset_v1_00((void *)__bss_dtcm_start__, 0, __bss_dtcm_end__ - __bss_dtcm_start__);
+    __rtl_memset_v1_00((void *)__bss_dram_start__, 0, __bss_dram_end__ - __bss_dram_start__);
+
+    extern HAL_TIMER_OP_EXT HalTimerOpExt;
+    __rtl_memset_v1_00((void *)&HalTimerOpExt, 0, sizeof(HalTimerOpExt));
+    __rtl_memset_v1_00((void *)&HalTimerOp, 0, sizeof(HalTimerOp));
+
+    HalTimerOpInit_Patch(&HalTimerOp);
+    SystemCoreClockUpdate();
+
+    // Set SPS lower voltage
+>>>>>>> upstream/master
     val = __RTK_CTRL_READ32(REG_SYS_EFUSE_SYSCFG0);
     val &= 0xf0ffffff;
     val |= 0x6000000;
     __RTK_CTRL_WRITE32(REG_SYS_EFUSE_SYSCFG0, val);
+<<<<<<< HEAD
 
     //xtal buffer driving current
+=======
+    
+    // xtal buffer driving current
+>>>>>>> upstream/master
     val = __RTK_CTRL_READ32(REG_SYS_XTAL_CTRL1);
     val &= ~(BIT_MASK_SYS_XTAL_DRV_RF1 << BIT_SHIFT_SYS_XTAL_DRV_RF1);
     val |= BIT_SYS_XTAL_DRV_RF1(1);
     __RTK_CTRL_WRITE32(REG_SYS_XTAL_CTRL1, val);
+<<<<<<< HEAD
 }
 
 //3 Image 2
@@ -244,6 +354,20 @@ INFRA_START_SECTION void PLAT_Start(void)
 #endif    
     /* GPIOA_7 does not pull high at power on. It causes SDIO Device
      * hardware to enable automatically and occupy GPIOA[7:0] */
+=======
+
+    // Initialize SPIC, then disable it for power saving.
+    if ((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT_SOC_FLASH_EN) != 0) {
+        SpicNVMCalLoadAll();
+        SpicReadIDRtl8195A();
+        SpicDisableRtl8195A();
+    }
+
+#ifdef CONFIG_TIMER_MODULE
+    Calibration32k();
+#endif
+
+>>>>>>> upstream/master
 #ifndef CONFIG_SDIO_DEVICE_EN
     SDIO_DEV_Disable();
 #endif
@@ -256,6 +380,7 @@ extern void SVC_Handler(void);
 extern void PendSV_Handler(void);
 extern void SysTick_Handler(void);
 
+<<<<<<< HEAD
 #if defined (__CC_ARM)
 __asm void ARM_PLAT_Main(void)
 {
@@ -268,10 +393,32 @@ __asm void ARM_PLAT_Main(void)
 
 extern void __iar_program_start( void );
 // The Main App entry point
+=======
+// The Main App entry point
+#if defined (__CC_ARM)
+__asm void ARM_PLAT_Main(void)
+{
+    IMPORT  SystemInit
+    IMPORT  __main
+    BL      SystemInit
+    BL  __main
+}
+#elif defined (__ICCARM__)
+extern void __iar_program_start(void);
+
+void IAR_PLAT_Main(void)
+{
+    SystemInit();
+    __iar_program_start();
+}
+#endif
+
+>>>>>>> upstream/master
 void PLAT_Main(void)
 {
     TRAP_Init((void *)SVC_Handler, (void *)PendSV_Handler, (void *)SysTick_Handler);
 
+<<<<<<< HEAD
 #if defined (__ICCARM__)
 	//IAR_PLAT_Main();
 	SystemInit();
@@ -289,4 +436,24 @@ void PLAT_Main(void)
 #endif
     // Never reached
     for(;;);
+=======
+#if defined (__CC_ARM)
+    ARM_PLAT_Main();
+#elif defined (__ICCARM__)
+    IAR_PLAT_Main();
+#else
+    __asm ("ldr  r0, =SystemInit   \n"
+           "blx  r0                \n"
+#if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+           "ldr  r0, =__main \n"
+#else
+           "ldr  r0, =_start       \n"
+#endif
+           "bx   r0                \n"
+    );
+#endif
+
+    // Never reached
+    for (;;);
+>>>>>>> upstream/master
 }

@@ -17,9 +17,12 @@
 #include "rtl8195a.h"
 #include "objects.h"
 #include "serial_api.h"
+<<<<<<< HEAD
 #ifndef CONFIG_MBED_ENABLED
 #include "serial_ex_api.h"
 #endif
+=======
+>>>>>>> upstream/master
 #if CONFIG_UART_EN
 
 #include "pinmap.h"
@@ -189,7 +192,12 @@ void serial_free(serial_t *obj)
 #endif
 }
 
+<<<<<<< HEAD
 void serial_baud(serial_t *obj, int baudrate) {
+=======
+void serial_baud(serial_t *obj, int baudrate)
+{
+>>>>>>> upstream/master
 #ifdef CONFIG_MBED_ENABLED
     if(obj->index == UART_3){
         return;
@@ -306,12 +314,17 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             pHalRuartAdapter->Interrupts |= RUART_IER_ERBI | RUART_IER_ELSI;
             serial_irq_en[uart_idx] |= SERIAL_RX_IRQ_EN;
             HalRuartSetIMRRtl8195a (pHalRuartAdapter);
+<<<<<<< HEAD
         }
         else {
+=======
+         } else {
+>>>>>>> upstream/master
             serial_irq_en[uart_idx] |= SERIAL_TX_IRQ_EN;
         }
         pHalRuartOp->HalRuartRegIrq(pHalRuartAdapter);
         pHalRuartOp->HalRuartIntEnable(pHalRuartAdapter);
+<<<<<<< HEAD
     } 
     else { // disable
         if (irq == RxIrq) {
@@ -319,6 +332,13 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
             serial_irq_en[uart_idx] &= ~SERIAL_RX_IRQ_EN;
         }
         else {
+=======
+    } else { // disable
+        if (irq == RxIrq) {
+            pHalRuartAdapter->Interrupts &= ~(RUART_IER_ERBI | RUART_IER_ELSI);
+            serial_irq_en[uart_idx] &= ~SERIAL_RX_IRQ_EN;
+        } else {
+>>>>>>> upstream/master
             pHalRuartAdapter->Interrupts &= ~RUART_IER_ETBEI;
             serial_irq_en[uart_idx] &= ~SERIAL_TX_IRQ_EN;
         }
@@ -382,8 +402,12 @@ int serial_readable(serial_t *obj)
 
     if ((HAL_RUART_READ32(uart_idx, RUART_LINE_STATUS_REG_OFF)) & RUART_LINE_STATUS_REG_DR) {
         return 1;
+<<<<<<< HEAD
     }
     else {
+=======
+    } else {
+>>>>>>> upstream/master
         return 0;
     }
 }
@@ -402,8 +426,12 @@ int serial_writable(serial_t *obj)
     if (HAL_RUART_READ32(uart_idx, RUART_LINE_STATUS_REG_OFF) & 
                         (RUART_LINE_STATUS_REG_THRE)) {
        return 1;
+<<<<<<< HEAD
     }
     else {
+=======
+    } else {
+>>>>>>> upstream/master
         return 0;
     }
 }
@@ -423,6 +451,7 @@ void serial_clear(serial_t *obj)
     HalRuartResetTRxFifo((VOID *)pHalRuartAdapter);
 }
 
+<<<<<<< HEAD
 #ifndef CONFIG_MBED_ENABLED
 void serial_clear_tx(serial_t *obj) 
 {
@@ -441,6 +470,8 @@ void serial_clear_rx(serial_t *obj)
 }
 #endif
 
+=======
+>>>>>>> upstream/master
 void serial_break_set(serial_t *obj) 
 {
 #ifdef CONFIG_MBED_ENABLED
@@ -483,6 +514,7 @@ void serial_pinout_tx(PinName tx)
 }
 
 
+<<<<<<< HEAD
 #ifndef CONFIG_MBED_ENABLED
 void serial_send_comp_handler(serial_t *obj, void *handler, uint32_t id) 
 {
@@ -869,4 +901,9 @@ void serial_rx_fifo_level(serial_t *obj, SerialFifoLevel FifoLv)
 #if DEVICE_SERIAL_ASYNCH 
 #endif
 #endif
+=======
+#if DEVICE_SERIAL_ASYNCH 
+#endif
+#endif  //#if CONFIG_UART_EN
+>>>>>>> upstream/master
 

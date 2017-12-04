@@ -19,21 +19,27 @@
 #include "platform/platform.h"
 #include "platform/FileLike.h"
 #include "platform/FileHandle.h"
+#include "platform/NonCopyable.h"
+#include <cstdio>
 #include <cstdarg>
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_Stream Stream class
+ * @{
+ */
 
-extern void mbed_set_unbuffered_stream(FILE *_file);
-extern int mbed_getc(FILE *_file);
-extern char* mbed_gets(char *s, int size, FILE *_file);
+extern void mbed_set_unbuffered_stream(std::FILE *_file);
+extern int mbed_getc(std::FILE *_file);
+extern char* mbed_gets(char *s, int size, std::FILE *_file);
 
 /** File stream
  *
- * @Note Synchronization level: Set by subclass
+ * @note Synchronization level: Set by subclass
  */
-class Stream : public FileLike {
+class Stream : public FileLike, private NonCopyable<Stream> {
 
 public:
     Stream(const char *name=NULL);
@@ -59,7 +65,7 @@ protected:
     virtual void rewind();
     virtual int isatty();
     virtual int sync();
-    virtual size_t size();
+    virtual off_t size();
 
     virtual int _putc(int c) = 0;
     virtual int _getc() = 0;
@@ -77,15 +83,11 @@ protected:
     virtual void unlock() {
         // Stub
     }
-
-    /* disallow copy constructor and assignment operators */
-private:
-    Stream(const Stream&);
-    Stream & operator = (const Stream&);
 };
+/**@}*/
 
+/**@}*/
 } // namespace mbed
 
 #endif
 
-/** @}*/

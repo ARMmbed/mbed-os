@@ -34,24 +34,39 @@
  * #include "mbed.h"
  * #include "HeapBlockDevice.h"
  *
- * HeapBlockDevice bd(2048, 512); // 2048 bytes with a block size of 512 bytes
- * uint8_t block[512] = "Hello World!\n";
+ * #define BLOCK_SIZE 512
+ *
+ * HeapBlockDevice bd(2048, BLOCK_SIZE); // 2048 bytes with a block size of 512 bytes
+ * uint8_t block[BLOCK_SIZE] = "Hello World!\n";
  *
  * int main() {
  *     bd.init();
- *     bd.program(block, 0);
- *     bd.read(block, 0);
+ *     bd.erase(0, BLOCK_SIZE);
+ *     bd.program(block, 0, BLOCK_SIZE);
+ *     bd.read(block, 0, BLOCK_SIZE);
  *     printf("%s", block);
  *     bd.deinit();
  * }
+ * @endcode
  */
 class HeapBlockDevice : public BlockDevice
 {
 public:
 
     /** Lifetime of the memory block device
+     *
+     * @param size      Size of the Block Device in bytes
+     * @param block     Block size in bytes. Minimum read, program, and erase sizes are
+     *                  configured to this value
      */
     HeapBlockDevice(bd_size_t size, bd_size_t block=512);
+    /** Lifetime of the memory block device
+     *
+     * @param size      Size of the Block Device in bytes
+     * @param read      Minimum read size required in bytes
+     * @param program   Minimum program size required in bytes
+     * @param erase     Minimum erase size required in bytes
+     */
     HeapBlockDevice(bd_size_t size, bd_size_t read, bd_size_t program, bd_size_t erase);
     virtual ~HeapBlockDevice();
 

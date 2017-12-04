@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    06-May-2016
+  * @version V1.7.1
+  * @date    14-April-2017
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -102,7 +102,7 @@ typedef enum
   */
 #define __HAL_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = 0U)
 
-#if (USE_RTOS == 1)
+#if (USE_RTOS == 1U)
   /* Reserved for future use */
   #error "USE_RTOS should be 0 in the current HAL release"
 #else
@@ -116,12 +116,12 @@ typedef enum
                                     {                                      \
                                        (__HANDLE__)->Lock = HAL_LOCKED;    \
                                     }                                      \
-                                  }while (0)
+                                  }while (0U)
 
   #define __HAL_UNLOCK(__HANDLE__)                                          \
                                   do{                                       \
                                       (__HANDLE__)->Lock = HAL_UNLOCKED;    \
-                                    }while (0)
+                                    }while (0U)
 #if defined (__CC_ARM)
 #pragma diag_suppress 3731
 #endif
@@ -129,9 +129,9 @@ static inline  void atomic_set_u32(volatile uint32_t *ptr, uint32_t mask)
 {
 	uint32_t newValue;
 	do {
-		newValue = (uint32_t)__LDREXW((volatile unsigned long *)ptr) | mask;
+		newValue = (uint32_t)__LDREXW(ptr) | mask;
 
-	} while (__STREXW(newValue,(volatile unsigned long*) ptr));
+	} while (__STREXW(newValue, ptr));
 }
 
 
@@ -139,14 +139,14 @@ static inline  void atomic_clr_u32(volatile uint32_t *ptr, uint32_t mask)
 {
 	uint32_t newValue;
 	do {
-		newValue = (uint32_t)__LDREXW((volatile unsigned long *)ptr) &~mask;
+		newValue = (uint32_t)__LDREXW(ptr) &~mask;
 
-	} while (__STREXW(newValue,(volatile unsigned long*) ptr));
+	} while (__STREXW(newValue, ptr));
 }
 
 #endif /* USE_RTOS */
 
-#if  defined ( __GNUC__ )
+#if  defined ( __GNUC__ ) && !defined ( __CC_ARM )
   #ifndef __weak
     #define __weak   __attribute__((weak))
   #endif /* __weak */
@@ -170,7 +170,7 @@ static inline  void atomic_clr_u32(volatile uint32_t *ptr, uint32_t mask)
   #endif /* __ALIGN_END */
   #ifndef __ALIGN_BEGIN      
     #if defined   (__CC_ARM)      /* ARM Compiler */
-      #define __ALIGN_BEGIN    __align(4)  
+      #define __ALIGN_BEGIN    __align(4)
     #elif defined (__ICCARM__)    /* IAR Compiler */
       #define __ALIGN_BEGIN 
     #endif /* __CC_ARM */

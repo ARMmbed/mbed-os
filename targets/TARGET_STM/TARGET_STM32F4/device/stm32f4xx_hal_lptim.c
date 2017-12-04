@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_lptim.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    06-May-2016
+  * @version V1.7.1
+  * @date    14-April-2017
   * @brief   LPTIM HAL module driver. 
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Low Power Timer (LPTIM) peripheral:
@@ -92,7 +92,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -132,7 +132,7 @@
   */
 
 #ifdef HAL_LPTIM_MODULE_ENABLED
-#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx)
+#if defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F413xx) || defined(STM32F423xx)
 /* Private types -------------------------------------------------------------*/
 /** @defgroup LPTIM_Private_Types LPTIM Private Types
   * @{
@@ -1683,7 +1683,7 @@ HAL_LPTIM_StateTypeDef HAL_LPTIM_GetState(LPTIM_HandleTypeDef *hlptim)
   * @}
   */
 
-#endif /* STM32F410Tx || STM32F410Cx || STM32F410Rx */ 
+#endif /* STM32F410Tx || STM32F410Cx || STM32F410Rx || STM32F413xx || STM32F423xx */ 
 #endif /* HAL_LPTIM_MODULE_ENABLED */
 /**
   * @}

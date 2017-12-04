@@ -10,16 +10,55 @@
             "value": false
         },
         "ip-ver-pref": {
-            "help": "On dual stack system the preferred stack: 4 for IPv4 and 6 for IPv6",
+            "help": "On dual-stack system the preferred stack: 4 for IPv4 and 6 for IPv6",
             "value": 4
         },
         "addr-timeout": {
-            "help": "On dual stack system how long to wait preferred stack's address in seconds",
+            "help": "On dual-stack system how long to additionally wait for other stack's address in seconds",
             "value": 5
+        },        
+        "addr-timeout-mode": {
+            "help": "Address timeout mode; true: wait both stack's addresses; false: wait for preferred stack's address",
+            "value": true
+        },        
+        "ethernet-enabled": {
+            "help": "Enable support for Ethernet interfaces",
+            "value": true
+        },
+        "debug-enabled": {
+            "help": "Enable debug trace support",
+            "value": false
+        },
+        "ppp-enabled": {
+            "help": "Enable support for PPP interfaces",
+            "value": false,
+            "macro_name": "NSAPI_PPP_AVAILABLE"
+        },
+        "ppp-ipv4-enabled": {
+            "help": "Enable support for ipv4 PPP interface",
+            "value": true,
+            "macro_name": "NSAPI_PPP_IPV4_AVAILABLE"
+        },
+        "ppp-ipv6-enabled": {
+            "help": "Enable support for ipv6 PPP interface",
+            "value": false,
+            "macro_name": "NSAPI_PPP_IPV6_AVAILABLE"
+        },
+        "use-mbed-trace": {
+            "help": "Use mbed trace for debug, rather than printf",
+            "value": false
+        },
+        "enable-ppp-trace": {
+            "help": "Enable trace support for PPP interfaces",
+            "value": false
         },
         "socket-max": {
             "help": "Maximum number of open TCPServer, TCPSocket and UDPSocket instances allowed, including one used internally for DNS.  Each requires 236 bytes of pre-allocated RAM",
             "value": 4
+        },
+        "tcp-enabled": {
+            "help": "Enable TCP",
+            "value": true
         },
         "tcp-server-max": {
             "help": "Maximum number of open TCPServer instances allowed.  Each requires 72 bytes of pre-allocated RAM",
@@ -32,6 +71,35 @@
         "udp-socket-max": {
             "help": "Maximum number of open UDPSocket instances allowed, including one used internally for DNS.  Each requires 84 bytes of pre-allocated RAM",
             "value": 4
+        },
+        "pbuf-pool-size": {
+            "help": "Number of pbufs in pool - usually used for received packets, so this determines how much data can be buffered between reception and the application reading. If a driver uses PBUF_RAM for reception, less pool may be needed. Current default (used if null here) is set to 5 in lwipopts.h, unless overridden by target Ethernet drivers.",
+            "value": null
+        },
+        "pbuf-pool-bufsize": {
+            "help": "Size of pbufs in pool. If set to null, lwIP will base the size on the TCP MSS, which is 536 unless overridden by the target",
+            "value": null
+        },
+        "mem-size": {
+            "help": "Size of heap (bytes) - used for outgoing packets, and also used by some drivers for reception. Current default (used if null here) is set to 1600 in opt.h, unless overridden by target Ethernet drivers.",
+            "value": null
+        },
+        "tcpip-thread-stacksize": {
+            "help": "Stack size for lwip TCPIP thread",
+            "value": 1200
+        },
+        "default-thread-stacksize": {
+            "help": "Stack size for lwip system threads",
+            "value": 512
+        },
+        "ppp-thread-stacksize": {
+            "help": "Thread stack size for PPP",
+            "value": 768
+        }
+    },
+    "target_overrides": {
+        "REALTEK_RTL8195AM": {
+            "tcpip-thread-stacksize": 1600
         }
     }
 }

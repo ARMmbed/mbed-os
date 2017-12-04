@@ -1,17 +1,16 @@
 /*
- * Copyright (c) 2015 ARM Limited. All Rights Reserved.
- *
+ * Copyright (c) 2015-2017, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
@@ -38,6 +37,8 @@ bool test_coap_service_unregister_uri();
 
 bool test_coap_service_request_send();
 
+bool test_coap_service_request_delete();
+
 bool test_coap_service_response_send();
 
 bool test_coap_callbacks();
@@ -45,6 +46,18 @@ bool test_coap_callbacks();
 bool test_eventOS_callbacks();
 
 bool test_conn_handler_callbacks();
+
+bool test_certificate_set();
+
+bool test_handshake_timeout_set();
+
+bool test_coap_duplcate_msg_buffer_set();
+
+bool test_coap_service_get_internal_timer_ticks();
+
+bool test_coap_service_if_find_by_socket();
+
+bool test_coap_service_handshake_limit_set();
 
 
 #ifdef __cplusplus

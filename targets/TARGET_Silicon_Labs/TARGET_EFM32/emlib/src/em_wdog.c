@@ -2,9 +2,9 @@
  * @file em_wdog.c
  * @brief Watchdog (WDOG) peripheral API
  *   devices.
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -75,16 +75,13 @@
 void WDOGn_Enable(WDOG_TypeDef *wdog, bool enable)
 {
   /* SYNCBUSY may stall when locked. */
-  if (wdog->CTRL & WDOG_CTRL_LOCK)
-  {
+  if (wdog->CTRL & WDOG_CTRL_LOCK) {
     return;
   }
 
-  if (!enable)
-  {
+  if (!enable) {
     /* If the user intends to disable and the WDOG is enabled */
-    if (BUS_RegBitRead(&wdog->CTRL, _WDOG_CTRL_EN_SHIFT))
-    {
+    if (BUS_RegBitRead(&wdog->CTRL, _WDOG_CTRL_EN_SHIFT)) {
       /* Wait for any pending previous write operation to have been completed in */
       /* low frequency domain */
       while (wdog->SYNCBUSY & WDOG_SYNCBUSY_CTRL)
@@ -92,13 +89,10 @@ void WDOGn_Enable(WDOG_TypeDef *wdog, bool enable)
 
       BUS_RegBitWrite(&wdog->CTRL, _WDOG_CTRL_EN_SHIFT, 0);
     }
-  }
-  else
-  {
+  } else {
     BUS_RegBitWrite(&wdog->CTRL, _WDOG_CTRL_EN_SHIFT, 1);
   }
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -108,15 +102,14 @@ void WDOGn_Enable(WDOG_TypeDef *wdog, bool enable)
  *   When the watchdog is activated, it must be fed (ie clearing the counter)
  *   before it reaches the defined timeout period. Otherwise, the watchdog
  *   will generate a reset.
-  *
+ *
  * @param[in] wdog
  *   Pointer to WDOG peripheral register block.
  ******************************************************************************/
 void WDOGn_Feed(WDOG_TypeDef *wdog)
 {
   /* The watchdog should not be fed while it is disabled */
-  if (!(wdog->CTRL & WDOG_CTRL_EN))
-  {
+  if (!(wdog->CTRL & WDOG_CTRL_EN)) {
     return;
   }
 
@@ -124,8 +117,7 @@ void WDOGn_Feed(WDOG_TypeDef *wdog)
   /* is no point in waiting for it to complete before clearing over again. */
   /* This avoids stalling the core in the typical use case where some idle loop */
   /* keeps clearing the watchdog. */
-  if (wdog->SYNCBUSY & WDOG_SYNCBUSY_CMD)
-  {
+  if (wdog->SYNCBUSY & WDOG_SYNCBUSY_CMD) {
     return;
   }
   /* Before writing to the WDOG_CMD register we also need to make sure that
@@ -135,7 +127,6 @@ void WDOGn_Feed(WDOG_TypeDef *wdog)
 
   wdog->CMD = WDOG_CMD_CLEAR;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -159,53 +150,43 @@ void WDOGn_Init(WDOG_TypeDef *wdog, const WDOG_Init_TypeDef *init)
 {
   uint32_t setting;
 
-  if (init->enable)
-  {
+  if (init->enable) {
     setting = WDOG_CTRL_EN;
-  }
-  else
-  {
+  } else {
     setting = 0;
   }
 
-  if (init->debugRun)
-  {
+  if (init->debugRun) {
     setting |= WDOG_CTRL_DEBUGRUN;
   }
 
-  if (init->em2Run)
-  {
+  if (init->em2Run) {
     setting |= WDOG_CTRL_EM2RUN;
   }
 
-  if (init->em3Run)
-  {
+  if (init->em3Run) {
     setting |= WDOG_CTRL_EM3RUN;
   }
 
-  if (init->em4Block)
-  {
+  if (init->em4Block) {
     setting |= WDOG_CTRL_EM4BLOCK;
   }
-  if (init->swoscBlock)
-  {
+  if (init->swoscBlock) {
     setting |= WDOG_CTRL_SWOSCBLOCK;
   }
-  if (init->lock)
-  {
+  if (init->lock) {
     setting |= WDOG_CTRL_LOCK;
   }
-#if defined( _WDOG_CTRL_WDOGRSTDIS_MASK )
-  if (init->resetDisable)
-  {
+#if defined(_WDOG_CTRL_WDOGRSTDIS_MASK)
+  if (init->resetDisable) {
     setting |= WDOG_CTRL_WDOGRSTDIS;
   }
 #endif
   setting |= ((uint32_t)(init->clkSel)   << _WDOG_CTRL_CLKSEL_SHIFT)
-#if defined( _WDOG_CTRL_WARNSEL_MASK )
+#if defined(_WDOG_CTRL_WARNSEL_MASK)
              | ((uint32_t)(init->warnSel) << _WDOG_CTRL_WARNSEL_SHIFT)
 #endif
-#if defined( _WDOG_CTRL_WINSEL_MASK )
+#if defined(_WDOG_CTRL_WINSEL_MASK)
              | ((uint32_t)(init->winSel) << _WDOG_CTRL_WINSEL_SHIFT)
 #endif
              | ((uint32_t)(init->perSel) << _WDOG_CTRL_PERSEL_SHIFT);
@@ -217,7 +198,6 @@ void WDOGn_Init(WDOG_TypeDef *wdog, const WDOG_Init_TypeDef *init)
 
   wdog->CTRL = setting;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -250,7 +230,6 @@ void WDOGn_Lock(WDOG_TypeDef *wdog)
   /* Disable writing to the control register */
   BUS_RegBitWrite(&wdog->CTRL, _WDOG_CTRL_LOCK_SHIFT, 1);
 }
-
 
 /** @} (end addtogroup WDOG) */
 /** @} (end addtogroup emlib) */

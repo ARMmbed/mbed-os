@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f1xx_ll_gpio.c
   * @author  MCD Application Team
-  * @version $VERSION$
-  * @date    $DATE$
+  * @version V1.1.0
+  * @date    14-April-2017
   * @brief   GPIO LL module driver.
   ******************************************************************************
   * @attention

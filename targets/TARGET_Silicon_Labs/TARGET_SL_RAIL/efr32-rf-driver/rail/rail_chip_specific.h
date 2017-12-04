@@ -13,18 +13,36 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "em_gpio.h"
+
+#include "rail_types.h"
+
+// -----------------------------------------------------------------------------
+// Multiprotocol
+// -----------------------------------------------------------------------------
+/**
+ * @addtogroup Multiprotocol_EFR32 EFR32
+ * @{
+ * @brief EFR32 Specific multiprotocol support defines
+ * @ingroup Multiprotocol
+ */
+
+/**
+ * Placeholder for a chip specific RAIL handle. Using NULL as a RAIL handle is
+ * frowned upon, so we use another value that can't be de-referenced.
+ */
+#define RAIL_EFR32_HANDLE ((RAIL_Handle_t)0xFFFFFFFFUL)
+
+/** @} */ // end of group Multiprotocol_EFR32
+
 // -----------------------------------------------------------------------------
 // Calibration
 // -----------------------------------------------------------------------------
 /**
- * @addtogroup Calibration
- * @{
- */
-
-/**
- * @addtogroup EFR32
+ * @addtogroup Calibration_EFR32 EFR32
  * @{
  * @brief EFR32 Specific Calibrations
+ * @ingroup Calibration
  *
  * The EFR32 has two supported calibrations. There is the Image Rejection (IR)
  * calibration and a temperature dependent calibration. The IR calibration is
@@ -38,10 +56,30 @@
  * calibration exceeds 70C while sitting in receive. RAIL will run VCO
  * calibration automatically upon entering receive state so the application can
  * omit this calibration if the stack will re-enter receive with enough
- * frequency to not hit this temperature delta.  If the application does not
+ * frequency to not hit this temperature delta. If the application does not
  * calibrate for temperature, it's possible to miss receive packets due to
  * drift in the carrier frequency.
  */
+
+/** EFR32 specific temperature calibration bit */
+#define RAIL_CAL_TEMP_VCO         (0x00000001)
+/** EFR32 specific IR calibration bit */
+#define RAIL_CAL_ONETIME_IRCAL    (0x00010000)
+
+/** Mask to run temperature dependent calibrations */
+#define RAIL_CAL_TEMP             (RAIL_CAL_TEMP_VCO)
+/** Mask to run one time calibrations */
+#define RAIL_CAL_ONETIME          (RAIL_CAL_ONETIME_IRCAL)
+/** Mask to run optional performance calibrations */
+#define RAIL_CAL_PERF             (0)
+/** Mask for calibrations that require the radio to be off */
+#define RAIL_CAL_OFFLINE          (RAIL_CAL_ONETIME_IRCAL)
+/** Mask to run all possible calibrations for this chip */
+#define RAIL_CAL_ALL              (RAIL_CAL_TEMP | RAIL_CAL_ONETIME)
+/** Mask to run all pending calibrations */
+#define RAIL_CAL_ALL_PENDING      (0x00000000)
+/** Invalid calibration value */
+#define RAIL_CAL_INVALID_VALUE    (0xFFFFFFFF)
 
 /**
  * @struct RAIL_CalValues_t
@@ -56,40 +94,221 @@ typedef struct RAIL_CalValues {
   uint32_t imageRejection; /**< Image Rejection (IR) calibration value */
 } RAIL_CalValues_t;
 
-/** Invalid calibration value */
-#define RAIL_CAL_INVALID_VALUE  (0xFFFFFFFF)
-
 /**
  * A define to set all RAIL_CalValues_t values to uninitialized.
  *
  * This define can be used when you have no data to pass to the calibration
  * routines but wish to compute and save all possible calibrations.
  */
-#define RAIL_CALVALUES_UNINIT {                         \
-  RAIL_CAL_INVALID_VALUE, \
+#define RAIL_CALVALUES_UNINIT (RAIL_CalValues_t){ \
+    RAIL_CAL_INVALID_VALUE,                       \
 }
 
-/** EFR32 specific temperature calibration bit */
-#define RAIL_CAL_TEMP_VCO         (0x00000001)
-/** EFR32 specific IR calibration bit */
-#define RAIL_CAL_ONETIME_IRCAL    (0x00010000)
+/** @} */ // end of group Calibration_EFR32
 
-/** Mask to run temperature dependent calibrations */
-#define RAIL_CAL_TEMP         (RAIL_CAL_TEMP_VCO)
-/** Mask to run one time calibrations */
-#define RAIL_CAL_ONETIME      (RAIL_CAL_ONETIME_IRCAL)
-/** Mask to run optional performance calibrations */
-#define RAIL_CAL_PERF         ()
-/** Mask for calibrations that require the radio to be off */
-#define RAIL_CAL_OFFLINE      (RAIL_CAL_ONETIME_IRCAL)
-/** Mask to run all possible calibrations for this chip */
-#define RAIL_CAL_ALL          (RAIL_CAL_TEMP | RAIL_CAL_ONETIME)
-/** Mask to run all pending calibrations */
-#define RAIL_CAL_ALL_PENDING  (0x00000000)
+// -----------------------------------------------------------------------------
+// Diagnostic
+// -----------------------------------------------------------------------------
+/**
+ * @addtogroup Diagnostic_EFR32 EFR32
+ * @{
+ * @brief Types specific to the EFR32 for the diagnostic routines.
+ * @ingroup Diagnostic
+ */
 
 /**
- * @}
- * @}
+ * @typedef RAIL_FrequencyOffset_t
+ * @brief Chip-specific type that represents the number of Frequency Offset
+ *   units. It is used with \ref RAIL_GetRxFreqOffset() and
+ *   \ref RAIL_SetFreqOffset().
+ *
+ * The units on this chip are radio synthesizer resolution steps (synthTicks).
+ * On EFR32 (at least for now), the frequency offset is limited to 15 bits
+ * (size of SYNTH_CALOFFSET). A value of \ref RAIL_FREQUENCY_OFFSET_INVALID
+ * means that this value is invalid.
  */
+typedef int16_t RAIL_FrequencyOffset_t;
+
+/**
+ * Specifies an invalid frequency offset value. This will be returned if you
+ * call \ref RAIL_GetRxFreqOffset() at an invalid time.
+ */
+#define RAIL_FREQUENCY_OFFSET_INVALID ((int16_t)0xFFFF)
+
+/** @} */ // end of group Diagnostic_EFR32
+
+// -----------------------------------------------------------------------------
+// Radio Configuration
+// -----------------------------------------------------------------------------
+/**
+ * @addtogroup Radio_Configuration_EFR32 EFR32
+ * @{
+ * @ingroup Radio_Configuration
+ * @brief Types specific to the EFR32 for radio configuration.
+ */
+
+/**
+ * @brief Radio Configuration structure
+ *
+ * The radio configuration is generated in order to properly configure the
+ * radio for operation on a protocol. These configurations should not be
+ * created or edited by hand.
+ */
+typedef const uint32_t *RAIL_RadioConfig_t;
+
+/** @} */ // end of group Radio_Configuration_EFR32
+
+// -----------------------------------------------------------------------------
+// Transmit
+// -----------------------------------------------------------------------------
+/**
+ * @addtogroup PA_EFR32 EFR32
+ * @{
+ * @ingroup PA
+ * @brief Types specific to the EFR32 for dealing with the on chip PAs.
+ */
+
+/**
+ * Raw power levels used directly by the RAIL_Get/SetTxPower API where a higher
+ * numerical value corresponds to a higher output power. These are referred to
+ * as 'raw (values/units)'. On the EFR32 they can range from one of \ref
+ * RAIL_TX_POWER_LEVEL_LP_MIN, \ref RAIL_TX_POWER_LEVEL_HP_MIN, or
+ * \ref RAIL_TX_POWER_LEVEL_SUBGIG_MIN to one of \ref
+ * RAIL_TX_POWER_LEVEL_LP_MAX, \ref RAIL_TX_POWER_LEVEL_HP_MAX, and \ref
+ * RAIL_TX_POWER_LEVEL_SUBGIG_MAX, respectively, depending on the selected \ref
+ * RAIL_TxPowerMode_t.
+ */
+typedef uint8_t RAIL_TxPowerLevel_t;
+
+/**
+ * The maximum valid value for the \ref RAIL_TxPowerLevel_t when in \ref
+ * RAIL_TX_POWER_MODE_2P4_LP mode.
+ */
+#define RAIL_TX_POWER_LEVEL_LP_MAX     7
+/**
+ * The maximum valid value for the \ref RAIL_TxPowerLevel_t when in \ref
+ * RAIL_TX_POWER_MODE_2P4_HP mode.
+ */
+#define RAIL_TX_POWER_LEVEL_HP_MAX     252
+/**
+ * The maximum valid value for the \ref RAIL_TxPowerLevel_t when in \ref
+ * RAIL_TX_POWER_MODE_SUBGIG mode.
+ */
+#define RAIL_TX_POWER_LEVEL_SUBGIG_MAX 248
+/**
+ * The minimum valid value for the \ref RAIL_TxPowerLevel_t when in \ref
+ * RAIL_TX_POWER_MODE_2P4_LP mode.
+ */
+#define RAIL_TX_POWER_LEVEL_HP_MIN     0
+/**
+ * The minimum valid value for the \ref RAIL_TxPowerLevel_t when in \ref
+ * RAIL_TX_POWER_MODE_2P4_HP mode.
+ */
+#define RAIL_TX_POWER_LEVEL_LP_MIN     1
+/**
+ * The minimum valid value for the \ref RAIL_TxPowerLevel_t when in \ref
+ * RAIL_TX_POWER_MODE_SUBGIG mode.
+ */
+#define RAIL_TX_POWER_LEVEL_SUBGIG_MIN 0
+/**
+ * Invalid RAIL_TxPowerLevel_t value returned when there is an error
+ * with RAIL_GetTxPower
+ */
+#define RAIL_TX_POWER_LEVEL_INVALID 255
+
+/**
+ * @enum RAIL_TxPowerMode_t
+ * @brief Enumeration of the EFR32 power modes.
+ *
+ * The power modes on the EFR32 correspond to the different on-chip PA's that
+ * are available. For more information about the power and performance
+ * characteristics of a given amplifier, please consult the data sheet.
+ */
+RAIL_ENUM(RAIL_TxPowerMode_t) {
+  /** High power amplifier, up to 20dBm, raw values: 0-252 */
+  RAIL_TX_POWER_MODE_2P4_HP,
+  /** Low power amplifier, up to 0dBm, raw values: 1-7 */
+  RAIL_TX_POWER_MODE_2P4_LP,
+  /** SubGig amplifier, up to 20dBm, raw values: 0-248 */
+  RAIL_TX_POWER_MODE_SUBGIG,
+  /** Invalid amplifier Selection */
+  RAIL_TX_POWER_MODE_NONE
+};
+
+/**
+ * @struct RAIL_TxPowerConfig_t
+ *
+ * @brief Structure containing values used to initialize the power amplifiers.
+ */
+typedef struct RAIL_TxPowerConfig {
+  /** Tx power mode */
+  RAIL_TxPowerMode_t mode;
+  /** Power amplifier supply voltage in mV, generally:
+   *  DCDC supply ~ 1800mV (1.8V)
+   *  Battery supply ~ 3300mV (3.3V)
+   */
+  uint16_t voltage;
+  /** The amount of time to spend ramping for Tx in uS. */
+  uint16_t rampTime;
+} RAIL_TxPowerConfig_t;
+
+/** @} */ // end of group PA_EFR32
+
+// -----------------------------------------------------------------------------
+// PTI
+// -----------------------------------------------------------------------------
+/**
+ * @addtogroup PTI_EFR32 EFR32
+ * @{
+ * @brief EFR32 PTI functionality
+ * @ingroup PTI
+ *
+ * These enums and structures are used with RAIL PTI API. EFR32 supports
+ * SPI and UART PTI, and is configurable in terms of baud rates and pin PTI
+ * pin locations.
+ */
+
+/** Channel type enumeration. */
+RAIL_ENUM(RAIL_PtiMode_t) {
+  /** Turn PTI off entirely */
+  RAIL_PTI_MODE_DISABLED,
+  /** SPI mode. */
+  RAIL_PTI_MODE_SPI,
+  /** UART mode. */
+  RAIL_PTI_MODE_UART,
+  /** 9bit UART mode. */
+  RAIL_PTI_MODE_UART_ONEWIRE
+};
+
+/**
+ * @struct RAIL_PtiConfig_t
+ * @brief Configuration for PTI.
+ */
+typedef struct RAIL_PtiConfig {
+  /** Packet Trace mode (UART or SPI) */
+  RAIL_PtiMode_t mode;
+  /** Output baudrate for PTI in Hz */
+  uint32_t baud;
+  /** Data output (DOUT) location for pin/port */
+  uint8_t doutLoc;
+  /** Data output (DOUT) GPIO port */
+  GPIO_Port_TypeDef doutPort;
+  /** Data output (DOUT) GPIO pin */
+  uint8_t doutPin;
+  /** Data clock (DCLK) location for pin/port. Only used in SPI mode */
+  uint8_t dclkLoc;
+  /** Data clock (DCLK) GPIO port. Only used in SPI mode */
+  GPIO_Port_TypeDef dclkPort;
+  /** Data clock (DCLK) GPIO pin. Only used in SPI mode */
+  uint8_t dclkPin;
+  /** Data frame (DFRAME) location for pin/port. Only used for  */
+  uint8_t dframeLoc;
+  /** Data frame (DFRAME) GPIO port */
+  GPIO_Port_TypeDef dframePort;
+  /** Data frame (DFRAME) GPIO pin */
+  uint8_t dframePin;
+} RAIL_PtiConfig_t;
+
+/** @} */ // end of group PTI_EFR32
 
 #endif

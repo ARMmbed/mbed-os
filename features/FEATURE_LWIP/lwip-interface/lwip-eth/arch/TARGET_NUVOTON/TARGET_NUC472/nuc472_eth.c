@@ -207,6 +207,9 @@ static void __eth_clk_pin_init()
     /* Init I/O Multi-function                                                                                 */
     /*---------------------------------------------------------------------------------------------------------*/
     // Configure RMII pins
+    SYS->GPC_MFPL &= ~( SYS_GPC_MFPL_PC0MFP_Msk | SYS_GPC_MFPL_PC1MFP_Msk |
+                    SYS_GPC_MFPL_PC2MFP_Msk | SYS_GPC_MFPL_PC3MFP_Msk |
+                    SYS_GPC_MFPL_PC4MFP_Msk | SYS_GPC_MFPL_PC6MFP_Msk | SYS_GPC_MFPL_PC7MFP_Msk ); 
     SYS->GPC_MFPL |= SYS_GPC_MFPL_PC0MFP_EMAC_REFCLK |
                     SYS_GPC_MFPL_PC1MFP_EMAC_MII_RXERR |
                     SYS_GPC_MFPL_PC2MFP_EMAC_MII_RXDV |
@@ -215,12 +218,13 @@ static void __eth_clk_pin_init()
                     SYS_GPC_MFPL_PC6MFP_EMAC_MII_TXD0 |
                     SYS_GPC_MFPL_PC7MFP_EMAC_MII_TXD1;
 
-
+    SYS->GPC_MFPH &= ~SYS_GPC_MFPH_PC8MFP_Msk;
     SYS->GPC_MFPH |= SYS_GPC_MFPH_PC8MFP_EMAC_MII_TXEN;
     // Enable high slew rate on all RMII pins
     PC->SLEWCTL |= 0x1DF;
 
     // Configure MDC, MDIO at PB14 & PB15
+    SYS->GPB_MFPH &= ~(SYS_GPB_MFPH_PB14MFP_Msk | SYS_GPB_MFPH_PB15MFP_Msk);
     SYS->GPB_MFPH |= SYS_GPB_MFPH_PB14MFP_EMAC_MII_MDC | SYS_GPB_MFPH_PB15MFP_EMAC_MII_MDIO;
 
 }

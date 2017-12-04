@@ -137,38 +137,30 @@ timestamp_t lp_ticker_read()
         while (minor_clks == 0 || minor_clks == TMR2_CLK_PER_TMR2_INT);
 
         // Add power-down compensation
-        return ((uint64_t) major_minor_clks * US_PER_SEC / TMR3_CLK_PER_SEC / US_PER_TICK);
+        return ((uint64_t) major_minor_clks * US_PER_SEC / TMR2_CLK_PER_SEC / US_PER_TICK);
     }
     while (0);
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t now = lp_ticker_read();
+    uint32_t delta = timestamp - lp_ticker_read();
     wakeup_tick = timestamp;
     
     TIMER_Stop((TIMER_T *) NU_MODBASE(timer3_modinit.modname));
-    
+    cd_major_minor_clks = (uint64_t) delta * US_PER_TICK * TMR3_CLK_PER_SEC / US_PER_SEC;
+    lp_ticker_arm_cd();
+
+}
+
+void lp_ticker_fire_interrupt(void)
+{
+    cd_major_minor_clks = cd_minor_clks = 0;
     /**
-     * FIXME: Scheduled alarm may go off incorrectly due to wrap around.
-     * Conditions in which delta is negative:
-     * 1. Wrap around
-     * 2. Newly scheduled alarm is behind now
-     */ 
-    //int delta = (timestamp > now) ? (timestamp - now) : (uint32_t) ((uint64_t) timestamp + 0xFFFFFFFFu - now);
-    int delta = (int) (timestamp - now);
-    if (delta > 0) {
-        cd_major_minor_clks = (uint64_t) delta * US_PER_TICK * TMR3_CLK_PER_SEC / US_PER_SEC;
-        lp_ticker_arm_cd();
-    }
-    else {
-        cd_major_minor_clks = cd_minor_clks = 0;
-        /**
-         * This event was in the past. Set the interrupt as pending, but don't process it here.
-         * This prevents a recurive loop under heavy load which can lead to a stack overflow.
-         */  
-        NVIC_SetPendingIRQ(timer3_modinit.irq_n);
-    }
+     * This event was in the past. Set the interrupt as pending, but don't process it here.
+     * This prevents a recurive loop under heavy load which can lead to a stack overflow.
+     */  
+    NVIC_SetPendingIRQ(timer3_modinit.irq_n);
 }
 
 void lp_ticker_disable_interrupt(void)

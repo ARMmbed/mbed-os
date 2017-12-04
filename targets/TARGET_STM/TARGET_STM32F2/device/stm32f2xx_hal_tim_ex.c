@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_tim_ex.c
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   TIM HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Timer extension peripheral:
@@ -69,7 +69,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -169,6 +169,7 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, TIM_HallSen
   assert_param(IS_TIM_XOR_INSTANCE(htim->Instance));
   assert_param(IS_TIM_COUNTER_MODE(htim->Init.CounterMode));
   assert_param(IS_TIM_CLOCKDIVISION_DIV(htim->Init.ClockDivision));
+  assert_param(IS_TIM_AUTORELOAD_PRELOAD(htim->Init.AutoReloadPreload));
   assert_param(IS_TIM_IC_POLARITY(sConfig->IC1Polarity));
   assert_param(IS_TIM_IC_PRESCALER(sConfig->IC1Prescaler));
   assert_param(IS_TIM_IC_FILTER(sConfig->IC1Filter));
@@ -394,7 +395,7 @@ HAL_StatusTypeDef HAL_TIMEx_HallSensor_Start_DMA(TIM_HandleTypeDef *htim, uint32
   }
   else if((htim->State == HAL_TIM_STATE_READY))
   {
-    if(((uint32_t)pData == 0U ) && (Length > 0U)) 
+    if(((uint32_t)pData == 0U ) && (Length > 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -701,7 +702,7 @@ HAL_StatusTypeDef HAL_TIMEx_OCN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Chan
   }
   else if((htim->State == HAL_TIM_STATE_READY))
   {
-    if(((uint32_t)pData == 0U ) && (Length > 0U)) 
+    if(((uint32_t)pData == 0U ) && (Length > 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -1119,7 +1120,7 @@ HAL_StatusTypeDef HAL_TIMEx_PWMN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Cha
   }
   else if((htim->State == HAL_TIM_STATE_READY))
   {
-    if(((uint32_t)pData == 0U ) && (Length > 0U)) 
+    if(((uint32_t)pData == 0U ) && (Length > 0)) 
     {
       return HAL_ERROR;                                    
     }
@@ -1655,39 +1656,42 @@ HAL_StatusTypeDef HAL_TIMEx_MasterConfigSynchronization(TIM_HandleTypeDef *htim,
   *         contains the BDTR Register configuration  information for the TIM peripheral. 
   * @retval HAL status
   */    
-HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim, 
-                                              TIM_BreakDeadTimeConfigTypeDef * sBreakDeadTimeConfig)
+HAL_StatusTypeDef HAL_TIMEx_ConfigBreakDeadTime(TIM_HandleTypeDef *htim,
+                                                TIM_BreakDeadTimeConfigTypeDef * sBreakDeadTimeConfig)
 {
+  uint32_t tmpbdtr = 0;
+  
   /* Check the parameters */
-  assert_param(IS_TIM_CC4_INSTANCE(htim->Instance));
+  assert_param(IS_TIM_BREAK_INSTANCE(htim->Instance));
   assert_param(IS_TIM_OSSR_STATE(sBreakDeadTimeConfig->OffStateRunMode));
   assert_param(IS_TIM_OSSI_STATE(sBreakDeadTimeConfig->OffStateIDLEMode));
   assert_param(IS_TIM_LOCK_LEVEL(sBreakDeadTimeConfig->LockLevel));
+  assert_param(IS_TIM_DEADTIME(sBreakDeadTimeConfig->DeadTime));
   assert_param(IS_TIM_BREAK_STATE(sBreakDeadTimeConfig->BreakState));
   assert_param(IS_TIM_BREAK_POLARITY(sBreakDeadTimeConfig->BreakPolarity));
   assert_param(IS_TIM_AUTOMATIC_OUTPUT_STATE(sBreakDeadTimeConfig->AutomaticOutput));
-  assert_param(IS_TIM_DEADTIME(sBreakDeadTimeConfig->DeadTime));
   
-  /* Process Locked */
+  /* Check input state */
   __HAL_LOCK(htim);
   
-  htim->State = HAL_TIM_STATE_BUSY;
-
   /* Set the Lock level, the Break enable Bit and the Polarity, the OSSR State,
      the OSSI State, the dead time value and the Automatic Output Enable Bit */
-  htim->Instance->BDTR = (uint32_t)sBreakDeadTimeConfig->OffStateRunMode  | 
-                                   sBreakDeadTimeConfig->OffStateIDLEMode |
-                                   sBreakDeadTimeConfig->LockLevel        |
-                                   sBreakDeadTimeConfig->DeadTime         |
-                                   sBreakDeadTimeConfig->BreakState       |
-                                   sBreakDeadTimeConfig->BreakPolarity    |
-                                   sBreakDeadTimeConfig->AutomaticOutput;
   
-                                   
-  htim->State = HAL_TIM_STATE_READY;                                 
+  /* Set the BDTR bits */
+  MODIFY_REG(tmpbdtr, TIM_BDTR_DTG, sBreakDeadTimeConfig->DeadTime);
+  MODIFY_REG(tmpbdtr, TIM_BDTR_LOCK, sBreakDeadTimeConfig->LockLevel);
+  MODIFY_REG(tmpbdtr, TIM_BDTR_OSSI, sBreakDeadTimeConfig->OffStateIDLEMode);
+  MODIFY_REG(tmpbdtr, TIM_BDTR_OSSR, sBreakDeadTimeConfig->OffStateRunMode);
+  MODIFY_REG(tmpbdtr, TIM_BDTR_BKE, sBreakDeadTimeConfig->BreakState);
+  MODIFY_REG(tmpbdtr, TIM_BDTR_BKP, sBreakDeadTimeConfig->BreakPolarity);
+  MODIFY_REG(tmpbdtr, TIM_BDTR_AOE, sBreakDeadTimeConfig->AutomaticOutput);
+  MODIFY_REG(tmpbdtr, TIM_BDTR_MOE, sBreakDeadTimeConfig->AutomaticOutput);
+  
+  /* Set TIMx_BDTR */
+  htim->Instance->BDTR = tmpbdtr;
   
   __HAL_UNLOCK(htim);
-  
+
   return HAL_OK;
 }
 

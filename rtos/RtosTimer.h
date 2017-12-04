@@ -23,14 +23,21 @@
 #define RTOS_TIMER_H
 
 #include <stdint.h>
-#include "cmsis_os.h"
+#include "cmsis_os2.h"
+#include "mbed_rtos_storage.h"
 #include "platform/Callback.h"
+#include "platform/NonCopyable.h"
 #include "platform/mbed_toolchain.h"
+#include "mbed_rtos1_types.h"
 
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
-
+/**
+ * \defgroup rtos_RtosTimer RtosTimer class
+ * @{
+ */
+ 
 /** The RtosTimer class allow creating and and controlling of timer functions in the system.
  A timer function is called when a time period expires whereby both on-shot and
  periodic timers are possible. A timer can be started, restarted, or stopped.
@@ -72,8 +79,12 @@ namespace rtos {
     queue.cancel(blink_id); // stop after 5s
  }
  @endcode
+
+ @note
+ Memory considerations: The timer control structures will be created on current thread's stack, both for the mbed OS
+ and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
-class RtosTimer {
+class RtosTimer : private mbed::NonCopyable<RtosTimer> {
 public:
     /** Create timer.
       @param   func      function to be executed by this timer.
@@ -124,13 +135,21 @@ public:
     }
 
     /** Stop the timer.
-      @return  status code that indicates the execution status of the function.
+      @return  status code that indicates the execution status of the function:
+          @a osOK the timer has been stopped.
+          @a osErrorISR @a stop cannot be called from interrupt service routines.
+          @a osErrorParameter internal error.
+          @a osErrorResource the timer is not running.
     */
     osStatus stop(void);
 
-    /** Start the timer.
-      @param   millisec  time delay value of the timer.
-      @return  status code that indicates the execution status of the function.
+    /** Start or restart the timer.
+      @param   millisec  non-zero value of the timer.
+      @return  status code that indicates the execution status of the function:
+          @a osOK the timer has been started or restarted.
+          @a osErrorISR @a start cannot be called from interrupt service routines.
+          @a osErrorParameter internal error or incorrect parameter value.
+          @a osErrorResource internal error (the timer is in an invalid timer state).
     */
     osStatus start(uint32_t millisec);
 
@@ -140,17 +159,16 @@ private:
     // Required to share definitions without
     // delegated constructors
     void constructor(mbed::Callback<void()> func, os_timer_type type);
-    
+
+    osTimerId_t _id;
+    mbed_rtos_storage_timer_t _obj_mem;
     mbed::Callback<void()> _function;
-    osTimerId _timer_id;
-    osTimerDef_t _timer;
-#ifdef CMSIS_OS_RTX
-    uint32_t _timer_data[6];
-#endif
 };
+/** @}*/
+/** @}*/
 
 }
 
 #endif
 
-/** @}*/
+

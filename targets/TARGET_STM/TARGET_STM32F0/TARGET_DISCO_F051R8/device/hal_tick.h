@@ -40,12 +40,14 @@
 #endif
 
 #include "stm32f0xx.h"
+#include "stm32f0xx_ll_tim.h"
 #include "cmsis_nvic.h"
    
 #define TIM_MST         TIM1
 #define TIM_MST_UP_IRQ  TIM1_BRK_UP_TRG_COM_IRQn
 #define TIM_MST_OC_IRQ  TIM1_CC_IRQn
 #define TIM_MST_RCC     __TIM1_CLK_ENABLE()
+#define TIM_MST_DBGMCU_FREEZE  __HAL_DBGMCU_FREEZE_TIM1()
 
 #define TIM_MST_RESET_ON   __TIM1_FORCE_RESET()
 #define TIM_MST_RESET_OFF  __TIM1_RELEASE_RESET()

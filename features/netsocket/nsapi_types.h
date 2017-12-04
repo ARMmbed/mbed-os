@@ -32,25 +32,28 @@ extern "C" {
  *  Valid error codes have negative values and may
  *  be returned by any network operation.
  *
- *  @enum nsapi_error_t
+ *  @enum nsapi_error
  */
 enum nsapi_error {
-    NSAPI_ERROR_OK            =  0,        /*!< no error */
-    NSAPI_ERROR_WOULD_BLOCK   = -3001,     /*!< no data is not available but call is non-blocking */
-    NSAPI_ERROR_UNSUPPORTED   = -3002,     /*!< unsupported functionality */
-    NSAPI_ERROR_PARAMETER     = -3003,     /*!< invalid configuration */
-    NSAPI_ERROR_NO_CONNECTION = -3004,     /*!< not connected to a network */
-    NSAPI_ERROR_NO_SOCKET     = -3005,     /*!< socket not available for use */
-    NSAPI_ERROR_NO_ADDRESS    = -3006,     /*!< IP address is not known */
-    NSAPI_ERROR_NO_MEMORY     = -3007,     /*!< memory resource not available */
-    NSAPI_ERROR_NO_SSID       = -3008,     /*!< ssid not found */
-    NSAPI_ERROR_DNS_FAILURE   = -3009,     /*!< DNS failed to complete successfully */
-    NSAPI_ERROR_DHCP_FAILURE  = -3010,     /*!< DHCP failed to complete successfully */
-    NSAPI_ERROR_AUTH_FAILURE  = -3011,     /*!< connection to access point failed */
-    NSAPI_ERROR_DEVICE_ERROR  = -3012,     /*!< failure interfacing with the network processor */
-    NSAPI_ERROR_IN_PROGRESS   = -3013,     /*!< operation (eg connect) in progress */
-    NSAPI_ERROR_ALREADY       = -3014,     /*!< operation (eg connect) already in progress */
-    NSAPI_ERROR_IS_CONNECTED  = -3015,     /*!< socket is already connected */
+    NSAPI_ERROR_OK                  =  0,        /*!< no error */
+    NSAPI_ERROR_WOULD_BLOCK         = -3001,     /*!< no data is not available but call is non-blocking */
+    NSAPI_ERROR_UNSUPPORTED         = -3002,     /*!< unsupported functionality */
+    NSAPI_ERROR_PARAMETER           = -3003,     /*!< invalid configuration */
+    NSAPI_ERROR_NO_CONNECTION       = -3004,     /*!< not connected to a network */
+    NSAPI_ERROR_NO_SOCKET           = -3005,     /*!< socket not available for use */
+    NSAPI_ERROR_NO_ADDRESS          = -3006,     /*!< IP address is not known */
+    NSAPI_ERROR_NO_MEMORY           = -3007,     /*!< memory resource not available */
+    NSAPI_ERROR_NO_SSID             = -3008,     /*!< ssid not found */
+    NSAPI_ERROR_DNS_FAILURE         = -3009,     /*!< DNS failed to complete successfully */
+    NSAPI_ERROR_DHCP_FAILURE        = -3010,     /*!< DHCP failed to complete successfully */
+    NSAPI_ERROR_AUTH_FAILURE        = -3011,     /*!< connection to access point failed */
+    NSAPI_ERROR_DEVICE_ERROR        = -3012,     /*!< failure interfacing with the network processor */
+    NSAPI_ERROR_IN_PROGRESS         = -3013,     /*!< operation (eg connect) in progress */
+    NSAPI_ERROR_ALREADY             = -3014,     /*!< operation (eg connect) already in progress */
+    NSAPI_ERROR_IS_CONNECTED        = -3015,     /*!< socket is already connected */
+    NSAPI_ERROR_CONNECTION_LOST     = -3016,     /*!< connection lost */
+    NSAPI_ERROR_CONNECTION_TIMEOUT  = -3017,     /*!< connection timed out */
+    NSAPI_ERROR_ADDRESS_IN_USE      = -3018,     /*!< Address already in use */
 };
 
 /** Type used to represent error codes
@@ -82,6 +85,8 @@ typedef enum nsapi_security {
     NSAPI_SECURITY_WPA          = 0x2,      /*!< phrase conforms to WPA */
     NSAPI_SECURITY_WPA2         = 0x3,      /*!< phrase conforms to WPA2 */
     NSAPI_SECURITY_WPA_WPA2     = 0x4,      /*!< phrase conforms to WPA/WPA2 */
+    NSAPI_SECURITY_PAP          = 0x5,      /*!< phrase conforms to PPP authentication context */
+    NSAPI_SECURITY_CHAP         = 0x6,      /*!< phrase conforms to PPP authentication context */
     NSAPI_SECURITY_UNKNOWN      = 0xFF,     /*!< unknown/unsupported security in scan results */
 } nsapi_security_t;
 
@@ -121,7 +126,7 @@ typedef enum nsapi_security {
  *
  *  The IP version specifies the type of an IP address.
  *
- *  @enum nsapi_version_t
+ *  @enum nsapi_version
  */
 typedef enum nsapi_version {
     NSAPI_UNSPEC,   /*!< Address is unspecified */
@@ -154,63 +159,76 @@ typedef void *nsapi_socket_t;
 /** Enum of socket protocols
  *
  *  The socket protocol specifies a particular protocol to
- *  be used with a newly created socket. 
+ *  be used with a newly created socket.
  *
- *  @enum nsapi_protocol_t
+ *  @enum nsapi_protocol
  */
 typedef enum nsapi_protocol {
    NSAPI_TCP, /*!< Socket is of TCP type */
    NSAPI_UDP, /*!< Socket is of UDP type */
 } nsapi_protocol_t;
 
-/*  Enum of standardized stack option levels
+/** Enum of standardized stack option levels
  *  for use with NetworkStack::setstackopt and getstackopt.
  *
- *  @enum nsapi_stack_level_t
+ *  @enum nsapi_stack_level
  */
 typedef enum nsapi_stack_level {
     NSAPI_STACK     = 5000, /*!< Stack option level - see nsapi_stack_option_t for options */
 } nsapi_stack_level_t;
 
-/*  Enum of standardized stack option names for level NSAPI_STACK
+/** Enum of standardized stack option names for level NSAPI_STACK
  *  of NetworkStack::setstackopt and getstackopt.
  *
  *  These options may not be supported on all stacks, in which
  *  case NSAPI_ERROR_UNSUPPORTED may be returned.
  *
- *  @enum nsapi_stack_option_t
+ *  @enum nsapi_stack_option
  */
 typedef enum nsapi_stack_option {
     NSAPI_IPV4_MRU, /*!< Sets/gets size of largest IPv4 fragmented datagram to reassemble */
     NSAPI_IPV6_MRU, /*!< Sets/gets size of largest IPv6 fragmented datagram to reassemble */
 } nsapi_stack_option_t;
 
-/*  Enum of standardized socket option levels
+/** Enum of standardized socket option levels
  *  for use with Socket::setsockopt and getsockopt.
  *
- *  @enum nsapi_socket_level_t
+ *  @enum nsapi_socket_level
  */
 typedef enum nsapi_socket_level {
     NSAPI_SOCKET    = 7000, /*!< Socket option level - see nsapi_socket_option_t for options */
 } nsapi_socket_level_t;
 
-/*  Enum of standardized socket option names for level NSAPI_SOCKET
+/** Enum of standardized socket option names for level NSAPI_SOCKET
  *  of Socket::setsockopt and getsockopt.
  *
  *  These options may not be supported on all stacks, in which
  *  case NSAPI_ERROR_UNSUPPORTED may be returned.
  *
- *  @enum nsapi_socket_option_t
+ *  @enum nsapi_socket_option
  */
 typedef enum nsapi_socket_option {
-    NSAPI_REUSEADDR, /*!< Allow bind to reuse local addresses */
-    NSAPI_KEEPALIVE, /*!< Enables sending of keepalive messages */
-    NSAPI_KEEPIDLE,  /*!< Sets timeout value to initiate keepalive */
-    NSAPI_KEEPINTVL, /*!< Sets timeout value for keepalive */
-    NSAPI_LINGER,    /*!< Keeps close from returning until queues empty */
-    NSAPI_SNDBUF,    /*!< Sets send buffer size */
-    NSAPI_RCVBUF,    /*!< Sets recv buffer size */
+    NSAPI_REUSEADDR,         /*!< Allow bind to reuse local addresses */
+    NSAPI_KEEPALIVE,         /*!< Enables sending of keepalive messages */
+    NSAPI_KEEPIDLE,          /*!< Sets timeout value to initiate keepalive */
+    NSAPI_KEEPINTVL,         /*!< Sets timeout value for keepalive */
+    NSAPI_LINGER,            /*!< Keeps close from returning until queues empty */
+    NSAPI_SNDBUF,            /*!< Sets send buffer size */
+    NSAPI_RCVBUF,            /*!< Sets recv buffer size */
+    NSAPI_ADD_MEMBERSHIP,    /*!< Add membership to multicast address */
+    NSAPI_DROP_MEMBERSHIP,   /*!< Drop membership to multicast address */
 } nsapi_socket_option_t;
+
+/** Supported IP protocol versions of IP stack
+ *
+ *  @enum nsapi_ip_stack
+ */
+typedef enum nsapi_ip_stack {
+    DEFAULT_STACK = 0,
+    IPV4_STACK,
+    IPV6_STACK,
+    IPV4V6_STACK
+} nsapi_ip_stack_t;
 
 /* Backwards compatibility - previously didn't distinguish stack and socket options */
 typedef nsapi_socket_level_t nsapi_level_t;
@@ -250,6 +268,13 @@ typedef struct nsapi_stack {
     unsigned _stack_buffer[16];
 } nsapi_stack_t;
 
+/** nsapi_ip_mreq structure
+ */
+typedef struct nsapi_ip_mreq {
+    nsapi_addr_t imr_multiaddr; /* IP multicast address of group */
+    nsapi_addr_t imr_interface; /* local IP address of interface */
+} nsapi_ip_mreq_t;
+
 /** nsapi_stack_api structure
  *
  *  Common api structure for network stack operations. A network stack
@@ -271,9 +296,9 @@ typedef struct nsapi_stack_api
      *
      *  The hostname may be either a domain name or an IP address. If the
      *  hostname is an IP address, no network transactions will be performed.
-     *  
+     *
      *  If no stack-specific DNS resolution is provided, the hostname
-     *  will be resolve using a UDP socket on the stack. 
+     *  will be resolve using a UDP socket on the stack.
      *
      *  @param stack    Stack handle
      *  @param addr     Destination for the host IP address
@@ -318,7 +343,7 @@ typedef struct nsapi_stack_api
      *  @param optval   Destination for option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
-     */    
+     */
     nsapi_error_t (*getstackopt)(nsapi_stack_t *stack, int level,
             int optname, void *optval, unsigned *optlen);
 
@@ -519,7 +544,7 @@ typedef struct nsapi_stack_api
      *  @param optval   Option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
-     */    
+     */
     nsapi_error_t (*setsockopt)(nsapi_stack_t *stack, nsapi_socket_t socket, int level,
             int optname, const void *optval, unsigned optlen);
 
@@ -536,7 +561,7 @@ typedef struct nsapi_stack_api
      *  @param optval   Destination for option value
      *  @param optlen   Length of the option value
      *  @return         0 on success, negative error code on failure
-     */    
+     */
     nsapi_error_t (*getsockopt)(nsapi_stack_t *stack, nsapi_socket_t socket, int level,
             int optname, void *optval, unsigned *optlen);
 } nsapi_stack_api_t;

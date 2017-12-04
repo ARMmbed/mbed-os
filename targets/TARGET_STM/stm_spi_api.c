@@ -29,6 +29,7 @@
  */
 #include "mbed_assert.h"
 #include "mbed_error.h"
+#include "mbed_debug.h"
 #include "spi_api.h"
 
 #if DEVICE_SPI
@@ -38,6 +39,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
+#include "spi_device.h"
 
 #if DEVICE_SPI_ASYNCH
     #define SPI_INST(obj)    ((SPI_TypeDef *)(obj->spi.spi))
@@ -62,6 +64,9 @@
 #   define DEBUG_PRINTF(...) {}
 #endif
 
+/* Consider 10ms as the default timeout for sending/receving 1 byte */
+#define TIMEOUT_1_BYTE 10
+
 void init_spi(spi_t *obj)
 {
     struct spi_s *spiobj = SPI_S(obj);
@@ -74,7 +79,14 @@ void init_spi(spi_t *obj)
         error("Cannot initialize SPI");
     }
 
-    __HAL_SPI_ENABLE(handle);
+    /* In case of standard 4 wires SPI,PI can be kept enabled all time
+     * and SCK will only be generated during the write operations. But in case
+     * of 3 wires, it should be only enabled during rd/wr unitary operations,
+     * which is handled inside STM32 HAL layer.
+     */
+    if (handle->Init.Direction  == SPI_DIRECTION_2LINES) {
+        __HAL_SPI_ENABLE(handle);
+    }
 }
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
@@ -155,14 +167,20 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     handle->Instance = SPI_INST(obj);
     handle->Init.Mode              = SPI_MODE_MASTER;
     handle->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
-    handle->Init.Direction         = SPI_DIRECTION_2LINES;
+
+    if (miso != NC) {
+        handle->Init.Direction     = SPI_DIRECTION_2LINES;
+    } else {
+       handle->Init.Direction      = SPI_DIRECTION_1LINE;
+    }
+
     handle->Init.CLKPhase          = SPI_PHASE_1EDGE;
     handle->Init.CLKPolarity       = SPI_POLARITY_LOW;
-    handle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLED;
+    handle->Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
     handle->Init.CRCPolynomial     = 7;
     handle->Init.DataSize          = SPI_DATASIZE_8BIT;
     handle->Init.FirstBit          = SPI_FIRSTBIT_MSB;
-    handle->Init.TIMode            = SPI_TIMODE_DISABLED;
+    handle->Init.TIMode            = SPI_TIMODE_DISABLE;
 
     init_spi(obj);
 }
@@ -269,6 +287,16 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
 
     handle->Init.Mode = (slave) ? SPI_MODE_SLAVE : SPI_MODE_MASTER;
 
+    if (slave && (handle->Init.Direction == SPI_DIRECTION_1LINE)) {
+        /*  SPI slave implemtation in MBED does not support the 3 wires SPI.
+         *  (e.g. when MISO is not connected). So we're forcing slave in
+         *  2LINES mode. As MISO is not connected, slave will only read
+         *  from master, and cannot write to it. Inform user.
+         */
+        debug("3 wires SPI slave not supported - slave will only read\r\n");
+        handle->Init.Direction = SPI_DIRECTION_2LINES;
+    }
+
     init_spi(obj);
 }
 
@@ -349,22 +377,79 @@ static inline int ssp_busy(spi_t *obj)
 
 int spi_master_write(spi_t *obj, int value)
 {
-    uint16_t size, ret;
-    int Rx = 0;
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
 
-    size = (handle->Init.DataSize == SPI_DATASIZE_16BIT) ? 2 : 1;
-
-    /*  Use 10ms timeout */
-    ret = HAL_SPI_TransmitReceive(handle,(uint8_t*)&value,(uint8_t*)&Rx,size,10);
-
-    if(ret == HAL_OK) {
-        return Rx;
-    } else {
-        DEBUG_PRINTF("SPI inst=0x%8X ERROR in write\r\n", (int)handle->Instance);
-        return -1;
+    if (handle->Init.Direction == SPI_DIRECTION_1LINE) {
+        return HAL_SPI_Transmit(handle, (uint8_t*)&value, 1, TIMEOUT_1_BYTE);
     }
+
+#if defined(LL_SPI_RX_FIFO_TH_HALF)
+    /*  Configure the default data size */
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        LL_SPI_SetRxFIFOThreshold(SPI_INST(obj), LL_SPI_RX_FIFO_TH_HALF);
+    } else {
+        LL_SPI_SetRxFIFOThreshold(SPI_INST(obj), LL_SPI_RX_FIFO_TH_QUARTER);
+    }
+#endif
+
+    /*  Here we're using LL which means direct registers access
+     *  There is no error management, so we may end up looping
+     *  infinitely here in case of faulty device for insatnce,
+     *  but this will increase performances significantly
+     */
+
+    /* Wait TXE flag to transmit data */
+    while (!LL_SPI_IsActiveFlag_TXE(SPI_INST(obj)));
+
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        LL_SPI_TransmitData16(SPI_INST(obj), value);
+    } else {
+        LL_SPI_TransmitData8(SPI_INST(obj), (uint8_t) value);
+    }
+
+    /* Then wait RXE flag before reading */
+    while (!LL_SPI_IsActiveFlag_RXNE(SPI_INST(obj)));
+
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        return LL_SPI_ReceiveData16(SPI_INST(obj));
+    } else {
+        return LL_SPI_ReceiveData8(SPI_INST(obj));
+    }
+}
+
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
+                           char *rx_buffer, int rx_length, char write_fill)
+{
+    struct spi_s *spiobj = SPI_S(obj);
+    SPI_HandleTypeDef *handle = &(spiobj->handle);
+    int total = (tx_length > rx_length) ? tx_length : rx_length;
+    int i = 0;
+    if (handle->Init.Direction == SPI_DIRECTION_2LINES) {
+        for (i = 0; i < total; i++) {
+            char out = (i < tx_length) ? tx_buffer[i] : write_fill;
+            char in = spi_master_write(obj, out);
+            if (i < rx_length) {
+                rx_buffer[i] = in;
+            }
+        }
+    } else {
+        /* In case of 1 WIRE only, first handle TX, then Rx */
+        if (tx_length != 0) {
+            if (HAL_OK != HAL_SPI_Transmit(handle, (uint8_t*)tx_buffer, tx_length, tx_length*TIMEOUT_1_BYTE)) {
+                /*  report an error */
+                total = 0;
+            }
+        }
+        if (rx_length != 0) {
+            if (HAL_OK != HAL_SPI_Receive(handle, (uint8_t*)rx_buffer, rx_length, rx_length*TIMEOUT_1_BYTE)) {
+                /*  report an error */
+                total = 0;
+            }
+        }
+    }
+
+    return total;
 }
 
 int spi_slave_receive(spi_t *obj)
@@ -374,17 +459,13 @@ int spi_slave_receive(spi_t *obj)
 
 int spi_slave_read(spi_t *obj)
 {
-    SPI_TypeDef *spi = SPI_INST(obj);
     struct spi_s *spiobj = SPI_S(obj);
     SPI_HandleTypeDef *handle = &(spiobj->handle);
     while (!ssp_readable(obj));
-    if (handle->Init.DataSize == SPI_DATASIZE_8BIT) {
-        // Force 8-bit access to the data register
-        uint8_t *p_spi_dr = 0;
-        p_spi_dr = (uint8_t *) & (spi->DR);
-        return (int)(*p_spi_dr);
+    if (handle->Init.DataSize == SPI_DATASIZE_16BIT) {
+        return LL_SPI_ReceiveData16(SPI_INST(obj));
     } else {
-        return (int)spi->DR;
+        return LL_SPI_ReceiveData8(SPI_INST(obj));
     }
 }
 

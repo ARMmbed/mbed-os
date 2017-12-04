@@ -1,6 +1,10 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_CThunk CThunk class
+ * @{
+ */
 /* General C++ Object Thunking class
  *
  * - allows direct callbacks to non-static C++ class functions
@@ -37,7 +41,8 @@
 #define CTHUNK_ADDRESS 1
 #define CTHUNK_VARIABLES volatile uint32_t code[2]
 
-#if (defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__CORTEX_M7) || defined(__CORTEX_A9))
+#if (defined(__CORTEX_M3) || defined(__CORTEX_M4) || defined(__CORTEX_M7) || defined(__CORTEX_A9) \
+    || defined(__CORTEX_M23) || defined(__CORTEX_M33))
 /**
 * CTHUNK disassembly for Cortex-M3/M4/M7/A9 (thumb2):
 * * adr  r0, #4
@@ -76,7 +81,7 @@ typedef void (*CThunkEntry)(void);
 /**
  * Class for created a pointer with data bound to it
  *
- * @Note Synchronization level: Not protected
+ * @note Synchronization level: Not protected
  */
 template<class T>
 class CThunk
@@ -217,15 +222,15 @@ class CThunk
                 uint32_t start_addr = (uint32_t)&m_thunk & 0xFFFFFFE0;
                 uint32_t end_addr   = (uint32_t)&m_thunk + sizeof(m_thunk);
                 uint32_t addr;
-                
+
                 /* Data cache clean and invalid */
                 for (addr = start_addr; addr < end_addr; addr += 0x20) {
-                    __v7_clean_inv_dcache_mva((void *)addr);
+                    L1C_CleanInvalidateDCacheMVA((void *)addr);
                 }
                 /* Instruction cache invalid */
-                __v7_inv_icache_all();
-                __ca9u_inv_tlb_all();
-                __v7_inv_btac();
+                L1C_InvalidateICacheAll();
+                MMU_InvalidateTLB();
+                L1C_InvalidateBTAC();
             }
 #endif
 #if defined(__CORTEX_M7)
@@ -240,6 +245,9 @@ class CThunk
         }
 };
 
+/**@}*/
+
+/**@}*/
+
 #endif/*__CTHUNK_H__*/
 
-/** @}*/

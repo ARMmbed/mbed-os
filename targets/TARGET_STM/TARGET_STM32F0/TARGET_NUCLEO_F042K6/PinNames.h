@@ -38,6 +38,13 @@ extern "C" {
 #endif
 
 typedef enum {
+    ALT0  = 0x100,
+    ALT1  = 0x200,
+    ALT2  = 0x300,
+    ALT3  = 0x400
+} ALTx;
+
+typedef enum {
     PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
@@ -45,7 +52,11 @@ typedef enum {
     PA_4  = 0x04,
     PA_5  = 0x05,
     PA_6  = 0x06,
+    PA_6_ALT0 = PA_6|ALT0,
     PA_7  = 0x07,
+    PA_7_ALT0 = PA_7|ALT0,
+    PA_7_ALT1 = PA_7|ALT1,
+    PA_7_ALT2 = PA_7|ALT2,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
@@ -56,7 +67,10 @@ typedef enum {
     PA_15 = 0x0F,
 
     PB_0  = 0x10,
+    PB_0_ALT0 = PB_0|ALT0,
     PB_1  = 0x11,
+    PB_1_ALT0 = PB_1|ALT0,
+    PB_1_ALT1 = PB_1|ALT1,
     PB_3  = 0x13,
     PB_4  = 0x14,
     PB_5  = 0x15,
@@ -112,6 +126,13 @@ typedef enum {
     SPI_SCK     = PB_3,
     SPI_CS      = PA_4,
     PWM_OUT     = PB_0,
+
+    //USB pins
+    USB_NOE = PA_4,
+    USB_DM = PA_11,
+    USB_DP = PA_12,
+    USB_NOE_ALT = PA_13,
+    USB_NOE_ALT2 = PA_15,
 
     // Not connected
     NC = (int)0xFFFFFFFF

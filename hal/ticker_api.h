@@ -20,19 +20,40 @@
 #define MBED_TICKER_API_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "device.h"
 
+/**
+ * Legacy format representing a timestamp in us.
+ * Given it is modeled as a 32 bit integer, this type can represent timestamp
+ * up to 4294 seconds (71 minutes).
+ * Prefer using us_timestamp_t which store timestamp as 64 bits integer.
+ */
 typedef uint32_t timestamp_t;
+
+/**
+ * A us timestamp stored in a 64 bit integer.
+ * Can store timestamp up to 584810 years.
+ */
+typedef uint64_t us_timestamp_t;
 
 /** Ticker's event structure
  */
 typedef struct ticker_event_s {
-    timestamp_t            timestamp; /**< Event's timestamp */
+    us_timestamp_t         timestamp; /**< Event's timestamp */
     uint32_t               id;        /**< TimerEvent object */
     struct ticker_event_s *next;      /**< Next event in the queue */
 } ticker_event_t;
 
 typedef void (*ticker_event_handler)(uint32_t id);
+
+/** Information about the ticker implementation
+ */
+typedef struct {
+    uint32_t frequency;                           /**< Frequency in Hz this ticker runs at */
+    uint32_t bits;                                /**< Number of bits this ticker supports */
+} ticker_info_t;
+
 
 /** Ticker's interface structure - required API for a ticker
  */
@@ -42,6 +63,8 @@ typedef struct {
     void (*disable_interrupt)(void);              /**< Disable interrupt function */
     void (*clear_interrupt)(void);                /**< Clear interrupt function */
     void (*set_interrupt)(timestamp_t timestamp); /**< Set interrupt function */
+    void (*fire_interrupt)(void);                 /**< Fire interrupt right-away */
+    const ticker_info_t *(*get_info)(void);       /**< Return info about this ticker's implementation */
 } ticker_interface_t;
 
 /** Ticker's event queue structure
@@ -49,6 +72,14 @@ typedef struct {
 typedef struct {
     ticker_event_handler event_handler; /**< Event handler */
     ticker_event_t *head;               /**< A pointer to head */
+    uint32_t frequency;                 /**< Frequency of the timer in Hz */
+    uint32_t bitmask;                   /**< Mask to be applied to time values read */
+    uint32_t max_delta;                 /**< Largest delta in ticks that can be used when scheduling */
+    uint64_t max_delta_us;              /**< Largest delta in us that can be used when scheduling */
+    uint32_t tick_last_read;            /**< Last tick read */
+    uint64_t tick_remainder;            /**< Ticks that have not been added to base_time */
+    us_timestamp_t present_time;        /**< Store the timestamp used for present time */
+    bool initialized;                   /**< Indicate if the instance is initialized */
 } ticker_event_queue_t;
 
 /** Ticker's data structure
@@ -69,46 +100,99 @@ extern "C" {
 
 /** Initialize a ticker and set the event handler
  *
- * @param data    The ticker's data
+ * @param ticker The ticker object.
  * @param handler A handler to be set
  */
-void ticker_set_handler(const ticker_data_t *const data, ticker_event_handler handler);
+void ticker_set_handler(const ticker_data_t *const ticker, ticker_event_handler handler);
 
 /** IRQ handler that goes through the events to trigger overdue events.
  *
- * @param data    The ticker's data
+ * @param ticker The ticker object.
  */
-void ticker_irq_handler(const ticker_data_t *const data);
+void ticker_irq_handler(const ticker_data_t *const ticker);
 
 /** Remove an event from the queue
  *
- * @param data The ticker's data
+ * @param ticker The ticker object.
  * @param obj  The event object to be removed from the queue
  */
-void ticker_remove_event(const ticker_data_t *const data, ticker_event_t *obj);
+void ticker_remove_event(const ticker_data_t *const ticker, ticker_event_t *obj);
 
 /** Insert an event to the queue
  *
- * @param data      The ticker's data
+ * The event will be executed in timestamp - ticker_read().
+ *
+ * @warning This function does not consider timestamp in the past. If an event
+ * is inserted with a timestamp less than the current timestamp then the event
+ * will be executed in timestamp - ticker_read() us.
+ * The internal counter wrap very quickly it is hard to decide weither an
+ * event is in the past or in 1 hour.
+ *
+ * @note prefer the use of ticker_insert_event_us which allows registration of
+ * absolute timestamp.
+ *
+ * @param ticker    The ticker object.
  * @param obj       The event object to be inserted to the queue
  * @param timestamp The event's timestamp
  * @param id        The event object
  */
-void ticker_insert_event(const ticker_data_t *const data, ticker_event_t *obj, timestamp_t timestamp, uint32_t id);
+void ticker_insert_event(const ticker_data_t *const ticker, ticker_event_t *obj, timestamp_t timestamp, uint32_t id);
 
-/** Read the current ticker's timestamp
+/** Insert an event to the queue
  *
- * @param data The ticker's data
+ * The event will be executed in timestamp - ticker_read_us() us.
+ *
+ * @note If an event is inserted with a timestamp less than the current
+ * timestamp then the event will be scheduled immediately resulting in
+ * an instant call to event handler.
+ *
+ * @param ticker    The ticker object.
+ * @param obj       The event object to be inserted to the queue
+ * @param timestamp The event's timestamp
+ * @param id        The event object
+ */
+void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *obj, us_timestamp_t timestamp, uint32_t id);
+
+/** Read the current (relative) ticker's timestamp
+ *
+ * @warning Return a relative timestamp because the counter wrap every 4294
+ * seconds.
+ *
+ * @param ticker The ticker object.
  * @return The current timestamp
  */
-timestamp_t ticker_read(const ticker_data_t *const data);
+timestamp_t ticker_read(const ticker_data_t *const ticker);
+
+/** Read the current (absolute) ticker's timestamp
+ *
+ * @warning Return an absolute timestamp counting from the initialization of the
+ * ticker.
+ *
+ * @param ticker The ticker object.
+ * @return The current timestamp
+ */
+us_timestamp_t ticker_read_us(const ticker_data_t *const ticker);
 
 /** Read the next event's timestamp
  *
- * @param data The ticker's data
+ * @param ticker        The ticker object.
+ * @param timestamp     The timestamp object.
  * @return 1 if timestamp is pending event, 0 if there's no event pending
  */
-int ticker_get_next_timestamp(const ticker_data_t *const data, timestamp_t *timestamp);
+int ticker_get_next_timestamp(const ticker_data_t *const ticker, timestamp_t *timestamp);
+
+/* Private functions
+ *
+ * @cond PRIVATE
+ *
+ */
+
+int _ticker_match_interval_passed(timestamp_t prev_tick, timestamp_t cur_tick, timestamp_t match_tick);
+
+/*
+ * @endcond PRIVATE
+ *
+ */
 
 /**@}*/
 

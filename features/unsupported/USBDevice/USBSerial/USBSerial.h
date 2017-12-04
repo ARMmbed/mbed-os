@@ -83,6 +83,13 @@ public:
     */
     uint8_t available();
 
+     /**
+    * Check if the terminal is connected.
+    *
+    * @returns connection status
+    */
+    bool connected();
+
     /** Determine if there is a character available to read
      *
      *  @returns

@@ -20,6 +20,7 @@
 
 #include "rtl8195a.h"
 
+<<<<<<< HEAD
 #if defined(__CC_ARM)
 #ifdef CONFIG_RTL8195A
     #define INITIAL_SP          0x10070000
@@ -31,17 +32,33 @@
     extern uint32_t             __StackTop[];
     extern uint32_t             __StackLimit[];
     extern uint32_t             __end__[];
+=======
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
+    extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Base[];
+    extern uint32_t             Image$$ARM_LIB_STACK$$ZI$$Length[];
+    #define ISR_STACK_START     (unsigned char *)(Image$$ARM_LIB_STACK$$ZI$$Base)
+    #define ISR_STACK_SIZE      (uint32_t)(Image$$ARM_LIB_STACK$$ZI$$Length)
+    #define INITIAL_SP          (uint32_t)(Image$$ARM_LIB_STACK$$ZI$$Base)
+#elif defined(__GNUC__)
+    extern uint32_t             __StackTop[];
+    extern uint32_t             __StackLimit[];
+>>>>>>> upstream/master
     extern uint32_t             __HeapLimit[];
     #define INITIAL_SP          (__StackTop)
 #endif
 
+<<<<<<< HEAD
 
 #if defined(__CC_ARM) || defined(__GNUC__)
+=======
+#if defined(__GNUC__)
+>>>>>>> upstream/master
 #ifndef ISR_STACK_SIZE
 #define ISR_STACK_SIZE          (0x1000)
 #endif
 #endif
 
+<<<<<<< HEAD
 #ifndef OS_TASKCNT
 #define OS_TASKCNT              14
 #endif
@@ -55,3 +72,7 @@
 #endif
 #endif
 
+=======
+#endif
+#endif
+>>>>>>> upstream/master

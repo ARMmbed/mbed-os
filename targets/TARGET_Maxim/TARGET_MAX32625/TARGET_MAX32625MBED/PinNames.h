@@ -76,6 +76,9 @@ typedef enum {
     // Push button
     SW2 = P2_2,
     SW3 = P2_3,
+    // Standardized button names
+    BUTTON1 = SW2,
+    BUTTON2 = SW3,
 
     // USB bridge connected UART pins
     USBTX = P2_1,

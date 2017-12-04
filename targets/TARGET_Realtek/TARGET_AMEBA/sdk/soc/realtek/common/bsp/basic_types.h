@@ -1,4 +1,5 @@
 /******************************************************************************
+<<<<<<< HEAD
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
  *                                        
@@ -17,6 +18,23 @@
  *
  *
  ******************************************************************************/
+=======
+ * Copyright (c) 2013-2016 Realtek Semiconductor Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ******************************************************************************/
+ 
+>>>>>>> upstream/master
 #ifndef __BASIC_TYPES_H__
 #define __BASIC_TYPES_H__
 
@@ -66,6 +84,7 @@ typedef signed long long        __int64_t;
 typedef unsigned long long      __uint64_t;
 #endif
 
+<<<<<<< HEAD
 #define s8                      int8_t
 #define u8                      uint8_t
 #define s16                     int16_t
@@ -74,6 +93,16 @@ typedef unsigned long long      __uint64_t;
 #define u32                     uint32_t
 #define s64                     int64_t
 #define u64                     uint64_t
+=======
+typedef int8_t s8;
+typedef uint8_t u8;
+typedef int16_t s16;
+typedef uint16_t u16;
+typedef int32_t s32;
+typedef uint32_t u32;
+typedef int64_t s64;
+typedef uint64_t u64;
+>>>>>>> upstream/master
 
 #ifdef CONFIG_MBED_ENABLED
 #ifndef BOOL
@@ -194,7 +223,11 @@ typedef	    __kernel_ssize_t	SSIZE_T;
 #endif
 
 #if defined (__ICCARM__)
+<<<<<<< HEAD
 #define STRINGIFY(s) #s
+=======
+#define STRINGIFY(a) #a
+>>>>>>> upstream/master
 #define SECTION(_name) _Pragma( STRINGIFY(location=_name))
 #define ALIGNMTO(_bound) _Pragma( STRINGIFY(data_alignment=_bound))
 #define _PACKED_       __packed
@@ -209,6 +242,26 @@ typedef	    __kernel_ssize_t	SSIZE_T;
 
 #define _LONG_CALL_ROM_     _LONG_CALL_
 
+<<<<<<< HEAD
+=======
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+#define SECTION(_name) __attribute__ ((__section__(_name)))
+#define ALIGNMTO(_bound) __attribute__ ((aligned (_bound)))
+#define _PACKED_       __attribute__ ((packed))
+#ifdef CONFIG_RELEASE_BUILD_LIBRARIES
+#define _LONG_CALL_
+#define _LONG_CALL_ROM_
+#ifdef E_CUT_ROM_DOMAIN
+#undef _LONG_CALL_ROM_
+#define _LONG_CALL_ROM_
+#endif
+#else
+#define _LONG_CALL_
+#define _LONG_CALL_ROM_     _LONG_CALL_
+#endif
+#define _WEAK           __attribute__ ((weak))
+
+>>>>>>> upstream/master
 #else
 #define SECTION(_name) __attribute__ ((__section__(_name)))
 #define ALIGNMTO(_bound) __attribute__ ((aligned (_bound)))

@@ -252,6 +252,8 @@ typedef enum {
     LED3        = PI_1,
     LED4        = PI_1,
     USER_BUTTON = PI_11,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
     SERIAL_TX   = PA_9, // Virtual Com Port
     SERIAL_RX   = PB_7, // Virtual Com Port
     USBTX       = PA_9, // Virtual Com Port
@@ -263,6 +265,32 @@ typedef enum {
     SPI_SCK     = D13,
     SPI_CS      = D10,
     PWM_OUT     = D9,
+
+    //USB pins
+    USB_OTG_HS_ULPI_D0 = PA_3,
+    USB_OTG_HS_SOF = PA_4,
+    USB_OTG_HS_ULPI_CK = PA_5,
+    USB_OTG_FS_SOF = PA_8,
+    USB_OTG_FS_VBUS = PA_9,
+    USB_OTG_FS_ID = PA_10,
+    USB_OTG_FS_DM = PA_11,
+    USB_OTG_FS_DP = PA_12,
+    USB_OTG_HS_ULPI_D1 = PB_0,
+    USB_OTG_HS_ULPI_D2 = PB_1,
+    USB_OTG_HS_ULPI_D7 = PB_5,
+    USB_OTG_HS_ULPI_D3 = PB_10,
+    USB_OTG_HS_ULPI_D4 = PB_11,
+    USB_OTG_HS_ID = PB_12,
+    USB_OTG_HS_ULPI_D5 = PB_12,
+    USB_OTG_HS_ULPI_D6 = PB_13,
+    USB_OTG_HS_VBUS = PB_13,
+    USB_OTG_HS_DM = PB_14,
+    USB_OTG_HS_DP = PB_15,
+    USB_OTG_HS_ULPI_STP = PC_0,
+    USB_OTG_HS_ULPI_DIR_ALT = PC_2,
+    USB_OTG_HS_ULPI_NXT_ALT = PC_3,
+    USB_OTG_HS_ULPI_NXT = PH_4,
+    USB_OTG_HS_ULPI_DIR = PI_11,
 
     // Not connected
     NC = (int)0xFFFFFFFF

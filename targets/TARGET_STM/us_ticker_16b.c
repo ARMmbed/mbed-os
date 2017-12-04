@@ -25,49 +25,28 @@ TIM_HandleTypeDef TimMasterHandle;
 
 volatile uint32_t SlaveCounter = 0;
 volatile uint32_t oc_int_part = 0;
-volatile uint16_t oc_rem_part = 0;
-volatile uint8_t tim_it_update; // TIM_IT_UPDATE event flag set in timer_irq_handler()
-volatile uint32_t tim_it_counter = 0; // Time stamp to be updated by timer_irq_handler()
-
-static int us_ticker_inited = 0;
-
-void set_compare(uint16_t count)
-{
-    TimMasterHandle.Instance = TIM_MST;
-    // Set new output compare value
-    __HAL_TIM_SetCompare(&TimMasterHandle, TIM_CHANNEL_1, count);
-    // Enable IT
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-}
 
 void us_ticker_init(void)
 {
-    if (us_ticker_inited) return;
-    us_ticker_inited = 1;
-
-    TimMasterHandle.Instance = TIM_MST;
-
-    HAL_InitTick(0); // The passed value is not used
+    /* NOTE: assuming that HAL tick has already been initialized! */
 }
 
 uint32_t us_ticker_read()
 {
-    uint32_t counter;
-
-    TimMasterHandle.Instance = TIM_MST;
-
-    if (!us_ticker_inited) us_ticker_init();
-
-#if defined(TARGET_STM32L0)
     uint16_t cntH_old, cntH, cntL;
     do {
-        // For some reason on L0xx series we need to read and clear the
-        // overflow flag which give extra time to propelry handle possible
-        // hiccup after ~60s
-        if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF) == SET) {
-            __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1OF);
-        }
         cntH_old = SlaveCounter;
+        /* SlaveCounter needs to be checked before AND after we read the
+         * current counter TIM_MST->CNT, in case it wraps around.
+         * there are 2 possible cases of wrap around
+         * 1) in case this function is interrupted by timer_irq_handler and
+         *    the SlaveCounter is updated. In that case we will loop again.
+         * 2) in case this function is called from interrupt context during
+         * wrap-around condtion. That would prevent/delay the timer_irq_handler
+         * from being called so we need to locally check the FLAG_UPDATE and
+         * update the cntH accordingly. The SlaveCounter variable itself will
+         * be updated in the interrupt handler just after ...
+         */
         if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_UPDATE) == SET) {
             cntH_old += 1;
         }
@@ -79,51 +58,134 @@ uint32_t us_ticker_read()
     } while(cntH_old != cntH);
     // Glue the upper and lower part together to get a 32 bit timer
     return (uint32_t)(cntH << 16 | cntL);
-#else
-    tim_it_update = 0; // Clear TIM_IT_UPDATE event flag
-    counter = TIM_MST->CNT + (uint32_t)(SlaveCounter << 16); // Calculate new time stamp
-    if (tim_it_update == 1) {
-        return tim_it_counter; // In case of TIM_IT_UPDATE return the time stamp that was calculated in timer_irq_handler()
-    }
-    else {
-        return counter; // Otherwise return the time stamp calculated here
-    }
-#endif
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    int delta = (int)((uint32_t)timestamp - us_ticker_read());
+    // NOTE: This function must be called with interrupts disabled to keep our
+    //       timer interrupt setup atomic
 
-    uint16_t cval = TIM_MST->CNT;
+    // Set new output compare value
+    __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, timestamp & 0xFFFF);
+    // Ensure the compare event starts clear
+    __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
+    // Enable IT
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 
-    if (delta <= 0) { // This event was in the past
-        us_ticker_irq_handler();
-    } else {
-        oc_int_part = (uint32_t)(delta >> 16);
-        oc_rem_part = (uint16_t)(delta & 0xFFFF);
-        if (oc_rem_part <= (0xFFFF - cval)) {
-            set_compare(cval + oc_rem_part);
-            oc_rem_part = 0;
-        } else {
-            set_compare(0xFFFF);
-            oc_rem_part = oc_rem_part - (0xFFFF - cval);
-        }
+    /* Set the number of timer wrap-around loops before the actual timestamp
+     * is reached.  If the calculated delta time is more than halfway to the
+     * next compare event, check to see if a compare event has already been
+     * set, and if so, add one to the wrap-around count.  This is done to
+     * ensure the correct wrap count is used in the corner cases where the
+     * 16 bit counter passes the compare value during the process of
+     * configuring this interrupt.
+     *
+     * Assumption: The time to execute this function is less than 32ms
+     *             (otherwise incorrect behaviour could result)
+     *
+     * Consider the following corner cases:
+     * 1) timestamp is 1 us in the future:
+     *      oc_int_part = 0 initially
+     *      oc_int_part left at 0 because ((delta - 1) & 0xFFFF) < 0x8000
+     *      Compare event should happen in 1 us and us_ticker_irq_handler()
+     *      called
+     * 2) timestamp is 0x8000 us in the future:
+     *      oc_int_part = 0 initially
+     *      oc_int_part left at 0 because ((delta - 1) & 0xFFFF) < 0x8000
+     *      There should be no possibility of the CC1 flag being set yet
+     *      (see assumption above).  When the compare event does occur in
+     *      32768 us, us_ticker_irq_handler() will be called
+     * 3) timestamp is 0x8001 us in the future:
+     *      oc_int_part = 0 initially
+     *      ((delta - 1) & 0xFFFF) >= 0x8000 but there should be no
+     *      possibility of the CC1 flag being set yet (see assumption above),
+     *      so oc_int_part will be left at 0, and when the compare event
+     *      does occur in 32769 us, us_ticker_irq_handler() will be called
+     * 4) timestamp is 0x10000 us in the future:
+     *      oc_int_part = 0 initially
+     *      ((delta - 1) & 0xFFFF) >= 0x8000
+     *      There are two subcases:
+     *      a) The timer counter has not incremented past the compare
+     *          value while setting up the interrupt.  In this case, the
+     *          CC1 flag will not be set, so oc_int_part will be
+     *          left at 0, and when the compare event occurs in 65536 us,
+     *          us_ticker_irq_handler() will be called
+     *      b) The timer counter has JUST incremented past the compare
+     *          value.  In this case, the CC1 flag will be set, so
+     *          oc_int_part will be incremented to 1, and the interrupt will
+     *          occur immediately after this function returns, where
+     *          oc_int_part will decrement to 0 without calling
+     *          us_ticker_irq_handler().  Then about 65536 us later, the
+     *          compare event will occur again, and us_ticker_irq_handler()
+     *          will be called
+     * 5) timestamp is 0x10001 us in the future:
+     *      oc_int_part = 1 initially
+     *      oc_int_part left at 1 because ((delta - 1) & 0xFFFF) < 0x8000
+     *      CC1 flag will not be set (see assumption above).  In 1 us the
+     *      compare event will cause an interrupt, where oc_int_part will be
+     *      decremented to 0 without calling us_ticker_irq_handler().  Then
+     *      about 65536 us later, the compare event will occur again, and
+     *      us_ticker_irq_handler() will be called
+     * 6) timestamp is 0x18000 us in the future:
+     *      oc_int_part = 1 initially
+     *      oc_int_part left at 1 because ((delta - 1) & 0xFFFF) < 0x8000
+     *      There should be no possibility of the CC1 flag being set yet
+     *      (see assumption above).  When the compare event does occur in
+     *      32768 us, oc_int_part will be decremented to 0 without calling
+     *      us_ticker_irq_handler().  Then about 65536 us later, the
+     *      compare event will occur again, and us_ticker_irq_handler() will
+     *      be called
+     * 7) timestamp is 0x18001 us in the future:
+     *      oc_int_part = 1 initially
+     *      ((delta - 1) & 0xFFFF) >= 0x8000 but there should be no
+     *      possibility of the CC1 flag being set yet (see assumption above),
+     *      so oc_int_part will be left at 1, and when the compare event
+     *      does occur in 32769 us, oc_int_part will be decremented to 0
+     *      without calling us_ticker_irq_handler().  Then about 65536 us
+     *      later, the compare event will occur again, and
+     *      us_ticker_irq_handler() will be called
+     *
+     * delta - 1 is used because the timer compare event happens on the
+     * counter incrementing to match the compare value, and it won't occur
+     * immediately when the compare value is set to the current counter
+     * value.
+     */
+    uint32_t current_time = us_ticker_read();
+    uint32_t delta = timestamp - current_time;
+    /* Note: The case of delta <= 0 is handled in MBED upper layer */
+    oc_int_part = (delta - 1) >> 16;
+    if ( ((delta - 1) & 0xFFFF) >= 0x8000 &&
+         __HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET ) {
+        ++oc_int_part;
+        /* NOTE: Instead of incrementing oc_int_part here, we could clear
+         *       the CC1 flag, but then you'd have to wait to ensure the
+         *       interrupt is knocked down before returning and reenabling
+         *       interrupts.  Since this is a rare case, it's not worth it
+         *       to try and optimize it, and it keeps the code simpler and
+         *       safer to just do this increment instead.
+         */
     }
+
 }
 
+void us_ticker_fire_interrupt(void)
+{
+    /* When firing the event, the number of 16 bits counter wrap-ups (oc_int)
+     * must be re-initialized */
+    oc_int_part = 0;
+    HAL_TIM_GenerateEvent(&TimMasterHandle, TIM_EVENTSOURCE_CC1);
+}
+
+/* NOTE: must be called with interrupts disabled! */
 void us_ticker_disable_interrupt(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
+/* NOTE: must be called with interrupts disabled! */
 void us_ticker_clear_interrupt(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
-    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
-        __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
-    }
+    __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
 }
 
 #endif // TIM_MST_16BIT

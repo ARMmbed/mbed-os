@@ -40,11 +40,13 @@ extern "C" {
 #endif
 
 #include "stm32f0xx.h"
+#include "stm32f0xx_ll_tim.h"
 #include "cmsis_nvic.h"
 
 #define TIM_MST      TIM2
 #define TIM_MST_IRQ  TIM2_IRQn
 #define TIM_MST_RCC  __TIM2_CLK_ENABLE()
+#define TIM_MST_DBGMCU_FREEZE  __HAL_DBGMCU_FREEZE_TIM2()
 
 #define TIM_MST_RESET_ON   __TIM2_FORCE_RESET()
 #define TIM_MST_RESET_OFF  __TIM2_RELEASE_RESET()

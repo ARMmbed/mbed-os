@@ -24,17 +24,26 @@ typedef int FILEHANDLE;
 #include "platform/platform.h"
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
-/** @{*/
-
+    
 typedef enum {
     FilePathType,
     FileSystemPathType
 } PathType;
 
-class FileBase {
+/** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_FileBase FileBase class
+ * @{
+ */
+/** Class FileBase
+ *
+ */
+ 
+class FileBase : private NonCopyable<FileBase> {
 public:
     FileBase(const char *name, PathType t);
     virtual ~FileBase();
@@ -54,12 +63,13 @@ private:
     FileBase   *_next;
     const char * const _name;
     const PathType _path_type;
-    FileBase(const FileBase&);
-    FileBase & operator = (const FileBase&);
 };
+
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 
 #endif
 
-/** @}*/

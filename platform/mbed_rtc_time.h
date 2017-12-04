@@ -1,6 +1,10 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_rtc_time rtc_time functions
+ * @{
+ */
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -61,7 +65,7 @@ extern "C" {
  *
  * @param t Number of seconds since January 1, 1970 (the UNIX timestamp)
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
  * Example:
  * @code
@@ -76,7 +80,7 @@ void set_time(time_t t);
 
 /** Attach an external RTC to be used for the C time functions
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
  * @param read_rtc pointer to function which returns current UNIX timestamp
  * @param write_rtc pointer to function which sets current UNIX timestamp, can be NULL
@@ -89,4 +93,5 @@ void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init
 }
 #endif
 
+/** @}*/
 /** @}*/

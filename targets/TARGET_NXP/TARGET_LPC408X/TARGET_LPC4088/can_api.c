@@ -239,7 +239,7 @@ static unsigned int can_speed(unsigned int pclk, unsigned int cclk, unsigned cha
 
 }
 
-void can_init(can_t *obj, PinName rd, PinName td) {
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
     CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
     obj->dev = (LPC_CAN_TypeDef *)pinmap_merge(can_rd, can_td);
@@ -252,17 +252,21 @@ void can_init(can_t *obj, PinName rd, PinName td) {
 
     pinmap_pinout(rd, PinMap_CAN_RD);
     pinmap_pinout(td, PinMap_CAN_TD);
-    
+
     switch ((int)obj->dev) {
         case CAN_1: obj->index = 0; break;
         case CAN_2: obj->index = 1; break;
     }
-    
+
     can_reset(obj);
     obj->dev->IER = 0;             // Disable Interrupts
-    can_frequency(obj, 100000);
+    can_frequency(obj, hz);
 
     LPC_CANAF->AFMR = ACCF_BYPASS; // Bypass Filter
+}
+
+void can_init(can_t *obj, PinName rd, PinName td) {
+    can_init_freq(obj, rd, td, 100000);
 }
 
 void can_free(can_t *obj) {

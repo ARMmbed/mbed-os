@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_opamp.c
   * @author  MCD Application Team
-  * @version V1.5.1
-  * @date    31-May-2016
+  * @version V1.7.1
+  * @date    21-April-2017
   * @brief   OPAMP LL module driver
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -83,7 +83,7 @@
 /*       compatibility with other STM32 families.                             */
 #define IS_LL_OPAMP_INPUT_NONINVERTING(__OPAMPX__, __INPUT_NONINVERTING__)     \
   (   ((__INPUT_NONINVERTING__) == LL_OPAMP_INPUT_NONINVERT_IO0)               \
-   || ((__INPUT_NONINVERTING__) == LL_OPAMP_INPUT_NONINVERT_DAC1_CH1)          \
+   || ((__INPUT_NONINVERTING__) == LL_OPAMP_INPUT_NONINV_DAC1_CH1)             \
   )
 
 /* Note: Comparator non-inverting inputs parameters are the same on all       */

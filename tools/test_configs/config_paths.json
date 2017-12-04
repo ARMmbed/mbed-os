@@ -1,0 +1,8 @@
+{
+    "ETHERNET" : "EthernetInterface.json",
+    "HEAPBLOCKDEVICE": "HeapBlockDevice.json",
+    "HEAPBLOCKDEVICE_AND_ETHERNET": "HeapBlockDeviceAndEthernetInterface.json",
+    "ODIN_WIFI" : "OdinInterface.json",
+    "ODIN_ETHERNET" : "Odin_EthernetInterface.json",
+    "REALTEK_WIFI" : "RealtekInterface.json"
+}

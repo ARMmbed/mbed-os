@@ -18,13 +18,21 @@
 #define __UVISOR_API_BOX_CONFIG_H__
 
 #include "api/inc/uvisor_exports.h"
+#include "api/inc/debug_exports.h"
 #include "api/inc/page_allocator_exports.h"
 #include "api/inc/rpc_exports.h"
 #include <stddef.h>
 #include <stdint.h>
+#include <sys/reent.h>
 
 UVISOR_EXTERN const uint32_t __uvisor_mode;
 UVISOR_EXTERN void const * const public_box_cfg_ptr;
+
+/* All pointers in the box index need to be 4-byte aligned.
+ * We therefore also need to round up all sizes to 4-byte multiples to
+ * provide the space to be able to align the pointers to 4-bytes. */
+#define __UVISOR_BOX_ROUND_4(size) \
+    (((size) + 3UL) & ~3UL)
 
 #define UVISOR_DISABLED   0
 #define UVISOR_PERMISSIVE 1
@@ -47,7 +55,9 @@ UVISOR_EXTERN void const * const public_box_cfg_ptr;
         { \
             sizeof(RtxBoxIndex), \
             0, \
+            0, \
             sizeof(uvisor_rpc_t), \
+            sizeof(uvisor_ipc_t), \
             0, \
         }, \
         0, \
@@ -77,12 +87,13 @@ UVISOR_EXTERN void const * const public_box_cfg_ptr;
             UVISOR_STACK_SIZE_ROUND( \
                 ( \
                     (UVISOR_MIN_STACK(stack_size) + \
-                    (context_size) + \
-                    (__uvisor_box_heapsize) + \
-                    sizeof(RtxBoxIndex) + \
-                    sizeof(uvisor_rpc_outgoing_message_queue_t) + \
-                    sizeof(uvisor_rpc_incoming_message_queue_t) + \
-                    sizeof(uvisor_rpc_fn_group_queue_t) \
+                    __UVISOR_BOX_ROUND_4(context_size) + \
+                    __UVISOR_BOX_ROUND_4(__uvisor_box_heapsize) + \
+                    __UVISOR_BOX_ROUND_4(sizeof(RtxBoxIndex)) + \
+                    __UVISOR_BOX_ROUND_4(sizeof(uvisor_rpc_outgoing_message_queue_t)) + \
+                    __UVISOR_BOX_ROUND_4(sizeof(uvisor_rpc_incoming_message_queue_t)) + \
+                    __UVISOR_BOX_ROUND_4(sizeof(uvisor_rpc_fn_group_queue_t)) + \
+                    __UVISOR_BOX_ROUND_4(sizeof(struct _reent)) \
                 ) \
             * 8) \
         / 6)]; \
@@ -93,7 +104,9 @@ UVISOR_EXTERN void const * const public_box_cfg_ptr;
         { \
             sizeof(RtxBoxIndex), \
             context_size, \
+            sizeof(struct _reent), \
             sizeof(uvisor_rpc_t), \
+            sizeof(uvisor_ipc_t), \
             __uvisor_box_heapsize, \
         }, \
         UVISOR_MIN_STACK(stack_size), \
@@ -145,12 +158,34 @@ UVISOR_EXTERN void const * const public_box_cfg_ptr;
  * thread of your box will use for its body. If you don't want a main thread,
  * too bad: you have to have one. */
 #define UVISOR_BOX_MAIN(function, priority, stack_size) \
-    static osThreadDef(function, priority, stack_size); \
-    static const void * const __uvisor_box_lib_config = osThread(function);
+    static const uvisor_box_main_t __uvisor_box_main = { \
+        function, \
+        priority, \
+        stack_size, \
+    }; \
+    static const void * const __uvisor_box_lib_config = &__uvisor_box_main;
 
 #define UVISOR_BOX_HEAPSIZE(heap_size) \
     static const uint32_t __uvisor_box_heapsize = heap_size;
 
 #define __uvisor_ctx (((UvisorBoxIndex *) __uvisor_ps)->bss.address_of.context)
+
+
+/* Use this macro after calling the box configuration macro, in order to register your box as a debug box.
+ * It will create a valid debug driver struct with the halt_error_func parameter as its halt_error() function */
+#define UVISOR_DEBUG_DRIVER(box_name, halt_error_func) \
+        UVISOR_EXTERN TUvisorDebugDriver const __uvisor_debug_driver; \
+        TUvisorDebugDriver const __uvisor_debug_driver = { \
+            UVISOR_DEBUG_BOX_MAGIC, \
+            UVISOR_DEBUG_BOX_VERSION, \
+            &box_name ## _cfg, \
+            halt_error_func \
+        };
+
+/* Use this macro after calling the box configuration macro, in order to
+ * register the public box as a debug box. */
+#define UVISOR_PUBLIC_BOX_DEBUG_DRIVER(halt_error_func) \
+        UVISOR_DEBUG_DRIVER(public_box, halt_error_func)
+
 
 #endif /* __UVISOR_API_BOX_CONFIG_H__ */

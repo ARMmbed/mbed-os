@@ -54,18 +54,6 @@ struct port_s {
     __IO uint32_t *reg_out;
 };
 
-struct analogin_s {
-    ADCName adc;
-    PinName pin;
-    uint32_t channel;
-};
-
-struct dac_s {
-    DACName dac;
-    PinName pin;
-    uint32_t channel;
-};
-
 struct trng_s {
     RNG_HandleTypeDef handle;
 };

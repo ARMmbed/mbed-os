@@ -100,15 +100,15 @@ int gpio_irq_init(gpio_irq_t *obj, PinName name, gpio_irq_handler handler, uint3
 
     /* register handlers */
     irq_handler = handler;
-    NVIC_SetVector(GPIO_P0_IRQn, gpio_irq_0);
-    NVIC_SetVector(GPIO_P1_IRQn, gpio_irq_1);
-    NVIC_SetVector(GPIO_P2_IRQn, gpio_irq_2);
-    NVIC_SetVector(GPIO_P3_IRQn, gpio_irq_3);
-    NVIC_SetVector(GPIO_P4_IRQn, gpio_irq_4);
-    NVIC_SetVector(GPIO_P5_IRQn, gpio_irq_5);
-    NVIC_SetVector(GPIO_P6_IRQn, gpio_irq_6);
-    NVIC_SetVector(GPIO_P7_IRQn, gpio_irq_7);
-    NVIC_SetVector(GPIO_P8_IRQn, gpio_irq_8);
+    NVIC_SetVector(GPIO_P0_IRQn, (uint32_t)gpio_irq_0);
+    NVIC_SetVector(GPIO_P1_IRQn, (uint32_t)gpio_irq_1);
+    NVIC_SetVector(GPIO_P2_IRQn, (uint32_t)gpio_irq_2);
+    NVIC_SetVector(GPIO_P3_IRQn, (uint32_t)gpio_irq_3);
+    NVIC_SetVector(GPIO_P4_IRQn, (uint32_t)gpio_irq_4);
+    NVIC_SetVector(GPIO_P5_IRQn, (uint32_t)gpio_irq_5);
+    NVIC_SetVector(GPIO_P6_IRQn, (uint32_t)gpio_irq_6);
+    NVIC_SetVector(GPIO_P7_IRQn, (uint32_t)gpio_irq_7);
+    NVIC_SetVector(GPIO_P8_IRQn, (uint32_t)gpio_irq_8);
 
     /* disable the interrupt locally */
     MXC_GPIO->int_mode[port] &= ~(0xF << (pin*4));

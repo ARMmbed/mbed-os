@@ -28,7 +28,11 @@
 #include "osdep_service.h"
 
 typedef struct _wifi_scan_hdl {
+<<<<<<< HEAD
     void *scan_sema;
+=======
+    _sema scan_sema;
+>>>>>>> upstream/master
     nsapi_size_t ap_num;
     nsapi_size_t scan_num;
     WiFiAccessPoint *ap_details;
@@ -83,6 +87,7 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
     return RTW_SUCCESS;
 }
 
+<<<<<<< HEAD
 static bool rtw_ipv4_is_valid(const char *addr)
 {
     int i = 0;
@@ -106,19 +111,36 @@ static bool rtw_ipv4_is_valid(const char *addr)
 }
 
 RTWInterface::RTWInterface()
+=======
+RTWInterface::RTWInterface(bool debug)
+>>>>>>> upstream/master
     : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
     emac_interface_t *emac;
     int ret;
+<<<<<<< HEAD
 
     emac = wlan_emac_init_interface();
     if (!emac) {
        printf("Error init RTWInterface!\r\n");
+=======
+    extern u32 GlobalDebugEnable; 
+
+    GlobalDebugEnable = debug?1:0;
+    emac = wlan_emac_init_interface();
+    if (!emac) {
+        printf("Error init RTWInterface!\r\n");
+        return;
+>>>>>>> upstream/master
     }
     emac->ops.power_up(emac);
     ret = mbed_lwip_init(emac);
     if (ret != 0) {
         printf("Error init RTWInterface!(%d)\r\n", ret);
+<<<<<<< HEAD
+=======
+        return;
+>>>>>>> upstream/master
     }
 }
 
@@ -130,10 +152,17 @@ RTWInterface::~RTWInterface()
 
 nsapi_error_t RTWInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
+<<<<<<< HEAD
     strncpy(_ip_address, ip_address ? ip_address : "", sizeof(_ip_address));
     strncpy(_netmask, netmask ? netmask : "", sizeof(_netmask));
     strncpy(_gateway, gateway ? gateway : "", sizeof(_gateway));
     _dhcp = false;
+=======
+    _dhcp = false;
+    strncpy(_ip_address, ip_address ? ip_address : "", sizeof(_ip_address));
+    strncpy(_netmask, netmask ? netmask : "", sizeof(_netmask));
+    strncpy(_gateway, gateway ? gateway : "", sizeof(_gateway));
+>>>>>>> upstream/master
     return NSAPI_ERROR_OK;
 }
 
@@ -167,11 +196,15 @@ nsapi_error_t RTWInterface::connect()
 
     switch (_security) {
         case NSAPI_SECURITY_WPA:
+<<<<<<< HEAD
             sec = RTW_SECURITY_WPA_TKIP_PSK;
             break;
         case NSAPI_SECURITY_WPA2:
             sec = RTW_SECURITY_WPA2_AES_PSK;
             break;
+=======
+        case NSAPI_SECURITY_WPA2:
+>>>>>>> upstream/master
         case NSAPI_SECURITY_WPA_WPA2:
             sec = RTW_SECURITY_WPA_WPA2_MIXED;
             break;
@@ -185,6 +218,7 @@ nsapi_error_t RTWInterface::connect()
             return NSAPI_ERROR_PARAMETER;
     }
 
+<<<<<<< HEAD
     if(!_dhcp){
 #if LWIP_IPV4
         if (!rtw_ipv4_is_valid(_ip_address) ||
@@ -200,6 +234,9 @@ nsapi_error_t RTWInterface::connect()
     }
     
     if(_channel != 0){
+=======
+    if(_channel > 0 && _channel < 14){
+>>>>>>> upstream/master
         uint8_t pscan_config = PSCAN_ENABLE;
         wifi_set_pscan_chan(&_channel, &pscan_config, 1);
     }
@@ -211,6 +248,7 @@ nsapi_error_t RTWInterface::connect()
     }
 
     wlan_emac_link_change(true);
+<<<<<<< HEAD
     ret = mbed_lwip_bringup(_dhcp,
                              _ip_address[0] ? _ip_address : 0,
                              _netmask[0] ? _netmask : 0,
@@ -222,6 +260,15 @@ nsapi_error_t RTWInterface::connect()
 }
 
 nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, nsapi_size_t count)
+=======
+    return mbed_lwip_bringup(_dhcp,
+                             _ip_address[0] ? _ip_address : 0,
+                             _netmask[0] ? _netmask : 0,
+                             _gateway[0] ? _gateway : 0);
+}
+
+nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
+>>>>>>> upstream/master
 {
     static wifi_scan_hdl scan_handler;
     scan_handler.ap_num = 0;
@@ -237,7 +284,11 @@ nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, nsapi_size_t count)
         printf("wifi scan timeout\r\n");
         return NSAPI_ERROR_DEVICE_ERROR;
     }
+<<<<<<< HEAD
     if(count == 0 || count > scan_handler.ap_num)
+=======
+    if(count <= 0 || count > scan_handler.ap_num)
+>>>>>>> upstream/master
         count = scan_handler.ap_num;
 
     return count;
@@ -268,7 +319,11 @@ nsapi_error_t RTWInterface::connect(const char *ssid, const char *pass,
 nsapi_error_t RTWInterface::disconnect()
 {
     char essid[33];
+<<<<<<< HEAD
     mbed_lwip_bringdown();
+=======
+
+>>>>>>> upstream/master
     wlan_emac_link_change(false);
     if(wifi_is_connected_to_ap() != RTW_SUCCESS)
         return NSAPI_ERROR_NO_CONNECTION;

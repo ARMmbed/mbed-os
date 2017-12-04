@@ -25,6 +25,7 @@
 
 #include "rtc_api.h"
 #include "rtc_iodefine.h"
+#include "mbed_mktime.h"
 
 
 #define RCR1_VAL_ON      (0x08u) // AIE = 1
@@ -247,7 +248,7 @@ time_t rtc_read(void) {
 
     if (err == 0) {
         // Convert to timestamp
-        t = mktime(&timeinfo);
+        t = _rtc_mktime(&timeinfo);
     } else {
         // Error
         t = TIME_ERROR_VAL;
@@ -337,7 +338,10 @@ static int rtc_dec16_to_hex(uint16_t dec_val, uint16_t offset, int *hex_val) {
  */
 void rtc_write(time_t t) {
 
-    struct tm *timeinfo = localtime(&t);
+    struct tm timeinfo;
+    if (_rtc_localtime(t, &timeinfo) == false) {
+        return;
+    }
     volatile uint16_t dummy_read;
 
     if (rtc_isenabled() != 0) {
@@ -348,12 +352,12 @@ void rtc_write(time_t t) {
         dummy_read  = (uint16_t)RTC.RCR2;
         dummy_read  = (uint16_t)RTC.RCR2;
 
-        RTC.RSECCNT = rtc_hex8_to_dec(timeinfo->tm_sec);
-        RTC.RMINCNT = rtc_hex8_to_dec(timeinfo->tm_min);
-        RTC.RHRCNT  = rtc_hex8_to_dec(timeinfo->tm_hour);
-        RTC.RDAYCNT = rtc_hex8_to_dec(timeinfo->tm_mday);
-        RTC.RMONCNT = rtc_hex8_to_dec(timeinfo->tm_mon + 1);
-        RTC.RYRCNT  = rtc_hex16_to_dec(timeinfo->tm_year + 1900);
+        RTC.RSECCNT = rtc_hex8_to_dec(timeinfo.tm_sec);
+        RTC.RMINCNT = rtc_hex8_to_dec(timeinfo.tm_min);
+        RTC.RHRCNT  = rtc_hex8_to_dec(timeinfo.tm_hour);
+        RTC.RDAYCNT = rtc_hex8_to_dec(timeinfo.tm_mday);
+        RTC.RMONCNT = rtc_hex8_to_dec(timeinfo.tm_mon + 1);
+        RTC.RYRCNT  = rtc_hex16_to_dec(timeinfo.tm_year + 1900);
         dummy_read  = (uint16_t)RTC.RYRCNT;
         dummy_read  = (uint16_t)RTC.RYRCNT;
 

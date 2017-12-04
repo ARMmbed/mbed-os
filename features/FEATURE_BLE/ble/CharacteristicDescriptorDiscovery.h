@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef __CHARACTERISTIC_DESCRIPTOR_DISCOVERY_H__
-#define __CHARACTERISTIC_DESCRIPTOR_DISCOVERY_H__
+#ifndef MBED_CHARACTERISTIC_DESCRIPTOR_DISCOVERY_H__
+#define MBED_CHARACTERISTIC_DESCRIPTOR_DISCOVERY_H__
 
 #include "FunctionPointerWithContext.h"
 
@@ -23,77 +23,118 @@ class DiscoveredCharacteristic;                         // forward declaration
 class DiscoveredCharacteristicDescriptor;               // forward declaration
 
 /**
- * @brief Contain all definitions of callbacks and callbacks parameters types
- * related to characteristic descriptor discovery.
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ */
+
+/**
+ * Definitions of events and event handlers that the characteristic descriptor
+ * discovery procedure uses.
  *
- * @details This class act like a namespace for characteristic descriptor discovery
- * types. It act like ServiceDiscovery by providing callbacks and callbacks
- * parameters types related to the characteristic descriptor discovery process but
- * contrary to ServiceDiscovery class, it does not force the porter to use a
- * specific interface for the characteristic descriptor discovery process.
+ * This class acts like a namespace for characteristic descriptor discovery
+ * types. Like ServiceDiscovery, it provides callbacks and callbacks parameters
+ * types related to the characteristic descriptor discovery process, but contrary
+ * to the ServiceDiscovery class, it does not force the porter to use a specific
+ * interface for the characteristic descriptor discovery process.
  */
 class CharacteristicDescriptorDiscovery {
 public:
     /**
-     * @brief Parameter type of CharacteristicDescriptorDiscovery::DiscoveryCallback_t.
-     * @details Every time a characteristic descriptor has been discovered, the callback
-     * registered for the discovery operation through GattClient::discoverCharacteristicDescriptors
-     * or DiscoveredCharacteristic::discoverDescriptors will be called with this parameter.
+     * Characteristic descriptor discovered event.
      *
+     * When a characteristic descriptor has been discovered, the callback
+     * registered for the discovery operation through
+     * GattClient::discoverCharacteristicDescriptors or
+     * DiscoveredCharacteristic::discoverDescriptors is called with an instance
+     * of this type.
+     *
+     * The values reported to the user are the descriptor discovered and the
+     * characteristic owning that descriptor.
+     *
+     * @see GattClient::discoverCharacteristicDescriptors
+     * DiscoveredCharacteristic::discoverDescriptors
      */
     struct DiscoveryCallbackParams_t {
         /**
-         * The characteristic owning the DiscoveredCharacteristicDescriptor
+         * Characteristic owning the descriptor discovered.
          */
-        const DiscoveredCharacteristic& characteristic;
+        const DiscoveredCharacteristic &characteristic;
 
         /**
-         * The characteristic descriptor discovered
+         * Characteristic descriptor discovered.
          */
-        const DiscoveredCharacteristicDescriptor& descriptor;
+        const DiscoveredCharacteristicDescriptor &descriptor;
     };
 
     /**
-     * @brief Parameter type of CharacteristicDescriptorDiscovery::TerminationCallback_t.
-     * @details Once a characteristic descriptor discovery process terminate, the termination
-     * callback registered for the discovery operation through
-     * GattClient::discoverCharacteristicDescriptors or DiscoveredCharacteristic::discoverDescriptors
-     * will be called with this parameter.
+     * Characteristic descriptor discovery ended event.
+     *
+     * When the characteristic descriptor discovery process ends, the
+     * termination callback registered for the discovery operation through
+     * GattClient::discoverCharacteristicDescriptors or
+     * DiscoveredCharacteristic::discoverDescriptors will be called with an
+     * instance of this type.
+     *
+     * @see GattClient::discoverCharacteristicDescriptors
+     * DiscoveredCharacteristic::discoverDescriptors
      */
     struct TerminationCallbackParams_t {
         /**
-         * The characteristic for which the descriptors has been discovered
+         * Characteristic for which descriptors has been discovered.
          */
         const DiscoveredCharacteristic& characteristic;
 
         /**
-         * status of the discovery operation
+         * Status of the discovery operation.
          */
         ble_error_t status;
+
+        /**
+         * Error code associated with the status if any.
+         */
+        uint8_t error_code;
     };
 
     /**
-     * @brief Callback type for when a matching characteristic descriptor is found during
-     * characteristic descriptor discovery.
+     * Characteristic descriptor discovered event handler.
      *
-     * @param param A pointer to a DiscoveryCallbackParams_t object which will remain
-     * valid for the lifetime of the callback. Memory for this object is owned by
-     * the BLE_API eventing framework. The application can safely make a persistent
-     * shallow-copy of this object in order to work with the service beyond the
-     * callback.
+     * As a parameter, it expects a pointer to a DiscoveryCallbackParams_t instance.
+     *
+     * @note The object passed in parameter will remain valid for the lifetime
+     * of the callback. The BLE_API eventing framework owns memory for this
+     * object. The application can safely make a persistent shallow-copy of
+     * this object to work with the service beyond the callback.
+     *
+     * @see DiscoveryCallbackParams_t
+     * GattClient::discoverCharacteristicDescriptors
+     * DiscoveredCharacteristic::discoverDescriptors
      */
-    typedef FunctionPointerWithContext<const DiscoveryCallbackParams_t*> DiscoveryCallback_t;
+    typedef FunctionPointerWithContext<const DiscoveryCallbackParams_t*>
+        DiscoveryCallback_t;
 
     /**
-     * @brief Callback type for when characteristic descriptor discovery terminates.
+     * Handler of Characteristic descriptor discovery ended event.
      *
-     * @param param A pointer to a TerminationCallbackParams_t object which will remain
-     * valid for the lifetime of the callback. Memory for this object is owned by
-     * the BLE_API eventing framework. The application can safely make a persistent
-     * shallow-copy of this object in order to work with the service beyond the
-     * callback.
+     * As a parameter, it expects a pointer to a TerminationCallbackParams_t instance.
+     *
+     * @note The object passed in parameter will remain valid for the lifetime
+     * of the callback. The BLE_API eventing framework owns the memory for this
+     * object. The application can safely make a persistent shallow-copy of
+     * this object to work with the service beyond the callback.
+     *
+     * @see TerminationCallbackParams_t
+     * GattClient::discoverCharacteristicDescriptors
+     * DiscoveredCharacteristic::discoverDescriptors
      */
-    typedef FunctionPointerWithContext<const TerminationCallbackParams_t*> TerminationCallback_t;
+    typedef FunctionPointerWithContext<const TerminationCallbackParams_t*>
+        TerminationCallback_t;
 };
 
-#endif // ifndef __CHARACTERISTIC_DESCRIPTOR_DISCOVERY_H__
+/**
+ * @}
+ * @}
+ */
+
+#endif // ifndef MBED_CHARACTERISTIC_DESCRIPTOR_DISCOVERY_H__

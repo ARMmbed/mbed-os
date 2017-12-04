@@ -14,127 +14,241 @@
  * limitations under the License.
  */
 
-#ifndef __DISCOVERED_CHARACTERISTIC_H__
-#define __DISCOVERED_CHARACTERISTIC_H__
+#ifndef MBED_DISCOVERED_CHARACTERISTIC_H__
+#define MBED_DISCOVERED_CHARACTERISTIC_H__
 
 #include "UUID.h"
 #include "Gap.h"
 #include "GattAttribute.h"
 #include "GattClient.h"
 #include "CharacteristicDescriptorDiscovery.h"
-#include "ble/DiscoveredCharacteristicDescriptor.h"
+#include "DiscoveredCharacteristicDescriptor.h"
 
 /**
- * @brief Representation of a characteristic discovered during a GattClient
- * discovery procedure (see GattClient::launchServiceDiscovery ).
+ * @addtogroup ble
+ * @{
+ * @addtogroup gatt
+ * @{
+ * @addtogroup client
+ * @{
+ */
+
+/**
+ * Representation of a characteristic discovered.
  *
- * @details Provide detailed informations about a discovered characteristic like:
- *     - Its UUID (see getUUID()).
- *     - The most important handles of the characteristic definition
- *       (see getDeclHandle(), getValueHandle(), getLastHandle())
- *     - Its properties (see getProperties()).
- * This class also provide functions to operate on the characteristic:
- *     - Read the characteristic value (see read())
- *     - Writing a characteristic value (see write() or writeWoResponse())
- *     - Discover descriptors inside the characteristic definition. These descriptors
- *       extends the characteristic. More information about descriptor usage is
- *       available in DiscoveredCharacteristicDescriptor class.
+ * The GattClient discovery procedure initiated with
+ * GattClient::launchServiceDiscovery() generates instances of this class.
+ *
+ * It exposes the main attributes of the discovered characteristic:
+ *   - The UUID of the characteristic, it can be retrieved by a call to the
+ *     function getUUID(). This UUID is the type of the characteristic.
+ *   - Attribute Handles of the characteristic are present as the triplet
+ *     declaration handle, value handle and last handle. The value handle is
+ *     used to read or write the content of the characteristic.
+ *   - The properties contain the set of operations the characteristic can
+ *     handle, for instance being read or written.
+ *
+ * It important to note that the value of the characteristic - if it is
+ * accessible - is not fetched at discovery time.
+ *
+ * The main operations the class offers are reading, writing and discovering
+ * the descriptors of the characteristic discovered.
+ *
+ * Reading a discovered characteristic can be accomplished in two different
+ * fashions:
+ *
+ * If the user has a callback registered for the data read operation in the
+ * GattClient, then a call to the read(uint16_t) function will initiate a read of
+ * the characteristic. Results of the operation will be pass on the callback
+ * registered by GattClient::onDataRead(), which processes all the responses to
+ * read requests. The read request for a given characteristic can be identified
+ * by the connection handle and the attribute handle, which are present in
+ * GattReadCallbackParams.
+ *
+ * Another overload (read(uint16_t, const GattClient::ReadCallback_t&)) of the
+ * read function accepts a completion callback as a last parameter. That
+ * completion callback will be invoked automatically once the response to the
+ * read request for that given characteristic has been received. However,
+ * convenience came at the expense of dynamic memory usage for the time of the
+ * transaction.
+ *
+ * Similarly, two versions of the write() API are exposed. One where the user
+ * has to register a callback handling write response through the function
+ * GattClient::onDataWritten() and another one that accepts a completion
+ * callback in input.
+ *
+ * It is also possible to send a write command, which is not acknowledged by the
+ * peer server by using the function writeWoResponse().
+ *
+ * Finally, descriptors of the characteristic can be discovered by invoking the
+ * function discoverDescriptors, which is shorthand for calling
+ * GattClient::discoverCharacteristicDescriptors. That discovery is necessary to
+ * enable or disable characteristic notification or indication that is achieved
+ * by writing on the Client Characteristic Configuration Descriptor (CCCD).
  */
 class DiscoveredCharacteristic {
 public:
     /**
-     * Structure that encapsulates the properties of a discovered
-     * characteristic.
+     * Properties of a discovered characteristic.
      */
     struct Properties_t {
-        uint8_t _broadcast       :1; /**< Broadcasting the value permitted. */
-        uint8_t _read            :1; /**< Reading the value permitted. */
-        uint8_t _writeWoResp     :1; /**< Writing the value with Write Command permitted. */
-        uint8_t _write           :1; /**< Writing the value with Write Request permitted. */
-        uint8_t _notify          :1; /**< Notifications of the value permitted. */
-        uint8_t _indicate        :1; /**< Indications of the value permitted. */
-        uint8_t _authSignedWrite :1; /**< Writing the value with Signed Write Command permitted. */
+        /**
+         * Permits broadcasts of the characteristic value using the character
+         * the Server Characteristic Configuration Descriptor.
+         *
+         * @note If set, descriptors of the characteristic contain a Server
+         * Characteristic Configuration Descriptor.
+         */
+        uint8_t _broadcast :1;
+
+        /**
+         * If set, the value of the characteristic can be read.
+         */
+        uint8_t _read :1;
+
+        /**
+         * If set, a write command can write the characteristic value
+         * (write without response).
+         */
+        uint8_t _writeWoResp :1;
+
+        /**
+         * If set, clients can issue requests to write the characteristic.
+         */
+        uint8_t _write :1;
+
+        /**
+         * If set, the server can emit notifications of the Characteristic Value
+         * (without client acknowledgment).
+         *
+         * @note If set, descriptors of the characteristic contain a Client
+         * Characteristic Configuration Descriptor.
+         */
+        uint8_t _notify :1;
+
+        /**
+         * If set, the server can emit indication of the Characteristic Value
+         * (with client acknowledgement).
+         *
+         * @note If set, descriptors of the characteristic contain a Client
+         * Characteristic Configuration Descriptor.
+         */
+        uint8_t _indicate :1;
+
+        /**
+         * If set, signed write of the Characteristic Value is supported.
+         */
+        uint8_t _authSignedWrite :1;
 
     public:
         /**
-         * @brief   Check if broadcasting is permitted.
+         * Return the value of the broadcast propertie.
          *
-         * @return  true if broadcasting the value is permitted, and false
-         *          otherwise.
+         * @return true if the Server Characteristic Configuration Descriptor
+         * of the characteristic can be configured to broadcast the
+         * characteristic value during broadcast procedure.
+         *
+         * @see _broadcast
          */
-        bool broadcast(void) const {
+        bool broadcast(void) const
+        {
             return _broadcast;
         }
 
         /**
-         * @brief   Check reading is permitted.
+         * Return the value of the read property
          *
-         * @return  true if reading the value is permitted, and false
-         *          otherwise.
+         * @return true if the characteristic value can be read and false
+         * otherwise.
+         *
+         * @see _read
          */
-        bool read(void) const {
+        bool read(void) const
+        {
             return _read;
         }
 
         /**
-         * @brief   Check if writing with Write Command is permitted.
+         * Return the value of the write without response property.
          *
-         * @return  true if writing the value with Write Command is permitted,
-         *          false otherwise.
+         * @return true if the characteristic accepts write without response
+         * commands and false otherwise.
+         *
+         * @see _writeWoResp
          */
-        bool writeWoResp(void) const {
+        bool writeWoResp(void) const
+        {
             return _writeWoResp;
         }
 
         /**
-         * @brief   Check if writing with Write Request is permitted.
+         * Return the value of the write property.
          *
-         * @return  true if writing the value with Write Request is permitted,
-         *          false otherwise.
+         * @return true if writing the characteristic accepts write requests and
+         * false otherwise.
+         *
+         * @see _write
          */
-        bool write(void) const {
+        bool write(void) const
+        {
             return _write;
         }
 
         /**
-         * @brief   Check notifications are permitted.
+         * Return the value of the notification property.
          *
-         * @return  true if notifications of the value are permitted, false
-         *          otherwise.
+         * @return true if the Client Characteristic Configuration Descriptor
+         * can be configured to notify the characteristic value to a given
+         * client and false otherwise.
+         *
+         * @note unlike indication, the notification procedure does not require
+         * acknowledgement from the client.
+         *
+         * @see _notify
          */
-        bool notify(void) const {
+        bool notify(void) const
+        {
             return _notify;
         }
 
         /**
-         * @brief   Check if indications are permitted.
+         * Return the value of the indicate property.
          *
-         * @return  true if indications of the value are permitted, false
-         *          otherwise.
+         * @return true if the Client Characteristic Configuration Descriptor
+         * can be configured to indicate the characteristic value to a given
+         * client and false otherwise.
+         *
+         * @note unlike notification the indication procedure does require
+         * acknowledgment from the client.
+         *
+         * @see _indicate
          */
-        bool indicate(void) const {
+        bool indicate(void) const
+        {
             return _indicate;
         }
 
         /**
-         * @brief   Check if writing with Signed Write Command is permitted.
+         * Return the value of the authenticated signed writes property.
          *
-         * @return  true if writing the value with Signed Write Command is
-         *          permitted, false otherwise.
+         * @return true if the characteristic accepts authenticated signed write
+         * and false otherwise.
          */
-        bool authSignedWrite(void) const {
+        bool authSignedWrite(void) const
+        {
             return _authSignedWrite;
         }
 
         /**
-         * @brief "Equal to" operator for DiscoveredCharacteristic::Properties_t
+         * Equal to operator for DiscoveredCharacteristic::Properties_t.
          *
-         * @param[in] lhs The left hand side of the equality expression
-         * @param[in] rhs The right hand side of the equality expression
+         * @param[in] lhs The left hand side of the equality expression.
+         * @param[in] rhs The right hand side of the equality expression.
          *
-         * @return true if operands are equals, false otherwise.
+         * @return true if operands are equals and false otherwise.
          */
-        friend bool operator==(Properties_t lhs, Properties_t rhs) {
+        friend bool operator==(Properties_t lhs, Properties_t rhs)
+        {
             return lhs._broadcast == rhs._broadcast &&
                    lhs._read == rhs._read &&
                    lhs._writeWoResp == rhs._writeWoResp &&
@@ -145,121 +259,178 @@ public:
         }
 
         /**
-         * @brief "Not equal to" operator for DiscoveredCharacteristic::Properties_t
+         * Not equal to operator for DiscoveredCharacteristic::Properties_t.
          *
-         * @param lhs The right hand side of the expression
-         * @param rhs The left hand side of the expression
+         * @param lhs The left hand side of the expression.
+         * @param rhs The right hand side of the expression.
          *
          * @return true if operands are not equals, false otherwise.
          */
-        friend bool operator!=(Properties_t lhs, Properties_t rhs) {
+        friend bool operator!=(Properties_t lhs, Properties_t rhs)
+        {
             return !(lhs == rhs);
         }
 
     private:
-        operator uint8_t()  const; /* Disallow implicit conversion into an integer. */
-        operator unsigned() const; /* Disallow implicit conversion into an integer. */
+        /* Disallow implicit conversion to integer types. */
+        operator uint8_t() const;
+        operator unsigned() const;
     };
 
     /**
-     * Initiate (or continue) a read for the value attribute, optionally at a
-     * given offset. If the characteristic or descriptor to be read is longer
-     * than ATT_MTU - 1, this function must be called multiple times with
-     * appropriate offset to read the complete value.
+     * Initiate a read of the characteristic value.
      *
-     * @param[in] offset
-     *              The position - in the characteristic value bytes stream - where
-     *              the read operation begin.
+     * The characteristic value is read in its entirety from the value attribute
+     * of the characteristic.
      *
-     * @return BLE_ERROR_NONE if a read has been initiated, or
-     *         BLE_ERROR_INVALID_STATE if some internal state about the connection is invalid, or
-     *         BLE_STACK_BUSY if some client procedure is already in progress, or
-     *         BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's properties.
+     * Read responses will be passed to the callback registered in
+     * GattClient::onDataRead(). Read responses to read requests that this function
+     * call initiates will have their GattReadCallbackParams::connHandle
+     * field equal to the value returned by getConnectionHandle() and their
+     * GattReadCallbackParams::handle field equal to the value returned by
+     * getValueHandle().
+     *
+     * @param[in] offset The position - in the characteristic value bytes stream
+     * - where the read operation begin. This parameter is optional.
+     *
+     * @return BLE_ERROR_NONE if a read has been initiated.
+     * @return BLE_ERROR_INVALID_STATE if some internal state about the
+     * connection is invalid.
+     * @return BLE_STACK_BUSY if some client procedure is already in progress.
+     * @return BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's
+     * properties.
      */
     ble_error_t read(uint16_t offset = 0) const;
 
     /**
-     * @brief Same as #read(uint16_t) const but allow the user to register a callback
-     * which will be fired once the read is done.
+     * Initiate a read of the characteristic value and pass the response to its
+     * completion callback.
      *
-     * @param[in] offset
-     *              The position - in the characteristic value bytes stream - where
-     *              the read operation begin.
-     * @param[in] onRead
-     *              Continuation of the read operation
+     * @param[in] offset The position - in the characteristic value bytes stream
+     * - where the read operation begin.
+     *
+     * @param[in] onRead Completion callback which will accept the response of
+     * the read request. The callback is copied; it is unnecessary to keep it
+     * in memory after the call.
+     *
+     * @return BLE_ERROR_NONE if a read has been initiated.
+     * @return BLE_ERROR_INVALID_STATE if some internal state about the
+     * connection is invalid.
+     * @return BLE_STACK_BUSY if some client procedure is already in progress.
+     * @return BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's
+     * properties.
+     *
+     * @note This function is similar to read(uint16_t) const; however, it uses
+     * dynamic memory to store the use completion callback.
      */
-    ble_error_t read(uint16_t offset, const GattClient::ReadCallback_t& onRead) const;
+    ble_error_t read(
+        uint16_t offset,
+        const GattClient::ReadCallback_t &onRead
+    ) const;
 
     /**
      * Perform a write without response procedure.
      *
-     * @param[in]  length
-     *           The amount of data being written.
-     * @param[in]  value
-     *           The bytes being written.
+     * @note The server does not acknowledge write without responses.
+     * Therefore, they won't generate any event on the client side.
      *
-     * @note   It is important to note that a write without response will generate
-     *         an onDataSent() callback when the packet has been transmitted. There
-     *         will be a BLE-stack specific limit to the number of pending
-     *         writeWoResponse operations; the user may want to use the onDataSent()
-     *         callback for flow-control.
+     * @param[in] length The amount of data being written.
+     * @param[in] value The bytes being written.
      *
-     * @retval BLE_ERROR_NONE Successfully started the Write procedure, or
-     *         BLE_ERROR_INVALID_STATE if some internal state about the connection is invalid, or
-     *         BLE_STACK_BUSY if some client procedure is already in progress, or
-     *         BLE_ERROR_NO_MEM if there are no available buffers left to process the request, or
-     *         BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's properties.
+     * @return BLE_ERROR_NONE Successfully started the Write procedure.
+     * @return BLE_ERROR_INVALID_STATE if some internal state about the
+     * connection is invalid.
+     * @return BLE_STACK_BUSY if some client procedure is already in progress.
+     * @return BLE_ERROR_NO_MEM if there are no available buffers left to
+     * process the request.
+     * @return BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's
+     * properties.
      */
     ble_error_t writeWoResponse(uint16_t length, const uint8_t *value) const;
 
     /**
-     * Initiate a GATT Characteristic Descriptor Discovery procedure for descriptors within this characteristic.
+     * Initiate a discovery of the characteristic descriptors.
      *
-     * @param[in] onDescriptorDiscovered This callback will be called every time a descriptor is discovered
-     * @param[in] onTermination This callback will be called when the discovery process is over.
+     * When a descriptor is discovered, the callback onDescriptorDiscovered is
+     * invoked with the descriptor discovered as parameter. When the process
+     * ends, the callback onTermination is invoked.
      *
-     * @return BLE_ERROR_NONE if descriptor discovery is launched successfully; else an appropriate error.
+     * @param[in] onDescriptorDiscovered Callback is invoked when a descriptor is
+     * discovered.
+     *
+     * @param[in] onTermination Callback is invoked when the discovery process ends.
+     *
+     * @return BLE_ERROR_NONE if descriptor discovery is launched successfully;
+     * else an appropriate error.
+     *
+     * @note This function is shorthand for
+     * GattClient::discoverCharacteristicDescriptors; therefore,
+     * GattClient::isCharacteristicDescriptorDiscoveryActive can be used to
+     * determine the descriptor discovery and
+     * GattClient::terminateCharacteristicDescriptorDiscovery can be used to
+     * end the discovery process.
      */
-    ble_error_t discoverDescriptors(const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& onDescriptorDiscovered,
-                                    const CharacteristicDescriptorDiscovery::TerminationCallback_t& onTermination) const;
+    ble_error_t discoverDescriptors(
+        const CharacteristicDescriptorDiscovery::DiscoveryCallback_t &onDescriptorDiscovered,
+        const CharacteristicDescriptorDiscovery::TerminationCallback_t &onTermination
+    ) const;
 
     /**
-     * Perform a write procedure.
+     * Initiate a write procedure of the characteristic value.
      *
-     * @param[in]  length
-     *           The amount of data being written.
-     * @param[in]  value
-     *           The bytes being written.
+     * Unlike write without responses (see writeWoResponse()), an acknowledgment
+     * is expected for this procedure. The response of the peer GATT server to
+     * the write request is passed to callbacks registered in
+     * GattClient::onDataWritten().
      *
-     * @note   It is important to note that a write will generate
-     *         an onDataWritten() callback when the peer acknowledges the request.
+     * Similarly to read responses, responses to write request of this
+     * characteristic can be identified by their connection handle (
+     * GattWriteCallbackParams::connHandle), which is equal to the value
+     * returned by getConnectionHandle() and their attribute handle (
+     * GattWriteCallbackParams::handle), which is equal to the value
+     * returned by getValueHandle().
      *
-     * @retval BLE_ERROR_NONE Successfully started the Write procedure, or
-     *         BLE_ERROR_INVALID_STATE if some internal state about the connection is invalid, or
-     *         BLE_STACK_BUSY if some client procedure is already in progress, or
-     *         BLE_ERROR_NO_MEM if there are no available buffers left to process the request, or
-     *         BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's properties.
+     * @param[in] length The amount of data being written.
+     * @param[in] value The bytes being written.
+     *
+     * @return BLE_ERROR_NONE Successfully started the Write procedure.
+     * @return BLE_ERROR_INVALID_STATE If some internal state about the
+     * connection is invalid.
+     * @return BLE_STACK_BUSY If some client procedure is already in progress.
+     * @return BLE_ERROR_NO_MEM If there are no available buffers left to
+     * process the request.
+     * @return BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's
+     * properties.
+     *
+     * @note Internally, the API uses the write or long write procedure, depending
+     * on the number of bytes to write and the MTU size.
      */
     ble_error_t write(uint16_t length, const uint8_t *value) const;
 
     /**
-     * Same as write(uint16_t, const uint8_t *) const but register a callback
-     * which will be called once the data has been written.
+     * Initiate a write procedure of the characteristic value.
      *
-     * @param[in] length
-     *              The amount of bytes to write.
-     * @param[in] value
-     *              The bytes to write.
-     * @param[in] onWrite
-     *              Continuation callback for the write operation
+     * Same as write(uint16_t, const uint8_t *) const but accepts a completion
+     * callback, which is invoked when the server response is received.
      *
-     * @retval BLE_ERROR_NONE Successfully started the Write procedure, or
-     *         BLE_ERROR_INVALID_STATE if some internal state about the connection is invalid, or
-     *         BLE_STACK_BUSY if some client procedure is already in progress, or
-     *         BLE_ERROR_NO_MEM if there are no available buffers left to process the request, or
-     *         BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's properties.
+     * @param[in] length The amount of bytes to write.
+     * @param[in] value The bytes to write.
+     * @param[in] onWrite Continuation callback of the write procedure.
+     *
+     * @return BLE_ERROR_NONE Successfully started the Write procedure.
+     * @return BLE_ERROR_INVALID_STATE if some internal state about the
+     * connection is invalid.
+     * @return BLE_STACK_BUSY if some client procedure is already in progress.
+     * @return BLE_ERROR_NO_MEM if there are no available buffers left to
+     * process the request.
+     * @return BLE_ERROR_OPERATION_NOT_PERMITTED due to the characteristic's
+     * properties.
      */
-    ble_error_t write(uint16_t length, const uint8_t *value, const GattClient::WriteCallback_t& onWrite) const;
+    ble_error_t write(
+        uint16_t length,
+        const uint8_t *value,
+        const GattClient::WriteCallback_t &onWrite
+    ) const;
 
     void setupLongUUID(UUID::LongUUIDBytes_t longUUID, UUID::ByteOrder_t order = UUID::MSB) {
         uuid.setupLong(longUUID, order);
@@ -267,24 +438,29 @@ public:
 
 public:
     /**
-     * @brief Get the UUID of the discovered characteristic
-     * @return the UUID of this characteristic
+     * Get the UUID of the discovered characteristic.
+     *
+     * @return The UUID of this characteristic.
      */
-    const UUID& getUUID(void) const {
+    const UUID &getUUID(void) const
+    {
         return uuid;
     }
 
     /**
-     * @brief Get the properties of this characteristic
-     * @return the set of properties of this characteristic
+     * Get the properties of this characteristic.
+     *
+     * @return The set of properties of this characteristic.
      */
-    const Properties_t& getProperties(void) const {
+    const Properties_t &getProperties(void) const
+    {
         return props;
     }
 
     /**
-     * @brief Get the declaration handle of this characteristic.
-     * @details The declaration handle is the first handle of a characteristic
+     * Get the declaration handle of this characteristic.
+     *
+     * The declaration handle is the first handle of a characteristic
      * definition. The value accessible at this handle contains the following
      * informations:
      *    - The characteristics properties (see Properties_t). This value can
@@ -293,74 +469,90 @@ public:
      *      by using #getValueHandle .
      *    - The characteristic UUID, this value can be accessed by using the
      *      function #getUUID .
+     *
      * @return the declaration handle of this characteristic.
      */
-    GattAttribute::Handle_t getDeclHandle(void) const {
+    GattAttribute::Handle_t getDeclHandle(void) const
+    {
         return declHandle;
     }
 
     /**
-     * @brief Return the handle used to access the value of this characteristic.
-     * @details This handle is the one provided in the characteristic declaration
-     * value. Usually, it is equal to #getDeclHandle() + 1. But it is not always
-     * the case. Anyway, users are allowed to use #getDeclHandle() + 1 to access
-     * the value of a characteristic.
+     * Get the attribute handle of the characteristic value.
+     *
+     * This handle is used to read or write the value of the characteristic.
+     *
      * @return The handle to access the value of this characteristic.
      */
-    GattAttribute::Handle_t getValueHandle(void) const {
+    GattAttribute::Handle_t getValueHandle(void) const
+    {
         return valueHandle;
     }
 
     /**
-     * @brief Return the last handle of the characteristic definition.
-     * @details A Characteristic definition can contain a lot of handles:
-     *     - one for the declaration (see #getDeclHandle)
-     *     - one for the value (see #getValueHandle)
-     *     - zero of more for the characteristic descriptors.
-     * This handle is the last handle of the characteristic definition.
+     * Return the last attribute handle of the characteristic definition.
+     *
+     * The attribute layout of a characteristic definition is:
+     *   - Declaration attribute (see #getDeclHandle).
+     *   - Value attribute (see #getValueHandle).
+     *   - Zero or more characteristic descriptors attribute.
+     *
+     * The last attribute handle is used internally to discover characteristic
+     * descriptors. The discovery operates on the range [ValueHandle + 1 :
+     * LastHandle].
+     *
      * @return The last handle of this characteristic definition.
+     *
+     * @note This function is public for informative purposes.
      */
-    GattAttribute::Handle_t getLastHandle(void) const {
+    GattAttribute::Handle_t getLastHandle(void) const
+    {
         return lastHandle;
     }
 
     /**
-     * @brief Return the GattClient which can operate on this characteristic.
-     * @return The GattClient which can operate on this characteristic.
+     * Get the GattClient, which can operate on this characteristic.
+     *
+     * @return The GattClient, which can operate on this characteristic.
      */
-    GattClient* getGattClient() {
+    GattClient* getGattClient()
+    {
         return gattc;
     }
 
     /**
-     * @brief Return the GattClient which can operate on this characteristic.
-     * @return The GattClient which can operate on this characteristic.
+     * Get the GattClient, which can operate on this characteristic.
+     *
+     * @return The GattClient, which can operate on this characteristic.
      */
-    const GattClient* getGattClient() const {
+    const GattClient* getGattClient() const
+    {
         return gattc;
     }
 
     /**
-     * @brief Return the connection handle to the GattServer which contain
-     * this characteristic.
-     * @return the connection handle to the GattServer which contain
-     * this characteristic.
+     * @brief Get the connection handle to the GattServer containing this
+     * characteristic.
+     *
+     * @return Connection handle to the GattServer, which contains this
+     * characteristic.
      */
-    Gap::Handle_t getConnectionHandle() const {
+    Gap::Handle_t getConnectionHandle() const
+    {
         return connHandle;
     }
 
     /**
-     * @brief "Equal to" operator for DiscoveredCharacteristic
+     * "Equal to" operator for DiscoveredCharacteristic.
      *
-     * @param[in] lhs
-     *              The left hand side of the equality expression
-     * @param[in] rhs
-     *              The right hand side of the equality expression
+     * @param[in] lhs The left hand side of the equality expression.
+     * @param[in] rhs The right hand side of the equality expression.
      *
-     * @return true if operands are equals, false otherwise.
+     * @return true if operands are equals and false otherwise.
      */
-    friend bool operator==(const DiscoveredCharacteristic& lhs, const DiscoveredCharacteristic& rhs) {
+    friend bool operator==(
+        const DiscoveredCharacteristic& lhs, const DiscoveredCharacteristic& rhs
+    ) {
         return lhs.gattc == rhs.gattc &&
                lhs.uuid == rhs.uuid &&
                lhs.props == rhs.props &&
@@ -371,63 +563,75 @@ public:
     }
 
     /**
-     * @brief "Not equal to" operator for DiscoveredCharacteristic
+     * "Not equal to" operator for DiscoveredCharacteristic.
      *
-     * @param[in] lhs
-     *              The right hand side of the expression
-     * @param[in] rhs
-     *              The left hand side of the expression
+     * @param[in] lhs The right hand side of the expression.
+     * @param[in] rhs The left hand side of the expression.
      *
-     * @return true if operands are not equal, false otherwise.
+     * @return true if operands are not equal and false otherwise.
      */
-    friend bool operator !=(const DiscoveredCharacteristic& lhs, const DiscoveredCharacteristic& rhs) {
+    friend bool operator !=(
+        const DiscoveredCharacteristic& lhs, const DiscoveredCharacteristic& rhs
+    ) {
         return !(lhs == rhs);
     }
 
 public:
-    DiscoveredCharacteristic() : gattc(NULL),
-                                 uuid(UUID::ShortUUIDBytes_t(0)),
-                                 props(),
-                                 declHandle(GattAttribute::INVALID_HANDLE),
-                                 valueHandle(GattAttribute::INVALID_HANDLE),
-                                 lastHandle(GattAttribute::INVALID_HANDLE),
-                                 connHandle() {
-        /* empty */
+    DiscoveredCharacteristic() :
+        gattc(NULL),
+        uuid(UUID::ShortUUIDBytes_t(0)),
+        props(),
+        declHandle(GattAttribute::INVALID_HANDLE),
+        valueHandle(GattAttribute::INVALID_HANDLE),
+        lastHandle(GattAttribute::INVALID_HANDLE),
+        connHandle() {
     }
 
 protected:
     /**
-     * Pointer to the underlying GattClient for this DiscoveredCharacteristic object.
+     * Pointer to the underlying GattClient for this DiscoveredCharacteristic
+     * object.
      */
-    GattClient              *gattc;
+    GattClient *gattc;
 
 protected:
     /**
      * Discovered characteristic's UUID.
      */
-    UUID                     uuid;
+    UUID uuid;
+
     /**
      * Hold the configured properties of the discovered characteristic.
-     * For more information refer to Properties_t.
+     *
+     * @see Properties_t.
      */
-    Properties_t             props;
+    Properties_t props;
+
     /**
      * Value handle of the discovered characteristic's declaration attribute.
      */
-    GattAttribute::Handle_t  declHandle;
+    GattAttribute::Handle_t declHandle;
+
     /**
      * Value handle of the discovered characteristic's value attribute.
      */
-    GattAttribute::Handle_t  valueHandle;
+    GattAttribute::Handle_t valueHandle;
+
     /**
      * Value handle of the discovered characteristic's last attribute.
      */
-    GattAttribute::Handle_t  lastHandle;
+    GattAttribute::Handle_t lastHandle;
 
     /**
-     * Handle for the connection where the characteristic was discovered.
+     * Handle of the connection where the characteristic was discovered.
      */
-    Gap::Handle_t            connHandle;
+    Gap::Handle_t connHandle;
 };
 
-#endif /*__DISCOVERED_CHARACTERISTIC_H__*/
+/**
+ * @}
+ * @}
+ * @}
+ */
+
+#endif /*MBED_DISCOVERED_CHARACTERISTIC_H__*/

@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_dsi.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    06-May-2016
+  * @version V1.7.1
+  * @date    14-April-2017
   * @brief   DSI HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the DSI peripheral:
@@ -14,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -222,7 +222,7 @@ HAL_StatusTypeDef HAL_DSI_Init(DSI_HandleTypeDef *hdsi, DSI_PLLInitTypeDef *PLLI
   
     /* Set the TX escape clock division factor */
     hdsi->Instance->CCR &= ~DSI_CCR_TXECKDIV;
-    hdsi->Instance->CCR = hdsi->Init.TXEscapeCkdiv;
+    hdsi->Instance->CCR |= hdsi->Init.TXEscapeCkdiv;
     
     /* Calculate the bit period in high-speed mode in unit of 0.25 ns (UIX4) */
     /* The equation is : UIX4 = IntegerPart( (1000/F_PHY_Mhz) * 4 )          */
@@ -600,11 +600,7 @@ __weak void HAL_DSI_ErrorCallback(DSI_HandleTypeDef *hdsi)
 @verbatim
  ===============================================================================
                     ##### Peripheral Control functions #####
- ===============================================================================  
-    [..]  This section provides functions allowing to:
-      (+) 
-      (+) 
-      (+) 
+ ===============================================================================
 
 @endverbatim
   * @{
@@ -1000,7 +996,7 @@ HAL_StatusTypeDef HAL_DSI_ConfigHostTimeouts(DSI_HandleTypeDef *hdsi, DSI_HOST_T
   
   /* Set the timeout clock division factor */
   hdsi->Instance->CCR &= ~DSI_CCR_TOCKDIV;
-  hdsi->Instance->CCR = ((HostTimeouts->TimeoutCkdiv)<<8U);
+  hdsi->Instance->CCR |= ((HostTimeouts->TimeoutCkdiv)<<8U);
   
   /* High-speed transmission timeout */
   hdsi->Instance->TCCR[0U] &= ~DSI_TCCR0_HSTX_TOCNT;
@@ -1235,8 +1231,9 @@ HAL_StatusTypeDef HAL_DSI_LongWrite(DSI_HandleTypeDef *hdsi,
                                     uint32_t Param1,
                                     uint8_t* ParametersTable)
 {
-  uint32_t uicounter = 0U;
+  uint32_t uicounter = 0U, nbBytes = 0U, count = 0U;
   uint32_t tickstart = 0U;
+  uint32_t fifoword = 0U;
   
   /* Process locked */
   __HAL_LOCK(hdsi);
@@ -1260,25 +1257,31 @@ HAL_StatusTypeDef HAL_DSI_LongWrite(DSI_HandleTypeDef *hdsi,
     }
   }
   
-  /* Set the DCS code hexadecimal on payload byte 1, and the other parameters on the write FIFO command*/
-  while(uicounter < NbParams)
+  /* Set the DCS code on payload byte 1, and the other parameters on the write FIFO command*/
+  fifoword = Param1;
+  nbBytes = (NbParams < 3U) ? NbParams : 3U;
+  
+  for(count = 0U; count < nbBytes; count++)
   {
-    if(uicounter == 0x00U)
+    fifoword |= (((uint32_t)(*(ParametersTable + count))) << (8U + (8U*count)));
+  }
+  hdsi->Instance->GPDR = fifoword;
+  
+  uicounter = NbParams - nbBytes;
+  ParametersTable += nbBytes;
+  /* Set the Next parameters on the write FIFO command*/
+  while(uicounter != 0U)
+  {
+    nbBytes = (uicounter < 4U) ? uicounter : 4U;
+    fifoword = 0U;
+    for(count = 0U; count < nbBytes; count++)
     {
-      hdsi->Instance->GPDR=(Param1 | \
-                            ((uint32_t)(*(ParametersTable + uicounter)) << 8U) | \
-                            ((uint32_t)(*(ParametersTable + uicounter+1U))<<16U) | \
-                            ((uint32_t)(*(ParametersTable + uicounter+2U))<<24U));
-      uicounter+=3U;
+      fifoword |= (((uint32_t)(*(ParametersTable + count))) << (8U*count));
     }
-    else
-    {
-      hdsi->Instance->GPDR=((uint32_t)(*(ParametersTable + uicounter)) | \
-                            ((uint32_t)(*(ParametersTable + uicounter+1U)) << 8U) | \
-                            ((uint32_t)(*(ParametersTable + uicounter+2U)) << 16U) | \
-                            ((uint32_t)(*(ParametersTable + uicounter+3U)) << 24U));
-      uicounter+=4U;
-    }
+    hdsi->Instance->GPDR = fifoword;
+    
+    uicounter -= nbBytes;
+    ParametersTable += nbBytes;
   }
   
   /* Configure the packet to send a long DCS command */
@@ -1519,6 +1522,9 @@ HAL_StatusTypeDef HAL_DSI_ExitULPMData(DSI_HandleTypeDef *hdsi)
       }
     }
   }
+
+  /* wait for 1 ms*/
+  HAL_Delay(1U);
   
   /* De-assert the ULPM requests and the ULPM exit bits */
   hdsi->Instance->PUCR = 0U;
@@ -1662,6 +1668,9 @@ HAL_StatusTypeDef HAL_DSI_ExitULPM(DSI_HandleTypeDef *hdsi)
       }
     }
   }
+  
+  /* wait for 1 ms*/
+  HAL_Delay(1U);
   
   /* De-assert the ULPM requests and the ULPM exit bits */
   hdsi->Instance->PUCR = 0U;

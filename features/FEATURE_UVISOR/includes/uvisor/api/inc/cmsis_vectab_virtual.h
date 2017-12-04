@@ -19,7 +19,17 @@
 
 #include "api/inc/interrupts.h"
 
-#define NVIC_SetVector              vIRQ_SetVector
-#define NVIC_GetVector              vIRQ_GetVector
+/* The NVIC APIs are only wrapped on ARMv7-M. */
+#if !defined(ARCH_CORE_ARMv8M) && !defined(TARGET_M33)
+
+#define NVIC_SetVector vIRQ_SetVector
+#define NVIC_GetVector vIRQ_GetVector
+
+#else
+
+#define NVIC_SetVector __NVIC_SetVector
+#define NVIC_GetVector __NVIC_GetVector
+
+#endif
 
 #endif /* __UVISOR_API_VECTAB_VIRTUAL_H__ */

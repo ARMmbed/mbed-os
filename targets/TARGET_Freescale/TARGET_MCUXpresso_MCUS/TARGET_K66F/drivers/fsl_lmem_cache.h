@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
- * All rights reserved.
+ * Copyright 2016-2017 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -12,7 +12,7 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
@@ -37,7 +37,6 @@
  * @{
  */
 
-/*! @file */
 
 /*******************************************************************************
  * Definitions
@@ -45,8 +44,8 @@
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief LMEM controller driver version 2.0.0. */
-#define FSL_LMEM_DRIVER_VERSION (MAKE_VERSION(2, 0, 0))
+/*! @brief LMEM controller driver version 2.1.0. */
+#define FSL_LMEM_DRIVER_VERSION (MAKE_VERSION(2, 1, 0))
 /*@}*/
 
 #define LMEM_CACHE_LINE_SIZE (0x10U)   /*!< Cache line is 16-bytes. */
@@ -55,9 +54,9 @@
 /*! @brief LMEM cache mode options. */
 typedef enum _lmem_cache_mode
 {
-    kLMEM_NonCacheable = 0x0U,      /*!< CACHE mode: non-cacheable. */
-    kLMEM_CacheWriteThrough = 0x2U, /*!< CACHE mode: write-through. */
-    kLMEM_CacheWriteBack = 0x3U     /*!< CACHE mode: write-back. */
+    kLMEM_NonCacheable = 0x0U,      /*!< Cache mode: non-cacheable. */
+    kLMEM_CacheWriteThrough = 0x2U, /*!< Cache mode: write-through. */
+    kLMEM_CacheWriteBack = 0x3U     /*!< Cache mode: write-back. */
 } lmem_cache_mode_t;
 
 /*! @brief LMEM cache regions. */
@@ -106,7 +105,7 @@ extern "C" {
 /*!
  * @brief Enables/disables the processor code bus cache.
  * This function enables/disables the cache.  The function first invalidates the entire cache
- * and then enables/disable both the cache and write buffers.
+ * and then enables/disables both the cache and write buffers.
  *
  * @param base LMEM peripheral base address.
  * @param enable The enable or disable flag.
@@ -114,6 +113,26 @@ extern "C" {
  *       false - disable the code cache.
  */
 void LMEM_EnableCodeCache(LMEM_Type *base, bool enable);
+
+/*!
+ * @brief Enables/disables the processor code bus write buffer.
+ *
+ * @param base LMEM peripheral base address.
+ * @param enable The enable or disable flag.
+ *       true  - enable the code bus write buffer.
+ *       false - disable the code bus write buffer.
+ */
+static inline void LMEM_EnableCodeWriteBuffer(LMEM_Type *base, bool enable)
+{
+    if (enable)
+    {
+        base->PCCCR |= LMEM_PCCCR_ENWRBUF_MASK;
+    }
+    else
+    {
+        base->PCCCR &= ~LMEM_PCCCR_ENWRBUF_MASK;
+    }
+}
 
 /*!
  * @brief Invalidates the processor code bus cache.
@@ -163,10 +182,10 @@ void LMEM_CodeCacheInvalidateLine(LMEM_Type *base, uint32_t address);
  * This function invalidates multiple lines in the cache
  * based on the physical address and length in bytes passed in by the
  * user.  If the function detects that the length meets or exceeds half the
- * cache. Then the function performs an entire cache invalidate function, which is
+ * cache, the function performs an entire cache invalidate function, which is
  * more efficient than invalidating the cache line-by-line.
- * The need to check half the total amount of cache is due to the fact that the cache consists of
- * two ways and that line commands based on the physical address searches both ways.
+ * Because the cache consists of two ways and line commands based on the physical address searches both ways,
+ * check half the total amount of cache.
  * Invalidate - Unconditionally clear valid and modified bits of a cache entry.
  *
  * @param base LMEM peripheral base address.
@@ -197,8 +216,8 @@ void LMEM_CodeCachePushLine(LMEM_Type *base, uint32_t address);
  * user.  If the function detects that the length meets or exceeds half of the
  * cache, the function performs an cache push function, which is
  * more efficient than pushing the modified lines in the cache line-by-line.
- * The need to check half the total amount of cache is due to the fact that the cache consists of
- * two ways and that line commands based on the physical address searches both ways.
+ * Because the cache consists of two ways and line commands based on the physical address searches both ways,
+ * check half the total amount of cache.
  * Push - Push a cache entry if it is valid and modified, then clear the modified bit. If
  * the entry is not valid or not modified, leave as is. This action does not clear the valid
  * bit. A cache push is synonymous with a cache flush.
@@ -230,8 +249,8 @@ void LMEM_CodeCacheClearLine(LMEM_Type *base, uint32_t address);
  * user.  If the function detects that the length meets or exceeds half the total amount of
  * cache, the function performs a cache clear function which is
  * more efficient than clearing the lines in the cache line-by-line.
- * The need to check half the total amount of cache is due to the fact that the cache consists of
- * two ways and that line commands based on the physical address searches both ways.
+ * Because the cache consists of two ways and line commands based on the physical address searches both ways,
+ * check half the total amount of cache.
  * Clear - Push a cache entry if it is valid and modified, then clear the valid and
  * modify bits. If entry not valid or not modified, clear the valid bit.
  *
@@ -242,6 +261,7 @@ void LMEM_CodeCacheClearLine(LMEM_Type *base, uint32_t address);
  */
 void LMEM_CodeCacheClearMultiLines(LMEM_Type *base, uint32_t address, uint32_t length);
 
+#if (!defined(FSL_FEATURE_LMEM_SUPPORT_ICACHE_DEMOTE_REMOVE)) || !FSL_FEATURE_LMEM_SUPPORT_ICACHE_DEMOTE_REMOVE
 /*!
  * @brief Demotes the cache mode of a region in processor code bus cache.
  * This function allows the user to demote the cache mode of a region within the device's
@@ -264,6 +284,7 @@ void LMEM_CodeCacheClearMultiLines(LMEM_Type *base, uint32_t address, uint32_t l
  * kStatus_Fail The cache demote operation is failure.
  */
 status_t LMEM_CodeCacheDemoteRegion(LMEM_Type *base, lmem_cache_region_t region, lmem_cache_mode_t cacheMode);
+#endif  /* FSL_FEATURE_LMEM_SUPPORT_ICACHE_DEMOTE_REMOVE */
 
 /*@}*/
 
@@ -284,6 +305,26 @@ status_t LMEM_CodeCacheDemoteRegion(LMEM_Type *base, lmem_cache_region_t region,
  *       false - disable the system cache.
  */
 void LMEM_EnableSystemCache(LMEM_Type *base, bool enable);
+
+/*!
+ * @brief Enables/disables the processor system bus write buffer.
+ *
+ * @param base LMEM peripheral base address.
+ * @param enable The enable or disable flag.
+ *       true  - enable the system bus write buffer.
+ *       false - disable the system bus write buffer.
+ */
+static inline void LMEM_EnableSystemWriteBuffer(LMEM_Type *base, bool enable)
+{
+    if (enable)
+    {
+        base->PSCCR |= LMEM_PSCCR_ENWRBUF_MASK;       
+    }
+    else
+    {
+        base->PSCCR &= ~LMEM_PSCCR_ENWRBUF_MASK;               
+    }
+}
 
 /*!
  * @brief Invalidates the processor system bus cache.
@@ -320,7 +361,7 @@ void LMEM_SystemCacheClearAll(LMEM_Type *base);
  * @brief Invalidates a specific line in the processor system bus cache.
  * This function invalidates a specific line in the cache
  * based on the physical address passed in by the user.
- * Invalidate - Unconditionally clear valid and modify bits of a cache entry
+ * Invalidate - Unconditionally clears valid and modify bits of a cache entry.
  *
  * @param base LMEM peripheral base address. Should be 16-byte aligned address.
  * If not, it is changed to the 16-byte aligned memory address.
@@ -335,8 +376,8 @@ void LMEM_SystemCacheInvalidateLine(LMEM_Type *base, uint32_t address);
  * user.  If the function detects that the length meets or exceeds half of the
  * cache, the function performs an entire cache invalidate function (which is
  * more efficient than invalidating the cache line-by-line).
- * The need to check half the total amount of cache is due to the fact that the cache consists of
- * two ways and that line commands based on the physical address  searches both ways.
+ * Because the cache consists of two ways and line commands based on the physical address searches both ways,
+ * check half the total amount of cache.
  * Invalidate - Unconditionally clear valid and modify bits of a cache entry
  *
  * @param base LMEM peripheral base address.
@@ -367,8 +408,8 @@ void LMEM_SystemCachePushLine(LMEM_Type *base, uint32_t address);
  * user.  If the function detects that the length meets or exceeds half of the
  * cache, the function performs an entire cache push function (which is
  * more efficient than pushing the modified lines in the cache line-by-line).
- * The need to check half the total amount of cache is due to the fact that the cache consists of
- * two ways and that line commands based on the physical address searches both ways.
+ * Because the cache consists of two ways and line commands based on the physical address searches both ways,
+ * check half the total amount of cache.
  * Push - Push a cache entry if it is valid and modified, then clear the modify bit. If
  * the entry is not valid or not modified, leave as is. This action does not clear the valid
  * bit. A cache push is synonymous with a cache flush.
@@ -400,8 +441,8 @@ void LMEM_SystemCacheClearLine(LMEM_Type *base, uint32_t address);
  * user.  If the function detects that the length meets or exceeds half of the
  * cache, the function performs an entire cache clear function (which is
  * more efficient than clearing the lines in the cache line-by-line).
- * The need to check half the total amount of cache is due to the fact that the cache consists of
- * two ways and that line commands based on the physical address searches both ways.
+ * Because the cache consists of two ways and line commands based on the physical address searches both ways,
+ * check half the total amount of cache.
  * Clear - Push a cache entry if it is valid and modified, then clear the valid and
  * modify bits. If the entry is not valid or not modified, clear the valid bit.
  *

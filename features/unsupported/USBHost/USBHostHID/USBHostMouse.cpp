@@ -18,12 +18,14 @@
 
 #if USBHOST_MOUSE
 
-USBHostMouse::USBHostMouse() {
+USBHostMouse::USBHostMouse()
+{
     host = USBHost::getHostInst();
     init();
 }
 
-void USBHostMouse::init() {
+void USBHostMouse::init()
+{
     dev = NULL;
     int_in = NULL;
     onUpdate = NULL;
@@ -42,11 +44,13 @@ void USBHostMouse::init() {
     z = 0;
 }
 
-bool USBHostMouse::connected() {
+bool USBHostMouse::connected()
+{
     return dev_connected;
 }
 
-bool USBHostMouse::connect() {
+bool USBHostMouse::connect()
+{
     int len_listen;
 
     if (dev_connected) {
@@ -56,27 +60,38 @@ bool USBHostMouse::connect() {
     for (uint8_t i = 0; i < MAX_DEVICE_CONNECTED; i++) {
         if ((dev = host->getDevice(i)) != NULL) {
 
-            if(host->enumerate(dev, this))
+            if(host->enumerate(dev, this)) {
                 break;
-
+            }
             if (mouse_device_found) {
+                {
+                    /* As this is done in a specific thread
+                     * this lock is taken to avoid to process the device
+                     * disconnect in usb process during the device registering */
+                    USBHost::Lock  Lock(host);
+                    int_in = dev->getEndpoint(mouse_intf, INTERRUPT_ENDPOINT, IN);
+                    if (!int_in) {
+                        break;
+                    }
 
-                int_in = dev->getEndpoint(mouse_intf, INTERRUPT_ENDPOINT, IN);
-                if (!int_in)
-                    break;
+                    USB_INFO("New Mouse device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, mouse_intf);
+                    dev->setName("Mouse", mouse_intf);
+                    host->registerDriver(dev, mouse_intf, this, &USBHostMouse::init);
 
-                USB_INFO("New Mouse device: VID:%04x PID:%04x [dev: %p - intf: %d]", dev->getVid(), dev->getPid(), dev, mouse_intf);
-                dev->setName("Mouse", mouse_intf);
-                host->registerDriver(dev, mouse_intf, this, &USBHostMouse::init);
-
-                int_in->attach(this, &USBHostMouse::rxHandler);
-                len_listen = int_in->getSize();
-                if (len_listen > sizeof(report)) {
-                    len_listen = sizeof(report);
+                    int_in->attach(this, &USBHostMouse::rxHandler);
+                    len_listen = int_in->getSize();
+                    if (len_listen > sizeof(report)) {
+                        len_listen = sizeof(report);
+                    }
                 }
-                host->interruptRead(dev, int_in, report, len_listen, false);
-
-                dev_connected = true;
+                int ret=host->interruptRead(dev, int_in, report, len_listen, false);
+                MBED_ASSERT((ret==USB_TYPE_OK) || (ret ==USB_TYPE_PROCESSING) || (ret == USB_TYPE_FREE));
+                if ((ret==USB_TYPE_OK) || (ret ==USB_TYPE_PROCESSING)) {
+                    dev_connected = true;
+                }
+                if (ret == USB_TYPE_FREE) {
+                    dev_connected = false;
+                }
                 return true;
             }
         }
@@ -85,41 +100,47 @@ bool USBHostMouse::connect() {
     return false;
 }
 
-void USBHostMouse::rxHandler() {
-    int len_listen = int_in->getSize();
+void USBHostMouse::rxHandler()
+{
+    int len_listen = int_in->getLengthTransferred();
+    if (len_listen !=0) {
 
-    if (onUpdate) {
-        (*onUpdate)(report[0] & 0x07, report[1], report[2], report[3]);
+        if (onUpdate) {
+            (*onUpdate)(report[0] & 0x07, report[1], report[2], report[3]);
+        }
+
+        if (onButtonUpdate && (buttons != (report[0] & 0x07))) {
+            (*onButtonUpdate)(report[0] & 0x07);
+        }
+
+        if (onXUpdate && (x != report[1])) {
+            (*onXUpdate)(report[1]);
+        }
+
+        if (onYUpdate && (y != report[2])) {
+            (*onYUpdate)(report[2]);
+        }
+
+        if (onZUpdate && (z != report[3])) {
+            (*onZUpdate)(report[3]);
+        }
+
+        // update mouse state
+        buttons = report[0] & 0x07;
+        x = report[1];
+        y = report[2];
+        z = report[3];
     }
-
-    if (onButtonUpdate && (buttons != (report[0] & 0x07))) {
-        (*onButtonUpdate)(report[0] & 0x07);
-    }
-
-    if (onXUpdate && (x != report[1])) {
-        (*onXUpdate)(report[1]);
-    }
-
-    if (onYUpdate && (y != report[2])) {
-        (*onYUpdate)(report[2]);
-    }
-
-    if (onZUpdate && (z != report[3])) {
-        (*onZUpdate)(report[3]);
-    }
-
-    // update mouse state
-    buttons = report[0] & 0x07;
-    x = report[1];
-    y = report[2];
-    z = report[3];
+    /*  set again the maximum value */
+    len_listen = int_in->getSize();
 
     if (len_listen > sizeof(report)) {
         len_listen = sizeof(report);
     }
 
-    if (dev)
+    if (dev) {
         host->interruptRead(dev, int_in, report, len_listen, false);
+    }
 }
 
 /*virtual*/ void USBHostMouse::setVidPid(uint16_t vid, uint16_t pid)
@@ -130,9 +151,9 @@ void USBHostMouse::rxHandler() {
 /*virtual*/ bool USBHostMouse::parseInterface(uint8_t intf_nb, uint8_t intf_class, uint8_t intf_subclass, uint8_t intf_protocol) //Must return true if the interface should be parsed
 {
     if ((mouse_intf == -1) &&
-        (intf_class == HID_CLASS) &&
-        (intf_subclass == 0x01) &&
-        (intf_protocol == 0x02)) {
+            (intf_class == HID_CLASS) &&
+            (intf_subclass == 0x01) &&
+            (intf_protocol == 0x02)) {
         mouse_intf = intf_nb;
         return true;
     }

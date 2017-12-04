@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_sai.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    06-May-2016
+  * @version V1.7.1
+  * @date    14-April-2017
   * @brief   SAI HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the Serial Audio Interface (SAI) peripheral:
@@ -145,7 +145,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -187,7 +187,8 @@
 #ifdef HAL_SAI_MODULE_ENABLED
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
-    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx)
+    defined(STM32F446xx) || defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F413xx) ||\
+    defined(STM32F423xx)
 
 /** @defgroup SAI_Private_Typedefs  SAI Private Typedefs
   * @{
@@ -630,7 +631,7 @@ HAL_StatusTypeDef HAL_SAI_Transmit(SAI_HandleTypeDef *hsai, uint8_t* pData, uint
 {
   uint32_t tickstart = HAL_GetTick();
 
-  if((pData == NULL ) || (Size == 0U))
+  if((pData == NULL ) || (Size == 0))
   {
     return  HAL_ERROR;
   }
@@ -730,7 +731,7 @@ HAL_StatusTypeDef HAL_SAI_Receive(SAI_HandleTypeDef *hsai, uint8_t *pData, uint1
 {
   uint32_t tickstart = HAL_GetTick();
 
-  if((pData == NULL ) || (Size == 0U)) 
+  if((pData == NULL ) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -825,7 +826,7 @@ HAL_StatusTypeDef HAL_SAI_Receive(SAI_HandleTypeDef *hsai, uint8_t *pData, uint1
   */
 HAL_StatusTypeDef HAL_SAI_Transmit_IT(SAI_HandleTypeDef *hsai, uint8_t *pData, uint16_t Size)
 {
-  if((pData == NULL) || (Size == 0U))
+  if((pData == NULL) || (Size == 0))
   {
     return  HAL_ERROR;
   }
@@ -887,7 +888,7 @@ HAL_StatusTypeDef HAL_SAI_Transmit_IT(SAI_HandleTypeDef *hsai, uint8_t *pData, u
   */
 HAL_StatusTypeDef HAL_SAI_Receive_IT(SAI_HandleTypeDef *hsai, uint8_t *pData, uint16_t Size)
 {
-  if((pData == NULL) || (Size == 0U))
+  if((pData == NULL) || (Size == 0))
   {
     return  HAL_ERROR;
   }
@@ -1089,7 +1090,7 @@ HAL_StatusTypeDef HAL_SAI_Abort(SAI_HandleTypeDef *hsai)
   */
 HAL_StatusTypeDef HAL_SAI_Transmit_DMA(SAI_HandleTypeDef *hsai, uint8_t *pData, uint16_t Size)
 {
-  if((pData == NULL) || (Size == 0U)) 
+  if((pData == NULL) || (Size == 0)) 
   {
     return  HAL_ERROR;
   }
@@ -1851,7 +1852,7 @@ static uint32_t SAI_InterruptFlag(SAI_HandleTypeDef *hsai, uint32_t mode)
   */
 static HAL_StatusTypeDef SAI_Disable(SAI_HandleTypeDef *hsai)
 {
-  register uint32_t count = SAI_DEFAULT_TIMEOUT * (SystemCoreClock /7/1000);
+  register uint32_t count = SAI_DEFAULT_TIMEOUT * (SystemCoreClock /7U/1000U);
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Disable the SAI instance */
@@ -1860,7 +1861,7 @@ static HAL_StatusTypeDef SAI_Disable(SAI_HandleTypeDef *hsai)
   do
   {
     /* Check for the Timeout */
-    if (count-- == 0)
+    if (count-- == 0U)
     {         
       /* Update error code */
       hsai->ErrorCode |= HAL_SAI_ERROR_TIMEOUT;
@@ -2170,7 +2171,7 @@ static void SAI_DMAAbort(DMA_HandleTypeDef *hdma)
   * @}
   */
 
-#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx */
+#endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F446xx || STM32F469xx || STM32F479xx || STM32F413xx || STM32F423xx */
 #endif /* HAL_SAI_MODULE_ENABLED */
 /**
   * @}

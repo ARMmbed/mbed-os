@@ -22,7 +22,8 @@ import shutil
 import inspect
 import sys
 from copy import copy
-from collections import namedtuple
+from inspect import getmro
+from collections import namedtuple, Mapping
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict
@@ -32,17 +33,20 @@ __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
            "CUMULATIVE_ATTRIBUTES", "get_resolution_order"]
 
 CORE_LABELS = {
-    "ARM7TDMI-S": ["ARM7", "LIKE_CORTEX_ARM7"],
-    "Cortex-M0" : ["M0", "CORTEX_M", "LIKE_CORTEX_M0"],
-    "Cortex-M0+": ["M0P", "CORTEX_M", "LIKE_CORTEX_M0"],
-    "Cortex-M1" : ["M1", "CORTEX_M", "LIKE_CORTEX_M1"],
-    "Cortex-M3" : ["M3", "CORTEX_M", "LIKE_CORTEX_M3"],
-    "Cortex-M4" : ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4"],
-    "Cortex-M4F" : ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4"],
-    "Cortex-M7" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7"],
-    "Cortex-M7F" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7"],
-    "Cortex-M7FD" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7"],
-    "Cortex-A9" : ["A9", "CORTEX_A", "LIKE_CORTEX_A9"]
+   "Cortex-M0" : ["M0", "CORTEX_M", "LIKE_CORTEX_M0", "CORTEX"],
+   "Cortex-M0+": ["M0P", "CORTEX_M", "LIKE_CORTEX_M0", "CORTEX"],
+   "Cortex-M1" : ["M1", "CORTEX_M", "LIKE_CORTEX_M1", "CORTEX"],
+   "Cortex-M3" : ["M3", "CORTEX_M", "LIKE_CORTEX_M3", "CORTEX"],
+   "Cortex-M4" : ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4", "CORTEX"],
+   "Cortex-M4F" : ["M4", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M4", "CORTEX"],
+   "Cortex-M7" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7", "CORTEX"],
+   "Cortex-M7F" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7", "CORTEX"],
+   "Cortex-M7FD" : ["M7", "CORTEX_M", "RTOS_M4_M7", "LIKE_CORTEX_M7", "CORTEX"],
+   "Cortex-A9" : ["A9", "CORTEX_A", "LIKE_CORTEX_A9", "CORTEX"],
+    "Cortex-M23": ["M23", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
+    "Cortex-M23-NS": ["M23", "CORTEX_M", "LIKE_CORTEX_M23", "CORTEX"],
+    "Cortex-M33": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"],
+    "Cortex-M33-NS": ["M33", "CORTEX_M", "LIKE_CORTEX_M33", "CORTEX"]
 }
 
 ################################################################################
@@ -126,18 +130,38 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
     # Current/new location of the 'targets.json' file
     __targets_json_location = None
 
+    # Extra custom targets files
+    __extra_target_json_files = []
+
     @staticmethod
     @cached
     def get_json_target_data():
         """Load the description of JSON target data"""
-        return json_file_to_dict(Target.__targets_json_location or
-                                 Target.__targets_json_location_default)
+        targets = json_file_to_dict(Target.__targets_json_location or
+                                    Target.__targets_json_location_default)
+
+        for extra_target in Target.__extra_target_json_files:
+            for k, v in json_file_to_dict(extra_target).iteritems():
+                if k in targets:
+                    print 'WARNING: Custom target "%s" cannot replace existing target.' % k
+                else:
+                    targets[k] = v
+
+        return targets
+
+    @staticmethod
+    def add_extra_targets(source_dir):
+        extra_targets_file = os.path.join(source_dir, "custom_targets.json")
+        if os.path.exists(extra_targets_file):
+            Target.__extra_target_json_files.append(extra_targets_file)
+            CACHES.clear()
 
     @staticmethod
     def set_targets_json_location(location=None):
         """Set the location of the targets.json file"""
         Target.__targets_json_location = (location or
                                           Target.__targets_json_location_default)
+        Target.__extra_target_json_files = []
         # Invalidate caches, since the location of the JSON file changed
         CACHES.clear()
 
@@ -287,10 +311,14 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
             labels.append("UVISOR_UNSUPPORTED")
         return labels
 
-    def init_hooks(self, hook, toolchain_name):
+    def init_hooks(self, hook, toolchain):
         """Initialize the post-build hooks for a toolchain. For now, this
         function only allows "post binary" hooks (hooks that are executed
         after the binary image is extracted from the executable file)
+
+        Positional Arguments:
+        hook - the hook object to add post-binary-hooks to
+        toolchain - the toolchain object for inspection
         """
 
         # If there's no hook, simply return
@@ -306,7 +334,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
                 ("Invalid format for hook '%s' in target '%s'"
                  % (hook_data["function"], self.name)) +
                 " (must be 'class_name.function_name')")
-        class_name, function_name = temp[0], temp[1]
+        class_name, function_name = temp
         # "class_name" must refer to a class in this file, so check if the
         # class exists
         mdata = self.get_module_data()
@@ -326,10 +354,11 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
                 ("required by '%s' " % hook_data["function"]) +
                 ("in target '%s' " % self.name) +
                 ("not found in class '%s'" %  class_name))
-        # Check if the hook specification also has target restrictions
-        toolchain_restrictions = hook_data.get("toolchains", [])
+        # Check if the hook specification also has toolchain restrictions
+        toolchain_restrictions = set(hook_data.get("toolchains", []))
+        toolchain_labels = set(c.__name__ for c in getmro(toolchain.__class__))
         if toolchain_restrictions and \
-           (toolchain_name not in toolchain_restrictions):
+           not toolchain_labels.intersection(toolchain_restrictions):
             return
         # Finally, hook the requested function
         hook.hook_add_binary("post", getattr(cls, function_name))
@@ -490,7 +519,7 @@ class MCU_NRF51Code(object):
             binh.merge(blh)
 
         with open(binf.replace(".bin", ".hex"), "w") as fileout:
-            binh.tofile(fileout, format='hex')
+            binh.write_hex_file(fileout, write_start_addr=False)
 
 class NCS36510TargetCode:
     @staticmethod
@@ -504,18 +533,28 @@ class RTL8195ACode:
     @staticmethod
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
+<<<<<<< HEAD
         rtl8195a_elf2bin(t_self.name, elf, binf)
+=======
+        rtl8195a_elf2bin(t_self, elf, binf)
+>>>>>>> upstream/master
 ################################################################################
 
 # Instantiate all public targets
-TARGETS = [Target.get_target(name) for name, value
-           in Target.get_json_target_data().items()
-           if value.get("public", True)]
+def update_target_data():
+    TARGETS[:] = [Target.get_target(tgt) for tgt, obj
+                  in Target.get_json_target_data().items()
+                  if obj.get("public", True)]
+    # Map each target name to its unique instance
+    TARGET_MAP.clear()
+    TARGET_MAP.update(dict([(tgt.name, tgt) for tgt in TARGETS]))
+    TARGET_NAMES[:] = TARGET_MAP.keys()
 
-# Map each target name to its unique instance
-TARGET_MAP = dict([(t.name, t) for t in TARGETS])
+TARGETS = []
+TARGET_MAP = dict()
+TARGET_NAMES = []
 
-TARGET_NAMES = TARGET_MAP.keys()
+update_target_data()
 
 # Some targets with different name have the same exporters
 EXPORT_MAP = {}
@@ -538,9 +577,5 @@ def set_targets_json_location(location=None):
     # re-initialization does not create new variables, it keeps the old ones
     # instead. This ensures compatibility with code that does
     # "from tools.targets import TARGET_NAMES"
-    TARGETS[:] = [Target.get_target(tgt) for tgt, obj
-                  in Target.get_json_target_data().items()
-                  if obj.get("public", True)]
-    TARGET_MAP.clear()
-    TARGET_MAP.update(dict([(tgt.name, tgt) for tgt in TARGETS]))
-    TARGET_NAMES[:] = TARGET_MAP.keys()
+    update_target_data()
+

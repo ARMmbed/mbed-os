@@ -14,11 +14,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from tools.paths import MBED_RTX, RTOS, RTOS_LIBRARIES, MBED_LIBRARIES,\
-    MBED_RPC, RPC_LIBRARY, USB, USB_LIBRARIES, USB_HOST,\
-    USB_HOST_LIBRARIES, DSP_ABSTRACTION, DSP_CMSIS, DSP_LIBRARIES,\
-    ETH_SOURCES, LWIP_SOURCES, ETH_LIBRARY, UBLOX_SOURCES,\
-    UBLOX_LIBRARY, CELLULAR_SOURCES, CELLULAR_USB_SOURCES, CPPUTEST_SRC,\
+from tools.paths import MBED_LIBRARIES,\
+    MBED_RPC, RPC_LIBRARY, USB, USB_LIBRARIES, \
+    DSP_ABSTRACTION, DSP_CMSIS, DSP_LIBRARIES,\
+    CPPUTEST_SRC,\
     CPPUTEST_PLATFORM_SRC, CPPUTEST_TESTRUNNER_SCR, CPPUTEST_LIBRARY,\
     CPPUTEST_INC, CPPUTEST_PLATFORM_INC, CPPUTEST_TESTRUNNER_INC,\
     CPPUTEST_INC_EXT
@@ -27,20 +26,6 @@ from tools.tests import TEST_MBED_LIB
 
 
 LIBRARIES = [
-    # RTOS libraries
-    {
-        "id": "rtx",
-        "source_dir": MBED_RTX,
-        "build_dir": RTOS_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES],
-    },
-    {
-        "id": "rtos",
-        "source_dir": RTOS,
-        "build_dir": RTOS_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, MBED_RTX],
-    },
-
     # RPC
     {
         "id": "rpc",
@@ -57,36 +42,12 @@ LIBRARIES = [
         "dependencies": [MBED_LIBRARIES],
     },
 
-    # USB Host libraries
-    {
-        "id": "usb_host",
-        "source_dir": USB_HOST,
-        "build_dir": USB_HOST_LIBRARIES,
-        "dependencies": [MBED_LIBRARIES, MBED_RTX, RTOS_LIBRARIES],
-    },
-
     # DSP libraries
     {
         "id": "dsp",
         "source_dir": [DSP_ABSTRACTION, DSP_CMSIS],
         "build_dir": DSP_LIBRARIES,
         "dependencies": [MBED_LIBRARIES]
-    },
-
-    # Network libraries
-    {
-        "id": "eth",
-        "source_dir": [ETH_SOURCES, LWIP_SOURCES],
-        "build_dir": ETH_LIBRARY,
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES]
-    },
-
-    {
-        "id": "ublox",
-        "source_dir": [UBLOX_SOURCES, CELLULAR_SOURCES, CELLULAR_USB_SOURCES,
-                       LWIP_SOURCES],
-        "build_dir": UBLOX_LIBRARY,
-        "dependencies": [MBED_LIBRARIES, RTOS_LIBRARIES, USB_HOST_LIBRARIES],
     },
 
     # Unit Testing library

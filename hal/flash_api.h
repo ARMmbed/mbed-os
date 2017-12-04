@@ -42,14 +42,14 @@ extern "C" {
  */
 
 /** Initialize the flash peripheral and the flash_t object
- * 
+ *
  * @param obj The flash object
  * @return 0 for success, -1 for error
  */
 int32_t flash_init(flash_t *obj);
 
 /** Uninitialize the flash peripheral and the flash_t object
- * 
+ *
  * @param obj The flash object
  * @return 0 for success, -1 for error
  */
@@ -64,9 +64,20 @@ int32_t flash_free(flash_t *obj);
  */
 int32_t flash_erase_sector(flash_t *obj, uint32_t address);
 
-/** Program one page starting at defined address
- * 
- * The page should be at page boundary, should not cross multiple sectors. 
+/** Read data starting at defined address
+ *
+ * This function has a WEAK implementation using memcpy for backwards compatibility.
+ * @param obj The flash object
+ * @param address Address to begin reading from
+ * @param data The buffer to read data into
+ * @param size The number of bytes to read
+ * @return 0 for success, -1 for error
+ */
+int32_t flash_read(flash_t *obj, uint32_t address, uint8_t *data, uint32_t size);
+
+/** Program pages starting at defined address
+ *
+ * The pages should not cross multiple sectors.
  * This function does not do any check for address alignments or if size is aligned to a page size.
  * @param obj The flash object
  * @param address The sector starting address
@@ -77,7 +88,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address);
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size);
 
 /** Get sector size
- * 
+ *
  * @param obj The flash object
  * @param address The sector starting address
  * @return The size of a sector
@@ -85,22 +96,22 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address);
 
 /** Get page size
- * 
+ *
+ * The page size defines the writable page size
  * @param obj The flash object
- * @param address The page starting address
  * @return The size of a page
  */
 uint32_t flash_get_page_size(const flash_t *obj);
 
 /** Get start address for the flash region
- * 
+ *
  * @param obj The flash object
  * @return The start address for the flash region
  */
 uint32_t flash_get_start_address(const flash_t *obj);
 
 /** Get the flash region size
- * 
+ *
  * @param obj The flash object
  * @return The flash region size
  */

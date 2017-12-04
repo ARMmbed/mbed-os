@@ -17,14 +17,22 @@
 #ifndef __UVISOR_API_DEBUG_EXPORTS_H__
 #define __UVISOR_API_DEBUG_EXPORTS_H__
 
+#include "api/inc/halt_exports.h"
 #include <stdint.h>
+#include "api/inc/vmpu_exports.h"
 
-/* Debug box driver -- Version 0
+
+#define UVISOR_DEBUG_BOX_VERSION    (1)
+
+
+/* Debug box driver
  * A constant instance of this struct must be instantiated by the unprivileged
  * code to setup a debug box.*/
 typedef struct TUvisorDebugDriver {
-    uint32_t (*get_version)(void);
-    void (*halt_error)(int);
+    const uint32_t magic;
+    const uint32_t version;
+    const UvisorBoxConfig * const box_cfg_ptr;
+    void (*halt_error)(THaltError, const THaltInfo *);
 } TUvisorDebugDriver;
 
 /* Number of handlers in the debug box driver */

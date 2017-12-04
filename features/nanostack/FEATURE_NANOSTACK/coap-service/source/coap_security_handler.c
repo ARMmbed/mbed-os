@@ -1,5 +1,18 @@
 /*
- * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include <string.h>
@@ -69,10 +82,10 @@ static const int PSK_SUITES[] = {
     0
 };
 
+#define TRACE_GROUP "CsSh"
 
 static void set_timer( void *sec_obj, uint32_t int_ms, uint32_t fin_ms );
 static int get_timer( void *sec_obj );
-static int coap_security_handler_configure_keys( coap_security_t *sec, coap_security_keys_t keys );
 
 int entropy_poll( void *data, unsigned char *output, size_t len, size_t *olen );
 
@@ -276,37 +289,35 @@ static int export_key_block(void *ctx,
 }
 #endif
 
-int coap_security_handler_configure_keys( coap_security_t *sec, coap_security_keys_t keys )
+static int coap_security_handler_configure_keys (coap_security_t *sec, coap_security_keys_t keys, bool is_server)
 {
+    (void) is_server;
+
     int ret = -1;
     switch( sec->_conn_mode ){
-        case Certificate:{
+        case CERTIFICATE:{
 #if defined(MBEDTLS_X509_CRT_PARSE_C)
-        if(  mbedtls_x509_crt_parse( &sec->_cacert, keys._server_cert,
-                                     keys._server_cert_len ) < 0 ){
+        if( keys._cert && mbedtls_x509_crt_parse( &sec->_owncert, keys._cert, keys._cert_len ) < 0 ){
             break;
         }
-        if( mbedtls_x509_crt_parse( &sec->_owncert, keys._pub_cert_or_identifier,
-                                    keys._pub_len ) < 0 ){
+
+        if( mbedtls_pk_parse_key(&sec->_pkey, keys._priv_key, keys._priv_key_len, NULL, 0) < 0){
             break;
         }
-        if( mbedtls_pk_parse_key(&sec->_pkey, keys._priv, keys._priv_len, NULL, 0) < 0){
+
+        if (0 != mbedtls_ssl_conf_own_cert(&sec->_conf, &sec->_owncert, &sec->_pkey)) {
             break;
         }
-        //TODO: If needed in server mode, this won't work
-        if( 0 != mbedtls_ssl_conf_own_cert(&sec->_conf, &sec->_owncert, &sec->_pkey) ){
-            break;
-        }
-        //TODO: use MBEDTLS_SSL_VERIFY_REQUIRED instead of optional
-        mbedtls_ssl_conf_authmode( &sec->_conf, MBEDTLS_SSL_VERIFY_OPTIONAL );
-        mbedtls_ssl_conf_ca_chain( &sec->_conf, &sec->_cacert, NULL );
+
+        mbedtls_ssl_conf_authmode( &sec->_conf, MBEDTLS_SSL_VERIFY_NONE );
+        mbedtls_ssl_conf_ca_chain( &sec->_conf, &sec->_owncert, NULL );
         ret = 0;
 #endif
         break;
         }
         case PSK: {
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
-        if( 0 != mbedtls_ssl_conf_psk(&sec->_conf, keys._priv, keys._priv_len, keys._pub_cert_or_identifier, keys._pub_len) ){
+        if( 0 != mbedtls_ssl_conf_psk(&sec->_conf, keys._priv_key, keys._priv_key_len, keys._cert, keys._cert_len) ){
             break;
         }
         mbedtls_ssl_conf_ciphersuites(&sec->_conf, PSK_SUITES);
@@ -316,7 +327,7 @@ int coap_security_handler_configure_keys( coap_security_t *sec, coap_security_ke
         }
         case ECJPAKE: {
 #if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
-            if( mbedtls_ssl_set_hs_ecjpake_password(&sec->_ssl, keys._priv, keys._priv_len) != 0 ){
+            if( mbedtls_ssl_set_hs_ecjpake_password(&sec->_ssl, keys._key, keys._key_len) != 0 ){
                 return -1;
             }
             mbedtls_ssl_conf_ciphersuites(&sec->_conf, ECJPAKE_SUITES);
@@ -336,82 +347,8 @@ int coap_security_handler_configure_keys( coap_security_t *sec, coap_security_ke
     return ret;
 }
 
-int coap_security_handler_connect(coap_security_t *sec, bool is_server, SecureSocketMode sock_mode, coap_security_keys_t keys){
-    int ret = -1;
-
-    if( !sec ){
-        return ret;
-    }
-    sec->_is_blocking = true;
-
-    int endpoint = MBEDTLS_SSL_IS_CLIENT;
-    if( is_server ){
-        endpoint = MBEDTLS_SSL_IS_SERVER;
-    }
-
-    int mode = MBEDTLS_SSL_TRANSPORT_DATAGRAM;
-    if( sock_mode == TLS ){
-        mode = MBEDTLS_SSL_TRANSPORT_STREAM;
-    }
-
-    if( ( mbedtls_ssl_config_defaults( &sec->_conf,
-                       endpoint,
-                       mode, 0 ) ) != 0 )
-    {
-        return -1;
-    }
-
-    mbedtls_ssl_set_bio( &sec->_ssl, sec,
-                        f_send, f_recv, NULL );
-
-    mbedtls_ssl_set_timer_cb( &sec->_ssl, sec, set_timer,
-                                            get_timer );
-
-    if( coap_security_handler_configure_keys( sec, keys ) != 0 ){
-        return -1;
-    }
-
-#ifdef MBEDTLS_SSL_SRV_C
-    mbedtls_ssl_conf_dtls_cookies(&sec->_conf, simple_cookie_write,
-                                  simple_cookie_check,
-                                  &sec->_cookie);
-#endif
-
-    sec->_is_started = true;
-
-    do {
-        ret = mbedtls_ssl_handshake_step( &sec->_ssl );
-        if( ret == MBEDTLS_ERR_SSL_HELLO_VERIFY_REQUIRED ){ //cookie check failed
-            if( is_server ){
-                mbedtls_ssl_session_reset(&sec->_ssl);
-#if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
-                if( mbedtls_ssl_set_hs_ecjpake_password(&sec->_ssl, keys._priv, keys._priv_len) != 0 ){
-                    return -1;
-                }
-#endif
-                ret = MBEDTLS_ERR_SSL_WANT_READ; //needed to keep doing
-            }else{
-                ret = -1;
-            }
-        }
-    }while( ret == MBEDTLS_ERR_SSL_WANT_READ ||
-           ret == MBEDTLS_ERR_SSL_WANT_WRITE );
-
-    if( ret != 0){
-        ret = -1;
-    }else{
-        if( mbedtls_ssl_get_verify_result( &sec->_ssl ) != 0 )
-            {
-                ret = -1;
-            }
-    }
-
-    return ret;
-}
-
 int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_server, SecureSocketMode sock_mode, coap_security_keys_t keys, uint32_t timeout_min, uint32_t timeout_max)
 {
-
     if( !sec ){
         return -1;
     }
@@ -457,13 +394,14 @@ int coap_security_handler_connect_non_blocking(coap_security_t *sec, bool is_ser
 #if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)
     //TODO: Figure out better way!!!
     //Password should never be stored in multiple places!!!
-    if( is_server && keys._priv_len > 0){
-        memcpy(sec->_pw, keys._priv, keys._priv_len);
-        sec->_pw_len = keys._priv_len;
+    if ((sec->_conn_mode == ECJPAKE) && is_server && keys._key_len > 0){
+        memcpy(sec->_pw, keys._key, keys._key_len);
+        sec->_pw_len = keys._key_len;
     }
 #endif
 
-    if( coap_security_handler_configure_keys( sec, keys ) != 0 ){
+    if (coap_security_handler_configure_keys(sec, keys, is_server) != 0) {
+        tr_debug("security credential configure failed");
         return -1;
     }
 
@@ -499,7 +437,6 @@ int coap_security_handler_continue_connecting(coap_security_t *sec){
 
     while( ret != MBEDTLS_ERR_SSL_WANT_READ ){
         ret = mbedtls_ssl_handshake_step( &sec->_ssl );
-
         if( MBEDTLS_ERR_SSL_HELLO_VERIFY_REQUIRED == ret){
             mbedtls_ssl_session_reset(&sec->_ssl);
 #if defined(MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED)

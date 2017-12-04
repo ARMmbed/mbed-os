@@ -615,6 +615,8 @@ typedef enum {
     LED_BLUE = LED4,
 
     BTN1 = P2_7,
+    // Standardized button names
+    BUTTON1 = BTN1,
 
     // Serial pins - UART, SPI, I2C
     //                   210E    210     200E    200

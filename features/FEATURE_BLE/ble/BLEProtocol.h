@@ -14,67 +14,130 @@
  * limitations under the License.
  */
 
-#ifndef __BLE_PROTOCOL_H__
-#define __BLE_PROTOCOL_H__
+#ifndef MBED_BLE_PROTOCOL_H__
+#define MBED_BLE_PROTOCOL_H__
 
 #include <stddef.h>
 #include <stdint.h>
 #include <algorithm>
 
 /**
- * A common namespace for types and constants used everywhere in BLE API.
+ * @addtogroup ble
+ * @{
+ * @addtogroup common
+ * @{
+ */
+
+/**
+ * Common namespace for types and constants used everywhere in BLE API.
  */
 namespace BLEProtocol {
-    /**<
-     * A simple container for the enumeration of address-types for Protocol addresses.
+
+    /**
+     * Container for the enumeration of BLE address types.
      *
-     * Adding a struct to encapsulate the contained enumeration prevents
+     * @note Adding a struct to encapsulate the contained enumeration prevents
      * polluting the BLEProtocol namespace with the enumerated values. It also
      * allows type-aliases for the enumeration while retaining the enumerated
      * values. i.e. doing:
+     *
+     * @code
      *       typedef AddressType AliasedType;
+     * @endcode
      *
      * would allow the use of AliasedType::PUBLIC in code.
+     *
+     * @note see Bluetooth Standard version 4.2 [Vol 6, Part B] section 1.3 .
      */
     struct AddressType {
-        /**< Address-types for Protocol addresses. */
+        /**
+         * Address-types for Protocol addresses.
+         */
         enum Type {
+            /**
+             * Public device address.
+             */
             PUBLIC = 0,
+
+            /**
+             * Random static device address.
+             */
             RANDOM_STATIC,
+
+            /**
+             * Private resolvable device address.
+             */
             RANDOM_PRIVATE_RESOLVABLE,
+
+            /**
+             * Private non-resolvable device address.
+             */
             RANDOM_PRIVATE_NON_RESOLVABLE
         };
     };
-    typedef AddressType::Type AddressType_t;  /**< Alias for AddressType::Type */
-
-    static const size_t ADDR_LEN = 6;         /**< Length (in octets) of the BLE MAC address. */
-    typedef uint8_t AddressBytes_t[ADDR_LEN]; /**< 48-bit address, in LSB format. */
 
     /**
-     * BLE address. It contains an address-type (AddressType_t) and bytes (AddressBytes_t).
+     * Alias for AddressType::Type
+     */
+    typedef AddressType::Type AddressType_t;
+
+    /**
+     * Length (in octets) of the BLE MAC address.
+     */
+    static const size_t ADDR_LEN = 6;
+
+    /**
+     * 48-bit address, in LSB format.
+     */
+    typedef uint8_t AddressBytes_t[ADDR_LEN];
+
+    /**
+     * BLE address representation.
+     *
+     * It contains an address-type (::AddressType_t) and the address value
+     * (::AddressBytes_t).
      */
     struct Address_t {
-        AddressType_t  type;    /**< The type of the BLE address. */
-        AddressBytes_t address; /**< The BLE address. */
-
         /**
          * Construct an Address_t object with the supplied type and address.
          *
-         * @param[in] typeIn
-         *              The BLE address type.
-         * @param[in] addressIn
-         *              The BLE address.
+         * @param[in] typeIn The BLE address type.
+         * @param[in] addressIn The BLE address.
+         *
+         * @post type is equal to typeIn and address is equal to the content
+         * present in addressIn.
          */
-        Address_t(AddressType_t typeIn, const AddressBytes_t& addressIn) : type(typeIn) {
+        Address_t(AddressType_t typeIn, const AddressBytes_t &addressIn) :
+            type(typeIn) {
             std::copy(addressIn, addressIn + ADDR_LEN, address);
         }
 
         /**
          * Empty constructor.
+         *
+         * @note The address constructed with the empty constructor is not
+         * valid.
+         *
+         * @post type is equal to PUBLIC and the address value is equal to
+         * 00:00:00:00:00:00
          */
-        Address_t() : type(), address() {
-        }
+        Address_t(void) : type(), address() { }
+
+        /**
+         * Type of the BLE device address.
+         */
+        AddressType_t  type;
+
+        /**
+         * Value of the device address.
+         */
+        AddressBytes_t address;
     };
 };
 
-#endif /* __BLE_PROTOCOL_H__ */
+/**
+ * @}
+ * @}
+ */
+
+#endif /* MBED_BLE_PROTOCOL_H__ */

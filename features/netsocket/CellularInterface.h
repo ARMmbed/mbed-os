@@ -1,6 +1,3 @@
-
-/** \addtogroup netsocket */
-/** @{*/
 /* CellularInterface
  * Copyright (c) 2015 ARM Limited
  *
@@ -16,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef CELLULAR_INTERFACE_H
 #define CELLULAR_INTERFACE_H
- 
+
 #include "netsocket/NetworkInterface.h"
- 
+
 
 /** CellularInterface class
  *
  *  Common interface that is shared between ethernet hardware
+ *  @addtogroup netsocket
  */
 class CellularInterface : public NetworkInterface
 {
@@ -37,8 +35,8 @@ public:
     /** Set the cellular network APN and credentials
      *
      *  @param apn      Optional name of the network to connect to
-     *  @param user     Optional username for the APN
-     *  @param pass     Optional password fot the APN
+     *  @param username Optional username for the APN
+     *  @param password Optional password fot the APN
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_credentials(const char *apn,
@@ -48,7 +46,7 @@ public:
      *
      *  @param apn      Optional name of the network to connect to
      *  @param username Optional username for your APN
-     *  @param password Optional password for your APN 
+     *  @param password Optional password for your APN
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t connect(const char *apn,
@@ -61,7 +59,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t connect() = 0;
- 
+
     /** Stop the interface
      *
      *  @return         0 on success, negative error code on failure
@@ -69,7 +67,5 @@ public:
     virtual nsapi_error_t disconnect() = 0;
 };
 
- 
-#endif
 
-/** @}*/
+#endif

@@ -53,7 +53,7 @@
 #include <string.h>
 
 /* Currently, only TCP-over-IPv4 is implemented (does iperf support IPv6 anyway?) */
-#if LWIP_IPV4 && LWIP_TCP
+#if LWIP_IPV4 && LWIP_TCP && LWIP_CALLBACK_API
 
 /** Specify the idle timeout (in seconds) after that the test fails */
 #ifndef LWIPERF_TCP_MAX_IDLE_SEC
@@ -658,4 +658,4 @@ lwiperf_abort(void* lwiperf_session)
   }
 }
 
-#endif /* LWIP_IPV4 && LWIP_TCP */
+#endif /* LWIP_IPV4 && LWIP_TCP && LWIP_CALLBACK_API */

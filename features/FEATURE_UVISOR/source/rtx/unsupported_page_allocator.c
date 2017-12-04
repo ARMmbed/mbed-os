@@ -51,22 +51,27 @@ int uvisor_page_free(const UvisorPageTable *const table)
 }
 
 /* Implement mutex for page allocator. */
-static osMutexId g_page_allocator_mutex_id = NULL;
-static int32_t g_page_allocator_mutex_data[4];
-static const osMutexDef_t g_page_allocator_mutex = { g_page_allocator_mutex_data };
+static osMutexId_t g_page_allocator_mutex_id = NULL;
+static osRtxMutex_t g_page_allocator_mutex_data;
+static osMutexDef_t g_page_allocator_mutex_attr = {
+  .name = "uvisor_malloc_mutex",
+  .attr_bits = 0, /* Non-recursive */
+  .cb_mem = &g_page_allocator_mutex_data,
+  .cb_size = sizeof(g_page_allocator_mutex_data)
+};
 
 static void page_allocator_mutex_aquire()
 {
     if (g_page_allocator_mutex_id == NULL) {
         /* Create mutex if not already done. */
-        g_page_allocator_mutex_id = osMutexCreate(&g_page_allocator_mutex);
+        g_page_allocator_mutex_id = osMutexNew(&g_page_allocator_mutex_attr);
         if (g_page_allocator_mutex_id == NULL) {
             /* Mutex failed to be created. */
             return;
         }
     }
 
-    osMutexWait(g_page_allocator_mutex_id, osWaitForever);
+    osMutexAcquire(g_page_allocator_mutex_id, osWaitForever);
 }
 
 /* Alignment of MPU regions is not required anymore, however we still require

@@ -33,6 +33,13 @@
 #include "cmsis.h"
 #include "PinNamesTypes.h"
 
+typedef enum {
+    ALT0  = 0x100,
+    ALT1  = 0x200,
+    ALT2  = 0x300,
+    ALT3  = 0x400
+} ALTx;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -41,8 +48,11 @@ typedef enum {
   PA_0  = 0x00,
   PA_1  = 0x01,
   PA_2  = 0x02,
+  PA_2_ALT0 = PA_2|ALT0,
   PA_3  = 0x03,
+  PA_3_ALT0 = PA_3|ALT0,
   PA_4  = 0x04,
+  PA_4_ALT0 = PA_4|ALT0,
   PA_5  = 0x05,
   PA_6  = 0x06,
   PA_7  = 0x07,
@@ -59,8 +69,11 @@ typedef enum {
   PB_1  = 0x11,
   PB_2  = 0x12,
   PB_3  = 0x13,
+  PB_3_ALT0 = PB_3|ALT0,
   PB_4  = 0x14,
+  PB_4_ALT0 = PB_4|ALT0,
   PB_5  = 0x15,
+  PB_5_ALT0 = PB_5|ALT0,
   PB_6  = 0x16,
   PB_7  = 0x17,
 
@@ -112,6 +125,11 @@ typedef enum {
   SPI_SCK     = PB_3,
   SPI_CS      = PA_11,
   PWM_OUT     = PB_0,
+
+    //USB pins
+    USB_DM = PA_11,
+    USB_DP = PA_12,
+    USB_NOE = PA_13,
 
   // Not connected
   NC = (int)0xFFFFFFFF

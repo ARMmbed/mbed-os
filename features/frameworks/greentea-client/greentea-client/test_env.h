@@ -21,6 +21,7 @@
 #ifndef GREENTEA_CLIENT_TEST_ENV_H_
 #define GREENTEA_CLIENT_TEST_ENV_H_
 
+#ifdef __cplusplus
 #ifdef YOTTA_GREENTEA_CLIENT_VERSION_STRING
 #define MBED_GREENTEA_CLIENT_VERSION_STRING YOTTA_GREENTEA_CLIENT_VERSION_STRING
 #else
@@ -42,6 +43,11 @@
 #define TEST_ENV_TESTCASE_START     GREENTEA_TEST_ENV_TESTCASE_START
 #define TEST_ENV_TESTCASE_FINISH    GREENTEA_TEST_ENV_TESTCASE_FINISH
 #define TEST_ENV_TESTCASE_SUMMARY   GREENTEA_TEST_ENV_TESTCASE_SUMMARY
+
+/**
+ *  Default length for UUID buffers (used during the sync process)
+ */
+#define GREENTEA_UUID_LENGTH        48
 
 /**
  *  Generic test suite transport protocol keys
@@ -76,7 +82,7 @@ extern const char* GREENTEA_TEST_ENV_LCOV_START;
 /**
  *  Greentea-client related API for communication with host side
  */
-void GREENTEA_SETUP(const int, const char *);
+void GREENTEA_SETUP_UUID(const int timeout, const char *host_test_name, char *buffer, size_t size);
 void GREENTEA_TESTSUITE_RESULT(const int);
 void GREENTEA_TESTCASE_START(const char *test_case_name);
 void GREENTEA_TESTCASE_FINISH(const char *test_case_name, const size_t passes, const size_t failed);
@@ -84,12 +90,10 @@ void GREENTEA_TESTCASE_FINISH(const char *test_case_name, const size_t passes, c
 /**
  *  Test suite result related notification API
  */
-void greentea_send_kv(const char *, const char *);
 void greentea_send_kv(const char *, const int);
 void greentea_send_kv(const char *, const int, const int);
 void greentea_send_kv(const char *, const char *, const int);
 void greentea_send_kv(const char *, const char *, const int, const int);
-int greentea_parse_kv(char *, char *, const int, const int);
 
 #ifdef MBED_CFG_DEBUG_OPTIONS_COVERAGE
 /**
@@ -98,6 +102,25 @@ int greentea_parse_kv(char *, char *, const int, const int);
 void greentea_notify_coverage_start(const char *path);
 void greentea_notify_coverage_end();
 #endif  // MBED_CFG_DEBUG_OPTIONS_COVERAGE
+
+#endif  // __cplusplus
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ *  Greentea-client C API
+ */
+void GREENTEA_SETUP(const int timeout, const char * host_test);
+void greentea_send_kv(const char * key, const char * val);
+int greentea_parse_kv(char * key, char * val,
+                        const int key_len, const int val_len);
+int greentea_getc();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // GREENTEA_CLIENT_TEST_ENV_H_
 

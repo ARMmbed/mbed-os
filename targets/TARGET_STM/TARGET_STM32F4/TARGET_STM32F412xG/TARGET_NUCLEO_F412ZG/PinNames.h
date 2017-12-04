@@ -182,6 +182,8 @@ typedef enum {
     LED4        = LED1,
     LED_RED     = LED1,
     USER_BUTTON = PC_13,
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
     SERIAL_TX   = PD_8,
     SERIAL_RX   = PD_9,
     USBTX       = SERIAL_TX,
@@ -193,6 +195,13 @@ typedef enum {
     SPI_SCK     = D13,
     SPI_CS      = D10,
     PWM_OUT     = D9,
+
+    //USB pins
+    USB_OTG_FS_SOF = PA_8,
+    USB_OTG_FS_VBUS = PA_9,
+    USB_OTG_FS_ID = PA_10,
+    USB_OTG_FS_DM = PA_11,
+    USB_OTG_FS_DP = PA_12,
 
     // Not connected
     NC = (int)0xFFFFFFFF

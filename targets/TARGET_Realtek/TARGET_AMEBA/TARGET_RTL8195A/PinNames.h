@@ -50,6 +50,10 @@ typedef enum {
     PIN_OUTPUT
 } PinDirection;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> upstream/master
 typedef enum {
     PA_0  = (PORT_A<<4|0),
     PA_1  = (PORT_A<<4|1),
@@ -158,7 +162,11 @@ typedef enum {
     PK_5  = (PORT_K<<4|5),
     PK_6  = (PORT_K<<4|6),
     /* unavailable pins */
+<<<<<<< HEAD
 //    PK_7  = (PORT_K<<4|7),
+=======
+    //    PK_7  = (PORT_K<<4|7),
+>>>>>>> upstream/master
 
     AD_1  = (PORT_V<<4|1),
     AD_2  = (PORT_V<<4|2),
@@ -166,13 +174,45 @@ typedef enum {
 
     DA_0  = (PORT_U<<4|0),
     DA_1  = (PORT_U<<4|1),
+<<<<<<< HEAD
     
+=======
+
+    // Not connected
+    NC = (uint32_t)0xFFFFFFFF,
+
+    // Generic signals namings
+    /* LED1~4 are defined as alias of GPIO pins, they are not the LEDs on board*/
+    LED1        = PB_4,
+    LED2        = PB_5,
+    LED3        = PB_6,
+    LED4        = PB_7,
+    SERIAL_TX   = PA_7,
+    SERIAL_RX   = PA_6,
+    USBTX       = PB_0,
+    USBRX       = PB_1,
+    I2C_SCL     = PC_5,
+    I2C_SDA     = PC_4,
+    SPI_MOSI    = PC_2,
+    SPI_MISO    = PC_3,
+    SPI_SCK     = PC_1,
+    SPI_CS      = PC_0,
+    PWM_OUT     = PD_4,
+
+>>>>>>> upstream/master
     // Arduino connector namings
 
     A0          = AD_2,//A0 and A1 are connected
     A1          = AD_2,
     A2          = AD_3,
+<<<<<<< HEAD
     
+=======
+    A3          = NC,
+    A4          = NC,
+    A5          = NC,
+
+>>>>>>> upstream/master
     D0          = PA_6,
     D1          = PA_7,
     D2          = PA_5,
@@ -189,6 +229,7 @@ typedef enum {
     D13         = PC_1,
     D14         = PB_3,
     D15         = PB_2,
+<<<<<<< HEAD
     
     D16         = PA_1,
     D17         = PA_0,
@@ -215,6 +256,12 @@ typedef enum {
 
     // Not connected
     NC = (uint32_t)0xFFFFFFFF
+=======
+    D16         = PA_1,
+    D17         = PA_0,
+    D18         = PE_5
+
+>>>>>>> upstream/master
 } PinName;
 
 typedef enum {

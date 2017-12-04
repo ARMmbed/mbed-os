@@ -34,8 +34,8 @@ public:
     ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
 
     nsapi_error_t initialize(NanostackRfPhy *phy);
-    int connect();
-    int disconnect();
+    virtual int connect();
+    virtual int disconnect();
 private:
     /*
      * \brief Initialization of the interface.
@@ -69,7 +69,7 @@ private:
      * \param len is the length of the address buffer, must be at least 40 bytes
      * \return true if address is read successfully, false otherwise
      */
-    bool getOwnIpAddress(char *address, int8_t len);
+    virtual bool getOwnIpAddress(char *address, int8_t len);
 };
 
 #endif // THREADINTERFACE_H

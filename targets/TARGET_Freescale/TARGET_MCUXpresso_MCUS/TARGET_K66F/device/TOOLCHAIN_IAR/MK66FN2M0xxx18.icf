@@ -6,14 +6,13 @@
 **     Compiler:            IAR ANSI C/C++ Compiler for ARM
 **     Reference manual:    K66P144M180SF5RMV2, Rev. 1, Mar 2015
 **     Version:             rev. 3.0, 2015-03-25
-**     Build:               b151009
+**     Build:               b170214
 **
 **     Abstract:
 **         Linker file for the IAR ANSI C/C++ Compiler for ARM
 **
-**     Copyright (c) 2015 Freescale Semiconductor, Inc.
-**     All rights reserved.
-**
+**     Copyright 2016 Freescale Semiconductor, Inc.
+**     Copyright 2016-2017 NXP
 **     Redistribution and use in source and binary forms, with or without modification,
 **     are permitted provided that the following conditions are met:
 **
@@ -24,7 +23,7 @@
 **       list of conditions and the following disclaimer in the documentation and/or
 **       other materials provided with the distribution.
 **
-**     o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+**     o Neither the name of the copyright holder nor the names of its
 **       contributors may be used to endorse or promote products derived from this
 **       software without specific prior written permission.
 **
@@ -39,8 +38,8 @@
 **     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 **     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **
-**     http:                 www.freescale.com
-**     mail:                 support@freescale.com
+**     http:                 www.nxp.com
+**     mail:                 support@nxp.com
 **
 ** ###################################################################
 */
@@ -50,17 +49,25 @@ define symbol __ram_vector_table__ = 1;
 define symbol __stack_size__=0x8000;
 define symbol __heap_size__=0x10000;
 
+if (!isdefinedsymbol(MBED_APP_START)) {
+    define symbol MBED_APP_START = 0;
+}
+
+if (!isdefinedsymbol(MBED_APP_SIZE)) {
+    define symbol MBED_APP_SIZE = 0x200000;
+}
+
 define symbol __ram_vector_table_size__ =  isdefinedsymbol(__ram_vector_table__) ? 0x00000400 : 0;
 define symbol __ram_vector_table_offset__ =  isdefinedsymbol(__ram_vector_table__) ? 0x000003FF : 0;
 
-define symbol m_interrupts_start       = 0x00000000;
-define symbol m_interrupts_end         = 0x000003FF;
+define symbol m_interrupts_start       = MBED_APP_START;
+define symbol m_interrupts_end         = MBED_APP_START + 0x3FF;
 
-define symbol m_flash_config_start     = 0x00000400;
-define symbol m_flash_config_end       = 0x0000040F;
+define symbol m_flash_config_start     = MBED_APP_START + 0x400;
+define symbol m_flash_config_end       = MBED_APP_START + 0x40F;
 
-define symbol m_text_start             = 0x00000410;
-define symbol m_text_end               = 0x001FFFFF;
+define symbol m_text_start             = MBED_APP_START + 0x410;
+define symbol m_text_end               = MBED_APP_START + MBED_APP_SIZE - 1;
 
 define symbol m_interrupts_ram_start   = 0x1FFF0000;
 define symbol m_interrupts_ram_end     = 0x1FFF0000 + __ram_vector_table_offset__;
@@ -113,4 +120,3 @@ place in DATA_region                        { block ZI };
 place in DATA_region                        { last block HEAP };
 place in CSTACK_region                      { block CSTACK };
 place in m_interrupts_ram_region            { section m_interrupts_ram };
-

@@ -47,7 +47,7 @@ void FUN(void) __attribute__ ((weak, alias(#FUN_ALIAS)));
 
 
 /* Initialize segments */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 extern uint32_t Image$$ARM_LIB_STACK$$ZI$$Limit;
 extern void __main(void);
 #elif defined(__ICCARM__)
@@ -61,12 +61,11 @@ extern uint32_t __bss_start__;
 extern uint32_t __bss_end__;
 
 extern void uvisor_init(void);
-//#if defined(TOOLCHAIN_GCC_ARM)
-//extern void _start(void);
-//#endif
-extern void software_init_hook(void) __attribute__((weak));
-extern void __libc_init_array(void);
-extern int main(void);
+#if defined(TOOLCHAIN_GCC_ARM)
+extern void _start(void);
+#else
+#error("For GCC toolchain, only support GNU ARM Embedded")
+#endif
 #endif
 
 /* Default empty handler */
@@ -153,7 +152,7 @@ WEAK_ALIAS_FUNC(SC0_IRQHandler, Default_Handler)        // 58:
 WEAK_ALIAS_FUNC(TK_IRQHandler, Default_Handler)         // 63:
 
 /* Vector table */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 __attribute__ ((section("RESET")))
 const uint32_t __vector_handlers[] = {
 #elif defined(__ICCARM__)
@@ -165,7 +164,7 @@ const uint32_t __vector_handlers[] = {
 #endif
 
     /* Configure Initial Stack Pointer, using linker-generated symbols */
-#if defined(__CC_ARM)
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     (uint32_t) &Image$$ARM_LIB_STACK$$ZI$$Limit,
 #elif defined(__ICCARM__)
     //(uint32_t) __sfe("CSTACK"),
@@ -271,15 +270,16 @@ void Reset_Handler(void)
     /* HXT Crystal Type Select: INV */
     CLK->PWRCTL &= ~CLK_PWRCTL_HXTSELTYP_Msk;
     
-    /* Enable register write-protection function */
-    SYS_LockReg();
-    
     /**
-     * Because EBI (external SRAM) init is done in SystemInit(), SystemInit() must be called at the very start.
+     * NOTE 1: Unlock is required for perhaps some register access in SystemInit().
+     * NOTE 2: Because EBI (external SRAM) init is done in SystemInit(), SystemInit() must be called at the very start.
      */
     SystemInit();
     
-#if defined(__CC_ARM)
+    /* Enable register write-protection function */
+    SYS_LockReg();
+
+#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     __main();
     
 #elif defined(__ICCARM__)
@@ -306,19 +306,8 @@ void Reset_Handler(void)
         }
     }
     
-    //uvisor_init();
+    _start();
     
-    if (software_init_hook) {
-        /**
-         * Give control to the RTOS via software_init_hook() which will also call __libc_init_array().
-         * Assume software_init_hook() is defined in libraries/rtos/rtx/TARGET_CORTEX_M/RTX_CM_lib.h.
-         */
-        software_init_hook();
-    }
-    else {
-        __libc_init_array();
-        main();
-    }
 #endif
 
     /* Infinite loop */

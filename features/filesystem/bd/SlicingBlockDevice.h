@@ -44,6 +44,7 @@
  *
  *  // Create a block device that maps to the middle 32 blocks
  *  SlicingBlockDevice slice3(&mem, 16*512, -16*512);
+ * @endcode
  */
 class SlicingBlockDevice : public BlockDevice
 {
@@ -53,20 +54,12 @@ public:
      *  @param bd       Block device to back the SlicingBlockDevice
      *  @param start    Start block address to map to block 0, negative addresses
      *                  are calculated from the end of the underlying block device
-     *  @note This is the same as SlicingBlockDevice(bd, start, bd->size())
-     */
-    SlicingBlockDevice(BlockDevice *bd, bd_addr_t start);
-
-    /** Lifetime of the memory block device
-     *
-     *  @param bd       Block device to back the SlicingBlockDevice
-     *  @param start    Start block address to map to block 0, negative addresses
-     *                  are calculated from the end of the underlying block device
-     *  @param stop     End block address to mark the end of the block device,
+     *  @param end      End block address to mark the end of the block device,
      *                  this block is not mapped, negative addresses are
-     *                  calculated from the end of the underlying block device
+     *                  calculated from the end of the underlying block device.
+     *                  The default stops at end of the underlying block device.
      */
-    SlicingBlockDevice(BlockDevice *bd, bd_addr_t start, bd_addr_t end);
+    SlicingBlockDevice(BlockDevice *bd, bd_addr_t start, bd_addr_t end = 0);
 
     /** Lifetime of a block device
      */

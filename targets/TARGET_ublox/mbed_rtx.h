@@ -23,15 +23,6 @@
 #define INITIAL_SP              (0x01000000 + 0x05000 - 256)
 #endif
 
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                48000000
-#endif
 #endif
 
 #endif  // MBED_MBED_RTX_H

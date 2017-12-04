@@ -1,15 +1,18 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2010-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
- * SPDX-License-Identifier: LicenseRef-PBL
- *
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use this file except in compliance with the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * https://www.mbed.com/licenses/PBL-1.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * See the License for the specific language governing permissions and limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 #ifndef _NS_SOCKET_API_H
 #define _NS_SOCKET_API_H
@@ -107,7 +110,7 @@ extern "C" {
  * | SOCKET_TX_FAIL             | 0x50  | Socket data send failed.                                            |
  * | SOCKET_CONNECT_CLOSED      | 0x60  | TCP connection closed.                                              |
  * | SOCKET_CONNECTION_RESET    | 0x70  | TCP connection reset.                                               |
- * | SOCKET_NO_ROUTER           | 0x80  | No route available to destination.                                  |
+ * | SOCKET_NO_ROUTE            | 0x80  | No route available to destination.                                  |
  * | SOCKET_TX_DONE             | 0x90  | UDP: link layer TX ready (d_len = length of datagram).              |
  * |                            |       | TCP: some data acknowledged (d_len = data remaining in send queue)  |
  * | SOCKET_NO_RAM              | 0xA0  | No RAM available.                                                   |
@@ -248,7 +251,7 @@ typedef struct ns_in6_pktinfo {
 } ns_in6_pktinfo_t;
 
 
-/** \privatesection Alignment macros for control message headers
+/** \name Alignment macros for control message headers
 * \anchor CMSG_ALIGN_FLAGS
 */
 ///@{
@@ -262,7 +265,7 @@ typedef struct ns_in6_pktinfo {
     ((length + (aligment_base -1 )) & ~(aligment_base -1))
 #endif
 ///@}
-/// \publicsection
+
 /**
  * \brief Parse first control message header from message ancillary data.
  *
@@ -318,7 +321,6 @@ ns_cmsghdr_t *NS_CMSG_NXTHDR(const ns_msghdr_t *msgh, const ns_cmsghdr_t *cmsg);
  */
 #define NS_CMSG_LEN(length) \
     (NS_ALIGN_SIZE(sizeof(ns_cmsghdr_t), CMSG_DATA_ALIGN) + length)
-
 
 /** IPv6 wildcard address IN_ANY */
 extern const uint8_t ns_in6addr_any[16];
@@ -687,9 +689,35 @@ static inline int8_t socket_read_session_address(int8_t socket, ns_address_t *ad
 #define SOCKET_SO_SNDLOWAT                  4
 ///@}
 
-/** \name Option names for protocol level SOCKET_IPPROTO_IPV6.
+/** \name IPv6 socket options
  * \anchor OPTNAMES_IPV6
+ *
+ * IPv6 socket options summary
+ *
+ * | opt_name / cmsg_type         | Data type        | set/getsockopt  | sendmsg | recvmsg                           |
+ * | :--------------------------: | :--------------: | :-------------: | :-----: | :-------------------------------: |
+ * | SOCKET_IPV6_TCLASS           | int16_t          |     Yes         |   Yes   | If enabled with RECVTCLASS        |
+ * | SOCKET_IPV6_UNICAST_HOPS     | int16_t          |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_MULTICAST_HOPS   | int16_t          |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_ADDR_PREFERENCES | int              |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_USE_MIN_MTU      | int8_t           |     Yes         |   Yes   | No                                |
+ * | SOCKET_IPV6_DONTFRAG         | int8_t           |     Yes         |   Yes   | No                                |
+ * | SOCKET_IPV6_FLOW_LABEL       | int32_t          |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_HOPLIMIT         | int16_t          |     No          |   Yes   | If enabled with RECVHOPLIMIT      |
+ * | SOCKET_IPV6_PKTINFO          | ns_in6_pktinfo_t |     No          |   Yes   | If enabled with RECVPKTINFO       |
+ * | SOCKET_IPV6_RECVPKTINFO      | bool             |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_RECVHOPLIMIT     | bool             |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_RECVTCLASS       | bool             |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_MULTICAST_IF     | int8_t           |     Yes         |   No    | No                                |
+ * | SOCKET_IPV6_MULTICAST_LOOP   | bool             |     Yes         |   Yes   | No                                |
+ * | SOCKET_IPV6_JOIN_GROUP       | ns_ipv6_mreq_t   |     Set only    |   No    | No                                |
+ * | SOCKET_IPV6_LEAVE_GROUP      | ns_ipv6_mreq_t   |     Set only    |   No    | No                                |
+ * | SOCKET_BROADCAST_PAN         | int8_t           |     Yes         |   No    | No                                |
+ * | SOCKET_LINK_LAYER_SECURITY   | int8_t           |     Yes         |   No    | No                                |
+ * | SOCKET_INTERFACE_SELECT      | int8_t           |     Yes         |   No    | No                                |
+ *
  */
+
 ///@{
 /** Specify traffic class for outgoing packets, as int16_t (RFC 3542 S6.5 says int); valid values 0-255, or -1 for system default. */
 #define SOCKET_IPV6_TCLASS                  1
@@ -713,39 +741,29 @@ static inline int8_t socket_read_session_address(int8_t socket, ns_address_t *ad
 /** Specify socket_recvmsg() ancillary data request state for Packet info (destination address and interface id), as bool; valid values true write enabled, false write disabled */
 #define SOCKET_IPV6_RECVPKTINFO             10
 /** Specify socket_recvmsg() ancillary data request state for receive messages hop-limit, as bool; valid values true  write enabled, false information write disabled */
-#define SOCKET_IPV6_RECVHOPLIMIT           11
+#define SOCKET_IPV6_RECVHOPLIMIT            11
 /** Specify socket_recvmsg() ancillary data request state for receive messages traffic class, as bool; valid values true  write enabled, false information write disabled */
-#define SOCKET_IPV6_RECVTCLASS             12
+#define SOCKET_IPV6_RECVTCLASS              12
+
+/** Set the interface to use for outgoing multicast packets, as int8_t (RFC3493 S5.2 says unsigned int); 0 means unspecified (use routing table) */
+#define SOCKET_IPV6_MULTICAST_IF            13
+/** Specify whether outgoing multicast packets are looped back, as bool (RFC3493 S5.2 says unsigned int) */
+#define SOCKET_IPV6_MULTICAST_LOOP          14
+/** Join a multicast group, using ns_ipv6_mreq_t */
+#define SOCKET_IPV6_JOIN_GROUP              15
+/** Leave a multicast group, using ns_ipv6_mreq_t */
+#define SOCKET_IPV6_LEAVE_GROUP             16
 
 #define SOCKET_BROADCAST_PAN                0xfc /**< Internal use - transmit with IEEE 802.15.4 broadcast PAN ID */
 #define SOCKET_LINK_LAYER_SECURITY          0xfd /**< Not standard enable or disable socket security at link layer (For 802.15.4). */
 #define SOCKET_INTERFACE_SELECT             0xfe /**< Not standard socket interface ID. */
 #define SOCKET_IPV6_ADDRESS_SELECT          0xff /**< Deprecated - use SOCKET_IPV6_ADDR_PREFERENCES instead. */
 
-/** IPv6 socket options summary
- *
- * | opt_name / cmsg_type         | Data type        | set/getsockopt  | sendmsg | recvmsg                           |
- * | :--------------------------: | :--------------: | :-------------: | :-----: | :-------------------------------: |
- * | SOCKET_IPV6_TCLASS           | int16_t          |     Yes         |   Yes   | If enabled with RECVTCLASS        |
- * | SOCKET_IPV6_UNICAST_HOPS     | int16_t          |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_MULTICAST_HOPS   | int16_t          |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_ADDR_PREFERENCES | int              |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_USE_MIN_MTU      | int8_t           |     Yes         |   Yes   | No                                |
- * | SOCKET_IPV6_DONTFRAG         | int8_t           |     Yes         |   Yes   | No                                |
- * | SOCKET_IPV6_FLOW_LABEL       | int32_t          |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_HOPLIMIT         | int16_t          |     No          |   Yes   | If enabled with RECVHOPLIMIT      |
- * | SOCKET_IPV6_PKTINFO          | ns_in6_pktinfo_t |     No          |   Yes   | If enabled with RECVPKTINFO       |
- * | SOCKET_IPV6_RECVPKTINFO      | bool             |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_RECVHOPLIMIT     | bool             |     Yes         |   No    | No                                |
- * | SOCKET_IPV6_RECVTCLASS       | bool             |     Yes         |   No    | No                                |
- * | SOCKET_BROADCAST_PAN         | int8_t           |     Yes         |   No    | No                                |
- * | SOCKET_LINK_LAYER_SECURITY   | int8_t           |     Yes         |   No    | No                                |
- * | SOCKET_INTERFACE_SELECT      | int8_t           |     Yes         |   No    | No                                |
- *
- *
- */
-
-///@}
+/** Multicast group request used for setsockopt() */
+typedef struct ns_ipv6_mreq {
+    uint8_t ipv6mr_multiaddr[16];       /**< IPv6 multicast address */
+    int8_t ipv6mr_interface;            /**< interface id */
+} ns_ipv6_mreq_t;
 
 /**
  * \brief Set an option for a socket
@@ -766,6 +784,8 @@ static inline int8_t socket_read_session_address(int8_t socket, ns_address_t *ad
  * \return -3 invalid option value.
  */
 int8_t socket_setsockopt(int8_t socket, uint8_t level, uint8_t opt_name, const void *opt_value, uint16_t opt_len);
+
+///@}
 
 /**
  * \brief Get an option for a socket.

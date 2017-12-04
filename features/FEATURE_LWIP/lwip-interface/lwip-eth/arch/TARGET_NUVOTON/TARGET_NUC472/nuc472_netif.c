@@ -435,17 +435,17 @@ err_t
 #if defined (__GNUC__)	
     // mbed OS 2.0, DEFAULT_THREAD_STACKSIZE*3
 	// mbed OS 5.0, DEFAULT_THREAD_STACKSIZE*5 
-	sys_thread_new("receive_thread", __packet_rx_task, &RxReadySem, DEFAULT_THREAD_STACKSIZE*5, osPriorityNormal);
+	sys_thread_new("nuc472_emac_rx_thread", __packet_rx_task, &RxReadySem, DEFAULT_THREAD_STACKSIZE*5, osPriorityNormal);
 #else
-	sys_thread_new("receive_thread", __packet_rx_task, &RxReadySem, DEFAULT_THREAD_STACKSIZE, osPriorityNormal);
+	sys_thread_new("nuc472_emac_rx_thread", __packet_rx_task, &RxReadySem, DEFAULT_THREAD_STACKSIZE, osPriorityNormal);
 #endif
     /* PHY monitoring task */
 #if defined (__GNUC__)		
     // mbed OS 2.0, DEFAULT_THREAD_STACKSIZE
 	// mbed OS 5.0, DEFAULT_THREAD_STACKSIZE*2
-    sys_thread_new("phy_thread", __phy_task, netif, DEFAULT_THREAD_STACKSIZE*2, osPriorityNormal);
+    sys_thread_new("nuc472_emac_phy_thread", __phy_task, netif, DEFAULT_THREAD_STACKSIZE*2, osPriorityNormal);
 #else
-    sys_thread_new("phy_thread", __phy_task, netif, DEFAULT_THREAD_STACKSIZE, osPriorityNormal);
+    sys_thread_new("nuc472_emac_phy_thread", __phy_task, netif, DEFAULT_THREAD_STACKSIZE, osPriorityNormal);
 #endif	
     /* Allow the PHY task to detect the initial link state and set up the proper flags */
     osDelay(10);

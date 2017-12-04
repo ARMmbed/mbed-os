@@ -1,5 +1,5 @@
 /*
- *  Hardware aes collector for the STM32F4 family
+ *  Hardware aes implementation for STM32F4 STM32F7 and STM32L4 families
  *******************************************************************************
  * Copyright (c) 2017, STMicroelectronics
  *  SPDX-License-Identifier: Apache-2.0
@@ -23,22 +23,34 @@
 
 #if defined(MBEDTLS_AES_ALT)
 
+#if defined(TARGET_STM32L486xG)
+//the following defines are provided to maintain compatibility between STM32 families
+#define __HAL_RCC_CRYP_CLK_ENABLE    __HAL_RCC_AES_CLK_ENABLE
+#define __HAL_RCC_CRYP_FORCE_RESET   __HAL_RCC_AES_FORCE_RESET
+#define __HAL_RCC_CRYP_RELEASE_RESET __HAL_RCC_AES_RELEASE_RESET
+#define CRYP                         AES
+#endif
+
 static int aes_set_key( mbedtls_aes_context *ctx, const unsigned char *key, unsigned int keybits )
 {
-    switch( keybits )
-    {
+    switch( keybits ) {
         case 128:
-          ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_128B;
-          memcpy(ctx->aes_key, key, 16);
-          break;
+            ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_128B;
+            memcpy(ctx->aes_key, key, 16);
+            break;
         case 192:
-          ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_192B;
-          memcpy(ctx->aes_key, key, 24);
-          break;
+#if defined (TARGET_STM32L486xG)
+            return(MBEDTLS_ERR_AES_INVALID_KEY_LENGTH);
+#else
+            ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_192B;
+            memcpy(ctx->aes_key, key, 24);
+            break;
+#endif
+
         case 256:
-          ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_256B;
-          memcpy(ctx->aes_key, key, 32);
-          break;
+            ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_256B;
+            memcpy(ctx->aes_key, key, 32);
+            break;
        default : return( MBEDTLS_ERR_AES_INVALID_KEY_LENGTH );
     }
 
@@ -52,6 +64,9 @@ static int aes_set_key( mbedtls_aes_context *ctx, const unsigned char *key, unsi
     __HAL_RCC_CRYP_CLK_ENABLE();
 
     ctx->hcryp_aes.Init.pKey = ctx->aes_key;
+#if defined (TARGET_STM32L486xG)
+    ctx->hcryp_aes.Init.KeyWriteFlag = CRYP_KEY_WRITE_ENABLE;
+#endif
     if (HAL_CRYP_Init(&ctx->hcryp_aes) == HAL_ERROR)
         return (HAL_ERROR);
 
@@ -62,7 +77,8 @@ static int aes_set_key( mbedtls_aes_context *ctx, const unsigned char *key, unsi
 }
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
+static void mbedtls_zeroize( void *v, size_t n )
+{
     volatile unsigned char *p = (unsigned char*)v; while( n-- ) *p++ = 0;
 }
 
@@ -113,18 +129,18 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
 
     /* allow multi-instance of CRYP use: restore context for CRYP hw module */
     ctx->hcryp_aes.Instance->CR = ctx->ctx_save_cr;
+    ctx->hcryp_aes.Phase = HAL_CRYP_PHASE_READY;
+    ctx->hcryp_aes.Init.DataType = CRYP_DATATYPE_8B;
+    ctx->hcryp_aes.Init.pKey = ctx->aes_key;
 
-    if(mode == MBEDTLS_AES_DECRYPT) /* AES decryption */
-    {
-        ctx->hcryp_aes.Init.DataType = CRYP_DATATYPE_8B;
-        ctx->hcryp_aes.Init.pKey = ctx->aes_key;
-        mbedtls_aes_decrypt( ctx, input, output );
-    }
-    else /* AES encryption */
-    {
-        ctx->hcryp_aes.Init.DataType = CRYP_DATATYPE_8B;
-        ctx->hcryp_aes.Init.pKey = ctx->aes_key;
-        mbedtls_aes_encrypt( ctx, input, output );
+    if(mode == MBEDTLS_AES_DECRYPT) { /* AES decryption */
+        if (mbedtls_internal_aes_decrypt( ctx, input, output )){
+            return ST_ERR_AES_BUSY;
+        }
+    } else { /* AES encryption */
+        if (mbedtls_internal_aes_encrypt( ctx, input, output )) {
+            return ST_ERR_AES_BUSY;
+        }
     }
     /* allow multi-instance of CRYP use: save context for CRYP HW module CR */
     ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR;
@@ -133,6 +149,52 @@ int mbedtls_aes_crypt_ecb( mbedtls_aes_context *ctx,
 }
 
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
+#if defined (TARGET_STM32L486xG)
+static int st_cbc_restore_context(mbedtls_aes_context *ctx){
+    uint32_t tickstart;
+    tickstart = HAL_GetTick();
+    while((ctx->hcryp_aes.Instance->SR & AES_SR_BUSY) != 0){
+        if ((HAL_GetTick() - tickstart) > ST_AES_TIMEOUT) {
+            return ST_ERR_AES_BUSY; // timeout: CRYP processor is busy
+        }
+    }
+    /* allow multi-instance of CRYP use: restore context for CRYP hw module */
+    ctx->hcryp_aes.Instance->CR = ctx->ctx_save_cr;
+    return 0;
+}
+
+static int st_hal_cryp_cbc( mbedtls_aes_context *ctx, uint32_t opmode, size_t length, 
+                            unsigned char iv[16], uint8_t *input, uint8_t *output) 
+{
+    ctx->hcryp_aes.Init.pInitVect = &iv[0]; // used in process, not in the init
+    /* At this moment only, we know we have CBC mode: Re-initialize AES
+        IP with proper parameters and apply key and IV for multi context usecase */
+    if (HAL_CRYP_DeInit(&ctx->hcryp_aes) != HAL_OK)
+        return ST_ERR_AES_BUSY;
+    ctx->hcryp_aes.Init.OperatingMode = opmode;
+    ctx->hcryp_aes.Init.ChainingMode = CRYP_CHAINMODE_AES_CBC;
+    ctx->hcryp_aes.Init.KeyWriteFlag = CRYP_KEY_WRITE_ENABLE;
+    if (HAL_CRYP_Init(&ctx->hcryp_aes) != HAL_OK)
+        return ST_ERR_AES_BUSY;
+
+    if(HAL_CRYPEx_AES(&ctx->hcryp_aes, input, length, output, 10) != 0)
+        return ST_ERR_AES_BUSY;
+    return 0;
+}
+#else /* STM32F4 and STM32F7 */
+static int st_cbc_restore_context(mbedtls_aes_context *ctx){
+    /* allow multi-instance of CRYP use: restore context for CRYP hw module */
+    ctx->hcryp_aes.Instance->CR = ctx->ctx_save_cr;
+    /* Re-initialize AES processor with proper parameters
+       and (re-)apply key and IV for multi context usecases */
+    if (HAL_CRYP_DeInit(&ctx->hcryp_aes) != HAL_OK)
+        return ST_ERR_AES_BUSY;
+    if (HAL_CRYP_Init(&ctx->hcryp_aes) != HAL_OK)
+        return ST_ERR_AES_BUSY;
+    return 0;
+}
+
+#endif /* TARGET_STM32L486xG */
 
 int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
                     int mode,
@@ -141,23 +203,66 @@ int mbedtls_aes_crypt_cbc( mbedtls_aes_context *ctx,
                     const unsigned char *input,
                     unsigned char *output )
 {
-    int status=0;
+    uint32_t tickstart;
+    uint32_t *iv_ptr = (uint32_t *)&iv[0];
     if( length % 16 )
         return( MBEDTLS_ERR_AES_INVALID_INPUT_LENGTH );
+    ctx->hcryp_aes.Init.pInitVect = &iv[0];
+    if (st_cbc_restore_context(ctx) != 0)
+        return (ST_ERR_AES_BUSY);
 
-    if( mode == MBEDTLS_AES_DECRYPT )
-    {
-        ctx->hcryp_aes.Init.pInitVect = &iv[0]; // used in process, not in the init 
+#if defined (TARGET_STM32L486xG)
 
-        status = HAL_CRYP_AESCBC_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10);
+    if( mode == MBEDTLS_AES_DECRYPT ) {
+        if (st_hal_cryp_cbc(ctx, CRYP_ALGOMODE_KEYDERIVATION_DECRYPT, length, iv, (uint8_t *)input, (uint8_t *)output) != 0)
+            return ST_ERR_AES_BUSY;
+        /* Save the internal IV vector for multi context purpose */
+        tickstart = HAL_GetTick();
+        while((ctx->hcryp_aes.Instance->SR & AES_SR_BUSY) != 0){
+            if ((HAL_GetTick() - tickstart) > ST_AES_TIMEOUT) {
+                return ST_ERR_AES_BUSY; // timeout: CRYP processor is busy
+            }
+        }
+        ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR; // save here before overwritten
+        ctx->hcryp_aes.Instance->CR &= ~AES_CR_EN;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IVR3;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IVR2;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IVR1;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IVR0;
+    } else {
+        if (st_hal_cryp_cbc(ctx, CRYP_ALGOMODE_ENCRYPT, length, iv, (uint8_t *)input, (uint8_t *)output) != 0)
+            return ST_ERR_AES_BUSY;
+        memcpy( iv, output, 16 ); /* current output is the IV vector for the next call */
+        ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR;
     }
-    else
-    {
-        ctx->hcryp_aes.Init.pInitVect = &iv[0]; // used in process, not in the init 
-        
-        status = HAL_CRYP_AESCBC_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10);
+
+#else
+
+    if( mode == MBEDTLS_AES_DECRYPT ) {
+        if (HAL_CRYP_AESCBC_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10) != HAL_OK)
+            return ST_ERR_AES_BUSY;
+        /* Save the internal IV vector for multi context purpose */
+        tickstart = HAL_GetTick();
+        while((ctx->hcryp_aes.Instance->SR & (CRYP_SR_IFEM | CRYP_SR_OFNE | CRYP_SR_BUSY)) != CRYP_SR_IFEM){
+            if ((HAL_GetTick() - tickstart) > ST_AES_TIMEOUT) {
+                return ST_ERR_AES_BUSY; // timeout: CRYP processor is busy
+            }
+        }
+        ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR; // save here before overwritten
+        ctx->hcryp_aes.Instance->CR &= ~CRYP_CR_CRYPEN;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IV0LR;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IV0RR;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IV1LR;
+        *iv_ptr++ = ctx->hcryp_aes.Instance->IV1RR;
+    } else {
+        if (HAL_CRYP_AESCBC_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, length, (uint8_t *)output, 10) != HAL_OK)
+            return ST_ERR_AES_BUSY;
+        memcpy( iv, output, 16 ); /* current output is the IV vector for the next call */
+        ctx->ctx_save_cr = ctx->hcryp_aes.Instance->CR;
     }
-    return( status );
+
+#endif
+    return 0;
 }
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
 
@@ -173,12 +278,11 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
     int c;
     size_t n = *iv_off;
 
-    if( mode == MBEDTLS_AES_DECRYPT )
-    {
-        while( length-- )
-        {
+    if( mode == MBEDTLS_AES_DECRYPT ) {
+        while( length-- ) {
             if( n == 0 )
-                mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
+                if (mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv ) != 0)
+                    return ST_ERR_AES_BUSY;
 
             c = *input++;
             *output++ = (unsigned char)( c ^ iv[n] );
@@ -186,13 +290,11 @@ int mbedtls_aes_crypt_cfb128( mbedtls_aes_context *ctx,
 
             n = ( n + 1 ) & 0x0F;
         }
-    }
-    else
-    {
-        while( length-- )
-        {
+    } else {
+        while( length-- ) {
             if( n == 0 )
-                mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
+                if (mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv ) != 0)
+                    return ST_ERR_AES_BUSY;
 
             iv[n] = *output++ = (unsigned char)( iv[n] ^ *input++ );
 
@@ -216,10 +318,10 @@ int mbedtls_aes_crypt_cfb8( mbedtls_aes_context *ctx,
     unsigned char c;
     unsigned char ov[17];
 
-    while( length-- )
-    {
+    while( length-- ) {
         memcpy( ov, iv, 16 );
-        mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv );
+        if (mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, iv, iv ) != 0)
+            return ST_ERR_AES_BUSY;
 
         if( mode == MBEDTLS_AES_DECRYPT )
             ov[16] = *input;
@@ -252,7 +354,8 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
     while( length-- )
     {
         if( n == 0 ) {
-            mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, nonce_counter, stream_block );
+            if (mbedtls_aes_crypt_ecb( ctx, MBEDTLS_AES_ENCRYPT, nonce_counter, stream_block ) != 0)
+                return ST_ERR_AES_BUSY;
 
             for( i = 16; i > 0; i-- )
                 if( ++nonce_counter[i - 1] != 0 )
@@ -270,26 +373,42 @@ int mbedtls_aes_crypt_ctr( mbedtls_aes_context *ctx,
 }
 #endif /* MBEDTLS_CIPHER_MODE_CTR */
 
+int mbedtls_internal_aes_encrypt( mbedtls_aes_context *ctx,
+                          const unsigned char input[16],
+                          unsigned char output[16] )
+{
+    if (HAL_CRYP_AESECB_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10) != HAL_OK) {
+        // error found
+        return ST_ERR_AES_BUSY;
+    }
+    return 0;
+
+}
+
+int mbedtls_internal_aes_decrypt( mbedtls_aes_context *ctx,
+                                  const unsigned char input[16],
+                                  unsigned char output[16] )
+{
+    if(HAL_CRYP_AESECB_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10) != HAL_OK) {
+        // error found
+        return ST_ERR_AES_BUSY;
+    }
+    return 0;
+}
+
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_aes_encrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
 {
-    
-    if (HAL_CRYP_AESECB_Encrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10) !=0) {
-        // error found to be returned
-    }
-
+    mbedtls_internal_aes_encrypt( ctx, input, output );
 }
 
 void mbedtls_aes_decrypt( mbedtls_aes_context *ctx,
                           const unsigned char input[16],
                           unsigned char output[16] )
 {
-
-    if(HAL_CRYP_AESECB_Decrypt(&ctx->hcryp_aes, (uint8_t *)input, 16, (uint8_t *)output, 10)) {
-        // error found to be returned
-    }
+    mbedtls_internal_aes_decrypt( ctx, input, output );
 }
-
-
+#endif /* MBEDTLS_DEPRECATED_REMOVED */
 #endif /*MBEDTLS_AES_ALT*/

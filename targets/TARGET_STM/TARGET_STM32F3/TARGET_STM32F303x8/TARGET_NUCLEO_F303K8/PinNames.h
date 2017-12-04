@@ -38,6 +38,13 @@ extern "C" {
 #endif
 
 typedef enum {
+    ALT0  = 0x100,
+    ALT1  = 0x200,
+    ALT2  = 0x300,
+    ALT3  = 0x400
+} ALTx;
+
+typedef enum {
     PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
@@ -45,23 +52,33 @@ typedef enum {
     PA_4  = 0x04,
     PA_5  = 0x05,
     PA_6  = 0x06,
+    PA_6_ALT0 = PA_6|ALT0,
     PA_7  = 0x07,
+    PA_7_ALT0 = PA_7|ALT0,
+    PA_7_ALT1 = PA_7|ALT1,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
     PA_11 = 0x0B,
+    PA_11_ALT0 = PA_11|ALT0,
     PA_12 = 0x0C,
+    PA_12_ALT0 = PA_12|ALT0,
     PA_13 = 0x0D,
     PA_14 = 0x0E,
     PA_15 = 0x0F,
 
     PB_0  = 0x10,
+    PB_0_ALT0 = PB_0|ALT0,
     PB_1  = 0x11,
+    PB_1_ALT0 = PB_1|ALT0,
     PB_3  = 0x13,
     PB_4  = 0x14,
+    PB_4_ALT0 = PB_4|ALT0,
     PB_5  = 0x15,
+    PB_5_ALT0 = PB_5|ALT0,
     PB_6  = 0x16,
     PB_7  = 0x17,
+    PB_7_ALT0 = PB_7|ALT0,
 
     PF_0  = 0x50,
     PF_1  = 0x51,
@@ -104,6 +121,8 @@ typedef enum {
     LED3        = PB_3,
     LED4        = PB_3,
     USER_BUTTON = 0x20, // no user button on the board
+    // Standardized button names
+    BUTTON1 = USER_BUTTON,
     SERIAL_TX   = PA_2,
     SERIAL_RX   = PA_15,
     USBTX       = PA_2,

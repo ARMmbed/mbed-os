@@ -32,6 +32,7 @@ from tools.toolchains import mbedToolchain
 from tools.targets import TARGET_NAMES, TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
+from tools.options import extract_mcus
 from tools.build_api import build_library, build_mbed_libs, build_lib
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import print_build_results
@@ -68,17 +69,6 @@ if __name__ == '__main__':
                       default=False,
                       help="Compile the rpc library")
 
-    parser.add_argument("-e", "--eth",
-                      action="store_true", dest="eth",
-                      default=False,
-                      help="Compile the ethernet library")
-
-    parser.add_argument("-U", "--usb_host",
-                      action="store_true",
-                      dest="usb_host",
-                      default=False,
-                      help="Compile the USB Host library")
-
     parser.add_argument("-u", "--usb",
                       action="store_true",
                       dest="usb",
@@ -90,12 +80,6 @@ if __name__ == '__main__':
                       dest="dsp",
                       default=False,
                       help="Compile the DSP library")
-
-    parser.add_argument("-b", "--ublox",
-                      action="store_true",
-                      dest="ublox",
-                      default=False,
-                      help="Compile the u-blox library")
 
     parser.add_argument( "--cpputest",
                       action="store_true",
@@ -151,7 +135,7 @@ if __name__ == '__main__':
 
 
     # Get target list
-    targets = options.mcu if options.mcu else TARGET_NAMES
+    targets = extract_mcus(parser, options) if options.mcu else TARGET_NAMES
 
     # Get toolchains list
     toolchains = options.tool if options.tool else TOOLCHAINS
@@ -174,20 +158,12 @@ if __name__ == '__main__':
     libraries = []
 
     # Additional Libraries
-    if options.rtos:
-        libraries.extend(["rtx", "rtos"])
     if options.rpc:
         libraries.extend(["rpc"])
-    if options.eth:
-        libraries.append("eth")
     if options.usb:
         libraries.append("usb")
-    if options.usb_host:
-        libraries.append("usb_host")
     if options.dsp:
         libraries.extend(["dsp"])
-    if options.ublox:
-        libraries.extend(["rtx", "rtos", "usb_host", "ublox"])
     if options.cpputest_lib:
         libraries.extend(["cpputest"])
 

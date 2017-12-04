@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_i2c_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    06-May-2016
+  * @version V1.7.1
+  * @date    14-April-2017
   * @brief   Header file of I2C HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -45,7 +45,7 @@
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||\
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F411xE) || defined(STM32F446xx) ||\
-    defined(STM32F469xx) || defined(STM32F479xx)
+    defined(STM32F469xx) || defined(STM32F479xx) || defined(STM32F413xx) || defined(STM32F423xx)
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal_def.h"  
 
@@ -66,7 +66,7 @@
 /** @defgroup I2CEx_Analog_Filter I2C Analog Filter
   * @{
   */
-#define I2C_ANALOGFILTER_ENABLE        ((uint32_t)0x00000000U)
+#define I2C_ANALOGFILTER_ENABLE        0x00000000U
 #define I2C_ANALOGFILTER_DISABLE       I2C_FLTR_ANOFF
 /**
   * @}
@@ -126,7 +126,8 @@ HAL_StatusTypeDef HAL_I2CEx_ConfigDigitalFilter(I2C_HandleTypeDef *hi2c, uint32_
   */
 
 #endif /* STM32F427xx || STM32F429xx || STM32F437xx || STM32F439xx || STM32F401xC ||\
-          STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx */
+          STM32F401xE || STM32F411xE || STM32F446xx || STM32F469xx || STM32F479xx ||\
+		  STM32F413xx || STM32F423xx */
 
 #ifdef __cplusplus
 }

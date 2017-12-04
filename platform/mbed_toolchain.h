@@ -1,6 +1,11 @@
 
 /** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_toolchain Toolchain functions
+ * @{
+ */
+
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -58,7 +63,7 @@
  *
  *  @note
  *  IAR does not support alignment greater than word size on the stack
- *  
+ *
  *  @code
  *  #include "mbed_toolchain.h"
  *
@@ -92,18 +97,44 @@
 #endif
 #endif
 
+/** MBED_USED
+ *  Inform the compiler that a static variable is to be retained in the object file, even if it is unreferenced.
+ *
+ *  @code
+ *  #include "mbed_toolchain.h"
+ *
+ *  MBED_USED int foo;
+ *
+ *  @endcode
+ */
+#ifndef MBED_USED
+#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#define MBED_USED __attribute__((used))
+#elif defined(__ICCARM__)
+#define MBED_USED __root
+#else
+#define MBED_USED
+#endif
+#endif
+
 /** MBED_WEAK
  *  Mark a function as being weak.
- *  
+ *
  *  @note
- *  weak functions are not friendly to making code re-usable, as they can only
+ *  Functions should only be marked as weak in the source file. The header file
+ *  should contain a regular function declaration to insure the function is emitted.
+ *  A function marked weak will not be emitted if an alternative non-weak
+ *  implementation is defined.
+ *
+ *  @note
+ *  Weak functions are not friendly to making code re-usable, as they can only
  *  be overridden once (and if they are multiply overridden the linker will emit
  *  no warning). You should not normally use weak symbols as part of the API to
  *  re-usable modules.
- *  
+ *
  *  @code
  *  #include "mbed_toolchain.h"
- *  
+ *
  *  MBED_WEAK void foo() {
  *      // a weak implementation of foo that can be overriden by a definition
  *      // without  __weak
@@ -137,15 +168,36 @@
 #endif
 #endif
 
+/** MBED_NOINLINE
+ *  Declare a function that must not be inlined.
+ *
+ *  @code
+ *  #include "mbed_toolchain.h"
+ *
+ *  MBED_NOINLINE void foo() {
+ *
+ *  }
+ *  @endcode
+ */
+#ifndef MBED_NOINLINE
+#if defined(__GNUC__) || defined(__clang__) || defined(__CC_ARM)
+#define MBED_NOINLINE __attribute__((noinline))
+#elif defined(__ICCARM__)
+#define MBED_NOINLINE _Pragma("inline=never")
+#else
+#define MBED_NOINLINE
+#endif
+#endif
+
 /** MBED_FORCEINLINE
  *  Declare a function that must always be inlined. Failure to inline
  *  such a function will result in an error.
  *
  *  @code
  *  #include "mbed_toolchain.h"
- *  
+ *
  *  MBED_FORCEINLINE void foo() {
- *  
+ *
  *  }
  *  @endcode
  */
@@ -164,7 +216,7 @@
  *
  *  @code
  *  #include "mbed_toolchain.h"
- *  
+ *
  *  MBED_NORETURN void foo() {
  *      // must never return
  *      while (1) {}
@@ -214,7 +266,7 @@
  *
  *  @code
  *  #include "mbed_toolchain.h"
- *  
+ *
  *  MBED_DEPRECATED("don't foo any more, bar instead")
  *  void foo(int arg);
  *  @endcode
@@ -278,6 +330,52 @@
 #endif
 #endif
 
+/**
+ * Macro expanding to a string literal of the enclosing function name.
+ *
+ * The string returned takes into account language specificity and yield human
+ * readable content.
+ *
+ * As an example, if the macro is used within a C++ function then the string
+ * literal containing the function name will contain the complete signature of
+ * the function - including template parameters - and namespace qualifications.
+ */
+#ifndef MBED_PRETTY_FUNCTION
+#define MBED_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#endif
+
+#ifndef MBED_PRINTF
+#if defined(__GNUC__) || defined(__CC_ARM)
+#define MBED_PRINTF(format_idx, first_param_idx) __attribute__ ((__format__(__printf__, format_idx, first_param_idx)))
+#else
+#define MBED_PRINTF(format_idx, first_param_idx)
+#endif
+#endif
+
+#ifndef MBED_PRINTF_METHOD
+#if defined(__GNUC__) || defined(__CC_ARM)
+#define MBED_PRINTF_METHOD(format_idx, first_param_idx) __attribute__ ((__format__(__printf__, format_idx+1, first_param_idx+1)))
+#else
+#define MBED_PRINTF_METHOD(format_idx, first_param_idx)
+#endif
+#endif
+
+#ifndef MBED_SCANF
+#if defined(__GNUC__) || defined(__CC_ARM)
+#define MBED_SCANF(format_idx, first_param_idx) __attribute__ ((__format__(__scanf__, format_idx, first_param_idx)))
+#else
+#define MBED_SCANF(format_idx, first_param_idx)
+#endif
+#endif
+
+#ifndef MBED_SCANF_METHOD
+#if defined(__GNUC__) || defined(__CC_ARM)
+#define MBED_SCANF_METHOD(format_idx, first_param_idx) __attribute__ ((__format__(__scanf__, format_idx+1, first_param_idx+1)))
+#else
+#define MBED_SCANF_METHOD(format_idx, first_param_idx)
+#endif
+#endif
+
 // FILEHANDLE declaration
 #if defined(TOOLCHAIN_ARM)
 #include <rt_sys.h>
@@ -302,4 +400,5 @@ typedef int FILEHANDLE;
 
 #endif
 
+/** @}*/
 /** @}*/

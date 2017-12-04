@@ -79,6 +79,15 @@ private:
         return -1;
     }
 
+    /**
+     * Query if updates of a characteristics are enabled for a given connection.
+     */
+    ble_error_t areUpdatesEnabled(
+        Gap::Handle_t connectionHandle,
+        GattAttribute::Handle_t valueHandle,
+        bool *enabledP
+    );
+
 private:
     GattCharacteristic       *p_characteristics[BLE_TOTAL_CHARACTERISTICS];
     ble_gatts_char_handles_t  nrfCharacteristicHandles[BLE_TOTAL_CHARACTERISTICS];

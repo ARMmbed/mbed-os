@@ -1,15 +1,30 @@
 /*
- * Copyright (c) 2014-2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: BSD-3-Clause
  *
- * SPDX-License-Identifier: LicenseRef-PBL
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
  *
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holder nor the
+ *    names of its contributors may be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
  *
- * https://www.mbed.com/licenses/PBL-1.0
- *
- * See the License for the specific language governing permissions and limitations under the License.
- *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 /**
@@ -31,15 +46,15 @@
  * \brief Border router network data structure.
  */
 typedef struct thread_border_router_info_t {
-    unsigned            Prf: 2;               /**!< Prefix preference, 01 = High, 00 = Default, 11 = Low, 10 = Reserved. */
-    bool                P_preferred: 1;       /**!< Address is considered preferred address. */
-    bool                P_slaac: 1;           /**!< Allowed to configure a new address */
-    bool                P_dhcp: 1;            /**!< DHCPv6 server is available in the network. */
-    bool                P_configure: 1;       /**!< DHCPv6 agent provides other configuration. */
-    bool                P_default_route: 1;   /**!< This device provides the default route. */
-    bool                P_on_mesh: 1;         /**!< This prefix is considered to be on-mesh */
-    bool                P_nd_dns: 1;          /**!< this border router is able to provide DNS information */
-    bool                stableData: 1;        /**!< This data is stable and expected to be available at least 48h. */
+    unsigned            Prf: 2;               /**< Prefix preference, 01 = High, 00 = Default, 11 = Low, 10 = Reserved. */
+    bool                P_preferred: 1;       /**< Address is considered preferred address. */
+    bool                P_slaac: 1;           /**< Allowed to configure a new address */
+    bool                P_dhcp: 1;            /**< DHCPv6 server is available in the network. */
+    bool                P_configure: 1;       /**< DHCPv6 agent provides other configuration. */
+    bool                P_default_route: 1;   /**< This device provides the default route. */
+    bool                P_on_mesh: 1;         /**< This prefix is considered to be on-mesh */
+    bool                P_nd_dns: 1;          /**< this border router is able to provide DNS information */
+    bool                stableData: 1;        /**< This data is stable and expected to be available at least 48h. */
 } thread_border_router_info_t;
 
 /**
@@ -267,5 +282,41 @@ int thread_border_router_service_tlv_find(uint8_t* network_data_tlv, uint16_t ne
  */
 int thread_border_router_server_tlv_find(uint8_t* service_tlv, uint16_t service_tlv_length, uint8_t** server_tlv, bool* stable);
 
+/**
+ * Determine context ID from the Network Data TLV (under Prefix TLV) byte array.
+ *
+ * \param prefix_tlv [IN] Prefix TLV in byte array.
+ * \param prefix_tlv_length [IN] Length of the Prefix TLV byte array in bytes.
+ *
+ * \return The context ID value found
+ * \return -1 if error in input parameters.
+ * \return -2 if no context ID value found.
+ */
+int thread_border_router_prefix_context_id(uint8_t *prefix_tlv, uint16_t prefix_tlv_length);
 
+/**
+ * Start mDNS responder service. The responder will respond to DNS-SD queries and send announcement when
+ * Thread network data is updated.
+ *
+ * The mDNS responder can be closed by calling thread_border_router_mdns_responder_stop(). Closing the Thread
+ * network interface will stop the mDNS responder automatically.
+ *
+ * \param interface_id interface ID of the Thread network
+ * \param interface_id_mdns interface where mDNS messaging occurs
+ * \param service_name mDNS instance name
+ *
+ * \return 0 on success
+ * \return <0 in case of errors
+ *
+ */
+int thread_border_router_mdns_responder_start(int8_t interface_id, int8_t interface_id_mdns, const char *service_name);
+
+/**
+ * Stop mDNS responder service
+ *
+ * \return 0 on success
+ * \return <0 in case of errors
+ *
+ */
+int thread_border_router_mdns_responder_stop(void);
 #endif /* THREAD_BORDER_ROUTER_API_H_ */

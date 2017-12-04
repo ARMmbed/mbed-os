@@ -61,6 +61,7 @@ struct serial_s {
     void        (*vec)(void);
     uint32_t    irq_handler;
     uint32_t    irq_id;
+    uint32_t    irq_en;
     uint32_t    inten_msk;
     
     // Async transfer related fields
@@ -114,10 +115,6 @@ struct pwmout_s {
     //PinName pin;
     uint32_t period_us;
     uint32_t pulsewidth_us;
-};
-
-struct sleep_s {
-    int powerdown;
 };
 
 struct can_s {

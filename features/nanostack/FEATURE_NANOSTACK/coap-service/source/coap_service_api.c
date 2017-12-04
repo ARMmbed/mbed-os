@@ -1,5 +1,18 @@
 /*
- * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 
@@ -21,6 +34,7 @@
 #include "net_interface.h"
 #include "coap_service_api_internal.h"
 #include "coap_message_handler.h"
+#include "mbed-coap/sn_coap_protocol.h"
 
 static int16_t coap_msg_process_callback(int8_t socket_id, sn_coap_hdr_s *coap_message, coap_transaction_t *transaction_ptr);
 
@@ -99,6 +113,27 @@ static coap_service_t *service_find_by_uri(uint8_t socket_id, uint8_t *uri_ptr, 
     return NULL;
 }
 
+static bool coap_service_can_leave_multicast_group(coap_conn_handler_t *conn_handler)
+{
+    int mc_count = 0;
+    bool current_handler_joined_to_mc_group = false;
+
+    ns_list_foreach(coap_service_t, cur_ptr, &instance_list) {
+        if (cur_ptr->conn_handler && cur_ptr->conn_handler->registered_to_multicast) {
+            if (conn_handler == cur_ptr->conn_handler) {
+                current_handler_joined_to_mc_group = true;
+            }
+            mc_count ++;
+        }
+    }
+
+    if (mc_count == 1 && current_handler_joined_to_mc_group) {
+        // current handler is the only one joined to multicast group
+        return true;
+    }
+
+    return false;
+}
 
 /**
  *  Coap handling functions
@@ -124,6 +159,7 @@ static uint8_t coap_tx_function(uint8_t *data_ptr, uint16_t data_len, sn_nsdl_ad
     coap_service_t *this;
     coap_transaction_t *transaction_ptr = coap_message_handler_transaction_valid(param);
     ns_address_t dest_addr;
+    int ret_val;
 
     if (!transaction_ptr || !data_ptr) {
         return 0;
@@ -140,17 +176,19 @@ static uint8_t coap_tx_function(uint8_t *data_ptr, uint16_t data_len, sn_nsdl_ad
     dest_addr.identifier = address_ptr->port;
     dest_addr.type = ADDRESS_IPV6;
 
-    if (-2 == coap_connection_handler_send_data(this->conn_handler, &dest_addr, transaction_ptr->local_address,
-            data_ptr, data_len, (this->service_options & COAP_SERVICE_OPTIONS_SECURE_BYPASS) == COAP_SERVICE_OPTIONS_SECURE_BYPASS)) {
-        transaction_ptr->data_ptr = ns_dyn_mem_alloc(data_len);
+    ret_val = coap_connection_handler_send_data(this->conn_handler, &dest_addr, transaction_ptr->local_address,
+            data_ptr, data_len, (this->service_options & COAP_SERVICE_OPTIONS_SECURE_BYPASS) == COAP_SERVICE_OPTIONS_SECURE_BYPASS);
+    if (ret_val == 0) {
         if (!transaction_ptr->data_ptr) {
-            tr_debug("coap tx out of memory");
-            return 0;
-
+            transaction_ptr->data_ptr = ns_dyn_mem_alloc(data_len);
+            if (!transaction_ptr->data_ptr) {
+                tr_debug("coap tx out of memory");
+                return 0;
+            }
+            memcpy(transaction_ptr->data_ptr, data_ptr, data_len);
+            transaction_ptr->data_len = data_len;
         }
-        memcpy(transaction_ptr->data_ptr, data_ptr, data_len);
-        transaction_ptr->data_len = data_len;
-    } else if (transaction_ptr->resp_cb == NULL ) {
+    } else if ((ret_val == -1) || (transaction_ptr->resp_cb == NULL)) {
         transaction_delete(transaction_ptr);
     }
 
@@ -230,7 +268,7 @@ static int recv_cb(int8_t socket_id, uint8_t src_address[static 16], uint16_t po
     return ret;
 }
 
-static int send_cb(int8_t socket_id, const uint8_t address[static 16], uint16_t port, const void *data_ptr, int data_len)
+static int virtual_send_cb(int8_t socket_id, const uint8_t address[static 16], uint16_t port, const void *data_ptr, int data_len)
 {
     coap_service_t *this = service_find_by_socket(socket_id);
     if (this && this->virtual_socket_send_cb) {
@@ -268,21 +306,42 @@ static void sec_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t p
     }
 }
 
-static int get_passwd_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t *pw_ptr, uint8_t *pw_len)
+static int get_passwd_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, coap_security_keys_t *security_ptr)
 {
+    uint8_t *pw_ptr = NULL;
+    uint8_t pw_len = 0;
     coap_service_t *this = service_find_by_socket(socket_id);
-    if (this && this->security_start_cb) {
-        return this->security_start_cb(this->service_id, address, port, pw_ptr, pw_len);
+
+    if (!this || !security_ptr) {
+        return -1;
     }
+
+    /* Certificates set */
+    if (this->conn_handler->security_keys) {
+        *security_ptr = *this->conn_handler->security_keys;
+        return 0;
+    }
+
+    pw_ptr = ns_dyn_mem_alloc(64);
+    if (!pw_ptr) {
+        return -1;
+    }
+
+    if (this->security_start_cb && !this->security_start_cb(this->service_id, address, port, pw_ptr, &pw_len)) {
+        security_ptr->mode = ECJPAKE;
+        security_ptr->_key = pw_ptr;
+        security_ptr->_key_len = pw_len;
+        return 0;
+    }
+
     return -1;
 }
 
 int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_t service_options,
                                  coap_service_security_start_cb *start_ptr, coap_service_security_done_cb *coap_security_done_cb)
 {
-    (void) interface_id;
-
     coap_service_t *this = ns_dyn_mem_alloc(sizeof(coap_service_t));
+
     if (!this) {
         return -1;
     }
@@ -293,6 +352,7 @@ int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_
     while (service_find(id) && id < 127) {
         id++;
     }
+    this->interface_id = interface_id;
     this->service_id = id;
     this->service_options = service_options;
 
@@ -304,16 +364,24 @@ int8_t coap_service_initialize(int8_t interface_id, uint16_t listen_port, uint8_
         tasklet_id = eventOS_event_handler_create(&service_event_handler, ARM_LIB_TASKLET_INIT_EVENT);
     }
 
-    this->conn_handler = connection_handler_create(recv_cb, send_cb, get_passwd_cb, sec_done_cb);
+    this->conn_handler = connection_handler_create(recv_cb, virtual_send_cb, get_passwd_cb, sec_done_cb);
     if(!this->conn_handler){
         ns_dyn_mem_free(this);
         return -1;
     }
 
-    if (0 > coap_connection_handler_open_connection(this->conn_handler, listen_port, ((this->service_options & COAP_SERVICE_OPTIONS_EPHEMERAL_PORT) == COAP_SERVICE_OPTIONS_EPHEMERAL_PORT),
-                                              ((this->service_options & COAP_SERVICE_OPTIONS_SECURE) == COAP_SERVICE_OPTIONS_SECURE),
-                                              ((this->service_options & COAP_SERVICE_OPTIONS_VIRTUAL_SOCKET) != COAP_SERVICE_OPTIONS_VIRTUAL_SOCKET),
-                                              ((this->service_options & COAP_SERVICE_OPTIONS_SECURE_BYPASS) == COAP_SERVICE_OPTIONS_SECURE_BYPASS))){
+    this->conn_handler->socket_interface_selection = 0; // zero is illegal interface ID
+    if (this->service_options & COAP_SERVICE_OPTIONS_SELECT_SOCKET_IF) {
+        this->conn_handler->socket_interface_selection = this->interface_id;
+    }
+
+    this->conn_handler->registered_to_multicast = this->service_options & COAP_SERVICE_OPTIONS_MULTICAST_JOIN;
+
+    if (0 > coap_connection_handler_open_connection(this->conn_handler, listen_port,
+            (this->service_options & COAP_SERVICE_OPTIONS_EPHEMERAL_PORT),
+            (this->service_options & COAP_SERVICE_OPTIONS_SECURE),
+            !(this->service_options & COAP_SERVICE_OPTIONS_VIRTUAL_SOCKET),
+            (this->service_options & COAP_SERVICE_OPTIONS_SECURE_BYPASS))) {
         ns_dyn_mem_free(this->conn_handler);
         ns_dyn_mem_free(this);
         return -1;
@@ -340,7 +408,12 @@ void coap_service_delete(int8_t service_id)
     }
 
     if (this->conn_handler){
-        connection_handler_destroy(this->conn_handler);
+        bool leave_multicast_group = false;
+        if (coap_service_can_leave_multicast_group(this->conn_handler)) {
+            // This is the last handler joined to multicast group
+            leave_multicast_group = true;
+        }
+        connection_handler_destroy(this->conn_handler, leave_multicast_group);
     }
 
     //TODO clear all transactions
@@ -459,6 +532,15 @@ int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_coap_hd
     return coap_message_handler_response_send(coap_service_handle, service_id, options, request_ptr, message_code, content_type, payload_ptr, payload_len);
 }
 
+int8_t coap_service_response_send_by_msg_id(int8_t service_id, uint8_t options, uint16_t msg_id, sn_coap_msg_code_e message_code, sn_coap_content_format_e content_type, const uint8_t *payload_ptr,uint16_t payload_len) {
+    return coap_message_handler_response_send_by_msg_id(coap_service_handle, service_id, options, msg_id, message_code, content_type, payload_ptr, payload_len);
+}
+
+int8_t coap_service_request_delete(int8_t service_id, uint16_t msg_id)
+{
+    return coap_message_handler_request_delete(coap_service_handle, service_id, msg_id);
+}
+
 int8_t coap_service_set_handshake_timeout(int8_t service_id, uint32_t min, uint32_t max)
 {
     coap_service_t *this = service_find(service_id);
@@ -467,6 +549,22 @@ int8_t coap_service_set_handshake_timeout(int8_t service_id, uint32_t min, uint3
     }
 
     return coap_connection_handler_set_timeout(this->conn_handler, min, max);
+}
+
+int8_t coap_service_handshake_limits_set(uint8_t handshakes_max, uint8_t connections_max)
+{
+    return coap_connection_handler_handshake_limits_set(handshakes_max, connections_max);
+}
+
+int8_t coap_service_set_duplicate_message_buffer(int8_t service_id, uint8_t size)
+{
+    (void) service_id;
+
+    if (!coap_service_handle) {
+        return -1;
+    }
+
+    return sn_coap_protocol_set_duplicate_buffer_size(coap_service_handle->coap, size);
 }
 
 uint32_t coap_service_get_internal_timer_ticks(void)
@@ -479,4 +577,32 @@ uint16_t coap_service_id_find_by_socket(int8_t socket_id)
     coap_service_t *this = service_find_by_socket(socket_id);
 
     return this ? this->service_id:0;
+}
+
+int8_t coap_service_certificate_set(int8_t service_id, const unsigned char *cert, uint16_t cert_len, const unsigned char *priv_key, uint8_t priv_key_len)
+{
+    coap_service_t *this = service_find(service_id);
+    if (!this) {
+        return -1;
+    }
+
+    if (!this->conn_handler->security_keys) {
+        this->conn_handler->security_keys = ns_dyn_mem_alloc(sizeof(coap_security_keys_t));
+
+        if (!this->conn_handler->security_keys) {
+            return -1;
+        }
+    }
+
+    memset(this->conn_handler->security_keys, 0, sizeof(coap_security_keys_t));
+
+    this->conn_handler->security_keys->_cert = cert;
+    this->conn_handler->security_keys->_cert_len = cert_len;
+
+    this->conn_handler->security_keys->_priv_key = priv_key;
+    this->conn_handler->security_keys->_priv_key_len = priv_key_len;
+
+    this->conn_handler->security_keys->mode = CERTIFICATE;
+
+    return 0;
 }

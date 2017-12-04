@@ -22,14 +22,23 @@
 
 #include "platform/FileSystemLike.h"
 #include "platform/PlatformMutex.h"
+#include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_LocalFileSystem LocalFileSystem functions
+ * @{
+ */
 
 FILEHANDLE local_file_open(const char* name, int flags);
 
-class LocalFileHandle : public FileHandle {
+/**
+ * @class LocalFileHandle
+ * @ingroup platform
+ */
+class LocalFileHandle : public FileHandle, private NonCopyable<LocalFileHandle> {
 
 public:
     LocalFileHandle(FILEHANDLE fh);
@@ -46,7 +55,7 @@ public:
 
     virtual int sync();
 
-    virtual size_t size();
+    virtual off_t size();
 
 protected:
     virtual void lock();
@@ -62,7 +71,7 @@ protected:
  *  mbed Microcontroller. Once created, the standard C file access functions are used to open,
  *  read and write files.
  *
- * @Note Synchronization level: Thread safe
+ * @note Synchronization level: Thread safe
  *
  * Example:
  * @code
@@ -91,8 +100,9 @@ protected:
  *
  *  The drive will only re-appear when the microcontroller program exists. Note that if the program does
  *  not exit, you will need to hold down reset on the mbed Microcontroller to be able to see the drive again!
+ * @ingroup platform
  */
-class LocalFileSystem : public FileSystemLike {
+class LocalFileSystem : public FileSystemLike, private NonCopyable<LocalFileSystem> {
     // No modifiable state
 
 public:
@@ -100,10 +110,14 @@ public:
 
     }
 
-    virtual FileHandle *open(const char* name, int flags);
+    virtual int open(FileHandle **file, const char *path, int flags);
+    virtual int open(DirHandle **dir, const char *name);
     virtual int remove(const char *filename);
-    virtual DirHandle *opendir(const char *name);
 };
+
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 
@@ -111,4 +125,3 @@ public:
 
 #endif
 
-/** @}*/

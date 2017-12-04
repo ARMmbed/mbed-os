@@ -22,17 +22,17 @@
 * to the usb host
 */
 /*   hub + 2 devices */
-#define MAX_DEVICE_CONNECTED        3
+#define MAX_DEVICE_CONNECTED        5
 
 /*
 * Maximum of Hub connected to the usb host
 */
-#define MAX_HUB_NB                  0
+#define MAX_HUB_NB                  3
 
 /*
 * Maximum number of ports on a USB hub
 */
-#define MAX_HUB_PORT                2
+#define MAX_HUB_PORT                4
 
 /*
 * Enable USBHostMSD

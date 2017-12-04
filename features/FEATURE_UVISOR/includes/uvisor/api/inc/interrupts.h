@@ -17,7 +17,7 @@
 #ifndef __UVISOR_API_INTERRUPTS_H__
 #define __UVISOR_API_INTERRUPTS_H__
 
-#include "api/inc/unvic_exports.h"
+#include "api/inc/virq_exports.h"
 #include "api/inc/uvisor_exports.h"
 #include "api/inc/api.h"
 #include <stdint.h>

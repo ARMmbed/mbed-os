@@ -15,7 +15,7 @@
  */
 #include "common/common.h"
 
-#include "nrf_ble_gap.h"
+#include "headers/nrf_ble_gap.h"
 #include "ble_conn_params.h"
 
 static inline uint32_t msec_to_1_25msec(uint32_t interval_ms) ATTR_ALWAYS_INLINE ATTR_CONST;

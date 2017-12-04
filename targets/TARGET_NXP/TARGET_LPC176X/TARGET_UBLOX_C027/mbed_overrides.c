@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "C027_api.h"
+#include "ublox_low_level_api.h"
 
 // called before main
 void mbed_sdk_init() {
-	c027_init();
+	ublox_mdm_init();
 }

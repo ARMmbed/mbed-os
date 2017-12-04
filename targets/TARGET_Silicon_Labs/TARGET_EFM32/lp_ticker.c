@@ -92,10 +92,14 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     RTC_FreezeEnable(false);
 }
 
+void lp_ticker_fire_interrupt(void)
+{
+    RTC_IntSet(RTC_IFS_COMP0);
+}
+
 inline void lp_ticker_disable_interrupt()
 {
     RTC_IntDisable(RTC_IF_COMP0);
-    lp_ticker_free();
 }
 
 inline void lp_ticker_clear_interrupt()
@@ -161,10 +165,14 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     RTCC_IntEnable(RTCC_IF_CC0);
 }
 
+void lp_ticker_fire_interrupt(void)
+{
+    RTCC_IntSet(RTCC_IFS_CC0);
+}
+
 inline void lp_ticker_disable_interrupt()
 {
     RTCC_IntDisable(RTCC_IF_CC0);
-    lp_ticker_free();
 }
 
 inline void lp_ticker_clear_interrupt()

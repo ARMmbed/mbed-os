@@ -15,8 +15,6 @@
  */
 
 #include "sleep_api.h"
-#include "serial_api.h"
-#include "lp_ticker_api.h"
 
 #if DEVICE_SLEEP
 
@@ -25,80 +23,24 @@
 #include "objects.h"
 #include "PeripheralPins.h"
 
-static void mbed_enter_sleep(struct sleep_s *obj);
-static void mbed_exit_sleep(struct sleep_s *obj);
-
-int serial_allow_powerdown(void);
-int spi_allow_powerdown(void);
-int i2c_allow_powerdown(void);
-int pwmout_allow_powerdown(void);
-
 /**
- * Enter Idle mode.
+ * Enter idle mode, in which just CPU is halted.
  */
 void hal_sleep(void)
 {
-    struct sleep_s sleep_obj;
-    sleep_obj.powerdown = 0;
-    mbed_enter_sleep(&sleep_obj);
-    mbed_exit_sleep(&sleep_obj);
+    SYS_UnlockReg();
+    CLK_Idle();
+    SYS_LockReg();
 }
 
 /**
- * Enter Power-down mode while no peripheral is active; otherwise, enter Idle mode.
+ * Enter power-down mode, in which HXT/HIRC are halted.
  */
 void hal_deepsleep(void)
 {
-    struct sleep_s sleep_obj;
-    sleep_obj.powerdown = 1;
-    mbed_enter_sleep(&sleep_obj);
-    mbed_exit_sleep(&sleep_obj);
-}
-
-static void mbed_enter_sleep(struct sleep_s *obj)
-{
-    // Check if serial allows entering power-down mode
-    if (obj->powerdown) {
-        obj->powerdown = serial_allow_powerdown();
-    }
-    // Check if spi allows entering power-down mode
-    if (obj->powerdown) {
-        obj->powerdown = spi_allow_powerdown();
-    }
-    // Check if i2c allows entering power-down mode
-    if (obj->powerdown) {
-        obj->powerdown = i2c_allow_powerdown();
-    }
-    // Check if pwmout allows entering power-down mode
-    if (obj->powerdown) {
-        obj->powerdown = pwmout_allow_powerdown();
-    }
-    // TODO: Check if other peripherals allow entering power-down mode
-    
-    if (obj->powerdown) {   // Power-down mode (HIRC/HXT disabled, LIRC/LXT enabled)
-        SYS_UnlockReg();
-        CLK_PowerDown();
-        SYS_LockReg();
-    }
-    else {  // CPU halt mode (HIRC/HXT enabled, LIRC/LXT enabled)
-        // NOTE: NUC472's CLK_Idle() will also disable HIRC/HXT.
-        SYS_UnlockReg();
-        SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
-        CLK->PWRCTL &= ~CLK_PWRCTL_PDEN_Msk;
-        __WFI();
-        SYS_LockReg();
-    }
-    __NOP();
-    __NOP();
-    __NOP();
-    __NOP();
-}
-
-static void mbed_exit_sleep(struct sleep_s *obj)
-{
-    // TODO: TO BE CONTINUED
-    
-    (void)obj;
+    SYS_UnlockReg();
+    CLK_PowerDown();
+    SYS_LockReg();
 }
 
 #endif

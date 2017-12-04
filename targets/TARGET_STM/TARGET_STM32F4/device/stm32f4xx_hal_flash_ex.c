@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    06-May-2016
+  * @version V1.7.1
+  * @date    14-April-2017
   * @brief   Extended FLASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the FLASH extension peripheral:
@@ -51,7 +51,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -97,7 +97,7 @@
 /** @addtogroup FLASHEx_Private_Constants
   * @{
   */    
-#define FLASH_TIMEOUT_VALUE       ((uint32_t)50000U)/* 50 s */
+#define FLASH_TIMEOUT_VALUE       50000U /* 50 s */
 /**
   * @}
   */
@@ -129,10 +129,12 @@ static uint8_t            FLASH_OB_GetRDP(void);
 static uint8_t            FLASH_OB_GetBOR(void);
 
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F411xE) ||\
-    defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx)
+    defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) ||\
+    defined(STM32F423xx)
 static HAL_StatusTypeDef  FLASH_OB_EnablePCROP(uint32_t Sector);
 static HAL_StatusTypeDef  FLASH_OB_DisablePCROP(uint32_t Sector);
-#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
+#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx
+          STM32F413xx || STM32F423xx */
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) || defined(STM32F469xx) || defined(STM32F479xx) 
 static HAL_StatusTypeDef FLASH_OB_EnablePCROP(uint32_t SectorBank1, uint32_t SectorBank2, uint32_t Banks);
@@ -379,7 +381,7 @@ void HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit)
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) ||\
     defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F469xx) ||\
     defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
-    defined(STM32F412Cx)
+    defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
 /**
   * @brief   Program option bytes
   * @param  pAdvOBInit: pointer to an FLASH_AdvOBProgramInitTypeDef structure that
@@ -404,22 +406,24 @@ HAL_StatusTypeDef HAL_FLASHEx_AdvOBProgram (FLASH_AdvOBProgramInitTypeDef *pAdvO
       /*Enable of Write protection on the selected Sector*/
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
     defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
-    defined(STM32F412Cx)
+    defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
       status = FLASH_OB_EnablePCROP(pAdvOBInit->Sectors);
 #else  /* STM32F427xx || STM32F437xx || STM32F429xx|| STM32F439xx || STM32F469xx || STM32F479xx */
       status = FLASH_OB_EnablePCROP(pAdvOBInit->SectorsBank1, pAdvOBInit->SectorsBank2, pAdvOBInit->Banks);
-#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
+#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx ||
+          STM32F413xx || STM32F423xx */
     }
     else
     {
       /*Disable of Write protection on the selected Sector*/
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
     defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
-    defined(STM32F412Cx) 
+    defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
       status = FLASH_OB_DisablePCROP(pAdvOBInit->Sectors);
 #else /* STM32F427xx || STM32F437xx || STM32F429xx|| STM32F439xx || STM32F469xx || STM32F479xx */
       status = FLASH_OB_DisablePCROP(pAdvOBInit->SectorsBank1, pAdvOBInit->SectorsBank2, pAdvOBInit->Banks);
-#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
+#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx ||
+          STM32F413xx || STM32F423xx */
     }
   }
    
@@ -445,7 +449,7 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
 {
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
     defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
-    defined(STM32F412Cx)
+    defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
   /*Get Sector*/
   pAdvOBInit->Sectors = (*(__IO uint16_t *)(OPTCR_BYTE2_ADDRESS));
 #else  /* STM32F427xx || STM32F437xx || STM32F429xx|| STM32F439xx || STM32F469xx || STM32F479xx */
@@ -457,7 +461,8 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
 
   /*Get Boot config OB*/
   pAdvOBInit->BootConfig = *(__IO uint8_t *)OPTCR_BYTE0_ADDRESS;
-#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
+#endif /* STM32F401xC || STM32F401xE || STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx ||
+          STM32F413xx || STM32F423xx */
 }
 
 /**
@@ -468,16 +473,16 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
   * @note   Once SPRMOD bit is active unprotection of a protected sector is not possible 
   * @note   Read a protected sector will set RDERR Flag and write a protected sector will set WRPERR Flag
   * @note   This function can be used only for STM32F42xxx/STM32F43xxx/STM32F401xx/STM32F411xx/STM32F446xx/
-  *         STM32F469xx/STM32F479xx/STM32F412Zx/STM32F412Vx/STM32F412Rx/STM32F412Cx devices.
+  *         STM32F469xx/STM32F479xx/STM32F412xx/STM32F413xx devices.
   * 
   * @retval HAL Status
   */
 HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void)
 {
-  uint8_t optiontmp = 0xFFU;
+  uint8_t optiontmp = 0xFF;
 
   /* Mask SPRMOD bit */
-  optiontmp =  (uint8_t)((*(__IO uint8_t *)OPTCR_BYTE3_ADDRESS) & (uint8_t)0x7FU); 
+  optiontmp =  (uint8_t)((*(__IO uint8_t *)OPTCR_BYTE3_ADDRESS) & (uint8_t)0x7F); 
   
   /* Update Option Byte */
   *(__IO uint8_t *)OPTCR_BYTE3_ADDRESS = (uint8_t)(OB_PCROP_SELECTED | optiontmp); 
@@ -493,16 +498,16 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void)
   * @note   Once SPRMOD bit is active unprotection of a protected sector is not possible 
   * @note   Read a protected sector will set RDERR Flag and write a protected sector will set WRPERR Flag
   * @note   This function can be used only for STM32F42xxx/STM32F43xxx/STM32F401xx/STM32F411xx/STM32F446xx/
-  *         STM32F469xx/STM32F479xx/STM32F412Zx/STM32F412Vx/STM32F412Rx/STM32F412Cx devices.
+  *         STM32F469xx/STM32F479xx/STM32F412xx/STM32F413xx devices.
   * 
   * @retval HAL Status
   */
 HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void)
 {
-  uint8_t optiontmp = 0xFFU;
+  uint8_t optiontmp = 0xFF;
   
   /* Mask SPRMOD bit */
-  optiontmp =  (uint8_t)((*(__IO uint8_t *)OPTCR_BYTE3_ADDRESS) & (uint8_t)0x7FU); 
+  optiontmp =  (uint8_t)((*(__IO uint8_t *)OPTCR_BYTE3_ADDRESS) & (uint8_t)0x7F); 
   
   /* Update Option Byte */
   *(__IO uint8_t *)OPTCR_BYTE3_ADDRESS = (uint8_t)(OB_PCROP_DESELECTED | optiontmp);  
@@ -510,7 +515,8 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void)
   return HAL_OK;
 }
 #endif /* STM32F427xx || STM32F437xx || STM32F429xx || STM32F439xx || STM32F401xC || STM32F401xE || STM32F410xx ||\
-          STM32F411xE || STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
+          STM32F411xE || STM32F469xx || STM32F479xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx ||
+          STM32F413xx || STM32F423xx */
 
 #if defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx)|| defined(STM32F439xx) || defined(STM32F469xx) || defined(STM32F479xx)
 /**
@@ -674,7 +680,7 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WRPSector, uint32_t Banks)
        if(WRPSector == OB_WRP_SECTOR_All)
        {
           /*Write protection on all sector of BANK1*/
-          *(__IO uint16_t*)OPTCR_BYTE2_ADDRESS &= (~(WRPSector>>12U));  
+          *(__IO uint16_t*)OPTCR_BYTE2_ADDRESS &= (~(WRPSector>>12));  
        }
        else
        {
@@ -685,7 +691,7 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WRPSector, uint32_t Banks)
     else 
     {
       /*Write protection done on sectors of BANK2*/
-      *(__IO uint16_t*)OPTCR1_BYTE2_ADDRESS &= (~(WRPSector>>12U));  
+      *(__IO uint16_t*)OPTCR1_BYTE2_ADDRESS &= (~(WRPSector>>12));  
     }
 
     /*Write protection on all sector of BANK2*/
@@ -696,7 +702,7 @@ static HAL_StatusTypeDef FLASH_OB_EnableWRP(uint32_t WRPSector, uint32_t Banks)
       
       if(status == HAL_OK)
       { 
-        *(__IO uint16_t*)OPTCR1_BYTE2_ADDRESS &= (~(WRPSector>>12U));  
+        *(__IO uint16_t*)OPTCR1_BYTE2_ADDRESS &= (~(WRPSector>>12));  
       }
     }
     
@@ -745,7 +751,7 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WRPSector, uint32_t Banks)
        if(WRPSector == OB_WRP_SECTOR_All)
        {
           /*Write protection on all sector of BANK1*/
-          *(__IO uint16_t*)OPTCR_BYTE2_ADDRESS |= (uint16_t)(WRPSector>>12U); 
+          *(__IO uint16_t*)OPTCR_BYTE2_ADDRESS |= (uint16_t)(WRPSector>>12); 
        }
        else
        {
@@ -756,7 +762,7 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WRPSector, uint32_t Banks)
     else 
     {
       /*Write protection done on sectors of BANK2*/
-      *(__IO uint16_t*)OPTCR1_BYTE2_ADDRESS |= (uint16_t)(WRPSector>>12U); 
+      *(__IO uint16_t*)OPTCR1_BYTE2_ADDRESS |= (uint16_t)(WRPSector>>12); 
     }
 
     /*Write protection on all sector  of BANK2*/
@@ -767,7 +773,7 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WRPSector, uint32_t Banks)
       
       if(status == HAL_OK)
       { 
-        *(__IO uint16_t*)OPTCR1_BYTE2_ADDRESS |= (uint16_t)(WRPSector>>12U); 
+        *(__IO uint16_t*)OPTCR1_BYTE2_ADDRESS |= (uint16_t)(WRPSector>>12); 
       }
     }
     
@@ -941,7 +947,8 @@ static HAL_StatusTypeDef FLASH_OB_DisablePCROP(uint32_t SectorBank1, uint32_t Se
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||\
     defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) ||\
     defined(STM32F410Rx) || defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F412Zx) ||\
-    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx)
+    defined(STM32F412Vx) || defined(STM32F412Rx) || defined(STM32F412Cx) || defined(STM32F413xx) ||\
+    defined(STM32F423xx)
 /**
   * @brief  Mass erase of FLASH memory
   * @param  VoltageRange: The device voltage range which defines the erase parallelism.  
@@ -1094,11 +1101,12 @@ static HAL_StatusTypeDef FLASH_OB_DisableWRP(uint32_t WRPSector, uint32_t Banks)
   
   return status;
 }
-#endif /* STM32F40xxx || STM32F41xxx || STM32F401xx || STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
+#endif /* STM32F40xxx || STM32F41xxx || STM32F401xx || STM32F410xx || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx
+          STM32F413xx || STM32F423xx */
 
 #if defined(STM32F401xC) || defined(STM32F401xE) || defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) ||\
     defined(STM32F411xE) || defined(STM32F446xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||\
-    defined(STM32F412Cx)
+    defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
 /**
   * @brief  Enable the read/write protection (PCROP) of the desired sectors.
   * @note   This function can be used only for STM32F401xx devices.
@@ -1154,7 +1162,8 @@ static HAL_StatusTypeDef FLASH_OB_DisablePCROP(uint32_t Sector)
   return status;
 
 }
-#endif /* STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx */
+#endif /* STM32F401xC || STM32F401xE || STM32F411xE || STM32F446xx || STM32F412Zx || STM32F412Vx || STM32F412Rx || STM32F412Cx
+          STM32F413xx || STM32F423xx */
 
 /**
   * @brief  Set the read protection level.
@@ -1204,7 +1213,7 @@ static HAL_StatusTypeDef FLASH_OB_RDP_LevelConfig(uint8_t Level)
   */
 static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t Iwdg, uint8_t Stop, uint8_t Stdby)
 {
-  uint8_t optiontmp = 0xFFU;
+  uint8_t optiontmp = 0xFF;
   HAL_StatusTypeDef status = HAL_OK;
 
   /* Check the parameters */
@@ -1218,7 +1227,7 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t Iwdg, uint8_t Stop, uint8_t
   if(status == HAL_OK)
   {     
     /* Mask OPTLOCK, OPTSTRT, BOR_LEV and BFB2 bits */
-    optiontmp =  (uint8_t)((*(__IO uint8_t *)OPTCR_BYTE0_ADDRESS) & (uint8_t)0x1FU);
+    optiontmp =  (uint8_t)((*(__IO uint8_t *)OPTCR_BYTE0_ADDRESS) & (uint8_t)0x1F);
 
     /* Update User Option Byte */
     *(__IO uint8_t *)OPTCR_BYTE0_ADDRESS = Iwdg | (uint8_t)(Stdby | (uint8_t)(Stop | ((uint8_t)optiontmp))); 
@@ -1258,7 +1267,7 @@ static HAL_StatusTypeDef FLASH_OB_BOR_LevelConfig(uint8_t Level)
 static uint8_t FLASH_OB_GetUser(void)
 {
   /* Return the User Option Byte */
-  return ((uint8_t)(FLASH->OPTCR & 0xE0U));
+  return ((uint8_t)(FLASH->OPTCR & 0xE0));
 }
 
 /**
@@ -1310,7 +1319,7 @@ static uint8_t FLASH_OB_GetRDP(void)
 static uint8_t FLASH_OB_GetBOR(void)
 {
   /* Return the FLASH BOR level */
-  return (uint8_t)(*(__IO uint8_t *)(OPTCR_BYTE0_ADDRESS) & (uint8_t)0x0CU);
+  return (uint8_t)(*(__IO uint8_t *)(OPTCR_BYTE0_ADDRESS) & (uint8_t)0x0C);
 }
 
 /**

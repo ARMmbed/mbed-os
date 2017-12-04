@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f2xx_hal_hash.h
   * @author  MCD Application Team
-  * @version V1.1.3
-  * @date    29-June-2016
+  * @version V1.2.1
+  * @date    14-April-2017
   * @brief   Header file of HASH HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -157,7 +157,7 @@ typedef struct
 /** @defgroup HASH_Exported_Constants_Group1 HASH Algorithm Selection
   * @{
   */
-#define HASH_ALGOSELECTION_SHA1      ((uint32_t)0x0000U)  /*!< HASH function is SHA1   */
+#define HASH_ALGOSELECTION_SHA1      0x00000000U   /*!< HASH function is SHA1   */
 #define HASH_ALGOSELECTION_MD5       HASH_CR_ALGO_0      /*!< HASH function is MD5    */
 /**
   * @}
@@ -166,7 +166,7 @@ typedef struct
 /** @defgroup HASH_Exported_Constants_Group2 HASH Algorithm Mode
   * @{
   */
-#define HASH_ALGOMODE_HASH         ((uint32_t)0x00000000U)  /*!< Algorithm is HASH */ 
+#define HASH_ALGOMODE_HASH         0x00000000U  /*!< Algorithm is HASH */ 
 #define HASH_ALGOMODE_HMAC         HASH_CR_MODE            /*!< Algorithm is HMAC */
 /**
   * @}
@@ -175,7 +175,7 @@ typedef struct
 /** @defgroup HASH_Data_Type HASH Data Type
   * @{
   */
-#define HASH_DATATYPE_32B          ((uint32_t)0x0000U) /*!< 32-bit data. No swapping                     */
+#define HASH_DATATYPE_32B          0x00000000U  /*!< 32-bit data. No swapping                     */
 #define HASH_DATATYPE_16B          HASH_CR_DATATYPE_0 /*!< 16-bit data. Each half word is swapped       */
 #define HASH_DATATYPE_8B           HASH_CR_DATATYPE_1 /*!< 8-bit data. All bytes are swapped            */
 #define HASH_DATATYPE_1B           HASH_CR_DATATYPE   /*!< 1-bit data. In the word all bits are swapped */
@@ -187,7 +187,7 @@ typedef struct
   * @brief HASH HMAC Long key used only for HMAC mode
   * @{
   */
-#define HASH_HMAC_KEYTYPE_SHORTKEY      ((uint32_t)0x00000000U)  /*!< HMAC Key is <= 64 bytes */
+#define HASH_HMAC_KEYTYPE_SHORTKEY      0x00000000U  /*!< HMAC Key is <= 64 bytes */
 #define HASH_HMAC_KEYTYPE_LONGKEY       HASH_CR_LKEY             /*!< HMAC Key is > 64 bytes  */
 /**
   * @}

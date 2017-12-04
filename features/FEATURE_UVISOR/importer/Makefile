@@ -23,7 +23,7 @@ GDB:=$(PREFIX)gdb
 OBJDUMP:=$(PREFIX)objdump
 
 # Translate between uVisor namespace and mbed namespace
-TARGET_TRANSLATION:=MCU_K64F.kinetis EFM32.efm32 STM32F4.stm32 ARM_BEETLE_SOC.beetle
+TARGET_TRANSLATION:=MCU_K64F.kinetis EFM32.efm32 STM32F4.stm32 ARM_BEETLE_SOC.beetle M480.m480
 TARGET_PREFIX:=../
 TARGET_SUPPORTED:=$(TARGET_PREFIX)targets/TARGET_UVISOR_SUPPORTED
 TARGET_UNSUPPORTED:=$(TARGET_PREFIX)targets/TARGET_UVISOR_UNSUPPORTED
@@ -84,7 +84,7 @@ rsync:
 	cp $(UVISOR_DIR)/core/cmsis/inc/core_cmSecureAccess.h $(MBED_OS_CMSIS)/
 	#
 	# Copying the documentation...
-	cp $(UVISOR_DIR)/docs/api/QUICKSTART.md $(TARGET_PREFIX)/README.md
+	cp $(UVISOR_DIR)/docs/*/QUICKSTART.md $(TARGET_PREFIX)/README.md
 	#
 	# Copying licenses
 	cp $(UVISOR_DIR)/LICENSE* $(TARGET_SUPPORTED)
@@ -111,6 +111,8 @@ publish: TARGET_M3 TARGET_M4
 	#
 	# Updated list of authors, sorted by contributions
 	git -C $(UVISOR_DIR) shortlog -s -n > $(TARGET_PREFIX)AUTHORS.txt
+	# Updated version of uvisor-tests
+	cp $(UVISOR_DIR)/tools/uvisor-tests.txt $(TARGET_PREFIX)uvisor-tests.txt
 
 uvisor-compile: $(UVISOR_GIT_CFG)
 	make -C $(UVISOR_DIR)

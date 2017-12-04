@@ -350,8 +350,18 @@ pbuf_alloc(pbuf_layer layer, u16_t length, pbuf_type type)
 
     break;
   case PBUF_RAM:
-    /* If pbuf is to be allocated in RAM, allocate memory for it. */
-    p = (struct pbuf*)mem_malloc(LWIP_MEM_ALIGN_SIZE(SIZEOF_STRUCT_PBUF + offset) + LWIP_MEM_ALIGN_SIZE(length));
+    {
+      mem_size_t alloc_len = LWIP_MEM_ALIGN_SIZE(SIZEOF_STRUCT_PBUF + offset) + LWIP_MEM_ALIGN_SIZE(length);
+      
+      /* bug #50040: Check for integer overflow when calculating alloc_len */
+      if (alloc_len < LWIP_MEM_ALIGN_SIZE(length)) {
+        return NULL;
+      }
+    
+      /* If pbuf is to be allocated in RAM, allocate memory for it. */
+      p = (struct pbuf*)mem_malloc(alloc_len);
+    }
+
     if (p == NULL) {
       return NULL;
     }
@@ -812,6 +822,7 @@ pbuf_ref(struct pbuf *p)
   /* pbuf given? */
   if (p != NULL) {
     SYS_ARCH_INC(p->ref, 1);
+    LWIP_ASSERT("pbuf ref overflow", p->ref > 0);
   }
 }
 

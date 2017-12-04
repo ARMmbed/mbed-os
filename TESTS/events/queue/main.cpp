@@ -1,3 +1,18 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2017 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include "mbed_events.h"
 #include "mbed.h"
 #include "rtos.h"
@@ -7,6 +22,10 @@
 
 using namespace utest::v1;
 
+// TEST_EQUEUE_SIZE was reduced below 1024B to fit this test to devices with small RAM (RAM <= 16kB)
+// additionally TEST_EQUEUE_SIZE was expressed in EVENTS_EVENT_SIZE to increase readability
+// (for more details about EVENTS_EVENT_SIZE see EventQueue constructor)
+#define TEST_EQUEUE_SIZE (18*EVENTS_EVENT_SIZE)
 
 // flag for called
 volatile bool touched = false;
@@ -43,7 +62,7 @@ void func0() {
 
 #define SIMPLE_POSTS_TEST(i, ...)                           \
 void simple_posts_test##i() {                               \
-    EventQueue queue;                                       \
+    EventQueue queue(TEST_EQUEUE_SIZE);                     \
                                                             \
     touched = false;                                        \
     queue.call(func##i,##__VA_ARGS__);                      \
@@ -78,7 +97,7 @@ template <int N>
 void call_in_test() {
     Timer tickers[N];
 
-    EventQueue queue;
+    EventQueue queue(TEST_EQUEUE_SIZE);
 
     for (int i = 0; i < N; i++) {
         tickers[i].start();
@@ -92,7 +111,7 @@ template <int N>
 void call_every_test() {
     Timer tickers[N];
 
-    EventQueue queue;
+    EventQueue queue(TEST_EQUEUE_SIZE);
 
     for (int i = 0; i < N; i++) {
         tickers[i].start();
@@ -103,7 +122,7 @@ void call_every_test() {
 }
 
 void allocate_failure_test() {
-    EventQueue queue;
+    EventQueue queue(TEST_EQUEUE_SIZE);
     int id;
 
     for (int i = 0; i < 100; i++) {
@@ -119,7 +138,7 @@ void no() {
 
 template <int N>
 void cancel_test1() {
-    EventQueue queue;
+    EventQueue queue(TEST_EQUEUE_SIZE);
 
     int ids[N];
 
@@ -164,7 +183,7 @@ void count0() {
 
 void event_class_test() {
     counter = 0;
-    EventQueue queue(2048);
+    EventQueue queue(TEST_EQUEUE_SIZE);
 
     Event<void(int, int, int, int, int)> e5(&queue, count5);
     Event<void(int, int, int, int)> e4(&queue, count5, 1);
@@ -187,7 +206,7 @@ void event_class_test() {
 
 void event_class_helper_test() {
     counter = 0;
-    EventQueue queue(2048);
+    EventQueue queue(TEST_EQUEUE_SIZE);
 
     Event<void()> e5 = queue.event(count5, 1, 1, 1, 1, 1);
     Event<void()> e4 = queue.event(count4, 1, 1, 1, 1);
@@ -210,7 +229,7 @@ void event_class_helper_test() {
 
 void event_inference_test() {
     counter = 0;
-    EventQueue queue(2048);
+    EventQueue queue(TEST_EQUEUE_SIZE);
 
     queue.event(count5, 1, 1, 1, 1, 1).post();
     queue.event(count5, 1, 1, 1, 1).post(1);

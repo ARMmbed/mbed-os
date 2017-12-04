@@ -260,6 +260,10 @@ netif_add(struct netif *netif,
   for (i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
     ip_addr_set_zero_ip6(&netif->ip6_addr[i]);
     netif->ip6_addr_state[i] = IP6_ADDR_INVALID;
+#if LWIP_IPV6_ADDRESS_LIFETIMES
+    netif->ip6_addr_valid_life[i] = IP6_ADDR_LIFE_STATIC;
+    netif->ip6_addr_pref_life[i] = IP6_ADDR_LIFE_STATIC;
+#endif /* LWIP_IPV6_ADDRESS_LIFETIMES */
   }
   netif->output_ip6 = netif_null_output_ip6;
 #endif /* LWIP_IPV6 */
@@ -1123,9 +1127,9 @@ netif_ip6_addr_set_state(struct netif* netif, s8_t addr_idx, u8_t state)
       /* @todo: add mib2 ip6 entries? */
       netif_issue_reports(netif, NETIF_REPORT_TYPE_IPV6);
     }
-    if ((old_state & IP6_ADDR_PREFERRED) != (state & IP6_ADDR_PREFERRED)) {
-      /* address state has changed (valid flag changed or switched between
-         preferred and deprecated) -> call the callback function */
+    if ((old_state & ~IP6_ADDR_TENTATIVE_COUNT_MASK) !=
+        (state     & ~IP6_ADDR_TENTATIVE_COUNT_MASK)) {
+      /* address state has changed -> call the callback function */
       NETIF_STATUS_CALLBACK(netif);
     }
   }
@@ -1136,8 +1140,9 @@ netif_ip6_addr_set_state(struct netif* netif, s8_t addr_idx, u8_t state)
 }
 
 /**
- * Checks if a specific address is assigned to the netif and returns its
- * index.
+ * Checks if a specific local address is present on the netif and returns its
+ * index. Depending on its state, it may or may not be assigned to the
+ * interface (as per RFC terminology).
  *
  * @param netif the netif to check
  * @param ip6addr the IPv6 address to find

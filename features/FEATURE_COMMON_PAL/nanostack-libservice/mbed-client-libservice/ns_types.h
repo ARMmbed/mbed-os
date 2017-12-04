@@ -62,7 +62,7 @@
  * to use them, as they could exist and be more efficient than 32-bit on 8-bit
  * systems...)
  */
-#ifndef UINT24_LEAST_MAX
+#ifndef UINT_LEAST24_MAX
 typedef uint_least32_t uint_least24_t;
 #define UINT_LEAST24_MAX UINT_LEAST32_MAX
 #define UINT24_C(x) UINT32_C(x)
@@ -72,16 +72,16 @@ typedef uint_least32_t uint_least24_t;
 #define PRIXLEAST24 PRIXLEAST32
 #endif
 
-#ifndef INT24_LEAST_MAX
+#ifndef INT_LEAST24_MAX
 typedef int_least32_t int_least24_t;
-#define INT24_LEAST_MIN INT_LEAST32_MIN
-#define INT24_LEAST_MAX INT_LEAST32_MAX
+#define INT_LEAST24_MIN INT_LEAST32_MIN
+#define INT_LEAST24_MAX INT_LEAST32_MAX
 #define INT24_C(x) INT32_C(x)
 #define PRIdLEAST24 PRIdLEAST32
 #define PRIiLEAST24 PRIiLEAST32
 #endif
 
-#ifndef UINT24_FAST_MAX
+#ifndef UINT_FAST24_MAX
 typedef uint_fast32_t uint_fast24_t;
 #define UINT_FAST24_MAX UINT_FAST32_MAX
 #define PRIoFAST24 PRIoFAST32
@@ -90,7 +90,7 @@ typedef uint_fast32_t uint_fast24_t;
 #define PRIXFAST24 PRIXFAST32
 #endif
 
-#ifndef INT24_FAST_MAX
+#ifndef INT_FAST24_MAX
 typedef int_fast32_t int_fast24_t;
 #define INT_FAST24_MIN INT_FAST32_MIN
 #define INT_FAST24_MAX INT_FAST32_MAX

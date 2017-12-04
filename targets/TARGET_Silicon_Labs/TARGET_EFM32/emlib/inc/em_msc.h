@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file em_msc.h
  * @brief Flash controller (MSC) peripheral API
- * @version 5.1.2
+ * @version 5.3.3
  *******************************************************************************
- * @section License
+ * # License
  * <b>Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com</b>
  *******************************************************************************
  *
@@ -130,8 +130,7 @@ extern "C" {
  ******************************************************************************/
 
 /** Return codes for writing/erasing the flash */
-typedef enum
-{
+typedef enum {
   mscReturnOk          =  0, /**< Flash write/erase successful. */
   mscReturnInvalidAddr = -1, /**< Invalid address. Write to an address that is not flash. */
   mscReturnLocked      = -2, /**< Flash address is locked. */
@@ -139,11 +138,9 @@ typedef enum
   mscReturnUnaligned   = -4  /**< Unaligned access to flash. */
 } MSC_Status_TypeDef;
 
-
-#if defined( _MSC_READCTRL_BUSSTRATEGY_MASK )
+#if defined(_MSC_READCTRL_BUSSTRATEGY_MASK)
 /** Strategy for prioritized bus access */
-typedef enum
-{
+typedef enum {
   mscBusStrategyCPU = MSC_READCTRL_BUSSTRATEGY_CPU,       /**< Prioritize CPU bus accesses */
   mscBusStrategyDMA = MSC_READCTRL_BUSSTRATEGY_DMA,       /**< Prioritize DMA bus accesses */
   mscBusStrategyDMAEM1 = MSC_READCTRL_BUSSTRATEGY_DMAEM1, /**< Prioritize DMAEM1 for bus accesses */
@@ -152,8 +149,7 @@ typedef enum
 #endif
 
 /** Code execution configuration */
-typedef struct
-{
+typedef struct {
   bool scbtEn;          /**< Enable Suppressed Conditional Branch Target Prefetch */
   bool prefetchEn;      /**< Enable MSC prefetching */
   bool ifcDis;          /**< Disable instruction cache */
@@ -163,22 +159,21 @@ typedef struct
 } MSC_ExecConfig_TypeDef;
 
 /** Default MSC ExecConfig initialization */
-#define MSC_EXECCONFIG_DEFAULT  \
-{                               \
-  false,                        \
-  true,                         \
-  false,                        \
-  false,                        \
-  false,                        \
-  false,                        \
-}
+#define MSC_EXECCONFIG_DEFAULT \
+  {                            \
+    false,                     \
+    true,                      \
+    false,                     \
+    false,                     \
+    false,                     \
+    false,                     \
+  }
 
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 /* Deprecated type names */
 #define mscBusStrategy_Typedef MSC_BusStrategy_Typedef
 #define msc_Return_TypeDef MSC_Status_TypeDef
 /** @endcond */
-
 
 /***************************************************************************//**
  * @brief
@@ -206,7 +201,6 @@ __STATIC_INLINE void MSC_IntDisable(uint32_t flags)
   MSC->IEN &= ~(flags);
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Enable one or more MSC interrupts.
@@ -225,7 +219,6 @@ __STATIC_INLINE void MSC_IntEnable(uint32_t flags)
   MSC->IEN |= flags;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Get pending MSC interrupt flags.
@@ -241,7 +234,6 @@ __STATIC_INLINE uint32_t MSC_IntGet(void)
 {
   return(MSC->IF);
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -265,7 +257,6 @@ __STATIC_INLINE uint32_t MSC_IntGetEnabled(void)
   return MSC->IF & ien;
 }
 
-
 /***************************************************************************//**
  * @brief
  *   Set one or more pending MSC interrupts from SW.
@@ -279,8 +270,7 @@ __STATIC_INLINE void MSC_IntSet(uint32_t flags)
   MSC->IFS = flags;
 }
 
-
-#if defined( MSC_IF_CHOF ) && defined( MSC_IF_CMOF )
+#if defined(MSC_IF_CHOF) && defined(MSC_IF_CMOF)
 /***************************************************************************//**
  * @brief
  *   Starts measuring cache hit ratio.
@@ -294,13 +284,12 @@ __STATIC_INLINE void MSC_StartCacheMeasurement(void)
   MSC->IFC = MSC_IF_CHOF | MSC_IF_CMOF;
 
   /* Start performance counters */
-#if defined( _MSC_CACHECMD_MASK )
+#if defined(_MSC_CACHECMD_MASK)
   MSC->CACHECMD = MSC_CACHECMD_STARTPC;
 #else
   MSC->CMD = MSC_CMD_STARTPC;
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -321,13 +310,11 @@ __STATIC_INLINE void MSC_StartCacheMeasurement(void)
  * {
  *   uint32_t flags;
  *   flags = MSC->IF;
- *   if (flags & MSC_IF_CHOF)
- *   {
+ *   if (flags & MSC_IF_CHOF) {
  *      MSC->IFC = MSC_IF_CHOF;
  *      hitOverflows++;
  *   }
- *   if (flags & MSC_IF_CMOF)
- *   {
+ *   if (flags & MSC_IF_CMOF) {
  *     MSC->IFC = MSC_IF_CMOF;
  *     missOverflows++;
  *   }
@@ -354,15 +341,14 @@ __STATIC_INLINE int32_t MSC_GetCacheMeasurement(void)
   int32_t total;
   int32_t hits;
   /* Stop the counter before computing the hit-rate */
-#if defined( _MSC_CACHECMD_MASK )
+#if defined(_MSC_CACHECMD_MASK)
   MSC->CACHECMD = MSC_CACHECMD_STOPPC;
 #else
   MSC->CMD = MSC_CMD_STOPPC;
 #endif
 
   /* Check for overflows in performance counters */
-  if (MSC->IF & (MSC_IF_CHOF | MSC_IF_CMOF))
-  {
+  if (MSC->IF & (MSC_IF_CHOF | MSC_IF_CMOF)) {
     return -2;
   }
 
@@ -370,14 +356,12 @@ __STATIC_INLINE int32_t MSC_GetCacheMeasurement(void)
   total = MSC->CACHEMISSES + hits;
 
   /* To avoid a division by zero. */
-  if (total == 0)
-  {
+  if (total == 0) {
     return -1;
   }
 
   return (hits * 100) / total;
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -385,13 +369,12 @@ __STATIC_INLINE int32_t MSC_GetCacheMeasurement(void)
  ******************************************************************************/
 __STATIC_INLINE void MSC_FlushCache(void)
 {
-#if defined( _MSC_CACHECMD_MASK )
+#if defined(_MSC_CACHECMD_MASK)
   MSC->CACHECMD = MSC_CACHECMD_INVCACHE;
 #else
   MSC->CMD = MSC_CMD_INVCACHE;
 #endif
 }
-
 
 /***************************************************************************//**
  * @brief
@@ -404,8 +387,7 @@ __STATIC_INLINE void MSC_EnableCache(bool enable)
   BUS_RegBitWrite(&(MSC->READCTRL), _MSC_READCTRL_IFCDIS_SHIFT, !enable);
 }
 
-
-#if defined( MSC_READCTRL_ICCDIS )
+#if defined(MSC_READCTRL_ICCDIS)
 /***************************************************************************//**
  * @brief
  *   Enable or disable instruction cache functionality in IRQs
@@ -417,7 +399,6 @@ __STATIC_INLINE void MSC_EnableCacheIRQs(bool enable)
   BUS_RegBitWrite(&(MSC->READCTRL), _MSC_READCTRL_ICCDIS_SHIFT, !enable);
 }
 #endif
-
 
 /***************************************************************************//**
  * @brief
@@ -431,8 +412,7 @@ __STATIC_INLINE void MSC_EnableAutoCacheFlush(bool enable)
 }
 #endif /* defined( MSC_IF_CHOF ) && defined( MSC_IF_CMOF ) */
 
-
-#if defined( _MSC_READCTRL_BUSSTRATEGY_MASK )
+#if defined(_MSC_READCTRL_BUSSTRATEGY_MASK)
 /***************************************************************************//**
  * @brief
  *   Configure which unit should get priority on system bus.
@@ -444,7 +424,6 @@ __STATIC_INLINE void MSC_BusStrategy(mscBusStrategy_Typedef mode)
   MSC->READCTRL = (MSC->READCTRL & ~(_MSC_READCTRL_BUSSTRATEGY_MASK)) | mode;
 }
 #endif
-
 
 /*******************************************************************************
  *************************   PROTOTYPES   **************************************
@@ -468,24 +447,25 @@ void MSC_ExecConfigSet(MSC_ExecConfig_TypeDef *execConfig);
 #endif
 
 MSC_RAMFUNC_DECLARATOR MSC_Status_TypeDef
-  MSC_WriteWord(uint32_t *address,
-                void const *data,
-                uint32_t numBytes);
+MSC_WriteWord(uint32_t *address,
+              void const *data,
+              uint32_t numBytes);
 
-#if !defined( _EFM32_GECKO_FAMILY )
+#if !defined(_EFM32_GECKO_FAMILY)
+#if !defined (EM_MSC_RUN_FROM_FLASH) || (_SILICON_LABS_GECKO_INTERNAL_SDID < 84)
 MSC_RAMFUNC_DECLARATOR MSC_Status_TypeDef
-  MSC_WriteWordFast(uint32_t *address,
-                    void const *data,
-                    uint32_t numBytes);
-
+MSC_WriteWordFast(uint32_t *address,
+                  void const *data,
+                  uint32_t numBytes);
+#endif
 #endif
 
 MSC_RAMFUNC_DECLARATOR MSC_Status_TypeDef
-  MSC_ErasePage(uint32_t *startAddress);
+MSC_ErasePage(uint32_t *startAddress);
 
-#if defined( _MSC_MASSLOCK_MASK )
+#if defined(_MSC_MASSLOCK_MASK)
 MSC_RAMFUNC_DECLARATOR MSC_Status_TypeDef
-  MSC_MassErase(void);
+MSC_MassErase(void);
 #endif
 
 /** @} (end addtogroup MSC) */

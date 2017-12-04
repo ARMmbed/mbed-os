@@ -23,22 +23,39 @@
 #include "greentea-client/test_env.h"
 
 #include "mbed.h"
-#include "us_ticker_api.h"
 #include "lp_ticker_api.h"
 
 using namespace utest::v1;
 
-volatile static bool complete;
+static volatile bool complete;
+static volatile timestamp_t complete_time;
 static ticker_event_t delay_event;
 static const ticker_data_t *lp_ticker_data = get_lp_ticker_data();
-
+static Timer timer;
+static LowPowerTimer lp_timer;
 
 /* Timeouts are quite arbitrary due to large number of boards with varying level of accuracy */
 #define LONG_TIMEOUT (100000)
 #define SHORT_TIMEOUT (600)
 
 void cb_done(uint32_t id) {
-    complete = true;
+    if ((uint32_t)&delay_event == id) {
+        complete_time = timer.read_us();
+        complete = true;
+    } else {
+        // Normal ticker handling
+        TimerEvent::irq(id);
+    }
+}
+
+void cb_done_deepsleep(uint32_t id) {
+    if ((uint32_t)&delay_event == id) {
+        complete_time = lp_timer.read_us();
+        complete = true;
+    } else {
+        // Normal ticker handling
+        TimerEvent::irq(id);
+    }
 }
 
 void lp_ticker_delay_us(uint32_t delay_us, uint32_t tolerance)
@@ -48,14 +65,15 @@ void lp_ticker_delay_us(uint32_t delay_us, uint32_t tolerance)
 
     ticker_set_handler(lp_ticker_data, cb_done);
     ticker_remove_event(lp_ticker_data, &delay_event);
-    delay_ts = lp_ticker_read() + delay_us;
+    delay_ts = ticker_read(lp_ticker_data) + delay_us;
 
-    timestamp_t start = us_ticker_read();
+    timer.reset();
+    timer.start();
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
     while (!complete);
-    timestamp_t end = us_ticker_read();
+    timer.stop();
 
-    TEST_ASSERT_UINT32_WITHIN(tolerance, delay_us, end - start);
+    TEST_ASSERT_UINT32_WITHIN(tolerance, delay_us, complete_time);
     TEST_ASSERT_TRUE(complete);
 }
 
@@ -75,21 +93,25 @@ void lp_ticker_1s_deepsleep()
      */
     wait_ms(10);
 
-    ticker_set_handler(lp_ticker_data, cb_done);
+    ticker_set_handler(lp_ticker_data, cb_done_deepsleep);
     ticker_remove_event(lp_ticker_data, &delay_event);
-    delay_ts = lp_ticker_read() + 1000000;
+    delay_ts = ticker_read(lp_ticker_data) + 1000000;
 
     /*
-     * We use here lp_ticker_read() instead of us_ticker_read() for start and
+     * We use here the low power timer instead of microsecond timer for start and
      * end because the microseconds timer might be disable during deepsleep.
      */
-    timestamp_t start = lp_ticker_read();
+    lp_timer.reset();
+    lp_timer.start();
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
-    deepsleep();
+    /* Make sure deepsleep is allowed, to go to deepsleep */
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
+    sleep();
     while (!complete);
-    timestamp_t end = lp_ticker_read();
+    lp_timer.stop();
 
-    TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);
+    TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, complete_time);
     TEST_ASSERT_TRUE(complete);
 }
 
@@ -100,15 +122,20 @@ void lp_ticker_1s_sleep()
 
     ticker_set_handler(lp_ticker_data, cb_done);
     ticker_remove_event(lp_ticker_data, &delay_event);
-    delay_ts = lp_ticker_read() + 1000000;
+    delay_ts = ticker_read(lp_ticker_data) + 1000000;
 
-    timestamp_t start = us_ticker_read();
+    sleep_manager_lock_deep_sleep();
+    timer.reset();
+    timer.start();
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    TEST_ASSERT_FALSE_MESSAGE(deep_sleep_allowed, "Deep sleep should be disallowed");
     ticker_insert_event(lp_ticker_data, &delay_event, delay_ts, (uint32_t)&delay_event);
     sleep();
     while (!complete);
-    timestamp_t end = us_ticker_read();
+    timer.stop();
+    sleep_manager_unlock_deep_sleep();
 
-    TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, end - start);
+    TEST_ASSERT_UINT32_WITHIN(LONG_TIMEOUT, 1000000, complete_time);
     TEST_ASSERT_TRUE(complete);
 }
 #endif /* DEVICE_SLEEP */

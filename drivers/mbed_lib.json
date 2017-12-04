@@ -1,0 +1,13 @@
+{
+    "name": "drivers",
+    "config": {
+        "uart-serial-txbuf-size": {
+            "help": "Default TX buffer size for a UARTSerial instance (unit Bytes))",
+            "value": 256
+        },
+        "uart-serial-rxbuf-size": {
+            "help": "Default RX buffer size for a UARTSerial instance (unit Bytes))",
+            "value": 256
+        }
+    }
+}

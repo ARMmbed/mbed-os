@@ -1,0 +1,18 @@
+{
+    "UBLOX_EVK_ODIN_W2": {
+        "default_test_configuration": "NONE",
+        "test_configurations": ["ODIN_WIFI", "ODIN_ETHERNET"]
+    },
+    "REALTEK_RTL8195AM": {
+        "default_test_configuration": "NONE",
+        "test_configurations": ["REALTEK_WIFI"]
+    },
+    "K64F": {
+        "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
+        "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET"]
+    },
+    "NUCLEO_F429ZI": {
+        "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
+        "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET"]
+    }
+}

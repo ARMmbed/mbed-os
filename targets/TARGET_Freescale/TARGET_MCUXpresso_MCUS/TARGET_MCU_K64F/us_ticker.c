@@ -21,6 +21,16 @@
 
 static int us_ticker_inited = 0;
 
+static void pit_isr(void)
+{
+    PIT_ClearStatusFlags(PIT, kPIT_Chnl_3, PIT_TFLG_TIF_MASK);
+    PIT_ClearStatusFlags(PIT, kPIT_Chnl_2, PIT_TFLG_TIF_MASK);
+    PIT_StopTimer(PIT, kPIT_Chnl_2);
+    PIT_StopTimer(PIT, kPIT_Chnl_3);
+
+    us_ticker_irq_handler();
+}
+
 void us_ticker_init(void)
 {
     if (us_ticker_inited) {
@@ -47,7 +57,7 @@ void us_ticker_init(void)
     //Ticker
     PIT_SetTimerPeriod(PIT, kPIT_Chnl_2, busClock / 1000000 - 1);
     PIT_SetTimerChainMode(PIT, kPIT_Chnl_3, true);
-    NVIC_SetVector(PIT3_IRQn, (uint32_t)us_ticker_irq_handler);
+    NVIC_SetVector(PIT3_IRQn, (uint32_t)pit_isr);
     NVIC_EnableIRQ(PIT3_IRQn);
 }
 
@@ -73,20 +83,16 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    int delta = (int)(timestamp - us_ticker_read());
-    if (delta <= 0) {
-        // This event was in the past.
-        // Set the interrupt as pending, but don't process it here.
-        // This prevents a recurive loop under heavy load
-        // which can lead to a stack overflow.
-        NVIC_SetPendingIRQ(PIT3_IRQn);
-        return;
-    }
-
+    uint32_t delta = timestamp - us_ticker_read();
     PIT_StopTimer(PIT, kPIT_Chnl_3);
     PIT_StopTimer(PIT, kPIT_Chnl_2);
     PIT_SetTimerPeriod(PIT, kPIT_Chnl_3, (uint32_t)delta);
     PIT_EnableInterrupts(PIT, kPIT_Chnl_3, kPIT_TimerInterruptEnable);
     PIT_StartTimer(PIT, kPIT_Chnl_3);
     PIT_StartTimer(PIT, kPIT_Chnl_2);
+}
+
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(PIT3_IRQn);
 }

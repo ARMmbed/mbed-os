@@ -18,17 +18,17 @@
 
 #include "platform/platform.h"
 
-#if DEVICE_PWMOUT
+#if defined (DEVICE_PWMOUT) || defined(DOXYGEN_ONLY)
 #include "hal/pwmout_api.h"
 #include "platform/mbed_critical.h"
+#include "platform/mbed_sleep.h"
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A pulse-width modulation digital output
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
  *
  * Example
  * @code
@@ -47,13 +47,7 @@ namespace mbed {
  *     }
  * }
  * @endcode
- *
- * @note
- *  On the LPC1768 and LPC2368, the PWMs all share the same
- *  period - if you change the period for one, you change it for all.
- *  Although routines that change the period maintain the duty cycle
- *  for its PWM, all other PWMs will require their duty cycle to be
- *  refreshed.
+ * @ingroup drivers
  */
 class PwmOut {
 
@@ -63,9 +57,15 @@ public:
      *
      *  @param pin PwmOut pin to connect to
      */
-    PwmOut(PinName pin) {
+    PwmOut(PinName pin) : _deep_sleep_locked(false) {
         core_util_critical_section_enter();
         pwmout_init(&_pwm, pin);
+        core_util_critical_section_exit();
+    }
+
+    ~PwmOut() {
+        core_util_critical_section_enter();
+        unlock_deep_sleep();
         core_util_critical_section_exit();
     }
 
@@ -78,6 +78,7 @@ public:
      */
     void write(float value) {
         core_util_critical_section_enter();
+        lock_deep_sleep();
         pwmout_write(&_pwm, value);
         core_util_critical_section_exit();
     }
@@ -90,7 +91,7 @@ public:
      *    0.0f (representing on 0%) and 1.0f (representing on 100%).
      *
      *  @note
-     *  This value may not match exactly the value set by a previous <write>.
+     *  This value may not match exactly the value set by a previous write().
      */
     float read() {
         core_util_critical_section_enter();
@@ -101,6 +102,7 @@ public:
 
     /** Set the PWM period, specified in seconds (float), keeping the duty cycle the same.
      *
+     *  @param seconds Change the period of a PWM signal in seconds (float) without modifying the duty cycle
      *  @note
      *   The resolution is currently in microseconds; periods smaller than this
      *   will be set to zero.
@@ -112,6 +114,7 @@ public:
     }
 
     /** Set the PWM period, specified in milli-seconds (int), keeping the duty cycle the same.
+     *  @param ms Change the period of a PWM signal in milli-seconds without modifying the duty cycle
      */
     void period_ms(int ms) {
         core_util_critical_section_enter();
@@ -120,6 +123,7 @@ public:
     }
 
     /** Set the PWM period, specified in micro-seconds (int), keeping the duty cycle the same.
+     *  @param us Change the period of a PWM signal in micro-seconds without modifying the duty cycle
      */
     void period_us(int us) {
         core_util_critical_section_enter();
@@ -128,6 +132,7 @@ public:
     }
 
     /** Set the PWM pulsewidth, specified in seconds (float), keeping the period the same.
+     *  @param seconds Change the pulse width of a PWM signal specified in seconds (float)
      */
     void pulsewidth(float seconds) {
         core_util_critical_section_enter();
@@ -136,6 +141,7 @@ public:
     }
 
     /** Set the PWM pulsewidth, specified in milli-seconds (int), keeping the period the same.
+     *  @param ms Change the pulse width of a PWM signal specified in milli-seconds
      */
     void pulsewidth_ms(int ms) {
         core_util_critical_section_enter();
@@ -144,6 +150,7 @@ public:
     }
 
     /** Set the PWM pulsewidth, specified in micro-seconds (int), keeping the period the same.
+     *  @param us Change the pulse width of a PWM signal specified in micro-seconds  
      */
     void pulsewidth_us(int us) {
         core_util_critical_section_enter();
@@ -152,6 +159,7 @@ public:
     }
 
     /** A operator shorthand for write()
+     *  \sa PwmOut::write()
      */
     PwmOut& operator= (float value) {
         // Underlying call is thread safe
@@ -159,6 +167,9 @@ public:
         return *this;
     }
 
+    /** A operator shorthand for write()
+     * \sa PwmOut::write()
+     */    
     PwmOut& operator= (PwmOut& rhs) {
         // Underlying call is thread safe
         write(rhs.read());
@@ -166,6 +177,7 @@ public:
     }
 
     /** An operator shorthand for read()
+     * \sa PwmOut::read()
      */
     operator float() {
         // Underlying call is thread safe
@@ -173,7 +185,24 @@ public:
     }
 
 protected:
+    /** Lock deep sleep only if it is not yet locked */
+    void lock_deep_sleep() {
+        if (_deep_sleep_locked == false) {
+            sleep_manager_lock_deep_sleep();
+            _deep_sleep_locked = true;
+        }
+    }
+
+    /** Unlock deep sleep in case it is locked */
+    void unlock_deep_sleep() {
+        if (_deep_sleep_locked == true) {
+            sleep_manager_unlock_deep_sleep();
+            _deep_sleep_locked = false;
+        }
+    }
+
     pwmout_t _pwm;
+    bool _deep_sleep_locked;
 };
 
 } // namespace mbed
@@ -181,5 +210,3 @@ protected:
 #endif
 
 #endif
-
-/** @}*/

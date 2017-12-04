@@ -1,5 +1,18 @@
 /*
- * Copyright (c) 2015-2016 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 #include "test_coap_connection_handler.h"
 #include <string.h>
@@ -29,7 +42,7 @@ int get_passwd_cb(int8_t socket_id, uint8_t address, uint16_t port, uint8_t *pw_
     return 0;
 }
 
-void sec_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static 40])
+void sec_done_cb_test(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static 40])
 {
     return 1;
 }
@@ -57,7 +70,7 @@ bool test_connection_handler_destroy()
     nsdynmemlib_stub.returnCounter = 1;
     coap_conn_handler_t *handler = connection_handler_create(&receive_from_sock_cb, NULL, NULL, NULL);
 
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler, false);
     return true;
 }
 
@@ -97,8 +110,8 @@ bool test_coap_connection_handler_open_connection()
     if( 0 != coap_connection_handler_open_connection(handler, 23,false,false,false,false) )
         return false;
 
-    connection_handler_destroy(handler2);
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler2, false);
+    connection_handler_destroy(handler, false);
     return true;
 }
 
@@ -121,7 +134,7 @@ bool test_coap_connection_handler_send_data()
     if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
 
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler, false);
 
     coap_security_handler_stub.sec_obj = coap_security_handler_stub_alloc();
 
@@ -137,7 +150,7 @@ bool test_coap_connection_handler_send_data()
     if( -1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
 
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler, false);
 
     free(coap_security_handler_stub.sec_obj);
     coap_security_handler_stub.sec_obj = NULL;
@@ -152,7 +165,7 @@ bool test_coap_connection_handler_send_data()
 
     if( 1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler ,false);
 
     nsdynmemlib_stub.returnCounter = 1;
     handler = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, NULL, NULL);
@@ -161,9 +174,9 @@ bool test_coap_connection_handler_send_data()
         return false;
 
     socket_api_stub.int8_value = 7;
-    if( 7 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
+    if( 1 != coap_connection_handler_send_data(handler, &addr, ns_in6addr_any, NULL, 0, true))
         return false;
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler, false);
 
     //<-- NON SECURE HERE
 
@@ -209,10 +222,10 @@ bool test_coap_connection_handler_virtual_recv()
     if( -1 != coap_connection_handler_virtual_recv(handler,buf, 12, &buf, 1) )
         return false;
 
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler, false);
 
     nsdynmemlib_stub.returnCounter = 1;
-    coap_conn_handler_t *handler2 = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, &get_passwd_cb, &sec_done_cb);
+    coap_conn_handler_t *handler2 = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, &get_passwd_cb, &sec_done_cb_test);
     nsdynmemlib_stub.returnCounter = 2;
     if( 0 != coap_connection_handler_open_connection(handler2, 24,false,true,true,false) )
         return false;
@@ -235,13 +248,13 @@ bool test_coap_connection_handler_virtual_recv()
     if( 0 != coap_connection_handler_virtual_recv(handler2,buf, 12, &buf, 1) )
         return false;
 
-    connection_handler_destroy(handler2);
+    connection_handler_destroy(handler2, false);
 
     free(coap_security_handler_stub.sec_obj);
     coap_security_handler_stub.sec_obj = NULL;
 
     nsdynmemlib_stub.returnCounter = 1;
-    coap_conn_handler_t *handler3 = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, &get_passwd_cb, &sec_done_cb);
+    coap_conn_handler_t *handler3 = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, &get_passwd_cb, &sec_done_cb_test);
     nsdynmemlib_stub.returnCounter = 2;
     if( 0 != coap_connection_handler_open_connection(handler3, 26,false,false,true,false) )
         return false;
@@ -250,7 +263,7 @@ bool test_coap_connection_handler_virtual_recv()
     if( 0 != coap_connection_handler_virtual_recv(handler3,buf, 12, &buf, 1) )
         return false;
 
-    connection_handler_destroy(handler3);
+    connection_handler_destroy(handler3, false);
 
     return true;
 }
@@ -273,7 +286,7 @@ bool test_coap_connection_handler_socket_belongs_to()
 
     if( false != coap_connection_handler_socket_belongs_to(handler, 3) )
         return false;
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler, false);
 
     nsdynmemlib_stub.returnCounter = 0;
     return true;
@@ -326,7 +339,7 @@ bool test_timer_callbacks()
         coap_security_handler_stub.int_value = 0;
     }
 
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler, false);
     free(coap_security_handler_stub.sec_obj);
     coap_security_handler_stub.sec_obj = NULL;
     return true;
@@ -364,10 +377,10 @@ bool test_socket_api_callbacks()
         socket_api_stub.recv_cb(sckt_data);
     }
 
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler, false);
 
     nsdynmemlib_stub.returnCounter = 1;
-    coap_conn_handler_t *handler2 = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, &get_passwd_cb, &sec_done_cb);
+    coap_conn_handler_t *handler2 = connection_handler_create(&receive_from_sock_cb, &send_to_sock_cb, &get_passwd_cb, &sec_done_cb_test);
     nsdynmemlib_stub.returnCounter = 2;
     if( 0 != coap_connection_handler_open_connection(handler2, 22,false,true,true,false) )
         return false;
@@ -401,7 +414,7 @@ bool test_socket_api_callbacks()
         socket_api_stub.recv_cb(sckt_data);
     }
 
-    connection_handler_destroy(handler2);
+    connection_handler_destroy(handler2, false);
 
     free(coap_security_handler_stub.sec_obj);
     coap_security_handler_stub.sec_obj = NULL;
@@ -444,7 +457,7 @@ bool test_security_callbacks()
         coap_security_handler_stub.receive_cb(0, &buf, 16);
     }
 
-    connection_handler_destroy(handler);
+    connection_handler_destroy(handler, false);
 
     free(coap_security_handler_stub.sec_obj);
     coap_security_handler_stub.sec_obj = NULL;

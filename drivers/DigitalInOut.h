@@ -23,11 +23,11 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 
 /** A digital input/output, used for setting or reading a bi-directional pin
  *
- * @Note Synchronization level: Interrupt safe
+ * @note Synchronization level: Interrupt safe
+ * @ingroup drivers
  */
 class DigitalInOut {
 
@@ -92,7 +92,7 @@ public:
 
     /** Set the input pin mode
      *
-     *  @param mode PullUp, PullDown, PullNone, OpenDrain
+     *  @param pull PullUp, PullDown, PullNone, OpenDrain
      */
     void mode(PinMode pull) {
         core_util_critical_section_enter();
@@ -112,6 +112,7 @@ public:
     }
 
     /** A shorthand for write()
+     * \sa DigitalInOut::write()
      */
     DigitalInOut& operator= (int value) {
         // Underlying write is thread safe
@@ -119,6 +120,9 @@ public:
         return *this;
     }
 
+    /** A shorthand for write()
+     * \sa DigitalInOut::write()
+     */
     DigitalInOut& operator= (DigitalInOut& rhs) {
         core_util_critical_section_enter();
         write(rhs.read());
@@ -127,6 +131,7 @@ public:
     }
 
     /** A shorthand for read()
+     * \sa DigitalInOut::read()
      */
     operator int() {
         // Underlying call is thread safe
@@ -140,5 +145,3 @@ protected:
 } // namespace mbed
 
 #endif
-
-/** @}*/

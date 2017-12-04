@@ -1,0 +1,33 @@
+- ['lfs_format\(&lfs, &cfg\)', 'MBED_TEST_FILESYSTEM::format(&bd)']
+- ['lfs_mount\(&lfs, &cfg\)', 'fs.mount(&bd)']
+- ['lfs_unmount\(&lfs\)', 'fs.unmount()']
+- ['lfs_mkdir\(&lfs, (.*)\)', 'fs.mkdir(\1, 0777)']
+- ['lfs_remove\(&lfs, (.*)\)', 'fs.remove(\1)']
+- ['lfs_rename\(&lfs, (.*), ?(.*)\)', 'fs.rename(\1, \2)']
+ 
+- ['lfs_dir_open\(&lfs, &dir\[(.*)\], ?(.*)\)', 'dir[\1].open(&fs, \2)']
+- ['lfs_dir_close\(&lfs, &dir\[(.*)\]\)', 'dir[\1].close()']
+- ['lfs_dir_read\(&lfs, &dir\[(.*)\], &info\)', 'dir[\1].read(&ent)']
+- ['lfs_dir_seek\(&lfs, &dir\[(.*)\], ?(.*)\).*;', 'dir[\1].seek(\2);'] # no dir errors
+- ['lfs_dir_rewind\(&lfs, &dir\[(.*)\]\).*;', 'dir[\1].rewind();'] # no dir errors
+- ['lfs_dir_tell\(&lfs, &dir\[(.*)\]\)', 'dir[\1].tell()']
+ 
+- ['lfs_file_open\(&lfs, &file\[(.*)\], ?(.*)\)', 'file[\1].open(&fs, \2)']
+- ['lfs_file_close\(&lfs, &file\[(.*)\]\)', 'file[\1].close()']
+- ['lfs_file_sync\(&lfs, &file\[(.*)\]\)', 'file[\1].sync()']
+- ['lfs_file_write\(&lfs, &file\[(.*)\], ?(.*), (.*)\)', 'file[\1].write(\2, \3)']
+- ['lfs_file_read\(&lfs, &file\[(.*)\], ?(.*), (.*)\)', 'file[\1].read(\2, \3)']
+- ['lfs_file_seek\(&lfs, &file\[(.*)\], ?(.*)\)', 'file[\1].seek(\2)']
+- ['lfs_file_tell\(&lfs, &file\[(.*)\]\)', 'file[\1].tell()']
+- ['lfs_file_rewind\(&lfs, &file\[(.*)\]\).*;', 'file[\1].rewind();'] # no errors
+- ['lfs_file_size\(&lfs, &file\[(.*)\]\)', 'file[\1].size()']
+ 
+- ['LFS_TYPE_([A-Z]+)', 'DT_\1']
+- ['LFS_O_([A-Z]+)', 'O_\1']
+- ['LFS_SEEK_([A-Z]+)', 'SEEK_\1']
+- ['LFS_ERR_([A-Z]+)', '-E\1']
+- ['lfs_(s?)size_t', '\1size_t']
+- ['lfs_soff_t', 'off_t']
+- ['info\.name', 'ent.d_name']
+- ['info\.type', 'ent.d_type']
+- ['^.*info\.size.*$', ''] # dirent sizes not supported

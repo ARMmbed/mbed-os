@@ -16,6 +16,13 @@
  * limitations under the License.
  */
 
+// This file is deprecated so deprecation warnings when building it are silenced
+#if   defined ( __CC_ARM )
+#pragma diag_suppress 1361  // Deprecated declaration
+#elif defined ( __GNUC__ )
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 #include "cfstore_config.h"
 #include "cfstore_debug.h"
 #include "cfstore_list.h"
@@ -2385,7 +2392,7 @@ static int32_t cfstore_delete_ex(cfstore_area_hkvt_t* hkvt)
     memset(ctx->area_0_tail-kv_size, 0, kv_size);
 
     /* The KV area has shrunk so a negative size_diff should be indicated to cfstore_file_update(). */
-    ret = cfstore_file_update(hkvt->head, -1 * kv_size);
+    ret = cfstore_file_update(hkvt->head, -1 *(int32_t)kv_size);
     if(ret < ARM_DRIVER_OK){
         CFSTORE_ERRLOG("%s:Error:file update failed\n", __func__);
         goto out0;

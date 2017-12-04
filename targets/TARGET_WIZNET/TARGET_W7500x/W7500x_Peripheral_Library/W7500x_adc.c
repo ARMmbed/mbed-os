@@ -36,20 +36,21 @@ uint8_t ADC_IsInterrupt (void)
 		
 void ADC_InterruptClear (void)
 {
-	ADC->ADC_INT = ADC_INTCLEAR;
+    ADC->ADC_INT = ADC_INTCLEAR;
 }
 
 void ADC_Init (void)
 {
-	// ADC_CLK on
-	ADC_PowerDownEnable(DISABLE);
-	//ADC_ChannelSelect(num);
+    // ADC_CLK on
+    ADC_PowerDownEnable(ENABLE);
+    ADC_PowerDownEnable(DISABLE);
+    //ADC_ChannelSelect(num);
 }
 
 void ADC_DeInit (void)
 {
-	// ADC_CLK off
-	ADC_PowerDownEnable(ENABLE);
-	ADC_InterruptMask(DISABLE);
+    // ADC_CLK off
+    ADC_PowerDownEnable(ENABLE);
+    ADC_InterruptMask(DISABLE);
 }
 

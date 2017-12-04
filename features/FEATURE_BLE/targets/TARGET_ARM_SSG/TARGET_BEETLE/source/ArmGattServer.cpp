@@ -130,6 +130,9 @@ ble_error_t ArmGattServer::addService(GattService &service)
         currAtt->pLen = p_char->getValueAttribute().getLengthPtr();
         currAtt->maxLen = p_char->getValueAttribute().getMaxLength();
         currAtt->settings = ATTS_SET_WRITE_CBACK | ATTS_SET_READ_CBACK;
+        if (p_char->getValueAttribute().hasVariableLength()) {
+            currAtt->settings |= ATTS_SET_VARIABLE_LEN;
+        }
         if (p_char->getValueAttribute().getUUID().shortOrLong() == UUID::UUID_TYPE_LONG) {
             currAtt->settings |= ATTS_SET_UUID_128;
         }
@@ -367,11 +370,11 @@ void ArmGattServer::attCback(attEvt_t *pEvt)
 uint8_t ArmGattServer::attsReadCback(dmConnId_t connId, uint16_t handle, uint8_t operation, uint16_t offset, attsAttr_t *pAttr)
 {
     GattReadCallbackParams cbParams = {
-        .connHandle = connId,
-        .handle     = handle,
-        .offset     = offset,
-        .len        = *pAttr->pLen,
-        .data       = pAttr->pValue
+        /* .connHandle = */ connId,
+        /* .handle     = */ handle,
+        /* .offset     = */ offset,
+        /* .len        = */ *pAttr->pLen,
+        /* .data       = */ pAttr->pValue
     };
     getInstance().handleDataReadEvent(&cbParams);
 
@@ -410,12 +413,12 @@ uint8_t ArmGattServer::attsWriteCback(dmConnId_t connId, uint16_t handle, uint8_
     }
 
     GattWriteCallbackParams cbParams = {
-        .connHandle = connId,
-        .handle     = handle,
-        .writeOp    = writeOp,
-        .offset     = offset,
-        .len        = len,
-        .data       = pValue
+        /* .connHandle = */ connId,
+        /* .handle     = */ handle,
+        /* .writeOp    = */ writeOp,
+        /* .offset     = */ offset,
+        /* .len        = */ len,
+        /* .data       = */ pValue
     };
     getInstance().handleDataWrittenEvent(&cbParams);
 

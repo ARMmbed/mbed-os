@@ -76,7 +76,7 @@ void spi_format(spi_t *obj, int bits, int mode, int slave) {
     
     int FRF = 0;                   // FRF (frame format) = SPI
     uint32_t tmp = obj->spi->CR0;
-    tmp &= ~(0xFFFF);
+    tmp &= ~(0x00FF);              // Clear DSS, FRF, CPOL and CPHA [7:0]
     tmp |= DSS << 0
         | FRF << 4
         | SPO << 6
@@ -112,7 +112,7 @@ void spi_frequency(spi_t *obj, int hz) {
             obj->spi->CPSR = prescaler;
             
             // divider
-            obj->spi->CR0 &= ~(0xFFFF << 8);
+            obj->spi->CR0 &= ~(0xFF00);  // Clear SCR: Serial clock rate [15:8]
             obj->spi->CR0 |= (divider - 1) << 8;
             ssp_enable(obj);
             return;
@@ -154,6 +154,21 @@ static inline int ssp_busy(spi_t *obj) {
 int spi_master_write(spi_t *obj, int value) {
     ssp_write(obj, value);
     return ssp_read(obj);
+}
+
+int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
+                           char *rx_buffer, int rx_length, char write_fill) {
+    int total = (tx_length > rx_length) ? tx_length : rx_length;
+
+    for (int i = 0; i < total; i++) {
+        char out = (i < tx_length) ? tx_buffer[i] : write_fill;
+        char in = spi_master_write(obj, out);
+        if (i < rx_length) {
+            rx_buffer[i] = in;
+        }
+    }
+
+    return total;
 }
 
 int spi_slave_receive(spi_t *obj) {

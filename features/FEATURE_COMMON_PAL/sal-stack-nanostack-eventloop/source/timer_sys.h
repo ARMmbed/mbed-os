@@ -20,6 +20,16 @@
 extern "C" {
 #endif
 
+#include "eventOS_event.h"
+
+/* We borrow base event storage, including its list link, and add a time field */
+typedef struct sys_timer_struct_s {
+    arm_event_storage_t event;
+    uint32_t launch_time; // tick value
+    uint32_t period;
+} sys_timer_struct_s;
+
+
 /**
  * Initialize system timer
  * */
@@ -28,6 +38,10 @@ extern void timer_sys_init(void);
 extern uint32_t timer_get_runtime_ticks(void);
 int8_t timer_sys_wakeup(void);
 void timer_sys_disable(void);
+void timer_sys_event_free(struct arm_event_storage *event);
+
+// This require lock to be held
+void timer_sys_event_cancel_critical(struct arm_event_storage *event);
 
 /**
  * System Timer update and synch after sleep

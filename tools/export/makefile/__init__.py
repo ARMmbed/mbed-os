@@ -21,7 +21,7 @@ import sys
 from subprocess import check_output, CalledProcessError, Popen, PIPE
 import shutil
 from jinja2.exceptions import TemplateNotFound
-from tools.export.exporters import Exporter, filter_supported
+from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.utils import NotSupportedException
 from tools.targets import TARGET_MAP
 
@@ -35,11 +35,20 @@ class Makefile(Exporter):
 
     MBED_CONFIG_HEADER_SUPPORTED = True
 
+    PREPROCESS_ASM = False
+
     POST_BINARY_WHITELIST = set([
         "MCU_NRF51Code.binary_hook",
         "TEENSY3_1Code.binary_hook",
-        "LPCTargetCode.lpc_patch"
+        "LPCTargetCode.lpc_patch",
+        "LPC4088Code.binary_hook"
     ])
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
 
     def generate(self):
         """Generate the makefile
@@ -89,6 +98,7 @@ class Makefile(Exporter):
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,
             'user_library_flag': self.USER_LIBRARY_FLAG,
+            'needs_asm_preproc': self.PREPROCESS_ASM,
         }
 
         if hasattr(self.toolchain, "preproc"):
@@ -110,7 +120,7 @@ class Makefile(Exporter):
         for key in ['include_paths', 'library_paths', 'hex_files',
                     'to_be_compiled']:
             ctx[key] = sorted(ctx[key])
-        ctx.update(self.flags)
+        ctx.update(self.format_flags())
 
         for templatefile in \
             ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
@@ -126,6 +136,17 @@ class Makefile(Exporter):
                 pass
         else:
             raise NotSupportedException("This make tool is in development")
+
+    def format_flags(self):
+        """Format toolchain flags for Makefile"""
+        flags = {}
+        for k, v in self.flags.iteritems():
+            if k in ['asm_flags', 'c_flags', 'cxx_flags']:
+                flags[k] = map(lambda x: x.replace('"', '\\"'), v)
+            else:
+                flags[k] = v
+
+        return flags
 
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
@@ -174,7 +195,6 @@ class Makefile(Exporter):
 
 class GccArm(Makefile):
     """GCC ARM specific makefile target"""
-    TARGETS = filter_supported("GCC_ARM", Makefile.POST_BINARY_WHITELIST)
     NAME = 'Make-GCC-ARM'
     TEMPLATE = 'make-gcc-arm'
     TOOLCHAIN = "GCC_ARM"
@@ -183,21 +203,20 @@ class GccArm(Makefile):
 
     @staticmethod
     def prepare_lib(libname):
-        return "-l:" + libname
+        if "lib" == libname[:3]:
+            libname = libname[3:-2]
+        return "-l" + libname
 
     @staticmethod
     def prepare_sys_lib(libname):
         return "-l" + libname
 
 
-class Armc5(Makefile):
-    """ARM Compiler 5 specific makefile target"""
-    TARGETS = filter_supported("ARM", Makefile.POST_BINARY_WHITELIST)
-    NAME = 'Make-ARMc5'
-    TEMPLATE = 'make-armc5'
-    TOOLCHAIN = "ARM"
+class Arm(Makefile):
+    """ARM Compiler generic makefile target"""
     LINK_SCRIPT_OPTION = "--scatter"
     USER_LIBRARY_FLAG = "--userlibpath "
+    TEMPLATE = 'make-arm'
 
     @staticmethod
     def prepare_lib(libname):
@@ -207,10 +226,29 @@ class Armc5(Makefile):
     def prepare_sys_lib(libname):
         return libname
 
+    def generate(self):
+        if self.resources.linker_script:
+            new_script = self.toolchain.correct_scatter_shebang(
+                self.resources.linker_script)
+            if new_script is not self.resources.linker_script:
+                self.resources.linker_script = new_script
+                self.generated_files.append(new_script)
+        return super(Arm, self).generate()
+
+class Armc5(Arm):
+    """ARM Compiler 5 (armcc) specific makefile target"""
+    NAME = 'Make-ARMc5'
+    TOOLCHAIN = "ARM"
+    PREPROCESS_ASM = True
+
+class Armc6(Arm):
+    """ARM Compiler 6 (armclang) specific generic makefile target"""
+    NAME = 'Make-ARMc6'
+    TOOLCHAIN = "ARMC6"
+
 
 class IAR(Makefile):
     """IAR specific makefile target"""
-    TARGETS = filter_supported("IAR", Makefile.POST_BINARY_WHITELIST)
     NAME = 'Make-IAR'
     TEMPLATE = 'make-iar'
     TOOLCHAIN = "IAR"

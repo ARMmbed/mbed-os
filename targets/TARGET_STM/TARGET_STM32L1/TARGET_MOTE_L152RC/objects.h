@@ -54,17 +54,7 @@ struct port_s {
     __IO uint32_t *reg_out;
 };
 
-struct analogin_s {
-    ADCName adc;
-    PinName pin;
-    uint32_t channel;
-};
-
-struct dac_s {
-    DACName dac;
-    PinName pin;
-};
-
+#define GPIO_IP_WITHOUT_BRR
 #include "common_objects.h"
 
 #ifdef __cplusplus

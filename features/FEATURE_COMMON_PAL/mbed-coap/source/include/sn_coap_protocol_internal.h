@@ -71,7 +71,7 @@ struct sn_coap_hdr_;
 #define SN_COAP_MAX_ALLOWED_RESENDING_BUFF_SIZE_BYTES   512 /**< Maximum allowed size of re-sending buffer */
 #define SN_COAP_MAX_ALLOWED_RESPONSE_TIMEOUT            40  /**< Maximum allowed re-sending timeout */
 
-#define RESPONSE_RANDOM_FACTOR                          1   /**< Resending random factor, value is specified in IETF CoAP specification */
+#define RESPONSE_RANDOM_FACTOR                          1.5   /**< Resending random factor, value is specified in IETF CoAP specification */
 
 /* * For Message duplication detecting * */
 
@@ -113,9 +113,12 @@ struct sn_coap_hdr_;
 #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE          0  /**< Must be 2^x and x is at least 4. Suitable values: 0, 16, 32, 64, 128, 256, 512 and 1024 */
 #endif
 
+#ifdef MBED_CONF_MBED_CLIENT_SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED
+#define SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED MBED_CONF_MBED_CLIENT_SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED
+#endif
 
 #ifndef SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED
-#define SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED      10 /**< Maximum time in seconds of data (messages and payload) to be stored for blockwising */
+#define SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED      60 /**< Maximum time in seconds of data (messages and payload) to be stored for blockwising */
 #endif
 
 #ifdef YOTTA_CFG_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE
@@ -156,16 +159,13 @@ typedef NS_LIST_HEAD(coap_send_msg_s, link) coap_send_msg_list_t;
 /* Structure which is stored to Linked list for message duplication detection purposes */
 typedef struct coap_duplication_info_ {
     uint32_t            timestamp; /* Tells when duplication information is stored to Linked list */
-
-    uint8_t             addr_len;
-    uint8_t            *addr_ptr;
-    uint16_t            port;
-
     uint16_t            msg_id;
-
+    uint16_t            packet_len;
+    uint8_t             *packet_ptr;
     struct coap_s       *coap;  /* CoAP library handle */
-
-    ns_list_link_t     link;
+    sn_nsdl_addr_s      *address;
+    void                *param;
+    ns_list_link_t      link;
 } coap_duplication_info_s;
 
 typedef NS_LIST_HEAD(coap_duplication_info_s, link) coap_duplication_info_list_t;
@@ -189,6 +189,7 @@ typedef struct coap_blockwise_payload_ {
     uint8_t             addr_len;
     uint8_t             *addr_ptr;
     uint16_t            port;
+    uint32_t            block_number;
 
     uint16_t            payload_len;
     uint8_t             *payload_ptr;
@@ -224,7 +225,7 @@ struct coap_s {
     uint32_t system_time;    /* System time seconds */
     uint16_t sn_coap_block_data_size;
     uint8_t sn_coap_resending_queue_msgs;
-    uint8_t sn_coap_resending_queue_bytes;
+    uint32_t sn_coap_resending_queue_bytes;
     uint8_t sn_coap_resending_count;
     uint8_t sn_coap_resending_intervall;
     uint8_t sn_coap_duplication_buffer_size;

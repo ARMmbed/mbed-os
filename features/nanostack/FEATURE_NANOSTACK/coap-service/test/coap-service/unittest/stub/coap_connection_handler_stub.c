@@ -1,5 +1,18 @@
 /*
- * Copyright (c) 2015 ARM Limited. All Rights Reserved.
+ * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include <string.h>
@@ -22,7 +35,7 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
 
 coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, uint8_t src_address[static 16], uint16_t port, const uint8_t dst_address[static 16], unsigned char *, int),
                                                  int (*send_cb)(int8_t socket_id, uint8_t const address[static 16], uint16_t port, const void *, int),
-                                                 int (*pw_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t *pw_ptr, uint8_t *pw_len),
+                                                 int (*pw_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, coap_security_keys_t *security_ptr),
                                                  void(*done_cb)(int8_t socket_id, uint8_t address[static 16], uint16_t port, uint8_t keyblock[static KEY_BLOCK_LEN]) )
 {
     thread_conn_handler_stub.send_to_sock_cb = send_cb;
@@ -32,7 +45,7 @@ coap_conn_handler_t *connection_handler_create(int (*recv_cb)(int8_t socket_id, 
     return thread_conn_handler_stub.handler_obj;
 }
 
-void connection_handler_destroy(coap_conn_handler_t *handler)
+void connection_handler_destroy( coap_conn_handler_t *handler, bool multicast_group_leave)
 {
 
 }
@@ -57,6 +70,11 @@ bool coap_connection_handler_socket_belongs_to(coap_conn_handler_t *handler, int
 }
 
 int8_t coap_connection_handler_set_timeout(coap_conn_handler_t *handler, uint32_t min, uint32_t max)
+{
+    return 0;
+}
+
+int8_t coap_connection_handler_handshake_limits_set(uint8_t handshakes_limit, uint8_t connections_limit)
 {
     return 0;
 }

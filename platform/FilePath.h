@@ -22,19 +22,30 @@
 #include "platform/FileLike.h"
 
 namespace mbed {
-/** \addtogroup drivers */
+/** \addtogroup platform */
 /** @{*/
+/**
+ * \defgroup platform_FilePath FilePath class
+ * @{
+ */
 
 class FileSystem;
-
+/** Class FilePath
+ *
+ */
+ 
 class FilePath {
 public:
+    /** Constructor FilePath
+     *
+     *  @param file_path     The path of file.
+     */ 
     FilePath(const char* file_path);
 
     const char* fileName(void);
 
     bool          isFileSystem(void);
-    FileSystem* fileSystem(void);
+    FileSystemLike* fileSystem(void);
 
     bool    isFile(void);
     FileLike* file(void);
@@ -45,8 +56,10 @@ private:
     FileBase* fb;
 };
 
+/**@}*/
+
+/**@}*/
+
 } // namespace mbed
 
 #endif
-
-/** @}*/
