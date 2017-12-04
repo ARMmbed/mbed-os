@@ -594,11 +594,13 @@ nsapi_error_t mbed_lwip_emac_init(emac_interface_t *emac)
 // Backwards compatibility with people using DEVICE_EMAC
 nsapi_error_t mbed_lwip_init(emac_interface_t *emac)
 {
-    nsapi_error_t ret;
+    nsapi_error_t ret = NSAPI_ERROR_OK;
     mbed_lwip_core_init();
-    ret = mbed_lwip_emac_init(emac);
-    if (ret == NSAPI_ERROR_OK) {
-        netif_inited = true;
+    if(netif_inited == false){
+        ret = mbed_lwip_emac_init(emac);
+        if (ret == NSAPI_ERROR_OK) {
+            netif_inited = true;
+        }
     }
     return ret;
 }
