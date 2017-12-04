@@ -58,6 +58,9 @@ TODO
 
 static nrf_drv_qspi_config_t config;
 
+// Private helper function to track initialization
+static ret_code_t _qspi_drv_init(void);
+
 qspi_status_t qspi_prepare_command(qspi_t *obj, const qspi_command_t *command, bool write) 
 {
     //Use custom command if provided by the caller
@@ -136,7 +139,7 @@ qspi_status_t qspi_prepare_command(qspi_t *obj, const qspi_command_t *command, b
     
     //Configure QSPI with new command format
     if(ret == QSPI_STATUS_OK) {
-        ret_code_t ret_status = nrf_drv_qspi_init(&config, NULL , NULL);
+        ret_code_t ret_status = _qspi_drv_init();
         if (ret_status != NRF_SUCCESS ) {
             if (ret_status == NRF_ERROR_INVALID_PARAM) {
                 return QSPI_STATUS_INVALID_PARAMETER;
@@ -171,7 +174,8 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     config.phy_if.dpmen = false;
     config.phy_if.spi_mode = mode == 0 ? NRF_QSPI_MODE_0 : NRF_QSPI_MODE_1;
 
-    ret_code_t ret = nrf_drv_qspi_init(&config, NULL , NULL);
+    //Use _qspi_drv_init private function to initialize
+    ret_code_t ret = _qspi_drv_init();
     if (ret == NRF_SUCCESS ) {
         return QSPI_STATUS_OK;
     } else if (ret == NRF_ERROR_INVALID_PARAM) {
@@ -191,8 +195,9 @@ qspi_status_t qspi_free(qspi_t *obj)
 qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 {
     config.phy_if.sck_freq  = (nrf_qspi_frequency_t)MBED_HAL_QSPI_HZ_TO_CONFIG(hz);
+    
     // use sync version, no handler
-    ret_code_t ret = nrf_drv_qspi_init(&config, NULL , NULL);
+    ret_code_t ret = _qspi_drv_init();
     if (ret == NRF_SUCCESS ) {
         return QSPI_STATUS_OK;
     } else if (ret == NRF_ERROR_INVALID_PARAM) {
@@ -247,35 +252,46 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
     qspi_cinstr_config.wipwait   = false;
     qspi_cinstr_config.wren      = false;
  
-    if (data_size < 9)
-    {
+    if (data_size < 9) {
         qspi_cinstr_config.length = (nrf_qspi_cinstr_len_t)(NRF_QSPI_CINSTR_LEN_1B + data_size);
-    }
-    else
-    {
+    } else {
         return QSPI_STATUS_ERROR;
     }
  
     // preparing data to send
-    for (i = 0; i < tx_size; ++i)
-    {
+    for (i = 0; i < tx_size; ++i) {
         data[i] = ((uint8_t *)tx_data)[i];
     }
  
     ret_code = nrf_drv_qspi_cinstr_xfer(&qspi_cinstr_config, data, data);
-    if (ret_code != NRF_SUCCESS)
-    {
+    if (ret_code != NRF_SUCCESS) {
         return QSPI_STATUS_ERROR;
     }
  
     // preparing received data
-    for (i = 0; i < rx_size; ++i)
-    {
+    for (i = 0; i < rx_size; ++i) {
         // Data is sending as a normal SPI transmission so there is one buffer to send and receive data.
         ((uint8_t *)rx_data)[i] = data[i];
     }
  
     return QSPI_STATUS_OK;
+}
+
+// Private helper function to track initialization
+static ret_code_t _qspi_drv_init(void) 
+{
+    static bool _initialized = false;
+    ret_code_t ret = NRF_ERROR_INVALID_STATE;
+    
+    if(_initialized) {
+        //NRF implementation prevents calling init again. But we need to call init again to program the new command settings in the IFCONFIG registers. 
+        //So, we have to uninit qspi first and call init again. 
+        nrf_drv_qspi_uninit();
+    }
+    ret = nrf_drv_qspi_init(&config, NULL , NULL);
+    if( ret == NRF_SUCCESS )
+        _initialized = true;
+    return ret;
 }
 
 
