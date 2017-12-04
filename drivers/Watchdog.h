@@ -1,5 +1,3 @@
-/** \addtogroup hal */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
  *
@@ -28,7 +26,6 @@
 
 namespace mbed {
 /** \addtogroup drivers */
-/** @{*/
 /** A system timer that will reset the system in the case of system failures or
  *  malfunctions.
  *
@@ -36,8 +33,7 @@ namespace mbed {
  * @code
  *
  * Watchdog watchdog = Watchdog();
- * watchdog.set_timeout(2000);
- * watchdog.start();
+ * watchdog.start(2000);
  *
  * while (true) {
  *    watchdog.kick();
@@ -45,7 +41,7 @@ namespace mbed {
  *    // Application code
  * }
  * @endcode
- *
+ * @ingroup drivers
  */
 class Watchdog
 {
@@ -56,10 +52,6 @@ public:
     /** Start an independent watchdog timer with specified parameters
      *
      *  @param timeout      Timeout of the watchdog in milliseconds
-     *  @param enable_sleep Sets sleep mode behaviour. When enabled the watchdog
-     *                      will continue to run in sleep mode. When disable the
-     *                      watchdog will be paused. This feature is not
-     *                      supported on all platforms.
      *
      *  @return status WATCHDOG_STATUS_OK if the watchdog timer was started
      *                 successfully. WATCHDOG_INVALID_ARGUMENT if one of the input
@@ -67,25 +59,7 @@ public:
      *                 WATCHDOG_NOT_SUPPORTED if one of the enabled input
      *                 parameters is not supported by the current platform.
      */
-    watchdog_status_t start(const uint32_t timeout, const bool enable_sleep = true);
-
-
-    /** Start a windowed watchdog timer with specified parameters
-     *
-     *  @param timeout      Timeout of the watchdog in milliseconds
-     *  @param window       Time period of the window of the watchdog
-     *  @param enable_sleep Sets sleep mode behaviour. When enabled the watchdog
-     *                      will continue to run in sleep mode. When disable the
-     *                      watchdog will be paused. This feature is not
-     *                      supported on all platforms.
-     *
-     *  @return status WATCHDOG_STATUS_OK if the watchdog timer was started
-     *                 successfully. WATCHDOG_INVALID_ARGUMENT if one of the input
-     *                 parameters is out of range for the current platform.
-     *                 WATCHDOG_NOT_SUPPORTED if one of the enabled input
-     *                 parameters is not supported by the current platform.
-     */
-    watchdog_status_t start(const uint32_t timeout, const uint32_t window, const bool enable_sleep = true);
+    watchdog_status_t start(const uint32_t timeout);
 
 
     /** Refreshes the watchdog timer.
@@ -129,9 +103,6 @@ public:
 };
 
 } // namespace mbed
-
-/**@}*/
-/**@}*/
 
 #endif // DEVICE_WATCHDOG
 #endif // MBED_WATCHDOG_H
