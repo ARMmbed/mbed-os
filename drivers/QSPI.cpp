@@ -264,7 +264,7 @@ void QSPI::_build_qspi_command(int instruction, int address, int alt)
     if(address != -1) {
         _qspi_command.address.value = address; 
     } else {
-        _qspi_command.address.value = 0; 
+        _qspi_command.address.size = QSPI_CFG_ADDR_SIZE_NONE;
     }
     
     //Set up alt phase parameters
