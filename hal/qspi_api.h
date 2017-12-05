@@ -83,7 +83,7 @@ typedef struct qspi_command {
     struct {
         qspi_bus_width_t bus_width; /**< Bus width for alternative  >*/
         qspi_alt_size_t size; /**< Alternative size >*/
-        uint32_t value; /**< Alternative, 0 - disabled, non-zero defined value used >*/
+        uint32_t value; /**< Alternative value >*/
     } alt;
     uint8_t dummy_count; /**< Dummy cycles count >*/
     struct {
