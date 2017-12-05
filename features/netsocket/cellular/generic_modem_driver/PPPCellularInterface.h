@@ -151,7 +151,7 @@ public:
      *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
      *
      *  Attempts to connect to a Cellular network.
-     *  This driver is written mainly for data network connections as CellularInterface
+     *  This driver is written mainly for data network connections as CellularBase
      *  is NetworkInterface. That's why connect() call internally calls nwk_registration()
      *  method with parameter PACKET_SWITCHED network. Circuit switched hook and registration
      *  process is implemented and left in the driver for future extension/subclass support,e.g.,
@@ -396,8 +396,8 @@ protected:
     /** Starts network registration process.
      *
      * Potential users could be subclasses who are not network interface
-     * but would like to use CellularInterface infrastructure to register
-     * with a cellular network, e.g., an SMS extension to CellularInterface.
+     * but would like to use CellularBase infrastructure to register
+     * with a cellular network, e.g., an SMS extension to CellularBase.
      *
      * @param nwk_type type of network to connect, defaults to packet switched network
      *
