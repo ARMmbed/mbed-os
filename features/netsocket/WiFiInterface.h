@@ -27,7 +27,7 @@
  *  Common interface that is shared between WiFi devices
  *  @addtogroup netsocket
  */
-class WiFiInterface: public NetworkInterface
+class WiFiInterface: public virtual NetworkInterface
 {
 public:
     /** WiFiInterface lifetime

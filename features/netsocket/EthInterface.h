@@ -27,7 +27,7 @@
  *
  *  Common interface that is shared between ethernet hardware.
  */
-class EthInterface : public NetworkInterface
+class EthInterface : public virtual NetworkInterface
 {
 };
 

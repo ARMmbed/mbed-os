@@ -148,7 +148,7 @@ public:
 
 
 /** These need to be defined by targets wishing to provide an Ethernet driver using EMAC interface. It will
- *  be used by the EthernetInterface class's default constructor to initialise the networking subsystem.
+ *  be used by the EMACInterface class's default constructor to initialise the networking subsystem.
  */
 //extern const emac_interface_ops_t mbed_emac_eth_ops_default;
 //extern void *mbed_emac_eth_hw_default;
