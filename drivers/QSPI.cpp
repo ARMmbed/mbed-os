@@ -22,7 +22,7 @@
 namespace mbed {
 
 QSPI* QSPI::_owner = NULL;
-SingletonPtr<PlatformMutex> QSPI::_mutex; 
+SingletonPtr<PlatformMutex> QSPI::_mutex;
     
 QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel) : _qspi() 
 {
@@ -42,42 +42,40 @@ QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, Pin
     _mode = 0;
     _hz = ONE_MHZ;
     _initialized = false;
-    
+
     //Go ahead init the device here with the default config
     _initialize();
-        
 }
-        
+
 qspi_status_t QSPI::configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width, qspi_address_size_t address_size, qspi_bus_width_t alt_width, qspi_alt_size_t alt_size, qspi_bus_width_t data_width, int dummy_cycles, int mode ) 
-{
-    qspi_status_t ret_status = QSPI_STATUS_OK; 
-    
+{    qspi_status_t ret_status = QSPI_STATUS_OK;
+
     if(mode != 0 && mode != 1) 
-        return QSPI_STATUS_INVALID_PARAMETER;                            
-    
+        return QSPI_STATUS_INVALID_PARAMETER;
+
     lock();
     _inst_width = inst_width;
     _address_width = address_width;
     _address_size = address_size;
     _alt_width = alt_width;
     _alt_size = alt_size;
-    _data_width = data_width; 
+    _data_width = data_width;
     _num_dummy_cycles = dummy_cycles;
     _mode = mode;
-    
+
     //Re-init the device, as the mode might have changed
     if( !_initialize() ) {
         ret_status = QSPI_STATUS_ERROR;
     }
     unlock();
-    
+
     return ret_status;
 }
 
 qspi_status_t QSPI::set_frequency(int hz) 
 {
-    qspi_status_t ret_status = QSPI_STATUS_OK; 
-    
+    qspi_status_t ret_status = QSPI_STATUS_OK;
+
     if(_initialized) {
         lock();
         _hz = hz;
@@ -92,16 +90,16 @@ qspi_status_t QSPI::set_frequency(int hz)
         }
         unlock();
     } else {
-        ret_status = QSPI_STATUS_ERROR;  
+        ret_status = QSPI_STATUS_ERROR;
     }
-    
+
     return ret_status;
 }
 
 qspi_status_t QSPI::read(unsigned int address, char *rx_buffer, size_t *rx_length) 
 {
-    qspi_status_t ret_status = QSPI_STATUS_ERROR; 
-    
+    qspi_status_t ret_status = QSPI_STATUS_ERROR;
+
     if(_initialized) {
         if( (rx_length != NULL) && (rx_buffer != NULL) ) {
             if(*rx_length != 0) {
@@ -109,22 +107,22 @@ qspi_status_t QSPI::read(unsigned int address, char *rx_buffer, size_t *rx_lengt
                 if( true == _acquire()) {
                     _build_qspi_command(-1, address, -1);
                     if(QSPI_STATUS_OK == qspi_read(&_qspi, &_qspi_command, rx_buffer, rx_length)) {
-                        ret_status = QSPI_STATUS_OK; 
+                        ret_status = QSPI_STATUS_OK;
                     }
                 }
                 unlock();
             }
         } else {
-            ret_status = QSPI_STATUS_INVALID_PARAMETER; 
+            ret_status = QSPI_STATUS_INVALID_PARAMETER;
         }
     }
-    
+
     return ret_status;
 }
 
 qspi_status_t QSPI::write(unsigned int address, const char *tx_buffer, size_t *tx_length) 
 {
-    qspi_status_t ret_status = QSPI_STATUS_ERROR; 
+    qspi_status_t ret_status = QSPI_STATUS_ERROR;
     
     if(_initialized) {
         if( (tx_length != NULL) && (tx_buffer != NULL) ) {
@@ -133,23 +131,23 @@ qspi_status_t QSPI::write(unsigned int address, const char *tx_buffer, size_t *t
                 if(true == _acquire()) {
                     _build_qspi_command(-1, address, -1);
                     if(QSPI_STATUS_OK == qspi_write(&_qspi, &_qspi_command, tx_buffer, tx_length)) {
-                        ret_status = QSPI_STATUS_OK; 
+                        ret_status = QSPI_STATUS_OK;
                     }
                 }
                 unlock();
             }
         } else {
-            ret_status = QSPI_STATUS_INVALID_PARAMETER; 
+            ret_status = QSPI_STATUS_INVALID_PARAMETER;
         }
     }
-    
+
     return ret_status;
 }
 
 qspi_status_t QSPI::read(unsigned int instruction, unsigned int address, unsigned int alt, char *rx_buffer, size_t *rx_length) 
 {
-    qspi_status_t ret_status = QSPI_STATUS_ERROR; 
-    
+    qspi_status_t ret_status = QSPI_STATUS_ERROR;
+
     if(_initialized) {
         if( (rx_length != NULL) && (rx_buffer != NULL) ) {
             if(*rx_length != 0) {
@@ -157,13 +155,13 @@ qspi_status_t QSPI::read(unsigned int instruction, unsigned int address, unsigne
                 if( true == _acquire()) {
                     _build_qspi_command(instruction, address, alt);
                     if(QSPI_STATUS_OK == qspi_read(&_qspi, &_qspi_command, rx_buffer, rx_length)) {
-                        ret_status = QSPI_STATUS_OK; 
+                        ret_status = QSPI_STATUS_OK;
                     }
                 }
                 unlock();
             }
         } else {
-            ret_status = QSPI_STATUS_INVALID_PARAMETER; 
+            ret_status = QSPI_STATUS_INVALID_PARAMETER;
         }
     }
     
@@ -172,7 +170,7 @@ qspi_status_t QSPI::read(unsigned int instruction, unsigned int address, unsigne
 
 qspi_status_t QSPI::write(unsigned int instruction, unsigned int address, unsigned int alt, const char *tx_buffer, size_t *tx_length) 
 {
-    qspi_status_t ret_status = QSPI_STATUS_ERROR; 
+    qspi_status_t ret_status = QSPI_STATUS_ERROR;
     
     if(_initialized) {
         if( (tx_length != NULL) && (tx_buffer != NULL) ) {
@@ -181,13 +179,13 @@ qspi_status_t QSPI::write(unsigned int instruction, unsigned int address, unsign
                 if(true == _acquire()) {
                     _build_qspi_command(instruction, address, alt);
                     if(QSPI_STATUS_OK == qspi_write(&_qspi, &_qspi_command, tx_buffer, tx_length)) {
-                        ret_status = QSPI_STATUS_OK; 
+                        ret_status = QSPI_STATUS_OK;
                     }
                 }
                 unlock();
             }
         } else {
-            ret_status = QSPI_STATUS_INVALID_PARAMETER; 
+            ret_status = QSPI_STATUS_INVALID_PARAMETER;
         }
     }
     
@@ -196,14 +194,14 @@ qspi_status_t QSPI::write(unsigned int instruction, unsigned int address, unsign
 
 qspi_status_t QSPI::command_transfer(unsigned int instruction, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length) 
 {
-    qspi_status_t ret_status = QSPI_STATUS_ERROR; 
+    qspi_status_t ret_status = QSPI_STATUS_ERROR;
     
     if(_initialized) {
         lock();
         if(true == _acquire()) {
             _build_qspi_command(instruction, -1, -1); //We just need the command
             if(QSPI_STATUS_OK == qspi_command_transfer(&_qspi, &_qspi_command, (const void *)tx_buffer, tx_length, (void *)rx_buffer, rx_length)) {
-                ret_status = QSPI_STATUS_OK; 
+                ret_status = QSPI_STATUS_OK;
             }
         } 
         unlock();
@@ -251,34 +249,34 @@ void QSPI::_build_qspi_command(int instruction, int address, int alt)
 {
     memset( &_qspi_command, 0,  sizeof(qspi_command_t) );
     //Set up instruction phase parameters
-    _qspi_command.instruction.bus_width = _inst_width; 
+    _qspi_command.instruction.bus_width = _inst_width;
     if(instruction != -1) {
-        _qspi_command.instruction.value = instruction; 
+        _qspi_command.instruction.value = instruction;
     } else {
-        _qspi_command.instruction.value = 0; 
+        _qspi_command.instruction.value = 0;
     }
-        
+
     //Set up address phase parameters
     _qspi_command.address.bus_width = _address_width;
     _qspi_command.address.size = _address_size;
     if(address != -1) {
-        _qspi_command.address.value = address; 
+        _qspi_command.address.value = address;
     } else {
         _qspi_command.address.size = QSPI_CFG_ADDR_SIZE_NONE;
     }
-    
+
     //Set up alt phase parameters
-    _qspi_command.alt.bus_width = _alt_width; 
+    _qspi_command.alt.bus_width = _alt_width;
     _qspi_command.alt.size = _alt_size;
     if(alt != -1) {
-        _qspi_command.alt.value = alt;  
+        _qspi_command.alt.value = alt; 
     } else {
         //In the case alt phase is absent, set the alt size to be NONE
-        _qspi_command.alt.value = 0; 
+        _qspi_command.alt.value = 0;
     }
     
     _qspi_command.dummy_count = _num_dummy_cycles;
-    
+
     //Set up bus width for data phase
     _qspi_command.data.bus_width = _data_width;
 }

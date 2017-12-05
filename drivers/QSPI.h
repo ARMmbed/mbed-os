@@ -65,7 +65,7 @@ namespace mbed {
 class QSPI : private NonCopyable<QSPI> {
 
 public:
-    
+
     /** Create a QSPI master connected to the specified pins
      *
      *  io0-io3 is used to specify the Pins used for Quad SPI mode
@@ -96,7 +96,7 @@ public:
                    qspi_address_size_t address_size,
                    qspi_bus_width_t alt_width, 
                    qspi_alt_size_t alt_size,   
-                   qspi_bus_width_t data_width,                             
+                   qspi_bus_width_t data_width,
                    int dummy_cycles,
                    int mode);
 
@@ -117,8 +117,8 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t read(unsigned int address, char *rx_buffer, size_t *rx_length);   
-                          
+    qspi_status_t read(unsigned int address, char *rx_buffer, size_t *rx_length);
+
     /** Write to QSPI peripheral with the preset write_instruction and alt_value
      *
      *  @param address Address to be accessed in QSPI peripheral
@@ -129,7 +129,7 @@ public:
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
     qspi_status_t write(unsigned int address, const char *tx_buffer, size_t *tx_length);
-    
+
     /** Read from QSPI peripheral using custom read instruction, alt values
      *
      *  @param instruction Instruction value to be used in instruction phase
@@ -142,7 +142,7 @@ public:
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
     qspi_status_t read(unsigned int instruction, unsigned int address, unsigned int alt, char *rx_buffer, size_t *rx_length);
-    
+
     /** Write to QSPI peripheral using custom write instruction, alt values
      *
      *  @param instruction Instruction value to be used in instruction phase
@@ -155,7 +155,7 @@ public:
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
     qspi_status_t write(unsigned int instruction, unsigned int address, unsigned int alt, const char *tx_buffer, size_t *tx_length);
-    
+
     /** Perform a transaction to write to an address(a control register) and get the status results
      *
      *  @param instruction Instruction value to be used in instruction phase
@@ -168,7 +168,7 @@ public:
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
     qspi_status_t command_transfer(unsigned int instruction, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
-        
+
     /** Acquire exclusive access to this SPI bus
      */
     virtual void lock(void);
@@ -199,7 +199,7 @@ protected:
     int _mode; //SPI mode
     bool _initialized;
     PinName _qspi_io0, _qspi_io1, _qspi_io2, _qspi_io3, _qspi_clk, _qspi_cs; //IO lines, clock and chip select
-    
+
 private:
     /* Private acquire function without locking/unlocking
      * Implemented in order to avoid duplicate locking and boost performance
