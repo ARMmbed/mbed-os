@@ -137,7 +137,17 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 
     obj->handle.Init.ClockMode = mode == 0 ? QSPI_CLOCK_MODE_0 : QSPI_CLOCK_MODE_3;
 
-    obj->handle.Instance = QUADSPI;
+    QSPIName qspi_data_first = (SPIName)pinmap_merge(io0, io1);
+    QSPIName qspi_data_second = (SPIName)pinmap_merge(io1, io2);
+    QSPIName qspi_data_third = (SPIName)pinmap_merge(io2, io3);
+
+    if (qspi_data_first != qspi_data_second || qspi_data_second != qspi_data_third ||
+        qspi_data_first != qspi_data_third) {
+        return QSPI_STATUS_INVALID_PARAMETER;
+    }
+
+    // tested all combinations, take first
+    obj->handle.Instance = (QUADSPI_TypeDef *)qspi_data_first;
 
     // TODO pinmap here for pins (enable clock)
     pinmap_pinout(io0, PinMap_QSPI_DATA);
