@@ -149,7 +149,7 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     pinmap_pinout(ssel, PinMap_QSPI_SSEL);
 
     if (HAL_QSPI_Init(&obj->handle) != HAL_OK) {
-        error("Cannot initialize QSPI");
+        return QSPI_STATUS_ERROR;
     }
     qspi_frequency(obj, hz);
     return QSPI_STATUS_OK;
