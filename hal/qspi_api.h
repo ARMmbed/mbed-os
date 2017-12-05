@@ -181,6 +181,28 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
  */
 qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, size_t *length);
 
+/** Enable memory-mapped mode
+ *
+ * Enables the external memory being seen as internal. Each target defines 
+ * the address space for QSPI. The memory bus access to the defined address space
+ * results in QSPI read access
+ * 
+ * @note If memory-mapped mode is enabled, only read is allowed
+ *
+ *  @param obj QSPI object
+ *  @return QSPI_STATUS_OK if the mode was enabled
+            QSPI_STATUS_ERROR otherwise
+ */
+qspi_status_t qspi_enable_memmap_mode(qspi_t *obj);
+
+/** Disable memory-mapped mode
+ * 
+ *  @param obj QSPI object
+ *  @return QSPI_STATUS_OK if the mode was disabled
+            QSPI_STATUS_ERROR otherwise
+ */
+ qspi_status_t qspi_disable_memmap_mode(qspi_t *obj);
+
 /**@}*/
 
 #ifdef __cplusplus
