@@ -106,7 +106,10 @@ protected:
     virtual void unlock();
 
     PlatformMutex _mutex;
-};
+}
+MBED_DEPRECATED_SINCE("mbed-os-5.8",
+                      "Use UARTSerial instead - it provides buffering, better blocking, and correct POSIX-like FileHandle semantics. "
+                      "Use fdopen on a UARTSerial object to get a FILE * for <stdio.h> calls.");
 
 } // namespace mbed
 
