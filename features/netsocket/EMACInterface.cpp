@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "EthernetInterface.h"
+#include "EMACInterface.h"
 
 /* Interface implementation */
-EthernetInterface::EthernetInterface(EMAC &emac, OnboardNetworkStack &stack)
+EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack)
     : _emac(emac), _stack(stack), _interface(NULL), _dhcp(true), _mac_address(), _ip_address(), _netmask(), _gateway()
 {
 }
 
-nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
+nsapi_error_t EMACInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
 {
     _dhcp = false;
 
@@ -36,13 +36,13 @@ nsapi_error_t EthernetInterface::set_network(const char *ip_address, const char 
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t EthernetInterface::set_dhcp(bool dhcp)
+nsapi_error_t EMACInterface::set_dhcp(bool dhcp)
 {
     _dhcp = dhcp;
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t EthernetInterface::connect()
+nsapi_error_t EMACInterface::connect()
 {
     if (!_interface) {
         nsapi_error_t err = _stack.add_ethernet_interface(_emac, true, &_interface);
@@ -59,12 +59,12 @@ nsapi_error_t EthernetInterface::connect()
             DEFAULT_STACK);
 }
 
-nsapi_error_t EthernetInterface::disconnect()
+nsapi_error_t EMACInterface::disconnect()
 {
     return _interface->bringdown();
 }
 
-const char *EthernetInterface::get_mac_address()
+const char *EMACInterface::get_mac_address()
 {
     if (_interface->get_mac_address(_mac_address, sizeof(_mac_address))) {
         return _mac_address;
@@ -72,7 +72,7 @@ const char *EthernetInterface::get_mac_address()
     return NULL;
 }
 
-const char *EthernetInterface::get_ip_address()
+const char *EMACInterface::get_ip_address()
 {
     if (_interface->get_ip_address(_ip_address, sizeof(_ip_address))) {
         return _ip_address;
@@ -81,7 +81,7 @@ const char *EthernetInterface::get_ip_address()
     return NULL;
 }
 
-const char *EthernetInterface::get_netmask()
+const char *EMACInterface::get_netmask()
 {
     if (_interface->get_netmask(_netmask, sizeof(_netmask))) {
         return _netmask;
@@ -90,7 +90,7 @@ const char *EthernetInterface::get_netmask()
     return 0;
 }
 
-const char *EthernetInterface::get_gateway()
+const char *EMACInterface::get_gateway()
 {
     if (_interface->get_gateway(_gateway, sizeof(_gateway))) {
         return _gateway;
@@ -99,7 +99,7 @@ const char *EthernetInterface::get_gateway()
     return 0;
 }
 
-NetworkStack *EthernetInterface::get_stack()
+NetworkStack *EMACInterface::get_stack()
 {
     return &_stack;
 }
