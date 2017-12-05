@@ -100,13 +100,6 @@ public:
                    int dummy_cycles,
                    int mode);
 
-    /** Initialize QSPI interface
-     *
-     *  This function must be called before doing any operation on the QSPI bus to initialize the interface
-     */
-    qspi_status_t initialize();
-                   
-                   
     /** Set the qspi bus clock frequency
      *
      *  @param hz SCLK frequency in hz (default = 1MHz)
