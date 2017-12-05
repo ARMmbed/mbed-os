@@ -220,15 +220,27 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
     return status;
 }
 
-qspi_status_t qspi_write_command(qspi_t *obj, const qspi_command_t *command)
+qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
 {
-
-   QSPI_CommandTypeDef st_command;
-   qspi_prepare_command(command, &st_command);
-
     qspi_status_t status = QSPI_STATUS_OK;
-    if (HAL_QSPI_Command(&obj->handle, &st_command, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        status = QSPI_STATUS_ERROR;
+
+    if (rx_size > 4) {
+        return QSPI_STATUS_INVALID_PARAMETER;
+    }
+
+    QSPI_CommandTypeDef st_command;
+    qspi_prepare_command(command, &st_command);
+
+    QSPI_AutoPollingTypeDef s_config;
+    s_config.Match = 0;
+    s_config.Mask = 0;
+    s_config.MatchMode = QSPI_MATCH_MODE_OR;
+    s_config.StatusBytesSize = rx_size;
+    s_config.Interval = 0x10;
+    s_config.AutomaticStop = QSPI_AUTOMATIC_STOP_ENABLE; // or QSPI_AUTOMATIC_STOP_DISABLE ?
+
+    if (HAL_QSPI_AutoPolling(&obj->handle, &st_command, &s_config, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+        status =  QSPI_STATUS_ERROR;
     }
     return status;
 }
