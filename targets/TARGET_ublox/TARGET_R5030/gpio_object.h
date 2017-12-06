@@ -43,29 +43,14 @@ extern "C" {
 #define gpio_base     app_ss_pio_onfi_wrap_maps_pio
 
 #define ERROR     0
-#define SUCCESS     1
-
-
-/** GPIO channels */
-#define GPIIO_0_CHANNEL     0
-#define GPIIO_1_CHANNEL     1
-#define GPIIO_2_CHANNEL     2
-#define GPIIO_3_CHANNEL     3
-#define GPIIO_4_CHANNEL     4
-#define GPIIO_5_CHANNEL     5
-#define GPIIO_6_CHANNEL     6
-#define GPIIO_10_CHANNEL     10
-#define GPIIO_11_CHANNEL     11
-#define GPIIO_12_CHANNEL     12
-#define GPIIO_13_CHANNEL     13
-#define GPIIO_14_CHANNEL     14
-#define GPIIO_15_CHANNEL     15
+#define SUCCESS   1
+#define FALSE     0
+#define TRUE      1
 
 
 typedef struct {
-    PinName  pin;
-    uint32_t mask;
-
+	PinName  pin;
+	uint32_t mask;
 	__IO struct pio_s *reg_base;
 } gpio_t;
 
@@ -74,16 +59,33 @@ typedef struct {
  * Enum for peripheral muxing: refer to top-level excel pinlist
  * for the possible peripheral connections for each channel.
  */
-typedef enum PioPeriphMux_e {
-  PIO_MUX_FALSE,
-  PIO_MUX_GPIO,
-  PIO_MUX_PERIPH_0,
-  PIO_MUX_PERIPH_1,
-  PIO_MUX_PERIPH_2,
-  PIO_MUX_PERIPH_3,
-  PIO_MUX_LAST
+typedef enum {
+	PIO_MUX_FALSE,
+	PIO_MUX_GPIO,
+	PIO_MUX_PERIPH_0,
+	PIO_MUX_PERIPH_1,
+	PIO_MUX_PERIPH_2,
+	PIO_MUX_PERIPH_3,
+	PIO_MUX_LAST
 } PioPeriphMux;
 
+
+typedef enum {
+	GPIO_0_CHANNEL = 0,
+	GPIO_1_CHANNEL = 1,
+	GPIO_2_CHANNEL = 2,
+	GPIO_3_CHANNEL = 3,
+	GPIO_4_CHANNEL = 4,
+	GPIO_5_CHANNEL = 5,
+	GPIO_6_CHANNEL = 6,
+	GPIO_10_CHANNEL = 10,
+	GPIO_11_CHANNEL = 11,
+	GPIO_12_CHANNEL = 12,
+	GPIO_13_CHANNEL = 13,
+	GPIO_14_CHANNEL = 14,
+	GPIO_15_CHANNEL = 15,
+	MAX_CHANNEL = 64
+} Channels;
 
 /*****************************************************************************
 								gpio_write:
@@ -91,16 +93,17 @@ typedef enum PioPeriphMux_e {
 *****************************************************************************/
 static inline void gpio_write(gpio_t *obj, int value)
 {
-  MBED_ASSERT(obj->pin != (PinName)NC);
+	MBED_ASSERT(obj->pin != (PinName)NC);
 
-  if (value)
-  {
-  	obj->reg_base->pio_sodr_0 = obj->mask;  // Set output pin
-  }
-  else
-  {
-  	obj->reg_base->pio_codr_0 = obj->mask; // Clear output pin
-  }
+	if (value)
+	{
+		obj->reg_base->pio_sodr_0 = obj->mask;  // Set output pin
+	}
+
+	else
+	{
+		obj->reg_base->pio_codr_0 = obj->mask; // Clear output pin
+	}
 }
 
 /*****************************************************************************
@@ -109,16 +112,16 @@ static inline void gpio_write(gpio_t *obj, int value)
 *****************************************************************************/
 static inline int gpio_read(gpio_t *obj)
 {
-  MBED_ASSERT(obj->pin != (PinName)NC);
+	MBED_ASSERT(obj->pin != (PinName)NC);
 
-  return ((obj->reg_base->pio_pdsr_0 & obj->mask) ? 1 : 0);
+	return ((obj->reg_base->pio_pdsr_0 & obj->mask) ? 1 : 0);
 }
 
 
-static inline int gpio_is_connected(const gpio_t *obj) {
-    return obj->pin != (PinName)NC;
+static inline int gpio_is_connected(const gpio_t *obj)
+{
+	return obj->pin != (PinName)NC;
 }
-
 
 
 uint32_t gpio_periph_mux_set(uint8_t mux, uint8_t pioChannel, bool periphPullUpDownOn);
