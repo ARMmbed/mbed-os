@@ -872,9 +872,9 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
         }
     }
         
-    // If doesn't have address
-    if (!mbed_lwip_get_ip_addr(true, &lwip_netif)) {
-        if (lwip_blocking) {
+    if (lwip_blocking) {
+        // If doesn't have address
+        if (!mbed_lwip_get_ip_addr(true, &lwip_netif)) {
             if (sys_arch_sem_wait(&lwip_netif_has_any_addr, DHCP_TIMEOUT * 1000) == SYS_ARCH_TIMEOUT) {
                 if (ppp) {
                     ppp_lwip_disconnect();
@@ -886,13 +886,15 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
                 return NSAPI_ERROR_DHCP_FAILURE;
             }
         }
+    } else {
+        return NSAPI_ERROR_OK;
     }
 
 #if PREF_ADDR_TIMEOUT
     if (stack != IPV4_STACK && stack != IPV6_STACK) {
         // If address is not for preferred stack waits a while to see
         // if preferred stack address is acquired
-        if (!mbed_lwip_get_ip_addr(false, &lwip_netif) && lwip_blocking) {
+        if (!mbed_lwip_get_ip_addr(false, &lwip_netif)) {
             sys_arch_sem_wait(&lwip_netif_has_pref_addr, PREF_ADDR_TIMEOUT * 1000);
         }
     }
@@ -901,16 +903,13 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
     if (stack != IPV4_STACK && stack != IPV6_STACK) {
         // If addresses for both stacks are not available waits a while to
         // see if address for both stacks are acquired
-        if (!(mbed_lwip_get_ipv4_addr(&lwip_netif) && mbed_lwip_get_ipv6_addr(&lwip_netif)) &&
-            lwip_blocking) {
+        if (!(mbed_lwip_get_ipv4_addr(&lwip_netif) && mbed_lwip_get_ipv6_addr(&lwip_netif))) {
             sys_arch_sem_wait(&lwip_netif_has_both_addr, BOTH_ADDR_TIMEOUT * 1000);
         }
     }
 #endif
 
-    if (lwip_blocking) {
-        add_dns_addr(&lwip_netif);
-    }
+    add_dns_addr(&lwip_netif);
 
     return NSAPI_ERROR_OK;
 }
