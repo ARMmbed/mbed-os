@@ -770,7 +770,8 @@ extern "C" caddr_t _sbrk(int incr) {
 #else
 // Linker defined symbol used by _sbrk to indicate where heap should start.
 extern "C" uint32_t __end__;
-extern "C" caddr_t _sbrk(int incr) {
+// Weak attribute allows user to override, e.g. to use external RAM for dynamic memory.
+extern "C" WEAK caddr_t _sbrk(int incr) {
     static unsigned char* heap = (unsigned char*)&__end__;
     unsigned char*        prev_heap = heap;
     unsigned char*        new_heap = heap + incr;
