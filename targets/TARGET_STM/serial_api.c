@@ -42,6 +42,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     struct serial_s *obj_s = SERIAL_S(obj);
     int IndexNumber = 0;
+    uint8_t stdio_config = 0;
 
     // Determine the UART to use (UART_1, UART_2, ...)
     UARTName uart_tx = (UARTName)pinmap_peripheral(tx, PinMap_UART_TX);
@@ -50,6 +51,15 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // Get the peripheral name (UART_1, UART_2, ...) from the pin and assign it to the object
     obj_s->uart = (UARTName)pinmap_merge(uart_tx, uart_rx);
     MBED_ASSERT(obj_s->uart != (UARTName)NC);
+
+    if ((tx == STDIO_UART_TX) || (rx == STDIO_UART_RX)) {
+        stdio_config = 1;
+    }
+    else {
+        if (uart_tx == pinmap_peripheral(STDIO_UART_TX, PinMap_UART_TX)) {
+            error("Error: new serial object is using same UART as STDIO");
+        }
+    }
 
     // Enable USART clock
 #if defined(USART1_BASE)
@@ -216,7 +226,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     // Configure UART
     obj_s->baudrate = 9600; // baudrate default value
-    if (obj_s->uart == STDIO_UART) {
+    if (stdio_config) {
 #if MBED_CONF_PLATFORM_STDIO_BAUD_RATE
         obj_s->baudrate = MBED_CONF_PLATFORM_STDIO_BAUD_RATE; // baudrate takes value from platform/mbed_lib.json
 #endif /* MBED_CONF_PLATFORM_STDIO_BAUD_RATE */
@@ -239,8 +249,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     init_uart(obj); /* init_uart will be called again in serial_baud function, so don't worry if init_uart returns HAL_ERROR */
 
-    // For stdio management
-    if (obj_s->uart == STDIO_UART) { // STDIO_UART defined in PeripheralNames.h
+    // For stdio management in platform/mbed_board.c and platform/mbed_retarget.cpp
+    if (stdio_config) {
         stdio_uart_inited = 1;
         memcpy(&stdio_uart, obj, sizeof(serial_t));
     }
