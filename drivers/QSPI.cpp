@@ -273,7 +273,7 @@ void QSPI::_build_qspi_command(int instruction, int address, int alt)
         _qspi_command.alt.value = alt; 
     } else {
         //In the case alt phase is absent, set the alt size to be NONE
-        _qspi_command.alt.value = 0;
+        _qspi_command.alt.size = QSPI_CFG_ALT_SIZE_NONE;
     }
     
     _qspi_command.dummy_count = _num_dummy_cycles;
