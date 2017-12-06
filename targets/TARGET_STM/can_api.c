@@ -579,15 +579,15 @@ void CAN2_SCE_IRQHandler(void)
 #if defined(CAN3_BASE) && defined(CAN_3)
 void CAN3_RX0_IRQHandler(void)
 {
-    can_irq(CAN_3, 1);
+    can_irq(CAN_3, 2);
 }
 void CAN3_TX_IRQHandler(void)
 {
-    can_irq(CAN_3, 1);
+    can_irq(CAN_3, 2);
 }
 void CAN3_SCE_IRQHandler(void)
 {
-    can_irq(CAN_3, 1);
+    can_irq(CAN_3, 2);
 }
 #endif
 #endif // else
