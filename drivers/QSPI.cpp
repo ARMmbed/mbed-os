@@ -144,7 +144,7 @@ qspi_status_t QSPI::write(unsigned int address, const char *tx_buffer, size_t *t
     return ret_status;
 }
 
-qspi_status_t QSPI::read(unsigned int instruction, unsigned int address, unsigned int alt, char *rx_buffer, size_t *rx_length) 
+qspi_status_t QSPI::read(unsigned int instruction, unsigned int alt, unsigned int address, char *rx_buffer, size_t *rx_length) 
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR;
 
@@ -168,7 +168,7 @@ qspi_status_t QSPI::read(unsigned int instruction, unsigned int address, unsigne
     return ret_status;
 }
 
-qspi_status_t QSPI::write(unsigned int instruction, unsigned int address, unsigned int alt, const char *tx_buffer, size_t *tx_length) 
+qspi_status_t QSPI::write(unsigned int instruction, unsigned int alt, unsigned int address, const char *tx_buffer, size_t *tx_length) 
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR;
     
