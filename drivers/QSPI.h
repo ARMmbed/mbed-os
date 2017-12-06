@@ -119,7 +119,7 @@ public:
      */
     qspi_status_t read(unsigned int address, char *rx_buffer, size_t *rx_length);
 
-    /** Write to QSPI peripheral with the preset write_instruction and alt_value
+    /** Write to QSPI peripheral using custom write instruction
      *
      *  @param address Address to be accessed in QSPI peripheral
      *  @param tx_buffer Buffer containing data to be sent to peripheral                          
@@ -133,28 +133,28 @@ public:
     /** Read from QSPI peripheral using custom read instruction, alt values
      *
      *  @param instruction Instruction value to be used in instruction phase
-     *  @param address Address to be accessed in QSPI peripheral
      *  @param alt Alt value to be used in instruction phase
+     *  @param address Address to be accessed in QSPI peripheral
      *  @param rx_buffer Buffer for data to be read from the peripheral                          
      *  @param rx_length Pointer to a variable containing the length of rx_buffer, and on return this variable will be updated with the actual number of bytes read
      *
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t read(unsigned int instruction, unsigned int address, unsigned int alt, char *rx_buffer, size_t *rx_length);
+    qspi_status_t read(unsigned int instruction, unsigned int alt, unsigned int address, char *rx_buffer, size_t *rx_length);
 
     /** Write to QSPI peripheral using custom write instruction, alt values
      *
      *  @param instruction Instruction value to be used in instruction phase
-     *  @param address Address to be accessed in QSPI peripheral
      *  @param alt Alt value to be used in instruction phase
+     *  @param address Address to be accessed in QSPI peripheral
      *  @param tx_buffer Buffer containing data to be sent to peripheral                          
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
      *
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t write(unsigned int instruction, unsigned int address, unsigned int alt, const char *tx_buffer, size_t *tx_length);
+    qspi_status_t write(unsigned int instruction, unsigned int alt, unsigned int address, const char *tx_buffer, size_t *tx_length);
 
     /** Perform a transaction to write to an address(a control register) and get the status results
      *
