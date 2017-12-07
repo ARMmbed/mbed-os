@@ -66,11 +66,7 @@ struct audio_s {
 };
 
 struct spi_s {
-    MPS2_SSP_TypeDef *spi;
-};
-
-struct clcd_s {
-    MPS2_SSP_TypeDef *clcd;
+    struct spi_pl022_dev_t *spi;
 };
 
 struct analogin_s {

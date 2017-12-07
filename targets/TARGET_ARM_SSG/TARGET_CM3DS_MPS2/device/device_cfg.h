@@ -42,4 +42,12 @@
 /* ARM MPS2 IO SCC */
 #define ARM_MPS2_IO_SCC
 
+/* ARM SPI PL022 */
+#define DEFAULT_SPI_SPEED_HZ  4000000U /* 4MHz */
+#define ARM_SPI0
+#define ARM_SPI1
+#define ARM_SPI2
+#define ARM_SPI3
+#define ARM_SPI4
+
 #endif  /* __ARM_LTD_DEVICE_CFG_H__ */
