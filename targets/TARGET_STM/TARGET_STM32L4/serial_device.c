@@ -34,8 +34,10 @@
 
 #if defined (TARGET_STM32L432xC)
     #define UART_NUM (3)
+#elif defined (TARGET_STM32L433xC)
+    #define UART_NUM (4)
 #else
-    #define UART_NUM (6) // max value
+    #define UART_NUM (6) // max value (TARGET_STM32L475xG / TARGET_STM32L476xG / TARGET_STM32L486xG / TARGET_STM32L496xG)
 #endif
 
 uint32_t serial_irq_ids[UART_NUM] = {0};
