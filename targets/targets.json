@@ -1903,18 +1903,13 @@
         "supported_form_factors": ["ARDUINO"],
         "release_versions": ["5"],
         "config": {
-            "usb_tx": {
+            "stdio_uart_tx": {
                 "help": "Value: D8(default) or D1",
                 "value": "D8"
             },
-            "usb_rx": {
+            "stdio_uart_rx": {
                 "help": "Value: D2(default) or D0",
                 "value": "D2"
-            },
-            "stdio_uart": {
-                "help": "Value: UART_1(default) or UART_3",
-                "value": "UART_1",
-                "macro_name": "STDIO_UART"
             }
         }
     },
@@ -1922,39 +1917,19 @@
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
         "release_versions": ["5"],
         "config": {
-            "usb_tx": {
+            "stdio_uart_tx": {
                 "help": "Value: PA_9(default) or PD_8",
                 "value": "PA_9"
             },
-            "usb_rx": {
+            "stdio_uart_rx": {
                 "help": "Value: PA_10(default) or PD_9",
                 "value": "PA_10"
-            },
-            "stdio_uart": {
-                "help": "Value: UART_1(default) or UART_3",
-                "value": "UART_1",
-                "macro_name": "STDIO_UART"
             }
         }
     },
     "MTB_UBLOX_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
-        "release_versions": ["5"],
-        "config": {
-            "usb_tx": {
-                "help": "Value PA_11",
-                "value": "PA_11"
-            },
-            "usb_rx": {
-                "help": "Value PA_13",
-                "value": "PA_13"
-            },
-            "stdio_uart": {
-                "help": "Value: UART_1",
-                "value": "UART_1",
-                "macro_name": "STDIO_UART"
-             }
-        }
+        "release_versions": ["5"]
      },
     "UBLOX_C030": {
         "inherits": ["FAMILY_STM32"],
