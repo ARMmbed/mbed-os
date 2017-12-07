@@ -103,7 +103,13 @@ void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
 
     can_registers_init(obj);
 
+    /* Bits 27:14 are available for dual CAN configuration and are reserved for
+       single CAN configuration: */
+#if defined(CAN3_BASE) && (CAN_NUM > 2)
+    uint32_t filter_number = (can == CAN_1 || can == CAN_3) ? 0 : 14;
+#else
     uint32_t filter_number = (can == CAN_1) ? 0 : 14;
+#endif
     can_filter(obj, 0, 0, CANStandard, filter_number);
 }
 
