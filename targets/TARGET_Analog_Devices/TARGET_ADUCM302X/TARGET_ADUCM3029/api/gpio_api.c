@@ -46,9 +46,12 @@
 
 #define MUX_FUNC_0 0x0
 #define NUM_GPIO_PORTS 4
-
-extern uint8_t gpioMemory[ADI_GPIO_MEMORY_SIZE];
-extern uint8_t gpio_initialized;
+/*******************************************************************************
+   ADI_GPIO_DEV_DATA Instance memory containing memory pointer should
+   guarantee 4 byte alignmnet.
+ *******************************************************************************/
+extern uint32_t gpioMemory[(ADI_GPIO_MEMORY_SIZE + 3)/4];
+extern uint8_t  gpio_initialized;
 
 static uint16_t gpio_oen[NUM_GPIO_PORTS] = {0};
 static uint16_t gpio_output_val[NUM_GPIO_PORTS] = {0};
