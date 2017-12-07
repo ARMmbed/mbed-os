@@ -155,9 +155,26 @@ typedef enum {
     SPI_SCK    = SPI0_SCK,
     SPI_CS     = SPI0_CS,
 
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#elif MBED_CONF_TARGET_USB_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_USB_TX,
+#else
+    STDIO_UART_TX = PA_9,
+#endif
+
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#elif MBED_CONF_TARGET_USB_RX
+    STDIO_UART_TX = MBED_CONF_TARGET_USB_RX,
+#else
+    STDIO_UART_RX = PA_10,
+#endif
+
     // DAPLink
-    USBRX      = MBED_CONF_TARGET_USB_RX,
-    USBTX      = MBED_CONF_TARGET_USB_TX,
+    USBRX      = STDIO_UART_RX,
+    USBTX      = STDIO_UART_TX,
     SWDIO      = PA_15,
     SWCLK      = PA_14,
     NTRST      = PB_4,
