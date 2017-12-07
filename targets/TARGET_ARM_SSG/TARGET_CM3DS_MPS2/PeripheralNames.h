@@ -53,11 +53,12 @@ typedef enum {
 } ADCName;
 
 typedef enum {
-    SPI_0 = (int)MPS2_SSP0_BASE,
-    SPI_1 = (int)MPS2_SSP1_BASE,
-    SPI_2 = (int)MPS2_SSP2_BASE,
-    SPI_3 = (int)MPS2_SSP3_BASE,
-    SPI_4 = (int)MPS2_SSP4_BASE
+    SPI_0 = 0,
+    SPI_1,
+    SPI_2,
+    SPI_3,
+    SPI_4,
+    SPI_NC = (SPI_4 + 1)
 } SPIName;
 
 typedef enum {

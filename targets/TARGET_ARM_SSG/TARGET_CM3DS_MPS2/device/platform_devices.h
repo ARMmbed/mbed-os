@@ -23,6 +23,7 @@
 #include "timer_cmsdk_drv.h"
 #include "arm_gpio_drv.h"
 #include "arm_mps2_io_drv.h"
+#include "spi_pl022_drv.h"
 
 /* ======= Defines peripheral configuration structures ======= */
 
@@ -57,6 +58,23 @@ extern struct arm_mps2_io_dev_t ARM_MPS2_IO_FPGAIO_DEV;
 /* ARM MPS2 IO SCC driver structures */
 #ifdef ARM_MPS2_IO_SCC
 extern struct arm_mps2_io_dev_t ARM_MPS2_IO_SCC_DEV;
+#endif
+
+/* ARM SPI driver structures */
+#ifdef ARM_SPI0
+extern struct spi_pl022_dev_t SPI0_PL022_DEV;
+#endif
+#ifdef ARM_SPI1
+extern struct spi_pl022_dev_t SPI1_PL022_DEV;
+#endif
+#ifdef ARM_SPI2
+extern struct spi_pl022_dev_t SPI2_PL022_DEV;
+#endif
+#ifdef ARM_SPI3
+extern struct spi_pl022_dev_t SPI3_PL022_DEV;
+#endif
+#ifdef ARM_SPI4
+extern struct spi_pl022_dev_t SPI4_PL022_DEV;
 #endif
 
 #endif  /* __ARM_LTD_PLATFORM_DEVICES_H__ */
