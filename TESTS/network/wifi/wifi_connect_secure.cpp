@@ -32,6 +32,7 @@ void wifi_connect_secure(void)
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA2));
 
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
+    wifi->disconnect();
 }
 
 #endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID)
