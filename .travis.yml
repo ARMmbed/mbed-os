@@ -11,10 +11,19 @@ env:
       "target_url": "https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
       }\nDATA'
 
+cache:
+  pip: true
+  directories:
+    - $HOME/.cache/apt
+
 before_install:
   - bash -c "$STATUS" pending "Local $NAME testing is in progress"
   # Make sure pipefail
   - set -o pipefail
+  # Setup apt to cache
+  - mkdir -p $HOME/.cache/apt/partial
+  - sudo rm -rf /var/cache/apt/archives
+  - sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
   # Setup ppa to make sure arm-none-eabi-gcc is correct version
   - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
   - sudo add-apt-repository -y ppa:libreoffice/libreoffice-4-2
