@@ -30,17 +30,6 @@ extern "C" {
 typedef void (*mesh_interface_cb)(mesh_connection_status_t mesh_status);
 
 /*
- * \brief Read own global IP address
- *
- * \param address where own IP address will be written
- * \param len length of provided address buffer
- *
- * \return 0 on success
- * \return -1 if address reading fails
- */
-int8_t nd_tasklet_get_ip_address(char *address, int8_t len);
-
-/*
  * \brief Read border router IP address
  *
  * \param address where router IP address will be written

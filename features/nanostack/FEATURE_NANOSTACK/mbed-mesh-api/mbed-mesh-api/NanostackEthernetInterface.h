@@ -17,20 +17,48 @@
 #ifndef NANOSTACKETHERNETINTERFACE_H
 #define NANOSTACKETHERNETINTERFACE_H
 
+#include "EthInterface.h"
 #include "MeshInterfaceNanostack.h"
 #include "NanostackEthernetPhy.h"
 
-class NanostackEthernetInterface : public MeshInterfaceNanostack {
+class Nanostack::EthernetInterface : public Nanostack::Interface {
 public:
+    virtual nsapi_error_t bringup(bool dhcp, const char *ip,
+                                  const char *netmask, const char *gw,
+                                  nsapi_ip_stack_t stack = DEFAULT_STACK);
+    virtual nsapi_error_t bringdown();
 
-    NanostackEthernetInterface() : MeshInterfaceNanostack() { }
-    NanostackEthernetInterface(NanostackEthernetPhy *phy) : MeshInterfaceNanostack(phy) { }
+private:
+    friend Nanostack;
+    friend class NanostackEthernetInterface;
+    EthernetInterface(NanostackEthernetPhy &phy) : Interface(phy) {}
+    nsapi_error_t initialize();
+protected:
+    NanostackEthernetPhy &get_phy() const { return static_cast<NanostackEthernetPhy &>(Interface::get_phy()); }
+};
+
+class NanostackEthernetInterface : public InterfaceNanostack, public EthInterface, private mbed::NonCopyable<NanostackEthernetInterface> {
+public:
+    NanostackEthernetInterface() { }
+    //NanostackEthernetInterface(NanostackEthernetPhy *phy);
 
     nsapi_error_t initialize(NanostackEthernetPhy *phy);
-    virtual int connect();
-    virtual int disconnect();
-    virtual bool getOwnIpAddress(char *address, int8_t len);
-    bool getRouterIpAddress(char *address, int8_t len);
+
+    /** Start the interface
+     *
+     *  @return     0 on success, negative on failure
+     */
+    virtual nsapi_error_t connect();
+
+    /** Stop the interface
+     *
+     *  @return     0 on success, negative on failure
+     */
+    virtual nsapi_error_t disconnect();
+
+protected:
+    Nanostack::EthernetInterface *get_interface() const { return static_cast<Nanostack::EthernetInterface *>(_interface); }
+
 };
 
 #endif // NANOSTACKETHERNETINTERFACE_H
