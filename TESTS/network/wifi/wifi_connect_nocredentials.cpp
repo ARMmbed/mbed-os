@@ -29,5 +29,5 @@ void wifi_connect_nocredentials(void)
     nsapi_error_t error;
     error = wifi->connect();
     wifi->disconnect();
-    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+    TEST_ASSERT(error == NSAPI_ERROR_NO_SSID);
 }

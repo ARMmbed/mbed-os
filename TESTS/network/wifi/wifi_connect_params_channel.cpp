@@ -36,6 +36,7 @@ void wifi_connect_params_channel(void)
 
     nsapi_error_t error = wifi->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA2, MBED_CONF_APP_WIFI_CH_SECURE);
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, error);
+    wifi->disconnect();
 }
 
 #endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID)
