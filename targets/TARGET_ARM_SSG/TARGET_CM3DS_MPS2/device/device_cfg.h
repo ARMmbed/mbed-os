@@ -50,4 +50,12 @@
 #define ARM_SPI3
 #define ARM_SPI4
 
+/* ARM UART */
+#define DEFAULT_UART_BAUDRATE  9600
+#define ARM_UART0
+#define ARM_UART1
+#define ARM_UART2
+#define ARM_UART3
+#define ARM_UART4
+
 #endif  /* __ARM_LTD_DEVICE_CFG_H__ */

@@ -23,11 +23,11 @@ extern "C" {
 #endif
 
 typedef enum {
-    UART_0 = (int)CMSDK_UART0_BASE, /* MCC UART */
-    UART_1 = (int)CMSDK_UART1_BASE, /* MPS2+ UART */
-    UART_2 = (int)CMSDK_UART2_BASE, /* Shield 0 UART */
-    UART_3 = (int)CMSDK_UART3_BASE, /* Shield 1 UART */
-    UART_4 = (int)CMSDK_UART4_BASE  /* Shield BT UART */
+    UART_0 = 0, /* MCC UART */
+    UART_1,     /* MPS2+ UART */
+    UART_2,     /* Shield 0 UART */
+    UART_3,     /* Shield 1 UART */
+    UART_4      /* Shield BT UART */
 } UARTName;
 
 typedef enum {
