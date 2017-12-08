@@ -24,6 +24,7 @@
 #include "arm_gpio_drv.h"
 #include "arm_mps2_io_drv.h"
 #include "spi_pl022_drv.h"
+#include "arm_uart_drv.h"
 
 /* ======= Defines peripheral configuration structures ======= */
 
@@ -75,6 +76,23 @@ extern struct spi_pl022_dev_t SPI3_PL022_DEV;
 #endif
 #ifdef ARM_SPI4
 extern struct spi_pl022_dev_t SPI4_PL022_DEV;
+#endif
+
+/* ARM UART driver structures */
+#ifdef ARM_UART0
+extern struct arm_uart_dev_t ARM_UART0_DEV;
+#endif
+#ifdef ARM_UART1
+extern struct arm_uart_dev_t ARM_UART1_DEV;
+#endif
+#ifdef ARM_UART2
+extern struct arm_uart_dev_t ARM_UART2_DEV;
+#endif
+#ifdef ARM_UART3
+extern struct arm_uart_dev_t ARM_UART3_DEV;
+#endif
+#ifdef ARM_UART4
+extern struct arm_uart_dev_t ARM_UART4_DEV;
 #endif
 
 #endif  /* __ARM_LTD_PLATFORM_DEVICES_H__ */

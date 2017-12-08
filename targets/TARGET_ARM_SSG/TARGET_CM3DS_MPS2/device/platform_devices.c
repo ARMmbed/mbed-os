@@ -208,3 +208,64 @@ static struct spi_pl022_dev_data_t SPI4_PL022_DEV_DATA = {
 struct spi_pl022_dev_t SPI4_PL022_DEV = {&(SPI4_PL022_DEV_CFG),
                                            &(SPI4_PL022_DEV_DATA)};
 #endif /* ARM_SPI4 */
+
+/* ARM UART driver structures */
+#ifdef ARM_UART0
+static const struct arm_uart_dev_cfg_t ARM_UART0_DEV_CFG = {
+  .base = CMSDK_UART0_BASE,
+  .default_baudrate = DEFAULT_UART_BAUDRATE};
+static struct arm_uart_dev_data_t ARM_UART0_DEV_DATA = {
+  .state = 0,
+  .system_clk = 0,
+  .baudrate = 0};
+struct arm_uart_dev_t ARM_UART0_DEV = {&(ARM_UART0_DEV_CFG),
+                                       &(ARM_UART0_DEV_DATA)};
+#endif /* ARM_UART0 */
+
+#ifdef ARM_UART1
+static const struct arm_uart_dev_cfg_t ARM_UART1_DEV_CFG = {
+  .base = CMSDK_UART1_BASE,
+  .default_baudrate = DEFAULT_UART_BAUDRATE};
+static struct arm_uart_dev_data_t ARM_UART1_DEV_DATA = {
+  .state = 0,
+  .system_clk = 0,
+  .baudrate = 0};
+struct arm_uart_dev_t ARM_UART1_DEV = {&(ARM_UART1_DEV_CFG),
+                                       &(ARM_UART1_DEV_DATA)};
+#endif /* ARM_UART1 */
+
+#ifdef ARM_UART2
+static const struct arm_uart_dev_cfg_t ARM_UART2_DEV_CFG = {
+  .base = CMSDK_UART2_BASE,
+  .default_baudrate = DEFAULT_UART_BAUDRATE};
+static struct arm_uart_dev_data_t ARM_UART2_DEV_DATA = {
+  .state = 0,
+  .system_clk = 0,
+  .baudrate = 0};
+struct arm_uart_dev_t ARM_UART2_DEV = {&(ARM_UART2_DEV_CFG),
+                                       &(ARM_UART2_DEV_DATA)};
+#endif /* ARM_UART2 */
+
+#ifdef ARM_UART3
+static const struct arm_uart_dev_cfg_t ARM_UART3_DEV_CFG = {
+  .base = CMSDK_UART3_BASE,
+  .default_baudrate = DEFAULT_UART_BAUDRATE};
+static struct arm_uart_dev_data_t ARM_UART3_DEV_DATA = {
+  .state = 0,
+  .system_clk = 0,
+  .baudrate = 0};
+struct arm_uart_dev_t ARM_UART3_DEV = {&(ARM_UART3_DEV_CFG),
+                                       &(ARM_UART3_DEV_DATA)};
+#endif /* ARM_UART3 */
+
+#ifdef ARM_UART4
+static const struct arm_uart_dev_cfg_t ARM_UART4_DEV_CFG = {
+  .base = CMSDK_UART4_BASE,
+  .default_baudrate = DEFAULT_UART_BAUDRATE};
+static struct arm_uart_dev_data_t ARM_UART4_DEV_DATA = {
+  .state = 0,
+  .system_clk = 0,
+  .baudrate = 0};
+struct arm_uart_dev_t ARM_UART4_DEV = {&(ARM_UART4_DEV_CFG),
+                                       &(ARM_UART4_DEV_DATA)};
+#endif /* ARM_UART4 */

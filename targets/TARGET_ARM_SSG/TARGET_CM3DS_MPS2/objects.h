@@ -47,8 +47,10 @@ struct port_s {
 };
 
 struct serial_s {
-    CMSDK_UART_TypeDef *uart;
-    int index;
+    struct arm_uart_dev_t *uart;
+    UARTName index;
+    IRQn_Type irq_number;               /* IRQ number of the RX interrupt for
+                                            this UART device */
 };
 
 struct i2c_s {
