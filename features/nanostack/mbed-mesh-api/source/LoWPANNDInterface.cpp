@@ -1,18 +1,49 @@
 #include "LoWPANNDInterface.h"
 #include "include/nd_tasklet.h"
 #include "callback_handler.h"
+#include "NanostackLockGuard.h"
 #include "mesh_system.h"
 #include "randLIB.h"
 
 #include "ns_trace.h"
 #define TRACE_GROUP "nslp"
 
-nsapi_error_t LoWPANNDInterface::initialize(NanostackRfPhy *phy)
+class Nanostack::LoWPANNDInterface : public Nanostack::MeshInterface
 {
-    return MeshInterfaceNanostack::initialize(phy);
-}
+public:
+    virtual nsapi_error_t bringup(bool dhcp, const char *ip,
+                                  const char *netmask, const char *gw,
+                                  nsapi_ip_stack_t stack = IPV6_STACK,
+                                  bool blocking = true);
+    virtual nsapi_error_t bringdown();
+    virtual char *get_gateway(char *buf, nsapi_size_t buflen);
+
+    friend Nanostack;
+    friend class ::LoWPANNDInterface;
+private:
+    LoWPANNDInterface(NanostackRfPhy &phy) : MeshInterface(phy) { }
+    mesh_error_t init();
+    mesh_error_t mesh_connect();
+    mesh_error_t mesh_disconnect();
+};
 
 int LoWPANNDInterface::connect()
+{
+    if (!_interface) {
+        _interface = new (nothrow) Nanostack::LoWPANNDInterface(*_phy);
+        if (!_interface) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+        _interface->attach(_connection_status_cb);
+    }
+
+    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
+
+}
+
+nsapi_error_t Nanostack::LoWPANNDInterface::bringup(bool dhcp, const char *ip,
+                                                    const char *netmask, const char *gw,
+                                                    nsapi_ip_stack_t stack, bool blocking)
 {
     nanostack_lock();
 
@@ -20,6 +51,8 @@ int LoWPANNDInterface::connect()
         nanostack_unlock();
         return NSAPI_ERROR_DEVICE_ERROR;
     }
+
+    _blocking = blocking;
 
     // After the RF is up, we can seed the random from it.
     randLIB_seed_random();
@@ -39,11 +72,13 @@ int LoWPANNDInterface::connect()
     // Release mutex before blocking
     nanostack_unlock();
 
-    // wait connection for ever
-    int32_t count = connect_semaphore.wait(osWaitForever);
+    if (blocking) {
+        // wait connection for ever
+        int32_t count = connect_semaphore.wait(osWaitForever);
 
-    if (count <= 0) {
-        return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        if (count <= 0) {
+            return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        }
     }
     return 0;
 
@@ -51,37 +86,40 @@ int LoWPANNDInterface::connect()
 
 int LoWPANNDInterface::disconnect()
 {
-    nanostack_lock();
+    return _interface->bringdown();
+}
+
+nsapi_error_t Nanostack::LoWPANNDInterface::bringdown()
+{
+    NanostackLockGuard lock;
 
     mesh_error_t status = mesh_disconnect();
-
-    nanostack_unlock();
 
     return map_mesh_error(status);
 }
 
-mesh_error_t LoWPANNDInterface::init()
+mesh_error_t Nanostack::LoWPANNDInterface::init()
 {
     nd_tasklet_init();
     __mesh_handler_set_callback(this);
-    _network_interface_id = nd_tasklet_network_init(_device_id);
+    interface_id = nd_tasklet_network_init(_device_id);
 
-    if (_network_interface_id == -2) {
+    if (interface_id == -2) {
         return MESH_ERROR_PARAM;
-    } else if (_network_interface_id == -3) {
+    } else if (interface_id == -3) {
         return MESH_ERROR_MEMORY;
-    } else if (_network_interface_id < 0) {
+    } else if (interface_id < 0) {
         return MESH_ERROR_UNKNOWN;
     }
     return MESH_ERROR_NONE;
 }
 
-mesh_error_t LoWPANNDInterface::mesh_connect()
+mesh_error_t Nanostack::LoWPANNDInterface::mesh_connect()
 {
     int8_t status = -9; // init to unknown error
     tr_debug("connect()");
 
-    status = nd_tasklet_connect(&__mesh_handler_c_callback, _network_interface_id);
+    status = nd_tasklet_connect(&__mesh_handler_c_callback, interface_id);
 
     if (status >= 0) {
         return MESH_ERROR_NONE;
@@ -96,7 +134,7 @@ mesh_error_t LoWPANNDInterface::mesh_connect()
     }
 }
 
-mesh_error_t LoWPANNDInterface::mesh_disconnect()
+mesh_error_t Nanostack::LoWPANNDInterface::mesh_disconnect()
 {
     int8_t status = -1;
 
@@ -109,20 +147,16 @@ mesh_error_t LoWPANNDInterface::mesh_disconnect()
     return MESH_ERROR_UNKNOWN;
 }
 
-bool LoWPANNDInterface::getOwnIpAddress(char *address, int8_t len)
+char *Nanostack::LoWPANNDInterface::get_gateway(char *buf, nsapi_size_t buflen)
 {
-    tr_debug("getOwnIpAddress()");
-    if (nd_tasklet_get_ip_address(address, len) == 0) {
-        return true;
+    NanostackLockGuard lock;
+    if (nd_tasklet_get_router_ip_address(buf, buflen) == 0) {
+        return buf;
     }
-    return false;
+    return NULL;
 }
 
 bool LoWPANNDInterface::getRouterIpAddress(char *address, int8_t len)
 {
-    tr_debug("getRouterIpAddress()");
-    if (nd_tasklet_get_router_ip_address(address, len) == 0) {
-        return true;
-    }
-    return false;
+    return _interface->get_gateway(address, len);
 }
