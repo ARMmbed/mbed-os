@@ -26,18 +26,16 @@
 class ThreadInterface : public MeshInterfaceNanostack {
 public:
 
-    /** Create an uninitialized LoWPANNDInterface
+    /** Create an uninitialized ThreadInterface
      *
      *  Must initialize to initialize the mesh on a phy.
      */
-    ThreadInterface() : MeshInterfaceNanostack() { }
+    ThreadInterface() : user_set_eui64(false) { }
 
-    /** Create an initialized MeshInterface
+    /** Create an initialized ThreadInterface
      *
      */
-    ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
-
-    nsapi_error_t initialize(NanostackRfPhy *phy);
+    ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy), user_set_eui64(false) { }
 
     /**
      * \brief Sets the eui64 for the device configuration.
@@ -59,40 +57,11 @@ public:
 
     virtual int connect();
     virtual int disconnect();
+protected:
+    Nanostack::ThreadInterface *get_interface() const;
+
 private:
-    /*
-     * \brief Initialization of the interface.
-     * \return MESH_ERROR_NONE on success.
-     * \return MESH_ERROR_PARAM when input parameters are illegal (also in case when RF device is already associated to other interface)
-     * \return MESH_ERROR_MEMORY in case of memory error
-     * \return MESH_ERROR_UNKNOWN in other error cases
-     */
-    mesh_error_t init();
-    /**
-     * \brief Connect interface to the mesh network
-     * \return MESH_ERROR_NONE on success.
-     * \return MESH_ERROR_PARAM in case of illegal parameters.
-     * \return MESH_ERROR_MEMORY in case of memory error.
-     * \return MESH_ERROR_STATE if interface is already connected to network.
-     * \return MESH_ERROR_UNKNOWN in case of unspecified error.
-     * */
-    mesh_error_t mesh_connect();
-
-    /**
-     * \brief Disconnect interface from the mesh network
-     * \return MESH_ERROR_NONE on success.
-     * \return MESH_ERROR_UNKNOWN in case of error.
-     * */
-    mesh_error_t mesh_disconnect();
-
-    /**
-     * \brief Read own global IP address
-     *
-     * \param address is where the IP address will be copied
-     * \param len is the length of the address buffer, must be at least 40 bytes
-     * \return true if address is read successfully, false otherwise
-     */
-    virtual bool getOwnIpAddress(char *address, int8_t len);
+    bool user_set_eui64;
 };
 
 #endif // THREADINTERFACE_H

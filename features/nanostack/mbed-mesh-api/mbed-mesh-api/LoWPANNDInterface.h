@@ -30,22 +30,16 @@ public:
      *
      *  Must initialize to initialize the mesh on a phy.
      */
-    LoWPANNDInterface() : MeshInterfaceNanostack() { }
+    LoWPANNDInterface() { }
 
-    /** Create an initialized MeshInterface
+    /** Create an initialized LoWPANNDInterface
      *
      */
     LoWPANNDInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
 
-    nsapi_error_t initialize(NanostackRfPhy *phy);
     virtual int connect();
     virtual int disconnect();
-    virtual bool getOwnIpAddress(char *address, int8_t len);
     bool getRouterIpAddress(char *address, int8_t len);
-private:
-    mesh_error_t init();
-    mesh_error_t mesh_connect();
-    mesh_error_t mesh_disconnect();
 };
 
 #endif

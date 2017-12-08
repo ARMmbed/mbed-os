@@ -7,12 +7,86 @@
 #include "ns_trace.h"
 #define TRACE_GROUP "nsth"
 
-nsapi_error_t ThreadInterface::initialize(NanostackRfPhy *phy)
+class Nanostack::ThreadInterface : public Nanostack::MeshInterface
 {
-    return MeshInterfaceNanostack::initialize(phy);
+public:
+    virtual nsapi_error_t bringup(bool dhcp, const char *ip,
+                                  const char *netmask, const char *gw,
+                                  nsapi_ip_stack_t stack = IPV6_STACK,
+                                  bool blocking = true);
+    virtual nsapi_error_t bringdown();
+    friend Nanostack;
+    friend class ::ThreadInterface;
+private:
+    ThreadInterface(NanostackRfPhy &phy) : MeshInterface(phy), user_eui64_set(false) { }
+
+    /*
+     * \brief Initialization of the interface.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_PARAM when input parameters are illegal (also in case when RF device is already associated to other interface)
+     * \return MESH_ERROR_MEMORY in case of memory error
+     * \return MESH_ERROR_UNKNOWN in other error cases
+     */
+    mesh_error_t init();
+    /**
+     * \brief Connect interface to the mesh network
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_PARAM in case of illegal parameters.
+     * \return MESH_ERROR_MEMORY in case of memory error.
+     * \return MESH_ERROR_STATE if interface is already connected to network.
+     * \return MESH_ERROR_UNKNOWN in case of unspecified error.
+     * */
+    mesh_error_t mesh_connect();
+
+    /**
+     * \brief Disconnect interface from the mesh network
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_UNKNOWN in case of error.
+     * */
+    mesh_error_t mesh_disconnect();
+
+    /**
+     * \brief Sets the eui64 for the device configuration.
+     * By default this value is read from the radio driver.
+     * The value must be set before calling the connect function.
+     * */
+    void device_eui64_set(const uint8_t *eui64);
+
+    /**
+     * \brief sets the PSKd for the device configuration.
+     * The default value is overwritten, which is defined in the mbed_lib.json file in the mesh-api
+     * The value must be set before calling the connect function.
+     * \return MESH_ERROR_NONE on success.
+     * \return MESH_ERROR_PARAM in case of illegal parameters.
+     * \return MESH_ERROR_MEMORY in case of memory error.
+     * */
+
+    mesh_error_t device_pskd_set(const char *pskd);
+
+    bool user_eui64_set;
+};
+
+Nanostack::ThreadInterface *ThreadInterface::get_interface() const
+{
+    return static_cast<Nanostack::ThreadInterface*>(_interface);
 }
 
 int ThreadInterface::connect()
+{
+    if (!_interface) {
+        _interface = new (nothrow) Nanostack::ThreadInterface(*_phy);
+        if (!_interface) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+        _interface->attach(_connection_status_cb);
+    }
+
+    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
+}
+
+nsapi_error_t Nanostack::ThreadInterface::bringup(bool dhcp, const char *ip,
+                                                  const char *netmask, const char *gw,
+                                                  nsapi_ip_stack_t stack, bool blocking)
 {
     if (_connect_status == NSAPI_STATUS_GLOBAL_UP || _connect_status == NSAPI_STATUS_LOCAL_UP) {
         return NSAPI_ERROR_IS_CONNECTED;
@@ -20,12 +94,17 @@ int ThreadInterface::connect()
         return NSAPI_ERROR_ALREADY;
     }
 
-    nanostack_lock();
+    if (stack == IPV4_STACK) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
 
     if (register_phy() < 0) {
-        nanostack_unlock();
         return NSAPI_ERROR_DEVICE_ERROR;
     }
+    nanostack_lock();
+
+    _blocking = blocking;
+
     // After the RF is up, we can seed the random from it.
     randLIB_seed_random();
 
@@ -64,6 +143,11 @@ int ThreadInterface::connect()
 
 int ThreadInterface::disconnect()
 {
+    return _interface->bringdown();
+}
+
+nsapi_error_t Nanostack::ThreadInterface::bringdown()
+{
     nanostack_lock();
 
     mesh_error_t status = mesh_disconnect();
@@ -73,38 +157,33 @@ int ThreadInterface::disconnect()
     return map_mesh_error(status);
 }
 
-mesh_error_t ThreadInterface::init()
+mesh_error_t Nanostack::ThreadInterface::init()
 {
     thread_tasklet_init();
     __mesh_handler_set_callback(this);
-    thread_tasklet_device_eui64_set(_eui64);
-    _network_interface_id = thread_tasklet_network_init(_device_id);
+    if (!user_eui64_set) {
+        uint8_t eui64[8];
+        get_phy().get_mac_address(eui64);
+        thread_tasklet_device_eui64_set(eui64);
+    }
+    interface_id = thread_tasklet_network_init(_device_id);
 
-    if (_network_interface_id == -2) {
+    if (interface_id == -2) {
         return MESH_ERROR_PARAM;
-    } else if (_network_interface_id == -3) {
+    } else if (interface_id == -3) {
         return MESH_ERROR_MEMORY;
-    } else if (_network_interface_id < 0) {
+    } else if (interface_id < 0) {
         return MESH_ERROR_UNKNOWN;
     }
     return MESH_ERROR_NONE;
 }
 
-bool ThreadInterface::getOwnIpAddress(char *address, int8_t len)
-{
-    tr_debug("getOwnIpAddress()");
-    if (thread_tasklet_get_ip_address(address, len) == 0) {
-        return true;
-    }
-    return false;
-}
-
-mesh_error_t ThreadInterface::mesh_connect()
+mesh_error_t Nanostack::ThreadInterface::mesh_connect()
 {
     int8_t status;
     tr_debug("connect()");
 
-    status = thread_tasklet_connect(&__mesh_handler_c_callback, _network_interface_id);
+    status = thread_tasklet_connect(&__mesh_handler_c_callback, interface_id);
 
     if (status >= 0) {
         return MESH_ERROR_NONE;
@@ -119,17 +198,7 @@ mesh_error_t ThreadInterface::mesh_connect()
     }
 }
 
-void ThreadInterface::device_eui64_set(const uint8_t *eui64)
-{
-    memcpy(_eui64, eui64, 8);
-}
-
-mesh_error_t ThreadInterface::device_pskd_set(const char *pskd)
-{
-    return (mesh_error_t)thread_tasklet_device_pskd_set(pskd);
-}
-
-mesh_error_t ThreadInterface::mesh_disconnect()
+mesh_error_t Nanostack::ThreadInterface::mesh_disconnect()
 {
     int8_t status;
 
@@ -140,4 +209,25 @@ mesh_error_t ThreadInterface::mesh_disconnect()
     }
 
     return MESH_ERROR_UNKNOWN;
+}
+
+void ThreadInterface::device_eui64_set(const uint8_t *eui64)
+{
+    get_interface()->device_eui64_set(eui64);
+}
+
+void Nanostack::ThreadInterface::device_eui64_set(const uint8_t *eui64)
+{
+    user_eui64_set = true;
+    thread_tasklet_device_eui64_set(eui64);
+}
+
+mesh_error_t ThreadInterface::device_pskd_set(const char *pskd)
+{
+    return get_interface()->device_pskd_set(pskd);
+}
+
+mesh_error_t Nanostack::ThreadInterface::device_pskd_set(const char *pskd)
+{
+    return (mesh_error_t)thread_tasklet_device_pskd_set(pskd);
 }

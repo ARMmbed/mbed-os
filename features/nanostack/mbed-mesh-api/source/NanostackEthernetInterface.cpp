@@ -18,12 +18,8 @@
 #include "callback_handler.h"
 #include "enet_tasklet.h"
 
-nsapi_error_t NanostackEthernetInterface::initialize(NanostackEthernetPhy *phy)
+nsapi_error_t Nanostack::EthernetInterface::initialize()
 {
-    nsapi_error_t err = MeshInterfaceNanostack::initialize(phy);
-    if (err != NSAPI_ERROR_OK)
-        return err;
-
     nanostack_lock();
 
     if (register_phy() < 0) {
@@ -31,54 +27,85 @@ nsapi_error_t NanostackEthernetInterface::initialize(NanostackEthernetPhy *phy)
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
-    enet_tasklet_init();
-    __mesh_handler_set_callback(this);
-    _network_interface_id = enet_tasklet_network_init(_device_id);
-
     nanostack_unlock();
 
-    if (_network_interface_id < 0)
-        return MESH_ERROR_UNKNOWN;
-    else
-        return MESH_ERROR_NONE;
+    return NSAPI_ERROR_OK;
 }
 
-int NanostackEthernetInterface::connect()
+nsapi_error_t NanostackEthernetInterface::initialize(NanostackEthernetPhy *phy)
 {
+    if (_interface) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    _interface = new (nothrow) Nanostack::EthernetInterface(*phy);
+    if (!_interface) {
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
+    return get_interface()->initialize();
+ }
+
+nsapi_error_t Nanostack::EthernetInterface::bringup(bool dhcp, const char *ip,
+                      const char *netmask, const char *gw,
+                      nsapi_ip_stack_t stack, bool blocking)
+{
+    if (stack == IPV4_STACK) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     nanostack_lock();
-    int8_t status = enet_tasklet_connect(&__mesh_handler_c_callback, _network_interface_id);
+    _blocking = blocking;
+    if (interface_id < 0) {
+        enet_tasklet_init();
+        __mesh_handler_set_callback(this);
+        interface_id = enet_tasklet_network_init(_device_id);
+    }
+    int8_t status = -1;
+    if (interface_id >= 0) {
+        status = enet_tasklet_connect(&__mesh_handler_c_callback, interface_id);
+    }
     nanostack_unlock();
 
     if (status == -1) {
-        return MESH_ERROR_PARAM;
+        return NSAPI_ERROR_DEVICE_ERROR;
     } else if (status == -2) {
-        return MESH_ERROR_MEMORY;
+        return NSAPI_ERROR_NO_MEMORY;
     } else if (status == -3) {
-        return MESH_ERROR_STATE;
+        return NSAPI_ERROR_ALREADY;
     } else if (status != 0) {
-        return MESH_ERROR_UNKNOWN;
+        return NSAPI_ERROR_DEVICE_ERROR;
     }
 
-    int32_t count = connect_semaphore.wait(30000);
+    if (blocking) {
+        int32_t count = connect_semaphore.wait(30000);
 
-    if (count <= 0) {
-        return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        if (count <= 0) {
+            return NSAPI_ERROR_DHCP_FAILURE; // sort of...
+        }
     }
     return 0;
 }
 
-int NanostackEthernetInterface::disconnect()
+int NanostackEthernetInterface::connect()
+{
+    if (!_interface) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
+}
+
+nsapi_error_t Nanostack::EthernetInterface::bringdown()
 {
     enet_tasklet_disconnect();
     return 0;
 }
 
-bool NanostackEthernetInterface::getOwnIpAddress(char *address, int8_t len)
-{
-    return enet_tasklet_get_ip_address(address, len)?false:true;
-}
 
-bool NanostackEthernetInterface::getRouterIpAddress(char *address, int8_t len)
+int NanostackEthernetInterface::disconnect()
 {
-    return false;
+    if (!_interface) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+    return _interface->bringdown();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2016 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef __INCLUDE_CALLBACK_HANDLER_H__
-#define __INCLUDE_CALLBACK_HANDLER_H__
+#ifndef NANOSTACKEMACINTERFACE_H
+#define NANOSTACKEMACINTERFACE_H
 
-#include "mbed.h"
-#include "mesh_interface_types.h"
-
-#ifdef __cplusplus
 #include "MeshInterfaceNanostack.h"
-extern "C" {
-#endif
+#include "NanostackEthernetPhy.h"
 
-void __mesh_handler_c_callback(mesh_connection_status_t state);
+class NanostackEMACInterface : public Nanostack::Interface {
+public:
 
-#ifdef __cplusplus
-}
-#endif
+    NanostackEMACInterface(EMAC &emac);
+};
 
-#ifdef __cplusplus
-void __mesh_handler_set_callback(Nanostack::Interface *handler);
-#endif
-
-#endif /* __INCLUDE_CALLBACK_HANDLER_H__ */
+#endif // NANOSTACKEMACINTERFACE_H

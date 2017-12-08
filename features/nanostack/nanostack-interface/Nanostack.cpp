@@ -19,7 +19,7 @@
 
 #include "mbed.h"
 #include "rtos.h"
-#include "NanostackInterface.h"
+#include "Nanostack.h"
 #include "NanostackLockGuard.h"
 
 #include "ns_address.h"
@@ -444,20 +444,7 @@ void NanostackSocket::event_connection_reset(socket_callback_t *sock_cb)
     close();
 }
 
-NanostackInterface *NanostackInterface::_ns_interface;
-
-NanostackInterface *NanostackInterface::get_stack()
-{
-    NanostackLockGuard lock;
-
-    if (NULL == _ns_interface) {
-        _ns_interface = new NanostackInterface();
-    }
-
-    return _ns_interface;
-}
-
-const char * NanostackInterface::get_ip_address()
+const char * Nanostack::get_ip_address()
 {
     NanostackLockGuard lock;
 
@@ -474,7 +461,7 @@ const char * NanostackInterface::get_ip_address()
     return "::";
 }
 
-nsapi_error_t NanostackInterface::socket_open(void **handle, nsapi_protocol_t protocol)
+nsapi_error_t Nanostack::socket_open(void **handle, nsapi_protocol_t protocol)
 {
     // Validate parameters
     if (NULL == handle) {
@@ -511,7 +498,7 @@ nsapi_error_t NanostackInterface::socket_open(void **handle, nsapi_protocol_t pr
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t NanostackInterface::socket_close(void *handle)
+nsapi_error_t Nanostack::socket_close(void *handle)
 {
     NanostackLockGuard lock;
     // Validate parameters
@@ -528,7 +515,7 @@ nsapi_error_t NanostackInterface::socket_close(void *handle)
 
 }
 
-nsapi_size_or_error_t NanostackInterface::do_sendto(void *handle, const ns_address_t *address, const void *data, nsapi_size_t size)
+nsapi_size_or_error_t Nanostack::do_sendto(void *handle, const ns_address_t *address, const void *data, nsapi_size_t size)
 {
     // Validate parameters
     NanostackSocket * socket = static_cast<NanostackSocket *>(handle);
@@ -601,7 +588,7 @@ out:
     return ret;
 }
 
-nsapi_size_or_error_t NanostackInterface::socket_sendto(void *handle, const SocketAddress &address, const void *data, nsapi_size_t size)
+nsapi_size_or_error_t Nanostack::socket_sendto(void *handle, const SocketAddress &address, const void *data, nsapi_size_t size)
 {
     if (address.get_ip_version() != NSAPI_IPv6) {
         return NSAPI_ERROR_UNSUPPORTED;
@@ -613,7 +600,7 @@ nsapi_size_or_error_t NanostackInterface::socket_sendto(void *handle, const Sock
     return do_sendto(handle, &ns_address, data, size);
 }
 
-nsapi_size_or_error_t NanostackInterface::socket_recvfrom(void *handle, SocketAddress *address, void *buffer, nsapi_size_t size)
+nsapi_size_or_error_t Nanostack::socket_recvfrom(void *handle, SocketAddress *address, void *buffer, nsapi_size_t size)
 {
     // Validate parameters
     NanostackSocket *socket = static_cast<NanostackSocket *>(handle);
@@ -658,7 +645,7 @@ out:
     return ret;
 }
 
-nsapi_error_t NanostackInterface::socket_bind(void *handle, const SocketAddress &address)
+nsapi_error_t Nanostack::socket_bind(void *handle, const SocketAddress &address)
 {
     // Validate parameters
     NanostackSocket *socket = static_cast<NanostackSocket *>(handle);
@@ -699,7 +686,7 @@ nsapi_error_t NanostackInterface::socket_bind(void *handle, const SocketAddress 
     return ret;
 }
 
-nsapi_error_t NanostackInterface::setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen)
+nsapi_error_t Nanostack::setsockopt(void *handle, int level, int optname, const void *optval, unsigned optlen)
 {
     NanostackSocket *socket = static_cast<NanostackSocket *>(handle);
     if (handle == NULL) {
@@ -753,7 +740,7 @@ nsapi_error_t NanostackInterface::setsockopt(void *handle, int level, int optnam
     }
 }
 
-nsapi_error_t NanostackInterface::getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen)
+nsapi_error_t Nanostack::getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen)
 {
     NanostackSocket *socket = static_cast<NanostackSocket *>(handle);
     if (handle == NULL) {
@@ -776,7 +763,7 @@ nsapi_error_t NanostackInterface::getsockopt(void *handle, int level, int optnam
     return ret;
 }
 
-nsapi_error_t NanostackInterface::socket_listen(void *handle, int backlog)
+nsapi_error_t Nanostack::socket_listen(void *handle, int backlog)
 {
     //Check if socket exists
     NanostackSocket *socket = static_cast<NanostackSocket *>(handle);
@@ -798,7 +785,7 @@ nsapi_error_t NanostackInterface::socket_listen(void *handle, int backlog)
     return ret;
 }
 
-nsapi_error_t NanostackInterface::socket_connect(void *handle, const SocketAddress &addr)
+nsapi_error_t Nanostack::socket_connect(void *handle, const SocketAddress &addr)
 {
     // Validate parameters
     NanostackSocket *socket = static_cast<NanostackSocket *>(handle);
@@ -850,7 +837,7 @@ out:
     return ret;
 }
 
-nsapi_error_t NanostackInterface::socket_accept(void *server, void **handle, SocketAddress *address)
+nsapi_error_t Nanostack::socket_accept(void *server, void **handle, SocketAddress *address)
 {
     NanostackSocket * socket = static_cast<NanostackSocket *>(server);
     NanostackSocket *accepted_sock = NULL;
@@ -900,17 +887,17 @@ out:
     return ret;
 }
 
-nsapi_size_or_error_t NanostackInterface::socket_send(void *handle, const void *data, nsapi_size_t size)
+nsapi_size_or_error_t Nanostack::socket_send(void *handle, const void *data, nsapi_size_t size)
 {
     return do_sendto(handle, NULL, data, size);
 }
 
-nsapi_size_or_error_t NanostackInterface::socket_recv(void *handle, void *data, nsapi_size_t size)
+nsapi_size_or_error_t Nanostack::socket_recv(void *handle, void *data, nsapi_size_t size)
 {
     return socket_recvfrom(handle, NULL, data, size);
 }
 
-void NanostackInterface::socket_attach(void *handle, void (*callback)(void *), void *id)
+void Nanostack::socket_attach(void *handle, void (*callback)(void *), void *id)
 {
     // Validate parameters
     NanostackSocket * socket = static_cast<NanostackSocket *>(handle);
@@ -926,3 +913,18 @@ void NanostackInterface::socket_attach(void *handle, void (*callback)(void *), v
 
     tr_debug("socket_attach(socket=%p) sock_id=%d", socket, socket->socket_id);
 }
+
+Nanostack &Nanostack::get_instance() {
+    static Nanostack nanostack;
+    return nanostack;
+}
+
+// This works as long as it's not ever set to something which corresponds to
+// a macro defined as a non-integer. Eg `#define Nanostack "Foo"`
+#define NANOSTACK 0x99119911
+#if MBED_CONF_NSAPI_DEFAULT_STACK == NANOSTACK
+#undef NANOSTACK
+OnboardNetworkStack &OnboardNetworkStack::get_default_instance() {
+    return Nanostack::get_instance();
+}
+#endif
