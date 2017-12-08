@@ -135,7 +135,7 @@ protected:
 
     Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
     nsapi_connection_status_t _connect_status;
-    static void netif_status_irq(void *, nsapi_event_t, intptr_t);
+    static void netif_status_cb(void *, nsapi_event_t, intptr_t);
 };
 
 

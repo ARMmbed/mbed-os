@@ -68,19 +68,16 @@ enum nsapi_error {
     NSAPI_STATUS_GLOBAL_UP          = 1,        /*!< global IP address set */
     NSAPI_STATUS_DISCONNECTED       = 2,        /*!< no connection to network */
     NSAPI_STATUS_CONNECTING         = 3,        /*!< connecting to network */
-    NSAPI_STATUS_UNDEFINED          = -3001     /*!< error situation */
+    NSAPI_STATUS_ERROR_UNSUPPORTED  = -3001
 } nsapi_connection_status_t;
 
 
-/** Enum of event types
- *
- *  Valid error codes have negative values.
+/** Enum of event types, this is always accompanied with a parameter of type nsapi_connection_status_t
  *
  *  @enum nsapi_event
  */
  typedef enum nsapi_event {
-    NSAPI_EVENT_CONNECTION_STATUS_CHANGE    = 0,        /*!< network connection status has changed */
-    NSAPI_EVENT_UNDEFINED                   = -3001     /*!< error situation */
+    NSAPI_EVENT_CONNECTION_STATUS_CHANGE    = 0        /*!< network connection status has changed */
 } nsapi_event_t;
 
 

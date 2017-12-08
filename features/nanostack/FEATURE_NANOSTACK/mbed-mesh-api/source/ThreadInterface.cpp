@@ -14,6 +14,12 @@ nsapi_error_t ThreadInterface::initialize(NanostackRfPhy *phy)
 
 int ThreadInterface::connect()
 {
+    if (_connect_status == NSAPI_STATUS_GLOBAL_UP || _connect_status == NSAPI_STATUS_LOCAL_UP) {
+        return NSAPI_ERROR_IS_CONNECTED;
+    } else if (_connect_status == NSAPI_STATUS_CONNECTING) {
+        return NSAPI_ERROR_ALREADY;
+    }
+
     nanostack_lock();
 
     if (register_phy() < 0) {
@@ -51,10 +57,6 @@ int ThreadInterface::connect()
         int32_t count = connect_semaphore.wait(osWaitForever);
 
         if (count <= 0) {
-            _connect_status = NSAPI_STATUS_DISCONNECTED;
-            if (_connection_status_cb) {
-                _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-            }
             return NSAPI_ERROR_DHCP_FAILURE; // sort of...
         }
     }

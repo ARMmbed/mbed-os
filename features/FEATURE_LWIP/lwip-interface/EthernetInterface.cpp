@@ -105,7 +105,7 @@ void EthernetInterface::attach(
     Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     _connection_status_cb = status_cb;
-    mbed_lwip_attach(netif_status_irq, this);
+    mbed_lwip_attach(netif_status_cb, this);
 }
 
 nsapi_connection_status_t EthernetInterface::get_connection_status() const
@@ -113,7 +113,7 @@ nsapi_connection_status_t EthernetInterface::get_connection_status() const
     return _connect_status;
 }
 
-void EthernetInterface::netif_status_irq(void *ethernet_if_ptr, 
+void EthernetInterface::netif_status_cb(void *ethernet_if_ptr, 
     nsapi_event_t reason, intptr_t parameter) 
 {
     EthernetInterface *eth_ptr = static_cast<EthernetInterface*>(ethernet_if_ptr);

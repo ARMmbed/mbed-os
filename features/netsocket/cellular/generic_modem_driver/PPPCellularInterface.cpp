@@ -404,11 +404,7 @@ bool PPPCellularInterface::nwk_registration(uint8_t nwk_type)
 
 bool PPPCellularInterface::is_connected()
 {
-    if (_connect_status == NSAPI_STATUS_GLOBAL_UP || _connect_status == NSAPI_STATUS_LOCAL_UP) {
-        return true;
-    } else {
-        return false;
-    } 
+    return (_connect_status == NSAPI_STATUS_GLOBAL_UP || _connect_status == NSAPI_STATUS_LOCAL_UP);
 }
 
 // Get the SIM card going.
@@ -570,10 +566,10 @@ nsapi_error_t PPPCellularInterface::connect()
     bool did_init = false;
     const char *apn_config = NULL;
 
-    if (_connect_status == NSAPI_STATUS_GLOBAL_UP || _connect_status == NSAPI_STATUS_LOCAL_UP) {
+    if (is_connected()) {
         return NSAPI_ERROR_IS_CONNECTED;
     } else if (_connect_status == NSAPI_STATUS_CONNECTING) {
-        return NSAPI_ERROR_IN_PROGRESS;
+        return NSAPI_ERROR_ALREADY;
     } 
 
     _connect_status = NSAPI_STATUS_CONNECTING;
@@ -729,12 +725,7 @@ nsapi_error_t PPPCellularInterface::connect()
  */
 nsapi_error_t PPPCellularInterface::disconnect()
 {
-    nsapi_error_t ret = nsapi_ppp_disconnect(_fh);
-    if (ret == NSAPI_ERROR_OK) {
-        return NSAPI_ERROR_OK;
-    }
-
-    return ret;
+    return nsapi_ppp_disconnect(_fh);
 }
 
 const char *PPPCellularInterface::get_ip_address()

@@ -736,9 +736,9 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
     // Check if we've already connected
  
     if (lwip_connected == NSAPI_STATUS_GLOBAL_UP) {
-        return NSAPI_ERROR_PARAMETER;
+        return NSAPI_ERROR_IS_CONNECTED;
     } else if (lwip_connected == NSAPI_STATUS_CONNECTING) {
-        return NSAPI_ERROR_IN_PROGRESS;
+        return NSAPI_ERROR_ALREADY;
     }
 
     lwip_connected = NSAPI_STATUS_CONNECTING;
@@ -858,10 +858,6 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
                 if (ppp) {
                     ppp_lwip_disconnect();
                 }
-                lwip_connected = NSAPI_STATUS_DISCONNECTED;
-                if (lwip_client_callback) {
-                    lwip_client_callback(lwip_status_cb_handle, NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-                }
                 return NSAPI_ERROR_NO_CONNECTION;
             }
         }
@@ -878,10 +874,6 @@ nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const cha
             if (sys_arch_sem_wait(&lwip_netif_has_any_addr, DHCP_TIMEOUT * 1000) == SYS_ARCH_TIMEOUT) {
                 if (ppp) {
                     ppp_lwip_disconnect();
-                }
-                lwip_connected = NSAPI_STATUS_DISCONNECTED;
-                if (lwip_client_callback) {
-                    lwip_client_callback(lwip_status_cb_handle, NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
                 }
                 return NSAPI_ERROR_DHCP_FAILURE;
             }

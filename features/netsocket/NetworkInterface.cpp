@@ -71,7 +71,7 @@ void NetworkInterface::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> stat
 
 nsapi_connection_status_t NetworkInterface::get_connection_status() const
 {
-    return NSAPI_STATUS_UNDEFINED;
+    return NSAPI_STATUS_ERROR_UNSUPPORTED;
 }
 
 nsapi_error_t NetworkInterface::set_blocking(bool blocking)
