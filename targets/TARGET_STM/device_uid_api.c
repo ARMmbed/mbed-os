@@ -104,16 +104,15 @@ void device_uid_get_str(char *str)
     x = (uid_buf[0] >> 16) & 0x0000FFFF;
     y = uid_buf[0] & 0x0000FFFF;
     
-    // make a string in format "Lot xxxxxxx Wafer xxx X=xxxxx Y=xxxxx" - max 38 chars including terminating zero
-    strcpy(str, "Lot ");
-    strcat(str, lot_number);
-    strcat(str, " Wafer ");
+    // make a string in format "LLLLLL:WWW:XXXXX:YYYYY" - max 23 chars including terminating zero
+    strcpy(str, lot_number);
+    strcat(str, ":");
     cpu_uid_itoa(wafer_number, buffer, 10);
     strcat(str, buffer);
-    strcat(str, " X=");
+    strcat(str, ":");
     cpu_uid_itoa(x, buffer, 10);
     strcat(str, buffer);
-    strcat(str, " Y=");
+    strcat(str, ":");
     cpu_uid_itoa(y, buffer, 10);
     strcat(str, buffer);
 }
