@@ -40,9 +40,11 @@ public:
      *
      * You must call this first to be able to use the LoRa stack.
      *
-     * \return         0 on success, a negative error code on failure.
+     * @param ev_queue A pointer to EventQueue provided by the application.
+     *
+     * @return         0 on success, a negative error code on failure.
      */
-    virtual lora_mac_status_t initialize();
+    virtual lora_mac_status_t initialize(events::EventQueue *ev_queue) ;
 
     /** Connect OTAA or ABP using Mbed-OS config system
      *

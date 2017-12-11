@@ -20,6 +20,7 @@
 #define LORAWAN_BASE_H_
 
 #include "lorawan/system/lorawan_data_structures.h"
+#include "events/EventQueue.h"
 
 class LoRaWANBase {
 
@@ -28,10 +29,12 @@ public:
      *
      * You must call this before using the LoRa stack.
      *
+     * @param queue A pointer to EventQueue provided by the application.
+     *
      * @return         LORA_MAC_STATUS_OK on success, a negative error code on
      *                 failure.
      */
-    virtual lora_mac_status_t initialize() = 0;
+    virtual lora_mac_status_t initialize(events::EventQueue *queue) = 0;
 
     /** Connect OTAA or ABP by setup.
      *

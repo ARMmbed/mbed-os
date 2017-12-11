@@ -1639,24 +1639,6 @@ typedef struct sLoRaMacCallback
 }LoRaMacCallback_t;
 
 /**
- * The maximum size of receiver buffer.
- */
-#ifdef MBED_CONF_LORA_RX_MESSAGE_BUFFER_MAX_SIZE
-#define LORAWAN_RX_MESSAGE_BUFFER_MAX_SIZE            MBED_CONF_LORA_RX_MESSAGE_BUFFER_MAX_SIZE
-#else
-#define LORAWAN_RX_MESSAGE_BUFFER_MAX_SIZE            5
-#endif
-
-/**
- * The maximum size of transmission buffer.
- */
-#ifdef MBED_CONF_LORA_TX_MESSAGE_BUFFER_MAX_SIZE
-#define LORAWAN_TX_MESSAGE_BUFFER_MAX_SIZE            MBED_CONF_LORA_TX_MESSAGE_BUFFER_MAX_SIZE
-#else
-#define LORAWAN_TX_MESSAGE_BUFFER_MAX_SIZE            5
-#endif
-
-/**
  * The AES encryption/decryption cipher application session key.
  */
 #ifdef MBED_CONF_LORA_APPSKEY

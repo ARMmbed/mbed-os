@@ -27,6 +27,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define LORAWANSTACK_H_
 
 #include <stdint.h>
+#include "events/EventQueue.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
 #include "lorawan/system/LoRaWANTimer.h"
@@ -59,14 +60,14 @@ public:
     radio_events_t *bind_radio_driver(LoRaRadio& radio);
 
     /** End device initialization.
-     *
-     * \return                 0 on success, a negative error code on failure.
+     * @param queue            A pointer to an EventQueue passed from the application.
+     * @return                 LORA_MAC_STATUS_OK on success, a negative error code on failure.
      */
-    lora_mac_status_t initialize_mac_layer();
+    lora_mac_status_t initialize_mac_layer(events::EventQueue *queue);
 
     /** Sets all callbacks of the LoRaWAN interface.
      *
-     * \param *event_cb        An event structure representing all possible callbacks.
+     * @param *event_cb        An event structure representing all possible callbacks.
      */
     void set_lora_event_cb(mbed::Callback<void(lora_events_t)> event_cb);
 
@@ -418,6 +419,7 @@ private:
     lora_mac_rx_message_t _rx_msg;
     uint8_t _app_port;
     uint8_t _num_retry;
+    events::EventQueue *_queue;
     bool _duty_cycle_on;
 };
 
