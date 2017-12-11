@@ -992,6 +992,32 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
         return NSAPI_ERROR_PARAMETER;
     }
 
+#if LWIP_IPV6
+    if (IP_IS_V6(ip_addr) && !ip6_addr_isany(&ip_addr)) {
+        const ip_addr_t *local_addr = mbed_lwip_get_ipv6_addr(&lwip_netif);
+        if (!local_addr) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+
+        if (!ip6_addr_cmp(local_addr, &ip_addr)) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+    }
+#endif
+
+#if LWIP_IPV4
+    if (IP_IS_V4(ip_addr) && !ip4_addr_isany(&ip_addr)) {
+        const ip_addr_t *local_addr = mbed_lwip_get_ipv4_addr(&lwip_netif);
+        if (!local_addr) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+
+        if (!ip4_addr_cmp(local_addr, &ip_addr)) {
+            return NSAPI_ERROR_PARAMETER;
+        }
+    }
+#endif
+
     err_t err = netconn_bind(s->conn, &ip_addr, port);
     return mbed_lwip_err_remap(err);
 }
@@ -999,6 +1025,10 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
 static nsapi_error_t mbed_lwip_socket_listen(nsapi_stack_t *stack, nsapi_socket_t handle, int backlog)
 {
     struct lwip_socket *s = (struct lwip_socket *)handle;
+
+    if (s->conn->pcb.tcp->local_port == 0) {
+        return NSAPI_ERROR_PARAMETER;
+    }
 
     err_t err = netconn_listen_with_backlog(s->conn, backlog);
     return mbed_lwip_err_remap(err);
@@ -1026,6 +1056,10 @@ static nsapi_error_t mbed_lwip_socket_accept(nsapi_stack_t *stack, nsapi_socket_
     struct lwip_socket *ns = mbed_lwip_arena_alloc();
     if (!ns) {
         return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    if (s->conn->pcb.tcp->state != LISTEN) {
+        return NSAPI_ERROR_PARAMETER;
     }
 
     err_t err = netconn_accept(s->conn, &ns->conn);
