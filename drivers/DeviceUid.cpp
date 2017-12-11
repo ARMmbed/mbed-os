@@ -14,48 +14,48 @@
  * limitations under the License.
  */
 
-#include "hal/cpu_uid_api.h"
+#include "hal/device_uid_api.h"
 #include "platform/mbed_assert.h"
 #include "platform/CriticalSectionLock.h"
-#include "drivers/CpuUid.h"
+#include "drivers/DeviceUid.h"
 
-#if DEVICE_CPUUID
+#if DEVICE_DEVICEUID
 
 namespace mbed {
 
-uint8_t CpuUid::_uidbuf[MBED_CPU_UID_SIZE] = {0};
-uint8_t* CpuUid::_uidptr = NULL;
-char CpuUid::_strbuf[CPU_UID_STRING_BUFFER_SIZE] = {'\0'};
-char* CpuUid::_strptr = NULL;
-#ifndef MBED_CPU_UID_STR_SIZE_MAX
-const char CpuUid::_hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+uint8_t DeviceUid::_uidbuf[MBED_DEVICEUID_SIZE] = {0};
+uint8_t* DeviceUid::_uidptr = NULL;
+char DeviceUid::_strbuf[DEVICEUID_STRING_BUFFER_SIZE] = {'\0'};
+char* DeviceUid::_strptr = NULL;
+#ifndef MBED_DEVICEUID_STR_SIZE_MAX
+const char DeviceUid::_hexChars[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 #endif
 
-CpuUid::CpuUid()
+DeviceUid::DeviceUid()
 {
     populate_uid_buf();
 }
 
-void CpuUid::populate_uid_buf()
+void DeviceUid::populate_uid_buf()
 {
     if (_uidptr == NULL) {
         CriticalSectionLock lock;
-        cpu_uid_get_uid(_uidbuf);
+        device_uid_get_uid(_uidbuf);
         _uidptr = _uidbuf;
     }
 }
 
-void CpuUid::populate_str_buf()
+void DeviceUid::populate_str_buf()
 {
     if (_strptr == NULL) {
         CriticalSectionLock lock;
-#ifdef MBED_CPU_UID_STR_SIZE_MAX
-        cpu_uid_get_str(_strbuf);
+#ifdef MBED_DEVICEUID_STR_SIZE_MAX
+        device_uid_get_str(_strbuf);
         _strptr = _strbuf;
 #else
         int pos = 0;
         populate_uid_buf();
-        for (int i = 0; i < MBED_CPU_UID_SIZE; ++i) {
+        for (int i = 0; i < MBED_DEVICEUID_SIZE; ++i) {
             _strbuf[pos++] = _hexChars[_uidptr[i] >> 4];
             _strbuf[pos++] = _hexChars[_uidptr[i] & 0x0F];
         }

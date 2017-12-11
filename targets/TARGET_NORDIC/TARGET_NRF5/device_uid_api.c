@@ -38,14 +38,14 @@
 
 #include "device.h"
 
-#if DEVICE_CPUUID
+#if DEVICE_DEVICEUID
 
 #include "nrf.h"
-#include "cpu_uid_api.h"
+#include "device_uid_api.h"
 
 #define UID_WORDS       2
 
-void cpu_uid_get_uid(uint8_t *uid)
+void device_uid_get_uid(uint8_t *uid)
 {
     int pos = 0;
 

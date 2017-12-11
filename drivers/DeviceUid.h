@@ -13,43 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_CPUUID_H
-#define MBED_CPUUID_H
+#ifndef MBED_DEVICEUID_H
+#define MBED_DEVICEUID_H
 
 #include "platform/platform.h"
 
-#if defined(DEVICE_CPUUID) || defined(DOXYGEN_ONLY)
+#if defined(DEVICE_DEVICEUID) || defined(DOXYGEN_ONLY)
 
-#ifdef MBED_CPU_UID_STR_SIZE_MAX
-#define CPU_UID_STRING_BUFFER_SIZE  MBED_CPU_UID_STR_SIZE_MAX
+#ifdef MBED_DEVICEUID_STR_SIZE_MAX
+#define DEVICEUID_STRING_BUFFER_SIZE  MBED_DEVICEUID_STR_SIZE_MAX
 #else
-#define CPU_UID_STRING_BUFFER_SIZE (MBED_CPU_UID_SIZE * 2 + 1)
+#define DEVICEUID_STRING_BUFFER_SIZE (MBED_DEVICEUID_SIZE * 2 + 1)
 #endif
 
 namespace mbed {
 /** \addtogroup drivers */
 
-/** CPU UID reader class
+/** DEVICE UID reader class
  *
  * @note Synchronization level: Interrupt safe
  * @ingroup drivers
  */
-class CpuUid {
+class DeviceUid {
 public:
-    /** CpuUid constructor
+    /** DeviceUid constructor
      */
-    CpuUid();
+    DeviceUid();
     
-    /** Get size of CPU UID in bytes
+    /** Get size of DEVICE UID in bytes
      * 
-     * @return Size of device's CPU UID in bytes
+     * @return Size of device's DEVICE UID in bytes
      */
     int size()
     {
-        return MBED_CPU_UID_SIZE;
+        return MBED_DEVICEUID_SIZE;
     }
     
-    /** Get CPU UID data pointer
+    /** Get DEVICE UID data pointer
      * 
      * @return Pointer to uid data buffer
      */
@@ -59,13 +59,13 @@ public:
         return _uidptr;
     }
     
-    /** Get CPU UID vendor string
+    /** Get DEVICE UID vendor string
      * 
      * @return Pointer to zero terminated uid vendor string
      * 
      * @note
-     * If vendor did not define MBED_CPU_UID_STR_SIZE_MAX, CpuUid driver will
-     * assume the HAL interface function cpu_uid_get_str() is not implemented
+     * If vendor did not define MBED_DEVICEUID_STR_SIZE_MAX, DeviceUid driver will
+     * assume the HAL interface function device_uid_get_str() is not implemented
      * on the target, and instead the driver will construct just an ASCII
      * string out of the uid byte buffer contents.
      * 
@@ -94,13 +94,13 @@ public:
 
     /** Overload operator for array subscript
      * 
-     * @param x CPU UID Byte index
+     * @param x DEVICE UID Byte index
      * 
      * @return Byte located at index x
      */
     uint8_t operator[](int x)
     {
-        if (x >= 0 && x < MBED_CPU_UID_SIZE) {
+        if (x >= 0 && x < MBED_DEVICEUID_SIZE) {
             populate_uid_buf();
             return _uidptr[x];
         }
@@ -112,11 +112,11 @@ private:
     void populate_uid_buf();
     void populate_str_buf();
     
-    static uint8_t _uidbuf[MBED_CPU_UID_SIZE];
+    static uint8_t _uidbuf[MBED_DEVICEUID_SIZE];
     static uint8_t* _uidptr;
-    static char _strbuf[CPU_UID_STRING_BUFFER_SIZE];
+    static char _strbuf[DEVICEUID_STRING_BUFFER_SIZE];
     static char* _strptr;
-#ifndef MBED_CPU_UID_STR_SIZE_MAX
+#ifndef MBED_DEVICEUID_STR_SIZE_MAX
     static const char _hexChars[16];
 #endif
 };

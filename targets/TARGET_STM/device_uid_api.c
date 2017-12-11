@@ -29,7 +29,7 @@
  */
 #include "device.h"
 
-#if DEVICE_CPUUID
+#if DEVICE_DEVICEUID
 
 #include <string.h>
 #if defined(TARGET_STM32F0)
@@ -53,15 +53,15 @@
 #else
 #error "Unsupported STM32 device!"
 #endif
-#include "cpu_uid_api.h"
+#include "device_uid_api.h"
 
 #define UID_WORDS       3
 
-#ifdef MBED_CPU_UID_STR_SIZE_MAX
+#ifdef MBED_DEVICEUID_STR_SIZE_MAX
 static int cpu_uid_itoa(int value, char *sp, int radix);
 #endif
 
-void cpu_uid_get_uid(uint8_t *uid)
+void device_uid_get_uid(uint8_t *uid)
 {
     uint32_t uid_buf[UID_WORDS];
     int pos = 0;
@@ -77,8 +77,8 @@ void cpu_uid_get_uid(uint8_t *uid)
     }
 }
 
-#ifdef MBED_CPU_UID_STR_SIZE_MAX
-void cpu_uid_get_str(char *str)
+#ifdef MBED_DEVICEUID_STR_SIZE_MAX
+void device_uid_get_str(char *str)
 {
     char buffer[16];
     char lot_number[8];

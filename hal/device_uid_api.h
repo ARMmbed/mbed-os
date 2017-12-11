@@ -15,20 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_CPU_UID_API_H
-#define MBED_CPU_UID_API_H
+#ifndef MBED_DEVICE_UID_API_H
+#define MBED_DEVICE_UID_API_H
 
 #include <stddef.h>
 #include "device.h"
 
-#if DEVICE_CPUUID
+#if DEVICE_DEVICEUID
 
-#ifndef MBED_CPU_UID_SIZE
-#error "CPU UID Vendor implementation must define macro MBED_CPU_UID_SIZE with the uid size in bytes!"
+#ifndef MBED_DEVICEUID_SIZE
+#error "DEVICE UID Vendor implementation must define macro MBED_DEVICEUID_SIZE with the uid size in bytes!"
 #endif
 
-#ifndef MBED_CPU_UID_STR_SIZE_MAX
-#warning "CPU UID max vendor string length not defined! cpu_uid_get_str() HAL interface is disabled!"
+#ifndef MBED_DEVICEUID_STR_SIZE_MAX
+#warning "DEVICE UID max vendor string length not defined! device_uid_get_str() HAL interface is disabled!"
 #endif
 
 #ifdef __cplusplus
@@ -36,29 +36,29 @@ extern "C" {
 #endif
 
 /**
- * \defgroup hal_cpu_uid CPUUID hal functions
+ * \defgroup hal_device_uid DEVICEUID hal functions
  * @{
  */
 
-/** Get CPU UID data bytes
+/** Get DEVICE UID data bytes
  * 
- * @param uid Byte buffer for uid. Must be of size MBED_CPU_UID_SIZE
+ * @param uid Byte buffer for uid. Must be of size MBED_DEVICEUID_SIZE
  *
  */
-void cpu_uid_get_uid(uint8_t *uid);
+void device_uid_get_uid(uint8_t *uid);
 
-#ifdef MBED_CPU_UID_STR_SIZE_MAX
-/** Get UID vendor string
+#ifdef MBED_DEVICEUID_STR_SIZE_MAX
+/** Get DEVICE UID vendor string
  * 
- * @param str Character buffer for vendor specific UID string. Must be of size MBED_CPU_UID_STR_SIZE_MAX
+ * @param str Character buffer for vendor specific UID string. Must be of size MBED_DEVICEUID_STR_SIZE_MAX
  * 
  * @note
  * Implementing this function on target side can be used to provide a vendor specific
  * string describing the contents of the UID.
- * The string length including terminating zero character must not exceed MBED_CPU_UID_STR_SIZE_MAX bytes!
+ * The string length including terminating zero character must not exceed MBED_DEVICEUID_STR_SIZE_MAX bytes!
  * 
  */
-void cpu_uid_get_str(char *str);
+void device_uid_get_str(char *str);
 #endif
 
 /**@}*/

@@ -1,5 +1,5 @@
 /***************************************************************************//**
- * @file cpu_uid_api.c
+ * @file device_uid_api.c
  *******************************************************************************
  * @section License
  * <b>(C) Copyright 2017 Silicon Labs, http://www.silabs.com</b>
@@ -23,18 +23,18 @@
 
 #include "device.h"
 
-#if DEVICE_CPUUID
+#if DEVICE_DEVICEUID
 
 #include "em_system.h"
-#include "cpu_uid_api.h"
+#include "device_uid_api.h"
 
 
-void cpu_uid_get_uid(uint8_t *uid)
+void device_uid_get_uid(uint8_t *uid)
 {
     int pos = 0;
     uint64_t tempuid = SYSTEM_GetUnique();
 
-    for (int i = (MBED_CPU_UID_SIZE - 1); i >= 0; --i) {
+    for (int i = (MBED_DEVICEUID_SIZE - 1); i >= 0; --i) {
         uid[pos++] = (uint8_t)((tempuid >> (i*8)) & 0xFF);
     }
 }

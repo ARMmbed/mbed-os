@@ -70,7 +70,7 @@
 #include "drivers/RawSerial.h"
 #include "drivers/UARTSerial.h"
 #include "drivers/FlashIAP.h"
-#include "drivers/CpuUid.h"
+#include "drivers/DeviceUid.h"
 
 // mbed Internal components
 #include "drivers/Timer.h"
