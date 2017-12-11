@@ -45,12 +45,6 @@
 #error "OS Tickrate must be 1000 for system timing"
 #endif
 
-#if defined (__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-/* ARM toolchain uses up to 8 static mutexes, any further mutexes will be allocated on the heap. */
-#define OS_MUTEX_OBJ_MEM            1
-#define OS_MUTEX_NUM                8
-#endif
-
 #if !defined(OS_STACK_WATERMARK) && (defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED)
 #define OS_STACK_WATERMARK          1
 #endif
