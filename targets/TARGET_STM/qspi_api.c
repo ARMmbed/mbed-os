@@ -76,7 +76,7 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
             break;
     }
 
-    if (command->address.size == QSPI_CFG_ADDR_SIZE_NONE) {
+    if (command->address.disabled == true) {
         st_command->AddressMode = QSPI_ADDRESS_NONE;
     }
 
@@ -95,7 +95,7 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
             break;
     }
 
-    if (command->alt.size == QSPI_CFG_ALT_SIZE_NONE) {
+    if (command->alt.disabled == true) {
         st_command->AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
     }
 
