@@ -86,14 +86,19 @@ static const uint8_t LoRaMacMaxEirpTable[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21
  * \param   callbacks [in] - A pointer to the structure defining the LoRaMAC
  *                        callback functions. Refer to \ref LoRaMacCallback_t.
  *
- * \param   phy [in]- A reference to the selected PHY layer.
+ * \param   phy [in]- A pointer to the selected PHY layer.
+ *
+ * \param   queue [in]- A pointer to the application provided EventQueue.
  *
  * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
  *          \ref LORAMAC_STATUS_OK
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID
  *          \ref LORAMAC_STATUS_REGION_NOT_SUPPORTED.
  */
-LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks, LoRaPHY& phy);
+LoRaMacStatus_t LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
+                                      LoRaMacCallback_t *callbacks,
+                                      LoRaPHY *phy,
+                                      events::EventQueue *queue);
 
 /*!
  * \brief   Queries the LoRaMAC whether it is possible to send the next frame with

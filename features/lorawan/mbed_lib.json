@@ -71,8 +71,8 @@
         	"value": true
         },
         "lbt-on": {
-        	"help": "Enables/disables LBT. NOTE: Disable only for testing. Mandatory in many regions/sub-bands.",
-        	"value": true
+        	"help": "Enables/disables LBT. NOTE: [This feature is not yet integrated].",
+        	"value": false
         }
     }
 }

@@ -38,11 +38,17 @@ SPDX-License-Identifier: BSD-3-Clause
 #define tr_error(...) (void(0)) //dummies if feature common pal is not added
 #endif //defined(FEATURE_COMMON_PAL)
 
+using namespace events;
 
 /**
  * LoRa PHY layer object storage
  */
 static LoRaPHY *lora_phy;
+
+/**
+ * EventQueue object storage
+ */
+static EventQueue *ev_queue;
 
 /**
  * Radio event callback handlers for MAC
@@ -644,114 +650,48 @@ static void handle_mac_state_check_timer_event(void);
 static void handle_next_tx_timer_event(void);
 
 /***************************************************************************
- * LoRaMACTask class - Handles deferred callbacks                          *
- *                     and timers from Interrupt context                   *
- **************************************************************************/
-/**
- * An internal class to facilitate MAC related tasks.
- * Idea is to mould Semtech code as less as possible so
- * as to make future integration smoother.
- *
- * This class is present only if RTOS is being used.
- */
-#ifdef MBED_CONF_RTOS_PRESENT
-
-class LoRaMACTask {
-
-public:
-    LoRaMACTask();
-    events::EventQueue queue;
-
-private:
-    rtos::Thread t;
-};
-
-LoRaMACTask::LoRaMACTask()
-    : queue(16 * EVENTS_EVENT_SIZE),
-      t(osPriorityNormal, 2048)
-{
-    t.start(callback(&queue, &events::EventQueue::dispatch_forever));
-}
-
-static LoRaMACTask mac_task;
-
-#endif //MBED_CONF_RTOS_PRESENT
-
-/***************************************************************************
  * ISRs - Handlers                                                         *
  **************************************************************************/
 static void handle_tx_done(void)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnRadioTxDone);
-#else
-    OnRadioTxDone();
-#endif
+    ev_queue->call(OnRadioTxDone);
 }
 
 static void handle_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
-                              int8_t snr)
+                           int8_t snr)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnRadioRxDone, payload, size, rssi, snr);
-#else
-    OnRadioRxDone(payload, size, rssi, snr);
-#endif
+    ev_queue->call(OnRadioRxDone, payload, size, rssi, snr);
 }
 
 static void handle_rx_error(void)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnRadioRxError);
-#else
-    OnRadioRxError();
-#endif
+    ev_queue->call(OnRadioRxError);
 }
 
 static void handle_rx_timeout(void)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnRadioRxTimeout);
-#else
-    OnRadioRxTimeout();
-#endif
+    ev_queue->call(OnRadioRxTimeout);
 }
 
 static void handle_tx_timeout(void)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnRadioTxTimeout);
-#else
-    OnRadioTxTimeout();
-#endif
+    ev_queue->call(OnRadioTxTimeout);
 }
 
 static void handle_cad_done(bool cad)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    //mac_task.queue.call(OnRadioCadDone, cad);
-#else
-    //TODO Doesn't exist yet
-    //OnRadioCadDOne(cad);
-#endif
+    //TODO Not implemented yet
+    //ev_queue->call(OnRadioCadDone, cad);
 }
 
 static void handle_fhss_change_channel(uint8_t cur_channel)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    //mac_task.queue.call(OnRadioFHSSChangeChannel, cur_channel);
-#else
     // TODO Not implemented yet
-    //OnRadioFHSSChangeChannel(cur_channel);
-#endif
+    //ev_queue->call(OnRadioFHSSChangeChannel, cur_channel);
 }
 static void handle_mac_state_check_timer_event(void)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnMacStateCheckTimerEvent);
-#else
-    OnMacStateCheckTimerEvent();
-#endif
+    ev_queue->call(OnMacStateCheckTimerEvent);
 }
 
 static void handle_next_tx_timer_event(void)
@@ -760,47 +700,28 @@ static void handle_next_tx_timer_event(void)
     if ((LoRaMacState & LORAMAC_TX_RUNNING) == LORAMAC_TX_RUNNING) {
         return;
     }
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnNextTx);
-#else
-    OnNextTx();
-#endif
+
+    ev_queue->call(OnNextTx);
 }
 
 static void handle_delayed_tx_timer_event(void)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnTxDelayedTimerEvent);
-#else
-    OnTxDelayedTimerEvent();
-#endif
+    ev_queue->call(OnTxDelayedTimerEvent);
 }
 
 static void handle_ack_timeout()
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnAckTimeoutTimerEvent);
-#else
-    OnAckTimeoutTimerEvent();
-#endif
+    ev_queue->call(OnAckTimeoutTimerEvent);
 }
 
 static void handle_rx1_timer_event(void)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnRxWindow1TimerEvent);
-#else
-    OnRxWindow1TimerEvent();
-#endif
+    ev_queue->call(OnRxWindow1TimerEvent);
 }
 
 static void handle_rx2_timer_event(void)
 {
-#ifdef MBED_CONF_RTOS_PRESENT
-    mac_task.queue.call(OnRxWindow2TimerEvent);
-#else
-    OnRxWindow2TimerEvent();
-#endif
+    ev_queue->call(OnRxWindow2TimerEvent);
 }
 
 /***************************************************************************
@@ -2552,17 +2473,23 @@ LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint
     return LORAMAC_STATUS_OK;
 }
 
-LoRaMacStatus_t LoRaMacInitialization( LoRaMacPrimitives_t *primitives, LoRaMacCallback_t *callbacks, LoRaPHY& phy)
+LoRaMacStatus_t LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
+                                      LoRaMacCallback_t *callbacks,
+                                      LoRaPHY *phy,
+                                      EventQueue *queue)
 {
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
+
+    //store event queue pointer
+    ev_queue = queue;
 
     if(!primitives || !callbacks)
     {
         return LORAMAC_STATUS_PARAMETER_INVALID;
     }
 
-    lora_phy = &phy;
+    lora_phy = phy;
 
     LoRaMacPrimitives = primitives;
     LoRaMacCallbacks = callbacks;
