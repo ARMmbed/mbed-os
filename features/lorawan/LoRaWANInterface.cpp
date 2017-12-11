@@ -21,6 +21,8 @@
 
 #include "lorawan/LoRaWANInterface.h"
 
+using namespace events;
+
 inline LoRaWANStack& stk_obj()
 {
     return LoRaWANStack::get_lorawan_stack();
@@ -40,9 +42,13 @@ LoRaWANInterface::~LoRaWANInterface()
 {
 }
 
-lora_mac_status_t LoRaWANInterface::initialize()
+lora_mac_status_t LoRaWANInterface::initialize(EventQueue *queue)
 {
-    return stk_obj().initialize_mac_layer();
+    if(!queue) {
+        return LORA_MAC_STATUS_PARAMETER_INVALID;
+    }
+
+    return stk_obj().initialize_mac_layer(queue);
 }
 
 lora_mac_status_t LoRaWANInterface::connect()
