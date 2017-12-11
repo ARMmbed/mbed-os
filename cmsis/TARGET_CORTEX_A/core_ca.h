@@ -507,9 +507,9 @@ typedef union
     uint32_t CP9:2;                      /*!< \brief bit:18..19  Access rights for coprocessor 9 */
     uint32_t CP10:2;                     /*!< \brief bit:20..21  Access rights for coprocessor 10 */
     uint32_t CP11:2;                     /*!< \brief bit:22..23  Access rights for coprocessor 11 */
-	uint32_t CP12:2;                     /*!< \brief bit:24..25  Access rights for coprocessor 11 */
-	uint32_t CP13:2;                     /*!< \brief bit:26..27  Access rights for coprocessor 11 */
-	uint32_t TRCDIS:1;                   /*!< \brief bit:    28  Disable CP14 access to trace registers */
+    uint32_t CP12:2;                     /*!< \brief bit:24..25  Access rights for coprocessor 11 */
+    uint32_t CP13:2;                     /*!< \brief bit:26..27  Access rights for coprocessor 11 */
+    uint32_t TRCDIS:1;                   /*!< \brief bit:    28  Disable CP14 access to trace registers */
     RESERVED(0:1, uint32_t)              
     uint32_t D32DIS:1;                   /*!< \brief bit:    30  Disable use of registers D16-D31 of the VFP register file */
     uint32_t ASEDIS:1;                   /*!< \brief bit:    31  Disable Advanced SIMD Functionality */
@@ -541,7 +541,7 @@ typedef union
     uint32_t FS0:4;                      /*!< \brief bit: 0.. 3  Fault Status bits bit 0-3 */
     uint32_t Domain:4;                   /*!< \brief bit: 4.. 7  Fault on which domain */
     RESERVED(0:1, uint32_t)              
-	uint32_t LPAE:1;                     /*!< \brief bit:     9  Large Physical Address Extension */
+    uint32_t LPAE:1;                     /*!< \brief bit:     9  Large Physical Address Extension */
     uint32_t FS1:1;                      /*!< \brief bit:    10  Fault Status bits bit 4 */
     uint32_t WnR:1;                      /*!< \brief bit:    11  Write not Read bit */
     uint32_t ExT:1;                      /*!< \brief bit:    12  External abort type */
@@ -552,7 +552,7 @@ typedef union
   {
     uint32_t STATUS:5;                   /*!< \brief bit: 0.. 5  Fault Status bits */
     RESERVED(0:3, uint32_t)              
-	uint32_t LPAE:1;                     /*!< \brief bit:     9  Large Physical Address Extension */
+    uint32_t LPAE:1;                     /*!< \brief bit:     9  Large Physical Address Extension */
     RESERVED(1:1, uint32_t)              
     uint32_t WnR:1;                      /*!< \brief bit:    11  Write not Read bit */
     uint32_t ExT:1;                      /*!< \brief bit:    12  External abort type */
@@ -848,35 +848,35 @@ typedef struct
 
 /** \brief Enable Caches by setting I and C bits in SCTLR register.
 */
-__STATIC_INLINE void L1C_EnableCaches(void) {
-  __set_SCTLR( __get_SCTLR() | (1U << SCTLR_I_Pos) | (1U << SCTLR_C_Pos));
+__STATIC_FORCEINLINE void L1C_EnableCaches(void) {
+  __set_SCTLR( __get_SCTLR() | SCTLR_I_Msk | SCTLR_C_Msk);
   __ISB();
 }
 
 /** \brief Disable Caches by clearing I and C bits in SCTLR register.
 */
-__STATIC_INLINE void L1C_DisableCaches(void) {
-  __set_SCTLR( __get_SCTLR() & ~(1U << SCTLR_I_Pos) & ~(1U << SCTLR_C_Pos));
+__STATIC_FORCEINLINE void L1C_DisableCaches(void) {
+  __set_SCTLR( __get_SCTLR() & (~SCTLR_I_Msk) & (~SCTLR_C_Msk));
   __ISB();
 }
 
 /** \brief  Enable Branch Prediction by setting Z bit in SCTLR register.
 */
-__STATIC_INLINE void L1C_EnableBTAC(void) {
-  __set_SCTLR( __get_SCTLR() | (1U << SCTLR_Z_Pos));
+__STATIC_FORCEINLINE void L1C_EnableBTAC(void) {
+  __set_SCTLR( __get_SCTLR() | SCTLR_Z_Msk);
   __ISB();
 }
 
 /** \brief  Disable Branch Prediction by clearing Z bit in SCTLR register.
 */
-__STATIC_INLINE void L1C_DisableBTAC(void) {
-  __set_SCTLR( __get_SCTLR() & ~(1U << SCTLR_Z_Pos));
+__STATIC_FORCEINLINE void L1C_DisableBTAC(void) {
+  __set_SCTLR( __get_SCTLR() & (~SCTLR_Z_Msk));
   __ISB();
 }
 
 /** \brief  Invalidate entire branch predictor array
 */
-__STATIC_INLINE void L1C_InvalidateBTAC(void) {
+__STATIC_FORCEINLINE void L1C_InvalidateBTAC(void) {
   __set_BPIALL(0);
   __DSB();     //ensure completion of the invalidation
   __ISB();     //ensure instruction fetch path sees new state
@@ -884,7 +884,7 @@ __STATIC_INLINE void L1C_InvalidateBTAC(void) {
 
 /** \brief  Invalidate the whole instruction cache
 */
-__STATIC_INLINE void L1C_InvalidateICacheAll(void) {
+__STATIC_FORCEINLINE void L1C_InvalidateICacheAll(void) {
   __set_ICIALLU(0);
   __DSB();     //ensure completion of the invalidation
   __ISB();     //ensure instruction fetch path sees new I cache state
@@ -893,7 +893,7 @@ __STATIC_INLINE void L1C_InvalidateICacheAll(void) {
 /** \brief  Clean data cache line by address.
 * \param [in] va Pointer to data to clear the cache for.
 */
-__STATIC_INLINE void L1C_CleanDCacheMVA(void *va) {
+__STATIC_FORCEINLINE void L1C_CleanDCacheMVA(void *va) {
   __set_DCCMVAC((uint32_t)va);
   __DMB();     //ensure the ordering of data cache maintenance operations and their effects
 }
@@ -901,7 +901,7 @@ __STATIC_INLINE void L1C_CleanDCacheMVA(void *va) {
 /** \brief  Invalidate data cache line by address.
 * \param [in] va Pointer to data to invalidate the cache for.
 */
-__STATIC_INLINE void L1C_InvalidateDCacheMVA(void *va) {
+__STATIC_FORCEINLINE void L1C_InvalidateDCacheMVA(void *va) {
   __set_DCIMVAC((uint32_t)va);
   __DMB();     //ensure the ordering of data cache maintenance operations and their effects
 }
@@ -909,37 +909,129 @@ __STATIC_INLINE void L1C_InvalidateDCacheMVA(void *va) {
 /** \brief  Clean and Invalidate data cache by address.
 * \param [in] va Pointer to data to invalidate the cache for.
 */
-__STATIC_INLINE void L1C_CleanInvalidateDCacheMVA(void *va) {
+__STATIC_FORCEINLINE void L1C_CleanInvalidateDCacheMVA(void *va) {
   __set_DCCIMVAC((uint32_t)va);
   __DMB();     //ensure the ordering of data cache maintenance operations and their effects
 }
 
-/** \brief  Clean and Invalidate the entire data or unified cache
-* \param [in] op 0 - invalidate, 1 - clean, otherwise - invalidate and clean
-* \see __L1C_CleanInvalidateCache
+/** \brief Calculate log2 rounded up
+*  - log(0)  => 0
+*  - log(1)  => 0
+*  - log(2)  => 1
+*  - log(3)  => 2
+*  - log(4)  => 2
+*  - log(5)  => 3
+*        :      :
+*  - log(16) => 4
+*  - log(32) => 5
+*        :      :
+* \param [in] n input value parameter 
+* \return log2(n)
 */
-__STATIC_INLINE void L1C_CleanInvalidateCache(uint32_t op) {
-  __L1C_CleanInvalidateCache(op);
+__STATIC_FORCEINLINE uint8_t __log2_up(uint32_t n)
+{
+  if (n < 2U) {
+    return 0U;
+  }
+  uint8_t log = 0U;
+  uint32_t t = n;
+  while(t > 1U)
+  {
+    log++;
+    t >>= 1U;
+  }
+  if (n & 1U) { log++; }
+  return log;
+}
+
+/** \brief  Apply cache maintenance to given cache level.
+* \param [in] level cache level to be maintained
+* \param [in] maint 0 - invalidate, 1 - clean, otherwise - invalidate and clean
+*/
+__STATIC_FORCEINLINE void __L1C_MaintainDCacheSetWay(uint32_t level, uint32_t maint)
+{
+  register volatile uint32_t Dummy;
+  register volatile uint32_t ccsidr;
+  uint32_t num_sets;
+  uint32_t num_ways;
+  uint32_t shift_way;
+  uint32_t log2_linesize;
+   int32_t log2_num_ways;
+
+  Dummy = level << 1U;
+  /* set csselr, select ccsidr register */
+  __set_CCSIDR(Dummy);
+  /* get current ccsidr register */
+  ccsidr = __get_CCSIDR();
+  num_sets = ((ccsidr & 0x0FFFE000U) >> 13U) + 1U;
+  num_ways = ((ccsidr & 0x00001FF8U) >> 3U) + 1U;
+  log2_linesize = (ccsidr & 0x00000007U) + 2U + 2U;
+  log2_num_ways = __log2_up(num_ways);
+  if ((log2_num_ways < 0) || (log2_num_ways > 32)) {
+    return; // FATAL ERROR
+  }
+  shift_way = 32U - (uint32_t)log2_num_ways;
+  for(int32_t way = num_ways-1; way >= 0; way--)
+  {
+    for(int32_t set = num_sets-1; set >= 0; set--)
+    {
+      Dummy = (level << 1U) | (((uint32_t)set) << log2_linesize) | (((uint32_t)way) << shift_way);
+      switch (maint)
+      {
+        case 0U: __set_DCISW(Dummy);  break;
+        case 1U: __set_DCCSW(Dummy);  break;
+        default: __set_DCCISW(Dummy); break;
+      }
+    }
+  }
+  __DMB();
+}
+
+/** \brief  Clean and Invalidate the entire data or unified cache
+* Generic mechanism for cleaning/invalidating the entire data or unified cache to the point of coherency
+* \param [in] op 0 - invalidate, 1 - clean, otherwise - invalidate and clean
+*/
+__STATIC_FORCEINLINE void L1C_CleanInvalidateCache(uint32_t op) {
+  register volatile uint32_t clidr;
+  uint32_t cache_type;
+  clidr =  __get_CLIDR();
+  for(uint32_t i = 0U; i<7U; i++)
+  {
+    cache_type = (clidr >> i*3U) & 0x7UL;
+    if ((cache_type >= 2U) && (cache_type <= 4U))
+    {
+      __L1C_MaintainDCacheSetWay(i, op);
+    }
+  }
+}
+
+/** \brief  Clean and Invalidate the entire data or unified cache
+* Generic mechanism for cleaning/invalidating the entire data or unified cache to the point of coherency
+* \param [in] op 0 - invalidate, 1 - clean, otherwise - invalidate and clean
+* \deprecated Use generic L1C_CleanInvalidateCache instead.
+*/
+__DEPRECATED
+__STATIC_FORCEINLINE void __L1C_CleanInvalidateCache(uint32_t op) {
+  L1C_CleanInvalidateCache(op);
 }
 
 /** \brief  Invalidate the whole data cache.
 */
-__STATIC_INLINE void L1C_InvalidateDCacheAll(void) {
+__STATIC_FORCEINLINE void L1C_InvalidateDCacheAll(void) {
   L1C_CleanInvalidateCache(0);
 }
 
 /** \brief  Clean the whole data cache.
  */
-__STATIC_INLINE void L1C_CleanDCacheAll(void) {
+__STATIC_FORCEINLINE void L1C_CleanDCacheAll(void) {
   L1C_CleanInvalidateCache(1);
 }
 
 /** \brief  Clean and invalidate the whole data cache.
  */
-__STATIC_INLINE void L1C_CleanInvalidateDCacheAll(void) {
+__STATIC_FORCEINLINE void L1C_CleanInvalidateDCacheAll(void) {
   L1C_CleanInvalidateCache(2);
 }
-
 
 /* ##########################  L2 Cache functions  ################################# */
 #if (__L2C_PRESENT == 1U) || defined(DOXYGEN)

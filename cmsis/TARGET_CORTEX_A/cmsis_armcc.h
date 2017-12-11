@@ -37,26 +37,29 @@
 /* CMSIS compiler specific defines */
 #ifndef   __ASM
   #define __ASM                                  __asm
-#endif                                          
-#ifndef   __INLINE                              
+#endif
+#ifndef   __INLINE
   #define __INLINE                               __inline
-#endif                                          
-#ifndef   __FORCEINLINE                              
+#endif
+#ifndef   __FORCEINLINE
   #define __FORCEINLINE                          __forceinline
-#endif                                          
-#ifndef   __STATIC_INLINE                       
+#endif
+#ifndef   __STATIC_INLINE
   #define __STATIC_INLINE                        static __inline
-#endif                                                                                   
-#ifndef   __STATIC_FORCEINLINE                 
+#endif
+#ifndef   __STATIC_FORCEINLINE
   #define __STATIC_FORCEINLINE                   static __forceinline
-#endif                                                                                   
-#ifndef   __NO_RETURN                           
+#endif
+#ifndef   __NO_RETURN
   #define __NO_RETURN                            __declspec(noreturn)
-#endif                                          
-#ifndef   __USED                                
+#endif
+#ifndef   __DEPRECATED
+ #define  __DEPRECATED                           __attribute__((deprecated))
+#endif
+#ifndef   __USED
   #define __USED                                 __attribute__((used))
-#endif                                          
-#ifndef   __WEAK                                
+#endif
+#ifndef   __WEAK
   #define __WEAK                                 __attribute__((weak))
 #endif
 #ifndef   __PACKED
@@ -79,8 +82,8 @@
 #endif
 #ifndef   __ALIGNED
   #define __ALIGNED(x)                           __attribute__((aligned(x)))
-#endif                                          
-#ifndef   __PACKED                              
+#endif
+#ifndef   __PACKED
   #define __PACKED                               __attribute__((packed))
 #endif
 
@@ -378,7 +381,7 @@ __STATIC_INLINE __ASM uint32_t __get_SP(void)
   BX   lr
 }
 
-/** \brief  Set Stack Pointer 
+/** \brief  Set Stack Pointer
     \param [in]    stack  Stack Pointer value to set
  */
 __STATIC_INLINE __ASM void __set_SP(uint32_t stack)
@@ -447,7 +450,7 @@ __STATIC_INLINE void __set_FPEXC(uint32_t fpexc)
 /*
  * Include common core functions to access Coprocessor 15 registers
  */
- 
+
 #define __get_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); (Rt) = tmp; } while(0)
 #define __set_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); tmp = (Rt); } while(0)
 #define __get_CP64(cp, op1, Rt, CRm) \
@@ -466,65 +469,6 @@ __STATIC_INLINE void __set_FPEXC(uint32_t fpexc)
   } while(0)
 
 #include "cmsis_cp15.h"
-
-/** \brief  Clean and Invalidate the entire data or unified cache
- * \param [in] op 0 - invalidate, 1 - clean, otherwise - invalidate and clean
- */
-__STATIC_INLINE __ASM void __L1C_CleanInvalidateCache(uint32_t op)
-{
-        ARM
-
-        PUSH    {R4-R11}
-
-        MRC     p15, 1, R6, c0, c0, 1      // Read CLIDR
-        ANDS    R3, R6, #0x07000000        // Extract coherency level
-        MOV     R3, R3, LSR #23            // Total cache levels << 1
-        BEQ     Finished                   // If 0, no need to clean
-
-        MOV     R10, #0                    // R10 holds current cache level << 1
-Loop1   ADD     R2, R10, R10, LSR #1       // R2 holds cache "Set" position
-        MOV     R1, R6, LSR R2             // Bottom 3 bits are the Cache-type for this level
-        AND     R1, R1, #7                 // Isolate those lower 3 bits
-        CMP     R1, #2
-        BLT     Skip                       // No cache or only instruction cache at this level
-
-        MCR     p15, 2, R10, c0, c0, 0     // Write the Cache Size selection register
-        ISB                                // ISB to sync the change to the CacheSizeID reg
-        MRC     p15, 1, R1, c0, c0, 0      // Reads current Cache Size ID register
-        AND     R2, R1, #7                 // Extract the line length field
-        ADD     R2, R2, #4                 // Add 4 for the line length offset (log2 16 bytes)
-        LDR     R4, =0x3FF
-        ANDS    R4, R4, R1, LSR #3         // R4 is the max number on the way size (right aligned)
-        CLZ     R5, R4                     // R5 is the bit position of the way size increment
-        LDR     R7, =0x7FFF
-        ANDS    R7, R7, R1, LSR #13        // R7 is the max number of the index size (right aligned)
-
-Loop2   MOV     R9, R4                     // R9 working copy of the max way size (right aligned)
-
-Loop3   ORR     R11, R10, R9, LSL R5       // Factor in the Way number and cache number into R11
-        ORR     R11, R11, R7, LSL R2       // Factor in the Set number
-        CMP     R0, #0
-        BNE     Dccsw
-        MCR     p15, 0, R11, c7, c6, 2     // DCISW. Invalidate by Set/Way
-        B       cont
-Dccsw   CMP     R0, #1
-        BNE     Dccisw
-        MCR     p15, 0, R11, c7, c10, 2    // DCCSW. Clean by Set/Way
-        B       cont
-Dccisw  MCR     p15, 0, R11, c7, c14, 2    // DCCISW. Clean and Invalidate by Set/Way
-cont    SUBS    R9, R9, #1                 // Decrement the Way number
-        BGE     Loop3
-        SUBS    R7, R7, #1                 // Decrement the Set number
-        BGE     Loop2
-Skip    ADD     R10, R10, #2               // Increment the cache number
-        CMP     R3, R10
-        BGT     Loop1
-
-Finished
-        DSB
-        POP    {R4-R11}
-        BX     lr
-}
 
 /** \brief  Enable Floating Point Unit
 
