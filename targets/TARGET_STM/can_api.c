@@ -57,14 +57,14 @@ void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
         __HAL_RCC_CAN1_CLK_ENABLE();
         obj->index = 0;
     }
-#if defined(CAN2_BASE) && defined(CAN_2)
+#if defined(CAN2_BASE) && (CAN_NUM > 1)
     else if (can == CAN_2) {
         __HAL_RCC_CAN1_CLK_ENABLE(); // needed to set filters
         __HAL_RCC_CAN2_CLK_ENABLE();
         obj->index = 1;
     }
 #endif
-#if defined(CAN3_BASE) && defined(CAN_3)
+#if defined(CAN3_BASE) && (CAN_NUM > 2)
     else if (can == CAN_3) {
         __HAL_RCC_CAN3_CLK_ENABLE();
         obj->index = 2;
@@ -103,7 +103,13 @@ void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
 
     can_registers_init(obj);
 
+    /* Bits 27:14 are available for dual CAN configuration and are reserved for
+       single CAN configuration: */
+#if defined(CAN3_BASE) && (CAN_NUM > 2)
+    uint32_t filter_number = (can == CAN_1 || can == CAN_3) ? 0 : 14;
+#else
     uint32_t filter_number = (can == CAN_1) ? 0 : 14;
+#endif
     can_filter(obj, 0, 0, CANStandard, filter_number);
 }
 
@@ -132,14 +138,14 @@ void can_free(can_t *obj)
         __HAL_RCC_CAN1_RELEASE_RESET();
         __HAL_RCC_CAN1_CLK_DISABLE();
     }
-#if defined(CAN2_BASE) && defined(CAN_2)
+#if defined(CAN2_BASE) && (CAN_NUM > 1)
     if (can == CAN_2) {
         __HAL_RCC_CAN2_FORCE_RESET();
         __HAL_RCC_CAN2_RELEASE_RESET();
         __HAL_RCC_CAN2_CLK_DISABLE();
     }
 #endif
-#if defined(CAN3_BASE) && defined(CAN_3)
+#if defined(CAN3_BASE) && (CAN_NUM > 2)
     if (can == CAN_3) {
         __HAL_RCC_CAN3_FORCE_RESET();
         __HAL_RCC_CAN3_RELEASE_RESET();
@@ -562,7 +568,7 @@ void CAN1_SCE_IRQHandler(void)
 {
     can_irq(CAN_1, 0);
 }
-#if defined(CAN2_BASE) && defined(CAN_2)
+#if defined(CAN2_BASE) && (CAN_NUM > 1)
 void CAN2_RX0_IRQHandler(void)
 {
     can_irq(CAN_2, 1);
@@ -576,18 +582,18 @@ void CAN2_SCE_IRQHandler(void)
     can_irq(CAN_2, 1);
 }
 #endif
-#if defined(CAN3_BASE) && defined(CAN_3)
+#if defined(CAN3_BASE) && (CAN_NUM > 2)
 void CAN3_RX0_IRQHandler(void)
 {
-    can_irq(CAN_3, 1);
+    can_irq(CAN_3, 2);
 }
 void CAN3_TX_IRQHandler(void)
 {
-    can_irq(CAN_3, 1);
+    can_irq(CAN_3, 2);
 }
 void CAN3_SCE_IRQHandler(void)
 {
-    can_irq(CAN_3, 1);
+    can_irq(CAN_3, 2);
 }
 #endif
 #endif // else
@@ -630,7 +636,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
                 return;
         }
     }
-#if defined(CAN2_BASE) && defined(CAN_2)
+#if defined(CAN2_BASE) && (CAN_NUM > 1)
     else if ((CANName) can == CAN_2) {
         switch (type) {
             case IRQ_RX:
@@ -663,7 +669,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
         }
     }
 #endif
-#if defined(CAN3_BASE) && defined(CAN_3)
+#if defined(CAN3_BASE) && (CAN_NUM > 2)
     else if ((CANName) can == CAN_3) {
         switch (type) {
             case IRQ_RX:
@@ -711,4 +717,3 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable)
 }
 
 #endif // DEVICE_CAN
-
