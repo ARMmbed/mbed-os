@@ -100,13 +100,13 @@ RTWInterface::RTWInterface(bool debug)
     }
     emac->ops.power_up(emac);
 	if (_inited == false) {
-    	ret = mbed_lwip_init(emac);
-    	if (ret != 0) {
-        	printf("Error init RTWInterface!(%d)\r\n", ret);
-        	return;
-    	}
-		_inited = true;
-	}
+        ret = mbed_lwip_init(emac);
+        if (ret != 0) {
+            printf("Error init RTWInterface!(%d)\r\n", ret);
+            return;
+        }
+	    _inited = true;
+    }
 }
 
 RTWInterface::~RTWInterface()
