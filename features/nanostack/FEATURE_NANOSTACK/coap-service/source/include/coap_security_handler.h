@@ -20,11 +20,18 @@
 #include "ns_types.h"
 
 #ifdef NS_USE_EXTERNAL_MBED_TLS
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
+#else
+#include MBEDTLS_CONFIG_FILE
+#endif
+
+#if defined(MBEDTLS_SSL_TLS_C)
 #include "mbedtls/ssl.h"
-#ifdef MBEDTLS_SSL_TLS_C
 #define COAP_SECURITY_AVAILABLE
 #endif
-#endif
+
+#endif /* NS_USE_EXTERNAL_MBED_TLS */
 
 #define COOKIE_SIMPLE_LEN 8
 typedef struct simple_cookie {
