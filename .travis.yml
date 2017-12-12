@@ -11,13 +11,21 @@ env:
       "target_url": "https://travis-ci.org/$TRAVIS_REPO_SLUG/jobs/$TRAVIS_JOB_ID"
       }\nDATA'
 
+cache:
+  pip: true
+  directories:
+    - $HOME/.cache/apt
+
 before_install:
   - bash -c "$STATUS" pending "Local $NAME testing is in progress"
   # Make sure pipefail
   - set -o pipefail
+  # Setup apt to cache
+  - mkdir -p $HOME/.cache/apt/partial
+  - sudo rm -rf /var/cache/apt/archives
+  - sudo ln -s $HOME/.cache/apt /var/cache/apt/archives
   # Setup ppa to make sure arm-none-eabi-gcc is correct version
   - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
-  - sudo add-apt-repository -y ppa:libreoffice/libreoffice-4-2
   - sudo apt-get update -qq
 
 after_success:
@@ -30,10 +38,42 @@ matrix:
   include:
     - python: '2.7'
       env:
+        - NAME=docs
+      install:
+        # Install dependencies
+        - sudo apt-get install doxygen
+        # Print versions we use
+        - doxygen --version
+      before_script:
+        # Create BUILD directory for tests
+        - mkdir BUILD
+      script:
+        # Assert that the Doxygen build produced no warnings.
+        # The strange command below asserts that the Doxygen command had an
+        # output of zero length
+        - >
+          doxygen doxyfile_options 2>&1 |
+          tee BUILD/doxygen.out && [ ! -s BUILD/doxygen.out ]
+        # Assert that all binary libraries are named correctly
+        # The strange command below asserts that there are exactly 0 libraries
+        # that do not start with lib
+        - >
+          find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" |
+          tee BUILD/badlibs |
+          sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
+        # Assert that all assebler files are named correctly
+        # The strange command below asserts that there are exactly 0 libraries
+        # that do end with .s
+        - >
+          find  -name "*.s" | tee BUILD/badasm |
+          sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
+
+    - python: '2.7'
+      env:
         - NAME=tools
       install:
         # Install dependencies
-        - sudo apt-get install gcc-arm-embedded doxygen
+        - sudo apt-get install gcc-arm-embedded
         - pip install --user -r requirements.txt
         - pip install --user pytest
         - pip install --user pylint
@@ -44,32 +84,11 @@ matrix:
         # Print versions we use
         - arm-none-eabi-gcc --version
         - python --version
-        - doxygen --version
-      before_script:
-        # Create BUILD directory for tests
-        - mkdir BUILD
       script:
-        # Assert that the Doxygen build produced no warnings.
-        # The strange command below asserts that the Doxygen command had an
-        # output of zero length
-        - |
-          doxygen doxyfile_options 2>&1 | tee BUILD/doxygen.out && [ ! -s BUILD/doxygen.out ]
-        # Assert that all binary libraries are named correctly
-        # The strange command below asserts that there are exactly 0 libraries that do
-        # not start with lib
-        - |
-          find "(" -name "*.a" -or -name "*.ar" ")" -and -not -name "lib*" | tee BUILD/badlibs | sed -e "s/^/Bad library name found: /" && [ ! -s BUILD/badlibs ]
-        # Assert that all assebler files are named correctly
-        # The strange command below asserts that there are exactly 0 libraries that do
-        # end with .s
-        - |
-          find  -name "*.s" | tee BUILD/badasm | sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
         # Run local testing on tools
-        # Note: These take ~40 minutes to run
         - PYTHONPATH=. coverage run -a -m pytest tools/test
         - python2 tools/test/pylint.py
         - coverage run -a tools/project.py -S | sed -n '/^Total/p'
-        # - python2 -u tools/build_travis.py | sed -n '/^Executing/p'
         - coverage html
       after_success:
         # Coverage for tools
