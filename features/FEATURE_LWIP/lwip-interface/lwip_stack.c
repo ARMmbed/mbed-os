@@ -275,6 +275,37 @@ static const ip_addr_t *mbed_lwip_get_ipv6_addr(const struct netif *netif)
 }
 #endif
 
+static bool mbed_lwip_is_local_addr(const ip_addr_t *ip_addr)
+{
+    struct netif *netif;
+
+    for (netif = netif_list; netif != NULL; netif = netif->next) {
+        if (!netif_is_up(netif)) {
+            continue;
+        }
+#if LWIP_IPV6
+        if (IP_IS_V6(ip_addr)) {
+            for (int i = 0; i < LWIP_IPV6_NUM_ADDRESSES; i++) {
+                if (ip6_addr_isvalid(netif_ip6_addr_state(netif, i)) &&
+                    ip6_addr_cmp(netif_ip6_addr(netif, i), ip_addr)) {
+                    return true;
+                }
+            }
+        }
+#endif
+
+#if LWIP_IPV4
+        if (IP_IS_V4(ip_addr)) {
+            if (!ip4_addr_isany(netif_ip4_addr(netif)) &&
+                ip4_addr_cmp(netif_ip_addr4(netif), ip_addr)) {
+                return true;
+            }
+        }
+#endif
+    }
+    return false;
+}
+
 const ip_addr_t *mbed_lwip_get_ip_addr(bool any_addr, const struct netif *netif)
 {
     const ip_addr_t *pref_ip_addr = 0;
@@ -992,31 +1023,9 @@ static nsapi_error_t mbed_lwip_socket_bind(nsapi_stack_t *stack, nsapi_socket_t 
         return NSAPI_ERROR_PARAMETER;
     }
 
-#if LWIP_IPV6
-    if (IP_IS_V6(ip_addr) && !ip6_addr_isany(&ip_addr)) {
-        const ip_addr_t *local_addr = mbed_lwip_get_ipv6_addr(&lwip_netif);
-        if (!local_addr) {
-            return NSAPI_ERROR_PARAMETER;
-        }
-
-        if (!ip6_addr_cmp(local_addr, &ip_addr)) {
-            return NSAPI_ERROR_PARAMETER;
-        }
+    if (!ip_addr_isany(&ip_addr) && !mbed_lwip_is_local_addr(&ip_addr)) {
+        return NSAPI_ERROR_PARAMETER;
     }
-#endif
-
-#if LWIP_IPV4
-    if (IP_IS_V4(ip_addr) && !ip4_addr_isany(&ip_addr)) {
-        const ip_addr_t *local_addr = mbed_lwip_get_ipv4_addr(&lwip_netif);
-        if (!local_addr) {
-            return NSAPI_ERROR_PARAMETER;
-        }
-
-        if (!ip4_addr_cmp(local_addr, &ip_addr)) {
-            return NSAPI_ERROR_PARAMETER;
-        }
-    }
-#endif
 
     err_t err = netconn_bind(s->conn, &ip_addr, port);
     return mbed_lwip_err_remap(err);
