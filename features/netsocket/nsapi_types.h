@@ -79,8 +79,7 @@ enum nsapi_error {
  *  @enum nsapi_event
  */
  typedef enum nsapi_event {
-    NSAPI_EVENT_CONNECTION_STATUS_CHANGE = 0, /*!< network connection status has changed, the parameter = new status (nsapi_connection_status_t) */
-    NSAPI_EVENT_SOME_FUTURE_EVENT        = 1  /*!< something else has happened, the parameter = time in milliseconds */
+    NSAPI_EVENT_CONNECTION_STATUS_CHANGE = 0 /*!< network connection status has changed, the parameter = new status (nsapi_connection_status_t) */
 } nsapi_event_t;
 
 
