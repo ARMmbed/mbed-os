@@ -137,10 +137,10 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 
     // Set default QSPI handle values
     obj->handle.Init.ClockPrescaler = 1;
-    obj->handle.Init.FifoThreshold = 4;
+    obj->handle.Init.FifoThreshold = 1;
     obj->handle.Init.SampleShifting = QSPI_SAMPLE_SHIFTING_HALFCYCLE;
     obj->handle.Init.FlashSize = POSITION_VAL(QSPI_FLASH_SIZE_DEFAULT) - 1;
-    obj->handle.Init.ChipSelectHighTime = QSPI_CS_HIGH_TIME_2_CYCLE;
+    obj->handle.Init.ChipSelectHighTime = QSPI_CS_HIGH_TIME_5_CYCLE;
     obj->handle.Init.ClockMode = QSPI_CLOCK_MODE_0;
     obj->handle.Init.FlashID = QSPI_FLASH_ID_1;
     obj->handle.Init.DualFlash = QSPI_DUALFLASH_DISABLE;
