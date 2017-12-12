@@ -308,6 +308,7 @@ void rtc_write(time_t t) {
     if (_rtc_localtime(t, &timeinfo) == false) {
         return;
     }
+
     volatile uint16_t dummy_read;
 
     if (rtc_isenabled() != 0) {
