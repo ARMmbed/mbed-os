@@ -137,9 +137,16 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 
     obj->handle.Init.ClockMode = mode == 0 ? QSPI_CLOCK_MODE_0 : QSPI_CLOCK_MODE_3;
 
-    QSPIName qspi_data_first = (SPIName)pinmap_merge(io0, io1);
-    QSPIName qspi_data_second = (SPIName)pinmap_merge(io1, io2);
-    QSPIName qspi_data_third = (SPIName)pinmap_merge(io2, io3);
+    QSPIName qspiio0name = (QSPIName)pinmap_peripheral(io0, PinMap_QSPI_DATA);
+    QSPIName qspiio1name = (QSPIName)pinmap_peripheral(io1, PinMap_QSPI_DATA);
+    QSPIName qspiio2name = (QSPIName)pinmap_peripheral(io2, PinMap_QSPI_DATA);
+    QSPIName qspiio3name = (QSPIName)pinmap_peripheral(io3, PinMap_QSPI_DATA);
+    QSPIName qspiclkname = (QSPIName)pinmap_peripheral(sclk, PinMap_QSPI_SCLK);
+    QSPIName qspisselname = (QSPIName)pinmap_peripheral(ssel, PinMap_QSPI_SSEL);
+
+    QSPIName qspi_data_first = (QSPIName)pinmap_merge(qspiio0name, qspiio1name);
+    QSPIName qspi_data_second = (QSPIName)pinmap_merge(qspiio2name, qspiio3name);
+    QSPIName qspi_data_third = (QSPIName)pinmap_merge(qspiclkname, qspisselname);
 
     if (qspi_data_first != qspi_data_second || qspi_data_second != qspi_data_third ||
         qspi_data_first != qspi_data_third) {
