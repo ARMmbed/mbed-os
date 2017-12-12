@@ -29,6 +29,10 @@ Also modified to allow UICR to be written to using the section attribute
   #define MBED_APP_SIZE 0x64000
 #endif
 
+#if !defined(IMAGE_INFO_OFFSET)
+  #define IMAGE_INFO_OFFSET 0x300
+#endif
+
 /*
  * UICR -> User Information Configuration Registers
  * UICR_AP -> UICR Access Port Protect (has a couple other functions)
@@ -36,7 +40,9 @@ Also modified to allow UICR to be written to using the section attribute
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+  /*VECTORS (rx) : ORIGIN = MBED_APP_START, LENGTH = 0x100*/
+  IMAGEINFO(r): ORIGIN = MBED_APP_START, LENGTH = IMAGE_INFO_OFFSET
+  FLASH(rx) : ORIGIN = MBED_APP_START+IMAGE_INFO_OFFSET, LENGTH = MBED_APP_SIZE-IMAGE_INFO_OFFSET
   RAM (rwx) :  ORIGIN = 0x20002ef8, LENGTH = 0xd108
   UICR (rw) :  ORIGIN = 0x10001014, LENGTH = 0x8
   UICR_AP (rw) : ORIGIN = 0x10001200, LENGTH = 0x10
@@ -76,6 +82,16 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
+    /*.vectors :
+    {
+	KEEP(*(.Vectors))
+    } > VECTORS*/
+
+    .imageinfo :
+    {
+	KEEP(*(.ImageInfo))
+    } > IMAGEINFO
+    
     .text :
     {
         KEEP(*(.Vectors))

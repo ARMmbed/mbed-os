@@ -13,7 +13,14 @@
 	"macros_add": ["ENABLE_SWO"],
 	"MERGE_SOFT_DEVICE": false,
 	"bootloader_supported": true,
+	"overrides": {
+	    "uart_hwfc": 0
+	},
 	"config": {
+	    "BLE_UART_Bridge": {
+		"help": "Virtual BLE-UART Bridge enabled",
+		"value": false
+	    },
 	    "bootloader_address": {
 		"help": "Bootloader start address in flash",
 		"value": "0x78000"
