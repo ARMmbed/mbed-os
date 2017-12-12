@@ -78,6 +78,10 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
 
     if (command->address.disabled == true) {
         st_command->AddressMode = QSPI_ADDRESS_NONE;
+        st_command->AddressSize = 0;
+    } else {
+        st_command->Address = command->address.value;
+        st_command->AddressSize = command->address.size;
     }
 
     switch (command->alt.bus_width) {
@@ -97,6 +101,10 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
 
     if (command->alt.disabled == true) {
         st_command->AlternateByteMode = QSPI_ALTERNATE_BYTES_NONE;
+        st_command->AlternateBytesSize = 0;
+    } else {
+        st_command->AlternateBytes = command->alt.value;
+        st_command->AlternateBytesSize = command->alt.size;
     }
 
     switch (command->data.bus_width) {
@@ -113,6 +121,8 @@ void qspi_prepare_command(const qspi_command_t *command, QSPI_CommandTypeDef *st
             st_command->DataMode = QSPI_DATA_NONE;
             break;
     }
+
+    st_command->NbData = 0;
 }
 
 
