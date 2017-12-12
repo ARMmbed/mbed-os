@@ -29,8 +29,8 @@ using namespace utest::v1;
 
 // Hostname for testing against
 // Must have A and AAAA records
-#ifndef MBED_DNS_TEST_HOST
-#define MBED_DNS_TEST_HOST "connector.mbed.com"
+#ifndef MBED_CONF_APP_DNS_TEST_HOST
+#define MBED_CONF_APP_DNS_TEST_HOST "connector.mbed.com"
 #endif
 
 
@@ -59,9 +59,9 @@ void net_bringup() {
 // DNS tests
 void test_dns_query() {
     SocketAddress addr;
-    int err = net->gethostbyname(MBED_DNS_TEST_HOST, &addr);
+    int err = net->gethostbyname(MBED_CONF_APP_DNS_TEST_HOST, &addr);
     printf("DNS: query \"%s\" => \"%s\"\n",
-            MBED_DNS_TEST_HOST, addr.get_ip_address());
+            MBED_CONF_APP_DNS_TEST_HOST, addr.get_ip_address());
 
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT((bool)addr);
@@ -70,9 +70,9 @@ void test_dns_query() {
 
 void test_dns_query_pref() {
     SocketAddress addr;
-    int err = net->gethostbyname(MBED_DNS_TEST_HOST, &addr, ip_pref);
+    int err = net->gethostbyname(MBED_CONF_APP_DNS_TEST_HOST, &addr, ip_pref);
     printf("DNS: query %s \"%s\" => \"%s\"\n",
-            ip_pref_repr, MBED_DNS_TEST_HOST, addr.get_ip_address());
+            ip_pref_repr, MBED_CONF_APP_DNS_TEST_HOST, addr.get_ip_address());
 
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT((bool)addr);
