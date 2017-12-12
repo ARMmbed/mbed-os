@@ -31,10 +31,8 @@
 #include "em_gpio.h"
 #include "em_cmu.h"
 #include "sleep_api.h"
-#include "sleepmodes.h"
 
 #define NUM_GPIO_CHANNELS (16)
-#define GPIO_LEAST_ACTIVE_SLEEPMODE EM3
 
 /* Macro return index of the LSB flag which is set. */
 #if ((__CORTEX_M == 3) || (__CORTEX_M == 4))
@@ -142,21 +140,16 @@ void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
     if(GPIO->IEN == 0) was_disabled = true;
 
     GPIO_IntConfig((GPIO_Port_TypeDef)((obj->pin >> 4) & 0xF), obj->pin &0xF, obj->risingEdge, obj->fallingEdge, obj->risingEdge || obj->fallingEdge);
-    if ((GPIO->IEN != 0) && (obj->risingEdge || obj->fallingEdge) && was_disabled) {
-        blockSleepMode(GPIO_LEAST_ACTIVE_SLEEPMODE);
-    }
 }
 
 inline void gpio_irq_enable(gpio_irq_t *obj)
 {
-    if(GPIO->IEN == 0) blockSleepMode(GPIO_LEAST_ACTIVE_SLEEPMODE);
     GPIO_IntEnable(1 << (obj->pin & 0xF)); // pin mask for pins to enable
 }
 
 inline void gpio_irq_disable(gpio_irq_t *obj)
 {
     GPIO_IntDisable(1 << (obj->pin & 0xF)); // pin mask for pins to disable
-    if(GPIO->IEN == 0) unblockSleepMode(GPIO_LEAST_ACTIVE_SLEEPMODE);
 }
 
 /***************************************************************************//**

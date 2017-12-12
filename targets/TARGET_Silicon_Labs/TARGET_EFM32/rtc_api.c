@@ -28,7 +28,6 @@
 #include "rtc_api_HAL.h"
 #include "em_cmu.h"
 #include "sleep_api.h"
-#include "sleepmodes.h"
 
 #if (defined RTC_COUNT) && (RTC_COUNT > 0)
 #include "em_rtc.h"
@@ -48,8 +47,6 @@ static void (*comp0_handler)(void) = NULL;
 #ifndef RTCC_COUNT
 
 /* Using RTC API */
-
-#define RTC_LEAST_ACTIVE_SLEEPMODE  EM2
 #define RTC_NUM_BITS                (24)
 
 void RTC_IRQHandler(void)
@@ -111,7 +108,6 @@ void rtc_init_real(uint32_t flags)
         /* Initialize */
         RTC_Init(&init);
 
-        blockSleepMode(RTC_LEAST_ACTIVE_SLEEPMODE);
         rtc_inited = true;
     }
 }
@@ -131,7 +127,6 @@ void rtc_free_real(uint32_t flags)
         NVIC_DisableIRQ(RTC_IRQn);
         RTC_Reset();
         CMU_ClockEnable(cmuClock_RTC, false);
-        unblockSleepMode(RTC_LEAST_ACTIVE_SLEEPMODE);
         rtc_inited = false;
     }
 }
@@ -139,8 +134,6 @@ void rtc_free_real(uint32_t flags)
 #else
 
 /* Using RTCC API */
-
-#define RTCC_LEAST_ACTIVE_SLEEPMODE  EM2
 #define RTCC_NUM_BITS                (32)
 
 void RTCC_IRQHandler(void)
@@ -204,8 +197,6 @@ void rtc_init_real(uint32_t flags)
 
         /* Initialize */
         RTCC_Init(&init);
-
-        blockSleepMode(RTCC_LEAST_ACTIVE_SLEEPMODE);
         rtc_inited = true;
     }
 }
@@ -225,7 +216,6 @@ void rtc_free_real(uint32_t flags)
         NVIC_DisableIRQ(RTCC_IRQn);
         RTCC_Reset();
         CMU_ClockEnable(cmuClock_RTCC, false);
-        unblockSleepMode(RTCC_LEAST_ACTIVE_SLEEPMODE);
         rtc_inited = false;
     }
 }

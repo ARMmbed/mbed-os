@@ -26,6 +26,7 @@
 #if DEVICE_SERIAL
 
 #include "mbed_assert.h"
+#include "mbed_sleep.h"
 #include "serial_api.h"
 #include "serial_api_HAL.h"
 #include <string.h>
@@ -44,10 +45,6 @@
 #include "dma_api.h"
 #include "sleep_api.h"
 #include "buffer.h"
-#include "sleepmodes.h"
-
-#define SERIAL_LEAST_ACTIVE_SLEEPMODE EM1
-#define SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART EM2
 
 /** Validation of LEUART register block pointer reference
  *  for assert statements. */
@@ -2239,13 +2236,11 @@ static void serial_unblock_sleep(serial_t *obj)
 {
     if( obj->serial.sleep_blocked > 0 ) {
 #ifdef LEUART_USING_LFXO
-        if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
-            unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
-        }else{
-            unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+        if(!LEUART_REF_VALID(obj->serial.periph.leuart) || (LEUART_BaudrateGet(obj->serial.periph.leuart) > (LEUART_LF_REF_FREQ/2))){
+            sleep_manager_unlock_deep_sleep();
         }
 #else
-        unblockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+        sleep_manager_unlock_deep_sleep();
 #endif
         obj->serial.sleep_blocked--;
     }
@@ -2255,13 +2250,13 @@ static void serial_block_sleep(serial_t *obj)
 {
     obj->serial.sleep_blocked++;
 #ifdef LEUART_USING_LFXO
-    if(LEUART_REF_VALID(obj->serial.periph.leuart) && (LEUART_BaudrateGet(obj->serial.periph.leuart) <= (LEUART_LF_REF_FREQ/2))){
-        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE_LEUART);
-    }else{
-        blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    if(!LEUART_REF_VALID(obj->serial.periph.leuart) || (LEUART_BaudrateGet(obj->serial.periph.leuart) > (LEUART_LF_REF_FREQ/2))){
+        /* LEUART configured to a baudrate triggering the use of HFCLK, so prevent HFCLK from getting turned off */
+        sleep_manager_lock_deep_sleep();
     }
 #else
-    blockSleepMode(SERIAL_LEAST_ACTIVE_SLEEPMODE);
+    /* HFCLK unavailable in deepsleep */
+    sleep_manager_lock_deep_sleep();
 #endif
 }
 

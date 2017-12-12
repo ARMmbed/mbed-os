@@ -25,7 +25,6 @@
 #include "pinmap.h"
 #include "em_cmu.h"
 #include "mbed_assert.h"
-#include "sleepmodes.h"
 
 
 void gpio_write(gpio_t *obj, int value)
