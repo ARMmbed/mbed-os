@@ -959,7 +959,7 @@
             }
         },
         "detect_code": ["0745"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F303RE"
     },
@@ -976,7 +976,7 @@
             }
         },
         "detect_code": ["0747"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F303ZE"
     },
