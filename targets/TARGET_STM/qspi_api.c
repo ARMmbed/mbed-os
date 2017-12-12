@@ -241,23 +241,30 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
 {
     qspi_status_t status = QSPI_STATUS_OK;
 
-    if (rx_size > 4) {
-        return QSPI_STATUS_INVALID_PARAMETER;
-    }
+    if ((tx_data == NULL || tx_size == 0) && (rx_data == NULL || rx_size == 0)) {
+        // only command, no rx or tx
+        QSPI_CommandTypeDef st_command;
+        qspi_prepare_command(command, &st_command);
 
-    QSPI_CommandTypeDef st_command;
-    qspi_prepare_command(command, &st_command);
+        st_command.NbData = 1;
+        if (HAL_QSPI_Command(&obj->handle, &st_command, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+            status = QSPI_STATUS_ERROR;
+            return status;
+        }
+    } else {
+        // often just read a register, check if we need to transmit anything prior reading
+        if (tx_data != NULL && tx_size) {
+            size_t tx_length = tx_size;
+            status = qspi_write(obj, command, tx_data, &tx_length);
+            if (status != QSPI_STATUS_OK) {
+                return status;
+            }
+        }
 
-    QSPI_AutoPollingTypeDef s_config;
-    s_config.Match = 0;
-    s_config.Mask = 0;
-    s_config.MatchMode = QSPI_MATCH_MODE_OR;
-    s_config.StatusBytesSize = rx_size;
-    s_config.Interval = 0x10;
-    s_config.AutomaticStop = QSPI_AUTOMATIC_STOP_ENABLE; // or QSPI_AUTOMATIC_STOP_DISABLE ?
-
-    if (HAL_QSPI_AutoPolling(&obj->handle, &st_command, &s_config, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-        status =  QSPI_STATUS_ERROR;
+        if (rx_data != NULL && rx_size) {
+            size_t rx_length = rx_size;
+            status = qspi_read(obj, command, rx_data, &rx_length);
+        }
     }
     return status;
 }
