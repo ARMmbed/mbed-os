@@ -188,7 +188,7 @@ static uint8_t coap_tx_function(uint8_t *data_ptr, uint16_t data_len, sn_nsdl_ad
             memcpy(transaction_ptr->data_ptr, data_ptr, data_len);
             transaction_ptr->data_len = data_len;
         }
-    } else if ((ret_val == -1) || (transaction_ptr->resp_cb == NULL)) {
+    } else if ((ret_val == -1) || (!transaction_ptr->resp_cb && transaction_ptr->req_msg_type == COAP_MSG_TYPE_NON_CONFIRMABLE)) {
         transaction_delete(transaction_ptr);
     }
 
@@ -300,7 +300,7 @@ static void sec_done_cb(int8_t socket_id, uint8_t address[static 16], uint16_t p
         ns_dyn_mem_free(transaction_ptr->data_ptr);
         transaction_ptr->data_ptr = NULL;
         transaction_ptr->data_len = 0;
-        if (transaction_ptr->resp_cb == NULL) {
+        if (!transaction_ptr->resp_cb && transaction_ptr->req_msg_type == COAP_MSG_TYPE_NON_CONFIRMABLE) {
             transaction_delete(transaction_ptr);
         }
     }
