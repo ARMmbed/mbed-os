@@ -1383,7 +1383,26 @@
         "detect_code": ["0770"],
         "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32L432KC"
+        "device_name": "STM32L432KC",
+        "bootloader_supported": true
+    },
+    "NUCLEO_L433RC_P": {
+        "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": ["ARDUINO", "MORPHO"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32L4", "STM32L433xC", "STM32L433RC"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "detect_code": ["0770"],
+        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "CAN", "TRNG", "FLASH"],
+        "release_versions": ["2", "5"],
+        "device_name": "STM32L433RC",
+        "bootloader_supported": true
     },
     "NUCLEO_L476RG": {
         "inherits": ["FAMILY_STM32"],
