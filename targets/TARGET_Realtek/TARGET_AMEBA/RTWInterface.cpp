@@ -36,6 +36,8 @@ typedef struct _wifi_scan_hdl {
 
 #define MAX_SCAN_TIMEOUT (15000)
 
+static bool _inited = false;
+
 static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_scan_result )
 {
     wifi_scan_hdl *scan_handler = (wifi_scan_hdl *)malloced_scan_result->user_data;
@@ -97,11 +99,14 @@ RTWInterface::RTWInterface(bool debug)
         return;
     }
     emac->ops.power_up(emac);
-    ret = mbed_lwip_init(emac);
-    if (ret != 0) {
-        printf("Error init RTWInterface!(%d)\r\n", ret);
-        return;
-    }
+	if (_inited == false) {
+    	ret = mbed_lwip_init(emac);
+    	if (ret != 0) {
+        	printf("Error init RTWInterface!(%d)\r\n", ret);
+        	return;
+    	}
+		_inited = true;
+	}
 }
 
 RTWInterface::~RTWInterface()
@@ -228,8 +233,9 @@ nsapi_error_t RTWInterface::connect(const char *ssid, const char *pass,
 nsapi_error_t RTWInterface::disconnect()
 {
     char essid[33];
-
+	
     wlan_emac_link_change(false);
+	mbed_lwip_bringdown();
     if(wifi_is_connected_to_ap() != RTW_SUCCESS)
         return NSAPI_ERROR_NO_CONNECTION;
     if(wifi_disconnect()<0){        
