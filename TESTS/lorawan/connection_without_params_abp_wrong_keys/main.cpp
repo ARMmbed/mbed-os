@@ -18,7 +18,13 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 
-#include "mbed.h"
+#include "rtos/Thread.h"
+#include "events/EventQueue.h"
+
+using namespace utest::v1;
+using namespace rtos;
+using namespace events;
+
 #if TARGET_MTS_MDOT_F411RE
 #include "SX1272_LoRaRadio.h"
 #endif
@@ -28,7 +34,21 @@
 #endif
 #include "LoRaWANInterface.h"
 
-using namespace utest::v1;
+#ifdef MBED_CONF_APP_TEST_EVENTS_SIZE
+ #define MAX_NUMBER_OF_EVENTS    MBED_CONF_APP_TEST_EVENTS_SIZE
+#else
+ #define MAX_NUMBER_OF_EVENTS   16
+#endif
+
+#ifdef MBED_CONF_APP_TEST_DISPATCH_THREAD_SIZE
+ #define TEST_DISPATCH_THREAD_SIZE    MBED_CONF_APP_TEST_DISPATCH_THREAD_SIZE
+#else
+ #define TEST_DISPATCH_THREAD_SIZE    2048
+#endif
+
+static EventQueue ev_queue(MAX_NUMBER_OF_EVENTS * EVENTS_EVENT_SIZE);
+
+static Thread t(osPriorityNormal, TEST_DISPATCH_THREAD_SIZE);
 
 void lora_event_handler(lora_events_t events);
 
@@ -108,7 +128,7 @@ void connection_without_params_abp_wrong_keys()
     uint8_t rx_data[64] = { 0 };
     uint8_t tx_data[] = "test_unconfirmed_message";
 
-    ret = lorawan.initialize();
+    ret = lorawan.initialize(&ev_queue);
     if (ret != LORA_MAC_STATUS_OK) {
         TEST_ASSERT_MESSAGE(false, "Initialization failed");
         return;
@@ -197,6 +217,9 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
 
 
 int main() {
+    // start the thread to handle events
+    t.start(callback(&ev_queue, &EventQueue::dispatch_forever));
+
     lorawan.lora_event_callback(lora_event_handler);
 
     Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);

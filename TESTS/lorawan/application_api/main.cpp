@@ -18,7 +18,9 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 
-#include "mbed.h"
+#include "rtos/Thread.h"
+#include "events/EventQueue.h"
+
 #if TARGET_MTS_MDOT_F411RE
 #include "SX1272_LoRaRadio.h"
 #endif
@@ -29,6 +31,8 @@
 #include "LoRaWANInterface.h"
 
 using namespace utest::v1;
+using namespace rtos;
+using namespace events;
 
 #define MBED_CONF_LORA_PHY 0
 
@@ -83,7 +87,24 @@ static LoRaPHYUS915Hybrid lora_phy;
 #define mbed_trace_print_function_set(...) (void(0)) //dummies if feature common pal is not added
 #endif //defined(FEATURE_COMMON_PAL)
 
-Serial pc(USBTX, USBRX);
+#ifdef MBED_CONF_APP_TEST_EVENTS_SIZE
+ #define MAX_NUMBER_OF_EVENTS    MBED_CONF_APP_TEST_EVENTS_SIZE
+#else
+ #define MAX_NUMBER_OF_EVENTS   16
+#endif
+
+#ifdef MBED_CONF_APP_TEST_DISPATCH_THREAD_SIZE
+ #define TEST_DISPATCH_THREAD_SIZE    MBED_CONF_APP_TEST_DISPATCH_THREAD_SIZE
+#else
+ #define TEST_DISPATCH_THREAD_SIZE    2048
+#endif
+
+static EventQueue ev_queue(MAX_NUMBER_OF_EVENTS * EVENTS_EVENT_SIZE);
+
+// This test requires larger stack. Why ?
+static Thread t(osPriorityNormal, TEST_DISPATCH_THREAD_SIZE);
+
+static Serial pc(USBTX, USBRX);
 static Mutex MyMutex;
 static void my_mutex_wait()
 {
@@ -99,7 +120,7 @@ void trace_printer(const char* str)
     printf("%s\r\n", str);
 }
 
-void lora_event_handler(lora_events_t events);
+static void lora_event_handler(lora_events_t events);
 
 #if TARGET_MTS_MDOT_F411RE
     SX1272_LoRaRadio Radio(LORA_MOSI, LORA_MISO, LORA_SCK, LORA_NSS, LORA_RESET,
@@ -166,8 +187,8 @@ bool LoRaTestHelper::find_event(uint8_t event_code)
     return false;
 }
 
-LoRaWANInterface lorawan(Radio);
-LoRaTestHelper lora_helper;
+static LoRaWANInterface lorawan(Radio);
+static LoRaTestHelper lora_helper;
 
 void lora_connect()
 {
@@ -231,9 +252,13 @@ void lora_connect_with_params_otaa_ok()
     //Allow upcoming events
     lora_helper.event_lock = false;
 
-    uint8_t my_dev_eui[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
-    uint8_t my_app_eui[] = {0x6D, 0x75, 0x00, 0xD0, 0x7E, 0xD5, 0xB3, 0x70};
-    uint8_t my_app_key[] = {0xE8, 0x65, 0x60, 0xC8, 0x5E, 0x94, 0xFE, 0x49, 0xD3, 0xE1, 0x0E, 0x3E, 0x9A, 0xC6, 0x94, 0xA5};
+    // Although this test is meant to be using connect with given parameters,
+    // we can't give it any arbitrary parameters. The Network server running
+    // on conduit has been passed a certain set of randomly generated keys, and
+    // those keys are written to mbed_app.json, so let's use them
+    uint8_t my_dev_eui[] = LORAWAN_DEVICE_EUI;
+    uint8_t my_app_eui[] = LORAWAN_APPLICATION_EUI;
+    uint8_t my_app_key[] = LORAWAN_APPLICATION_KEY;
 
     params.connect_type = LORAWAN_CONNECTION_OTAA;
     params.connection_u.otaa.dev_eui = my_dev_eui;
@@ -273,14 +298,18 @@ void lora_connect_with_params_abp_ok()
     lorawan_connect_t params;
     uint8_t counter = 0;
 
-    uint8_t my_app_nwk_skey[] = {0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C};
-    uint8_t my_app_skey[] = {0x2B, 0x7E, 0x15, 0x16, 0x28, 0xAE, 0xD2, 0xA6, 0xAB, 0xF7, 0x15, 0x88, 0x09, 0xCF, 0x4F, 0x3C};
+    // Although this test is meant to be using connect with given parameters,
+    // we can't give it any arbitrary parameters. The Network server running
+    // on conduit has been passed a certain set of randomly generated keys, and
+    // those keys are written to mbed_app.json, so let's use them
+    uint8_t my_app_nwk_skey[] = LORAWAN_NWKSKEY;
+    uint8_t my_app_skey[] = LORAWAN_APPSKEY;
 
     //Allow upcoming events
     lora_helper.event_lock = false;
 
     params.connect_type = LORAWAN_CONNECTION_ABP;
-    params.connection_u.abp.dev_addr = 0x11111111;
+    params.connection_u.abp.dev_addr = LORAWAN_DEVICE_ADDRESS;
     params.connection_u.abp.nwk_skey = my_app_nwk_skey;
     params.connection_u.abp.app_skey = my_app_skey;
 
@@ -456,7 +485,7 @@ void lora_tx_send_without_connect()
     lora_helper.event_lock = false;
 
     ret = lorawan.send(LORAWAN_APP_PORT, tx_data, sizeof(tx_data), MSG_UNCONFIRMED_FLAG);
-    TEST_ASSERT_MESSAGE(ret == LORA_MAC_STATUS_NO_NETWORK_JOINED, "Incorrect return value");
+    TEST_ASSERT_MESSAGE(ret == LORA_MAC_STATUS_NO_ACTIVE_SESSIONS, "Incorrect return value");
 
     //Prevent upcoming events between tests
     lora_helper.event_lock = true;
@@ -1310,9 +1339,10 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
     return greentea_test_setup_handler(number_of_cases);
 }
 
-
 int main() {
-    lora_mac_status_t ret;
+
+    // start thread to handle events
+    t.start(callback(&ev_queue, &EventQueue::dispatch_forever));
 
     pc.baud(115200);
     mbed_trace_mutex_wait_function_set( my_mutex_wait ); // only if thread safety is needed
@@ -1320,24 +1350,26 @@ int main() {
     mbed_trace_init(); // initialize the trace library
     mbed_trace_print_function_set(trace_printer);
 
+    lora_mac_status_t ret;
+
     lorawan.lora_event_callback(lora_event_handler);
 
-    ret = lorawan.initialize();
+    ret = lorawan.initialize(&ev_queue);
     TEST_ASSERT_MESSAGE(ret == LORA_MAC_STATUS_OK, "Lora layer initialization failed");
 
     Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
     Harness::run(specification);
 }
 
-void lora_event_handler(lora_events_t events)
+// Do not print in this function.
+// As we are using a thread to dispatch events, this is being called
+// from dispatch thread context
+static void lora_event_handler(lora_events_t events)
 {
-    tr_debug("event handler");
-
     if (lora_helper.event_lock) {
         return;
     }
 
-    tr_debug("insert event %i to index %i", events, lora_helper.cur_event % 10);
     lora_helper.event_buffer[lora_helper.cur_event % 10] = events;
     lora_helper.cur_event++;
 }

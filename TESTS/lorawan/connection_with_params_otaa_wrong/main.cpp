@@ -18,7 +18,9 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 
-#include "mbed.h"
+#include "rtos/Thread.h"
+#include "events/EventQueue.h"
+
 #if TARGET_MTS_MDOT_F411RE
 #include "SX1272_LoRaRadio.h"
 #endif
@@ -29,6 +31,8 @@
 #include "LoRaWANInterface.h"
 
 using namespace utest::v1;
+using namespace rtos;
+using namespace events;
 
 #define MBED_CONF_LORA_PHY 0
 
@@ -83,7 +87,23 @@ static LoRaPHYUS915Hybrid lora_phy;
 #define mbed_trace_print_function_set(...) (void(0)) //dummies if feature common pal is not added
 #endif //defined(FEATURE_COMMON_PAL)
 
-Serial pc(USBTX, USBRX);
+#ifdef MBED_CONF_APP_TEST_EVENTS_SIZE
+ #define MAX_NUMBER_OF_EVENTS    MBED_CONF_APP_TEST_EVENTS_SIZE
+#else
+ #define MAX_NUMBER_OF_EVENTS   16
+#endif
+
+#ifdef MBED_CONF_APP_TEST_DISPATCH_THREAD_SIZE
+ #define TEST_DISPATCH_THREAD_SIZE    MBED_CONF_APP_TEST_DISPATCH_THREAD_SIZE
+#else
+ #define TEST_DISPATCH_THREAD_SIZE    2048
+#endif
+
+static EventQueue ev_queue(MAX_NUMBER_OF_EVENTS * EVENTS_EVENT_SIZE);
+
+static Thread t(osPriorityNormal, TEST_DISPATCH_THREAD_SIZE);
+
+static Serial pc(USBTX, USBRX);
 static Mutex MyMutex;
 static void my_mutex_wait()
 {
@@ -233,6 +253,10 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
 
 
 int main() {
+
+    // start the thread to handle events
+    t.start(callback(&ev_queue, &EventQueue::dispatch_forever));
+
     lora_mac_status_t ret;
 
     pc.baud(115200);
@@ -243,7 +267,7 @@ int main() {
 
     lorawan.lora_event_callback(lora_event_handler);
 
-    ret = lorawan.initialize();
+    ret = lorawan.initialize(&ev_queue);
     TEST_ASSERT_MESSAGE(ret == LORA_MAC_STATUS_OK, "Lora layer initialization failed");
 
     Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
@@ -252,13 +276,10 @@ int main() {
 
 void lora_event_handler(lora_events_t events)
 {
-    tr_debug("event handler");
-
     if (lora_helper.event_lock) {
         return;
     }
 
-    tr_debug("insert event %i to index %i", events, lora_helper.cur_event % 10);
     lora_helper.event_buffer[lora_helper.cur_event % 10] = events;
     lora_helper.cur_event++;
 }
