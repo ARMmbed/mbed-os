@@ -28,13 +28,7 @@ class E2Studio(GNUARMEclipse):
     # override
     def generate(self):
 
-        jinja_ctx = self.collect_tmpl_vars()
-            
-        print
-        print 'Create a e2 studio C++ managed project'
-        print 'Project name: {0}'.format(self.project_name)
-        print 'Target: {0}'.format(self.toolchain.target.name)
-        print 'Toolchain: {0}'.format(self.TOOLCHAIN)
+        jinja_ctx = self.create_jinja_ctx()
 
         self.gen_file('e2studio/.cproject.tmpl', jinja_ctx, '.cproject', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('e2studio/.gdbinit.tmpl', jinja_ctx, '.gdbinit')
@@ -43,6 +37,3 @@ class E2Studio(GNUARMEclipse):
         self.gen_file('gnuarmeclipse/.project.tmpl', jinja_ctx, '.project', trim_blocks=True, lstrip_blocks=True)
         self.gen_file('gnuarmeclipse/mbedignore.tmpl', jinja_ctx, '.mbedignore')
         self.gen_file('gnuarmeclipse/makefile.targets.tmpl', jinja_ctx, 'makefile.targets', trim_blocks=True, lstrip_blocks=True)
-
-        print
-        print 'Done. Import the project located at \'{0}\' in e2 studio.'.format(self.project_name)
