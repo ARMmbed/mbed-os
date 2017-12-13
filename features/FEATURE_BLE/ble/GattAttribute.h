@@ -166,7 +166,7 @@ public:
     /**
      * Get a pointer to the current length of the attribute value.
      *
-     * @important note Do not use this function.
+     * @attention note Do not use this function.
      *
      * @return A pointer to the current length of the attribute value.
      */
@@ -178,7 +178,7 @@ public:
     /**
      * Set the attribute handle.
      *
-     * @important The GattServer uses this function internally.
+     * @attention The GattServer uses this function internally.
      * Application code must not use it.
      *
      * @param[in] id The new attribute handle.

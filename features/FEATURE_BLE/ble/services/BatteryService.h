@@ -49,7 +49,7 @@
  * @note You can find specification of the battery service here:
  * https://www.bluetooth.com/specifications/gatt
  *
- * @important Multiple instances of this battery service are not supported.
+ * @attention Multiple instances of this battery service are not supported.
  */
 class BatteryService {
 public:
@@ -95,7 +95,7 @@ public:
      * @param newLevel Charge level of the battery. It is a percentage of the
      * remaining charge between 0% and 100%.
      *
-     * @important This function must be called in the execution context of the
+     * @attention This function must be called in the execution context of the
      * BLE stack.
      */
     void updateBatteryLevel(uint8_t newLevel)

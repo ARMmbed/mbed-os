@@ -46,7 +46,7 @@
  * This class also offers a mechanism to chain other instances to it. When an
  * instance is called, all the instances being part of the chain are called.
  *
- * @important freestanding or member function adapted must accept a single
+ * @attention freestanding or member function adapted must accept a single
  * argument, and this argument is a pointer to ContextType. Adapted
  * primitives do not return anything.
  *

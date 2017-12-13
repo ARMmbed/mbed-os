@@ -195,7 +195,7 @@ public:
      * Application code can remove all the registered services by calling
      * reset().
      *
-     * @important Service, characteristics and descriptors objects registered
+     * @attention Service, characteristics and descriptors objects registered
      * within the GattServer must remain reachable until reset() is called.
      *
      * @param[in] service The service to be added; attribute handle of services,
@@ -227,7 +227,7 @@ public:
      *
      * @return BLE_ERROR_NONE if a value was read successfully into the buffer.
      *
-     * @important read(Gap::Handle_t, GattAttribute::Handle_t, uint8_t *, uint16_t *)
+     * @attention read(Gap::Handle_t, GattAttribute::Handle_t, uint8_t *, uint16_t *)
      * must be used to read Client Characteristic Configuration Descriptor (CCCD)
      * because the value of this type of attribute depends on the connection.
      */
@@ -409,7 +409,7 @@ public:
      * Indicate if the underlying stack emit events when an attribute is read by
      * a client.
      *
-     * @important This function should be overridden to return true if
+     * @attention This function should be overridden to return true if
      * applicable.
      *
      * @return true if onDataRead is supported; false otherwise.
@@ -465,12 +465,12 @@ public:
     }
 
     /**
-     * Set an event handler that is called after 
+     * Set an event handler that is called after
      * a connected peer has written an attribute.
      *
      * @param[in] callback The event handler being registered.
      *
-     * @important It is possible to set multiple event handlers. Registered
+     * @attention It is possible to set multiple event handlers. Registered
      * handlers may be removed with onDataWritten().detach(callback).
      */
     void onDataWritten(const DataWrittenCallback_t &callback)
@@ -526,7 +526,7 @@ public:
      * @see GattCharacteristic::setReadAuthorizationCallback()
      * @see isOnDataReadAvailable().
      *
-     * @important It is possible to set multiple event handlers. Registered
+     * @attention It is possible to set multiple event handlers. Registered
      * handlers may be removed with onDataRead().detach(callback).
      */
     ble_error_t onDataRead(const DataReadCallback_t &callback)
@@ -668,7 +668,7 @@ protected:
      * Helper function that notifies all registered handlers of an occurrence
      * of a data written event.
      *
-     * @important Vendor implementation must invoke this function after one of
+     * @attention Vendor implementation must invoke this function after one of
      * the GattServer attributes has been written.
      *
      * @param[in] params The data written parameters passed to the registered
@@ -683,7 +683,7 @@ protected:
      * Helper function that notifies all registered handlers of an occurrence
      * of a data read event.
      *
-     * @important Vendor implementation must invoke this function after one of
+     * @attention Vendor implementation must invoke this function after one of
      * the GattServer attributes has been read.
      *
      * @param[in] params The data read parameters passed to the registered
@@ -698,7 +698,7 @@ protected:
      * Helper function that notifies the registered handler of an occurrence
      * of updates enabled, updates disabled or confirmation received events.
      *
-     * @important Vendor implementation must invoke this function when a client
+     * @attention Vendor implementation must invoke this function when a client
      * subscribes to characteristic updates, unsubscribes from characteristic
      * updates or a notification confirmation has been received.
      *
@@ -735,7 +735,7 @@ protected:
      * Helper function that notifies all registered handlers of an occurrence
      * of a data sent event.
      *
-     * @important Vendor implementation must invoke this function after the
+     * @attention Vendor implementation must invoke this function after the
      * emission of a notification or an indication.
      *
      * @param[in] count Number of packets sent.
