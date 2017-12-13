@@ -22,7 +22,7 @@
 /**
  * BLE Heart Rate Service.
  *
- * @purpose
+ * @par purpose
  *
  * Fitness applications use the heart rate service to expose the heart
  * beat per minute measured by a heart rate sensor.

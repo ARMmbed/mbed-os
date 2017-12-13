@@ -112,13 +112,16 @@ public:
     };
 
     /**
-     * @param[ref]    ble
+     * @param[in]    bleIn
      *                    BLEDevice object for the underlying controller.
-     * @param[in/out] paramsIn
+     * @param[in,out] paramsIn
      *                    Reference to application-visible beacon state, loaded
      *                    from persistent storage at startup.
      * @param[in]     defaultAdvPowerLevelsIn
      *                    Default power-levels array; applies only if resetToDefaultsFlag is true.
+     *
+     * @param[in]     radioPowerLevelsIn
+     *                    Transmission power-levels to use in TX.
      */
     EddystoneConfigService(BLEDevice     &bleIn,
                            Params_t      &paramsIn,
@@ -176,7 +179,7 @@ public:
      * @brief Start EddystoneConfig advertising. This function should be called
      * after the EddystoneConfig constructor and after all the frames have been added.
      *
-     * @paramsP[in]   resetToDefaultsFlag
+     * @param[in]   resetToDefaultsFlag
      *                    Applies to the state of the 'paramsIn' parameter.
      *                    If true, it indicates that paramsIn is potentially
      *                    un-initialized, and default values should be used

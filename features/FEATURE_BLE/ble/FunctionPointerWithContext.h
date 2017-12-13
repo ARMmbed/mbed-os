@@ -77,7 +77,7 @@ public:
      *
      * @param[in] object Pointer to the instance which is used to invoke @p
      * member.
-     * @param[in] Pointer to the member function to adapt.
+     * @param[in] member Pointer to the member function to adapt.
      */
     template<typename T>
     FunctionPointerWithContext(T *object, void (T::*member)(ContextType context)) :
@@ -136,7 +136,7 @@ public:
      * operator.
      *
      * @param[in] object Pointer to the instance is used to invoke @p member.
-     * @param[in] function Pointer to the member function to adapt.
+     * @param[in] member Pointer to the member function to adapt.
      */
     template<typename T>
     void attach(T *object, void (T::*member)(ContextType context))
