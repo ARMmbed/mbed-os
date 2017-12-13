@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,8 +124,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
      *  The CMSDK APB UART doesn't have support for flow control.
      *  Ref. DDI0479C_cortex_m_system_design_kit_r1p0_trm.pdf
      */
-    uart_data[obj->index].sw_rts.pin = NC;
-    uart_data[obj->index].sw_cts.pin = NC;
+    uart_data[obj->index].sw_rts.pin_number = NC;
+    uart_data[obj->index].sw_cts.pin_number = NC;
 
     if (uart == STDIO_UART) {
         stdio_uart_inited = 1;
@@ -220,7 +220,7 @@ static inline void uart_irq(uint32_t intstatus, uint32_t index,
             return;
     }
 
-    if ((RxIrq == irq_type) && (NC != uart_data[index].sw_rts.pin)) {
+    if ((RxIrq == irq_type) && (NC != uart_data[index].sw_rts.pin_number)) {
         gpio_write(&uart_data[index].sw_rts, 1);
         /* Disable interrupt if it wasn't enabled by the application */
         if (!uart_data[index].rx_irq_set_api) {
