@@ -39,7 +39,7 @@ nsapi_protocol_t TCPSocket::get_proto()
 
 nsapi_error_t TCPSocket::connect(const SocketAddress &address)
 {
-    _lock.lock();
+    lock();
     nsapi_error_t ret;
 
     // If this assert is hit then there are two threads
@@ -67,9 +67,9 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
-            _lock.unlock();
+            unlock();
             flag = _event_flag.wait_any(WRITE_FLAG, _timeout);
-            _lock.lock();
+            lock();
             if (flag & osFlagsError) {
                 // Timeout break
                 break;
@@ -84,7 +84,7 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
         ret = NSAPI_ERROR_OK;
     }
 
-    _lock.unlock();
+    unlock();
     return ret;
 }
 
@@ -104,7 +104,7 @@ nsapi_error_t TCPSocket::connect(const char *host, uint16_t port)
 
 nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
 {
-    _lock.lock();
+    lock();
     const uint8_t *data_ptr = static_cast<const uint8_t *>(data);
     nsapi_size_or_error_t ret;
     nsapi_size_t written = 0;
@@ -139,9 +139,9 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
-            _lock.unlock();
+            unlock();
             flag = _event_flag.wait_any(WRITE_FLAG, _timeout);
-            _lock.lock();
+            lock();
 
             if (flag & osFlagsError) {
                 // Timeout break
@@ -153,7 +153,7 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
     }
 
     _write_in_progress = false;
-    _lock.unlock();
+    unlock();
     if (ret <= 0 && ret != NSAPI_ERROR_WOULD_BLOCK) {
         return ret;
     } else if (written == 0) {
@@ -165,7 +165,7 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
 
 nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
 {
-    _lock.lock();
+    lock();
     nsapi_size_or_error_t ret;
 
     // If this assert is hit then there are two threads
@@ -189,9 +189,9 @@ nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
-            _lock.unlock();
+            unlock();
             flag = _event_flag.wait_any(READ_FLAG, _timeout);
-            _lock.lock();
+            lock();
 
             if (flag & osFlagsError) {
                 // Timeout break
@@ -202,7 +202,7 @@ nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
     }
 
     _read_in_progress = false;
-    _lock.unlock();
+    unlock();
     return ret;
 }
 

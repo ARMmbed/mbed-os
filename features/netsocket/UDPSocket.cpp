@@ -54,7 +54,7 @@ nsapi_size_or_error_t UDPSocket::sendto(const char *host, uint16_t port, const v
 
 nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void *data, nsapi_size_t size)
 {
-    _lock.lock();
+    lock();
     nsapi_size_or_error_t ret;
 
     while (true) {
@@ -73,9 +73,9 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
-            _lock.unlock();
+            unlock();
             flag = _event_flag.wait_any(WRITE_FLAG, _timeout);
-            _lock.lock();
+            lock();
 
             if (flag & osFlagsError) {
                 // Timeout break
@@ -85,13 +85,13 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
         }
     }
 
-    _lock.unlock();
+    unlock();
     return ret;
 }
 
 nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, nsapi_size_t size)
 {
-    _lock.lock();
+    lock();
     nsapi_size_or_error_t ret;
 
     while (true) {
@@ -110,9 +110,9 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
-            _lock.unlock();
+            unlock();
             flag = _event_flag.wait_any(READ_FLAG, _timeout);
-            _lock.lock();
+            lock();
 
             if (flag & osFlagsError) {
                 // Timeout break
@@ -122,7 +122,7 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
         }
     }
 
-    _lock.unlock();
+    unlock();
     return ret;
 }
 
