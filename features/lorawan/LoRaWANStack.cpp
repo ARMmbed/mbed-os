@@ -327,7 +327,7 @@ lora_mac_status_t LoRaWANStack::send_frame_to_mac()
 {
     lora_mac_mcps_req_t mcps_req;
     lora_mac_status_t status;
-   // LoRaMacTxInfo_t txInfo;
+    lora_mac_mib_request_confirm_t mib_get_params;
 
     GetPhyParams_t phy_params;
     PhyParam_t default_datarate;
@@ -341,19 +341,41 @@ lora_mac_status_t LoRaWANStack::send_frame_to_mac()
         mcps_req.f_buffer = _tx_msg.f_buffer;
 
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.req.unconfirmed.datarate = default_datarate.Value;
+
+        mib_get_params.type = LORA_MIB_CHANNELS_DATARATE;
+        if(mib_get_request(&mib_get_params) != LORA_MAC_STATUS_OK) {
+            tr_debug("Couldn't get MIB parameters: Using default data rate");
+            mcps_req.req.unconfirmed.datarate = default_datarate.Value;
+        } else {
+            mcps_req.req.unconfirmed.datarate = mib_get_params.param.channels_datarate;
+        }
 
     } else if (LORA_MCPS_CONFIRMED == mcps_req.type) {
         mcps_req.req.confirmed.f_port = _tx_msg.message_u.confirmed.f_port;
         mcps_req.f_buffer = _tx_msg.f_buffer;
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
         mcps_req.req.confirmed.nb_trials = _tx_msg.message_u.confirmed.nb_trials;
-        mcps_req.req.confirmed.datarate = default_datarate.Value;
+
+        mib_get_params.type = LORA_MIB_CHANNELS_DATARATE;
+        if(mib_get_request(&mib_get_params) != LORA_MAC_STATUS_OK) {
+            tr_debug("Couldn't get MIB parameters: Using default data rate");
+            mcps_req.req.confirmed.datarate = default_datarate.Value;
+        } else {
+            mcps_req.req.confirmed.datarate = mib_get_params.param.channels_datarate;
+        }
 
     } else if (LORA_MCPS_PROPRIETARY == mcps_req.type) {
         mcps_req.f_buffer = _tx_msg.f_buffer;
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
-        mcps_req.req.proprietary.datarate = default_datarate.Value;
+
+        mib_get_params.type = LORA_MIB_CHANNELS_DATARATE;
+        if(mib_get_request(&mib_get_params) != LORA_MAC_STATUS_OK) {
+            tr_debug("Couldn't get MIB parameters: Using default data rate");
+            mcps_req.req.proprietary.datarate = default_datarate.Value;
+        } else {
+            mcps_req.req.proprietary.datarate = mib_get_params.param.channels_datarate;
+        }
+
     } else {
         return LORA_MAC_STATUS_SERVICE_UNKNOWN;
     }
