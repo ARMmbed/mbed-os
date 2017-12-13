@@ -30,4 +30,16 @@
 #define ARM_CMSDK_TIMER0
 #define ARM_CMSDK_TIMER1
 
+/* ARM GPIO */
+#define ARM_GPIO0
+#define ARM_GPIO1
+#define ARM_GPIO2
+#define ARM_GPIO3
+
+/* ARM MPS2 IO FPGAIO */
+#define ARM_MPS2_IO_FPGAIO
+
+/* ARM MPS2 IO SCC */
+#define ARM_MPS2_IO_SCC
+
 #endif  /* __ARM_LTD_DEVICE_CFG_H__ */
