@@ -175,8 +175,6 @@ public:
      * @retval BLE_ERROR_NONE             On success, else an error code indicating reason for failure.
      * @retval BLE_ERROR_INVALID_STATE    If the API is called without module initialization or
      *                                    application registration.
-     *
-     * @experimental
      */
     virtual ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
         /* Avoid compiler warnings about unused variables */

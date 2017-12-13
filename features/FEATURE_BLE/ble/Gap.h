@@ -1147,7 +1147,7 @@ public:
      * invoked with the @p deviceName parameter set to NULL.
      *
      * @param[out] deviceName Pointer to an empty buffer where the UTF-8
-     * <b>non NULL-terminated<b> string is placed.
+     * <b>non NULL-terminated</b> string is placed.
      *
      * @param[in,out] lengthP Length of the @p deviceName buffer. If the device
      * name is successfully copied, then the length of the device name
@@ -1192,7 +1192,7 @@ public:
     /**
      * Get the value of the appearance characteristic in the GAP service.
      *
-     * @param[out] appearance The current device-appearance value.
+     * @param[out] appearanceP The current device-appearance value.
      *
      * @return BLE_ERROR_NONE if the device-appearance was fetched correctly
      * from the underlying BLE stack.
@@ -1265,8 +1265,6 @@ public:
      *
      * @return BLE_ERROR_NONE if the implementation's whitelist was successfully
      * copied into the supplied reference.
-     *
-     * @experimental
      */
     virtual ble_error_t getWhitelist(Whitelist_t &whitelist) const
     {
@@ -1284,7 +1282,7 @@ public:
      * populated with the addresses in the given whitelist.
      *
      * @note The whitelist must not contain addresses of type @ref
-     * BLEProtocol::AddressType_t::RANDOM_PRIVATE_NON_RESOLVABLE. This
+     * BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE. This
      * results in a @ref BLE_ERROR_INVALID_PARAM because the remote peer might
      * change its private address at any time, and it is not possible to resolve
      * it.
@@ -1971,14 +1969,14 @@ private:
     /**
      * Start the advertising procedure.
      *
-     * @param[in] Advertising parameters to use.
+     * @param[in] params Advertising parameters to use.
      *
      * @return BLE_ERROR_NONE if the advertising procedure successfully
      * started.
      *
      * @note Must be implemented in vendor port.
      */
-    virtual ble_error_t startAdvertising(const GapAdvertisingParams &) = 0;
+    virtual ble_error_t startAdvertising(const GapAdvertisingParams &params) = 0;
 
 public:
     /**
@@ -2339,7 +2337,7 @@ public:
      *
      * @param[in] peerAddr Address of the peer that has emitted the packet.
      * @param[in] rssi Value of the RSSI measured for the received packet.
-     * @param[in] isScanReponse If true, then the packet is a response to a scan
+     * @param[in] isScanResponse If true, then the packet is a response to a scan
      * request.
      * @param[in] type Advertising type of the packet.
      * @param[in] advertisingDataLen Length of the advertisement data received.
