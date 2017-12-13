@@ -337,6 +337,7 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
     transaction_ptr->options = options;
     memcpy(transaction_ptr->remote_address, destination_addr, 16);
     transaction_ptr->remote_port = destination_port;
+    transaction_ptr->req_msg_type = msg_type;
     memset(&request, 0, sizeof(request));
     dst_addr.addr_ptr = (uint8_t *) destination_addr; // Cast away const and trust that nsdl doesn't modify...
     dst_addr.addr_len  =  16;
