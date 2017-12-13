@@ -1,0 +1,274 @@
+# Make rules common to all Host components build
+# This file should be included at the end of a Makefile
+# (that included Makefile.defs at its beginning)
+
+# Including Makefile should provide (define before including this file):
+# TARGET_LIBS = Target library names (without extention)
+# TARGET_EXES = Target executables (without extention)
+# SOURCES_<target name> = The list of source files to create the binary target (currently assumes C)
+# OBJECTS_EXTRA_<target name> = Additional objects that should be linked but their build is defined outside of Makefile.rules 
+# DEPLIBS = Dependency libraries for executable linking
+# PUBLIC_INCLUDES = The list of public include files to export from this module (if a library)
+# TEST_INCLUDES = The list of test include files to export from this module (if a library)
+# PUBLIC_SCRIPTS = List of scripts to be released to /bin
+# PUBLIC_DATA = List of data (binary?) files that should be released (primarily for tests)
+# CFLAGS_EXTRA = Additional compiler flags to append to default flags
+# INCDIRS_EXTRA = Additional include directories in addition to the default (current dir., Host/include, Shared/include)
+# LIBDIRS_EXTRA = Additional library directories in addition to the default
+# HOST_PROJ_ROOT = Relative or absolute path of project's root (trunks' root)
+# DEBUG = Set to '1 to enable debug compilation
+
+# Note: Avoid choosing the same name for a library and an executable
+
+### Compilation flags setup ###
+CFLAGS += -c -D$(ARCH_ENDIAN)__ENDIAN -DHASLONGLONG 
+CFLAGS += $(foreach incdir,$(INCDIRS),-I$(incdir))
+ARFLAGS = rcs
+MM = -MM
+ifeq ($(CROSS_COMPILE),arm-dsm-)
+CFLAGS += -I/cadtools/arm/arm_realview/RVCT/Data/2.2/349/include/unix -D__ARM_DSM__
+else ifeq ($(CROSS_COMPILE),arm-ds5)
+MM = --mm
+CFLAGS += -D__ARM_DS5__ #--strict --strict_warnings
+ARFLAGS = -rcs
+else ifeq ($(CROSS_COMPILE),arm)
+CFLAGS += -D__ARM_DS__ --c99 --strict --strict_warnings
+ARFLAGS = -rcs
+MM = --mm
+else
+CFLAGS += -Wall
+CFLAGS += -Wsign-compare 
+CFLAGS += -Wextra
+CFLAGS += -Wpointer-arith
+CFLAGS += -Wcast-align
+CFLAGS += -Wstrict-prototypes
+CFLAGS += -Wwrite-strings
+CFLAGS += -Wswitch-default
+CFLAGS += -Wunreachable-code
+CFLAGS += -Winit-self
+CFLAGS += -Wjump-misses-init
+CFLAGS += -Wlogical-op
+CFLAGS += -Wmissing-field-initializers
+CFLAGS += -Werror=undef
+CFLAGS += -Werror -Wfatal-errors
+endif
+#CFLAGS += -D__STDC_VERSION__=19900L
+
+#ARFLAGS = rcs
+LDFLAGS = $(foreach libdir,$(LIBDIRS),-L$(libdir)) 
+LDFLAGS += $(foreach lib,$(DEPLIBS),-l$(lib)) 
+
+ifeq ($(CROSS_COMPILE),arm-none-eabi-)
+LDFLAGS += -lc -lm -lrdimon
+else
+ifneq ($(filter $(TEE_OS),no_os freertos),$(TEE_OS))
+LDFLAGS += -lpthread
+endif
+endif
+
+ifneq ($(filter $(CROSS_COMPILE),arm-dsm- arm-ds5),$(CROSS_COMPILE))
+LDFLAGS += -Wl,-rpath=.
+endif
+
+# C++ compilation
+CXXFLAGS = $(CFLAGS) 
+
+CFLAGS += -D__$(ARCH)__
+
+# Library suffix
+LIB_TYPE ?= static
+ifeq ($(LIB_TYPE),dynamic)
+    ifeq ($(ARCH),x86win)
+        LIBEXT = .dll
+        # -fPIC not needed for x86win.
+    else
+        LIBEXT = .so
+        CFLAGS += -fPIC
+    endif
+else
+    LIBEXT = .a
+endif
+
+DEPLIBS_FILES = $(foreach lib, $(strip $(DEPLIBS)), $(shell find $(LIBDIRS) -name $(LIBPRE)$(lib)$(LIBEXT) 2>/dev/null))
+
+#Optimization defs
+ifeq ($(DEBUG),1)
+    CFLAGS += -O0 -DDEBUG
+    ifeq ($(CROSS_COMPILE),arm-ds5)
+        CFLAGS += -g
+    else
+        ifneq ($(CROSS_COMPILE),$(filter $(CROSS_COMPILE),arm-dsm- arm))
+            CFLAGS += -g3
+	endif
+    endif
+else
+    CFLAGS += -O2
+endif
+
+# Support module specific extra Cflags
+CFLAGS += $(CFLAGS_EXTRA)
+
+### Top level targets ###
+
+default: release test
+
+# Clean only build intermediate files (incl. log file) but leave released target
+clean_intermediate:
+	-$(RMDIR) $(BUILDDIR) 
+	-$(RM) $(LOGFILE)
+
+clean: clean_intermediate
+	-$(if $(TARGET_EXES), $(RM) $(foreach exe, $(TARGET_EXES), $(RELEASE_EXEDIR)/$(exe)$(EXEEXT)))
+	-$(if $(TARGET_LIBS),$(RM) $(foreach lib, $(TARGET_LIBS), $(RELEASE_LIBDIR)/$(LIBPRE)$(lib)$(LIBEXT)))
+	-$(if $(PUBLIC_INCLUDES),$(RM) $(foreach inc, $(PUBLIC_INCLUDES), $(RELEASE_INCDIR)/$(notdir $(inc))))
+	-$(if $(subst freertos,,$(TEE_OS)),,$(if $(TEST_INCLUDES),$(RM) $(foreach inc, $(TEST_INCLUDES), $(KERNEL_TEST_DIR)/$(notdir $(inc)))))
+	-$(if $(PUBLIC_SCRIPTS),$(RM) $(foreach scr, $(PUBLIC_SCRIPTS), $(RELEASE_SCRDIR)/$(notdir $(scr))))
+	-$(if $(PUBLIC_DATA),$(RM) $(foreach scr, $(PUBLIC_DATA), $(RELEASE_DATDIR)/$(notdir $(scr))))
+
+.PHONY: default release test clean
+
+# Directory creation rule
+$(PWD)/$(BUILDDIR) $(RELEASE_INCDIR) $(RELEASE_LIBDIR) $(RELEASE_EXEDIR) $(RELEASE_DATDIR):
+	@if [ ! -d $@ ] ; then $(ECHO) [MKDIR] $@ ; fi
+	@if [ ! -d $@ ] ; then $(call exec_logged,$(MKDIR) $@ ) ; fi
+
+# Makefile variable print (for debug)
+PRINT_VAR_%:
+	@$(ECHO) $* = \'$($*)\'
+
+### Generate rules for releasing (non-built resources) files
+define release_file_rule
+$(RELEASE_$(2)DIR)/$(notdir $(1)): $(1) $(call DEPENDENCY_ON_EXISTENCE_OF,$(RELEASE_$(2)DIR))
+	@$(ECHO) [CP] $$< --\> $(RELEASE_$(2)DIR)
+	@$(call exec_logged_evaled,$(CP) $$< $(RELEASE_$(2)DIR) )
+
+release: $(RELEASE_$(2)DIR)/$(notdir $(1))
+
+endef
+
+define test_file_rule
+$(KERNEL_TEST_DIR)/$(notdir $(1)): $(1)
+	@$(ECHO) [CP] $$< --\> $(KERNEL_TEST_DIR)
+	@$(call exec_logged_evaled,$(CP) $$< $(KERNEL_TEST_DIR) )
+
+test: $(KERNEL_TEST_DIR)/$(notdir $(1))
+
+endef
+
+$(foreach hfile, $(PUBLIC_INCLUDES), $(eval $(call release_file_rule,$(hfile),INC)))
+$(if $(subst freertos,,$(TEE_OS)),,$(foreach hfile, $(TEST_INCLUDES), $(eval $(call test_file_rule,$(hfile),INC))))
+$(foreach scrfile, $(PUBLIC_SCRIPTS), $(eval $(call release_file_rule,$(scrfile),SCR)))
+$(foreach datfile, $(PUBLIC_DATA), $(eval $(call release_file_rule,$(datfile),DAT)))
+
+### LIB+EXE targets rules ###
+release: $(TARGET_LIBS) $(TARGET_EXES)
+
+# Generic rule for LIB+EXE targets
+# Usage: $(eval $(call RELEASE_RULE, <target_name>, [LIB|EXE]))
+define RELEASE_RULE
+# Map named target to target with extension at release dir
+$(1): $(RELEASE_$(2)DIR)/$($(2)PRE)$(1)$($(2)EXT)
+
+.PHONY: $(1)
+
+# Objects list for dependency generation 
+C_SOURCES_$(1) = $$(filter %.c,$$(SOURCES_$(1)))
+CPP_SOURCES_$(1) = $$(filter %.cpp,$$(SOURCES_$(1)))
+OBJECTS_FROM_C_$(1) = $$(addprefix $(BUILDDIR)/,$$(patsubst %.c,%$(OBJEXT),$$(filter-out $(BUILDDIR)/%,$$(C_SOURCES_$(1)))))
+OBJECTS_FROM_GENERATED_C_$(1) = $$(patsubst %.c,%$(OBJEXT),$$(filter $(BUILDDIR)/%,$$(C_SOURCES_$(1))))
+OBJECTS_FROM_CPP_$(1) = $$(addprefix $(BUILDDIR)/,$$(patsubst %.cpp,%$(OBJEXT),$$(CPP_SOURCES_$(1))))
+OBJECTS_INTERNAL_$(1) = $$(OBJECTS_FROM_C_$(1)) $$(OBJECTS_FROM_GENERATED_C_$(1)) $$(OBJECTS_FROM_CPP_$(1))
+OBJECTS_$(1) =  $$(OBJECTS_INTERNAL_$(1)) $$(OBJECTS_EXTRA_$(1))
+OBJECTS_FROM_C += $$(OBJECTS_FROM_C_$(1))
+OBJECTS_FROM_GENERATED_C += $$(OBJECTS_FROM_GENERATED_C_$(1))
+OBJECTS_FROM_CPP += $$(OBJECTS_FROM_CPP_$(1))
+
+# Retain generated dependency files after a build
+.SECONDARY: $$(OBJECTS_$(1):%.o=%.dep)
+
+endef
+
+# Generate library targets rules
+$(foreach lib,$(TARGET_LIBS), $(eval $(call RELEASE_RULE,$(lib),LIB)))
+#include generated depedencies
+$(foreach lib,$(TARGET_LIBS), $(eval -include $(OBJECTS_INTERNAL_$(lib):%.o=%.dep)))
+
+
+TEST_COPY_RULE = $(call exec_logged,$(CP) $(RELEASE_LIBDIR)/$(1) $(KERNEL_TEST_DIR)/$(1))
+LIB_COPY_RULE = $(call exec_logged,$(CP) $(RELEASE_LIBDIR)/$(1) $(KERNEL_LIB_DIR)/$(1))
+
+IS_TEST = $(findstring test, $(1))
+
+# Implicit rule for libraries releasing
+$(RELEASE_LIBDIR)/$(LIBPRE)%$(LIBEXT): $(BUILDDIR)/$(LIBPRE)%$(LIBEXT) $(call DEPENDENCY_ON_EXISTENCE_OF,$(RELEASE_LIBDIR))
+	@$(ECHO) [CP] $< --\> $(RELEASE_LIBDIR)
+	@$(call exec_logged,$(CP) $< $(RELEASE_LIBDIR) )
+	@$(if $(subst freertos,,$(TEE_OS)),, $(if $(call IS_TEST,$(notdir $<)), $(call TEST_COPY_RULE,$(notdir $<)), $(call LIB_COPY_RULE,$(notdir $<)) ))
+
+ifeq ($(LIB_TYPE),dynamic)
+define LIB_LINK_RULE
+$(BUILDDIR)/$(LIBPRE)$(1)$(LIBEXT): $(OBJECTS_$(1))
+	@$(if $(SOURCES_$(1)), , echo Makefile is missing SOURCES_$(1) definition && exit 1)
+	@$(ECHO) [LD] $$^ --\> $$@ # Dynamic library linkage
+	@$(call exec_logged_evaled,$(CC) -shared -o $$@ $$^ )
+endef
+
+else # Static library
+define LIB_LINK_RULE
+$(BUILDDIR)/$(LIBPRE)$(1)$(LIBEXT): $(OBJECTS_$(1))
+	@$(if $(SOURCES_$(1)), , echo Makefile is missing SOURCES_$(1) definition && exit 1)
+	@$(ECHO) [AR] $$^ --\> $$@ # Library archive linkage
+	@$(call exec_logged_evaled,$(AR) $(ARFLAGS) $$@ $$^ )
+endef
+endif
+
+$(foreach lib,$(TARGET_LIBS), $(eval $(call LIB_LINK_RULE,$(lib))))
+
+
+# Generate executable targets rules
+$(foreach exe,$(TARGET_EXES), $(eval $(call RELEASE_RULE,$(exe),EXE)))
+#include generated depedencies
+$(foreach exe,$(TARGET_EXES), $(eval -include $(OBJECTS_INTERNAL_$(exe):%.o=%.dep)))
+# Implicit rule for executables releasing
+$(RELEASE_EXEDIR)/%$(EXEEXT): $(BUILDDIR)/%$(EXEEXT) $(call DEPENDENCY_ON_EXISTENCE_OF,$(RELEASE_EXEDIR))
+	@$(ECHO) [CP] $< --\> $(RELEASE_EXEDIR)
+	@$(call exec_logged,$(CP) $< $(RELEASE_EXEDIR) )
+
+define EXE_LINK_RULE
+$(BUILDDIR)/$(1)$(EXEEXT): $(OBJECTS_$(1)) $(DEPLIBS_FILES)
+	@$(if $(SOURCES_$(1)), , echo Makefile is missing SOURCES_$(1) definition && exit 1)
+	@$(ECHO) [LD] $$^ --\> $$@  # Executable linkage
+	@$(call exec_logged_evaled,$(LD) $$(filter-out %$(LIBEXT),$$^) $(LDFLAGS) -o $$@ )
+endef
+$(foreach exe,$(TARGET_EXES), $(eval $(call EXE_LINK_RULE,$(exe))))
+
+ifneq ($(OBJECTS_FROM_C),)
+# Default implicit compile rule assuming C source code (+dependency generation)
+$(OBJECTS_FROM_C): $(BUILDDIR)/%$(OBJEXT): %.c $(call DEPENDENCY_ON_EXISTENCE_OF,$(PWD)/$(BUILDDIR))
+	@$(ECHO) [CC] $< --\> $@  # Compilation
+	@$(call exec_logged,$(CC) $(CFLAGS) $< -o $@ )
+	@#$(ECHO) [MM] $(@:.o=.dep) \<-- $@   # Generate dependency of object when generated
+	@$(call exec_logged,$(CC) $(MM) $(CFLAGS) $< | sed 's/.*\.o:/$(BUILDDIR)\/&/' > $(BUILDDIR)/$*.dep )
+
+#	$(call exec_logged,$(SHELL) -ec '$(CC) -M $(CFLAGS) $< | sed '\''s/\($*\)\.o[ :]*/\1.o $@ : /g'\'' > $@; [ -s $@ ] || rm -f $@' )
+endif
+
+ifneq ($(OBJECTS_FROM_CPP),)
+# Default implicit compile rule assuming C++ source code (+dependency generation)
+$(OBJECTS_FROM_CPP): $(BUILDDIR)/%$(OBJEXT): %.cpp $(call DEPENDENCY_ON_EXISTENCE_OF,$(PWD)/$(BUILDDIR))
+	@$(ECHO) [CPP] $< --\> $@  # Compilation
+	@$(call exec_logged,$(CPP) $(CPPFLAGS) $< -o $@ )
+	@#$(ECHO) [MM] $(@:.o=.dep) \<-- $@   # Generate dependency of object when generated
+	@$(call exec_logged,$(CP) -MM $(CPPFLAGS) $< | sed 's/.*\.o:/$(BUILDDIR)\/&/' > $(BUILDDIR)/$*.dep )
+endif
+
+ifneq ($(OBJECTS_FROM_GENERATED_C),)
+# Default implicit compile rule assuming generated C stub source code (+dependency generation)
+$(OBJECTS_FROM_GENERATED_C): $(BUILDDIR)/%$(OBJEXT): $(PWD)/$(BUILDDIR)/%.c
+	@$(ECHO) [CC4GEN] $< --\> $@  # Compilation
+	@$(call exec_logged,$(CC) $(CFLAGS) $< -o $@ )
+	@#$(ECHO) [MM] $(@:.o=.dep) \<-- $@   # Generate dependency of object when generated
+	@$(call exec_logged,$(CC) -MM $(CFLAGS) $< | sed 's/.*\.o:/$(BUILDDIR)\/&/' > $(BUILDDIR)/$*.dep )
+endif
+
+
