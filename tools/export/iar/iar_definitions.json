@@ -245,5 +245,11 @@
         "OGChipSelectEditMenu": "TMPM066FWUG\tToshiba TMPM066FWUG",
         "GFPUCoreSlave": 21,
         "GBECoreSlave": 21
+    },
+    "ADuCM3029": {
+        "OGChipSelectEditMenu": "ADuCM3029\tAnalogDevices ADuCM3029"
+    },
+    "ADuCM4050": {
+        "OGChipSelectEditMenu": "ADuCM4050\tAnalogDevices ADuCM4050"
     }
 }
