@@ -143,7 +143,7 @@ public:
      * belongs to the service.
      * @param[in] numCharacteristics The number of characteristics.
      *
-     * @important The characteristics of the service must remain valid while the
+     * @attention The characteristics of the service must remain valid while the
      * GattServer uses the service.
      */
     GattService(
@@ -190,7 +190,7 @@ public:
     /**
      * Set the handle of the service declaration attribute in the ATT table.
      *
-     * @important Application code must not use this API.
+     * @attention Application code must not use this API.
      *
      * @param[in] handle The service's handle.
      */

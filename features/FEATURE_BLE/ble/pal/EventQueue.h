@@ -55,7 +55,7 @@ struct EventQueue {
      *
      * @return true in case of success and false otherwise
      *
-     * @important Event availability shall be signaled to the upper layer and
+     * @attention Event availability shall be signaled to the upper layer and
      * the event queue shall be processed at the next invocation of
      * BLEInstanceBase::process
      */
