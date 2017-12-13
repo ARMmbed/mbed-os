@@ -347,7 +347,7 @@ public:
     /**
      * Enumeration of disconnection reasons.
      *
-     * @important There might be a mismatch between the disconnection reason
+     * @attention There might be a mismatch between the disconnection reason
      * passed to disconnect() and the disconnection event generated locally
      * because the disconnection reason passed to disconnect() is the
      * disconnection reason to be transmitted to the peer.
@@ -356,7 +356,7 @@ public:
         /**
          * The connection timed out.
          *
-         * @important shall not be used as a reason in disconnect().
+         * @attention shall not be used as a reason in disconnect().
          */
         CONNECTION_TIMEOUT = 0x08,
 
@@ -379,7 +379,7 @@ public:
          * Indicate that the local user or the internal
          * Bluetooth subsystem terminated the connection.
          *
-         * @important shall not be used as a reason in disconnect().
+         * @attention shall not be used as a reason in disconnect().
          */
         LOCAL_HOST_TERMINATED_CONNECTION = 0x16,
 
@@ -548,7 +548,7 @@ public:
      *
      * @note The BLE API does not express the broadcaster and scanner roles.
      *
-     * @important A device can fulfill different roles concurrently.
+     * @attention A device can fulfill different roles concurrently.
      */
     enum Role_t {
         /**
@@ -2271,7 +2271,7 @@ public:
     /**
      * Notify all registered connection event handlers of a connection event.
      *
-     * @important This function is meant to be called from the BLE stack specific
+     * @attention This function is meant to be called from the BLE stack specific
      * implementation when a connection event occurs.
      *
      * @param[in] handle Handle of the new connection.
@@ -2312,7 +2312,7 @@ public:
     /**
      * Notify all registered disconnection event handlers of a disconnection event.
      *
-     * @important This function is meant to be called from the BLE stack specific
+     * @attention This function is meant to be called from the BLE stack specific
      * implementation when a disconnection event occurs.
      *
      * @param[in] handle Handle of the terminated connection.
@@ -2334,7 +2334,7 @@ public:
      * Forward a received advertising packet to all registered event handlers
      * listening for scanned packet events.
      *
-     * @important This function is meant to be called from the BLE stack specific
+     * @attention This function is meant to be called from the BLE stack specific
      * implementation when a disconnection event occurs.
      *
      * @param[in] peerAddr Address of the peer that has emitted the packet.
@@ -2367,7 +2367,7 @@ public:
      * Notify the occurrence of a timeout event to all registered timeout events
      * handler.
      *
-     * @important This function is meant to be called from the BLE stack specific
+     * @attention This function is meant to be called from the BLE stack specific
      * implementation when a disconnection event occurs.
      *
      * @param[in] source Source of the timout event.

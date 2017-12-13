@@ -49,10 +49,10 @@
  * @note You can find specification of the heart rate service here:
  * https://www.bluetooth.com/specifications/gatt
  *
- * @important The service does not expose information related to the sensor
+ * @attention The service does not expose information related to the sensor
  * contact, the accumulated energy expanded or the interbeat intervals.
  *
- * @important The heart rate profile limits the number of instantiations of the
+ * @attention The heart rate profile limits the number of instantiations of the
  * heart rate services to one.
  */
 class HeartRateService {
@@ -139,7 +139,7 @@ public:
      *
      * @param[in] hrmCounter Heart rate measured in BPM.
      *
-     * @important This function must be called in the execution context of the
+     * @attention This function must be called in the execution context of the
      * BLE stack.
      */
     void updateHeartRate(uint16_t hrmCounter) {

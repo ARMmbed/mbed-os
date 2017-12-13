@@ -29,7 +29,6 @@
 class HealthThermometerService {
 public:
     /**
-    * @enum Sensor Location.
     * @brief Location of sensor on the body.
     */
     enum SensorLocation_t {

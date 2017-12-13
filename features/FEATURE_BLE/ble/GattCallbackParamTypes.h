@@ -31,11 +31,11 @@
  * whether the GattServer has received a write request or a GattClient has
  * received a write response.
  *
- * @important The GattServer only populates the fields offset, len and data
+ * @attention The GattServer only populates the fields offset, len and data
  * when it has received a write request. Callbacks attached to the GattClient
  * do not use those fields.
  *
- * @important The GattClient only populates the fields status and error_code
+ * @attention The GattClient only populates the fields status and error_code
  * when it has received a write response. Callbacks attached to the GattServer
  * do not use those fields.
  */
@@ -99,14 +99,14 @@ struct GattWriteCallbackParams {
         /**
          * Offset within the attribute value to be written.
          *
-         * @important Reserved for GattServer registered callbacks.
+         * @attention Reserved for GattServer registered callbacks.
          */
         uint16_t offset;
 
         /**
          * Status of the GattClient Write operation.
          *
-         * @important Reserved for GattClient registered callbacks.
+         * @attention Reserved for GattClient registered callbacks.
          */
         ble_error_t status;
     };
@@ -115,14 +115,14 @@ struct GattWriteCallbackParams {
         /**
          * Length (in bytes) of the data to write.
          *
-         * @important Reserved for GattServer registered callbacks.
+         * @attention Reserved for GattServer registered callbacks.
          */
         uint16_t len;
 
         /**
          * Error code of the GattClient Write operation.
          *
-         * @important Reserved for GattClient registered callbacks.
+         * @attention Reserved for GattClient registered callbacks.
          */
         uint8_t error_code;
     };
@@ -130,9 +130,9 @@ struct GattWriteCallbackParams {
     /**
      * Pointer to the data to write.
      *
-     * @important Data may not persist beyond the callback scope.
+     * @attention Data may not persist beyond the callback scope.
      *
-     * @important Reserved for GattServer registered callbacks.
+     * @attention Reserved for GattServer registered callbacks.
      */
     const uint8_t *data;
 };
@@ -144,7 +144,7 @@ struct GattWriteCallbackParams {
  * whether the GattServer has received a read request or a GattClient has
  * received a read response.
  *
- * @important The GattClient only populates the fields status and error_code
+ * @attention The GattClient only populates the fields status and error_code
  * when it has received a read response. Callbacks attached to the GattServer
  * do not use those fields.
  */
@@ -173,9 +173,9 @@ struct GattReadCallbackParams {
         /**
          * Error code of the GattClient read operation.
          *
-         * @important Reserved for GattClient registered callbacks.
+         * @attention Reserved for GattClient registered callbacks.
          *
-         * @important set if status is not equal to BLE_ERROR_NONE; otherwise,
+         * @attention set if status is not equal to BLE_ERROR_NONE; otherwise,
          * this field is interpreted as len.
          */
         uint8_t error_code;
@@ -184,14 +184,14 @@ struct GattReadCallbackParams {
     /**
      * Pointer to the data read.
      *
-     * @important Data may not persist beyond the callback scope.
+     * @attention Data may not persist beyond the callback scope.
      */
     const uint8_t *data;
 
     /**
      * Status of the GattClient Read operation.
      *
-     * @important Reserved for GattClient registered callbacks.
+     * @attention Reserved for GattClient registered callbacks.
      */
     ble_error_t status;
 };

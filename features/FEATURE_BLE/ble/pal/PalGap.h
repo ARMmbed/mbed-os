@@ -293,7 +293,7 @@ struct Gap {
      * @parameter filter_duplicates Enable duplicate filtering if true,
      * otherwise disable it.
      *
-     * @important advertising data or scan response data is not considered
+     * @attention advertising data or scan response data is not considered
      * significant when determining duplicate advertising reports.
      *
      * @return BLE_ERROR_NONE if the request has been successfully sent or the
@@ -420,7 +420,7 @@ struct Gap {
     /**
      * Clear the whitelist stored in the LE subsystem.
      *
-     * @important This command shall not be issued if the whitelist is being
+     * @attention This command shall not be issued if the whitelist is being
      * used by the advertising, scanning or connection creation procedure.
      *
      * @return BLE_ERROR_NONE if the request has been successfully sent or the
@@ -441,7 +441,7 @@ struct Gap {
      * @return BLE_ERROR_NONE if the request has been successfully sent or the
      * appropriate error otherwise.
      *
-     * @important This command shall not be issued if the whitelist is being
+     * @attention This command shall not be issued if the whitelist is being
      * used by the advertising, scanning or connection creation procedure.
      *
      * @note: See Bluetooth 5 Vol 2 PartE: 7.8.16 LE add device to white list
@@ -463,7 +463,7 @@ struct Gap {
      * @return BLE_ERROR_NONE if the request has been successfully sent or the
      * appropriate error otherwise.
      *
-     * @important This command shall not be issued if the whitelist is being
+     * @attention This command shall not be issued if the whitelist is being
      * used by the advertising, scanning or connection creation procedure.
      *
      * @note: See Bluetooth 5 Vol 2 PartE: 7.8.17 LE remove device from white
@@ -589,7 +589,7 @@ struct Gap {
      * @note Usually parameters of this function match the connection parameters
      * received in the connection parameter request event.
      *
-     * @important: Once the new connection parameters are in used a Connection
+     * @attention: Once the new connection parameters are in used a Connection
      * Update Complete event shall be emmited.
      *
      * @return BLE_ERROR_NONE if the request has been successfully sent or the

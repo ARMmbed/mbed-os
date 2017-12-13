@@ -280,7 +280,7 @@ public:
      * function-pointer, init() can also take an <Object, member> pair as its
      * callback target.
      *
-     * @important This should be called before using anything else in the BLE
+     * @attention This should be called before using anything else in the BLE
      * API.
      */
     ble_error_t init(InitializationCompleteCallback_t completion_cb = NULL) {
@@ -321,7 +321,7 @@ public:
      * @return BLE_ERROR_NONE if the instance was shut down without error or the
      * appropriate error code.
      *
-     * @important init() must be called afterward to reinstate services and
+     * @attention init() must be called afterward to reinstate services and
      * GAP state. This API offers a way to repopulate the GATT database with new
      * services and characteristics.
      */
