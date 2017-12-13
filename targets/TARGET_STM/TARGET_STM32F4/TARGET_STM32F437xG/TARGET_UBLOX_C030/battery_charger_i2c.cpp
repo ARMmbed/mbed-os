@@ -16,7 +16,8 @@
 
 #include "battery_charger_i2c.h"
 
-BatteryChargerI2c::BatteryChargerI2c(PinName sda, PinName scl):_i2c(), _hz(100000) {
+BatteryChargerI2c::BatteryChargerI2c(PinName sda, PinName scl):_i2c(), _hz(100000)
+{
     i2c_init(&_i2c, sda, scl);
 }
 
