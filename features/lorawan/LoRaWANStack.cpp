@@ -991,7 +991,7 @@ int16_t LoRaWANStack::handle_rx(const uint8_t port, uint8_t* data,
         _rx_msg.receive_ready = false;
     }
 
-    return _rx_msg.pending_size;
+    return base_size;
 }
 
 lora_mac_status_t LoRaWANStack::mlme_request_handler(lora_mac_mlme_req_t *mlme_request)
