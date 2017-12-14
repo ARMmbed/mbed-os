@@ -17,8 +17,8 @@
  *  limitations under the License.
  *
  */
-#if defined(MBEDTLS_MD5_C)
 #include "mbedtls/md5.h"
+#if defined(MBEDTLS_MD5_C)
 
 #if defined(MBEDTLS_MD5_ALT)
 #include "mbedtls/platform.h"
