@@ -441,13 +441,6 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     if  (hasattr(toolchain.target, "release_versions") and
             "5" not in toolchain.target.release_versions and
             "rtos" in toolchain.config.lib_config_data):
-        if "Cortex-A" in toolchain.target.core:
-            raise NotSupportedException(
-                ("%s Will be supported in a future version of Mbed OS. "
-                    "To use the %s, please checkout the mbed OS 5.4 release branch. "
-                    "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
-                    "for more information") % (toolchain.target.name, toolchain.target.name))
-        else:
             raise NotSupportedException("Target does not support mbed OS 5")
 
     return resources
