@@ -582,6 +582,7 @@ static void lan_reg_set(int32_t link) {
         ETHERECSIPR0   &= ~0x00000011;                     /* PFROIP Disable, ICDIP Disable */
         InterruptHandlerRegister(ETHERI_IRQn, INT_Ether);  /* Ethernet interrupt handler registration */
         GIC_SetPriority(ETHERI_IRQn, Interrupt_priority);  /* Ethernet interrupt priority */
+        GIC_SetConfiguration(ETHERI_IRQn, 1);
         GIC_EnableIRQ(ETHERI_IRQn);                        /* Enables the E-DMAC interrupt */
     }
 
