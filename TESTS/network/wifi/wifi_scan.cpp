@@ -54,12 +54,16 @@ void wifi_scan(void)
         if (strcmp(MBED_CONF_APP_WIFI_SECURE_SSID, ssid) == 0) {
             secure_found = true;
             TEST_ASSERT_EQUAL_INT(NSAPI_SECURITY_WPA2, security);
-            TEST_ASSERT_EQUAL_INT(MBED_CONF_APP_WIFI_CH_SECURE, ch);
+            if (MBED_CONF_APP_WIFI_CH_SECURE) {
+                TEST_ASSERT_EQUAL_INT(MBED_CONF_APP_WIFI_CH_SECURE, ch);
+            }
         }
         if (strcmp(MBED_CONF_APP_WIFI_UNSECURE_SSID, ssid) == 0) {
             unsecure_found = true;
             TEST_ASSERT_EQUAL_INT(NSAPI_SECURITY_NONE, security);
-            TEST_ASSERT_EQUAL_INT(MBED_CONF_APP_WIFI_CH_UNSECURE, ch);
+            if (MBED_CONF_APP_WIFI_CH_UNSECURE) {
+                TEST_ASSERT_EQUAL_INT(MBED_CONF_APP_WIFI_CH_UNSECURE, ch);
+            }
         }
     }
     TEST_ASSERT_TRUE(secure_found);
