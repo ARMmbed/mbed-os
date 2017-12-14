@@ -379,7 +379,7 @@ void serial_free(serial_t *obj)
         nrf_drv_common_irq_disable(obj->serial.IRQn);
         UART_CB->initialized = false;
 
-        if(&stdio_uart == &(obj->serial)) 
+        if (&stdio_uart == obj)
             stdio_uart_inited = 0;
     }
     uart_used[obj->serial.instance] = 0;
