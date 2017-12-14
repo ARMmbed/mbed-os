@@ -18,6 +18,20 @@
 #ifndef LORARADIO_H_
 #define LORARADIO_H_
 
+/**
+ * Structure to hold RF controls for LoRa Radio.
+ * SX1276 have an extra control for the crystal (used in DOSCO-L072CZ)
+ */
+typedef struct {
+    PinName rf_switch_ctl1;
+    PinName rf_switch_ctl2;
+    PinName txctl;
+    PinName rxctl;
+    PinName ant_switch;
+    PinName pwr_amp_ctl;
+    PinName tcxo;
+} rf_ctrls;
+
 /** Radio driver internal state.
  * State machine states definition.
  */
