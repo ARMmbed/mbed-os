@@ -1357,7 +1357,7 @@ public:
      * be allocated if either the notify or indicate flag in the @p props bit
      * field; the underlying BLE stack handles it.
      *
-     * @important GattCharacteristic registered in a GattServer must remain
+     * @attention GattCharacteristic registered in a GattServer must remain
      * valid for the lifetime of the GattServer.
      */
     GattCharacteristic(
@@ -1476,7 +1476,7 @@ public:
      * This function is a helper that calls the registered write handler to
      * determine the authorization reply for a write request.
      *
-     * @important This function is not meant to be called by user code.
+     * @attention This function is not meant to be called by user code.
      *
      * @param[in] params Context of the write-auth request; it contains an
      * out-parameter used as a reply.
@@ -1502,7 +1502,7 @@ public:
      * This function is a helper that calls the registered read handler to
      * determine the authorization reply for a read request.
      *
-     * @important This function is not meant to be called by user code.
+     * @attention This function is not meant to be called by user code.
      *
      * @param[in] params Context of the read-auth request; it contains an
      * out-parameter used as a reply and the handler can fill it with outgoing

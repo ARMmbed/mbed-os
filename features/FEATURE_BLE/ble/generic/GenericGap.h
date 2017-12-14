@@ -38,7 +38,7 @@ namespace generic {
  * It requires a pal::Gap and a pal::GenericAccessService injected at
  * construction site.
  *
- * @important: Not part of the public interface of BLE API.
+ * @attention: Not part of the public interface of BLE API.
  */
 class GenericGap : public ::Gap {
 

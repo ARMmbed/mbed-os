@@ -36,7 +36,7 @@ struct descriptor_discovery_control_block_t;
 /**
  * Generic implementation of the GattClient.
  * It requires a pal::GattClient injected at construction site.
- * @important: Not part of the public interface of BLE API.
+ * @attention: Not part of the public interface of BLE API.
  */
 class GenericGattClient : public GattClient {
 
