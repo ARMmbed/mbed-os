@@ -79,8 +79,8 @@
   #ifndef   __NO_RETURN
     #define __NO_RETURN               __attribute__((noreturn))
   #endif
-  #ifndef   __DEPRECATED
-   #define  __DEPRECATED              __attribute__((deprecated))
+  #ifndef   CMSIS_DEPRECATED
+    #define CMSIS_DEPRECATED          __attribute__((deprecated))
   #endif
   #ifndef   __USED
     #define __USED                    __attribute__((used))
@@ -125,8 +125,8 @@
   #ifndef   __NO_RETURN
     #define __NO_RETURN               __attribute__((noreturn))
   #endif
-  #ifndef   __DEPRECATED
-   #define  __DEPRECATED              __attribute__((deprecated))
+  #ifndef   CMSIS_DEPRECATED
+    #define CMSIS_DEPRECATED          __attribute__((deprecated))
   #endif
   #ifndef   __USED
     #define __USED                    __attribute__((used))
@@ -172,9 +172,9 @@
     #warning No compiler specific solution for __USED. __USED is ignored.
     #define __USED
   #endif
-  #ifndef   __DEPRECATED
-    #warning No compiler specific solution for __DEPRECATED. __DEPRECATED is ignored.
-    #define __DEPRECATED
+  #ifndef   CMSIS_DEPRECATED
+    #warning No compiler specific solution for CMSIS_DEPRECATED. CMSIS_DEPRECATED is ignored.
+    #define CMSIS_DEPRECATED
   #endif
   #ifndef   __WEAK
     #define __WEAK                    __weak
