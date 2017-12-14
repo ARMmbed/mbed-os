@@ -34,8 +34,6 @@ using namespace utest::v1;
 using namespace rtos;
 using namespace events;
 
-#define MBED_CONF_LORA_PHY 0
-
 #ifndef MBED_CONF_LORA_PHY
 #error "Must set LoRa PHY layer parameters."
 #else
@@ -95,6 +93,7 @@ static Thread t(osPriorityNormal, TEST_DISPATCH_THREAD_SIZE);
                            LORA_DIO0, LORA_DIO1, LORA_DIO2, LORA_DIO3, LORA_DIO4,
                            LORA_DIO5, NC, NC, LORA_TXCTL, LORA_RXCTL, NC, NC);
 #endif
+
 #if TARGET_K64F
     SX1276_LoRaRadio Radio(D11, D12, D13, D10, A0,
                            D2, D3, D4, D5, D8,

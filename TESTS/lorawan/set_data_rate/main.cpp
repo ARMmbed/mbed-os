@@ -18,7 +18,9 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 
-#include "mbed.h"
+#include "rtos/Thread.h"
+#include "events/EventQueue.h"
+
 #if TARGET_MTS_MDOT_F411RE
 #include "SX1272_LoRaRadio.h"
 #endif
@@ -29,8 +31,8 @@
 #include "LoRaWANInterface.h"
 
 using namespace utest::v1;
-
-#define MBED_CONF_LORA_PHY 0
+using namespace rtos;
+using namespace events;
 
 #ifndef MBED_CONF_LORA_PHY
 #error "Must set LoRa PHY layer parameters."
@@ -70,44 +72,33 @@ static LoRaPHYUS915Hybrid lora_phy;
 #endif
 #endif
 
-#if defined(FEATURE_COMMON_PAL)
-#include "mbed_trace.h"
-#define TRACE_GROUP "LSTK"
+#ifdef MBED_CONF_APP_TEST_EVENTS_SIZE
+ #define MAX_NUMBER_OF_EVENTS    MBED_CONF_APP_TEST_EVENTS_SIZE
 #else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_mutex_wait_function_set(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_mutex_release_function_set(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_init(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_print_function_set(...) (void(0)) //dummies if feature common pal is not added
-#endif //defined(FEATURE_COMMON_PAL)
+ #define MAX_NUMBER_OF_EVENTS   16
+#endif
 
-Serial pc(USBTX, USBRX);
-static Mutex MyMutex;
-static void my_mutex_wait()
-{
-    MyMutex.lock();
-}
-static void my_mutex_release()
-{
-    MyMutex.unlock();
-}
+#ifdef MBED_CONF_APP_TEST_DISPATCH_THREAD_SIZE
+ #define TEST_DISPATCH_THREAD_SIZE    MBED_CONF_APP_TEST_DISPATCH_THREAD_SIZE
+#else
+ #define TEST_DISPATCH_THREAD_SIZE    1024
+#endif
 
-void trace_printer(const char* str)
-{
-    printf("%s\r\n", str);
-}
+static EventQueue ev_queue(MAX_NUMBER_OF_EVENTS * EVENTS_EVENT_SIZE);
+
+// This test requires larger stack. Why ?
+static Thread t(osPriorityNormal, TEST_DISPATCH_THREAD_SIZE);
 
 void lora_event_handler(lora_events_t events);
 
 #if TARGET_MTS_MDOT_F411RE
-    SX1272_LoRaRadio Radio(LORA_MOSI, LORA_MISO, LORA_SCK, LORA_NSS, LORA_RESET,
+    static SX1272_LoRaRadio Radio(LORA_MOSI, LORA_MISO, LORA_SCK, LORA_NSS, LORA_RESET,
                            LORA_DIO0, LORA_DIO1, LORA_DIO2, LORA_DIO3, LORA_DIO4,
                            LORA_DIO5, NC, NC, LORA_TXCTL, LORA_RXCTL, NC, NC);
 #endif
+
 #if TARGET_K64F
-    SX1276_LoRaRadio Radio(D11, D12, D13, D10, A0,
+    static SX1276_LoRaRadio Radio(D11, D12, D13, D10, A0,
                            D2, D3, D4, D5, D8,
                            D9, NC, NC, NC, NC, A4, NC, NC);
 #endif
@@ -129,7 +120,7 @@ void lora_event_handler(lora_events_t events);
     #define LORA_ANT_BOOST  PC_1
     #define LORA_TCXO       PA_12   // 32 MHz
 
-    SX1276_LoRaRadio Radio(LORA_SPI_MOSI, LORA_SPI_MISO, LORA_SPI_SCLK, LORA_CS, LORA_RESET,
+    static SX1276_LoRaRadio Radio(LORA_SPI_MOSI, LORA_SPI_MISO, LORA_SPI_SCLK, LORA_CS, LORA_RESET,
                            LORA_DIO0, LORA_DIO1, LORA_DIO2, LORA_DIO3, LORA_DIO4, NC,
                            NC, NC, LORA_ANT_TX, LORA_ANT_RX,
                            NC, LORA_ANT_BOOST, LORA_TCXO);
@@ -221,6 +212,7 @@ void test_data_rate(uint8_t tx_data[11], char *expected_recv_msg)
     }
 
     ret = lorawan.receive(LORAWAN_APP_PORT, rx_data, 64, MSG_CONFIRMED_FLAG);
+
     if (ret < 0) {
         TEST_ASSERT_MESSAGE(false, "Receive failed");
         return;
@@ -246,6 +238,11 @@ void lora_set_data_rate()
     uint8_t tx_data[5] = "DR1";
     uint8_t data_rate = 0;
 
+    // ADR must be disabled to set the datarate
+    ret = lorawan.disable_adaptive_datarate();
+
+    TEST_ASSERT_MESSAGE(ret == LORA_MAC_STATUS_OK, "Incorrect MAC status");
+
     ret = lorawan.connect();
     if (ret != LORA_MAC_STATUS_OK && ret != LORA_MAC_STATUS_CONNECT_IN_PROGRESS) {
         TEST_ASSERT_MESSAGE(false, "Connect failed");
@@ -268,10 +265,6 @@ void lora_set_data_rate()
     }
 
     counter = 0;
-
-    // ADR must be disabled to set the datarate
-    ret = lorawan.disable_adaptive_datarate();
-    TEST_ASSERT_MESSAGE(ret == LORA_MAC_STATUS_OK, "Incorrect MAC status");
 
     // Set data rate to 1 -> Expected SF11BW125
     data_rate = 1;
@@ -336,17 +329,14 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
 
 
 int main() {
-    lora_mac_status_t ret;
+    // start thread to handle events
+    t.start(callback(&ev_queue, &EventQueue::dispatch_forever));
 
-    pc.baud(115200);
-    mbed_trace_mutex_wait_function_set( my_mutex_wait ); // only if thread safety is needed
-    mbed_trace_mutex_release_function_set( my_mutex_release ); // only if thread safety is needed
-    mbed_trace_init(); // initialize the trace library
-    mbed_trace_print_function_set(trace_printer);
+    lora_mac_status_t ret;
 
     lorawan.lora_event_callback(lora_event_handler);
 
-    ret = lorawan.initialize();
+    ret = lorawan.initialize(&ev_queue);
     TEST_ASSERT_MESSAGE(ret == LORA_MAC_STATUS_OK, "Initialization failed");
 
     Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
@@ -355,13 +345,11 @@ int main() {
 
 void lora_event_handler(lora_events_t events)
 {
-    tr_debug("event handler");
 
     if (lora_helper.event_lock) {
         return;
     }
 
-    tr_debug("insert event %i to index %i", events, lora_helper.cur_event % 10);
     lora_helper.event_buffer[lora_helper.cur_event % 10] = events;
     lora_helper.cur_event++;
 }

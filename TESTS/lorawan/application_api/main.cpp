@@ -34,8 +34,6 @@ using namespace utest::v1;
 using namespace rtos;
 using namespace events;
 
-#define MBED_CONF_LORA_PHY 0
-
 #ifndef MBED_CONF_LORA_PHY
 #error "Must set LoRa PHY layer parameters."
 #else
@@ -74,19 +72,6 @@ static LoRaPHYUS915Hybrid lora_phy;
 #endif
 #endif
 
-#if defined(FEATURE_COMMON_PAL)
-#include "mbed_trace.h"
-#define TRACE_GROUP "LSTK"
-#else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_mutex_wait_function_set(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_mutex_release_function_set(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_init(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_print_function_set(...) (void(0)) //dummies if feature common pal is not added
-#endif //defined(FEATURE_COMMON_PAL)
-
 #ifdef MBED_CONF_APP_TEST_EVENTS_SIZE
  #define MAX_NUMBER_OF_EVENTS    MBED_CONF_APP_TEST_EVENTS_SIZE
 #else
@@ -103,22 +88,6 @@ static EventQueue ev_queue(MAX_NUMBER_OF_EVENTS * EVENTS_EVENT_SIZE);
 
 // This test requires larger stack. Why ?
 static Thread t(osPriorityNormal, TEST_DISPATCH_THREAD_SIZE);
-
-static Serial pc(USBTX, USBRX);
-static Mutex MyMutex;
-static void my_mutex_wait()
-{
-    MyMutex.lock();
-}
-static void my_mutex_release()
-{
-    MyMutex.unlock();
-}
-
-void trace_printer(const char* str)
-{
-    printf("%s\r\n", str);
-}
 
 static void lora_event_handler(lora_events_t events);
 
@@ -1343,12 +1312,6 @@ int main() {
 
     // start thread to handle events
     t.start(callback(&ev_queue, &EventQueue::dispatch_forever));
-
-    pc.baud(115200);
-    mbed_trace_mutex_wait_function_set( my_mutex_wait ); // only if thread safety is needed
-    mbed_trace_mutex_release_function_set( my_mutex_release ); // only if thread safety is needed
-    mbed_trace_init(); // initialize the trace library
-    mbed_trace_print_function_set(trace_printer);
 
     lora_mac_status_t ret;
 

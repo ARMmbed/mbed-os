@@ -34,8 +34,6 @@ using namespace utest::v1;
 using namespace rtos;
 using namespace events;
 
-#define MBED_CONF_LORA_PHY 0
-
 #ifndef MBED_CONF_LORA_PHY
 #error "Must set LoRa PHY layer parameters."
 #else

@@ -21,7 +21,6 @@
 #include "rtos/Thread.h"
 #include "events/EventQueue.h"
 
-#include "mbed.h"
 #if TARGET_MTS_MDOT_F411RE
 #include "SX1272_LoRaRadio.h"
 #endif
@@ -34,8 +33,6 @@
 using namespace utest::v1;
 using namespace rtos;
 using namespace events;
-
-#define MBED_CONF_LORA_PHY 0
 
 #ifndef MBED_CONF_LORA_PHY
 #error "Must set LoRa PHY layer parameters."
@@ -75,19 +72,6 @@ static LoRaPHYUS915Hybrid lora_phy;
 #endif
 #endif
 
-#if defined(FEATURE_COMMON_PAL)
-#include "mbed_trace.h"
-#define TRACE_GROUP "LSTK"
-#else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_mutex_wait_function_set(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_mutex_release_function_set(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_init(...) (void(0)) //dummies if feature common pal is not added
-#define mbed_trace_print_function_set(...) (void(0)) //dummies if feature common pal is not added
-#endif //defined(FEATURE_COMMON_PAL)
-
 #ifdef MBED_CONF_APP_TEST_EVENTS_SIZE
  #define MAX_NUMBER_OF_EVENTS    MBED_CONF_APP_TEST_EVENTS_SIZE
 #else
@@ -102,32 +86,16 @@ static LoRaPHYUS915Hybrid lora_phy;
 
 static EventQueue ev_queue(MAX_NUMBER_OF_EVENTS * EVENTS_EVENT_SIZE);
 
-// This test requires larger stack. Why ?
 static Thread t(osPriorityNormal, TEST_DISPATCH_THREAD_SIZE);
 
-static mbed::Serial pc(USBTX, USBRX);
-static Mutex MyMutex;
-static void my_mutex_wait()
-{
-    MyMutex.lock();
-}
-static void my_mutex_release()
-{
-    MyMutex.unlock();
-}
-
-void trace_printer(const char* str)
-{
-    printf("%s\r\n", str);
-}
-
-void lora_event_handler(lora_events_t events);
+static void lora_event_handler(lora_events_t events);
 
 #if TARGET_MTS_MDOT_F411RE
     SX1272_LoRaRadio Radio(LORA_MOSI, LORA_MISO, LORA_SCK, LORA_NSS, LORA_RESET,
                            LORA_DIO0, LORA_DIO1, LORA_DIO2, LORA_DIO3, LORA_DIO4,
                            LORA_DIO5, NC, NC, LORA_TXCTL, LORA_RXCTL, NC, NC);
 #endif
+
 #if TARGET_K64F
     SX1276_LoRaRadio Radio(D11, D12, D13, D10, A0,
                            D2, D3, D4, D5, D8,
@@ -188,8 +156,8 @@ bool LoRaTestHelper::find_event(uint8_t event_code)
     return false;
 }
 
-LoRaWANInterface lorawan(Radio);
-LoRaTestHelper lora_helper;
+static LoRaWANInterface lorawan(Radio);
+static LoRaTestHelper lora_helper;
 
 void lora_adr_enable_disable()
 {
@@ -360,12 +328,6 @@ int main() {
       t.start(callback(&ev_queue, &EventQueue::dispatch_forever));
 
     lora_mac_status_t ret;
-
-    pc.baud(115200);
-    mbed_trace_mutex_wait_function_set( my_mutex_wait ); // only if thread safety is needed
-    mbed_trace_mutex_release_function_set( my_mutex_release ); // only if thread safety is needed
-    mbed_trace_init(); // initialize the trace library
-    mbed_trace_print_function_set(trace_printer);
 
     lorawan.lora_event_callback(lora_event_handler);
 

@@ -50,7 +50,7 @@ static EventQueue ev_queue(MAX_NUMBER_OF_EVENTS * EVENTS_EVENT_SIZE);
 
 static Thread t(osPriorityNormal, TEST_DISPATCH_THREAD_SIZE);
 
-void lora_event_handler(lora_events_t events);
+static void lora_event_handler(lora_events_t events);
 
 #if TARGET_MTS_MDOT_F411RE
     SX1272_LoRaRadio Radio(LORA_MOSI, LORA_MISO, LORA_SCK, LORA_NSS, LORA_RESET,
@@ -118,8 +118,8 @@ bool LoRaTestHelper::find_event(uint8_t event_code)
     return false;
 }
 
-LoRaWANInterface lorawan(Radio);
-LoRaTestHelper lora_helper;
+static LoRaWANInterface lorawan(Radio);
+static LoRaTestHelper lora_helper;
 
 void lora_tx_send_confirmed()
 {
@@ -201,7 +201,7 @@ int main() {
     Harness::run(specification);
 }
 
-void lora_event_handler(lora_events_t events)
+static void lora_event_handler(lora_events_t events)
 {
     if (lora_helper.event_lock) {
         return;
