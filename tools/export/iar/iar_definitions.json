@@ -2,6 +2,9 @@
     "STM32L476VG": {
         "OGChipSelectEditMenu": "STM32L476VG\tST STM32L476VG"
     },
+    "STM32L475VG": {
+        "OGChipSelectEditMenu": "STM32L475VG\tST STM32L475VG"
+    },
     "LPC11U24FBD48/401": {
         "OGChipSelectEditMenu": "LPC11U24FBD64_401\tNXP LPC11U24FBD64_401"
     },
