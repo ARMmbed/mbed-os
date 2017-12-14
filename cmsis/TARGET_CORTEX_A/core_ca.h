@@ -1010,7 +1010,7 @@ __STATIC_FORCEINLINE void L1C_CleanInvalidateCache(uint32_t op) {
 * \param [in] op 0 - invalidate, 1 - clean, otherwise - invalidate and clean
 * \deprecated Use generic L1C_CleanInvalidateCache instead.
 */
-__DEPRECATED
+CMSIS_DEPRECATED
 __STATIC_FORCEINLINE void __L1C_CleanInvalidateCache(uint32_t op) {
   L1C_CleanInvalidateCache(op);
 }
