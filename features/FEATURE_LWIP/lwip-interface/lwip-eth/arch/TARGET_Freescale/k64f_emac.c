@@ -246,6 +246,16 @@ static err_t low_level_init(struct netif *netif)
   config.txAccelerConfig = kENET_TxAccelIsShift16Enabled;
   config.rxAccelerConfig = kENET_RxAccelisShift16Enabled | kENET_RxAccelMacCheckEnabled;
   ENET_Init(ENET, &g_handle, &config, &buffCfg, netif->hwaddr, sysClock);
+
+#if defined(TOOLCHAIN_ARM)
+#if defined(__OPTIMISE_TIME) && (__ARMCC_VERSION < 5060750)
+  /* Add multicast groups
+     work around for https://github.com/ARMmbed/mbed-os/issues/4372 */
+  ENET->GAUR = 0xFFFFFFFFu;
+  ENET->GALR = 0xFFFFFFFFu;
+#endif
+#endif
+
   ENET_SetCallback(&g_handle, ethernet_callback, netif);
   ENET_ActiveRead(ENET);
 
