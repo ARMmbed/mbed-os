@@ -259,7 +259,7 @@ public:
      *
      * @return                  It could be one of these:
      *                             i)   0 if there is nothing else to read.
-     *                             ii)  Number of bytes still pending to read.
+     *                             ii)  Number of bytes written to user buffer.
      *                             iii) LORA_MAC_STATUS_WOULD_BLOCK if there is
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
