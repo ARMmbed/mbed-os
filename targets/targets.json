@@ -2397,7 +2397,7 @@
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "CAN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "features": ["LWIP"],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"]
     },
     "VK_RZ_A1H": {
         "inherits": ["Target"],
