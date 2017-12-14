@@ -340,6 +340,7 @@ void can_irq_set(can_t *obj, CanIrqType type, uint32_t enable) {
             }
             InterruptHandlerRegister(can_int_info[obj->ch][type].int_num, can_int_info[obj->ch][type].handler);
             GIC_SetPriority(can_int_info[obj->ch][type].int_num, 5);
+            GIC_SetConfiguration(can_int_info[obj->ch][type].int_num, 1);
             GIC_EnableIRQ(can_int_info[obj->ch][type].int_num);
         } else {
             GIC_DisableIRQ(can_int_info[obj->ch][type].int_num);

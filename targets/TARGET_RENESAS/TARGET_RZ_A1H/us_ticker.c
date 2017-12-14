@@ -62,6 +62,7 @@ void us_ticker_init(void) {
     // INTC settings
     InterruptHandlerRegister(US_TICKER_TIMER_IRQn, (void (*)(uint32_t))us_ticker_interrupt);
     GIC_SetPriority(US_TICKER_TIMER_IRQn, 5);
+    GIC_SetConfiguration(US_TICKER_TIMER_IRQn, 3);
     GIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
