@@ -36,16 +36,18 @@ Also modified to allow UICR to be written to using the section attribute
 /*
  * UICR -> User Information Configuration Registers
  * UICR_AP -> UICR Access Port Protect (has a couple other functions)
+ * Note: This is now taken care of by merging with a separate UICR hex file
+ * This was done to avoid build errors with the mbed cli system
+ * and to make the build more flexible (for OTA updates, etc)
  */
 
 MEMORY
 {
-  /*VECTORS (rx) : ORIGIN = MBED_APP_START, LENGTH = 0x100*/
   IMAGEINFO(r): ORIGIN = MBED_APP_START, LENGTH = IMAGE_INFO_OFFSET
   FLASH(rx) : ORIGIN = MBED_APP_START+IMAGE_INFO_OFFSET, LENGTH = MBED_APP_SIZE-IMAGE_INFO_OFFSET
   RAM (rwx) :  ORIGIN = 0x20002ef8, LENGTH = 0xd108
-  UICR (rw) :  ORIGIN = 0x10001014, LENGTH = 0x8
-  UICR_AP (rw) : ORIGIN = 0x10001200, LENGTH = 0x10
+  /*UICR (rw) :  ORIGIN = 0x10001014, LENGTH = 0x8
+  UICR_AP (rw) : ORIGIN = 0x10001200, LENGTH = 0x10*/
 }
 
 
@@ -229,7 +231,7 @@ SECTIONS
        This allows them to be programmed with a
        .hex file at the factory
     */
-    .uicr :
+    /*.uicr :
     {
 	KEEP(*(.uicr))
     } > UICR
@@ -237,7 +239,7 @@ SECTIONS
     .uicr_ap :
     {
 	KEEP(*(.uicr_ap))
-    } > UICR_AP
+    } > UICR_AP*/
 
 
 }
