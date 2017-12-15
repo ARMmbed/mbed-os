@@ -101,12 +101,4 @@ TimerTime_t TimerGetCurrentTime( void );
  */
 TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime );
 
-/*!
- * \brief Return the time elapsed since a fixed moment in time.
- *
- * \param [in] eventInFuture    The fixed moment in the future.
- * \retval time             The difference between now and a future event.
- */
-TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture );
-
 #endif // MBED_LORAWAN_SYS_TIMER_H__

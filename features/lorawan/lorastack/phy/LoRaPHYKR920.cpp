@@ -186,9 +186,9 @@
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define KR920_BAND0                                 { 1 , KR920_MAX_TX_POWER, 0,  0 } //  100.0 %
+#define KR920_BAND0                                 { 1 , KR920_MAX_TX_POWER, 0, 0, 0 } //  100.0 %
 
 /*!
  * LoRaMac default channel 1
@@ -759,7 +759,7 @@ bool LoRaPHYKR920::rx_config(RxConfigParams_t* rxConfig, int8_t* datarate)
         return false;
     }
 
-    if( rxConfig->Window == 0 )
+    if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
         // Apply window 1 frequency
         frequency = Channels[rxConfig->Channel].Frequency;

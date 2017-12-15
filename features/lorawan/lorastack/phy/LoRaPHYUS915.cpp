@@ -161,9 +161,9 @@
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define US915_BAND0                                 { 1, US915_MAX_TX_POWER, 0,  0 } //  100.0 %
+#define US915_BAND0                                 { 1, US915_MAX_TX_POWER, 0, 0, 0 } //  100.0 %
 
 /*!
  * Defines the first channel for RX window 1 for US band
@@ -683,7 +683,7 @@ bool LoRaPHYUS915::rx_config(RxConfigParams_t* rxConfig, int8_t* datarate)
         return false;
     }
 
-    if( rxConfig->Window == 0 )
+    if( rxConfig->RxSlot == RX_SLOT_WIN_1 )
     {
         // Apply window 1 frequency
         frequency = US915_FIRST_RX1_CHANNEL + ( rxConfig->Channel % 8 ) * US915_STEPWIDTH_RX1_CHANNEL;

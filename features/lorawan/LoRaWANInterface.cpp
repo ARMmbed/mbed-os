@@ -28,7 +28,7 @@ inline LoRaWANStack& stk_obj()
     return LoRaWANStack::get_lorawan_stack();
 }
 
-LoRaWANInterface::LoRaWANInterface(LoRaRadio& radio)
+LoRaWANInterface::LoRaWANInterface(LoRaRadio& radio) : _link_check_requested(false)
 {
     // Pass mac_handlers to radio to the radio driver after
     // binding radio driver to PHY layer
@@ -117,6 +117,17 @@ lora_mac_status_t LoRaWANInterface::disconnect()
     return LORA_MAC_STATUS_OK;
 }
 
+lora_mac_status_t LoRaWANInterface::add_link_check_request()
+{
+    _link_check_requested = true;
+    return stk_obj().set_link_check_request();
+}
+
+void LoRaWANInterface::remove_link_check_request()
+{
+    _link_check_requested = false;
+}
+
 lora_mac_status_t LoRaWANInterface::set_datarate(uint8_t data_rate)
 {
     return stk_obj().set_channel_data_rate(data_rate);
@@ -160,6 +171,12 @@ lora_mac_status_t LoRaWANInterface::remove_channel_plan()
 int16_t LoRaWANInterface::send(uint8_t port, const uint8_t* data,
                                uint16_t length, int flags)
 {
+    if (_link_check_requested) {
+        // add a link check request with normal data, until the application
+        // explicitly removes it.
+        add_link_check_request();
+    }
+
     if (data) {
         return stk_obj().handle_tx(port, data, length, flags);
     } else {

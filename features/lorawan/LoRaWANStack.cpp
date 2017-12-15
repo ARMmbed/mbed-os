@@ -129,7 +129,7 @@ lora_mac_status_t LoRaWANStack::set_application_port(uint8_t port)
  ****************************************************************************/
 LoRaWANStack::LoRaWANStack()
 : _device_current_state(DEVICE_STATE_NOT_INITIALIZED), _mac_handlers(NULL),
-  _num_retry(1), _queue(NULL), _duty_cycle_on(LORAWAN_DUTYCYCLE_ON)
+   _num_retry(1), _queue(NULL), _duty_cycle_on(LORAWAN_DUTYCYCLE_ON)
 {
 #ifdef MBED_CONF_LORA_APP_PORT
     // is_port_valid() is not virtual, so we can call it in constructor
@@ -168,7 +168,7 @@ LoRaWANStack& LoRaWANStack::get_lorawan_stack()
 radio_events_t *LoRaWANStack::bind_radio_driver(LoRaRadio& radio)
 {
     // Store pointer to callback routines inside MAC layer (non-IRQ safe)
-    _mac_handlers = GetPhyEventHandlers();
+    _mac_handlers = _loramac.GetPhyEventHandlers();
     //  passes the reference to radio driver down to PHY layer
     lora_phy.get()->set_radio_instance(radio);
     return _mac_handlers;
@@ -204,7 +204,8 @@ lora_mac_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
     LoRaMacPrimitives.MacMcpsConfirm = callback(this, &LoRaWANStack::mcps_confirm);
     LoRaMacPrimitives.MacMcpsIndication = callback(this, &LoRaWANStack::mcps_indication);
     LoRaMacPrimitives.MacMlmeConfirm = callback(this, &LoRaWANStack::mlme_confirm);
-    LoRaMacInitialization(&LoRaMacPrimitives, &LoRaMacCallbacks, lora_phy.get(), queue);
+    LoRaMacPrimitives.MacMlmeIndication = callback(this, &LoRaWANStack::mlme_indication);
+    _loramac.LoRaMacInitialization(&LoRaMacPrimitives, &LoRaMacCallbacks, lora_phy.get(), queue);
 
     mib_req.type = LORA_MIB_ADR;
     mib_req.param.adr_enable = LORAWAN_ADR_ON;
@@ -315,7 +316,7 @@ lora_mac_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
 uint16_t LoRaWANStack::check_possible_tx_size(uint16_t size)
 {
     LoRaMacTxInfo_t txInfo;
-    if (LoRaMacQueryTxPossible(size, &txInfo) == LORAMAC_STATUS_LENGTH_ERROR) {
+    if (_loramac.LoRaMacQueryTxPossible(size, &txInfo) == LORAMAC_STATUS_LENGTH_ERROR) {
         // Cannot transmit this much. Return how much data can be sent
         // at the moment
         return txInfo.MaxPossiblePayload;
@@ -461,9 +462,30 @@ void LoRaWANStack::mlme_confirm(MlmeConfirm_t *mlme_confirm)
     mlme_confirm_handler(&lora_mlme_confirm);
 }
 
+/*!
+ * \brief   MLME-Indication event function
+ *
+ * \param   [IN] mlmeIndication - Pointer to the indication structure.
+ */
+void LoRaWANStack::mlme_indication( MlmeIndication_t *mlmeIndication )
+{
+    switch( mlmeIndication->MlmeIndication )
+    {
+        case MLME_SCHEDULE_UPLINK:
+        {// The MAC signals that we shall provide an uplink as soon as possible
+            // TODO: Sending implementation missing and will be implemented using
+            //       another task.
+            //OnTxNextPacketTimerEvent( );
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+
 void LoRaWANStack::set_lora_callbacks(lorawan_app_callbacks_t *cbs)
 {
-
     if (cbs) {
         if (cbs->events) {
             _callbacks.events = cbs->events;
@@ -508,7 +530,7 @@ lora_mac_status_t LoRaWANStack::add_channels(const lora_channelplan_t &channel_p
         mac_layer_ch_params.Frequency = channel_plan.channels[i].ch_param.frequency;
         mac_layer_ch_params.Rx1Frequency =channel_plan.channels[i].ch_param.rx1_frequency;
 
-        status = LoRaMacChannelAdd(channel_plan.channels[i].id, mac_layer_ch_params);
+        status = _loramac.LoRaMacChannelAdd(channel_plan.channels[i].id, mac_layer_ch_params);
 
         if (status != LORAMAC_STATUS_OK) {
             return error_type_converter(status);
@@ -560,7 +582,7 @@ lora_mac_status_t LoRaWANStack::drop_channel_list()
             continue;
         }
 
-        status = error_type_converter(LoRaMacChannelRemove(i));
+        status = error_type_converter(_loramac.LoRaMacChannelRemove(i));
 
         if (status != LORA_MAC_STATUS_OK) {
             return status;
@@ -609,7 +631,7 @@ lora_mac_status_t LoRaWANStack::remove_a_channel(uint8_t channel_id)
         return LORA_MAC_STATUS_PARAMETER_INVALID;
     }
 
-    return error_type_converter(LoRaMacChannelRemove(channel_id));
+    return error_type_converter(_loramac.LoRaMacChannelRemove(channel_id));
 }
 
 lora_mac_status_t LoRaWANStack::get_enabled_channels(lora_channelplan_t& channel_plan)
@@ -872,7 +894,9 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
         _tx_msg.f_buffer_size = length;
         _tx_msg.pending_size = 0;
         // copy user buffer upto the max_possible_size
-        memcpy(_tx_msg.f_buffer, data, length);
+        if (data && length > 0) {
+            memcpy(_tx_msg.f_buffer, data, length);
+        }
     }
 
     // Handles all unconfirmed messages, including proprietary and multicast
@@ -1018,7 +1042,7 @@ lora_mac_status_t LoRaWANStack::mlme_request_handler(lora_mac_mlme_req_t *mlme_r
             break;
     }
 
-    return error_type_converter(LoRaMacMlmeRequest(&request));
+    return error_type_converter(_loramac.LoRaMacMlmeRequest(&request));
 }
 
 /** MLME-Confirm event function
@@ -1057,8 +1081,15 @@ void LoRaWANStack::mlme_confirm_handler(lora_mac_mlme_confirm_t *mlme_confirm)
                     _compliance_test.link_check = true;
                     _compliance_test.demod_margin = mlme_confirm->demod_margin;
                     _compliance_test.nb_gateways = mlme_confirm->nb_gateways;
-                }
+                } else
 #endif
+                {
+                    // normal operation as oppose to compliance testing
+                    if (_callbacks.link_check_resp) {
+                        _queue->call(_callbacks.link_check_resp, mlme_confirm->demod_margin,
+                                 mlme_confirm->nb_gateways);
+                    }
+                }
             }
             break;
         default:
@@ -1101,7 +1132,7 @@ lora_mac_status_t LoRaWANStack::mcps_request_handler(lora_mac_mcps_req_t *mcps_r
             break;
     }
 
-    return error_type_converter(LoRaMacMcpsRequest(&request));
+    return error_type_converter(_loramac.LoRaMacMcpsRequest(&request));
 }
 
 /** MCPS-Confirm event function
@@ -1253,6 +1284,14 @@ void LoRaWANStack::mcps_indication_handler(lora_mac_mcps_indication_t *mcps_indi
                 if (_callbacks.events) {
                     _queue->call(_callbacks.events, RX_DONE);
                 }
+
+                // If fPending bit is set we try to generate an empty packet
+                // with CONFIRMED flag set. We always set a CONFIRMED flag so
+                // that we could retry a certain number of times if the uplink
+                // failed for some reason
+                if (mcps_indication->frame_pending) {
+                    handle_tx(mcps_indication->port, NULL, 0, MSG_CONFIRMED_FLAG);
+                }
             } else {
                 // Invalid port, ports 0, 224 and 225-255 are reserved.
             }
@@ -1292,10 +1331,10 @@ void LoRaWANStack::compliance_test_handler(lora_mac_mcps_indication_t *mcps_indi
             mib_set_request(&mib_req);
 
 #if MBED_CONF_LORA_PHY      == 0
-            LoRaMacTestSetDutyCycleOn(false);
+            _loramac.LoRaMacTestSetDutyCycleOn(false);
 #endif
             //5000ms
-            LoRaMacSetTxTimer(5000);
+            _loramac.LoRaMacSetTxTimer(5000);
             set_device_state(DEVICE_STATE_COMPLIANCE_TEST);
             tr_debug("Compliance test activated.");
         }
@@ -1314,11 +1353,11 @@ void LoRaWANStack::compliance_test_handler(lora_mac_mcps_indication_t *mcps_indi
             mib_req.param.adr_enable = LORAWAN_ADR_ON;
             mib_set_request(&mib_req);
 #if MBED_CONF_LORA_PHY      == 0
-            LoRaMacTestSetDutyCycleOn(LORAWAN_DUTYCYCLE_ON);
+            _loramac.LoRaMacTestSetDutyCycleOn(LORAWAN_DUTYCYCLE_ON);
 #endif
             // Go to idle state after compliance test mode.
             tr_debug("Compliance test disabled.");
-            LoRaMacStopTxTimer();
+            _loramac.LoRaMacStopTxTimer();
 
             // Clear any compliance test message stuff before going back to normal operation.
             memset(&_tx_msg, 0, sizeof(_tx_msg));
@@ -1366,7 +1405,7 @@ void LoRaWANStack::compliance_test_handler(lora_mac_mcps_indication_t *mcps_indi
             mib_request.param.adr_enable = LORAWAN_ADR_ON;
             mib_set_request(&mib_request);
 #if MBED_CONF_LORA_PHY      == 0
-            LoRaMacTestSetDutyCycleOn(LORAWAN_DUTYCYCLE_ON);
+            _loramac.LoRaMacTestSetDutyCycleOn(LORAWAN_DUTYCYCLE_ON);
 #endif
             mlme_request.type = LORA_MLME_JOIN;
             mlme_request.req.join.dev_eui = _lw_session.connection.connection_u.otaa.dev_eui;
@@ -1569,7 +1608,7 @@ lora_mac_status_t LoRaWANStack::mib_set_request(lora_mac_mib_request_confirm_t *
     /*
      * Set MIB data to LoRa stack
      */
-    status = error_type_converter(LoRaMacMibSetRequestConfirm(&stack_mib_set));
+    status = error_type_converter(_loramac.LoRaMacMibSetRequestConfirm(&stack_mib_set));
     /*
      * Release memory if reserved by multicast list
      */
@@ -1598,7 +1637,7 @@ lora_mac_status_t LoRaWANStack::mib_get_request(lora_mac_mib_request_confirm_t *
 
     // Interprets from lora_mac_mib_t to Mib_t
     stack_mib_get.Type = interpret_mib_req_confirm_type(mib_get_params->type);
-    mac_status = error_type_converter(LoRaMacMibGetRequestConfirm(&stack_mib_get));
+    mac_status = error_type_converter(_loramac.LoRaMacMibGetRequestConfirm(&stack_mib_get));
 
     if (LORA_MAC_STATUS_OK != mac_status) {
         return LORA_MAC_STATUS_SERVICE_UNKNOWN;
@@ -1782,6 +1821,19 @@ lora_mac_status_t LoRaWANStack::error_type_converter(LoRaMacStatus_t type)
     }
 }
 
+lora_mac_status_t LoRaWANStack::set_link_check_request()
+{
+    if (!_callbacks.link_check_resp) {
+        tr_error("Must assign a callback function for link check request. ");
+        return LORA_MAC_STATUS_PARAMETER_INVALID;
+    }
+
+    lora_mac_mlme_req_t mlme_req;
+
+    mlme_req.type = LORA_MLME_LINK_CHECK;
+    return mlme_request_handler(&mlme_req);
+}
+
 void LoRaWANStack::shutdown()
 {
     set_device_state(DEVICE_STATE_SHUTDOWN);
@@ -1944,7 +1996,7 @@ lora_mac_status_t LoRaWANStack::lora_state_machine()
             tr_debug("Device is in compliance test mode.");
 
             //5000ms
-            LoRaMacSetTxTimer(5000);
+            _loramac.LoRaMacSetTxTimer(5000);
             if (_compliance_test.running == true) {
                 send_compliance_test_frame_to_mac();
             }

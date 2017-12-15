@@ -64,6 +64,39 @@ public:
      */
     virtual lora_mac_status_t disconnect() = 0;
 
+    /** Validate the connectivity with the network.
+     *
+     * Application may use this API to submit a request to the stack for
+     * validation of its connectivity to a Network Server. Under the hood, this
+     * API schedules a Link Check Request command (LinkCheckReq) for the network
+     * server and once the response, i.e., LinkCheckAns MAC command is received
+     * from the Network Server, user provided method is called.
+     *
+     * This API is usable only when the link check response is callback set by
+     * the application. See add_lora_app_callbacks API. If the above mentioned
+     * callback is not set, a LORA_MAC_STATUS_PARAMETER_INVALID error is thrown.
+     *
+     * First parameter to callback function is the demodulation margin and
+     * the second parameter is the number of gateways that successfully received
+     * the last request.
+     *
+     * A 'Link Check Request' MAC command remains set for every subsequent
+     * transmission, until/unless application explicitly turns it off using
+     * remove_link_check_request() API.
+     *
+     * @param cb        A callback function to receive link check response
+     * @return          LORA_MAC_STATUS_OK on successfully queuing a request, or
+     *                  a negative error code on failure.
+     *
+     */
+    virtual lora_mac_status_t add_link_check_request() = 0;
+
+    /** Detaches Link Request MAC command.
+     *
+     * Removes sticky MAC command for link check request.
+     */
+    virtual void remove_link_check_request() = 0;
+
     /** Sets up a particular data rate of choice
      *
      * @param data_rate   Intended data rate e.g., DR_0, DR_1 etc.

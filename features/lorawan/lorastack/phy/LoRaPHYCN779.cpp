@@ -184,9 +184,9 @@
 
 /*!
  * Band 0 definition
- * { DutyCycle, TxMaxPower, LastTxDoneTime, TimeOff }
+ * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-#define CN779_BAND0                                 { 100, CN779_MAX_TX_POWER, 0,  0 } //  1.0 %
+#define CN779_BAND0                                 { 100, CN779_MAX_TX_POWER, 0, 0, 0 } //  1.0 %
 
 /*!
  * LoRaMac default channel 1
@@ -730,7 +730,7 @@ bool LoRaPHYCN779::rx_config(RxConfigParams_t* rxConfig, int8_t* datarate)
         return false;
     }
 
-    if( rxConfig->Window == 0 )
+    if( rxConfig->RxSlot == RX_SLOT_WIN_1)
     {
         // Apply window 1 frequency
         frequency = Channels[rxConfig->Channel].Frequency;

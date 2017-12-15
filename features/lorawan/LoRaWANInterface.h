@@ -130,6 +130,44 @@ public:
      */
     virtual lora_mac_status_t disconnect();
 
+    /** Validate the connectivity with the network.
+     *
+     * Application may use this API to submit a request to the stack for
+     * validation of its connectivity to a Network Server. Under the hood, this
+     * API schedules a Link Check Request command (LinkCheckReq) for the network
+     * server and once the response, i.e., LinkCheckAns MAC command is received
+     * from the Network Server, user provided method is called.
+     *
+     * One way to use this API may be the validation of connectivity after a long
+     * deep sleep. Mbed LoRaWANStack piggy-backs the MAC commands with data
+     * frame payload so the application needs to try sending something and the Network
+     * Server may respond during the RX slots.
+     *
+     * This API is usable only when the 'link_check_resp' callback is set by
+     * the application. See add_lora_app_callbacks API. If the above mentioned
+     * callback is not set, a LORA_MAC_STATUS_PARAMETER_INVALID error is thrown.
+     *
+     * First parameter to callback function is the demodulation margin and
+     * the second parameter is the number of gateways that successfully received
+     * the last request.
+     *
+     * A 'Link Check Request' MAC command remains set for every subsequent
+     * transmission, until/unless application explicitly turns it off using
+     * remove_link_check_request() API.
+     *
+     * @return          LORA_MAC_STATUS_OK on successfully queuing a request, or
+     *                  a negative error code on failure.
+     *
+     */
+    virtual lora_mac_status_t add_link_check_request();
+
+    /** Removes link check request sticky MAC command.
+     *
+     * Any already queued request may still get entertained. However, no new
+     * requests will be made.
+     */
+    virtual void remove_link_check_request();
+
     /** Sets up a particular data rate
      *
      * `set_datarate()` first verifies whether the data rate given is valid or not.
@@ -361,7 +399,7 @@ public:
        * int main()
        * {
        * lorawan.initialize(&queue);
-       *  cbs.lorawan_events = mbed::callback(my_event_handler);
+       *  cbs.events = mbed::callback(my_event_handler);
        *  lorawan.add_app_callbacks(&cbs);
        *  lorawan.connect();
        * }
@@ -387,6 +425,9 @@ public:
        *                          callbacks.
        */
     virtual lora_mac_status_t add_app_callbacks(lorawan_app_callbacks_t *callbacks);
+
+private:
+    bool _link_check_requested;
 };
 
 #endif /* LORAWANINTERFACE_H_ */
