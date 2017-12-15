@@ -410,6 +410,8 @@ private:
      */
     lora_mac_status_t error_type_converter(LoRaMacStatus_t type);
 
+    LoRaMac _loramac;
+
     compliance_test_t _compliance_test;
     device_states_t _device_current_state;
     mbed::Callback<void(lora_events_t)> _events;
