@@ -17,14 +17,19 @@
 /* Linker script to configure memory regions. */
 
 #if !defined(MBED_APP_START)
-#define MBED_APP_START 0x21000
+    #define MBED_APP_START 0x21000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0xDF000
 #endif
 
 MEMORY
 {
-  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = 0x100000 - MBED_APP_START
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx) :  ORIGIN = 0x20003288, LENGTH = 0x3cd78
 }
+
 
 OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 
