@@ -18,6 +18,12 @@
             "SPI_MISO": "P0_18",
             "SPI_CLK":  "P0_19",
             "SPI_CS":   "P1_2"
+        },
+        "NRF52840_DK": {
+            "SPI_MOSI": "p20",
+            "SPI_MISO": "p21",
+            "SPI_CLK":  "p19",
+            "SPI_CS":   "p17"
         }
     }
 }
