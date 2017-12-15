@@ -904,7 +904,7 @@
         },
         "detect_code": ["0835"],
         "macros_add": ["USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F207ZG"
