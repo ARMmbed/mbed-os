@@ -23,14 +23,6 @@
 extern "C" {
 #endif
 
-/* Flags to indicate crypto H/W operation has done
- *
- * Crypto driver would clear it before trigger and wait for it. 
- * Crypto interrupt handler would set it on done or error.
- */
-extern volatile int g_PRNG_done;
-extern volatile int g_AES_done;
-
 /* Init/Uninit crypto module */
 void crypto_init(void);
 void crypto_uninit(void);
@@ -53,6 +45,27 @@ void crypto_des_release(void);
 /* NOTE: If "acquire" succeeds, "release" must be done to pair it. */
 bool crypto_sha_acquire(void);
 void crypto_sha_release(void);
+
+/* Flow control between crypto/xxx start and crypto/xxx ISR 
+ *
+ * crypto_xxx_prestart/crypto_xxx_wait encapsulate control flow between crypto/xxx start and crypto/xxx ISR.
+ * 
+ * crypto_xxx_prestart will also address synchronization issue with memory barrier instruction.
+ *
+ * On finish, return of crypto_xxx_wait indicates success or not:
+ *   true if successful
+ *   false if failed
+ *
+ * Example: Start AES H/W and wait for its finish
+ *   crypto_aes_prestart();
+ *   AES_Start();
+ *   crypto_aes_wait();
+ */
+void crypto_prng_prestart(void);
+bool crypto_prng_wait(void);
+void crypto_aes_prestart(void);
+bool crypto_aes_wait(void);
+
 
 /* Check if buffer can be used for crypto DMA. It has the following requirements:
  * (1) Word-aligned buffer base address

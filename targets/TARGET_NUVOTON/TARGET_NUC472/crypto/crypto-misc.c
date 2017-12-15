@@ -24,9 +24,6 @@
 #include "nu_bitutil.h"
 #include "crypto-misc.h"
 
-volatile int g_PRNG_done;
-volatile int g_AES_done;
-
 /* Track if AES H/W is available */
 static uint16_t crypto_aes_avail = 1;
 /* Track if DES H/W is available */
@@ -39,6 +36,14 @@ static uint16_t crypto_init_counter = 0U;
 
 static bool crypto_submodule_acquire(uint16_t *submodule_avail);
 static void crypto_submodule_release(uint16_t *submodule_avail);
+
+/* Track if PRNG H/W operation is done */
+static volatile uint16_t crypto_prng_done;
+/* Track if AES H/W operation is done */
+static volatile uint16_t crypto_aes_done;
+
+static void crypto_submodule_prestart(volatile uint16_t *submodule_done);
+static bool crypto_submodule_wait(volatile uint16_t *submodule_done);
 
 /* As crypto init counter changes from 0 to 1:
  *
@@ -125,6 +130,26 @@ void crypto_sha_release(void)
     crypto_submodule_release(&crypto_sha_avail);
 }
 
+void crypto_prng_prestart(void)
+{
+    crypto_submodule_prestart(&crypto_prng_done);
+}
+
+bool crypto_prng_wait(void)
+{
+    return crypto_submodule_wait(&crypto_prng_done);
+}
+
+void crypto_aes_prestart(void)
+{
+    crypto_submodule_prestart(&crypto_aes_done);
+}
+
+bool crypto_aes_wait(void)
+{
+    return crypto_submodule_wait(&crypto_aes_done);
+}
+
 bool crypto_dma_buff_compat(const void *buff, size_t buff_size, size_t size_aligned_to)
 {
     uint32_t buff_ = (uint32_t) buff;
@@ -146,14 +171,35 @@ static void crypto_submodule_release(uint16_t *submodule_avail)
     while (! core_util_atomic_cas_u16(submodule_avail, &expectedCurrentValue, 1));
 }
 
+static void crypto_submodule_prestart(volatile uint16_t *submodule_done)
+{
+    *submodule_done = 0;
+    
+    /* Ensure memory accesses above are completed before DMA is started
+     *
+     * Replacing __DSB() with __DMB() is also OK in this case.
+     *
+     * Refer to "multi-master systems" section with DMA in:
+     * https://static.docs.arm.com/dai0321/a/DAI0321A_programming_guide_memory_barriers_for_m_profile.pdf
+     */
+    __DSB();
+}
+
+static bool crypto_submodule_wait(volatile uint16_t *submodule_done)
+{
+    while (! *submodule_done);
+    
+    return true;
+}
+
 /* Crypto interrupt handler */
 void CRYPTO_IRQHandler()
 {
     if (PRNG_GET_INT_FLAG()) {
-        g_PRNG_done = 1;
+        crypto_prng_done = 1;
         PRNG_CLR_INT_FLAG();
     }  else if (AES_GET_INT_FLAG()) {
-        g_AES_done = 1;
+        crypto_aes_done = 1;
         AES_CLR_INT_FLAG();
     }
 }

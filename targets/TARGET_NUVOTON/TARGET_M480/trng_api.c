@@ -36,8 +36,9 @@ static void trng_get(unsigned char *pConversionData)
     p32ConversionData = (uint32_t *)pConversionData;
 
     PRNG_Open(PRNG_KEY_SIZE_256, 1, us_ticker_read());
+    crypto_prng_prestart();
     PRNG_Start();
-    while (!g_PRNG_done);
+    crypto_prng_wait();
 
     PRNG_Read(p32ConversionData);
 }
@@ -85,4 +86,3 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 }
 
 #endif
-
