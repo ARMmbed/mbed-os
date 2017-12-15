@@ -8,7 +8,7 @@
     },
     "target_overrides": {
         "K82F": {
-             "SPI_MOSI": "PTE3",
+             "SPI_MOSI": "PTE2",
              "SPI_MISO": "PTE4",
              "SPI_CLK":  "PTE1",
              "SPI_CS":   "PTE5"
