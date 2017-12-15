@@ -881,7 +881,7 @@
             }
         },
         "detect_code": ["0700"],
-        "device_has_add": ["CAN", "SERIAL_FC", "SERIAL_ASYNCH"],
+        "device_has_add": ["CAN", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F103RB"
     },
