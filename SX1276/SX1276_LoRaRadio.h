@@ -26,6 +26,15 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifndef SX1276_LORARADIO_H_
 #define SX1276_LORARADIO_H_
 
+#include "PinNames.h"
+#include "InterruptIn.h"
+#include "DigitalOut.h"
+#include "DigitalInOut.h"
+#include "SPI.h"
+#include "Timeout.h"
+#ifdef MBED_CONF_RTOS_PRESENT
+ #include "rtos/Thread.h"
+#endif
 #include "netsocket/LoRaRadio.h"
 
 #ifdef MBED_SX1276_LORARADIO_BUFFER_SIZE
@@ -33,16 +42,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #else
 #define MAX_DATA_BUFFER_SIZE                        256
 #endif
-
-typedef struct {
-    PinName rf_switch_ctl1;
-    PinName rf_switch_ctl2;
-    PinName txctl;
-    PinName rxctl;
-    PinName ant_switch;
-    PinName pwr_amp_ctl;
-    PinName tcxo;
-} rf_ctrls;
 
 /**
  * Radio driver implementation for Semtech SX1272 plus variants.
@@ -318,28 +317,28 @@ public:
 private:
 
     // SPI and chip select control
-    SPI _spi;
-    DigitalOut _chip_select;
+    mbed::SPI _spi;
+    mbed::DigitalOut _chip_select;
 
     // module rest control
-    DigitalInOut _reset_ctl;
+    mbed::DigitalInOut _reset_ctl;
 
     // Interrupt controls
-    InterruptIn _dio0_ctl;
-    InterruptIn _dio1_ctl;
-    InterruptIn _dio2_ctl;
-    InterruptIn _dio3_ctl;
-    InterruptIn _dio4_ctl;
-    InterruptIn _dio5_ctl;
+    mbed::InterruptIn _dio0_ctl;
+    mbed::InterruptIn _dio1_ctl;
+    mbed::InterruptIn _dio2_ctl;
+    mbed::InterruptIn _dio3_ctl;
+    mbed::InterruptIn _dio4_ctl;
+    mbed::InterruptIn _dio5_ctl;
 
     // Radio specific controls
-    DigitalOut _rf_switch_ctl1;
-    DigitalOut _rf_switch_ctl2;
-    DigitalOut _txctl;
-    DigitalOut _rxctl;
-    DigitalInOut _ant_switch;
-    DigitalOut _pwr_amp_ctl;
-    DigitalOut _tcxo;
+    mbed::DigitalOut _rf_switch_ctl1;
+    mbed::DigitalOut _rf_switch_ctl2;
+    mbed::DigitalOut _txctl;
+    mbed::DigitalOut _rxctl;
+    mbed::DigitalInOut _ant_switch;
+    mbed::DigitalOut _pwr_amp_ctl;
+    mbed::DigitalOut _tcxo;
 
     // Contains all RF control pin names
     // This storage is needed even after assigning the
@@ -361,13 +360,13 @@ private:
     uint8_t _data_buffer[MAX_DATA_BUFFER_SIZE];
 
     // TX/RX Timers - all use milisecond units
-    Timeout tx_timeout_timer;
-    Timeout rx_timeout_timer;
-    Timeout rx_timeout_sync_word;
+    mbed::Timeout tx_timeout_timer;
+    mbed::Timeout rx_timeout_timer;
+    mbed::Timeout rx_timeout_sync_word;
 
 #ifdef MBED_CONF_RTOS_PRESENT
     // Thread to handle interrupts
-    Thread irq_thread;
+    rtos::Thread irq_thread;
 #endif
 
     // Access protection
@@ -419,6 +418,5 @@ private:
     void handle_dio4_irq();
     void handle_dio5_irq();
     void handle_timeout_irq();
-};
 
 #endif // SX1276_LORARADIO_H_
