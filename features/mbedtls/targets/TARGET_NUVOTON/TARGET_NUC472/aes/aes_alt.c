@@ -176,17 +176,9 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
 
     AES_SetDMATransfer(0, (uint32_t)pIn, (uint32_t)pOut, dataSize);
 
-    g_AES_done = 0;
-    /* Ensure memory accesses above are completed before DMA is started
-     *
-     * Replacing __DSB() with __DMB() is also OK in this case.
-     *
-     * Refer to "multi-master systems" section with DMA in:
-     * https://static.docs.arm.com/dai0321/a/DAI0321A_programming_guide_memory_barriers_for_m_profile.pdf
-     */
-    __DSB();
+    crypto_aes_prestart();
     AES_Start(0, CRYPTO_DMA_ONE_SHOT);
-    while (!g_AES_done);
+    crypto_aes_wait();
     
     if( pOut != output ) {
         memcpy(output, au8OutputData, dataSize);
