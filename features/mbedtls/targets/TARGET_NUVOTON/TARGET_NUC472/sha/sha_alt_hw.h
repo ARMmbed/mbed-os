@@ -30,7 +30,7 @@ extern "C" {
  */
 typedef struct {
     uint32_t total;                 /*!< number of bytes processed  */
-    unsigned char buffer[128];      /*!< data block being processed. Max of SHA-1/SHA-256/SHA-512 */
+    uint8_t buffer[128];      /*!< data block being processed. Max of SHA-1/SHA-256/SHA-512 */
     uint16_t buffer_left;
     uint16_t blocksize;             /*!< block size */
     uint32_t blocksize_mask;        /*!< block size mask */

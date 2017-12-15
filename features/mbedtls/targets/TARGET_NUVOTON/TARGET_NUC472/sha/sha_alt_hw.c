@@ -42,7 +42,7 @@ void mbedtls_sha1_hw_init(crypto_sha_context *ctx)
 {
     /* Init crypto module */
     crypto_init();
-    memset(ctx, 0, sizeof(crypto_sha_context));
+    memset(ctx, 0, sizeof(*ctx));
 }
 
 void mbedtls_sha1_hw_free(crypto_sha_context *ctx)
@@ -55,7 +55,7 @@ void mbedtls_sha1_hw_free(crypto_sha_context *ctx)
 
     /* Uninit crypto module */
     crypto_uninit();
-    crypto_zeroize(ctx, sizeof(crypto_sha_context));
+    crypto_zeroize(ctx, sizeof(*ctx));
 }
 
 void mbedtls_sha1_hw_clone(crypto_sha_context *dst,
@@ -121,7 +121,7 @@ void mbedtls_sha256_hw_init(crypto_sha_context *ctx)
 {
     /* Init crypto module */
     crypto_init();
-    memset(ctx, 0, sizeof(crypto_sha_context));
+    memset(ctx, 0, sizeof(*ctx));
 }
 
 void mbedtls_sha256_hw_free(crypto_sha_context *ctx)
@@ -134,7 +134,7 @@ void mbedtls_sha256_hw_free(crypto_sha_context *ctx)
 
     /* Uninit crypto module */
     crypto_uninit();
-    crypto_zeroize(ctx, sizeof(crypto_sha_context));
+    crypto_zeroize(ctx, sizeof(*ctx));
 }
 
 void mbedtls_sha256_hw_clone(crypto_sha_context *dst,
@@ -241,7 +241,7 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
     int rmn = ilen;
     uint32_t sha_ctl_start = (CRPT->SHA_CTL & ~(CRPT_SHA_CTL_DMALAST_Msk | CRPT_SHA_CTL_DMAEN_Msk)) | CRPT_SHA_CTL_START_Msk;
     uint32_t sha_opmode = (CRPT->SHA_CTL & CRPT_SHA_CTL_OPMODE_Msk) >> CRPT_SHA_CTL_OPMODE_Pos;
-    uint32_t DGST0_old, DGST1_old, DGST2_old, DGST3_old, DGST4_old, DGST5_old, DGST6_old, DGST7_old;
+    uint32_t DGSTs[8] = { 0 };
 
     while (rmn > 0) {
         CRPT->SHA_CTL = sha_ctl_start;
@@ -258,16 +258,16 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
             } else {
                 switch (sha_opmode) {
                 case SHA_MODE_SHA256:
-                    DGST7_old = CRPT->SHA_DGST7;
+                    DGSTs[7] = CRPT->SHA_DGST7;
                 case SHA_MODE_SHA224:
-                    DGST5_old = CRPT->SHA_DGST5;
-                    DGST6_old = CRPT->SHA_DGST6;
+                    DGSTs[5] = CRPT->SHA_DGST5;
+                    DGSTs[6] = CRPT->SHA_DGST6;
                 case SHA_MODE_SHA1:
-                    DGST0_old = CRPT->SHA_DGST0;
-                    DGST1_old = CRPT->SHA_DGST1;
-                    DGST2_old = CRPT->SHA_DGST2;
-                    DGST3_old = CRPT->SHA_DGST3;
-                    DGST4_old = CRPT->SHA_DGST4;
+                    DGSTs[0] = CRPT->SHA_DGST0;
+                    DGSTs[1] = CRPT->SHA_DGST1;
+                    DGSTs[2] = CRPT->SHA_DGST2;
+                    DGSTs[3] = CRPT->SHA_DGST3;
+                    DGSTs[4] = CRPT->SHA_DGST4;
                 }
 
                 CRPT->SHA_CTL = sha_ctl_start;
@@ -291,18 +291,18 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
         while (! isfinish) {
             switch (sha_opmode) {
             case SHA_MODE_SHA256:
-                if (DGST7_old != CRPT->SHA_DGST7) {
+                if (DGSTs[7] != CRPT->SHA_DGST7) {
                     isfinish = 1;
                     break;
                 }
             case SHA_MODE_SHA224:
-                if (DGST5_old != CRPT->SHA_DGST5 || DGST6_old != CRPT->SHA_DGST6) {
+                if (DGSTs[5] != CRPT->SHA_DGST5 || DGSTs[6] != CRPT->SHA_DGST6) {
                     isfinish = 1;
                     break;
                 }
             case SHA_MODE_SHA1:
-                if (DGST0_old != CRPT->SHA_DGST0 || DGST1_old != CRPT->SHA_DGST1 || DGST2_old != CRPT->SHA_DGST2 ||
-                        DGST3_old != CRPT->SHA_DGST3 || DGST4_old != CRPT->SHA_DGST4) {
+                if (DGSTs[0] != CRPT->SHA_DGST0 || DGSTs[1] != CRPT->SHA_DGST1 || DGSTs[2] != CRPT->SHA_DGST2 ||
+                        DGSTs[3] != CRPT->SHA_DGST3 || DGSTs[4] != CRPT->SHA_DGST4) {
                     isfinish = 1;
                     break;
                 }
