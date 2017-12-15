@@ -35,6 +35,8 @@ extern volatile int g_AES_done;
 void crypto_init(void);
 void crypto_uninit(void);
 
+/* Clear buffer to zero
+ * Implementation that should never be optimized out by the compiler */
 void crypto_zeroize(void *v, size_t n);
 
 /* Acquire/release ownership of AES H/W */
