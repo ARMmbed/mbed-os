@@ -112,15 +112,14 @@ def get_interface_version(mount_point):
     """
     if get_module_avail('mbed_lstools'):
         try :
-            mbeds = mbed_lstools.create()
-            details_txt = mbeds.get_details_txt(mount_point)
+            mbedls = mbed_lstools.create()
+            mbeds = mbedls.list_mbeds(unique_names=True, read_details_txt=True)
             
-            if 'Interface Version' in details_txt:
-                return details_txt['Interface Version']
+            for mbed in mbeds:
+                if mbed['mount_point'] == mount_point:
             
-            elif 'Version' in details_txt:
-                return details_txt['Version']
-            
+                    if 'daplink_version' in mbed:
+                        return mbed['daplink_version']           
         except :
             return 'unknown'
         
