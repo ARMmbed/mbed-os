@@ -494,7 +494,8 @@ class Config(object):
             return ('target.bootloader_img' in target_overrides or
                     'target.restrict_size' in target_overrides or
                     'target.mbed_app_start' in target_overrides or
-                    'target.mbed_app_size' in target_overrides)
+                    'target.mbed_app_size' in target_overrides or
+                    'target.sotp_size' in target_overrides)
         else:
             return False
 
@@ -533,7 +534,7 @@ class Config(object):
             return self._generate_booloader_build(target_overrides,
                                                   rom_start, rom_size)
         elif ('target.mbed_app_start' in target_overrides or
-              'target.mbed_app_size' in target_overrides):
+              'target.mbed_app_size' in target_overrides or 'target.sotp_size' in target_overrides):
             return self._generate_linker_overrides(target_overrides,
                                                    rom_start, rom_size)
         else:
@@ -583,6 +584,9 @@ class Config(object):
             size = int(target_overrides['target.mbed_app_size'], 0)
         else:
             size = (rom_size + rom_start) - start
+        if 'target.sotp_size' in target_overrides:
+            sotp_size = int(target_overrides['target.sotp_size'], 0)
+            size = size - sotp_size
         if start < rom_start:
             raise ConfigException("Application starts before ROM")
         if size + start > rom_size + rom_start:
