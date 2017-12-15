@@ -823,7 +823,7 @@
         },
         "detect_code": ["0755"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has_add": ["LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH"],
+        "device_has_add": ["LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F070RB"
     },
@@ -841,7 +841,7 @@
         },
         "detect_code": ["0730"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F072RB"
     },
@@ -859,7 +859,7 @@
         },
         "detect_code": ["0750"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F091RC"
     },
