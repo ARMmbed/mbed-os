@@ -42,7 +42,7 @@ void mbedtls_sha1_hw_init(crypto_sha_context *ctx)
 {
     /* Init crypto module */
     crypto_init();
-    memset(ctx, 0, sizeof(crypto_sha_context));
+    memset(ctx, 0, sizeof(*ctx));
 }
 
 void mbedtls_sha1_hw_free(crypto_sha_context *ctx)
@@ -55,7 +55,7 @@ void mbedtls_sha1_hw_free(crypto_sha_context *ctx)
 
     /* Uninit crypto module */
     crypto_uninit();
-    crypto_zeroize(ctx, sizeof(crypto_sha_context));
+    crypto_zeroize(ctx, sizeof(*ctx));
 }
 
 void mbedtls_sha1_hw_clone(crypto_sha_context *dst,
@@ -121,7 +121,7 @@ void mbedtls_sha256_hw_init(crypto_sha_context *ctx)
 {
     /* Init crypto module */
     crypto_init();
-    memset(ctx, 0, sizeof(crypto_sha_context));
+    memset(ctx, 0, sizeof(*ctx));
 }
 
 void mbedtls_sha256_hw_free(crypto_sha_context *ctx)
@@ -134,7 +134,7 @@ void mbedtls_sha256_hw_free(crypto_sha_context *ctx)
 
     /* Uninit crypto module */
     crypto_uninit();
-    crypto_zeroize(ctx, sizeof(crypto_sha_context));
+    crypto_zeroize(ctx, sizeof(*ctx));
 }
 
 void mbedtls_sha256_hw_clone(crypto_sha_context *dst,
@@ -202,7 +202,7 @@ void mbedtls_sha512_hw_init(crypto_sha_context *ctx)
 {
     /* Init crypto module */
     crypto_init();
-    memset(ctx, 0, sizeof(crypto_sha_context));
+    memset(ctx, 0, sizeof(*ctx));
 }
 
 void mbedtls_sha512_hw_free(crypto_sha_context *ctx)
@@ -215,7 +215,7 @@ void mbedtls_sha512_hw_free(crypto_sha_context *ctx)
     
     /* Uninit crypto module */
     crypto_uninit();
-    crypto_zeroize(ctx, sizeof(crypto_sha_context));
+    crypto_zeroize(ctx, sizeof(*ctx));
 }
 
 void mbedtls_sha512_hw_clone(crypto_sha_context *dst,
@@ -322,9 +322,8 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
     int rmn = ilen;
     uint32_t sha_ctl_start = (CRPT->HMAC_CTL & ~(CRPT_HMAC_CTL_DMALAST_Msk | CRPT_HMAC_CTL_DMAEN_Msk | CRPT_HMAC_CTL_HMACEN_Msk)) | CRPT_HMAC_CTL_START_Msk;
     uint32_t sha_opmode = (CRPT->HMAC_CTL & CRPT_HMAC_CTL_OPMODE_Msk) >> CRPT_HMAC_CTL_OPMODE_Pos;
-    uint32_t DGST0_old = 0, DGST1_old = 0, DGST2_old = 0, DGST3_old = 0, DGST4_old = 0, DGST5_old = 0, DGST6_old = 0, DGST7_old = 0,
-             DGST8_old = 0, DGST9_old = 0, DGST10_old = 0, DGST11_old = 0, DGST12_old = 0, DGST13_old = 0, DGST14_old = 0, DGST15_old = 0;
-
+    uint32_t DGSTs[16] = { 0 };
+    
     while (rmn > 0) {
         CRPT->HMAC_CTL = sha_ctl_start;
 
@@ -340,26 +339,26 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
             } else {
                 switch (sha_opmode) {
                 case SHA_MODE_SHA512:
-                    DGST15_old = CRPT->HMAC_DGST[15];
-                    DGST14_old = CRPT->HMAC_DGST[14];
-                    DGST13_old = CRPT->HMAC_DGST[13];
-                    DGST12_old = CRPT->HMAC_DGST[12];
+                    DGSTs[12] = CRPT->HMAC_DGST[12];
+                    DGSTs[13] = CRPT->HMAC_DGST[13];
+                    DGSTs[14] = CRPT->HMAC_DGST[14];
+                    DGSTs[15] = CRPT->HMAC_DGST[15];
                 case SHA_MODE_SHA384:
-                    DGST11_old = CRPT->HMAC_DGST[11];
-                    DGST10_old = CRPT->HMAC_DGST[10];
-                    DGST9_old = CRPT->HMAC_DGST[9];
-                    DGST8_old = CRPT->HMAC_DGST[8];
+                    DGSTs[8] = CRPT->HMAC_DGST[8];
+                    DGSTs[9] = CRPT->HMAC_DGST[9];
+                    DGSTs[10] = CRPT->HMAC_DGST[10];
+                    DGSTs[11] = CRPT->HMAC_DGST[11];
                 case SHA_MODE_SHA256:
-                    DGST7_old = CRPT->HMAC_DGST[7];
+                    DGSTs[7] = CRPT->HMAC_DGST[7];
                 case SHA_MODE_SHA224:
-                    DGST5_old = CRPT->HMAC_DGST[5];
-                    DGST6_old = CRPT->HMAC_DGST[6];
+                    DGSTs[5] = CRPT->HMAC_DGST[5];
+                    DGSTs[6] = CRPT->HMAC_DGST[6];
                 case SHA_MODE_SHA1:
-                    DGST0_old = CRPT->HMAC_DGST[0];
-                    DGST1_old = CRPT->HMAC_DGST[1];
-                    DGST2_old = CRPT->HMAC_DGST[2];
-                    DGST3_old = CRPT->HMAC_DGST[3];
-                    DGST4_old = CRPT->HMAC_DGST[4];
+                    DGSTs[0] = CRPT->HMAC_DGST[0];
+                    DGSTs[1] = CRPT->HMAC_DGST[1];
+                    DGSTs[2] = CRPT->HMAC_DGST[2];
+                    DGSTs[3] = CRPT->HMAC_DGST[3];
+                    DGSTs[4] = CRPT->HMAC_DGST[4];
                 }
 
                 CRPT->HMAC_CTL = sha_ctl_start;
@@ -383,30 +382,30 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
         while (! isfinish) {
             switch (sha_opmode) {
             case SHA_MODE_SHA512:
-                if (DGST12_old != CRPT->HMAC_DGST[12] || DGST13_old != CRPT->HMAC_DGST[13] || DGST14_old != CRPT->HMAC_DGST[14] ||
-                        DGST15_old != CRPT->HMAC_DGST[15]) {
+                if (DGSTs[12] != CRPT->HMAC_DGST[12] || DGSTs[13] != CRPT->HMAC_DGST[13] || DGSTs[14] != CRPT->HMAC_DGST[14] ||
+                        DGSTs[15] != CRPT->HMAC_DGST[15]) {
                     isfinish = 1;
                     break;
                 }
             case SHA_MODE_SHA384:
-                if (DGST8_old != CRPT->HMAC_DGST[8] || DGST9_old != CRPT->HMAC_DGST[9] || DGST10_old != CRPT->HMAC_DGST[10] ||
-                        DGST11_old != CRPT->HMAC_DGST[11]) {
+                if (DGSTs[8] != CRPT->HMAC_DGST[8] || DGSTs[9] != CRPT->HMAC_DGST[9] || DGSTs[10] != CRPT->HMAC_DGST[10] ||
+                    DGSTs[11] != CRPT->HMAC_DGST[11]) {
                     isfinish = 1;
                     break;
                 }
             case SHA_MODE_SHA256:
-                if (DGST7_old != CRPT->HMAC_DGST[7]) {
+                if (DGSTs[7] != CRPT->HMAC_DGST[7]) {
                     isfinish = 1;
                     break;
                 }
             case SHA_MODE_SHA224:
-                if (DGST5_old != CRPT->HMAC_DGST[5] || DGST6_old != CRPT->HMAC_DGST[6]) {
+                if (DGSTs[5] != CRPT->HMAC_DGST[5] || DGSTs[6] != CRPT->HMAC_DGST[6]) {
                     isfinish = 1;
                     break;
                 }
             case SHA_MODE_SHA1:
-                if (DGST0_old != CRPT->HMAC_DGST[0] || DGST1_old != CRPT->HMAC_DGST[1] || DGST2_old != CRPT->HMAC_DGST[2] ||
-                        DGST3_old != CRPT->HMAC_DGST[3] || DGST4_old != CRPT->HMAC_DGST[4]) {
+                if (DGSTs[0] != CRPT->HMAC_DGST[0] || DGSTs[1] != CRPT->HMAC_DGST[1] || DGSTs[2] != CRPT->HMAC_DGST[2] ||
+                        DGSTs[3] != CRPT->HMAC_DGST[3] || DGSTs[4] != CRPT->HMAC_DGST[4]) {
                     isfinish = 1;
                     break;
                 }
