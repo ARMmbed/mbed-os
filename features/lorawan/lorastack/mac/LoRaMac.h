@@ -331,6 +331,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest );
  */
 radio_events_t *GetPhyEventHandlers();
 
+
 /**
  * \brief   LoRaMAC set tx timer.
  *
