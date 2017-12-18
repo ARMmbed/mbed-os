@@ -222,11 +222,6 @@ void LoRaMac::handle_mac_state_check_timer_event(void)
     ev_queue->call(isrHandler, &LoRaMac::OnMacStateCheckTimerEvent);
 }
 
-void LoRaMac::handle_next_tx_timer_event(void)
-{
-    ev_queue->call(isrHandler, &LoRaMac::OnNextTx);
-}
-
 void LoRaMac::handle_delayed_tx_timer_event(void)
 {
     ev_queue->call(isrHandler, &LoRaMac::OnTxDelayedTimerEvent);
@@ -1068,17 +1063,6 @@ void LoRaMac::OnMacStateCheckTimerEvent( void )
         LoRaMacFlags.Bits.McpsIndSkip = 0;
         LoRaMacFlags.Bits.McpsInd = 0;
     }
-}
-
-void LoRaMac::OnNextTx( void )
-{
-    // Validate if the MAC is in a correct state
-    if ((LoRaMacState & LORAMAC_TX_RUNNING) == LORAMAC_TX_RUNNING) {
-        return;
-    }
-
-    TimerStop( &TxNextPacketTimer );
-    LoRaMacCallbacks->TxNextPacketTimerEvent( );
 }
 
 LoRaMacStatus_t LoRaMac::LoRaMacSetTxTimer( uint32_t TxDutyCycleTime )
@@ -2130,7 +2114,6 @@ LoRaMacStatus_t LoRaMac::LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
     TimerInit(&RxWindowTimer1, handle_rx1_timer_event);
     TimerInit(&RxWindowTimer2, handle_rx2_timer_event);
     TimerInit(&AckTimeoutTimer, handle_ack_timeout);
-    TimerInit(&TxNextPacketTimer, handle_next_tx_timer_event);
 
     // Store the current initialization time
     LoRaMacInitializationTime = TimerGetCurrentTime();

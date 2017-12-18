@@ -329,6 +329,8 @@ public:
      */
     radio_events_t *GetPhyEventHandlers();
 
+public: // Test interface
+
     /**
      * \brief   LoRaMAC set tx timer.
      *
@@ -353,7 +355,6 @@ public:
      */
     LoRaMacStatus_t LoRaMacStopTxTimer( );
 
-public: // Test interface
     /**
      * \brief   Enabled or disables the reception windows
      *
