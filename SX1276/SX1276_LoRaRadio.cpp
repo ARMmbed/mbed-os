@@ -978,7 +978,7 @@ void SX1276_LoRaRadio::receive(uint32_t timeout)
             break;
     }
 
-    memset(_data_buffer, 0, (size_t) MAX_DATA_BUFFER_SIZE);
+    memset(_data_buffer, 0, (size_t) MAX_DATA_BUFFER_SIZE_SX1276);
 
     _rf_settings.state = RF_RX_RUNNING;
 

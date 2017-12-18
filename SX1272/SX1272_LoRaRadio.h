@@ -38,10 +38,10 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "netsocket/LoRaRadio.h"
 
 
-#ifdef MBED_SX1272_LORARADIO_BUFFER_SIZE
-#define MAX_DATA_BUFFER_SIZE                        MBED_SX1272_LORARADIO_BUFFER_SIZE
+#ifdef MBED_CONF_SX1272_LORA_DRIVER_BUFFER_SIZE
+#define MAX_DATA_BUFFER_SIZE_SX172                        MBED_CONF_SX1272_LORA_DRIVER_BUFFER_SIZE
 #else
-#define MAX_DATA_BUFFER_SIZE                        256
+#define MAX_DATA_BUFFER_SIZE_SX172                        256
 #endif
 
 /**
@@ -341,7 +341,7 @@ private:
     // Data buffer used for both TX and RX
     // Size of this buffer is configurable via Mbed config system
     // Default is 256 bytes
-    uint8_t _data_buffer[MAX_DATA_BUFFER_SIZE];
+    uint8_t _data_buffer[MAX_DATA_BUFFER_SIZE_SX172];
 
     // TX/RX Timers - all use milisecond units
     mbed::Timeout tx_timeout_timer;
