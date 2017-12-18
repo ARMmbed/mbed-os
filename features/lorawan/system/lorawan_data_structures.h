@@ -1635,7 +1635,6 @@ typedef struct sLoRaMacCallback
      */
     uint8_t ( *GetBatteryLevel )( void );
 
-    mbed::Callback<void()> TxNextPacketTimerEvent;
 }LoRaMacCallback_t;
 
 /**

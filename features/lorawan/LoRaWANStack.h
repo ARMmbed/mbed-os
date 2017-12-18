@@ -307,12 +307,6 @@ private:
     lora_mac_status_t send_frame_to_mac();
 
     /**
-     * Callback function for transmission based on user defined timer.
-     * Used only for testing when duty cycle is off.
-     */
-    void on_tx_next_packet_timer_event(void);
-
-    /**
      * Callback function for MCPS confirm. Mac layer calls this function once
      * an MCPS confirmation is received. This method translates Mac layer data
      * structure into stack layer data structure.

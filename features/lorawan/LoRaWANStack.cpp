@@ -200,7 +200,6 @@ lora_mac_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
     LoRaMacPrimitives.MacMcpsConfirm = callback(this, &LoRaWANStack::mcps_confirm);
     LoRaMacPrimitives.MacMcpsIndication = callback(this, &LoRaWANStack::mcps_indication);
     LoRaMacPrimitives.MacMlmeConfirm = callback(this, &LoRaWANStack::mlme_confirm);
-    LoRaMacCallbacks.TxNextPacketTimerEvent = callback(this, &LoRaWANStack::on_tx_next_packet_timer_event);
     LoRaMacInitialization(&LoRaMacPrimitives, &LoRaMacCallbacks, &lora_phy, queue);
 
     mib_req.type = LORA_MIB_ADR;
@@ -361,40 +360,6 @@ lora_mac_status_t LoRaWANStack::send_frame_to_mac()
     status = mcps_request_handler(&mcps_req);
 
     return status;
-}
-
-/**
- * Function executed on TxNextPacket Timeout event
- */
-void LoRaWANStack::on_tx_next_packet_timer_event(void)
-{
-    lora_mac_mib_request_confirm_t mib_req;
-    mib_req.type = LORA_MIB_NETWORK_JOINED;
-
-    if (mib_get_request(&mib_req) != LORA_MAC_STATUS_OK) {
-        // This should never happen
-        MBED_ASSERT("LoRaWAN Stack corrupted.");
-    }
-
-    // If is_network_joined flag is false, it means device haven't
-    // joined the network yet via OTAA
-    if (!mib_req.param.is_network_joined) {
-        set_device_state(DEVICE_STATE_JOINING);
-        lora_state_machine();
-        return;
-    }
-
-    // If compliance test is running, then we jump to send compliance test frame.
-    if (_compliance_test.running == true) {
-        set_device_state(DEVICE_STATE_COMPLIANCE_TEST);
-        lora_state_machine();
-    } else {
-        // Otherwise, either device have joined the network or ABP is in use.
-        // In case of ABP, we already have DevAddr, NwkSkey, AppSkey
-        // so we jump to send state directly
-        set_device_state(DEVICE_STATE_SEND);
-        lora_state_machine();
-    }
 }
 
 lora_mac_status_t LoRaWANStack::set_confirmed_msg_retry(uint8_t count)

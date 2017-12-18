@@ -329,11 +329,6 @@ uint32_t LoRaMacState = LORAMAC_IDLE;
  */
 static TimerEvent_t MacStateCheckTimer;
 
-/**
- * Timer to handle the application data transmission duty cycle
- */
-static TimerEvent_t TxNextPacketTimer;
-
 /*!
  * LoRaMac upper layer event functions
  */
@@ -469,11 +464,6 @@ static void OnMacStateCheckTimerEvent( void );
  * \brief Function executed on duty cycle delayed Tx  timer event
  */
 static void OnTxDelayedTimerEvent( void );
-
-/**
- * \brief Function to be executed when next Tx is possible
- */
-static void OnNextTx( void );
 
 /*!
  * \brief Function executed on first Rx window timer event
@@ -647,7 +637,6 @@ static void handle_rx2_timer_event(void);
 static void handle_ack_timeout(void);
 static void handle_delayed_tx_timer_event(void);
 static void handle_mac_state_check_timer_event(void);
-static void handle_next_tx_timer_event(void);
 
 /***************************************************************************
  * ISRs - Handlers                                                         *
@@ -692,16 +681,6 @@ static void handle_fhss_change_channel(uint8_t cur_channel)
 static void handle_mac_state_check_timer_event(void)
 {
     ev_queue->call(OnMacStateCheckTimerEvent);
-}
-
-static void handle_next_tx_timer_event(void)
-{
-    // Validate if the MAC is in a correct state
-    if ((LoRaMacState & LORAMAC_TX_RUNNING) == LORAMAC_TX_RUNNING) {
-        return;
-    }
-
-    ev_queue->call(OnNextTx);
 }
 
 static void handle_delayed_tx_timer_event(void)
@@ -1545,12 +1524,6 @@ static void OnMacStateCheckTimerEvent( void )
         LoRaMacFlags.Bits.McpsIndSkip = 0;
         LoRaMacFlags.Bits.McpsInd = 0;
     }
-}
-
-static void OnNextTx( void )
-{
-    TimerStop( &TxNextPacketTimer );
-    LoRaMacCallbacks->TxNextPacketTimerEvent( );
 }
 
 LoRaMacStatus_t LoRaMacSetTxTimer( uint32_t TxDutyCycleTime )
@@ -2603,7 +2576,6 @@ LoRaMacStatus_t LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
     TimerInit(&RxWindowTimer1, handle_rx1_timer_event);
     TimerInit(&RxWindowTimer2, handle_rx2_timer_event);
     TimerInit(&AckTimeoutTimer, handle_ack_timeout);
-    TimerInit(&TxNextPacketTimer, handle_next_tx_timer_event);
 
     // Store the current initialization time
     LoRaMacInitializationTime = TimerGetCurrentTime();
