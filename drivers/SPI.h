@@ -246,6 +246,14 @@ protected:
     */
     void start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event);
 
+private:
+    /** Lock deep sleep only if it is not yet locked */
+    void lock_deep_sleep();
+
+    /** Unlock deep sleep in case it is locked */
+    void unlock_deep_sleep();
+
+
 #if TRANSACTION_QUEUE_SIZE_SPI
 
     /** Start a new transaction
@@ -274,6 +282,7 @@ protected:
     CThunk<SPI> _irq;
     event_callback_t _callback;
     DMAUsage _usage;
+    bool _deep_sleep_locked;
 #endif
 
     void aquire(void);
