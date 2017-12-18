@@ -176,11 +176,19 @@ public:
     /** Abort the on-going I2C transfer
      */
     void abort_transfer();
-protected:
+
+  protected:
+    /** Lock deep sleep only if it is not yet locked */
+    void lock_deep_sleep();
+
+    /** Unlock deep sleep only if it has been locked */
+    void unlock_deep_sleep();
+
     void irq_handler_asynch(void);
     event_callback_t _callback;
     CThunk<I2C> _irq;
     DMAUsage _usage;
+    bool _deep_sleep_locked;
 #endif
 
 protected:
