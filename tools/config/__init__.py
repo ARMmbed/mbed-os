@@ -29,6 +29,7 @@ from tools.utils import json_file_to_dict, intelhex_offset
 from tools.arm_pack_manager import Cache
 from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
     generate_py_target, get_resolution_order
+from tools.flash_algo import PackFlashAlgo
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
@@ -500,6 +501,16 @@ class Config(object):
             return False
 
     @property
+    def sectors(self):
+        cache = Cache(False, False)
+        if self.target.device_name not in cache.index:
+            raise ConfigException("Bootloader not supported on this target: "
+                                  "targets.json `device_name` not found in "
+                                  "arm_pack_manager index.")
+        flm_file = cache.get_flash_algorthim_binary(self.target.device_name).read()
+        return PackFlashAlgo(flm_file).sector_sizes
+
+    @property
     def regions(self):
         """Generate a list of regions from the config"""
         if not self.target.bootloader_supported:
@@ -536,7 +547,7 @@ class Config(object):
         elif ('target.mbed_app_start' in target_overrides or
               'target.mbed_app_size' in target_overrides or 'target.sotp_size' in target_overrides):
             return self._generate_linker_overrides(target_overrides,
-                                                   rom_start, rom_size)
+                                                   rom_start, rom_size, self.sectors)
         else:
             raise ConfigException(
                 "Bootloader build requested but no bootlader configuration")
@@ -568,6 +579,17 @@ class Config(object):
         if start > rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
+    @staticmethod
+    def _align_on_sector(address, sectors):
+        target_size = -1
+        target_start = -1
+        for (start, size) in sectors:
+            if address < start:
+                break
+            target_start = start
+            target_size = size
+        sector_num = (address-target_start)//target_size
+        return target_start + (sector_num* target_size)
 
     @property
     def report(self):
@@ -575,7 +597,7 @@ class Config(object):
                 'library_configs': map(relpath, self.processed_configs.keys())}
 
     @staticmethod
-    def _generate_linker_overrides(target_overrides, rom_start, rom_size):
+    def _generate_linker_overrides(target_overrides, rom_start, rom_size, sectors):
         if 'target.mbed_app_start' in target_overrides:
             start = int(target_overrides['target.mbed_app_start'], 0)
         else:
@@ -587,6 +609,7 @@ class Config(object):
         if 'target.sotp_size' in target_overrides:
             sotp_size = int(target_overrides['target.sotp_size'], 0)
             size = size - sotp_size
+            size = Config._align_on_sector(size, sectors)
             if size + sotp_size > rom_size + rom_start:
                 raise ConfigException("Application + SOTP size ends after ROM")
         if start < rom_start:
