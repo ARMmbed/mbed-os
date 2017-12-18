@@ -587,6 +587,8 @@ class Config(object):
         if 'target.sotp_size' in target_overrides:
             sotp_size = int(target_overrides['target.sotp_size'], 0)
             size = size - sotp_size
+            if size + sotp_size > rom_size + rom_start:
+                raise ConfigException("Application + SOTP size ends after ROM")
         if start < rom_start:
             raise ConfigException("Application starts before ROM")
         if size + start > rom_size + rom_start:
