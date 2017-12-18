@@ -28,10 +28,10 @@
 #if DEVICE_I2C
 
 #include "mbed_assert.h"
+#include "mbed_sleep.h"
 #include "i2c_api.h"
 #include "PeripheralPins.h"
 #include "pinmap_function.h"
-#include "sleepmodes.h"
 
 #include "em_i2c.h"
 #include "em_cmu.h"
@@ -508,7 +508,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     retval = I2C_TransferInit(obj->i2c.i2c, &(obj->i2c.xfer));
 
     if(retval == i2cTransferInProgress) {
-        blockSleepMode(EM1);
+        sleep_manager_lock_deep_sleep();
     } else {
         // something happened, and the transfer did not go through
         // So, we need to clean up
@@ -541,7 +541,7 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
             // Disable interrupt
             i2c_enable_interrupt(obj, 0, false);
 
-            unblockSleepMode(EM1);
+            sleep_manager_unlock_deep_sleep();
 
             return I2C_EVENT_TRANSFER_COMPLETE & obj->i2c.events;
         case i2cTransferNack:
@@ -549,7 +549,7 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
             // Disable interrupt
             i2c_enable_interrupt(obj, 0, false);
 
-            unblockSleepMode(EM1);
+            sleep_manager_unlock_deep_sleep();
 
             return I2C_EVENT_ERROR_NO_SLAVE & obj->i2c.events;
         default:
@@ -557,7 +557,7 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj)
             // Disable interrupt
             i2c_enable_interrupt(obj, 0, false);
 
-            unblockSleepMode(EM1);
+            sleep_manager_unlock_deep_sleep();
 
             // return error
             return I2C_EVENT_ERROR & obj->i2c.events;
@@ -578,11 +578,11 @@ uint8_t i2c_active(i2c_t *obj)
  */
 void i2c_abort_asynch(i2c_t *obj)
 {
-    // Do not deactivate I2C twice
-    if (!i2c_active(obj)) return;
-
     // Disable interrupt
     i2c_enable_interrupt(obj, 0, false);
+
+    // Do not deactivate I2C twice
+    if (!i2c_active(obj)) return;
 
     // Abort
     obj->i2c.i2c->CMD = I2C_CMD_STOP | I2C_CMD_ABORT;
@@ -590,7 +590,7 @@ void i2c_abort_asynch(i2c_t *obj)
     // Block until free
     while(i2c_active(obj));
 
-    unblockSleepMode(EM1);
+    sleep_manager_unlock_deep_sleep();
 }
 
 #endif //DEVICE_I2C ASYNCH

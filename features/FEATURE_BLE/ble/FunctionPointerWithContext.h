@@ -46,7 +46,7 @@
  * This class also offers a mechanism to chain other instances to it. When an
  * instance is called, all the instances being part of the chain are called.
  *
- * @important freestanding or member function adapted must accept a single
+ * @attention freestanding or member function adapted must accept a single
  * argument, and this argument is a pointer to ContextType. Adapted
  * primitives do not return anything.
  *
@@ -77,7 +77,7 @@ public:
      *
      * @param[in] object Pointer to the instance which is used to invoke @p
      * member.
-     * @param[in] Pointer to the member function to adapt.
+     * @param[in] member Pointer to the member function to adapt.
      */
     template<typename T>
     FunctionPointerWithContext(T *object, void (T::*member)(ContextType context)) :
@@ -136,7 +136,7 @@ public:
      * operator.
      *
      * @param[in] object Pointer to the instance is used to invoke @p member.
-     * @param[in] function Pointer to the member function to adapt.
+     * @param[in] member Pointer to the member function to adapt.
      */
     template<typename T>
     void attach(T *object, void (T::*member)(ContextType context))

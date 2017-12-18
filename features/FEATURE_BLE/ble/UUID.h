@@ -205,7 +205,7 @@ public:
      * shortened version of the UUID 0000xxxx-0000-1000-8000-00805F9B34FB, where
      * xxxx is the value of the 16-bit UUID.
      *
-     * @important 16-bit UUIDs are not used in user defined data type or
+     * @attention 16-bit UUIDs are not used in user defined data type or
      * user defined element ID.
      *
      * @param[in] _shortUUID 16-bit part of the standard UUID.
@@ -296,7 +296,7 @@ public:
     /**
      * Get the uint16_t value of the UUID.
      *
-     * @important This function is not used on long UUIDs.
+     * @attention This function is not used on long UUIDs.
      *
      * @return The value of the shortened UUID.
      */

@@ -102,7 +102,10 @@ time_t rtc_read(void) {
     timeinfo.tm_year = LPC_RTC->TIME[RTC_TIMETYPE_YEAR] - 1900;
     
     // Convert to timestamp
-    time_t t = _rtc_mktime(&timeinfo);
+    time_t t;
+    if (_rtc_maketime(&timeinfo, &t, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
+        return 0;
+    }
     
     return t;
 }
@@ -110,10 +113,10 @@ time_t rtc_read(void) {
 void rtc_write(time_t t) {
     // Convert the time in to a tm
     struct tm timeinfo;
-    if (_rtc_localtime(t, &timeinfo) == false) {
+    if (_rtc_localtime(t, &timeinfo, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
         return;
     }
-    
+
     // Pause clock, and clear counter register (clears us count)
     LPC_RTC->CCR |= 2;
     

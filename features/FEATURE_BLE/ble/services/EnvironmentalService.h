@@ -35,10 +35,7 @@ public:
 
     /**
      * @brief   EnvironmentalService constructor.
-     * @param   ble Reference to BLE device.
-     * @param   temperature_en Enable this characteristic.
-     * @param   humidity_en Enable this characteristic.
-     * @param   pressure_en Enable this characteristic.
+     * @param   _ble Reference to BLE device.
      */
     EnvironmentalService(BLE& _ble) :
         ble(_ble),

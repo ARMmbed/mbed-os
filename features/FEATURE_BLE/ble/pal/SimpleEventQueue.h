@@ -35,7 +35,7 @@ struct SimpleEventQueue : EventQueue {
     /**
      * Construct an empty event queue.
      *
-     * @important a call to initialize is mandatory before any other call.
+     * @attention a call to initialize is mandatory before any other call.
      *
      * @param ble_instance_id The id of the ble instance associated with that
      * event queue.

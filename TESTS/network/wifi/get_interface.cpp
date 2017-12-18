@@ -20,7 +20,7 @@
 // Pick the correct driver based on mbed_app.json
 #define INTERNAL            1
 #define WIFI_ESP8266        2
-#define X_NUCLEO_IDW01M1    3
+#define X_NUCLEO_IDW0XX1    3
 
 #if MBED_CONF_APP_WIFI_DRIVER == INTERNAL
 
@@ -39,7 +39,7 @@
 #include "ESP8266Interface.h"
 #define DRIVER ESP8266Interface
 
-#elif MBED_CONF_APP_WIFI_DRIVER == X_NUCLEO_IDW01M1
+#elif MBED_CONF_APP_WIFI_DRIVER == X_NUCLEO_IDW0XX1
 #include "SpwfSAInterface.h"
 #define DRIVER SpwfSAInterface
 #else

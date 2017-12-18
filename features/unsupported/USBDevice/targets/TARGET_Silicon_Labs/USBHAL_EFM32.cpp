@@ -23,8 +23,7 @@
 #include "em_usbtypes.h"
 #include "em_usbhal.h"
 #include "em_usbd.h"
-
-#include "sleepmodes.h"
+#include "mbed_sleep.h"
 
 enum USBISRCommand {
     CMD_HANDLED = 0,
@@ -134,11 +133,6 @@ USBHAL::USBHAL(void)
     // be dynamically removed/reinstated to allow deeper sleep.
     usbhal_allow_em2(false);
 
-    // When in suspend / Vbus off we can go to EM2, but never below
-    // that as long as USB is being used. Despite the name the call here
-    // blocks entering modes _below_ EM2, but allows EM2.
-    blockSleepMode(EM2);
-
     epCallback[EP0OUT] = NULL;
     epCallback[EP0IN ] = NULL;
     epCallback[EP1OUT] = &USBHAL::EP1_OUT_callback;
@@ -193,17 +187,17 @@ USBHAL::~USBHAL(void)
     usbhal_free_buffers();
 
     usbhal_allow_em2(true);
-    unblockSleepMode(EM2);
 }
 
 extern "C" void usbhal_allow_em2(bool allow_em2)
 {
-    if (allow_em2) {
-        // unblockSleepMode is safe to call even if we would unblock
-        // an already unblocked mode, so no checks here.
-        unblockSleepMode(EM1);
-    } else {
-        blockSleepMode(EM1);
+    static bool blocked = false;
+    if (allow_em2 && blocked) {
+        sleep_manager_unlock_deep_sleep();
+        blocked = false;
+    } else if (!blocked) {
+        sleep_manager_lock_deep_sleep();
+        blocked = true;
     }
 }
 

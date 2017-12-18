@@ -130,6 +130,25 @@ nsapi_error_t RTWInterface::set_dhcp(bool dhcp)
  */
 nsapi_error_t RTWInterface::set_credentials(const char *ssid, const char *pass, nsapi_security_t security)
 {
+    if(!ssid) {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
+    switch (security) {
+        case NSAPI_SECURITY_WPA:
+        case NSAPI_SECURITY_WPA2:
+        case NSAPI_SECURITY_WPA_WPA2:
+        case NSAPI_SECURITY_WEP:
+            if((strlen(pass) < 8) || (strlen(pass) > 63)) { // 802.11 password 8-63 characters
+                return NSAPI_ERROR_PARAMETER;
+            }
+            break;
+        case NSAPI_SECURITY_NONE:
+            break;
+        default:
+            return NSAPI_ERROR_PARAMETER;
+    }
+
     strncpy(_ssid, ssid, 255);
     strncpy(_pass, pass, 255);
     _security = security;

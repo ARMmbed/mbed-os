@@ -743,7 +743,7 @@ public:
     /**
      * Forward an attribute read event to all registered handlers.
      *
-     * @important This function is meant to be called from the vendor
+     * @attention This function is meant to be called from the vendor
      * implementation when an attribute read event occurs.
      *
      * @param[in] params Attribute read event to pass to the registered handlers.
@@ -756,7 +756,7 @@ public:
     /**
      * Forward an attribute written event to all registered handlers.
      *
-     * @important This function is meant to be called from the vendor
+     * @attention This function is meant to be called from the vendor
      * implementation when an attribute written event occurs.
      *
      * @param[in] params Attribute written event to pass to the registered
@@ -771,7 +771,7 @@ public:
      * Forward a handle value notification or indication event to all registered
      * handlers.
      *
-     * @important This function is meant to be called from the vendor
+     * @attention This function is meant to be called from the vendor
      * implementation when a notification or indication event is available.
      *
      * @param[in] params Notification or Indication event to pass to the
