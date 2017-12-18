@@ -23,26 +23,6 @@
 static uint32_t GetSector(uint32_t Address);
 static uint32_t GetSectorSize(uint32_t Sector);
 
-/** Initialize the flash peripheral and the flash_t object
- *
- * @param obj The flash object
- * @return 0 for success, -1 for error
- */
-int32_t flash_init(flash_t *obj)
-{
-    return 0;
-}
-
-/** Uninitialize the flash peripheral and the flash_t object
- *
- * @param obj The flash object
- * @return 0 for success, -1 for error
- */
-int32_t flash_free(flash_t *obj)
-{
-    return 0;
-}
-
 static int32_t flash_unlock(void)
 {
     /* Allow Access to Flash control registers and user Falsh */
@@ -64,13 +44,16 @@ static int32_t flash_lock(void)
     }
 }
 
-/** Erase one sector starting at defined address
- *
- * The address should be at sector boundary. This function does not do any check for address alignments
- * @param obj The flash object
- * @param address The sector starting address
- * @return 0 for success, -1 for error
- */
+int32_t flash_init(flash_t *obj)
+{
+    return 0;
+}
+
+int32_t flash_free(flash_t *obj)
+{
+    return 0;
+}
+
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
     static FLASH_EraseInitTypeDef EraseInitStruct;
@@ -104,17 +87,6 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     return status;
 }
 
-/** Program one page starting at defined address
- *
- * The page should be at page boundary, should not cross multiple sectors.
- * This function does not do any check for address alignments or if size
- * is aligned to a page size.
- * @param obj The flash object
- * @param address The sector starting address
- * @param data The data buffer to be programmed
- * @param size The number of bytes to program
- * @return 0 for success, -1 for error
- */
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
     int32_t status = 0;
@@ -155,13 +127,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     return status;
 }
 
-/** Get sector size
- *
- * @param obj The flash object
- * @param address The sector starting address
- * @return The size of a sector (in our case considering 1 sector = 1 page)
- */
-uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address) 
+uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 {
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return MBED_FLASH_INVALID_SIZE;
@@ -170,34 +136,18 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
     }
 }
 
-/** Get page size
- *
- * @param obj The flash object
- * @param address The page starting address
- * @return The size of a page (in our case the minimum programmable size)
- */
 uint32_t flash_get_page_size(const flash_t *obj)
 {
     // Flash of STM32F2 devices can be programed 1 byte at a time
     return 1;
 }
 
-/** Get start address for the flash region
- *
- * @param obj The flash object
- * @return The start address for the flash region
- */
-uint32_t flash_get_start_address(const flash_t *obj) 
+uint32_t flash_get_start_address(const flash_t *obj)
 {
     return FLASH_BASE;
 }
 
-/** Get the flash region size
- *
- * @param obj The flash object
- * @return The flash region size
- */
-uint32_t flash_get_size(const flash_t *obj) 
+uint32_t flash_get_size(const flash_t *obj)
 {
     return FLASH_SIZE;
 }
