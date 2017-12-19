@@ -16,16 +16,28 @@
  */
 #include "nrf_nvic.h"
 
+#include <stdbool.h>
 #include <stdint.h> // uint32_t, UINT32_MAX
 
 static uint8_t _sd_state = 0;
+static volatile bool _state_saved = false;
 
 void hal_critical_section_enter(void)
 {
-    sd_nvic_critical_region_enter(&_sd_state);
+    uint8_t temp_state = 0;
+    sd_nvic_critical_region_enter(&temp_state);
+
+    if (_state_saved == true) {
+        return;
+    }
+
+    _sd_state = temp_state;
+    _state_saved = true;
 }
 
 void hal_critical_section_exit(void)
 {
+    _state_saved = false;
+
     sd_nvic_critical_region_exit(_sd_state);
 }

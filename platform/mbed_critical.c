@@ -66,11 +66,9 @@ void core_util_critical_section_enter(void)
     MBED_ASSERT(critical_section_reentrancy_counter < UINT32_MAX);
 #endif /* FEATURE_UVISOR */
 
-    if (critical_section_reentrancy_counter == 0) {
-        hal_critical_section_enter();
-    }
+    hal_critical_section_enter();
 
-    critical_section_reentrancy_counter++;
+    ++critical_section_reentrancy_counter;
 }
 
 void core_util_critical_section_exit(void)
@@ -85,7 +83,7 @@ void core_util_critical_section_exit(void)
         return;
     }
 
-    critical_section_reentrancy_counter--;
+    --critical_section_reentrancy_counter;
 
     if (critical_section_reentrancy_counter == 0) {
         hal_critical_section_exit();

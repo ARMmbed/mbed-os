@@ -21,6 +21,7 @@
 #include <stdbool.h>
 
 static volatile bool critical_interrupts_enabled = false;
+static volatile bool state_saved = false;
 
 static bool are_interrupts_enabled(void)
 {
@@ -34,16 +35,24 @@ static bool are_interrupts_enabled(void)
 
 MBED_WEAK void hal_critical_section_enter(void)
 {
-    critical_interrupts_enabled = are_interrupts_enabled();
+    const bool interrupt_state = are_interrupts_enabled();
 
     __disable_irq();
-}
 
+    if (state_saved == true) {
+        return;
+    }
+
+    critical_interrupts_enabled = interrupt_state;
+    state_saved = true;
+}
 
 MBED_WEAK void hal_critical_section_exit()
 {
     // Interrupts must be disabled on invoking an exit from a critical section
     MBED_ASSERT(!are_interrupts_enabled());
+
+    state_saved = false;
 
     // Restore the IRQs to their state prior to entering the critical section
     if (critical_interrupts_enabled == true) {
