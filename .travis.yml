@@ -179,7 +179,7 @@ matrix:
         - mkdir BUILD
       script:
         # Run local mbed 2 testing
-        - python2 -u tools/build_travis.py --vendor NXP | sed -n '/^Executing/p'
+        - python2 -u tools/build_travis.py --vendor NXP
 
     - python: '2.7'
       env:
@@ -196,7 +196,7 @@ matrix:
         - mkdir BUILD
       script:
         # Run local mbed 2 testing
-        - python2 -u tools/build_travis.py --vendor STM | sed -n '/^Executing/p'
+        - python2 -u tools/build_travis.py --vendor STM
 
     - python: '2.7'
       env:
@@ -213,7 +213,7 @@ matrix:
         - mkdir BUILD
       script:
         # Run local mbed 2 testing
-        - python2 -u tools/build_travis.py --vendor NORDIC | sed -n '/^Executing/p'
+        - python2 -u tools/build_travis.py --vendor NORDIC
 
     - python: '2.7'
       env:
@@ -230,7 +230,7 @@ matrix:
         - mkdir BUILD
       script:
         # Run local mbed 2 testing
-        - python2 -u tools/build_travis.py --vendor SILICON_LABS | sed -n '/^Executing/p'
+        - python2 -u tools/build_travis.py --vendor SILICON_LABS
 
     - python: '2.7'
       env:
@@ -247,7 +247,7 @@ matrix:
         - mkdir BUILD
       script:
         # Run local mbed 2 testing
-        - python2 -u tools/build_travis.py --vendor MAXIM | sed -n '/^Executing/p'
+        - python2 -u tools/build_travis.py --vendor MAXIM
 
     - python: '2.7'
       env:
@@ -264,7 +264,7 @@ matrix:
         - mkdir BUILD
       script:
         # Run local mbed 2 testing
-        - python2 -u tools/build_travis.py --vendor ATMEL | sed -n '/^Executing/p'
+        - python2 -u tools/build_travis.py --vendor ATMEL
 
     - python: '2.7'
       env:
@@ -281,4 +281,4 @@ matrix:
         - mkdir BUILD
       script:
         # Run local mbed 2 testing
-        - python2 -u tools/build_travis.py --vendor NUVOTON | sed -n '/^Executing/p'
+        - python2 -u tools/build_travis.py --vendor NUVOTON
