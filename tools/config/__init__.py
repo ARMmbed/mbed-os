@@ -29,7 +29,6 @@ from tools.utils import json_file_to_dict, intelhex_offset
 from tools.arm_pack_manager import Cache
 from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
     generate_py_target, get_resolution_order
-from tools.flash_algo import PackFlashAlgo
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
@@ -502,13 +501,14 @@ class Config(object):
 
     @property
     def sectors(self):
+        """Return a list of tuples of sector start,size"""
         cache = Cache(False, False)
         if self.target.device_name not in cache.index:
             raise ConfigException("Bootloader not supported on this target: "
                                   "targets.json `device_name` not found in "
                                   "arm_pack_manager index.")
-        flm_file = cache.get_flash_algorthim_binary(self.target.device_name).read()
-        return PackFlashAlgo(flm_file).sector_sizes
+        cmsis_part = cache.index[self.target.device_name]
+        return cmsis_part['sectors']
 
     @property
     def regions(self):
@@ -538,7 +538,11 @@ class Config(object):
             rom_size = int(cmsis_part['memory']['IROM1']['size'], 0)
             rom_start = int(cmsis_part['memory']['IROM1']['start'], 0)
         except KeyError:
-            raise ConfigException("Not enough information in CMSIS packs to "
+            try:
+                rom_size = int(cmsis_part['memory']['PROGRAM_FLASH']['size'], 0)
+                rom_start = int(cmsis_part['memory']['PROGRAM_FLASH']['start'], 0)
+            except KeyError:
+                raise ConfigException("Not enough information in CMSIS packs to "
                                   "build a bootloader project")
         if  ('target.bootloader_img' in target_overrides or
              'target.restrict_size' in target_overrides):
@@ -609,7 +613,7 @@ class Config(object):
         if 'target.sotp_size' in target_overrides:
             sotp_size = int(target_overrides['target.sotp_size'], 0)
             size = size - sotp_size
-            size = Config._align_on_sector(size, sectors)
+            size = Config._align_on_sector(start+size, sectors)
             if size + sotp_size > rom_size + rom_start:
                 raise ConfigException("Application + SOTP size ends after ROM")
         if start < rom_start:
