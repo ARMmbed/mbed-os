@@ -111,6 +111,8 @@ public:
      */
     virtual const char *get_gateway();
 
+    virtual EMACInterface *emacInterface() { return this; }
+
 protected:
     /** Provide access to the underlying stack
      *
