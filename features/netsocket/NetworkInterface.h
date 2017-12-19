@@ -20,9 +20,13 @@
 #include "netsocket/nsapi_types.h"
 #include "netsocket/SocketAddress.h"
 
-// Predeclared class
+// Predeclared classes
 class NetworkStack;
-
+class EthInterface;
+class WiFiInterface;
+class MeshInterface;
+class CellularBase;
+class EMACInterface;
 
 /** NetworkInterface class
  *
@@ -125,6 +129,21 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address);
+
+    /** Dynamic downcast to an EthInterface */
+    virtual EthInterface *ethInterface() { return 0; }
+
+    /** Dynamic downcast to a WiFiInterface */
+    virtual WiFiInterface *wifiInterface() { return 0; }
+
+    /** Dynamic downcast to a MeshInterface */
+    virtual MeshInterface *meshInterface() { return 0; }
+
+    /** Dynamic downcast to a CellularBase */
+    virtual CellularBase *cellularBase() { return 0; }
+
+    /** Dynamic downcast to an EMACInterface */
+    virtual EMACInterface *emacInterface() { return 0; }
 
 protected:
     friend class Socket;
