@@ -164,7 +164,7 @@ matrix:
 
     - python: '2.7'
       env:
-        - NAME=mbed2
+        - NAME=mbed2-NXP
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
@@ -177,6 +177,106 @@ matrix:
         - mkdir BUILD
       script:
         # Run local mbed 2 testing
-        # Note: These take ~40 minutes to run
-        - python2 -u tools/build_travis.py | sed -n '/^Executing/p'
+        - python2 -u tools/build_travis.py --vendor NXP | sed -n '/^Executing/p'
 
+    - python: '2.7'
+      env:
+        - NAME=mbed2-STM
+      install:
+        # Install dependencies
+        - sudo apt-get install gcc-arm-embedded
+        - pip install --user -r requirements.txt
+        # Print versions we use
+        - arm-none-eabi-gcc --version
+        - python --version
+      before_script:
+        # Create BUILD directory for tests
+        - mkdir BUILD
+      script:
+        # Run local mbed 2 testing
+        - python2 -u tools/build_travis.py --vendor STM | sed -n '/^Executing/p'
+
+    - python: '2.7'
+      env:
+        - NAME=mbed2-NORDIC
+      install:
+        # Install dependencies
+        - sudo apt-get install gcc-arm-embedded
+        - pip install --user -r requirements.txt
+        # Print versions we use
+        - arm-none-eabi-gcc --version
+        - python --version
+      before_script:
+        # Create BUILD directory for tests
+        - mkdir BUILD
+      script:
+        # Run local mbed 2 testing
+        - python2 -u tools/build_travis.py --vendor NORDIC | sed -n '/^Executing/p'
+
+    - python: '2.7'
+      env:
+        - NAME=mbed2-SILICON_LABS
+      install:
+        # Install dependencies
+        - sudo apt-get install gcc-arm-embedded
+        - pip install --user -r requirements.txt
+        # Print versions we use
+        - arm-none-eabi-gcc --version
+        - python --version
+      before_script:
+        # Create BUILD directory for tests
+        - mkdir BUILD
+      script:
+        # Run local mbed 2 testing
+        - python2 -u tools/build_travis.py --vendor SILICON_LABS | sed -n '/^Executing/p'
+
+    - python: '2.7'
+      env:
+        - NAME=mbed2-MAXIM
+      install:
+        # Install dependencies
+        - sudo apt-get install gcc-arm-embedded
+        - pip install --user -r requirements.txt
+        # Print versions we use
+        - arm-none-eabi-gcc --version
+        - python --version
+      before_script:
+        # Create BUILD directory for tests
+        - mkdir BUILD
+      script:
+        # Run local mbed 2 testing
+        - python2 -u tools/build_travis.py --vendor MAXIM | sed -n '/^Executing/p'
+
+    - python: '2.7'
+      env:
+        - NAME=mbed2-ATMEL
+      install:
+        # Install dependencies
+        - sudo apt-get install gcc-arm-embedded
+        - pip install --user -r requirements.txt
+        # Print versions we use
+        - arm-none-eabi-gcc --version
+        - python --version
+      before_script:
+        # Create BUILD directory for tests
+        - mkdir BUILD
+      script:
+        # Run local mbed 2 testing
+        - python2 -u tools/build_travis.py --vendor ATMEL | sed -n '/^Executing/p'
+
+    - python: '2.7'
+      env:
+        - NAME=mbed2-NUVOTON
+      install:
+        # Install dependencies
+        - sudo apt-get install gcc-arm-embedded
+        - pip install --user -r requirements.txt
+        # Print versions we use
+        - arm-none-eabi-gcc --version
+        - python --version
+      before_script:
+        # Create BUILD directory for tests
+        - mkdir BUILD
+      script:
+        # Run local mbed 2 testing
+        - python2 -u tools/build_travis.py --vendor NUVOTON | sed -n '/^Executing/p'
