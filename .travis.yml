@@ -1,3 +1,6 @@
+language: python
+python:
+    '2.7'
 
 env:
   global:
@@ -34,12 +37,9 @@ after_success:
 after_failure:
   - bash -c "$STATUS" failure "Local $NAME testing has failed"
 
-language: generic
-
 matrix:
   include:
-    - python: '2.7'
-      env:
+    - env:
         - NAME=docs
       install:
         # Install dependencies
@@ -70,19 +70,13 @@ matrix:
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
-    - python: '2.7'
-      env:
+    - env:
         - NAME=tools
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
-        - pip install --user -r requirements.txt
-        - pip install --user pytest
-        - pip install --user pylint
-        - pip install --user hypothesis
-        - pip install --user mock
-        - pip install --user coverage
-        - pip install --user coveralls
+        - pip install -r requirements.txt
+        - pip install pytest pylint hypothesis mock coverage coveralls
         # Print versions we use
         - arm-none-eabi-gcc --version
         - python --version
@@ -98,14 +92,13 @@ matrix:
         # Report success since we have overridden default behaviour
         - bash -c "$STATUS" success "Local $NAME testing has passed"
 
-    - python: '2.7'
-      env:
+    - env:
         - NAME=events
         - EVENTS=events
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
-        - pip install --user -r requirements.txt
+        - pip install -r requirements.txt
         # Print versions we use
         - arm-none-eabi-gcc --version
         - gcc --version
@@ -117,14 +110,13 @@ matrix:
         # Run local equeue tests
         - make -C $EVENTS/equeue test
 
-    - python: '2.7'
-      env:
+    - env:
         - NAME=littlefs
         - LITTLEFS=features/filesystem/littlefs
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded fuse libfuse-dev
-        - pip install --user -r requirements.txt
+        - pip install -r requirements.txt
         - git clone https://github.com/armmbed/spiflash-driver.git
         # Print versions
         - arm-none-eabi-gcc --version
@@ -165,12 +157,11 @@ matrix:
         - CFLAGS="-Wno-format" make -CMOUNT/littlefs -B test_dirs QUIET=1
 
     - &mbed-2
-      python: '2.7'
       env: NAME=mbed2-NXP
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
-        - pip install --user -r requirements.txt
+        - pip install -r requirements.txt
         # Print versions we use
         - arm-none-eabi-gcc --version
         - python --version
