@@ -29,6 +29,9 @@
  */
 class EthInterface : public virtual NetworkInterface
 {
+    virtual EthInterface *ethInterface() {
+        return this;
+    }
 };
 
 

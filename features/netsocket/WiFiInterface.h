@@ -99,6 +99,10 @@ public:
      *                   negative on error see @a nsapi_error
      */
     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, nsapi_size_t count) = 0;
+
+    virtual WiFiInterface *wifiInterface() {
+        return this;
+    }
 };
 
 #endif

@@ -150,6 +150,10 @@ public:
      */
     EMAC &get_emac() const { return _emac; }
 
+    virtual EMACInterface *emacInterface() {
+        return this;
+    }
+
 protected:
     /** Provide access to the underlying stack
      *

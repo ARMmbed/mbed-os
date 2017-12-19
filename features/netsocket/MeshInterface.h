@@ -29,6 +29,9 @@
  */
 class MeshInterface : public NetworkInterface
 {
+    virtual MeshInterface *meshInterface() {
+        return this;
+    }
 };
 
 
