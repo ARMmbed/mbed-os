@@ -101,6 +101,7 @@ public:
      */
     virtual const char *get_gateway() = 0;
 
+    virtual CellularBase *cellularBase() { return this; }
 };
 
 #endif //CELLULAR_BASE_H
