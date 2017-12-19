@@ -34,6 +34,8 @@ after_success:
 after_failure:
   - bash -c "$STATUS" failure "Local $NAME testing has failed"
 
+language: generic
+
 matrix:
   include:
     - python: '2.7'
