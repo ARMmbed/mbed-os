@@ -372,6 +372,20 @@ class Config(object):
         "LOWPAN_BORDER_ROUTER", "LOWPAN_HOST", "LOWPAN_ROUTER", "NANOSTACK_FULL", "THREAD_BORDER_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER", "ETHERNET_HOST"
         ]
 
+    @classmethod
+    def find_app_config(cls, top_level_dirs):
+        app_config_location = None
+        for directory in top_level_dirs:
+            full_path = os.path.join(directory, cls.__mbed_app_config_name)
+            if os.path.isfile(full_path):
+                if app_config_location is not None:
+                    raise ConfigException("Duplicate '%s' file in '%s' and '%s'"
+                                            % (cls.__mbed_app_config_name,
+                                               cls.app_config_location, full_path))
+                else:
+                    app_config_location = full_path
+        return app_config_location
+
     def __init__(self, tgt, top_level_dirs=None, app_config=None):
         """Construct a mbed configuration
 
@@ -391,16 +405,8 @@ class Config(object):
         """
         config_errors = []
         self.app_config_location = app_config
-        if self.app_config_location is None:
-            for directory in top_level_dirs or []:
-                full_path = os.path.join(directory, self.__mbed_app_config_name)
-                if os.path.isfile(full_path):
-                    if self.app_config_location is not None:
-                        raise ConfigException("Duplicate '%s' file in '%s' and '%s'"
-                                              % (self.__mbed_app_config_name,
-                                                 self.app_config_location, full_path))
-                    else:
-                        self.app_config_location = full_path
+        if self.app_config_location is None and top_level_dirs:
+            self.app_config_location = self.find_app_config(top_level_dirs)
         try:
             self.app_config_data = json_file_to_dict(self.app_config_location) \
                                    if self.app_config_location else {}
