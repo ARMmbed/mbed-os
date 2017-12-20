@@ -1110,40 +1110,45 @@ class mbedToolchain:
 
     def link_program(self, r, tmp_path, name):
         needed_update = False
-        ext = 'bin'
         if hasattr(self.target, 'OUTPUT_EXT'):
-            ext = self.target.OUTPUT_EXT
+            exts = self.target.OUTPUT_EXT
+        else:
+            exts = ['bin']
 
-        if hasattr(self.target, 'OUTPUT_NAMING'):
-            self.var("binary_naming", self.target.OUTPUT_NAMING)
-            if self.target.OUTPUT_NAMING == "8.3":
-                name = name[0:8]
-                ext = ext[0:3]
+        if not type(exts) is list:
+            exts = [exts]
 
-        # Create destination directory
-        head, tail =  split(name)
-        new_path = join(tmp_path, head)
-        mkdir(new_path)
+        for ext in exts:
+            if hasattr(self.target, 'OUTPUT_NAMING'):
+                self.var("binary_naming", self.target.OUTPUT_NAMING)
+                if self.target.OUTPUT_NAMING == "8.3":
+                    name = name[0:8]
+                    ext = ext[0:3]
 
-        filename = name+'.'+ext
-        elf = join(tmp_path, name + '.elf')
-        bin = None if ext is 'elf' else join(tmp_path, filename)
-        map = join(tmp_path, name + '.map')
+            # Create destination directory
+            head, tail =  split(name)
+            new_path = join(tmp_path, head)
+            mkdir(new_path)
 
-        r.objects = sorted(set(r.objects))
-        config_file = ([self.config.app_config_location]
-                       if self.config.app_config_location else [])
-        dependencies = r.objects + r.libraries + [r.linker_script] + config_file
-        dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
-        if self.need_update(elf, dependencies):
-            needed_update = True
-            self.progress("link", name)
-            self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
+            filename = name+'.'+ext
+            elf = join(tmp_path, name + '.elf')
+            bin = None if ext is 'elf' else join(tmp_path, filename)
+            map = join(tmp_path, name + '.map')
 
-        if bin and self.need_update(bin, [elf]):
-            needed_update = True
-            self.progress("elf2bin", name)
-            self.binary(r, elf, bin)
+            r.objects = sorted(set(r.objects))
+            config_file = ([self.config.app_config_location]
+                           if self.config.app_config_location else [])
+            dependencies = r.objects + r.libraries + [r.linker_script] + config_file
+            dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
+            if self.need_update(elf, dependencies):
+                needed_update = True
+                self.progress("link", name)
+                self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
+
+            if bin and self.need_update(bin, [elf]):
+                needed_update = True
+                self.progress("elf2bin", name)
+                self.binary(r, elf, bin)
 
         # Initialize memap and process map file. This doesn't generate output.
         self.mem_stats(map)
