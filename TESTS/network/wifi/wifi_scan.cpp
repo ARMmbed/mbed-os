@@ -50,8 +50,7 @@ void wifi_scan(void)
         nsapi_security_t security = ap[i].get_security();
         int8_t rssi = ap[i].get_rssi();
         uint8_t ch = ap[i].get_channel();
-        TEST_ASSERT_NOT_EQUAL(0, strlen(ssid));
-        TEST_ASSERT_INT8_WITHIN(-35, -65, rssi);
+        TEST_ASSERT_INT8_WITHIN(-10, -100, rssi);
         if (strcmp(MBED_CONF_APP_WIFI_SECURE_SSID, ssid) == 0) {
             secure_found = true;
             TEST_ASSERT_EQUAL_INT(NSAPI_SECURITY_WPA2, security);
