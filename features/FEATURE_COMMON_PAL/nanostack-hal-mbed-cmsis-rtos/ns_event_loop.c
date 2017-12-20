@@ -15,7 +15,17 @@
 #define TRACE_GROUP "evlp"
 
 
-#if !MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
+#if MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
+
+static mbed_rtos_storage_event_flags_t event_flag_cb;
+static const osEventFlagsAttr_t event_flags_attr = {
+    .name = "nanostack_event_flags",
+    .cb_mem = &event_flag_cb,
+    .cb_size = sizeof event_flag_cb
+};
+static osEventFlagsId_t event_flag_id;
+
+#else
 
 static void event_loop_thread(void *arg);
 
@@ -71,7 +81,11 @@ void eventOS_scheduler_signal(void)
     // XXX why does signal set lock if called with irqs disabled?
     //__enable_irq();
     //tr_debug("signal %p", (void*)event_thread_id);
+#if MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
+    osEventFlagsSet(event_flag_id, 1);
+#else
     osThreadFlagsSet(event_thread_id, 1);
+#endif
     //tr_debug("signalled %p", (void*)event_thread_id);
 }
 
@@ -79,7 +93,13 @@ void eventOS_scheduler_idle(void)
 {
     //tr_debug("idle");
     eventOS_scheduler_mutex_release();
+
+#if MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
+    osEventFlagsWait(event_flag_id, 1, osFlagsWaitAny, osWaitForever);
+#else
     osThreadFlagsWait(1, 0, osWaitForever);
+#endif
+
     eventOS_scheduler_mutex_wait();
 }
 
@@ -99,10 +119,13 @@ void ns_event_loop_init(void)
     event_mutex_id = osMutexNew(&event_mutex_attr);
     MBED_ASSERT(event_mutex_id != NULL);
 
+    // If a separate event loop thread is not used, the signaling
+    // happens via event flags instead of thread flags. This allows one to
+    // perform the initialization from any thread and removes need to know the id
+    // of event loop dispatch thread.
 #if MBED_CONF_NANOSTACK_HAL_EVENT_LOOP_DISPATCH_FROM_APPLICATION
-    // The thread id of the current thread is stored so it can be used to signal
-    // the waiting thread from other threads or from a interrupt.
-    event_thread_id = osThreadGetId();
+    event_flag_id  = osEventFlagsNew(&event_flags_attr);
+    MBED_ASSERT(event_flag_id != NULL);
 #endif
 }
 
