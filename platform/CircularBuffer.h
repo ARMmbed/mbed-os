@@ -19,6 +19,23 @@
 #include "platform/mbed_critical.h"
 
 namespace mbed {
+
+namespace internal {
+/* Detect if CounterType of the Circular buffer is of unsigned type. */
+template<typename T>
+struct is_unsigned { static const bool value = false; };
+template<>
+struct is_unsigned<unsigned char> { static const bool value = true; };
+template<>
+struct is_unsigned<unsigned short> { static const bool value = true; };
+template<>
+struct is_unsigned<unsigned int> { static const bool value = true; };
+template<>
+struct is_unsigned<unsigned long> { static const bool value = true; };
+template<>
+struct is_unsigned<unsigned long long> { static const bool value = true; };
+};
+
 /** \addtogroup platform */
 /** @{*/
 /**
@@ -29,11 +46,22 @@ namespace mbed {
 /** Templated Circular buffer class
  *
  *  @note Synchronization level: Interrupt safe
+ *  @note CounterType must be unsigned and consistent with BufferSize
  */
 template<typename T, uint32_t BufferSize, typename CounterType = uint32_t>
 class CircularBuffer {
 public:
     CircularBuffer() : _head(0), _tail(0), _full(false) {
+        MBED_STATIC_ASSERT(
+            internal::is_unsigned<CounterType>::value,
+            "CounterType must be unsigned"
+        );
+
+        MBED_STATIC_ASSERT(
+            (sizeof(CounterType) >= sizeof(uint32_t)) ||
+            (BufferSize < (((uint64_t) 1) << (sizeof(CounterType) * 8))),
+            "Invalid BufferSize for the CounterType"
+        );
     }
 
     ~CircularBuffer() {
@@ -140,4 +168,3 @@ private:
 }
 
 #endif
-
