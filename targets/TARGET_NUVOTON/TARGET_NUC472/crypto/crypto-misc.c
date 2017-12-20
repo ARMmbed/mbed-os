@@ -41,6 +41,8 @@ static void crypto_submodule_release(uint16_t *submodule_avail);
 static volatile uint16_t crypto_prng_done;
 /* Track if AES H/W operation is done */
 static volatile uint16_t crypto_aes_done;
+/* Track if DES H/W operation is done */
+static volatile uint16_t crypto_des_done;
 
 static void crypto_submodule_prestart(volatile uint16_t *submodule_done);
 static bool crypto_submodule_wait(volatile uint16_t *submodule_done);
@@ -150,6 +152,16 @@ bool crypto_aes_wait(void)
     return crypto_submodule_wait(&crypto_aes_done);
 }
 
+void crypto_des_prestart(void)
+{
+    crypto_submodule_prestart(&crypto_des_done);
+}
+
+bool crypto_des_wait(void)
+{
+    return crypto_submodule_wait(&crypto_des_done);
+}
+
 bool crypto_dma_buff_compat(const void *buff, size_t buff_size, size_t size_aligned_to)
 {
     uint32_t buff_ = (uint32_t) buff;
@@ -201,5 +213,8 @@ void CRYPTO_IRQHandler()
     }  else if (AES_GET_INT_FLAG()) {
         crypto_aes_done = 1;
         AES_CLR_INT_FLAG();
+    } else if (TDES_GET_INT_FLAG()) {
+        crypto_des_done = 1;
+        TDES_CLR_INT_FLAG();
     }
 }
