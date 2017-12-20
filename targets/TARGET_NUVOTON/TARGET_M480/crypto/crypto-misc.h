@@ -65,6 +65,8 @@ void crypto_prng_prestart(void);
 bool crypto_prng_wait(void);
 void crypto_aes_prestart(void);
 bool crypto_aes_wait(void);
+void crypto_des_prestart(void);
+bool crypto_des_wait(void);
 
 
 /* Check if buffer can be used for crypto DMA. It has the following requirements:
