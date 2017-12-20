@@ -25,7 +25,5 @@
 #include "SMM_MPS2.h"
 /* NVIC Driver */
 #include "cmsis_nvic.h"
-/* APB Timer */
-#include "apb_timer.h"
 
 #endif /* MBED_CMSIS_H */
