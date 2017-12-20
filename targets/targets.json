@@ -1835,6 +1835,25 @@
             }
         }
     },
+    "MTB_UBLOX_ODIN_W2": {
+        "inherits": ["MODULE_UBLOX_ODIN_W2"],
+        "release_versions": ["5"],
+        "config": {
+            "usb_tx": {
+                "help": "Value PA_11",
+                "value": "PA_11"
+            },
+            "usb_rx": {
+                "help": "Value PA_13",
+                "value": "PA_13"
+            },
+            "stdio_uart": {
+                "help": "Value: UART_1",
+                "value": "UART_1",
+                "macro_name": "STDIO_UART"
+             }
+        }
+     },
     "UBLOX_C030": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
