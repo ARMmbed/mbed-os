@@ -1,3 +1,6 @@
+language: python
+python:
+    '2.7'
 
 env:
   global:
@@ -15,6 +18,7 @@ cache:
   pip: true
   directories:
     - $HOME/.cache/apt
+    - $HOME/gcc-arm-none-eabi-6-2017-q2-update
 
 before_install:
   - bash -c "$STATUS" pending "Local $NAME testing is in progress"
@@ -36,8 +40,7 @@ after_failure:
 
 matrix:
   include:
-    - python: '2.7'
-      env:
+    - env:
         - NAME=docs
       install:
         # Install dependencies
@@ -68,19 +71,13 @@ matrix:
           find  -name "*.s" | tee BUILD/badasm |
           sed -e "s/^/Bad Assembler file name found: /" && [ ! -s BUILD/badasm ]
 
-    - python: '2.7'
-      env:
+    - env:
         - NAME=tools
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
-        - pip install --user -r requirements.txt
-        - pip install --user pytest
-        - pip install --user pylint
-        - pip install --user hypothesis
-        - pip install --user mock
-        - pip install --user coverage
-        - pip install --user coveralls
+        - pip install -r requirements.txt
+        - pip install pytest pylint hypothesis mock coverage coveralls
         # Print versions we use
         - arm-none-eabi-gcc --version
         - python --version
@@ -96,14 +93,13 @@ matrix:
         # Report success since we have overridden default behaviour
         - bash -c "$STATUS" success "Local $NAME testing has passed"
 
-    - python: '2.7'
-      env:
+    - env:
         - NAME=events
         - EVENTS=events
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded
-        - pip install --user -r requirements.txt
+        - pip install -r requirements.txt
         # Print versions we use
         - arm-none-eabi-gcc --version
         - gcc --version
@@ -115,14 +111,13 @@ matrix:
         # Run local equeue tests
         - make -C $EVENTS/equeue test
 
-    - python: '2.7'
-      env:
+    - env:
         - NAME=littlefs
         - LITTLEFS=features/filesystem/littlefs
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded fuse libfuse-dev
-        - pip install --user -r requirements.txt
+        - pip install -r requirements.txt
         - git clone https://github.com/armmbed/spiflash-driver.git
         # Print versions
         - arm-none-eabi-gcc --version
@@ -162,13 +157,16 @@ matrix:
         - ls MOUNT/littlefs
         - CFLAGS="-Wno-format" make -CMOUNT/littlefs -B test_dirs QUIET=1
 
-    - python: '2.7'
-      env:
-        - NAME=mbed2
+    - &mbed-2
+      env: NAME=mbed2-NXP
       install:
         # Install dependencies
-        - sudo apt-get install gcc-arm-embedded
-        - pip install --user -r requirements.txt
+        - export GCC_DIR=$HOME/gcc-arm-none-eabi-6-2017-q2-update
+        - export GCC_ARCHIVE=$HOME/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2
+        - export GCC_URL=https://developer.arm.com/-/media/Files/downloads/gnu-rm/6-2017q2/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2?revision=2cc92fb5-3e0e-402d-9197-bdfc8224d8a5?product=GNU%20Arm%20Embedded%20Toolchain,64-bit,,Linux,6-2017-q2-update
+        - if [ ! -e $GCC_DIR/bin/arm-none-eabi-gcc ]; then wget $GCC_URL -O $GCC_ARCHIVE; tar xfj $GCC_ARCHIVE -C $HOME; fi
+        - export PATH=$PATH:$GCC_DIR/bin
+        - pip install -r requirements.txt
         # Print versions we use
         - arm-none-eabi-gcc --version
         - python --version
@@ -177,6 +175,16 @@ matrix:
         - mkdir BUILD
       script:
         # Run local mbed 2 testing
-        # Note: These take ~40 minutes to run
-        - python2 -u tools/build_travis.py | sed -n '/^Executing/p'
-
+        - python2 -u tools/build_travis.py --vendor "${NAME#mbed2-}"
+    - <<: *mbed-2
+      env: NAME=mbed2-STM
+    - <<: *mbed-2
+      env: NAME=mbed2-NORDIC
+    - <<: *mbed-2
+      env: NAME=mbed2-SILICON_LABS
+    - <<: *mbed-2
+      env: NAME=mbed2-MAXIM
+    - <<: *mbed-2
+      env: NAME=mbed2-ATMEL
+    - <<: *mbed-2
+      env: NAME=mbed2-NUVOTON
