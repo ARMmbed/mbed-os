@@ -200,7 +200,10 @@ static void crypto_submodule_prestart(volatile uint16_t *submodule_done)
 static bool crypto_submodule_wait(volatile uint16_t *submodule_done)
 {
     while (! *submodule_done);
-    
+
+    /* Ensure while loop above and subsequent code are not reordered */
+    __DSB();
+
     return true;
 }
 
