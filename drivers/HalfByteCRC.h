@@ -17,7 +17,10 @@
 #ifndef MBED_HALF_BYTE_CRC_H
 #define MBED_HALF_BYTE_CRC_H
 
-#include "mbed_crc.h"
+#include "BaseCRC.h"
+
+namespace mbed {
+/** \addtogroup drivers */
 
 /** Half byte CRC Class
   *
@@ -25,7 +28,7 @@
   *  and you do not have enough memory for lookup table.
   *  Its look-up table contains only 16 entries for a total of 64 bytes.
   */
-class HalfByteCRC : public CRC
+class HalfByteCRC : public BaseCRC
 {
 public:
 
@@ -37,66 +40,38 @@ public:
      *  @param[IN]  inital_xor  Inital value/seed to Xor (Default ~0x0)
      *  @param[IN]  final_xor   Final Xor value (Default ~0x0)
      */
-    HalfByteCRC(crc_polynomial_t polynomial = 0xEDB88320, uint32_t inital_xor = ~0x0, uint32_t final_xor = ~0x0)
-                : _polynomial(polynomial), _inital_value(inital_xor), _final_xor(final_xor)
-    {
-    }
-
-    virtual ~HalfByteCRC()
-    {
-    }
+    HalfByteCRC(crc_polynomial_t polynomial = POLY_32BIT_ANSI_REVERSE, uint32_t inital_xor = ~0x0, uint32_t final_xor = ~0x0);
+    virtual ~HalfByteCRC();
 
     /** Initialize a CRC module, generate CRC static table
      *
      *  @return  0 on success or a negative error code on failure
      */
-    virtual int32_t init()
-    {
-        for (uint8_t i = 0; i < 16; i++) {
-            uint32_t crc = i * 16;
-            for (uint8_t j = 0; j < 8; j++) {
-                crc = (crc >> 1) ^ (-int(crc & 1) & _polynomial);
-            }
-            _crc_table[i] = crc;
-        }
-        return 0;
-    }
+    virtual int32_t init();
 
     /** Deinitialize a CRC module
      *
      * @return  0 on success, negative error code on failure
      */
-    virtual int32_t deinit()
-    {
-        return 0;
-    }
+    virtual int32_t deinit();
 
     /** Get the current CRC polynomial type
      *
      * @return  Polynomial type: Only CRC32 is supported
      */
-    virtual crc_polynomial_type_t get_polynomial_type(void) const
-    {
-        return CRC_32BIT;
-    }
+    virtual crc_polynomial_type_t get_polynomial_type(void) const;
 
     /** Get the current CRC polynomial
      *
      * @return  Polynomial value
      */
-    virtual crc_polynomial_t get_polynomial(void) const
-    {
-        return _polynomial;
-    }
+    virtual crc_polynomial_t get_polynomial(void) const;
 
      /** Get the current CRC width
      *
      * @return  CRC width
      */
-    virtual crc_width_t get_width(void) const
-    {
-        return CRC_32;
-    }
+    virtual crc_width_t get_width(void) const;
 
     /** Compute partial CRC for the data input.
      *
@@ -112,22 +87,7 @@ public:
      *  @note: CRC as output in compute_partial is not final CRC value, call @ref compute_partial_stop
      *         to get final correct CRC value.
      */
-    virtual int32_t compute_partial(void *buffer, crc_data_size_t size, crc_size_t *crc)
-    {
-        MBED_ASSERT(crc != NULL);
-        MBED_ASSERT(buffer != NULL);
-
-        uint8_t *data = static_cast<uint8_t *>(buffer);
-        crc_size_t p_crc = *crc;
-
-        for (crc_data_size_t byte = 0; byte < size; byte++) {
-            p_crc = _crc_table[((p_crc ^ (data[byte] >> 0)) & 0x0F)] ^ (p_crc >> 4);
-            p_crc = _crc_table[((p_crc ^ (data[byte] >> 4)) & 0x0F)] ^ (p_crc >> 4);
-        }
-
-        *crc = p_crc;
-        return 0;
-    }
+    virtual int32_t compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc);
 
     /** Compute CRC for the data input
      *
@@ -136,15 +96,7 @@ public:
      *  @param[OUT] crc  CRC
      *  @return  0 on success, negative error code on failure
      */
-    virtual int32_t compute(void *buffer, crc_data_size_t size, crc_size_t *crc)
-    {
-        int32_t status;
-        *crc = _inital_value;
-        status = compute_partial(buffer, size, crc);
-        // Compute final XOR
-        *crc ^= _final_xor;
-        return status;
-    }
+    virtual int32_t compute(void *buffer, crc_data_size_t size, uint32_t *crc);
 
     /** Compute partial start, indicate start of partial computation
      *
@@ -156,12 +108,7 @@ public:
      *  @note: CRC is an out parameter and must be reused with compute_partial
      *         and compute_partial_stop without any modifications in application.
      */
-    virtual int32_t compute_partial_start(crc_size_t *crc) const
-    {
-        MBED_ASSERT(crc != NULL);
-        *crc = _inital_value;
-        return 0;
-    }
+    virtual int32_t compute_partial_start(uint32_t *crc);
 
     /** Get the final CRC value of partial computation.
      *
@@ -171,19 +118,14 @@ public:
      *
      *  @param[OUT] crc  CRC result
      */
-    virtual int32_t compute_partial_stop(crc_size_t *crc)
-    {
-        MBED_ASSERT(crc != NULL);
-        // Compute final XOR
-        *crc ^= _final_xor;
-        return 0;
-    }
+    virtual int32_t compute_partial_stop(uint32_t *crc);
 
 private:
     crc_polynomial_t _polynomial;
-    crc_size_t _crc_table[16];
-    crc_size_t _inital_value;
-    crc_size_t _final_xor;
+    uint32_t _crc_table[16];
+    uint32_t _inital_value;
+    uint32_t _final_xor;
 };
 
+} // namespace mbed
 #endif

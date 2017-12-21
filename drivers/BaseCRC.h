@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_CRC_API_H
-#define MBED_CRC_API_H
+#ifndef BASE_CRC_API_H
+#define BASE_CRC_API_H
 
 #include <stdint.h>
 
 namespace mbed {
-/** \addtogroup crc */
+/** \addtogroup drivers */
 /** @{*/
 
 
@@ -48,18 +48,30 @@ typedef enum crc_width {
     CRC_32 = 32,
 } crc_width_t;
 
+/** CRC Polynomial value
+ *
+ * Different polynomial values supported
+ */
+typedef enum crc_polynomial {
+    POLY_INVALID = 0,
+    POLY_8BIT_CCITT = 0x07,         // x8+x2+x+1
+    POLY_7BIT_SD = 0x9,             // x7+x3+1;
+    POLY_16BIT_CCITT = 0x1021,      // x16+x12+x5+1
+    POLY_16BIT_IBM = 0x8005,        // x16+x15+x2+1
+    POLY_32BIT_ANSI = 0x04C11DB7,    // x32+x26+x23+x22+x16+x12+x11+x10+x8+x7+x5+x4+x2+x+1
+    POLY_32BIT_ANSI_REVERSE = 0xEDB88320,    // x32+x26+x23+x22+x16+x12+x11+x10+x8+x7+x5+x4+x2+x+1
+} crc_polynomial_t;
+
 /** CRC object provides CRC generation through hardware/software
  */
-class CRC
+class BaseCRC
 {
 public:
     typedef uint64_t crc_data_size_t;
-    typedef uint32_t crc_polynomial_t;
-    typedef uint32_t crc_size_t;
 
     /** Lifetime of CRC object
      */
-    virtual ~CRC() {};
+    virtual ~BaseCRC() {};
 
     /** Initialize CRC module
      *
@@ -87,29 +99,30 @@ public:
 
     /** Get the current CRC polynomial
      *
-     * @return  Polynomial value
+     * @return  Polynomial value, 0 when polynomial type is incorrect
+     *          or not supported
      */
     virtual crc_polynomial_t get_polynomial(void) const
     {
         crc_polynomial_type_t polynomial = this->get_polynomial_type();
 
         if (CRC_7BIT_SD == polynomial) {
-            return 0x9;             // x7+x3+1;
+            return POLY_7BIT_SD;
         } else if (CRC_8BIT_CCITT == polynomial) {
-            return 0x07;            // x8+x2+x+1
+            return POLY_8BIT_CCITT;
         } else if ((CRC_16BIT_SD == polynomial) || (CRC_16BIT_CCITT == polynomial)) {
-            return 0x1021;          // x16+x12+x5+1
+            return POLY_16BIT_CCITT;
         } else if (CRC_16BIT_IBM == polynomial) {
-            return 0x8005;          // x16+x15+x2+1
+            return POLY_16BIT_IBM;
         } else if (CRC_32BIT == polynomial) {
-            return 0x04C11DB7;     // x32+x26+x23+x22+x16+x12+x11+x10+x8+x7+x5+x4+x2+x+1
+            return POLY_32BIT_ANSI;
         }
-        return 0;
+        return POLY_INVALID;
     }
 
     /** Get the current CRC width
      *
-     * @return  CRC width
+     * @return  CRC width, 0 when polynomial type is incorrect or not supported.
      */
     virtual crc_width_t get_width(void) const
     {
@@ -136,7 +149,7 @@ public:
      *  @param [OUT] crc  CRC
      *  @return  0 on success, negative error code on failure
      */
-    virtual int32_t compute(void *buffer, crc_data_size_t size, crc_size_t *crc) = 0;
+    virtual int32_t compute(void *buffer, crc_data_size_t size, uint32_t *crc) = 0;
 
     /** Compute partial start, indicate start of partial computation
      *
@@ -148,7 +161,7 @@ public:
      *  @note: CRC is an out parameter and must be reused with compute_partial
      *         and compute_partial_stop without any modifications in application.
      */
-    virtual int32_t compute_partial_start(crc_size_t *crc) const
+    virtual int32_t compute_partial_start(uint32_t *crc)
     {
         return -1;
     }
@@ -167,7 +180,7 @@ public:
      *  @note: CRC as output in compute_partial is not final CRC value, call @ref compute_partial_stop
      *         to get final correct CRC value.
      */
-    virtual int32_t compute_partial(void *buffer, crc_data_size_t size, crc_size_t *crc)
+    virtual int32_t compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc)
     {
         return -1;
     }
@@ -180,10 +193,12 @@ public:
      *
      *  @param[OUT] crc  CRC result
      */
-    virtual int32_t compute_partial_stop(crc_size_t *crc)
+    virtual int32_t compute_partial_stop(uint32_t *crc)
     {
         return -1;
     }
+
+protected:
 
     /** Get the current CRC data size
      *
