@@ -2884,6 +2884,18 @@ typedef enum lora_events {
     JOIN_FAILURE,
 } lora_events_t;
 
+typedef struct  {
+     // Mandatory. Event Callback must be provided
+     mbed::Callback<void(lora_events_t)> events;
+
+     // Rest are optional
+     // If the user do not assign these callbacks, these callbacks would return
+     // null if checked with bool operator
+     // link_check_resp callback and other such callbacks will be maped in
+     // future releases of Mbed-OS
+     mbed::Callback<void(uint8_t, uint8_t)> link_check_resp;
+ }lorawan_app_callbacks_t;
+
 typedef struct lora_channelplan {
     uint8_t nb_channels;    // number of channels
     lora_channels_t *channels;

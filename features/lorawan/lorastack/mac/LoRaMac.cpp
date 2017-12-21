@@ -2136,6 +2136,7 @@ static LoRaMacStatus_t ScheduleTx( void )
         // Send later - prepare timer
         LoRaMacState |= LORAMAC_TX_DELAYED;
         tr_debug("Next Transmission in %lu ms", dutyCycleTimeOff);
+
         TimerSetValue( &TxDelayedTimer, dutyCycleTimeOff );
         TimerStart( &TxDelayedTimer );
 
