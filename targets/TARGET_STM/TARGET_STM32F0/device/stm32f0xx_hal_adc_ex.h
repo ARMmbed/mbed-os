@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Header file of ADC HAL Extension module.
   ******************************************************************************
   * @attention
@@ -153,7 +151,7 @@
   *        VrefInt/TempSensor/Vbat
   *        Note: On STM32F0, availability of internal channel Vbat depends on
   *              devices lines.
-  * @param __CHANNEL__: ADC channel
+  * @param __CHANNEL__ ADC channel
   * @retval None
   */
 #if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC)
@@ -175,7 +173,7 @@
   *        VrefInt/TempSensor/Vbat.
   *        Note: On STM32F0, availability of internal channel Vbat depends on
   *              devices lines.
-  * @param __CHANNEL__: ADC channel
+  * @param __CHANNEL__ ADC channel
   * @retval Bit of register ADC_CCR
   */
 #if !defined(STM32F030x6) && !defined(STM32F030x8) && !defined(STM32F070x6) && !defined(STM32F070xB) && !defined(STM32F030xC)
