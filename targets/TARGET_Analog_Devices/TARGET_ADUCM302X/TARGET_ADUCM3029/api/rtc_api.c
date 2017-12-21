@@ -46,7 +46,11 @@
 #include "adi_pwr.h"
 
 #define RTC_DEVICE_NUM    0
-static uint8_t aRtcDevMem0[ADI_RTC_MEMORY_SIZE];
+/*******************************************************************************
+   ADI_RTC_DEVICE Instance memory containing memory pointer should guarantee
+   4 byte alignmnet.
+ *******************************************************************************/
+static uint32_t       aRtcDevMem0[(ADI_RTC_MEMORY_SIZE + 3)/4];
 static ADI_RTC_HANDLE hDevice0 = NULL;
 
 

@@ -21,7 +21,7 @@
             "value": 2
         },
         "wifi-driver": {
-            "help": "Wifi driver to use, valid values are INTERNAL, WIFI_ESP8266 and X_NUCLEO_IDW01M1",
+            "help": "Wifi driver to use, valid values are INTERNAL, WIFI_ESP8266 and X_NUCLEO_IDW0XX1",
             "value": "INTERNAL"
         },
         "wifi-tx": {

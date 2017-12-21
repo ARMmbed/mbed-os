@@ -26,11 +26,11 @@
 #if DEVICE_PWMOUT
 
 #include "mbed_assert.h"
+#include "mbed_sleep.h"
 #include "pwmout_api.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
 #include "device_peripherals.h"
-#include "sleepmodes.h"
 
 #include "em_cmu.h"
 #include "em_gpio.h"
@@ -180,7 +180,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
         return;
     } else {
         pwmout_set_channel_route(pwmout_get_channel_route(obj->channel));
-        blockSleepMode(EM1);
+        sleep_manager_lock_deep_sleep();
         pwmout_enable(obj, true);
         pwmout_enable_pins(obj, true);
     }
@@ -226,7 +226,7 @@ void pwmout_free(pwmout_t *obj)
 {
     if(pwmout_disable_channel_route(pwmout_get_channel_route(obj->channel))) {
         //Channel was previously enabled, so do housekeeping
-        unblockSleepMode(EM1);
+        sleep_manager_unlock_deep_sleep();
     } else {
         //This channel was disabled already
     }

@@ -23,6 +23,8 @@
 
 using namespace utest::v1;
 
+#if defined(MBED_CONF_APP_WIFI_SECURE_SSID)
+
 void wifi_connect_secure(void)
 {
     WiFiInterface *wifi = get_interface();
@@ -32,3 +34,4 @@ void wifi_connect_secure(void)
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
 }
 
+#endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID)

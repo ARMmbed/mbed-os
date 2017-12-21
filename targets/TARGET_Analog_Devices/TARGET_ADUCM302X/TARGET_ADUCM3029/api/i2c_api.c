@@ -57,7 +57,11 @@
 int adi_i2c_memtype = 0;
 #endif
 #else
-static uint8_t          i2c_Mem[ADI_I2C_MEMORY_SIZE];
+/*******************************************************************************
+   ADI_I2C_DEV_DATA_TYPE Instance memory containing memory pointer should
+   guarantee 4 byte alignmnet.
+ *******************************************************************************/
+static uint32_t         i2c_Mem[(ADI_I2C_MEMORY_SIZE + 3)/4];
 static ADI_I2C_HANDLE   i2c_Handle;
 #if defined(ADI_DEBUG)
 #warning "BUILD_I2C_MI_DYNAMIC is NOT defined.  Memory allocation for I2C will be static"
@@ -72,7 +76,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     uint32_t        i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
     uint32_t        i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
     ADI_I2C_HANDLE  *pI2C_Handle;
-    uint8_t         *I2C_Mem;
+    uint32_t        *I2C_Mem;
     ADI_I2C_RESULT  I2C_Return = ADI_I2C_SUCCESS;
     uint32_t        I2C_DevNum = I2C_0;     /* ADuCM3029 only has 1 I2C port */
 
