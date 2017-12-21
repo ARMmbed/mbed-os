@@ -17,6 +17,7 @@
 #define MBED_CIRCULARBUFFER_H
 
 #include "platform/mbed_critical.h"
+#include "platform/mbed_assert.h"
 
 namespace mbed {
 
