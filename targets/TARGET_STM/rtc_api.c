@@ -291,6 +291,7 @@ int rtc_isenabled(void)
 
 void rtc_synchronize(void)
 {
+    RtcHandle.Instance = RTC;
     if (HAL_RTC_WaitForSynchro(&RtcHandle) != HAL_OK) {
         error("rtc_synchronize error\n");
     }
@@ -301,6 +302,7 @@ void rtc_synchronize(void)
 static void RTC_IRQHandler(void)
 {
     /*  Update HAL state */
+    RtcHandle.Instance = RTC;
     HAL_RTCEx_WakeUpTimerIRQHandler(&RtcHandle);
     /* In case of registered handler, call it. */
     if (irq_handler) {
@@ -342,6 +344,7 @@ void rtc_set_wake_up_timer(uint32_t delta)
     NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
     NVIC_EnableIRQ(RTC_WKUP_IRQn);
 
+    RtcHandle.Instance = RTC;
     if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, 0xFFFF & WakeUpCounter, WakeUpClock[DivIndex-1]) != HAL_OK) {
         error("rtc_set_wake_up_timer init error (%d)\n", DivIndex);
     }
@@ -349,6 +352,7 @@ void rtc_set_wake_up_timer(uint32_t delta)
 
 void rtc_deactivate_wake_up_timer(void)
 {
+    RtcHandle.Instance = RTC;
     HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
 }
 
