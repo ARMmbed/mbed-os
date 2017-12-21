@@ -177,7 +177,15 @@ int16_t LoRaWANInterface::receive(uint8_t port, uint8_t* data, uint16_t length,
     }
 }
 
-void LoRaWANInterface::lora_event_callback(mbed::Callback<void(lora_events_t)> event_cb)
-{
-    stk_obj().set_lora_event_cb(event_cb);
-}
+lora_mac_status_t LoRaWANInterface::add_app_callbacks(lorawan_app_callbacks_t *callbacks)
+  {
+
+     if (!callbacks || !callbacks->events) {
+         // Event Callback is mandatory
+         return LORA_MAC_STATUS_PARAMETER_INVALID;
+     }
+
+     stk_obj().set_lora_callbacks(callbacks);
+
+     return LORA_MAC_STATUS_OK;
+  }

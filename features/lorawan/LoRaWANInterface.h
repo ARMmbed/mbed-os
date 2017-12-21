@@ -318,24 +318,75 @@ public:
     virtual int16_t receive(uint8_t port, uint8_t* data, uint16_t length,
                             int flags);
 
-    /** Callback handler.
-     *
-     * Events that can be posted to user:
-     *
-     * CONNECTED            - When the connection is complete
-     * DISCONNECTED         - When the protocol is shut down in response to disconnect()
-     * TX_DONE              - When a packet is sent
-     * TX_TIMEOUT,          - When stack was unable to send packet in TX window
-     * TX_ERROR,            - A general TX error
-     * TX_CRYPTO_ERROR,     - If MIC fails, or any other crypto relted error
-     * TX_SCHEDULING_ERROR, - When stack is unable to schedule packet
-     * RX_DONE,             - When there is something to receive
-     * RX_TIMEOUT,          - Not yet mapped
-     * RX_ERROR             - A general RX error
-     *
-     * @param event_cb         A callback function for catching events from the stack.
-     */
-    virtual void lora_event_callback(mbed::Callback<void(lora_events_t)> event_cb);
+    /** Add application callbacks to the stack.
+       *
+       * 'lorawan_app_callbacks' is a structure that holds pointers to the application
+       * provided methods which are needed to be called in response to certain
+       * requests. The structure is default constructed to set all pointers to NULL.
+       * So if the user does not provide the pointer, a response will not be posted.
+       * However, the 'lorawan_events' callback is mandatory to be provided as it
+       * contains essential events.
+       *
+       * Events that can be posted to user via 'lorawan_events' are:
+       *
+       * CONNECTED            - When the connection is complete
+       * DISCONNECTED         - When the protocol is shut down in response to disconnect()
+       * TX_DONE              - When a packet is sent
+       * TX_TIMEOUT,          - When stack was unable to send packet in TX window
+       * TX_ERROR,            - A general TX error
+       * TX_CRYPTO_ERROR,     - If MIC fails, or any other crypto relted error
+       * TX_SCHEDULING_ERROR, - When stack is unable to schedule packet
+       * RX_DONE,             - When there is something to receive
+       * RX_TIMEOUT,          - Not yet mapped
+       * RX_ERROR             - A general RX error
+       *
+       * Other responses to certain standard requests are an item for the future.
+       * For example, a link check request could be sent whenever the device tries
+       * to send a message and if the network server responds with a link check resposne,
+       * the stack notifies the application be calling the appropriate method. For example,
+       * 'link_check_resp' callback could be used to collect a response for a link check
+       * request MAC command and the result is thus transported to the application
+       * via callback function provided.
+       *
+       * As can be seen from declaration, mbed::Callback<void(uint8_t, uint8_t)> *link_check_resp)
+       * carries two parameters. First one is Demodulation Margin and the second one
+       * is number of gateways involved in the path to network server.
+       *
+       * An example of using this API with a latch onto 'lorawan_events' could be:
+       *
+       * LoRaWANInterface lorawan(radio);
+       * lorawan_app_callbacks cbs;
+       * static void my_event_handler();
+       *
+       * int main()
+       * {
+       * lorawan.initialize(&queue);
+       *  cbs.lorawan_events = mbed::callback(my_event_handler);
+       *  lorawan.add_app_callbacks(&cbs);
+       *  lorawan.connect();
+       * }
+       *
+       * static void my_event_handler(lora_events_t events)
+       * {
+       *  switch(events) {
+       *      case CONNECTED:
+       *          //do something
+       *          break;
+       *      case DISCONNECTED:
+       *          //do something
+       *          break;
+       *      case TX_DONE:
+       *          //do something
+       *          break;
+       *      default:
+       *          break;
+       *  }
+       * }
+       *
+       * @param callbacks         A pointer to the structure containing application
+       *                          callbacks.
+       */
+    virtual lora_mac_status_t add_app_callbacks(lorawan_app_callbacks_t *callbacks);
 };
 
 #endif /* LORAWANINTERFACE_H_ */

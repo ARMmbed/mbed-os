@@ -483,9 +483,18 @@ void LoRaWANStack::mlme_confirm(MlmeConfirm_t *mlme_confirm)
     mlme_confirm_handler(&lora_mlme_confirm);
 }
 
-void LoRaWANStack::set_lora_event_cb(mbed::Callback<void(lora_events_t)> event_cb)
+void LoRaWANStack::set_lora_callbacks(lorawan_app_callbacks_t *cbs)
 {
-    _events = event_cb;
+
+    if (cbs) {
+        if (cbs->events) {
+            _callbacks.events = cbs->events;
+        }
+
+        if (cbs->link_check_resp) {
+            _callbacks.link_check_resp = cbs->link_check_resp;
+        }
+    }
 }
 
 lora_mac_status_t LoRaWANStack::add_channels(const lora_channelplan_t &channel_plan)
@@ -1051,7 +1060,10 @@ void LoRaWANStack::mlme_confirm_handler(lora_mac_mlme_confirm_t *mlme_confirm)
                 // Join attempt failed.
                 set_device_state(DEVICE_STATE_IDLE);
                 lora_state_machine();
-                _queue->call(_events, JOIN_FAILURE);
+
+                if (_callbacks.events) {
+                    _queue->call(_callbacks.events, JOIN_FAILURE);
+                }
             }
             break;
         case LORA_MLME_LINK_CHECK:
@@ -1132,14 +1144,18 @@ void LoRaWANStack::mcps_confirm_handler(lora_mac_mcps_confirm_t *mcps_confirm)
 
         // If sending timed out, we have a special event for that
         if (mcps_confirm->status == LORA_EVENT_INFO_STATUS_TX_TIMEOUT) {
-            _queue->call(_events, TX_TIMEOUT);
+            if (_callbacks.events) {
+                _queue->call(_callbacks.events, TX_TIMEOUT);
+            }
             return;
         } if (mcps_confirm->status == LORA_EVENT_INFO_STATUS_RX2_TIMEOUT) {
             tr_debug("Did not receive Ack");
         }
 
         // Otherwise send a general TX_ERROR event
-        _queue->call(_events, TX_ERROR);
+        if (_callbacks.events) {
+            _queue->call(_callbacks.events, TX_ERROR);
+        }
         return;
     }
 
@@ -1159,7 +1175,9 @@ void LoRaWANStack::mcps_confirm_handler(lora_mac_mcps_confirm_t *mcps_confirm)
     // data rate plus frame counter.
     _lw_session.uplink_counter = mcps_confirm->uplink_counter;
     _tx_msg.tx_ongoing = false;
-    _queue->call(_events, TX_DONE);
+     if (_callbacks.events) {
+         _queue->call(_callbacks.events, TX_DONE);
+     }
 }
 
 /** MCPS-Indication event function
@@ -1175,7 +1193,9 @@ void LoRaWANStack::mcps_indication_handler(lora_mac_mcps_indication_t *mcps_indi
     }
 
     if (mcps_indication->status != LORA_EVENT_INFO_STATUS_OK) {
-        _queue->call(_events, RX_ERROR);
+        if (_callbacks.events) {
+            _queue->call(_callbacks.events, RX_ERROR);
+        }
         return;
     }
 
@@ -1224,7 +1244,9 @@ void LoRaWANStack::mcps_indication_handler(lora_mac_mcps_indication_t *mcps_indi
                     // This may never happen as both radio and MAC are limited
                     // to the size 255 bytes
                     tr_debug("Cannot receive more than buffer capacity!");
-                    _queue->call(_events, RX_ERROR);
+                    if (_callbacks.events) {
+                        _queue->call(_callbacks.events, RX_ERROR);
+                    }
                     return;
                 } else {
                     _rx_msg.type = LORAMAC_RX_MCPS_INDICATION;
@@ -1238,7 +1260,9 @@ void LoRaWANStack::mcps_indication_handler(lora_mac_mcps_indication_t *mcps_indi
                 // Notify application about received frame..
                 tr_debug("Received %d bytes", _rx_msg.rx_message.mcps_indication.buffer_size);
                 _rx_msg.receive_ready = true;
-                _queue->call(_events, RX_DONE);
+                if (_callbacks.events) {
+                    _queue->call(_callbacks.events, RX_DONE);
+                }
             } else {
                 // Invalid port, ports 0, 224 and 225-255 are reserved.
             }
@@ -1805,7 +1829,9 @@ lora_mac_status_t LoRaWANStack::lora_state_machine()
             _lw_session.active = false;
 
             tr_debug("LoRaWAN protocol has been shut down.");
-            _queue->call(_events, DISCONNECTED);
+            if (_callbacks.events) {
+                _queue->call(_callbacks.events, DISCONNECTED);
+            }
             status = LORA_MAC_STATUS_DEVICE_OFF;
             break;
         case DEVICE_STATE_NOT_INITIALIZED:
@@ -1847,7 +1873,9 @@ lora_mac_status_t LoRaWANStack::lora_state_machine()
             // Session is now active
             _lw_session.active = true;
             // Tell the application that we are connected
-            _queue->call(_events, CONNECTED);
+            if (_callbacks.events) {
+                _queue->call(_callbacks.events, CONNECTED);
+            }
             break;
         case DEVICE_STATE_ABP_CONNECTING:
             /*
@@ -1879,7 +1907,9 @@ lora_mac_status_t LoRaWANStack::lora_state_machine()
             status = LORA_MAC_STATUS_OK;
             // Session is now active
             _lw_session.active = true;
-            _queue->call(_events, CONNECTED);
+            if (_callbacks.events) {
+                _queue->call(_callbacks.events, CONNECTED);
+            }
             break;
         case DEVICE_STATE_SEND:
             // If a transmission is ongoing, don't interrupt
@@ -1895,11 +1925,15 @@ lora_mac_status_t LoRaWANStack::lora_state_machine()
                         break;
                     case LORA_MAC_STATUS_CRYPTO_FAIL:
                         tr_error("Crypto failed. Clearing TX buffers");
-                        _queue->call(_events, TX_CRYPTO_ERROR);
+                        if (_callbacks.events) {
+                            _queue->call(_callbacks.events, TX_CRYPTO_ERROR);
+                        }
                         break;
                     default:
                         tr_error("Failure to schedule TX!");
-                        _queue->call(_events, TX_SCHEDULING_ERROR);
+                        if (_callbacks.events) {
+                            _queue->call(_callbacks.events, TX_SCHEDULING_ERROR);
+                        }
                         break;
                 }
             }

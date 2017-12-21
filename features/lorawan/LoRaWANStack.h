@@ -65,11 +65,11 @@ public:
      */
     lora_mac_status_t initialize_mac_layer(events::EventQueue *queue);
 
-    /** Sets all callbacks of the LoRaWAN interface.
+    /** Sets all callbacks for the application.
      *
-     * @param *event_cb        An event structure representing all possible callbacks.
+     * \param callbacks        A pointer to the structure carrying callbacks.
      */
-    void set_lora_event_cb(mbed::Callback<void(lora_events_t)> event_cb);
+    void set_lora_callbacks(lorawan_app_callbacks_t *callbacks);
 
     /** Adds channels to use.
      *
@@ -412,7 +412,7 @@ private:
 
     compliance_test_t _compliance_test;
     device_states_t _device_current_state;
-    mbed::Callback<void(lora_events_t)> _events;
+    lorawan_app_callbacks_t _callbacks;
     radio_events_t *_mac_handlers;
     lorawan_session_t _lw_session;
     lora_mac_tx_message_t _tx_msg;
