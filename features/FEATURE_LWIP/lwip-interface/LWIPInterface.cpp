@@ -22,6 +22,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <new>
+#include <stdint.h>
 
 #include "lwip/opt.h"
 #include "lwip/api.h"
@@ -335,6 +336,7 @@ nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardN
         return NSAPI_ERROR_NO_MEMORY;
     }
     interface->emac = &emac;
+    interface->memory_manager = &memory_manager;
     interface->ppp = false;
 
 #if (MBED_MAC_ADDRESS_SUM != MBED_MAC_ADDR_INTERFACE)
@@ -481,7 +483,6 @@ nsapi_error_t LWIP::Interface::bringup(bool dhcp, const char *ip, const char *ne
         client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
     }
 
-    netif_set_up(&netif);
     if (ppp) {
        err_t err = ppp_lwip_connect(hw);
        if (err) {
