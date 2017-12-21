@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "emac_stack_mem.h"
 #include "lwip/tcpip.h"
 #include "lwip/tcp.h"
 #include "lwip/ip.h"
@@ -29,12 +28,16 @@
 
 err_t LWIP::Interface::emac_low_level_output(struct netif *netif, struct pbuf *p)
 {
+    /* Increase reference counter since lwip stores handle to pbuf and frees
+       it after output */
+    pbuf_ref(p);
+
     LWIP::Interface *mbed_if = static_cast<LWIP::Interface *>(netif->state);
     bool ret = mbed_if->emac->link_out(p);
     return ret ? ERR_OK : ERR_IF;
 }
 
-void LWIP::Interface::emac_input(emac_stack_mem_t *buf)
+void LWIP::Interface::emac_input(emac_mem_buf_t *buf)
 {
     struct pbuf *p = static_cast<struct pbuf *>(buf);
 
@@ -136,6 +139,7 @@ err_t LWIP::Interface::emac_if_init(struct netif *netif)
     int err = ERR_OK;
     LWIP::Interface *mbed_if = static_cast<LWIP::Interface *>(netif->state);
 
+    mbed_if->emac->set_memory_manager(*mbed_if->memory_manager);
     mbed_if->emac->set_link_input_cb(mbed::callback(mbed_if, &LWIP::Interface::emac_input));
     mbed_if->emac->set_link_state_cb(mbed::callback(mbed_if, &LWIP::Interface::emac_state_change));
 
