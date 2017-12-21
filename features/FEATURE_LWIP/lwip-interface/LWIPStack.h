@@ -17,7 +17,6 @@
 #ifndef LWIPSTACK_H_
 #define LWIPSTACK_H_
 
-#include "emac_stack_mem.h"
 #include "lwip/tcpip.h"
 #include "lwip/tcp.h"
 #include "lwip/ip.h"
@@ -27,6 +26,7 @@
 #include "netsocket/nsapi_types.h"
 #include "netsocket/EMAC.h"
 #include "netsocket/OnboardNetworkStack.h"
+#include "LWIPMemoryManager.h"
 
 
 class LWIP : public OnboardNetworkStack, private mbed::NonCopyable<LWIP> {
@@ -103,8 +103,9 @@ public:
         static void netif_link_irq(struct netif *netif);
         static void netif_status_irq(struct netif *netif);
 
+    #if LWIP_ETHERNET
         static err_t emac_low_level_output(struct netif *netif, struct pbuf *p);
-        void emac_input(emac_stack_mem_t *buf);
+        void emac_input(emac_mem_buf_t *buf);
         void emac_state_change(bool up);
     #if LWIP_IGMP
         static err_t emac_igmp_mac_filter(struct netif *netif, const ip4_addr_t *group, enum netif_mac_filter_action action);
@@ -114,9 +115,12 @@ public:
     #endif
 
         static err_t emac_if_init(struct netif *netif);
+    #endif
 
         union {
+    #if LWIP_ETHERNET
             EMAC *emac; /**< HW specific emac implementation */
+    #endif
             void *hw; /**< alternative implementation pointer - used for PPP */
         };
 
@@ -142,6 +146,7 @@ public:
         bool dhcp_started;
         bool ppp;
         struct netif netif;
+        LWIPMemoryManager *memory_manager;
     };
 
     /** Register a network interface with the IP stack
@@ -398,6 +403,7 @@ protected:
     virtual nsapi_error_t getsockopt(nsapi_socket_t handle, int level,
                                      int optname, void *optval, unsigned *optlen);
 private:
+
     struct mbed_lwip_socket {
         bool in_use;
 
@@ -452,6 +458,7 @@ private:
     static void tcpip_init_irq(void *handle);
     rtos::Semaphore tcpip_inited;
     Interface *default_interface;
+    LWIPMemoryManager memory_manager;
 };
 
 #endif /* LWIPSTACK_H_ */
