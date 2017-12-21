@@ -59,12 +59,6 @@ void mbedtls_sha1_hw_free(crypto_sha_context *ctx)
     crypto_zeroize(ctx, sizeof(*ctx));
 }
 
-void mbedtls_sha1_hw_clone(crypto_sha_context *dst,
-                           const crypto_sha_context *src)
-{
-    *dst = *src;
-}
-
 void mbedtls_sha1_hw_starts(crypto_sha_context *ctx)
 {
     // NOTE: mbedtls may call mbedtls_shaXXX_starts multiple times and then call the ending mbedtls_shaXXX_finish. Guard from it.
@@ -136,12 +130,6 @@ void mbedtls_sha256_hw_free(crypto_sha_context *ctx)
     /* Uninit crypto module */
     crypto_uninit();
     crypto_zeroize(ctx, sizeof(*ctx));
-}
-
-void mbedtls_sha256_hw_clone(crypto_sha_context *dst,
-                             const crypto_sha_context *src)
-{
-    *dst = *src;
 }
 
 void mbedtls_sha256_hw_starts( crypto_sha_context *ctx, int is224)
@@ -217,12 +205,6 @@ void mbedtls_sha512_hw_free(crypto_sha_context *ctx)
     /* Uninit crypto module */
     crypto_uninit();
     crypto_zeroize(ctx, sizeof(*ctx));
-}
-
-void mbedtls_sha512_hw_clone(crypto_sha_context *dst,
-                             const crypto_sha_context *src)
-{
-    *dst = *src;
 }
 
 void mbedtls_sha512_hw_starts( crypto_sha_context *ctx, int is384)
