@@ -161,6 +161,10 @@ static uint8_t convert_sd_att_error_code(uint16_t err)
     }
 }
 
+static const size_t long_uuid_length = 16;
+static const size_t read_by_group_type_long_uuid_index = 4;
+static const size_t characteristic_declaration_length = 1 + 2 + 16;
+
 } // end of anonymous namespace
 
 nRF5XGattClient::nRF5XGattClient() :
@@ -354,7 +358,7 @@ ble_error_t nRF5XGattClient::execute_write_queue(
  * The concept of procedures for Gatt operations formalize the process. A
  * procedure lifecycle is defined by three function:
  *   - start: Launch of the procedure. It initiate the first request to send to
- *     the peer. It must be implemented by Procedure childs.
+ *     the peer. It must be implemented by Procedure derived classes.
  *   - handle: Event handler that process ble events comming from the softdevice.
  *     This function drive the procedure flow and must be implemented by
  *     Procedure childs.
@@ -415,7 +419,7 @@ struct nRF5XGattClient::GattProcedure {
 /**
  * A regular procedure is a procedure that follows Gatt specification.
  *
- * It initiate a single request to the peer and except a single response. This
+ * It initiate a single request to the peer and excepts a single response. This
  * kind of procedure doesn't requires extra processing step.
  *
  * Given that such procedure expect a single event type from the soft device,
@@ -648,11 +652,13 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
 
         uint16_t expected_handle = bytes_to_u16(&response[idx][0]);
 
-        if (rsp.handle != expected_handle || rsp.offset != 0 || rsp.len != 16) {
+        if (rsp.handle != expected_handle || rsp.offset != 0 ||
+            rsp.len != long_uuid_length) {
             abort();
+            return;
         }
 
-        memcpy(&response[idx][4], rsp.data, rsp.len);
+        memcpy(&response[idx][read_by_group_type_long_uuid_index], rsp.data, rsp.len);
 
         ++idx;
 
@@ -801,6 +807,7 @@ struct nRF5XGattClient::FindIncludedServicesProcedure : RegularGattProcedure {
         uint8_t* buffer = new(std::nothrow) uint8_t[buffer_size];
         if (!buffer) {
             abort();
+            return;
         }
 
         uint8_t *it = buffer;
@@ -898,6 +905,7 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
         _response = flatten_response(evt.params.char_disc_rsp);
         if (!_response.buffer) {
             abort();
+            return;
         }
 
         // If element size is equal to 7 then the characteristic discovered
@@ -940,6 +948,7 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
         // should never happen
         if (!_response.buffer) {
             abort();
+            return;
         }
 
         if (evt.gatt_status != BLE_GATT_STATUS_SUCCESS) {
@@ -954,8 +963,10 @@ struct nRF5XGattClient::DiscoverCharacteristicsProcedure : GattProcedure {
         uint8_t* current_element = &_response.buffer[_idx * _response.element_size];
         uint16_t expected_handle = bytes_to_u16(current_element);
 
-        if (rsp.handle != expected_handle || rsp.offset != 0 || rsp.len != (1 + 2 + 16)) {
+        if (rsp.handle != expected_handle || rsp.offset != 0 ||
+            rsp.len != characteristic_declaration_length) {
             abort();
+            return;
         }
 
         // note: elements are the pair characteristic declaration handle followed
@@ -1128,6 +1139,7 @@ struct nRF5XGattClient::ReadAttributeProcedure : RegularGattProcedure {
         const ble_gattc_evt_read_rsp_t& rsp = evt.params.read_rsp;
         if (rsp.offset != 0 ) {
             abort();
+            return;
         }
 
         terminate(AttReadResponse(make_const_ArrayView(rsp.data, rsp.len)));
@@ -1606,7 +1618,7 @@ void nRF5XGattClient::handle_connection_termination(connection_handle_t connecti
     }
 }
 
-} // cordio
+} // nordic
 } // vendor
 } // pal
 } // ble

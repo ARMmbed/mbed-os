@@ -249,7 +249,7 @@ private:
     GattProcedure* _procedures[max_procedures_count];
 };
 
-} // cordio
+} // nordic
 } // vendor
 } // pal
 } // ble
