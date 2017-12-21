@@ -20,46 +20,22 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "lorawan/system/LoRaWANTimer.h"
 
-static mbed::Timer TimeCounter;
-static mbed::Ticker LoadTimeCounter;
+static events::EventQueue *_queue = NULL;
 
-volatile uint32_t CurrentTime = 0;
-
-void TimerResetTimeCounter( void )
+void TimerTimeCounterInit(events::EventQueue *queue)
 {
-    CurrentTime = CurrentTime + TimeCounter.read_us( ) / 1000;
-    TimeCounter.reset( );
-    TimeCounter.start( );
-}
-
-void TimerTimeCounterInit( void )
-{
-    TimeCounter.start( );
-    LoadTimeCounter.attach( mbed::callback( &TimerResetTimeCounter ), 10 );
+    _queue = queue;
 }
 
 TimerTime_t TimerGetCurrentTime( void )
 {
-    CurrentTime += TimeCounter.read_us( ) / 1000;
-    TimeCounter.reset( );
-    TimeCounter.start( );
-    return ( ( TimerTime_t )CurrentTime );
+    const uint32_t current_time = _queue->tick();
+    return (TimerTime_t)current_time;
 }
 
 TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
 {
-    CurrentTime += TimeCounter.read_us( ) / 1000;
-    TimeCounter.reset( );
-    TimeCounter.start( );
-    return ( TimerTime_t )( CurrentTime - savedTime );
-}
-
-TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
-{
-    CurrentTime += TimeCounter.read_us( ) / 1000;
-    TimeCounter.reset( );
-    TimeCounter.start( );
-    return ( TimerTime_t )( CurrentTime + eventInFuture );
+    return TimerGetCurrentTime() - savedTime;
 }
 
 void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )

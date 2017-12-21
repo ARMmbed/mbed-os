@@ -23,6 +23,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "drivers/Timer.h"
 #include "drivers/Ticker.h"
 #include "lorawan/system/lorawan_data_structures.h"
+#include "events/EventQueue.h"
 
 /*!
  * \brief Timer object description
@@ -33,13 +34,6 @@ typedef struct TimerEvent_s
     void ( *Callback )( void );
     mbed::Ticker Timer;
 }TimerEvent_t;
-
-/*!
- * \brief Initializes the timer used to get the current time.
- *
- * \remark The current time corresponds to the time since system startup.
- */
-void TimerTimeCounterInit( void );
 
 /*!
  * \brief Initializes the timer object.
@@ -80,6 +74,15 @@ void TimerReset( TimerEvent_t *obj );
  * \param [in] value The new timeout value.
  */
 void TimerSetValue( TimerEvent_t *obj, uint32_t value );
+
+/*!
+ * \brief Initializes the timer used to get the current time.
+ *
+ * \remark The current time corresponds to the time since system startup.
+ *
+ * \param [in] queue  Handle to EventQueue object
+ */
+void TimerTimeCounterInit(events::EventQueue *queue);
 
 /*!
  * \brief Read the current time.
