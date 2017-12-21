@@ -156,7 +156,7 @@ void mbedtls_sha256_hw_starts( crypto_sha_context *ctx, int is224)
 
     SHA_Open(is224 ? SHA_MODE_SHA224 : SHA_MODE_SHA256, SHA_NO_SWAP, 0);
 
-    // Ensure we have correct initial inernal states in SHA_DGST registers even though SHA H/W is not actually started.
+    // Ensure we have correct initial internal states in SHA_DGST registers even though SHA H/W is not actually started.
     CRPT->HMAC_CTL |= CRPT_HMAC_CTL_START_Msk;
 
     return;
@@ -237,7 +237,7 @@ void mbedtls_sha512_hw_starts( crypto_sha_context *ctx, int is384)
 
     SHA_Open(is384 ? SHA_MODE_SHA384 : SHA_MODE_SHA512, SHA_NO_SWAP, 0);
 
-    // Ensure we have correct initial inernal states in SHA_DGST registers even though SHA H/W is not actually started.
+    // Ensure we have correct initial internal states in SHA_DGST registers even though SHA H/W is not actually started.
     CRPT->HMAC_CTL |= CRPT_HMAC_CTL_START_Msk;
 
     return;
@@ -325,8 +325,6 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
     uint32_t DGSTs[16] = { 0 };
     
     while (rmn > 0) {
-        CRPT->HMAC_CTL = sha_ctl_start;
-
         uint32_t data = nu_get32_be(in_pos);
         if (rmn <= 4) { // Last word of a (in)complete block
             if (islast) {
