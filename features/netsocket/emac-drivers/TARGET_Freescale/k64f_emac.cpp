@@ -38,7 +38,6 @@
 #include "cmsis_os.h"
 
 #include "mbed_interface.h"
-#include "emac_stack_mem.h"
 #include "mbed_assert.h"
 #include "netsocket/nsapi_types.h"
 #include "mbed_shared_queues.h"
@@ -56,9 +55,9 @@ uint8_t *tx_desc_start_addr;
 // RX Buffer descriptors
 uint8_t *rx_desc_start_addr;
 // RX packet buffer pointers
-emac_stack_mem_t *rx_buff[ENET_RX_RING_LEN];
+emac_mem_buf_t *rx_buff[ENET_RX_RING_LEN];
 // TX packet buffer pointers
-emac_stack_mem_t *tx_buff[ENET_RX_RING_LEN];
+emac_mem_buf_t *tx_buff[ENET_RX_RING_LEN];
 // RX packet payload pointers
 uint32_t *rx_ptr[ENET_RX_RING_LEN];
 
@@ -138,7 +137,7 @@ void K64F_EMAC::tx_reclaim()
   // Traverse all descriptors, looking for the ones modified by the uDMA
   while((tx_consume_index != tx_produce_index) &&
         (!(g_handle.txBdDirty->control & ENET_BUFFDESCRIPTOR_TX_READY_MASK))) {
-      emac_stack_mem_free(tx_buff[tx_consume_index % ENET_TX_RING_LEN]);
+      memory_manager->free(tx_buff[tx_consume_index % ENET_TX_RING_LEN]);
       if (g_handle.txBdDirty->control & ENET_BUFFDESCRIPTOR_TX_WRAP_MASK)
         g_handle.txBdDirty = g_handle.txBdBase;
       else
@@ -212,11 +211,11 @@ bool K64F_EMAC::low_level_init_successful()
 
   /* Create buffers for each receive BD */
   for (i = 0; i < ENET_RX_RING_LEN; i++) {
-    rx_buff[i] = emac_stack_mem_alloc(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
+    rx_buff[i] = memory_manager->alloc_heap(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
     if (NULL == rx_buff[i])
       return false;
 
-    rx_ptr[i] = (uint32_t*)emac_stack_mem_ptr(rx_buff[i]);
+    rx_ptr[i] = (uint32_t*)memory_manager->get_ptr(rx_buff[i]);
   }
 
   tx_consume_index = tx_produce_index = 0;
@@ -277,16 +276,16 @@ bool K64F_EMAC::low_level_init_successful()
 }
 
 
-/** \brief  Allocates a emac_stack_mem_t and returns the data from the incoming packet.
+/** \brief  Allocates a emac_mem_buf_t and returns the data from the incoming packet.
  *
  *  \param[in] idx   index of packet to be read
- *  \return a emac_stack_mem_t filled with the received packet (including MAC header)
+ *  \return a emac_mem_buf_t filled with the received packet (including MAC header)
  */
-emac_stack_mem_t *K64F_EMAC::low_level_input(int idx)
+emac_mem_buf_t *K64F_EMAC::low_level_input(int idx)
 {
   volatile enet_rx_bd_struct_t *bdPtr = g_handle.rxBdCurrent;
-  emac_stack_mem_t *p = NULL;
-  emac_stack_mem_t *temp_rxbuf = NULL;
+  emac_mem_buf_t *p = NULL;
+  emac_mem_buf_t *temp_rxbuf = NULL;
   uint32_t length = 0;
   const uint16_t err_mask = ENET_BUFFDESCRIPTOR_RX_TRUNC_MASK | ENET_BUFFDESCRIPTOR_RX_CRC_MASK |
                             ENET_BUFFDESCRIPTOR_RX_NOOCTET_MASK | ENET_BUFFDESCRIPTOR_RX_LENVLIOLATE_MASK;
@@ -306,10 +305,10 @@ emac_stack_mem_t *K64F_EMAC::low_level_input(int idx)
 
     /* Zero-copy */
     p = rx_buff[idx];
-    emac_stack_mem_set_len(p, length);
+    memory_manager->set_len(p, length);
 
     /* Attempt to queue new buffer */
-    temp_rxbuf = emac_stack_mem_alloc(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
+    temp_rxbuf = memory_manager->alloc_heap(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
     if (NULL == temp_rxbuf) {
       /* Re-queue the same buffer */
       update_read_buffer(NULL);
@@ -322,12 +321,9 @@ emac_stack_mem_t *K64F_EMAC::low_level_input(int idx)
     }
 
     rx_buff[idx] = temp_rxbuf;
-    rx_ptr[idx] = (uint32_t*)emac_stack_mem_ptr(rx_buff[idx]);
+    rx_ptr[idx] = (uint32_t*)memory_manager->get_ptr(rx_buff[idx]);
 
     update_read_buffer((uint8_t*)rx_ptr[idx]);
-
-    /* Save size */
-    emac_stack_mem_set_chain_len(p, length);
   }
 
 #ifdef LOCK_RX_THREAD
@@ -343,7 +339,7 @@ emac_stack_mem_t *K64F_EMAC::low_level_input(int idx)
  */
 void K64F_EMAC::input(int idx)
 {
-  emac_stack_mem_t *p;
+  emac_mem_buf_t *p;
 
   /* move received packet into a new buf */
   p = low_level_input(idx);
@@ -412,21 +408,17 @@ void K64F_EMAC::packet_tx()
  *  \param[in] buf      the MAC packet to send (e.g. IP packet including MAC addresses and type)
  *  \return ERR_OK if the packet could be sent or an err_t value if the packet couldn't be sent
  */
-bool K64F_EMAC::link_out(emac_stack_mem_chain_t *chain)
+bool K64F_EMAC::link_out(emac_mem_buf_t *buf)
 {
-  emac_stack_mem_t *q;
-  emac_stack_mem_t *temp_pbuf;
-  uint8_t *psend = NULL, *dst;
+  emac_mem_buf_t *temp_pbuf;
 
-  temp_pbuf = emac_stack_mem_alloc(emac_stack_mem_chain_len(chain), ENET_BUFF_ALIGNMENT);
+  temp_pbuf = memory_manager->alloc_heap(memory_manager->get_total_len(buf), ENET_BUFF_ALIGNMENT);
   if (NULL == temp_pbuf)
     return false;
 
-  psend = (uint8_t*)emac_stack_mem_ptr(temp_pbuf);
-  for (q = emac_stack_mem_chain_dequeue(&chain), dst = psend; q != NULL; q = emac_stack_mem_chain_dequeue(&chain)) {
-    memcpy(dst, emac_stack_mem_ptr(q), emac_stack_mem_len(q));
-    dst += emac_stack_mem_len(q);
-  }
+  // Copy to new buffer and free original
+  memory_manager->copy(temp_pbuf, buf);
+  memory_manager->free(buf);
 
   /* Check if a descriptor is available for the transfer. */
   if (xTXDCountSem.wait(0) == 0)
@@ -440,8 +432,8 @@ bool K64F_EMAC::link_out(emac_stack_mem_chain_t *chain)
   tx_produce_index += 1;
 
   /* Setup transfers */
-  g_handle.txBdCurrent->buffer = psend;
-  g_handle.txBdCurrent->length = emac_stack_mem_len(temp_pbuf);
+  g_handle.txBdCurrent->buffer = static_cast<uint8_t *>(memory_manager->get_ptr(temp_pbuf));
+  g_handle.txBdCurrent->length = memory_manager->get_len(temp_pbuf);
   g_handle.txBdCurrent->control |= (ENET_BUFFDESCRIPTOR_TX_READY_MASK | ENET_BUFFDESCRIPTOR_TX_LAST_MASK);
 
   /* Increase the buffer descriptor address. */
@@ -545,7 +537,7 @@ uint8_t K64F_EMAC::get_hwaddr_size() const
 
 bool K64F_EMAC::get_hwaddr(uint8_t *addr) const
 {
-  return false;
+    return false;
 }
 
 void K64F_EMAC::set_hwaddr(const uint8_t *addr)
@@ -572,6 +564,11 @@ void K64F_EMAC::add_multicast_group(uint8_t *addr)
 void K64F_EMAC::power_down()
 {
   /* No-op at this stage */
+}
+
+void K64F_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
+{
+    memory_manager = &mem_mngr;
 }
 
 
