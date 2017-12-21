@@ -63,6 +63,11 @@ void mbedtls_sha512_free(mbedtls_sha512_context *ctx)
 void mbedtls_sha512_clone(mbedtls_sha512_context *dst,
                           const mbedtls_sha512_context *src)
 {
+    // Corner case: Destination/source contexts are the same
+    if (dst == src) {
+        return;
+    }
+
     // If dst is H/W context, we need to change it to S/W context first before cloning to.
     if (dst->active_ctx == &dst->hw_ctx) {
         mbedtls_sha512_free(dst);

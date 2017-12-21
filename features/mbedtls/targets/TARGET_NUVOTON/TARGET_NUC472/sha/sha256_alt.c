@@ -63,6 +63,11 @@ void mbedtls_sha256_free(mbedtls_sha256_context *ctx)
 void mbedtls_sha256_clone(mbedtls_sha256_context *dst,
                           const mbedtls_sha256_context *src)
 {
+    // Corner case: Destination/source contexts are the same
+    if (dst == src) {
+        return;
+    }
+
     // If dst is H/W context, we need to change it to S/W context first before cloning to.
     if (dst->active_ctx == &dst->hw_ctx) {
         mbedtls_sha256_free(dst);
