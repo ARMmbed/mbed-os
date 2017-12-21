@@ -32,6 +32,7 @@ public:
     }
 
     virtual ble_error_t set_random_address(const address_t& address) {
+        device_random_address = address;
         DmDevSetRandAddr(const_cast<uint8_t*>(address.data()));
         return BLE_ERROR_NONE;
     }
