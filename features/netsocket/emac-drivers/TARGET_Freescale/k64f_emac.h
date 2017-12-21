@@ -72,7 +72,7 @@ public:
      * @param buf  Packet to be send
      * @return     True if the packet was send successfully, False otherwise
      */
-    virtual bool link_out(emac_stack_mem_chain_t *buf);
+    virtual bool link_out(emac_mem_buf_t *buf);
 
     /**
      * Initializes the HW
@@ -107,6 +107,12 @@ public:
      */
     virtual void add_multicast_group(uint8_t *address);
 
+    /** Sets memory manager that is used to handle memory buffers
+     *
+     * @param mem_mngr Pointer to memory manager
+     */
+    virtual void set_memory_manager(EMACMemoryManager &mem_mngr);
+
 private:
     bool low_level_init_successful();
     void rx_isr();
@@ -115,7 +121,7 @@ private:
     void packet_tx();
     void tx_reclaim();
     void input(int idx);
-    emac_stack_mem_t *low_level_input(int idx);
+    emac_mem_buf_t *low_level_input(int idx);
     static void thread_function(void* pvParameters);
     void phy_task();
     static void ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event_t event, void *param);
@@ -127,6 +133,7 @@ private:
     uint8_t tx_consume_index, tx_produce_index; /**< TX buffers ring */
     emac_link_input_cb_t emac_link_input_cb; /**< Callback for incoming data */
     emac_link_state_change_cb_t emac_link_state_cb; /**< Link state change callback */
+    EMACMemoryManager *memory_manager; /**< Memory manager */
     int phy_task_handle; /**< Handle for phy task event */
     struct PHY_STATE {
         int connected;
