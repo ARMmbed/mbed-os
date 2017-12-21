@@ -41,11 +41,11 @@ typedef enum crc_polynomial_type {
  * CRC value can be 8/16/32 bit
  */
 typedef enum crc_width {
-    CRC_INVALID = 0,
-    CRC_7 = 7,
-    CRC_8 = 8,
-    CRC_16 = 16,
-    CRC_32 = 32,
+    CRC_WIDTH_INVALID = 0,
+    CRC_WIDTH_7 = 7,
+    CRC_WIDTH_8 = 8,
+    CRC_WIDTH_16 = 16,
+    CRC_WIDTH_32 = 32,
 } crc_width_t;
 
 /** CRC Polynomial value
@@ -129,24 +129,24 @@ public:
         crc_polynomial_type_t polynomial = this->get_polynomial_type();
 
         if (CRC_7BIT_SD == polynomial) {
-            return CRC_7;
+            return CRC_WIDTH_7;
         } else if (CRC_8BIT_CCITT == polynomial) {
-            return CRC_8;
+            return CRC_WIDTH_8;
         } else if ((CRC_16BIT_CCITT == polynomial) ||
                 (CRC_16BIT_SD == polynomial) ||
                 (CRC_16BIT_IBM == polynomial)) {
-            return CRC_16;
+            return CRC_WIDTH_16;
         } else if (CRC_32BIT == polynomial) {
-            return CRC_32;
+            return CRC_WIDTH_32;
         }
-        return CRC_INVALID;
+        return CRC_WIDTH_INVALID;
     }
 
     /** Compute CRC for the data input
      *
-     *  @param [IN]  buffer  Data bytes
-     *  @param [IN]  size  Size of data
-     *  @param [OUT] crc  CRC
+     *  @param   buffer  Data bytes
+     *  @param   size  Size of data
+     *  @param  crc  CRC is the output value
      *  @return  0 on success, negative error code on failure
      */
     virtual int32_t compute(void *buffer, crc_data_size_t size, uint32_t *crc) = 0;
@@ -156,7 +156,7 @@ public:
      *  This API should be called before performing any partial computation
      *  with compute_partial API.
      *
-     *  @param [OUT] crc  Initial CRC value set by the API
+     *  @param  crc  Initial CRC value is the output parameter, value is set by the API
      *  @return  0  on success or a negative when not supported
      *  @note: CRC is an out parameter and must be reused with compute_partial
      *         and compute_partial_stop without any modifications in application.
@@ -173,9 +173,9 @@ public:
      *  @pre: Call \ref compute_partial_start to start the partial CRC calculation.
      *  @post: Call \ref compute_partial_stop to get the final CRC value.
      *
-     *  @param[IN]  buffer  Data bytes
-     *  @param[IN]  size  Size of data
-     *  @param[OUT] crc  CRC value (intermediate CRC )
+     *  @param  buffer  Data bytes
+     *  @param  size  Size of data
+     *  @param  crc  CRC value is intermediate CRC value filled by API.
      *  @return  0  on success or a negative error code on failure
      *  @note: CRC as output in compute_partial is not final CRC value, call @ref compute_partial_stop
      *         to get final correct CRC value.
@@ -191,7 +191,7 @@ public:
      *  algorithms require remainder to be reflected and final value to be XORed
      *  This API is used to perform final computation to get correct CRC value.
      *
-     *  @param[OUT] crc  CRC result
+     *  @param  crc  Final CRC value filled up by API
      */
     virtual int32_t compute_partial_stop(uint32_t *crc)
     {

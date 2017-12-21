@@ -15,12 +15,12 @@
  */
 
 #include "platform/mbed_assert.h"
-#include "SlowCRC.h"
+#include "BitwiseCRC.h"
 #include <stdio.h>
 
 namespace mbed {
 
-SlowCRC::SlowCRC(crc_polynomial_type_t polynomial) :
+BitwiseCRC::BitwiseCRC(crc_polynomial_type_t polynomial) :
                  _polynomial_type(polynomial), _inital_value(0x0),
                  _final_xor(0x0), _reflect_data(false), _reflect_remainder(false)
 {
@@ -38,14 +38,14 @@ SlowCRC::SlowCRC(crc_polynomial_type_t polynomial) :
     }
 }
 
-SlowCRC::~SlowCRC() { }
+BitwiseCRC::~BitwiseCRC() { }
 
-crc_polynomial_type_t SlowCRC::get_polynomial_type(void) const
+crc_polynomial_type_t BitwiseCRC::get_polynomial_type(void) const
 {
     return _polynomial_type;
 }
 
-int32_t SlowCRC::compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc)
+int32_t BitwiseCRC::compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc)
 {
     MBED_ASSERT(crc != NULL);
     MBED_ASSERT(buffer != NULL);
@@ -85,7 +85,7 @@ int32_t SlowCRC::compute_partial(void *buffer, crc_data_size_t size, uint32_t *c
     return 0;
 }
 
-int32_t SlowCRC::compute(void *buffer, crc_data_size_t size, uint32_t *crc)
+int32_t BitwiseCRC::compute(void *buffer, crc_data_size_t size, uint32_t *crc)
 {
     MBED_ASSERT(crc != NULL);
     int32_t status;
@@ -95,21 +95,21 @@ int32_t SlowCRC::compute(void *buffer, crc_data_size_t size, uint32_t *crc)
     return status;
 }
 
-int32_t SlowCRC::compute_partial_start(uint32_t *crc)
+int32_t BitwiseCRC::compute_partial_start(uint32_t *crc)
 {
     MBED_ASSERT(crc != NULL);
     *crc = _inital_value;
     return 0;
 }
 
-int32_t SlowCRC::compute_partial_stop(uint32_t *crc)
+int32_t BitwiseCRC::compute_partial_stop(uint32_t *crc)
 {
     MBED_ASSERT(crc != NULL);
     *crc = (reflect_remainder(*crc) ^ _final_xor) & get_crc_mask();
     return 0;
 }
 
-uint32_t SlowCRC::reflect_remainder(uint32_t data)
+uint32_t BitwiseCRC::reflect_remainder(uint32_t data)
 {
     crc_width_t width = get_width();
     if (_reflect_remainder) {
@@ -128,7 +128,7 @@ uint32_t SlowCRC::reflect_remainder(uint32_t data)
     }
 }
 
-uint32_t SlowCRC::reflect_bytes(uint32_t data)
+uint32_t BitwiseCRC::reflect_bytes(uint32_t data)
 {
     if(_reflect_data) {
         uint32_t reflection = 0x0;

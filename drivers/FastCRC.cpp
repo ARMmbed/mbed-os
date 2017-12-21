@@ -38,7 +38,8 @@ FastCRC::FastCRC(crc_polynomial_type_t polynomial) :
     }
 }
 
-FastCRC::~FastCRC() {
+FastCRC::~FastCRC()
+{
     deinit();
 }
 

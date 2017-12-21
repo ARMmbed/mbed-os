@@ -58,7 +58,7 @@ crc_polynomial_t HalfByteCRC::get_polynomial(void) const
 
 crc_width_t HalfByteCRC::get_width(void) const
 {
-    return CRC_32;
+    return CRC_WIDTH_32;
 }
 
 int32_t HalfByteCRC::compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc)

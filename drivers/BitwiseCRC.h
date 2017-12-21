@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-#ifndef MBED_SLOW_CRC_H
-#define MBED_SLOW_CRC_H
+#ifndef MBED_BITWISE_CRC_H
+#define MBED_BITWISE_CRC_H
 
 #include "BaseCRC.h"
 
 namespace mbed {
 /** \addtogroup drivers */
 
-/** SlowCRC Class
+/** BitwiseCRC Class
  *
- * SlowCRC module does runtime division operation to compute CRC
+ * BitwiseCRC module does runtime division operation to compute CRC
  *
  */
-class SlowCRC : public BaseCRC
+class BitwiseCRC : public BaseCRC
 {
 public:
 
-    /** Lifetime of the slow software CRC module
+    /** Lifetime of the bitwise software CRC module
      *
-     * Slow CRC module does runtime division operation to compute CRC
+     * Bitwise CRC module does runtime division operation to compute CRC
      *
-     * @param[IN]  polynomial  CRC polynomial
+     * @param  polynomial  CRC polynomial
      */
-    SlowCRC(crc_polynomial_type_t polynomial);
-    virtual ~SlowCRC();
+    BitwiseCRC(crc_polynomial_type_t polynomial);
+    virtual ~BitwiseCRC();
 
     /** Get the current CRC polynomial type
      *
@@ -53,9 +53,9 @@ public:
      *  @pre: Call \ref compute_partial_start to start the partial CRC calculation.
      *  @post: Call \ref compute_partial_stop to get the final CRC value.
      *
-     *  @param[IN]  buffer  Data bytes
-     *  @param[IN]  size  Size of data
-     *  @param[OUT] crc  CRC value (intermediate CRC )
+     *  @param  buffer  Data bytes
+     *  @param  size  Size of data
+     *  @param  crc  CRC value is intermediate CRC value filled by API.
      *  @return  0  on success or a negative error code on failure
      *  @note: CRC as output in compute_partial is not final CRC value, call @ref compute_partial_stop
      *         to get final correct CRC value.
@@ -64,9 +64,9 @@ public:
 
     /** Compute CRC for the data input
      *
-     *  @param[IN]  buffer  Data bytes
-     *  @param[IN]  size  Size of data
-     *  @param[OUT] crc  CRC
+     *  @param  buffer  Data bytes
+     *  @param  size  Size of data
+     *  @param  crc  CRC is the output value
      *  @return  0 on success, negative error code on failure
      */
     virtual int32_t compute(void *buffer, crc_data_size_t size, uint32_t *crc);
@@ -76,7 +76,7 @@ public:
      *  This API should be called before performing any partial computation
      *  with compute_partial API.
      *
-     *  @param[OUT] crc  Initial CRC value set by the API
+     *  @param  crc  Initial CRC value is the output parameter, value is set by the API
      *  @return  0  on success or a negative when not supported
      *  @note: CRC is an out parameter and must be reused with compute_partial
      *         and compute_partial_stop without any modifications in application.
@@ -89,7 +89,7 @@ public:
      *  algorithms require remainder to be reflected and final value to be XORed
      *  This API is used to perform final computation to get correct CRC value.
      *
-     *  @param[OUT] crc  CRC result
+     *  @param  crc  Final CRC value filled up by API
      */
     virtual int32_t compute_partial_stop(uint32_t *crc);
 
