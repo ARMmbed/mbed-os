@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
@@ -46,7 +44,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx.h"
+#if defined(USE_HAL_LEGACY)
 #include "stm32_hal_legacy.h"
+#endif
 #include <stdio.h>
 
 /* Exported types ------------------------------------------------------------*/
@@ -87,7 +87,7 @@ typedef enum
 #define UNUSED(x) ((void)(x))                            
                             
 /** @brief Reset the Handle's State field.
-  * @param __HANDLE__: specifies the Peripheral Handle.
+  * @param __HANDLE__ specifies the Peripheral Handle.
   * @note  This macro can be used for the following purpose:
   *          - When the Handle is declared as local variable; before passing it as parameter
   *            to HAL_PPP_Init() for the first time, it is mandatory to use this macro
@@ -124,7 +124,7 @@ typedef enum
                                     }while (0)
 #endif /* USE_RTOS */
 
-#if  defined ( __GNUC__ ) && !defined ( __CC_ARM )
+#if  defined ( __GNUC__ )
   #ifndef __weak
     #define __weak   __attribute__((weak))
   #endif /* __weak */

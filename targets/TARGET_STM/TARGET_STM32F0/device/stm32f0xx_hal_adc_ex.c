@@ -2,15 +2,13 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
   *           + Operation functions
   *             ++ Calibration (ADC automatic self-calibration)
   *          Other functions (generic functions) are available in file 
-  *          "stm32l1xx_hal_adc.c".
+  *          "stm32f0xx_hal_adc.c".
   *
   @verbatim
   [..] 
@@ -109,13 +107,14 @@
   *         function before HAL_ADC_Start() or after HAL_ADC_Stop() ).
   * @note   Calibration factor can be read after calibration, using function
   *         HAL_ADC_GetValue() (value on 7 bits: from DR[6;0]).
-  * @param  hadc: ADC handle
+  * @param  hadc ADC handle
   * @retval HAL status
   */
 HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
-  uint32_t tickstart=0U;
+  uint32_t tickstart = 0U;
+  uint32_t backup_setting_adc_dma_transfer = 0; /* Note: Variable not declared as volatile because register read is already declared as volatile */
   
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
@@ -131,6 +130,15 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc)
                       HAL_ADC_STATE_REG_BUSY,
                       HAL_ADC_STATE_BUSY_INTERNAL);
     
+    /* Disable ADC DMA transfer request during calibration */
+    /* Note: Specificity of this STM32 serie: Calibration factor is           */
+    /*       available in data register and also transfered by DMA.           */
+    /*       To not insert ADC calibration factor among ADC conversion data   */
+    /*       in array variable, DMA transfer must be disabled during          */
+    /*       calibration.                                                     */
+    backup_setting_adc_dma_transfer = READ_BIT(hadc->Instance->CFGR1, ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG);
+    CLEAR_BIT(hadc->Instance->CFGR1, ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG);
+
     /* Start ADC calibration */
     hadc->Instance->CR |= ADC_CR_ADCAL;
 
@@ -153,6 +161,9 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc)
       }
     }
     
+    /* Restore ADC DMA transfer request after calibration */
+    SET_BIT(hadc->Instance->CFGR1, backup_setting_adc_dma_transfer);
+
     /* Set ADC state */
     ADC_STATE_CLR_SET(hadc->State,
                       HAL_ADC_STATE_BUSY_INTERNAL,

@@ -413,7 +413,7 @@ void i2c_frequency(i2c_t *obj, int hz)
 
 #ifdef I2C_ANALOGFILTER_ENABLE
     /* Enable the Analog I2C Filter */
-    HAL_I2CEx_AnalogFilter_Config(handle,I2C_ANALOGFILTER_ENABLE);
+    HAL_I2CEx_ConfigAnalogFilter(handle,I2C_ANALOGFILTER_ENABLE);
 #endif
 
     // I2C configuration

@@ -1,8 +1,6 @@
 ;******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
 ;* File Name          : startup_stm32f091xc.s
 ;* Author             : MCD Application Team
-;* Version            : V2.1.0
-;* Date               : 03-Oct-2014
 ;* Description        : STM32F091xc/STM32F098xc devices vector table for MDK-ARM_MICRO toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_ll_system.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
   * @brief   Header file of SYSTEM LL module.
   @verbatim
   ==============================================================================
@@ -75,9 +73,6 @@ extern "C" {
 /** @defgroup SYSTEM_LL_Private_Constants SYSTEM Private Constants
   * @{
   */
-
-/* Defines used for position in the register */
-#define DBGMCU_REVID_POSITION         (uint32_t)16U
 
 /**
   * @}
@@ -337,7 +332,7 @@ extern "C" {
 /** @defgroup SYSTEM_LL_EC_LATENCY FLASH LATENCY
   * @{
   */
-#define LL_FLASH_LATENCY_0                 ((uint32_t)0x00000000U) /*!< FLASH Zero Latency cycle */
+#define LL_FLASH_LATENCY_0                 0x00000000U             /*!< FLASH Zero Latency cycle */
 #define LL_FLASH_LATENCY_1                 FLASH_ACR_LATENCY       /*!< FLASH One Latency cycle */
 /**
   * @}
@@ -1635,7 +1630,7 @@ __STATIC_INLINE uint32_t LL_DBGMCU_GetDeviceID(void)
   */
 __STATIC_INLINE uint32_t LL_DBGMCU_GetRevisionID(void)
 {
-  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_REVID_POSITION);
+  return (uint32_t)(READ_BIT(DBGMCU->IDCODE, DBGMCU_IDCODE_REV_ID) >> DBGMCU_IDCODE_REV_ID_Pos);
 }
 
 /**

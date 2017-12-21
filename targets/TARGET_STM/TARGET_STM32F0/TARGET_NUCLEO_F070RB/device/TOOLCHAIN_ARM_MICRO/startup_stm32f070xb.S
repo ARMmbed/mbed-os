@@ -1,8 +1,6 @@
 ;******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
 ;* File Name          : startup_stm32f070xb.s
 ;* Author             : MCD Application Team
-;* Version            : V2.2.0
-;* Date               : 05-December-2014
 ;* Description        : STM32F070x8/STM32F070xB devices vector table for MDK-ARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP

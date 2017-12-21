@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -70,10 +68,10 @@
   * @{
   */
 /** 
-  * @brief STM32F0xx HAL Driver version number V1.5.0
+  * @brief STM32F0xx HAL Driver version number V1.7.0
   */
 #define __STM32F0xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32F0xx_HAL_VERSION_SUB1   (0x05) /*!< [23:16] sub1 version */
+#define __STM32F0xx_HAL_VERSION_SUB1   (0x07) /*!< [23:16] sub1 version */
 #define __STM32F0xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
 #define __STM32F0xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32F0xx_HAL_VERSION         ((__STM32F0xx_HAL_VERSION_MAIN << 24U)\
@@ -232,7 +230,7 @@ __weak void HAL_MspDeInit(void)
   *       than the peripheral interrupt. Otherwise the caller ISR process will be blocked.
   *       The function is declared as __Weak  to be overwritten  in case of other
   *       implementation  in user file.
-  * @param TickPriority: Tick interrupt priority.
+  * @param TickPriority Tick interrupt priority.
   * @retval HAL status
   */
 __weak HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
@@ -307,14 +305,21 @@ __weak uint32_t HAL_GetTick(void)
   *       is incremented.
   * @note ThiS function is declared as __weak to be overwritten in case of other
   *       implementations in user file.
-  * @param Delay: specifies the delay time length, in milliseconds.
+  * @param Delay specifies the delay time length, in milliseconds.
   * @retval None
   */
 __weak void HAL_Delay(__IO uint32_t Delay)
 {
-  uint32_t tickstart = 0U;
-  tickstart = HAL_GetTick();
-  while((HAL_GetTick() - tickstart) < Delay)
+  uint32_t tickstart = HAL_GetTick();
+  uint32_t wait = Delay;
+  
+  /* Add a period to guarantee minimum wait */
+  if (wait < HAL_MAX_DELAY)
+  {
+     wait++;
+  }
+  
+  while((HAL_GetTick() - tickstart) < wait)
   {
   }
 }
@@ -377,6 +382,33 @@ uint32_t HAL_GetREVID(void)
 uint32_t HAL_GetDEVID(void)
 {
    return((DBGMCU->IDCODE) & IDCODE_DEVID_MASK);
+}
+
+/**
+  * @brief  Returns first word of the unique device identifier (UID based on 96 bits)
+  * @retval Device identifier
+  */
+uint32_t HAL_GetUIDw0(void)
+{
+   return(READ_REG(*((uint32_t *)UID_BASE)));
+}
+
+/**
+  * @brief  Returns second word of the unique device identifier (UID based on 96 bits)
+  * @retval Device identifier
+  */
+uint32_t HAL_GetUIDw1(void)
+{
+   return(READ_REG(*((uint32_t *)(UID_BASE + 4U))));
+}
+
+/**
+  * @brief  Returns third word of the unique device identifier (UID based on 96 bits)
+  * @retval Device identifier
+  */
+uint32_t HAL_GetUIDw2(void)
+{
+   return(READ_REG(*((uint32_t *)(UID_BASE + 8U))));
 }
 
 /**
