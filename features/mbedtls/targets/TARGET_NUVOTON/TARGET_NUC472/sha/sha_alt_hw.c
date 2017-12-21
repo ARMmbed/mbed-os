@@ -23,6 +23,7 @@
 #if defined(MBEDTLS_SHA1_ALT) || defined(MBEDTLS_SHA256_ALT) || defined(MBEDTLS_SHA512_ALT)
 
 #include "nu_bitutil.h"
+#include "nu_timer.h"
 #include "mbed_assert.h"
 #include "mbed_error.h"
 #include "crypto-misc.h"
@@ -283,9 +284,20 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
     if (islast) {   // Finish of last block
         while (CRPT->SHA_STS & CRPT_SHA_STS_BUSY_Msk);
     } else { // Finish of non-last block
-        // No H/W flag to indicate finish of non-last block process.
-        // Values of SHA_DGSTx registers will change as last word of the block is input, so use it for judgement.
+        /* SHA accelerator doesn't export a flag to indicate non-last block process has finished.
+         * Per designer, if the digest (SHA_DGSTx) code changes after the last word of the block is input,
+         * this indicates the non-last block process has finished.
+         *
+         * There is a rare case that two digest codes are the same for 
+         * two non-last block processes in a row.
+         * To address it, we use a count-down timer to detect it.
+         * As the count-down timer expires, we see it as finished.
+         */
         int isfinish = 0;
+        struct nu_countdown_ctx_s ctx;
+
+        // Set up 2s timeout
+        nu_countdown_init(&ctx, 2000*1000);
         while (! isfinish) {
             switch (sha_opmode) {
             case SHA_MODE_SHA256:
@@ -305,7 +317,14 @@ void crypto_sha_update_nobuf(crypto_sha_context *ctx, const unsigned char *input
                     break;
                 }
             }
+            
+            if (nu_countdown_expired(&ctx)) {
+                // We may meet a rare case that the current digest code and the previous one are the same.
+                isfinish = 1;
+            }
         }
+        // Must pair nu_countdown_init with nu_countdown_free in the end
+        nu_countdown_free(&ctx);
     }
 }
 
