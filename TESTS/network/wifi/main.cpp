@@ -30,7 +30,8 @@
     !defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
     !defined(MBED_CONF_APP_WIFI_RX)            || \
     !defined(MBED_CONF_APP_WIFI_SECURE_SSID)   || \
-    !defined(MBED_CONF_APP_WIFI_TX)
+    !defined(MBED_CONF_APP_WIFI_TX)            || \
+    !defined MBED_CONF_APP_WIFI_SECURE_PROTOCOL
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json (for secure connections)
 #endif
 #endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID)
