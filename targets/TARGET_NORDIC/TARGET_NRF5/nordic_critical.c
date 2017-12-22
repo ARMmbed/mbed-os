@@ -18,14 +18,85 @@
 #include <stdint.h>
 #include "app_util_platform.h"
 
-static uint8_t nordic_cr_nested = 0;
+#if defined(SOFTDEVICE_PRESENT)
+static volatile uint32_t nordic_cr_nested = 0;
+
+static void nordic_nvic_critical_region_enter(void);
+static void nordic_nvic_critical_region_exit(void);
+#endif
 
 void core_util_critical_section_enter()
 {
-    app_util_critical_region_enter(&nordic_cr_nested);
+#ifdef NRF52
+    ASSERT(APP_LEVEL_PRIVILEGED == privilege_level_get())
+#endif
+
+#if defined(SOFTDEVICE_PRESENT)
+    /* return value can be safely ignored */
+    nordic_nvic_critical_region_enter();
+#else
+    app_util_disable_irq();
+#endif
 }
 
 void core_util_critical_section_exit()
 {
-    app_util_critical_region_exit(nordic_cr_nested);
+#ifdef NRF52
+    ASSERT(APP_LEVEL_PRIVILEGED == privilege_level_get())
+#endif
+
+#if defined(SOFTDEVICE_PRESENT)
+    /* return value can be safely ignored */
+    nordic_nvic_critical_region_exit();
+#else
+    app_util_enable_irq();
+#endif
 }
+
+#if defined(SOFTDEVICE_PRESENT)
+/**@brief Enters critical region.
+ *
+ * @post Application interrupts will be disabled.
+ * @sa nordic_nvic_critical_region_exit
+ */
+static inline void nordic_nvic_critical_region_enter(void)
+{
+    int was_masked = __sd_nvic_irq_disable();
+
+    if (nordic_cr_nested == 0) {
+            nrf_nvic_state.__irq_masks[0] = ( NVIC->ICER[0] & __NRF_NVIC_APP_IRQS_0 );
+            NVIC->ICER[0] = __NRF_NVIC_APP_IRQS_0;
+#ifdef NRF52
+            nrf_nvic_state.__irq_masks[1] = ( NVIC->ICER[1] & __NRF_NVIC_APP_IRQS_1 );
+            NVIC->ICER[1] = __NRF_NVIC_APP_IRQS_1;
+#endif
+    }
+
+    nordic_cr_nested++;
+
+    if (!was_masked) {
+        __sd_nvic_irq_enable();
+    }
+}
+
+/**@brief Exit critical region.
+ *
+ * @pre Application has entered a critical region using ::nordic_nvic_critical_region_enter.
+ * @post If not in a nested critical region, the application interrupts will restored to the state before ::nordic_nvic_critical_region_enter was called.
+ */
+static inline void nordic_nvic_critical_region_exit(void)
+{
+    nordic_cr_nested--;
+
+    if (nordic_cr_nested == 0) {
+        int was_masked = __sd_nvic_irq_disable();
+        NVIC->ISER[0] = nrf_nvic_state.__irq_masks[0];
+#ifdef NRF52
+        NVIC->ISER[1] = nrf_nvic_state.__irq_masks[1];
+#endif
+        if (!was_masked) {
+        __sd_nvic_irq_enable();
+        }
+    }
+}
+#endif
