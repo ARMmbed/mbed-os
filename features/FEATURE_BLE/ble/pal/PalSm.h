@@ -77,7 +77,7 @@ struct boonded_list_t {
 
 class SecurityManagerPal : private mbed::NonCopyable<SecurityManagerPal> {
 public:
-    SecurityManagerPal(SecurityManagerEventHandler& sme) : _sme(sme) { };
+    SecurityManagerPal(SecurityManagerEventBlock& evt) : _evt(evt) { };
 
     virtual ble_error_t initialize() = 0;
     virtual ble_error_t terminate() = 0;

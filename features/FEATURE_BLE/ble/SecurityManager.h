@@ -318,12 +318,7 @@ public:
         /* Notify that the instance is about to shutdown */
         shutdownCallChain.call(this);
         shutdownCallChain.clear();
-
-        securitySetupInitiatedCallback = NULL;
-        securitySetupCompletedCallback = NULL;
-        linkSecuredCallback            = NULL;
-        securityContextStoredCallback  = NULL;
-        passkeyDisplayCallback         = NULL;
+        _evt = SecurityManagerEventBlock();
 
         return BLE_ERROR_NONE;
     }
