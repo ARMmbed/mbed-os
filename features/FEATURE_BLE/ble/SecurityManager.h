@@ -22,6 +22,8 @@
 #include "Gap.h"
 #include "CallChainOfFunctionPointersWithContext.h"
 
+
+
 class SecurityManager {
 public:
     enum SecurityMode_t {
@@ -76,12 +78,28 @@ public:
     static const unsigned PASSKEY_LEN = 6;
     typedef uint8_t Passkey_t[PASSKEY_LEN];         /**< 6-digit passkey in ASCII ('0'-'9' digits only). */
 
-public:
     typedef void (*HandleSpecificEvent_t)(Gap::Handle_t handle);
     typedef void (*SecuritySetupInitiatedCallback_t)(Gap::Handle_t, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps);
     typedef void (*SecuritySetupCompletedCallback_t)(Gap::Handle_t, SecurityCompletionStatus_t status);
     typedef void (*LinkSecuredCallback_t)(Gap::Handle_t handle, SecurityMode_t securityMode);
     typedef void (*PasskeyDisplayCallback_t)(Gap::Handle_t handle, const Passkey_t passkey);
+
+    struct SecurityManagerEventBlock {
+        SecurityManagerEventBlock () :
+            securitySetupInitiatedCallback(),
+            securitySetupCompletedCallback(),
+            linkSecuredCallback(),
+            securityContextStoredCallback(),
+            passkeyDisplayCallback() { }
+
+        SecuritySetupInitiatedCallback_t securitySetupInitiatedCallback;
+        SecuritySetupCompletedCallback_t securitySetupCompletedCallback;
+        LinkSecuredCallback_t            linkSecuredCallback;
+        HandleSpecificEvent_t            securityContextStoredCallback;
+        PasskeyDisplayCallback_t         passkeyDisplayCallback;
+    };
+
+public:
 
     typedef FunctionPointerWithContext<const SecurityManager *> SecurityManagerShutdownCallback_t;
     typedef CallChainOfFunctionPointersWithContext<const SecurityManager *> SecurityManagerShutdownCallbackChain_t;
@@ -220,12 +238,12 @@ public:
     /**
      * To indicate that a security procedure for the link has started.
      */
-    virtual void onSecuritySetupInitiated(SecuritySetupInitiatedCallback_t callback) {securitySetupInitiatedCallback = callback;}
+    virtual void onSecuritySetupInitiated(SecuritySetupInitiatedCallback_t callback) {_evt.securitySetupInitiatedCallback = callback;}
 
     /**
      * To indicate that the security procedure for the link has completed.
      */
-    virtual void onSecuritySetupCompleted(SecuritySetupCompletedCallback_t callback) {securitySetupCompletedCallback = callback;}
+    virtual void onSecuritySetupCompleted(SecuritySetupCompletedCallback_t callback) {_evt.securitySetupCompletedCallback = callback;}
 
     /**
      * To indicate that the link with the peer is secured. For bonded devices,
@@ -233,57 +251,52 @@ public:
      * when the link is secured; setup procedures will not occur (unless the
      * bonding information is either lost or deleted on either or both sides).
      */
-    virtual void onLinkSecured(LinkSecuredCallback_t callback) {linkSecuredCallback = callback;}
+    virtual void onLinkSecured(LinkSecuredCallback_t callback) {_evt.linkSecuredCallback = callback;}
 
     /**
      * To indicate that device context is stored persistently.
      */
-    virtual void onSecurityContextStored(HandleSpecificEvent_t callback) {securityContextStoredCallback = callback;}
+    virtual void onSecurityContextStored(HandleSpecificEvent_t callback) {_evt.securityContextStoredCallback = callback;}
 
     /**
      * To set the callback for when the passkey needs to be displayed on a peripheral with DISPLAY capability.
      */
-    virtual void onPasskeyDisplay(PasskeyDisplayCallback_t callback) {passkeyDisplayCallback = callback;}
+    virtual void onPasskeyDisplay(PasskeyDisplayCallback_t callback) {_evt.passkeyDisplayCallback = callback;}
 
     /* Entry points for the underlying stack to report events back to the user. */
 public:
     void processSecuritySetupInitiatedEvent(Gap::Handle_t handle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
-        if (securitySetupInitiatedCallback) {
-            securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
+        if (_evt.securitySetupInitiatedCallback) {
+            _evt.securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
         }
     }
 
     void processSecuritySetupCompletedEvent(Gap::Handle_t handle, SecurityCompletionStatus_t status) {
-        if (securitySetupCompletedCallback) {
-            securitySetupCompletedCallback(handle, status);
+        if (_evt.securitySetupCompletedCallback) {
+            _evt.securitySetupCompletedCallback(handle, status);
         }
     }
 
     void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode) {
-        if (linkSecuredCallback) {
-            linkSecuredCallback(handle, securityMode);
+        if (_evt.linkSecuredCallback) {
+            _evt.linkSecuredCallback(handle, securityMode);
         }
     }
 
     void processSecurityContextStoredEvent(Gap::Handle_t handle) {
-        if (securityContextStoredCallback) {
-            securityContextStoredCallback(handle);
+        if (_evt.securityContextStoredCallback) {
+            _evt.securityContextStoredCallback(handle);
         }
     }
 
     void processPasskeyDisplayEvent(Gap::Handle_t handle, const Passkey_t passkey) {
-        if (passkeyDisplayCallback) {
-            passkeyDisplayCallback(handle, passkey);
+        if (_evt.passkeyDisplayCallback) {
+            _evt.passkeyDisplayCallback(handle, passkey);
         }
     }
 
 protected:
-    SecurityManager() :
-        securitySetupInitiatedCallback(),
-        securitySetupCompletedCallback(),
-        linkSecuredCallback(),
-        securityContextStoredCallback(),
-        passkeyDisplayCallback() {
+    SecurityManager() {
         /* empty */
     }
 
@@ -316,11 +329,7 @@ public:
     }
 
 protected:
-    SecuritySetupInitiatedCallback_t securitySetupInitiatedCallback;
-    SecuritySetupCompletedCallback_t securitySetupCompletedCallback;
-    LinkSecuredCallback_t            linkSecuredCallback;
-    HandleSpecificEvent_t            securityContextStoredCallback;
-    PasskeyDisplayCallback_t         passkeyDisplayCallback;
+    SecurityManagerEventBlock _evt;
 
 private:
     SecurityManagerShutdownCallbackChain_t shutdownCallChain;
