@@ -32,7 +32,6 @@ void wifi_connect(void)
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_UNSECURE_SSID, NULL));
 
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
-    wifi->disconnect();
 }
 
 #endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)

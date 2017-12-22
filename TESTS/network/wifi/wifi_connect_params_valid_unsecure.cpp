@@ -29,7 +29,6 @@ void wifi_connect_params_valid_unsecure(void)
 {
     WiFiInterface *wifi = get_interface();
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect(MBED_CONF_APP_WIFI_UNSECURE_SSID, NULL));
-    wifi->disconnect();
 }
 
 #endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
