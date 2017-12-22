@@ -488,6 +488,16 @@ static void rf_device_unregister(void)
 }
 
 /*
+ * \brief Function wraps thread signals to only send when thread is active
+ * 
+ */
+static void rf_thread_signal(osThreadId id, int32_t signal) {
+    if (id != NULL) {
+        osSignalSet(id, signal);
+    }   
+}
+
+/*
  * \brief Function starts the CCA process before starting data transmission and copies the data to RF TX FIFO.
  *
  * \param data_ptr Pointer to TX data
@@ -899,7 +909,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
             */
             case RAIL_EVENT_RSSI_AVERAGE_DONE_SHIFT:
 #ifdef MBED_CONF_RTOS_PRESENT
-                osSignalSet(rf_thread_id, SL_RSSI_DONE);
+                rf_thread_signal(rf_thread_id, SL_RSSI_DONE);
 #else
                 SL_DEBUG_PRINT("RSSI done (%d)\n", RAIL_GetAverageRssi(gRailHandle));
 #endif
@@ -913,7 +923,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
                 if(waiting_for_ack) {
                     waiting_for_ack = false;
 #ifdef MBED_CONF_RTOS_PRESENT
-                    osSignalSet(rf_thread_id, SL_ACK_TIMEOUT);
+                    rf_thread_signal(rf_thread_id, SL_ACK_TIMEOUT);
 #else
                     device_driver.phy_tx_done_cb( rf_radio_driver_id,
                                                   current_tx_handle,
@@ -930,7 +940,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
             */
             case RAIL_EVENT_RX_FIFO_ALMOST_FULL_SHIFT:
 #ifdef MBED_CONF_RTOS_PRESENT
-                osSignalSet(rf_thread_id, SL_RXFIFO_ERR);
+                rf_thread_signal(rf_thread_id, SL_RXFIFO_ERR);
 #else
                 SL_DEBUG_PRINT("RX near full (%d)\n", RAIL_GetRxFifoBytesAvailable(gRailHandle));
 #endif
@@ -995,7 +1005,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
                             last_ack_pending_bit = (packetBuffer[2+1] & (1 << 4)) != 0;
                             /* Tell the stack we got an ACK */
 #ifdef MBED_CONF_RTOS_PRESENT
-                            osSignalSet(rf_thread_id, SL_ACK_RECV | (last_ack_pending_bit ? SL_ACK_PEND : 0));
+                            rf_thread_signal(rf_thread_id, SL_ACK_RECV | (last_ack_pending_bit ? SL_ACK_PEND : 0));
 #else
                             SL_DEBUG_PRINT("rACK\n");
                             device_driver.phy_tx_done_cb( rf_radio_driver_id,
@@ -1023,10 +1033,10 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
                             if (((rx_queue_head + 1) % RF_QUEUE_SIZE) != rx_queue_tail) {
                                 rx_queue[rx_queue_head] = (void*)packetBuffer;
                                 rx_queue_head = (rx_queue_head + 1) % RF_QUEUE_SIZE;
-                                osSignalSet(rf_thread_id, SL_RX_DONE);
+                                rf_thread_signal(rf_thread_id, SL_RX_DONE);
                             } else {
                                 free(packetBuffer);
-                                osSignalSet(rf_thread_id, SL_QUEUE_FULL);
+                                rf_thread_signal(rf_thread_id, SL_QUEUE_FULL);
                             }
 #else
                             SL_DEBUG_PRINT("rPKT %d\n", rxPacket[2] - 2);
@@ -1117,7 +1127,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
             */
             case RAIL_EVENT_TX_FIFO_ALMOST_EMPTY_SHIFT:
 #ifdef MBED_CONF_RTOS_PRESENT
-                osSignalSet(rf_thread_id, SL_TXFIFO_ERR);
+                rf_thread_signal(rf_thread_id, SL_TXFIFO_ERR);
 #else
                 SL_DEBUG_PRINT("TX near empty (%d)\n", spaceAvailable);
 #endif
@@ -1131,7 +1141,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
             */
             case RAIL_EVENT_TX_PACKET_SENT_SHIFT:
 #ifdef MBED_CONF_RTOS_PRESENT
-                osSignalSet(rf_thread_id, SL_TX_DONE);
+                rf_thread_signal(rf_thread_id, SL_TX_DONE);
 #else
                 if(device_driver.phy_tx_done_cb != NULL) {
                     device_driver.phy_tx_done_cb( rf_radio_driver_id,
@@ -1158,7 +1168,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
             /* Occurs when a TX is aborted by the user */
             case RAIL_EVENT_TX_ABORTED_SHIFT:
 #ifdef MBED_CONF_RTOS_PRESENT
-                osSignalSet(rf_thread_id, SL_TX_TIMEOUT);
+                rf_thread_signal(rf_thread_id, SL_TX_TIMEOUT);
 #else
                 device_driver.phy_tx_done_cb(rf_radio_driver_id,
                                               current_tx_handle,
@@ -1175,7 +1185,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
             /* Occurs when a TX is blocked by something like PTA or RHO */
             case RAIL_EVENT_TX_BLOCKED_SHIFT:
 #ifdef MBED_CONF_RTOS_PRESENT
-                osSignalSet(rf_thread_id, SL_TX_TIMEOUT);
+                rf_thread_signal(rf_thread_id, SL_TX_TIMEOUT);
 #else
                 device_driver.phy_tx_done_cb(rf_radio_driver_id,
                                               current_tx_handle,
@@ -1192,7 +1202,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
             /* Occurs when the TX buffer underflows */
             case RAIL_EVENT_TX_UNDERFLOW_SHIFT:
 #ifdef MBED_CONF_RTOS_PRESENT
-                osSignalSet(rf_thread_id, SL_TX_TIMEOUT);
+                rf_thread_signal(rf_thread_id, SL_TX_TIMEOUT);
 #else
                 device_driver.phy_tx_done_cb(rf_radio_driver_id,
                                               current_tx_handle,
@@ -1212,7 +1222,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
             /* Occurs when CCA/CSMA/LBT fails */
             case RAIL_EVENT_TX_CHANNEL_BUSY_SHIFT:
 #ifdef MBED_CONF_RTOS_PRESENT
-                osSignalSet(rf_thread_id, SL_TX_TIMEOUT);
+                rf_thread_signal(rf_thread_id, SL_TX_TIMEOUT);
 #else
                 device_driver.phy_tx_done_cb(rf_radio_driver_id,
                                               current_tx_handle,
@@ -1252,7 +1262,7 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
             */
             case RAIL_EVENT_CAL_NEEDED_SHIFT:
 #ifdef MBED_CONF_RTOS_PRESENT
-                osSignalSet(rf_thread_id, SL_CAL_REQ);
+                rf_thread_signal(rf_thread_id, SL_CAL_REQ);
 #else
                 SL_DEBUG_PRINT("!!!! Calling for calibration\n");
 #endif
