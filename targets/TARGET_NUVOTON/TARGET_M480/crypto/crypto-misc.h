@@ -76,6 +76,9 @@ bool crypto_des_wait(void);
  */
 bool crypto_dma_buff_compat(const void *buff, size_t buff_size, size_t size_aligned_to);
 
+/* Check if input/output buffers are overlapped */
+bool crypto_dma_buffs_overlap(const void *in_buff, size_t in_buff_size, const void *out_buff, size_t out_buff_size);
+
 #ifdef __cplusplus
 }
 #endif

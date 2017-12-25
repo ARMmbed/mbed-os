@@ -171,6 +171,38 @@ bool crypto_dma_buff_compat(const void *buff, size_t buff_size, size_t size_alig
         (((buff_ >> 28) == 0x2) && (buff_size <= (0x30000000 - buff_))));   /* 0x20000000-0x2FFFFFFF */
 }
 
+/* Overlap cases
+ *
+ * 1. in_buff in front of out_buff:
+ *
+ * in             in_end
+ * |              |
+ * ||||||||||||||||
+ *     ||||||||||||||||
+ *     |              |
+ *     out            out_end
+ *
+ * 2. out_buff in front of in_buff:
+ *
+ *     in             in_end
+ *     |              |
+ *     ||||||||||||||||
+ * ||||||||||||||||
+ * |              |
+ * out            out_end
+ */
+bool crypto_dma_buffs_overlap(const void *in_buff, size_t in_buff_size, const void *out_buff, size_t out_buff_size)
+{
+    uint32_t in = (uint32_t) in_buff;
+    uint32_t in_end = in + in_buff_size;
+    uint32_t out = (uint32_t) out_buff;
+    uint32_t out_end = out + out_buff_size;
+
+    bool overlap = (in <= out && out < in_end) || (out <= in && in < out_end);
+    
+    return overlap;
+}
+
 static bool crypto_submodule_acquire(uint16_t *submodule_avail)
 {
     uint16_t expectedCurrentValue = 1;

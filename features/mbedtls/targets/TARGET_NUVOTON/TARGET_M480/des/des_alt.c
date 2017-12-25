@@ -407,6 +407,7 @@ static int mbedtls_des_docrypt(uint16_t keyopt, uint8_t key[3][MBEDTLS_DES_KEY_S
 
         memcpy(dmabuf_in, in_pos, data_len);
 
+        /* We always use DMA backup buffers, which are guaranteed to be non-overlapped. */
         TDES_SetDMATransfer(0, (uint32_t) dmabuf_in, (uint32_t) dmabuf_out, data_len);
 
         crypto_des_prestart();

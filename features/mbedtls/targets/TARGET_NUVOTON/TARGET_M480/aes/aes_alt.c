@@ -160,6 +160,7 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
     AES_Open(0, ctx->encDec, ctx->opMode, ctx->keySize, AES_IN_OUT_SWAP);
     AES_SetInitVect(0, ctx->iv);
     AES_SetKey(0, ctx->keys, ctx->keySize);
+    
     /* AES DMA buffer requirements same as above */
     if (! crypto_dma_buff_compat(input, dataSize, 16)) {
         memcpy(au8InputData, input, dataSize);
@@ -174,6 +175,14 @@ static void __nvt_aes_crypt( mbedtls_aes_context *ctx,
         pOut = output;
     }
 
+    /* Even though AES H/W has limited support for overlapped DMA input/output buffers,
+     * we still seek to one backup buffer to make them non-overlapped for simplicity. */
+    if (crypto_dma_buffs_overlap(pIn, dataSize, pOut, dataSize)) {
+        memcpy(au8InputData, input, dataSize);
+        pIn = au8InputData;
+    }
+    MBED_ASSERT(! crypto_dma_buffs_overlap(pIn, dataSize, pOut, dataSize));
+    
     AES_SetDMATransfer(0, (uint32_t)pIn, (uint32_t)pOut, dataSize);
 
     crypto_aes_prestart();
