@@ -6,7 +6,7 @@
 /* ARM armcc specific functions */
 #pragma push
 #pragma arm
-__STATIC_ASM void __vfp_neon_push(void) {
+static __asm void __vfp_neon_push(void) {
     ARM
 
     VMRS    R2,FPSCR
@@ -19,7 +19,7 @@ __STATIC_ASM void __vfp_neon_push(void) {
 
 #pragma push
 #pragma arm
-__STATIC_ASM void __vfp_neon_pop(void) {
+static __asm void __vfp_neon_pop(void) {
     ARM
 
     VLDMIA  SP!,{D16-D31}
@@ -34,7 +34,7 @@ __STATIC_ASM void __vfp_neon_pop(void) {
 
 #pragma push
 #pragma arm
-__STATIC_ASM void __vfp_push(void) {
+static __asm void __vfp_push(void) {
     ARM
 
     VMRS    R2,FPSCR
@@ -46,7 +46,7 @@ __STATIC_ASM void __vfp_push(void) {
 
 #pragma push
 #pragma arm
-__STATIC_ASM void __vfp_pop(void) {
+static __asm void __vfp_pop(void) {
     ARM
 
     VLDMIA  SP!,{D0-D15}
@@ -111,7 +111,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __vfp_neon_push(void)
     "VSTMDB  SP!,{D0-D15};"
     "VSTMDB  SP!,{D16-D31};"
     :
-    : "i"(MODE_USR)
+    :
     : );
     return;
 }
@@ -127,7 +127,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __vfp_neon_pop(void)
     "VMSR    FPSCR,R2;"
     "ADD     SP,SP,#8;"
     :
-    : "i"(MODE_USR)
+    :
     : );
     return;
 }
@@ -141,7 +141,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __vfp_push(void)
     "STMDB   SP!,{R2,R4};"      // Push FPSCR, maintain 8-byte alignment
     "VSTMDB  SP!,{D0-D15};"
     :
-    : "i"(MODE_USR)
+    :
     : );
     return;
 }
@@ -156,7 +156,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void __vfp_pop(void)
     "VMSR    FPSCR,R2;"
     "ADD     SP,SP,#8;"
     :
-    : "i"(MODE_USR)
+    :
     : );
     return;
 }

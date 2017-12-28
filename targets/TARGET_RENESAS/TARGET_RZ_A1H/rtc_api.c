@@ -48,7 +48,7 @@
 #define SHIFT_1BYTE      (8u)
 #define SHIFT_2BYTE      (16u)
 
-#define TIME_ERROR_VAL   (0xFFFFFFFFu)
+#define TIME_ERROR_VAL   (0u)
 
 static int rtc_dec8_to_hex(uint8_t dec_val, uint8_t offset, int *hex_val);
 static int rtc_dec16_to_hex(uint16_t dec_val, uint16_t offset, int *hex_val);
@@ -214,7 +214,9 @@ time_t rtc_read(void) {
 
     if (err == 0) {
         // Convert to timestamp
-        t = _rtc_mktime(&timeinfo);
+        if (_rtc_maketime(&timeinfo, &t, RTC_FULL_LEAP_YEAR_SUPPORT) == false) {
+            return TIME_ERROR_VAL;
+        }
     } else {
         // Error
         t = TIME_ERROR_VAL;
@@ -305,7 +307,7 @@ static int rtc_dec16_to_hex(uint16_t dec_val, uint16_t offset, int *hex_val) {
 void rtc_write(time_t t) {
 
     struct tm timeinfo;
-    if (_rtc_localtime(t, &timeinfo) == false) {
+    if (_rtc_localtime(t, &timeinfo, RTC_FULL_LEAP_YEAR_SUPPORT) == false) {
         return;
     }
 

@@ -361,93 +361,92 @@ osRtxContextSwitch:
 
                 // R0  = osRtxInfo.thread.run.curr
                 // R1  = osRtxInfo.thread.run.next
-                //  R12 = &osRtxInfo.thread.run
+                // R12 = &osRtxInfo.thread.run
 
-                CMP     R0, #0                     // Is osRtxInfo.thread.run.curr == 0
-                ADDEQ   SP, SP, #32                // Equal, curr deleted, adjust current SP
-                BEQ     osRtxContextRestore        // Restore context, run.curr = run.next;
+                CMP     R0, #0                      // Is osRtxInfo.thread.run.curr == 0
+                ADDEQ   SP, SP, #32                 // Equal, curr deleted, adjust current SP
+                BEQ     osRtxContextRestore         // Restore context, run.curr = run.next;
 
 osRtxContextSave:
                 SUB     SP, SP, #4
-                STM     SP, {SP}^                  // Save SP_usr to current stack
-                POP     {R3}                       // Pop SP_usr into R3
+                STM     SP, {SP}^                   // Save SP_usr to current stack
+                POP     {R3}                        // Pop SP_usr into R3
 
-                SUB     R3, R3, #64                // Adjust user sp to end of basic frame (R4)
-                STMIA   R3!, {R4-R11}              // Save R4-R11 to user
-                POP     {R4-R8}                    // Pop current R0-R12 into R4-R8
-                STMIA   R3!, {R4-R8}               // Store them to user stack
-                STM     R3, {LR}^                  // Store LR_usr directly
-                ADD     R3, R3, #4                 // Adjust user sp to PC
-                POP     {R4-R6}                    // Pop current LR, PC, CPSR
-                STMIA   R3!, {R5-R6}               // Restore user PC and CPSR
+                SUB     R3, R3, #64                 // Adjust user sp to end of basic frame (R4)
+                STMIA   R3!, {R4-R11}               // Save R4-R11 to user
+                POP     {R4-R8}                     // Pop current R0-R12 into R4-R8
+                STMIA   R3!, {R4-R8}                // Store them to user stack
+                STM     R3, {LR}^                   // Store LR_usr directly
+                ADD     R3, R3, #4                  // Adjust user sp to PC
+                POP     {R4-R6}                     // Pop current LR, PC, CPSR
+                STMIA   R3!, {R5-R6}                // Restore user PC and CPSR
 
-                SUB     R3, R3, #64                // Adjust user sp to R4
+                SUB     R3, R3, #64                 // Adjust user sp to R4
 
                 // Check if VFP state need to be saved
-                MRC     p15, 0, R2, c1, c0, 2      // VFP/NEON access enabled? (CPACR)
+                MRC     p15, 0, R2, c1, c0, 2       // VFP/NEON access enabled? (CPACR)
                 AND     R2, R2, #0x00F00000
                 CMP     R2, #0x00F00000
-                BNE     osRtxContextSave1          // Continue, no VFP
+                BNE     osRtxContextSave1           // Continue, no VFP
 
                 VMRS    R2, FPSCR
-                STMDB   R3!, {R2,R12}              // Push FPSCR, maintain 8-byte alignment
-                #if TARGET_FEATURE_EXTENSION_REGISTER_COUNT == 16
-                VSTMDB  R3!, {D0-D15}
-                LDRB    R2, [R0, #TCB_SP_FRAME]    // Record in TCB that VFP/D16 state is stacked
-                ORR     R2, R2, #2
-                STRB    R2, [R0, #TCB_SP_FRAME]
+                STMDB   R3!, {R2,R12}               // Push FPSCR, maintain 8-byte alignment
+
+                VSTMDB  R3!, {D0-D15}               // Save D0-D15
+                #if     __ARM_NEON == 1
+                VSTMDB  R3!, {D16-D31}              // Save D16-D31
                 #endif
-                #if TARGET_FEATURE_EXTENSION_REGISTER_COUNT == 32
-                VSTMDB  R3!, {D0-D15}
-                VSTMDB  R3!, {D16-D31}
-                LDRB    R2, [R0, #TCB_SP_FRAME]    // Record in TCB that NEON/D32 state is stacked
-                ORR     R2, R2, #4
-                STRB    R2, [R0, #TCB_SP_FRAME]
+                LDRB    R2, [R0, #TCB_SP_FRAME]
+                #if     __ARM_NEON == 1
+                ORR     R2, R2, #4                  // NEON state
+                #else
+                ORR     R2, R2, #2                  // VFP state
                 #endif
+                STRB    R2, [R0, #TCB_SP_FRAME]     // Record VFP/NEON state
 
 osRtxContextSave1:
-                STR     R3, [R0, #TCB_SP_OFS]      // Store user sp to osRtxInfo.thread.run.curr
+                STR     R3, [R0, #TCB_SP_OFS]       // Store user sp to osRtxInfo.thread.run.curr
 
 osRtxContextRestore:
-                STR     R1, [R12]                  // Store run.next to run.curr
-                LDR     R3, [R1, #TCB_SP_OFS]      // Load next osRtxThread_t.sp
-                LDRB    R2, [R1, #TCB_SP_FRAME]    // Load next osRtxThread_t.stack_frame
+                STR     R1, [R12]                   // Store run.next to run.curr
+                LDR     R3, [R1, #TCB_SP_OFS]       // Load next osRtxThread_t.sp
+                LDRB    R2, [R1, #TCB_SP_FRAME]     // Load next osRtxThread_t.stack_frame
 
-                ANDS    R2, R2, #0x6               // Check stack frame for VFP context
-                MRC     p15, 0, R2, c1, c0, 2      // Read CPACR
-                ANDEQ   R2, R2, #0xFF0FFFFF        // Disable VFP/NEON access if incoming task does not have stacked VFP/NEON state
-                ORRNE   R2, R2, #0x00F00000        // Enable VFP/NEON access if incoming task does have stacked VFP/NEON state
-                MCR     p15, 0, R2, c1, c0, 2      // Write CPACR
-                BEQ     osRtxContextRestore1       // No VFP
-                ISB                                // Only sync if we enabled VFP, otherwise we will context switch before next VFP instruction anyway
-                #if TARGET_FEATURE_EXTENSION_REGISTER_COUNT == 32
-                VLDMIA  R3!, {D16-D31}
+                ANDS    R2, R2, #0x6                // Check stack frame for VFP context
+                MRC     p15, 0, R2, c1, c0, 2       // Read CPACR
+                ANDEQ   R2, R2, #0xFF0FFFFF         // Disable VFP/NEON access if incoming task does not have stacked VFP/NEON state
+                ORRNE   R2, R2, #0x00F00000         // Enable VFP/NEON access if incoming task does have stacked VFP/NEON state
+                MCR     p15, 0, R2, c1, c0, 2       // Write CPACR
+                BEQ     osRtxContextRestore1        // No VFP
+                ISB                                 // Only sync if we enabled VFP, otherwise we will context switch before next VFP instruction anyway
+                #if     __ARM_NEON == 1
+                VLDMIA  R3!, {D16-D31}              // Restore D16-D31
                 #endif
-                VLDMIA  R3!, {D0-D15}
+                VLDMIA  R3!, {D0-D15}               // Restore D0-D15
                 LDR     R2, [R3]
-                VMSR    FPSCR, R2
+                VMSR    FPSCR, R2                   // Restore FPSCR
                 ADD     R3, R3, #8
 
 osRtxContextRestore1:
-                LDMIA   R3!, {R4-R11}              // Restore R4-R11
-                MOV     R12, R3                    // Move sp pointer to R12
-                ADD     R3, R3, #32                // Adjust sp
-                PUSH    {R3}                       // Push sp onto stack
-                LDMIA   SP, {SP}^                  // Restore SP_usr
-                ADD     SP, SP, #4                 // Adjust SP_svc
-                LDMIA   R12!, {R0-R3}              // Restore User R0-R3
-                LDR     LR, [R12, #12]             // Load SPSR into LR
-                MSR     SPSR_cxsf, LR              // Restore SPSR
-                ADD     R12, R12, #4               // Adjust pointer to LR
-                LDM     R12, {LR}^                 // Restore LR_usr directly into LR
-                LDR     LR, [R12, #4]              // Restore LR
-                LDR     R12, [R12, #-4]            // Restore R12
+                LDMIA   R3!, {R4-R11}               // Restore R4-R11
+                MOV     R12, R3                     // Move sp pointer to R12
+                ADD     R3, R3, #32                 // Adjust sp
+                PUSH    {R3}                        // Push sp onto stack
+                LDMIA   SP, {SP}^                   // Restore SP_usr
+                ADD     SP, SP, #4                  // Adjust SP_svc
+                LDMIA   R12!, {R0-R3}               // Restore User R0-R3
+                LDR     LR, [R12, #12]              // Load SPSR into LR
+                MSR     SPSR_cxsf, LR               // Restore SPSR
+                ADD     R12, R12, #4                // Adjust pointer to LR
+                LDM     R12, {LR}^                  // Restore LR_usr directly into LR
+                LDR     LR, [R12, #4]               // Restore LR
+                LDR     R12, [R12, #-4]             // Restore R12
 
-                MOVS    PC, LR                     // Return from exception
+                MOVS    PC, LR                      // Return from exception
 
 osRtxContextExit:
-                POP     {R0-R3, R12, LR}           // Restore stacked APCS registers
-                RFEFD   SP!                        // Return from exception
+                POP     {R0-R3, R12, LR}            // Restore stacked APCS registers
+                RFEFD   SP!                         // Return from exception
 
                 .fnend
                 .size    osRtxContextSwitch, .-osRtxContextSwitch
