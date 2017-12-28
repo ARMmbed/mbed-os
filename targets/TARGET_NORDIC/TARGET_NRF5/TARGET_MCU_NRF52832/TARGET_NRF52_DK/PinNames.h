@@ -127,12 +127,21 @@ typedef enum {
     CTS_PIN_NUMBER = p12,
     RTS_PIN_NUMBER = p13,
     
-    RX_PIN_NUMBER  = p28,
-    TX_PIN_NUMBER  = p27,
+    RX_PIN_NUMBER  = p27,
+    TX_PIN_NUMBER  = p28,
 
     // mBed interface Pins
     USBTX = TX_PIN_NUMBER,
     USBRX = RX_PIN_NUMBER,
+
+    AIN0  = P0_2,
+    AIN1  = P0_3,
+    AIN2  = P0_4,
+    AIN3  = P0_5,
+    AIN4  = P0_28,
+    AIN5  = P0_29,
+    AIN6  = P0_30,
+    AIN7  = P0_31,
 
     // Not connected
     NC = (int)0xFFFFFFFF

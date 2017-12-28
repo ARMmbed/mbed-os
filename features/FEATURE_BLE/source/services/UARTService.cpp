@@ -23,19 +23,25 @@ const uint8_t  UARTServiceBaseUUID[UUID::LENGTH_OF_LONG_UUID] = {
 const uint16_t UARTServiceShortUUID                 = 0x0001;
 const uint16_t UARTServiceTXCharacteristicShortUUID = 0x0002;
 const uint16_t UARTServiceRXCharacteristicShortUUID = 0x0003;
-const uint8_t  UARTServiceUUID[UUID::LENGTH_OF_LONG_UUID] = {
+extern const uint8_t  UARTServiceUUID[UUID::LENGTH_OF_LONG_UUID] __attribute__((weak)) = {
     0x6E, 0x40, (uint8_t)(UARTServiceShortUUID >> 8), (uint8_t)(UARTServiceShortUUID & 0xFF), 0xB5, 0xA3, 0xF3, 0x93,
     0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0x9E,
 };
-const uint8_t  UARTServiceUUID_reversed[UUID::LENGTH_OF_LONG_UUID] = {
+extern const uint8_t  UARTServiceUUID_reversed[UUID::LENGTH_OF_LONG_UUID] __attribute__((weak)) = {
     0x9E, 0xCA, 0xDC, 0x24, 0x0E, 0xE5, 0xA9, 0xE0,
     0x93, 0xF3, 0xA3, 0xB5, (uint8_t)(UARTServiceShortUUID & 0xFF), (uint8_t)(UARTServiceShortUUID >> 8), 0x40, 0x6E
 };
-const uint8_t  UARTServiceTXCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID] = {
+extern const uint8_t  UARTServiceTXCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID] __attribute__((weak)) = {
     0x6E, 0x40, (uint8_t)(UARTServiceTXCharacteristicShortUUID >> 8), (uint8_t)(UARTServiceTXCharacteristicShortUUID & 0xFF), 0xB5, 0xA3, 0xF3, 0x93,
     0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0x9E,
 };
-const uint8_t  UARTServiceRXCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID] = {
+extern const uint8_t  UARTServiceRXCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID] __attribute__((weak)) = {
     0x6E, 0x40, (uint8_t)(UARTServiceRXCharacteristicShortUUID >> 8), (uint8_t)(UARTServiceRXCharacteristicShortUUID & 0xFF), 0xB5, 0xA3, 0xF3, 0x93,
+    0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0x9E,
+};
+
+// Heads Up Modification
+extern const uint8_t  UARTServiceModeCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID] __attribute__((weak)) = {
+    0x6E, 0x40, (uint8_t)(UARTServiceRXCharacteristicShortUUID >> 8), (uint8_t)(UARTServiceRXCharacteristicShortUUID & 0xFF), 0xB6, 0xA3, 0xF3, 0x93,
     0xE0, 0xA9, 0xE5, 0x0E, 0x24, 0xDC, 0xCA, 0x9E,
 };

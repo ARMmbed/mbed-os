@@ -8,7 +8,7 @@
     },
     "HU_FLYER": {
 	"inherits": ["HU_FAMILY_AIRBORNE", "NRF52_DK"],
-	"features": ["ALS", "BATTERY_FUEL_GAUGE", "STC3115", "TLC59711", "M25PX16", "BLE"],
+	"features": ["ALS", "BATTERY_FUEL_GAUGE", "STC3115", "TLC59711", "BLE","COMPARATOR"],
 	"macros_remove": ["BOARD_PCA10040"],
 	"macros_add": ["ENABLE_SWO"],
 	"MERGE_SOFT_DEVICE": false,

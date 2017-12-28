@@ -39,6 +39,9 @@ extern const uint8_t  UARTServiceUUID_reversed[UUID::LENGTH_OF_LONG_UUID];
 extern const uint8_t  UARTServiceTXCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID];
 extern const uint8_t  UARTServiceRXCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID];
 
+// Heads Up Modification
+extern const uint8_t  UARTServiceModeCharacteristicUUID[UUID::LENGTH_OF_LONG_UUID];
+
 /**
 * @class UARTService.
 * @brief BLE Service to enable UART over BLE.
@@ -58,13 +61,17 @@ public:
         ble(_ble),
         receiveBuffer(),
         sendBuffer(),
+	  modeBuffer(0),
         sendBufferIndex(0),
         numBytesReceived(0),
         receiveBufferIndex(0),
         txCharacteristic(UARTServiceTXCharacteristicUUID, receiveBuffer, 1, BLE_UART_SERVICE_MAX_DATA_LEN,
                          GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE),
-        rxCharacteristic(UARTServiceRXCharacteristicUUID, sendBuffer, 1, BLE_UART_SERVICE_MAX_DATA_LEN, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) {
-        GattCharacteristic *charTable[] = {&txCharacteristic, &rxCharacteristic};
+        //rxCharacteristic(UARTServiceRXCharacteristicUUID, sendBuffer, 1, BLE_UART_SERVICE_MAX_DATA_LEN, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_NOTIFY) {
+        // Heads Up Modification - change to indicate for testing
+	  rxCharacteristic(UARTServiceRXCharacteristicUUID, sendBuffer, 1, BLE_UART_SERVICE_MAX_DATA_LEN, GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_INDICATE),
+	  modeCharacteristic(UARTServiceModeCharacteristicUUID, &modeBuffer, 1, 1, (GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_READ | GattCharacteristic::BLE_GATT_CHAR_PROPERTIES_WRITE)){
+	  GattCharacteristic *charTable[] = {&txCharacteristic, &rxCharacteristic, &modeCharacteristic};
         GattService         uartService(UARTServiceUUID, charTable, sizeof(charTable) / sizeof(GattCharacteristic *));
 
         ble.addService(uartService);
@@ -205,6 +212,9 @@ protected:
     uint8_t             sendBuffer[BLE_UART_SERVICE_MAX_DATA_LEN];    /**< The local buffer into which outbound data is
                                                                        *   accumulated before being pushed to the
                                                                        *   rxCharacteristic. */
+
+    uint8_t             modeBuffer;
+	  
     uint8_t             sendBufferIndex;
     uint8_t             numBytesReceived;
     uint8_t             receiveBufferIndex;
@@ -214,6 +224,7 @@ protected:
     GattCharacteristic  rxCharacteristic; /**< From the point of view of the external client, this is the characteristic
                                            *   they'd read from in order to receive the bytes transmitted by this
                                            *   application. */
+    GattCharacteristic modeCharacteristic; /**< Heads Up Modification - doesn't really do anything */
 };
 
 #endif /* #ifndef __BLE_UART_SERVICE_H__*/
