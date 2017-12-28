@@ -274,8 +274,8 @@ void thread_tasklet_configure_and_connect_to_network(void)
     thread_tasklet_data_ptr->channel_list.channel_mask[0] = MBED_CONF_MBED_MESH_API_THREAD_CONFIG_CHANNEL_MASK;
     
     TRACE_DETAIL("channel page: %d", thread_tasklet_data_ptr->channel_list.channel_page);
-    TRACE_DETAIL("channel mask: %d", (int)thread_tasklet_data_ptr->channel_list.channel_mask[0]);
-          
+    TRACE_DETAIL("channel mask: 0x%.8lx", thread_tasklet_data_ptr->channel_list.channel_mask[0]);
+
     // PSKd
     const char PSKd[] = MBED_CONF_MBED_MESH_API_THREAD_PSKD;
     MBED_ASSERT(sizeof(PSKd) > 5 && sizeof(PSKd) < 33);
