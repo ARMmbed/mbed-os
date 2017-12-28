@@ -94,6 +94,14 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual int mkdir(const char *path, mode_t mode);
+
+    /** Store information about the mounted filesystem in a statvfs structure
+     *
+     *  @param path     The name of the file to find information about
+     *  @param buf      The stat buffer to write to
+     *  @return         0 on success, negative error code on failure
+     */
+     virtual int statvfs(const char *path, struct statvfs *buf);
 };
 /**@}*/
 

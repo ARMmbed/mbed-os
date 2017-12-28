@@ -28,8 +28,8 @@
 /* We can get the following standard types from sys/types for gcc, but we
  * need to define the types ourselves for the other compilers that normally
  * target embedded systems */
-typedef signed   int  ssize_t;  ///< Signed size type, usually encodes negative errors
-typedef signed   long off_t;    ///< Offset in a data stream
+typedef signed   int  ssize_t;     ///< Signed size type, usually encodes negative errors
+typedef signed   long off_t;       ///< Offset in a data stream
 #if defined(__ARMCC_VERSION) || !defined(__GNUC__)
 typedef unsigned int  mode_t;   ///< Mode for opening files
 typedef unsigned int  dev_t;    ///< Device ID type
@@ -37,6 +37,7 @@ typedef unsigned long ino_t;    ///< File serial number
 typedef unsigned int  nlink_t;  ///< Number of links to a file
 typedef unsigned int  uid_t;    ///< User ID
 typedef unsigned int  gid_t;    ///< Group ID
+typedef unsigned long long fsblkcnt_t;  ///< Count of file system blocks
 #endif
 
 #define O_RDONLY 0      ///< Open for reading
@@ -62,7 +63,7 @@ typedef unsigned int  gid_t;    ///< Group ID
 /* DIR declarations must also be here */
 #if __cplusplus
 namespace mbed {
-    
+
 class FileHandle;
 class DirHandle;
 std::FILE *mbed_fdopen(FileHandle *fh, const char *mode);
@@ -415,10 +416,24 @@ struct stat {
     time_t    st_ctime;   ///< Time of last status change
 };
 
+struct statvfs {
+    unsigned long  f_bsize;    ///< Filesystem block size
+    unsigned long  f_frsize;   ///< Fragment size (block size)
+
+    fsblkcnt_t     f_blocks;   ///< Number of blocks
+    fsblkcnt_t     f_bfree;    ///< Number of free blocks
+    fsblkcnt_t     f_bavail;   ///< Number of free blocks for unprivileged users
+
+    unsigned long  f_fsid;     ///< Filesystem ID
+
+    unsigned long  f_namemax;  ///< Maximum filename length
+};
+
 #if __cplusplus
 extern "C" {
 #endif
     int stat(const char *path, struct stat *st);
+    int statvfs(const char *path, struct statvfs *buf);
 #if __cplusplus
 };
 #endif

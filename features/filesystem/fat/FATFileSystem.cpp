@@ -442,6 +442,34 @@ int FATFileSystem::stat(const char *path, struct stat *st) {
     return 0;
 }
 
+int FATFileSystem::statvfs(const char *path, struct statvfs *buf) {
+
+    memset(buf, 0, sizeof(struct statvfs));
+    FATFS *fs;
+    DWORD fre_clust;
+
+    lock();
+    FRESULT res = f_getfree(_fsid, &fre_clust, &fs);
+    if (res != FR_OK) {
+        unlock();
+        return fat_error_remap(res);
+    }
+
+    buf->f_bsize = fs->ssize;
+    buf->f_frsize = fs->ssize;
+    buf->f_blocks = (fs->n_fatent - 2) * fs->csize;
+    buf->f_bfree = fre_clust * fs->csize;
+    buf->f_bavail = buf->f_bfree;
+#if FF_USE_LFN
+    buf->f_namemax = FF_LFN_BUF;
+#else
+    buf->f_namemax = FF_SFN_BUF;
+#endif
+
+    unlock();
+    return 0;
+}
+
 void FATFileSystem::lock() {
     _ffs_mutex->lock();
 }

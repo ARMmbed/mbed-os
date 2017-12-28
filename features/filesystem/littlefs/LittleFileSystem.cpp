@@ -336,6 +336,9 @@ int LittleFileSystem::stat(const char *name, struct stat *st)
     return lfs_toerror(err);
 }
 
+int LittleFileSystem::statvfs(const char *path, struct statvfs *buf)
+{
+}
 
 ////// File operations //////
 int LittleFileSystem::file_open(fs_file_t *file, const char *path, int flags)

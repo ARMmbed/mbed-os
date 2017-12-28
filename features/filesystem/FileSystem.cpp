@@ -51,6 +51,11 @@ int FileSystem::mkdir(const char *path, mode_t mode)
     return -ENOSYS;
 }
 
+int FileSystem::statvfs(const char *path, struct statvfs *buf)
+{
+    return -ENOSYS;
+}
+
 int FileSystem::file_sync(fs_file_t file)
 {
     return 0;
