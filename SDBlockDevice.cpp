@@ -148,9 +148,9 @@
 #include <errno.h>
 
 /* Required version: 5.6.1 and above */
-#ifdef MBED_MAJOR_VERSION
+#if defined(MBED_MAJOR_VERSION) && MBED_MAJOR_VERSION >= 5
 #if (MBED_VERSION < MBED_ENCODE_VERSION(5,6,1))
-#error "Incompatible mbed-os version detected! Required 5.5.4 and above"
+#error "Incompatible mbed-os version detected! Required 5.6.1 and above"
 #endif
 #else
 #warning "mbed-os version 5.6.1 or above required"
