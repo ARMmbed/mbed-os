@@ -25,6 +25,8 @@
 #ifndef __CMSIS_ARMCLANG_H
 #define __CMSIS_ARMCLANG_H
 
+#pragma clang system_header   /* treat file as system include file */
+
 #ifndef __ARM_COMPAT_H
 #include <arm_compat.h>    /* Compatibility header for ARM Compiler 5 intrinsics */
 #endif
@@ -32,26 +34,29 @@
 /* CMSIS compiler specific defines */
 #ifndef   __ASM
   #define __ASM                                  __asm
-#endif                                          
-#ifndef   __INLINE                              
+#endif
+#ifndef   __INLINE
   #define __INLINE                               __inline
-#endif                                          
-#ifndef   __FORCEINLINE                              
+#endif
+#ifndef   __FORCEINLINE
   #define __FORCEINLINE                          __attribute__((always_inline))
-#endif                                          
-#ifndef   __STATIC_INLINE                       
+#endif
+#ifndef   __STATIC_INLINE
   #define __STATIC_INLINE                        static __inline
-#endif                                                                                    
-#ifndef   __STATIC_FORCEINLINE                 
+#endif
+#ifndef   __STATIC_FORCEINLINE
   #define __STATIC_FORCEINLINE                   __attribute__((always_inline)) static __inline
-#endif                                           
-#ifndef   __NO_RETURN                           
-  #define __NO_RETURN                            __declspec(noreturn)
-#endif                                          
-#ifndef   __USED                                
+#endif
+#ifndef   __NO_RETURN
+  #define __NO_RETURN                            __attribute__((__noreturn__))
+#endif
+#ifndef   CMSIS_DEPRECATED
+  #define CMSIS_DEPRECATED                       __attribute__((deprecated))
+#endif
+#ifndef   __USED
   #define __USED                                 __attribute__((used))
-#endif                                          
-#ifndef   __WEAK                                
+#endif
+#ifndef   __WEAK
   #define __WEAK                                 __attribute__((weak))
 #endif
 #ifndef   __PACKED
@@ -93,8 +98,8 @@
 #endif
 #ifndef   __ALIGNED
   #define __ALIGNED(x)                           __attribute__((aligned(x)))
-#endif                                        
-#ifndef   __PACKED                            
+#endif
+#ifndef   __PACKED
   #define __PACKED                               __attribute__((packed))
 #endif
 
@@ -148,38 +153,29 @@
 
 /**
   \brief   Reverse byte order (32 bit)
+  \details Reverses the byte order in unsigned integer value. For example, 0x12345678 becomes 0x78563412.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
-#define __REV                             __builtin_bswap32
+#define __REV(value)   __builtin_bswap32(value)
 
 /**
   \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order within each halfword of a word. For example, 0x12345678 becomes 0x34127856.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
-#ifndef __NO_EMBEDDED_ASM
-__attribute__((section(".rev16_text"))) __STATIC_INLINE uint32_t __REV16(uint32_t value)
-{
-  uint32_t result;
-  __ASM volatile("rev16 %0, %1" : "=r" (result) : "r" (value));
-  return result;
-}
-#endif
+#define __REV16(value) __ROR(__REV(value), 16)
+
 
 /**
-  \brief   Reverse byte order in signed short value
+  \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order in a 16-bit value and returns the signed 16-bit result. For example, 0x0080 becomes 0x8000.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
-#ifndef __NO_EMBEDDED_ASM
-__attribute__((section(".revsh_text"))) __STATIC_INLINE int32_t __REVSH(int32_t value)
-{
-  int32_t result;
-  __ASM volatile("revsh %0, %1" : "=r" (result) : "r" (value));
-  return result;
-}
-#endif
+#define __REVSH(value) (int16_t)__builtin_bswap16(value)
+
 
 /**
   \brief   Rotate Right in unsigned value (32 bit)
@@ -188,31 +184,37 @@ __attribute__((section(".revsh_text"))) __STATIC_INLINE int32_t __REVSH(int32_t 
   \param [in]    op2  Number of Bits to rotate
   \return               Rotated value
  */
-__attribute__((always_inline)) __STATIC_INLINE uint32_t __ROR(uint32_t op1, uint32_t op2)
+__STATIC_FORCEINLINE uint32_t __ROR(uint32_t op1, uint32_t op2)
 {
+  op2 %= 32U;
+  if (op2 == 0U)
+  {
+    return op1;
+  }
   return (op1 >> op2) | (op1 << (32U - op2));
 }
+
 
 /**
   \brief   Breakpoint
   \param [in]    value  is ignored by the processor.
                  If required, a debugger can use it to store additional information about the breakpoint.
  */
-#define __BKPT(value)                       __ASM volatile ("bkpt "#value)
+#define __BKPT(value)   __ASM volatile ("bkpt "#value)
 
 /**
   \brief   Reverse bit order of value
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
-#define __RBIT                            __builtin_arm_rbit
+#define __RBIT          __builtin_arm_rbit
 
 /**
   \brief   Count leading zeros
   \param [in]  value  Value to count the leading zeros
   \return             number of leading zeros in value
  */
-#define __CLZ                             __builtin_clz
+#define __CLZ           (uint8_t)__builtin_clz
 
 /**
   \brief   LDR Exclusive (8 bit)
@@ -313,7 +315,7 @@ __attribute__((always_inline)) __STATIC_INLINE uint32_t __ROR(uint32_t op1, uint
 /** \brief  Get CPSR Register
     \return               CPSR Register value
  */
-__attribute__((always_inline)) __STATIC_INLINE uint32_t __get_CPSR(void)
+__STATIC_FORCEINLINE uint32_t __get_CPSR(void)
 {
   uint32_t result;
   __ASM volatile("MRS %0, cpsr" : "=r" (result) );
@@ -323,7 +325,7 @@ __attribute__((always_inline)) __STATIC_INLINE uint32_t __get_CPSR(void)
 /** \brief  Set CPSR Register
     \param [in]    cpsr  CPSR value to set
  */
-__attribute__((always_inline)) __STATIC_INLINE void __set_CPSR(uint32_t cpsr)
+__STATIC_FORCEINLINE void __set_CPSR(uint32_t cpsr)
 {
 __ASM volatile ("MSR cpsr, %0" : : "r" (cpsr) : "memory");
 }
@@ -331,7 +333,7 @@ __ASM volatile ("MSR cpsr, %0" : : "r" (cpsr) : "memory");
 /** \brief  Get Mode
     \return                Processor Mode
  */
-__attribute__((always_inline)) __STATIC_INLINE uint32_t __get_mode(void)
+__STATIC_FORCEINLINE uint32_t __get_mode(void)
 {
 	return (__get_CPSR() & 0x1FU);
 }
@@ -339,7 +341,7 @@ __attribute__((always_inline)) __STATIC_INLINE uint32_t __get_mode(void)
 /** \brief  Set Mode
     \param [in]    mode  Mode value to set
  */
-__attribute__((always_inline)) __STATIC_INLINE void __set_mode(uint32_t mode)
+__STATIC_FORCEINLINE void __set_mode(uint32_t mode)
 {
   __ASM volatile("MSR  cpsr_c, %0" : : "r" (mode) : "memory");
 }
@@ -347,7 +349,7 @@ __attribute__((always_inline)) __STATIC_INLINE void __set_mode(uint32_t mode)
 /** \brief  Get Stack Pointer
     \return Stack Pointer value
  */
-__attribute__((always_inline)) __STATIC_INLINE uint32_t __get_SP()
+__STATIC_FORCEINLINE uint32_t __get_SP()
 {
   uint32_t result;
   __ASM volatile("MOV  %0, sp" : "=r" (result) : : "memory");
@@ -357,7 +359,7 @@ __attribute__((always_inline)) __STATIC_INLINE uint32_t __get_SP()
 /** \brief  Set Stack Pointer
     \param [in]    stack  Stack Pointer value to set
  */
-__attribute__((always_inline)) __STATIC_INLINE void __set_SP(uint32_t stack)
+__STATIC_FORCEINLINE void __set_SP(uint32_t stack)
 {
   __ASM volatile("MOV  sp, %0" : : "r" (stack) : "memory");
 }
@@ -365,7 +367,7 @@ __attribute__((always_inline)) __STATIC_INLINE void __set_SP(uint32_t stack)
 /** \brief  Get USR/SYS Stack Pointer
     \return USR/SYS Stack Pointer value
  */
-__attribute__((always_inline)) __STATIC_INLINE uint32_t __get_SP_usr()
+__STATIC_FORCEINLINE uint32_t __get_SP_usr()
 {
   uint32_t cpsr;
   uint32_t result;
@@ -382,7 +384,7 @@ __attribute__((always_inline)) __STATIC_INLINE uint32_t __get_SP_usr()
 /** \brief  Set USR/SYS Stack Pointer
     \param [in]    topOfProcStack  USR/SYS Stack Pointer value to set
  */
-__attribute__((always_inline)) __STATIC_INLINE void __set_SP_usr(uint32_t topOfProcStack)
+__STATIC_FORCEINLINE void __set_SP_usr(uint32_t topOfProcStack)
 {
   uint32_t cpsr;
   __ASM volatile(
@@ -397,7 +399,7 @@ __attribute__((always_inline)) __STATIC_INLINE void __set_SP_usr(uint32_t topOfP
 /** \brief  Get FPEXC
     \return               Floating Point Exception Control register value
  */
-__attribute__((always_inline)) __STATIC_INLINE uint32_t __get_FPEXC(void)
+__STATIC_FORCEINLINE uint32_t __get_FPEXC(void)
 {
 #if (__FPU_PRESENT == 1)
   uint32_t result;
@@ -411,7 +413,7 @@ __attribute__((always_inline)) __STATIC_INLINE uint32_t __get_FPEXC(void)
 /** \brief  Set FPEXC
     \param [in]    fpexc  Floating Point Exception Control value to set
  */
-__attribute__((always_inline)) __STATIC_INLINE void __set_FPEXC(uint32_t fpexc)
+__STATIC_FORCEINLINE void __set_FPEXC(uint32_t fpexc)
 {
 #if (__FPU_PRESENT == 1)
   __ASM volatile ("VMSR fpexc, %0" : : "r" (fpexc) : "memory");
@@ -424,68 +426,10 @@ __attribute__((always_inline)) __STATIC_INLINE void __set_FPEXC(uint32_t fpexc)
 
 #define __get_CP(cp, op1, Rt, CRn, CRm, op2) __ASM volatile("MRC p" # cp ", " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : "=r" (Rt) : : "memory" )
 #define __set_CP(cp, op1, Rt, CRn, CRm, op2) __ASM volatile("MCR p" # cp ", " # op1 ", %0, c" # CRn ", c" # CRm ", " # op2 : : "r" (Rt) : "memory" )
+#define __get_CP64(cp, op1, Rt, CRm)         __ASM volatile("MRRC p" # cp ", " # op1 ", %Q0, %R0, c" # CRm  : "=r" (Rt) : : "memory" )
+#define __set_CP64(cp, op1, Rt, CRm)         __ASM volatile("MCRR p" # cp ", " # op1 ", %Q0, %R0, c" # CRm  : : "r" (Rt) : "memory" )
 
 #include "cmsis_cp15.h"
-
-
-/** \brief  Clean and Invalidate the entire data or unified cache
-
-  Generic mechanism for cleaning/invalidating the entire data or unified cache to the point of coherency
- */
-__STATIC_INLINE void __L1C_CleanInvalidateCache(uint32_t op)
-{
-  __ASM volatile(
-    "        PUSH    {R4-R11}                   \n"
-
-    "        MRC     p15, 1, R6, c0, c0, 1      \n" // Read CLIDR
-    "        ANDS    R3, R6, #0x07000000        \n" // Extract coherency level
-    "        MOV     R3, R3, LSR #23            \n" // Total cache levels << 1
-    "        BEQ     Finished                   \n" // If 0, no need to clean
-
-    "        MOV     R10, #0                    \n" // R10 holds current cache level << 1
-    "Loop1:  ADD     R2, R10, R10, LSR #1       \n" // R2 holds cache "Set" position
-    "        MOV     R1, R6, LSR R2             \n" // Bottom 3 bits are the Cache-type for this level
-    "        AND     R1, R1, #7                 \n" // Isolate those lower 3 bits
-    "        CMP     R1, #2                     \n"
-    "        BLT     Skip                       \n" // No cache or only instruction cache at this level
-
-    "        MCR     p15, 2, R10, c0, c0, 0     \n" // Write the Cache Size selection register
-    "        ISB                                \n" // ISB to sync the change to the CacheSizeID reg
-    "        MRC     p15, 1, R1, c0, c0, 0      \n" // Reads current Cache Size ID register
-    "        AND     R2, R1, #7                 \n" // Extract the line length field
-    "        ADD     R2, R2, #4                 \n" // Add 4 for the line length offset (log2 16 bytes)
-    "        LDR     R4, =0x3FF                 \n"
-    "        ANDS    R4, R4, R1, LSR #3         \n" // R4 is the max number on the way size (right aligned)
-    "        CLZ     R5, R4                     \n" // R5 is the bit position of the way size increment
-    "        LDR     R7, =0x7FFF                \n"
-    "        ANDS    R7, R7, R1, LSR #13        \n" // R7 is the max number of the index size (right aligned)
-
-    "Loop2:  MOV     R9, R4                     \n" // R9 working copy of the max way size (right aligned)
-
-    "Loop3:  ORR     R11, R10, R9, LSL R5       \n" // Factor in the Way number and cache number into R11
-    "        ORR     R11, R11, R7, LSL R2       \n" // Factor in the Set number
-    "        CMP     R0, #0                     \n"
-    "        BNE     Dccsw                      \n"
-    "        MCR     p15, 0, R11, c7, c6, 2     \n" // DCISW. Invalidate by Set/Way
-    "        B       cont                       \n"
-    "Dccsw:  CMP     R0, #1                     \n"
-    "        BNE     Dccisw                     \n"
-    "        MCR     p15, 0, R11, c7, c10, 2    \n" // DCCSW. Clean by Set/Way
-    "        B       cont                       \n"
-    "Dccisw: MCR     p15, 0, R11, c7, c14, 2    \n" // DCCISW. Clean and Invalidate by Set/Way
-    "cont:   SUBS    R9, R9, #1                 \n" // Decrement the Way number
-    "        BGE     Loop3                      \n"
-    "        SUBS    R7, R7, #1                 \n" // Decrement the Set number
-    "        BGE     Loop2                      \n"
-    "Skip:   ADD     R10, R10, #2               \n" // Increment the cache number
-    "        CMP     R3, R10                    \n"
-    "        BGT     Loop1                      \n"
-
-    "Finished:                                  \n"
-    "        DSB                                \n"
-    "        POP    {R4-R11}                      "
-  );
-}
 
 /** \brief  Enable Floating Point Unit
 
@@ -494,24 +438,23 @@ __STATIC_INLINE void __L1C_CleanInvalidateCache(uint32_t op)
 __STATIC_INLINE void __FPU_Enable(void)
 {
   __ASM volatile(
-	    //Permit access to VFP/NEON, registers by modifying CPACR
+    //Permit access to VFP/NEON, registers by modifying CPACR
     "        MRC     p15,0,R1,c1,c0,2  \n"
     "        ORR     R1,R1,#0x00F00000 \n"
     "        MCR     p15,0,R1,c1,c0,2  \n"
 
-	    //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
+    //Ensure that subsequent instructions occur in the context of VFP/NEON access permitted
     "        ISB                       \n"
 
-	    //Enable VFP/NEON
+    //Enable VFP/NEON
     "        VMRS    R1,FPEXC          \n"
     "        ORR     R1,R1,#0x40000000 \n"
     "        VMSR    FPEXC,R1          \n"
 
-	    //Initialise VFP/NEON registers to 0
+    //Initialise VFP/NEON registers to 0
     "        MOV     R2,#0             \n"
 
-#if TARGET_FEATURE_EXTENSION_REGISTER_COUNT >= 16
-	    //Initialise D16 registers to 0
+    //Initialise D16 registers to 0
     "        VMOV    D0, R2,R2         \n"
     "        VMOV    D1, R2,R2         \n"
     "        VMOV    D2, R2,R2         \n"
@@ -528,10 +471,9 @@ __STATIC_INLINE void __FPU_Enable(void)
     "        VMOV    D13,R2,R2         \n"
     "        VMOV    D14,R2,R2         \n"
     "        VMOV    D15,R2,R2         \n"
-#endif
 
-#if TARGET_FEATURE_EXTENSION_REGISTER_COUNT == 32
-	    //Initialise D32 registers to 0
+#if __ARM_NEON == 1
+    //Initialise D32 registers to 0
     "        VMOV    D16,R2,R2         \n"
     "        VMOV    D17,R2,R2         \n"
     "        VMOV    D18,R2,R2         \n"
@@ -548,9 +490,9 @@ __STATIC_INLINE void __FPU_Enable(void)
     "        VMOV    D29,R2,R2         \n"
     "        VMOV    D30,R2,R2         \n"
     "        VMOV    D31,R2,R2         \n"
-    ".endif                            \n"
 #endif
-	    //Initialise FPSCR to a known state
+
+    //Initialise FPSCR to a known state
     "        VMRS    R2,FPSCR          \n"
     "        LDR     R3,=0x00086060    \n" //Mask off all bits that do not have to be preserved. Non-preserved bits can/should be zero.
     "        AND     R2,R2,R3          \n"

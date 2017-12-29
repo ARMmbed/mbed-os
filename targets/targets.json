@@ -1575,7 +1575,7 @@
             }
         },
         "detect_code": ["0788"],
-        "macros_add": ["USB_STM_HAL"],
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F469NI"
@@ -1631,6 +1631,7 @@
             }
         },
         "detect_code": ["0815"],
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
@@ -1649,6 +1650,7 @@
             }
         },
         "detect_code": ["0817"],
+        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
@@ -2397,7 +2399,7 @@
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "CAN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "features": ["LWIP"],
-        "release_versions": ["2"]
+        "release_versions": ["2", "5"]
     },
     "VK_RZ_A1H": {
         "inherits": ["Target"],
@@ -3271,7 +3273,8 @@
         "macros_add": ["BOARD_PCA10056", "CONFIG_GPIO_AS_PINRESET", "SWI_DISABLE0", "NRF52_ERRATA_20"],
         "device_has_add": ["FLASH", "ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "TRNG"],
         "release_versions": ["2", "5"],
-        "device_name": "nRF52840_xxAA"
+        "device_name": "nRF52840_xxAA",
+        "bootloader_supported": true
     },
     "BLUEPILL_F103C8": {
         "inherits": ["FAMILY_STM32"],

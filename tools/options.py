@@ -117,16 +117,6 @@ def extract_profile(parser, options, toolchain, fallback="develop"):
         profiles.append(contents)
 
     return profiles
-
-def mcu_is_enabled(parser, mcu):
-    if "Cortex-A" in TARGET_MAP[mcu].core:
-        args_error(
-            parser,
-            ("%s Will be supported in a future version of Mbed OS. "
-             "To use the %s, please checkout the mbed OS 5.4 release branch. "
-             "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
-             "for more information") % (mcu, mcu))
-    return True
     
 def extract_mcus(parser, options):
     try:

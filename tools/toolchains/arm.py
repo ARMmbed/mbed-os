@@ -34,7 +34,7 @@ class ARM(mbedToolchain):
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
     SHEBANG = "#! armcc -E"
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
-                       "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD"]
+                       "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"]
 
     @staticmethod
     def check_executable():
@@ -293,7 +293,7 @@ class ARMC6(ARM_STD):
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
                        "Cortex-M23", "Cortex-M23-NS", "Cortex-M33",
-                       "CortexM33-NS"]
+                       "CortexM33-NS", "Cortex-A9"]
     @staticmethod
     def check_executable():
         return mbedToolchain.generic_check_executable("ARMC6", "armclang", 1)
