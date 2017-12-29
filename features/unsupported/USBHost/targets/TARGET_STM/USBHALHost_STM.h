@@ -67,6 +67,7 @@ static gpio_t gpio_powerpin;
 // NUCLEO_144 boards
 #elif defined(TARGET_NUCLEO_F207ZG) || \
     defined(TARGET_NUCLEO_F412ZG) || \
+    defined(TARGET_NUCLEO_F413ZH) || \
     defined(TARGET_NUCLEO_F429ZI) || \
     defined(TARGET_NUCLEO_F439ZI) || \
     defined(TARGET_NUCLEO_F446ZE) || \
@@ -189,6 +190,7 @@ USBHALHost::USBHALHost()
     defined(TARGET_NUCLEO_L486RG) || \
     defined(TARGET_NUCLEO_F207ZG) || \
     defined(TARGET_NUCLEO_F412ZG) || \
+    defined(TARGET_NUCLEO_F413ZH) || \
     defined(TARGET_NUCLEO_F429ZI) || \
     defined(TARGET_NUCLEO_F439ZI) || \
     defined(TARGET_NUCLEO_F446ZE) || \
