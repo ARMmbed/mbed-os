@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include "platform/mbed_mem_trace.h"
 #include "platform/mbed_critical.h"
+#include "platform/SingletonPtr.h"
+#include "platform/PlatformMutex.h"
 
 /******************************************************************************
  * Internal variables, functions and helpers
@@ -26,10 +28,14 @@
 
 /* The callback function that will be called after a traced memory operations finishes. */
 static mbed_mem_trace_cb_t mem_trace_cb;
-/* 'trave_level' guards "trace inside trace" situations (for example, the implementation
+/* 'trace_lock_count' guards "trace inside trace" situations (for example, the implementation
  * of realloc() might call malloc() internally, and since malloc() is also traced, this could
  * result in two calls to the callback function instead of one. */
-static uint8_t trace_level;
+static uint8_t trace_lock_count;
+static SingletonPtr<PlatformMutex> mem_trace_mutex;
+
+#define TRACE_FIRST_LOCK() (trace_lock_count < 2)
+
 
 /******************************************************************************
  * Public interface
@@ -39,42 +45,50 @@ void mbed_mem_trace_set_callback(mbed_mem_trace_cb_t cb) {
     mem_trace_cb = cb;
 }
 
+void mbed_mem_trace_lock()
+{
+    mem_trace_mutex->lock();
+    trace_lock_count++;
+}
+
+void mbed_mem_trace_unlock()
+{
+    trace_lock_count--;
+    mem_trace_mutex->unlock();
+}
+
 void *mbed_mem_trace_malloc(void *res, size_t size, void *caller) {
     if (mem_trace_cb) {
-        if (core_util_atomic_incr_u8(&trace_level, 1) == 1) {
+        if (TRACE_FIRST_LOCK()) {
             mem_trace_cb(MBED_MEM_TRACE_MALLOC, res, caller, size);
         }
-        core_util_atomic_decr_u8(&trace_level, 1);
     }
     return res;
 }
 
 void *mbed_mem_trace_realloc(void *res, void *ptr, size_t size, void *caller) {
     if (mem_trace_cb) {
-        if (core_util_atomic_incr_u8(&trace_level, 1) == 1) {
+        if (TRACE_FIRST_LOCK()) {
             mem_trace_cb(MBED_MEM_TRACE_REALLOC, res, caller, ptr, size);
         }
-        core_util_atomic_decr_u8(&trace_level, 1);
     }
     return res;
 }
 
 void *mbed_mem_trace_calloc(void *res, size_t num, size_t size, void *caller) {
     if (mem_trace_cb) {
-        if (core_util_atomic_incr_u8(&trace_level, 1) == 1) {
+        if (TRACE_FIRST_LOCK()) {
             mem_trace_cb(MBED_MEM_TRACE_CALLOC, res, caller, num, size);
         }
-        core_util_atomic_decr_u8(&trace_level, 1);
     }
     return res;
 }
 
 void mbed_mem_trace_free(void *ptr, void *caller) {
     if (mem_trace_cb) {
-        if (core_util_atomic_incr_u8(&trace_level, 1) == 1) {
+        if (TRACE_FIRST_LOCK()) {
             mem_trace_cb(MBED_MEM_TRACE_FREE, NULL, caller, ptr);
         }
-        core_util_atomic_decr_u8(&trace_level, 1);
     }
 }
 
