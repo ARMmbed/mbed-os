@@ -89,6 +89,7 @@
 #include "platform/FileSystemHandle.h"
 #include "platform/FileHandle.h"
 #include "platform/DirHandle.h"
+#include "platform/ScopedLock.h"
 #include "platform/CriticalSectionLock.h"
 #include "platform/DeepSleepLock.h"
 

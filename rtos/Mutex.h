@@ -28,15 +28,30 @@
 #include "mbed_rtos_storage.h"
 
 #include "platform/NonCopyable.h"
+#include "platform/ScopedLock.h"
 
 namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
+
+class Mutex;
+/** Typedef for the mutex lock
+ *
+ * Usage:
+ * @code
+ * void foo(Mutex &m) {
+ *     ScopedMutexLock lock(m);
+ *     // Code in this block will be protected by Mutex lock
+ * }
+ * @endcode
+ */
+typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
+
 /**
  * \defgroup rtos_Mutex Mutex class
  * @{
  */
- 
+
 /** The Mutex class is used to synchronize the execution of threads.
  This is for example used to protect access to a shared resource.
 

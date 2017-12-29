@@ -19,6 +19,7 @@
 #define MBED_CRITICALSECTIONLOCK_H
 
 #include "platform/mbed_critical.h"
+#include "platform/ScopedLock.h"
 
 namespace mbed {
 
@@ -30,33 +31,39 @@ namespace mbed {
  */
 
 /** RAII object for disabling, then restoring, interrupt state
-  * Usage:
-  * @code
-  *
-  * void f() {
-  *     // some code here
-  *     {
-  *         CriticalSectionLock lock;
-  *         // Code in this block will run with interrupts disabled
-  *     }
-  *     // interrupts will be restored to their previous state
-  * }
-  * @endcode
-  */
+ *
+ * @deprecated
+ * The CriticalSectionLock has been superseded by the ScopedCriticalSectionLock
+ *
+ * Usage:
+ * @code
+ *
+ * void f() {
+ *     // some code here
+ *     {
+ *         CriticalSectionLock lock;
+ *         // Code in this block will run with interrupts disabled
+ *     }
+ *     // interrupts will be restored to their previous state
+ * }
+ * @endcode
+ */
 class CriticalSectionLock {
 public:
-    CriticalSectionLock() 
+    MBED_DEPRECATED_SINCE("mbed-os-5.7",
+    "The CriticalSectionLock has been superseded by the ScopedCriticalSectionLock.")
+    CriticalSectionLock()
     {
         core_util_critical_section_enter();
     }
 
-    ~CriticalSectionLock() 
+    ~CriticalSectionLock()
     {
         core_util_critical_section_exit();
     }
 
     /** Mark the start of a critical section
-     *     
+     *
      */
     void lock()
     {
@@ -64,11 +71,69 @@ public:
     }
 
     /** Mark the end of a critical section
-     *     
+     *
      */
     void unlock()
     {
         core_util_critical_section_exit();
+    }
+};
+
+
+/** Class for disabling and restoring interrupt state
+  * Usage:
+  * @code
+  *
+  * void foo() {
+  *     // some code here
+  *     CriticalSectionLock::lock();
+  *         // Code in this block will run with interrupts disabled
+  *     CriticalSectionLock::unlock();
+  *     // interrupts will be restored to their previous state
+  * }
+  * @endcode
+  */
+class CriticalSection : private NonCopyable<CriticalSection> {
+public:
+    /** Mark the start of a critical section
+     */
+    static void lock()
+    {
+        core_util_critical_section_enter();
+    }
+    /** Mark the end of a critical section
+     */
+    static void unlock()
+    {
+        core_util_critical_section_exit();
+    }
+};
+
+/**@}*/
+
+/**@}*/
+
+/** RAII object for disabling, then restoring, interrupt state
+  *
+  * Usage:
+  * @code
+  *
+  * void foo() {
+  *     // some code here
+  *     {
+  *         ScopedCriticalSectionLock lock;
+  *         // Code in this block will run with interrupts disabled
+  *     }
+  *     // interrupts will be restored to their previous state
+  * }
+  * @endcode
+  */
+class ScopedCriticalSectionLock : private CriticalSection, private ScopedLock<CriticalSection> {
+    // Note: inherit from CriticalSection and ScopedLock to use empty base optimisation
+public:
+    ScopedCriticalSectionLock() :
+        CriticalSection(),
+        ScopedLock<CriticalSection>(static_cast<CriticalSection&>(*this)) {
     }
 };
 
