@@ -168,6 +168,14 @@ build_list = [
             { "target": "NUMAKER_PFM_M453",     "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
             { "target": "NUMAKER_PFM_M487",     "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
         )
+    },
+
+
+    {
+        "RENESAS":
+        (
+            { "target": "RZ_A1H", "toolchains": "GCC_ARM" },
+        )
     }
 ]
 
@@ -325,6 +333,17 @@ linking_list = [
                        "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                        }
              }
+        )
+    },
+    {
+        "RENESAS": 
+        (
+            {
+             "target": "RZ_A1H",
+             "toolchains": "GCC_ARM",
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+                      }
+            },
         )
     }
 ]
