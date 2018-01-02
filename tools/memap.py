@@ -2,13 +2,14 @@
 
 """Memory Map File Analyser for ARM mbed"""
 
-import abc
-import sys
-import os
+from abc import abstractmethod, ABCMeta
+from sys import stdout, exit, argv
+from os import sep
+from os.path import basename, dirname, join, relpath, commonprefix
 import re
 import csv
 import json
-import argparse
+from argparse import ArgumentParser
 from copy import deepcopy
 from prettytable import PrettyTable
 
@@ -18,7 +19,7 @@ from utils import argparse_filestring_type, \
 
 class _Parser(object):
     """Internal interface for parsing"""
-    __metaclass__ = abc.ABCMeta
+    __metaclass__ = ABCMeta
     SECTIONS = ('.text', '.data', '.bss', '.heap', '.stack')
     MISC_FLASH_SECTIONS = ('.interrupts', '.flash_config')
     OTHER_SECTIONS = ('.interrupts_ram', '.init', '.ARM.extab',
@@ -45,7 +46,7 @@ class _Parser(object):
             self.modules[object_name][section] += size
             return
 
-        obj_split = os.sep + os.path.basename(object_name)
+        obj_split = sep + basename(object_name)
         for module_path, contents in self.modules.items():
             if module_path.endswith(obj_split) or module_path == object_name:
                 contents.setdefault(section, 0)
@@ -62,7 +63,7 @@ class _Parser(object):
             self.modules[new_object] = self.modules[old_object]
             del self.modules[old_object]
 
-    @abc.abstractmethod
+    @abstractmethod
     def parse_mapfile(self, mapfile):
         """Parse a given file object pointing to a map file
 
@@ -77,7 +78,7 @@ class _Parser(object):
 
 class _GccParser(_Parser):
     RE_OBJECT_FILE = re.compile(r'^(.+\/.+\.o)$')
-    RE_LIBRARY_OBJECT = re.compile(r'^.+' + os.sep + r'lib((.+\.a)\((.+\.o)\))$')
+    RE_LIBRARY_OBJECT = re.compile(r'^.+' + sep + r'lib((.+\.a)\((.+\.o)\))$')
     RE_STD_SECTION = re.compile(r'^\s+.*0x(\w{8,16})\s+0x(\w+)\s(.+)$')
     RE_FILL_SECTION = re.compile(r'^\s*\*fill\*\s+0x(\w{8,16})\s+0x(\w+).*$')
 
@@ -119,16 +120,15 @@ class _GccParser(_Parser):
 
             # corner case: certain objects are provided by the GCC toolchain
             if 'arm-none-eabi' in line:
-                return os.path.join('[lib]', 'misc', os.path.basename(object_name))
+                return join('[lib]', 'misc', basename(object_name))
             return object_name
 
         else:
             test_re_obj_name = re.match(self.RE_LIBRARY_OBJECT, line)
 
             if test_re_obj_name:
-                object_name = os.path.join(test_re_obj_name.group(1),
-                                           test_re_obj_name.group(2))
-                return os.path.join('[lib]', object_name)
+                return join('[lib]', test_re_obj_name.group(2),
+                            test_re_obj_name.group(3))
             else:
                 print "Unknown object name found in GCC map file: %s" % line
                 return '[misc]'
@@ -183,14 +183,14 @@ class _GccParser(_Parser):
                 object_name, object_size = self.parse_section(line)
                 self.module_add(object_name, object_size, current_section)
 
-        common_prefix = os.path.dirname(os.path.commonprefix([
+        common_prefix = dirname(commonprefix([
             o for o in self.modules.keys() if (o.endswith(".o") and not o.startswith("[lib]"))]))
         new_modules = {}
         for name, stats in self.modules.items():
             if name.startswith("[lib]"):
                 new_modules[name] = stats
             elif name.endswith(".o"):
-                new_modules[os.path.relpath(name, common_prefix)] = stats
+                new_modules[relpath(name, common_prefix)] = stats
             else:
                 new_modules[name] = stats
         return new_modules
@@ -213,9 +213,7 @@ class _ArmccParser(_Parser):
         else:
             is_obj = re.match(self.RE_OBJECT, line)
             if is_obj:
-                object_name = os.path.join(os.path.basename(is_obj.group(1)),
-                                           is_obj.group(3))
-                return os.path.join('[lib]', object_name)
+                return join('[lib]', basename(is_obj.group(1)), is_obj.group(3))
             else:
                 print "Malformed input found when parsing ARMCC map: %s" % line
                 return '[misc]'
@@ -276,14 +274,14 @@ class _ArmccParser(_Parser):
             for line in infile:
                 self.module_add(*self.parse_section(line))
 
-        common_prefix = os.path.dirname(os.path.commonprefix([
+        common_prefix = dirname(commonprefix([
             o for o in self.modules.keys() if (o.endswith(".o") and o != "anon$$obj.o" and not o.startswith("[lib]"))]))
         new_modules = {}
         for name, stats in self.modules.items():
             if name == "anon$$obj.o" or name.startswith("[lib]"):
                 new_modules[name] = stats
             elif name.endswith(".o"):
-                new_modules[os.path.relpath(name, common_prefix)] = stats
+                new_modules[relpath(name, common_prefix)] = stats
             else:
                 new_modules[name] = stats
         return new_modules
@@ -405,10 +403,10 @@ class _IarParser(_Parser):
             for arg in line.split(" "):
                 arg = arg.rstrip(" \n")
                 if (not arg.startswith("-")) and arg.endswith(".o"):
-                    self.cmd_modules[os.path.basename(arg)] = arg
+                    self.cmd_modules[basename(arg)] = arg
 
-        common_prefix = os.path.dirname(os.path.commonprefix(self.cmd_modules.values()))
-        self.cmd_modules = {s: os.path.relpath(f, common_prefix)
+        common_prefix = dirname(commonprefix(self.cmd_modules.values()))
+        self.cmd_modules = {s: relpath(f, common_prefix)
                             for s, f in self.cmd_modules.items()}
 
     def parse_mapfile(self, file_desc):
@@ -440,7 +438,7 @@ class _IarParser(_Parser):
                 object_name = self.check_new_object_lib(line)
 
                 if object_name and current_library:
-                    temp = os.path.join('[lib]', current_library, object_name)
+                    temp = join('[lib]', current_library, object_name)
                     self.module_replace(object_name, temp)
         return self.modules
 
@@ -497,10 +495,10 @@ class MemapParser(object):
         else:
             self.short_modules = dict()
             for module_name, v in self.modules.items():
-                split_name = module_name.split(os.sep)
+                split_name = module_name.split(sep)
                 if split_name[0] == '':
                     split_name = split_name[1:]
-                new_name = os.path.join(*split_name[:depth])
+                new_name = join(*split_name[:depth])
                 self.short_modules.setdefault(new_name, {})
                 for section_idx, value in v.items():
                     self.short_modules[new_name].setdefault(section_idx, 0)
@@ -526,7 +524,7 @@ class MemapParser(object):
             if file_output:
                 file_desc = open(file_output, 'wb')
             else:
-                file_desc = sys.stdout
+                file_desc = stdout
         except IOError as error:
             print "I/O error({0}): {1}".format(error.errno, error.strerror)
             return False
@@ -536,7 +534,7 @@ class MemapParser(object):
                    'table': self.generate_table}[export_format]
         output = to_call(file_desc)
 
-        if file_desc is not sys.stdout:
+        if file_desc is not stdout:
             file_desc.close()
 
         return output
@@ -678,7 +676,7 @@ def main():
     version = '0.4.0'
 
     # Parser handling
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         description="Memory Map File Analyser for ARM mbed\nversion %s" %
         version)
 
@@ -709,9 +707,9 @@ def main():
     parser.add_argument('-v', '--version', action='version', version=version)
 
     # Parse/run command
-    if len(sys.argv) <= 1:
+    if len(argv) <= 1:
         parser.print_help()
-        sys.exit(1)
+        exit(1)
 
     args = parser.parse_args()
 
@@ -721,7 +719,7 @@ def main():
     # Parse and decode a map file
     if args.file and args.toolchain:
         if memap.parse(args.file, args.toolchain) is False:
-            sys.exit(0)
+            exit(0)
 
     if args.depth is None:
         depth = 2  # default depth level
@@ -739,7 +737,7 @@ def main():
     if args.export == 'table' and returned_string:
         print returned_string
 
-    sys.exit(0)
+    exit(0)
 
 if __name__ == "__main__":
     main()
