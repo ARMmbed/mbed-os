@@ -5,7 +5,7 @@ import json
 
 import pytest
 
-from tools.memap import MemapParser
+from tools.memap import MemapParser, _ArmccParser
 from copy import deepcopy
 
 
@@ -19,7 +19,9 @@ PARSED_ARM_DATA = {
 
 def test_parse_armcc():
     memap = MemapParser()
-    memap.parse_map_file_armcc(open(join(dirname(__file__), "arm.map")))
+    memap.parse(join(dirname(__file__), "arm.map"), "ARM")
+    assert memap.modules == PARSED_ARM_DATA
+    memap.parse(join(dirname(__file__), "arm.map"), "UARM")
     assert memap.modules == PARSED_ARM_DATA
 
 PARSED_IAR_GCC_DATA = {
@@ -32,17 +34,19 @@ PARSED_IAR_GCC_DATA = {
 
 def test_parse_iar():
     memap = MemapParser()
-    memap.parse_map_file_iar(open(join(dirname(__file__), "iar.map")))
+    memap.parse(join(dirname(__file__), "iar.map"), "IAR")
     assert memap.modules == PARSED_IAR_GCC_DATA
 
 def test_parse_gcc():
     memap = MemapParser()
-    memap.parse_map_file_gcc(open(join(dirname(__file__), "gcc.map")))
+    memap.parse(join(dirname(__file__), "gcc.map"), "GCC_ARM")
+    assert memap.modules == PARSED_IAR_GCC_DATA
+    memap.parse(join(dirname(__file__), "gcc.map"), "GCC_CR")
     assert memap.modules == PARSED_IAR_GCC_DATA
 
 
 def test_add_empty_module():
-    memap = MemapParser()
+    memap = _ArmccParser()
     old_modules = deepcopy(memap.modules)
     memap.module_add("", 8, ".data")
     assert(old_modules == memap.modules)
@@ -52,7 +56,7 @@ def test_add_empty_module():
     assert(old_modules == memap.modules)
 
 def test_add_full_module():
-    memap = MemapParser()
+    memap = _ArmccParser()
     old_modules = deepcopy(memap.modules)
     memap.module_add("main.o", 8, ".data")
     assert(old_modules != memap.modules)
