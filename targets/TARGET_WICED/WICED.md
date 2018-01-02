@@ -13,23 +13,23 @@ list of files that are currently provided by Mbed OS:
 
 ## Download the WICED SDK
 
-The full instructions to download the WICED SDK with Advantech's patches can be
-found on the Advantech's Wiki:
+You can find the full instructions to download the WICED SDK with Advantech's patches
+on Advantech's Wiki:
 http://ess-wiki.advantech.com.tw/view/WISE-1530_SDK
 
-To get the WICED SDK, download WICED-Studio-5.2.0 for your platform here:
+To get the WICED SDK, download WICED-Studio-5.2.0 for your platform:
 https://community.cypress.com/community/wiced-wifi/wiced-wifi-documentation
 
 Once downloaded, move the WICED SDK folder into `targets/TARGET_WICED`.
 
 For the WISE1530, download the patch from Advantech:
-WM-BN-BM-22_SDK_5.1.x_platform_patch.zip
+`WM-BN-BM-22_SDK_5.1.x_platform_patch.zip`
 
 Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
 
 ## Modify the WICED SDK to support Mbed OS's build tools
 
-1. Remove these files as they are unnecessary and very large:
+1. Remove these files because they are unnecessary and large:
    - `targets/TARGET_WICED/WICED/tools`
    - `targets/TARGET_WICED/WICED/build`
    - `targets/TARGET_WICED/WICED/apps`
@@ -46,25 +46,27 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
 1. Add the `w_` prefix to all c/h files in WICED.
 
    Edit all c/h files and change the relevant `#include` statments to use the
-   updated filenames.
+   updated file names.
 
    This is required to avoid naming conflicts between Mbed OS and the WICED SDK.
 
-1. Prevent the include-only c files from being compiled by Mbed OS. These will be
+1. Prevent Mbed OS from compiling the include-only c files. These are
    any include statments that refer to a file ending in `.c`.
 
    For example:
+   
    ``` diff
    - libraries/crypto/micro-ecc/w_asm_arm.c
    + libraries/crypto/micro-ecc/w_asm_arm.inc
    ```
 
-   Edit all c/h files and change the relevant `#include` statements to use the
-   updated filenames.
+   Edit all c/h files, and change the relevant `#include` statements to use the
+   updated file names.
 
-1. Remove any references to the WICED filesystem.
+1. Remove any references to the WICED file system.
 
    For example:
+   
    ``` diff
    - #include "wicedfs.h"
    ```
@@ -72,16 +74,18 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
 1. Create a C wrapper for the firmware image.
 
    In `targets/TARGET_WICED/WICED/resources/firmware/4343W`:
+   
    ``` bash
    xxd -i 4343WA1.bin > 4343WA1.c
    sed -i 's/__4343WA1_bin/wifi_firmware_image_data/' 4343WA1.c
    sed -i 's/unsigned/const unsigned/' 4343WA1.c
    ```
 
-   Then modify the firmware image in the C wrapper to match WICED's link-time
+   Then, modify the firmware image in the C wrapper to match WICED's link-time
    resource API.
 
    In `targets/TARGET_WICED/WICED/resources/firmware/4343W/4343WA1.c`:
+   
    ``` c
    #include "w_resources.h"
 
@@ -98,7 +102,7 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
        ...
    ```
 
-   Then create a `w_resources.h` file to reference the above firmware image.
+   Then, create a `w_resources.h` file to reference the above firmware image.
 
    ``` c
    #ifndef INCLUDED_RESOURCES_H_
@@ -109,16 +113,16 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
    #endif
    ```
 
-1. Create the `w_generated_security_dct.h` file that would normally be generated
-   by the WICED SDK tools.
+1. Create the `w_generated_security_dct.h` file that
+   the WICED SDK tools would normally generate.
 
    ``` c
    #define CERTIFICATE_STRING "\0"
    #define PRIVATE_KEY_STRING "\0"
    ```
 
-1. Create the `w_generated_mac_address.txt` file that would normally be generated
-   by the WICED SDK tools.
+1. Create the `w_generated_mac_address.txt` file that
+   the WICED SDK tools would normally generate.
 
    ``` c
    #define NVRAM_GENERATED_MAC_ADDRESS        "macaddr=02:0A:F7:11:b6:19"
@@ -129,6 +133,7 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
 1. Change any instances of `_irq` functions to match Mbed OS's linker `_IRQHandler`
 
    For example:
+   
    ``` diff
    - WWD_RTOS_DEFINE_ISR( NoOS_systick_irq )
    + WWD_RTOS_DEFINE_ISR( NoOS_systick_IRQHandler )
@@ -138,6 +143,7 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
    bus packet status.
 
    In `targets/TARGET_WICED/WICED/WWD/internal/wwd_thread.c` line 336:
+   
    ``` diff
      wwd_bus_interrupt = WICED_FALSE;
 
@@ -150,13 +156,14 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
          do
    ```
 
-   Note this is required for the WISE1530, but may not be needed for other
-   platforms
+   Note this is required for the WISE1530 but may not be needed for other
+   platforms.
 
-1. Remove the includes of `w_core_cm4.h` and `w_core_cmFunc.h` and replace the
+1. Remove the includes of `w_core_cm4.h` and `w_core_cmFunc.h`, and replace the
    includes with references to Mbed OS's `core_cm4.h`.
 
    For example:
+   
    ``` diff
    - #include "w_core_cmFunc.h"
    + #include "core_cm4.h"
@@ -166,6 +173,7 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
    places.
 
    In `targets/TARGET_WICED/WICED/WWD/internal/w_wwd_sdpcm.c` line 210:
+   
    ``` diff
     typedef struct
     {
@@ -177,6 +185,7 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
    ```
 
    In `targets/TARGET_WICED/WICED/WWD/internal/w_wwd_sdpcm.c` line 1282:
+   
    ``` diff
         /* Prepare the SDPCM header */
      memset( (uint8_t*) &packet->sdpcm_header, 0, sizeof(sdpcm_header_t) );
@@ -188,13 +197,14 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
      packet->sdpcm_header.frametag[1] = (uint16_t) ~size;
    ```
 
-   Note this is required for the WISE1530, but may not be needed for other
-   platforms
+   Note this is required for the WISE1530 but may not be needed for other
+   platforms.
 
-1. Setup SDIO_ENUMERATION_TIMEOUT_MS to be configurable. This will be overriden
-   by Mbed OS based on the current platform.
+1. Set up SDIO_ENUMERATION_TIMEOUT_MS to be configurable. Mbed OS will override this,
+   depending on the current platform.
 
    In `targets/TARGET_WICED/WICED/WICED/platform/MCU/STM32F4xx/WWD/wwd_SDIO.c` line 66:
+   
    ``` diff
      #define SDIO_IRQ_CHANNEL                     ((u8)0x31)
      #define DMA2_3_IRQ_CHANNEL                   ((u8)DMA2_Stream3_IRQn)
@@ -209,7 +219,7 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
 
 For the WISE1530, you now have access to the Mbed OS WISE1530Interface class.
 
-You can try this class out with the Mbed OS socket example:
+You can try this class with the Mbed OS socket example:
 https://github.com/armmbed/mbed-os-example-sockets
  
  
