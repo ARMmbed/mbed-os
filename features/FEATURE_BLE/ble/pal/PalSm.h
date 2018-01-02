@@ -19,9 +19,12 @@ namespace ble {
 namespace pal {
 
 using SecurityManager::SecurityIOCapabilities_t;
+using SecurityManager::IO_CAPS_NONE;
 using SecurityManager::SecurityCompletionStatus_t;
 using SecurityManager::SecurityMode_t;
+using SecurityManager::LinkSecurityStatus_t;
 using SecurityManager::Passkey_t;
+using SecurityManager::Keypress_t;
 using SecurityManager::SecurityManagerEventBlock;
 
 using BLEProtocol::AddressBytes_t;
@@ -38,14 +41,6 @@ typedef uint8_t c192_t[16];
 typedef uint8_t r192_t[16];
 typedef uint8_t c256_t[16];
 typedef uint8_t r256_t[16];
-
-enum keypress_t {
-    KEYPRESS_STARTED, /* Passkey entry started */
-    KEYPRESS_ENTERED, /* Passkey digit entered */
-    KEYPRESS_ERASED, /* Passkey digit erased */
-    KEYPRESS_CLEARED, /* Passkey cleared */
-    KEYPRESS_COMPLETED, /* Passkey entry completed */
-};
 
 struct bonded_list_entry_t {
     Address_t peer_address;
@@ -114,16 +109,24 @@ public:
 
     /* security level */
 
-    virtual ble_error_t set_link_security(connection_handle_t handle, bool bondable, bool mitm, SecurityIOCapabilities_t iocaps) = 0;
-    virtual ble_error_t get_link_security(connection_handle_t handle, bool *bondable, bool *mitm, SecurityIOCapabilities_t *iocaps) = 0;
+    virtual ble_error_t set_link_security_settings(AddressBytes_t address,
+                                                   bool bondable = true,
+                                                   SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
+                                                   bool use_oob = false,
+                                                   bool send_keypresses = false) = 0;
+
+    /* triggers pairing if required */
+    virtual ble_error_t request_security_mode(connection_handle_t handle,
+                                              SecurityMode_t mode) = 0;
+
+    virtual ble_error_t get_encryption_status(connection_handle_t handle,
+                                              LinkSecurityStatus_t *mode) = 0;
 
     /* MITM */
 
-    virtual ble_error_t use_oob(AddressBytes_t handle, bool enabled) = 0;
-
     virtual ble_error_t confirmation_entered(AddressBytes_t address, bool confirmation) = 0;
     virtual ble_error_t passkey_entered(AddressBytes_t, passkey_t passkey) = 0;
-    virtual ble_error_t send_keypress_notification(AddressBytes_t, keypress_t keypress) = 0;
+    virtual ble_error_t send_keypress_notification(AddressBytes_t, Keypress_t keypress) = 0;
 
     virtual ble_error_t set_link_oob(AddressBytes_t handle, c192_t*, r192_t*) = 0;
     virtual ble_error_t set_link_extended_oob(AddressBytes_t handle, c192_t*, r192_t*,c256_t*, r256_t*) = 0;
@@ -132,33 +135,80 @@ public:
 
     /* Entry points for the underlying stack to report events back to the user. */
 public:
-    void process_valid_mic_timeout(connection_handle_t handle) = 0;
-    void process_keypress(AddressBytes_t handle, keypress_t keypress) = 0;
-    void process_oob_request(AddressBytes_t handle, bool extended = false) = 0;
-    void process_pin_request(AddressBytes_t handle) = 0;
-    void process_passkey_request(AddressBytes_t handle) = 0;
-    void process_confirmation_request(AddressBytes_t handle) = 0;
-
-    void process_link_key_failure(connection_handle_t handle) = 0;
-
-    void process_security_setup_initiated_event(connection_handle_t handle, bool allow_bonding, bool require_mitm, SecurityIOCapabilities_t iocaps) {
-        _evt.securitySetupInitiatedCallback(handle, allow_bonding, require_mitm, iocaps);
+    void process_security_setup_initiated_event(connection_handle_t handle,
+                                                bool allow_bonding,
+                                                bool require_mitm,
+                                                SecurityIOCapabilities_t iocaps) {
+        if (_evt.securitySetupInitiatedCallback) {
+            _evt.securitySetupInitiatedCallback(handle, allow_bonding, require_mitm, iocaps);
+        }
     }
 
-    void process_security_setupCompleted_event(connection_handle_t handle, SecurityCompletionStatus_t status) {
-        _evt.securitySetupCompletedCallback(handle, status);
+    void process_security_setupCompleted_event(connection_handle_t handle,
+                                               SecurityCompletionStatus_t status) {
+        if (_evt.securitySetupCompletedCallback) {
+            _evt.securitySetupCompletedCallback(handle, status);
+        }
     }
 
     void process_link_secured_event(connection_handle_t handle, SecurityMode_t security_mode) {
-        _evt.linkSecuredCallback(handle, security_mode);
+        if (_evt.linkSecuredCallback) {
+            _evt.linkSecuredCallback(handle, security_mode);
+        }
     }
 
     void process_security_context_stored_event(connection_handle_t handle) {
-        _evt.securityContextStoredCallback(handle);
+        if (_evt.securityContextStoredCallback) {
+            _evt.securityContextStoredCallback(handle);
+        }
     }
 
-    void process_Passkey_display_event(connection_handle_t handle, const Passkey_t passkey) {
-        _evt.passkeyDisplayCallback(handle, passkey);
+    void process_passkey_display_event(connection_handle_t handle, const Passkey_t passkey) {
+        if (_evt.passkeyDisplayCallback) {
+            _evt.passkeyDisplayCallback(handle, passkey);
+        }
+    }
+
+    void process_valid_mic_timeout(connection_handle_t handle) {
+        if (_evt.validMicTimeoutCallback) {
+            _evt.validMicTimeoutCallback(handle);
+        }
+    }
+
+    void process_link_key_failure(connection_handle_t handle) {
+        if (_evt.linkKeyFailureCallback) {
+            _evt.linkKeyFailureCallback(handle);
+        }
+    }
+
+    void process_keypress_notification(connection_handle_t handle, Keypress_t keypress) {
+        if (_evt.keypressNotificationCallback) {
+            _evt.keypressNotificationCallback(handle, keypress);
+        }
+    }
+
+    void process_oob_request(connection_handle_t handle, bool extended = false) {
+        if (_evt.oobRequestCallback) {
+            _evt.oobRequestCallback(handle, extended);
+        }
+    }
+
+    void process_pin_request(connection_handle_t handle) {
+        if (_evt.pinRequestCallback) {
+            _evt.pinRequestCallback(handle);
+        }
+    }
+
+    void process_passkey_request(connection_handle_t handle) {
+        if (_evt.passkeyRequestCallback) {
+            _evt.passkeyRequestCallback(handle);
+        }
+    }
+
+    void process_confirmation_request(connection_handle_t handle) {
+        if (_evt.confirmationRequestCallback) {
+            _evt.confirmationRequestCallback(handle);
+        }
     }
 
 private:

@@ -26,6 +26,14 @@
 
 class SecurityManager {
 public:
+    enum Keypress_t {
+        KEYPRESS_STARTED, /* Passkey entry started */
+        KEYPRESS_ENTERED, /* Passkey digit entered */
+        KEYPRESS_ERASED, /* Passkey digit erased */
+        KEYPRESS_CLEARED, /* Passkey cleared */
+        KEYPRESS_COMPLETED, /* Passkey entry completed */
+    };
+
     enum SecurityMode_t {
         SECURITY_MODE_NO_ACCESS,
         SECURITY_MODE_ENCRYPTION_OPEN_LINK, /**< Require no protection, open link. */
@@ -84,19 +92,41 @@ public:
     typedef void (*LinkSecuredCallback_t)(Gap::Handle_t handle, SecurityMode_t securityMode);
     typedef void (*PasskeyDisplayCallback_t)(Gap::Handle_t handle, const Passkey_t passkey);
 
+    typedef void (*ValidMicTimeout_t)(Gap::Handle_t handle);
+    typedef void (*Link_key_failure_t)(Gap::Handle_t handle);
+    typedef void (*KeypressNotification_t)(Gap::Handle_t handle, Keypress_t keypress);
+    typedef void (*OobRequest_t)(Gap::Handle_t handle, bool extended = false);
+    typedef void (*PinRequest_t)(Gap::Handle_t handle);
+    typedef void (*PasskeyRequest_t)(Gap::Handle_t handle);
+    typedef void (*ConfirmationRequest_t)(Gap::Handle_t handle);
+
     struct SecurityManagerEventBlock {
         SecurityManagerEventBlock () :
             securitySetupInitiatedCallback(),
             securitySetupCompletedCallback(),
             linkSecuredCallback(),
             securityContextStoredCallback(),
-            passkeyDisplayCallback() { }
+            passkeyDisplayCallback(),
+            validMicTimeoutCallback(),
+            linkKeyFailureCallback(),
+            keypressNotificationCallback(),
+            oobRequestCallback(),
+            pinRequestCallback(),
+            passkeyRequestCallback(),
+            confirmationRequestCallback() { }
 
         SecuritySetupInitiatedCallback_t securitySetupInitiatedCallback;
         SecuritySetupCompletedCallback_t securitySetupCompletedCallback;
         LinkSecuredCallback_t            linkSecuredCallback;
         HandleSpecificEvent_t            securityContextStoredCallback;
         PasskeyDisplayCallback_t         passkeyDisplayCallback;
+        ValidMicTimeout_t                validMicTimeoutCallback;
+        Link_key_failure_t               linkKeyFailureCallback;
+        KeypressNotification_t           keypressNotificationCallback;
+        OobRequest_t                     oobRequestCallback;
+        PinRequest_t                     pinRequestCallback;
+        PasskeyRequest_t                 passkeyRequestCallback;
+        ConfirmationRequest_t            confirmationRequestCallback;
     };
 
 public:
@@ -201,6 +231,15 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    virtual ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM) {
+        /* Avoid compiler warnings about unused variables */
+        (void) connectionHandle;
+        (void) useOOB;
+        (void) OOBProvidesMITM;
+
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
     /* Event callback handlers. */
 public:
     /**
@@ -292,6 +331,48 @@ public:
     void processPasskeyDisplayEvent(Gap::Handle_t handle, const Passkey_t passkey) {
         if (_evt.passkeyDisplayCallback) {
             _evt.passkeyDisplayCallback(handle, passkey);
+        }
+    }
+
+    void processValidMicTimeout(Gap::Handle_t handle) {
+        if (_evt.validMicTimeoutCallback) {
+            _evt.validMicTimeoutCallback(handle);
+        }
+    }
+
+    void processLinkKeyFailure(Gap::Handle_t handle) {
+        if (_evt.linkKeyFailureCallback) {
+            _evt.linkKeyFailureCallback(handle);
+        }
+    }
+
+    void processKeypress(Gap::Handle_t handle, keypress_t keypress) {
+        if (_evt.keypressCallback) {
+            _evt.keypressCallback(handle, keypress);
+        }
+    }
+
+    void processOobRequest(Gap::Handle_t handle, bool extended = false) {
+        if (_evt.oobRequestCallback) {
+            _evt.oobRequestCallback(handle, extended);
+        }
+    }
+
+    void processPinRequest(Gap::Handle_t handle) {
+        if (_evt.pinRequestCallback) {
+            _evt.pinRequestCallback(handle);
+        }
+    }
+
+    void processPasskeyRequest(Gap::Handle_t handle) {
+        if (_evt.passkeyRequestCallback) {
+            _evt.passkeyRequestCallback(handle);
+        }
+    }
+
+    void processConfirmationRequest(Gap::Handle_t handle) {
+        if (_evt.confirmationRequestCallback) {
+            _evt.confirmationRequestCallback(handle);
         }
     }
 
