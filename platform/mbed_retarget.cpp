@@ -1072,7 +1072,12 @@ void operator delete[](void *ptr)
 extern "C" clock_t clock()
 {
     _mutex->lock();
-    clock_t t = ticker_read(get_us_ticker_data());
+#if DEVICE_LOWPOWERTIMER
+    const ticker_data_t *const ticker = get_lp_ticker_data();
+#else
+    const ticker_data_t *const ticker = get_us_ticker_data();
+#endif
+    clock_t t = ticker_read(ticker);
     t /= 1000000 / CLOCKS_PER_SEC; // convert to processor time
     _mutex->unlock();
     return t;
