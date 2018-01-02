@@ -22,6 +22,8 @@
  * limitations under the License.
  */
 
+#ifdef MBED_CONF_RTOS_PRESENT
+
 #include "os_tick.h"
 #include "irq_ctrl.h"
 
@@ -185,3 +187,6 @@ uint32_t OS_Tick_GetCount (void) {
 uint32_t OS_Tick_GetOverflow (void) {
   return (IRQ_GetPending(OSTM_IRQn));
 }
+
+#endif
+

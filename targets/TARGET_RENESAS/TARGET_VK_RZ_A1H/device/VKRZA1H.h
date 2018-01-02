@@ -626,9 +626,9 @@ typedef enum IRQn
 #define __NVIC_PRIO_BITS          5         /*!< Number of Bits used for Priority Levels          */
 #define __Vendor_SysTickConfig    0         /*!< Set to 1 if different SysTick Config is used     */
 
-#include <core_ca9.h>
+#include "core_ca.h"
 #include "system_VKRZA1H.h"
-
+#include "iodefine.h"
 
 /******************************************************************************/
 /*                Device Specific Peripheral Section                          */
