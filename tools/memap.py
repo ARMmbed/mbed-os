@@ -77,7 +77,7 @@ class _Parser(object):
 
 class _GccParser(_Parser):
     RE_OBJECT_FILE = re.compile(r'^(.+\/.+\.o)$')
-    RE_LIBRARY_OBJECT = re.compile(r'^.+\/lib(.+\.a)\((.+\.o)\)$')
+    RE_LIBRARY_OBJECT = re.compile(r'^.+' + os.sep + r'lib((.+\.a)\((.+\.o)\))$')
     RE_STD_SECTION = re.compile(r'^\s+.*0x(\w{8,16})\s+0x(\w+)\s(.+)$')
     RE_FILL_SECTION = re.compile(r'^\s*\*fill\*\s+0x(\w{8,16})\s+0x(\w+).*$')
 
@@ -119,7 +119,7 @@ class _GccParser(_Parser):
 
             # corner case: certain objects are provided by the GCC toolchain
             if 'arm-none-eabi' in line:
-                return os.path.join('[lib]', 'misc', object_name)
+                return os.path.join('[lib]', 'misc', os.path.basename(object_name))
             return object_name
 
         else:
