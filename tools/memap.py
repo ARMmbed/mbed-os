@@ -136,7 +136,6 @@ class MemapParser(object):
         txt - the path to parse the object and module name from
         """
 
-        line = line.replace('\\', '/')
         test_re_mbed_os_name = re.match(RE_OBJECT_FILE_GCC, line)
 
         if test_re_mbed_os_name:
@@ -145,7 +144,7 @@ class MemapParser(object):
 
             # corner case: certain objects are provided by the GCC toolchain
             if 'arm-none-eabi' in line:
-                return '[lib]/misc/' + object_name
+                return os.path.join('[lib]', 'misc', object_name)
             return object_name
 
         else:
@@ -153,10 +152,10 @@ class MemapParser(object):
             test_re_obj_name = re.match(RE_LIBRARY_OBJECT_GCC, line)
 
             if test_re_obj_name:
-                object_name = test_re_obj_name.group(1) + '/' + \
-                              test_re_obj_name.group(2)
+                object_name = os.path.join(test_re_obj_name.group(1),
+                                           test_re_obj_name.group(2))
 
-                return '[lib]/' + object_name
+                return os.path.join('[lib]', object_name)
 
             else:
                 print "Unknown object name found in GCC map file: %s" % line
@@ -241,8 +240,9 @@ class MemapParser(object):
         else:
             is_obj = re.match(RE_OBJECT_ARMCC, line)
             if is_obj:
-                object_name = os.path.basename(is_obj.group(1)) + '/' + is_obj.group(3)
-                return '[lib]/' + object_name
+                object_name = os.path.join(os.path.basename(is_obj.group(1)),
+                                           is_obj.group(3))
+                return os.path.join('[lib]', object_name)
             else:
                 print "Malformed input found when parsing ARMCC map: %s" % line
                 return '[misc]'
@@ -472,7 +472,7 @@ class MemapParser(object):
                 object_name = self.check_new_object_lib_iar(line)
 
                 if object_name and current_library:
-                    temp = '[lib]' + '/'+ current_library + '/'+ object_name
+                    temp = os.path.join('[lib]', current_library, object_name)
                     self.module_replace(object_name, temp)
 
 
@@ -495,10 +495,10 @@ class MemapParser(object):
         else:
             self.short_modules = dict()
             for module_name, v in self.modules.items():
-                split_name = module_name.split('/')
+                split_name = module_name.split(os.sep)
                 if split_name[0] == '':
                     split_name = split_name[1:]
-                new_name = "/".join(split_name[:depth])
+                new_name = os.path.join(*split_name[:depth])
                 self.short_modules.setdefault(new_name, {})
                 for section_idx, value in v.items():
                     self.short_modules[new_name].setdefault(section_idx, 0)
