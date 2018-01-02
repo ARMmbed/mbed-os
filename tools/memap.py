@@ -432,15 +432,14 @@ class MemapParser(object):
         for line in lines:
             if line.startswith("*"):
                 break
-            is_cmdline_file = RE_CMDLINE_FILE_IAR.match(line)
-            if is_cmdline_file:
-                full_path = is_cmdline_file.group(1)
-                self.cmd_modules[os.path.basename(full_path)] = full_path
+            for arg in line.split(" "):
+                arg = arg.rstrip(" \n")
+                if (not arg.startswith("-")) and arg.endswith(".o"):
+                    self.cmd_modules[os.path.basename(arg)] = arg
 
         common_prefix = os.path.dirname(os.path.commonprefix(self.cmd_modules.values()))
         self.cmd_modules = {s: os.path.relpath(f, common_prefix)
                             for s, f in self.cmd_modules.items()}
-
 
     def parse_map_file_iar(self, file_desc):
         """ Main logic to decode IAR map files
