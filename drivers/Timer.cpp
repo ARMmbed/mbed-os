@@ -21,7 +21,15 @@
 
 namespace mbed {
 
-Timer::Timer() : _running(), _start(), _time(), _ticker_data(get_us_ticker_data()), _lock_deepsleep(true) {
+Timer::Timer() : _running(), _start(), _time(), 
+#if DEVICE_LOWPOWERTIMER
+    _ticker_data(get_lp_ticker_data()),
+    _lock_deepsleep(false)
+#else
+    _ticker_data(get_us_ticker_data()), 
+    _lock_deepsleep(true)
+#endif
+{
     reset();
 }
 
