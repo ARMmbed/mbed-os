@@ -8,11 +8,13 @@
 
 #include "TCPModbus.h"
 
+#define MODBUS_TCP_RECV_TIMEOUT_MS	1000
 #define MODBUS_TCP_DEFAULT_PORT		502
 
 // default constructor
 TCPModbus::TCPModbus(EthernetInterface * ethernetInterface)
 {
+	_socket.set_timeout(MODBUS_TCP_RECV_TIMEOUT_MS);
 	_slaveAddress.set_port(MODBUS_TCP_DEFAULT_PORT);
 	_ethernetInterface = ethernetInterface;
 } //TCPModbus
@@ -47,7 +49,7 @@ uint8_t TCPModbus::Read(uint8_t slave_id, uint16_t start_address, uint16_t regis
 		(uint8_t)((protocol_identifier >> 8) & 0xFF),		// MBAP-Header: Protocol-Identifier (HIGH)
 		(uint8_t)((protocol_identifier) & 0xFF),			// MBAP-Header: Protocol-Identifier (LOW)
 		(uint8_t)((length >> 8) & 0xFF),					// MBAP-Header: Length (HIGH)
-		(uint8_t)((length >> 8) & 0xFF),					// MBAP-Header: Length (LOW)
+		(uint8_t)((length) & 0xFF),							// MBAP-Header: Length (LOW)
 		slave_id,											// MBAP-Header:	Unit-Identifier
 		MODBUS_FC_READHOLDINGREGISTERS,						// MODBUS-PDU: Function code (read holding registers)
 		(uint8_t)((start_address >> 8) & 0xFF),				// MODBUS-PDU: Starting address (HIGH)
@@ -61,30 +63,31 @@ uint8_t TCPModbus::Read(uint8_t slave_id, uint16_t start_address, uint16_t regis
 		return SocketClose(Modbus::TCPSend);
 	}
 	
-	uint8_t response_databram[
+	uint8_t response_datagram[
 		sizeof(uint16_t) +									// MBAP-Header:		Transaction-Identifier
 		sizeof(uint16_t) +									// MBAP-Header:		Protocol-Identifier
 		sizeof(uint16_t) +									// MBAP-Header:		Length
 		sizeof(uint8_t) +									// MBAP-Header:		Unit-Identifier
 		sizeof(uint8_t) +									// MODBUS-PDU:		Function code
+		sizeof(uint8_t) +									// MODBUS-PDU:		Byte-count
 		register_count * sizeof(uint16_t)					// MODBUS-PDU:		Registers
 	];
 	
 	// Read
-	uint16_t real_size = 0;	
-	if ((real_size = _socket.recv(response_databram, sizeof(response_databram))) < 0) {
+	int16_t real_size = 0;	
+	if ((real_size = _socket.recv(response_datagram, sizeof(response_datagram))) < 0) {
 		return this->SocketClose(Modbus::TCPReceive);
 	}
 	
 	// Check length
-	if (real_size != sizeof(response_databram)) {
+	if (real_size != sizeof(response_datagram)) {
 		return SocketClose(Modbus::TCPLengthRawRead);
 	}
 	
 	// Check Transaction-Identifier
 	uint16_t response_transaction_identifier = 
-		(uint16_t)(response_databram[0] << 8) + 
-		(uint16_t)(response_databram[1]);
+		(uint16_t)(response_datagram[0] << 8) + 
+		(uint16_t)(response_datagram[1]);
 	
 	if (response_transaction_identifier != transaction_identifier) {
 		return SocketClose(Modbus::TCPTransactionIdentifier);
@@ -92,8 +95,8 @@ uint8_t TCPModbus::Read(uint8_t slave_id, uint16_t start_address, uint16_t regis
 	
 	// Check Protocol-Identifier
 	uint16_t response_protocol_identifier = 
-		(uint16_t)(response_databram[2] << 8) + 
-		(uint16_t)(response_databram[3]);
+		(uint16_t)(response_datagram[2] << 8) + 
+		(uint16_t)(response_datagram[3]);
 	
 	if (response_protocol_identifier != protocol_identifier) {
 		return SocketClose(Modbus::TCPProtocolIdentifier);
@@ -101,29 +104,29 @@ uint8_t TCPModbus::Read(uint8_t slave_id, uint16_t start_address, uint16_t regis
 	
 	// Check Length	
 	uint16_t response_payload_length = 
-		(uint16_t)(response_databram[4] << 8) + 
-		(uint16_t)(response_databram[5]);
+		(uint16_t)(response_datagram[4] << 8) + 
+		(uint16_t)(response_datagram[5]);
 	if (response_payload_length != (sizeof(uint8_t) /*Unit-Identifier*/ + sizeof(uint8_t) /*Function-Code*/ + sizeof(uint8_t) /*ByteCount*/ + (register_count * sizeof(uint16_t)))) {
 		return SocketClose(Modbus::TCPLengthPayload);
 	}
 	
 	// Check Unit-Identifier
-	if (response_databram[6] != slave_id) {
+	if (response_datagram[6] != slave_id) {
 		return SocketClose(Modbus::SlaveId);
 	}
 	
 	// Check Function-Code
-	if (response_databram[7] != MODBUS_FC_READHOLDINGREGISTERS) {
-		return SocketClose(response_databram[7]);
+	if (response_datagram[7] != MODBUS_FC_READHOLDINGREGISTERS) {
+		return SocketClose(response_datagram[7]);
 	}
 	
 	// Check Byte-Count
-	if (response_databram[8] != sizeof(uint16_t)*register_count) {
+	if (response_datagram[8] != sizeof(uint16_t)*register_count) {
 		return SocketClose(Modbus::TCPByteCount);
 	}
 	
 	// Copy payload
-	memcpy(result_buffer, response_databram + 9, sizeof(uint16_t) * register_count);
+	memcpy(result_buffer, response_datagram + 9, sizeof(uint16_t) * register_count);
 	
 	return SocketClose(Modbus::Success);
 	
@@ -155,7 +158,7 @@ uint8_t TCPModbus::Write(uint8_t slave_id, uint16_t start_address, uint16_t regi
 	request_datagram[2] = 	(uint8_t)((protocol_identifier >> 8) & 0xFF);			// MBAP-Header: Protocol-Identifier (HIGH)
 	request_datagram[3] = 	(uint8_t)((protocol_identifier) & 0xFF),				// MBAP-Header: Protocol-Identifier (LOW)
 	request_datagram[4] = 	(uint8_t)((length >> 8) & 0xFF);						// MBAP-Header: Length (HIGH)
-	request_datagram[5] = 	(uint8_t)((length >> 8) & 0xFF);						// MBAP-Header: Length (LOW)
+	request_datagram[5] = 	(uint8_t)((length) & 0xFF);								// MBAP-Header: Length (LOW)
 	request_datagram[6] = 	slave_id;												// MBAP-Header:	Unit-Identifier
 	request_datagram[7] = 	MODBUS_FC_WRITEHOLDINGREGISTERS;						// MODBUS-PDU: Function code (write holding registers)
 	request_datagram[8] = 	(uint8_t)((start_address >> 8) & 0xFF);					// MODBUS-PDU: Starting address (HIGH)
@@ -184,7 +187,7 @@ uint8_t TCPModbus::Write(uint8_t slave_id, uint16_t start_address, uint16_t regi
 	];
 	
 	// Read
-	uint16_t real_size = 0;	
+	int16_t real_size = 0;	
 	if ((real_size = _socket.recv(response_datagram, sizeof(response_datagram))) < 0) {
 		return this->SocketClose(Modbus::TCPReceive);
 	}
