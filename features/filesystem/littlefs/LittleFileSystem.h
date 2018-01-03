@@ -149,7 +149,7 @@ public:
      *  @param buf      The stat buffer to write to
      *  @return         0 on success, negative error code on failure
      */
-     virtual int statvfs(const char *path, struct statvfs *buf);
+    virtual int statvfs(const char *path, struct statvfs *buf);
 
 protected:
     /** Open a file on the filesystem
