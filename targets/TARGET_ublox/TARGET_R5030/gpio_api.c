@@ -20,8 +20,8 @@
 
 
 /*****************************************************************************
-								gpio_set:
-						Set the given pin as GPIO
+                                 gpio_set:
+                        Set the given pin as GPIO
 *****************************************************************************/
 uint32_t gpio_set(PinName pin)
 {
@@ -31,31 +31,35 @@ uint32_t gpio_set(PinName pin)
 }
 
 /*****************************************************************************
-								gpio_init:
-						   Initialize the GPIO
+                                gpio_init:
+                           Initialize the GPIO
 *****************************************************************************/
 void gpio_init(gpio_t *obj, PinName pin)
 {
-	uint32_t status;
-	uint8_t pioChannel;
+    uint32_t status;
+    int pioChannel;
+    PioPeriphMux mux;
 
-	MBED_ASSERT(pin != (PinName)NC);
+    MBED_ASSERT(pin != (PinName)NC);
 
-	obj->reg_base = gpio_base;
+    obj->pin = pin;
+    obj->reg_base = gpio_base;
 
-	obj->pin = pin;
+    pioChannel = gpio_channel_select(obj->pin,PinChannelMap);
+    MBED_ASSERT(pioChannel != ERROR);
 
-	pioChannel = gpio_channel_select(obj->pin);
-	obj->mask = (1 << (pioChannel & PIO_CHANNEL_SUB_32_MASK));
+    obj->mask = (1 << (pioChannel & PIO_CHANNEL_SUB_32_MASK));
 
-	status = gpio_periph_mux_set(PIO_MUX_GPIO,pioChannel,true);
+    mux = pio_periph_muxing_get(pioChannel);
+    MBED_ASSERT(mux != PIO_MUX_FALSE);
 
-	MBED_ASSERT(status == SUCCESS);
+    status = gpio_periph_mux_set(mux,pioChannel,true);
+    MBED_ASSERT(status == SUCCESS);
 }
 
 /*****************************************************************************
-								gpio_mode:
-						  Set the mode of gpio
+                                gpio_mode:
+                          Set the mode of gpio
 *****************************************************************************/
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
@@ -82,8 +86,8 @@ void gpio_mode(gpio_t *obj, PinMode mode)
 }
 
 /*****************************************************************************
-								gpio_dir:
-						Set the direction of gpio
+                                gpio_dir:
+                        Set the direction of gpio
 *****************************************************************************/
 void gpio_dir(gpio_t *obj, PinDirection direction)
 {
@@ -98,50 +102,34 @@ void gpio_dir(gpio_t *obj, PinDirection direction)
       case PIN_OUTPUT:
     	  obj->reg_base->pio_oer_0 = obj->mask; // Enable output
     	  break;
+
+      default:
+    	  break;
     }
 }
 
 /*****************************************************************************
-							pio_periph_muxing_set:
-						    GPIO channel setection
+                            gpio_channel_select:
+                           GPIO channel selection
 *****************************************************************************/
-uint8_t gpio_channel_select(PinName pin)
+int gpio_channel_select(PinName pin, const PinToChannel* map)
 {
-    switch(pin)
+    while (map->pin != NC)
     {
-       case LED0:
-    	   return GPIO_0_CHANNEL;
-
-       case LED1:
-    	   return GPIO_1_CHANNEL;
-
-       case LED2:
-    	   return GPIO_2_CHANNEL;
-
-       case LED3:
-    	   return GPIO_3_CHANNEL;
-
-       case LED4:
-    	   return GPIO_4_CHANNEL;
-
-       case LED5:
-    	   return GPIO_5_CHANNEL;
-
-       case LED6:
-    	   return GPIO_6_CHANNEL;
-
-       default:
-    	   return ERROR;
+        if (map->pin == pin)
+            return map->channel;
+        map++;
     }
+
+    return ERROR;
 }
 
 /*****************************************************************************
-							pio_periph_muxing_set:
-								 Enable mux
+                           pio_periph_muxing_set:
+                                 Enable mux
 *****************************************************************************/
-uint32_t gpio_periph_mux_set(uint8_t mux, uint8_t pioChannel, bool periphPullUpDownOn)
+int gpio_periph_mux_set(PioPeriphMux mux, uint8_t pioChannel, bool periphPullUpDownOn)
 {
-    uint32_t status = SUCCESS;
     uint8_t channel_offset_in_reg = (pioChannel & PIO_CHANNEL_SUB_32_MASK);
     struct pio_s *pio_channel_regbase;
 
@@ -196,5 +184,63 @@ uint32_t gpio_periph_mux_set(uint8_t mux, uint8_t pioChannel, bool periphPullUpD
     	pio_channel_regbase->pio_percpdr_0 = (1 << channel_offset_in_reg);
     }
 
-    return status;
+    return SUCCESS;
+}
+
+/*****************************************************************************
+                            pio_periph_muxing_get:
+                         Find out which mux is used
+*****************************************************************************/
+PioPeriphMux pio_periph_muxing_get(uint8_t pioChannel)
+{
+    uint8_t muxSel;
+    PioPeriphMux mux = PIO_MUX_FALSE;
+    struct pio_s *pio_channel_regbase;
+    uint8_t channel_offset_in_reg = (pioChannel & PIO_CHANNEL_SUB_32_MASK);
+
+    /*PIO base address */
+    if((pioChannel >> PIO_CHANNEL_OVER_32_SHIFT) == 0)
+    {
+    	pio_channel_regbase = (struct pio_s *)PIO_CONTROL_BASE;
+    }
+    else
+    {
+    	pio_channel_regbase = (struct pio_s *)(PIO_CONTROL_BASE + 0x220);
+    }
+
+
+    if(PIO_CHANNEL_BIT_GET(pio_channel_regbase->pio_psr_0, channel_offset_in_reg) == 1)
+    {
+    	mux = PIO_MUX_GPIO;
+    }
+    else /* configured for peripheral - find out which one */
+    {
+    	muxSel = (uint8_t)((PIO_CHANNEL_BIT_GET(pio_channel_regbase->pio_mselsr_0, channel_offset_in_reg) << 1) | PIO_CHANNEL_BIT_GET(pio_channel_regbase->pio_lselsr_0, channel_offset_in_reg));
+
+       /*Selecting mux */
+       switch(muxSel)
+       {
+         case 0:
+             mux = PIO_MUX_PERIPH_0;
+             break;
+			 
+         case 1:
+             mux = PIO_MUX_PERIPH_1;
+             break;
+			 
+         case 2:
+             mux = PIO_MUX_PERIPH_2;
+             break;
+			 
+         case 3:
+             mux = PIO_MUX_PERIPH_3;
+             break;
+			 
+         default:
+             return mux;
+       }
+
+    }
+
+    return mux;
 }
