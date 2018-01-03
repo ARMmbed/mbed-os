@@ -95,7 +95,7 @@ osStatus_t svcRtxKernelInitialize (void) {
 
   // Initialize osRtxInfo, skipping all elements before the kernel struct,
   // (os_id and version), which are set elsewhere
-  memset(&osRtxInfo + sizeof(osRtxInfo.os_id) + sizeof(isRtxInfo.version),
+  memset(&osRtxInfo + sizeof(osRtxInfo.os_id) + sizeof(osRtxInfo.version),
          0,
          sizeof(osRtxInfo) - sizeof(osRtxInfo.os_id) - sizeof(osRtxInfo.version));
 
