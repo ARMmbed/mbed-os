@@ -592,7 +592,7 @@ class Config(object):
                 break
             target_start = start
             target_size = size
-        sector_num = (address-target_start)//target_size
+        sector_num = (address - target_start)//target_size
         return target_start + (sector_num* target_size)
 
     @property
@@ -613,7 +613,7 @@ class Config(object):
         if 'target.sotp_size' in target_overrides:
             sotp_size = int(target_overrides['target.sotp_size'], 0)
             size = size - sotp_size
-            size = Config._align_on_sector(start+size, sectors) - start
+            size = Config._align_on_sector(start + size, sectors) - start
             if size + sotp_size > rom_size + rom_start:
                 raise ConfigException("Application + SOTP size ends after ROM")
         if start < rom_start:
