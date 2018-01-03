@@ -92,41 +92,51 @@ public:
     typedef void (*LinkSecuredCallback_t)(Gap::Handle_t handle, SecurityMode_t securityMode);
     typedef void (*PasskeyDisplayCallback_t)(Gap::Handle_t handle, const Passkey_t passkey);
 
-    typedef void (*ValidMicTimeout_t)(Gap::Handle_t handle);
-    typedef void (*Link_key_failure_t)(Gap::Handle_t handle);
-    typedef void (*KeypressNotification_t)(Gap::Handle_t handle, Keypress_t keypress);
-    typedef void (*OobRequest_t)(Gap::Handle_t handle, bool extended = false);
-    typedef void (*PinRequest_t)(Gap::Handle_t handle);
-    typedef void (*PasskeyRequest_t)(Gap::Handle_t handle);
-    typedef void (*ConfirmationRequest_t)(Gap::Handle_t handle);
+    /* subclass to override handlers */
+    class SecurityManagerEventHandler {
+        SecurityManagerEventHandler() {};
 
-    struct SecurityManagerEventBlock {
-        SecurityManagerEventBlock () :
-            securitySetupInitiatedCallback(),
-            securitySetupCompletedCallback(),
-            linkSecuredCallback(),
-            securityContextStoredCallback(),
-            passkeyDisplayCallback(),
-            validMicTimeoutCallback(),
-            linkKeyFailureCallback(),
-            keypressNotificationCallback(),
-            oobRequestCallback(),
-            pinRequestCallback(),
-            passkeyRequestCallback(),
-            confirmationRequestCallback() { }
-
-        SecuritySetupInitiatedCallback_t securitySetupInitiatedCallback;
-        SecuritySetupCompletedCallback_t securitySetupCompletedCallback;
-        LinkSecuredCallback_t            linkSecuredCallback;
-        HandleSpecificEvent_t            securityContextStoredCallback;
-        PasskeyDisplayCallback_t         passkeyDisplayCallback;
-        ValidMicTimeout_t                validMicTimeoutCallback;
-        Link_key_failure_t               linkKeyFailureCallback;
-        KeypressNotification_t           keypressNotificationCallback;
-        OobRequest_t                     oobRequestCallback;
-        PinRequest_t                     pinRequestCallback;
-        PasskeyRequest_t                 passkeyRequestCallback;
-        ConfirmationRequest_t            confirmationRequestCallback;
+        void securitySetupInitiatedCallback(Gap::Handle_t handle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
+            (void)handle;
+            (void)allowBonding;
+            (void)requireMITM;
+            (void)iocaps;
+        };
+        void securitySetupCompletedCallback(Gap::Handle_t handle, SecurityCompletionStatus_t status) {
+            (void)handle;
+            (void)status;
+        };
+        void linkSecuredCallback(Gap::Handle_t handle, SecurityMode_t securityMode) {
+            (void)handle;
+            (void)securityMode;
+        };
+        void passkeyDisplayCallback(Gap::Handle_t handle, const Passkey_t passkey) {
+            (void)handle;
+            (void)passkey;
+        };
+        void validMicTimeout(Gap::Handle_t handle) {
+            (void)handle;
+        };
+        void link_key_failure(Gap::Handle_t handle) {
+            (void)handle;
+        };
+        void keypressNotification(Gap::Handle_t handle, Keypress_t keypress) {
+            (void)handle;
+            (void)keypress;
+        };
+        void oobRequest(Gap::Handle_t handle, bool extended = false) {
+            (void)handle;
+            (void)extended;
+        };
+        void pinRequest(Gap::Handle_t handle) {
+            (void)handle;
+        };
+        void passkeyRequest(Gap::Handle_t handle) {
+            (void)handle;
+        };
+        void confirmationRequest(Gap::Handle_t handle) {
+            (void)handle;
+        };
     };
 
 public:
@@ -275,112 +285,91 @@ public:
     }
 
     /**
+     * @deprecated
+     *
      * To indicate that a security procedure for the link has started.
      */
-    virtual void onSecuritySetupInitiated(SecuritySetupInitiatedCallback_t callback) {_evt.securitySetupInitiatedCallback = callback;}
+    virtual void onSecuritySetupInitiated(SecuritySetupInitiatedCallback_t callback) {securitySetupInitiatedCallback = callback;}
 
     /**
+     * @deprecated
+     *
      * To indicate that the security procedure for the link has completed.
      */
-    virtual void onSecuritySetupCompleted(SecuritySetupCompletedCallback_t callback) {_evt.securitySetupCompletedCallback = callback;}
+    virtual void onSecuritySetupCompleted(SecuritySetupCompletedCallback_t callback) {securitySetupCompletedCallback = callback;}
 
     /**
+     * @deprecated
+     *
      * To indicate that the link with the peer is secured. For bonded devices,
      * subsequent reconnections with a bonded peer will result only in this callback
      * when the link is secured; setup procedures will not occur (unless the
      * bonding information is either lost or deleted on either or both sides).
      */
-    virtual void onLinkSecured(LinkSecuredCallback_t callback) {_evt.linkSecuredCallback = callback;}
+    virtual void onLinkSecured(LinkSecuredCallback_t callback) {linkSecuredCallback = callback;}
 
     /**
+     * @deprecated
+     *
      * To indicate that device context is stored persistently.
      */
-    virtual void onSecurityContextStored(HandleSpecificEvent_t callback) {_evt.securityContextStoredCallback = callback;}
+    virtual void onSecurityContextStored(HandleSpecificEvent_t callback) {securityContextStoredCallback = callback;}
 
-    /**
+    /** @deprecated
+     *
      * To set the callback for when the passkey needs to be displayed on a peripheral with DISPLAY capability.
      */
-    virtual void onPasskeyDisplay(PasskeyDisplayCallback_t callback) {_evt.passkeyDisplayCallback = callback;}
+    virtual void onPasskeyDisplay(PasskeyDisplayCallback_t callback) {passkeyDisplayCallback = callback;}
+
+    virtual void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
+        if (handler) {
+            delete eventHandler;
+            eventHandler = handler;
+        }
+    }
 
     /* Entry points for the underlying stack to report events back to the user. */
 public:
+    /** @deprecated */
     void processSecuritySetupInitiatedEvent(Gap::Handle_t handle, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps) {
-        if (_evt.securitySetupInitiatedCallback) {
-            _evt.securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
+        if (securitySetupInitiatedCallback) {
+            securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
         }
     }
-
+    /** @deprecated */
     void processSecuritySetupCompletedEvent(Gap::Handle_t handle, SecurityCompletionStatus_t status) {
-        if (_evt.securitySetupCompletedCallback) {
-            _evt.securitySetupCompletedCallback(handle, status);
+        if (securitySetupCompletedCallback) {
+            securitySetupCompletedCallback(handle, status);
         }
     }
-
+    /** @deprecated */
     void processLinkSecuredEvent(Gap::Handle_t handle, SecurityMode_t securityMode) {
-        if (_evt.linkSecuredCallback) {
-            _evt.linkSecuredCallback(handle, securityMode);
+        if (linkSecuredCallback) {
+            linkSecuredCallback(handle, securityMode);
         }
     }
-
+    /** @deprecated */
     void processSecurityContextStoredEvent(Gap::Handle_t handle) {
-        if (_evt.securityContextStoredCallback) {
-            _evt.securityContextStoredCallback(handle);
+        if (securityContextStoredCallback) {
+            securityContextStoredCallback(handle);
         }
     }
-
+    /** @deprecated */
     void processPasskeyDisplayEvent(Gap::Handle_t handle, const Passkey_t passkey) {
-        if (_evt.passkeyDisplayCallback) {
-            _evt.passkeyDisplayCallback(handle, passkey);
-        }
-    }
-
-    void processValidMicTimeout(Gap::Handle_t handle) {
-        if (_evt.validMicTimeoutCallback) {
-            _evt.validMicTimeoutCallback(handle);
-        }
-    }
-
-    void processLinkKeyFailure(Gap::Handle_t handle) {
-        if (_evt.linkKeyFailureCallback) {
-            _evt.linkKeyFailureCallback(handle);
-        }
-    }
-
-    void processKeypress(Gap::Handle_t handle, keypress_t keypress) {
-        if (_evt.keypressCallback) {
-            _evt.keypressCallback(handle, keypress);
-        }
-    }
-
-    void processOobRequest(Gap::Handle_t handle, bool extended = false) {
-        if (_evt.oobRequestCallback) {
-            _evt.oobRequestCallback(handle, extended);
-        }
-    }
-
-    void processPinRequest(Gap::Handle_t handle) {
-        if (_evt.pinRequestCallback) {
-            _evt.pinRequestCallback(handle);
-        }
-    }
-
-    void processPasskeyRequest(Gap::Handle_t handle) {
-        if (_evt.passkeyRequestCallback) {
-            _evt.passkeyRequestCallback(handle);
-        }
-    }
-
-    void processConfirmationRequest(Gap::Handle_t handle) {
-        if (_evt.confirmationRequestCallback) {
-            _evt.confirmationRequestCallback(handle);
+        if (passkeyDisplayCallback) {
+            passkeyDisplayCallback(handle, passkey);
         }
     }
 
 protected:
-    SecurityManager() {
-        /* empty */
+    SecurityManager() :
+        securitySetupInitiatedCallback(),
+        securitySetupCompletedCallback(),
+        linkSecuredCallback(),
+        securityContextStoredCallback(),
+        passkeyDisplayCallback() {
+        eventHandler = new SecurityManagerEventHandler();
     }
-
 public:
     /**
      * Notify all registered onShutdown callbacks that the SecurityManager is
@@ -399,15 +388,21 @@ public:
         /* Notify that the instance is about to shutdown */
         shutdownCallChain.call(this);
         shutdownCallChain.clear();
-        _evt = SecurityManagerEventBlock();
+        delete eventHandler;
+        eventHandler = new SecurityManagerEventHandler();
 
         return BLE_ERROR_NONE;
     }
 
 protected:
-    SecurityManagerEventBlock _evt;
+    SecuritySetupInitiatedCallback_t securitySetupInitiatedCallback;
+    SecuritySetupCompletedCallback_t securitySetupCompletedCallback;
+    LinkSecuredCallback_t            linkSecuredCallback;
+    HandleSpecificEvent_t            securityContextStoredCallback;
+    PasskeyDisplayCallback_t         passkeyDisplayCallback;
 
 private:
+    SecurityManagerEventHandler*           eventHandler;
     SecurityManagerShutdownCallbackChain_t shutdownCallChain;
 };
 
