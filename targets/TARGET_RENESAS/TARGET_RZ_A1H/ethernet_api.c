@@ -87,6 +87,10 @@
                                                 /* 0x00000001 : Receive frame CRC error */
 #define EDMAC_EESIPR_INI_EtherC (0x00400000)    /* 0x00400000 : E-MAC status register */
 
+void ethernet_address(char *);
+void ethernet_set_link(int, int);
+
+
 /* Send descriptor */
 typedef struct tag_edmac_send_desc {
     uint32_t    td0;
@@ -532,12 +536,12 @@ static void lan_desc_create(void) {
 
 static void lan_reg_set(int32_t link) {
     /* MAC address setting */
-    ETHERMAHR0      = ((uint32_t)mac_addr[0] << 24)
-                    | ((uint32_t)mac_addr[1] << 16)
-                    | ((uint32_t)mac_addr[2] << 8)
-                    |  (uint32_t)mac_addr[3];
-    ETHERMALR0      = ((uint32_t)mac_addr[4] << 8)
-                    |  (uint32_t)mac_addr[5];
+    ETHERMAHR0      = ((uint8_t)mac_addr[0] << 24)
+                    | ((uint8_t)mac_addr[1] << 16)
+                    | ((uint8_t)mac_addr[2] << 8)
+                    |  (uint8_t)mac_addr[3];
+    ETHERMALR0      = ((uint8_t)mac_addr[4] << 8)
+                    |  (uint8_t)mac_addr[5];
 
     /* E-DMAC */
     ETHERTDLAR0     = (uint32_t)&p_eth_desc_dsend[0];
@@ -578,6 +582,7 @@ static void lan_reg_set(int32_t link) {
         ETHERECSIPR0   &= ~0x00000011;                     /* PFROIP Disable, ICDIP Disable */
         InterruptHandlerRegister(ETHERI_IRQn, INT_Ether);  /* Ethernet interrupt handler registration */
         GIC_SetPriority(ETHERI_IRQn, Interrupt_priority);  /* Ethernet interrupt priority */
+        GIC_SetConfiguration(ETHERI_IRQn, 1);
         GIC_EnableIRQ(ETHERI_IRQn);                        /* Enables the E-DMAC interrupt */
     }
 

@@ -46,20 +46,23 @@ void wifi_scan(void)
 
     for (int i=0; i<size; i++) {
         const char *ssid = ap[i].get_ssid();
-        const uint8_t *bssid = ap[i].get_bssid();
         nsapi_security_t security = ap[i].get_security();
         int8_t rssi = ap[i].get_rssi();
         uint8_t ch = ap[i].get_channel();
         TEST_ASSERT_INT8_WITHIN(-10, -100, rssi);
         if (strcmp(MBED_CONF_APP_WIFI_SECURE_SSID, ssid) == 0) {
             secure_found = true;
-            TEST_ASSERT_EQUAL_INT(NSAPI_SECURITY_WPA2, security);
-            TEST_ASSERT_EQUAL_INT(MBED_CONF_APP_WIFI_CH_SECURE, ch);
+            TEST_ASSERT_EQUAL_INT(get_security(), security);
+            if (MBED_CONF_APP_WIFI_CH_SECURE) {
+                TEST_ASSERT_EQUAL_INT(MBED_CONF_APP_WIFI_CH_SECURE, ch);
+            }
         }
         if (strcmp(MBED_CONF_APP_WIFI_UNSECURE_SSID, ssid) == 0) {
             unsecure_found = true;
             TEST_ASSERT_EQUAL_INT(NSAPI_SECURITY_NONE, security);
-            TEST_ASSERT_EQUAL_INT(MBED_CONF_APP_WIFI_CH_UNSECURE, ch);
+            if (MBED_CONF_APP_WIFI_CH_UNSECURE) {
+                TEST_ASSERT_EQUAL_INT(MBED_CONF_APP_WIFI_CH_UNSECURE, ch);
+            }
         }
     }
     TEST_ASSERT_TRUE(secure_found);
