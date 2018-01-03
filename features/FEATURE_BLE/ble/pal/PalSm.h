@@ -63,16 +63,16 @@ struct resolving_list_t {
 };
 
 /** Representation of a bonded list. */
-struct boonded_list_t {
+struct bonded_list_t {
     bonded_list_entry_t *entries; /**< pointer to array storing the entries */
     uint8_t size; /**< actual number of entries */
     uint8_t capacity;  /**< number of entries that can be stored */
 };
 
 
-class SecurityManagerPal : private mbed::NonCopyable<SecurityManagerPal> {
+class SecurityManager : private mbed::NonCopyable<SecurityManager> {
 public:
-    SecurityManagerPal(SecurityManagerEventHandler* event_handler) : _event_handler(event_handler) { };
+    SecurityManager() : _event_handler(NULL) { };
 
     virtual ble_error_t initialize() = 0;
     virtual ble_error_t terminate() = 0;
@@ -80,11 +80,14 @@ public:
 
     /* for persistence */
 
-    virtual ble_error_t get_bonded_list(boonded_list_t *list) = 0;
-    virtual ble_error_t set_bonded_list(boonded_list_t *list) = 0;
+    virtual ble_error_t get_bonded_list(bonded_list_t &list) = 0;
+    virtual ble_error_t set_bonded_list(bonded_list_t &list) = 0;
 
-    virtual ble_error_t get_resolving_list(resolving_list_t *list) = 0;
-    virtual ble_error_t set_resolving_list(resolving_list_t *list) = 0;
+    virtual ble_error_t get_resolving_list(resolving_list_t &list) = 0;
+    virtual ble_error_t set_resolving_list(resolving_list_t &list) = 0;
+
+    virtual ble_error_t get_whitelist(Gap::Whitelist_t &addresses) = 0;
+    virtual ble_error_t set_whitelist(Gap::Whitelist_t &addresses) = 0;
 
     /* security settings */
 
@@ -109,14 +112,14 @@ public:
 
     /* security level */
 
-    virtual ble_error_t set_link_security_settings(connection_handle_t address,
+    virtual ble_error_t set_security_settings(connection_handle_t address,
                                                    bool bondable = true,
                                                    SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
                                                    bool use_oob = false,
                                                    bool send_keypresses = false) = 0;
 
     /* triggers pairing if required */
-    virtual ble_error_t request_security_mode(connection_handle_t handle,
+    virtual ble_error_t set_security_mode(connection_handle_t handle,
                                               SecurityMode_t mode) = 0;
 
     virtual ble_error_t get_encryption_status(connection_handle_t handle,
@@ -128,8 +131,8 @@ public:
     virtual ble_error_t passkey_entered(connection_handle_t, passkey_t passkey) = 0;
     virtual ble_error_t send_keypress_notification(connection_handle_t, Keypress_t keypress) = 0;
 
-    virtual ble_error_t set_link_oob(connection_handle_t handle, c192_t*, r192_t*) = 0;
-    virtual ble_error_t set_link_extended_oob(connection_handle_t handle, c192_t*, r192_t*,c256_t*, r256_t*) = 0;
+    virtual ble_error_t set_oob(connection_handle_t handle, c192_t*, r192_t*) = 0;
+    virtual ble_error_t set_extended_oob(connection_handle_t handle, c192_t*, r192_t*,c256_t*, r256_t*) = 0;
     virtual ble_error_t get_local_oob_data(connection_handle_t handle, c192_t*, r192_t*) = 0;
     virtual ble_error_t get_local_extended_oob_data(connection_handle_t handle, c192_t*, r192_t*,c256_t*, r256_t*) = 0;
 

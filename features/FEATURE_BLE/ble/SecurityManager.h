@@ -328,6 +328,13 @@ public:
         }
     }
 
+    virtual ble_error_t preserveBondingStateOnReset(bool enable) {
+        /* Avoid compiler warnings about unused variables */
+        (void) addresses;
+
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
     /* Entry points for the underlying stack to report events back to the user. */
 public:
     /** @deprecated */
@@ -370,6 +377,8 @@ protected:
         passkeyDisplayCallback() {
         eventHandler = new SecurityManagerEventHandler();
     }
+
+    virtual ~SecurityManager() { };
 public:
     /**
      * Notify all registered onShutdown callbacks that the SecurityManager is
