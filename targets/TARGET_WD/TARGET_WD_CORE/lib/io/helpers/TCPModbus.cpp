@@ -76,7 +76,7 @@ uint8_t TCPModbus::Read(uint8_t slave_id, uint16_t start_address, uint16_t regis
 	// Read
 	int16_t real_size = 0;	
 	if ((real_size = _socket.recv(response_datagram, sizeof(response_datagram))) < 0) {
-		return this->SocketClose(Modbus::TCPReceive);
+		return SocketClose(Modbus::TCPReceive);
 	}
 	
 	// Check length
@@ -189,7 +189,7 @@ uint8_t TCPModbus::Write(uint8_t slave_id, uint16_t start_address, uint16_t regi
 	// Read
 	int16_t real_size = 0;	
 	if ((real_size = _socket.recv(response_datagram, sizeof(response_datagram))) < 0) {
-		return this->SocketClose(Modbus::TCPReceive);
+		return SocketClose(Modbus::TCPReceive);
 	}
 	
 	// Check length
