@@ -18,7 +18,9 @@
             "-O0",
             "-g3",
             "-DMBED_DEBUG",
-            "-DMBED_TRAP_ERRORS_ENABLED=1"
+            "-DMBED_TRAP_ERRORS_ENABLED=1",
+            "-DWD_BL_ENABLE_DEVELOPMENT",
+            "-fpermissive"
         ],
         "asm": [
             "-x",
