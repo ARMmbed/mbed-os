@@ -51,13 +51,17 @@ extern uint32_t SystemCoreClock;
  *   For K64F          DELTA = (80000 / 120000000) * 1000000 = 666[us]
  *   For NUCLEO_F070RB DELTA = (80000 /  48000000) * 1000000 = 1666[us]
  *   For NRF51_DK      DELTA = (80000 /  16000000) * 1000000 = 5000[us]
+ *
+ * As low power timer cannot be too much accurate, this DELTA should not be more precise than 500us,
+ * which corresponds to a maximum CPU clock around 130MHz
  */
 #define US_PER_SEC       1000000
 #define US_PER_MSEC      1000
 #define TOLERANCE_FACTOR 80000.0f
 #define US_FACTOR        1000000.0f
+#define CLOCK_MAX        130000000
 
-static const int delta_sys_clk_us = ((int) (TOLERANCE_FACTOR / (float) SystemCoreClock * US_FACTOR));
+static const int delta_sys_clk_us = (SystemCoreClock < CLOCK_MAX? ((int) (TOLERANCE_FACTOR / (float) SystemCoreClock * US_FACTOR)):((int) (TOLERANCE_FACTOR / (float) CLOCK_MAX * US_FACTOR)));
 
 /* When test performs time measurement using Timer in sequence, then measurement error accumulates
  * in the successive attempts. */
