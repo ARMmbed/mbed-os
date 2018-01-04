@@ -2318,6 +2318,7 @@ typedef struct {                                    /*!< CRYPTOCELL Structure   
 #define NRF_FPU_BASE                    0x40026000UL
 #define NRF_USBD_BASE                   0x40027000UL
 #define NRF_UARTE1_BASE                 0x40028000UL
+#define NRF_UART1_BASE                  0x40028000UL
 #define NRF_QSPI_BASE                   0x40029000UL
 #define NRF_SPIM3_BASE                  0x4002B000UL
 #define NRF_PWM3_BASE                   0x4002D000UL
@@ -2396,6 +2397,7 @@ typedef struct {                                    /*!< CRYPTOCELL Structure   
 #define NRF_FPU                         ((NRF_FPU_Type            *) NRF_FPU_BASE)
 #define NRF_USBD                        ((NRF_USBD_Type           *) NRF_USBD_BASE)
 #define NRF_UARTE1                      ((NRF_UARTE_Type          *) NRF_UARTE1_BASE)
+#define NRF_UART1                       ((NRF_UART_Type           *) NRF_UART1_BASE)
 #define NRF_QSPI                        ((NRF_QSPI_Type           *) NRF_QSPI_BASE)
 #define NRF_SPIM3                       ((NRF_SPIM_Type           *) NRF_SPIM3_BASE)
 #define NRF_PWM3                        ((NRF_PWM_Type            *) NRF_PWM3_BASE)
