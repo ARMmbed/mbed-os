@@ -52,14 +52,14 @@ static void m_checkinit()
 	if(incomplete_size){
 
 		// let's use a stack-buffer
-		uint32_t * zerob = alloca(incomplete_size);
+		uint32_t zerob = alloca(incomplete_size);
 		memset(zerob, 0, incomplete_size);
 
 		// and write to flash
 		p_zero.w++;	// don't need to zero out word already zero
 		struct blsrv_desc d;
 		d.operation = blsrv_write_config_data;
-		d.args.write_config_data.offset = p_zero.val - start_intptr;
+		d.args.write_config_data.address = p_zero.val;
 		d.args.write_config_data.buffer = (intptr_t)zerob;
 		d.args.write_config_data.buffer_size = incomplete_size;
 		blsrv_call(&d);
@@ -67,7 +67,7 @@ static void m_checkinit()
 
 		
 	// now we are on the first 0xFFFFFFFF again	
-	m_endptr.w = p_last.w++;
+	m_endptr.w = ++p_last.w;
 }
 
 flashconfig_result flashconfig_get_value(const char * name, const char ** value)
@@ -178,7 +178,7 @@ flashconfig_result flashconfig_set_value(const char * name, char * value)
 		*p.c++ = '\0';
 	
 	// add termination word
-	*p.w = 0;
+	*p.w++ = 0;
 	
 	size_t memsize = p.val - (intptr_t)buffer;
 
@@ -188,10 +188,13 @@ flashconfig_result flashconfig_set_value(const char * name, char * value)
 	// and write to flash
 	struct blsrv_desc d;
 	d.operation = blsrv_write_config_data;
-	d.args.write_config_data.offset = m_endptr.val - start_intptr;
+	d.args.write_config_data.address = m_endptr.val;	/* due a bootloader bug, this is no offset, but an absolute address */
 	d.args.write_config_data.buffer = (intptr_t)buffer;
 	d.args.write_config_data.buffer_size = memsize;
 	blsrv_call(&d);
 
 	m_endptr.c += memsize;
+	
+	return flashconfig_success;
+	
 }

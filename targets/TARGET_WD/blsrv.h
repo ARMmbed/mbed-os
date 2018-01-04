@@ -48,7 +48,7 @@ struct blsrv_desc {
 		} apply_update;
 
 		struct {
-			int offset;	// offset from the start of the section
+			intptr_t address;	// address within the config section
 			intptr_t buffer;	// data to write
 			size_t buffer_size;
 		} write_config_data;
