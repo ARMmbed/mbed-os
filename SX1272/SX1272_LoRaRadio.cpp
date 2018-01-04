@@ -1720,7 +1720,7 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                             rx_timeout_timer.detach();
 
                             if ((_radio_events != NULL)
-                                    && (_radio_events->rx_error != NULL)) {
+                                    && (_radio_events->rx_error)) {
                                 _radio_events->rx_error();
                             }
                             _rf_settings.fsk_packet_handler.preamble_detected = false;
@@ -1763,7 +1763,7 @@ void SX1272_LoRaRadio::handle_dio0_irq()
 
                     rx_timeout_timer.detach();
 
-                    if ((_radio_events != NULL) && (_radio_events->rx_done != NULL)) {
+                    if ((_radio_events != NULL) && (_radio_events->rx_done)) {
                         _radio_events->rx_done(
                                 _data_buffer,
                                 _rf_settings.fsk_packet_handler.size,
@@ -1793,7 +1793,7 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                         rx_timeout_timer.detach();
 
                         if ((_radio_events != NULL)
-                                && (_radio_events->rx_error != NULL)) {
+                                && (_radio_events->rx_error)) {
                             _radio_events->rx_error();
                         }
                         break;
@@ -1828,7 +1828,7 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                     rx_timeout_timer.detach();
 
                     if ((_radio_events != NULL)
-                            && (_radio_events->rx_done != NULL)) {
+                            && (_radio_events->rx_done)) {
                         _radio_events->rx_done(
                                 _data_buffer,
                                 _rf_settings.lora_packet_handler.size,
@@ -1853,7 +1853,7 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                 default:
                     _rf_settings.state = RF_IDLE;
                     if ((_radio_events != NULL)
-                            && (_radio_events->tx_done != NULL)) {
+                            && (_radio_events->tx_done)) {
                         _radio_events->tx_done();
                     }
                     break;
@@ -1901,7 +1901,7 @@ void SX1272_LoRaRadio::handle_dio1_irq()
                    // Sync time out
                    rx_timeout_timer.detach( );
                    _rf_settings.state = RF_IDLE;
-                   if ((_radio_events != NULL) && (_radio_events->rx_timeout != NULL)) {
+                   if ((_radio_events != NULL) && (_radio_events->rx_timeout)) {
                         _radio_events->rx_timeout();
                     }
                    break;
@@ -1969,7 +1969,7 @@ void SX1272_LoRaRadio::handle_dio2_irq(void)
                     // Clear Irq
                     write_to_register( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL );
 
-                    if( ( _radio_events != NULL ) && (_radio_events->fhss_change_channel != NULL ) )
+                    if( ( _radio_events != NULL ) && (_radio_events->fhss_change_channel ) )
                     {
                         _radio_events->fhss_change_channel((read_register( REG_LR_HOPCHANNEL ) & RFLR_HOPCHANNEL_CHANNEL_MASK ));
                     }
@@ -1990,7 +1990,7 @@ void SX1272_LoRaRadio::handle_dio2_irq(void)
                     // Clear Irq
                     write_to_register( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_FHSSCHANGEDCHANNEL );
 
-                    if( (_radio_events != NULL ) && ( _radio_events->fhss_change_channel != NULL ) )
+                    if( (_radio_events != NULL ) && ( _radio_events->fhss_change_channel ) )
                     {
                         _radio_events->fhss_change_channel((read_register( REG_LR_HOPCHANNEL ) & RFLR_HOPCHANNEL_CHANNEL_MASK ));
                     }
@@ -2016,7 +2016,7 @@ void SX1272_LoRaRadio::handle_dio3_irq( void )
         {
             // Clear Irq
             write_to_register( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_CADDETECTED | RFLR_IRQFLAGS_CADDONE );
-            if( ( _radio_events != NULL ) && ( _radio_events->cad_done != NULL ) )
+            if( ( _radio_events != NULL ) && ( _radio_events->cad_done ) )
             {
                 _radio_events->cad_done( true );
             }
@@ -2025,7 +2025,7 @@ void SX1272_LoRaRadio::handle_dio3_irq( void )
         {
             // Clear Irq
             write_to_register( REG_LR_IRQFLAGS, RFLR_IRQFLAGS_CADDONE );
-            if( ( _radio_events != NULL ) && ( _radio_events->cad_done != NULL ) )
+            if( ( _radio_events != NULL ) && ( _radio_events->cad_done ) )
             {
                 _radio_events->cad_done( false );
             }
@@ -2099,7 +2099,7 @@ void SX1272_LoRaRadio::handle_timeout_irq()
              }
          }
 
-         if((_radio_events != NULL) && (_radio_events->rx_timeout != NULL)) {
+         if((_radio_events != NULL) && (_radio_events->rx_timeout)) {
              _radio_events->rx_timeout();
          }
 
@@ -2126,7 +2126,7 @@ void SX1272_LoRaRadio::handle_timeout_irq()
          set_public_network(_rf_settings.lora.public_network);
 
          _rf_settings.state = RF_IDLE;
-         if( ( _radio_events != NULL ) && ( _radio_events->tx_timeout != NULL ) )
+         if( ( _radio_events != NULL ) && ( _radio_events->tx_timeout ) )
          {
              _radio_events->tx_timeout( );
          }
