@@ -185,6 +185,8 @@ SX1272_LoRaRadio::SX1272_LoRaRadio(PinName spi_mosi, PinName spi_miso,
     _rf_ctrls.rxctl = rxctl;
     _rf_ctrls.txctl = txctl;
 
+    _dio5_pin = dio5;
+
     _radio_events = NULL;
 
 #ifdef MBED_CONF_RTOS_PRESENT
@@ -1330,9 +1332,10 @@ void SX1272_LoRaRadio::default_antenna_switch_ctrls()
         _rf_switch_ctl2 = 0;
     }
 
-    if (_rf_ctrls.txctl != NC && _rf_ctrls.rxctl != NC)
-    _txctl = 0;
-    _rxctl = 0;
+    if (_rf_ctrls.txctl != NC && _rf_ctrls.rxctl != NC) {
+        _txctl = 0;
+        _rxctl = 0;
+    }
 }
 
 /**
@@ -1500,12 +1503,9 @@ void SX1272_LoRaRadio::set_antenna_switch(uint8_t mode)
                 _txctl = 1;
                 _rxctl = 0;
             } else if (_rf_ctrls.ant_switch != NC){
-                MBED_ASSERT(_rf_ctrls.ant_switch == NC);
                 _ant_switch = 1;
             } else {
-                // Either None of the control pins are connected or wrong
-                // combination of controls pins. Break the system right here.
-                MBED_ASSERT(false);
+                // None of the control pins are connected.
             }
             break;
         case RFLR_OPMODE_RECEIVER:
@@ -1523,9 +1523,7 @@ void SX1272_LoRaRadio::set_antenna_switch(uint8_t mode)
             } else if (_rf_ctrls.ant_switch != NC) {
                 _ant_switch = 0;
             } else {
-                // Either None of the control pins are connected or wrong
-                // combination of controls pins. Break the system right here.
-                MBED_ASSERT(false);
+                // None of the control pins are connected.
             }
             break;
         default:
@@ -1542,9 +1540,7 @@ void SX1272_LoRaRadio::set_antenna_switch(uint8_t mode)
             } else if (_rf_ctrls.ant_switch != NC) {
                 _ant_switch = 0;
             } else {
-                // Either None of the control pins are connected or wrong
-                // combination of controls pins. Break the system right here.
-                MBED_ASSERT(false);
+                // None of the control pins are connected.
             }
             break;
     }
@@ -1584,7 +1580,9 @@ void SX1272_LoRaRadio::setup_interrupts()
     _dio2_ctl.rise(callback(this, &SX1272_LoRaRadio::dio2_irq_isr));
     _dio3_ctl.rise(callback(this, &SX1272_LoRaRadio::dio3_irq_isr));
     _dio4_ctl.rise(callback(this, &SX1272_LoRaRadio::dio4_irq_isr));
-    _dio5_ctl.rise(callback(this, &SX1272_LoRaRadio::dio5_irq_isr));
+    if (_dio5_pin != NC) {
+        _dio5_ctl.rise(callback(this, &SX1272_LoRaRadio::dio5_irq_isr));
+    }
 }
 
 /**
