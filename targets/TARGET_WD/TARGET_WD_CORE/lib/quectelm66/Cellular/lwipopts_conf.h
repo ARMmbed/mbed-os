@@ -20,7 +20,7 @@
 #ifndef LWIPOPTS_CONF_H_
 #define LWIPOPTS_CONF_H_
  
-#define LWIP_TRANSPORT_PPP 1
+// #define NSAPI_PPP_AVAILABLE 1
 
 #endif /* LWIPOPTS_CONF_H_ */
 

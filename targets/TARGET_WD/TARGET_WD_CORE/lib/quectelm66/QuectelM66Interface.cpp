@@ -173,33 +173,7 @@ void QuectelM66Interface::serial_read_thread_entry(dma_frame_meta_t * frame_meta
 	
 	this->_serialStreamAdapter->getFrame(frame_meta, buffer, &length);
 	
-	pppos_input_tcpip(mbed_get_ppp_pcb(), buffer, length);
-	
-	//wd_log_debug("QuectelM66Interface --> serial_read_thread_entry");
-	//
-	//this->_readProcessingThread.signal_clr(QUECTEL_M66_PPP_READ_START_SIGNAL);
-	//this->_readProcessingThread.signal_clr(QUECTEL_M66_PPP_READ_STOP_SIGNAL);
-	//
-	//do {
-	//
-		//this->_readProcessingThread.signal_wait(QUECTEL_M66_PPP_READ_START_SIGNAL);
-		//wd_log_debug("QuectelM66Interface --> QUECTEL_M66_PPP_READ_START_SIGNAL received");
-		//this->_readProcessingThread.signal_clr(QUECTEL_M66_PPP_READ_START_SIGNAL);
-	//
-		//int size;
-		//do {
-		//
-			//if (this->_serialStreamAdapter->read(this->_serialBuffer, &size, QUECTEL_M66_READ_BUFFER_SIZE, 100) == 0) {
-				//wd_log_debug("QuectelM66Interface --> %d bytes read, forwarding to pppos", size);
-				//ppp_pcb *tmp = mbed_get_ppp_pcb();
-				//pppos_input_tcpip(tmp, this->_serialBuffer, size);	
-			//}
-			//
-		//} while (this->_readProcessingThread.signal_wait(QUECTEL_M66_PPP_READ_STOP_SIGNAL, 0).status != osEventSignal);
-		//wd_log_debug("QuectelM66Interface --> QUECTEL_M66_PPP_READ_STOP_SIGNAL received");
-		//this->_readProcessingThread.signal_clr(QUECTEL_M66_PPP_READ_STOP_SIGNAL);
-	//
-	//} while (true);
+	pppos_input(mbed_get_ppp_pcb(), buffer, length);
 		
 }
 	    

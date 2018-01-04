@@ -102,7 +102,7 @@
 #ifdef LWIP_DEBUG
 #define TCPIP_THREAD_STACKSIZE      MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE*2
 #else
-#define TCPIP_THREAD_STACKSIZE      MBED_CONF_LWIP_TCPIP_THREAD_STACKSIZE
+#define TCPIP_THREAD_STACKSIZE      2048
 #endif
 
 #define TCPIP_THREAD_PRIO           (osPriorityNormal)
@@ -114,12 +114,12 @@
 
 // Thread stack size for private PPP thread
 #ifndef MBED_CONF_LWIP_PPP_THREAD_STACKSIZE
-#define MBED_CONF_LWIP_PPP_THREAD_STACKSIZE    768
+#define MBED_CONF_LWIP_PPP_THREAD_STACKSIZE    2048
 #endif
 
 #ifdef LWIP_DEBUG
 #define DEFAULT_THREAD_STACKSIZE    MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE*2
-#define PPP_THREAD_STACK_SIZE       MBED_CONF_LWIP_PPP_THREAD_STACKSIZE*2
+#define PPP_THREAD_STACK_SIZE       MBED_CONF_LWIP_PPP_THREAD_STACKSIZE
 #else
 #define DEFAULT_THREAD_STACKSIZE    MBED_CONF_LWIP_DEFAULT_THREAD_STACKSIZE
 #define PPP_THREAD_STACK_SIZE       MBED_CONF_LWIP_PPP_THREAD_STACKSIZE
@@ -143,7 +143,7 @@
 #define PBUF_POOL_SIZE              MBED_CONF_LWIP_PBUF_POOL_SIZE
 #else
 #ifndef PBUF_POOL_SIZE
-#define PBUF_POOL_SIZE              5
+#define PBUF_POOL_SIZE              10
 #endif
 #endif
 
@@ -162,7 +162,7 @@
 #ifdef MBED_CONF_LWIP_TCP_SERVER_MAX
 #define MEMP_NUM_TCP_PCB_LISTEN     MBED_CONF_LWIP_TCP_SERVER_MAX
 #else
-#define MEMP_NUM_TCP_PCB_LISTEN     4
+#define MEMP_NUM_TCP_PCB_LISTEN     1
 #endif
 
 // One is tcp_pcb needed for each TCPSocket.
@@ -170,7 +170,7 @@
 #ifdef MBED_CONF_LWIP_TCP_SOCKET_MAX
 #define MEMP_NUM_TCP_PCB            MBED_CONF_LWIP_TCP_SOCKET_MAX
 #else
-#define MEMP_NUM_TCP_PCB            4
+#define MEMP_NUM_TCP_PCB            1
 #endif
 
 // One udp_pcb is needed for each UDPSocket.
@@ -209,6 +209,7 @@
 #define LWIP_TCP                    0
 #endif
 
+#define LWIP_DHCP                   LWIP_IPV4
 #define LWIP_DNS                    1
 #define LWIP_SOCKET                 0
 
@@ -222,7 +223,7 @@
 #define LWIP_COMPAT_SOCKETS         0
 #define LWIP_POSIX_SOCKETS_IO_NAMES 0
 #define LWIP_SO_RCVTIMEO            1
-
+#define LWIP_TCP_KEEPALIVE          1
 #define LWIP_BROADCAST_PING         1
 
 // Fragmentation on, as per IPv4 default
@@ -303,17 +304,22 @@
 // to allow users like PPPCellularInterface to detect that nsapi_ppp.h is available.
 #if NSAPI_PPP_AVAILABLE
 #define PPP_SUPPORT                    1
+#define PPPOS_SUPPORT                  1
 #if MBED_CONF_LWIP_IPV6_ENABLED
 #define PPP_IPV6_SUPPORT               1
 // Disable DAD for PPP
 #define LWIP_IPV6_DUP_DETECT_ATTEMPTS  0
 #endif
 #define CHAP_SUPPORT                   1
-#define PPP_INPROC_IRQ_SAFE            1
+#define PPP_INPROC_IRQ_SAFE            1        // because we use pppos_input_tcpip()
+#define PAP_SUPPORT                    1
 // Save RAM
-#define PAP_SUPPORT                    0
 #define VJ_SUPPORT                     0
 #define PRINTPKT_SUPPORT               0
+
+#define TCP_SND_BUF                     (3 * 536)
+#define TCP_WND                         (2 * 536)
+#define PPP_THREAD_PRIO					0
 
 // Broadcast
 #define IP_SOF_BROADCAST               0

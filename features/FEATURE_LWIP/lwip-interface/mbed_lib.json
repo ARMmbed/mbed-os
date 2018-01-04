@@ -31,7 +31,7 @@
         },
         "ppp-enabled": {
             "help": "Enable support for PPP interfaces",
-            "value": false,
+            "value": true,
             "macro_name": "NSAPI_PPP_AVAILABLE"
         },
         "ppp-ipv4-enabled": {
