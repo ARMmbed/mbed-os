@@ -252,13 +252,9 @@ nsapi_error_t RTWInterface::connect(const char *ssid, const char *pass,
 nsapi_error_t RTWInterface::disconnect()
 {
     char essid[33];
-	
+
     wlan_emac_link_change(false);
-<<<<<<< HEAD
     mbed_lwip_bringdown();
-=======
-	mbed_lwip_bringdown();
->>>>>>> 31a4137bffd5b8eefb4fe4bfef1365fd84df9e0e
     if(wifi_is_connected_to_ap() != RTW_SUCCESS)
         return NSAPI_ERROR_NO_CONNECTION;
     if(wifi_disconnect()<0){
