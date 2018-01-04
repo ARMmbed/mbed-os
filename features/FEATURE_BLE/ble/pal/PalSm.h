@@ -25,7 +25,6 @@ using SecurityManager::SecurityMode_t;
 using SecurityManager::LinkSecurityStatus_t;
 using SecurityManager::Passkey_t;
 using SecurityManager::Keypress_t;
-using SecurityManager::SecurityManagerEventHandler;
 
 using BLEProtocol::AddressBytes_t;
 using BLEProtocol::Address_t;

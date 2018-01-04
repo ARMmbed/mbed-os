@@ -20,6 +20,9 @@
 #include "SecurityManager.h"
 #include "PalSm.h"
 
+namespace ble {
+namespace generic {
+
 class GenericSecurityManager : public SecurityManager {
 public:
     
@@ -51,11 +54,7 @@ public:
     }
 
     virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)connectionHandle;
-        (void)securityStatusP;
-
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+        return pal.get_encryption_status(connectionHandle, securityStatusP);
     }
 
     ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
@@ -90,11 +89,13 @@ protected:
         eventHandler = new SecurityManagerEventHandler();
         pal.setSecurityManagerEventHandler(eventHandler);
     }
+
 public:
-    
     ble_error_t reset(void) {
         saveState();
+
         SecurityManager::reset();
+
         pal.setSecurityManagerEventHandler(eventHandler);
 
         return BLE_ERROR_NONE;
@@ -104,5 +105,8 @@ private:
     ble::pal::SecurityManager& pal;
     bool saveStateEnabled;
 };
+
+} /* namespace generic */
+} /* namespace ble */
 
 #endif /*__GENERIC_SECURITY_MANAGER_H__*/
