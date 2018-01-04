@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,28 +31,17 @@
 
 #if DEVICE_LOWPOWERTIMER
 
-#include "ticker_api.h"
-#include "lp_ticker_api.h"
-#include "rtc_api.h"
 #include "rtc_api_hal.h"
-
-static uint8_t lp_ticker_inited = 0;
 
 void lp_ticker_init(void)
 {
-    if (lp_ticker_inited) return;
-    lp_ticker_inited = 1;
-
     rtc_init();
-    rtc_set_irq_handler((uint32_t) lp_ticker_irq_handler);
 }
 
 uint32_t lp_ticker_read(void)
 {
     uint32_t usecs = 0;
     time_t time = 0;
-
-    lp_ticker_init();
 
     do {
         time = rtc_read();
@@ -70,6 +59,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     rtc_set_wake_up_timer(delta);
 }
 
+void lp_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(RTC_WKUP_IRQn);
+}
+
 void lp_ticker_disable_interrupt(void)
 {
     rtc_deactivate_wake_up_timer();
@@ -77,7 +71,7 @@ void lp_ticker_disable_interrupt(void)
 
 void lp_ticker_clear_interrupt(void)
 {
-
+    NVIC_ClearPendingIRQ(RTC_WKUP_IRQn);
 }
 
-#endif
+#endif /* DEVICE_LOWPOWERTIMER */
