@@ -25,7 +25,7 @@ static void nordic_nvic_critical_region_enter(void);
 static void nordic_nvic_critical_region_exit(void);
 #endif
 
-void core_util_critical_section_enter()
+void hal_critical_section_enter()
 {
 #ifdef NRF52
     ASSERT(APP_LEVEL_PRIVILEGED == privilege_level_get())
@@ -39,7 +39,7 @@ void core_util_critical_section_enter()
 #endif
 }
 
-void core_util_critical_section_exit()
+void hal_critical_section_exit()
 {
 #ifdef NRF52
     ASSERT(APP_LEVEL_PRIVILEGED == privilege_level_get())
@@ -52,6 +52,13 @@ void core_util_critical_section_exit()
     app_util_enable_irq();
 #endif
 }
+
+
+bool hal_in_critical_section(void)
+{
+    return (nordic_cr_nested != 0);
+}
+
 
 #if defined(SOFTDEVICE_PRESENT)
 /**@brief Enters critical region.

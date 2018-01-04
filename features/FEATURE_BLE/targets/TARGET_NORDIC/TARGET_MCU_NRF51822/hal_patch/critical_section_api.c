@@ -77,3 +77,8 @@ void hal_critical_section_exit(void)
         __set_PRIMASK(_state._PRIMASK_state);
     }
 }
+
+bool hal_in_critical_section(void)
+{
+    return (_state_saved == true);
+}

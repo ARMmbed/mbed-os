@@ -53,7 +53,7 @@ bool core_util_is_isr_active(void)
 
 bool core_util_in_critical_section(void)
 {
-    return (critical_section_reentrancy_counter != 0);
+    return hal_in_critical_section();
 }
 
 void core_util_critical_section_enter(void)

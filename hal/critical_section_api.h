@@ -18,6 +18,8 @@
 #ifndef MBED_CRITICAL_SECTION_API_H
 #define MBED_CRITICAL_SECTION_API_H
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -60,6 +62,7 @@ extern "C" {
  */
 void hal_critical_section_enter(void);
 
+
 /** Mark the end of a critical section.
  *
  * The purpose of this function is to restore any state that was modified upon
@@ -78,6 +81,20 @@ void hal_critical_section_enter(void);
  * different function implementation within the correct targets directory.
  */
 void hal_critical_section_exit(void);
+
+
+/** Determine if the application is currently running in a critical section
+ *
+ * The purpose of this function is to inform the caller whether or not the
+ * application is running in a critical section. This is done by checking if
+ * the current interrupt state has been saved in the underlying implementation,
+ * this could also be done by checking the state of the interrupts at the time
+ * of calling.
+ *
+ *  @return  True if running in a critical section, false if not.
+ */
+bool hal_in_critical_section(void);
+
 
 /**@}*/
 
