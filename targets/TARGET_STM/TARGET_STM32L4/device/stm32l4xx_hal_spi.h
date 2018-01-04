@@ -611,6 +611,8 @@ typedef struct __SPI_HandleTypeDef
 
 #define IS_SPI_CRC_POLYNOMIAL(POLYNOMIAL) (((POLYNOMIAL) >= 0x1U) && ((POLYNOMIAL) <= 0xFFFFU) && (((POLYNOMIAL)&0x1U) != 0U))
 
+#define IS_SPI_DMA_HANDLE(HANDLE) ((HANDLE) != NULL)
+
 
 /**
   * @}

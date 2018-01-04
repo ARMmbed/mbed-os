@@ -37,26 +37,29 @@
 /* CMSIS compiler specific defines */
 #ifndef   __ASM
   #define __ASM                                  __asm
-#endif                                          
-#ifndef   __INLINE                              
+#endif
+#ifndef   __INLINE
   #define __INLINE                               __inline
-#endif                                          
-#ifndef   __FORCEINLINE                              
+#endif
+#ifndef   __FORCEINLINE
   #define __FORCEINLINE                          __forceinline
-#endif                                          
-#ifndef   __STATIC_INLINE                       
+#endif
+#ifndef   __STATIC_INLINE
   #define __STATIC_INLINE                        static __inline
-#endif                                                                                   
-#ifndef   __STATIC_FORCEINLINE                 
+#endif
+#ifndef   __STATIC_FORCEINLINE
   #define __STATIC_FORCEINLINE                   static __forceinline
-#endif                                                                                   
-#ifndef   __NO_RETURN                           
+#endif
+#ifndef   __NO_RETURN
   #define __NO_RETURN                            __declspec(noreturn)
-#endif                                          
-#ifndef   __USED                                
+#endif
+#ifndef   CMSIS_DEPRECATED
+  #define CMSIS_DEPRECATED                       __attribute__((deprecated))
+#endif
+#ifndef   __USED
   #define __USED                                 __attribute__((used))
-#endif                                          
-#ifndef   __WEAK                                
+#endif
+#ifndef   __WEAK
   #define __WEAK                                 __attribute__((weak))
 #endif
 #ifndef   __PACKED
@@ -79,8 +82,8 @@
 #endif
 #ifndef   __ALIGNED
   #define __ALIGNED(x)                           __attribute__((aligned(x)))
-#endif                                          
-#ifndef   __PACKED                              
+#endif
+#ifndef   __PACKED
   #define __PACKED                               __attribute__((packed))
 #endif
 
@@ -134,6 +137,7 @@
 
 /**
   \brief   Reverse byte order (32 bit)
+  \details Reverses the byte order in unsigned integer value. For example, 0x12345678 becomes 0x78563412.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
@@ -141,6 +145,7 @@
 
 /**
   \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order within each halfword of a word. For example, 0x12345678 becomes 0x34127856.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
@@ -153,12 +158,13 @@ __attribute__((section(".rev16_text"))) __STATIC_INLINE __ASM uint32_t __REV16(u
 #endif
 
 /**
-  \brief   Reverse byte order in signed short value
+  \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order in a 16-bit value and returns the signed 16-bit result. For example, 0x0080 becomes 0x8000.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
 #ifndef __NO_EMBEDDED_ASM
-__attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int32_t __REVSH(int32_t value)
+__attribute__((section(".revsh_text"))) __STATIC_INLINE __ASM int16_t __REVSH(int16_t value)
 {
   revsh r0, r0
   bx lr
@@ -351,14 +357,16 @@ __STATIC_INLINE void __set_CPSR(uint32_t cpsr)
 /** \brief  Get Mode
     \return                Processor Mode
  */
-__STATIC_INLINE uint32_t __get_mode(void) {
+__STATIC_INLINE uint32_t __get_mode(void)
+{
   return (__get_CPSR() & 0x1FU);
 }
 
 /** \brief  Set Mode
     \param [in]    mode  Mode value to set
  */
-__STATIC_INLINE __ASM void __set_mode(uint32_t mode) {
+__STATIC_INLINE __ASM void __set_mode(uint32_t mode)
+{
   MOV  r1, lr
   MSR  CPSR_C, r0
   BX   r1
@@ -373,7 +381,7 @@ __STATIC_INLINE __ASM uint32_t __get_SP(void)
   BX   lr
 }
 
-/** \brief  Set Stack Pointer 
+/** \brief  Set Stack Pointer
     \param [in]    stack  Stack Pointer value to set
  */
 __STATIC_INLINE __ASM void __set_SP(uint32_t stack)
@@ -442,75 +450,32 @@ __STATIC_INLINE void __set_FPEXC(uint32_t fpexc)
 /*
  * Include common core functions to access Coprocessor 15 registers
  */
- 
-#define __get_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); Rt = tmp; } while(0)
-#define __set_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); tmp = Rt; } while(0)
+
+#define __get_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); (Rt) = tmp; } while(0)
+#define __set_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); tmp = (Rt); } while(0)
+#define __get_CP64(cp, op1, Rt, CRm) \
+  do { \
+    uint32_t ltmp, htmp; \
+    __ASM volatile("MRRC p" # cp ", " # op1 ", ltmp, htmp, c" # CRm); \
+    (Rt) = ((((uint64_t)htmp) << 32U) | ((uint64_t)ltmp)); \
+  } while(0)
+
+#define __set_CP64(cp, op1, Rt, CRm) \
+  do { \
+    const uint64_t tmp = (Rt); \
+    const uint32_t ltmp = (uint32_t)(tmp); \
+    const uint32_t htmp = (uint32_t)(tmp >> 32U); \
+    __ASM volatile("MCRR p" # cp ", " # op1 ", ltmp, htmp, c" # CRm); \
+  } while(0)
 
 #include "cmsis_cp15.h"
-
-/** \brief  Clean and Invalidate the entire data or unified cache
- * \param [in] op 0 - invalidate, 1 - clean, otherwise - invalidate and clean
- */
-__STATIC_INLINE __ASM void __L1C_CleanInvalidateCache(uint32_t op) {
-        ARM
-
-        PUSH    {R4-R11}
-
-        MRC     p15, 1, R6, c0, c0, 1      // Read CLIDR
-        ANDS    R3, R6, #0x07000000        // Extract coherency level
-        MOV     R3, R3, LSR #23            // Total cache levels << 1
-        BEQ     Finished                   // If 0, no need to clean
-
-        MOV     R10, #0                    // R10 holds current cache level << 1
-Loop1   ADD     R2, R10, R10, LSR #1       // R2 holds cache "Set" position
-        MOV     R1, R6, LSR R2             // Bottom 3 bits are the Cache-type for this level
-        AND     R1, R1, #7                 // Isolate those lower 3 bits
-        CMP     R1, #2
-        BLT     Skip                       // No cache or only instruction cache at this level
-
-        MCR     p15, 2, R10, c0, c0, 0     // Write the Cache Size selection register
-        ISB                                // ISB to sync the change to the CacheSizeID reg
-        MRC     p15, 1, R1, c0, c0, 0      // Reads current Cache Size ID register
-        AND     R2, R1, #7                 // Extract the line length field
-        ADD     R2, R2, #4                 // Add 4 for the line length offset (log2 16 bytes)
-        LDR     R4, =0x3FF
-        ANDS    R4, R4, R1, LSR #3         // R4 is the max number on the way size (right aligned)
-        CLZ     R5, R4                     // R5 is the bit position of the way size increment
-        LDR     R7, =0x7FFF
-        ANDS    R7, R7, R1, LSR #13        // R7 is the max number of the index size (right aligned)
-
-Loop2   MOV     R9, R4                     // R9 working copy of the max way size (right aligned)
-
-Loop3   ORR     R11, R10, R9, LSL R5       // Factor in the Way number and cache number into R11
-        ORR     R11, R11, R7, LSL R2       // Factor in the Set number
-        CMP     R0, #0
-        BNE     Dccsw
-        MCR     p15, 0, R11, c7, c6, 2     // DCISW. Invalidate by Set/Way
-        B       cont
-Dccsw   CMP     R0, #1
-        BNE     Dccisw
-        MCR     p15, 0, R11, c7, c10, 2    // DCCSW. Clean by Set/Way
-        B       cont
-Dccisw  MCR     p15, 0, R11, c7, c14, 2    // DCCISW. Clean and Invalidate by Set/Way
-cont    SUBS    R9, R9, #1                 // Decrement the Way number
-        BGE     Loop3
-        SUBS    R7, R7, #1                 // Decrement the Set number
-        BGE     Loop2
-Skip    ADD     R10, R10, #2               // Increment the cache number
-        CMP     R3, R10
-        BGT     Loop1
-
-Finished
-        DSB
-        POP    {R4-R11}
-        BX     lr
-}
 
 /** \brief  Enable Floating Point Unit
 
   Critical section, called from undef handler, so systick is disabled
  */
-__STATIC_INLINE __ASM void __FPU_Enable(void) {
+__STATIC_INLINE __ASM void __FPU_Enable(void)
+{
         ARM
 
         //Permit access to VFP/NEON, registers by modifying CPACR
@@ -528,7 +493,7 @@ __STATIC_INLINE __ASM void __FPU_Enable(void) {
 
         //Initialise VFP/NEON registers to 0
         MOV     R2,#0
-  IF {TARGET_FEATURE_EXTENSION_REGISTER_COUNT} >= 16
+
         //Initialise D16 registers to 0
         VMOV    D0, R2,R2
         VMOV    D1, R2,R2
@@ -546,7 +511,7 @@ __STATIC_INLINE __ASM void __FPU_Enable(void) {
         VMOV    D13,R2,R2
         VMOV    D14,R2,R2
         VMOV    D15,R2,R2
-  ENDIF
+
   IF {TARGET_FEATURE_EXTENSION_REGISTER_COUNT} == 32
         //Initialise D32 registers to 0
         VMOV    D16,R2,R2

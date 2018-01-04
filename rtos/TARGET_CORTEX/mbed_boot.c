@@ -423,9 +423,6 @@ void __rt_entry (void) {
     mbed_start_main();
 }
 
-typedef void *mutex;
-mutex _static_mutexes[OS_MUTEX_NUM] = {NULL};
-
 /* ARM toolchain requires dynamically created mutexes to enforce thread safety. There's
    up to 8 static mutexes, protecting atexit, signalinit, stdin, stdout, stderr, stream_list,
    fp_trap_init and the heap. Additionally for each call to fopen one extra mutex will be
@@ -436,6 +433,12 @@ mutex _static_mutexes[OS_MUTEX_NUM] = {NULL};
    worry about freeing the allocated memory as library mutexes are only freed when the
    application finishes executing.
  */
+
+typedef void *mutex;
+#define OS_MUTEX_STATIC_NUM   8
+mutex _static_mutexes[OS_MUTEX_STATIC_NUM] = {NULL};
+mbed_rtos_storage_mutex_t _static_mutexes_mem[OS_MUTEX_STATIC_NUM] = {NULL};
+ 
 int _mutex_initialize(mutex *m)
 {
     osMutexAttr_t attr;
@@ -445,10 +448,13 @@ int _mutex_initialize(mutex *m)
 
     mutex *slot = NULL;
     core_util_critical_section_enter();
-    for (int i = 0; i < OS_MUTEX_NUM; i++) {
+    for (int i = 0; i < OS_MUTEX_STATIC_NUM; i++) {
         if (_static_mutexes[i] == NULL) {
             _static_mutexes[i] = (mutex)-1; // dummy value to reserve slot
             slot = &_static_mutexes[i];
+            //Use the static attrs
+            attr.cb_size = sizeof(mbed_rtos_storage_mutex_t);
+            attr.cb_mem = &_static_mutexes_mem[i];
             break;
         }
     }
@@ -482,7 +488,7 @@ int _mutex_initialize(mutex *m)
 void _mutex_free(mutex *m) {
     mutex *slot = NULL;
     core_util_critical_section_enter();
-    for (int i = 0; i < OS_MUTEX_NUM; i++) {
+    for (int i = 0; i < OS_MUTEX_STATIC_NUM; i++) {
         if (_static_mutexes[i] == *m) {
             slot = &_static_mutexes[i];
             break;

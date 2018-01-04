@@ -144,7 +144,7 @@ if __name__ == '__main__':
             if not config:
                 args_error(parser, "argument --test-config contains invalid path or identifier")
         elif not options.app_config:
-            config = TestConfig.get_default_config(mcu)
+            config = TestConfig.get_default_config(options.source_dir or ['.'], mcu)
         else:
             config = options.app_config
 

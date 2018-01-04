@@ -819,7 +819,7 @@ class mbedToolchain:
     def relative_object_path(self, build_path, base_dir, source):
         source_dir, name, _ = split_path(source)
 
-        obj_dir = join(build_path, relpath(source_dir, base_dir))
+        obj_dir = relpath(join(build_path, relpath(source_dir, base_dir)))
         if obj_dir is not self.prev_dir:
             self.prev_dir = obj_dir
             mkdir(obj_dir)
