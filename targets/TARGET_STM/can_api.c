@@ -468,11 +468,11 @@ int can_filter(can_t *obj, uint32_t id, uint32_t mask, CANFormat format, int32_t
             sFilterConfig.FilterIdLow =  0x0;
             sFilterConfig.FilterMaskIdHigh = mask << 5;
             sFilterConfig.FilterMaskIdLow = 0x0; // allows both remote and data frames
-        } else if (format == CANExtended) {
+        } else { // format == CANExtended
             sFilterConfig.FilterIdHigh = id >> 13; // EXTID[28:13]
-            sFilterConfig.FilterIdLow = (0x00FF & (id << 3)) | (1 << 2);  // EXTID[12:0]
+            sFilterConfig.FilterIdLow = (0xFFFF & (id << 3)) | (1 << 2); // EXTID[12:0] + IDE
             sFilterConfig.FilterMaskIdHigh = mask >> 13;
-            sFilterConfig.FilterMaskIdLow = (0x00FF & (mask << 3)) | (1 << 2);
+            sFilterConfig.FilterMaskIdLow = (0xFFFF & (mask << 3)) | (1 << 2);
         }
 
         sFilterConfig.FilterFIFOAssignment = 0;
