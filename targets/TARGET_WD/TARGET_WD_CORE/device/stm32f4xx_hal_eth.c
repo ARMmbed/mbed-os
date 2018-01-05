@@ -321,7 +321,38 @@ HAL_StatusTypeDef HAL_ETH_Init(ETH_HandleTypeDef *heth)
       }
     } while (((phyreg & PHY_LINKED_STATUS) != PHY_LINKED_STATUS));
 
-    
+/* Set Auto-Negotiation capabilities for 100 Mb/s (override strap-in options) */
+	  if ((HAL_ETH_ReadPHYRegister(heth, PHY_ANAR, &phyreg)) != HAL_OK)
+	  {
+	  /* In case of write timeout */
+		  err = ETH_ERROR;
+      
+		  /* Config MAC and DMA */
+		  ETH_MACDMAConfig(heth, err);
+      
+		  /* Set the ETH peripheral state to READY */
+		  heth->State = HAL_ETH_STATE_READY;
+      
+		  /* Return HAL_ERROR */
+		  return HAL_ERROR;   
+	  }
+	  
+	  phyreg |= PHY_HALFDUPLEX_100M_CAPABILITY;
+	  phyreg |= PHY_FULLDUPLEX_100M_CAPABILITY;
+	  if (HAL_ETH_WritePHYRegister(heth, PHY_ANAR, phyreg) != HAL_OK) {
+	  	/* In case of write timeout */
+		err = ETH_ERROR;
+      
+		/* Config MAC and DMA */
+		ETH_MACDMAConfig(heth, err);
+      
+		/* Set the ETH peripheral state to READY */
+		heth->State = HAL_ETH_STATE_READY;
+      
+		/* Return HAL_ERROR */
+		return HAL_ERROR;   
+	}
+      
     /* Enable Auto-Negotiation */
     if((HAL_ETH_WritePHYRegister(heth, PHY_BCR, PHY_AUTONEGOTIATION)) != HAL_OK)
     {

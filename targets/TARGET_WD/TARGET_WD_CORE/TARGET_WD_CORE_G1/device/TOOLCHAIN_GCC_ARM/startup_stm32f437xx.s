@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file      startup_stm32f437xx.s
   * @author    MCD Application Team
-  * @version   V2.6.1
-  * @date      14-February-2017
   * @brief     STM32F437xx Devices vector table for GCC based toolchains. 
   *            This module performs:
   *                - Set the initial SP
@@ -258,8 +256,8 @@ g_pfnVectors:
   .word     SPI5_IRQHandler                   /* SPI5 						  */
   .word     SPI6_IRQHandler                   /* SPI6						  */
   .word     SAI1_IRQHandler                   /* SAI1						  */
-  .word     LTDC_IRQHandler                   /* LTDC_IRQHandler			  */
-  .word     LTDC_ER_IRQHandler                /* LTDC_ER_IRQHandler			  */
+  .word     0                                 /* Reserved			          */
+  .word     0                                 /* Reserved			          */
   .word     DMA2D_IRQHandler                  /* DMA2D                        */
   
 /*******************************************************************************
@@ -560,12 +558,6 @@ g_pfnVectors:
    .weak      SAI1_IRQHandler            
    .thumb_set SAI1_IRQHandler,Default_Handler
 
-   .weak      LTDC_IRQHandler            
-   .thumb_set LTDC_IRQHandler,Default_Handler
-
-   .weak      LTDC_ER_IRQHandler            
-   .thumb_set LTDC_ER_IRQHandler,Default_Handler
-
    .weak      DMA2D_IRQHandler            
    .thumb_set DMA2D_IRQHandler,Default_Handler
 
@@ -573,3 +565,5 @@ g_pfnVectors:
  
    
    
+
+ 
