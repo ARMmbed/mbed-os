@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_can.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    17-February-2017
   * @brief   Header file of CAN HAL module.
   ******************************************************************************
   * @attention
@@ -73,9 +71,13 @@ typedef enum
   HAL_CAN_STATE_READY             = 0x01U,  /*!< CAN initialized and ready for use   */
   HAL_CAN_STATE_BUSY              = 0x02U,  /*!< CAN process is ongoing              */
   HAL_CAN_STATE_BUSY_TX           = 0x12U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_BUSY_RX           = 0x22U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_BUSY_TX_RX        = 0x32U,  /*!< CAN process is ongoing              */
-  HAL_CAN_STATE_TIMEOUT           = 0x03U,  /*!< Timeout state                       */
+  HAL_CAN_STATE_BUSY_RX0          = 0x22U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_RX1          = 0x32U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_TX_RX0       = 0x42U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_TX_RX1       = 0x52U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_RX0_RX1      = 0x62U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_BUSY_TX_RX0_RX1   = 0x72U,  /*!< CAN process is ongoing              */
+  HAL_CAN_STATE_TIMEOUT           = 0x03U,  /*!< CAN in Timeout state                */
   HAL_CAN_STATE_ERROR             = 0x04U   /*!< CAN error state                     */
 
 }HAL_CAN_StateTypeDef;
@@ -231,7 +233,9 @@ typedef struct
 
   CanTxMsgTypeDef*            pTxMsg;     /*!< Pointer to transmit structure  */
 
-  CanRxMsgTypeDef*            pRxMsg;     /*!< Pointer to reception structure */
+  CanRxMsgTypeDef*            pRxMsg;     /*!< Pointer to reception structure for RX FIFO0 msg */
+
+  CanRxMsgTypeDef*            pRx1Msg;    /*!< Pointer to reception structure for RX FIFO1 msg */
 
   __IO HAL_CAN_StateTypeDef   State;      /*!< CAN communication state        */
 
@@ -253,16 +257,19 @@ typedef struct
 /** @defgroup CAN_Error_Code CAN Error Code
   * @{
   */
-#define   HAL_CAN_ERROR_NONE      0x00U    /*!< No error             */
-#define   HAL_CAN_ERROR_EWG       0x01U    /*!< EWG error            */
-#define   HAL_CAN_ERROR_EPV       0x02U    /*!< EPV error            */
-#define   HAL_CAN_ERROR_BOF       0x04U    /*!< BOF error            */
-#define   HAL_CAN_ERROR_STF       0x08U    /*!< Stuff error          */
-#define   HAL_CAN_ERROR_FOR       0x10U    /*!< Form error           */
-#define   HAL_CAN_ERROR_ACK       0x20U    /*!< Acknowledgment error */
-#define   HAL_CAN_ERROR_BR        0x40U    /*!< Bit recessive        */
-#define   HAL_CAN_ERROR_BD        0x80U    /*!< LEC dominant         */
-#define   HAL_CAN_ERROR_CRC       0x100U   /*!< LEC transfer error   */
+#define   HAL_CAN_ERROR_NONE      0x00000000U    /*!< No error             */
+#define   HAL_CAN_ERROR_EWG       0x00000001U    /*!< EWG error            */
+#define   HAL_CAN_ERROR_EPV       0x00000002U    /*!< EPV error            */
+#define   HAL_CAN_ERROR_BOF       0x00000004U    /*!< BOF error            */
+#define   HAL_CAN_ERROR_STF       0x00000008U    /*!< Stuff error          */
+#define   HAL_CAN_ERROR_FOR       0x00000010U    /*!< Form error           */
+#define   HAL_CAN_ERROR_ACK       0x00000020U    /*!< Acknowledgment error */
+#define   HAL_CAN_ERROR_BR        0x00000040U    /*!< Bit recessive        */
+#define   HAL_CAN_ERROR_BD        0x00000080U    /*!< LEC dominant         */
+#define   HAL_CAN_ERROR_CRC       0x00000100U    /*!< LEC transfer error   */
+#define   HAL_CAN_ERROR_FOV0      0x00000200U    /*!< FIFO0 overrun error  */
+#define   HAL_CAN_ERROR_FOV1      0x00000400U    /*!< FIFO1 overrun error  */
+#define   HAL_CAN_ERROR_TXFAIL    0x00000800U    /*!< Transmit failure     */
 /**
   * @}
   */
@@ -481,39 +488,39 @@ typedef struct
   */
 
 /** @brief Reset CAN handle state
-  * @param  __HANDLE__: specifies the CAN Handle.
+  * @param  __HANDLE__ specifies the CAN Handle.
   * @retval None
   */
 #define __HAL_CAN_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_CAN_STATE_RESET)
 
 /**
   * @brief  Enable the specified CAN interrupts.
-  * @param  __HANDLE__: CAN handle
-  * @param  __INTERRUPT__: CAN Interrupt
+  * @param  __HANDLE__ CAN handle
+  * @param  __INTERRUPT__ CAN Interrupt
   * @retval None
   */
 #define __HAL_CAN_ENABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->IER) |= (__INTERRUPT__))
 
 /**
   * @brief  Disable the specified CAN interrupts.
-  * @param  __HANDLE__: CAN handle
-  * @param  __INTERRUPT__: CAN Interrupt
+  * @param  __HANDLE__ CAN handle
+  * @param  __INTERRUPT__ CAN Interrupt
   * @retval None
   */
 #define __HAL_CAN_DISABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->IER) &= ~(__INTERRUPT__))
 
 /**
   * @brief  Return the number of pending received messages.
-  * @param  __HANDLE__: CAN handle
-  * @param  __FIFONUMBER__: Receive FIFO number, CAN_FIFO0 or CAN_FIFO1.
+  * @param  __HANDLE__ CAN handle
+  * @param  __FIFONUMBER__ Receive FIFO number, CAN_FIFO0 or CAN_FIFO1.
   * @retval The number of pending message.
   */
 #define __HAL_CAN_MSG_PENDING(__HANDLE__, __FIFONUMBER__) (((__FIFONUMBER__) == CAN_FIFO0)? \
 ((uint8_t)((__HANDLE__)->Instance->RF0R&0x03U)) : ((uint8_t)((__HANDLE__)->Instance->RF1R & 0x03U)))
 
 /** @brief  Check whether the specified CAN flag is set or not.
-  * @param  __HANDLE__: CAN Handle
-  * @param  __FLAG__: specifies the flag to check.
+  * @param  __HANDLE__ CAN Handle
+  * @param  __FLAG__ specifies the flag to check.
   *         This parameter can be one of the following values:
   *            @arg CAN_TSR_RQCP0: Request MailBox0 Flag
   *            @arg CAN_TSR_RQCP1: Request MailBox1 Flag
@@ -546,8 +553,8 @@ typedef struct
  ((((__HANDLE__)->Instance->ESR) & (1U << ((__FLAG__) & CAN_FLAG_MASK))) == (1U << ((__FLAG__) & CAN_FLAG_MASK))))
 
 /** @brief  Clear the specified CAN pending flag.
-  * @param  __HANDLE__: CAN Handle.
-  * @param  __FLAG__: specifies the flag to check.
+  * @param  __HANDLE__ CAN Handle.
+  * @param  __FLAG__ specifies the flag to check.
   *         This parameter can be one of the following values:
   *            @arg CAN_TSR_RQCP0: Request MailBox0 Flag
   *            @arg CAN_TSR_RQCP1: Request MailBox1 Flag
@@ -576,8 +583,8 @@ typedef struct
  (((__HANDLE__)->Instance->MSR) = ((uint32_t)1U << ((__FLAG__) & CAN_FLAG_MASK))))
 
 /** @brief  Check if the specified CAN interrupt source is enabled or disabled.
-  * @param  __HANDLE__: CAN Handle
-  * @param  __INTERRUPT__: specifies the CAN interrupt source to check.
+  * @param  __HANDLE__ CAN Handle
+  * @param  __INTERRUPT__ specifies the CAN interrupt source to check.
   *          This parameter can be one of the following values:
   *             @arg CAN_IT_TME: Transmit mailbox empty interrupt enable
   *             @arg CAN_IT_FMP0: FIFO0 message pending interrupt enable
@@ -588,8 +595,8 @@ typedef struct
 
 /**
   * @brief  Check the transmission status of a CAN Frame.
-  * @param  __HANDLE__: CAN Handle
-  * @param  __TRANSMITMAILBOX__: the number of the mailbox that is used for transmission.
+  * @param  __HANDLE__ CAN Handle
+  * @param  __TRANSMITMAILBOX__ the number of the mailbox that is used for transmission.
   * @retval The new status of transmission  (TRUE or FALSE).
   */
 #define __HAL_CAN_TRANSMIT_STATUS(__HANDLE__, __TRANSMITMAILBOX__)\
@@ -599,8 +606,8 @@ typedef struct
 
 /**
   * @brief  Release the specified receive FIFO.
-  * @param  __HANDLE__: CAN handle
-  * @param  __FIFONUMBER__: Receive FIFO number, CAN_FIFO0 or CAN_FIFO1.
+  * @param  __HANDLE__ CAN handle
+  * @param  __FIFONUMBER__ Receive FIFO number, CAN_FIFO0 or CAN_FIFO1.
   * @retval None
   */
 #define __HAL_CAN_FIFO_RELEASE(__HANDLE__, __FIFONUMBER__) (((__FIFONUMBER__) == CAN_FIFO0)? \
@@ -608,8 +615,8 @@ typedef struct
 
 /**
   * @brief  Cancel a transmit request.
-  * @param  __HANDLE__: CAN Handle
-  * @param  __TRANSMITMAILBOX__: the number of the mailbox that is used for transmission.
+  * @param  __HANDLE__ CAN Handle
+  * @param  __TRANSMITMAILBOX__ the number of the mailbox that is used for transmission.
   * @retval None
   */
 #define __HAL_CAN_CANCEL_TRANSMIT(__HANDLE__, __TRANSMITMAILBOX__)\
@@ -619,8 +626,8 @@ typedef struct
 
 /**
   * @brief  Enable or disable the DBG Freeze for CAN.
-  * @param  __HANDLE__: CAN Handle
-  * @param  __NEWSTATE__: new state of the CAN peripheral.
+  * @param  __HANDLE__ CAN Handle
+  * @param  __NEWSTATE__ new state of the CAN peripheral.
   *          This parameter can be: ENABLE (CAN reception/transmission is frozen
   *          during debug. Reception FIFOs can still be accessed/controlled normally)
   *          or DISABLE (CAN is working during debug).

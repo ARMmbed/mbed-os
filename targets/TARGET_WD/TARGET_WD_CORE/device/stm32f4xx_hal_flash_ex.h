@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_flash_ex.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    17-February-2017
   * @brief   Header file of FLASH HAL Extension module.
   ******************************************************************************
   * @attention

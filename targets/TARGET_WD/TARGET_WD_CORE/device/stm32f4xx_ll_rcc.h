@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_rcc.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    17-February-2017
   * @brief   Header file of RCC LL module.
   ******************************************************************************
   * @attention
@@ -121,7 +119,7 @@ typedef struct
   * @{
   */
 #if !defined  (HSE_VALUE)
-#define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the HSE oscillator in Hz */
+#define HSE_VALUE    25000000U  /*!< Value of the HSE oscillator in Hz */
 #endif /* HSE_VALUE */
 
 #if !defined  (HSI_VALUE)
@@ -2886,7 +2884,7 @@ typedef struct
   *         @arg @ref LL_RCC_SYSCLK_DIV_512
   * @retval HCLK clock frequency (in Hz)
   */
-#define __LL_RCC_CALC_HCLK_FREQ(__SYSCLKFREQ__, __AHBPRESCALER__) ((__SYSCLKFREQ__) >> APBAHBPrescTable[((__AHBPRESCALER__) & RCC_CFGR_HPRE) >>  RCC_CFGR_HPRE_Pos])
+#define __LL_RCC_CALC_HCLK_FREQ(__SYSCLKFREQ__, __AHBPRESCALER__) ((__SYSCLKFREQ__) >> AHBPrescTable[((__AHBPRESCALER__) & RCC_CFGR_HPRE) >>  RCC_CFGR_HPRE_Pos])
 
 /**
   * @brief  Helper macro to calculate the PCLK1 frequency (ABP1)
@@ -2899,7 +2897,7 @@ typedef struct
   *         @arg @ref LL_RCC_APB1_DIV_16
   * @retval PCLK1 clock frequency (in Hz)
   */
-#define __LL_RCC_CALC_PCLK1_FREQ(__HCLKFREQ__, __APB1PRESCALER__) ((__HCLKFREQ__) >> APBAHBPrescTable[(__APB1PRESCALER__) >>  RCC_CFGR_PPRE1_Pos])
+#define __LL_RCC_CALC_PCLK1_FREQ(__HCLKFREQ__, __APB1PRESCALER__) ((__HCLKFREQ__) >> APBPrescTable[(__APB1PRESCALER__) >>  RCC_CFGR_PPRE1_Pos])
 
 /**
   * @brief  Helper macro to calculate the PCLK2 frequency (ABP2)

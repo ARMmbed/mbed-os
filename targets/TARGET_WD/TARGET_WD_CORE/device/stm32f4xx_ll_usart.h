@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f4xx_ll_usart.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    17-February-2017
   * @brief   Header file of USART LL module.
   ******************************************************************************
   * @attention

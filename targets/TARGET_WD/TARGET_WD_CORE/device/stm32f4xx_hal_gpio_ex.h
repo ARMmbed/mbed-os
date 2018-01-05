@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_gpio_ex.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    17-February-2017
   * @brief   Header file of GPIO HAL Extension module.
   ******************************************************************************
   * @attention

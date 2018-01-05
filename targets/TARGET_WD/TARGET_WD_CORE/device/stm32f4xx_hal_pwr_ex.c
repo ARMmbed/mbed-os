@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_pwr_ex.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    17-February-2017
   * @brief   Extended PWR HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of PWR extension peripheral:           
@@ -236,7 +234,7 @@ uint32_t HAL_PWREx_GetVoltageRange(void)
 #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx)
 /**
   * @brief Configures the main internal regulator output voltage.
-  * @param  VoltageScaling: specifies the regulator output voltage to achieve
+  * @param  VoltageScaling specifies the regulator output voltage to achieve
   *         a tradeoff between performance and power consumption.
   *          This parameter can be one of the following values:
   *            @arg PWR_REGULATOR_VOLTAGE_SCALE1: Regulator voltage output range 1 mode,
@@ -281,7 +279,7 @@ HAL_StatusTypeDef HAL_PWREx_ControlVoltageScaling(uint32_t VoltageScaling)
       defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
 /**
   * @brief Configures the main internal regulator output voltage.
-  * @param  VoltageScaling: specifies the regulator output voltage to achieve
+  * @param  VoltageScaling specifies the regulator output voltage to achieve
   *         a tradeoff between performance and power consumption.
   *          This parameter can be one of the following values:
   *            @arg PWR_REGULATOR_VOLTAGE_SCALE1: Regulator voltage output range 1 mode,
@@ -537,7 +535,7 @@ HAL_StatusTypeDef HAL_PWREx_DisableOverDrive(void)
 /**
   * @brief  Enters in Under-Drive STOP mode.
   *  
-  * @note   This mode is only available for STM32F42xxx/STM324F3xxx/STM32F446xx/STM32F469xx/STM32F479xx devices. 
+  * @note   This mode is only available for STM32F42xxx/STM32F43xxx/STM32F446xx/STM32F469xx/STM32F479xx devices.
   * 
   * @note    This mode can be selected only when the Under-Drive is already active 
   *   
@@ -561,13 +559,13 @@ HAL_StatusTypeDef HAL_PWREx_DisableOverDrive(void)
   *         By keeping the internal regulator ON during Stop mode, the consumption 
   *         is higher although the startup time is reduced.
   *     
-  * @param  Regulator: specifies the regulator state in STOP mode.
+  * @param  Regulator specifies the regulator state in STOP mode.
   *          This parameter can be one of the following values:
   *            @arg PWR_MAINREGULATOR_UNDERDRIVE_ON:  Main Regulator in under-drive mode 
   *                 and Flash memory in power-down when the device is in Stop under-drive mode
   *            @arg PWR_LOWPOWERREGULATOR_UNDERDRIVE_ON:  Low Power Regulator in under-drive mode 
   *                and Flash memory in power-down when the device is in Stop under-drive mode
-  * @param  STOPEntry: specifies if STOP mode in entered with WFI or WFE instruction.
+  * @param  STOPEntry specifies if STOP mode in entered with WFI or WFE instruction.
   *          This parameter can be one of the following values:
   *            @arg PWR_SLEEPENTRY_WFI: enter STOP mode with WFI instruction
   *            @arg PWR_SLEEPENTRY_WFE: enter STOP mode with WFE instruction
@@ -576,8 +574,7 @@ HAL_StatusTypeDef HAL_PWREx_DisableOverDrive(void)
 HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t STOPEntry)
 {
   uint32_t tmpreg1 = 0U;
-  uint32_t tickstart = 0U;
-  
+
   /* Check the parameters */
   assert_param(IS_PWR_REGULATOR_UNDERDRIVE(Regulator));
   assert_param(IS_PWR_STOP_ENTRY(STOPEntry));
@@ -591,18 +588,6 @@ HAL_StatusTypeDef HAL_PWREx_EnterUnderDriveSTOPMode(uint32_t Regulator, uint8_t 
   /* Enable the Under-drive */ 
   __HAL_PWR_UNDERDRIVE_ENABLE();
 
-  /* Get tick */
-  tickstart = HAL_GetTick();
-
-  /* Wait for UnderDrive mode is ready */
-  while(__HAL_PWR_GET_FLAG(PWR_FLAG_UDRDY))
-  {
-    if((HAL_GetTick() - tickstart) > PWR_UDERDRIVE_TIMEOUT_VALUE)
-    {
-      return HAL_TIMEOUT;
-    }
-  }
-  
   /* Select the regulator state in STOP mode ---------------------------------*/
   tmpreg1 = PWR->CR;
   /* Clear PDDS, LPDS, MRLUDS and LPLUDS bits */
