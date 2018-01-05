@@ -117,6 +117,8 @@ typedef USB_TypeDef        PCD_TypeDef;
 typedef USB_CfgTypeDef     PCD_InitTypeDef;
 typedef USB_EPTypeDef      PCD_EPTypeDef;
 #endif /* USB */                         
+
+// Added for MBED PR #3062
 typedef struct
 {
 	HAL_LockTypeDef Lock;
@@ -133,6 +135,7 @@ typedef struct
   PCD_EPTypeDef           IN_ep[15];    /*!< IN endpoint parameters             */
   PCD_EPTypeDef           OUT_ep[15];   /*!< OUT endpoint parameters            */ 
   HAL_LockTypeDef         Lock;        /*!< PCD peripheral status              */
+// Added for MBED PR #3062
   PCD_EPLockDef           EPLock[15]; 
   __IO PCD_StateTypeDef   State;       /*!< PCD communication state            */
   uint32_t                Setup[12];   /*!< Setup packet buffer                */
