@@ -23,7 +23,6 @@ SPDX-License-Identifier: BSD-3-Clause
 */
 #include <stdlib.h>
 #include "events/EventQueue.h"
-#include "rtos/Thread.h"
 #include "LoRaMac.h"
 #include "LoRaMacCrypto.h"
 #include "LoRaMacTest.h"
@@ -1524,21 +1523,6 @@ static void OnMacStateCheckTimerEvent( void )
         LoRaMacFlags.Bits.McpsIndSkip = 0;
         LoRaMacFlags.Bits.McpsInd = 0;
     }
-}
-
-LoRaMacStatus_t LoRaMacSetTxTimer( uint32_t TxDutyCycleTime )
-{
-    TimerSetValue(&TxNextPacketTimer, TxDutyCycleTime);
-    TimerStart(&TxNextPacketTimer);
-
-    return LORAMAC_STATUS_OK;
-}
-
-LoRaMacStatus_t LoRaMacStopTxTimer( )
-{
-    TimerStop(&TxNextPacketTimer);
-
-    return LORAMAC_STATUS_OK;
 }
 
 static void OnTxDelayedTimerEvent( void )
@@ -3474,9 +3458,27 @@ radio_events_t *GetPhyEventHandlers()
     return &RadioEvents;
 }
 
+#if defined(LORAWAN_COMPLIANCE_TEST)
 /***************************************************************************
-* TODO: Something related to Testing ? Need to figure out what is it       *
+ * Compliance testing                                                      *
  **************************************************************************/
+
+LoRaMacStatus_t LoRaMac::LoRaMacSetTxTimer( uint32_t TxDutyCycleTime )
+{
+    TimerSetValue(&TxNextPacketTimer, TxDutyCycleTime);
+    TimerStart(&TxNextPacketTimer);
+
+    return LORAMAC_STATUS_OK;
+}
+
+LoRaMacStatus_t LoRaMac::LoRaMacStopTxTimer( )
+
+{
+    TimerStop(&TxNextPacketTimer);
+
+    return LORAMAC_STATUS_OK;
+}
+
 void LoRaMacTestRxWindowsOn( bool enable )
 {
     IsRxWindowsEnabled = enable;
@@ -3504,3 +3506,4 @@ void LoRaMacTestSetChannel( uint8_t channel )
 {
     Channel = channel;
 }
+#endif
