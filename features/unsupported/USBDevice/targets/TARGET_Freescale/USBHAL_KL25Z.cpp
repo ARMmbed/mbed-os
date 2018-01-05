@@ -500,7 +500,7 @@ void USBHAL::usbisr(void) {
     if (istat & 1<<7) {
         if (USB0->ENDPOINT[0].ENDPT & USB_ENDPT_EPSTALL_MASK)
             USB0->ENDPOINT[0].ENDPT &= ~USB_ENDPT_EPSTALL_MASK;
-        USB0->ISTAT |= USB_ISTAT_STALL_MASK;
+        USB0->ISTAT = USB_ISTAT_STALL_MASK;
     }
 
     // token interrupt
@@ -555,13 +555,13 @@ void USBHAL::usbisr(void) {
 
     // sleep interrupt
     if (istat & 1<<4) {
-        USB0->ISTAT |= USB_ISTAT_SLEEP_MASK;
+        USB0->ISTAT = USB_ISTAT_SLEEP_MASK;
     }
 
     // error interrupt
     if (istat & USB_ISTAT_ERROR_MASK) {
         USB0->ERRSTAT = 0xFF;
-        USB0->ISTAT |= USB_ISTAT_ERROR_MASK;
+        USB0->ISTAT = USB_ISTAT_ERROR_MASK;
     }
 }
 
