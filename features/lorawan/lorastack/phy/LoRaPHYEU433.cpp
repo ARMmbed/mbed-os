@@ -327,7 +327,8 @@ uint8_t LoRaPHYEU433::CountNbOfEnabledChannels( bool joined, uint8_t datarate, u
     return nbEnabledChannels;
 }
 
-LoRaPHYEU433::LoRaPHYEU433()
+LoRaPHYEU433::LoRaPHYEU433(LoRaWANTimeHandler &lora_time)
+    : LoRaPHY(lora_time)
 {
     const Band_t band0 = EU433_BAND0;
     Bands[0] = band0;
@@ -1087,7 +1088,7 @@ bool LoRaPHYEU433::set_next_channel(NextChanParams_t* nextChanParams,
         ChannelsMask[0] |= LC( 1 ) + LC( 2 ) + LC( 3 );
     }
 
-    if( nextChanParams->AggrTimeOff <= TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
+    if( nextChanParams->AggrTimeOff <= _lora_time.TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
     {
         // Reset Aggregated time off
         *aggregatedTimeOff = 0;
@@ -1103,7 +1104,7 @@ bool LoRaPHYEU433::set_next_channel(NextChanParams_t* nextChanParams,
     else
     {
         delayTx++;
-        nextTxDelay = nextChanParams->AggrTimeOff - TimerGetElapsedTime( nextChanParams->LastAggrTx );
+        nextTxDelay = nextChanParams->AggrTimeOff - _lora_time.TimerGetElapsedTime( nextChanParams->LastAggrTx );
     }
 
     if( nbEnabledChannels > 0 )

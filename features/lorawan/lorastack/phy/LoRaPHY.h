@@ -41,7 +41,7 @@
 class LoRaPHY {
 
 public:
-    LoRaPHY();
+    LoRaPHY(LoRaWANTimeHandler &lora_time);
     virtual ~LoRaPHY();
 
     void set_radio_instance(LoRaRadio& radio);
@@ -339,6 +339,7 @@ public:
 
 protected:
     LoRaRadio *_radio;
+    LoRaWANTimeHandler &_lora_time;
 
     typedef struct sRegionCommonLinkAdrParams
     {

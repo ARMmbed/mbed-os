@@ -54,7 +54,7 @@ class LoRaPHYIN865 : public LoRaPHY {
 
 public:
 
-    LoRaPHYIN865();
+    LoRaPHYIN865(LoRaWANTimeHandler &lora_time);
     virtual ~LoRaPHYIN865();
 
     /*!

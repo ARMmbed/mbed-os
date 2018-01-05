@@ -298,7 +298,8 @@ uint8_t LoRaPHYUS915::CountNbOfEnabledChannels( uint8_t datarate, uint16_t* chan
     return nbEnabledChannels;
 }
 
-LoRaPHYUS915::LoRaPHYUS915()
+LoRaPHYUS915::LoRaPHYUS915(LoRaWANTimeHandler &lora_time)
+    : LoRaPHY(lora_time)
 {
     const Band_t band0 = US915_BAND0;
     Bands[0] = band0;
@@ -959,7 +960,7 @@ bool LoRaPHYUS915::set_next_channel(NextChanParams_t* nextChanParams,
         }
     }
 
-    if( nextChanParams->AggrTimeOff <= TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
+    if( nextChanParams->AggrTimeOff <= _lora_time.TimerGetElapsedTime( nextChanParams->LastAggrTx ) )
     {
         // Reset Aggregated time off
         *aggregatedTimeOff = 0;
@@ -975,7 +976,7 @@ bool LoRaPHYUS915::set_next_channel(NextChanParams_t* nextChanParams,
     else
     {
         delayTx++;
-        nextTxDelay = nextChanParams->AggrTimeOff - TimerGetElapsedTime( nextChanParams->LastAggrTx );
+        nextTxDelay = nextChanParams->AggrTimeOff - _lora_time.TimerGetElapsedTime( nextChanParams->LastAggrTx );
     }
 
     if( nbEnabledChannels > 0 )

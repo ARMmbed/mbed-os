@@ -20,41 +20,48 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "lorawan/system/LoRaWANTimer.h"
 
-static events::EventQueue *_queue = NULL;
+LoRaWANTimeHandler::LoRaWANTimeHandler()
+    : _queue(NULL)
+{
+}
 
-void TimerTimeCounterInit(events::EventQueue *queue)
+LoRaWANTimeHandler::~LoRaWANTimeHandler()
+{
+}
+
+void LoRaWANTimeHandler::TimerTimeCounterInit(events::EventQueue *queue)
 {
     _queue = queue;
 }
 
-TimerTime_t TimerGetCurrentTime( void )
+TimerTime_t LoRaWANTimeHandler::TimerGetCurrentTime( void )
 {
     const uint32_t current_time = _queue->tick();
     return (TimerTime_t)current_time;
 }
 
-TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
+TimerTime_t LoRaWANTimeHandler::TimerGetElapsedTime( TimerTime_t savedTime )
 {
     return TimerGetCurrentTime() - savedTime;
 }
 
-void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
+void LoRaWANTimeHandler::TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 {
     obj->value = 0;
     obj->Callback = callback;
 }
 
-void TimerStart( TimerEvent_t *obj )
+void LoRaWANTimeHandler::TimerStart( TimerEvent_t *obj )
 {
     obj->Timer.get()->attach_us( mbed::callback( obj->Callback ), obj->value * 1000 );
 }
 
-void TimerStop( TimerEvent_t *obj )
+void LoRaWANTimeHandler::TimerStop( TimerEvent_t *obj )
 {
     obj->Timer.get()->detach( );
 }
 
-void TimerSetValue( TimerEvent_t *obj, uint32_t value )
+void LoRaWANTimeHandler::TimerSetValue( TimerEvent_t *obj, uint32_t value )
 {
     obj->value = value;
 }

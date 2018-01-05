@@ -60,7 +60,7 @@ public:
     /*!
      * \brief   Constructor
      */
-    LoRaMac();
+    LoRaMac(LoRaWANTimeHandler &lora_time);
 
     /*!
      * \brief   Destructor
@@ -610,6 +610,8 @@ private:
     LoRaPHY *lora_phy;
 
     LoRaMacCommand mac_commands;
+
+    LoRaWANTimeHandler &_lora_time;
 
 
     /**

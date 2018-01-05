@@ -51,7 +51,7 @@
 class LoRaPHYEU868 : public LoRaPHY {
 
 public:
-    LoRaPHYEU868();
+    LoRaPHYEU868(LoRaWANTimeHandler &lora_time);
     virtual ~LoRaPHYEU868();
 
     /*!

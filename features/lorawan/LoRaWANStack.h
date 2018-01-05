@@ -35,6 +35,42 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "lorawan/system/lorawan_data_structures.h"
 #include "LoRaRadio.h"
 
+#ifdef MBED_CONF_LORA_PHY
+ #if MBED_CONF_LORA_PHY      == 0
+  #include "lorawan/lorastack/phy/LoRaPHYEU868.h"
+  #define LoRaPHY_region LoRaPHYEU868
+ #elif MBED_CONF_LORA_PHY    == 1
+  #include "lorawan/lorastack/phy/LoRaPHYAS923.h"
+  #define LoRaPHY_region LoRaPHYAS923
+ #elif MBED_CONF_LORA_PHY    == 2
+  #include "lorawan/lorastack/phy/LoRaPHYAU915.h"
+ #define LoRaPHY_region LoRaPHYAU915;
+ #elif MBED_CONF_LORA_PHY    == 3
+  #include "lorawan/lorastack/phy/LoRaPHYCN470.h"
+  #define LoRaPHY_region LoRaPHYCN470
+ #elif MBED_CONF_LORA_PHY    == 4
+  #include "lorawan/lorastack/phy/LoRaPHYCN779.h"
+  #define LoRaPHY_region LoRaPHYCN779
+ #elif MBED_CONF_LORA_PHY    == 5
+  #include "lorawan/lorastack/phy/LoRaPHYEU433.h"
+  #define LoRaPHY_region LoRaPHYEU433
+ #elif MBED_CONF_LORA_PHY    == 6
+  #include "lorawan/lorastack/phy/LoRaPHYIN865.h"
+  #define LoRaPHY_region LoRaPHYIN865
+ #elif MBED_CONF_LORA_PHY    == 7
+  #include "lorawan/lorastack/phy/LoRaPHYKR920.h"
+  #define LoRaPHY_region LoRaPHYKR920
+ #elif MBED_CONF_LORA_PHY    == 8
+  #include "lorawan/lorastack/phy/LoRaPHYUS915.h"
+  #define LoRaPHY_region LoRaPHYUS915
+ #elif MBED_CONF_LORA_PHY    == 9
+  #include "lorawan/lorastack/phy/LoRaPHYUS915Hybrid.h"
+  #define LoRaPHY_region LoRaPHYUS915Hybrid
+ #endif //MBED_CONF_LORA_PHY == VALUE
+#else
+ #error "Must set LoRa PHY layer parameters."
+#endif //MBED_CONF_LORA_PHY
+
 /**
  * A mask for the network ID.
  */
@@ -429,7 +465,9 @@ private:
      */
     lora_mac_status_t error_type_converter(LoRaMacStatus_t type);
 
+    LoRaWANTimeHandler _lora_time;
     LoRaMac _loramac;
+    LoRaPHY_region _lora_phy;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
     compliance_test_t _compliance_test;

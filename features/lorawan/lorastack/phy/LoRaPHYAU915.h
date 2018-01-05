@@ -54,7 +54,7 @@ class LoRaPHYAU915 : public LoRaPHY{
 
 public:
 
-    LoRaPHYAU915();
+    LoRaPHYAU915(LoRaWANTimeHandler &lora_time);
     virtual ~LoRaPHYAU915();
 
     /*!

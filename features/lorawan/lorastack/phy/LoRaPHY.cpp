@@ -27,7 +27,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <stdint.h>
 #include <math.h>
 #include "lorawan/lorastack/phy/LoRaPHY.h"
-#include "lorawan/system/LoRaWANTimer.h"
+
 
 #define BACKOFF_DC_1_HOUR       100
 #define BACKOFF_DC_10_HOURS     1000
@@ -47,7 +47,8 @@ static uint8_t CountChannels( uint16_t mask, uint8_t nbBits )
     return nbActiveBits;
 }
 
-LoRaPHY::LoRaPHY()
+LoRaPHY::LoRaPHY(LoRaWANTimeHandler &lora_time)
+    : _lora_time(lora_time)
 {
 }
 
@@ -245,8 +246,8 @@ TimerTime_t LoRaPHY::update_band_timeoff( bool joined, bool dutyCycle, Band_t* b
     {
         if( joined == false )
         {
-            uint32_t txDoneTime =  MAX( TimerGetElapsedTime( bands[i].LastJoinTxDoneTime ),
-                                        ( dutyCycle == true ) ? TimerGetElapsedTime( bands[i].LastTxDoneTime ) : 0 );
+            uint32_t txDoneTime =  MAX( _lora_time.TimerGetElapsedTime( bands[i].LastJoinTxDoneTime ),
+                                        ( dutyCycle == true ) ? _lora_time.TimerGetElapsedTime( bands[i].LastTxDoneTime ) : 0 );
 
             if( bands[i].TimeOff <= txDoneTime )
             {
@@ -261,13 +262,13 @@ TimerTime_t LoRaPHY::update_band_timeoff( bool joined, bool dutyCycle, Band_t* b
         {
             if( dutyCycle == true )
             {
-                if( bands[i].TimeOff <= TimerGetElapsedTime( bands[i].LastTxDoneTime ) )
+                if( bands[i].TimeOff <= _lora_time.TimerGetElapsedTime( bands[i].LastTxDoneTime ) )
                 {
                     bands[i].TimeOff = 0;
                 }
                 if( bands[i].TimeOff != 0 )
                 {
-                    nextTxDelay = MIN( bands[i].TimeOff - TimerGetElapsedTime( bands[i].LastTxDoneTime ),
+                    nextTxDelay = MIN( bands[i].TimeOff - _lora_time.TimerGetElapsedTime( bands[i].LastTxDoneTime ),
                                        nextTxDelay );
                 }
             }

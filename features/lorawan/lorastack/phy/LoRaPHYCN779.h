@@ -46,7 +46,7 @@ class LoRaPHYCN779 : public LoRaPHY {
 
 public:
 
-    LoRaPHYCN779();
+    LoRaPHYCN779(LoRaWANTimeHandler &lora_time);
     virtual ~LoRaPHYCN779();
 
     /*!

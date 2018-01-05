@@ -52,7 +52,7 @@ class LoRaPHYAS923 : public LoRaPHY {
 
 public:
 
-    LoRaPHYAS923();
+    LoRaPHYAS923(LoRaWANTimeHandler &lora_time);
     virtual ~LoRaPHYAS923();
 
     /*!

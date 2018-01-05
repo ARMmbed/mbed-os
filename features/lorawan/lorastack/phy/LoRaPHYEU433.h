@@ -52,7 +52,7 @@ class LoRaPHYEU433 : public LoRaPHY {
 
 public:
 
-    LoRaPHYEU433();
+    LoRaPHYEU433(LoRaWANTimeHandler &lora_time);
     virtual ~LoRaPHYEU433();
 
     /*!
