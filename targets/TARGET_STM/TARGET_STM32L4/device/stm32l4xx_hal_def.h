@@ -122,10 +122,13 @@ typedef enum
                                       (__HANDLE__)->Lock = HAL_UNLOCKED;    \
                                     }while (0)
 #endif /* USE_RTOS */
+
+// Added for MBED PR #3062
 #if defined (__CC_ARM)
 #pragma diag_suppress 3731
 #endif
 
+// Added for MBED PR #3062
 static inline  void atomic_set_u32(volatile uint32_t *ptr, uint32_t mask)
 {
 	uint32_t newValue;
@@ -135,7 +138,7 @@ static inline  void atomic_set_u32(volatile uint32_t *ptr, uint32_t mask)
 	} while (__STREXW(newValue, ptr));
 }
 
-
+// Added for MBED PR #3062
 static inline  void atomic_clr_u32(volatile uint32_t *ptr, uint32_t mask)
 {
 	uint32_t newValue;
