@@ -331,7 +331,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest );
  */
 radio_events_t *GetPhyEventHandlers();
 
-
+#if defined(LORAWAN_COMPLIANCE_TEST)
 /**
  * \brief   LoRaMAC set tx timer.
  *
@@ -355,5 +355,6 @@ LoRaMacStatus_t LoRaMacSetTxTimer( uint32_t NextTxTime );
  *          \ref LORAMAC_STATUS_PARAMETER_INVALID
  */
 LoRaMacStatus_t LoRaMacStopTxTimer( );
+#endif
 
 #endif // __LORAMAC_H__

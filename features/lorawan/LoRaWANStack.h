@@ -404,7 +404,10 @@ private:
      */
     lora_mac_status_t error_type_converter(LoRaMacStatus_t type);
 
+#if defined(LORAWAN_COMPLIANCE_TEST)
     compliance_test_t _compliance_test;
+#endif
+
     device_states_t _device_current_state;
     lorawan_app_callbacks_t _callbacks;
     radio_events_t *_mac_handlers;
