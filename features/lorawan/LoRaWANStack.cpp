@@ -44,34 +44,34 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifdef MBED_CONF_LORA_PHY
  #if MBED_CONF_LORA_PHY      == 0
   #include "lorawan/lorastack/phy/LoRaPHYEU868.h"
-  static LoRaPHYEU868 lora_phy;
+  static SingletonPtr<LoRaPHYEU868> lora_phy;
  #elif MBED_CONF_LORA_PHY    == 1
   #include "lorawan/lorastack/phy/LoRaPHYAS923.h"
-  static LoRaPHYAS923 lora_phy;
+  static SingletonPtr<LoRaPHYAS923> lora_phy;
  #elif MBED_CONF_LORA_PHY    == 2
   #include "lorawan/lorastack/phy/LoRaPHYAU915.h"
- static LoRaPHYAU915 lora_phy;
+ static SingletonPtr<LoRaPHYAU915> lora_phy;
  #elif MBED_CONF_LORA_PHY    == 3
   #include "lorawan/lorastack/phy/LoRaPHYCN470.h"
-  static LoRaPHYCN470 lora_phy;
+  static SingletonPtr<LoRaPHYCN470> lora_phy;
  #elif MBED_CONF_LORA_PHY    == 4
   #include "lorawan/lorastack/phy/LoRaPHYCN779.h"
-  static LoRaPHYCN779 lora_phy;
+  static SingletonPtr<LoRaPHYCN779> lora_phy;
  #elif MBED_CONF_LORA_PHY    == 5
   #include "lorawan/lorastack/phy/LoRaPHYEU433.h"
-  static LoRaPHYEU433 lora_phy;
+  static SingletonPtr<LoRaPHYEU433> lora_phy;
  #elif MBED_CONF_LORA_PHY    == 6
   #include "lorawan/lorastack/phy/LoRaPHYIN865.h"
-  static LoRaPHYIN865 lora_phy;
+  static SingletonPtr<LoRaPHYIN865> lora_phy;
  #elif MBED_CONF_LORA_PHY    == 7
   #include "lorawan/lorastack/phy/LoRaPHYKR920.h"
-  static LoRaPHYKR920 lora_phy;
+  static SingletonPtr<LoRaPHYKR920> lora_phy;
  #elif MBED_CONF_LORA_PHY    == 8
   #include "lorawan/lorastack/phy/LoRaPHYUS915.h"
-  static LoRaPHYUS915 lora_phy;
+  static SingletonPtr<LoRaPHYUS915> lora_phy;
  #elif MBED_CONF_LORA_PHY    == 9
   #include "lorawan/lorastack/phy/LoRaPHYUS915Hybrid.h"
-  static LoRaPHYUS915Hybrid lora_phy;
+  static SingletonPtr<LoRaPHYUS915Hybrid> lora_phy;
  #endif //MBED_CONF_LORA_PHY == VALUE
 #else
  #error "Must set LoRa PHY layer parameters."
@@ -170,9 +170,10 @@ radio_events_t *LoRaWANStack::bind_radio_driver(LoRaRadio& radio)
     // Store pointer to callback routines inside MAC layer (non-IRQ safe)
     _mac_handlers = GetPhyEventHandlers();
     //  passes the reference to radio driver down to PHY layer
-    lora_phy.set_radio_instance(radio);
+    lora_phy.get()->set_radio_instance(radio);
     return _mac_handlers;
 }
+
 lora_mac_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
 {
     if (DEVICE_STATE_NOT_INITIALIZED != _device_current_state)
@@ -203,7 +204,7 @@ lora_mac_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
     LoRaMacPrimitives.MacMcpsConfirm = callback(this, &LoRaWANStack::mcps_confirm);
     LoRaMacPrimitives.MacMcpsIndication = callback(this, &LoRaWANStack::mcps_indication);
     LoRaMacPrimitives.MacMlmeConfirm = callback(this, &LoRaWANStack::mlme_confirm);
-    LoRaMacInitialization(&LoRaMacPrimitives, &LoRaMacCallbacks, &lora_phy, queue);
+    LoRaMacInitialization(&LoRaMacPrimitives, &LoRaMacCallbacks, lora_phy.get(), queue);
 
     mib_req.type = LORA_MIB_ADR;
     mib_req.param.adr_enable = LORAWAN_ADR_ON;
@@ -336,7 +337,7 @@ lora_mac_status_t LoRaWANStack::send_frame_to_mac()
     GetPhyParams_t phy_params;
     PhyParam_t default_datarate;
     phy_params.Attribute = PHY_DEF_TX_DR;
-    default_datarate = lora_phy.get_phy_params(&phy_params);
+    default_datarate = lora_phy.get()->get_phy_params(&phy_params);
 
     mcps_req.type = _tx_msg.type;
 
@@ -484,7 +485,7 @@ lora_mac_status_t LoRaWANStack::add_channels(const lora_channelplan_t &channel_p
 
     // Check first how many channels the selected PHY layer supports
     get_phy.Attribute = PHY_MAX_NB_CHANNELS;
-    phy_param = lora_phy.get_phy_params(&get_phy);
+    phy_param = lora_phy.get()->get_phy_params(&get_phy);
     max_num_channels = (uint8_t) phy_param.Value;
 
     // check if user is setting more channels than supported
@@ -528,17 +529,17 @@ lora_mac_status_t LoRaWANStack::drop_channel_list()
 
     // Check first how many channels the selected PHY layer supports
     get_phy.Attribute = PHY_MAX_NB_CHANNELS;
-    phy_param = lora_phy.get_phy_params(&get_phy);
+    phy_param = lora_phy.get()->get_phy_params(&get_phy);
     max_num_channels = (uint8_t) phy_param.Value;
 
     // Now check the channel mask for enabled channels
     get_phy.Attribute = PHY_CHANNELS_MASK;
-    phy_param = lora_phy.get_phy_params(&get_phy);
+    phy_param = lora_phy.get()->get_phy_params(&get_phy);
     channel_masks = phy_param.ChannelsMask;
 
     // Now check the channel mask for default channels
     get_phy.Attribute = PHY_CHANNELS_DEFAULT_MASK;
-    phy_param = lora_phy.get_phy_params(&get_phy);
+    phy_param = lora_phy.get()->get_phy_params(&get_phy);
     default_channel_masks = phy_param.ChannelsMask;
 
     for (uint8_t i = 0; i < max_num_channels; i++) {
@@ -577,7 +578,7 @@ lora_mac_status_t LoRaWANStack::remove_a_channel(uint8_t channel_id)
 
     // Check first how many channels the selected PHY layer supports
     get_phy.Attribute = PHY_MAX_NB_CHANNELS;
-    phy_param = lora_phy.get_phy_params(&get_phy);
+    phy_param = lora_phy.get()->get_phy_params(&get_phy);
     max_num_channels = (uint8_t) phy_param.Value;
 
     // According to specification channel IDs start from 0 and last valid
@@ -589,7 +590,7 @@ lora_mac_status_t LoRaWANStack::remove_a_channel(uint8_t channel_id)
 
     // Now check the Default channel mask
     get_phy.Attribute = PHY_CHANNELS_DEFAULT_MASK;
-    phy_param = lora_phy.get_phy_params(&get_phy);
+    phy_param = lora_phy.get()->get_phy_params(&get_phy);
     channel_masks = phy_param.ChannelsMask;
 
     // check if the channel ID give belongs to a default channel
@@ -624,12 +625,12 @@ lora_mac_status_t LoRaWANStack::get_enabled_channels(lora_channelplan_t& channel
 
     // Check first how many channels the selected PHY layer supports
     get_phy.Attribute = PHY_MAX_NB_CHANNELS;
-    phy_param = lora_phy.get_phy_params(&get_phy);
+    phy_param = lora_phy.get()->get_phy_params(&get_phy);
     max_num_channels = (uint8_t) phy_param.Value;
 
     // Now check the Default channel mask
     get_phy.Attribute = PHY_CHANNELS_MASK;
-    phy_param = lora_phy.get_phy_params(&get_phy);
+    phy_param = lora_phy.get()->get_phy_params(&get_phy);
     channel_masks = phy_param.ChannelsMask;
 
     // Request Mib to get channels

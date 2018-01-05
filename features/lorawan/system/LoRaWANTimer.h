@@ -20,10 +20,12 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #ifndef MBED_LORAWAN_SYS_TIMER_H__
 #define MBED_LORAWAN_SYS_TIMER_H__
+
 #include "drivers/Timer.h"
 #include "drivers/Ticker.h"
 #include "lorawan/system/lorawan_data_structures.h"
 #include "events/EventQueue.h"
+#include "platform/SingletonPtr.h"
 
 /*!
  * \brief Timer object description
@@ -32,7 +34,7 @@ typedef struct TimerEvent_s
 {
     uint32_t value;
     void ( *Callback )( void );
-    mbed::Ticker Timer;
+    SingletonPtr<mbed::Ticker> Timer;
 }TimerEvent_t;
 
 /*!

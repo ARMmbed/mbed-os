@@ -46,12 +46,12 @@ void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
 
 void TimerStart( TimerEvent_t *obj )
 {
-    obj->Timer.attach_us( mbed::callback( obj->Callback ), obj->value * 1000 );
+    obj->Timer.get()->attach_us( mbed::callback( obj->Callback ), obj->value * 1000 );
 }
 
 void TimerStop( TimerEvent_t *obj )
 {
-    obj->Timer.detach( );
+    obj->Timer.get()->detach( );
 }
 
 void TimerSetValue( TimerEvent_t *obj, uint32_t value )
