@@ -583,25 +583,25 @@ private:
      * \brief Opens up a continuous RX 2 window. This is used for
      *        class c devices.
      */
-    void OpenContinuousRx2Window( void );
+    void OpenContinuousRx2Window(void);
 
     /**
      * Prototypes for ISR handlers
      */
-    static void handle_cad_done(bool cad);
-    static void handle_tx_done(void);
-    static void handle_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
-                                  int8_t snr);
-    static void handle_rx_error(void);
-    static void handle_rx_timeout(void);
-    static void handle_tx_timeout(void);
-    static void handle_fhss_change_channel(uint8_t cur_channel);
-    static void handle_rx1_timer_event(void);
-    static void handle_rx2_timer_event(void);
-    static void handle_ack_timeout(void);
-    static void handle_delayed_tx_timer_event(void);
-    static void handle_mac_state_check_timer_event(void);
-    static void handle_next_tx_timer_event(void);
+    void handle_cad_done(bool cad);
+    void handle_tx_done(void);
+    void handle_rx_done(uint8_t *payload, uint16_t size, int16_t rssi,
+                        int8_t snr);
+    void handle_rx_error(void);
+    void handle_rx_timeout(void);
+    void handle_tx_timeout(void);
+    void handle_fhss_change_channel(uint8_t cur_channel);
+    void handle_rx1_timer_event(void);
+    void handle_rx2_timer_event(void);
+    void handle_ack_timeout(void);
+    void handle_delayed_tx_timer_event(void);
+    void handle_mac_state_check_timer_event(void);
+    void handle_next_tx_timer_event(void);
 
 private:
     /**

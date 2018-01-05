@@ -45,7 +45,7 @@ TimerTime_t LoRaWANTimeHandler::TimerGetElapsedTime( TimerTime_t savedTime )
     return TimerGetCurrentTime() - savedTime;
 }
 
-void LoRaWANTimeHandler::TimerInit( TimerEvent_t *obj, void ( *callback )( void ) )
+void LoRaWANTimeHandler::TimerInit( TimerEvent_t *obj, mbed::Callback<void()> callback)
 {
     obj->value = 0;
     obj->Callback = callback;

@@ -33,7 +33,7 @@ SPDX-License-Identifier: BSD-3-Clause
 typedef struct TimerEvent_s
 {
     uint32_t value;
-    void ( *Callback )( void );
+    mbed::Callback<void()> Callback;
     SingletonPtr<mbed::Ticker> Timer;
 }TimerEvent_t;
 
@@ -52,6 +52,17 @@ public:
      */
     void TimerTimeCounterInit(events::EventQueue *queue);
 
+   /*!
+    * \brief Initializes the timer object.
+    *
+    * \remark The TimerSetValue function must be called before starting the timer.
+    *         This function initializes the timestamp and reloads the value at 0.
+    *
+    * \param [in] obj          The structure containing the timer object parameters.
+    * \param [in] callback     The function callback called at the end of the timeout.
+    */
+    void TimerInit( TimerEvent_t *obj, mbed::Callback<void()> callback);
+
     /*!
      * \brief Read the current time.
      *
@@ -67,16 +78,7 @@ public:
      */
     TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime );
 
-    /*!
-     * \brief Initializes the timer object.
-     *
-     * \remark The TimerSetValue function must be called before starting the timer.
-     *         This function initializes the timestamp and reloads the value at 0.
-     *
-     * \param [in] obj          The structure containing the timer object parameters.
-     * \param [in] callback     The function callback called at the end of the timeout.
-     */
-    void TimerInit( TimerEvent_t *obj, void ( *callback )( void ) );
+  
 
     /*!
      * \brief Starts and adds the timer object to the list of timer events.

@@ -42,13 +42,6 @@ using namespace events;
 static EventQueue *ev_queue;
 
 /*!
- * TODO: We should get rid of this
- *
- * Static handle to LoRaMac object. This is needed for static callback methods.
- */
-static LoRaMac* isrHandler = NULL;
-
-/*!
  * Maximum length of the fOpts field
  */
 #define LORA_MAC_COMMAND_MAX_FOPTS_LENGTH           15
@@ -93,8 +86,6 @@ LoRaMac::LoRaMac(LoRaWANTimeHandler &lora_time)
     : mac_commands(*this),
       _lora_time(lora_time)
 {
-    isrHandler = this;
-
     lora_phy = NULL;
     //radio_events_t RadioEvents;
     LoRaMacDevEui = NULL;
@@ -172,64 +163,64 @@ LoRaMac::~LoRaMac()
  **************************************************************************/
 void LoRaMac::handle_tx_done(void)
 {
-    ev_queue->call(isrHandler, &LoRaMac::OnRadioTxDone);
+    ev_queue->call(this, &LoRaMac::OnRadioTxDone);
 }
 
 void LoRaMac::handle_rx_done(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)
 {
-    ev_queue->call(isrHandler, &LoRaMac::OnRadioRxDone, payload, size, rssi, snr);
+    ev_queue->call(this, &LoRaMac::OnRadioRxDone, payload, size, rssi, snr);
 }
 
 void LoRaMac::handle_rx_error(void)
 {
-    ev_queue->call(isrHandler, &LoRaMac::OnRadioRxError);
+    ev_queue->call(this, &LoRaMac::OnRadioRxError);
 }
 
 void LoRaMac::handle_rx_timeout(void)
 {
-    ev_queue->call(isrHandler, &LoRaMac::OnRadioRxTimeout);
+    ev_queue->call(this, &LoRaMac::OnRadioRxTimeout);
 }
 
 void LoRaMac::handle_tx_timeout(void)
 {
-    ev_queue->call(isrHandler, &LoRaMac::OnRadioTxTimeout);
+    ev_queue->call(this, &LoRaMac::OnRadioTxTimeout);
 }
 
 void LoRaMac::handle_cad_done(bool cad)
 {
     //TODO Not implemented yet
-    //ev_queue->call(isrHandler, &LoRaMac::OnRadioCadDone, cad);
+    //ev_queue->call(this, &LoRaMac::OnRadioCadDone, cad);
 }
 
 void LoRaMac::handle_fhss_change_channel(uint8_t cur_channel)
 {
     // TODO Not implemented yet
-    //ev_queue->call(isrHandler, &LoRaMac::OnRadioFHSSChangeChannel, cur_channel);
+    //ev_queue->call(this, &LoRaMac::OnRadioFHSSChangeChannel, cur_channel);
 }
 
 void LoRaMac::handle_mac_state_check_timer_event(void)
 {
-    ev_queue->call(isrHandler, &LoRaMac::OnMacStateCheckTimerEvent);
+    ev_queue->call(this, &LoRaMac::OnMacStateCheckTimerEvent);
 }
 
 void LoRaMac::handle_delayed_tx_timer_event(void)
 {
-    ev_queue->call(isrHandler, &LoRaMac::OnTxDelayedTimerEvent);
+    ev_queue->call(this, &LoRaMac::OnTxDelayedTimerEvent);
 }
 
 void LoRaMac::handle_ack_timeout()
 {
-    ev_queue->call(isrHandler, &LoRaMac::OnAckTimeoutTimerEvent);
+    ev_queue->call(this, &LoRaMac::OnAckTimeoutTimerEvent);
 }
 
 void LoRaMac::handle_rx1_timer_event(void)
 {
-    ev_queue->call(isrHandler, &LoRaMac::OnRxWindow1TimerEvent);
+    ev_queue->call(this, &LoRaMac::OnRxWindow1TimerEvent);
 }
 
 void LoRaMac::handle_rx2_timer_event(void)
 {
-    ev_queue->call(isrHandler, &LoRaMac::OnRxWindow2TimerEvent);
+    ev_queue->call(this, &LoRaMac::OnRxWindow2TimerEvent);
 }
 
 /***************************************************************************
@@ -1794,13 +1785,13 @@ LoRaMacStatus_t LoRaMac::LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
     lora_phy->put_radio_to_sleep();
 
     // Initialize timers
-    _lora_time.TimerInit(&MacStateCheckTimer, handle_mac_state_check_timer_event);
+    _lora_time.TimerInit(&MacStateCheckTimer, mbed::callback(this, &LoRaMac::handle_mac_state_check_timer_event));
     _lora_time.TimerSetValue(&MacStateCheckTimer, MAC_STATE_CHECK_TIMEOUT);
 
-    _lora_time.TimerInit(&TxDelayedTimer, handle_delayed_tx_timer_event);
-    _lora_time.TimerInit(&RxWindowTimer1, handle_rx1_timer_event);
-    _lora_time.TimerInit(&RxWindowTimer2, handle_rx2_timer_event);
-    _lora_time.TimerInit(&AckTimeoutTimer, handle_ack_timeout);
+    _lora_time.TimerInit(&TxDelayedTimer, mbed::callback(this, &LoRaMac::handle_delayed_tx_timer_event));
+    _lora_time.TimerInit(&RxWindowTimer1, mbed::callback(this, &LoRaMac::handle_rx1_timer_event));
+    _lora_time.TimerInit(&RxWindowTimer2, mbed::callback(this, &LoRaMac::handle_rx2_timer_event));
+    _lora_time.TimerInit(&AckTimeoutTimer, mbed::callback(this, &LoRaMac::handle_ack_timeout));
 
     // Store the current initialization time
     LoRaMacInitializationTime = _lora_time.TimerGetCurrentTime();
@@ -2694,11 +2685,11 @@ LoRaMacStatus_t LoRaMac::LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
 
 radio_events_t *LoRaMac::GetPhyEventHandlers()
 {
-    RadioEvents.tx_done = mbed::callback(handle_tx_done);
-    RadioEvents.rx_done = mbed::callback(handle_rx_done);
-    RadioEvents.rx_error = mbed::callback(handle_rx_error);
-    RadioEvents.tx_timeout = mbed::callback(handle_tx_timeout);
-    RadioEvents.rx_timeout = mbed::callback(handle_rx_timeout);
+    RadioEvents.tx_done = mbed::callback(this, &LoRaMac::handle_tx_done);
+    RadioEvents.rx_done = mbed::callback(this, &LoRaMac::handle_rx_done);
+    RadioEvents.rx_error = mbed::callback(this, &LoRaMac::handle_rx_error);
+    RadioEvents.tx_timeout = mbed::callback(this, &LoRaMac::handle_tx_timeout);
+    RadioEvents.rx_timeout = mbed::callback(this, &LoRaMac::handle_rx_timeout);
 
     return &RadioEvents;
 }
