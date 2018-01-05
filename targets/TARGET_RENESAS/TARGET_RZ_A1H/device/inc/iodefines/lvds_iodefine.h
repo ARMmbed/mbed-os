@@ -18,20 +18,34 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : lvds_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.01a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef LVDS_IODEFINE_H
 #define LVDS_IODEFINE_H
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_lvds
-{                                                          /* LVDS             */
+#define LVDS    (*(struct st_lvds    *)0xFCFF7A30uL) /* LVDS */
+
+
+#define LVDSLVDS_UPDATE (LVDS.LVDS_UPDATE)
+#define LVDSLVDSFCL (LVDS.LVDSFCL)
+#define LVDSLCLKSELR (LVDS.LCLKSELR)
+#define LVDSLPLLSETR (LVDS.LPLLSETR)
+#define LVDSLPHYACC (LVDS.LPHYACC)
+
+
+typedef struct st_lvds
+{
+                                                           /* LVDS             */
     volatile uint32_t  LVDS_UPDATE;                            /*  LVDS_UPDATE     */
     volatile uint32_t  LVDSFCL;                                /*  LVDSFCL         */
     volatile uint8_t   dummy608[24];                           /*                  */
@@ -39,16 +53,11 @@ struct st_lvds
     volatile uint32_t  LPLLSETR;                               /*  LPLLSETR        */
     volatile uint8_t   dummy609[4];                            /*                  */
     volatile uint32_t  LPHYACC;                                /*  LPHYACC         */
-};
+} r_io_lvds_t;
 
 
-#define LVDS    (*(struct st_lvds    *)0xFCFF7A30uL) /* LVDS */
-
-
-#define LVDSLVDS_UPDATE LVDS.LVDS_UPDATE
-#define LVDSLVDSFCL LVDS.LVDSFCL
-#define LVDSLCLKSELR LVDS.LCLKSELR
-#define LVDSLPLLSETR LVDS.LPLLSETR
-#define LVDSLPHYACC LVDS.LPHYACC
 /* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

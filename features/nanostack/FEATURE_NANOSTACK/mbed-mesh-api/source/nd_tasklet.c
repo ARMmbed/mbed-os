@@ -106,7 +106,7 @@ static void initialize_channel_list(void)
 
     tr_debug("Channel: %ld", channel);
     tr_debug("Channel page: %d", tasklet_data_ptr->channel_list.channel_page);
-    tr_debug("Channel mask: %ld", tasklet_data_ptr->channel_list.channel_mask[word_index]);
+    tr_debug("Channel mask: 0x%.8lx", tasklet_data_ptr->channel_list.channel_mask[word_index]);
 }
 
 /*

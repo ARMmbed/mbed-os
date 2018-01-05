@@ -26,7 +26,11 @@
 #endif
 
 #define THREAD_STACK_SIZE 512
+#if defined(__CORTEX_A9)
+#define PARALLEL_THREAD_STACK_SIZE 512
+#else
 #define PARALLEL_THREAD_STACK_SIZE 384
+#endif
 #define CHILD_THREAD_STACK_SIZE 384
 
 using namespace utest::v1;

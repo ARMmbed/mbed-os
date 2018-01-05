@@ -441,13 +441,6 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
     if  (hasattr(toolchain.target, "release_versions") and
             "5" not in toolchain.target.release_versions and
             "rtos" in toolchain.config.lib_config_data):
-        if "Cortex-A" in toolchain.target.core:
-            raise NotSupportedException(
-                ("%s Will be supported in a future version of Mbed OS. "
-                    "To use the %s, please checkout the mbed OS 5.4 release branch. "
-                    "See https://developer.mbed.org/platforms/Renesas-GR-PEACH/#important-notice "
-                    "for more information") % (toolchain.target.name, toolchain.target.name))
-        else:
             raise NotSupportedException("Target does not support mbed OS 5")
 
     return resources
@@ -1006,19 +999,6 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         config.add_config_files([MBED_CONFIG_FILE])
         toolchain.set_config_data(toolchain.config.get_config_data())
 
-        # CMSIS
-        toolchain.info("Building library %s (%s, %s)" %
-                       ('CMSIS', target.name, toolchain_name))
-        cmsis_src = MBED_CMSIS_PATH
-        resources = toolchain.scan_resources(cmsis_src)
-
-        toolchain.copy_files(resources.headers, build_target)
-        toolchain.copy_files(resources.linker_script, build_toolchain)
-        toolchain.copy_files(resources.bin_files, build_toolchain)
-
-        objects = toolchain.compile_sources(resources, tmp_path)
-        toolchain.copy_files(objects, build_toolchain)
-
         # mbed
         toolchain.info("Building library %s (%s, %s)" %
                        ('MBED', target.name, toolchain_name))
@@ -1034,9 +1014,12 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
             toolchain.copy_files(resources.headers, dest)
             library_incdirs.append(dest)
 
-        # Target specific sources
-        hal_src = MBED_TARGETS_PATH
-        hal_implementation = toolchain.scan_resources(hal_src)
+        cmsis_implementation = toolchain.scan_resources(MBED_CMSIS_PATH)
+        toolchain.copy_files(cmsis_implementation.headers, build_target)
+        toolchain.copy_files(cmsis_implementation.linker_script, build_toolchain)
+        toolchain.copy_files(cmsis_implementation.bin_files, build_toolchain)
+
+        hal_implementation = toolchain.scan_resources(MBED_TARGETS_PATH)
         toolchain.copy_files(hal_implementation.headers +
                              hal_implementation.hex_files +
                              hal_implementation.libraries +
@@ -1045,8 +1028,8 @@ def build_mbed_libs(target, toolchain_name, verbose=False,
         toolchain.copy_files(hal_implementation.linker_script, build_toolchain)
         toolchain.copy_files(hal_implementation.bin_files, build_toolchain)
         incdirs = toolchain.scan_resources(build_target).inc_dirs
-        objects = toolchain.compile_sources(hal_implementation,
-                                            library_incdirs + incdirs)
+        objects = toolchain.compile_sources(cmsis_implementation + hal_implementation,
+                                            library_incdirs + incdirs + [tmp_path])
         toolchain.copy_files(objects, build_toolchain)
 
         # Common Sources

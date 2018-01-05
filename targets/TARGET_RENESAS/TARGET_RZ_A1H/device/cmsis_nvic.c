@@ -29,14 +29,13 @@
  *******************************************************************************
  */
 #include "MBRZA1H.h"
-
-extern IRQHandler IRQTable[Renesas_RZ_A1_IRQ_MAX+1];
+#include "irq_ctrl.h"
 
 void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector) {
     InterruptHandlerRegister(IRQn, (IRQHandler)vector);
 }
 
 uint32_t NVIC_GetVector(IRQn_Type IRQn) {
-    uint32_t vectors = (uint32_t)IRQTable[IRQn];
+    uint32_t vectors = (uint32_t)IRQ_GetHandler(IRQn);
     return vectors;
 }

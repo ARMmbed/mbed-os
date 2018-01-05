@@ -1062,6 +1062,11 @@ static void i2c_irqs_set(i2c_t *obj, uint32_t enable)
         if (enable) {
             InterruptHandlerRegister(irqTable[i], handlerTable[i]);
             GIC_SetPriority(irqTable[i], 5);
+            if (i == 1) {
+                GIC_SetConfiguration(irqTable[i], 3);
+            } else {
+                GIC_SetConfiguration(irqTable[i], 1);
+            }
             GIC_EnableIRQ(irqTable[i]);
         } else {
             GIC_DisableIRQ(irqTable[i]);

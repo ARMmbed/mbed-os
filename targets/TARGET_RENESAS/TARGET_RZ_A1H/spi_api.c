@@ -447,6 +447,7 @@ static void spi_irqs_set(spi_t *obj, uint32_t enable)
         if (enable) {
             InterruptHandlerRegister(irqTable[i], handlerTable[i]);
             GIC_SetPriority(irqTable[i], 5);
+            GIC_SetConfiguration(irqTable[i], 1);
             GIC_EnableIRQ(irqTable[i]);
         } else {
             GIC_DisableIRQ(irqTable[i]);

@@ -177,11 +177,13 @@ uint8_t SetSysClock_PLL_HSE(uint8_t bypass)
     }
 
     /* Select PLLSAI output as USB clock source */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
     PeriphClkInitStruct.PLLI2S.PLLI2SM = 8;
     PeriphClkInitStruct.PLLI2S.PLLI2SQ = 4;
     PeriphClkInitStruct.PLLI2S.PLLI2SN = 192;
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
+    PeriphClkInitStruct.PLLI2S.PLLI2SR = 2;
     PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48CLKSOURCE_PLLI2SQ;
+    PeriphClkInitStruct.PLLI2SSelection = RCC_PLLI2SCLKSOURCE_PLLSRC;
 
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
@@ -242,11 +244,13 @@ uint8_t SetSysClock_PLL_HSI(void)
     }
 
     /* Select PLLI2S output as USB clock source */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
     PeriphClkInitStruct.PLLI2S.PLLI2SM = 16;
     PeriphClkInitStruct.PLLI2S.PLLI2SN = 192;
     PeriphClkInitStruct.PLLI2S.PLLI2SQ = 4;
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
+    PeriphClkInitStruct.PLLI2S.PLLI2SR = 2;
     PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48CLKSOURCE_PLLI2SQ;
+    PeriphClkInitStruct.PLLI2SSelection = RCC_PLLI2SCLKSOURCE_PLLSRC;
 
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
 
