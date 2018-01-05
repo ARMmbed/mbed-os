@@ -4,5 +4,6 @@
     "HEAPBLOCKDEVICE_AND_ETHERNET": "HeapBlockDeviceAndEthernetInterface.json",
     "ODIN_WIFI" : "OdinInterface.json",
     "ODIN_ETHERNET" : "Odin_EthernetInterface.json",
-    "REALTEK_WIFI" : "RealtekInterface.json"
+    "REALTEK_WIFI" : "RealtekInterface.json",	
+    "ESP8266_WIFI" : "ESP8266Interface.json"
 }
