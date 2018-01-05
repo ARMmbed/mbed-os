@@ -650,6 +650,7 @@ HAL_StatusTypeDef HAL_SPI_Transmit(SPI_HandleTypeDef *hspi, uint8_t *pData, uint
     hspi->ErrorCode = HAL_SPI_ERROR_FLAG;
   }
 
+  // Added for MBED PR #4975
   if (hspi->Init.Direction == SPI_DIRECTION_1LINE) {
       __HAL_SPI_DISABLE(hspi);
   }

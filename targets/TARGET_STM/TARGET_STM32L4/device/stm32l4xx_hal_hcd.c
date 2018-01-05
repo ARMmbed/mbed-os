@@ -206,7 +206,9 @@ HAL_StatusTypeDef HAL_HCD_HC_Init(HCD_HandleTypeDef *hhcd,
   hhcd->hc[ch_num].ep_num = epnum & 0x7F;
   hhcd->hc[ch_num].ep_is_in = ((epnum & 0x80) == 0x80);
   hhcd->hc[ch_num].speed = speed;
-  /*  reset to 0 */
+  
+  // Added for MBED PR #3432
+  /* reset to 0 */
   hhcd->hc[ch_num].toggle_out = 0;
   hhcd->hc[ch_num].toggle_in = 0;
 
@@ -346,6 +348,7 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
                                             uint16_t length,
                                             uint8_t do_ping) 
 {
+  // Added for MBED PR #3432
   if ((hhcd->hc[ch_num].ep_is_in != direction)) {
     if ((hhcd->hc[ch_num].ep_type == EP_TYPE_CTRL)){
       /*  reconfigure the endpoint !!! from tx -> rx, and rx ->tx  */
@@ -401,6 +404,7 @@ HAL_StatusTypeDef HAL_HCD_HC_SubmitRequest(HCD_HandleTypeDef *hhcd,
         hhcd->hc[ch_num].do_ping = do_ping;
       }
     }
+    // Added for MBED PR #3432
     else if ((token == 1) && (direction == 1))
     {
       if( hhcd->hc[ch_num].toggle_in == 0)
@@ -910,6 +914,7 @@ static void HCD_HC_IN_IRQHandler   (HCD_HandleTypeDef *hhcd, uint8_t chnum)
   }
   else if ((USBx_HC(chnum)->HCINT) &  USB_OTG_HCINT_CHH)
   {
+    // Added for MBED PR #3432
     int reactivate = 0;
     __HAL_HCD_MASK_HALT_HC_INT(chnum); 
     
@@ -939,6 +944,7 @@ static void HCD_HC_IN_IRQHandler   (HCD_HandleTypeDef *hhcd, uint8_t chnum)
       /* re-activate the channel  */
       tmpreg = USBx_HC(chnum)->HCCHAR;
       tmpreg &= ~USB_OTG_HCCHAR_CHDIS;
+      // Added for MBED PR #3432 #4231
       if ( hhcd->hc[chnum].urb_state != URB_ERROR) {
         tmpreg |= USB_OTG_HCCHAR_CHENA;
         reactivate = 1;
@@ -946,6 +952,7 @@ static void HCD_HC_IN_IRQHandler   (HCD_HandleTypeDef *hhcd, uint8_t chnum)
       USBx_HC(chnum)->HCCHAR = tmpreg;
     }
     __HAL_HCD_CLEAR_HC_INT(chnum, USB_OTG_HCINT_CHH);
+    // Added for MBED PR #3432 #4231
     if (hhcd->hc[chnum].state == 0) reactivate = 1;
     if (reactivate == 0) HAL_HCD_HC_NotifyURBChange_Callback(hhcd, chnum, hhcd->hc[chnum].urb_state);
   }  
