@@ -7,11 +7,6 @@
  * app_json. */
 WiFiInterface *get_interface(void);
 
-/**
- * Get security protocol to be used
- */
-nsapi_security get_security(void);
-
 /*
  * Test cases
  */

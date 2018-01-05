@@ -20,7 +20,7 @@
 #include "dbg.h"
 #include "pinmap.h"
 
-#include "USBHALHost_STM.h"
+#include "USBHALHost_STM_TARGET.h"
 
 void HAL_HCD_Connect_Callback(HCD_HandleTypeDef *hhcd)
 {

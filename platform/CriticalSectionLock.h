@@ -33,25 +33,14 @@ namespace mbed {
   * Usage:
   * @code
   *
-  * // RAII style usage
-  * unsigned int atomic_counter_increment(unsigned int &counter) {
-  *     CriticalSectionLock lock;
-  *     // Code in this block will run with interrupts disabled
-  *     // Interrupts will be restored to their previous state automatically
-  *     // at the end of function scope
-  *     return ++counter;
+  * void f() {
+  *     // some code here
+  *     {
+  *         CriticalSectionLock lock;
+  *         // Code in this block will run with interrupts disabled
+  *     }
+  *     // interrupts will be restored to their previous state
   * }
-  *
-  * // free locking usage
-  * unsigned int atomic_counter_decrement(unsigned int &counter) {
-  *     CriticalSectionLock::enable();
-  *     // Code in this block will run with interrupts disabled
-  *     counter--;
-  *     CriticalSectionLock::disable(); // need explicitly to disable critical section lock
-  *     // interrupts will be restored to their previous state here
-  *     return counter;
-  * }
-  *
   * @endcode
   */
 class CriticalSectionLock {
@@ -67,37 +56,17 @@ public:
     }
 
     /** Mark the start of a critical section
-     *
+     *     
      */
-    MBED_DEPRECATED_SINCE("mbed-os-5.8",
-            "This function is inconsistent with RAII and is being removed in the future."
-            "Replaced by static function CriticalSectionLock::enable.")
     void lock()
     {
         core_util_critical_section_enter();
     }
 
     /** Mark the end of a critical section
-     *
+     *     
      */
-    MBED_DEPRECATED_SINCE("mbed-os-5.8",
-            "This function is inconsistent with RAII and is being removed in the future."
-            "Replaced by static function CriticalSectionLock::disable.")
     void unlock()
-    {
-        core_util_critical_section_exit();
-    }
-
-    /** Mark the start of a critical section
-     */
-    static void enable()
-    {
-        core_util_critical_section_enter();
-    }
-
-    /** Mark the end of a critical section
-     */
-    static void disable()
     {
         core_util_critical_section_exit();
     }

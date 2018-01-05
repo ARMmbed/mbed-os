@@ -129,11 +129,7 @@ osStatus Thread::terminate() {
     _tid = (osThreadId_t)NULL;
     if (!_finished) {
         _finished = true;
-        // if local_id == 0 Thread was not started in first place
-        // and does not have to be terminated
-        if (local_id != 0) {
-            ret = osThreadTerminate(local_id);
-        }
+        ret = osThreadTerminate(local_id);
     }
     _mutex.unlock();
     return ret;

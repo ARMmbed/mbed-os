@@ -50,10 +50,8 @@ WiFiInterface *get_interface()
 {
     static WiFiInterface *interface = NULL;
 
-    if (interface) {
-        interface->disconnect();
-        return interface;
-    }
+    if (interface)
+        delete interface;
 
 #if MBED_CONF_APP_WIFI_DRIVER == INTERNAL
     interface = new DRIVER();

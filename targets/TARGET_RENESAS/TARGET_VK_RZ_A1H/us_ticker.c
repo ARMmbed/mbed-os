@@ -20,7 +20,6 @@
 
 #include "RZ_A1_Init.h"
 #include "VKRZA1H.h"
-#include "mbed_critical.h"
 
 #define US_TICKER_TIMER_IRQn (OSTMI1TINT_IRQn)
 #define CPG_STBCR5_BIT_MSTP50   (0x01u) /* OSTM1 */
@@ -84,14 +83,22 @@ static uint64_t ticker_read_counter64(void) {
 uint32_t us_ticker_read() {
     uint64_t cnt_val64;
     uint64_t us_val64;
+    int check_irq_masked;
 
-    core_util_critical_section_enter();
+#if defined ( __ICCARM__)
+    check_irq_masked = __disable_irq_iar();
+#else
+    check_irq_masked = __disable_irq();
+#endif /* __ICCARM__ */
 
     cnt_val64        = ticker_read_counter64();
     us_val64         = (cnt_val64 / count_clock);
     ticker_us_last64 = us_val64;
 
-    core_util_critical_section_exit();
+    if (!check_irq_masked) {
+        __enable_irq();
+    }
+
     /* clock to us */
     return (uint32_t)us_val64;
 }

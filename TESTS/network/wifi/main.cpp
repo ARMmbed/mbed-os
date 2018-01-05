@@ -30,8 +30,7 @@
     !defined(MBED_CONF_APP_WIFI_PASSWORD)      || \
     !defined(MBED_CONF_APP_WIFI_RX)            || \
     !defined(MBED_CONF_APP_WIFI_SECURE_SSID)   || \
-    !defined(MBED_CONF_APP_WIFI_TX)            || \
-    !defined MBED_CONF_APP_WIFI_SECURE_PROTOCOL
+    !defined(MBED_CONF_APP_WIFI_TX)
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json (for secure connections)
 #endif
 #endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID)
@@ -59,7 +58,6 @@ utest::v1::status_t test_setup(const size_t number_of_cases) {
 // Test cases
 Case cases[] = {
     Case("WIFI-CONSTRUCTOR", wifi_constructor),
-    Case("WIFI-CONNECT-NOCREDENTIALS", wifi_connect_nocredentials),
     Case("WIFI-SET-CREDENTIAL", wifi_set_credential),
     Case("WIFI-SET-CHANNEL", wifi_set_channel),
 #if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
@@ -74,6 +72,7 @@ Case cases[] = {
     Case("WIFI-CONNECT-PARAMS-CHANNEL", wifi_connect_params_channel),
     Case("WIFI-CONNECT-PARAMS-CHANNEL-FAIL", wifi_connect_params_channel_fail),
 #endif
+    Case("WIFI-CONNECT-NOCREDENTIALS", wifi_connect_nocredentials),
 #if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
     Case("WIFI-CONNECT", wifi_connect),
 #endif
