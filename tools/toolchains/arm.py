@@ -81,6 +81,8 @@ class ARM(mbedToolchain):
         self.ar = join(ARM_BIN, "armar")
         self.elf2bin = join(ARM_BIN, "fromelf")
 
+        self.SHEBANG += " --cpu=%s" % target.core.lower()
+
     def parse_dependencies(self, dep_path):
         dependencies = []
         for line in open(dep_path).readlines():
@@ -356,6 +358,7 @@ class ARMC6(ARM_STD):
         self.ar = [join(TOOLCHAIN_PATHS["ARMC6"], "armar")]
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
 
+        self.SHEBANG += " -mcpu=%s" % target.core.lower()
 
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)
