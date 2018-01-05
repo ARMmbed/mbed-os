@@ -86,6 +86,10 @@ public:
      */
     static const unsigned PASSKEY_LEN = 6;
     typedef uint8_t Passkey_t[PASSKEY_LEN];         /**< 6-digit passkey in ASCII ('0'-'9' digits only). */
+    typedef uint8_t c192_t[16];
+    typedef uint8_t r192_t[16];
+    typedef uint8_t c256_t[16];
+    typedef uint8_t r256_t[16];
 
     typedef void (*HandleSpecificEvent_t)(Gap::Handle_t handle);
     typedef void (*SecuritySetupInitiatedCallback_t)(Gap::Handle_t, bool allowBonding, bool requireMITM, SecurityIOCapabilities_t iocaps);
@@ -195,7 +199,7 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM) {
+    virtual ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = false) {
         /* Avoid compiler warnings about unused variables */
         (void) connectionHandle;
         (void) useOOB;
@@ -203,6 +207,69 @@ public:
 
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
+
+    virtual ble_error_t setPinCode(uint8_t pinLength, uint8_t * pinCode, bool isStatic = false) {
+        (void) pinLength;
+        (void) pinCode;
+        (void) isStatic;
+
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t setPasskey(const Passkey_t passkey) {
+        (void) passkey;
+
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t confirmationEntered(Gap::Handle_t handle, bool confirmation) {
+        (void) handle;
+        (void) confirmation;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+    virtual ble_error_t passkeyEntered(Gap::Handle_t handle, Passkey_t passkey) {
+        (void) handle;
+        (void) passkey;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+    virtual ble_error_t sendKeypressNotification(Gap::Handle_t handle, Keypress_t keypress) {
+        (void) handle;
+        (void) keypress;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+    virtual ble_error_t setOob(Gap::Handle_t handle, c192_t* hash192, r192_t* rand192) {
+        (void) handle;
+        (void) hash192;
+        (void) rand192;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+    virtual ble_error_t setExtendedOob(Gap::Handle_t handle,
+                                       c192_t* hash192, r192_t* rand192,
+                                       c256_t* hash256, r256_t* rand256) {
+        (void) handle;
+        (void) hash192;
+        (void) rand192;
+        (void) hash256;
+        (void) rand256;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+    virtual ble_error_t getLocalOobData(Gap::Handle_t handle, c192_t* hash192, r192_t* rand192) {
+        (void) handle;
+        (void) hash192;
+        (void) rand192;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+    virtual ble_error_t getLocalExtendedOobData(Gap::Handle_t handle,
+                                                c192_t* hash192, r192_t* rand192,
+                                                c256_t* hash256, r256_t* rand256) {
+        (void) handle;
+        (void) hash192;
+        (void) rand192;
+        (void) hash256;
+        (void) rand256;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
 
     /* Event callback handlers. */
 public:

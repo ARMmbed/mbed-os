@@ -23,22 +23,20 @@
 namespace ble {
 namespace generic {
 
+static const uint8_t NUMBER_OFFSET = '0';
+
 class GenericSecurityManager : public SecurityManager {
 public:
-    
-    virtual ble_error_t init(bool                     enableBonding = true,
-                             bool                     requireMITM   = true,
-                             SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
-                             const Passkey_t          passkey       = NULL) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)enableBonding;
+    virtual ble_error_t init(bool                     enableBonding  = true,
+                             bool                     requireMITM    = true,
+                             SecurityIOCapabilities_t iocaps         = IO_CAPS_NONE,
+                             const Passkey_t          passkey        = NULL) {
         (void)requireMITM;
-        (void)iocaps;
-        (void)passkey;
-
         loadState();
+        pal.set_security_settings(enableBonding, iocaps);
+        pal.set_passkey(passkey, true);
 
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+        return BLE_ERROR_NONE;
     }
 
     void saveState() {
@@ -70,18 +68,25 @@ public:
         return pal.get_whitelist(addresses);
     }
 
-    ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM) {
-        /*
-        [].useOOB = useOOB;
-        [].OOBProvidesMITM = OOBProvidesMITM;
-        */
-
-        return BLE_ERROR_NONE;
+    ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = false) {
+        return pal.set_oob_data_usage(connectionHandle, useOOB, OOBProvidesMITM);
     }
 
     ble_error_t preserveBondingStateOnReset(bool enabled) {
         saveStateEnabled = enabled;
         return BLE_ERROR_NONE;
+    }
+
+    ble_error_t setPinCode(uint8_t pinLength, uint8_t * pinCode, bool isStatic = false) {
+        return pal.set_pin_code(pinLength, pinCode, isStatic);
+    }
+
+    ble_error_t setPasskey(const Passkey_t passkeyASCI, bool isStatic = false) {
+        uint32_t passkey = 0;
+        for (int i = 0, m = 1; i < 6; ++i, m *= 10) {
+            passkey += (passkeyASCI[i] - NUMBER_OFFSET) * m;
+        }
+        return pal.set_passkey(passkey);
     }
 
 protected:

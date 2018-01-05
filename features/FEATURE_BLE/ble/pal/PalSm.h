@@ -25,6 +25,11 @@ using SecurityManager::SecurityMode_t;
 using SecurityManager::LinkSecurityStatus_t;
 using SecurityManager::Passkey_t;
 using SecurityManager::Keypress_t;
+using SecurityManager::c192_t;
+using SecurityManager::r192_t;
+using SecurityManager::c256_t;
+using SecurityManager::r256_t;
+using SecurityManager::PasskeyNum_t;
 
 using BLEProtocol::AddressBytes_t;
 using BLEProtocol::Address_t;
@@ -35,11 +40,7 @@ typedef uint8_t csrk_t[16];
 typedef uint8_t ltk_t[16];
 typedef uint8_t ediv_t[8];
 typedef uint8_t rand_t[2];
-typedef uint8_t passkey_t[4];
-typedef uint8_t c192_t[16];
-typedef uint8_t r192_t[16];
-typedef uint8_t c256_t[16];
-typedef uint8_t r256_t[16];
+typedef uint32_t passkey_num_t;
 
 struct bonded_list_entry_t {
     Address_t peer_address;
@@ -72,6 +73,7 @@ struct bonded_list_t {
 class SecurityManager : private mbed::NonCopyable<SecurityManager> {
 public:
     SecurityManager() : _event_handler(NULL) { };
+    virtual ~SecurityManager() { };
 
     virtual ble_error_t initialize() = 0;
     virtual ble_error_t terminate() = 0;
@@ -97,7 +99,8 @@ public:
     virtual ble_error_t set_authentication_timeout(connection_handle_t, uint16_t timeout /*x10 ms*/) = 0;
     virtual ble_error_t get_authentication_timeout(connection_handle_t, uint16_t *timeout /*x10 ms*/) = 0;
 
-    virtual ble_error_t set_pin_code(uint8_t pin_length, uint8_t *pin_code, bool variable_pin = true) = 0;
+    virtual ble_error_t set_pin_code(uint8_t pin_length, uint8_t *pin_code, bool static_pin = false) = 0;
+    virtual ble_error_t set_passkey(passkey_num_t passkey) = 0;
 
     /* feature support */
 
@@ -111,15 +114,15 @@ public:
 
     /* security level */
 
-    virtual ble_error_t set_security_settings(connection_handle_t address,
-                                                   bool bondable = true,
-                                                   SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
-                                                   bool use_oob = false,
-                                                   bool send_keypresses = false) = 0;
+    virtual ble_error_t set_security_settings(bool bondable = true,
+                                              SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
+                                              bool send_keypresses = false) = 0;
+
+    virtual ble_error_t set_oob_data_usage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM) = 0;
 
     /* triggers pairing if required */
     virtual ble_error_t set_security_mode(connection_handle_t handle,
-                                              SecurityMode_t mode) = 0;
+                                          SecurityMode_t mode) = 0;
 
     virtual ble_error_t get_encryption_status(connection_handle_t handle,
                                               LinkSecurityStatus_t *mode) = 0;
@@ -127,7 +130,7 @@ public:
     /* MITM */
 
     virtual ble_error_t confirmation_entered(connection_handle_t address, bool confirmation) = 0;
-    virtual ble_error_t passkey_entered(connection_handle_t, passkey_t passkey) = 0;
+    virtual ble_error_t passkey_entered(connection_handle_t, PasskeyNum_t passkey) = 0;
     virtual ble_error_t send_keypress_notification(connection_handle_t, Keypress_t keypress) = 0;
 
     virtual ble_error_t set_oob(connection_handle_t handle, c192_t*, r192_t*) = 0;
@@ -153,7 +156,7 @@ private:
 
 };
 
-}
-}
+} /* namespace pal */
+} /* namespace ble */
 
 #endif /* MBED_OS_FEATURES_FEATURE_BLE_BLE_PAL_PALSM_H_ */
