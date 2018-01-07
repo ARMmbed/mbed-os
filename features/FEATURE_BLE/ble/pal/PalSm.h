@@ -129,14 +129,19 @@ public:
     virtual ble_error_t set_security_mode(connection_handle_t handle,
                                           SecurityMode_t mode) = 0;
 
+    /*
+    virtual ble_error_t get_security_mode(connection_handle_t handle,
+                                          SecurityMode_t *mode) = 0;
+    */
+
     virtual ble_error_t get_encryption_status(connection_handle_t handle,
                                               LinkSecurityStatus_t *mode) = 0;
 
     virtual ble_error_t request_pairing(bool authentication_required = true) = 0;
     virtual ble_error_t accept_pairing_request(bool accept = true, bool authentication_required = true) = 0;
 
-    virtual ble_error_t request_authorisation() = 0;
-    virtual ble_error_t accept_authorisation_request(bool accept = true) = 0;
+    /* do we need this?
+    virtual ble_error_t request_authentication() = 0; */
 
     /* MITM */
 
