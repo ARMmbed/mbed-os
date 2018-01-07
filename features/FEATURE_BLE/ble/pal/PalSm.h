@@ -47,6 +47,7 @@ struct bonded_list_entry_t {
     ediv_t ediv;
     rand_t rand;
     ltk_t ltk;
+    csrk_t csrk;
 };
 
 struct resolving_list_entry_t {
@@ -104,11 +105,13 @@ public:
 
     /* feature support */
 
+    /* do we need this?
     virtual ble_error_t get_simple_pairing_mode(bool *enabled) = 0;
     virtual ble_error_t set_simple_pairing_mode(bool enabled) = 0;
+     */
 
-    virtual ble_error_t set_secure_connections_support(bool enabled) = 0;
-    virtual ble_error_t get_secure_connections_support(bool *enabled) = 0;
+    virtual ble_error_t set_secure_connections_support(bool enabled, bool secure_connections_only = false) = 0;
+    virtual ble_error_t get_secure_connections_support(bool *enabled, bool *secure_connections_only) = 0;
 
     virtual ble_error_t get_encryption_key_size(connection_handle_t, uint8_t *size) = 0;
 
@@ -116,7 +119,9 @@ public:
 
     virtual ble_error_t set_security_settings(bool bondable = true,
                                               SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
-                                              bool send_keypresses = false) = 0;
+                                              bool authentication_required = true,
+                                              bool send_keypresses = false,
+                                              bool pairing_authorisation_required = false) = 0;
 
     virtual ble_error_t set_oob_data_usage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM) = 0;
 
@@ -127,16 +132,22 @@ public:
     virtual ble_error_t get_encryption_status(connection_handle_t handle,
                                               LinkSecurityStatus_t *mode) = 0;
 
+    virtual ble_error_t request_pairing(bool authentication_required = true) = 0;
+    virtual ble_error_t accept_pairing_request(bool accept = true, bool authentication_required = true) = 0;
+
+    virtual ble_error_t request_authorisation() = 0;
+    virtual ble_error_t accept_authorisation_request(bool accept = true) = 0;
+
     /* MITM */
 
     virtual ble_error_t confirmation_entered(connection_handle_t address, bool confirmation) = 0;
-    virtual ble_error_t passkey_entered(connection_handle_t, PasskeyNum_t passkey) = 0;
+    virtual ble_error_t passkey_entered(connection_handle_t, Passkey_t passkey) = 0;
     virtual ble_error_t send_keypress_notification(connection_handle_t, Keypress_t keypress) = 0;
 
     virtual ble_error_t set_oob(connection_handle_t handle, c192_t*, r192_t*) = 0;
-    virtual ble_error_t set_extended_oob(connection_handle_t handle, c192_t*, r192_t*,c256_t*, r256_t*) = 0;
+    virtual ble_error_t set_extended_oob(connection_handle_t handle, c192_t*, r192_t*, c256_t*, r256_t*) = 0;
     virtual ble_error_t get_local_oob_data(connection_handle_t handle, c192_t*, r192_t*) = 0;
-    virtual ble_error_t get_local_extended_oob_data(connection_handle_t handle, c192_t*, r192_t*,c256_t*, r256_t*) = 0;
+    virtual ble_error_t get_local_extended_oob_data(connection_handle_t handle, c192_t*, r192_t*, c256_t*, r256_t*) = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */
 public:

@@ -34,7 +34,7 @@ public:
         (void)requireMITM;
         loadState();
         pal.set_security_settings(enableBonding, iocaps);
-        pal.set_passkey(passkey, true);
+        pal.set_passkey(passkey);
 
         return BLE_ERROR_NONE;
     }

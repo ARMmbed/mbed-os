@@ -480,6 +480,9 @@ public:
     virtual void confirmationRequest(Gap::Handle_t handle) {
         (void)handle;
     };
+    virtual void acceptPairingRequest(Gap::Handle_t handle) {
+        (void)handle;
+    };
 };
 
 /* legacy compatibility with old callbacks (from both sides, so combination of new and old works) */
