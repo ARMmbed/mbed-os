@@ -29,7 +29,6 @@ using SecurityManager::C192_t;
 using SecurityManager::R192_t;
 using SecurityManager::C256_t;
 using SecurityManager::R256_t;
-using SecurityManager::PasskeyNum_t;
 
 using BLEProtocol::AddressBytes_t;
 using BLEProtocol::Address_t;
