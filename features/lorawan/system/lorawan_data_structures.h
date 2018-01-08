@@ -24,7 +24,9 @@
 #define LORAWAN_SYSTEM_LORAWAN_DATA_STRUCTURES_H_
 
 #include <inttypes.h>
+#include "drivers/Ticker.h"
 #include "platform/Callback.h"
+#include "platform/SingletonPtr.h"
 
 /*!
  * \brief Timer time variable definition
@@ -2938,6 +2940,269 @@ typedef struct loramac_downlink_status {
      */
     uint8_t buffer_size;
 } loramac_downlink_status_t;
+
+/*!
+ * \brief Timer object description
+ */
+typedef struct TimerEvent_s
+{
+    uint32_t value;
+    mbed::Callback<void()> Callback;
+    SingletonPtr<mbed::Ticker> Timer;
+} TimerEvent_t;
+
+/*!
+ * LoRaMac internal states
+ */
+enum eLoRaMacState
+{
+    LORAMAC_IDLE          = 0x00000000,
+    LORAMAC_TX_RUNNING    = 0x00000001,
+    LORAMAC_RX            = 0x00000002,
+    LORAMAC_ACK_REQ       = 0x00000004,
+    LORAMAC_ACK_RETRY     = 0x00000008,
+    LORAMAC_TX_DELAYED    = 0x00000010,
+    LORAMAC_TX_CONFIG     = 0x00000020,
+    LORAMAC_RX_ABORT      = 0x00000040,
+};
+
+typedef struct {
+    /*!
+     * Device IEEE EUI
+     */
+    uint8_t *LoRaMacDevEui;
+
+    /*!
+     * Application IEEE EUI
+     */
+    uint8_t *LoRaMacAppEui;
+
+    /*!
+     * AES encryption/decryption cipher application key
+     */
+    uint8_t *LoRaMacAppKey;
+
+    /*!
+     * AES encryption/decryption cipher network session key
+     */
+    uint8_t LoRaMacNwkSKey[16];
+
+    /*!
+     * AES encryption/decryption cipher application session key
+     */
+    uint8_t LoRaMacAppSKey[16];
+
+} lora_mac_keys;
+
+typedef struct {
+      /*!
+       * Aggregated duty cycle management
+       */
+      TimerTime_t AggregatedLastTxDoneTime;
+      TimerTime_t AggregatedTimeOff;
+
+      /*!
+       * Stores the time at LoRaMac initialization.
+       *
+       * \remark Used for the BACKOFF_DC computation.
+       */
+      TimerTime_t LoRaMacInitializationTime;
+
+
+      /*!
+       * Last transmission time on air
+       */
+      TimerTime_t TxTimeOnAir;
+
+      /*!
+       * LoRaMac timer used to check the LoRaMacState (runs every second)
+       */
+      TimerEvent_t MacStateCheckTimer;
+
+      /*!
+       * LoRaMac duty cycle delayed Tx timer
+       */
+      TimerEvent_t TxDelayedTimer;
+
+      /*!
+       * LoRaMac reception windows timers
+       */
+      TimerEvent_t RxWindowTimer1;
+      TimerEvent_t RxWindowTimer2;
+
+      /*!
+       * Acknowledge timeout timer. Used for packet retransmissions.
+       */
+      TimerEvent_t AckTimeoutTimer;
+
+  } lora_mac_timers;
+
+typedef struct {
+
+    /*!
+     * Actual device class
+     */
+    DeviceClass_t LoRaMacDeviceClass;
+
+    /*!
+     * Indicates if the node is connected to a private or public network
+     */
+    bool PublicNetwork;
+
+    /*!
+     * Indicates if the node supports repeaters
+     */
+    bool RepeaterSupport;
+
+    /*!
+     * IsPacketCounterFixed enables the MIC field tests by fixing the
+     * UpLinkCounter value
+     */
+    bool IsUpLinkCounterFixed;
+
+    /*!
+     * Used for test purposes. Disables the opening of the reception windows.
+     */
+    bool IsRxWindowsEnabled;
+
+    /*!
+     * Indicates if the MAC layer has already joined a network.
+     */
+    bool IsLoRaMacNetworkJoined;
+
+    /*!
+     * If the node has sent a FRAME_TYPE_DATA_CONFIRMED_UP this variable indicates
+     * if the nodes needs to manage the server acknowledgement.
+     */
+    bool NodeAckRequested;
+
+    /*!
+     * If the server has sent a FRAME_TYPE_DATA_CONFIRMED_DOWN this variable indicates
+     * if the ACK bit must be set for the next transmission
+     */
+    bool SrvAckRequested;
+
+    /*!
+     * Enables/Disables duty cycle management (Test only)
+     */
+    bool DutyCycleOn;
+
+    /*!
+     * Set to true, if the last uplink was a join request
+     */
+    bool LastTxIsJoinRequest;
+
+    /*!
+     * Indicates if the AckTimeout timer has expired or not
+     */
+    bool AckTimeoutRetry;
+
+    /*!
+     * Current channel index
+     */
+    uint8_t Channel;
+
+    /*!
+     * Current channel index
+     */
+    uint8_t LastTxChannel;
+
+    /*!
+     * Uplink messages repetitions counter
+     */
+    uint8_t ChannelsNbRepCounter;
+
+    /*!
+     * Buffer containing the data to be sent or received.
+     */
+    uint8_t LoRaMacBuffer[LORAMAC_PHY_MAXPAYLOAD];
+
+    /*!
+     * Length of the payload in LoRaMacBuffer
+     */
+    uint8_t LoRaMacTxPayloadLen;
+
+    /*!
+     * Buffer containing the upper layer data.
+     */
+    uint8_t LoRaMacRxPayload[LORAMAC_PHY_MAXPAYLOAD];
+
+    /*!
+     * Number of trials to get a frame acknowledged
+     */
+    uint8_t AckTimeoutRetries;
+
+    /*!
+     * Number of trials to get a frame acknowledged
+     */
+    uint8_t AckTimeoutRetriesCounter;
+
+    /*!
+     * Number of trials for the Join Request
+     */
+    uint8_t JoinRequestTrials;
+
+    /*!
+     * Maximum number of trials for the Join Request
+     */
+    uint8_t MaxJoinRequestTrials;
+
+    /*!
+     * Mac keys
+     */
+    lora_mac_keys keys;
+
+    /*!
+     * LoRaMac tx/rx operation state
+     */
+    LoRaMacFlags_t LoRaMacFlags;
+
+    /*!
+     * Length of packet in LoRaMacBuffer
+     */
+    uint16_t LoRaMacBufferPktLen;
+
+    /*!
+     * Device nonce is a random value extracted by issuing a sequence of RSSI
+     * measurements
+     */
+    uint16_t LoRaMacDevNonce;
+
+    /*!
+     * Network ID ( 3 bytes )
+     */
+    uint32_t LoRaMacNetID;
+
+    /*!
+     * Mote Address
+     */
+    uint32_t LoRaMacDevAddr;
+
+    /*!
+     * LoRaMAC frame counter. Each time a packet is sent the counter is incremented.
+     * Only the 16 LSB bits are sent
+     */
+    uint32_t UpLinkCounter;
+
+    /*!
+     * LoRaMAC frame counter. Each time a packet is received the counter is incremented.
+     * Only the 16 LSB bits are received
+     */
+    uint32_t DownLinkCounter;
+
+    /*!
+     * Counts the number of missed ADR acknowledgements
+     */
+    uint32_t AdrAckCounter;
+
+    /*!
+     * LoRaMac internal state
+     */
+    uint32_t LoRaMacState;
+
+    lora_mac_timers timers;
+
+} lora_mac_protocol_params;
 
 /** LoRaWAN callback functions
  *

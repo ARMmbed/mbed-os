@@ -613,138 +613,18 @@ private:
 
     LoRaWANTimeHandler &_lora_time;
 
+    lora_mac_protocol_params _params;
 
     /**
      * Radio event callback handlers for MAC
      */
     radio_events_t RadioEvents;
 
-
-    /*!
-     * Device IEEE EUI
-     */
-    uint8_t *LoRaMacDevEui;
-
-    /*!
-     * Application IEEE EUI
-     */
-    uint8_t *LoRaMacAppEui;
-
-    /*!
-     * AES encryption/decryption cipher application key
-     */
-    uint8_t *LoRaMacAppKey;
-
-    /*!
-     * AES encryption/decryption cipher network session key
-     */
-    uint8_t LoRaMacNwkSKey[16];
-
-    /*!
-     * AES encryption/decryption cipher application session key
-     */
-    uint8_t LoRaMacAppSKey[16];
-
-    /*!
-     * Device nonce is a random value extracted by issuing a sequence of RSSI
-     * measurements
-     */
-    uint16_t LoRaMacDevNonce;
-
-    /*!
-     * Network ID ( 3 bytes )
-     */
-    uint32_t LoRaMacNetID;
-
-    /*!
-     * Mote Address
-     */
-    uint32_t LoRaMacDevAddr;
-
     /*!
      * Multicast channels linked list
      */
     MulticastParams_t *MulticastChannels;
 
-    /*!
-     * Actual device class
-     */
-    DeviceClass_t LoRaMacDeviceClass;
-
-    /*!
-     * Indicates if the node is connected to a private or public network
-     */
-    bool PublicNetwork;
-
-    /*!
-     * Indicates if the node supports repeaters
-     */
-    bool RepeaterSupport;
-
-    /*!
-     * Buffer containing the data to be sent or received.
-     */
-    uint8_t LoRaMacBuffer[LORAMAC_PHY_MAXPAYLOAD];
-
-    /*!
-     * Length of packet in LoRaMacBuffer
-     */
-    uint16_t LoRaMacBufferPktLen;
-
-    /*!
-     * Length of the payload in LoRaMacBuffer
-     */
-    uint8_t LoRaMacTxPayloadLen;
-
-    /*!
-     * Buffer containing the upper layer data.
-     */
-    uint8_t LoRaMacRxPayload[LORAMAC_PHY_MAXPAYLOAD];
-
-    /*!
-     * LoRaMAC frame counter. Each time a packet is sent the counter is incremented.
-     * Only the 16 LSB bits are sent
-     */
-    uint32_t UpLinkCounter;
-
-    /*!
-     * LoRaMAC frame counter. Each time a packet is received the counter is incremented.
-     * Only the 16 LSB bits are received
-     */
-    uint32_t DownLinkCounter;
-
-    /*!
-     * IsPacketCounterFixed enables the MIC field tests by fixing the
-     * UpLinkCounter value
-     */
-    bool IsUpLinkCounterFixed;
-
-    /*!
-     * Used for test purposes. Disables the opening of the reception windows.
-     */
-    bool IsRxWindowsEnabled;
-
-    /*!
-     * Indicates if the MAC layer has already joined a network.
-     */
-    bool IsLoRaMacNetworkJoined;
-
-    /*!
-     * Counts the number of missed ADR acknowledgements
-     */
-    uint32_t AdrAckCounter;
-
-    /*!
-     * If the node has sent a FRAME_TYPE_DATA_CONFIRMED_UP this variable indicates
-     * if the nodes needs to manage the server acknowledgement.
-     */
-    bool NodeAckRequested;
-
-    /*!
-     * If the server has sent a FRAME_TYPE_DATA_CONFIRMED_DOWN this variable indicates
-     * if the ACK bit must be set for the next transmission
-     */
-    bool SrvAckRequested;
 
     /*!
      * LoRaMac parameters
@@ -757,69 +637,6 @@ private:
     LoRaMacParams_t LoRaMacParamsDefaults;
 
     /*!
-     * Uplink messages repetitions counter
-     */
-    uint8_t ChannelsNbRepCounter;
-
-    /*!
-     * Aggregated duty cycle management
-     */
-    TimerTime_t AggregatedLastTxDoneTime;
-    TimerTime_t AggregatedTimeOff;
-
-    /*!
-     * Enables/Disables duty cycle management (Test only)
-     */
-    bool DutyCycleOn;
-
-    /*!
-     * Current channel index
-     */
-    uint8_t Channel;
-
-    /*!
-     * Current channel index
-     */
-    uint8_t LastTxChannel;
-
-    /*!
-     * Set to true, if the last uplink was a join request
-     */
-    bool LastTxIsJoinRequest;
-
-    /*!
-     * Stores the time at LoRaMac initialization.
-     *
-     * \remark Used for the BACKOFF_DC computation.
-     */
-    TimerTime_t LoRaMacInitializationTime;
-
-    /*!
-     * LoRaMac internal states
-     */
-    enum eLoRaMacState
-    {
-        LORAMAC_IDLE          = 0x00000000,
-        LORAMAC_TX_RUNNING    = 0x00000001,
-        LORAMAC_RX            = 0x00000002,
-        LORAMAC_ACK_REQ       = 0x00000004,
-        LORAMAC_ACK_RETRY     = 0x00000008,
-        LORAMAC_TX_DELAYED    = 0x00000010,
-        LORAMAC_TX_CONFIG     = 0x00000020,
-        LORAMAC_RX_ABORT      = 0x00000040,
-    };
-
-    /*!
-     * LoRaMac internal state
-     */
-    uint32_t LoRaMacState;
-
-    /*!
-     * LoRaMac timer used to check the LoRaMacState (runs every second)
-     */
-    TimerEvent_t MacStateCheckTimer;
-
-    /*!
      * LoRaMac upper layer event functions
      */
     LoRaMacPrimitives_t *LoRaMacPrimitives;
@@ -829,16 +646,7 @@ private:
      */
     LoRaMacCallback_t *LoRaMacCallbacks;
 
-    /*!
-     * LoRaMac duty cycle delayed Tx timer
-     */
-    TimerEvent_t TxDelayedTimer;
 
-    /*!
-     * LoRaMac reception windows timers
-     */
-    TimerEvent_t RxWindowTimer1;
-    TimerEvent_t RxWindowTimer2;
 
     /*!
      * LoRaMac reception windows delay
@@ -854,40 +662,6 @@ private:
     RxConfigParams_t RxWindow1Config;
     RxConfigParams_t RxWindow2Config;
 
-    /*!
-     * Acknowledge timeout timer. Used for packet retransmissions.
-     */
-    TimerEvent_t AckTimeoutTimer;
-
-    /*!
-     * Number of trials to get a frame acknowledged
-     */
-    uint8_t AckTimeoutRetries;
-
-    /*!
-     * Number of trials to get a frame acknowledged
-     */
-    uint8_t AckTimeoutRetriesCounter;
-
-    /*!
-     * Indicates if the AckTimeout timer has expired or not
-     */
-    bool AckTimeoutRetry;
-
-    /*!
-     * Last transmission time on air
-     */
-    TimerTime_t TxTimeOnAir;
-
-    /*!
-     * Number of trials for the Join Request
-     */
-    uint8_t JoinRequestTrials;
-
-    /*!
-     * Maximum number of trials for the Join Request
-     */
-    uint8_t MaxJoinRequestTrials;
 
     /*!
      * Structure to hold MCPS indication data.
@@ -913,11 +687,6 @@ private:
      * Holds the current rx window slot
      */
     LoRaMacRxSlot_t RxSlot;
-
-    /*!
-     * LoRaMac tx/rx operation state
-     */
-    LoRaMacFlags_t LoRaMacFlags;
 
 };
 
