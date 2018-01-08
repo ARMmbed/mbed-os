@@ -52,7 +52,7 @@ class MemoryPool : private mbed::NonCopyable<MemoryPool<T, pool_sz> > {
 public:
     /** Create and Initialize a memory pool.
      *
-     * @note This function cannot be called from ISR context.
+     * @note You cannot call this function from ISR context.
     */
     MemoryPool() {
         memset(_pool_mem, 0, sizeof(_pool_mem));
@@ -68,7 +68,7 @@ public:
 
     /** Destroy a memory pool
      *
-     * @note This function cannot be called from ISR context.
+     * @note You cannot call this function from ISR context.
     */
     ~MemoryPool() {
         osMemoryPoolDelete(_id);
@@ -77,7 +77,7 @@ public:
     /** Allocate a memory block of type T from a memory pool.
       @return  address of the allocated memory block or NULL in case of no memory available.
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
     */
     T* alloc(void) {
         return (T*)osMemoryPoolAlloc(_id, 0);
@@ -86,7 +86,7 @@ public:
     /** Allocate a memory block of type T from a memory pool and set memory block to zero.
       @return  address of the allocated memory block or NULL in case of no memory available.
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
     */
     T* calloc(void) {
         T *item = (T*)osMemoryPoolAlloc(_id, 0);
@@ -102,7 +102,7 @@ public:
                       is NULL or invalid, or osErrorResource if given memory block is in an
                       invalid memory pool state.
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
     */
     osStatus free(T *block) {
         return osMemoryPoolFree(_id, (void*)block);
