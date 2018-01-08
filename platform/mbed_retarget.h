@@ -30,6 +30,7 @@
  * target embedded systems */
 typedef signed   int  ssize_t;     ///< Signed size type, usually encodes negative errors
 typedef signed   long off_t;       ///< Offset in a data stream
+typedef unsigned long long fsblkcnt_t;  ///< Count of file system blocks
 #if defined(__ARMCC_VERSION) || !defined(__GNUC__)
 typedef unsigned int  mode_t;   ///< Mode for opening files
 typedef unsigned int  dev_t;    ///< Device ID type
@@ -37,7 +38,6 @@ typedef unsigned long ino_t;    ///< File serial number
 typedef unsigned int  nlink_t;  ///< Number of links to a file
 typedef unsigned int  uid_t;    ///< User ID
 typedef unsigned int  gid_t;    ///< Group ID
-typedef unsigned long long fsblkcnt_t;  ///< Count of file system blocks
 #endif
 
 #define O_RDONLY 0      ///< Open for reading
