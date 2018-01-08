@@ -46,9 +46,9 @@ namespace rtos {
 */
 class EventFlags : private mbed::NonCopyable<EventFlags> {
 public:
-    /** Create and Initialize a EventFlags object
+    /** Create and Initialize an EventFlags object
      *
-     * @note This function cannot be called from ISR context.
+     * @note You cannot call this function from ISR context.
     */
     EventFlags();
 
@@ -56,7 +56,7 @@ public:
 
      @param name name to be used for this EventFlags. It has to stay allocated for the lifetime of the thread.
 
-     @note This function cannot be called from ISR context.
+     @note You cannot call this function from ISR context.
     */
     EventFlags(const char *name);
 
@@ -72,14 +72,14 @@ public:
       @param   flags  specifies the flags that shall be cleared. (default: 0x7fffffff - all flags)
       @return  event flags before clearing or error code if highest bit set (@a osFlagsError).
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
      */
     uint32_t clear(uint32_t flags = 0x7fffffff);
 
     /** Get the currently set Event Flags.
       @return  set event flags.
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
      */
     uint32_t get() const;
 
@@ -89,7 +89,7 @@ public:
       @param   clear    specifies wether to clear the flags after waiting for them. (default: true)
       @return  event flags before clearing or error code if highest bit set (@a osFlagsError).
 
-      @note This function may be called from ISR context if the timeout parameter is set to 0.
+      @note You may call this function from ISR context if the timeout parameter is set to 0.
      */
     uint32_t wait_all(uint32_t flags = 0, uint32_t timeout = osWaitForever, bool clear = true);
 
@@ -105,7 +105,7 @@ public:
 
     /** Event flags destructor
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     ~EventFlags();
 
