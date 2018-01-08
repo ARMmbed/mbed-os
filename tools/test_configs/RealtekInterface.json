@@ -9,7 +9,7 @@
         },
         "connect-statement" : {
             "help" : "Must use 'net' variable name, replace WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_CHANNEL with your WiFi settings",
-            "value" : "((RTWInterface *)net)->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_CHANNEL)"
+            "value" : "net->wifiInterface()->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY, WIFI_CHANNEL)"
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",

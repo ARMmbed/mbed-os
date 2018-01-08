@@ -9,7 +9,7 @@
         },
         "connect-statement" : {
             "help" : "Must use 'net' variable name",
-            "value" : "((OdinWiFiInterface *)net)->connect(WIFI_SSID, WIFI_PASSWORD)"
+            "value" : "net->wifiInterface()->connect(WIFI_SSID, WIFI_PASSWORD)"
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
