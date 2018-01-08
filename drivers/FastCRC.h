@@ -107,8 +107,9 @@ public:
     virtual int32_t compute_partial_stop(uint32_t *crc);
 
 private:
+    bool _rom_table;
     crc_polynomial_type_t _polynomial_type;
-    uint32_t *_crc_table;
+    void *_crc_table;
     uint32_t _inital_value;
     uint32_t _final_xor;
     bool _reflect_data;

@@ -30,7 +30,7 @@ FastCRC::FastCRC(crc_polynomial_type_t polynomial) :
     } else if (CRC_16BIT_IBM == _polynomial_type) {
         _reflect_data = true;
         _reflect_remainder = true;
-    } else if (CRC_32BIT == _polynomial_type) {
+    } else if (CRC_32BIT_ANSI == _polynomial_type) {
         _inital_value = ~(0x0);
         _final_xor  = ~(0x0);
         _reflect_data = true;
@@ -97,12 +97,13 @@ int32_t FastCRC::compute_partial(void *buffer, crc_data_size_t size, uint32_t *c
     uint8_t *data = static_cast<uint8_t *>(buffer);
     crc_width_t width = this->get_width();
     uint32_t p_crc = *crc;
-    uint8_t data_byte;
+    uint8_t data_byte = 0;
 
-    if (width < 8) {
+    if (width <= 8) {
         uint8_t *crc_table = (uint8_t *)_crc_table;
         for (crc_data_size_t byte = 0; byte < size; byte++) {
-            p_crc = crc_table[(data[byte] ^ p_crc)];
+            data_byte = reflect_bytes(data[byte]) ^ p_crc;
+            p_crc = crc_table[data_byte];
         }
     } else if (width <= 16) {
         uint16_t *crc_table = (uint16_t *)_crc_table;
@@ -111,14 +112,13 @@ int32_t FastCRC::compute_partial(void *buffer, crc_data_size_t size, uint32_t *c
             p_crc = crc_table[data_byte] ^ (p_crc << 8);
         }
     } else {
+        uint32_t *crc_table = (uint32_t *)_crc_table;
         for (crc_data_size_t byte = 0; byte < size; byte++) {
             data_byte = reflect_bytes(data[byte]) ^ (p_crc >> (width - 8));
-            p_crc = _crc_table[data_byte] ^ (p_crc << 8);
+            p_crc = crc_table[data_byte] ^ (p_crc << 8);
         }
     }
-    if (width < 8) {
-        p_crc >>= (8 - width);
-    }
+
     *crc = p_crc & get_crc_mask();
     return 0;
 }
@@ -129,7 +129,12 @@ int32_t FastCRC::compute(void *buffer, crc_data_size_t size, uint32_t *crc)
     int32_t status;
     *crc = _inital_value;
     status = compute_partial(buffer, size, crc);
+    crc_width_t width = this->get_width();
+    if (width < 8) {
+        *crc >>= (8 - width);
+    }
     *crc = (reflect_remainder(*crc) ^ _final_xor) & get_crc_mask();
+
     return status;
 }
 
@@ -143,6 +148,10 @@ int32_t FastCRC::compute_partial_start(uint32_t *crc)
 int32_t FastCRC::compute_partial_stop(uint32_t *crc)
 {
     MBED_ASSERT(crc != NULL);
+    crc_width_t width = this->get_width();
+    if (width < 8) {
+        *crc >>= (8 - width);
+    }
     *crc = (reflect_remainder(*crc) ^ _final_xor) & get_crc_mask();
     return 0;
 }

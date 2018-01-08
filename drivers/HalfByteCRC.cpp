@@ -48,7 +48,7 @@ int32_t HalfByteCRC::deinit()
 
 crc_polynomial_type_t HalfByteCRC::get_polynomial_type(void) const
 {
-    return CRC_32BIT;
+    return CRC_32BIT_ANSI;
 }
 
 crc_polynomial_t HalfByteCRC::get_polynomial(void) const

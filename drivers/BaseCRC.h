@@ -33,7 +33,7 @@ typedef enum crc_polynomial_type {
     CRC_16BIT_CCITT,
     CRC_16BIT_SD,
     CRC_16BIT_IBM,
-    CRC_32BIT
+    CRC_32BIT_ANSI
 } crc_polynomial_type_t;
 
 /** CRC width
@@ -114,7 +114,7 @@ public:
             return POLY_16BIT_CCITT;
         } else if (CRC_16BIT_IBM == polynomial) {
             return POLY_16BIT_IBM;
-        } else if (CRC_32BIT == polynomial) {
+        } else if (CRC_32BIT_ANSI == polynomial) {
             return POLY_32BIT_ANSI;
         }
         return POLY_INVALID;
@@ -136,7 +136,7 @@ public:
                 (CRC_16BIT_SD == polynomial) ||
                 (CRC_16BIT_IBM == polynomial)) {
             return CRC_WIDTH_16;
-        } else if (CRC_32BIT == polynomial) {
+        } else if (CRC_32BIT_ANSI == polynomial) {
             return CRC_WIDTH_32;
         }
         return CRC_WIDTH_INVALID;

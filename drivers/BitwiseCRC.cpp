@@ -30,7 +30,7 @@ BitwiseCRC::BitwiseCRC(crc_polynomial_type_t polynomial) :
     } else if (CRC_16BIT_IBM == _polynomial_type) {
         _reflect_data = true;
         _reflect_remainder = true;
-    } else if (CRC_32BIT == _polynomial_type) {
+    } else if (CRC_32BIT_ANSI == _polynomial_type) {
         _inital_value = ~(0x0);
         _final_xor  = ~(0x0);
         _reflect_data = true;
