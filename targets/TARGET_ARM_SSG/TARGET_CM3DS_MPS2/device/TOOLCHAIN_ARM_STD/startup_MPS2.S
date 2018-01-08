@@ -20,11 +20,11 @@
  *
  * This file is derivative of CMSIS V5.00 startup_ARMCM3.s
  *
-//-------- <<< Use Configuration Wizard in Context Menu >>> ------------------
  */
 
+#include "memory_zones.h"
 
-__initial_sp        EQU     0x20020000  ; Top of RAM
+__initial_sp    EQU     ZBT_SSRAM23_START + ZBT_SSRAM23_SIZE ; Top of ZBT SSRAM2 and 3, used for data
 
                 PRESERVE8
                 THUMB

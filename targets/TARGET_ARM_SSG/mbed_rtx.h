@@ -17,12 +17,20 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_BEETLE) || defined(TARGET_CM3DS_MPS2)
+#if defined(TARGET_BEETLE)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
 
+#elif defined(TARGET_CM3DS_MPS2)
+
+#include "memory_zones.h"
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (ZBT_SSRAM23_START + ZBT_SSRAM23_SIZE)
 #endif
 
-#endif  // MBED_MBED_RTX_H
+#endif /* defined(TARGET_...) */
+
+#endif  /* MBED_MBED_RTX_H */
