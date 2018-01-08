@@ -40,8 +40,8 @@ namespace rtos {
 /** The Mutex class is used to synchronize the execution of threads.
  This is for example used to protect access to a shared resource.
 
- @note Member functions of this class cannot be used in ISR context. If you require Mutex functionality within
- ISR handler consider using @a Semaphore.
+ @note You cannot use member functions of this class in ISR context. If you require Mutex functionality within
+ ISR handler, consider using @a Semaphore.
 
  @note
  Memory considerations: The mutex control structures will be created on current thread's stack, both for the mbed OS
@@ -51,7 +51,7 @@ class Mutex : private mbed::NonCopyable<Mutex> {
 public:
     /** Create and Initialize a Mutex object
      *
-     * @note This function cannot be called from ISR context.
+     * @note You cannot call this function from ISR context.
     */
     Mutex();
 
@@ -59,7 +59,7 @@ public:
 
      @param name name to be used for this mutex. It has to stay allocated for the lifetime of the thread.
 
-     @note This function cannot be called from ISR context.
+     @note You cannot call this function from ISR context.
     */
     Mutex(const char *name);
 
@@ -72,7 +72,7 @@ public:
                @a osErrorResource the mutex could not be obtained when no timeout was specified.
                @a osErrorISR this function cannot be called from the interrupt service routine.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
      */
     osStatus lock(uint32_t millisec=osWaitForever);
 
@@ -97,13 +97,13 @@ public:
     /** Get the owner the this mutex
       @return  the current owner of this mutex.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
      */
     osThreadId get_owner();
 
     /** Mutex destructor
      *
-     * @note This function cannot be called from ISR context.
+     * @note You cannot call this function from ISR context.
      */
     ~Mutex();
 
