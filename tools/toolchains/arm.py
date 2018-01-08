@@ -81,7 +81,7 @@ class ARM(mbedToolchain):
         self.ar = join(ARM_BIN, "armar")
         self.elf2bin = join(ARM_BIN, "fromelf")
 
-        self.SHEBANG += " --cpu=%s" % target.core.lower()
+        self.SHEBANG += " --cpu=%s" % cpu
 
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -312,15 +312,19 @@ class ARMC6(ARM_STD):
         if target.core.lower().endswith("fd"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-2])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-2])
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-2]
         elif target.core.lower().endswith("f"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-1])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-1]
         elif target.core.lower().endswith("ns"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-3])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-3])
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-3]
         else:
             self.flags['common'].append("-mcpu=%s" % target.core.lower())
             self.flags['ld'].append("--cpu=%s" % target.core.lower())
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()
 
         if target.core == "Cortex-M4F":
             self.flags['common'].append("-mfpu=fpv4-sp-d16")
@@ -357,8 +361,6 @@ class ARMC6(ARM_STD):
         self.ld = [join(TOOLCHAIN_PATHS["ARMC6"], "armlink")] + self.flags['ld']
         self.ar = [join(TOOLCHAIN_PATHS["ARMC6"], "armar")]
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
-
-        self.SHEBANG += " -mcpu=%s" % target.core.lower()
 
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)
