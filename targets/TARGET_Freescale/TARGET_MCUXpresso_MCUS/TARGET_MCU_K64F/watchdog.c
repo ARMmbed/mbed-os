@@ -52,20 +52,6 @@ static uint32_t calculate_prescaler_value(const uint32_t timeout_ms)
 
 watchdog_status_t hal_watchdog_init(const watchdog_config_t *config)
 {
-  // Validate the input parameters
-  if (config == NULL) {
-    return WATCHDOG_STATUS_INVALID_ARGUMENT;
-  }
-
-  if (config->timeout_ms == 0) {
-    return WATCHDOG_STATUS_INVALID_ARGUMENT;
-  }
-
-  if (config->timeout_ms > max_timeout_ms) {
-    return WATCHDOG_STATUS_INVALID_ARGUMENT;
-  }
-
-
   wdog_config_t cfg;
   cfg.enableWdog = true;
   cfg.clockSource = kWDOG_LpoClockSource;
