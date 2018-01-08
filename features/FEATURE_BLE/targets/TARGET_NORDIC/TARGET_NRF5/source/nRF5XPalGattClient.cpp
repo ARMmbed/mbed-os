@@ -79,6 +79,33 @@ static attribute_handle_range_t to_ble_handle_range(const ble_gattc_handle_range
 }
 
 /**
+ * Convert an error from the softdevice into a ble_error_t
+ */
+static ble_error_t convert_sd_error(uint32_t err)
+{
+    switch (err) {
+        case NRF_SUCCESS:
+            return BLE_ERROR_NONE;
+        case NRF_ERROR_INVALID_PARAM:
+        case BLE_ERROR_INVALID_CONN_HANDLE:
+        case NRF_ERROR_INVALID_ADDR:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_INVALID_STATE:
+            return BLE_ERROR_INVALID_STATE;
+        case NRF_ERROR_DATA_SIZE:
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
+        case BLE_ERROR_NO_TX_PACKETS:
+            return BLE_ERROR_NO_MEM;
+        case NRF_ERROR_BUSY:
+            return BLE_STACK_BUSY;
+        case NRF_ERROR_NO_MEM:
+            return BLE_ERROR_NO_MEM;
+        default:
+            return BLE_ERROR_UNSPECIFIED;
+    }
+}
+
+/**
  * Convert a UUID into a ble_uuid_t .
  * If the UUID is a 128 bit one then it is registered into the softdevice.
  */
@@ -101,51 +128,16 @@ static ble_error_t to_nordic_uuid(const UUID &uuid, ble_uuid_t &nordic_uuid)
         memcpy(uuid128.uuid128, uuid.getBaseUUID(), sizeof(uuid128.uuid128));
 
         // UUID not found, try to register it
-        err = sd_ble_uuid_vs_add(
-            &uuid128,
-            &nordic_uuid.type
-        );
-
-        switch (err) {
-            case NRF_SUCCESS:
-                nordic_uuid.uuid = bytes_to_u16(uuid.getBaseUUID() + 12);
-                return BLE_ERROR_NONE;
-            case NRF_ERROR_INVALID_ADDR:
-                return BLE_ERROR_INVALID_PARAM;
-            case NRF_ERROR_NO_MEM:
-                return BLE_ERROR_NO_MEM;
-            default:
-                return BLE_ERROR_UNSPECIFIED;
+        err = sd_ble_uuid_vs_add(&uuid128, &nordic_uuid.type);
+        if (err == NRF_SUCCESS) {
+            nordic_uuid.uuid = bytes_to_u16(uuid.getBaseUUID() + 12);
         }
+
+        return convert_sd_error(err);
     } else {
         nordic_uuid.type = BLE_UUID_TYPE_BLE;
         nordic_uuid.uuid = uuid.getShortUUID();
         return BLE_ERROR_NONE;
-    }
-}
-
-/**
- * Convert an error from the softdevice into a ble_error_t
- */
-static ble_error_t convert_sd_error(uint32_t err)
-{
-    switch (err) {
-        case NRF_SUCCESS:
-            return BLE_ERROR_NONE;
-        case NRF_ERROR_INVALID_PARAM:
-        case BLE_ERROR_INVALID_CONN_HANDLE:
-        case NRF_ERROR_INVALID_ADDR:
-            return BLE_ERROR_INVALID_PARAM;
-        case NRF_ERROR_INVALID_STATE:
-            return BLE_ERROR_INVALID_STATE;
-        case NRF_ERROR_DATA_SIZE:
-            return BLE_ERROR_PARAM_OUT_OF_RANGE;
-        case BLE_ERROR_NO_TX_PACKETS:
-            return BLE_ERROR_NO_MEM;
-        case NRF_ERROR_BUSY:
-            return BLE_STACK_BUSY;
-        default:
-            return BLE_ERROR_UNSPECIFIED;
     }
 }
 
@@ -186,6 +178,7 @@ ble_error_t nRF5XGattClient::initialize()
 ble_error_t nRF5XGattClient::exchange_mtu(connection_handle_t connection)
 {
     // Note: Not supported by the current softdevice
+    // FIXME: implement when SD 140 5.x.x is present
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -361,7 +354,7 @@ ble_error_t nRF5XGattClient::execute_write_queue(
  *     the peer. It must be implemented by Procedure derived classes.
  *   - handle: Event handler that process ble events comming from the softdevice.
  *     This function drive the procedure flow and must be implemented by
- *     Procedure childs.
+ *     Procedure derived classes.
  *   - terminate: end the procedure and forward the result to the GattClient
  *     event handle.
  *
@@ -422,7 +415,7 @@ struct nRF5XGattClient::GattProcedure {
  * It initiate a single request to the peer and excepts a single response. This
  * kind of procedure doesn't requires extra processing step.
  *
- * Given that such procedure expect a single event type from the soft device,
+ * Given that such procedure expects a single event type from the soft device,
  * error handling can be generalized.
  */
 struct nRF5XGattClient::RegularGattProcedure : GattProcedure {
@@ -675,6 +668,9 @@ struct nRF5XGattClient::DiscoverPrimaryServiceProcedure : GattProcedure {
         }
     }
 
+    // Hold read by group type response of services with 128 bit UUID.
+    // The response is composed of the service attribute handle (2 bytes), the
+    // end group handle (2 bytes) and the service UUID (16 bytes).
     typedef uint8_t packed_discovery_response_t[20];
 
     packed_discovery_response_t* response;
