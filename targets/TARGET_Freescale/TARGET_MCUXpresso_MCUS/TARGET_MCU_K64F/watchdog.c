@@ -84,7 +84,7 @@ void hal_watchdog_kick(void)
 
 watchdog_status_t hal_watchdog_stop(void)
 {
-  WDOG_Disable(WDOG);
+  WDOG_Deinit(WDOG);
 
   return WATCHDOG_STATUS_OK;
 }
