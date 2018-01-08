@@ -120,7 +120,7 @@ class ConditionVariable : private mbed::NonCopyable<ConditionVariable> {
 public:
     /** Create and Initialize a ConditionVariable object
      *
-     * @note This function may be called from ISR context.
+     * @note You may call this function from ISR context.
     */
     ConditionVariable(Mutex &mutex);
 
@@ -146,7 +146,7 @@ public:
      * mutex.unlock();
      * @endcode
      *
-     * @note This function cannot be called from ISR context.
+     * @note You cannot call this function from ISR context.
      */
     void wait();
 
@@ -182,7 +182,7 @@ public:
      * mutex.unlock();
      * @endcode
      *
-     * @note This function cannot be called from ISR context.
+     * @note You cannot call this function from ISR context.
      */
     bool wait_for(uint32_t millisec);
 
@@ -204,7 +204,7 @@ public:
 
     /** ConditionVariable destructor
      *
-     * @note This function may be called from ISR context.
+     * @note You may call this function from ISR context.
      */
     ~ConditionVariable();
 
