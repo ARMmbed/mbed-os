@@ -25,10 +25,10 @@ using SecurityManager::SecurityMode_t;
 using SecurityManager::LinkSecurityStatus_t;
 using SecurityManager::Passkey_t;
 using SecurityManager::Keypress_t;
-using SecurityManager::c192_t;
-using SecurityManager::r192_t;
-using SecurityManager::c256_t;
-using SecurityManager::r256_t;
+using SecurityManager::C192_t;
+using SecurityManager::R192_t;
+using SecurityManager::C256_t;
+using SecurityManager::R256_t;
 using SecurityManager::PasskeyNum_t;
 
 using BLEProtocol::AddressBytes_t;
@@ -143,10 +143,10 @@ public:
     virtual ble_error_t passkey_entered(connection_handle_t, Passkey_t passkey) = 0;
     virtual ble_error_t send_keypress_notification(connection_handle_t, Keypress_t keypress) = 0;
 
-    virtual ble_error_t set_oob(connection_handle_t handle, c192_t*, r192_t*) = 0;
-    virtual ble_error_t set_extended_oob(connection_handle_t handle, c192_t*, r192_t*, c256_t*, r256_t*) = 0;
-    virtual ble_error_t get_local_oob_data(connection_handle_t handle, c192_t*, r192_t*) = 0;
-    virtual ble_error_t get_local_extended_oob_data(connection_handle_t handle, c192_t*, r192_t*, c256_t*, r256_t*) = 0;
+    virtual ble_error_t set_oob(connection_handle_t handle, C192_t*, R192_t*) = 0;
+    virtual ble_error_t set_extended_oob(connection_handle_t handle, C192_t*, R192_t*, C256_t*, R256_t*) = 0;
+    virtual ble_error_t get_local_oob_data(connection_handle_t handle, C192_t*, R192_t*) = 0;
+    virtual ble_error_t get_local_extended_oob_data(connection_handle_t handle, C192_t*, R192_t*, C256_t*, R256_t*) = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */
  public:
