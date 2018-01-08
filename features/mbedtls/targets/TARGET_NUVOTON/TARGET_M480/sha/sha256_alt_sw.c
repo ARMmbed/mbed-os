@@ -24,16 +24,10 @@
  *  http://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf
  */
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/sha256.h"
 
 #if defined(MBEDTLS_SHA256_C)
 #if defined(MBEDTLS_SHA256_ALT)
-
-#include "mbedtls/sha256.h"
 
 #include <string.h>
 #if defined(MBEDTLS_SELF_TEST)
@@ -49,8 +43,10 @@
 #endif /* MBEDTLS_SELF_TEST */
 
 /* Implementation that should never be optimized out by the compiler */
-static void mbedtls_zeroize( void *v, size_t n ) {
-    volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+static void mbedtls_zeroize( void *v, size_t n )
+{
+    volatile unsigned char *p = v;
+    while( n-- ) *p++ = 0;
 }
 
 /*
@@ -90,7 +86,7 @@ void mbedtls_sha256_sw_free( mbedtls_sha256_sw_context *ctx )
 }
 
 void mbedtls_sha256_sw_clone( mbedtls_sha256_sw_context *dst,
-                           const mbedtls_sha256_sw_context *src )
+                              const mbedtls_sha256_sw_context *src )
 {
     *dst = *src;
 }
@@ -103,8 +99,7 @@ void mbedtls_sha256_sw_starts( mbedtls_sha256_sw_context *ctx, int is224 )
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
-    if( is224 == 0 )
-    {
+    if( is224 == 0 ) {
         /* SHA-256 */
         ctx->state[0] = 0x6A09E667;
         ctx->state[1] = 0xBB67AE85;
@@ -114,9 +109,7 @@ void mbedtls_sha256_sw_starts( mbedtls_sha256_sw_context *ctx, int is224 )
         ctx->state[5] = 0x9B05688C;
         ctx->state[6] = 0x1F83D9AB;
         ctx->state[7] = 0x5BE0CD19;
-    }
-    else
-    {
+    } else {
         /* SHA-224 */
         ctx->state[0] = 0xC1059ED8;
         ctx->state[1] = 0x367CD507;
@@ -131,8 +124,7 @@ void mbedtls_sha256_sw_starts( mbedtls_sha256_sw_context *ctx, int is224 )
     ctx->is224 = is224;
 }
 
-static const uint32_t K[] =
-{
+static const uint32_t K[] = {
     0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
     0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
     0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
@@ -186,8 +178,7 @@ void mbedtls_sha256_sw_process( mbedtls_sha256_sw_context *ctx, const unsigned c
         A[i] = ctx->state[i];
 
 #if defined(MBEDTLS_SHA256_SMALLER)
-    for( i = 0; i < 64; i++ )
-    {
+    for( i = 0; i < 64; i++ ) {
         if( i < 16 )
             GET_UINT32_BE( W[i], data, 4 * i );
         else
@@ -195,15 +186,21 @@ void mbedtls_sha256_sw_process( mbedtls_sha256_sw_context *ctx, const unsigned c
 
         P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i], K[i] );
 
-        temp1 = A[7]; A[7] = A[6]; A[6] = A[5]; A[5] = A[4]; A[4] = A[3];
-        A[3] = A[2]; A[2] = A[1]; A[1] = A[0]; A[0] = temp1;
+        temp1 = A[7];
+        A[7] = A[6];
+        A[6] = A[5];
+        A[5] = A[4];
+        A[4] = A[3];
+        A[3] = A[2];
+        A[2] = A[1];
+        A[1] = A[0];
+        A[0] = temp1;
     }
 #else /* MBEDTLS_SHA256_SMALLER */
     for( i = 0; i < 16; i++ )
         GET_UINT32_BE( W[i], data, 4 * i );
 
-    for( i = 0; i < 16; i += 8 )
-    {
+    for( i = 0; i < 16; i += 8 ) {
         P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i+0], K[i+0] );
         P( A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], W[i+1], K[i+1] );
         P( A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], W[i+2], K[i+2] );
@@ -214,8 +211,7 @@ void mbedtls_sha256_sw_process( mbedtls_sha256_sw_context *ctx, const unsigned c
         P( A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], W[i+7], K[i+7] );
     }
 
-    for( i = 16; i < 64; i += 8 )
-    {
+    for( i = 16; i < 64; i += 8 ) {
         P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], R(i+0), K[i+0] );
         P( A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], R(i+1), K[i+1] );
         P( A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], R(i+2), K[i+2] );
@@ -235,7 +231,7 @@ void mbedtls_sha256_sw_process( mbedtls_sha256_sw_context *ctx, const unsigned c
  * SHA-256 process buffer
  */
 void mbedtls_sha256_sw_update( mbedtls_sha256_sw_context *ctx, const unsigned char *input,
-                    size_t ilen )
+                               size_t ilen )
 {
     size_t fill;
     uint32_t left;
@@ -252,8 +248,7 @@ void mbedtls_sha256_sw_update( mbedtls_sha256_sw_context *ctx, const unsigned ch
     if( ctx->total[0] < (uint32_t) ilen )
         ctx->total[1]++;
 
-    if( left && ilen >= fill )
-    {
+    if( left && ilen >= fill ) {
         memcpy( (void *) (ctx->buffer + left), input, fill );
         mbedtls_sha256_sw_process( ctx, ctx->buffer );
         input += fill;
@@ -261,8 +256,7 @@ void mbedtls_sha256_sw_update( mbedtls_sha256_sw_context *ctx, const unsigned ch
         left = 0;
     }
 
-    while( ilen >= 64 )
-    {
+    while( ilen >= 64 ) {
         mbedtls_sha256_sw_process( ctx, input );
         input += 64;
         ilen  -= 64;
@@ -272,9 +266,8 @@ void mbedtls_sha256_sw_update( mbedtls_sha256_sw_context *ctx, const unsigned ch
         memcpy( (void *) (ctx->buffer + left), input, ilen );
 }
 
-static const unsigned char sha256_padding[64] =
-{
- 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+static const unsigned char sha256_padding[64] = {
+    0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -290,7 +283,7 @@ void mbedtls_sha256_sw_finish( mbedtls_sha256_sw_context *ctx, unsigned char out
     unsigned char msglen[8];
 
     high = ( ctx->total[0] >> 29 )
-         | ( ctx->total[1] <<  3 );
+           | ( ctx->total[1] <<  3 );
     low  = ( ctx->total[0] <<  3 );
 
     PUT_UINT32_BE( high, msglen, 0 );

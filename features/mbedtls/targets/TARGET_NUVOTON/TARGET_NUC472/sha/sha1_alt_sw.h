@@ -23,13 +23,8 @@
 #ifndef MBEDTLS_SHA1_ALT_SW_H
 #define MBEDTLS_SHA1_ALT_SW_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/sha256.h"
 
-#if defined(MBEDTLS_SHA1_C)
 #if defined(MBEDTLS_SHA1_ALT)
 
 #include <stddef.h>
@@ -42,8 +37,7 @@ extern "C" {
 /**
  * \brief          SHA-1 context structure
  */
-typedef struct
-{
+typedef struct {
     uint32_t total[2];          /*!< number of bytes processed  */
     uint32_t state[5];          /*!< intermediate digest state  */
     unsigned char buffer[64];   /*!< data block being processed */
@@ -71,7 +65,7 @@ void mbedtls_sha1_sw_free( mbedtls_sha1_sw_context *ctx );
  * \param src      The context to be cloned
  */
 void mbedtls_sha1_sw_clone( mbedtls_sha1_sw_context *dst,
-                         const mbedtls_sha1_sw_context *src );
+                            const mbedtls_sha1_sw_context *src );
 
 /**
  * \brief          SHA-1 context setup
@@ -105,6 +99,5 @@ void mbedtls_sha1_sw_process( mbedtls_sha1_sw_context *ctx, const unsigned char 
 #endif
 
 #endif /* MBEDTLS_SHA1_ALT */
-#endif /* MBEDTLS_SHA1_C */
 
 #endif /* sha1_alt_sw.h */

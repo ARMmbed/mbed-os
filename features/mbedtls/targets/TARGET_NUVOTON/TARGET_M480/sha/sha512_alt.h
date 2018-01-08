@@ -16,13 +16,8 @@
 #ifndef MBEDTLS_SHA512_ALT_H
 #define MBEDTLS_SHA512_ALT_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/sha512.h"
 
-#if defined(MBEDTLS_SHA512_C)
 #if defined(MBEDTLS_SHA512_ALT)
 
 #include "sha_alt_hw.h"
@@ -37,9 +32,8 @@ struct mbedtls_sha512_context_s;
 /**
  * \brief          SHA-512 context structure
  */
-typedef struct mbedtls_sha512_context_s
-{
-    int ishw;
+typedef struct mbedtls_sha512_context_s {
+    void *active_ctx;
     crypto_sha_context hw_ctx;
     mbedtls_sha512_sw_context sw_ctx;
 }
@@ -84,7 +78,7 @@ void mbedtls_sha512_starts( mbedtls_sha512_context *ctx, int is384 );
  * \param ilen     length of the input data
  */
 void mbedtls_sha512_update( mbedtls_sha512_context *ctx, const unsigned char *input,
-                    size_t ilen );
+                            size_t ilen );
 
 /**
  * \brief          SHA-512 final digest
@@ -102,6 +96,5 @@ void mbedtls_sha512_process( mbedtls_sha512_context *ctx, const unsigned char da
 #endif
 
 #endif /* MBEDTLS_SHA512_ALT */
-#endif /* MBEDTLS_SHA512_C */
 
 #endif /* sha512_alt.h */
