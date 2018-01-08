@@ -134,7 +134,7 @@ public:
      */
     void ProcessMacCommands(uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr,
                             MlmeConfirm_t &MlmeConfirm, LoRaMacCallback_t *LoRaMacCallbacks,
-                            LoRaMacParams_t &LoRaMacParams, LoRaPHY &lora_phy);
+                            lora_mac_system_params_t &LoRaMacParams, LoRaPHY &lora_phy);
 
     /*!
      * \brief Verifies if sticky MAC commands are pending.

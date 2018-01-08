@@ -252,8 +252,8 @@ bool LoRaMacCommand::IsMacCommandsInNextTx() const
 }
 
 void LoRaMacCommand::ProcessMacCommands(uint8_t *payload, uint8_t macIndex, uint8_t commandsSize, uint8_t snr,
-                                        MlmeConfirm_t &MlmeConfirm, LoRaMacCallback_t *LoRaMacCallbacks,
-                                        LoRaMacParams_t &LoRaMacParams, LoRaPHY &lora_phy)
+                                        MlmeConfirm_t& MlmeConfirm, LoRaMacCallback_t *LoRaMacCallbacks,
+                                        lora_mac_system_params_t &LoRaMacParams, LoRaPHY &lora_phy)
 {
     uint8_t status = 0;
 

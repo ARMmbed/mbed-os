@@ -44,10 +44,9 @@
 #include "netsocket/LoRaRadio.h"
 #include "lorastack/phy/LoRaPHY.h"
 #include "lorawan/system/lorawan_data_structures.h"
-#include "LoRaMacCommand.h"
+#include "lorastack/mac/LoRaMacCommand.h"
 #include "events/EventQueue.h"
-
-
+#include "lorastack/mac/LoRaMacMlme.h"
 /*!
  * Maximum PHY layer payload size
  */
@@ -332,6 +331,44 @@ public:
      */
     void SetMlmeScheduleUplinkIndication( void );
 
+    /*!
+     * \brief LoRaMAC layer generic send frame
+     *
+     * \param [IN] macHdr      MAC header field
+     * \param [IN] fPort       MAC payload port
+     * \param [IN] fBuffer     MAC data buffer to be sent
+     * \param [IN] fBufferSize MAC data buffer size
+     * \retval status          Status of the operation.
+     */
+    LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
+
+    /*!
+     * \brief Sets the radio in continuous transmission mode
+     *
+     * \remark Uses the radio parameters set on the previous transmission.
+     *
+     * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
+     * \retval status          Status of the operation.
+     */
+    LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout );
+
+    /*!
+     * \brief Sets the radio in continuous transmission mode
+     *
+     * \remark Uses the radio parameters set on the previous transmission.
+     *
+     * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
+     * \param [IN] frequency   RF frequency to be set.
+     * \param [IN] power       RF output power to be set.
+     * \retval status          Status of the operation.
+     */
+    LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power );
+
+    /*!
+     * \brief Resets MAC specific parameters to default
+     */
+    void ResetMacParameters( void );
+
 #if defined(LORAWAN_COMPLIANCE_TEST)
 public: // Test interface
 
@@ -495,17 +532,6 @@ private:
     bool ValidatePayloadLength( uint8_t lenN, int8_t datarate, uint8_t fOptsLen );
 
     /*!
-     * \brief LoRaMAC layer generic send frame
-     *
-     * \param [IN] macHdr      MAC header field
-     * \param [IN] fPort       MAC payload port
-     * \param [IN] fBuffer     MAC data buffer to be sent
-     * \param [IN] fBufferSize MAC data buffer size
-     * \retval status          Status of the operation.
-     */
-    LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
-
-    /*!
      * \brief LoRaMAC layer frame buffer initialization
      *
      * \param [IN] macHdr      MAC header field
@@ -542,33 +568,6 @@ private:
      * \retval status          Status of the operation.
      */
     LoRaMacStatus_t SendFrameOnChannel( uint8_t channel );
-
-    /*!
-     * \brief Sets the radio in continuous transmission mode
-     *
-     * \remark Uses the radio parameters set on the previous transmission.
-     *
-     * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
-     * \retval status          Status of the operation.
-     */
-    LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout );
-
-    /*!
-     * \brief Sets the radio in continuous transmission mode
-     *
-     * \remark Uses the radio parameters set on the previous transmission.
-     *
-     * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
-     * \param [IN] frequency   RF frequency to be set.
-     * \param [IN] power       RF output power to be set.
-     * \retval status          Status of the operation.
-     */
-    LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power );
-
-    /*!
-     * \brief Resets MAC specific parameters to default
-     */
-    void ResetMacParameters( void );
 
     /*!
      * \brief Resets MAC specific parameters to default
@@ -609,10 +608,24 @@ private:
      */
     LoRaPHY *lora_phy;
 
+    /**
+     * MAC command handle
+     */
     LoRaMacCommand mac_commands;
 
+    /**
+     * MLME subsystem handle
+     */
+    LoRaMacMlme mlme;
+
+    /**
+     * Timer subsystem handle
+     */
     LoRaWANTimeHandler &_lora_time;
 
+    /**
+     * Central MAC layer data storage
+     */
     lora_mac_protocol_params _params;
 
     /**
@@ -625,17 +638,6 @@ private:
      */
     MulticastParams_t *MulticastChannels;
 
-
-    /*!
-     * LoRaMac parameters
-     */
-    LoRaMacParams_t LoRaMacParams;
-
-    /*!
-     * LoRaMac default parameters
-     */
-    LoRaMacParams_t LoRaMacParamsDefaults;
-
     /*!
      * LoRaMac upper layer event functions
      */
@@ -645,23 +647,6 @@ private:
      * LoRaMac upper layer callback functions
      */
     LoRaMacCallback_t *LoRaMacCallbacks;
-
-
-
-    /*!
-     * LoRaMac reception windows delay
-     * \remark normal frame: RxWindowXDelay = ReceiveDelayX - RADIO_WAKEUP_TIME
-     *         join frame  : RxWindowXDelay = JoinAcceptDelayX - RADIO_WAKEUP_TIME
-     */
-    uint32_t RxWindow1Delay;
-    uint32_t RxWindow2Delay;
-
-    /*!
-     * LoRaMac Rx windows configuration
-     */
-    RxConfigParams_t RxWindow1Config;
-    RxConfigParams_t RxWindow2Config;
-
 
     /*!
      * Structure to hold MCPS indication data.
@@ -674,19 +659,10 @@ private:
     McpsConfirm_t McpsConfirm;
 
     /*!
-     * Structure to hold MLME indication data.
+     * Receive Window configurations for PHY layer
      */
-    MlmeIndication_t MlmeIndication;
-
-    /*!
-     * Structure to hold MLME confirm data.
-     */
-    MlmeConfirm_t MlmeConfirm;
-
-    /*!
-     * Holds the current rx window slot
-     */
-    LoRaMacRxSlot_t RxSlot;
+    RxConfigParams_t RxWindow1Config;
+    RxConfigParams_t RxWindow2Config;
 
 };
 

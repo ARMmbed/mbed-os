@@ -330,7 +330,7 @@ typedef struct sLoRaMacParams
      * LoRaMac ADR control status
      */
     bool AdrCtrlOn;
-}LoRaMacParams_t;
+} lora_mac_system_params_t;
 
 /*!
  * LoRaMAC multicast channel parameter.
@@ -3045,6 +3045,11 @@ typedef struct {
     DeviceClass_t LoRaMacDeviceClass;
 
     /*!
+     * Holds the type of current Receive window slot
+     */
+     LoRaMacRxSlot_t RxSlot;
+
+    /*!
      * Indicates if the node is connected to a private or public network
      */
     bool PublicNetwork;
@@ -3200,7 +3205,28 @@ typedef struct {
      */
     uint32_t LoRaMacState;
 
+    /*!
+     * LoRaMac reception windows delay
+     * \remark normal frame: RxWindowXDelay = ReceiveDelayX - RADIO_WAKEUP_TIME
+     *         join frame  : RxWindowXDelay = JoinAcceptDelayX - RADIO_WAKEUP_TIME
+     */
+    uint32_t RxWindow1Delay;
+    uint32_t RxWindow2Delay;
+
+    /*!
+     * Timer objects and stored values
+     */
     lora_mac_timers timers;
+
+    /*!
+     * LoRaMac parameters
+     */
+    lora_mac_system_params_t sys_params;
+
+    /*!
+     * LoRaMac default parameters
+     */
+    lora_mac_system_params_t def_sys_params;
 
 } lora_mac_protocol_params;
 
