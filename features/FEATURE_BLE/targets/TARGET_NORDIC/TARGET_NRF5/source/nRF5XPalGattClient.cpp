@@ -177,15 +177,21 @@ ble_error_t nRF5XGattClient::initialize()
 
 ble_error_t nRF5XGattClient::exchange_mtu(connection_handle_t connection)
 {
-    // Note: Not supported by the current softdevice
     // FIXME: implement when SD 140 5.x.x is present
+    // (see sd_ble_gatts_exchange_mtu_reply)
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t nRF5XGattClient::get_mtu_size(
     connection_handle_t connection_handle, uint16_t& mtu_size
 ) {
+#ifdef TARGET_SDK13
+    // FIXME: implement when MTU size can be configured; the mtu size must be
+    // stored locally when BLE_GATTC_EVT_EXCHANGE_MTU_RSP has been received
+    mtu_size = BLE_GATT_MTU_SIZE_DEFAULT;
+#else
     mtu_size = GATT_RX_MTU;
+#endif
     return BLE_ERROR_NONE;
 }
 
@@ -1089,6 +1095,7 @@ struct nRF5XGattClient::DiscoverDescriptorsProcedure : RegularGattProcedure {
                 return response.count;
             }
 
+#ifndef TARGET_SDK13
             virtual information_data_t operator[](size_t i) const
             {
                 information_data_t result = {
@@ -1106,6 +1113,32 @@ struct nRF5XGattClient::DiscoverDescriptorsProcedure : RegularGattProcedure {
 
                 return result;
             }
+#else /* TARGET_SDK13 */
+            virtual information_data_t operator[](size_t i) const
+            {
+                if (response.format == BLE_GATTC_ATTR_INFO_FORMAT_16BIT) {
+                    information_data_t result = {
+                        response.info.attr_info16[i].handle,
+                        UUID(response.info.attr_info16[i].uuid.uuid)
+                    };
+
+                    return result;
+                } else {
+                    information_data_t result = {
+                        response.info.attr_info128[i].handle,
+                        UUID(
+                            response.info.attr_info128[i].uuid.uuid128,
+                            UUID::LSB
+                        )
+                    };
+
+                    return result;
+                }
+            }
+
+
+#endif
+
 
             const ble_gattc_evt_attr_info_disc_rsp_t &response;
         };
@@ -1174,6 +1207,27 @@ struct nRF5XGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProced
         return convert_sd_error(err);
     }
 
+#ifdef TARGET_SDK13
+    /**
+     * Adapt ble_gattc_evt_char_val_by_uuid_read_rsp_t into AttReadByTypeResponse.
+     */
+    virtual void do_handle(const ble_gattc_evt_t &evt)
+    {
+        const ble_gattc_evt_char_val_by_uuid_read_rsp_t &rsp =
+            evt.params.char_val_by_uuid_read_rsp;
+
+        uint8_t element_size = sizeof(uint16_t) + rsp.value_len;
+
+        terminate(SimpleAttReadByTypeResponse(
+            element_size,
+            make_const_ArrayView(
+                rsp.handle_value,
+                rsp.count * element_size
+            )
+        ));
+    }
+
+#else
     /**
      * Adapt ble_gattc_evt_char_val_by_uuid_read_rsp_t into AttReadByTypeResponse.
      */
@@ -1205,6 +1259,7 @@ struct nRF5XGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProced
 
         terminate(CustomReadByTypeResponse(evt.params.char_val_by_uuid_read_rsp));
     }
+#endif
 };
 
 /**
