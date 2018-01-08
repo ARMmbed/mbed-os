@@ -494,9 +494,21 @@ class Config(object):
             return ('target.bootloader_img' in target_overrides or
                     'target.restrict_size' in target_overrides or
                     'target.mbed_app_start' in target_overrides or
-                    'target.mbed_app_size' in target_overrides)
+                    'target.mbed_app_size' in target_overrides or
+                    'target.sotp_size' in target_overrides)
         else:
             return False
+
+    @property
+    def sectors(self):
+        """Return a list of tuples of sector start,size"""
+        cache = Cache(False, False)
+        if self.target.device_name not in cache.index:
+            raise ConfigException("Bootloader not supported on this target: "
+                                  "targets.json `device_name` not found in "
+                                  "arm_pack_manager index.")
+        cmsis_part = cache.index[self.target.device_name]
+        return cmsis_part['sectors']
 
     @property
     def regions(self):
@@ -526,16 +538,20 @@ class Config(object):
             rom_size = int(cmsis_part['memory']['IROM1']['size'], 0)
             rom_start = int(cmsis_part['memory']['IROM1']['start'], 0)
         except KeyError:
-            raise ConfigException("Not enough information in CMSIS packs to "
+            try:
+                rom_size = int(cmsis_part['memory']['PROGRAM_FLASH']['size'], 0)
+                rom_start = int(cmsis_part['memory']['PROGRAM_FLASH']['start'], 0)
+            except KeyError:
+                raise ConfigException("Not enough information in CMSIS packs to "
                                   "build a bootloader project")
         if  ('target.bootloader_img' in target_overrides or
              'target.restrict_size' in target_overrides):
             return self._generate_booloader_build(target_overrides,
                                                   rom_start, rom_size)
         elif ('target.mbed_app_start' in target_overrides or
-              'target.mbed_app_size' in target_overrides):
+              'target.mbed_app_size' in target_overrides or 'target.sotp_size' in target_overrides):
             return self._generate_linker_overrides(target_overrides,
-                                                   rom_start, rom_size)
+                                                   rom_start, rom_size, self.sectors)
         else:
             raise ConfigException(
                 "Bootloader build requested but no bootlader configuration")
@@ -567,6 +583,17 @@ class Config(object):
         if start > rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
+    @staticmethod
+    def _align_on_sector(address, sectors):
+        target_size = -1
+        target_start = -1
+        for (start, size) in sectors:
+            if address < start:
+                break
+            target_start = start
+            target_size = size
+        sector_num = (address - target_start)//target_size
+        return target_start + (sector_num* target_size)
 
     @property
     def report(self):
@@ -574,7 +601,7 @@ class Config(object):
                 'library_configs': map(relpath, self.processed_configs.keys())}
 
     @staticmethod
-    def _generate_linker_overrides(target_overrides, rom_start, rom_size):
+    def _generate_linker_overrides(target_overrides, rom_start, rom_size, sectors):
         if 'target.mbed_app_start' in target_overrides:
             start = int(target_overrides['target.mbed_app_start'], 0)
         else:
@@ -583,6 +610,12 @@ class Config(object):
             size = int(target_overrides['target.mbed_app_size'], 0)
         else:
             size = (rom_size + rom_start) - start
+        if 'target.sotp_size' in target_overrides:
+            sotp_size = int(target_overrides['target.sotp_size'], 0)
+            size = size - sotp_size
+            size = Config._align_on_sector(start + size, sectors) - start
+            if size + sotp_size > rom_size + rom_start:
+                raise ConfigException("Application + SOTP size ends after ROM")
         if start < rom_start:
             raise ConfigException("Application starts before ROM")
         if size + start > rom_size + rom_start:
