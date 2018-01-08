@@ -185,7 +185,7 @@ ble_error_t nRF5XGattClient::exchange_mtu(connection_handle_t connection)
 ble_error_t nRF5XGattClient::get_mtu_size(
     connection_handle_t connection_handle, uint16_t& mtu_size
 ) {
-#ifdef TARGET_SDK13
+#if (NRF_SD_BLE_API_VERSION >= 3)
     // FIXME: implement when MTU size can be configured; the mtu size must be
     // stored locally when BLE_GATTC_EVT_EXCHANGE_MTU_RSP has been received
     mtu_size = BLE_GATT_MTU_SIZE_DEFAULT;
@@ -1095,7 +1095,7 @@ struct nRF5XGattClient::DiscoverDescriptorsProcedure : RegularGattProcedure {
                 return response.count;
             }
 
-#ifndef TARGET_SDK13
+#if (NRF_SD_BLE_API_VERSION < 3)
             virtual information_data_t operator[](size_t i) const
             {
                 information_data_t result = {
@@ -1113,7 +1113,7 @@ struct nRF5XGattClient::DiscoverDescriptorsProcedure : RegularGattProcedure {
 
                 return result;
             }
-#else /* TARGET_SDK13 */
+#else
             virtual information_data_t operator[](size_t i) const
             {
                 if (response.format == BLE_GATTC_ATTR_INFO_FORMAT_16BIT) {
@@ -1207,7 +1207,7 @@ struct nRF5XGattClient::ReadUsingCharacteristicUUIDProcedure : RegularGattProced
         return convert_sd_error(err);
     }
 
-#ifdef TARGET_SDK13
+#if (NRF_SD_BLE_API_VERSION >= 3)
     /**
      * Adapt ble_gattc_evt_char_val_by_uuid_read_rsp_t into AttReadByTypeResponse.
      */
