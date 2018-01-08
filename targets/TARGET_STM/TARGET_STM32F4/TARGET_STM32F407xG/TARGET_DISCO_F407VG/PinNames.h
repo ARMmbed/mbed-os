@@ -197,13 +197,13 @@ typedef enum {
     ADC_VBAT = 0xF2,
 
     // Generic signals namings
-    LED1        = PD_13,
-    LED2        = PD_12,
-    LED3        = PD_13,
-    LED4        = PD_12,
-    LED5        = PD_14,
-    LED6        = PD_15,
-    LED_RED     = LED1,
+    LED1        = PD_13, // LD3 as LD1 is not a user LED
+    LED2        = PD_12, // LD4 as LD2 is not a user LED
+    LED3        = PD_13, // orange
+    LED4        = PD_12, // green
+    LED5        = PD_14, // red
+    LED6        = PD_15, // blue
+    LED_RED     = LED5,
     USER_BUTTON = PA_0,
     // Standardized button names
     BUTTON1 = USER_BUTTON,
