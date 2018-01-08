@@ -47,7 +47,7 @@ public:
     /** Create and Initialize a Semaphore object used for managing resources.
       @param count      number of available resources; maximum index value is (count-1). (default: 0).
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     Semaphore(int32_t count=0);
 
@@ -55,7 +55,7 @@ public:
       @param  count     number of available resources
       @param  max_count maximum number of available resources
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     Semaphore(int32_t count, uint16_t max_count);
 
@@ -63,7 +63,7 @@ public:
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
       @return  number of available tokens, before taking one; or -1 in case of incorrect parameters
 
-      @note This function may be called from ISR context if the millisec parameter is set to 0.
+      @note You may call this function from ISR context if the millisec parameter is set to 0.
     */
     int32_t wait(uint32_t millisec=osWaitForever);
 
@@ -73,13 +73,13 @@ public:
               @a osErrorResource the maximum token count has been reached.
               @a osErrorParameter internal error.
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
     */
     osStatus release(void);
 
     /** Semaphore destructor
      *
-     * @note This function cannot be called from ISR context.
+     * @note You cannot call this function from ISR context.
      */
     ~Semaphore();
 
