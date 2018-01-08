@@ -22,6 +22,14 @@ namespace mbed
 
 watchdog_status_t Watchdog::start(const uint32_t timeout)
 {
+    if (timeout == 0) {
+        return WATCHDOG_STATUS_INVALID_ARGUMENT;
+    }
+
+    if (timeout > max_timeout()) {
+        return WATCHDOG_STATUS_INVALID_ARGUMENT;
+    }
+
     watchdog_config_t config;
     config.timeout_ms = timeout;
 
