@@ -130,9 +130,3 @@ class RTC_time_calc_test(BaseHostTest):
     def setup(self):
         self.register_callback('timestamp', self._verify_timestamp)
         self.register_callback('leap_year_setup', self._set_leap_year_support)
-
-    def result(self):
-        return self.__result
-
-    def teardown(self):
-        pass
