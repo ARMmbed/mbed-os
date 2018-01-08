@@ -9,7 +9,7 @@
         },
         "connect-statement" : {
             "help" : "Must use 'net' variable name",
-            "value" : "((EthernetInterface *)net)->connect()"
+            "value" : "net->connect()"
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
