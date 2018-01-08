@@ -114,9 +114,7 @@ public:
 
     virtual ble_error_t set_security_settings(bool bondable = true,
                                               SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
-                                              bool authentication_required = true,
-                                              bool send_keypresses = false,
-                                              bool pairing_authorisation_required = false) = 0;
+                                              bool send_keypresses = false) = 0;
 
     virtual ble_error_t set_oob_data_usage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM) = 0;
 
@@ -136,6 +134,8 @@ public:
     virtual ble_error_t accept_pairing_request(bool accept = true, bool authentication_required = true) = 0;
 
     virtual ble_error_t request_authentication() = 0;
+
+    virtual ble_error_t set_pairing_request_authorisation(bool required = true) = 0;
 
     /* MITM */
 
