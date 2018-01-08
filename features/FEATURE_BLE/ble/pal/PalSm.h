@@ -105,11 +105,6 @@ public:
 
     /* feature support */
 
-    /* do we need this?
-    virtual ble_error_t get_simple_pairing_mode(bool *enabled) = 0;
-    virtual ble_error_t set_simple_pairing_mode(bool enabled) = 0;
-     */
-
     virtual ble_error_t set_secure_connections_support(bool enabled, bool secure_connections_only = false) = 0;
     virtual ble_error_t get_secure_connections_support(bool *enabled, bool *secure_connections_only) = 0;
 
@@ -129,10 +124,10 @@ public:
     virtual ble_error_t set_security_mode(connection_handle_t handle,
                                           SecurityMode_t mode) = 0;
 
-    /*
+
     virtual ble_error_t get_security_mode(connection_handle_t handle,
                                           SecurityMode_t *mode) = 0;
-    */
+
 
     virtual ble_error_t get_encryption_status(connection_handle_t handle,
                                               LinkSecurityStatus_t *mode) = 0;
@@ -140,8 +135,7 @@ public:
     virtual ble_error_t request_pairing(bool authentication_required = true) = 0;
     virtual ble_error_t accept_pairing_request(bool accept = true, bool authentication_required = true) = 0;
 
-    /* do we need this?
-    virtual ble_error_t request_authentication() = 0; */
+    virtual ble_error_t request_authentication() = 0;
 
     /* MITM */
 
@@ -155,7 +149,7 @@ public:
     virtual ble_error_t get_local_extended_oob_data(connection_handle_t handle, c192_t*, r192_t*, c256_t*, r256_t*) = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */
-public:
+ public:
     /* guaranteed to return valid pointer */
     SecurityManagerEventHandler get_event_handler() {
         return _event_handler;
