@@ -94,7 +94,7 @@ public:
       @deprecated
           The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Replaced with RtosTimer(Callback<void()>, os_timer_type)")
@@ -110,7 +110,7 @@ public:
       @deprecated
           The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     MBED_DEPRECATED_SINCE("mbed-os-5.2",
         "The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details")
@@ -128,7 +128,7 @@ public:
       @deprecated
           The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     template <typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
@@ -147,7 +147,7 @@ public:
           @a osErrorParameter internal error.
           @a osErrorResource the timer is not running.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     osStatus stop(void);
 
@@ -159,13 +159,13 @@ public:
           @a osErrorParameter internal error or incorrect parameter value.
           @a osErrorResource internal error (the timer is in an invalid timer state).
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     osStatus start(uint32_t millisec);
 
     /** RtosTimer destructor
      *
-     * @note This function cannot be called from ISR context.
+     * @note You cannot call this function from ISR context.
      */
     ~RtosTimer();
 
