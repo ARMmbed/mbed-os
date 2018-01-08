@@ -286,6 +286,13 @@ typedef enum {
     USB_OTG_HS_ULPI_NXT = PH_4,
     USB_OTG_HS_ULPI_DIR = PI_11,
 
+    QSPI_FLASH_IO0 = PF_8,
+    QSPI_FLASH_IO1 = PF_9,
+    QSPI_FLASH_IO2 = PF_7,
+    QSPI_FLASH_IO3 = PF_6,
+    QSPI_FLASH_SCK = PF_10,
+    QSPI_FLASH_CSN = PB_6,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
