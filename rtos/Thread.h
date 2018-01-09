@@ -81,7 +81,7 @@ public:
       @param   stack_mem      pointer to the stack area to be used by this thread (default: NULL).
       @param   name           name to be used for this thread. It has to stay allocated for the lifetime of the thread (default: NULL)
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     Thread(osPriority priority=osPriorityNormal,
            uint32_t stack_size=OS_STACK_SIZE,
@@ -106,7 +106,7 @@ public:
         }
         @endcode
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors. "
@@ -136,7 +136,7 @@ public:
         }
         @endcode
 
-        @note This function cannot be called from ISR context.
+        @note You cannot call this function from ISR context.
     */
     template <typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
@@ -168,7 +168,7 @@ public:
         }
         @endcode
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     template <typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
@@ -201,7 +201,7 @@ public:
         }
         @endcode
 
-        @note This function cannot be called from ISR context.
+        @note You cannot call this function from ISR context.
     */
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
         "Thread-spawning constructors hide errors. "
@@ -219,7 +219,7 @@ public:
       @return  status code that indicates the execution status of the function.
       @note a thread can only be started once
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function ISR context.
     */
     osStatus start(mbed::Callback<void()> task);
 
@@ -230,7 +230,7 @@ public:
       @deprecated
           The start function does not support cv-qualifiers. Replaced by start(callback(obj, method)).
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     template <typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
@@ -244,14 +244,14 @@ public:
       @return  status code that indicates the execution status of the function.
       @note not callable from interrupt
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     osStatus join();
 
     /** Terminate execution of a thread and remove it from Active Threads
       @return  status code that indicates the execution status of the function.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     osStatus terminate();
 
@@ -259,14 +259,14 @@ public:
       @param   priority  new priority value for the thread function.
       @return  status code that indicates the execution status of the function.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     osStatus set_priority(osPriority priority);
 
     /** Get priority of an active thread
       @return  current priority value of the thread function.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     osPriority get_priority();
 
@@ -274,7 +274,7 @@ public:
       @param   signals  specifies the signal flags of the thread that should be set.
       @return  signal flags after setting or osFlagsError in case of incorrect parameters.
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
     */
     int32_t signal_set(int32_t signals);
 
@@ -304,42 +304,42 @@ public:
     /** State of this Thread
       @return  the State of this Thread
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     State get_state();
     
     /** Get the total stack memory size for this Thread
       @return  the total stack memory size in bytes
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     uint32_t stack_size();
     
     /** Get the currently unused stack memory for this Thread
       @return  the currently unused stack memory in bytes
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     uint32_t free_stack();
     
     /** Get the currently used stack memory for this Thread
       @return  the currently used stack memory in bytes
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     uint32_t used_stack();
     
     /** Get the maximum stack memory usage to date for this Thread
       @return  the maximum stack memory usage to date in bytes
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     uint32_t max_stack();
 
     /** Get thread name
       @return  thread name or NULL if the name was not set.
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
      */
     const char *get_name();
 
@@ -347,7 +347,7 @@ public:
       @param   signals  specifies the signal flags of the thread that should be cleared.
       @return  signal flags before clearing or osFlagsError in case of incorrect parameters.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     static int32_t signal_clr(int32_t signals);
 
@@ -356,7 +356,7 @@ public:
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
       @return  event flag information or error code. @note if @a millisec is set to 0 and flag is no set the event carries osOK value.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     static osEvent signal_wait(int32_t signals, uint32_t millisec=osWaitForever);
 
@@ -364,41 +364,41 @@ public:
       @param   millisec  time delay value
       @return  status code that indicates the execution status of the function.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     static osStatus wait(uint32_t millisec);
 
     /** Pass control to next thread that is in state READY.
       @return  status code that indicates the execution status of the function.
 
-      @note This function cannot be called from ISR context.
+      @note You cannot call this function from ISR context.
     */
     static osStatus yield();
 
     /** Get the thread id of the current running thread.
       @return  thread ID for reference by other functions or NULL in case of error.
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
     */
     static osThreadId gettid();
 
     /** Attach a function to be called by the RTOS idle task
       @param   fptr  pointer to the function to be called
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
     */
     static void attach_idle_hook(void (*fptr)(void));
 
     /** Attach a function to be called when a task is killed
       @param   fptr  pointer to the function to be called
 
-      @note This function may be called from ISR context.
+      @note You may call this function from ISR context.
     */
     static void attach_terminate_hook(void (*fptr)(osThreadId id));
 
     /** Thread destructor
      *
-     * @note This function cannot be called from ISR context.
+     * @note You cannot call this function from ISR context.
      */
     virtual ~Thread();
 
