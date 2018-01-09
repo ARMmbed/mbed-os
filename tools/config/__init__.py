@@ -545,7 +545,7 @@ class Config(object):
                                   "build a bootloader project")
         if  ('target.bootloader_img' in target_overrides or
              'target.restrict_size' in target_overrides):
-            return self._generate_booloader_build(target_overrides,
+            return self._generate_bootloader_build(target_overrides,
                                                   rom_start, rom_size)
         elif ('target.mbed_app_start' in target_overrides or
               'target.mbed_app_size' in target_overrides):
@@ -555,7 +555,7 @@ class Config(object):
             raise ConfigException(
                 "Bootloader build requested but no bootlader configuration")
 
-    def _generate_booloader_build(self, target_overrides, rom_start, rom_size):
+    def _generate_bootloader_build(self, target_overrides, rom_start, rom_size):
         start = 0
         if 'target.bootloader_img' in target_overrides:
             basedir = abspath(dirname(self.app_config_location))
