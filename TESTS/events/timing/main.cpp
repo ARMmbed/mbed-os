@@ -24,6 +24,9 @@
 
 using namespace utest::v1;
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
 
 // Test delay
 #ifndef TEST_EVENTS_TIMING_TIME
