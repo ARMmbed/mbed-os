@@ -35,9 +35,16 @@ void mbed_sdk_init()
     HAL_Init();
 
 #if TARGET_STM32F7
-    // Enable CPU L1-Cache
-    SCB_EnableICache();
-    SCB_EnableDCache();
+    // The mbed_sdk_init can be called either during cold boot or during
+    // application boot after bootloader has been executed.
+    // In case the bootloader has already enabled the cache,
+    // is is needed to not enable it again.
+    if (SCB->CCR & (uint32_t)SCB_CCR_IC_Msk == 0) { // If ICache is disabled
+        SCB_EnableICache();
+    }
+    if (SCB->CCR & (uint32_t)SCB_CCR_DC_Msk == 0) { // If DCache is disabled
+        SCB_EnableDCache();
+    }
 #endif /* TARGET_STM32F7 */
 
     /* Configure the System clock source, PLL Multiplier and Divider factors,
