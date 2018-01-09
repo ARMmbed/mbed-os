@@ -23,6 +23,10 @@
 #error [NOT_SUPPORTED] test not supported
 #endif
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 using utest::v1::Case;
 
 #define TEST_STACK_SIZE 256

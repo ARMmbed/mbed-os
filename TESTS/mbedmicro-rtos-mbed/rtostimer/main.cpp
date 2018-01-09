@@ -30,6 +30,10 @@ using namespace utest::v1;
 #error invalid RESTART_DELAY_MS value
 #endif
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 class Stopwatch: public Timer {
 private:
     Semaphore _sem;
