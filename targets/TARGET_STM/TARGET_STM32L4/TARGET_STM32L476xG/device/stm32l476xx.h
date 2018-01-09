@@ -1345,7 +1345,7 @@ typedef struct
 #define I2C1                ((I2C_TypeDef *) I2C1_BASE)
 #define I2C2                ((I2C_TypeDef *) I2C2_BASE)
 #define I2C3                ((I2C_TypeDef *) I2C3_BASE)
-//#define CAN                 ((CAN_TypeDef *) CAN1_BASE)
+//#define CAN                 ((CAN_TypeDef *) CAN1_BASE) // MBED FIX : already defined in mbed API
 #define CAN1                ((CAN_TypeDef *) CAN1_BASE)
 #define PWR                 ((PWR_TypeDef *) PWR_BASE)
 #define DAC                 ((DAC_TypeDef *) DAC1_BASE)
