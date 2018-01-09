@@ -19,7 +19,7 @@
 #include "app_util_platform.h"
 
 #if defined(SOFTDEVICE_PRESENT)
-static volatile uint32_t nordic_cr_nested = 0;
+static volatile bool state_saved = false;
 
 static void nordic_nvic_critical_region_enter(void);
 static void nordic_nvic_critical_region_exit(void);
@@ -56,7 +56,7 @@ void hal_critical_section_exit()
 
 bool hal_in_critical_section(void)
 {
-    return (nordic_cr_nested != 0);
+    return (state_saved != 0);
 }
 
 
@@ -70,7 +70,7 @@ static inline void nordic_nvic_critical_region_enter(void)
 {
     int was_masked = __sd_nvic_irq_disable();
 
-    if (nordic_cr_nested == 0) {
+    if (state_saved == false) {
             nrf_nvic_state.__irq_masks[0] = ( NVIC->ICER[0] & __NRF_NVIC_APP_IRQS_0 );
             NVIC->ICER[0] = __NRF_NVIC_APP_IRQS_0;
 #ifdef NRF52
@@ -79,7 +79,7 @@ static inline void nordic_nvic_critical_region_enter(void)
 #endif
     }
 
-    nordic_cr_nested++;
+    state_saved = true;
 
     if (!was_masked) {
         __sd_nvic_irq_enable();
@@ -93,17 +93,15 @@ static inline void nordic_nvic_critical_region_enter(void)
  */
 static inline void nordic_nvic_critical_region_exit(void)
 {
-    nordic_cr_nested--;
+    state_saved = false;
 
-    if (nordic_cr_nested == 0) {
-        int was_masked = __sd_nvic_irq_disable();
-        NVIC->ISER[0] = nrf_nvic_state.__irq_masks[0];
+    int was_masked = __sd_nvic_irq_disable();
+    NVIC->ISER[0] = nrf_nvic_state.__irq_masks[0];
 #ifdef NRF52
-        NVIC->ISER[1] = nrf_nvic_state.__irq_masks[1];
+    NVIC->ISER[1] = nrf_nvic_state.__irq_masks[1];
 #endif
-        if (!was_masked) {
-        __sd_nvic_irq_enable();
-        }
+    if (!was_masked) {
+    __sd_nvic_irq_enable();
     }
 }
 #endif
