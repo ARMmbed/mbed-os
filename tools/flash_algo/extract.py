@@ -21,7 +21,7 @@ import sys
 import os
 import argparse
 from os.path import join, abspath, dirname
-from flash_algo import PackFlashAlgo
+from tools.flash_algo import PackFlashAlgo
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), "..", ".."))
@@ -98,7 +98,7 @@ def filter_algos(dev, algos):
     except ValueError:
         return algos
 
-    matching_algos = [algo for algo in algos if 
+    matching_algos = [algo for algo in algos if
                       algo.flash_start == start and algo.flash_size == size]
     return matching_algos if len(matching_algos) == 1 else algos
 
