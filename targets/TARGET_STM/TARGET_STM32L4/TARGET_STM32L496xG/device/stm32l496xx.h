@@ -7,7 +7,7 @@
   *          This file contains:
   *           - Data structures and the address mapping for all peripherals
   *           - Peripheral's registers declarations and bits definition
-  *           - Macros to access peripheralï¿½s registers hardware
+  *           - Macros to access peripheral’s registers hardware
   *
   ******************************************************************************
   * @attention
@@ -1425,6 +1425,7 @@ typedef struct
 #define I2C2                ((I2C_TypeDef *) I2C2_BASE)
 #define I2C3                ((I2C_TypeDef *) I2C3_BASE)
 #define CRS                 ((CRS_TypeDef *) CRS_BASE)
+//#define CAN                 ((CAN_TypeDef *) CAN1_BASE) // MBED FIX : already defined in mbed API
 #define CAN1                ((CAN_TypeDef *) CAN1_BASE)
 #define CAN2                ((CAN_TypeDef *) CAN2_BASE)
 #define I2C4                ((I2C_TypeDef *) I2C4_BASE)
@@ -16051,6 +16052,7 @@ typedef struct
 #define TIM16_OR1_TI1_RMP          TIM16_OR1_TI1_RMP_Msk                       /*!<TI1_RMP[2:0] bits (TIM16 Input Capture 1 remap) */
 #define TIM16_OR1_TI1_RMP_0        (0x1U << TIM16_OR1_TI1_RMP_Pos)             /*!< 0x00000001 */
 #define TIM16_OR1_TI1_RMP_1        (0x2U << TIM16_OR1_TI1_RMP_Pos)             /*!< 0x00000002 */
+#define TIM16_OR1_TI1_RMP_2        (0x4U << TIM16_OR1_TI1_RMP_Pos)             /*!< 0x00000004 */
 
 /*******************  Bit definition for TIM16_OR2 register  ******************/
 #define TIM16_OR2_BKINE_Pos        (0U)
