@@ -18,12 +18,16 @@
 #include "can_api.h"
 #include "RZ_A1_Init.h"
 #include "cmsis.h"
-#include "pinmap.h"
-#include "rscan0_iodefine.h"
+#include "PeripheralPins.h"
+#include "iodefine.h"
 #include "r_typedefs.h"
-#include "MBRZA1H.h"
+#include "mbed_drv_cfg.h"
 
+#if defined(TARGET_RZA1H)
 #define CAN_NUM         5
+#else
+#define CAN_NUM         2
+#endif
 #define CAN_SND_RCV     2
 #define IRQ_NUM         8
 
@@ -31,40 +35,43 @@ static void can_rec_irq(uint32_t ch);
 static void can_trx_irq(uint32_t ch);
 static void can_err_irq(uint32_t ch, CanIrqType type);
 static void can0_rec_irq(void);
-static void can1_rec_irq(void);
-static void can2_rec_irq(void);
-static void can3_rec_irq(void);
-static void can4_rec_irq(void);
 static void can0_trx_irq(void);
-static void can1_trx_irq(void);
-static void can2_trx_irq(void);
-static void can3_trx_irq(void);
-static void can4_trx_irq(void);
 static void can0_err_warning_irq(void);
-static void can1_err_warning_irq(void);
-static void can2_err_warning_irq(void);
-static void can3_err_warning_irq(void);
-static void can4_err_warning_irq(void);
 static void can0_overrun_irq(void);
-static void can1_overrun_irq(void);
-static void can2_overrun_irq(void);
-static void can3_overrun_irq(void);
-static void can4_overrun_irq(void);
 static void can0_passive_irq(void);
-static void can1_passive_irq(void);
-static void can2_passive_irq(void);
-static void can3_passive_irq(void);
-static void can4_passive_irq(void);
 static void can0_arb_lost_irq(void);
-static void can1_arb_lost_irq(void);
-static void can2_arb_lost_irq(void);
-static void can3_arb_lost_irq(void);
-static void can4_arb_lost_irq(void);
 static void can0_bus_err_irq(void);
+static void can1_rec_irq(void);
+static void can1_trx_irq(void);
+static void can1_err_warning_irq(void);
+static void can1_overrun_irq(void);
+static void can1_passive_irq(void);
+static void can1_arb_lost_irq(void);
 static void can1_bus_err_irq(void);
+#if defined(TARGET_RZA1H)
+static void can2_rec_irq(void);
+static void can2_trx_irq(void);
+static void can2_err_warning_irq(void);
+static void can2_overrun_irq(void);
+static void can2_passive_irq(void);
+static void can2_arb_lost_irq(void);
 static void can2_bus_err_irq(void);
+static void can3_rec_irq(void);
+static void can3_trx_irq(void);
+static void can3_err_warning_irq(void);
+static void can3_overrun_irq(void);
+static void can3_passive_irq(void);
+static void can3_arb_lost_irq(void);
 static void can3_bus_err_irq(void);
+static void can4_rec_irq(void);
+static void can4_trx_irq(void);
+static void can4_err_warning_irq(void);
+static void can4_overrun_irq(void);
+static void can4_passive_irq(void);
+static void can4_arb_lost_irq(void);
 static void can4_bus_err_irq(void);
+#endif
+
 static void can_reset_reg(can_t *obj);
 static void can_reset_recv_rule(can_t *obj);
 static void can_reset_buffer(can_t *obj);
@@ -99,53 +106,25 @@ static can_irq_handler irq_handler;
 static uint32_t can_irq_id[CAN_NUM];
 static int can_initialized[CAN_NUM] = {0};
 
-static const PinMap PinMap_CAN_RD[] = {
-    {P7_8  , CAN_0, 4},
-    {P9_1  , CAN_0, 3},
-    {P1_4  , CAN_1, 3},
-    {P5_9  , CAN_1, 5},
-    {P7_11 , CAN_1, 4},
-    {P11_12, CAN_1, 1},
-    {P4_9  , CAN_2, 6},
-    {P6_4  , CAN_2, 3},
-    {P7_2  , CAN_2, 5},
-    {P2_12 , CAN_3, 5},
-    {P4_2  , CAN_3, 4},
-    {P1_5  , CAN_4, 3},
-    {P2_14 , CAN_4, 5},
-    {NC    , NC   , 0}
-};
-
-static const PinMap PinMap_CAN_TD[] = {
-    {P7_9  , CAN_0, 4},
-    {P9_0  , CAN_0, 3},
-    {P5_10 , CAN_1, 5},
-    {P7_10 , CAN_1, 4},
-    {P11_13, CAN_1, 1},
-    {P4_8  , CAN_2, 6},
-    {P6_5  , CAN_2, 3},
-    {P7_3  , CAN_2, 5},
-    {P2_13 , CAN_3, 5},
-    {P4_3  , CAN_3, 4},
-    {P4_11 , CAN_4, 6},
-    {P8_10 , CAN_4, 5},
-    {NC    , NC   , 0}
-};
 
 static __IO uint32_t *CTR_MATCH[] = {
     &RSCAN0C0CTR,
     &RSCAN0C1CTR,
+#if defined(TARGET_RZA1H)
     &RSCAN0C2CTR,
     &RSCAN0C3CTR,
     &RSCAN0C4CTR,
+#endif
 };
 
 static __IO uint32_t *CFG_MATCH[] = {
     &RSCAN0C0CFG,
     &RSCAN0C1CFG,
+#if defined(TARGET_RZA1H)
     &RSCAN0C2CFG,
     &RSCAN0C3CFG,
     &RSCAN0C4CFG,
+#endif
 };
 
 static __IO uint32_t *RFCC_MATCH[] = {
@@ -162,89 +141,111 @@ static __IO uint32_t *RFCC_MATCH[] = {
 static __IO uint32_t *TXQCC_MATCH[] = {
     &RSCAN0TXQCC0,
     &RSCAN0TXQCC1,
+#if defined(TARGET_RZA1H)
     &RSCAN0TXQCC2,
     &RSCAN0TXQCC3,
     &RSCAN0TXQCC4,
+#endif
 };
 
 static __IO uint32_t *THLCC_MATCH[] = {
     &RSCAN0THLCC0,
     &RSCAN0THLCC1,
+#if defined(TARGET_RZA1H)
     &RSCAN0THLCC2,
     &RSCAN0THLCC3,
     &RSCAN0THLCC4,
+#endif
 };
 
 static __IO uint32_t *STS_MATCH[] = {
     &RSCAN0C0STS,
     &RSCAN0C1STS,
+#if defined(TARGET_RZA1H)
     &RSCAN0C2STS,
     &RSCAN0C3STS,
     &RSCAN0C4STS,
+#endif
 };
 
 static __IO uint32_t *ERFL_MATCH[] = {
     &RSCAN0C0ERFL,
     &RSCAN0C1ERFL,
+#if defined(TARGET_RZA1H)
     &RSCAN0C2ERFL,
     &RSCAN0C3ERFL,
     &RSCAN0C4ERFL,
+#endif
 };
 
 static __IO uint32_t *CFCC_TBL[CAN_NUM][CAN_SND_RCV] = {
     { &RSCAN0CFCC0 , &RSCAN0CFCC1  },
     { &RSCAN0CFCC3 , &RSCAN0CFCC4  },
+#if defined(TARGET_RZA1H)
     { &RSCAN0CFCC6 , &RSCAN0CFCC7  },
     { &RSCAN0CFCC9 , &RSCAN0CFCC10 },
-    { &RSCAN0CFCC12, &RSCAN0CFCC13 }
+    { &RSCAN0CFCC12, &RSCAN0CFCC13 },
+#endif
 };
 
 static __IO uint32_t *CFSTS_TBL[CAN_NUM][CAN_SND_RCV] = {
     { &RSCAN0CFSTS0 , &RSCAN0CFSTS1  },
     { &RSCAN0CFSTS3 , &RSCAN0CFSTS4  },
+#if defined(TARGET_RZA1H)
     { &RSCAN0CFSTS6 , &RSCAN0CFSTS7  },
     { &RSCAN0CFSTS9 , &RSCAN0CFSTS10 },
-    { &RSCAN0CFSTS12, &RSCAN0CFSTS13 }
+    { &RSCAN0CFSTS12, &RSCAN0CFSTS13 },
+#endif
 };
 
 static __IO uint32_t *CFPCTR_TBL[CAN_NUM][CAN_SND_RCV] = {
     { &RSCAN0CFPCTR0 , &RSCAN0CFPCTR1  },
     { &RSCAN0CFPCTR3 , &RSCAN0CFPCTR4  },
+#if defined(TARGET_RZA1H)
     { &RSCAN0CFPCTR6 , &RSCAN0CFPCTR7  },
     { &RSCAN0CFPCTR9 , &RSCAN0CFPCTR10 },
-    { &RSCAN0CFPCTR12, &RSCAN0CFPCTR13 }
+    { &RSCAN0CFPCTR12, &RSCAN0CFPCTR13 },
+#endif
 };
 
 static __IO uint32_t *CFID_TBL[CAN_NUM][CAN_SND_RCV] = {
     { &RSCAN0CFID0 , &RSCAN0CFID1  },
     { &RSCAN0CFID3 , &RSCAN0CFID4  },
+#if defined(TARGET_RZA1H)
     { &RSCAN0CFID6 , &RSCAN0CFID7  },
     { &RSCAN0CFID9 , &RSCAN0CFID10 },
-    { &RSCAN0CFID12, &RSCAN0CFID13 }
+    { &RSCAN0CFID12, &RSCAN0CFID13 },
+#endif
 };
 
 static __IO uint32_t *CFPTR_TBL[CAN_NUM][CAN_SND_RCV] = {
     { &RSCAN0CFPTR0 , &RSCAN0CFPTR1  },
     { &RSCAN0CFPTR3 , &RSCAN0CFPTR4  },
+#if defined(TARGET_RZA1H)
     { &RSCAN0CFPTR6 , &RSCAN0CFPTR7  },
     { &RSCAN0CFPTR9 , &RSCAN0CFPTR10 },
     { &RSCAN0CFPTR12, &RSCAN0CFPTR13 }
+#endif
 };
 
 static __IO uint32_t *CFDF0_TBL[CAN_NUM][CAN_SND_RCV] = {
     { &RSCAN0CFDF00 , &RSCAN0CFDF01  },
     { &RSCAN0CFDF03 , &RSCAN0CFDF04  },
+#if defined(TARGET_RZA1H)
     { &RSCAN0CFDF06 , &RSCAN0CFDF07  },
     { &RSCAN0CFDF09 , &RSCAN0CFDF010 },
-    { &RSCAN0CFDF012, &RSCAN0CFDF013 }
+    { &RSCAN0CFDF012, &RSCAN0CFDF013 },
+#endif
 };
 
 static __IO uint32_t *CFDF1_TBL[CAN_NUM][CAN_SND_RCV] = {
     { &RSCAN0CFDF10 , &RSCAN0CFDF11  },
     { &RSCAN0CFDF13 , &RSCAN0CFDF14  },
+#if defined(TARGET_RZA1H)
     { &RSCAN0CFDF16 , &RSCAN0CFDF17  },
     { &RSCAN0CFDF19 , &RSCAN0CFDF110 },
-    { &RSCAN0CFDF112, &RSCAN0CFDF113 }
+    { &RSCAN0CFDF112, &RSCAN0CFDF113 },
+#endif
 };
 
 static const can_info_int_t can_int_info[CAN_NUM][IRQ_NUM] = 
@@ -269,6 +270,7 @@ static const can_info_int_t can_int_info[CAN_NUM][IRQ_NUM] =
         { INTRCAN1ERR_IRQn, can1_arb_lost_irq    }, /* AlIrq */
         { INTRCAN1ERR_IRQn, can1_bus_err_irq     }  /* BeIrq */
     },
+#if defined(TARGET_RZA1H)
     {   /* ch2 */
         { INTRCAN2REC_IRQn, can2_rec_irq         }, /* RxIrq */
         { INTRCAN2TRX_IRQn, can2_trx_irq         }, /* TxIrq */
@@ -298,7 +300,8 @@ static const can_info_int_t can_int_info[CAN_NUM][IRQ_NUM] =
         { INTRCAN4ERR_IRQn, can4_passive_irq     }, /* EpIrq */
         { INTRCAN4ERR_IRQn, can4_arb_lost_irq    }, /* AlIrq */
         { INTRCAN4ERR_IRQn, can4_bus_err_irq     }  /* BeIrq */
-    }
+    },
+#endif
 };
 
 static __IO uint32_t *dmy_gaflid = &RSCAN0GAFLID0;
@@ -404,141 +407,143 @@ static void can0_rec_irq(void) {
     can_rec_irq(CAN_0);
 }
 
-static void can1_rec_irq(void) {
-    can_rec_irq(CAN_1);
-}
-
-static void can2_rec_irq(void) {
-    can_rec_irq(CAN_2);
-}
-
-static void can3_rec_irq(void) {
-    can_rec_irq(CAN_3);
-}
-
-static void can4_rec_irq(void) {
-    can_rec_irq(CAN_4);
-}
-
 static void can0_trx_irq(void) {
     can_trx_irq(CAN_0);
-}
-
-static void can1_trx_irq(void) {
-    can_trx_irq(CAN_1);
-}
-
-static void can2_trx_irq(void) {
-    can_trx_irq(CAN_2);
-}
-
-static void can3_trx_irq(void) {
-    can_trx_irq(CAN_3);
-}
-
-static void can4_trx_irq(void) {
-    can_trx_irq(CAN_4);
 }
 
 static void can0_err_warning_irq(void) {
     can_err_irq(CAN_0, IRQ_ERROR);
 }
 
-static void can1_err_warning_irq(void) {
-    can_err_irq(CAN_1, IRQ_ERROR);
-}
-
-static void can2_err_warning_irq(void) {
-    can_err_irq(CAN_2, IRQ_ERROR);
-}
-
-static void can3_err_warning_irq(void) {
-    can_err_irq(CAN_3, IRQ_ERROR);
-}
-
-static void can4_err_warning_irq(void) {
-    can_err_irq(CAN_4, IRQ_ERROR);
-}
-
 static void can0_overrun_irq(void) {
     can_err_irq(CAN_0, IRQ_OVERRUN);
-}
-
-static void can1_overrun_irq(void) {
-    can_err_irq(CAN_1, IRQ_OVERRUN);
-}
-
-static void can2_overrun_irq(void) {
-    can_err_irq(CAN_2, IRQ_OVERRUN);
-}
-
-static void can3_overrun_irq(void) {
-    can_err_irq(CAN_3, IRQ_OVERRUN);
-}
-
-static void can4_overrun_irq(void) {
-    can_err_irq(CAN_4, IRQ_OVERRUN);
 }
 
 static void can0_passive_irq(void) {
     can_err_irq(CAN_0, IRQ_PASSIVE);
 }
 
-static void can1_passive_irq(void) {
-    can_err_irq(CAN_1, IRQ_PASSIVE);
-}
-
-static void can2_passive_irq(void) {
-    can_err_irq(CAN_2, IRQ_PASSIVE);
-}
-
-static void can3_passive_irq(void) {
-    can_err_irq(CAN_3, IRQ_PASSIVE);
-}
-
-static void can4_passive_irq(void) {
-    can_err_irq(CAN_4, IRQ_PASSIVE);
-}
-
 static void can0_arb_lost_irq(void) {
     can_err_irq(CAN_0, IRQ_ARB);
-}
-
-static void can1_arb_lost_irq(void) {
-    can_err_irq(CAN_1, IRQ_ARB);
-}
-
-static void can2_arb_lost_irq(void) {
-    can_err_irq(CAN_2, IRQ_ARB);
-}
-
-static void can3_arb_lost_irq(void) {
-    can_err_irq(CAN_3, IRQ_ARB);
-}
-
-static void can4_arb_lost_irq(void) {
-    can_err_irq(CAN_4, IRQ_ARB);
 }
 
 static void can0_bus_err_irq(void) {
     can_err_irq(CAN_0, IRQ_BUS);
 }
 
+static void can1_rec_irq(void) {
+    can_rec_irq(CAN_1);
+}
+
+static void can1_trx_irq(void) {
+    can_trx_irq(CAN_1);
+}
+
+static void can1_err_warning_irq(void) {
+    can_err_irq(CAN_1, IRQ_ERROR);
+}
+
+static void can1_overrun_irq(void) {
+    can_err_irq(CAN_1, IRQ_OVERRUN);
+}
+
+static void can1_passive_irq(void) {
+    can_err_irq(CAN_1, IRQ_PASSIVE);
+}
+
+static void can1_arb_lost_irq(void) {
+    can_err_irq(CAN_1, IRQ_ARB);
+}
+
 static void can1_bus_err_irq(void) {
     can_err_irq(CAN_1, IRQ_BUS);
+}
+
+#if defined(TARGET_RZA1H)
+static void can2_rec_irq(void) {
+    can_rec_irq(CAN_2);
+}
+
+static void can2_trx_irq(void) {
+    can_trx_irq(CAN_2);
+}
+
+static void can2_err_warning_irq(void) {
+    can_err_irq(CAN_2, IRQ_ERROR);
+}
+
+static void can2_overrun_irq(void) {
+    can_err_irq(CAN_2, IRQ_OVERRUN);
+}
+
+static void can2_passive_irq(void) {
+    can_err_irq(CAN_2, IRQ_PASSIVE);
+}
+
+static void can2_arb_lost_irq(void) {
+    can_err_irq(CAN_2, IRQ_ARB);
 }
 
 static void can2_bus_err_irq(void) {
     can_err_irq(CAN_2, IRQ_BUS);
 }
 
+static void can3_rec_irq(void) {
+    can_rec_irq(CAN_3);
+}
+
+static void can3_trx_irq(void) {
+    can_trx_irq(CAN_3);
+}
+
+static void can3_err_warning_irq(void) {
+    can_err_irq(CAN_3, IRQ_ERROR);
+}
+
+static void can3_overrun_irq(void) {
+    can_err_irq(CAN_3, IRQ_OVERRUN);
+}
+
+static void can3_passive_irq(void) {
+    can_err_irq(CAN_3, IRQ_PASSIVE);
+}
+
+static void can3_arb_lost_irq(void) {
+    can_err_irq(CAN_3, IRQ_ARB);
+}
+
 static void can3_bus_err_irq(void) {
     can_err_irq(CAN_3, IRQ_BUS);
+}
+
+static void can4_rec_irq(void) {
+    can_rec_irq(CAN_4);
+}
+
+static void can4_trx_irq(void) {
+    can_trx_irq(CAN_4);
+}
+
+static void can4_err_warning_irq(void) {
+    can_err_irq(CAN_4, IRQ_ERROR);
+}
+
+static void can4_overrun_irq(void) {
+    can_err_irq(CAN_4, IRQ_OVERRUN);
+}
+
+static void can4_passive_irq(void) {
+    can_err_irq(CAN_4, IRQ_PASSIVE);
+}
+
+static void can4_arb_lost_irq(void) {
+    can_err_irq(CAN_4, IRQ_ARB);
 }
 
 static void can4_bus_err_irq(void) {
     can_err_irq(CAN_4, IRQ_BUS);
 }
+#endif
 
 void can_init_freq(can_t *obj, PinName rd, PinName td, int hz) {
     __IO uint32_t *dmy_ctr;
@@ -763,9 +768,9 @@ int can_mode(can_t *obj, CanMode mode) {
             can_set_channel_mode(obj->ch, CH_COMM);
             break;
         case MODE_TEST_GLOBAL:
-            /* set the channel between the communication test on channel 1 and channel 2 */
+            /* set the channel between the communication test on CAN_TEST_GLOBAL_CH and CAN_TEST_GLOBAL_CH+1 */
             /* set Channel Hold mode */
-            for (tmp_obj->ch = CAN_1; tmp_obj->ch <= CAN_2; tmp_obj->ch++) {
+            for (tmp_obj->ch = CAN_TEST_GLOBAL_CH; tmp_obj->ch <= (CAN_TEST_GLOBAL_CH + 1); tmp_obj->ch++) {
                 dmy_sts = STS_MATCH[tmp_obj->ch];
                 if ((*dmy_sts & 0x04) == 0x04) {
                     /* Channel Stop mode */
@@ -777,11 +782,11 @@ int can_mode(can_t *obj, CanMode mode) {
                 can_set_channel_mode(tmp_obj->ch, CH_HOLD);
             }
             can_set_global_mode(GL_TEST);
-            /* enable communication test between channel1 and channel2 */
+            /* enable communication test between CAN_TEST_GLOBAL_CH and CAN_TEST_GLOBAL_CH+1 */
             RSCAN0GTSTCFG = 0x06;
             RSCAN0GTSTCTR = 0x01;
             /* send and receive setting of channel1 and channel2 */
-            for (tmp_obj->ch = CAN_1; tmp_obj->ch <= CAN_2; tmp_obj->ch++) {
+            for (tmp_obj->ch = CAN_TEST_GLOBAL_CH; tmp_obj->ch <= (CAN_TEST_GLOBAL_CH + 1); tmp_obj->ch++) {
                 can_reset_buffer(tmp_obj);
                 /* set global interrrupt */
                 /* THLEIE, MEIE and DEIE interrupts are disable */
@@ -888,7 +893,9 @@ static void can_reset_reg(can_t *obj) {
 static void can_reset_recv_rule(can_t *obj) {
     /* number of receive rules of each chanel = 64 */
     RSCAN0GAFLCFG0 = 0x40404040;
+#if defined(TARGET_RZA1H)
     RSCAN0GAFLCFG1 = 0x40000000;
+#endif
     /* enable receive rule table writing */
     RSCAN0GAFLECTR = 0x00000100;
     /* set the page number of receive rule table(ex: id ch = 1, page number = 4) */
@@ -939,8 +946,10 @@ static void can_reset_buffer(can_t *obj) {
     *dmy_cfcc |= 0x02;
     /* TMIEp interrupt is disable */
     RSCAN0TMIEC0 = 0x00000000;
+#if defined(TARGET_RZA1H)
     RSCAN0TMIEC1 = 0x00000000;
     RSCAN0TMIEC2 = 0x00000000;
+#endif
 }
 
 static void can_reconfigure_channel(void) {
@@ -1003,9 +1012,9 @@ static void can_set_frequency(can_t *obj, int f) {
 
 static void can_set_global_mode(int mode) {
     /* set Global mode */
-    RSCAN0GCTR = ((RSCAN0GCTR & 0xFFFFFFFC) | mode);
+    RSCAN0GCTR = ((RSCAN0GCTR & 0xFFFFFFFC) | (uint32_t)mode);
     /* Wait to cahnge into Global XXXX mode */
-    while ((RSCAN0GSTS & 0x07) != mode) {
+    while ((RSCAN0GSTS & 0x07) != (uint32_t)mode) {
         __NOP();
     }
 }
@@ -1016,10 +1025,10 @@ static void can_set_channel_mode(uint32_t ch, int mode) {
 
     /* set Channel mode */
     dmy_ctr = CTR_MATCH[ch];
-    *dmy_ctr = ((*dmy_ctr & 0xFFFFFFFC) | mode);
+    *dmy_ctr = ((*dmy_ctr & 0xFFFFFFFC) | (uint32_t)mode);
     /* Wait to cahnge into Channel XXXX mode */
     dmy_sts = STS_MATCH[ch];
-    while ((*dmy_sts & 0x07) != mode) {
+    while ((*dmy_sts & 0x07) != (uint32_t)mode) {
         __NOP();
     }
 }

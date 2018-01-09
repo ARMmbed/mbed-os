@@ -18,49 +18,10 @@
 
 #include "spi_api.h"
 #include "cmsis.h"
-#include "pinmap.h"
+#include "PeripheralPins.h"
 #include "mbed_error.h"
 #include "RZ_A1_Init.h"
-
-static const PinMap PinMap_SPI_SCLK[] = {
-    {P10_12, SPI_0, 4},
-    {P4_4  , SPI_1, 2},
-    {P6_4  , SPI_1, 7},
-    {P11_12, SPI_1, 2},
-    {P8_3  , SPI_2, 3},
-    {P5_0  , SPI_3, 8},
-    {NC    , NC   , 0}
-};
-
-static const PinMap PinMap_SPI_SSEL[] = {
-    {P10_13, SPI_0, 4},
-    {P4_5  , SPI_1, 2},
-    {P6_5  , SPI_1, 7},
-    {P11_13, SPI_1, 2},
-    {P8_4  , SPI_2, 3},
-    {P5_1  , SPI_3, 8},
-    {NC    , NC   , 0}
-};
-
-static const PinMap PinMap_SPI_MOSI[] = {
-    {P10_14, SPI_0, 4},
-    {P4_6  , SPI_1, 2},
-    {P6_6  , SPI_1, 7},
-    {P11_14, SPI_1, 2},
-    {P8_5  , SPI_2, 3},
-    {P5_2  , SPI_3, 8},
-    {NC    , NC   , 0}
-};
-
-static const PinMap PinMap_SPI_MISO[] = {
-    {P10_15, SPI_0, 4},
-    {P4_7  , SPI_1, 2},
-    {P6_7  , SPI_1, 7},
-    {P11_15, SPI_1, 2},
-    {P8_6  , SPI_2, 3},
-    {P5_3  , SPI_3, 8},
-    {NC    , NC   , 0}
-};
+#include "mbed_drv_cfg.h"
 
 static const struct st_rspi *RSPI[] = RSPI_ADDRESS_LIST;
 
@@ -87,13 +48,9 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     obj->spi.index = spi;
     
     // enable power and clocking
-    switch (spi) {
-        case SPI_0: CPGSTBCR10 &= ~(0x80); break;
-        case SPI_1: CPGSTBCR10 &= ~(0x40); break;
-        case SPI_2: CPGSTBCR10 &= ~(0x20); break;
-        case SPI_3: CPGSTBCR10 &= ~(0x10); break;
-    }
+    CPGSTBCR10 &= ~(0x80 >> spi);
     dummy = CPGSTBCR10;
+    (void)dummy;
     
     obj->spi.spi->SPCR   = 0x00;  // CTRL to 0
     obj->spi.spi->SPSCR  = 0x00;  // no sequential operation
@@ -192,7 +149,7 @@ void spi_frequency(spi_t *obj, int hz) {
     
     hz_min = pclk_base / 2 / 256 / 8;
     hz_max = pclk_base / 2;
-    if ((hz < hz_min) || (hz > hz_max)) {
+    if (((uint32_t)hz < hz_min) || ((uint32_t)hz > hz_max)) {
         error("Couldn't setup requested SPI frequency");
         return;
     }
@@ -293,37 +250,38 @@ int spi_busy(spi_t *obj) {
 
 #if DEVICE_SPI_ASYNCH
 
-#define IRQ_NUM 2
+#define SPI_NUM         5
+#define IRQ_NUM         2
 
 static void spi_irqs_set(spi_t *obj, uint32_t enable);
 static void spi_async_write(spi_t *obj);
 static void spi_async_read(spi_t *obj);
 
 static void spi0_rx_irq(void);
-static void spi1_rx_irq(void);
-static void spi2_rx_irq(void);
-static void spi3_rx_irq(void);
-static void spi4_rx_irq(void);
 static void spi0_er_irq(void);
+static void spi1_rx_irq(void);
 static void spi1_er_irq(void);
+static void spi2_rx_irq(void);
 static void spi2_er_irq(void);
+static void spi3_rx_irq(void);
 static void spi3_er_irq(void);
+static void spi4_rx_irq(void);
 static void spi4_er_irq(void);
 
-static const IRQn_Type irq_set_tbl[RSPI_COUNT][IRQ_NUM] = {
+static const IRQn_Type irq_set_tbl[SPI_NUM][IRQ_NUM] = {
     {RSPISPRI0_IRQn, RSPISPEI0_IRQn},
     {RSPISPRI1_IRQn, RSPISPEI1_IRQn},
     {RSPISPRI2_IRQn, RSPISPEI2_IRQn},
     {RSPISPRI3_IRQn, RSPISPEI3_IRQn},
-    {RSPISPRI4_IRQn, RSPISPEI4_IRQn}
+    {RSPISPRI4_IRQn, RSPISPEI4_IRQn},
 };
 
-static const IRQHandler hander_set_tbl[RSPI_COUNT][IRQ_NUM] = {
+static const IRQHandler hander_set_tbl[SPI_NUM][IRQ_NUM] = {
     {spi0_rx_irq, spi0_er_irq},
     {spi1_rx_irq, spi1_er_irq},
     {spi2_rx_irq, spi2_er_irq},
     {spi3_rx_irq, spi3_er_irq},
-    {spi4_rx_irq, spi4_er_irq}
+    {spi4_rx_irq, spi4_er_irq},
 };
 
 struct spi_global_data_s {
@@ -331,7 +289,7 @@ struct spi_global_data_s {
     uint32_t async_callback, event, wanted_events;
 };
 
-static struct spi_global_data_s spi_data[RSPI_COUNT];
+static struct spi_global_data_s spi_data[SPI_NUM];
 
 static void spi_rx_irq(IRQn_Type irq_num, uint32_t index)
 {
@@ -388,53 +346,34 @@ static void spi_err_irq(IRQn_Type irq_num, uint32_t index)
     }
 }
 
-static void spi0_rx_irq(void)
-{
+static void spi0_rx_irq(void) {
     spi_rx_irq(RSPISPRI0_IRQn, 0);
 }
-
-static void spi1_rx_irq(void)
-{
-    spi_rx_irq(RSPISPRI1_IRQn, 1);
-}
-
-static void spi2_rx_irq(void)
-{
-    spi_rx_irq(RSPISPRI2_IRQn, 2);
-}
-
-static void spi3_rx_irq(void)
-{
-    spi_rx_irq(RSPISPRI3_IRQn, 3);
-}
-
-static void spi4_rx_irq(void)
-{
-    spi_rx_irq(RSPISPRI4_IRQn, 4);
-}
-
-static void spi0_er_irq(void)
-{
+static void spi0_er_irq(void) {
     spi_err_irq(RSPISPEI0_IRQn, 0);
 }
-
-static void spi1_er_irq(void)
-{
+static void spi1_rx_irq(void) {
+    spi_rx_irq(RSPISPRI1_IRQn, 1);
+}
+static void spi1_er_irq(void) {
     spi_err_irq(RSPISPEI1_IRQn, 1);
 }
-
-static void spi2_er_irq(void)
-{
+static void spi2_rx_irq(void) {
+    spi_rx_irq(RSPISPRI2_IRQn, 2);
+}
+static void spi2_er_irq(void) {
     spi_err_irq(RSPISPEI2_IRQn, 2);
 }
-
-static void spi3_er_irq(void)
-{
+static void spi3_rx_irq(void) {
+    spi_rx_irq(RSPISPRI3_IRQn, 3);
+}
+static void spi3_er_irq(void) {
     spi_err_irq(RSPISPEI3_IRQn, 3);
 }
-
-static void spi4_er_irq(void)
-{
+static void spi4_rx_irq(void) {
+    spi_rx_irq(RSPISPRI4_IRQn, 4);
+}
+static void spi4_er_irq(void) {
     spi_err_irq(RSPISPEI4_IRQn, 4);
 }
 
@@ -562,7 +501,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
     obj->rx_buff.length = rx_length * bit_width / 8;
     obj->rx_buff.pos = 0;
     obj->rx_buff.width = bit_width;
-    for (i = 0; i < obj->rx_buff.length; i++) {
+    for (i = 0; i < (int)obj->rx_buff.length; i++) {
         ((uint8_t *)obj->rx_buff.buffer)[i] = SPI_FILL_WORD;
     }
     

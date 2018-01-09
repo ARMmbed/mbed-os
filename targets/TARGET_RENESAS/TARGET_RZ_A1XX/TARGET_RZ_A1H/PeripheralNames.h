@@ -34,82 +34,31 @@ typedef enum {
     UART7,
 } UARTName;
 
-// PWMType & 1 == 1 then have to use PWDTR[12] == 1
 typedef enum {
-    PWM1A  = 0,
-    PWM1B,
-    PWM1C,
-    PWM1D,
-    PWM1E,
-    PWM1F,
-    PWM1G,
-    PWM1H,
-    PWM2A  = 0x10,
-    PWM2B,
-    PWM2C,
-    PWM2D,
-    PWM2E,
-    PWM2F,
-    PWM2G,
-    PWM2H,
-} PWMType;
-
-typedef enum {
-    TIOC0A  = 0,
-    TIOC0B,
-    TIOC0C,
-    TIOC0D,
-    TIOC1A = 0x10,
-    TIOC1B,
-    TIOC2A = 0x20,
-    TIOC2B,
-    TIOC3A = 0x30,
-    TIOC3B,
-    TIOC3C,
-    TIOC3D,
-    TIOC4A = 0x40,
-    TIOC4B,
-    TIOC4C,
-    TIOC4D,
-} MTU2_PWMType;
-
-typedef enum {
-    PWM0_PIN  = 0,
-    PWM1_PIN,
-    PWM2_PIN,
-    PWM3_PIN,
-    PWM4_PIN,
-    PWM5_PIN,
-    PWM6_PIN,
-    PWM7_PIN,
-    PWM8_PIN,
-    PWM9_PIN,
-    PWM10_PIN,
-    PWM11_PIN,
-    PWM12_PIN,
-    PWM13_PIN,
-    MTU2_PWM0_PIN = 0x20,
-    MTU2_PWM1_PIN,
-    MTU2_PWM2_PIN,
-    MTU2_PWM3_PIN,
-    MTU2_PWM4_PIN,
-    MTU2_PWM5_PIN,
-    MTU2_PWM6_PIN,
-    MTU2_PWM7_PIN,
-    MTU2_PWM8_PIN,
-    MTU2_PWM9_PIN,
-    MTU2_PWM10_PIN,
-    MTU2_PWM11_PIN,
-    MTU2_PWM12_PIN,
-    MTU2_PWM13_PIN,
-    MTU2_PWM14_PIN,
-    MTU2_PWM15_PIN,
-    MTU2_PWM16_PIN,
-    MTU2_PWM17_PIN,
-    MTU2_PWM18_PIN,
-    MTU2_PWM19_PIN,
-    MTU2_PWM20_PIN,
-    MTU2_PWM21_PIN,
+    PWM_PWM1A  = 0,
+    PWM_PWM1B,
+    PWM_PWM1C,
+    PWM_PWM1D,
+    PWM_PWM1E,
+    PWM_PWM1F,
+    PWM_PWM1G,
+    PWM_PWM1H,
+    PWM_PWM2A,
+    PWM_PWM2B,
+    PWM_PWM2C,
+    PWM_PWM2D,
+    PWM_PWM2E,
+    PWM_PWM2F,
+    PWM_PWM2G,
+    PWM_PWM2H,
+    PWM_TIOC0A = 0x20,
+    PWM_TIOC0C,
+    PWM_TIOC1A,
+    PWM_TIOC2A,
+    PWM_TIOC3A,
+    PWM_TIOC3C,
+    PWM_TIOC4A,
+    PWM_TIOC4C,
 } PWMName;
 
 typedef enum {
@@ -128,21 +77,22 @@ typedef enum {
     SPI_1,
     SPI_2,
     SPI_3,
+    SPI_4,
 } SPIName;
 
 typedef enum {
     I2C_0 = 0,
     I2C_1,
     I2C_2,
-    I2C_3 
+    I2C_3,
 } I2CName;
 
 typedef enum {
     CAN_0 = 0,
     CAN_1,
     CAN_2,
-    CAN_3, 
-    CAN_4
+    CAN_3,
+    CAN_4,
 } CANName;
 
 

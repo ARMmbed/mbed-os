@@ -20,20 +20,38 @@
 #if DEVICE_RTC
 
 #include "rtc_api.h"
-#include "rtc_iodefine.h"
+#include "iodefine.h"
+#include "mbed_drv_cfg.h"
 #include "mbed_mktime.h"
-
 
 #define RCR1_VAL_ON      (0x08u) // AIE = 1
 #define RCR1_VAL_OFF     (0x00u)
+#define RCR3_VAL         (0x00u)
+#define RCR5_VAL		 (0x00u)
+
+#ifdef USE_RTCX1_CLK
+#define RCR2_VAL_ALLSTOP (0x08u)
+#define RCR2_VAL_START   (0x09u) // START = 1
+#define RCR2_VAL_RESET   (0x0Au) // RESET = 1
+#define RCR5_VAL_RTCX1   (0x00u) // RCKSEL = clock rtc from RTCX1(32.768 kHz)
+#elif defined(USE_EXTAL_CLK)
 #define RCR2_VAL_ALLSTOP (0x00u)
 #define RCR2_VAL_START   (0x01u) // START = 1
 #define RCR2_VAL_RESET   (0x02u) // RESET = 1
-#define RCR3_VAL         (0x00u)
-#define RCR5_VAL_EXTAL   (0x01u) // RCKSEL = connect EXTAL
-#define RCR5_VAL_RTCX1   (0x00u) // RCKSEL = disconnect EXTAL
+#define RCR5_VAL_EXTAL   (0x01u) // RCKSEL = clock rtc from EXTAL
 #define RFRH_VAL_13333   (0x8003u) // 13.3333MHz (= 64Hz * 0x32DCD) 
 #define RFRL_VAL_13333   (0x2DCDu) //
+#elif defined(USE_RTCX3_CLK)
+#define RCR2_VAL_ALLSTOP (0x08u)
+#define RCR2_VAL_START   (0x09u) // START = 1
+#define RCR2_VAL_RESET   (0x0Au) // RESET = 1
+#define RCR5_VAL_RTCX3	 (0x02u) // RCKSEL = clock rtc from RTCX3(4.000 MHz)
+#define RFRH_VAL_4000   (0x8000u) // 4.000MHz (= 64Hz * 0xF424)
+#define RFRL_VAL_4000   (0xF424u) //
+#else
+#error Select RTC clock input !
+#endif
+
 #define RFRH_VAL_MAX     (0x0007u) // MAX value (= 128Hz * 0x7FFFF)
 #define RFRL_VAL_MAX     (0xFFFFu) //
 
@@ -67,14 +85,26 @@ static uint16_t rtc_hex16_to_dec(uint16_t hex_val);
 void rtc_init(void) {
     volatile uint8_t dummy_read;
 
+    CPG.STBCR6 &= ~(CPG_STBCR6_BIT_MSTP60);
+
     // Set control register
     RTC.RCR2 = RCR2_VAL_ALLSTOP;
     RTC.RCR1 = RCR1_VAL_ON;
     RTC.RCR3 = RCR3_VAL;
+
+#ifdef USE_RTCX1_CLK
+    RTC.RCR5 = RCR5_VAL_RTCX1;
+    RTC.RFRH = 0;
+    RTC.RFRL = 0;
+#elif defined(USE_EXTAL_CLK)
     RTC.RCR5 = RCR5_VAL_EXTAL;
     RTC.RFRH = RFRH_VAL_13333;
     RTC.RFRL = RFRL_VAL_13333;
-
+#else
+    RTC.RCR5 = RCR5_VAL_RTCX3;
+    RTC.RFRH = RFRH_VAL_4000;
+    RTC.RFRL = RFRL_VAL_4000;
+#endif
     // Dummy read
     dummy_read = RTC.RCR2;
     dummy_read = RTC.RCR2;
@@ -104,6 +134,7 @@ void rtc_init(void) {
     // Dummy read
     dummy_read = RTC.RYRCNT;
     dummy_read = RTC.RYRCNT;
+    (void)dummy_read;
 
 }
 
@@ -122,7 +153,7 @@ void rtc_free(void) {
     RTC.RCR2 = RCR2_VAL_ALLSTOP;
     RTC.RCR1 = RCR1_VAL_OFF;
     RTC.RCR3 = RCR3_VAL;
-    RTC.RCR5 = RCR5_VAL_RTCX1;
+    RTC.RCR5 = RCR5_VAL;
     RTC.RFRH = RFRH_VAL_MAX;
     RTC.RFRL = RFRL_VAL_MAX;
 
@@ -154,6 +185,7 @@ void rtc_free(void) {
     // Dummy read
     dummy_read = RTC.RYRCNT;
     dummy_read = RTC.RYRCNT;
+    (void)dummy_read;
 
 }
 
@@ -334,6 +366,7 @@ void rtc_write(time_t t) {
 
         dummy_read  = (uint16_t)RTC.RCR2;
         dummy_read  = (uint16_t)RTC.RCR2;
+        (void)dummy_read;
     }
 }
 

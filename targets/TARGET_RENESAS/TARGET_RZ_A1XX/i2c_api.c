@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 #include "mbed_assert.h"
+#include "dma_api.h"
 #include "i2c_api.h"
 #include "cmsis.h"
-#include "pinmap.h"
+#include "PeripheralPins.h"
 #include "r_typedefs.h"
 
-#include "riic_iodefine.h"
+#include "iodefine.h"
 #include "RZ_A1_Init.h"
-#include "VKRZA1H.h"
 
 volatile struct st_riic *RIIC[] = RIIC_ADDRESS_LIST;
 
 #define REG(N) \
-    RIIC[obj->i2c]->RIICn##N
+    RIIC[obj->i2c.i2c]->RIICn##N
 
 /* RIICnCR1 */
 #define CR1_RST   (1 << 6)
@@ -60,23 +60,6 @@ volatile struct st_riic *RIIC[] = RIIC_ADDRESS_LIST;
 
 #define WAIT_TIMEOUT    (3600000)  /* Loop counter : Time-out is about 1s. By 3600000 loops, measured value is 969ms. */
 
-static const PinMap PinMap_I2C_SDA[] = {
-    {P1_1 , I2C_0, 1},
-    {P1_3 , I2C_1, 1},
-    {P1_5 , I2C_2, 1},
-    {P1_7 , I2C_3, 1},
-    {NC   , NC   , 0}
-};
-
-static const PinMap PinMap_I2C_SCL[] = {
-    {P1_0 , I2C_0, 1},
-    {P1_2 , I2C_1, 1},
-    {P1_4 , I2C_2, 1},
-    {P1_6 , I2C_3, 1},
-    {NC   , NC,    0}
-};
-
-
 static inline int i2c_status(i2c_t *obj) {
     return REG(SR2.UINT8[0]);
 }
@@ -91,9 +74,9 @@ static void i2c_reg_reset(i2c_t *obj) {
     REG(SER.UINT8[0])  =  0x00;    // no slave addr enabled
 
     /* set frequency */
-    REG(MR1.UINT8[0]) |=  obj->pclk_bit;
-    REG(BRL.UINT8[0])  =  obj->width_low;
-    REG(BRH.UINT8[0])  =  obj->width_hi;
+    REG(MR1.UINT8[0]) |=  obj->i2c.pclk_bit;
+    REG(BRL.UINT8[0])  =  obj->i2c.width_low;
+    REG(BRH.UINT8[0])  =  obj->i2c.width_hi;
 
     REG(MR2.UINT8[0])  =  0x07;
     REG(MR3.UINT8[0])  =  0x00;
@@ -207,7 +190,7 @@ static void i2c_set_MR3_ACK(i2c_t *obj) {
 
 static inline void i2c_power_enable(i2c_t *obj) {
     volatile uint8_t dummy;
-    switch ((int)obj->i2c) {
+    switch ((int)obj->i2c.i2c) {
         case I2C_0:
             CPGSTBCR9 &= ~(0x80);
             break;
@@ -222,14 +205,15 @@ static inline void i2c_power_enable(i2c_t *obj) {
             break;
     }
     dummy = CPGSTBCR9;
+    (void)dummy;
 }
 
 void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     /* determine the I2C to use */
     I2CName i2c_sda = (I2CName)pinmap_peripheral(sda, PinMap_I2C_SDA);
     I2CName i2c_scl = (I2CName)pinmap_peripheral(scl, PinMap_I2C_SCL);
-    obj->i2c = pinmap_merge(i2c_sda, i2c_scl);
-    MBED_ASSERT((int)obj->i2c != NC);
+    obj->i2c.i2c = pinmap_merge(i2c_sda, i2c_scl);
+    MBED_ASSERT((int)obj->i2c.i2c != NC);
 
     /* enable power */
     i2c_power_enable(obj);
@@ -240,7 +224,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
     
-    obj->last_stop_flag = 1;
+    obj->i2c.last_stop_flag = 1;
 }
 
 inline int i2c_start(i2c_t *obj) {
@@ -248,7 +232,7 @@ inline int i2c_start(i2c_t *obj) {
 
     while ((REG(CR2.UINT32) & CR2_BBSY) != 0) {
         timeout ++;
-        if (timeout >= obj->bbsy_wait_cnt) {
+        if (timeout >= obj->i2c.bbsy_wait_cnt) {
             break;
         }
     }
@@ -279,7 +263,7 @@ static void i2c_set_err_noslave(i2c_t *obj) {
     (void)i2c_set_STOP(obj);
     (void)i2c_wait_STOP(obj);
     i2c_set_SR2_NACKF_STOP(obj);
-    obj->last_stop_flag = 1;
+    obj->i2c.last_stop_flag = 1;
 }
 
 static inline int i2c_do_write(i2c_t *obj, int value) {
@@ -397,16 +381,16 @@ void i2c_frequency(i2c_t *obj, int hz) {
     wait_utime = (L_time * 2) * 1000000;
     /* 1 wait of BBSY bit is about 0.3us. if it's below 0.3us, wait count is set as 1. */
     if (wait_utime <= 0.3) {
-        obj->bbsy_wait_cnt = 1;
+        obj->i2c.bbsy_wait_cnt = 1;
     } else {
-        obj->bbsy_wait_cnt = (int)(wait_utime / 0.3);
+        obj->i2c.bbsy_wait_cnt = (int)(wait_utime / 0.3);
     }
 
 
     /* I2C Rate */
-    obj->pclk_bit  = (uint8_t)(0x10 * wk_cks);        /* P_phi / xx */
-    obj->width_low = (uint8_t)(tmp_L_width | 0x000000E0);
-    obj->width_hi  = (uint8_t)(tmp_H_width | 0x000000E0);
+    obj->i2c.pclk_bit  = (uint8_t)(0x10 * wk_cks);        /* P_phi / xx */
+    obj->i2c.width_low = (uint8_t)(tmp_L_width | 0x000000E0);
+    obj->i2c.width_hi  = (uint8_t)(tmp_H_width | 0x000000E0);
 
     /* full reset */
     i2c_reg_reset(obj);
@@ -416,18 +400,17 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int count = 0;
     int status;
     int value;
-    volatile uint32_t work_reg = 0;
 
     i2c_set_MR3_ACK(obj);
     /* There is a STOP condition for last processing */
-    if (obj->last_stop_flag != 0) {
+    if (obj->i2c.last_stop_flag != 0) {
         status = i2c_start(obj);
         if (status != 0) {
             i2c_set_err_noslave(obj);
             return I2C_ERROR_BUS_BUSY;
         }
     }
-    obj->last_stop_flag = stop;
+    obj->i2c.last_stop_flag = stop;
     /*  Send Slave address */
     status = i2c_read_address_write(obj, (address | 0x01));
     if (status != 0) {
@@ -444,7 +427,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
         value = REG(DRR.UINT32);
         (void)i2c_wait_STOP(obj);
         i2c_set_SR2_NACKF_STOP(obj);
-        obj->last_stop_flag = 1;
+        obj->i2c.last_stop_flag = 1;
         return I2C_ERROR_NO_SLAVE;
     }
     if (length != 0) {
@@ -541,14 +524,14 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     int status;
 
     /* There is a STOP condition for last processing */
-    if (obj->last_stop_flag != 0) {
+    if (obj->i2c.last_stop_flag != 0) {
         status = i2c_start(obj);
         if (status != 0) {
             i2c_set_err_noslave(obj);
             return I2C_ERROR_BUS_BUSY;
         }
     }
-    obj->last_stop_flag = stop;
+    obj->i2c.last_stop_flag = stop;
     /*  Send Slave address */
     status = i2c_do_write(obj, address);
     if (status != 0) {
@@ -758,3 +741,397 @@ int i2c_slave_write(i2c_t *obj, const char *data, int length) {
 void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask) {
     REG(SAR0.UINT32) = (address & 0xfffffffe);
 }
+
+#if DEVICE_I2C_ASYNCH
+
+#define IRQ_NUM 4
+#define IRQ_TX 0
+#define IRQ_RX 1
+#define IRQ_ERR1 2
+#define IRQ_ERR2 3
+
+static void i2c_irqs_set(i2c_t *obj, uint32_t enable);
+
+static void i2c0_tx_irq(void);
+static void i2c1_tx_irq(void);
+static void i2c2_tx_irq(void);
+static void i2c3_tx_irq(void);
+static void i2c0_rx_irq(void);
+static void i2c1_rx_irq(void);
+static void i2c2_rx_irq(void);
+static void i2c3_rx_irq(void);
+static void i2c0_al_irq(void);
+static void i2c1_al_irq(void);
+static void i2c2_al_irq(void);
+static void i2c3_al_irq(void);
+static void i2c0_to_irq(void);
+static void i2c1_to_irq(void);
+static void i2c2_to_irq(void);
+static void i2c3_to_irq(void);
+
+static const IRQn_Type irq_set_tbl[RIIC_COUNT][IRQ_NUM] = {
+    {INTIICTEI0_IRQn, INTIICRI0_IRQn, INTIICALI0_IRQn, INTIICTMOI0_IRQn},
+    {INTIICTEI1_IRQn, INTIICRI1_IRQn, INTIICALI1_IRQn, INTIICTMOI1_IRQn},
+    {INTIICTEI2_IRQn, INTIICRI2_IRQn, INTIICALI2_IRQn, INTIICTMOI2_IRQn},
+    {INTIICTEI3_IRQn, INTIICRI3_IRQn, INTIICALI3_IRQn, INTIICTMOI3_IRQn},
+};
+
+static const IRQHandler hander_set_tbl[RIIC_COUNT][IRQ_NUM] = {
+    {i2c0_tx_irq, i2c0_rx_irq, i2c0_al_irq, i2c0_to_irq},
+    {i2c1_tx_irq, i2c1_rx_irq, i2c1_al_irq, i2c1_to_irq},
+    {i2c2_tx_irq, i2c2_rx_irq, i2c2_al_irq, i2c2_to_irq},
+    {i2c3_tx_irq, i2c3_rx_irq, i2c3_al_irq, i2c3_to_irq},
+};
+
+struct i2c_global_data_s {
+    i2c_t *async_obj;
+    uint32_t async_callback, event, shouldStop, address;
+};
+
+static struct i2c_global_data_s i2c_data[RIIC_COUNT];
+
+static void i2c_transfer_finished(i2c_t *obj)
+{
+    i2c_irqs_set(obj, 0);
+    uint32_t index = obj->i2c.i2c;
+    i2c_data[index].event = I2C_EVENT_TRANSFER_COMPLETE;
+    i2c_data[index].async_obj = NULL;
+    ((void (*)())i2c_data[index].async_callback)();
+}
+
+static void i2c_tx_irq(IRQn_Type irq_num, uint32_t index)
+{
+    i2c_t *obj = i2c_data[index].async_obj;
+    if ((REG(SR2.UINT32) & SR2_NACKF)) {
+        /* Slave sends NACK */
+        i2c_set_err_noslave(obj);
+        i2c_data[index].event = I2C_EVENT_ERROR | I2C_EVENT_TRANSFER_EARLY_NACK;
+        i2c_abort_asynch(obj);
+        ((void (*)())i2c_data[index].async_callback)();
+        return;
+    }
+    if (obj->tx_buff.pos == obj->tx_buff.length) {
+        /* All datas have tranferred */
+        
+        /* Clear TEND */
+        REG(SR2.UINT32) &= ~(SR2_TEND);
+        
+        /* If not repeated start, send stop. */
+        if (i2c_data[index].shouldStop && obj->rx_buff.length == 0) {
+            (void)i2c_set_STOP(obj);
+            (void)i2c_wait_STOP(obj);
+            i2c_set_SR2_NACKF_STOP(obj);
+            i2c_transfer_finished(obj);
+        } else {
+            (void)i2c_restart(obj);
+            (void)i2c_wait_START(obj);
+            /* SR2.START = 0 */
+            REG(SR2.UINT32) &= ~SR2_START;
+            if (obj->rx_buff.length) {
+                /* Ready to read */
+                i2c_set_MR3_ACK(obj);
+                
+                /* Disable INTRIICTEI */
+                REG(IER.UINT8[0]) &= ~(1 << 6);
+                
+                /*  Send Slave address */
+                if (i2c_read_address_write(obj, (i2c_data[index].address | 0x01)) != 0) {
+                    i2c_set_err_noslave(obj);
+                    i2c_data[index].event = I2C_EVENT_ERROR | I2C_EVENT_ERROR_NO_SLAVE;
+                    i2c_abort_asynch(obj);
+                    ((void (*)())i2c_data[index].async_callback)();
+                    return;
+                }
+            } else {
+                i2c_transfer_finished(obj);
+            }
+        }
+    } else {
+        /* Send next 1 byte */
+        if (i2c_do_write(obj, *(uint8_t *)obj->tx_buff.buffer) != 0) {
+            i2c_set_err_noslave(obj);
+            i2c_data[index].event = I2C_EVENT_ERROR | I2C_EVENT_ERROR_NO_SLAVE;
+            i2c_abort_asynch(obj);
+            ((void (*)())i2c_data[index].async_callback)();
+            return;
+        }
+        obj->tx_buff.buffer = (uint8_t *)obj->tx_buff.buffer + 1;
+        ++obj->tx_buff.pos;
+    }
+}
+
+static void i2c_rx_irq(IRQn_Type irq_num, uint32_t index)
+{
+    i2c_t *obj = i2c_data[index].async_obj;
+    if (obj->rx_buff.pos == SIZE_MAX) {
+        if ((REG(SR2.UINT32) & SR2_NACKF) != 0) {
+            /* Slave sends NACK */
+            (void)i2c_set_STOP(obj);
+            /* dummy read */
+            if (REG(DRR.UINT32)) {}
+            (void)i2c_wait_STOP(obj);
+            i2c_set_SR2_NACKF_STOP(obj);
+            obj->i2c.last_stop_flag = 1;
+            
+            i2c_data[index].event = I2C_EVENT_ERROR | I2C_EVENT_TRANSFER_EARLY_NACK;
+            i2c_abort_asynch(obj);
+            ((void (*)())i2c_data[index].async_callback)();
+            return;
+        }
+        if (obj->rx_buff.length == 1) {
+            /* length == 1 */
+            /* Set MR3 WAIT bit is 1 */;
+            REG(MR3.UINT32) |=  MR3_WAIT;
+            i2c_set_MR3_NACK(obj);
+        } else if (obj->rx_buff.length == 2) {
+            /* Set MR3 WAIT bit is 1 */
+            REG(MR3.UINT32) |= MR3_WAIT;
+        }
+        /* dummy read */
+        if (REG(DRR.UINT32)) {}
+        obj->rx_buff.pos = 0;
+        return;
+    }
+    if ((REG(SR2.UINT32) & SR2_NACKF) != 0) {
+        /* Slave sends NACK */
+        i2c_set_err_noslave(obj);
+        i2c_data[index].event = I2C_EVENT_ERROR | I2C_EVENT_TRANSFER_EARLY_NACK;
+        i2c_abort_asynch(obj);
+        ((void (*)())i2c_data[index].async_callback)();
+        return;
+    } else {
+        switch (obj->rx_buff.length - obj->rx_buff.pos) {
+            case 1:
+                /* Finished */
+                /* If not repeated start, send stop. */
+                if (i2c_data[index].shouldStop) {
+                    (void)i2c_set_STOP(obj);
+                    /* RIICnDRR read */
+                    *(uint8_t *)obj->rx_buff.buffer = REG(DRR.UINT32) & 0xFF;
+                    /* RIICnMR3.WAIT = 0 */
+                    REG(MR3.UINT32) &= ~MR3_WAIT;
+                    (void)i2c_wait_STOP(obj);
+                    i2c_set_SR2_NACKF_STOP(obj);
+                } else {
+                    (void)i2c_restart(obj);
+                    /* RIICnDRR read */
+                    *(uint8_t *)obj->rx_buff.buffer = REG(DRR.UINT32) & 0xFF;
+                    /* RIICnMR3.WAIT = 0 */
+                    REG(MR3.UINT32) &= ~MR3_WAIT;
+                    (void)i2c_wait_START(obj);
+                    /* SR2.START = 0 */
+                    REG(SR2.UINT32) &= ~SR2_START;
+                }
+                
+                i2c_transfer_finished(obj);
+                return;
+                
+            case 2:
+                i2c_set_MR3_NACK(obj);
+                break;
+                
+            case 3:
+                /* this time is befor last byte read */
+                /* Set MR3 WAIT bit is 1 */
+                REG(MR3.UINT32) |= MR3_WAIT;
+                break;
+                
+            default:
+                i2c_set_MR3_ACK(obj);
+                break;
+        }
+        *(uint8_t *)obj->rx_buff.buffer = REG(DRR.UINT32) & 0xFF;
+        obj->rx_buff.buffer = (uint8_t *)obj->rx_buff.buffer + 1;
+        ++obj->rx_buff.pos;
+    }
+}
+
+static void i2c_err_irq(IRQn_Type irq_num, uint32_t index)
+{
+    i2c_t *obj = i2c_data[index].async_obj;
+    i2c_abort_asynch(obj);
+    i2c_data[index].event = I2C_EVENT_ERROR;
+    ((void (*)())i2c_data[index].async_callback)();
+}
+
+/* TX handler */
+static void i2c0_tx_irq(void)
+{
+    i2c_tx_irq(INTIICTEI0_IRQn, 0);
+}
+
+static void i2c1_tx_irq(void)
+{
+    i2c_tx_irq(INTIICTEI1_IRQn, 1);
+}
+
+static void i2c2_tx_irq(void)
+{
+    i2c_tx_irq(INTIICTEI2_IRQn, 2);
+}
+
+static void i2c3_tx_irq(void)
+{
+    i2c_tx_irq(INTIICTEI3_IRQn, 3);
+}
+
+/* RX handler */
+static void i2c0_rx_irq(void)
+{
+    i2c_rx_irq(INTIICRI0_IRQn, 0);
+}
+
+static void i2c1_rx_irq(void)
+{
+    i2c_rx_irq(INTIICRI1_IRQn, 1);
+}
+
+static void i2c2_rx_irq(void)
+{
+    i2c_rx_irq(INTIICRI2_IRQn, 2);
+}
+
+static void i2c3_rx_irq(void)
+{
+    i2c_rx_irq(INTIICRI3_IRQn, 3);
+}
+
+/* Arbitration Lost handler */
+static void i2c0_al_irq(void)
+{
+    i2c_err_irq(INTIICALI0_IRQn, 0);
+}
+
+static void i2c1_al_irq(void)
+{
+    i2c_err_irq(INTIICALI1_IRQn, 1);
+}
+
+static void i2c2_al_irq(void)
+{
+    i2c_err_irq(INTIICALI2_IRQn, 2);
+}
+
+static void i2c3_al_irq(void)
+{
+    i2c_err_irq(INTIICALI3_IRQn, 3);
+}
+
+/* Timeout handler */
+static void i2c0_to_irq(void)
+{
+    i2c_err_irq(INTIICTMOI0_IRQn, 0);
+}
+
+static void i2c1_to_irq(void)
+{
+    i2c_err_irq(INTIICTMOI1_IRQn, 1);
+}
+
+static void i2c2_to_irq(void)
+{
+    i2c_err_irq(INTIICTMOI2_IRQn, 2);
+}
+
+static void i2c3_to_irq(void)
+{
+    i2c_err_irq(INTIICTMOI3_IRQn, 3);
+}
+
+static void i2c_irqs_set(i2c_t *obj, uint32_t enable)
+{
+    int i;
+    const IRQn_Type *irqTable = irq_set_tbl[obj->i2c.i2c];
+    const IRQHandler *handlerTable = hander_set_tbl[obj->i2c.i2c];
+    for (i = 0; i < IRQ_NUM; ++i) {
+        if (enable) {
+            InterruptHandlerRegister(irqTable[i], handlerTable[i]);
+            GIC_SetPriority(irqTable[i], 5);
+            if (i == 1) {
+                GIC_SetConfiguration(irqTable[i], 3);
+            } else {
+                GIC_SetConfiguration(irqTable[i], 1);
+            }
+            GIC_EnableIRQ(irqTable[i]);
+        } else {
+            GIC_DisableIRQ(irqTable[i]);
+        }
+    }
+    REG(IER.UINT8[0]) = enable ? 0x63 : 0x00;
+}
+
+/******************************************************************************
+ * ASYNCHRONOUS HAL
+ ******************************************************************************/
+
+void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
+{
+    MBED_ASSERT(obj);
+    MBED_ASSERT(tx ? tx_length : 1);
+    MBED_ASSERT(rx ? rx_length : 1);
+    MBED_ASSERT((REG(SER.UINT32) & SER_SAR0E) == 0); /* Slave mode */
+    
+    obj->tx_buff.buffer = (void *)tx;
+    obj->tx_buff.length = tx_length;
+    obj->tx_buff.pos = 0;
+    obj->tx_buff.width = 8;
+    obj->rx_buff.buffer = rx;
+    obj->rx_buff.length = rx_length;
+    obj->rx_buff.pos = SIZE_MAX;
+    obj->rx_buff.width = 8;
+    i2c_data[obj->i2c.i2c].async_obj = obj;
+    i2c_data[obj->i2c.i2c].async_callback = handler;
+    i2c_data[obj->i2c.i2c].event = 0;
+    i2c_data[obj->i2c.i2c].shouldStop = stop;
+    i2c_data[obj->i2c.i2c].address = address;
+    i2c_irqs_set(obj, 1);
+    
+    /* There is a STOP condition for last processing */
+    if (obj->i2c.last_stop_flag != 0) {
+        if (i2c_start(obj) != 0) {
+            i2c_set_err_noslave(obj);
+            i2c_data[obj->i2c.i2c].event = I2C_EVENT_ERROR | I2C_EVENT_ERROR_NO_SLAVE;
+            i2c_abort_asynch(obj);
+            ((void (*)())handler)();
+            return;
+        }
+    }
+    obj->i2c.last_stop_flag = stop;
+    
+    if (rx_length && tx_length == 0) {
+        /* Ready to read */
+        i2c_set_MR3_ACK(obj);
+        
+        /* Disable INTRIICTEI */
+        REG(IER.UINT8[0]) &= ~(1 << 6);
+        
+        address |= 0x01;
+    }
+    /* Send Slave address */
+    if (i2c_do_write(obj, address) != 0) {
+        i2c_set_err_noslave(obj);
+        i2c_data[obj->i2c.i2c].event = I2C_EVENT_ERROR | I2C_EVENT_ERROR_NO_SLAVE;
+        i2c_abort_asynch(obj);
+        ((void (*)())handler)();
+        return;
+    }
+}
+
+uint32_t i2c_irq_handler_asynch(i2c_t *obj)
+{
+    return i2c_data[obj->i2c.i2c].event;
+}
+
+uint8_t i2c_active(i2c_t *obj)
+{
+    return i2c_data[obj->i2c.i2c].async_obj != NULL;
+}
+
+void i2c_abort_asynch(i2c_t *obj)
+{
+    i2c_data[obj->i2c.i2c].async_obj = NULL;
+    i2c_irqs_set(obj, 0);
+    i2c_reg_reset(obj);
+}
+
+#endif

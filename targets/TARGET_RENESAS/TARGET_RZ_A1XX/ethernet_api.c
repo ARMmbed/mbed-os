@@ -19,8 +19,10 @@
 #include "mbed_interface.h"
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
-#include "ether_iodefine.h"
+#include "iodefine.h"
 #include "ethernetext_api.h"
+
+#if DEVICE_ETHERNET
 
 /* Descriptor info */
 #define NUM_OF_TX_DESCRIPTOR    (16)
@@ -160,6 +162,7 @@ int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
 
     CPGSTBCR7 &= ~(CPG_STBCR7_BIT_MSTP74);  /* enable ETHER clock */
 
+#if defined(TARGET_RZ_A1H)
     /* P4_2(PHY Reset) */
     GPIOP4      &= ~0x0004;         /* Outputs low level */
     GPIOPMC4    &= ~0x0004;         /* Port mode */
@@ -201,6 +204,41 @@ int ethernetext_init(ethernet_cfg_t *p_ethcfg) {
     wait_100us(250);                /* 25msec */
     GPIOP4      |=  0x0004;         /* P4_2 Outputs high level */
     wait_100us(100);                /* 10msec */
+#elif defined(TARGET_VK_RZ_A1H)
+    /* -->4F<-- P1_14(ET_COL) */
+    GPIOPMC1    |=  0x4000;
+    GPIOPFCAE1  &= ~0x4000;
+    GPIOPFCE1   |=  0x4000;
+    GPIOPFC1    |=  0x4000;
+    GPIOPIPC1   |=  0x4000;
+
+    /* -->2F<-- P2_0(ET_TXCLK), P2_1(ET_TXER), P2_2(ET_TXEN), P2_3(ET_CRS), P2_4(ET_TXD0),
+    P2_5(ET_TXD1), P2_6(ET_TXD2), P2_7(ET_TXD3), P2_8(ET_RXD0), P2_9(ET_RXD1), P2_10(ET_RXD2) P2_11(ET_RXD3) */
+    GPIOPMC2    |=  0x0FFF;
+    GPIOPFCAE2  &= ~0x0FFF;
+    GPIOPFCE2   &= ~0x0FFF;
+    GPIOPFC2    |=  0x0FFF;
+    GPIOPIPC2   |=  0x0FFF;
+
+    /* -->3F<-- P3_3(ET_MDIO), P3_4(ET_RXCLK), P3_5(ET_RXER), P3_6(ET_RXDV) */
+    GPIOPMC3    |=  0x0078;
+    GPIOPFCAE3  &= ~0x0078;
+    GPIOPFCE3   &= ~0x0078;
+    GPIOPFC3    |=  0x0078;
+    GPIOPIPC3   |=  0x0078;
+
+    /* -->3F<-- P7_0(ET_MDC) */
+    GPIOPMC7    |=  0x0001;
+    GPIOPFCAE7  &= ~0x0001;
+    GPIOPFCE7   |=  0x0001;
+    GPIOPFC7    &= ~0x0001;
+    GPIOPIPC7   |=  0x0001;
+
+    /* Resets the E-MAC,E-DMAC */
+    lan_reg_reset();
+#else
+#error "There is no initialization processing."
+#endif
 
     /* Resets the PHY-LSI */
     phy_reg_write(BASIC_MODE_CONTROL_REG, 0x8000);
@@ -708,3 +746,4 @@ static void wait_100us(int32_t wait_cnt) {
         /* Do Nothing */
     }
 }
+#endif /* DEVICE_ETHERNET */
