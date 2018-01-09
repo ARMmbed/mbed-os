@@ -35,17 +35,17 @@ Includes <System Includes> , "Project Includes"
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
-
 #if defined(__ARM_NEON__)
-
 #include <arm_neon.h>
-
-#else /* __ARM_NEON__ */
-
-typedef float               float32_t;
-typedef double              float64_t;
-
 #endif /* __ARM_NEON__ */
+
+#ifndef float32_t
+typedef float               float32_t;
+#endif
+#ifndef float64_t
+typedef double              float64_t;
+#endif
+
 
 /******************************************************************************
 Typedef definitions
