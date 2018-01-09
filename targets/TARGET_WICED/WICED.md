@@ -11,19 +11,20 @@ list of files that are currently provided by Mbed OS:
 - w_resources.h
 - mbed_lib.json
 
-## Download the WICED SDK
+## Download the WICED SDK and Advantech patch for the WISE1530
 
 You can find the full instructions to download the WICED SDK with Advantech's patches
-on Advantech's Wiki:
+on Advantech's Wiki:  
 http://ess-wiki.advantech.com.tw/view/WISE-1530_SDK
 
-To get the WICED SDK, download WICED-Studio-5.2.0 for your platform:
+To get the WICED SDK, download WICED-Studio-4.1 for your platform:  
 https://community.cypress.com/community/wiced-wifi/wiced-wifi-documentation
 
-Once downloaded, move the WICED SDK folder into `targets/TARGET_WICED`.
+Once downloaded, move the folder `43xxx_Wi-Fi` into `targets/TARGET_WICED`. Rename
+the `43xxx_Wi-Fi` folder to `WICED`.
 
-For the WISE1530, download the patch from Advantech:
-`WM-BN-BM-22_SDK_5.1.x_platform_patch.zip`
+For the WISE1530, download the patch from Advantech:  
+http://ess-wiki.advantech.com.tw/wiki/images/4/44/WM-BN-BM-22_SDK_5.1.x_platform_patch_v1.5.zip
 
 Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
 
@@ -31,9 +32,7 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
 
 1. Remove these files because they are unnecessary and large:
    - `targets/TARGET_WICED/WICED/tools`
-   - `targets/TARGET_WICED/WICED/build`
    - `targets/TARGET_WICED/WICED/apps`
-   - `targets/TARGET_WICED/WICED/factory`
    - `targets/TARGET_WICED/WICED/doc`
    - `targets/TARGET_WICED/WICED/RTOS/NoOS`
    - `targets/TARGET_WICED/WICED/RTOS/NuttX`
@@ -43,7 +42,8 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
    - `targets/TARGET_WICED/WICED/network/NoNS`
    - `targets/TARGET_WICED/WICED/network/NuttX_NS`
 
-1. Add the `w_` prefix to all c/h files in WICED.
+1. Add the `w_` prefix to all c/h files in WICED that do not begin with
+   `wiced_` or `wwd_`.
 
    Edit all c/h files and change the relevant `#include` statments to use the
    updated file names.
@@ -219,7 +219,7 @@ Once downloaded, copy the contents into `targets/TARGET_WICED/WICED`.
 
 For the WISE1530, you now have access to the Mbed OS WISE1530Interface class.
 
-You can try this class with the Mbed OS socket example:
+You can try this class with the Mbed OS socket example:  
 https://github.com/armmbed/mbed-os-example-sockets
  
  

@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#pragma once
+#ifndef WICED_NETWORK_H
+#define WICED_NETWORK_H
 #include "w_tls_types.h"
 #include "w_dtls_types.h"
 #include "wiced_result.h"
@@ -137,4 +138,5 @@ extern NOOS_PACKET_POOL wiced_packet_pools    [2]; /* 0=TX, 1=RX */
 
 #ifdef __cplusplus
 } /*extern "C" */
+#endif
 #endif

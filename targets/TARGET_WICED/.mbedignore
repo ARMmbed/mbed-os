@@ -44,6 +44,7 @@ WICED/libraries/drivers/bluetooth/sbc/
 WICED/libraries/drivers/bluetooth/wiced_hci_bt/
 WICED/libraries/drivers/USB/
 WICED/libraries/drivers/sensors/
+WICED/libraries/drivers/gspi/
 WICED/libraries/test/
 WICED/libraries/utilities/command_console/
 WICED/libraries/utilities/connection_manager/
@@ -107,6 +108,7 @@ WICED/platforms/BCM943907WCD2/
 WICED/platforms/BCM943362WCD4/
 WICED/platforms/BCM943362WCD8/
 WICED/platforms/BCM943907WCD1/
+WICED/platforms/BCMUSI22/
 WICED/libraries/daemons/device_configuration/w_device_configuration_http_content.c
 WICED/WICED/platform/MCU/STM32F4xx/WWD/wwd_SPI.c
 WICED/WICED/platform/MCU/STM32F4xx/w_platform_bootloader.c
