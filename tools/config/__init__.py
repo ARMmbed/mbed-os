@@ -546,7 +546,8 @@ class Config(object):
         if  ('target.bootloader_img' in target_overrides or
              'target.restrict_size' in target_overrides):
             return self._generate_bootloader_build(target_overrides,
-                                                  rom_start, rom_size)
+                                                  rom_start, rom_size,
+                                                  self.sectors)
         elif ('target.mbed_app_start' in target_overrides or
               'target.mbed_app_size' in target_overrides):
             return self._generate_linker_overrides(target_overrides,
@@ -555,7 +556,7 @@ class Config(object):
             raise ConfigException(
                 "Bootloader build requested but no bootlader configuration")
 
-    def _generate_bootloader_build(self, target_overrides, rom_start, rom_size):
+    def _generate_bootloader_build(self, target_overrides, rom_start, rom_size, sectors):
         start = 0
         if 'target.bootloader_img' in target_overrides:
             basedir = abspath(dirname(self.app_config_location))
@@ -567,16 +568,24 @@ class Config(object):
                 raise ConfigException("bootloader executable does not "
                                       "start at 0x%x" % rom_start)
             part_size = (part.maxaddr() - part.minaddr()) + 1
-            yield Region("bootloader", rom_start + start, part_size, False,
+            start = Config._align_on_sector(rom_start + start, sectors) - rom_start
+            offset = start + rom_start
+            part_size = Config._align_on_sector(offset + part_size, sectors) - offset
+            yield Region("bootloader", offset, part_size, False,
                          filename)
             start += part_size
         if 'target.restrict_size' in target_overrides:
             new_size = int(target_overrides['target.restrict_size'], 0)
-            yield Region("application", rom_start + start, new_size, True, None)
+            start = Config._align_on_sector(rom_start + start, sectors) - rom_start
+            offset = rom_start + start
+            new_size = Config._align_on_sector(offset + new_size, sectors) - offset
+            yield Region("application", offset, new_size, True, None)
             start += new_size
-            yield Region("post_application", rom_start +start, rom_size - start,
+            start = Config._align_on_sector(rom_start + start, sectors) - rom_start
+            yield Region("post_application", rom_start + start, rom_size - start,
                          False, None)
         else:
+            start = Config._align_on_sector(rom_start + start, sectors) - rom_start
             yield Region("application", rom_start + start, rom_size - start,
                          True, None)
         if start > rom_size:
@@ -592,7 +601,7 @@ class Config(object):
             target_start = start
             target_size = size
         if (target_size < 0):
-            return target_size
+            raise ConfigException("No valid sector found")
         sector_num = (address - target_start)//target_size
         return target_start + (sector_num*target_size)
 
