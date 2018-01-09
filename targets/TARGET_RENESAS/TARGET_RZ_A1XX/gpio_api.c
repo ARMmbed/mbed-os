@@ -16,6 +16,7 @@
 #include "gpio_api.h"
 #include "pinmap.h"
 #include "gpio_addrdefine.h"
+#include "mbed_drv_cfg.h"
 
 
 uint32_t gpio_set(PinName pin) {
@@ -31,7 +32,7 @@ void gpio_init(gpio_t *obj, PinName pin) {
     obj->mask = gpio_set(pin);
 
     group = PINGROUP(pin);
-    if (group > 11) return;
+    if (group > GPIO_GROUP_MAX) return;
 
     obj->reg_set = (volatile uint32_t *) PSR(group);
     obj->reg_in  = (volatile uint32_t *) PPR(group);

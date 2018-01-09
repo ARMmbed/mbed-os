@@ -22,7 +22,6 @@
 #include "PeripheralNames.h"
 #include "PinNames.h"
 #include "gpio_object.h"
-#include "rspi_iodefine.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,6 +54,7 @@ struct port_s {
     __IO uint32_t *reg_dir;
     __IO uint32_t *reg_out;
     __I  uint32_t *reg_in;
+    __IO uint32_t *reg_buf;
     PortName port;
     uint32_t mask;
 };

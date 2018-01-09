@@ -16,8 +16,8 @@
 #include <stddef.h>
 
 #include "gpio_irq_api.h"
-#include "intc_iodefine.h"
-#include "pinmap.h"
+#include "iodefine.h"
+#include "PeripheralPins.h"
 #include "cmsis.h"
 #include "gpio_addrdefine.h"
 
@@ -37,14 +37,6 @@ static gpio_irq_handler irq_handler;
 static const int nIRQn_h = 32;
 extern PinName gpio_multi_guard;
 
-enum {
-    IRQ0,IRQ1, 
-    IRQ2,IRQ3, 
-    IRQ4,IRQ5, 
-    IRQ6,IRQ7, 
-
-} IRQNo;
-
 static const IRQHandler irq_tbl[CHANNEL_NUM] = {
     &gpio_irq0,
     &gpio_irq1,
@@ -55,31 +47,6 @@ static const IRQHandler irq_tbl[CHANNEL_NUM] = {
     &gpio_irq6,
     &gpio_irq7,
 };
-
-#ifdef MAX_PERI
-static const PinMap PinMap_IRQ[] = {
-    {P1_0,  IRQ0, 4}, {P4_8,  IRQ0, 8}, {P6_8,  IRQ0, 8}, {P7_9,  IRQ0, 8}, {P8_2,  IRQ0, 5}, {P2_14, IRQ0, 8}, {P5_8,  IRQ0, 2}, {P9_1,  IRQ0, 4},
-    {P1_1,  IRQ1, 4}, {P4_9,  IRQ1, 8}, {P6_9,  IRQ1, 8}, {P7_8,  IRQ1, 8}, {P8_3,  IRQ1, 6}, {P2_15, IRQ1, 8},
-    {P1_2,  IRQ2, 4}, {P4_10, IRQ2, 8}, {P6_10, IRQ2, 8}, {P7_10, IRQ2, 8}, {P1_8,  IRQ2, 3}, {P3_0,  IRQ2, 3}, {P5_9,  IRQ2, 4}, {P6_3,  IRQ2, 4},
-    {P1_3,  IRQ3, 4}, {P4_11, IRQ3, 8}, {P6_11, IRQ3, 8}, {P7_11, IRQ3, 8}, {P1_9,  IRQ3, 3}, {P6_4,  IRQ3, 4},
-    {P1_4,  IRQ4, 4}, {P4_12, IRQ4, 8}, {P6_12, IRQ4, 8}, {P7_12, IRQ4, 8}, {P1_10, IRQ4, 3}, {P3_3,  IRQ4, 3}, {P6_1,  IRQ4, 4},
-    {P1_5,  IRQ5, 4}, {P4_13, IRQ5, 8}, {P6_13, IRQ5, 8}, {P7_13, IRQ5, 8}, {P1_11, IRQ5, 3}, {P2_0,  IRQ5, 6}, {P6_0,  IRQ5, 6}, {P8_7,  IRQ5, 4},
-    {P1_6,  IRQ6, 4}, {P4_14, IRQ6, 8}, {P6_14, IRQ6, 8}, {P7_14, IRQ6, 8}, {P2_12, IRQ6, 6}, {P3_1,  IRQ6, 3}, {P3_9,  IRQ6, 8}, {P5_6,  IRQ6, 6},
-    {P1_7,  IRQ7, 4}, {P4_15, IRQ7, 8}, {P6_15, IRQ7, 8}, {P6_2,  IRQ7, 4}, {P2_13, IRQ7, 8},
-    {NC,    NC,     0}
-};
-#else
-static const PinMap PinMap_IRQ[] = {
-    {P9_1,  IRQ0, 4},
-    {P7_8,  IRQ1, 8},
-    {P1_2,  IRQ2, 4}, {P1_8,  IRQ2, 3}, {P3_0,  IRQ2, 3}, {P5_9,  IRQ2, 4},
-    {P1_3,  IRQ3, 4}, {P1_9,  IRQ3, 3},
-    {P1_4,  IRQ4, 4}, {P1_10, IRQ4, 3},
-    {P1_5,  IRQ5, 4}, {P1_11, IRQ5, 3},
-    {P3_1,  IRQ6, 3}, {P3_9,  IRQ6, 8}, {P5_6,  IRQ6, 6},
-    {NC,    NC,     0}
-};
-#endif
 
 static void handle_interrupt_in(int irq_num) {
     uint16_t irqs;
@@ -162,9 +129,8 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     // INTC settings
     InterruptHandlerRegister((IRQn_Type)(nIRQn_h+obj->ch), (void (*)(uint32_t))irq_tbl[obj->ch]);
     INTCICR1 &= ~(0x3 << shift);
-    INTCICR1 |= (0x3 << shift);
     GIC_SetPriority((IRQn_Type)(nIRQn_h+obj->ch), 5);
-    GIC_EnableIRQ((IRQn_Type)(nIRQn_h+obj->ch));
+    GIC_SetConfiguration((IRQn_Type)(nIRQn_h + obj->ch), 1);
     obj->int_enable = 1;
     __enable_irq();
 

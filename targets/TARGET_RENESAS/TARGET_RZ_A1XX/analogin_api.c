@@ -17,24 +17,11 @@
 #include "analogin_api.h"
 
 #include "cmsis.h"
-#include "pinmap.h"
+#include "PeripheralPins.h"
 
-#include "adc_iodefine.h"
-#include "cpg_iodefine.h"
+#include "iodefine.h"
 
 #define ANALOGIN_MEDIAN_FILTER      0
-
-static const PinMap PinMap_ADC[] = {
-    {P1_8,  AN0, 1},
-    {P1_9,  AN1, 1},
-    {P1_10, AN2, 1},
-    {P1_11, AN3, 1},
-    {P1_12, AN4, 1},
-    {P1_13, AN5, 1},
-    {P1_14, AN6, 1},
-    {P1_15, AN7, 1},
-    {NC,    NC,  0}
-};
 
 static volatile uint16_t *ADCDR[] = {
     &ADCADDRA,

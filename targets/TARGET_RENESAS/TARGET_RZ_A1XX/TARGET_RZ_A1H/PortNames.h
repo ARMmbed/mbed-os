@@ -25,7 +25,14 @@ typedef enum {
     Port1 = 1,
     Port2 = 2,
     Port3 = 3,
-    Port4 = 4
+    Port4 = 4,
+    Port5 = 5,
+    Port6 = 6,
+    Port7 = 7,
+    Port8 = 8,
+    Port9 = 9,
+    Port10 = 10,
+    Port11 = 11
 } PortName;
 
 #ifdef __cplusplus
