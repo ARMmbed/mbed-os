@@ -20,6 +20,10 @@
 #include "unity.h"
 #include "utest.h"
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 using namespace utest::v1;
 
 // TEST_EQUEUE_SIZE was reduced below 1024B to fit this test to devices with small RAM (RAM <= 16kB)

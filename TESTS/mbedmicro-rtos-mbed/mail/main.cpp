@@ -23,6 +23,10 @@
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 using namespace utest::v1;
 
 #define THREAD_STACK_SIZE   320 /* larger stack cause out of heap memory on some 16kB RAM boards in multi thread test*/
