@@ -1,28 +1,28 @@
-/* 
+/*
  * Copyright (c) 2016 Nordic Semiconductor ASA
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
- *   1. Redistributions of source code must retain the above copyright notice, this list 
+ *
+ *   1. Redistributions of source code must retain the above copyright notice, this list
  *      of conditions and the following disclaimer.
  *
- *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA 
- *      integrated circuit in a product or a software update for such product, must reproduce 
- *      the above copyright notice, this list of conditions and the following disclaimer in 
+ *   2. Redistributions in binary form, except as embedded into a Nordic Semiconductor ASA
+ *      integrated circuit in a product or a software update for such product, must reproduce
+ *      the above copyright notice, this list of conditions and the following disclaimer in
  *      the documentation and/or other materials provided with the distribution.
  *
- *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be 
- *      used to endorse or promote products derived from this software without specific prior 
+ *   3. Neither the name of Nordic Semiconductor ASA nor the names of its contributors may be
+ *      used to endorse or promote products derived from this software without specific prior
  *      written permission.
  *
- *   4. This software, with or without modification, must only be used with a 
+ *   4. This software, with or without modification, must only be used with a
  *      Nordic Semiconductor ASA integrated circuit.
  *
- *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
- * 
+ *   5. Any software provided in binary or object form under this license must not be reverse
+ *      engineered, decompiled, modified and/or disassembled.
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -33,7 +33,7 @@
  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
+ *
  */
 
 #ifndef MBED_PINNAMES_H
@@ -57,7 +57,7 @@ typedef enum {
 #define PinDef(port_num, pin_num) P##port_num##_##pin_num = NRF_GPIO_PIN_MAP(port_num, pin_num)
 
 
-typedef enum {    
+typedef enum {
     PinDef(0 , 0), // P0_0 = 0...
     PinDef(0 , 1),
     PinDef(0 , 2),
@@ -89,8 +89,8 @@ typedef enum {
     PinDef(0 , 28),
     PinDef(0 , 29),
     PinDef(0 , 30),
-    PinDef(0 , 31),    
-    
+    PinDef(0 , 31),
+
     PinDef(1 , 0), //P1_1 = 32...
 	PinDef(1 , 1),
 	PinDef(1 , 2),
@@ -107,7 +107,7 @@ typedef enum {
 	PinDef(1 , 13),
 	PinDef(1 , 14),
 	PinDef(1 , 15),
-    
+
     // Port0
     p0  = P0_0,
     p1  = P0_1,
@@ -141,7 +141,7 @@ typedef enum {
     p29 = P0_29,
     p30 = P0_30,
     p31 = P0_31,
-    
+
     // Port1
     p32 = P1_0,
     p33 = P1_1,
@@ -159,11 +159,15 @@ typedef enum {
     p45 = P1_13,
     p46 = P1_14,
     p47 = P1_15,
-    
+
     LED1    = p13,
     LED2    = p14,
     LED3    = p15,
     LED4    = p16,
+
+    LED_RED   = p13,
+    LED_GREEN = p14,
+    LED_BLUE  = p15,
 
     BUTTON1 = p11,
     BUTTON2 = p12,
@@ -178,6 +182,9 @@ typedef enum {
     // mBed interface Pins
     USBTX = TX_PIN_NUMBER,
     USBRX = RX_PIN_NUMBER,
+
+    STDIO_UART_TX = USBTX,
+    STDIO_UART_RX = USBRX,
 
     SPI_PSELMOSI0 = P1_13,
     SPI_PSELMISO0 = P1_14,

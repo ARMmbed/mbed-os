@@ -64,7 +64,13 @@ static void powerdown_scb(uint32_t vtor)
 
     // SCB->CPUID   - Read only CPU ID register
     SCB->ICSR = SCB_ICSR_PENDSVCLR_Msk | SCB_ICSR_PENDSTCLR_Msk;
+
+    // Targets with a softdevice like the NRF52* don't need to
+    // be relocated
+    #ifdef MBED_RELOCATE_VTOR
     SCB->VTOR = vtor;
+    #endif MBED_RELOCATE_VTOR
+
     SCB->AIRCR = 0x05FA | 0x0000;
     SCB->SCR = 0x00000000;
     // SCB->CCR     - Implementation defined value
