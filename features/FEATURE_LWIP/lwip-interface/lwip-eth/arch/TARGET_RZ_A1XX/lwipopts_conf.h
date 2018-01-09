@@ -23,4 +23,11 @@
 
 #define MEM_SIZE                      (1600 * 16)
 
+#define MEMP_NUM_TCP_SEG              32
+#define TCP_MSS                       1460
+#define PBUF_POOL_SIZE                16
+#define TCP_SND_BUF                   (8 * TCP_MSS)
+#define TCP_WND                       (TCP_MSS * 8)
+#define PBUF_POOL_BUFSIZE             1600
+
 #endif
