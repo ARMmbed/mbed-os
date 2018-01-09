@@ -18,7 +18,7 @@
 #define __GENERIC_SECURITY_MANAGER_H__
 
 #include "SecurityManager.h"
-#include "PalSm.h"
+#include "PalSecurityManager.h"
 
 namespace ble {
 namespace generic {
@@ -34,7 +34,7 @@ public:
         (void)requireMITM;
         loadState();
         pal.set_security_settings(enableBonding, iocaps);
-        pal.set_passkey(passkey);
+        setPasskey(passkey);
 
         return BLE_ERROR_NONE;
     }
@@ -51,8 +51,18 @@ public:
         }
     }
 
+    virtual ble_error_t setAuthenticationTimeout(connection_handle_t handle, uint32_t timeout_in_ms) {
+        return pal.set_authentication_timeout(handle, timeout_in_ms / 10);
+    }
+    virtual ble_error_t getAuthenticationTimeout(connection_handle_t handle, uint32_t *timeout_in_ms) {
+        uint16_t timeout_in_10ms;
+        ble_error_t status = pal.get_authentication_timeout(handle, timeout_in_10ms);
+        timeout_in_ms = 10 * timeout_in_10ms;
+        return status;
+    }
+
     virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
-        return pal.get_encryption_status(connectionHandle, securityStatusP);
+        return pal.get_encryption_status(connectionHandle, *securityStatusP);
     }
 
     ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
@@ -77,7 +87,7 @@ public:
         return BLE_ERROR_NONE;
     }
 
-    ble_error_t setPinCode(uint8_t pinLength, uint8_t * pinCode, bool isStatic = false) {
+    ble_error_t setPinCode(uint8_t pinLength, uint8_t *pinCode, bool isStatic = false) {
         return pal.set_pin_code(pinLength, pinCode, isStatic);
     }
 

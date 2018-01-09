@@ -152,7 +152,7 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t handle, SecurityMode_t *mode) {
+    virtual ble_error_t getLinkSecurity(Gap::Handle_t handle, SecurityMode_t &mode) {
         (void) handle;
         (void) mode;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
@@ -209,6 +209,17 @@ public:
 
     virtual ble_error_t setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
         (void) timeout_in_seconds;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t setAuthenticationTimeout(connection_handle_t handle, uint32_t timeout_in_ms) {
+        (void) handle;
+        (void) timeout_in_ms;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+    virtual ble_error_t getAuthenticationTimeout(connection_handle_t handle, uint32_t *timeout_in_ms) {
+        (void) handle;
+        (void) timeout_in_ms;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
