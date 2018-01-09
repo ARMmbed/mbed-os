@@ -48,6 +48,7 @@
 #include "events/EventQueue.h"
 #include "lorastack/mac/LoRaMacMlme.h"
 #include "lorastack/mac/LoRaMacMcps.h"
+#include "lorastack/mac/LoRaMacMib.h"
 /*!
  * Maximum PHY layer payload size
  */
@@ -370,6 +371,12 @@ public:
      */
     void ResetMacParameters( void );
 
+    /*!
+     * \brief Opens up a continuous RX 2 window. This is used for
+     *        class c devices.
+     */
+    void OpenContinuousRx2Window(void);
+
 #if defined(LORAWAN_COMPLIANCE_TEST)
 public: // Test interface
 
@@ -579,12 +586,6 @@ private:
      */
     bool IsFPortAllowed( uint8_t fPort );
 
-    /*!
-     * \brief Opens up a continuous RX 2 window. This is used for
-     *        class c devices.
-     */
-    void OpenContinuousRx2Window(void);
-
     /**
      * Prototypes for ISR handlers
      */
@@ -625,6 +626,11 @@ private:
     LoRaMacMcps mcps;
 
     /**
+     * MCPS subsystem handle
+     */
+    LoRaMacMib mib;
+
+    /**
      * Timer subsystem handle
      */
     LoRaWANTimeHandler &_lora_time;
@@ -640,11 +646,6 @@ private:
     radio_events_t RadioEvents;
 
     /*!
-     * Multicast channels linked list
-     */
-    MulticastParams_t *MulticastChannels;
-
-    /*!
      * LoRaMac upper layer event functions
      */
     LoRaMacPrimitives_t *LoRaMacPrimitives;
@@ -653,13 +654,6 @@ private:
      * LoRaMac upper layer callback functions
      */
     LoRaMacCallback_t *LoRaMacCallbacks;
-
-    /*!
-     * Receive Window configurations for PHY layer
-     */
-    RxConfigParams_t RxWindow1Config;
-    RxConfigParams_t RxWindow2Config;
-
 };
 
 #endif // __LORAMAC_H__

@@ -2942,6 +2942,57 @@ typedef struct loramac_downlink_status {
 } loramac_downlink_status_t;
 
 /*!
+ * The parameter structure for the function RegionRxConfig.
+ */
+typedef struct sRxConfigParams
+{
+    /*!
+     * The RX channel.
+     */
+    uint8_t Channel;
+    /*!
+     * The RX datarate.
+     */
+    int8_t Datarate;
+    /*!
+     * The RX bandwidth.
+     */
+    uint8_t Bandwidth;
+    /*!
+     * The RX datarate offset.
+     */
+    int8_t DrOffset;
+    /*!
+     * The RX frequency.
+     */
+    uint32_t Frequency;
+    /*!
+     * The RX window timeout
+     */
+     uint32_t WindowTimeout;
+    /*!
+     * The RX window offset
+     */
+    int32_t WindowOffset;
+    /*!
+     * The downlink dwell time.
+     */
+    uint8_t DownlinkDwellTime;
+    /*!
+     * Set to true, if a repeater is supported.
+     */
+    bool RepeaterSupport;
+    /*!
+     * Set to true, if RX should be continuous.
+     */
+    bool RxContinuous;
+    /*!
+     * Sets the RX window.
+     */
+    LoRaMacRxSlot_t RxSlot;
+}RxConfigParams_t;
+
+/*!
  * \brief Timer object description
  */
 typedef struct TimerEvent_s
@@ -3227,6 +3278,17 @@ typedef struct {
      * LoRaMac default parameters
      */
     lora_mac_system_params_t def_sys_params;
+
+    /*!
+     * Receive Window configurations for PHY layer
+     */
+    RxConfigParams_t RxWindow1Config;
+    RxConfigParams_t RxWindow2Config;
+
+    /*!
+     * Multicast channels linked list
+     */
+    MulticastParams_t *MulticastChannels;
 
 } lora_mac_protocol_params;
 

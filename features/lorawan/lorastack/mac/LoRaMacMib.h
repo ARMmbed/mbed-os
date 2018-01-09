@@ -23,8 +23,8 @@ Copyright (c) 2017, Arm Limited and affiliates.
 SPDX-License-Identifier: BSD-3-Clause
 */
 
-#ifndef MBED_OS_LORAWAN_MAC_MCPS_H_
-#define MBED_OS_LORAWAN_MAC_MCPS_H_
+#ifndef MBED_OS_LORAWAN_MAC_MIB_H_
+#define MBED_OS_LORAWAN_MAC_MIB_H_
 
 #include "lorawan/system/lorawan_data_structures.h"
 #include "lorastack/phy/LoRaPHY.h"
@@ -32,7 +32,7 @@ SPDX-License-Identifier: BSD-3-Clause
 // forward declaration
 class LoRaMac;
 
-class LoRaMacMcps {
+class LoRaMacMib {
 
 public:
 
@@ -41,55 +41,49 @@ public:
      * Sets local handles to NULL. These handles will be set when the subsystem
      * is activated by the MAC layer.
      */
-    LoRaMacMcps();
+    LoRaMacMib();
 
     /** Destructor
      *
      * Does nothing
      */
-    ~LoRaMacMcps();
+    ~LoRaMacMib();
 
-    /** Activating MCPS subsystem
+    /** Activating MLME subsystem
      *
      * Stores pointers to MAC and PHY layer handles
      *
      * @param mac    pointer to MAC layer
      * @param phy    pointer to PHY layer
      */
-    void activate_mcps_subsystem(LoRaMac *mac, LoRaPHY *phy);
+    void activate_mib_subsystem(LoRaMac *mac, LoRaPHY *phy);
 
-    /** Sets up an MCPS Request
+    /** Sets up a MIB Request
      *
-     * Sets up an MCPS request and sends it through to the central MAC control.
-     * It also modifies or uses protocol information provided in the MAC
-     * protocol data structure.
+     * Used to configure MAC protocol parameters using appropriate
+     * key/value pair in the MIB request structure. Use this API to set
+     * any system wide configurable parameter exposed by MIB service.
      *
-     * @param mcpsRequest    pointer to MCPS request structure
+     * @param mibSet [in]    pointer to MIB request structure
+     * @param params         pointer to MAC protocol parameters which will be modified
+     *
+     * @return               LORA_MAC_STATUS_OK if everything goes well otherwise
+     *                       a negative error code is returned.
+     */
+    LoRaMacStatus_t set_request(MibRequestConfirm_t *mibSet, lora_mac_protocol_params *params);
+
+    /** Provides access to the given MIB parameter
+     *
+     * Used to extract information about system wide MAC protocol parameters
+     * which are exposed by MIB service.
+     *
+     * @param mibGet [out]   pointer to MIB request structure which will be filled in
      * @param params         pointer to MAC protocol parameters
      *
      * @return               LORA_MAC_STATUS_OK if everything goes well otherwise
      *                       a negative error code is returned.
      */
-    LoRaMacStatus_t set_request(McpsReq_t *mcpsRequest, lora_mac_protocol_params *params);
-
-    /** Grants access to MCPS confirmation data
-     *
-     * @return               a reference to MCPS confirm data structure
-     */
-    inline McpsConfirm_t& get_confirmation()
-    {
-        return confirmation;
-    }
-
-    /** Grants access to MCPS indication data
-     *
-     * @return               a reference to MCPS indication data structure
-     */
-    inline McpsIndication_t& get_indication()
-    {
-        return indication;
-    }
-
+    LoRaMacStatus_t get_request(MibRequestConfirm_t *mibGet, lora_mac_protocol_params *params);
 
 private:
 
@@ -98,16 +92,9 @@ private:
      */
     LoRaMac *_lora_mac;
     LoRaPHY *_lora_phy;
-
-    /**
-     * Structure to hold MCPS indication data.
-     */
-    McpsIndication_t indication;
-
-    /**
-     * Structure to hold MCPS confirm data.
-     */
-    McpsConfirm_t confirmation;
 };
 
-#endif /* MBED_OS_LORAWAN_MAC_MCPS_H_ */
+
+
+
+#endif /* MBED_OS_LORAWAN_MAC_MIB_H_ */
