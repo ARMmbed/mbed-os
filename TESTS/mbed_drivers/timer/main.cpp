@@ -22,6 +22,10 @@
 #include "rtos.h"
 #include "hal/us_ticker_api.h"
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 using namespace utest::v1;
 
 extern uint32_t SystemCoreClock;
