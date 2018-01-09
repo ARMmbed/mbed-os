@@ -22,26 +22,32 @@
 // Platform specific watchdog definitions
 #define LPO_CLOCK_FREQUENCY 1000
 #define MAX_PRESCALER       8
-#define MAX_TIMEOUT         0xFFFFFFFFULL
+#define MAX_TIMEOUT         0xFFFFFFFFUL
 
 // Number of decrements in the timeout register per millisecond
-#define TICKS_PER_MS (LPO_CLOCK_FREQUENCY / 1000)
+#define TICKS_PER_MS ((LPO_CLOCK_FREQUENCY) / 1000)
+
 // Maximum timeout that can be specified in milliseconds
-const uint64_t max_timeout_ms = ((MAX_TIMEOUT / TICKS_PER_MS) * MAX_PRESCALER);
+#define MAX_TIMEOUT_MS_UINT64 (1ULL * ((MAX_TIMEOUT) / (TICKS_PER_MS)) * (MAX_PRESCALER))
+#if (MAX_TIMEOUT_MS_UINT64 > UINT32_MAX)
+#define MAX_TIMEOUT_MS UINT32_MAX
+#else
+#define MAX_TIMEOUT_MS (MAX_TIMEOUT_MS_UINT64 & 0xFFFFFFFFUL)
+#endif
 
 // Maximum supported watchdog timeout for given prescaler value
-#define CALCULATE_MAX_TIMEOUT_MS(scale) \
-  ((MAX_TIMEOUT / TICKS_PER_MS) * scale)
+#define CALCULATE_MAX_TIMEOUT_MS_UINT64(scale) \
+  (1ULL * ((MAX_TIMEOUT) / (TICKS_PER_MS)) * (scale))
 
 
 static uint32_t calculate_prescaler_value(const uint32_t timeout_ms)
 {
-  if (timeout_ms > max_timeout_ms) {
+  if (timeout_ms > MAX_TIMEOUT_MS) {
     return 0;
   }
 
   for (uint32_t scale = 1; scale <= MAX_PRESCALER; ++scale) {
-    if (timeout_ms < CALCULATE_MAX_TIMEOUT_MS(scale)) {
+    if (timeout_ms <= CALCULATE_MAX_TIMEOUT_MS_UINT64(scale)) {
       return scale;
     }
   }
@@ -103,7 +109,7 @@ uint32_t hal_watchdog_get_reload_value(void)
 watchdog_features_t hal_watchdog_get_platform_features(void)
 {
   watchdog_features_t features;
-  features.max_timeout = max_timeout_ms;
+  features.max_timeout = MAX_TIMEOUT_MS;
   features.update_config = true;
   features.disable_watchdog = true;
 
