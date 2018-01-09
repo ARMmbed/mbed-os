@@ -499,6 +499,17 @@ class Config(object):
             return False
 
     @property
+    def sectors(self):
+        """Return a list of tuples of sector start,size"""
+        cache = Cache(False, False)
+        if self.target.device_name not in cache.index:
+            raise ConfigException("Bootloader not supported on this target: "
+                                  "targets.json `device_name` not found in "
+                                  "arm_pack_manager index.")
+        cmsis_part = cache.index[self.target.device_name]
+        return cmsis_part['sectors']
+
+    @property
     def regions(self):
         """Generate a list of regions from the config"""
         if not self.target.bootloader_supported:
@@ -526,7 +537,11 @@ class Config(object):
             rom_size = int(cmsis_part['memory']['IROM1']['size'], 0)
             rom_start = int(cmsis_part['memory']['IROM1']['start'], 0)
         except KeyError:
-            raise ConfigException("Not enough information in CMSIS packs to "
+            try:
+                rom_size = int(cmsis_part['memory']['PROGRAM_FLASH']['size'], 0)
+                rom_start = int(cmsis_part['memory']['PROGRAM_FLASH']['start'], 0)
+            except KeyError:
+                raise ConfigException("Not enough information in CMSIS packs to "
                                   "build a bootloader project")
         if  ('target.bootloader_img' in target_overrides or
              'target.restrict_size' in target_overrides):
@@ -567,6 +582,19 @@ class Config(object):
         if start > rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
+    @staticmethod
+    def _align_on_sector(address, sectors):
+        target_size = -1
+        target_start = -1
+        for (start, size) in sectors:
+            if address < start:
+                break
+            target_start = start
+            target_size = size
+        if (target_size < 0):
+            return target_size
+        sector_num = (address - target_start)//target_size
+        return target_start + (sector_num*target_size)
 
     @property
     def report(self):
