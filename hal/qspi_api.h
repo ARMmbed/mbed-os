@@ -33,7 +33,7 @@ extern "C" {
  * @{
  */
 
-/** QSPI HAL object declaration
+/** QSPI HAL object
  */
 typedef struct qspi_s qspi_t;
 
@@ -47,7 +47,7 @@ typedef enum qspi_bus_width {
     QSPI_CFG_BUS_QUAD,
 } qspi_bus_width_t;
 
-/** Address size
+/** Address size in bits
  */
 typedef enum qspi_address_size {
     QSPI_CFG_ADDR_SIZE_8,
@@ -56,7 +56,7 @@ typedef enum qspi_address_size {
     QSPI_CFG_ADDR_SIZE_32,
 } qspi_address_size_t;
 
-/** Alternative size
+/** Alternative size in bits
  */
 typedef enum qspi_alt_size {
     QSPI_CFG_ALT_SIZE_8,
@@ -65,9 +65,9 @@ typedef enum qspi_alt_size {
     QSPI_CFG_ALT_SIZE_32,
 } qspi_alt_size_t;
 
-/** QSPI command declaration
+/** QSPI command
  *
- * Defines a frame format
+ * Defines a frame format. It consists of instruction, address, alternative, dummy count and data
  */
 typedef struct qspi_command {
     struct {
@@ -148,35 +148,33 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz);
  * @param obj QSPI object
  * @param command QSPI command
  * @param data TX buffer
- * @param[in,out] in - length TX buffer length in bytes, out - number of bytes written
+ * @param[in,out] length in - TX buffer length in bytes, out - number of bytes written
  * @return QSPI_STATUS_OK if the data has been succesfully sent
            QSPI_STATUS_INVALID_PARAMETER if invalid parameter found
            QSPI_STATUS_ERROR otherwise
  */
 qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void *data, size_t *length);
 
-/** Send a command (and optionally data) and get the response. Can be used to send/receive device specific commands.
+/** Send a command (and optionally data) and get the response. Can be used to send/receive device specific commands
  *
  * @param obj QSPI object
  * @param command QSPI command
  * @param tx_data TX buffer
- * @param tx_length pointer to variable holding TX buffer length
- * @param rx_data TX buffer
- * @param rx_length pointer to variable holding TX buffer length
+ * @param tx_length TX buffer length in bytes
+ * @param rx_data RX buffer
+ * @param rx_length RX buffer length in bytes
  * @return QSPI_STATUS_OK if the data has been succesfully sent
            QSPI_STATUS_INVALID_PARAMETER if invalid parameter found
            QSPI_STATUS_ERROR otherwise
  */
-
 qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size); 
-
 
 /** Receive a command and block of data
  *
  * @param obj QSPI object
  * @param command QSPI command
  * @param data RX buffer
- * @param[in,out] in - length RX buffer length in bytes, out - number of bytes read
+ * @param[in,out] length in - RX buffer length in bytes, out - number of bytes read
  * @return QSPI_STATUS_OK if data has been succesfully received
            QSPI_STATUS_INVALID_PARAMETER if invalid parameter found
            QSPI_STATUS_ERROR otherwise
