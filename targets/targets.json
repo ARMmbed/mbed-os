@@ -1118,6 +1118,21 @@
             }
         }
     },
+    "WISE1530_F412RE": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM", "STM32F4", "Advantech_F412RE"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            }
+        },
+        "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC"],
+        "release_versions": ["5"],
+        "device_name": "STM32F412RE"
+    },
     "DISCO_F413ZH": {
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
