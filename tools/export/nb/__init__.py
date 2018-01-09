@@ -123,7 +123,8 @@ class GNUARMNetbeans(Exporter):
             raise NotSupportedException("No linker script found.")
 
     def create_jinja_ctx(self):
-
+        self.options = {}
+        flags = {}
         self.validate_resources()
         # Convert all Backslashes to Forward Slashes
         self.resources.win_to_unix()
@@ -141,8 +142,6 @@ class GNUARMNetbeans(Exporter):
 
         profile_ids = [s.lower() for s in profiles]
         profile_ids.sort()
-
-        self.options = {}
         for prof_id in profile_ids:
             # There are 4 categories of options, a category common too
             # all tools and a specific category for each of the tools.
@@ -231,7 +230,6 @@ class GNUARMNetbeans(Exporter):
             'ld_flags': self.flags['ld_flags'],
             'asm_flags': self.flags['asm_flags'],
             'common_flags': self.flags['common_flags'],
-            'target': self.target,
             'include_paths': include_paths,
             'forced_includes': forced_includes,
             'c_sources': c_sources,
@@ -305,11 +303,12 @@ class GNUARMNetbeans(Exporter):
 
     @staticmethod
     def get_netbeans_file_list(file_list):
-        output = []
+        cur_dir = ''
         prev_dir = ''
+        output = []
         folder_count = 1
         dir_depth = 0
-        for item in (file_list):
+        for item in file_list:
             cur_dir = os.path.dirname(item)
             dir_temp = os.path.normpath(cur_dir)
             prev_dir_temp = os.path.normpath(prev_dir)
