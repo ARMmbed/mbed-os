@@ -204,10 +204,10 @@ class GNUARMNetbeans(Exporter):
             sources.extend(getattr(self.resources, r_type))
 
         # Remove all leading './'
-        c_sources = [self.filter_dot(field) for field in getattr(self.resources, 'c_sources')]
-        cpp_sources = [self.filter_dot(field) for field in getattr(self.resources, 'cpp_sources')]
-        s_sources = [self.filter_dot(field) for field in getattr(self.resources, 's_sources')]
-        headers = [self.filter_dot(field) for field in getattr(self.resources, 'headers')]
+        c_sources = [self.filter_dot(field) for field in self.resources.c_sources]
+        cpp_sources = [self.filter_dot(field) for field in self.resources.cpp_sources]
+        s_sources = [self.filter_dot(field) for field in self.resources.s_sources]
+        headers = [self.filter_dot(field) for field in self.resources.headers]
         sources = [self.filter_dot(field) for field in sources]
         include_paths = [self.filter_dot(field) for field in self.resources.inc_dirs]
 
