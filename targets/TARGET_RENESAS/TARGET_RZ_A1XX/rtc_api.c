@@ -19,14 +19,10 @@
 
 #if DEVICE_RTC
 
-#define USE_RTCX1_CLK
-//#define USE_EXTAL_CLK
-//#define USE_RTCX3_CLK
-
 #include "rtc_api.h"
-#include "rtc_iodefine.h"
+#include "iodefine.h"
+#include "mbed_drv_cfg.h"
 #include "mbed_mktime.h"
-
 
 #define RCR1_VAL_ON      (0x08u) // AIE = 1
 #define RCR1_VAL_OFF     (0x00u)
@@ -138,6 +134,7 @@ void rtc_init(void) {
     // Dummy read
     dummy_read = RTC.RYRCNT;
     dummy_read = RTC.RYRCNT;
+    (void)dummy_read;
 
 }
 
@@ -188,6 +185,7 @@ void rtc_free(void) {
     // Dummy read
     dummy_read = RTC.RYRCNT;
     dummy_read = RTC.RYRCNT;
+    (void)dummy_read;
 
 }
 
@@ -365,6 +363,7 @@ void rtc_write(time_t t) {
 
         dummy_read  = (uint16_t)RTC.RCR2;
         dummy_read  = (uint16_t)RTC.RCR2;
+        (void)dummy_read;
     }
 }
 

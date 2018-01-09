@@ -21,102 +21,54 @@
 
 #include "serial_api.h"
 #include "cmsis.h"
-#include "pinmap.h"
+#include "PeripheralPins.h"
 #include "gpio_api.h"
+#include "RZ_A1_Init.h"
 
-#include "scif_iodefine.h"
-#include "cpg_iodefine.h"
+#include "iodefine.h"
+#include "mbed_drv_cfg.h"
 #include "mbed_critical.h"
 
 /******************************************************************************
  * INITIALIZATION
  ******************************************************************************/
-#define PCLK (66666666)     // Define the peripheral clock P1 frequency.
-
+#if defined(TARGET_RZA1H)
 #define UART_NUM    8
+#else
+#define UART_NUM    5
+#endif
 #define IRQ_NUM     4
 
 static void uart0_tx_irq(void);
-static void uart1_tx_irq(void);
-static void uart2_tx_irq(void);
-static void uart3_tx_irq(void);
-static void uart4_tx_irq(void);
-static void uart5_tx_irq(void);
-static void uart6_tx_irq(void);
-static void uart7_tx_irq(void);
 static void uart0_rx_irq(void);
-static void uart1_rx_irq(void);
-static void uart2_rx_irq(void);
-static void uart3_rx_irq(void);
-static void uart4_rx_irq(void);
-static void uart5_rx_irq(void);
-static void uart6_rx_irq(void);
-static void uart7_rx_irq(void);
 static void uart0_er_irq(void);
+static void uart1_tx_irq(void);
+static void uart1_rx_irq(void);
 static void uart1_er_irq(void);
+static void uart2_tx_irq(void);
+static void uart2_rx_irq(void);
 static void uart2_er_irq(void);
+static void uart3_tx_irq(void);
+static void uart3_rx_irq(void);
 static void uart3_er_irq(void);
+static void uart4_tx_irq(void);
+static void uart4_rx_irq(void);
 static void uart4_er_irq(void);
+#if defined(TARGET_RZA1H)
+static void uart5_tx_irq(void);
+static void uart5_rx_irq(void);
 static void uart5_er_irq(void);
+static void uart6_tx_irq(void);
+static void uart6_rx_irq(void);
 static void uart6_er_irq(void);
+static void uart7_tx_irq(void);
+static void uart7_rx_irq(void);
 static void uart7_er_irq(void);
+#endif
 
 static void serial_put_done(serial_t *obj);
 static uint8_t serial_available_buffer(serial_t *obj);
 static void serial_irq_err_set(serial_t *obj, uint32_t enable);
-
-static const PinMap PinMap_UART_TX[] = {
-    {P2_14 , UART0, 6},
-    {P2_5  , UART1, 6},
-    {P4_12 , UART1, 7},
-    {P6_3  , UART2, 7},
-    {P4_14 , UART2, 7},
-    {P5_3  , UART3, 5},
-    {P8_8  , UART3, 7},
-    {P5_0  , UART4, 5},
-    {P8_14 , UART4, 7},
-    {P8_13 , UART5, 5},
-    {P11_10, UART5, 3},
-    {P6_6  , UART5, 5},
-    {P5_6  , UART6, 5},
-    {P11_1 , UART6, 4},
-    {P7_4  , UART7, 4},
-    {NC    , NC   , 0}
-};
-
-static const PinMap PinMap_UART_RX[] = {
-    {P2_15 , UART0, 6},
-    {P2_6  , UART1, 6},
-    {P4_13 , UART1, 7},
-    {P6_2  , UART2, 7},
-    {P4_15 , UART2, 7},
-    {P5_4  , UART3, 5},
-    {P8_9  , UART3, 7},
-    {P5_1  , UART4, 5},
-    {P8_15 , UART4, 7},
-    {P8_11 , UART5, 5},
-    {P11_11, UART5, 3},
-    {P6_7  , UART5, 5},
-    {P5_7  , UART6, 5},
-    {P11_2 , UART6, 4},
-    {P7_5  , UART7, 4},
-    {NC    , NC   , 0}
-};
-
-static const PinMap PinMap_UART_CTS[] = {
-    {P2_3  , UART1, 6},
-    {P11_7 , UART5, 3},
-    {P7_6  , UART7, 4},
-    {NC    , NC   , 0}
-};
-static const PinMap PinMap_UART_RTS[] = {
-    {P2_7  , UART1, 6},
-    {P11_8 , UART5, 3},
-    {P7_7  , UART7, 4},
-    {NC    , NC   , 0}
-};
-
-
 
 static const struct st_scif *SCIF[] = SCIF_ADDRESS_LIST;
 static uart_irq_handler irq_handler;
@@ -127,7 +79,6 @@ serial_t stdio_uart;
 struct serial_global_data_s {
     uint32_t serial_irq_id;
     gpio_t sw_rts, sw_cts;
-    uint8_t rx_irq_set_flow, rx_irq_set_api;
     serial_t *tranferring_obj, *receiving_obj;
     uint32_t async_tx_callback, async_rx_callback;
     int event, wanted_rx_events;
@@ -141,9 +92,11 @@ static const IRQn_Type irq_set_tbl[UART_NUM][IRQ_NUM] = {
     {SCIFRXI2_IRQn, SCIFTXI2_IRQn, SCIFBRI2_IRQn, SCIFERI2_IRQn},
     {SCIFRXI3_IRQn, SCIFTXI3_IRQn, SCIFBRI3_IRQn, SCIFERI3_IRQn},
     {SCIFRXI4_IRQn, SCIFTXI4_IRQn, SCIFBRI4_IRQn, SCIFERI4_IRQn},
+#if defined(TARGET_RZA1H)
     {SCIFRXI5_IRQn, SCIFTXI5_IRQn, SCIFBRI5_IRQn, SCIFERI5_IRQn},
     {SCIFRXI6_IRQn, SCIFTXI6_IRQn, SCIFBRI6_IRQn, SCIFERI6_IRQn},
-    {SCIFRXI7_IRQn, SCIFTXI7_IRQn, SCIFBRI7_IRQn, SCIFERI7_IRQn}
+    {SCIFRXI7_IRQn, SCIFTXI7_IRQn, SCIFBRI7_IRQn, SCIFERI7_IRQn},
+#endif
 };
 
 static const IRQHandler hander_set_tbl[UART_NUM][IRQ_NUM] = {
@@ -152,9 +105,11 @@ static const IRQHandler hander_set_tbl[UART_NUM][IRQ_NUM] = {
     {uart2_rx_irq, uart2_tx_irq, uart2_er_irq, uart2_er_irq},
     {uart3_rx_irq, uart3_tx_irq, uart3_er_irq, uart3_er_irq},
     {uart4_rx_irq, uart4_tx_irq, uart4_er_irq, uart4_er_irq},
+#if defined(TARGET_RZA1H)
     {uart5_rx_irq, uart5_tx_irq, uart5_er_irq, uart5_er_irq},
     {uart6_rx_irq, uart6_tx_irq, uart6_er_irq, uart6_er_irq},
-    {uart7_rx_irq, uart7_tx_irq, uart7_er_irq, uart7_er_irq}
+    {uart7_rx_irq, uart7_tx_irq, uart7_er_irq, uart7_er_irq},
+#endif
 };
 
 static __IO uint16_t *SCSCR_MATCH[] = {
@@ -163,9 +118,11 @@ static __IO uint16_t *SCSCR_MATCH[] = {
     &SCSCR_2,
     &SCSCR_3,
     &SCSCR_4,
+#if defined(TARGET_RZA1H)
     &SCSCR_5,
     &SCSCR_6,
     &SCSCR_7,
+#endif
 };
 
 static __IO uint16_t *SCFSR_MATCH[] = {
@@ -174,9 +131,11 @@ static __IO uint16_t *SCFSR_MATCH[] = {
     &SCFSR_2,
     &SCFSR_3,
     &SCFSR_4,
+#if defined(TARGET_RZA1H)
     &SCFSR_5,
     &SCFSR_6,
     &SCFSR_7,
+#endif
 };
 
 
@@ -192,32 +151,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     obj->serial.uart = (struct st_scif *)SCIF[uart];
     // enable power
-    switch (uart) {
-    case UART0:
-        CPG.STBCR4 &= ~(1 <<  7);
-        break;
-    case UART1:
-        CPG.STBCR4 &= ~(1 <<  6);
-        break;
-    case UART2:
-        CPG.STBCR4 &= ~(1 <<  5);
-        break;
-    case UART3:
-        CPG.STBCR4 &= ~(1 <<  4);
-        break;
-    case UART4:
-        CPG.STBCR4 &= ~(1 <<  3);
-        break;
-    case UART5:
-        CPG.STBCR4 &= ~(1 <<  2);
-        break;
-    case UART6:
-        CPG.STBCR4 &= ~(1 <<  1);
-        break;
-    case UART7:
-        CPG.STBCR4 &= ~(1 <<  0);
-        break;
-    }
+    CPG.STBCR4 &= ~(1 << (7 - uart));
     dummy = CPG.STBCR4;
 
     /* ==== SCIF initial setting ==== */
@@ -227,7 +161,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
 
     /* ---- FIFO control register (SCFCR) setting ---- */
     /* Transmit FIFO reset & Receive FIFO data register reset */
-    obj->serial.uart->SCFCR = 0x0006;
+    obj->serial.uart->SCFCR = 0x0006u;
 
     /* ---- Serial status register (SCFSR) setting ---- */
     dummy = obj->serial.uart->SCFSR;
@@ -265,32 +199,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx) {
     pinmap_pinout(tx, PinMap_UART_TX);
     pinmap_pinout(rx, PinMap_UART_RX);
 
-    switch (uart) {
-    case UART0:
-        obj->serial.index = 0;
-        break;
-    case UART1:
-        obj->serial.index = 1;
-        break;
-    case UART2:
-        obj->serial.index = 2;
-        break;
-    case UART3:
-        obj->serial.index = 3;
-        break;
-    case UART4:
-        obj->serial.index = 4;
-        break;
-    case UART5:
-        obj->serial.index = 5;
-        break;
-    case UART6:
-        obj->serial.index = 6;
-        break;
-    case UART7:
-        obj->serial.index = 7;
-        break;
-    }
+    obj->serial.index = uart;
+
     uart_data[obj->serial.index].sw_rts.pin = NC;
     uart_data[obj->serial.index].sw_cts.pin = NC;
 
@@ -313,51 +223,43 @@ void serial_free(serial_t *obj) {
 // serial_baud
 // set the baud rate, taking in to account the current SystemFrequency
 void serial_baud(serial_t *obj, int baudrate) {
-    uint16_t DL;
+    uint32_t pclk_base;
+    uint32_t bgdm = 1;
+    uint32_t cks = 0;
+    uint32_t DL;
 
-    obj->serial.uart->SCSMR &= ~0x0003;
+    if (RZ_A1_IsClockMode0() == false) {
+        pclk_base = CM1_RENESAS_RZ_A1_P1_CLK;
+    } else {
+        pclk_base = CM0_RENESAS_RZ_A1_P1_CLK;
+    }
 
-    if (baudrate > 32552) {
-        obj->serial.uart->SCEMR = 0x0081;  // BGDM = 1, ABCS = 1
-        DL = PCLK / (8 * baudrate);
+    if (baudrate > (int)(pclk_base / 0x800)) {
+        obj->serial.uart->SCSMR &= ~0x0003;
+        obj->serial.uart->SCEMR  = 0x0081;  // BGDM = 1, ABCS = 1
+        DL = (pclk_base + (4 * baudrate)) / (8 * baudrate);  // Rounding
         if (DL > 0) {
             DL--;
         }
         obj->serial.uart->SCBRR = (uint8_t)DL;
-    } else if (baudrate > 16276) {
-        obj->serial.uart->SCEMR = 0x0080;  // BGDM = 1
-        obj->serial.uart->SCBRR = PCLK / (16 * baudrate) - 1;
-    } else if (baudrate > 8138) {
-        obj->serial.uart->SCEMR = 0x0000;
-        obj->serial.uart->SCBRR = PCLK / (32 * baudrate) - 1;
-    } else if (baudrate > 4169) {
-        obj->serial.uart->SCSMR |= 0x0001;
-        obj->serial.uart->SCEMR = 0x0080;  // BGDM = 1
-        obj->serial.uart->SCBRR = PCLK / (64 * baudrate) - 1;
-    } else if (baudrate > 2034) {
-        obj->serial.uart->SCSMR |= 0x0001;
-        obj->serial.uart->SCEMR = 0x0000;
-        obj->serial.uart->SCBRR = PCLK / (128 * baudrate) - 1;
-    } else if (baudrate > 1017) {
-        obj->serial.uart->SCSMR |= 0x0002;
-        obj->serial.uart->SCEMR = 0x0080;  // BGDM = 1
-        obj->serial.uart->SCBRR = PCLK / (256 * baudrate) - 1;
-    } else if (baudrate > 508) {
-        obj->serial.uart->SCSMR |= 0x0002;
-        obj->serial.uart->SCEMR = 0x0000;
-        obj->serial.uart->SCBRR = PCLK / (512 * baudrate) - 1;
-    } else if (baudrate > 254) {
+    } else if (baudrate < (int)(pclk_base / 0x80000)) {
         obj->serial.uart->SCSMR |= 0x0003;
-        obj->serial.uart->SCEMR = 0x0080;  // BGDM = 1
-        obj->serial.uart->SCBRR = PCLK / (1024 * baudrate) - 1;
-    } else if (baudrate > 127) {
-        obj->serial.uart->SCSMR |= 0x0003;
-        obj->serial.uart->SCEMR = 0x0000;
-        obj->serial.uart->SCBRR = PCLK / (2048 * baudrate) - 1;
+        obj->serial.uart->SCEMR  = 0x0000;
+        obj->serial.uart->SCBRR  = 0xFFu;
     } else {
-        obj->serial.uart->SCSMR |= 0x0003;
-        obj->serial.uart->SCEMR = 0x0000;
-        obj->serial.uart->SCBRR = 0xFFu;
+        DL = (pclk_base + (8 * baudrate)) / (16 * baudrate);  // Rounding
+        while (DL > 256) {
+            DL >>= 1;
+            if (bgdm == 1) {
+                bgdm = 0;
+            } else {
+                bgdm = 1;
+                cks++;
+            }
+        }
+        obj->serial.uart->SCSMR = (obj->serial.uart->SCSMR & ~0x0003) | (uint8_t)cks;
+        obj->serial.uart->SCEMR = (uint8_t)(bgdm << 7);
+        obj->serial.uart->SCBRR = (uint8_t)(DL - 1);
     }
 }
 
@@ -399,11 +301,10 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         break;
     }
 
-    obj->serial.uart->SCSMR = (obj->serial.uart->SCSMR & ~0x0078)
-                       | (data_bits       << 6)
-                       | (parity_enable   << 5)
-                       | (parity_select   << 4)
-                       | (stop_bits       << 3);
+    obj->serial.uart->SCSMR = data_bits   << 6
+                       | parity_enable    << 5
+                       | parity_select    << 4
+                       | stop_bits        << 3;
 }
 
 /******************************************************************************
@@ -538,89 +439,87 @@ static void uart_err_irq(IRQn_Type irq_num, uint32_t index) {
     }
 }
 
-/* TX handler */
-static void uart0_tx_irq(void)  {
+static void uart0_tx_irq(void) {
     uart_tx_irq(SCIFTXI0_IRQn, 0);
 }
-static void uart1_tx_irq(void)  {
-    uart_tx_irq(SCIFTXI1_IRQn, 1);
-}
-static void uart2_tx_irq(void)  {
-    uart_tx_irq(SCIFTXI2_IRQn, 2);
-}
-static void uart3_tx_irq(void)  {
-    uart_tx_irq(SCIFTXI3_IRQn, 3);
-}
-static void uart4_tx_irq(void)  {
-    uart_tx_irq(SCIFTXI4_IRQn, 4);
-}
-static void uart5_tx_irq(void)  {
-    uart_tx_irq(SCIFTXI5_IRQn, 5);
-}
-static void uart6_tx_irq(void)  {
-    uart_tx_irq(SCIFTXI6_IRQn, 6);
-}
-static void uart7_tx_irq(void)  {
-    uart_tx_irq(SCIFTXI7_IRQn, 7);
-}
-/* RX handler */
-static void uart0_rx_irq(void)  {
+static void uart0_rx_irq(void) {
     uart_rx_irq(SCIFRXI0_IRQn, 0);
 }
-static void uart1_rx_irq(void)  {
-    uart_rx_irq(SCIFRXI1_IRQn, 1);
-}
-static void uart2_rx_irq(void)  {
-    uart_rx_irq(SCIFRXI2_IRQn, 2);
-}
-static void uart3_rx_irq(void)  {
-    uart_rx_irq(SCIFRXI3_IRQn, 3);
-}
-static void uart4_rx_irq(void)  {
-    uart_rx_irq(SCIFRXI4_IRQn, 4);
-}
-static void uart5_rx_irq(void)  {
-    uart_rx_irq(SCIFRXI5_IRQn, 5);
-}
-static void uart6_rx_irq(void)  {
-    uart_rx_irq(SCIFRXI6_IRQn, 6);
-}
-static void uart7_rx_irq(void)  {
-    uart_rx_irq(SCIFRXI7_IRQn, 7);
-}
-/* Error handler */
-static void uart0_er_irq(void)
-{
+static void uart0_er_irq(void) {
     uart_err_irq(SCIFERI0_IRQn, 0);
 }
-static void uart1_er_irq(void)
-{
-    uart_err_irq(SCIFERI0_IRQn, 1);
+
+static void uart1_tx_irq(void) {
+    uart_tx_irq(SCIFTXI1_IRQn, 1);
 }
-static void uart2_er_irq(void)
-{
-    uart_err_irq(SCIFERI0_IRQn, 2);
+static void uart1_rx_irq(void) {
+    uart_rx_irq(SCIFRXI1_IRQn, 1);
 }
-static void uart3_er_irq(void)
-{
-    uart_err_irq(SCIFERI0_IRQn, 3);
+static void uart1_er_irq(void) {
+    uart_err_irq(SCIFERI1_IRQn, 1);
 }
-static void uart4_er_irq(void)
-{
-    uart_err_irq(SCIFERI0_IRQn, 4);
+
+static void uart2_tx_irq(void) {
+    uart_tx_irq(SCIFTXI2_IRQn, 2);
 }
-static void uart5_er_irq(void)
-{
-    uart_err_irq(SCIFERI0_IRQn, 5);
+static void uart2_rx_irq(void) {
+    uart_rx_irq(SCIFRXI2_IRQn, 2);
 }
-static void uart6_er_irq(void)
-{
-    uart_err_irq(SCIFERI0_IRQn, 6);
+static void uart2_er_irq(void) {
+    uart_err_irq(SCIFERI2_IRQn, 2);
 }
-static void uart7_er_irq(void)
-{
-    uart_err_irq(SCIFERI0_IRQn, 7);
+
+static void uart3_tx_irq(void) {
+    uart_tx_irq(SCIFTXI3_IRQn, 3);
 }
+static void uart3_rx_irq(void) {
+    uart_rx_irq(SCIFRXI3_IRQn, 3);
+}
+static void uart3_er_irq(void) {
+    uart_err_irq(SCIFERI3_IRQn, 3);
+}
+
+static void uart4_tx_irq(void) {
+    uart_tx_irq(SCIFTXI4_IRQn, 4);
+}
+static void uart4_rx_irq(void) {
+    uart_rx_irq(SCIFRXI4_IRQn, 4);
+}
+static void uart4_er_irq(void) {
+    uart_err_irq(SCIFERI4_IRQn, 4);
+}
+
+#if defined(TARGET_RZA1H)
+static void uart5_tx_irq(void) {
+    uart_tx_irq(SCIFTXI5_IRQn, 5);
+}
+static void uart5_rx_irq(void) {
+    uart_rx_irq(SCIFRXI5_IRQn, 5);
+}
+static void uart5_er_irq(void) {
+    uart_err_irq(SCIFERI5_IRQn, 5);
+}
+
+static void uart6_tx_irq(void) {
+    uart_tx_irq(SCIFTXI6_IRQn, 6);
+}
+static void uart6_rx_irq(void) {
+    uart_rx_irq(SCIFRXI6_IRQn, 6);
+}
+static void uart6_er_irq(void) {
+    uart_err_irq(SCIFERI6_IRQn, 6);
+}
+
+static void uart7_tx_irq(void) {
+    uart_tx_irq(SCIFTXI7_IRQn, 7);
+}
+static void uart7_rx_irq(void) {
+    uart_rx_irq(SCIFRXI7_IRQn, 7);
+}
+static void uart7_er_irq(void) {
+    uart_err_irq(SCIFERI7_IRQn, 7);
+}
+#endif
 
 void serial_irq_handler(serial_t *obj, uart_irq_handler handler, uint32_t id) {
     irq_handler = handler;
@@ -638,7 +537,13 @@ static void serial_irq_set_irq(IRQn_Type IRQn, IRQHandler handler, uint32_t enab
     }
 }
 
-static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enable) {
+static void serial_irq_err_set(serial_t *obj, uint32_t enable)
+{
+    serial_irq_set_irq(irq_set_tbl[obj->serial.index][2], hander_set_tbl[obj->serial.index][2], enable);
+    serial_irq_set_irq(irq_set_tbl[obj->serial.index][3], hander_set_tbl[obj->serial.index][3], enable);
+}
+
+void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
     IRQn_Type IRQn;
     IRQHandler handler;
 
@@ -648,24 +553,6 @@ static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enabl
     if ((obj->serial.index >= 0) && (obj->serial.index <= 7)) {
         serial_irq_set_irq(IRQn, handler, enable);
     }
-}
-
-static void serial_irq_err_set(serial_t *obj, uint32_t enable)
-{
-    serial_irq_set_irq(irq_set_tbl[obj->serial.index][2], hander_set_tbl[obj->serial.index][2], enable);
-    serial_irq_set_irq(irq_set_tbl[obj->serial.index][3], hander_set_tbl[obj->serial.index][3], enable);
-}
-
-void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
-    if (RxIrq == irq) {
-        uart_data[obj->serial.index].rx_irq_set_api = enable;
-    }
-    serial_irq_set_internal(obj, irq, enable);
-}
-
-static void serial_flow_irq_set(serial_t *obj, uint32_t enable) {
-    uart_data[obj->serial.index].rx_irq_set_flow = enable;
-    serial_irq_set_internal(obj, RxIrq, enable);
 }
 
 /******************************************************************************
@@ -729,8 +616,8 @@ int serial_writable(serial_t *obj) {
 void serial_clear(serial_t *obj) {
     core_util_critical_section_enter();
 
-    obj->serial.uart->SCFCR |=  0x06;          // TFRST = 1, RFRST = 1
-    obj->serial.uart->SCFCR &= ~0x06;          // TFRST = 0, RFRST = 0
+    obj->serial.uart->SCFCR |=  0x0006u;       // TFRST = 1, RFRST = 1
+    obj->serial.uart->SCFCR &= ~0x0006u;       // TFRST = 0, RFRST = 0
     obj->serial.uart->SCFSR &= ~0x0093u;       // ER, BRK, RDF, DR = 0
 
     core_util_critical_section_exit();
@@ -755,23 +642,23 @@ void serial_break_clear(serial_t *obj) {
     core_util_critical_section_exit();
 }
 
+#if DEVICE_SERIAL_FC
 void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, PinName txflow) {
     // determine the UART to use
 
-    serial_flow_irq_set(obj, 0);
-
     if (type == FlowControlRTSCTS) {
         core_util_critical_section_enter();
-        obj->serial.uart->SCFCR = 0x0008u;   // CTS/RTS enable
+        obj->serial.uart->SCFCR |= 0x0008u;   // CTS/RTS enable
         core_util_critical_section_exit();
         pinmap_pinout(rxflow, PinMap_UART_RTS);
         pinmap_pinout(txflow, PinMap_UART_CTS);
     } else {
         core_util_critical_section_enter();
-        obj->serial.uart->SCFCR = 0x0000u; // CTS/RTS diable
+        obj->serial.uart->SCFCR &= ~0x0008u; // CTS/RTS diable
         core_util_critical_section_exit();
     }
 }
+#endif
 
 static uint8_t serial_available_buffer(serial_t *obj)
 {
