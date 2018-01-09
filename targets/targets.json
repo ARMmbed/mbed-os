@@ -2430,7 +2430,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-A9",
         "program_cycle_s": 2,
-        "extra_labels": ["RENESAS", "MBRZA1H"],
+        "extra_labels": ["RENESAS", "RZ_A1XX", "RZA1H", "MBRZA1H"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "inherits": ["Target"],
         "device_has": ["ANALOGIN", "CAN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
@@ -2440,7 +2440,7 @@
     "VK_RZ_A1H": {
         "inherits": ["Target"],
         "core": "Cortex-A9",
-        "extra_labels": ["RENESAS", "VKRZA1H"],
+        "extra_labels": ["RENESAS", "RZ_A1XX", "RZA1H", "VKRZA1H"],
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "default_toolchain": "ARM",
         "program_cycle_s": 2,
