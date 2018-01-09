@@ -151,13 +151,3 @@ LoRaMacStatus_t LoRaMacMlme::set_request(MlmeReq_t *mlmeRequest,
 
     return LORAMAC_STATUS_PARAMETER_INVALID;
 }
-
-MlmeIndication_t& LoRaMacMlme::get_indication()
-{
-    return indication;
-}
-
-MlmeConfirm_t& LoRaMacMlme::get_confirmation()
-{
-    return confirmation;
-}

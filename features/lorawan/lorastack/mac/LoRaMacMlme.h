@@ -78,14 +78,19 @@ public:
      *
      * @return               a reference to MLME confirm data structure
      */
-    MlmeConfirm_t& get_confirmation();
+    inline MlmeConfirm_t& get_confirmation()
+    {
+        return confirmation;
+    }
 
     /** Grants access to MLME indication data
      *
      * @return               a reference to MLME indication data structure
      */
-    MlmeIndication_t& get_indication();
-
+    inline MlmeIndication_t& get_indication()
+    {
+        return indication;
+    }
 
 private:
 
