@@ -231,7 +231,7 @@ void LoRaMac::OnRadioTxDone( void )
     }
     else
     {
-        McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+        mcps.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_OK;
         mlme_confirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
 
         if( _params.LoRaMacFlags.Value == 0 )
@@ -263,7 +263,7 @@ void LoRaMac::OnRadioTxDone( void )
 
     if( _params.NodeAckRequested == false )
     {
-        McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+        mcps.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_OK;
         _params.ChannelsNbRepCounter++;
     }
 }
@@ -315,19 +315,19 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
 
     bool isMicOk = false;
 
-    McpsConfirm.AckReceived = false;
-    McpsIndication.Rssi = rssi;
-    McpsIndication.Snr = snr;
-    McpsIndication.RxSlot = _params.RxSlot;
-    McpsIndication.Port = 0;
-    McpsIndication.Multicast = 0;
-    McpsIndication.FramePending = 0;
-    McpsIndication.Buffer = NULL;
-    McpsIndication.BufferSize = 0;
-    McpsIndication.RxData = false;
-    McpsIndication.AckReceived = false;
-    McpsIndication.DownLinkCounter = 0;
-    McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
+    mcps.get_confirmation().AckReceived = false;
+    mcps.get_indication().Rssi = rssi;
+    mcps.get_indication().Snr = snr;
+    mcps.get_indication().RxSlot = _params.RxSlot;
+    mcps.get_indication().Port = 0;
+    mcps.get_indication().Multicast = 0;
+    mcps.get_indication().FramePending = 0;
+    mcps.get_indication().Buffer = NULL;
+    mcps.get_indication().BufferSize = 0;
+    mcps.get_indication().RxData = false;
+    mcps.get_indication().AckReceived = false;
+    mcps.get_indication().DownLinkCounter = 0;
+    mcps.get_indication().McpsIndication = MCPS_UNCONFIRMED;
 
     lora_phy->put_radio_to_sleep();
 
@@ -340,7 +340,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
         case FRAME_TYPE_JOIN_ACCEPT:
             if( _params.IsLoRaMacNetworkJoined == true )
             {
-                McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 PrepareRxDoneAbort( );
                 return;
             }
@@ -348,7 +348,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
             if (0 != LoRaMacJoinDecrypt( payload + 1, size - 1,
                                          _params.keys.LoRaMacAppKey,
                                          _params.LoRaMacRxPayload + 1 )) {
-                McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
+                mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                 return;
             }
 
@@ -358,7 +358,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                                             size - LORAMAC_MFR_LEN,
                                             _params.keys.LoRaMacAppKey,
                                             &mic )) {
-                McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
+                mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                 return;
             }
 
@@ -374,7 +374,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                                                   _params.LoRaMacDevNonce,
                                                   _params.keys.LoRaMacNwkSKey,
                                                   _params.keys.LoRaMacAppSKey )) {
-                    McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
+                    mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                     return;
                 }
 
@@ -420,7 +420,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
             {
                 // Check if the received payload size is valid
                 getPhy.UplinkDwellTime = _params.sys_params.DownlinkDwellTime;
-                getPhy.Datarate = McpsIndication.RxDatarate;
+                getPhy.Datarate = mcps.get_indication().RxDatarate;
                 getPhy.Attribute = PHY_MAX_PAYLOAD;
 
                 // Get the maximum payload length
@@ -431,7 +431,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                 phyParam = lora_phy->get_phy_params(&getPhy);
                 if( MAX( 0, ( int16_t )( ( int16_t )size - ( int16_t )LORA_MAC_FRMPAYLOAD_OVERHEAD ) ) > (int32_t)phyParam.Value )
                 {
-                    McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+                    mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                     PrepareRxDoneAbort( );
                     return;
                 }
@@ -459,7 +459,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                     if( multicast == 0 )
                     {
                         // We are not the destination of this frame.
-                        McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
+                        mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
                         PrepareRxDoneAbort( );
                         return;
                     }
@@ -513,22 +513,22 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                 phyParam = lora_phy->get_phy_params( &getPhy );
                 if( sequenceCounterDiff >= phyParam.Value )
                 {
-                    McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS;
-                    McpsIndication.DownLinkCounter = downLinkCounter;
+                    mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_TOO_MANY_FRAMES_LOSS;
+                    mcps.get_indication().DownLinkCounter = downLinkCounter;
                     PrepareRxDoneAbort( );
                     return;
                 }
 
                 if( isMicOk == true )
                 {
-                    McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-                    McpsIndication.Multicast = multicast;
-                    McpsIndication.FramePending = fCtrl.Bits.FPending;
-                    McpsIndication.Buffer = NULL;
-                    McpsIndication.BufferSize = 0;
-                    McpsIndication.DownLinkCounter = downLinkCounter;
+                    mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                    mcps.get_indication().Multicast = multicast;
+                    mcps.get_indication().FramePending = fCtrl.Bits.FPending;
+                    mcps.get_indication().Buffer = NULL;
+                    mcps.get_indication().BufferSize = 0;
+                    mcps.get_indication().DownLinkCounter = downLinkCounter;
 
-                    McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                    mcps.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_OK;
 
                     _params.AdrAckCounter = 0;
                     mac_commands.ClearRepeatBuffer();
@@ -536,13 +536,13 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                     // Update 32 bits downlink counter
                     if( multicast == 1 )
                     {
-                        McpsIndication.McpsIndication = MCPS_MULTICAST;
+                        mcps.get_indication().McpsIndication = MCPS_MULTICAST;
 
                         if( ( curMulticastParams->DownLinkCounter == downLinkCounter ) &&
                             ( curMulticastParams->DownLinkCounter != 0 ) )
                         {
-                            McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
-                            McpsIndication.DownLinkCounter = downLinkCounter;
+                            mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
+                            mcps.get_indication().DownLinkCounter = downLinkCounter;
                             PrepareRxDoneAbort( );
                             return;
                         }
@@ -553,7 +553,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                         if( macHdr.Bits.MType == FRAME_TYPE_DATA_CONFIRMED_DOWN )
                         {
                             _params.SrvAckRequested = true;
-                            McpsIndication.McpsIndication = MCPS_CONFIRMED;
+                            mcps.get_indication().McpsIndication = MCPS_CONFIRMED;
 
                             if( ( _params.DownLinkCounter == downLinkCounter ) &&
                                 ( _params.DownLinkCounter != 0 ) )
@@ -569,13 +569,13 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                         else
                         {
                             _params.SrvAckRequested = false;
-                            McpsIndication.McpsIndication = MCPS_UNCONFIRMED;
+                            mcps.get_indication().McpsIndication = MCPS_UNCONFIRMED;
 
                             if( ( _params.DownLinkCounter == downLinkCounter ) &&
                                 ( _params.DownLinkCounter != 0 ) )
                             {
-                                McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
-                                McpsIndication.DownLinkCounter = downLinkCounter;
+                                mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
+                                mcps.get_indication().DownLinkCounter = downLinkCounter;
                                 PrepareRxDoneAbort( );
                                 return;
                             }
@@ -587,7 +587,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                     // We need to reset the MacCommandsBufferIndex here, since we need
                     // to take retransmissions and repetitions into account. Error cases
                     // will be handled in function OnMacStateCheckTimerEvent.
-                    if( McpsConfirm.McpsRequest == MCPS_CONFIRMED )
+                    if( mcps.get_confirmation().McpsRequest == MCPS_CONFIRMED )
                     {
                         if( fCtrl.Bits.Ack == 1 )
                         {// Reset MacCommandsBufferIndex when we have received an ACK.
@@ -605,7 +605,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                         port = payload[appPayloadStartIndex++];
                         frameLen = ( size - 4 ) - appPayloadStartIndex;
 
-                        McpsIndication.Port = port;
+                        mcps.get_indication().Port = port;
 
                         if( port == 0 )
                         {
@@ -619,7 +619,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                                                                 DOWN_LINK,
                                                                 downLinkCounter,
                                                                 _params.LoRaMacRxPayload )) {
-                                    McpsIndication.Status =  LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
+                                    mcps.get_indication().Status =  LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                                 }
 
                                 // Decode frame payload MAC commands
@@ -649,14 +649,14 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                                                             DOWN_LINK,
                                                             downLinkCounter,
                                                             _params.LoRaMacRxPayload )) {
-                                McpsIndication.Status =  LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
+                                mcps.get_indication().Status =  LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                             }
 
                             if( skipIndication == false )
                             {
-                                McpsIndication.Buffer = _params.LoRaMacRxPayload;
-                                McpsIndication.BufferSize = frameLen;
-                                McpsIndication.RxData = true;
+                                mcps.get_indication().Buffer = _params.LoRaMacRxPayload;
+                                mcps.get_indication().BufferSize = frameLen;
+                                mcps.get_indication().RxData = true;
                             }
                         }
                     }
@@ -676,8 +676,8 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                         // Check if the frame is an acknowledgement
                         if( fCtrl.Bits.Ack == 1 )
                         {
-                            McpsConfirm.AckReceived = true;
-                            McpsIndication.AckReceived = true;
+                            mcps.get_confirmation().AckReceived = true;
+                            mcps.get_indication().AckReceived = true;
 
                             // Stop the AckTimeout timer as no more retransmissions
                             // are needed.
@@ -685,7 +685,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                         }
                         else
                         {
-                            McpsConfirm.AckReceived = false;
+                            mcps.get_confirmation().AckReceived = false;
 
                             if( _params.AckTimeoutRetriesCounter > _params.AckTimeoutRetries )
                             {
@@ -702,7 +702,7 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
                 }
                 else
                 {
-                    McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
+                    mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
 
                     PrepareRxDoneAbort( );
                     return;
@@ -713,16 +713,16 @@ void LoRaMac::OnRadioRxDone( uint8_t *payload, uint16_t size, int16_t rssi, int8
             {
                 memcpy( _params.LoRaMacRxPayload, &payload[pktHeaderLen], size );
 
-                McpsIndication.McpsIndication = MCPS_PROPRIETARY;
-                McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_OK;
-                McpsIndication.Buffer = _params.LoRaMacRxPayload;
-                McpsIndication.BufferSize = size - pktHeaderLen;
+                mcps.get_indication().McpsIndication = MCPS_PROPRIETARY;
+                mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_OK;
+                mcps.get_indication().Buffer = _params.LoRaMacRxPayload;
+                mcps.get_indication().BufferSize = size - pktHeaderLen;
 
                 _params.LoRaMacFlags.Bits.McpsInd = 1;
                 break;
             }
         default:
-            McpsIndication.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            mcps.get_indication().Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
             PrepareRxDoneAbort( );
             break;
     }
@@ -744,7 +744,7 @@ void LoRaMac::OnRadioTxTimeout( void )
         OpenContinuousRx2Window( );
     }
 
-    McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
+    mcps.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
 
     mlme.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
 
@@ -766,7 +766,7 @@ void LoRaMac::OnRadioRxError( void )
     {
         if( _params.NodeAckRequested == true )
         {
-            McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
+            mcps.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
         }
 
         mlme.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
@@ -781,7 +781,7 @@ void LoRaMac::OnRadioRxError( void )
     {
         if( _params.NodeAckRequested == true )
         {
-            McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
+            mcps.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
         }
 
         mlme.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
@@ -805,7 +805,7 @@ void LoRaMac::OnRadioRxTimeout( void )
     {
         if( _params.NodeAckRequested == true )
         {
-            McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
+            mcps.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
         }
         mlme.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
 
@@ -819,7 +819,7 @@ void LoRaMac::OnRadioRxTimeout( void )
     {
         if( _params.NodeAckRequested == true )
         {
-            McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
+            mcps.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
         }
 
         mlme.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
@@ -852,15 +852,15 @@ void LoRaMac::OnMacStateCheckTimerEvent( void )
 
         if( ( _params.LoRaMacFlags.Bits.MlmeReq == 1 ) || ( ( _params.LoRaMacFlags.Bits.McpsReq == 1 ) ) )
         {
-            if( ( McpsConfirm.Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT ) ||
+            if( ( mcps.get_confirmation().Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT ) ||
                 ( mlme.get_confirmation().Status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT ) )
             {
                 // Stop transmit cycle due to tx timeout.
                 _params.LoRaMacState &= ~LORAMAC_TX_RUNNING;
                 mac_commands.ClearCommandBuffer();
-                McpsConfirm.NbRetries = _params.AckTimeoutRetriesCounter;
-                McpsConfirm.AckReceived = false;
-                McpsConfirm.TxTimeOnAir = 0;
+                mcps.get_confirmation().NbRetries = _params.AckTimeoutRetriesCounter;
+                mcps.get_confirmation().AckReceived = false;
+                mcps.get_confirmation().TxTimeOnAir = 0;
                 txTimeout = true;
             }
         }
@@ -925,7 +925,7 @@ void LoRaMac::OnMacStateCheckTimerEvent( void )
 
         if( _params.LoRaMacFlags.Bits.McpsInd == 1 )
         {// Procedure if we received a frame
-            if( ( McpsConfirm.AckReceived == true ) ||
+            if( ( mcps.get_confirmation().AckReceived == true ) ||
                 ( _params.AckTimeoutRetriesCounter > _params.AckTimeoutRetries ) )
             {
                 _params.AckTimeoutRetry = false;
@@ -934,7 +934,7 @@ void LoRaMac::OnMacStateCheckTimerEvent( void )
                 {
                     _params.UpLinkCounter++;
                 }
-                McpsConfirm.NbRetries = _params.AckTimeoutRetriesCounter;
+                mcps.get_confirmation().NbRetries = _params.AckTimeoutRetriesCounter;
 
                 _params.LoRaMacState &= ~LORAMAC_TX_RUNNING;
             }
@@ -964,14 +964,14 @@ void LoRaMac::OnMacStateCheckTimerEvent( void )
                 else
                 {
                     // The DR is not applicable for the payload size
-                    McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR;
+                    mcps.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR;
 
                     mac_commands.ClearCommandBuffer();
                     _params.LoRaMacState &= ~LORAMAC_TX_RUNNING;
                     _params.NodeAckRequested = false;
-                    McpsConfirm.AckReceived = false;
-                    McpsConfirm.NbRetries = _params.AckTimeoutRetriesCounter;
-                    McpsConfirm.Datarate = _params.sys_params.ChannelsDatarate;
+                    mcps.get_confirmation().AckReceived = false;
+                    mcps.get_confirmation().NbRetries = _params.AckTimeoutRetriesCounter;
+                    mcps.get_confirmation().Datarate = _params.sys_params.ChannelsDatarate;
                     if( _params.IsUpLinkCounterFixed == false )
                     {
                         _params.UpLinkCounter++;
@@ -986,8 +986,8 @@ void LoRaMac::OnMacStateCheckTimerEvent( void )
 
                 mac_commands.ClearCommandBuffer();
                 _params.NodeAckRequested = false;
-                McpsConfirm.AckReceived = false;
-                McpsConfirm.NbRetries = _params.AckTimeoutRetriesCounter;
+                mcps.get_confirmation().AckReceived = false;
+                mcps.get_confirmation().NbRetries = _params.AckTimeoutRetriesCounter;
                 if( _params.IsUpLinkCounterFixed == false )
                 {
                     _params.UpLinkCounter++;
@@ -1005,7 +1005,7 @@ void LoRaMac::OnMacStateCheckTimerEvent( void )
         if( _params.LoRaMacFlags.Bits.McpsReq == 1 )
         {
             _params.LoRaMacFlags.Bits.McpsReq = 0;
-            LoRaMacPrimitives->MacMcpsConfirm( &McpsConfirm );
+            LoRaMacPrimitives->MacMcpsConfirm( &mcps.get_confirmation() );
         }
 
         if( _params.LoRaMacFlags.Bits.MlmeReq == 1 )
@@ -1041,7 +1041,7 @@ void LoRaMac::OnMacStateCheckTimerEvent( void )
         }
         if( _params.LoRaMacFlags.Bits.McpsIndSkip == 0 )
         {
-            LoRaMacPrimitives->MacMcpsIndication( &McpsIndication );
+            LoRaMacPrimitives->MacMcpsIndication( &mcps.get_indication() );
         }
         _params.LoRaMacFlags.Bits.McpsIndSkip = 0;
     }
@@ -1102,7 +1102,7 @@ void LoRaMac::OnRxWindow1TimerEvent( void )
         lora_phy->put_radio_to_standby();
     }
 
-    lora_phy->rx_config(&RxWindow1Config, ( int8_t* )&McpsIndication.RxDatarate);
+    lora_phy->rx_config(&RxWindow1Config, ( int8_t* )&mcps.get_indication().RxDatarate);
     RxWindowSetup( RxWindow1Config.RxContinuous, _params.sys_params.MaxRxWindow );
 }
 
@@ -1126,7 +1126,7 @@ void LoRaMac::OnRxWindow2TimerEvent( void )
         RxWindow2Config.RxContinuous = true;
     }
 
-    if(lora_phy->rx_config(&RxWindow2Config, ( int8_t* )&McpsIndication.RxDatarate) == true )
+    if(lora_phy->rx_config(&RxWindow2Config, ( int8_t* )&mcps.get_indication().RxDatarate) == true )
     {
         RxWindowSetup( RxWindow2Config.RxContinuous, _params.sys_params.MaxRxWindow );
         _params.RxSlot = RX_SLOT_WIN_2;
@@ -1214,9 +1214,9 @@ LoRaMacStatus_t LoRaMac::Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBu
     }
 
     // Reset confirm parameters
-    McpsConfirm.NbRetries = 0;
-    McpsConfirm.AckReceived = false;
-    McpsConfirm.UpLinkCounter = _params.UpLinkCounter;
+    mcps.get_confirmation().NbRetries = 0;
+    mcps.get_confirmation().AckReceived = false;
+    mcps.get_confirmation().UpLinkCounter = _params.UpLinkCounter;
 
     status = ScheduleTx( );
 
@@ -1617,12 +1617,12 @@ LoRaMacStatus_t LoRaMac::SendFrameOnChannel( uint8_t channel )
 
     mlme.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
-    McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-    McpsConfirm.Datarate = _params.sys_params.ChannelsDatarate;
-    McpsConfirm.TxPower = txPower;
+    mcps.get_confirmation().Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+    mcps.get_confirmation().Datarate = _params.sys_params.ChannelsDatarate;
+    mcps.get_confirmation().TxPower = txPower;
 
     // Store the time on air
-    McpsConfirm.TxTimeOnAir = _params.timers.TxTimeOnAir;
+    mcps.get_confirmation().TxTimeOnAir = _params.timers.TxTimeOnAir;
     mlme.get_confirmation().TxTimeOnAir = _params.timers.TxTimeOnAir;
 
     // Starts the MAC layer status check timer
@@ -1695,8 +1695,11 @@ LoRaMacStatus_t LoRaMac::LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
 
     lora_phy = phy;
 
-    // Activate Mlme subsystem
+    // Activate MLME subsystem
     mlme.activate_mlme_subsystem(this, lora_phy, &mac_commands);
+
+    // Activate MCPS subsystem
+    mcps.activate_mcps_subsystem(this, lora_phy);
 
     LoRaMacPrimitives = primitives;
     LoRaMacCallbacks = callbacks;
@@ -2486,119 +2489,7 @@ LoRaMacStatus_t LoRaMac::LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest )
 
 LoRaMacStatus_t LoRaMac::LoRaMacMcpsRequest( McpsReq_t *mcpsRequest )
 {
-    GetPhyParams_t getPhy;
-    PhyParam_t phyParam;
-    LoRaMacStatus_t status = LORAMAC_STATUS_SERVICE_UNKNOWN;
-    LoRaMacHeader_t macHdr;
-    VerifyParams_t verify;
-    uint8_t fPort = 0;
-    void *fBuffer;
-    uint16_t fBufferSize;
-    int8_t datarate = DR_0;
-    bool readyToSend = false;
-
-    if( mcpsRequest == NULL )
-    {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
-    }
-    if( _params.LoRaMacState != LORAMAC_IDLE )
-    {
-        return LORAMAC_STATUS_BUSY;
-    }
-
-    macHdr.Value = 0;
-    memset ( ( uint8_t* ) &McpsConfirm, 0, sizeof( McpsConfirm ) );
-    McpsConfirm.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-
-    // AckTimeoutRetriesCounter must be reset every time a new request (unconfirmed or confirmed) is performed.
-    _params.AckTimeoutRetriesCounter = 1;
-
-    switch( mcpsRequest->Type )
-    {
-        case MCPS_UNCONFIRMED:
-        {
-            readyToSend = true;
-            _params.AckTimeoutRetries = 1;
-
-            macHdr.Bits.MType = FRAME_TYPE_DATA_UNCONFIRMED_UP;
-            fPort = mcpsRequest->Req.Unconfirmed.fPort;
-            fBuffer = mcpsRequest->Req.Unconfirmed.fBuffer;
-            fBufferSize = mcpsRequest->Req.Unconfirmed.fBufferSize;
-            datarate = mcpsRequest->Req.Unconfirmed.Datarate;
-            break;
-        }
-        case MCPS_CONFIRMED:
-        {
-            readyToSend = true;
-            _params.AckTimeoutRetries = mcpsRequest->Req.Confirmed.NbTrials;
-
-            macHdr.Bits.MType = FRAME_TYPE_DATA_CONFIRMED_UP;
-            fPort = mcpsRequest->Req.Confirmed.fPort;
-            fBuffer = mcpsRequest->Req.Confirmed.fBuffer;
-            fBufferSize = mcpsRequest->Req.Confirmed.fBufferSize;
-            datarate = mcpsRequest->Req.Confirmed.Datarate;
-            break;
-        }
-        case MCPS_PROPRIETARY:
-        {
-            readyToSend = true;
-            _params.AckTimeoutRetries = 1;
-
-            macHdr.Bits.MType = FRAME_TYPE_PROPRIETARY;
-            fBuffer = mcpsRequest->Req.Proprietary.fBuffer;
-            fBufferSize = mcpsRequest->Req.Proprietary.fBufferSize;
-            datarate = mcpsRequest->Req.Proprietary.Datarate;
-            break;
-        }
-        default:
-            break;
-    }
-
-    // Filter fPorts
-    // TODO: Does not work with PROPRIETARY messages
-//    if( IsFPortAllowed( fPort ) == false )
-//    {
-//        return LORAMAC_STATUS_PARAMETER_INVALID;
-//    }
-
-    // Get the minimum possible datarate
-    getPhy.Attribute = PHY_MIN_TX_DR;
-    getPhy.UplinkDwellTime = _params.sys_params.UplinkDwellTime;
-    phyParam = lora_phy->get_phy_params( &getPhy );
-    // Apply the minimum possible datarate.
-    // Some regions have limitations for the minimum datarate.
-    datarate = MAX( datarate, phyParam.Value );
-
-    if( readyToSend == true )
-    {
-        if( _params.sys_params.AdrCtrlOn == false )
-        {
-            verify.DatarateParams.Datarate = datarate;
-            verify.DatarateParams.UplinkDwellTime = _params.sys_params.UplinkDwellTime;
-
-            if(lora_phy->verify(&verify, PHY_TX_DR) == true)
-            {
-                _params.sys_params.ChannelsDatarate = verify.DatarateParams.Datarate;
-            }
-            else
-            {
-                return LORAMAC_STATUS_PARAMETER_INVALID;
-            }
-        }
-
-        status = Send( &macHdr, fPort, fBuffer, fBufferSize );
-        if( status == LORAMAC_STATUS_OK )
-        {
-            McpsConfirm.McpsRequest = mcpsRequest->Type;
-            _params.LoRaMacFlags.Bits.McpsReq = 1;
-        }
-        else
-        {
-            _params.NodeAckRequested = false;
-        }
-    }
-
-    return status;
+    return mcps.set_request(mcpsRequest, &_params);
 }
 
 radio_events_t *LoRaMac::GetPhyEventHandlers()

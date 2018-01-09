@@ -47,6 +47,7 @@
 #include "lorastack/mac/LoRaMacCommand.h"
 #include "events/EventQueue.h"
 #include "lorastack/mac/LoRaMacMlme.h"
+#include "lorastack/mac/LoRaMacMcps.h"
 /*!
  * Maximum PHY layer payload size
  */
@@ -619,6 +620,11 @@ private:
     LoRaMacMlme mlme;
 
     /**
+     * MCPS subsystem handle
+     */
+    LoRaMacMcps mcps;
+
+    /**
      * Timer subsystem handle
      */
     LoRaWANTimeHandler &_lora_time;
@@ -647,16 +653,6 @@ private:
      * LoRaMac upper layer callback functions
      */
     LoRaMacCallback_t *LoRaMacCallbacks;
-
-    /*!
-     * Structure to hold MCPS indication data.
-     */
-    McpsIndication_t McpsIndication;
-
-    /*!
-     * Structure to hold MCPS confirm data.
-     */
-    McpsConfirm_t McpsConfirm;
 
     /*!
      * Receive Window configurations for PHY layer
