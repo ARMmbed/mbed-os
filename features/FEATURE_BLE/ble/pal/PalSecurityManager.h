@@ -149,15 +149,13 @@ public:
 
     /* Entry points for the underlying stack to report events back to the user. */
  public:
-    /* guaranteed to return valid pointer */
-    SecurityManagerEventHandler get_event_handler() {
-        return _event_handler;
+    SecurityManagerEventHandler& get_event_handler() {
+        /* guaranteed to be a valid pointer */
+        return *_event_handler;
     }
 
-    void setSecurityManagerEventHandler(SecurityManagerEventHandler* event_handler) {
-        if (event_handler) {
-            _event_handler = event_handler;
-        }
+    void set_event_handler(SecurityManagerEventHandler &event_handler) {
+        _event_handler = &event_handler;
     }
 
 private:

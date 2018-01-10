@@ -368,7 +368,7 @@ public:
 
     virtual void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
         if (handler) {
-            if (eventHandler != &defaultEventHandler) {
+            if (eventHandler && (eventHandler != &defaultEventHandler)) {
                 delete eventHandler;
             }
             eventHandler = handler;

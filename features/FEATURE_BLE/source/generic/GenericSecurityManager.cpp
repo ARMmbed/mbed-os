@@ -99,10 +99,14 @@ public:
         return pal.set_passkey(passkey);
     }
 
+    void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
+        SecurityManager::setSecurityManagerEventHandler(handler);
+        pal.set_event_handler(*handler);
+    }
+
 protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl) : pal(palImpl), saveStateEnabled(false) {
-        eventHandler = new SecurityManagerEventHandler();
-        pal.setSecurityManagerEventHandler(eventHandler);
+        pal.set_event_handler(defaultEventHandler);
     }
 
 public:
