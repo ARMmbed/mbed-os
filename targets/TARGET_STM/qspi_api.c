@@ -142,8 +142,10 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     obj->handle.Init.FlashSize = POSITION_VAL(QSPI_FLASH_SIZE_DEFAULT) - 1;
     obj->handle.Init.ChipSelectHighTime = QSPI_CS_HIGH_TIME_5_CYCLE;
     obj->handle.Init.ClockMode = QSPI_CLOCK_MODE_0;
+#ifdef QSPI_DUALFLASH_ENABLE
     obj->handle.Init.FlashID = QSPI_FLASH_ID_1;
     obj->handle.Init.DualFlash = QSPI_DUALFLASH_DISABLE;
+#endif
 
     obj->handle.Init.ClockMode = mode == 0 ? QSPI_CLOCK_MODE_0 : QSPI_CLOCK_MODE_3;
 
