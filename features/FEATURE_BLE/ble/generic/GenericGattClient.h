@@ -137,6 +137,7 @@ private:
     pal::GattClient* const _pal_client;
     ServiceDiscovery::TerminationCallback_t _termination_callback;
     mutable ProcedureControlBlock* control_blocks;
+    bool _is_reseting;
 };
 
 }
