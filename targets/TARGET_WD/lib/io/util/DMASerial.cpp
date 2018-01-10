@@ -6,7 +6,7 @@
  */ 
 
 #include "DMASerial.h"
-extern DMA_HandleTypeDef DmaRxHandle[8];
+extern UART_HandleTypeDef uart_handlers[8];
 
 DMASerial::DMASerial(PinName tx, PinName rx, int baud)
 	: RawSerial(tx, rx, baud),
@@ -78,8 +78,8 @@ int DMASerial::startRead(uint8_t *buffer, int buffer_size) {
 
 void DMASerial::_dma_rx_capture(int evt) {
 	
-	DMA_HandleTypeDef * hdma = &DmaRxHandle[this->_serial.serial.index];
-	UART_HandleTypeDef * huart = (UART_HandleTypeDef *) hdma->Parent;
+	UART_HandleTypeDef * huart = &uart_handlers[this->_serial.serial.index];
+	DMA_HandleTypeDef * hdma = (DMA_HandleTypeDef *) huart->hdmarx;
 	
 	if (evt & SERIAL_EVENT_RX_IDLE) {	// IDLE line interrupt processing
 		
