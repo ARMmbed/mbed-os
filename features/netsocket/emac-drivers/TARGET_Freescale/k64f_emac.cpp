@@ -488,7 +488,7 @@ void K64F_EMAC::phy_task()
     PHY_GetLinkSpeedDuplex(ENET, phyAddr, &crt_state.speed, &crt_state.duplex);
 
     // Compare with previous state
-    if (crt_state.connected != prev_state.connected) {
+    if (crt_state.connected != prev_state.connected && emac_link_state_cb) {
         emac_link_state_cb(crt_state.connected);
     }
 
