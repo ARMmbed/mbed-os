@@ -55,7 +55,7 @@ enum procedure_type_t {
 /*
  * Base class for a procedure control block
  */
-struct procedure_control_block_t {
+struct GenericGattClient::procedure_control_block_t {
 	/*
 	 * Base constructor for procedure control block.
 	 */
@@ -83,7 +83,7 @@ struct procedure_control_block_t {
 /*
  * Procedure control block for the discovery process.
  */
-struct discovery_control_block_t : public procedure_control_block_t {
+struct GenericGattClient::discovery_control_block_t : public procedure_control_block_t {
 	discovery_control_block_t(
 		Gap::Handle_t handle,
 		ServiceDiscovery::ServiceCallback_t service_callback,
@@ -409,7 +409,7 @@ struct discovery_control_block_t : public procedure_control_block_t {
 };
 
 
-struct read_control_block_t : public procedure_control_block_t {
+struct GenericGattClient::read_control_block_t : public procedure_control_block_t {
 	read_control_block_t(
 		Gap::Handle_t connection_handle, uint16_t attribute_handle, uint16_t offset
 	) : procedure_control_block_t(READ_PROCEDURE, connection_handle),
@@ -593,7 +593,7 @@ struct read_control_block_t : public procedure_control_block_t {
 /*
  * Control block for the write process
  */
-struct write_control_block_t : public procedure_control_block_t {
+struct GenericGattClient::write_control_block_t : public procedure_control_block_t {
 	write_control_block_t(
 		Gap::Handle_t connection_handle, uint16_t attribute_handle,
 		uint8_t* data, uint16_t len
@@ -785,7 +785,7 @@ struct write_control_block_t : public procedure_control_block_t {
 /*
  * Control block for the descriptor discovery process
  */
-struct descriptor_discovery_control_block_t : public procedure_control_block_t {
+struct GenericGattClient::descriptor_discovery_control_block_t : public procedure_control_block_t {
 	descriptor_discovery_control_block_t(
 		const DiscoveredCharacteristic& characteristic,
 		const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
@@ -1278,7 +1278,7 @@ void GenericGattClient::on_transaction_timeout(connection_handle_t connection) {
 	pcb->handle_timeout_error(this);
 }
 
-procedure_control_block_t* GenericGattClient::get_control_block(Gap::Handle_t connection) {
+GenericGattClient::procedure_control_block_t* GenericGattClient::get_control_block(Gap::Handle_t connection) {
 	procedure_control_block_t* it = control_blocks;
 	while (it && it->connection_handle != connection) {
 		it = it->next;
@@ -1286,7 +1286,7 @@ procedure_control_block_t* GenericGattClient::get_control_block(Gap::Handle_t co
 	return it;
 }
 
-const procedure_control_block_t* GenericGattClient::get_control_block(Gap::Handle_t connection) const {
+const GenericGattClient::procedure_control_block_t* GenericGattClient::get_control_block(Gap::Handle_t connection) const {
 	procedure_control_block_t* it = control_blocks;
 	while (it && it->connection_handle != connection) {
 		it = it->next;
