@@ -115,16 +115,16 @@ public:
     virtual ble_error_t reset(void);
 
 private:
-    struct procedure_control_block_t;
-    struct discovery_control_block_t;
-    struct read_control_block_t;
-    struct write_control_block_t;
-    struct descriptor_discovery_control_block_t;
+    struct ProcedureControlBlock;
+    struct DiscoveryControlBlock;
+    struct ReadControlBlock;
+    struct WriteControlBlock;
+    struct DescriptorDiscoveryControlBlock;
 
-    procedure_control_block_t* get_control_block(Gap::Handle_t connection);
-    const procedure_control_block_t* get_control_block(Gap::Handle_t connection) const;
-    void insert_control_block(procedure_control_block_t* cb) const;
-    void remove_control_block(procedure_control_block_t* cb) const;
+    ProcedureControlBlock* get_control_block(Gap::Handle_t connection);
+    const ProcedureControlBlock* get_control_block(Gap::Handle_t connection) const;
+    void insert_control_block(ProcedureControlBlock* cb) const;
+    void remove_control_block(ProcedureControlBlock* cb) const;
 
     void on_termination(Gap::Handle_t connection_handle);
     void on_server_message_received(connection_handle_t, const pal::AttServerMessage&);
@@ -136,7 +136,7 @@ private:
 
     pal::GattClient* const _pal_client;
     ServiceDiscovery::TerminationCallback_t _termination_callback;
-    mutable procedure_control_block_t* control_blocks;
+    mutable ProcedureControlBlock* control_blocks;
 };
 
 }
