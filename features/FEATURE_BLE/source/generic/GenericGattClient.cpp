@@ -55,14 +55,14 @@ enum procedure_type_t {
 /*
  * Base class for a procedure control block
  */
-struct GenericGattClient::procedure_control_block_t {
+struct GenericGattClient::ProcedureControlBlock {
 	/*
 	 * Base constructor for procedure control block.
 	 */
-	procedure_control_block_t(procedure_type_t type, Gap::Handle_t handle) :
+	ProcedureControlBlock(procedure_type_t type, Gap::Handle_t handle) :
 		type(type), connection_handle(handle), next(NULL) { }
 
-	virtual ~procedure_control_block_t() { }
+	virtual ~ProcedureControlBlock() { }
 
 	/*
 	 * Entry point of the control block stack machine.
@@ -76,21 +76,21 @@ struct GenericGattClient::procedure_control_block_t {
 
 	procedure_type_t type;
 	Gap::Handle_t connection_handle;
-	procedure_control_block_t* next;
+	ProcedureControlBlock* next;
 };
 
 
 /*
  * Procedure control block for the discovery process.
  */
-struct GenericGattClient::discovery_control_block_t : public procedure_control_block_t {
-	discovery_control_block_t(
+struct GenericGattClient::DiscoveryControlBlock : public ProcedureControlBlock {
+	DiscoveryControlBlock(
 		Gap::Handle_t handle,
 		ServiceDiscovery::ServiceCallback_t service_callback,
 		ServiceDiscovery::CharacteristicCallback_t characteristic_callback,
 		UUID matching_service_uuid,
 		UUID matching_characteristic_uuid
-	) : procedure_control_block_t(COMPLETE_DISCOVERY_PROCEDURE, handle),
+	) : ProcedureControlBlock(COMPLETE_DISCOVERY_PROCEDURE, handle),
 		service_callback(service_callback),
 		characteristic_callback(characteristic_callback),
 		matching_service_uuid(matching_service_uuid),
@@ -99,7 +99,7 @@ struct GenericGattClient::discovery_control_block_t : public procedure_control_b
 		done(false) {
 	}
 
-	virtual ~discovery_control_block_t() {
+	virtual ~DiscoveryControlBlock() {
 		while(services_discovered) {
 			service_t* tmp = services_discovered->next;
 			delete services_discovered;
@@ -409,15 +409,15 @@ struct GenericGattClient::discovery_control_block_t : public procedure_control_b
 };
 
 
-struct GenericGattClient::read_control_block_t : public procedure_control_block_t {
-	read_control_block_t(
+struct GenericGattClient::ReadControlBlock : public ProcedureControlBlock {
+	ReadControlBlock(
 		Gap::Handle_t connection_handle, uint16_t attribute_handle, uint16_t offset
-	) : procedure_control_block_t(READ_PROCEDURE, connection_handle),
+	) : ProcedureControlBlock(READ_PROCEDURE, connection_handle),
 		attribute_handle(attribute_handle),
 		offset(offset), current_offset(offset), data(NULL) {
 	}
 
-	virtual ~read_control_block_t() {
+	virtual ~ReadControlBlock() {
 		if (data != NULL) {
 			free(data);
 		}
@@ -593,16 +593,16 @@ struct GenericGattClient::read_control_block_t : public procedure_control_block_
 /*
  * Control block for the write process
  */
-struct GenericGattClient::write_control_block_t : public procedure_control_block_t {
-	write_control_block_t(
+struct GenericGattClient::WriteControlBlock : public ProcedureControlBlock {
+	WriteControlBlock(
 		Gap::Handle_t connection_handle, uint16_t attribute_handle,
 		uint8_t* data, uint16_t len
-	) : procedure_control_block_t(WRITE_PROCEDURE, connection_handle),
+	) : ProcedureControlBlock(WRITE_PROCEDURE, connection_handle),
 		attribute_handle(attribute_handle), len(len), offset(0), data(data),
 		prepare_success(false), status(BLE_ERROR_UNSPECIFIED), error_code(0xFF) {
 	}
 
-	virtual ~write_control_block_t() {
+	virtual ~WriteControlBlock() {
 		free(data);
 	}
 
@@ -785,12 +785,12 @@ struct GenericGattClient::write_control_block_t : public procedure_control_block
 /*
  * Control block for the descriptor discovery process
  */
-struct GenericGattClient::descriptor_discovery_control_block_t : public procedure_control_block_t {
-	descriptor_discovery_control_block_t(
+struct GenericGattClient::DescriptorDiscoveryControlBlock : public ProcedureControlBlock {
+	DescriptorDiscoveryControlBlock(
 		const DiscoveredCharacteristic& characteristic,
 		const CharacteristicDescriptorDiscovery::DiscoveryCallback_t& discoveryCallback,
 		const CharacteristicDescriptorDiscovery::TerminationCallback_t& terminationCallback
-	) : procedure_control_block_t(DESCRIPTOR_DISCOVERY_PROCEDURE, characteristic.getConnectionHandle()),
+	) : ProcedureControlBlock(DESCRIPTOR_DISCOVERY_PROCEDURE, characteristic.getConnectionHandle()),
 		characteristic(characteristic),
 		discovery_cb(discoveryCallback),
 		termination_cb(terminationCallback),
@@ -798,7 +798,7 @@ struct GenericGattClient::descriptor_discovery_control_block_t : public procedur
 		done(false) {
 	}
 
-	virtual ~descriptor_discovery_control_block_t() { }
+	virtual ~DescriptorDiscoveryControlBlock() { }
 
 	ble_error_t start(GenericGattClient* client) {
 		return client->_pal_client->discover_characteristics_descriptors(
@@ -919,7 +919,7 @@ ble_error_t GenericGattClient::launchServiceDiscovery(
 		return BLE_ERROR_NONE;
 	}
 
-	discovery_control_block_t* discovery_pcb = new(std::nothrow) discovery_control_block_t(
+	DiscoveryControlBlock* discovery_pcb = new(std::nothrow) DiscoveryControlBlock(
 		connection_handle,
 		service_callback,
 		characteristic_callback,
@@ -959,7 +959,7 @@ ble_error_t GenericGattClient::launchServiceDiscovery(
 }
 
 bool GenericGattClient::isServiceDiscoveryActive() const {
-	procedure_control_block_t* pcb = control_blocks;
+	ProcedureControlBlock* pcb = control_blocks;
 
 	while (pcb) {
 		if (pcb->type == COMPLETE_DISCOVERY_PROCEDURE) {
@@ -973,10 +973,10 @@ bool GenericGattClient::isServiceDiscoveryActive() const {
 
 void GenericGattClient::terminateServiceDiscovery()
 {
-	procedure_control_block_t* pcb = control_blocks;
+	ProcedureControlBlock* pcb = control_blocks;
 	while (pcb) {
 		if (pcb->type == COMPLETE_DISCOVERY_PROCEDURE) {
-			static_cast<discovery_control_block_t*>(pcb)->done = true;
+			static_cast<DiscoveryControlBlock*>(pcb)->done = true;
 		}
 		pcb = pcb->next;
 	}
@@ -992,7 +992,7 @@ ble_error_t GenericGattClient::read(
 		return BLE_ERROR_INVALID_STATE;
 	}
 
-	read_control_block_t* read_pcb = new(std::nothrow) read_control_block_t(
+	ReadControlBlock* read_pcb = new(std::nothrow) ReadControlBlock(
 		connection_handle,
 		attribute_handle,
 		offset
@@ -1058,7 +1058,7 @@ ble_error_t GenericGattClient::write(
 			memcpy(data, value, length);
 		}
 
-		write_control_block_t* write_pcb = new(std::nothrow) write_control_block_t(
+		WriteControlBlock* write_pcb = new(std::nothrow) WriteControlBlock(
 			connection_handle,
 			attribute_handle,
 			data,
@@ -1126,8 +1126,8 @@ ble_error_t GenericGattClient::discoverCharacteristicDescriptors(
 		return BLE_ERROR_NONE;
 	}
 
-	descriptor_discovery_control_block_t* discovery_pcb =
-		new(std::nothrow) descriptor_discovery_control_block_t(
+	DescriptorDiscoveryControlBlock* discovery_pcb =
+		new(std::nothrow) DescriptorDiscoveryControlBlock(
 			characteristic,
 			discoveryCallback,
 			terminationCallback
@@ -1152,11 +1152,11 @@ ble_error_t GenericGattClient::discoverCharacteristicDescriptors(
 bool GenericGattClient::isCharacteristicDescriptorDiscoveryActive(
 	const DiscoveredCharacteristic& characteristic
 ) const {
-	procedure_control_block_t* pcb = control_blocks;
+	ProcedureControlBlock* pcb = control_blocks;
 
 	while (pcb) {
 		if (pcb->type == DESCRIPTOR_DISCOVERY_PROCEDURE &&
-			static_cast<descriptor_discovery_control_block_t*>(pcb)->characteristic == characteristic) {
+			static_cast<DescriptorDiscoveryControlBlock*>(pcb)->characteristic == characteristic) {
 			return true;
 		}
 		pcb = pcb->next;
@@ -1168,12 +1168,12 @@ bool GenericGattClient::isCharacteristicDescriptorDiscoveryActive(
 void GenericGattClient::terminateCharacteristicDescriptorDiscovery(
 	const DiscoveredCharacteristic& characteristic
 ) {
-	procedure_control_block_t* pcb = control_blocks;
+	ProcedureControlBlock* pcb = control_blocks;
 
 	while (pcb) {
 		if (pcb->type == DESCRIPTOR_DISCOVERY_PROCEDURE) {
-			descriptor_discovery_control_block_t* dpcb =
-				static_cast<descriptor_discovery_control_block_t*>(pcb);
+			DescriptorDiscoveryControlBlock* dpcb =
+				static_cast<DescriptorDiscoveryControlBlock*>(pcb);
 			if (dpcb->characteristic == characteristic) {
 				dpcb->done = true;
 				return;
@@ -1230,7 +1230,7 @@ void GenericGattClient::on_server_response(
 	connection_handle_t connection,
 	const AttServerMessage& message
 ) {
-	procedure_control_block_t* pcb = get_control_block(connection);
+	ProcedureControlBlock* pcb = get_control_block(connection);
 	if (pcb == NULL) {
 		return;
 	}
@@ -1270,7 +1270,7 @@ void GenericGattClient::on_server_event(connection_handle_t connection, const At
 }
 
 void GenericGattClient::on_transaction_timeout(connection_handle_t connection) {
-	procedure_control_block_t* pcb = get_control_block(connection);
+	ProcedureControlBlock* pcb = get_control_block(connection);
 	if (pcb == NULL) {
 		return;
 	}
@@ -1278,36 +1278,36 @@ void GenericGattClient::on_transaction_timeout(connection_handle_t connection) {
 	pcb->handle_timeout_error(this);
 }
 
-GenericGattClient::procedure_control_block_t* GenericGattClient::get_control_block(Gap::Handle_t connection) {
-	procedure_control_block_t* it = control_blocks;
+GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_block(Gap::Handle_t connection) {
+	ProcedureControlBlock* it = control_blocks;
 	while (it && it->connection_handle != connection) {
 		it = it->next;
 	}
 	return it;
 }
 
-const GenericGattClient::procedure_control_block_t* GenericGattClient::get_control_block(Gap::Handle_t connection) const {
-	procedure_control_block_t* it = control_blocks;
+const GenericGattClient::ProcedureControlBlock* GenericGattClient::get_control_block(Gap::Handle_t connection) const {
+	ProcedureControlBlock* it = control_blocks;
 	while (it && it->connection_handle != connection) {
 		it = it->next;
 	}
 	return it;
 }
 
-void GenericGattClient::insert_control_block(procedure_control_block_t* cb) const {
+void GenericGattClient::insert_control_block(ProcedureControlBlock* cb) const {
 	if (control_blocks == NULL) {
 		control_blocks = cb;
 		return;
 	}
 
-	procedure_control_block_t* current = control_blocks;
+	ProcedureControlBlock* current = control_blocks;
 	while (current->next) {
 		current = current->next;
 	}
 	current->next = cb;
 }
 
-void GenericGattClient::remove_control_block(procedure_control_block_t* cb) const {
+void GenericGattClient::remove_control_block(ProcedureControlBlock* cb) const {
 	if (control_blocks == NULL) {
 		return;
 	}
@@ -1317,7 +1317,7 @@ void GenericGattClient::remove_control_block(procedure_control_block_t* cb) cons
 		return;
 	}
 
-	procedure_control_block_t* current = control_blocks;
+	ProcedureControlBlock* current = control_blocks;
 	while (current->next && current->next != cb) {
 		current = current->next;
 	}
