@@ -123,6 +123,12 @@
              "SPI_CLK":  "P8_3",
              "SPI_CS":   "P8_4"
         },
+        "GR_LYCHEE": {
+             "SPI_MOSI": "P5_6",
+             "SPI_MISO": "P5_7",
+             "SPI_CLK":  "P5_4",
+             "SPI_CS":   "P5_5"
+        },
         "HEXIWEAR": {
              "SPI_MOSI": "PTE3",
              "SPI_MISO": "PTE1",
