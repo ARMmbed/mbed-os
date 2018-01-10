@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    system_stm32f4xx.h
   * @author  MCD Application Team
-  * @version V2.6.1
-  * @date    14-February-2017
   * @brief   CMSIS Cortex-M4 Device System Source File for STM32F4xx devices.       
   ******************************************************************************  
   * @attention
@@ -75,8 +73,9 @@
   */
 extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
 
-extern const uint8_t APBAHBPrescTable[16];	/*!< AHB APB prescaler table values */
-	 
+extern const uint8_t  AHBPrescTable[16];    /*!< AHB prescalers table values */
+extern const uint8_t  APBPrescTable[8];     /*!< APB prescalers table values */
+
 /**
   * @}
   */
