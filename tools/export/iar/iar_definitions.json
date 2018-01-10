@@ -77,6 +77,9 @@
     "MKW41Z512xxx4": {
         "OGChipSelectEditMenu": "MKW41Z512xxx4\tNXP MKW41Z512xxx4"
     },
+    "MIMXRT1052xxx6A": {
+        "OGChipSelectEditMenu": "MIMXRT1052xxx6A\tNXP MIMXRT1052xxx6A"
+    },
     "LPC54114J256BD64": {
         "OGChipSelectEditMenu": "LPC54114J256_M4\tNXP LPC54114J256_M4"
     },
