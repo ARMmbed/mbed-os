@@ -52,8 +52,9 @@
   */
 #define HAL_MODULE_ENABLED
 #define HAL_ADC_MODULE_ENABLED
-#define HAL_CAN_MODULE_ENABLED
-/* #define HAL_CAN_LEGACY_MODULE_ENABLED */
+// For MBED we use the CAN legacy for now
+//#define HAL_CAN_MODULE_ENABLED
+#define HAL_CAN_LEGACY_MODULE_ENABLED
 #define HAL_COMP_MODULE_ENABLED
 #define HAL_CORTEX_MODULE_ENABLED
 #define HAL_CRC_MODULE_ENABLED
@@ -245,7 +246,7 @@
 #endif /* HAL_CAN_MODULE_ENABLED */
 
 #ifdef HAL_CAN_LEGACY_MODULE_ENABLED
-  #include "Legacy/stm32l4xx_hal_can_legacy.h"
+  #include "stm32l4xx_hal_can_legacy.h"
 #endif /* HAL_CAN_LEGACY_MODULE_ENABLED */
 
 #ifdef HAL_COMP_MODULE_ENABLED
