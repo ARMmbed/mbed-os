@@ -2018,7 +2018,7 @@
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0764"],
         "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L475VG",
         "bootloader_supported": true
