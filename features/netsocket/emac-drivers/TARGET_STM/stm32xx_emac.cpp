@@ -347,11 +347,14 @@ void STM32_EMAC::thread_function(void* pvParameters)
 void STM32_EMAC::phy_task()
 {
     uint32_t status;
+
     if (HAL_ETH_ReadPHYRegister(&EthHandle, PHY_BSR, &status) == HAL_OK) {
-        if ((status & PHY_LINKED_STATUS) && !(phy_status & PHY_LINKED_STATUS)) {
-            emac_link_state_cb(true);
-        } else if (!(status & PHY_LINKED_STATUS) && (phy_status & PHY_LINKED_STATUS)) {
-            emac_link_state_cb(false);
+        if (emac_link_state_cb) {
+            if ((status & PHY_LINKED_STATUS) && !(phy_status & PHY_LINKED_STATUS)) {
+                emac_link_state_cb(true);
+            } else if (!(status & PHY_LINKED_STATUS) && (phy_status & PHY_LINKED_STATUS)) {
+                emac_link_state_cb(false);
+            }
         }
         phy_status = status;
     }
