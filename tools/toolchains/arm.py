@@ -14,10 +14,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import glob
 import re
 from copy import copy
 from os.path import join, dirname, splitext, basename, exists
 from os import makedirs, write
+from shutil import copyfile
 from tempfile import mkstemp
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
@@ -198,7 +200,7 @@ class ARM(mbedToolchain):
         """
         with open(scatter_file, "rb") as input:
             lines = input.readlines()
-            if  (lines[0].startswith(self.SHEBANG) or
+            if (lines[0].startswith(self.SHEBANG) or
                  not lines[0].startswith("#!")):
                 return scatter_file
             else:
@@ -208,6 +210,12 @@ class ARM(mbedToolchain):
                         out.write(self.SHEBANG)
                         out.write("\n")
                         out.write("".join(lines[1:]))
+
+                # Copy headers into the build dir as well
+                headers = glob.glob(join(dirname(scatter_file), '*.h'))
+                for header in headers:
+                    copyfile(header, join(self.build_dir, basename(header)))
+
                 return new_scatter
 
     @hook_tool
