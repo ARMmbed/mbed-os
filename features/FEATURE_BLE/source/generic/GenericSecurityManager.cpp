@@ -101,6 +101,7 @@ public:
 
     void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
         SecurityManager::setSecurityManagerEventHandler(handler);
+        /* handler is always a valid pointer */
         pal.set_event_handler(*handler);
     }
 
@@ -115,7 +116,7 @@ public:
 
         SecurityManager::reset();
 
-        pal.setSecurityManagerEventHandler(eventHandler);
+        pal.set_event_handler(*eventHandler);
 
         return BLE_ERROR_NONE;
     }
