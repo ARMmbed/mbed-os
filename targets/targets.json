@@ -1321,7 +1321,8 @@
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F767ZI"
+        "device_name": "STM32F767ZI",
+        "bootloader_supported": true
     },
     "NUCLEO_L011K4": {
         "inherits": ["FAMILY_STM32"],
