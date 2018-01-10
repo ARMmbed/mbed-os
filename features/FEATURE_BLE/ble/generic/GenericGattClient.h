@@ -26,27 +26,12 @@
 namespace ble {
 namespace generic {
 
-// forward declarations
-struct procedure_control_block_t;
-struct discovery_control_block_t;
-struct read_control_block_t;
-struct write_control_block_t;
-struct descriptor_discovery_control_block_t;
-
 /**
  * Generic implementation of the GattClient.
  * It requires a pal::GattClient injected at construction site.
  * @important: Not part of the public interface of BLE API.
  */
 class GenericGattClient : public GattClient {
-
-    // give access to control block classes
-    friend struct procedure_control_block_t;
-    friend struct discovery_control_block_t;
-    friend struct read_control_block_t;
-    friend struct write_control_block_t;
-    friend struct descriptor_discovery_control_block_t;
-
 public:
     /**
      * Create a GenericGattClient from a pal::GattClient
@@ -130,6 +115,12 @@ public:
     virtual ble_error_t reset(void);
 
 private:
+    struct procedure_control_block_t;
+    struct discovery_control_block_t;
+    struct read_control_block_t;
+    struct write_control_block_t;
+    struct descriptor_discovery_control_block_t;
+
     procedure_control_block_t* get_control_block(Gap::Handle_t connection);
     const procedure_control_block_t* get_control_block(Gap::Handle_t connection) const;
     void insert_control_block(procedure_control_block_t* cb) const;
