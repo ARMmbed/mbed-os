@@ -87,6 +87,31 @@ public:
     virtual void copy(emac_mem_buf_t *to_buf, const emac_mem_buf_t *from_buf);
 
     /**
+     * Copy to a memory buffer chain
+     *
+     * Copies data to a buffer chain. Copy operation does not adjust the lengths
+     * of the copied-to memory buffer chain, so chain total length must match the
+     * copied length.
+     *
+     * @param to_buf    Memory buffer chain to copy to
+     * @param ptr       Pointer to data
+     * @param len       Data length
+     */
+    virtual void copy_to_buf(emac_mem_buf_t *to_buf, const void *ptr, uint32_t len);
+
+    /**
+     * Copy from a memory buffer chain
+     *
+     * Copies data from a memory buffer chain.
+     *
+     * @param len       Data length
+     * @param ptr       Pointer to data
+     * @param from_buf  Memory buffer chain to copy from
+     * @return          Length of the data that was copied
+     */
+    virtual uint32_t copy_from_buf(void *ptr, uint32_t len, const emac_mem_buf_t *from_buf) const;
+
+    /**
      * Concatenate two memory buffer chains
      *
      * Concatenates buffer chain to end of the other buffer chain. Concatenated-to buffer total length
