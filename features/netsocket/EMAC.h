@@ -63,6 +63,16 @@ public:
     virtual uint32_t get_mtu_size() const = 0;
 
     /**
+     * Gets memory buffer alignment preference
+     *
+     * Gets preferred memory buffer alignment of the Emac device. IP stack may or may not
+     * align link out memory buffer chains using the alignment.
+     *
+     * @return         Memory alignment requirement in bytes
+     */
+    virtual uint32_t get_align_preference() const = 0;
+
+    /**
      * Return interface name
      *
      * @param name Pointer to where the name should be written

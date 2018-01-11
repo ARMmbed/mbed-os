@@ -63,6 +63,16 @@ void LWIPMemoryManager::copy(emac_mem_buf_t *to_buf, const emac_mem_buf_t *from_
     pbuf_copy(static_cast<struct pbuf *>(to_buf), static_cast<const struct pbuf *>(from_buf));
 }
 
+void LWIPMemoryManager::copy_to_buf(emac_mem_buf_t *to_buf, const void *ptr, uint32_t len)
+{
+    pbuf_take(static_cast<struct pbuf *>(to_buf), ptr, len);
+}
+
+uint32_t LWIPMemoryManager::copy_from_buf(void *ptr, uint32_t len, const emac_mem_buf_t *from_buf) const
+{
+    return pbuf_copy_partial(static_cast<const struct pbuf *>(from_buf), ptr, len, 0);
+}
+
 void LWIPMemoryManager::cat(emac_mem_buf_t *to_buf, emac_mem_buf_t *cat_buf)
 {
     pbuf_cat(static_cast<struct pbuf *>(to_buf), static_cast<struct pbuf *>(cat_buf));
