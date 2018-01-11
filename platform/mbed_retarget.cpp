@@ -62,6 +62,10 @@ static SingletonPtr<PlatformMutex> _mutex;
 #   define STDOUT_FILENO    1
 #   define STDERR_FILENO    2
 
+#elif defined(__clang__)
+#   define PREFIX(x)        x
+#   define OPEN_MAX         16
+
 #else
 #   include <sys/syslimits.h>
 #   define PREFIX(x)    x
@@ -544,7 +548,7 @@ extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uin
 #endif
 
 
-#if !defined(__ARMCC_VERSION) && !defined(__ICCARM__)
+#if !defined(__ARMCC_VERSION) && !defined(__ICCARM__) && !defined(__clang__)
 extern "C" int _fstat(int fh, struct stat *st) {
     if (fh < 3) {
         st->st_mode = S_IFCHR;
