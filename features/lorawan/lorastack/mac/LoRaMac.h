@@ -49,10 +49,6 @@
 #include "lorastack/mac/LoRaMacMlme.h"
 #include "lorastack/mac/LoRaMacMcps.h"
 #include "lorastack/mac/LoRaMacMib.h"
-/*!
- * Maximum PHY layer payload size
- */
-#define LORAMAC_PHY_MAXPAYLOAD                      255
 
 
 class LoRaMac

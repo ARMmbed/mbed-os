@@ -94,7 +94,7 @@ lora_mac_status_t LoRaWANStack::set_application_port(uint8_t port)
 LoRaWANStack::LoRaWANStack()
 : _loramac(_lora_time), _lora_phy(_lora_time),
   _device_current_state(DEVICE_STATE_NOT_INITIALIZED), _mac_handlers(NULL),
-  _num_retry(1), _queue(NULL), _duty_cycle_on(LORAWAN_DUTYCYCLE_ON)
+  _num_retry(1), _queue(NULL), _duty_cycle_on(MBED_CONF_LORA_DUTY_CYCLE_ON)
 {
 #ifdef MBED_CONF_LORA_APP_PORT
     // is_port_valid() is not virtual, so we can call it in constructor
@@ -152,7 +152,7 @@ lora_mac_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
     static lora_mac_mib_request_confirm_t mib_req;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
-    static uint8_t compliance_test_buffer[LORAWAN_TX_MAX_SIZE];
+    static uint8_t compliance_test_buffer[MBED_CONF_LORA_TX_MAX_SIZE];
 #endif
 
     tr_debug("Initializing MAC layer");
@@ -174,11 +174,11 @@ lora_mac_status_t LoRaWANStack::initialize_mac_layer(EventQueue *queue)
     _loramac.LoRaMacInitialization(&LoRaMacPrimitives, &LoRaMacCallbacks, &_lora_phy, queue);
 
     mib_req.type = LORA_MIB_ADR;
-    mib_req.param.adr_enable = LORAWAN_ADR_ON;
+    mib_req.param.adr_enable = MBED_CONF_LORA_ADR_ON;
     mib_set_request(&mib_req);
 
     mib_req.type = LORA_MIB_PUBLIC_NETWORK;
-    mib_req.param.enable_public_network = LORAWAN_PUBLIC_NETWORK;
+    mib_req.param.enable_public_network = MBED_CONF_LORA_PUBLIC_NETWORK;
     mib_set_request(&mib_req);
 
     // Reset counters to zero. Will change in future with 1.1 support.
@@ -217,7 +217,7 @@ void LoRaWANStack::prepare_special_tx_frame(uint8_t port)
                 _tx_msg.f_buffer_size = _compliance_test.app_data_size;
 
                 _tx_msg.f_buffer[0] = _compliance_test.app_data_buffer[0];
-                for(uint8_t i = 1; i < MIN(_compliance_test.app_data_size, LORAWAN_TX_MAX_SIZE); ++i) {
+                for(uint8_t i = 1; i < MIN(_compliance_test.app_data_size, MBED_CONF_LORA_TX_MAX_SIZE); ++i) {
                     _tx_msg.f_buffer[i] = _compliance_test.app_data_buffer[i];
                 }
                 break;
@@ -838,13 +838,13 @@ int16_t LoRaWANStack::handle_tx(uint8_t port, const uint8_t* data,
 
     uint16_t max_possible_size = check_possible_tx_size(length);
 
-    if (max_possible_size > LORAWAN_TX_MAX_SIZE) {
+    if (max_possible_size > MBED_CONF_LORA_TX_MAX_SIZE) {
         // LORAWAN_APP_DATA_MAX_SIZE should at least be
         // either equal to or bigger than maximum possible
         // tx size because our tx message buffer takes its
         // length from that macro. Force maximum possible tx unit
         // to be equal to the buffer size user chose.
-        max_possible_size = LORAWAN_TX_MAX_SIZE;
+        max_possible_size = MBED_CONF_LORA_TX_MAX_SIZE;
     }
 
     if (max_possible_size < length) {
@@ -1118,8 +1118,8 @@ void LoRaWANStack::mcps_confirm_handler(lora_mac_mcps_confirm_t *mcps_confirm)
         // or some other error happened. Discard buffer, unset the tx-ongoing
         // flag and let the application know
         _tx_msg.tx_ongoing = false;
-        memset(_tx_msg.f_buffer, 0, LORAWAN_TX_MAX_SIZE);
-        _tx_msg.f_buffer_size = LORAWAN_TX_MAX_SIZE;
+        memset(_tx_msg.f_buffer, 0, MBED_CONF_LORA_TX_MAX_SIZE);
+        _tx_msg.f_buffer_size = MBED_CONF_LORA_TX_MAX_SIZE;
 
         tr_error("mcps_confirm_handler: Error code = %d", mcps_confirm->status);
 
@@ -1309,17 +1309,17 @@ void LoRaWANStack::compliance_test_handler(lora_mac_mcps_indication_t *mcps_indi
         switch (_compliance_test.state) {
         case 0: // Check compliance test disable command (ii)
             _compliance_test.is_tx_confirmed = true;
-            _compliance_test.app_port = LORAWAN_APP_PORT;
+            _compliance_test.app_port = MBED_CONF_LORA_APP_PORT;
             _compliance_test.app_data_size = LORAWAN_COMPLIANCE_TEST_DATA_SIZE;
             _compliance_test.downlink_counter = 0;
             _compliance_test.running = false;
 
             lora_mac_mib_request_confirm_t mib_req;
             mib_req.type = LORA_MIB_ADR;
-            mib_req.param.adr_enable = LORAWAN_ADR_ON;
+            mib_req.param.adr_enable = MBED_CONF_LORA_ADR_ON;
             mib_set_request(&mib_req);
 #if MBED_CONF_LORA_PHY      == 0
-            _loramac.LoRaMacTestSetDutyCycleOn(LORAWAN_DUTYCYCLE_ON);
+            _loramac.LoRaMacTestSetDutyCycleOn(MBED_CONF_LORA_DUTY_CYCLE_ON);
 #endif
             // Go to idle state after compliance test mode.
             tr_debug("Compliance test disabled.");
@@ -1362,16 +1362,16 @@ void LoRaWANStack::compliance_test_handler(lora_mac_mcps_indication_t *mcps_indi
 
             // Disable TestMode and revert back to normal operation
             _compliance_test.is_tx_confirmed = true;
-            _compliance_test.app_port = LORAWAN_APP_PORT;
+            _compliance_test.app_port = MBED_CONF_LORA_APP_PORT;
             _compliance_test.app_data_size = LORAWAN_COMPLIANCE_TEST_DATA_SIZE;
             _compliance_test.downlink_counter = 0;
             _compliance_test.running = false;
 
             mib_request.type = LORA_MIB_ADR;
-            mib_request.param.adr_enable = LORAWAN_ADR_ON;
+            mib_request.param.adr_enable = MBED_CONF_LORA_ADR_ON;
             mib_set_request(&mib_request);
 #if MBED_CONF_LORA_PHY      == 0
-            _loramac.LoRaMacTestSetDutyCycleOn(LORAWAN_DUTYCYCLE_ON);
+            _loramac.LoRaMacTestSetDutyCycleOn(MBED_CONF_LORA_DUTY_CYCLE_ON);
 #endif
             mlme_request.type = LORA_MLME_JOIN;
             mlme_request.req.join.dev_eui = _lw_session.connection.connection_u.otaa.dev_eui;
@@ -1828,7 +1828,7 @@ lora_mac_status_t LoRaWANStack::lora_state_machine()
             mib_set_request(&mib_req);
 
             // reset buffers to original state
-            memset(_tx_msg.f_buffer, 0, LORAWAN_TX_MAX_SIZE);
+            memset(_tx_msg.f_buffer, 0, MBED_CONF_LORA_TX_MAX_SIZE);
             _tx_msg.pending_size = 0;
             _tx_msg.f_buffer_size = 0;
             _tx_msg.tx_ongoing = false;

@@ -1243,7 +1243,7 @@ LoRaMacStatus_t LoRaMac::ScheduleTx( void )
 
     nextChan.AggrTimeOff = _params.timers.AggregatedTimeOff;
     nextChan.Datarate = _params.sys_params.ChannelsDatarate;
-    _params.DutyCycleOn = LORAWAN_DUTYCYCLE_ON;
+    _params.DutyCycleOn = MBED_CONF_LORA_DUTY_CYCLE_ON;
     nextChan.DutyCycleEnabled = _params.DutyCycleOn;
     nextChan.Joined = _params.IsLoRaMacNetworkJoined;
     nextChan.LastAggrTx = _params.timers.AggregatedLastTxDoneTime;
@@ -1315,7 +1315,7 @@ void LoRaMac::CalculateBackOff( uint8_t channel )
     CalcBackOffParams_t calcBackOff;
 
     calcBackOff.Joined = _params.IsLoRaMacNetworkJoined;
-    _params.DutyCycleOn = LORAWAN_DUTYCYCLE_ON;
+    _params.DutyCycleOn = MBED_CONF_LORA_DUTY_CYCLE_ON;
     calcBackOff.DutyCycleEnabled = _params.DutyCycleOn;
     calcBackOff.Channel = channel;
     calcBackOff.ElapsedTime = _lora_time.TimerGetElapsedTime( _params.timers.LoRaMacInitializationTime );
@@ -1803,7 +1803,7 @@ LoRaMacStatus_t LoRaMac::LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
     // Random seed initialization
     srand(lora_phy->get_radio_rng());
 
-    _params.PublicNetwork = LORAWAN_PUBLIC_NETWORK;
+    _params.PublicNetwork = MBED_CONF_LORA_PUBLIC_NETWORK;
     lora_phy->setup_public_network_mode(_params.PublicNetwork);
     lora_phy->put_radio_to_sleep();
 

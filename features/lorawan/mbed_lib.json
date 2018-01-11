@@ -25,10 +25,6 @@
             "help": "AES encryption/decryption cipher application key",
             "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
         },
-        "network-id": {
-            "help": "Current network ID",
-            "value": 0
-        },
         "device-address": {
             "help": "Device address on the network",
             "value": "0x00000000"
@@ -58,12 +54,12 @@
             "value": true
         },
         "duty-cycle-on": {
-        	"help": "Enables/disables duty cycling. NOTE: Disable only for testing. Mandatory in many regions.",
-        	"value": true
+            "help": "Enables/disables duty cycling. NOTE: Disable only for testing. Mandatory in many regions.",
+            "value": true
         },
         "lbt-on": {
-        	"help": "Enables/disables LBT. NOTE: [This feature is not yet integrated].",
-        	"value": false
+            "help": "Enables/disables LBT. NOTE: [This feature is not yet integrated].",
+            "value": false
         }
     }
 }

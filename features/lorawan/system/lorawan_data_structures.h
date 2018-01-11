@@ -90,6 +90,20 @@ typedef uint32_t TimerTime_t;
  */
 #define LORA_MAX_NB_CHANNELS                        16
 
+/**
+ * Maximum PHY layer payload size for reception.
+ */
+#define LORAMAC_PHY_MAXPAYLOAD                        255
+
+/**
+ *
+ * Default user application maximum data size for transmission
+ */
+// reject if user tries to set more than MTU
+#if MBED_CONF_LORA_TX_MAX_SIZE > 255
+    #warning "Cannot set TX Max size more than MTU=255"
+#endif
+
 /*!
  * LoRaWAN device classes definition.
  *
@@ -1706,180 +1720,6 @@ typedef struct sLoRaMacCallback
 
 }LoRaMacCallback_t;
 
-/**
- * The AES encryption/decryption cipher application session key.
- */
-#ifdef MBED_CONF_LORA_APPSKEY
-#define LORAWAN_APPSKEY                               MBED_CONF_LORA_APPSKEY
-#else
-#define LORAWAN_APPSKEY          {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-#endif
-
-/**
- * The AES encryption/decryption cipher network session key.
- */
-#ifdef MBED_CONF_LORA_NWKSKEY
-#define LORAWAN_NWKSKEY                               MBED_CONF_LORA_NWKSKEY
-#else
-#define LORAWAN_NWKSKEY          {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-#endif
-
-/**
- * The device address on the network (big endian).
- */
-#ifdef MBED_CONF_LORA_DEVICE_ADDRESS
-#define LORAWAN_DEVICE_ADDRESS                        MBED_CONF_LORA_DEVICE_ADDRESS
-#else
-#define LORAWAN_DEVICE_ADDRESS                        0
-#endif
-
-/**
- * The current network ID.
- */
-#ifdef MBED_CONF_LORA_NETWORK_ID
-#define LORAWAN_NETWORK_ID                            MBED_CONF_LORA_NETWORK_ID
-#else
-#define LORAWAN_NETWORK_ID                            0
-#endif
-
-/**
- * The AES encryption/decryption cipher application key.
- */
-#ifdef MBED_CONF_LORA_APPLICATION_KEY
-#define LORAWAN_APPLICATION_KEY                       MBED_CONF_LORA_APPLICATION_KEY
-#else
-#define LORAWAN_APPLICATION_KEY  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-#endif
-
-/**
- * The application IEEE EUI.
- */
-
-#ifdef MBED_CONF_LORA_APPLICATION_EUI
-#define LORAWAN_APPLICATION_EUI                       MBED_CONF_LORA_APPLICATION_EUI
-#else
-#define LORAWAN_APPLICATION_EUI                       {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-#endif
-
-/**
- * The mote device IEEE EUI.
- */
-#ifdef MBED_CONF_LORA_DEVICE_EUI
-#define LORAWAN_DEVICE_EUI                            MBED_CONF_LORA_DEVICE_EUI
-#else
-#define LORAWAN_DEVICE_EUI                            {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-#endif
-
-/**
- * Indicates how many times join can be tried.
- */
-#ifdef MBED_CONF_LORA_NB_TRIALS
-#define LORAWAN_NB_TRIALS                             MBED_CONF_LORA_NB_TRIALS
-#else
-#define LORAWAN_NB_TRIALS                             8
-#endif
-
-/**
- * When set to true, the application uses the Over-the-Air activation procedure.
- */
-#if defined(MBED_CONF_LORA_OVER_THE_AIR_ACTIVATION) == 1
-#define OVER_THE_AIR_ACTIVATION                       MBED_CONF_LORA_OVER_THE_AIR_ACTIVATION
-#else
-#define OVER_THE_AIR_ACTIVATION                       false
-#endif
-
-/**
- * LoRaWAN connects to a public network or private network, true = public network.
- */
-#if defined(MBED_CONF_LORA_PUBLIC_NETWORK) == 1
-#define LORAWAN_PUBLIC_NETWORK                        MBED_CONF_LORA_PUBLIC_NETWORK
-#else
-#define LORAWAN_PUBLIC_NETWORK                        false
-#endif
-
-/**
- * Maximum PHY layer payload size for reception.
- * This is not user configurable. Its hard coded in LoRaMac.cpp
- * and we don't want to change that file too much
- */
-#define LORAMAC_PHY_MAXPAYLOAD                        255
-
-/**
- *
- * Default user application maximum data size for trasnmission
- */
-// reject if user tries to set more than MTU
-#if defined MBED_CONF_LORA_TX_MAX_SIZE  && MBED_CONF_LORA_TX_MAX_SIZE > 255
-#warning "Cannot set TX Max size more than MTU=255"
-#define LORAWAN_TX_MAX_SIZE   255
-#elif defined MBED_CONF_LORA_TX_MAX_SIZE  && MBED_CONF_LORA_TX_MAX_SIZE < 255
-#define LORAWAN_TX_MAX_SIZE                      MBED_CONF_LORA_TX_MAX_SIZE
-#else
-#define LORAWAN_TX_MAX_SIZE                      64
-#endif
-
-/**
- *
- * Defines the application data transmission timer cycle, value in [ms]
- * Used only when automatic duty cycling is off
- */
-#ifdef MBED_CONF_APP_TX_TIMER
-#define TX_TIMER                              MBED_CONF_APP_TX_TIMER
-#else
-#define TX_TIMER                              5000
-#endif
-
-/**
- *
- * Defines a random delay for application data transmission cycle, value in [ms]
- * Used only when automatic duty cycling is off
- */
-#ifdef MBED_CONF_APP_TX_TIMER_RND
-#define TX_TIMER_RND                          MBED_CONF_APP_TX_TIMER_RND
-#else
-#define TX_TIMER_RND                          1000
-#endif
-
-/**
- *
- * LoRaWAN Adaptive Data Rate
- *
- * \remark Please note that when ADR is enabled, the end-device should be static.
- */
-#if defined(MBED_CONF_LORA_ADR_ON) == 1
-#define LORAWAN_ADR_ON                                MBED_CONF_LORA_ADR_ON
-#else
-#define LORAWAN_ADR_ON                                false
-#endif
-
-/**
- *
- * The default application port.
- */
-#ifdef MBED_CONF_LORA_APP_PORT
-#define LORAWAN_APP_PORT                              MBED_CONF_LORA_APP_PORT
-#else
-#define LORAWAN_APP_PORT                              0x15
-#endif
-
-/**
- * Default duty cycling setting
- */
-#if defined(MBED_CONF_LORA_DUTY_CYCLE_ON) == 1
-#define LORAWAN_DUTYCYCLE_ON        MBED_CONF_LORA_DUTY_CYCLE_ON
-#else
-#define LORAWAN_DUTYCYCLE_ON    false
-#endif
-
-/**
- * Listen-before-talk setting
- */
-#if defined(MBED_CONF_LORA_LBT_ON) == 1
-#define LORAWAN_LBT_ON        MBED_CONF_LORA_LBT_ON
-#else
-#define LORAWAN_LBT_ON    false
-#endif
-
 /** End-device states.
  *
  */
@@ -2100,7 +1940,7 @@ typedef struct lora_mac_tx_message {
      *
      * Base pointer to the buffer
      */
-    uint8_t f_buffer[LORAWAN_TX_MAX_SIZE];
+    uint8_t f_buffer[MBED_CONF_LORA_TX_MAX_SIZE];
 
     /** Payload size.
      *

@@ -61,10 +61,10 @@ lora_mac_status_t LoRaWANInterface::connect()
 
     lorawan_connect_t connection_params;
 
-    if (OVER_THE_AIR_ACTIVATION != 0) {
-        static uint8_t dev_eui[] = LORAWAN_DEVICE_EUI;
-        static uint8_t app_eui[] = LORAWAN_APPLICATION_EUI;
-        static uint8_t app_key[] = LORAWAN_APPLICATION_KEY;
+    if (MBED_CONF_LORA_OVER_THE_AIR_ACTIVATION) {
+        static uint8_t dev_eui[] = MBED_CONF_LORA_DEVICE_EUI;
+        static uint8_t app_eui[] = MBED_CONF_LORA_APPLICATION_EUI;
+        static uint8_t app_key[] = MBED_CONF_LORA_APPLICATION_KEY;
         /**
          *
          * OTAA join
@@ -73,14 +73,14 @@ lora_mac_status_t LoRaWANInterface::connect()
         connection_params.connection_u.otaa.app_eui = app_eui;
         connection_params.connection_u.otaa.dev_eui = dev_eui;
         connection_params.connection_u.otaa.app_key = app_key;
-        connection_params.connection_u.otaa.nb_trials = LORAWAN_NB_TRIALS;
+        connection_params.connection_u.otaa.nb_trials = MBED_CONF_LORA_NB_TRIALS;
 
         return connect(connection_params);
     } else {
-        static uint8_t nwk_skey[] = LORAWAN_NWKSKEY;
-        static uint8_t app_skey[] = LORAWAN_APPSKEY;
-        static uint32_t dev_addr = LORAWAN_DEVICE_ADDRESS;
-        static uint32_t nwk_id = (LORAWAN_DEVICE_ADDRESS & LORAWAN_NETWORK_ID_MASK);
+        static uint8_t nwk_skey[] = MBED_CONF_LORA_NWKSKEY;
+        static uint8_t app_skey[] = MBED_CONF_LORA_APPSKEY;
+        static uint32_t dev_addr = MBED_CONF_LORA_DEVICE_ADDRESS;
+        static uint32_t nwk_id = (MBED_CONF_LORA_DEVICE_ADDRESS & LORAWAN_NETWORK_ID_MASK);
 
         /**
          *
