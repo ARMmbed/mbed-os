@@ -152,7 +152,7 @@ public:
      *
      */
     void attach(void(*fptr)(void)) {
-        updateVol.attach(fptr);
+        updateVol = Callback<void()>(fptr);
     }
 	/** attach a handler to Tx Done
      *
@@ -160,7 +160,7 @@ public:
      *
      */
     void attachTx(void(*fptr)(void)) {
-        txDone.attach(fptr);
+        txDone = Callback<void()>(fptr);
     }
     /** attach a handler to Rx Done
      *
@@ -168,7 +168,7 @@ public:
      *
      */
     void attachRx(void(*fptr)(void)) {
-        rxDone.attach(fptr);
+        rxDone = Callback<void()>(fptr);
     }
 
     /** Attach a nonstatic void/void member function to update the volume
@@ -179,15 +179,52 @@ public:
      */
     template<typename T>
     void attach(T *tptr, void(T::*mptr)(void)) {
-        updateVol.attach(tptr, mptr);
+        updateVol = Callback<void()>(tptr, mptr);
     }
+    /** Attach a nonstatic void/void member function to Tx Done
+     *
+     * @param tptr Object pointer
+     * @param mptr Member function pointer
+     *
+     */
 	template<typename T>
 	void attachTx(T *tptr, void(T::*mptr)(void)) {
-        txDone.attach(tptr, mptr);
+        txDone = Callback<void()>(tptr, mptr);
     }
+    /** Attach a nonstatic void/void member function to Rx Done
+     *
+     * @param tptr Object pointer
+     * @param mptr Member function pointer
+     *
+     */
     template<typename T>
 	void attachRx(T *tptr, void(T::*mptr)(void)) {
-        rxDone.attach(tptr, mptr);
+        rxDone = Callback<void()>(tptr, mptr);
+    }
+
+    /** Attach a Callback to update the volume
+     *
+     * @param cb Callback to attach
+     *
+     */
+    void attach(Callback<void()> &cb) {
+        updateVol = cb;
+    }
+    /** attach a Callback to Tx Done
+     *
+     * @param cb Callback to attach
+     *
+     */
+    void attachTx(Callback<void()> &cb) {
+        txDone = cb;
+    }
+    /** attach a Callback to Rx Done
+     *
+     * @param cb Callback to attach
+     *
+     */
+    void attachRx(Callback<void()> &cb) {
+        rxDone = cb;
     }
 
 
