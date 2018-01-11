@@ -830,6 +830,13 @@ TESTS = [
         #"host_test" : "detect_auto",
     },
 
+    # Bare metal tests
+    {
+        "id": "BARE_METAL_UART", "description": "Bare metal uart communication test for Green Tea",
+        "source_dir": join(BARE_METAL_TEST_DIR, "uart"),
+        "dependencies": [MBED_LIBRARIES],
+        "automated": True,
+    },
 ]
 
 # Group tests with the same goals into categories
