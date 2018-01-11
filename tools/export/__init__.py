@@ -36,6 +36,7 @@ from tools.export import qtcreator
 from tools.export import cmake
 from tools.export import nb
 from tools.targets import TARGET_NAMES
+from tools.spm import process_manifest_files
 
 EXPORTERS = {
     'uvision5': uvision.Uvision,
@@ -336,6 +337,9 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     else:
         for _, res in resource_dict.iteritems():
             resources.add(res)
+
+    psa_files_dir = process_manifest_files(resources.psa_manifests, export_path)
+    resources.add(toolchain.scan_resources(psa_files_dir, base_path=export_path))
 
     # Change linker script if specified
     if linker_script is not None:
