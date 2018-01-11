@@ -31,6 +31,7 @@ from ..targets import TARGET_NAMES
 from . import (lpcxpresso, ds5_5, iar, makefile, embitz, coide, kds, simplicity,
                atmelstudio, mcuxpresso, sw4stm32, e2studio, zip, cmsis, uvision,
                cdt, vscode, gnuarmeclipse, qtcreator, cmake, nb, cces, codeblocks)
+from ..spm import process_manifest_files
 
 EXPORTERS = {
     u'uvision5': uvision.Uvision,
@@ -292,6 +293,9 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     config_header = toolchain.get_config_header()
     resources.headers.append(config_header)
     resources.file_basepath[config_header] = dirname(config_header)
+
+    psa_files_dir = process_manifest_files(resources.psa_manifests, export_path)
+    resources.add(toolchain.scan_resources(psa_files_dir, base_path=export_path))
 
     # Change linker script if specified
     if linker_script is not None:
