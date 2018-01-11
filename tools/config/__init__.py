@@ -507,7 +507,10 @@ class Config(object):
                                   "targets.json `device_name` not found in "
                                   "arm_pack_manager index.")
         cmsis_part = cache.index[self.target.device_name]
-        return cmsis_part['sectors']
+        sectors = cmsis_part['sectors']
+        if sectors:
+            return sectors
+        raise ConfigException("No sector info available")
 
     @property
     def regions(self):
