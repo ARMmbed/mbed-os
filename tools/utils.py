@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 import sys
 import inspect
 import os
@@ -29,6 +30,11 @@ import json
 from collections import OrderedDict
 import logging
 from intelhex import IntelHex
+
+try:
+    unicode
+except NameError:
+    unicode = str
 
 def remove_if_in(lst, thing):
     if thing in lst:
@@ -66,14 +72,14 @@ def cmd(command, check=True, verbose=False, shell=False, cwd=None):
     """A wrapper to run a command as a blocking job"""
     text = command if shell else ' '.join(command)
     if verbose:
-        print text
+        print(text)
     return_code = call(command, shell=shell, cwd=cwd)
     if check and return_code != 0:
         raise Exception('ERROR %d: "%s"' % (return_code, text))
 
 
 def run_cmd(command, work_dir=None, chroot=None, redirect=False):
-    """Run a command in the forground
+    """Run a command in the foreground
 
     Positional arguments:
     command - the command to run
@@ -100,7 +106,7 @@ def run_cmd(command, work_dir=None, chroot=None, redirect=False):
                         stderr=STDOUT if redirect else PIPE, cwd=work_dir)
         _stdout, _stderr = process.communicate()
     except OSError:
-        print "[OS ERROR] Command: "+(' '.join(command))
+        print("[OS ERROR] Command: "+(' '.join(command)))
         raise
 
     return _stdout, _stderr, process.returncode
@@ -318,13 +324,13 @@ def check_required_modules(required_modules, verbose=True):
             except ImportError as exc:
                 not_installed_modules.append(module_name)
                 if verbose:
-                    print "Error: %s" % exc
+                    print("Error: %s" % exc)
 
     if verbose:
         if not_installed_modules:
-            print ("Warning: Module(s) %s not installed. Please install " + \
-                   "required module(s) before using this script.")\
-                % (', '.join(not_installed_modules))
+            print("Warning: Module(s) %s not installed. Please install "
+                  "required module(s) before using this script."
+                  % (', '.join(not_installed_modules)))
 
     if not_installed_modules:
         return False
@@ -342,11 +348,11 @@ def dict_to_ascii(dictionary):
     """
     if isinstance(dictionary, dict):
         return OrderedDict([(dict_to_ascii(key), dict_to_ascii(value))
-                            for key, value in dictionary.iteritems()])
+                            for key, value in dictionary.items()])
     elif isinstance(dictionary, list):
         return [dict_to_ascii(element) for element in dictionary]
     elif isinstance(dictionary, unicode):
-        return dictionary.encode('ascii')
+        return dictionary.encode('ascii').decode()
     else:
         return dictionary
 

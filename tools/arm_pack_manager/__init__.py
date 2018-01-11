@@ -1,10 +1,16 @@
-from urllib2 import urlopen, URLError
+try:
+    from urllib2 import urlopen, URLError
+except ImportError:
+    from urllib.request import urlopen, URLError
 from bs4 import BeautifulSoup
 from os.path import join, dirname, basename
 from os import makedirs
 from errno import EEXIST
 from threading import Thread
-from Queue import Queue
+try:
+    from Queue import Queue
+except ImportError:
+    from queue import Queue
 from re import compile, sub
 from sys import stderr, stdout
 from itertools import takewhile

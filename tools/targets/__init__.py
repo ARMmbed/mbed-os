@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
 import os
 import binascii
@@ -65,7 +66,7 @@ def cached(func):
     """
     def wrapper(*args, **kwargs):
         """The wrapped function itself"""
-        if not CACHES.has_key((func.__name__, args)):
+        if (func.__name__, args) not in CACHES:
             CACHES[(func.__name__, args)] = func(*args, **kwargs)
         return CACHES[(func.__name__, args)]
     return wrapper
@@ -143,7 +144,8 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         for extra_target in Target.__extra_target_json_files:
             for k, v in json_file_to_dict(extra_target).iteritems():
                 if k in targets:
-                    print 'WARNING: Custom target "%s" cannot replace existing target.' % k
+                    print('WARNING: Custom target "%s" cannot replace existing '
+                          'target.' % k)
                 else:
                     targets[k] = v
 
@@ -258,19 +260,14 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
             starting_value = None
             for tgt in self.resolution_order:
                 data = tdata[tgt[0]]
-                if data.has_key(attrname):
-                    starting_value = data[attrname]
-                    break
+                try:
+                    return data[attrname]
+                except KeyError:
+                    pass
             else: # Attribute not found
                 raise AttributeError(
                     "Attribute '%s' not found in target '%s'"
                     % (attrname, self.name))
-            # 'progen' needs the full path to the template (the path in JSON is
-            # relative to tools/export)
-            if attrname == "progen":
-                return self.__add_paths_to_progen(starting_value)
-            else:
-                return starting_value
 
     def __getattr__(self, attrname):
         """ Return the value of an attribute. This function only computes the
@@ -427,7 +424,7 @@ class MTSCode(object):
         loader = os.path.join(TOOLS_BOOTLOADERS, target_name, "bootloader.bin")
         target = binf + ".tmp"
         if not os.path.exists(loader):
-            print "Can't find bootloader binary: " + loader
+            print("Can't find bootloader binary: " + loader)
             return
         outbin = open(target, 'w+b')
         part = open(loader, 'rb')

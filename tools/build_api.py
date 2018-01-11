@@ -14,12 +14,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
 import re
 import tempfile
 import datetime
 import uuid
-from types import ListType
 from shutil import rmtree
 from os.path import join, exists, dirname, basename, abspath, normpath, splitext
 from os.path import relpath
@@ -124,7 +124,7 @@ def get_config(src_paths, target, toolchain_name):
     toolchain_name - the string that identifies the build tools
     """
     # Convert src_paths to a list if needed
-    if type(src_paths) != ListType:
+    if not isinstance(src_paths, list):
         src_paths = [src_paths]
 
     # Pass all params to the unified prepare_resources()
@@ -399,7 +399,7 @@ def scan_resources(src_paths, toolchain, dependencies_paths=None,
 
     # Add additional include directories if passed
     if inc_dirs:
-        if type(inc_dirs) == ListType:
+        if isinstance(inc_dirs, list):
             resources.inc_dirs.extend(inc_dirs)
         else:
             resources.inc_dirs.append(inc_dirs)
@@ -457,7 +457,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
     """
 
     # Convert src_path to a list if needed
-    if type(src_paths) != ListType:
+    if not isinstance(src_paths, list):
         src_paths = [src_paths]
     # Extend src_paths wiht libraries_paths
     if libraries_paths is not None:
@@ -527,9 +527,9 @@ def build_project(src_paths, build_path, target, toolchain_name,
                     memap_bars = memap_instance.generate_output('bars',
                             real_stats_depth, None,
                             getattr(toolchain.target, 'device_name', None))
-                    print memap_bars
+                    print(memap_bars)
                 else:
-                    print memap_table
+                    print(memap_table)
 
             # Write output to file in JSON format
             map_out = join(build_path, name + "_map.json")
@@ -613,7 +613,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     """
 
     # Convert src_path to a list if needed
-    if type(src_paths) != ListType:
+    if not isinstance(src_paths, list):
         src_paths = [src_paths]
 
     # Build path
@@ -782,7 +782,7 @@ def build_lib(lib_id, target, toolchain_name, verbose=False,
     inc_dirs = lib.inc_dirs
     inc_dirs_ext = lib.inc_dirs_ext
 
-    if type(src_paths) != ListType:
+    if not isinstance(src_paths, list):
         src_paths = [src_paths]
 
     # The first path will give the name to the library

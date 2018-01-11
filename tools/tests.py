@@ -15,14 +15,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from tools.paths import *
-from tools.data.support import *
+from tools.data.support import DEFAULT_SUPPORT, CORTEX_ARM_SUPPORT
 from argparse import ArgumentTypeError
 from utils import columnate
-
-try:
-    import tools.private_settings as ps
-except:
-    ps = object()
 
 TEST_CMSIS_LIB = join(TEST_DIR, "cmsis", "lib")
 TEST_MBED_LIB = join(TEST_DIR, "mbed", "env")
@@ -917,8 +912,7 @@ def test_known(string):
 
 def test_name_known(string):
     if string not in TEST_MAP.keys() and \
-       (getattr(ps, "test_alias", None) is None or \
-        ps.test_alias.get(string, "") not in TEST_MAP.keys()):
+       (getattr(ps, "test_alias", None) is None):
         raise ArgumentTypeError("Program with name '{0}' not found. Supported tests are: \n{1}".format(string, columnate([t['id'] for t in TESTS])))
 
     return TEST_MAP[string].n

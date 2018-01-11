@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """Memory Map File Analyser for ARM mbed"""
+from __future__ import print_function
 
 from abc import abstractmethod, ABCMeta
 from sys import stdout, exit, argv
@@ -132,7 +133,7 @@ class _GccParser(_Parser):
                 return join('[lib]', test_re_obj_name.group(2),
                             test_re_obj_name.group(3))
             else:
-                print "Unknown object name found in GCC map file: %s" % line
+                print("Unknown object name found in GCC map file: %s" % line)
                 return '[misc]'
 
     def parse_section(self, line):
@@ -217,7 +218,7 @@ class _ArmccParser(_Parser):
             if is_obj:
                 return join('[lib]', basename(is_obj.group(1)), is_obj.group(3))
             else:
-                print "Malformed input found when parsing ARMCC map: %s" % line
+                print("Malformed input found when parsing ARMCC map: %s" % line)
                 return '[misc]'
 
     def parse_section(self, line):
@@ -246,8 +247,8 @@ class _ArmccParser(_Parser):
                 elif test_re.group(3) == 'Code':
                     section = '.text'
                 else:
-                    print "Malformed input found when parsing armcc map: %s, %r" %\
-                          (line, test_re.groups())
+                    print("Malformed input found when parsing armcc map: %s, %r"
+                          % (line, test_re.groups()))
 
                     return ["", 0, ""]
 
@@ -352,7 +353,7 @@ class _IarParser(_Parser):
             elif test_re.group(2) == 'inited':
                 section = '.data'
             else:
-                print "Malformed input found when parsing IAR map: %s" % line
+                print("Malformed input found when parsing IAR map: %s" % line)
                 return ["", 0, ""]
 
             # lookup object in dictionary and return module name
@@ -528,7 +529,7 @@ class MemapParser(object):
             else:
                 file_desc = stdout
         except IOError as error:
-            print "I/O error({0}): {1}".format(error.errno, error.strerror)
+            print("I/O error({0}): {1}".format(error.errno, error.strerror))
             return False
 
         to_call = {'json': self.generate_json,
@@ -736,7 +737,7 @@ class MemapParser(object):
             return True
 
         except IOError as error:
-            print "I/O error({0}): {1}".format(error.errno, error.strerror)
+            print("I/O error({0}): {1}".format(error.errno, error.strerror))
             return False
 
 def main():
@@ -803,7 +804,7 @@ def main():
         returned_string = memap.generate_output(args.export, depth)
 
     if args.export == 'table' and returned_string:
-        print returned_string
+        print(returned_string)
 
     exit(0)
 

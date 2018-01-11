@@ -14,13 +14,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
 import re
 import sys
 from os import stat, walk, getcwd, sep, remove
 from copy import copy
 from time import time, sleep
-from types import ListType
 from shutil import copyfile
 from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath, isfile, isdir, normcase
 from itertools import chain
@@ -472,7 +472,7 @@ class mbedToolchain:
 
         if msg:
             if not silent:
-                print msg
+                print(msg)
             self.output += msg + "\n"
 
     def print_notify_verbose(self, event, silent=False):
@@ -489,7 +489,7 @@ class mbedToolchain:
             event['toolchain_name'] = event['toolchain_name'].upper() if event['toolchain_name'] else "Unknown"
             msg = '[%(severity)s] %(target_name)s::%(toolchain_name)s::%(file)s@%(line)s: %(message)s' % event
             if not silent:
-                print msg
+                print(msg)
             self.output += msg + "\n"
 
         elif event['type'] == 'progress':
@@ -793,7 +793,8 @@ class mbedToolchain:
 
     def copy_files(self, files_paths, trg_path, resources=None, rel_path=None):
         # Handle a single file
-        if type(files_paths) != ListType: files_paths = [files_paths]
+        if isinstance(files_paths, list):
+            files_paths = [files_paths]
 
         for source in files_paths:
             if source is None:
@@ -982,7 +983,7 @@ class mbedToolchain:
                                 res['command']
                             ])
                         objects.append(result['object'])
-                    except ToolException, err:
+                    except ToolException as err:
                         if p._taskqueue.queue:
                             p._taskqueue.queue.clear()
                             sleep(0.5)
@@ -1010,7 +1011,7 @@ class mbedToolchain:
             dep_path = base + '.d'
             try:
                 deps = self.parse_dependencies(dep_path) if (exists(dep_path)) else []
-            except IOError, IndexError:
+            except (IOError, IndexError):
                 deps = []
             config_file = ([self.config.app_config_location]
                            if self.config.app_config_location else [])
@@ -1177,7 +1178,7 @@ class mbedToolchain:
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def debug(self, message):
         if self.VERBOSE:
-            if type(message) is ListType:
+            if isinstance(message, list):
                 message = ' '.join(message)
             message = "[DEBUG] " + message
             self.notify({'type': 'debug', 'message': message})

@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
+from __future__ import print_function
 from os import getenv
 from os.path import join, abspath, dirname, exists
 import logging
@@ -81,7 +81,8 @@ for _n in _ENV_PATHS:
         if exists(getenv('MBED_'+_n)):
             globals()[_n] = getenv('MBED_'+_n)
         else:
-            print "WARNING: MBED_%s set as environment variable but doesn't exist" % _n
+            print("WARNING: MBED_%s set as environment variable but doesn't"
+                  " exist" % _n)
 
 
 ##############################################################################
