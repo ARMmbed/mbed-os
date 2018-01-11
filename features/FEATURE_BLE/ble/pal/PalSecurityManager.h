@@ -79,6 +79,106 @@ struct bonded_list_t {
     uint8_t capacity;  /**< number of entries that can be stored */
 };
 
+enum BlePairingResult_t {
+    PAIRING_RESULT_AUTHENTICATED,
+    PAIRING_RESULT_UNAUTHENTICATED,
+    PAIRING_RESULT_FAILED
+};
+
+class SecurityManagerEventHandler {
+    SecurityManagerEventHandler() : _app_handler(NULL) { };
+    virtual void security_setup_initiated(Gap::Handle_t handle, bool allowBonding,
+                                          bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
+        if (_app_handler) {
+            _app_handler->securitySetupInitiated(handle, allowBonding, requireMITM, iocaps);
+        }
+    }
+    virtual void security_setup_completed(Gap::Handle_t handle,
+                                          SecurityManager::SecurityCompletionStatus_t status) {
+        if (_app_handler) {
+            _app_handler->securitySetupCompleted(handle, status);
+        }
+    }
+    virtual void link_secured(Gap::Handle_t handle, SecurityManager::SecurityMode_t securityMode) {
+        if (_app_handler) {
+            _app_handler->linkSecured(handle, securityMode);
+        }
+    }
+
+    virtual void security_context_stored(Gap::Handle_t handle) {
+        if (_app_handler) {
+            _app_handler->securityContextStored(handle);
+        }
+    }
+    virtual void passkey_display(Gap::Handle_t handle, const SecurityManager::Passkey_t passkey) {
+        if (_app_handler) {
+            _app_handler->passkeyDisplay(handle, passkey);
+        }
+    }
+
+    virtual void valid_mic_timeout(Gap::Handle_t handle) {
+        if (_app_handler) {
+            _app_handler->validMicTimeout(handle);
+        }
+    }
+
+    virtual void link_key_failure(Gap::Handle_t handle) {
+        if (_app_handler) {
+            _app_handler->linkKeyFailure(handle);
+        }
+    }
+
+    virtual void keypress_notification(Gap::Handle_t handle, SecurityManager::Keypress_t keypress) {
+        if (_app_handler) {
+            _app_handler->keypressNotification(handle, keypress);
+        }
+    }
+
+    virtual void legacy_pariring_oob_request(Gap::Handle_t handlea) {
+        if (_app_handler) {
+            _app_handler->legacyPairingOobRequest(handle);
+        }
+    }
+
+    virtual void oob_request(Gap::Handle_t handle) {
+        if (_app_handler) {
+            _app_handler->oobRequest(handle);
+        }
+    }
+    virtual void pin_request(Gap::Handle_t handle) {
+
+        if (_app_handler) {
+            _app_handler->pinRequest(handle);
+        }
+    }
+    virtual void passkey_request(Gap::Handle_t handle) {
+
+        if (_app_handler) {
+            _app_handler->passkeyRequest(handle);
+        }
+    }
+    virtual void confirmation_request(Gap::Handle_t handle) {
+
+        if (_app_handler) {
+            _app_handler->confirmationRequest(handle);
+        }
+    }
+    virtual void accept_pairing_request(Gap::Handle_t handle) {
+        if (_app_handler) {
+            _app_handler->acceptPairingRequest(handle);
+        }
+    }
+
+    virtual void keys_exchanged(Gap::Handle_t handle, Address_t &peer_address, ediv_t &ediv, rand_t &rand, ltk_t &ltk, csrk_t &csrk);
+    virtual void pairing_completed(Gap::Handle_t handle, BlePairingResult_t result);
+
+    virtual void set_app_event_handler(::SecurityManagerEventHandler *app_handler) {
+        _app_handler = app_handler;
+    }
+private:
+    ::SecurityManagerEventHandler *_app_handler;
+};
+
 
 class SecurityManager : private mbed::NonCopyable<SecurityManager> {
 public:
@@ -298,9 +398,11 @@ public:
  public:
     SecurityManagerEventHandler& get_event_handler() {
         /* guaranteed to be a valid pointer */
-        return *_event_handler;
+        return _event_handler;
     }
-
+    void set_app_event_handler(::SecurityManagerEventHandler &app_event_handler) {
+        _event_handler->set_app_event_handler(app_event_handler);
+    }
     void set_event_handler(SecurityManagerEventHandler &event_handler) {
         _event_handler = &event_handler;
     }

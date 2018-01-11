@@ -25,6 +25,10 @@ namespace generic {
 
 static const uint8_t NUMBER_OFFSET = '0';
 
+class GenericSecurityManagerEventHandler : public ble::pal::SecurityManagerEventHandler {
+
+};
+
 class GenericSecurityManager : public SecurityManager {
 public:
     virtual ble_error_t init(bool                     enableBonding  = true,
@@ -103,12 +107,13 @@ public:
     void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
         SecurityManager::setSecurityManagerEventHandler(handler);
         /* handler is always a valid pointer */
-        pal.set_event_handler(*handler);
+        pal_event_handler.set_app_event_handler(eventHandler);
     }
 
 protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl) : pal(palImpl), saveStateEnabled(false) {
-        pal.set_event_handler(defaultEventHandler);
+        pal_event_handler.set_app_event_handler(&defaultEventHandler);
+        pal.set_event_handler(pal_event_handler);
     }
 
 public:
@@ -117,13 +122,12 @@ public:
 
         SecurityManager::reset();
 
-        pal.set_event_handler(*eventHandler);
-
         return BLE_ERROR_NONE;
     }
 
 private:
     ble::pal::SecurityManager& pal;
+    GenericSecurityManagerEventHandler pal_event_handler;
     bool saveStateEnabled;
 };
 
