@@ -590,7 +590,7 @@ class mbedToolchain:
             if not d or not exists(d):
                 return True
 
-            if not self.stat_cache.has_key(d):
+            if d not in self.stat_cache:
                 self.stat_cache[d] = stat(d).st_mtime
 
             if self.stat_cache[d] >= target_mod_time:
@@ -801,7 +801,7 @@ class mbedToolchain:
                 files_paths.remove(source)
 
         for source in files_paths:
-            if resources is not None and resources.file_basepath.has_key(source):
+            if resources is not None and source in resources.file_basepath:
                 relative_path = relpath(source, resources.file_basepath[source])
             elif rel_path is not None:
                 relative_path = relpath(source, rel_path)
@@ -831,7 +831,7 @@ class mbedToolchain:
     def get_inc_file(self, includes):
         include_file = join(self.build_dir, ".includes_%s.txt" % self.inc_md5)
         if not exists(include_file):
-            with open(include_file, "wb") as f:
+            with open(include_file, "w") as f:
                 cmd_list = []
                 for c in includes:
                     if c:
@@ -892,7 +892,7 @@ class mbedToolchain:
         # Sort include paths for consistency
         inc_paths = sorted(set(inc_paths))
         # Unique id of all include paths
-        self.inc_md5 = md5(' '.join(inc_paths)).hexdigest()
+        self.inc_md5 = md5(' '.join(inc_paths).encode('utf-8')).hexdigest()
 
         objects = []
         queue = []
@@ -968,7 +968,7 @@ class mbedToolchain:
             sleep(0.01)
             pending = 0
             for r in results:
-                if r._ready is True:
+                if r.ready():
                     try:
                         result = r.get()
                         results.remove(r)
@@ -1055,7 +1055,7 @@ class mbedToolchain:
             buff[0] = re.sub('^(.*?)\: ', '', buff[0])
             for line in buff:
                 filename = line.replace('\\\n', '').strip()
-                if file:
+                if filename:
                     filename = filename.replace('\\ ', '\a')
                     dependencies.extend(((self.CHROOT if self.CHROOT else '') +
                                          f.replace('\a', ' '))
@@ -1319,7 +1319,7 @@ class mbedToolchain:
     @staticmethod
     def _overwrite_when_not_equal(filename, content):
         if not exists(filename) or content != open(filename).read():
-            with open(filename, "wb") as out:
+            with open(filename, "w") as out:
                 out.write(content)
 
     @staticmethod

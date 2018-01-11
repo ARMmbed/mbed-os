@@ -214,16 +214,16 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         # inheritance level, left to right order to figure out all the
         # other classes that change the definition by adding or removing
         # elements
-        for idx in xrange(self.resolution_order[def_idx][1] - 1, -1, -1):
+        for idx in range(self.resolution_order[def_idx][1] - 1, -1, -1):
             same_level_targets = [tar[0] for tar in self.resolution_order
                                   if tar[1] == idx]
             for tar in same_level_targets:
                 data = tdata[tar]
                 # Do we have anything to add ?
-                if data.has_key(attrname + "_add"):
+                if (attrname + "_add") in data:
                     starting_value.extend(data[attrname + "_add"])
                 # Do we have anything to remove ?
-                if data.has_key(attrname + "_remove"):
+                if (attrname + "_remove") in data:
                     # Macros can be defined either without a value (MACRO)
                     # or with a value (MACRO=10). When removing, we specify
                     # only the name of the macro, without the value. So we
@@ -335,7 +335,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         # "class_name" must refer to a class in this file, so check if the
         # class exists
         mdata = self.get_module_data()
-        if not mdata.has_key(class_name) or \
+        if class_name not in mdata or \
            not inspect.isclass(mdata[class_name]):
             raise HookError(
                 ("Class '%s' required by '%s' in target '%s'"

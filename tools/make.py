@@ -246,7 +246,7 @@ if __name__ == '__main__':
         search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
         args_error(parser, "Could not find executable for %s.\n"
                            "Currently set search path: %s"
-                           %(toolchain,search_path))
+                           %(toolchain, search_path))
 
     # Test
     build_data_blob = {} if options.build_data else None
