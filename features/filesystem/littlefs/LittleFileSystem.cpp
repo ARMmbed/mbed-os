@@ -336,6 +336,34 @@ int LittleFileSystem::stat(const char *name, struct stat *st)
     return lfs_toerror(err);
 }
 
+static int lfs_statvfs_count(void *p, lfs_block_t b)
+{
+    *(lfs_size_t *)p += 1;
+    return 0;
+}
+
+int LittleFileSystem::statvfs(const char *name, struct statvfs *st)
+{
+    memset(st, 0, sizeof(struct statvfs));
+
+    lfs_size_t in_use = 0;
+    _mutex.lock();
+    LFS_INFO("statvfs(\"%s\", %p)", name, st);
+    int err = lfs_traverse(&_lfs, lfs_statvfs_count, &in_use);
+    LFS_INFO("statvfs -> %d", lfs_toerror(err));
+    _mutex.unlock();
+    if (err) {
+        return err;
+    }
+
+    st->f_bsize  = _config.block_size;
+    st->f_frsize = _config.block_size;
+    st->f_blocks = _config.block_count;
+    st->f_bfree  = _config.block_count - in_use;
+    st->f_bavail = _config.block_count - in_use;
+    st->f_namemax = LFS_NAME_MAX;
+    return 0;
+}
 
 ////// File operations //////
 int LittleFileSystem::file_open(fs_file_t *file, const char *path, int flags)

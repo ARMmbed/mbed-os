@@ -711,6 +711,23 @@ extern "C" int stat(const char *path, struct stat *st) {
     }
 }
 
+extern "C" int statvfs(const char *path, struct statvfs *buf) {
+    FilePath fp(path);
+    FileSystemHandle *fs = fp.fileSystem();
+    if (fs == NULL) {
+        errno = ENODEV;
+        return -1;
+    }
+
+    int err = fs->statvfs(fp.fileName(), buf);
+    if (err < 0) {
+        errno = -err;
+        return -1;
+    } else {
+        return 0;
+    }
+}
+
 #if defined(TOOLCHAIN_GCC)
 /* prevents the exception handling name demangling code getting pulled in */
 #include "mbed_error.h"
