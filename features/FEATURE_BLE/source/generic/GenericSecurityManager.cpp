@@ -33,7 +33,8 @@ public:
                              const Passkey_t          passkey        = NULL) {
         (void)requireMITM;
         loadState();
-        pal.set_security_settings(enableBonding, iocaps);
+        pal.set_io_capabilities(iocaps);
+        pal.set_bondable(enableBonding);
         setPasskey(passkey);
 
         return BLE_ERROR_NONE;

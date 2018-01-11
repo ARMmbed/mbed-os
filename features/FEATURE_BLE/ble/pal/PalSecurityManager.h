@@ -79,7 +79,7 @@ public:
     virtual ble_error_t terminate() = 0;
     virtual ble_error_t reset() = 0;
 
-    /* for persistence */
+    /* persistence */
 
     virtual ble_error_t get_bonded_list(bonded_list_t &list) = 0;
     virtual ble_error_t set_bonded_list(bonded_list_t &list) = 0;
@@ -90,51 +90,46 @@ public:
     virtual ble_error_t get_whitelist(Gap::Whitelist_t &addresses) = 0;
     virtual ble_error_t set_whitelist(Gap::Whitelist_t &addresses) = 0;
 
-    /* security settings */
-
-    virtual ble_error_t set_private_address_timeout(uint16_t timeout /*s*/) = 0;
-
-    virtual ble_error_t refresh_encryption_key(connection_handle_t) = 0;
-
-    virtual ble_error_t set_authentication_timeout(connection_handle_t, uint16_t timeout /*x10 ms*/) = 0;
-    virtual ble_error_t get_authentication_timeout(connection_handle_t, uint16_t &timeout /*x10 ms*/) = 0;
-
-    virtual ble_error_t set_pin_code(uint8_t pin_length, uint8_t *pin_code, bool static_pin = false) = 0;
-    virtual ble_error_t set_passkey(passkey_num_t passkey) = 0;
-
     /* feature support */
 
     virtual ble_error_t set_secure_connections_support(bool enabled, bool secure_connections_only = false) = 0;
     virtual ble_error_t get_secure_connections_support(bool &enabled, bool &secure_connections_only) = 0;
 
-    virtual ble_error_t get_encryption_key_size(connection_handle_t, uint8_t &size) = 0;
+    /* security settings */
 
-    /* security level */
+    virtual ble_error_t set_io_capabilities(SecurityIOCapabilities_t iocaps = IO_CAPS_NONE) = 0;
+    virtual ble_error_t set_bondable(bool bondable = true) = 0;
+    virtual ble_error_t set_keypress_notification(bool send_keypresses = true) = 0;
 
-    virtual ble_error_t set_security_settings(bool bondable = true,
-                                              SecurityIOCapabilities_t iocaps = IO_CAPS_NONE,
-                                              bool send_keypresses = false) = 0;
-
+    virtual ble_error_t set_pin_code(uint8_t pin_length, uint8_t *pin_code, bool static_pin = false) = 0;
+    virtual ble_error_t set_passkey(passkey_num_t passkey) = 0;
     virtual ble_error_t set_oob_data_usage(connection_handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM) = 0;
 
+    virtual ble_error_t set_encryption_key_size(uint8_t minimum_bitsize, uint8_t maximum_bitsize = 128) = 0;
+    virtual ble_error_t get_encryption_key_size(connection_handle_t, uint8_t &size) = 0;
+
+    virtual ble_error_t set_authentication_timeout(connection_handle_t, uint16_t timeout /*x10 ms*/) = 0;
+    virtual ble_error_t get_authentication_timeout(connection_handle_t, uint16_t &timeout /*x10 ms*/) = 0;
+
+    virtual ble_error_t refresh_encryption_key(connection_handle_t) = 0;
+
+    /* privacy */
+
+    virtual ble_error_t set_private_address_timeout(uint16_t timeout_seconds) = 0;
+
+    /* authentication */
+
     /* triggers pairing if required */
-    virtual ble_error_t set_security_mode(connection_handle_t handle,
-                                          SecurityMode_t mode) = 0;
+    virtual ble_error_t set_security_mode(connection_handle_t handle, SecurityMode_t mode) = 0;
+    virtual ble_error_t get_security_mode(connection_handle_t handle, SecurityMode_t &mode) = 0;
 
-
-    virtual ble_error_t get_security_mode(connection_handle_t handle,
-                                          SecurityMode_t &mode) = 0;
-
-
-    virtual ble_error_t get_encryption_status(connection_handle_t handle,
-                                              LinkSecurityStatus_t &mode) = 0;
+    virtual ble_error_t get_encryption_status(connection_handle_t handle, LinkSecurityStatus_t &mode) = 0;
 
     virtual ble_error_t request_pairing(bool authentication_required = true) = 0;
+    virtual ble_error_t set_pairing_request_authorisation(bool required = true) = 0;
     virtual ble_error_t accept_pairing_request(bool accept = true, bool authentication_required = true) = 0;
 
     virtual ble_error_t request_authentication() = 0;
-
-    virtual ble_error_t set_pairing_request_authorisation(bool required = true) = 0;
 
     /* MITM */
 
