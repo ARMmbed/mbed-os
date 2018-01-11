@@ -570,31 +570,26 @@ class Config(object):
                 raise ConfigException("bootloader executable does not "
                                       "start at 0x%x" % rom_start)
             part_size = (part.maxaddr() - part.minaddr()) + 1
-            start = Config._align_on_sector(rom_start + start, self.sectors) - rom_start
-            offset = start + rom_start
-            part_size = Config._align_on_sector(offset + part_size, self.sectors) - offset
-            yield Region("bootloader", offset, part_size, False,
+            part_size = Config._align_ceiling(rom_start + part_size, self.sectors) - rom_start
+            yield Region("bootloader", rom_start, part_size, False,
                          filename)
-            start += part_size
+            start = rom_start + part_size
         if 'target.restrict_size' in target_overrides:
             new_size = int(target_overrides['target.restrict_size'], 0)
-            start = Config._align_on_sector(rom_start + start, self.sectors) - rom_start
-            offset = rom_start + start
-            new_size = Config._align_on_sector(offset + new_size, self.sectors) - offset
-            yield Region("application", offset, new_size, True, None)
+            new_size = Config._align_floor(start + new_size, self.sectors) - start
+            yield Region("application", start, new_size, True, None)
             start += new_size
-            start = Config._align_on_sector(rom_start + start, self.sectors) - rom_start
             yield Region("post_application", rom_start + start, rom_size - start,
                          False, None)
         else:
-            start = Config._align_on_sector(rom_start + start, self.sectors) - rom_start
-            yield Region("application", rom_start + start, rom_size - start,
+            yield Region("application", start, rom_size - start,
                          True, None)
-        if start > rom_size:
+        if start > rom_start + rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
+    
     @staticmethod
-    def _align_on_sector(address, sectors):
+    def _find_sector(address, sectors):
         target_size = -1
         target_start = -1
         for (start, size) in sectors:
@@ -604,8 +599,19 @@ class Config(object):
             target_size = size
         if (target_size < 0):
             raise ConfigException("No valid sector found")
-        sector_num = (address - target_start)//target_size
-        return target_start + (sector_num*target_size)
+        return target_start, target_size
+        
+    @staticmethod
+    def _align_floor(address, sectors):
+        target_start, target_size = Config._find_sector(address, sectors)
+        sector_num = (address - target_start) // target_size
+        return target_start + (sector_num * target_size)
+    
+    @staticmethod
+    def _align_ceiling(address, sectors):
+        target_start, target_size = Config._find_sector(address, sectors)
+        sector_num = ((address - target_start) + target_size - 1) // target_size
+        return target_start + (sector_num * target_size)
 
     @property
     def report(self):
