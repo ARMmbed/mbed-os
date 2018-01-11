@@ -86,13 +86,13 @@ public:
     virtual ~SecurityManager() { };
 
     virtual ble_error_t initialize() {
-        return BLE_ERROR_NOT_IMPLEMENTED;
+        return BLE_ERROR_NONE;
     }
     virtual ble_error_t terminate() {
-        return BLE_ERROR_NOT_IMPLEMENTED;
+        return BLE_ERROR_NONE;
     }
     virtual ble_error_t reset() {
-        return BLE_ERROR_NOT_IMPLEMENTED;
+        return BLE_ERROR_NONE;
     }
 
     /* persistence */
@@ -200,19 +200,22 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    /* authentication */
+    virtual ble_error_t generate_irk() {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t generate_csrk() {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t set_irk(irk) {
+        (void)timeout_in_seconds;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t set_csrk(csrk) {
+        (void)timeout_in_seconds;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
 
-    /* triggers pairing if required */
-    virtual ble_error_t set_security_mode(connection_handle_t handle, SecurityMode_t mode) {
-        (void)handle;
-        (void)mode;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-    virtual ble_error_t get_security_mode(connection_handle_t handle, SecurityMode_t &mode) {
-        (void)handle;
-        (void)mode;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    /* authentication */
 
     virtual ble_error_t get_encryption_status(connection_handle_t handle, LinkSecurityStatus_t &status) {
         (void)handle;
@@ -224,15 +227,19 @@ public:
         (void)authentication_required;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t set_pairing_request_authorisation(bool authentication_required = true) {
+    virtual ble_error_t cancel_pairing() {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t set_pairing_request_authorisation(bool authorisation_required = true) {
         (void)authentication_required;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t accept_pairing_request(bool accept = true, bool authentication_required = true) {
+    virtual ble_error_t accept_pairing(bool accept = true) {
         (void)accept;
         (void)authentication_required;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
+    reject_pairing
 
     virtual ble_error_t request_authentication() {
         return BLE_ERROR_NOT_IMPLEMENTED;
@@ -299,7 +306,7 @@ public:
     }
 
 private:
-    SecurityManagerEventHandler* _event_handler;
+    SecurityManagerEventHandler *_event_handler;
 
 };
 

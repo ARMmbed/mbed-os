@@ -528,7 +528,11 @@ public:
         (void)handle;
         (void)keypress;
     };
-    virtual void oobRequest(Gap::Handle_t handle, bool extended = false) {
+    virtual void legacyPairingOobRequest(Gap::Handle_t handle) {
+        (void)handle;
+        (void)extended;
+    };
+    virtual void oobRequest(Gap::Handle_t handle) {
         (void)handle;
         (void)extended;
     };
