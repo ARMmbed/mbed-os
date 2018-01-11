@@ -480,6 +480,11 @@ uint32_t STM32_EMAC::get_mtu_size() const
     return STM_ETH_MTU_SIZE;
 }
 
+uint32_t STM32_EMAC::get_align_preference() const
+{
+    return 0;
+}
+
 void STM32_EMAC::get_ifname(char *name, uint8_t size) const
 {
     memcpy(name, STM_ETH_IF_NAME, (size < sizeof(STM_ETH_IF_NAME)) ? size : sizeof(STM_ETH_IF_NAME));
