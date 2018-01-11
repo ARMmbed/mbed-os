@@ -313,6 +313,8 @@ void mbed_sdk_init(void);
 WEAK void mbed_sdk_init(void) {
 }
 
+
+void psa_spm_init(void);
 void mbed_start_main(void)
 {
     _main_thread_attr.stack_mem = _main_stack;
@@ -325,6 +327,8 @@ void mbed_start_main(void)
     if ((void *)result == NULL) {
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_INITIALIZATION_FAILED), "Pre main thread not created", &_main_thread_attr);
     }
+
+    psa_spm_init();
 
     osKernelStart();
 }

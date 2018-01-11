@@ -46,6 +46,7 @@ from .targets import TARGET_NAMES, TARGET_MAP
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES
 from .config import Config
+from .spm import process_manifest_files
 
 RELEASE_VERSIONS = ['2', '5']
 
@@ -577,6 +578,10 @@ def build_project(src_paths, build_path, target, toolchain_name,
         # Call unified scan_resources
         resources = scan_resources(src_paths, toolchain, inc_dirs=inc_dirs)
 
+        # Generate PSA XML box code from manifests
+        psa_files_dir = process_manifest_files(resources.psa_manifests, build_path)
+        resources.add(toolchain.scan_resources(psa_files_dir))
+
         # Change linker script if specified
         if linker_script is not None:
             resources.linker_script = linker_script
@@ -738,9 +743,8 @@ def build_library(src_paths, build_path, target, toolchain_name,
                                    dependencies_paths=dependencies_paths,
                                    inc_dirs=inc_dirs)
 
-
         # Copy headers, objects and static libraries - all files needed for
-        # static lib
+        # static lib, PSA manifests
         toolchain.copy_files(resources.headers, build_path, resources=resources)
         toolchain.copy_files(resources.objects, build_path, resources=resources)
         toolchain.copy_files(resources.libraries, build_path,
@@ -753,6 +757,10 @@ def build_library(src_paths, build_path, target, toolchain_name,
 
         if resources.hex_files:
             toolchain.copy_files(resources.hex_files, build_path,
+                                 resources=resources)
+
+        if resources.psa_manifests:
+            toolchain.copy_files(resources.psa_manifests, build_path,
                                  resources=resources)
 
         # Compile Sources
