@@ -107,6 +107,14 @@ if __name__ == '__main__':
         help="Displays supported matrix of MCUs and toolchains")
 
     parser.add_argument(
+        "-H", "--hex",
+        action="store_true",
+        dest="hex",
+        default=False,
+        help="Output hex file")
+
+
+    parser.add_argument(
         '-f', '--filter',
         dest='general_filter_regex',
         default=None,
@@ -246,6 +254,18 @@ if __name__ == '__main__':
         args_error(parser, "Could not find executable for %s.\n"
                            "Currently set search path: %s"
                            %(toolchain,search_path))
+
+    if options.hex:
+        if isinstance(mcu, basestring):
+            if hasattr(TARGET_MAP[mcu], 'OUTPUT_EXT'):
+                ext = TARGET_MAP[mcu].OUTPUT_EXT
+                if not type(ext) is list:
+                    ext = [ext]
+                if not 'hex' in ext:
+                    ext.append('hex')
+                TARGET_MAP[mcu].json_data[mcu]['OUTPUT_EXT'] = ext
+            else:
+                TARGET_MAP[mcu].json_data[mcu]['OUTPUT_EXT'] = ['bin', 'hex']
 
     # Test
     build_data_blob = {} if options.build_data else None
