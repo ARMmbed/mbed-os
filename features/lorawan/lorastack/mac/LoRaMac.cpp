@@ -1704,6 +1704,9 @@ LoRaMacStatus_t LoRaMac::LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
     // Activate MIB subsystem
     mib.activate_mib_subsystem(this, lora_phy);
 
+    // Activate channel planning subsystem
+    ch_plan.activate_channelplan_subsystem(lora_phy, &mib);
+
     LoRaMacPrimitives = primitives;
     LoRaMacCallbacks = callbacks;
 
@@ -1889,10 +1892,8 @@ LoRaMacStatus_t LoRaMac::LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* 
     return LORAMAC_STATUS_OK;
 }
 
-LoRaMacStatus_t LoRaMac::LoRaMacChannelAdd( uint8_t id, ChannelParams_t params )
+LoRaMacStatus_t LoRaMac::AddChannelPlan(const lora_channelplan_t& plan)
 {
-    ChannelAddParams_t channelAdd;
-
     // Validate if the MAC is in a correct state
     if( ( _params.LoRaMacState & LORAMAC_TX_RUNNING ) == LORAMAC_TX_RUNNING )
     {
@@ -1902,16 +1903,11 @@ LoRaMacStatus_t LoRaMac::LoRaMacChannelAdd( uint8_t id, ChannelParams_t params )
         }
     }
 
-    channelAdd.NewChannel = &params;
-    channelAdd.ChannelId = id;
-
-    return lora_phy->add_channel(&channelAdd);
+    return ch_plan.set_plan(plan);
 }
 
-LoRaMacStatus_t LoRaMac::LoRaMacChannelRemove( uint8_t id )
+LoRaMacStatus_t LoRaMac::RemoveChannelPlan()
 {
-    ChannelRemoveParams_t channelRemove;
-
     if( ( _params.LoRaMacState & LORAMAC_TX_RUNNING ) == LORAMAC_TX_RUNNING )
     {
         if( ( _params.LoRaMacState & LORAMAC_TX_CONFIG ) != LORAMAC_TX_CONFIG )
@@ -1920,16 +1916,26 @@ LoRaMacStatus_t LoRaMac::LoRaMacChannelRemove( uint8_t id )
         }
     }
 
-    channelRemove.ChannelId = id;
+    return ch_plan.remove_plan();
 
-    if(lora_phy->remove_channel(&channelRemove) == false)
+}
+
+LoRaMacStatus_t LoRaMac::GetChannelPlan(lora_channelplan_t& plan)
+{
+    return ch_plan.get_plan(plan, &_params);
+}
+
+LoRaMacStatus_t LoRaMac::RemoveSingleChannel(uint8_t id)
+{
+    if( ( _params.LoRaMacState & LORAMAC_TX_RUNNING ) == LORAMAC_TX_RUNNING )
     {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
+        if( ( _params.LoRaMacState & LORAMAC_TX_CONFIG ) != LORAMAC_TX_CONFIG )
+        {
+            return LORAMAC_STATUS_BUSY;
+        }
     }
 
-    lora_phy->put_radio_to_sleep();
-
-    return LORAMAC_STATUS_OK;
+    return ch_plan.remove_single_channel(id);
 }
 
 LoRaMacStatus_t LoRaMac::LoRaMacMulticastChannelLink( MulticastParams_t *channelParam )

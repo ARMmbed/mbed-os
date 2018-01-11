@@ -49,7 +49,7 @@
 #include "lorastack/mac/LoRaMacMlme.h"
 #include "lorastack/mac/LoRaMacMcps.h"
 #include "lorastack/mac/LoRaMacMib.h"
-
+#include "lorastack/mac/LoRaMacChannelPlan.h"
 
 class LoRaMac
 {
@@ -117,27 +117,57 @@ public:
     LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo );
 
     /*!
-     * \brief   LoRaMAC channel add service.
+     * \brief   Adds a channel plan to the system.
      *
-     * \details Adds a new channel to the channel list and activates the ID in
-     *          the channel mask. Please note that this functionality is not available
-     *          in all regions. Information on the allowed ranges is available at the LoRaWAN Regional Parameters V1.0.2rB.
+     * \details Adds a whole channel plan or a single new channel to the.
+     *          Please note that this functionality is not available in all regions.
+     *          Information on the allowed ranges is available at the
+     *          LoRaWAN Regional Parameters V1.0.2rB.
      *
-     * \param   id [in] - The ID of the channel.
-     *
-     * \param   params [in] - The channel parameters to set.
+     * \param   plan [in] - A reference to application provided channel plan.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
      *          \ref LORAMAC_STATUS_OK
      *          \ref LORAMAC_STATUS_BUSY
      *          \ref LORAMAC_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t LoRaMacChannelAdd( uint8_t id, ChannelParams_t params );
+    LoRaMacStatus_t AddChannelPlan(const lora_channelplan_t& plan);
 
     /*!
-     * \brief   LoRaMAC channel remove service.
+     * \brief   Removes a channel plan from the system.
      *
-     * \details Deactivates the ID in the channel mask.
+     * \details Removes the whole active channel plan except the 'Default Channels'..
+     *          Please note that this functionality is not available in all regions.
+     *          Information on the allowed ranges is available at the
+     *          LoRaWAN Regional Parameters V1.0.2rB.
+     *
+     * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
+     *          \ref LORAMAC_STATUS_OK
+     *          \ref LORAMAC_STATUS_BUSY
+     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     */
+    LoRaMacStatus_t RemoveChannelPlan();
+
+    /*!
+     * \brief   Access active channel plan.
+     *
+     * \details Provides access to the current active channel plan.
+     *
+     * \param   plan [out] - A reference to application provided channel plan data
+     *                       structure which will be filled in with active channel
+     *                       plan.
+     *
+     * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
+     *          \ref LORAMAC_STATUS_OK
+     *          \ref LORAMAC_STATUS_BUSY
+     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     */
+    LoRaMacStatus_t GetChannelPlan(lora_channelplan_t& plan);
+
+    /*!
+     * \brief   Remove a given channel from the active plan.
+     *
+     * \details Deactivates the given channel.
      *
      * \param   id - Id of the channel.
      *
@@ -146,7 +176,7 @@ public:
      *          \ref LORAMAC_STATUS_BUSY
      *          \ref LORAMAC_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t LoRaMacChannelRemove( uint8_t id );
+    LoRaMacStatus_t RemoveSingleChannel( uint8_t id );
 
     /*!
      * \brief   LoRaMAC multicast channel link service.
@@ -625,6 +655,11 @@ private:
      * MCPS subsystem handle
      */
     LoRaMacMib mib;
+
+    /**
+     * Channel planning subsystem
+     */
+    LoRaMacChannelPlan ch_plan;
 
     /**
      * Timer subsystem handle

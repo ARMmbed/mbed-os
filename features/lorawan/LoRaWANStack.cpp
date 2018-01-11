@@ -471,91 +471,19 @@ lora_mac_status_t LoRaWANStack::add_channels(const lora_channelplan_t &channel_p
         return LORA_MAC_STATUS_NOT_INITIALIZED;
     }
 
-    ChannelParams_t mac_layer_ch_params;
-    LoRaMacStatus_t status;
+    LoRaMacStatus_t status = _loramac.AddChannelPlan(channel_plan);
 
-    GetPhyParams_t get_phy;
-    PhyParam_t phy_param;
-    uint8_t max_num_channels;
-
-    // Check first how many channels the selected PHY layer supports
-    get_phy.Attribute = PHY_MAX_NB_CHANNELS;
-    phy_param = _lora_phy.get_phy_params(&get_phy);
-    max_num_channels = (uint8_t) phy_param.Value;
-
-    // check if user is setting more channels than supported
-    if (channel_plan.nb_channels > max_num_channels) {
-        return LORA_MAC_STATUS_PARAMETER_INVALID;
-    }
-
-    for (uint8_t i = 0; i < channel_plan.nb_channels; i++) {
-        mac_layer_ch_params.Band = channel_plan.channels[i].ch_param.band;
-        mac_layer_ch_params.DrRange.Fields.Max = channel_plan.channels[i].ch_param.dr_range.lora_mac_fields_s.max;
-        mac_layer_ch_params.DrRange.Fields.Min = channel_plan.channels[i].ch_param.dr_range.lora_mac_fields_s.min;
-        mac_layer_ch_params.DrRange.Value = channel_plan.channels[i].ch_param.dr_range.value;
-        mac_layer_ch_params.Frequency = channel_plan.channels[i].ch_param.frequency;
-        mac_layer_ch_params.Rx1Frequency =channel_plan.channels[i].ch_param.rx1_frequency;
-
-        status = _loramac.LoRaMacChannelAdd(channel_plan.channels[i].id, mac_layer_ch_params);
-
-        if (status != LORAMAC_STATUS_OK) {
-            return error_type_converter(status);
-        }
-    }
-
-    return LORA_MAC_STATUS_OK;
+    return error_type_converter(status);
 }
 
 lora_mac_status_t LoRaWANStack::drop_channel_list()
 {
-    if (_device_current_state == DEVICE_STATE_NOT_INITIALIZED )
-    {
+    if (_device_current_state == DEVICE_STATE_NOT_INITIALIZED) {
         tr_error("Stack not initialized!");
         return LORA_MAC_STATUS_NOT_INITIALIZED;
     }
 
-    lora_mac_status_t status = LORA_MAC_STATUS_OK;
-
-    GetPhyParams_t get_phy;
-    PhyParam_t phy_param;
-    uint8_t max_num_channels;
-    uint16_t *channel_masks;
-    uint16_t *default_channel_masks;
-
-    // Check first how many channels the selected PHY layer supports
-    get_phy.Attribute = PHY_MAX_NB_CHANNELS;
-    phy_param = _lora_phy.get_phy_params(&get_phy);
-    max_num_channels = (uint8_t) phy_param.Value;
-
-    // Now check the channel mask for enabled channels
-    get_phy.Attribute = PHY_CHANNELS_MASK;
-    phy_param = _lora_phy.get_phy_params(&get_phy);
-    channel_masks = phy_param.ChannelsMask;
-
-    // Now check the channel mask for default channels
-    get_phy.Attribute = PHY_CHANNELS_DEFAULT_MASK;
-    phy_param = _lora_phy.get_phy_params(&get_phy);
-    default_channel_masks = phy_param.ChannelsMask;
-
-    for (uint8_t i = 0; i < max_num_channels; i++) {
-        // skip any default channels
-        if ((default_channel_masks[0] & (1U<<i)) != 0) {
-            continue;
-        }
-
-        // skip any channels which are not currently enabled
-        if ((channel_masks[0] & (1U<<i)) == 0) {
-            continue;
-        }
-
-        status = error_type_converter(_loramac.LoRaMacChannelRemove(i));
-
-        if (status != LORA_MAC_STATUS_OK) {
-            return status;
-        }
-    }
-
-    return status;
+    return error_type_converter(_loramac.RemoveChannelPlan());
 }
 
 lora_mac_status_t LoRaWANStack::remove_a_channel(uint8_t channel_id)
@@ -566,38 +494,7 @@ lora_mac_status_t LoRaWANStack::remove_a_channel(uint8_t channel_id)
         return LORA_MAC_STATUS_NOT_INITIALIZED;
     }
 
-    GetPhyParams_t get_phy;
-    PhyParam_t phy_param;
-    uint8_t max_num_channels;
-    uint16_t *channel_masks;
-
-    // Check first how many channels the selected PHY layer supports
-    get_phy.Attribute = PHY_MAX_NB_CHANNELS;
-    phy_param = _lora_phy.get_phy_params(&get_phy);
-    max_num_channels = (uint8_t) phy_param.Value;
-
-    // According to specification channel IDs start from 0 and last valid
-    // channel ID is N-1 where N=MAX_NUM_CHANNELS.
-    // So any ID which is larger or equal to the Max number of channels is invalid
-    if (channel_id >= max_num_channels) {
-        return LORA_MAC_STATUS_PARAMETER_INVALID;
-    }
-
-    // Now check the Default channel mask
-    get_phy.Attribute = PHY_CHANNELS_DEFAULT_MASK;
-    phy_param = _lora_phy.get_phy_params(&get_phy);
-    channel_masks = phy_param.ChannelsMask;
-
-    // check if the channel ID give belongs to a default channel
-    // Mostly the default channels are in the first mask if the region
-    // have multiple channel masks for various sub-bands. So we check the first
-    // mask only and return an error code if user sent a default channel id
-    if ((channel_masks[0] & (1U << channel_id)) != 0) {
-        tr_error("Not allowed to remove a Default Channel.");
-        return LORA_MAC_STATUS_PARAMETER_INVALID;
-    }
-
-    return error_type_converter(_loramac.LoRaMacChannelRemove(channel_id));
+    return error_type_converter(_loramac.RemoveSingleChannel(channel_id));
 }
 
 lora_mac_status_t LoRaWANStack::get_enabled_channels(lora_channelplan_t& channel_plan)
@@ -610,49 +507,7 @@ lora_mac_status_t LoRaWANStack::get_enabled_channels(lora_channelplan_t& channel
         return LORA_MAC_STATUS_BUSY;
     }
 
-    lora_mac_mib_request_confirm_t mib_params;
-
-    GetPhyParams_t get_phy;
-    PhyParam_t phy_param;
-    uint8_t max_num_channels;
-    uint16_t *channel_masks;
-    uint8_t count = 0;
-
-    // Check first how many channels the selected PHY layer supports
-    get_phy.Attribute = PHY_MAX_NB_CHANNELS;
-    phy_param = _lora_phy.get_phy_params(&get_phy);
-    max_num_channels = (uint8_t) phy_param.Value;
-
-    // Now check the Default channel mask
-    get_phy.Attribute = PHY_CHANNELS_MASK;
-    phy_param = _lora_phy.get_phy_params(&get_phy);
-    channel_masks = phy_param.ChannelsMask;
-
-    // Request Mib to get channels
-    memset(&mib_params, 0, sizeof(mib_params));
-    mib_params.type = LORA_MIB_CHANNELS;
-    mib_get_request(&mib_params);
-
-    for (uint8_t i = 0; i < max_num_channels; i++) {
-        // skip the channels which are not enabled
-        if ((channel_masks[0] & (1U << i)) == 0) {
-            continue;
-        }
-
-        // otherwise add them to the channel_plan struct
-        channel_plan.channels[count].id = i;
-        channel_plan.channels[count].ch_param.frequency = mib_params.param.channel_list[i].frequency;
-        channel_plan.channels[count].ch_param.dr_range.value = mib_params.param.channel_list[i].dr_range.value;
-        channel_plan.channels[count].ch_param.dr_range.lora_mac_fields_s.min = mib_params.param.channel_list[i].dr_range.lora_mac_fields_s.min;
-        channel_plan.channels[count].ch_param.dr_range.lora_mac_fields_s.max = mib_params.param.channel_list[i].dr_range.lora_mac_fields_s.max;
-        channel_plan.channels[count].ch_param.band = mib_params.param.channel_list[i].band;
-        channel_plan.channels[count].ch_param.rx1_frequency = mib_params.param.channel_list[i].rx1_frequency;
-        count++;
-    }
-
-    channel_plan.nb_channels = count;
-
-    return LORA_MAC_STATUS_OK;
+  return error_type_converter(_loramac.GetChannelPlan(channel_plan));
 }
 
 lora_mac_status_t LoRaWANStack::enable_adaptive_datarate(bool adr_enabled)

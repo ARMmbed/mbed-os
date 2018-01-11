@@ -226,6 +226,9 @@ public:
      * is already active, the request is silently ignored. A negative error
      * code is returned if there is any problem with parameters.
      *
+     * Please note that this API can also be used to add a single channel to the
+     * existing channel plan.
+     *
      * There is no reverse mechanism in the 1.0.2 specification for a node to request
      * a particular channel. Only the network server can initiate such a request.
      * You need to ensure that the corresponding base station supports the channel or channels being added.
