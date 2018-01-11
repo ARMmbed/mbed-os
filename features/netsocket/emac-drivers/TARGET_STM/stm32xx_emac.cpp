@@ -519,7 +519,17 @@ void STM32_EMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
   emac_link_state_cb = state_cb;
 }
 
-void STM32_EMAC::add_multicast_group(uint8_t *addr)
+void STM32_EMAC::add_multicast_group(const uint8_t *addr)
+{
+  /* No-op at this stage */
+}
+
+void STM32_EMAC::remove_multicast_group(const uint8_t *addr)
+{
+  /* No-op at this stage */
+}
+
+void STM32_EMAC::set_all_multicast(bool all)
 {
   /* No-op at this stage */
 }

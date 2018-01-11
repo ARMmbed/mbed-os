@@ -569,9 +569,24 @@ void K64F_EMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
   emac_link_state_cb = state_cb;
 }
 
-void K64F_EMAC::add_multicast_group(uint8_t *addr)
+void K64F_EMAC::add_multicast_group(const uint8_t *addr)
 {
-  ENET_AddMulticastGroup(ENET, addr);
+  ENET_AddMulticastGroup(ENET, const_cast<uint8_t *>(addr));
+}
+
+void K64F_EMAC::remove_multicast_group(const uint8_t *addr)
+{
+  // ENET HAL doesn't reference count - ENET_LeaveMulticastGroup just maps
+  // address to filter bit, and clears that bit, even if shared by other
+  // addresses. So don't attempt anything for now.
+}
+
+void K64F_EMAC::set_all_multicast(bool all)
+{
+  if (all) {
+      ENET->GAUR = 0xFFFFFFFFu;
+      ENET->GALR = 0xFFFFFFFFu;
+  }
 }
 
 void K64F_EMAC::power_down()
