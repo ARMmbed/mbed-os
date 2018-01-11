@@ -126,7 +126,20 @@ public:
      *
      * @param address  A multicast group hardware address
      */
-    virtual void add_multicast_group(uint8_t *address);
+    virtual void add_multicast_group(const uint8_t *address);
+
+    /** Remove device from a multicast group
+     *
+     * @param address  A multicast group hardware address
+     */
+    virtual void remove_multicast_group(const uint8_t *address);
+
+    /** Request reception of all multicast packets
+     *
+     * @param all True to receive all multicasts
+     *            False to receive only multicasts addressed to specified groups
+     */
+    virtual void set_all_multicast(bool all);
 
     /** Sets memory manager that is used to handle memory buffers
      *
