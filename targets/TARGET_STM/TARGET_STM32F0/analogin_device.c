@@ -73,7 +73,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->handle.Init.Resolution            = ADC_RESOLUTION_12B;
     obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     obj->handle.Init.ScanConvMode          = ADC_SCAN_DIRECTION_FORWARD;
-    obj->handle.Init.EOCSelection          = EOC_SINGLE_CONV;
+    obj->handle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     obj->handle.Init.LowPowerAutoWait      = DISABLE;
     obj->handle.Init.LowPowerAutoPowerOff  = DISABLE;
     obj->handle.Init.ContinuousConvMode    = DISABLE;
@@ -81,7 +81,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->handle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     obj->handle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
     obj->handle.Init.DMAContinuousRequests = DISABLE;
-    obj->handle.Init.Overrun               = OVR_DATA_OVERWRITTEN;
+    obj->handle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
 
     __HAL_RCC_ADC1_CLK_ENABLE();
 
