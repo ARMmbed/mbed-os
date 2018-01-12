@@ -40,7 +40,7 @@ def compare_config(cfg, expected):
     except KeyError:
         return "Unexpected key '%s' in configuration data" % k
     for k in expected:
-        if k not in ["expected_macros", "expected_features"] + cfg.keys():
+        if k not in ["expected_macros", "expected_features"] + list(cfg.keys()):
             return "Expected key '%s' was not found in configuration data" % k
     return ""
 
@@ -85,7 +85,7 @@ def test_config(name):
             if expected_features is not None:
                 assert sorted(expected_features) == sorted(features)
         except ConfigException as e:
-            err_msg = e.message
+            err_msg = str(e)
             if "exception_msg" not in expected:
                 assert not(err_msg), "Unexpected Error: %s" % e
             else:

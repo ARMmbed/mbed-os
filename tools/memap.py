@@ -408,7 +408,7 @@ class _IarParser(_Parser):
                 if (not arg.startswith("-")) and arg.endswith(".o"):
                     self.cmd_modules[basename(arg)] = arg
 
-        common_prefix = dirname(commonprefix(self.cmd_modules.values()))
+        common_prefix = dirname(commonprefix(list(self.cmd_modules.values())))
         self.cmd_modules = {s: relpath(f, common_prefix)
                             for s, f in self.cmd_modules.items()}
 

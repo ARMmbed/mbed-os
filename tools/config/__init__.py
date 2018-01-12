@@ -665,7 +665,7 @@ class Config(object):
                 # Check for invalid cumulative overrides in libraries
                 if (unit_kind == 'library' and
                     any(attr.startswith('target.extra_labels') for attr
-                        in overrides.iterkeys())):
+                        in overrides.keys())):
                     raise ConfigException(
                         "Target override 'target.extra_labels' in " +
                         ConfigParameter.get_display_name(unit_name, unit_kind,
