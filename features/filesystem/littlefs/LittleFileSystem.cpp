@@ -85,19 +85,19 @@ static int lfs_totype(int type)
 static int lfs_bd_read(const struct lfs_config *c, lfs_block_t block,
         lfs_off_t off, void *buffer, lfs_size_t size) {
     BlockDevice *bd = (BlockDevice *)c->context;
-    return bd->read(buffer, block*c->block_size + off, size);
+    return bd->read(buffer, (bd_addr_t)block*c->block_size + off, size);
 }
 
 static int lfs_bd_prog(const struct lfs_config *c, lfs_block_t block,
         lfs_off_t off, const void *buffer, lfs_size_t size) {
     BlockDevice *bd = (BlockDevice *)c->context;
-    return bd->program(buffer, block*c->block_size + off, size);
+    return bd->program(buffer, (bd_addr_t)block*c->block_size + off, size);
 }
 
 static int lfs_bd_erase(const struct lfs_config *c, lfs_block_t block)
 {
     BlockDevice *bd = (BlockDevice *)c->context;
-    return bd->erase(block*c->block_size, c->block_size);
+    return bd->erase((bd_addr_t)block*c->block_size, c->block_size);
 }
 
 static int lfs_bd_sync(const struct lfs_config *c)
