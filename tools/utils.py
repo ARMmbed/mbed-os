@@ -381,6 +381,8 @@ def argparse_type(casedness, prefer_hyphen=False):
             the string, or the hyphens/underscores do not match the expected
             style of the argument.
             """
+            if not isinstance(string, unicode):
+                string = string.decode()
             if prefer_hyphen:
                 newstring = casedness(string).replace("_", "-")
             else:
@@ -399,10 +401,10 @@ def argparse_type(casedness, prefer_hyphen=False):
     return middle
 
 # short cuts for the argparse_type versions
-argparse_uppercase_type = argparse_type(str.upper, False)
-argparse_lowercase_type = argparse_type(str.lower, False)
-argparse_uppercase_hyphen_type = argparse_type(str.upper, True)
-argparse_lowercase_hyphen_type = argparse_type(str.lower, True)
+argparse_uppercase_type = argparse_type(unicode.upper, False)
+argparse_lowercase_type = argparse_type(unicode.lower, False)
+argparse_uppercase_hyphen_type = argparse_type(unicode.upper, True)
+argparse_lowercase_hyphen_type = argparse_type(unicode.lower, True)
 
 def argparse_force_type(case):
     """ validate that an argument passed in (as string) is a member of the list
@@ -412,9 +414,14 @@ def argparse_force_type(case):
         """ The parser type generator"""
         def parse_type(string):
             """ The parser type"""
+            if not isinstance(string, unicode):
+                string = string.decode()
             for option in lst:
-                if case(string) == case(option):
-                    return option
+                try:
+                    if case(string) == case(option):
+                        return option
+                except Exception as e:
+                    print(e)
             raise argparse.ArgumentTypeError(
                 "{0} is not a supported {1}. Supported {1}s are:\n{2}".
                 format(string, type_name, columnate(lst)))
@@ -422,8 +429,8 @@ def argparse_force_type(case):
     return middle
 
 # these two types convert the case of their arguments _before_ validation
-argparse_force_uppercase_type = argparse_force_type(str.upper)
-argparse_force_lowercase_type = argparse_force_type(str.lower)
+argparse_force_uppercase_type = argparse_force_type(unicode.upper)
+argparse_force_lowercase_type = argparse_force_type(unicode.lower)
 
 def argparse_many(func):
     """ An argument parser combinator that takes in an argument parser and

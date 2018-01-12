@@ -34,6 +34,10 @@ from tools.arm_pack_manager import Cache
 from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
     generate_py_target, get_resolution_order, Target
 
+try:
+    unicode
+except NameError:
+    unicode = str
 PATH_OVERRIDES = set(["target.bootloader_img"])
 BOOTLOADER_OVERRIDES = set(["target.bootloader_img", "target.restrict_size",
                             "target.mbed_app_start", "target.mbed_app_size"])

@@ -1275,7 +1275,7 @@ class mbedToolchain:
         self.config_file = join(self.build_dir, self.MBED_CONFIG_FILE_NAME)
         # If the file exists, read its current content in prev_data
         if exists(self.config_file):
-            with open(self.config_file, "rt") as f:
+            with open(self.config_file, "r") as f:
                 prev_data = f.read()
         else:
             prev_data = None
@@ -1289,12 +1289,13 @@ class mbedToolchain:
                 self.config_file = None # this means "config file not present"
                 changed = True
             elif crt_data != prev_data: # different content of config file
-                with open(self.config_file, "wt") as f:
+                print("changed!")
+                with open(self.config_file, "w") as f:
                     f.write(crt_data)
                 changed = True
         else: # a previous mbed_config.h does not exist
             if crt_data is not None: # there's configuration data available
-                with open(self.config_file, "wt") as f:
+                with open(self.config_file, "w") as f:
                     f.write(crt_data)
                 changed = True
             else:
@@ -1606,11 +1607,11 @@ from tools.toolchains.gcc import GCC_ARM
 from tools.toolchains.iar import IAR
 
 TOOLCHAIN_CLASSES = {
-    'ARM': ARM_STD,
-    'uARM': ARM_MICRO,
-    'ARMC6': ARMC6,
-    'GCC_ARM': GCC_ARM,
-    'IAR': IAR
+    u'ARM': ARM_STD,
+    u'uARM': ARM_MICRO,
+    u'ARMC6': ARMC6,
+    u'GCC_ARM': GCC_ARM,
+    u'IAR': IAR
 }
 
 TOOLCHAINS = set(TOOLCHAIN_CLASSES.keys())
