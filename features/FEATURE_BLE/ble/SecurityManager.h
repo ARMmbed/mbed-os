@@ -69,7 +69,7 @@ public:
         SEC_STATUS_SUCCESS              = 0x00,  /**< Procedure completed with success. */
         SEC_STATUS_TIMEOUT              = 0x01,  /**< Procedure timed out. */
         SEC_STATUS_PDU_INVALID          = 0x02,  /**< Invalid PDU received. */
-        SEC_STATUS_PASSKEY_ENTRY_FAILED = 0x81,  /**< Passkey entry failed (user canceled or other). */
+        SEC_STATUS_PASSKEY_ENTRY_FAILED = 0x81,  /**< Passkey entry failed (user cancelled or other). */
         SEC_STATUS_OOB_NOT_AVAILABLE    = 0x82,  /**< Out of Band Key not available. */
         SEC_STATUS_AUTH_REQ             = 0x83,  /**< Authentication requirements not met. */
         SEC_STATUS_CONFIRM_VALUE        = 0x84,  /**< Confirm value failed. */
@@ -79,6 +79,8 @@ public:
         SEC_STATUS_UNSPECIFIED          = 0x88,  /**< Unspecified reason. */
         SEC_STATUS_REPEATED_ATTEMPTS    = 0x89,  /**< Too little time elapsed since last attempt. */
         SEC_STATUS_INVALID_PARAMS       = 0x8A,  /**< Invalid parameters. */
+        SEC_STATUS_DHKEY_CHECK_FAILED   = 0x8B,  /**< DHKey received doesn’t match locally calculated one. */
+        SEC_STATUS_COMPARISON_FAILED    = 0x8C,  /**< Values in the numeric comparison protocol do not match. */
     };
 
     /**
