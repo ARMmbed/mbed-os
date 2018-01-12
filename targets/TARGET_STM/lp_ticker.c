@@ -292,15 +292,8 @@ void lp_ticker_init(void)
 
 uint32_t lp_ticker_read(void)
 {
-    uint32_t usecs = 0;
-    time_t time = 0;
-
-    do {
-        time = rtc_read();
-        usecs = rtc_read_subseconds();
-    } while (time != rtc_read());
-
-    return (time * 1000000) + usecs;
+    uint32_t usecs = rtc_read_us();
+    return usecs;
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
