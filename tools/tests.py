@@ -17,7 +17,7 @@ limitations under the License.
 from tools.paths import *
 from tools.data.support import DEFAULT_SUPPORT, CORTEX_ARM_SUPPORT
 from argparse import ArgumentTypeError
-from utils import columnate
+from tools.utils import columnate
 
 TEST_CMSIS_LIB = join(TEST_DIR, "cmsis", "lib")
 TEST_MBED_LIB = join(TEST_DIR, "mbed", "env")

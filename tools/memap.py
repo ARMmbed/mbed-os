@@ -16,7 +16,7 @@ from copy import deepcopy
 from prettytable import PrettyTable
 from tools.arm_pack_manager import Cache
 
-from utils import argparse_filestring_type, \
+from tools.utils import argparse_filestring_type, \
     argparse_lowercase_hyphen_type, argparse_uppercase_type
 
 

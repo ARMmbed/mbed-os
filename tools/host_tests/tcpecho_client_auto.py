@@ -14,17 +14,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
 import sys
 import socket
 from sys import stdout
-from SocketServer import BaseRequestHandler, TCPServer
+try:
+    from SocketServer import BaseRequestHandler, TCPServer
+except ImportError:
+    from socketserver import BaseRequestHandler, TCPServer
 
 class TCPEchoClient_Handler(BaseRequestHandler):
     def handle(self):
         """ One handle per connection
         """
-        print "HOST: Connection received...",
+        print("HOST: Connection received...")
         count = 1;
         while True:
             data = self.request.recv(1024)
@@ -32,7 +36,7 @@ class TCPEchoClient_Handler(BaseRequestHandler):
             self.request.sendall(data)
             if '{{end}}' in str(data):
                 print
-                print str(data)
+                print(str(data))
             else:
                 if not count % 10:
                     sys.stdout.write('.')
@@ -82,6 +86,7 @@ class TCPEchoClientTest():
 
         # Returning none will suppress host test from printing success code
         server = TCPServer((SERVER_IP, SERVER_PORT), TCPEchoClient_Handler)
-        print "HOST: Listening for TCP connections: " + SERVER_IP + ":" + str(SERVER_PORT)
+        print("HOST: Listening for TCP connections: %s:%s" %
+              (SERVER_IP, str(SERVER_PORT)))
         self.send_server_ip_port(selftest, SERVER_IP, SERVER_PORT)
         server.serve_forever()
