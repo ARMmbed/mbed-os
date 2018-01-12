@@ -31,7 +31,7 @@
 
 #include "mbed_assert.h"
 #include "i2c_api.h"
-#include "platform/wait_api.h"
+#include "platform/mbed_wait_api.h"
 
 #if DEVICE_I2C
 
@@ -274,10 +274,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
         obj_s->index = 0;
         __HAL_RCC_I2C1_CLK_ENABLE();
         // Configure I2C pins
-        pinmap_pinout(sda, PinMap_I2C_SDA);
-        pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrainPullUp);
-        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C1_EV_IRQn;
         obj_s->error_i2cIRQ = I2C1_ER_IRQn;
     }
@@ -287,11 +283,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if (obj_s->i2c == I2C_2) {
         obj_s->index = 1;
         __HAL_RCC_I2C2_CLK_ENABLE();
-        // Configure I2C pins
-        pinmap_pinout(sda, PinMap_I2C_SDA);
-        pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrainPullUp);
-        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C2_EV_IRQn;
         obj_s->error_i2cIRQ = I2C2_ER_IRQn;
     }
@@ -301,11 +292,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if (obj_s->i2c == I2C_3) {
         obj_s->index = 2;
         __HAL_RCC_I2C3_CLK_ENABLE();
-        // Configure I2C pins
-        pinmap_pinout(sda, PinMap_I2C_SDA);
-        pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrainPullUp);
-        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C3_EV_IRQn;
         obj_s->error_i2cIRQ = I2C3_ER_IRQn;
     }
@@ -315,11 +301,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if (obj_s->i2c == I2C_4) {
         obj_s->index = 3;
         __HAL_RCC_I2C4_CLK_ENABLE();
-        // Configure I2C pins
-        pinmap_pinout(sda, PinMap_I2C_SDA);
-        pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrainPullUp);
-        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = I2C4_EV_IRQn;
         obj_s->error_i2cIRQ = I2C4_ER_IRQn;
     }
@@ -329,15 +310,16 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl) {
     if (obj_s->i2c == FMPI2C_1) {
         obj_s->index = 4;
         __HAL_RCC_FMPI2C1_CLK_ENABLE();
-        // Configure I2C pins
-        pinmap_pinout(sda, PinMap_I2C_SDA);
-        pinmap_pinout(scl, PinMap_I2C_SCL);
-        pin_mode(sda, OpenDrainPullUp);
-        pin_mode(scl, OpenDrainPullUp);
         obj_s->event_i2cIRQ = FMPI2C1_EV_IRQn;
         obj_s->error_i2cIRQ = FMPI2C1_ER_IRQn;
     }
 #endif
+
+    // Configure I2C pins
+    pinmap_pinout(sda, PinMap_I2C_SDA);
+    pinmap_pinout(scl, PinMap_I2C_SCL);
+    pin_mode(sda, OpenDrainNoPull);
+    pin_mode(scl, OpenDrainNoPull);
 
     // I2C configuration
     // Default hz value used for timeout computation
@@ -436,9 +418,9 @@ void i2c_frequency(i2c_t *obj, int hz)
 
     // I2C configuration
     handle->Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
-    handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLED;
-    handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLED;
-    handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLED;
+    handle->Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+    handle->Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+    handle->Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
     handle->Init.OwnAddress1     = 0;
     handle->Init.OwnAddress2     = 0;
     HAL_I2C_Init(handle);
@@ -743,15 +725,10 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop) {
     int count = I2C_ERROR_BUS_BUSY, ret = 0;
     uint32_t timeout = 0;
 
-    if((length == 0) || (data == 0)) {
-        if(HAL_I2C_IsDeviceReady(handle, address, 1, 10) == HAL_OK)
-            return 0;
-        else
-            return I2C_ERROR_BUS_BUSY;
-    }
-
-    if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
-        (obj_s->XferOperation == I2C_LAST_FRAME)) {
+    // Trick to remove compiler warning "left and right operands are identical" in some cases
+    uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
+    uint32_t op2 = I2C_LAST_FRAME;
+    if ((obj_s->XferOperation == op1) || (obj_s->XferOperation == op2)) {
         if (stop)
             obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
         else
@@ -802,15 +779,10 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop) {
     int count = I2C_ERROR_BUS_BUSY, ret = 0;
     uint32_t timeout = 0;
 
-    if((length == 0) || (data == 0)) {
-        if(HAL_I2C_IsDeviceReady(handle, address, 1, 10) == HAL_OK)
-            return 0;
-        else
-            return I2C_ERROR_BUS_BUSY;
-    }
-
-    if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
-        (obj_s->XferOperation == I2C_LAST_FRAME)) {
+    // Trick to remove compiler warning "left and right operands are identical" in some cases
+    uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
+    uint32_t op2 = I2C_LAST_FRAME;
+    if ((obj_s->XferOperation == op1) || (obj_s->XferOperation == op2)) {
         if (stop)
             obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
         else
@@ -904,7 +876,10 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c){
 
 #if DEVICE_I2CSLAVE
     /*  restore slave address */
-    i2c_slave_address(obj, 0, address, 0);
+    if (address != 0) {
+        obj_s->slave = 1;
+        i2c_slave_address(obj, 0, address, 0);
+    }
 #endif
 
     /* Keep Set event flag */
@@ -1094,8 +1069,10 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
 
     /* Set operation step depending if stop sending required or not */
     if ((tx_length && !rx_length) || (!tx_length && rx_length)) {
-        if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
-            (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        // Trick to remove compiler warning "left and right operands are identical" in some cases
+        uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
+        uint32_t op2 = I2C_LAST_FRAME;
+        if ((obj_s->XferOperation == op1) || (obj_s->XferOperation == op2)) {
             if (stop)
                 obj_s->XferOperation = I2C_FIRST_AND_LAST_FRAME;
             else
@@ -1117,8 +1094,10 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     }
     else if (tx_length && rx_length) {
         /* Two steps operation, don't modify XferOperation, keep it for next step */
-        if ((obj_s->XferOperation == I2C_FIRST_AND_LAST_FRAME) ||
-            (obj_s->XferOperation == I2C_LAST_FRAME)) {
+        // Trick to remove compiler warning "left and right operands are identical" in some cases
+        uint32_t op1 = I2C_FIRST_AND_LAST_FRAME;
+        uint32_t op2 = I2C_LAST_FRAME;
+        if ((obj_s->XferOperation == op1) || (obj_s->XferOperation == op2)) {
                 HAL_I2C_Master_Sequential_Transmit_IT(handle, address, (uint8_t*)tx, tx_length, I2C_FIRST_FRAME);
         } else if ((obj_s->XferOperation == I2C_FIRST_FRAME) ||
             (obj_s->XferOperation == I2C_NEXT_FRAME)) {

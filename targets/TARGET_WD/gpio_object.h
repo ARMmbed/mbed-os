@@ -43,7 +43,7 @@ extern "C" {
 /*
  * Note: reg_clr might actually be same as reg_set.
  * Depends on family whether BRR is available on top of BSRR
- * if BRR does not exist, family shall define GPIO_DOES_NOT_HAVE_BRR
+ * if BRR does not exist, family shall define GPIO_IP_WITHOUT_BRR
  */
 typedef struct {
     uint32_t mask;
