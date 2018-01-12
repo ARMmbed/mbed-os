@@ -51,11 +51,11 @@ extern "C" {
 #define RTC_CLOCK LSI_VALUE
 #endif
 
-/** Read the subsecond register.
+/** Read RTC time with subsecond precision.
  *
- * @return The remaining time as microseconds (0-999999)
+ * @return Time is microsecond
  */
-uint32_t rtc_read_subseconds(void);
+uint32_t rtc_read_us(void);
 
 /** Program a wake up timer event in delta microseconds.
  *
