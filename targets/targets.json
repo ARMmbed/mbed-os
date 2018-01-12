@@ -3583,6 +3583,17 @@
     "WD_CORE_G1": {
         "inherits": [ "Target" ],
         "core": "Cortex-M4F",
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lse_available": {
+                "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
+                "value": "0"
+            }
+        },
         "supported_toolchains": [ "GCC_ARM" ],
         "default_toolchain": "GCC_ARM",
         "extra_labels": [ "WD", "WD_CORE" ],
