@@ -113,7 +113,7 @@ public:
 protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl) : pal(palImpl), saveStateEnabled(false) {
         pal_event_handler.set_app_event_handler(&defaultEventHandler);
-        pal.set_event_handler(pal_event_handler);
+        pal.set_event_handler(&pal_event_handler);
     }
 
 public:

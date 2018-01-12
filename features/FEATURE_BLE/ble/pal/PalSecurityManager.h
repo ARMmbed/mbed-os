@@ -50,6 +50,35 @@ typedef uint8_t ediv_t[8];
 typedef uint8_t rand_t[2];
 typedef uint32_t passkey_num_t;
 
+typedef uint8_t key_distribution_t;
+
+enum KeyDistributionFlags_t : uint8_t {
+    KEY_DISTRIBUTION_NONE       = 0x00,
+    KEY_DISTRIBUTION_ENCRYPTION = 0x01,
+    KEY_DISTRIBUTION_IDENTITY   = 0x02,
+    KEY_DISTRIBUTION_SIGNING    = 0x04,
+    KEY_DISTRIBUTION_LINK       = 0x08,
+    KEY_DISTRIBUTION_ALL        = 0x0F
+};
+
+typedef uint8_t authentication_t;
+
+enum AuthenticationFlags_t : uint8_t {
+    AUTHENTICATION_BONDING                = 0x01,
+    AUTHENTICATION_MITM                   = 0x04, /* 0x02 missing because bonding uses two bits */
+    AUTHENTICATION_SECURE_CONNECTIONS     = 0x08,
+    AUTHENTICATION_KEYPRESS_NOTIFICATION  = 0x10
+};
+
+struct pairing_request_t {
+    SecurityManager::SecurityIOCapabilities_t iocaps;
+    bool use_oob;
+    authentication_t auth;
+    uint8_t max_key_size;
+    key_distribution_t initiator_dist;
+    key_distribution_t responder_dist;
+};
+
 struct bonded_list_entry_t {
     address_t peer_address;
     ediv_t ediv;
@@ -296,11 +325,6 @@ public:
 
     /* keys */
 
-    virtual ble_error_t set_key_distribution() {
-        (void);
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
     virtual ble_error_t set_ltk(connection_handle_t handle, ltk_t ltk) {
         (void)ltk;
         return BLE_ERROR_NOT_IMPLEMENTED;
@@ -329,20 +353,25 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t request_pairing() {
+    virtual ble_error_t request_pairing(connection_handle_t handle, pairing_request_t params) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
+    virtual ble_error_t accept_pairing(connection_handle_t handle, pairing_request_t params) {
+        (void)handle;
+        (void)params;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t reject_pairing(connection_handle_t handle) {
+        (void)handle;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t cancel_pairing(connection_handle_t handle) {
+        (void)handle;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
     virtual ble_error_t set_pairing_request_authorisation(bool authorisation_required = true) {
         (void)authorisation_required;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-    virtual ble_error_t accept_pairing() {
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-    virtual ble_error_t reject_pairing() {
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-    virtual ble_error_t cancel_pairing() {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -405,11 +434,11 @@ public:
         /* guaranteed to be a valid pointer */
         return _pal_event_handler;
     }
-    void set_app_event_handler(::SecurityManagerEventHandler &app_event_handler) {
+    void set_app_event_handler(::SecurityManagerEventHandler *app_event_handler) {
         _pal_event_handler->set_app_event_handler(app_event_handler);
     }
-    void set_event_handler(SecurityManagerEventHandler &event_handler) {
-        _pal_event_handler = &event_handler;
+    void set_event_handler(SecurityManagerEventHandler *event_handler) {
+        _pal_event_handler = event_handler;
     }
 
 private:
