@@ -32,6 +32,10 @@
         },
         "EFR32": {
             "stdio-baud-rate": 115200
+        },
+        "WUNDERBAR": {
+            "stdio-baud-rate": 115200,
+            "default-serial-baud-rate": 115200
         }
     }
 }

@@ -3617,5 +3617,11 @@
         "device_has_add": ["LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2"],
         "device_name": "STM32F411RE"
+    },
+    "WUNDERBAR": {
+        "inherits": ["MCU_K24F1M"],
+        "release_versions": ["5"],
+        "OUTPUT_EXT": "bin",
+        "bootloader_supported": true
     }
 }
