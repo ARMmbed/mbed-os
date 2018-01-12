@@ -25,6 +25,8 @@
 class SecurityManagerEventHandler;
 class LegacySecurityManagerEventHandler;
 
+using ble::connection_handle_t;
+
 class SecurityManager {
 public:
     enum Keypress_t {
@@ -497,53 +499,53 @@ public:
     SecurityManagerEventHandler() {};
     virtual ~SecurityManagerEventHandler() {};
 
-    virtual void securitySetupInitiated(Gap::Handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
+    virtual void securitySetupInitiated(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
         (void)handle;
         (void)allowBonding;
         (void)requireMITM;
         (void)iocaps;
     };
-    virtual void securitySetupCompleted(Gap::Handle_t handle, SecurityManager::SecurityCompletionStatus_t status) {
+    virtual void securitySetupCompleted(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t status) {
         (void)handle;
         (void)status;
     };
-    virtual void linkSecured(Gap::Handle_t handle, SecurityManager::SecurityMode_t securityMode) {
+    virtual void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
         (void)handle;
         (void)securityMode;
     };
-    virtual void securityContextStored(Gap::Handle_t handle) {
+    virtual void securityContextStored(connection_handle_t handle) {
         (void)handle;
     }
-    virtual void passkeyDisplay(Gap::Handle_t handle, const SecurityManager::Passkey_t passkey) {
+    virtual void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
         (void)handle;
         (void)passkey;
     };
-    virtual void validMicTimeout(Gap::Handle_t handle) {
+    virtual void validMicTimeout(connection_handle_t handle) {
         (void)handle;
     };
-    virtual void linkKeyFailure(Gap::Handle_t handle) {
+    virtual void linkKeyFailure(connection_handle_t handle) {
         (void)handle;
     };
-    virtual void keypressNotification(Gap::Handle_t handle, SecurityManager::Keypress_t keypress) {
+    virtual void keypressNotification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
         (void)handle;
         (void)keypress;
     };
-    virtual void legacyPairingOobRequest(Gap::Handle_t handle) {
+    virtual void legacyPairingOobRequest(connection_handle_t handle) {
         (void)handle;
     };
-    virtual void oobRequest(Gap::Handle_t handle) {
+    virtual void oobRequest(connection_handle_t handle) {
         (void)handle;
     };
-    virtual void pinRequest(Gap::Handle_t handle) {
+    virtual void pinRequest(connection_handle_t handle) {
         (void)handle;
     };
-    virtual void passkeyRequest(Gap::Handle_t handle) {
+    virtual void passkeyRequest(connection_handle_t handle) {
         (void)handle;
     };
-    virtual void confirmationRequest(Gap::Handle_t handle) {
+    virtual void confirmationRequest(connection_handle_t handle) {
         (void)handle;
     };
-    virtual void acceptPairingRequest(Gap::Handle_t handle) {
+    virtual void acceptPairingRequest(connection_handle_t handle) {
         (void)handle;
     };
 };
@@ -558,27 +560,27 @@ public:
         securityContextStoredCallback(),
         passkeyDisplayCallback() { };
 
-    void securitySetupInitiated(Gap::Handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
+    void securitySetupInitiated(connection_handle_t handle, bool allowBonding, bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
         if (securitySetupInitiatedCallback) {
             securitySetupInitiatedCallback(handle, allowBonding, requireMITM, iocaps);
         }
     };
-    void securitySetupCompleted(Gap::Handle_t handle, SecurityManager::SecurityCompletionStatus_t status) {
+    void securitySetupCompleted(connection_handle_t handle, SecurityManager::SecurityCompletionStatus_t status) {
         if (securitySetupCompletedCallback) {
             securitySetupCompletedCallback(handle, status);
         }
     };
-    void linkSecured(Gap::Handle_t handle, SecurityManager::SecurityMode_t securityMode) {
+    void linkSecured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
         if (linkSecuredCallback) {
             linkSecuredCallback(handle, securityMode);
         }
     };
-    void securityContextStored(Gap::Handle_t handle) {
+    void securityContextStored(connection_handle_t handle) {
         if (securityContextStoredCallback) {
             securityContextStoredCallback(handle);
         }
     }
-    void passkeyDisplay(Gap::Handle_t handle, const SecurityManager::Passkey_t passkey) {
+    void passkeyDisplay(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
         if (passkeyDisplayCallback) {
             passkeyDisplayCallback(handle, passkey);
         }

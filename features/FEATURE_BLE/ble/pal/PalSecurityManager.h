@@ -41,8 +41,7 @@ typedef SecurityManager::C192_t c192_t;
 typedef SecurityManager::R192_t r192_t;
 typedef SecurityManager::C256_t c256_t;
 typedef SecurityManager::R256_t r256_t;
-
-using BLEProtocol::Address_t;
+typedef BLEProtocol::AddressBytes_t address_t;
 
 typedef uint8_t irk_t[16];
 typedef uint8_t csrk_t[16];
@@ -52,7 +51,7 @@ typedef uint8_t rand_t[2];
 typedef uint32_t passkey_num_t;
 
 struct bonded_list_entry_t {
-    Address_t peer_address;
+    address_t peer_address;
     ediv_t ediv;
     rand_t rand;
     ltk_t ltk;
@@ -60,7 +59,7 @@ struct bonded_list_entry_t {
 };
 
 struct resolving_list_entry_t {
-    Address_t peer_address;
+    address_t peer_address;
     irk_t peer_irk;
     irk_t local_irk;
 };
@@ -81,89 +80,91 @@ struct bonded_list_t {
 
 class SecurityManagerEventHandler {
     SecurityManagerEventHandler() : _app_event_handler(NULL) { };
-    virtual void security_setup_initiated(Gap::Handle_t handle, bool allowBonding,
+    virtual void security_setup_initiated(connection_handle_t handle, bool allowBonding,
                                           bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupInitiated(handle, allowBonding, requireMITM, iocaps);
         }
     }
-    virtual void security_setup_completed(Gap::Handle_t handle,
+    virtual void security_setup_completed(connection_handle_t handle,
                                           SecurityManager::SecurityCompletionStatus_t status) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupCompleted(handle, status);
         }
     }
-    virtual void link_secured(Gap::Handle_t handle, SecurityManager::SecurityMode_t securityMode) {
+    virtual void link_secured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
         if (_app_event_handler) {
             _app_event_handler->linkSecured(handle, securityMode);
         }
     }
 
-    virtual void security_context_stored(Gap::Handle_t handle) {
+    virtual void security_context_stored(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->securityContextStored(handle);
         }
     }
-    virtual void passkey_display(Gap::Handle_t handle, const SecurityManager::Passkey_t passkey) {
+    virtual void passkey_display(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
         if (_app_event_handler) {
             _app_event_handler->passkeyDisplay(handle, passkey);
         }
     }
 
-    virtual void valid_mic_timeout(Gap::Handle_t handle) {
+    virtual void valid_mic_timeout(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->validMicTimeout(handle);
         }
     }
 
-    virtual void link_key_failure(Gap::Handle_t handle) {
+    virtual void link_key_failure(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->linkKeyFailure(handle);
         }
     }
 
-    virtual void keypress_notification(Gap::Handle_t handle, SecurityManager::Keypress_t keypress) {
+    virtual void keypress_notification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
         if (_app_event_handler) {
             _app_event_handler->keypressNotification(handle, keypress);
         }
     }
 
-    virtual void legacy_pariring_oob_request(Gap::Handle_t handle) {
+    virtual void legacy_pariring_oob_request(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->legacyPairingOobRequest(handle);
         }
     }
 
-    virtual void oob_request(Gap::Handle_t handle) {
+    virtual void oob_request(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->oobRequest(handle);
         }
     }
-    virtual void pin_request(Gap::Handle_t handle) {
+    virtual void pin_request(connection_handle_t handle) {
 
         if (_app_event_handler) {
             _app_event_handler->pinRequest(handle);
         }
     }
-    virtual void passkey_request(Gap::Handle_t handle) {
+    virtual void passkey_request(connection_handle_t handle) {
 
         if (_app_event_handler) {
             _app_event_handler->passkeyRequest(handle);
         }
     }
-    virtual void confirmation_request(Gap::Handle_t handle) {
+    virtual void confirmation_request(connection_handle_t handle) {
 
         if (_app_event_handler) {
             _app_event_handler->confirmationRequest(handle);
         }
     }
-    virtual void accept_pairing_request(Gap::Handle_t handle) {
+    virtual void accept_pairing_request(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->acceptPairingRequest(handle);
         }
     }
 
-    virtual void keys_exchanged(Gap::Handle_t handle, Address_t &peer_address, ediv_t &ediv, rand_t &rand, ltk_t &ltk, csrk_t &csrk);
+    virtual void keys_exchanged(connection_handle_t handle, address_t &peer_address, ediv_t &ediv,
+                                rand_t &rand, ltk_t &ltk, csrk_t &csrk);
+    virtual void ltk_request(connection_handle_t handle, ediv_t &ediv, rand_t &rand);
 
     virtual void set_app_event_handler(::SecurityManagerEventHandler *app_event_handler) {
         _app_event_handler = app_event_handler;
@@ -293,18 +294,30 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t generate_irk() {
+    /* keys */
+
+    virtual ble_error_t set_key_distribution() {
+        (void);
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t generate_csrk() {
+
+    virtual ble_error_t set_ltk(connection_handle_t handle, ltk_t ltk) {
+        (void)ltk;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
+
     virtual ble_error_t set_irk(irk_t irk) {
         (void)irk;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
     virtual ble_error_t set_csrk(csrk_t csrk) {
         (void)csrk;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t generate_irk() {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t generate_csrk() {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -316,23 +329,22 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t request_pairing(bool authentication_required = true) {
-        (void)authentication_required;
+    virtual ble_error_t request_pairing() {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t set_pairing_request_authorisation(bool authorisation_required = true) {
+        (void)authorisation_required;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t accept_pairing() {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t reject_pairing() {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
     virtual ble_error_t cancel_pairing() {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t set_pairing_request_authorisation(bool authorisation_required = true) {
-        (void)authentication_required;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-    virtual ble_error_t accept_pairing(bool accept = true) {
-        (void)accept;
-        (void)authentication_required;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-    reject_pairing
 
     virtual ble_error_t request_authentication() {
         return BLE_ERROR_NOT_IMPLEMENTED;
