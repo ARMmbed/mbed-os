@@ -76,9 +76,15 @@ void test_tcp_hello_world() {
         sock.send(buffer, strlen(buffer));
 
         // Server will respond with HTTP GET's success code
-        const int ret = sock.recv(buffer, sizeof(buffer) - 1);
-        buffer[ret] = '\0';
+        int ret = 0;
+        int bytes_recvd = 0;
 
+        do {
+            ret += bytes_recvd;
+            bytes_recvd = sock.recv(buffer+ret, sizeof(buffer) - 1 - ret);
+        }while(bytes_recvd > 0);
+        buffer[ret] = '\0';
+        
         // Find 200 OK HTTP status in reply
         bool found_200_ok = find_substring(buffer, buffer + ret, HTTP_OK_STR, HTTP_OK_STR + strlen(HTTP_OK_STR));
         // Find "Hello World!" string in reply
