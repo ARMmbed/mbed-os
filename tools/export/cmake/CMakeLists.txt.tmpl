@@ -51,6 +51,7 @@ ADD_LIBRARY({{libname}} STATIC
 ADD_EXECUTABLE({{name}}
   {% for src in sources %}{{src}}
   {% endfor %})
+SET_TARGET_PROPERTIES({{name}} PROPERTIES ENABLE_EXPORTS 1)
 TARGET_LINK_LIBRARIES({{name}}
   {% for libname in dependencies.keys()|sort(reverse=true) %}{{libname}}
   {% endfor %})
@@ -89,8 +90,8 @@ ELSE()
 ENDIF()
 
 # optional custom target to build via mbed-cli
-ADD_CUSTOM_TARGET(mbed-cli-build EXCLUDE_FROM_ALL
-        COMMAND ${CMAKE_COMMAND} -E echo "mbed compile --build BUILD/${CMAKE_BUILD_TYPE} ${MBED_BUILD_PROFILE}"
+ADD_CUSTOM_TARGET(mbed-cli-build
+        COMMAND ${CMAKE_COMMAND} -E echo "mbed compile --build BUILD/${CMAKE_BUILD_TYPE} --profile ${MBED_BUILD_PROFILE}"
         COMMAND mbed compile --build BUILD/${CMAKE_BUILD_TYPE} --profile ${MBED_BUILD_PROFILE}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         SOURCES ${SOURCE_FILES} ${SYS_SOURCE_FILES})
