@@ -55,6 +55,8 @@ SET_TARGET_PROPERTIES({{name}} PROPERTIES ENABLE_EXPORTS 1)
 TARGET_LINK_LIBRARIES({{name}}
   {% for libname in dependencies.keys()|sort(reverse=true) %}{{libname}}
   {% endfor %})
+# add dependencies for stdc++, c and nosys so the linker stage works
+TARGET_LINK_LIBRARIES({{name}} stdc++ c nosys)
 
 {% if pp -%}
 add_custom_command(TARGET {{name}} PRE_LINK
