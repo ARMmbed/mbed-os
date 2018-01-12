@@ -248,7 +248,7 @@ public:
         (void)entry;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t cllear_resolving_list() {
+    virtual ble_error_t clear_resolving_list() {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
