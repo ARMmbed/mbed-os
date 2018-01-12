@@ -55,8 +55,8 @@ SET_TARGET_PROPERTIES({{name}} PROPERTIES ENABLE_EXPORTS 1)
 TARGET_LINK_LIBRARIES({{name}}
   {% for libname in dependencies.keys()|sort(reverse=true) %}{{libname}}
   {% endfor %})
-# add dependencies for stdc++, c and nosys so the linker stage works
-TARGET_LINK_LIBRARIES({{name}} stdc++ c nosys)
+# add syslibs dependencies to create the correct linker order
+TARGET_LINK_LIBRARIES({{name}} {{ld_sys_libs|join(" ")}})
 
 {% if pp -%}
 add_custom_command(TARGET {{name}} PRE_LINK
@@ -68,6 +68,7 @@ add_custom_command(TARGET {{name}} PRE_LINK
 
 add_custom_command(TARGET {{name}} POST_BUILD
                    COMMAND ${ELF2BIN} -O ihex $<TARGET_FILE:{{name}}> $<TARGET_FILE:{{name}}>.hex
+                   COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:{{name}}>.hex"
                   )
 
 
