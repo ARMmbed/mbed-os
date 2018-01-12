@@ -70,15 +70,6 @@ enum AuthenticationFlags_t : uint8_t {
     AUTHENTICATION_KEYPRESS_NOTIFICATION  = 0x10
 };
 
-struct pairing_request_t {
-    SecurityManager::SecurityIOCapabilities_t iocaps;
-    bool use_oob;
-    authentication_t auth;
-    uint8_t max_key_size;
-    key_distribution_t initiator_dist;
-    key_distribution_t responder_dist;
-};
-
 struct bonded_list_entry_t {
     address_t peer_address;
     ediv_t ediv;
@@ -185,7 +176,13 @@ class SecurityManagerEventHandler {
             _app_event_handler->confirmationRequest(handle);
         }
     }
-    virtual void accept_pairing_request(connection_handle_t handle, pairing_request_t &params) {
+    virtual void accept_pairing_request(connection_handle_t handle,
+                                        SecurityManager::SecurityIOCapabilities_t iocaps,
+                                        bool use_oob,
+                                        authentication_t authentication,
+                                        uint8_t max_key_size,
+                                        key_distribution_t initiator_dist,
+                                        key_distribution_t responder_dist) {
         if (_app_event_handler) {
             _app_event_handler->acceptPairingRequest(handle);
         }
@@ -362,12 +359,36 @@ public:
 
     /* authentication */
 
-    virtual ble_error_t request_pairing(connection_handle_t handle, pairing_request_t &params) {
+    virtual ble_error_t request_pairing(connection_handle_t handle,
+                                        SecurityManager::SecurityIOCapabilities_t iocaps,
+                                        bool use_oob,
+                                        authentication_t authentication,
+                                        uint8_t max_key_size,
+                                        key_distribution_t initiator_dist,
+                                        key_distribution_t responder_dist) {
+        (void)handle;
+        (void)iocaps;
+        (void)use_oob;
+        (void)authentication;
+        (void)max_key_size;
+        (void)initiator_dist;
+        (void)responder_dist;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t accept_pairing(connection_handle_t handle, pairing_request_t &params) {
+    virtual ble_error_t accept_pairing(connection_handle_t handle,
+                                       SecurityManager::SecurityIOCapabilities_t iocaps,
+                                       bool use_oob,
+                                       authentication_t authentication,
+                                       uint8_t max_key_size,
+                                       key_distribution_t initiator_dist,
+                                       key_distribution_t responder_dist) {
         (void)handle;
-        (void)params;
+        (void)iocaps;
+        (void)use_oob;
+        (void)authentication;
+        (void)max_key_size;
+        (void)initiator_dist;
+        (void)responder_dist;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
     virtual ble_error_t reject_pairing(connection_handle_t handle) {
