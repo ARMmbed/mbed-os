@@ -67,16 +67,16 @@ public:
      * @param mcpsRequest    pointer to MCPS request structure
      * @param params         pointer to MAC protocol parameters
      *
-     * @return               LORA_MAC_STATUS_OK if everything goes well otherwise
+     * @return               LORAWAN_STATUS_OK if everything goes well otherwise
      *                       a negative error code is returned.
      */
-    LoRaMacStatus_t set_request(McpsReq_t *mcpsRequest, lora_mac_protocol_params *params);
+    lorawan_status_t set_request(loramac_mcps_req_t *mcpsRequest, loramac_protocol_params *params);
 
     /** Grants access to MCPS confirmation data
      *
      * @return               a reference to MCPS confirm data structure
      */
-    inline McpsConfirm_t& get_confirmation()
+    inline loramac_mcps_confirm_t& get_confirmation()
     {
         return confirmation;
     }
@@ -85,7 +85,7 @@ public:
      *
      * @return               a reference to MCPS indication data structure
      */
-    inline McpsIndication_t& get_indication()
+    inline loramac_mcps_indication_t& get_indication()
     {
         return indication;
     }
@@ -102,12 +102,12 @@ private:
     /**
      * Structure to hold MCPS indication data.
      */
-    McpsIndication_t indication;
+    loramac_mcps_indication_t indication;
 
     /**
      * Structure to hold MCPS confirm data.
      */
-    McpsConfirm_t confirmation;
+    loramac_mcps_confirm_t confirmation;
 };
 
 #endif /* MBED_OS_LORAWAN_MAC_MCPS_H_ */

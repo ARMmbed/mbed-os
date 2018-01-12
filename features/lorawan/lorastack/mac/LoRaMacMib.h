@@ -67,10 +67,11 @@ public:
      * @param mibSet [in]    pointer to MIB request structure
      * @param params         pointer to MAC protocol parameters which will be modified
      *
-     * @return               LORA_MAC_STATUS_OK if everything goes well otherwise
+     * @return               LORAWAN_STATUS_OK if everything goes well otherwise
      *                       a negative error code is returned.
      */
-    LoRaMacStatus_t set_request(MibRequestConfirm_t *mibSet, lora_mac_protocol_params *params);
+    lorawan_status_t set_request(loramac_mib_req_confirm_t *mibSet,
+                                 loramac_protocol_params *params);
 
     /** Provides access to the given MIB parameter
      *
@@ -80,10 +81,11 @@ public:
      * @param mibGet [out]   pointer to MIB request structure which will be filled in
      * @param params         pointer to MAC protocol parameters
      *
-     * @return               LORA_MAC_STATUS_OK if everything goes well otherwise
+     * @return               LORAWAN_STATUS_OK if everything goes well otherwise
      *                       a negative error code is returned.
      */
-    LoRaMacStatus_t get_request(MibRequestConfirm_t *mibGet, lora_mac_protocol_params *params);
+    lorawan_status_t get_request(loramac_mib_req_confirm_t *mibGet,
+                                 loramac_protocol_params *params);
 
 private:
 

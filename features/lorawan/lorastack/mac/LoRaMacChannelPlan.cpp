@@ -39,11 +39,11 @@ void LoRaMacChannelPlan::activate_channelplan_subsystem(LoRaPHY *phy, LoRaMacMib
     _mib = mib;
 }
 
-LoRaMacStatus_t LoRaMacChannelPlan::set_plan(const lora_channelplan_t& plan)
+lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t& plan)
 {
     ChannelAddParams_t channelAdd;
-    ChannelParams_t mac_layer_ch_params;
-    LoRaMacStatus_t status;
+    channel_params_t mac_layer_ch_params;
+    lorawan_status_t status;
 
     GetPhyParams_t get_phy;
     PhyParam_t phy_param;
@@ -56,20 +56,20 @@ LoRaMacStatus_t LoRaMacChannelPlan::set_plan(const lora_channelplan_t& plan)
 
     // check if user is setting more channels than supported
     if (plan.nb_channels > max_num_channels) {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
     for (uint8_t i = 0; i < plan.nb_channels; i++) {
-        mac_layer_ch_params.Band = plan.channels[i].ch_param.band;
-        mac_layer_ch_params.DrRange.Fields.Max =
-                plan.channels[i].ch_param.dr_range.lora_mac_fields_s.max;
-        mac_layer_ch_params.DrRange.Fields.Min =
-                plan.channels[i].ch_param.dr_range.lora_mac_fields_s.min;
-        mac_layer_ch_params.DrRange.Value =
+        mac_layer_ch_params.band = plan.channels[i].ch_param.band;
+        mac_layer_ch_params.dr_range.fields.max =
+                plan.channels[i].ch_param.dr_range.fields.max;
+        mac_layer_ch_params.dr_range.fields.min =
+                plan.channels[i].ch_param.dr_range.fields.min;
+        mac_layer_ch_params.dr_range.value =
                 plan.channels[i].ch_param.dr_range.value;
-        mac_layer_ch_params.Frequency =
+        mac_layer_ch_params.frequency =
                 plan.channels[i].ch_param.frequency;
-        mac_layer_ch_params.Rx1Frequency =
+        mac_layer_ch_params.rx1_frequency =
                 plan.channels[i].ch_param.rx1_frequency;
 
         channelAdd.ChannelId = plan.channels[i].id;
@@ -77,23 +77,23 @@ LoRaMacStatus_t LoRaMacChannelPlan::set_plan(const lora_channelplan_t& plan)
 
         status = _lora_phy->add_channel(&channelAdd);
 
-        if (status != LORAMAC_STATUS_OK) {
+        if (status != LORAWAN_STATUS_OK) {
             return status;
         }
     }
 
-    return LORAMAC_STATUS_OK;
+    return LORAWAN_STATUS_OK;
 }
 
-LoRaMacStatus_t LoRaMacChannelPlan::get_plan(lora_channelplan_t& plan,
-                                             lora_mac_protocol_params *params)
+lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t& plan,
+                                             loramac_protocol_params *params)
 {
     if (params == NULL) {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    MibRequestConfirm_t mib_params;
-    LoRaMacStatus_t status;
+    loramac_mib_req_confirm_t mib_confirm;
+    lorawan_status_t status;
 
     GetPhyParams_t get_phy;
     PhyParam_t phy_param;
@@ -112,12 +112,12 @@ LoRaMacStatus_t LoRaMacChannelPlan::get_plan(lora_channelplan_t& plan,
     channel_masks = phy_param.ChannelsMask;
 
     // Request Mib to get channels
-    memset(&mib_params, 0, sizeof(mib_params));
-    mib_params.Type = MIB_CHANNELS;
+    memset(&mib_confirm, 0, sizeof(mib_confirm));
+    mib_confirm.type = MIB_CHANNELS;
 
-    status = _mib->get_request(&mib_params, params);
+    status = _mib->get_request(&mib_confirm, params);
 
-    if (status != LORAMAC_STATUS_OK) {
+    if (status != LORAWAN_STATUS_OK) {
         return status;
     }
 
@@ -129,23 +129,23 @@ LoRaMacStatus_t LoRaMacChannelPlan::get_plan(lora_channelplan_t& plan,
 
         // otherwise add them to the channel_plan struct
         plan.channels[count].id = i;
-        plan.channels[count].ch_param.frequency = mib_params.Param.ChannelList[i].Frequency;
-        plan.channels[count].ch_param.dr_range.value = mib_params.Param.ChannelList[i].DrRange.Value;
-        plan.channels[count].ch_param.dr_range.lora_mac_fields_s.min = mib_params.Param.ChannelList[i].DrRange.Fields.Min;
-        plan.channels[count].ch_param.dr_range.lora_mac_fields_s.max = mib_params.Param.ChannelList[i].DrRange.Fields.Max;
-        plan.channels[count].ch_param.band = mib_params.Param.ChannelList[i].Band;
-        plan.channels[count].ch_param.rx1_frequency = mib_params.Param.ChannelList[i].Rx1Frequency;
+        plan.channels[count].ch_param.frequency = mib_confirm.param.channel_list[i].frequency;
+        plan.channels[count].ch_param.dr_range.value = mib_confirm.param.channel_list[i].dr_range.value;
+        plan.channels[count].ch_param.dr_range.fields.min = mib_confirm.param.channel_list[i].dr_range.fields.min;
+        plan.channels[count].ch_param.dr_range.fields.max = mib_confirm.param.channel_list[i].dr_range.fields.max;
+        plan.channels[count].ch_param.band = mib_confirm.param.channel_list[i].band;
+        plan.channels[count].ch_param.rx1_frequency = mib_confirm.param.channel_list[i].rx1_frequency;
         count++;
     }
 
     plan.nb_channels = count;
 
-    return LORAMAC_STATUS_OK;
+    return LORAWAN_STATUS_OK;
 }
 
-LoRaMacStatus_t LoRaMacChannelPlan::remove_plan()
+lorawan_status_t LoRaMacChannelPlan::remove_plan()
 {
-    LoRaMacStatus_t status = LORAMAC_STATUS_OK;
+    lorawan_status_t status = LORAWAN_STATUS_OK;
 
     GetPhyParams_t get_phy;
     PhyParam_t phy_param;
@@ -181,7 +181,7 @@ LoRaMacStatus_t LoRaMacChannelPlan::remove_plan()
 
         status = remove_single_channel(i);
 
-        if (status != LORAMAC_STATUS_OK) {
+        if (status != LORAWAN_STATUS_OK) {
             return status;
         }
     }
@@ -189,7 +189,7 @@ LoRaMacStatus_t LoRaMacChannelPlan::remove_plan()
     return status;
 }
 
-LoRaMacStatus_t LoRaMacChannelPlan::remove_single_channel(uint8_t channel_id)
+lorawan_status_t LoRaMacChannelPlan::remove_single_channel(uint8_t channel_id)
 {
     GetPhyParams_t get_phy;
     PhyParam_t phy_param;
@@ -206,7 +206,7 @@ LoRaMacStatus_t LoRaMacChannelPlan::remove_single_channel(uint8_t channel_id)
     // channel ID is N-1 where N=MAX_NUM_CHANNELS.
     // So any ID which is larger or equal to the Max number of channels is invalid
     if (channel_id >= max_num_channels) {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
     // Now check the Default channel mask
@@ -219,18 +219,18 @@ LoRaMacStatus_t LoRaMacChannelPlan::remove_single_channel(uint8_t channel_id)
     // have multiple channel masks for various sub-bands. So we check the first
     // mask only and return an error code if user sent a default channel id
     if ((channel_masks[0] & (1U << channel_id)) != 0) {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
     channelRemove.ChannelId = channel_id;
 
     if(_lora_phy->remove_channel(&channelRemove) == false)
     {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
     _lora_phy->put_radio_to_sleep();
 
-    return LORAMAC_STATUS_OK;
+    return LORAWAN_STATUS_OK;
 }
 

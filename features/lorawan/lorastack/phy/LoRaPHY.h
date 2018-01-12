@@ -136,7 +136,7 @@ public:
      *
      * \retval True, if the configuration was applied successfully.
      */
-    virtual bool rx_config(RxConfigParams_t* rxConfig, int8_t* datarate ) = 0;
+    virtual bool rx_config(rx_config_params_t* rxConfig, int8_t* datarate ) = 0;
 
     /*
      * RX window precise timing
@@ -193,7 +193,7 @@ public:
     virtual void compute_rx_win_params(int8_t datarate,
                                                  uint8_t minRxSymbols,
                                                  uint32_t rxError,
-                                                 RxConfigParams_t *rxConfigParams) = 0;
+                                                 rx_config_params_t *rxConfigParams) = 0;
     /*!
      * \brief TX configuration.
      *
@@ -206,7 +206,7 @@ public:
      * \retval True, if the configuration was applied successfully.
      */
     virtual bool tx_config(TxConfigParams_t* txConfig, int8_t* txPower,
-                                TimerTime_t* txTimeOnAir ) = 0;
+                                lorawan_time_t* txTimeOnAir ) = 0;
 
     /*!
      * \brief The function processes a Link ADR Request.
@@ -296,8 +296,8 @@ public:
      * \retval Function status [1: OK, 0: Unable to find a channel on the current datarate].
      */
     virtual bool set_next_channel(NextChanParams_t* nextChanParams,
-                                   uint8_t* channel, TimerTime_t* time,
-                                   TimerTime_t* aggregatedTimeOff ) = 0;
+                                   uint8_t* channel, lorawan_time_t* time,
+                                   lorawan_time_t* aggregatedTimeOff ) = 0;
 
     /*!
      * \brief Adds a channel.
@@ -306,7 +306,7 @@ public:
      *
      * \retval The status of the operation.
      */
-    virtual LoRaMacStatus_t add_channel(ChannelAddParams_t* channelAdd ) = 0;
+    virtual lorawan_status_t add_channel(ChannelAddParams_t* channelAdd ) = 0;
 
     /*!
      * \brief Removes a channel.
@@ -418,7 +418,7 @@ protected:
         /*!
          * A pointer to the channels.
          */
-        ChannelParams_t* Channels;
+        channel_params_t* Channels;
         /*!
          * The minimum possible TX power.
          */
@@ -434,11 +434,11 @@ protected:
         /*!
          * A pointer to region specific channels.
          */
-        ChannelParams_t* Channels;
+        channel_params_t* Channels;
         /*!
          * A pointer to region specific bands.
          */
-        Band_t* Bands;
+        band_t* Bands;
         /*!
          * Set to true, if the last uplink was a join request.
          */
@@ -458,11 +458,11 @@ protected:
         /*!
          * The elapsed time since initialization.
          */
-        TimerTime_t ElapsedTime;
+        lorawan_time_t ElapsedTime;
         /*!
          * The time on air of the last TX frame.
          */
-        TimerTime_t TxTimeOnAir;
+        lorawan_time_t TxTimeOnAir;
     }RegionCommonCalcBackOffParams_t;
 
     /*!
@@ -473,7 +473,7 @@ protected:
      *
      * \retval Duty cycle restriction.
      */
-    uint16_t get_join_DC( TimerTime_t elapsedTime );
+    uint16_t get_join_DC( lorawan_time_t elapsedTime );
 
     /*!
      * \brief Verifies, if a value is in a given range.
@@ -508,7 +508,7 @@ protected:
      * \retval True if the datarate is supported, false if not.
      */
     bool verify_channel_DR( uint8_t nbChannels, uint16_t* channelsMask, int8_t dr,
-                                int8_t minDr, int8_t maxDr, ChannelParams_t* channels );
+                                int8_t minDr, int8_t maxDr, channel_params_t* channels );
 
     /*!
      * \brief Disables a channel in a given channels mask.
@@ -560,7 +560,7 @@ protected:
      *
      * \param [in] lastTxDone The time of the last TX done.
      */
-    void set_last_tx_done( bool joined, Band_t* band, TimerTime_t lastTxDone );
+    void set_last_tx_done( bool joined, band_t* band, lorawan_time_t lastTxDone );
 
     /*!
      * \brief Updates the time-offs of the bands.
@@ -576,7 +576,7 @@ protected:
      *
      * \retval The time which must be waited to perform the next uplink.
      */
-    TimerTime_t update_band_timeoff( bool joined, bool dutyCycle, Band_t* bands, uint8_t nbBands );
+    lorawan_time_t update_band_timeoff( bool joined, bool dutyCycle, band_t* bands, uint8_t nbBands );
 
     /*!
      * \brief Parses the parameter of an LinkAdrRequest.

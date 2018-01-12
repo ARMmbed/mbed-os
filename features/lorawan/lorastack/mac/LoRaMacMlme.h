@@ -69,16 +69,16 @@ public:
      * @param mlmeRequest    pointer to MLME request structure
      * @param params         pointer to MAC protocol parameters
      *
-     * @return               LORA_MAC_STATUS_OK if everything goes well otherwise
+     * @return               LORAWAN_STATUS_OK if everything goes well otherwise
      *                       a negative error code is returned.
      */
-    LoRaMacStatus_t set_request(MlmeReq_t *mlmeRequest, lora_mac_protocol_params *params);
+    lorawan_status_t set_request(loramac_mlme_req_t *mlmeRequest, loramac_protocol_params *params);
 
     /** Grants access to MLME confirmation data
      *
      * @return               a reference to MLME confirm data structure
      */
-    inline MlmeConfirm_t& get_confirmation()
+    inline loramac_mlme_confirm_t& get_confirmation()
     {
         return confirmation;
     }
@@ -87,7 +87,7 @@ public:
      *
      * @return               a reference to MLME indication data structure
      */
-    inline MlmeIndication_t& get_indication()
+    inline loramac_mlme_indication_t& get_indication()
     {
         return indication;
     }
@@ -104,12 +104,12 @@ private:
     /**
      * Structure to hold MLME indication data.
      */
-    MlmeIndication_t indication;
+    loramac_mlme_indication_t indication;
 
     /**
      * Structure to hold MLME confirm data.
      */
-    MlmeConfirm_t confirmation;
+    loramac_mlme_confirm_t confirmation;
 };
 
 #endif /* MBED_OS_LORAWAN_MAC_MLME_H_ */

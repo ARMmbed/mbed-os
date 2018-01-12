@@ -64,10 +64,10 @@ public:
      * @param plan    a reference to application channel plan. PHY layer takes a
      *                copy of the channel parameters provided within.
      *
-     * @return        LORA_MAC_STATUS_OK if everything goes well otherwise
+     * @return        LORAWAN_STATUS_OK if everything goes well otherwise
      *                a negative error code is returned.
      */
-    LoRaMacStatus_t set_plan(const lora_channelplan_t& plan);
+    lorawan_status_t set_plan(const lorawan_channelplan_t& plan);
 
     /** Access the active channel plan
      *
@@ -78,28 +78,28 @@ public:
      *
      * @param params    pointer to active MAC layer parameters.
      *
-     * @return          LORA_MAC_STATUS_OK if everything goes well otherwise
+     * @return          LORAWAN_STATUS_OK if everything goes well otherwise
      *                  a negative error code is returned.
      */
-    LoRaMacStatus_t get_plan(lora_channelplan_t& plan, lora_mac_protocol_params *params);
+    lorawan_status_t get_plan(lorawan_channelplan_t& plan, loramac_protocol_params *params);
 
     /** Remove the active channel plan
      *
      * Drops the whole channel list except the 'Default Channels' ofcourse.
      *
-     * @return        LORA_MAC_STATUS_OK if everything goes well otherwise
+     * @return        LORAWAN_STATUS_OK if everything goes well otherwise
      *                a negative error code is returned.
      */
-    LoRaMacStatus_t remove_plan();
+    lorawan_status_t remove_plan();
 
     /** Remove a single channel from the plan
      *
      * @param id    the channel id which needs to be removed
      *
-     * @return      LORA_MAC_STATUS_OK if everything goes well otherwise
+     * @return      LORAWAN_STATUS_OK if everything goes well otherwise
      *              a negative error code is returned.
      */
-    LoRaMacStatus_t remove_single_channel(uint8_t id);
+    lorawan_status_t remove_single_channel(uint8_t id);
 
 private:
 

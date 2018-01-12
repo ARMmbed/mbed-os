@@ -41,22 +41,18 @@ void LoRaMacMcps::activate_mcps_subsystem(LoRaMac *mac, LoRaPHY *phy)
     _lora_phy = phy;
 }
 
-LoRaMacStatus_t LoRaMacMcps::set_request(McpsReq_t *mcpsRequest,
-                                          lora_mac_protocol_params *params)
+lorawan_status_t LoRaMacMcps::set_request(loramac_mcps_req_t *mcpsRequest,
+                                          loramac_protocol_params *params)
 {
 
     if (mcpsRequest == NULL || _lora_phy == NULL || _lora_mac == NULL) {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
-    }
-
-    if (params->LoRaMacState != LORAMAC_IDLE) {
-        return LORAMAC_STATUS_BUSY;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
-    LoRaMacStatus_t status = LORAMAC_STATUS_SERVICE_UNKNOWN;
-    LoRaMacHeader_t macHdr;
+    lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
+    loramac_mhdr_t macHdr;
     VerifyParams_t verify;
     uint8_t fPort = 0;
     void *fBuffer;
@@ -64,47 +60,47 @@ LoRaMacStatus_t LoRaMacMcps::set_request(McpsReq_t *mcpsRequest,
     int8_t datarate = DR_0;
     bool readyToSend = false;
 
-    macHdr.Value = 0;
+    macHdr.value = 0;
 
     // Before performing any MCPS request, clear the confirmation structure
     memset((uint8_t*) &confirmation, 0, sizeof(confirmation));
 
-    confirmation.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+    confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
-    // AckTimeoutRetriesCounter must be reset every time a new request (unconfirmed or confirmed) is performed.
-    params->AckTimeoutRetriesCounter = 1;
+    // ack_timeout_retry_counter must be reset every time a new request (unconfirmed or confirmed) is performed.
+    params->ack_timeout_retry_counter = 1;
 
-    switch (mcpsRequest->Type) {
+    switch (mcpsRequest->type) {
         case MCPS_UNCONFIRMED: {
             readyToSend = true;
-            params->AckTimeoutRetries = 1;
+            params->max_ack_timeout_retries = 1;
 
-            macHdr.Bits.MType = FRAME_TYPE_DATA_UNCONFIRMED_UP;
-            fPort = mcpsRequest->Req.Unconfirmed.fPort;
-            fBuffer = mcpsRequest->Req.Unconfirmed.fBuffer;
-            fBufferSize = mcpsRequest->Req.Unconfirmed.fBufferSize;
-            datarate = mcpsRequest->Req.Unconfirmed.Datarate;
+            macHdr.bits.mtype = FRAME_TYPE_DATA_UNCONFIRMED_UP;
+            fPort = mcpsRequest->req.unconfirmed.fport;
+            fBuffer = mcpsRequest->f_buffer;
+            fBufferSize = mcpsRequest->f_buffer_size;
+            datarate = mcpsRequest->req.unconfirmed.data_rate;
             break;
         }
         case MCPS_CONFIRMED: {
             readyToSend = true;
-            params->AckTimeoutRetries = mcpsRequest->Req.Confirmed.NbTrials;
+            params->max_ack_timeout_retries = mcpsRequest->req.confirmed.nb_trials;
 
-            macHdr.Bits.MType = FRAME_TYPE_DATA_CONFIRMED_UP;
-            fPort = mcpsRequest->Req.Confirmed.fPort;
-            fBuffer = mcpsRequest->Req.Confirmed.fBuffer;
-            fBufferSize = mcpsRequest->Req.Confirmed.fBufferSize;
-            datarate = mcpsRequest->Req.Confirmed.Datarate;
+            macHdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
+            fPort = mcpsRequest->req.confirmed.fport;
+            fBuffer = mcpsRequest->f_buffer;
+            fBufferSize = mcpsRequest->f_buffer_size;
+            datarate = mcpsRequest->req.confirmed.data_rate;
             break;
         }
         case MCPS_PROPRIETARY: {
             readyToSend = true;
-            params->AckTimeoutRetries = 1;
+            params->max_ack_timeout_retries = 1;
 
-            macHdr.Bits.MType = FRAME_TYPE_PROPRIETARY;
-            fBuffer = mcpsRequest->Req.Proprietary.fBuffer;
-            fBufferSize = mcpsRequest->Req.Proprietary.fBufferSize;
-            datarate = mcpsRequest->Req.Proprietary.Datarate;
+            macHdr.bits.mtype = FRAME_TYPE_PROPRIETARY;
+            fBuffer = mcpsRequest->f_buffer;
+            fBufferSize = mcpsRequest->f_buffer_size;
+            datarate = mcpsRequest->req.proprietary.data_rate;
             break;
         }
         default:
@@ -115,12 +111,12 @@ LoRaMacStatus_t LoRaMacMcps::set_request(McpsReq_t *mcpsRequest,
     // TODO: Does not work with PROPRIETARY messages
     //    if( IsFPortAllowed( fPort ) == false )
     //    {
-    //        return LORAMAC_STATUS_PARAMETER_INVALID;
+    //        return LORAWAN_STATUS_PARAMETER_INVALID;
     //    }
 
     // Get the minimum possible datarate
     getPhy.Attribute = PHY_MIN_TX_DR;
-    getPhy.UplinkDwellTime = params->sys_params.UplinkDwellTime;
+    getPhy.UplinkDwellTime = params->sys_params.uplink_dwell_time;
     phyParam = _lora_phy->get_phy_params(&getPhy);
 
     // Apply the minimum possible datarate.
@@ -128,25 +124,25 @@ LoRaMacStatus_t LoRaMacMcps::set_request(McpsReq_t *mcpsRequest,
     datarate = MAX(datarate, phyParam.Value);
 
     if (readyToSend == true) {
-        if (params->sys_params.AdrCtrlOn == false) {
+        if (params->sys_params.adr_on == false) {
             verify.DatarateParams.Datarate = datarate;
             verify.DatarateParams.UplinkDwellTime =
-                    params->sys_params.UplinkDwellTime;
+                    params->sys_params.uplink_dwell_time;
 
             if (_lora_phy->verify(&verify, PHY_TX_DR) == true) {
-                params->sys_params.ChannelsDatarate =
+                params->sys_params.channel_data_rate =
                         verify.DatarateParams.Datarate;
             } else {
-                return LORAMAC_STATUS_PARAMETER_INVALID;
+                return LORAWAN_STATUS_PARAMETER_INVALID;
             }
         }
 
         status = _lora_mac->Send(&macHdr, fPort, fBuffer, fBufferSize);
-        if (status == LORAMAC_STATUS_OK) {
-            confirmation.McpsRequest = mcpsRequest->Type;
-            params->LoRaMacFlags.Bits.McpsReq = 1;
+        if (status == LORAWAN_STATUS_OK) {
+            confirmation.req_type = mcpsRequest->type;
+            params->flags.bits.mcps_req = 1;
         } else {
-            params->NodeAckRequested = false;
+            params->is_node_ack_requested = false;
         }
     }
 

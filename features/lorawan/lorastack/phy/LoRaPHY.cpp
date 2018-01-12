@@ -128,7 +128,7 @@ int32_t LoRaPHY::get_random(int32_t min, int32_t max)
     return (int32_t) rand() % (max - min + 1) + min;
 }
 
-uint16_t LoRaPHY::get_join_DC( TimerTime_t elapsedTime )
+uint16_t LoRaPHY::get_join_DC( lorawan_time_t elapsedTime )
 {
     uint16_t dutyCycle = 0;
 
@@ -147,7 +147,7 @@ uint16_t LoRaPHY::get_join_DC( TimerTime_t elapsedTime )
     return dutyCycle;
 }
 
-bool LoRaPHY::verify_channel_DR( uint8_t nbChannels, uint16_t* channelsMask, int8_t dr, int8_t minDr, int8_t maxDr, ChannelParams_t* channels )
+bool LoRaPHY::verify_channel_DR( uint8_t nbChannels, uint16_t* channelsMask, int8_t dr, int8_t minDr, int8_t maxDr, channel_params_t* channels )
 {
     if( val_in_range( dr, minDr, maxDr ) == 0 )
     {
@@ -160,8 +160,8 @@ bool LoRaPHY::verify_channel_DR( uint8_t nbChannels, uint16_t* channelsMask, int
         {
             if( ( ( channelsMask[k] & ( 1 << j ) ) != 0 ) )
             {// Check datarate validity for enabled channels
-                if( val_in_range( dr, ( channels[i + j].DrRange.Fields.Min & 0x0F ),
-                                                  ( channels[i + j].DrRange.Fields.Max & 0x0F ) ) == 1 )
+                if( val_in_range( dr, ( channels[i + j].dr_range.fields.min & 0x0F ),
+                                                  ( channels[i + j].dr_range.fields.max & 0x0F ) ) == 1 )
                 {
                     // At least 1 channel has been found we can return OK.
                     return true;
@@ -224,58 +224,58 @@ void LoRaPHY::copy_channel_mask( uint16_t* channelsMaskDest, uint16_t* channelsM
     }
 }
 
-void LoRaPHY::set_last_tx_done( bool joined, Band_t* band, TimerTime_t lastTxDone )
+void LoRaPHY::set_last_tx_done( bool joined, band_t* band, lorawan_time_t lastTxDone )
 {
     if( joined == true )
     {
-        band->LastTxDoneTime = lastTxDone;
+        band->last_tx_time = lastTxDone;
     }
     else
     {
-        band->LastTxDoneTime = lastTxDone;
-        band->LastJoinTxDoneTime = lastTxDone;
+        band->last_tx_time = lastTxDone;
+        band->last_join_tx_time = lastTxDone;
     }
 }
 
-TimerTime_t LoRaPHY::update_band_timeoff( bool joined, bool dutyCycle, Band_t* bands, uint8_t nbBands )
+lorawan_time_t LoRaPHY::update_band_timeoff( bool joined, bool dutyCycle, band_t* bands, uint8_t nbBands )
 {
-    TimerTime_t nextTxDelay = ( TimerTime_t )( -1 );
+    lorawan_time_t nextTxDelay = ( lorawan_time_t )( -1 );
 
     // Update bands Time OFF
     for( uint8_t i = 0; i < nbBands; i++ )
     {
         if( joined == false )
         {
-            uint32_t txDoneTime =  MAX( _lora_time.TimerGetElapsedTime( bands[i].LastJoinTxDoneTime ),
-                                        ( dutyCycle == true ) ? _lora_time.TimerGetElapsedTime( bands[i].LastTxDoneTime ) : 0 );
+            uint32_t txDoneTime =  MAX( _lora_time.TimerGetElapsedTime( bands[i].last_join_tx_time ),
+                                        ( dutyCycle == true ) ? _lora_time.TimerGetElapsedTime( bands[i].last_tx_time ) : 0 );
 
-            if( bands[i].TimeOff <= txDoneTime )
+            if( bands[i].off_time <= txDoneTime )
             {
-                bands[i].TimeOff = 0;
+                bands[i].off_time = 0;
             }
-            if( bands[i].TimeOff != 0 )
+            if( bands[i].off_time != 0 )
             {
-                nextTxDelay = MIN( bands[i].TimeOff - txDoneTime, nextTxDelay );
+                nextTxDelay = MIN( bands[i].off_time - txDoneTime, nextTxDelay );
             }
         }
         else
         {
             if( dutyCycle == true )
             {
-                if( bands[i].TimeOff <= _lora_time.TimerGetElapsedTime( bands[i].LastTxDoneTime ) )
+                if( bands[i].off_time <= _lora_time.TimerGetElapsedTime( bands[i].last_tx_time ) )
                 {
-                    bands[i].TimeOff = 0;
+                    bands[i].off_time = 0;
                 }
-                if( bands[i].TimeOff != 0 )
+                if( bands[i].off_time != 0 )
                 {
-                    nextTxDelay = MIN( bands[i].TimeOff - _lora_time.TimerGetElapsedTime( bands[i].LastTxDoneTime ),
+                    nextTxDelay = MIN( bands[i].off_time - _lora_time.TimerGetElapsedTime( bands[i].last_tx_time ),
                                        nextTxDelay );
                 }
             }
             else
             {
                 nextTxDelay = 0;
-                bands[i].TimeOff = 0;
+                bands[i].off_time = 0;
             }
         }
     }
@@ -396,12 +396,12 @@ int8_t LoRaPHY::compute_tx_power( int8_t txPowerIndex, float maxEirp, float ante
 
 void LoRaPHY::get_DC_backoff( RegionCommonCalcBackOffParams_t* calcBackOffParams )
 {
-    uint8_t bandIdx = calcBackOffParams->Channels[calcBackOffParams->Channel].Band;
-    uint16_t dutyCycle = calcBackOffParams->Bands[bandIdx].DCycle;
+    uint8_t bandIdx = calcBackOffParams->Channels[calcBackOffParams->Channel].band;
+    uint16_t dutyCycle = calcBackOffParams->Bands[bandIdx].duty_cycle;
     uint16_t joinDutyCycle = 0;
 
     // Reset time-off to initial value.
-    calcBackOffParams->Bands[bandIdx].TimeOff = 0;
+    calcBackOffParams->Bands[bandIdx].off_time = 0;
 
     if( calcBackOffParams->Joined == false )
     {
@@ -416,23 +416,23 @@ void LoRaPHY::get_DC_backoff( RegionCommonCalcBackOffParams_t* calcBackOffParams
             // This could happen in case of a rejoin, e.g. in compliance test mode.
             // In this special case we have to set the time off to 0, since the join duty cycle shall only
             // be applied after the first join request.
-            calcBackOffParams->Bands[bandIdx].TimeOff = 0;
+            calcBackOffParams->Bands[bandIdx].off_time = 0;
         }
         else
         {
             // Apply band time-off.
-            calcBackOffParams->Bands[bandIdx].TimeOff = calcBackOffParams->TxTimeOnAir * dutyCycle - calcBackOffParams->TxTimeOnAir;
+            calcBackOffParams->Bands[bandIdx].off_time = calcBackOffParams->TxTimeOnAir * dutyCycle - calcBackOffParams->TxTimeOnAir;
         }
     }
     else
     {
         if( calcBackOffParams->DutyCycleEnabled == true )
         {
-            calcBackOffParams->Bands[bandIdx].TimeOff = calcBackOffParams->TxTimeOnAir * dutyCycle - calcBackOffParams->TxTimeOnAir;
+            calcBackOffParams->Bands[bandIdx].off_time = calcBackOffParams->TxTimeOnAir * dutyCycle - calcBackOffParams->TxTimeOnAir;
         }
         else
         {
-            calcBackOffParams->Bands[bandIdx].TimeOff = 0;
+            calcBackOffParams->Bands[bandIdx].off_time = 0;
         }
     }
 }

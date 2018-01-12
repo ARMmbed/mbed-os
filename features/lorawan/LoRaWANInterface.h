@@ -44,7 +44,7 @@ public:
      *
      * @return         0 on success, a negative error code on failure.
      */
-    virtual lora_mac_status_t initialize(events::EventQueue *ev_queue) ;
+    virtual lorawan_status_t initialize(events::EventQueue *ev_queue) ;
 
     /** Connect OTAA or ABP using Mbed-OS config system
      *
@@ -52,7 +52,7 @@ public:
      * You need to configure the connection properly via the Mbed OS configuration
      * system.
      *
-     * When connecting via OTAA, the return code for success (LORA_MAC_STATUS_CONNECT_IN_PROGRESS) is negative.
+     * When connecting via OTAA, the return code for success (LORAWAN_STATUS_CONNECT_IN_PROGRESS) is negative.
      * However, this is not a real error. It tells you that the connection is in progress and you will
      * be notified of the completion via an event. By default, after the Join Accept message
      * is received, base stations may provide the node with a CF-List that replaces
@@ -78,17 +78,17 @@ public:
      * is important, at least for ABP. That's why we try to restore frame counters from
      * session information after a disconnection.
      *
-     * @return         LORA_MAC_STATUS_OK or LORA_MAC_STATUS_CONNECT_IN_PROGRESS
+     * @return         LORAWAN_STATUS_OK or LORAWAN_STATUS_CONNECT_IN_PROGRESS
      *                 on success, or a negative error code on failure.
      */
-    virtual lora_mac_status_t connect();
+    virtual lorawan_status_t connect();
 
     /** Connect OTAA or ABP with parameters
      *
      * All connection parameters are chosen by the user and provided in the
      * data structure passed down.
      *
-     * When connecting via OTAA, the return code for success (LORA_MAC_STATUS_CONNECT_IN_PROGRESS) is negative.
+     * When connecting via OTAA, the return code for success (LORAWAN_STATUS_CONNECT_IN_PROGRESS) is negative.
      * However, this is not a real error. It tells you that connection is in progress and you will
      * be notified of completion via an event. By default, after Join Accept message
      * is received, base stations may provide the node with a CF-List which replaces
@@ -118,17 +118,17 @@ public:
      *
      * @param connect  Options for an end device connection to the gateway.
      *
-     * @return        LORA_MAC_STATUS_OK or LORA_MAC_STATUS_CONNECT_IN_PROGRESS,
+     * @return        LORAWAN_STATUS_OK or LORAWAN_STATUS_CONNECT_IN_PROGRESS,
      *                a negative error code on failure.
      */
-    virtual lora_mac_status_t connect(const lorawan_connect_t &connect);
+    virtual lorawan_status_t connect(const lorawan_connect_t &connect);
 
     /** Disconnect the current session.
      *
-     * @return         LORA_MAC_STATUS_OK on success, a negative error code on
+     * @return         LORAWAN_STATUS_OK on success, a negative error code on
      *                 failure.
      */
-    virtual lora_mac_status_t disconnect();
+    virtual lorawan_status_t disconnect();
 
     /** Validate the connectivity with the network.
      *
@@ -145,7 +145,7 @@ public:
      *
      * This API is usable only when the 'link_check_resp' callback is set by
      * the application. See add_lora_app_callbacks API. If the above mentioned
-     * callback is not set, a LORA_MAC_STATUS_PARAMETER_INVALID error is thrown.
+     * callback is not set, a LORAWAN_STATUS_PARAMETER_INVALID error is thrown.
      *
      * First parameter to callback function is the demodulation margin and
      * the second parameter is the number of gateways that successfully received
@@ -155,11 +155,11 @@ public:
      * transmission, until/unless application explicitly turns it off using
      * remove_link_check_request() API.
      *
-     * @return          LORA_MAC_STATUS_OK on successfully queuing a request, or
+     * @return          LORAWAN_STATUS_OK on successfully queuing a request, or
      *                  a negative error code on failure.
      *
      */
-    virtual lora_mac_status_t add_link_check_request();
+    virtual lorawan_status_t add_link_check_request();
 
     /** Removes link check request sticky MAC command.
      *
@@ -176,28 +176,28 @@ public:
      * @param data_rate   The intended data rate, for example DR_0 or DR_1.
      *                    Please note, that the macro DR_* can mean different
      *                    things in different regions.
-     * @return            LORA_MAC_STATUS_OK if everything goes well, otherwise
+     * @return            LORAWAN_STATUS_OK if everything goes well, otherwise
      *                    a negative error code.
      */
-    virtual lora_mac_status_t set_datarate(uint8_t data_rate);
+    virtual lorawan_status_t set_datarate(uint8_t data_rate);
 
     /** Enables adaptive data rate (ADR).
      *
      * The underlying LoRaPHY and LoRaMac layers handle the data rate automatically
      * for the user, based upon the radio conditions (network congestion).
      *
-     * @return          LORA_MAC_STATUS_OK or negative error code otherwise.
+     * @return          LORAWAN_STATUS_OK or negative error code otherwise.
      */
-    virtual lora_mac_status_t enable_adaptive_datarate();
+    virtual lorawan_status_t enable_adaptive_datarate();
 
     /** Disables adaptive data rate.
      *
      * When adaptive data rate (ADR) is disabled, you can either set a certain
      * data rate or the MAC layer selects a default value.
      *
-     * @return          LORA_MAC_STATUS_OK or negative error code otherwise.
+     * @return          LORAWAN_STATUS_OK or negative error code otherwise.
      */
-    virtual lora_mac_status_t disable_adaptive_datarate();
+    virtual lorawan_status_t disable_adaptive_datarate();
 
     /** Sets up the retry counter for confirmed messages.
      *
@@ -212,9 +212,9 @@ public:
      *
      * @param count     The number of retries for confirmed messages.
      *
-     * @return          LORA_MAC_STATUS_OK or a negative error code.
+     * @return          LORAWAN_STATUS_OK or a negative error code.
      */
-    virtual lora_mac_status_t set_confirmed_msg_retries(uint8_t count);
+    virtual lorawan_status_t set_confirmed_msg_retries(uint8_t count);
 
     /** Sets the channel plan.
      *
@@ -240,10 +240,10 @@ public:
      *
      * @param channel_plan      The channel plan to set.
      *
-     * @return                  LORA_MAC_STATUS_OK on success, a negative error
+     * @return                  LORAWAN_STATUS_OK on success, a negative error
      *                          code on failure.
      */
-    virtual lora_mac_status_t set_channel_plan(const lora_channelplan_t &channel_plan);
+    virtual lorawan_status_t set_channel_plan(const lorawan_channelplan_t &channel_plan);
 
     /** Gets the channel plans from the LoRa stack.
      *
@@ -254,20 +254,20 @@ public:
      *
      * @param  channel_plan     The current channel plan information.
      *
-     * @return                  LORA_MAC_STATUS_OK on success, a negative error
+     * @return                  LORAWAN_STATUS_OK on success, a negative error
      *                          code on failure.
      */
-    virtual lora_mac_status_t get_channel_plan(lora_channelplan_t &channel_plan);
+    virtual lorawan_status_t get_channel_plan(lorawan_channelplan_t &channel_plan);
 
     /** Removes an active channel plan.
      *
      * You cannot remove default channels (the channels the base stations are listening to).
      * When a plan is abolished, only the non-default channels are removed.
      *
-     * @return                  LORA_MAC_STATUS_OK on success, a negative error
+     * @return                  LORAWAN_STATUS_OK on success, a negative error
      *                          code on failure.
      */
-    virtual lora_mac_status_t remove_channel_plan();
+    virtual lorawan_status_t remove_channel_plan();
 
     /** Removes a single channel.
      *
@@ -275,10 +275,10 @@ public:
      *
      * @param    index          The channel index.
      *
-     * @return                  LORA_MAC_STATUS_OK on success, a negative error
+     * @return                  LORAWAN_STATUS_OK on success, a negative error
      *                          code on failure.
      */
-    virtual lora_mac_status_t remove_channel(uint8_t index);
+    virtual lorawan_status_t remove_channel(uint8_t index);
 
     /** Send message to gateway
      *
@@ -311,7 +311,7 @@ public:
      *
      *
      * @return                  The number of bytes sent, or
-     *                          LORA_MAC_STATUS_WOULD_BLOCK if another TX is
+     *                          LORAWAN_STATUS_WOULD_BLOCK if another TX is
      *                          ongoing, or a negative error code on failure.
      */
     virtual int16_t send(uint8_t port, const uint8_t* data, uint16_t length,
@@ -352,7 +352,7 @@ public:
      * @return                  It could be one of these:
      *                             i)   0 if there is nothing else to read.
      *                             ii)  Number of bytes written to user buffer.
-     *                             iii) LORA_MAC_STATUS_WOULD_BLOCK if there is
+     *                             iii) LORAWAN_STATUS_WOULD_BLOCK if there is
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
@@ -427,7 +427,7 @@ public:
        * @param callbacks         A pointer to the structure containing application
        *                          callbacks.
        */
-    virtual lora_mac_status_t add_app_callbacks(lorawan_app_callbacks_t *callbacks);
+    virtual lorawan_status_t add_app_callbacks(lorawan_app_callbacks_t *callbacks);
 
 private:
     bool _link_check_requested;

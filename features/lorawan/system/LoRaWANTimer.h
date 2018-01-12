@@ -49,14 +49,14 @@ public:
     * \param [in] obj          The structure containing the timer object parameters.
     * \param [in] callback     The function callback called at the end of the timeout.
     */
-    void TimerInit( TimerEvent_t *obj, mbed::Callback<void()> callback);
+    void TimerInit( timer_event_t *obj, mbed::Callback<void()> callback);
 
     /*!
      * \brief Read the current time.
      *
      * \retval time The current time.
      */
-    TimerTime_t TimerGetCurrentTime( void );
+    lorawan_time_t TimerGetCurrentTime( void );
 
     /*!
      * \brief Return the time elapsed since a fixed moment in time.
@@ -64,7 +64,7 @@ public:
      * \param [in] savedTime    The fixed moment in time.
      * \retval time             The elapsed time.
      */
-    TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime );
+    lorawan_time_t TimerGetElapsedTime( lorawan_time_t savedTime );
 
   
 
@@ -73,14 +73,14 @@ public:
      *
      * \param [in] obj The structure containing the timer object parameters.
      */
-    void TimerStart( TimerEvent_t *obj );
+    void TimerStart( timer_event_t *obj );
 
     /*!
      * \brief Stops and removes the timer object from the list of timer events.
      *
      * \param [in] obj The structure containing the timer object parameters.
      */
-    void TimerStop( TimerEvent_t *obj );
+    void TimerStop( timer_event_t *obj );
 
     /*!
      * \brief Set a new timeout value.
@@ -88,7 +88,7 @@ public:
      * \param [in] obj   The structure containing the timer object parameters.
      * \param [in] value The new timeout value.
      */
-    void TimerSetValue( TimerEvent_t *obj, uint32_t value );
+    void TimerSetValue( timer_event_t *obj, uint32_t value );
 
 private:
     events::EventQueue *_queue;

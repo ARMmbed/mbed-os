@@ -83,12 +83,11 @@ public:
      * \param   queue [in]- A pointer to the application provided EventQueue.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
-     *          \ref LORAMAC_STATUS_REGION_NOT_SUPPORTED.
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_REGION_NOT_SUPPORTED.
      */
-    LoRaMacStatus_t LoRaMacInitialization(LoRaMacPrimitives_t *primitives,
-                                          LoRaMacCallback_t *callbacks,
+    lorawan_status_t LoRaMacInitialization(loramac_primitives_t *primitives,
                                           LoRaPHY *phy,
                                           events::EventQueue *queue);
 
@@ -105,16 +104,16 @@ public:
      *                         size, taking the scheduled MAC commands into account.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. When the parameters are
-     *          not valid, the function returns \ref LORAMAC_STATUS_PARAMETER_INVALID.
+     *          not valid, the function returns \ref LORAWAN_STATUS_PARAMETER_INVALID.
      *          In case of a length error caused by the applicable payload in combination
-     *          with the MAC commands, the function returns \ref LORAMAC_STATUS_LENGTH_ERROR.
+     *          with the MAC commands, the function returns \ref LORAWAN_STATUS_LENGTH_ERROR.
      *          Please note that if the size of the MAC commands in the queue do
      *          not fit into the payload size on the related datarate, the LoRaMAC will
      *          omit the MAC commands.
      *          If the query is valid, and the LoRaMAC is able to send the frame,
-     *          the function returns \ref LORAMAC_STATUS_OK.
+     *          the function returns \ref LORAWAN_STATUS_OK.
      */
-    LoRaMacStatus_t LoRaMacQueryTxPossible( uint8_t size, LoRaMacTxInfo_t* txInfo );
+    lorawan_status_t LoRaMacQueryTxPossible( uint8_t size, loramac_tx_info_t* txInfo );
 
     /*!
      * \brief   Adds a channel plan to the system.
@@ -127,11 +126,11 @@ public:
      * \param   plan [in] - A reference to application provided channel plan.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_BUSY
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_BUSY
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t AddChannelPlan(const lora_channelplan_t& plan);
+    lorawan_status_t AddChannelPlan(const lorawan_channelplan_t& plan);
 
     /*!
      * \brief   Removes a channel plan from the system.
@@ -142,11 +141,11 @@ public:
      *          LoRaWAN Regional Parameters V1.0.2rB.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_BUSY
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_BUSY
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t RemoveChannelPlan();
+    lorawan_status_t RemoveChannelPlan();
 
     /*!
      * \brief   Access active channel plan.
@@ -158,11 +157,11 @@ public:
      *                       plan.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_BUSY
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_BUSY
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t GetChannelPlan(lora_channelplan_t& plan);
+    lorawan_status_t GetChannelPlan(lorawan_channelplan_t& plan);
 
     /*!
      * \brief   Remove a given channel from the active plan.
@@ -172,11 +171,11 @@ public:
      * \param   id - Id of the channel.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_BUSY
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_BUSY
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t RemoveSingleChannel( uint8_t id );
+    lorawan_status_t RemoveSingleChannel( uint8_t id );
 
     /*!
      * \brief   LoRaMAC multicast channel link service.
@@ -186,11 +185,11 @@ public:
      * \param   [in] channelParam - The multicast channel parameters to link.
      *
      * \retval  `LoRaMacStatus_t` The  status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_BUSY
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_BUSY
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t LoRaMacMulticastChannelLink( MulticastParams_t *channelParam );
+    lorawan_status_t LoRaMacMulticastChannelLink( multicast_params_t *channelParam );
 
     /*!
      * \brief   LoRaMAC multicast channel unlink service.
@@ -200,11 +199,11 @@ public:
      * \param   [in] channelParam - The multicast channel parameters to unlink.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_BUSY
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_BUSY
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t LoRaMacMulticastChannelUnlink( MulticastParams_t *channelParam );
+    lorawan_status_t LoRaMacMulticastChannelUnlink( multicast_params_t *channelParam );
 
     /*!
      * \brief   LoRaMAC MIB-GET.
@@ -218,7 +217,7 @@ public:
      * MibRequestConfirm_t mibReq;
      * mibReq.Type = MIB_ADR;
      *
-     * if( LoRaMacMibGetRequestConfirm( &mibReq ) == LORAMAC_STATUS_OK )
+     * if( LoRaMacMibGetRequestConfirm( &mibReq ) == LORAWAN_STATUS_OK )
      * {
      *   // LoRaMAC updated the parameter mibParam.AdrEnable
      * }
@@ -227,11 +226,11 @@ public:
      * \param   [in] mibGet - The MIB-GET request to perform. Refer to \ref MibRequestConfirm_t.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_SERVICE_UNKNOWN
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_SERVICE_UNKNOWN
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t LoRaMacMibGetRequestConfirm( MibRequestConfirm_t *mibGet );
+    lorawan_status_t LoRaMacMibGetRequestConfirm( loramac_mib_req_confirm_t *mibGet );
 
     /*!
      * \brief   LoRaMAC MIB-SET.
@@ -247,7 +246,7 @@ public:
      * mibReq.Type = MIB_ADR;
      * mibReq.Param.AdrEnable = true;
      *
-     * if( LoRaMacMibGetRequestConfirm( &mibReq ) == LORAMAC_STATUS_OK )
+     * if( LoRaMacMibGetRequestConfirm( &mibReq ) == LORAWAN_STATUS_OK )
      * {
      *   // LoRaMAC updated the parameter
      * }
@@ -256,12 +255,12 @@ public:
      * \param   [in] mibSet - The MIB-SET request to perform. Refer to \ref MibRequestConfirm_t.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_BUSY
-     *          \ref LORAMAC_STATUS_SERVICE_UNKNOWN
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_BUSY
+     *          \ref LORAWAN_STATUS_SERVICE_UNKNOWN
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t LoRaMacMibSetRequestConfirm( MibRequestConfirm_t *mibSet );
+    lorawan_status_t LoRaMacMibSetRequestConfirm( loramac_mib_req_confirm_t *mibSet );
 
     /*!
      * \brief   LoRaMAC MLME request
@@ -291,7 +290,7 @@ public:
      * mlmeReq.Req.Join.AppEui = AppEui;
      * mlmeReq.Req.Join.AppKey = AppKey;
      *
-     * if( LoRaMacMlmeRequest( &mlmeReq ) == LORAMAC_STATUS_OK )
+     * if( LoRaMacMlmeRequest( &mlmeReq ) == LORAWAN_STATUS_OK )
      * {
      *   // Service started successfully. Waiting for the Mlme-Confirm event
      * }
@@ -300,15 +299,15 @@ public:
      * \param   [in] mlmeRequest - The MLME request to perform. Refer to \ref MlmeReq_t.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_BUSY
-     *          \ref LORAMAC_STATUS_SERVICE_UNKNOWN
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
-     *          \ref LORAMAC_STATUS_NO_NETWORK_JOINED
-     *          \ref LORAMAC_STATUS_LENGTH_ERROR
-     *          \ref LORAMAC_STATUS_DEVICE_OFF
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_BUSY
+     *          \ref LORAWAN_STATUS_SERVICE_UNKNOWN
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_NO_NETWORK_JOINED
+     *          \ref LORAWAN_STATUS_LENGTH_ERROR
+     *          \ref LORAWAN_STATUS_DEVICE_OFF
      */
-    LoRaMacStatus_t LoRaMacMlmeRequest( MlmeReq_t *mlmeRequest );
+    lorawan_status_t LoRaMacMlmeRequest( loramac_mlme_req_t *mlmeRequest );
 
     /*!
      * \brief   LoRaMAC MCPS request
@@ -326,7 +325,7 @@ public:
      * mcpsReq.Req.Unconfirmed.fBuffer = myBuffer;
      * mcpsReq.Req.Unconfirmed.fBufferSize = sizeof( myBuffer );
      *
-     * if( LoRaMacMcpsRequest( &mcpsReq ) == LORAMAC_STATUS_OK )
+     * if( LoRaMacMcpsRequest( &mcpsReq ) == LORAWAN_STATUS_OK )
      * {
      *   // Service started successfully. Waiting for the MCPS-Confirm event
      * }
@@ -335,15 +334,15 @@ public:
      * \param   [in] mcpsRequest - The MCPS request to perform. Refer to \ref McpsReq_t.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_BUSY
-     *          \ref LORAMAC_STATUS_SERVICE_UNKNOWN
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
-     *          \ref LORAMAC_STATUS_NO_NETWORK_JOINED
-     *          \ref LORAMAC_STATUS_LENGTH_ERROR
-     *          \ref LORAMAC_STATUS_DEVICE_OFF
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_BUSY
+     *          \ref LORAWAN_STATUS_SERVICE_UNKNOWN
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_NO_NETWORK_JOINED
+     *          \ref LORAWAN_STATUS_LENGTH_ERROR
+     *          \ref LORAWAN_STATUS_DEVICE_OFF
      */
-    LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t *mcpsRequest );
+    lorawan_status_t LoRaMacMcpsRequest( loramac_mcps_req_t *mcpsRequest );
 
     /**
      * \brief LoRaMAC layer provides its callback functions for
@@ -368,7 +367,7 @@ public:
      * \param [IN] fBufferSize MAC data buffer size
      * \retval status          Status of the operation.
      */
-    LoRaMacStatus_t Send( LoRaMacHeader_t *macHdr, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
+    lorawan_status_t Send( loramac_mhdr_t *macHdr, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
 
     /*!
      * \brief Sets the radio in continuous transmission mode
@@ -378,7 +377,7 @@ public:
      * \param [IN] timeout     Time in seconds while the radio is kept in continuous wave mode
      * \retval status          Status of the operation.
      */
-    LoRaMacStatus_t SetTxContinuousWave( uint16_t timeout );
+    lorawan_status_t SetTxContinuousWave( uint16_t timeout );
 
     /*!
      * \brief Sets the radio in continuous transmission mode
@@ -390,7 +389,7 @@ public:
      * \param [IN] power       RF output power to be set.
      * \retval status          Status of the operation.
      */
-    LoRaMacStatus_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power );
+    lorawan_status_t SetTxContinuousWave1( uint16_t timeout, uint32_t frequency, uint8_t power );
 
     /*!
      * \brief Resets MAC specific parameters to default
@@ -414,10 +413,10 @@ public: // Test interface
      * \param   [in] NextTxTime - Periodic time for next uplink.
 
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t LoRaMacSetTxTimer( uint32_t NextTxTime );
+    lorawan_status_t LoRaMacSetTxTimer( uint32_t NextTxTime );
 
     /**
      * \brief   LoRaMAC stop tx timer.
@@ -425,10 +424,10 @@ public: // Test interface
      * \details Stops the next tx timer.
      *
      * \retval  `LoRaMacStatus_t` The status of the operation. The possible values are:
-     *          \ref LORAMAC_STATUS_OK
-     *          \ref LORAMAC_STATUS_PARAMETER_INVALID
+     *          \ref LORAWAN_STATUS_OK
+     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    LoRaMacStatus_t LoRaMacStopTxTimer( );
+    lorawan_status_t LoRaMacStopTxTimer( );
 
     /**
      * \brief   Enabled or disables the reception windows
@@ -474,7 +473,7 @@ private:
     /**
      * Timer to handle the application data transmission duty cycle
      */
-    TimerEvent_t TxNextPacketTimer;
+    timer_event_t tx_next_packet_timer;
 #endif
 
 private:
@@ -576,14 +575,14 @@ private:
      * \param [IN] fBufferSize MAC data buffer size
      * \retval status          Status of the operation.
      */
-    LoRaMacStatus_t PrepareFrame( LoRaMacHeader_t *macHdr, LoRaMacFrameCtrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
+    lorawan_status_t PrepareFrame( loramac_mhdr_t *macHdr, loramac_frame_ctrl_t *fCtrl, uint8_t fPort, void *fBuffer, uint16_t fBufferSize );
 
     /*
      * \brief Schedules the frame according to the duty cycle
      *
      * \retval Status of the operation
      */
-    LoRaMacStatus_t ScheduleTx( void );
+    lorawan_status_t ScheduleTx( void );
 
     /*
      * \brief Calculates the back-off time for the band of a channel.
@@ -601,7 +600,7 @@ private:
      * \param [IN] channel     Channel to transmit on
      * \retval status          Status of the operation.
      */
-    LoRaMacStatus_t SendFrameOnChannel( uint8_t channel );
+    lorawan_status_t SendFrameOnChannel( uint8_t channel );
 
     /*!
      * \brief Resets MAC specific parameters to default
@@ -669,7 +668,7 @@ private:
     /**
      * Central MAC layer data storage
      */
-    lora_mac_protocol_params _params;
+    loramac_protocol_params _params;
 
     /**
      * Radio event callback handlers for MAC
@@ -679,12 +678,7 @@ private:
     /*!
      * LoRaMac upper layer event functions
      */
-    LoRaMacPrimitives_t *LoRaMacPrimitives;
-
-    /*!
-     * LoRaMac upper layer callback functions
-     */
-    LoRaMacCallback_t *LoRaMacCallbacks;
+    loramac_primitives_t *LoRaMacPrimitives;
 };
 
 #endif // __LORAMAC_H__

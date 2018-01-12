@@ -263,8 +263,8 @@ static int8_t LimitTxPower(int8_t txPower, int8_t maxBandTxPower,
 
 uint8_t LoRaPHYAU915::CountNbOfEnabledChannels(uint8_t datarate,
                                                uint16_t* channelsMask,
-                                               ChannelParams_t* channels,
-                                               Band_t* bands, uint8_t* enabledChannels,
+                                               channel_params_t* channels,
+                                               band_t* bands, uint8_t* enabledChannels,
                                                uint8_t* delayTx)
 {
     uint8_t nbEnabledChannels = 0;
@@ -273,14 +273,14 @@ uint8_t LoRaPHYAU915::CountNbOfEnabledChannels(uint8_t datarate,
     for (uint8_t i = 0, k = 0; i < AU915_MAX_NB_CHANNELS; i += 16, k++) {
         for (uint8_t j = 0; j < 16; j++) {
             if ((channelsMask[k] & (1 << j)) != 0) {
-                if (channels[i + j].Frequency == 0) { // Check if the channel is enabled
+                if (channels[i + j].frequency == 0) { // Check if the channel is enabled
                     continue;
                 }
-                if (val_in_range(datarate, channels[i + j].DrRange.Fields.Min,
-                                 channels[i + j].DrRange.Fields.Max) == 0) { // Check if the current channel selection supports the given datarate
+                if (val_in_range(datarate, channels[i + j].dr_range.fields.min,
+                                 channels[i + j].dr_range.fields.max) == 0) { // Check if the current channel selection supports the given datarate
                     continue;
                 }
-                if (bands[channels[i + j].Band].TimeOff > 0) { // Check if the band is available for transmission
+                if (bands[channels[i + j].band].off_time > 0) { // Check if the band is available for transmission
                     delayTransmission++;
                     continue;
                 }
@@ -296,7 +296,7 @@ uint8_t LoRaPHYAU915::CountNbOfEnabledChannels(uint8_t datarate,
 LoRaPHYAU915::LoRaPHYAU915(LoRaWANTimeHandler &lora_time)
     : LoRaPHY(lora_time)
 {
-    const Band_t band0 = AU915_BAND0;
+    const band_t band0 = AU915_BAND0;
     Bands[0] = band0;
 }
 
@@ -430,7 +430,7 @@ PhyParam_t LoRaPHYAU915::get_phy_params(GetPhyParams_t* getPhy)
 
 void LoRaPHYAU915::set_band_tx_done(SetBandTxDoneParams_t* txDone)
 {
-    set_last_tx_done(txDone->Joined, &Bands[Channels[txDone->Channel].Band],
+    set_last_tx_done(txDone->Joined, &Bands[Channels[txDone->Channel].band],
                      txDone->LastTxDoneTime);
 }
 
@@ -441,17 +441,17 @@ void LoRaPHYAU915::load_defaults(InitType_t type)
             // Channels
             // 125 kHz channels
             for (uint8_t i = 0; i < AU915_MAX_NB_CHANNELS - 8; i++) {
-                Channels[i].Frequency = 915200000 + i * 200000;
-                Channels[i].DrRange.Value = ( DR_5 << 4) | DR_0;
-                Channels[i].Band = 0;
+                Channels[i].frequency = 915200000 + i * 200000;
+                Channels[i].dr_range.value = ( DR_5 << 4) | DR_0;
+                Channels[i].band = 0;
             }
             // 500 kHz channels
             for (uint8_t i = AU915_MAX_NB_CHANNELS - 8;
                     i < AU915_MAX_NB_CHANNELS; i++) {
-                Channels[i].Frequency = 915900000
+                Channels[i].frequency = 915900000
                         + (i - ( AU915_MAX_NB_CHANNELS - 8)) * 1600000;
-                Channels[i].DrRange.Value = ( DR_6 << 4) | DR_6;
-                Channels[i].Band = 0;
+                Channels[i].dr_range.value = ( DR_6 << 4) | DR_6;
+                Channels[i].band = 0;
             }
 
             // Initialize channels default mask
@@ -611,38 +611,38 @@ bool LoRaPHYAU915::get_next_ADR(AdrNextParams_t* adrNext, int8_t* drOut,
 
 void LoRaPHYAU915::compute_rx_win_params(int8_t datarate, uint8_t minRxSymbols,
                                          uint32_t rxError,
-                                         RxConfigParams_t *rxConfigParams)
+                                         rx_config_params_t *rxConfigParams)
 {
     double tSymbol = 0.0;
 
     // Get the datarate, perform a boundary check
-    rxConfigParams->Datarate = MIN(datarate, AU915_RX_MAX_DATARATE);
-    rxConfigParams->Bandwidth = GetBandwidth(rxConfigParams->Datarate);
+    rxConfigParams->datarate = MIN(datarate, AU915_RX_MAX_DATARATE);
+    rxConfigParams->bandwidth = GetBandwidth(rxConfigParams->datarate);
 
     tSymbol = compute_symb_timeout_lora(
-            DataratesAU915[rxConfigParams->Datarate],
-            BandwidthsAU915[rxConfigParams->Datarate]);
+            DataratesAU915[rxConfigParams->datarate],
+            BandwidthsAU915[rxConfigParams->datarate]);
 
     get_rx_window_params(tSymbol, minRxSymbols, rxError, RADIO_WAKEUP_TIME,
-                         &rxConfigParams->WindowTimeout,
-                         &rxConfigParams->WindowOffset);
+                         &rxConfigParams->window_timeout,
+                         &rxConfigParams->window_offset);
 }
 
-bool LoRaPHYAU915::rx_config(RxConfigParams_t* rxConfig, int8_t* datarate)
+bool LoRaPHYAU915::rx_config(rx_config_params_t* rxConfig, int8_t* datarate)
 {
-    int8_t dr = rxConfig->Datarate;
+    int8_t dr = rxConfig->datarate;
     uint8_t maxPayload = 0;
     int8_t phyDr = 0;
-    uint32_t frequency = rxConfig->Frequency;
+    uint32_t frequency = rxConfig->frequency;
 
     if (_radio->get_status() != RF_IDLE) {
         return false;
     }
 
-    if (rxConfig->RxSlot == RX_SLOT_WIN_1) {
+    if (rxConfig->rx_slot == RX_SLOT_WIN_1) {
         // Apply window 1 frequency
         frequency = AU915_FIRST_RX1_CHANNEL
-                + (rxConfig->Channel % 8) * AU915_STEPWIDTH_RX1_CHANNEL;
+                + (rxConfig->channel % 8) * AU915_STEPWIDTH_RX1_CHANNEL;
     }
 
     // Read the physical datarate from the datarates table
@@ -651,11 +651,11 @@ bool LoRaPHYAU915::rx_config(RxConfigParams_t* rxConfig, int8_t* datarate)
     _radio->set_channel(frequency);
 
     // Radio configuration
-    _radio->set_rx_config(MODEM_LORA, rxConfig->Bandwidth, phyDr, 1, 0, 8,
-                          rxConfig->WindowTimeout, false, 0, false, 0, 0, true,
-                          rxConfig->RxContinuous);
+    _radio->set_rx_config(MODEM_LORA, rxConfig->bandwidth, phyDr, 1, 0, 8,
+                          rxConfig->window_timeout, false, 0, false, 0, 0, true,
+                          rxConfig->is_rx_continuous);
 
-    if (rxConfig->RepeaterSupport == true) {
+    if (rxConfig->is_repeater_supported == true) {
         maxPayload = MaxPayloadOfDatarateRepeaterAU915[dr];
     } else {
         maxPayload = MaxPayloadOfDatarateAU915[dr];
@@ -668,12 +668,12 @@ bool LoRaPHYAU915::rx_config(RxConfigParams_t* rxConfig, int8_t* datarate)
 }
 
 bool LoRaPHYAU915::tx_config(TxConfigParams_t* txConfig, int8_t* txPower,
-                             TimerTime_t* txTimeOnAir)
+                             lorawan_time_t* txTimeOnAir)
 {
     int8_t phyDr = DataratesAU915[txConfig->Datarate];
     int8_t txPowerLimited = LimitTxPower(
             txConfig->TxPower,
-            Bands[Channels[txConfig->Channel].Band].TxMaxPower,
+            Bands[Channels[txConfig->Channel].band].max_tx_pwr,
             txConfig->Datarate, ChannelsMask);
     uint32_t bandwidth = GetBandwidth(txConfig->Datarate);
     int8_t phyTxPower = 0;
@@ -683,7 +683,7 @@ bool LoRaPHYAU915::tx_config(TxConfigParams_t* txConfig, int8_t* txPower,
                                   txConfig->AntennaGain);
 
     // Setup the radio frequency
-    _radio->set_channel(Channels[txConfig->Channel].Frequency);
+    _radio->set_channel(Channels[txConfig->Channel].frequency);
 
     _radio->set_tx_config(MODEM_LORA, phyTxPower, 0, bandwidth, phyDr, 1, 8,
                           false, true, 0, 0, false, 3000);
@@ -885,13 +885,13 @@ void LoRaPHYAU915::calculate_backoff(CalcBackOffParams_t* calcBackOff)
 }
 
 bool LoRaPHYAU915::set_next_channel(NextChanParams_t* nextChanParams,
-                                    uint8_t* channel, TimerTime_t* time,
-                                    TimerTime_t* aggregatedTimeOff)
+                                    uint8_t* channel, lorawan_time_t* time,
+                                    lorawan_time_t* aggregatedTimeOff)
 {
     uint8_t nbEnabledChannels = 0;
     uint8_t delayTx = 0;
     uint8_t enabledChannels[AU915_MAX_NB_CHANNELS] = { 0 };
-    TimerTime_t nextTxDelay = 0;
+    lorawan_time_t nextTxDelay = 0;
 
     // Count 125kHz channels
     if (num_active_channels(ChannelsMaskRemaining, 0, 4) == 0) { // Reactivate default channels
@@ -946,24 +946,24 @@ bool LoRaPHYAU915::set_next_channel(NextChanParams_t* nextChanParams,
     }
 }
 
-LoRaMacStatus_t LoRaPHYAU915::add_channel(ChannelAddParams_t* channelAdd)
+lorawan_status_t LoRaPHYAU915::add_channel(ChannelAddParams_t* channelAdd)
 {
-    return LORAMAC_STATUS_PARAMETER_INVALID;
+    return LORAWAN_STATUS_PARAMETER_INVALID;
 }
 
 bool LoRaPHYAU915::remove_channel(ChannelRemoveParams_t* channelRemove)
 {
-    return LORAMAC_STATUS_PARAMETER_INVALID;
+    return LORAWAN_STATUS_PARAMETER_INVALID;
 }
 
 void LoRaPHYAU915::set_tx_cont_mode(ContinuousWaveParams_t* continuousWave)
 {
     int8_t txPowerLimited = LimitTxPower(
             continuousWave->TxPower,
-            Bands[Channels[continuousWave->Channel].Band].TxMaxPower,
+            Bands[Channels[continuousWave->Channel].band].max_tx_pwr,
             continuousWave->Datarate, ChannelsMask);
     int8_t phyTxPower = 0;
-    uint32_t frequency = Channels[continuousWave->Channel].Frequency;
+    uint32_t frequency = Channels[continuousWave->Channel].frequency;
 
     // Calculate physical TX power
     phyTxPower = compute_tx_power(txPowerLimited, continuousWave->MaxEirp,

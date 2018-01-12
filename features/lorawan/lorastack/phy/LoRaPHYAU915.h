@@ -133,7 +133,7 @@ public:
      *
      * \retval True, if the configuration was applied successfully.
      */
-    virtual bool rx_config(RxConfigParams_t* rxConfig, int8_t* datarate );
+    virtual bool rx_config(rx_config_params_t* rxConfig, int8_t* datarate );
 
     /*
      * RX window precise timing
@@ -189,7 +189,7 @@ public:
     virtual void compute_rx_win_params(int8_t datarate,
                                                  uint8_t minRxSymbols,
                                                  uint32_t rxError,
-                                                 RxConfigParams_t *rxConfigParams);
+                                                 rx_config_params_t *rxConfigParams);
 
     /*!
      * \brief TX configuration.
@@ -203,7 +203,7 @@ public:
      * \retval True, if the configuration was applied successfully.
      */
     virtual bool tx_config(TxConfigParams_t* txConfig, int8_t* txPower,
-                                TimerTime_t* txTimeOnAir );
+                                lorawan_time_t* txTimeOnAir );
 
     /*!
      * \brief The function processes a Link ADR Request.
@@ -294,8 +294,8 @@ public:
      * \retval The function status [1: OK, 0: Unable to find a channel on the current datarate].
      */
     virtual bool set_next_channel(NextChanParams_t* nextChanParams,
-                                   uint8_t* channel, TimerTime_t* time,
-                                   TimerTime_t* aggregatedTimeOff );
+                                   uint8_t* channel, lorawan_time_t* time,
+                                   lorawan_time_t* aggregatedTimeOff );
 
     /*!
      * \brief Adds a channel.
@@ -304,7 +304,7 @@ public:
      *
      * \retval The status of the operation.
      */
-    virtual LoRaMacStatus_t add_channel(ChannelAddParams_t* channelAdd );
+    virtual lorawan_status_t add_channel(ChannelAddParams_t* channelAdd );
 
     /*!
      * \brief Removes a channel.
@@ -338,8 +338,8 @@ public:
 private:
     uint8_t CountNbOfEnabledChannels(uint8_t datarate,
                                      uint16_t* channelsMask,
-                                     ChannelParams_t* channels,
-                                     Band_t* bands, uint8_t* enabledChannels,
+                                     channel_params_t* channels,
+                                     band_t* bands, uint8_t* enabledChannels,
                                      uint8_t* delayTx);
 
 
@@ -347,12 +347,12 @@ private:
     /*!
      * LoRaMAC channels
      */
-    ChannelParams_t Channels[AU915_MAX_NB_CHANNELS];
+    channel_params_t Channels[AU915_MAX_NB_CHANNELS];
 
     /*!
      * LoRaMac bands
      */
-    Band_t Bands[AU915_MAX_NB_BANDS];
+    band_t Bands[AU915_MAX_NB_BANDS];
 
     /*!
      * LoRaMac channels mask

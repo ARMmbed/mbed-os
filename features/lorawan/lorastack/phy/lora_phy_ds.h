@@ -713,7 +713,7 @@ typedef union uPhyParam
     /*!
      * A pointer to the channels.
      */
-    ChannelParams_t* Channels;
+    channel_params_t* Channels;
 }PhyParam_t;
 
 /*!
@@ -761,7 +761,7 @@ typedef struct sSetBandTxDoneParams
     /*!
      * The last TX done time.
      */
-    TimerTime_t LastTxDoneTime;
+    lorawan_time_t LastTxDoneTime;
 }SetBandTxDoneParams_t;
 
 /*!
@@ -955,7 +955,7 @@ typedef struct sNewChannelReqParams
     /*!
      * A pointer to the new channels.
      */
-    ChannelParams_t* NewChannel;
+    channel_params_t* NewChannel;
     /*!
      * The channel ID.
      */
@@ -1031,11 +1031,11 @@ typedef struct sCalcBackOffParams
     /*!
      * Elapsed time since the start of the node.
      */
-    TimerTime_t ElapsedTime;
+    lorawan_time_t ElapsedTime;
     /*!
      * Time-on-air of the last transmission.
      */
-    TimerTime_t TxTimeOnAir;
+    lorawan_time_t TxTimeOnAir;
 }CalcBackOffParams_t;
 
 /*!
@@ -1046,11 +1046,11 @@ typedef struct sNextChanParams
     /*!
      * The aggregated time-off time.
      */
-    TimerTime_t AggrTimeOff;
+    lorawan_time_t AggrTimeOff;
     /*!
      * The time of the last aggregated TX.
      */
-    TimerTime_t LastAggrTx;
+    lorawan_time_t LastAggrTx;
     /*!
      * The current datarate.
      */
@@ -1073,7 +1073,7 @@ typedef struct sChannelAddParams
     /*!
      * A pointer to the new channel to add.
      */
-    ChannelParams_t* NewChannel;
+    channel_params_t* NewChannel;
     /*!
      * The channel ID to add.
      */

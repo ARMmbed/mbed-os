@@ -42,16 +42,16 @@ LoRaWANInterface::~LoRaWANInterface()
 {
 }
 
-lora_mac_status_t LoRaWANInterface::initialize(EventQueue *queue)
+lorawan_status_t LoRaWANInterface::initialize(EventQueue *queue)
 {
     if(!queue) {
-        return LORA_MAC_STATUS_PARAMETER_INVALID;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
     return stk_obj().initialize_mac_layer(queue);
 }
 
-lora_mac_status_t LoRaWANInterface::connect()
+lorawan_status_t LoRaWANInterface::connect()
 {
     // connection attempt without parameters.
     // System tries to look for configuration in mbed_lib.json that can be
@@ -96,28 +96,28 @@ lora_mac_status_t LoRaWANInterface::connect()
     }
 }
 
-lora_mac_status_t LoRaWANInterface::connect(const lorawan_connect_t &connect)
+lorawan_status_t LoRaWANInterface::connect(const lorawan_connect_t &connect)
 {
-    lora_mac_status_t mac_status;
+    lorawan_status_t mac_status;
 
     if (connect.connect_type == LORAWAN_CONNECTION_OTAA) {
         mac_status = stk_obj().join_request_by_otaa(connect);
     } else if (connect.connect_type == LORAWAN_CONNECTION_ABP) {
         mac_status = stk_obj().activation_by_personalization(connect);
     } else {
-        return LORA_MAC_STATUS_PARAMETER_INVALID;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
     return mac_status;
 }
 
-lora_mac_status_t LoRaWANInterface::disconnect()
+lorawan_status_t LoRaWANInterface::disconnect()
 {
     stk_obj().shutdown();
-    return LORA_MAC_STATUS_OK;
+    return LORAWAN_STATUS_OK;
 }
 
-lora_mac_status_t LoRaWANInterface::add_link_check_request()
+lorawan_status_t LoRaWANInterface::add_link_check_request()
 {
     _link_check_requested = true;
     return stk_obj().set_link_check_request();
@@ -128,42 +128,42 @@ void LoRaWANInterface::remove_link_check_request()
     _link_check_requested = false;
 }
 
-lora_mac_status_t LoRaWANInterface::set_datarate(uint8_t data_rate)
+lorawan_status_t LoRaWANInterface::set_datarate(uint8_t data_rate)
 {
     return stk_obj().set_channel_data_rate(data_rate);
 }
 
-lora_mac_status_t LoRaWANInterface::set_confirmed_msg_retries(uint8_t count)
+lorawan_status_t LoRaWANInterface::set_confirmed_msg_retries(uint8_t count)
 {
     return stk_obj().set_confirmed_msg_retry(count);
 }
 
-lora_mac_status_t LoRaWANInterface::enable_adaptive_datarate()
+lorawan_status_t LoRaWANInterface::enable_adaptive_datarate()
 {
     return stk_obj().enable_adaptive_datarate(true);
 }
 
-lora_mac_status_t LoRaWANInterface::disable_adaptive_datarate()
+lorawan_status_t LoRaWANInterface::disable_adaptive_datarate()
 {
     return stk_obj().enable_adaptive_datarate(false);
 }
 
-lora_mac_status_t LoRaWANInterface::set_channel_plan(const lora_channelplan_t &channel_plan)
+lorawan_status_t LoRaWANInterface::set_channel_plan(const lorawan_channelplan_t &channel_plan)
 {
     return stk_obj().add_channels(channel_plan);
 }
 
-lora_mac_status_t LoRaWANInterface::get_channel_plan(lora_channelplan_t &channel_plan)
+lorawan_status_t LoRaWANInterface::get_channel_plan(lorawan_channelplan_t &channel_plan)
 {
     return stk_obj().get_enabled_channels(channel_plan);
 }
 
-lora_mac_status_t LoRaWANInterface::remove_channel(uint8_t id)
+lorawan_status_t LoRaWANInterface::remove_channel(uint8_t id)
 {
     return stk_obj().remove_a_channel(id);
 }
 
-lora_mac_status_t LoRaWANInterface::remove_channel_plan()
+lorawan_status_t LoRaWANInterface::remove_channel_plan()
 {
     return stk_obj().drop_channel_list();
 }
@@ -180,7 +180,7 @@ int16_t LoRaWANInterface::send(uint8_t port, const uint8_t* data,
     if (data) {
         return stk_obj().handle_tx(port, data, length, flags);
     } else {
-        return LORA_MAC_STATUS_PARAMETER_INVALID;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 }
 
@@ -190,19 +190,18 @@ int16_t LoRaWANInterface::receive(uint8_t port, uint8_t* data, uint16_t length,
     if (data && length > 0) {
         return stk_obj().handle_rx(port, data, length, flags);
     } else {
-        return LORA_MAC_STATUS_PARAMETER_INVALID;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 }
 
-lora_mac_status_t LoRaWANInterface::add_app_callbacks(lorawan_app_callbacks_t *callbacks)
+lorawan_status_t LoRaWANInterface::add_app_callbacks(lorawan_app_callbacks_t *callbacks)
   {
 
      if (!callbacks || !callbacks->events) {
          // Event Callback is mandatory
-         return LORA_MAC_STATUS_PARAMETER_INVALID;
+         return LORAWAN_STATUS_PARAMETER_INVALID;
      }
 
      stk_obj().set_lora_callbacks(callbacks);
-
-     return LORA_MAC_STATUS_OK;
+     return LORAWAN_STATUS_OK;
   }

@@ -41,22 +41,22 @@ void LoRaMacMib::activate_mib_subsystem(LoRaMac *mac, LoRaPHY *phy)
     _lora_phy = phy;
 }
 
-LoRaMacStatus_t LoRaMacMib::set_request(MibRequestConfirm_t *mibSet,
-                                        lora_mac_protocol_params *params)
+lorawan_status_t LoRaMacMib::set_request(loramac_mib_req_confirm_t *mibSet,
+                                        loramac_protocol_params *params)
 {
     if (mibSet == NULL || _lora_phy == NULL || _lora_mac == NULL) {
-         return LORAMAC_STATUS_PARAMETER_INVALID;
+         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    LoRaMacStatus_t status = LORAMAC_STATUS_OK;
+    lorawan_status_t status = LORAWAN_STATUS_OK;
     ChanMaskSetParams_t chanMaskSet;
     VerifyParams_t verify;
 
 
-    switch (mibSet->Type) {
+    switch (mibSet->type) {
         case MIB_DEVICE_CLASS: {
-            params->LoRaMacDeviceClass = mibSet->Param.Class;
-            switch (params->LoRaMacDeviceClass) {
+            params->dev_class = mibSet->param.dev_class;
+            switch (params->dev_class) {
                 case CLASS_A: {
                     // Set the radio into sleep to setup a defined state
                     _lora_phy->put_radio_to_sleep();
@@ -66,16 +66,16 @@ LoRaMacStatus_t LoRaMacMib::set_request(MibRequestConfirm_t *mibSet,
                     break;
                 }
                 case CLASS_C: {
-                    // Set the NodeAckRequested indicator to default
-                    params->NodeAckRequested = false;
+                    // Set the is_node_ack_requested indicator to default
+                    params->is_node_ack_requested = false;
                     // Set the radio into sleep mode in case we are still in RX mode
                     _lora_phy->put_radio_to_sleep();
                     // Compute Rx2 windows parameters in case the RX2 datarate has changed
                     _lora_phy->compute_rx_win_params(
-                            params->sys_params.Rx2Channel.Datarate,
-                            params->sys_params.MinRxSymbols,
-                            params->sys_params.SystemMaxRxError,
-                            &params->RxWindow2Config);
+                            params->sys_params.rx2_channel.datarate,
+                            params->sys_params.min_rx_symb,
+                            params->sys_params.max_sys_rx_error,
+                            &params->rx_window2_config);
                     _lora_mac->OpenContinuousRx2Window();
                     break;
                 }
@@ -83,58 +83,57 @@ LoRaMacStatus_t LoRaMacMib::set_request(MibRequestConfirm_t *mibSet,
             break;
         }
         case MIB_NETWORK_JOINED: {
-            params->IsLoRaMacNetworkJoined = mibSet->Param.IsNetworkJoined;
+            params->is_nwk_joined = mibSet->param.is_nwk_joined;
             break;
         }
         case MIB_ADR: {
-            params->sys_params.AdrCtrlOn = mibSet->Param.AdrEnable;
+            params->sys_params.adr_on = mibSet->param.is_adr_enable;
             break;
         }
         case MIB_NET_ID: {
-            params->LoRaMacNetID = mibSet->Param.NetID;
+            params->net_id = mibSet->param.net_id;
             break;
         }
         case MIB_DEV_ADDR: {
-            params->LoRaMacDevAddr = mibSet->Param.DevAddr;
+            params->dev_addr = mibSet->param.dev_addr;
             break;
         }
         case MIB_NWK_SKEY: {
-            if (mibSet->Param.NwkSKey != NULL) {
-                memcpy(params->keys.LoRaMacNwkSKey, mibSet->Param.NwkSKey,
-                       sizeof(params->keys.LoRaMacNwkSKey));
+            if (mibSet->param.nwk_skey != NULL) {
+                memcpy(params->keys.nwk_skey, mibSet->param.nwk_skey,
+                       sizeof(params->keys.nwk_skey));
             } else {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_APP_SKEY: {
-            if (mibSet->Param.AppSKey != NULL) {
-                memcpy(params->keys.LoRaMacAppSKey, mibSet->Param.AppSKey,
-                       sizeof(params->keys.LoRaMacAppSKey));
+            if (mibSet->param.app_skey != NULL) {
+                memcpy(params->keys.app_skey, mibSet->param.app_skey,
+                       sizeof(params->keys.app_skey));
             } else {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_PUBLIC_NETWORK: {
-            params->PublicNetwork = mibSet->Param.EnablePublicNetwork;
-            _lora_phy->setup_public_network_mode(params->PublicNetwork);
+            params->is_nwk_public = mibSet->param.enable_public_nwk;
+            _lora_phy->setup_public_network_mode(params->is_nwk_public);
             break;
         }
         case MIB_REPEATER_SUPPORT: {
-            params->RepeaterSupport = mibSet->Param.EnableRepeaterSupport;
+            params->is_repeater_supported = mibSet->param.enable_repeater_support;
             break;
         }
         case MIB_RX2_CHANNEL: {
-            verify.DatarateParams.Datarate = mibSet->Param.Rx2Channel.Datarate;
-            verify.DatarateParams.DownlinkDwellTime =
-                    params->sys_params.DownlinkDwellTime;
+            verify.DatarateParams.Datarate = mibSet->param.rx2_channel.datarate;
+            verify.DatarateParams.DownlinkDwellTime = params->sys_params.downlink_dwell_time;
 
             if (_lora_phy->verify(&verify, PHY_RX_DR) == true) {
-                params->sys_params.Rx2Channel = mibSet->Param.Rx2Channel;
+                params->sys_params.rx2_channel = mibSet->param.rx2_channel;
 
-                if ((params->LoRaMacDeviceClass == CLASS_C)
-                        && (params->IsLoRaMacNetworkJoined == true)) {
+                if ((params->dev_class == CLASS_C)
+                        && (params->is_nwk_joined == true)) {
                     // We can only compute the RX window parameters directly, if we are already
                     // in class c mode and joined. We cannot setup an RX window in case of any other
                     // class type.
@@ -142,214 +141,206 @@ LoRaMacStatus_t LoRaMacMib::set_request(MibRequestConfirm_t *mibSet,
                     _lora_phy->put_radio_to_sleep();
                     // Compute Rx2 windows parameters
                     _lora_phy->compute_rx_win_params(
-                            params->sys_params.Rx2Channel.Datarate,
-                            params->sys_params.MinRxSymbols,
-                            params->sys_params.SystemMaxRxError,
-                            &params->RxWindow2Config);
+                            params->sys_params.rx2_channel.datarate,
+                            params->sys_params.min_rx_symb,
+                            params->sys_params.max_sys_rx_error,
+                            &params->rx_window2_config);
 
                     _lora_mac->OpenContinuousRx2Window();
                 }
             } else {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_RX2_DEFAULT_CHANNEL: {
-            verify.DatarateParams.Datarate = mibSet->Param.Rx2Channel.Datarate;
-            verify.DatarateParams.DownlinkDwellTime =
-                    params->sys_params.DownlinkDwellTime;
+            verify.DatarateParams.Datarate = mibSet->param.rx2_channel.datarate;
+            verify.DatarateParams.DownlinkDwellTime = params->sys_params.downlink_dwell_time;
 
             if (_lora_phy->verify(&verify, PHY_RX_DR) == true) {
-                params->def_sys_params.Rx2Channel =
-                        mibSet->Param.Rx2DefaultChannel;
+                params->def_sys_params.rx2_channel = mibSet->param.default_rx2_channel;
             } else {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_CHANNELS_DEFAULT_MASK: {
-            chanMaskSet.ChannelsMaskIn = mibSet->Param.ChannelsMask;
+            chanMaskSet.ChannelsMaskIn = mibSet->param.channel_mask;
             chanMaskSet.ChannelsMaskType = CHANNELS_DEFAULT_MASK;
 
             if (_lora_phy->set_channel_mask(&chanMaskSet) == false) {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_CHANNELS_MASK: {
-            chanMaskSet.ChannelsMaskIn = mibSet->Param.ChannelsMask;
+            chanMaskSet.ChannelsMaskIn = mibSet->param.channel_mask;
             chanMaskSet.ChannelsMaskType = CHANNELS_MASK;
 
             if (_lora_phy->set_channel_mask(&chanMaskSet) == false) {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_CHANNELS_NB_REP: {
-            if ((mibSet->Param.ChannelNbRep >= 1)
-                    && (mibSet->Param.ChannelNbRep <= 15)) {
-                params->sys_params.ChannelsNbRep = mibSet->Param.ChannelNbRep;
+            if ((mibSet->param.channel_nb_rep >= 1)
+                    && (mibSet->param.channel_nb_rep <= 15)) {
+                params->sys_params.retry_num = mibSet->param.channel_nb_rep;
             } else {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_MAX_RX_WINDOW_DURATION: {
-            params->sys_params.MaxRxWindow = mibSet->Param.MaxRxWindow;
+            params->sys_params.max_rx_win_time = mibSet->param.max_rx_window;
             break;
         }
         case MIB_RECEIVE_DELAY_1: {
-            params->sys_params.ReceiveDelay1 = mibSet->Param.ReceiveDelay1;
+            params->sys_params.recv_delay1 = mibSet->param.recv_delay1;
             break;
         }
         case MIB_RECEIVE_DELAY_2: {
-            params->sys_params.ReceiveDelay2 = mibSet->Param.ReceiveDelay2;
+            params->sys_params.recv_delay2 = mibSet->param.recv_delay2;
             break;
         }
         case MIB_JOIN_ACCEPT_DELAY_1: {
-            params->sys_params.JoinAcceptDelay1 =
-                    mibSet->Param.JoinAcceptDelay1;
+            params->sys_params.join_accept_delay1 = mibSet->param.join_accept_delay1;
             break;
         }
         case MIB_JOIN_ACCEPT_DELAY_2: {
-            params->sys_params.JoinAcceptDelay2 =
-                    mibSet->Param.JoinAcceptDelay2;
+            params->sys_params.join_accept_delay2 = mibSet->param.join_accept_delay2;
             break;
         }
         case MIB_CHANNELS_DEFAULT_DATARATE: {
-            verify.DatarateParams.Datarate =
-                    mibSet->Param.ChannelsDefaultDatarate;
+            verify.DatarateParams.Datarate = mibSet->param.default_channel_data_rate;
 
             if (_lora_phy->verify(&verify, PHY_DEF_TX_DR) == true) {
-                params->def_sys_params.ChannelsDatarate =
-                        verify.DatarateParams.Datarate;
+                params->def_sys_params.channel_data_rate = verify.DatarateParams.Datarate;
             } else {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_CHANNELS_DATARATE: {
-            verify.DatarateParams.Datarate = mibSet->Param.ChannelsDatarate;
-            verify.DatarateParams.UplinkDwellTime =
-                    params->sys_params.UplinkDwellTime;
+            verify.DatarateParams.Datarate = mibSet->param.channel_data_rate;
+            verify.DatarateParams.UplinkDwellTime = params->sys_params.uplink_dwell_time;
 
             if (_lora_phy->verify(&verify, PHY_TX_DR) == true) {
-                params->sys_params.ChannelsDatarate =
-                        verify.DatarateParams.Datarate;
+                params->sys_params.channel_data_rate = verify.DatarateParams.Datarate;
             } else {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_CHANNELS_DEFAULT_TX_POWER: {
-            verify.TxPower = mibSet->Param.ChannelsDefaultTxPower;
+            verify.TxPower = mibSet->param.default_channel_tx_pwr;
 
             if (_lora_phy->verify(&verify, PHY_DEF_TX_POWER) == true) {
-                params->def_sys_params.ChannelsTxPower = verify.TxPower;
+                params->def_sys_params.channel_tx_power = verify.TxPower;
             } else {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_CHANNELS_TX_POWER: {
-            verify.TxPower = mibSet->Param.ChannelsTxPower;
+            verify.TxPower = mibSet->param.channel_tx_pwr;
 
             if (_lora_phy->verify(&verify, PHY_TX_POWER) == true) {
-                params->sys_params.ChannelsTxPower = verify.TxPower;
+                params->sys_params.channel_tx_power = verify.TxPower;
             } else {
-                status = LORAMAC_STATUS_PARAMETER_INVALID;
+                status = LORAWAN_STATUS_PARAMETER_INVALID;
             }
             break;
         }
         case MIB_UPLINK_COUNTER: {
-            params->UpLinkCounter = mibSet->Param.UpLinkCounter;
+            params->ul_frame_counter = mibSet->param.ul_frame_counter;
             break;
         }
         case MIB_DOWNLINK_COUNTER: {
-            params->DownLinkCounter = mibSet->Param.DownLinkCounter;
+            params->dl_frame_counter = mibSet->param.dl_frame_counter;
             break;
         }
         case MIB_SYSTEM_MAX_RX_ERROR: {
-            params->sys_params.SystemMaxRxError =
-                    params->def_sys_params.SystemMaxRxError =
-                            mibSet->Param.SystemMaxRxError;
+            params->sys_params.max_sys_rx_error =
+                    params->def_sys_params.max_sys_rx_error =
+                            mibSet->param.max_rx_sys_error;
             break;
         }
         case MIB_MIN_RX_SYMBOLS: {
-            params->sys_params.MinRxSymbols =
-                    params->def_sys_params.MinRxSymbols =
-                            mibSet->Param.MinRxSymbols;
+            params->sys_params.min_rx_symb =
+                    params->def_sys_params.min_rx_symb =
+                            mibSet->param.min_rx_symb;
             break;
         }
         case MIB_ANTENNA_GAIN: {
-            params->sys_params.AntennaGain = mibSet->Param.AntennaGain;
+            params->sys_params.antenna_gain = mibSet->param.antenna_gain;
             break;
         }
         default:
-            status = LORAMAC_STATUS_SERVICE_UNKNOWN;
+            status = LORAWAN_STATUS_SERVICE_UNKNOWN;
             break;
     }
 
     return status;
 }
 
-LoRaMacStatus_t LoRaMacMib::get_request(MibRequestConfirm_t *mibGet,
-                                        lora_mac_protocol_params *params)
+lorawan_status_t LoRaMacMib::get_request(loramac_mib_req_confirm_t *mibGet,
+                                        loramac_protocol_params *params)
 {
-    LoRaMacStatus_t status = LORAMAC_STATUS_OK;
+    lorawan_status_t status = LORAWAN_STATUS_OK;
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
 
     if( mibGet == NULL )
     {
-        return LORAMAC_STATUS_PARAMETER_INVALID;
+        return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
-    switch( mibGet->Type )
+    switch( mibGet->type )
     {
         case MIB_DEVICE_CLASS:
         {
-            mibGet->Param.Class = params->LoRaMacDeviceClass;
+            mibGet->param.dev_class = params->dev_class;
             break;
         }
         case MIB_NETWORK_JOINED:
         {
-            mibGet->Param.IsNetworkJoined = params->IsLoRaMacNetworkJoined;
+            mibGet->param.is_nwk_joined = params->is_nwk_joined;
             break;
         }
         case MIB_ADR:
         {
-            mibGet->Param.AdrEnable = params->sys_params.AdrCtrlOn;
+            mibGet->param.is_adr_enable = params->sys_params.adr_on;
             break;
         }
         case MIB_NET_ID:
         {
-            mibGet->Param.NetID = params->LoRaMacNetID;
+            mibGet->param.net_id = params->net_id;
             break;
         }
         case MIB_DEV_ADDR:
         {
-            mibGet->Param.DevAddr = params->LoRaMacDevAddr;
+            mibGet->param.dev_addr = params->dev_addr;
             break;
         }
         case MIB_NWK_SKEY:
         {
-            mibGet->Param.NwkSKey =params->keys.LoRaMacNwkSKey;
+            mibGet->param.nwk_skey =params->keys.nwk_skey;
             break;
         }
         case MIB_APP_SKEY:
         {
-            mibGet->Param.AppSKey = params->keys.LoRaMacAppSKey;
+            mibGet->param.app_skey = params->keys.app_skey;
             break;
         }
         case MIB_PUBLIC_NETWORK:
         {
-            mibGet->Param.EnablePublicNetwork = params->PublicNetwork;
+            mibGet->param.enable_public_nwk = params->is_nwk_public;
             break;
         }
         case MIB_REPEATER_SUPPORT:
         {
-            mibGet->Param.EnableRepeaterSupport = params->RepeaterSupport;
+            mibGet->param.enable_repeater_support = params->is_repeater_supported;
             break;
         }
         case MIB_CHANNELS:
@@ -357,17 +348,17 @@ LoRaMacStatus_t LoRaMacMib::get_request(MibRequestConfirm_t *mibGet,
             getPhy.Attribute = PHY_CHANNELS;
             phyParam = _lora_phy->get_phy_params( &getPhy );
 
-            mibGet->Param.ChannelList = phyParam.Channels;
+            mibGet->param.channel_list = phyParam.Channels;
             break;
         }
         case MIB_RX2_CHANNEL:
         {
-            mibGet->Param.Rx2Channel = params->sys_params.Rx2Channel;
+            mibGet->param.rx2_channel = params->sys_params.rx2_channel;
             break;
         }
         case MIB_RX2_DEFAULT_CHANNEL:
         {
-            mibGet->Param.Rx2Channel = params->def_sys_params.Rx2Channel;
+            mibGet->param.rx2_channel = params->def_sys_params.rx2_channel;
             break;
         }
         case MIB_CHANNELS_DEFAULT_MASK:
@@ -375,7 +366,7 @@ LoRaMacStatus_t LoRaMacMib::get_request(MibRequestConfirm_t *mibGet,
             getPhy.Attribute = PHY_CHANNELS_DEFAULT_MASK;
             phyParam = _lora_phy->get_phy_params( &getPhy );
 
-            mibGet->Param.ChannelsDefaultMask = phyParam.ChannelsMask;
+            mibGet->param.default_channel_mask = phyParam.ChannelsMask;
             break;
         }
         case MIB_CHANNELS_MASK:
@@ -383,91 +374,91 @@ LoRaMacStatus_t LoRaMacMib::get_request(MibRequestConfirm_t *mibGet,
             getPhy.Attribute = PHY_CHANNELS_MASK;
             phyParam = _lora_phy->get_phy_params( &getPhy );
 
-            mibGet->Param.ChannelsMask = phyParam.ChannelsMask;
+            mibGet->param.channel_mask = phyParam.ChannelsMask;
             break;
         }
         case MIB_CHANNELS_NB_REP:
         {
-            mibGet->Param.ChannelNbRep = params->sys_params.ChannelsNbRep;
+            mibGet->param.channel_nb_rep = params->sys_params.retry_num;
             break;
         }
         case MIB_MAX_RX_WINDOW_DURATION:
         {
-            mibGet->Param.MaxRxWindow = params->sys_params.MaxRxWindow;
+            mibGet->param.max_rx_window = params->sys_params.max_rx_win_time;
             break;
         }
         case MIB_RECEIVE_DELAY_1:
         {
-            mibGet->Param.ReceiveDelay1 = params->sys_params.ReceiveDelay1;
+            mibGet->param.recv_delay1 = params->sys_params.recv_delay1;
             break;
         }
         case MIB_RECEIVE_DELAY_2:
         {
-            mibGet->Param.ReceiveDelay2 = params->sys_params.ReceiveDelay2;
+            mibGet->param.recv_delay2 = params->sys_params.recv_delay2;
             break;
         }
         case MIB_JOIN_ACCEPT_DELAY_1:
         {
-            mibGet->Param.JoinAcceptDelay1 = params->sys_params.JoinAcceptDelay1;
+            mibGet->param.join_accept_delay1 = params->sys_params.join_accept_delay1;
             break;
         }
         case MIB_JOIN_ACCEPT_DELAY_2:
         {
-            mibGet->Param.JoinAcceptDelay2 = params->sys_params.JoinAcceptDelay2;
+            mibGet->param.join_accept_delay2 = params->sys_params.join_accept_delay2;
             break;
         }
         case MIB_CHANNELS_DEFAULT_DATARATE:
         {
-            mibGet->Param.ChannelsDefaultDatarate = params->def_sys_params.ChannelsDatarate;
+            mibGet->param.default_channel_data_rate = params->def_sys_params.channel_data_rate;
             break;
         }
         case MIB_CHANNELS_DATARATE:
         {
-            mibGet->Param.ChannelsDatarate = params->sys_params.ChannelsDatarate;
+            mibGet->param.channel_data_rate = params->sys_params.channel_data_rate;
             break;
         }
         case MIB_CHANNELS_DEFAULT_TX_POWER:
         {
-            mibGet->Param.ChannelsDefaultTxPower = params->def_sys_params.ChannelsTxPower;
+            mibGet->param.default_channel_tx_pwr = params->def_sys_params.channel_tx_power;
             break;
         }
         case MIB_CHANNELS_TX_POWER:
         {
-            mibGet->Param.ChannelsTxPower = params->sys_params.ChannelsTxPower;
+            mibGet->param.channel_tx_pwr = params->sys_params.channel_tx_power;
             break;
         }
         case MIB_UPLINK_COUNTER:
         {
-            mibGet->Param.UpLinkCounter = params->UpLinkCounter;
+            mibGet->param.ul_frame_counter = params->ul_frame_counter;
             break;
         }
         case MIB_DOWNLINK_COUNTER:
         {
-            mibGet->Param.DownLinkCounter = params->DownLinkCounter;
+            mibGet->param.dl_frame_counter = params->dl_frame_counter;
             break;
         }
         case MIB_MULTICAST_CHANNEL:
         {
-            mibGet->Param.MulticastList = params->MulticastChannels;
+            mibGet->param.multicast_list = params->multicast_channels;
             break;
         }
         case MIB_SYSTEM_MAX_RX_ERROR:
         {
-            mibGet->Param.SystemMaxRxError = params->sys_params.SystemMaxRxError;
+            mibGet->param.max_rx_sys_error = params->sys_params.max_sys_rx_error;
             break;
         }
         case MIB_MIN_RX_SYMBOLS:
         {
-            mibGet->Param.MinRxSymbols = params->sys_params.MinRxSymbols;
+            mibGet->param.min_rx_symb = params->sys_params.min_rx_symb;
             break;
         }
         case MIB_ANTENNA_GAIN:
         {
-            mibGet->Param.AntennaGain = params->sys_params.AntennaGain;
+            mibGet->param.antenna_gain = params->sys_params.antenna_gain;
             break;
         }
         default:
-            status = LORAMAC_STATUS_SERVICE_UNKNOWN;
+            status = LORAWAN_STATUS_SERVICE_UNKNOWN;
             break;
     }
 

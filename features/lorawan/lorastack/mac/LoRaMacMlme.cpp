@@ -43,111 +43,111 @@ void LoRaMacMlme::activate_mlme_subsystem(LoRaMac *mac, LoRaPHY *phy,
     _mac_cmd = cmd;
 }
 
-LoRaMacStatus_t LoRaMacMlme::set_request(MlmeReq_t *mlmeRequest,
-                                          lora_mac_protocol_params *params)
+lorawan_status_t LoRaMacMlme::set_request(loramac_mlme_req_t *mlmeRequest,
+                                          loramac_protocol_params *params)
 {
     if (mlmeRequest && params && _lora_mac && _lora_phy && _mac_cmd) {
 
-        LoRaMacStatus_t status = LORAMAC_STATUS_SERVICE_UNKNOWN;
-        LoRaMacHeader_t macHdr;
+        lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
+        loramac_mhdr_t macHdr;
         AlternateDrParams_t altDr;
         VerifyParams_t verify;
         GetPhyParams_t getPhy;
         PhyParam_t phyParam;
 
 
-        if (params->LoRaMacState != LORAMAC_IDLE) {
-            return LORAMAC_STATUS_BUSY;
+        if (params->mac_state != LORAMAC_IDLE) {
+            return LORAWAN_STATUS_BUSY;
         }
 
         // Before setting a new MLME request, clear the MLME confirmation
         // structure
         memset((uint8_t*) &confirmation, 0, sizeof(confirmation));
 
-        confirmation.Status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+        confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
-        switch (mlmeRequest->Type) {
+        switch (mlmeRequest->type) {
             case MLME_JOIN: {
-                if ((params->LoRaMacState & LORAMAC_TX_DELAYED)
+                if ((params->mac_state & LORAMAC_TX_DELAYED)
                         == LORAMAC_TX_DELAYED) {
-                    return LORAMAC_STATUS_BUSY;
+                    return LORAWAN_STATUS_BUSY;
                 }
 
-                if ((mlmeRequest->Req.Join.DevEui == NULL)
-                        || (mlmeRequest->Req.Join.AppEui == NULL)
-                        || (mlmeRequest->Req.Join.AppKey == NULL)
-                        || (mlmeRequest->Req.Join.NbTrials == 0)) {
-                    return LORAMAC_STATUS_PARAMETER_INVALID;
+                if ((mlmeRequest->req.join.dev_eui == NULL)
+                        || (mlmeRequest->req.join.app_eui == NULL)
+                        || (mlmeRequest->req.join.app_key == NULL)
+                        || (mlmeRequest->req.join.nb_trials == 0)) {
+                    return LORAWAN_STATUS_PARAMETER_INVALID;
                 }
 
                 // Verify the parameter NbTrials for the join procedure
-                verify.NbJoinTrials = mlmeRequest->Req.Join.NbTrials;
+                verify.NbJoinTrials = mlmeRequest->req.join.nb_trials;
 
                 if (_lora_phy->verify(&verify, PHY_NB_JOIN_TRIALS) == false) {
                     // Value not supported, get default
                     getPhy.Attribute = PHY_DEF_NB_JOIN_TRIALS;
                     phyParam = _lora_phy->get_phy_params(&getPhy);
-                    mlmeRequest->Req.Join.NbTrials = (uint8_t) phyParam.Value;
+                    mlmeRequest->req.join.nb_trials = (uint8_t) phyParam.Value;
                 }
 
-                params->LoRaMacFlags.Bits.MlmeReq = 1;
-                confirmation.MlmeRequest = mlmeRequest->Type;
+                params->flags.bits.mlme_req = 1;
+                confirmation.req_type = mlmeRequest->type;
 
-                params->keys.LoRaMacDevEui = mlmeRequest->Req.Join.DevEui;
-                params->keys.LoRaMacAppEui = mlmeRequest->Req.Join.AppEui;
-                params->keys.LoRaMacAppKey = mlmeRequest->Req.Join.AppKey;
-                params->MaxJoinRequestTrials = mlmeRequest->Req.Join.NbTrials;
+                params->keys.dev_eui = mlmeRequest->req.join.dev_eui;
+                params->keys.app_eui = mlmeRequest->req.join.app_eui;
+                params->keys.app_key = mlmeRequest->req.join.app_key;
+                params->max_join_request_trials = mlmeRequest->req.join.nb_trials;
 
                 // Reset variable JoinRequestTrials
-                params->JoinRequestTrials = 0;
+                params->join_request_trial_counter = 0;
 
                 // Setup header information
-                macHdr.Value = 0;
-                macHdr.Bits.MType = FRAME_TYPE_JOIN_REQ;
+                macHdr.value = 0;
+                macHdr.bits.mtype = FRAME_TYPE_JOIN_REQ;
 
                 _lora_mac->ResetMacParameters();
 
-                altDr.NbTrials = params->JoinRequestTrials + 1;
+                altDr.NbTrials = params->join_request_trial_counter + 1;
 
-                params->sys_params.ChannelsDatarate =
+                params->sys_params.channel_data_rate =
                         _lora_phy->get_alternate_DR(&altDr);
 
                 status = _lora_mac->Send(&macHdr, 0, NULL, 0);
                 break;
             }
             case MLME_LINK_CHECK: {
-                params->LoRaMacFlags.Bits.MlmeReq = 1;
+                params->flags.bits.mlme_req = 1;
                 // LoRaMac will send this command piggy-backed
-                confirmation.MlmeRequest = mlmeRequest->Type;
+                confirmation.req_type = mlmeRequest->type;
 
                 status = _mac_cmd->AddMacCommand(MOTE_MAC_LINK_CHECK_REQ, 0, 0);
                 break;
             }
             case MLME_TXCW: {
-                confirmation.MlmeRequest = mlmeRequest->Type;
-                params->LoRaMacFlags.Bits.MlmeReq = 1;
-                status = _lora_mac->SetTxContinuousWave(mlmeRequest->Req.TxCw.Timeout);
+                confirmation.req_type = mlmeRequest->type;
+                params->flags.bits.mlme_req = 1;
+                status = _lora_mac->SetTxContinuousWave(mlmeRequest->req.cw_tx_mode.timeout);
                 break;
             }
             case MLME_TXCW_1: {
-                confirmation.MlmeRequest = mlmeRequest->Type;
-                params->LoRaMacFlags.Bits.MlmeReq = 1;
-                status = _lora_mac->SetTxContinuousWave1(mlmeRequest->Req.TxCw.Timeout,
-                                              mlmeRequest->Req.TxCw.Frequency,
-                                              mlmeRequest->Req.TxCw.Power);
+                confirmation.req_type = mlmeRequest->type;
+                params->flags.bits.mlme_req = 1;
+                status = _lora_mac->SetTxContinuousWave1(mlmeRequest->req.cw_tx_mode.timeout,
+                                              mlmeRequest->req.cw_tx_mode.frequency,
+                                              mlmeRequest->req.cw_tx_mode.power);
                 break;
             }
             default:
                 break;
         }
 
-        if (status != LORAMAC_STATUS_OK) {
-            params->NodeAckRequested = false;
-            params->LoRaMacFlags.Bits.MlmeReq = 0;
+        if (status != LORAWAN_STATUS_OK) {
+            params->is_node_ack_requested = false;
+            params->flags.bits.mlme_req = 0;
         }
 
         return status;
     }
 
-    return LORAMAC_STATUS_PARAMETER_INVALID;
+    return LORAWAN_STATUS_PARAMETER_INVALID;
 }
