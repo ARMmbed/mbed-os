@@ -29,6 +29,7 @@ import argparse
 import datetime
 import threading
 import ctypes
+import functools
 from colorama import Fore, Back, Style
 from prettytable import PrettyTable
 from copy import copy
@@ -52,7 +53,7 @@ from tools.utils import ToolException
 from tools.utils import NotSupportedException
 from tools.utils import construct_enum
 from tools.memap import MemapParser
-from tools.targets import TARGET_MAP
+from tools.targets import TARGET_MAP, Target
 import tools.test_configs as TestConfig
 from tools.test_db import BaseDBAccess
 from tools.build_api import build_project, build_mbed_libs, build_lib
@@ -2216,7 +2217,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     execution_directory = "."
     base_path = norm_relative_path(build_path, execution_directory)
 
-    target_name = target if isinstance(target, str) else target.name
+    target_name = target.name if isinstance(target, Target) else target
     cfg, _, _ = get_config(base_source_paths, target_name, toolchain_name)
 
     baud_rate = 9600

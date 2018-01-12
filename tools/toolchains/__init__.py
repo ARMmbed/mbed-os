@@ -795,7 +795,7 @@ class mbedToolchain:
 
     def copy_files(self, files_paths, trg_path, resources=None, rel_path=None):
         # Handle a single file
-        if isinstance(files_paths, list):
+        if not isinstance(files_paths, list):
             files_paths = [files_paths]
 
         for source in files_paths:
@@ -1291,7 +1291,6 @@ class mbedToolchain:
                 self.config_file = None # this means "config file not present"
                 changed = True
             elif crt_data != prev_data: # different content of config file
-                print("changed!")
                 with open(self.config_file, "w") as f:
                     f.write(crt_data)
                 changed = True

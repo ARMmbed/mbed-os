@@ -18,6 +18,7 @@ limitations under the License.
 
 TEST BUILD & RUN
 """
+from __future__ import print_function, division, absolute_import
 import sys
 import os
 import json
@@ -36,8 +37,8 @@ from tools.build_api import merge_build_data
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir, ToolException, NotSupportedException, args_error
 from tools.test_exporters import ReportExporter, ResultExporterType
-from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
-from utils import argparse_dir_not_parent
+from tools.utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
+from tools.utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS, TOOLCHAIN_CLASSES
 from tools.settings import CLI_COLOR_MAP
 
@@ -164,7 +165,8 @@ if __name__ == '__main__':
                         if fnmatch.fnmatch(testname, name):
                             tests[testname] = test
                 else:
-                    print "[Warning] Test with name '%s' was not found in the available tests" % (name)
+                    print("[Warning] Test with name '%s' was not found in the "
+                          "available tests" % (name))
         else:
             tests = all_tests
 
@@ -211,18 +213,18 @@ if __name__ == '__main__':
                               build_profile=profile)
 
                 library_build_success = True
-            except ToolException, e:
+            except ToolException as e:
                 # ToolException output is handled by the build log
                 pass
-            except NotSupportedException, e:
+            except NotSupportedException as e:
                 # NotSupportedException is handled by the build log
                 pass
-            except Exception, e:
+            except Exception as e:
                 # Some other exception occurred, print the error message
-                print e
+                print(e)
 
             if not library_build_success:
-                print "Failed to build library"
+                print("Failed to build library")
             else:
                 # Build all the tests
 
@@ -252,9 +254,9 @@ if __name__ == '__main__':
                     try:
                         with open(options.test_spec, 'w') as f:
                             f.write(json.dumps(test_spec_data, indent=2))
-                    except IOError, e:
-                        print "[ERROR] Error writing test spec to file"
-                        print e
+                    except IOError as e:
+                        print("[ERROR] Error writing test spec to file")
+                        print(e)
 
             # If a path to a JUnit build report spec is provided, write it to a file
             if options.build_report_junit:
@@ -264,7 +266,7 @@ if __name__ == '__main__':
             # Print memory map summary on screen
             if build_report:
                 print
-                print print_build_memory_usage(build_report)
+                print(print_build_memory_usage(build_report))
 
             print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
             status = print_report_exporter.report(build_report)
@@ -276,13 +278,13 @@ if __name__ == '__main__':
             else:
                 sys.exit(1)
 
-    except KeyboardInterrupt, e:
-        print "\n[CTRL+c] exit"
-    except ConfigException, e:
+    except KeyboardInterrupt as e:
+        print("\n[CTRL+c] exit")
+    except ConfigException as e:
         # Catching ConfigException here to prevent a traceback
-        print "[ERROR] %s" % str(e)
-    except Exception,e:
+        print("[ERROR] %s" % str(e))
+    except Exception as e:
         import traceback
         traceback.print_exc(file=sys.stdout)
-        print "[ERROR] %s" % str(e)
+        print("[ERROR] %s" % str(e))
         sys.exit(1)
