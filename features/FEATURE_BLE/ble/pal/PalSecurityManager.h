@@ -79,7 +79,7 @@ struct bonded_list_t {
     uint8_t capacity;  /**< number of entries that can be stored */
 };
 
-enum BlePairingResult_t {
+enum PairingResult_t {
     PAIRING_RESULT_AUTHENTICATED,
     PAIRING_RESULT_UNAUTHENTICATED,
     PAIRING_RESULT_FAILED
@@ -134,7 +134,7 @@ class SecurityManagerEventHandler {
         }
     }
 
-    virtual void legacy_pariring_oob_request(Gap::Handle_t handlea) {
+    virtual void legacy_pariring_oob_request(Gap::Handle_t handle) {
         if (_app_handler) {
             _app_handler->legacyPairingOobRequest(handle);
         }
@@ -170,7 +170,7 @@ class SecurityManagerEventHandler {
     }
 
     virtual void keys_exchanged(Gap::Handle_t handle, Address_t &peer_address, ediv_t &ediv, rand_t &rand, ltk_t &ltk, csrk_t &csrk);
-    virtual void pairing_completed(Gap::Handle_t handle, BlePairingResult_t result);
+    virtual void pairing_completed(Gap::Handle_t handle, PairingResult_t result);
 
     virtual void set_app_event_handler(::SecurityManagerEventHandler *app_handler) {
         _app_handler = app_handler;

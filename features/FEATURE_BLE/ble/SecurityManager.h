@@ -530,11 +530,9 @@ public:
     };
     virtual void legacyPairingOobRequest(Gap::Handle_t handle) {
         (void)handle;
-        (void)extended;
     };
     virtual void oobRequest(Gap::Handle_t handle) {
         (void)handle;
-        (void)extended;
     };
     virtual void pinRequest(Gap::Handle_t handle) {
         (void)handle;
