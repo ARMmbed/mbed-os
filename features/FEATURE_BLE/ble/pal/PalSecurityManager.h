@@ -100,8 +100,8 @@ struct bonded_list_t {
 
 class SecurityManagerEventHandler {
     SecurityManagerEventHandler() : _app_event_handler(NULL) { };
-    virtual void security_setup_initiated(connection_handle_t handle, bool allowBonding,
-                                          bool requireMITM, SecurityManager::SecurityIOCapabilities_t iocaps) {
+    virtual void security_setup_initiated(connection_handle_t handle, bool allow_bonding,
+                                          bool require_mitm, SecurityManager::SecurityIOCapabilities_t iocaps) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupInitiated(handle, allowBonding, requireMITM, iocaps);
         }
@@ -112,7 +112,7 @@ class SecurityManagerEventHandler {
             _app_event_handler->securitySetupCompleted(handle, status);
         }
     }
-    virtual void link_secured(connection_handle_t handle, SecurityManager::SecurityMode_t securityMode) {
+    virtual void link_secured(connection_handle_t handle, SecurityManager::SecurityMode_t security_mode) {
         if (_app_event_handler) {
             _app_event_handler->linkSecured(handle, securityMode);
         }
