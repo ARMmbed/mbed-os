@@ -132,7 +132,7 @@ class SecurityManagerEventHandler {
             _app_event_handler->securityContextStored(handle);
         }
     }
-    virtual void passkey_display(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
+    virtual void passkey_display(connection_handle_t handle, const passkey_t passkey) {
         if (_app_event_handler) {
             _app_event_handler->passkeyDisplay(handle, passkey);
         }
@@ -262,19 +262,6 @@ public:
 
     /* security settings */
 
-    virtual ble_error_t set_io_capabilities(SecurityIOCapabilities_t iocaps = IO_CAPS_NONE) {
-        (void)iocaps;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-    virtual ble_error_t set_bondable(bool bondable = true) {
-        (void)bondable;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-    virtual ble_error_t set_keypress_notification(bool send_keypresses = true) {
-        (void)send_keypresses;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
     virtual ble_error_t set_pin_code(uint8_t pin_length, uint8_t *pin_code, bool static_pin = false) {
         (void)pin_length;
         (void)pin_code;
@@ -285,18 +272,7 @@ public:
         (void)passkey;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t set_oob_data_usage(connection_handle_t handle, bool useOOB, bool OOBProvidesMITM) {
-        (void)handle;
-        (void)useOOB;
-        (void)OOBProvidesMITM;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
 
-    virtual ble_error_t set_encryption_key_size(uint8_t minimum_bitsize, uint8_t maximum_bitsize = 128) {
-        (void)minimum_bitsize;
-        (void)maximum_bitsize;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
     virtual ble_error_t get_encryption_key_size(connection_handle_t, uint8_t &bitsize) {
         (void)bitsize;
         return BLE_ERROR_NOT_IMPLEMENTED;
