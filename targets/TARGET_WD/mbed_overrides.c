@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2017, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,44 +26,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "cmsis.h"
-#include "us_ticker_api.h"
-#include "resettrace.h"
 
-void mbed_die(void) {
-	
-	core_util_critical_section_enter();
-	
-	#if (DEVICE_ERROR_RED == 1)
-
-	gpio_t led_red; 
-	gpio_init_out(&led_red, LED_RED);
-	
-	for (int i=0; i<3; i++) {
-		gpio_write(&led_red, 1);
-		wait_ms(1000);
-
-		gpio_write(&led_red, 0);
-		wait_ms(1000);
-	}
-
-	#endif
-	
-	resettrace_set_error_code(MBED_DIE);
-	NVIC_SystemReset();
-	
-}
-
-/**
-  * @brief This function provides accurate delay (in milliseconds) based
-  *        on variable incremented.
-  * @note This function is the modified version of the __weak version contained in
-  *       stm32f4xx_hal.c, using us_ticker
-  * @param Delay: specifies the delay time length, in milliseconds.
-  * @retval None
-  */
-void HAL_Delay(__IO uint32_t Delay)
+// This function is called after RAM initialization and before main.
+void mbed_sdk_init()
 {
-    uint32_t start = us_ticker_read();
-    while ((us_ticker_read() - start) < (uint32_t)(Delay * 1000));
-}
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+    HAL_Init();
 
+    /* Configure the System clock source, PLL Multiplier and Divider factors,
+       AHB/APBx prescalers and Flash settings */
+    SetSysClock();
+    SystemCoreClockUpdate();
+}

@@ -28,15 +28,6 @@
 #include "cmsis.h"
 #include "resettrace.h"
 
-// This function is called after RAM initialization and before main.
-void mbed_sdk_init()
-{
-    // Update the SystemCoreClock variable.
-    SystemCoreClockUpdate();
-    // Need to restart HAL driver after the RAM is initialized
-    HAL_Init();
-}
-
 void mbed_die(void) {
 	
 	core_util_critical_section_enter();
