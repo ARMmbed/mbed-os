@@ -865,7 +865,7 @@ class mbedToolchain:
     # ARM, GCC, IAR cross compatible
     def get_arch_file(self, objects):
         archive_file = join(self.build_dir, ".archive_files.txt")
-        with open(archive_file, "wb") as f:
+        with open(archive_file, "w") as f:
             o_list = []
             for o in objects:
                 o_list.append('"%s"' % o)
