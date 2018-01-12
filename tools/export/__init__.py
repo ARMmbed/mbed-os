@@ -226,7 +226,7 @@ def zip_export(file_name, prefix, resources, project_files, inc_repos):
     with zipfile.ZipFile(file_name, "w") as zip_file:
         for prj_file in project_files:
             zip_file.write(prj_file, join(prefix, basename(prj_file)))
-        for loc, res in resources.iteritems():
+        for loc, res in resources.items():
             to_zip = (
                 res.headers + res.s_sources + res.c_sources +\
                 res.cpp_sources + res.libraries + res.hex_files + \
@@ -320,7 +320,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
 
     # Call unified scan_resources
     resource_dict = {loc: scan_resources(path, toolchain, inc_dirs=inc_dirs, collect_ignores=True)
-                     for loc, path in src_paths.iteritems()}
+                     for loc, path in src_paths.items()}
     resources = Resources()
     toolchain.build_dir = export_path
     config_header = toolchain.get_config_header()
@@ -329,12 +329,12 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
 
     if zip_proj:
         subtract_basepath(resources, ".")
-        for loc, res in resource_dict.iteritems():
+        for loc, res in resource_dict.items():
             temp = copy.deepcopy(res)
             subtract_basepath(temp, ".", loc)
             resources.add(temp)
     else:
-        for _, res in resource_dict.iteritems():
+        for _, res in resource_dict.items():
             resources.add(res)
 
     # Change linker script if specified
@@ -347,7 +347,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     files.append(config_header)
     if zip_proj:
         for resource in resource_dict.values():
-            for label, res in resource.features.iteritems():
+            for label, res in resource.features.items():
                 if label not in toolchain.target.features:
                     resource.add(res)
         if isinstance(zip_proj, basestring):

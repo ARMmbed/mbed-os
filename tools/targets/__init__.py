@@ -142,7 +142,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
                                     Target.__targets_json_location_default)
 
         for extra_target in Target.__extra_target_json_files:
-            for k, v in json_file_to_dict(extra_target).iteritems():
+            for k, v in json_file_to_dict(extra_target).items():
                 if k in targets:
                     print('WARNING: Custom target "%s" cannot replace existing '
                           'target.' % k)

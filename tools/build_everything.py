@@ -154,7 +154,7 @@ if __name__ == '__main__':
         test_builds = {}
         total_build_success = True
 
-        for target_name, target_toolchains in build_config.iteritems():
+        for target_name, target_toolchains in build_config.items():
             target = TARGET_MAP[target_name]
             
             for target_toolchain in target_toolchains:

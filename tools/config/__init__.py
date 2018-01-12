@@ -673,7 +673,7 @@ class Config(object):
                         " is only allowed at the application level")
 
                 # Parse out cumulative overrides
-                for attr, cumulatives in self.cumulative_overrides.iteritems():
+                for attr, cumulatives in self.cumulative_overrides.items():
                     if 'target.'+attr in overrides:
                         key = 'target.' + attr
                         if not isinstance(overrides[key], list):

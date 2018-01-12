@@ -80,7 +80,7 @@ class LazyDict(dict):
     def __str__(self):
         return "Lazy{%s}" % (
             ", ".join("%r: %r" % (k, v) for k, v in
-                      chain(self.eager.iteritems(), ((k, "not evaluated")
+                      chain(self.eager.items(), ((k, "not evaluated")
                                                      for k in self.lazy))))
 
     def update(self, other):
@@ -90,10 +90,10 @@ class LazyDict(dict):
         else:
             self.eager.update(other)
 
-    def iteritems(self):
+    def items(self):
         """Warning: This forces the evaluation all of the items in this LazyDict
         that are iterated over."""
-        for k, v in self.eager.iteritems():
+        for k, v in self.eager.items():
             yield k, v
         for k in self.lazy.keys():
             yield k, self[k]
@@ -103,11 +103,11 @@ class LazyDict(dict):
         Does no computation now. Instead the comuptation is performed when a
         consumer attempts to access a value in this LazyDict"""
         new_lazy = {}
-        for k, f in self.lazy.iteritems():
+        for k, f in self.lazy.items():
             def closure(f=f):
                 return fn(f())
             new_lazy[k] = closure
-        for k, v in self.eager.iteritems():
+        for k, v in self.eager.items():
             def closure(v=v):
                 return fn(v)
             new_lazy[k] = closure

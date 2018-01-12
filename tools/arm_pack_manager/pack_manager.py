@@ -69,7 +69,7 @@ def fuzzy_find(matches, urls) :
         for key, value in process.extract(match, urls, limit=None) :
             choices.setdefault(key, 0)
             choices[key] += value
-    choices = sorted([(v, k) for k, v in choices.iteritems()], reverse=True)
+    choices = sorted([(v, k) for k, v in choices.items()], reverse=True)
     if not choices : return []
     elif len(choices) == 1 : return [choices[0][1]]
     elif choices[0][0] > choices[1][0] : choices = choices[:1]
@@ -155,7 +155,7 @@ def command_dump_parts (cache, out, parts, intersection=False) :
     else :
         for part in parts :
             index.update(dict(cache.find_device(part)))
-    for n, p in index.iteritems() :
+    for n, p in index.items() :
         try :
             if not exists(join(out, dirname(p['algorithm']['file']))) :
                 makedirs(join(out, dirname(p['algorithm']['file'])))

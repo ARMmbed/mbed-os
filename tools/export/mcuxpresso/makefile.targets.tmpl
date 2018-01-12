@@ -6,7 +6,7 @@ mbedclean:
 	$(RM) $(EXECUTABLES) {{name}}.* linker-script-*.ld
 	-@echo ' '
 
-{% for config, data in options.iteritems() %}
+{% for config, data in options.items() %}
 linker-script-{{config}}.ld: ../{{ld_script}}
 	{{data.cpp_cmd}} {{data.ld.other}} $< -o $@
 {{name}}.elf: linker-script-{{config}}.ld

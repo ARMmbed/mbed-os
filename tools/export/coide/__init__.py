@@ -74,13 +74,13 @@ class CoIDE(Exporter):
     def generate(self):
         self.resources.win_to_unix()
         source_files = []
-        for r_type, n in CoIDE.FILE_TYPES.iteritems():
+        for r_type, n in CoIDE.FILE_TYPES.items():
             for file in getattr(self.resources, r_type):
                 source_files.append({
                     'name': basename(file), 'type': n, 'path': file
                 })
         header_files = []
-        for r_type, n in CoIDE.FILE_TYPES2.iteritems():
+        for r_type, n in CoIDE.FILE_TYPES2.items():
             for file in getattr(self.resources, r_type):
                 header_files.append({
                     'name': basename(file), 'type': n, 'path': file

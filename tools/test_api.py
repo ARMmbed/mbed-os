@@ -630,7 +630,7 @@ class SingleTestRunner(object):
             # in separate threads do not collide.
             # Inside execute_thread_slice() function function handle() will be called to
             # get information about available MUTs (per target).
-            for target, toolchains in self.test_spec['targets'].iteritems():
+            for target, toolchains in self.test_spec['targets'].items():
                 self.test_suite_properties_ext[target] = {}
                 t = threading.Thread(target=self.execute_thread_slice, args = (q, target, toolchains, clean, test_ids, self.build_report, self.build_properties))
                 t.daemon = True
@@ -641,7 +641,7 @@ class SingleTestRunner(object):
                 q.get() # t.join() would block some threads because we should not wait in any order for thread end
         else:
             # Serialized (not parallel) test execution
-            for target, toolchains in self.test_spec['targets'].iteritems():
+            for target, toolchains in self.test_spec['targets'].items():
                 if target not in self.test_suite_properties_ext:
                     self.test_suite_properties_ext[target] = {}
 
@@ -816,7 +816,7 @@ class SingleTestRunner(object):
         result += "\n"
 
         # Print result count
-        result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
+        result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.items()])
         shuffle_seed_text = "Shuffle Seed: %.*f\n"% (self.SHUFFLE_SEED_ROUND,
                                                     shuffle_seed if shuffle_seed else self.shuffle_random_seed)
         result += "\n%s"% (shuffle_seed_text if self.opts_shuffle_test_order else '')
@@ -1016,7 +1016,7 @@ class SingleTestRunner(object):
 
         # Find a suitable MUT:
         mut = None
-        for id, m in self.muts.iteritems():
+        for id, m in self.muts.items():
             if m['mcu'] == data['mcu']:
                 mut = m
                 handle_result = self.handle_mut(mut, data, target_name, toolchain_name, test_loops=test_loops)
@@ -1193,7 +1193,7 @@ class SingleTestRunner(object):
         """
         if peripherals is not None:
             peripherals = set(peripherals)
-        for id, mut in self.muts.iteritems():
+        for id, mut in self.muts.items():
             # Target MCU name check
             if mut["mcu"] != target_mcu_name:
                 continue
@@ -2177,7 +2177,7 @@ def build_test_worker(*args, **kwargs):
     }
 
     # Use parent TOOLCHAIN_PATHS variable
-    for key, value in kwargs['toolchain_paths'].iteritems():
+    for key, value in kwargs['toolchain_paths'].items():
         TOOLCHAIN_PATHS[key] = value
 
     del kwargs['toolchain_paths']
@@ -2237,8 +2237,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     jobs_count = int(jobs if jobs else cpu_count())
     p = Pool(processes=jobs_count)
     results = []
-    for test_name, test_paths in tests.iteritems():
-        if type(test_paths) != ListType:
+    for test_name, test_paths in tests.items():
+        if not isinstance(test_paths, list):
             test_paths = [test_paths]
 
         test_build_path = os.path.join(build_path, test_paths[0])

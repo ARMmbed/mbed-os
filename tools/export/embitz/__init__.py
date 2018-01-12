@@ -52,7 +52,7 @@ class EmBitz(Exporter):
     def generate(self):
         self.resources.win_to_unix()
         source_files = []
-        for r_type, n in self.FILE_TYPES.iteritems():
+        for r_type, n in self.FILE_TYPES.items():
             for file in getattr(self.resources, r_type):
                 source_files.append({
                     'name': file, 'type': n
