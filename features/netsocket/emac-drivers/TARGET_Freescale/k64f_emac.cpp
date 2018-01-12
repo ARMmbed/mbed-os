@@ -410,36 +410,38 @@ void K64F_EMAC::packet_tx()
  */
 bool K64F_EMAC::link_out(emac_mem_buf_t *buf)
 {
-  emac_mem_buf_t *temp_pbuf;
-
   // If buffer is chained or not aligned then make a contiguous aligned copy of it
   if (memory_manager->get_next(buf) ||
       reinterpret_cast<uint32_t>(memory_manager->get_ptr(buf)) % ENET_BUFF_ALIGNMENT) {
-      temp_pbuf = memory_manager->alloc_heap(memory_manager->get_total_len(buf), ENET_BUFF_ALIGNMENT);
-      if (NULL == temp_pbuf)
-        return false;
+      emac_mem_buf_t *copy_buf;
+      copy_buf = memory_manager->alloc_heap(memory_manager->get_total_len(buf), ENET_BUFF_ALIGNMENT);
+      if (NULL == copy_buf) {
+          memory_manager->free(buf);
+          return false;
+      }
 
       // Copy to new buffer and free original
-      memory_manager->copy(temp_pbuf, buf);
+      memory_manager->copy(copy_buf, buf);
       memory_manager->free(buf);
-  } else {
-      temp_pbuf = buf;
+      buf = copy_buf;
   }
 
   /* Check if a descriptor is available for the transfer. */
-  if (xTXDCountSem.wait(0) == 0)
+  if (xTXDCountSem.wait(0) == 0) {
+    memory_manager->free(buf);
     return false;
+  }
 
   /* Get exclusive access */
   TXLockMutex.lock();
 
   /* Save the buffer so that it can be freed when transmit is done */
-  tx_buff[tx_produce_index % ENET_TX_RING_LEN] = temp_pbuf;
+  tx_buff[tx_produce_index % ENET_TX_RING_LEN] = buf;
   tx_produce_index += 1;
 
   /* Setup transfers */
-  g_handle.txBdCurrent->buffer = static_cast<uint8_t *>(memory_manager->get_ptr(temp_pbuf));
-  g_handle.txBdCurrent->length = memory_manager->get_len(temp_pbuf);
+  g_handle.txBdCurrent->buffer = static_cast<uint8_t *>(memory_manager->get_ptr(buf));
+  g_handle.txBdCurrent->length = memory_manager->get_len(buf);
   g_handle.txBdCurrent->control |= (ENET_BUFFDESCRIPTOR_TX_READY_MASK | ENET_BUFFDESCRIPTOR_TX_LAST_MASK);
 
   /* Increase the buffer descriptor address. */
