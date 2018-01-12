@@ -28,7 +28,7 @@
 using namespace utest::v1;
 
 #define TEST_CYCLES         1000000
-#define ALLOWED_DRIFT_PPM   1000         //0.1%
+#define ALLOWED_DRIFT_PPM   5000         //0.5%
 
 /*
     return values to be checked are documented at:
