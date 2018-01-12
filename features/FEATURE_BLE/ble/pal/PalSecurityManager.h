@@ -224,8 +224,15 @@ public:
         (void)list;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t set_bonded_list(bonded_list_t &list) {
-        (void)list;
+    virtual ble_error_t add_bonded_list_entry(bonded_list_entry_t &entry) {
+        (void)entry;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t remove_bonded_list_entry(bonded_list_entry_t &entry) {
+        (void)entry;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t clear_bonded_list() {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -233,8 +240,15 @@ public:
         (void)list;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t set_resolving_list(resolving_list_t &list) {
-        (void)list;
+    virtual ble_error_t add_resolving_list_entry(resolving_list_entry_t &entry) {
+        (void)entry;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t remove_resolving_list_entry(resolving_list_entry_t &entry) {
+        (void)entry;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t cllear_resolving_list() {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -242,8 +256,15 @@ public:
         (void)list;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t set_whitelist(Gap::Whitelist_t &list) {
-        (void)list;
+    virtual ble_error_t add_whitelist_entry(address_t &entry) {
+        (void)entry;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t remove_whitelist_entry(address_t &entry) {
+        (void)entry;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+    virtual ble_error_t clear_whitelist() {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
