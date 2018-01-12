@@ -294,17 +294,35 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t get_encryption_key_size(connection_handle_t, uint8_t &bitsize) {
-        (void)bitsize;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
     virtual ble_error_t set_authentication_timeout(connection_handle_t, uint16_t timeout_in_10ms) {
         (void)timeout_in_10ms;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
     virtual ble_error_t get_authentication_timeout(connection_handle_t, uint16_t &timeout_in_10ms) {
         (void)timeout_in_10ms;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /* encryption */
+
+    virtual ble_error_t enable_encryption(connection_handle_t handle) {
+        (void)handle;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t disable_encryption(connection_handle_t handle) {
+        (void)handle;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t get_encryption_status(connection_handle_t handle, LinkSecurityStatus_t &status) {
+        (void)handle;
+        (void)status;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t get_encryption_key_size(connection_handle_t, uint8_t &bitsize) {
+        (void)bitsize;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
@@ -344,12 +362,6 @@ public:
 
     /* authentication */
 
-    virtual ble_error_t get_encryption_status(connection_handle_t handle, LinkSecurityStatus_t &status) {
-        (void)handle;
-        (void)status;
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
     virtual ble_error_t request_pairing(connection_handle_t handle, pairing_request_t &params) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -372,7 +384,8 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t request_authentication() {
+    virtual ble_error_t request_authentication(connection_handle_t handle) {
+        (void)handle;
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
