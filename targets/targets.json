@@ -3580,13 +3580,25 @@
         "release_versions": ["2"],
         "device_name": "STM32F411RE"
     },
-    "WD_CORE_G1": {
-        "inherits": [ "Target" ],
-        "core": "Cortex-M4F",
+    "FAMILY_WD": {
+        "inherits": [
+            "Target"
+        ],
+        "public": false,
+        "extra_labels": [
+            "WD"
+        ],
+        "supported_toolchains": [
+            "GCC_ARM"
+        ],
+        "default_toolchain": "GCC_ARM",
+        "macros": [
+            "TRANSACTION_QUEUE_SIZE_SPI=2"
+        ],
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
-                "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL",
                 "macro_name": "CLOCK_SOURCE"
             },
             "lse_available": {
@@ -3594,22 +3606,68 @@
                 "value": "0"
             }
         },
-        "supported_toolchains": [ "GCC_ARM" ],
-        "default_toolchain": "GCC_ARM",
-        "extra_labels": [ "WD", "WD_CORE" ],
-        "macros": ["RTC_LSI=1","WD_ABI_CPUID_MASK=0xFFF0FFF0","WD_ABI_CPUID=0x4100C240","WD_BOARD_SHORT_NAME=\"CO1\""],
-        "device_has": [ "ANALOGIN", "ETHERNET", "SERIAL", "SERIAL_ASYNCH", "SERIAL_ASYNCH_DMA", "SERIAL_FC", "STDIO_MESSAGES", "INTERRUPTIN", "RTC", "I2C", "I2CSLAVE", "I2C_ASYNCH", "SPI", "SPISLAVE", "SPI_ASYNCH", "PORTIN", "PORTOUT", "LOWPOWERTIMER", "ERROR_RED" ],
-        "features": [ "LWIP" ],
-        "release_versions": [ "5" ]
+        "device_has": [
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_ASYNCH_DMA",
+            "SERIAL_FC",
+            "STDIO_MESSAGES",
+            "INTERRUPTIN",
+            "RTC",
+            "I2C",
+            "I2CSLAVE",
+            "I2C_ASYNCH",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "SLEEP",
+            "SPI",
+            "SPISLAVE",
+            "SPI_ASYNCH"
+        ]
+    },
+    "WD_CORE_G1": {
+        "inherits": [
+            "FAMILY_WD"
+        ],
+        "core": "Cortex-M4F",
+        "extra_labels_add": [
+            "WD_CORE"
+        ],
+        "macros_add": [
+            "WD_ABI_CPUID_MASK=0xFFF0FFF0",
+            "WD_ABI_CPUID=0x4100C240",
+            "WD_BOARD_SHORT_NAME=\"CO1\""
+        ],
+        "device_has_add": [
+            "ETHERNET",
+            "LOWPOWERTIMER",
+            "ERROR_RED"
+        ],
+        "features": [
+            "LWIP"
+        ],
+        "release_versions": [
+            "5"
+        ]
     },
     "WD_ROUTINGMAX_G1": {
-        "inherits": [ "Target" ],
+        "inherits": [
+            "FAMILY_WD"
+        ],
         "core": "Cortex-M3",
-        "supported_toolchains": [ "GCC_ARM" ],
-        "default_toolchain": "GCC_ARM",
-        "extra_labels": [ "WD", "WD_ROUTING", "WD_ROUTINGMAX" ],
-        "macros": [ "RTC_LSI=1", "WD_ABI_CPUID_MASK=0xFFF0FFF0", "WD_ABI_CPUID=0x411FC230","WD_BOARD_SHORT_NAME=\"RM1\""],
-        "device_has": [ "SERIAL", "SERIAL_ASYNCH", "SERIAL_ASYNCH_DMA", "SERIAL_FC", "STDIO_MESSAGES", "INTERRUPTIN", "RTC", "SPI", "SPISLAVE", "SPI_ASYNCH", "PORTIN", "PORTOUT" ],
-        "release_versions": [ "5" ]
+        "extra_labels_add": [
+            "WD_ROUTING",
+            "WD_ROUTINGMAX"
+        ],
+        "macros_add": [
+            "WD_ABI_CPUID_MASK=0xFFF0FFF0",
+            "WD_ABI_CPUID=0x411FC230",
+            "WD_BOARD_SHORT_NAME=\"RM1\""
+        ],
+        "device_has_add": [],
+        "release_versions": [
+            "5"
+        ]
     }
 }
