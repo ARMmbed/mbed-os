@@ -525,7 +525,7 @@ class MemapParser(object):
         self.compute_report()
         try:
             if file_output:
-                file_desc = open(file_output, 'wb')
+                file_desc = open(file_output, 'w')
             else:
                 file_desc = stdout
         except IOError as error:
@@ -559,24 +559,24 @@ class MemapParser(object):
         Positional arguments:
         file_desc - the file to write out the final report to
         """
-        csv_writer = csv.writer(file_desc, delimiter=',',
-                                quoting=csv.QUOTE_MINIMAL)
+        writer = csv.writer(file_desc, delimiter=',',
+                            quoting=csv.QUOTE_MINIMAL)
 
-        csv_module_section = []
-        csv_sizes = []
+        module_section = []
+        sizes = []
         for i in sorted(self.short_modules):
             for k in self.print_sections:
-                csv_module_section += [i+k]
-                csv_sizes += [self.short_modules[i][k]]
+                module_section.append((i + k))
+                sizes += [self.short_modules[i][k]]
 
-        csv_module_section += ['static_ram']
-        csv_sizes += [self.mem_summary['static_ram']]
+        module_section.append('static_ram')
+        sizes.append(self.mem_summary['static_ram'])
 
-        csv_module_section += ['total_flash']
-        csv_sizes += [self.mem_summary['total_flash']]
+        module_section.append('total_flash')
+        sizes.append(self.mem_summary['total_flash'])
 
-        csv_writer.writerow(csv_module_section)
-        csv_writer.writerow(csv_sizes)
+        writer.writerow(module_section)
+        writer.writerow(sizes)
         return None
 
     def generate_table(self, file_desc):

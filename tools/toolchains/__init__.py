@@ -221,13 +221,13 @@ class Resources:
         """
         count = 0
         dupe_dict, dupe_headers = self._collect_duplicates(dict(), dict())
-        for objname, filenames in dupe_dict.iteritems():
+        for objname, filenames in dupe_dict.items():
             if len(filenames) > 1:
                 count+=1
                 toolchain.tool_error(
                     "Object file %s.o is not unique! It could be made from: %s"\
                     % (objname, " ".join(filenames)))
-        for headername, locations in dupe_headers.iteritems():
+        for headername, locations in dupe_headers.items():
             if len(locations) > 1:
                 count+=1
                 toolchain.tool_error(
@@ -847,7 +847,7 @@ class mbedToolchain:
     # ARM, GCC, IAR cross compatible
     def get_link_file(self, cmd):
         link_file = join(self.build_dir, ".link_files.txt")
-        with open(link_file, "wb") as f:
+        with open(link_file, "w") as f:
             cmd_list = []
             for c in cmd:
                 if c:
