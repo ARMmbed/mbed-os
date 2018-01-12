@@ -1903,6 +1903,16 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                         }
                         memcpy(src_coap_blockwise_ack_msg_ptr->uri_path_ptr, previous_blockwise_msg_ptr->coap_msg_ptr->uri_path_ptr, previous_blockwise_msg_ptr->coap_msg_ptr->uri_path_len);
                     }
+                    if (previous_blockwise_msg_ptr->coap_msg_ptr->token_ptr) {
+                        src_coap_blockwise_ack_msg_ptr->token_len = previous_blockwise_msg_ptr->coap_msg_ptr->token_len;
+                        src_coap_blockwise_ack_msg_ptr->token_ptr = handle->sn_coap_protocol_malloc(previous_blockwise_msg_ptr->coap_msg_ptr->token_len);
+                        if (!src_coap_blockwise_ack_msg_ptr->token_ptr) {
+                            sn_coap_parser_release_allocated_coap_msg_mem(handle, src_coap_blockwise_ack_msg_ptr);
+                            tr_error("sn_coap_handle_blockwise_message - failed to allocate for token ptr!");
+                            return NULL;
+                        }
+                        memcpy(src_coap_blockwise_ack_msg_ptr->token_ptr, previous_blockwise_msg_ptr->coap_msg_ptr->token_ptr, previous_blockwise_msg_ptr->coap_msg_ptr->token_len);
+                    }
                 }
 
                 ns_list_remove(&handle->linked_list_blockwise_sent_msgs, previous_blockwise_msg_ptr);
