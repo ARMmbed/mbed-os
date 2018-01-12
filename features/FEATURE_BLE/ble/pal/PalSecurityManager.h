@@ -185,7 +185,7 @@ class SecurityManagerEventHandler {
             _app_event_handler->confirmationRequest(handle);
         }
     }
-    virtual void accept_pairing_request(connection_handle_t handle) {
+    virtual void accept_pairing_request(connection_handle_t handle, pairing_request_t &params) {
         if (_app_event_handler) {
             _app_event_handler->acceptPairingRequest(handle);
         }
@@ -353,10 +353,10 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t request_pairing(connection_handle_t handle, pairing_request_t params) {
+    virtual ble_error_t request_pairing(connection_handle_t handle, pairing_request_t &params) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
-    virtual ble_error_t accept_pairing(connection_handle_t handle, pairing_request_t params) {
+    virtual ble_error_t accept_pairing(connection_handle_t handle, pairing_request_t &params) {
         (void)handle;
         (void)params;
         return BLE_ERROR_NOT_IMPLEMENTED;
