@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import print_function
+from __future__ import print_function, division, absolute_import
 
 import re
 import tempfile
@@ -27,20 +27,22 @@ from os import linesep, remove, makedirs
 from time import time
 from intelhex import IntelHex
 from json import load, dump
-from tools.arm_pack_manager import Cache
-
-from tools.utils import mkdir, run_cmd, run_cmd_ext, NotSupportedException,\
-    ToolException, InvalidReleaseTargetException, intelhex_offset
-from tools.paths import MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,\
-    MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL, MBED_CONFIG_FILE,\
-    MBED_LIBRARIES_DRIVERS, MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,\
-    BUILD_DIR
-from tools.targets import TARGET_NAMES, TARGET_MAP
-from tools.libraries import Library
-from tools.toolchains import TOOLCHAIN_CLASSES
 from jinja2 import FileSystemLoader
 from jinja2.environment import Environment
-from tools.config import Config
+
+from .arm_pack_manager import Cache
+from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
+                    ToolException, InvalidReleaseTargetException,
+                    intelhex_offset)
+from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
+                    MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
+                    MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
+                    MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
+                    BUILD_DIR)
+from .targets import TARGET_NAMES, TARGET_MAP
+from .libraries import Library
+from .toolchains import TOOLCHAIN_CLASSES
+from .config import Config
 
 RELEASE_VERSIONS = ['2', '5']
 

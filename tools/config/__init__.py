@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, division, absolute_import
 
 from copy import deepcopy
 from six import moves
@@ -28,11 +29,11 @@ from intelhex import IntelHex
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
 from jsonschema import Draft4Validator, RefResolver
-# Implementation of mbed configuration mechanism
-from tools.utils import json_file_to_dict, intelhex_offset
-from tools.arm_pack_manager import Cache
-from tools.targets import CUMULATIVE_ATTRIBUTES, TARGET_MAP, \
-    generate_py_target, get_resolution_order, Target
+
+from ..utils import json_file_to_dict, intelhex_offset
+from ..arm_pack_manager import Cache
+from ..targets import (CUMULATIVE_ATTRIBUTES, TARGET_MAP, generate_py_target,
+                       get_resolution_order, Target)
 
 try:
     unicode

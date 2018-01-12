@@ -1,3 +1,4 @@
+from __future__ import print_function, division, absolute_import
 import argparse
 from os.path import basename
 from tools.arm_pack_manager import Cache
@@ -5,7 +6,7 @@ from os.path import basename, join, dirname, exists
 from os import makedirs
 from itertools import takewhile
 from fuzzywuzzy import process
-from tools.arm_pack_manager import Cache
+from .arm_pack_manager import Cache
 
 parser = argparse.ArgumentParser(description='A Handy little utility for keeping your cache of pack files up to date.')
 subparsers = parser.add_subparsers(title="Commands")
@@ -133,12 +134,12 @@ def command_find_part (cache, matches, long=False, intersection=True,
         aliases = sum([fuzzy_find([m], cache.aliases.keys()) for m in matches], [])
     if print_parts:
         for part in choices :
-            print part
+            print(part)
             if long :
                 pp.pprint(cache.index[part])
     if print_aliases:
         for alias in aliases :
-            print alias
+            print(alias)
             if long :
                 pp.pprint(cache.index[cache.aliases[alias]])
 

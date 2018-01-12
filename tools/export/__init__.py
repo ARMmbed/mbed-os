@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import print_function, division, absolute_import
+
 import sys
 from os.path import join, abspath, dirname, exists
 from os.path import basename, relpath, normpath, splitext
@@ -22,50 +24,43 @@ from os import makedirs, walk
 import copy
 from shutil import rmtree, copyfile
 import zipfile
-ROOT = abspath(join(dirname(__file__), ".."))
-sys.path.insert(0, ROOT)
 
-from tools.build_api import prepare_toolchain
-from tools.build_api import scan_resources
-from tools.toolchains import Resources
-from tools.export import lpcxpresso, ds5_5, iar, makefile
-from tools.export import embitz, coide, kds, simplicity, atmelstudio, mcuxpresso
-from tools.export import sw4stm32, e2studio, zip, cmsis, uvision, cdt, vscode
-from tools.export import gnuarmeclipse
-from tools.export import qtcreator
-from tools.export import cmake
-from tools.export import nb
-from tools.targets import TARGET_NAMES
+from ..build_api import prepare_toolchain, scan_resources
+from ..toolchains import Resources
+from ..targets import TARGET_NAMES
+from . import (lpcxpresso, ds5_5, iar, makefile, embitz, coide, kds, simplicity,
+               atmelstudio, mcuxpresso, sw4stm32, e2studio, zip, cmsis, uvision,
+               cdt, vscode, gnuarmeclipse, qtcreator, cmake, nb)
 
 EXPORTERS = {
-    'uvision5': uvision.Uvision,
-    'uvision': uvision.Uvision,
-    'lpcxpresso': lpcxpresso.LPCXpresso,
-    'gcc_arm': makefile.GccArm,
-    'make_gcc_arm': makefile.GccArm,
-    'make_armc5': makefile.Armc5,
-    'make_armc6': makefile.Armc6,
-    'make_iar': makefile.IAR,
-    'ds5_5': ds5_5.DS5_5,
-    'iar': iar.IAR,
-    'embitz' : embitz.EmBitz,
-    'coide' : coide.CoIDE,
-    'kds' : kds.KDS,
-    'simplicityv3' : simplicity.SimplicityV3,
-    'atmelstudio' : atmelstudio.AtmelStudio,
-    'sw4stm32'    : sw4stm32.Sw4STM32,
-    'e2studio' : e2studio.E2Studio,
-    'eclipse_gcc_arm'  : cdt.EclipseGcc,
-    'eclipse_iar'      : cdt.EclipseIAR,
-    'eclipse_armc5'    : cdt.EclipseArmc5,
-    'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
-    'netbeans':     nb.GNUARMNetbeans,
-    'mcuxpresso': mcuxpresso.MCUXpresso,
-    'qtcreator': qtcreator.QtCreator,
-    'vscode_gcc_arm' : vscode.VSCodeGcc,
-    'vscode_iar' : vscode.VSCodeIAR,
-    'vscode_armc5' : vscode.VSCodeArmc5,
-    'cmake_gcc_arm': cmake.GccArm
+    u'uvision5': uvision.Uvision,
+    u'uvision': uvision.Uvision,
+    u'lpcxpresso': lpcxpresso.LPCXpresso,
+    u'gcc_arm': makefile.GccArm,
+    u'make_gcc_arm': makefile.GccArm,
+    u'make_armc5': makefile.Armc5,
+    u'make_armc6': makefile.Armc6,
+    u'make_iar': makefile.IAR,
+    u'ds5_5': ds5_5.DS5_5,
+    u'iar': iar.IAR,
+    u'embitz' : embitz.EmBitz,
+    u'coide' : coide.CoIDE,
+    u'kds' : kds.KDS,
+    u'simplicityv3' : simplicity.SimplicityV3,
+    u'atmelstudio' : atmelstudio.AtmelStudio,
+    u'sw4stm32'    : sw4stm32.Sw4STM32,
+    u'e2studio' : e2studio.E2Studio,
+    u'eclipse_gcc_arm'  : cdt.EclipseGcc,
+    u'eclipse_iar'      : cdt.EclipseIAR,
+    u'eclipse_armc5'    : cdt.EclipseArmc5,
+    u'gnuarmeclipse': gnuarmeclipse.GNUARMEclipse,
+    u'mcuxpresso': mcuxpresso.MCUXpresso,
+    u'netbeans':     nb.GNUARMNetbeans,
+    u'qtcreator': qtcreator.QtCreator,
+    u'vscode_gcc_arm' : vscode.VSCodeGcc,
+    u'vscode_iar' : vscode.VSCodeIAR,
+    u'vscode_armc5' : vscode.VSCodeArmc5,
+    u'cmake_gcc_arm': cmake.GccArm
 }
 
 ERROR_MESSAGE_UNSUPPORTED_TOOLCHAIN = """

@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import print_function
+from __future__ import print_function, division, absolute_import
 import sys
 import inspect
 import os
@@ -417,11 +417,8 @@ def argparse_force_type(case):
             if not isinstance(string, unicode):
                 string = string.decode()
             for option in lst:
-                try:
-                    if case(string) == case(option):
-                        return option
-                except Exception as e:
-                    print(e)
+                if case(string) == case(option):
+                    return option
             raise argparse.ArgumentTypeError(
                 "{0} is not a supported {1}. Supported {1}s are:\n{2}".
                 format(string, type_name, columnate(lst)))

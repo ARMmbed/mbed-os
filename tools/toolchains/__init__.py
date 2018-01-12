@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from __future__ import print_function
+from __future__ import print_function, division, absolute_import
 
 import re
 import sys
@@ -22,20 +22,22 @@ from os import stat, walk, getcwd, sep, remove
 from copy import copy
 from time import time, sleep
 from shutil import copyfile
-from os.path import join, splitext, exists, relpath, dirname, basename, split, abspath, isfile, isdir, normcase
+from os.path import (join, splitext, exists, relpath, dirname, basename, split,
+                     abspath, isfile, isdir, normcase)
 from itertools import chain
 from inspect import getmro
 from copy import deepcopy
 from abc import ABCMeta, abstractmethod
 from distutils.spawn import find_executable
-
 from multiprocessing import Pool, cpu_count
-from tools.utils import run_cmd, mkdir, rel_path, ToolException, NotSupportedException, split_path, compile_worker
-from tools.settings import MBED_ORG_USER
-import tools.hooks as hooks
-from tools.memap import MemapParser
 from hashlib import md5
 import fnmatch
+
+from ..utils import (run_cmd, mkdir, rel_path, ToolException,
+                    NotSupportedException, split_path, compile_worker)
+from ..settings import MBED_ORG_USER
+from .. import hooks
+from ..memap import MemapParser
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs

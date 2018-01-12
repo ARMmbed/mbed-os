@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """Memory Map File Analyser for ARM mbed"""
-from __future__ import print_function
+from __future__ import print_function, division, absolute_import
 
 from abc import abstractmethod, ABCMeta
 from sys import stdout, exit, argv
@@ -16,8 +16,8 @@ from copy import deepcopy
 from prettytable import PrettyTable
 from tools.arm_pack_manager import Cache
 
-from tools.utils import argparse_filestring_type, \
-    argparse_lowercase_hyphen_type, argparse_uppercase_type
+from .utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
+                    argparse_uppercase_type)
 
 
 class _Parser(object):
