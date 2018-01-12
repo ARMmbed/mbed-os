@@ -67,7 +67,7 @@ class CMake(Exporter):
         # create a list of dependencies (mbed add ...)
         dependencies = [l[:-4] for l in self.resources.lib_refs]
         # separate the individual dependency source files into a map with the dep name as key and an array if files
-        depSources = {re.sub(r'^[.]/', '', l):
+        depSources = {re.sub(r'^[.]/', '', l).replace('/', '_'):
                           sorted([f for f in allSourceFiles if f.startswith(l)]) for l in dependencies}
         # delete dependencies that have no source files (may happen if a sub-dependency is ignored by .mbedignore)
         depSources = {k: v for k, v in depSources.items() if len(v) != 0}
