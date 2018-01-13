@@ -11,16 +11,26 @@ SET(CMAKE_CROSSCOMPILING TRUE)
 SET(CMAKE_C_COMPILER_WORKS TRUE)
 SET(CMAKE_CXX_COMPILER_WORKS TRUE)
 
-SET(CMAKE_ASM_COMPILER_INIT    "{{asm}}")
-SET(CMAKE_C_COMPILER_INIT      "{{cc}}")
-SET(CMAKE_CXX_COMPILER_INIT    "{{cxx}}")
-SET(ELF2BIN                    "{{elf2bin}}")
+# force cmake compilers
+SET(CMAKE_ASM_COMPILER    "{{asm}}")
+SET(CMAKE_C_COMPILER      "{{cc}}")
+SET(CMAKE_CXX_COMPILER    "{{cxx}}")
+SET(ELF2BIN               "{{elf2bin}}")
 {% if hex_files %}
 SET(SREC_CAT "srec_cat")
 {%- endif %}
 
+# if the environment does not specify build type, set to Debug
+IF(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Debug"
+        CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel."
+        FORCE)
+ENDIF()
+
 # here starts the project
 PROJECT(cmake-{{name}} C CXX ASM)
+
+# uncomment below to have a verbose build process
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 SET(LD_SYS_LIBS "{%- block sys_libs -%} -Wl,--start-group {{ld_sys_libs|join(" ")}} {{libraries|join(" ")}} -Wl,--end-group {%- endblock -%}")
