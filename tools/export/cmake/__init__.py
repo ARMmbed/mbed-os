@@ -16,15 +16,14 @@ limitations under the License.
 """
 import re
 import shutil
-from os import remove
-from os.path import splitext, basename, exists
+from os import remove, getcwd, chdir, mkdir
+from os.path import basename, exists
 from subprocess import Popen, PIPE
 
 from jinja2.exceptions import TemplateNotFound
 
 from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.targets import TARGET_MAP
-from tools.utils import NotSupportedException
 
 
 class CMake(Exporter):
@@ -126,13 +125,33 @@ class CMake(Exporter):
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
         """ Build Make project """
-        # > Make -j
-        cmd = ["make", "-j"]
+
+        # change into our build directory
+        current_dir = getcwd()
+        if not exists("BUILD"):
+            mkdir("BUILD")
+        chdir("BUILD")
+
+        # > run cmake initial command
+        cmd = ["cmake", ".."]
 
         # Build the project
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
         ret_code = p.returncode
+
+        if ret_code == 0:
+            # we create the cmake files inside BUILD, change into and run cmake
+
+            # > run make -j
+            cmd = ["make", "-j"]
+
+            p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            out, err = p.communicate()
+            ret_code = p.returncode
+
+        # go back to the original directory
+        chdir(current_dir)
 
         out_string = "=" * 10 + "STDOUT" + "=" * 10 + "\n"
         out_string += out
@@ -160,6 +179,7 @@ class CMake(Exporter):
                 shutil.rmtree('.build')
             if exists('BUILD'):
                 shutil.rmtree('BUILD')
+
 
         if ret_code != 0:
             # Seems like something went wrong.
