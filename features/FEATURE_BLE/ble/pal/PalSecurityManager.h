@@ -293,13 +293,7 @@ public:
         key_distribution_t responder_dist
     ) = 0;
 
-    virtual ble_error_t reject_pairing(connection_handle_t handle) = 0;
-
     virtual ble_error_t cancel_pairing(connection_handle_t handle) = 0;
-
-    virtual ble_error_t set_pairing_request_authorisation(
-        bool authorisation_required = true
-    ) = 0;
 
     virtual ble_error_t request_authentication(connection_handle_t handle) = 0;
 
