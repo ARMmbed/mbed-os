@@ -41,6 +41,7 @@ extern "C" {
  *
  * # Undefined behavior
  * * See the @ref hal_ticker_shared "ticker specification"
+ * * Calling any function other than lp_ticker_init after calling lp_ticker_free
  *
  * @see hal_lp_ticker_tests
  *
