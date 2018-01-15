@@ -213,7 +213,6 @@ uint8_t SetSysClock_PLL_HSI(void)
     RCC_OscInitStruct.HSICalibrationValue     = RCC_HSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.HSI14State              = RCC_HSI_OFF;
     RCC_OscInitStruct.HSI14CalibrationValue   = RCC_HSI14CALIBRATION_DEFAULT;
-    RCC_OscInitStruct.HSI48State              = RCC_HSI_ON;
     RCC_OscInitStruct.LSIState                = RCC_LSI_OFF;
     RCC_OscInitStruct.PLL.PLLState            = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource           = RCC_PLLSOURCE_HSI; // HSI div 2

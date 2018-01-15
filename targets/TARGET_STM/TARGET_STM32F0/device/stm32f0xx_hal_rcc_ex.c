@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc_ex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Extended RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities RCC extension peripheral:
@@ -61,9 +59,9 @@
   * @{
   */
 /* Bit position in register */
-#define CRS_CFGR_FELIM_BITNUMBER    16U
-#define CRS_CR_TRIM_BITNUMBER       8U
-#define CRS_ISR_FECAP_BITNUMBER     16U
+#define CRS_CFGR_FELIM_BITNUMBER    16
+#define CRS_CR_TRIM_BITNUMBER       8
+#define CRS_ISR_FECAP_BITNUMBER     16
 /**
   * @}
   */
@@ -387,7 +385,9 @@ void HAL_RCCEx_GetPeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClkInit)
   */
 uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
 {
+  /* frequency == 0 : means that no available frequency for the peripheral */
   uint32_t frequency = 0U;
+  
   uint32_t srcclk = 0U;
 #if defined(USB)
   uint32_t pllmull = 0U, pllsource = 0U, predivfactor = 0U;
@@ -418,11 +418,6 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       {
         frequency = HSE_VALUE / 32U;
       }
-      /* Clock not enabled for RTC*/
-      else
-      {
-        frequency = 0U;
-      }
       break;
     }
   case RCC_PERIPHCLK_USART1:
@@ -449,11 +444,6 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       else if ((srcclk == RCC_USART1CLKSOURCE_LSE) && (HAL_IS_BIT_SET(RCC->BDCR, RCC_BDCR_LSERDY)))
       {
         frequency = LSE_VALUE;
-      }
-      /* Clock not enabled for USART1*/
-      else
-      {
-        frequency = 0U;
       }
       break;
     }
@@ -482,11 +472,6 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       else if ((srcclk == RCC_USART2CLKSOURCE_LSE) && (HAL_IS_BIT_SET(RCC->BDCR, RCC_BDCR_LSERDY)))
       {
         frequency = LSE_VALUE;
-      }
-      /* Clock not enabled for USART2*/
-      else
-      {
-        frequency = 0U;
       }
       break;
     }
@@ -517,11 +502,6 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       {
         frequency = LSE_VALUE;
       }
-      /* Clock not enabled for USART3*/
-      else
-      {
-        frequency = 0U;
-      }
       break;
     }
 #endif /* RCC_CFGR3_USART3SW */
@@ -539,11 +519,6 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       else if (srcclk == RCC_I2C1CLKSOURCE_SYSCLK)
       {
         frequency = HAL_RCC_GetSysClockFreq();
-      }
-      /* Clock not enabled for I2C1*/
-      else
-      {
-        frequency = 0U;
       }
       break;
     }
@@ -580,7 +555,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
           /* HSI used as PLL clock source : frequency = HSI/PREDIV * PLLMUL */
           frequency = (HSI_VALUE / predivfactor) * pllmull;
 #else
-          /* HSI used as PLL clock source : frequency = HSI/2 * PLLMUL */
+          /* HSI used as PLL clock source : frequency = HSI/2U * PLLMUL */
           frequency = (HSI_VALUE >> 1U) * pllmull;
 #endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || STM32F070xB */
         }
@@ -592,11 +567,6 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
         frequency = HSI48_VALUE;
       }
 #endif /* RCC_CR2_HSI48ON */
-      /* Clock not enabled for USB*/
-      else
-      {
-        frequency = 0U;
-      }
       break;
     }
 #endif /* USB */
@@ -615,11 +585,6 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
       else if ((srcclk == RCC_CECCLKSOURCE_LSE) && (HAL_IS_BIT_SET(RCC->BDCR, RCC_BDCR_LSERDY)))
       {
         frequency = LSE_VALUE;
-      }
-      /* Clock not enabled for CEC */
-      else
-      {
-        frequency = 0U;
       }
       break;
     }

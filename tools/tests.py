@@ -320,7 +320,7 @@ TESTS = [
         "DISCO_F469NI", "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG",
         "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC",
         "DISCO_F769NI", "NUCLEO_F767ZI", "DISCO_F303VC", "NUCLEO_F412ZG",
-        "DISCO_F413ZH"]
+        "DISCO_F413ZH", "NUCLEO_F413ZH"]
     },
     {
         "id": "MBED_A28", "description": "CAN loopback test",
@@ -334,7 +334,7 @@ TESTS = [
 
         "DISCO_F746NG", "DISCO_L476VG", "NUCLEO_L476RG", "NUCLEO_L432KC",
         "DISCO_F769NI", "NUCLEO_F767ZI", "DISCO_F303VC", "NUCLEO_F412ZG",
-        "DISCO_F413ZH"]
+        "DISCO_F413ZH", "NUCLEO_F413ZH"]
     },
     {
         "id": "MBED_A29", "description": "i2c_master_slave_asynch",
@@ -589,7 +589,7 @@ TESTS = [
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE","NUCLEO_F446ZE", "DISCO_F469NI", "NUCLEO_F207ZG",
                 "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
                 "NUCLEO_L476RG", "NUCLEO_L432KC", "DISCO_F303VC", "NUCLEO_F412ZG",
-                "DISCO_F413ZH"]
+                "DISCO_F413ZH", "NUCLEO_F413ZH"]
     },
     {
         "id": "MBED_30", "description": "CAN network test using interrupts",
@@ -600,7 +600,7 @@ TESTS = [
                 "NUCLEO_F303K8", "NUCLEO_F302R8", "NUCLEO_F446RE", "NUCLEO_F446ZE", "DISCO_F469NI",
                 "DISCO_F429ZI", "NUCLEO_F103RB", "NUCLEO_F746ZG", "DISCO_F746NG",
                 "NUCLEO_L476RG", "NUCLEO_L432KC", "DISCO_F303VC", "NUCLEO_F412ZG",
-                "DISCO_F413ZH"]
+                "DISCO_F413ZH", "NUCLEO_F413ZH"]
     },
     {
         "id": "MBED_31", "description": "PWM LED test",

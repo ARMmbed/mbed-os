@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dac.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Header file of DAC HAL module.
   ******************************************************************************
   * @attention
@@ -180,30 +178,30 @@ typedef struct
   */
 
 /** @brief Reset DAC handle state
-  * @param  __HANDLE__: specifies the DAC handle.
+  * @param  __HANDLE__ specifies the DAC handle.
   * @retval None
   */
 #define __HAL_DAC_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_DAC_STATE_RESET)
 
 /** @brief Enable the DAC channel
-  * @param  __HANDLE__: specifies the DAC handle.
-  * @param  __DAC_Channel__: specifies the DAC channel
+  * @param  __HANDLE__ specifies the DAC handle.
+  * @param  __DAC_Channel__ specifies the DAC channel
   * @retval None
   */
 #define __HAL_DAC_ENABLE(__HANDLE__, __DAC_Channel__) \
 ((__HANDLE__)->Instance->CR |=  (DAC_CR_EN1 << (__DAC_Channel__)))
 
 /** @brief Disable the DAC channel
-  * @param  __HANDLE__: specifies the DAC handle
-  * @param  __DAC_Channel__: specifies the DAC channel.
+  * @param  __HANDLE__ specifies the DAC handle
+  * @param  __DAC_Channel__ specifies the DAC channel.
   * @retval None
   */
 #define __HAL_DAC_DISABLE(__HANDLE__, __DAC_Channel__) \
 ((__HANDLE__)->Instance->CR &=  ~(DAC_CR_EN1 << (__DAC_Channel__)))
  
 /** @brief Enable the DAC interrupt
-  * @param  __HANDLE__: specifies the DAC handle
-  * @param  __INTERRUPT__: specifies the DAC interrupt.
+  * @param  __HANDLE__ specifies the DAC handle
+  * @param  __INTERRUPT__ specifies the DAC interrupt.
   *          This parameter can be any combination of the following values:
   *            @arg DAC_IT_DMAUDR1: DAC channel 1 DMA underrun interrupt
   *            @arg DAC_IT_DMAUDR2: DAC channel 2 DMA underrun interrupt
@@ -212,8 +210,8 @@ typedef struct
 #define __HAL_DAC_ENABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CR) |= (__INTERRUPT__))
 
 /** @brief Disable the DAC interrupt
-  * @param  __HANDLE__: specifies the DAC handle
-  * @param  __INTERRUPT__: specifies the DAC interrupt.
+  * @param  __HANDLE__ specifies the DAC handle
+  * @param  __INTERRUPT__ specifies the DAC interrupt.
   *          This parameter can be any combination of the following values:
   *            @arg DAC_IT_DMAUDR1: DAC channel 1 DMA underrun interrupt
   * @retval None
@@ -221,8 +219,8 @@ typedef struct
 #define __HAL_DAC_DISABLE_IT(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CR) &= ~(__INTERRUPT__))
 
 /** @brief  Check whether the specified DAC interrupt source is enabled or not
-  * @param __HANDLE__: DAC handle
-  * @param __INTERRUPT__: DAC interrupt source to check
+  * @param __HANDLE__ DAC handle
+  * @param __INTERRUPT__ DAC interrupt source to check
   *          This parameter can be any combination of the following values:
   *            @arg DAC_IT_DMAUDR1: DAC channel 1 DMA underrun interrupt
   *            @arg DAC_IT_DMAUDR2: DAC channel 2 DMA underrun interrupt
@@ -231,8 +229,8 @@ typedef struct
 #define __HAL_DAC_GET_IT_SOURCE(__HANDLE__, __INTERRUPT__) (((__HANDLE__)->Instance->CR & (__INTERRUPT__)) == (__INTERRUPT__))
 
 /** @brief  Get the selected DAC's flag status
-  * @param  __HANDLE__: specifies the DAC handle.
-  * @param  __FLAG__: specifies the DAC flag to get.
+  * @param  __HANDLE__ specifies the DAC handle.
+  * @param  __FLAG__ specifies the DAC flag to get.
   *          This parameter can be any combination of the following values:
   *            @arg DAC_FLAG_DMAUDR1: DAC channel 1 DMA underrun flag
   * @retval None
@@ -240,8 +238,8 @@ typedef struct
 #define __HAL_DAC_GET_FLAG(__HANDLE__, __FLAG__) ((((__HANDLE__)->Instance->SR) & (__FLAG__)) == (__FLAG__))
 
 /** @brief  Clear the DAC's flag
-  * @param  __HANDLE__: specifies the DAC handle.
-  * @param  __FLAG__: specifies the DAC flag to clear.
+  * @param  __HANDLE__ specifies the DAC handle.
+  * @param  __FLAG__ specifies the DAC flag to clear.
   *          This parameter can be any combination of the following values:
   *            @arg DAC_FLAG_DMAUDR1: DAC channel 1 DMA underrun flag
   * @retval None
@@ -284,19 +282,19 @@ typedef struct
 #define IS_DAC_DATA(DATA) ((DATA) <= 0xFFF0U) 
 
 /** @brief Set DHR12R1 alignment
-  * @param  __ALIGNMENT__: specifies the DAC alignment
+  * @param  __ALIGNMENT__ specifies the DAC alignment
   * @retval None
   */
 #define DAC_DHR12R1_ALIGNMENT(__ALIGNMENT__) ((0x00000008U) + (__ALIGNMENT__))
 
 /** @brief  Set DHR12R2 alignment
-  * @param  __ALIGNMENT__: specifies the DAC alignment
+  * @param  __ALIGNMENT__ specifies the DAC alignment
   * @retval None
   */
 #define DAC_DHR12R2_ALIGNMENT(__ALIGNMENT__) ((0x00000014U) + (__ALIGNMENT__))
 
 /** @brief  Set DHR12RD alignment
-  * @param  __ALIGNMENT__: specifies the DAC alignment
+  * @param  __ALIGNMENT__ specifies the DAC alignment
   * @retval None
   */
 #define DAC_DHR12RD_ALIGNMENT(__ALIGNMENT__) ((0x00000020U) + (__ALIGNMENT__))

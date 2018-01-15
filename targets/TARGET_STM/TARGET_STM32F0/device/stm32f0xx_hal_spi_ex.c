@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_spi_ex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Extended SPI HAL module driver.
   *          This file provides firmware functions to manage the following
   *          SPI peripheral extended functionalities :
@@ -57,7 +55,7 @@
 /** @defgroup SPIEx_Private_Constants SPIEx Private Constants
   * @{
   */
-#define SPI_FIFO_SIZE       4U
+#define SPI_FIFO_SIZE       4
 /**
   * @}
   */
@@ -72,8 +70,8 @@
   */
 
 /** @defgroup SPIEx_Exported_Functions_Group1 IO operation functions
- *  @brief   Data transfers functions
- *
+  *  @brief   Data transfers functions
+  *
 @verbatim
   ==============================================================================
                       ##### IO operation functions #####
@@ -91,7 +89,7 @@
 
 /**
   * @brief Flush the RX fifo.
-  * @param  hspi: pointer to a SPI_HandleTypeDef structure that contains
+  * @param  hspi pointer to a SPI_HandleTypeDef structure that contains
   *               the configuration information for the specified SPI module.
   * @retval HAL status
   */

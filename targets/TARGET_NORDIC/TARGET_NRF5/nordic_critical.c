@@ -15,43 +15,88 @@
  * limitations under the License.
  */
 
-#include <stdint.h>                  // uint32_t, UINT32_MAX
-#include <assert.h>                  // uint32_t, UINT32_MAX
-#include "cmsis.h"
-#include "nrf_soc.h"
-#include "nrf_sdm.h"
-#include "nrf_nvic.h"
+#include <stdint.h>
+#include "app_util_platform.h"
 
-static uint8_t  _sd_state = 0;
-static volatile uint32_t _entry_count = 0;
+#if defined(SOFTDEVICE_PRESENT)
+static volatile uint32_t nordic_cr_nested = 0;
+
+static void nordic_nvic_critical_region_enter(void);
+static void nordic_nvic_critical_region_exit(void);
+#endif
 
 void core_util_critical_section_enter()
 {
-    // if a critical section has already been entered, just update the counter
-    if (_entry_count) {
-        ++_entry_count;
-        return;
-    }
+#ifdef NRF52
+    ASSERT(APP_LEVEL_PRIVILEGED == privilege_level_get())
+#endif
 
-    // in this path, a critical section has never been entered
-    // routine of SD V11 work even if the softdevice is not active
-    sd_nvic_critical_region_enter(&_sd_state);
-
-    assert(_entry_count == 0); // entry count should always be equal to 0 at this point
-    ++_entry_count;
+#if defined(SOFTDEVICE_PRESENT)
+    /* return value can be safely ignored */
+    nordic_nvic_critical_region_enter();
+#else
+    app_util_disable_irq();
+#endif
 }
 
 void core_util_critical_section_exit()
 {
-    assert(_entry_count > 0);
-    --_entry_count;
+#ifdef NRF52
+    ASSERT(APP_LEVEL_PRIVILEGED == privilege_level_get())
+#endif
 
-    // If their is other segments which have entered the critical section, just leave
-    if (_entry_count) {
-        return;
+#if defined(SOFTDEVICE_PRESENT)
+    /* return value can be safely ignored */
+    nordic_nvic_critical_region_exit();
+#else
+    app_util_enable_irq();
+#endif
+}
+
+#if defined(SOFTDEVICE_PRESENT)
+/**@brief Enters critical region.
+ *
+ * @post Application interrupts will be disabled.
+ * @sa nordic_nvic_critical_region_exit
+ */
+static inline void nordic_nvic_critical_region_enter(void)
+{
+    int was_masked = __sd_nvic_irq_disable();
+
+    if (nordic_cr_nested == 0) {
+            nrf_nvic_state.__irq_masks[0] = ( NVIC->ICER[0] & __NRF_NVIC_APP_IRQS_0 );
+            NVIC->ICER[0] = __NRF_NVIC_APP_IRQS_0;
+#ifdef NRF52
+            nrf_nvic_state.__irq_masks[1] = ( NVIC->ICER[1] & __NRF_NVIC_APP_IRQS_1 );
+            NVIC->ICER[1] = __NRF_NVIC_APP_IRQS_1;
+#endif
     }
 
-    // This is the last segment of the critical section, state should be restored as before entering
-    // the critical section
-    sd_nvic_critical_region_exit(_sd_state);
+    nordic_cr_nested++;
+
+    if (!was_masked) {
+        __sd_nvic_irq_enable();
+    }
 }
+
+/**@brief Exit critical region.
+ *
+ * @pre Application has entered a critical region using ::nordic_nvic_critical_region_enter.
+ * @post If not in a nested critical region, the application interrupts will restored to the state before ::nordic_nvic_critical_region_enter was called.
+ */
+static inline void nordic_nvic_critical_region_exit(void)
+{
+    nordic_cr_nested--;
+
+    if (nordic_cr_nested == 0) {
+        int was_masked = __sd_nvic_irq_disable();
+        NVIC->ISER[0] = nrf_nvic_state.__irq_masks[0];
+#ifdef NRF52
+        NVIC->ISER[1] = nrf_nvic_state.__irq_masks[1];
+#endif
+        if (!was_masked) {
+        __sd_nvic_irq_enable();
+        }
+    }
+}
+#endif
