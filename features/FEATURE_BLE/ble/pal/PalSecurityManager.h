@@ -182,14 +182,6 @@ public:
 
     /* persistence */
 
-    virtual ble_error_t get_bonded_list(bonded_list_t &list) = 0;
-
-    virtual ble_error_t add_bonded_list_entry(bonded_list_entry_t &entry) = 0;
-
-    virtual ble_error_t remove_bonded_list_entry(bonded_list_entry_t &entry) = 0;
-
-    virtual ble_error_t clear_bonded_list() = 0;
-
     virtual ble_error_t get_resolving_list(resolving_list_t &list) = 0;
 
     virtual ble_error_t add_resolving_list_entry(resolving_list_entry_t &entry) = 0;
