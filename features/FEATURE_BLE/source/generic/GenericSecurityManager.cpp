@@ -112,10 +112,10 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // SM lifecycle management
     //
-    virtual ble_error_t init(bool                     initBondable = true,
-                             bool                     initMITM     = true,
-                             SecurityIOCapabilities_t initIocaps   = IO_CAPS_NONE,
-                             const Passkey_t          initPasskey  = NULL) {
+   ble_error_t init(bool                     initBondable = true,
+                    bool                     initMITM     = true,
+                    SecurityIOCapabilities_t initIocaps   = IO_CAPS_NONE,
+                    const Passkey_t          initPasskey  = NULL) {
         loadState();
         bondable = initBondable;
         mitm = initMITM;
@@ -167,47 +167,83 @@ public:
     // Feature support
     //
 
-    virtual ble_error_t setSecureConnectionsSupport(bool enabled, bool secure_connections_only = false) {
-        pal.set_secure_connections_support(enabled, secure_connections_only);
-        return BLE_ERROR_NONE; /* Requesting action from porters: override this API if security is supported. */
+    ble_error_t setSecureConnectionsSupport(bool enabled, bool secure_connections_only = false) {
+        return pal.set_secure_connections_support(enabled, secure_connections_only);
     }
 
-    virtual ble_error_t getSecureConnectionsSupport(bool *enabled, bool *secure_connections_only) {
-        pal.get_secure_connections_support(*enabled, *secure_connections_only);
-        return BLE_ERROR_NONE; /* Requesting action from porters: override this API if security is supported. */
+    ble_error_t getSecureConnectionsSupport(bool *enabled, bool *secure_connections_only) {
+        return pal.get_secure_connections_support(*enabled, *secure_connections_only);
     }
 
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
     //
 
-    virtual ble_error_t setAuthenticationTimeout(connection_handle_t handle, uint32_t timeout_in_ms) {
+    ble_error_t setPinCode(uint8_t pinLength, uint8_t *pinCode,
+                           bool isStatic = false) {
+        return pal.set_pin_code(pinLength, pinCode, isStatic);
+    }
+
+    ble_error_t setPasskey(const Passkey_t passkeyASCI, bool isStatic = false) {
+        uint32_t passkey = 0;
+        for (int i = 0, m = 1; i < 6; ++i, m *= 10) {
+            passkey += (passkeyASCI[i] - NUMBER_OFFSET) * m;
+        }
+        return pal.set_passkey(passkey);
+    }
+
+    ble_error_t setAuthenticationTimeout(connection_handle_t handle,
+                                         uint32_t timeout_in_ms) {
         return pal.set_authentication_timeout(handle, timeout_in_ms / 10);
     }
 
-    virtual ble_error_t getAuthenticationTimeout(connection_handle_t handle, uint32_t *timeout_in_ms) {
+    ble_error_t getAuthenticationTimeout(connection_handle_t handle,
+                                         uint32_t *timeout_in_ms) {
         uint16_t timeout_in_10ms;
         ble_error_t status = pal.get_authentication_timeout(handle, timeout_in_10ms);
         timeout_in_ms = 10 * timeout_in_10ms;
         return status;
     }
 
-    ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
+    ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle,
+                                SecurityMode_t securityMode) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
-        return pal.get_encryption_status(connectionHandle, *securityStatusP);
+    ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle,
+                                SecurityMode_t *securityMode) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
 
+    /**
+     * @deprecated
+     *
+     * Get the security status of a connection.
+     *
+     * @param[in]  connectionHandle   Handle to identify the connection.
+     * @param[out] securityStatusP    Security status.
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
+        return pal.get_encryption_status(connectionHandle, *securityStatusP);
+    }
+
+    ble_error_t getEncryptionKeySize(Gap::Handle_t handle, uint8_t *size) {
+        return pal.get_encryption_key_size(handle, *size); //todo this needs event?
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
     //
 
+    virtual ble_error_t setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
+       return pal.set_private_address_timeout(timeout_in_seconds);
+    }
 
     ////////////////////////////////////////////////////////////////////////////
     // Keys
@@ -223,29 +259,29 @@ public:
     //
 
 
-    virtual ble_error_t requestPairing(Gap::Handle_t connectionHandle) {
+    ble_error_t requestPairing(Gap::Handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t acceptPairingRequest(Gap::Handle_t connectionHandle) {
+    ble_error_t acceptPairingRequest(Gap::Handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t canceltPairingRequest(Gap::Handle_t connectionHandle) {
+    ble_error_t canceltPairingRequest(Gap::Handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t requestAuthentication(Gap::Handle_t connectionHandle) {
+    ble_error_t requestAuthentication(Gap::Handle_t connectionHandle) {
         (void) connectionHandle;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
-        (void) required;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    ble_error_t setPairingRequestAuthorisation(bool required = true) {
+        authorisationRequired = required;
+        return BLE_ERROR_NONE;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -256,21 +292,16 @@ public:
         return BLE_ERROR_NONE;
     }
 
-    ble_error_t setPinCode(uint8_t pinLength, uint8_t *pinCode, bool isStatic = false) {
-        return pal.set_pin_code(pinLength, pinCode, isStatic);
+    virtual ble_error_t confirmationEntered(Gap::Handle_t handle, bool confirmation) {
+        return pal.confirmation_entered(handle, confirmation);
     }
 
-    ble_error_t setPasskey(const Passkey_t passkeyASCI, bool isStatic = false) {
-        uint32_t passkey = 0;
-        for (int i = 0, m = 1; i < 6; ++i, m *= 10) {
-            passkey += (passkeyASCI[i] - NUMBER_OFFSET) * m;
-        }
-        return pal.set_passkey(passkey);
+    virtual ble_error_t passkeyEntered(Gap::Handle_t handle, Passkey_t passkey) {
+        return pal.passkey_entered(handle, passkey);
     }
 
-    virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
-        authorisationRequired = required;
-        return BLE_ERROR_NONE;
+    virtual ble_error_t sendKeypressNotification(Gap::Handle_t handle, Keypress_t keypress) {
+        return pal.send_keypress_notification(handle, keypress);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -310,83 +341,83 @@ private:
 
     /*  implements ble::pal::SecurityManagerEventHandler */
 public:
-    virtual void security_setup_initiated(connection_handle_t handle, bool allow_bonding,
+   void security_setup_initiated(connection_handle_t handle, bool allow_bonding,
                                           bool require_mitm, SecurityIOCapabilities_t iocaps) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupInitiated(handle, allow_bonding, require_mitm, iocaps);
         }
     }
-    virtual void security_setup_completed(connection_handle_t handle,
+   void security_setup_completed(connection_handle_t handle,
                                           SecurityManager::SecurityCompletionStatus_t status) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupCompleted(handle, status);
         }
     }
-    virtual void link_secured(connection_handle_t handle, SecurityManager::SecurityMode_t security_mode) {
+   void link_secured(connection_handle_t handle, SecurityManager::SecurityMode_t security_mode) {
         if (_app_event_handler) {
             _app_event_handler->linkSecured(handle, security_mode);
         }
     }
 
-    virtual void security_context_stored(connection_handle_t handle) {
+   void security_context_stored(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->securityContextStored(handle);
         }
     }
-    virtual void passkey_display(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
+   void passkey_display(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
         if (_app_event_handler) {
             _app_event_handler->passkeyDisplay(handle, passkey);
         }
     }
 
-    virtual void valid_mic_timeout(connection_handle_t handle) {
+   void valid_mic_timeout(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->validMicTimeout(handle);
         }
     }
 
-    virtual void link_key_failure(connection_handle_t handle) {
+   void link_key_failure(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->linkKeyFailure(handle);
         }
     }
 
-    virtual void keypress_notification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
+   void keypress_notification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
         if (_app_event_handler) {
             _app_event_handler->keypressNotification(handle, keypress);
         }
     }
 
-    virtual void legacy_pariring_oob_request(connection_handle_t handle) {
+   void legacy_pariring_oob_request(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->legacyPairingOobRequest(handle);
         }
     }
 
-    virtual void oob_request(connection_handle_t handle) {
+   void oob_request(connection_handle_t handle) {
         if (_app_event_handler) {
             _app_event_handler->oobRequest(handle);
         }
     }
-    virtual void pin_request(connection_handle_t handle) {
+   void pin_request(connection_handle_t handle) {
 
         if (_app_event_handler) {
             _app_event_handler->pinRequest(handle);
         }
     }
-    virtual void passkey_request(connection_handle_t handle) {
+   void passkey_request(connection_handle_t handle) {
 
         if (_app_event_handler) {
             _app_event_handler->passkeyRequest(handle);
         }
     }
-    virtual void confirmation_request(connection_handle_t handle) {
+   void confirmation_request(connection_handle_t handle) {
 
         if (_app_event_handler) {
             _app_event_handler->confirmationRequest(handle);
         }
     }
-    virtual void accept_pairing_request(connection_handle_t handle,
+   void accept_pairing_request(connection_handle_t handle,
                                         SecurityIOCapabilities_t iocaps,
                                         bool use_oob,
                                         authentication_t authentication,

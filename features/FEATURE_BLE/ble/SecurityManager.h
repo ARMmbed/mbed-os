@@ -265,9 +265,9 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t handle, SecurityMode_t &mode) {
+    virtual ble_error_t getLinkSecurity(Gap::Handle_t handle, SecurityMode_t *securityMode) {
         (void) handle;
-        (void) mode;
+        (void) securityMode;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
@@ -346,7 +346,6 @@ public:
         (void) connectionHandle;
         (void) useOOB;
         (void) OOBProvidesMITM;
-
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
