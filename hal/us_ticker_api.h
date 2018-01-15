@@ -78,6 +78,7 @@ extern "C" {
  * * Calling any function other than ticker_init before the initialization of the ticker
  * * Whether ticker_irq_handler is called a second time if the time wraps and matches the value set by ticker_set_interrupt again
  * * Calling ticker_set_interrupt with a value that has more than the supported number of bits
+ * * Calling any function other than us_ticker_init after calling us_ticker_free
  *
  * # Potential bugs
  * * Drift due to reschedule - Verified by ::ticker_repeat_reschedule_test
