@@ -79,6 +79,7 @@
                         <Elem>{{ symbol }}</Elem>
                         {% endfor -%}
                     </preprocessorList>
+                    <commandlineTool>{{cc_cmd}}</commandlineTool>
                 </cTool>
                 <ccTool>
                     <standard>{{ cpp_std }}</standard>
@@ -104,6 +105,7 @@
                         <Elem>{{ symbol }}</Elem>
                         {% endfor -%}
                     </preprocessorList>
+                    <commandlineTool>{{cppc_cmd}}</commandlineTool>
                 </ccTool>
                 <fortranCompilerTool>
                     <developmentMode>5</developmentMode>
@@ -129,11 +131,12 @@
                         <Elem>{{ symbol }}</Elem>
                         {% endfor -%}
                     </preprocessorList>
+                    <commandlineTool>{{asm_cmd}}</commandlineTool>
                 </asmTool>
                 <linkerTool>
                     <output>${CND_DISTDIR}/${CND_CONF}/{{target}}/{{name}}.elf</output>
                     <additionalDep>${CND_BUILDDIR}/${CND_CONF}/{{target}}/.link_script.ld</additionalDep>
-                    <commandlineTool>arm-none-eabi-gcc</commandlineTool>
+                    <commandlineTool>{{ld_cmd}}</commandlineTool>
                     <commandLine>-T ${CND_BUILDDIR}/${CND_CONF}/{{target}}/.link_script.ld {%- for symbol in opts['ld'] -%}{{" "+symbol}}{%- endfor -%} {%- for item in linker_libs -%}{{" "+item}}{%- endfor -%} </commandLine>
                 </linkerTool>
             </compileType>
