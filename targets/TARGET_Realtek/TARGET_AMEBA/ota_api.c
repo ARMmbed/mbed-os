@@ -23,24 +23,24 @@
 
 static flash_t flash_obj;
 
-void OTA_ReadHeader(uint32_t base, imginfo_t *img)
+void OTA_ReadHeader(uint32_t addr, imginfo_t *img)
 {
     uint32_t epoch_hi, epoch_lo;
 
-    if (base != OTA_REGION1_BASE || base != OTA_REGION2_BASE) {
+    if (addr != OTA_REGION1_HEADER || addr != OTA_REGION2_HEADER) {
         return;
     }
 
-    flash_ext_read_word(&flash_obj, base + OTA_TAG_OFS, &img->tag);
-    flash_ext_read_word(&flash_obj, base + OTA_VER_OFS, &img->ver);
-    flash_ext_read_word(&flash_obj, base + OTA_EPOCH_OFS, &epoch_hi);
-    flash_ext_read_word(&flash_obj, base + OTA_EPOCH_OFS + 4, &epoch_lo);
+    flash_ext_read_word(&flash_obj, addr + OTA_TAG_OFS, &img->tag);
+    flash_ext_read_word(&flash_obj, addr + OTA_VER_OFS, &img->ver);
+    flash_ext_read_word(&flash_obj, addr + OTA_EPOCH_OFS, &epoch_hi);
+    flash_ext_read_word(&flash_obj, addr + OTA_EPOCH_OFS + 4, &epoch_lo);
     img->timestamp = ((uint64_t)epoch_hi << 32) | (uint64_t) epoch_lo;
 
-    flash_ext_read_word(&flash_obj, base + OTA_SIZE_OFS, &img->size);
-    flash_ext_stream_read(&flash_obj, base + OTA_HASH_OFS, 32, img->hash);
-    flash_ext_stream_read(&flash_obj, base + OTA_CAMPAIGN_OFS, 16, img->campaign);
-    flash_ext_read_word(&flash_obj, base + OTA_CRC32_OFS, &img->crc32);
+    flash_ext_read_word(&flash_obj, addr + OTA_SIZE_OFS, &img->size);
+    flash_ext_stream_read(&flash_obj, addr + OTA_HASH_OFS, 32, img->hash);
+    flash_ext_stream_read(&flash_obj, addr + OTA_CAMPAIGN_OFS, 16, img->campaign);
+    flash_ext_read_word(&flash_obj, addr + OTA_CRC32_OFS, &img->crc32);
 }
 
 bool OTA_CheckHeader(imginfo_t *img)
@@ -61,9 +61,9 @@ bool OTA_CheckHeader(imginfo_t *img)
     return true;
 }
 
-void OTA_GetImageInfo(uint32_t base, imginfo_t *img)
+void OTA_GetImageInfo(uint32_t header, imginfo_t *img)
 {
-    OTA_ReadHeader(base, img);
+    OTA_ReadHeader(header, img);
 
     if (!OTA_CheckHeader(img)) {
         img->timestamp = 0;
@@ -77,8 +77,8 @@ uint32_t OTA_GetUpdateBase(void)
 {
     imginfo_t img1, img2;
 
-    OTA_GetImageInfo(OTA_REGION1_BASE, &img1);
-    OTA_GetImageInfo(OTA_REGION2_BASE, &img2);
+    OTA_GetImageInfo(OTA_REGION1_HEADER, &img1);
+    OTA_GetImageInfo(OTA_REGION2_HEADER, &img2);
 
     if (img1.valid && img2.valid) {
         if (img1.timestamp < img2.timestamp) {
