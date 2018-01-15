@@ -38,15 +38,22 @@ static const uint8_t NUMBER_OFFSET = '0';
 
 struct SecurityEntry_t {
     connection_handle_t handle;
-    address_t identity_address;
-    irk_t  irk;
-    csrk_t csrk;
+    uint8_t peer_address_is_public:1;
+    uint8_t mitm_protection:1;
+    uint8_t is_authenticated:1;
+    uint8_t is_connected:1;
+};
+
+struct SecurityEntryKeys_t {
     ltk_t  ltk;
     ediv_t ediv;
     rand_t rand;
-    bool   mitm;
-    bool   authenticated;
-    bool   connected;
+};
+
+struct SecurityEntryIdentity_t {
+    address_t identity_address;
+    irk_t  irk;
+    csrk_t csrk;
 };
 
 enum DbCbAction_t {
@@ -56,7 +63,11 @@ enum DbCbAction_t {
 };
 
 typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&)> SecurityEntryDbCb_t;
+typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&, SecurityEntryKeys_t&)> SecurityEntryKeysDbCb_t;
+typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&, SecurityEntryIdentity_t&)> SecurityEntryIdentityDbCb_t;
 typedef mbed::Callback<DbCbAction_t(Gap::Whitelist_t&)> WhitelistDbCb_t;
+
+class GenericSecurityManagerEventHandler;
 
 class SecurityDb {
 public:
@@ -68,6 +79,9 @@ public:
     void get_entry(SecurityEntryDbCb_t cb, connection_handle_t handle);
 
     void update_entry(SecurityEntry_t&);
+    void update_entry(connection_handle_t handle, address_t &peer_address, ediv_t &ediv,
+                      rand_t &rand, ltk_t &ltk, csrk_t &csrk);
+
     void remove_entry(SecurityEntry_t&);
     void clear_entries(SecurityEntry_t&);
 
@@ -75,13 +89,10 @@ public:
 
     void update_whitelist(Gap::Whitelist_t&);
     void add_whitelist_entry(address_t);
+
     void remove_whitelist_entry(address_t);
     void clear_whitelist();
 private:
-
-};
-
-class GenericSecurityManagerEventHandler : public ble::pal::SecurityManagerEventHandler {
 
 };
 
@@ -160,6 +171,11 @@ public:
         return pal.set_passkey(passkey);
     }
 
+    DbCbAction_t setLtkCb(SecurityEntry_t& entry, SecurityEntryKeys_t& entryKeys) {
+        pal.set_ltk(entry.handle, entryKeys.ltk);
+        return DB_CB_ACTION_UPDATE;
+    }
+
     void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
         SecurityManager::setSecurityManagerEventHandler(handler);
         /* handler is always a valid pointer */
@@ -186,6 +202,8 @@ private:
     GenericSecurityManagerEventHandler palEventHandler;
     bool saveStateEnabled;
 
+    SecurityDb db;
+
     SecurityIOCapabilities_t iocaps;
     Passkey_t                passkey;
     bool                     mitm;
@@ -198,6 +216,7 @@ private:
     key_distribution_t  initiatorDist;
     key_distribution_t  responderDist;
 };
+
 
 } /* namespace generic */
 } /* namespace ble */
