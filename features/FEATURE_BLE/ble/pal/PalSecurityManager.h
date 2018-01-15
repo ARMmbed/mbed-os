@@ -23,6 +23,7 @@
 #include "ble/SafeEnum.h"
 #include "ble/BLEProtocol.h"
 #include "ble/SecurityManager.h"
+#include "ble/pal/GapTypes"
 
 namespace ble {
 namespace pal {
@@ -41,7 +42,6 @@ typedef SecurityManager::C192_t c192_t;
 typedef SecurityManager::R192_t r192_t;
 typedef SecurityManager::C256_t c256_t;
 typedef SecurityManager::R256_t r256_t;
-typedef BLEProtocol::AddressBytes_t address_t;
 
 typedef uint8_t irk_t[16];
 typedef uint8_t csrk_t[16];
@@ -68,34 +68,6 @@ enum AuthenticationFlags_t {
     AUTHENTICATION_MITM                   = 0x04, /* 0x02 missing because bonding uses two bits */
     AUTHENTICATION_SECURE_CONNECTIONS     = 0x08,
     AUTHENTICATION_KEYPRESS_NOTIFICATION  = 0x10
-};
-
-struct bonded_list_entry_t {
-    address_t peer_address;
-    ediv_t ediv;
-    rand_t rand;
-    ltk_t ltk;
-    csrk_t csrk;
-};
-
-struct resolving_list_entry_t {
-    address_t peer_address;
-    irk_t peer_irk;
-    irk_t local_irk;
-};
-
-/** Representation of a resolving list. */
-struct resolving_list_t {
-    resolving_list_entry_t *entries; /**< pointer to array storing the entries */
-    uint8_t size; /**< actual number of entries */
-    uint8_t capacity;  /**< number of entries that can be stored */
-};
-
-/** Representation of a bonded list. */
-struct bonded_list_t {
-    bonded_list_entry_t *entries; /**< pointer to array storing the entries */
-    uint8_t size; /**< actual number of entries */
-    uint8_t capacity;  /**< number of entries that can be stored */
 };
 
 /**
@@ -151,7 +123,8 @@ public:
 
     virtual void keys_exchanged(
         connection_handle_t handle,
-        address_t &peer_address,
+        advertising_peer_address_type_t peer_identity_address_type,
+        address_t &peer_identity_address,
         ediv_t &ediv,
         rand_t &rand,
         ltk_t &ltk,
@@ -174,23 +147,63 @@ public:
 
     virtual ~SecurityManager() { };
 
+    ////////////////////////////////////////////////////////////////////////////
+    // SM lifecycle management
+    //
+
     virtual ble_error_t initialize() = 0;
 
     virtual ble_error_t terminate() = 0;
 
     virtual ble_error_t reset()  = 0;
 
-    /* persistence */
+    ////////////////////////////////////////////////////////////////////////////
+    // Resolving list management
+    //
 
-    virtual ble_error_t get_resolving_list(resolving_list_t &list) = 0;
+    /**
+     * Return the number of address translation entries that can be stored by the
+     * subsystem.
+     *
+     * @warning: The number of entries is considered fixed.
+     *
+     * see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.41
+     */
+    virtual uint8_t read_resolving_list_capacity() = 0;
 
-    virtual ble_error_t add_resolving_list_entry(resolving_list_entry_t &entry) = 0;
+    /**
+     * Add a device definition into the resolving list of the LE subsystem.
+     *
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.38
+     */
+    virtual ble_error_t add_device_to_resolving_list(
+        advertising_peer_address_type_t peer_identity_address_type,
+        address_t peer_identity_address,
+        irk_t peer_irk,
+        irk_t local_irk
+    ) = 0;
 
-    virtual ble_error_t remove_resolving_list_entry(resolving_list_entry_t &entry) = 0;
 
+    /**
+     * Add a device definition from the resolving list of the LE subsystem.
+     *
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.39
+     */
+    virtual ble_error_t remove_device_from_resolving_list(
+        advertising_peer_address_type_t peer_identity_address_type,
+        address_t peer_identity_address
+    ) = 0;
+
+    /**
+     * Remove all devices from the resolving list.
+     *
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.40
+     */
     virtual ble_error_t clear_resolving_list() = 0;
 
-    /* feature support */
+    ////////////////////////////////////////////////////////////////////////////
+    // Feature support
+    //
 
     virtual ble_error_t set_secure_connections_support(
         bool enabled, bool secure_connections_only = false
@@ -200,7 +213,9 @@ public:
         bool &enabled, bool &secure_connections_only
     ) = 0;
 
-    /* security settings */
+    ////////////////////////////////////////////////////////////////////////////
+    // Security settings
+    //
 
     virtual ble_error_t set_pin_code(
         uint8_t pin_length, uint8_t *pin_code, bool static_pin = false
@@ -216,7 +231,9 @@ public:
         connection_handle_t, uint16_t &timeout_in_10ms
     ) = 0;
 
-    /* encryption */
+    ////////////////////////////////////////////////////////////////////////////
+    // Encryption
+    //
 
     virtual ble_error_t enable_encryption(connection_handle_t handle) = 0;
 
@@ -232,11 +249,15 @@ public:
 
     virtual ble_error_t refresh_encryption_key(connection_handle_t handle) = 0;
 
-    /* privacy */
+    ////////////////////////////////////////////////////////////////////////////
+    // Privacy
+    //
 
     virtual ble_error_t set_private_address_timeout(uint16_t timeout_in_seconds) = 0;
 
-    /* keys */
+    ////////////////////////////////////////////////////////////////////////////
+    // Keys
+    //
 
     virtual ble_error_t set_ltk(connection_handle_t handle, ltk_t ltk) = 0;
 
@@ -248,7 +269,9 @@ public:
 
     virtual ble_error_t generate_csrk() = 0;
 
-    /* authentication */
+    ////////////////////////////////////////////////////////////////////////////
+    // Authentication
+    //
 
     virtual ble_error_t request_pairing(
         connection_handle_t handle,
@@ -280,7 +303,9 @@ public:
 
     virtual ble_error_t request_authentication(connection_handle_t handle) = 0;
 
-    /* MITM */
+    ////////////////////////////////////////////////////////////////////////////
+    // MITM
+    //
 
     virtual ble_error_t confirmation_entered(
         connection_handle_t handle, bool confirmation
