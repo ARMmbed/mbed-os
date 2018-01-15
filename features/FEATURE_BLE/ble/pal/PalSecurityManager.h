@@ -198,14 +198,6 @@ public:
 
     virtual ble_error_t clear_resolving_list() = 0;
 
-    virtual ble_error_t get_whitelist(Gap::Whitelist_t &list) = 0;
-
-    virtual ble_error_t add_whitelist_entry(address_t &entry) = 0;
-
-    virtual ble_error_t remove_whitelist_entry(address_t &entry) = 0;
-
-    virtual ble_error_t clear_whitelist() = 0;
-
     /* feature support */
 
     virtual ble_error_t set_secure_connections_support(
