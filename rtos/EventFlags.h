@@ -46,29 +46,40 @@ namespace rtos {
 */
 class EventFlags : private mbed::NonCopyable<EventFlags> {
 public:
-    /** Create and Initialize a EventFlags object */
+    /** Create and Initialize an EventFlags object
+     *
+     * @note You cannot call this function from ISR context.
+    */
     EventFlags();
 
     /** Create and Initialize a EventFlags object
 
      @param name name to be used for this EventFlags. It has to stay allocated for the lifetime of the thread.
+
+     @note You cannot call this function from ISR context.
     */
     EventFlags(const char *name);
 
     /** Set the specified Event Flags.
       @param   flags  specifies the flags that shall be set.
       @return  event flags after setting or error code if highest bit set (@a osFlagsError).
+
+      @note This function may be called from ISR context.
      */
     uint32_t set(uint32_t flags);
 
     /** Clear the specified Event Flags.
       @param   flags  specifies the flags that shall be cleared. (default: 0x7fffffff - all flags)
       @return  event flags before clearing or error code if highest bit set (@a osFlagsError).
+
+      @note You may call this function from ISR context.
      */
     uint32_t clear(uint32_t flags = 0x7fffffff);
 
     /** Get the currently set Event Flags.
       @return  set event flags.
+
+      @note You may call this function from ISR context.
      */
     uint32_t get() const;
 
@@ -77,6 +88,8 @@ public:
       @param   timeout  timeout value or 0 in case of no time-out. (default: osWaitForever)
       @param   clear    specifies wether to clear the flags after waiting for them. (default: true)
       @return  event flags before clearing or error code if highest bit set (@a osFlagsError).
+
+      @note You may call this function from ISR context if the timeout parameter is set to 0.
      */
     uint32_t wait_all(uint32_t flags = 0, uint32_t timeout = osWaitForever, bool clear = true);
 
@@ -85,9 +98,15 @@ public:
       @param   timeout  timeout value or 0 in case of no time-out. (default: osWaitForever)
       @param   clear    specifies wether to clear the flags after waiting for them. (default: true)
       @return  event flags before clearing or error code if highest bit set (@a osFlagsError).
+
+      @note This function may be called from ISR context if the timeout parameter is set to 0.
      */
     uint32_t wait_any(uint32_t flags = 0, uint32_t timeout = osWaitForever, bool clear = true);
 
+    /** Event flags destructor
+
+      @note You cannot call this function from ISR context.
+    */
     ~EventFlags();
 
 private:
