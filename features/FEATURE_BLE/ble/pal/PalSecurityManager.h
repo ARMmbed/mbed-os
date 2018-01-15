@@ -128,6 +128,7 @@ public:
         ediv_t &ediv,
         rand_t &rand,
         ltk_t &ltk,
+        irk_t &irk,
         csrk_t &csrk
     ) = 0;
 

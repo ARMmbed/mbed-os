@@ -38,11 +38,14 @@ using SecurityManager::SecurityIOCapabilities_t;
 
 static const uint8_t NUMBER_OFFSET = '0';
 
+/* separate structs to allow db implementation to minimise memory usage */
+
 struct SecurityEntry_t {
     connection_handle_t handle;
+    address_t identity_address;
     uint8_t peer_address_is_public:1;
-    uint8_t mitm_protection:1;
-    uint8_t is_authenticated:1;
+    uint8_t mitm_protection:1; /**< does the key provide mitm */
+    uint8_t is_authenticated:1; /**< have we authenticated during this connection */
     uint8_t is_connected:1;
 };
 
@@ -53,7 +56,6 @@ struct SecurityEntryKeys_t {
 };
 
 struct SecurityEntryIdentity_t {
-    address_t identity_address;
     irk_t  irk;
     csrk_t csrk;
 };
@@ -87,6 +89,7 @@ public:
                       ediv_t &ediv,
                       rand_t &rand,
                       ltk_t &ltk,
+                      irk_t &irk,
                       csrk_t &csrk);
 
     void remove_entry(SecurityEntry_t&);
@@ -106,15 +109,15 @@ private:
 class GenericSecurityManager : public SecurityManager,
                                public ble::pal::SecurityManagerEventHandler {
 public:
-    virtual ble_error_t init(bool                     enableBonding  = true,
-                             bool                     requireMITM    = true,
-                             SecurityIOCapabilities_t initIocaps     = IO_CAPS_NONE,
-                             const Passkey_t          defaultPasskey = NULL) {
+    virtual ble_error_t init(bool                     initBondable = true,
+                             bool                     initMITM     = true,
+                             SecurityIOCapabilities_t initIocaps   = IO_CAPS_NONE,
+                             const Passkey_t          initPasskey  = NULL) {
         loadState();
-        bonding = enableBonding;
-        mitm = requireMITM;
+        bondable = initBondable;
+        mitm = initMITM;
         iocaps = initIocaps;
-        passkey = defaultPasskey;
+        passkey = initPasskey;
 
         return BLE_ERROR_NONE;
     }
@@ -178,6 +181,11 @@ public:
         return pal.set_passkey(passkey);
     }
 
+    virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
+        authorisationRequired = required;
+        return BLE_ERROR_NONE;
+    }
+
     DbCbAction_t setLtkCb(SecurityEntry_t& entry, SecurityEntryKeys_t& entryKeys) {
         pal.set_ltk(entry.handle, entryKeys.ltk);
         return DB_CB_ACTION_UPDATE;
@@ -214,7 +222,8 @@ private:
     SecurityIOCapabilities_t iocaps;
     Passkey_t                passkey;
     bool                     mitm;
-    bool                     bonding;
+    bool                     bondable;
+    bool                     authorisationRequired;
 
     bool                useOob;
     authentication_t    authentication;
@@ -308,7 +317,7 @@ public:
                                         uint8_t max_key_size,
                                         key_distribution_t initiator_dist,
                                         key_distribution_t responder_dist) {
-        if (_app_event_handler) {
+        if (_app_event_handler && authorisationRequired) {
             _app_event_handler->acceptPairingRequest(handle);
         }
     }
@@ -319,6 +328,7 @@ public:
                         ediv_t &ediv,
                         rand_t &rand,
                         ltk_t &ltk,
+                        irk_t &irk,
                         csrk_t &csrk) {
         db.update_entry(
             handle,
@@ -327,6 +337,7 @@ public:
             ediv,
             rand,
             ltk,
+            irk,
             csrk
         );
 
