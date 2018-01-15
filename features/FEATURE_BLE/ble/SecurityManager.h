@@ -245,7 +245,7 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t requestPairing(bool authentication_required = true) {
+    virtual ble_error_t requestPairing() {
         (void) authentication_required;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
@@ -255,7 +255,7 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t acceptPairingRequest(bool accept = true, bool authentication_required = true) {
+    virtual ble_error_t acceptPairingRequest(bool accept = true) {
         (void) authentication_required;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
