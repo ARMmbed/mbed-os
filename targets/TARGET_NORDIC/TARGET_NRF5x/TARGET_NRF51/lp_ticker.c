@@ -25,6 +25,12 @@ void lp_ticker_init(void)
     common_rtc_init();
 }
 
+void lp_ticker_free(void)
+{
+    // A common counter is used for RTC, lp_ticker and us_ticker, so it can't be
+    // disabled here, but this does not cause any extra cost.
+}
+
 uint32_t lp_ticker_read()
 {
     return (uint32_t)common_rtc_64bit_us_get();
