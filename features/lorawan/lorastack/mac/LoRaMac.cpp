@@ -1225,6 +1225,8 @@ lorawan_status_t LoRaMac::ScheduleTx( void )
 {
     lorawan_time_t dutyCycleTimeOff = 0;
     NextChanParams_t nextChan;
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
 
     // Check if the device is off
     if( _params.sys_params.max_duty_cycle == 255 )
@@ -1251,7 +1253,9 @@ lorawan_status_t LoRaMac::ScheduleTx( void )
                                       &_params.timers.aggregated_timeoff ) == false )
     {
         // Set the default datarate
-        _params.sys_params.channel_data_rate = _params.def_sys_params.channel_data_rate;
+        getPhy.Attribute = PHY_DEF_TX_DR;
+        phyParam = lora_phy->get_phy_params( &getPhy );
+        _params.sys_params.channel_data_rate = phyParam.Value;
         // Update datarate in the function parameters
         nextChan.Datarate = _params.sys_params.channel_data_rate;
     }
@@ -1330,6 +1334,9 @@ void LoRaMac::CalculateBackOff( uint8_t channel )
 
 void LoRaMac::ResetMacParameters( void )
 {
+    GetPhyParams_t getPhy;
+    PhyParam_t phyParam;
+
     _params.is_nwk_joined = false;
 
     // Counters
@@ -1352,14 +1359,37 @@ void LoRaMac::ResetMacParameters( void )
 
     _params.is_rx_window_enabled = true;
 
-    _params.sys_params.channel_tx_power = _params.def_sys_params.channel_tx_power;
-    _params.sys_params.channel_data_rate = _params.def_sys_params.channel_data_rate;
-    _params.sys_params.rx1_dr_offset = _params.def_sys_params.rx1_dr_offset;
-    _params.sys_params.rx2_channel = _params.def_sys_params.rx2_channel;
-    _params.sys_params.uplink_dwell_time = _params.def_sys_params.uplink_dwell_time;
-    _params.sys_params.downlink_dwell_time = _params.def_sys_params.downlink_dwell_time;
-    _params.sys_params.max_eirp = _params.def_sys_params.max_eirp;
-    _params.sys_params.antenna_gain = _params.def_sys_params.antenna_gain;
+    getPhy.Attribute = PHY_DEF_TX_POWER;
+    phyParam = lora_phy->get_phy_params( &getPhy );
+
+    _params.sys_params.channel_tx_power = phyParam.Value;
+
+    getPhy.Attribute = PHY_DEF_TX_DR;
+    phyParam = lora_phy->get_phy_params( &getPhy );
+    _params.sys_params.channel_data_rate = phyParam.Value;
+
+    getPhy.Attribute = PHY_DEF_DR1_OFFSET;
+    phyParam = lora_phy->get_phy_params( &getPhy );
+    _params.sys_params.rx1_dr_offset = phyParam.Value;
+
+    getPhy.Attribute = PHY_DEF_RX2_FREQUENCY;
+    phyParam = lora_phy->get_phy_params( &getPhy );
+    _params.sys_params.rx2_channel.frequency = phyParam.Value;
+    getPhy.Attribute = PHY_DEF_RX2_DR;
+    phyParam = lora_phy->get_phy_params( &getPhy );
+    _params.sys_params.rx2_channel.datarate = phyParam.Value;
+
+    getPhy.Attribute = PHY_DEF_UPLINK_DWELL_TIME;
+    phyParam = lora_phy->get_phy_params( &getPhy );
+    _params.sys_params.uplink_dwell_time = phyParam.Value;
+
+    getPhy.Attribute = PHY_DEF_MAX_EIRP;
+    phyParam = lora_phy->get_phy_params( &getPhy );
+    _params.sys_params.max_eirp = phyParam.Value;
+
+    getPhy.Attribute = PHY_DEF_ANTENNA_GAIN;
+    phyParam = lora_phy->get_phy_params( &getPhy );
+    _params.sys_params.antenna_gain = phyParam.Value;
 
     _params.is_node_ack_requested = false;
     _params.is_srv_ack_requested = false;
@@ -1727,75 +1757,66 @@ lorawan_status_t LoRaMac::LoRaMacInitialization(loramac_primitives_t *primitives
 
     getPhy.Attribute = PHY_DEF_TX_POWER;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.channel_tx_power = phyParam.Value;
+    _params.sys_params.channel_tx_power = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_TX_DR;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.channel_data_rate = phyParam.Value;
+    _params.sys_params.channel_data_rate = phyParam.Value;
 
     getPhy.Attribute = PHY_MAX_RX_WINDOW;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.max_rx_win_time = phyParam.Value;
+    _params.sys_params.max_rx_win_time = phyParam.Value;
 
     getPhy.Attribute = PHY_RECEIVE_DELAY1;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.recv_delay1 = phyParam.Value;
+    _params.sys_params.recv_delay1 = phyParam.Value;
 
     getPhy.Attribute = PHY_RECEIVE_DELAY2;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.recv_delay2 = phyParam.Value;
+    _params.sys_params.recv_delay2 = phyParam.Value;
 
     getPhy.Attribute = PHY_JOIN_ACCEPT_DELAY1;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.join_accept_delay1 = phyParam.Value;
+    _params.sys_params.join_accept_delay1 = phyParam.Value;
 
     getPhy.Attribute = PHY_JOIN_ACCEPT_DELAY2;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.join_accept_delay2 = phyParam.Value;
+    _params.sys_params.join_accept_delay2 = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_DR1_OFFSET;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.rx1_dr_offset = phyParam.Value;
+    _params.sys_params.rx1_dr_offset = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_RX2_FREQUENCY;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.rx2_channel.frequency = phyParam.Value;
+    _params.sys_params.rx2_channel.frequency = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_RX2_DR;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.rx2_channel.datarate = phyParam.Value;
+    _params.sys_params.rx2_channel.datarate = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_UPLINK_DWELL_TIME;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.uplink_dwell_time = phyParam.Value;
+    _params.sys_params.uplink_dwell_time = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_DOWNLINK_DWELL_TIME;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.downlink_dwell_time = phyParam.Value;
+    _params.sys_params.downlink_dwell_time = phyParam.Value;
 
     getPhy.Attribute = PHY_DEF_MAX_EIRP;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.max_eirp = phyParam.fValue;
+    _params.sys_params.max_eirp = phyParam.fValue;
 
     getPhy.Attribute = PHY_DEF_ANTENNA_GAIN;
     phyParam = lora_phy->get_phy_params( &getPhy );
-    _params.def_sys_params.antenna_gain = phyParam.fValue;
+    _params.sys_params.antenna_gain = phyParam.fValue;
 
     lora_phy->load_defaults(INIT_TYPE_INIT);
 
     // Init parameters which are not set in function ResetMacParameters
-    _params.def_sys_params.retry_num = 1;
-    _params.def_sys_params.max_sys_rx_error = 10;
-    _params.def_sys_params.min_rx_symb = 6;
-
-    _params.sys_params.max_sys_rx_error = _params.def_sys_params.max_sys_rx_error;
-    _params.sys_params.min_rx_symb = _params.def_sys_params.min_rx_symb;
-    _params.sys_params.max_rx_win_time = _params.def_sys_params.max_rx_win_time;
-    _params.sys_params.recv_delay1 = _params.def_sys_params.recv_delay1;
-    _params.sys_params.recv_delay2 = _params.def_sys_params.recv_delay2;
-    _params.sys_params.join_accept_delay1 = _params.def_sys_params.join_accept_delay1;
-    _params.sys_params.join_accept_delay2 = _params.def_sys_params.join_accept_delay2;
-    _params.sys_params.retry_num = _params.def_sys_params.retry_num;
+    _params.sys_params.max_sys_rx_error = 10;
+    _params.sys_params.min_rx_symb = 6;
+    _params.sys_params.retry_num = 1;
 
     ResetMacParameters( );
 
@@ -1831,8 +1852,8 @@ lorawan_status_t LoRaMac::LoRaMacQueryTxPossible( uint8_t size, loramac_tx_info_
     AdrNextParams_t adrNext;
     GetPhyParams_t getPhy;
     PhyParam_t phyParam;
-    int8_t datarate = _params.def_sys_params.channel_data_rate;
-    int8_t txPower = _params.def_sys_params.channel_tx_power;
+    int8_t datarate = _params.sys_params.channel_data_rate;
+    int8_t txPower = _params.sys_params.channel_tx_power;
     uint8_t fOptLen = mac_commands.GetLength() + mac_commands.GetRepeatLength();
 
     if( txInfo == NULL )

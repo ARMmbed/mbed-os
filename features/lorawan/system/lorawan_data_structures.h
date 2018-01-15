@@ -2329,11 +2329,6 @@ typedef struct {
     lora_mac_system_params_t sys_params;
 
     /*!
-     * LoRaMac default parameters
-     */
-    lora_mac_system_params_t def_sys_params;
-
-    /*!
      * Receive Window configurations for PHY layer
      */
     rx_config_params_t rx_window1_config;

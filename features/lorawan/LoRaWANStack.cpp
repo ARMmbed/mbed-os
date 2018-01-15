@@ -244,7 +244,7 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
         mcps_req.f_buffer_size = _tx_msg.f_buffer_size;
         mcps_req.req.unconfirmed.data_rate = default_datarate.Value;
 
-        tr_info("Transmit unconfirmed compliance test frame %d bytes.", mcps_req.req.unconfirmed.fbuffer_size);
+        tr_info("Transmit unconfirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
 
         for (uint8_t i = 0; i < mcps_req.f_buffer_size; ++i) {
             tr_info("Byte %d, data is 0x%x", i+1, ((uint8_t*)mcps_req.f_buffer)[i]);
@@ -257,7 +257,7 @@ lorawan_status_t LoRaWANStack::send_compliance_test_frame_to_mac()
         mcps_req.req.confirmed.nb_trials = _num_retry;
         mcps_req.req.confirmed.data_rate = default_datarate.Value;
 
-        tr_info("Transmit confirmed compliance test frame %d bytes.", mcps_req.req.confirmed.fbuffer_size);
+        tr_info("Transmit confirmed compliance test frame %d bytes.", mcps_req.f_buffer_size);
 
         for (uint8_t i = 0; i < mcps_req.f_buffer_size; ++i) {
             tr_info("Byte %d, data is 0x%x", i+1, ((uint8_t*)mcps_req.f_buffer)[i]);
