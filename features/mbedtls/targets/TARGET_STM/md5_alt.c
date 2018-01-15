@@ -170,17 +170,12 @@ void mbedtls_md5_finish( mbedtls_md5_context *ctx, unsigned char output[16] )
     if (st_md5_restore_hw_context(ctx) != 1) {
         return; // Return HASH_BUSY timout error here
     }
-    if (ctx->sbuf_len > 0) {
-        if (HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, ctx->sbuf, ctx->sbuf_len) != 0) {
-            return; // Return error code here
-        }
+    /* Last accumulation for extra bytes in sbuf_len */
+    /* This allows the HW flags to be in place in case mbedtls_sha256_update has not been called yet */
+    if (HAL_HASH_MD5_Accumulate(&ctx->hhash_md5, ctx->sbuf, ctx->sbuf_len) != 0) {
+        return; // Return error code here
     }
-    /* The following test can happen when the input is empty, and mbedtls_md5_update has never been called */
-    if(ctx->hhash_md5.Phase == HAL_HASH_PHASE_READY) {
-        /* Select the MD5 mode and reset the HASH processor core, so that the HASH will be ready to compute
-            the message digest of a new message */
-        HASH->CR |= HASH_ALGOSELECTION_MD5 | HASH_CR_INIT;
-    }
+
     mbedtls_zeroize( ctx->sbuf, ST_MD5_BLOCK_SIZE);
     ctx->sbuf_len = 0;
     __HAL_HASH_START_DIGEST();
