@@ -31,15 +31,14 @@
 #if DEVICE_RTC
 
 #include "rtc_api_hal.h"
-#include "mbed_error.h"
 #include "mbed_mktime.h"
 
 static RTC_HandleTypeDef RtcHandle;
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM
 static void (*irq_handler)(void);
 static void RTC_IRQHandler(void);
-#endif
+#endif /* DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM */
 
 void rtc_init(void)
 {
@@ -55,7 +54,7 @@ void rtc_init(void)
     }
 
 #if MBED_CONF_TARGET_LSE_AVAILABLE
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
     RCC_OscInitStruct.LSIState       = RCC_LSI_OFF;
@@ -78,7 +77,7 @@ void rtc_init(void)
     __HAL_RCC_BACKUPRESET_RELEASE();
 
     // Enable LSI clock
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_LSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_LSE;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
     RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
     RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
@@ -108,7 +107,7 @@ void rtc_init(void)
     RtcHandle.Init.HourFormat     = RTC_HOURFORMAT_24;
 
     /* PREDIV_A : 7-bit asynchronous prescaler */
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM
     /* PREDIV_A is set to a small value to improve the SubSeconds resolution */
     /* with a 32768Hz clock, PREDIV_A=7 gives a precision of 244us */
     RtcHandle.Init.AsynchPrediv = 7;
@@ -297,7 +296,7 @@ void rtc_synchronize(void)
     }
 }
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM
 
 static void RTC_IRQHandler(void)
 {
@@ -345,7 +344,7 @@ void rtc_set_wake_up_timer(uint32_t delta)
     NVIC_EnableIRQ(RTC_WKUP_IRQn);
 
     RtcHandle.Instance = RTC;
-    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, 0xFFFF & WakeUpCounter, WakeUpClock[DivIndex-1]) != HAL_OK) {
+    if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, 0xFFFF & WakeUpCounter, WakeUpClock[DivIndex - 1]) != HAL_OK) {
         error("rtc_set_wake_up_timer init error (%d)\n", DivIndex);
     }
 }
@@ -356,6 +355,6 @@ void rtc_deactivate_wake_up_timer(void)
     HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
 }
 
-#endif /* DEVICE_LOWPOWERTIMER */
+#endif /* DEVICE_LOWPOWERTIMER && !MBED_CONF_TARGET_LOWPOWERTIMER_LPTIM */
 
 #endif /* DEVICE_RTC */
