@@ -88,7 +88,7 @@ class CMake(Exporter):
             'libraries': libraries,
             'ld_sys_libs': sys_libs,
             'include_paths': sorted(list(set(self.resources.inc_dirs))),
-            'library_paths': sorted(self.resources.lib_dirs),
+            'library_paths': sorted([re.sub(r'^[.]/', '', l) for l in self.resources.lib_dirs]),
             'linker_script': self.resources.linker_script,
             'hex_files': self.resources.hex_files,
             'ar': basename(self.toolchain.ar),
