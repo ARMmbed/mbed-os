@@ -109,6 +109,9 @@ private:
 class GenericSecurityManager : public SecurityManager,
                                public ble::pal::SecurityManagerEventHandler {
 public:
+    ////////////////////////////////////////////////////////////////////////////
+    // SM lifecycle management
+    //
     virtual ble_error_t init(bool                     initBondable = true,
                              bool                     initMITM     = true,
                              SecurityIOCapabilities_t initIocaps   = IO_CAPS_NONE,
@@ -118,6 +121,14 @@ public:
         mitm = initMITM;
         iocaps = initIocaps;
         passkey = initPasskey;
+
+        return BLE_ERROR_NONE;
+    }
+
+    ble_error_t reset(void) {
+        saveState();
+
+        SecurityManager::reset();
 
         return BLE_ERROR_NONE;
     }
@@ -134,23 +145,15 @@ public:
         }
     }
 
-    virtual ble_error_t setAuthenticationTimeout(connection_handle_t handle, uint32_t timeout_in_ms) {
-        return pal.set_authentication_timeout(handle, timeout_in_ms / 10);
-    }
-    virtual ble_error_t getAuthenticationTimeout(connection_handle_t handle, uint32_t *timeout_in_ms) {
-        uint16_t timeout_in_10ms;
-        ble_error_t status = pal.get_authentication_timeout(handle, timeout_in_10ms);
-        timeout_in_ms = 10 * timeout_in_10ms;
-        return status;
+    ble_error_t preserveBondingStateOnReset(bool enabled) {
+        saveStateEnabled = enabled;
+        return BLE_ERROR_NONE;
     }
 
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
-        return pal.get_encryption_status(connectionHandle, *securityStatusP);
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    // List management
+    //
 
-    ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
 
     ble_error_t purgeAllBondingState(void) {
         return BLE_ERROR_NOT_IMPLEMENTED;
@@ -160,12 +163,96 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = false) {
-        return BLE_ERROR_NONE;
+    ////////////////////////////////////////////////////////////////////////////
+    // Feature support
+    //
+
+    virtual ble_error_t setSecureConnectionsSupport(bool enabled, bool secure_connections_only = false) {
+        pal.set_secure_connections_support(enabled, secure_connections_only);
+        return BLE_ERROR_NONE; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    ble_error_t preserveBondingStateOnReset(bool enabled) {
-        saveStateEnabled = enabled;
+    virtual ble_error_t getSecureConnectionsSupport(bool *enabled, bool *secure_connections_only) {
+        pal.get_secure_connections_support(*enabled, *secure_connections_only);
+        return BLE_ERROR_NONE; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Security settings
+    //
+
+    virtual ble_error_t setAuthenticationTimeout(connection_handle_t handle, uint32_t timeout_in_ms) {
+        return pal.set_authentication_timeout(handle, timeout_in_ms / 10);
+    }
+
+    virtual ble_error_t getAuthenticationTimeout(connection_handle_t handle, uint32_t *timeout_in_ms) {
+        uint16_t timeout_in_10ms;
+        ble_error_t status = pal.get_authentication_timeout(handle, timeout_in_10ms);
+        timeout_in_ms = 10 * timeout_in_10ms;
+        return status;
+    }
+
+    ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
+        return pal.get_encryption_status(connectionHandle, *securityStatusP);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Encryption
+    //
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Privacy
+    //
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Keys
+    //
+
+    DbCbAction_t setLtkCb(SecurityEntry_t& entry, SecurityEntryKeys_t& entryKeys) {
+        pal.set_ltk(entry.handle, entryKeys.ltk);
+        return DB_CB_ACTION_UPDATE;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Authentication
+    //
+
+
+    virtual ble_error_t requestPairing(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t acceptPairingRequest(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t canceltPairingRequest(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t requestAuthentication(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
+        (void) required;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // MITM
+    //
+
+    ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = false) {
         return BLE_ERROR_NONE;
     }
 
@@ -186,10 +273,9 @@ public:
         return BLE_ERROR_NONE;
     }
 
-    DbCbAction_t setLtkCb(SecurityEntry_t& entry, SecurityEntryKeys_t& entryKeys) {
-        pal.set_ltk(entry.handle, entryKeys.ltk);
-        return DB_CB_ACTION_UPDATE;
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    // Event handler
+    //
 
     void setSecurityManagerEventHandler(::SecurityManagerEventHandler* handler) {
         SecurityManager::setSecurityManagerEventHandler(handler);
@@ -204,15 +290,6 @@ protected:
         pal.set_event_handler(this);
     }
 
-public:
-    ble_error_t reset(void) {
-        saveState();
-
-        SecurityManager::reset();
-
-        return BLE_ERROR_NONE;
-    }
-
 private:
     ble::pal::SecurityManager& pal;
     bool saveStateEnabled;
@@ -225,7 +302,6 @@ private:
     bool                     bondable;
     bool                     authorisationRequired;
 
-    bool                useOob;
     authentication_t    authentication;
     uint8_t             minKeySize;
     uint8_t             maxKeySize;
