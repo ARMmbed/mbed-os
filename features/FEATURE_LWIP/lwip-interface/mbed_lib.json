@@ -100,6 +100,12 @@
     "target_overrides": {
         "REALTEK_RTL8195AM": {
             "tcpip-thread-stacksize": 1600
+        },
+        "STM": {
+            "mem-size": 25600
+        },
+        "Freescale": {
+            "mem-size": 36560
         }
     }
 }
