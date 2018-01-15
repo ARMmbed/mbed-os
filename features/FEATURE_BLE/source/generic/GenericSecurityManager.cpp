@@ -20,11 +20,13 @@
 #include "SecurityManager.h"
 #include "PalSecurityManager.h"
 #include "Callback.h"
+#include "ble/pal/GapTypes.h"
 
 namespace ble {
 namespace generic {
 
 using ble::pal::address_t;
+using ble::pal::advertising_peer_address_type_t;
 using ble::pal::authentication_t;
 using ble::pal::key_distribution_t;
 using ble::pal::irk_t;
@@ -74,13 +76,18 @@ public:
     SecurityDb() {};
     ~SecurityDb() {};
 
-    void get_entry(SecurityEntryDbCb_t cb, ediv_t ediv, rand_t rand);
-    void get_entry(SecurityEntryDbCb_t cb, address_t identity_address);
     void get_entry(SecurityEntryDbCb_t cb, connection_handle_t handle);
+    void get_entry(SecurityEntryKeysDbCb_t cb, ediv_t ediv, rand_t rand);
+    void get_entry(SecurityEntryIdentityDbCb_t cb, address_t identity_address);
 
     void update_entry(SecurityEntry_t&);
-    void update_entry(connection_handle_t handle, address_t &peer_address, ediv_t &ediv,
-                      rand_t &rand, ltk_t &ltk, csrk_t &csrk);
+    void update_entry(connection_handle_t handle,
+                      bool address_is_public,
+                      address_t &peer_address,
+                      ediv_t &ediv,
+                      rand_t &rand,
+                      ltk_t &ltk,
+                      csrk_t &csrk);
 
     void remove_entry(SecurityEntry_t&);
     void clear_entries(SecurityEntry_t&);
@@ -96,7 +103,8 @@ private:
 
 };
 
-class GenericSecurityManager : public SecurityManager {
+class GenericSecurityManager : public SecurityManager,
+                               public ble::pal::SecurityManagerEventHandler {
 public:
     virtual ble_error_t init(bool                     enableBonding  = true,
                              bool                     requireMITM    = true,
@@ -138,16 +146,15 @@ public:
     }
 
     ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
-        //return pal.set_security_mode(connectionHandle, securityMode);
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     ble_error_t purgeAllBondingState(void) {
-        ble::pal::bonded_list_t empty_list = { NULL, 0, 0 };
-        return pal.clear_bonded_list();
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
-        return pal.get_whitelist(addresses);
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = false) {
@@ -176,16 +183,17 @@ public:
         return DB_CB_ACTION_UPDATE;
     }
 
-    void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
+    void setSecurityManagerEventHandler(::SecurityManagerEventHandler* handler) {
         SecurityManager::setSecurityManagerEventHandler(handler);
-        /* handler is always a valid pointer */
-        palEventHandler.set_app_event_handler(eventHandler);
+        if (handler) {
+            _app_event_handler = handler;
+        }
     }
 
 protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl) : pal(palImpl), saveStateEnabled(false) {
-        palEventHandler.set_app_event_handler(&defaultEventHandler);
-        pal.set_event_handler(&palEventHandler);
+        _app_event_handler = &defaultEventHandler;
+        pal.set_event_handler(this);
     }
 
 public:
@@ -199,7 +207,6 @@ public:
 
 private:
     ble::pal::SecurityManager& pal;
-    GenericSecurityManagerEventHandler palEventHandler;
     bool saveStateEnabled;
 
     SecurityDb db;
@@ -215,6 +222,126 @@ private:
     uint8_t             maxKeySize;
     key_distribution_t  initiatorDist;
     key_distribution_t  responderDist;
+
+    /*  implements ble::pal::SecurityManagerEventHandler */
+public:
+    virtual void security_setup_initiated(connection_handle_t handle, bool allow_bonding,
+                                          bool require_mitm, SecurityIOCapabilities_t iocaps) {
+        if (_app_event_handler) {
+            _app_event_handler->securitySetupInitiated(handle, allow_bonding, require_mitm, iocaps);
+        }
+    }
+    virtual void security_setup_completed(connection_handle_t handle,
+                                          SecurityManager::SecurityCompletionStatus_t status) {
+        if (_app_event_handler) {
+            _app_event_handler->securitySetupCompleted(handle, status);
+        }
+    }
+    virtual void link_secured(connection_handle_t handle, SecurityManager::SecurityMode_t security_mode) {
+        if (_app_event_handler) {
+            _app_event_handler->linkSecured(handle, security_mode);
+        }
+    }
+
+    virtual void security_context_stored(connection_handle_t handle) {
+        if (_app_event_handler) {
+            _app_event_handler->securityContextStored(handle);
+        }
+    }
+    virtual void passkey_display(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
+        if (_app_event_handler) {
+            _app_event_handler->passkeyDisplay(handle, passkey);
+        }
+    }
+
+    virtual void valid_mic_timeout(connection_handle_t handle) {
+        if (_app_event_handler) {
+            _app_event_handler->validMicTimeout(handle);
+        }
+    }
+
+    virtual void link_key_failure(connection_handle_t handle) {
+        if (_app_event_handler) {
+            _app_event_handler->linkKeyFailure(handle);
+        }
+    }
+
+    virtual void keypress_notification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
+        if (_app_event_handler) {
+            _app_event_handler->keypressNotification(handle, keypress);
+        }
+    }
+
+    virtual void legacy_pariring_oob_request(connection_handle_t handle) {
+        if (_app_event_handler) {
+            _app_event_handler->legacyPairingOobRequest(handle);
+        }
+    }
+
+    virtual void oob_request(connection_handle_t handle) {
+        if (_app_event_handler) {
+            _app_event_handler->oobRequest(handle);
+        }
+    }
+    virtual void pin_request(connection_handle_t handle) {
+
+        if (_app_event_handler) {
+            _app_event_handler->pinRequest(handle);
+        }
+    }
+    virtual void passkey_request(connection_handle_t handle) {
+
+        if (_app_event_handler) {
+            _app_event_handler->passkeyRequest(handle);
+        }
+    }
+    virtual void confirmation_request(connection_handle_t handle) {
+
+        if (_app_event_handler) {
+            _app_event_handler->confirmationRequest(handle);
+        }
+    }
+    virtual void accept_pairing_request(connection_handle_t handle,
+                                        SecurityIOCapabilities_t iocaps,
+                                        bool use_oob,
+                                        authentication_t authentication,
+                                        uint8_t max_key_size,
+                                        key_distribution_t initiator_dist,
+                                        key_distribution_t responder_dist) {
+        if (_app_event_handler) {
+            _app_event_handler->acceptPairingRequest(handle);
+        }
+    }
+
+    void keys_exchanged(connection_handle_t handle,
+                        advertising_peer_address_type_t peer_address_type,
+                        address_t &peer_address,
+                        ediv_t &ediv,
+                        rand_t &rand,
+                        ltk_t &ltk,
+                        csrk_t &csrk) {
+        db.update_entry(
+            handle,
+            (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
+            peer_address,
+            ediv,
+            rand,
+            ltk,
+            csrk
+        );
+
+    }
+    void ltk_request(connection_handle_t handle, ediv_t &ediv, rand_t &rand) {
+        db.get_entry(
+            mbed::callback(this, &GenericSecurityManager::setLtkCb),
+            ediv,
+            rand
+        );
+    }
+
+private:
+    /* handler is always a valid pointer */
+    ::SecurityManagerEventHandler *_app_event_handler;
 };
 
 

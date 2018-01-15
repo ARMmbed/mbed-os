@@ -23,7 +23,7 @@
 #include "ble/SafeEnum.h"
 #include "ble/BLEProtocol.h"
 #include "ble/SecurityManager.h"
-#include "ble/pal/GapTypes"
+#include "ble/pal/GapTypes.h"
 
 namespace ble {
 namespace pal {
