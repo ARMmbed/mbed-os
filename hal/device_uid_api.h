@@ -23,12 +23,12 @@
 
 #if DEVICE_DEVICEUID
 
-#ifndef MBED_DEVICEUID_SIZE
-#error "DEVICE UID Vendor implementation must define macro MBED_DEVICEUID_SIZE with the uid size in bytes!"
+#if !defined(MBED_DEVICEUID_SIZE) || (MBED_DEVICEUID_SIZE == 0)
+#error "DEVICE UID Vendor implementation must define macro MBED_DEVICEUID_SIZE with the non-zero uid size in bytes!"
 #endif
 
-#ifndef MBED_DEVICEUID_STR_SIZE_MAX
-#warning "DEVICE UID max vendor string length not defined! device_uid_get_str() HAL interface is disabled!"
+#if !defined(MBED_DEVICEUID_STR_SIZE_MAX) || (MBED_DEVICEUID_STR_SIZE_MAX == 0)
+#warning "DEVICE UID max vendor string length not defined or zero! device_uid_get_str() HAL interface is disabled!"
 #endif
 
 #ifdef __cplusplus
