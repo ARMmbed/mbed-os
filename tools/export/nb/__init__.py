@@ -243,7 +243,12 @@ class GNUARMNetbeans(Exporter):
             'cpp_std': self.get_netbeans_cpp_std(cpp_std),
             'linker_script': self.ld_script,
             'linker_libs': sys_libs,
-            'pp_cmd': preproc
+            'pp_cmd': preproc,
+            'cc_cmd': self.toolchain.cc[0],
+            'cppc_cmd': self.toolchain.cppc[0],
+            'asm_cmd': self.toolchain.asm[0],
+            'ld_cmd': self.toolchain.ld[0],
+            'elf2bin_cmd': self.toolchain.elf2bin
         }
         return jinja_ctx
 
