@@ -210,6 +210,8 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      bool                      has_variable_len,
                                      const uint8_t            *userDescriptionDescriptorValuePtr,
                                      uint16_t                  userDescriptionDescriptorValueLen,
+                                     const uint8_t            *presentationFormatDescriptorValuePtr,
+                                     uint16_t                  presentationFormatDescriptorValueLen,
                                      bool                      readAuthorization,
                                      bool                      writeAuthorization,
                                      ble_gatts_char_handles_t *p_char_handle)
@@ -237,6 +239,11 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
         char_md.p_char_user_desc        = const_cast<uint8_t *>(userDescriptionDescriptorValuePtr);
         char_md.char_user_desc_max_size = userDescriptionDescriptorValueLen;
         char_md.char_user_desc_size     = userDescriptionDescriptorValueLen;
+    }
+    if ((presentationFormatDescriptorValueLen > 0) && (presentationFormatDescriptorValuePtr != NULL)) {
+        ASSERT_TRUE( sizeof(ble_gatts_char_pf_t) == sizeof(GattCharacteristic::PresentationFormat_t), ERROR_INVALID_PARAM );
+        ASSERT_TRUE( presentationFormatDescriptorValueLen == sizeof(GattCharacteristic::PresentationFormat_t), ERROR_INVALID_PARAM );
+        char_md.p_char_pf = const_cast<ble_gatts_char_pf_t *>(reinterpret_cast<const ble_gatts_char_pf_t *>(presentationFormatDescriptorValuePtr));
     }
 
     /* Attribute declaration */
