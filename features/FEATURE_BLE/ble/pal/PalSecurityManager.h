@@ -28,7 +28,54 @@
 namespace ble {
 namespace pal {
 
-using SecurityManager::SecurityIOCapabilities_t;
+/**
+ * Type that describe the IO capability of a device; it is used during Pairing
+ * Feature exchange.
+ */
+struct io_capability_t : SafeEnum<io_capability_t, uint8_t> {
+    enum type {
+        DISPLAY_ONLY = 0x00,
+        DISPLAY_YES_NO = 0x01,
+        KEYBOARD_ONLY = 0x02,
+        NO_INPUT_NO_OUTPUT = 0x03,
+        KEYBOARD_DISPLAY = 0x04
+    };
+
+    /**
+     * Construct a new instance of io_capability_t.
+     */
+    io_capability_t(type value) : SafeEnum<io_capability_t, uint8_t>(value) { }
+};
+
+
+/**
+ * Type that describe a pairing failure.
+ */
+struct pairing_failure_t : SafeEnum<pairing_failure_t, uint8_t> {
+    enum type {
+        PASSKEY_ENTRY_FAILED = 0x01,
+        OOB_NOT_AVAILABLE = 0x02,
+        AUTHENTICATION_REQUIREMENTS = 0x03,
+        CONFIRM_VALUE_FAILED = 0x04,
+        PAIRING_NOT_SUPPORTED = 0x05,
+        ENCRYPTION_KEY_SIZE = 0x06,
+        COMMAND_NOT_SUPPORTED = 0x07,
+        UNSPECIFIED_REASON = 0x08,
+        REPEATED_ATTEMPTS = 0x09,
+        INVALID_PARAMETERS = 0x0A,
+        DHKEY_CHECK_FAILED = 0x0B,
+        NUMERIC_COMPARISON_FAILED = 0x0c,
+        BR_EDR_PAIRING_IN_PROGRESS = 0x0D,
+        CROSS_TRANSPORT_KEY_DERIVATION_OR_GENERATION_NOT_ALLOWED = 0x0E
+    };
+
+    /**
+     * Construct a new instance of pairing_failure_t.
+     */
+    pairing_failure_t(type value) : SafeEnum<pairing_failure_t, uint8_t>(value) { }
+};
+
+
 using SecurityManager::IO_CAPS_NONE;
 using SecurityManager::SecurityCompletionStatus_t;
 using SecurityManager::SecurityMode_t;
@@ -37,11 +84,8 @@ using SecurityManager::Keypress_t;
 
 /* please use typedef for porting not the types directly */
 
-typedef SecurityManager::Passkey_t passkey_t;
-typedef SecurityManager::C192_t c192_t;
-typedef SecurityManager::R192_t r192_t;
-typedef SecurityManager::C256_t c256_t;
-typedef SecurityManager::R256_t r256_t;
+typedef uint8_t passkey_t[6];
+typedef uint8_t oob_data_t[16];
 
 typedef uint8_t irk_t[16];
 typedef uint8_t csrk_t[16];
@@ -75,11 +119,62 @@ enum AuthenticationFlags_t {
  */
 class SecurityManagerEventHandler {
 public:
+    /**
+     * Called upon reception of a pairing request.
+     *
+     * Upper layer shall either send a pairing response (send_pairing_response)
+     * or cancel the pairing procedure (cancel_pairing).
+     */
+    virtual void on_pairing_request(
+        connection_handle_t connection,
+        io_capability_t io_capability,
+        bool oob_data_flag,
+        authentication_t authentication_requirements,
+        uint8_t maximum_encryption_key_size,
+        key_distribution_t initiator_dist,
+        key_distribution_t responder_dist
+    ) = 0;
+
+    /**
+     * Called upon reception of Pairing failed.
+     *
+     * @note Any subsequent pairing procedure shall restart from the Pairing
+     * Feature Exchange phase.
+     */
+    virtual void on_pairing_error(
+        connection_handle_t connection,
+        pairing_failure_t error
+    ) = 0;
+
+    /**
+     * Called when the application should display a passkey.
+     */
+    virtual void on_passkey_display(
+        connection_handle_t handle, const passkey_t& passkey
+    ) = 0;
+
+    /**
+     * Request the passkey entered during pairing.
+     *
+     * @note shall be followed by: pal::SecurityManager::passkey_request_reply
+     * or a cancellation of the procedure.
+     */
+    virtual void on_passkey_request(connection_handle_t handle) = 0;
+
+    /**
+     * Request oob data entered during pairing
+     *
+     * @note shall be followed by: pal::SecurityManager::oob_data_request_reply
+     * or a cancellation of the procedure.
+     */
+    virtual void on_oob_data_request(connection_handle_t handle) = 0;
+
+
     virtual void security_setup_initiated(
         connection_handle_t handle,
         bool allow_bonding,
         bool require_mitm,
-        SecurityIOCapabilities_t iocaps
+        io_capability_t iocaps
     ) = 0;
 
     virtual void security_setup_completed(
@@ -91,9 +186,6 @@ public:
         connection_handle_t handle, SecurityManager::SecurityMode_t security_mode
     ) = 0;
 
-    virtual void security_context_stored(connection_handle_t handle) = 0;
-
-    virtual void passkey_display(connection_handle_t handle, const passkey_t passkey) = 0;
 
     virtual void valid_mic_timeout(connection_handle_t handle) = 0;
 
@@ -103,23 +195,7 @@ public:
 
     virtual void legacy_pariring_oob_request(connection_handle_t handle) = 0;
 
-    virtual void oob_request(connection_handle_t handle) = 0;
-
-    virtual void pin_request(connection_handle_t handle) = 0;
-
-    virtual void passkey_request(connection_handle_t handle) = 0;
-
     virtual void confirmation_request(connection_handle_t handle) = 0;
-
-    virtual void accept_pairing_request(
-        connection_handle_t handle,
-        SecurityIOCapabilities_t iocaps,
-        bool use_oob,
-        authentication_t authentication,
-        uint8_t max_key_size,
-        key_distribution_t initiator_dist,
-        key_distribution_t responder_dist
-    ) = 0;
 
     virtual void keys_exchanged(
         connection_handle_t handle,
@@ -216,13 +292,6 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // Security settings
     //
-
-    virtual ble_error_t set_pin_code(
-        uint8_t pin_length, uint8_t *pin_code, bool static_pin = false
-    ) = 0;
-
-    virtual ble_error_t set_passkey(passkey_num_t passkey) = 0;
-
     virtual ble_error_t set_authentication_timeout(
         connection_handle_t, uint16_t timeout_in_10ms
     ) = 0;
@@ -261,9 +330,15 @@ public:
 
     virtual ble_error_t set_ltk(connection_handle_t handle, ltk_t ltk) = 0;
 
-    virtual ble_error_t set_irk(irk_t irk) = 0;
+    /**
+     * Set the local IRK
+     */
+    virtual ble_error_t set_irk(const irk_t& irk) = 0;
 
-    virtual ble_error_t set_csrk(csrk_t csrk) = 0;
+    /**
+     * Set the local csrk
+     */
+    virtual ble_error_t set_csrk(const csrk_t& csrk) = 0;
 
     virtual ble_error_t generate_irk() = 0;
 
@@ -273,32 +348,43 @@ public:
     // Authentication
     //
 
-    virtual ble_error_t request_pairing(
+    /**
+     * Send a pairing request to a slave.
+     *
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.1
+     */
+    virtual ble_error_t send_pairing_request(
+        connection_handle_t connection,
+        io_capability_t io_capability,
+        bool oob_data_flag,
+        authentication_t authentication_requirements,
+        uint8_t maximum_encryption_key_size,
+        key_distribution_t initiator_dist,
+        key_distribution_t responder_dist
+    );
+
+    /**
+     * Send a pairing response to a master.
+     *
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.2
+     */
+    virtual ble_error_t send_pairing_response(
         connection_handle_t handle,
         SecurityIOCapabilities_t iocaps,
-        bool use_oob,
-        authentication_t authentication,
+        bool oob_data_flag,
+        authentication_t authentication_requirements,
         uint8_t max_key_size,
         key_distribution_t initiator_dist,
         key_distribution_t responder_dist
     ) = 0;
 
-    virtual ble_error_t accept_pairing(
-        connection_handle_t handle,
-        SecurityIOCapabilities_t iocaps,
-        bool use_oob,
-        authentication_t authentication,
-        uint8_t max_key_size,
-        key_distribution_t initiator_dist,
-        key_distribution_t responder_dist
-    ) = 0;
-
-    virtual ble_error_t reject_pairing(connection_handle_t handle) = 0;
-
-    virtual ble_error_t cancel_pairing(connection_handle_t handle) = 0;
-
-    virtual ble_error_t set_pairing_request_authorisation(
-        bool authorisation_required = true
+    /**
+     * Cancel an ongoing pairing
+     *
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.5
+     */
+    virtual ble_error_t cancel_pairing(
+        connection_handle_t handle, pairing_failed_reason_t reason
     ) = 0;
 
     virtual ble_error_t request_authentication(connection_handle_t handle) = 0;
@@ -307,39 +393,28 @@ public:
     // MITM
     //
 
-    virtual ble_error_t confirmation_entered(
-        connection_handle_t handle, bool confirmation
+    /**
+     * Reply to a passkey request received from the SecurityManagerEventHandler.
+     */
+    virtual ble_error_t passkey_request_reply(
+        connection_handle_t handle, const passkey_t& passkey
     ) = 0;
 
-    virtual ble_error_t passkey_entered(
-        connection_handle_t handle, passkey_t passkey
+    /**
+     * Reply to an oob data request received from the SecurityManagerEventHandler.
+     */
+    virtual ble_error_t oob_data_request_reply(
+        connection_handle_t handle, const oob_data_t& oob_data
+    ) = 0;
+
+
+    virtual ble_error_t confirmation_entered(
+        connection_handle_t handle, bool confirmation
     ) = 0;
 
     virtual ble_error_t send_keypress_notification(
         connection_handle_t handle, Keypress_t keypress
     ) = 0;
-
-    virtual ble_error_t set_oob(
-        connection_handle_t handle, c192_t& c192, r192_t& r192
-    ) = 0;
-
-    virtual ble_error_t set_extended_oob(
-        connection_handle_t handle,
-        c192_t& c192,
-        r192_t& r192,
-        c256_t& c256,
-        r256_t& r256
-    ) = 0;
-
-    virtual ble_error_t get_local_oob_data(
-        connection_handle_t handle, c192_t& c192, r192_t& r192
-    ) = 0;
-
-    virtual ble_error_t get_local_extended_oob_data(
-        connection_handle_t handle,
-        c192_t& c192, r192_t& r192, c256_t& c256, r256_t& r256
-    ) = 0;
-
 
     /* Entry points for the underlying stack to report events back to the user. */
 public:
