@@ -46,11 +46,9 @@ void WatchDog::Start(uint32_t prescaler /* = IWDG_PRESCALER_256 */, uint32_t rel
 		mbed_die();
 	}
 	
-	_healthCheckTicker.attach(
-		mbed::Callback<void()>(this, &WatchDog::Check),
-		healthCheckIntervalSeconds
-	);
-	
+	events::EventQueue * eq = mbed_event_queue();
+	eq->call_every(healthCheckIntervalSeconds * 1000, callback(this, &WatchDog::Check));
+
 }
 
 

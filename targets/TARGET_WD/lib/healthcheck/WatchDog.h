@@ -17,6 +17,7 @@
 
 #include "mbed.h"
 #include "HealthCheckBase.h"
+#include "mbed_events.h"
 #include <vector>
 
 class WatchDog {
@@ -24,7 +25,6 @@ class WatchDog {
 	private:
 	
 		IWDG_HandleTypeDef _handle;
-		Ticker _healthCheckTicker;
 		vector<HealthCheckBase *> _healthChecks;
 		char * _context;
 	
