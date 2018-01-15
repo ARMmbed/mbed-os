@@ -21,15 +21,18 @@ from mbed_host_tests import BaseHostTest
 TestCaseData = collections.namedtuple('TestCaseData', ['index', 'data_to_send'])
 
 DEFAULT_CYCLE_PERIOD = 4.0
+MAX_HB_PERIOD = 2.5  # [s] Max expected heartbeat period.
 
 MSG_VALUE_DUMMY = '0'
 CASE_DATA_INVALID = 0xffffffff
 CASE_DATA_PHASE2_OK = 0xfffffffe
+CASE_DATA_INSUFF_HB = 0x0
 
 MSG_KEY_SYNC = '__sync'
 MSG_KEY_DEVICE_READY = 'ready'
 MSG_KEY_START_CASE = 'start_case'
 MSG_KEY_DEVICE_RESET = 'dev_reset'
+MSG_KEY_HEARTBEAT = 'hb'
 
 
 class WatchdogReset(BaseHostTest):
@@ -48,14 +51,19 @@ class WatchdogReset(BaseHostTest):
         self.__handshake_timer = None
         cycle_s = self.get_config_item('program_cycle_s')
         self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
+        self.drop_heartbeat_messages = True
+        self.hb_timestamps_us = []
 
-    def handshake_timer_start(self, seconds=1.0):
-        """Start a new handshake timer.
+    def handshake_timer_start(self, seconds=1.0, pre_sync_fun=None):
+        """Start a new handshake timer."""
 
-        Perform a dev-host handshake by sending a sync message.
-        """
-        self.__handshake_timer = threading.Timer(seconds, self.send_kv,
-                                                 [MSG_KEY_SYNC, MSG_VALUE_DUMMY])
+        def timer_handler():
+            """Perform a dev-host handshake by sending a sync message."""
+            if pre_sync_fun is not None:
+                pre_sync_fun()
+            self.send_kv(MSG_KEY_SYNC, MSG_VALUE_DUMMY)
+
+        self.__handshake_timer = threading.Timer(seconds, timer_handler)
         self.__handshake_timer.start()
 
     def handshake_timer_cancel(self):
@@ -67,9 +75,28 @@ class WatchdogReset(BaseHostTest):
         finally:
             self.__handshake_timer = None
 
+    def heartbeat_timeout_handler(self):
+        """Handler for the heartbeat timeout.
+
+        Compute the time span of the last heartbeat sequence.
+        Set self.current_case.data_to_send to CASE_DATA_INVALID if no heartbeat was received.
+        Set self.current_case.data_to_send to CASE_DATA_INSUFF_HB if only one heartbeat was
+        received.
+        """
+        self.drop_heartbeat_messages = True
+        dev_data = CASE_DATA_INVALID
+        if len(self.hb_timestamps_us) == 1:
+            dev_data = CASE_DATA_INSUFF_HB
+            self.log('Not enough heartbeats received.')
+        elif len(self.hb_timestamps_us) >= 2:
+            dev_data = int(round(0.001 * (self.hb_timestamps_us[-1] - self.hb_timestamps_us[0])))
+            self.log('Heartbeat time span was {} ms.'.format(dev_data))
+        self.current_case = TestCaseData(self.current_case.index, dev_data)
+
     def setup(self):
         self.register_callback(MSG_KEY_DEVICE_READY, self.cb_device_ready)
         self.register_callback(MSG_KEY_DEVICE_RESET, self.cb_device_reset)
+        self.register_callback(MSG_KEY_HEARTBEAT, self.cb_heartbeat)
 
     def teardown(self):
         self.handshake_timer_cancel()
@@ -82,6 +109,8 @@ class WatchdogReset(BaseHostTest):
         self.handshake_timer_cancel()
         msg_value = '{0.index:02x},{0.data_to_send:08x}'.format(self.current_case)
         self.send_kv(MSG_KEY_START_CASE, msg_value)
+        self.drop_heartbeat_messages = False
+        self.hb_timestamps_us = []
 
     def cb_device_reset(self, key, value, timestamp):
         """Keep track of the test case number.
@@ -94,3 +123,22 @@ class WatchdogReset(BaseHostTest):
         case_num, dev_reset_delay_ms = (int(i, base=16) for i in value.split(','))
         self.current_case = TestCaseData(case_num, CASE_DATA_PHASE2_OK)
         self.handshake_timer_start(self.program_cycle_s + dev_reset_delay_ms / 1000.0)
+
+    def cb_heartbeat(self, key, value, timestamp):
+        """Save the timestamp of a heartbeat message.
+
+        Additionally, keep track of the test case number.
+
+        Also each heartbeat sets a new timeout, so when the device gets
+        restarted by the watchdog, the communication will be restored
+        by the __handshake_timer.
+        """
+        if self.drop_heartbeat_messages:
+            return
+        self.handshake_timer_cancel()
+        case_num, timestamp_us = (int(i, base=16) for i in value.split(','))
+        self.current_case = TestCaseData(case_num, CASE_DATA_INVALID)
+        self.hb_timestamps_us.append(timestamp_us)
+        self.handshake_timer_start(
+            seconds=(MAX_HB_PERIOD + self.program_cycle_s),
+            pre_sync_fun=self.heartbeat_timeout_handler)
