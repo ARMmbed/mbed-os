@@ -49,23 +49,34 @@ struct SecurityEntry_t {
     bool   connected;
 };
 
-class SecurityDB {
+enum DbCbAction_t {
+    DB_CB_ACTION_UPDATE,
+    DB_CB_ACTION_NO_UPDATE_REQUIRED, /* does not guarantee discarding changes if you made any */
+    DB_CB_ACTION_REMOVE
+};
+
+typedef mbed::Callback<DbCbAction_t(SecurityEntry_t&)> SecurityEntryDbCb_t;
+typedef mbed::Callback<DbCbAction_t(Gap::Whitelist_t&)> WhitelistDbCb_t;
+
+class SecurityDb {
 public:
-    SecurityDB() {};
-    ~SecurityDB() {};
+    SecurityDb() {};
+    ~SecurityDb() {};
 
-    void update_entry(SecurityEntry_t*);
+    void get_entry(SecurityEntryDbCb_t cb, ediv_t ediv, rand_t rand);
+    void get_entry(SecurityEntryDbCb_t cb, address_t identity_address);
+    void get_entry(SecurityEntryDbCb_t cb, connection_handle_t handle);
 
-    void get_entry(Callback<void(SecurityEntry_t*)> cb, ediv_t ediv, rand_t rand);
+    void update_entry(SecurityEntry_t&);
+    void remove_entry(SecurityEntry_t&);
+    void clear_entries(SecurityEntry_t&);
 
-    void get_entry(Callback<void(SecurityEntry_t*)> cb, address_t identity_address);
+    void get_whitelist(WhitelistDbCb_t cb);
 
-    void get_entry(Callback<void(SecurityEntry_t*)> cb, connection_handle_t handle);
-
-    void get_whitelist(Callback<void(Gap::Whitelist_t*)> cb);
-    void update_whitelist(Gap::Whitelist_t*);
+    void update_whitelist(Gap::Whitelist_t&);
     void add_whitelist_entry(address_t);
     void remove_whitelist_entry(address_t);
+    void clear_whitelist();
 private:
 
 };

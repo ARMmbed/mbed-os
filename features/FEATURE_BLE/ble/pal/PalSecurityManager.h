@@ -103,7 +103,7 @@ class SecurityManagerEventHandler {
     virtual void security_setup_initiated(connection_handle_t handle, bool allow_bonding,
                                           bool require_mitm, SecurityIOCapabilities_t iocaps) {
         if (_app_event_handler) {
-            _app_event_handler->securitySetupInitiated(handle, allowBonding, requireMITM, iocaps);
+            _app_event_handler->securitySetupInitiated(handle, allow_bonding, require_mitm, iocaps);
         }
     }
     virtual void security_setup_completed(connection_handle_t handle,
@@ -114,7 +114,7 @@ class SecurityManagerEventHandler {
     }
     virtual void link_secured(connection_handle_t handle, SecurityManager::SecurityMode_t security_mode) {
         if (_app_event_handler) {
-            _app_event_handler->linkSecured(handle, securityMode);
+            _app_event_handler->linkSecured(handle, security_mode);
         }
     }
 
