@@ -19,11 +19,56 @@
 
 #include "SecurityManager.h"
 #include "PalSecurityManager.h"
+#include "Callback.h"
 
 namespace ble {
 namespace generic {
 
+using ble::pal::address_t;
+using ble::pal::authentication_t;
+using ble::pal::key_distribution_t;
+using ble::pal::irk_t;
+using ble::pal::csrk_t;
+using ble::pal::ltk_t;
+using ble::pal::ediv_t;
+using ble::pal::rand_t;
+using SecurityManager::SecurityIOCapabilities_t;
+
 static const uint8_t NUMBER_OFFSET = '0';
+
+struct SecurityEntry_t {
+    connection_handle_t handle;
+    address_t identity_address;
+    irk_t  irk;
+    csrk_t csrk;
+    ltk_t  ltk;
+    ediv_t ediv;
+    rand_t rand;
+    bool   mitm;
+    bool   authenticated;
+    bool   connected;
+};
+
+class SecurityDB {
+public:
+    SecurityDB() {};
+    ~SecurityDB() {};
+
+    void update_entry(SecurityEntry_t*);
+
+    void get_entry(Callback<void(SecurityEntry_t*)> cb, ediv_t ediv, rand_t rand);
+
+    void get_entry(Callback<void(SecurityEntry_t*)> cb, address_t identity_address);
+
+    void get_entry(Callback<void(SecurityEntry_t*)> cb, connection_handle_t handle);
+
+    void get_whitelist(Callback<void(Gap::Whitelist_t*)> cb);
+    void update_whitelist(Gap::Whitelist_t*);
+    void add_whitelist_entry(address_t);
+    void remove_whitelist_entry(address_t);
+private:
+
+};
 
 class GenericSecurityManagerEventHandler : public ble::pal::SecurityManagerEventHandler {
 
@@ -33,13 +78,13 @@ class GenericSecurityManager : public SecurityManager {
 public:
     virtual ble_error_t init(bool                     enableBonding  = true,
                              bool                     requireMITM    = true,
-                             SecurityIOCapabilities_t iocaps         = IO_CAPS_NONE,
-                             const Passkey_t          passkey        = NULL) {
-        (void)requireMITM;
+                             SecurityIOCapabilities_t initIocaps     = IO_CAPS_NONE,
+                             const Passkey_t          defaultPasskey = NULL) {
         loadState();
-        pal.set_io_capabilities(iocaps);
-        pal.set_bondable(enableBonding);
-        setPasskey(passkey);
+        bonding = enableBonding;
+        mitm = requireMITM;
+        iocaps = initIocaps;
+        passkey = defaultPasskey;
 
         return BLE_ERROR_NONE;
     }
@@ -71,12 +116,12 @@ public:
     }
 
     ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
-        return pal.set_security_mode(connectionHandle, securityMode);
+        //return pal.set_security_mode(connectionHandle, securityMode);
     }
 
     ble_error_t purgeAllBondingState(void) {
         ble::pal::bonded_list_t empty_list = { NULL, 0, 0 };
-        return pal.set_bonded_list(empty_list);
+        return pal.clear_bonded_list();
     }
 
     ble_error_t getAddressesFromBondTable(Gap::Whitelist_t &addresses) const {
@@ -84,7 +129,7 @@ public:
     }
 
     ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = false) {
-        return pal.set_oob_data_usage(connectionHandle, useOOB, OOBProvidesMITM);
+        return BLE_ERROR_NONE;
     }
 
     ble_error_t preserveBondingStateOnReset(bool enabled) {
@@ -107,13 +152,13 @@ public:
     void setSecurityManagerEventHandler(SecurityManagerEventHandler* handler) {
         SecurityManager::setSecurityManagerEventHandler(handler);
         /* handler is always a valid pointer */
-        pal_event_handler.set_app_event_handler(eventHandler);
+        palEventHandler.set_app_event_handler(eventHandler);
     }
 
 protected:
     GenericSecurityManager(ble::pal::SecurityManager& palImpl) : pal(palImpl), saveStateEnabled(false) {
-        pal_event_handler.set_app_event_handler(&defaultEventHandler);
-        pal.set_event_handler(&pal_event_handler);
+        palEventHandler.set_app_event_handler(&defaultEventHandler);
+        pal.set_event_handler(&palEventHandler);
     }
 
 public:
@@ -127,8 +172,20 @@ public:
 
 private:
     ble::pal::SecurityManager& pal;
-    GenericSecurityManagerEventHandler pal_event_handler;
+    GenericSecurityManagerEventHandler palEventHandler;
     bool saveStateEnabled;
+
+    SecurityIOCapabilities_t iocaps;
+    Passkey_t                passkey;
+    bool                     mitm;
+    bool                     bonding;
+
+    bool                useOob;
+    authentication_t    authentication;
+    uint8_t             minKeySize;
+    uint8_t             maxKeySize;
+    key_distribution_t  initiatorDist;
+    key_distribution_t  responderDist;
 };
 
 } /* namespace generic */

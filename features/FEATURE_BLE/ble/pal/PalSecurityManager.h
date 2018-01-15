@@ -52,7 +52,7 @@ typedef uint32_t passkey_num_t;
 
 typedef uint8_t key_distribution_t;
 
-enum KeyDistributionFlags_t : uint8_t {
+enum KeyDistributionFlags_t {
     KEY_DISTRIBUTION_NONE       = 0x00,
     KEY_DISTRIBUTION_ENCRYPTION = 0x01,
     KEY_DISTRIBUTION_IDENTITY   = 0x02,
@@ -63,7 +63,7 @@ enum KeyDistributionFlags_t : uint8_t {
 
 typedef uint8_t authentication_t;
 
-enum AuthenticationFlags_t : uint8_t {
+enum AuthenticationFlags_t {
     AUTHENTICATION_BONDING                = 0x01,
     AUTHENTICATION_MITM                   = 0x04, /* 0x02 missing because bonding uses two bits */
     AUTHENTICATION_SECURE_CONNECTIONS     = 0x08,
@@ -101,7 +101,7 @@ struct bonded_list_t {
 class SecurityManagerEventHandler {
     SecurityManagerEventHandler() : _app_event_handler(NULL) { };
     virtual void security_setup_initiated(connection_handle_t handle, bool allow_bonding,
-                                          bool require_mitm, SecurityManager::SecurityIOCapabilities_t iocaps) {
+                                          bool require_mitm, SecurityIOCapabilities_t iocaps) {
         if (_app_event_handler) {
             _app_event_handler->securitySetupInitiated(handle, allowBonding, requireMITM, iocaps);
         }
@@ -177,7 +177,7 @@ class SecurityManagerEventHandler {
         }
     }
     virtual void accept_pairing_request(connection_handle_t handle,
-                                        SecurityManager::SecurityIOCapabilities_t iocaps,
+                                        SecurityIOCapabilities_t iocaps,
                                         bool use_oob,
                                         authentication_t authentication,
                                         uint8_t max_key_size,
@@ -360,7 +360,7 @@ public:
     /* authentication */
 
     virtual ble_error_t request_pairing(connection_handle_t handle,
-                                        SecurityManager::SecurityIOCapabilities_t iocaps,
+                                        SecurityIOCapabilities_t iocaps,
                                         bool use_oob,
                                         authentication_t authentication,
                                         uint8_t max_key_size,
@@ -376,7 +376,7 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
     virtual ble_error_t accept_pairing(connection_handle_t handle,
-                                       SecurityManager::SecurityIOCapabilities_t iocaps,
+                                       SecurityIOCapabilities_t iocaps,
                                        bool use_oob,
                                        authentication_t authentication,
                                        uint8_t max_key_size,
