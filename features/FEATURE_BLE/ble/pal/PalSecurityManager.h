@@ -222,7 +222,7 @@ public:
      */
     virtual void on_confirmation_request(connection_handle_t connection) = 0;
 
-    void on_keys_distributed(
+    virtual void on_keys_distributed(
         connection_handle_t handle,
         advertising_peer_address_type_t peer_address_type,
         address_t &peer_address,
