@@ -18,6 +18,8 @@
 #define CORDIO_PAL_SECURITY_MANAGER_
 
 #include "ble/pal/PalSecurityManager.h"
+#include "wsf_types.h"
+#include "wsf_os.h"
 
 namespace ble {
 namespace pal {
@@ -269,6 +271,9 @@ public:
 
     // singleton of the ARM Cordio Security Manager
     static CordioSecurityManager& get_security_manager();
+
+    // Event handler
+    static bool sm_handler(const wsfMsgHdr_t* msg);
 };
 
 } // cordio
