@@ -110,6 +110,10 @@ public:
      * The following functions are meant to be overridden in the platform-specific sub-class.
      */
 public:
+    ////////////////////////////////////////////////////////////////////////////
+    // SM lifecycle management
+    //
+
     /**
      * Enable the BLE stack's Security Manager. The Security Manager implements
      * the actual cryptographic algorithms and protocol exchanges that allow two
@@ -139,45 +143,33 @@ public:
     }
 
     /**
-     * @deprecated
+     * Notify all registered onShutdown callbacks that the SecurityManager is
+     * about to be shutdown and clear all SecurityManager state of the
+     * associated object.
      *
-     * Get the security status of a connection.
+     * This function is meant to be overridden in the platform-specific
+     * sub-class. Nevertheless, the sub-class is only expected to reset its
+     * state and not the data held in SecurityManager members. This shall be
+     * achieved by a call to SecurityManager::reset() from the sub-class'
+     * reset() implementation.
      *
-     * @param[in]  connectionHandle   Handle to identify the connection.
-     * @param[out] securityStatusP    Security status.
-     *
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)connectionHandle;
-        (void)securityStatusP;
+    virtual ble_error_t reset(void) {
+        /* Notify that the instance is about to shutdown */
+        shutdownCallChain.call(this);
+        shutdownCallChain.clear();
+        if (eventHandler != &defaultEventHandler) {
+            delete eventHandler;
+            eventHandler = defaultEventHandler;
+        }
 
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+        return BLE_ERROR_NONE;
     }
 
-    virtual ble_error_t getLinkSecurity(Gap::Handle_t handle, SecurityMode_t &mode) {
-        (void) handle;
-        (void) mode;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    /**
-     * Set the security mode on a connection. Useful for elevating the security mode
-     * once certain conditions are met, e.g., a particular service is found.
-     *
-     * @param[in]  connectionHandle   Handle to identify the connection.
-     * @param[in]  securityMode       Requested security mode.
-     *
-     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
-     */
-    virtual ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)connectionHandle;
-        (void)securityMode;
-
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    // List management
+    //
 
     /**
      * Delete all peer device context and all related bonding information from
@@ -211,21 +203,9 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
-        (void) timeout_in_seconds;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    virtual ble_error_t setAuthenticationTimeout(connection_handle_t handle, uint32_t timeout_in_ms) {
-        (void) handle;
-        (void) timeout_in_ms;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-    virtual ble_error_t getAuthenticationTimeout(connection_handle_t handle, uint32_t *timeout_in_ms) {
-        (void) handle;
-        (void) timeout_in_ms;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    // Feature support
+    //
 
     virtual ble_error_t setSecureConnectionsSupport(bool enabled, bool secure_connections_only = false) {
         (void) enabled;
@@ -239,39 +219,9 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t getEncryptionKeySize(Gap::Handle_t handle, uint8_t *size) {
-        (void) handle;
-        (void) size;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    virtual ble_error_t requestPairing(bool authentication_required = true) {
-        (void) authentication_required;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
-        (void) required;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    virtual ble_error_t acceptPairingRequest(bool accept = true, bool authentication_required = true) {
-        (void) authentication_required;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    virtual ble_error_t requestAuthentication() {
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
-    virtual ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = false) {
-        /* Avoid compiler warnings about unused variables */
-        (void) connectionHandle;
-        (void) useOOB;
-        (void) OOBProvidesMITM;
-
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
+    ////////////////////////////////////////////////////////////////////////////
+    // Security settings
+    //
 
     virtual ble_error_t setPinCode(uint8_t pinLength, uint8_t * pinCode, bool isStatic = false) {
         (void) pinLength;
@@ -283,7 +233,119 @@ public:
 
     virtual ble_error_t setPasskey(const Passkey_t passkey) {
         (void) passkey;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
 
+    virtual ble_error_t setAuthenticationTimeout(connection_handle_t handle, uint32_t timeout_in_ms) {
+        (void) handle;
+        (void) timeout_in_ms;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t getAuthenticationTimeout(connection_handle_t handle, uint32_t *timeout_in_ms) {
+        (void) handle;
+        (void) timeout_in_ms;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
+     * Set the security mode on a connection. Useful for elevating the security mode
+     * once certain conditions are met, e.g., a particular service is found.
+     *
+     * @param[in]  connectionHandle   Handle to identify the connection.
+     * @param[in]  securityMode       Requested security mode.
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle, SecurityMode_t securityMode) {
+        /* Avoid compiler warnings about unused variables. */
+        (void)connectionHandle;
+        (void)securityMode;
+
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    virtual ble_error_t getLinkSecurity(Gap::Handle_t handle, SecurityMode_t *securityMode) {
+        (void) handle;
+        (void) securityMode;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Encryption
+    //
+
+    /**
+     * @deprecated
+     *
+     * Get the security status of a connection.
+     *
+     * @param[in]  connectionHandle   Handle to identify the connection.
+     * @param[out] securityStatusP    Security status.
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
+        /* Avoid compiler warnings about unused variables. */
+        (void)connectionHandle;
+        (void)securityStatusP;
+
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t getEncryptionKeySize(Gap::Handle_t handle, uint8_t *size) {
+        (void) handle;
+        (void) size;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Privacy
+    //
+
+    virtual ble_error_t setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
+        (void) timeout_in_seconds;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // Authentication
+    //
+
+    virtual ble_error_t requestPairing(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t acceptPairingRequest(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t canceltPairingRequest(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t requestAuthentication(Gap::Handle_t connectionHandle) {
+        (void) connectionHandle;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    virtual ble_error_t setPairingRequestAuthorisation(bool required = true) {
+        (void) required;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    // MITM
+    //
+
+    virtual ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = false) {
+        /* Avoid compiler warnings about unused variables */
+        (void) connectionHandle;
+        (void) useOOB;
+        (void) OOBProvidesMITM;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
@@ -392,32 +454,8 @@ protected:
     }
 
     virtual ~SecurityManager() { };
+
 public:
-    /**
-     * Notify all registered onShutdown callbacks that the SecurityManager is
-     * about to be shutdown and clear all SecurityManager state of the
-     * associated object.
-     *
-     * This function is meant to be overridden in the platform-specific
-     * sub-class. Nevertheless, the sub-class is only expected to reset its
-     * state and not the data held in SecurityManager members. This shall be
-     * achieved by a call to SecurityManager::reset() from the sub-class'
-     * reset() implementation.
-     *
-     * @return BLE_ERROR_NONE on success.
-     */
-    virtual ble_error_t reset(void) {
-        /* Notify that the instance is about to shutdown */
-        shutdownCallChain.call(this);
-        shutdownCallChain.clear();
-        if (eventHandler != &defaultEventHandler) {
-            delete eventHandler;
-            eventHandler = defaultEventHandler;
-        }
-
-        return BLE_ERROR_NONE;
-    }
-
     /**
      * @deprecated
      *
