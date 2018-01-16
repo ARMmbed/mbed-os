@@ -359,6 +359,20 @@ public:
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
+    /**
+     * Set whether or not we want to send and receive keypress notifications
+     * during passkey entry.
+     *
+     * @param enabled if true pairing will try to enable keypress notifications
+     * (dependant on other side supporting it)
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t setKeypressNotification(bool enabled = true) {
+        (void)enabled;
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Encryption
     //
@@ -429,7 +443,7 @@ public:
     // MITM
     //
 
-    virtual ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = false) {
+    virtual ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = true) {
         /* Avoid compiler warnings about unused variables */
         (void) connectionHandle;
         (void) useOOB;
