@@ -21,6 +21,9 @@
 #include "Callback.h"
 #include "emac_stack_mem.h"
 
+// Nuvoton platform headers define EMAC - avoid the collision
+#undef EMAC
+
 /**
  * This interface should be used to abstract low level access to networking hardware
  * All operations receive a `void *` hw pointer which an emac device provides when
