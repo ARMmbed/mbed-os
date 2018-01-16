@@ -305,15 +305,13 @@ public:
     // Feature support
     //
 
-    virtual ble_error_t setSecureConnectionsSupport(bool enabled, bool secure_connections_only = false) {
-        (void) enabled;
-        (void) secure_connections_only;
+    virtual ble_error_t allowLegacyPairing(bool allow = true) {
+        (void) allow;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    virtual ble_error_t getSecureConnectionsSupport(bool *enabled, bool *secure_connections_only) {
+    virtual ble_error_t getSecureConnectionsSupport(bool *enabled) {
         (void) enabled;
-        (void) secure_connections_only;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 

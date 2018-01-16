@@ -42,11 +42,13 @@ static const uint8_t NUMBER_OFFSET = '0';
 
 struct SecurityEntry_t {
     connection_handle_t handle;
-    address_t identity_address;
-    uint8_t peer_address_is_public:1;
+    address_t peer_identity_address;
+    uint8_t peer_address_public:1;
     uint8_t mitm_protection:1; /**< does the key provide mitm */
-    uint8_t is_authenticated:1; /**< have we authenticated during this connection */
-    uint8_t is_connected:1;
+    uint8_t connected:1;
+    uint8_t authenticated:1; /**< have we authenticated during this connection */
+    uint8_t sign_data:1;
+    uint8_t encrypt_data:1;
 };
 
 struct SecurityEntryKeys_t {
@@ -232,7 +234,7 @@ public:
     }
 
     ble_error_t getEncryptionKeySize(Gap::Handle_t handle, uint8_t *size) {
-        return pal.get_encryption_key_size(handle, *size); //todo this needs event?
+        return pal.get_encryption_key_size(handle, *size);
     }
 
     ////////////////////////////////////////////////////////////////////////////
