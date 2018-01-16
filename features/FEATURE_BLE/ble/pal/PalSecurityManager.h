@@ -92,6 +92,7 @@ typedef uint8_t csrk_t[16];
 typedef uint8_t ltk_t[16];
 typedef uint8_t ediv_t[8];
 typedef uint8_t rand_t[2];
+typedef uint8_t random_data_t[8];
 typedef uint32_t passkey_num_t;
 
 typedef uint8_t key_distribution_t;
@@ -389,6 +390,14 @@ public:
     ) = 0;
 
     virtual ble_error_t request_authentication(connection_handle_t connection) = 0;
+
+    /**
+     * Generate and return 8 octets of random data compliant with [FIPS PUB 140-2]
+     *
+     * @param[out] random_data returns 8 octets of random data
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part H 2
+     */
+    virtual ble_error_t get_random_data(random_data_t &random_data) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // MITM
