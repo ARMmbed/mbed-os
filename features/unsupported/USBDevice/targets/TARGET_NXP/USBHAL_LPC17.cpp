@@ -275,11 +275,6 @@ uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer) {
 
     LPC_USB->USBCtrl = 0;
 
-    if ((endpoint >> 1) % 3 || (endpoint >> 1) == 0) {
-        SIEselectEndpoint(endpoint);
-        SIEclearBuffer();
-    }
-
     return size;
 }
 
@@ -431,7 +426,7 @@ void USBHAL::EP0setup(uint8_t *buffer) {
 }
 
 void USBHAL::EP0read(void) {
-    // Not required
+    endpointRead(EP0OUT, MAX_PACKET_SIZE_EP0);
 }
 
 void USBHAL::EP0readStage(void) {
@@ -456,6 +451,11 @@ void USBHAL::EP0stall(void) {
 }
 
 EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
+    // Don't clear isochronous endpoints
+    if ((endpoint >> 1) % 3 || (endpoint >> 1) == 0) {
+        SIEselectEndpoint(endpoint);
+        SIEclearBuffer();
+    }
     return EP_PENDING;
 }
 
