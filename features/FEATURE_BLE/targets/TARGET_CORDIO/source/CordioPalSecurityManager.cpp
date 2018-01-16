@@ -208,7 +208,7 @@ ble_error_t CordioSecurityManager::send_pairing_request(
     }
 
     pSmpCfg->maxKeyLen = maximum_encryption_key_size;
-    pSmpCfg->ioCap = io_capability.value;
+    pSmpCfg->ioCap = io_capability.value();
 
     DmSecPairReq(
         connection,
@@ -237,7 +237,7 @@ ble_error_t CordioSecurityManager::send_pairing_response(
     }
 
     pSmpCfg->maxKeyLen = maximum_encryption_key_size;
-    pSmpCfg->ioCap = io_capability.value;
+    pSmpCfg->ioCap = io_capability.value();
 
     DmSecPairRsp(
         connection,
@@ -253,7 +253,7 @@ ble_error_t CordioSecurityManager::send_pairing_response(
 ble_error_t CordioSecurityManager::cancel_pairing(
     connection_handle_t connection, pairing_failure_t reason
 ) {
-    DmSecCancelReq(connection, reason.value);
+    DmSecCancelReq(connection, reason.value());
     return BLE_ERROR_NONE;
 }
 
