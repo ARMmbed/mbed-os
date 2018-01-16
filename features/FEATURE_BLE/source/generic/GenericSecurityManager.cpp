@@ -34,21 +34,67 @@ using ble::pal::csrk_t;
 using ble::pal::ltk_t;
 using ble::pal::ediv_t;
 using ble::pal::rand_t;
+using ble::pal::pairing_failure_t;
 typedef SecurityManager::SecurityIOCapabilities_t SecurityIOCapabilities_t;
 
-static const uint8_t NUMBER_OFFSET = '0';
+class PasskeyNum {
+public:
+    operator uint32_t() {
+        return number;
+    }
+private:
+    uint32_t number;
+};
+
+class PasskeyAsci {
+public:
+    static const uint8_t NUMBER_OFFSET = '0';
+
+    PasskeyAsci(uint8_t* passkey) {
+        memcpy(asci, passkey, SecurityManager::PASSKEY_LEN);
+    }
+    PasskeyAsci() {
+        memset(asci, NUMBER_OFFSET, SecurityManager::PASSKEY_LEN);
+    }
+    PasskeyAsci(const PasskeyNum& passkey) {
+        for (int i = 5, m = 100000; i >= 0; --i, m /= 10) {
+            uint32_t result = passkey / m;
+            asci[i] = NUMBER_OFFSET + result;
+            passkey -= result;
+        }
+    }
+    PasskeyAsci& operator=(PasskeyNum& passkey) {
+        return PasskeyAsci(passkey);
+    }
+    operator PasskeyNum() {
+        return PasskeyNum(getNumber());
+    }
+private:
+    uint32_t getNumber() {
+        uint32_t passkey = 0;
+        for (int i = 0, m = 1; i < SecurityManager::PASSKEY_LEN; ++i, m *= 10) {
+            passkey += (asci[i] - NUMBER_OFFSET) * m;
+        }
+        return passkey;
+    }
+    uint8_t asci[SecurityManager::PASSKEY_LEN];
+};
 
 /* separate structs to allow db implementation to minimise memory usage */
 
 struct SecurityEntry_t {
     connection_handle_t handle;
     address_t peer_identity_address;
+    uint8_t encryption_key_size;
     uint8_t peer_address_public:1;
     uint8_t mitm_protection:1; /**< does the key provide mitm */
+    uint8_t keypress_notification:1;
     uint8_t connected:1;
     uint8_t authenticated:1; /**< have we authenticated during this connection */
     uint8_t sign_data:1;
     uint8_t encrypt_data:1;
+    uint8_t oob_mitm_protection:1;
+    uint8_t oob:1;
 };
 
 struct SecurityEntryKeys_t {
@@ -75,17 +121,31 @@ typedef mbed::Callback<DbCbAction_t(Gap::Whitelist_t&)> WhitelistDbCb_t;
 
 class GenericSecurityManagerEventHandler;
 
+/**
+ * SecurityDB holds the state for active connections and bonded devices.
+ * Keys can be stored in NVM and are returned via callbacks.
+ * SecurityDB is responsible for serialising any requests and keeping
+ * the store in a consistent state.
+ * Active connections state must be returned immediately.
+ */
 class SecurityDb {
 public:
     SecurityDb() {};
     ~SecurityDb() {};
 
-    void get_entry(SecurityEntryDbCb_t cb, connection_handle_t handle);
-    void get_entry(SecurityEntryKeysDbCb_t cb, ediv_t ediv, rand_t rand);
-    void get_entry(SecurityEntryIdentityDbCb_t cb, address_t identity_address);
+    /**
+     * Return immediately security entry containing the state
+     * information for active connection.
+     * @param[in] handle valid connection handle
+     * @return pointer to security entry, NULL if handle was invalid
+     */
+    SecurityEntry_t* get_entry(connection_handle_t connection);
+
+    void get_entry_keys(SecurityEntryKeysDbCb_t cb, ediv_t ediv, rand_t rand);
+    void get_entry_identityt(SecurityEntryIdentityDbCb_t cb, address_t identity_address);
 
     void update_entry(SecurityEntry_t&);
-    void update_entry(connection_handle_t handle,
+    void update_entry(connection_handle_t connection,
                       bool address_is_public,
                       address_t &peer_address,
                       ediv_t &ediv,
@@ -114,15 +174,15 @@ public:
     ////////////////////////////////////////////////////////////////////////////
     // SM lifecycle management
     //
-   ble_error_t init(bool                     initBondable = true,
-                    bool                     initMITM     = true,
-                    SecurityIOCapabilities_t initIocaps   = IO_CAPS_NONE,
-                    const Passkey_t          initPasskey  = NULL) {
+    ble_error_t init(bool                     initBondable = true,
+                     bool                     initMITM     = true,
+                     SecurityIOCapabilities_t initIocaps   = IO_CAPS_NONE,
+                     const Passkey_t          initPasskey  = NULL) {
         loadState();
         bondable = initBondable;
         mitm = initMITM;
         iocaps = initIocaps;
-        memcpy(passkey, initPasskey, sizeof(Passkey_t));
+        passkey = PasskeyAsci(initPasskey);
 
         return BLE_ERROR_NONE;
     }
@@ -183,36 +243,37 @@ public:
 
     ble_error_t setPasskey(const Passkey_t passkeyASCI, bool isStatic = false) {
         // FIXME: ADD API in the pal to set default passkey!
-#if 0
-        passkey_num_t passkey = 0;
-        for (int i = 0, m = 1; i < 6; ++i, m *= 10) {
-            passkey += (passkeyASCI[i] - NUMBER_OFFSET) * m;
-        }
-#endif
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    ble_error_t setAuthenticationTimeout(connection_handle_t handle,
+    ble_error_t setAuthenticationTimeout(connection_handle_t connection,
                                          uint32_t timeout_in_ms) {
-        return pal.set_authentication_timeout(handle, timeout_in_ms / 10);
+        return pal.set_authentication_timeout(connection, timeout_in_ms / 10);
     }
 
-    ble_error_t getAuthenticationTimeout(connection_handle_t handle,
+    ble_error_t getAuthenticationTimeout(connection_handle_t connection,
                                          uint32_t *timeout_in_ms) {
         uint16_t timeout_in_10ms;
-        ble_error_t status = pal.get_authentication_timeout(handle, timeout_in_10ms);
+        ble_error_t status = pal.get_authentication_timeout(connection, timeout_in_10ms);
         *timeout_in_ms = 10 * timeout_in_10ms;
         return status;
     }
 
-    ble_error_t setLinkSecurity(Gap::Handle_t connectionHandle,
+    ble_error_t setLinkSecurity(connection_handle_t connection,
                                 SecurityMode_t securityMode) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
-    ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle,
+    ble_error_t getLinkSecurity(connection_handle_t connection,
                                 SecurityMode_t *securityMode) {
-        return BLE_ERROR_NOT_IMPLEMENTED;
+
+        securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;
+        return BLE_ERROR_NONE;
+    }
+
+    ble_error_t setKeypressNotification(bool enabled = true) {
+        keypressNotification = enabled;
+        return BLE_ERROR_NONE;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -224,17 +285,23 @@ public:
      *
      * Get the security status of a connection.
      *
-     * @param[in]  connectionHandle   Handle to identify the connection.
+     * @param[in]  connection   Handle to identify the connection.
      * @param[out] securityStatusP    Security status.
      *
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
-    ble_error_t getLinkSecurity(Gap::Handle_t connectionHandle, LinkSecurityStatus_t *securityStatusP) {
-        return pal.get_encryption_status(connectionHandle, *securityStatusP);
+    ble_error_t getLinkSecurity(connection_handle_t connection, LinkSecurityStatus_t *securityStatusP) {
+        return pal.get_encryption_status(connection, *securityStatusP);
     }
 
-    ble_error_t getEncryptionKeySize(Gap::Handle_t handle, uint8_t *size) {
-        return pal.get_encryption_key_size(handle, *size);
+    ble_error_t getEncryptionKeySize(connection_handle_t connection, uint8_t *size) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            *size = entry->encryption_key_size;
+            return BLE_ERROR_NONE;
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -249,9 +316,17 @@ public:
     // Keys
     //
 
+    /**
+     * Returns the requested LTK to the PAL.
+     *
+     * @param entry security entry returned by the database.
+     * @param entryKeys security entry containing keys.
+     *
+     * @return no action instruction to the db since this only reads the keys.
+     */
     DbCbAction_t setLtkCb(SecurityEntry_t& entry, SecurityEntryKeys_t& entryKeys) {
         pal.set_ltk(entry.handle, entryKeys.ltk);
-        return DB_CB_ACTION_UPDATE;
+        return DB_CB_ACTION_NO_UPDATE_REQUIRED;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -259,23 +334,22 @@ public:
     //
 
 
-    ble_error_t requestPairing(Gap::Handle_t connectionHandle) {
-        (void) connectionHandle;
+    ble_error_t requestPairing(connection_handle_t connection) {
+        (void) connection;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    ble_error_t acceptPairingRequest(Gap::Handle_t connectionHandle) {
-        (void) connectionHandle;
+    ble_error_t acceptPairingRequest(connection_handle_t connection) {
+        (void) connection;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
-    ble_error_t canceltPairingRequest(Gap::Handle_t connectionHandle) {
-        (void) connectionHandle;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    ble_error_t canceltPairingRequest(connection_handle_t connection) {
+        return pal.cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
     }
 
-    ble_error_t requestAuthentication(Gap::Handle_t connectionHandle) {
-        (void) connectionHandle;
+    ble_error_t requestAuthentication(connection_handle_t connection) {
+        (void) connection;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
@@ -288,22 +362,27 @@ public:
     // MITM
     //
 
-    ble_error_t setOOBDataUsage(Gap::Handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = false) {
-        return BLE_ERROR_NONE;
+    ble_error_t setOOBDataUsage(connection_handle_t connection, bool useOOB, bool OOBProvidesMITM = true) {
+        SecurityEntry_t *entry = db.get_entry(connection);
+        if (entry) {
+            entry->oob = useOOB;
+            entry->oob_mitm_protection = OOBProvidesMITM;
+            return BLE_ERROR_NONE;
+        } else {
+            return BLE_ERROR_INVALID_PARAM;
+        }
     }
 
-    virtual ble_error_t confirmationEntered(Gap::Handle_t handle, bool confirmation) {
-        return pal.confirmation_entered(handle, confirmation);
+    virtual ble_error_t confirmationEntered(connection_handle_t connection, bool confirmation) {
+        return pal.confirmation_entered(connection, confirmation);
     }
 
-    virtual ble_error_t passkeyEntered(Gap::Handle_t handle, Passkey_t passkey) {
-        // FIXME: convert to passkey_t (3 bytes instead of 6)
-        //return pal.passkey_request_reply(handle, passkey);
-        return BLE_ERROR_NOT_IMPLEMENTED;
+    virtual ble_error_t passkeyEntered(connection_handle_t connection, Passkey_t passkey) {
+        return pal.passkey_request_reply(connection, passkey);
     }
 
-    virtual ble_error_t sendKeypressNotification(Gap::Handle_t handle, Keypress_t keypress) {
-        return pal.send_keypress_notification(handle, keypress);
+    virtual ble_error_t sendKeypressNotification(connection_handle_t connection, Keypress_t keypress) {
+        return pal.send_keypress_notification(connection, keypress);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -330,10 +409,12 @@ private:
     SecurityDb db;
 
     SecurityIOCapabilities_t iocaps;
-    Passkey_t                passkey;
+    PasskeyNum               passkey;
     bool                     mitm;
     bool                     bondable;
     bool                     authorisationRequired;
+    bool                     keypressNotification;
+    bool                     oobProvidesMitmProtection;
 
     authentication_t    authentication;
     uint8_t             minKeySize;
@@ -343,95 +424,95 @@ private:
 
     /*  implements ble::pal::SecurityManagerEventHandler */
 public:
-   void on_security_setup_initiated(connection_handle_t handle, bool allow_bonding,
+   void on_security_setup_initiated(connection_handle_t connection, bool allow_bonding,
                                           bool require_mitm, SecurityIOCapabilities_t iocaps) {
         if (_app_event_handler) {
-            _app_event_handler->securitySetupInitiated(handle, allow_bonding, require_mitm, iocaps);
+            _app_event_handler->securitySetupInitiated(connection, allow_bonding, require_mitm, iocaps);
         }
     }
-   void on_security_setup_completed(connection_handle_t handle,
+   void on_security_setup_completed(connection_handle_t connection,
                                           SecurityManager::SecurityCompletionStatus_t status) {
         if (_app_event_handler) {
-            _app_event_handler->securitySetupCompleted(handle, status);
+            _app_event_handler->securitySetupCompleted(connection, status);
         }
     }
-   void on_link_secured(connection_handle_t handle, SecurityManager::SecurityMode_t security_mode) {
+   void on_link_secured(connection_handle_t connection, SecurityManager::SecurityMode_t security_mode) {
         if (_app_event_handler) {
-            _app_event_handler->linkSecured(handle, security_mode);
+            _app_event_handler->linkSecured(connection, security_mode);
         }
     }
 
-   void on_security_context_stored(connection_handle_t handle) {
+   void on_security_context_stored(connection_handle_t connection) {
         if (_app_event_handler) {
-            _app_event_handler->securityContextStored(handle);
+            _app_event_handler->securityContextStored(connection);
         }
     }
-   void on_passkey_display(connection_handle_t handle, const SecurityManager::Passkey_t passkey) {
+   void on_passkey_display(connection_handle_t connection, const SecurityManager::Passkey_t passkey) {
         if (_app_event_handler) {
-            _app_event_handler->passkeyDisplay(handle, passkey);
-        }
-    }
-
-   void on_valid_mic_timeout(connection_handle_t handle) {
-        if (_app_event_handler) {
-            _app_event_handler->validMicTimeout(handle);
+            _app_event_handler->passkeyDisplay(connection, passkey);
         }
     }
 
-   void on_link_key_failure(connection_handle_t handle) {
+   void on_valid_mic_timeout(connection_handle_t connection) {
         if (_app_event_handler) {
-            _app_event_handler->linkKeyFailure(handle);
+            _app_event_handler->validMicTimeout(connection);
         }
     }
 
-   void on_keypress_notification(connection_handle_t handle, SecurityManager::Keypress_t keypress) {
+   void on_link_key_failure(connection_handle_t connection) {
         if (_app_event_handler) {
-            _app_event_handler->keypressNotification(handle, keypress);
+            _app_event_handler->linkKeyFailure(connection);
         }
     }
 
-   void on_legacy_pariring_oob_request(connection_handle_t handle) {
+   void on_keypress_notification(connection_handle_t connection, SecurityManager::Keypress_t keypress) {
         if (_app_event_handler) {
-            _app_event_handler->legacyPairingOobRequest(handle);
+            _app_event_handler->keypressNotification(connection, keypress);
         }
     }
 
-   void on_oob_request(connection_handle_t handle) {
+   void on_legacy_pariring_oob_request(connection_handle_t connection) {
         if (_app_event_handler) {
-            _app_event_handler->oobRequest(handle);
+            _app_event_handler->legacyPairingOobRequest(connection);
         }
     }
-   void on_pin_request(connection_handle_t handle) {
+
+   void on_oob_request(connection_handle_t connection) {
+        if (_app_event_handler) {
+            _app_event_handler->oobRequest(connection);
+        }
+    }
+   void on_pin_request(connection_handle_t connection) {
 
         if (_app_event_handler) {
-            _app_event_handler->pinRequest(handle);
+            _app_event_handler->pinRequest(connection);
         }
     }
-   void on_passkey_request(connection_handle_t handle) {
+   void on_passkey_request(connection_handle_t connection) {
 
         if (_app_event_handler) {
-            _app_event_handler->passkeyRequest(handle);
+            _app_event_handler->passkeyRequest(connection);
         }
     }
-   void on_confirmation_request(connection_handle_t handle) {
+   void on_confirmation_request(connection_handle_t connection) {
 
         if (_app_event_handler) {
-            _app_event_handler->confirmationRequest(handle);
+            _app_event_handler->confirmationRequest(connection);
         }
     }
-   void on_accept_pairing_request(connection_handle_t handle,
+   void on_accept_pairing_request(connection_handle_t connection,
                                         SecurityIOCapabilities_t iocaps,
                                         bool use_oob,
                                         authentication_t authentication,
                                         uint8_t max_key_size,
                                         key_distribution_t initiator_dist,
                                         key_distribution_t responder_dist) {
-        if (_app_event_handler && authorisationRequired) {
-            _app_event_handler->acceptPairingRequest(handle);
-        }
+       if (_app_event_handler && authorisationRequired) {
+            _app_event_handler->acceptPairingRequest(connection);
+       }
     }
 
-    void on_keys_distributed(connection_handle_t handle,
+    void on_keys_distributed(connection_handle_t connection,
                              advertising_peer_address_type_t peer_address_type,
                              address_t &peer_address,
                              ediv_t &ediv,
@@ -440,7 +521,7 @@ public:
                              irk_t &irk,
                              csrk_t &csrk) {
         db.update_entry(
-            handle,
+            connection,
             (peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS),
             peer_address,
             ediv,
@@ -478,8 +559,8 @@ public:
         csrk_t &csrk
     ) = 0;
 
-    void on_ltk_request(connection_handle_t handle, ediv_t &ediv, rand_t &rand) {
-        db.get_entry(
+    void on_ltk_request(connection_handle_t connection, ediv_t &ediv, rand_t &rand) {
+        db.get_entry_keys(
             mbed::callback(this, &GenericSecurityManager::setLtkCb),
             ediv,
             rand
