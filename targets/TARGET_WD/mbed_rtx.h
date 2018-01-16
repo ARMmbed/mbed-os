@@ -22,15 +22,15 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20030000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              14
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          256
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                168000000
-#endif
+// #ifndef OS_TASKCNT
+// #define OS_TASKCNT              14
+// #endif
+// #ifndef OS_MAINSTKSIZE
+// #define OS_MAINSTKSIZE          512
+// #endif
+// #ifndef OS_CLOCK
+// #define OS_CLOCK                168000000
+// #endif
 
 #endif
 
@@ -39,15 +39,15 @@
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20018000UL)
 #endif
-#ifndef OS_TASKCNT
-#define OS_TASKCNT              6
-#endif
-#ifndef OS_MAINSTKSIZE
-#define OS_MAINSTKSIZE          128
-#endif
-#ifndef OS_CLOCK
-#define OS_CLOCK                72000000
-#endif
+// #ifndef OS_TASKCNT
+// #define OS_TASKCNT              6
+// #endif
+// #ifndef OS_MAINSTKSIZE
+// #define OS_MAINSTKSIZE          512
+// #endif
+// #ifndef OS_CLOCK
+// #define OS_CLOCK                72000000
+// #endif
 
 #endif
 
