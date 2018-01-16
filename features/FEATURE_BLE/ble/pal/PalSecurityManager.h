@@ -75,16 +75,14 @@ struct pairing_failure_t : SafeEnum<pairing_failure_t, uint8_t> {
     pairing_failure_t(type value) : SafeEnum<pairing_failure_t, uint8_t>(value) { }
 };
 
-
-using SecurityManager::IO_CAPS_NONE;
-using SecurityManager::SecurityCompletionStatus_t;
-using SecurityManager::SecurityMode_t;
-using SecurityManager::LinkSecurityStatus_t;
-using SecurityManager::Keypress_t;
+typedef SecurityManager::SecurityCompletionStatus_t SecurityCompletionStatus_t;
+typedef SecurityManager::SecurityMode_t SecurityMode_t;
+typedef SecurityManager::LinkSecurityStatus_t LinkSecurityStatus_t;
+typedef SecurityManager::Keypress_t Keypress_t;
 
 /* please use typedef for porting not the types directly */
 
-typedef uint8_t passkey_t[6];
+typedef uint8_t passkey_t[3];
 typedef uint8_t oob_data_t[16];
 
 typedef uint8_t irk_t[16];
@@ -261,6 +259,10 @@ public:
 
 /**
  * Adaptation layer of the Security Manager.
+ *
+ *
+ * FIXME: ADD API in the pal to set default passkey!
+ *
  */
 class SecurityManager : private mbed::NonCopyable<SecurityManager> {
 public:
