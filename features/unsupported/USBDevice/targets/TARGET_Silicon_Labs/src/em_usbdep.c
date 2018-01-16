@@ -40,7 +40,7 @@ static const char *epStatusStr[] = {
 
 /*
  * USBDEP_Ep0Handler() is called each time a packet has been transmitted
- * or recieved on the default endpoint.
+ * or received on the default endpoint.
  * A state machine navigate us through the phases of a control transfer
  * according to "chapter 9" in the USB spec.
  */
@@ -417,7 +417,7 @@ void USBDEP_Ep0Handler( USBD_Device_TypeDef *device )
 
 /*
  * USBDEP_EpHandler() is called each time a packet has been transmitted
- * or recieved on an endpoint other than the default endpoint.
+ * or received on an endpoint other than the default endpoint.
  */
 void USBDEP_EpHandler( uint8_t epAddr )
 {

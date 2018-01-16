@@ -246,7 +246,7 @@ void I2C_ClearINTReq(TSB_I2C_TypeDef * I2Cx)
 }
 
 /**
-  * @brief  Set I2c bus to Master mode and Generate start condition in I2C mode.
+  * @brief  Set I2C bus to Master mode and Generate start condition in I2C mode.
   * @param  I2Cx: Select the I2C channel.
   *   This parameter can be one of the following values:
   *   TSB_I2C0,TSB_I2C1
@@ -262,7 +262,7 @@ void I2C_GenerateStart(TSB_I2C_TypeDef * I2Cx)
 }
 
 /**
-  * @brief  Set I2c bus to Master mode and Generate stop condition in I2C mode.
+  * @brief  Set I2C bus to Master mode and Generate stop condition in I2C mode.
   * @param  I2Cx: Select the I2C channel.
   *   This parameter can be one of the following values:
   *   TSB_I2C0,TSB_I2C1

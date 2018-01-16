@@ -60,7 +60,7 @@ void thread_dhcpv6_client_set_address(int8_t interface_id, dhcpv6_client_server_
 
 void thread_dhcp_client_init(int8_t interface)
 {
-    // No support for multible thread instances yet.
+    // No support for multiple thread instances yet.
     dhcp_client.service_instance = dhcp_service_init(interface, DHCP_INSTANCE_CLIENT, NULL);
     dhcp_client.interface = interface;
     dhcp_client.libDhcp_instance = libdhcpv6_nonTemporal_entry_get_unique_instance_id();

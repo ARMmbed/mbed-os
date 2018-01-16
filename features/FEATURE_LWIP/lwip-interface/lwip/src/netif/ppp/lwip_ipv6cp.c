@@ -1011,7 +1011,7 @@ endswitch:
 	IPV6CPDEBUG((" (%s)\n", CODENAME(orc)));
 
 	if (orc == CONFACK &&		/* Good CI */
-	    rc != CONFACK)		/*  but prior CI wasnt? */
+	    rc != CONFACK)		/*  but prior CI wasn't? */
 	    continue;			/* Don't send this one */
 
 	if (orc == CONFNAK) {		/* Nak this CI? */

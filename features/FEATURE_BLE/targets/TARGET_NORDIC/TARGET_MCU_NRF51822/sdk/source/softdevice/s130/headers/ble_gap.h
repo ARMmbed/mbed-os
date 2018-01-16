@@ -721,7 +721,7 @@ typedef struct
 /**@brief GAP event structure. */
 typedef struct
 {
-  uint16_t conn_handle;                                     /**< Connection Handle on which event occured. */
+  uint16_t conn_handle;                                     /**< Connection Handle on which event occurred. */
   union                                                     /**< union alternative identified by evt_id in enclosing struct. */
   {
     ble_gap_evt_connected_t                   connected;                    /**< Connected Event Parameters. */
@@ -1153,7 +1153,7 @@ SVCALL(SD_BLE_GAP_DEVICE_NAME_GET, uint32_t, sd_ble_gap_device_name_get(uint8_t 
  * @retval ::NRF_ERROR_INVALID_STATE Invalid state to perform operation.
  * @retval ::NRF_ERROR_BUSY The stack is busy, process pending events and retry.
  * @retval ::BLE_ERROR_INVALID_CONN_HANDLE Invalid connection handle supplied.
- * @retval ::NRF_ERROR_TIMEOUT A SMP timout has occured, and further SMP operations on this link is prohibited.
+ * @retval ::NRF_ERROR_TIMEOUT A SMP timout has occurred, and further SMP operations on this link is prohibited.
  */
 SVCALL(SD_BLE_GAP_AUTHENTICATE, uint32_t, sd_ble_gap_authenticate(uint16_t conn_handle, ble_gap_sec_params_t const *p_sec_params));
 

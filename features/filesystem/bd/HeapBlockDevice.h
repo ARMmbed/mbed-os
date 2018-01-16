@@ -118,9 +118,9 @@ public:
      */
     virtual bd_size_t get_read_size() const;
 
-    /** Get the size of a programable block
+    /** Get the size of a programmable block
      *
-     *  @return         Size of a programable block in bytes
+     *  @return         Size of a programmable block in bytes
      */
     virtual bd_size_t get_program_size() const;
 

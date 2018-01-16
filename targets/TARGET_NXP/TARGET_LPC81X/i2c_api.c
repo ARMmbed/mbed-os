@@ -151,7 +151,7 @@ void i2c_frequency(i2c_t *obj, int hz) {
 //  2) on error, we use the standard error mechanisms to report/debug
 //
 // Therefore an I2C transaction should always complete. If it doesn't it is usually
-// because something is setup wrong (e.g. wiring), and we don't need to programatically
+// because something is setup wrong (e.g. wiring), and we don't need to programmatically
 // check for that
 
 //New version WH, Tested OK for Start and Repeated Start

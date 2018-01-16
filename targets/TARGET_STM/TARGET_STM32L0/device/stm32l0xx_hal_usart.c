@@ -1040,7 +1040,7 @@ HAL_StatusTypeDef HAL_USART_DMAStop(USART_HandleTypeDef *husart)
 void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
 {
   
-  /* USART parity error interrupt occured ------------------------------------*/
+  /* USART parity error interrupt occurred ------------------------------------*/
   if((__HAL_USART_GET_IT(husart, USART_IT_PE) != RESET) && (__HAL_USART_GET_IT_SOURCE(husart, USART_IT_PE) != RESET))
   { 
     __HAL_USART_CLEAR_PEFLAG(husart);
@@ -1049,7 +1049,7 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
     husart->State = HAL_USART_STATE_READY;
   }
   
-  /* USART frame error interrupt occured -------------------------------------*/
+  /* USART frame error interrupt occurred -------------------------------------*/
   if((__HAL_USART_GET_IT(husart, USART_IT_FE) != RESET) && (__HAL_USART_GET_IT_SOURCE(husart, USART_IT_ERR) != RESET))
   { 
     __HAL_USART_CLEAR_FEFLAG(husart);
@@ -1058,7 +1058,7 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
     husart->State = HAL_USART_STATE_READY;
   }
   
-  /* USART noise error interrupt occured -------------------------------------*/
+  /* USART noise error interrupt occurred -------------------------------------*/
   if((__HAL_USART_GET_IT(husart, USART_IT_NE) != RESET) && (__HAL_USART_GET_IT_SOURCE(husart, USART_IT_ERR) != RESET))
   { 
     __HAL_USART_CLEAR_NEFLAG(husart);
@@ -1067,7 +1067,7 @@ void HAL_USART_IRQHandler(USART_HandleTypeDef *husart)
     husart->State = HAL_USART_STATE_READY;
   }
   
-  /* USART Over-Run interrupt occured ----------------------------------------*/
+  /* USART Over-Run interrupt occurred ----------------------------------------*/
   if((__HAL_USART_GET_IT(husart, USART_IT_ORE) != RESET) && (__HAL_USART_GET_IT_SOURCE(husart, USART_IT_ERR) != RESET))
   { 
     __HAL_USART_CLEAR_OREFLAG(husart);

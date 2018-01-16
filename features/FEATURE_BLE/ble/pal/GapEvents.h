@@ -75,7 +75,7 @@ struct GapEvent {
 protected:
     GapEvent(GapEventType type) : type(type) { }
 
-    // Disable copy construction and copy assignement operations.
+    // Disable copy construction and copy assignment operations.
     GapEvent(const GapEvent&);
     GapEvent& operator=(const GapEvent&);
 };

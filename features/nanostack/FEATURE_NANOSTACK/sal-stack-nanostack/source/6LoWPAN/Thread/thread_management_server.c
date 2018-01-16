@@ -552,7 +552,7 @@ static uint32_t reverse_bits(uint32_t num)
 }
 static void thread_panid_scan_response(int8_t if_id, const mlme_scan_conf_t* conf)
 {
-        bool conflict_occured = false;
+        bool conflict_occurred = false;
         nwk_scan_params_t *scan_parameters_ptr;
         nwk_pan_descriptor_t *result;
         protocol_interface_info_entry_t *interface;
@@ -599,12 +599,12 @@ static void thread_panid_scan_response(int8_t if_id, const mlme_scan_conf_t* con
         if(result->pan_descriptor->CoordPANId == this->scan_ptr->panid) { //if pan id matches then send a conflict message
                 tr_debug("Same pan id was found on channel %d", result->pan_descriptor->LogicalChannel);
                 set_channel_mask(this->scan_ptr->channel_mask,result->pan_descriptor->LogicalChannel,0);
-                conflict_occured = true;
+                conflict_occurred = true;
     }
     result = result->next;
     } while (result);
-    if (conflict_occured){
-        tr_debug("conflict occured");
+    if (conflict_occurred){
+        tr_debug("conflict occurred");
         this->scan_ptr->timer = eventOS_timeout_ms(thread_panid_conflict_timeout_cb, 2000, this);
     }
     thread_start_mac_with_link_configuration(interface,linkConfiguration);

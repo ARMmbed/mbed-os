@@ -2296,7 +2296,7 @@ HAL_StatusTypeDef UART_CheckIdleState(UART_HandleTypeDef *huart)
     /* Wait until TEACK flag is set */
     if(UART_WaitOnFlagUntilTimeout(huart, USART_ISR_TEACK, RESET, tickstart, HAL_UART_TIMEOUT_VALUE) != HAL_OK)
     {
-      /* Timeout Occured */
+      /* Timeout Occurred */
       return HAL_TIMEOUT;
     }
   }
@@ -2306,7 +2306,7 @@ HAL_StatusTypeDef UART_CheckIdleState(UART_HandleTypeDef *huart)
     /* Wait until REACK flag is set */
     if(UART_WaitOnFlagUntilTimeout(huart, USART_ISR_REACK, RESET, tickstart, HAL_UART_TIMEOUT_VALUE) != HAL_OK)
     {
-      /* Timeout Occured */
+      /* Timeout Occurred */
       return HAL_TIMEOUT;
     }
   }

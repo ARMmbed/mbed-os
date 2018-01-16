@@ -239,7 +239,7 @@ typedef struct
 /**@brief GATTC event structure. */
 typedef struct
 {
-  uint16_t            conn_handle;                /**< Connection Handle on which event occured. */
+  uint16_t            conn_handle;                /**< Connection Handle on which event occurred. */
   uint16_t            gatt_status;                /**< GATT status code for the operation, see @ref BLE_GATT_STATUS_CODES. */
   uint16_t            error_handle;               /**< In case of error: The handle causing the error. In all other cases @ref BLE_GATT_HANDLE_INVALID. */
   union

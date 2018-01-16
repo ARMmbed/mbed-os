@@ -66,7 +66,7 @@ void hal_sleep(void)
             return;
         } else {
             // next event will wakeup the CPU
-            // If an interrupt occured between the test of SCB->ICSR and this
+            // If an interrupt occurred between the test of SCB->ICSR and this
             // instruction, WFE will just not put the CPU to sleep
             __WFE();
         }

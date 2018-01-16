@@ -145,7 +145,7 @@ int32_t fI2cStop(i2c_t *obj)
     if (obj->membase->STATUS.WORD & (I2C_STATUS_CMD_FIFO_FULL_BIT |
                                      I2C_STATUS_CMD_FIFO_OFL_BIT |
                                      I2C_STATUS_BUS_ERR_BIT)) {
-        /* I2c error occured */
+        /* I2C error occurred */
         return I2C_ERROR_BUS_BUSY;
     }
     return I2C_API_STATUS_SUCCESS;
@@ -164,7 +164,7 @@ int32_t fI2cReadB(i2c_t *obj, char *buf, int len)
         SEND_COMMAND(I2C_CMD_RDAT8);
         while(!RD_DATA_READY) {
             if (I2C_BUS_ERR_CHECK) {
-                /* Bus error occured */
+                /* Bus error occurred */
                 return I2C_ERROR_BUS_BUSY;
             }
         }

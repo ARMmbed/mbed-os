@@ -1470,7 +1470,7 @@ cleanup:
 /*
  * For Montgomery curves, we do all the internal arithmetic in projective
  * coordinates. Import/export of points uses only the x coordinates, which is
- * internaly represented as X / Z.
+ * internally represented as X / Z.
  *
  * For scalar multiplication, we'll use a Montgomery ladder.
  */

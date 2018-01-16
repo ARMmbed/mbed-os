@@ -1910,7 +1910,7 @@ uint8_t serial_rx_active(serial_t *obj)
 }
 
 /** The asynchronous TX handler. Writes to the TX FIFO and checks for events.
- *  If any TX event has occured, the TX abort function is called.
+ *  If any TX event has occurred, the TX abort function is called.
  *
  * @param obj The serial object
  * @return Returns event flags if a TX transfer termination condition was met or 0 otherwise
@@ -1961,7 +1961,7 @@ int serial_tx_irq_handler_asynch(serial_t *obj)
 }
 
 /** The asynchronous RX handler. Reads from the RX FIFOF and checks for events.
- *  If any RX event has occured, the RX abort function is called.
+ *  If any RX event has occurred, the RX abort function is called.
  *
  * @param obj The serial object
  * @return Returns event flags if a RX transfer termination condition was met or 0 otherwise
