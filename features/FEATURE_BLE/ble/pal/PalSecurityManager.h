@@ -90,6 +90,7 @@ typedef uint8_t csrk_t[16];
 typedef uint8_t ltk_t[16];
 typedef uint8_t ediv_t[8];
 typedef uint8_t rand_t[2];
+typedef uint8_t random_data_t[8];
 typedef uint32_t passkey_num_t;
 
 typedef uint8_t key_distribution_t;
@@ -148,7 +149,7 @@ public:
      * Called when the application should display a passkey.
      */
     virtual void on_passkey_display(
-        connection_handle_t handle, const passkey_t& passkey
+        connection_handle_t connection, const passkey_t& passkey
     ) = 0;
 
     /**
@@ -157,7 +158,7 @@ public:
      * @note shall be followed by: pal::SecurityManager::passkey_request_reply
      * or a cancellation of the procedure.
      */
-    virtual void on_passkey_request(connection_handle_t handle) = 0;
+    virtual void on_passkey_request(connection_handle_t connection) = 0;
 
     /**
      * Request oob data entered during pairing
@@ -165,38 +166,38 @@ public:
      * @note shall be followed by: pal::SecurityManager::oob_data_request_reply
      * or a cancellation of the procedure.
      */
-    virtual void on_oob_data_request(connection_handle_t handle) = 0;
+    virtual void on_oob_data_request(connection_handle_t connection) = 0;
 
 
     virtual void security_setup_initiated(
-        connection_handle_t handle,
+        connection_handle_t connection,
         bool allow_bonding,
         bool require_mitm,
         io_capability_t iocaps
     ) = 0;
 
     virtual void security_setup_completed(
-        connection_handle_t handle,
+        connection_handle_t connection,
         SecurityManager::SecurityCompletionStatus_t status
     ) = 0;
 
     virtual void link_secured(
-        connection_handle_t handle, SecurityManager::SecurityMode_t security_mode
+        connection_handle_t connection, SecurityManager::SecurityMode_t security_mode
     ) = 0;
 
 
-    virtual void valid_mic_timeout(connection_handle_t handle) = 0;
+    virtual void valid_mic_timeout(connection_handle_t connection) = 0;
 
-    virtual void link_key_failure(connection_handle_t handle) = 0;
+    virtual void link_key_failure(connection_handle_t connection) = 0;
 
-    virtual void keypress_notification(connection_handle_t handle, SecurityManager::Keypress_t keypress) = 0;
+    virtual void keypress_notification(connection_handle_t connection, SecurityManager::Keypress_t keypress) = 0;
 
-    virtual void legacy_pariring_oob_request(connection_handle_t handle) = 0;
+    virtual void legacy_pariring_oob_request(connection_handle_t connection) = 0;
 
-    virtual void confirmation_request(connection_handle_t handle) = 0;
+    virtual void confirmation_request(connection_handle_t connection) = 0;
 
     virtual void keys_exchanged(
-        connection_handle_t handle,
+        connection_handle_t connection,
         advertising_peer_address_type_t peer_identity_address_type,
         address_t &peer_identity_address,
         ediv_t &ediv,
@@ -207,7 +208,7 @@ public:
     ) = 0;
 
     virtual void ltk_request(
-        connection_handle_t handle,
+        connection_handle_t connection,
         ediv_t &ediv,
         rand_t &rand
     ) = 0;
@@ -307,19 +308,19 @@ public:
     // Encryption
     //
 
-    virtual ble_error_t enable_encryption(connection_handle_t handle) = 0;
+    virtual ble_error_t enable_encryption(connection_handle_t connection) = 0;
 
-    virtual ble_error_t disable_encryption(connection_handle_t handle) = 0;
+    virtual ble_error_t disable_encryption(connection_handle_t connection) = 0;
 
     virtual ble_error_t get_encryption_status(
-        connection_handle_t handle, LinkSecurityStatus_t &status
+        connection_handle_t connection, LinkSecurityStatus_t &status
     ) = 0;
 
     virtual ble_error_t get_encryption_key_size(
         connection_handle_t, uint8_t &bitsize
     ) = 0;
 
-    virtual ble_error_t refresh_encryption_key(connection_handle_t handle) = 0;
+    virtual ble_error_t refresh_encryption_key(connection_handle_t connection) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // Privacy
@@ -331,7 +332,7 @@ public:
     // Keys
     //
 
-    virtual ble_error_t set_ltk(connection_handle_t handle, ltk_t ltk) = 0;
+    virtual ble_error_t set_ltk(connection_handle_t connection, ltk_t ltk) = 0;
 
     /**
      * Set the local IRK
@@ -372,11 +373,11 @@ public:
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.2
      */
     virtual ble_error_t send_pairing_response(
-        connection_handle_t handle,
+        connection_handle_t connection,
         io_capability_t io_capability,
         bool oob_data_flag,
         authentication_t authentication_requirements,
-        uint8_t max_key_size,
+        uint8_t maximum_encryption_key_size,
         key_distribution_t initiator_dist,
         key_distribution_t responder_dist
     ) = 0;
@@ -387,10 +388,18 @@ public:
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.5
      */
     virtual ble_error_t cancel_pairing(
-        connection_handle_t handle, pairing_failure_t reason
+        connection_handle_t connection, pairing_failure_t reason
     ) = 0;
 
-    virtual ble_error_t request_authentication(connection_handle_t handle) = 0;
+    virtual ble_error_t request_authentication(connection_handle_t connection) = 0;
+
+    /**
+     * Generate and return 8 octets of random data compliant with [FIPS PUB 140-2]
+     *
+     * @param[out] random_data returns 8 octets of random data
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part H 2
+     */
+    virtual ble_error_t get_random_data(random_data_t &random_data) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // MITM
@@ -400,23 +409,23 @@ public:
      * Reply to a passkey request received from the SecurityManagerEventHandler.
      */
     virtual ble_error_t passkey_request_reply(
-        connection_handle_t handle, const passkey_t& passkey
+        connection_handle_t connection, const passkey_t& passkey
     ) = 0;
 
     /**
      * Reply to an oob data request received from the SecurityManagerEventHandler.
      */
     virtual ble_error_t oob_data_request_reply(
-        connection_handle_t handle, const oob_data_t& oob_data
+        connection_handle_t connection, const oob_data_t& oob_data
     ) = 0;
 
 
     virtual ble_error_t confirmation_entered(
-        connection_handle_t handle, bool confirmation
+        connection_handle_t connection, bool confirmation
     ) = 0;
 
     virtual ble_error_t send_keypress_notification(
-        connection_handle_t handle, Keypress_t keypress
+        connection_handle_t connection, Keypress_t keypress
     ) = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */
