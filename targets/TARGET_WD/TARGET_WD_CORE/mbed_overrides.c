@@ -29,6 +29,20 @@
 #include "us_ticker_api.h"
 #include "resettrace.h"
 
+// This function is called after RAM initialization and before main.
+void mbed_sdk_init()
+{
+    // Update the SystemCoreClock variable.
+    SystemCoreClockUpdate();
+    HAL_Init();
+
+    /* Configure the System clock source, PLL Multiplier and Divider factors,
+       AHB/APBx prescalers and Flash settings */
+    SetSysClock();
+    SystemCoreClockUpdate();
+}
+
+
 void mbed_die(void) {
 	
 	core_util_critical_section_enter();
