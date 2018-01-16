@@ -370,11 +370,11 @@ public:
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.2
      */
     virtual ble_error_t send_pairing_response(
-        connection_handle_t handle,
-        SecurityIOCapabilities_t iocaps,
+        connection_handle_t connection,
+        io_capability_t io_capability,
         bool oob_data_flag,
         authentication_t authentication_requirements,
-        uint8_t max_key_size,
+        uint8_t maximum_encryption_key_size,
         key_distribution_t initiator_dist,
         key_distribution_t responder_dist
     ) = 0;
