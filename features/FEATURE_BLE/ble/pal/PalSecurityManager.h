@@ -170,46 +170,89 @@ public:
      */
     virtual void on_oob_data_request(connection_handle_t connection) = 0;
 
-
-    virtual void security_setup_initiated(
+    /**
+     * To indicate that a security procedure for the link has started.
+     */
+    virtual void on_security_setup_initiated(
         connection_handle_t connection,
         bool allow_bonding,
         bool require_mitm,
         io_capability_t iocaps
     ) = 0;
 
-    virtual void security_setup_completed(
+    /**
+     * To indicate that the security procedure for the link has completed.
+     */
+    virtual void on_security_setup_completed(
         connection_handle_t connection,
         SecurityManager::SecurityCompletionStatus_t status
     ) = 0;
 
-    virtual void link_secured(
+    /**
+     * To indicate that the link with the peer is secured. For bonded devices,
+     * subsequent reconnections with a bonded peer will result only in this callback
+     * when the link is secured; setup procedures will not occur (unless the
+     * bonding information is either lost or deleted on either or both sides).
+     */
+    virtual void on_link_secured(
         connection_handle_t connection, SecurityManager::SecurityMode_t security_mode
     ) = 0;
 
+    /**
+     * To indicate that the authentication timeout has elapsed
+     * and we received no packets with a valid MIC
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 6, Part B, 5.4
+     */
+    virtual void on_valid_mic_timeout(connection_handle_t connection) = 0;
 
-    virtual void valid_mic_timeout(connection_handle_t connection) = 0;
+    virtual void on_link_key_failure(connection_handle_t connection) = 0;
 
-    virtual void link_key_failure(connection_handle_t connection) = 0;
+    /**
+     * To indicate that the peer has pressed a button
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H, 3.5.8
+     */
+    virtual void on_keypress_notification(connection_handle_t connection, SecurityManager::Keypress_t keypress) = 0;
 
-    virtual void keypress_notification(connection_handle_t connection, SecurityManager::Keypress_t keypress) = 0;
+    /**
+     * To indicate that the user application needs to provide OOB data
+     */
+    virtual void on_legacy_pariring_oob_request(connection_handle_t connection) = 0;
 
-    virtual void legacy_pariring_oob_request(connection_handle_t connection) = 0;
+    /**
+     * To indicate user confirmation is require to confirm matching
+     * passkeys displayed on devices
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E, 7.7.42
+     */
+    virtual void on_confirmation_request(connection_handle_t connection) = 0;
 
-    virtual void confirmation_request(connection_handle_t connection) = 0;
+    virtual void on_keys_distributed_ltk(
+        connection_handle_t connection,
+        ltk_t &ltk
+    ) = 0;
 
-    virtual void keys_exchanged(
+    virtual void on_keys_distributed_ediv_rand(
+        connection_handle_t connection,
+        ediv_t &ediv,
+        rand_t &rand
+    ) = 0;
+
+    virtual void on_keys_distributed_irk(
+        connection_handle_t connection,
+        irk_t &irk
+    ) = 0;
+
+    virtual void on_keys_distributed_bdaddr(
         connection_handle_t connection,
         advertising_peer_address_type_t peer_identity_address_type,
-        address_t &peer_identity_address,
-        ediv_t &ediv,
-        rand_t &rand,
-        ltk_t &ltk,
-        irk_t &irk,
+        address_t &peer_identity_address
+    ) = 0;
+
+    virtual void on_keys_distributed_csrk(
+        connection_handle_t connection,
         csrk_t &csrk
     ) = 0;
 
-    virtual void ltk_request(
+    virtual void on_ltk_request(
         connection_handle_t connection,
         ediv_t &ediv,
         rand_t &rand
