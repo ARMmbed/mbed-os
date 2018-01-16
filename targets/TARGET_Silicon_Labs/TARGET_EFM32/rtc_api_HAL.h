@@ -26,15 +26,18 @@
 
 #include <stdint.h>
 #include "rtc_api.h"
-#include "em_rtc.h"
+#include "clocking.h"
 
-#define RTC_CLOCKDIV 		cmuClkDiv_8
-#define RTC_CLOCKDIV_INT	8
-#define RTC_FREQ_SHIFT 		12
+#define RTC_INIT_LPTIMER (1U << 1)
+#define RTC_INIT_RTC     (1U << 0)
 
-
-#define RTC_INIT_LPTIMER (1 << 1)
-#define RTC_INIT_RTC     (1 << 0)
+#if defined(RTCC_PRESENT)
+#define RTC_BITS (32U)
+#define RTC_MAX_VALUE (0xFFFFFFFFUL)
+#elif defined(RTC_PRESENT)
+#define RTC_BITS (24U)
+#define RTC_MAX_VALUE (0xFFFFFFUL)
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,6 +45,11 @@ extern "C" {
 
 /* Purpose of this file: extend rtc_api.h to include EFM-specific stuff*/
 void rtc_set_comp0_handler(uint32_t handler);
+void rtc_enable_comp0(bool enable);
+void rtc_set_comp0_value(uint64_t value, bool enable);
+void rtc_force_comp0(void);
+
+uint64_t rtc_get_full(void);
 
 void rtc_init_real(uint32_t flags);
 void rtc_free_real(uint32_t flags);
