@@ -1622,6 +1622,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -1631,7 +1632,8 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "default_lib": "std",
         "release_versions": ["2", "5"],
