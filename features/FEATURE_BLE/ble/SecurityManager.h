@@ -364,39 +364,6 @@ public:
         (void) keypress;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
-    virtual ble_error_t setOob(Gap::Handle_t handle, C192_t* hash192, R192_t* rand192) {
-        (void) handle;
-        (void) hash192;
-        (void) rand192;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-    virtual ble_error_t setExtendedOob(Gap::Handle_t handle,
-                                       C192_t* hash192, R192_t* rand192,
-                                       C256_t* hash256, R256_t* rand256) {
-        (void) handle;
-        (void) hash192;
-        (void) rand192;
-        (void) hash256;
-        (void) rand256;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-    virtual ble_error_t getLocalOobData(Gap::Handle_t handle, C192_t* hash192, R192_t* rand192) {
-        (void) handle;
-        (void) hash192;
-        (void) rand192;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-    virtual ble_error_t getLocalExtendedOobData(Gap::Handle_t handle,
-                                                C192_t* hash192, R192_t* rand192,
-                                                C256_t* hash256, R256_t* rand256) {
-        (void) handle;
-        (void) hash192;
-        (void) rand192;
-        (void) hash256;
-        (void) rand256;
-        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
-    }
-
 
     /* Event callback handlers. */
 public:
