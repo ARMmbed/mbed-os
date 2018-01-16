@@ -82,7 +82,7 @@ typedef SecurityManager::Keypress_t Keypress_t;
 
 /* please use typedef for porting not the types directly */
 
-typedef uint8_t passkey_t[6];
+typedef uint8_t passkey_t[3];
 typedef uint8_t oob_data_t[16];
 
 typedef uint8_t irk_t[16];
@@ -215,6 +215,10 @@ public:
 
 /**
  * Adaptation layer of the Security Manager.
+ *
+ *
+ * FIXME: ADD API in the pal to set default passkey!
+ *
  */
 class SecurityManager : private mbed::NonCopyable<SecurityManager> {
 public:
