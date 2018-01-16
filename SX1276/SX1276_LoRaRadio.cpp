@@ -1451,6 +1451,9 @@ uint8_t SX1276_LoRaRadio::get_fsk_bw_reg_val(uint32_t bandwidth)
 
 uint8_t SX1276_LoRaRadio::get_pa_conf_reg(uint32_t channel)
 {
+#if TARGET_WISE_1510
+    return RF_PACONFIG_PASELECT_PABOOST;
+#else
     if (channel > RF_MID_BAND_THRESH) {
         if (radio_variant == SX1276MB1LAS || is_murata) {
             return RF_PACONFIG_PASELECT_PABOOST;
@@ -1460,6 +1463,7 @@ uint8_t SX1276_LoRaRadio::get_pa_conf_reg(uint32_t channel)
     } else {
         return RF_PACONFIG_PASELECT_RFO;
     }
+#endif
 }
 
 /**
