@@ -15,6 +15,8 @@
  */
 
 #include "CordioPalSecurityManager.h"
+#include "dm_api.h"
+#include "smp_api.h"
 
 namespace ble {
 namespace pal {
@@ -54,7 +56,7 @@ ble_error_t CordioSecurityManager::reset()
 // Resolving list management
 //
 
-uint8_t read_resolving_list_capacity()
+uint8_t CordioSecurityManager::read_resolving_list_capacity()
 {
     // FIXME: implement
     return 0;
@@ -148,28 +150,33 @@ ble_error_t CordioSecurityManager::refresh_encryption_key(connection_handle_t co
 // Privacy
 //
 
-ble_error_t CordioSecurityManager::set_private_address_timeout(uint16_t timeout_in_seconds)
-{
-    return BLE_ERROR_NOT_IMPLEMENTED;
+ble_error_t CordioSecurityManager::set_private_address_timeout(
+    uint16_t timeout_in_seconds
+) {
+    DmPrivSetResolvablePrivateAddrTimeout(timeout_in_seconds);
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 // Keys
 //
 
-ble_error_t CordioSecurityManager::set_ltk(connection_handle_t connection, ltk_t ltk)
-{
+ble_error_t CordioSecurityManager::set_ltk(
+    connection_handle_t connection, ltk_t ltk
+) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t CordioSecurityManager::set_irk(const irk_t& irk)
 {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    DmSecSetLocalIrk(const_cast<uint8_t*>(irk));
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::set_csrk(const csrk_t& csrk)
 {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    DmSecSetLocalCsrk(const_cast<uint8_t*>(csrk));
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::generate_irk()
@@ -195,7 +202,23 @@ ble_error_t CordioSecurityManager::send_pairing_request(
     key_distribution_t initiator_dist,
     key_distribution_t responder_dist
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    if ((maximum_encryption_key_size > 16) ||
+        (maximum_encryption_key_size < pSmpCfg->minKeyLen)) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    pSmpCfg->maxKeyLen = maximum_encryption_key_size;
+    pSmpCfg->ioCap = io_capability.value;
+
+    DmSecPairReq(
+        connection,
+        oob_data_flag,
+        authentication_requirements,
+        initiator_dist,
+        responder_dist
+    );
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::send_pairing_response(
@@ -207,13 +230,31 @@ ble_error_t CordioSecurityManager::send_pairing_response(
     key_distribution_t initiator_dist,
     key_distribution_t responder_dist
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+
+    if ((maximum_encryption_key_size > 16) ||
+        (maximum_encryption_key_size < pSmpCfg->minKeyLen)) {
+        return BLE_ERROR_INVALID_PARAM;
+    }
+
+    pSmpCfg->maxKeyLen = maximum_encryption_key_size;
+    pSmpCfg->ioCap = io_capability.value;
+
+    DmSecPairRsp(
+        connection,
+        oob_data_flag,
+        authentication_requirements,
+        initiator_dist,
+        responder_dist
+    );
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::cancel_pairing(
     connection_handle_t connection, pairing_failure_t reason
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    DmSecCancelReq(connection, reason.value);
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::request_authentication(connection_handle_t connection)
@@ -233,13 +274,25 @@ ble_error_t CordioSecurityManager::get_random_data(random_data_t &random_data)
 ble_error_t CordioSecurityManager::passkey_request_reply(
     connection_handle_t connection, const passkey_num_t passkey
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    DmSecAuthRsp(
+        connection,
+        3,
+        reinterpret_cast<uint8_t*>(const_cast<passkey_num_t*>(&passkey))
+    );
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::oob_data_request_reply(
     connection_handle_t connection, const oob_data_t& oob_data
 ) {
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    DmSecAuthRsp(
+        connection,
+        16,
+        const_cast<uint8_t*>(oob_data)
+    );
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t CordioSecurityManager::confirmation_entered(
